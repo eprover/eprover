@@ -378,6 +378,27 @@ Formula_p FormulaLitAlloc(Eqn_p literal)
 
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaPropConstantAlloc() 
+//
+//   Allocate a formula representing a propositional constant (true or
+//   false). 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Formula_p FormulaPropConstantAlloc(TB_p terms, bool positive)
+{
+   Eqn_p handle;
+
+   handle = EqnAlloc(terms->true_term, terms->true_term, terms, positive);
+   return FormulaLitAlloc(handle);
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -502,6 +523,7 @@ void FormulaTPTPPrint(FILE* out, Formula_p form, bool fullterms)
    }   
 }
 
+
 /*-----------------------------------------------------------------------
 //
 // Function: FormulaTPTPParse()
@@ -594,7 +616,7 @@ bool FormulaEqual(Formula_p form1, Formula_p form2)
 
 /*-----------------------------------------------------------------------
 //
-// Function: FormulaHasFreeVar()
+// Function: FormulaVarIsFree()
 //
 //   Return true iff var is a free variable in form.
 //
@@ -604,7 +626,7 @@ bool FormulaEqual(Formula_p form1, Formula_p form2)
 //
 /----------------------------------------------------------------------*/
 
-bool FormulaHasFreeVar(Formula_p form, Term_p var)
+bool FormulaVarIsFree(Formula_p form, Term_p var)
 {
    bool res = false;
 
@@ -617,7 +639,7 @@ bool FormulaHasFreeVar(Formula_p form, Term_p var)
                             DEREF_NEVER, TBTermEqual);         
          break;
    case OpUNot:
-         res = FormulaHasFreeVar(form->arg1, var);
+         res = FormulaVarIsFree(form->arg1, var);
          break;
    case OpQEx:
    case OpQAll:
@@ -627,7 +649,7 @@ bool FormulaHasFreeVar(Formula_p form, Term_p var)
          }
          else
          {
-            res = FormulaHasFreeVar(form->arg1, var);
+            res = FormulaVarIsFree(form->arg1, var);
          }
          break;
    case OpBAnd:
@@ -638,8 +660,8 @@ bool FormulaHasFreeVar(Formula_p form, Term_p var)
    case OpBNor:
    case OpBNImpl:
    case OpBXor:
-         res = FormulaHasFreeVar(form->arg1,var)
-            || FormulaHasFreeVar(form->arg2,var);
+         res = FormulaVarIsFree(form->arg1,var)
+            || FormulaVarIsFree(form->arg2,var);
          break; 
    default:
          assert(false && "Illegal operator in formula");

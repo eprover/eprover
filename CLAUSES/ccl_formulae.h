@@ -103,14 +103,13 @@ Formula_p FormulaAlloc(void);
 void      FormulaFree(Formula_p form);
 Formula_p FormulaOpAlloc(FOFOperatorType op, Formula_p arg1, Formula_p arg2);
 Formula_p FormulaLitAlloc(Eqn_p literal);
+Formula_p FormulaPropConstantAlloc(TB_p terms, bool positive);
 Formula_p FormulaQuantorAlloc(FOFOperatorType quantor, Term_p var,Formula_p arg1);
 void      FormulaTPTPPrint(FILE* out, Formula_p form, bool fullterms);
 Formula_p FormulaTPTPParse(Scanner_p in, TB_p terms);
 
-Formula_p FormulaCopy(Formula_p formula, TB_p bank);
-
 bool      FormulaEqual(Formula_p form1, Formula_p form2);
-bool      FormulaHasFreeVar(Formula_p form, Term_p var);
+bool      FormulaVarIsFree(Formula_p form, Term_p var);
 
 
 #endif
