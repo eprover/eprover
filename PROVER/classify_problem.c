@@ -23,7 +23,7 @@ Changes
 #include <cio_commandline.h>
 #include <cio_output.h>
 #include <ccl_unfold_defs.h>
-#include <ccl_formulae.h>
+#include <ccl_formulafunc.h>
 #include <che_clausesetfeatures.h>
 
 /*---------------------------------------------------------------------*/
@@ -219,9 +219,10 @@ void print_help(FILE* out);
 
 int main(int argc, char* argv[])
 {
-   TB_p            terms;
-   Sig_p           sig;
-   ClauseSet_p     clauses;
+   /* TB_p            terms;
+      Sig_p           sig; */
+   ProofState_p    fstate;
+   /* ClauseSet_p     clauses; */
    Scanner_p       in;    
    int             i, min_arity, max_arity, symbol_count;
    long            depthmax, depthsum, count;
@@ -284,26 +285,32 @@ int main(int argc, char* argv[])
    
    for(i=0; state->argv[i]; i++)
    {
-      sig     = SigAlloc();
-      terms   = TBAlloc(TPIgnoreProps, sig);
-      clauses = ClauseSetAlloc();
-      in = CreateScanner(StreamTypeFile, state->argv[i] , true, NULL);
+      /* sig   = SigAlloc();
+         terms = TBAlloc(TPIgnoreProps, sig); */
+      fstate = ProofStateAlloc();
+      in    = CreateScanner(StreamTypeFile, state->argv[i] , true, NULL);
       ScannerSetFormat(in, parse_format);
       
-      ClauseSetParseList(in, clauses, terms);
+      FormulaAndClauseSetParse(in, fstate->axioms, 
+                               fstate->f_axioms,
+                               fstate->original_terms);
+      FormulaSetPreprocConjectures(fstate->f_axioms);
+      FormulaSetCNF(fstate->f_axioms, fstate->axioms, 
+                    fstate->original_terms, fstate->freshvars);
+
       if(!no_preproc)
       {
-	 TB_p tmp_terms = TBAlloc(TPIgnoreProps,sig);
-	 ClauseSetPreprocess(clauses, NULL, tmp_terms, false);
-	 tmp_terms->sig = NULL;
-	 TBFree(tmp_terms);
+         ClauseSetPreprocess(fstate->axioms,
+                             fstate->watchlist,
+                             fstate->tmp_terms,
+                             false);
       }      /* SigPrint(stdout,sig);*/
-      SpecFeaturesCompute(&features, clauses, sig);
+      SpecFeaturesCompute(&features, fstate->axioms, fstate->signature);
       SpecFeaturesAddEval(&features, few_limit, many_limit, absolute,
 			  ax_some_limit, ax_many_limit,
 			  lit_some_limit, lit_many_limit,
 			  term_some_limit, term_many_limit);
-
+      
 
       if(!tptp_header)
       {
@@ -321,15 +328,15 @@ int main(int argc, char* argv[])
 		 features.clauses, 
 		 features.clauses-features.horn,
 		 features.unit,
-		 ClauseSetCountTPTPRangeRestricted(clauses));
+		 ClauseSetCountTPTPRangeRestricted(fstate->axioms));
 	 fprintf(GlobalOut, 
 		 "%%            Number of literals   : %4ld "
 		 "(%4ld equality)\n",
 		 features.literals, 
-		 ClauseSetCountEqnLiterals(clauses));	 
+		 ClauseSetCountEqnLiterals(fstate->axioms));	 
 	 fprintf(GlobalOut, 
 		 "%%            Maximal clause size  : %4ld ",
-		 ClauseSetMaxLiteralNumber(clauses));
+		 ClauseSetMaxLiteralNumber(fstate->axioms));
 	 if(features.clauses)
 	 {
 	    fprintf(GlobalOut, "(%4ld average)\n",
@@ -340,9 +347,9 @@ int main(int argc, char* argv[])
 	    fprintf(GlobalOut, "(   - average)\n");
 	 }
 
-	 symbol_count = SigCountSymbols(terms->sig, true);
-	 min_arity = SigFindMinPredicateArity(terms->sig);
-	 max_arity = SigFindMaxPredicateArity(terms->sig);	
+	 symbol_count = SigCountSymbols(fstate->signature, true);
+	 min_arity = SigFindMinPredicateArity(fstate->signature);
+	 max_arity = SigFindMaxPredicateArity(fstate->signature);	
 	 
 	 if(features.eq_content!=SpecNoEq)
 	 {/* Correct for the fact that TPTP treats equal as a normal
@@ -355,7 +362,7 @@ int main(int argc, char* argv[])
 		 "%%            Number of predicates : %4d "
 		 "(%4d propositional; ",
 		 symbol_count,
-		 SigCountAritySymbols(terms->sig, 0, true));
+		 SigCountAritySymbols(fstate->signature, 0, true));
 	 if(symbol_count)
 	 {	    
 	    fprintf(GlobalOut, "%d-%d arity)\n",
@@ -366,15 +373,15 @@ int main(int argc, char* argv[])
 	    fprintf(GlobalOut, "--- arity)\n");
 	 }
 
-	 symbol_count = SigCountSymbols(terms->sig, false);
-	 min_arity = SigFindMinFunctionArity(terms->sig);
-	 max_arity = SigFindMaxFunctionArity(terms->sig);	
+	 symbol_count = SigCountSymbols(fstate->signature, false);
+	 min_arity = SigFindMinFunctionArity(fstate->signature);
+	 max_arity = SigFindMaxFunctionArity(fstate->signature);	
 
 	 fprintf(GlobalOut, 
 		 "%%            Number of functors   : %4d "
 		 "(%4d constant; ",
 		 symbol_count,
-		 SigCountAritySymbols(terms->sig, 0, false));
+		 SigCountAritySymbols(fstate->signature, 0, false));
 	 if(symbol_count)
 	 {	    
 	    fprintf(GlobalOut, "%d-%d arity)\n",
@@ -386,12 +393,12 @@ int main(int argc, char* argv[])
 	 }
 	 fprintf(GlobalOut, 
 		 "%%            Number of variables  : %4ld (%4ld singleton)\n",
-		 ClauseSetCountVariables(clauses),
-		 ClauseSetCountSingletons(clauses));
+		 ClauseSetCountVariables(fstate->axioms),
+		 ClauseSetCountSingletons(fstate->axioms));
 	 depthmax=0;
 	 depthsum=0;
 	 count=0;
-	 ClauseSetTPTPDepthInfoAdd(clauses, &depthmax, &depthsum,
+	 ClauseSetTPTPDepthInfoAdd(fstate->axioms, &depthmax, &depthsum,
 				   &count);
 	 if(count)
 	 {
@@ -406,10 +413,7 @@ int main(int argc, char* argv[])
 	 }
       }
       DestroyScanner(in);
-      ClauseSetFree(clauses);
-      terms->sig = NULL;
-      TBFree(terms);
-      SigFree(sig);
+      ProofStateFree(fstate);
    }
    
    CLStateFree(state);
