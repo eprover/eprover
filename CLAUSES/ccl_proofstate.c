@@ -82,11 +82,7 @@ ProofState_p ProofStateAlloc(void)
    handle->demods[0]           = handle->processed_pos_rules;
    handle->demods[1]           = handle->processed_pos_eqns;
    handle->demods[2]           = NULL;
-<<<<<<< ccl_proofstate.c
    handle->watchlist          = NULL;
-=======
-   handle->watch_list          = NULL;
->>>>>>> 1.4
    handle->state_is_complete   = true;
    handle->processed_count     = 0;
    handle->proc_trivial_count           = 0; 
@@ -131,17 +127,10 @@ void ProofStateFree(ProofState_p junk)
    ClauseSetFree(junk->processed_non_units);
    ClauseSetFree(junk->unprocessed);
    ClauseSetFree(junk->tmp_store);
-<<<<<<< ccl_proofstate.c
    if(junk->watchlist)
    {
       ClauseSetFree(junk->watchlist);
    }
-=======
-   if(junk->watch_list)
-   {
-      ClauseSetFree(junk->watch_list);
-   }
->>>>>>> 1.4
    junk->original_terms->sig = NULL;
    junk->terms->sig = NULL;
    junk->tmp_terms->sig = NULL;
@@ -175,17 +164,10 @@ void ProofStateGCMarkTerms(ProofState_p state)
    ClauseSetGCMarkTerms(state->processed_neg_units);
    ClauseSetGCMarkTerms(state->processed_non_units);
    ClauseSetGCMarkTerms(state->unprocessed);
-<<<<<<< ccl_proofstate.c
    if(state->watchlist)
    {
       ClauseSetGCMarkTerms(state->watchlist);
    }
-=======
-   if(state->watch_list)
-   {
-      ClauseSetGCMarkTerms(state->watch_list);
-   }
->>>>>>> 1.4
 }
 
 
