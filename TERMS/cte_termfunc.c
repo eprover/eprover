@@ -1319,7 +1319,8 @@ void TermAddSymbolDistributionLimited(Term_p term, long *dist_array, long limit)
 //   Add function symbol frequencies and deepest depth of a function
 //   symbol to the two arrays. This is an extension of the function
 //   above, this one does the extendet task in a single term
-//   traversal.
+//   traversal. Note that function symbols >=limit are counted in
+//   array[0] for both depth and frequency.
 //
 // Global Variables: -
 //
@@ -1335,8 +1336,16 @@ void TermAddSymbolFeaturesLimited(Term_p term, long depth,
    {
       int i;
 
-      freq_array[term->f_code]++;
-      depth_array[term->f_code] = MAX(depth, depth_array[term->f_code]);
+      if(term->f_code < limit)
+      {
+	 freq_array[term->f_code]++;
+	 depth_array[term->f_code] = MAX(depth, depth_array[term->f_code]);
+      }
+      else
+      {
+	 freq_array[0]++;
+	 depth_array[0] = MAX(depth, depth_array[0]);	 
+      }
       for(i=0; i<term->arity; i++)
       {
 	 TermAddSymbolFeaturesLimited(term->args[i], depth+1, 
