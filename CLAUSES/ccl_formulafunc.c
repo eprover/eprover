@@ -136,7 +136,7 @@ bool WFormulaConjectureNegate(WFormula_p wform)
       form = FormulaRelRef(wform->formula);
       newform = FormulaOpAlloc(OpUNot, form, NULL);
       wform->formula = FormulaGetRef(newform);
-      FormulaSetType(wform, WPTypeAssumption);
+      FormulaSetType(wform, WPTypeNegConjecture);
       DocFormulaModificationDefault(wform, inf_neg_conjecture);
       return true;
    }
@@ -305,11 +305,11 @@ long FormulaToCNF(WFormula_p form, ClauseProperties type, ClauseSet_p set,
    PStack_p stack = PStackAlloc();
    Clause_p clause;
 
-   if(type == CPTypeAssumption) /* FOF assumptions == negated conjectures
-                                   - this is historical uglicity */
-   {
-      type = CPTypeConjecture;
-   }
+   /* if(type == CPTypeNegConjecture) *//* FOF assumptions == negated conjectures
+                                         - this is historical uglicity */
+   /* {
+      type = CPTypeConjecture;1
+      } */
 
    /* Skip quantors */
    for(handle = form->formula; handle->op == OpQAll; handle = handle->arg1)

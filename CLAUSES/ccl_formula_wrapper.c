@@ -154,10 +154,14 @@ WFormula_p WFormulaTPTPParse(Scanner_p in, TB_p terms)
    name = DStrCopy(AktToken(in)->literal);
    NextToken(in);
    AcceptInpTok(in, Comma);
-   CheckInpId(in, "axiom|hypothesis|conjecture|lemma|unknown");
+   CheckInpId(in, "axiom|hypothesis|negated_conjecture|conjecture|lemma|unknown");
    if(TestInpId(in, "conjecture"))
    {
       type = WPTypeConjecture;
+   }
+   else if(TestInpId(in, "negated_conjecture"))
+   {
+      type = WPTypeNegConjecture;
    }
    else if(TestInpId(in, "hypothesis"))
    {
@@ -206,10 +210,8 @@ void WFormulaTPTPPrint(FILE* out, WFormula_p form, bool fullterms)
    case WPTypeHypothesis:
 	 typename = "hypothesis";
 	 break;       
-   case WPTypeAssumption:
-	 typename = "assumption";
-	 break;  
    case WPTypeConjecture:
+   case WPTypeNegConjecture:
 	 typename = "conjecture";
 	 break;
    default:
@@ -273,11 +275,13 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
       ignore the "derived" modifier, and use CPTypeAxiom for plain
       clauses. */
    if(TestInpId(in, "axiom|definition|knowledge|assumption|"
-                "hypothesis|conjecture|lemma|unknown|plain"))
+                "hypothesis|conjecture|negated_conjecture|"
+                "lemma|unknown|plain"))
    {
       type = ClauseTypeParse(in, 
                              "axiom|definition|knowledge|assumption|"
-                             "hypothesis|conjecture|lemma|unknown|plain");
+                             "hypothesis|conjecture||negated_conjecture|"
+                             "lemma|unknown|plain");
       if(TestInpTok(in, Hyphen))
       {
          AcceptInpTok(in, Hyphen);
@@ -355,8 +359,8 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
    case WPTypeLemma:
          typename = "lemma";
          break; 
-   case WPTypeAssumption:
-         typename = "assumption";
+   case WPTypeNegConjecture:
+         typename = "negated_conjecture";
          break;
    default:
 	 break;

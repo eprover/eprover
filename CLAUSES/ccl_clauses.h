@@ -55,8 +55,9 @@ typedef enum
    CPTypeHypothesis = CPType2,         /* Clause is Hypothesis */
    CPTypeConjecture = CPType1|CPType2, /* Clause is Conjecture */
    CPTypeLemma      = CPType3,         /* Clause is Lemma */
-   CPTypeAssumption = CPType3|CPType1, /* Clause is an Assumption
-                                        * (relevant for FOF only) */
+   CPTypeNegConjecture = CPType3|CPType1, /* Clause is an negated
+                                           * conjecture (used for
+                                           * refutation) */
    CPIsWatched      = 1024,     /* Clause is of special interest */
    CPOpFlag         = 2048,     /* Temporary marker */
    CPIsSelected     = 4096,     /* For analysis of selected clauses only */

@@ -215,7 +215,7 @@ long DDArrayParse(Scanner_p in, DDArray_p array, bool brackets)
 //
 // Function: ParseFilename()
 //
-//   Parse a filename and return a string to a normalized version of
+//   Parse a filename and return 
 //   it. Note that we only allow reasonably "normal" filenames or
 //   strings, i.e. not spaces, non-printables, most meta-charachters,
 //   or quotes. 
@@ -231,8 +231,6 @@ long DDArrayParse(Scanner_p in, DDArray_p array, bool brackets)
 
 char* ParseFilename(Scanner_p in)
 {
-   char  store[MAXPATHLEN+2];
-   char* res;
    bool first_tok = true;
 
    DStrReset(in->accu);
@@ -244,23 +242,7 @@ char* ParseFilename(Scanner_p in)
       NextToken(in);
       first_tok = false;
    }
-#ifdef RESTRICTED_FOR_WINDOWS
    return SecureStrdup(DStrView(in->accu));
-#else
-   res = realpath(DStrView(in->accu), store);      
-   if(!res)
-   {
-      DStr_p errstr = DStrAlloc();
-      
-      DStrAppendStr(errstr, "Cannot translate alledged file name '");
-      DStrAppendStr(errstr, store);
-      DStrAppendStr(errstr, "'");      
-      TmpErrno = errno;      
-      AktTokenError(in, DStrView(errstr), true);
-      DStrFree(errstr);
-   }
-   return SecureStrdup(res);
-#endif /* !SPEC_CPU2004 */
 }
 
 

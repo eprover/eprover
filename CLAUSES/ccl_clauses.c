@@ -1082,6 +1082,7 @@ void ClausePrintTPTPFormat(FILE* out, Clause_p clause)
          typename = "hypothesis";
          break;      
    case CPTypeConjecture:
+   case CPTypeNegConjecture:
          typename = "conjecture";
          break;
    case CPTypeLemma:
@@ -1256,8 +1257,8 @@ void ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms, bool complete)
    case CPTypeLemma:
          typename = "lemma";
          break; 
-   case CPTypeAssumption:
-         typename = "assumption";
+   case CPTypeNegConjecture:
+         typename = "negated_conjecture";
          break;
    default:
 	 break;
@@ -1339,8 +1340,7 @@ ClauseProperties ClauseTypeParse(Scanner_p in, char *legal_types)
    CheckInpId(in, legal_types);
    
    if(TestInpId(in, 
-                "axiom|definition|knowledge|"
-                "assumption"))
+                "axiom|definition|knowledge"))
    {
       res = CPTypeAxiom;
    }
@@ -1348,9 +1348,9 @@ ClauseProperties ClauseTypeParse(Scanner_p in, char *legal_types)
    {
       res = CPTypeConjecture;
    }   
-   else if(TestInpId(in, "assumption"))
+   else if(TestInpId(in, "assumption|negated_conjecture"))
    {
-      res = CPTypeAssumption;
+      res = CPTypeNegConjecture;
    }
    else if(TestInpId(in, "hypothesis"))
    {
@@ -1409,7 +1409,11 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
       info->name = DStrCopy(AktToken(in)->literal);
       AcceptInpTok(in, Name);
       AcceptInpTok(in, Comma);
-      type = ClauseTypeParse(in, "axiom|hypothesis|conjecture|lemma|unknown");     
+      type = ClauseTypeParse(in, "axiom|hypothesis|conjecture|lemma|unknown");
+      if(type == CPTypeConjecture)
+      {
+         type = CPTypeNegConjecture; /* Old TPTP syntax lies ;-) */
+      }
       AcceptInpTok(in, Comma);
       AcceptInpTok(in, OpenSquare);
       concl = EqnListParse(in, bank, Comma);
@@ -1432,11 +1436,13 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
          ignore the "derived" modifier, and use CPTypeAxiom for plain
          clauses. */
       if(TestInpId(in, "axiom|definition|knowledge|assumption|"
-                   "hypothesis|conjecture|lemma|unknown|plain"))
+                   "hypothesis|conjecture|negated_conjecture|"
+                   "lemma|unknown|plain"))
       {
          type = ClauseTypeParse(in, 
                                 "axiom|definition|knowledge|assumption|"
-                                "hypothesis|conjecture|lemma|unknown|plain");
+                                "hypothesis|conjecture|negated_conjecture|"
+                                "lemma|unknown|plain");
          if(TestInpTok(in, Hyphen))
          {
             AcceptInpTok(in, Hyphen);
@@ -1489,7 +1495,7 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
 			  "Query should consist only of tail literals",
 			  false);
 	 }
-	 type = CPTypeConjecture;
+	 type = CPTypeNegConjecture;
 	 conjecture = true;
 	 /* printf("CPTypeConjecture\n"); */
       }

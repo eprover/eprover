@@ -102,9 +102,9 @@ PCLStepProperties PCLParseExternalType(Scanner_p in)
          type = PCLTypeConjecture;
          NextToken(in);
       }
-      else if(TestInpId(in, "ass"))
+      else if(TestInpId(in, "neg"))
       {
-         type = PCLTypeAssumption;
+         type = PCLTypeNegConjecture;
          NextToken(in);
       }
       else if(TestInpId(in, "lemma"))
@@ -114,7 +114,7 @@ PCLStepProperties PCLParseExternalType(Scanner_p in)
       }  
       else
       {
-         CheckInpId(in, "conj|ass|lemma");
+         CheckInpId(in, "conj|neg|lemma");
       }
       if(!TestInpTok(in, Colon))
       {
@@ -203,9 +203,9 @@ void PCLPrintExternalType(FILE* out, PCLStepProperties props)
    props = props & PCLTypeMask;
    switch(props)
    {
-   case PCLTypeAssumption:
+   case PCLTypeNegConjecture:
          fputs(prepend, out);
-         fputs("ass", out);
+         fputs("neg", out);
          break;
    case PCLTypeConjecture:
          fputs(prepend, out);
@@ -306,14 +306,14 @@ char * PCLPropToTSTPType(PCLStepProperties props)
             return "conjecture-derived";
          }   
          break;
-   case PCLTypeAssumption:
+   case PCLTypeNegConjecture:
          if(props&PCLIsInitial)
          {
-            return "assmumption";
+            return "negated_conjecture";
          }
          else
          {
-            return "assumption-derived";
+            return "negated_conjecture-derived";
          }
          break;
    default:
@@ -336,7 +336,7 @@ char * PCLPropToTSTPType(PCLStepProperties props)
             } 
             else
             {
-               return "plain-derived";
+               return "derived";
             }
          }
          break;

@@ -54,7 +54,7 @@ typedef enum
    PCLTypeHypothesis = CPTypeHypothesis, /* Formula is Hypothesis */
    PCLTypeConjecture = CPTypeConjecture, /* Formula is Conjecture */
    /* No Lemma type, in PLC that is independent of step type! */
-   PCLTypeAssumption = CPTypeAssumption /* Formula is Assumption */
+   PCLTypeNegConjecture = CPTypeNegConjecture /* Formula is NegConjecture */
 
 }PCLStepProperties;
 

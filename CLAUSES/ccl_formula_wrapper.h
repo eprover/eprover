@@ -46,7 +46,7 @@ typedef enum
    WPTypeHypothesis = CPTypeHypothesis, /* Formula is Hypothesis */
    WPTypeConjecture = CPTypeConjecture, /* Formula is Conjecture */
    WPTypeLemma      = CPTypeLemma,      /* Formula is Lemma */
-   WPTypeAssumption = CPTypeAssumption, /* Formula is Assumption */
+   WPTypeNegConjecture = CPTypeNegConjecture, /* Formula is NegConjecture */
 }WFormulaProperties;
 
 

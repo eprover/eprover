@@ -64,8 +64,8 @@ char* pcl_type_str(ClauseProperties type)
    case CPTypeConjecture:
          res = "conj";
          break;
-   case CPTypeAssumption:
-         res = "ass";
+   case CPTypeNegConjecture:
+         res = "neg";
          break;
     default:
          res = "";
