@@ -42,13 +42,15 @@ typedef struct litsel_name_fun_assoc_cell
 
 typedef struct lit_eval_cell
 {
-   bool forbidden; /* Never select this; */
-   bool exclusive; /* If this is selected, select no others */
-   int  w1; /* Lexicographically compared weights */
-   int  w2;
-   int  w3;
-}LitEvalCell, LitEval_p;
+   Eqn_p literal;
+   bool  forbidden; /* Never select this; */
+   bool  exclusive; /* If this is selected, select no others */
+   int   w1; /* Lexicographically compared weights */
+   int   w2;
+   int   w3;
+}LitEvalCell, *LitEval_p;
 
+typedef void LitWeightFun(LitEval_p, Clause_p);
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
@@ -56,12 +58,11 @@ typedef struct lit_eval_cell
 
 #define LitEvalInit(cell) \
         {(cell)->forbidden = false;cell->exclusive=true;\
-        cell->w1=0;cell->w2=0;cell->w3=0}
-
-extern char* LiteralSelectionFunNames[];
+        cell->w1=0;cell->w2=0;cell->w3=0;}
 
 LiteralSelectionFun GetLitSelFun(char* name);
 char*               GetLitSelName(LiteralSelectionFun fun);
+void LitSelAppendNames(DStr_p str);
 
 void SelectNoLiterals(OCB_p ocb, Clause_p clause);
 void SelectNoGeneration(OCB_p ocb, Clause_p clause);
@@ -178,6 +179,9 @@ void PSelectMin2Infpos(OCB_p ocb, Clause_p clause);
 
 void SelectComplexExceptUniqMaxPosHorn(OCB_p ocb, Clause_p clause);
 void PSelectComplexExceptUniqMaxPosHorn(OCB_p ocb, Clause_p clause);
+
+void SelectDiversificationLiterals(OCB_p ocb, Clause_p clause);
+void SelectDiversificationPreferIntoLiterals(OCB_p ocb, Clause_p clause);
 
 #endif
 

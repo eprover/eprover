@@ -126,9 +126,13 @@ static LitSelNameFunAssocCell name_fun_assoc[] =
    {"PSelectComplexExceptUniqMaxPosHorn",    PSelectComplexExceptUniqMaxPosHorn},    
    {"SelectUnlessUniqMaxSmallestOrientable", SelectUnlessUniqMaxSmallestOrientable}, 
    {"PSelectUnlessUniqMaxSmallestOrientable",PSelectUnlessUniqMaxSmallestOrientable},
+   {"SelectDivLits",                         SelectDiversificationLiterals},
+   {"SelectDivPreferIntoLits",               SelectDiversificationPreferIntoLiterals},
    {NULL, (LiteralSelectionFun)0}
 };
 
+
+static long literal_weight_counter=0;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -480,6 +484,111 @@ static void clause_select_pos(Clause_p clause)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: lit_eval_compare()
+//
+//   Return integer smaller than 0, 0, or int > than zero if le1 is
+//   smaller, equal to, or larger than le2 (by weight). Highest
+//   priority is implicit sign!
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+int lit_eval_compare(const void* le1, const void* le2)
+{
+   const LitEval_p eval1 = (const LitEval_p) le1;
+   const LitEval_p eval2 = (const LitEval_p) le2;
+   int res;
+
+   res = EqnIsPositive(eval1->literal)-EqnIsPositive(eval2->literal);
+   if(res)
+   {
+      return res;
+   }
+   res = eval1->w1 - eval2->w1;
+   if(res)
+   {
+      return res;
+   }
+   res = eval1->w2 - eval2->w2;
+   if(res)
+   {
+      return res;
+   }
+   res = eval1->w3 - eval2->w3;
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: generic_uniq_selection()
+//
+//   Function implementing generic weight-based selection for cases
+//   where at most one negative literal is selected.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void generic_uniq_selection(OCB_p ocb, Clause_p clause, bool positive, 
+                            bool needs_ordering, 
+                            LitWeightFun weight_fun)
+{
+   int       len  = ClauseLiteralNumber(clause);
+   LitEval_p lits = SizeMalloc(len*sizeof(LitEvalCell)), tmp;
+   int i, cand;
+   Eqn_p handle;
+   
+   assert(ocb);
+   assert(clause);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+   
+   if(clause->neg_lit_no==0)
+   {
+      return;
+   }      
+   if(needs_ordering)
+   {
+      ClauseCondMarkMaximalTerms(ocb, clause);   
+   }
+   for(handle=clause->literals, i=0; handle; handle=handle->next,i++)
+   {      
+      lits[i].literal = handle;
+      tmp = &(lits[i]);
+      LitEvalInit(tmp);
+      weight_fun(tmp, clause);
+   }      
+   cand = 0;
+   for(handle=clause->literals->next, i=1; handle; handle=handle->next,i++)
+   {
+      if(lit_eval_compare(&(lits[i]),&(lits[cand]))<0)
+      {
+         cand = i;
+      }
+   }
+   /*printf("cand: %d :",cand);
+     ClausePrint(stdout, clause, true);
+     printf("\n");*/
+
+   assert(EqnIsNegative(lits[cand].literal));
+   if(!lits[cand].forbidden)
+   {
+      EqnSetProp(lits[cand].literal, EPIsSelected);
+   }
+   SizeFree(lits,len*sizeof(LitEvalCell));
+   if(positive)
+   {
+      clause_select_pos(clause);
+   }
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
@@ -546,6 +655,33 @@ char* GetLitSelName(LiteralSelectionFun fun)
    assert(res);
    return res;
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: LitSelAppendNames()
+//
+//   Append all valid literal selection function names
+//   (comma-seperated) to str.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+void LitSelAppendNames(DStr_p str)
+{
+   int i;
+   char* sel = "";
+
+   for(i=0; name_fun_assoc[i].name; i++)
+   {
+      DStrAppendStr(str, sel);
+      DStrAppendStr(str, name_fun_assoc[i].name);
+      sel = ", ";
+   }
+}
+
 
 
 /*-----------------------------------------------------------------------
@@ -4721,6 +4857,95 @@ void PSelectComplexExceptUniqMaxPosHorn(OCB_p ocb, Clause_p clause)
    PSelectComplex(ocb,clause);
    ClauseDelProp(clause, CPIsOriented);
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: diversification_weight()
+//
+//   Assign pseudo-random weight to negative literals, 0 to positive
+//   ones.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+static void diversification_weight(LitEval_p lit, Clause_p clause)
+{
+   if(!EqnIsPositive(lit->literal))
+   {
+      lit->w1 = literal_weight_counter % clause->neg_lit_no;
+   }
+   literal_weight_counter++;   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectDiversificationLiterals()
+//
+//   Systematically select a pseudo-random literal in clause (where
+//   pseudo is large and random in small).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void SelectDiversificationLiterals(OCB_p ocb, Clause_p clause)
+{
+   generic_uniq_selection(ocb,clause,false, false, diversification_weight);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: diversification_prefer_into_weight()
+//
+//   Assing pseudo-random weight to negative literals, 0 to positive
+//   ones. However, always prefer literals comming from the into
+//   clause of a paramodulation to those of a from clause.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void diversification_prefer_into_weight(LitEval_p lit, Clause_p clause)
+{
+   lit->w1 = -ClauseQueryProp(lit->literal, EPIsPMIntoLit);
+   if(!EqnIsPositive(lit->literal))
+   {
+      lit->w2 = literal_weight_counter % clause->neg_lit_no;
+   }
+   literal_weight_counter++;   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectDiversificationPreferIntoLiterals()
+//
+//   Systematically select a pseudo-random literal in clause (where
+//   pseudo is large and random in small), but prefer into-literals.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void SelectDiversificationPreferIntoLiterals(OCB_p ocb, Clause_p clause)
+{
+   generic_uniq_selection(ocb,clause,false, false, 
+                          diversification_prefer_into_weight);
+}
+
+
 
 
 
