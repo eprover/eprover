@@ -153,11 +153,12 @@ long     IntMapRecFree(IntMap_p map, IntMapFreeFunc free_func);
 
 static __inline__ void* IntMapIterNext(IntMapIter_p iter, long *key)
 {
-   assert(iter);
-   assert(key);
    void* res = NULL;
    long  i;
    NumTree_p handle;
+
+   assert(iter);
+   assert(key);
 
    switch(iter->map->type)
    {

@@ -629,7 +629,7 @@ void IntMapDebugPrint(FILE* out, IntMap_p map)
 {
    IntMapIter_p iter = IntMapIterAlloc(map,0, LONG_MAX);
    void* val;
-   long  key;
+   long  key = 0;
 
    fprintf(out, "# ==== IntMapType %d Size = %ld\n", map->type, IntMapStorage(map));
    for(val=IntMapIterNext(iter, &key); val; val=IntMapIterNext(iter, &key))
