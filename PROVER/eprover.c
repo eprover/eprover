@@ -1486,6 +1486,18 @@ CLState_p process_options(int argc, char* argv[])
 	    {
 	       h_parms->ordertype = LPO;
 	    }
+            else if(strcmp(arg, "LPOCopy")==0)
+	    {
+	       h_parms->ordertype = LPOCopy;
+	    }	       
+            else if(strcmp(arg, "LPO4")==0)
+	    {
+	       h_parms->ordertype = LPO4;
+	    }
+            else if(strcmp(arg, "LPO4Copy")==0)
+	    {
+	       h_parms->ordertype = LPO4Copy;
+	    }
 	    else if(strcmp(arg, "KBO")==0)
 	    {
 	       h_parms->ordertype = KBO;

@@ -40,6 +40,9 @@ char* TONames[]=
    "Optimize",
    "KBO",
    "LPO",
+   "LPOCopy",
+   "LPO4",
+   "LPO4Copy",
    "RPO"
 };
 
@@ -173,6 +176,9 @@ OCB_p OCBAlloc(TermOrdering type, bool prec_by_weight, Sig_p sig)
 	 alloc_precedence(handle, prec_by_weight);
 	 break;
    case LPO:
+   case LPOCopy:
+   case LPO4:
+   case LPO4Copy:
 	 handle->weights    = NULL;
 	 alloc_precedence(handle, prec_by_weight);
 	 break;
@@ -234,8 +240,12 @@ void OCBFree(OCB_p junk)
    if(junk->precedence)
    {
       assert(!junk->prec_weights);
-      assert(junk->type == KBO || junk->type ==
-	     LPO || junk->type == RPO);
+      assert(junk->type == KBO || 
+             junk->type == LPO || 
+             junk->type == LPOCopy || 
+             junk->type == LPO4 || 
+             junk->type == LPO4Copy || 
+             junk->type == RPO);
       SizeFree(junk->precedence, sizeof(CompareResult) 
 	       * junk->sig_size * junk->sig_size);
       junk->precedence = NULL;
@@ -243,8 +253,12 @@ void OCBFree(OCB_p junk)
    if(junk->prec_weights)
    {
       assert(!junk->precedence);
-      assert(junk->type == KBO || junk->type ==
-	     LPO || junk->type == RPO);
+      assert(junk->type == KBO || 
+             junk->type == LPO ||
+             junk->type == LPOCopy ||
+             junk->type == LPO4 ||
+             junk->type == LPO4Copy || 
+             junk->type == RPO);
       SizeFree(junk->prec_weights, sizeof(long)*(junk->sig_size+1));
       junk->prec_weights = NULL;
    }

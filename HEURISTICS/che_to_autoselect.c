@@ -660,6 +660,21 @@ OCB_p TOCreateOrdering(ProofState_p state, OrderParms_p params, char*
 	 TOGeneratePrecedence(handle, state->axioms, predefined,
 			      params->to_prec_gen);
 	 break;
+   case LPOCopy:
+         handle = OCBAlloc(LPOCopy, prec_by_weight, state->signature);
+	 TOGeneratePrecedence(handle, state->axioms, predefined,
+			      params->to_prec_gen);
+	 break;
+   case LPO4:
+         handle = OCBAlloc(LPO4, prec_by_weight, state->signature);
+	 TOGeneratePrecedence(handle, state->axioms, predefined,
+			      params->to_prec_gen);
+	 break;
+   case LPO4Copy:
+         handle = OCBAlloc(LPO4Copy, prec_by_weight, state->signature);
+	 TOGeneratePrecedence(handle, state->axioms, predefined,
+			      params->to_prec_gen);
+	 break;
    case KBO:
 	 handle = OCBAlloc(KBO, prec_by_weight, state->signature);
 	 TOGeneratePrecedence(handle, state->axioms, predefined,

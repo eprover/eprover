@@ -505,6 +505,46 @@ Term_p TermCopy(Term_p source, VarBank_p vars, DerefType deref)
 
 /*-----------------------------------------------------------------------
 //
+// Function: TermCopyKeepVars()
+//
+//   Return a copy of a given term. The new term will be unshared
+//   (except, of coure, for the variables) even if the original term
+//   was shared. Variable cells will not be copied. Note that printing
+//   such a term might be confusing, since two variables with the same
+//   f_code may indeed be different!
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+Term_p TermCopyKeepVars(Term_p source, DerefType deref)
+{
+   Term_p handle;
+   int i;
+
+   assert(source);
+
+   source = TermDeref(source, &deref);
+   
+   if(TermIsVar(source))
+   {
+      return source;
+   }
+   handle = TermEquivCellAlloc(source, NULL);
+   
+   for(i=0; i<handle->arity; i++) /* Hack: Loop will not be entered if
+				     arity = 0 */
+   {
+      handle->args[i] = TermCopyKeepVars(handle->args[i], deref);
+   }
+   return handle;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: TermEquivCellAlloc()
 //
 //   Return a pointer to a unshared termcell equivalent to source. If
@@ -546,44 +586,33 @@ Term_p TermEquivCellAlloc(Term_p source, VarBank_p vars)
 //
 /----------------------------------------------------------------------*/
 
+
 bool TermStructEqual(Term_p t1, Term_p t2)
 {
-   PStack_p stack1 = PStackAlloc();
-   PStack_p stack2 = PStackAlloc();
    int i;
-   bool termeq = true;
    DerefType deref = DEREF_ALWAYS;
 
-   PStackPushP(stack1, t1);
-   PStackPushP(stack2, t2);
+   t1 = TermDeref(t1, &deref);
+   t2 = TermDeref(t2, &deref);
    
-   while(!PStackEmpty(stack1) || !PStackEmpty(stack2))
+   if(t1==t2)
    {
-      if(PStackEmpty(stack1) || PStackEmpty(stack2))
+      return true;
+   }
+   if(t1->f_code != t2->f_code)
+   {
+      return false;
+   }
+   for(i=0; i<t1->arity; i++)
+   {
+      if(!TermStructEqual(t1->args[i], t2->args[i]))
       {
-         termeq = false;
-         break;
-      }
-      t1 = PStackPopP(stack1);
-      t2 = PStackPopP(stack2);
-      t1 = TermDeref(t1, &deref);
-      t2 = TermDeref(t2, &deref);
-      if(t1->f_code != t2->f_code)
-      {
-	 termeq = false;
-	 break;
-      }
-      assert(t1->arity == t2->arity);
-      for(i=0; i<t1->arity; i++)
-      {
-	 PStackPushP(stack1, t1->args[i]);
-	 PStackPushP(stack2, t2->args[i]);
+         return false;
       }
    }
-   PStackFree(stack1);
-   PStackFree(stack2);
-   return termeq;
+   return true;
 }
+
 
 
 /*-----------------------------------------------------------------------
@@ -599,46 +628,67 @@ bool TermStructEqual(Term_p t1, Term_p t2)
 //
 /----------------------------------------------------------------------*/
 
+
 bool TermStructEqualNoDeref(Term_p t1, Term_p t2)
 {
-   PStack_p stack1 = PStackAlloc();
-   PStack_p stack2 = PStackAlloc();
    int i;
-   bool termeq = true;
-
-   PStackPushP(stack1, t1);
-   PStackPushP(stack2, t2);
    
-   while(!PStackEmpty(stack1) && !PStackEmpty(stack2))
+   if(t1==t2)
    {
-      t1 = PStackPopP(stack1);
-      t2 = PStackPopP(stack2);
-      if(!t1 || !t2)
+      return true;
+   }
+   if(t1->f_code != t2->f_code)
+   {
+      return false;
+   }
+   for(i=0; i<t1->arity; i++)
+   {
+      if(!TermStructEqualNoDeref(t1->args[i], t2->args[i]))
       {
-         termeq = false;
-         break;
-      }
-      else
-      {
-         if(t1->f_code != t2->f_code)
-         {
-            termeq = false;
-            break;
-         }
-         else
-         {
-            assert(t1->arity == t2->arity);
-            for(i=0; i<t1->arity; i++)
-            {
-               PStackPushP(stack1, t1->args[i]);
-               PStackPushP(stack2, t2->args[i]);
-            }
-         }
+         return false;
       }
    }
-   PStackFree(stack1);
-   PStackFree(stack2);
-   return termeq;
+   return true;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermStructEqualNoDerefHardVars()
+//
+//   Return true if the two terms have the same structures. Compares
+//   variables by pointer, everything else by structure.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool TermStructEqualNoDerefHardVars(Term_p t1, Term_p t2)
+{
+   int i;
+   
+   if(t1==t2)
+   {
+      return true;
+   }
+   if(TermIsVar(t1)) /* Variables are only equal if the pointers are */
+   {
+      return false;
+   }
+   if(t1->f_code != t2->f_code)
+   {
+      return false;
+   }
+   for(i=0; i<t1->arity; i++)
+   {
+      if(!TermStructEqualNoDerefHardVars(t1->args[i], t2->args[i]))
+      {
+         return false;
+      }
+   }
+   return true;
 }
 
 
@@ -659,49 +709,30 @@ bool TermStructEqualNoDeref(Term_p t1, Term_p t2)
 bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1,
 			  DerefType deref_2) 
 {
-   PStack_p stack1 = PStackAlloc();
-   PStack_p stack2 = PStackAlloc();
    int i;
-   bool termeq = true;
+
+   t1 = TermDeref(t1, &deref_1);
+   t2 = TermDeref(t2, &deref_2);
    
-   PStackPushP(stack1, t1);
-   PStackPushInt(stack1, deref_1);   
-   PStackPushP(stack2, t2);
-   PStackPushInt(stack2, deref_2);   
-   
-   while(!PStackEmpty(stack1))
+   if((t1==t2) && (deref_1==deref_2))
    {
-      assert(!PStackEmpty(stack2));
-      
-      deref_1 = PStackPopInt(stack1);
-      t1 = PStackPopP(stack1);
-      deref_2 = PStackPopInt(stack2);
-      t2 = PStackPopP(stack2);
-      
-      t1 = TermDeref(t1, &deref_1);
-      t2 = TermDeref(t2, &deref_2);
-      
-      if(t1->f_code != t2->f_code)
+      return true;
+   }
+   if(t1->f_code != t2->f_code)
+   {
+      return false;
+   }
+   for(i=0; i<t1->arity; i++)
+   {
+      if(!TermStructEqualDeref(t1->args[i], t2->args[i], deref_1, deref_2))
       {
-	 termeq = false;
-	 break;
-      }
-      else
-      {
-	 assert(t1->arity == t2->arity);
-	 for(i=0; i<t1->arity; i++)
-	 {
-	    PStackPushP(stack1, t1->args[i]);
-	    PStackPushInt(stack1, deref_1);   
-	    PStackPushP(stack2, t2->args[i]);
-	    PStackPushInt(stack2, deref_2);   
-	 }
+         return false;
       }
    }
-   PStackFree(stack1);
-   PStackFree(stack2);
-   return termeq;
+   return true;
 }
+
+
 
 
 /*-----------------------------------------------------------------------

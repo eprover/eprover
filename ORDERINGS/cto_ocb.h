@@ -47,6 +47,9 @@ typedef enum
    OPTIMIZE_AX,
    KBO,
    LPO,
+   LPOCopy,
+   LPO4,
+   LPO4Copy,
    RPO
 }TermOrdering;
 

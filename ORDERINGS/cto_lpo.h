@@ -47,6 +47,20 @@ bool          LPOGreater(OCB_p ocb, Term_p s, Term_p t,
 CompareResult LPOCompare(OCB_p ocb, Term_p s, Term_p t,
 			 DerefType deref_s, DerefType deref_t);
 
+bool          LPO4Greater(OCB_p ocb, Term_p s, Term_p t,
+                          DerefType deref_s, DerefType deref_t);
+CompareResult LPO4Compare(OCB_p ocb, Term_p s, Term_p t,
+                          DerefType deref_s, DerefType deref_t);
+
+bool          LPO4GreaterCopy(OCB_p ocb, Term_p s, Term_p t,
+                              DerefType deref_s, DerefType deref_t);
+CompareResult LPO4CompareCopy(OCB_p ocb, Term_p s, Term_p t,
+                              DerefType deref_s, DerefType deref_t);
+
+bool          LPOGreaterCopy(OCB_p ocb, Term_p s, Term_p t,
+                             DerefType deref_s, DerefType deref_t);
+CompareResult LPOCompareCopy(OCB_p ocb, Term_p s, Term_p t,
+                             DerefType deref_s, DerefType deref_t);
 #endif
 
 /*---------------------------------------------------------------------*/

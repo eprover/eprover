@@ -98,6 +98,15 @@ bool TOGreater(OCB_p ocb, Term_p s, Term_p t, DerefType deref_s,
 	 /* assert(res == res1); */
 	 /* CmpCacheClear(ocb->cmp_cache); */	 
 	 break;
+   case LPOCopy: 
+         res = LPOGreaterCopy(ocb, s, t, deref_s, deref_t);
+         break;
+   case LPO4: 
+         res = LPO4Greater(ocb, s, t, deref_s, deref_t); 
+         break;
+   case LPO4Copy: 
+         res = LPO4GreaterCopy(ocb, s, t, deref_s, deref_t);
+         break; 
    case RPO:
 	 assert(false && "RPO not yet implemented!");
 	 break;
@@ -135,10 +144,10 @@ CompareResult TOCompare(OCB_p ocb, Term_p s, Term_p t, DerefType deref_s,
    assert(t);
 
    /* printf("TOCompare...\n");
-      TermPrint(stdout, s, ocb->sig, deref_s);
-      printf(" -|- ");
-      TermPrint(stdout, t, ocb->sig, deref_t);
-      printf("\n"); */
+   TermPrint(stdout, s, ocb->sig, deref_s);
+   printf(" -|- ");
+   TermPrint(stdout, t, ocb->sig, deref_t);
+   printf("\n"); */
 
    switch(ocb->type)
    {
@@ -163,6 +172,15 @@ CompareResult TOCompare(OCB_p ocb, Term_p s, Term_p t, DerefType deref_s,
 	 /* printf("# Comparison (Compare, current) done %d\n",res); */
 	 /* assert(res == res1); */
 	 /* CmpCacheClear(ocb->cmp_cache); */
+	 break;
+   case LPOCopy:
+	 res = LPOCompareCopy(ocb, s, t, deref_s, deref_t);
+	 break;
+   case LPO4:
+	 res = LPO4Compare(ocb, s, t, deref_s, deref_t);
+	 break;
+   case LPO4Copy:
+	 res = LPO4CompareCopy(ocb, s, t, deref_s, deref_t);
 	 break;
    case RPO:
 	 assert(false && "RPO not yet implemented!");

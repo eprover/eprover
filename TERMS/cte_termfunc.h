@@ -55,10 +55,12 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars);
 int    TermParseArgList(Scanner_p in, Term_p** arg_anchor, Sig_p sig,
                          VarBank_p vars);
 Term_p TermCopy(Term_p source, VarBank_p vars, DerefType deref);
+Term_p TermCopyKeepVars(Term_p source, DerefType deref);
 Term_p TermEquivCellAlloc(Term_p source, VarBank_p vars);
 
 bool   TermStructEqual(Term_p t1, Term_p t2);
 bool   TermStructEqualNoDeref(Term_p t1, Term_p t2);
+bool   TermStructEqualNoDerefHardVars(Term_p t1, Term_p t2);
 
 bool   TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1,
 	  		    DerefType deref_2);
