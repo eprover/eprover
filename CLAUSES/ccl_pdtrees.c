@@ -400,19 +400,23 @@ PDTree_p PDTreeAlloc(void)
 
    handle = PDTreeCellAlloc();
 
-   handle->tree        = PDTNodeAlloc();
-   handle->term_stack  = PStackAlloc();
-   handle->term_proc   = PStackAlloc();
-   handle->tree_pos    = NULL;
-   handle->store_stack = NULL;
-   handle->term        = NULL;
-   handle->term_date   = SysDateCreationTime();
-   handle->term_weight = LONG_MAX;
-   handle->node_count  = 0; 
-   handle->max_var     = PDNODE_VAR_INIT_ALT; 
-   handle->max_fun     = PDNODE_FUN_INIT_ALT; 
-   handle->match_count = 0;
-   handle->visited_count = 0;
+   handle->tree           = PDTNodeAlloc();
+   handle->term_stack     = PStackAlloc();
+   handle->term_proc      = PStackAlloc();
+   handle->tree_pos       = NULL;
+   handle->store_stack    = NULL;
+   handle->term           = NULL;
+   handle->term_date      = SysDateCreationTime();
+   handle->term_weight    = LONG_MAX;
+   handle->prefer_general = false; /* Not really necessary, it's
+				      reinitialized in
+                                      PDTreeSearchInit() anyways.*/ 
+   handle->clause_count   = 0;
+   handle->node_count     = 0; 
+   handle->max_var        = PDNODE_VAR_INIT_ALT; 
+   handle->max_fun        = PDNODE_FUN_INIT_ALT; 
+   handle->match_count    = 0;
+   handle->visited_count  = 0;
 
    return handle;
 }
