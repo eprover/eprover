@@ -216,7 +216,9 @@ long DDArrayParse(Scanner_p in, DDArray_p array, bool brackets)
 // Function: ParseFilename()
 //
 //   Parse a filename and return a string to a normalized version of
-//   it. Note that we only allow "normal" filenames or strings.
+//   it. Note that we only allow reasonably "normal" filenames or
+//   strings, i.e. not spaces, non-printables, most meta-charachters,
+//   or quotes. 
 //
 // Global Variables: -
 //
@@ -225,18 +227,22 @@ long DDArrayParse(Scanner_p in, DDArray_p array, bool brackets)
 //
 /----------------------------------------------------------------------*/
 
+#define PLAIN_FILE_TOKENS String|Name|PosInt|Fullstop|Plus|Hyphen
+
 char* ParseFilename(Scanner_p in)
 {
    char  store[MAXPATHLEN+2];
    char* res;
+   bool first_tok = true;
 
    DStrReset(in->accu);
    
-   while(TestInpNoSkip(in) && 
-	 TestInpTok(in, String|Name|PosInt|Slash|Fullstop))
+   while((first_tok || TestInpNoSkip(in)) && 
+	 TestInpTok(in, PLAIN_FILE_TOKENS|Slash))
    {
       DStrAppendDStr(in->accu, AktToken(in)->literal);
       NextToken(in);
+      first_tok = false;
    }
 #ifdef RESTRICTED_FOR_WINDOWS
    return SecureStrdup(DStrView(in->accu));
@@ -255,6 +261,35 @@ char* ParseFilename(Scanner_p in)
    }
    return SecureStrdup(res);
 #endif /* !SPEC_CPU2004 */
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ParsePlainFileName()
+//
+//   Parse a local file name (without /) and return it. The caller has
+//   to free the allocated memory!
+//
+// Global Variables: -
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+char* ParsePlainFilename(Scanner_p in)
+{
+   DStrReset(in->accu);
+   bool first_tok = true;
+
+   while((first_tok || TestInpNoSkip(in)) && 
+	 TestInpTok(in, PLAIN_FILE_TOKENS|Slash))
+   {
+      DStrAppendDStr(in->accu, AktToken(in)->literal);
+      NextToken(in);
+      first_tok = false;
+   }
+   return SecureStrdup(DStrView(in->accu));
 }
 
 

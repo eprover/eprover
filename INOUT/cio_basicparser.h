@@ -45,6 +45,7 @@ long   ParseInt(Scanner_p in);
 double ParseFloat(Scanner_p in);
 long   DDArrayParse(Scanner_p in, DDArray_p array, bool brackets);
 char*  ParseFilename(Scanner_p in);
+char*  ParsePlainFilename(Scanner_p in);
 void   ParseSkipParenthesizedExpr(Scanner_p in);
 
 #endif
