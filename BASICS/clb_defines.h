@@ -148,6 +148,9 @@ typedef unsigned long ulong_c;
 #endif
 #define EQUIV(x,y) ((((x))&&(y))||(!(x)&&(!(y))))
 
+#define SWAP(type, x,y) {type tmp =(x); (x)=(y); (y)=(tmp);}
+
+
 /* I cannot keep things in my mind ;-) */
 
 #define KILO 1024
