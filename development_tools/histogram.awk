@@ -12,6 +12,17 @@ BEGIN{
    maximum  = 0;
    maxcount = 0;
    compress = 7;
+   ignore_low_limit=0;
+
+   for(i=0; i< ARGC; i++)
+   {
+      if(ARGV[i] == "--ignore-lower-limit")
+      {
+         ignore_low_limit = ARGV[i+1];
+         ARGV[i] = "";
+         ARGV[i+1] = "";
+      }
+   }
 }
 
 /^\#/{
@@ -20,6 +31,10 @@ BEGIN{
 }
 
 /[A-Za-z0-9]+/{
+   if(0+$1 < ignore_low_limit)
+   {
+      next;
+   }   
    array[$1]++;
    if(array[$1] > maxcount)
    {

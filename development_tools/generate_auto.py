@@ -423,7 +423,9 @@ class_int={
     12:{"F": "FewLiterals", "S": "SomeLiterals", "M": "ManyLiterals"},
     13:{"S": "SmallTerms", "M": "MediumTerms", "L": "LargeTerms"},
     14:{"F": "FewGroundPos", "S": "SomeGroundPos", "M": "ManyGroundPos"},
-    15:{"0": "MaxFArity0", "1": "MaxFArity1", "2": "MaxFArity2","3": "MaxFArity3Plus"}
+    15:{"0": "MaxFArity0", "1": "MaxFArity1", "2": "MaxFArity2","3": "MaxFArity3Plus"},
+    16:{"0": "AvgFArity0", "1": "AvgFArity1", "2": "AvgFArity2","3": "AvgFArity3Plus"},
+    17:{"S": "SmallFArSum", "M": "MediumFArSum", "L": "LargeFArSum"}
 }
 
 selstrat={
