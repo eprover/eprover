@@ -1472,10 +1472,6 @@ CLState_p process_options(int argc, char* argv[])
 	    {
 	       h_parms->ordertype = AUTODEV;
 	    }
-	    else if(strcmp(arg, "Auto")==0)
-	    {
-	       h_parms->ordertype = SL_AUTO;
-	    }
 	    else if(strcmp(arg, "Optimize")==0)
 	    {
 	       h_parms->ordertype = OPTIMIZE_AX;
@@ -1788,7 +1784,6 @@ along with this program (it should be contained in the top level\n\
 directory of the distribution in the file COPYING); if not, write to\n\
 the Free Software Foundation, Inc., 59 Temple Place, Suite 330,\n\
 Boston, MA  02111-1307 USA\n"
-#endif
 "\n\
 The original copyright holder can be contacted as\n\
 \n"
