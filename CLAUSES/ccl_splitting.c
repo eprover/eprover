@@ -39,33 +39,6 @@ Changes
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
-/*-----------------------------------------------------------------------
-//
-// Function: gen_prop_lit()
-//
-//   Generate a propositional literal with terms from bank.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-static Eqn_p gen_prop_lit(TB_p bank, FunCode pred, bool positive)
-{
-   Term_p lside;
-   Eqn_p  res;
-
-   assert(bank);assert(pred > 0);
-   assert(SigFindArity(bank->sig, pred) == 0);
-   
-   lside = TBTermtopInsert(bank, TermConstCellAlloc(pred));
-   res = EqnAlloc(lside, bank->true_term, bank, positive);
-   EqnSetProp(res, EPIsSplitLit);
-   
-   return res;
-}
-
 
 /*-----------------------------------------------------------------------
 //
