@@ -187,6 +187,71 @@ bool root_nnf(Formula_p *form, TB_p terms, int polarity)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: formula_rec_skolemize()
+//
+//   Recursively Skolemize form. Note that it is note quite trivial
+//   that it this works, as it works on a shared structure, and the
+//   same subformula may occur in different contexts. It _does_ work
+//   (I hope) because we require that every quantor binds a distinct
+//   variable, and hence terms that are equal are either invariant
+//   with respect to context, contain different variables, and hence
+//   are not shared. 
+//
+// Global Variables: -
+//
+// Side Effects    : Destroys form, adds Skolem terms to term bank,
+//                   modifies signature.
+//
+/----------------------------------------------------------------------*/
+
+Formula_p formula_rek_skolemize(Formula_p form, TB_p terms, PStack_p free_vars)
+{
+   Term_p sk_term, var;   
+   Formula_p handle;
+
+   switch(form->op)
+   {
+   case OpIsLit:
+         handle = FormulaCopy(form, terms);
+         FormulaRelRef(form);
+         FormulaGetRef(handle);
+         FormulaFree(form);
+         form = handle;
+         break;
+   case OpQEx:
+         var = form->special.var;
+         assert(!var->binding);
+         sk_term = TBAllocNewSkolem(terms,free_vars);
+         var->binding = sk_term;
+         handle = formula_rek_skolemize(form->arg1, terms, free_vars);         
+         /* Reference is inerited from down below */
+         FormulaCellFree(form);
+         form = handle;
+         var->binding = NULL;
+         break;
+   case OpQAll:
+         var = form->special.var;
+         assert(!var->binding);
+         PStackPushP(free_vars, var);
+         form->arg1 = formula_rek_skolemize(form->arg1, terms, free_vars);
+         PStackPopP(free_vars);
+         break;
+   default:
+         if(FormulaHasSubForm1(form))
+         {
+            form->arg1 = formula_rek_skolemize(form->arg1, terms, free_vars);
+         }
+         if(FormulaHasSubForm2(form))
+         {
+            form->arg2 = formula_rek_skolemize(form->arg2, terms, free_vars);
+         }         
+         break;
+   }
+   return form;
+}
+
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
@@ -569,6 +634,41 @@ Formula_p FormulaVarRename(Formula_p form, TB_p terms)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaSkolemizeOutermost()
+//
+//   Destructively Skolemize a formula in an outermost
+//   manner. Interpretes the formula as its universal closure,
+//   i.e. globally free variables in form are used as Skolem function
+//   aarguments. Also assumes that every quantor binds a new
+//   variable. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Formula_p FormulaSkolemizeOutermost(Formula_p form, TB_p terms)
+{
+   Formula_p res = NULL;
+   PTree_p   free_vars = NULL;
+   PStack_p  var_stack = PStackAlloc();
+   Term_p    var;
+
+   FormulaCollectFreeVars(form, &free_vars);
+   while(free_vars)
+   {
+      var = PTreeExtractRootKey(&free_vars);
+      PStackPushP(var_stack, var);
+   }
+   printf("# %d globally free variables found!\n", PStackGetSP(var_stack));
+   res = formula_rek_skolemize(form, terms, var_stack);
+   PStackFree(var_stack);   
+   return res;
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -603,7 +703,8 @@ bool FormulaCNF(Formula_p *form, TB_p terms)
    FormulaFree(*form);
    *form = handle;
    VarBankVarsSetProp(terms->vars, TPIsFreeVar);
-   
+   *form = FormulaSkolemizeOutermost(*form, terms);
+
    return res;
 }
 

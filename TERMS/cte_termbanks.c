@@ -597,6 +597,31 @@ Term_p TBTermtopInsert(TB_p bank, Term_p t)
 
 /*-----------------------------------------------------------------------
 //
+// Function: TBAllocNewSkolem()
+//
+//   Create a news Skolem term with the given variables in the term
+//   bank and return the pointer to it.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+Term_p TBAllocNewSkolem(TB_p bank, PStack_p variables)
+{
+   Term_p handle, res;
+
+   handle = TermAllocNewSkolem(bank->sig, variables);
+   res = TBInsert(bank, handle, DEREF_NEVER);
+   TermFree(handle);
+
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: TBFind()
 //
 //   Find a term in the term cell bank and return it.

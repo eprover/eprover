@@ -117,9 +117,13 @@ Term_p  TBInsert(TB_p bank, Term_p term, DerefType deref);
 Term_p  TBInsertNoProps(TB_p bank, Term_p term, DerefType deref);
 Term_p  TBInsertInstantiated(TB_p bank, Term_p term);
 Term_p  TBTermtopInsert(TB_p bank, Term_p t);
+
+Term_p  TBAllocNewSkolem(TB_p bank, PStack_p variables);
+
 Term_p  TBFind(TB_p bank, Term_p term);
-/* bool    TBDelete(TB_p bank, Term_p term); Now only to be handled
-   via the garbage collection mechanism! */
+/* Deletion is now only to be handled via the garbage collection
+ * mechanism! */
+
 void    TBPrintBankInOrder(FILE* out, TB_p bank);
 void    TBPrintTermCompact(FILE* out, TB_p bank, Term_p term);
 #define TBPrintTermFull(out, bank, term) \

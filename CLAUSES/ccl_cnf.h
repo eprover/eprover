@@ -46,6 +46,8 @@ bool FormulaMiniScope(Formula_p *form);
 
 Formula_p FormulaVarRename(Formula_p form, TB_p terms);
 
+Formula_p FormulaSkolemizeOutermost(Formula_p form, TB_p terms);
+
 bool FormulaCNF(Formula_p *form, TB_p terms);
 
 

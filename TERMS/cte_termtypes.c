@@ -104,6 +104,38 @@ Term_p TermConstCellAlloc(FunCode symbol)
 
 /*-----------------------------------------------------------------------
 //
+// Function: TermNewSkolemTerm()
+//
+//   Create a new Skolem term with the named variables as arguments.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations, creates new Skolem function in
+//                   sig. 
+//
+/----------------------------------------------------------------------*/
+
+Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables)
+{
+   Term_p handle = TermDefaultCellAlloc();
+   PStackPointer arity = PStackGetSP(variables), i;
+
+   handle->f_code = SigGetNewSkolemCode(sig, arity);
+   if(arity)
+   {
+      handle->arity = arity;
+      handle->args = TermArgArrayAlloc(arity);
+      for(i=0; i<arity; i++)
+      {
+         handle->args[i] = PStackElementP(variables, i);
+      }
+   }
+   return handle;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: TermTopFree()
 //
 //   Return term cell and arg array (if it exists).

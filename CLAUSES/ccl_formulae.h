@@ -82,8 +82,8 @@ typedef struct formula_cell
 
 #define FormulaCellAlloc()    (FormulaCell*)SizeMalloc(sizeof(FormulaCell))
 #define FormulaCellFree(junk) SizeFree(junk, sizeof(FormulaCell))
-#define FormulaGetRef(form)   ((form)?(form)->ref_count++,(form):NULL)
-#define FormulaRelRef(form)   ((form)?(form)->ref_count--,(form):NULL)
+#define FormulaGetRef(form)   ((form)?assert((form)->ref_count >=0),(form)->ref_count++,(form):NULL)
+#define FormulaRelRef(form)   ((form)?assert((form)->ref_count >=0),(form)->ref_count--,(form):NULL)
 
 
 #ifdef CONSTANT_MEM_ESTIMATE

@@ -199,6 +199,8 @@ typedef bool (*TermEqualTestFun)(Term_p t1, Term_p t2);
 
 Term_p  TermDefaultCellAlloc(void);
 Term_p  TermConstCellAlloc(FunCode symbol);
+Term_p  TermAllocNewSkolem(Sig_p sig, PStack_p variables);
+void    TermTopFree(Term_p junk); 
 void    TermFree(Term_p junk);
 
 void    TermSetProp(Term_p term, DerefType deref, TermProperties prop);
@@ -209,8 +211,6 @@ bool    TermVarSearchProp(Term_p term, DerefType deref, TermProperties prop);
 void    TermVarDelProp(Term_p term, DerefType deref, TermProperties prop);
 
 static __inline__ Term_p  TermDeref(Term_p term, DerefType_p deref);
-
-void    TermTopFree(Term_p junk); 
 
 static __inline__ Term_p* TermArgListCopy(Term_p source);
 static __inline__ Term_p  TermTopCopy(Term_p source);
