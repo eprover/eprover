@@ -298,14 +298,14 @@ static CompareResult lpo_greater(OCB_p ocb, Term_p s, Term_p t,
 /*---------------------------------------------------------------------*/
 
 
-bool lpo4_alpha(OCB_p ocb, Term_p s, int pos, Term_p t, 
-                DerefType deref_s, DerefType deref_t);
-bool lpo4_majo(OCB_p ocb, Term_p s, Term_p t, int pos,
-               DerefType deref_s, DerefType deref_t);
-bool lpo4_lex_ma(OCB_p ocb, Term_p s, Term_p t, int pos,
-                 DerefType deref_s, DerefType deref_t);
-bool lpo4_greater(OCB_p ocb, Term_p s, Term_p t,
-                  DerefType deref_s, DerefType deref_t);
+static bool lpo4_alpha(OCB_p ocb, Term_p s, int pos, Term_p t, 
+                       DerefType deref_s, DerefType deref_t);
+static bool lpo4_majo(OCB_p ocb, Term_p s, Term_p t, int pos,
+                      DerefType deref_s, DerefType deref_t);
+static bool lpo4_lex_ma(OCB_p ocb, Term_p s, Term_p t, int pos,
+                        DerefType deref_s, DerefType deref_t);
+static bool lpo4_greater(OCB_p ocb, Term_p s, Term_p t,
+                         DerefType deref_s, DerefType deref_t);
 
 
 /*---------------------------------------------------------------------*/
@@ -325,9 +325,20 @@ bool lpo4_greater(OCB_p ocb, Term_p s, Term_p t,
 //
 /----------------------------------------------------------------------*/
 
-bool lpo4_alpha(OCB_p ocb, Term_p s, int pos, Term_p t, 
-                DerefType deref_s, DerefType deref_t)
+static bool lpo4_alpha(OCB_p ocb, Term_p s, int pos, Term_p t, 
+                       DerefType deref_s, DerefType deref_t)
 {
+   for(/*Nothing*/;pos < s->arity;pos++)
+   {
+      if( TermStructEqualDeref(s->args[pos], t, deref_s, deref_t)
+          ||
+          lpo4_greater(ocb, s->args[pos], t, deref_s, deref_t))
+      {
+         return true;
+      }
+   }
+   return false;
+   /*
    if(pos == s->arity)
    {
       return false;
@@ -336,7 +347,7 @@ bool lpo4_alpha(OCB_p ocb, Term_p s, int pos, Term_p t,
       ||
       lpo4_greater(ocb, s->args[pos], t, deref_s, deref_t)
       ||
-      lpo4_alpha(ocb, s,pos+1, t, deref_s, deref_t);
+      lpo4_alpha(ocb, s,pos+1, t, deref_s, deref_t);*/
 }
 
 
@@ -353,16 +364,26 @@ bool lpo4_alpha(OCB_p ocb, Term_p s, int pos, Term_p t,
 //
 /----------------------------------------------------------------------*/
 
-bool lpo4_majo(OCB_p ocb, Term_p s, Term_p t, int pos, 
-               DerefType deref_s, DerefType deref_t)
+static bool lpo4_majo(OCB_p ocb, Term_p s, Term_p t, int pos, 
+                      DerefType deref_s, DerefType deref_t)
 {
-   if(pos == t->arity)
+   for(/*Nothing*/;pos < t->arity;pos++)
+   {
+      if(!lpo4_greater(ocb, s, t->args[pos], deref_s, deref_t))
+      {
+         return false;
+      }
+   }
+   return true;
+
+
+   /* if(pos == t->arity)
    {
       return true;
    }
    return lpo4_greater(ocb, s, t->args[pos], deref_s, deref_t)
       &&
-      lpo4_majo(ocb, s, t, pos+1, deref_s, deref_t);      
+      lpo4_majo(ocb, s, t, pos+1, deref_s, deref_t);      */
 }
 
 
@@ -379,8 +400,8 @@ bool lpo4_majo(OCB_p ocb, Term_p s, Term_p t, int pos,
 //
 /----------------------------------------------------------------------*/
 
-bool lpo4_lex_ma(OCB_p ocb, Term_p s, Term_p t, int pos, 
-                 DerefType deref_s, DerefType deref_t)
+static bool lpo4_lex_ma(OCB_p ocb, Term_p s, Term_p t, int pos, 
+                        DerefType deref_s, DerefType deref_t)
 {
    assert(s->f_code == t->f_code);
    
@@ -412,8 +433,8 @@ bool lpo4_lex_ma(OCB_p ocb, Term_p s, Term_p t, int pos,
 //
 /----------------------------------------------------------------------*/
 
-bool lpo4_greater(OCB_p ocb, Term_p s, Term_p t, 
-                DerefType deref_s, DerefType deref_t)
+static bool lpo4_greater(OCB_p ocb, Term_p s, Term_p t, 
+                         DerefType deref_s, DerefType deref_t)
 {
    CompareResult f_code_res;
 
@@ -444,14 +465,14 @@ bool lpo4_greater(OCB_p ocb, Term_p s, Term_p t,
 
 
 /*---------------------------------------------------------------------*/
-/*             Forward Declarations LPO4                               */
+/*             Forward Declarations LPO4 on static terms               */
 /*---------------------------------------------------------------------*/
 
 
-bool lpo4_copy_alpha(OCB_p ocb, Term_p s, int pos, Term_p t);
-bool lpo4_copy_majo(OCB_p ocb, Term_p s, Term_p t, int pos);
-bool lpo4_copy_lex_ma(OCB_p ocb, Term_p s, Term_p t, int pos);
-bool lpo4_copy_greater(OCB_p ocb, Term_p s, Term_p t);
+static bool lpo4_copy_alpha(OCB_p ocb, Term_p s, int pos, Term_p t);
+static bool lpo4_copy_majo(OCB_p ocb, Term_p s, Term_p t, int pos);
+static bool lpo4_copy_lex_ma(OCB_p ocb, Term_p s, Term_p t, int pos);
+static bool lpo4_copy_greater(OCB_p ocb, Term_p s, Term_p t);
 
 /*---------------------------------------------------------------------*/
 /*                      Internal Functions LPO4                        */
@@ -470,7 +491,7 @@ bool lpo4_copy_greater(OCB_p ocb, Term_p s, Term_p t);
 //
 /----------------------------------------------------------------------*/
 
-bool lpo4_copy_alpha(OCB_p ocb, Term_p s, int pos, Term_p t)
+static bool lpo4_copy_alpha(OCB_p ocb, Term_p s, int pos, Term_p t)
 {
    if(pos == s->arity)
    {
@@ -497,7 +518,7 @@ bool lpo4_copy_alpha(OCB_p ocb, Term_p s, int pos, Term_p t)
 //
 /----------------------------------------------------------------------*/
 
-bool lpo4_copy_majo(OCB_p ocb, Term_p s, Term_p t, int pos)
+static bool lpo4_copy_majo(OCB_p ocb, Term_p s, Term_p t, int pos)
 {
    if(pos == t->arity)
    {
@@ -522,7 +543,7 @@ bool lpo4_copy_majo(OCB_p ocb, Term_p s, Term_p t, int pos)
 //
 /----------------------------------------------------------------------*/
 
-bool lpo4_copy_lex_ma(OCB_p ocb, Term_p s, Term_p t, int pos)
+static bool lpo4_copy_lex_ma(OCB_p ocb, Term_p s, Term_p t, int pos)
 {
    assert(s->f_code == t->f_code);
    
@@ -554,7 +575,7 @@ bool lpo4_copy_lex_ma(OCB_p ocb, Term_p s, Term_p t, int pos)
 //
 /----------------------------------------------------------------------*/
 
-bool lpo4_copy_greater(OCB_p ocb, Term_p s, Term_p t)
+static bool lpo4_copy_greater(OCB_p ocb, Term_p s, Term_p t)
 {
    CompareResult f_code_res;
    
