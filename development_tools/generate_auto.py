@@ -535,7 +535,7 @@ ac_handling ={
 ordering={
     "LPO":"LPO",
     "LPO4":"LPO4",
-    "KBO":"KBO2",
+    "KBO":"KBO",
     "KBO1":"KBO"
 }
 

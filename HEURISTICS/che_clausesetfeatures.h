@@ -243,11 +243,11 @@ SpecLimits_p SpecLimitsAlloc();
         ((spec)->avg_fun_ar_class ==SpecArity3Plus)
 
 #define SpecSmallFArSum(spec) \
-        ((spec)->sum_fun_arity == SpecAritySumSmall)
+        ((spec)->sum_fun_ar_class == SpecAritySumSmall)
 #define SpecMediumFArSum(spec) \
-        ((spec)->sum_fun_arity == SpecAritySumMedium)
+        ((spec)->sum_fun_ar_class == SpecAritySumMedium)
 #define SpecLargeFArSum(spec) \
-        ((spec)->sum_fun_arity == SpecAritySumLarge)
+        ((spec)->sum_fun_ar_class == SpecAritySumLarge)
   
 long    ClauseSetCountGoals(ClauseSet_p set);
 #define ClauseSetCountAxioms(set)\

@@ -993,7 +993,7 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
       {
 	 break;
       }
-      /*printf("*** Total: %ld \n"
+      /* printf("*** Total: %ld \n"
 	     "*** Proc. Rules   : %8ld,  %8ld Eqns, %8ld Bytes %ld index cells\n"
 	     "*** Proc. Eqns    : %8ld,  %8ld Eqns, %8ld Bytes %ld index cells\n"
 	     "*** Proc. NegUnits: %8ld,  %8ld Eqns, %8ld Bytes %ld PDIndex %ld index cells\n"

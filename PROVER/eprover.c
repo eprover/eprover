@@ -32,7 +32,7 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-#define VERSION      "0.81dev023"
+#define VERSION      "0.81dev024"
 #define NAME         "eprover"
 
 #ifdef SAFELOGIC
@@ -935,11 +935,11 @@ int main(int argc, char* argv[])
    }
    VERBOUT2("Specification read\n");
 
-   if(!FormulaSetEmpty(proofstate->f_axioms))
+   /* if(!FormulaSetEmpty(proofstate->f_axioms))
    {
       Warning("Full FOF format support is in an experimental "
               "state and not well tested at the moment!");
-   }   
+              }  */ 
    if(error_on_empty 
       && ClauseSetEmpty(proofstate->axioms) 
       && FormulaSetEmpty(proofstate->f_axioms))
