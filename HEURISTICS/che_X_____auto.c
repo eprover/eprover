@@ -75,7 +75,7 @@
 /* CLASS_HUSSNFFSM2-M : protokoll_G-E--_045_K18_F1_PI_AE_S4_CS_Y 1    */
 /* CLASS_GHNSNSSMF1-S : protokoll_H----_031_K04_F1_PI_AE_S4_CS_Y 7    */
 /* CLASS_GHSMNFFMF2-M : protokoll_G-E--_045_K18_F1_PI_AE_S4_CS_Y 6    */
-/* CLASS_GHNFNMMLF0-S : protokoll_H----_031_K09_F1_PI_AE_Z1 54   */
+/* CLASS_GHNFNMMLF0-S : protokoll_G-N--_023_B02_F1_PI_S4_CS_Y 54   */
 /* CLASS_GUSMNSSMF3-M : protokoll_G-E--_045_K18_F1_PI_AE_S4_CS_Y 4    */
 /* CLASS_HUNMGFFSF2-M : protokoll_H----_072_K16_F1_PI_AE_CS_S4_Y 198  */
 /* CLASS_GHNSNFFMF2-M : protokoll_G-E--_045_K18_F1_PI_AE_S4_CS_Y 4    */
@@ -664,6 +664,9 @@
 " 3*Refinedweight(PreferNonGoals,1,1,2,1.5,1.5),"
 " 1*Clauseweight(PreferProcessed,1,1,1),"
 " 1*FIFOWeight(PreferProcessed))\n"
+"G_N___023_B02_F1_PI_S4_CS_Y = \n"
+"(12*Clauseweight(ConstPrio,3,1,1),"
+" 1*FIFOWeight(ConstPrio))\n"
 "H_____031_K18_F1_PI_AE_CS_61 = \n"
 "(10*Refinedweight(PreferGoals,1,2,2,2,0.5),"
 " 10*Refinedweight(PreferNonGoals,2,1,2,2,2),"
@@ -2112,6 +2115,36 @@
       oparms.to_weight_gen=WInvFrequencyRank;
       oparms.to_prec_gen=PByInvFrequency;
       oparms.to_const_weight=1;
+
+#endif
+   }
+   else if(
+      ( /* CLASS_GHNFNMMLF0-S Solved: 54 of 56 */
+       SpecAxiomsAreGeneral(spec)&&
+       SpecGoalsAreHorn(spec)&&
+       SpecNoEq(spec)&&
+       SpecFewNGPosUnits(spec)&&
+       SpecGoalsHaveVars(spec)&&
+       SpecManyAxioms(spec)&&
+       SpecManyLiterals(spec)&&
+       SpecLargeTerms(spec)&&
+       SpecFewGroundPos(spec)&&
+       SpecMaxFArity0(spec)&&
+       SpecSmallFArSum(spec)))
+   {
+#ifdef CHE_HEURISTICS_INTERNAL
+      res = "G_N___023_B02_F1_PI_S4_CS_Y";
+      control->prefer_initial_clauses=true;
+      control->forward_context_sr = true;
+      control->selection_strategy=SelectMaxLComplex;
+      control->split_clauses=4;
+      control->split_aggressive=true;
+      control->forward_demod=1;
+
+#endif
+#ifdef TO_ORDERING_INTERNAL
+      oparms.ordertype=LPO4;
+      oparms.to_prec_gen=PArity;
 
 #endif
    }
@@ -8056,19 +8089,6 @@
 #endif
    }
    else if(
-      ( /* CLASS_GHNFNMMLF0-S Solved: 54 of 56 */
-       SpecAxiomsAreGeneral(spec)&&
-       SpecGoalsAreHorn(spec)&&
-       SpecNoEq(spec)&&
-       SpecFewNGPosUnits(spec)&&
-       SpecGoalsHaveVars(spec)&&
-       SpecManyAxioms(spec)&&
-       SpecManyLiterals(spec)&&
-       SpecLargeTerms(spec)&&
-       SpecFewGroundPos(spec)&&
-       SpecMaxFArity0(spec)&&
-       SpecSmallFArSum(spec))
-       ||
       ( /* CLASS_GHNFNFSMF1-S Solved: 11 of 11 */
        SpecAxiomsAreGeneral(spec)&&
        SpecGoalsAreHorn(spec)&&
