@@ -299,15 +299,15 @@ void VarFreqVectorAddVals(FreqVector_p vec, long symbols, FVIndexType features,
    case FVIACFeatures:
 	 vec->array[0] += clause->pos_lit_no;
 	 vec->array[1] += clause->neg_lit_no;   
-	 unused_size = sizeof(long)*(symbols+1);
-	 unused = SizeMalloc(unused_size);
+	 unused_size = symbols+1;
+	 unused = SizeMalloc(sizeof(long)*unused_size);
 	 pdepthstart = ndepthstart = unused;
 	 nfreqstart = &(vec->array[FV_CLAUSE_FEATURES]);
 	 pfreqstart = &(vec->array[FV_CLAUSE_FEATURES+1*(symbols+1)]);
 	 break;
    case FVISSFeatures:
-	 unused_size = sizeof(long)*(symbols+1);
-	 unused = SizeMalloc(unused_size);
+	 unused_size = symbols+1;
+	 unused = SizeMalloc(sizeof(long)*unused_size);
 	 pfreqstart = nfreqstart = unused;
 	 ndepthstart = &(vec->array[0]);
 	 pdepthstart = &(vec->array[0+1*(symbols+1)]);
@@ -326,6 +326,16 @@ void VarFreqVectorAddVals(FreqVector_p vec, long symbols, FVIndexType features,
 	 assert(false);
 	 return; /* Cheapest way to fix compiler warning */
 	 break;
+   }
+   if(unused) 
+   { /* Stiffle insure warnings - we don't use unused (duh!), but
+        insure does not know that */
+      long i;
+
+      for(i=0; i<unused_size; i++)
+      {
+         unused[i] = 0;
+      }
    }
    for(handle = clause->literals; handle; handle = handle->next)
    {

@@ -231,6 +231,7 @@ Clause_p EmptyClauseAlloc(void)
    handle->literals    = NULL;
    handle->neg_lit_no  = 0;
    handle->pos_lit_no  = 0;
+   handle->weight      = 0;
    handle->evaluations = NULL;
    handle->properties  = CPIgnoreProps;
    handle->create_date = 0;

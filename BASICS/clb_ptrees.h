@@ -70,6 +70,8 @@ typedef struct ptreecell
 #define PCmp(p1, p2) ((int)(p1)-(int)(p2))
 #elif P_EQUAL_LONG
 #define PCmp(p1, p2) ((long)(p1)-(long)(p2))
+#elif P_EQUAL_LONG_LONG
+#define PCmp(p1, p2) ((long long)(p1)-(long long)(p2))
 #else 
 #define PCmp(p1, p2) PCmpFun(p1, p2) 
 #endif

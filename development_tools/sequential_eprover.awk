@@ -414,6 +414,7 @@ BEGIN{
    e_mark["SUNW-Sun-Fire-880-sparcv9-900"]               = 285.646;
    e_mark["SUNW-Sun-Fire-sparcv9-750"]                   = 211.921;
    e_mark["ppc7450-1000"]                                = 267.552;
+   e_mark["ppc7450-667"]                                 = 267.552; #hack
    e_mark["IntelR-PentiumR-4-CPU-1400MHz-1396"]          = 300.922;
    e_mark["SUNW-Ultra-60-sparcv9-296"]                   = 100;
    e_mark["NC-AMD-Athlontm-MP-Processor-1600+-1400"]     = 366.393;
