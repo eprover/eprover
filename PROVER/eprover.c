@@ -32,8 +32,8 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-/*  cvs tag E-0-82dev025 */
-#define VERSION      "0.82dev025"
+/*  cvs tag E-0-82dev026 */
+#define VERSION      "0.82dev026"
 #define NAME         "eprover"
 
 #define NICKNAME     "Lung Ching"
@@ -960,7 +960,7 @@ int main(int argc, char* argv[])
    Clause_p         success, filter_success;
    bool             out_of_clauses;
    char*            finals_state = "exists";
-   long             parsed_clause_no, preproc_removed=0;
+   long             parsed_clause_no, preproc_removed=0, neg_conjectures;
 
    assert(argv[0]);
    
@@ -1030,7 +1030,8 @@ int main(int argc, char* argv[])
    }
    FormulaSetDocInital(GlobalOut, OutputLevel, proofstate->f_axioms);
    ClauseSetDocInital(GlobalOut, OutputLevel, proofstate->axioms);
-   if(FormulaSetPreprocConjectures(proofstate->f_axioms))
+   if((neg_conjectures =
+       FormulaSetPreprocConjectures(proofstate->f_axioms)))
    {
       VERBOUT("Negated conjectures.\n");
    }
@@ -1074,18 +1075,6 @@ int main(int argc, char* argv[])
    
    success = Saturate(proofstate, proofcontrol, step_limit,
 		      proc_limit, unproc_limit, total_limit);
-
-   fprintf(GlobalOut, "# Minimal constant: f_code %ld == %s\n", 
-          proofcontrol->ocb->min_constant, 
-          proofcontrol->ocb->min_constant?
-          SigFindName(proofcontrol->ocb->sig, 
-                      proofcontrol->ocb->min_constant)
-          :"<none>");
-   fprintf(GlobalOut, "# Minimal term: ");
-   TBPrintTermFull(GlobalOut, 
-                   proofstate->terms, 
-                   OCBDesignatedMinTerm(proofcontrol->ocb, proofstate->terms));
-   fprintf(GlobalOut, "\n");
    
    out_of_clauses = ClauseSetEmpty(proofstate->unprocessed);
    if(filter_sat)
@@ -1103,7 +1092,7 @@ int main(int argc, char* argv[])
    {
       DocClauseQuoteDefault(2, success, "proof");
       fprintf(GlobalOut, "\n# Proof found!\n");
-      TSTPOUT(GlobalOut, "Unsatisfiable");
+      TSTPOUT(GlobalOut, neg_conjectures?"Theorem":"Unsatisfiable");
    }
    else if(proofstate->watchlist && ClauseSetEmpty(proofstate->watchlist))
    {      
@@ -1141,7 +1130,7 @@ int main(int argc, char* argv[])
 	 else if(proofstate->state_is_complete)
 	 {
 	    fprintf(GlobalOut, "\n# No proof found!\n");
-	    TSTPOUT(GlobalOut, "Satisfiable");	    
+	    TSTPOUT(GlobalOut, neg_conjectures?"CounterSatisfiable":"Satisfiable");	    
 	 }
 	 else
 	 {
