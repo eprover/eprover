@@ -73,7 +73,7 @@ bool TOGreater(OCB_p ocb, Term_p s, Term_p t, DerefType deref_s,
    TermPrint(stdout, s, ocb->sig, deref_s);
    printf(" -|- ");
    TermPrint(stdout, t, ocb->sig, deref_t);
-   printf("\n"); */
+   printf("\n");*/
    
    switch(ocb->type)
    {
@@ -147,7 +147,7 @@ CompareResult TOCompare(OCB_p ocb, Term_p s, Term_p t, DerefType deref_s,
    TermPrint(stdout, s, ocb->sig, deref_s);
    printf(" -|- ");
    TermPrint(stdout, t, ocb->sig, deref_t);
-   printf("\n"); */
+   printf("\n");*/
 
    switch(ocb->type)
    {

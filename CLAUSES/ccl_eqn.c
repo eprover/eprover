@@ -1158,21 +1158,6 @@ bool EqnSubsumeDirected(Eqn_p subsumer, Eqn_p subsumed, Subst_p
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-/*
-bool EqnSubsume(Eqn_p subsumer, Eqn_p subsumed, Subst_p subst,
-		TermEqualTestFun EqualTest)
-{
-   bool   res = EqnSubsumeDirected(subsumer, subsumed, subst, EqualTest);
-   
-   if(res || (EqnIsOriented(subsumer) && EqnIsOriented(subsumed)))
-   {
-      return res;
-   }
-   EqnSwapSidesSimple(subsumer);
-   res = EqnSubsumeDirected(subsumer, subsumed, subst, EqualTest);
-   EqnSwapSidesSimple(subsumer);
-   return res;
-}*/
 
 bool EqnSubsume(Eqn_p subsumer, Eqn_p subsumed, Subst_p subst,
 		TermEqualTestFun EqualTest)

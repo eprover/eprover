@@ -457,7 +457,8 @@ static Eqn_p find_smallest_max_neg_ground_lit(Clause_p clause)
       if(EqnIsNegative(handle)&&
 	 EqnIsGround(handle))
       {
-	 assert(EqnIsOriented(handle));
+	 /* assert(EqnIsOriented(handle)); Only true if we don't run
+          * into LPORecursionDepthLimit */
 
 	 if(handle->lterm->weight < select_weight)
 	 {

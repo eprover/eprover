@@ -215,6 +215,7 @@ static CompareResult lpo_greater(OCB_p ocb, Term_p s, Term_p t,
 
    if(recursion_depth > LPORecursionDepthLimit)
    {
+      /* printf("LPORecursionDepthLimit encountered\n"); */
       return to_uncomparable;
    }
    recursion_depth++;
@@ -330,7 +331,7 @@ static bool lpo4_alpha(OCB_p ocb, Term_p s, int pos, Term_p t,
 {
    for(/*Nothing*/;pos < s->arity;pos++)
    {
-      if( TermStructEqualDeref(s->args[pos], t, deref_s, deref_t)
+      if(TermStructEqualDerefHardVars(s->args[pos], t, deref_s, deref_t)
           ||
           lpo4_greater(ocb, s->args[pos], t, deref_s, deref_t))
       {
@@ -338,16 +339,6 @@ static bool lpo4_alpha(OCB_p ocb, Term_p s, int pos, Term_p t,
       }
    }
    return false;
-   /*
-   if(pos == s->arity)
-   {
-      return false;
-   }
-   return TermStructEqualDeref(s->args[pos], t, deref_s, deref_t)
-      ||
-      lpo4_greater(ocb, s->args[pos], t, deref_s, deref_t)
-      ||
-      lpo4_alpha(ocb, s,pos+1, t, deref_s, deref_t);*/
 }
 
 
@@ -375,15 +366,6 @@ static bool lpo4_majo(OCB_p ocb, Term_p s, Term_p t, int pos,
       }
    }
    return true;
-
-
-   /* if(pos == t->arity)
-   {
-      return true;
-   }
-   return lpo4_greater(ocb, s, t->args[pos], deref_s, deref_t)
-      &&
-      lpo4_majo(ocb, s, t, pos+1, deref_s, deref_t);      */
 }
 
 
@@ -409,7 +391,7 @@ static bool lpo4_lex_ma(OCB_p ocb, Term_p s, Term_p t, int pos,
    {
       return false;
    }
-   if(TermStructEqualDeref(s->args[pos], t->args[pos], deref_s, deref_t))
+   if(TermStructEqualDerefHardVars(s->args[pos], t->args[pos], deref_s, deref_t))
    {
       return lpo4_lex_ma(ocb, s, t, pos+1, deref_s, deref_t);
    }
@@ -805,8 +787,8 @@ bool LPO4GreaterCopy(OCB_p ocb, Term_p s, Term_p t,
    {
       TermFree(t1);
    }
-   /* printf("...LPO4Greater()\n"); 
-      assert(res == LPOGreater(ocb, s, t, deref_s, deref_t));*/
+   /* printf("...LPO4GreaterCopy()\n");  */
+   assert(res == LPOGreater(ocb, s, t, deref_s, deref_t));
    return res;
 }
 
@@ -829,7 +811,7 @@ CompareResult LPO4CompareCopy(OCB_p ocb, Term_p s, Term_p t,
    CompareResult res;
    Term_p s1, t1;
 
-   /* printf("LPO4Compare()...\n"); */
+   /* printf("LPO4CompareCopy()...\n"); */
 
    if(deref_s == DEREF_NEVER)
    {
@@ -871,8 +853,8 @@ CompareResult LPO4CompareCopy(OCB_p ocb, Term_p s, Term_p t,
    {
       TermFree(t1);
    }
-   /* printf("...LPO4Compare()=%d\n", res);
-      assert(res == LPOCompare(ocb, s, t, deref_s, deref_t)); */
+   /* printf("...LPO4CompareCopy()=%d\n", res);*/
+   assert(res == LPOCompare(ocb, s, t, deref_s, deref_t));
    return res;
 }
 
@@ -925,8 +907,8 @@ bool LPOGreaterCopy(OCB_p ocb, Term_p s, Term_p t,
    {
       TermFree(t1);
    }
-   /* printf("...LPOGreaterCopy()\n"); 
-      assert(res == LPOGreater(ocb, s, t, deref_s, deref_t));*/
+   /* printf("...LPOGreaterCopy()\n"); */
+   assert(res == LPOGreater(ocb, s, t, deref_s, deref_t));
    return res;
 }
 
@@ -975,8 +957,8 @@ CompareResult LPOCompareCopy(OCB_p ocb, Term_p s, Term_p t,
    {
       TermFree(t1);
    }
-   /* printf("...LPOCompareCopy()=%d\n", res);
-      assert(res == LPOCompare(ocb, s, t, deref_s, deref_t)); */
+   /* printf("...LPOCompareCopy()=%d\n", res); */
+   assert(res == LPOCompare(ocb, s, t, deref_s, deref_t));
    return res;
 }
 

@@ -64,6 +64,8 @@ bool   TermStructEqualNoDerefHardVars(Term_p t1, Term_p t2);
 
 bool   TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1,
 	  		    DerefType deref_2);
+bool   TermStructEqualDerefHardVars(Term_p t1, Term_p t2, DerefType deref_1,
+                                    DerefType deref_2);
 
 int    TermStructWeightCompare(Term_p t1, Term_p t2);
 

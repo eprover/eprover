@@ -224,7 +224,7 @@ void TermPrint(FILE* out, Term_p term, Sig_p sig, DerefType deref)
    {
       if(TermIsVar(term))
       {
-	 fprintf(out, "X%ld", -term->f_code);
+	 fprintf(out, "X%ld_%p", -term->f_code,term);
       }
       else
       {
@@ -733,6 +733,48 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1,
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: TermStructEqualDerefHardVars()
+//
+//   Return true if the two terms have the same
+//   structures. Dereference both terms as designated by deref_1,
+//   deref_2. Variables are compared by pointer, not by f_code.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool TermStructEqualDerefHardVars(Term_p t1, Term_p t2, DerefType deref_1,
+                                  DerefType deref_2) 
+{
+   int i;
+
+   t1 = TermDeref(t1, &deref_1);
+   t2 = TermDeref(t2, &deref_2);
+   
+   if((t1==t2) && (deref_1==deref_2))
+   {
+      return true;
+   }
+   if(t1->f_code != t2->f_code || TermIsVar(t1))
+   {
+      return false;
+   }
+   for(i=0; i<t1->arity; i++)
+   {
+      if(!TermStructEqualDerefHardVars(t1->args[i], t2->args[i], deref_1, deref_2))
+      {
+         return false;
+      }
+   }
+   return true;
+}
+
+
+
 
 
 /*-----------------------------------------------------------------------
@@ -851,37 +893,22 @@ int TermLexCompare(Term_p t1, Term_p t2)
 bool TermIsSubterm(Term_p super, Term_p test, DerefType deref,
                    TermEqualTestFun EqualTest)
 {
-   PStack_p stack = PStackAlloc();
    int i;
-   bool subterm = false;
 
-   PStackPushP(stack, super);
-   PStackPushInt(stack, deref);
-   
-   while(!PStackEmpty(stack))
+   super = TermDeref(super, &deref);
+
+   if(EqualTest(super, test))
    {
-      deref = PStackPopInt(stack);
-      super = PStackPopP(stack);
-
-      super = TermDeref(super, &deref);
-
-      if(EqualTest(super, test))
+      return true;
+   }
+   for(i=0; i<super->arity; i++)
+   {
+      if(TermIsSubterm(super->args[i], test, deref, EqualTest))
       {
-         subterm = true;
-         break;
-      }
-      else
-      {
-         for(i=0; i<super->arity; i++)
-         {
-            PStackPushP(stack, super->args[i]);
-	    PStackPushInt(stack, deref);
-         }
+         return true;
       }
    }
-   PStackFree(stack);
-
-   return subterm;
+   return false;
 }
 
 
@@ -901,37 +928,21 @@ bool TermIsSubterm(Term_p super, Term_p test, DerefType deref,
 bool TermIsSubtermDeref(Term_p super, Term_p test, DerefType
 			deref_super, DerefType deref_test)
 {
-   PStack_p stack = PStackAlloc();
    int i;
-   bool subterm = false;
 
-   PStackPushP(stack, super);
-   PStackPushInt(stack, deref_super);
-   
-   while(!PStackEmpty(stack))
+   super = TermDeref(super, &deref_super);
+   if(TermStructEqualDeref(super, test, deref_super, deref_test))
    {
-      deref_super = PStackPopInt(stack);
-      super = PStackPopP(stack);
-
-      super = TermDeref(super, &deref_super);
-
-      if(TermStructEqualDeref(super, test, deref_super, deref_test))
+      return true;
+   }
+   for(i=0; i<super->arity; i++)
+   {
+      if(TermIsSubtermDeref(super->args[i], test, deref_super, deref_test))
       {
-         subterm = true;
-         break;
-      }
-      else
-      {
-         for(i=0; i<super->arity; i++)
-         {
-            PStackPushP(stack, super->args[i]);
-	    PStackPushInt(stack, deref_super);
-         }
+         return true;
       }
    }
-   PStackFree(stack);
-   
-   return subterm;
+   return false;
 }
 
 
