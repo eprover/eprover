@@ -28,6 +28,7 @@ Changes
 #include <cco_proofproc.h>
 #include <cio_signals.h>
 #include <ccl_unfold_defs.h>
+#include <ccl_formulae.h>
 
 /*---------------------------------------------------------------------*/
 /*                  Data types                                         */
@@ -911,6 +912,13 @@ int main(int argc, char* argv[])
    {
       in = CreateScanner(StreamTypeFile, state->argv[i] , true, NULL);
       ScannerSetFormat(in, parse_format);
+      {
+	 Formula_p form;
+
+	 form = FormulaTPTPParse(in, proofstate->original_terms);
+	 FormulaTPTPPrint(GlobalOut, form, true);
+	 FormulaFree(form);
+      }
       ClauseSetParseList(in, proofstate->axioms,
 			 proofstate->original_terms);
       CheckInpTok(in, NoToken);

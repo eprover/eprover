@@ -23,6 +23,7 @@ Changes
 #include <cio_commandline.h>
 #include <cio_output.h>
 #include <ccl_unfold_defs.h>
+#include <ccl_formulae.h>
 #include <che_clausesetfeatures.h>
 
 /*---------------------------------------------------------------------*/
