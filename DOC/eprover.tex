@@ -902,31 +902,68 @@ supported as argument to \texttt{--order-precedence-generation}:
 Weight generation schemes are based on syntactic features of the
 symbol and the input clause set, or on the predefined
 \emph{precedence}. The following options are available for
-\texttt{--order-weight-generation}: 
+\texttt{--order-weight-generation}.
+
 
 \begin{description}
-\item[\texttt{firstmaximal0}:]
-\item[\texttt{arity}:]
-\item[\texttt{aritymax0}:]
-\item[\texttt{modarity}:]
-\item[\texttt{modaritymax0}:]
-\item[\texttt{aritysquared}:]
-\item[\texttt{aritysquaredmax0}:]
-\item[\texttt{invarity}:]
-\item[\texttt{invaritymax0}:]
-\item[\texttt{invaritysquared}:]
-\item[\texttt{invaritysquaredmax0}:]
-\item[\texttt{precedence}:]
-\item[\texttt{invprecedence}:]
-\item[\texttt{freqcount}:]
-\item[\texttt{invfreqcount}:]
-\item[\texttt{freqrank}:]
-\item[\texttt{invfreqrank}:]
-\item[\texttt{freqranksquare}:]
-\item[\texttt{invfreqranksquare}:]
-\item[\texttt{invmodfreqrank}:]
-\item[\texttt{invmodfreqrankmax0}:]
-\item[\texttt{constant}:]
+\item[\texttt{firstmaximal0}:] Give the same arbitrary (positive)
+  weight to all function symbols except to the first maximal one
+  encountered (order is arbitrary), which is given weight 0.
+\item[\texttt{arity}:] Weight of a function symbol $f|_n$ is $n+1$,
+  i.e. its arity plus one.
+\item[\texttt{aritymax0}:] As \texttt{arity}, except that the
+  first maximal symbol is given weight 0.
+\item[\texttt{modarity}:] Weight of a function symbol $f|_n$ is $n+c$,
+  where $c$ is a positive constant (\texttt{W\_TO\_BASEWEIGHT}, which
+  has been 4 since the dawn of time).
+\item[\texttt{modaritymax0}:] As \texttt{modarity}, except that the
+  first maximal symbol is given weight 0.
+\item[\texttt{aritysquared}:] Weight of a symbol $f|_n$ is $n^2+1$.
+\item[\texttt{aritysquaredmax0}:] As \texttt{aritysquared}, except
+  that the first maximal symbol is given weight 0.
+\item[\texttt{invarity}:] Let $m$ be the largest arity of any symbol
+  in the signature.  Weight of a symbol $f|_n$ is $m-n+1$.
+\item[\texttt{invaritymax0}:] As \texttt{invarity}, except
+  that the first maximal symbol is given weight 0.
+\item[\texttt{invaritysquared}:] Let $m$ be the largest arity of any symbol
+  in the signature.  Weight of a symbol $f|_n$ is $m^2-n^2+1$.
+\item[\texttt{invaritysquaredmax0}:] As \texttt{invaritysquared},
+  except that the first maximal symbol is given weight 0.
+\item[\texttt{precedence}:] Let $<$ be the (pre-determined) precedence
+  on function symbols $F$ in the problem. Then the weight of $f$ is
+  given by $|{g|g<f}|+1$ (the number of symbols smaller than $f$ in
+  the precedence increase by one).
+\item[\texttt{invprecedence}:] Let $<$ be the (pre-determined)
+  precedence on function symbols $F$ in the problem. Then the weight
+  of $f$ is given by $|{g|f<g}|+1$ (the number of symbols larger than
+  $f$ in the precedence increase by one).
+\item[\texttt{freqcount}:] Make the weight of a symbol the number of
+  occurences of that symbol in the (potentially preprocessed) input
+  problem. 
+\item[\texttt{invfreqcount}:]  Let $m$ be the number of occurances of
+  the most frequent symbol in the input problem. The weight of $f$ is
+  $m$ minus he number of occurences of $f$ in the input problem.
+\item[\texttt{freqrank}:] Sort all function symbols by frequency of
+  occurance (which induces a total quasi-ordering). The weight of a
+  symbol is the rank of it's equivalence class, with less frequent
+  symbols getting lower weights.
+\item[\texttt{invfreqrank}:] Sort all function symbols by frequency of
+  occurance (which induces a total quasi-ordering). The weight of a
+  symbol is the rank of its equivalence class, with less frequent
+  symbols getting higher weights.
+\item[\texttt{freqranksquare}:] As \texttt{freqrank}, but weight is
+  the square of the rank.
+\item[\texttt{invfreqranksquare}:] As \texttt{invfreqrank}, but weight is
+  the square of the rank.
+\item[\texttt{invmodfreqrank}:] Sort all function symbols by frequency of
+  occurance (which induces a total quasi-ordering). The weight of an
+   equivalence class is the sum of the cardinality of all smaller
+  classes (+1). The weight of a symbol is the weight of its
+  equivalence classes. Less frequent symbols get higher weights.
+\item[\texttt{invmodfreqrankmax0}:] As \texttt{invmodfreqrank}, except
+  that the first maximal symbol is given weight 0.
+\item[\texttt{constant}:] Give the same arbitrary positive weight to
+  all function symbols.
 \end{description}
 
 

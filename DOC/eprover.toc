@@ -18,7 +18,7 @@
 \contentsline {section}{\numberline {5}Input Language}{20}
 \contentsline {section}{\numberline {6}Output\ldots or how to interpret what you see}{21}
 \contentsline {subsection}{\numberline {6.1}The Bare Essentials}{21}
-\contentsline {subsection}{\numberline {6.2}Impressing your Friends}{22}
-\contentsline {subsection}{\numberline {6.3}Detailed Reporting}{22}
+\contentsline {subsection}{\numberline {6.2}Impressing your Friends}{23}
+\contentsline {subsection}{\numberline {6.3}Detailed Reporting}{23}
 \contentsline {subsection}{\numberline {6.4}Requesting Specific Results}{23}
 \contentsline {section}{\numberline {A}License}{25}
