@@ -25,24 +25,12 @@ Changes
 
 #define CCL_FCVINDEXING
 
-#include <clb_pdarrays.h>
-#include <ccl_clauses.h>
+#include <ccl_freqvectors.h>
 
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
-
-typedef struct freq_vector_cell
-{
-   long size;        /* How many fields? */
-   long *freq_vector;
-   Clause_p clause; /* Just an unprotected reference */
-}FreqVectorCell, *FreqVector_p, *FVPackedClause_p;
-
-#define FV_MAX_SYMBOL_COUNT 50
-
-
 
 /*
 
@@ -70,16 +58,6 @@ Initial case: Many successors with array size N
 
 */
 
-
-#define FVINDEXTYPE_EMPTY   -1
-#define FVINDEXTYPE_MANY    -2
-#define FVINDEXTYPE_FINAL   -3
-
-#define FVIndexEmptyNode(node) ((node)->type_or_key == FVINDEXTYPE_EMPTY)
-#define FVIndexUnaryNode(node) ((node)->type_or_key >= 0)
-#define FVIndexFinalNode(node) ((node)->type_or_key == FVINDEXTYPE_FINAL)
-#define FVIndexManySuccNode(node) ((node)->type_or_key == FVINDEXTYPE_MANY)
-
 typedef struct fv_index_cell
 {
    long type_or_key;
@@ -106,23 +84,14 @@ typedef struct fvi_anchor_cell
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+#define FVINDEXTYPE_EMPTY   -1
+#define FVINDEXTYPE_MANY    -2
+#define FVINDEXTYPE_FINAL   -3
 
-#define FreqVectorCellAlloc()    (FreqVectorCell*)SizeMalloc(sizeof(FreqVectorCell))
-#define FreqVectorCellFree(junk) SizeFree(junk, sizeof(FreqVectorCell))
-
-#define NON_SIG_FEATURES 2
-#define SigSizeToFreqVectorSize(size) (size*2-2+NON_SIG_FEATURES)
-FreqVector_p FreqVectorAlloc(long size);
-void         FreqVectorFree(FreqVector_p junk);
-
-void         FreqVectorPrint(FILE* out, FreqVector_p vec);
-
-void             StandardFreqVectorAddVals(FreqVector_p vec, long sig_symbols, 
-					   Clause_p clause);
-FreqVector_p     StandardFreqVectorCompute(Clause_p clause, long sig_symbols);
-FVPackedClause_p FVPackClause(Clause_p clause, FVIAnchor_p index);
-Clause_p         FVUnpackClause(FVPackedClause_p pack);
-void             FVPackedClauseFree(FVPackedClause_p pack);
+#define FVIndexEmptyNode(node) ((node)->type_or_key == FVINDEXTYPE_EMPTY)
+#define FVIndexUnaryNode(node) ((node)->type_or_key >= 0)
+#define FVIndexFinalNode(node) ((node)->type_or_key == FVINDEXTYPE_FINAL)
+#define FVIndexManySuccNode(node) ((node)->type_or_key == FVINDEXTYPE_MANY)
 
 #define FVIndexCellAlloc()    (FVIndexCell*)SizeMalloc(sizeof(FVIndexCell))
 #define FVIndexCellFree(junk) SizeFree(junk, sizeof(FVIndexCell))
@@ -145,6 +114,9 @@ void        FVIndexInsert(FVIAnchor_p index, FreqVector_p vec_clause);
 bool        FVIndexDelete(FVIAnchor_p index, Clause_p clause);
 
 long        FVIndexCountNodes(FVIndex_p index, bool leafs, bool empty);
+
+#define FVIndexPackClause(clause, anchor) \
+        FVPackClause((clause), (anchor)?((FVIAnchor_p)(anchor))->symbol_limit:0)
 
 #endif
 
