@@ -27,8 +27,6 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
-double FewLimit  = FEW_DEFAULT;
-double ManyLimit = MANY_DEFAULT;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -45,6 +43,55 @@ double ManyLimit = MANY_DEFAULT;
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
 
+/*-----------------------------------------------------------------------
+//
+// Function: SpecLimitsAlloc()
+//
+//   Allocate an initialized SpecLimitsCell.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+SpecLimits_p SpecLimitsAlloc()
+{
+   SpecLimits_p handle = SpecLimitsCellAlloc();
+
+   handle->ngu_absolute           = NGU_ABSOLUTE;
+   if(NGU_ABSOLUTE)
+   {
+      handle->ngu_few_limit          = NGU_FEW_ABSDEFAULT;
+      handle->ngu_many_limit         = NGU_MANY_ABSDEFAULT;
+   }
+   else
+   {
+      handle->ngu_few_limit          = NGU_FEW_DEFAULT;
+      handle->ngu_many_limit         = NGU_MANY_DEFAULT;
+   }  
+   handle->gpc_absolute           = GPC_ABSOLUTE;
+   if(GPC_ABSOLUTE)
+   {
+      handle->gpc_few_limit          = GPC_FEW_ABSDEFAULT;
+      handle->gpc_many_limit         = GPC_MANY_ABSDEFAULT;
+   }
+   else
+   {
+      handle->gpc_few_limit          = GPC_FEW_DEFAULT;
+      handle->gpc_many_limit         = GPC_MANY_DEFAULT;
+   }      
+   handle->ax_some_limit          = AX_SOME_DEFAULT       ;
+   handle->ax_many_limit          = AX_MANY_DEFAULT       ;
+   handle->lit_some_limit         = LIT_SOME_DEFAULT      ;
+   handle->lit_many_limit         = LIT_MANY_DEFAULT      ;
+   handle->term_medium_limit      = TERM_MED_DEFAULT      ;
+   handle->term_large_limit       = TERM_LARGE_DEFAULT    ;
+   handle->far_sum_medium_limit   = FAR_SUM_MED_DEFAULT  ;
+   handle->far_sum_large_limit    = FAR_SUM_LARGE_DEFAULT;
+
+   return handle;
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -839,12 +886,23 @@ long ClauseSetMaxLiteralNumber(ClauseSet_p set)
 void SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p set,
 			 Sig_p sig)
 {
+   long tmp, count;
+
    features->clauses          = set->members;
    features->goals            = ClauseSetCountGoals(set);
    features->axioms           = features->clauses-features->goals;
 
    features->literals         = set->literals;
    features->term_cells       = ClauseSetTermCells(set);
+
+   tmp = 0; 
+   count = 0;
+   features->clause_max_depth = 0;
+   ClauseSetTPTPDepthInfoAdd(set, 
+                             &(features->clause_max_depth),
+                             &tmp,
+                             &count);
+   features->clause_avg_depth = count?tmp/count:0;
 
    features->unit             = ClauseSetCountUnit(set);
    features->unitgoals        = ClauseSetCountUnitGoals(set);
@@ -916,19 +974,34 @@ void SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p set,
    switch(features->max_fun_arity)
    {
    case 0:
-	 features->max_fun_ar_class = SpecMaxArity0;
+	 features->max_fun_ar_class = SpecArity0;
 	 break;
    case 1:
-	 features->max_fun_ar_class = SpecMaxArity1;
+	 features->max_fun_ar_class = SpecArity1;
 	 break;
    case 2:
-	 features->max_fun_ar_class = SpecMaxArity2;
+	 features->max_fun_ar_class = SpecArity2;
 	 break;
    default:
-	 features->max_fun_ar_class = SpecMaxArity3Plus;
+	 features->max_fun_ar_class = SpecArity3Plus;
 	 break;
    }
-   features->ng_unit_axioms_part = features->unitaxioms?
+    switch(features->avg_fun_arity)
+   {
+   case 0:
+	 features->avg_fun_ar_class = SpecArity0;
+	 break;
+   case 1:
+	 features->avg_fun_ar_class = SpecArity1;
+	 break;
+   case 2:
+	 features->avg_fun_ar_class = SpecArity2;
+	 break;
+   default:
+	 features->avg_fun_ar_class = SpecArity3Plus;
+	 break;
+   }
+  features->ng_unit_axioms_part = features->unitaxioms?
       ((double)(features->unitaxioms-features->groundunitaxioms)/
       (double)(features->unitaxioms))
       :0.0;
@@ -954,33 +1027,33 @@ void SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p set,
 //
 /----------------------------------------------------------------------*/
 
-void SpecFeaturesAddEval(SpecFeature_p features, double few_limit,
-			 double many_limit, bool absolute, long
-			 ax_some_limit, long ax_many_limit, long
-			 lit_some_limit, long lit_many_limit, long
-			 term_medium_limit, long term_large_limit)
+void SpecFeaturesAddEval(SpecFeature_p features, SpecLimits_p limits)
 {
-   if(absolute)
+
+   features->goals_are_ground = (features->groundgoals ==
+				 features->goals);
+   
+   if(limits->ngu_absolute)
    {
       features->ng_unit_content = SpecFewPosNonGroundUnits;
       if((features->unitaxioms-features->groundunitaxioms)>
-	 few_limit)
+	 limits->ngu_few_limit)
       {
 	 features->ng_unit_content = SpecSomePosNonGroundUnits;
       }
       if((features->unitaxioms-features->groundunitaxioms)>
-	 many_limit)
+	 limits->ngu_many_limit)
       {
 	 features->ng_unit_content = SpecManyPosNonGroundUnits;
       }
    }
    else
    {
-      if(features->ng_unit_axioms_part<=few_limit)
+      if(features->ng_unit_axioms_part<=limits->ngu_few_limit)
       {
 	 features->ng_unit_content = SpecFewPosNonGroundUnits;
       }
-      else if(features->ng_unit_axioms_part>=many_limit)
+      else if(features->ng_unit_axioms_part>=limits->ngu_many_limit)
       {
 	 features->ng_unit_content = SpecManyPosNonGroundUnits;
       }
@@ -990,25 +1063,25 @@ void SpecFeaturesAddEval(SpecFeature_p features, double few_limit,
       }
    }
 
-   if(absolute)
+   if(limits->gpc_absolute)
    {
       features->ground_positive_content = SpecFewPosGround;
-      if(features->groundpositiveaxioms > few_limit)
+      if(features->groundpositiveaxioms > limits->gpc_few_limit)
       {
 	 features->ground_positive_content = SpecSomePosGround;
       }
-      if(features->groundpositiveaxioms > many_limit)
+      if(features->groundpositiveaxioms > limits->gpc_many_limit)
       {
 	 features->ground_positive_content = SpecManyPosGround;
       }
    }
    else
    {
-      if(features->ground_positive_axioms_part<=few_limit)
+      if(features->ground_positive_axioms_part<=limits->gpc_few_limit)
       {
 	 features->ground_positive_content = SpecFewPosGround;
       }
-      else if(features->ground_positive_axioms_part>=many_limit)
+      else if(features->ground_positive_axioms_part>=limits->gpc_many_limit)
       {
 	 features->ground_positive_content = SpecManyPosGround;
       }
@@ -1018,11 +1091,11 @@ void SpecFeaturesAddEval(SpecFeature_p features, double few_limit,
       }
    }
 
-   if(features->clauses < ax_some_limit)
+   if(features->clauses < limits->ax_some_limit)
    {
       features->set_clause_size = SpecFewAxioms;
    }
-   else if(features->clauses < ax_many_limit)
+   else if(features->clauses < limits->ax_many_limit)
    {
       features->set_clause_size = SpecSomeAxioms;
    }
@@ -1031,11 +1104,11 @@ void SpecFeaturesAddEval(SpecFeature_p features, double few_limit,
       features->set_clause_size = SpecManyAxioms;
    }
 
-   if(features->literals < lit_some_limit)
+   if(features->literals < limits->lit_some_limit)
    {
       features->set_literal_size = SpecFewLiterals;
    }
-   else if(features->literals < lit_many_limit)
+   else if(features->literals < limits->lit_many_limit)
    {
       features->set_literal_size = SpecSomeLiterals;
    }
@@ -1044,11 +1117,11 @@ void SpecFeaturesAddEval(SpecFeature_p features, double few_limit,
       features->set_literal_size = SpecManyLiterals;
    }
     
-   if(features->term_cells < term_medium_limit)
+   if(features->term_cells < limits->term_medium_limit)
    {
       features->set_termcell_size = SpecSmallTerms;
    }
-   else if(features->term_cells < term_large_limit)
+   else if(features->term_cells < limits->term_large_limit)
    {
       features->set_termcell_size = SpecMediumTerms;
    }
@@ -1056,6 +1129,60 @@ void SpecFeaturesAddEval(SpecFeature_p features, double few_limit,
    {
       features->set_termcell_size = SpecLargeTerms;
    }    
+   
+   switch(features->max_fun_arity)
+   {
+   case 0:
+	 features->max_fun_ar_class = SpecArity0;
+	 break;
+   case 1:
+	 features->max_fun_ar_class = SpecArity1;
+	 break;
+   case 2:
+	 features->max_fun_ar_class = SpecArity2;
+	 break;
+   default:
+	 features->max_fun_ar_class = SpecArity3Plus;
+	 break;
+   }
+   switch(features->avg_fun_arity)
+   {
+   case 0:
+	 features->avg_fun_ar_class = SpecArity0;
+	 break;
+   case 1:
+	 features->avg_fun_ar_class = SpecArity1;
+	 break;
+   case 2:
+	 features->avg_fun_ar_class = SpecArity2;
+	 break;
+   default:
+	 features->avg_fun_ar_class = SpecArity3Plus;
+	 break;
+   }
+   features->ng_unit_axioms_part = features->unitaxioms?
+      ((double)(features->unitaxioms-features->groundunitaxioms)/
+      (double)(features->unitaxioms))
+      :0.0;
+
+   features->ground_positive_axioms_part = features->positiveaxioms?
+      ((double)(features->groundpositiveaxioms)/
+       (double)(features->positiveaxioms))
+      :0.0;
+   if(features->sum_fun_arity < limits->far_sum_medium_limit)
+   {
+      features->sum_fun_ar_class = SpecAritySumSmall;
+   }
+   else if(features->sum_fun_arity < limits->far_sum_large_limit)
+   {
+      features->sum_fun_ar_class = SpecAritySumMedium;
+   }
+   else
+   {
+      features->sum_fun_ar_class = SpecAritySumLarge;
+   }    
+
+      
 }
 
 
@@ -1079,7 +1206,8 @@ void SpecFeaturesPrint(FILE* out, SpecFeature_p features)
 
    fprintf(out, 
 	   "(%3ld, %3ld, %3ld, %3ld, %3ld, %3ld, %3ld, %3ld, %3ld,"
-	   " %3ld, %3ld, %3ld, %3ld, %3ld, %3ld, %8.6f, %8.6f, %d)",
+	   " %3ld, %3ld, %3ld, %3ld, %3ld, %3ld, %8.6f, %8.6f,"
+           " %3d, %3d, %3d, %3ld, %3ld)",
 	   features->goals,
 	   features->axioms,
 	   features->clauses,
@@ -1097,20 +1225,156 @@ void SpecFeaturesPrint(FILE* out, SpecFeature_p features)
 	   features->positiveaxioms,
 	   features->ng_unit_axioms_part,
 	   features->ground_positive_axioms_part,
-	   features->max_fun_arity
+	   features->max_fun_arity,
+	   features->avg_fun_arity,
+	   features->sum_fun_arity,
+           features->clause_max_depth,
+           features->clause_avg_depth
       );
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SpecFeaturesParse()
+//
+//   Parse the relevant (i.e. currently used and printed) parts of a
+//   spec features cell from in into a caller-provided structure. Also
+//   parse the type and extract the invariant parts from it.
+//
+// Global Variables: -
+//
+// Side Effects    : Input
+//
+/----------------------------------------------------------------------*/
+
+void SpecFeaturesParse(Scanner_p in, SpecFeature_p features)
+{
+   char *class;
+
+   AcceptInpTok(in, OpenBracket);
+   features->goals                       = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   features->axioms                      = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   features->clauses                     = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   features->literals                    = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   features->term_cells                  = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   features->unitgoals                   = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   features->unitaxioms                  = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   features->horngoals                   = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   features->hornaxioms                  = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   features->eq_clauses                  = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   features->peq_clauses                 = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   features->groundunitaxioms            = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   features->groundgoals                 = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   features->groundpositiveaxioms        = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   features->positiveaxioms              = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   features->ng_unit_axioms_part         = ParseFloat(in);
+   AcceptInpTok(in, Comma);
+   features->ground_positive_axioms_part = ParseFloat(in);
+   AcceptInpTok(in, Comma);
+   features->max_fun_arity               = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   features->avg_fun_arity               = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   features->sum_fun_arity               = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   features->clause_max_depth            = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   features->clause_avg_depth            = ParseInt(in);
+   AcceptInpTok(in, CloseBracket);
+   AcceptInpTok(in, Colon);
+
+   class = ParsePlainFilename(in);
+   if(strlen(class) < 5)
+   {
+      Error("Insufficient class information in class name(s) (to short)", SYNTAX_ERROR);
+   }
+   switch(class[0])
+   {
+   case 'G':
+         features->axiomtypes = SpecGeneral;
+         break;
+   case 'H':
+         features->axiomtypes = SpecHorn;
+         break;
+   case 'U':
+         features->axiomtypes = SpecUnit;
+         break;
+   default:
+         Error("Insufficient class information in class name(s)", SYNTAX_ERROR);
+         break;
+   }
+   switch(class[1])
+   {
+   case 'H':
+         features->goaltypes = SpecHorn;
+         break;
+   case 'U':
+         features->goaltypes = SpecUnit;
+         break;
+   default:
+         Error("Insufficient class information in class name(s)", SYNTAX_ERROR);
+         break;
+   }
+   switch(class[2])
+   {
+   case 'N':
+         features->eq_content = SpecNoEq;
+         break;
+   case 'S':
+         features->eq_content = SpecSomeEq;
+         break;
+   case 'P':
+         features->eq_content = SpecPureEq;
+         break;
+   default:
+         Error("Insufficient class information in class name(s)", SYNTAX_ERROR);
+         break;
+   }
+   /* class[3] information is recovered from numeric features */
+   switch(class[4])
+   {
+   case 'G':
+         features->goals_are_ground = true;
+         break;
+   case 'N':
+         features->goals_are_ground = false;
+         break;
+   default:
+         Error("Insufficient class information in class name(s)", SYNTAX_ERROR);
+         break;
+   }
+
+
+   FREE(class);
+}
+
 
 /*-----------------------------------------------------------------------
 //
 // Function: SpecTypePrint()
 //
-//   Print the type of the problem as a 5-letter code. 
+//   Print the type of the problem as a n-letter code. 
 //   1) Axioms are [U]nit, [H]orn, [General]
 //   2) Goals  are [U]nit, [H]orn, [General]
 //   3) [N]o equality, [S]ome equality, [P]ure equality
 //   4) [F]ew, [S]ome, [M]any non-ground facts
-//   5) [G]round goals or [N]o ground goals
+//   5) [G]round goals or [N]on-ground goals
 //
 // Global Variables: -
 //
@@ -1120,15 +1384,15 @@ void SpecFeaturesPrint(FILE* out, SpecFeature_p features)
 
 void SpecTypePrint(FILE* out, SpecFeature_p features, char* mask)
 {
-   const char encoding[]="UHGNSPFSMFSMFSMFSMSML0123";
-   char       result[10];
+   const char encoding[]="UHGNSPFSMFSMFSMFSMSML0123SML";
+   char       result[13];
    int        i, limit;
 
    assert(features);
-   assert(mask && (strlen(mask)==10));
+   assert(mask && (strlen(mask)==12));
    limit = strlen(mask);
 
-   sprintf(result, "%c%c%c%c%c%c%c%c%c%c", 
+   sprintf(result, "%c%c%c%c%c%c%c%c%c%c%c%c", 
 	   encoding[features->axiomtypes],
 	   encoding[features->goaltypes],
 	   encoding[features->eq_content],
@@ -1138,7 +1402,9 @@ void SpecTypePrint(FILE* out, SpecFeature_p features, char* mask)
 	   encoding[features->set_literal_size],
 	   encoding[features->set_termcell_size],
 	   encoding[features->ground_positive_content],
-	   encoding[features->max_fun_ar_class]);
+	   encoding[features->max_fun_ar_class],
+	   encoding[features->avg_fun_ar_class],
+	   encoding[features->sum_fun_ar_class]);
    for(i=0; i<limit; i++)
    {
       if(mask[i]=='-')

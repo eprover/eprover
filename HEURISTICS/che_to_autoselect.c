@@ -58,14 +58,15 @@ Changes
 OCB_p generate_auto_ordering(ProofState_p state, SpecFeature_p spec)
 {
    OrderParmsCell  oparms; 
+   SpecLimits_p    limits = SpecLimitsAlloc();
    
    oparms.ordertype       = KBO;
    oparms.to_const_weight = WConstNoSpecialWeight; 
    oparms.to_weight_gen   = WSelectMaximal;
    oparms.to_prec_gen     = PUnaryFirst;
    oparms.no_lit_cmp      = false;
-
    OUTPRINT(1, "\n# Auto-Ordering is analysing problem.\n");
+
    #include "che_auto_cases.c"
 
    if(OutputLevel)
@@ -81,6 +82,7 @@ OCB_p generate_auto_ordering(ProofState_p state, SpecFeature_p spec)
       }
       fputs("#\n", GlobalOut);
    }
+   SpecLimitsCellFree(limits);
    return TOCreateOrdering(state, &oparms, NULL);
 }
 #undef CHE_HEURISTICS_AUTO
@@ -104,6 +106,7 @@ OCB_p generate_auto_ordering(ProofState_p state, SpecFeature_p spec)
 OCB_p generate_auto071_ordering(ProofState_p state, SpecFeature_p spec)
 {
    OrderParmsCell  oparms; 
+   SpecLimits_p    limits = SpecLimitsAlloc();
    
    oparms.ordertype       = KBO;
    oparms.to_const_weight = WConstNoSpecialWeight; 
@@ -127,6 +130,7 @@ OCB_p generate_auto071_ordering(ProofState_p state, SpecFeature_p spec)
       }
       fputs("#\n", GlobalOut);
    }
+   SpecLimitsCellFree(limits);
    return TOCreateOrdering(state, &oparms, NULL);
 }
 
@@ -151,6 +155,7 @@ OCB_p generate_auto071_ordering(ProofState_p state, SpecFeature_p spec)
 OCB_p generate_autodev_ordering(ProofState_p state, SpecFeature_p spec)
 {
    OrderParmsCell  oparms; 
+   SpecLimits_p    limits = SpecLimitsAlloc();
    
    oparms.ordertype       = KBO;
    oparms.to_const_weight = WConstNoSpecialWeight; 
@@ -174,6 +179,7 @@ OCB_p generate_autodev_ordering(ProofState_p state, SpecFeature_p spec)
       }
       fputs("#\n", GlobalOut);
    }
+   SpecLimitsCellFree(limits);
    return TOCreateOrdering(state, &oparms, NULL);
 }
 #define CHE_HEURISTICS_AUTO_DEV
@@ -198,6 +204,7 @@ OCB_p generate_autodev_ordering(ProofState_p state, SpecFeature_p spec)
 OCB_p generate_SL_auto_ordering(ProofState_p state, SpecFeature_p spec)
 {
    OrderParmsCell  oparms; 
+   SpecLimits_p    limits = SpecLimitsAlloc();
    
    oparms.ordertype       = KBO;
    oparms.to_const_weight = WConstNoSpecialWeight; 
@@ -221,6 +228,7 @@ OCB_p generate_SL_auto_ordering(ProofState_p state, SpecFeature_p spec)
       }
       fputs("#\n", GlobalOut);
    }
+   SpecLimitsCellFree(limits);
    return TOCreateOrdering(state, &oparms, NULL);
 }
 #endif

@@ -21,21 +21,9 @@ Changes
 
 -----------------------------------------------------------------------*/
 
-/* The calling sequence for SpecFeaturesAddEval is
-   spec
-   NG_UNIT_FEW_LIMIT
-   NG_UNIT_MANY_LIMIT
-   Absolute limit?
-   ax-few-limit
-   ax-some-limit
-   lit-few-limit
-   lit-some-limit
-   term-few-limit
-   term-some-limit */
     
 {
-SpecFeaturesAddEval(spec,1, 3, true, 20, 100,
-		       15, 100, 60, 1000);
+SpecFeaturesAddEval(spec, limits);
 if(OutputLevel)
 {
    fprintf(GlobalOut, "# Problem is type ");

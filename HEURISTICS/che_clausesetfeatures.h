@@ -54,12 +54,41 @@ typedef enum
    SpecSmallTerms,
    SpecMediumTerms,
    SpecLargeTerms,
-   SpecMaxArity0,
-   SpecMaxArity1,
-   SpecMaxArity2,
-   SpecMaxArity3Plus
+   SpecArity0,
+   SpecArity1,
+   SpecArity2,
+   SpecArity3Plus,
+   SpecAritySumSmall,
+   SpecAritySumMedium,
+   SpecAritySumLarge
 }SpecFeatures;
 
+
+
+/* Limits for designating feature-based classes. They will be set in
+   SpecFeatureCells based on these values. */
+
+typedef struct spec_limits_cell
+{
+   bool   ngu_absolute;
+   double ngu_few_limit;
+   double ngu_many_limit;
+   bool   gpc_absolute;
+   double gpc_few_limit;
+   double gpc_many_limit;
+   long   ax_some_limit;
+   long   ax_many_limit;
+   long   lit_some_limit;
+   long   lit_many_limit;
+   long   term_medium_limit;
+   long   term_large_limit;
+   long   far_sum_medium_limit;
+   long   far_sum_large_limit;
+}SpecLimitsCell, *SpecLimits_p;
+
+
+/* Stores all the precomputed feature values (including, after a call
+   to SpecFeaturesAddEval, the classifications */
 typedef struct spec_feature_cell
 {
    SpecFeatures axiomtypes;
@@ -73,6 +102,8 @@ typedef struct spec_feature_cell
    SpecFeatures set_termcell_size;
    SpecFeatures max_fun_ar_class; /* Arity of _real_ function symbols,
 				   0,1,2,>2 */
+   SpecFeatures avg_fun_ar_class;
+   SpecFeatures sum_fun_ar_class;
    long         clauses;
    long         goals;
    long         axioms;
@@ -110,20 +141,33 @@ typedef struct spec_feature_cell
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-#define FEW_DEFAULT  0.25
-#define MANY_DEFAULT 0.75
-#define FEW_ABSDEFAULT  2
-#define MANY_ABSDEFAULT 5
-
-#define AX_SOME_DEFAULT      30
-#define AX_MANY_DEFAULT     150
-#define LIT_SOME_DEFAULT     15
-#define LIT_MANY_DEFAULT    100
-#define TERM_MED_DEFAULT     60
-#define TERM_LARGE_DEFAULT 1000
+#define NGU_ABSOLUTE           true
+#define NGU_FEW_DEFAULT        0.25
+#define NGU_MANY_DEFAULT       0.75
+#define NGU_FEW_ABSDEFAULT        1
+#define NGU_MANY_ABSDEFAULT       3
+#define GPC_ABSOLUTE           true
+#define GPC_FEW_DEFAULT        0.25
+#define GPC_MANY_DEFAULT       0.75
+#define GPC_FEW_ABSDEFAULT        1
+#define GPC_MANY_ABSDEFAULT       3
+#define AX_SOME_DEFAULT          20
+#define AX_MANY_DEFAULT         100
+#define LIT_SOME_DEFAULT         15
+#define LIT_MANY_DEFAULT        100
+#define TERM_MED_DEFAULT         60
+#define TERM_LARGE_DEFAULT     1000
+#define FAR_SUM_MED_DEFAULT      5
+#define FAR_SUM_LARGE_DEFAULT   24
 
 
 #define DEFAULT_OUTPUT_DESCRIPTOR "eigEIG"
+
+#define SpecLimitsCellAlloc() \
+        (SpecLimitsCell*)SizeMalloc(sizeof(SpecLimitsCell)) 
+#define SpecLimitsCellFree(junk) \
+        SizeFree(junk, sizeof(SpecLimitsCell))
+SpecLimits_p SpecLimitsAlloc();
 
 #define SpecFeatureCellAlloc() \
         (SpecFeatureCell*)SizeMalloc(sizeof(SpecFeatureCell)) 
@@ -181,14 +225,30 @@ typedef struct spec_feature_cell
         ((spec)->set_termcell_size == SpecLargeTerms)
   
 #define SpecMaxFArity0(spec) \
-        ((spec)->max_fun_ar_class == SpecMaxArity0)
+        ((spec)->max_fun_ar_class == SpecArity0)
 #define SpecMaxFArity1(spec) \
-        ((spec)->max_fun_ar_class == SpecMaxArity1)
+        ((spec)->max_fun_ar_class == SpecArity1)
 #define SpecMaxFArity2(spec) \
-        ((spec)->max_fun_ar_class == SpecMaxArity2)
+        ((spec)->max_fun_ar_class == SpecArity2)
 #define SpecMaxFArity3Plus(spec) \
-        ((spec)->max_fun_ar_class ==SpecMaxArity3Plus)
+        ((spec)->max_fun_ar_class ==SpecArity3Plus)
 
+#define SpecAvgFArity0(spec) \
+        ((spec)->avg_fun_ar_class == SpecArity0)
+#define SpecAvgFArity1(spec) \
+        ((spec)->avg_fun_ar_class == SpecArity1)
+#define SpecAvgFArity2(spec) \
+        ((spec)->avg_fun_ar_class == SpecArity2)
+#define SpecAvgFArity3Plus(spec) \
+        ((spec)->avg_fun_ar_class ==SpecArity3Plus)
+
+#define SpecSmallFArSum(spec) \
+        ((spec)->sum_fun_arity == SpecAritySumSmall)
+#define SpecMediumFArSum(spec) \
+        ((spec)->sum_fun_arity == SpecAritySumMedium)
+#define SpecLargeFArSum(spec) \
+        ((spec)->sum_fun_arity == SpecAritySumLarge)
+  
 long    ClauseSetCountGoals(ClauseSet_p set);
 #define ClauseSetCountAxioms(set)\
         ((set)->members-ClauseSetCountGoals(set))
@@ -270,13 +330,12 @@ long    ClauseSetTPTPDepthInfoAdd(ClauseSet_p set, long* depthmax,
 				  long* depthsum, long* count);
 void    SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p set,
 			    Sig_p sig);
-void    SpecFeaturesAddEval(SpecFeature_p features, double few_limit,
-			    double many_limit, bool absolute, long
-			    ax_some_limit, long ax_many_limit, long
-			    lit_some_limit, long lit_many_limit, long
-			    term_medium_limit, long term_large_limit);
+void    SpecFeaturesAddEval(SpecFeature_p features, SpecLimits_p limits);
 
 void    SpecFeaturesPrint(FILE* out, SpecFeature_p features);
+
+void    SpecFeaturesParse(Scanner_p in, SpecFeature_p features);
+
 void    SpecTypePrint(FILE* out, SpecFeature_p features, char* mask);
 
 void    ClauseSetPrintPosUnits(FILE* out, ClauseSet_p set, bool

@@ -76,6 +76,7 @@ HCB_p HCBAutoModeCreate(HCBARGUMENTS)
 {
    char *res = "Default";
    SpecFeature_p spec = &(control->problem_specs);
+   SpecLimits_p limits =  SpecLimitsAlloc();
 
    control->selection_strategy = SelectNoLiterals;
    OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
@@ -101,6 +102,7 @@ HCB_p HCBAutoModeCreate(HCBARGUMENTS)
       control->ac_handling = NoACHandling;
       OUTPRINT(1, "# No equality, disabling AC handling.\n#\n");
    }
+   SpecLimitsCellFree(limits);
    return GetHeuristic(res, state, control, parms);
 }
 #undef CHE_HEURISTICS_AUTO
@@ -124,6 +126,7 @@ HCB_p HCB071AutoModeCreate(HCBARGUMENTS)
 {
    char *res = "Default";
    SpecFeature_p spec = &(control->problem_specs);
+   SpecLimits_p limits =  SpecLimitsAlloc();
 
    control->selection_strategy = SelectNoLiterals;
    OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
@@ -149,6 +152,7 @@ HCB_p HCB071AutoModeCreate(HCBARGUMENTS)
       control->ac_handling = NoACHandling;
       OUTPRINT(1, "# No equality, disabling AC handling.\n#\n");
    }
+   SpecLimitsCellFree(limits);
    return GetHeuristic(res, state, control, parms);
 }
 #undef CHE_HEURISTICS_AUTO_071
@@ -173,6 +177,7 @@ HCB_p HCBDevAutoModeCreate(HCBARGUMENTS)
 {
    char *res = "Default";
    SpecFeature_p spec = &(control->problem_specs);
+   SpecLimits_p limits =  SpecLimitsAlloc();
 
    control->selection_strategy = SelectNoLiterals;
    OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
@@ -198,6 +203,7 @@ HCB_p HCBDevAutoModeCreate(HCBARGUMENTS)
       control->ac_handling = NoACHandling;
       OUTPRINT(1, "# No equality, disabling AC handling.\n#\n");
    }
+   SpecLimitsCellFree(limits);
    return GetHeuristic(res, state, control, parms);
 }
 #undef CHE_HEURISTICS_AUTO_DEV
@@ -222,6 +228,7 @@ HCB_p HCBSLAutoModeCreate(HCBARGUMENTS)
 {
    char *res = "Default";
    SpecFeature_p spec = &(control->problem_specs);
+   SpecLimits_p limits =  SpecLimitsAlloc();
 
    control->selection_strategy = SelectNoLiterals;
    OUTPRINT(1, "# Safelogic-Auto-Heuristic is analysing problem.\n");
@@ -247,6 +254,7 @@ HCB_p HCBSLAutoModeCreate(HCBARGUMENTS)
       control->ac_handling = NoACHandling;
       OUTPRINT(1, "# No equality, disabling AC handling.\n#\n");
    }
+   SpecLimitsCellFree(limits);
    return GetHeuristic(res, state, control, parms);
 }
 #endif
