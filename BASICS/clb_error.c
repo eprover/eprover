@@ -126,7 +126,7 @@ long GetSystemPageSize(void)
 
 long GetSystemPhysMemory(void)
 {
-   long res = 0;
+   long res = -1;
 #if defined(E_SC_PAGE_SIZE) && defined(_SC_PHYS_PAGES)
    {
       long long tmpres = 0, pages, pagesize;
@@ -140,7 +140,7 @@ long GetSystemPhysMemory(void)
       }
    }
 #endif
-   if(!res)
+   if(res==-1)
    {
       FILE* pipe;
       char line[120];
