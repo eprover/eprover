@@ -52,7 +52,7 @@ typedef struct proofstatecell
    ClauseSet_p       unprocessed;
    ClauseSet_p       tmp_store;
    ClauseSet_p       demods[3];
-   ClauseSet_p       watch_list;
+   ClauseSet_p       watchlist;
    bool              state_is_complete;
    ulong_c           processed_count;
    ulong_c           proc_trivial_count;
@@ -97,8 +97,11 @@ long         ProofStateGCSweepTerms(ProofState_p state);
     ClauseSetStorage((state)->processed_non_units)+\
     TBStorage((state)->terms))
 
-void         ProofStateStatisticsPrint(FILE* out, ProofState_p state);
-void         ProofStatePrint(FILE* out, ProofState_p state);
+void ProofStateStatisticsPrint(FILE* out, ProofState_p state);
+void ProofStatePrint(FILE* out, ProofState_p state);
+void ProofStatePropDocQuote(FILE* out, int level, 
+			    ClauseProperties prop,
+			    ProofState_p state, char* comment);
 
 #endif
 

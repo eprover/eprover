@@ -441,7 +441,7 @@ void ClauseSetInsert(ClauseSet_p set, Clause_p new)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ClauseSetIndexedInsert()
+// Function: ClauseSetPDTIndexedInsert()
 //
 //   Insert a demodulator into the set and the sets index.
 //
@@ -451,7 +451,7 @@ void ClauseSetInsert(ClauseSet_p set, Clause_p new)
 //
 /----------------------------------------------------------------------*/
 
-void ClauseSetIndexedInsert(ClauseSet_p set, Clause_p new)
+void ClauseSetPDTIndexedInsert(ClauseSet_p set, Clause_p new)
 {
    ClausePos_p pos;
 
@@ -478,6 +478,56 @@ void ClauseSetIndexedInsert(ClauseSet_p set, Clause_p new)
 }
 
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetIndexedInsert()
+//
+//   Insert an FVPackedClause clause into the set, taking care od of
+//   all existing indexes.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void ClauseSetIndexedInsert(ClauseSet_p set, FVPackedClause_p new)
+{
+   if(!set->demod_index)
+   {
+      ClauseSetInsert(set, new->clause);
+   }
+   else
+   {
+      ClauseSetPDTIndexedInsert(set, new->clause);
+   }
+   if(set->fvindex)
+   {
+      FVIndexInsert(set->fvindex, new);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetIndexedInsertClause()
+//
+//   Insert a plain clause into the set, taking care od of
+//   all existing indexes.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void ClauseSetIndexedInsertClause(ClauseSet_p set, Clause_p new)
+{
+   FVPackedClause_p pclause = FVIndexPackClause(new, set->fvindex);
+   ClauseSetIndexedInsert(set, pclause);
+   FVUnpackClause(pclause);
+}
 
 
 /*-----------------------------------------------------------------------
@@ -1385,7 +1435,10 @@ void ClauseSetDocInital(FILE* out, long level, ClauseSet_p set)
       for(handle = set->anchor->succ; handle!=set->anchor; handle =
 	     handle->succ)
       {
-	 DocClauseCreationDefault(handle, inf_initial, NULL, NULL);
+	 DocClauseCreation(out, OutputLevel, handle, 
+			   inf_initial, NULL, NULL,
+			   ClauseQueryProp(handle, CPWatchOnly)?
+			   "NoInfWatchOnly":NULL);
       }
    }   
 }
@@ -1393,9 +1446,9 @@ void ClauseSetDocInital(FILE* out, long level, ClauseSet_p set)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ClauseSetDocQuote()
+// Function: ClauseSetPropDocQuote()
 //
-//   Quote all clauses in set.
+//   Quote all clauses in set for which all props are set.
 //
 // Global Variables: -
 //
@@ -1403,8 +1456,8 @@ void ClauseSetDocInital(FILE* out, long level, ClauseSet_p set)
 //
 /----------------------------------------------------------------------*/
 
-void ClauseSetDocQuote(FILE* out, long level, ClauseSet_p set,
-			      char* comment)
+void ClauseSetPropDocQuote(FILE* out, long level, ClauseProperties prop,
+			   ClauseSet_p set, char* comment)
 {
    Clause_p handle;
    
@@ -1413,7 +1466,10 @@ void ClauseSetDocQuote(FILE* out, long level, ClauseSet_p set,
       for(handle = set->anchor->succ; handle!=set->anchor; handle =
 	     handle->succ)
       {
-	 DocClauseQuote(out, level, 2, handle, "final" , NULL);
+	 if(ClauseQueryProp(handle, prop))
+	 {
+	    DocClauseQuote(out, level, 2, handle, comment , NULL);
+	 }
       }
    }      
 }
@@ -1820,6 +1876,40 @@ PermVector_p PermVectorCompute(ClauseSet_p set, FVIndexParms_p params,
    return res;
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetFVIndexify()
+//
+//   Remove all clauses from set and insert them again as indexed
+//   clauses. Return number of clauses in set.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetFVIndexify(ClauseSet_p set)
+{
+   PStack_p stack = PStackAlloc();
+   Clause_p clause;
+
+   assert(set);
+   assert(set->fvindex);
+   
+   while((clause = ClauseSetExtractFirst(set)))
+   {
+      PStackPushP(stack, clause);
+   }
+   while(!PStackEmpty(stack))
+   {
+      clause = PStackPopP(stack);
+      ClauseSetIndexedInsertClause(set, clause);
+   }
+   PStackFree(stack);
+   return set->members;
+}
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

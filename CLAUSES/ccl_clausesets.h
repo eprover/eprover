@@ -75,7 +75,8 @@ ClauseSet_p ClauseSetAlloc(void);
 void        ClauseSetFree(ClauseSet_p junk);
 void        ClauseSetGCMarkTerms(ClauseSet_p set);
 void        ClauseSetInsert(ClauseSet_p set, Clause_p new);
-void        ClauseSetIndexedInsert(ClauseSet_p set, Clause_p new);
+void        ClauseSetPDTIndexedInsert(ClauseSet_p set, Clause_p new);
+void        ClauseSetIndexedInsert(ClauseSet_p set, FVPackedClause_p new);
 Clause_p    ClauseSetExtractEntry(Clause_p clause);
 #define     ClauseSetEmpty(set)\
             ((set)->anchor->succ == (set)->anchor)
@@ -119,7 +120,11 @@ ClausePos_p ClauseSetFindEqDefinition(ClauseSet_p set, int min_arity);
 void        ClauseSetDocInital(FILE* out, long level, ClauseSet_p set);
 void        ClauseSetDocQuote(FILE* out, long level, ClauseSet_p set,
 			      char* comment);
-
+void        ClauseSetPropDocQuote(FILE* out, long level,
+				  ClauseProperties prop,
+				  ClauseSet_p set, char* comment);
+#define     ClauseSetDocQuote(out, level, set, comment) \
+            ClauseSetPropDocQuote((out), (level),CPIgnoreProps, (set), (comment))
 #ifndef NDBUG
 
 bool        ClauseSetVerifyDemod(ClauseSet_p demods, ClausePos_p pos);
@@ -150,6 +155,8 @@ long        ClauseSetFindCharFreqVectors(ClauseSet_p set,
 
 PermVector_p PermVectorCompute(ClauseSet_p set, FVIndexParms_p params,
 			       long symbols);
+
+long         ClauseSetFVIndexify(ClauseSet_p set);
 
 #endif
 

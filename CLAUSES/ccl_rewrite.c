@@ -767,11 +767,11 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term)
    printf("\n"); */
 
    /* This is tricky! The term may be sub-top-level rewritten by a
-      rule that had been eliminated by an equation. So we may not find
+      rule that had been eliminated by an equation, or by a rule that
+      modified its right hand side (new loop!). So we may not find
       the full normal form here - the rule is gone, and we do not test
       for equations. Thus, we are not necessarily in full normal
       form. */
-   assert((desc->level != FullRewrite)||!TermIsRewritten(term));
    if(!TermIsRewritten(term))
    {
       term->rw_data.nf_date[RewriteAdr(RuleRewrite)] = desc->demod_date;

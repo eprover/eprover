@@ -65,7 +65,9 @@ typedef enum
    CP_CSSCPA_8      = 1048576,
    CP_CSSCPA_Mask   = CP_CSSCPA_1|CP_CSSCPA_2|CP_CSSCPA_4|CP_CSSCPA_8,
    CP_CSSCPA_Unkown = 0,
-   CPIsProtected    = 2097152
+   CPIsProtected    = 2097152,
+   CPWatchOnly      = 4194304,
+   CPSubsumesWatch  = 8388608
 }ClauseProperties;
 
 

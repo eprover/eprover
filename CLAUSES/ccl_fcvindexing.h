@@ -138,7 +138,6 @@ long        FVIndexCountNodes(FVIndex_p index, bool leafs, bool empty);
 
 FVPackedClause_p FVIndexPackClause(Clause_p clause, FVIAnchor_p anchor);
 
-
 #endif
 
 /*---------------------------------------------------------------------*/

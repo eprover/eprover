@@ -492,8 +492,11 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
    Subst_p subst;
    bool    res;
    long* pick_list;
-
-   assert(ClauseLiteralNumber(subsumer) > 0);
+   
+   if(ClauseLiteralNumber(subsumer)==0)
+   {
+      return true;
+   }
    if(ClauseLiteralNumber(subsumer)==1)
    {
       return UnitClauseSubsumesClause(subsumer, sub_candidate);
@@ -594,8 +597,8 @@ Clause_p clause_tree_find_subsuming_clause(PTree_p tree, Clause_p sub_candidate)
    clause = tree->key;
    if(clause_subsumes_clause(clause,sub_candidate))
    {
-      DocClauseQuote(GlobalOut, OutputLevel, 6, sub_candidate,
-		     "subsumed", clause);
+      /* DocClauseQuote(GlobalOut, OutputLevel, 6, sub_candidate,
+	 "subsumed", clause); */
       ClauseSetProp(clause, ClauseQueryProp(sub_candidate,CPIsSOS));
       return clause;
    }
@@ -680,8 +683,8 @@ void clause_tree_find_subsumed_clauses(PTree_p tree, Clause_p subsumer,
    clause = tree->key;
    if(clause_subsumes_clause(subsumer, clause))
    {
-      DocClauseQuote(GlobalOut, OutputLevel, 6, clause,
-		     "subsumed", subsumer);
+      /* DocClauseQuote(GlobalOut, OutputLevel, 6, clause,
+	 "subsumed", subsumer);*/
       ClauseSetProp(subsumer, ClauseQueryProp(clause,CPIsSOS));
       PStackPushP(res, clause);
    }
@@ -717,8 +720,8 @@ void clauseset_find_subsumed_clauses(ClauseSet_p set,
    {
       if(clause_subsumes_clause(subsumer, handle))
       {
-	 DocClauseQuote(GlobalOut, OutputLevel, 6, handle,
-			"subsumed", subsumer); 
+	 /* DocClauseQuote(GlobalOut, OutputLevel, 6, handle,
+	    "subsumed", subsumer); */
 	 PStackPushP(res, handle);
       }
    }
