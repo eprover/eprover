@@ -146,7 +146,8 @@ OptCell opts[] =
    {OPT_VERSION,
     'V', "version",
     NoArg, NULL,
-    "Print the version number of the prover."},
+    "Print the version number of the prover. Please include this"
+    " with all bug reports (if any)."},
 
    {OPT_VERBOSE, 
     'v', "verbose", 
@@ -175,8 +176,8 @@ OptCell opts[] =
     "processed, level 2 will output generating inferences, "
     "level 3 will give a full protocol including rewrite steps and "
     "level 4 will include some internal clause renamings. Levels >= 2"
-    " also imply a certain clause format (LOP with infix equality "
-    "predicate) that is expected by the postprocessing tools."},
+    " also imply PCL2 or TSTP formats (which can be post-processed"
+    " with suitable tools)."},
    
    {OPT_PCL_COMPRESSED,
     '\0', "pcl-terms-compressed",
@@ -187,7 +188,7 @@ OptCell opts[] =
     '\0', "pcl-compact",
     NoArg, NULL,
     "Print PCL steps without additional spaces for formatting (safes "
-    "disk space for larfge protocols)."},
+    "disk space for large protocols)."},
 
    {OPT_PRINT_STATISTICS,
     '\0', "print-statistics",
@@ -199,8 +200,8 @@ OptCell opts[] =
     '\0', "print-detailed-statistics",
     NoArg, NULL,
     "Print data about the proof state that is potentially expensive "
-    "to collect. Includes number of term cells, average superterm "
-    "number, and number of rewrite steps."},
+    "to collect. Includes number of term cells and number of "
+    "rewrite steps."}, 
 
    {OPT_PRINT_SATURATED,
     'S', "print-saturated",
@@ -256,10 +257,11 @@ OptCell opts[] =
     '\0', "error-on-empty",
     NoArg, NULL,
     "Return with an error code if the input file contains no clauses. "
-    "Formally, the empty clause set is satisfiable, and E will treat "
-    "it as such. However, in composite systems this is more often a "
-    "sign that something went wrong. Use this option to catch such" 
-    " bugs."},
+    "Formally, the empty clause set (as an empty conjunction of "
+    "clauses) is trivially satisfiable, and E will treat any empty "
+    "input set as satisfiable. However, in composite systems this "
+    "is more often a sign that something went wrong. Use this option "
+    "to catch such bugs."},
 
    {OPT_MEM_LIMIT,
     'm', "memory-limit",
@@ -279,14 +281,15 @@ OptCell opts[] =
     " option may not work " 
     "everywhere, due to broken and/or strange behaviour of setrlimit() "
     "in some UNIX implementations. It does work under all tested "
-    "versions of Solaris, HP-UX and GNU/Linux. As a side effect, this "
+    "versions of Solaris, HP-UX, MacOS-X, and GNU/Linux. As a side "
+    "effect, this "
     "option will inhibit core file writing. Please note that if you"
     " use both --cpu-limit and --soft-cpu-limit, the soft limit has to"
-    " be larger than the hard limit"}, 
+    " be smaller than the hard limit to have any effect. "}, 
 
    {OPT_SOFTCPU_LIMIT,
     '\0', "soft-cpu-limit",
-    OptArg, "310",
+    OptArg, "290",
     "Limit the cpu time the prover should spend in the main saturation"
     " phase. The prover will then terminate gracefully, i.e. it will "
     "perform post-processing, " 
@@ -309,37 +312,42 @@ OptCell opts[] =
    {OPT_STEP_LIMIT,
     'C', "processed-clauses-limit",
     ReqArg, NULL,
-    "Set the maximal number of clauses to process."},
+    "Set the maximal number of clauses to process (i.e. the number"
+    " of traversals of the main-loop)."},
    
    {OPT_PROC_LIMIT,
     'P', "processed-set-limit",
     ReqArg, NULL,
-    "Set the maximal size of the set of processed clauses."},
+    "Set the maximal size of the set of processed clauses. This differs "
+    "from the previous option in that redundant and back-simplified "
+    "processed clauses are not counted."},
 
    {OPT_UNPROC_LIMIT,
     'U', "unprocessed-limit",
     ReqArg, NULL,
-    "Set the maximal size of the set of unprocessed clauses."},
+    "Set the maximal size of the set of unprocessed clauses. This is a "
+    "termination condition, not something to use to control the deletion"
+    " of bad clauses. Compare --delete-bad-limit."},
    
    {OPT_TOTAL_LIMIT,
     'T', "total-clause-set-limit",
     ReqArg, NULL,
-    "Set the maximal size of the set of all clauses."},
+    "Set the maximal size of the set of all clauses. See previous option."},
 
    {OPT_NO_INFIX,
     'n', "eqn-no-infix",
     NoArg, NULL,
-    "Print equations in prefix notation equal(x,y)."},
+    "In LOP, print equations in prefix notation equal(x,y)."},
 
    {OPT_FULL_EQ_REP,
     'e', "full-equational-rep",
     NoArg, NULL,
-    "Print all literals as equations, even non-equational ones."},
+    "In LOP. print all literals as equations, even non-equational ones."},
 
    {OPT_TPTP_PARSE,
     '\0', "tptp-in",
     NoArg, NULL,
-    "Parse TPTP format instead of E-LOP{ (does not understand includes, "
+    "Parse TPTP format instead of E-LOP (does not understand includes, "
     "as TPTP includes are a brain-dead design)."},
 
    {OPT_TPTP_PRINT,
@@ -356,8 +364,8 @@ OptCell opts[] =
    {OPT_TSTP_PARSE,
     '\0', "tstp-in",
     NoArg, NULL,
-    "Parse limited TSTP format instead of E-LOP (no optional "
-    "extensions) ."},
+    "Parse TSTP format instead of E-LOP (not all all optional "
+    "extensions are currently supported)."},
    
    {OPT_TSTP_PRINT,
     '\0', "tstp-out",
@@ -384,11 +392,6 @@ OptCell opts[] =
     "During preprocessing, abstain from unfolding (and removing) "
     "equational definitions."},
 
-   {OPT_NO_NEG_PARAMOD,
-    'N', "no-paramod-into-negatives",
-    NoArg, NULL,
-    "Refrain from paramodulating into negative literals."},
-
    {OPT_AC_HANDLING,
     '\0', "ac-handling",
     OptArg, "KeepUnits",
@@ -403,10 +406,17 @@ OptCell opts[] =
     "default, AC resolution is done after clause creation). Only "
     "effective if AC handling is not disabled."},
 
+   {OPT_NO_NEG_PARAMOD,
+    'N', "no-paramod-into-negatives",
+    NoArg, NULL,
+    "Refrain from paramodulating into negative literals "
+    "(option is deprecated and may not be supported in the future)."},
+
    {OPT_NO_NONEQ_PARAMOD,
     'E', "paramod-equational-literals-only",
     NoArg, NULL,
-    "Don't paramodulate from or into non-equational literals."},
+    "Don't paramodulate from or into non-equational literals "
+    "(option is deprecated and may not be supported in the future)."},
     
    {OPT_LITERAL_SELECT,
     'W', "literal-selection-strategy",
@@ -502,10 +512,12 @@ OptCell opts[] =
     'x', "expert-heuristic",
     ReqArg, NULL,
     "Select one of the clause selection heuristics. Currently"
-    " available: Auto, Weight, StandardWeight, RWeight, FIFO, LIFO and"
-    " Uniq. Auto is recommended if you only want to find a proof. It "
-    "will also set some additional options. To have optimal "
-    "performance, you also have to specify -tAuto to select a good "
+    " at least available: Auto, Weight, StandardWeight, RWeight, FIFO,"
+    " LIFO, Uniq, UseWatchlist. For a full list check "
+    "HEURISTICS/che_proofcontrol.c. Auto is recommended if you only want"
+    " to find a proof. It is special in that it will also set some "
+    "additional options. To have optimal "
+    "performance, you also should specify -tAuto to select a good "
     "term ordering. LIFO is unfair and will " 
     "make the prover incomplete. Uniq is used internally and is not "
     "very useful in most cases. You can define more heuristics using"
@@ -632,9 +644,9 @@ OptCell opts[] =
     "terms are uncomparable. Smaller values make the comparison "
     "attempts faster, but less exact. Larger values have the opposite "
     "effect. Values up to 20000 should be save on most operating "
-    "systems. If you run into segmentation faults while using the "
-    "LPO, first try to set this limit to a reasonable value. If the "
-    "problem persists, send a bug report ;-)"
+    "systems. If you run into segmentation faults while using "
+    "LPO or LPO4, first try to set this limit to a reasonable value. "
+    "If the problem persists, send a bug report ;-)"
    },
 
    {OPT_TO_RESTRICT_LIT_CMPS,
@@ -669,7 +681,8 @@ OptCell opts[] =
      '\0', "strong-destructive-er",
     NoArg, NULL,
     "Allow destructive equality resolution inferences on "
-    "literals of the form X!=t, i.e. replace the original clause with the "
+    "literals of the form X!=t (where X does not occur in t), i.e. "
+    "replace the original clause with the " 
     "result of an equality resolution inference on this literal. Unless I "
     "am braindead, this maintains completeness, although the proof is"
     " rather tricky."}, 
@@ -715,7 +728,8 @@ OptCell opts[] =
    {OPT_STRONGSUBSUMPTION,
     'u', "strong-forward-subsumption",
     NoArg, NULL,
-    "Try multiple positions and unit-equations to try to subsume a "
+    "Try multiple positions and unit-equations to try to "
+    "equationally subsume a "
     "single new clause. Default is to search for a single position."},
    
    {OPT_WATCHLIST,
@@ -783,9 +797,9 @@ OptCell opts[] =
     "Set the number of slots reserved in the index for function symbols "
     "that may be introduced into the signature "
     "later, e.g. by splitting. If no new symbols are introduced, this just "
-    "wastes time and memory.If PermOpt is choosen, the slackness slots will "
-    "be deleted from the index anyways, but will still waste time in "
-    "computing feature vectors."},
+    "wastes time and memory. If PermOpt is choosen, the slackness slots will "
+    "be deleted from the index anyways, but will still waste "
+    "(a little) time in computing feature vectors."},
 
    {OPT_UNPROC_UNIT_SIMPL,
     '\0', "simplify-with-unprocessed-units",
@@ -813,7 +827,7 @@ OptCell opts[] =
     '\0', "interprete-numbers",
     OptArg, "s,0",
     "Interprete numbers in the input as successor-terms. The argument "
-     "is a comma-separated tuples of function symbols for the "
+     "is a comma-separated tuple of function symbols for the "
      "successor function and the 0 element."}, 
    
    {OPT_NOOPT,
@@ -1760,7 +1774,7 @@ E " VERSION " \"" NICKNAME "\"\n\
 \n\
 Usage: " NAME " [options] [files]\n\
 \n\
-Read a set of clauses and try to refute it.\n\
+Read a set of first-order clauses and formulae and try to refute it.\n\
 \n");
    PrintOptions(stdout, opts);
    fprintf(out, "\n\
