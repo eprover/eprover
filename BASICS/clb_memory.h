@@ -75,9 +75,11 @@ static __inline__ void  SizeFreeReal(void* junk, int size);
 #ifndef NDEBUG
 #define SizeFree(junk, size) SizeFreeReal(junk, size); junk=NULL
 #define SizeMalloc(size) SizeMallocReal(size)
+#define ENSURE_NULL(junk) junk=NULL
 #else
 #define SizeFree(junk, size) SizeFreeReal(junk, size);
 #define SizeMalloc(size) SizeMallocReal(size)
+#define ENSURE_NULL(junk) /* Only define in debug mode */
 #endif
 
 void  MemFlushFreeList(void);
@@ -150,7 +152,7 @@ static __inline__ void* SizeMallocReal(int size)
    else
    {
       handle = SecureMalloc(size);
-#ifndef NDBUG
+#ifndef NDREBUG
       if((mem_index>=0) && (mem_index<MEM_ARR_SIZE))
       {
 	 assert((handle->test = MEM_RSET_PATTERN, true));
