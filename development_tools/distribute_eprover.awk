@@ -486,7 +486,8 @@ function check_and_initialize(    tmp, job)
 
 function process_result(host     , file, tmp, name, time, org_time, status,\
 	     reason, generated, processed,shared_terms,raw_terms,\
-	     rewrite_steps, r_matches, e_matches, literals)
+	     rewrite_steps, r_matches, e_matches, literals,nu_subs,\
+	     nurec_sub, u_subs)
 {
    file = host "_complete";
    getline name < file;
@@ -568,6 +569,18 @@ function process_result(host     , file, tmp, name, time, org_time, status,\
 	 {
 	    literals = substr(tmp, 42);
 	 }	 
+	 else if(index(tmp, "# Clause-clause subsumption calls (NU) :"))
+	 {
+	    nu_subs = substr(tmp, 42);
+	 }	 
+	 else if(index(tmp, "# Rec. Clause-clause subsumption calls :"))
+	 {
+	    nurec_subs = substr(tmp, 42);
+	 }	 
+	 else if(index(tmp, "# Unit Clause-clause subsumption calls :"))
+	 {
+	    u_subs = substr(tmp, 42);
+	 }	 
 	 else if(index(tmp, "# Total time"))
 	 {
 	    org_time = substr(tmp, 30);
@@ -576,9 +589,9 @@ function process_result(host     , file, tmp, name, time, org_time, status,\
 	 }
       }
       close(file);
-      printf("%-29s " status " %8.3f  %-10s %10d %10d %10d %10d %10d %10d %10d %10d\n", \
-	     name, 0+time, reason, generated, processed,shared_terms,raw_terms,\
-	     rewrite_steps, r_matches, e_matches, literals) >> logfile;
+      printf("%-29s " status " %8.3f  %-10s %10d %10d %10d %10d %10d", \
+	     name, 0+time, reason, generated, processed, \
+	     nu_subs, nurec_subs,u_subs) >> logfile;
       open_jobs--;	    
       printf("Open: " open_jobs " %-29s " status " %8.3f  " reason "\n", name, 0+time);
    }
