@@ -221,6 +221,8 @@ CSSCPAState_p CSSCPAStateAlloc()
    handle->pos_units = ClauseSetAlloc();
    handle->neg_units = ClauseSetAlloc();
    handle->non_units = ClauseSetAlloc();
+   handle->pos_units->demod_index = PDTreeAlloc();
+   handle->neg_units->demod_index = PDTreeAlloc();
    handle->literals  = 0;
    handle->clauses   = 0;
    handle->weight    = 0;
@@ -285,7 +287,7 @@ bool CSSCPAProcessClause(CSSCPAState_p state, Clause_p clause,
    {
       clause_status = forced;
    }
-
+   
    if(ClauseIsTautology(state->tmp_terms,clause))
    {
       clause_status = rejected;
@@ -296,11 +298,12 @@ bool CSSCPAProcessClause(CSSCPAState_p state, Clause_p clause,
       }
       ClauseFree(clause);
    }
-   
+   printf("Going into subsumption\n");
    if(clause_status != rejected)
    {
       clause->weight = ClauseStandardWeight(clause);
       
+      printf("Before UnitClauseSetSubsumesClause()\n");
       if((clause->pos_lit_no && 
           UnitClauseSetSubsumesClause(state->pos_units,
 				      clause)) ||
@@ -339,7 +342,10 @@ bool CSSCPAProcessClause(CSSCPAState_p state, Clause_p clause,
          clause_status = improved;
       }
       else if(state->clauses && 
-(((state->weight + clause->weight)/(state->clauses + 1.0)) < ((1.0-average_delta)*state->weight/state->clauses)))
+	      (((state->weight + clause->weight)/
+		(state->clauses + 1.0)) 
+	       < 
+	       ((1.0-average_delta)*state->weight/state->clauses)))
       {
 	 clause_status = improved;
       }
@@ -373,15 +379,15 @@ bool CSSCPAProcessClause(CSSCPAState_p state, Clause_p clause,
 	 
          if(ClauseIsUnit(clause)&&ClauseIsPositive(clause))
          {
-	    ClauseSetInsert(state->pos_units,clause);
+	    ClauseSetIndexedInsertClause(state->pos_units,clause);
          }
          else if(ClauseIsUnit(clause))
 	 {
-	    ClauseSetInsert(state->neg_units,clause);
+	    ClauseSetIndexedInsertClause(state->neg_units,clause);
 	 }
 	 else
 	 {
-	    ClauseSetInsert(state->non_units,clause);
+	    ClauseSetIndexedInsertClause(state->non_units,clause);
 	 }
          if(OutputLevel)
          {
@@ -447,9 +453,9 @@ void CSSCPALoop(Scanner_p in, CSSCPAState_p state)
          {
              OutputLevel = AktToken(in)->numval == 1;
          }
-	     AcceptInpTok(in,PosInt);
+	 AcceptInpTok(in,PosInt);
          continue;
-	  }
+      }
       /*----User requests a state update */
       if(TestInpId(in, "state"))
       {
@@ -486,9 +492,9 @@ void CSSCPALoop(Scanner_p in, CSSCPAState_p state)
 	 AcceptInpId(in, "ever");
 	 AcceptInpId(in, "written");
 	 AcceptInpTok(in, Fullstop);
-     continue;
+	 continue;
       }
-
+      
       CheckInpId(in, "accept|check");
       accept = false;
       if(TestInpId(in, "accept"))
@@ -537,7 +543,7 @@ void CSSCPALoop(Scanner_p in, CSSCPAState_p state)
       AcceptInpTok(in, Colon);
       handle = ClauseParse(in, state->terms);
       ClauseSetCSSCPASource(handle,source); 
-
+      printf("Clause parsed\n");
       CSSCPAProcessClause(state, handle, accept, weight_delta, average_delta);     
    }
 }
