@@ -26,6 +26,7 @@ Changes
 
 #include <assert.h>
 #include <stdio.h> 
+#include <string.h> 
 #include <errno.h>
 #ifdef SPEC_CPU2004
 #define MAXPATHLEN 256
