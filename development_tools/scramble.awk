@@ -10,8 +10,9 @@
 
 function get_pid(     tmp)
 {
-   getline tmp < "/dev/pid";
-   close("/dev/pid");
+   tmp = PROCINFO["pid"];
+   # getline tmp < "/dev/pid";
+   #   close("/dev/pid");
    if(!tmp)
    {
       print "scramble.awk: Cannot get PID ?!?" > "/dev/stderr";
@@ -57,7 +58,8 @@ END{
       printf("%1.12f %s\n", i, array[i]) > file ;
    }
    close(file);
-   while (("sort " file | getline tmp) > 0)
+   cmd = "sort " file;
+   while ((cmd | getline tmp) > 0)
    {
       print substr(tmp,16);
    }
