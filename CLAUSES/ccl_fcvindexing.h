@@ -126,8 +126,14 @@ void      FVIndexFree(FVIndex_p junk);
 FVIAnchor_p FVIAnchorAlloc(long symbol_limit, FVIndexType features, PermVector_p perm);
 void        FVIAnchorFree(FVIAnchor_p junk);
 
-#define FVIndexStorage(index) ((index)?(index)->node_count*MEMSIZE(FVIndexCell)+\
-			       (index)->array_count*sizeof(long):0)
+#ifdef CONSTANT_MEM_ESTIMATE
+#define FVINDEX_MEM 20
+#else
+#define FVINDEX_MEM MEMSIZE(FVIndexCell)
+#endif
+
+#define FVIndexStorage(index) ((index)?(index)->node_count*FVINDEX_MEM+\
+			       (index)->array_count*LONG_MEM:0)
 
 FVIndex_p   FVIndexGetNextNonEmptyNode(FVIndex_p node, long key);
 void        FVIndexInsert(FVIAnchor_p index, FreqVector_p vec_clause);

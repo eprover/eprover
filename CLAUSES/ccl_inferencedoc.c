@@ -181,7 +181,7 @@ static void print_paramod(FILE* out, Clause_p clause, Clause_p
    case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
-		 ", inference("PCL_PM",[status(thm)],[%ld,%ld,theory(equality)])",
+		 ", inference("PCL_PM",[status(thm)],[c_0_%ld,c_0_%ld,theory(equality)])",
 		 parent1->ident,
 		 parent2->ident);
 	 tstp_print_end(out, comment, clause);
@@ -218,7 +218,7 @@ static void print_eres(FILE* out, Clause_p clause, Clause_p
    case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
-		 ", inference("PCL_ER",[status(thm)],[%ld,theory(equality)])",
+		 ", inference("PCL_ER",[status(thm)],[c_0_%ld,theory(equality)])",
 		 parent1->ident);
 	 tstp_print_end(out, comment, clause);
 	 break;
@@ -254,7 +254,7 @@ static void print_efactor(FILE* out, Clause_p clause, Clause_p
    case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
-		 ", inference("PCL_EF",[status(thm)],[%ld,theory(equality)])",
+		 ", inference("PCL_EF",[status(thm)],[c_0_%ld,theory(equality)])",
 		 parent1->ident);
 	 tstp_print_end(out, comment, clause);
 	 break;
@@ -290,7 +290,7 @@ static void print_factor(FILE* out, Clause_p clause, Clause_p
    case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
-		 ", inference("PCL_OF",[status(thm)],[%ld,theory(equality)])",
+		 ", inference("PCL_OF",[status(thm)],[c_0_%ld,theory(equality)])",
 		 parent1->ident);
 	 tstp_print_end(out, comment, clause);
 	 break;
@@ -327,7 +327,7 @@ static void print_split(FILE* out, Clause_p clause, Clause_p
    case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
-		 ", inference("PCL_SPLIT",[status(split)], [%ld])",
+		 ", inference("PCL_SPLIT",[status(split)], [c_0_%ld])",
 		 parent1->ident);
 	 tstp_print_end(out, comment, clause);
 	 break;
@@ -363,7 +363,7 @@ static void print_simplify_reflect(FILE* out, Clause_p clause, long
   case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
-		 ", inference("PCL_SR",[status(thm)],[%ld,%ld,theory(equality)])",
+		 ", inference("PCL_SR",[status(thm)],[c_0_%ld,c_0_%ld,theory(equality)])",
 		 old_id,
 		 partner->ident);
 	 tstp_print_end(out, comment, clause);
@@ -400,7 +400,7 @@ static void print_context_simplify_reflect(FILE* out, Clause_p clause, long
  case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
-		 ", inference("PCL_CSR",[status(thm)],[%ld,%ld])",
+		 ", inference("PCL_CSR",[status(thm)],[c_0_%ld,c_0_%ld])",
 		 old_id,
 		 partner->ident);
 	 tstp_print_end(out, comment, clause);
@@ -446,12 +446,12 @@ static void print_ac_res(FILE* out, Clause_p clause, long
    case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
-		 ", inference("PCL_ACRES",[status(thm)],[%ld", old_id);
+		 ", inference("PCL_ACRES",[status(thm)],[c_0_%ld", old_id);
 	 assert(!PStackEmpty(sig->ac_axioms));
 	 sp = PStackGetSP(sig->ac_axioms);
 	 for(i=0; i< sp; i++)
 	 {
-	    fprintf(out, ",%ld", PStackElementInt(sig->ac_axioms,i));
+	    fprintf(out, ",c_0_%ld", PStackElementInt(sig->ac_axioms,i));
 	 }
 	 fputs("])", out);
 	 tstp_print_end(out, comment, clause);
@@ -551,10 +551,10 @@ static void print_rewrite(FILE* out, ClausePos_p rewritten, long
 	 {
 	    fprintf(out,"inference("PCL_RW", [status(thm)],[");
 	 }
-	 fprintf(out, "%ld", old_id);
+	 fprintf(out, "c_0_%ld", old_id);
 	 for(i=0; i<PStackGetSP(rwsteps); i++)
 	 {
-	    fprintf(out, ",%ld,theory(equality)])", 
+	    fprintf(out, ",c_0_%ld,theory(equality)])", 
 		    PStackElementInt(rwsteps,i));
 	 }
 	 tstp_print_end(out, comment, rewritten->clause);
@@ -607,10 +607,10 @@ static void print_eq_unfold(FILE* out, Clause_p rewritten,
 	 {
 	    fprintf(out,"inference("PCL_RW", [status(thm)],[");
 	 }
-	 fprintf(out, "%ld", old_id);
+	 fprintf(out, "c_0_%ld", old_id);
 	 for(i=0; i<PStackGetSP(demod_pos); i++)
 	 {
-	    fprintf(out, ",%ld,theory(equality)])", 
+	    fprintf(out, ",c_0_%ld,theory(equality)])", 
 		    PStackElementInt(demod_pos,i));
 	 }
 	 tstp_print_end(out, "Unfolding", rewritten);
@@ -794,11 +794,11 @@ void DocClauseQuote(FILE* out, long level, long target_level,
       case tstp_format: 
 	    clause->ident = ++ClauseIdentCounter;
 	    ClauseTSTPPrint(out, clause, PCLFullTerms, false);
-	    fprintf(out, ", %ld", old_id);
+	    fprintf(out, ", c_0_%ld", old_id);
 	    if(opt_partner)
 	    {
 	       assert(comment);
-	       fprintf(out, ",['%s(%ld)']).\n", comment, opt_partner->ident);
+	       fprintf(out, ",['%s(c_0_%ld)']).\n", comment, opt_partner->ident);
 	    }
 	    else if(comment)
 	    {

@@ -1204,8 +1204,24 @@ void ClauseTSTPCorePrint(FILE* out, Clause_p clause, bool fullterms)
 
 void ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms, bool complete)
 {
-   fprintf(out, "cnf(%ld, %s,", clause->ident, 
-	   ClauseQueryProp(clause, CPInitial)?"initial":"derived");
+   int source;
+
+   source = ClauseQueryCSSCPASource(clause);
+
+   if(clause->ident >= 0)
+   {
+      fprintf(out, "cnf(c_%d_%ld, %s,", 
+	      source, 
+	      clause->ident, 
+	      ClauseQueryProp(clause, CPInitial)?"initial":"derived");
+   }
+   else
+   {
+      fprintf(out, "cnf(i_%d_%ld, %s,", 
+	      source,
+	      clause->ident-LONG_MIN, 
+	      ClauseQueryProp(clause, CPInitial)?"initial":"derived");
+   }   
    ClauseTSTPCorePrint(out, clause, fullterms);
    if(complete)
    {
