@@ -43,6 +43,10 @@ O  SelectMinOptimalLit
 P  PSelectMinOptimalLit
 O1 SelectMinOptimalNoTypePred
 P1 PSelectMinOptimalNoTypePred
+O2 SelectMinOptimalNoXTypePred
+P2 PSelectMinOptimalNoXTypePred
+O3 SelectMinOptimalNoRXTypePred
+P3 PSelectMinOptimalNoRXTypePred
 Q  SelectUnlessUniqMaxPos
 R  PSelectUnlessUniqMaxPos
 S  SelectComplex
