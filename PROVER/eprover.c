@@ -30,13 +30,13 @@ Changes
 #include <cco_proofproc.h>
 #include <cio_signals.h>
 #include <ccl_unfold_defs.h>
-#include <ccl_formulae.h>
+#include <ccl_formula_wrapper.h>
 
 /*---------------------------------------------------------------------*/
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-#define VERSION      "0.8dev022"
+#define VERSION      "0.8dev023"
 #define NAME         "eprover"
 
 #ifdef SAFELOGIC
@@ -917,11 +917,15 @@ int main(int argc, char* argv[])
       in = CreateScanner(StreamTypeFile, state->argv[i] , true, NULL);
       ScannerSetFormat(in, parse_format);
       /* Testing code {
-	 Formula_p form;
-
-	 form = FormulaTPTPParse(in, proofstate->original_terms);
-	 FormulaTPTPPrint(GlobalOut, form, true);
-	 FormulaFree(form);
+	 WFormula_p form;
+	 
+	 while(TestInpId(in,"input_formula"))
+	 {
+	    form = WFormulaTPTPParse(in, proofstate->original_terms);
+	    WFormulaTSTPPrint(GlobalOut, form, true, true);
+	    fprintf(GlobalOut,"\n");
+	    WFormulaFree(form);
+	 }
 	 }*/
       ClauseSetParseList(in, proofstate->axioms,
 			 proofstate->original_terms);
