@@ -72,6 +72,9 @@ typedef struct heuristic_parms_cell
    long                mem_limit;
    ACHandlingType      ac_handling;
    bool                ac_res_aggressive;
+   bool                forward_context_sr;
+   bool                forward_context_sr_aggressive;
+   bool                backward_context_sr;
    bool                no_lit_cmp;
    RewriteLevel        forward_demod;
    bool                prefer_general;

@@ -53,6 +53,9 @@ typedef struct proofcontrolcell
    bool                er_varlit_destructive;
    bool                er_strong_destructive;
    bool                er_aggressive;
+   bool                forward_context_sr;
+   bool                forward_context_sr_aggressive;
+   bool                backward_context_sr;
    bool                prefer_initial_clauses;
    bool                select_on_proc_only;
    bool                inherit_paramod_lit;
