@@ -33,7 +33,7 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-#define VERSION      "0.8dev004"
+#define VERSION      "0.8dev005"
 #define NAME         "eprover"
 
 #ifdef SAFELOGIC
@@ -73,6 +73,7 @@ typedef enum
    OPT_TPTP_PARSE,
    OPT_TPTP_PRINT,
    OPT_TPTP_FORMAT,
+   OPT_TSTP_PRINT,
    OPT_NO_PREPROCESSING,
    OPT_NO_EQ_UNFOLD,
    OPT_NO_NEG_PARAMOD,
@@ -344,6 +345,12 @@ OptCell opts[] =
     '\0', "tptp-format",
     NoArg, NULL,
     "Equivalent to --tptp-in and --tptp-out."},
+
+   {OPT_TSTP_PRINT,
+    '\0', "tstp-out",
+    NoArg, NULL,
+    "Print proof protocol in TSTP syntax (default is PCL). Only "
+    "effective for output levels greater than 1."},
 
    {OPT_NO_PREPROCESSING,
     '\0', "no-preprocessing",
@@ -1230,6 +1237,9 @@ CLState_p process_options(int argc, char* argv[])
 	    TPTPFormatPrint = true;
 	    EqnFullEquationalRep = false;
 	    EqnUseInfix = false;
+	    break;
+      case OPT_TSTP_PRINT:
+	    OutputFormat = tstp_format;
 	    break;
       case OPT_NO_PREPROCESSING:
 	    no_preproc = true;
