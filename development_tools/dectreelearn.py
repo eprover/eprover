@@ -11,7 +11,7 @@ Options:
 -x<n>
  Perform n-fold stratified cross-validition. If n is ommited, performs
  10-fold cross-validation. Folds are stratified for class as far as
- possible, but proportions of very rare classes may still be way of
+ possible, but proportions of very rare classes may still be way off
  (if there are only 5 examples with class X, but you request 10-fold
  cross-validation, 5 folds will have _no_ example for that class).
 
@@ -157,7 +157,7 @@ for o in options:
     if o[0:2] == "-S":
         seed = long(o[2:])
 
-pylib_io.check_argc(1,args)
+pylib_io.check_argc(1,None,args)
 
 set = pylib_ml_examples.ml_exampleset()
 set.parse(args[0])

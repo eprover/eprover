@@ -53,6 +53,8 @@ import pylib_discretize
 
 InfiniteTime = 1000000000
 EmptyProtSetException = "Cannot get required information from empty protocol set"
+train_number_re = re.compile("_[0-9]*\.")
+
 
 def break_prot_line(line):
     """
@@ -81,7 +83,7 @@ def get_relevant_parts(line):
     """
     parts = break_prot_line(line)
     if parts:
-        return (parts[0],parts[1],parts[2])
+        return (parts[0],parts[1],parts[2], parts[3])
     return None
 
 class process_line:
@@ -101,6 +103,21 @@ class process_line:
                                             self.round_fun(float(parts[2])),
                                             parts[3],parts[4])
 
+
+def compare_entries(entry1, entry2):
+    """
+    Compare two tuples of the form (status, time, reason) so that
+    failures are smaller than successes and better times are smaller
+    than larger ones.
+    """
+    res = cmp(entry1[0], entry2[0])
+    if res!=0:
+        return -1*res;
+    res = cmp(entry1[1], entry2[1])
+    if res!=0:
+        return res;
+    return cmp(entry1[2], entry2[2])
+    
 
 class eprotocol:
     """
@@ -131,22 +148,22 @@ class eprotocol:
         tmp = self.succ_time- other.succ_time
         return pylib_basics.sign(tmp)
 
+    def insert_entry(self, entry, state, time, reason):
+        self.data[entry] = (state, time, reason)
+        self.entries += 1
+        if state == "T":
+            self.proofs    += 1
+            self.successes += 1
+            self.succ_time += time
+        elif state == "N":
+            self.models    += 1
+            self.successes += 1
+            self.succ_time += time
+
     def insert_line(self, line):
         tmp = get_relevant_parts(line)
         if tmp:
-            entry = tmp[0]
-            state = tmp[1]
-            time  = tmp[2]
-            self.data[entry] = (state, time)
-            self.entries += 1
-            if state == "T":
-                self.proofs    += 1
-                self.successes += 1
-                self.succ_time += time
-            elif state == "N":
-                self.models    += 1
-                self.successes += 1
-                self.succ_time += time
+            self.insert_entry(tmp[0], tmp[1], tmp[2], tmp[3]);
         else:
             self.comments += line
 
@@ -160,22 +177,78 @@ class eprotocol:
         for line in l:
             self.insert_line(line)
 
+
+    def filter(self, filter_re):
+        """
+        Return a new protocol with the same name containing just
+        problems where the name matches the filtering regexp.
+        """
+        res = eprotocol(None, self.silent);
+        iter_list = self.data.keys()
+        iter_list.sort()
+        for i in iter_list:
+            if filter_re.search(i):
+                l_entry = self.data[i]
+                res.insert_entry(i, l_entry[0], l_entry[1], l_entry[2]);
+        return res
+
+
+    def collect_sample(self):
+        """
+        Consider names to consist of a class part and a running number
+        of the form '_XXX' directly before the suffix. Return a
+        dictionary associating every class with a list of all
+        results.
+        """
+        res = {}
+
+        for i in self.data.keys():
+            entry = self.data[i]
+            mo = train_number_re.search(i);
+            key = i[:mo.start()];
+            try:
+                res[key].append(entry)
+            except KeyError:
+                res[key] = [];
+                res[key].append(entry)
+        for i in res.keys():
+            res[i].sort(compare_entries);
+        return res
+
+    def collect_medians(self):
+        """
+        For each class, compute the median value. Return  a sorted
+        list of class/value tuples. If the median is no sucess,
+        generate no pair!
+        """
+        tmp = self.collect_sample()
+        res = [];
+        for i in tmp.keys():
+            entry = tmp[i];
+            value = entry[int((len(entry)-1)/2)];
+            if value[0]!='F':
+                res.append( (i, value[1]));
+        res.sort();
+        return res;
+        
+    
     def repr_entry(self, key):
         """
-        Return a representation of the entry fot a single key.
+        Return a representation of the entry for a single key.
         """
         tmp = self.data[key];
-        return "%-29s %s %8.3f" % (key, tmp[0], tmp[1])
+        return "%-38s %s %8.3f  %s" % (key, tmp[0], tmp[1], tmp[2])
 
     def __repr__(self):
         res = self.comments;
-        print self.succ_time
         res +="""# Proofs:    %5d
 # Models:    %5d
 # Successed: %5d
 # Time:      %-8.3f
 """ % (self.proofs, self.models, self.successes, self.succ_time)
-        for i in self.data.keys():
+        tmpkeys = self.data.keys()
+        tmpkeys.sort()
+        for i in tmpkeys:
             res += self.repr_entry(i)
             res += "\n"
         return res;
@@ -190,7 +263,7 @@ class eprotocol:
         as failures.
         """
         try:
-            state, time = self.data[problem]
+            state, time = self.data[problem];
             if state == "F":
                 return (InfiniteTime, self.successes, self.succ_time)
             else:

@@ -69,21 +69,30 @@ def flexclose(file):
     else:
         file.close()
 
-def check_argc(argmin,argv=sys.argv[1:]):
+def check_argc(argmin,argmax=None,argv=sys.argv[1:]):
     """
     Print if the required number of arguments has been given, print an
     error message, if not.
     """
-    if(len(argv)<argmin):
-       if(argmin==1):
-           sys.stderr.write("Usage: "+sys.argv[0]+" <arg>\n")
-       elif(argmin==2):
-           print "Usage: "+sys.argv[0]+" <arg1> <arg2>"
-       else:
-           sys.stderr.write("Usage: " + sys.argv[0]+
-                            " <arg1> ... <arg" + repr(argmin) + ">\n")
-       raise UsageErrorException
-                            
+    if (argmin and (len(argv)<argmin)) or (argmax and (len(argv)>argmax)):
+        if(argmin==1):
+            sys.stderr.write("Usage: "+sys.argv[0]+" <arg>\n")
+        elif(argmin==2):
+            print "Usage: "+sys.argv[0]+" <arg1> <arg2>"
+        elif argmax==argmin:
+            sys.stderr.write("Usage: " + sys.argv[0]+
+                             " <arg1> ... <arg" + repr(argmin) + ">\n")
+        elif argmax:
+            sys.stderr.write("Usage: " + sys.argv[0]+
+                             " <arg1> ... <arg" + repr(argmin) +
+                             "> [... <arg" + repr[argmax] + ">]\n")
+        else:
+            sys.stderr.write("Usage: " + sys.argv[0]+
+                             " <arg1> ... <arg" + repr(argmin) + ">...\n")    
+        raise UsageErrorException;
+
+
+        
 def get_options(argv=sys.argv[1:]):
     """
     Filter argument list for arguments starting with a -.
