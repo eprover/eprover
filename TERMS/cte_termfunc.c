@@ -173,9 +173,44 @@ static Term_p term_check_consistency_rek(Term_p term, PTree_p *branch,
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
 
-#ifdef SAFELOGIC
-#include "../SAFELOGIC/csl_gen_num_term.c"
-#endif
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermIntRepresentation()
+//
+//   Generate a term s^i(0) (where s is sig->succc_code and 0 is
+//   sig->null_code). This is the elegant recursive version - input is
+//   not time-critical anyways. Development of this code was sponsored
+//   by Safelogic A.B., Gothenburg, Sweden.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+Term_p TermIntRepresentation(Sig_p sig, long number)
+{
+   Term_p handle;
+
+   assert(sig);
+   assert(number>=0);
+   assert(sig->null_code && sig->succ_code);
+
+   if(number==0)
+   {
+      handle = TermConstCellAlloc(sig->null_code);
+   }
+   else
+   {
+      handle = TermDefaultCellAlloc();
+      handle->f_code = sig->succ_code;
+      handle->arity = 1;
+      handle->args = TermArgArrayAlloc(1);
+      handle->args[0] = TermIntRepresentation(sig, number-1);
+   }
+   return handle;
+}
 
 
 /*-----------------------------------------------------------------------
@@ -355,14 +390,12 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
       source_name = DStrGetRef(AktToken(in)->source);
       type = AktToken(in)->stream_type;
 
-#ifdef SAFELOGIC
       if(SigInterpreteNumbers(sig) && TestInpTok(in, PosInt))
       {
 	 handle = TermIntRepresentation(sig, AktToken(in)->numval);
 	 AcceptInpTok(in, PosInt);
       }
       else
-#endif
       if(TermParseOperator(in, id))
       {
          handle = VarBankExtNameAssertAlloc(vars, DStrView(id));

@@ -665,7 +665,8 @@ Keywords: E, equational theorem proving, ATP
 Followup-To: comp.theory
 
 The E equational theorem prover version 0.82 "Lung Ching" has been
-released.
+released. Except for minor cleanup and documentation changes, this is
+the same version that ran in CASC-J2.
 
 E is a a purely equational theorem prover for first order logic with
 equality. Thus, you can specify a mathematical problem (e.g. a

@@ -41,9 +41,6 @@ typedef enum
    AUTO,
    AUTO071,
    AUTODEV,
-#ifdef SAFELOGIC
-   SL_AUTO,
-#endif
    OPTIMIZE_AX,
    KBO,
    LPO,

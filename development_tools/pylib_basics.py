@@ -7,7 +7,7 @@
 # should probably be in the base language or libraries, but I cannot
 # find it.
 #
-# Copyright 2003 Stephan Schulz, schulz@informatik.tu-muenchen.de
+# Copyright 2003 Stephan Schulz, schulz@eprover.org
 #
 # This code is part of the support structure for the equational
 # theorem prover E. Visit

@@ -263,13 +263,13 @@ Usage: " NAME " [options] [<name>]\n\
 Create an empty knowledge base with name <name> for E.\n\n"); 
    PrintOptions(stdout, opts);
    fprintf(out, "\n\
-Copyright 1999 by Stephan Schulz, schulz@informatik.tu-muenchen.de\n\
+Copyright 1999-2004 by Stephan Schulz, " STS_MAIL "\n\
 \n\
 This program is a part of the support structure for the E equational\n\
 theorem prover. You can find the latest version of the E distribution\n\
 as well as additional information at\n\
-http://wwwjessen.informatik.tu-muenchen.de/~schulz/WORK/eprover.html.\n\
-\n\
+" E_URL "\
+\n\n\
 This program is free software; you can redistribute it and/or modify\n\
 it under the terms of the GNU General Public License as published by\n\
 the Free Software Foundation; either version 2 of the License, or\n\

@@ -950,7 +950,6 @@ Term_p TBTermParse(Scanner_p in, TB_p bank)
       {
 	 id = DStrAlloc();
 	 
-#ifdef SAFELOGIC
 	 if(SigInterpreteNumbers(bank->sig) && TestInpTok(in, PosInt))
 	 {
 	    Term_p tmp;
@@ -960,7 +959,6 @@ Term_p TBTermParse(Scanner_p in, TB_p bank)
 	    AcceptInpTok(in, PosInt);
 	 }
 	 else
-#endif	 
 	 if(TermParseOperator(in, id))
 	 {
 	    handle = VarBankExtNameAssertAlloc(bank->vars, DStrView(id));

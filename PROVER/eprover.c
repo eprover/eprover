@@ -32,14 +32,10 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-#define VERSION      "0.82"
+#define VERSION      "0.82dev001"
 #define NAME         "eprover"
 
-#ifdef SAFELOGIC
-#define NICKNAME     "Lung Ching (Proprietary Safelogic build)"
-#else
 #define NICKNAME     "Lung Ching"
-#endif
 
 typedef enum
 {
@@ -130,9 +126,7 @@ typedef enum
    OPT_DEFINE_WFUN,
    OPT_DEFINE_HEURISTIC,
    OPT_HEURISTIC,
-#ifdef SAFELOGIC
    OPT_INTERPRETE_NUMBERS,
-#endif
    OPT_DUMMY
 }OptionCodes;
 
@@ -815,14 +809,12 @@ OptCell opts[] =
     "Define a clause selecetion heuristic (see manual for"
     " details). Later definitions override previous definitions."}, 
 
-#ifdef SAFELOGIC
     {OPT_INTERPRETE_NUMBERS,
     '\0', "interprete-numbers",
     OptArg, "s,0",
     "Interprete numbers in the input as successor-terms. The argument "
      "is a comma-separated tuples of function symbols for the "
      "successor function and the 0 element."}, 
-#endif
    
    {OPT_NOOPT,
     '\0', NULL,
@@ -853,9 +845,7 @@ long              step_limit = LONG_MAX,
                   total_limit = LONG_MAX;
 char              *outdesc = DEFAULT_OUTPUT_DESCRIPTOR,
                   *filterdesc = DEFAULT_FILTER_DESCRIPTOR;
-#ifdef SAFELOGIC
 char              *null_symbol=NULL, *succ_symbol=NULL;
-#endif
 
 
 /*---------------------------------------------------------------------*/
@@ -908,7 +898,6 @@ int main(int argc, char* argv[])
    }
 
    proofstate = ProofStateAlloc();
-#ifdef SAFELOGIC
    if(null_symbol)
    {
       FunCode tmp;
@@ -919,7 +908,6 @@ int main(int argc, char* argv[])
       tmp = SigInsertId(proofstate->signature, succ_symbol, 1, false);
       proofstate->signature->succ_code = tmp;
    }
-#endif
    proofcontrol = ProofControlAlloc();
    
    for(i=0; state->argv[i]; i++)
@@ -1138,14 +1126,12 @@ int main(int argc, char* argv[])
 #ifdef FULL_MEM_STATS
    MemFreeListPrint(GlobalOut);
 #endif
-#ifdef SAFELOGIC
    if(null_symbol)
    {
       assert(succ_symbol);
       FREE(null_symbol);
       FREE(succ_symbol);
    }
-#endif
 #endif
    if(print_rusage)
    {
@@ -1486,12 +1472,10 @@ CLState_p process_options(int argc, char* argv[])
 	    {
 	       h_parms->ordertype = AUTODEV;
 	    }
-#ifdef SAFELOGIC
 	    else if(strcmp(arg, "Auto")==0)
 	    {
 	       h_parms->ordertype = SL_AUTO;
 	    }
-#endif
 	    else if(strcmp(arg, "Optimize")==0)
 	    {
 	       h_parms->ordertype = OPTIMIZE_AX;
@@ -1713,7 +1697,6 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_DEFINE_HEURISTIC:
 	    PStackPushP(h_parms->hcb_definitions, arg);
 	    break;
-#ifdef SAFELOGIC
       case OPT_INTERPRETE_NUMBERS:
       {
 	 Scanner_p in = CreateScanner(StreamTypeOptionString, arg,
@@ -1727,7 +1710,6 @@ CLState_p process_options(int argc, char* argv[])
 	 DestroyScanner(in);
       }
       break;
-#endif
       default:
 	    assert(false && "Unknown option");
 	    break;
@@ -1791,13 +1773,6 @@ Copyright 1998-2004 by Stephan Schulz, " STS_MAIL "\n\
 You can find the latest version of E and additional information at\n"
 E_URL
 "\n\n"
-#ifdef SAFELOGIC
-"This version of E includes proprietary code of Safelogic A.B.,\n\
-Gothenburg, Sweden, and you are bound by the licensing conditions of\n\
-your contract. You may not use, redistribute or modify this version\n\
-without an explicit license. You can get the free version at the URL\n\
-given above.\n"
-#else
 "This program is free software; you can redistribute it and/or modify\n\
 it under the terms of the GNU General Public License as published by\n\
 the Free Software Foundation; either version 2 of the License, or\n\

@@ -43,6 +43,8 @@ char* DefaultWeightFunctions =
 "weight11_f    = Clauseweight(ConstPrio,1,1,1)              \n"
 "weight11_ugg  = Clauseweight(PreferUnitGroundGoals,1,1,1)  \n"
 "weight21_f    = Clauseweight(ConstPrio,2,1,1)              \n"
+"TSMRDefault   = TSMWeight(ConstPrio, 1, 1, 2, flat, E_KNOWLEDGE,"
+                 "100000,1.0,1.0,Flat,IndexIdentity,100000,-20,20,-2,-1,0,2)\n"
 ;
 
 char* DefaultHeuristics= 
@@ -60,6 +62,17 @@ char* DefaultHeuristics=
 " 10*Refinedweight(PreferNonGoals,2,1,2,2,2),"
 " 5*OrientLMaxWeight(PreferWatchlist,2,1,2,1,1),"
 " 1*FIFOWeight(PreferWatchlist))\n"
+"UseTSM1 = \n"
+"(10*Refinedweight(PreferGoals,1,2,2,2,0.5),"
+" 10*Refinedweight(PreferNonGoals,2,1,2,2,2),"
+" 5*TSMRDefault,"
+" 1*FIFOWeight(PreferWatchlist))\n"
+"UseTSM2 = \n"
+"(20*TSMRDefault,"
+" 5*OrientLMaxWeight(PreferWatchlist,2,1,2,1,1),"
+" 1*FIFOWeight(PreferWatchlist))\n"
+
+
 "/* Here start the auto-mode-heuristics*/            \n"
 #ifdef NEVER_DEFINED
 "/* H*-Strategies: */  \n"
@@ -78,7 +91,7 @@ char* DefaultHeuristics=
 "/* All: */\n"
 #include "che_X_____auto_pp_opt_071.c" 
 #include "che_X_____auto_pp_opt_dev.c" 
-#include "che_X_____auto_dev.c" 
+#include "che_X_____auto_dev.c"
 
 ;
 

@@ -35,9 +35,6 @@ HeuristicAssocCell HeuristicsTable[]=
    {HEU_AUTO_MODE,     "Auto",      HCBAutoModeCreate},
    {HEU_AUTO_MODE_071, "Auto071",   HCB071AutoModeCreate},
    {HEU_AUTO_MODE_DEV, "AutoDev",   HCBDevAutoModeCreate},
-#ifdef SAFELOGIC
-   {HEU_SL_AUTO_MODE,  "SLAuto",    HCBSLAutoModeCreate},
-#endif
    {HEU_NO_HEURISTIC, NULL,         (HCBCreateFun)NULL}
 };
 
@@ -225,57 +222,6 @@ HCB_p HCBDevAutoModeCreate(HCBARGUMENTS)
    return GetHeuristic(res, state, control, parms);
 }
 #undef CHE_HEURISTICS_AUTO_DEV
-
-#ifdef SAFELOGIC
-/*-----------------------------------------------------------------------
-//
-// Function: HCBSLAutoModeCreate()
-//
-//   As above, but use partially proprietary techniques sponsored by
-//   Safelogic A.B.
-//
-// Global Variables: -
-//
-// Side Effects    : Memory operations.
-//
-/----------------------------------------------------------------------*/
-
-#define CHE_HEURISTICS_INTERNAL
-
-HCB_p HCBSLAutoModeCreate(HCBARGUMENTS)
-{
-   char *res = "Default";
-   SpecFeature_p spec = &(control->problem_specs);
-   SpecLimits_p limits =  SpecLimitsAlloc();
-
-   control->selection_strategy = SelectNoLiterals;
-   OUTPRINT(1, "# Safelogic-Auto-Heuristic is analysing problem.\n");
-   
-#include "../SAFELOGIC/csl_auto_cases.c"
-
-   if(OutputLevel)
-   {
-      fprintf(stdout, 
-	      "# Safelogic-Auto-Mode selected heuristic %s\n"
-	      "# and selection function %s.\n#\n", res, 
-	      GetLitSelName(control->selection_strategy)); 
-   }
-   if(parms->mem_limit>2 && (parms->delete_bad_limit ==
-			     DEFAULT_DELETE_BAD_LIMIT))
-   {
-      control->delete_bad_limit =
-	 (float)(parms->mem_limit-2)*0.7*MEGA;
-      /* control->filter_copies_limit = control->delete_bad_limit*0.7; */
-   }
-   if(SpecNoEq(spec))
-   {
-      control->ac_handling = NoACHandling;
-      OUTPRINT(1, "# No equality, disabling AC handling.\n#\n");
-   }
-   SpecLimitsCellFree(limits);
-   return GetHeuristic(res, state, control, parms);
-}
-#endif
 
 
 /*-----------------------------------------------------------------------

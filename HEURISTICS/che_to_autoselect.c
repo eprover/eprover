@@ -203,54 +203,6 @@ OCB_p generate_autodev_ordering(ProofState_p state, SpecFeature_p spec)
 #define CHE_HEURISTICS_AUTO_DEV
 
 
-
-/*-----------------------------------------------------------------------
-//
-// Function: generate_SL_auto_ordering()
-//
-//   As above, but use proprietary analysis provided by Safelogic
-//   A.B.
-//
-// Global Variables: -
-//
-// Side Effects    : Memory operations, may call SpecFeaturesAddEval()
-//                   and change cheap parts of specs.
-//
-/----------------------------------------------------------------------*/
-
-#ifdef SAFELOGIC
-OCB_p generate_SL_auto_ordering(ProofState_p state, SpecFeature_p spec)
-{
-   OrderParmsCell  oparms; 
-   SpecLimits_p    limits = SpecLimitsAlloc();
-   
-   oparms.ordertype       = KBO;
-   oparms.to_const_weight = WConstNoSpecialWeight; 
-   oparms.to_weight_gen   = WSelectMaximal;
-   oparms.to_prec_gen     = PUnaryFirst;
-   oparms.no_lit_cmp      = false;
-
-   OUTPRINT(1, "\n# Safelogic-Auto-Ordering is analysing problem.\n");
-   #include "../SAFELOGIC/csl_auto_cases.c"
-
-   if(OutputLevel)
-   {
-      fprintf(GlobalOut, "# Safelogic-Auto-mode selected ordering type %s\n", 
-	      TONames[oparms.ordertype]);
-      fprintf(GlobalOut, "# Safelogic-Auto-mode selected ordering precedence scheme <%s>\n",
-	      TOGetPrecGenName(oparms.to_prec_gen));
-      if(oparms.ordertype == KBO)
-      {
-	 fprintf(GlobalOut, "# Safelogic-Auto-mode selected weight ordering scheme <%s>\n",
-	         TOGetWeightGenName(oparms.to_weight_gen));
-      }
-      fputs("#\n", GlobalOut);
-   }
-   SpecLimitsCellFree(limits);
-   return TOCreateOrdering(state, &oparms, NULL);
-}
-#endif
-
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
@@ -634,12 +586,6 @@ OCB_p TOSelectOrdering(ProofState_p state, HeuristicParms_p params,
    {
       result = generate_autodev_ordering(state, specs);
    }
-#ifdef SAFELOGIC
-   else if(tmp.ordertype == SL_AUTO)
-   {
-      result = generate_SL_auto_ordering(state, specs);
-   }
-#endif
    else
    {
       if(tmp.ordertype == NoOrdering)

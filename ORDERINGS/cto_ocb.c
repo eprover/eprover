@@ -34,9 +34,6 @@ char* TONames[]=
    "Auto",
    "Auto071",
    "AutoDev",
-#ifdef SAFELOGIC
-   "SLAuto",
-#endif
    "Optimize",
    "KBO",
    "LPO",

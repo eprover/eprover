@@ -1,6 +1,9 @@
 This history list describes the major differences between versions of
 the E equational theorem prover.
 
+Version 0.82 ->
+
+
 Version 0.81 -> 0.82 Lung Ching
 
 - Fixed a bug in find_spec_literal() pointed out by Flavio

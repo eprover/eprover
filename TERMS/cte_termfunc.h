@@ -47,6 +47,8 @@ extern bool      TermPrologVars; /* Capital words are variables */
                        (SigIdentToken|Dollar|OpenSquare|Mult):\
 		       (SigIdentToken|Dollar|Mult))
 
+Term_p  TermIntRepresentation(Sig_p sig, long number);
+
 void   TermPrint(FILE* out, Term_p term, Sig_p sig, DerefType deref);
 void   TermPrintArgList(FILE* out, Term_p *args, int arity, Sig_p sig,
 			DerefType deref);
@@ -119,10 +121,6 @@ long    TermCollectPropVariables(Term_p term, PTree_p *tree,
         TermCollectPropVariables((term), (tree), TPIgnoreProps)
 
 Term_p  TermCheckConsistency(Term_p term, DerefType deref);
-
-#ifdef SAFELOGIC
-Term_p  TermIntRepresentation(Sig_p sig, long number);
-#endif
 
 
 #endif

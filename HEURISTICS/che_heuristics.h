@@ -61,9 +61,6 @@ extern  HeuristicAssocCell HeuristicsTable[];
 HCB_p HCBAutoModeCreate(HCBARGUMENTS);
 HCB_p HCB071AutoModeCreate(HCBARGUMENTS);
 HCB_p HCBDevAutoModeCreate(HCBARGUMENTS);
-#ifdef SAFELOGIC
-HCB_p HCBSLAutoModeCreate(HCBARGUMENTS);
-#endif
 
 HCB_p HCBCreate(char* name, HCBARGUMENTS);
 HCB_p GetHeuristic(char* source, HCBARGUMENTS);

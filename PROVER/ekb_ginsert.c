@@ -9,7 +9,7 @@ Contents
   Generate new training examples from protocol and insert it into a
   knowledge base.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2004 by the author.
   This code is released under the GNU General Public Licence.
   See the file COPYING in the main CLIB directory for details.
   Run "eprover -h" for contact information.
@@ -346,19 +346,19 @@ void print_help(FILE* out)
 \n\
 ekb_ginsert " VERSION "\n\
 \n\
-Usage: THIS IS BROKEN AT THE MOMENT ekb_ginsert [options] [name]\n\
+Usage: ekb_ginsert [options] [name]\n\
 \n\
 Generate a set of training examples from an E inference list and\n\
 insert it into a knowledge base.\n\n"); 
    PrintOptions(stdout, opts);
    fprintf(out, "\n\
-Copyright 1999 by Stephan Schulz, schulz@informatik.tu-muenchen.de\n\
+Copyright 1999-2004 by Stephan Schulz, " STS_MAIL "\n\
 \n\
 This program is a part of the support structure for the E equational\n\
 theorem prover. You can find the latest version of the E distribution\n\
 as well as additional information at\n\
-http://wwwjessen.informatik.tu-muenchen.de/~schulz/WORK/eprover.html.\n\
-\n\
+" E_URL "\
+\n\n\
 This program is free software; you can redistribute it and/or modify\n\
 it under the terms of the GNU General Public License as published by\n\
 the Free Software Foundation; either version 2 of the License, or\n\

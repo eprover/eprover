@@ -27,7 +27,7 @@ PROJECT = E
 LIBS     = BASICS INOUT TERMS ORDERINGS CLAUSES PROPOSITIONAL LEARN \
            ANALYSIS PCL2 HEURISTICS CONTROL EXTERNAL
 CODE     = $(LIBS) PROVER TEST SIMPLE_APPS 
-PARTS    = $(CODE) DOC $(SAFELOGIC)
+PARTS    = $(CODE) DOC
 
 all: warn E
 
@@ -78,9 +78,6 @@ distrib: clean default_config
 	@echo " - Changing the bibliographies to local version"
 	@echo "    ??? "
 	@cp etc/PROPRIETARY etc/NO_DISTRIB
-	@sed -e 's/^SAFELOGIC  = SAFELOGIC/SAFELOGIC  = /' \
-             -e 's/^             -DSAFELOGIC \\/             # -DSAFELOGIC \\/' \
-            Makefile.vars > tmpfile; mv tmpfile Makefile.vars
 	@cd ..; find $(PROJECT) -name "CVS" -print >> $(PROJECT)/etc/NO_DISTRIB;\
          $(TAR) cfX - $(PROJECT)/etc/NO_DISTRIB $(PROJECT) |$(GZIP) - -c > $(PROJECT).tgz
 
