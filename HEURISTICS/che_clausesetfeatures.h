@@ -178,6 +178,8 @@ SpecLimits_p SpecLimitsAlloc();
 
 #define SpecAxiomsAreUnit(spec) ((spec)->axioms == (spec)->unitaxioms)
 #define SpecAxiomsAreHorn(spec) ((spec)->axioms == (spec)->hornaxioms)
+#define SpecAxiomsAreNonUnitHorn(spec) (SpecAxiomsAreHorn(spec)&&\
+                                        !(SpecAxiomsAreUnit(spec)))
 #define SpecAxiomsAreGeneral(spec) ((spec)->axioms >  (spec)->hornaxioms)
 
 #define SpecGoalsAreUnit(spec) ((spec)->goals == (spec)->unitgoals)

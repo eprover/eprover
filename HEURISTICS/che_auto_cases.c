@@ -35,7 +35,7 @@ if(false)
    assert(false);
 }
 #ifdef CHE_HEURISTICS_AUTO
-#include "che_X_____auto_pp_opt.c"         
+#include "che_X_____auto.c"         
 #endif
 #ifdef CHE_HEURISTICS_AUTO_071
 #include "che_X_____auto_pp_opt_071.c"         

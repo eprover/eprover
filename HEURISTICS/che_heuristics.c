@@ -78,6 +78,15 @@ HCB_p HCBAutoModeCreate(HCBARGUMENTS)
    SpecFeature_p spec = &(control->problem_specs);
    SpecLimits_p limits =  SpecLimitsAlloc();
 
+   limits->ax_some_limit        = 46;
+   limits->ax_many_limit        = 205;
+   limits->lit_some_limit       = 212;
+   limits->lit_many_limit       = 620;
+   limits->term_medium_limit    = 163;
+   limits->term_large_limit     = 2270;
+   limits->far_sum_medium_limit = 3;
+   limits->far_sum_large_limit  = 75;
+
    control->selection_strategy = SelectNoLiterals;
    OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
    
