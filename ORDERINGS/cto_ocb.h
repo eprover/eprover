@@ -39,6 +39,8 @@ typedef enum
 {
    NoOrdering,
    AUTO,
+   AUTO071,
+   AUTODEV,
 #ifdef SAFELOGIC
    SL_AUTO,
 #endif
