@@ -44,7 +44,7 @@ Read: (<lf> <bc> <lf>) <bc> (<lf> <bc> <lf>)
                          <atom>                            |
                          ( <logic_formula> )
 <comp_formula>       ::= <elem_formula> | 
-                         <elem_formula> <binary connective> <comp_formula>
+                         <elem_formula> <binary connective> <logic formula>
 <qprefix>            ::=  <quantifier> <variables>
 <quantifier>         ::= ! | ?
 <variables>          ::= [<qvariable><rest of qvariables>*]
