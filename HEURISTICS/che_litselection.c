@@ -3790,7 +3790,7 @@ void SelectComplexPreferNEQ(OCB_p ocb, Clause_p clause)
 	 {
 	    cur_neq = !EqnIsEquLit(handle);
 	    cur_var = EqnIsPureVar(handle);
-	    cur_ground = undefined;
+	    cur_ground = EqnIsGround(handle);
 	    cur_weight = -1;
 
 	    if(sel_neq && !cur_neq)
@@ -3805,7 +3805,6 @@ void SelectComplexPreferNEQ(OCB_p ocb, Clause_p clause)
 	       }
 	       else if(EQUIV(cur_var, sel_var))
 	       {
-		  cur_ground = EqnIsGround(handle);
 		  if(sel_ground && !cur_ground)
 		  {
 		     break;
@@ -3819,10 +3818,6 @@ void SelectComplexPreferNEQ(OCB_p ocb, Clause_p clause)
 		     }
 		  }
 	       }
-	    }
-	    if(cur_ground == undefined)
-	    {
-	       cur_ground = EqnIsGround(handle);
 	    }
 	    if(cur_weight == -1)
 	    {
@@ -3872,7 +3867,7 @@ void PSelectComplexPreferNEQ(OCB_p ocb, Clause_p clause)
 	 {
 	    cur_neq = !EqnIsEquLit(handle);
 	    cur_var = EqnIsPureVar(handle);
-	    cur_ground = undefined;
+	    cur_ground = EqnIsGround(handle);
 	    cur_weight = -1;
 
 	    if(sel_neq && !cur_neq)
@@ -3887,7 +3882,6 @@ void PSelectComplexPreferNEQ(OCB_p ocb, Clause_p clause)
 	       }
 	       else if(EQUIV(cur_var, sel_var))
 	       {
-		  cur_ground = EqnIsGround(handle);
 		  if(sel_ground && !cur_ground)
 		  {
 		     break;
@@ -3901,10 +3895,6 @@ void PSelectComplexPreferNEQ(OCB_p ocb, Clause_p clause)
 		     }
 		  }
 	       }
-	    }
-	    if(cur_ground == undefined)
-	    {
-	       cur_ground = EqnIsGround(handle);
 	    }
 	    if(cur_weight == -1)
 	    {
@@ -3955,7 +3945,7 @@ void SelectComplexPreferEQ(OCB_p ocb, Clause_p clause)
 	 {
 	    cur_eq = EqnIsEquLit(handle);
 	    cur_var = EqnIsPureVar(handle);
-	    cur_ground = undefined;
+	    cur_ground = EqnIsGround(handle);
 	    cur_weight = -1;
 
 	    if(sel_eq && !cur_eq)
@@ -3970,7 +3960,6 @@ void SelectComplexPreferEQ(OCB_p ocb, Clause_p clause)
 	       }
 	       else if(EQUIV(cur_var, sel_var))
 	       {
-		  cur_ground = EqnIsGround(handle);
 		  if(sel_ground && !cur_ground)
 		  {
 		     break;
@@ -3984,10 +3973,6 @@ void SelectComplexPreferEQ(OCB_p ocb, Clause_p clause)
 		     }
 		  }
 	       }
-	    }
-	    if(cur_ground == undefined)
-	    {
-	       cur_ground = EqnIsGround(handle);
 	    }
 	    if(cur_weight == -1)
 	    {
@@ -4037,7 +4022,7 @@ void PSelectComplexPreferEQ(OCB_p ocb, Clause_p clause)
 	 {
 	    cur_eq = EqnIsEquLit(handle);
 	    cur_var = EqnIsPureVar(handle);
-	    cur_ground = undefined;
+	    cur_ground = EqnIsGround(handle);
 	    cur_weight = -1;
 
 	    if(sel_eq && !cur_eq)
@@ -4052,7 +4037,6 @@ void PSelectComplexPreferEQ(OCB_p ocb, Clause_p clause)
 	       }
 	       else if(EQUIV(cur_var, sel_var))
 	       {
-		  cur_ground = EqnIsGround(handle);
 		  if(sel_ground && !cur_ground)
 		  {
 		     break;
@@ -4066,10 +4050,6 @@ void PSelectComplexPreferEQ(OCB_p ocb, Clause_p clause)
 		     }
 		  }
 	       }
-	    }
-	    if(cur_ground == undefined)
-	    {
-	       cur_ground = EqnIsGround(handle);
 	    }
 	    if(cur_weight == -1)
 	    {
