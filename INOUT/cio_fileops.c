@@ -243,6 +243,76 @@ void  FilePrint(FILE* out, char* name)
    InputClose(in);
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: FileNameDirName()
+//
+//   Given a path name, return the directory portion (i.e. the part
+//   from the first character to the last / character (not including
+//   it). Return "" if no directory part exists. It is the users
+//   responsibility to FREE the memory returned.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+char* FileNameDirName(char* name)
+{
+   char *res;
+   int i, endpos = 0;
+
+   assert(name);
+
+   for(i=0; name[i]; i++)
+   {
+      if(name[i] == '/')
+      {
+         endpos = i;
+      }
+   }
+   res = SecureStrndup(name, endpos);      
+   
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FileNameBaseName()
+//
+// Given a path, return the base name part of it, i.e. the string
+// starting at the last / (if any). In contrast to the UNIX command
+// 'basename', it will return the empty string for a string ending in
+// "/".
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+char* FileNameBaseName(char* name)
+{
+   char *res, *endpos = name;
+
+   assert(name);
+
+   for(; *name; name++)
+   {
+      if(*name == '/')
+      {
+         endpos = name+1;
+      }
+   }
+   res = SecureStrdup(endpos);      
+   
+   return res;
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

@@ -51,15 +51,26 @@ char* UseInlinedWatchList = WATCHLIST_INLINE_STRING;
 //
 // Function: ProofStateAlloc()
 //
-//   Return an empty, initialized proof state.
+//   Return an empty, initialized proof state. The arguments are:
+//   free_symb_prop: Which sub-properties of FPDistinctProp should be
+//                   ignored (i.e. which classes with distinct object 
+//                   syntax  should be treated as plain free
+//                   symbols). Use FPIgnoreProps for default
+//                   behaviour, FPDistinctProp for fully free
+//                   (conventional) semantics.
+//   null_symbol:    A string to use for the "0" constructor in
+//                   interpreting integer numbers. If used,
+//                   succ_symbol must also be provided.
+//   succ_symbol:    A string to use for the "s" constructor.
 //
 // Global Variables: -
 //
-// Side Effects    : memory operations
+// Side Effects    : Memory operations
 //
 /----------------------------------------------------------------------*/
 
-ProofState_p ProofStateAlloc(void)
+ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop, 
+                             char* null_symbol, char* succ_symbol) 
 {
    ProofState_p handle = ProofStateCellAlloc();
 
@@ -104,6 +115,23 @@ ProofState_p ProofStateAlloc(void)
    handle->factor_count       = 0;
    handle->resolv_count       = 0;
 
+   handle->signature->distinct_props = 
+      handle->signature->distinct_props&(~free_symb_prop);
+   
+   if(null_symbol)
+   {
+      FunCode tmp;
+      
+      assert(succ_symbol);
+      tmp = SigInsertId(handle->signature, null_symbol, 0, false);
+      handle->signature->null_code = tmp;
+      tmp = SigInsertId(handle->signature, succ_symbol, 1, false);
+      handle->signature->succ_code = tmp;
+   }
+   else
+   {
+      assert(!succ_symbol);
+   }
    return handle;
 }
 

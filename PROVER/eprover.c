@@ -997,19 +997,7 @@ int main(int argc, char* argv[])
       CLStateInsertArg(state, "-");
    }
 
-   proofstate = ProofStateAlloc();
-   proofstate->signature->distinct_props = 
-      proofstate->signature->distinct_props&(~free_symb_prop);
-   if(null_symbol)
-   {
-      FunCode tmp;
-      
-      assert(succ_symbol);
-      tmp = SigInsertId(proofstate->signature, null_symbol, 0, false);
-      proofstate->signature->null_code = tmp;
-      tmp = SigInsertId(proofstate->signature, succ_symbol, 1, false);
-      proofstate->signature->succ_code = tmp;
-   }
+   proofstate = ProofStateAlloc(free_symb_prop, null_symbol, succ_symbol); 
    proofcontrol = ProofControlAlloc();
    
    for(i=0; state->argv[i]; i++)
@@ -1047,9 +1035,6 @@ int main(int argc, char* argv[])
    {
       VERBOUT("CNFization done\n");
    }
-   /* FormulaSetPrint(GlobalOut, proofstate->f_axioms, true); */
-   
-   /* SigPrint(stdout, proofstate->signature); */
    if(watchlist_filename)
    {
       proofstate->watchlist = ClauseSetAlloc();

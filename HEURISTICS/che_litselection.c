@@ -5015,6 +5015,7 @@ void SelectMaxLComplexG(OCB_p ocb, Clause_p clause)
    ClauseCondMarkMaximalTerms(ocb, clause);
    
    lit_no = EqnListQueryPropNumber(clause->literals, EPIsMaximal);
+   printf("max_lits: %ld: ",lit_no);ClausePrint(stdout,clause,true);printf("\n");
    if(lit_no <=1)
    {
       return;

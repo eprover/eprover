@@ -88,7 +88,8 @@ typedef struct proofstatecell
 #define ProofStateCellFree(junk) \
    SizeFree(junk, sizeof(ProofStateCell))
 
-ProofState_p ProofStateAlloc(void);
+ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop, 
+                             char* null_symbol, char* succ_symbol);
 void         ProofStateResetClauseSets(ProofState_p state, bool term_gc);
 void         ProofStateFree(ProofState_p junk);
 void         ProofStateGCMarkTerms(ProofState_p state);
