@@ -355,7 +355,7 @@ OptCell opts[] =
    {OPT_NO_EQ_UNFOLD,
     '\0', "no-eq-unfolding",
     NoArg, NULL,
-    "During preprocessing, abstain from unfolding (and removing)"
+    "During preprocessing, abstain from unfolding (and removing) "
     "equational definitions."},
 
    {OPT_NO_NEG_PARAMOD,
@@ -405,7 +405,9 @@ OptCell opts[] =
     '\0', "select-on-processing-only",
     NoArg, NULL,
     "Perform literal selection at processing time only (i.e. select "
-    "only in the _given clause_), not before clause evaluation."},
+    "only in the _given clause_), not before clause evaluation. This"
+    " is relevant because many clause selection heuristics give "
+    "special consideration to maximal or selected literals."},
 
    {OPT_INHERIT_PM_LIT,
     'i', "inherit-paramod-literals",
@@ -459,6 +461,7 @@ OptCell opts[] =
     " have to be eligible for literal selection."},
 
    {OPT_WEIGHT_LITSEL_MIN,
+
     '\0', "selection-weight-min",
     ReqArg, NULL,
     "Set the minimum weight a clause must have to be eligible for"
@@ -707,18 +710,20 @@ OptCell opts[] =
     '\0', "fvindex-maxdepth",
     OptArg, "200",
     "Set the maximum dept of the FV-Index for subsumption. Maximal "
-    "theoretical depth is 4*(signature size + slack) + 2 at the moment. If you "
+    "theoretical depth is 4*(signature size + slack + 1) + 2 "
+    "at the moment. If you "
     "set a small limit here, you should probably also choose 'Perm' (the"
     " default) or 'PermOpt' for the previous option."},
    
    {OPT_FVINDEX_SLACK,
     '\0', "fvindex-slack",
     OptArg, "0",
-    "Set the number of slots reserved for symbols that may be introduced "
-    "later, e.g. by splitting.If no new symbols are introduced, this just "
+    "Set the number of slots reserved in the index for function symbols "
+    "that may be introduced "
+    "later, e.g. by splitting. If no new symbols are introduced, this just "
     "wastes time and memory.If PermOpt is choosen, the slackness slots will "
     "be deleted from the index anyways, but will still waste time in "
-    "computing frequency vectors."},
+    "computing feature vectors."},
 
    {OPT_UNPROC_UNIT_SIMPL,
     '\0', "simplify-with-unprocessed-units",
