@@ -59,6 +59,7 @@ typedef enum
    OPT_SILENT,
    OPT_OUTPUTLEVEL,
    OPT_PCL_COMPRESSED,
+   OPT_PCL_COMPACT,
    OPT_MEM_LIMIT,
    OPT_CPU_LIMIT,
    OPT_SOFTCPU_LIMIT,
@@ -180,6 +181,12 @@ OptCell opts[] =
     '\0', "pcl-terms-compressed",
     NoArg, NULL,
     "Print terms in the PCL output in shared representation."},
+
+   {OPT_PCL_COMPACT,
+    '\0', "pcl-compact",
+    NoArg, NULL,
+    "Print PCL steps without additional spaces for formatting (safes "
+    "disk space for larfge protocols)."},
 
    {OPT_PRINT_STATISTICS,
     '\0', "print-statistics",
@@ -1079,6 +1086,9 @@ CLState_p process_options(int argc, char* argv[])
 	    break;
       case OPT_PCL_COMPRESSED:
 	    pcl_full_terms = false;
+	    break;
+      case OPT_PCL_COMPACT:
+	    PCLStepCompact = true;
 	    break;
       case OPT_PRINT_STATISTICS:
 	    print_statistics = true;

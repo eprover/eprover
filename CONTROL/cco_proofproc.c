@@ -344,7 +344,6 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
 			  (control->backward_context_sr&&
 			   ClauseQueryProp(handle,CPIsProcessed)),
 			  control->forward_demod);
-      DEBUGMARK(PP_INSERTING_NEW, "insert_new_clauses() Literals removed\n");
       if(ClauseIsTrivial(handle)||
 	 (control->unproc_simplify&&
 	  !ClauseSimplifyWithUnitSet(handle, state->unprocessed,

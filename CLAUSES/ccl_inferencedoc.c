@@ -28,8 +28,9 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
-OutputFormatType OutputFormat = pcl_format;
-bool             PCLFullTerms = true;
+OutputFormatType OutputFormat   = pcl_format;
+bool             PCLFullTerms   = true;
+bool             PCLStepCompact = false;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -54,7 +55,7 @@ bool             PCLFullTerms = true;
 
 static void pcl_print_start(FILE* out, Clause_p clause)
 {
-   fprintf(out, "%6ld : ", clause->ident);
+   fprintf(out, PCLStepCompact?"%ld:":"%6ld : ", clause->ident);
    ClausePCLPrint(out, clause, PCLFullTerms);
    fputs(" : ", out);
 }
@@ -75,7 +76,7 @@ static void pcl_print_end(FILE* out, char* comment)
 {
    if(comment)
    {
-      fprintf(out, " : \"%s\"", comment);
+      fprintf(out, PCLStepCompact?":\"%s\"":" : \"%s\"", comment);
    }
    fputc('\n', out);
 }
