@@ -101,7 +101,7 @@ static long remove_subsumed(FVPackedClause_p subsumer, ClauseSet_p set)
       if(ClauseQueryProp(handle, CPWatchOnly))
       {
 	 DocClauseQuote(GlobalOut, OutputLevel, 6, handle,
-			"subsumed_watchlist", subsumer->clause);
+			"extract_wl_subsumed", subsumer->clause);
       }
       else
       {
@@ -299,11 +299,12 @@ void check_watchlist(ClauseSet_p watchlist, Clause_p clause)
    {
       ClauseSetProp(clause, CPSubsumesWatch);
       if(OutputLevel == 1)
-      {
+      {	 
 	 fprintf(GlobalOut,"# Watchlist reduced by %ld clause%s\n",
 		 removed,removed==1?"":"s");
       }
-   }
+      DocClauseQuote(GlobalOut, OutputLevel, 6, clause,
+		     "extract_subsumes_watched", NULL);   }
    FVUnpackClause(pclause);   
 }
 
@@ -773,7 +774,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control,
 	 state->watchlist->fvindex = 
 	    FVIAnchorAlloc(symbols, fvi_parms->features,
 			   PermVectorCopy(perm));
-	 ClauseSetFVIndexify(state->watchlist);
+	 ClauseSetNewTerms(state->watchlist, state->terms);
       }
    }
 }
