@@ -469,10 +469,11 @@ function check_and_initialize(    tmp, job)
 	 processed_count = 0;
 	 while ((getline tmp < logfile) > 0)
 	 {
-	    if(match(tmp, /^[A-Z]+[0-9]+.*\.lop/) || 
-	       match(tmp, /^[A-Z]+[0-9]+.*\.p/) ||
-	       match(tmp, /^[A-Z]+[0-9]+.*\.e/) ||
-	       match(tmp, /^[A-Z]+[0-9]+.*\.tptp/))
+	    if(match(job, /^[0-9A-Za-z].*\.lop/) ||
+               match(job, /^[0-9A-Za-z].*\.p/)||   
+               match(job, /^[0-9A-Za-z].*\.e/)  || 
+               match(job, /^[0-9A-Za-z].*\.tpt/)  ||
+               match(job, /^[0-9A-Za-z].*\.tptp/))
 	    {
 	       job = substr(tmp, RSTART, RLENGTH);
 	       processed_jobs[job] = 1;
@@ -690,7 +691,11 @@ function shift_num_array(array, position,              limit,i)
 
 function job_is_not_processed(job    ,tmp)
 {
-   match(job, /^[A-Z]+[0-9]+.*\.lop/) || match(job, /^[A-Z]+[0-9]+.*\.p/) || match(job, /^[A-Z]+[0-9]+.*\.tptp/);
+   match(job, /^[0-9A-Za-z].*\.lop/) || \
+   match(job, /^[0-9A-Za-z].*\.p/)||    \
+   match(job, /^[0-9A-Za-z].*\.e/)  ||  \
+   match(job, /^[0-9A-Za-z].*\.tpt/)  ||  \
+   match(job, /^[0-9A-Za-z].*\.tptp/);
    tmp = substr(job, RSTART, RLENGTH);
    if(tmp in processed_jobs)
    {
