@@ -85,6 +85,7 @@ distrib: clean
 
 fulldistrib: clean
 	@echo "Warning: You are building a full archive!"
+	@echo "Did you remember to increase the dev version number and commit to CVS?"
 	cd ..; $(TAR) cf - $(PROJECT)|$(GZIP) - -c > $(PROJECT)_FULL.tgz
 
 # Make all library parts
