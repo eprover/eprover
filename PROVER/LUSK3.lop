@@ -31,6 +31,6 @@ f (X,j (Y,Z)) = j (f (X,Y),f (X,Z)). # distributivity axioms
 f (j (X,Y),Z) = j (f (X,Z),f (Y,Z)). #
 f (X,X)       = X.                   # special hypothese: x*x = x
 
-f (a,b) != f (b,a).                   # theorem
+?-f (a,b) = f (b,a).                   # theorem
 
 
