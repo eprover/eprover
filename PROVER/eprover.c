@@ -112,6 +112,7 @@ typedef enum
    OPT_RULES_GENERAL,
    OPT_FORWARD_DEMOD,
    OPT_STRONGSUBSUMPTION,
+   OPT_NO_INDEXED_SUBSUMPTION,
    OPT_UNPROC_UNIT_SIMPL,
    OPT_DEFINE_WFUN,
    OPT_DEFINE_HEURISTIC,
@@ -657,6 +658,12 @@ OptCell opts[] =
     "Try multiple positions and unit-equations to try to subsume a "
     "single new clause. Default is to search for a single position."},
 
+   {OPT_NO_INDEXED_SUBSUMPTION,
+    '\0', "conventional-subsumption",
+    NoArg, NULL,
+    "Use the old, naive subsumption algorithm for non-unit-subsumption. "
+    "Default now is subsumption with frequency vector indexing."},
+
    {OPT_UNPROC_UNIT_SIMPL,
     '\0', "simplify-with-unprocessed-units",
     OptArg, "TopSimplify",
@@ -705,7 +712,8 @@ bool              print_sat = false,
                   error_on_empty = false,
                   no_preproc = false,
                   no_eq_unfold = false,
-                  pcl_full_terms = true;
+                  pcl_full_terms = true,
+                  indexed_subsumption = true;
 InputFormat       parse_format = LOPFormat;
 long              step_limit = LONG_MAX, 
                   proc_limit = LONG_MAX,
@@ -807,7 +815,7 @@ int main(int argc, char* argv[])
    ProofControlInit(proofstate, proofcontrol, h_parms);
    PCLFullTerms = pcl_full_terms; /* Preprocessing always uses full
 				     terms! */
-   ProofStateInit(proofstate, proofcontrol, h_parms);
+   ProofStateInit(proofstate, proofcontrol, h_parms, indexed_subsumption);
 
    VERBOUT2("Prover state initialized\n");
    
@@ -846,10 +854,10 @@ int main(int argc, char* argv[])
 			proofstate->processed_pos_rules, finals_state);
       ClauseSetDocQuote(GlobalOut, OutputLevel,
 			proofstate->processed_pos_eqns, finals_state);
-       ClauseSetDocQuote(GlobalOut, OutputLevel,
+      ClauseSetDocQuote(GlobalOut, OutputLevel,
 			proofstate->processed_neg_units, finals_state);
-       ClauseSetDocQuote(GlobalOut, OutputLevel,
-			 proofstate->processed_non_units, finals_state);
+      ClauseSetDocQuote(GlobalOut, OutputLevel,
+			proofstate->processed_non_units, finals_state);
       if(out_of_clauses)
       {
 	 if(!ParamodOverlapIntoNegativeLiterals||
@@ -910,6 +918,8 @@ int main(int argc, char* argv[])
       fprintf(GlobalOut, "# Removed in preprocessing             : %ld\n",
 	      preproc_removed);
       ProofStateStatisticsPrint(GlobalOut, proofstate);
+      fprintf(GlobalOut, "# Clause-clause subsumption calls      : %ld\n",
+	      ClauseClauseSubsumptionCalls);
    }
    /* {char c = getc(stdin);} */
 #ifndef FAST_EXIT
@@ -1367,6 +1377,9 @@ CLState_p process_options(int argc, char* argv[])
 	    break;	       
       case OPT_STRONGSUBSUMPTION:
 	    StrongUnitForwardSubsumption = true;
+	    break;
+      case OPT_NO_INDEXED_SUBSUMPTION:
+	    indexed_subsumption = false;
 	    break;
       case OPT_UNPROC_UNIT_SIMPL:
 	    h_parms->unproc_simplify = TransUnitSimplifyString(arg);

@@ -114,7 +114,7 @@ int main(int argc, char* argv[])
    KBDesc_p        kb_desc;
    char            defaultname[30];
    PStack_p        tmpfileinfo;
-   int             i;
+   /* int             i; */
    /* InfState_p      infstate1, infstate2;    */
 
    assert(argv[0]);
