@@ -42,40 +42,8 @@ typedef struct proofcontrolcell
    WFCBAdmin_p         wfcbs;
    HCBAdmin_p          hcbs;
    bool                ac_handling_active;
-#ifdef NEVER_DEFINED
-   RewriteLevel        forward_demod;
-   bool                prefer_general;
-   long                filter_limit;
-   long                filter_copies_limit;
-   long                reweight_limit;
-   long                delete_bad_limit;
-   ACHandlingType      ac_handling;  
-   bool                ac_res_aggressive;
-   bool                er_varlit_destructive;
-   bool                er_strong_destructive;
-   bool                er_aggressive;
-   bool                forward_context_sr;
-   bool                forward_context_sr_aggressive;
-   bool                backward_context_sr;
-   bool                prefer_initial_clauses;
-   bool                select_on_proc_only;
-   bool                inherit_paramod_lit;
-   bool                inherit_goal_pm_lit;
-   LiteralSelectionFun selection_strategy;
-   long                pos_lit_sel_min;
-   long                pos_lit_sel_max;
-   long                neg_lit_sel_min;
-   long                neg_lit_sel_max;
-   long                all_lit_sel_min;
-   long                all_lit_sel_max;
-   long                weight_sel_min;
-   SplitClassType      split_clauses;
-   SplitType           split_method;
-   bool                split_aggressive;
-   UnitSimplifyType    unproc_simplify;
-   bool                watchlist_simplify;
-#endif
    HeuristicParmsCell  heuristic_parms;
+   FVIndexParmsCell    fvi_parms;
    SpecFeatureCell     problem_specs;
 }ProofControlCell, *ProofControl_p;
 
