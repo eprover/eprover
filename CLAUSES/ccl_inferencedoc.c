@@ -327,7 +327,7 @@ static void print_split(FILE* out, Clause_p clause, Clause_p
    case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
-		 ", inference("PCL_SPLIT",[status(split)], [c_0_%ld])",
+		 ", inference("TSTP_SPLIT",[], [c_0_%ld])",
 		 parent1->ident);
 	 tstp_print_end(out, comment, clause);
 	 break;

@@ -504,8 +504,8 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
 	 assert(expr->arg_no==1);
 	 break;
    case PCLOpSplitClause:
-	 fprintf(out, PCL_SPLIT);
-	 status = status_split;
+	 fprintf(out, TSTP_SPLIT);
+	 status = "";
 	 needs_equality = false;
 	 assert(expr->arg_no==1);
 	 break;

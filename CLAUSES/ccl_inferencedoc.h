@@ -64,6 +64,7 @@ typedef enum
 #define PCL_EF    "ef"
 #define PCL_OF    "of"
 #define PCL_SPLIT "split"
+#define TSTP_SPLIT "esplit"
 #define PCL_RW    "rw"
 #define PCL_SR    "sr"
 #define PCL_CSR   "csr"
