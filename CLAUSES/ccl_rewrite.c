@@ -481,8 +481,8 @@ static ClausePos_p indexed_find_demodulator(OCB_p ocb, Term_p term,
    assert(term);
    assert(demodulators);
    assert(demodulators->demod_index);
-   assert(term->weight == TermWeight(term, DEFAULT_VWEIGHT,
-				     DEFAULT_FWEIGHT));
+   /* assert(term->weight == TermWeight(term, DEFAULT_VWEIGHT, 
+      DEFAULT_FWEIGHT));*/
    assert(!TermIsTopRewritten(term));
 
    RewriteAttempts++;   
@@ -924,9 +924,14 @@ bool ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
    ClausePosCell pos;
 
    assert(!ClauseIsAnyPropSet(clause, CPIsDIndexed|CPIsSIndexed));
-
-   /* printf("# ClauseComputeLINormalform(%ld)...\n",clause->ident); */
    
+   /* printf("# ClauseComputeLINormalform(%ld)...\n",clause->ident); */
+   if(prefer_general!=0)
+   {
+      printf("ClauseComputeLINormalform(level=%d prefer_general=%d\n",
+             level, prefer_general);
+   }
+
    pos.clause = clause;
    for(handle = clause->literals; handle; handle=handle->next)
    {

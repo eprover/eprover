@@ -651,7 +651,7 @@ static void print_eq_unfold(FILE* out, Clause_p rewritten,
 	 for(i=0; i<PStackGetSP(demod_pos); i++)
 	 {
 	    fprintf(out, ",c_0_%ld,theory(equality)])", 
-		    PStackElementInt(demod_pos,i));
+		    demod->clause->ident);
 	 }
 	 tstp_print_end(out, "Unfolding", rewritten);
 	 break;

@@ -191,12 +191,13 @@ bool ClauseUnfoldEqDef(Clause_p clause, ClausePos_p demod)
    if(!PStackEmpty(pos_stack))
    {
       res = true;
-      DocClauseEqUnfold(GlobalOut, OutputLevel, clause, demod,
-			pos_stack);
+
       if(ClauseQueryTPTPType(demod->clause) == CPTypeConjecture)
       {
 	 ClauseSetTPTPType(clause, CPTypeConjecture);
       }
+      DocClauseEqUnfold(GlobalOut, OutputLevel, clause, demod,
+			pos_stack);
    }
    PStackFree(pos_stack);
    return res;
