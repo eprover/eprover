@@ -133,7 +133,7 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
       }
    }
    else /* !control->enable_given_forward_simpl -- this is just a
-         * subset of what is done above*/
+         * minimal subset of what is done above*/
    {
       if(ClauseIsEmpty(clause))
       {
@@ -144,10 +144,8 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
    }         
    ClauseDelProp(clause, CPIsOriented);
    DoLiteralSelection(control, clause);
-   if(!ClauseQueryProp(clause, CPIsOriented))
-   {
-      ClauseMarkMaximalLiterals(control->ocb, clause);
-   }
+   ClauseCondMarkMaximalTerms(control->ocb, clause);
+
    return pclause;
 }
 
