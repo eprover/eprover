@@ -119,12 +119,14 @@ void print_help(FILE* out);
 
 int main(int argc, char* argv[])
 {
-   Scanner_p       in;    
+   /* Scanner_p       in;     */
    CLState_p       state;
    PStack_p        tmpfileinfo;
-   int             i;
 
    assert(argv[0]);
+
+   printf("This does not work and is not supposed to do so at the moment!\n");
+   exit(1);
 
    InitOutput();
    InitError(NAME);
