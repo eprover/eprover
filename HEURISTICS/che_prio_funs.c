@@ -717,7 +717,7 @@ EvalPriority PrioFunGoalDifficulty(Clause_p clause)
 //
 //   Give priority PrioNormal to SOS clauses and
 //   initial clauses, and PrioDefer otherwise. Note that CPInitial is
-//   intentional and korrekt ;-)
+//   intentional and correkt ;-)
 //
 // Global Variables: 
 //
