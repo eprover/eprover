@@ -103,9 +103,9 @@ t1_sc_data = [
     ("CVC" , dir+"protokoll_CVC_Auto", cvc_sc_pat),
     ("CVC Lite" , dir+"protokoll_CVCL_Auto", cvc_sc_pat),
     ("E (sts11), built-in index type" ,
-     dir+"protokoll_E_sts11_t1ni_default", e_sc_pat),
-    ("E (sts12), axiomatized indices" ,
-     dir+"protokoll_E_sts12_t1_default",
+     dir+"protokoll_E_sts11ni_t1", e_sc_pat),
+    ("E (sts13), axiomatized indices" ,
+     dir+"protokoll_E_sts13_t1",
      e_sc_pat),    
     ]
 
@@ -115,9 +115,9 @@ t2_sc_data = [
     ("CVC" , dir+"protokoll_CVC_Auto", cvc_sc_pat),
     ("CVC Lite" , dir+"protokoll_CVCL_Auto", cvc_sc_pat),
     ("E (sts11), built-in index type" ,
-     dir+"protokoll_E_sts11_t2ni_default", e_sc_pat),
-    ("E (sts12), axiomatized indices" ,
-     dir+"protokoll_E_sts12_t2_default",
+     dir+"protokoll_E_sts11ni_t2", e_sc_pat),
+    ("E (sts13), axiomatized indices" ,
+     dir+"protokoll_E_sts13_t2",
      e_sc_pat),    
     ]
 
@@ -130,9 +130,9 @@ t1_si_data = [
     ("CVC" , dir+"protokoll_CVC_Auto", cvc_si_pat),
     ("CVC Lite" , dir+"protokoll_CVCL_Auto", cvc_si_pat),
     ("E (sts11)" ,
-     dir+"protokoll_E_sts11_t1ni_default", e_si_pat),
-    ("E (sts12)" ,
-     dir+"protokoll_E_sts12_t1_default",
+     dir+"protokoll_E_sts11ni_t1", e_si_pat),
+    ("E (sts13)" ,
+     dir+"protokoll_E_sts13_t1",
      e_si_pat),    
     ]
 
@@ -143,9 +143,9 @@ t2_si_data = [
     ("CVC" , dir+"protokoll_CVC_Auto", cvc_si_pat),
     ("CVC Lite" , dir+"protokoll_CVCL_Auto", cvc_si_pat),
     ("E (sts11)" ,
-     dir+"protokoll_E_sts11_t2ni_default", e_si_pat),
-    ("E (sts12)" ,
-     dir+"protokoll_E_sts12_t2_default",
+     dir+"protokoll_E_sts11ni_t2", e_si_pat),
+    ("E (sts13)" ,
+     dir+"protokoll_E_sts13_t2",
      e_si_pat),    
     ]
 
@@ -155,9 +155,9 @@ t1_sw_data = [
     ("CVC" , dir+"protokoll_CVC_Auto", cvc_sw_pat),
     ("CVC Lite" , dir+"protokoll_CVCL_Auto", cvc_sw_pat),
     ("E (sts11)" ,
-     dir+"protokoll_E_sts11_t1ni_default", e_sw_pat),
-    ("E (sts12)" ,
-     dir+"protokoll_E_sts12_t1_default",
+     dir+"protokoll_E_sts11ni_t1", e_sw_pat),
+    ("E (sts13)" ,
+     dir+"protokoll_E_sts13_t1",
      e_sw_pat),    
     ]
 
@@ -167,9 +167,9 @@ t2_sw_data = [
     ("CVC" , dir+"protokoll_CVC_Auto", cvc_sw_pat),
     ("CVC Lite" , dir+"protokoll_CVCL_Auto", cvc_sw_pat),
     ("E (sts11)" ,
-     dir+"protokoll_E_sts11_t2ni_default", e_sw_pat),
-    ("E (sts12)" ,
-     dir+"protokoll_E_sts12_t2_default",
+     dir+"protokoll_E_sts11ni_t2", e_sw_pat),
+    ("E (sts13)" ,
+     dir+"protokoll_E_sts13_t2",
      e_sw_pat),    
     ]
 
@@ -182,9 +182,9 @@ t1_scf_data = [
     ("CVC (flat)" , dir+"protokoll_CVC_Auto", cvc_scf_pat),
     ("CVC Lite (flat)" , dir+"protokoll_CVCL_Auto", cvc_scf_pat),
     ("E (sts11), built-in index type" ,
-     dir+"protokoll_E_sts11_t1ni_default", e_sc_pat),
-    ("E (sts12), axiomatized indices" ,
-     dir+"protokoll_E_sts12_t1_default",
+     dir+"protokoll_E_sts11ni_t1", e_sc_pat),
+    ("E (sts13), axiomatized indices" ,
+     dir+"protokoll_E_sts13_t1",
      e_sc_pat),    
     ]
 
@@ -194,9 +194,9 @@ t1_sif_data = [
     ("CVC (flat)" , dir+"protokoll_CVC_Auto", cvc_sif_pat),
     ("CVC Lite (flat)" , dir+"protokoll_CVCL_Auto", cvc_sif_pat),
     ("E (sts11)" ,
-     dir+"protokoll_E_sts11_t1ni_default", e_si_pat),
-    ("E (sts12)" ,
-     dir+"protokoll_E_sts12_t1_default",
+     dir+"protokoll_E_sts11ni_t1", e_si_pat),
+    ("E (sts13)" ,
+     dir+"protokoll_E_sts13_t1",
      e_si_pat),    
     ]
 
@@ -206,9 +206,9 @@ t1_swf_data = [
     ("CVC (flat)" , dir+"protokoll_CVC_Auto", cvc_swf_pat),
     ("CVC Lite (flat)" , dir+"protokoll_CVCL_Auto", cvc_swf_pat),
     ("E (sts11)" ,
-     dir+"protokoll_E_sts11_t1ni_default", e_sw_pat),
-    ("E (sts12)" ,
-     dir+"protokoll_E_sts12_t1_default",
+     dir+"protokoll_E_sts11ni_t1", e_sw_pat),
+    ("E (sts13)" ,
+     dir+"protokoll_E_sts13_t1",
      e_sw_pat),    
     ]
 
@@ -220,9 +220,9 @@ t2_scf_data = [
     ("CVC (flat)" , dir+"protokoll_CVC_Auto", cvc_scf_pat),
     ("CVC Lite (flat)" , dir+"protokoll_CVCL_Auto", cvc_scf_pat),
     ("E (sts11), built-in index type" ,
-     dir+"protokoll_E_sts11_t2ni_default", e_sc_pat),
-    ("E (sts12), axiomatized indices" ,
-     dir+"protokoll_E_sts12_t2_default",
+     dir+"protokoll_E_sts11ni_t2", e_sc_pat),
+    ("E (sts13), axiomatized indices" ,
+     dir+"protokoll_E_sts13_t2",
      e_sc_pat),    
     ]
 
@@ -232,9 +232,9 @@ t2_sif_data = [
     ("CVC (flat)" , dir+"protokoll_CVC_Auto", cvc_sif_pat),
     ("CVC Lite (flat)" , dir+"protokoll_CVCL_Auto", cvc_sif_pat),
     ("E (sts11)" ,
-     dir+"protokoll_E_sts11_t2ni_default", e_si_pat),
-    ("E (sts12)" ,
-     dir+"protokoll_E_sts12_t2_default",
+     dir+"protokoll_E_sts11ni_t2", e_si_pat),
+    ("E (sts13)" ,
+     dir+"protokoll_E_sts13_t2",
      e_si_pat),    
     ]
 
@@ -244,9 +244,9 @@ t2_swf_data = [
     ("CVC (flat)" , dir+"protokoll_CVC_Auto", cvc_swf_pat),
     ("CVC Lite (flat)" , dir+"protokoll_CVCL_Auto", cvc_swf_pat),
     ("E (sts11)" ,
-     dir+"protokoll_E_sts11_t2ni_default", e_sw_pat),
-    ("E (sts12)" ,
-     dir+"protokoll_E_sts12_t2_default",
+     dir+"protokoll_E_sts11ni_t2", e_sw_pat),
+    ("E (sts13)" ,
+     dir+"protokoll_E_sts13_t2",
      e_sw_pat),    
     ]
 
