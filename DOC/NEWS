@@ -3,6 +3,12 @@ the E equational theorem prover.
 
 Version 0.81 ->
 
+- Fixed a bug in find_spec_literal() pointed out by Flavio
+  Ribeira. Might improve performance for large problems with a lot of
+  subsumption. 
+- Added LPO4 variant from Bernd Loechners paper. Much faster
+- Cleanup of feature stuff (needs more cleaning)
+
 
 Version 0.8 -> 0.81 Tumsong
 
