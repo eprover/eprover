@@ -252,7 +252,7 @@ function collect_host_info(    res, sum, count, i)
      if(exclude_hosts[all_hosts[i]]!=1)
      {
 	print "Checking host " all_hosts[i] ".";
-	res = get_load(all_hosts[i]);
+	res = check_availablity(all_hosts[i]);
 	if(res != 1000000)
 	{	  
 	   sum+=res;
@@ -289,7 +289,7 @@ function ping_host(host,   pipe, tmp)
 }
 
 
-function get_load(host,       pipe, tmp)
+function check_availablity(host,       pipe, tmp)
 {
   if(exclude_hosts[host]==1)
   {
@@ -302,13 +302,14 @@ function get_load(host,       pipe, tmp)
 	 return 1000000;
   } 
 
-  tmp = get_shell_res_nocheck("ssh -x " host " uptime");
-  if(!index(tmp, "load average"))
-  {
-     /* No good response -> dont use machine */
-    return 1000000;
-  }  
-  return extract_load(tmp, 2);
+  #tmp = get_shell_res_nocheck("ssh -x " host " uptime");
+  #if(!index(tmp, "load average"))
+  #{
+  #   /* No good response -> dont use machine */
+  #  return 1000000;
+  #}  
+  #return extract_load(tmp, 2);
+  return 0.1;
 }
 
   
@@ -508,7 +509,7 @@ function get_host(   i, host, load, tmp_count)
 	    if((host_in_use[all_hosts[global_host_count]]==0) &&
 	       (!file_exists(all_hosts[global_host_count] "_lock")))
 	    {
-	       load = get_load(all_hosts[global_host_count]);
+	       load = check_availablity(all_hosts[global_host_count]);
 	       
 	       if((load <= no_real_load) || 
 		  (load <= min(acceptable_load, avg_load+1.5)))
