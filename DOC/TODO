@@ -24,7 +24,7 @@ stupid!
 
 Implement simple indexing for paramodulation. Idea: Processed clauses
 get an _into_ and a _from_ index. Both are a simple PDArray_p indexed
-by the rop function symbol of the respective inference terms (or 0 for
+by the top function symbol of the respective inference terms (or 0 for
 variables - only in _from_ case). Each entry in the index is a
 clb_objtrees, indexed by the clause, and containing all inference
 positions in that clause that start with the indexed symbol.
