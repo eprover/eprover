@@ -411,13 +411,13 @@ int main(int argc, char* argv[])
    case 0:
 	 break;
    case 1:
-	 PCLProtPrintPropClauses(GlobalOut, prot, PCLIsLemma, true);
+	 PCLProtPrintPropClauses(GlobalOut, prot, PCLIsLemma, true, pcl_format);
 	 break;
    case 2:
-	 PCLProtPrintPropClauses(GlobalOut, prot, PCLIsLemma, false);
+	 PCLProtPrintPropClauses(GlobalOut, prot, PCLIsLemma, false, pcl_format);
 	 break;
    default:
-	 PCLProtPrint(GlobalOut, prot);
+	 PCLProtPrint(GlobalOut, prot, pcl_format);
 	 break;
    }
    

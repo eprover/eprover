@@ -38,6 +38,8 @@ timelimit=2000000000
 outfile=""
 
 print_tail=0
+newargs=""
+format=""
 
 for argument in  $*; do
     if [ "$argument" = "-R" -o "$argument" = "--resources-info" -o "$argument" = "--print-statistics" ] ; then
@@ -46,6 +48,7 @@ for argument in  $*; do
 	head=`echo "$argument"|cut -d= -f1`
 	if [ "$head" = "--cpu-limit" ] ; then
 	    timelimit=`echo $argument|cut -d= -f2`
+            argument=""
 	fi    
 	if [ "$head" = "-o" ] ; then
 	    echo "Short option -o not supported by eproof, use --output-file=<file>"
@@ -54,13 +57,17 @@ for argument in  $*; do
 	if [ "$head" = "--output-file" ] ; then
 	    outfile=`echo $argument|cut -d= -f2`
 	    cat /dev/null > $outfile
+	    argument=""
+	fi
+	if  [ "$argument" = "--tstp-out" ] ; then
+	    argument=""
+	    format="--tstp-out"
 	fi
     fi
+    newargs=$newargs" "$argument
 done
 
-
-
-$EXECPATH/eprover $* -l4 -R -o- --pcl-terms-compressed --pcl-compact> $tmpfile
+$EXECPATH/eprover $newargs -l4 -R -o- --pcl-terms-compressed --pcl-compact> $tmpfile
 tail -50 $tmpfile > $tmpfile2
 searchtime=`cat $tmpfile2|grep "Total time"|cut -d: -f2|sed -e's/[s ]//g'|cut -d. -f1`
 if [ "$searchtime" ]; then
@@ -83,7 +90,7 @@ if [ "$searchtime" ]; then
     fi
     grep "# TSTP exit status" $tmpfile2
     grep "# Failure"          $tmpfile2
-    $EXECPATH/epclextract -f --competition-framing $tmpfile
+    $EXECPATH/epclextract $format -f --competition-framing $tmpfile
     tail -$print_tail $tmpfile2
 else
     echo "# Cannot determine problem status within resource limit"

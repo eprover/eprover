@@ -43,6 +43,7 @@ typedef enum
    OPT_VERSION,
    OPT_VERBOSE,
    OPT_FAST,
+   OPT_TSTP_PRINT,
    OPT_COMPETITION,
    OPT_OUTPUT,
    OPT_SILENT,
@@ -85,6 +86,11 @@ OptCell opts[] =
     "Print special \"begin\" and \"end\"comments around the proof "
     "object, as requiered by the CASC MIX* class."},
 
+   {OPT_TSTP_PRINT,
+    '\0', "tstp-out",
+    NoArg, NULL,
+    "Print proof protocol in TSTP syntax (default is PCL)."},
+
    {OPT_OUTPUT,
     'o', "output-file",
     ReqArg, NULL,
@@ -106,7 +112,7 @@ long       time_limit  = 10;
 char       *executable = NULL;
 bool       fast_extract = false,
            comp_frame = false;
-
+OutputFormatType output_format = pcl_format;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -199,11 +205,11 @@ int main(int argc, char* argv[])
    }
    if(fast_extract)
    {
-      PCLMiniProtPrintProofClauses(GlobalOut,mprot);
+      PCLMiniProtPrintProofClauses(GlobalOut,mprot, output_format);
    }
    else
    {
-      PCLProtPrintProofClauses(GlobalOut,prot);
+      PCLProtPrintProofClauses(GlobalOut,prot, output_format);
    }
    if(comp_frame)
    {
@@ -280,6 +286,9 @@ CLState_p process_options(int argc, char* argv[])
 	    break;
       case OPT_FAST:
 	    fast_extract = true;
+	    break;
+      case OPT_TSTP_PRINT:
+	    output_format = tstp_format;
 	    break;
       case OPT_COMPETITION:
 	    comp_frame = true;
