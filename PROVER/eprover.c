@@ -32,8 +32,8 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-/*  cvs tag E-0-82dev049 */
-#define VERSION      "0.82dev049"
+/*  cvs tag E-0-82dev050 */
+#define VERSION      "0.82dev050"
 #define NAME         "eprover"
 
 #define NICKNAME     "Lung Ching"
@@ -99,6 +99,7 @@ typedef enum
    OPT_DISABLE_NEGUNIT_PM,
    OPT_NO_GC_FORWARD_SIMPL,
    OPT_USE_SIM_PARAMOD,
+   OPT_USE_ORIENTED_SIM_PARAMOD,
    OPT_SPLIT_TYPES,
    OPT_SPLIT_HOW,
    OPT_SPLIT_AGGRESSIVE,
@@ -599,6 +600,12 @@ OptCell opts[] =
     NoArg, NULL,
     "Use simultaneous paramodulation to implement superposition. Default"
     " is to use plain paramodulaten. This is an experimental feature."},
+
+   {OPT_USE_ORIENTED_SIM_PARAMOD,
+    '\0', "oriented-simul-paramod",
+    NoArg, NULL,
+    "Use simultaneous paramodulation for oriented from-literals. This "
+    "is an experimental feature."}, 
 
    {OPT_SPLIT_TYPES,
     '\0', "split-clauses",
@@ -1541,8 +1548,10 @@ CLState_p process_options(int argc, char* argv[])
             inf_sys_complete = false;
             break;
       case OPT_USE_SIM_PARAMOD:
-            h_parms->enable_plain_paramod = false;
-            h_parms->enable_sim_paramod = true;
+            h_parms->pm_type = ParamodAlwaysSim;
+            break;
+       case OPT_USE_ORIENTED_SIM_PARAMOD:
+            h_parms->pm_type = ParamodOrientedSim;
             break;
       case OPT_SPLIT_TYPES:
 	    h_parms->split_clauses = CLStateGetIntArg(handle, arg);
