@@ -36,7 +36,7 @@ Changes
 /* An example is represented by a name (which also points to the
    original input file stored somewhere), a number (used in the
    annotations to identify the example) and the features which are
-   used to identify similar exampeld */
+   used to identify similar exampes */
 
 typedef struct examplerepcell
 {

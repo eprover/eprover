@@ -112,6 +112,7 @@ PCLStep_p PCLStepParse(Scanner_p in, TB_p bank)
    if(handle->just->op == PCLOpInitial)
    {
       ClauseSetProp(handle->clause, CPInitial);
+      PCLStepSetProp(handle, PCLIsInitial);
    }
    return handle;
 }
@@ -149,7 +150,8 @@ void PCLStepPrintExtra(FILE* out, PCLStep_p step, bool data)
    }
    if(data)
    {
-      fprintf(out, " /* %#8X %6ld %6ld %3ld %3ld %3ld %3ld %4.3f %3ld */",
+#ifdef NEVER_DEFINED
+      fprintf(out, " /* %#8X %6ld %6ld %3ld %3ld %3ld %3ld %4.3f */",
 	      step->properties,
 	      step->proof_dag_size,
 	      step->proof_tree_size,
@@ -157,8 +159,14 @@ void PCLStepPrintExtra(FILE* out, PCLStep_p step, bool data)
 	      step->other_generating_refs,
 	      step->active_simpl_refs,
 	      step->passive_simpl_refs,
-	      step->lemma_quality,
-              step->proof_distance);
+	      step->lemma_quality);
+#endif
+       fprintf(out, " /* %3ld %3ld %3ld %3ld %3ld  */",
+	      step->contrib_simpl_refs,
+	      step->contrib_gen_refs,
+	      step->useless_simpl_refs,
+	      step->useless_gen_refs,
+	      step->proof_distance); 
    }
 }
 
@@ -228,6 +236,49 @@ void PCLStepPrintFormat(FILE* out, PCLStep_p step, bool data,
    }
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: PCLStepPrintExampe()
+//
+//   Print a PCL step in the correct format for an E example file for
+//   pattern-based learning. The format is as follows:
+//   id: (pd, su, sf, gu, gs, ss):clause
+//   where currently id is meaningless (a survivor from the old output
+//   format), pd is the proof distance, su, sf, gu, gs are the
+//   relative number of simplified or generated proof/nonproof
+//   clauses, and ss is 0 (it used to be a subsumption count in the
+//   old format, that information is no longer available in PCL).
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void PCLStepPrintExample(FILE* out, PCLStep_p step, long id, 
+                        long proof_steps, long total_steps)
+{
+   if(proof_steps<=0)
+   {
+      proof_steps=1;
+   }
+   if(total_steps<=1)
+   {
+      proof_steps=2;
+   }
+
+   fprintf(out, "%4ld:(%ld, %f,%f,%f,%f):",
+           id, 
+           step->proof_distance,
+           step->contrib_simpl_refs/(float)proof_steps,
+           step->useless_simpl_refs/(float)(total_steps-proof_steps),
+           step->contrib_gen_refs/(float)proof_steps,
+           step->useless_gen_refs/(float)(total_steps-proof_steps));
+   ClausePrint(out, step->clause, true);   
+}
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: PCLStepIdCompare()
@@ -270,7 +321,11 @@ void PCLStepResetTreeData(PCLStep_p step, bool just_weights)
       step->passive_simpl_refs    = 0;  
       step->pure_quote_refs       = 0;
       step->lemma_quality         = 0.0;
-      step->proof_distance        = LONG_MAX;
+      step->contrib_simpl_refs    = 0;
+      step->contrib_gen_refs      = 0;
+      step->useless_simpl_refs    = 0;
+      step->useless_gen_refs      = 0;
+      step->proof_distance        = PCL_PROOF_DIST_UNKNOWN;
       PCLStepDelProp(step,PCLIsLemma|PCLIsMarked);
    }
 }

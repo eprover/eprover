@@ -54,7 +54,7 @@ Changes
   7: Number of clauses subsumed by this one
  */
 
-#define ANNOTATION_DEFAULT_SIZE 8
+#define ANNOTATION_DEFAULT_SIZE 7
 #define ANNOTATIONS_MERGE_ALL NULL
 
 typedef NumTree_p Annotation_p;

@@ -104,7 +104,21 @@ ExampleRep_p  ExampleRepParse(Scanner_p in)
    AcceptInpTok(in, PosInt);
    AcceptInpTok(in, Colon);
    CheckInpTok(in, Name);
-   handle->name = DStrCopy(AktToken(in)->literal);
+   if(TestInpTok(in, String))
+   {
+      char *tmp;
+      int l;
+
+      tmp = DStrCopy(AktToken(in)->literal);
+      l = strlen(tmp);
+      tmp[l-1] = '\0';
+      handle->name = SecureStrdup(tmp+1);
+      FREE(tmp);
+   }
+   else
+   {
+      handle->name = DStrCopy(AktToken(in)->literal);
+   }
    NextToken(in);
    handle->features = NumFeaturesParse(in);
 

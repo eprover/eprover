@@ -34,11 +34,20 @@ Changes
 
 
 
-
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+
+long PCLExprProofDistance(PCLProt_p prot, PCLExpr_p expr);
+long PCLStepProofDistance(PCLProt_p prot, PCLStep_p step);
+void PCLProtProofDistance(PCLProt_p prot);
+
+void PCLExprUpdateGRefs(PCLProt_p prot, PCLExpr_p expr, bool proofstep);
+#define PCLStepUpdateGRefs(prot, step) PCLExprUpdateGRefs((prot),(step)->just, PCLStepQueryProp((step),PCLIsProofStep))
+void PCLProtUpdateGRefs(PCLProt_p prot);
+
+long PCLProtSelectExamples(PCLProt_p prot, long neg_examples);
 
 
 #endif

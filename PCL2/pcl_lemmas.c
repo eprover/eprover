@@ -39,35 +39,6 @@ Changes
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
-/*-----------------------------------------------------------------------
-//
-// Function: pcl_expr_get_quoted_arg()
-//
-//   If the designated arg is a quote expression, retrieve and return
-//   the quoted step. Otherwise return NULL.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-static PCLStep_p pcl_expr_get_quoted_arg(PCLProt_p prot, PCLExpr_p expr, 
-					 int arg)
-{
-   PCLExpr_p argexpr;
-
-   assert(arg < expr->arg_no);
-
-   /* printf("pcl_expr_get_quoted_arg(%p, %p, %d)...\n", prot, expr,
-      arg); */
-   argexpr = PCLExprArg(expr,arg);
-   if(argexpr->op == PCLOpQuote)
-   {
-      return PCLProtFindStep(prot,PCLExprArg(argexpr,0));
-   }
-   return NULL;
-}
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -142,7 +113,7 @@ InferenceWeight_p InferenceWeightsAlloc()
 //
 // Function: PCLExprUpdateRefs()
 //
-//   Given a PCL expression, update the counter in all leafs according
+//   Given a PCL expression, update the counter in all leaves according
 //   to the inferences they directly paricipate in.
 //
 // Global Variables: -
@@ -168,39 +139,59 @@ void PCLExprUpdateRefs(PCLProt_p prot, PCLExpr_p expr)
 	 break; 
    case PCLOpParamod:
 	 assert(expr->arg_no == 2);
-	 if((handle = pcl_expr_get_quoted_arg(prot,expr,0)))
+	 if((handle = PCLExprGetQuotedArg(prot,expr,0)))
 	 {
 	    handle->other_generating_refs++;
 	 }
-	 if((handle = pcl_expr_get_quoted_arg(prot,expr,1)))
+         else
+         {
+            PCLExprUpdateRefs(prot, PCLExprArg(expr,0));
+         }
+	 if((handle = PCLExprGetQuotedArg(prot,expr,1)))
 	 {
 	    handle->active_pm_refs++;	    
 	 }
+         else
+         {
+            PCLExprUpdateRefs(prot, PCLExprArg(expr,1));
+         }
 	 break;
    case PCLOpEResolution:
    case PCLOpEFactoring:
    case PCLOpSplitClause: /* No idea if this one belongs here. but I
-			     have no better idead */
-	 if((handle = pcl_expr_get_quoted_arg(prot,expr,0)))
+			     have no better idea */
+	 if((handle = PCLExprGetQuotedArg(prot,expr,0)))
 	 {
 	    handle->other_generating_refs++;
 	 }
+         else
+         {
+            PCLExprUpdateRefs(prot, PCLExprArg(expr,0));
+         }
 	 break;
    case PCLOpSimplifyReflect:
    case PCLOpACResolution:
    case PCLOpRewrite:
    case PCLOpURewrite:
    case PCLOpClauseNormalize:
-	 if((handle = pcl_expr_get_quoted_arg(prot,expr,0)))
+	 if((handle = PCLExprGetQuotedArg(prot,expr,0)))
 	 {
 	    handle->passive_simpl_refs++;
-	 }
+	 } 
+         else
+         {
+            PCLExprUpdateRefs(prot, PCLExprArg(expr,0));
+         }
 	 for(i=1; i < expr->arg_no; i++)
 	 {
-	    if((handle = pcl_expr_get_quoted_arg(prot,expr,i)))
+	    if((handle = PCLExprGetQuotedArg(prot,expr,i)))
 	    {
 	       handle->active_simpl_refs++;
-	    }	    
+	    } 
+            else
+            {
+               PCLExprUpdateRefs(prot, PCLExprArg(expr,i));
+            }	    
 	 }
 	 break;	 
    default:

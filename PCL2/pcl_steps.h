@@ -30,6 +30,11 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
+#define PCL_PROOF_DIST_INFINITY LONG_MAX /* It's magic */
+#define PCL_PROOF_DIST_DEFAULT  10 /* Default for non-proofs */
+#define PCL_PROOF_DIST_UNKNOWN  -1 /* Not yet computed */
+
+
 typedef enum 
 {
    PCLNoProp        =  0,
@@ -37,7 +42,8 @@ typedef enum
    PCLIsInitial     =  2,
    PCLIsFinal       =  4,
    PCLIsMarked      =  8,
-   PCLIsProofStep   = 16
+   PCLIsProofStep   = 16,
+   PCLIsExample     = 32 /* Selected for learning */
 }PCLStepProperties;
 
 
@@ -48,6 +54,7 @@ typedef struct pclstepcell
    PCLExpr_p         just;
    char*             extra;
    PCLStepProperties properties;
+   /* The following data is collected for lemma evaluation */
    long              proof_dag_size;
    long              proof_tree_size;
    long              active_pm_refs;
@@ -55,8 +62,17 @@ typedef struct pclstepcell
    long              active_simpl_refs;
    long              passive_simpl_refs;
    long              pure_quote_refs;
-   long              proof_distance;
    float             lemma_quality;
+   /* The following data is collected for pattern-based learning */
+   long              contrib_simpl_refs; /* Simplification of proof
+                                          * clauses -- counts active
+                                          * use only! */
+   long              contrib_gen_refs;   /* Generation of proof clauses */
+   long              useless_simpl_refs; /* Simplification of
+                                          * superfluous c.-- counts
+                                          * active use only! */
+   long              useless_gen_refs;   /* Generation of superfluous c. */
+   long              proof_distance;
 }PCLStepCell, *PCLStep_p;
 
 #define PCLNoWeight -1
@@ -84,7 +100,8 @@ void      PCLStepPrintExtra(FILE* out, PCLStep_p step, bool data);
 void      PCLStepPrintTSTP(FILE* out, PCLStep_p step);
 void      PCLStepPrintFormat(FILE* out, PCLStep_p step, bool data, 
 			     OutputFormatType format);
-
+void      PCLStepPrintExample(FILE* out, PCLStep_p step, long id, 
+                              long proof_steps, long total_steps);
 int       PCLStepIdCompare(PCLStep_p step1, PCLStep_p step2);
 void      PCLStepResetTreeData(PCLStep_p step, bool just_weights);
 

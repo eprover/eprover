@@ -24,7 +24,7 @@ Changes
 #include <cio_output.h>
 #include <cio_tempfile.h>
 #include <ccl_clausesets.h>
-#include <can_treeanalyze.h>
+#include <pcl_analysis.h>
 #include <cio_signals.h>
 
 /*---------------------------------------------------------------------*/
@@ -41,7 +41,6 @@ typedef enum
    OPT_VERSION,
    OPT_VERBOSE,
    OPT_OUTPUT,
-   OPT_PRINT_EVAL,
    OPT_NEG_NO,
    OPT_NEG_PROP 
 }OptionCodes;
@@ -60,7 +59,7 @@ OptCell opts[] =
     "Print a short description of program usage and options."},
 
    {OPT_VERSION,
-    '\0', "version",
+    'V', "version",
     NoArg, NULL,
     "Print the version number of the program."},
 
@@ -73,13 +72,6 @@ OptCell opts[] =
     'o', "output-file",
     ReqArg, NULL,
    "Redirect output into the named file."},
-
-   {OPT_PRINT_EVAL,
-    'e', "print-clause-at-evaluation",
-    NoArg, NULL,
-    "Print the selected clauses in the form they are evaluated"
-    " (default is to print the selected clauses whenever they are"
-    " modified by an inference)."},
 
    {OPT_NEG_NO,
     'n', "negative-example-number",
@@ -101,7 +93,6 @@ OptCell opts[] =
 };
 
 char   *outname = NULL;
-bool   print_eval = false;
 double neg_proportion = 1;
 long   neg_examples = 200;
 
@@ -121,73 +112,59 @@ int main(int argc, char* argv[])
 {
    /* Scanner_p       in;     */
    CLState_p       state;
-   PStack_p        tmpfileinfo;
+   Scanner_p       in; 
+   PCLProt_p       prot;
+   long            steps, proof_steps, neg_steps;
+   int             i;
 
    assert(argv[0]);
 
-   printf("This does not work and is not supposed to do so at the moment!\n");
-   exit(1);
-
    InitOutput();
    InitError(NAME);
-   atexit(TempFileCleanup);
-
    ESignalSetup(SIGTERM);
    ESignalSetup(SIGINT);
+   
+   /* We need consistent name->var mappings here because we
+      potentially read the compressed input format. */
+   ClausesHaveLocalVariables = false;
 
    state = process_options(argc, argv);
 
    GlobalOut = OutOpen(outname);
-   OutputLevel = 0;
-   
+   prot = PCLProtAlloc();
+
    if(state->argc ==  0)
    {
       CLStateInsertArg(state, "-");
    }
-   tmpfileinfo = CLStateCreateTempFiles(state);
-   
-   ClausesHaveLocalVariables = false; /* We need consistent
-					 name->variable mappings in
-					 this application! */
-   /* infstate1 = InfStateAlloc();   
-   infstate1->print_clause_evals = false;
-   infstate1->print_clause_mods  = false;
-   infstate1->print_clause_stats = false;
-
-   infstate2 = InfStateAlloc();
-   infstate2->print_clause_evals = print_eval;
-   infstate2->print_clause_mods  = !print_eval;
-   infstate2->print_clause_stats = true;
-
+   steps = 0;
    for(i=0; state->argv[i]; i++)
    {
-      in = CreateScanner(StreamTypeFile, state->argv[i] , true, NULL);      
-      InfStateInfListParse(in, GlobalOut, infstate1);      
-      DestroyScanner(in);
+      in = CreateScanner(StreamTypeFile, state->argv[i] , true, NULL);
+      ScannerSetFormat(in, TPTPFormat);
+      steps+=PCLProtParse(in, prot);
+      CheckInpTok(in, NoToken);
+      DestroyScanner(in); 
    }
-   infstate2->created_count = infstate1->created_count;
-   infstate2->processed_count = infstate1->processed_count; 
-   infstate2->update_inf_inc = 0;
+   VERBOUT2("PCL input read\n");
 
-   ProofSetClauseStatistics(infstate1, 0, 0, 0, 0, PROOF_DIST_INFINITY);
-   InfStateSelectExamples(infstate1, neg_proportion, neg_examples);
-   InfStateStoreClauseInfo(&(infstate2->watch_clauses), infstate1);
-   
+   PCLProtResetTreeData(prot, false);
+   printf("After PCLProtResetTreeData\n");
+   PCLProtMarkProofClauses(prot);
+   printf("Proof clauses found\n");
+   PCLProtProofDistance(prot);
+   printf("Proog distance computed\n");
+   PCLProtUpdateGRefs(prot);
+   proof_steps = PCLProtCountProp(prot, PCLIsProofStep);
+   neg_steps = proof_steps?neg_proportion*proof_steps:neg_examples;
+   PCLProtSelectExamples(prot, neg_steps);
    fprintf(GlobalOut, "# Axioms:\n");
-   ClauseSetPrint(GlobalOut, infstate1->axioms, true);
-   fprintf(GlobalOut, ".\n\n# Examples:\n");
-   InfStateFree(infstate1);
-     
-   for(i=0; state->argv[i]; i++)
-   {
-      in = CreateScanner(StreamTypeFile, state->argv[i] , true, NULL);      
-      InfStateInfListParse(in, GlobalOut, infstate2);      
-      DestroyScanner(in);
-   }   
+   PCLProtPrintPropClauses(GlobalOut, prot, PCLIsInitial, true, no_format);  
+   fprintf(GlobalOut, ".\n\n# Examples:\n");  
+   PCLProtPrintExamples(GlobalOut, prot);
 
-   InfStateFree(infstate2); */
-
-   CLStateDestroyTempFiles(state, tmpfileinfo);
+   PCLProtFree(prot);
+   
    CLStateFree(state);
    
    fflush(GlobalOut);
@@ -198,7 +175,7 @@ int main(int argc, char* argv[])
    MemDebugPrintStats(stdout);
 #endif
    
-   return 0;
+   return EXIT_SUCCESS;
 }
 
 
@@ -242,9 +219,6 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_OUTPUT:
 	    outname = arg;
 	    break;
-      case OPT_PRINT_EVAL:
-	    print_eval = true;
-	    break;
       case OPT_NEG_NO:
 	    neg_examples = CLStateGetIntArg(handle, arg);
 	    break;
@@ -270,9 +244,9 @@ void print_help(FILE* out)
 \n"
 NAME " " VERSION "\n\
 \n\
-Usage: THIS IS BROKEN AT THE MOMENT " NAME " [options] [files]\n\
+Usage: " NAME " [options] [files]\n\
 \n\
-Parse a full E inference listing (possibly\n\
+Parse a full PCL listing (possibly\n\
 spread over multiple files), and generate training examples\n\
 corresponding to the selected clauses.\n"); 
    PrintOptions(stdout, opts);

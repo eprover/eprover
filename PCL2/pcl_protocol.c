@@ -192,6 +192,8 @@ PCLStep_p PCLProtFindStep(PCLProt_p prot, PCLId_p id)
 }
 
 
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: PCLProtSerialize()
@@ -370,6 +372,36 @@ void PCLExprCollectPreconds(PCLProt_p prot, PCLExpr_p expr, PTree_p *tree)
 
 /*-----------------------------------------------------------------------
 //
+// Function: PCLExprGetQuotedArg()
+//
+//   If the designated arg is a quote expression, retrieve and return
+//   the quoted step. Otherwise return NULL.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+PCLStep_p PCLExprGetQuotedArg(PCLProt_p prot, PCLExpr_p expr, int arg)
+{
+   PCLExpr_p argexpr;
+
+   assert(arg < expr->arg_no);
+
+   /* printf("pcl_expr_get_quoted_arg(%p, %p, %d)...\n", prot, expr,
+      arg); */
+   argexpr = PCLExprArg(expr,arg);
+   if(argexpr->op == PCLOpQuote)
+   {
+      return PCLProtFindStep(prot,PCLExprArg(argexpr,0));
+   }
+   return NULL;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: PCLProtMarkProofClauses()
 //
 //   Mark all proof steps in protocol with CPIsProofClause. Return
@@ -433,7 +465,7 @@ bool PCLProtMarkProofClauses(PCLProt_p prot)
 //
 // Global Variables: -
 //
-// Side Effects    : -
+// Side Effects    :  May sort the protocol.
 //
 /----------------------------------------------------------------------*/
 
@@ -460,7 +492,7 @@ void PCLProtSetProp(PCLProt_p prot, PCLStepProperties props)
 //
 // Global Variables: -
 //
-// Side Effects    : -
+// Side Effects    :  May sort the protocol.
 //
 /----------------------------------------------------------------------*/
 
@@ -476,6 +508,38 @@ void PCLProtDelProp(PCLProt_p prot, PCLStepProperties props)
       step = PStackElementP(prot->in_order, i);
       PCLStepDelProp(step,props);
    }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PCLProtCountProp()
+//
+//   Return the number of steps with all properties in props set.
+//
+// Global Variables: -
+//
+// Side Effects    : May sort the protocol
+//
+/----------------------------------------------------------------------*/
+
+long PCLProtCountProp(PCLProt_p prot, PCLStepProperties props)
+{
+   PCLStep_p step;   
+   PStackPointer i;
+   long res = 0;
+   
+   PCLProtSerialize(prot);
+   
+   for(i=0; i<PStackGetSP(prot->in_order); i++)
+   {
+      step = PStackElementP(prot->in_order, i);
+      if(PCLStepQueryProp(step,props))
+      {
+         res++;
+      }
+   }
+   return res;
 }
 
 /*-----------------------------------------------------------------------
@@ -521,6 +585,40 @@ void PCLProtPrintPropClauses(FILE* out, PCLProt_p prot,
    }
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: PCLProtPrintExamples()
+//
+//   Print all PCL steps that are marked as examples in example
+//   format. 
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void PCLProtPrintExamples(FILE* out, PCLProt_p prot)
+{
+   long proof_steps;
+   PCLStep_p step;
+   PStackPointer i;
+
+   proof_steps = PCLProtCountProp(prot, PCLIsProofStep);
+   /* The above also serializes the protocol! */
+   assert(prot->is_ordered);
+   
+   for(i=0; i<PStackGetSP(prot->in_order); i++)
+   {
+      step = PStackElementP(prot->in_order, i);
+      if(PCLStepQueryProp(step,PCLIsExample))
+      {
+         PCLStepPrintExample(out, step, i, proof_steps, prot->number);
+         fputc('\n', out);
+      }
+   }
+}
 
 
 /*---------------------------------------------------------------------*/

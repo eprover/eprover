@@ -74,7 +74,7 @@ termprops: $(TERMPROPS)
 	$(LD) -o termprops $(TERMPROPS)
 
 DIRECT_EXAMPLES = direct_examples.o \
-            ../lib/ANALYSIS.a ../lib/CLAUSES.a ../lib/ORDERINGS.a \
+            ../lib/PCL2.a ../lib/CLAUSES.a ../lib/ORDERINGS.a \
             ../lib/TERMS.a ../lib/INOUT.a ../lib/BASICS.a
 
 direct_examples: $(DIRECT_EXAMPLES)
@@ -128,7 +128,7 @@ ekb_insert: $(EKB_INSERT)
 	$(LD) -o ekb_insert $(EKB_INSERT)
 
 EKB_GINSERT = ekb_ginsert.o \
-            ../lib/LEARN.a ../lib/ANALYSIS.a ../lib/CLAUSES.a \
+	    ../lib/PCL2.a ../lib/LEARN.a ../lib/ANALYSIS.a ../lib/CLAUSES.a \
             ../lib/ORDERINGS.a \
             ../lib/TERMS.a ../lib/INOUT.a ../lib/BASICS.a
 

@@ -57,7 +57,7 @@ static TSMParam_p tsm_param_init(ClausePrioFun prio_fun, int fweight,
 			 IndexType indextype, TSMType tsmtype, long depth,
 			 double proofs_w, double dist_w, double p_simp_w,
 			 double f_simp_w, double p_gen_w,
-			 double f_gen_w, double subsum_w)
+                                 double f_gen_w)
 {
    TSMParam_p local = TSMParamCellAlloc();
    int        i;
@@ -81,7 +81,6 @@ static TSMParam_p tsm_param_init(ClausePrioFun prio_fun, int fweight,
    local->e_weights[3] = f_simp_w;
    local->e_weights[4] = p_gen_w;
    local->e_weights[5] = f_gen_w;
-   local->e_weights[6] = subsum_w;
    for(i=0; i<=6 ; i++)
    {
       if(local->e_weights[i] > 0)
@@ -124,7 +123,7 @@ WFCB_p TSMWeightInit(ClausePrioFun prio_fun, int fweight,
 		     IndexType indextype, TSMType tsmtype, long depth,
 		     double proofs_w, double dist_w, double p_simp_w,
 		     double f_simp_w, double p_gen_w,
-		     double f_gen_w, double subsum_w)
+		     double f_gen_w)
 {
    TSMParam_p local = tsm_param_init(prio_fun, fweight, vweight,
 				     flat_clauses, learnweight, kb,
@@ -132,8 +131,7 @@ WFCB_p TSMWeightInit(ClausePrioFun prio_fun, int fweight,
 				     dist_part, indextype,
 				     (TSMType)tsmtype, depth,
 				     proofs_w, dist_w, p_simp_w,
-				     f_simp_w, p_gen_w, f_gen_w,
-				     subsum_w); 
+				     f_simp_w, p_gen_w, f_gen_w); 
    
    return WFCBAlloc(TSMWeightCompute, prio_fun,
                     TSMWeightExit, local);
@@ -149,7 +147,7 @@ WFCB_p TSMWeightInit(ClausePrioFun prio_fun, int fweight,
 //   TSMWeight(prio_fun, fweight, vweight, learnweight, flat|rec,
 //   <kb-name>, max_proof_examples, max_proof_parts, max_dist_part,
 //   tsmtype, indextype, indexdepth, proofs_w, dist_w, p_simp_w,
-//   f_simp_w, p_gen_w, f_gen_w, subsum_w)
+//   f_simp_w, p_gen_w, f_gen_w)
 //
 // Global Variables: -
 //
@@ -169,7 +167,7 @@ WFCB_p TSMWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
    int indextype;
    int tsmtype;
    long indexdepth;
-   double proofs_w, dist_w, p_simp_w, f_simp_w, p_gen_w, f_gen_w, subsum_w;
+   double proofs_w, dist_w, p_simp_w, f_simp_w, p_gen_w, f_gen_w;
    WFCB_p res;
 
    AcceptInpTok(in, OpenBracket);
@@ -233,15 +231,13 @@ WFCB_p TSMWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
    p_gen_w =  ParseFloat(in);
    AcceptInpTok(in, Comma);
    f_gen_w =  ParseFloat(in);
-   AcceptInpTok(in, Comma);
-   subsum_w =  ParseFloat(in);
    AcceptInpTok(in, CloseBracket);
    
    res = TSMWeightInit(prio_fun, fweight, vweight, flat_clauses,
 		       learnweight, kb, state, sel_no, set_part,
 		       dist_part, indextype, (TSMType)tsmtype,
 		       indexdepth, proofs_w, dist_w, p_simp_w,
-		       f_simp_w, p_gen_w, f_gen_w, subsum_w);
+		       f_simp_w, p_gen_w, f_gen_w);
 
    FREE(kb);
    return res;
@@ -343,8 +339,7 @@ WFCB_p TSMRWeightInit(ClausePrioFun prio_fun, int fweight,
 		     sel_no, double set_part, double dist_part,
 		     IndexType indextype, TSMType tsmtype, long depth,
 		     double proofs_w, double dist_w,  double p_simp_w,
-		     double f_simp_w, double p_gen_w, double f_gen_w,
-		     double subsum_w)
+		     double f_simp_w, double p_gen_w, double f_gen_w)
 {
    TSMParam_p local = tsm_param_init(prio_fun, fweight, vweight,
 				     flat_clauses, learnweight, kb,
@@ -352,8 +347,7 @@ WFCB_p TSMRWeightInit(ClausePrioFun prio_fun, int fweight,
 				     dist_part, indextype,
 				     (TSMType)tsmtype, depth,
 				     proofs_w, dist_w, p_simp_w,
-				     f_simp_w, p_gen_w, f_gen_w,
-				     subsum_w); 
+				     f_simp_w, p_gen_w, f_gen_w); 
 
    local->pos_multiplier        = pos_multiplier;
    local->max_term_multiplier   = max_term_multiplier;
@@ -395,7 +389,7 @@ WFCB_p TSMRWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
    int indextype;
    int tsmtype;
    long indexdepth;
-   double proofs_w, dist_w, p_simp_w, f_simp_w, p_gen_w, f_gen_w, subsum_w;
+   double proofs_w, dist_w, p_simp_w, f_simp_w, p_gen_w, f_gen_w;
    WFCB_p res;
 
    AcceptInpTok(in, OpenBracket);
@@ -465,8 +459,6 @@ WFCB_p TSMRWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
    p_gen_w =  ParseFloat(in);
    AcceptInpTok(in, Comma);
    f_gen_w =  ParseFloat(in);
-   AcceptInpTok(in, Comma);
-   subsum_w =  ParseFloat(in);
    AcceptInpTok(in, CloseBracket);
    
    res = TSMRWeightInit(prio_fun, fweight, vweight, max_term_multiplier,
@@ -475,7 +467,7 @@ WFCB_p TSMRWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
 			state, sel_no, set_part, 
 		       dist_part, indextype, (TSMType)tsmtype,
 		       indexdepth, proofs_w, dist_w, p_simp_w,
-		       f_simp_w, p_gen_w, f_gen_w, subsum_w);
+                        f_simp_w, p_gen_w, f_gen_w);
 
    FREE(kb);
    return res;

@@ -43,7 +43,7 @@ typedef enum
                                  * for. */
    WPTypeHypothesis = 256,      
    WPTypeConjecture = 512,
-   WPTypeMask       = WPTypeAxiom|WPTypeHypothesis|WPTypeConjecture,
+   WPTypeMask       = WPTypeAxiom|WPTypeHypothesis|WPTypeConjecture
 }WFormulaProperties;
 
 

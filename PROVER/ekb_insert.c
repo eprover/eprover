@@ -55,7 +55,7 @@ OptCell opts[] =
     "Print a short description of program usage and options."},
 
    {OPT_VERSION,
-    '\0', "version",
+    'V', "version",
     NoArg, NULL,
     "Print the version number of the program."},
 

@@ -31,7 +31,7 @@ Changes
 /*---------------------------------------------------------------------*/
 
 #define NAME    "ekb_create"
-#define VERSION "0.1dev"
+#define VERSION "0.2dev"
 
 typedef enum
 {
@@ -39,7 +39,6 @@ typedef enum
    OPT_HELP,
    OPT_VERSION,
    OPT_VERBOSE,
-   OPT_PRINT_EVAL,
    OPT_NEG_NO,
    OPT_NEG_PROP,
    OPT_SELECT_EVAL
@@ -59,7 +58,7 @@ OptCell opts[] =
     "Print a short description of program usage and options."},
 
    {OPT_VERSION,
-    '\0', "version",
+    'V', "version",
     NoArg, NULL,
     "Print the version number of the program."},
 
@@ -67,13 +66,6 @@ OptCell opts[] =
     'v', "verbose", 
     OptArg, "1",
     "Verbose comments on the progress of the program."},
-
-   {OPT_PRINT_EVAL,
-    'c', "select-example-on-change",
-    NoArg, NULL,
-    "Print the selected clauses whenever they are"
-    " modified by an inference (default is to print the selected"
-    " clauses only in the form they are evaluated)."}, 
 
    {OPT_NEG_NO,
     'n', "negative-example-number",
@@ -96,7 +88,6 @@ OptCell opts[] =
 
 double neg_proportion = 1.0;
 long   neg_examples   =   0;
-bool   print_eval     = true;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -157,7 +148,6 @@ int main(int argc, char* argv[])
    name = DStrAlloc();
 
    handle = KBDescAlloc(KB_VERSION, neg_proportion,neg_examples);
-   handle->select_eval = print_eval;
 
    out = OutOpen(KBFileName(name, basename, "description"));
    KBDescPrint(out, handle);
@@ -242,9 +232,6 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_VERSION:
 	    printf(NAME " " VERSION "\n");
 	    exit(NO_ERROR);
-	    break;
-      case OPT_PRINT_EVAL:
-	    print_eval = false;
 	    break;
       case OPT_NEG_NO:
 	    neg_examples = CLStateGetIntArg(handle, arg);

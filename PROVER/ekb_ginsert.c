@@ -25,7 +25,7 @@ Changes
 #include <cio_fileops.h>
 #include <cio_tempfile.h>
 #include <cle_kbinsert.h>
-#include <can_treeanalyze.h>
+#include <pcl_analysis.h>
 #include <cio_signals.h>
 
 /*---------------------------------------------------------------------*/
@@ -58,7 +58,7 @@ OptCell opts[] =
     "Print a short description of program usage and options."},
 
    {OPT_VERSION,
-    '\0', "version",
+    'V', "version",
     NoArg, NULL,
     "Print the version number of the program."},
 
@@ -113,9 +113,9 @@ int main(int argc, char* argv[])
    Scanner_p       in;
    KBDesc_p        kb_desc;
    char            defaultname[30];
-   PStack_p        tmpfileinfo;
-   /* int             i; */
-   /* InfState_p      infstate1, infstate2;    */
+   int             i; 
+   PCLProt_p       prot;
+   long            proof_steps, neg_steps;
 
    assert(argv[0]);
 
@@ -194,51 +194,36 @@ int main(int argc, char* argv[])
    {
       CLStateInsertArg(state, "-");
    }
-   tmpfileinfo = CLStateCreateTempFiles(state);
-   
    ClausesHaveLocalVariables = false; /* We need consistent
                                          name->variable mappings in
                                          this application! */
-   /* infstate1 = InfStateAlloc();   
-   infstate1->print_clause_evals = false;
-   infstate1->print_clause_mods  = false;
-   infstate1->print_clause_stats = false;
- 
-   infstate2 = InfStateAlloc();   
-   infstate2->print_clause_evals = kb_desc->select_eval;
-   infstate2->print_clause_mods  = !kb_desc->select_eval;
-   infstate2->print_clause_stats = true;
 
+   prot = PCLProtAlloc();
    for(i=0; state->argv[i]; i++)
    {
-      in = CreateScanner(StreamTypeFile, state->argv[i] , true, NULL);      
-      InfStateInfListParse(in, out, infstate1);      
-      DestroyScanner(in);
+      in = CreateScanner(StreamTypeFile, state->argv[i] , true, NULL);
+      ScannerSetFormat(in, TPTPFormat);
+      PCLProtParse(in, prot);
+      CheckInpTok(in, NoToken);
+      DestroyScanner(in); 
    }
-   infstate2->created_count = infstate1->created_count;
-   infstate2->processed_count = infstate1->processed_count; 
-   infstate2->update_inf_inc = 0;
-   
-   ProofSetClauseStatistics(infstate1, 0, 0, 0, 0, PROOF_DIST_INFINITY);
-   InfStateSelectExamples(infstate1, kb_desc->neg_proportion, 
-			  kb_desc->fail_neg_examples);
-   InfStateStoreClauseInfo(&(infstate2->watch_clauses), infstate1);
-   
+   VERBOUT2("PCL input read\n");
+
+   PCLProtResetTreeData(prot, false);
+   PCLProtMarkProofClauses(prot);
+   PCLProtProofDistance(prot);
+   PCLProtUpdateGRefs(prot);
+   proof_steps = PCLProtCountProp(prot, PCLIsProofStep);
+   neg_steps = proof_steps?kb_desc->neg_proportion*proof_steps:
+      kb_desc->fail_neg_examples;
+   PCLProtSelectExamples(prot, neg_steps);
    fprintf(out, "# Axioms:\n");
-   ClauseSetPrint(out, infstate1->axioms, true);
-   fprintf(out, ".\n\n# Examples:\n");
-   InfStateFree(infstate1);
-     
-   for(i=0; state->argv[i]; i++)
-   {
-      in = CreateScanner(StreamTypeFile, state->argv[i] , true, NULL);      
-      InfStateInfListParse(in, out, infstate2);      
-      DestroyScanner(in);
-   }      
-   InfStateFree(infstate2);
-   CLStateDestroyTempFiles(state, tmpfileinfo);
+   PCLProtPrintPropClauses(out, prot, PCLIsInitial, true, no_format);  
+   fprintf(out, ".\n\n# Examples:\n");  
+   PCLProtPrintExamples(out, prot);
+   PCLProtFree(prot);
    OutClose(out);
-   */ 
+    
    /* Step 4: Now read the remaining files (signature, clausepatterns)
     */
 
@@ -359,7 +344,7 @@ void print_help(FILE* out)
 {
    fprintf(out, "\n\
 \n\
-make_kb " VERSION "\n\
+ekb_ginsert " VERSION "\n\
 \n\
 Usage: THIS IS BROKEN AT THE MOMENT ekb_ginsert [options] [name]\n\
 \n\

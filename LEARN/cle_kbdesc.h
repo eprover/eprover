@@ -30,18 +30,17 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-#define KB_VERSION "0.10dev"
+#define KB_VERSION "0.20dev"
 
 typedef struct kbdesccell
 {
    char         *version;
    double       neg_proportion;
    long         fail_neg_examples;
-   bool         select_eval;
 }KBDescCell, *KBDesc_p;
 
 
-#define KB_ANNOTATION_NO 8
+#define KB_ANNOTATION_NO 7
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */

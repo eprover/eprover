@@ -64,7 +64,6 @@ KBDesc_p KBDescAlloc(char* version, double neg_prop, long
    handle->version           = SecureStrdup(version);
    handle->neg_proportion    = neg_prop;
    handle->fail_neg_examples = neg_examples;
-   handle->select_eval       = true;
    return handle;
 }
 
@@ -107,12 +106,10 @@ void KBDescPrint(FILE* out, KBDesc_p desc)
 	   "NegProp     : %8f  # "
 	   "Negative example proportion (successful proof search)\n"
 	   "FailExamples: %8ld  # "
-	   "Number of clauses from a failed proof search\n"
-	   "Select on   : %s\n",
+	   "Number of clauses from a failed proof search\n",
 	   desc->version,
 	   desc->neg_proportion,
-	   desc->fail_neg_examples,
-	   desc->select_eval? "evaluation":"change");
+	   desc->fail_neg_examples);
 }
 
 /*-----------------------------------------------------------------------
@@ -149,19 +146,6 @@ KBDesc_p KBDescParse(Scanner_p in)
    AcceptInpTok(in, Colon);
    handle->fail_neg_examples = AktToken(in)->numval;
    AcceptInpTok(in, PosInt);
-   AcceptInpId(in, "Select");
-   AcceptInpId(in, "on");
-   AcceptInpTok(in, Colon);
-   CheckInpId(in, "evaluation|change");
-   if(TestInpId(in, "evaluation"))
-   {
-      handle->select_eval = true;
-   }
-   else
-   {
-      handle->select_eval = false;
-   }
-   NextToken(in);
 
    return handle;
 }
