@@ -58,10 +58,17 @@ Changes
 
 void PCLStepFree(PCLStep_p junk)
 {
-   assert(junk && junk->id && junk->clause && junk->just);
+   assert(junk && junk->id);
 
    PCLIdFree(junk->id);
-   ClauseFree(junk->clause);
+   if(PCLStepIsClausal(junk))
+   {
+      ClauseFree(junk->logic.clause);
+   }
+   else
+   {
+      FormulaFree(junk->logic.formula);
+   }
    PCLExprFree(junk->just);
    if(junk->extra)
    {
@@ -70,6 +77,52 @@ void PCLStepFree(PCLStep_p junk)
    PCLStepCellFree(junk);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: PCLParseExternalType()
+//
+//   Parse a list of type annotations for PCL steps and return a
+//   property word that can be used with SetProp() to set all
+//   necessary properties (the type field and the lemma bit).  
+//
+// Global Variables: -
+//
+// Side Effects    : Reads input
+//
+/----------------------------------------------------------------------*/
+
+PCLStepProperties PCLParseExternalType(Scanner_p in)
+{
+   PCLStepProperties type = PCLTypeAxiom, extra = PCLNoProp;
+   
+   while(!TestInpTok(in, Colon))
+   {
+      if(TestInpId(in, "conj"))
+      {
+         type = PCLTypeConjecture;
+         NextToken(in);
+      }
+      else if(TestInpId(in, "ass"))
+      {
+         type = PCLTypeAssumption;
+         NextToken(in);
+      }
+      else if(TestInpId(in, "lemma"))
+      {
+         extra = PCLIsLemma;
+         NextToken(in);         
+      }  
+      else
+      {
+         CheckInpId(in, "conj|ass|lemma");
+      }
+      if(!TestInpTok(in, Colon))
+      {
+         AcceptInpTok(in, Comma);
+      }
+   }
+   return type | extra;
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -90,11 +143,21 @@ PCLStep_p PCLStepParse(Scanner_p in, TB_p bank)
    assert(in);
    assert(bank);
    
-   handle->properties = PCLNoProp;
    PCLStepResetTreeData(handle, false);
    handle->id = PCLIdParse(in);
    AcceptInpTok(in, Colon);
-   handle->clause = ClausePCLParse(in, bank);
+   handle->properties = PCLParseExternalType(in);
+   AcceptInpTok(in, Colon);
+   if(TestInpTok(in, OpenSquare))
+   {
+      handle->logic.clause = ClausePCLParse(in, bank);
+      PCLStepDelProp(handle, PCLIsFOFStep);
+   }
+   else
+   {
+      handle->logic.formula = FormulaTPTPParse(in, bank);
+      PCLStepSetProp(handle, PCLIsFOFStep);
+   }
    AcceptInpTok(in, Colon);
    handle->just = PCLFullExprParse(in);
    if(TestInpTok(in, Colon))
@@ -108,13 +171,49 @@ PCLStep_p PCLStepParse(Scanner_p in, TB_p bank)
    {
       handle->extra = NULL;
    }   
-   ClauseDelProp(handle->clause, CPIsProofClause);
+   PCLStepDelProp(handle, PCLIsProofStep);
    if(handle->just->op == PCLOpInitial)
    {
-      ClauseSetProp(handle->clause, CPInitial);
       PCLStepSetProp(handle, PCLIsInitial);
    }
    return handle;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: PCLPrintExternalType()
+//
+//   Print the type(s) of a PCL step encoded in props.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void PCLPrintExternalType(FILE* out, PCLStepProperties props)
+{
+   char *prepend="";
+
+   if(props&PCLIsLemma)
+   {
+      fputs("lemma", out);
+      prepend = ",";
+   }
+   props = props & PCLTypeMask;
+   switch(props)
+   {
+   case PCLTypeAssumption:
+         fputs(prepend, out);
+         fputs("ass", out);
+         break;
+   case PCLTypeConjecture:
+         fputs(prepend, out);
+         fputs("conj", out);
+         break;
+   default:
+         break;         
+   }
 }
 
 
@@ -136,7 +235,16 @@ void PCLStepPrintExtra(FILE* out, PCLStep_p step, bool data)
 
    PCLIdPrintFormatted(out, step->id, true);
    fputs(" : ", out);
-   ClausePCLPrint(out, step->clause, true);
+   PCLPrintExternalType(out, step->properties);
+   fputs(" : ", out);   
+   if(PCLStepIsFOF(step))
+   {
+      FormulaTPTPPrint(out, step->logic.formula, true);
+   }
+   else
+   {
+      ClausePCLPrint(out, step->logic.clause, true);
+   }
    fputs(" : ", out);
    PCLFullExprPrint(out, step->just);
    if(step->extra)
@@ -173,6 +281,71 @@ void PCLStepPrintExtra(FILE* out, PCLStep_p step, bool data)
 
 /*-----------------------------------------------------------------------
 //
+// Function: PCLPropToTSTPType()
+//
+//   Given PCL properties, return the best string describing the
+//   type. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+char * PCLPropToTSTPType(PCLStepProperties props)
+{
+   switch(props & PCLTypeMask)
+   {
+   case PCLTypeConjecture:
+         if(props&PCLIsInitial)
+         {
+            return "conjecture";
+         }
+         else
+         {
+            return "conjecture-derived";
+         }   
+         break;
+   case PCLTypeAssumption:
+         if(props&PCLIsInitial)
+         {
+            return "assmumption";
+         }
+         else
+         {
+            return "assumption-derived";
+         }
+         break;
+   default:
+         if(props&PCLIsLemma)
+         {
+            if(props&PCLIsInitial)
+            {
+               return "lemma";
+            }
+            else
+            {
+               return "lemma-derived";
+            }
+         }
+         else
+         {
+            if(props&PCLIsInitial)
+            {
+               return "axiom";
+            } 
+            else
+            {
+               return "plain-derived";
+            }
+         }
+         break;
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: PCLStepPrintTSTP()
 //
 //   Print a PCL step in TSTP format.
@@ -187,13 +360,24 @@ void PCLStepPrintTSTP(FILE* out, PCLStep_p step)
 {
    assert(step);
 
-   fprintf(out, "cnf(");
-   
-   PCLIdPrintTSTP(out, step->id);
-   fputs(ClauseQueryProp(step->clause, CPInitial)?
-	 ",initial,":",derived,", 
-	 out);   
-   ClauseTSTPCorePrint(out, step->clause, true);
+   if(PCLStepIsClausal(step))
+   {
+      fprintf(out, "cnf("); 
+      PCLIdPrintTSTP(out, step->id);
+      fputc(',', out);
+      fputs(PCLPropToTSTPType(step->properties), out);
+      fputc(',', out);
+      ClauseTSTPCorePrint(out, step->logic.clause, true);
+   }
+   else
+   {
+      fprintf(out, "fof("); 
+      PCLIdPrintTSTP(out, step->id);
+      fputc(',', out);
+      fputs(PCLPropToTSTPType(step->properties), out);
+      fputc(',', out);
+      FormulaTPTPPrint(out, step->logic.formula, true);      
+   }
    fputc(',', out);   
    PCLExprPrintTSTP(out, step->just, false);
    if(step->extra)
@@ -259,6 +443,7 @@ void PCLStepPrintFormat(FILE* out, PCLStep_p step, bool data,
 void PCLStepPrintExample(FILE* out, PCLStep_p step, long id, 
                         long proof_steps, long total_steps)
 {
+   assert(!PCLStepQueryProp(step,PCLIsFOFStep));
    fprintf(out, "%4ld:(%ld, %f,%f,%f,%f):",
            id, 
            step->proof_distance,
@@ -266,7 +451,7 @@ void PCLStepPrintExample(FILE* out, PCLStep_p step, long id,
            step->useless_simpl_refs/(float)(total_steps-proof_steps+1),
            step->contrib_gen_refs/(float)(proof_steps+1),
            step->useless_gen_refs/(float)(total_steps-proof_steps+1));
-   ClausePrint(out, step->clause, true);   
+   ClausePrint(out, step->logic.clause, true);   
 }
 
 

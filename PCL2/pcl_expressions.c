@@ -223,7 +223,10 @@ PCLExpr_p PCLExprParse(Scanner_p in, bool mini)
    else
    {
       CheckInpId(in, PCL_ER"|"PCL_PM"|"PCL_EF"|"PCL_RW"|"
-		 PCL_SR"|"PCL_CSR"|"PCL_ACRES"|"PCL_CN"|"PCL_SPLIT);
+		 PCL_SR"|"PCL_CSR"|"PCL_ACRES"|"PCL_CN"|"PCL_SPLIT"|"
+                 PCL_SC"|"PCL_FS"|"PCL_NNF"|"PCL_SQ"|"PCL_VR"|"
+                 PCL_SK"|"PCL_DSTR"|"PCL_NC  );
+
       if(TestInpId(in, PCL_ER))
       {
 	 handle->op=PCLOpEResolution;
@@ -267,6 +270,46 @@ PCLExpr_p PCLExprParse(Scanner_p in, bool mini)
       else if(TestInpId(in, PCL_SPLIT))
       {
 	 handle->op=PCLOpSplitClause;
+	 arg_no=1;
+      }
+      else if(TestInpId(in, PCL_SC))
+      {
+	 handle->op=PCLOpFOFSplitConjunct;
+	 arg_no=1;
+      }
+      else if(TestInpId(in, PCL_FS))
+      {
+	 handle->op=PCLOpFOFSimplify;
+	 arg_no=1;
+      }
+      else if(TestInpId(in, PCL_NNF))
+      {
+	 handle->op=PCLOpFOFDeMorgan;
+	 arg_no=1;
+      }
+      else if(TestInpId(in, PCL_SQ))
+      {
+	 handle->op=PCLOpFOFDistributeQuantors;
+	 arg_no=1;
+      }
+      else if(TestInpId(in, PCL_VR))
+      {
+	 handle->op=PCLOpFOFVarRename;
+	 arg_no=1;
+      }
+      else if(TestInpId(in, PCL_SK))
+      {
+	 handle->op=PCLOpFOFSkolemize;
+	 arg_no=1;
+      }
+      else if(TestInpId(in, PCL_DSTR))
+      {
+	 handle->op=PCLOpFOFDistributeDisjunction;
+	 arg_no=1;
+      }
+      else if(TestInpId(in, PCL_NC))
+      {
+	 handle->op=PCLOpFOFAssumeNegation;
 	 arg_no=1;
       }
       NextToken(in);
@@ -390,6 +433,38 @@ void PCLExprPrint(FILE* out, PCLExpr_p expr, bool mini)
          fprintf(out, PCL_SPLIT);
          assert(expr->arg_no==1);
          break;
+   case PCLOpFOFSplitConjunct:
+         fprintf(out, PCL_SC);
+         assert(expr->arg_no==1);
+         break;
+   case PCLOpFOFSimplify:
+         fprintf(out, PCL_FS);
+         assert(expr->arg_no==1);
+         break;
+   case PCLOpFOFDeMorgan:
+         fprintf(out, PCL_NNF);
+         assert(expr->arg_no==1);
+         break;
+   case PCLOpFOFDistributeQuantors:
+         fprintf(out, PCL_SQ);
+         assert(expr->arg_no==1);
+         break;
+   case PCLOpFOFDistributeDisjunction:
+         fprintf(out, PCL_DSTR);
+         assert(expr->arg_no==1);
+         break;
+   case PCLOpFOFVarRename:
+         fprintf(out, PCL_VR);
+         assert(expr->arg_no==1);
+         break;
+   case PCLOpFOFSkolemize:
+         fprintf(out, PCL_SK);
+         assert(expr->arg_no==1);
+         break;
+   case PCLOpFOFAssumeNegation:
+         fprintf(out, PCL_NC);
+         assert(expr->arg_no==1);
+         break;
    default:
          assert(false && "Unknown PCL operator");
          break;
@@ -430,7 +505,9 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
    long i;
    bool needs_equality = true;
    char *status = ",[status(unknown)]", 
-      *status_thm = ",[status(thm)]";      
+      *status_thm = ",[status(thm)]", 
+      *status_cth = ",[status(cth)]", 
+      *status_sab = ",[status(sab)]";      
 
    assert(expr);
    assert(expr->args);
@@ -511,6 +588,53 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
 	 needs_equality = false;
 	 assert(expr->arg_no==1);
 	 break;
+   case PCLOpFOFSplitConjunct:
+         fprintf(out, PCL_SC);
+         status = status_thm;
+	 needs_equality = false;
+         assert(expr->arg_no==1);
+         break;
+   case PCLOpFOFSimplify:
+         fprintf(out, PCL_FS);
+         status = status_thm;
+         assert(expr->arg_no==1);
+         break;
+   case PCLOpFOFDeMorgan:
+         fprintf(out, PCL_NNF);
+         status = status_thm;
+	 needs_equality = false;
+         assert(expr->arg_no==1);
+         break;
+   case PCLOpFOFDistributeQuantors:
+         fprintf(out, PCL_SQ);
+         status = status_thm;
+	 needs_equality = false;
+         assert(expr->arg_no==1);
+         break;
+   case PCLOpFOFDistributeDisjunction:
+         fprintf(out, PCL_DSTR);
+         status = status_thm;
+	 needs_equality = false;
+         assert(expr->arg_no==1);
+         break;
+   case PCLOpFOFVarRename:
+         fprintf(out, PCL_VR);
+         status = status_thm;
+	 needs_equality = false;
+         assert(expr->arg_no==1);
+         break;
+   case PCLOpFOFSkolemize:
+         fprintf(out, PCL_SK);
+         status = status_sab;
+	 needs_equality = false;
+         assert(expr->arg_no==1);
+         break;
+   case PCLOpFOFAssumeNegation:
+         fprintf(out, PCL_NC);
+         status = status_cth;
+	 needs_equality = false;
+         assert(expr->arg_no==1);
+         break;
    default:
 	 assert(false && "Unknown PCL operator");
 	 break;

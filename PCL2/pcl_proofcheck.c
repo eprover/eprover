@@ -602,9 +602,16 @@ long PCLCollectPreconds(PCLProt_p prot, PCLStep_p step, ClauseSet_p
    while(tree)
    {
       handle = PTreeExtractRootKey(&tree);
-      clause = ClauseCopy(handle->clause, prot->terms);
-      ClauseSetInsert(set, clause);
-      res++;
+      if(PCLStepIsClausal(handle))
+      {
+         clause = ClauseCopy(handle->logic.clause, prot->terms);
+         ClauseSetInsert(set, clause);
+         res++;
+      }
+      else
+      {
+         Warning("Cannot currently handle full first-order format!");
+      }
    }
    return res;
 }
@@ -631,18 +638,25 @@ long PCLNegSkolemizeClause(PCLProt_p prot, PCLStep_p step, ClauseSet_p
    Clause_p clause, new_clause;
    Eqn_p    handle, copy;
 
-   clause = ClauseSkolemize(step->clause, prot->terms);
-   
-   for(handle=clause->literals; handle; handle=handle->next)
+   if(PCLStepIsClausal(step))
    {
-      copy = EqnCopy(handle,prot->terms);
-      EqnFlipProp(copy, EPIsPositive);
-      new_clause=ClauseAlloc(copy);
-      ClauseSetTPTPType(new_clause, CPTypeHypothesis);
-      ClauseSetInsert(set, new_clause);
-      res++;
+      clause = ClauseSkolemize(step->logic.clause, prot->terms);
+      
+      for(handle=clause->literals; handle; handle=handle->next)
+      {
+         copy = EqnCopy(handle,prot->terms);
+         EqnFlipProp(copy, EPIsPositive);
+         new_clause=ClauseAlloc(copy);
+         ClauseSetTPTPType(new_clause, CPTypeHypothesis);
+         ClauseSetInsert(set, new_clause);
+         res++;
+      }
+      ClauseFree(clause);
    }
-   ClauseFree(clause);
+   else
+   {
+      Warning("Cannot currently handle full first-order format!");
+   }
    return res;
 }
 

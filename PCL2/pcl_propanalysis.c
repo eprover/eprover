@@ -55,8 +55,21 @@ static int pcl_weight_compare(PCLStep_p step1, PCLStep_p step2)
 { 
    double w1, w2;
 
-   w1 = ClauseStandardWeight(step1->clause);
-   w2 = ClauseStandardWeight(step2->clause);
+   if(PCLStepIsFOF(step1) && PCLStepIsFOF(step2))
+   {
+      return 0;
+   }
+   else if(PCLStepIsFOF(step1))
+   {
+      return -1;
+   }
+   else if(PCLStepIsFOF(step2))
+   {
+      return 1;
+   }
+
+   w1 = ClauseStandardWeight(step1->logic.clause);
+   w2 = ClauseStandardWeight(step2->logic.clause);
 
    if(w1 < w2)
    {
@@ -74,7 +87,8 @@ static int pcl_weight_compare(PCLStep_p step1, PCLStep_p step2)
 //
 // Function: pcl_sc_compare()
 //
-//   Compare two PCL steps by strict symbol count of the clause.
+//   Compare two clause PCL steps by strict symbol count of the
+//   clause. FOF steps are always smaller and equivalent.
 //
 // Global Variables: -
 //
@@ -86,8 +100,21 @@ static int pcl_sc_compare(PCLStep_p step1, PCLStep_p step2)
 { 
    double w1, w2;
 
-   w1 = ClauseSymTypeWeight(step1->clause, 1,1,1,1,1,1,1);
-   w2 = ClauseSymTypeWeight(step2->clause, 1,1,1,1,1,1,1);
+   if(PCLStepIsFOF(step1) && PCLStepIsFOF(step2))
+   {
+      return 0;
+   }
+   else if(PCLStepIsFOF(step1))
+   {
+      return -1;
+   }
+   else if(PCLStepIsFOF(step2))
+   {
+      return 1;
+   }
+
+   w1 = ClauseSymTypeWeight(step1->logic.clause, 1,1,1,1,1,1,1);
+   w2 = ClauseSymTypeWeight(step2->logic.clause, 1,1,1,1,1,1,1);
 
    if(w1 < w2)
    {
@@ -117,8 +144,20 @@ static int pcl_litno_compare(PCLStep_p step1, PCLStep_p step2)
 { 
    int w1, w2;
 
-   w1 = ClauseLiteralNumber(step1->clause);
-   w2 = ClauseLiteralNumber(step2->clause);
+   if(PCLStepIsFOF(step1) && PCLStepIsFOF(step2))
+   {
+      return 0;
+   }
+   else if(PCLStepIsFOF(step1))
+   {
+      return -1;
+   }
+   else if(PCLStepIsFOF(step2))
+   {
+      return 1;
+   }
+   w1 = ClauseLiteralNumber(step1->logic.clause);
+   w2 = ClauseLiteralNumber(step2->logic.clause);
 
    if(w1 < w2)
    {
@@ -147,8 +186,20 @@ static int pcl_depth_compare(PCLStep_p step1, PCLStep_p step2)
 { 
    int w1, w2;
 
-   w1 = ClauseDepth(step1->clause);
-   w2 = ClauseDepth(step2->clause);
+   if(PCLStepIsFOF(step1) && PCLStepIsFOF(step2))
+   {
+      return 0;
+   }
+   else if(PCLStepIsFOF(step1))
+   {
+      return -1;
+   }
+   else if(PCLStepIsFOF(step2))
+   {
+      return 1;
+   }
+   w1 = ClauseDepth(step1->logic.clause);
+   w2 = ClauseDepth(step2->logic.clause);
 
    if(w1 < w2)
    {
@@ -177,12 +228,12 @@ static int pcl_depth_compare(PCLStep_p step1, PCLStep_p step2)
 static void pcl_prot_global_count(PCLProt_p prot, PCLPropData_p data)
 {
    PCLStep_p tmp;
-   PStack_p  stack;
-   PTree_p   cell;
    Clause_p  clause;
+   PStackPointer i;
    
    assert(prot && data);
 
+   data->fof_formulae        = 0;
    data->pos_clauses         = 0;
    data->neg_clauses         = 0;
    data->mix_clauses         = 0;
@@ -196,43 +247,49 @@ static void pcl_prot_global_count(PCLProt_p prot, PCLPropData_p data)
    data->pred_count          = 0;
    data->var_count           = 0;         
 
-   stack = PTreeTraverseInit(prot->steps);
+   PCLProtSerialize(prot);
 
-   while((cell=PTreeTraverseNext(stack)))
+   for(i=0; i<PStackGetSP(prot->in_order); i++)
    {
-      tmp = cell->key;
-      clause = tmp->clause;
-      
-      if(!ClauseIsEmpty(clause))
+      tmp = PStackElementP(prot->in_order, i);
+      if(PCLStepIsFOF(tmp))
       {
-	 if(ClauseIsPositive(clause))
-	 {
+         data->fof_formulae++;         
+      }
+      else
+      {
+         clause = tmp->logic.clause;
+         
+         if(!ClauseIsEmpty(clause))
+         {
+            if(ClauseIsPositive(clause))
+            {
 	    data->pos_clauses++;
 	    data->pos_clause_literals += ClauseLiteralNumber(clause);
-	 }
-	 else if(ClauseIsNegative(clause))
-	 {
-	    data->neg_clauses++;
-	    data->neg_clause_literals += ClauseLiteralNumber(clause);
-	 }
-	 else
-	 {
-	    data->mix_clauses++;
-	    data->mix_clause_literals += ClauseLiteralNumber(clause);
-	 }
-	 data->pos_literals += clause->pos_lit_no;
-	 data->neg_literals += clause->neg_lit_no;
-	 data->const_count  += ClauseSymTypeWeight(clause,
-						   1,1,1,0,0,1,0);
-	 data->func_count   += ClauseSymTypeWeight(clause,
-						   1,1,1,0,1,0,0);
-	 data->pred_count   += ClauseSymTypeWeight(clause,
-						   1,1,1,0,0,0,1);
-	 data->var_count   += ClauseSymTypeWeight(clause,
-						  1,1,1,1,0,0,0);
+            }
+            else if(ClauseIsNegative(clause))
+            {
+               data->neg_clauses++;
+               data->neg_clause_literals += ClauseLiteralNumber(clause);
+            }
+            else
+            {
+               data->mix_clauses++;
+               data->mix_clause_literals += ClauseLiteralNumber(clause);
+            }
+            data->pos_literals += clause->pos_lit_no;
+            data->neg_literals += clause->neg_lit_no;
+            data->const_count  += ClauseSymTypeWeight(clause,
+                                                      1,1,1,0,0,1,0);
+            data->func_count   += ClauseSymTypeWeight(clause,
+                                                      1,1,1,0,1,0,0);
+            data->pred_count   += ClauseSymTypeWeight(clause,
+                                                      1,1,1,0,0,0,1);
+            data->var_count   += ClauseSymTypeWeight(clause,
+                                                     1,1,1,1,0,0,0);
+         }
       }
    }
-   PStackFree(stack);
 }
 
 
@@ -361,14 +418,15 @@ void PCLProtPropDataPrint(FILE* out, PCLPropData_p data)
 	   (double)(data->var_count)/clauses,
 	   (double)(data->const_count)/clauses,
 	   (double)(data->pred_count)/clauses);
-   fprintf(out, "# Longest Clause: \n");
-   ClausePropInfoPrint(out, data->longest_clause->clause);
-   fprintf(out, "# Largest Clause: \n");
-   ClausePropInfoPrint(out, data->max_symbol_clause->clause);
-   fprintf(out, "# Heaviest Clause: \n");
-   ClausePropInfoPrint(out, data->max_standard_weight_clause->clause);
-   fprintf(out, "# Deepest Clause: \n");
-   ClausePropInfoPrint(out, data->max_depth_clause->clause);
+   fprintf(out, "# Longest Clause (if any): \n");
+   PCLStepPrint(out, data->longest_clause);
+   fprintf(out, "# Largest Clause (if any): \n");
+   PCLStepPrint(out, data->max_symbol_clause);
+   fprintf(out, "# Heaviest Clause (if any): \n");
+   ClausePropInfoPrint(out, data->max_standard_weight_clause->logic.clause);
+   PCLStepPrint(out, data->max_standard_weight_clause);
+   fprintf(out, "# Deepest Clause (if any): \n");
+   PCLStepPrint(out, data->max_depth_clause); 
 }
 
 

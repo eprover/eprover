@@ -35,6 +35,7 @@ Changes
 
 typedef struct pcl_propdata_cell
 {
+   long      fof_formulae;
    long      pos_clauses;
    long      neg_clauses;
    long      mix_clauses;

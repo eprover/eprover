@@ -26,6 +26,7 @@ Changes
 
 #include <pcl_miniclauses.h>
 #include <pcl_expressions.h>
+#include <pcl_steps.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -34,7 +35,12 @@ Changes
 typedef struct pclministepcell
 {
    unsigned long id;
-   MiniClause_p  clause;
+   union
+   {
+      MiniClause_p  clause;
+      Formula_p     formula;
+   }logic;
+   PCLStepProperties properties;
    PCLExpr_p just;
    char*     extra;
 }PCLMiniStepCell, *PCLMiniStep_p;

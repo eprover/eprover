@@ -38,7 +38,7 @@ Changes
 
 typedef struct mini_clause_cell
 {
-   ClauseProperties properties;
+   /* ClauseProperties properties; */
    short            literal_no;
    short            *sign; /* For literals */
    Term_p           *lit_terms; /* Literals are just pairs of terms */

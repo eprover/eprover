@@ -37,20 +37,36 @@ Changes
 
 typedef enum 
 {
-   PCLNoProp        =  0,
-   PCLIsLemma       =  1,
-   PCLIsInitial     =  2,
-   PCLIsFinal       =  4,
-   PCLIsMarked      =  8,
-   PCLIsProofStep   = 16,
-   PCLIsExample     = 32 /* Selected for learning */
+   PCLNoProp         =  0,
+   PCLIsLemma        =  1,
+   PCLIsInitial      =  2,
+   PCLIsFinal        =  4,
+   PCLIsMarked       =  8,
+   PCLIsProofStep    = 16,
+   PCLIsExample      = 32, /* Selected for learning */
+   PCLIsFOFStep      = 64, /* Otherwise its a clause */
+   PCLType1          = CPType1, /* 128 */
+   PCLType2          = CPType2, 
+   PCLType3          = CPType3,
+   PCLTypeMask       = CPTypeMask,
+   PCLTypeUnknown    = 0,                /* Also used as wildcard */
+   PCLTypeAxiom      = CPTypeAxiom,      /* Formula is Axiom */
+   PCLTypeHypothesis = CPTypeHypothesis, /* Formula is Hypothesis */
+   PCLTypeConjecture = CPTypeConjecture, /* Formula is Conjecture */
+   /* No Lemma type, in PLC that is independent of step type! */
+   PCLTypeAssumption = CPTypeAssumption /* Formula is Assumption */
+
 }PCLStepProperties;
 
 
 typedef struct pclstepcell
 {
    PCLId_p           id;
-   Clause_p          clause;
+   union
+   {
+      Clause_p          clause;
+      Formula_p         formula;
+   }logic;
    PCLExpr_p         just;
    char*             extra;
    PCLStepProperties properties;
@@ -92,11 +108,17 @@ typedef struct pclstepcell
 #define PCLStepQueryProp(clause, prop) QueryProp((clause), (prop))
 #define PCLStepIsAnyPropSet(clause, prop) IsAnyPropSet((clause), (prop))
 
+#define PCLStepIsFOF(step) PCLStepQueryProp((step), PCLIsFOFStep)
+#define PCLStepIsClausal(step) (!PCLStepIsFOF(step))
+
 void      PCLStepFree(PCLStep_p junk);
 
+PCLStepProperties PCLParseExternalType(Scanner_p in);
 PCLStep_p PCLStepParse(Scanner_p in, TB_p bank);
+void      PCLPrintExternalType(FILE* out, PCLStepProperties props);
 void      PCLStepPrintExtra(FILE* out, PCLStep_p step, bool data);
 #define   PCLStepPrint(out, step) PCLStepPrintExtra((out),(step),false)
+char *    PCLPropToTSTPType(PCLStepProperties props);
 void      PCLStepPrintTSTP(FILE* out, PCLStep_p step);
 void      PCLStepPrintFormat(FILE* out, PCLStep_p step, bool data, 
 			     OutputFormatType format);

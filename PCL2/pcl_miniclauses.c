@@ -124,7 +124,7 @@ MiniClause_p ClauseToMiniClause(Clause_p clause)
    int   i;
    Eqn_p literal;
 
-   handle->properties = CPIgnoreProps;
+   /* handle->properties = CPIgnoreProps; */
    handle->lit_terms  = NULL;
    handle->sign       = NULL;   
    handle->literal_no = ClauseLiteralNumber(clause);

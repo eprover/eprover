@@ -58,9 +58,16 @@ Changes
 
 void PCLMiniStepFree(PCLMiniStep_p junk)
 {
-   assert(junk && junk->id && junk->clause && junk->just);
+   assert(junk && junk->id && junk->just);
    
-   MiniClauseFree(junk->clause);
+   if(PCLStepIsFOF(junk))
+   {
+      FormulaFree(junk->logic.formula);
+   }
+   else
+   {
+      MiniClauseFree(junk->logic.clause);
+   }
    PCLMiniExprFree(junk->just);
    if(junk->extra)
    {
@@ -97,7 +104,19 @@ PCLMiniStep_p PCLMiniStepParse(Scanner_p in, TB_p bank)
 		    false); 
    }
    AcceptInpTok(in, Colon);
-   handle->clause = MinifyClause(ClausePCLParse(in, bank));
+   handle->properties = PCLParseExternalType(in);
+   AcceptInpTok(in, Colon);
+
+   if(TestInpTok(in, OpenSquare))
+   {      
+      handle->logic.clause = MinifyClause(ClausePCLParse(in, bank));
+      PCLStepDelProp(handle, PCLIsFOFStep);
+   }
+   else
+   {
+      handle->logic.formula = FormulaTPTPParse(in, bank);
+      PCLStepSetProp(handle, PCLIsFOFStep);
+   }
    AcceptInpTok(in, Colon);
    handle->just = PCLMiniExprParse(in);
    if(TestInpTok(in, Colon))
@@ -111,10 +130,10 @@ PCLMiniStep_p PCLMiniStepParse(Scanner_p in, TB_p bank)
    {
       handle->extra = NULL;
    }
-   ClauseDelProp(handle->clause, CPIsProofClause);
+   PCLStepDelProp(handle, PCLIsProofStep);
    if(handle->just->op == PCLOpInitial)
    {
-      ClauseSetProp(handle->clause, CPInitial);
+      PCLStepSetProp(handle, PCLIsInitial);
    }   
    return handle;
 }
@@ -136,8 +155,17 @@ void PCLMiniStepPrint(FILE* out, PCLMiniStep_p step, TB_p bank)
 {
    assert(step);
 
-   fprintf(out, "%6ld : ", step->id);
-   MiniClausePCLPrint(out, step->clause, bank);
+   fprintf(out, "%6ld : ", step->id); 
+   PCLPrintExternalType(out, step->properties);
+   fputs(" : ", out);   
+   if(PCLStepIsFOF(step))
+   {
+      FormulaTPTPPrint(out, step->logic.formula, true);
+   }
+   else
+   {
+      MiniClausePCLPrint(out, step->logic.clause, bank);
+   }
    fputs(" : ", out);
    PCLMiniExprPrint(out, step->just);
    if(step->extra)
@@ -163,9 +191,18 @@ void PCLMiniStepPrintTSTP(FILE* out, PCLMiniStep_p step, TB_p bank)
 {
    assert(step);
 
-   fprintf(out, "cnf(%ld,%s,",step->id,
-	   ClauseQueryProp(step->clause, CPInitial)? "initial":"derived");
-   MiniClauseTSTPCorePrint(out, step->clause, bank);
+   if(PCLStepIsClausal(step))
+   {
+      fprintf(out, "cnf(%ld,%s,",step->id,
+              PCLPropToTSTPType(step->properties));
+      MiniClauseTSTPCorePrint(out, step->logic.clause, bank);
+   }
+   else
+   {
+      fprintf(out, "fof(%ld, %s,", step->id,
+              PCLPropToTSTPType(step->properties));
+      FormulaTPTPPrint(out, step->logic.formula, true);      
+   }
    fputc(',', out);   
    PCLExprPrintTSTP(out, step->just, true);
    if(step->extra)

@@ -43,9 +43,43 @@ bool             PCLStepCompact = false;
 
 /*-----------------------------------------------------------------------
 //
+// Function: pcl_type_str()
+//
+//   Given an E-internal type of clause, return a string describing
+//   the type (default type is plain/ax and is represented by the
+//   empty string).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+char* pcl_type_str(ClauseProperties type)
+{
+   char *res;
+
+   switch(type)
+   {
+   case CPTypeConjecture:
+         res = "conj";
+         break;
+   case CPTypeAssumption:
+         res = "ass";
+         break;
+    default:
+         res = "";
+         break;
+   }
+
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: pcl_print_start()
 //
-//   Print the "<id> : <clause> : " part of a pcl step.
+//   Print the "<id> :<type> : <clause> : " part of a pcl step.
 //
 // Global Variables: -
 //
@@ -56,6 +90,7 @@ bool             PCLStepCompact = false;
 static void pcl_print_start(FILE* out, Clause_p clause)
 {
    fprintf(out, PCLStepCompact?"%ld:":"%6ld : ", clause->ident);
+   fprintf(out, "%s:", pcl_type_str(ClauseQueryTPTPType(clause)));
    ClausePCLPrint(out, clause, PCLFullTerms);
    fputs(" : ", out);
 }
@@ -649,7 +684,8 @@ static void print_eq_unfold(FILE* out, Clause_p rewritten,
 
 static void pcl_formula_print_start(FILE* out, WFormula_p form)
 {
-   fprintf(out, PCLStepCompact?"%ld:":"%6ld : ", form->ident);
+   fprintf(out, PCLStepCompact?"%ld:":"%6ld : ", form->ident); 
+   fprintf(out, "%s:", pcl_type_str(FormulaQueryType(form)));
    FormulaTPTPPrint(out, form->formula, PCLFullTerms);
    fputs(" : ", out);
 }
@@ -718,7 +754,7 @@ static void print_formula_initial(FILE* out, WFormula_p form, char* comment)
 	 pcl_formula_print_start(out, form);
          if(FormulaQueryType(form)==WPTypeConjecture)
          {
-            fprintf(out, "initial_conjecture");
+            fprintf(out, "initial");
          }
          else
          {

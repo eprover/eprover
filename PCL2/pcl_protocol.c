@@ -428,7 +428,8 @@ bool PCLProtMarkProofClauses(PCLProt_p prot)
    for(i=0; i<PStackGetSP(prot->in_order); i++)
    {
       step = PStackElementP(prot->in_order, i);
-      if(ClauseIsEmpty(step->clause))
+      if(!PCLStepQueryProp(step, PCLIsFOFStep)&&
+         ClauseIsEmpty(step->logic.clause))
       {
 	 res = true;
       }
@@ -570,7 +571,14 @@ void PCLProtPrintPropClauses(FILE* out, PCLProt_p prot,
       {
 	 if(just_clauses)
 	 {
-	    ClausePrint(out, step->clause, true);
+            if(PCLStepQueryProp(step, PCLIsFOFStep))
+            {
+               FormulaTPTPPrint(out, step->logic.formula, true);
+            }
+            else
+            {
+               ClausePrint(out, step->logic.clause, true);
+            }
 	    #ifdef NEVER_DEFINED
 	    fprintf(GlobalOut, "/* %f */", step->lemma_quality);
 	    #endif

@@ -394,13 +394,13 @@ bool PCLMiniProtMarkProofClauses(PCLMiniProt_p prot, bool fast)
    while(!PStackEmpty(to_proc))
    {
       step = PStackPopP(to_proc);
-      if(step->clause->literal_no == 0)
+      if(PCLStepIsClausal(step) && (step->logic.clause->literal_no == 0))
       {
 	 res = true;
       }
-      if(!ClauseQueryProp(step->clause,CPIsProofClause))
+      if(!PCLStepQueryProp(step,PCLIsProofStep))
       {
-	 ClauseSetProp(step->clause,CPIsProofClause);
+	 PCLStepSetProp(step, PCLIsProofStep);
 	 PCLMiniExprCollectPreconds(prot, step->just, &root);	 
 	 while(root)
 	 {
@@ -417,16 +417,15 @@ bool PCLMiniProtMarkProofClauses(PCLMiniProt_p prot, bool fast)
 //
 // Function: PCLMiniProtSetClauseProp()
 //
-//   Set a property in a PCLMiniSteps MiniClause (the only place
-//   mini-steps have properties).
+//   Set a property in a PCLMiniStep protocol.
 //
-// Global Variables: 
+// Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
-void PCLMiniProtSetClauseProp(PCLMiniProt_p prot, ClauseProperties props)
+void PCLMiniProtSetClauseProp(PCLMiniProt_p prot, PCLStepProperties props)
 {
    long i;
    PCLMiniStep_p step;
@@ -436,7 +435,7 @@ void PCLMiniProtSetClauseProp(PCLMiniProt_p prot, ClauseProperties props)
       step = PDArrayElementP(prot->steps, i);
       if(step)
       {
-	 ClauseSetProp(step->clause,props);
+	 PCLStepSetProp(step,props);
       }
    }
 }
@@ -445,16 +444,15 @@ void PCLMiniProtSetClauseProp(PCLMiniProt_p prot, ClauseProperties props)
 //
 // Function: PCLMiniProtDelClauseProp()
 //
-//   Delete a property in a PCLMiniSteps MiniClause (the only place
-//   mini-steps have properties).
+//   Delete a property in a PCLMiniSteps protocol.
 //
-// Global Variables: 
+// Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
-void PCLMiniProtDelClauseProp(PCLMiniProt_p prot, ClauseProperties props)
+void PCLMiniProtDelClauseProp(PCLMiniProt_p prot, PCLStepProperties props)
 {
    long i;
    PCLMiniStep_p step;
@@ -464,7 +462,7 @@ void PCLMiniProtDelClauseProp(PCLMiniProt_p prot, ClauseProperties props)
       step = PDArrayElementP(prot->steps, i);      
       if(step)
       {
-	 ClauseDelProp(step->clause,props);
+	 PCLStepDelProp(step,props);
       }
    }
 }
@@ -495,7 +493,7 @@ void PCLMiniProtPrintProofClauses(FILE* out, PCLMiniProt_p prot,
    for(i=0; i<=prot->max_ident; i++)
    {
       step = PDArrayElementP(prot->steps, i);
-      if(step&&ClauseQueryProp(step->clause,CPIsProofClause))
+      if(step&&PCLStepQueryProp(step, PCLIsProofStep))
       {
 	 PCLMiniStepPrintFormat(out, step, prot->terms, format);
 	 fputc('\n',out);

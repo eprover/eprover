@@ -195,7 +195,9 @@ void PCLExprUpdateRefs(PCLProt_p prot, PCLExpr_p expr)
 	 }
 	 break;	 
    default:
-	 assert(false);
+         /* Nothing happens for the FOF inference types */
+	 /* assert(false); */
+         break;
    }
 }
 
@@ -408,32 +410,39 @@ float PCLStepComputeLemmaWeight(PCLProt_p prot, PCLStep_p step,
 {
    float res;
 
-   res =    
-      (params->base_weight +
-       step->active_pm_refs        * params->act_pm_w + 
-       step->other_generating_refs * params->o_gen_w + 
-       step->active_simpl_refs     * params->act_simpl_w + 
-       step->passive_simpl_refs    * params->pas_simpl_w)
-      *
-      step->proof_tree_size
-      /
-      (ClauseStandardWeight(step->clause)+1);
-   if(ClauseIsHorn(step->clause))
-   {
-      res = res*params->horn_bonus;
-   }   
-
-   if((step->passive_simpl_refs || step->pure_quote_refs)
-      && 
-      !(step->active_pm_refs+step->other_generating_refs+step->active_simpl_refs) )
+   if(PCLStepQueryProp(step, PCLIsFOFStep))
    {
       res = 0;
    }
    else
-   {
-      if(ClauseIsTrivial(step->clause))
+   {      
+      res =    
+         (params->base_weight +
+          step->active_pm_refs        * params->act_pm_w + 
+          step->other_generating_refs * params->o_gen_w + 
+          step->active_simpl_refs     * params->act_simpl_w + 
+          step->passive_simpl_refs    * params->pas_simpl_w)
+         *
+         step->proof_tree_size
+         /
+         (ClauseStandardWeight(step->logic.clause)+1);
+      if(ClauseIsHorn(step->logic.clause))
       {
-	 res = 0;
+         res = res*params->horn_bonus;
+      }   
+      
+      if((step->passive_simpl_refs || step->pure_quote_refs)
+         && 
+         !(step->active_pm_refs+step->other_generating_refs+step->active_simpl_refs) )
+      {
+         res = 0;
+      }
+      else
+      {
+         if(ClauseIsTrivial(step->logic.clause))
+         {
+            res = 0;
+         }
       }
    }
    step->lemma_quality = res;        

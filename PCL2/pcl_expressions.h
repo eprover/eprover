@@ -50,6 +50,14 @@ typedef enum
    PCLOpURewrite,
    PCLOpClauseNormalize,
    PCLOpSplitClause,
+   PCLOpFOFSplitConjunct,
+   PCLOpFOFSimplify,
+   PCLOpFOFDeMorgan,
+   PCLOpFOFDistributeQuantors,
+   PCLOpFOFDistributeDisjunction,
+   PCLOpFOFVarRename,
+   PCLOpFOFSkolemize,
+   PCLOpFOFAssumeNegation,
    PCLOpMaxOp
 }PCLOpcodes;
 
