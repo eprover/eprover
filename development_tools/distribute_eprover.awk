@@ -238,7 +238,7 @@ function get_host_type(host,          res)
    res = get_shell_res("ssh -x " host " get_system.awk");
    if(!e_mark[res])
    {
-      
+      return "";
    }
    print "Host " host " is type " res " with " e_mark[res] " EMark";
    return res;
@@ -334,7 +334,7 @@ function extract_host(string)
 }
 
 
-function collect_host_info(    res, count, i)
+function collect_host_info(    res, count, i, type)
 {
   count = 0;
   sum = 0;
@@ -348,10 +348,14 @@ function collect_host_info(    res, count, i)
 	print "Checking host " all_hosts[i] ".";
 	res = check_availablity(all_hosts[i]);
 	if(res != 1000000)
-	{	  
-	   count++;
-	   host_proc_power[all_hosts[i]] = e_mark[get_host_type(all_hosts[i])];
-	   print "..." all_hosts[i] " is ready at " host_proc_power[all_hosts[i]] " EMark";
+	{
+           type = get_host_type(all_hosts[i]);
+           if(type)
+           {
+              count++;            
+              host_proc_power[all_hosts[i]] = e_mark[type];
+              print "..." all_hosts[i] " is ready at " host_proc_power[all_hosts[i]] " EMark";
+           }
 	}
      }
   }
