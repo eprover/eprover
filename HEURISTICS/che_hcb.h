@@ -69,7 +69,11 @@ typedef struct heuristic_parms_cell
    long                filter_copies_limit;
    long                reweight_limit;
    long                delete_bad_limit;
+#ifndef RESTRICTED_FOR_WINDOWS
    rlim_t              mem_limit;
+#else
+   long                mem_limit;
+#endif
    ACHandlingType      ac_handling;
    bool                ac_res_aggressive;
    bool                forward_context_sr;
