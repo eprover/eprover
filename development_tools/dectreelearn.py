@@ -118,6 +118,7 @@ printtree  = True
 seed       = None
 stratified = True
 feature_selection = "R"
+dectree_constructor = pylib_dectrees.global_decision_tree
 
 options = pylib_io.get_options()
 args    = pylib_io.get_args()
@@ -170,10 +171,10 @@ if crossval:
     fold = 0
     for i in jobs:
         fold += 1
-        tree = pylib_dectrees.decision_tree(i[0],
-                                            entropy_compare_fun,
-                                            relgain_limit,
-                                            max_split)
+        tree = dectree_constructor(i[0],
+                                   entropy_compare_fun,
+                                   relgain_limit,
+                                   max_split)
         (tsize, tdepth, tleaves)                     = tree.characteristics()
         (apriori, remainder, absinfgain, relinfgain) = tree.entropies()
         (succ, count) = tree.classify_set(i[0],pylib_basics.verbose())
@@ -212,10 +213,10 @@ if crossval:
            pylib_basics.standard_deviation(te_percent))
            
 else:
-    tree = pylib_dectrees.decision_tree(set,
-                                        entropy_compare_fun,
-                                        relgain_limit,
-                                        max_split)
+    tree = dectree_constructor(set,
+                               entropy_compare_fun,
+                               relgain_limit,
+                               max_split)
     if printtree:
         tree.printout()
     if eval_tree:

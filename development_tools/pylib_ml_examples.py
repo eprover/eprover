@@ -789,7 +789,7 @@ class one_and_rest_partition(partition):
 
     
     
-def partition_generator(examples, feature, max_splits):
+def partition_generator_feature(examples, feature, max_splits):
     """
     Generate sequence of partitions for the given feature. Tries to
     intelligently guess what to do and where to stop.
@@ -873,6 +873,19 @@ def partition_generator(examples, feature, max_splits):
         
     return
 
+def partition_generator(examples, max_split):
+    """
+    Enumerate all possible feature partions for examples.
+    """
+    for i in range(0,examples.feature_no):
+        pg = partition_generator_feature(examples, i, max_split)
+        while 1:
+            try:
+                part = pg.next()
+                yield part
+            except StopIteration:
+                break
+    return
 
 def find_best_feature_partition(examples,
                                 compare_fun,
@@ -885,7 +898,7 @@ def find_best_feature_partition(examples,
     best_relinfgain = -1
     best_absinfgain = -1
     best_part       = None
-    part_gen        = partition_generator(examples, feature, max_splits)
+    part_gen        = partition_generator_feature(examples, feature, max_splits)
     while 1:
         try:
             part       = part_gen.next()
