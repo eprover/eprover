@@ -50,8 +50,8 @@ from pylib_discretize import *
 
 para_re  = re.compile("[0-9]+(\.[0-9]+)?")
 
-files   = pylib_io.get_args(sys.argv)
-options = pylib_io.get_options(sys.argv)
+files   = pylib_io.get_args()
+options = pylib_io.get_options()
 formats = filter(lambda x:x[0:2]=="-r", options)
 stuff   = filter(lambda x:x[0:2]!="-r", options)
 

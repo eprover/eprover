@@ -213,7 +213,8 @@ function get_platform_info_Linux(    pipe, tmp, res, tmpres,  i, arr, elements)
    return res;
 }
 
-function get_platform_info_Darwin(     pipe, tmp, i, arr, elements, tmpname)
+function get_platform_info_Darwin(     pipe, tmp, i, arr, elements,
+				       tmpname, freq)
 {
    pipe = "hostinfo";
 
@@ -233,9 +234,9 @@ function get_platform_info_Darwin(     pipe, tmp, i, arr, elements, tmpname)
       }
    }
    close(pipe);
-
-   return tmpname "-1000"; # I have no other Apple and no way to get
-			   # the frequency
+   tmp = get_shell_res("sysctl -n hw.cpufrequency");
+   freq = tmp/1000000
+   return tmpname "-" freq;
 }
 
 

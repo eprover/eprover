@@ -3,7 +3,7 @@
 #
 # Module pylib_eprots
 #
-# Functions (and classes) for manipulatig E result protocols (this is
+# Functions (and classes) for manipulating E result protocols (this is
 # probably fairly specialized and not that useful for others...
 #
 # Copyright 2003 Stephan Schulz, schulz@informatik.tu-muenchen.de
@@ -245,8 +245,8 @@ class classification(UserList):
             tmp = map(string.strip, tmp)
             self.append((tmp[0], tmp[1]))
     
-    def classify(self, pron):
-        return self.hash(prob)
+    def classify(self, prob):
+        return self.hash[prob]
     
 
 class eprot_set:
@@ -306,7 +306,37 @@ class eprot_set:
             res.append((i, self.find_class(i,round_fun)))
         return res
 
-    
+
+class featurelist(UserList):
+    def __init__(self, data=[]):
+        UserList.__init__(self)
+        for i in data:
+            self.append(i)
+
+    def parse(self, file):
+        f = pylib_io.flexopen(file,"r")
+        l = f.readlines()
+        pylib_io.flexclose(f)
+        for i in l:
+            if i.startswith("#"):
+                continue
+            tmp = string.split(i, ":");
+            name = tmp[0].strip()
+            featurestring = (tmp[1].strip())[1:-1]
+            features = map(string.strip,string.split(featurestring, ","))
+            if len(tmp) == 3: # Old style features
+                add_features = tmp[2].strip()
+                features.append(add_features[0])
+                features.append(add_features[1])
+                features.append(add_features[2])
+                features.append(add_features[4])
+                features.append(add_features[9])
+            self.append((name, features))
+    def printout(self):
+        self.sort()
+        for i in self:
+            print i[0],":", string.join(i[1],",")
+
 
 
 

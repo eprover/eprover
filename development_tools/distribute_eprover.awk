@@ -197,12 +197,13 @@ function delay_processing(start_block, end_block, signal_file,    tmp, day)
    delay = exp_file_exists(signal_file);
    tmp = strftime("%H", systime())+0;
    day = strftime("%w", systime())+0;
-   while(delay && (day!=0) &&(day!=6) && (tmp >= start_block) && (tmp < end_block))
+   while(delay && (day!=0) && (day!=6) && (tmp >= start_block) && (tmp < end_block))
    {
+      print "Blockfile exists, sleeping"
       system("sleep 600");
-      delay = file_exists(signal_file);
+      delay = exp_file_exists(signal_file);
       tmp = strftime("%H", systime())+0;
-      day = strftime("%w", systime());
+      day = strftime("%w", systime())+0;
    }
 }
 
