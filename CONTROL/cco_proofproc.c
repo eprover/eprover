@@ -659,7 +659,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control,
    if(fvi_parms->features != FVINoFeatures)
    {
       long symbols = MIN(state->original_symbols+fvi_parms->symbol_slack, 
-			 fvi_parms->max_features);     
+			 fvi_parms->max_symbols);     
       PermVector_p perm = PermVectorCompute(state->axioms,		    
 					    fvi_parms,
 					    symbols);  
