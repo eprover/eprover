@@ -33,51 +33,62 @@ Changes
 /*---------------------------------------------------------------------*/
 
 
-/* Possible token. There can be no more than 32 distinct tokens
-   (although it is possible to define additional classes consisting of
+/* Possible token type. This used to be a nice enum, but that
+   restriced the set to no more than 32 distinct tokens. As a n
+   unsigned long long, we can accomodate at least 64 tokens.
+
+   Note that it is possible to define additional classes consisting of 
    more than one particular token (see e.g. SkipToken). If this list
    is extended, you also need to extend token_print_rep[] in
    cio_scanner.c. */
 
-typedef enum
-{
-   NoToken      = 1,
-   WhiteSpace   = 2*NoToken,
-   Comment      = 2*WhiteSpace,
-   SkipToken    = WhiteSpace | Comment,
-   Ident        = 2*Comment,
-   Idnum        = 2*Ident,
-   Identifier   = Ident | Idnum,
-   String       = 2*Idnum,
-   Name         = Identifier | String,
-   PosInt       = 2*String,
-   OpenBracket  = 2*PosInt,
-   CloseBracket = 2*OpenBracket,
-   OpenCurly    = 2*CloseBracket,
-   CloseCurly   = 2*OpenCurly,
-   OpenSquare   = 2*CloseCurly,
-   CloseSquare  = 2*OpenSquare,
-   LesserSign   = 2*CloseSquare,
-   GreaterSign  = 2*LesserSign,
-   EqualSign    = 2*GreaterSign,
-   TildeSign    = 2*EqualSign,
-   Exclamation  = 2*TildeSign,
-   AllQuantor   = Exclamation,
-   QuestionMark = 2*Exclamation,
-   ExistQuantor = QuestionMark,
-   Comma        = 2*QuestionMark,
-   Semicolon    = 2*Comma,
-   Colon        = 2*Semicolon,
-   Hyphen       = 2*Colon,
-   Plus         = 2*Hyphen,
-   Mult         = 2*Plus,
-   Fullstop     = 2*Mult,
-   Dollar       = 2*Fullstop,
-   Pipe         = 2*Dollar,
-   Slash        = 2*Pipe,
-   Ampersand    = 2*Slash
-}TokenType;
+typedef unsigned long long TokenType;
 
+#define NoToken       1LL
+#define WhiteSpace    (2*NoToken)
+#define Comment       (2*WhiteSpace)
+#define SkipToken     (WhiteSpace | Comment)
+#define Ident         (2*Comment)
+#define Idnum         (2*Ident)
+#define Identifier    (Ident | Idnum)
+#define String        (2*Idnum)
+#define Name          (Identifier | String)
+#define PosInt        (2*String)
+#define OpenBracket   (2*PosInt)
+#define CloseBracket  (2*OpenBracket)
+#define OpenCurly     (2*CloseBracket)
+#define CloseCurly    (2*OpenCurly)
+#define OpenSquare    (2*CloseCurly)
+#define CloseSquare   (2*OpenSquare)
+#define LesserSign    (2*CloseSquare)
+#define GreaterSign   (2*LesserSign)
+#define EqualSign     (2*GreaterSign)
+#define NegEqualSign  (2*EqualSign)
+#define TildeSign     (2*NegEqualSign)
+#define Exclamation   (2*TildeSign)
+#define AllQuantor    (Exclamation)
+#define QuestionMark  (2*Exclamation)
+#define ExistQuantor  (QuestionMark)
+#define Comma         (2*QuestionMark)
+#define Semicolon     (2*Comma)
+#define Colon         (2*Semicolon)
+#define Hyphen        (2*Colon)
+#define Plus          (2*Hyphen)
+#define Mult          (2*Plus)
+#define Fullstop      (2*Mult)
+#define Dollar        (2*Fullstop)
+#define Slash         (2*Dollar)
+#define Pipe          (2*Slash)
+#define FOFOr         (Pipe)
+#define Ampersand     (2*Pipe)
+#define FOFAnd        (Ampersand)
+#define FOFLRImpl     (2*Ampersand)
+#define FOFRLImpl     (2*FOFLRImpl)
+#define FOFEquiv      (2*FOFRLImpl)
+#define FOFXor        (2*FOFEquiv)
+#define FOFNand       (2*FOFXor)
+#define FOFNor        (2*FOFNand)
+#define FOFBinOp      (FOFAnd|FOFOr|FOFLRImpl|FOFRLImpl|FOFEquiv|FOFXor|FOFNand|FOFNor)
 
 /* If your application parses multiple format you can use this to
    distinguish them: */

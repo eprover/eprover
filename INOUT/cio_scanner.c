@@ -45,7 +45,8 @@ static TokenRepCell token_print_rep[] =
    {CloseSquare,  "Closing square brace (']')"},
    {LesserSign,   "\"Lesser than\" sign ('<')"},
    {GreaterSign,  "\"Greater than\" sign ('>')"},
-   {EqualSign,    "Equal sign ('=')"},
+   {EqualSign,    "Equal Predicate/Sign ('=')"},
+   {NegEqualSign, "Negated Equal Predicate ('!=')"},
    {TildeSign,    "Tilde ('~')"},
    {Exclamation,  "Exclamation mark ('!')"},
    {QuestionMark, "Question mark ('?')"},
@@ -57,9 +58,15 @@ static TokenRepCell token_print_rep[] =
    {Mult,         "Multiplication sign ('*')"},
    {Fullstop,     "Fullstop ('.')"},
    {Dollar,       "Dollar sign ('$')"},
-   {Pipe,         "Vertical bar ('|')"},
    {Slash,        "Slash ('/')"},
+   {Pipe,         "Vertical bar ('|')"},
    {Ampersand,    "Ampersand ('&')"},
+   {FOFLRImpl,    "Implication/LRArrow ('=>')"},
+   {FOFRLImpl,    "Back Implicatin/RLArrow ('<=')"},
+   {FOFEquiv,     "Equivalence/Double arrow ('<=>')"},
+   {FOFXor,       "Negated Equivalence/Xor ('<~>')"},
+   {FOFNand,      "Nand ('~&')"},   
+   {FOFNor,       "Nor ('~|'')"},
    {NoToken,      NULL}
 
 };
@@ -330,62 +337,123 @@ static Token_p scan_token(Scanner_p in)
       switch(CurrChar(in))
       {
       case '(':
-	 AktToken(in)->tok = OpenBracket;
-	 break;
+            AktToken(in)->tok = OpenBracket;
+            break;
       case ')':
-	 AktToken(in)->tok = CloseBracket;
-	 break;
+            AktToken(in)->tok = CloseBracket;
+            break;
       case '{':
-	 AktToken(in)->tok = OpenCurly;
-	 break;
+            AktToken(in)->tok = OpenCurly;
+            break;
       case '}':
-	 AktToken(in)->tok = CloseCurly;
-	 break;
+            AktToken(in)->tok = CloseCurly;
+            break;
       case '[':
-	 AktToken(in)->tok = OpenSquare;
-	 break;
+            AktToken(in)->tok = OpenSquare;
+            break;
       case ']':
-	 AktToken(in)->tok = CloseSquare;
-	 break;
+            AktToken(in)->tok = CloseSquare;
+            break;
       case '<':
-	 AktToken(in)->tok = LesserSign;
-	 break;
+            if((LookChar(in,1) == '~' && (LookChar(in,2) == '>')))
+            {
+               DStrAppendChar(AktToken(in)->literal, CurrChar(in));
+               NextChar(in);
+               DStrAppendChar(AktToken(in)->literal, CurrChar(in));
+               NextChar(in);
+               AktToken(in)->tok = FOFXor;
+            }
+            else if(LookChar(in,1) == '=')
+            {
+               DStrAppendChar(AktToken(in)->literal, CurrChar(in));
+               NextChar(in);
+               if(LookChar(in,1) == '>')
+               {
+                  DStrAppendChar(AktToken(in)->literal, CurrChar(in));
+                  NextChar(in);
+                  AktToken(in)->tok = FOFEquiv;
+               }
+               else
+               {
+                  AktToken(in)->tok = FOFRLImpl;
+               }
+            }
+            else
+            {
+               AktToken(in)->tok = LesserSign;
+               break;
+            }
+            break;
       case '>':
-	 AktToken(in)->tok = GreaterSign;
-	 break;
+            AktToken(in)->tok = GreaterSign;
+            break;
       case '=':
-	 AktToken(in)->tok = EqualSign;
-	 break;
+            if(LookChar(in,1) == '>')
+            {
+               DStrAppendChar(AktToken(in)->literal, CurrChar(in));
+               NextChar(in);
+               AktToken(in)->tok = FOFLRImpl;
+            }
+            else
+            {
+               AktToken(in)->tok = EqualSign;
+            }
+            break;
       case '~':
-	 AktToken(in)->tok = TildeSign;
-	 break;
+            switch(LookChar(in,1))
+            {
+            case '|':
+                  DStrAppendChar(AktToken(in)->literal, CurrChar(in));
+                  NextChar(in);
+                  AktToken(in)->tok = FOFNor;
+                  break;
+             case '&':
+                  DStrAppendChar(AktToken(in)->literal, CurrChar(in));
+                  NextChar(in);
+                  AktToken(in)->tok = FOFNand;
+                  break;
+                 
+            default:
+                  AktToken(in)->tok = TildeSign;
+                  break;
+            }
+            break;
       case '!':
-	 AktToken(in)->tok = Exclamation;
-	 break;
+            if(LookChar(in,1) == '=')
+            {
+               DStrAppendChar(AktToken(in)->literal, CurrChar(in));
+               NextChar(in);
+               AktToken(in)->tok = NegEqualSign;
+            }
+            else
+            {
+               AktToken(in)->tok = Exclamation;
+            }
+            break;
       case '?':
-	 AktToken(in)->tok = QuestionMark;
-	 break;
+            AktToken(in)->tok = QuestionMark;
+            break;
       case ',':
-	 AktToken(in)->tok = Comma;
-	 break;
+            AktToken(in)->tok = Comma;
+            break;
       case ';':
-	 AktToken(in)->tok = Semicolon;
-	 break;
-       case ':':
-	 AktToken(in)->tok = Colon;
-	 break;
-       case '-':
-	 AktToken(in)->tok = Hyphen;
-	 break;
+            AktToken(in)->tok = Semicolon;
+            break;
+      case ':':
+            AktToken(in)->tok = Colon;
+            break;
+      case '-':
+            AktToken(in)->tok = Hyphen;
+            break;
       case '+':
-	 AktToken(in)->tok = Plus;
-	 break;
+            AktToken(in)->tok = Plus;
+            break;
       case '*':
-	 AktToken(in)->tok = Mult;
-	 break;
-        case '.':
-	 AktToken(in)->tok = Fullstop;
-	 break;
+            AktToken(in)->tok = Mult;
+            break;
+      case '.':
+            AktToken(in)->tok = Fullstop;
+            break;
       case '$':
 	    AktToken(in)->tok = Dollar;
 	    break;
