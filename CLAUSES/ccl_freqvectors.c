@@ -405,6 +405,7 @@ FreqVector_p OptimizedVarFreqVectorCompute(Clause_p clause,
 {
    FreqVector_p vec, res;
 
+   /* printf("Symbols used: %ld\n", sig_symbols); */
    vec = VarFreqVectorCompute(clause, sig_symbols, features);
    if(perm)
    {
