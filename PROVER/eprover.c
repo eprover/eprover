@@ -118,7 +118,8 @@ typedef enum
    OPT_STRONGSUBSUMPTION,
    OPT_NO_INDEXED_SUBSUMPTION,
    OPT_FVINDEX_STYLE,
-   OPT_FVINDEX_MAXDEPTH,
+   OPT_FVINDEX_FEATURETYPES,
+   OPT_FVINDEX_MAXFEATURES,
    OPT_FVINDEX_SLACK,
    OPT_UNPROC_UNIT_SIMPL,
    OPT_DEFINE_WFUN,
@@ -706,21 +707,33 @@ OptCell opts[] =
     "permuted FV-Indexing with deletion of (suspected) non-informative "
     "features. Default behaviour is 'Perm'."},
    
-   {OPT_FVINDEX_MAXDEPTH,
-    '\0', "fvindex-maxdepth",
+   {OPT_FVINDEX_FEATURETYPES,
+    '\0', "fvindex-featuretypes",
+    ReqArg, NULL,
+    "Select the feature types used for indexing. Choices are \"None\""
+    " to disable FV-indexing, \"AC\" for AC compatible features "
+    "(literal number and symbol counts), \"SS\" for set subsumption "
+    "compatible features (symbol depth), and \"All\" for all features "
+    "(the default). Unless you want to measure the effects of the "
+    "different features, I suggest you stick with the default."},
+
+   {OPT_FVINDEX_MAXFEATURES,
+    '\0', "fvindex-maxfeatures",
     OptArg, "200",
-    "Set the maximum dept of the FV-Index for subsumption. Actual size "
-    "depends on the signature and the feature types you chose. Depending "
-    "on the feature types, the value you provide may be rounded to a "
-    "suitable value not more than 3 away from your actual request. If you "
-    "set a very small limit here, you should probably also choose 'Perm'"
-    " (the default anyways) or 'PermOpt' for the previous option."},
-   
+    "Set the maximum number of symbols for feature computation. Depending"
+    " on the feature selection, a value of X here will convert into 2X "
+    "features (for set subsumptiom features), 2X+2 features (for "
+    "AC-compatible features) or 4X+2 features (if all features are used, "
+    "the default). Note that the actually used set of features may be "
+    "smaller than this if the signature does not contain enough symbols."
+    " If you select a small value here, you should probably not use"
+    " \"Direct\" for the --subsumption-indexing option."},
+
    {OPT_FVINDEX_SLACK,
     '\0', "fvindex-slack",
     OptArg, "0",
     "Set the number of slots reserved in the index for function symbols "
-    "that may be introduced "
+    "that may be introduced into the signature "
     "later, e.g. by splitting. If no new symbols are introduced, this just "
     "wastes time and memory.If PermOpt is choosen, the slackness slots will "
     "be deleted from the index anyways, but will still waste time in "
@@ -1470,18 +1483,15 @@ CLState_p process_options(int argc, char* argv[])
 	    }
 	    else if(strcmp(arg, "Direct")==0)
 	    {
-	       fvi_parms->features = FVIAllFeatures;
 	       fvi_parms->use_perm_vectors = false;
 	    }
 	    else if(strcmp(arg, "Perm")==0)
 	    {
-	       fvi_parms->features = FVIAllFeatures;
 	       fvi_parms->use_perm_vectors = true;
 	       fvi_parms->eleminate_uninformative = false;       
 	    }
 	    else if(strcmp(arg, "PermOpt")==0)
 	    {
-	       fvi_parms->features = FVIAllFeatures;
 	       fvi_parms->use_perm_vectors = true;
 	       fvi_parms->eleminate_uninformative = true;
 	    }
@@ -1491,19 +1501,37 @@ CLState_p process_options(int argc, char* argv[])
 		     "'None', 'Direct', 'Perm', or 'PermOpt'.", USAGE_ERROR);
 	    }
 	    break;
-      case OPT_FVINDEX_MAXDEPTH:
+      case OPT_FVINDEX_FEATURETYPES:
+	    if(strcmp(arg, "None")==0)
+	    {
+	       fvi_parms->features = FVINoFeatures;
+	    }
+	    else if(strcmp(arg, "AC")==0)
+	    {
+	       fvi_parms->features = FVIACFeatures;
+	    }
+	    else if(strcmp(arg, "SS")==0)
+	    {
+	       fvi_parms->features = FVISSFeatures;
+	    }
+	    else if(strcmp(arg, "All")==0)
+	    {
+	       fvi_parms->features = FVIAllFeatures;
+	    }
+	    else
+	    {
+	       Error("Option --fvindex-featuretypes requires "
+		     "'None', 'AC', 'SS', or 'All'.", USAGE_ERROR);
+	    }
+	    break;
+      case OPT_FVINDEX_MAXFEATURES:
 	    tmp = CLStateGetIntArg(handle, arg);
 	    if(tmp<=0)
 	    {
 	       Error("Argument to option --fvindex-maxdepth "
 		     "has to be > 0", USAGE_ERROR);
 	    }
-	    if(tmp<=5)
-	    {
-	       Warning("FV-Index depth will automatically be adjusted to "
-		       "6 for direct mapped indices.");
-	    }	    
-	    fvi_parms->max_features = tmp;
+	    fvi_parms->max_symbols = tmp;
 	    break;
       case OPT_FVINDEX_SLACK:
 	    tmp = CLStateGetIntArg(handle, arg);
