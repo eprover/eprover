@@ -107,6 +107,9 @@ t1_sc_data = [
     ("E (sts13), axiomatized indices" ,
      dir+"protokoll_E_sts13_t1",
      e_sc_pat),    
+    ("E (auto), axiomatized indices" ,
+     dir+"protokoll_E_auto_t1",
+     e_sc_pat),    
     ]
 
 t1_sc_plot = pylib_graphs.plot(t1_sc_data)
@@ -119,6 +122,9 @@ t2_sc_data = [
     ("E (sts13), axiomatized indices" ,
      dir+"protokoll_E_sts13_t2",
      e_sc_pat),    
+    ("E (auto), axiomatized indices" ,
+     dir+"protokoll_E_auto_t2",
+     e_sc_pat),
     ]
 
 t2_sc_plot =  pylib_graphs.plot(t2_sc_data)
@@ -134,6 +140,9 @@ t1_si_data = [
     ("E (sts13)" ,
      dir+"protokoll_E_sts13_t1",
      e_si_pat),    
+    ("E (auto)" ,
+     dir+"protokoll_E_auto_t1",
+     e_si_pat),    
     ]
 
 t1_si_plot =  pylib_graphs.plot(t1_si_data)
@@ -147,6 +156,9 @@ t2_si_data = [
     ("E (sts13)" ,
      dir+"protokoll_E_sts13_t2",
      e_si_pat),    
+    ("E (auto)" ,
+     dir+"protokoll_E_auto_t2",
+     e_si_pat),    
     ]
 
 t2_si_plot =  pylib_graphs.plot(t2_si_data)
@@ -158,6 +170,9 @@ t1_sw_data = [
      dir+"protokoll_E_sts11ni_t1", e_sw_pat),
     ("E (sts13)" ,
      dir+"protokoll_E_sts13_t1",
+     e_sw_pat),    
+    ("E (auto)" ,
+     dir+"protokoll_E_auto_t1",
      e_sw_pat),    
     ]
 
@@ -171,6 +186,12 @@ t2_sw_data = [
     ("E (sts13)" ,
      dir+"protokoll_E_sts13_t2",
      e_sw_pat),    
+    ("E (auto)" ,
+     dir+"protokoll_E_auto_t2",
+     e_sw_pat),    
+    ("E (sts14_t2_K18_F2_S)",
+     dir+"protokoll_E_sts14_t2_K18_F2_S",
+     e_sw_pat),
     ]
 
 t2_sw_plot =  pylib_graphs.plot(t2_sw_data)
@@ -187,6 +208,9 @@ t2x_sw_data = [
     ("E (sts14)" ,
      dir+"protokoll_E_sts14_t2",
      e_sw_pat),    
+    ("E (auto)" ,
+     dir+"protokoll_E_auto_t2",
+     e_sw_pat),    
     ]
 
 t2x_sw_plot =  pylib_graphs.plot(t2x_sw_data)
@@ -201,6 +225,9 @@ t1_scf_data = [
     ("E (sts13), axiomatized indices" ,
      dir+"protokoll_E_sts13_t1",
      e_sc_pat),    
+    ("E (auto), axiomatized indices" ,
+     dir+"protokoll_E_auto_t1",
+     e_sc_pat),    
     ]
 
 t1_scf_plot = pylib_graphs.plot(t1_scf_data)
@@ -213,6 +240,9 @@ t1_sif_data = [
     ("E (sts13)" ,
      dir+"protokoll_E_sts13_t1",
      e_si_pat),    
+    ("E (auto)" ,
+     dir+"protokoll_E_auto_t1",
+     e_si_pat),    
     ]
 
 t1_sif_plot = pylib_graphs.plot(t1_sif_data)
@@ -224,6 +254,9 @@ t1_swf_data = [
      dir+"protokoll_E_sts11ni_t1", e_sw_pat),
     ("E (sts13)" ,
      dir+"protokoll_E_sts13_t1",
+     e_sw_pat),    
+    ("E (auto)" ,
+     dir+"protokoll_E_auto_t1",
      e_sw_pat),    
     ]
 
@@ -239,6 +272,9 @@ t2_scf_data = [
     ("E (sts13), axiomatized indices" ,
      dir+"protokoll_E_sts13_t2",
      e_sc_pat),    
+    ("E (auto), axiomatized indices" ,
+     dir+"protokoll_E_auto_t2",
+     e_sc_pat),    
     ]
 
 t2_scf_plot = pylib_graphs.plot(t2_scf_data)
@@ -251,6 +287,9 @@ t2_sif_data = [
     ("E (sts13)" ,
      dir+"protokoll_E_sts13_t2",
      e_si_pat),    
+    ("E (auto)" ,
+     dir+"protokoll_E_auto_t2",
+     e_si_pat),    
     ]
 
 t2_sif_plot = pylib_graphs.plot(t2_sif_data)
@@ -262,6 +301,9 @@ t2_swf_data = [
      dir+"protokoll_E_sts11ni_t2", e_sw_pat),
     ("E (sts13)" ,
      dir+"protokoll_E_sts13_t2",
+     e_sw_pat),    
+    ("E (auto)" ,
+     dir+"protokoll_E_auto_t2",
      e_sw_pat),    
     ]
 
