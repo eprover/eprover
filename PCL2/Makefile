@@ -35,7 +35,7 @@ include ../Makefile.services
 
 PCL2_LIB = pcl_idents.o pcl_positions.o pcl_expressions.o pcl_steps.o \
 	   pcl_protocol.o pcl_miniclauses.o pcl_ministeps.o pcl_miniprotocol.o\
-           pcl_propanalysis.o pcl_proofcheck.o
+           pcl_lemmas.o pcl_propanalysis.o pcl_proofcheck.o
 
 $(LIB): $(PCL2_LIB)
 	$(AR) $(LIB) $(PCL2_LIB)
