@@ -32,17 +32,16 @@ Read the rest of this file if anything fails.
              ===============================
 
 
-This is the README file for version 0.8 "Steinthal" of the E
+This is the README file for version 0.81 "Tumsong" of the E
 equational theorem prover. This version of E is free software, see the
 file COPYING for details about the license and the fact that THERE IS
 NO WARRANTY!  If you are interested in a proprietary version of E with
 support, see below.
 
-Release 0.8 is a major release, improving on search heuristics,
-support tools, and the inference engine. Moreover, a couple of minor
-bugs have been fixed. Performance in automatic mode has increased
-significantly, so it should be worth updating for everyone. For more
-on new features, read DOC/NEWS.
+Release 0.81 is an update on 0.81, improving on search heuristics,
+possible user interaction, and the inference engine. Performance in
+automatic mode has increased significantly, so it should be worth
+updating for everyone. For more on new features, read DOC/NEWS.
 
 If you are using gcc 2.95.1, 2.96.X or 2.97.X, please read DOC/PORTING
 for important information (hint: Get a new compiler. Yes, there are

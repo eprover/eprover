@@ -1,13 +1,21 @@
 This history list describes the major differences between versions of
 the E equational theorem prover.
 
-Version 0.8 ->
+Version 0.8 -> 0.81 Tumsong
 
 - Fixed the SOS propagation bug in splitting.
 - Overhauled feature vector indexing and added a lot of bells and
   whistles
-- Added support for the watch list
-
+- Added support for the watch list and watch list based heuristics
+- Added support for multiple auto modes, including the 0.71 auto mode
+- (-xAuto071 -tAuto071), the current one, and a developer auto mode
+  (-xAutoDev -tAutoDev, the last two are identical for official
+  release versions, but allow experiments while keeping behavior
+  stable for in-between versions).
+- Much improved automatic mode (knows more about contextual literal
+  cutting and SOS now) 
+- Improved support for TSTP input and full TSTP output
+- Added some things to te manual. Yes, really!
 
 Version 0.71 -> 0.8 Steinthal
 
