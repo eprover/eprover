@@ -121,7 +121,7 @@ ProofState_p ProofStateAlloc(void)
 //
 /----------------------------------------------------------------------*/
 
-void ProofStateReset(ProofState_p state, bool term_gc)
+void ProofStateResetClauseSets(ProofState_p state, bool term_gc)
 {
    ClauseSetFreeClauses(state->axioms);
    FormulaSetFreeFormulas(state->f_axioms);

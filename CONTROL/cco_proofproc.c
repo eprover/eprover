@@ -702,6 +702,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
    assert(ClauseSetEmpty(state->processed_non_units));
 
    tmphcb = GetHeuristic("Uniq", state, control, &(control->heuristic_parms));
+   assert(tmphcb);
    ClauseSetReweight(tmphcb, state->axioms);
    
    traverse =
@@ -943,7 +944,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
 //
 //   Process clauses until either the empty clause has been derived, a
 //   specified number of clauses has been processed, or the clause set
-//   is saturated. Return emoty clause (if found) or NULL. 
+//   is saturated. Return empty clause (if found) or NULL. 
 //
 // Global Variables: -
 //
@@ -1022,7 +1023,13 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
 
 	     
 	     TBTermNodes(state->terms),
-	     TBStorage(state->terms));*/
+	     TBStorage(state->terms)); */
+      /* printf("#Stats: %ld %ld\n", count, 
+         (state->processed_pos_rules->members +
+         state->processed_pos_eqns->members +
+         state->processed_neg_units->members +
+         state->processed_non_units->members+
+         state->unprocessed->members)); */
       current_storage = ProofStateStorage(state);
       filter_copies_base = MIN(filter_copies_base,current_storage); 
       if((current_storage - filter_copies_base) >
