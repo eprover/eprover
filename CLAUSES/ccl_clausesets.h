@@ -86,6 +86,7 @@ void        ClauseSetDeleteEntry(Clause_p clause);
 Clause_p    ClauseSetFindBest(ClauseSet_p set, int idx);
 void        ClauseSetPrint(FILE* out, ClauseSet_p set, bool
 			   fullterms);
+void        ClauseSetTSTPPrint(FILE* out, ClauseSet_p set, bool fullterms);
 void        ClauseSetPrintPrefix(FILE* out, char* prefix, ClauseSet_p set);
 void        ClauseSetSort(ClauseSet_p sort, ClauseCmpFunType cmp_fun);
 

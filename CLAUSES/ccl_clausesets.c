@@ -656,6 +656,7 @@ Clause_p ClauseSetFindBest(ClauseSet_p set, int idx)
 
 
 
+
 /*-----------------------------------------------------------------------
 //
 // Function: ClauseSetPrint()
@@ -676,6 +677,31 @@ void ClauseSetPrint(FILE* out, ClauseSet_p set, bool fullterms)
 	  handle->succ)
    {
       ClausePrint(out, handle, fullterms);
+      fputc('\n', out);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetTSTPPrint()
+//
+//   Print the clause set in TSTP format to the given stream.
+//
+// Global Variables: Only for term output
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void ClauseSetTSTPPrint(FILE* out, ClauseSet_p set, bool fullterms)
+{
+   Clause_p handle;
+
+   for(handle = set->anchor->succ; handle!=set->anchor; handle =
+	  handle->succ)
+   {
+      ClauseTSTPPrint(out, handle, fullterms, true);
       fputc('\n', out);
    }
 }
