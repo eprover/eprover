@@ -32,6 +32,8 @@ char* TONames[]=
 {
    "NoOrdering",
    "Auto",
+   "Auto071",
+   "AutoDev",
 #ifdef SAFELOGIC
    "SLAuto",
 #endif
