@@ -496,7 +496,7 @@ Formula_p elem_form_tptp_parse(Scanner_p in, TB_p terms)
    else 
    {
       Eqn_p lit;
-      lit = EqnParse(in, terms);
+      lit = EqnTSTPParse(in, terms);
       res = FormulaLitAlloc(lit);
    }
    return res;

@@ -183,6 +183,7 @@ void    EqnFree(Eqn_p junk);
         TermDelProp((eqn)->rterm, DEREF_NEVER, (prop))
 
 Eqn_p   EqnParse(Scanner_p in, TB_p bank);
+Eqn_p   EqnTSTPParse(Scanner_p in, TB_p bank);
 Term_p  EqnTermsTBTermEncode(TB_p bank, Term_p lterm, Term_p rterm,
 			    bool positive, PatEqnDirection dir);
 #define EqnTBTermEncode(eqn, dir) \

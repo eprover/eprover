@@ -485,18 +485,67 @@ Eqn_p EqnParse(Scanner_p in, TB_p bank)
 }
 
 
+
+
 /*-----------------------------------------------------------------------
 //
-// Function: EqnPosParse
+// Function: EqnTSTPParse()
 //
-//   Parse an equation that has to be positive
+//   Parse a literal in TPTP FOF/TSTP format - the standard code
+//   becomes to complex for my taste.
 //
-// Global Variables: 
+// Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    : Input
 //
 /----------------------------------------------------------------------*/
 
+Eqn_p EqnTSTPParse(Scanner_p in, TB_p bank)
+{
+   Term_p  lterm;
+   Term_p  rterm;
+   bool    positive = true; /* Just needed for "false" */
+
+   if(!TestInpId(in, EQUAL_PREDICATE))
+   {
+      if(TestInpId(in, "true"))
+      {
+         NextToken(in);	 
+         lterm = bank->true_term;
+      }
+      else if(TestInpId(in, "false"))
+      {
+         NextToken(in);	 
+         lterm = bank->true_term;
+         positive = false;
+      }
+      else
+      {
+         lterm = TBTermParse(in, bank);      
+      }
+      rterm = bank->true_term; /* Non-Equational literal */
+   }
+   else
+   {
+      NextToken(in);
+      AcceptInpTok(in, OpenBracket);
+      lterm = TBTermParse(in, bank);
+      AcceptInpTok(in, Comma);
+      rterm = TBTermParse(in, bank);
+      AcceptInpTok(in, CloseBracket);
+   }
+   if(rterm == bank->true_term)
+   {
+      if(TermIsVar(lterm))
+      {
+	 AktTokenError(in, "Individual variable "
+		       "used at predicate position", false); 
+	 
+      }
+      SigSetPredicate(bank->sig, lterm->f_code, true);
+   }
+   return EqnAlloc(lterm, rterm, bank, positive);
+}
 
 
 /*-----------------------------------------------------------------------
