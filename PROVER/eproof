@@ -74,7 +74,7 @@ if [ "$searchtime" ]; then
 	fi
     fi
     prooflimit=`expr $timelimit - $searchtime - 1`
-    ulimit -S -t $prooflimit
+    ulimit -S -t $prooflimit 2>&1> /dev/null
     if [ "$outfile" ]; then
 	exec 1> "$outfile"
     fi
