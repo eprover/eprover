@@ -122,7 +122,7 @@ PCLStep_p PCLProtExtractStep(PCLProt_p prot, PCLStep_p step)
    PCLStep_p res;
    
    res = PTreeObjExtractObject(&(prot->steps), step, 
-			       (ComparisonFunctionType)PCLStepIdCompare);
+			       PCLStepIdCompare);
    if(res)
    {
       prot->number--;
@@ -182,8 +182,7 @@ PCLStep_p PCLProtFindStep(PCLProt_p prot, PCLId_p id)
 
    tmp.id = id;
 
-   cell = PTreeObjFind(&(prot->steps), &tmp,
-		       (ComparisonFunctionType)PCLStepIdCompare);
+   cell = PTreeObjFind(&(prot->steps), &tmp, PCLStepIdCompare);
    if(cell)
    {
       return cell->key;

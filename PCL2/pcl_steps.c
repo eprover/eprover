@@ -467,8 +467,11 @@ void PCLStepPrintExample(FILE* out, PCLStep_p step, long id,
 //
 /----------------------------------------------------------------------*/
 
-int PCLStepIdCompare(PCLStep_p step1, PCLStep_p step2)
+int PCLStepIdCompare(const void* s1, const void* s2)
 {
+   const PCLStep_p step1 = (const PCLStep_p)s1;
+   const PCLStep_p step2 = (const PCLStep_p)s2;
+
    return PCLIdCompare(step1->id, step2->id);
 }
 

@@ -266,13 +266,14 @@ void PCLProtUpdateRefs(PCLProt_p prot)
 //
 /----------------------------------------------------------------------*/
 
-int PCLStepLemmaCmp(PCLStep_p *step1, PCLStep_p *step2)
+int PCLStepLemmaCmp(const void* s1, const void* s2)
 {
+   const PCLStep_p *step1 = (const PCLStep_p*) s1;
+   const PCLStep_p *step2 = (const PCLStep_p*) s2;
    float r1, r2;
 
    r1 = (*step1)->lemma_quality;
    r2 = (*step2)->lemma_quality;
-
    if(r1 < r2)
    {
       return -1;
@@ -305,9 +306,12 @@ long PCLExprProofSize(PCLProt_p prot, PCLExpr_p expr, InferenceWeight_p iw,
    long res = 0,i;
    PCLStep_p step;
 
+   assert(prot);
+   assert(expr);
+
    if(expr->op == PCLOpQuote)
    {
-      step = PCLProtFindStep(prot,PCLExprArg(expr,0));
+      step = PCLProtFindStep(prot, PCLExprArg(expr,0));
       if(step)
       {
 	 res = PCLStepProofSize(prot, step, iw, use_lemmas);
@@ -317,6 +321,10 @@ long PCLExprProofSize(PCLProt_p prot, PCLExpr_p expr, InferenceWeight_p iw,
 	 PCLExprPrint(stderr, expr, false); fprintf(stderr, "  ");
 	 Error("Reference to non-existing step", SYNTAX_ERROR);
       }
+   }
+   else if(expr->op == PCLOpInitial)
+   {
+      res = (*iw)[expr->op];
    }
    else
    {
@@ -346,8 +354,12 @@ long PCLExprProofSize(PCLProt_p prot, PCLExpr_p expr, InferenceWeight_p iw,
 long PCLStepProofSize(PCLProt_p prot, PCLStep_p step, InferenceWeight_p iw,
 		      bool use_lemmas)
 {
+   assert(prot);
+   assert(step);
+
    if(step->proof_tree_size == PCLNoWeight)
    {
+      assert(step->just);
       step->proof_tree_size = PCLExprProofSize(prot, step->just, iw, use_lemmas);
    }
    if(use_lemmas && PCLStepQueryProp(step, PCLIsLemma))
@@ -380,13 +392,12 @@ void PCLProtComputeProofSize(PCLProt_p prot, InferenceWeight_p iw,
    PCLStep_p step;
    PStackPointer i;
    
-   /* printf("PCLProtComputeProofSize()...\n"); */
-
    PCLProtSerialize(prot);
-   
+
    for(i=0; i<PStackGetSP(prot->in_order); i++)
    {
       step = PStackElementP(prot->in_order, i);
+      assert(step);
       PCLStepProofSize(prot, step, iw, use_lemmas);
    }
 }
@@ -597,7 +608,7 @@ long PCLProtFlatFindLemmas(PCLProt_p prot, LemmaParam_p params,
    PCLProtComputeLemmaWeights(prot, params);
    PCLProtSerialize(prot);
    prot->is_ordered = false;
-   PStackSort(prot->in_order, (ComparisonFunctionType)PCLStepLemmaCmp);
+   PStackSort(prot->in_order, PCLStepLemmaCmp);
    
    max_number = MIN(max_number, PStackGetSP(prot->in_order));
    for(i=0; i<max_number; i++)

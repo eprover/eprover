@@ -124,7 +124,7 @@ void      PCLStepPrintFormat(FILE* out, PCLStep_p step, bool data,
 			     OutputFormatType format);
 void      PCLStepPrintExample(FILE* out, PCLStep_p step, long id, 
                               long proof_steps, long total_steps);
-int       PCLStepIdCompare(PCLStep_p step1, PCLStep_p step2);
+int       PCLStepIdCompare(const void* s1, const void* s2);
 void      PCLStepResetTreeData(PCLStep_p step, bool just_weights);
 
 #endif

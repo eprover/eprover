@@ -54,8 +54,10 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-int pcl_example_cmp(IntOrP* e1, IntOrP* e2)
+int pcl_example_cmp(const void* ex1, const void* ex2)
 {
+   const IntOrP* e1 = (const IntOrP*) ex1;
+   const IntOrP* e2 = (const IntOrP*) ex2;
    PCLStep_p s1, s2;
    double w1, w2;
 
@@ -344,7 +346,7 @@ long PCLProtSelectExamples(PCLProt_p prot, long neg_examples)
    qsort(prot->in_order->stack, 
          PStackGetSP(prot->in_order), 
          sizeof(IntOrP), 
-         (ComparisonFunctionType)pcl_example_cmp);  
+         pcl_example_cmp);  
    for(i=0; (i<PStackGetSP(prot->in_order))&&(neg_examples>0); i++)
    {
       step = PStackElementP(prot->in_order, i);
