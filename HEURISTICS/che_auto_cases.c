@@ -41,7 +41,7 @@ if(false)
 #include "che_X_____auto_pp_opt_071.c"         
 #endif
 #ifdef CHE_HEURISTICS_AUTO_DEV
-#include "che_X_____auto_pp_opt_dev.c"         
+#include "che_X_____auto_dev.c"         
 #endif
 
 
