@@ -369,7 +369,9 @@ bool PCLMiniProtMarkProofClauses(PCLMiniProt_p prot, bool fast)
       step = PCLMiniProtFindStep(prot, i);
       while(step&&(i>=0)&&step->extra&&
 	    ((strcmp(step->extra,"proof")==0)||
-	     (strncmp(step->extra,"final",5)==0)))
+	     (strncmp(step->extra,"final",5)==0)||
+	     (strncmp(step->extra,"extract",7)==0)))
+
       {
 	 PStackPushP(to_proc, step);
 	 i--;
@@ -386,7 +388,8 @@ bool PCLMiniProtMarkProofClauses(PCLMiniProt_p prot, bool fast)
 	 step = PCLMiniProtFindStep(prot, i);
 	 if(step && step->extra &&
 	    ((strcmp(step->extra,"proof")==0)||
-	     (strncmp(step->extra,"final",5)==0)))
+	     (strncmp(step->extra,"final",5)==0)||
+	     (strncmp(step->extra,"extract",7)==0)))
 	 {
 	    PStackPushP(to_proc, step);
 	 }

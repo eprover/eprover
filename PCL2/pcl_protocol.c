@@ -402,7 +402,9 @@ bool PCLProtMarkProofClauses(PCLProt_p prot)
       }
       if(step->extra)
       {
-	 if((strcmp(step->extra,"proof")==0)||(strncmp(step->extra,"final",5)==0))
+	 if((strcmp(step->extra,"proof")==0)||
+	    (strncmp(step->extra,"final",5)==0)||
+	    (strncmp(step->extra,"extract",7)==0))
 	 {
 	    PStackPushP(to_proc, step);
 	 }
