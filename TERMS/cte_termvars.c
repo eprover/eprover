@@ -271,6 +271,7 @@ Term_p VarBankFCodeAssertAlloc(VarBank_p bank, FunCode f_code)
       PDArrayAssignP(bank->f_code_index, -f_code, var);
       bank->max_var = MAX(-f_code, bank->max_var);
    }
+   assert(!TermCellQueryProp(var, TPIsGround));
    return var;
 }
 

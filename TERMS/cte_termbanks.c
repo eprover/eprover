@@ -154,21 +154,23 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
       
       t->entry_no     = ++(bank->in_count);
       TermCellAssignProp(t,TPGarbageFlag, bank->garbage_state);      
-      TermCellSetProp(t, TPIsShared); /* Now it becomes a shared cell! */
+      TermCellSetProp(t, TPIsShared|TPIsGround); /* Groundness may
+                                                  * change below */
 
       t->weight = DEFAULT_FWEIGHT;
       for(i=0; i<t->arity; i++)
       {
 	 assert(TermIsShared(t->args[i])||TermIsVar(t->args[i]));
 	 t->weight+=t->args[i]->weight;
-         if(!TermCellQueryProp(t->args[i], TPTermIsGround))
+         if(!TermCellQueryProp(t->args[i], TPIsGround))
          {
-            TermCellDelProp(t,TPTermIsGround); 
+            TermCellDelProp(t,TPIsGround); 
          }
       }
       assert(TermStandardWeight(t) == 
 	     TermWeight(t, DEFAULT_VWEIGHT, 
 			DEFAULT_FWEIGHT));
+      assert((TermIsGround(t)==0) == (TBTermIsGround(t)==0));
    }
    return t;
 }

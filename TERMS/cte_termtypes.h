@@ -50,7 +50,7 @@ typedef enum
    TPIgnoreProps   =       0, /* For masking properties out */
    TPRestricted    =       1, /* Rewriting is restricted on this term */
    TPTopPos        =       2, /* This cell is a entry point */
-   TPTermIsGround  =       4, /* Shared term is ground */
+   TPIsGround      =       4, /* Shared term is ground */
    TPPredPos       =       8, /* This is an original predicate
                                  position morphed into a term */
    TPIsRewritable  =      16, /* Term is known to be rewritable with

@@ -116,7 +116,7 @@ bool    TBTermStructEqual(Term_p t1, Term_p t2);
         ((term)->weight==(DEFAULT_VWEIGHT+DEFAULT_FWEIGHT))
 #define TBTermIsXTypeTerm(term)\
         (term->arity && ((term)->weight==(DEFAULT_FWEIGHT+(term)->arity*DEFAULT_VWEIGHT)))
-#define TBTermIsGround(t) TermCellQueryProp((t), TPTermIsGround)
+#define TBTermIsGround(t) TermCellQueryProp((t), TPIsGround)
 
 Term_p  TBInsert(TB_p bank, Term_p term, DerefType deref);
 Term_p  TBInsertNoProps(TB_p bank, Term_p term, DerefType deref);
