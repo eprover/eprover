@@ -17,7 +17,7 @@ include ../Makefile.vars
 
 PROJECT = eprover classify_problem termprops proofanalyze\
           direct_examples epclanalyse epclextract checkproof eground\
-          edpll\
+          edpll epcllemma\
           ekb_create ekb_insert ekb_ginsert ekb_delete tsm_classify
 LIB     = $(PROJECT)
 all: $(LIB)
@@ -95,6 +95,14 @@ EPCLANALYSE = epclanalyse.o \
 
 epclanalyse: $(EPCLANALYSE)
 	$(LD) -o epclanalyse $(EPCLANALYSE)
+
+
+EPCLLEMMA = epcllemma.o \
+        ../lib/PCL2.a ../lib/HEURISTICS.a ../lib/CLAUSES.a ../lib/ORDERINGS.a \
+        ../lib/TERMS.a ../lib/INOUT.a ../lib/BASICS.a
+
+epcllemma: $(EPCLLEMMA)
+	$(LD) -o epcllemma $(EPCLLEMMA)
 
 
 EPCLEXTRACT = epclextract.o \
