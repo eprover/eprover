@@ -90,6 +90,9 @@ typedef struct proofstatecell
 
 ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop, 
                              char* null_symbol, char* succ_symbol);
+void         ProofStateInitWatchlist(ProofState_p state, 
+                                     char* watchlist_filename,
+                                     IOFormat parse_format);
 void         ProofStateResetClauseSets(ProofState_p state, bool term_gc);
 void         ProofStateFree(ProofState_p junk);
 void         ProofStateGCMarkTerms(ProofState_p state);

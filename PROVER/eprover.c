@@ -1002,7 +1002,7 @@ int main(int argc, char* argv[])
    
    for(i=0; state->argv[i]; i++)
    {
-      in = CreateScanner(StreamTypeFile, state->argv[i] , true, "include");
+      in = CreateScanner(StreamTypeFile, state->argv[i] , true, NULL);
       ScannerSetFormat(in, parse_format);
       
       FormulaAndClauseSetParse(in, proofstate->axioms, 
@@ -1035,46 +1035,7 @@ int main(int argc, char* argv[])
    {
       VERBOUT("CNFization done\n");
    }
-   if(watchlist_filename)
-   {
-      proofstate->watchlist = ClauseSetAlloc();
-      
-      if(watchlist_filename != UseInlinedWatchList)
-      {
-         in = CreateScanner(StreamTypeFile, watchlist_filename, true, "include");
-         ScannerSetFormat(in, parse_format);
-         ClauseSetParseList(in, proofstate->watchlist,
-                            proofstate->original_terms);
-         CheckInpTok(in, NoToken);
-         DestroyScanner(in);
-      }
-      else
-      {
-         PStack_p stack = PStackAlloc();
-         Clause_p handle;
-         
-         for(handle =  proofstate->axioms->anchor->succ; 
-             handle!= proofstate->axioms->anchor;
-             handle = handle->succ)
-         {
-            if(ClauseQueryTPTPType(handle)==CPTypeWatchClause)
-            {
-               PStackPushP(stack, handle);
-            }
-         }
-         while(!PStackEmpty(stack))
-         {
-            handle = PStackPopP(stack);
-            ClauseSetExtractEntry(handle);
-            ClauseSetInsert(proofstate->watchlist, handle);
-         }         
-         PStackFree(stack);
-      }       
-      ClauseSetSetProp(proofstate->watchlist, CPWatchOnly);
-      ClauseSetDocInital(GlobalOut, OutputLevel, proofstate->watchlist);
-      ClauseSetSortLiterals(proofstate->watchlist, EqnSubsumeInverseCompareRef);
-   }
-   
+   ProofStateInitWatchlist(proofstate, watchlist_filename, parse_format);
    parsed_clause_no = proofstate->axioms->members;
    if(!no_preproc)
    {
@@ -1203,7 +1164,6 @@ int main(int argc, char* argv[])
 	       RewriteUnboundVarFails);
 
    }
-   /* {char c = getc(stdin);} */
 #ifndef FAST_EXIT
 #ifdef FULL_MEM_STATS
    fprintf(GlobalOut,

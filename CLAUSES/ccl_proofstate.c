@@ -138,6 +138,66 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop,
 
 /*-----------------------------------------------------------------------
 //
+// Function: ProofStateInitWatchlist()
+//
+//   
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+void ProofStateInitWatchlist(ProofState_p state, char* watchlist_filename,
+                             IOFormat parse_format)
+{
+   Scanner_p in;
+   
+   if(watchlist_filename)
+   {
+      state->watchlist = ClauseSetAlloc();
+      
+      if(watchlist_filename != UseInlinedWatchList)
+      {
+         in = CreateScanner(StreamTypeFile, watchlist_filename, true, NULL);
+         ScannerSetFormat(in, parse_format);
+         ClauseSetParseList(in, state->watchlist,
+                            state->original_terms);
+         CheckInpTok(in, NoToken);
+         DestroyScanner(in);
+      }
+      else
+      {
+         PStack_p stack = PStackAlloc();
+         Clause_p handle;
+         
+         for(handle =  state->axioms->anchor->succ; 
+             handle!= state->axioms->anchor;
+             handle = handle->succ)
+         {
+            if(ClauseQueryTPTPType(handle)==CPTypeWatchClause)
+            {
+               PStackPushP(stack, handle);
+            }
+         }
+         while(!PStackEmpty(stack))
+         {
+            handle = PStackPopP(stack);
+            ClauseSetExtractEntry(handle);
+            ClauseSetInsert(state->watchlist, handle);
+         }         
+         PStackFree(stack);
+      }       
+      ClauseSetSetProp(state->watchlist, CPWatchOnly);
+      ClauseSetDocInital(GlobalOut, OutputLevel, state->watchlist);
+      ClauseSetSortLiterals(state->watchlist, EqnSubsumeInverseCompareRef);
+   } 
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: ProofStateResetClauseSets()
 //
 //   Empty _all_ clause and formula sets in proof state. Keep the
