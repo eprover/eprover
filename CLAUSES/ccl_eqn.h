@@ -193,6 +193,8 @@ void    EqnPrint(FILE* out, Eqn_p eq, bool negated, bool fullterms);
 #define EqnPrintOriginal(out, eq) \
         EqnPrint((out), (eq), normal, true)
 
+void    EqnTSTPPrint(FILE* out, Eqn_p eq, bool fullterms);
+
 void    EqnSwapSidesSimple(Eqn_p eq);
 void    EqnSwapSides(Eqn_p eq);
 void    EqnRecordTermDates(Eqn_p eq);

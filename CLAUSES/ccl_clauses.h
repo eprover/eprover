@@ -218,6 +218,9 @@ void     ClausePrintQuery(FILE* out, Clause_p clause, bool fullterms);
 
 void     ClausePrint(FILE* out, Clause_p clause, bool fullterms); 
 void     ClausePCLPrint(FILE* out, Clause_p clause, bool fullterms);
+void     ClauseTSTPCorePrint(FILE* out, Clause_p clause, bool fullterms);
+void     ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms,
+			 bool complete);
 
 bool     ClauseStartsMaybe(Scanner_p in);
 Clause_p ClauseParse(Scanner_p in, TB_p bank);

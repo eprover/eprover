@@ -84,6 +84,28 @@ static void pcl_print_end(FILE* out, char* comment)
 
 /*-----------------------------------------------------------------------
 //
+// Function: tstp_print_end()
+//
+//   Print the optional comment and new line
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+static void tstp_print_end(FILE* out, char* comment)
+{
+   if(comment)
+   {
+      fprintf(out, ",[%s]", comment);
+   }
+   fputs(").\n", out);
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: print_initial()
 //
 //   Print an initial clause (axiom).
@@ -102,6 +124,11 @@ static void print_initial(FILE* out, Clause_p clause, char* comment)
 	 pcl_print_start(out, clause);
 	 fprintf(out, "initial");
 	 pcl_print_end(out, comment);
+	 break;
+   case tstp_format:
+	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
+	 fprintf(out, ", prover_input");
+	 tstp_print_end(out, comment);
 	 break;
    default:
 	 fprintf(out, "# Output format not implemented.\n");
@@ -134,6 +161,14 @@ static void print_paramod(FILE* out, Clause_p clause, Clause_p
 		 parent2->ident);
 	 pcl_print_end(out, comment);
 	 break;
+   case tstp_format:
+	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
+	 fprintf(out, 
+		 ", inference(pm,[status(thm)],[%ld,%ld,theory(equality)])",
+		 parent1->ident,
+		 parent2->ident);
+	 tstp_print_end(out, comment);
+	 break;
    default:
 	 fprintf(out, "# Output format not implemented.\n");
 	 break;
@@ -162,6 +197,13 @@ static void print_eres(FILE* out, Clause_p clause, Clause_p
 	 pcl_print_start(out, clause);
 	 fprintf(out, PCL_ER"(%ld)", parent1->ident);
 	 pcl_print_end(out, comment);
+	 break;
+   case tstp_format:
+	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
+	 fprintf(out, 
+		 ", inference(er,[status(thm)],[%ld,theory(equality)])",
+		 parent1->ident);
+	 tstp_print_end(out, comment);
 	 break;
    default:
 	 fprintf(out, "# Output format not implemented.\n");
@@ -192,6 +234,13 @@ static void print_efactor(FILE* out, Clause_p clause, Clause_p
 	 fprintf(out, PCL_EF"(%ld)", parent1->ident);
 	 pcl_print_end(out, comment);
 	 break;
+   case tstp_format:
+	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
+	 fprintf(out, 
+		 ", inference(ef,[status(thm)],[%ld,theory(equality)])",
+		 parent1->ident);
+	 tstp_print_end(out, comment);
+	 break;
    default:
 	 fprintf(out, "# Output format not implemented.\n");
 	 break;
@@ -220,6 +269,13 @@ static void print_factor(FILE* out, Clause_p clause, Clause_p
 	 pcl_print_start(out, clause);
 	 fprintf(out, PCL_OF"(%ld)", parent1->ident);
 	 pcl_print_end(out, comment);
+	 break;
+   case tstp_format:
+	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
+	 fprintf(out, 
+		 ", inference(of,[status(thm)],[%ld,theory(equality)])",
+		 parent1->ident);
+	 tstp_print_end(out, comment);
 	 break;
    default:
 	 fprintf(out, "# Output format not implemented.\n");
@@ -251,7 +307,14 @@ static void print_split(FILE* out, Clause_p clause, Clause_p
 	 fprintf(out, PCL_SPLIT"(%ld)", parent1->ident);
 	 pcl_print_end(out, comment);
 	 break;
-   default:
+   case tstp_format:
+	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
+	 fprintf(out, 
+		 ", inference(split,[status(geoff_fix)], [%ld])",
+		 parent1->ident);
+	 tstp_print_end(out, comment);
+	 break;
+    default:
 	 fprintf(out, "# Output format not implemented.\n");
 	 break;
    }   
@@ -279,6 +342,14 @@ static void print_simplify_reflect(FILE* out, Clause_p clause, long
 	 fprintf(out, PCL_SR"(%ld,%ld)", old_id,
 		 partner->ident);
 	 pcl_print_end(out, comment);
+	 break;
+  case tstp_format:
+	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
+	 fprintf(out, 
+		 ", inference(sr,[status(thm)],[%ld,%ld,theory(equality)])",
+		 clause->ident,
+		 partner->ident);
+	 tstp_print_end(out, comment);
 	 break;
    default:
 	 fprintf(out, "# Output format not implemented.\n");
@@ -308,6 +379,14 @@ static void print_context_simplify_reflect(FILE* out, Clause_p clause, long
 	 fprintf(out, PCL_CSR"(%ld,%ld)", old_id,
 		 partner->ident);
 	 pcl_print_end(out, comment);
+	 break;
+ case tstp_format:
+	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
+	 fprintf(out, 
+		 ", inference(csr,[status(thm)],[%ld,%ld])",
+		 clause->ident,
+		 partner->ident);
+	 tstp_print_end(out, comment);
 	 break;
    default:
 	 fprintf(out, "# Output format not implemented.\n");
@@ -347,6 +426,19 @@ static void print_ac_res(FILE* out, Clause_p clause, long
 	 fputc(')', out);
 	 pcl_print_end(out, comment);
 	 break;
+   case tstp_format:
+	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
+	 fprintf(out, 
+		 ", inference(ar,[status(thm)],[%ld", clause->ident);
+	 assert(!PStackEmpty(sig->ac_axioms));
+	 sp = PStackGetSP(sig->ac_axioms);
+	 for(i=0; i< sp; i++)
+	 {
+	    fprintf(out, ",%ld", PStackElementInt(sig->ac_axioms,i));
+	 }
+	 fputs("])", out);
+	 tstp_print_end(out, comment);
+	 break;
    default:
 	 fprintf(out, "# Output format not implemented.\n");
 	 break;
@@ -376,6 +468,13 @@ static void print_minimize(FILE* out, Clause_p clause, long
 	 pcl_print_start(out, clause);
 	 fprintf(out, PCL_CN"(%ld)", old_id);
 	 pcl_print_end(out, comment);
+	 break;
+   case tstp_format:
+	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
+	 fprintf(out, 
+		 ", inference(cm,[status(thm)],[%ld, theory(equality)])", 
+		 clause->ident);
+	 tstp_print_end(out, comment);
 	 break;
    default:
 	 fprintf(out, "# Output format not implemented.\n");
@@ -426,6 +525,23 @@ static void print_rewrite(FILE* out, ClausePos_p rewritten, long
 	 }
 	 pcl_print_end(out, comment);
 	 break;
+   case tstp_format:
+	 tmp = TermComputeRWSequence(rwsteps, old_term, nf);
+	 assert(tmp);
+	 ClauseTSTPPrint(out, rewritten->clause, PCLFullTerms, false);
+	 fputc(',', out);
+	 for(i=0; i<PStackGetSP(rwsteps); i++)
+	 {
+	    fprintf(out,"inference(rw, [status(thm)],[");
+	 }
+	 fprintf(out, "%ld", old_id);
+	 for(i=0; i<PStackGetSP(rwsteps); i++)
+	 {
+	    fprintf(out, ",%ld,theory(equality)])", 
+		    PStackElementInt(rwsteps,i));
+	 }
+	 tstp_print_end(out, comment);
+	 break;
    default:
 	 fprintf(out, "# Output format not implemented.\n");
 	 break;
@@ -446,9 +562,9 @@ static void print_rewrite(FILE* out, ClausePos_p rewritten, long
 //
 /----------------------------------------------------------------------*/
 
-static void print_eq_unfold(FILE* out, Clause_p rewritten, long
-			  old_id, ClausePos_p demod, PStack_p
-			    demod_pos)
+static void print_eq_unfold(FILE* out, Clause_p rewritten, 
+			    long old_id, ClausePos_p demod, 
+			    PStack_p demod_pos)
 {
    PStackPointer i;
    
@@ -467,7 +583,22 @@ static void print_eq_unfold(FILE* out, Clause_p rewritten, long
 	 }
 	 pcl_print_end(out, "Preprocessing/Unfolding");
 	 break;
-   default:
+   case tstp_format:
+	 ClauseTSTPPrint(out, rewritten, PCLFullTerms, false);
+	 fputc(',', out);
+	 for(i=0; i<PStackGetSP(demod_pos); i++)
+	 {
+	    fprintf(out,"inference(rw, [status(thm)],[");
+	 }
+	 fprintf(out, "%ld", old_id);
+	 for(i=0; i<PStackGetSP(demod_pos); i++)
+	 {
+	    fprintf(out, ",%ld,theory(equality)])", 
+		    PStackElementInt(demod_pos,i));
+	 }
+	 tstp_print_end(out, "PreprocessingUnfolding");
+	 break;
+    default:
 	 fprintf(out, "# Output format not implemented.\n");
 	 break;
    }
@@ -642,7 +773,26 @@ void DocClauseQuote(FILE* out, long level, long target_level,
 	    {
 	       pcl_print_end(out, comment);
 	    }
+	    break; 
+      case tstp_format: 
+	    clause->ident = ++ClauseIdentCounter;
+	    ClauseTSTPPrint(out, clause, PCLFullTerms, false);
+	    fprintf(out, ", %ld", old_id);
+	    if(opt_partner)
+	    {
+	       assert(comment);
+	       fprintf(out, ",[%s(%ld)]).\n", comment, opt_partner->ident);
+	    }
+	    else if(comment)
+	    {
+	       fprintf(out, ",[%s]).\n", comment);
+	    }
+	    else
+	    {
+	       fprintf(out, ").\n");
+	    }
 	    break;
+   
       default:	 
 	    fprintf(out, "# Output format not implemented.\n");
 	    break;

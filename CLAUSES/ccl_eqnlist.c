@@ -989,6 +989,35 @@ void EqnListPrint(FILE* out, Eqn_p list, char* sep,
    }
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: EqnListTSTPPrint()
+//
+//   Same as above, but without negation and uses TSTP literal format.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void EqnListTSTPPrint(FILE* out, Eqn_p list, char* sep, bool fullterms)
+{
+   Eqn_p handle = list;
+   
+   if(handle)
+   {
+      EqnTSTPPrint(out, handle, fullterms);
+   
+      while(handle->next)
+      {
+	 handle = handle->next;
+	 fprintf(out, sep);
+	 EqnTSTPPrint(out, handle, fullterms);
+      }
+   }
+}
+
 
 /*-----------------------------------------------------------------------
 //

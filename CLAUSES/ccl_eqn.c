@@ -556,7 +556,7 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
       {
 	 fprintf(out,"--");
       }
-      if((eq->rterm!=eq->bank->true_term))
+      if(EqnIsEquLit(eq))
       {
 	 fprintf(out, EQUAL_PREDICATE"(");
 	 TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
@@ -619,6 +619,40 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
 	 } */
    }
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: EqnTSTPPrint()
+//
+//   Print a literal in TSTP format.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void EqnTSTPPrint(FILE* out, Eqn_p eq, bool fullterms)
+{
+   if(EqnIsNegative(eq))
+   {
+      fputc('~', out);
+   }
+   if(EqnIsEquLit(eq))
+   {
+      fprintf(out, EQUAL_PREDICATE"(");
+      TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
+      fprintf(out, ", ");
+      TBPrintTerm(out, eq->bank, eq->rterm, fullterms);
+      fputc(')', out);
+   }
+   else
+   {
+      TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
+   }
+}
+
 
 
 /*-----------------------------------------------------------------------

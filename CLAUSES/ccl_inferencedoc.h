@@ -53,6 +53,7 @@ typedef enum
 {
    no_format,
    pcl_format,
+   tstp_format,
    xml_format
 }OutputFormatType;
  

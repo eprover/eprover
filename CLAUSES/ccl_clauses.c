@@ -1164,6 +1164,51 @@ void ClausePCLPrint(FILE* out, Clause_p clause, bool fullterms)
 
 /*-----------------------------------------------------------------------
 //
+// Function: ClauseTSTPCorePrint()
+//
+//   Print a core clause in TSTP format.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void ClauseTSTPCorePrint(FILE* out, Clause_p clause, bool fullterms)
+{
+   fputc('(', out);
+   EqnListTSTPPrint(out, clause->literals, "|", fullterms);
+   fputc(')', out);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseTSTPPrint()
+//
+//   Print a clause in TSTP format. If complete is true, terminate
+//   clause properly, otherwise stop after the logical part.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms, bool complete)
+{
+   fprintf(out, "cnf(%ld, %s,", clause->ident, 
+	   ClauseQueryProp(clause, CPInitial)?"initial":"derived");
+   ClauseTSTPCorePrint(out, clause, fullterms);
+   if(complete)
+   {
+      fprintf(out, ").");
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: ClauseStartsMaybe()
 //
 //   Return true if a clause possibly starts on the current position
@@ -1306,6 +1351,7 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
    AcceptInpTok(in, Fullstop);
    handle = ClauseAlloc(concl);
    ClauseSetTPTPType(handle, type);
+   ClauseSetProp(handle, CPInitial);
    return handle;
 }
 

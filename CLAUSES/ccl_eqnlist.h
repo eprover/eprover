@@ -85,6 +85,7 @@ void    EqnListDeleteTermProperties(Eqn_p list, TermProperties props);
 
 void    EqnListPrint(FILE* out, Eqn_p list, char* sep, 
 		     bool negated,  bool fullterms);
+void    EqnListTSTPPrint(FILE* out, Eqn_p list, char* sep, bool fullterms);
 Eqn_p   EqnListParse(Scanner_p in, TB_p bank, TokenType sep);
 
 FunCode NormSubstEqnListExcept(Eqn_p list, Eqn_p except, Subst_p
