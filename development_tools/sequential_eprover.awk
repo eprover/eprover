@@ -371,7 +371,7 @@ BEGIN{
    }
    else 
    {
-      mem_limit=48;
+      mem_limit=192;
    }
    print "Cluster " cluster ", memory limited to " mem_limit " MB";
 
@@ -404,6 +404,7 @@ BEGIN{
    e_mark["Pentium-II-Deschutes-448.882"]                = 157.919;
    e_mark["IntelR-PentiumR-4-CPU-2.40GHz-2405.486"]      = 496.488;
    e_mark["IntelR-PentiumR-4-CPU-2.40GHz-2405.526"]      = 518.546;
+   e_mark["IntelR-PentiumR-4-CPU-2.40GHz-2405.502"]      = 521.253;
 
    e_mark_host = e_mark[get_shell_res("get_system.awk")];
    if(!e_mark_host)
