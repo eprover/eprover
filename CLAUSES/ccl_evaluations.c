@@ -58,7 +58,7 @@ static Eval_p splay_tree(Eval_p tree, Eval_p splay)
 {
    Eval_p   left, right, tmp;
    EvalCell newnode;
-   int       cmpres;
+   long     cmpres;
    
    if (!tree) 
    {
@@ -304,6 +304,10 @@ bool EvalGreater(Eval_p ev1, Eval_p ev2)
    }
    else if(ev1->priority == ev2->priority)
    {
+      if(ev1->eval_count==ev2->eval_count)
+      {
+         return false;
+      }
       if(ev1->heuristic > ev2->heuristic)
       {
 	 return true;
@@ -341,7 +345,6 @@ long EvalCompare(Eval_p ev1, Eval_p ev2)
    {
       return res;
    }
-   /* Hack to avoid unreliable floating point comparions */
    if(ev1->eval_count==ev2->eval_count)
    {
       return 0;
@@ -440,7 +443,7 @@ void EvalTreeFree(Eval_p junk)
 
 Eval_p EvalTreeInsert(Eval_p *root, Eval_p newnode)
 {
-   int cmpres;
+   long cmpres;
    if (!*root) 
    {
       newnode->lson = newnode->rson = NULL;
