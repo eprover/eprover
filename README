@@ -21,32 +21,8 @@ Simplest installation (in-place):
 > cd PROVER
 > eprover -h | more
 
-
-Additional information for the CASC organizers:
-
-Problem format for both E and EP 0.8:
-
-tptp2X -f tptp -t rm_equality:rstfp
-
-Command lines
-
-eprover -xAuto -tAuto --tptp-in -s --memory-limit=384 %s
-eproof  -xAuto -tAuto --tptp-in --memory-limit=384 %s
-
-You can (but don't have to and, if not necessary, should not) add
---cpu-limit=%d for either program or for both.
-
-Output:
-# TSTP exit status: Unsatisfiable
-# TSTP exit status: Satisfiable
-# TSTP exit status: ResourceOut
-# TSTP exit status: GaveUp
-
-Proof Object:
-
-# Proof object starts here.
-# Proof object ends here.
-
+This will only allow you to run the eproof script in place (most other
+programs, including eprover, should run from everywhere).
 
 Read the rest of this file if anything fails.
 
@@ -62,10 +38,11 @@ file COPYING for details about the license and the fact that THERE IS
 NO WARRANTY!  If you are interested in a proprietary version of E with
 support, see below.
 
-Release 0.71 is a minor release, improving mostly the search
-heuristics, and support tools, and fixing a few bugs and portability
-problems. However, the performance in automatic mode has increased
-significantly, so it should be worth updating even from version 0.7.
+Release 0.8 is a mmajor release, improving on search heuristics,
+support tools, and the inference engine. Moreover, a couple of minot
+bugs have been fixed. Performance in automatic mode has increased
+significantly, so it should be worth updating for everyone. For more
+on new features, read DOC/NEWS.
 
 If you are using gcc 2.95.1, 2.96.X or 2.97.X, please read DOC/PORTING
 for important information (hint: Get a new compiler. Yes, there are
@@ -117,7 +94,7 @@ possibly come around versions sold or given to you under a different
 license, probably by Safelogic A.B. in Gothenburg, Sweden. Safelogic
 bought the right to distribute (and relicense) closed-source versions
 of E with proprietary modifications. If you are interested in their
-modifications, want a proprietary version with supporCSt, or want to
+modifications, want a proprietary version with support, or want to
 relicense a modified version under a non-GPL license, you can contact
 them at <johan.alfredsson@safelogic.se> or visit them on the web at
 http://www.safelogic.se.
@@ -150,10 +127,9 @@ default definition should be ok).
   make install
 
 to compile and install the library and all included programs under the
-E directory. If you want to use the prover "eprover" and the
-wrapper script "eproof" anywhere except in the E/PROVER directory,
-set the EXECPATH variable in Makefile.vars to a suitable directory and
-type
+E directory. If you want to use the wrapper script "eproof" anywhere
+except in the E/PROVER directory, set the EXECPATH variable in
+Makefile.vars to a suitable directory and type
 
   make install-exec
 
