@@ -33,11 +33,11 @@ Changes
 /*---------------------------------------------------------------------*/
 
 #define FVINDEX_MAX_FEATURES_DEFAULT 150 /* Maximal lenght of feature vector */
-#define DVINDEX_SYMBOL_SLACK_DEFAULT 30  /* Reserve symbols for splitting */
+#define FVINDEX_SYMBOL_SLACK_DEFAULT 30  /* Reserve symbols for splitting */
 
 typedef struct fvindex_parms_cell
 {
-   bool use_fv_indexing;
+   FVIndexType features;
    bool use_perm_vectors;
    bool eleminate_uninformative;
    long max_features;
@@ -86,11 +86,12 @@ typedef struct fv_index_cell
 
 typedef struct fvi_anchor_cell
 {
-   long      symbol_limit;
-   long      node_count;
-   long      array_count;
-   FVIndex_p index;
+   long         symbol_limit;
+   FVIndexType  features;
    PermVector_p perm_vector;
+   long         node_count;
+   long         array_count;
+   FVIndex_p    index;
 }FVIAnchorCell, *FVIAnchor_p;
 
 
@@ -122,7 +123,7 @@ void      FVIndexFree(FVIndex_p junk);
 #define FVIAnchorCellAlloc()    (FVIAnchorCell*)SizeMalloc(sizeof(FVIAnchorCell))
 #define FVIAnchorCellFree(junk) SizeFree(junk, sizeof(FVIAnchorCell))
 
-FVIAnchor_p FVIAnchorAlloc(long symbol_limit);
+FVIAnchor_p FVIAnchorAlloc(long symbol_limit, FVIndexType features, PermVector_p perm);
 void        FVIAnchorFree(FVIAnchor_p junk);
 
 #define FVIndexStorage(index) ((index)?(index)->node_count*MEMSIZE(FVIndexCell)+\

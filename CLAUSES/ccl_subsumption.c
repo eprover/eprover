@@ -1079,9 +1079,10 @@ Clause_p ClauseSetSubsumesClause(ClauseSet_p set, Clause_p sub_candidate)
    if(set->fvindex)
    {
       Clause_p res; 
-      FreqVector_p vec = OptimizedFreqVectorCompute(sub_candidate,
-						    set->fvindex->perm_vector,
-						    set->fvindex->symbol_limit);
+      FreqVector_p vec = OptimizedVarFreqVectorCompute(sub_candidate,
+						       set->fvindex->perm_vector,
+						       set->fvindex->features,
+						       set->fvindex->symbol_limit);
       res =  clause_set_subsumes_clause_indexed(set->fvindex->index, vec, 0);
       FreqVectorFree(vec);
       return res;

@@ -86,7 +86,7 @@ int tuple3_compare_23lex(Tuple3Cell *t1, Tuple3Cell *t2)
 
 /*-----------------------------------------------------------------------
 //
-// Function: PermVectorCompute()
+// Function: PermVectorComputeInternal()
 //
 //   Find a "good" permutation (and selection) vector for
 //   FVIndexing by:
@@ -101,10 +101,10 @@ int tuple3_compare_23lex(Tuple3Cell *t1, Tuple3Cell *t2)
 //
 /----------------------------------------------------------------------*/
 
-PermVector_p PermVectorCompute(FreqVector_p fmax, FreqVector_p fmin, 
-			       FreqVector_p fsum,
-			       long clauses, long max_len, 
-			       bool eleminate_uninformative)
+PermVector_p PermVectorComputeInternal(FreqVector_p fmax, FreqVector_p fmin,
+				       FreqVector_p fsum,
+				       long max_len, 
+				       bool eleminate_uninformative)
 {
    Tuple3Cell *array;
    long i, size, start=0, start1=0, diff;
@@ -270,83 +270,9 @@ void FreqVectorPrint(FILE* out, FreqVector_p vec)
 
 /*-----------------------------------------------------------------------
 //
-// Function: StandardFreqVectorAddVals()
-// 
-//   Add the numerical features of the clause to the corresponding
-//   positions in the frequency vector.
+// Function: VarFreqVectorAddVals()
 //
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-void StandardFreqVectorAddVals(FreqVector_p vec, long sig_symbols, 
-			       Clause_p clause)
-{   
-   long *pfreqstart, *nfreqstart, *pdepthstart, *ndepthstart;
-   Eqn_p handle;
-
-   vec->sig_symbols = sig_symbols;
-   vec->array[0] += clause->pos_lit_no;
-   vec->array[1] += clause->neg_lit_no;
-   
-   nfreqstart  = &(vec->array[FV_CLAUSE_FEATURES]);
-   pfreqstart  = &(vec->array[FV_CLAUSE_FEATURES+1*(sig_symbols+1)]);
-   pdepthstart = &(vec->array[FV_CLAUSE_FEATURES+2*(sig_symbols+1)]);
-   ndepthstart = &(vec->array[FV_CLAUSE_FEATURES+3*(sig_symbols+1)]);
-   for(handle = clause->literals; handle; handle = handle->next)
-   {
-      if(EqnIsPositive(handle))
-      {
-	 EqnAddSymbolFeaturesLimited(handle, 
-				     pfreqstart,
-				     pdepthstart,				    
-				     sig_symbols);
-      }
-      else
-      {
-	 EqnAddSymbolFeaturesLimited(handle, 
-				     nfreqstart,
-				     ndepthstart,				    
-				     sig_symbols);	 
-      }
-   }
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: StandardFreqVectorCompute()
-//
-//   Compute a frequency count vector for clause.
-//
-// Global Variables: 
-//
-// Side Effects    : 
-//
-/----------------------------------------------------------------------*/
-
-FreqVector_p StandardFreqVectorCompute(Clause_p clause, long sig_symbols)
-{
-   FreqVector_p vec;
-
-   assert(clause);
-   vec = FreqVectorAlloc(FVFullSize(sig_symbols));
-   vec->clause = clause;
-   StandardFreqVectorAddVals(vec, sig_symbols, clause);
-   /* FreqVectorPrint(GlobalOut, vec); */
-   return vec;
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: OptimizedFreqVectorCompute()
-//
-//   Compute an "optimized" frequency count vector, based on a given
-//   permutation vector. If no permutation vector is given, return a
-//   StandardFreqVector. 
+//   Add values for up to symbol type features to the freq vector.
 //
 // Global Variables: -
 //
@@ -354,13 +280,136 @@ FreqVector_p StandardFreqVectorCompute(Clause_p clause, long sig_symbols)
 //
 /----------------------------------------------------------------------*/
 
-FreqVector_p OptimizedFreqVectorCompute(Clause_p clause, 
-					PermVector_p perm, 
-					long sig_symbols)
+void VarFreqVectorAddVals(FreqVector_p vec, long symbols, FVIndexType features, 
+			  Clause_p clause) 
+{
+   long *unused, *pfreqstart, *nfreqstart, *pdepthstart, *ndepthstart;
+   long unused_size = 0;
+   Eqn_p handle;
+
+   assert(clause);
+   assert((features == FVIACFeatures) || 
+	  (features == FVISSFeatures) || 
+	  (features == FVIAllFeatures));
+   assert(vec);
+   assert(vec->size == FVSize(symbols, features));
+
+   switch(features)
+   {
+   case FVIACFeatures:
+	 vec->array[0] += clause->pos_lit_no;
+	 vec->array[1] += clause->neg_lit_no;   
+	 unused_size = sizeof(long)*(symbols+1);
+	 unused = SizeMalloc(unused_size);
+	 pdepthstart = ndepthstart = unused;
+	 nfreqstart = &(vec->array[FV_CLAUSE_FEATURES]);
+	 pfreqstart = &(vec->array[FV_CLAUSE_FEATURES+1*(symbols+1)]);
+	 break;
+   case FVISSFeatures:
+	 unused_size = sizeof(long)*(symbols+1);
+	 unused = SizeMalloc(unused_size);
+	 pfreqstart = nfreqstart = unused;
+	 ndepthstart = &(vec->array[0]);
+	 pdepthstart = &(vec->array[0+1*(symbols+1)]);
+	 break;
+   case FVIAllFeatures:	 
+	 vec->array[0] += clause->pos_lit_no;
+	 vec->array[1] += clause->neg_lit_no;
+	 unused = NULL;
+	 nfreqstart  = &(vec->array[FV_CLAUSE_FEATURES]);
+	 pfreqstart  = &(vec->array[FV_CLAUSE_FEATURES+1*(symbols+1)]);
+	 void             StandardFreqVectorAddVals(FreqVector_p vec, long sig_symbols, 
+					   Clause_p clause);
+FreqVector_p     StandardFreqVectorCompute(Clause_p clause, long sig_symbols);
+
+pdepthstart = &(vec->array[FV_CLAUSE_FEATURES+2*(symbols+1)]);
+	 ndepthstart = &(vec->array[FV_CLAUSE_FEATURES+3*(symbols+1)]);	 
+	 break;
+   default:
+	 assert(features == FVINoFeatures);
+	 assert(false);
+	 return; /* Cheapest way to fix compiler warning */
+	 break;
+   }
+   for(handle = clause->literals; handle; handle = handle->next)
+   {
+      if(EqnIsPositive(handle))
+      {
+	 EqnAddSymbolFeaturesLimited(handle, 
+				     pfreqstart,
+				     pdepthstart,				    
+				     symbols);
+      }
+      else
+      {
+	 EqnAddSymbolFeaturesLimited(handle, 
+				     nfreqstart,
+				     ndepthstart,				    
+				     symbols);	 
+      }
+   }   
+   if(unused)
+   {
+      SizeFree(unused, unused_size);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: VarFreqVectorCompute()
+//
+//   Allocate and return a frequency vector for clause based on the
+//   other supplied parameters.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory allocation.
+//
+/----------------------------------------------------------------------*/
+
+FreqVector_p VarFreqVectorCompute(Clause_p clause, long symbols, FVIndexType features)
+{
+   long size;
+   FreqVector_p vec;
+
+   assert(clause);
+   assert((features == FVIACFeatures) || 
+	  (features == FVISSFeatures) || 
+	  (features == FVIAllFeatures));
+
+   size = FVSize(symbols, features);
+
+   vec = FreqVectorAlloc(size);
+   vec->clause = clause;
+   FreqVectorInitialize(vec, 0);
+   VarFreqVectorAddVals(vec, symbols, features, clause);
+   return vec;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: OptimizedVarFreqVectorCompute()
+//
+//   Compute an "optimized" frequency count vector, based on a given
+//   permutation vector. If no permutation vector is given, return a
+//   VarFreqVector. 
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+FreqVector_p OptimizedVarFreqVectorCompute(Clause_p clause, 
+					   PermVector_p perm, 
+					   FVIndexType features,
+					   long sig_symbols)
 {
    FreqVector_p vec, res;
 
-   vec = StandardFreqVectorCompute(clause, sig_symbols);
+   vec = VarFreqVectorCompute(clause, sig_symbols, features);
    if(perm)
    {
       long i;
@@ -368,6 +417,8 @@ FreqVector_p OptimizedFreqVectorCompute(Clause_p clause,
       res = FreqVectorAlloc(perm->size);
       for(i=0; i<perm->size; i++)
       {
+	 assert(perm->array[i]>=0);
+	 assert(perm->array[i]<vec->size);
 	 res->array[i] = vec->array[perm->array[i]];
       }
       res->clause = clause;
@@ -376,7 +427,6 @@ FreqVector_p OptimizedFreqVectorCompute(Clause_p clause,
    }
    return vec;
 }
-
 
 /*-----------------------------------------------------------------------
 //
@@ -392,14 +442,15 @@ FreqVector_p OptimizedFreqVectorCompute(Clause_p clause,
 //
 /----------------------------------------------------------------------*/
 
-FVPackedClause_p FVPackClause(Clause_p clause, PermVector_p perm, 
+FVPackedClause_p FVPackClause(Clause_p clause, PermVector_p perm,
+			      FVIndexType features, 
 			      long symbol_limit)
 {
    FVPackedClause_p res;
 
    if(symbol_limit)
    {
-      return OptimizedFreqVectorCompute(clause, perm, symbol_limit);
+      return OptimizedVarFreqVectorCompute(clause, perm, features, symbol_limit);
    }
    res = FreqVectorCellAlloc();
    res->array = NULL;
@@ -569,6 +620,117 @@ void FreqVectorMin(FreqVector_p dest, FreqVector_p s1, FreqVector_p s2)
    }
 }
 
+#ifdef NEVER_DEFINED
+
+/*-----------------------------------------------------------------------
+//
+// Function: StandardFreqVectorAddVals()
+// 
+//   Add the numerical features of the clause to the corresponding
+//   positions in the frequency vector.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void StandardFreqVectorAddVals(FreqVector_p vec, long sig_symbols, 
+			       Clause_p clause)
+{   
+   long *pfreqstart, *nfreqstart, *pdepthstart, *ndepthstart;
+   Eqn_p handle;
+
+   vec->array[0] += clause->pos_lit_no;
+   vec->array[1] += clause->neg_lit_no;
+   
+   nfreqstart  = &(vec->array[FV_CLAUSE_FEATURES]);
+   pfreqstart  = &(vec->array[FV_CLAUSE_FEATURES+1*(sig_symbols+1)]);
+   pdepthstart = &(vec->array[FV_CLAUSE_FEATURES+2*(sig_symbols+1)]);
+   ndepthstart = &(vec->array[FV_CLAUSE_FEATURES+3*(sig_symbols+1)]);
+   for(handle = clause->literals; handle; handle = handle->next)
+   {
+      if(EqnIsPositive(handle))
+      {
+	 EqnAddSymbolFeaturesLimited(handle, 
+				     pfreqstart,
+				     pdepthstart,				    
+				     sig_symbols);
+      }
+      else
+      {
+	 EqnAddSymbolFeaturesLimited(handle, 
+				     nfreqstart,
+				     ndepthstart,				    
+				     sig_symbols);	 
+      }
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: StandardFreqVectorCompute()
+//
+//   Compute a frequency count vector for clause.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+FreqVector_p StandardFreqVectorCompute(Clause_p clause, long sig_symbols)
+{
+   FreqVector_p vec;
+
+   assert(clause);
+   vec = FreqVectorAlloc(FVFullSize(sig_symbols));
+   vec->clause = clause;
+   StandardFreqVectorAddVals(vec, sig_symbols, clause);
+   /* FreqVectorPrint(GlobalOut, vec); */
+   return vec;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: OptimizedFreqVectorCompute()
+//
+//   Compute an "optimized" frequency count vector, based on a given
+//   permutation vector. If no permutation vector is given, return a
+//   StandardFreqVector. 
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+FreqVector_p OptimizedFreqVectorCompute(Clause_p clause, 
+					PermVector_p perm, 
+					long sig_symbols)
+{
+   FreqVector_p vec, res;
+
+   vec = StandardFreqVectorCompute(clause, sig_symbols);
+   if(perm)
+   {
+      long i;
+      
+      res = FreqVectorAlloc(perm->size);
+      for(i=0; i<perm->size; i++)
+      {
+	 res->array[i] = vec->array[perm->array[i]];
+      }
+      res->clause = clause;
+      FreqVectorFree(vec);
+      return res;
+   }
+   return vec;
+}
+
+#endif
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

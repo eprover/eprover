@@ -494,7 +494,8 @@ void ClauseSetIndexedInsert(ClauseSet_p set, Clause_p new)
 
 Clause_p ClauseSetExtractEntry(Clause_p clause)
 {
-   assert(clause && clause->set);
+   assert(clause);
+   assert(clause->set);
 
    if(ClauseQueryProp(clause, CPIsDIndexed))
    {
@@ -564,6 +565,7 @@ Clause_p ClauseSetExtractFirst(ClauseSet_p set)
 
 void ClauseSetDeleteEntry(Clause_p clause)
 {
+   assert(clause);   
    ClauseSetExtractEntry(clause);
    ClauseFree(clause);
 }
@@ -1741,6 +1743,7 @@ long ClauseSetMaxVarNumber(ClauseSet_p set)
 
 long ClauseSetFindCharFreqVectors(ClauseSet_p set, FreqVector_p fsum,
 				  FreqVector_p fmax, FreqVector_p fmin, 
+				  FVIndexType features,
 				  long symbol_size) 
 {
    Clause_p handle;
@@ -1748,9 +1751,6 @@ long ClauseSetFindCharFreqVectors(ClauseSet_p set, FreqVector_p fsum,
 
    assert(set && fsum && fmax && fmin);
  
-   fsum->sig_symbols = symbol_size;
-   fmax->sig_symbols = symbol_size;
-   fmin->sig_symbols = symbol_size;
    FreqVectorInitialize(fsum, 0);
    FreqVectorInitialize(fmax, 0);
    FreqVectorInitialize(fmin, LONG_MAX);
@@ -1759,13 +1759,65 @@ long ClauseSetFindCharFreqVectors(ClauseSet_p set, FreqVector_p fsum,
        handle!= set->anchor;
        handle = handle->succ)
    {
-      current = StandardFreqVectorCompute(handle, symbol_size);
+      current = VarFreqVectorCompute(handle, symbol_size, features);
       FreqVectorAdd(fsum, fsum, current);
       FreqVectorMax(fmax, fmax, current);
       FreqVectorMin(fmin, fmin, current);
       FreqVectorFree(current);
    }   
    return set->members;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PermVectorCompute()
+//
+//   Given a clause set and parameters for an index, compute a
+//   suitable permutation vector (may be NULL if the parameters do not call
+//   for a permutation vector!)
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+PermVector_p PermVectorCompute(ClauseSet_p set, FVIndexParms_p params, 
+			       long symbols)
+{
+   PermVector_p res;
+   
+   if(params->features == FVINoFeatures)
+   {
+      return NULL; 
+   }
+   if(!params->use_perm_vectors)
+   {
+      return NULL;
+   }
+   {      
+      FreqVector_p fsum, fmax, fmin;      
+      
+      fsum = FreqVectorAlloc(FVSize(symbols, params->features));
+      fmax = FreqVectorAlloc(FVSize(symbols, params->features));
+      fmin = FreqVectorAlloc(FVSize(symbols, params->features));
+    
+      ClauseSetFindCharFreqVectors(set,
+				   fsum,
+				   fmax, 
+				   fmin, 
+				   params->features,
+				   symbols);
+      
+      res = PermVectorComputeInternal(fmax, fmin, fsum, 
+				      params->max_features,
+				      params->eleminate_uninformative);
+      FreqVectorFree(fsum);
+      FreqVectorFree(fmax);
+      FreqVectorFree(fmin);      
+   }
+   return res;
 }
 
 

@@ -164,11 +164,11 @@ FVIndexParms_p FVIndexParmsAlloc(void)
 {
    FVIndexParms_p handle = FVIndexParmsCellAlloc();
    
-   handle->use_fv_indexing         = true;
+   handle->features                = FVIAllFeatures;
    handle->use_perm_vectors        = true;
    handle->eleminate_uninformative = false;
    handle->max_features            = FVINDEX_MAX_FEATURES_DEFAULT;
-   handle->symbol_slack            = DVINDEX_SYMBOL_SLACK_DEFAULT;
+   handle->symbol_slack            = FVINDEX_SYMBOL_SLACK_DEFAULT;
    return handle;
 }
 
@@ -254,15 +254,16 @@ void FVIndexFree(FVIndex_p junk)
 //
 /----------------------------------------------------------------------*/
 
-FVIAnchor_p FVIAnchorAlloc(long symbol_limit)
+FVIAnchor_p FVIAnchorAlloc(long symbol_limit, FVIndexType features, PermVector_p perm)
 {
    FVIAnchor_p handle = FVIAnchorCellAlloc();
    
    handle->symbol_limit = symbol_limit;
+   handle->perm_vector  = perm;
+   handle->features     = features;   
    handle->node_count   = 0;
    handle->array_count  = 0;
    handle->index        = FVIndexAlloc();
-   handle->perm_vector  = NULL;
 
    return handle;
 }
@@ -293,7 +294,10 @@ void FVIAnchorFree(FVIAnchor_p junk)
 	   FVIndexStorage(junk));
 
    FVIndexFree(junk->index);
-   PermVectorFree(junk->perm_vector);
+   if(junk->perm_vector)
+   {
+      PermVectorFree(junk->perm_vector);
+   }
    FVIAnchorCellFree(junk);
 }
 
@@ -387,8 +391,9 @@ bool FVIndexDelete(FVIAnchor_p index, Clause_p clause)
    FVIndex_p handle;
    long i;
 
-   vec = OptimizedFreqVectorCompute(clause, index->perm_vector, 
-				    index->symbol_limit);   
+   vec = OptimizedVarFreqVectorCompute(clause, index->perm_vector, 
+				       index->features,
+				       index->symbol_limit);   
    handle = index->index;
    handle->clause_count--;
 
@@ -474,9 +479,10 @@ FVPackedClause_p FVIndexPackClause(Clause_p clause, FVIAnchor_p anchor)
 {
    if(!anchor)
    {
-      return FVPackClause(clause, NULL,0);
+      return FVPackClause(clause, NULL,FVINoFeatures,0);
    }
    return FVPackClause(clause, anchor->perm_vector, 
+		       anchor->features,
 		       anchor->symbol_limit);
 }
 

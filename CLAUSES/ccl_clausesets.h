@@ -145,7 +145,11 @@ long        ClauseSetFindCharFreqVectors(ClauseSet_p set,
 					 FreqVector_p fsum,
 					 FreqVector_p fmax, 
 					 FreqVector_p fmin, 
+					 FVIndexType features,
 					 long symbol_size);
+
+PermVector_p PermVectorCompute(ClauseSet_p set, FVIndexParms_p params,
+			       long symbols);
 
 #endif
 

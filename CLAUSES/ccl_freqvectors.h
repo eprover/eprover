@@ -46,12 +46,19 @@ typedef struct tuple3_cell
 typedef struct freq_vector_cell
 {
    long size;        /* How many fields? */
-   long sig_symbols;
    long *array;
    Clause_p clause; /* Just an unprotected reference */
 }FreqVectorCell, *FreqVector_p, *FVPackedClause_p;
 
 #define FV_CLAUSE_FEATURES 2
+
+typedef enum
+{
+   FVINoFeatures,
+   FVIACFeatures,
+   FVISSFeatures,
+   FVIAllFeatures
+}FVIndexType;
 
 
 /*---------------------------------------------------------------------*/
@@ -63,19 +70,22 @@ typedef struct freq_vector_cell
 #define PermVectorCopy(vec)   FixedDArrayCopy(vec)
 #define PermVectorPrint(out,vec) FixedDArrayPrint((out),(vec))
 
-PermVector_p PermVectorCompute(FreqVector_p fmax, FreqVector_p fmin, 
-			       FreqVector_p sums, 
-			       long clauses, long max_len, 
-			       bool eleminate_uninformative);
+PermVector_p PermVectorComputeInternal(FreqVector_p fmax, FreqVector_p fmin, 
+				       FreqVector_p sums, 
+				       long max_len, 
+				       bool eleminate_uninformative);
 
 
 #define FreqVectorCellAlloc()    (FreqVectorCell*)SizeMalloc(sizeof(FreqVectorCell))
 #define FreqVectorCellFree(junk) SizeFree(junk, sizeof(FreqVectorCell))
 
 
-#define FVACCompatSizea(size)   ((size+1)*2+FV_CLAUSE_FEATURES)
+#define FVACCompatSize(size)    ((size+1)*2+FV_CLAUSE_FEATURES)
 #define FVSSCompatSize(size)    ((size+1)*2)
 #define FVFullSize(size)        ((size+1)*4+FV_CLAUSE_FEATURES)
+#define FVSize(size, features) (((features)==FVIACFeatures)?FVACCompatSize(size):\
+				(((features)==FVISSFeatures)?FVSSCompatSize(size):\
+                                 FVFullSize(size)))
 
 FreqVector_p FreqVectorAlloc(long size);
 
@@ -90,13 +100,16 @@ void         FreqVectorInitialize(FreqVector_p vec, long value);
 
 void         FreqVectorPrint(FILE* out, FreqVector_p vec);
 
-void             StandardFreqVectorAddVals(FreqVector_p vec, long sig_symbols, 
-					   Clause_p clause);
-FreqVector_p     StandardFreqVectorCompute(Clause_p clause, long sig_symbols);
-FreqVector_p     OptimizedFreqVectorCompute(Clause_p clause, 
-					    PermVector_p perm, 
-					    long sig_symbols);
+void VarFreqVectorAddVals(FreqVector_p vec, long symbols, FVIndexType features, 
+			  Clause_p clause);
+FreqVector_p VarFreqVectorCompute(Clause_p clause, long symbols, 
+				  FVIndexType features);
+FreqVector_p     OptimizedVarFreqVectorCompute(Clause_p clause, 
+					       PermVector_p perm, 
+					       FVIndexType features,
+					       long sig_symbols);
 FVPackedClause_p FVPackClause(Clause_p clause, PermVector_p perm, 
+			      FVIndexType features,
 			      long symbol_limit);
 Clause_p         FVUnpackClause(FVPackedClause_p pack);
 
@@ -114,6 +127,17 @@ void FreqVectorMulAdd(FreqVector_p dest, FreqVector_p s1, long f1,
 #define FreqVectorSub(dest, s1, s2) FreqVectorMulAdd((dest),(s1), 1, (s2), -1)
 void FreqVectorMax(FreqVector_p dest, FreqVector_p s1, FreqVector_p s2);
 void FreqVectorMin(FreqVector_p dest, FreqVector_p s1, FreqVector_p s2);
+			  
+
+
+#ifdef NEVER_DEFINED
+void             StandardFreqVectorAddVals(FreqVector_p vec, long sig_symbols, 
+					   Clause_p clause);
+FreqVector_p     StandardFreqVectorCompute(Clause_p clause, long sig_symbols);
+FreqVector_p     OptimizedFreqVectorCompute(Clause_p clause, 
+					    PermVector_p perm, 
+					    long sig_symbols);
+#endif
 
 
 #endif
