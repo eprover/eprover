@@ -35,6 +35,7 @@ static TokenRepCell token_print_rep[] =
    {Comment,      "Comment"},
    {Ident,        "Identifier not terminating in a number"},
    {Idnum,        "Identifier terminating in a number"},
+   {SemIdent,     "Interpreted function/predicate name ('$name')"},
    {String,       "String enclosed in \"\" or ''"},
    {PosInt,       "Integer (sequence of digits)"},
    {OpenBracket,  "Opening bracket ('(')"},
@@ -109,7 +110,8 @@ static void scan_white(Scanner_p in)
 //
 // Function: scan_ident()
 //
-//   Scan an identifier, d.h. an ident or an idnum.
+//   Scan an identifier, d.h. an ident or an idnum. Also used for
+//   completing SemIdents.
 //
 // Global Variables: -
 //
@@ -455,7 +457,17 @@ static Token_p scan_token(Scanner_p in)
             AktToken(in)->tok = Fullstop;
             break;
       case '$':
-	    AktToken(in)->tok = Dollar;
+            if(isidchar(LookChar(in,1)))
+            {
+               DStrAppendChar(AktToken(in)->literal, CurrChar(in));
+               NextChar(in);
+               scan_ident(in);
+               AktToken(in)->tok = SemIdent;            
+            }
+            else
+            {
+               AktToken(in)->tok = Dollar;
+            }
 	    break;
       case '|':
 	    AktToken(in)->tok = Pipe;
