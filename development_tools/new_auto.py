@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.2
+#!/usr/bin/env python2.3
 #
 # Usage: new_auto.py <feature_desc_file> <protocols>
 #

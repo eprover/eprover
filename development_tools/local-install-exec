@@ -28,6 +28,6 @@ for file in *.py; do
 done
 cd ../PROVER
 
-for file in eprover classify_problem termprops proofanalyze direct_examples ekb_create ekb_delete ekb_ginsert ekb_insert tsm_classify epclanalyse epclextract  checkproof eground eproof; do
+for file in eprover classify_problem termprops proofanalyze direct_examples ekb_create ekb_delete ekb_ginsert ekb_insert tsm_classify epclanalyse epclextract epcllemma checkproof eground eproof; do
     testinstall $file
 done
