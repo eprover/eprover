@@ -231,6 +231,33 @@ long EqnListLength(Eqn_p list)
    return i;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: EqnListFromArray()
+//
+//   Convert an array of Eqn_p's into a list.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Eqn_p EqnListFromArray(Eqn_p* array, int lenght)
+{
+   int i;
+   Eqn_p *handle, res;
+   
+   handle = &(res);
+   for(i=0; i<lenght; i++)
+   {
+      *handle = array[i];
+      handle = &((*handle)->next);
+   }
+   *handle = NULL;
+   
+   return res;
+}
 
 
 /*-----------------------------------------------------------------------

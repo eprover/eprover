@@ -166,6 +166,10 @@ int eqn_canon_compare(Eqn_p *l1, Eqn_p *l2)
 
 
 
+
+
+
+
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
@@ -349,7 +353,7 @@ Clause_p ClauseCanonize(Clause_p clause)
          arr_size = lit_no*sizeof(Eqn_p),
       i;
    Eqn_p *sort_array = SizeMalloc(arr_size);
-   Eqn_p handle, *res;
+   Eqn_p handle;
 
    for(i=0, handle = clause->literals;
        handle;
@@ -360,14 +364,8 @@ Clause_p ClauseCanonize(Clause_p clause)
    }
    qsort(sort_array, lit_no, sizeof(Eqn_p), 
 	 (ComparisonFunctionType)eqn_canon_compare);
-   res = &(clause->literals);
-   for(i=0; i<lit_no; i++)
-   {
-      handle = sort_array[i];
-      *res = handle;
-      res = &(handle->next);
-   }
-   *res = NULL;
+
+   clause->literals = EqnListFromArray(sort_array, lit_no);
    
    /* printf("Canonical form (clause): ");
       ClausePCLPrint(stdout, clause, true);

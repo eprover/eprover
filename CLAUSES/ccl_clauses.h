@@ -98,7 +98,7 @@ typedef struct clause_cell
    ClauseProperties      properties;  /* Anything we want to note at
 					 the clause? */
    ClauseInfo_p          info;        /* Currently about source in
-                                         input, NULL for dreived clauses */
+                                         input, NULL for derived clauses */
    long                  create_date; /* At what iteration of the
 					 main loop has this
 					 clause been created? */

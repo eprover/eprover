@@ -1118,6 +1118,67 @@ EqnSide EqnIsDefinition(Eqn_p eq, int min_arity)
    return NoSide;
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: EqnSubsumeQOrderCompare()
+//
+//   Compare two equations with a quasi-ordering that
+//   ensures that only equivalent equations can subsume each other. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+int EqnSubsumeQOrderCompare(Eqn_p l1, Eqn_p l2)
+{
+   int res;
+
+   res = EqnIsPositive(l1) - EqnIsPositive(l2);
+   if(res)
+   {
+      return res;
+   }
+   res = EqnIsEquLit(l1) - EqnIsEquLit(l2);
+   if(res)
+   {
+      return res;
+   }
+   if(!EqnIsEquLit(l1))
+   {
+      res = (l1)->lterm->f_code - (l2)->lterm->f_code;
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: EqnSubsumeCompareRef()
+//
+//   Refine the previous ordering to a total ordering with the
+//   property that a larger literal can never subsume a smaller one.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+int EqnSubsumeCompareRef(Eqn_p *l1, Eqn_p *l2)
+{
+   int res = EqnSubsumeQOrderCompare(*l1, *l2);
+
+   if(!res)
+   {
+      res = EqnStandardWeight(*l1) - EqnStandardWeight(*l2);
+   }
+   return res;
+}
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: EqnCanonize(eq)

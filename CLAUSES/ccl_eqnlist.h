@@ -38,6 +38,7 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+
 void    EqnListFree(Eqn_p list);
 void    EqnListGCMarkTerms(Eqn_p list);
 
@@ -47,6 +48,7 @@ void    EqnListFlipProp(Eqn_p list, EqnProperties prop);
 long    EqnListQueryPropNumber(Eqn_p list, EqnProperties prop);
 
 long    EqnListLength(Eqn_p list);
+Eqn_p   EqnListFromArray(Eqn_p* array, int lenght);
 
 Eqn_p   EqnListExtractElement(EqnRef element);
 #define EqnListExtractFirst(list)\
