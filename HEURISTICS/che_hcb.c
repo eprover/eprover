@@ -121,6 +121,7 @@ HeuristicParms_p HeuristicParmsAlloc(void)
    handle->split_clauses                 = SplitNone;
    handle->split_method                  = SplitGroundNone;
    handle->unproc_simplify               = NoUnitSimplify;
+   handle->watchlist_simplify            = true;
    handle->use_tptp_sos                  = false;
    return handle;
 }

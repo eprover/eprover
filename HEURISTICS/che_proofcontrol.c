@@ -185,6 +185,7 @@ ProofControl_p ProofControlAlloc(void)
    handle->split_method                  = SplitGroundNone;
    handle->split_aggressive              = false;
    handle->unproc_simplify               = NoUnitSimplify;
+   handle->watchlist_simplify            = true;
 
    return handle;
 }

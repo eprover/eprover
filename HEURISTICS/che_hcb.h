@@ -97,6 +97,7 @@ typedef struct heuristic_parms_cell
    SplitType           split_method;
    bool                split_aggressive;
    UnitSimplifyType    unproc_simplify;
+   bool                watchlist_simplify;
    bool                use_tptp_sos;
 }HeuristicParmsCell, *HeuristicParms_p;
 

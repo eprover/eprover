@@ -72,6 +72,7 @@ typedef struct proofcontrolcell
    SplitType           split_method;
    bool                split_aggressive;
    UnitSimplifyType    unproc_simplify;
+   bool                watchlist_simplify;
    SpecFeatureCell     problem_specs;
 }ProofControlCell, *ProofControl_p;
 
