@@ -32,7 +32,7 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-#define VERSION      "0.81dev021"
+#define VERSION      "0.81dev022"
 #define NAME         "eprover"
 
 #ifdef SAFELOGIC
@@ -948,7 +948,7 @@ int main(int argc, char* argv[])
       fprintf(GlobalOut, "# Error: Input file contains no clauses or formulas\n");
       TSTPOUT(GlobalOut, "InputError");
 #endif
-      Error("Input file contains no clauses", OTHER_ERROR);
+      Error("Input file contains no clauses or formulas", OTHER_ERROR);
    }
    FormulaSetDocInital(GlobalOut, OutputLevel, proofstate->f_axioms);
    ClauseSetDocInital(GlobalOut, OutputLevel, proofstate->axioms);

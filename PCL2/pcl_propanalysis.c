@@ -420,13 +420,14 @@ void PCLProtPropDataPrint(FILE* out, PCLPropData_p data)
 	   (double)(data->pred_count)/clauses);
    fprintf(out, "# Longest Clause (if any): \n");
    PCLStepPrint(out, data->longest_clause);
-   fprintf(out, "# Largest Clause (if any): \n");
+   fprintf(out, "\n# Largest Clause (if any): \n");
    PCLStepPrint(out, data->max_symbol_clause);
-   fprintf(out, "# Heaviest Clause (if any): \n");
+   fprintf(out, "\n# Heaviest Clause (if any): \n");
    ClausePropInfoPrint(out, data->max_standard_weight_clause->logic.clause);
    PCLStepPrint(out, data->max_standard_weight_clause);
-   fprintf(out, "# Deepest Clause (if any): \n");
+   fprintf(out, "\n# Deepest Clause (if any): \n");
    PCLStepPrint(out, data->max_depth_clause); 
+   fprintf(out, "\n");
 }
 
 
