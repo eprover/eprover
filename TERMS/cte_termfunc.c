@@ -1312,6 +1312,39 @@ void TermAddSymbolDistributionLimited(Term_p term, long *dist_array, long limit)
    PStackFree(stack);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TermAddSymbolFeaturesLimited()
+//
+//   Add function symbol frequencies and deepest depth of a function
+//   symbol to the two arrays. This is an extension of the function
+//   above, this one does the extendet task in a single term
+//   traversal.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes the arrays.
+//
+/----------------------------------------------------------------------*/
+
+void TermAddSymbolFeaturesLimited(Term_p term, long depth, 
+				  long *freq_array, long* depth_array,
+				  long limit)
+{
+   if(!TermIsVar(term))
+   {
+      int i;
+
+      freq_array[term->f_code]++;
+      depth_array[term->f_code] = MAX(depth, depth_array[term->f_code]);
+      for(i=0; i<term->arity; i++)
+      {
+	 TermAddSymbolFeaturesLimited(term->args[i], depth+1, 
+				      freq_array, depth_array, 
+				      limit);
+      }
+   }
+}
 
 /*-----------------------------------------------------------------------
 //
