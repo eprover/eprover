@@ -109,6 +109,9 @@ typedef enum
    OPT_ER_DESTRUCTIVE,
    OPT_ER_STRONG_DESTRUCTIVE,
    OPT_ER_AGGRESSIVE,
+   OPT_FORWARD_CSR,
+   OPT_FORWARD_CSR_AGGRESSIVE,
+   OPT_BACKWARD_CSR,
    OPT_RULES_GENERAL,
    OPT_FORWARD_DEMOD,
    OPT_STRONGSUBSUMPTION,
@@ -638,7 +641,25 @@ OptCell opts[] =
     '\0', "destructive-er-aggressive",
     NoArg, NULL,
     "Apply destructive equality resolution to all newly generated "
-    "clauses, not just to selected clauses."},
+    "clauses, not just to selected clauses. Implies --destructive-er."},
+
+   {OPT_FORWARD_CSR,
+    '\0', "forward-context-sr",
+    NoArg, NULL,
+    "Apply contextual simplify-reflect with processed clauses "
+    "to the given clause."},
+
+   {OPT_FORWARD_CSR_AGGRESSIVE,
+    '\0', "forward-context-sr-aggressive",
+    NoArg, NULL,
+    "Apply contextual simplify-reflect with processed clauses "
+    "to new clauses. Implies --forward-context-sr."},
+   
+   {OPT_BACKWARD_CSR,
+    '\0', "backward-context-sr",
+    NoArg, NULL,
+    "Apply contextual simplify-reflect with the given clause to "
+    "processed clauses. Not yet implemented!"},
 
    {OPT_RULES_GENERAL,
     'g', "prefer-general-demodulators",
@@ -1386,6 +1407,16 @@ CLState_p process_options(int argc, char* argv[])
 	    break;
       case OPT_ER_AGGRESSIVE:
 	    h_parms->er_aggressive = true;
+	    break;
+      case OPT_FORWARD_CSR:
+	    h_parms->forward_context_sr = true;
+	    break;
+      case OPT_FORWARD_CSR_AGGRESSIVE:
+	    h_parms->forward_context_sr = true;
+	    h_parms->forward_context_sr_aggressive = true;
+	    break;
+      case OPT_BACKWARD_CSR:
+	    h_parms->backward_context_sr = true;
 	    break;
       case OPT_RULES_GENERAL:
 	    h_parms->prefer_general = true;
