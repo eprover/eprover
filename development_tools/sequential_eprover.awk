@@ -162,7 +162,8 @@ function check_and_initialize(    tmp, job)
 	 execpath = get_shell_res("which " executable);
 	 execdate = get_shell_res("ls -l " execpath);
 	 exechost = get_hostname();
-	 print "# Started with " substr(execdate, 42) " on " exechost >> logfile;
+	 execversion = get_shell_res(executable " -V");
+	 print "# Started with " substr(execdate, 42) " (" execversion ") on " exechost >> logfile;
       }
       else
       {
@@ -170,7 +171,8 @@ function check_and_initialize(    tmp, job)
 	 execpath = get_shell_res("which " executable);
 	 execdate = get_shell_res("ls -l " execpath);
 	 exechost = get_hostname();
-	 print "# Resumed with " substr(execdate, 42) " on " exechost >> logfile;	 
+	 execversion = get_shell_res(executable " -V");
+	 print "# Started with " substr(execdate, 42) " (" execversion ") on " exechost >> logfile;
 	 processed_count = 0;
 	  while ((getline tmp < logfile) > 0)
 	  {
