@@ -59,7 +59,18 @@ typedef enum
    OPT_LEMMA_ACT_SIMPL_W,
    OPT_LEMMA_PAS_SIMPL_W,
    OPT_NO_REFERENCE_WEIGHTS,
-   OPT_LEMMA_HORN_BONUS
+   OPT_LEMMA_HORN_BONUS,
+   OPT_INITIAL_WEIGHT,
+   OPT_QUOTE_WEIGHT,
+   OPT_PARAMOD_WEIGHT,
+   OPT_ERESOLUTION_WEIGHT,
+   OPT_EFACTORING_WEIGHT,
+   OPT_SIMPLIFYREFLECT_WEIGHT,
+   OPT_ACRESOLUTION_WEIGHT,
+   OPT_REWRITE_WEIGHT,
+   OPT_UREWRITE_WEIGHT,
+   OPT_CLAUSENORMALIZE_WEIGHT,
+   OPT_SPLITCLAUSE_WEIGHT
 }OptionCodes;
 
 
@@ -224,6 +235,76 @@ OptCell opts[] =
     "Weight factor to apply to the evaluation of Horn clauses. Use 1 to be"
     " fair, 2.5 if you think Horn clauses are 2.5 times more dandy than "
     "non-Horn clauses. Yes, nice lemmas _are_ amatter of taste ;-)."},   
+
+   {OPT_INITIAL_WEIGHT,
+    '\0', "pcl-initial-weight",
+    ReqArg, NULL,
+    "Set the weight of an 'initial' pseudo-inference for computing the weight of "
+    "a PLC proof tree. This is probably best left untouched."},
+
+   {OPT_QUOTE_WEIGHT,
+    '\0', "pcl-quote-weight",
+    ReqArg, NULL,
+    "Set the weight of a  quote  pseudo-inference for computing the weight of "
+    "a PLC proof tree. This is probably best left untouched."},
+
+   {OPT_PARAMOD_WEIGHT,
+    '\0', "pcl-paramod-weight",
+    ReqArg, NULL,
+    "Set the weight of a paramodulation inference for computing the weight"
+    " of a PLC proof tree."},
+
+   {OPT_ERESOLUTION_WEIGHT,
+    '\0', "pcl-eres-weight",
+    ReqArg, NULL,
+    "Set the weight of an equality resolution inference for computing the"
+    " weight of a PLC proof tree."},
+
+   {OPT_EFACTORING_WEIGHT,
+    '\0', "pcl-efact-weight",
+    ReqArg, NULL,
+    "Set the weight of an equality factoring inference for computing the"
+    " weight of a PLC proof tree."},
+
+   {OPT_SIMPLIFYREFLECT_WEIGHT,
+    '\0', "pcl-sr-weight",
+    ReqArg, NULL,
+    "Set the weight of a simplify-reflect inference for computing the"
+    " weight of a PLC proof tree."},
+
+   {OPT_ACRESOLUTION_WEIGHT,
+    '\0', "pcl-acres-weight",
+    ReqArg, NULL,
+    "Set the weight of an AC resolution inference for computing the"
+    " weight of a PLC proof tree."},
+
+   {OPT_REWRITE_WEIGHT,
+    '\0', "pcl-rw-weight",
+    ReqArg, NULL,
+    "Set the weight of a rewrite inference for computing the"
+    " weight of a PLC proof tree."},
+
+   {OPT_UREWRITE_WEIGHT,
+    '\0', "pcl-urw-weight",
+    ReqArg, NULL,
+    "Set the weight of a underspecified rewrite inference for computing the"
+    " weight of a PLC proof tree. Such an inference describes an"
+    " unspecified number of rewrite steps using the same unit clause as a"
+    " rewrite rule. Normal E PCL listings should no longer contain"
+    " such inferences."},
+
+   {OPT_CLAUSENORMALIZE_WEIGHT,
+    '\0', "pcl-cn-weight",
+    ReqArg, NULL,
+    "Set the weight of a clause normalization inference for computing the"
+    " weight of a PLC proof tree. This is probably best left alone, since"
+    " most clause normalization is implicit anyways."},
+
+   {OPT_SPLITCLAUSE_WEIGHT,
+    '\0', "pcl-split-weight",
+    ReqArg, NULL,
+    "Set the weight of a splitting pseudo-inference for computing the"
+    " weight of a PLC proof tree."},
 
    {OPT_NOOPT,
     '\0', NULL,
@@ -462,7 +543,41 @@ CLState_p process_options(int argc, char* argv[])
 	    lp->pas_simpl_w = 0;
 	    break;
       case OPT_LEMMA_HORN_BONUS:
-	    break;
+	    lp->horn_bonus = CLStateGetFloatArg(handle, arg);
+	    break;	    
+      case OPT_INITIAL_WEIGHT:
+	    (*iw)[PCLOpInitial] = CLStateGetIntArg(handle, arg);
+	    break;	    
+      case OPT_QUOTE_WEIGHT:
+	    (*iw)[PCLOpQuote] = CLStateGetIntArg(handle, arg);
+	    break;	    
+      case OPT_PARAMOD_WEIGHT:
+	    (*iw)[PCLOpParamod] = CLStateGetIntArg(handle, arg);
+	    break;	    
+      case OPT_ERESOLUTION_WEIGHT:
+	    (*iw)[PCLOpEResolution] = CLStateGetIntArg(handle, arg);
+	    break;	    
+      case OPT_EFACTORING_WEIGHT:
+	    (*iw)[PCLOpEFactoring] = CLStateGetIntArg(handle, arg);
+	    break;	    
+      case OPT_SIMPLIFYREFLECT_WEIGHT:
+	    (*iw)[PCLOpSimplifyReflect] = CLStateGetIntArg(handle, arg);
+	    break;	    
+      case OPT_ACRESOLUTION_WEIGHT:
+	    (*iw)[PCLOpACResolution] = CLStateGetIntArg(handle, arg);
+	    break;	    
+      case OPT_REWRITE_WEIGHT:
+	    (*iw)[PCLOpRewrite] = CLStateGetIntArg(handle, arg);
+	    break;	    
+      case OPT_UREWRITE_WEIGHT:
+	    (*iw)[PCLOpURewrite] = CLStateGetIntArg(handle, arg);
+	    break;	    
+      case OPT_CLAUSENORMALIZE_WEIGHT:
+	    (*iw)[PCLOpClauseNormalize] = CLStateGetIntArg(handle, arg);
+	    break;	    
+      case OPT_SPLITCLAUSE_WEIGHT:
+	    (*iw)[PCLOpSplitClause] = CLStateGetIntArg(handle, arg);
+	    break;	    
       default:
 	    assert(false);
 	    break;
