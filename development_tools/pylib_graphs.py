@@ -88,10 +88,22 @@ class graph:
     """
     def __init__(self, title="", data=None):
         self.title=title;
+        self.style = None
         if data:
             self.data=data;
         else:
             self.data = [];
+
+    def get_title(self):
+        return self.title
+
+    def set_style(self, style):
+        self.style = style
+
+    def get_style(self):
+        if self.style:
+            return str(self.style)
+        return ""
 
     def add_problem_data(self, median_list):
         for i in median_list:
@@ -116,6 +128,8 @@ class graph:
  
 
 
+style_dict = {}
+
 class plot(titled_object):
     """
     Represents a plot: Labels+Format+Graphs.
@@ -128,9 +142,13 @@ class plot(titled_object):
         for i in graph_descs:
             g = graph(i[0])
             g.parse(i[1], i[2])
+            if g.get_title() in style_dict:
+                g.set_style(style_dict[g.get_title()])
+            else:
+                print "Warning, unknown graph title "+g.get_title()
             self.add_graph(g)
-            self.title = title
 
+        self.title = title
         self.xlabel = "'Instance size'";
         self.ylabel = "'Run time (s)'";
 
@@ -138,6 +156,7 @@ class plot(titled_object):
 set style data linespoints
 set key left
 set pointsize 2
+set autoscale fix
 """
         self.file_options ="""
 set terminal postscript eps 16
@@ -188,11 +207,13 @@ set size square
         sep = "";
         res = "plot "
         for i in self.graphs:
-            res = res+ sep+"'-' title \""+i.title+"\" with linespoints lw 2";
+            res = res+ sep+"'-' title \""+i.title+\
+                  "\" with linespoints "+i.get_style();
             sep = ", "
         res = res+"\n";
         for i in self.graphs:
             res = res+i.__repr__()+"e\n";
+        #print res
         return res;
 
     def full_filename(self, log=False):
@@ -226,6 +247,8 @@ set size square
                      # and reliably write the file!
         if file:
             pylib_psfixbb.fixbb(filename)
+
+
 
 
 class statistic_sample(titled_object):
