@@ -33,7 +33,7 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-#define VERSION      "0.8dev014"
+#define VERSION      "0.8dev015"
 #define NAME         "eprover"
 
 #ifdef SAFELOGIC
@@ -73,7 +73,9 @@ typedef enum
    OPT_TPTP_PARSE,
    OPT_TPTP_PRINT,
    OPT_TPTP_FORMAT,
+   OPT_TSTP_PARSE,
    OPT_TSTP_PRINT,
+   OPT_TSTP_FORMAT,
    OPT_NO_PREPROCESSING,
    OPT_NO_EQ_UNFOLD,
    OPT_NO_NEG_PARAMOD,
@@ -334,13 +336,13 @@ OptCell opts[] =
    {OPT_TPTP_PARSE,
     '\0', "tptp-in",
     NoArg, NULL,
-    "Parse TPTP format instead of lop (does not understand includes, "
+    "Parse TPTP format instead of E-LOP{ (does not understand includes, "
     "as TPTP includes are a brain-dead design)."},
 
    {OPT_TPTP_PRINT,
     '\0', "tptp-out",
     NoArg, NULL,
-    "Print TPTP format instead of lop. Implies --eqn-no-infix and "
+    "Print TPTP format instead of E-LOP. Implies --eqn-no-infix and "
     "will ignore --full-equational-rep."},
 
    {OPT_TPTP_FORMAT,
@@ -348,11 +350,22 @@ OptCell opts[] =
     NoArg, NULL,
     "Equivalent to --tptp-in and --tptp-out."},
 
+   {OPT_TSTP_PARSE,
+    '\0', "tstp-in",
+    NoArg, NULL,
+    "Parse limited TSTP format instead of E-LOP (no optional "
+    "extensions) ."},
+   
    {OPT_TSTP_PRINT,
     '\0', "tstp-out",
     NoArg, NULL,
     "Print proof protocol in TSTP syntax (default is PCL). Only "
     "effective for output levels greater than 1."},
+
+   {OPT_TSTP_FORMAT,
+    '\0', "tstp-format",
+    NoArg, NULL,
+    "Equivalent to --tstp-in and --tstp-out."},
 
    {OPT_NO_PREPROCESSING,
     '\0', "no-preprocessing",
@@ -1278,7 +1291,14 @@ CLState_p process_options(int argc, char* argv[])
 	    EqnFullEquationalRep = false;
 	    EqnUseInfix = false;
 	    break;
+      case OPT_TSTP_PARSE:
+	    parse_format = TSTPFormat;
+	    break;
       case OPT_TSTP_PRINT:
+	    OutputFormat = tstp_format;
+	    break;
+      case OPT_TSTP_FORMAT:
+	    parse_format = TSTPFormat;
 	    OutputFormat = tstp_format;
 	    break;
       case OPT_NO_PREPROCESSING:
