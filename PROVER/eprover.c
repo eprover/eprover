@@ -113,6 +113,8 @@ typedef enum
    OPT_FORWARD_DEMOD,
    OPT_STRONGSUBSUMPTION,
    OPT_NO_INDEXED_SUBSUMPTION,
+   OPT_FVINDEX_STYLE,
+   OPT_FVINDEX_MAXDEPTH,
    OPT_UNPROC_UNIT_SIMPL,
    OPT_DEFINE_WFUN,
    OPT_DEFINE_HEURISTIC,
@@ -661,8 +663,24 @@ OptCell opts[] =
    {OPT_NO_INDEXED_SUBSUMPTION,
     '\0', "conventional-subsumption",
     NoArg, NULL,
-    "Use the old, naive subsumption algorithm for non-unit-subsumption. "
-    "Default now is subsumption with frequency vector indexing."},
+    "Equivalent to --subsumption-indexing=None."},
+
+   {OPT_FVINDEX_STYLE,
+    '\0', "subsumption-indexing",
+    ReqArg, NULL,
+    "Determine choice of indexing for (most) subsumption operations. "
+    "Choices are 'None' for naive subsumption, 'Direct' for direct mapped"
+    " FV-Indexing, 'Perm' for permuted FV-Indexing and 'PermOpt' for "
+    "permuted FV-Indexing with deletion of (suspected) non-informative "
+    "features. Default behaviour is 'Perm'."},
+   
+   {OPT_FVINDEX_MAXDEPTH,
+    '\0', "fvindex-maxdepth",
+    OptArg, "200",
+    "Set the maximum dept of the FV-Index for subsumption. Maximal "
+    "theoretical depth is 2*signature size + 3 at the moment. If you "
+    "set a small limit here, you should probably also choose 'Perm' (the"
+    " default) or 'PermOpt' for the previous option."},
 
    {OPT_UNPROC_UNIT_SIMPL,
     '\0', "simplify-with-unprocessed-units",
@@ -703,6 +721,7 @@ OptCell opts[] =
 
 char              *outname = NULL;
 HeuristicParms_p  h_parms;
+FVIndexParms_p    fvi_parms;
 bool              print_sat = false,
                   print_statistics = false,
                   filter_sat = false,
@@ -756,6 +775,7 @@ int main(int argc, char* argv[])
    ESignalSetup(SIGXCPU);
 
    h_parms = HeuristicParmsAlloc();
+   fvi_parms = FVIndexParmsAlloc();
 
    state = process_options(argc, argv);
 
@@ -815,7 +835,7 @@ int main(int argc, char* argv[])
    ProofControlInit(proofstate, proofcontrol, h_parms);
    PCLFullTerms = pcl_full_terms; /* Preprocessing always uses full
 				     terms! */
-   ProofStateInit(proofstate, proofcontrol, h_parms, indexed_subsumption);
+   ProofStateInit(proofstate, proofcontrol, h_parms, fvi_parms);
 
    VERBOUT2("Prover state initialized\n");
    
@@ -952,6 +972,7 @@ int main(int argc, char* argv[])
    ProofControlFree(proofcontrol);
    ProofStateFree(proofstate);
    CLStateFree(state);
+   FVIndexParmsFree(fvi_parms);
    HeuristicParmsFree(h_parms);
 #ifdef FULL_MEM_STATS
    MemFreeListPrint(GlobalOut);
@@ -1383,7 +1404,49 @@ CLState_p process_options(int argc, char* argv[])
 	    StrongUnitForwardSubsumption = true;
 	    break;
       case OPT_NO_INDEXED_SUBSUMPTION:
-	    indexed_subsumption = false;
+	    fvi_parms->use_fv_indexing = false;
+	    break;
+      case OPT_FVINDEX_STYLE:
+	    if(strcmp(arg, "None")==0)
+	    {
+	       fvi_parms->use_fv_indexing = false;
+	    }
+	    else if(strcmp(arg, "Direct")==0)
+	    {
+	       fvi_parms->use_fv_indexing = true;
+	       fvi_parms->use_perm_vectors = false;
+	    }
+	    else if(strcmp(arg, "Perm")==0)
+	    {
+	       fvi_parms->use_fv_indexing = true;
+	       fvi_parms->use_perm_vectors = true;
+	       fvi_parms->eleminate_uninformative = false;       
+	    }
+	    else if(strcmp(arg, "PermOpt")==0)
+	    {
+	       fvi_parms->use_fv_indexing = true;
+	       fvi_parms->use_perm_vectors = true;
+	       fvi_parms->eleminate_uninformative = true;
+	    }
+	    else
+	    {
+	       Error("Option --subsumption-indexing requires "
+		     "'None', 'Direct', 'Perm', or 'PermOpt'.", USAGE_ERROR);
+	    }
+	    break;
+      case OPT_FVINDEX_MAXDEPTH:
+	    tmp = CLStateGetIntArg(handle, arg);
+	    if(tmp<=0)
+	    {
+	       Error("Argument to option --fvindex-maxdepth "
+		     "has to be > 0", USAGE_ERROR);
+	    }
+	    if(tmp<=2)
+	    {
+	       Warning("FV-Index depth will automatically be adjusted to "
+		       "5 for direct mapped indices.");
+	    }	    
+	    fvi_parms->max_features = tmp;
 	    break;
       case OPT_UNPROC_UNIT_SIMPL:
 	    h_parms->unproc_simplify = TransUnitSimplifyString(arg);
