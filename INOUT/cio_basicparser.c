@@ -279,8 +279,8 @@ char* ParseFilename(Scanner_p in)
 
 char* ParsePlainFilename(Scanner_p in)
 {
-   DStrReset(in->accu);
    bool first_tok = true;
+   DStrReset(in->accu);
 
    while((first_tok || TestInpNoSkip(in)) && 
 	 TestInpTok(in, PLAIN_FILE_TOKENS|Slash))
