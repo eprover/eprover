@@ -1040,6 +1040,9 @@ Eqn_p EqnListParse(Scanner_p in, TB_p bank, TokenType sep)
        TestInpTok(in, Plus|Hyphen)) 
       ||
       ((ScannerGetFormat(in) == LOPFormat) && 
+       TestInpTok(in, TermStartToken|TildeSign))
+      ||
+      ((ScannerGetFormat(in) == TSTPFormat) && 
        TestInpTok(in, TermStartToken|TildeSign)))
    {
       list = EqnParse(in, bank);

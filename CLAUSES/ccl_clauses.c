@@ -1299,6 +1299,52 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
       AcceptInpTok(in, CloseSquare);
       AcceptInpTok(in, CloseBracket);   
    }
+   else if(ScannerGetFormat(in) == TSTPFormat)
+   {
+      bool check_type=true;
+
+      AcceptInpId(in, "cnf");
+      AcceptInpTok(in, OpenBracket);
+      AcceptInpTok(in, Name|PosInt);
+      AcceptInpTok(in, Comma);
+      if(TestInpId(in, "initial|derived"))
+      {
+	 AcceptInpTok(in, Ident);
+	 type = CPTypeAxiom;
+	 check_type = false;
+	 if(TestInpTok(in, Hyphen))
+	 {
+	    AcceptInpTok(in, Hyphen);
+	    check_type = true;
+	 }
+      }
+      if(check_type)
+      {
+	 CheckInpId(in, 
+		    "axiom|definition|knowledge|assumption|"
+		    "hypothesis|conjecture|lemma|unknown");
+	 if(TestInpId(in, 
+		      "axiom|definition|knowledge|"
+		      "assumption|lemma|unknown"))
+	 {
+	    type = CPTypeAxiom;
+	 }
+	 else if(TestInpId(in, "conjecture"))
+	 {
+	    type = CPTypeConjecture;
+	 }
+	 else
+	 {
+	    type = CPTypeHypothesis;
+	 }
+	 AcceptInpTok(in, Ident);
+      }
+      AcceptInpTok(in, Comma);
+      AcceptInpTok(in, OpenBracket);
+      concl = EqnListParse(in, bank, Pipe);
+      AcceptInpTok(in, CloseBracket);
+      AcceptInpTok(in, CloseBracket);         
+   }
    else
    {
       concl = EqnListParse(in, bank, Semicolon);
