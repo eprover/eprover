@@ -253,7 +253,7 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
 	   state->proc_forward_subsumed_count);
    fprintf(out, "# ...remaining for further processing  : %ld\n",
 	   state->proc_non_trivial_count);
-   fprintf(out, "# Other redundant clauses eleminated   : %ld\n",
+   fprintf(out, "# Other redundant clauses eliminated   : %ld\n",
 	   state->other_redundant_count);
    fprintf(out, "# Clauses deleted for lack of memory   : %ld\n",
 	   state->non_redundant_deleted);
