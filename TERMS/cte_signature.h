@@ -38,15 +38,17 @@ Changes
 
 typedef enum
 {
-   FPIgnoreProps =  0, /* No properties, mask everything out */
-   FPPredSymbol  =  1, /* Symbol is a transformed predicate symbol */
-   FPSpecial     =  2, /* Symbol is a special symbol introduced internally */
-   FPAssociative =  4, /* Function symbol is binary and associative */
-   FPCommutative =  8, /* Function symbol is binary and commutates */
-   FPIsAC        =  FPAssociative|FPCommutative,
-   FPIsNumber    = 16, /* Sequence of digits, may be semi-interpreted */
-   FPIsObject    = 32  /* ""-enclosed string, by definition denotes
-                          unique object." */
+   FPIgnoreProps  =  0, /* No properties, mask everything out */
+   FPPredSymbol   =  1, /* Symbol is a transformed predicate symbol */
+   FPSpecial      =  2, /* Symbol is a special symbol introduced internally */
+   FPAssociative  =  4, /* Function symbol is binary and associative */
+   FPCommutative  =  8, /* Function symbol is binary and commutates */
+   FPIsAC         =  FPAssociative|FPCommutative,
+   FPInterpreted  = 16, /* Interpreted symbol $ident */
+   FPIsNumber     = 32, /* Sequence of digits, may be semi-interpreted */
+   FPIsObject     = 64,  /* ""-enclosed string, by definition denotes
+                           unique object." */
+   FPDistinctProp = FPIsObject | FPIsNumber
 }FunctionProperties;
 
 
@@ -98,6 +100,8 @@ typedef struct sigcell
    /* Counters for generating new symbols */
    long      skolem_count;
    long      newpred_count;
+   /* Which properties are used for recognizing implicit distinctness?*/
+   FunctionProperties distinct_props;
 }SigCell, *Sig_p;
 
 

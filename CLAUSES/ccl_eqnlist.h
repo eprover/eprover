@@ -65,8 +65,7 @@ Eqn_p   EqnListCopyExcept(Eqn_p list, Eqn_p except, TB_p bank);
 Eqn_p   EqnListNegateEqns(Eqn_p list);
 int     EqnListRemoveDuplicates(Eqn_p list, TermEqualTestFun
 				EqualTest);
-int     EqnListRemoveResolved(EqnRef list, TermEqualTestFun
-			      EqualTest);
+int     EqnListRemoveResolved(EqnRef list);
 int     EqnListRemoveACResolved(EqnRef list);
 Eqn_p   EqnListFindNegPureVarLit(Eqn_p list);
 

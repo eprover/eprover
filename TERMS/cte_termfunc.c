@@ -313,16 +313,17 @@ void TermPrintArgList(FILE* out, Term_p *args, int arity, Sig_p sig,
 //
 //   Parse an operator (i.e. an optional $, followed by an
 //   identifier), store the representation into id and determine
-//   wether it represents a variable or a function symbol by the
-//   following rules:
-//   - If it starts with a $, it's a function symbol (LOP global
-//     variables are treated as function symbols by me).
-//   - If it doesn't start with an upper case character, it's a
-//     function symbol. 
-//   - If it is followed by an opening bracket, its a function
-//     symbol.
-//   - Otherwise its a variable.
-//   Return value is true if the symbol represents a variable.
+//   the type.using the following rules:
+//   - If it starts with a $, it's a TermIdentInterpreted (LOP global
+//     variables are treated as interpreted constants). 
+//   - If it is a PosInt, it is a TermIdentNumber
+//   - If its a String, it is a TermIdentObject
+//   - If it is an upper-case or underscore Ident and no opening
+//     bracket follows, its a TermIdentVariable
+//   - Otherwise its a free function symbol (cases are SQString and
+//     Identifier starting with lower-case letter.
+//
+//   Return value is the type
 //
 // Global Variables: SigIdentToken
 //
@@ -330,23 +331,85 @@ void TermPrintArgList(FILE* out, Term_p *args, int arity, Sig_p sig,
 //
 /----------------------------------------------------------------------*/
 
-bool TermParseOperator(Scanner_p in, DStr_p id)
+TermIdentType TermParseOperator(Scanner_p in, DStr_p id)
 {
-   bool res = true;
+   TermIdentType res;
 
-   assert(TestInpTok(in, SigIdentToken));
-   if(TestInpTok(in, SemIdent) ||!isupper(DStrView(AktToken(in)->literal)[0]))
+   CheckInpTok(in, SigIdentToken);
+
+   switch(AktTokenType(in))
    {
-      res = false;
+   case SemIdent:
+         res = TermIdentInterpreted;
+         break;
+   case String:
+         res = TermIdentObject;
+         break;
+   case SQString:
+         res = TermIdentFreeFun;
+         break;
+   case PosInt:
+         res = TermIdentNumber;
+         break;
+   default:
+         assert(TestInpTok(in, Identifier));
+         if((isupper(DStrView(AktToken(in)->literal)[0]) 
+             ||
+             DStrView(AktToken(in)->literal)[0] == '_')
+            &&
+            !TestTok(LookToken(in, 1), OpenBracket))
+         {
+            res = TermIdentVariable;
+         }
+         else
+         {
+            res = TermIdentFreeFun;
+         }
+         break;
    }
    DStrAppendStr(id, DStrView(AktToken(in)->literal));
    AcceptInpTok(in, SigIdentToken);
-   if(TestInpTok(in, OpenBracket))
-   {
-      res = false;
-   }
+
    return res;
 }      
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermSigInsert()
+//
+//   Thin wrapper around SigInsertId that also sets corresponding
+//   properties for different identifier types.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+FunCode TermSigInsert(Sig_p sig, const char* name, int arity, bool
+                      special_id, TermIdentType type)
+{
+   FunCode res;
+
+   res = SigInsertId(sig, name, arity, special_id);
+   switch(type)
+   {
+   case TermIdentNumber:
+         SigSetFuncProp(sig, res, FPIsNumber);
+         break;
+   case TermIdentObject:
+         SigSetFuncProp(sig, res, FPIsObject);
+         break;
+   case TermIdentInterpreted:
+         SigSetFuncProp(sig, res, FPInterpreted);
+         break;
+   default:
+         /* Nothing */
+         break;
+   }
+   return res;
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -363,11 +426,12 @@ bool TermParseOperator(Scanner_p in, DStr_p id)
 
 Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
 {
-   Term_p     handle;
-   DStr_p     id;
-   DStr_p     source_name, errpos;
-   long       line, column;
-   StreamType type;
+   Term_p        handle;
+   DStr_p        id;
+   TermIdentType id_type;
+   DStr_p        source_name, errpos;
+   long          line, column;
+   StreamType    type;
 
    if(SigSupportLists && TestInpTok(in, OpenSquare))
    {
@@ -386,7 +450,7 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
 	 handle = TermIntRepresentation(sig, AktToken(in)->numval);
 	 AcceptInpTok(in, PosInt);
       }
-      else if(TermParseOperator(in, id))
+      else if((id_type = TermParseOperator(in, id))==TermIdentVariable)
       {
          handle = VarBankExtNameAssertAlloc(vars, DStrView(id));
       }      
@@ -396,6 +460,21 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
 
          if(TestInpTok(in, OpenBracket))
          {
+            if((id_type == TermIdentNumber)
+               &&(sig->distinct_props & FPIsNumber))
+            {
+               AktTokenError(in, 
+                             "Number cannot have argument list (consider --free-numbers)", 
+                             false);
+            }
+            if((id_type == TermIdentObject)
+               &&(sig->distinct_props & FPIsObject))
+            {
+               AktTokenError(in, 
+                             "Object cannot have argument list (consider --free-objects)", 
+                             false);
+            }
+           
             handle->arity = TermParseArgList(in, &(handle->args), sig,
                                              vars);
          }
@@ -403,8 +482,8 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
          {
             handle->arity = 0;
          }
-         handle->f_code = SigInsertId(sig, DStrView(id),
-				      handle->arity, false);
+         handle->f_code = TermSigInsert(sig, DStrView(id),
+                                        handle->arity, false, id_type);
          if(!handle->f_code)
          {
             errpos = DStrAlloc();

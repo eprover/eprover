@@ -977,6 +977,81 @@ bool EqnIsACTrivial(Eqn_p eq)
 
 /*-----------------------------------------------------------------------
 //
+// Function: EqnTermsAreDistinct()
+//
+//   Return true if terms are forced distinct by built-in
+//   semi-interpretation of numbers and objects.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool EqnTermsAreDistinct(Eqn_p eq)
+{
+   if(TermIsConst(eq->lterm)  &&
+      TermIsConst(eq->rterm)  &&
+      SigIsAnyFuncPropSet(eq->bank->sig, eq->lterm->f_code,
+                          eq->bank->sig->distinct_props)   &&  
+      SigIsAnyFuncPropSet(eq->bank->sig, eq->rterm->f_code, 
+                          eq->bank->sig->distinct_props)   &&
+      (eq->lterm->f_code!=eq->rterm->f_code))
+   {
+      return true;
+   }
+   return false;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: EqnIsTrue()
+//
+//   Return true if the equation is guranteed to evaluate to true (s=s
+//   or s!=t where s and t are objects/numbers)
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool EqnIsTrue(Eqn_p eq)
+{
+   if(EqnIsPositive(eq))
+   {
+      return EqnIsTrivial(eq, TBTermEqual);
+   }
+   return EqnTermsAreDistinct(eq);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: EqnIsFalse()
+//
+//   Return true if the equation is guaranteed to evaluate to false.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool EqnIsFalse(Eqn_p eq)
+{
+   if(EqnIsNegative(eq))
+   {
+      return EqnIsTrivial(eq, TBTermEqual);
+   }
+   return EqnTermsAreDistinct(eq);
+}
+
+
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: EqnHasUnboundVars()
 //
 //   Return false if Vars(dom_side) is a superset of var(other_side),

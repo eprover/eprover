@@ -29,7 +29,7 @@ Changes
 /*---------------------------------------------------------------------*/
 
 bool      SigSupportLists = false; 
-TokenType SigIdentToken   = Identifier | PosInt | SemIdent;
+TokenType SigIdentToken   = Identifier | PosInt | SemIdent | SQString | String;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -128,10 +128,10 @@ Sig_p SigAlloc(void)
 
    SigInsertId(handle, "$true", 0, true);
    assert(SigFindFCode(handle, "$true")==SIG_TRUE_CODE);  
-   SigSetFuncProp(handle, SIG_TRUE_CODE, FPPredSymbol);
+   SigSetFuncProp(handle, SIG_TRUE_CODE, FPPredSymbol|FPInterpreted);
    SigInsertId(handle, "$false", 0, true);
    assert(SigFindFCode(handle, "$false")==SIG_FALSE_CODE);  
-   SigSetFuncProp(handle, SIG_FALSE_CODE, FPPredSymbol);
+   SigSetFuncProp(handle, SIG_FALSE_CODE, FPPredSymbol|FPInterpreted);
    
    if(SigSupportLists)
    {
@@ -152,6 +152,7 @@ Sig_p SigAlloc(void)
    handle->null_code     = 0;
    handle->succ_code     = 0;
 
+   handle->distinct_props = FPDistinctProp;
    return handle;
 }
 

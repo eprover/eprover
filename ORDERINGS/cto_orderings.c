@@ -74,7 +74,7 @@ bool TOGreater(OCB_p ocb, Term_p s, Term_p t, DerefType deref_s,
    printf(" -|- ");
    TermPrint(stdout, t, ocb->sig, deref_t);
    printf("\n");*/
-   
+
    switch(ocb->type)
    {
    case LPO: 

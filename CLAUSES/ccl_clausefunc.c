@@ -174,7 +174,7 @@ int ClauseRemoveSuperfluousLiterals(Clause_p clause)
 
    assert(!ClauseIsAnyPropSet(clause, CPIsDIndexed|CPIsSIndexed));
 
-   removed += EqnListRemoveResolved(&(clause->literals), TBTermEqual);
+   removed += EqnListRemoveResolved(&(clause->literals));
    removed += EqnListRemoveDuplicates(clause->literals, TBTermEqual);
    
    if(removed)

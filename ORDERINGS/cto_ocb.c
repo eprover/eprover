@@ -491,8 +491,8 @@ FunCode OCBTermMaxFunCode(OCB_p ocb, Term_p term)
 //
 //   Return comparison result of two symbols in precedence via the
 //   full precedence matrix. Symbols
-//   not covered by the ocb are smaller than all others (except for
-//   $true), and older symbols are smaller than new ones.
+//   not covered by the ocb are smaller than all others. Equal symbols
+//   are not allowed (captured at OCBFunCompare).
 //
 // Global Variables: -
 //
@@ -503,18 +503,8 @@ FunCode OCBTermMaxFunCode(OCB_p ocb, Term_p term)
 CompareResult OCBFunCompareMatrix(OCB_p ocb, FunCode f1, FunCode f2)
 {
    assert(ocb->precedence);
-   if(f1==f2)
-   {
-      return to_equal;
-   }
-   if(f1==SIG_TRUE_CODE)
-   {
-      return to_lesser;
-   }
-   if(f2==SIG_TRUE_CODE)
-   {
-      return to_greater;
-   }
+   assert(f1!=f2);
+
    if(f1<=ocb->sig_size)
    {
       if(f2<=ocb->sig_size)

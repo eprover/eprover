@@ -51,7 +51,9 @@ Term_p  TermIntRepresentation(Sig_p sig, long number);
 void   TermPrint(FILE* out, Term_p term, Sig_p sig, DerefType deref);
 void   TermPrintArgList(FILE* out, Term_p *args, int arity, Sig_p sig,
 			DerefType deref);
-bool   TermParseOperator(Scanner_p in, DStr_p id);
+TermIdentType TermParseOperator(Scanner_p in, DStr_p id);
+FunCode       TermSigInsert(Sig_p sig, const char* name, int arity, bool
+                            special_id, TermIdentType type);
 Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars);
 int    TermParseArgList(Scanner_p in, Term_p** arg_anchor, Sig_p sig,
                          VarBank_p vars);

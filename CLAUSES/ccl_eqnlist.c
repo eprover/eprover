@@ -488,7 +488,7 @@ int EqnListRemoveDuplicates(Eqn_p list, TermEqualTestFun EqualTest)
 //
 // Function:  EqnListRemoveResolved()
 //
-//   Remove trivial negative equations.
+//   Remove trivially false equations.
 //
 // Global Variables: -
 //
@@ -496,13 +496,13 @@ int EqnListRemoveDuplicates(Eqn_p list, TermEqualTestFun EqualTest)
 //
 /----------------------------------------------------------------------*/
 
-int EqnListRemoveResolved(EqnRef list, TermEqualTestFun EqualTest)
+int EqnListRemoveResolved(EqnRef list)
 {
    int removed = 0;
 
    while(*list)
    {
-      if(!EqnIsPositive(*list) && EqnIsTrivial(*list, EqualTest))
+      if(EqnIsFalse(*list))
       {
 	 EqnListDeleteElement(list);
 	 removed++;
@@ -580,8 +580,7 @@ Eqn_p EqnListFindNegPureVarLit(Eqn_p list)
 // Function: EqnListIsTrivial()
 //
 //   Return true if the list contains two equal literals with
-//   opposing signs or a positive trivial equation. Assumes that all
-//   terms are shared. 
+//   opposing signs or a literal that always evaluates to true.
 //
 // Global Variables: - 
 //
@@ -595,7 +594,7 @@ bool EqnListIsTrivial(Eqn_p list)
    
    while(list)
    {
-      if(EqnIsPositive(list) && TBTermEqual(list->lterm, list->rterm))
+      if(EqnIsTrue(list))
       {
 	 return true;
       }	    

@@ -355,13 +355,11 @@ void ClauseSetFreeClauses(ClauseSet_p set)
    
    assert(set);
 
-   handle = set->anchor->succ;
-   while(handle!=set->anchor)
+   while(!ClauseSetEmpty(set))
    {
-      handle = handle->succ;
-      handle->pred->set = NULL;
-      ClauseFree(handle->pred);
-   }
+      handle = ClauseSetExtractFirst(set);
+      ClauseFree(handle);
+   }  
 }
 
 

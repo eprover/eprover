@@ -337,7 +337,7 @@ Clause_p ClauseOrderedParamod(TB_p bank, OCB_p ocb, ClausePos_p from,
 	 EqnListDelProp(into_copy, EPIsPMIntoLit);
 	 new_literals =  EqnListAppend(&new_literals, into_copy);
 
-	 EqnListRemoveResolved(&new_literals, TBTermEqual);
+	 EqnListRemoveResolved(&new_literals);
 	 EqnListRemoveDuplicates(new_literals, TBTermEqual);
 	 new_clause = ClauseAlloc(new_literals);
 	 DEBUGMARK(8, "New clause:");

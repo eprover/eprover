@@ -878,11 +878,12 @@ void TBPrintBankTerms(FILE* out, TB_p bank)
 
 Term_p TBTermParse(Scanner_p in, TB_p bank)
 {
-   Term_p     handle;
-   DStr_p     id;
-   DStr_p     source_name, errpos;
-   long       line, column;
-   StreamType type;
+   Term_p        handle;
+   DStr_p        id;
+   TermIdentType id_type;
+   DStr_p        source_name, errpos;
+   long          line, column;
+   StreamType    type;
 
    source_name = DStrGetRef(AktToken(in)->source);
    type        = AktToken(in)->stream_type;
@@ -966,7 +967,7 @@ Term_p TBTermParse(Scanner_p in, TB_p bank)
 	    TermFree(tmp);
 	    AcceptInpTok(in, PosInt);
 	 }
-	 else if(TermParseOperator(in, id))
+	 else if((id_type=TermParseOperator(in, id))==TermIdentVariable)
 	 {
 	    handle = VarBankExtNameAssertAlloc(bank->vars, DStrView(id));
 	 }
@@ -975,7 +976,22 @@ Term_p TBTermParse(Scanner_p in, TB_p bank)
 	    handle = DefaultSharedTermCellAlloc();
 	 
 	    if(TestInpTok(in, OpenBracket))
-	    {
+	    { 
+               if((id_type == TermIdentNumber)
+                  &&(bank->sig->distinct_props & FPIsNumber))
+               {
+                  AktTokenError(in, 
+                                "Number cannot have argument list (consider --free-numbers)", 
+                                false);
+               }
+               if((id_type == TermIdentObject)
+                  &&(bank->sig->distinct_props & FPIsObject))
+               {
+                  AktTokenError(in, 
+                                "Object cannot have argument list (consider --free-objects)", 
+                                false);
+               }
+               
 	       handle->arity = TBTermParseArgList(in, &(handle->args),
 						  bank);
 	    }
@@ -983,8 +999,8 @@ Term_p TBTermParse(Scanner_p in, TB_p bank)
 	    {
 	       handle->arity = 0;
 	    }
-	    handle->f_code = SigInsertId(bank->sig, DStrView(id),
-					 handle->arity, false);
+	    handle->f_code = TermSigInsert(bank->sig, DStrView(id),
+                                           handle->arity, false, id_type);
 	    if(!handle->f_code)
 	    {
 	       errpos = DStrAlloc();

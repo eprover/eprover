@@ -211,6 +211,10 @@ Eqn_p   EqnCopy(Eqn_p eq, TB_p bank);
 
 bool    EqnIsACTrivial(Eqn_p eq);
 
+bool    EqnTermsAreDistinct(Eqn_p eq);
+bool    EqnIsTrue(Eqn_p eq);
+bool    EqnIsFalse(Eqn_p eq);
+
 bool    EqnHasUnboundVars(Eqn_p eq, EqnSide dom_side);
 
 EqnSide EqnIsDefinition(Eqn_p eq, int min_arity);
