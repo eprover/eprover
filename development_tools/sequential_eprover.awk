@@ -197,6 +197,10 @@ function check_and_initialize(    tmp, job)
 function host_cpu_limit_opt(limit, e_mark,    res, host_limit)
 {
    host_limit = ((limit*100)/e_mark)+0.5;
+   if(host_limit<1)
+   {
+      host_limit=1;
+   }
    
    if(soft_cpu_limit)
    {
