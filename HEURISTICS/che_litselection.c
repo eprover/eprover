@@ -823,7 +823,7 @@ void PSelectFirstVariableLiteral(OCB_p ocb, Clause_p clause)
 void SelectLargestNegativeLiteral(OCB_p ocb, Clause_p clause)
 {
    assert(clause);
-   assert(EqnLisQueryPropNumber(clause->literals, EPIsSelected)==0);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
 
    if(clause->neg_lit_no)
    {

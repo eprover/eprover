@@ -63,6 +63,7 @@ EvalPriority PrioFunByDerivationSize(Clause_p clause);
 EvalPriority PrioFunByNegLitDist(Clause_p clause);
 EvalPriority PrioFunGoalDifficulty(Clause_p clause);
 EvalPriority PrioFunSimulateSOS(Clause_p clause);
+EvalPriority PrioFunDeferSOS(Clause_p clause);
 EvalPriority PrioFunPreferHorn(Clause_p clause);
 EvalPriority PrioFunPreferNonHorn(Clause_p clause);
 EvalPriority PrioFunPreferUnitAndNonEq(Clause_p clause);

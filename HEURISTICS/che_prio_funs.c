@@ -51,6 +51,7 @@ char* PrioFunNames[]=
    "ByNegLitDist",
    "ByGoalDifficulty",
    "SimulateSOS",
+   "DeferSOS",
    "PreferHorn",
    "PreferNonHorn",
    "PreferUnitAndNonEq",
@@ -81,6 +82,7 @@ static ClausePrioFun prio_fun_array[]=
    PrioFunByNegLitDist,
    PrioFunGoalDifficulty,
    PrioFunSimulateSOS,
+   PrioFunDeferSOS,
    PrioFunPreferHorn,
    PrioFunPreferNonHorn,
    PrioFunPreferUnitAndNonEq,
@@ -663,6 +665,29 @@ EvalPriority PrioFunSimulateSOS(Clause_p clause)
    }
    return PrioDefer;
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PrioFunDeferSOS()
+//
+//   Give priority to non-SOS and non-initial clauses.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+EvalPriority PrioFunDeferSOS(Clause_p clause)
+{
+   if(ClauseIsAnyPropSet(clause, CPInitial|CPIsSOS))
+   {
+      return PrioDefer;
+   }
+   return PrioNormal;
+}
+
 
 
 /*-----------------------------------------------------------------------
