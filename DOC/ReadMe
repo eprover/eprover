@@ -1,0 +1,47 @@
+This is the required ReadMe file for the CASC competitions.
+-----------------------------------------------------------
+
+Installation:
+
+Do:
+   gtar xzf E.tgz
+   cd E
+   more README
+
+Follow the instructions you find there.
+
+Translating to input format:
+
+   tptp2X -f tptp -t rm_equality:rstfp <file>
+
+Command line:
+
+   eprover -xAuto -tAuto --tptp-in -s --memory-limit=384 %s
+
+   eproof  -xAuto -tAuto --tptp-in --tstp-out --memory-limit=384 %s
+
+
+Distinguished strings for the results:
+
+- Proof found:
+
+# TSTP exit status: Unsatisfiable
+
+- No proof found (no proof exists):
+
+# TSTP exit status: Satisfiable
+
+- System gave up (usually resource limit)
+
+# Failure:
+
+Please remind the TSTP people that TSTP exit statuses have to become
+hierarchic! 
+
+The start of solution output:
+
+# Proof object starts here.
+
+The end of solution output:
+
+# Proof object ends here.
