@@ -25,7 +25,7 @@ Changes
 #include <cio_output.h>
 #include <cio_tempfile.h>
 #include <cio_signals.h>
-#include <pcl_propanalysis.h>
+#include <pcl_lemmas.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -106,8 +106,11 @@ int main(int argc, char* argv[])
    CLState_p       state;
    Scanner_p       in; 
    PCLProt_p       prot;
+   PCLStep_p       best_lemma;
    long            steps;
    int             i;
+   InferenceWeight_p iw;
+   LemmaParam_p      lp;
 
    assert(argv[0]);
 
@@ -142,7 +145,22 @@ int main(int argc, char* argv[])
       DestroyScanner(in); 
    }
    VERBOUT2("PCL input read\n");
+   iw = InferenceWeightsAlloc();
+   lp = LemmaParamAlloc();
+   PCLProtResetTreeData(prot);
+   PCLProtUpdateRefs(prot);
+   PCLProtComputeProofSize(prot, iw, false);
+   best_lemma = PCLProtComputeLemmaWeights(prot, lp);
+   
+   if(best_lemma)
+   {
+      PCLStepPrintExtra(GlobalOut, best_lemma, true);
+   }
+   fprintf(GlobalOut, "\n====================\n");
+   PCLProtPrintExtra(GlobalOut, prot, true);
 
+   InferenceWeightsFree(iw);
+   LemmaParamFree(lp);
    PCLProtFree(prot);
    CLStateFree(state); 
    fflush(GlobalOut);

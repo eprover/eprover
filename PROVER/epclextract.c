@@ -126,6 +126,9 @@ int main(int argc, char* argv[])
    Scanner_p       in; 
    long            steps;
    int             i;
+   bool            empty_clause;
+   PCLMiniProt_p   mprot = NULL;
+   PCLProt_p       prot = NULL;
 
    assert(argv[0]);
 
@@ -149,65 +152,79 @@ int main(int argc, char* argv[])
       CLStateInsertArg(state, "-");
    }
    steps = 0;
+   
    if(fast_extract)
    {
-      PCLMiniProt_p prot;
-
-      prot = PCLMiniProtAlloc();   
-      for(i=0; state->argv[i]; i++)
-      {
-	 in = CreateScanner(StreamTypeFile, state->argv[i] , true, NULL);
-	 ScannerSetFormat(in, TPTPFormat);
-	 steps+=PCLMiniProtParse(in, prot);
-	 CheckInpTok(in, NoToken);
-	 DestroyScanner(in); 
-      }
-      VERBOUT2("PCL input read\n");
-      
-      PCLMiniProtMarkProofClauses(prot, true);
-
-      if(comp_frame)
-      {
-	 fprintf(GlobalOut, "# Proof status evidence starts here.\n");
-      }
-      PCLMiniProtPrintProofClauses(GlobalOut,prot);
-      if(comp_frame)
-      {
-	 fprintf(GlobalOut, "# Proof status evidence ends here.\n");
-      }
-#ifdef FAST_EXIT
-      exit(0);
-#endif
-      PCLMiniProtFree(prot);
+      mprot = PCLMiniProtAlloc();
    }
    else
    {
-      PCLProt_p prot;
-      
       prot = PCLProtAlloc();
-      for(i=0; state->argv[i]; i++)
+   }
+   for(i=0; state->argv[i]; i++)
+   {
+      in = CreateScanner(StreamTypeFile, state->argv[i] , true, NULL);
+      ScannerSetFormat(in, TPTPFormat);
+      if(fast_extract)
       {
-	 in = CreateScanner(StreamTypeFile, state->argv[i] , true, NULL);
-	 ScannerSetFormat(in, TPTPFormat);
+	 steps+=PCLMiniProtParse(in, mprot);
+      }
+      else
+      {
 	 steps+=PCLProtParse(in, prot);
-	 CheckInpTok(in, NoToken);
-	 DestroyScanner(in); 
       }
-      VERBOUT2("PCL input read\n");
-      
-      PCLProtMarkProofClauses(prot);
-      if(comp_frame)
+      CheckInpTok(in, NoToken);
+      DestroyScanner(in); 
+   }
+   VERBOUT2("PCL input read\n");
+   
+   if(fast_extract)
+   {
+      empty_clause = PCLMiniProtMarkProofClauses(mprot, true);
+   }
+   else
+   {
+      empty_clause = PCLProtMarkProofClauses(prot);
+   }
+   if(comp_frame)
+   {
+      if(empty_clause)
       {
-	 fprintf(GlobalOut, "# Proof status evidence starts here.\n");
+	 fprintf(GlobalOut, "# Proof object starts here.\n");
       }
+      else
+      {
+	 fprintf(GlobalOut, "# Saturation derivation starts here.\n");
+      }    
+   }
+   if(fast_extract)
+   {
+      PCLMiniProtPrintProofClauses(GlobalOut,mprot);
+   }
+   else
+   {
       PCLProtPrintProofClauses(GlobalOut,prot);
-      if(comp_frame)
+   }
+   if(comp_frame)
+   {
+      if(empty_clause)
       {
-	 fprintf(GlobalOut, "# Proof status evidence ends here.\n");
+	 fprintf(GlobalOut, "# Proof object ends here.\n");
       }
+      else
+      {
+	 fprintf(GlobalOut, "# Saturation derivation ends here.\n");
+      }	    
+   }
 #ifdef FAST_EXIT
-      exit(0);
+   exit(0);
 #endif
+   if(fast_extract)
+   {	 
+      PCLMiniProtFree(mprot);
+   }
+   else
+   {
       PCLProtFree(prot);
    }
    CLStateFree(state);
