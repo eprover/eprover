@@ -32,13 +32,13 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-#define VERSION      "0.8dev024"
+#define VERSION      "0.81"
 #define NAME         "eprover"
 
 #ifdef SAFELOGIC
-#define NICKNAME     "Steinthal (Proprietary Safelogic build)"
+#define NICKNAME     "Tumsong (Proprietary Safelogic build)"
 #else
-#define NICKNAME     "Steinthal"
+#define NICKNAME     "Tumsong"
 #endif
 
 typedef enum
@@ -761,12 +761,15 @@ OptCell opts[] =
    {OPT_FVINDEX_MAXFEATURES,
     '\0', "fvindex-maxfeatures",
     OptArg, "200",
-    "Set the maximum number of symbols for feature computation. Depending"
-    " on the feature selection, a value of X here will convert into 2X "
-    "features (for set subsumptiom features), 2X+2 features (for "
-    "AC-compatible features) or 4X+2 features (if all features are used, "
+    "Set the maximum initial number of symbols for feature computation. Depending"
+    " on the feature selection, a value of X here will convert into 2X+2 "
+    "features (for set subsumptiom features), 2X+4 features (for "
+    "AC-compatible features) or 4X+6 features (if all features are used, "
     "the default). Note that the actually used set of features may be "
     "smaller than this if the signature does not contain enough symbols."
+    "For the Perm and PermOpt version, this is _also_ used to set the"
+    " maximum depth of the feature vector index. Yes, I should "
+    "probably make this into two separate options."
     " If you select a small value here, you should probably not use"
     " \"Direct\" for the --subsumption-indexing option."},
 

@@ -430,8 +430,7 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
    long i;
    bool needs_equality = true;
    char *status = ",[status(unknown)]", 
-      *status_thm = ",[status(thm)]",
-      *status_split = ",[status(split)]";
+      *status_thm = ",[status(thm)]";      
 
    assert(expr);
    assert(expr->args);
