@@ -370,7 +370,7 @@ OptCell opts[] =
    {OPT_TSTP_PRINT,
     '\0', "tstp-out",
     NoArg, NULL,
-    "Print proof protocol in TSTP syntax (default is PCL). Only "
+    "Print proof protocol in TSTP (v.0.3) syntax (default is PCL). Only "
     "effective for output levels greater than 1."},
 
    {OPT_TSTP_FORMAT,
@@ -1201,7 +1201,7 @@ CLState_p process_options(int argc, char* argv[])
 	    exit(NO_ERROR);
 	    break;
       case OPT_VERSION:
-	    printf("E " VERSION " " NICKNAME "\n");
+	    fprintf(stdout, "E " VERSION " " NICKNAME "\n");
 	    exit(NO_ERROR);
 	    break;
       case OPT_OUTPUT:
@@ -1350,10 +1350,12 @@ CLState_p process_options(int argc, char* argv[])
 	    break;
       case OPT_TSTP_PRINT:
 	    DocOutputFormat = tstp_format;
+	    EqnUseInfix = true;
 	    break;
       case OPT_TSTP_FORMAT:
 	    parse_format = TSTPFormat;
 	    DocOutputFormat = tstp_format;
+	    EqnUseInfix = true;
 	    break;
       case OPT_NO_PREPROCESSING:
 	    no_preproc = true;
