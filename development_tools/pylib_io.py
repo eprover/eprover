@@ -11,7 +11,7 @@ import sys
 NoStdRWStreamException = "You cannot open '-' for both reading and writing!"
 UsageErrorException = "Usage Error"
 
-def myopen(name, mode):
+def flexopen(name, mode):
     if(name == "-"):
         if(mode == "r"):
             return sys.stdin;
@@ -21,11 +21,11 @@ def myopen(name, mode):
             raise NoStdRWStreamException
     return open(name, mode)
 
-def myclose(file):
+def flexclose(file):
     if((file == sys.stdout) or (file == sys.stderr)):
         file.flush()
     else:
-        close(file)
+        file.close()
 
 def check_argc(argmin,argv=None):
     if(argv==None):

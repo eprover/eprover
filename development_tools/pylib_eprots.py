@@ -44,17 +44,25 @@
 import re
 import string
 
+import pylib_basics
+import pylib_io
+import pylib_discretize
+
 
 def break_prot_line(line):
+    """
+    Take an E protocoll line and convert it into an array of values of
+    the appropriate type (string, float or int) that is returned.
+    """
     if line[0] == "#":
-           return None
+        return None
     parts = string.split(line, None)
     for i in range(0, len(parts)):
         try:
-            p = float(parts[i])
+            p = int(parts [i])
         except ValueError:
             try:
-                p = int(parts [i])
+                p = float(parts[i])
             except ValueError:
                 p = parts[i]
         parts[i] = p
@@ -62,12 +70,20 @@ def break_prot_line(line):
 
 
 def get_relevant_parts(line):
+    """
+    Accept an E protocol line and return a tuple of the three relevant
+    elements: Problem name, status, and time.
+    """
     parts = break_prot_line(line)
     if parts:
         return (parts[0],parts[1],parts[2])
     return None
 
 class process_line:
+    """
+    Class of functional objects converting one E protocol line into
+    another by rounding the time as specified by a rounding function.
+    """
     def __init__(self, round_fun):
         self.round_fun = round_fun;
 
@@ -87,9 +103,20 @@ class eprotocol:
         self.proofs    = 0
         self.models    = 0
         self.successes = 0
-        self.succ_time = 0
+        self.succ_time = 0.0
         self.entries   = 0
         self.comments  = ""
+
+    def __cmp__(self, other):
+        """
+        Comparison of two protocols. Smaller is better, i.e. more
+        successes or same number of successes in less time.
+        """
+        tmp = other.successes - self.successes
+        if tmp!=0:
+            return tmp
+        tmp = self.succ_time- other.succ_time
+        return pylib_basics.sign(tmp)
 
     def insert_line(self, line):
         tmp = get_relevant_parts(line)
@@ -97,7 +124,7 @@ class eprotocol:
             entry = tmp[0]
             state = tmp[1]
             time  = tmp[2]
-            data[entry] = (state, time)
+            self.data[entry] = (state, time)
             self.entries += 1
             if state == "T":
                 self.proofs    += 1
@@ -110,6 +137,31 @@ class eprotocol:
         else:
             self.comments += line
 
-        def parse_prot(self, name):
-            f = open(name, "r")
+    def parse(self, file):
+        f = pylib_io.flexopen(file,'r')
+        l = f.readlines()
+        pylib_io.flexclose(f)
+        self.name = file
+        for line in l:
+            self.insert_line(line)
+
+    def repr_entry(self, key):
+        """
+        Return a representation of the entry fot a single key.
+        """
+        tmp = self.data[key];
+        return "%-29s %s %8.3f" % (key, tmp[0], tmp[1])
+
+    def __repr__(self):
+        res = self.comments;
+        print self.succ_time
+        res +="""# Proofs:    %5d
+# Models:    %5d
+# Successed: %5d
+# Time:      %-8.3f
+""" % (self.proofs, self.models, self.successes, self.succ_time)
+        for i in self.data.keys():
+            res += self.repr_entry(i)
+            res += "\n"
+        return res;
         
