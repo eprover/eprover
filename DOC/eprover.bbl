@@ -132,6 +132,12 @@ C.B. Suttner and G.~Sutcliffe.
   Australia, 1997.
 \newblock Jointly published.
 
+\bibitem[Tam97]{Tammet:JAR-97}
+T.~Tammet.
+\newblock {Gandalf}.
+\newblock {\em Journal of Automated Reasoning}, 18(2):199--204, 1997.
+\newblock Special Issue on the CADE 13 ATP System Competition.
+
 \bibitem[WAB{\etalchar{+}}99]{WABCEKTT:CADE-99}
 C.~Weidenbach, B.~Afshordel, U.~Brahm, C.~Cohrs, T.~Engel, G.~Jung, E.~Keen,
   C.~Theobalt, and D.~Topic.

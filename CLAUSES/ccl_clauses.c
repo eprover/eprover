@@ -1113,7 +1113,14 @@ void ClausePrint(FILE* out, Clause_p clause, bool fullterms)
    }
    else
    {
-      ClausePrintAxiom(out, clause, fullterms);      
+      if(ClauseQueryTPTPType(clause) == CPTypeConjecture)
+      {
+	 ClausePrintQuery(out, clause, fullterms);
+      }
+      else
+      {
+	 ClausePrintAxiom(out, clause, fullterms);
+      }
    }
    DEBUG(64, EvalListPrintComment(out, clause->evaluations););
    DEBUG(64, printf("/* Address: %p */", clause););

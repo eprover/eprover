@@ -16,6 +16,6 @@
 \contentsline {section}{\numberline {6}Output\ldots or how to interpret what you see}{16}
 \contentsline {subsection}{\numberline {6.1}The Bare Essentials}{16}
 \contentsline {subsection}{\numberline {6.2}Impressing your Friends}{17}
-\contentsline {subsection}{\numberline {6.3}Detailed Reporting}{17}
+\contentsline {subsection}{\numberline {6.3}Detailed Reporting}{18}
 \contentsline {subsection}{\numberline {6.4}Requesting Specific Results}{18}
 \contentsline {section}{\numberline {A}License}{20}
