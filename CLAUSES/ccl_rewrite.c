@@ -31,7 +31,7 @@ Changes
 long RewriteAttempts = 0;
 long RewriteSucesses = 0;
 long RewriteUnboundVarFails = 0;
-bool StrongRewrite = false;
+bool RewriteStrongRHSInst = false;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -59,13 +59,14 @@ bool StrongRewrite = false;
 //
 /----------------------------------------------------------------------*/
 
-static bool instance_is_rule(OCB_p ocb, Term_p lside, Term_p rside,
-			     Subst_p subst)
+static bool instance_is_rule(OCB_p ocb, Eqn_p demod, 
+                             Term_p lside, Term_p rside, Subst_p subst)
 
 {   
-   if(StrongRewrite)
+   if(RewriteStrongRHSInst)
    {
-      
+      SubstCompleteInstance(subst, rside, 
+                            OCBDesignatedMinTerm(ocb, demod->bank)); 
    }
    else if(TermHasUnboundVariables(rside))
    {
@@ -154,7 +155,7 @@ static bool term_is_top_rewritable(OCB_p ocb, Term_p term, Clause_p
    if(SubstComputeMatch(eqn->lterm, term, subst, TBTermEqual))
    {
       if((EqnIsOriented(eqn) 
-	  || instance_is_rule(ocb, eqn->lterm, eqn->rterm, subst))
+	  || instance_is_rule(ocb, eqn, eqn->lterm, eqn->rterm, subst))
 	 &&
 	 (!TermCellQueryProp(term, TPRestricted) ||
 	  !SubstIsRenaming(subst)))
@@ -167,7 +168,7 @@ static bool term_is_top_rewritable(OCB_p ocb, Term_p term, Clause_p
    {
       if(SubstComputeMatch(eqn->rterm, term, subst, TBTermEqual))
       {
-	 if(instance_is_rule(ocb, eqn->rterm, eqn->lterm, subst))
+	 if(instance_is_rule(ocb, eqn, eqn->rterm, eqn->lterm, subst))
 	    /* If instance is rule -> subst is no renaming! */
 	 {
 	    res = true;
@@ -530,7 +531,7 @@ static ClausePos_p indexed_find_demodulator(OCB_p ocb, Term_p term,
 		  printf("\n");
 	       );
 	    if((EqnIsOriented(eqn) 
-		|| instance_is_rule(ocb, eqn->lterm, eqn->rterm, subst))
+		|| instance_is_rule(ocb, eqn, eqn->lterm, eqn->rterm, subst))
 	       &&
 	       (!TermCellQueryProp(term, TPRestricted) ||
 		!SubstIsRenaming(subst)))
@@ -551,7 +552,7 @@ static ClausePos_p indexed_find_demodulator(OCB_p ocb, Term_p term,
 		  printf("\n");
 	       );
 	    assert(!EqnIsOriented(eqn));
-	    if(instance_is_rule(ocb, eqn->rterm, eqn->lterm, subst)
+	    if(instance_is_rule(ocb, eqn, eqn->rterm, eqn->lterm, subst)
 	       &&
 	       !TermCellQueryProp(term, TPRestricted)) 
 	       /* Case SubstIsRenaming(subst) already eleminated in
