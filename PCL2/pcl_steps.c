@@ -101,7 +101,6 @@ PCLStep_p PCLStepParse(Scanner_p in, TB_p bank)
    {
       NextToken(in);
       CheckInpTok(in, Name|PosInt);
-      handle->extra_string=TestInpTok(in,String)?true:false;
       handle->extra = DStrCopy(AktToken(in)->literal);
       NextToken(in);
    }    
@@ -142,18 +141,11 @@ void PCLStepPrintExtra(FILE* out, PCLStep_p step, bool data)
    if(step->extra)
    {
       fputs(" : ", out);
-      if(step->extra_string)
-      {
-	 fprintf(out, "\"%s\"", step->extra);
-      }
-      else
-      {
-	 fprintf(out, "%s", step->extra);
-      }	 
+      fprintf(out, "%s", step->extra);
    }
    else if(PCLStepQueryProp(step, PCLIsLemma))
    {
-      fputs(" : \"lemma\"", out);
+      fputs(" : 'lemma'", out);
    }
    if(data)
    {
@@ -197,18 +189,11 @@ void PCLStepPrintTSTP(FILE* out, PCLStep_p step)
    PCLExprPrintTSTP(out, step->just, false);
    if(step->extra)
    {
-      if(step->extra_string)
-      {
-	 fprintf(out, ",[\'%s\']", step->extra);
-      }
-      else
-      {
-	 fprintf(out, ",[%s]", step->extra);
-      }	 
+      fprintf(out, ",[%s]", step->extra);
    }
    else if(PCLStepQueryProp(step, PCLIsLemma))
    {
-      fputs(",[lemma]", out);
+      fputs(",['lemma']", out);
    }
    fputs(").", out);
 }

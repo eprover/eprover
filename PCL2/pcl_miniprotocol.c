@@ -367,11 +367,7 @@ bool PCLMiniProtMarkProofClauses(PCLMiniProt_p prot, bool fast)
    {
       i = prot->max_ident;
       step = PCLMiniProtFindStep(prot, i);
-      while(step&&(i>=0)&&step->extra&&
-	    ((strcmp(step->extra,"proof")==0)||
-	     (strncmp(step->extra,"final",5)==0)||
-	     (strncmp(step->extra,"extract",7)==0)))
-
+      while(step&&(i>=0)&&PCLStepExtract(step->extra))
       {
 	 PStackPushP(to_proc, step);
 	 i--;
@@ -386,12 +382,12 @@ bool PCLMiniProtMarkProofClauses(PCLMiniProt_p prot, bool fast)
       for(i=0; i<=prot->max_ident;i++)
       {
 	 step = PCLMiniProtFindStep(prot, i);
-	 if(step && step->extra &&
-	    ((strcmp(step->extra,"proof")==0)||
-	     (strncmp(step->extra,"final",5)==0)||
-	     (strncmp(step->extra,"extract",7)==0)))
+	 
+	 if(step && PCLStepExtract(step->extra))
 	 {
-	    PStackPushP(to_proc, step);
+	    {
+	       PStackPushP(to_proc, step);
+	    }
 	 }
       }
    }

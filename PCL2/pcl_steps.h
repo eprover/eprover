@@ -46,7 +46,6 @@ typedef struct pclstepcell
    PCLId_p           id;
    Clause_p          clause;
    PCLExpr_p         just;
-   bool              extra_string;   
    char*             extra;
    PCLStepProperties properties;
    long              proof_dag_size;

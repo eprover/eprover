@@ -527,6 +527,38 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
    fputs("])",out);	 
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: PCLStepExtract()
+//
+//   Given a PCL step "extra" string, return true if this should be
+//   the root of a proof tree for extraction. Here, because it's uses
+//   by both steps and ministeps.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool PCLStepExtract(char* extra)
+{
+   if(!extra)
+   {
+      return false;
+   }
+   /* printf("PCLStepExtract(%s)\n", extra); */
+   if((*extra == '"') || (*extra == '\''))
+   {
+      extra++;
+   }
+   return (strncmp(extra,"proof",5)==0)||
+      (strncmp(extra,"final",5)==0)||
+      (strncmp(extra,"extract",7)==0);
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

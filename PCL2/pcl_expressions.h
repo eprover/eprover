@@ -8,7 +8,7 @@ Contents
  
   PCL2 expressions and uexpressions.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998--2003 by the author.
   This code is released under the GNU General Public Licence.
   See the file COPYING in the main CLIB directory for details.
   Run "eprover -h" for contact information.
@@ -110,6 +110,7 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini);
 #define   PCLFullExprPrintTSTP(out, expr) PCLExprPrintTSTP((out),(expr),false)
 #define   PCLMiniExprPrintTSTP(out, expr) PCLExprPrintTSTP((out),(expr),true)
 
+bool      PCLStepExtract(char* extra);
 
 #endif
 

@@ -142,7 +142,7 @@ void PCLMiniStepPrint(FILE* out, PCLMiniStep_p step, TB_p bank)
    PCLMiniExprPrint(out, step->just);
    if(step->extra)
    {
-      fprintf(out, " : \"%s\"", step->extra);
+      fprintf(out, " : %s", step->extra);
    }
 }
 
@@ -170,7 +170,7 @@ void PCLMiniStepPrintTSTP(FILE* out, PCLMiniStep_p step, TB_p bank)
    PCLExprPrintTSTP(out, step->just, true);
    if(step->extra)
    {
-      fprintf(out, ",['%s\']", step->extra);
+      fprintf(out, ",[%s]", step->extra);
    }
    fputs(").", out);
 }
