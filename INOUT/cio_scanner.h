@@ -82,7 +82,8 @@ typedef enum
 typedef enum 
 {
    LOPFormat,
-   TPTPFormat
+   TPTPFormat,
+   TSTPFormat,
 }InputFormat;
 
 
