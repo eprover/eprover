@@ -109,8 +109,9 @@ void OutClose(FILE* file)
    fflush(file);
    if(ferror(file))
    {
-      Error("Output stream to be closed reports error (probably file"
-	    " system full or quota exceeded)",FILE_ERROR);
+      Error("Output stream to be closed reports error (probably "
+            "broken pipe, file system full or quota exceeded)", 
+            FILE_ERROR);
    }
    
    VERBOUT("Closing output\n");
