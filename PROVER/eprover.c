@@ -612,7 +612,8 @@ OptCell opts[] =
     "(clauses of the form ?-l(X),...,m(Y)). Normaly, all negative "
     "clauses are used. Please note that " 
     "most E heuristics do not use this information at all, it is currently "
-    "only useful for certain parameter settings."},
+    "only useful for certain parameter settings (including the SimulateSOS"
+    "priority function)."},
 
    {OPT_ER_DESTRUCTIVE,
      '\0', "destructive-er",
