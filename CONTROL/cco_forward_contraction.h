@@ -31,8 +31,8 @@ Changes
 #include <cco_factoring.h>
 #include <cco_eqnresolving.h>
 #include <cco_paramodulation.h>
-#include <ccl_subsumption.h>
 #include <ccl_tautologies.h>
+#include <ccl_context_sr.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -47,13 +47,14 @@ Changes
 
 #define DEFAULT_FILTER_DESCRIPTOR "Fc"
 
-void ForwardModifyClause(ProofState_p state, ProofControl_p control,
-			 Clause_p clause, RewriteLevel level);
+bool ForwardModifyClause(ProofState_p state, ProofControl_p control,
+			 Clause_p clause, bool context_sr, RewriteLevel level);
 
 FVPackedClause_p ForwardContractClause(ProofState_p state, 
 				       ProofControl_p control,
 				       Clause_p clause,
 				       bool non_unit_subsumption,
+				       bool context_sr,
 				       RewriteLevel level);
 
 Clause_p ForwardContractSet(ProofState_p state, ProofControl_p

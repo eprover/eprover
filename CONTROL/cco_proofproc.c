@@ -74,42 +74,6 @@ static void check_ac_status(ProofState_p state, ProofControl_p
 
 /*-----------------------------------------------------------------------
 //
-// Function: remove_unit_subsumed()
-//
-//   Remove all clauses subsumed by subsumer from set, kill their
-//   children. Return number of removed clauses.
-//
-// Global Variables: -
-//
-// Side Effects    : Changes set, memory operations.
-//
-/----------------------------------------------------------------------*/
-
-static long remove_unit_subsumed(Clause_p subsumer, ClauseSet_p set)
-{
-   Clause_p handle, next;
-   long     res = 0;
-
-   assert(ClauseLiteralNumber(subsumer) == 1);
-
-   DEBUGMARK(PP_HIGHDETAILS , "remove_unit_subsumed()...\n");
-   next = set->anchor->succ;
-   while((handle = ClauseSetFindUnitSubsumedClause(set, next,
-						   subsumer)))
-   {
-      res++;
-      DEBUGMARK(PP_HIGHDETAILS, "*\n");
-      next = handle->succ;      
-      ClauseKillChildren(handle);
-      ClauseSetDeleteEntry(handle);  
-   }
-   DEBUGMARK(PP_HIGHDETAILS, "...remove_unit_subsumed()\n");
-
-   return res;
-}
-
-/*-----------------------------------------------------------------------
-//
 // Function: remove_subsumed()
 //
 //   Remove all clauses subsumed by subsumer from set, kill their
@@ -127,12 +91,14 @@ static long remove_subsumed(FVPackedClause_p subsumer, ClauseSet_p set)
    long     res;
    PStack_p stack = PStackAlloc();
             
-   res = ClauseSetFindSubsumedClauses(set, subsumer, stack);
+   res = ClauseSetFindFVSubsumedClauses(set, subsumer, stack);
    
    while(!PStackEmpty(stack))	    
    {
       DEBUGMARK(PP_HIGHDETAILS, "*\n");
       handle = PStackPopP(stack);
+      DocClauseQuote(GlobalOut, OutputLevel, 6, handle,
+		     "subsumed", subsumer->clause);
       ClauseKillChildren(handle);
       ClauseSetDeleteEntry(handle);  
    }
@@ -275,6 +241,33 @@ static void eleminate_unit_simplified_clauses(ProofState_p state,
    }
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: eleminate_context_sr_clauses()
+//
+//   If required by control, remove all
+//   backward-contextual-simplify-reflectable clauses.
+//
+// Global Variables: -
+//
+// Side Effects    : Moves clauses from state->processed_non_units 
+//                   to state->tmp_store
+//
+/----------------------------------------------------------------------*/
+
+static long eleminate_context_sr_clauses(ProofState_p state, 
+					 ProofControl_p control, 
+					 Clause_p clause)
+{
+   if(!control->backward_context_sr)
+   {
+      return 0;
+   }
+   return RemoveContextualSRClauses(state->processed_non_units,
+				    state->tmp_store, clause);
+}
+
+
 
 /*-----------------------------------------------------------------------
 //
@@ -346,7 +339,11 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
    state->generated_lit_count+=state->tmp_store->literals;
    while((handle = ClauseSetExtractFirst(state->tmp_store)))
    {
-      ForwardModifyClause(state, control, handle, control->forward_demod);
+      ForwardModifyClause(state, control, handle, 
+			  control->forward_context_sr_aggressive||
+			  (control->backward_context_sr&&
+			   ClauseQueryProp(handle,CPIsProcessed)),
+			  control->forward_demod);
       DEBUGMARK(PP_INSERTING_NEW, "insert_new_clauses() Literals removed\n");
       if(ClauseIsTrivial(handle)||
 	 (control->unproc_simplify&&
@@ -554,6 +551,10 @@ void ProofControlInit(ProofState_p state,ProofControl_p control,
    control->delete_bad_limit    = params->delete_bad_limit;
    control->ac_handling         = params->ac_handling;
    control->ac_res_aggressive   = params->ac_res_aggressive;
+   control->forward_context_sr            = params->forward_context_sr;
+   control->forward_context_sr_aggressive = params->forward_context_sr_aggressive;
+   control->backward_context_sr           = params->backward_context_sr;
+
    control->er_varlit_destructive = params->er_varlit_destructive;
    control->er_strong_destructive = params->er_strong_destructive;
    control->er_aggressive         = params->er_aggressive;
@@ -659,7 +660,10 @@ void ProofStateInit(ProofState_p state, ProofControl_p control,
 	 FreqVector_p fsum, fmax, fmin;
 	 long clause_no, pos_lit_clauses, neg_lit_clauses;
 	 PermVector_p perm;
-	 long symbol_size = state->original_symbols;
+	 long symbol_size = control->split_clauses? /* Leave some slack for
+						       split symbols */
+	    state->original_symbols+30:
+	    state->original_symbols;
 	 
 	 state->processed_non_units->fvindex =
 	    FVIAnchorAlloc(symbol_size);
@@ -697,8 +701,14 @@ void ProofStateInit(ProofState_p state, ProofControl_p control,
       }
       else
       {
-	 long symbol_size = MIN((fvi_parms->max_features-NON_SIG_FEATURES)/2,
-				state->original_symbols);
+	 long symbol_size, tmpsize;
+
+	 tmpsize = control->split_clauses? /* Leave some slack for
+					      split symbols */
+	    state->original_symbols+30:
+	    state->original_symbols;
+	 symbol_size = MIN((fvi_parms->max_features-NON_SIG_FEATURES)/2,
+			   tmpsize);
 	 symbol_size = MAX(1,symbol_size);
 
 	 state->processed_non_units->fvindex =
@@ -751,8 +761,9 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
    ClauseDetachParents(clause);
    ClauseRemoveEvaluations(clause);
    
-
-   pclause = ForwardContractClause(state, control, clause, true, FullRewrite);
+   pclause = ForwardContractClause(state, control, clause, true, 
+				   control->forward_context_sr,
+				   FullRewrite);
    if(!pclause)
    {
       return NULL;
@@ -813,7 +824,8 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
    eleminate_backward_rewritten_clauses(state, control, pclause->clause, &clausedate);   
    eleminate_backward_subsumed_clauses(state, pclause);
    eleminate_unit_simplified_clauses(state, pclause->clause);
-   
+   eleminate_context_sr_clauses(state, control, pclause->clause);
+
    clause = pclause->clause;
    tmp_copy = ClauseCopy(clause, state->tmp_terms);      
    tmp_copy->ident = clause->ident;
@@ -845,6 +857,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
       DemodInsert(state->processed_non_units, pclause);
    }
    FVUnpackClause(pclause);
+   ENSURE_NULL(pclause);
 
    if(control->selection_strategy != SelectNoGeneration)
    {

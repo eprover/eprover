@@ -27,6 +27,7 @@ Changes
 
 #include <che_proofcontrol.h>
 #include <ccl_rewrite.h>
+#include <ccl_context_sr.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -40,14 +41,16 @@ Changes
 
 void     DemodInsert(ClauseSet_p set, FVPackedClause_p new);
 void     ClauseMoveSimplified(Clause_p clause, ClauseSet_p tmp_set);
-bool     RemoveClausesWithRewritableMaxSides(OCB_p ocb, ClauseSet_p from,
-					     ClauseSet_p into, Clause_p
-					     new_demod, SysDate nf_date);
+
 bool     RemoveRewritableClauses(OCB_p ocb, ClauseSet_p from,
 				 ClauseSet_p into, Clause_p
 				 new_demod, SysDate nf_date);
 long     ClauseSetUnitSimplify(ClauseSet_p set, Clause_p simplifier,
 			       ClauseSet_p tmp_set);
+
+long     RemoveContextualSRClauses(ClauseSet_p from,
+				   ClauseSet_p into, Clause_p simplifier);
+
 
 
 #endif

@@ -170,45 +170,6 @@ bool RemoveRewritableClauses(OCB_p ocb, ClauseSet_p from, ClauseSet_p into,
 
 /*-----------------------------------------------------------------------
 //
-// Function: RemoveClausesWithRewritableMaxSides()
-//
-//   Remove all clauses for which potentially maximal terms can be
-//   rewritten with new_demod and store them into into. Add number
-//   of clauses deleted to *count. Return true if a rewritable
-//   non-maximal term was encountered.
-//
-// Global Variables: -
-//
-// Side Effects    : As specified...
-//
-/----------------------------------------------------------------------*/
-
-bool RemoveClausesWithRewritableMaxSides(OCB_p ocb, ClauseSet_p from,
-					 ClauseSet_p into, Clause_p
-					 new_demod, SysDate nf_date)
-{
-   PStack_p stack = PStackAlloc();
-   Clause_p handle;
-   bool     res;
-
-   res = FindClausesWithRewritableMaxSides(ocb, from,
-					   stack,
-					   new_demod,
-					   nf_date);
-   while(!PStackEmpty(stack))
-   {
-      handle = PStackPopP(stack);
-
-      ClauseMoveSimplified(handle, into);
-   }
-   PStackFree(stack);
-
-   return res;
-}
-
-
-/*-----------------------------------------------------------------------
-//
 // Function: ClauseSetUnitSimplify()
 //
 //   Try to simplify all clauses in set by performing matching unit
@@ -241,6 +202,42 @@ long ClauseSetUnitSimplify(ClauseSet_p set, Clause_p simplifier,
       else
       {
 	 handle = handle->succ;
+      }
+   }
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: RemoveContextualSRClauses()
+//
+//   Move clauses that simplifier can contextually simplify-reflect
+//   from from into into. Return number of clauses moved.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+long RemoveContextualSRClauses(ClauseSet_p from,
+			       ClauseSet_p into,
+			       Clause_p simplifier)
+{
+   PStack_p stack = PStackAlloc();
+   long res = 0;
+   Clause_p handle;
+   
+   ClauseSetFindContextSRClauses(from, simplifier, stack);
+   
+   while(!PStackEmpty(stack))
+   {
+      handle = PStackPopP(stack);
+      if(handle->set == from) /* Clauses may be found more than once
+				 by ClauseSetFindContextSRClauses() */
+      {
+	 ClauseMoveSimplified(handle, into);
+	 res++;
       }
    }
    return res;

@@ -61,16 +61,24 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
 					      control, Clause_p clause, ulong_c*
 					      subsumed_count, ulong_c* trivial_count,
 					      bool non_unit_subsumption,
+					      bool context_sr,
 					      RewriteLevel level)
 {
    FVPackedClause_p pclause;
-   
+   Clause_p subsumer = 0;
+   bool trivial;
+
    assert(clause);
    assert(state);
    
 
-   ForwardModifyClause(state, control, clause, level);
-
+   trivial = ForwardModifyClause(state, control, clause, context_sr, level);
+   if(trivial)
+   {
+      (*trivial_count)++;
+      return NULL;
+   }
+   
    if(ClauseIsEmpty(clause))
    {
       return FVIndexPackClause(clause, NULL);
@@ -99,20 +107,28 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
    
    clause->weight = ClauseStandardWeight(clause);
    pclause = FVIndexPackClause(clause, state->processed_non_units->fvindex);
-   
-   if((clause->pos_lit_no &&        
-       UnitClauseSetSubsumesClause(state->processed_pos_eqns,
-				   clause)) ||
-      (clause->neg_lit_no &&
-       UnitClauseSetSubsumesClause(state->processed_neg_units,
-				   clause)) ||
-      (ClauseLiteralNumber(clause)>1 &&
-       non_unit_subsumption &&
-       ClauseSetSubsumesFVPackedClause(state->processed_non_units, pclause)))      
+
+   if(clause->pos_lit_no)
+   {
+      subsumer = UnitClauseSetSubsumesClause(state->processed_pos_eqns, clause);
+   }
+   if(!subsumer && clause->neg_lit_no)
+   {
+      subsumer = UnitClauseSetSubsumesClause(state->processed_neg_units,
+					     clause);
+   }
+   if(!subsumer && (ClauseLiteralNumber(clause)>1) && non_unit_subsumption)
+   {
+      subsumer = ClauseSetSubsumesFVPackedClause(state->processed_non_units, pclause);
+   }
+   if(subsumer)
    {
       DEBUGMARK(PP_LOWDETAILS, "Clause subsumed!\n");
+      DocClauseQuote(GlobalOut, OutputLevel, 6, pclause->clause, 
+		     "subsumed", subsumer);
       (*subsumed_count)++;
       FVUnpackClause(pclause);
+      ENSURE_NULL(pclause);
       return NULL;
    }
    ClauseDelProp(clause, CPIsOriented);
@@ -142,6 +158,7 @@ static bool forward_contract_keep_wrap(ProofState_p state, ProofControl_p
 				       control, Clause_p clause, ulong_c*
 				       subsumed_count, ulong_c* trivial_count,
 				       bool non_unit_subsumption,
+				       bool context_sr,
 				       RewriteLevel level)
 {
    FVPackedClause_p pclause = forward_contract_keep(state, 
@@ -150,10 +167,12 @@ static bool forward_contract_keep_wrap(ProofState_p state, ProofControl_p
 						    subsumed_count, 
 						    trivial_count, 
 						    non_unit_subsumption, 
+						    context_sr,
 						    level);
    if(pclause)
    {
       FVUnpackClause(pclause);
+      ENSURE_NULL(pclause);
       return true;
    }
    return false;
@@ -168,16 +187,17 @@ static bool forward_contract_keep_wrap(ProofState_p state, ProofControl_p
 //
 // Function: ForwardModifyClause()
 //
-//   Apply all modifying forward-inferences to clause.
+//   Apply all modifying forward-inferences to clause (unless it
+//   becomes trivial). Return true if it does become trivial.
 //
-// Global Variables: 
+// Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    : Changes clause
 //
 /----------------------------------------------------------------------*/
 
-void ForwardModifyClause(ProofState_p state, ProofControl_p control,
-			 Clause_p clause, RewriteLevel level)
+bool ForwardModifyClause(ProofState_p state, ProofControl_p control,
+			 Clause_p clause, bool context_sr, RewriteLevel level)
 {
    int removed_lits;
 
@@ -198,7 +218,12 @@ void ForwardModifyClause(ProofState_p state, ProofControl_p control,
    
    /* Now we mark maximal terms... */
    ClauseOrientLiterals(control->ocb, clause);
-      
+    
+   if(ClauseIsTrivial(clause))
+   {
+      return true;
+   }
+  
    /* Still forward simplification... */   
    if(clause->neg_lit_no)
    {
@@ -207,7 +232,14 @@ void ForwardModifyClause(ProofState_p state, ProofControl_p control,
    if(clause->pos_lit_no)
    {
       ClauseNegativeSimplifyReflect(state->processed_neg_units, clause);
-   }  
+   }
+   if(context_sr && ClauseLiteralNumber(clause) > 1)
+   {
+      state->context_sr_count += 
+	 ClauseContextualSimplifyReflect(state->processed_non_units, 
+					 clause);
+   }
+   return false;
 }
 
 
@@ -229,6 +261,7 @@ FVPackedClause_p ForwardContractClause(ProofState_p state,
 				       ProofControl_p control,
 				       Clause_p clause, 
 				       bool non_unit_subsumption,
+				       bool context_sr,
 				       RewriteLevel level)
 {
    FVPackedClause_p res;
@@ -240,7 +273,8 @@ FVPackedClause_p ForwardContractClause(ProofState_p state,
    res = forward_contract_keep(state, control, clause,
 			       &(state->proc_forward_subsumed_count),
 			       &(state->proc_trivial_count),
-			       non_unit_subsumption, level);
+			       non_unit_subsumption, context_sr, 
+			       level);
    
    if(!res)
    {
@@ -285,7 +319,7 @@ Clause_p ForwardContractSet(ProofState_p state, ProofControl_p
 
       if(forward_contract_keep(state, control, handle,
 			       count_eleminated, count_eleminated,
-			       non_unit_subsumption, level))
+			       non_unit_subsumption, false,level))
       {
 	 if(ClauseIsEmpty(handle))
 	 {
