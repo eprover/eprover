@@ -27,6 +27,7 @@ Changes
 #define CCL_FORMULA_WRAPPER
 
 #include <ccl_formulae.h>
+#include <ccl_clausesets.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -101,8 +102,9 @@ void       WFormulaTPTPPrint(FILE* out, WFormula_p form, bool fullterms);
 WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms);
 void       WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
 			     bool complete);
-bool       WFormulaConjectureNegate(WFormula_p form);
+WFormula_p WFormulaParse(Scanner_p in, TB_p terms);
 
+bool       WFormulaConjectureNegate(WFormula_p form);
 
 #define FormulaSetCellAlloc()    (FormulaSetCell*)SizeMalloc(sizeof(FormulaSetCell))
 #define FormulaSetCellFree(junk) SizeFree(junk, sizeof(FormulaSetCell))
@@ -115,6 +117,10 @@ WFormula_p   FormulaSetExtractEntry(WFormula_p form);
              ((set)->anchor->succ == (set)->anchor)
 WFormula_p   FormulaSetExtractFirst(FormulaSet_p set);
 void         FormulaSetDeleteEntry(WFormula_p form);
+
+long         FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset,
+                                      FormulaSet_p fset, TB_p terms);
+
 
 #endif
 

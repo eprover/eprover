@@ -302,47 +302,17 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
 
 
 
-/*-----------------------------------------------------------------------
-//
-// Function: WFormulaConjectureNegate()
-//
-//   If formula is a conjecture, negate it and delete that property
-//   (but set WPInitialConjecture). Returns true if formula was a
-//   conjecture. 
-//
-// Global Variables: -
-//
-// Side Effects    : Changes formula
-//
-/----------------------------------------------------------------------*/
-
-bool WFormulaConjectureNegate(WFormula_p wform)
-{
-   Formula_p form, newform;
-
-   if(FormulaQueryProp(wform, WPTypeConjecture))
-   {
-      form = FormulaRelRef(wform->formula);
-      newform = FormulaOpAlloc(OpUNot, form, NULL);
-      wform->formula = FormulaGetRef(newform);
-      FormulaDelProp(wform, WPTypeConjecture);
-      FormulaSetProp(wform, WPInitialConjecture);
-      return true;
-   }
-   return false;
-}
-
 
 /*-----------------------------------------------------------------------
 //
-// Function: FormulaTSTPPrint()
+// Function: WFormulaTSTPPrint()
 //
 //   Print a formula in TSTP format. If !complete, leave of the
 //   trailing ")." for adding optional stuff.
 //
 // Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    : Output
 //
 /----------------------------------------------------------------------*/
 
@@ -388,6 +358,73 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
    {
       fprintf(out, ").");
    }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: WFormulaParse()
+//
+//   Parse a formula in any supported input format.
+//
+// Global Variables: -
+//
+// Side Effects    : Input
+//
+/----------------------------------------------------------------------*/
+
+WFormula_p WFormulaParse(Scanner_p in, TB_p terms)
+{
+   WFormula_p wform = NULL;
+
+   switch(ScannerGetFormat(in))
+   {
+   case LOPFormat:
+         Error("LOP currently does not support full FOF!", OTHER_ERROR);
+         break;
+   case TPTPFormat:
+         wform = WFormulaTPTPParse(in, terms);
+         break;
+   case TSTPFormat:
+         wform = WFormulaTSTPParse(in, terms);
+         break;
+   default:
+         assert(false);
+         break;
+   }
+   return wform;
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: WFormulaConjectureNegate()
+//
+//   If formula is a conjecture, negate it and delete that property
+//   (but set WPInitialConjecture). Returns true if formula was a
+//   conjecture. 
+//
+// Global Variables: -
+//
+// Side Effects    : Changes formula
+//
+/----------------------------------------------------------------------*/
+
+bool WFormulaConjectureNegate(WFormula_p wform)
+{
+   Formula_p form, newform;
+
+   if(FormulaQueryProp(wform, WPTypeConjecture))
+   {
+      form = FormulaRelRef(wform->formula);
+      newform = FormulaOpAlloc(OpUNot, form, NULL);
+      wform->formula = FormulaGetRef(newform);
+      FormulaDelProp(wform, WPTypeConjecture);
+      FormulaSetProp(wform, WPInitialConjecture);
+      return true;
+   }
+   return false;
 }
 
 
@@ -574,7 +611,52 @@ long FormulaSetPreprocConjectures(FormulaSet_p set)
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaAndClauseSetParse()
+//
+//   Parse a mixture of clauses and formulas (if the syntax supports
+//   it). Return number of elements parsed.
+//
+// Global Variables: -
+//
+// Side Effects    : Input, changes termbank and sets.
+//
+/----------------------------------------------------------------------*/
 
+long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset, 
+                              FormulaSet_p fset, TB_p terms)  
+{
+   long res = 0;
+   WFormula_p form;
+   Clause_p   clause;
+   
+   switch(ScannerGetFormat(in))
+   {
+   case LOPFormat:
+         /* LOP does not at the moment support full FOF */
+         res = ClauseSetParseList(in, cset, terms);
+         break;
+   default:
+         while(TestInpId(in, "input_formula|input_clause|fof|cnf"))
+         {
+            if(TestInpId(in, "input_formula|fof"))
+            {
+               form = WFormulaParse(in, terms);
+               FormulaSetInsert(fset, form);
+            }
+            else
+            {
+               assert(TestInpId(in, "input_clause|cnf"));
+               clause = ClauseParse(in, terms);
+               ClauseSetInsert(cset, clause);
+            }
+            res++;
+         }
+         break;
+   }
+   return res;
+}
 
 
 /*---------------------------------------------------------------------*/
