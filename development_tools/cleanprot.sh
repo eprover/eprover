@@ -7,7 +7,7 @@
 # environment on our sunhalle hosts. 
 
 for file in $* ; do
+    echo Cleaning $file
    grep -v maxmem $file | grep -v unknown > tmpXXXfile; mv tmpXXXfile $file
 done
- fi
 
