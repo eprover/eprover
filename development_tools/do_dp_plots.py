@@ -4,7 +4,7 @@
 Usage: do_dp_plots.py [Options]
 
 Create a number of plots from test data on the theory of arrays. This
-is rather specialized code. To change the number of contents of the
+is rather specialized code. To change the number or contents of the
 plots, edit the code below.
 
 Plots can be displayed on the screen or written as eps files.
