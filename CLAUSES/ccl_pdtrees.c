@@ -154,8 +154,6 @@ static bool recompute_node_constraints(PDTNode_p node)
 	 }
       }
       IntMapIterFree(iter);
-      node->max_fun = tmpmax;
-      tmpmax = 0;
       for(i=1; i<=node->max_var; i++)
       {
 	 next = PDArrayElementP(node->v_alternatives, i);
@@ -476,7 +474,6 @@ PDTNode_p PDTNodeAlloc(void)
    handle->v_alternatives = PDArrayAlloc(PDNODE_VAR_INIT_ALT,
 					 PDNODE_VAR_GROW_ALT);
    handle->max_var        = 0;
-   handle->max_fun        = 0;
    handle->size_constr    = LONG_MAX;
    handle->age_constr     = SysDateCreationTime();
    handle->parent         = NULL;
@@ -670,10 +667,6 @@ void PDTreeInsert(PDTree_p tree, ClausePos_p demod_side)
 	 {
 	    (*next)->variable = curr;
 	    node->max_var = MAX(node->max_var, -curr->f_code);
-	 }
-	 else
-	 {
-	    node->max_fun = MAX(node->max_fun, curr->f_code);	    
 	 }
       }
       node = *next;

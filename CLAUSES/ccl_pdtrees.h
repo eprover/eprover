@@ -44,8 +44,6 @@ typedef struct pdt_node_cell
    IntMap_p           f_alternatives;   /* Function symbols */
    PDArray_p          v_alternatives;   /* Variables */
    FunCode            max_var;          /* Largest variable... */
-   FunCode            max_fun;          /* ...or function symbol
-					   respectively */ 
    long               size_constr;      /* Only terms that have at
 					   least this weight are
 					   indexed at or beyond this
