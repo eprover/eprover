@@ -96,6 +96,11 @@ void PCLExprFree(PCLExpr_p junk)
 	 ident = PCLExprArg(junk,i);
 	 PCLIdFree(ident);
       }
+      else if(junk->op==PCLOpInitial)
+      {
+         assert(PCLExprArg(junk,i));
+	 FREE(PCLExprArg(junk,i)); /* It's just a string */
+      }
       else
       {
 	 expr = PCLExprArg(junk,i);
@@ -153,8 +158,20 @@ PCLExpr_p PCLExprParse(Scanner_p in, bool mini)
    else if(TestInpId(in, "initial"))
    {
       handle->op = PCLOpInitial;
-      handle->arg_no = 0;
       NextToken(in);
+      if(TestInpTok(in, OpenBracket))
+      {
+         NextToken(in);
+         CheckInpTok(in, Name|PosInt);
+         handle->arg_no = 1;
+         PCLExprArg(handle,0) = DStrCopy(AktToken(in)->literal);
+         NextToken(in);
+         AcceptInpTok(in, CloseBracket);
+      }
+      else
+      {
+         handle->arg_no = 0;
+      }
    }
    else
    {
@@ -263,6 +280,11 @@ void PCLExprPrint(FILE* out, PCLExpr_p expr, bool mini)
    if(expr->op== PCLOpInitial)
    {
       fprintf(out, "initial");
+      if(expr->arg_no)
+      {
+         assert(expr->arg_no == 1);
+         fprintf(out,"(\"%s\")", (char*)PCLExprArg(expr,0));
+      }
       return;
    }
    if(expr->op==PCLOpQuote)
@@ -368,6 +390,11 @@ void PCLMiniExprFree(PCLExpr_p junk)
       if(junk->op==PCLOpQuote)
       {
 	 /* Do nothing - its' just a a long stored in the array */
+      }
+      else if(junk->op==PCLOpInitial)
+      {
+         assert(PCLExprArg(junk,i));
+	 FREE(PCLExprArg(junk,i)); /* It's just a string */
       }
       else
       {
