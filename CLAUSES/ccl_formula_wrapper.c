@@ -486,6 +486,28 @@ FormulaSet_p FormulaSetAlloc()
 
 /*-----------------------------------------------------------------------
 //
+// Function: FormulaSetFreeFormulas(set)
+//
+//   Free all formulas in set.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+void FormulaSetFreeFormulas(FormulaSet_p set)
+{
+   assert(set);
+
+   while(!FormulaSetEmpty(set))
+   {
+      FormulaSetDeleteEntry(set->anchor->succ);
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: FormulaSetFree(set)
 //
 //   Free a formula set (and all its formulas).
@@ -500,10 +522,7 @@ void FormulaSetFree(FormulaSet_p set)
 {
    assert(set);
 
-   while(!FormulaSetEmpty(set))
-   {
-      FormulaSetDeleteEntry(set->anchor->succ);
-   }
+   FormulaSetFreeFormulas(set);   
    WFormulaCellFree(set->anchor);
    FormulaSetCellFree(set);
 }

@@ -89,6 +89,7 @@ typedef struct proofstatecell
    SizeFree(junk, sizeof(ProofStateCell))
 
 ProofState_p ProofStateAlloc(void);
+void         ProofStateResetClauseSets(ProofState_p state, bool term_gc);
 void         ProofStateFree(ProofState_p junk);
 void         ProofStateGCMarkTerms(ProofState_p state);
 long         ProofStateGCSweepTerms(ProofState_p state);

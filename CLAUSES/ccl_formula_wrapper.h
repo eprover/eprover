@@ -108,6 +108,7 @@ void       WFormulaPrint(FILE* out, WFormula_p form, bool fullterms);
 #define FormulaSetCellFree(junk) SizeFree(junk, sizeof(FormulaSetCell))
 
 FormulaSet_p FormulaSetAlloc();
+void         FormulaSetFreeFormulas(FormulaSet_p set);
 void         FormulaSetFree(FormulaSet_p set);
 void         FormulaSetInsert(FormulaSet_p set, WFormula_p newform);
 WFormula_p   FormulaSetExtractEntry(WFormula_p form);

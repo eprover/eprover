@@ -72,6 +72,7 @@ typedef int (*ClauseCmpFunType)(const Clause_p*, const Clause_p*);
 	    FVIndexStorage(set->fvindex))
 
 ClauseSet_p ClauseSetAlloc(void);
+void ClauseSetFreeClauses(ClauseSet_p set);
 void        ClauseSetFree(ClauseSet_p junk);
 void        ClauseSetGCMarkTerms(ClauseSet_p set);
 void        ClauseSetInsert(ClauseSet_p set, Clause_p newclause);

@@ -109,6 +109,42 @@ ProofState_p ProofStateAlloc(void)
 
 /*-----------------------------------------------------------------------
 //
+// Function: ProofStateResetClauseSets()
+//
+//   Empty _all_ clause and formula sets in proof state. Keep the
+//   signature and term bank. If term_gc is true, performa a garbage
+//   collection of term cells. 
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations.
+//
+/----------------------------------------------------------------------*/
+
+void ProofStateReset(ProofState_p state, bool term_gc)
+{
+   ClauseSetFreeClauses(state->axioms);
+   FormulaSetFreeFormulas(state->f_axioms);
+   ClauseSetFreeClauses(state->processed_pos_rules);
+   ClauseSetFreeClauses(state->processed_pos_eqns);
+   ClauseSetFreeClauses(state->processed_neg_units);
+   ClauseSetFreeClauses(state->processed_non_units);
+   ClauseSetFreeClauses(state->unprocessed);
+   ClauseSetFreeClauses(state->tmp_store);
+   if(state->watchlist)
+   {
+      ClauseSetFreeClauses(state->watchlist);
+   }
+   if(term_gc)
+   {
+      ProofStateGCMarkTerms(state);
+      ProofStateGCSweepTerms(state);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: ProofStateFree()
 //
 //   Free a ProofStateCell.

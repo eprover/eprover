@@ -336,6 +336,35 @@ ClauseSet_p ClauseSetAlloc(void)
    return handle;
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetFreeClauses()
+//
+//   Delete all clauses in set.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations.
+//
+/----------------------------------------------------------------------*/
+
+void ClauseSetFreeClauses(ClauseSet_p set)
+{
+   Clause_p handle;
+   
+   assert(set);
+
+   handle = set->anchor->succ;
+   while(handle!=set->anchor)
+   {
+      handle = handle->succ;
+      handle->pred->set = NULL;
+      ClauseFree(handle->pred);
+   }
+}
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: ClauseSetFree()
@@ -350,17 +379,10 @@ ClauseSet_p ClauseSetAlloc(void)
 
 void ClauseSetFree(ClauseSet_p junk)
 {
-   Clause_p handle;
-   
    assert(junk);
+   
+   ClauseSetFreeClauses(junk);
 
-   handle = junk->anchor->succ;
-   while(handle!=junk->anchor)
-   {
-      handle = handle->succ;
-      handle->pred->set = NULL;
-      ClauseFree(handle->pred);
-   }
    if(junk->demod_index)
    {
       PDTreeFree(junk->demod_index);
