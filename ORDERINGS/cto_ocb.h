@@ -177,8 +177,8 @@ static __inline__ CompareResult OCBFunCompare(OCB_p ocb, FunCode f1,
    {
       return to_greater;
    }
-   tmp = SigIsAnyFuncPropSet(ocb->sig, f2, ocb->sig->distinct_props)-
-      SigIsAnyFuncPropSet(ocb->sig, f1, ocb->sig->distinct_props);   
+   tmp = (long)SigIsAnyFuncPropSet(ocb->sig, f2, ocb->sig->distinct_props)-
+      (long)SigIsAnyFuncPropSet(ocb->sig, f1, ocb->sig->distinct_props);   
    if(tmp)
    {
       /* printf("f1 = %ld, f2 = %ld, res = %ld\n", f1, f2, tmp); */
