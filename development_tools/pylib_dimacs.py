@@ -177,7 +177,8 @@ class prop_formula(object):
         l = fp.readlines()
         pylib_io.flexclose(fp)
         l = [i for i in l if not (i.startswith("%") or
-                        i.startswith("#") or i == "\n")]
+                        i.startswith("#") or i.startswith("c") or
+                        i == "\n" or i.startswith("0"))]
         for i in l[1:]:
             self.add_clause(prop_clause(i))
 
@@ -186,6 +187,7 @@ class prop_formula(object):
         res.append("p cnf %d %d\n" % (self.get_max_atom(),
                                     self.clause_count()))
         res.extend(map(str, self.clauses))
+        res.append("0\n")
         return "".join(res);
 
     def mathsat_str(self):
