@@ -279,7 +279,7 @@ void* SecureRealloc(void *ptr, int size)
 //
 /----------------------------------------------------------------------*/
 
-char* SecureStrdup(char* source)
+char* SecureStrdup(const char* source)
 {
    char* handle;
 

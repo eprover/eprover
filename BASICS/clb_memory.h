@@ -86,7 +86,7 @@ void  MemFlushFreeList(void);
 void  AllocReserveMemory(int size);
 void* SecureMalloc(int size);
 void* SecureRealloc(void *ptr, int size);
-char* SecureStrdup(char* source);
+char* SecureStrdup(const char* source);
 #define FREE(junk) assert(junk);free(junk)
 
 long* IntArrayAlloc(int size);

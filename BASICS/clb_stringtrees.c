@@ -54,7 +54,7 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-static StrTree_p splay_tree(StrTree_p tree, char* key) 
+static StrTree_p splay_tree(StrTree_p tree, const char* key) 
 {
    StrTree_p   left, right, tmp;
    StrTreeCell newnode;
@@ -281,7 +281,7 @@ StrTree_p StrTreeStore(StrTree_p *root, char* key, IntOrP val1, IntOrP val2)
 //
 /----------------------------------------------------------------------*/
 
-StrTree_p StrTreeFind(StrTree_p *root, char* key)
+StrTree_p StrTreeFind(StrTree_p *root, const char* key)
 {
    if(*root)
    {
@@ -310,7 +310,7 @@ StrTree_p StrTreeFind(StrTree_p *root, char* key)
 /----------------------------------------------------------------------*/
 
 
-StrTree_p StrTreeExtractEntry(StrTree_p *root, char* key)
+StrTree_p StrTreeExtractEntry(StrTree_p *root, const char* key)
 {
    StrTree_p x, cell;
 
@@ -351,7 +351,7 @@ StrTree_p StrTreeExtractEntry(StrTree_p *root, char* key)
 //
 /----------------------------------------------------------------------*/
 
-bool StrTreeDeleteEntry(StrTree_p *root, char* key)
+bool StrTreeDeleteEntry(StrTree_p *root, const char* key)
 {
    StrTree_p cell;
    

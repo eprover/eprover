@@ -151,7 +151,7 @@ void    SigFree(Sig_p junk);
 
 #define SigInterpreteNumbers(sig) ((sig)->null_code)
 
-FunCode SigFindFCode(Sig_p sig, char* name);
+FunCode SigFindFCode(Sig_p sig, const char* name);
 static __inline__ int     SigFindArity(Sig_p sig, FunCode f_code);
 static __inline__ char*   SigFindName(Sig_p sig, FunCode f_code);
 void    SigSetPredicate(Sig_p sig, FunCode f_code, bool value);
@@ -161,7 +161,7 @@ void    SigSetAllSpecial(Sig_p sig, bool value);
 bool    SigIsSpecial(Sig_p sig, FunCode f_code);
 static __inline__ int     SigGetAlphaRank(Sig_p sig, FunCode f_code);
 
-FunCode SigInsertId(Sig_p sig, char* name, int arity, bool
+FunCode SigInsertId(Sig_p sig, const char* name, int arity, bool
 		    special_id);
 void    SigPrint(FILE* out, Sig_p sig);
 void    SigPrintSpecial(FILE* out, Sig_p sig);

@@ -197,7 +197,7 @@ void SigFree(Sig_p junk)
 //
 /----------------------------------------------------------------------*/
 
-FunCode SigFindFCode(Sig_p sig, char* name)
+FunCode SigFindFCode(Sig_p sig, const char* name)
 {
    StrTree_p entry;
 
@@ -346,7 +346,7 @@ void SigSetAllSpecial(Sig_p sig, bool value)
 //
 /----------------------------------------------------------------------*/
 
-FunCode SigInsertId(Sig_p sig, char* name, int arity, bool special_id)
+FunCode SigInsertId(Sig_p sig, const char* name, int arity, bool special_id)
 {
    long      pos;
    StrTree_p new, test;

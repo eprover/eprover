@@ -214,8 +214,9 @@ void    TermVarDelProp(Term_p term, DerefType deref, TermProperties prop);
 static __inline__ Term_p  TermDeref(Term_p term, DerefType_p deref);
 
 static __inline__ Term_p* TermArgListCopy(Term_p source);
+#ifndef __cplusplus
 static __inline__ Term_p  TermTopCopy(Term_p source);
-
+#endif
 
 /*---------------------------------------------------------------------*/
 /*                  Inline functions                                   */
