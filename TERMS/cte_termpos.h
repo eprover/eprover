@@ -108,7 +108,7 @@ static __inline__ Term_p TermPosGetSubterm(Term_p term, TermPos_p pos)
    assert(PStackGetSP(pos)>=2);
    
    idx = PStackTopInt(pos);
-   super = PStackBelowTopP(pos);
+   super = CPPCAST(Term_p)PStackBelowTopP(pos);
    
    assert(super->arity>idx);
    

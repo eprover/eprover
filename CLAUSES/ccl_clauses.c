@@ -1123,7 +1123,7 @@ void ClausePrintTPTPFormat(FILE* out, Clause_p clause)
 
 void ClausePrint(FILE* out, Clause_p clause, bool fullterms)
 {
-   DEBUG(65535, fprintf(out, "/*(%3ld)*/ ", clause->ident););
+   DEBUGCMD(65535, fprintf(out, "/*(%3ld)*/ ", clause->ident););
    
    /* fprintf(out, "(%ld, %ld)", clause->proof_depth,
       clause->proof_size); */
@@ -1155,8 +1155,8 @@ void ClausePrint(FILE* out, Clause_p clause, bool fullterms)
 	 ClausePrintAxiom(out, clause, fullterms);
       }
    }
-   DEBUG(64, EvalListPrintComment(out, clause->evaluations););
-   DEBUG(64, printf("/* Address: %p */", clause););
+   DEBUGCMD(64, EvalListPrintComment(out, clause->evaluations););
+   DEBUGCMD(64, printf("/* Address: %p */", clause););
 }
 
 

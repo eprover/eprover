@@ -81,7 +81,7 @@ Clause_p ComputeEqRes(TB_p bank, ClausePos_p pos, VarBank_p freshvars)
       EqnListRemoveDuplicates(new_literals, TBTermEqual);
       new_clause = ClauseAlloc(new_literals);
       
-      DEBUG(128, ClausePrint(stdout, new_clause, true);
+      DEBUGCMD(128, ClausePrint(stdout, new_clause, true);
 	    printf("# Resolvent of %ld\n", pos->clause->ident););
    }
    SubstDelete(subst);

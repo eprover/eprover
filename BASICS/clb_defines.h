@@ -42,9 +42,10 @@ Changes
 /*---------------------------------------------------------------------*/
 
 
-/* Booleans (if we don't already have them */
 
 #ifndef  __cplusplus
+
+/* Booleans (if we don't already have them */
 
 typedef enum
 {
@@ -52,7 +53,15 @@ typedef enum
    true = 1
 }bool;
 
-#endif*/
+
+#define CPPCAST(type) /* Nothing */
+
+#else
+
+/* C++ casts */
+#define CPPCAST(type) (type)
+
+#endif
 
 
 /* Trick the stupid type concept for polymorphic indices (hashes,
@@ -179,13 +188,13 @@ typedef unsigned long ulong_c;
 
 
 #if defined(DEBUGLEVEL)
-#define DEBUG(level,op)       if((level)&DEBUGLEVEL){op}
+#define DEBUGCMD(level,op)       if((level)&DEBUGLEVEL){op}
 #define DEBUGMARK(level,text) if((level)&DEBUGLEVEL)\
                                  {printf("# [%3d]"text,(level));}
 #define DEBUGOUT(level,text)  if((level)&DEBUGLEVEL)\
                                  {printf(text);}
 #else
-#define DEBUG(op,level)
+#define DEBUGCMD(level,op)
 #define DEBUGMARK(level,text)
 #define DEBUGOUT(level,text)
 #endif

@@ -136,13 +136,13 @@ static bool term_is_top_rewritable(OCB_p ocb, Term_p term, Clause_p
    eqn = new_demod->literals;
 
    DEBUGMARK(RW_MATCH_WATCH, "Matching ");
-   DEBUG(RW_MATCH_WATCH, 
+   DEBUGCMD(RW_MATCH_WATCH, 
 	 ClausePrint(stdout, new_demod, true););
    DEBUGOUT(RW_MATCH_WATCH, " (l) onto ");
-   DEBUG(RW_MATCH_WATCH, 
+   DEBUGCMD(RW_MATCH_WATCH, 
 	 TermPrint(stdout, term, ocb->sig, DEREF_NEVER););
    DEBUGOUT(RW_MATCH_WATCH, "\nInstantiated lside: ");
-   DEBUG(RW_MATCH_WATCH,
+   DEBUGCMD(RW_MATCH_WATCH,
 	 TermPrint(stdout, eqn->lterm, ocb->sig, DEREF_ONCE););
    DEBUGOUT(RW_MATCH_WATCH, "\n");
    if(SubstComputeMatch(eqn->lterm, term, subst, TBTermEqual))
@@ -488,7 +488,7 @@ static ClausePos_p indexed_find_demodulator(OCB_p ocb, Term_p term,
    RewriteAttempts++;   
    
    DEBUGMARK(RW_MATCH_WATCH, "\nSearching match for: ");
-   DEBUG(RW_MATCH_WATCH, TermPrint(stdout, term, ocb->sig,
+   DEBUGCMD(RW_MATCH_WATCH, TermPrint(stdout, term, ocb->sig,
 				   DEREF_NEVER);
 	 printf("\n"););
    
@@ -513,7 +513,7 @@ static ClausePos_p indexed_find_demodulator(OCB_p ocb, Term_p term,
       {
       case LeftSide:
 	    DEBUGMARK(RW_MATCH_WATCH, "Found: ");
-	    DEBUG(RW_MATCH_WATCH, 
+	    DEBUGCMD(RW_MATCH_WATCH, 
 		  ClausePrint(stdout, pos->clause, true);
 		  printf(" (l), instantiated: ");
 		  TermPrint(stdout, pos->clause->literals->lterm,
@@ -534,7 +534,7 @@ static ClausePos_p indexed_find_demodulator(OCB_p ocb, Term_p term,
 	    break;
       case RightSide:
 	    DEBUGMARK(RW_MATCH_WATCH, "Found: ");
-	    DEBUG(RW_MATCH_WATCH, 
+	    DEBUGCMD(RW_MATCH_WATCH, 
 		  ClausePrint(stdout, pos->clause, true);
 		  printf(" (r), instantiated: ");
 		  TermPrint(stdout, pos->clause->literals->lterm,
@@ -948,7 +948,7 @@ bool ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
       ClauseDelProp(clause, CPInitial);
    }
    RWDescCellFree(desc);
-   DEBUG(RW_INTERFACE_WATCH1, printf("# Res :");
+   DEBUGCMD(RW_INTERFACE_WATCH1, printf("# Res :");
 	 ClausePrint(stdout, clause, true);printf("\n"););
    DEBUGMARK(RW_INTERFACE_WATCH1, "...ClauseComputeLINormalform()\n");      
    return res;

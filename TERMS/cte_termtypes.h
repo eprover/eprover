@@ -244,8 +244,8 @@ static __inline__ Term_p TermDeref(Term_p term, DerefType_p deref)
       while(term->binding)
       {
 	 term = term->binding;
-	 DEBUG(1024, printf("# TermDeref ALWAYS: %d, %ld\n",
-			    (int)term, *deref););
+	 DEBUGCMD(1024, printf("# TermDeref ALWAYS: %p, %ld\n",
+                               term, *deref););
       }
    }
    else
@@ -257,8 +257,8 @@ static __inline__ Term_p TermDeref(Term_p term, DerefType_p deref)
 	    break;
 	 }
 	 term = term->binding;
-	 DEBUG(1024, printf("# TermDeref ELSE: %d, %ld\n",
-			    (int)term, *deref););
+	 DEBUGCMD(1024, printf("# TermDeref ELSE: %p, %ld\n",
+                               term, *deref););
 	 (*deref)--;	 
       }
    }
@@ -298,6 +298,12 @@ static __inline__ Term_p* TermArgListCopy(Term_p source)
    return handle;
 }
 
+#ifndef __cplusplus
+
+/* This function is only needed in the core E libraries (but in many
+ * of those), and not in the C++ code of (some) programs that link to
+ * E. It contains C++-unfriendly code, so it's just ignored in this
+ * case. */
 
 /*-----------------------------------------------------------------------
 //
@@ -322,11 +328,12 @@ static __inline__ Term_p TermTopCopy(Term_p source)
    Term_p handle;
    
    handle = TermDefaultCellAlloc();
-   handle->properties  = source->properties&TPPredPos; /* All other
-							  properties
-							  are tied to
-							  the specific
-							  term! */
+   handle->properties  = CPPCAST(TermProperties)
+      (CPPCAST(int)source->properties&CPPCAST(int)TPPredPos); /* All other
+					  		       properties
+							       are tied to
+							       the specific
+							       term! */
    TermCellDelProp(handle, TPOutputFlag); /* As it gets a new id below */
    handle->f_code = source->f_code;
    handle->arity  = source->arity;
@@ -337,6 +344,8 @@ static __inline__ Term_p TermTopCopy(Term_p source)
    
    return handle;
 }
+
+#endif
 
 #endif
 

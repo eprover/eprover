@@ -154,11 +154,11 @@ void    SigFree(Sig_p junk);
 FunCode SigFindFCode(Sig_p sig, char* name);
 static __inline__ int     SigFindArity(Sig_p sig, FunCode f_code);
 static __inline__ char*   SigFindName(Sig_p sig, FunCode f_code);
-static __inline__ void    SigSetPredicate(Sig_p sig, FunCode f_code, bool value);
-static __inline__ bool    SigIsPredicate(Sig_p sig, FunCode f_code);
-static __inline__ void    SigSetSpecial(Sig_p sig, FunCode f_code, bool value);
+void    SigSetPredicate(Sig_p sig, FunCode f_code, bool value);
+bool    SigIsPredicate(Sig_p sig, FunCode f_code);
+void    SigSetSpecial(Sig_p sig, FunCode f_code, bool value);
 void    SigSetAllSpecial(Sig_p sig, bool value);
-static __inline__ bool    SigIsSpecial(Sig_p sig, FunCode f_code);
+bool    SigIsSpecial(Sig_p sig, FunCode f_code);
 static __inline__ int     SigGetAlphaRank(Sig_p sig, FunCode f_code);
 
 FunCode SigInsertId(Sig_p sig, char* name, int arity, bool
@@ -214,104 +214,6 @@ static __inline__ int SigFindArity(Sig_p sig, FunCode f_code)
    assert(f_code <= sig->f_count);
 
    return (sig->f_info[f_code]).arity;
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: SigSetPredicate()
-//
-//   Set the value of the predicate field for a function symbol.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-static __inline__ void SigSetPredicate(Sig_p sig, FunCode f_code, bool value)
-{
-   assert(f_code > 0);
-   assert(f_code <= sig->f_count);
-
-   if(value)
-   {
-      FuncSetProp(&(sig->f_info[f_code]),FPPredSymbol);
-   }
-   else
-   {
-      FuncDelProp(&(sig->f_info[f_code]),FPPredSymbol);
-   }
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function: SigIsPredicate()
-//
-//   Return the value of the predicate field for a function symbol.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-static __inline__ bool SigIsPredicate(Sig_p sig, FunCode f_code)
-{
-   assert(f_code > 0);
-   assert(f_code <= sig->f_count);
-
-   return FuncQueryProp(&(sig->f_info[f_code]), FPPredSymbol);
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: SigSetSpecial()
-//
-//   Set the value of the special field for a function symbol.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-static __inline__ void SigSetSpecial(Sig_p sig, FunCode f_code, bool value)
-{
-   assert(f_code > 0);
-   assert(f_code <= sig->f_count);
-
-   if(value)
-   {
-      SigSetFuncProp(sig,f_code,FPSpecial);
-   }
-   else
-   {
-      SigDelFuncProp(sig,f_code,FPSpecial);
-   }
-}
-
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: SigIsSpecial()
-//
-//   Return the value of the special field for a function symbol.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-static __inline__ bool SigIsSpecial(Sig_p sig, FunCode f_code)
-{
-   assert(f_code > 0);
-   assert(f_code <= sig->f_count);
-
-   return FuncQueryProp(&(sig->f_info[f_code]), FPSpecial);
 }
 
 

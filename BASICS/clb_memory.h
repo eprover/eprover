@@ -146,12 +146,12 @@ static __inline__ void* SizeMallocReal(int size)
    {
       assert(free_mem_list[mem_index]->test == MEM_FREE_PATTERN);
       assert((free_mem_list[mem_index]->test = MEM_RSET_PATTERN, true));
-      handle = (void*)(free_mem_list[mem_index]);
+      handle = free_mem_list[mem_index];
       free_mem_list[mem_index] = free_mem_list[mem_index]->next;
    } 
    else
    {
-      handle = SecureMalloc(size);
+      handle = CPPCAST(Mem_p)SecureMalloc(size);
 #ifndef NDEBUG
       if((mem_index>=0) && (mem_index<MEM_ARR_SIZE))
       {

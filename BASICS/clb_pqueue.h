@@ -148,7 +148,7 @@ static __inline__ PQueue_p PQueueAlloc(void)
    handle->size  = PQUEUE_DEFAULT_SIZE;
    handle->head  = 0;
    handle->tail  = 0;
-   handle->queue = SizeMalloc(PQUEUE_DEFAULT_SIZE*sizeof(IntOrP));
+   handle->queue = CPPCAST(IntOrP*)SizeMalloc(PQUEUE_DEFAULT_SIZE*sizeof(IntOrP));
    
    return handle;
 }

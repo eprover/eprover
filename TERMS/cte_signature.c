@@ -211,6 +211,105 @@ FunCode SigFindFCode(Sig_p sig, char* name)
 }
 
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: SigSetPredicate()
+//
+//   Set the value of the predicate field for a function symbol.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void SigSetPredicate(Sig_p sig, FunCode f_code, bool value)
+{
+   assert(f_code > 0);
+   assert(f_code <= sig->f_count);
+
+   if(value)
+   {
+      FuncSetProp(&(sig->f_info[f_code]),FPPredSymbol);
+   }
+   else
+   {
+      FuncDelProp(&(sig->f_info[f_code]),FPPredSymbol);
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: SigIsPredicate()
+//
+//   Return the value of the predicate field for a function symbol.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool SigIsPredicate(Sig_p sig, FunCode f_code)
+{
+   assert(f_code > 0);
+   assert(f_code <= sig->f_count);
+
+   return FuncQueryProp(&(sig->f_info[f_code]), FPPredSymbol);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SigSetSpecial()
+//
+//   Set the value of the special field for a function symbol.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void SigSetSpecial(Sig_p sig, FunCode f_code, bool value)
+{
+   assert(f_code > 0);
+   assert(f_code <= sig->f_count);
+
+   if(value)
+   {
+      SigSetFuncProp(sig,f_code,FPSpecial);
+   }
+   else
+   {
+      SigDelFuncProp(sig,f_code,FPSpecial);
+   }
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SigIsSpecial()
+//
+//   Return the value of the special field for a function symbol.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool SigIsSpecial(Sig_p sig, FunCode f_code)
+{
+   assert(f_code > 0);
+   assert(f_code <= sig->f_count);
+
+   return FuncQueryProp(&(sig->f_info[f_code]), FPSpecial);
+}
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: SigSetAllSpecial()
