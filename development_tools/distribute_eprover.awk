@@ -807,16 +807,10 @@ BEGIN{
 	 job ">" outfile2 ")&)>&/dev/null\"";
       printf "Distributing " job " onto " host_local ". ";
       # print sysstring;
-      if(system(sysstring))
-      {
-	 print "Warning: " host_local " returned error";
-      }
-      else
-      {
-	 open_jobs++;	       
-	 print "Open jobs: " open_jobs;
-	 host_in_use[host_local] = systime();
-      }
+      system(sysstring);
+      open_jobs++;	       
+      print "Open jobs: " open_jobs;
+      host_in_use[host_local] = systime();
    }   
    else
    {

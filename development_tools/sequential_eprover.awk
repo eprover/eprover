@@ -127,6 +127,10 @@ function get_cluster_name(   pipe, tmp)
    {
       return "lxjessen";
    }   
+   else if(match(tmp, /leonardo/))
+   {
+      return "leonardo";
+   }   
    return 0;
 }
 
@@ -354,6 +358,10 @@ BEGIN{
       mem_limit=128;
    }
    else if(cluster == "sunhalle")
+   {
+      mem_limit=192;
+   }
+   else if(cluster == "leonardo")
    {
       mem_limit=192;
    }
