@@ -78,6 +78,8 @@ a0 SelectMinInfpos
 a1 PSelectMinInfpos
 a2 HSelectMinInfpos
 a3 GSelectMinInfpos
+a4 SelectMinInfposNoTypePred
+a5 PSelectMinInfposNoTypePred
 b0 SelectMin2Infpos
 b1 PSelectMin2Infpos
 c0 SelectComplexExceptUniqMaxPosHorn

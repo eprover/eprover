@@ -101,7 +101,7 @@ typedef struct clause_cell
    struct clause_cell*   parent2;     /* if their children are removed! */
    struct clausesetcell* set;         /* Is the clause in a set? */
    struct clause_cell*   pred;        /* For clause sets = doubly  */
-   struct clause_cell*   succ;        /*    linked lists */
+   struct clause_cell*   succ;        /* linked lists */
 }ClauseCell, *Clause_p;
 
 
