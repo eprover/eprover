@@ -38,6 +38,8 @@ Changes
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
+#define TO_ORDERING_INTERNAL
+
 /*-----------------------------------------------------------------------
 //
 // Function: generate_auto_ordering()
@@ -51,7 +53,7 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-#define TO_ORDERING_INTERNAL
+#define CHE_HEURISTICS_AUTO
 
 OCB_p generate_auto_ordering(ProofState_p state, SpecFeature_p spec)
 {
@@ -81,6 +83,102 @@ OCB_p generate_auto_ordering(ProofState_p state, SpecFeature_p spec)
    }
    return TOCreateOrdering(state, &oparms, NULL);
 }
+#undef CHE_HEURISTICS_AUTO
+
+/*-----------------------------------------------------------------------
+//
+// Function: generate_auto071_ordering()
+//
+//   Generate a term ordering suitable to the problem in state, using
+//   the Heuristic from E 0.71.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations, may call SpecFeaturesAddEval()
+//                   and change cheap parts of specs.
+//
+/----------------------------------------------------------------------*/
+
+#define CHE_HEURISTICS_AUTO_071
+
+OCB_p generate_auto071_ordering(ProofState_p state, SpecFeature_p spec)
+{
+   OrderParmsCell  oparms; 
+   
+   oparms.ordertype       = KBO;
+   oparms.to_const_weight = WConstNoSpecialWeight; 
+   oparms.to_weight_gen   = WSelectMaximal;
+   oparms.to_prec_gen     = PUnaryFirst;
+   oparms.no_lit_cmp      = false;
+
+   OUTPRINT(1, "\n# Auto-Ordering is analysing problem.\n");
+   #include "che_auto_cases.c"
+
+   if(OutputLevel)
+   {
+      fprintf(GlobalOut, "# Auto-mode (0.71) selected ordering type %s\n", 
+	      TONames[oparms.ordertype]);
+      fprintf(GlobalOut, "# Auto-mode (0.71) selected ordering precedence scheme <%s>\n",
+	      TOGetPrecGenName(oparms.to_prec_gen));
+      if(oparms.ordertype == KBO)
+      {
+	 fprintf(GlobalOut, "# Auto-mode (0.71) selected weight ordering scheme <%s>\n",
+	         TOGetWeightGenName(oparms.to_weight_gen));
+      }
+      fputs("#\n", GlobalOut);
+   }
+   return TOCreateOrdering(state, &oparms, NULL);
+}
+
+#undef CHE_HEURISTICS_AUTO_071
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: generate_autodev_ordering()
+//
+//   Generate a term ordering suitable to the problem in state.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations, may call SpecFeaturesAddEval()
+//                   and change cheap parts of specs.
+//
+/----------------------------------------------------------------------*/
+
+#define CHE_HEURISTICS_AUTO_DEV
+
+OCB_p generate_autodev_ordering(ProofState_p state, SpecFeature_p spec)
+{
+   OrderParmsCell  oparms; 
+   
+   oparms.ordertype       = KBO;
+   oparms.to_const_weight = WConstNoSpecialWeight; 
+   oparms.to_weight_gen   = WSelectMaximal;
+   oparms.to_prec_gen     = PUnaryFirst;
+   oparms.no_lit_cmp      = false;
+
+   OUTPRINT(1, "\n# Auto-Ordering is analysing problem.\n");
+   #include "che_auto_cases.c"
+
+   if(OutputLevel)
+   {
+      fprintf(GlobalOut, "# Auto-mode (Dev) selected ordering type %s\n", 
+	      TONames[oparms.ordertype]);
+      fprintf(GlobalOut, "# Auto-mode (Dev) selected ordering precedence scheme <%s>\n",
+	      TOGetPrecGenName(oparms.to_prec_gen));
+      if(oparms.ordertype == KBO)
+      {
+	 fprintf(GlobalOut, "# Auto-mode (Dev) selected weight ordering scheme <%s>\n",
+	         TOGetWeightGenName(oparms.to_weight_gen));
+      }
+      fputs("#\n", GlobalOut);
+   }
+   return TOCreateOrdering(state, &oparms, NULL);
+}
+#define CHE_HEURISTICS_AUTO_DEV
+
+
 
 /*-----------------------------------------------------------------------
 //
@@ -501,6 +599,14 @@ OCB_p TOSelectOrdering(ProofState_p state, HeuristicParms_p params,
    else if(tmp.ordertype == AUTO)
    {
       result = generate_auto_ordering(state, specs);
+   }
+   else if(tmp.ordertype == AUTO071)
+   {
+      result = generate_auto071_ordering(state, specs);
+   }
+   else if(tmp.ordertype == AUTODEV)
+   {
+      result = generate_autodev_ordering(state, specs);
    }
 #ifdef SAFELOGIC
    else if(tmp.ordertype == SL_AUTO)

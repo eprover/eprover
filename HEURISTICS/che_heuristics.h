@@ -38,6 +38,8 @@ typedef enum
 {
    HEU_NO_HEURISTIC = 0,
    HEU_AUTO_MODE,
+   HEU_AUTO_MODE_071,
+   HEU_AUTO_MODE_DEV,
    HEU_SL_AUTO_MODE
 }Heuristic;
 
@@ -57,6 +59,8 @@ typedef struct heuristic_assoc_cell
 extern  HeuristicAssocCell HeuristicsTable[];
 
 HCB_p HCBAutoModeCreate(HCBARGUMENTS);
+HCB_p HCB071AutoModeCreate(HCBARGUMENTS);
+HCB_p HCBDevAutoModeCreate(HCBARGUMENTS);
 #ifdef SAFELOGIC
 HCB_p HCBSLAutoModeCreate(HCBARGUMENTS);
 #endif

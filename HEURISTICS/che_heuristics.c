@@ -32,9 +32,11 @@ Changes
 
 HeuristicAssocCell HeuristicsTable[]=
 {
-   {HEU_AUTO_MODE,    "Auto",       HCBAutoModeCreate},
+   {HEU_AUTO_MODE,     "Auto",      HCBAutoModeCreate},
+   {HEU_AUTO_MODE_071, "Auto071",   HCB071AutoModeCreate},
+   {HEU_AUTO_MODE_DEV, "AutoDev",   HCBDevAutoModeCreate},
 #ifdef SAFELOGIC
-   {HEU_SL_AUTO_MODE, "SLAuto",     HCBSLAutoModeCreate},
+   {HEU_SL_AUTO_MODE,  "SLAuto",    HCBSLAutoModeCreate},
 #endif
    {HEU_NO_HEURISTIC, NULL,       NULL}
 };
@@ -54,6 +56,8 @@ HeuristicAssocCell HeuristicsTable[]=
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
 
+#define CHE_HEURISTICS_INTERNAL
+
 /*-----------------------------------------------------------------------
 //
 // Function: HCBAutoModeCreate()
@@ -67,8 +71,7 @@ HeuristicAssocCell HeuristicsTable[]=
 //
 /----------------------------------------------------------------------*/
 
-#define CHE_HEURISTICS_INTERNAL
-
+#define CHE_HEURISTICS_AUTO
 HCB_p HCBAutoModeCreate(HCBARGUMENTS)
 {
    char *res = "Default";
@@ -100,6 +103,104 @@ HCB_p HCBAutoModeCreate(HCBARGUMENTS)
    }
    return GetHeuristic(res, state, control, parms);
 }
+#undef CHE_HEURISTICS_AUTO
+
+/*-----------------------------------------------------------------------
+//
+// Function: HCB071AutoModeCreate()
+//
+//   Analyse the proof problem and return an hopefully suitable
+//   heuristic, using the criteria from E 0.71, the last version
+//   without contextual cutting.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations.
+//
+/----------------------------------------------------------------------*/
+
+#define CHE_HEURISTICS_AUTO_071
+HCB_p HCB071AutoModeCreate(HCBARGUMENTS)
+{
+   char *res = "Default";
+   SpecFeature_p spec = &(control->problem_specs);
+
+   control->selection_strategy = SelectNoLiterals;
+   OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
+   
+#include "che_auto_cases.c"
+
+   if(OutputLevel)
+   {
+      fprintf(stdout, 
+	      "# Auto-Mode (0.71) selected heuristic %s\n"
+	      "# and selection function %s.\n#\n", res, 
+	      GetLitSelName(control->selection_strategy)); 
+   }
+   if(parms->mem_limit>2 && (parms->delete_bad_limit ==
+			     DEFAULT_DELETE_BAD_LIMIT))
+   {
+      control->delete_bad_limit =
+	 (float)(parms->mem_limit-2)*0.7*MEGA;
+      /* control->filter_copies_limit = control->delete_bad_limit*0.7; */
+   }
+   if(SpecNoEq(spec))
+   {
+      control->ac_handling = NoACHandling;
+      OUTPRINT(1, "# No equality, disabling AC handling.\n#\n");
+   }
+   return GetHeuristic(res, state, control, parms);
+}
+#undef CHE_HEURISTICS_AUTO_071
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: HCBDevAutoModeCreate()
+//
+//   Analyse the proof problem and return an hopefully suitable
+//   heuristic, using the latest development auto mode.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations.
+//
+/----------------------------------------------------------------------*/
+
+
+#define CHE_HEURISTICS_AUTO_DEV
+HCB_p HCBDevAutoModeCreate(HCBARGUMENTS)
+{
+   char *res = "Default";
+   SpecFeature_p spec = &(control->problem_specs);
+
+   control->selection_strategy = SelectNoLiterals;
+   OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
+   
+#include "che_auto_cases.c"
+
+   if(OutputLevel)
+   {
+      fprintf(stdout, 
+	      "# Auto-Mode (Dev) selected heuristic %s\n"
+	      "# and selection function %s.\n#\n", res, 
+	      GetLitSelName(control->selection_strategy)); 
+   }
+   if(parms->mem_limit>2 && (parms->delete_bad_limit ==
+			     DEFAULT_DELETE_BAD_LIMIT))
+   {
+      control->delete_bad_limit =
+	 (float)(parms->mem_limit-2)*0.7*MEGA;
+      /* control->filter_copies_limit = control->delete_bad_limit*0.7; */
+   }
+   if(SpecNoEq(spec))
+   {
+      control->ac_handling = NoACHandling;
+      OUTPRINT(1, "# No equality, disabling AC handling.\n#\n");
+   }
+   return GetHeuristic(res, state, control, parms);
+}
+#undef CHE_HEURISTICS_AUTO_DEV
 
 #ifdef SAFELOGIC
 /*-----------------------------------------------------------------------

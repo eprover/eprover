@@ -46,7 +46,18 @@ if(false)
 {
    assert(false);
 }
+#ifdef CHE_HEURISTICS_AUTO
 #include "che_X_____auto_pp_opt.c"         
+#endif
+#ifdef CHE_HEURISTICS_AUTO_071
+#include "che_X_____auto_pp_opt_071.c"         
+#endif
+#ifdef CHE_HEURISTICS_AUTO_DEV
+#include "che_X_____auto_pp_opt_dev.c"         
+#endif
+
+
+
 }
 
 /*---------------------------------------------------------------------*/

@@ -1424,6 +1424,14 @@ CLState_p process_options(int argc, char* argv[])
 	    {
 	       h_parms->ordertype = AUTO;
 	    }
+	    else if(strcmp(arg, "Auto071")==0)
+	    {
+	       h_parms->ordertype = AUTO071;
+	    }
+	    else if(strcmp(arg, "AutoDev")==0)
+	    {
+	       h_parms->ordertype = AUTODEV;
+	    }
 #ifdef SAFELOGIC
 	    else if(strcmp(arg, "Auto")==0)
 	    {
@@ -1445,7 +1453,8 @@ CLState_p process_options(int argc, char* argv[])
 	    else
 	    {
 	       Error("Option -t (--term-ordering) requires Auto, "
-		     "Optimize, LPO, or KBO as an argument",
+		     "Auto071, AutoDev, Optimize, LPO, or KBO as an "
+		     "argument", 
 		     USAGE_ERROR);
 	    }
 	    break;
