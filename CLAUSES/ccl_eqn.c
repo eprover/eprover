@@ -906,7 +906,7 @@ bool EqnHasUnboundVars(Eqn_p eq, EqnSide domside)
 //
 //   Return true if eqn is a definition, i.e. positive, and of the
 //   form f(X1....Xn)=t with f not occuring in t and no other
-//   variables on t.
+//   variables in t.
 //
 // Global Variables: -
 //
