@@ -62,7 +62,9 @@ typedef enum
    EqualSign    = 2*GreaterSign,
    TildeSign    = 2*EqualSign,
    Exclamation  = 2*TildeSign,
+   AllQuantor   = Exclamation,
    QuestionMark = 2*Exclamation,
+   ExistQuantor = QuestionMark,
    Comma        = 2*QuestionMark,
    Semicolon    = 2*Comma,
    Colon        = 2*Semicolon,
@@ -72,7 +74,8 @@ typedef enum
    Fullstop     = 2*Mult,
    Dollar       = 2*Fullstop,
    Pipe         = 2*Dollar,
-   Slash        = 2*Pipe
+   Slash        = 2*Pipe,
+   Ampersand    = 2*Slash
 }TokenType;
 
 

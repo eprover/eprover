@@ -59,6 +59,7 @@ static TokenRepCell token_print_rep[] =
    {Dollar,       "Dollar sign ('$')"},
    {Pipe,         "Vertical bar ('|')"},
    {Slash,        "Slash ('/')"},
+   {Ampersand,    "Ampersand ('&')"},
    {NoToken,      NULL}
 
 };
@@ -393,6 +394,9 @@ static Token_p scan_token(Scanner_p in)
 	    break;
       case '/':
 	    AktToken(in)->tok = Slash;
+	    break;
+      case '&':
+	    AktToken(in)->tok = Ampersand;
 	    break;
       default:
 	    DStrAppendChar(AktToken(in)->literal, CurrChar(in));
