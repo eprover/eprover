@@ -33,7 +33,7 @@ Changes
 /*---------------------------------------------------------------------*/
 
 #define NAME    "proofanalyse"
-#define VERSION "0.1dev"
+#define VERSION "0.11"
 
 typedef enum
 {

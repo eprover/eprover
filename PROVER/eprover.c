@@ -33,13 +33,13 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-#define VERSION      "0.7dev"
+#define VERSION      "0.71"
 #define NAME         "eprover"
 
 #ifdef SAFELOGIC
-#define NICKNAME     "Dhajea (Proprietary Safelogic build)"
+#define NICKNAME     "Puttabong (Proprietary Safelogic build)"
 #else
-#define NICKNAME     "Dhajea"
+#define NICKNAME     "Puttabong"
 #endif
 
 typedef enum
@@ -792,7 +792,7 @@ int main(int argc, char* argv[])
    {
 #ifdef PRINT_SOMEERRORS_STDOUT
       fprintf(GlobalOut, "# Error: Input file contains no clauses\n");
-      TSTPOUT(GlobalOut, "Input error");
+      TSTPOUT(GlobalOut, "InputError");
 #endif
       Error("Input file contains no clauses", OTHER_ERROR);
    }
@@ -858,7 +858,7 @@ int main(int argc, char* argv[])
 	    fprintf(GlobalOut, 
 		    "\n# Clause set closed under "
 		    "restricted calculus!\n");
-	    TSTPOUT(GlobalOut, "Gave up");
+	    TSTPOUT(GlobalOut, "GaveUp");
 	 }
 	 else if(proofstate->state_is_complete)
 	 {
@@ -869,13 +869,13 @@ int main(int argc, char* argv[])
 	 else
 	 {
 	    fprintf(GlobalOut, "\n# Failure: Out of unprocessed clauses!\n");	    
-	    TSTPOUT(GlobalOut, "Gave up");	    
+	    TSTPOUT(GlobalOut, "GaveUp");	    
 	 }
       }
       else
       {
 	 fprintf(GlobalOut, "\n# Failure: User resource limit exceeded!\n");
-	 TSTPOUT(GlobalOut, "Resource out");
+	 TSTPOUT(GlobalOut, "ResourceOut");
       }
    }
    if(print_sat)

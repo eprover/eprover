@@ -495,17 +495,20 @@ long ClauseSetCollectArityInformation(ClauseSet_p set, Sig_p sig,
 				      int *sum_fun_arity,
 				      int *max_pred_arity,
 				      int *avg_pred_arity,
-				      int *sum_pred_arity)
+				      int *sum_pred_arity,
+                                      int *non_const_funs,
+                                      int *non_const_preds)
 {
    int max_f_arity = 0,
       sum_f_arity = 0,
       f_count = 0,
-      c_count = 0;
+      c_count = 0,
+      non_const_p = 0;
    int max_p_arity = 0,
       sum_p_arity = 0,
       p_count = 0;
    long  array_size = sizeof(long)*(sig->f_count+1);
-   long *dist_array= SizeMalloc(array_size);
+   long *dist_array = SizeMalloc(array_size);
    FunCode i;
 
    for(i=1; i<= sig->f_count; i++)
@@ -524,6 +527,10 @@ long ClauseSetCollectArityInformation(ClauseSet_p set, Sig_p sig,
 	    max_p_arity = MAX(arity, max_p_arity);
 	    sum_p_arity += arity;
 	    p_count++;
+	    if(arity)
+	    {
+	       non_const_p++;
+	    }
 	 }
 	 else
 	 {
@@ -531,8 +538,7 @@ long ClauseSetCollectArityInformation(ClauseSet_p set, Sig_p sig,
 	    {
 	       max_f_arity = MAX(arity, max_f_arity);
 	       sum_f_arity += arity;
-	       f_count++;
-	       
+	       f_count++;	       
 	    }
 	    else
 	    {
@@ -543,12 +549,14 @@ long ClauseSetCollectArityInformation(ClauseSet_p set, Sig_p sig,
    }
    SizeFree(dist_array, array_size);
    
-   *max_fun_arity = max_f_arity;
-   *avg_fun_arity = f_count?sum_f_arity/f_count:0;
-   *sum_fun_arity = sum_f_arity;
-   *max_pred_arity = max_p_arity;
-   *avg_pred_arity = p_count?sum_p_arity/p_count:0;
-   *sum_pred_arity = sum_p_arity;
+   *max_fun_arity   = max_f_arity;
+   *avg_fun_arity   = f_count?sum_f_arity/f_count:0;
+   *sum_fun_arity   = sum_f_arity;
+   *max_pred_arity  = max_p_arity;
+   *avg_pred_arity  = p_count?sum_p_arity/p_count:0;
+   *sum_pred_arity  = sum_p_arity;
+   *non_const_funs  = f_count;
+   *non_const_preds = non_const_p;
 
    return c_count;
 }
@@ -859,7 +867,9 @@ void SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p set,
 				       &(features->sum_fun_arity),
 				       &(features->max_pred_arity),
 				       &(features->avg_pred_arity),
-				       &(features->sum_pred_arity));
+				       &(features->sum_pred_arity),
+				       &(features->fun_nonconst_count),
+				       &(features->pred_nonconst_count));
 
    features->goals_are_ground = (features->groundgoals ==
 				 features->goals);

@@ -92,12 +92,24 @@ P.~Nivela and R.~Nieuwenhuis.
 \newblock In C.~Kirchner, editor, {\em Proc.\ of the 5th RTA, Montreal}, volume
   690 of {\em LNCS}, pages 436--440. Springer, 1993.
 
+\bibitem[RV01]{RV:IJCAR-2001}
+A.~Riazanov and A.~Voronkov.
+\newblock {Vampire 1.1 (System Description)}.
+\newblock In R.~Gor{\'e}, A.~Leitsch, and T.~Nipkow, editors, {\em Proc.\ of
+  the 1st IJCAR, Siena}, volume 2083 of {\em LNAI}, pages 376--380. Springer,
+  2001.
+
+\bibitem[RV02]{RV:AICOM-2002}
+A.~Riazanov and A.~Voronkov.
+\newblock {The Design and Implementation of VAMPIRE}.
+\newblock {\em Journal of AI Communications}, 15(2/3):91--110, 2002.
+
 \bibitem[Sch99]{E:WWW-99}
 S.~Schulz.
 \newblock {The E Web Site}.
 \newblock
-  \url{http://wwwjessen.informatik.tu-muenchen.de/\-$\sim$schulz/\-WORK/\-epro%
-ver.html}, 1999.
+  \url{http://www4.informatik.tu-muenchen.de/\-$\sim$schulz/\-WORK/\-eprover.h%
+tml}, 1999.
 
 \bibitem[Sch01]{Schulz:IJCAR-2001}
 S.~Schulz.

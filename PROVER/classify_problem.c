@@ -29,7 +29,7 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-#define VERSION "0.4"
+#define VERSION "0.41"
 
 typedef enum
 {

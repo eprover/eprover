@@ -5,7 +5,7 @@ Version 0.7 ->
 
 - Added preprocessing of clause sets: Demodulation to get rid of fully
   defined function symbols, tautology elemination, sorting of clauses
-- Fixed some bugs
+- Fixed some bugs, including a bug in subsumption.
 - Made function symbol ordering more stable by adding more and better
   secondary criteria (number of occurences in formula...)
 - Ported to MacOS X, fixed some small portability problems
@@ -13,6 +13,16 @@ Version 0.7 ->
   from a different term bank, yielding wrong abbreviations)
 - Fixed bug in eground (number of clauses in printed DIMACS format was
   potentially different from stored number of clauses)
+- Added new and better term ordering schemes and literal selection
+  functions. 
+- Added new weight functions and priority functions to get a better
+  grip on FIFO.
+- New and better auto-mode (surprise ;-)
+- Modified the prover to make it run consistently on different
+  architectures. Compile with CONSTANT_MEM_ESTIMATE to get the most
+  from this (see Makefile.vars for documentation).
+- Added putative TSTP exit status (as a copmpile time option, on by
+  default).
 
 Version 0.63 --> 0.7 Dhajea
 

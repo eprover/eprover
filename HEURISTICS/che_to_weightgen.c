@@ -652,7 +652,7 @@ void TOGenerateWeights(OCB_p ocb, ClauseSet_p axioms,
       }
    }
    *OCBFunWeightPos(ocb, SIG_TRUE_CODE) = ocb->var_weight;
-   print_weight_array(GlobalOut,ocb);
+   /* print_weight_array(GlobalOut,ocb); */
 }
 
 

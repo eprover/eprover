@@ -30,18 +30,20 @@ Read the rest of this file if anything fails.
              ===============================
 
 
-This is the README file for version 0.7 "Dhajea" of the E equational
-theorem prover. This version of E is free software, see the file
-COPYING for details about the license and the fact that THERE IS NO
-WARRANTY!  If you are interested in a proprietary version of E with
+This is the README file for version 0.71 "Puttabong" of the E
+equational theorem prover. This version of E is free software, see the
+file COPYING for details about the license and the fact that THERE IS
+NO WARRANTY!  If you are interested in a proprietary version of E with
 support, see below.
 
-Release 0.7 is a major release, improving the inference engine, search
-heuristics, and support tools.
+Release 0.71 is a minor release, improving mostly the search
+heuristics, and support tools, and fixing a few bugs and portability
+problems. However, the performance in automatic mode has increased
+significantly, so it should be worth updating even from version 0.7.
 
 If you are using gcc 2.95.1, 2.96.X or 2.97.X, please read DOC/PORTING
 for important information (hint: Get a new compiler. Yes, there are
-workarounds.).
+workarounds.). The same seems to hold for some versions of GCC 3.2.X
 
 
 What is E? What is CLIB?

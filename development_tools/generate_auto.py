@@ -482,6 +482,8 @@ selstrat={
    "PSelectMinInfpos"                   : "PSelectMinInfpos",
    "HSelectMinInfpos"                   : "HSelectMinInfpos",
    "GSelectMinInfpos"                   : "GSelectMinInfpos",
+   "SelectMinInfposNoTypePred"          : "SelectMinInfposNoTypePred",
+   "PSelectMinInfposNoTypePred"         : "PSelectMinInfposNoTypePred",
    "SelectMin2Infpos"                   : "SelectMin2Infpos",
    "PSelectMin2Infpos"                  : "PSelectMin2Infpos",
    "SelectComplexExceptUniqMaxPosHorn"  : "SelectComplexExceptUniqMaxPosHorn",

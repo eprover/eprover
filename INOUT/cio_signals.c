@@ -119,7 +119,7 @@ void ESignalHandler(int mysignal)
 	    return;
 	 }	 
 	 fprintf(GlobalOut, "\n# Failure: Resource limit exceeded (time)\n");	 
-	 TSTPOUT(GlobalOut, "Resource out");
+	 TSTPOUT(GlobalOut, "ResourceOut");
 	 Error("CPU time limit exceeded, terminating", CPU_LIMIT_ERROR);
 	 break;
    case SIGTERM:

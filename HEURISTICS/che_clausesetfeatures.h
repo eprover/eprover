@@ -99,6 +99,8 @@ typedef struct spec_feature_cell
    int          avg_pred_arity; 
    int          sum_pred_arity; 
    int          fun_const_count;
+   int          fun_nonconst_count;
+   int          pred_nonconst_count;
 }SpecFeatureCell, *SpecFeature_p;
 
 
@@ -248,7 +250,9 @@ long    ClauseSetCollectArityInformation(ClauseSet_p set,
 					 int *sum_fun_arity,
 					 int *max_pred_arity,
 					 int *avg_pred_arity,
-					 int *sum_pred_arity);
+					 int *sum_pred_arity,
+					 int *non_const_funs,
+					 int *non_const_preds);
 
 long    ClauseSetCountMaximalTerms(ClauseSet_p set);
 long    ClauseSetCountMaximalLiterals(ClauseSet_p set);

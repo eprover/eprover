@@ -13,14 +13,14 @@ E.
     the buggy versions -- complain to your dealer (and get a new
     compiler)!
 
-    I am using the GNU gcc compiler to develop E under Solaris 2.X and
-    under Linux. Support for other environments is much less tested,
-    and I only have access to a few different OS/Compiler
-    combinations. Compilation with gcc has up to now worked on all
-    systems I have access to. gcc is excellent and free software, I
-    suggest that you install it on your system. If you do not have
-    access to gcc, but have a proprietary ANSI C compiler, you have to
-    modify CLIB/Makefile.vars as follows:
+    I am using the GNU gcc compiler to develop E under Solaris 2.X,
+    Linux, and, recently, MacOS-X. Support for other environments is
+    much less tested, I only have access to a few different
+    OS/Compiler combinations. Compilation with gcc has up to now
+    worked on all systems I have access to. gcc is excellent and free
+    software, I suggest that you install it on your system. If you do
+    not have access to gcc, but have a proprietary ANSI C compiler,
+    you have to modify CLIB/Makefile.vars as follows:
 
     - Set the variable CC to you C compiler (usually cc)
     - Set the variable CFLAGS to the proper options for your compiler 
@@ -28,6 +28,9 @@ E.
     - Set the variable MAKEDEPEND to use makedepend instead of gcc (an
       example line is included in the Makefile)
     - Type "make install" and hope ;-)
+
+    The basic E code has now been tested under a lot of very different
+    environments, and seems to work fine everywhere.    
 
 [2] The PCmp() macro from BASICS/clb_ptrees.h uses potentially
     non-portable casts and pointer arithmetic to get a fast total
@@ -46,10 +49,10 @@ E.
     trouble through this, get a new one... 
     The GNU versions are excellent. 
 
-[4] The linker on FreeBSD systems seems to barf on the final linking
-    stage. Repeating each library 3 times (as in lib1 lib2 lib3 lib1
-    lib2 lib3 lib1 lib2 lib3)  in CLIB/PROVER/Makefile is reported to
-    overcome this problem.
+[4] The linker on some older FreeBSD systems seems to barf on the
+    final linking stage. Repeating each library 3 times (as in lib1
+    lib2 lib3 lib1 lib2 lib3 lib1 lib2 lib3)  in CLIB/PROVER/Makefile
+    is reported to overcome this problem.
 
 [5] The prover is written under the assumption that long has at least
     32 bits. It should work for smaller values, but will probably run
@@ -67,7 +70,8 @@ E.
 [7] Since some of the conceptual set- and bag operations are indeed
     implemented as set and bag-operations, the order in which some
     operations are performed may depend on the addresses your C
-    library hands out for malloc()ed blocks. This may affect the exact
-    behaviour of the prover. In particular, I found that very rarely a
-    version compiled under MacOS X runs differently from the same
-    version compiled under Solaris or Linux.
+    library hands out for malloc()ed blocks. This used to affect the
+    exact behaviour of the prover. In particular, I found that very
+    rarely a version compiled under MacOS X ran differently from the
+    same version compiled under Solaris or Linux. I hopefully have
+    eleminated all such influences now.

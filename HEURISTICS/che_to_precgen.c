@@ -122,7 +122,7 @@ static void compute_precedence_from_array(OCB_p ocb, FCodeFeatureArray_p
 	 last = array->array[i].symbol;
       }
    }
-   print_prec_array(GlobalOut, ocb->sig, array);
+   /* print_prec_array(GlobalOut, ocb->sig, array); */
 }
 
 

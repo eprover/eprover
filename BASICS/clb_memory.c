@@ -200,7 +200,7 @@ void* SecureMalloc(int size)
 #ifdef PRINT_SOMEERRORS_STDOUT
 	 ReleaseErrorReserve();
 	 fprintf(stdout, "# Failure: Resource limit exceeded (memory)\n");
-	 TSTPOUT(stdout, "Resource out");
+	 TSTPOUT(stdout, "ResourceOut");
 	 fflush(stdout);
 	 PrintRusage(stdout);
 #endif
