@@ -8,7 +8,7 @@ Simple installation (will install executables):
 > tar -xzf E.tgz 
 > cd E
 > vi Makefile.vars
-> Set EXECPATH to the directory the programs should live in>
+> Set EXECPATH to the directory the programs should live in
 > make install
 > make install-exec
 > /path/to/EXECDIR/eprover -h | more
