@@ -176,6 +176,21 @@ t2_sw_data = [
 t2_sw_plot =  pylib_graphs.plot(t2_sw_data)
 
 
+t2x_sw_data = [
+    ("CVC" , dir+"protokoll_CVC_Auto", cvc_sw_pat),
+    ("CVC Lite" , dir+"protokoll_CVCL_Auto", cvc_sw_pat),
+    ("E (sts11)" ,
+     dir+"protokoll_E_sts11ni_t2", e_sw_pat),
+    ("E (sts13)" ,
+     dir+"protokoll_E_sts13_t2",
+     e_sw_pat),    
+    ("E (sts14)" ,
+     dir+"protokoll_E_sts14_t2",
+     e_sw_pat),    
+    ]
+
+t2x_sw_plot =  pylib_graphs.plot(t2x_sw_data)
+
 # All systems with flattened input!
 
 t1_scf_data = [
@@ -305,6 +320,8 @@ else:
     t2_sw_plot.gnuplot(None)
     print "  SWAP, t2"
     t2_swf_plot.gnuplot(None)
+    print "  SWAP X, t2"
+    t2x_sw_plot.gnuplot(None)
 
     print "Log Scale Plots:"
     print "  STORECOMM, t1"
