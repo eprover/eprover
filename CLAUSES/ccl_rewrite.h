@@ -79,6 +79,10 @@ bool FindClausesWithRewritableMaxSides(OCB_p ocb, ClauseSet_p set,
 				       PStack_p results, Clause_p
 				       new_demod, SysDate nf_date);
 
+bool FindRewritableClauses(OCB_p ocb, ClauseSet_p set,
+			   PStack_p results, Clause_p
+			   new_demod, SysDate nf_date);
+
 
 #endif
 

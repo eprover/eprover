@@ -280,6 +280,40 @@ static EqnSide eqn_has_rw_side(OCB_p ocb, Eqn_p eqn, Clause_p
    return NoSide;
 }
    
+
+/*-----------------------------------------------------------------------
+//
+// Function: clause_is_rewritable()
+//
+//   Return true if clause is rewriteable with new_demod.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes nf_dates of terms.
+//
+/----------------------------------------------------------------------*/
+
+static bool clause_is_rewritable(OCB_p ocb, Clause_p clause,
+				 Clause_p new_demod, SysDate
+				 nf_date)
+{
+   Eqn_p handle;
+   EqnSide tmp;
+   bool res = false;
+
+   /* printf("Checking clause %ld: ", clause->ident);
+      ClausePrint(stdout, clause, false);
+   printf("\n"); */
+   for(handle = clause->literals; handle; handle = handle->next)
+   {
+      tmp = eqn_has_rw_side(ocb, handle, new_demod, nf_date);
+      if(tmp != NoSide)
+      {
+	 res = true;
+      }
+   }
+   return res;
+}
 /*-----------------------------------------------------------------------
 //
 // Function: clause_has_rw_max_side()
@@ -340,7 +374,45 @@ static EqnSide clause_has_rw_max_side(OCB_p ocb, Clause_p clause,
    return NoSide;
 }
   
+  
    
+/*-----------------------------------------------------------------------
+//
+// Function: find_rewritable_clauses()
+//
+//   A non-index-using implementation of
+//   FindRewritableClause(). Returns true if any clause
+//   is rewritable
+//
+// Global Variables: -
+//
+// Side Effects    : Changes nf_dates of terms.
+//
+/----------------------------------------------------------------------*/
+
+static bool find_rewritable_clauses(OCB_p ocb, ClauseSet_p set,
+				    PStack_p results, Clause_p
+				    new_demod, SysDate nf_date)
+{
+   Clause_p handle;
+   bool     res = false, tmp;
+   
+   assert(new_demod->pos_lit_no == 1);
+   assert(new_demod->neg_lit_no == 0);
+   
+   for(handle = set->anchor->succ; handle != set->anchor; handle =
+	  handle->succ)
+   {
+      tmp = clause_is_rewritable(ocb, handle, new_demod, nf_date);
+      if(tmp)
+      {
+	 PStackPushP(results, handle);
+	 res = true;
+      }
+   }
+   return res;
+}
+
 /*-----------------------------------------------------------------------
 //
 // Function: find_clauses_with_rw_max_sides()
@@ -949,6 +1021,31 @@ bool FindClausesWithRewritableMaxSides(OCB_p ocb, ClauseSet_p set,
 {   
    return find_clauses_with_rw_max_sides(ocb, set, results, new_demod,
 					 nf_date);
+   /* Later: Use the index if it exists */
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FindRewritableClauses()
+//
+//   New version - find all clauses that are rewritable with
+//   new_demod.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes nf_dates of terms, may add rewrite
+//                   links.
+//
+/----------------------------------------------------------------------*/
+
+bool FindRewritableClauses(OCB_p ocb, ClauseSet_p set,
+			   PStack_p results, Clause_p
+			   new_demod, SysDate nf_date)
+{   
+   return find_rewritable_clauses(ocb, set, results, new_demod,
+				  nf_date);
    /* Later: Use the index if it exists */
 }
 
