@@ -139,7 +139,7 @@ Stream_p CreateStream(StreamType type, char* source)
       else
       {
 	 DStrSet(handle->source, source);
-	 handle->file = InputOpen(source);
+	 handle->file = InputOpen(source, true);
       }
       VERBOUTARG("Opening ", DStrView(handle->source));
    }

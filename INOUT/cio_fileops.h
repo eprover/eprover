@@ -38,7 +38,8 @@ Changes
 /*---------------------------------------------------------------------*/
 
 
-FILE* InputOpen(char *name);
+void FileOpenErrorPrint(char* name);
+FILE* InputOpen(char *name, bool fail);
 void  InputClose(FILE* file);
 long  ConcatFiles(char* target, char** sources);
 void  FileRemove(char* name);

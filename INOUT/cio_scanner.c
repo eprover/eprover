@@ -502,16 +502,39 @@ static Token_p scan_token(Scanner_p in)
 /----------------------------------------------------------------------*/
 
 Token_p scan_token_follow_includes(Scanner_p in)
-{
+{  
    scan_token(in);
    if(in->include_key && (TestInpId(in, in->include_key)))
    {
+      DStr_p name = DStrAlloc();
+      char*  tptp_source;
+      
+      tptp_source = getenv("TPTP");
+      if(tptp_source)
+      {
+         DStrAppendStr(name, tptp_source);
+         if(DStrLen(name) && (DStrView(name)[DStrLen(name)-1] !='/'))
+         {
+            DStrAppendChar(name,'/');
+         }
+      }
+
       scan_token(in);
-      CheckInpTok(in, WhiteSpace);
+      CheckInpTok(in, OpenBracket);      
       scan_token(in);
-      CheckInpTok(in, Name);
+      CheckInpTok(in, Identifier|String|SQString);
+      if(TestInpTok(in, Identifier))
+      {
+         DStrAppendDStr(name, AktToken(in)->literal);
+      }
+      else
+      {
+         DStrAppendStr(name, DStrView(AktToken(in)->literal)+1);
+         DStrDeleteLastChar(name);
+      }
       OpenStackedInput(&(in->source), StreamTypeFile,
-		       DStrView(AktToken(in)->literal));
+		       DStrView(name));
+      DStrFree(name);
       scan_token_follow_includes(in);
    }
    else if(in->include_key && TestInpTok(in, NoToken))
@@ -519,6 +542,10 @@ Token_p scan_token_follow_includes(Scanner_p in)
       if((in->source)->next)
       {
 	 CloseStackedInput(&(in->source));
+         scan_token(in);
+         CheckInpTok(in, CloseBracket);
+         scan_token(in);
+         CheckInpTok(in, Fullstop);
 	 scan_token_follow_includes(in);
       }      
    }

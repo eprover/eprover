@@ -44,12 +44,34 @@ Changes
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
 
+/*-----------------------------------------------------------------------
+//
+// Function: FileErrorPrint()
+//
+//   Print an errpr message about failed file opening.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+void FileOpenErrorPrint(char* name)
+{
+   TmpErrno = errno; /* Save error number, the following call to
+                        sprintf() can theoretically alter  the
+                        value !*/
+   sprintf(ErrStr, "Cannot open file %s for reading", name);
+   SysError(ErrStr, FILE_ERROR);
+}
+
 
 /*-----------------------------------------------------------------------
 //
 // Function: InputOpen()
 //
-//   Open an input file for reading. NULL and "-" are stdin.
+//   Open an input file for reading. NULL and "-" are stdin. If fail
+//   is true, terminate with error, otherwise pass  error down.
 //
 // Global Variables: -
 //
@@ -57,7 +79,7 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-FILE* InputOpen(char *name)
+FILE* InputOpen(char *name, bool fail)
 {
    FILE* in;
    
@@ -65,13 +87,11 @@ FILE* InputOpen(char *name)
    {
       VERBOUTARG("Input file is ", name);
       
-      if(! (in = fopen(name,"r")))
+      in = fopen(name, "r");
+
+      if(fail && !in)
       {
-	 TmpErrno = errno; /* Save error number, the following call to
-			      sprintf() can theoretically alter  the
-			      value !*/
-	 sprintf(ErrStr, "Cannot open file %s for reading", name);
-         SysError(ErrStr, FILE_ERROR);
+         FileOpenErrorPrint(name);
       }
    }
    else
@@ -132,7 +152,7 @@ long ConcatFiles(char* target, char** sources)
 
    for(i=0; sources[i]; i++)
    {
-      in = InputOpen(sources[i]);
+      in = InputOpen(sources[i], true);
       while((c = getc(in))!= EOF)
       {
 	 putc(c, out);
@@ -215,7 +235,7 @@ void  FilePrint(FILE* out, char* name)
    FILE* in;
    int   c;
    
-   in = InputOpen(name);
+   in = InputOpen(name, true);
    while((c = getc(in))!=EOF)
    {
       putc(c, out);
