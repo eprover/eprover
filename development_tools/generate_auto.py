@@ -535,6 +535,8 @@ weight_gen={
    "invfreqrank"        : "WInvFrequencyRank",
    "freqranksquare"     : "WFrequencyRankSq",
    "invfreqranksquare"  : "WInvFrequencyRankSq",
+   "invmodfreqrank"     : "WInvModFreqRank",
+   "invmodfreqrankmax0" : "WInvModFreqRankMax0",
    "constant"           : "WConstantWeight"
 }
 
@@ -548,6 +550,8 @@ prec_gen={
    "const_min"       : "PInvArConstMin",
    "freq"            : "PByFrequency",
    "invfreq"         : "PByInvFrequency",
+   "invfreqconstmin" : "PByInvFreqConstMin",
+   "invfreqhack"     : "PByInvFreqHack",
    "orient_axioms"   : "POrientAxioms"
 }
 
