@@ -1,0 +1,117 @@
+<HTML>
+<HEAD>
+<TITLE>CASC-JC Entrants' Sample Solutions</TITLE>
+</HEAD>
+<BODY>
+<HR><!------------------------------------------------------------------------>
+
+<A NAME="E---0.62">
+<HR><!------------------------------------------------------------------------>
+<H2>EP 0.8</H2>
+S. Schulz<BR>
+Institut f&uuml;r Informatik, Technische Universit&auml;t M&uuml;nchen,
+Germany, and RISC-Linz, Johannes Kepler Universit&auml;t Linz,
+Austria<BR>
+schulz@informatik.tu-muenchen.de
+
+<P>
+Here is a list of all inferences:
+<DL>
+<DT> er
+<DD> Equality resolution: x!=a v x=x ==> a=a
+<DT> pm
+<DD> Paramodulation. Note that E considers all literals as equational,
+     and thus also performs resolution by a combination of top-level
+     paramodulation and clause normalization.
+<DT> ef
+<DD> Equality factoring (factor equations on one side only, move the 
+     remaining disequation into the precondition): x=a v b=c v x=d ==>
+     a!=c v b=c vb=d 
+<DT> split
+<DD> Clause splitting a la Vampire (non-deductive, but maintains
+     unsatisfiability)  
+<DT> rw
+<DD> Rewriting, each rw-expression corresponds to exacly one rewrite
+     step with the named clause. This is also used for equational
+     unfolding.
+<DT> sr
+<DD> Simplify-reflect: An (equational) version of unit-cutting. As as
+      example, see this positive simplify-reflect step:  
+      [a=b], [f(a)!=f(b)] => [].
+<DT> ar
+<DD> AC-resolution: Delete literals that are trivial modulo the
+     AC-theory induced by the named clauses
+<DT> cn
+<DD> Clause normalize, delete trivial and repeated literals
+</DL>
+<P>
+
+The first proof uses all but "ef", although it uses some in fairly
+trivial ways. Note that clause normalization is inherently performed
+after all inferences but rewriting. The second is the required proof
+for SYN075-1, and contains an example for "ef".
+
+<p>
+<strong>ALL_RULES</strong>
+<PRE>
+# Problem is unsatisfiable, constructing proof object
+# TSTP exit status: Unsatisfiable
+# Proof object starts here.
+     1 : [++equal(f(X1,X2), f(X2,X1))] : initial
+     2 : [++equal(f(X1,f(X2,X3)), f(f(X1,X2),X3))] : initial
+     3 : [++equal(g(X1,X2), g(X2,X1))] : initial
+     4 : [--equal(f(f(X1,X2),f(X3,g(X4,X5))), f(f(g(X4,X5),X3),f(X2,X1))),--equal(k(X1,X1), k(a,b))] : initial
+     5 : [++equal(b, c),--equal(X1, X2),--equal(X3, X4),--equal(c, d)] : initial
+     6 : [++equal(a, b),++equal(a, c)] : initial
+     7 : [++equal(i(X1), i(X2))] : initial
+     8 : [++equal(c, d),--equal(h(i(a)), h(i(e)))] : initial
+    13 : [--equal(k(a,b), k(X1,X1))] : ar(4,1,3,2)
+    23 : [++equal(c, b),++epred1_0,--equal(d, c),--equal(X3, X4)] : split(5)
+    24 : [++epred2_0,--equal(X1, X2)] : split(5)
+    25 : [--epred2_0,--epred1_0] : split(5)
+    26 : [++epred2_0] : er(24)
+    27 : [--$true,--epred1_0] : rw(25,26)
+    28 : [++equal(c, b),++epred1_0,--equal(d, c)] : er(23)
+    29 : [++equal(c, b),--equal(d, c)] : sr(28,27)
+    30 : [++equal(d, c)] : sr(8,7)
+    31 : [++equal(c, b),--equal(c, c)] : rw(29,30)
+    32 : [++equal(c, b)] : cn(31)
+    34 : [++equal(b, a)] : pm(6,32)
+    35 : [--equal(k(b,b), k(X1,X1))] : rw(13,34)
+   120 : [] : er(35)
+   121 : [] : 120 : "proof"
+# Proof object ends here.
+</pre>
+<p>
+<strong>SYN075-1</strong>
+<PRE>
+# Problem is unsatisfiable, constructing proof object
+# TSTP exit status: Unsatisfiable
+# Proof object starts here.
+     1 : [++equal(X1, a),--big_f(X1,X2)] : initial
+     3 : [++big_f(X1,X2),--equal(X1, a),--equal(X2, b)] : initial
+     4 : [++equal(f(X2), X2),--big_f(X1,f(X2)),--equal(X1, g(X2))] : initial
+     6 : [++big_f(X1,f(X2)),++equal(f(X2), X2),--equal(X1, g(X2))] : initial
+     9 : [++big_f(h(X1,X2),f(X1)),++equal(h(X1,X2), X2),--equal(f(X1), X1)] : initial
+    10 : [--equal(f(X1), X1),--equal(h(X1,X2), X2),--big_f(h(X1,X2),f(X1))] : initial
+    18 : [++equal(f(X2), X2),--equal(g(X2), X1)] : pm(4,6)
+    19 : [++equal(f(X1), X1)] : er(18)
+    24 : [--equal(X1, X1),--equal(h(X1,X2), X2),--big_f(h(X1,X2),f(X1))] : rw(10,19)
+    25 : [--equal(X1, X1),--equal(h(X1,X2), X2),--big_f(h(X1,X2),X1)] : rw(24,19)
+    26 : [--equal(h(X1,X2), X2),--big_f(h(X1,X2),X1)] : cn(25)
+    27 : [++equal(h(X1,X2), X2),++big_f(h(X1,X2),X1),--equal(f(X1), X1)] : rw(9,19)
+    28 : [++equal(h(X1,X2), X2),++big_f(h(X1,X2),X1),--equal(X1, X1)] : rw(27,19)
+    29 : [++equal(h(X1,X2), X2),++big_f(h(X1,X2),X1)] : cn(28)
+    30 : [++equal(a, h(X1,X2)),++equal(h(X1,X2), X2)] : pm(1,29)
+    36 : [++equal(h(X1,X2), X2),--equal(a, X2)] : ef(30)
+    46 : [--big_f(X2,X1),--equal(h(X1,X2), X2),--equal(a, X2)] : pm(26,36)
+    56 : [--big_f(X2,X1),--equal(a, X2)] : pm(46,36)
+    63 : [--equal(a, X1),--equal(b, X2)] : pm(56,3)
+    94 : [--equal(b, X1)] : er(63)
+   103 : [] : er(94)
+   104 : [] : 103 : "proof"
+# Proof object ends here.
+</pre>
+<HR><!------------------------------------------------------------------------>
+</BODY>
+</HTML>
