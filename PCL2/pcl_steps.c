@@ -147,6 +147,10 @@ void PCLStepPrintExtra(FILE* out, PCLStep_p step, bool data)
 	 fprintf(out, "%s", step->extra);
       }	 
    }
+   else if(PCLStepQueryProp(step, PCLIsLemma))
+   {
+      fputs(" : \"lemma\"", out);
+   }
    if(data)
    {
       fprintf(out, " /* %#8X %6ld %6ld %3ld %3ld %3ld %3ld %4.3f */",

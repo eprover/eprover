@@ -456,7 +456,9 @@ void PCLProtPrintPropClauses(FILE* out, PCLProt_p prot,
 	 if(just_clauses)
 	 {
 	    ClausePrint(out, step->clause, true);
+	    #ifdef NEVER_DEFINED
 	    fprintf(GlobalOut, "/* %f */", step->lemma_quality);
+	    #endif
 	 }
 	 else
 	 {
