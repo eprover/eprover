@@ -115,7 +115,7 @@ class plot:
               "set ylabel 'Run time (s)'\n"+\
               "set key left\n";
         if file:
-            res = res+"set terminal postscript color\n";
+            res = res+"set terminal postscript eps color\n";
             res = res+"set output \""+file+"\"\n";
         if log:
             res = res+"set logscale y\n";       

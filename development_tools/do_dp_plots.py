@@ -65,12 +65,15 @@ import pylib_io
 import pylib_graphs
 
 cvc_sc_pat = re.compile("storecomm.*nf")
+cvc_scf_pat = re.compile("storecomm.*sf")
 e_sc_pat   = re.compile("storecomm.*sf")
 
 cvc_si_pat = re.compile("storeinv.*nf")
+cvc_sif_pat = re.compile("storeinv.*sf")
 e_si_pat   = re.compile("storeinv.*sf")
 
 cvc_sw_pat = re.compile("swap.*nf")
+cvc_swf_pat = re.compile("swap.*sf")
 e_sw_pat   = re.compile("swap.*sf")
 
 
@@ -95,7 +98,7 @@ dir = os.path.expanduser(dir)
 
 t1_sc_data = [
     ("CVC" , dir+"protokoll_CVC_Auto", cvc_sc_pat),
-    ("CVCLite" , dir+"protokoll_CVCL_Auto", cvc_sc_pat),
+    ("CVC Lite" , dir+"protokoll_CVCL_Auto", cvc_sc_pat),
     ("E (sts11), built-in index type" ,
      dir+"protokoll_E_sts11_t1ni_default", e_sc_pat),
     ("E (sts09), axiomatized indices" ,
@@ -107,7 +110,7 @@ t1_sc_plot = pylib_graphs.plot(t1_sc_data)
 
 t2_sc_data = [
     ("CVC" , dir+"protokoll_CVC_Auto", cvc_sc_pat),
-    ("CVCLite" , dir+"protokoll_CVCL_Auto", cvc_sc_pat),
+    ("CVC Lite" , dir+"protokoll_CVCL_Auto", cvc_sc_pat),
     ("E (sts11), built-in index type" ,
      dir+"protokoll_E_sts11_t2ni_default", e_sc_pat),
     ("E (sts09), axiomatized indices" ,
@@ -122,7 +125,7 @@ t2_sc_plot =  pylib_graphs.plot(t2_sc_data)
 
 t1_si_data = [
     ("CVC" , dir+"protokoll_CVC_Auto", cvc_si_pat),
-    ("CVCLite" , dir+"protokoll_CVCL_Auto", cvc_si_pat),
+    ("CVC Lite" , dir+"protokoll_CVCL_Auto", cvc_si_pat),
     ("E (sts11)" ,
      dir+"protokoll_E_sts11_t1ni_default", e_si_pat),
     ("E (sts09)" ,
@@ -135,7 +138,7 @@ t1_si_plot =  pylib_graphs.plot(t1_si_data)
 
 t2_si_data = [
     ("CVC" , dir+"protokoll_CVC_Auto", cvc_si_pat),
-    ("CVCLite" , dir+"protokoll_CVCL_Auto", cvc_si_pat),
+    ("CVC Lite" , dir+"protokoll_CVCL_Auto", cvc_si_pat),
     ("E (sts11)" ,
      dir+"protokoll_E_sts11_t2ni_default", e_si_pat),
     ("E (sts09)" ,
@@ -147,7 +150,7 @@ t2_si_plot =  pylib_graphs.plot(t2_si_data)
 
 t1_sw_data = [
     ("CVC" , dir+"protokoll_CVC_Auto", cvc_sw_pat),
-    ("CVCLite" , dir+"protokoll_CVCL_Auto", cvc_sw_pat),
+    ("CVC Lite" , dir+"protokoll_CVCL_Auto", cvc_sw_pat),
     ("E (sts11)" ,
      dir+"protokoll_E_sts11_t1ni_default", e_sw_pat),
     ("E (sts09)" ,
@@ -159,7 +162,7 @@ t1_sw_plot =  pylib_graphs.plot(t1_sw_data)
 
 t2_sw_data = [
     ("CVC" , dir+"protokoll_CVC_Auto", cvc_sw_pat),
-    ("CVCLite" , dir+"protokoll_CVCL_Auto", cvc_sw_pat),
+    ("CVC Lite" , dir+"protokoll_CVCL_Auto", cvc_sw_pat),
     ("E (sts11)" ,
      dir+"protokoll_E_sts11_t2ni_default", e_sw_pat),
     ("E (sts09)" ,
@@ -169,6 +172,48 @@ t2_sw_data = [
 
 t2_sw_plot =  pylib_graphs.plot(t2_sw_data)
 
+
+t1_scf_data = [
+    ("CVC (flat)" , dir+"protokoll_CVC_Auto", cvc_scf_pat),
+    ("CVC Lite (flat)" , dir+"protokoll_CVCL_Auto", cvc_scf_pat),
+    ("CVC" , dir+"protokoll_CVC_Auto", cvc_sc_pat),
+    ("CVC Lite" , dir+"protokoll_CVCL_Auto", cvc_sc_pat),
+    ("E (sts11), built-in index type" ,
+     dir+"protokoll_E_sts11_t1ni_default", e_sc_pat),
+    ("E (sts09), axiomatized indices" ,
+     dir+"protokoll_E_sts09_t1_default",
+     e_sc_pat),    
+    ]
+
+t1_scf_plot = pylib_graphs.plot(t1_scf_data)
+
+t1_sif_data = [
+    ("CVC (flat)" , dir+"protokoll_CVC_Auto", cvc_sif_pat),
+    ("CVC Lite (flat)" , dir+"protokoll_CVCL_Auto", cvc_sif_pat),
+    ("CVC" , dir+"protokoll_CVC_Auto", cvc_si_pat),
+    ("CVC Lite" , dir+"protokoll_CVCL_Auto", cvc_si_pat),
+    ("E (sts11)" ,
+     dir+"protokoll_E_sts11_t1ni_default", e_si_pat),
+    ("E (sts09)" ,
+     dir+"protokoll_E_sts09_t1_default",
+     e_si_pat),    
+    ]
+
+t1_sif_plot = pylib_graphs.plot(t1_sif_data)
+
+t1_swf_data = [
+    ("CVC (flat)" , dir+"protokoll_CVC_Auto", cvc_swf_pat),
+    ("CVC Lite (flat)" , dir+"protokoll_CVCL_Auto", cvc_swf_pat),
+    ("CVC" , dir+"protokoll_CVC_Auto", cvc_si_pat),
+    ("CVC Lite" , dir+"protokoll_CVCL_Auto", cvc_sw_pat),
+    ("E (sts11)" ,
+     dir+"protokoll_E_sts11_t1ni_default", e_sw_pat),
+    ("E (sts09)" ,
+     dir+"protokoll_E_sts09_t1_default",
+     e_sw_pat),    
+    ]
+
+t1_swf_plot = pylib_graphs.plot(t1_swf_data)
 
 if files:
     t1_sc_plot.gnuplot("t1_storecomm_plot.eps")
@@ -186,23 +231,33 @@ else:
     print "Linear Scale Plots:"
     print "  STORECOMM, t1"
     t1_sc_plot.gnuplot(None)
+    print "  STORECOMM, t1"
+    t1_scf_plot.gnuplot(None)
     print "  STOREINV, t1"
     t1_si_plot.gnuplot(None)
+    print "  STOREINV, t1"
+    t1_sif_plot.gnuplot(None)
     print "  STOREINV, t2"
     t2_si_plot.gnuplot(None)
     print "  SWAP, t1"
     t1_sw_plot.gnuplot(None)
+    print "  SWAP, t1"
+    t1_swf_plot.gnuplot(None)
     print "  SWAP, t2"
     t2_sw_plot.gnuplot(None)
 
     print "Log Scale Plots:"
     print "  STORECOMM, t1"
     t1_sc_plot.gnuplot(None, True)
+    print "  STORECOMM, t1"
+    t1_scf_plot.gnuplot(None, True)
     print "  STOREINV, t1"
     t1_si_plot.gnuplot(None, True)
     print "  STOREINV, t2"
     t2_si_plot.gnuplot(None, True)
     print "  SWAP, t1"
     t1_sw_plot.gnuplot(None, True)
+    print "  SWAP, t1"
+    t1_swf_plot.gnuplot(None, True)
     print "  SWAP, t2"
     t2_sw_plot.gnuplot(None, True)
