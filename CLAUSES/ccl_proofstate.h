@@ -30,6 +30,7 @@ Changes
 
 #include <cio_output.h>
 #include <ccl_clausesets.h>
+#include <ccl_formula_wrapper.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -44,6 +45,7 @@ typedef struct proofstatecell
    TB_p              terms;
    TB_p              tmp_terms;
    VarBank_p         freshvars;
+   FormulaSet_p      f_axioms;
    ClauseSet_p       axioms;
    ClauseSet_p       processed_pos_rules;
    ClauseSet_p       processed_pos_eqns;

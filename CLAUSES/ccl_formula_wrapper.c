@@ -28,7 +28,7 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
-long FormulaIdentCounter = 0;
+long global_formula_counter = LONG_MIN;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -91,7 +91,7 @@ WFormula_p WFormulaAlloc(Formula_p formula)
    WFormula_p handle = DefaultWFormulaAlloc();
    
    handle->formula = FormulaGetRef(formula);
-   handle->ident   = ++FormulaIdentCounter;
+   handle->ident   = ++global_formula_counter;
    
    return handle;
 }
@@ -193,6 +193,8 @@ WFormula_p WFormulaTPTPParse(Scanner_p in, TB_p terms)
 void WFormulaTPTPPrint(FILE* out, WFormula_p form, bool fullterms)
 {
    char *typename;
+   char prefix;
+   long id;
 
    switch(FormulaQueryType(form))
    {
@@ -209,7 +211,17 @@ void WFormulaTPTPPrint(FILE* out, WFormula_p form, bool fullterms)
 	 typename = "unknown";
 	 break;
    }   
-   fprintf(out, "input_formula(f_%ld,%s,", form->ident, typename);
+   if(form->ident < 0)
+   {
+      id = form->ident - LONG_MIN;
+      prefix = 'i';
+   }
+   else
+   {
+      id = form->ident;
+      prefix = 'e';
+   }
+   fprintf(out, "input_formula(f%c_%ld,%s,", prefix, id, typename);
    FormulaTPTPPrint(out, form->formula,fullterms);
    fprintf(out,").");   
 }
@@ -306,6 +318,8 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
 		       bool complete)
 {
    char *typename, *initial="derived";
+   char prefix;
+   long id;
 
    switch(FormulaQueryType(form))
    {
@@ -326,7 +340,17 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
    {
       initial = "initial";
    }
-   fprintf(out, "fof(f_%ld,%s-%s,", form->ident, initial,typename);
+   if(form->ident < 0)
+   {
+      id = form->ident - LONG_MIN;
+      prefix = 'i';
+   }
+   else
+   {
+      id = form->ident;
+      prefix = 'e';
+   }
+   fprintf(out, "fof(f%c_%ld,%s-%s,", prefix, id, initial,typename);
    FormulaTPTPPrint(out, form->formula,fullterms);
    if(complete)
    {
@@ -358,6 +382,31 @@ FormulaSet_p FormulaSetAlloc()
    
    return set;
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaSetFree(set)
+//
+//   Free a formula set (and all its formulas).
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+void FormulaSetFree(FormulaSet_p set)
+{
+   assert(set);
+
+   while(!FormulaSetEmpty(set))
+   {
+      FormulaSetDeleteEntry(set->anchor->succ);
+   }
+   WFormulaCellFree(set->anchor);
+   FormulaSetCellFree(set);
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -412,8 +461,50 @@ WFormula_p FormulaSetExtractEntry(WFormula_p form)
    return form;
 }
 
-WFormula_p FormulaSetExtractFirst(FormulaSet_p set);
-void FormulaSetDeleteEntry(WFormula_p form);
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaSetExtractFirst()
+//
+//   Extract and return the first formula from set, if any, otherwise
+//   return NULL.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+WFormula_p FormulaSetExtractFirst(FormulaSet_p set)
+{
+   assert(set);
+
+   if(FormulaSetEmpty(set))
+   {
+      return NULL;
+   }
+   return FormulaSetExtractEntry(set->anchor->succ);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaSetDeleteEntry()
+//
+//   Delete an element of a formulaset.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+void FormulaSetDeleteEntry(WFormula_p form)
+{
+   assert(form);
+
+   FormulaSetExtractEntry(form);
+   WFormulaFree(form);
+}
 
 
 /*---------------------------------------------------------------------*/

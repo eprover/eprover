@@ -68,6 +68,7 @@ ProofState_p ProofStateAlloc(void)
    handle->terms               = TBAlloc(TPRestricted, handle->signature);
    handle->tmp_terms           = TBAlloc(TPIgnoreProps, handle->signature);
    handle->freshvars           = VarBankAlloc();
+   handle->f_axioms            = FormulaSetAlloc();
    handle->axioms              = ClauseSetAlloc();
    handle->processed_pos_rules = ClauseSetAlloc();
    handle->processed_pos_eqns  = ClauseSetAlloc();
@@ -121,6 +122,7 @@ void ProofStateFree(ProofState_p junk)
 {
    assert(junk);
    ClauseSetFree(junk->axioms);
+   FormulaSetFree(junk->f_axioms);
    ClauseSetFree(junk->processed_pos_rules);
    ClauseSetFree(junk->processed_pos_eqns);
    ClauseSetFree(junk->processed_neg_units);
