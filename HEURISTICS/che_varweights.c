@@ -1095,11 +1095,7 @@ WFCB_p StaggeredWeightInit(ClausePrioFun prio_fun,
    VarWeightParam_p data = VarWeightParamCellAlloc();
    long clause_max_size = ClauseSetMaxStandardWeight(axioms);
 
-   if(clause_max_size < 1)
-   {
-      clause_max_size = 1;
-   }
-   data->stagger_limit = stagger_factor*clause_max_size; 
+   data->stagger_limit = MAX(stagger_factor*clause_max_size,1);
    return WFCBAlloc(StaggeredWeightCompute, prio_fun, VarWeightExit, data);
 }
 
