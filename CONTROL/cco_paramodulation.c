@@ -111,8 +111,8 @@ long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
 	    
 	    ClauseRegisterChild(with, paramod);
 	 }
-	 DocClauseCreationDefault(paramod, inf_paramod, parent_alias,
-				  with);
+	 DocClauseCreationDefault(paramod, inf_paramod, with, 
+				  parent_alias);
 	 ClauseSetInsert(store, paramod);
       }
       test = ClausePosNextParamodPair(pos1, pos2, normal);
@@ -155,7 +155,7 @@ long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
 				    ClauseQueryTPTPType(parent_alias)));
 	       ClauseRegisterChild(parent_alias, paramod);
 	    }
-	    DocClauseCreationDefault(paramod, inf_paramod, with, parent_alias);
+	    DocClauseCreationDefault(paramod, inf_paramod, parent_alias, with);
 	    ClauseSetInsert(store, paramod);
 	 }
 	 test = ClausePosNextParamodPair(pos1, pos2, true);
