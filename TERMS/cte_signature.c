@@ -126,18 +126,18 @@ Sig_p SigAlloc(void)
    handle->f_index = NULL;
    handle->ac_axioms = PStackAlloc();
 
-   SigInsertId(handle, "$true", 0, special);
+   SigInsertId(handle, "$true", 0, true);
    assert(SigFindFCode(handle, "$true")==SIG_TRUE_CODE);  
    SigSetFuncProp(handle, SIG_TRUE_CODE, FPPredSymbol);
-   SigInsertId(handle, "$false", 0, special);
+   SigInsertId(handle, "$false", 0, true);
    assert(SigFindFCode(handle, "$false")==SIG_FALSE_CODE);  
    SigSetFuncProp(handle, SIG_FALSE_CODE, FPPredSymbol);
    
    if(SigSupportLists)
    {
-      SigInsertId(handle, "$nil", 0, special);
+      SigInsertId(handle, "$nil", 0, true);
       assert(SigFindFCode(handle, "$nil")==SIG_NIL_CODE);
-      SigInsertId(handle, "$cons", 2, special);
+      SigInsertId(handle, "$cons", 2, true);
       assert(SigFindFCode(handle, "$cons")==SIG_CONS_CODE);
    }
    handle->internal_symbols = handle->f_count;
@@ -316,7 +316,7 @@ void SigPrint(FILE* out, Sig_p sig)
    
    for(i=1; i<=sig->f_count; i++)
    {
-      sig_print_operator(out, sig, i, verbose);
+      sig_print_operator(out, sig, i, true);
    }
 }
 
@@ -342,7 +342,7 @@ void SigPrintSpecial(FILE* out, Sig_p sig)
    {
       if(SigIsSpecial(sig, i))
       {
-	 sig_print_operator(out, sig, i, verbose);
+	 sig_print_operator(out, sig, i, true);
       }
    }
 }

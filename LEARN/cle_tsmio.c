@@ -291,7 +291,7 @@ double ExampleSetFromKB(AnnoSet_p annoset, FlatAnnoSet_p flatset, bool
    in = CreateScanner(StreamTypeFile,
 		      KBFileName(filename, kb, "signature"),
 		      true, NULL);   
-   SigParse(in, sig, special);
+   SigParse(in, sig, true);
    DestroyScanner(in);
 
    in = CreateScanner(StreamTypeFile,

@@ -288,25 +288,25 @@ void AnnotationListPrint(FILE* out, Annotation_p tree)
 //
 /----------------------------------------------------------------------*/
 
-void AnnotationCombine(Annotation_p res, Annotation_p new)
+void AnnotationCombine(Annotation_p res, Annotation_p new_anno)
 {
    int i;
    double resval, resw, newval, neww;
    long length;
    
    /* printf("Combining: ");AnnotationPrint(stdout, res);printf("\n");
-      printf("           ");AnnotationPrint(stdout, new);printf("\n");*/
+      printf("           ");AnnotationPrint(stdout, new_anno);printf("\n");*/
    resw = AnnotationCount(res);
-   neww = AnnotationCount(new);
+   neww = AnnotationCount(new_anno);
    
    /* Res can be newly allocated... */
-   length =  AnnotationLength(new); 
+   length =  AnnotationLength(new_anno); 
    assert(AnnotationLength(res)<=length);
    
    for(i=1;i<=length;i++)
    {
       resval = DDArrayElement(AnnotationValues(res),i);
-      newval = DDArrayElement(AnnotationValues(new),i);
+      newval = DDArrayElement(AnnotationValues(new_anno),i);
       resval = (resval*resw+newval*neww)/(resw+neww);
       DDArrayAssign(AnnotationValues(res),i,resval);
    }

@@ -75,7 +75,7 @@ long         AnnotationListParse(Scanner_p in, Annotation_p *tree,
 				 long expected);
 void         AnnotationPrint(FILE* out, Annotation_p anno);
 void         AnnotationListPrint(FILE* out, Annotation_p tree);
-void         AnnotationCombine(Annotation_p res, Annotation_p new);
+void         AnnotationCombine(Annotation_p res, Annotation_p new_anno);
 long         AnnotationMerge(Annotation_p *tree, Annotation_p collect,
 			     PStack_p sources);
 double       AnnotationEval(Annotation_p anno, double weights[]);

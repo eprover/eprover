@@ -982,7 +982,7 @@ Term_p TBTermParse(Scanner_p in, TB_p bank)
 	       handle->arity = 0;
 	    }
 	    handle->f_code = SigInsertId(bank->sig, DStrView(id),
-					 handle->arity, normal);
+					 handle->arity, false);
 	    if(!handle->f_code)
 	    {
 	       errpos = DStrAlloc();

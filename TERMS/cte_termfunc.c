@@ -404,7 +404,7 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
             handle->arity = 0;
          }
          handle->f_code = SigInsertId(sig, DStrView(id),
-				      handle->arity, normal);
+				      handle->arity, false);
          if(!handle->f_code)
          {
             errpos = DStrAlloc();
