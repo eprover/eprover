@@ -566,6 +566,67 @@ CompareResult KBOVarCompare(Term_p s, Term_p t, DerefType deref_s,
 }
 
 
+#ifdef NEVER_DEFINED
+
+/*-----------------------------------------------------------------------
+//
+// Function: KBOVarCompare()
+//
+//   Compare the variable occurences in two terms, return the strongest
+//   KBO result compatible with the variable condition.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+CompareResult KBOVarCompare(Term_p s, Term_p t, DerefType deref_s,
+			    DerefType deref_t)
+{
+   bool           s_gt = false, t_gt = false;
+   PDArray_p      array = PDIntArrayAlloc(8,0);
+   int            i; 
+
+   PDArrayAddVarDistrib(array, s, deref_s, 1);
+   PDArrayAddVarDistrib(array, t, deref_t, -1);
+   
+   for(i=0; i<array->size; i++)
+   {
+      if(PDArrayElementInt(array, i) > 0)
+      {
+	 s_gt = true;
+      }
+      else if(PDArrayElementInt(array, i) < 0)
+      {
+	 t_gt = true;
+      }
+      if(s_gt && t_gt)
+      {
+	 break;
+      }
+   }
+
+   PDArrayFree(array);
+
+   if(s_gt && t_gt)
+   {
+      return to_uncomparable;
+   }
+   if(s_gt)
+   {
+      return to_greater;
+   } 
+   if(t_gt)
+   {
+      return to_lesser;
+   }
+   return to_equal;
+}
+
+#endif
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: KBOGreater(ocb, s, t)
@@ -597,7 +658,51 @@ bool KBOGreater(OCB_p ocb, Term_p s, Term_p t,
    return false;
 }
 
+#ifdef NEVER_DEFINED /* I don't really trust this version */
+/*-----------------------------------------------------------------------
+//
+// Function: KBOVarGreater()
+//
+//   Return true if vars(s) multisetsubseteq vars(t), false otherwise.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
 
+bool KBOVarGreater(Term_p s, Term_p t, DerefType deref_s, DerefType
+		   deref_t)
+{
+   bool           t_gt = false;
+   PDArray_p      array = PDIntArrayAlloc(8,0);
+   int            i; 
+
+   PDArrayAddVarDistrib(array, s, deref_s, 1);
+   PDArrayAddVarDistrib(array, t, deref_t, -1);
+
+   for(i=0; i<array->size; i++)
+   {
+      if(PDArrayElementInt(array, i) < 0)
+      {
+	 t_gt = true;
+	 break;
+      }
+      if(t_gt)
+      {
+	 break;
+      }
+   }
+
+   PDArrayFree(array);
+
+   if(t_gt)
+   {
+      return false;
+   }
+   return true;
+}
+#endif
 /*-----------------------------------------------------------------------
 //
 // Function: KBOVarGreater()
@@ -645,7 +750,6 @@ bool KBOVarGreater(Term_p s, Term_p t, DerefType deref_s, DerefType
    }
    return true;
 }
-
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
