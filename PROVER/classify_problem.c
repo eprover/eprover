@@ -293,7 +293,7 @@ int main(int argc, char* argv[])
       if(!no_preproc)
       {
 	 TB_p tmp_terms = TBAlloc(TPIgnoreProps,sig);
-	 ClauseSetPreprocess(clauses, tmp_terms, false);
+	 ClauseSetPreprocess(clauses, NULL, tmp_terms, false);
 	 tmp_terms->sig = NULL;
 	 TBFree(tmp_terms);
       }      /* SigPrint(stdout,sig);*/

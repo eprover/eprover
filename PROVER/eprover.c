@@ -33,7 +33,7 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-#define VERSION      "0.8dev013"
+#define VERSION      "0.8dev014"
 #define NAME         "eprover"
 
 #ifdef SAFELOGIC
@@ -920,7 +920,7 @@ int main(int argc, char* argv[])
       in = CreateScanner(StreamTypeFile, watchlist_filename, true, NULL);
       ScannerSetFormat(in, parse_format);
       ClauseSetParseList(in, proofstate->watchlist,
-			 proofstate->terms);
+			 proofstate->original_terms);
       CheckInpTok(in, NoToken);
       DestroyScanner(in);
       ClauseSetSetProp(proofstate->watchlist, CPWatchOnly);
@@ -931,7 +931,9 @@ int main(int argc, char* argv[])
    if(!no_preproc)
    {
       preproc_removed = ClauseSetPreprocess(proofstate->axioms,
-					    proofstate->tmp_terms, no_eq_unfold);
+					    proofstate->watchlist,
+					    proofstate->tmp_terms,
+					    no_eq_unfold);
    }
    ProofControlInit(proofstate, proofcontrol, h_parms);
    PCLFullTerms = pcl_full_terms; /* Preprocessing always uses full
@@ -962,11 +964,10 @@ int main(int argc, char* argv[])
       TSTPOUT(GlobalOut, "Unsatisfiable");
    }
    else if(proofstate->watchlist && ClauseSetEmpty(proofstate->watchlist))
-   {
-      
+   {      
       ProofStatePropDocQuote(GlobalOut, OutputLevel, 
 			     CPSubsumesWatch, proofstate, 
-			     "final_subsumes_watchlist");
+			     "final_subsumes_wl");
       fprintf(GlobalOut, "\n# Watchlist is empty!\n");
       TSTPOUT(GlobalOut, "ResourceOut"); 
    }
