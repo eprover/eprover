@@ -244,6 +244,7 @@ void* SecureRealloc(void *ptr, int size)
    handle = ptr?realloc(ptr,size):malloc(size);
    if(!handle && size!=0)
    {
+      MemIsLow = true;
       MemFlushFreeList();
       if(reserve_mem)
       {

@@ -7,7 +7,8 @@ Author: Stephan Schulz
 Contents
  
   Definitions for AVL trees with string keys and up to two int or
-  pointer values. 
+  pointer values. Part of the implementation is based on public domain
+  code by D.D. Sleator.
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence.
@@ -65,7 +66,7 @@ typedef struct strtreecell
 StrTree_p StrTreeCellAllocEmpty(void);
 void      StrTreeFree(StrTree_p junk);
 StrTree_p StrTreeInsert(StrTree_p *root, StrTree_p new);
-bool      StrTreeStore(StrTree_p *root, char* key, IntOrP val1, IntOrP
+StrTree_p StrTreeStore(StrTree_p *root, char* key, IntOrP val1, IntOrP
 		       val2);
 StrTree_p StrTreeFind(StrTree_p *root, char* key);
 StrTree_p StrTreeExtractEntry(StrTree_p *root, char* key);

@@ -6,7 +6,8 @@ Author: Stephan Schulz
 
 Contents
  
-  Functions for string-indexed SPLAY trees.
+  Functions for string-indexed SPLAY trees. Part of the implementation
+  is based on public domain code by D.D. Sleator.
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence.
@@ -237,8 +238,8 @@ StrTree_p StrTreeInsert(StrTree_p *root, StrTree_p new)
 // Function: StrTreeStore()
 //
 //   Insert a cell associating key with val1 and val2 into the
-//   tree. Return false if an entry for this key exists, true
-//   otherwise. 
+//   tree. Return NULL if an entry for this key exists, address of the
+//   new node otherwise. 
 //
 // Global Variables: -
 //
@@ -246,24 +247,24 @@ StrTree_p StrTreeInsert(StrTree_p *root, StrTree_p new)
 //
 /----------------------------------------------------------------------*/
 
-bool StrTreeStore(StrTree_p *root, char* key, IntOrP val1, IntOrP val2)
+StrTree_p StrTreeStore(StrTree_p *root, char* key, IntOrP val1, IntOrP val2)
 {
-   StrTree_p handle, new;
+   StrTree_p handle, old;
 
    handle = StrTreeCellAlloc();
    handle->key = SecureStrdup(key);
    handle->val1 = val1;
    handle->val2 = val2;
    
-   new = StrTreeInsert(root, handle);
+   old = StrTreeInsert(root, handle);
 
-   if(new)
+   if(old)
    {
       FREE(handle->key);
       StrTreeCellFree(handle);
-      return false;
+      return NULL;
    }
-   return true;
+   return handle;
 }
 
 
