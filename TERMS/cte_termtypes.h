@@ -121,8 +121,9 @@ typedef struct termcell
    long             weight;        /* Weight of the term, if term is
 				      in term bank */
    RewriteState     rw_data;       /* See above */
-   struct termcell* lson;
-   struct termcell* rson;
+   struct termcell* lson;          /* For storing shared term nodes in */
+   struct termcell* rson;          /* a splay tree - see
+                                      cte_termcellstore.[ch] */
 }TermCell, *Term_p, **TermRef;
 
 

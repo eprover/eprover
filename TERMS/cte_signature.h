@@ -72,7 +72,7 @@ typedef struct funccell
 
    Function codes are integers starting at 1, while variables are
    encoded by negative integers. 0 is unused and can thus express
-   error conditions when accessing somethings f_code. f_info[0] is
+   error conditions when accessing some things f_code. f_info[0] is
    unused. */
 
 #define DEFAULT_SIGNATURE_SIZE 20
