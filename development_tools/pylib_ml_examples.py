@@ -110,7 +110,7 @@ class ml_example:
             tmp[1] = map(string.strip, tmp[1])
         else:
             assert type(rep) == TupleType
-            assert len(rep) == 2 or len(rep)==3
+            assert len(rep) == 3 or len(rep)==4
             tmp = rep
             
         assert type(tmp[1]) == ListType

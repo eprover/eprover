@@ -93,6 +93,7 @@ class process_line:
         self.round_fun = round_fun;
 
     def __call__(self,line):
+        print line
         if line[0] == "#":
            return line
         parts = string.split(line, None, 4)
@@ -197,6 +198,9 @@ class eprotocol:
         except KeyError:
             return (InfiniteTime, self.successes, self.succ_time)
 
+    def get_status(self, problem):
+        (state, time) = self.data[problem]
+        return state
 
 def eval_is_better(e1, e2):
     """
@@ -222,15 +226,15 @@ class classification(UserList):
         self.hash = {}
         
     def append(self, new):
-        if len(new)!=2:
+        if len(new)!=3:
             raise TypeError
         UserList.append(self,new)
-        self.hash[new[0]] = new[1]
+        self.hash[new[0]] = new[2]
 
     def printout(self, prefix = ""):
         self.sort()
         for i in self:
-            print "%s%-29s : %s" % (prefix, i[0], i[1])
+            print "%s%-29s : %s : %s" % (prefix, i[0], i[1], i[2])
 
     def parse(self, file):
         f = pylib_io.flexopen(file,"r")
@@ -240,10 +244,10 @@ class classification(UserList):
             if i.startswith("#"):
                 continue
             tmp = string.split(i, ":");
-            if len(tmp) == 3:
+            if len(tmp) == 4:
                 del(tmp[0])
             tmp = map(string.strip, tmp)
-            self.append((tmp[0], tmp[1]))
+            self.append((tmp[0], tmp[1], tmp[2]))
     
     def classify(self, prob):
         return self.hash[prob]
@@ -284,14 +288,14 @@ class eprot_set:
     def find_class(self, problem, round_fun=pylib_discretize.no_round):
         self.sort()
         try:
-            res     = self.protlist[0].name+"(Default)"
+            res     = self.protlist[0]
             reseval = (InfiniteTime, 10000000, 0)
         except IndexError:
             raise EmptyProtSetException
         for i in self.protlist:
             eval = i.eval_problem(problem, round_fun)
             if eval_is_better(eval, reseval):
-                res = i.name
+                res = i
                 reseval = eval
         return res
 
@@ -303,7 +307,9 @@ class eprot_set:
             raise EmptyProtSetException
         res = classification()
         for i in source.data.keys():
-            res.append((i, self.find_class(i,round_fun)))
+            prot = self.find_class(i,round_fun)
+            status = prot.get_status(i)
+            res.append((i, status, prot.name))
         return res
 
 

@@ -94,7 +94,8 @@ equidist and log accept an numeric argument for k, e.g. -rlog0.5 or
 Suggestions are preceded by an mnemonic string denoting the algorithm
 and a colon, so you can grep and cut suitable results out. Parsing is
 expensive, computing assignments is cheap, so it makes sense to
-compute all assignments at once.
+compute all assignments at once. Other output fields are problem name,
+status, and suggested class.
 
 If no -r option is given, uses prop algorithm, but ommits mnemonic
 strings.

@@ -56,4 +56,8 @@ fl = pylib_eprots.featurelist()
 fl.parse(sys.argv[2])
 
 for i in fl:
-    print i[0],":", string.join(i[1],","),":",cl.classify(i[0])
+    try:
+        tclass = cl.classify(i[0])
+        print i[0],":", string.join(i[1],","),":",tclass
+    except KeyError:
+        pass

@@ -28,8 +28,8 @@ ed_spclen = len(ed_optspc);
 
 round_fun = equidist_round(10)
 
-options = pylib_io.get_options(sys.argv)
-files   = pylib_io.get_args(sys.argv)
+options = pylib_io.get_options()
+files   = pylib_io.get_args()
 
 
 for opt in options:
