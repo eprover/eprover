@@ -469,7 +469,7 @@ void FormulaTPTPPrint(FILE* out, Formula_p form, bool fullterms)
    else if(FormulaIsUnary(form))
    {
       assert(form->op == OpUNot);
-      if(FormulaIsBinary(form->arg1))
+      if(true /*FormulaIsBinary(form->arg1)*/)
       {
 	 fputs("~(", out);
 	 FormulaTPTPPrint(out, form->arg1, fullterms);

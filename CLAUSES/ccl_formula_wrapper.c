@@ -395,6 +395,35 @@ WFormula_p WFormulaParse(Scanner_p in, TB_p terms)
    return wform;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: WFormulaPrint()
+//
+//   Print a (wrapped) formula in the current output format.
+//
+// Global Variables: OutputFormat
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void WFormulaPrint(FILE* out, WFormula_p form, bool fullterms)
+{
+   switch(OutputFormat)
+   {
+   case LOPFormat:
+      Warning("Currently no LOP FOF format, using TPTP");
+   case TPTPFormat:
+      WFormulaTPTPPrint(out, form, fullterms);
+      break;
+   case TSTPFormat:
+      WFormulaTSTPPrint(out, form, fullterms, true);
+      break;
+   default:
+         assert(false&& "Unknown output format");
+         break;
+   }
+}
 
 
 /*-----------------------------------------------------------------------
@@ -425,6 +454,23 @@ bool WFormulaConjectureNegate(WFormula_p wform)
       return true;
    }
    return false;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: WFormulaSimplify()
+//
+//   Simplify the formula of a wrapped formula.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes formula, memory operations
+//
+/----------------------------------------------------------------------*/
+
+void WFormulaSimplify(WFormula_p form, TB_p terms)
+{
+   FormulaRefSimplify(form->formula, terms) 
 }
 
 
@@ -611,6 +657,33 @@ long FormulaSetPreprocConjectures(FormulaSet_p set)
    return res;
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaSetSimplify()
+//
+//   Simplify all formulae in set.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes formulae (yes, really)
+//
+/----------------------------------------------------------------------*/
+
+void FormulaSetSimplify(FormulaSet_p set, TB_p terms)
+{
+   WFormula_p handle;
+   
+   handle = set->anchor->succ;
+   
+   while(handle!=set->anchor)
+   {
+      WFormulaSimplify(handle, terms);
+      handle = handle->succ;
+   }
+}
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: FormulaAndClauseSetParse()
@@ -657,6 +730,33 @@ long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset,
    }
    return res;
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaSetPrint()
+//
+//   Print a set of formulae.
+//
+// Global Variables: OutputFormat
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void FormulaSetPrint(FILE* out, FormulaSet_p set, bool fullterms)
+{
+   WFormula_p handle;
+   
+   handle = set->anchor->succ;
+   
+   while(handle!=set->anchor)
+   {
+      WFormulaPrint(out, handle, fullterms);
+      fputc('\n', out);
+      handle = handle->succ;
+   }
+}
+
 
 
 /*---------------------------------------------------------------------*/

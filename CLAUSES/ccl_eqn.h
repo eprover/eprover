@@ -155,6 +155,9 @@ void    EqnFree(Eqn_p junk);
 #define EqnDominates(eq)  EqnQueryProp((eq), EPDominates)
 #define EqnIsSelected(eq) EqnQueryProp((eq), EPIsSelected)
 
+#define EqnIsPropTrue(eq)  (((eq)->lterm == (eq)->rterm) && EqnIsPositive(eq))
+#define EqnIsPropFalse(eq) (((eq)->lterm == (eq)->rterm) && EqnIsNegative(eq))
+
 #define EqnIsGround(eq) \
         (TermIsGround((eq)->lterm) && TermIsGround((eq)->rterm))
 #define EqnIsPureVar(eq) \
@@ -167,7 +170,6 @@ void    EqnFree(Eqn_p junk);
         ((!EqnIsEquLit(eq))&&TBTermIsTypeTerm((eq)->lterm))
 #define EqnIsXTypePred(eq) \
         ((!EqnIsEquLit(eq))&&TBTermIsXTypeTerm((eq)->lterm))
-
 #define EqnIsRealXTypePred(eq)\
         ((!EqnIsEquLit(eq))&&TermIsDefTerm((eq)->lterm,1))
 

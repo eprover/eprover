@@ -98,7 +98,11 @@ typedef struct formula_cell
 #define   FormulaIsUnary(form)      OpIsUnary((form)->op)
 #define   FormulaIsQuantified(form) OpIsQuantor((form)->op)
 #define   FormulaIsLiteral(form)    ((form)->op==OpNoOp)
-
+#define   FormulaIsPropTrue(form)   (FormulaIsLiteral(form) && \
+                                    EqnIsPropTrue((form)->special.literal))
+#define   FormulaIsPropFalse(form)  (FormulaIsLiteral(form) && \
+                                    EqnIsPropFalse((form)->special.literal))
+                                     
 Formula_p FormulaAlloc(void);
 void      FormulaFree(Formula_p form);
 Formula_p FormulaOpAlloc(FOFOperatorType op, Formula_p arg1, Formula_p arg2);

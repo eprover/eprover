@@ -25,7 +25,7 @@ Changes
 
 #define CCL_CNF
 
-#include <ccl_formula_wrapper.h>
+#include <ccl_formulae.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -39,7 +39,16 @@ Changes
 /*---------------------------------------------------------------------*/
 
 
-Formula_p FormulaSimplify(Formula_p form);
+#define FormulaRefSimplify(var, terms) \
+{\
+   Formula_p frs_internal_handle, frs_internal_tmp,frs_internal_var;\
+   frs_internal_var    = var;\
+   frs_internal_handle = FormulaRelRef(frs_internal_var); \
+   frs_internal_tmp    = FormulaSimplify(frs_internal_handle, (terms));\
+   var = FormulaGetRef(frs_internal_tmp);\
+   FormulaFree(frs_internal_var);\
+}
+Formula_p FormulaSimplify(Formula_p form, TB_p terms);
 
 
 #endif

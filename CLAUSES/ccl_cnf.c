@@ -48,8 +48,16 @@ Changes
 //
 // Function: FormulaSimplify()
 //
-//   Maximally (and destructively) simplify a formula using the
-//   simplification rules (from [NW:SmallCNF-2001])
+//   Maximally (and destructively) simplify a formula using (primarily)
+//   the simplification rules (from [NW:SmallCNF-2001]).
+//
+//   P | P => P    P | T => T     P | F => P
+//   P & P => F    P & T => P     P & F -> F
+//   ~T = F        ~F = Ta
+//   P <-> P => T  P <-> F => F   P <-> T => T
+//   P <~> P => F  P <~> F => P   P <~> T => ~P
+//   P -> P => T   P -> T => T    P -> F => 
+//   ...
 //
 // Global Variables: -
 //
@@ -57,8 +65,40 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-Formula_p FormulaSimplify(Formula_p form)
+Formula_p FormulaSimplify(Formula_p form, TB_p terms)
 {
+   if(FormulaHasSubForm1(form))
+   {
+      FormulaRefSimplify(form->arg1, terms);
+   }
+   if(FormulaHasSubForm2(form))
+   {
+      FormulaRefSimplify(form->arg2, terms);
+   }
+   switch(form->op)
+   {
+   case OpUNot:
+         /* if(FormulaIsPropTrue(form->arg1))
+         {
+            form = FormulaPropConstantAlloc(terms, false);
+         }
+         else if(FormulaIsPropFalse(form->arg1))
+         {
+            form = FormulaPropConstantAlloc(terms, true);
+            }*/
+         /* When we have a literal formula, we always push the sign
+            down into the (inherently equational) literal */
+         if(FormulaIsLiteral(form->arg1))
+         {
+            Eqn_p tmp;
+            tmp = EqnAlloc(form->arg1->special.literal->lterm, 
+                           form->arg1->special.literal->rterm, 
+                           terms,
+                           !EqnIsPositive(form->arg1->special.literal));
+            form = FormulaLitAlloc(tmp);
+         }
+         break;
+   }
    return form;
 }
 
