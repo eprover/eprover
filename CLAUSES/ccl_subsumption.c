@@ -242,7 +242,6 @@ static bool eqn_subsumes_termpair(Eqn_p eqn, Term_p t1, Term_p t2)
    return res;
 }
 
-/* #define OLD_SUBSUMPTION */
 
 /*-----------------------------------------------------------------------
 //
@@ -257,8 +256,9 @@ static bool eqn_subsumes_termpair(Eqn_p eqn, Term_p t1, Term_p t2)
 //
 /----------------------------------------------------------------------*/
 
-#ifdef OLD_SUBSUMPTION
-static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
+#ifndef NDEBUG
+/* Old version used for comparison only */
+static Eqn_p find_spec_literal_old(Eqn_p lit, Eqn_p list)
 {
    Subst_p subst = SubstAlloc();
 
@@ -296,32 +296,34 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
    SubstDelete(subst);
    return list;
 }
-#else
+#endif
 
 /* New version using ordering */
 static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
 {
    Subst_p subst = SubstAlloc();
    int cmpres;
+#ifndef NDEBUG
+   Eqn_p old_res = find_spec_literal_old(lit, list);
+#endif
 
    for(;list;list = list->next)
    {
       cmpres = EqnSubsumeQOrderCompare(lit, list);
-      if(cmpres < 0)
+      if(cmpres > 0)
       {
          list = NULL;
          break; 
       }
-      if(cmpres >  0)
+      if(cmpres <  0)
       {
          continue;
       }      
-      cmpres = EqnSubsumeCompare(lit, list);
+      cmpres = EqnWeightCompare(lit, list);
       if(cmpres >  0)
       {
-         /*list = NULL;
-           break;*/
-         continue;
+         list = NULL;
+         break;
       }
       assert(PropsAreEquiv(lit, list, EPIsPositive|EPIsEquLiteral));
       if(EqnIsOriented(lit) && !EqnIsOriented(list))
@@ -351,9 +353,9 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
    }
    SubstDelete(subst);
    
+   assert(list == old_res);
    return list;
 }
-#endif
 
 
 /*-----------------------------------------------------------------------
@@ -371,7 +373,6 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
 
 static bool check_subsumption_possibility(Clause_p subsumer, Clause_p
 					  sub_candidate)
-#ifdef NEVER_DEFINED
 {
    bool    res = true;
    Eqn_p   sub_eqn;
@@ -386,7 +387,7 @@ static bool check_subsumption_possibility(Clause_p subsumer, Clause_p
    }
    return res;
 }
-#endif
+#ifdef NEVER_DEFINED
 {
    bool    res = true;
    Eqn_p   sub_eqn;
@@ -404,6 +405,7 @@ static bool check_subsumption_possibility(Clause_p subsumer, Clause_p
    PStackFree(lit_stack);
    return res;
 }
+#endif
 
 
 /*-----------------------------------------------------------------------
@@ -420,9 +422,10 @@ static bool check_subsumption_possibility(Clause_p subsumer, Clause_p
 //
 /----------------------------------------------------------------------*/
 
-#ifdef OLD_SUBSUMPTION
+/* Old version !*/
+#ifndef NDEBUG
 static
-bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
+bool eqn_list_rec_subsume_old(Eqn_p subsum_list, Eqn_p sub_cand_list,
 			  Subst_p subst, long* pick_list)
 {
    Eqn_p         eqn;
@@ -474,7 +477,7 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
 	 SubstComputeMatch(subsum_list->rterm, eqn->rterm,
 			   subst, TBTermEqual))
       {	 
-	 if(eqn_list_rec_subsume(subsum_list->next, sub_cand_list,
+	 if(eqn_list_rec_subsume_old(subsum_list->next, sub_cand_list,
 				    subst, pick_list))
 	 {
 	    return true;
@@ -492,7 +495,7 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
 	 SubstComputeMatch(subsum_list->rterm, eqn->lterm,
 			   subst, TBTermEqual))
       {
-	 if(eqn_list_rec_subsume(subsum_list->next, sub_cand_list,
+	 if(eqn_list_rec_subsume_old(subsum_list->next, sub_cand_list,
 				 subst, pick_list))
 	 {
 	    return true;
@@ -503,7 +506,8 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
    }
    return false;      
 }
-#else
+#endif
+
 static
 bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
 			  Subst_p subst, long* pick_list)
@@ -529,17 +533,15 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
       cmpres = EqnSubsumeQOrderCompare(eqn,subsum_list);
       if(cmpres < 0)
       {
-         continue;
          return false;
       }
       if(cmpres >  0)
       {
          continue;
       }      
-      cmpres = EqnSubsumeCompare(eqn,subsum_list);
+      cmpres = EqnWeightCompare(eqn,subsum_list);
       if(cmpres <  0)
       {
-         continue;
          return false;
       } 
       assert(PropsAreEquiv(subsum_list, eqn, EPIsPositive|EPIsEquLiteral));
@@ -588,8 +590,6 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
    }
    return false;      
 }
-
-#endif
 
 
 /*-----------------------------------------------------------------------
@@ -650,7 +650,17 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
    res = eqn_list_rec_subsume(subsumer->literals,
 			      sub_candidate->literals, subst,
 			      pick_list);
+
    IntArrayFree(pick_list, ClauseLiteralNumber(sub_candidate));
+#ifndef NDEBUG
+   pick_list = IntArrayAlloc(ClauseLiteralNumber(sub_candidate));
+   assert(res == eqn_list_rec_subsume_old(subsumer->literals,
+                                          sub_candidate->literals, subst,
+                                          pick_list));
+   
+   IntArrayFree(pick_list, ClauseLiteralNumber(sub_candidate));  
+#endif
+
 
    SubstDelete(subst);
 

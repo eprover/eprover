@@ -219,8 +219,9 @@ bool    EqnHasUnboundVars(Eqn_p eq, EqnSide dom_side);
 
 EqnSide EqnIsDefinition(Eqn_p eq, int min_arity);
 
+#define EqnWeightCompare(l1, l2) (EqnStandardWeight(l1)-EqnStandardWeight(l2))
 int     EqnSubsumeQOrderCompare(Eqn_p l1, Eqn_p l2);
-int     EqnSubsumeCompareRef(Eqn_p *l1, Eqn_p *l2);
+int     EqnSubsumeInverseCompareRef(Eqn_p *l1, Eqn_p *l2);
 int     EqnSubsumeCompare(Eqn_p l1, Eqn_p l2);
 
 Eqn_p   EqnCanonize(Eqn_p eq);

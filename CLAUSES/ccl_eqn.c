@@ -1156,10 +1156,10 @@ int EqnSubsumeQOrderCompare(Eqn_p l1, Eqn_p l2)
 
 /*-----------------------------------------------------------------------
 //
-// Function: EqnSubsumeCompareRef()
+// Function: EqnSubsumeInverseCompareRef()
 //
-//   Refine the previous ordering to a total ordering with the
-//   property that a larger literal can never subsume a smaller one.
+//   Compute a refinement of the inverse of the previous ordering such
+//   that a smaller literal can never subsume a larger ond
 //
 // Global Variables: -
 //
@@ -1167,13 +1167,13 @@ int EqnSubsumeQOrderCompare(Eqn_p l1, Eqn_p l2)
 //
 /----------------------------------------------------------------------*/
 
-int EqnSubsumeCompareRef(Eqn_p *l1, Eqn_p *l2)
+int EqnSubsumeInverseCompareRef(Eqn_p *l1, Eqn_p *l2)
 {
-   int res = EqnSubsumeQOrderCompare(*l1, *l2);
+   int res = EqnSubsumeQOrderCompare(*l2, *l1);
 
    if(!res)
    {
-      res = EqnStandardWeight(*l1) - EqnStandardWeight(*l2);
+      res = EqnWeightCompare(*l2, *l1);
    }
    return res;
 }
@@ -1182,7 +1182,8 @@ int EqnSubsumeCompareRef(Eqn_p *l1, Eqn_p *l2)
 //
 // Function: EqnSubsumeCompare()
 //
-//   As the previous function, but accept pointers.
+//   Compute the inverse of the previous order, taking pointers as
+//   arguments. 
 //
 // Global Variables: -
 //
@@ -1192,7 +1193,7 @@ int EqnSubsumeCompareRef(Eqn_p *l1, Eqn_p *l2)
 
 int EqnSubsumeCompare(Eqn_p l1, Eqn_p l2)
 {
-   return EqnSubsumeCompareRef(&l1, &l2);
+   return EqnSubsumeInverseCompareRef(&l2, &l1);
 }
 
 
