@@ -36,7 +36,8 @@ static TokenRepCell token_print_rep[] =
    {Ident,        "Identifier not terminating in a number"},
    {Idnum,        "Identifier terminating in a number"},
    {SemIdent,     "Interpreted function/predicate name ('$name')"},
-   {String,       "String enclosed in \"\" or ''"},
+   {String,       "String enclosed in double quotes (\"\")"},
+   {SQString,     "String enclosed in single quote ('')"},
    {PosInt,       "Integer (sequence of digits)"},
    {OpenBracket,  "Opening bracket ('(')"},
    {CloseBracket, "Closing bracket (')')"},
@@ -247,7 +248,7 @@ static void scan_C_comment(Scanner_p in)
 //
 // Function: scan_string()
 //
-//   Scan a string (enclosed in ""). Only the value of the strings,
+//   Scan a string (enclosed in "" or ''). Only the value of the strings,
 //   not the delimiter is stored.
 //
 // Global Variables: -
@@ -258,7 +259,7 @@ static void scan_C_comment(Scanner_p in)
 
 static void scan_string(Scanner_p in, char delim)
 {
-   AktToken(in)->tok = String;
+   AktToken(in)->tok = (delim=='\'')?SQString:String;
    
    DStrAppendChar(AktToken(in)->literal, CurrChar(in));
    NextChar(in);
