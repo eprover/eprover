@@ -334,6 +334,13 @@ static Token_p scan_token(Scanner_p in)
    {
       scan_string(in, CurrChar(in));
    }
+   else if((CurrChar(in)=='$') && isidchar(LookChar(in,1)))
+   {
+      DStrAppendChar(AktToken(in)->literal, CurrChar(in));
+      NextChar(in);
+      scan_ident(in);
+      AktToken(in)->tok = SemIdent;            
+   }
    else
    {
       switch(CurrChar(in))
@@ -456,19 +463,6 @@ static Token_p scan_token(Scanner_p in)
       case '.':
             AktToken(in)->tok = Fullstop;
             break;
-      case '$':
-            if(isidchar(LookChar(in,1)))
-            {
-               DStrAppendChar(AktToken(in)->literal, CurrChar(in));
-               NextChar(in);
-               scan_ident(in);
-               AktToken(in)->tok = SemIdent;            
-            }
-            else
-            {
-               AktToken(in)->tok = Dollar;
-            }
-	    break;
       case '|':
 	    AktToken(in)->tok = Pipe;
 	    break;
@@ -477,6 +471,9 @@ static Token_p scan_token(Scanner_p in)
 	    break;
       case '&':
 	    AktToken(in)->tok = Ampersand;
+	    break;
+      case '$':
+	    AktToken(in)->tok = Dollar;
 	    break;
       default:
 	    DStrAppendChar(AktToken(in)->literal, CurrChar(in));

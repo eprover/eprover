@@ -47,13 +47,10 @@ typedef unsigned long long TokenType;
 #define NoToken       1LL
 #define WhiteSpace    (2*NoToken)
 #define Comment       (2*WhiteSpace)
-#define SkipToken     (WhiteSpace | Comment)
 #define Ident         (2*Comment)
 #define Idnum         (2*Ident)
-#define Identifier    (Ident | Idnum)
 #define SemIdent      (2*Idnum)
 #define String        (2*SemIdent)
-#define Name          (Identifier | String)
 #define PosInt        (2*String)
 #define OpenBracket   (2*PosInt)
 #define CloseBracket  (2*OpenBracket)
@@ -89,7 +86,15 @@ typedef unsigned long long TokenType;
 #define FOFXor        (2*FOFEquiv)
 #define FOFNand       (2*FOFXor)
 #define FOFNor        (2*FOFNand)
+
+
+#define SkipToken     (WhiteSpace | Comment)
+#define Identifier    (Ident | Idnum)
+#define Name          (Identifier | String)
 #define FOFBinOp      (FOFAnd|FOFOr|FOFLRImpl|FOFRLImpl|FOFEquiv|FOFXor|FOFNand|FOFNor)
+
+
+
 
 /* If your application parses multiple format you can use this to
    distinguish them: */
