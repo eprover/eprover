@@ -334,17 +334,7 @@ bool TermParseOperator(Scanner_p in, DStr_p id)
 {
    bool res = true;
 
-   if(TestInpTok(in, Dollar))
-   {
-      DStrAppendChar(id, '$');
-      res = false;
-      NextToken(in);
-      if(!TestInpNoSkip(in))
-      {
-         AktTokenError(in, "Build-In symbol name incomplete", false);
-      }
-   }
-   if(!isupper(DStrView(AktToken(in)->literal)[0]))
+   if(TestInpTok(in, SemIdent) ||!isupper(DStrView(AktToken(in)->literal)[0]))
    {
       res = false;
    }

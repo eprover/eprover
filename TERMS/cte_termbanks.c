@@ -964,8 +964,7 @@ Term_p TBTermParse(Scanner_p in, TB_p bank)
 	    TermFree(tmp);
 	    AcceptInpTok(in, PosInt);
 	 }
-	 else
-	 if(TermParseOperator(in, id))
+	 else if(TermParseOperator(in, id))
 	 {
 	    handle = VarBankExtNameAssertAlloc(bank->vars, DStrView(id));
 	 }

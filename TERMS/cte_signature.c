@@ -29,7 +29,7 @@ Changes
 /*---------------------------------------------------------------------*/
 
 bool      SigSupportLists = false; 
-TokenType SigIdentToken   = Identifier | PosInt;
+TokenType SigIdentToken   = Identifier | PosInt | SemIdent;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -400,15 +400,6 @@ void SigPrintACStatus(FILE* out, Sig_p sig)
 
 void SigParseOperator(Scanner_p in, DStr_p id)
 {
-   if(TestInpTok(in, Dollar))
-   {
-      DStrAppendChar(id, '$');
-      NextToken(in);
-      if(!TestInpNoSkip(in))
-      {
-         AktTokenError(in, "Build-In symbol name incomplete", false);
-      }
-   }
    DStrAppendStr(id, DStrView(AktToken(in)->literal));
    AcceptInpTok(in, SigIdentToken);
 }
@@ -530,12 +521,8 @@ FunCode SigParse(Scanner_p in, Sig_p sig, bool special_ids)
 {
    FunCode res = 0;
 
-   while((TestInpTok(in, SigIdentToken) &&
-	  TestTok(LookToken(in, 1), Colon))
-	 ||
-	 (TestInpTok(in, Dollar) &&
-	  TestTok(LookToken(in, 1), SigIdentToken) &&
-	  TestTok(LookToken(in, 2), Colon)))
+   while(TestInpTok(in, SigIdentToken) &&
+         TestTok(LookToken(in, 1), Colon))
    {
       res = SigParseSymbolDeclaration(in, sig, special_ids);
    }
