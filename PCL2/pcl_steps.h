@@ -30,13 +30,30 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
+typedef enum 
+{
+   PCLNoProp,
+   PLCIsLemma,
+   PCLIsInitial,
+   PCLIsFinal   
+}PCLStepProperties;
+
+
 typedef struct pclstepcell
 {
-   PCLId_p   id;
-   Clause_p  clause;
-   PCLExpr_p just;
-   bool      extra_string;
-   char*     extra;
+   PCLId_p           id;
+   Clause_p          clause;
+   PCLExpr_p         just;
+   bool              extra_string;   
+   char*             extra;
+   PCLStepProperties properties;
+   long              proof_dag_size;
+   long              proof_tree_size;
+   long              active_pm_refs;
+   long              other_generating_refs;
+   long              active_simpl_refs;
+   long              passive_simpl_refs;
+   long              subsum_refs;
 }PCLStepCell, *PCLStep_p;
 
 
@@ -49,12 +66,19 @@ typedef struct pclstepcell
 #define PCLStepCellAlloc() (PCLStepCell*)SizeMalloc(sizeof(PCLStepCell))
 #define PCLStepCellFree(junk)         SizeFree(junk, sizeof(PCLStepCell))
 
+#define PCLStepSetProp(clause, prop) SetProp((clause), (prop))
+#define PCLStepDelProp(clause, prop) DelProp((clause), (prop))
+#define PCLStepGiveProps(clause, prop) GiveProps((clause), (prop))
+#define PCLStepQueryProp(clause, prop) QueryProp((clause), (prop))
+#define PCLStepIsAnyPropSet(clause, prop) IsAnyPropSet((clause), (prop))
+
 void      PCLStepFree(PCLStep_p junk);
 
 PCLStep_p PCLStepParse(Scanner_p in, TB_p bank);
 void      PCLStepPrint(FILE* out, PCLStep_p step);
 
 int       PCLStepIdCompare(PCLStep_p step1, PCLStep_p step2);
+void      PCLStepResetTreeData(PCLStep_p step);
 
 #endif
 

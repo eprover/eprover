@@ -62,11 +62,14 @@ PCLStep_p PCLProtFindStep(PCLProt_p prot, PCLId_p id);
 long      PCLProtParse(Scanner_p in, PCLProt_p prot);
 void      PCLProtPrint(FILE* out, PCLProt_p prot);
 
+void      PCLProtResetTreeData(PCLProt_p prot);
+
 void      PCLExprCollectPreconds(PCLProt_p prot, PCLExpr_p expr,
 				 PTree_p *tree);
 
 long      PCLProtMarkProofClauses(PCLProt_p prot);
 void      PCLProtPrintProofClauses(FILE* out, PCLProt_p prot);
+
 
 #endif
 

@@ -166,6 +166,31 @@ int PCLStepIdCompare(PCLStep_p step1, PCLStep_p step2)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: PCLStepResetTreeData()
+//
+//   Reset all counters and size data elements in the step to 0.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void PCLStepResetCounters(PCLStep_p step)
+{
+   step->proof_dag_size        = 0;
+   step->proof_tree_size       = 0;
+   step->active_pm_refs        = 0;
+   step->other_generating_refs = 0;
+   step->active_simpl_refs     = 0;  
+   step->passive_simpl_refs    = 0;  
+   step->subsum_refs           = 0;
+}
+
+
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

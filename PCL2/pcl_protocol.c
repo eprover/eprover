@@ -234,6 +234,32 @@ void PCLProtPrint(FILE* out, PCLProt_p prot)
 
 /*-----------------------------------------------------------------------
 //
+// Function: PCLProtResetTreeData()
+//
+//   Reset the tree data counters in all steps in the protocol.
+//
+// Global Variables: -
+//
+// Side Effects    : As described
+//
+/----------------------------------------------------------------------*/
+
+void PCLProtResetTreeData(PCLProt_p prot)
+{
+   PStack_p stack;
+   PTree_p  cell; 
+   
+   stack = PTreeTraverseInit(prot->steps);
+   while((cell=PTreeTraverseNext(stack)))
+   {
+      PCLStepResetTreeData(cell->key);
+   }
+   PTreeTraverseExit(stack);
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: PCLExprCollectPreconds()
 //
 //   Collect all PCL steps referenced in expr into tree.
