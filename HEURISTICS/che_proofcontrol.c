@@ -55,6 +55,11 @@ char* DefaultHeuristics=
 "LIFO       = (1*lifo_f)                             \n"
 "Default    = (3*rweight21_a, 1*rweight21_g)         \n"
 "Uniq       = (1*Uniqweight(ConstPrio))\n"
+"UseWatchlist = \n"
+"(10*Refinedweight(PreferGoals,1,2,2,2,0.5),"
+" 10*Refinedweight(PreferNonGoals,2,1,2,2,2),"
+" 5*OrientLMaxWeight(PreferWatchlist,2,1,2,1,1),"
+" 1*FIFOWeight(PreferWatchlist))\n"
 "/* Here start the auto-mode-heuristics*/            \n"
 #ifdef NEVER_DEFINED
 "/* H*-Strategies: */  \n"

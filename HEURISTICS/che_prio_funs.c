@@ -57,6 +57,8 @@ char* PrioFunNames[]=
    "PreferUnitAndNonEq",
    "DeferNonUnitMaxEq",
    "ByCreationDate",
+   "PreferWatchlist",
+   "DeferWatchlist",
    NULL
 };
 
@@ -88,6 +90,8 @@ static ClausePrioFun prio_fun_array[]=
    PrioFunPreferUnitAndNonEq,
    PrioFunDeferNonUnitMaxPosEq,
    PrioFunByCreationDate,
+   PrioFunPreferWatchlist,
+   PrioFunDeferWatchlist,
    NULL
 };
 
@@ -817,6 +821,56 @@ EvalPriority PrioFunByCreationDate(Clause_p clause)
    
    return clause->create_date;
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: PrioFunPreferWatchlist()
+//
+//   Prefer clauses that have subsumed a watchlist clause.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+EvalPriority PrioFunPreferWatchlist(Clause_p clause)
+{
+   assert(clause);
+
+   if(ClauseQueryProp(clause, CPSubsumesWatch))
+   {
+      return PrioPrefer;
+   }
+   return PrioNormal;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PrioFunDeferWatchlist()
+//
+//   Defer clauses that have subsumed a watchlist clause (probably
+//   useful only for symmetry reasons).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+EvalPriority PrioFunDeferWatchlist(Clause_p clause)
+{
+   assert(clause);
+
+   if(ClauseQueryProp(clause, CPSubsumesWatch))
+   {
+      return PrioDefer;
+   }
+   return PrioNormal;
+}
+
+
 
 
 /*---------------------------------------------------------------------*/
