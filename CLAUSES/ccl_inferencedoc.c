@@ -290,7 +290,7 @@ static void print_factor(FILE* out, Clause_p clause, Clause_p
    case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
-		 ", inference("PCL_OF",[status(thm)],[c_0_%ld,theory(equality)])",
+		 ", inference("PCL_OF",[status(thm)],[c_0_%ld,theory(equality:s)])",
 		 parent1->ident);
 	 tstp_print_end(out, comment, clause);
 	 break;
@@ -403,7 +403,8 @@ static void print_context_simplify_reflect(FILE* out, Clause_p clause, long
  case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
-		 ", inference("PCL_CSR",[status(thm)],[c_0_%ld,c_0_%ld])",
+		 ", inference("PCL_CSR
+                 ",[status(thm)],[c_0_%ld,c_0_%ld,theory(equality:s)])",
 		 old_id,
 		 partner->ident);
 	 tstp_print_end(out, comment, clause);
@@ -449,7 +450,8 @@ static void print_ac_res(FILE* out, Clause_p clause, long
    case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
-		 ", inference("PCL_ACRES",[status(thm)],[c_0_%ld", old_id);
+		 ", inference("PCL_ACRES
+                 ",[status(thm)],[c_0_%ld,theory(equality)", old_id);
 	 assert(!PStackEmpty(sig->ac_axioms));
 	 sp = PStackGetSP(sig->ac_axioms);
 	 for(i=0; i< sp; i++)
@@ -492,7 +494,7 @@ static void print_minimize(FILE* out, Clause_p clause, long
    case tstp_format:
          ClauseTSTPPrint(out, clause, PCLFullTerms, false);
          fprintf(out, 
-                 ", inference("PCL_CN",[status(thm)],[c_0_%ld, theory(equality)])", 
+                 ", inference("PCL_CN",[status(thm)],[c_0_%ld, theory(equality:s)])", 
                  old_id);
          tstp_print_end(out, comment, clause);
          break;
