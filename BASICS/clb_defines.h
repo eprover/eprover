@@ -27,13 +27,13 @@ Changes
 #include <assert.h>
 #include <stdio.h> 
 #include <errno.h>
-#ifdef SPEC
+#ifdef SPEC_CPU2004
 #define MAXPATHLEN 256
 #define RESTRICTED_FOR_WINDOWS
 #else
 #include <sys/param.h>
-#endif
 #include <unistd.h>
+#endif
 #include <stdlib.h>
 #include <math.h>
 

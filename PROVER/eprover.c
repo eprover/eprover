@@ -20,11 +20,7 @@ Changes
 
 -----------------------------------------------------------------------*/
 
-#ifndef RESTRICTED_FOR_WINDOWS
-#include <sys/time.h>
-#include <unistd.h>
-#endif
-
+#include <clb_defines.h>
 #include <cio_commandline.h>
 #include <cio_output.h>
 #include <cco_proofproc.h>
@@ -36,7 +32,7 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-#define VERSION      "0.8dev023"
+#define VERSION      "0.8dev024"
 #define NAME         "eprover"
 
 #ifdef SAFELOGIC

@@ -63,6 +63,12 @@ static Clause_p get_next_clause(PStack_p stack)
    return NULL;   
 }
 
+
+void default_exit_fun(void* data)
+{
+   return;
+}
+
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
@@ -176,7 +182,7 @@ HCB_p HCBAlloc(void)
    handle->select_switch = PDArrayAlloc(4,4);
    handle->select_count  = 0;
    handle->hcb_select    = HCBStandardClauseSelect;
-   handle->hcb_exit      = NULL;
+   handle->hcb_exit      = default_exit_fun;
    handle->data          = NULL;
 
    return handle;

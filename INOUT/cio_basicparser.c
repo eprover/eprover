@@ -242,8 +242,6 @@ char* ParseFilename(Scanner_p in)
    return SecureStrdup(DStrView(in->accu));
 #else
    res = realpath(DStrView(in->accu), store);      
-#endif /* !SPEC_CPU2004 */
-
    res = realpath(DStrView(in->accu), store);      
    if(!res)
    {
@@ -257,6 +255,7 @@ char* ParseFilename(Scanner_p in)
       DStrFree(errstr);
    }
    return SecureStrdup(res);
+#endif /* !SPEC_CPU2004 */
 }
 
 /*---------------------------------------------------------------------*/

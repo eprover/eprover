@@ -83,7 +83,7 @@ static WeightFunParseFun parse_fun_array[]=
    ClauseWeightAgeParse,
    TSMWeightParse,
    TSMRWeightParse,
-   NULL
+   (WeightFunParseFun)NULL
 };
 
 
@@ -254,7 +254,7 @@ WeightFunParseFun GetWeightFunParseFun(char* name)
    {
       return parse_fun_array[index];
    }
-   return NULL;
+   return (WeightFunParseFun)NULL;
 }
 
 

@@ -229,7 +229,7 @@ static LiteralSelectionFun litsel_fun_array[]=
    PSelectComplexExceptUniqMaxPosHorn,
    SelectUnlessUniqMaxSmallestOrientable,
    PSelectUnlessUniqMaxSmallestOrientable,
-   NULL
+   (LiteralSelectionFun)NULL
 };
 
 
@@ -612,7 +612,7 @@ LiteralSelectionFun GetLitSelFun(char* name)
    {
       return litsel_fun_array[index];
    }
-   return NULL;
+   return (LiteralSelectionFun)NULL;
 }
 
 

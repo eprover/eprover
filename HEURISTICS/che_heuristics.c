@@ -38,7 +38,7 @@ HeuristicAssocCell HeuristicsTable[]=
 #ifdef SAFELOGIC
    {HEU_SL_AUTO_MODE,  "SLAuto",    HCBSLAutoModeCreate},
 #endif
-   {HEU_NO_HEURISTIC, NULL,       NULL}
+   {HEU_NO_HEURISTIC, NULL,         (HCBCreateFun)NULL}
 };
 
 /*---------------------------------------------------------------------*/
