@@ -40,14 +40,15 @@ typedef enum
    WPInitialConjecture = 2,        /* Formula was a conjecture in the
                                       input (and may have been negated
                                       in preprocessing */
-   WPTypeAxiom         = 128,      /* Value for consistency with
-                                    * ClauseProps, we also use it for as
-                                    * a catch-all type for TPTP/TSTP
-                                    * types not explicitely checked
-                                    * for. */
-   WPTypeHypothesis    = 256,      
-   WPTypeConjecture    = 512,
-   WPTypeMask          = WPTypeAxiom|WPTypeHypothesis|WPTypeConjecture,
+   WPType1          = CPType1, /* 128 */
+   WPType2          = CPType2, 
+   WPType3          = CPType3,
+   WPTypeMask       = CPType1|CPType2|CPType3,
+   WPTypeUnknown    = 0,               /* Also used as wildcard */
+   WPTypeAxiom      = CPType1,         /* Clause is Axiom */
+   WPTypeHypothesis = CPType2,         /* Clause is Hypothesis */
+   WPTypeConjecture = CPType1|CPType2, /* Clause is Conjecture */
+   WPTypeLemma      = CPType3,         /* Clause is Lemma */
 }WFormulaProperties;
 
 
@@ -106,7 +107,6 @@ WFormula_p WFormulaParse(Scanner_p in, TB_p terms);
 void       WFormulaPrint(FILE* out, WFormula_p form, bool fullterms);
 
 bool       WFormulaConjectureNegate(WFormula_p form);
-void       WFormulaCNF(WFormula_p form, TB_p terms);
 
 #define FormulaSetCellAlloc()    (FormulaSetCell*)SizeMalloc(sizeof(FormulaSetCell))
 #define FormulaSetCellFree(junk) SizeFree(junk, sizeof(FormulaSetCell))
@@ -121,9 +121,7 @@ WFormula_p   FormulaSetExtractFirst(FormulaSet_p set);
 void         FormulaSetDeleteEntry(WFormula_p form);
 
 long         FormulaSetPreprocConjectures(FormulaSet_p set);
-void         FormulaSetCNF(FormulaSet_p set, TB_p terms);
-long         FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset,
-                                      FormulaSet_p fset, TB_p terms);
+
 void         FormulaSetPrint(FILE* out, FormulaSet_p set, 
                              bool fullterms);
 

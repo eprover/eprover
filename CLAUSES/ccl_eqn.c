@@ -1547,7 +1547,9 @@ bool LiteralGreater(OCB_p ocb, Eqn_p eq1, Eqn_p eq2)
 //
 // Function: SubstNormEqn()
 //
-//   Instantiate all variables in eq with normed variables.
+//   Instantiate all variables in eq with normed variables. Returns
+//   the previous value of vars->v_count, i.e. the number of the first
+//   fresh variable used.
 //
 // Global Variables: -
 //
@@ -1559,8 +1561,8 @@ FunCode SubstNormEqn(Eqn_p eq, Subst_p subst, VarBank_p vars)
 {
   FunCode res;
 
-   SubstNormTerm(eq->lterm, subst, vars);
-   res = SubstNormTerm(eq->rterm, subst, vars);
+   res = SubstNormTerm(eq->lterm, subst, vars);
+   SubstNormTerm(eq->rterm, subst, vars);
    
    return res;
 }

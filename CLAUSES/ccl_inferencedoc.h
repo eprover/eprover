@@ -25,7 +25,7 @@ Changes
 #define CCL_INFERENCEDOC
 
 #include <ccl_clausepos.h>
-
+#include <ccl_formula_wrapper.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */

@@ -6,8 +6,8 @@ Author: Stephan Schulz
 
 Contents
  
-  Clause functions that need to know about sets (and similar stuff,
-  ccl_clauses.c is to big anyways).
+  Clause and formula functions that need to know about sets (and
+  similar stuff (ccl_clauses.c is to big anyways).
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence.
@@ -26,6 +26,7 @@ Changes
 #define CCL_CLAUSEFUNC
 
 #include <ccl_clausesets.h>
+#include <ccl_formula_wrapper.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -45,6 +46,16 @@ long ClauseSetRemoveSuperfluousLiterals(ClauseSet_p set);
 void ClauseSetCanonize(ClauseSet_p set);
 int  ClauseRemoveACResolved(Clause_p clause);
 bool ClauseUnitSimplifyTest(Clause_p clause, Clause_p simplifier);
+
+long WFormulaCNF(WFormula_p form, ClauseSet_p set, 
+                       TB_p terms, VarBank_p fresh_vars);
+void FormulaSetCNF(FormulaSet_p set, ClauseSet_p clauseset, 
+                   TB_p terms, VarBank_p fresh_vars);
+long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset,
+                              FormulaSet_p fset, TB_p terms);
+
+long FormulaToCNF(Formula_p form, ClauseProperties type, 
+                  ClauseSet_p set, TB_p terms, VarBank_p fresh_vars);
 
 #endif
 

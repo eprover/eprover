@@ -1063,7 +1063,9 @@ Eqn_p EqnListParse(Scanner_p in, TB_p bank, TokenType sep)
 // Function: NormSubstEqnListExcept()
 //
 //   Instantiate all variables in eqnlist (except for terms from
-//   except)  with fresh variables from vars. 
+//   except)  with fresh variables from vars. Returns the old value
+//   for vars->v_count, i.e. the number of the first
+//   fresh variable used.
 //
 // Global Variables: -
 //
@@ -1081,7 +1083,7 @@ FunCode NormSubstEqnListExcept(Eqn_p list, Eqn_p except, Subst_p
    {
       if(handle!= except)
       {
-	 res = SubstNormEqn(handle, subst, vars);
+	 SubstNormEqn(handle, subst, vars);
       }
    }
    return res;

@@ -90,6 +90,8 @@ Eqn_p   EqnListParse(Scanner_p in, TB_p bank, TokenType sep);
 
 FunCode NormSubstEqnListExcept(Eqn_p list, Eqn_p except, Subst_p
 			       subst, VarBank_p vars);
+#define NormSubstEqnList(list, subst, vars) \
+        NormSubstEqnListExcept((list), NULL, (subst), (vars))
 
 long    EqnListDepth(Eqn_p list);
 

@@ -26,6 +26,7 @@ Changes
 #define CCL_CNF
 
 #include <ccl_formulae.h>
+#include <ccl_clausesets.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -50,10 +51,7 @@ Formula_p FormulaSkolemizeOutermost(Formula_p form, TB_p terms);
 
 Formula_p FormulaDistributeDisjunctions(Formula_p form);
 
-bool FormulaCNF(Formula_p *form, TB_p terms);
-
-
-
+bool FormulaConjunctiveNF(Formula_p *form, TB_p terms);
 
 
 #endif

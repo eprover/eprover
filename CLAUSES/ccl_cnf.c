@@ -222,6 +222,7 @@ Formula_p formula_rek_skolemize(Formula_p form, TB_p terms, PStack_p free_vars)
          break;
    case OpQEx:
          var = form->special.var;
+         assert(TermIsVar(var));
          assert(!var->binding);
          sk_term = TBAllocNewSkolem(terms,free_vars);
          var->binding = sk_term;
@@ -233,6 +234,7 @@ Formula_p formula_rek_skolemize(Formula_p form, TB_p terms, PStack_p free_vars)
          break;
    case OpQAll:
          var = form->special.var;
+         assert(TermIsVar(var));
          assert(!var->binding);
          PStackPushP(free_vars, var);
          form->arg1 = formula_rek_skolemize(form->arg1, terms, free_vars);
@@ -251,6 +253,8 @@ Formula_p formula_rek_skolemize(Formula_p form, TB_p terms, PStack_p free_vars)
    }
    return form;
 }
+
+
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -796,11 +800,12 @@ Formula_p FormulaDistributeDisjunctions(Formula_p form)
 }
 
 
+
 /*-----------------------------------------------------------------------
 //
-// Function: FormulaCNF()
+// Function: FormulaConjunctiveNF()
 //
-//   Transform a formula into CNF.
+//   Transform a formula into Conjunctive Normal Form.
 //
 // Global Variables: -
 //
@@ -808,7 +813,7 @@ Formula_p FormulaDistributeDisjunctions(Formula_p form)
 //
 /----------------------------------------------------------------------*/
 
-bool FormulaCNF(Formula_p *form, TB_p terms)
+bool FormulaConjunctiveNF(Formula_p *form, TB_p terms)
 {
    bool res, tmp;
    Formula_p handle;
@@ -834,7 +839,6 @@ bool FormulaCNF(Formula_p *form, TB_p terms)
    *form = FormulaDistributeDisjunctions(*form);
    return res;
 }
-
 
 
 
