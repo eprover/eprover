@@ -172,6 +172,8 @@ int ClauseRemoveSuperfluousLiterals(Clause_p clause)
    Eqn_p handle;
    int   removed = 0;
 
+   assert(!ClauseIsAnyPropSet(clause, CPIsDIndexed|CPIsSIndexed));
+
    removed += EqnListRemoveResolved(&(clause->literals), TBTermEqual);
    removed += EqnListRemoveDuplicates(clause->literals, TBTermEqual);
    
@@ -180,7 +182,8 @@ int ClauseRemoveSuperfluousLiterals(Clause_p clause)
       clause->neg_lit_no = 0;
       clause->pos_lit_no = 0;   
       handle = clause->literals;
-      
+      ClauseDelProp(clause, CPInitial);
+
       while(handle)
       {
 	 if(EqnIsPositive(handle))
@@ -286,6 +289,7 @@ int ClauseRemoveACResolved(Clause_p clause)
    clause->neg_lit_no -= removed ;
    if(removed)
    {
+      ClauseDelProp(clause, CPInitial);
       DocClauseModification(GlobalOut, OutputLevel, clause,
 			    inf_ac_resolution, NULL, sig, NULL);	 
    }

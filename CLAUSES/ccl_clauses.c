@@ -1047,14 +1047,17 @@ void ClausePrintTPTPFormat(FILE* out, Clause_p clause)
    switch(ClauseQueryTPTPType(clause))
    {
    case CPTypeAxiom:
-      typename = "axiom";
-      break;
+         typename = "axiom";
+         break;
    case CPTypeHypothesis:
-      typename = "hypothesis";
-      break;      
+         typename = "hypothesis";
+         break;      
    case CPTypeConjecture:
-      typename = "conjecture";
-      break;
+         typename = "conjecture";
+         break;
+   case CPTypeLemma:
+         typename = "lemma";
+         break;
    default:
 	 typename = "unknown";
 	 break;
@@ -1205,22 +1208,43 @@ void ClauseTSTPCorePrint(FILE* out, Clause_p clause, bool fullterms)
 void ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms, bool complete)
 {
    int source;
+   char* typename;
 
+   switch(ClauseQueryTPTPType(clause))
+   {
+   case CPTypeAxiom:
+         typename = "-axiom";
+         break;
+   case CPTypeHypothesis:
+         typename = "-hypothesis";
+         break;      
+   case CPTypeConjecture:
+         typename = "-conjecture";
+         break;
+   case CPTypeLemma:
+         typename = "-lemma";
+         break;
+   default:
+	 typename = "";
+	 break;
+   }   
    source = ClauseQueryCSSCPASource(clause);
 
    if(clause->ident >= 0)
    {
-      fprintf(out, "cnf(c_%d_%ld, %s,", 
+      fprintf(out, "cnf(c_%d_%ld, %s%s,", 
 	      source, 
 	      clause->ident, 
-	      ClauseQueryProp(clause, CPInitial)?"initial":"derived");
+	      ClauseQueryProp(clause, CPInitial)?"initial":"derived",
+              typename);
    }
    else
    {
-      fprintf(out, "cnf(i_%d_%ld, %s,", 
+      fprintf(out, "cnf(i_%d_%ld, %s%s,", 
 	      source,
 	      clause->ident-LONG_MIN, 
-	      ClauseQueryProp(clause, CPInitial)?"initial":"derived");
+	      ClauseQueryProp(clause, CPInitial)?"initial":"derived",
+              typename);
    }   
    ClauseTSTPCorePrint(out, clause, fullterms);
    if(complete)
@@ -1296,17 +1320,25 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
       AcceptInpTok(in, Name);
       AcceptInpTok(in, Comma);
       CheckInpId(in, "axiom|hypothesis|conjecture|lemma|unknown");
-      if(TestInpId(in, "axiom|lemma|unknown"))
+      if(TestInpId(in, "axiom"))
       {
 	 type = CPTypeAxiom;
+      }
+      else if(TestInpId(in, "hypothesis"))
+      {
+	 type = CPTypeHypothesis;
       }
       else if(TestInpId(in, "conjecture"))
       {
 	 type = CPTypeConjecture;
       }
+      else if(TestInpId(in, "lemma"))
+      {
+	 type = CPTypeLemma;
+      }
       else
       {
-	 type = CPTypeHypothesis;
+	 type = CPTypeUnknown;
       }
       AcceptInpTok(in, Ident);
       AcceptInpTok(in, Comma);
@@ -1341,7 +1373,7 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
 		    "hypothesis|conjecture|lemma|unknown");
 	 if(TestInpId(in, 
 		      "axiom|definition|knowledge|"
-		      "assumption|lemma|unknown"))
+		      "assumption"))
 	 {
 	    type = CPTypeAxiom;
 	 }
@@ -1349,9 +1381,17 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
 	 {
 	    type = CPTypeConjecture;
 	 }
-	 else
+	 else if(TestInpId(in, "hypothesis"))
 	 {
 	    type = CPTypeHypothesis;
+	 }
+	 else if(TestInpId(in, "lemma"))
+	 {
+	    type = CPTypeLemma;
+	 }
+	 else
+	 {
+	    type = CPTypeUnknown;
 	 }
 	 AcceptInpTok(in, Ident);
       }

@@ -938,10 +938,14 @@ bool ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
    {
       ClauseSetProp(clause, CPIsSOS);
    }
+   if(res)
+   {
+      ClauseDelProp(clause, CPInitial);
+   }
    RWDescCellFree(desc);
    DEBUG(RW_INTERFACE_WATCH1, printf("# Res :");
 	 ClausePrint(stdout, clause, true);printf("\n"););
-   DEBUGMARK(RW_INTERFACE_WATCH1, "...ClauseComputeLINormalform()\n");   
+   DEBUGMARK(RW_INTERFACE_WATCH1, "...ClauseComputeLINormalform()\n");      
    return res;
 }
 

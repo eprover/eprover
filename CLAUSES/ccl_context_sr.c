@@ -79,6 +79,7 @@ int ClauseContextualSimplifyReflect(ClauseSet_p set, Clause_p clause)
 	 {
 	    ClauseSetProp(clause, CPIsSOS);
 	 }
+         ClauseDelProp(clause, CPInitial);
 	 DocClauseModificationDefault(clause, 
 				      inf_context_simplify_reflect,
 				      subsumer);
