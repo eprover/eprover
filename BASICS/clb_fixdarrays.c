@@ -89,6 +89,56 @@ void FixedDArrayFree(FixedDArray_p junk)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: FixedDArrayCopy()
+//
+//   Copy an array, return pointer to new copy.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+FixedDArray_p FixedDArrayCopy(FixedDArray_p array)
+{
+   FixedDArray_p handle = FixedDArrayAlloc(array->size);
+   long i;
+
+   for(i=0; i<array->size; i++)
+   {
+      handle->array[i] = array->array[i];
+   }
+   return handle;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FixedDArrayPrint()
+//
+//   Print an array (useful for debugging, I suspect).
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void FixedDArrayPrint(FILE* out, FixedDArray_p array)
+{
+   long i;
+
+   fprintf(out, "# Size %ld:", array->size);
+   for(i=0; i<array->size; i++)
+   {
+      fprintf(out, " %4ld", array->array[i]);
+   }
+   fputc('\n', out);
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

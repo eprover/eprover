@@ -52,6 +52,11 @@ void          FixedDArrayFree(FixedDArray_p junk);
 
 #define FixedDArraySize(array) ((array)->size)
 
+FixedDArray_p FixedDArrayCopy(FixedDArray_p array);
+
+void          FixedDArrayPrint(FILE* out, FixedDArray_p array);
+
+
 #endif
 
 /*---------------------------------------------------------------------*/
