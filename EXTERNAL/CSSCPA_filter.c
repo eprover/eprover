@@ -121,8 +121,7 @@ int main(int argc, char* argv[])
 
    assert(argv[0]);
 
-   InitOutput();
-   InitError(NAME);
+   InitIO(NAME);
 
    state = process_options(argc, argv);
 
@@ -139,7 +138,7 @@ int main(int argc, char* argv[])
 
    for(i=0; state->argv[i]; i++)
    {
-      in = CreateScanner(StreamTypeFile, state->argv[i] , true, NULL);
+      in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL);
       ScannerSetFormat(in, TSTPFormat);
       CSSCPALoop(in, procstate);
       DestroyScanner(in);
@@ -154,7 +153,8 @@ int main(int argc, char* argv[])
 
    fflush(GlobalOut);
    OutClose(GlobalOut);
-   
+   ExitIO();
+      
 #ifdef CLB_MEMORY_DEBUG
    MemFlushFreeList();
    MemDebugPrintStats(stdout);
