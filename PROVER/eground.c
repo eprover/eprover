@@ -283,8 +283,7 @@ int main(int argc, char* argv[])
    
    assert(argv[0]);
    
-   InitOutput();
-   InitError("eground");
+   InitIO("eground");
    ESignalSetup(SIGXCPU);
    AllocReserveMemory(4*MEGA);
 
@@ -302,7 +301,7 @@ int main(int argc, char* argv[])
    clauses = ClauseSetAlloc();
    for(i=0; state->argv[i]; i++)
    {
-      in = CreateScanner(StreamTypeFile, state->argv[i] , true, NULL);
+      in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL);
       ScannerSetFormat(in, parse_format);
       ClauseSetParseList(in, clauses, terms);
       DestroyScanner(in);
@@ -446,6 +445,7 @@ int main(int argc, char* argv[])
 
    fflush(GlobalOut);
    OutClose(GlobalOut);
+   ExitIO();
    
 #ifdef CLB_MEMORY_DEBUG
    MemFlushFreeList();

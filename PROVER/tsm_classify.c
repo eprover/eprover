@@ -138,8 +138,7 @@ int main(int argc, char* argv[])
 
    assert(argv[0]);
 
-   InitOutput();
-   InitError(NAME);
+   InitIO(NAME);
    OutputLevel = 1;
 
    state = process_options(argc, argv);
@@ -214,6 +213,7 @@ int main(int argc, char* argv[])
    CLStateFree(state);
    fflush(GlobalOut);
    OutClose(GlobalOut);
+   ExitIO();
    
 #ifdef CLB_MEMORY_DEBUG
    MemFlushFreeList();

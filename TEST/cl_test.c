@@ -76,8 +76,7 @@ int main(int argc, char* argv[])
    char*     val = "Test";
    
    assert(argv[0]);
-   InitOutput();
-   InitError(argv[0]);
+   InitIO(argv[0]);
 
    state = process_options(argc, argv);
    
@@ -111,6 +110,7 @@ int main(int argc, char* argv[])
    IntMapFree(map);
    DestroyScanner(in);
    CLStateFree(state);
+   ExitIO();
 #ifdef CLB_MEMORY_DEBUG
    MemFlushFreeList();
    MemDebugPrintStats(stdout);

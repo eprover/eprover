@@ -160,8 +160,7 @@ int main(int argc, char* argv[])
    
    assert(argv[0]);
    
-   InitOutput();
-   InitError("edpll");
+   InitIO("edpll");
    ESignalSetup(SIGXCPU);
    AllocReserveMemory(4*MEGA);
    
@@ -193,6 +192,7 @@ int main(int argc, char* argv[])
 #endif
    fflush(GlobalOut);
    OutClose(GlobalOut);   
+   ExitIO();
 #ifdef CLB_MEMORY_DEBUG
    MemFlushFreeList();
    MemDebugPrintStats(stdout);

@@ -103,8 +103,7 @@ int main(int argc, char* argv[])
    int         i;
 
    assert(argv[0]);
-   InitOutput();
-   InitError(argv[0]);
+   InitIO(argv[0]);
 
    state = process_options(argc, argv);
    
@@ -114,7 +113,7 @@ int main(int argc, char* argv[])
    }
    bank = TBAlloc(TPIgnoreProps, SigAlloc());
    
-   in = CreateScanner(StreamTypeFile, state->argv[0] , true, NULL);
+   in = CreateScanner(StreamTypeFile, state->argv[0], true, NULL);
    
    while(!TestInpTok(in, NoToken))
    {
@@ -158,6 +157,8 @@ int main(int argc, char* argv[])
    TBFree(bank);
 
    CLStateFree(state);
+   ExitIO();
+   
 #ifdef CLB_MEMORY_DEBUG
    MemFlushFreeList();
    MemDebugPrintStats(stdout);

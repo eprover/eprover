@@ -113,8 +113,7 @@ int main(int argc, char* argv[])
 
    assert(argv[0]);
 
-   InitOutput();
-   InitError(NAME);
+   InitIO(NAME);
    atexit(TempFileCleanup);
 
    ESignalSetup(SIGTERM);
@@ -137,7 +136,7 @@ int main(int argc, char* argv[])
    steps = 0;
    for(i=0; state->argv[i]; i++)
    {
-      in = CreateScanner(StreamTypeFile, state->argv[i] , true, NULL);
+      in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL);
       ScannerSetFormat(in, TPTPFormat);
       steps+=PCLProtParse(in, prot);
       CheckInpTok(in, NoToken);
@@ -153,6 +152,7 @@ int main(int argc, char* argv[])
    
    fflush(GlobalOut);
    OutClose(GlobalOut);
+   ExitIO();
    
 #ifdef CLB_MEMORY_DEBUG
    MemFlushFreeList();

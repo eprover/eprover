@@ -112,8 +112,7 @@ int main(int argc, char* argv[])
 
    assert(argv[0]);
 
-   InitOutput();
-   InitError(NAME);
+   InitIO(NAME);
    
    state = process_options(argc, argv);
    
@@ -186,8 +185,7 @@ int main(int argc, char* argv[])
 
    /* Step 4: Integrate new examples into existing structures */
    
-   in = CreateScanner(StreamTypeFile, DStrView(store_file), true,
-		      NULL);
+   in = CreateScanner(StreamTypeFile, DStrView(store_file), true, NULL);
    
    KBParseExampleFile(in, ex_name, proof_examples, clause_examples,
 		      reserved_symbols);
@@ -213,6 +211,8 @@ int main(int argc, char* argv[])
    SigFree(reserved_symbols);
    ExampleSetFree(proof_examples);
    CLStateFree(state);
+
+   ExitIO();
 #ifdef CLB_MEMORY_DEBUG
    MemFlushFreeList();
    MemDebugPrintStats(stdout);

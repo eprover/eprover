@@ -971,8 +971,7 @@ int main(int argc, char* argv[])
 
    assert(argv[0]);
    
-   InitOutput();
-   InitError(NAME);
+   InitIO(NAME);
 #ifndef RESTRICTED_FOR_WINDOWS
    ESignalSetup(SIGXCPU);
 #endif
@@ -1002,12 +1001,13 @@ int main(int argc, char* argv[])
    
    for(i=0; state->argv[i]; i++)
    {
-      in = CreateScanner(StreamTypeFile, state->argv[i] , true, NULL);
+      in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL);
       ScannerSetFormat(in, parse_format);
       
       FormulaAndClauseSetParse(in, proofstate->axioms, 
                                proofstate->f_axioms,
-                               proofstate->original_terms);
+                               proofstate->original_terms, 
+                               NULL);
       CheckInpTok(in, NoToken);
       DestroyScanner(in); 
    }
@@ -1210,7 +1210,7 @@ int main(int argc, char* argv[])
    }
    fflush(GlobalOut);
    OutClose(GlobalOut);
-   
+   ExitIO();
 #ifdef CLB_MEMORY_DEBUG
    MemFlushFreeList();
    MemDebugPrintStats(stdout);
@@ -1820,7 +1820,7 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_INTERPRETE_NUMBERS:
       {
 	 Scanner_p in = CreateScanner(StreamTypeOptionString, arg,
-				      false,NULL);
+				      false, NULL);
 	 succ_symbol = SecureStrdup(DStrView(AktToken(in)->literal));
 	 AcceptInpTok(in, SigIdentToken);
 	 AcceptInpTok(in, Comma);

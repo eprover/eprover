@@ -119,8 +119,7 @@ int main(int argc, char* argv[])
 
    assert(argv[0]);
 
-   InitOutput();
-   InitError("ekb_ginsert");
+   InitIO("ekb_ginsert");
    atexit(TempFileCleanup);
    ESignalSetup(SIGTERM);
    ESignalSetup(SIGINT);
@@ -201,7 +200,7 @@ int main(int argc, char* argv[])
    prot = PCLProtAlloc();
    for(i=0; state->argv[i]; i++)
    {
-      in = CreateScanner(StreamTypeFile, state->argv[i] , true, NULL);
+      in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL);
       ScannerSetFormat(in, TPTPFormat);
       PCLProtParse(in, prot);
       CheckInpTok(in, NoToken);
@@ -250,8 +249,7 @@ int main(int argc, char* argv[])
    
    VERBOUT("Integrating new examples\n");
 
-   in = CreateScanner(StreamTypeFile, DStrView(store_file), true,
-		      NULL);
+   in = CreateScanner(StreamTypeFile, DStrView(store_file), true, NULL);
    
    KBParseExampleFile(in, ex_name, proof_examples, clause_examples,
 		      reserved_symbols);
@@ -280,6 +278,7 @@ int main(int argc, char* argv[])
    SigFree(reserved_symbols);
    ExampleSetFree(proof_examples);
    CLStateFree(state);
+   ExitIO();
 #ifdef CLB_MEMORY_DEBUG
    MemFlushFreeList();
    MemDebugPrintStats(stdout);

@@ -268,8 +268,7 @@ int main(int argc, char* argv[])
 
    assert(argv[0]);
    
-   InitOutput();
-   InitError("classify_problem");
+   InitIO("classify_problem");
 
    limits = SpecLimitsAlloc();
    state = process_options(argc, argv, limits);
@@ -287,7 +286,7 @@ int main(int argc, char* argv[])
 
       for(i=0; state->argv[i]; i++)
       {
-         in = CreateScanner(StreamTypeFile, state->argv[i] , true, NULL);
+         in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL);
          while(!TestInpTok(in, NoToken))
          {
             name = parse_feature_line(in, &features);            
@@ -307,12 +306,12 @@ int main(int argc, char* argv[])
       for(i=0; state->argv[i]; i++)
       {
          fstate = ProofStateAlloc(FPIgnoreProps, NULL, NULL);
-         in    = CreateScanner(StreamTypeFile, state->argv[i] , true, NULL);
+         in    = CreateScanner(StreamTypeFile, state->argv[i], true, NULL);
          ScannerSetFormat(in, parse_format);
          
          FormulaAndClauseSetParse(in, fstate->axioms, 
                                   fstate->f_axioms,
-                                  fstate->original_terms);
+                                  fstate->original_terms, NULL);
          FormulaSetPreprocConjectures(fstate->f_axioms);
          FormulaSetCNF(fstate->f_axioms, fstate->axioms, 
                        fstate->original_terms, fstate->freshvars);
@@ -434,7 +433,8 @@ int main(int argc, char* argv[])
    
    fflush(GlobalOut);
    OutClose(GlobalOut);
-   
+   ExitIO();
+
 #ifdef CLB_MEMORY_DEBUG
    MemFlushFreeList();
    MemDebugPrintStats(stdout);
