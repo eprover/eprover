@@ -40,6 +40,8 @@ char* PrioFunNames[]=
    "PreferGoals",
    "PreferNonGoals",
    "PreferMixed",
+   "PreferPositive",
+   "PreferNegative",
    "PreferUnits",
    "PreferNonEqUnits",
    "PreferDemods",
@@ -73,6 +75,8 @@ static ClausePrioFun prio_fun_array[]=
    PrioFunPreferGoals,
    PrioFunPreferNonGoals,
    PrioFunPreferMixed,
+   PrioFunPreferPositive,
+   PrioFunPreferNegative,
    PrioFunPreferUnits,
    PrioFunPreferNonEqUnits,
    PrioFunPreferDemods,
@@ -395,6 +399,66 @@ EvalPriority PrioFunPreferMixed(Clause_p clause)
    }
    return PrioNormal;
 }
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PrioFunPreferPositive()
+//
+//   Return PrioPrefer for clauses that have no negative literals,
+//   PrioNormal for all other clauses. The empty clause is both
+//   negative and positive.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+EvalPriority PrioFunPreferPositive(Clause_p clause)
+{
+   assert(clause);
+
+   if(ClauseIsPositive(clause))
+   {
+      return PrioPrefer;
+   }
+   return PrioNormal;
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PrioFunPreferNegative()
+//
+//   Return PrioPrefer for clauses that have no positive
+//   literals, PrioNormal for all other clauses.  At the moment, this
+//   is mostly equivalent to PrioFunPreferGoals, but in the medium
+//   term I want to decouple the notion of goal (user-specified) from
+//   that of negative clause. The empty clause is both negative and
+//   positive.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+EvalPriority PrioFunPreferNegative(Clause_p clause)
+{
+   assert(clause);
+
+   if(ClauseIsNegative(clause))
+   {
+      return PrioPrefer;
+   }
+   return PrioNormal;
+}
+
+
+
 
 
 /*-----------------------------------------------------------------------

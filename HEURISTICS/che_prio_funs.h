@@ -52,6 +52,8 @@ EvalPriority PrioFunPreferNew(Clause_p clause);
 EvalPriority PrioFunPreferGoals(Clause_p clause);
 EvalPriority PrioFunPreferNonGoals(Clause_p clause);
 EvalPriority PrioFunPreferMixed(Clause_p clause);
+EvalPriority PrioFunPreferPositive(Clause_p clause);
+EvalPriority PrioFunPreferNegative(Clause_p clause);
 EvalPriority PrioFunPreferUnits(Clause_p clause);
 EvalPriority PrioFunPreferNonEqUnits(Clause_p clause);
 EvalPriority PrioFunPreferDemods(Clause_p clause);
