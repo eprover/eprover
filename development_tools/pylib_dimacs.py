@@ -194,7 +194,7 @@ class prop_formula(object):
                 del(l[-1])
             else:
                 sys.stderr.write("Warning: Problem ends in empty "+
-                                 "clause. Use --fix-broken-dimacs to suppres it")
+                                 "clause. Use --fix-broken-dimacs to suppress it")
         for i in l[1:]:
             self.add_clause(prop_clause(i))
 
