@@ -505,6 +505,7 @@ void ClauseSetIndexedInsert(ClauseSet_p set, FVPackedClause_p new)
    if(set->fvindex)
    {
       FVIndexInsert(set->fvindex, new);
+      ClauseSetProp(new->clause, CPIsSIndexed);
    }
 }
 
@@ -566,6 +567,7 @@ Clause_p ClauseSetExtractEntry(Clause_p clause)
    if(ClauseQueryProp(clause, CPIsSIndexed))
    {
       FVIndexDelete(clause->set->fvindex, clause);
+      ClauseDelProp(clause, CPIsSIndexed);   
    }
    clause_set_extract_entry(clause);
    return clause;

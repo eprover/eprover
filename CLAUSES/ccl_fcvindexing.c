@@ -366,7 +366,7 @@ void FVIndexInsert(FVIAnchor_p index, FreqVector_p vec_clause)
    }
    handle->type_or_key = FVINDEXTYPE_FINAL;
    PTreeStore(&(handle->u1.clauses), vec_clause->clause);
-   ClauseSetProp(vec_clause->clause, CPIsSIndexed);
+   /* ClauseSetProp(vec_clause->clause, CPIsSIndexed); */
 }
    
 
@@ -408,7 +408,7 @@ bool FVIndexDelete(FVIAnchor_p index, Clause_p clause)
       handle->clause_count--;
    }
    FreqVectorFree(vec);
-   ClauseDelProp(clause, CPIsSIndexed);
+   /* ClauseDelProp(clause, CPIsSIndexed); */
    return handle?PTreeDeleteEntry(&(handle->u1.clauses), clause):false;
 }
 

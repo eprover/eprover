@@ -923,6 +923,8 @@ bool ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
 				      prefer_general);
    ClausePosCell pos;
 
+   assert(!ClauseIsAnyPropSet(clause, CPIsDIndexed|CPIsSIndexed));
+
    /* printf("# ClauseComputeLINormalform(%ld)...\n",clause->ident); */
    
    pos.clause = clause;

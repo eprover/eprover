@@ -77,6 +77,7 @@ void        ClauseSetGCMarkTerms(ClauseSet_p set);
 void        ClauseSetInsert(ClauseSet_p set, Clause_p new);
 void        ClauseSetPDTIndexedInsert(ClauseSet_p set, Clause_p new);
 void        ClauseSetIndexedInsert(ClauseSet_p set, FVPackedClause_p new);
+void        ClauseSetIndexedInsertClause(ClauseSet_p set, Clause_p new);
 Clause_p    ClauseSetExtractEntry(Clause_p clause);
 #define     ClauseSetEmpty(set)\
             ((set)->anchor->succ == (set)->anchor)

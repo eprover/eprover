@@ -57,6 +57,10 @@ static void pcl_print_start(FILE* out, Clause_p clause)
 {
    fprintf(out, PCLStepCompact?"%ld:":"%6ld : ", clause->ident);
    ClausePCLPrint(out, clause, PCLFullTerms);
+   if(ClauseQueryProp(clause, CPWatchOnly))
+   {
+      fputs(" /* Watchlistclause */ ", out);
+   }
    fputs(" : ", out);
 }
 
@@ -72,12 +76,23 @@ static void pcl_print_start(FILE* out, Clause_p clause)
 //
 /----------------------------------------------------------------------*/
 
-static void pcl_print_end(FILE* out, char* comment)
+static void pcl_print_end(FILE* out, char* comment, Clause_p clause)
 {
-   if(comment)
+   char *addon="extract_watchlist";
+   
+   if(ClauseQueryProp(clause, CPWatchOnly)&&comment)
    {
-      fprintf(out, PCLStepCompact?":\"%s\"":" : \"%s\"", comment);
+      fprintf(out, PCLStepCompact?":\"%s,%s\"":" : \"%s,%s\"",
+	      addon,comment);
    }
+   else if(comment)
+   {
+      fprintf(out, PCLStepCompact?":\"%s\"":" : \"%s\"",comment);
+   }
+   else if(ClauseQueryProp(clause, CPWatchOnly))
+   {
+      fprintf(out, PCLStepCompact?":\"%s\"":" : \"%s\"",addon);
+   }   
    fputc('\n', out);
 }
 
@@ -98,7 +113,7 @@ static void tstp_print_end(FILE* out, char* comment)
 {
    if(comment)
    {
-      fprintf(out, ",[%s]", comment);
+      fprintf(out, ",['%s']", comment);
    }
    fputs(").\n", out);
 }
@@ -123,7 +138,7 @@ static void print_initial(FILE* out, Clause_p clause, char* comment)
    case pcl_format:
 	 pcl_print_start(out, clause);
 	 fprintf(out, "initial");
-	 pcl_print_end(out, comment);
+	 pcl_print_end(out, comment, clause);
 	 break;
    case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
@@ -159,7 +174,7 @@ static void print_paramod(FILE* out, Clause_p clause, Clause_p
 	 pcl_print_start(out, clause);
 	 fprintf(out, PCL_PM"(%ld,%ld)", parent1->ident,
 		 parent2->ident);
-	 pcl_print_end(out, comment);
+	 pcl_print_end(out, comment, clause);
 	 break;
    case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
@@ -196,7 +211,7 @@ static void print_eres(FILE* out, Clause_p clause, Clause_p
    case pcl_format:
 	 pcl_print_start(out, clause);
 	 fprintf(out, PCL_ER"(%ld)", parent1->ident);
-	 pcl_print_end(out, comment);
+	 pcl_print_end(out, comment, clause);
 	 break;
    case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
@@ -232,7 +247,7 @@ static void print_efactor(FILE* out, Clause_p clause, Clause_p
    case pcl_format:
 	 pcl_print_start(out, clause);
 	 fprintf(out, PCL_EF"(%ld)", parent1->ident);
-	 pcl_print_end(out, comment);
+	 pcl_print_end(out, comment, clause);
 	 break;
    case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
@@ -268,7 +283,7 @@ static void print_factor(FILE* out, Clause_p clause, Clause_p
    case pcl_format:
 	 pcl_print_start(out, clause);
 	 fprintf(out, PCL_OF"(%ld)", parent1->ident);
-	 pcl_print_end(out, comment);
+	 pcl_print_end(out, comment, clause);
 	 break;
    case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
@@ -305,7 +320,7 @@ static void print_split(FILE* out, Clause_p clause, Clause_p
    case pcl_format:
 	 pcl_print_start(out, clause);
 	 fprintf(out, PCL_SPLIT"(%ld)", parent1->ident);
-	 pcl_print_end(out, comment);
+	 pcl_print_end(out, comment, clause);
 	 break;
    case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
@@ -341,7 +356,7 @@ static void print_simplify_reflect(FILE* out, Clause_p clause, long
 	 pcl_print_start(out, clause);
 	 fprintf(out, PCL_SR"(%ld,%ld)", old_id,
 		 partner->ident);
-	 pcl_print_end(out, comment);
+	 pcl_print_end(out, comment, clause);
 	 break;
   case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
@@ -378,7 +393,7 @@ static void print_context_simplify_reflect(FILE* out, Clause_p clause, long
 	 pcl_print_start(out, clause);
 	 fprintf(out, PCL_CSR"(%ld,%ld)", old_id,
 		 partner->ident);
-	 pcl_print_end(out, comment);
+	 pcl_print_end(out, comment, clause);
 	 break;
  case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
@@ -424,7 +439,7 @@ static void print_ac_res(FILE* out, Clause_p clause, long
 	    fprintf(out, ",%ld", PStackElementInt(sig->ac_axioms,i));
 	 }
 	 fputc(')', out);
-	 pcl_print_end(out, comment);
+	 pcl_print_end(out, comment, clause);
 	 break;
    case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
@@ -467,7 +482,7 @@ static void print_minimize(FILE* out, Clause_p clause, long
    case pcl_format:
 	 pcl_print_start(out, clause);
 	 fprintf(out, PCL_CN"(%ld)", old_id);
-	 pcl_print_end(out, comment);
+	 pcl_print_end(out, comment, clause);
 	 break;
    case tstp_format:
          ClauseTSTPPrint(out, clause, PCLFullTerms, false);
@@ -523,7 +538,7 @@ static void print_rewrite(FILE* out, ClausePos_p rewritten, long
 	 {
 	    fprintf(out, ",%ld)", PStackElementInt(rwsteps,i));
 	 }
-	 pcl_print_end(out, comment);
+	 pcl_print_end(out, comment, rewritten->clause);
 	 break;
    case tstp_format:
 	 tmp = TermComputeRWSequence(rwsteps, old_term, nf);
@@ -581,7 +596,7 @@ static void print_eq_unfold(FILE* out, Clause_p rewritten,
 	 {
 	    fprintf(out, ",%ld)", demod->clause->ident);
 	 }
-	 pcl_print_end(out, "Preprocessing/Unfolding");
+	 pcl_print_end(out, "Preprocessing/Unfolding", rewritten);
 	 break;
    case tstp_format:
 	 ClauseTSTPPrint(out, rewritten, PCLFullTerms, false);
@@ -771,7 +786,7 @@ void DocClauseQuote(FILE* out, long level, long target_level,
 	    }
 	    else
 	    {
-	       pcl_print_end(out, comment);
+	       pcl_print_end(out, comment, clause);
 	    }
 	    break; 
       case tstp_format: 
@@ -781,11 +796,11 @@ void DocClauseQuote(FILE* out, long level, long target_level,
 	    if(opt_partner)
 	    {
 	       assert(comment);
-	       fprintf(out, ",[%s(%ld)]).\n", comment, opt_partner->ident);
+	       fprintf(out, ",['%s(%ld)']).\n", comment, opt_partner->ident);
 	    }
 	    else if(comment)
 	    {
-	       fprintf(out, ",[%s]).\n", comment);
+	       fprintf(out, ",['%s']).\n", comment);
 	    }
 	    else
 	    {
