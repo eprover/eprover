@@ -1035,10 +1035,10 @@ int main(int argc, char* argv[])
 					    no_eq_unfold);
    }
    ProofControlInit(proofstate, proofcontrol, h_parms, 
-                    wfcb_definitions, hcb_definitions);
+                    fvi_parms, wfcb_definitions, hcb_definitions);
    PCLFullTerms = pcl_full_terms; /* Preprocessing always uses full
 				     terms! */
-   ProofStateInit(proofstate, proofcontrol, h_parms, fvi_parms);
+   ProofStateInit(proofstate, proofcontrol);
 
    VERBOUT2("Prover state initialized\n");
    
