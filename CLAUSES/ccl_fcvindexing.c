@@ -288,6 +288,11 @@ void FVIndexInsert(FVIAnchor_p index, FreqVector_p vec_clause)
    FVIndex_p handle, newnode = NULL;
    long i;
 
+   assert(vec_clause);
+   assert(vec_clause->clause);
+
+   ClauseSubsumeOrderSortLits(vec_clause->clause);
+
    handle = index->index;
    handle->clause_count++;
 

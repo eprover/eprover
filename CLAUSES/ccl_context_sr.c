@@ -59,17 +59,20 @@ Changes
 
 int ClauseContextualSimplifyReflect(ClauseSet_p set, Clause_p clause)
 {
-   Eqn_p *handle;
+   Eqn_p handle;
    int res = 0;
    Clause_p subsumer;
-
+   PStack_p lit_stack = ClauseToStack(clause);
+   
    clause->weight = ClauseStandardWeight(clause);
 
-   handle = &(clause->literals);
-
-   while(*handle)
+   while(!PStackEmpty(lit_stack))
    {
-      ClauseFlipLiteralSign(clause, *handle);
+      handle = PStackPopP(lit_stack);
+
+      ClauseFlipLiteralSign(clause, handle);
+      ClauseSubsumeOrderSortLits(clause);
+
       if((subsumer = ClauseSetSubsumesClause(set, clause)))
       {
 	 ClauseRemoveLiteral(clause, handle);
@@ -88,10 +91,10 @@ int ClauseContextualSimplifyReflect(ClauseSet_p set, Clause_p clause)
       }
       else
       {
-	 ClauseFlipLiteralSign(clause, *handle);
-	 handle = &((*handle)->next);
+	 ClauseFlipLiteralSign(clause, handle);
       }
    }
+   PStackFree(lit_stack);
    return res;
 }
 
@@ -114,20 +117,22 @@ int ClauseContextualSimplifyReflect(ClauseSet_p set, Clause_p clause)
 long ClauseSetFindContextSRClauses(ClauseSet_p set, Clause_p clause, 
 				   PStack_p res)
 {
-   Eqn_p *handle;
+   Eqn_p handle;
    long old_sp = PStackGetSP(res);
+   PStack_p lit_stack = ClauseToStack(clause);
 
    assert(clause->weight == ClauseStandardWeight(clause));
    
-   handle = &(clause->literals);
 
-   while(*handle)
+   while(!PStackEmpty(lit_stack))
    {
-      ClauseFlipLiteralSign(clause, *handle);
+      handle = PStackPopP(lit_stack);
+      ClauseFlipLiteralSign(clause, handle);
+      ClauseSubsumeOrderSortLits(clause);
       ClauseSetFindSubsumedClauses(set, clause, res);
-      ClauseFlipLiteralSign(clause, *handle);
-      handle = &((*handle)->next);
+      ClauseFlipLiteralSign(clause, handle);
    }
+   PStackFree(lit_stack);
    return PStackGetSP(res) - old_sp;
 }
 

@@ -39,7 +39,8 @@ Changes
 /*---------------------------------------------------------------------*/
 
 void ClauseKillChildren(Clause_p clause);
-void ClauseRemoveLiteral(Clause_p clause, Eqn_p *lit);
+void ClauseRemoveLiteralRef(Clause_p clause, Eqn_p *lit);
+void ClauseRemoveLiteral(Clause_p clause, Eqn_p lit);
 void ClauseFlipLiteralSign(Clause_p clause, Eqn_p lit);
 int  ClauseRemoveSuperfluousLiterals(Clause_p clause);
 long ClauseSetRemoveSuperfluousLiterals(ClauseSet_p set);

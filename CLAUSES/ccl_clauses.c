@@ -145,28 +145,6 @@ static bool term_query_var_prop(Term_p term, TermProperties query,
 }
 
 
-/*-----------------------------------------------------------------------
-//
-// Function: eqn_canon_compare()
-//
-//   Compare two indirectly pointed to equations with
-//   EqnStructWeightCompare().
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-int eqn_canon_compare(Eqn_p *l1, Eqn_p *l2)
-{
-   return EqnStructWeightLexCompare(*l1, *l2);
-}
-
-
-
-
-
 
 
 
@@ -331,6 +309,45 @@ bool ClauseHasMaxPosEqLit(Clause_p clause)
    return false;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSortLiterals(Clause_p clause)
+//
+//   Sort literal order in clause according to the given comparison
+//   function.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations, reorders literals
+//
+/----------------------------------------------------------------------*/
+
+Clause_p ClauseSortLiterals(Clause_p clause, ComparisonFunctionType cmp_fun)
+{
+   int lit_no = ClauseLiteralNumber(clause);
+   
+   if(lit_no >1)
+   {
+      int arr_size = lit_no*sizeof(Eqn_p), i;
+      Eqn_p *sort_array = SizeMalloc(arr_size);
+      Eqn_p handle;
+      
+      for(i=0, handle = clause->literals;
+          handle;
+          i++, handle = handle->next)
+      {
+         assert(i<lit_no);
+         sort_array[i] = handle;
+      }
+      qsort(sort_array, lit_no, sizeof(Eqn_p), cmp_fun);
+      
+      clause->literals = EqnListFromArray(sort_array, lit_no);
+      
+      SizeFree(sort_array, arr_size);
+   }
+   return clause;
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -349,31 +366,54 @@ bool ClauseHasMaxPosEqLit(Clause_p clause)
 
 Clause_p ClauseCanonize(Clause_p clause)
 {
-   int   lit_no = ClauseLiteralNumber(clause),
-         arr_size = lit_no*sizeof(Eqn_p),
-      i;
-   Eqn_p *sort_array = SizeMalloc(arr_size);
-   Eqn_p handle;
+   Eqn_p handle = clause->literals;
 
-   for(i=0, handle = clause->literals;
-       handle;
-       i++, handle = handle->next)
+   while(handle)
    {
-      assert(i<lit_no);
-      sort_array[i] = EqnCanonize(handle);
+      EqnCanonize(handle);
+      handle = handle->next;
    }
-   qsort(sort_array, lit_no, sizeof(Eqn_p), 
-	 (ComparisonFunctionType)eqn_canon_compare);
-
-   clause->literals = EqnListFromArray(sort_array, lit_no);
+   ClauseSortLiterals(clause, (ComparisonFunctionType)EqnCanonCompare);
    
-   /* printf("Canonical form (clause): ");
-      ClausePCLPrint(stdout, clause, true);
-      printf("\n"); */
-
-   SizeFree(sort_array, arr_size);
-
    return clause;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseIsSorted()
+//
+//   Return true if clause is in order with respect to the
+//   (quasi-)order defined by cmpfun.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+bool ClauseIsSorted(Clause_p clause, ComparisonFunctionType cmp_fun)
+{
+   Eqn_p handle;
+   
+   assert(clause);
+
+   handle = clause->literals;
+
+   if(ClauseLiteralNumber(clause) > 1)
+   {
+      assert(handle);
+      while(handle->next)
+      {
+         assert(handle);
+         assert(handle->next);
+         if(cmp_fun(&(handle), &(handle->next))>0)
+         {
+            return false;
+         }
+         handle = handle->next;
+      }
+   }
+   return true;
 }
 
 

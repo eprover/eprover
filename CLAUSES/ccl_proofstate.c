@@ -261,12 +261,12 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
 	   state->backward_subsumed_count);
    fprintf(out, "# Backward-rewritten                   : %ld\n",
 	   state->backward_rewritten_count);
-   fprintf(out, "# Contextual simplify-reflections      : %ld\n",
-	   state->context_sr_count);
    fprintf(out, "# Generated clauses                    : %ld\n",
 	   state->generated_count - state->backward_rewritten_count);   
    fprintf(out, "# ...of the previous two non-trivial   : %ld\n",
 	   state->non_trivial_generated_count);   
+   fprintf(out, "# Contextual simplify-reflections      : %ld\n",
+	   state->context_sr_count);
    fprintf(out, "# Paramodulations                      : %ld\n",
 	   state->paramod_count);   
    fprintf(out, "# Factorizations                       : %ld\n",

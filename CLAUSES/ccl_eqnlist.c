@@ -262,6 +262,32 @@ Eqn_p EqnListFromArray(Eqn_p* array, int lenght)
 
 /*-----------------------------------------------------------------------
 //
+// Function: EqnListToStack()
+//
+//   Push the literals onto a newly created stack and return it. Does
+//   not copy anything! The caller has to free the stack.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+PStack_p EqnListToStack(Eqn_p list)
+{
+   PStack_p stack = PStackAlloc();
+
+   while(list)
+   {
+      PStackPushP(stack, list);
+      list = list->next;
+   }
+   return stack;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: EqnListExtractElement()
 //
 //   Take the given element out of the list and return a pointer to

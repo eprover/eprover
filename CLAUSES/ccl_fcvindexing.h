@@ -9,7 +9,7 @@ Contents
   Functions for handling frequency count vector indexing for clause
   subsumption.
 
-  2003 by the author.
+  Copyright 2003 by the author.
   This code is released under the GNU General Public Licence.
   See the file COPYING in the main CLIB directory for details.
   Run "eprover -h" for contact information.
@@ -18,6 +18,8 @@ Changes
 
 <1> Tue Jul  1 13:05:36 CEST 2003
     New
+<2> Sun Feb  6 02:16:41 CET 2005 (actually 2 weeks or so earlier)
+    Switched to IntMap
 
 -----------------------------------------------------------------------*/
 
@@ -45,31 +47,6 @@ typedef struct fvindex_parms_cell
 }FVIndexParmsCell, *FVIndexParms_p;
 
 
-/*
-
-Case 1: Just one successor
-- Key is >=0
-- Array size is 0
-- Pointer to successor
-
-Case 1a: No successor
-- Key is -1
-- Array size is 0
-- Pointer is NULL
-
-Case 2: Many successors
-- Key is -1
-- Array Size > 0
-- Pointer to array 
-
-Case 3: Final cell
-- Number = -2
-- Array size = 0
-- Pointer contains PTree of clauses
-
-Initial case: Many successors with array size N
-
-*/
 
 typedef struct fv_index_cell
 {

@@ -138,7 +138,7 @@ static bool recompute_node_constraints(PDTNode_p node)
    }
    else
    {
-      FunCode i;
+      FunCode i = 0; /* Stiffle warning */
       PDTNode_p next;
       int tmpmax = 0;
       IntMapIter_p iter;

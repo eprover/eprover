@@ -47,8 +47,9 @@ void    EqnListDelProp(Eqn_p list, EqnProperties prop);
 void    EqnListFlipProp(Eqn_p list, EqnProperties prop);
 long    EqnListQueryPropNumber(Eqn_p list, EqnProperties prop);
 
-long    EqnListLength(Eqn_p list);
-Eqn_p   EqnListFromArray(Eqn_p* array, int lenght);
+long     EqnListLength(Eqn_p list);
+Eqn_p    EqnListFromArray(Eqn_p* array, int lenght);
+PStack_p EqnListToStack(Eqn_p list);
 
 Eqn_p   EqnListExtractElement(EqnRef element);
 #define EqnListExtractFirst(list)\

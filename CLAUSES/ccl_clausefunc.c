@@ -64,7 +64,7 @@ static int clause_canon_compare(const Clause_p *c1, const Clause_p *c2)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ClauseRemoveLiteral()
+// Function: ClauseRemoveLiteralRef()
 //
 //   Remove *lit from clause, adjusting counters as necessary.
 //
@@ -74,7 +74,7 @@ static int clause_canon_compare(const Clause_p *c1, const Clause_p *c2)
 //
 /----------------------------------------------------------------------*/
 
-void ClauseRemoveLiteral(Clause_p clause, Eqn_p *lit)
+void ClauseRemoveLiteralRef(Clause_p clause, Eqn_p *lit)
 {
    Eqn_p handle = *lit;
 
@@ -92,6 +92,33 @@ void ClauseRemoveLiteral(Clause_p clause, Eqn_p *lit)
    }
    clause->weight -= EqnStandardWeight(handle);
    EqnListDeleteElement(lit);   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseRemoveLiteral()
+//
+//   Remove lit from clause, adjusting counters as necessary. This is
+//   a lot less efficient then ClauseRemoveLiteralRef(), as we have to
+//   search for the literal.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes clause and possibly clause->set->literals
+//
+/----------------------------------------------------------------------*/
+
+void ClauseRemoveLiteral(Clause_p clause, Eqn_p lit)
+{
+   EqnRef handle = &(clause->literals);
+
+   while(*handle!=lit)
+   {
+      assert(*handle);
+      handle = &((*handle)->next);
+   }
+   ClauseRemoveLiteralRef(clause, handle);
 }
 
 

@@ -242,54 +242,6 @@ static bool eqn_subsumes_termpair(Eqn_p eqn, Term_p t1, Term_p t2)
    return res;
 }
 
-/*-----------------------------------------------------------------------
-//
-// Function: check_subsumption_condition()
-//
-//   Return true if subst cannot possibly be a variable renaming or if
-//   no literal in the subsuming clause is used to subsume more than
-//   one literal in the subsumed claues. This seems to be
-//   insufficient, so I'm now using strict multiset-subsumption.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-/*
-bool check_subsumption_condition(Eqn_p sub_cand_list, Subst_p subst,
-				 long *pick_list) 
-{
-   PStackPointer i;
-   DerefType     deref;
-   Eqn_p         eqn;
-   long          lcount;
-   bool          res = false;
-
-   for(eqn = sub_cand_list, lcount=0; eqn; eqn = eqn->next, lcount++)
-   {
-      if(pick_list[lcount]>1)
-      {
-	 res = true;
-	 break;
-      }
-   }
-   if(!res)
-   {
-      return true;
-   }
-   for(i=0; i<PStackGetSP(subst); i++)
-   {
-      deref = DEREF_ONCE;
-      if(!TermIsVar(TermDeref(PStackElementP(subst,i),
-			      &deref)))
-      {
-	 return true;
-      }
-   }
-   return false;
-}*/
-
 
 /*-----------------------------------------------------------------------
 //
@@ -307,13 +259,33 @@ bool check_subsumption_condition(Eqn_p sub_cand_list, Subst_p subst,
 static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
 {
    Subst_p subst = SubstAlloc();
+   int cmpres;
 
    for(;list;list = list->next)
    {
-      if(!PropsAreEquiv(lit, list, EPIsPositive|EPIsEquLiteral))
+      cmpres = EqnSubsumeQOrderCompare(lit, list);
+      if(cmpres < 0)
       {
-	 continue;
+         list = NULL;
+            break; 
+         continue;
       }
+      if(cmpres >  0)
+      {
+         continue;
+      }      
+      cmpres = EqnSubsumeCompare(lit, list);
+      if(cmpres <  0)
+      {
+         list = NULL;
+         break;
+      } 
+
+      /* if(!PropsAreEquiv(lit, list, EPIsPositive|EPIsEquLiteral))
+      {
+         continue;
+         }  */          
+      assert(PropsAreEquiv(lit, list, EPIsPositive|EPIsEquLiteral));
       if(EqnIsOriented(lit) && !EqnIsOriented(list))
       {
 	 continue;
@@ -493,6 +465,9 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
    bool    res;
    long* pick_list;
    
+   assert(ClauseIsSubsumeOrdered(subsumer));
+   assert(ClauseIsSubsumeOrdered(sub_candidate));
+
    if(ClauseLiteralNumber(subsumer)==0)
    {
       return true;
@@ -949,7 +924,7 @@ bool ClausePositiveSimplifyReflect(ClauseSet_p set, Clause_p clause)
       }
       if(res)
       {
-	 ClauseRemoveLiteral(clause, handle);
+	 ClauseRemoveLiteralRef(clause, handle);
 	 if(ClauseQueryProp(res->clause, CPIsSOS))
 	 {
 	    ClauseSetProp(clause, CPIsSOS);
@@ -999,7 +974,7 @@ bool ClauseNegativeSimplifyReflect(ClauseSet_p set, Clause_p clause)
       }
       if(res)
       {
-	 ClauseRemoveLiteral(clause, handle);
+	 ClauseRemoveLiteralRef(clause, handle);
 	 if(ClauseQueryProp(res->clause, CPIsSOS))
 	 {
 	    ClauseSetProp(clause, CPIsSOS);
@@ -1032,7 +1007,7 @@ bool ClauseNegativeSimplifyReflect(ClauseSet_p set, Clause_p clause)
 bool ClauseSubsumesClause(Clause_p subsumer, Clause_p sub_candidate)
 {
    bool res;
-
+   
    assert(sub_candidate->weight == ClauseStandardWeight(sub_candidate));
    assert(subsumer->weight == ClauseStandardWeight(subsumer));
    res = clause_subsumes_clause(subsumer, sub_candidate);

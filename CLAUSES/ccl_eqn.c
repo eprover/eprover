@@ -1161,9 +1161,9 @@ int EqnSubsumeQOrderCompare(Eqn_p l1, Eqn_p l2)
 //   Refine the previous ordering to a total ordering with the
 //   property that a larger literal can never subsume a smaller one.
 //
-// Global Variables: 
+// Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
@@ -1177,6 +1177,24 @@ int EqnSubsumeCompareRef(Eqn_p *l1, Eqn_p *l2)
    }
    return res;
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: EqnSubsumeCompare()
+//
+//   As the previous function, but accept pointers.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+int EqnSubsumeCompare(Eqn_p l1, Eqn_p l2)
+{
+   return EqnSubsumeCompareRef(&l1, &l2);
+}
+
 
 
 /*-----------------------------------------------------------------------
@@ -1262,6 +1280,27 @@ int EqnStructWeightCompare(Eqn_p l1, Eqn_p l2)
    res = TermStructWeightCompare(l1->rterm, l2->rterm);   
    return res;
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: EqnCanonCompare()
+//
+//   Compare two indirectly pointed to equations with
+//   EqnStructWeightCompare().
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+int EqnCanonCompare(Eqn_p *l1, Eqn_p *l2)
+{
+   return EqnStructWeightLexCompare(*l1, *l2);
+}
+
+
 
 
 /*-----------------------------------------------------------------------
