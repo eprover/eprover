@@ -314,7 +314,7 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
       {
 	 continue;
       }
-      if(EqnIsOriented(list) && !EqnIsOriented(lit))
+      if(EqnIsOriented(lit) && !EqnIsOriented(list))
       {
 	 continue;
       }
