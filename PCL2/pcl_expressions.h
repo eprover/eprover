@@ -44,6 +44,7 @@ typedef enum
    PCLOpEResolution,
    PCLOpEFactoring,
    PCLOpSimplifyReflect,
+   PCLOpContextSimplifyReflect,
    PCLOpACResolution,
    PCLOpRewrite,
    PCLOpURewrite,
@@ -60,6 +61,7 @@ typedef enum
 #define PCL_OP_ERESOLUTION_WEIGHT     1
 #define PCL_OP_EFACTORING_WEIGHT      1
 #define PCL_OP_SIMPLIFYREFLECT_WEIGHT 1
+#define PCL_OP_CONTEXTSIMPLIFYREFLECT_WEIGHT 1
 #define PCL_OP_ACRESOLUTION_WEIGHT    2
 #define PCL_OP_REWRITE_WEIGHT         1
 #define PCL_OP_UREWRITE_WEIGHT        1

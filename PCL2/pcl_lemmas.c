@@ -127,6 +127,7 @@ InferenceWeight_p InferenceWeightsAlloc()
    (*handle)[PCLOpEResolution]     = PCL_OP_ERESOLUTION_WEIGHT;
    (*handle)[PCLOpEFactoring]      = PCL_OP_EFACTORING_WEIGHT;
    (*handle)[PCLOpSimplifyReflect] = PCL_OP_SIMPLIFYREFLECT_WEIGHT;
+   (*handle)[PCLOpContextSimplifyReflect] = PCL_OP_CONTEXTSIMPLIFYREFLECT_WEIGHT;  
    (*handle)[PCLOpACResolution]    = PCL_OP_ACRESOLUTION_WEIGHT;
    (*handle)[PCLOpRewrite]         = PCL_OP_REWRITE_WEIGHT;
    (*handle)[PCLOpURewrite]        = PCL_OP_UREWRITE_WEIGHT;

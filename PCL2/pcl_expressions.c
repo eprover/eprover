@@ -159,7 +159,7 @@ PCLExpr_p PCLExprParse(Scanner_p in, bool mini)
    else
    {
       CheckInpId(in, PCL_ER"|"PCL_PM"|"PCL_EF"|"PCL_RW"|"
-		 PCL_SR"|"PCL_ACRES"|"PCL_CN"|"PCL_SPLIT);
+		 PCL_SR"|"PCL_CSR"|"PCL_ACRES"|"PCL_CN"|"PCL_SPLIT);
       if(TestInpId(in, PCL_ER))
       {
 	 handle->op=PCLOpEResolution;
@@ -183,6 +183,11 @@ PCLExpr_p PCLExprParse(Scanner_p in, bool mini)
       else if(TestInpId(in, PCL_SR))
       {
 	 handle->op=PCLOpSimplifyReflect;
+	 arg_no=2;
+      }      
+      else if(TestInpId(in, PCL_CSR))
+      {
+	 handle->op=PCLOpContextSimplifyReflect;
 	 arg_no=2;
       }      
       else if(TestInpId(in, PCL_ACRES))
@@ -293,6 +298,10 @@ void PCLExprPrint(FILE* out, PCLExpr_p expr, bool mini)
 	 break;
    case PCLOpSimplifyReflect:
 	 fprintf(out, PCL_SR);
+	 assert(expr->arg_no==2);
+	 break;
+   case PCLOpContextSimplifyReflect:
+	 fprintf(out, PCL_CSR);
 	 assert(expr->arg_no==2);
 	 break;
    case PCLOpACResolution:
