@@ -246,6 +246,45 @@ PTree_p PTreeObjFind(PTree_p *root, void* key, ComparisonFunctionType
 
 /*-----------------------------------------------------------------------
 //
+// Function: PTreeObjFindBinary()
+//
+//   Find the entry with key key in the tree and return it. Return
+//   NULL if no such key exists. Does not reorganize the tree!
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+PTree_p PTreeObjFindBinary(PTree_p root, void* key, ComparisonFunctionType
+			   cmpfun) 
+{
+   int cmpres;
+
+   while(root)
+   {
+      cmpres = cmpfun(key, root->key);
+      if(cmpres < 0)
+      {
+	 root = root->lson;
+      }
+      else if(cmpres > 0)
+      {
+	 root = root->rson;
+      }
+      else
+      {
+	 break;
+      }
+   }
+   return root;
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: PTreeObjExtractEntry()
 //
 //   Find the entry with key key, remove it from the tree, rebalance

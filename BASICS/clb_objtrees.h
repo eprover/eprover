@@ -46,6 +46,8 @@ void*   PTreeObjStore(PTree_p *root, void* key,
 		      ComparisonFunctionType cmpfun);
 PTree_p PTreeObjFind(PTree_p *root, void* key,
 		     ComparisonFunctionType cmpfun);
+PTree_p PTreeObjFindBinary(PTree_p root, void* key, 
+			   ComparisonFunctionType cmpfun);
 PTree_p PTreeObjExtractEntry(PTree_p *root, void* key,
 			     ComparisonFunctionType cmpfun);
 void*   PTreeObjExtractObject(PTree_p *root, void* key,
