@@ -52,6 +52,7 @@ typedef struct proofstatecell
    ClauseSet_p       unprocessed;
    ClauseSet_p       tmp_store;
    ClauseSet_p       demods[3];
+   ClauseSet_p       watch_list;
    bool              state_is_complete;
    ulong_c           processed_count;
    ulong_c           proc_trivial_count;
