@@ -350,62 +350,52 @@ static void ground_complete_neg_eqns(EqnRef list)
 
 bool ClauseIsTautology(TB_p work_bank, Clause_p clause)
 {
-   if(clause->pos_lit_no == 0)
+   Eqn_p    rw_system, handle;
+   Clause_p work_copy;
+   bool     res = false;         
+
+   for(handle = clause->literals; handle; handle = handle->next)
+   {	 
+      if(EqnIsTrue(handle))
+      {
+         return true;
+      }
+   }
+   if((clause->pos_lit_no==0) || (clause->neg_lit_no==0))
    {
       return false;
    }
-   if(clause->neg_lit_no == 0)
+   
+   work_copy = ClauseCopy(clause, work_bank);
+   rw_system = EqnListExtractByProps(&(work_copy->literals),
+                                     EPIsPositive, true);
+   assert(rw_system);
+   if(clause->neg_lit_no > 1)
    {
-      Eqn_p handle;
-
-      for(handle = clause->literals; handle; handle=handle->next)
-      {
-	 assert(EqnIsPositive(handle));
-	 
-	 if(TBTermEqual(handle->lterm, handle->rterm))
-	 {
-	    return true;
-	 }
-      }
-      return false;
+      ground_complete_neg_eqns(&rw_system);
    }
    else
    {
-      Eqn_p    rw_system, handle;
-      Clause_p work_copy;
-      bool     res = false;
-      
-      work_copy = ClauseCopy(clause, work_bank);
-      rw_system = EqnListExtractByProps(&(work_copy->literals),
-					EPIsPositive, true);
-      assert(rw_system);
-      if(clause->neg_lit_no > 1)
-      {
-	 ground_complete_neg_eqns(&rw_system);
-      }
-      else
-      {
-	 ground_orient_eqn(rw_system);
-      }
-      assert(rw_system);
-
-      for(handle = work_copy->literals; handle; handle = handle->next)
-      {
-	 assert(EqnIsPositive(handle));
-	 
-	 ground_normalize_eqn(handle, rw_system);
-	 if(handle->lterm == handle->rterm)
-	 {
-	    res = true;
-	    break;
-	 }	 
-      }
-      EqnListFree(rw_system);
-      ClauseFree(work_copy);
-
-      return res;
+      ground_orient_eqn(rw_system);
    }
-}
+   assert(rw_system);
+   
+   for(handle = work_copy->literals; handle; handle = handle->next)
+   {
+      assert(EqnIsPositive(handle));
+      
+      ground_normalize_eqn(handle, rw_system);
+      if(handle->lterm == handle->rterm)
+      {
+         res = true;
+         break;
+      }	 
+   }
+   EqnListFree(rw_system);
+   ClauseFree(work_copy);
+   
+   return res;
+   }
 
 
 
