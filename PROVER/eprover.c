@@ -98,6 +98,7 @@ typedef enum
    OPT_DISABLE_EQ_FACTORING,
    OPT_DISABLE_NEGUNIT_PM,
    OPT_NO_GC_FORWARD_SIMPL,
+   OPT_USE_SIM_PARAMOD,
    OPT_SPLIT_TYPES,
    OPT_SPLIT_HOW,
    OPT_SPLIT_AGGRESSIVE,
@@ -592,6 +593,12 @@ OptCell opts[] =
     " this simplifications empirically never occurs. In such cases, we "
     "can save significant overhead. The option _should_ work in all "
     "cases, but is not expected to improve things in most cases."},
+
+   {OPT_USE_SIM_PARAMOD,
+    '\0', "simul-paramod",
+    NoArg, NULL,
+    "Use simultaneous paramodulation to implement superposition. Default"
+    " is to use plain paramodulaten. This is an experimental feature."},
 
    {OPT_SPLIT_TYPES,
     '\0', "split-clauses",
@@ -1532,6 +1539,10 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_DISABLE_NEGUNIT_PM:
             h_parms->enable_neg_unit_paramod = false;
             inf_sys_complete = false;
+            break;
+      case OPT_USE_SIM_PARAMOD:
+            h_parms->enable_plain_paramod = false;
+            h_parms->enable_sim_paramod = true;
             break;
       case OPT_SPLIT_TYPES:
 	    h_parms->split_clauses = CLStateGetIntArg(handle, arg);

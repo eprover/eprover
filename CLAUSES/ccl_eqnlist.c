@@ -677,6 +677,33 @@ Eqn_p EqnListFindNegPureVarLit(Eqn_p list)
 
 /*-----------------------------------------------------------------------
 //
+// Function: EqnListFindTrue()
+//
+//   Return the first "always true" literal, if any. Return false
+//   otherwise. 
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+Eqn_p EqnListFindTrue(Eqn_p list)
+{
+   while(list)
+   {
+      if(EqnIsTrue(list))
+      {
+	 break;
+      }
+      list = list->next;
+   }
+   return list;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: EqnListIsTrivial()
 //
 //   Return true if the list contains two equal literals with

@@ -522,6 +522,7 @@ Term_p  TBInsertRepl(TB_p bank, Term_p term, DerefType deref, Term_p old, Term_p
       assert(TBFind(bank, repl));
       return repl;
    }
+   term = TermDeref(term, &deref);
    t = TermEquivCellAlloc(term, bank->vars); /* This is an unshared
 						term cell at the
 						moment */

@@ -234,6 +234,7 @@ void PCLExprUpdateGRefs(PCLProt_p prot, PCLExpr_p expr, bool proofstep)
    case PCLOpClauseNormalize:
          break;
    case PCLOpParamod:
+   case PCLOpSimParamod:
    case PCLOpEResolution:
    case PCLOpEFactoring:
    case PCLOpSplitClause: 

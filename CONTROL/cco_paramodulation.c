@@ -202,6 +202,173 @@ long ComputeAllParamodulants(TB_p bank, OCB_p ocb, Clause_p clause,
 
 
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: ComputeClauseClauseSimParamodulants()
+//
+//   Compute all simultaneous paramodulants between clause and with,
+//   with terms from bank, and put them into store. Returns
+//   number of paramodulants. 
+//
+// Global Variables: -
+//
+// Side Effects    : As above...
+//
+/----------------------------------------------------------------------*/
+
+long ComputeClauseClauseSimParamodulants(TB_p bank, OCB_p ocb, Clause_p
+                                         clause, Clause_p parent_alias,
+                                         Clause_p with, ClauseSet_p
+                                         store, VarBank_p freshvars)
+{
+   Clause_p    paramod;
+   Term_p      test;
+   ClausePos_p pos1, pos2;
+   long        paramod_count = 0;
+
+
+   if(ClauseQueryProp(clause, CPNoGeneration)||
+      ClauseQueryProp(with, CPNoGeneration))
+   {
+      return 0;
+   }
+
+   pos1 = ClausePosAlloc();
+   pos2 = ClausePosAlloc();
+
+   test = ClausePosFirstParamodPair(clause, pos1, with, pos2,
+				    false);
+   if(test)
+   {
+      EqnListTermSetProp(pos2->clause->literals, TPPotentialParamod);
+   }
+   while(test)
+   {
+      assert(TermPosIsTopPos(pos1->pos));
+
+      paramod = ClauseOrderedSimParamod(bank, ocb, pos1, pos2,
+                                        freshvars);
+      if(paramod)	    
+      {
+	 paramod_count++;
+	 paramod->parent1 = parent_alias;	    
+	 paramod->proof_size  =
+	    parent_alias->proof_size+with->proof_size+1;
+	 paramod->proof_depth = MAX(parent_alias->proof_depth,
+				    with->proof_depth)+1;
+	 ClauseSetTPTPType(paramod,
+			   ClauseQueryTPTPType(parent_alias));
+	 ClauseSetProp(paramod, 
+		       ClauseGiveProps(parent_alias, CPIsSOS)|
+		       ClauseGiveProps(with, CPIsSOS));
+	 ClauseRegisterChild(parent_alias, paramod);
+	 if(parent_alias!=with)
+	 {
+	    paramod->parent2 = with;
+	    
+	    ClauseSetTPTPType(paramod,
+			      TPTPTypesCombine(
+				 ClauseQueryTPTPType(paramod),
+				 ClauseQueryTPTPType(with)));
+	    
+	    ClauseRegisterChild(with, paramod);
+	 }
+	 DocClauseCreationDefault(paramod, inf_sim_paramod, with, 
+				  parent_alias);
+	 ClauseSetInsert(store, paramod);
+      }
+      test = ClausePosNextParamodPair(pos1, pos2, false);
+   }
+   /* Paramod clause into with - no top positions this time ;-) */
+   
+   if((parent_alias==with)&&ClauseIsDemodulator(parent_alias))
+   {
+      /* Both clauses are identical, i.e. both cases are
+	 symmetric. Ergo do nothing... */
+   }
+   else
+   {
+      test = ClausePosFirstParamodPair(with, pos1, clause, pos2, true);
+      if(test)
+      {
+         EqnListTermSetProp(pos2->clause->literals, TPPotentialParamod);
+      }
+      
+      while(test)
+      {
+	 assert(TermPosIsTopPos(pos1->pos));
+	 paramod = ClauseOrderedSimParamod(bank, ocb, pos1, pos2, freshvars);
+	 if(paramod)
+	 {
+	    paramod_count++;
+	    paramod->parent1 = with;
+	    paramod->proof_size  =
+	       parent_alias->proof_size+with->proof_size+1;
+	    paramod->proof_depth = MAX(parent_alias->proof_depth,
+				       with->proof_depth)+1;
+	    ClauseSetTPTPType(paramod,
+			      ClauseQueryTPTPType(with));
+	    ClauseSetProp(paramod, 
+			  ClauseGiveProps(parent_alias, CPIsSOS)|
+			  ClauseGiveProps(with, CPIsSOS));
+	    ClauseRegisterChild(with, paramod);
+	    if(parent_alias!=with)
+	    {
+	       paramod->parent2 = parent_alias;
+	       ClauseSetTPTPType(paramod,
+				 TPTPTypesCombine(
+				    ClauseQueryTPTPType(paramod),
+				    ClauseQueryTPTPType(parent_alias)));
+	       ClauseRegisterChild(parent_alias, paramod);
+	    }
+	    DocClauseCreationDefault(paramod, inf_sim_paramod, parent_alias, with);
+	    ClauseSetInsert(store, paramod);
+	 }
+	 test = ClausePosNextParamodPair(pos1, pos2, true);
+      }
+   }
+   ClausePosFree(pos1);
+   ClausePosFree(pos2);
+   
+   return paramod_count;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ComputeAllSimParamodulants()
+//
+//   Compute all simultaneous between clause and with_set, put them
+//   into store.
+//
+// Global Variables: -
+//
+// Side Effects    : By called functions, memory manangement.
+//
+/----------------------------------------------------------------------*/
+
+long ComputeAllSimParamodulants(TB_p bank, OCB_p ocb, Clause_p clause,
+			     Clause_p parent_alias, ClauseSet_p
+			     with_set, ClauseSet_p store, VarBank_p
+			     freshvars)
+{
+   Clause_p handle;
+   long     paramod_count = 0;
+
+   for(handle = with_set->anchor->succ; handle != with_set->anchor;
+       handle = handle->succ)
+   {
+      paramod_count +=
+	 ComputeClauseClauseSimParamodulants(bank, ocb, clause,
+                                             parent_alias, handle,
+                                             store, freshvars);
+   }
+   return paramod_count;
+}
+
+
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

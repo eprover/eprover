@@ -73,6 +73,7 @@ int     EqnListRemoveResolved(EqnRef list);
 int     EqnListRemoveACResolved(EqnRef list);
 Eqn_p   EqnListFindNegPureVarLit(Eqn_p list);
 
+Eqn_p   EqnListFindTrue(Eqn_p list);
 bool    EqnListIsTrivial(Eqn_p list);
 bool    EqnListIsACTrivial(Eqn_p list);
 bool    EqnListIsGround(Eqn_p list);

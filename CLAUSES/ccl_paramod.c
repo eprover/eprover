@@ -215,8 +215,7 @@ Term_p ComputeOverlap(TB_p bank, OCB_p ocb, ClausePos_p from, Term_p
 //
 // Global Variables: -
 //
-// Side Effects    : As for ComputeOverlap(), may get term
-//                   references.
+// Side Effects    : As for ComputeOverlap()
 //
 /----------------------------------------------------------------------*/
 
@@ -344,6 +343,130 @@ Clause_p ClauseOrderedParamod(TB_p bank, OCB_p ocb, ClausePos_p from,
    }
    SubstDelete(subst);
    
+   return new_clause;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseOrderedSimParamod()
+//
+//   Perform a simultaneous ordered simultaneous paramod step (if
+//   necessary).
+//
+// Global Variables: - (but reads term property TPPotentialParamod)
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+Clause_p ClauseOrderedSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
+                                 from,ClausePos_p into, VarBank_p
+                                 freshvars)
+{
+   Clause_p  new_clause = NULL;
+   Term_p    rhs_instance, from_term, into_term;
+   Eqn_p     into_copy, from_copy;
+   Subst_p   subst;
+   bool      unify_success;
+   
+   assert(EqnIsMaximal(from->literal));
+   assert(!EqnIsOriented(from->literal)||(from->side==LeftSide));
+   assert(!TermIsVar(ClausePosGetSide(from))||
+	  EqnIsEquLit(into->literal)||!TermPosIsTopPos(into->pos));
+   
+   into_term = ClausePosGetSubterm(into);
+
+   if(!TermCellQueryProp(into_term, TPPotentialParamod))
+   {
+      return NULL;
+   }
+   from_term = ClausePosGetSide(from);
+   subst = SubstAlloc();
+   VarBankResetVCount(freshvars);
+   unify_success = SubstComputeMgu(from_term, into_term, subst);
+   if(!unify_success ||
+      (!EqnIsOriented(from->literal) && 
+       TOGreater(ocb, ClausePosGetOtherSide(from), from_term, 
+                 DEREF_ALWAYS, DEREF_ALWAYS)))
+   {
+      /* Fail because of into-position invariant property of into-term
+       * - either we don't unify, or the intantiated from-term is no
+       longer maximal in its literal */ 
+      TermCellDelProp(into_term, TPPotentialParamod);
+   }
+   else if(!EqnIsOriented(into->literal) && 
+           TOGreater(ocb, ClausePosGetOtherSide(into), ClausePosGetSide(into), 
+                     DEREF_ALWAYS, DEREF_ALWAYS))
+   {
+      /* Do nothing - we fail because of an into-property that is not
+         invariant over positions (the intantiated into-position is no
+         longer in a maximal term in the literal) */
+   }
+   else if(!EqnListEqnIsStrictlyMaximal(ocb, 
+                                        from->clause->literals,
+                                        from->literal))
+   {
+      /* Fail because of into-position invariant property of into-term
+       * - the unifier causes the from-literal to be no longer
+       strictly maximal */ 
+      TermCellDelProp(into_term, TPPotentialParamod);
+   }
+   else if(!((EqnIsPositive(into->literal)&&
+              EqnListEqnIsStrictlyMaximal(ocb, 
+                                          into->clause->literals,
+                                          into->literal))
+             ||
+             (EqnIsNegative(into->literal) && 
+              EqnListEqnIsMaximal(ocb, 
+                                  into->clause->literals,
+                                  into->literal)))
+      )
+   {
+      /* Do nothing - we fail because of an into-property that is not
+         invariant over positions - the instantiated into-literal is
+         no longer (strictly) maximal */
+   }
+   else
+   { /* Now we build the new clause! */
+      /* _all_ instances of into_term are handled */
+      TermCellDelProp(into_term, TPPotentialParamod);
+
+      NormSubstEqnListExcept(into->clause->literals, NULL, subst, freshvars);
+      NormSubstEqnListExcept(from->clause->literals, NULL, subst, freshvars);
+      rhs_instance = TBInsertNoProps(bank,
+                                     ClausePosGetOtherSide(from),
+                                     DEREF_ALWAYS);
+      into_copy = EqnListCopyRepl(into->clause->literals, 
+                                  bank, into_term, rhs_instance);
+      if(EqnListFindTrue(into_copy))
+      {
+         EqnListFree(into_copy);
+      }
+      else
+      {
+         from_copy = EqnListCopyExcept(from->clause->literals,
+                                       from->literal, bank);
+         if(EqnListFindTrue(into_copy))
+         {
+            EqnListFree(into_copy);
+            EqnListFree(from_copy);
+         }
+         else
+         {
+            EqnListDelProp(into_copy, EPFromClauseLit);         
+            EqnListSetProp(from_copy, EPFromClauseLit);         
+            
+            into_copy = EqnListAppend(&into_copy, from_copy);
+
+            EqnListRemoveResolved(&into_copy);
+            EqnListRemoveDuplicates(into_copy, TBTermEqual);
+            new_clause = ClauseAlloc(into_copy);
+         }
+      }      
+   }
+   
+   SubstDelete(subst);
    return new_clause;
 }
 

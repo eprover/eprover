@@ -195,7 +195,8 @@ static void print_initial(FILE* out, Clause_p clause, char* comment)
 //
 // Function: print_paramod()
 //
-//   Print a clause creation by paramodulation (or superposition).
+//   Print a clause creation by (simultaneous) paramodulation (or
+//   superposition).
 //
 // Global Variables: -
 //
@@ -204,20 +205,21 @@ static void print_initial(FILE* out, Clause_p clause, char* comment)
 /----------------------------------------------------------------------*/
 
 static void print_paramod(FILE* out, Clause_p clause, Clause_p
-			  parent1, Clause_p parent2, char* comment)
+			  parent1, Clause_p parent2, char* inf, char* comment)
 {
    switch(DocOutputFormat)
    {
    case pcl_format:
 	 pcl_print_start(out, clause);
-	 fprintf(out, PCL_PM"(%ld,%ld)", parent1->ident,
+	 fprintf(out, "%s(%ld,%ld)", inf, parent1->ident,
 		 parent2->ident);
 	 pcl_print_end(out, comment, clause);
 	 break;
    case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
-		 ",inference("PCL_PM",[status(thm)],[c_0_%ld,c_0_%ld,theory(equality)])",
+		 ",inference(%s,[status(thm)],[c_0_%ld,c_0_%ld,theory(equality)])",
+                 inf,
 		 parent1->ident,
 		 parent2->ident);
 	 tstp_print_end(out, comment, clause);
@@ -1045,10 +1047,12 @@ void DocClauseCreation(FILE* out, long level, Clause_p clause,
 	    print_initial(out, clause, comment);
 	    break;
       case inf_paramod:
+      case inf_sim_paramod:
 	    assert(parent1);
 	    assert(parent2);
 	    clause->ident = ++ClauseIdentCounter;
-	    print_paramod(out, clause, parent1, parent2, comment);
+	    print_paramod(out, clause, parent1, parent2, 
+                          op==inf_paramod?PCL_PM:PCL_SPM,comment);
 	    break;
       case inf_eres:
 	    assert(parent1);

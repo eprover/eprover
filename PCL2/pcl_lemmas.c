@@ -95,6 +95,7 @@ InferenceWeight_p InferenceWeightsAlloc()
    (*handle)[PCLOpInitial]         = PCL_OP_INITIAL_WEIGHT;
    (*handle)[PCLOpQuote]           = PCL_OP_QUOTE_WEIGHT;
    (*handle)[PCLOpParamod]         = PCL_OP_PARAMOD_WEIGHT;
+   (*handle)[PCLOpSimParamod]      = PCL_OP_SIM_PARAMOD_WEIGHT;
    (*handle)[PCLOpEResolution]     = PCL_OP_ERESOLUTION_WEIGHT;
    (*handle)[PCLOpEFactoring]      = PCL_OP_EFACTORING_WEIGHT;
    (*handle)[PCLOpSimplifyReflect] = PCL_OP_SIMPLIFYREFLECT_WEIGHT;
@@ -138,6 +139,7 @@ void PCLExprUpdateRefs(PCLProt_p prot, PCLExpr_p expr)
 	 /* Do nothing */
 	 break; 
    case PCLOpParamod:
+   case PCLOpSimParamod:
 	 assert(expr->arg_no == 2);
 	 if((handle = PCLExprGetQuotedArg(prot,expr,0)))
 	 {

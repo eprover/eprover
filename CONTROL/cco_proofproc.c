@@ -393,35 +393,74 @@ static void generate_new_clauses(ProofState_p state, ProofControl_p
    state->resolv_count+=
       ComputeAllEqnResolvents(state->terms, clause, state->tmp_store,
 			      state->freshvars);
+
    if(control->heuristic_parms.enable_neg_unit_paramod
       ||!ClauseIsUnit(clause)
       ||!ClauseIsNegative(clause))
    { /* Sometime we want to disable paramodulation for negative units */
-      state->paramod_count+=
-         ComputeAllParamodulants(state->terms, control->ocb,
-                                 tmp_copy, clause,
-                                 state->processed_pos_rules,
-                                 state->tmp_store, state->freshvars);
-      state->paramod_count+=
-         ComputeAllParamodulants(state->terms, control->ocb,
-                                 tmp_copy, clause,
-                                 state->processed_pos_eqns,
-                                 state->tmp_store, state->freshvars); 
-      
-      if(control->heuristic_parms.enable_neg_unit_paramod && !ClauseIsNegative(clause))
-      { /* We never need to try to overlap purely negative clauses! */
-         
+      if(control->heuristic_parms.enable_plain_paramod)
+      {
          state->paramod_count+=
             ComputeAllParamodulants(state->terms, control->ocb,
                                     tmp_copy, clause,
-                                    state->processed_neg_units,
+                                    state->processed_pos_rules,
+                                    state->tmp_store, state->freshvars);
+         state->paramod_count+=
+            ComputeAllParamodulants(state->terms, control->ocb,
+                                    tmp_copy, clause,
+                                    state->processed_pos_eqns,
+                                    state->tmp_store, state->freshvars); 
+      }
+      if(control->heuristic_parms.enable_sim_paramod)
+      {
+         state->paramod_count+=
+            ComputeAllSimParamodulants(state->terms, control->ocb,
+                                       tmp_copy, clause,
+                                       state->processed_pos_rules,
+                                       state->tmp_store, state->freshvars);
+         state->paramod_count+=
+            ComputeAllSimParamodulants(state->terms, control->ocb,
+                                       tmp_copy, clause,
+                                       state->processed_pos_eqns,
+                                       state->tmp_store, state->freshvars); 
+      }
+      
+         
+      if(control->heuristic_parms.enable_neg_unit_paramod && !ClauseIsNegative(clause))
+      { /* We never need to try to overlap purely negative clauses! */
+         if(control->heuristic_parms.enable_plain_paramod)
+         {            
+            state->paramod_count+=
+               ComputeAllParamodulants(state->terms, control->ocb,
+                                       tmp_copy, clause,
+                                       state->processed_neg_units,
+                                       state->tmp_store, state->freshvars);
+         }
+         if(control->heuristic_parms.enable_sim_paramod)
+         {            
+            state->paramod_count+=
+               ComputeAllSimParamodulants(state->terms, control->ocb,
+                                          tmp_copy, clause,
+                                          state->processed_neg_units,
+                                          state->tmp_store, state->freshvars);
+         }
+      }
+      if(control->heuristic_parms.enable_plain_paramod)
+      {            
+         state->paramod_count+=
+            ComputeAllParamodulants(state->terms, control->ocb,
+                                    tmp_copy, clause,
+                                    state->processed_non_units, 
                                     state->tmp_store, state->freshvars);
       }
-      state->paramod_count+=
-         ComputeAllParamodulants(state->terms, control->ocb,
-                                 tmp_copy, clause,
-                                 state->processed_non_units, 
-                                 state->tmp_store, state->freshvars);
+      if(control->heuristic_parms.enable_sim_paramod)
+      {            
+         state->paramod_count+=
+            ComputeAllSimParamodulants(state->terms, control->ocb,
+                                       tmp_copy, clause,
+                                       state->processed_non_units, 
+                                       state->tmp_store, state->freshvars);
+      }
    }
 }
 
