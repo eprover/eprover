@@ -118,6 +118,35 @@ double Log2(double value)
    return log(value)/LOG_2;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: Log2Ceil()
+//
+//   Return the ceiling of the logarithm dualis of value.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long Log2Ceil(long value)
+{
+   long i = -1;
+
+   if(!value)
+   {
+      return -1;
+   }
+   value--;
+   while(value)
+   {
+      value>>=1;
+      i++;
+   }
+   return i+1;
+}
+
 
 #ifdef NEED_MATH_EMULATION
 
@@ -126,8 +155,8 @@ double Log2(double value)
 // Function: sqrt()
 //
 //   Simple hack implementing the square root function, which seems
-//   to be missing from Solars libm with profiling support. Don't ask
-//   me... This is slow and inexact....
+//   to be missing from (some version of) Solaris libm with profiling
+//   support. Don't ask me... This is slow and inexact....
 //
 // Global Variables: -
 //

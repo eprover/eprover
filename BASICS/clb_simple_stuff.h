@@ -59,6 +59,8 @@ int     WeightedObjectCompareFun(WeightedObject_p o1, WeightedObject_p
 int    StringIndex(char* key, char* list[]);
 double Log2(double value);
 
+long   Log2Ceil(long value);
+
 
 #endif
 

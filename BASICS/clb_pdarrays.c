@@ -63,7 +63,7 @@ PDArray_p PDArrayAlloc(long init_size, long grow)
    int i;
    
    assert(init_size > 0);
-   assert(grow > 0);
+   assert(grow >= 0);
 
    handle->integer = false;
    handle->size  = init_size;
@@ -95,7 +95,7 @@ PDArray_p PDIntArrayAlloc(long init_size, long grow)
    int i;
    
    assert(init_size > 0);
-   assert(grow > 0);
+   assert(grow >= 0);
 
    handle->integer = true;
    handle->size  = init_size;
@@ -150,7 +150,17 @@ void PDArayEnlarge(PDArray_p array, long idx)
    
    old_size = array->size;
    tmp      = array->array;
-   array->size = ((idx/array->grow)+1)*array->grow;
+   if(array->grow)
+   {
+      array->size = ((idx/array->grow)+1)*array->grow;
+   }
+   else
+   {
+      while(array->size <= idx)
+      {
+	 array->size = array->size*2;
+      }
+   }
    array->array = SizeMalloc(array->size * sizeof(IntOrP));
    memcpy(array->array, tmp, old_size*sizeof(IntOrP));
    SizeFree(tmp, old_size * sizeof(IntOrP));
