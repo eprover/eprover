@@ -194,8 +194,7 @@ static long eleminate_backward_subsumed_clauses(ProofState_p state,
    {
       if(pclause->clause->pos_lit_no)
       {
-	 /* res += remove_subsumed(clause,
-	    state->processed_pos_rules); Should be impossible! */
+         res += remove_subsumed(pclause, state->processed_pos_rules);
 	 res += remove_subsumed(pclause, state->processed_pos_eqns);
 	 res += remove_subsumed(pclause, state->processed_non_units);
       }
@@ -603,9 +602,9 @@ void print_rw_state(ProofState_p state)
 //
 /----------------------------------------------------------------------*/
 
-void ProofControlInit(ProofState_p state,ProofControl_p control,
-		      HeuristicParms_p params, PStack_p wfcb_defs,
-                      PStack_p hcb_defs)
+void ProofControlInit(ProofState_p state,ProofControl_p control, 
+		      HeuristicParms_p params, FVIndexParms_p fvi_params,
+                      PStack_p wfcb_defs, PStack_p hcb_defs)   
 {
    PStackPointer sp;
    Scanner_p in;
@@ -650,43 +649,16 @@ void ProofControlInit(ProofState_p state,ProofControl_p control,
 			    control->ocb, state); 
       DestroyScanner(in);
    }
-#ifdef NEVER_DEFINED
-   control->forward_demod       = params->forward_demod;
-   control->filter_limit        = params->filter_limit;
-   control->filter_copies_limit = params->filter_copies_limit;
-   control->reweight_limit      = params->reweight_limit;
-   control->delete_bad_limit    = params->delete_bad_limit;
-   control->ac_handling         = params->ac_handling;
-   control->ac_res_aggressive   = params->ac_res_aggressive;
-   control->forward_context_sr            = params->forward_context_sr;
-   control->forward_context_sr_aggressive = params->forward_context_sr_aggressive;
-   control->backward_context_sr           = params->backward_context_sr;
-
-   control->er_varlit_destructive = params->er_varlit_destructive;
-   control->er_strong_destructive = params->er_strong_destructive;
-   control->er_aggressive         = params->er_aggressive;
-   control->prefer_initial_clauses = params->prefer_initial_clauses;
-   control->select_on_proc_only = params->select_on_proc_only;      
-   control->inherit_paramod_lit = params->inherit_paramod_lit;      
-   control->selection_strategy  = params->selection_strategy;      
-   control->pos_lit_sel_min     = params->pos_lit_sel_min;      
-   control->pos_lit_sel_max     = params->pos_lit_sel_max;      
-   control->neg_lit_sel_min     = params->neg_lit_sel_min;      
-   control->neg_lit_sel_max     = params->neg_lit_sel_max;      
-   control->all_lit_sel_min     = params->all_lit_sel_min;      
-   control->all_lit_sel_max     = params->all_lit_sel_max;      
-   control->weight_sel_min      = params->weight_sel_min;      
-   control->split_clauses       = params->split_clauses;      
-   control->split_method        = params->split_method;      
-   control->split_aggressive    = params->split_aggressive;      
-   control->unproc_simplify     = params->unproc_simplify;
-   control->watchlist_simplify  = params->watchlist_simplify;
-#endif
    control->heuristic_parms     = *params;
+   control->fvi_parms           = *fvi_params;
    control->hcb = GetHeuristic(params->heuristic_name,
 			       state,
 			       control, 
 			       params);
+   if(!control->heuristic_parms.split_clauses)
+   {
+      control->fvi_parms.symbol_slack = 0;
+   }   
 }
 
 
@@ -706,8 +678,7 @@ void ProofControlInit(ProofState_p state,ProofControl_p control,
 //
 /----------------------------------------------------------------------*/
 
-void ProofStateInit(ProofState_p state, ProofControl_p control,
-		    HeuristicParms_p h_parms, FVIndexParms_p fvi_parms)
+void ProofStateInit(ProofState_p state, ProofControl_p control)
 {
    Clause_p handle, new;
    HCB_p    tmphcb;
@@ -723,7 +694,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control,
    assert(ClauseSetEmpty(state->processed_neg_units));
    assert(ClauseSetEmpty(state->processed_non_units));
 
-   tmphcb = GetHeuristic("Uniq", state, control, h_parms);
+   tmphcb = GetHeuristic("Uniq", state, control, &(control->heuristic_parms));
    ClauseSetReweight(tmphcb, state->axioms);
    
    traverse =
@@ -742,7 +713,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control,
       }
       ClauseSetInsert(state->unprocessed, new);
    }
-   ClauseSetMarkSOS(state->unprocessed, h_parms->use_tptp_sos);
+   ClauseSetMarkSOS(state->unprocessed, control->heuristic_parms.use_tptp_sos);
    EvalTreeTraverseExit(traverse);
    if(control->heuristic_parms.ac_handling!=NoACHandling)
    {
@@ -761,33 +732,35 @@ void ProofStateInit(ProofState_p state, ProofControl_p control,
 	 }
       }
    }
-   state->original_symbols = state->signature->f_count;
-   if(!control->heuristic_parms.split_clauses)
+
+   if(!state->fvi_initialized)
    {
-      fvi_parms->symbol_slack = 0;
-   }
-   if(fvi_parms->features != FVINoFeatures)
-   {
-      long symbols = MIN(state->original_symbols+fvi_parms->symbol_slack, 
-			 fvi_parms->max_symbols);     
-      PermVector_p perm = PermVectorCompute(state->axioms,		    
-					    fvi_parms,
-					    symbols);  
-      state->processed_non_units->fvindex =
-	 FVIAnchorAlloc(symbols, fvi_parms->features, perm);
-      state->processed_pos_rules->fvindex =
-	 FVIAnchorAlloc(symbols, fvi_parms->features, PermVectorCopy(perm));
-      state->processed_pos_eqns->fvindex =
-	 FVIAnchorAlloc(symbols, fvi_parms->features, PermVectorCopy(perm));
-      state->processed_neg_units->fvindex =
-	 FVIAnchorAlloc(symbols, fvi_parms->features,
-			PermVectorCopy(perm));
-      if(state->watchlist)
+      state->fvi_initialized = true;
+      state->original_symbols = state->signature->f_count;
+      
+      if(control->fvi_parms.features != FVINoFeatures)
       {
-	 state->watchlist->fvindex = 
-	    FVIAnchorAlloc(symbols, fvi_parms->features,
-			   PermVectorCopy(perm));
+         long symbols = MIN(state->original_symbols+control->fvi_parms.symbol_slack, 
+                            control->fvi_parms.max_symbols);     
+         PermVector_p perm = PermVectorCompute(state->axioms,		    
+                                               &(control->fvi_parms),
+                                               symbols);  
+         state->processed_non_units->fvindex =
+            FVIAnchorAlloc(symbols, control->fvi_parms.features, perm);
+         state->processed_pos_rules->fvindex =
+            FVIAnchorAlloc(symbols, control->fvi_parms.features, PermVectorCopy(perm));
+         state->processed_pos_eqns->fvindex =
+            FVIAnchorAlloc(symbols, control->fvi_parms.features, PermVectorCopy(perm));
+         state->processed_neg_units->fvindex =
+            FVIAnchorAlloc(symbols, control->fvi_parms.features,
+                           PermVectorCopy(perm));
+         if(state->watchlist)
+         {
+            state->watchlist->fvindex = 
+               FVIAnchorAlloc(symbols, control->fvi_parms.features,
+                              PermVectorCopy(perm));
 	 ClauseSetNewTerms(state->watchlist, state->terms);
+         }
       }
    }
 }
