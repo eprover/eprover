@@ -1,7 +1,7 @@
 This history list describes the major differences between versions of
 the E equational theorem prover.
 
-Version 0.71 -> 
+Version 0.71 -> 0.8 Steinthal
 
 - Finally fixed that SOS bug. There still is an SOS problem with
   splitting (split clauses do not inherit SOS status) that will be
@@ -12,7 +12,7 @@ Version 0.71 ->
   is consistent, i.e. the second one is being applied to an instance
   of the first one).
 - Changed the main loop to a more conservative version (_all_
-  simplidied clauses are scheduled for reprocessing) giving a much
+  simplified clauses are scheduled for reprocessing) giving a much
   nicer invariant
 - Added Defaultweight() and a number of evaluation- and priority
   functions to improve FIFO (ByDerivationDate, StaggeredWeight(),
@@ -20,7 +20,10 @@ Version 0.71 ->
 - Added feature vector indexing for non-unit subsumption
 - Added contextual simplify-reflect (may change that name - what about
   contextual equational literal cutting?)
-- New auto mode, still mostly based on pre-subsumption test runs
+- New auto mode, still mostly based on pre-subsumption-indexing test
+  runs 
+- Added epcllemma program that will use various heuristics to suggest
+  lemmata in PCL protocols.
 
 Version 0.7 -> 0.71 Puttabong
 
