@@ -259,7 +259,7 @@ char* DStrView(DStr_p strdes)
 // Function: DStrCopy()
 //
 //   Return a pointer to a copy of the stored string. The user is
-//   responsible for freeing the memory (via free).
+//   responsible for freeing the memory (via free()/FREE()).
 //
 // Global Variables: -
 //
