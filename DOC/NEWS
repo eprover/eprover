@@ -10,6 +10,15 @@ Version 0.82 ->
 - Added preliminary support for distinct objects and numbers
 - Added support for stronger rewriting (instantiating unbound
   variables in potential right hand sides)
+- Implemented TPTP style includes for TPTP/TSTP syntax
+- Made groundness a stored invariant in term banks (enables more
+  efficient inserting of gorund terms, also helps with literal
+  selection).
+- Reworked the watchlist (needs more work).
+- Reworked subsumption by ordering clauses (still need to look at the
+  effect this has on search).
+- Got rid of ancient options restricting paramodulation (dating back
+- to METOP, and never used)
 
 Version 0.81 -> 0.82 Lung Ching
 
