@@ -55,7 +55,15 @@ pylib_io.check_argc(1)
 set = pylib_ml_examples.ml_exampleset()
 set.parse(sys.argv[1])
 
+cpart =  pylib_ml_examples.class_partition(set)
+apriori    = cpart.entropy()
 
-sfp = pylib_ml_examples.scalar_feature_partition(set,2,[1,2,5,10,20,50,100,200,500])
-print sfp
-print sfp.entropy()
+print "A-priori entropy:", apriori
+    
+for i in range(0,set.feature_no):
+    tmp = pylib_ml_examples.find_best_feature_partition(set, apriori, i, 10)
+    part = tmp[2]
+    rig  = tmp[0]
+    aig  = tmp[1]
+    print "Ig: %1.6f, %1.6f "%(rig, aig), part.abstracter
+

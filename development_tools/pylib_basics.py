@@ -51,6 +51,22 @@ NumericScalarTypes = [type(1), type(1L), type(1.0)]
 # Logarithm of 2 in base e
 LogE2              =  math.log(2)
 
+
+# Names for floating point infinity
+
+def compute_infinity():
+    base = 2.0
+    cand = base*base
+    for i in xrange(1,1000):
+        if cand == base:
+            return cand
+        base = cand
+        cand = base*base
+    raise ValueError, "Cannot find positive infinity after 1000 iterations"
+
+Infinity = compute_infinity()
+
+
 # Portable booleans (missing in older Python versions):
 
 try:
@@ -113,3 +129,8 @@ def uniq(l):
             break
     return nl
 
+def sum(l):
+    """
+    Return the sum of elements of l.
+    """
+    return reduce(lambda x,y:x+y, l, 0)
