@@ -65,7 +65,12 @@ static __inline__ void  SizeFreeReal(void* junk, int size);
 /* For estimating the real memory consumption of a data type - this
    may be way of for some memory managers, but should be reasonably ok
    for many situations */
+
+#ifdef CONSTANT_MEM_ESTIMATE
+/* Don't define MEMSIZE at all - everything has to work with constants */
+#else
 #define MEMSIZE(type) (sizeof(type)+sizeof(void*))
+#endif
 
 #ifndef NDEBUG
 #define SizeFree(junk, size) SizeFreeReal(junk, size); junk=NULL
