@@ -72,7 +72,7 @@ typedef enum
                                  rewriting scheme) */ 
    TPIsShared       =  16384, /* Term is in a term bank */
    TPGarbageFlag    =  32768, /* For the term bank garbage collection */
-   TPIsFreeVar      =  65536, /* For Skolemization */
+   TPIsFreeVar      =  65536  /* For Skolemization */
 }TermProperties;
 
 
