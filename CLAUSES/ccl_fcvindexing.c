@@ -167,7 +167,7 @@ FVIndexParms_p FVIndexParmsAlloc(void)
    handle->features                = FVIAllFeatures;
    handle->use_perm_vectors        = true;
    handle->eleminate_uninformative = false;
-   handle->max_features            = FVINDEX_MAX_FEATURES_DEFAULT;
+   handle->max_symbols             = FVINDEX_MAX_FEATURES_DEFAULT;
    handle->symbol_slack            = FVINDEX_SYMBOL_SLACK_DEFAULT;
    return handle;
 }

@@ -1811,7 +1811,7 @@ PermVector_p PermVectorCompute(ClauseSet_p set, FVIndexParms_p params,
 				   symbols);
       
       res = PermVectorComputeInternal(fmax, fmin, fsum, 
-				      params->max_features,
+				      params->max_symbols,
 				      params->eleminate_uninformative);
       FreqVectorFree(fsum);
       FreqVectorFree(fmax);
