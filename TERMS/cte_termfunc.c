@@ -193,7 +193,7 @@ static Term_p term_check_consistency_rek(Term_p term, PTree_p *branch,
 void TermPrint(FILE* out, Term_p term, Sig_p sig, DerefType deref)
 {
    assert(term);
-   assert(sig);
+   assert(sig||TermIsVar(term));
    
    term = TermDeref(term, &deref);
 
