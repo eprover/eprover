@@ -93,7 +93,7 @@ static bool pcl_run_prover(char* command, char*success)
 #else
    if(OutputLevel>0)
    {
-      fprintf(GlobalOut, "# Cannot run verifier under Windows.", command);
+      fprintf(GlobalOut, "# Cannot run verifier under Windows.");
    }
 #endif
    return res;
