@@ -141,7 +141,7 @@ void      PDTreeFree(PDTree_p tree);
 #define   PDTreeStorage(tree) \
           ((tree)\
           ?\
-          ((tree)->node_count*(PDTNODE_DYN_MEM+sizeof(IntOrP)*\
+          ((tree)->node_count*(PDTNODE_DYN_MEM+INTORP_MEM*\
                                (tree->max_var+tree->max_fun+\
 				(PDNODE_FUN_GROW_ALT+PDNODE_VAR_GROW_ALT)/2))\
            +(tree)->clause_count*(PDTREE_CELL_MEM+CLAUSEPOSCELL_MEM))\

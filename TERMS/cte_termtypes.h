@@ -138,9 +138,11 @@ typedef long DerefType, *DerefType_p;
 #ifdef CONSTANT_MEM_ESTIMATE
 #define TERMCELL_MEM 48
 #define TERMARG_MEM  4
+#define TERMP_MEM    4
 #else
 #define TERMCELL_MEM MEMSIZE(TermCell)
 #define TERMARG_MEM  sizeof(void*)
+#define TERMP_MEM    sizeof(Term_p)
 #endif
 
 #define TERMCELL_DYN_MEM (TERMCELL_MEM+4*TERMARG_MEM)

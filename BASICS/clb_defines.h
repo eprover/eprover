@@ -66,6 +66,12 @@ typedef union int_or_p
    void *p_val;
 }IntOrP;
 
+#ifdef CONSTANT_MEM_ESTIMATE
+#define INTORP_MEM 4
+#else
+#define INTORP_MEM sizeof(IntOrP)
+#endif
+
 
 /* The NULL pointer */
 
