@@ -589,7 +589,7 @@ function process_result(host     , file, tmp, name, time, org_time, status,\
 	 }
       }
       close(file);
-      printf("%-29s " status " %8.3f  %-10s %10d %10d %10d %10d %10d", \
+      printf("%-29s " status " %8.3f  %-10s %10d %10d %10d %10d %10d\n", \
 	     name, 0+time, reason, generated, processed, \
 	     nu_subs, nurec_subs,u_subs) >> logfile;
       open_jobs--;	    
