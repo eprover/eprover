@@ -127,6 +127,8 @@ long GetSystemPageSize(void)
 long GetSystemPhysMemory(void)
 {
    long res = -1;
+
+#ifndef RESTRICTED_FOR_WINDOWS
 #if defined(E_SC_PAGE_SIZE) && defined(_SC_PHYS_PAGES)
    {
       long long tmpres = 0, pages, pagesize;
@@ -154,12 +156,15 @@ long GetSystemPhysMemory(void)
             if(strncmp(MEM_PHRASE, line, limit)==0)
             {
                res = atol(line+limit);
+               break;
             }
          }
    
          pclose(pipe);
       }      
    }
+#endif 
+/* RESTRICTED_FOR_WINDOWS */
    return res;
 }
 
