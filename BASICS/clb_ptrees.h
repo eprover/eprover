@@ -40,13 +40,19 @@ Changes
 
 
 /* Data structure for indexing pointers (which need to be casted
-   carefully by the wrapper functions). */ 
+   carefully by the wrapper functions). The key comes last in the
+   struct to circumvent some bug in various gcc versions (apparently,
+   gcc likes to safe a variable and will not always allocate a
+   temporary variable when it thinks it can reuse the original
+   position. In this case, it is wrong (exhibited in
+   PTreeExtractKey()). Moving key to the back works around it (the
+   memory management module will overwrite just the first word...) */ 
 
 typedef struct ptreecell
 {
-   void*            key;
    struct ptreecell *lson;
    struct ptreecell *rson;
+   void*            key;
 }PTreeCell, *PTree_p;
 
 

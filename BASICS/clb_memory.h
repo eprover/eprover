@@ -32,6 +32,7 @@ Changes
 
 #include "clb_verbose.h"
 
+
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
@@ -71,14 +72,30 @@ static __inline__ void  SizeFreeReal(void* junk, int size);
 #define MEMSIZE(type) (sizeof(type)+sizeof(void*))
 #endif
 
+#ifdef USE_SYSTEM_MEM
+
+#ifndef NDEBUG
+#define SizeFree(junk, size) free(junk); junk=NULL
+#define SizeMalloc(size)     malloc(size)
+#define ENSURE_NULL(junk)    junk=NULL
+#else
+#define SizeFree(junk, size) free(junk)
+#define SizeMalloc(size)     malloc(size)
+#define ENSURE_NULL(junk) /* Only defined in debug mode */
+#endif
+
+#else
+
 #ifndef NDEBUG
 #define SizeFree(junk, size) SizeFreeReal(junk, size); junk=NULL
-#define SizeMalloc(size) SizeMallocReal(size)
-#define ENSURE_NULL(junk) junk=NULL
+#define SizeMalloc(size)     SizeMallocReal(size)
+#define ENSURE_NULL(junk)    junk=NULL
 #else
-#define SizeFree(junk, size) SizeFreeReal(junk, size);
-#define SizeMalloc(size) SizeMallocReal(size)
-#define ENSURE_NULL(junk) /* Only define in debug mode */
+#define SizeFree(junk, size) SizeFreeReal(junk, size)
+#define SizeMalloc(size)     SizeMallocReal(size)
+#define ENSURE_NULL(junk) /* Only defined in debug mode */
+#endif
+
 #endif
 
 void  MemFlushFreeList(void);

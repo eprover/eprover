@@ -92,7 +92,7 @@ void     PStackSort(PStack_p stack, ComparisonFunctionType cmpfun);
 //   Implement push operation for pstacks. If the stack area needs to
 //   grow, Realloc is emulated in terms of
 //   SizeMalloc()/SizeFree(). This is because stacks are allocated and
-//   deallocated a lot, and usually in the same sizes, so it pays of
+//   deallocated a lot, and usually in the same sizes, so it pays off
 //   to optimize this behaviour.
 //
 // Global Variables: -
