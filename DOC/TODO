@@ -1,3 +1,6 @@
+Flattening of ground terms (anti-unfolding ;-), useful for termination
+in many theories, and maybe in general.
+
 Splitting with naming!
 
 Contextual rewriting
