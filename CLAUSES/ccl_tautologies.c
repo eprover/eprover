@@ -129,17 +129,12 @@ static bool ground_orient_eqn(Eqn_p eqn)
    if(cmp == to_greater)
    {
       EqnSetProp(eqn, EPGONatural);
-      /* printf(" natural\n"); */
-      return true;
    }
    else
    {
       EqnDelProp(eqn, EPGONatural);
-      /* printf(" reverse\n"); */
-      return true;
    }
-   /* printf(" equal\n"); */
-   return false;
+   return true;
 }
 
 /*-----------------------------------------------------------------------
