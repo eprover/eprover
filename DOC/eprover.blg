@@ -2,44 +2,44 @@ This is BibTeX, Version 0.99c (Web2C 7.4.5)
 The top-level auxiliary file: eprover.aux
 The style file: alpha.bst
 Database file #1: stsbib.bib
-You've used 25 entries,
+You've used 26 entries,
             2543 wiz_defined-function locations,
-            732 strings with 8164 characters,
-and the built_in function-call counts, 11665 in all, are:
-= -- 1196
-> -- 541
-< -- 31
-+ -- 176
-- -- 175
-* -- 856
-:= -- 1852
-add.period$ -- 91
-call.type$ -- 25
-change.case$ -- 158
-chr.to.int$ -- 24
-cite$ -- 25
-duplicate$ -- 465
-empty$ -- 845
-format.name$ -- 206
-if$ -- 2455
+            741 strings with 8498 characters,
+and the built_in function-call counts, 12276 in all, are:
+= -- 1253
+> -- 580
+< -- 32
++ -- 189
+- -- 188
+* -- 901
+:= -- 1949
+add.period$ -- 95
+call.type$ -- 26
+change.case$ -- 165
+chr.to.int$ -- 25
+cite$ -- 26
+duplicate$ -- 489
+empty$ -- 887
+format.name$ -- 220
+if$ -- 2585
 int.to.chr$ -- 2
 int.to.str$ -- 0
-missing$ -- 20
-newline$ -- 134
-num.names$ -- 95
-pop$ -- 142
+missing$ -- 21
+newline$ -- 140
+num.names$ -- 100
+pop$ -- 150
 preamble$ -- 1
-purify$ -- 184
+purify$ -- 192
 quote$ -- 0
-skip$ -- 408
+skip$ -- 430
 stack$ -- 0
-substring$ -- 679
-swap$ -- 138
-text.length$ -- 31
+substring$ -- 710
+swap$ -- 147
+text.length$ -- 32
 text.prefix$ -- 8
 top$ -- 0
-type$ -- 196
+type$ -- 204
 warning$ -- 0
-while$ -- 123
-width$ -- 27
-write$ -- 356
+while$ -- 130
+width$ -- 28
+write$ -- 371
