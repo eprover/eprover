@@ -242,6 +242,7 @@ static bool eqn_subsumes_termpair(Eqn_p eqn, Term_p t1, Term_p t2)
    return res;
 }
 
+/* #define OLD_SUBSUMPTION */
 
 /*-----------------------------------------------------------------------
 //
@@ -296,6 +297,8 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
    return list;
 }
 #else
+
+/* New version using ordering */
 static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
 {
    Subst_p subst = SubstAlloc();
@@ -314,11 +317,12 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
          continue;
       }      
       cmpres = EqnSubsumeCompare(lit, list);
-      if(cmpres <  0)
+      if(cmpres >  0)
       {
-         list = NULL;
-         break;
-      } 
+         /*list = NULL;
+           break;*/
+         continue;
+      }
       assert(PropsAreEquiv(lit, list, EPIsPositive|EPIsEquLiteral));
       if(EqnIsOriented(lit) && !EqnIsOriented(list))
       {
@@ -346,6 +350,7 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
       SubstBacktrack(subst);
    }
    SubstDelete(subst);
+   
    return list;
 }
 #endif
@@ -521,28 +526,26 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
 	 continue;
       }
       
-      cmpres = EqnSubsumeQOrderCompare(subsum_list, eqn);
+      cmpres = EqnSubsumeQOrderCompare(eqn,subsum_list);
       if(cmpres < 0)
       {
+         continue;
          return false;
       }
       if(cmpres >  0)
       {
          continue;
       }      
-      cmpres = EqnSubsumeCompare(subsum_list, eqn);
+      cmpres = EqnSubsumeCompare(eqn,subsum_list);
       if(cmpres <  0)
       {
+         continue;
          return false;
       } 
       assert(PropsAreEquiv(subsum_list, eqn, EPIsPositive|EPIsEquLiteral));
       /* Some optimizations:If the potentially more general equation
 	 is oriented, then the potentially more specialized has to be
-	 oriented as well. */
-      if(!PropsAreEquiv(eqn, subsum_list, EPIsPositive|EPIsEquLiteral))
-      {
-	 continue;
-      }
+	 oriented as well. */      
       if(EqnIsOriented(subsum_list) && !EqnIsOriented(eqn))
       {
 	 continue;
