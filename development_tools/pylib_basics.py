@@ -3,8 +3,9 @@
 #
 # Module pylib_basics
 #
-# Trivial stuff not easily classified elsewhere. Soe of this stuff
-# should probably be in the base language, but I cannot find it. 
+# Trivial stuff not easily classified elsewhere. Some of this stuff 
+# should probably be in the base language or libraries, but I cannot
+# find it.
 #
 # Copyright 2003 Stephan Schulz, schulz@informatik.tu-muenchen.de
 #
@@ -50,6 +51,16 @@ NumericScalarTypes = [type(1), type(1L), type(1.0)]
 # Logarithm of 2 in base e
 LogE2              =  math.log(2)
 
+# Portable booleans (missing in older Python versions):
+
+try:
+    True
+    False
+except NameError:
+    True  = 1
+    False = 0
+
+
 def sign(number):
     """
     Return the sign of a number.
@@ -70,4 +81,35 @@ def log2(n):
     """
     return math.log(n)/LogE2
 
-        
+def is_sorted(l, cmpfun = cmp):
+    """
+    Return True if l is a sorted list.
+    """
+    if len(l) <= 1:
+        return True
+    old = l[0]
+    for i in l[1:]:
+        if cmpfun(old,i) > 0:
+            return False
+        old = i
+    return True
+
+def uniq(l):
+    """
+    Create a new list by replacing sublists containing the same elemen
+    in l  with a single copy of the element. Not very efficient, but
+    quite Pythonic. I think.
+    """
+    nl = list(l)
+    i = 0
+ 
+    while 1:
+        try:
+            if nl[i+1] == nl[i]:
+                del(nl[i])
+            else:
+                i=i+1
+        except IndexError:
+            break
+    return nl
+

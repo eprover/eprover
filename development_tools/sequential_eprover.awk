@@ -401,14 +401,15 @@ BEGIN{
    e_mark["SUNW-Sun-Fire-880-sparcv9-900"]               = 285.646;
    e_mark["SUNW-Sun-Fire-sparcv9-750"]                   = 211.921;
    e_mark["ppc7450-1000"]                                = 267.552;
-   e_mark["IntelR-PentiumR-4-CPU-1400MHz-1395.787"]      = 300.922;
+   e_mark["IntelR-PentiumR-4-CPU-1400MHz-1396"]          = 300.922;
    e_mark["SUNW-Ultra-60-sparcv9-296"]                   = 100;
-   e_mark["NC-AMD-Athlontm-MP-Processor-1600+-1400.058"] = 366.393;
+   e_mark["NC-AMD-Athlontm-MP-Processor-1600+-1400"]     = 366.393;
    e_mark["Pentium-II-Deschutes-448.882"]                = 157.919;
-   e_mark["IntelR-PentiumR-4-CPU-2.40GHz-2405.486"]      = 496.488;
-   e_mark["IntelR-PentiumR-4-CPU-2.40GHz-2405.487"]      = 496.488;
-   e_mark["IntelR-PentiumR-4-CPU-2.40GHz-2405.526"]      = 518.546;
-   e_mark["IntelR-PentiumR-4-CPU-2.40GHz-2405.502"]      = 521.253;
+   e_mark["IntelR-PentiumR-4-CPU-1.80GHz-1794"]          = 345.135;
+   e_mark["IntelR-PentiumR-4-CPU-2.40GHz-2405"]          = 496.488;
+   e_mark["IntelR-PentiumR-4-CPU-2.40GHz-2405"]          = 496.488;
+   e_mark["IntelR-PentiumR-4-CPU-2.40GHz-2406"]          = 518.546;
+   e_mark["IntelR-PentiumR-4-CPU-2.40GHz-2406"]          = 521.253;
 
    e_mark_host = e_mark[get_shell_res("get_system.awk")];
    if(!e_mark_host)

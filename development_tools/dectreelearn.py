@@ -55,7 +55,7 @@ pylib_io.check_argc(1)
 set = pylib_ml_examples.ml_exampleset()
 set.parse(sys.argv[1])
 
-part = pylib_ml_examples.class_partion(set)
-print part.entropy()
 
-print pylib_probabilities.compute_entropy([1,1,1,1,4])
+sfp = pylib_ml_examples.scalar_feature_partition(set,2,[1,2,5,10,20,50,100,200,500])
+print sfp
+print sfp.entropy()

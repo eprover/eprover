@@ -119,6 +119,9 @@ class ml_example:
             self.tclass = UnknownClass
 
     def feature_no(self):
+        """
+        Return number of different features of example.
+        """
         return len(self.features)
     
     def __repr__(self):
@@ -129,9 +132,15 @@ class ml_example:
         return res
 
     def feature_val(self, f_no):
+        """
+        Return value of a given feature.
+        """
         return self.features[f_no]
 
     def tclass_val(self):
+        """
+        Return target class of feature.
+        """
         return self.tclass
         
 
@@ -158,7 +167,18 @@ class ml_exampleset(UserList):
         UserList.append(self, element)
         self.feature_types = None
 
-    def compute_feature_types(self):
+    def get_feature_type(self, feature):
+        """
+        Give the type of the named feature.
+        """
+        return self.get_feature_types()[feature]
+        
+        
+    def get_feature_types(self):
+        """
+        Return a list of types of features used in examples,
+        recomputing it if necessary.
+        """
         if not self.feature_no:
             return None
         if self.feature_types:
@@ -170,6 +190,22 @@ class ml_exampleset(UserList):
                                                     self.data)))
         return self.feature_types
 
+    def get_feature_values(self, feature):
+        """
+        Return list of all values for a given feature.
+        """
+        return map(lambda x, f=feature:x.feature_val(f), self)
+
+    def get_feature_range(self, feature):
+        """
+        Return tuple with largest and smallest feature value (using
+        natural order of the type).
+        """
+        tmp = self.get_feature_values(feature)
+        tmp.sort()
+        return (tmp[0], tmp[-1])
+
+    
     def parse(self, file):
         f = pylib_io.flexopen(file,'r')
         l = f.readlines()
@@ -191,19 +227,40 @@ class ml_exampleset(UserList):
     
 
 class partition:
-    def __init__(self, examples):
+    """
+    Represent a partition of examples with named partitions. Partition
+    type is defined by the abstracter() function that should return a
+    partition label for each subset.
+    """
+    def __init__(self, examples=[]):
         self.partitions = {}
+        self.insert_set(examples)
+
+
+    def insert(self, example):
+        """
+        Insert a single example.
+        """
+        part = self.abstracter(example)
+        try:
+            self.partitions[part].append(example)
+        except KeyError:
+            tmp = ml_exampleset()
+            tmp.set_name(part)
+            tmp.append(example)
+            self.partitions[part] = tmp     
+
+    def insert_set(self, examples):
+        """
+        Insert a whole set of examples.
+        """
         for i in examples:
-            part = self.abstracter(i)
-            try:
-                self.partitions[part].append(i)
-            except KeyError:
-                tmp = ml_exampleset()
-                tmp.set_name(part)
-                tmp.append(i)
-                self.partitions[part] = tmp                
+            self.insert(i)
                 
     def abstracter(self, example):
+        """
+        Return a label. This is only defined for concrete instances. 
+        """
         assert false, "Virtual function only!"
 
     def __repr__(self):
@@ -211,21 +268,100 @@ class partition:
         tmp = self.partitions.keys()
         tmp.sort()
         for i in tmp:
-            res = res+repr(self.partitions[i])
+            res = res+repr(i)+"\n"+repr(self.partitions[i])
         return res
 
     def entropy(self):
         af = pylib_probabilities.abs_freq_vector(self.partitions)
         return pylib_probabilities.compute_entropy(af)
         
+
+class scalar_feature_test:
+    """
+    Callable object representing a single interval constraint on a
+    scalar variable. It returns True for values with lb <= val < ub.
+    """
+    def __init__(self, lower_bound, upper_bound):
+        assert not lower_bound or not upper_bound or lower_bound <= upper_bound
+        self.lower_bound = lower_bound
+        self.upper_bound = upper_bound
+        self.name = "X"
+
+    def set_name(self, name):
+        self.name = name
+
+    def __call__(self, value):
+        if self.lower_bound==None:
+            lb = True
+        else:
+            lb = value >= self.lower_bound
+        if self.upper_bound==None:
+            ub = True
+        else:
+            ub = value < self.upper_bound
+        return lb and ub
+
+    def __repr__(self):
+        if self.lower_bound==None and self.upper_bound==None:
+            return "always_true"    
+        elif self.lower_bound==None:
+            return self.name+"<"+repr(self.upper_bound)
+        elif self.upper_bound==None:
+            return self.name+">="+repr(self.lower_bound)
+        return self.name+">="+repr(self.lower_bound)+\
+               " and "+self.name+"<"+repr(self.upper_bound)    
+
+
+class scalar_feature_partitioner(partition):
+    def __init__(self, feature, limits=[]):
+        assert(pylib_basics.is_sorted(limits))
+        self.feature_no = feature
+        tmpname = "feature["+repr(self.feature_no)+"]"
+        if len(limits)==0:
+            tmp = scalar_feature_test(None, None)
+            tmp.set_name(tmpname)
+            self.features = [tmp]
+        else:
+            lb = None
+            self.features = []
+            for i in limits:
+                tmp = scalar_feature_test(lb,i)
+                tmp.set_name(tmpname)
+                self.features.append(tmp)
+                lb = i
+            tmp = scalar_feature_test(lb, None)
+            tmp.set_name(tmpname)
+            self.features.append(tmp)
+
+    def __call__(self, example):
+        tmp = example.feature_val(self.feature_no)
+        for i in self.features:
+            if i(tmp):
+                return repr(i)
+        assert False, "Not a partition!"
+
+    def __repr__(self):
+        res = "["
+        sep = ""
+        for i in self.features:
+            res = res+sep+repr(i)
+            sep = " ; "
+        res = res + "]"
+        return res
+
+        
     
 class class_partion(partition):
     def __init__(self, examples):
         self.abstracter = lambda x:x.tclass_val()
         partition.__init__(self, examples)
-            
 
 
+class scalar_feature_partition(partition):
+    def __init__(self, examples, feature, limits):
+        self.abstracter = scalar_feature_partitioner(feature, limits)
+        partition.__init__(self, examples)
+    
 
 
 
