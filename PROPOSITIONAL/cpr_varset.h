@@ -1,13 +1,13 @@
 /*-----------------------------------------------------------------------
 
-File  : cpr_propclauses.h
+File  : cpr_varset.h
 
 Author: Stephan Schulz
 
 Contents
  
-  Datatypes for the efficient representation of propositional clauses
-  for a DPLL procedure.
+  Data type for (multi-)sets of propositional variables, currently
+  organized as doubly linked lists.
 
   Copyright 2003 by the author.
   This code is released under the GNU General Public Licence.
@@ -16,56 +16,41 @@ Contents
 
 Changes
 
-<1> Wed Apr 23 12:10:35 CEST 2003
+<1> Tue May 13 21:37:34 CEST 2003
     New
 
 -----------------------------------------------------------------------*/
 
-#ifndef CPR_PROPCLAUSES
+#ifndef CPR_VARSET
 
-#define CPR_PROPCLAUSES
+#define CPR_VARSET
 
-#include <ccl_clauses.h>
 #include <cpr_propsig.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-
-typedef enum
+typedef struct atomset_cell
 {
-   DPLLOutNoFormat,
-   DPLLOutLOP,
-   DPLLOutDimacs
-}DPLLOutputFormat;
-
-typedef struct dpll_clause_cell
-{
-   unsigned long mem_size;
-   unsigned long lit_no;
-   unsigned long active_no;
-   PLiteralCode  *literals;
-}DPLLClauseCell, *DPLLClause_p;
-
+   PLiteralCode        atom;
+   struct atomset_cell *prev;
+   struct atomset_cell *succ;
+}AtomSetCell, *AtomSet_p;
 
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+#define AtomSetCellAlloc() (AtomSetCell*)SizeMalloc(sizeof(AtomSetCell))
+#define AtomSetCellFree(junk)            SizeFree(junk, sizeof(AtomSetCell))
 
-#define DPLLClauseCellAlloc() (DPLLClauseCell*)SizeMalloc(sizeof(DPLLClauseCell))
-#define DPLLClauseCellFree(junk)            SizeFree(junk, sizeof(DPLLClauseCell))
-
-#define DPLLClauseIsUnit(clause) ((clause)->active_no==1)
-
-void         DPLLClauseFree(DPLLClause_p junk);
-DPLLClause_p DPLLClauseFromClause(PropSig_p psig, Clause_p clause);
-bool         DPLLClauseNormalize(DPLLClause_p clause);
-void         DPLLClausePrintLOP(FILE* out, PropSig_p psig, DPLLClause_p clause);
-void         DPLLClausePrintDimacs(FILE* out, DPLLClause_p clause);
-
+AtomSet_p    AtomSetAlloc(void);
+void         AtomSetFree(AtomSet_p set);
+#define      AtomSetEmpty(set) ((set)->prev == (set))
+PLiteralCode AtomSetExtract(AtomSet_p var);
+void         AtomSetInsert(AtomSet_p set, PLiteralCode atom);
 
 #endif
 

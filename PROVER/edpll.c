@@ -23,7 +23,7 @@ Changes
 #include <cio_commandline.h>
 #include <cio_output.h>
 #include <cio_signals.h>
-#include <cpr_dpllformula.h>
+#include <cpr_dpll.h>
 
 /*---------------------------------------------------------------------*/
 /*                  Data types                                         */
@@ -156,6 +156,7 @@ int main(int argc, char* argv[])
    int             i;
    CLState_p       state;
    DPLLFormula_p   form;
+   DPLLState_p     dpllstate;
    
    assert(argv[0]);
    
@@ -181,12 +182,13 @@ int main(int argc, char* argv[])
       ScannerSetFormat(in, parse_format);
       
       DPLLFormulaParseLOP(in, sig, form);
-      DPLLFormulaPrint(GlobalOut, form, DPLLOutLOP, true);
       DestroyScanner(in);
    }
+   dpllstate = DPLLStateAlloc(form);
+   
    CLStateFree(state);
 #ifndef FAST_EXIT
-   DPLLFormulaFree(form);
+   DPLLStateFree(dpllstate);
    SigFree(sig);
 #endif
    fflush(GlobalOut);
