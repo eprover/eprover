@@ -587,3 +587,63 @@ Stephan
 -------------------------- It can be done! ---------------------------------
    Please email me as schulz@informatik.tu-muenchen.de (Stephan Schulz)
 ----------------------------------------------------------------------------
+
+
+This is the announcement for version 0.71 of E.
+-----------------------------------------------
+
+comp.os.linux.announce
+gnu.announce
+comp.ai
+comp.theory,de.sci.informatik.ki
+
+From: schulz@informatik.tu-muenchen.de (Stephan Schulz)
+Newsgroups: comp.ai
+Subject: E Equational Theorem Prover 0.71 "Puttabong" released
+Summary: Announcement of availability of the E theorem prover.
+Keywords: E, equational theorem proving, ATP
+Followup-To: comp.theory
+
+The E equational theorem prover version 0.71 "Puttabong" has been
+released.
+
+E is a a purely equational theorem prover for clausal logic with
+equality. Thus, you can specify a mathematical problem (e.g. a
+mathematical puzzle), a (small) piece of program code or some hardware
+elements in clausal logic (using rules of the form "If A and B and C
+then D or E or F" in a PROLOG-like syntax), and try to have the system
+prove certain properties of the described structure. Be warned that
+this can consume inane (in fact, theoretically unlimited) amounts of
+CPU time and memory for difficult problems.
+
+E 0.71 has been carefully tested on all CNF problems of the TPTP
+problem library, version 2.5.1, and showed no unexpected
+behaviour. The prover can produce checkable proof objects, a simple
+proof checker is included in the distribution.
+
+Important changes are the addition of equational definition unfolding,
+a lot of stronger heuristics, a much better automatic mode, and
+porting to MacOS-X. There also are some bug-fixes.  For more details
+see the NEWS file on the download page.
+
+E is available as a source distribution for UNIX-variants. It installs
+cleanly under all UNIX variants I could get my hands on: Various
+versions of GNU/Linux for Intel and SPARC, SunOS (with tweaking),
+Solaris, HPUX and MacOS-X. Other peple have reported successful builds
+on a large number of other systems.
+
+The system is distributed under the GNU General Public License.
+
+You can find the source distribution and additional information at
+http://www4.informatik.tu-muenchen.de/~schulz/WORK/eprover.html
+
+
+Have fun!
+
+
+Stephan
+
+-- 
+-------------------------- It can be done! ---------------------------------
+   Please email me as schulz@informatik.tu-muenchen.de (Stephan Schulz)
+----------------------------------------------------------------------------

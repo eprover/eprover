@@ -1,7 +1,17 @@
 This history list describes the major differences between versions of
 the E equational theorem prover.
 
-Version 0.7 ->
+Version 0.71 -> 
+
+- Finally fixed that SOS bug (but makes curently used heuristics that
+  use it worse :-(
+- Added PrioFunDeferSOS
+- Changed the order of arguments of PCL expression for paramod
+  inferences (seen as a conditional lazy speculative rewrite step now
+  is consistent, i.e. the second one is being applied to an instance
+  of the first one).
+
+Version 0.7 -> 0.71 Puttabong
 
 - Added preprocessing of clause sets: Demodulation to get rid of fully
   defined function symbols, tautology elemination, sorting of clauses
