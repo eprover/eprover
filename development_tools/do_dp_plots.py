@@ -309,12 +309,27 @@ t2_swf_data = [
 
 t2_swf_plot = pylib_graphs.plot(t2_swf_data)
 
+# All systems with flattened input for the Object Identifier paper
+
+t1_oi_sc_data = [
+    ("CVC" , dir+"protokoll_CVC_Auto", cvc_scf_pat),
+    ("CVC Lite" , dir+"protokoll_CVCL_Auto", cvc_scf_pat),
+    ("E (build-in object identifiers)" ,
+     dir+"protokoll_E_sts11ni_t1", e_sc_pat),
+    ("E (axiomatized indices)" ,
+     dir+"protokoll_E_sts11ai_t1",
+     e_sc_pat), 
+    ]
+
+t1_oi_sc_plot = pylib_graphs.plot(t1_oi_sc_data)
 
 
 # Create files
 
 
 if files:
+    t1_oi_sc_plot.gnuplot("e_cmp_plot.eps")
+
     t1_sc_plot.gnuplot("t1_storecomm_plot.eps")
     t1_si_plot.gnuplot("t1_storeinv_plot.eps")
     t2_si_plot.gnuplot("t2_storeinv_plot.eps")
