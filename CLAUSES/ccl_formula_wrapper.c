@@ -301,6 +301,38 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
 }
 
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: WFormulaConjectureNegate()
+//
+//   If formula is a conjecture, negate it and delete that property
+//   (but set WPInitialConjecture). Returns true if formula was a
+//   conjecture. 
+//
+// Global Variables: -
+//
+// Side Effects    : Changes formula
+//
+/----------------------------------------------------------------------*/
+
+bool WFormulaConjectureNegate(WFormula_p wform)
+{
+   Formula_p form, newform;
+
+   if(FormulaQueryProp(wform, WPTypeConjecture))
+   {
+      form = FormulaRelRef(wform->formula);
+      newform = FormulaOpAlloc(OpUNot, form, NULL);
+      wform->formula = FormulaGetRef(newform);
+      FormulaDelProp(wform, WPTypeConjecture);
+      FormulaSetProp(wform, WPInitialConjecture);
+      return true;
+   }
+   return false;
+}
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: FormulaTSTPPrint()
@@ -505,6 +537,44 @@ void FormulaSetDeleteEntry(WFormula_p form)
    FormulaSetExtractEntry(form);
    WFormulaFree(form);
 }
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaSetPreprocConjectures()
+//
+//   Negate all conjectures to make the implication to prove into an
+//   formula set that is inconsistent if the implication is true. Note
+//   that multiple conjectures are implicitely disjunctively
+//   connected! Returns number of conjectures.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes formula, may print warning if number of
+//                   conjectures is different from 1.
+//
+/----------------------------------------------------------------------*/
+
+long FormulaSetPreprocConjectures(FormulaSet_p set)
+{
+   long res = 0;
+   WFormula_p handle;
+
+   handle = set->anchor->succ;
+   
+   while(handle!=set->anchor)
+   {
+      if(WFormulaConjectureNegate(handle))
+      {
+         res++;
+      }
+      handle = handle->succ;
+   }
+   return res;
+}
+
+
 
 
 /*---------------------------------------------------------------------*/

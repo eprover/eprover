@@ -34,16 +34,19 @@ Changes
 
 typedef enum
 {
-   WPIgnoreProps    = 0,        /* For masking properties out */
-   WPInitial        = 1,        /* Input formula */
-   WPTypeAxiom      = 128,      /* Value for consistency with
-                                 * ClauseProps, we also use it for as
-                                 * a catch-all type for TPTP/TSTP
-                                 * types not explicitely checked
-                                 * for. */
-   WPTypeHypothesis = 256,      
-   WPTypeConjecture = 512,
-   WPTypeMask       = WPTypeAxiom|WPTypeHypothesis|WPTypeConjecture
+   WPIgnoreProps       = 0,        /* For masking properties out */
+   WPInitial           = 1,        /* Input formula */
+   WPInitialConjecture = 2,        /* Formula was a conjecture in the
+                                      input (and may have been negated
+                                      in preprocessing */
+   WPTypeAxiom         = 128,      /* Value for consistency with
+                                    * ClauseProps, we also use it for as
+                                    * a catch-all type for TPTP/TSTP
+                                    * types not explicitely checked
+                                    * for. */
+   WPTypeHypothesis    = 256,      
+   WPTypeConjecture    = 512,
+   WPTypeMask          = WPTypeAxiom|WPTypeHypothesis|WPTypeConjecture,
 }WFormulaProperties;
 
 
@@ -98,6 +101,7 @@ void       WFormulaTPTPPrint(FILE* out, WFormula_p form, bool fullterms);
 WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms);
 void       WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
 			     bool complete);
+bool       WFormulaConjectureNegate(WFormula_p form);
 
 
 #define FormulaSetCellAlloc()    (FormulaSetCell*)SizeMalloc(sizeof(FormulaSetCell))
@@ -111,7 +115,6 @@ WFormula_p   FormulaSetExtractEntry(WFormula_p form);
              ((set)->anchor->succ == (set)->anchor)
 WFormula_p   FormulaSetExtractFirst(FormulaSet_p set);
 void         FormulaSetDeleteEntry(WFormula_p form);
-
 
 #endif
 
