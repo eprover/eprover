@@ -131,7 +131,7 @@ PDTree_p  PDTreeAlloc(void);
 void      PDTreeFree(PDTree_p tree);
 
 #ifdef CONSTANT_MEM_ESTIMATE
-#define PDNODE_MEM 52
+#define PDTNODE_MEM 52
 #else
 #define PDTNODE_MEM MEMSIZE(PDTNodeCell)
 #endif

@@ -61,7 +61,7 @@ typedef struct streamcell
    bool               eof_seen;
    long               line;
    long               column;
-   char               buffer[MAXLOOKAHEAD];
+   int                buffer[MAXLOOKAHEAD];
    int                current;
 }StreamCell, *Stream_p, **Inpstack_p;
 
@@ -91,7 +91,7 @@ void     DestroyStream(Stream_p stream);
 #define  StreamCurrLine(stream)   ((stream)->line)
 #define  StreamCurrColumn(stream) ((stream)->column)
 
-char     StreamNextChar(Stream_p stream);
+int      StreamNextChar(Stream_p stream);
 
 void     OpenStackedInput(Inpstack_p stack, StreamType type,
 			  char* source);

@@ -212,7 +212,7 @@ void DestroyStream(Stream_p stream)
 //
 /----------------------------------------------------------------------*/
 
-char StreamNextChar(Stream_p stream)
+int StreamNextChar(Stream_p stream)
 {
    if(StreamCurrChar(stream) == '\n')
    {
