@@ -1,8 +1,8 @@
 
 CC=gcc
 CFLAGS=-O3
+LDFLAGS=
 
 eprover: $(PROJ)
-	gcc -o eprover $(PROJ)
 
 

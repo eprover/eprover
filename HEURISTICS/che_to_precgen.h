@@ -43,6 +43,8 @@ typedef enum
 			   minimal */
    PByFrequency,        /* Make often occuring symbols big */
    PByInvFrequency,     /* Make often occuring symbols small */
+   PByInvFreqConstMin,  /* Make often occuring symbols big, except for
+			   constants */
    POrientAxioms,       /* My (planned) hack */
    PMinMethod = PUnaryFirst,
    PMaxMethod = POrientAxioms

@@ -40,6 +40,7 @@ char* TOPrecGenNames[]=
    "const_min",        /* PInvArConstMin */
    "freq",             /* PByFrequency */
    "invfreq",          /* PByInvFrequency */
+   "invfreqconstmin",  /* PByFreqConstMin */
    "orient_axioms",    /* POrientAxioms */
    NULL
 };
@@ -369,7 +370,6 @@ static void generate_freq_precedence(OCB_p ocb, ClauseSet_p axioms)
 }
 
 
-
 /*-----------------------------------------------------------------------
 //
 // Function: generate_invfreq_precedence()
@@ -400,6 +400,50 @@ static void generate_invfreq_precedence(OCB_p ocb, ClauseSet_p axioms)
    FCodeFeatureArrayFree(array);
 }
 
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: generate_invfreq_constmin_precedence()
+//
+//   Generate a precedence in which symbols which occur more often in
+//   the specification are smaller, but constants are smaller
+//   still. Arity is used as an additional tie-breaker, then order of
+//   occurence in the signature.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void generate_invfreq_constmin_precedence(OCB_p ocb, ClauseSet_p axioms)
+{
+   FCodeFeatureArray_p array = FCodeFeatureArrayAlloc(ocb->sig, axioms);
+   FunCode       i;
+   int arity;
+
+   for(i=1; i<= ocb->sig->f_count; i++)
+   {
+      arity = SigFindArity(ocb->sig, i);
+      if(arity == 0)
+      {
+	 array->array[i].key1 = INT_MIN ; /* Smaller than all real
+				             frequencies */
+	 array->array[i].key2 = array->array[i].freq;
+      }
+      else
+      {
+	 array->array[i].key1 = -array->array[i].freq;
+	 array->array[i].key2 = SigFindArity(ocb->sig, i);
+      }
+   }
+   FCodeFeatureArraySort(array);
+   compute_precedence_from_array(ocb, array);
+      
+   FCodeFeatureArrayFree(array);
+}
 
 
 
@@ -503,6 +547,9 @@ void TOGeneratePrecedence(OCB_p ocb, ClauseSet_p axioms,
 	 break;
    case PByInvFrequency:
 	 generate_invfreq_precedence(ocb, axioms);
+	 break;
+   case PByInvFreqConstMin:
+	 generate_invfreq_constmin_precedence(ocb, axioms);
 	 break;
    default:
 	 assert(false && "Precedence generation method unimplemented");

@@ -25,6 +25,7 @@ K14_F2 -wfreqranksquare -c1 -Ginvfreq
 K15_F2 -wfreqcount -c1 -Ginvfreq
 K16_F2 -wprecedence -c1 -Ginvfreq
 K17_F2 -wfirstmaximal0 -Gunary_freq
+K18_F2 -winvfreqrank -c1 -Ginvfreq
 L01_F2 -tLPO
 L01_F1 -F1 -tLPO
 L02_F2 -tLPO -wconstant -Garity
