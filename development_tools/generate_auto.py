@@ -330,8 +330,9 @@ match_tow_s = re.compile(" -w *")
 match_tow_l = re.compile(" --order-weight-generation=")
 match_top_s = re.compile(" -G *")
 match_top_l = re.compile(" --order-precedence-generation=")
+match_ocw_l = re.compile(" --order-constant-weight=")
+match_ocw_s = re.compile(" -c *")
 match_prc_l = re.compile(" --precedence=")
-
 
 def parse_ordering_info(line):
     res = ""
@@ -369,6 +370,14 @@ def parse_ordering_info(line):
     if m:
         arg = extract_arg(line, m)
         res = res+ "      oparms.to_prec_gen="+prec_gen[arg]+";\n"
+    m = match_ocw_s.search(line)
+    if m:
+        arg = extract_arg(line, m)
+        res = res+ "      oparms.to_const_weight="+arg+";\n"
+    m = match_top_l.search(line)
+    if m:
+        arg = extract_arg(line, m)
+        res = res+ "      oparms.to_const_weight"+arg+";\n"
 #    m = match_prc_l.search(line)
 #    if m:
 #        arg = extract_arg(line, m)
@@ -512,7 +521,7 @@ weight_gen={
    "aritymax0"          : "WArityMax0",
    "modarity"           : "WModArityWeight",
    "modaritymax0"       : "WModArityMax0",
-   "aritysquared"       : "WInvArityWeight",
+   "aritysquared"       : "WAritySqWeight",
    "aritysquaredmax0"   : "WAritySqMax0",
    "invarity"           : "WInvArityWeight",
    "invaritymax0"       : "WInvArityMax0",
