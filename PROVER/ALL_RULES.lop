@@ -1,6 +1,6 @@
 # This will make E produce a proof using all inference rules but "ef"
 # if called as follows:
-# ./eprover -l4 --split-clauses=3 test_all_rules.lop 
+# ./eprover -l4 --split-clauses=3 ALL_RULES.lop 
 #
 # "er"     Equality resolution: x!=a v x=x ==> a=a
 # "pm"     Paramodulation
