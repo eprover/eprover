@@ -152,7 +152,7 @@ static __inline__ void* SizeMallocReal(int size)
    else
    {
       handle = SecureMalloc(size);
-#ifndef NDREBUG
+#ifndef NDEBUG
       if((mem_index>=0) && (mem_index<MEM_ARR_SIZE))
       {
 	 assert((handle->test = MEM_RSET_PATTERN, true));
