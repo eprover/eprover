@@ -20,7 +20,7 @@
 \usepackage{url}
 
 \author{Stephan Schulz}
-\title{E 0.7x\\[1.5ex]User Manual\\[1.5ex]{\normalsize --preliminary
+\title{E 0.8x\\[1.5ex]User Manual\\[1.5ex]{\normalsize --preliminary
     version--}}
 
 \begin{document}
@@ -92,15 +92,18 @@ line options:
   \texttt{--memory-limit=xx} & Tell the prover how much memory
   (measured in MB) to use at most. In automatic mode E will optimize
   its behaviour for this amount (20~MB will work, 64~MB is
-  reasonable, 192~MB is what I use. More is better, but if you go over
+  reasonable, 192~MB is what I use. \emph{More is
+  better}\footnotemark, but if you go over
   your physical memory, you will probably experience \emph{very} heavy
   swapping.).\\
 \end{tabular}
-
+\footnotetext{Emphasis added for E~0.7 and up, which globally cache
+  rewrite steps.}
 \begin{example}
   If you happen to have a workstation with 64 MB RAM\footnote{Yes,
     this is outdated. If it still applies to you, get a new
-    computer!}, the following command is reasonable: 
+    computer! It will still work ok, though.}, the following command
+  is reasonable:  
 \small
 \begin{verbatim}
 eprover -xAuto -tAuto --memory-limit=48 PUZ031-1+rm_eq_rstfp.lop
