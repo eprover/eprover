@@ -80,7 +80,8 @@ distrib: clean
 	@cd ..; find $(PROJECT) -name "CVS" -print >> $(PROJECT)/etc/NO_DISTRIB;\
          $(TAR) cfX - $(PROJECT)/etc/NO_DISTRIB $(PROJECT) |$(GZIP) - -c > $(PROJECT).tgz
 
-# Include proprietary code not part of the GPL'ed version
+# Include proprietary code not part of the GPL'ed version, 
+# as well as CVS subdirecctories
 
 fulldistrib: clean
 	@echo "Warning: You are building a full archive!"
