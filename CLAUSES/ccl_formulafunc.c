@@ -213,7 +213,7 @@ long WFormulaCNF(WFormula_p form, ClauseSet_p set,
 //
 /----------------------------------------------------------------------*/
 
-void FormulaSetCNF(FormulaSet_p set, ClauseSet_p clauseset,
+long FormulaSetCNF(FormulaSet_p set, ClauseSet_p clauseset,
                    TB_p terms, VarBank_p fresh_vars)
 {
    WFormula_p handle;
@@ -226,6 +226,7 @@ void FormulaSetCNF(FormulaSet_p set, ClauseSet_p clauseset,
       res += WFormulaCNF(handle,clauseset, terms, fresh_vars);
       handle = handle->succ;
    }
+   return res;
 }
 
 

@@ -32,7 +32,7 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-#define VERSION      "0.81dev019"
+#define VERSION      "0.81dev020"
 #define NAME         "eprover"
 
 #ifdef SAFELOGIC
@@ -247,9 +247,9 @@ OptCell opts[] =
     '\0', "cnf",
     NoArg, NULL,
     "Convert the input problem into clause normal form and print it."
-    " This is equivalent to '--print-saturated=eigEIG"
+    " This is (nearly) equivalent to '--print-saturated=eigEIG"
     " --processed-clauses-limit=0' and will by default perform some "
-    "usually usefull simplifications. You can additionally specify e.g. "
+    "usually useful simplifications. You can additionally specify e.g. "
     "'--no-preprocessing' if you want just the result of CNF translation."},
 
    {OPT_PRINT_PID,
@@ -844,7 +844,8 @@ bool              print_sat = false,
                   no_preproc = false,
                   no_eq_unfold = false,
                   pcl_full_terms = true,
-                  indexed_subsumption = true;
+                  indexed_subsumption = true,
+                  cnf_only = false;
 IOFormat          parse_format = LOPFormat;
 long              step_limit = LONG_MAX, 
                   proc_limit = LONG_MAX,
@@ -944,16 +945,22 @@ int main(int argc, char* argv[])
       && FormulaSetEmpty(proofstate->f_axioms))
    {
 #ifdef PRINT_SOMEERRORS_STDOUT
-      fprintf(GlobalOut, "# Error: Input file contains no clauses\n");
+      fprintf(GlobalOut, "# Error: Input file contains no clauses or formulas\n");
       TSTPOUT(GlobalOut, "InputError");
 #endif
       Error("Input file contains no clauses", OTHER_ERROR);
    }
    FormulaSetDocInital(GlobalOut, OutputLevel, proofstate->f_axioms);
    ClauseSetDocInital(GlobalOut, OutputLevel, proofstate->axioms);
-   FormulaSetPreprocConjectures(proofstate->f_axioms);
-   FormulaSetCNF(proofstate->f_axioms, proofstate->axioms, 
-                 proofstate->original_terms, proofstate->freshvars);
+   if(FormulaSetPreprocConjectures(proofstate->f_axioms))
+   {
+      VERBOUT("Negated conjectures.\n");
+   }
+   if(FormulaSetCNF(proofstate->f_axioms, proofstate->axioms, 
+                    proofstate->original_terms, proofstate->freshvars))
+   {
+      VERBOUT("CNFization done\n");
+   }
    /* FormulaSetPrint(GlobalOut, proofstate->f_axioms, true); */
    
 
@@ -1048,6 +1055,11 @@ int main(int argc, char* argv[])
 	    fprintf(GlobalOut, "\n# Failure: Out of unprocessed clauses!\n");	    
 	    TSTPOUT(GlobalOut, "GaveUp");	    
 	 }
+      }
+      else if(cnf_only)
+      {
+         fprintf(GlobalOut, "\n# CNFization successful!\n");	    
+         TSTPOUT(GlobalOut, "Unknown");
       }
       else
       {
@@ -1241,9 +1253,10 @@ CLState_p process_options(int argc, char* argv[])
 	    filter_sat = true;	    
 	    break;
       case OPT_CNF_ONLY:
-            outdesc   = "eigEIG";
-            print_sat = true;
+            outdesc    = "eigEIG";
+            print_sat  = true;
             proc_limit = 0;
+            cnf_only   = true;
             break;
       case OPT_PRINT_PID:
 	    print_pid = true;
