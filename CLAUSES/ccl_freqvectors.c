@@ -94,7 +94,8 @@ int tuple_2_compare_2nd(Tuple2Cell *t1, Tuple2Cell *t2)
 
 PermVector_p PermVectorCompute(FreqVector_p fmax, FreqVector_p fmin, 
 			       FreqVector_p fsum,
-			       long clauses, long max_len, 
+			       long clauses, long pos_lit_clauses,
+			       long neg_lit_clauses, long max_len, 
 			       bool eleminate_uninformative)
 {
    Tuple2Cell *array;
@@ -104,7 +105,6 @@ PermVector_p PermVectorCompute(FreqVector_p fmax, FreqVector_p fmin,
    assert(fsum->size == fmax->size);
    assert(fsum->size == fmin->size);
 
-   
    array = SizeMalloc(fsum->size * sizeof(Tuple2Cell));
    for(i=0; i<fsum->size; i++)
    {
@@ -113,7 +113,24 @@ PermVector_p PermVectorCompute(FreqVector_p fmax, FreqVector_p fmin,
       array[i].value = clauses*diff+fsum->array[i];
       if(eleminate_uninformative && !diff && (clauses>1))
       {
-	 array[i].value = 0;
+	 if(StandardFreqVNegIndex(fsum,i))
+	 {
+	    if(neg_lit_clauses > 1)
+	    {
+	       array[i].value = 0;
+	    }
+	 }
+	 else if(StandardFreqVPosIndex(fsum,i))
+	 {
+	    if(pos_lit_clauses > 1)
+	    {
+	       array[i].value = 0;
+	    }	    
+	 }
+	 else
+	 {
+	    array[i].value = 0;
+	 }
       }
    }
    qsort(array, fsum->size, sizeof(Tuple2Cell), 
@@ -141,6 +158,7 @@ PermVector_p PermVectorCompute(FreqVector_p fmax, FreqVector_p fmin,
    {
       handle->array[i] = array[i+start].pos;
    }  
+   SizeFree(array, fsum->size * sizeof(Tuple2Cell));
    PermVectorPrint(GlobalOut, handle);
    return handle;
 }
@@ -274,10 +292,10 @@ void StandardFreqVectorAddVals(FreqVector_p vec, long sig_symbols,
    long *pstart, *nstart;
    Eqn_p handle;
 
-   assert(sig_symbols<=FV_MAX_SYMBOL_COUNT);
-   
+   vec->sig_symbols = sig_symbols;
    vec->array[0] += clause->pos_lit_no;
    vec->array[1] += clause->neg_lit_no;
+   vec->array[2] += ClauseDepth(clause);
    /* vec->array[2] += ClauseDepth(clause); */
    
    nstart = &(vec->array[NON_SIG_FEATURES-1]);
@@ -318,7 +336,6 @@ FreqVector_p StandardFreqVectorCompute(Clause_p clause, long sig_symbols)
 {
    FreqVector_p vec;
 
-   assert(sig_symbols<=FV_MAX_SYMBOL_COUNT);
    assert(clause);
    vec = FreqVectorAlloc(SigSizeToFreqVectorSize(sig_symbols));
    vec->clause = clause;

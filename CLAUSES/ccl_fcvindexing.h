@@ -32,6 +32,17 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
+#define FVINDEX_MAX_FEATURES_DEFAULT 100
+
+typedef struct fvindex_parms_cell
+{
+   bool use_fv_indexing;
+   bool use_perm_vectors;
+   bool eleminate_uninformative;
+   long max_features;
+}FVIndexParmsCell, *FVIndexParms_p;
+
+
 /*
 
 Case 1: Just one successor
@@ -85,6 +96,12 @@ typedef struct fvi_anchor_cell
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+#define FVIndexParmsCellAlloc() (FVIndexParmsCell*)SizeMalloc(sizeof(FVIndexParmsCell))
+#define FVIndexParmsCellFree(junk) SizeFree(junk, sizeof(FVIndexParmsCell))
+
+FVIndexParms_p FVIndexParmsAlloc(void);
+#define FVIndexParmsFree(junk) FVIndexParmsCellFree(junk)
+
 #define FVINDEXTYPE_EMPTY   -1
 #define FVINDEXTYPE_MANY    -2
 #define FVINDEXTYPE_FINAL   -3
@@ -117,6 +134,7 @@ bool        FVIndexDelete(FVIAnchor_p index, Clause_p clause);
 long        FVIndexCountNodes(FVIndex_p index, bool leafs, bool empty);
 
 FVPackedClause_p FVIndexPackClause(Clause_p clause, FVIAnchor_p anchor);
+
 
 #endif
 

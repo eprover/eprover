@@ -45,12 +45,13 @@ typedef struct tuple2_cell
 typedef struct freq_vector_cell
 {
    long size;        /* How many fields? */
+   long sig_symbols;
    long *array;
    Clause_p clause; /* Just an unprotected reference */
 }FreqVectorCell, *FreqVector_p, *FVPackedClause_p;
 
-#define FV_MAX_SYMBOL_COUNT 50
-#define NON_SIG_FEATURES 2
+#define NON_SIG_FEATURES 3
+
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
@@ -63,13 +64,20 @@ typedef struct freq_vector_cell
 
 PermVector_p PermVectorCompute(FreqVector_p fmax, FreqVector_p fmin, 
 			       FreqVector_p sums, 
-			       long clauses, long max_len, 
+			       long clauses, long pos_lit_clauses,
+			       long neg_lit_clauses ,long max_len, 
 			       bool eleminate_uninformative);
+
 
 #define FreqVectorCellAlloc()    (FreqVectorCell*)SizeMalloc(sizeof(FreqVectorCell))
 #define FreqVectorCellFree(junk) SizeFree(junk, sizeof(FreqVectorCell))
 
 #define SigSizeToFreqVectorSize(size) (size*2-2+NON_SIG_FEATURES)
+#define StandardFreqVNegIndex(vec, i) \
+        (((i)>=NON_SIG_FEATURES) && ((i)<=((vec)->sig_symbols+NON_SIG_FEATURES-1)))
+#define StandardFreqVPosIndex(vec, i) \
+        (((i)>((vec)->sig_symbols+NON_SIG_FEATURES-1)) && \
+	 ((i)<SigSizeToFreqVectorSize((vec)->sig_symbols)))
 FreqVector_p FreqVectorAlloc(long size);
 void         FreqVectorFree(FreqVector_p junk);
 

@@ -150,6 +150,31 @@ FVIndex_p fv_index_get_next_node(FVIndex_p node, long key)
 
 /*-----------------------------------------------------------------------
 //
+// Function: FVIndexParmsAlloc()
+//
+//   Allocate an FVIndexParmsCell with rational values.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations.
+//
+/----------------------------------------------------------------------*/
+
+FVIndexParms_p FVIndexParmsAlloc(void)
+{
+   FVIndexParms_p handle = FVIndexParmsCellAlloc();
+   
+   handle->use_fv_indexing = true;
+   handle->use_perm_vectors = true;
+   handle->eleminate_uninformative = false;
+   handle->max_features = FVINDEX_MAX_FEATURES_DEFAULT;
+;
+   return handle;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: FVIndexAlloc()
 //
 //   Allocate an empty and initialize FVIndexCell.
