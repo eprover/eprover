@@ -26,6 +26,8 @@ negative literals (positive more seems better).
 
 Geoff's Idea: Goal-Directed heuristics, using similarity measures on
 frequency vectors. Alternatively: Giving bonus for smaller features.
+Simpler: Use frequency of symbols in goals to compute weights (symbols
+in goals are preferred).
 
 Waldmeister-Style MixWeight: |max(s,t)| * (|s|+|t|+1) + |s| + |t|
 
@@ -163,9 +165,10 @@ For orientable rewrite-rules, give a higher weight to minimal sides
 than to maximal ones (prefer rules that decrease term size).
 
 For split clauses, give the split literal the (default) weight of the
-split of literals. Requires quite some work, as it touches most
+split off literals. Requires quite some work, as it touches most
 evaluation functions, but should be worth it. -> Done for some
-evaluation functions
+evaluation functions, thrown out again. To complex, doesn't seem to
+help. 
 
 Always select positive split literals if we select at all! Then
 negative units can resolve against them...or we'd rather need a
@@ -191,7 +194,8 @@ simpler, because we have access to the signature from any shared term!
 Sharing factor used introspectively!
 
 Rewriting by linking (see blue sky above). Annotate links with clauses
-for reconstruction (?) -> Much of it done!
+for reconstruction (?) -> Much of it done as part of the new rewrite
+engine! 
 
 Search for non-equational equivalences, add them as rewrite rules. Can
 we generalize this to equational literals? Does it make sense there or
@@ -201,7 +205,7 @@ Try to select (or unselect?) sort predicates of the form -p(X) for
 some p. On the plus side, may only instantiate X to terms of the
 correct sort. On the down side, perhap we can only prove sort for very
 specific instances and enumerate them. -> Done, never selecting them
-is good!
+is (usually) good!
 
 For eground: Implement a special clause type taking up less
 memory. Implement the incomplete grounder by just taking the
