@@ -33,9 +33,10 @@ function get_shell_res(cmd,   tmp)
    cmd | getline tmp;
    close(cmd);  
 
-   assert(tmp, "No result found (get_shell_res)");
+   assert(tmp, "No result found (get_shell_res(" cmd ")");
    return tmp;
 }
+
 
 # Same thing, but no response is not a bug automatically
 
@@ -44,6 +45,26 @@ function get_shell_res_nocheck(cmd,   tmp)
    tmp = "";
    cmd | getline tmp;
    close(cmd);  
+
+   return tmp;
+}
+
+# Return the result of a single, simple shell command yieding exactly
+# one line, and executed on a remote host. The command should not
+# contain single quotes!
+
+function get_remote_shell_res(host, cmd,    tmp)
+{
+   tmp = get_shell_res("ssh -x " host " '" cmd "'");
+
+   return tmp;
+}
+
+# Same thing, but empty response is ok.
+
+function get_remote_shell_res_nocheck(host, cmd,   tmp)
+{
+   tmp = get_shell_res_nocheck("ssh -x " host " '" cmd "'");
 
    return tmp;
 }
@@ -111,8 +132,79 @@ function file_exists(file,    test, tmp)
   return 1;
 }
 
+function exp_file_exists(file,    test, tmp)
+{
+   return file_exists(expand_file(file));
+}
+
+
+
+function has_interactive_user(host,    user)
+{
+   user = get_remote_shell_res_nocheck(host, "who|grep console");
+   return user;
+}
+
+
+# Compute memory in Megabytes from a string containing Bytes (no
+# suffixe), Killobytes (Suffix K), Megabytes (Suffix M) or Gigabytes
+# (Suffix G)
+
+function normalize_mem(valstring)
+{
+   if(valstring ~ /[0-9]+G/)
+   {
+      return int(valstring*1024);
+   }
+   if(valstring ~ /[0-9]+M/)
+   {
+      return int(valstring);
+   }
+   if(valstring ~ /[0-9]+K/)
+   {
+      return int(valstring/1024);
+   }
+   return int(valstring/(1024*1024))
+}
+
+
+# Get the physical memory and free memory of a machine
+
+function get_mem_info(host, result_array,                tmp, tmparr)
+{
+   tmp = get_remote_shell_res_nocheck(host, "top -d1 | grep ^Memory");
+   if(!tmp)
+   {
+      return 0;
+   }
+   split(tmp, tmparr);
+   result_array[0] = normalize_mem(tmparr[2]);
+   result_array[1] = normalize_mem(tmparr[4]);   
+   return 1;
+}
+
+
+
+
 # ----------% Here starteth the local stuff % ------------- #
 
+
+# If signal_file exists, sleep in 10 minute intervals until current
+# hour is not within [start_block, end_block] 
+
+function delay_processing(start_block, end_block, signal_file,    tmp, day)
+{
+   delay = exp_file_exists(signal_file);
+   tmp = strftime("%H", systime())+0;
+   day = strftime("%w", systime())+0;
+   while(delay && (day!=0) &&(day!=6) && (tmp >= start_block) && (tmp < end_block))
+   {
+      system("sleep 600");
+      delay = file_exists(signal_file);
+      tmp = strftime("%H", systime())+0;
+      day = strftime("%w", systime());
+   }
+}
 
 function init_machine_ratings()
 {
@@ -159,10 +251,6 @@ function create_host_list(   i)
      host_is_available["sunhalle" i] = 0;
      host_in_use["sunhalle" i] = 0;      
   }
-  # Now computed automatically
-  #exclude_hosts["sunhalle3"]   = 1; # Borked strangely
-  #exclude_hosts["sunhalle34"]  = 1; # Only 128 MB
-  #exclude_hosts["sunhalle77"]  = 1; # Only 192 MB
 }
 
 
@@ -250,7 +338,7 @@ function collect_host_info(    res, count, i)
   count = 0;
   sum = 0;
 
-  global_hostinfoage = 0;
+  global_check_blockfile_age = 0;
   
   for(i in all_hosts)
   {
@@ -293,7 +381,7 @@ function ping_host(host,   pipe, tmp)
 }
 
 
-function check_availablity(host,       pipe, tmp, cmd, mem)
+function check_availablity(host,       pipe, tmp, cmd, memdata)
 {
   if(exclude_hosts[host]==1)
   {
@@ -306,19 +394,26 @@ function check_availablity(host,       pipe, tmp, cmd, mem)
 	 return 1000000;
   } 
 
-  cmd = "ssh -x " host " \"top -d1 | grep ^Memory | awk '{print \\$2}'\"";
-  #print cmd;
-  tmp = get_shell_res_nocheck(cmd);
-  mem = tmp+0;
-  if(index(tmp, "G"))
+  mem_data[0] = 0;
+  mem_data[1] = 0;
+  if(!get_mem_info(host, mem_data))
   {
-     mem = mem*1024;
-  }  
-  if(mem < 256)
+     # Something is broken
+     return 1000000;
+  }
+  if(mem_data[0] < 256)
   {
-     print "# Checking " host ": Not enough memory " tmp;
+     print "# Checking " host ": Not enough memory " mem_data[0];
      exclude_hosts[host] = 1;
      return 1000000; # Not enough memory
+  }
+  if(has_interactive_user(host))     
+  {
+     if(mem_data[1] < 160)
+     {
+	print "# Checking " host ": Greedy interactive user, only " mem_data[1] " free";
+	return 1000000;
+     }     
   }
   #{
   #   /* No good response -> dont use machine */
@@ -499,7 +594,7 @@ function process_result(host     , file, tmp, name, time, org_time, status,\
 	 system("cat "  file " >> buggy_complete");
       }
    }
-   system("rm " cwd "/" host "_*");
+   system("rm " cwd "/" host "_lock; rm " cwd "/" host "_complete");
    host_in_use[host] = 0;
 }
 
@@ -511,11 +606,12 @@ function get_host(   i, host, load, tmp_count)
 {
    host = "";
    
-   global_hostinfoage++;
-   #if(global_hostinfoage >= 4000)
-   #{
-   #   collect_host_info();
-   #}
+   global_check_blockfile_age++;
+   if(global_check_blockfile_age >= 400)
+   {
+      delay_processing(8, 18, "~/block_eprover");
+      global_check_blockfile_age = 0;
+   }
    
    while(!host)
    {
@@ -601,7 +697,7 @@ function find_pid_in_protocoll(file,      pid, tmp)
 }
 
 
-function kill_job(lockfile,     host, pid)
+function kill_job(lockfile,     host, pid, res)
 {
    if(match(lockfile, /sunhalle[0-9]+/))
    {
@@ -610,14 +706,17 @@ function kill_job(lockfile,     host, pid)
       {
 	 pid  = find_pid_in_protocoll(lockfile);
 	 print "ssh -x " host " kill " pid | "/bin/sh";
-	 print "rm " cwd "/" host "_*" | "/bin/sh";
-	 close("/bin/sh");
-	 return 1;
+	 res = 1;
       }
       else
       {
 	 print "Host " host " not reachable";
+	 res = 0;
       }
+      print "rm " cwd "/" host "_lock" | "/bin/sh";
+      print "rm " cwd "/" host "_complete" | "/bin/sh";
+      close("/bin/sh");
+      return res;
    }
    return 0;
 }
@@ -631,9 +730,11 @@ function kill_old_jobs(         pipe, count, tmp)
   while ((pipe | getline tmp) > 0)
   {
      count+=kill_job(tmp);
+     host_in_use[tmp] = 0;
   }	  
   close(pipe);
-  system("rm " cwd "/"  "sunhalle*_complete");
+  system("rm " cwd "/sunhalle*_complete");
+  system("rm " cwd "/sunhalle*_lock");
   
   open_jobs = 0;
   print "Killed " count " old job(s)";
