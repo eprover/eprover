@@ -48,6 +48,7 @@ extern FILE* GlobalOut;
 #define      InitOutput() GlobalOut=stdout;
 FILE*        OutOpen(char* name);
 void         OutClose(FILE* file);
+void         PrintDashedStatuses(FILE* out, char *stat1, char *stat2, char *fallback);
 
 #endif
 

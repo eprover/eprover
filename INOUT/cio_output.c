@@ -126,6 +126,42 @@ void OutClose(FILE* file)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: PrintDashedStatuses()
+//
+//   This is a weird simple thing needed far above. If stat1 and stat2
+//   are NULL, print fallback. If either is non-NULL, print it. If both
+//   are non-NULL, print them both separated by a dash.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void PrintDashedStatuses(FILE* out, char* stat1, char* stat2, char* fallback)
+{
+   assert(fallback);
+   
+   if(stat1 && stat2)
+   {
+      fprintf(out, "%s-%s", stat1, stat2);
+   }
+   else if(stat1)
+   {
+      fputs(stat1, out);
+   }
+   else if(stat2)
+   {
+      fputs(stat2, out);
+   }
+   else
+   {
+      fputs(fallback, out);
+   }
+}
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
