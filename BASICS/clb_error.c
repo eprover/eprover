@@ -89,13 +89,12 @@ void InitError(char* progname)
 #ifdef MEMORY_RESERVE_PARANOID
    StrideMemory(reserve_memory, ERROR_MEM_RESERVE);
 #endif
-   /* If we try to print to stderr for the first time in an
-    * out-of-memory situation, fprintf() occaqsionally fails because
-    * the necessary buffers cannot be allocated. This is an attempt to
-    * fix this behaviour. Note that I know of no standard that
-    * guarantees this to work (in fact, I don't know how to reliably
-    * print in out-of-memory cases. */
-
+   /* If we try to print for the first time in an out-of-memory
+    * situation, fprintf() occasionally fails (segfaults) because the
+    * necessary buffers cannot be allocated. This is an attempt to fix
+    * this behaviour. Note that I know of no standard that guarantees
+    * this to work (in fact, I don't know how to reliably print on
+    * POSIX systems in out-of-memory cases at all). */
    fprintf(stderr, EmptyString);
    fprintf(stdout, EmptyString);
 }
