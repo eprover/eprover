@@ -25,8 +25,9 @@ include Makefile.vars
 PROJECT = E
 
 LIBS     = BASICS INOUT TERMS ORDERINGS CLAUSES PROPOSITIONAL LEARN \
-           ANALYSIS PCL2 HEURISTICS CONTROL EXTERNAL
-CODE     = $(LIBS) PROVER TEST SIMPLE_APPS 
+           ANALYSIS PCL2 HEURISTICS CONTROL
+HEADERS  = $(LIBS) EXTERNAL
+CODE     = $(LIBS) PROVER TEST SIMPLE_APPS EXTERNAL
 PARTS    = $(CODE) DOC
 
 all: warn E
@@ -97,7 +98,7 @@ top: E
 
 links: remove_links
 	cd include;\
-	for subdir in $(LIBS); do\
+	for subdir in $(HEADERS); do\
 	   for file in ../$$subdir/*.h; do\
 	     $(LN) $$file .;\
 	   done;\
