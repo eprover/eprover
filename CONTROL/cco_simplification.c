@@ -131,6 +131,39 @@ void ClauseMoveSimplified(Clause_p clause, ClauseSet_p tmp_set)
    ClauseSetInsert(tmp_set, clause);
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: RemoveRewritableClauses()
+//
+//   Remove all clauses which can be rewritten with new_demod.
+//
+// Global Variables: -
+//
+// Side Effects    : As specified...
+//
+/----------------------------------------------------------------------*/
+
+bool RemoveRewritableClauses(OCB_p ocb, ClauseSet_p from, ClauseSet_p into,
+			     Clause_p new_demod, SysDate nf_date)
+{
+   PStack_p stack = PStackAlloc();
+   Clause_p handle;
+   bool     res;
+
+   res = FindRewritableClauses(ocb, from, stack, new_demod, nf_date);
+   while(!PStackEmpty(stack))
+   {
+      handle = PStackPopP(stack);
+
+      ClauseMoveSimplified(handle, into);
+   }
+   PStackFree(stack);
+
+   return res;
+}
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: RemoveClausesWithRewritableMaxSides()

@@ -170,25 +170,25 @@ eleminate_backward_rewritten_clauses(ProofState_p
    if(ClauseIsDemodulator(clause))
    {
       SysDateInc(date);
-      min_rw = RemoveClausesWithRewritableMaxSides(control->ocb,
-						   state->processed_pos_rules,
-						   state->tmp_store,
-						   clause, *date)
+      min_rw = RemoveRewritableClauses(control->ocb,
+				       state->processed_pos_rules,
+				       state->tmp_store,
+				       clause, *date)
 	 ||min_rw;
-      min_rw = RemoveClausesWithRewritableMaxSides(control->ocb,
-						   state->processed_pos_eqns,
-						   state->tmp_store,
-						   clause, *date)
+      min_rw = RemoveRewritableClauses(control->ocb,
+				       state->processed_pos_eqns,
+				       state->tmp_store,
+				       clause, *date)
 	 ||min_rw;
-      min_rw = RemoveClausesWithRewritableMaxSides(control->ocb, 
-						   state->processed_neg_units,
-						   state->tmp_store,
-						   clause, *date)
+      min_rw = RemoveRewritableClauses(control->ocb, 
+				       state->processed_neg_units,
+				       state->tmp_store,
+				       clause, *date)
 	 ||min_rw;
-      min_rw = RemoveClausesWithRewritableMaxSides(control->ocb, 
-						   state->processed_non_units,
-						   state->tmp_store,
-						   clause, *date)
+      min_rw = RemoveRewritableClauses(control->ocb, 
+				       state->processed_non_units,
+				       state->tmp_store,
+				       clause, *date)
 	 ||min_rw;
       state->backward_rewritten_lit_count+=
 	 (state->tmp_store->literals-old_lit_count);
@@ -835,7 +835,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
 
    /* Now on to backward simplification. */   
    clausedate = ClauseSetListGetMaxDate(state->demods, FullRewrite);
-   interred_needed = eleminate_backward_rewritten_clauses(state, control,
+   /* interred_needed = */eleminate_backward_rewritten_clauses(state, control,
 							  clause,
 							  &clausedate);
    
@@ -861,10 +861,10 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
 	 state->processed_pos_eqns->date = clausedate;
 	 DemodInsert(state->processed_pos_eqns, clause);
       }
-      if(interred_needed)
+      /* if(interred_needed)
       {
 	 interreduce_clause_sets(state, control);
-      }
+	 }*/
    }
    else if(ClauseLiteralNumber(clause) == 1)
    {
