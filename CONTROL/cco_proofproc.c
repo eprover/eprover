@@ -127,8 +127,6 @@ static long remove_subsumed(FVPackedClause_p subsumer, ClauseSet_p set)
    long     res;
    PStack_p stack = PStackAlloc();
             
-   assert(ClauseLiteralNumber(subsumer->clause) > 1);
-
    res = ClauseSetFindSubsumedClauses(set, subsumer, stack);
    
    while(!PStackEmpty(stack))	    
@@ -223,13 +221,13 @@ static long eleminate_backward_subsumed_clauses(ProofState_p state,
       {
 	 /* res += remove_subsumed(clause,
 	    state->processed_pos_rules); Should be impossible! */
-	 res += remove_unit_subsumed(pclause->clause, state->processed_pos_eqns);
-	 res += remove_unit_subsumed(pclause->clause, state->processed_non_units);
+	 res += remove_subsumed(pclause, state->processed_pos_eqns);
+	 res += remove_subsumed(pclause, state->processed_non_units);
       }
       else
       {
-	 res += remove_unit_subsumed(pclause->clause, state->processed_neg_units);
-	 res += remove_unit_subsumed(pclause->clause, state->processed_non_units);
+	 res += remove_subsumed(pclause, state->processed_neg_units);
+	 res += remove_subsumed(pclause, state->processed_non_units);
       }
    }
    else
@@ -241,44 +239,6 @@ static long eleminate_backward_subsumed_clauses(ProofState_p state,
 }
 
 
-/*-----------------------------------------------------------------------
-//
-// Function: eleminate_litreduced_clauses()
-//
-//   Move all clauses with a trivial literal from
-//   state->processed_non_units to state->tmp_store. Return number of
-//   clauses moved.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-static long eleminate_litreduced_clauses(ProofState_p state)
-{
-   Clause_p handle, move;
-   long res = 0,tmp;
-   ClauseSet_p set = state->processed_non_units;
-
-   handle = set->anchor->succ; 
-   while(handle!=set->anchor)
-   {
-      tmp = ClauseRemoveSuperfluousLiterals(handle);
-      if(tmp)
-      {
-	 move = handle;
-	 handle = handle->succ;	
-	 ClauseMoveSimplified(move, state->tmp_store);
-	 res++;
-      }
-      else
-      {
-	 handle = handle->succ;
-      }
-   }
-   return res;
-}
 
 /*-----------------------------------------------------------------------
 //
@@ -313,53 +273,6 @@ static void eleminate_unit_simplified_clauses(ProofState_p state,
       ClauseSetUnitSimplify(state->processed_pos_eqns, clause,
 			    state->tmp_store);
    }
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: interreduce_clause_sets()
-//
-//   Rewrite all clause sets in state with
-//   state->processed_pos_clauses. Assumes that all maximal sides of
-//   maximal literals are irreducible!
-//
-// Global Variables: -
-//
-// Side Effects    : Changes clauses in sets.
-//
-/----------------------------------------------------------------------*/
-
-static void interreduce_clause_sets(ProofState_p state, ProofControl_p
-				    control)
-{
-   long res = 0;
-
-   res += ClauseSetComputeLINormalform(control->ocb,
-				       state->terms,
-				       state->processed_pos_rules,
-				       state->demods,
-				       FullRewrite,
-				       control->prefer_general);
-   /* These clauses can never be rewritten, as they only have maximal
-      terms!
-      res += ClauseSetComputeLINormalform(control->ocb,
-      state->terms,
-      state->processed_pos_eqns,
-      state->demods, FullRewrite);   */
-   res += ClauseSetComputeLINormalform(control->ocb,
-				       state->terms,
-				       state->processed_non_units,
-				       state->demods, FullRewrite,
-				       control->prefer_general);
-   /* This might create trivial literals in this case! */
-   eleminate_litreduced_clauses(state);   
-   res += ClauseSetComputeLINormalform(control->ocb,
-				       state->terms,
-				       state->processed_neg_units,
-				       state->demods, FullRewrite, 
-				       control->prefer_general);
-   /* printf("Interreduction: %ld clauses\n", res); */ 
 }
 
 
@@ -742,6 +655,12 @@ void ProofStateInit(ProofState_p state, ProofControl_p control,
    {
       state->processed_non_units->fvindex =
 	 FVIAnchorAlloc(MIN(state->signature->f_count,FV_MAX_SYMBOL_COUNT));
+      state->processed_pos_rules->fvindex =
+	 FVIAnchorAlloc(MIN(state->signature->f_count,FV_MAX_SYMBOL_COUNT));
+      state->processed_pos_eqns->fvindex =
+	 FVIAnchorAlloc(MIN(state->signature->f_count,FV_MAX_SYMBOL_COUNT));
+      state->processed_neg_units->fvindex =
+	 FVIAnchorAlloc(MIN(state->signature->f_count,FV_MAX_SYMBOL_COUNT));
    }
 }
 
@@ -845,7 +764,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
    eleminate_backward_subsumed_clauses(state, pclause);
    eleminate_unit_simplified_clauses(state, pclause->clause);
    
-   clause = FVUnpackClause(pclause);
+   clause = pclause->clause;
    tmp_copy = ClauseCopy(clause, state->tmp_terms);      
    tmp_copy->ident = clause->ident;
 
@@ -858,32 +777,25 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
       if(EqnIsOriented(clause->literals))
       {
 	 state->processed_pos_rules->date = clausedate;
-	 DemodInsert(state->processed_pos_rules, clause);
+	 DemodInsert(state->processed_pos_rules, pclause);
       }
       else
       {
 	 state->processed_pos_eqns->date = clausedate;
-	 DemodInsert(state->processed_pos_eqns, clause);
+	 DemodInsert(state->processed_pos_eqns, pclause);
       }
    }
    else if(ClauseLiteralNumber(clause) == 1)
    {
       assert(clause->neg_lit_no == 1);
-      DemodInsert(state->processed_neg_units, clause);
+      DemodInsert(state->processed_neg_units, pclause);
    }
    else
    {
-      DemodInsert(state->processed_non_units, clause);
-      if(state->processed_non_units->fvindex)
-      {
-	 FreqVector_p vec =
-	    StandardFreqVectorCompute(clause,
-				      state->processed_non_units->fvindex->symbol_limit);
-	 FVIndexInsert(state->processed_non_units->fvindex, vec);
-	 FreqVectorFree(vec);
-      }
+      DemodInsert(state->processed_non_units, pclause);
    }
-      
+   FVUnpackClause(pclause);
+
    if(control->selection_strategy != SelectNoGeneration)
    {
       generate_new_clauses(state, control, clause, tmp_copy);

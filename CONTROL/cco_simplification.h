@@ -38,7 +38,7 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-void     DemodInsert(ClauseSet_p set, Clause_p new);
+void     DemodInsert(ClauseSet_p set, FVPackedClause_p new);
 void     ClauseMoveSimplified(Clause_p clause, ClauseSet_p tmp_set);
 bool     RemoveClausesWithRewritableMaxSides(OCB_p ocb, ClauseSet_p from,
 					     ClauseSet_p into, Clause_p

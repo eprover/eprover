@@ -49,7 +49,7 @@ Changes
 //
 // Function: DemodInsert()
 //
-//   Insert a demodulator into the set...
+//   Insert an FVPackedClause clause into the set...
 //
 // Global Variables: -
 //
@@ -57,17 +57,21 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-void DemodInsert(ClauseSet_p set, Clause_p new)
+void DemodInsert(ClauseSet_p set, FVPackedClause_p new)
 {
-   assert(!new->evaluations);
+   assert(!new->clause->evaluations);
 
    if(!set->demod_index)
    {
-      ClauseSetInsert(set, new);
+      ClauseSetInsert(set, new->clause);
    }
    else
    {
-      ClauseSetIndexedInsert(set, new);
+      ClauseSetIndexedInsert(set, new->clause);
+   }
+   if(set->fvindex)
+   {
+      FVIndexInsert(set->fvindex, new);
    }
 }
 

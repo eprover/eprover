@@ -73,7 +73,7 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
 
    if(ClauseIsEmpty(clause))
    {
-      return FVPackClause(clause, NULL);
+      return FVIndexPackClause(clause, NULL);
    }
    
    if(control->ac_handling_active && ClauseIsACRedundant(clause))
@@ -97,11 +97,8 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
    }
    assert(!ClauseIsTrivial(clause));
    
-   if(ClauseLiteralNumber(clause)>1)
-   {
-      clause->weight = ClauseStandardWeight(clause);
-   }
-   pclause = FVPackClause(clause, state->processed_non_units->fvindex);
+   clause->weight = ClauseStandardWeight(clause);
+   pclause = FVIndexPackClause(clause, state->processed_non_units->fvindex);
    
    if((clause->pos_lit_no &&        
        UnitClauseSetSubsumesClause(state->processed_pos_eqns,
