@@ -133,6 +133,7 @@ function init_machine_ratings()
    e_mark["SUNW-Ultra-60-sparcv9-296"]                   = 100;
    e_mark["NC-AMD-Athlontm-MP-Processor-1600+-1400.058"] = 366.393;
    e_mark["Pentium-II-Deschutes-448.882"]                = 157.919;
+   e_mark["IntelR-PentiumR-4-CPU-2.40GHz-2405.486"]      = 496.488;
 }
 
 

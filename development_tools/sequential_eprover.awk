@@ -385,19 +385,24 @@ BEGIN{
    procid = get_pid();
    global_hostname = get_hostname();
 
-   e_mark["Pentium-III-Coppermine-864.484"]          = 226.858;
-   e_mark["REFERENCE"]                               = 100;
-   e_mark["SUNW-Sun-Blade-100-sparcv9-502"]          = 131.934;
-   e_mark["SUNW-Sun-Blade-1000-sparcv9-750"]         = 250.049;
-   e_mark["SUNW-Sun-Fire-880-sparcv9-900"]           = 285.646;
-   e_mark["SUNW-Ultra-2-sparc-200"]                  = 69.2536;
-   e_mark["SUNW-Ultra-5_10-sparcv9-300"]             = 87.2878;
-   e_mark["SUNW-Ultra-5_10-sparcv9-440"]             = 140.591;
-   e_mark["SUNW-Ultra-60-sparcv9-296"]               = 100;
-   e_mark["ppc7450-1000"]                            = 267.552;
-   e_mark["IntelR-PentiumR-4-CPU-1400MHz-1395.787"]  = 300.922;
-   e_mark["Pentium-III-Coppermine-696.422"]          = 225.642;
-   e_mark["Pentium-III-Coppermine-860.904"]          = 260.519;
+   e_mark["Pentium-III-Coppermine-696.422"]              = 225.642;
+   e_mark["Pentium-III-Coppermine-728.454"]              = 196.681;
+   e_mark["Pentium-III-Coppermine-860.904"]              = 260.519;
+   e_mark["Pentium-III-Coppermine-864.484"]              = 222.518;
+   e_mark["Pentium-III-Katmai-498.762"]                  = 143.921;
+   e_mark["REFERENCE"]                                   = 100;
+   e_mark["SUNW-Sun-Blade-100-sparcv9-502"]              = 131.934;
+   e_mark["SUNW-Sun-Blade-1000-sparcv9-750"]             = 250.049;
+   e_mark["SUNW-Ultra-2-sparc-200"]                      = 69.2536;
+   e_mark["SUNW-Ultra-5_10-sparcv9-300"]                 = 87.2878;
+   e_mark["SUNW-Ultra-5_10-sparcv9-440"]                 = 140.591;
+   e_mark["SUNW-Sun-Fire-880-sparcv9-900"]               = 285.646;
+   e_mark["ppc7450-1000"]                                = 267.552;
+   e_mark["IntelR-PentiumR-4-CPU-1400MHz-1395.787"]      = 300.922;
+   e_mark["SUNW-Ultra-60-sparcv9-296"]                   = 100;
+   e_mark["NC-AMD-Athlontm-MP-Processor-1600+-1400.058"] = 366.393;
+   e_mark["Pentium-II-Deschutes-448.882"]                = 157.919;
+   e_mark["IntelR-PentiumR-4-CPU-2.40GHz-2405.486"]      = 496.488;
 
    e_mark_host = e_mark[get_shell_res("get_system.awk")];
    if(!e_mark_host)
