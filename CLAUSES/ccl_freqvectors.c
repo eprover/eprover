@@ -160,7 +160,7 @@ PermVector_p PermVectorCompute(FreqVector_p fmax, FreqVector_p fmin,
       handle->array[i] = array[i+start].pos;
    }  
    SizeFree(array, fsum->size * sizeof(Tuple2Cell));
-   PermVectorPrint(GlobalOut, handle);
+   /* PermVectorPrint(GlobalOut, handle); */
    return handle;
 }
 
