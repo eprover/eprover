@@ -1,3 +1,7 @@
+Splitting with naming!
+
+Contextual rewriting
+
 Get rid of the ugly distinction between LHS top terms and other
 terms. Now that simplification is driven from the clause level, it's
 unecessary. Just annotate if a term was rewritten with a real
@@ -12,7 +16,8 @@ sense...). Do a Python prototype soon!
 
 Rippling-like annotated terms for E. 
 
-Split only if clause has multiple inference literals.
+Split only if clause has multiple inference literals. -> See below,
+stupid!
 
 Implement simple indexing for paramodulation. Idea: Processed clauses
 get an _into_ and a _from_ index. Both are a simple PDArray_p indexed

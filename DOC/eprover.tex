@@ -58,10 +58,10 @@ features.
 The manual assumes a working knowledge of refutational theorem
 proving, which can be gained from e.g.~\cite{CL73}. For a short
 description of E including performance data,
-see~\cite{Schulz:IJCAR-2001}, a more detailed description has been
+see~\cite{Schulz:IJCAR-2004}. A more detailed description has been
 published as~\cite{Schulz:AICOM-2002}. Most papers on E and much more
 information is available at or a few hops away from the E homepage,
-\url{http://www4.informatik.tu-muenchen.de/~schulz/WORK/eprover.html}.
+\url{http://www.eprover.org}.
 
 Some other provers have influenced the design of E and may be
 referenced in the course of this manual. These include
@@ -419,7 +419,7 @@ accordingly.
         simplify(c,P)\\
         \# Apply (CS), (ES), (TD)\\
         if c is trivial or subsumed by P then\+\\
-          delete(c)\-\\
+          \# delete(c)\-\\
         else if c is the empty clause then\+\\
           \# Success: Proof found\\
           stop\-\\
@@ -435,10 +435,10 @@ accordingly.
           T := T $\cup$ e-factors(c)       \# (EF)\\
           T := T $\cup$ paramodulants(c,P) \# (SN), (SP)\\
           foreach p $\in$ T do\+\\
-            \# Apply efficient ly implemented subset of (RN),\\
+            \# Apply efficiently implemented subset of (RN),\\
             \# (RP), (NS), (PS), (CSR), (DR), (DD), (DE)\\
             p := cheap\_simplify(p, P)\\
-            \# Apply (TD) or efficient approximation of it
+            \# Apply (TD) or efficient approximation of it\\
             if p is trivial\+\\
               delete(p)\-\\
             else\+\\
@@ -1759,13 +1759,13 @@ J.~Denzinger and S.~Schulz.
 \newblock {\em Journal of Symbolic Computation}, 21(4/5):523--541, 1996.
 
 \bibitem[HBF96]{BHF96}
-T.~Hillenbrand, A.~Buch, and R.~Fettig.
+Th. Hillenbrand, A.~Buch, and R.~Fettig.
 \newblock {On Gaining Efficiency in Completion-Based Theorem Proving}.
 \newblock In H.~Ganzinger, editor, {\em Proc.\ of the 7th RTA, New Brunswick},
   volume 1103 of {\em LNCS}, pages 432--435. Springer, 1996.
 
 \bibitem[HJL99]{HJL:CADE-99}
-T.~Hillenbrand, A.~Jaeger, and B.~L{\"o}chner.
+Th. Hillenbrand, A.~Jaeger, and B.~L{\"o}chner.
 \newblock {System Abstract: Waldmeister -- Improvements in Performance and Ease
   of Use}.
 \newblock In H.~Ganzinger, editor, {\em Proc.\ of the 16th CADE, Trento},
@@ -1814,17 +1814,17 @@ S.~Schulz.
   \url{http://www4.informatik.tu-muenchen.de/\-$\sim$schulz/\-WORK/\-eprover.h%
 tml}, 1999.
 
-\bibitem[Sch01]{Schulz:IJCAR-2001}
-S.~Schulz.
-\newblock {System Abstract: E 0.61}.
-\newblock In R.~Gor{\'e}, A.~Leitsch, and T.~Nipkow, editors, {\em Proc.\ of
-  the 1st IJCAR, Siena}, volume 2083 of {\em LNAI}, pages 370--375. Springer,
-  2001.
-
 \bibitem[Sch02]{Schulz:AICOM-2002}
 S.~Schulz.
 \newblock {E -- A Brainiac Theorem Prover}.
 \newblock {\em Journal of AI Communications}, 15(2/3):111--126, 2002.
+
+\bibitem[Sch04]{Schulz:IJCAR-2004}
+S.~Schulz.
+\newblock {System Description: E~0.81}.
+\newblock In D.~Basin and M.~Rusinowitch, editors, {\em Proc.\ of the 2nd
+  IJCAR, Cork, Ireland}, volume 3097 of {\em LNAI}, pages 223--228. Springer,
+  2004.
 
 \bibitem[SS97]{SS:TPTP-97}
 C.B. Suttner and G.~Sutcliffe.
@@ -1866,7 +1866,7 @@ C.~Weidenbach.
 C.~Weidenbach.
 \newblock {SPASS: Combining Superposition, Sorts and Splitting}.
 \newblock In A.~Robinson and A.~Voronkov, editors, {\em Handbook of Automated
-  Reasoning}, volume~II, chapter~27, pages 1965--2013. Elsevier Science and MIT
+  Reasoning}, number~II, chapter~27, pages 1965--2013. Elsevier Science and MIT
   Press, 2001.
 
 \bibitem[WGR96]{WGR96}
@@ -1877,7 +1877,6 @@ C.~Weidenbach, B.~Gaede, and G.~Rock.
   1996.
 
 \end{thebibliography}
-
 
 \end{document}
 

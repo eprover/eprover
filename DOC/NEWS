@@ -1,14 +1,15 @@
 This history list describes the major differences between versions of
 the E equational theorem prover.
 
-Version 0.81 ->
+Version 0.81 -> 0.82 Lung Ching
 
 - Fixed a bug in find_spec_literal() pointed out by Flavio
   Ribeira. Might improve performance for large problems with a lot of
   subsumption. 
 - Added LPO4 variant from Bernd Loechners paper. Much faster
 - Cleanup of feature stuff (needs more cleaning)
-
+- Added support for full first-order logic and clausification
+- Optimized automatic mode and fixed some ancient automatic mode bugs
 
 Version 0.8 -> 0.81 Tumsong
 
@@ -24,7 +25,7 @@ Version 0.8 -> 0.81 Tumsong
 - Much improved automatic mode (knows more about contextual literal
   cutting and SOS now) 
 - Improved support for TSTP input and full TSTP output
-- Added some things to te manual. Yes, really!
+- Added some things to the manual. Yes, really!
 
 Version 0.71 -> 0.8 Steinthal
 

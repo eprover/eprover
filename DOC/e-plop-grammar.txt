@@ -1,3 +1,6 @@
+This is not yet implemented! For FOF format, you currently *must* use
+TPTP or TSTP format.
+
 This describes the grammar of E-PLOP 1.0
 
 E-PLOP is not related to SETHEO-PLOP, but rather a conservative
