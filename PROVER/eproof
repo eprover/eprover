@@ -16,14 +16,13 @@ tmpfile2=$TMPDIR/"eprooftmp_"${host}"_"${pid}
 timeout=""
 
 
-
 cleanup () 
 {  
     ulimit -S unlimited
     touch $tmpfile $tmpfile2
     rm $tmpfile $tmpfile2
     if [ "$timeout" = "" ] ; then
-	echo "# Terminated by signal or interrupt, cleaning up"
+        echo "# Cannot determine problem status: Terminated by signal. Cleaning up"
     fi
     exit 
 } 
