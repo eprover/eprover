@@ -436,7 +436,7 @@ CLState_p CLStateAlloc(int argc, char* argv[])
    {
       handle->argv[i] = argv[i];
    }
-   handle->argc[argv] = NULL;
+   handle->argv[argc] = NULL;
    
    shift_array_left(handle->argv);
    handle->argc--;
