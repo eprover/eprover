@@ -417,8 +417,7 @@ bool FormulaSimplify(Formula_p *form, TB_p terms)
          modified = tmpmod || modified;
          break;         
    case OpBNImpl:
-         handle = FormulaOpAlloc(OpBImpl, (*form)->arg2, (*form)->arg1);
-         newform = FormulaOpAlloc(OpUNot, handle, NULL);
+         newform = FormulaOpAlloc(OpBImpl, (*form)->arg2, (*form)->arg1);
          FormulaGetRef(newform);
          tmpmod = FormulaSimplify(&newform, terms);
          FormulaRelRef(newform);
