@@ -763,6 +763,47 @@ void FormulaCollectFreeVars(Formula_p form, PTree_p *vars)
    }
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaFindMaxVarCode()
+//
+//   Return largest (absolute, i.e. largest negative) f_code of any
+//   variable in form.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+FunCode FormulaFindMaxVarCode(Formula_p form)
+{
+   FunCode res1=0, res2=0;
+
+   if(FormulaIsLiteral(form))
+   {
+      res1 = TermFindMaxVarCode(form->special.literal->lterm);
+      res2 = TermFindMaxVarCode(form->special.literal->rterm);
+   }
+   else if(FormulaIsQuantified(form))
+   {
+      res1 = FormulaFindMaxVarCode(form->arg1);
+      res2 = form->special.var->f_code;
+   }
+   else
+   {
+      if(FormulaHasSubForm1(form))
+      {
+         res1 = FormulaFindMaxVarCode(form->arg1);
+      }
+      if(FormulaHasSubForm2(form))
+      {
+         res2 = FormulaFindMaxVarCode(form->arg2);
+      }
+   }
+   return MIN(res1, res2); /* Remember that var f_codes are negative */
+}
+
 
 
 /*---------------------------------------------------------------------*/

@@ -199,7 +199,7 @@ void WFormulaTPTPPrint(FILE* out, WFormula_p form, bool fullterms)
    switch(FormulaQueryType(form))
    {
    case WPTypeAxiom:
-	 typename = "axiom";
+         typename = "axiom";
 	 break;
    case WPTypeHypothesis:
 	 typename = "hypothesis";
@@ -246,7 +246,6 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
    WFormulaProperties type = WPTypeAxiom;
    WFormulaProperties initial = WPInitial;
    WFormula_p         handle;
-   bool               check_type = true;
       
    AcceptInpId(in, "fof");
    AcceptInpTok(in, OpenBracket);
@@ -254,42 +253,45 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
    name = DStrCopy(AktToken(in)->literal);
    NextToken(in);
    AcceptInpTok(in, Comma);
-   if(TestInpId(in, "initial|derived"))
+   
+   /* This is hairy! E's internal types do not map very well to
+      TSTP types, and E uses the "initial" properties in ways that
+      make it highly desirable that anything in the input is
+      actually initial (the CPInitialProperty is actually set in
+      all clauses in the initial unprocessed clause set. So we
+      ignore the "derived" modifier, and use CPTypeAxiom for plain
+      clauses. */
+   if(TestInpId(in, "axiom|definition|knowledge|assumption|"
+                "hypothesis|conjecture|lemma|unknown|plain"))
    {
-      if(TestInpId(in, "derived"))
-      {
-	 initial = WPIgnoreProps;
-      }
-      AcceptInpTok(in, Ident);
-      type = WPTypeAxiom;
-      check_type = false;
+      type = ClauseTypeParse(in, 
+                             "axiom|definition|knowledge|assumption|"
+                             "hypothesis|conjecture|lemma|unknown|plain");
       if(TestInpTok(in, Hyphen))
       {
-	 AcceptInpTok(in, Hyphen);
-	 check_type = true;
+         AcceptInpTok(in, Hyphen);
+         AcceptInpId(in, "derived");
+         initial = WPIgnoreProps;
       }
    }
-   if(check_type)
+   else
    {
-      CheckInpId(in, 
-		 "axiom|definition|knowledge|assumption|"
-		 "hypothesis|conjecture|lemma|unknown");
-      if(TestInpId(in, "hypothesis"))
-      {
-	 type = WPTypeHypothesis;
-      }
-      else if(TestInpId(in, "conjecture"))
-      {
-	 type = WPTypeConjecture;
-      }
-      else
-      {
-	 type = WPTypeAxiom;
-      }
-   }   
-   NextToken(in);
+      AcceptInpId(in, "derived");
+      type = WPTypeAxiom;
+   } 
    AcceptInpTok(in, Comma);
    form = FormulaTPTPParse(in, terms); /* TSTP = TPTP! */
+   if(TestInpTok(in, Comma))
+   {
+      AcceptInpTok(in, Comma);
+      TSTPSkipSource(in);
+      if(TestInpTok(in, Comma))
+      {
+         AcceptInpTok(in, Comma);
+         CheckInpTok(in, OpenSquare);
+         ParseSkipParenthesizedExpr(in);
+      }
+   }
    AcceptInpTok(in, CloseBracket);
    AcceptInpTok(in, Fullstop);
    handle = WFormulaAlloc(form);
@@ -319,14 +321,21 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
 void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
 		       bool complete)
 {
-   char *typename, *initial="derived";
+   char *typename, *initial="";
    char prefix;
    long id;
 
    switch(FormulaQueryType(form))
    {
    case WPTypeAxiom:
-	 typename = "axiom";
+         if(FormulaQueryProp(form, WPInitial))
+         {
+            typename = "axiom";
+         }
+         else
+         {
+            typename = "plain";
+         }
 	 break;
    case WPTypeHypothesis:
 	 typename = "hypothesis";
@@ -338,9 +347,9 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
 	 typename = "unknown";
 	 break;
    }   
-   if(FormulaQueryProp(form, WPInitial))
+   if(!FormulaQueryProp(form, WPInitial))
    {
-      initial = "initial";
+      initial = "-derived";
    }
    if(form->ident < 0)
    {
@@ -350,9 +359,9 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
    else
    {
       id = form->ident;
-      prefix = 'e';
+      prefix = 'c';
    }
-   fprintf(out, "fof(f%c_%ld,%s-%s,", prefix, id, initial,typename);
+   fprintf(out, "fof(%c_0_%ld,%s%s,", prefix, id, typename, initial);
    FormulaTPTPPrint(out, form->formula,fullterms);
    if(complete)
    {
@@ -377,6 +386,10 @@ WFormula_p WFormulaParse(Scanner_p in, TB_p terms)
 {
    WFormula_p wform = NULL;
 
+   if(ClausesHaveDisjointVariables)
+   {
+      VarBankClearExtNamesNoReset(terms->vars);
+   }   
    switch(ScannerGetFormat(in))
    {
    case LOPFormat:
@@ -423,37 +436,6 @@ void WFormulaPrint(FILE* out, WFormula_p form, bool fullterms)
          assert(false&& "Unknown output format");
          break;
    }
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: WFormulaConjectureNegate()
-//
-//   If formula is a conjecture, negate it and delete that property
-//   (but set WPInitialConjecture). Returns true if formula was a
-//   conjecture. 
-//
-// Global Variables: -
-//
-// Side Effects    : Changes formula
-//
-/----------------------------------------------------------------------*/
-
-bool WFormulaConjectureNegate(WFormula_p wform)
-{
-   Formula_p form, newform;
-
-   if(FormulaQueryProp(wform, WPTypeConjecture)
-      &&!FormulaQueryProp(wform,WPInitialConjecture)) 
-   {
-      form = FormulaRelRef(wform->formula);
-      newform = FormulaOpAlloc(OpUNot, form, NULL);
-      wform->formula = FormulaGetRef(newform);
-      FormulaSetProp(wform, WPInitialConjecture);
-      return true;
-   }
-   return false;
 }
 
 
@@ -605,40 +587,6 @@ void FormulaSetDeleteEntry(WFormula_p form)
 }
 
 
-
-/*-----------------------------------------------------------------------
-//
-// Function: FormulaSetPreprocConjectures()
-//
-//   Negate all conjectures to make the implication to prove into an
-//   formula set that is inconsistent if the implication is true. Note
-//   that multiple conjectures are implicitely disjunctively
-//   connected! Returns number of conjectures.
-//
-// Global Variables: -
-//
-// Side Effects    : Changes formula, may print warning if number of
-//                   conjectures is different from 1.
-//
-/----------------------------------------------------------------------*/
-
-long FormulaSetPreprocConjectures(FormulaSet_p set)
-{
-   long res = 0;
-   WFormula_p handle;
-
-   handle = set->anchor->succ;
-   
-   while(handle!=set->anchor)
-   {
-      if(WFormulaConjectureNegate(handle))
-      {
-         res++;
-      }
-      handle = handle->succ;
-   }
-   return res;
-}
 
 /*-----------------------------------------------------------------------
 //

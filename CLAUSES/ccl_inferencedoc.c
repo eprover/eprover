@@ -38,7 +38,7 @@ bool             PCLStepCompact = false;
 
 
 /*---------------------------------------------------------------------*/
-/*                         Internal Functions                          */
+/*                    Internal Functions -- Clauses                    */
 /*---------------------------------------------------------------------*/
 
 /*-----------------------------------------------------------------------
@@ -626,6 +626,362 @@ static void print_eq_unfold(FILE* out, Clause_p rewritten,
    }
 }
 
+
+
+
+/*---------------------------------------------------------------------*/
+/*             Internal Functions -- Formulae                          */
+/*---------------------------------------------------------------------*/
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: pcl_formula_print_start()
+//
+//   Print the "<id> : <clause> : " part of a pcl step.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+static void pcl_formula_print_start(FILE* out, WFormula_p form)
+{
+   fprintf(out, PCLStepCompact?"%ld:":"%6ld : ", form->ident);
+   FormulaTPTPPrint(out, form->formula, PCLFullTerms);
+   fputs(" : ", out);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: pcl_formula_print_end()
+//
+//   Print the optional comment and new line
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+static void pcl_formula_print_end(FILE* out, char* comment)
+{
+   if(comment)
+   {
+      fprintf(out, PCLStepCompact?":'%s'":" : '%s'",comment);
+   }
+   fputc('\n', out);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: tstp_formula_print_end()
+//
+//   Print the optional comment and new line
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+static void tstp_formula_print_end(FILE* out, char* comment)
+{
+   if(comment)
+   {
+      fprintf(out, ",['%s']", comment);
+   }
+   fputs(").\n", out);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: print_formula_initial()
+//
+//   Print an initial formula.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+static void print_formula_initial(FILE* out, WFormula_p form, char* comment)
+{
+   switch(DocOutputFormat)
+   {
+   case pcl_format:
+	 pcl_formula_print_start(out, form);
+         if(FormulaQueryType(form)==WPTypeConjecture)
+         {
+            fprintf(out, "initial_conjecture");
+         }
+         else
+         {
+            fprintf(out, "initial");
+         }
+	 pcl_formula_print_end(out, comment);
+	 break;
+   case tstp_format:
+	 WFormulaTSTPPrint(out, form, PCLFullTerms, false);
+	 fprintf(out, ", unknown");
+	 tstp_formula_print_end(out, comment);
+	 break;
+   default:
+	 fprintf(out, "# Output format not implemented.\n");
+	 break;
+   }
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: print_fof_simpl()
+//
+//   Print a fof simplification step.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+static void print_fof_simpl(FILE* out, WFormula_p form, 
+                            long old_id, char *comment)
+{
+   switch(DocOutputFormat)
+   {
+   case pcl_format:
+	 pcl_formula_print_start(out, form);
+         fprintf(out, PCL_FS"(%ld)", old_id);
+	 pcl_formula_print_end(out, comment);
+	 break;
+   case tstp_format:
+	 WFormulaTSTPPrint(out, form, PCLFullTerms, false);
+         fprintf(out, ", inference("PCL_FS", [status(thm)],[c_0_%ld])", old_id);
+         tstp_formula_print_end(out, comment);
+	 break;
+   default:
+	 fprintf(out, "# Output format not implemented.\n");
+	 break;
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: print_neg_conj()
+//
+//   Print a conjecture negation step ("assume opposite")
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+static void print_neg_conj(FILE* out, WFormula_p form, 
+                            long old_id, char *comment)
+{
+   switch(DocOutputFormat)
+   {
+   case pcl_format:
+	 pcl_formula_print_start(out, form);
+         fprintf(out, PCL_NC"(%ld)", old_id);
+	 pcl_formula_print_end(out, comment);
+	 break;
+   case tstp_format:
+	 WFormulaTSTPPrint(out, form, PCLFullTerms, false);
+         fprintf(out, ", inference("PCL_NC", [c_0_%ld])", old_id);
+         tstp_formula_print_end(out, comment);
+	 break;
+   default:
+	 fprintf(out, "# Output format not implemented.\n");
+	 break;
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: print_fof_nnf()
+//
+//   Print a fof negation normal form step.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+static void print_fof_nnf(FILE* out, WFormula_p form, 
+                          long old_id, char *comment)
+{
+   switch(DocOutputFormat)
+   {
+   case pcl_format:
+	 pcl_formula_print_start(out, form);
+         fprintf(out, PCL_NNF"(%ld)", old_id);
+	 pcl_formula_print_end(out, comment);
+	 break;
+   case tstp_format:
+	 WFormulaTSTPPrint(out, form, PCLFullTerms, false);
+         fprintf(out, ", inference("PCL_NNF", [status(thm)],[c_0_%ld])", old_id);
+         tstp_formula_print_end(out, comment);
+	 break;
+   default:
+	 fprintf(out, "# Output format not implemented.\n");
+	 break;
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: print_shift_quantors()
+//
+//   Print a shift quantor (in for miniskoping, out for final CNF'ing)
+//   inference.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+static void print_shift_quantors(FILE* out, WFormula_p form, 
+                                 long old_id, char *comment)
+{
+   switch(DocOutputFormat)
+   {
+   case pcl_format:
+	 pcl_formula_print_start(out, form);
+         fprintf(out, PCL_SQ"(%ld)", old_id);
+	 pcl_formula_print_end(out, comment);
+	 break;
+   case tstp_format:
+	 WFormulaTSTPPrint(out, form, PCLFullTerms, false);
+         fprintf(out, ", inference("PCL_SQ", [status(thm)],[c_0_%ld])", old_id);
+         tstp_formula_print_end(out, comment);
+	 break;
+   default:
+	 fprintf(out, "# Output format not implemented.\n");
+	 break;
+   }
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: print_skolemize()
+//
+//   Print a Skolemization step.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+static void print_skolemize(FILE* out, WFormula_p form, 
+                      long old_id, char *comment)
+{
+   switch(DocOutputFormat)
+   {
+   case pcl_format:
+	 pcl_formula_print_start(out, form);
+         fprintf(out, PCL_SK"(%ld)", old_id);
+	 pcl_formula_print_end(out, comment);
+	 break;
+   case tstp_format:
+	 WFormulaTSTPPrint(out, form, PCLFullTerms, false);
+         fprintf(out, ", inference("PCL_SK", [c_0_%ld])", old_id);
+         tstp_formula_print_end(out, comment);
+	 break;
+   default:
+	 fprintf(out, "# Output format not implemented.\n");
+	 break;
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: print_distribute()
+//
+//   Print a distributivity step (or steps).
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+static void print_distribute(FILE* out, WFormula_p form, 
+                             long old_id, char *comment)
+{
+   switch(DocOutputFormat)
+   {
+   case pcl_format:
+	 pcl_formula_print_start(out, form);
+         fprintf(out, PCL_DSTR"(%ld)", old_id);
+	 pcl_formula_print_end(out, comment);
+	 break;
+   case tstp_format:
+	 WFormulaTSTPPrint(out, form, PCLFullTerms, false);
+         fprintf(out, ", inference("PCL_DSTR", [status(thm)],[c_0_%ld])", old_id);
+         tstp_formula_print_end(out, comment);
+	 break;
+   default:
+	 fprintf(out, "# Output format not implemented.\n");
+	 break;
+   }
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: print_var_rename()
+//
+//   Print a variable renaming step.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+static void print_var_rename(FILE* out, WFormula_p form, 
+                               long old_id, char *comment)
+{
+   switch(DocOutputFormat)
+   {
+   case pcl_format:
+	 pcl_formula_print_start(out, form);
+         fprintf(out, PCL_VR"(%ld)", old_id);
+	 pcl_formula_print_end(out, comment);
+	 break;
+   case tstp_format:
+	 WFormulaTSTPPrint(out, form, PCLFullTerms, false);
+         fprintf(out, ", inference("PCL_VR", [status(thm)],[c_0_%ld])", old_id);
+         tstp_formula_print_end(out, comment);
+	 break;
+   default:
+	 fprintf(out, "# Output format not implemented.\n");
+	 break;
+   }
+}
+
+
+
+
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
@@ -698,6 +1054,50 @@ void DocClauseCreation(FILE* out, long level, Clause_p clause,
 
 /*-----------------------------------------------------------------------
 //
+// Function: DocClauseFromForm()
+//
+//   Document the creation of a clause from a conjunct of a formula.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+void DocClauseFromForm(FILE* out, long level, Clause_p clause, 
+                       WFormula_p parent)
+{
+   assert(clause);
+   assert(parent);
+
+   if(level >= 2)
+   {
+      switch(DocOutputFormat)
+      {
+      case pcl_format:
+            clause->ident = ++ClauseIdentCounter;
+            pcl_print_start(out, clause);
+            fprintf(out, PCL_SC "(%ld)", parent->ident);
+            pcl_print_end(out, NULL, clause);
+            break;
+      case tstp_format:
+            clause->ident = ++ClauseIdentCounter;
+            ClauseTSTPPrint(out, clause, PCLFullTerms, false);
+            fprintf(out, ",inference("PCL_SC", [status(thm)],[c_0_%ld])", 
+                    parent->ident);
+            tstp_print_end(out, NULL, clause);
+	 break;
+            break;
+      default:
+            fprintf(out, "# Output format not implemented.\n");
+            break;
+      }
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: DocClauseModification()
 //
 //   Document the modification of a clause.
@@ -709,7 +1109,7 @@ void DocClauseCreation(FILE* out, long level, Clause_p clause,
 /----------------------------------------------------------------------*/
 
 void DocClauseModification(FILE* out, long level, Clause_p clause, InfType
-		     op, Clause_p partner, Sig_p sig, char* comment)
+                           op, Clause_p partner, Sig_p sig, char* comment)
 {
    long old_id;
 
@@ -892,7 +1292,7 @@ void DocClauseEqUnfold(FILE* out, long level, Clause_p rewritten,
 // Side Effects    : Output, generates new id for formula
 //
 /----------------------------------------------------------------------*/
-/*
+
 void DocFormulaCreation(FILE* out, long level, WFormula_p formula, 
                         InfType op, WFormula_p parent1,
                         WFormula_p parent2, char* comment)
@@ -905,8 +1305,9 @@ void DocFormulaCreation(FILE* out, long level, WFormula_p formula,
 	    assert(!parent1);
 	    assert(!parent2);
 	    formula->ident = ++ClauseIdentCounter;
-	    print_form_initial(out, formula, comment);
+	    print_formula_initial(out, formula, comment);
 	    break;
+
       default:
             assert(false && "Unsupported formula creation method");
             break;
@@ -914,7 +1315,55 @@ void DocFormulaCreation(FILE* out, long level, WFormula_p formula,
    }
 }
 
-*/
+
+/*-----------------------------------------------------------------------
+//
+// Function: DocFormulaModification()
+//
+//   Document general clause modifications.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void DocFormulaModification(FILE* out, long level, WFormula_p form, 
+                            InfType op, char* comment)
+{
+   if(level >= 2)
+   {
+      long old_id = form->ident;
+
+      form->ident = ++ClauseIdentCounter;
+      switch(op)
+      {
+      case inf_fof_simpl:
+            print_fof_simpl(out, form, old_id, comment);
+            break;
+      case inf_neg_conjecture:
+            print_neg_conj(out, form, old_id, comment);
+            break;
+      case inf_fof_nnf:
+            print_fof_nnf(out, form, old_id, comment);
+            break;
+      case inf_shift_quantors:
+            print_shift_quantors(out, form, old_id, comment);
+            break;
+      case inf_var_rename:
+            print_var_rename(out, form, old_id, comment);
+            break;
+      case inf_skolemize_out:
+            print_skolemize(out, form, old_id, comment);
+            break;
+      case inf_fof_distrib:
+            print_distribute(out, form, old_id, comment);
+            break;
+      default:
+            break;
+      }
+   }
+}
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

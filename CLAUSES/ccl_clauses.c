@@ -164,9 +164,16 @@ int eqn_canon_compare(Eqn_p *l1, Eqn_p *l2)
 }
 
 
+
+
+/*---------------------------------------------------------------------*/
+/*                         Exported Functions                          */
+/*---------------------------------------------------------------------*/
+
+
 /*-----------------------------------------------------------------------
 //
-// Function: skip_tstp_source()
+// Function: TSTPSkipSource()
 //
 //   Skip a TSTP source field.
 //
@@ -176,7 +183,7 @@ int eqn_canon_compare(Eqn_p *l1, Eqn_p *l2)
 //
 /----------------------------------------------------------------------*/
 
-void skip_tstp_source(Scanner_p in)
+void TSTPSkipSource(Scanner_p in)
 {
    AcceptInpTok(in, Identifier|PosInt);
    if(TestInpTok(in, OpenBracket))
@@ -184,12 +191,6 @@ void skip_tstp_source(Scanner_p in)
       ParseSkipParenthesizedExpr(in);
    }
 }
-
-
-/*---------------------------------------------------------------------*/
-/*                         Exported Functions                          */
-/*---------------------------------------------------------------------*/
-
 
 /*-----------------------------------------------------------------------
 //
@@ -1235,16 +1236,23 @@ void ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms, bool complete)
    switch(ClauseQueryTPTPType(clause))
    {
    case CPTypeAxiom:
-         typename = "-axiom";
+         if(ClauseQueryProp(clause, CPInitial))
+         {
+            typename = "axiom";
+         }
+         else
+         {
+            typename = "plain";
+         } /* Ugly...do I really need this? */
          break;
    case CPTypeHypothesis:
-         typename = "-hypothesis";
+         typename = "hypothesis";
          break;      
    case CPTypeConjecture:
-         typename = "-conjecture";
+         typename = "conjecture";
          break;
    case CPTypeLemma:
-         typename = "-lemma";
+         typename = "lemma";
          break;
    default:
 	 typename = "";
@@ -1257,16 +1265,16 @@ void ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms, bool complete)
       fprintf(out, "cnf(c_%d_%ld, %s%s,", 
 	      source, 
 	      clause->ident, 
-	      ClauseQueryProp(clause, CPInitial)?"initial":"derived",
-              typename);
+              typename,
+	      ClauseQueryProp(clause, CPInitial)?"":"-derived");
    }
    else
    {
       fprintf(out, "cnf(i_%d_%ld, %s%s,", 
 	      source,
 	      clause->ident-LONG_MIN, 
-	      ClauseQueryProp(clause, CPInitial)?"initial":"derived",
-              typename);
+              typename,
+	      ClauseQueryProp(clause, CPInitial)?"":"-derived");
    }   
    ClauseTSTPCorePrint(out, clause, fullterms);
    if(complete)
@@ -1395,28 +1403,34 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
    }
    else if(ScannerGetFormat(in) == TSTPFormat)
    {
-      bool check_type=true;
-
       AcceptInpId(in, "cnf");
       AcceptInpTok(in, OpenBracket);
       AcceptInpTok(in, Name|PosInt);
       AcceptInpTok(in, Comma);
-      if(TestInpId(in, "initial|derived"))
-      {
-	 AcceptInpTok(in, Ident);
-	 type = CPTypeAxiom;
-	 check_type = false;
-	 if(TestInpTok(in, Hyphen))
-	 {
-	    AcceptInpTok(in, Hyphen);
-	    check_type = true;
-	 }
-      }
-      if(check_type)
+
+      /* This is hairy! E's internal types do not map very well to
+         TSTP types, and E uses the "initial" properties in ways that
+         make it highly desirable that anything in the input is
+         actually initial (the CPInitialProperty is actually set in
+         all clauses in the initial unprocessed clause set. So we
+         ignore the "derived" modifier, and use CPTypeAxiom for plain
+         clauses. */
+      if(TestInpId(in, "axiom|definition|knowledge|assumption|"
+                   "hypothesis|conjecture|lemma|unknown|plain"))
       {
          type = ClauseTypeParse(in, 
                                 "axiom|definition|knowledge|assumption|"
-                                "hypothesis|conjecture|lemma|unknown" );
+                                "hypothesis|conjecture|lemma|unknown|plain");
+         if(TestInpTok(in, Hyphen))
+         {
+            AcceptInpTok(in, Hyphen);
+            AcceptInpId(in, "derived");
+         }
+      }
+      else
+      {
+         AcceptInpId(in, "derived");
+         type = CPTypeAxiom;
       }
       AcceptInpTok(in, Comma);
       AcceptInpTok(in, OpenBracket);
@@ -1425,7 +1439,7 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
       if(TestInpTok(in, Comma))
       {
          AcceptInpTok(in, Comma);
-         skip_tstp_source(in);
+         TSTPSkipSource(in);
          if(TestInpTok(in, Comma))
          {
             AcceptInpTok(in, Comma);

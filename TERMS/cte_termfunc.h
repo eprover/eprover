@@ -96,6 +96,8 @@ bool    TermHasVariables(Term_p term, bool unbound_only);
 #define TermIsGround(term) (!TermHasVariables((term), false))
 #define TermHasUnboundVariables(term) TermHasVariables((term), true)
 
+FunCode TermFindMaxVarCode(Term_p term);
+
 long    VarBankCheckBindings(FILE* out, VarBank_p bank, Sig_p sig);
 
 #define TermAddSymbolDistribution(term, dist_array)\

@@ -45,13 +45,14 @@ bool FormulaNNF(Formula_p *form, TB_p terms, int polarity);
 
 bool FormulaMiniScope(Formula_p *form);
 
-Formula_p FormulaVarRename(Formula_p form, TB_p terms);
+Formula_p FormulaVarRename(Formula_p form, bool *modified, TB_p terms);
 
-Formula_p FormulaSkolemizeOutermost(Formula_p form, TB_p terms);
+Formula_p FormulaSkolemizeOutermost(Formula_p form,
+                                    bool* modified, TB_p terms);
 
-Formula_p FormulaDistributeDisjunctions(Formula_p form);
+Formula_p FormulaDistributeDisjunctions(Formula_p form, bool* modified);
 
-bool FormulaConjunctiveNF(Formula_p *form, TB_p terms);
+bool WFormulaConjunctiveNF(WFormula_p form, TB_p terms);
 
 
 #endif

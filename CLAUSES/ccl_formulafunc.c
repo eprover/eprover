@@ -113,6 +113,72 @@ Clause_p formula_collect_clause(Formula_p form, TB_p terms,
 /*---------------------------------------------------------------------*/
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: WFormulaConjectureNegate()
+//
+//   If formula is a conjecture, negate it and delete that property
+//   (but set WPInitialConjecture). Returns true if formula was a
+//   conjecture. 
+//
+// Global Variables: -
+//
+// Side Effects    : Changes formula
+//
+/----------------------------------------------------------------------*/
+
+bool WFormulaConjectureNegate(WFormula_p wform)
+{
+   Formula_p form, newform;
+
+   if(FormulaQueryProp(wform, WPTypeConjecture)
+      &&!FormulaQueryProp(wform,WPInitialConjecture)) 
+   {
+      form = FormulaRelRef(wform->formula);
+      newform = FormulaOpAlloc(OpUNot, form, NULL);
+      wform->formula = FormulaGetRef(newform);
+      FormulaSetProp(wform, WPInitialConjecture);
+      DocFormulaModificationDefault(wform, inf_neg_conjecture);
+      return true;
+   }
+   return false;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaSetPreprocConjectures()
+//
+//   Negate all conjectures to make the implication to prove into an
+//   formula set that is inconsistent if the implication is true. Note
+//   that multiple conjectures are implicitely disjunctively
+//   connected! Returns number of conjectures.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes formula, may print warning if number of
+//                   conjectures is different from 1.
+//
+/----------------------------------------------------------------------*/
+
+long FormulaSetPreprocConjectures(FormulaSet_p set)
+{
+   long res = 0;
+   WFormula_p handle;
+
+   handle = set->anchor->succ;
+   
+   while(handle!=set->anchor)
+   {
+      if(WFormulaConjectureNegate(handle))
+      {
+         res++;
+      }
+      handle = handle->succ;
+   }
+   return res;
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -129,8 +195,8 @@ Clause_p formula_collect_clause(Formula_p form, TB_p terms,
 long WFormulaCNF(WFormula_p form, ClauseSet_p set, 
                  TB_p terms, VarBank_p fresh_vars)
 {
-   FormulaConjunctiveNF(&(form->formula), terms);
-   return FormulaToCNF(form->formula, FormulaQueryType(form), 
+   WFormulaConjunctiveNF(form, terms);
+   return FormulaToCNF(form, FormulaQueryType(form), 
                        set, terms, fresh_vars);
 }
 
@@ -231,7 +297,7 @@ long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset,
 //
 /----------------------------------------------------------------------*/
 
-long FormulaToCNF(Formula_p form, ClauseProperties type, ClauseSet_p set, 
+long FormulaToCNF(WFormula_p form, ClauseProperties type, ClauseSet_p set, 
                   TB_p terms, VarBank_p fresh_vars)
 {
    Formula_p handle;
@@ -240,7 +306,7 @@ long FormulaToCNF(Formula_p form, ClauseProperties type, ClauseSet_p set,
    Clause_p clause;
 
    /* Skip quantors */
-   for(handle = form; handle->op == OpQAll; handle = handle->arg1)
+   for(handle = form->formula; handle->op == OpQAll; handle = handle->arg1)
    {
       assert(handle);
    }
@@ -257,6 +323,7 @@ long FormulaToCNF(Formula_p form, ClauseProperties type, ClauseSet_p set,
       {
          clause = formula_collect_clause(handle, terms, fresh_vars);
          ClauseSetTPTPType(clause, type);
+         DocClauseFromForm(GlobalOut, OutputLevel, clause, form);
          ClauseSetInsert(set, clause);
       }
    }
@@ -264,6 +331,32 @@ long FormulaToCNF(Formula_p form, ClauseProperties type, ClauseSet_p set,
    return set->members - old_clause_number;
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaSetDocInital()
+//
+//   If level >= 2, print all formula as initials.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void FormulaSetDocInital(FILE* out, long level, FormulaSet_p set)
+{
+   WFormula_p handle;
+   
+   if(level>=2)
+   {
+      for(handle = set->anchor->succ; handle!=set->anchor; handle =
+	     handle->succ)
+      {
+	 DocFormulaCreationDefault(handle, inf_initial, NULL,NULL);
+      }
+   }   
+}
 
 
 /*---------------------------------------------------------------------*/

@@ -49,8 +49,12 @@ typedef enum
    inf_rewrite,
 
    inf_fof_simpl,
-   inf_o_skolemize,
-   inf_neg_conjecture,
+   inf_fof_nnf,
+   inf_shift_quantors,
+   inf_fof_distrib,
+   inf_var_rename,
+   inf_skolemize_out,
+   inf_neg_conjecture
 }InfType;
    
 typedef enum
@@ -76,6 +80,14 @@ typedef enum
 #define PCL_ACRES "ar"
 #define PCL_CN    "cn"
 
+#define PCL_SC    "split_conjunct"
+#define PCL_FS    "fof_simplification"
+#define PCL_NNF   "fof_nnf"
+#define PCL_SQ    "shift_quantors"
+#define PCL_VR    "variable_rename"
+#define PCL_SK    "skolemize"
+#define PCL_DSTR  "distribute"
+#define PCL_NC    "assume_negation"
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
@@ -91,6 +103,9 @@ void DocClauseCreation(FILE* out, long level, Clause_p clause,
 #define DocClauseCreationDefault(clause, op, parent1, parent2)\
         DocClauseCreation(GlobalOut, OutputLevel, (clause),\
 		       (op), (parent1), (parent2), NULL)
+
+void    DocClauseFromForm(FILE* out, long level, Clause_p clause, 
+                          WFormula_p parent);
 
 void    DocClauseModification(FILE* out, long level, Clause_p clause, InfType
 		     op, Clause_p partner, Sig_p sig, char* comment);
@@ -121,8 +136,16 @@ void    DocFormulaCreation(FILE* out, long level, WFormula_p formula,
                            WFormula_p parent2, char* comment);
 
 #define DocFormulaCreationDefault(formula, op, parent1, parent2)\
-        DocClauseCreation(GlobalOut, OutputLevel, (formula),\
+        DocFormulaCreation(GlobalOut, OutputLevel, (formula),\
         (op), (parent1), (parent2), NULL) 
+
+void    DocFormulaModification(FILE* out, long level, WFormula_p form, 
+                                InfType op, char* comment);
+
+#define DocFormulaModificationDefault(form, op)\
+        DocFormulaModification(GlobalOut, OutputLevel, (form), (op), NULL)
+
+
 #endif
 
 /*---------------------------------------------------------------------*/

@@ -196,7 +196,7 @@ bool root_nnf(Formula_p *form, TB_p terms, int polarity)
 //   same subformula may occur in different contexts. It _does_ work
 //   (I hope) because we require that every quantor binds a distinct
 //   variable, and hence terms that are equal are either invariant
-//   with respect to context, contain different variables, and hence
+//   with respect to context or contain different variables, and hence
 //   are not shared. 
 //
 // Global Variables: -
@@ -206,7 +206,8 @@ bool root_nnf(Formula_p *form, TB_p terms, int polarity)
 //
 /----------------------------------------------------------------------*/
 
-Formula_p formula_rek_skolemize(Formula_p form, TB_p terms, PStack_p free_vars)
+Formula_p formula_rek_skolemize(Formula_p form, TB_p terms, bool *modified, 
+                                PStack_p free_vars)
 {
    Term_p sk_term, var;   
    Formula_p handle;
@@ -226,28 +227,33 @@ Formula_p formula_rek_skolemize(Formula_p form, TB_p terms, PStack_p free_vars)
          assert(!var->binding);
          sk_term = TBAllocNewSkolem(terms,free_vars);
          var->binding = sk_term;
-         handle = formula_rek_skolemize(form->arg1, terms, free_vars);         
+         handle = formula_rek_skolemize(form->arg1, terms, 
+                                        modified, free_vars);         
          /* Reference is inerited from down below */
          FormulaCellFree(form);
          form = handle;
          var->binding = NULL;
+         *modified = true;
          break;
    case OpQAll:
          var = form->special.var;
          assert(TermIsVar(var));
          assert(!var->binding);
          PStackPushP(free_vars, var);
-         form->arg1 = formula_rek_skolemize(form->arg1, terms, free_vars);
+         form->arg1 = formula_rek_skolemize(form->arg1, terms, 
+                                            modified, free_vars);
          PStackPopP(free_vars);
          break;
    default:
          if(FormulaHasSubForm1(form))
          {
-            form->arg1 = formula_rek_skolemize(form->arg1, terms, free_vars);
+            form->arg1 = formula_rek_skolemize(form->arg1, terms, 
+                                               modified, free_vars);
          }
          if(FormulaHasSubForm2(form))
          {
-            form->arg2 = formula_rek_skolemize(form->arg2, terms, free_vars);
+            form->arg2 = formula_rek_skolemize(form->arg2, terms, modified, 
+                                               free_vars);
          }         
          break;
    }
@@ -596,13 +602,16 @@ bool FormulaMiniScope(Formula_p *form)
 //   Convert the formula into one where all the bound variables have
 //   been replaced by fresh one. Does not free the old formula!
 //
+//   IMPORTANT PRECONDITION: terms->vars->f_count _must_ point to a
+//   variable bigger than all in form.
+//
 // Global Variables: -
 //
 // Side Effects    : Consumes fresh variables from the term bank.
 //
 /----------------------------------------------------------------------*/
 
-Formula_p FormulaVarRename(Formula_p form, TB_p terms)
+Formula_p FormulaVarRename(Formula_p form, bool *modified, TB_p terms)
 {
    Term_p old_var = NULL, new_var = NULL;
    Formula_p handle = NULL, arg1=NULL, arg2=NULL;
@@ -611,7 +620,9 @@ Formula_p FormulaVarRename(Formula_p form, TB_p terms)
    {
       old_var = form->special.var->binding;
       new_var = VarBankGetFreshVar(terms->vars);
+      assert(new_var != form->special.var);
       form->special.var->binding = new_var;
+      *modified = true;
    }
    if(FormulaIsLiteral(form))
    {      
@@ -619,11 +630,11 @@ Formula_p FormulaVarRename(Formula_p form, TB_p terms)
    }
    if(FormulaHasSubForm1(form))
    {
-      arg1 = FormulaVarRename(form->arg1, terms);
+      arg1 = FormulaVarRename(form->arg1, modified, terms);
    }
    if(FormulaHasSubForm2(form))
    {
-      arg2 = FormulaVarRename(form->arg2, terms);
+      arg2 = FormulaVarRename(form->arg2, modified, terms);
    }   
    if(FormulaIsQuantified(form))
    {      
@@ -654,7 +665,7 @@ Formula_p FormulaVarRename(Formula_p form, TB_p terms)
 //
 /----------------------------------------------------------------------*/
 
-Formula_p FormulaSkolemizeOutermost(Formula_p form, TB_p terms)
+Formula_p FormulaSkolemizeOutermost(Formula_p form, bool* modified, TB_p terms)
 {
    Formula_p res = NULL;
    PTree_p   free_vars = NULL;
@@ -667,7 +678,7 @@ Formula_p FormulaSkolemizeOutermost(Formula_p form, TB_p terms)
       var = PTreeExtractRootKey(&free_vars);
       PStackPushP(var_stack, var);
    }
-   res = formula_rek_skolemize(form, terms, var_stack);
+   res = formula_rek_skolemize(form, terms, modified, var_stack);
    PStackFree(var_stack);   
    return res;
 }
@@ -752,17 +763,17 @@ Formula_p FormulaShiftQuantors(Formula_p form)
 //
 /----------------------------------------------------------------------*/
 
-Formula_p FormulaDistributeDisjunctions(Formula_p form)
+Formula_p FormulaDistributeDisjunctions(Formula_p form, bool* modified)
 {
    Formula_p handle, narg1, narg2;
 
    if(FormulaHasSubForm1(form))
    {
-      form->arg1 = FormulaDistributeDisjunctions(form->arg1);
+      form->arg1 = FormulaDistributeDisjunctions(form->arg1, modified);
    }
    if(FormulaHasSubForm2(form))
    {
-      form->arg2 = FormulaDistributeDisjunctions(form->arg2);
+      form->arg2 = FormulaDistributeDisjunctions(form->arg2, modified);
    }   
    switch(form->op)
    {
@@ -772,14 +783,15 @@ Formula_p FormulaDistributeDisjunctions(Formula_p form)
          break;
    case OpBOr:
          if(form->arg1->op == OpBAnd)
-         {
+         {            
             narg1 = FormulaOpAlloc(OpBOr, form->arg1->arg1, form->arg2);
             narg2 = FormulaOpAlloc(OpBOr, form->arg1->arg2, form->arg2);
             handle = FormulaOpAlloc(OpBAnd, narg1, narg2);
             FormulaGetRef(handle);
             FormulaRelRef(form);
             FormulaFree(form);
-            form = FormulaDistributeDisjunctions(handle);
+            form = FormulaDistributeDisjunctions(handle, modified);
+            *modified = true;
          }
          else if(form->arg2->op == OpBAnd)
          {
@@ -789,7 +801,8 @@ Formula_p FormulaDistributeDisjunctions(Formula_p form)
             FormulaGetRef(handle);
             FormulaRelRef(form);
             FormulaFree(form);
-            form = FormulaDistributeDisjunctions(handle);
+            form = FormulaDistributeDisjunctions(handle, modified);
+            *modified = true;
          }
          break;
    default:
@@ -803,7 +816,7 @@ Formula_p FormulaDistributeDisjunctions(Formula_p form)
 
 /*-----------------------------------------------------------------------
 //
-// Function: FormulaConjunctiveNF()
+// Function: WFormulaConjunctiveNF()
 //
 //   Transform a formula into Conjunctive Normal Form.
 //
@@ -813,30 +826,61 @@ Formula_p FormulaDistributeDisjunctions(Formula_p form)
 //
 /----------------------------------------------------------------------*/
 
-bool FormulaConjunctiveNF(Formula_p *form, TB_p terms)
+bool WFormulaConjunctiveNF(WFormula_p form, TB_p terms)
 {
    bool res, tmp;
    Formula_p handle;
+   FunCode   max_var;
 
-   /* printf("FormulaCNF()...\n");
-   printf("CNFing: ");
-   FormulaTPTPPrint(stdout, form, true);
-   printf("\n"); */
-   res = FormulaSimplify(form, terms);
-   /* printf("...FormulaCNF()...\n"); */
-   tmp = FormulaNNF(form, terms,1);
+   res = FormulaSimplify(&(form->formula), terms);
+   if(res)
+   {
+      DocFormulaModificationDefault(form, inf_fof_simpl);
+   }
+   tmp = FormulaNNF(&(form->formula), terms,1);
+   if(tmp)
+   {
+      DocFormulaModificationDefault(form, inf_fof_nnf);
+   }
+   
    res = res || tmp;
-   tmp = FormulaMiniScope(form);
+   tmp = FormulaMiniScope(&(form->formula));
+   if(tmp)
+   {
+      DocFormulaModificationDefault(form, inf_shift_quantors);
+   }
    res = res || tmp;
-   handle = FormulaVarRename(*form, terms);
-   FormulaRelRef(*form);
+   tmp = false;   
+   max_var = FormulaFindMaxVarCode(form->formula);
+   VarBankSetVCount(terms->vars, -max_var);
+   handle = FormulaVarRename(form->formula, &tmp, terms);
+   FormulaRelRef(form->formula);
    FormulaGetRef(handle);
-   FormulaFree(*form);
-   *form = handle;
+   FormulaFree(form->formula);
+   form->formula = handle;  
+   if(tmp)
+   {
+      DocFormulaModificationDefault(form, inf_var_rename);
+   }
    VarBankVarsSetProp(terms->vars, TPIsFreeVar);
-   *form = FormulaSkolemizeOutermost(*form, terms);
-   *form = FormulaShiftQuantors(*form);
-   *form = FormulaDistributeDisjunctions(*form);
+   tmp = false;
+   form->formula = FormulaSkolemizeOutermost(form->formula, &tmp, terms);
+   if(tmp)
+   {
+      DocFormulaModificationDefault(form, inf_skolemize_out);
+   }
+   tmp = false;
+   form->formula = FormulaShiftQuantors(form->formula);
+   if(tmp)
+   {
+      DocFormulaModificationDefault(form, inf_shift_quantors);
+   }   
+   tmp = false;
+   form->formula = FormulaDistributeDisjunctions(form->formula, &tmp);
+   if(tmp)
+   {
+      DocFormulaModificationDefault(form, inf_fof_distrib);
+   }
    return res;
 }
 

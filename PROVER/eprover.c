@@ -933,14 +933,15 @@ int main(int argc, char* argv[])
       DestroyScanner(in); 
    }
    VERBOUT2("Specification read\n");
-   /* Debug code! */
-   FormulaSetPreprocConjectures(proofstate->f_axioms);
-   FormulaSetCNF(proofstate->f_axioms, proofstate->axioms, 
-                 proofstate->original_terms, proofstate->freshvars);
-   /* FormulaSetPrint(GlobalOut, proofstate->f_axioms, true); */
 
-   if(error_on_empty && (ClauseSetEmpty(proofstate->axioms)||
-                         (FormulaSetEmpty(proofstate->f_axioms))))
+   if(!FormulaSetEmpty(proofstate->f_axioms))
+   {
+      Warning("Full FOF format support is in an experimental "
+              "state and not well tested at the moment!");
+   }   
+   if(error_on_empty 
+      && ClauseSetEmpty(proofstate->axioms) 
+      && FormulaSetEmpty(proofstate->f_axioms))
    {
 #ifdef PRINT_SOMEERRORS_STDOUT
       fprintf(GlobalOut, "# Error: Input file contains no clauses\n");
@@ -948,12 +949,14 @@ int main(int argc, char* argv[])
 #endif
       Error("Input file contains no clauses", OTHER_ERROR);
    }
-   if(!FormulaSetEmpty(proofstate->f_axioms))
-   {
-      Warning("Full FOF format support is in an experimental "
-              "state and not well tested at the moment!");
-   }
+   FormulaSetDocInital(GlobalOut, OutputLevel, proofstate->f_axioms);
    ClauseSetDocInital(GlobalOut, OutputLevel, proofstate->axioms);
+   FormulaSetPreprocConjectures(proofstate->f_axioms);
+   FormulaSetCNF(proofstate->f_axioms, proofstate->axioms, 
+                 proofstate->original_terms, proofstate->freshvars);
+   /* FormulaSetPrint(GlobalOut, proofstate->f_axioms, true); */
+   
+
    if(watchlist_filename)
    {
       proofstate->watchlist = ClauseSetAlloc();

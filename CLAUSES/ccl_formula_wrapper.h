@@ -105,8 +105,6 @@ void       WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
 WFormula_p WFormulaParse(Scanner_p in, TB_p terms);
 void       WFormulaPrint(FILE* out, WFormula_p form, bool fullterms);
 
-bool       WFormulaConjectureNegate(WFormula_p form);
-
 #define FormulaSetCellAlloc()    (FormulaSetCell*)SizeMalloc(sizeof(FormulaSetCell))
 #define FormulaSetCellFree(junk) SizeFree(junk, sizeof(FormulaSetCell))
 
@@ -118,8 +116,6 @@ WFormula_p   FormulaSetExtractEntry(WFormula_p form);
              ((set)->anchor->succ == (set)->anchor)
 WFormula_p   FormulaSetExtractFirst(FormulaSet_p set);
 void         FormulaSetDeleteEntry(WFormula_p form);
-
-long         FormulaSetPreprocConjectures(FormulaSet_p set);
 
 void         FormulaSetPrint(FILE* out, FormulaSet_p set, 
                              bool fullterms);

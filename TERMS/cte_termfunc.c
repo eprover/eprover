@@ -1215,6 +1215,39 @@ bool TermHasVariables(Term_p term, bool unbound_only)
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TermFindMaxVarCode()
+//
+//   Return largest (absolute, i.e. largest negative) f_code of any
+//   variable in term.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+FunCode TermFindMaxVarCode(Term_p term)
+{
+   int i;
+   long res, tmp;
+
+   if(TermIsVar(term))
+   {
+      return term->f_code;
+   }
+   else
+   {
+      res = 0;
+      for(i=0; i<term->arity; i++)
+      {
+         tmp = TermFindMaxVarCode(term->args[i]);
+         res = MIN(res, tmp);
+      }
+   }
+   return res;
+}
 
 
 /*-----------------------------------------------------------------------
@@ -1231,7 +1264,7 @@ bool TermHasVariables(Term_p term, bool unbound_only)
 //
 /----------------------------------------------------------------------*/
 
-long VarBankCheckBindings(FILE* out, VarBank_p bank, Sig_p sig)
+FunCode VarBankCheckBindings(FILE* out, VarBank_p bank, Sig_p sig)
 {
    Term_p    term;
    long      res = 0;

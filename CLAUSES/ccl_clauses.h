@@ -129,6 +129,7 @@ extern long ClauseIdentCounter;
 /* Are any properties in prop set in clause? */
 #define ClauseIsAnyPropSet(clause, prop) IsAnyPropSet((clause), (prop))
 
+void TSTPSkipSource(Scanner_p in);
 
 void ClauseSetTPTPType(Clause_p clause, ClauseProperties type);
 
