@@ -334,6 +334,7 @@ bool TermParseOperator(Scanner_p in, DStr_p id)
 {
    bool res = true;
 
+   assert(TestInpTok(in, SigIdentToken));
    if(TestInpTok(in, SemIdent) ||!isupper(DStrView(AktToken(in)->literal)[0]))
    {
       res = false;
@@ -385,8 +386,7 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
 	 handle = TermIntRepresentation(sig, AktToken(in)->numval);
 	 AcceptInpTok(in, PosInt);
       }
-      else
-      if(TermParseOperator(in, id))
+      else if(TermParseOperator(in, id))
       {
          handle = VarBankExtNameAssertAlloc(vars, DStrView(id));
       }      
@@ -474,7 +474,6 @@ int TermParseArgList(Scanner_p in, Term_p** arg_anchor, Sig_p sig,
       {
          size+=TERMS_INITIAL_ARGS;
          handle = (Term_p*)SecureRealloc(handle, size*sizeof(Term_p));
-	 printf("TermParseArgList()-Realloc()\n");
       }
       handle[arity] = TermParse(in, sig, vars);
       arity++;

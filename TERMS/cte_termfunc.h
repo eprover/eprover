@@ -41,11 +41,10 @@ Changes
 
 
 extern bool      TermPrintLists; /* Using [...] notation */
-extern bool      TermPrologVars; /* Capital words are variables */ 
 
 #define TermStartToken (SigSupportLists?\
-                       (SigIdentToken|Dollar|OpenSquare|Mult):\
-		       (SigIdentToken|Dollar|Mult))
+                       (SigIdentToken|OpenSquare|Mult):\
+		       (SigIdentToken|Mult))
 
 Term_p  TermIntRepresentation(Sig_p sig, long number);
 
