@@ -173,6 +173,9 @@ ProofControl_p ProofControlAlloc(void)
    handle->wfcbs                         = WFCBAdminAlloc();
    handle->hcbs                          = HCBAdminAlloc();
    handle->hcb                           = NULL;
+   HeuristicParmsInitialize(&handle->heuristic_parms);
+
+#ifdef NEVER_DEFINED
    handle->forward_demod                 = FullRewrite;
    handle->prefer_general                = false;
    handle->er_varlit_destructive         = false;
@@ -201,7 +204,7 @@ ProofControl_p ProofControlAlloc(void)
    handle->split_aggressive              = false;
    handle->unproc_simplify               = NoUnitSimplify;
    handle->watchlist_simplify            = true;
-
+#endif   
    return handle;
 }
 
@@ -225,7 +228,7 @@ void ProofControlFree(ProofControl_p junk)
    {
       OCBFree(junk->ocb);
    }
-   WFCBAdminFree(junk->wfcbs);
+   WFCBAdminFree(junk->wfcbs); 
    HCBAdminFree(junk->hcbs);
    /* hcb is always freed in junk->hcbs */
    ProofControlCellFree(junk);
@@ -252,27 +255,27 @@ void DoLiteralSelection(ProofControl_p control, Clause_p clause)
    ClauseDelProp(clause, CPIsOriented);
    assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
 
-   if(control->inherit_paramod_lit||
-      (control->inherit_goal_pm_lit&&ClauseIsGoal(clause)))
+   if(control->heuristic_parms.inherit_paramod_lit||
+      (control->heuristic_parms.inherit_goal_pm_lit&&ClauseIsGoal(clause)))
    {
       if(select_inherited_literal(clause))
       {
 	 return;
       }
    }
-   if((clause->pos_lit_no >= control->pos_lit_sel_min) && 
-      (clause->pos_lit_no <= control->pos_lit_sel_max) &&
-      (clause->neg_lit_no >= control->neg_lit_sel_min) && 
-      (clause->neg_lit_no <= control->neg_lit_sel_max) &&
-      (ClauseLiteralNumber(clause) >= control->all_lit_sel_min) &&
-      (ClauseLiteralNumber(clause) <= control->all_lit_sel_max) &&
-      ((control->weight_sel_min==0) || /* Efficiency hack - only
+   if((clause->pos_lit_no >= control->heuristic_parms.pos_lit_sel_min) && 
+      (clause->pos_lit_no <= control->heuristic_parms.pos_lit_sel_max) &&
+      (clause->neg_lit_no >= control->heuristic_parms.neg_lit_sel_min) && 
+      (clause->neg_lit_no <= control->heuristic_parms.neg_lit_sel_max) &&
+      (ClauseLiteralNumber(clause) >= control->heuristic_parms.all_lit_sel_min) &&
+      (ClauseLiteralNumber(clause) <= control->heuristic_parms.all_lit_sel_max) &&
+      ((control->heuristic_parms.weight_sel_min==0) || /* Efficiency hack - only
 					  compute clause weight if this
 					  option is activated */
-       (control->weight_sel_min<=ClauseStandardWeight(clause))))
+       (control->heuristic_parms.weight_sel_min<=ClauseStandardWeight(clause))))
    {
       assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
-      control->selection_strategy(control->ocb,clause);
+      control->heuristic_parms.selection_strategy(control->ocb,clause);
    }
    else
    {

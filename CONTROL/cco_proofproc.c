@@ -56,7 +56,7 @@ Changes
 static void check_ac_status(ProofState_p state, ProofControl_p
 			     control, Clause_p clause)
 {
-   if(control->ac_handling!=NoACHandling)
+   if(control->heuristic_parms.ac_handling!=NoACHandling)
    {
       bool res;
       res = ClauseScanAC(state->signature, clause);
@@ -268,7 +268,7 @@ static long eleminate_context_sr_clauses(ProofState_p state,
 					 ProofControl_p control, 
 					 Clause_p clause)
 {
-   if(!control->backward_context_sr)
+   if(!control->heuristic_parms.backward_context_sr)
    {
       return 0;
    }
@@ -345,8 +345,8 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
 				state->terms, 
 				handle,
 				state->demods,
-				control->forward_demod,
-				control->prefer_general);      
+				control->heuristic_parms.forward_demod,
+				control->heuristic_parms.prefer_general);      
       removed_lits = ClauseRemoveSuperfluousLiterals(handle);
       if(removed_lits)
       {
@@ -433,14 +433,14 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
    while((handle = ClauseSetExtractFirst(state->tmp_store)))
    {
       ForwardModifyClause(state, control, handle, 
-			  control->forward_context_sr_aggressive||
-			  (control->backward_context_sr&&
+			  control->heuristic_parms.forward_context_sr_aggressive||
+			  (control->heuristic_parms.backward_context_sr&&
 			   ClauseQueryProp(handle,CPIsProcessed)),
-			  control->forward_demod);
+			  control->heuristic_parms.forward_demod);
       if(ClauseIsTrivial(handle)||
-	 (control->unproc_simplify&&
+	 (control->heuristic_parms.unproc_simplify&&
 	  !ClauseSimplifyWithUnitSet(handle, state->unprocessed,
-				     control->unproc_simplify)))
+				     control->heuristic_parms.unproc_simplify)))
       {
 	 assert(!handle->children);
 	 ClauseDetachParents(handle);
@@ -455,31 +455,31 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
       {
 	 return handle;	 
       }
-      if(control->er_aggressive &&
-	 control->er_varlit_destructive &&
+      if(control->heuristic_parms.er_aggressive &&
+	 control->heuristic_parms.er_varlit_destructive &&
 	 (clause_count = ClauseERNormalizeVar(state->terms,
 					      handle,
 					      state->tmp_store,
 					      state->freshvars,
-					      control->er_strong_destructive)))
+					      control->heuristic_parms.er_strong_destructive)))
       {
 	 state->other_redundant_count += clause_count;
 	 state->resolv_count += clause_count;
 	 state->generated_count += clause_count;
 	 continue;
       }
-      if(control->split_aggressive &&
+      if(control->heuristic_parms.split_aggressive &&
 	 (clause_count = ControlledClauseSplit(handle,
 					       state->tmp_store,
-					       control->split_clauses,
-					       control->split_method)))
+					       control->heuristic_parms.split_clauses,
+					       control->heuristic_parms.split_method)))
       {
 	 state->generated_count += clause_count;
 	 continue;
       }
       state->non_trivial_generated_count++;
       ClauseDelProp(handle, CPIsOriented);
-      if(!control->select_on_proc_only)
+      if(!control->heuristic_parms.select_on_proc_only)
       {
 	 DoLiteralSelection(control, handle); 
       }
@@ -491,7 +491,7 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
       HCBClauseEvaluate(control->hcb, handle);
       ClauseDelProp(handle, CPIsOriented);
       DocClauseQuoteDefault(6, handle, "eval");
-      if(control->unproc_simplify && ClauseIsUnit(handle))
+      if(control->heuristic_parms.unproc_simplify && ClauseIsUnit(handle))
       {
 	 ClauseSetPDTIndexedInsert(state->unprocessed, handle);	    
       }
@@ -594,15 +594,15 @@ void print_rw_state(ProofState_p state)
 /----------------------------------------------------------------------*/
 
 void ProofControlInit(ProofState_p state,ProofControl_p control,
-		      HeuristicParms_p params)
+		      HeuristicParms_p params, PStack_p wfcb_defs,
+                      PStack_p hcb_defs)
 {
    PStackPointer sp;
    Scanner_p in;
 
    assert(control && control->wfcbs);
    assert(state && state->axioms && state->signature);
-   assert(params && params->wfcb_definitions &&
-	  params->hcb_definitions);
+   assert(params);
    assert(!control->ocb);
    assert(!control->hcb);
    
@@ -617,10 +617,10 @@ void ProofControlInit(ProofState_p state,ProofControl_p control,
 		      true, NULL);
    WeightFunDefListParse(control->wfcbs, in, control->ocb, state);
    DestroyScanner(in);
-   for(sp = 0; sp < PStackGetSP(params->wfcb_definitions); sp++)
+   for(sp = 0; sp < PStackGetSP(wfcb_defs); sp++)
    {
       in = CreateScanner(StreamTypeOptionString,
-			 PStackElementP(params->wfcb_definitions, sp) ,
+			 PStackElementP(wfcb_defs, sp) ,
 			 true, NULL);
       WeightFunDefListParse(control->wfcbs, in, control->ocb, state);
       DestroyScanner(in);
@@ -631,15 +631,16 @@ void ProofControlInit(ProofState_p state,ProofControl_p control,
    HeuristicDefListParse(control->hcbs, in, control->wfcbs,
 			 control->ocb, state); 
    DestroyScanner(in);
-   for(sp = 0; sp < PStackGetSP(params->hcb_definitions); sp++)
+   for(sp = 0; sp < PStackGetSP(hcb_defs); sp++)
    {
       in = CreateScanner(StreamTypeOptionString,
-			 PStackElementP(params->hcb_definitions, sp) ,
+			 PStackElementP(hcb_defs, sp) ,
 			 true, NULL);
       HeuristicDefListParse(control->hcbs, in, control->wfcbs,
 			    control->ocb, state); 
       DestroyScanner(in);
    }
+#ifdef NEVER_DEFINED
    control->forward_demod       = params->forward_demod;
    control->filter_limit        = params->filter_limit;
    control->filter_copies_limit = params->filter_copies_limit;
@@ -670,6 +671,8 @@ void ProofControlInit(ProofState_p state,ProofControl_p control,
    control->split_aggressive    = params->split_aggressive;      
    control->unproc_simplify     = params->unproc_simplify;
    control->watchlist_simplify  = params->watchlist_simplify;
+#endif
+   control->heuristic_parms     = *params;
    control->hcb = GetHeuristic(params->heuristic_name,
 			       state,
 			       control, 
@@ -723,7 +726,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control,
       ClauseSetProp(new, CPInitial);
       HCBClauseEvaluate(control->hcb, new);
       DocClauseQuoteDefault(6, new, "eval");
-      if(control->prefer_initial_clauses)
+      if(control->heuristic_parms.prefer_initial_clauses)
       {
 	 EvalListSetPriority(new->evaluations, PrioBest);
       }
@@ -731,7 +734,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control,
    }
    ClauseSetMarkSOS(state->unprocessed, h_parms->use_tptp_sos);
    EvalTreeTraverseExit(traverse);
-   if(control->ac_handling!=NoACHandling)
+   if(control->heuristic_parms.ac_handling!=NoACHandling)
    {
       if(OutputLevel)
       {
@@ -749,7 +752,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control,
       }
    }
    state->original_symbols = state->signature->f_count;
-   if(!control->split_clauses)
+   if(!control->heuristic_parms.split_clauses)
    {
       fvi_parms->symbol_slack = 0;
    }
@@ -817,7 +820,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
    ClauseRemoveEvaluations(clause);
    
    pclause = ForwardContractClause(state, control, clause, true, 
-				   control->forward_context_sr,
+				   control->heuristic_parms.forward_context_sr,
 				   FullRewrite);
    if(!pclause)
    {
@@ -839,20 +842,20 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
 
    state->proc_non_trivial_count++;
 
-   if(control->er_varlit_destructive &&
+   if(control->heuristic_parms.er_varlit_destructive &&
       (clause_count = ClauseERNormalizeVar(state->terms,
 					   pclause->clause,
 					   state->tmp_store,
 					   state->freshvars,
-					   control->er_strong_destructive)))
+					   control->heuristic_parms.er_strong_destructive)))
    {
       state->other_redundant_count += clause_count;
       state->resolv_count += clause_count;
       pclause->clause = NULL;
    }
    else if(ControlledClauseSplit(pclause->clause, state->tmp_store,
-				 control->split_clauses,
-				 control->split_method))
+				 control->heuristic_parms.split_clauses,
+				 control->heuristic_parms.split_method))
    {
       pclause->clause = NULL;
    }
@@ -917,11 +920,11 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
    }
    FVUnpackClause(pclause);
    ENSURE_NULL(pclause);
-   if(state->watchlist && control->watchlist_simplify)
+   if(state->watchlist && control->heuristic_parms.watchlist_simplify)
    {
       simplify_watchlist(state, control, clause);
    }
-   if(control->selection_strategy != SelectNoGeneration)
+   if(control->heuristic_parms.selection_strategy != SelectNoGeneration)
    {
       generate_new_clauses(state, control, clause, tmp_copy);
    }
@@ -1033,7 +1036,7 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
       current_storage = ProofStateStorage(state);
       filter_copies_base = MIN(filter_copies_base,current_storage); 
       if((current_storage - filter_copies_base) >
-	 control->filter_copies_limit)
+	 control->heuristic_parms.filter_copies_limit)
       {
 	 tmp = ClauseSetDeleteCopies(state->unprocessed);
 	 if(OutputLevel)
@@ -1047,7 +1050,7 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
 	 filter_copies_base = current_storage;
       }
       filter_base = MIN(filter_base,current_storage); 
-      if((current_storage - filter_base) > control->filter_limit)
+      if((current_storage - filter_base) > control->heuristic_parms.filter_limit)
       {
 	 tmp = state->unprocessed->members;
 	 unsatisfiable = 
@@ -1072,7 +1075,7 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
       } 
       reweight_base = MIN(state->unprocessed->members, reweight_base);
       if((state->unprocessed->members - reweight_base) 
-	 > control->reweight_limit)
+	 > control->heuristic_parms.reweight_limit)
       {
 	 OUTPRINT(1, "# Reweighting unprocessed clauses...\n");
 	 ClauseSetReweight(control->hcb,  state->unprocessed);
@@ -1080,7 +1083,7 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
       }
       tmp = LONG_MAX;
       
-      if(current_storage > control->delete_bad_limit)
+      if(current_storage > control->heuristic_parms.delete_bad_limit)
       {	 
 	 tmp = HCBClauseSetDeleteBadClauses(control->hcb,
 					    state->unprocessed, 

@@ -49,7 +49,8 @@ Changes
 #define TMPBANK_GC_LIMIT 256
 
 void     ProofControlInit(ProofState_p state, ProofControl_p control,
-			  HeuristicParms_p params);
+			  HeuristicParms_p params, PStack_p wfcb_defs,
+                          PStack_p hcb_defs);
 void     ProofStateInit(ProofState_p state, ProofControl_p control,
 			HeuristicParms_p h_parms, FVIndexParms_p fvi_parms);
 Clause_p ProcessClause(ProofState_p state, ProofControl_p control);

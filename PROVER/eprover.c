@@ -860,6 +860,7 @@ long              step_limit = LONG_MAX,
 char              *outdesc = DEFAULT_OUTPUT_DESCRIPTOR,
                   *filterdesc = DEFAULT_FILTER_DESCRIPTOR;
 char              *null_symbol=NULL, *succ_symbol=NULL;
+PStack_p          wfcb_definitions, hcb_definitions;
 
 
 /*---------------------------------------------------------------------*/
@@ -895,6 +896,8 @@ int main(int argc, char* argv[])
 
    h_parms = HeuristicParmsAlloc();
    fvi_parms = FVIndexParmsAlloc();
+   wfcb_definitions = PStackAlloc();
+   hcb_definitions = PStackAlloc();
 
    state = process_options(argc, argv);
 
@@ -988,7 +991,8 @@ int main(int argc, char* argv[])
 					    proofstate->tmp_terms,
 					    no_eq_unfold);
    }
-   ProofControlInit(proofstate, proofcontrol, h_parms);
+   ProofControlInit(proofstate, proofcontrol, h_parms, 
+                    wfcb_definitions, hcb_definitions);
    PCLFullTerms = pcl_full_terms; /* Preprocessing always uses full
 				     terms! */
    ProofStateInit(proofstate, proofcontrol, h_parms, fvi_parms);
@@ -1030,7 +1034,7 @@ int main(int argc, char* argv[])
 	 proofstate->state_is_complete&&
 	 ParamodOverlapIntoNegativeLiterals&&
 	 ParamodOverlapNonEqLiterals&&
-	 (proofcontrol->selection_strategy!=SelectNoGeneration))
+	 (proofcontrol->heuristic_parms.selection_strategy!=SelectNoGeneration))
       {
 	 finals_state = "final";
       }
@@ -1046,7 +1050,7 @@ int main(int argc, char* argv[])
       {
 	 if(!ParamodOverlapIntoNegativeLiterals||
 	    !ParamodOverlapNonEqLiterals||
-	    (proofcontrol->selection_strategy==SelectNoGeneration))
+	    (proofcontrol->heuristic_parms.selection_strategy==SelectNoGeneration))
 	 {
 	    fprintf(GlobalOut, 
 		    "\n# Clause set closed under "
@@ -1135,6 +1139,8 @@ int main(int argc, char* argv[])
    ProofControlFree(proofcontrol);
    ProofStateFree(proofstate);
    CLStateFree(state);
+   PStackFree(hcb_definitions);
+   PStackFree(wfcb_definitions);
    FVIndexParmsFree(fvi_parms);
    HeuristicParmsFree(h_parms);
 #ifdef FULL_MEM_STATS
@@ -1704,10 +1710,10 @@ CLState_p process_options(int argc, char* argv[])
 	    }
 	    break;
       case OPT_DEFINE_WFUN:
-	    PStackPushP(h_parms->wfcb_definitions, arg);
+	    PStackPushP(wfcb_definitions, arg);
 	    break;
       case OPT_DEFINE_HEURISTIC:
-	    PStackPushP(h_parms->hcb_definitions, arg);
+	    PStackPushP(hcb_definitions, arg);
 	    break;
       case OPT_INTERPRETE_NUMBERS:
       {

@@ -41,6 +41,8 @@ typedef struct proofcontrolcell
    HCB_p               hcb;
    WFCBAdmin_p         wfcbs;
    HCBAdmin_p          hcbs;
+   bool                ac_handling_active;
+#ifdef NEVER_DEFINED
    RewriteLevel        forward_demod;
    bool                prefer_general;
    long                filter_limit;
@@ -49,7 +51,6 @@ typedef struct proofcontrolcell
    long                delete_bad_limit;
    ACHandlingType      ac_handling;  
    bool                ac_res_aggressive;
-   bool                ac_handling_active;
    bool                er_varlit_destructive;
    bool                er_strong_destructive;
    bool                er_aggressive;
@@ -73,6 +74,8 @@ typedef struct proofcontrolcell
    bool                split_aggressive;
    UnitSimplifyType    unproc_simplify;
    bool                watchlist_simplify;
+#endif
+   HeuristicParmsCell  heuristic_parms;
    SpecFeatureCell     problem_specs;
 }ProofControlCell, *ProofControl_p;
 

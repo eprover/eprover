@@ -87,8 +87,8 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
    if(control->ac_handling_active && ClauseIsACRedundant(clause))
    {
       if(!ClauseIsUnit(clause)||
-	 (control->ac_handling==ACDiscardAll)||
-	 ((control->ac_handling==ACKeepOrientable)&&
+	 (control->heuristic_parms.ac_handling==ACDiscardAll)||
+	 ((control->heuristic_parms.ac_handling==ACKeepOrientable)&&
 	  !EqnIsOriented(clause->literals)))
       {
 	 (*trivial_count)++;
@@ -166,7 +166,7 @@ bool ForwardModifyClause(ProofState_p state, ProofControl_p control,
    ClauseComputeLINormalform(control->ocb,
 			     state->terms, clause,
 			     state->demods, level,
-			     control->prefer_general);
+			     control->heuristic_parms.prefer_general);
 
    removed_lits = ClauseRemoveSuperfluousLiterals(clause);
    if(removed_lits)

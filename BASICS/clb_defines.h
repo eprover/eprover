@@ -200,6 +200,9 @@ typedef unsigned long ulong_c;
 #define TSTPOUT(file, msg)
 #endif
 
+#ifdef RESTRICTED_FOR_WINDOWS /* Windowss is broken */
+#define rlim_t long
+#endif
 
 #endif
 

@@ -57,38 +57,21 @@ typedef enum
 
 typedef struct heuristic_parms_cell
 {
+   /* Clause selection elements */
    char                *heuristic_name;
-   PStack_p            wfcb_definitions;
-   PStack_p            hcb_definitions;
+   /* PStack_p            wfcb_definitions;
+      PStack_p            hcb_definitions; */
+   bool                prefer_initial_clauses;
+
+   /* Ordering elements */
    TermOrdering        ordertype;
    TOWeightGenMethod   to_weight_gen;
    TOPrecGenMethod     to_prec_gen;
    char*               to_pre_prec;
    long                to_const_weight;
-   long                filter_limit;
-   long                filter_copies_limit;
-   long                reweight_limit;
-   long                delete_bad_limit;
-#ifndef RESTRICTED_FOR_WINDOWS
-   rlim_t              mem_limit;
-#else
-   long                mem_limit;
-#endif
-   ACHandlingType      ac_handling;
-   bool                ac_res_aggressive;
-   bool                forward_context_sr;
-   bool                forward_context_sr_aggressive;
-   bool                backward_context_sr;
    bool                no_lit_cmp;
-   RewriteLevel        forward_demod;
-   bool                prefer_general;
-   bool                er_varlit_destructive;
-   bool                er_strong_destructive;
-   bool                er_aggressive;
-   bool                prefer_initial_clauses;
-   bool                select_on_proc_only;
-   bool                inherit_paramod_lit;
-   bool                inherit_goal_pm_lit;
+   
+   /* Elements controling literal selection */
    LiteralSelectionFun selection_strategy;
    long                pos_lit_sel_min; 
    long                pos_lit_sel_max; 
@@ -97,10 +80,37 @@ typedef struct heuristic_parms_cell
    long                all_lit_sel_min; 
    long                all_lit_sel_max; 
    long                weight_sel_min;
+   bool                select_on_proc_only;
+   bool                inherit_paramod_lit;
+   bool                inherit_goal_pm_lit;
+
+   /* Inference control elements */
+   ACHandlingType      ac_handling;
+   bool                ac_res_aggressive;
+
+   bool                forward_context_sr;
+   bool                forward_context_sr_aggressive;
+   bool                backward_context_sr;
+
+   RewriteLevel        forward_demod;
+   bool                prefer_general;
+
+   bool                er_varlit_destructive;
+   bool                er_strong_destructive;
+   bool                er_aggressive;
+
    SplitClassType      split_clauses;
    SplitType           split_method;
    bool                split_aggressive;
+
    UnitSimplifyType    unproc_simplify;
+   
+   /* Various things */
+   long                filter_limit;
+   long                filter_copies_limit;
+   long                reweight_limit;
+   long                delete_bad_limit;
+   rlim_t              mem_limit;
    bool                watchlist_simplify;
    bool                use_tptp_sos;
 }HeuristicParmsCell, *HeuristicParms_p;
@@ -163,6 +173,7 @@ typedef Clause_p (*ClauseSelectFun)(HCB_p hcb, ClauseSet_p set);
 #define HeuristicParmsCellFree(junk) \
    SizeFree(junk, sizeof(HeuristicParmsCell))
 
+void             HeuristicParmsInitialize(HeuristicParms_p handle);
 HeuristicParms_p HeuristicParmsAlloc(void);
 void             HeuristicParmsFree(HeuristicParms_p junk);
 

@@ -75,23 +75,21 @@ void default_exit_fun(void* data)
 
 /*-----------------------------------------------------------------------
 //
-// Function: HeuristicParmsAlloc()
+// Function: HeuristicParmsInitialize()
 //
-//   Allocate a cell for parameters, with initialized empty stacks.
+//   Initialize a heuristic parameters cell.
 //
 // Global Variables: -
 //
-// Side Effects    : Memory Operations
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
-HeuristicParms_p HeuristicParmsAlloc(void)
+void HeuristicParmsInitialize(HeuristicParms_p handle)
 {
-   HeuristicParms_p handle = HeuristicParmsCellAlloc();
-   
    handle->heuristic_name                = HCB_DEFAULT_HEURISTIC;
-   handle->wfcb_definitions              = PStackAlloc();
-   handle->hcb_definitions               = PStackAlloc();
+   /* handle->wfcb_definitions              = PStackAlloc();
+      handle->hcb_definitions               = PStackAlloc();*/
    handle->ordertype                     = KBO;
    handle->to_weight_gen                 = WNoMethod;
    handle->to_prec_gen                   = PNoMethod;
@@ -132,6 +130,26 @@ HeuristicParms_p HeuristicParmsAlloc(void)
    handle->unproc_simplify               = NoUnitSimplify;
    handle->watchlist_simplify            = true;
    handle->use_tptp_sos                  = false;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: HeuristicParmsAlloc()
+//
+//   Allocate a cell for parameters, with initialized empty stacks.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory Operations
+//
+/----------------------------------------------------------------------*/
+
+HeuristicParms_p HeuristicParmsAlloc(void)
+{
+   HeuristicParms_p handle = HeuristicParmsCellAlloc();
+   
+   HeuristicParmsInitialize(handle);
    return handle;
 }
 
@@ -152,8 +170,8 @@ void HeuristicParmsFree(HeuristicParms_p junk)
    assert(junk);
    
    junk->heuristic_name = NULL;
-   PStackFree(junk->wfcb_definitions);
-   PStackFree(junk->hcb_definitions);
+   /* PStackFree(junk->wfcb_definitions);
+      PStackFree(junk->hcb_definitions);*/
 
    HeuristicParmsCellFree(junk);
 }

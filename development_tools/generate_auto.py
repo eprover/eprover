@@ -209,24 +209,24 @@ def parse_control_info(line):
     m = match_ac_l.search(line)
     if m:
         arg = extract_arg(line, m)
-        res = res+ "      control->ac_handling="+ac_handling[arg]+";\n"
+        res = res+ "      control->heuristic_parms.ac_handling="+ac_handling[arg]+";\n"
 
     m = match_acnag_l.search(line)
     if m:
-        res = res+ "      control->ac_res_aggressive=false;\n"
+        res = res+ "      control->heuristic_parms.ac_res_aggressive=false;\n"
 
     m = match_pic_l.search(line)
     if m:
-        res = res+ "      control->prefer_initial_clauses=true;\n"
+        res = res+ "      control->heuristic_parms.prefer_initial_clauses=true;\n"
 
     m = match_unproc_s.search(line)
     if m:
         arg = extract_arg(line, m)
-        res = res+ "      control->unproc_simplify="+unproc_simpl[arg]+";\n"
+        res = res+ "      control->heuristic_parms.unproc_simplify="+unproc_simpl[arg]+";\n"
     else:
         m = match_unproc_sd.search(line)
         if m:
-            res = res+ "      control->unproc_simplify=TopLevelUnitSimplify;\n" 
+            res = res+ "      control->heuristic_parms.unproc_simplify=TopLevelUnitSimplify;\n" 
 
     #
     # Contextual simplify-reflect
@@ -234,16 +234,16 @@ def parse_control_info(line):
 
     m = match_fcsr.search(line)
     if m:
-        res = res+ "      control->forward_context_sr = true;\n" 
+        res = res+ "      control->heuristic_parms.forward_context_sr = true;\n" 
 
     m = match_fcsra.search(line)
     if m:
-        res = res+ "      control->forward_context_sr = true;\n" 
-        res = res+ "      control->forward_context_sr_aggressive = true;\n" 
+        res = res+ "      control->heuristic_parms.forward_context_sr = true;\n" 
+        res = res+ "      control->heuristic_parms.forward_context_sr_aggressive = true;\n" 
         
     m = match_bcsr.search(line)
     if m:
-        res = res+ "      control->backward_context_sr = true;\n" 
+        res = res+ "      control->heuristic_parms.backward_context_sr = true;\n" 
 
     #
     # Literal selection parameters
@@ -251,37 +251,37 @@ def parse_control_info(line):
     m = match_litsel_s.search(line)
     if m:
         arg = extract_arg(line, m)
-        res = res+ "      control->selection_strategy="+selstrat[arg]+";\n"
+        res = res+ "      control->heuristic_parms.selection_strategy="+selstrat[arg]+";\n"
 
     m = match_litsel_l.search(line)
     if m:
         arg = extract_arg(line, m)
-        res = res+ "      control->selection_strategy="+selstrat[arg]+";\n"
+        res = res+ "      control->heuristic_parms.selection_strategy="+selstrat[arg]+";\n"
 
     m = match_op_l.search(line)
     if m:
-        res = res+ "      control->select_on_proc_only=true;\n"
+        res = res+ "      control->heuristic_parms.select_on_proc_only=true;\n"
 
     m = match_ipl_s.search(line)
     if m:
-        res = res+ "      control->inherit_paramod_lit=true;\n"
+        res = res+ "      control->heuristic_parms.inherit_paramod_lit=true;\n"
 
     m = match_ipl_l.search(line)
     if m:
-        res = res+ "      control->inherit_paramod_lit=true;\n"
+        res = res+ "      control->heuristic_parms.inherit_paramod_lit=true;\n"
 
     m = match_ipg_s.search(line)
     if m:
-        res = res+ "      control->inherit_goal_pm_lit=true;\n"
+        res = res+ "      control->heuristic_parms.inherit_goal_pm_lit=true;\n"
 
     m = match_ipg_l.search(line)
     if m:
-        res = res+ "      control->inherit_goal_pm_lit=true;\n"
+        res = res+ "      control->heuristic_parms.inherit_goal_pm_lit=true;\n"
 
     m = match_snm_l.search(line)
     if m:
         arg = extract_arg(line, m)
-        res = res+ "      control->neg_lit_sel_min="+arg+";\n"
+        res = res+ "      control->heuristic_parms.neg_lit_sel_min="+arg+";\n"
 
     #
     # Splitting parameters
@@ -289,32 +289,32 @@ def parse_control_info(line):
     m = match_split_l.search(line)
     if m:
         arg = extract_arg(line, m)
-        res = res+ "      control->split_clauses="+arg+";\n"
+        res = res+ "      control->heuristic_parms.split_clauses="+arg+";\n"
  
     m = match_splitm_l.search(line)
     if m:
         arg = extract_arg(line, m)
-        res = res+ "      control->split_method="+arg+";\n"
+        res = res+ "      control->heuristic_parms.split_method="+arg+";\n"
  
     m = match_splita_l.search(line)
     if m:
-        res = res+ "      control->split_aggressive=true;\n"
+        res = res+ "      control->heuristic_parms.split_aggressive=true;\n"
 
     #
     # Destructive equality resolution parameters
     #
     m = match_der_l.search(line)
     if m:
-        res = res+ "      control->er_varlit_destructive=true;\n"
+        res = res+ "      control->heuristic_parms.er_varlit_destructive=true;\n"
 
     m = match_sder_l.search(line)
     if m:
-        res = res+ "      control->er_strong_destructive=true;\n"
-        res = res+ "      control->er_varlit_destructive=true;\n"
+        res = res+ "      control->heuristic_parms.er_strong_destructive=true;\n"
+        res = res+ "      control->heuristic_parms.er_varlit_destructive=true;\n"
 
     m = match_dera_l.search(line)
     if m:
-        res = res+ "      control->er_aggressive=true;\n"
+        res = res+ "      control->heuristic_parms.er_aggressive=true;\n"
 
     #
     # Rewriting parameters
@@ -322,20 +322,20 @@ def parse_control_info(line):
     m = match_demod_s.search(line)
     if m:
         arg = extract_arg(line, m)
-        res = res+ "      control->forward_demod="+arg+";\n"
+        res = res+ "      control->heuristic_parms.forward_demod="+arg+";\n"
  
     m = match_demod_l.search(line)
     if m:
         arg = extract_arg(line, m)
-        res = res+ "      control->forward_demod="+arg+";\n"
+        res = res+ "      control->heuristic_parms.forward_demod="+arg+";\n"
      
     m = match_g_demod_s.search(line)
     if m:
-        res = res+ "      control->prefer_general=true;\n"
+        res = res+ "      control->heuristic_parms.prefer_general=true;\n"
 
     m = match_g_demod_l.search(line)
     if m:
-        res = res+ "      control->prefer_general=true;\n"
+        res = res+ "      control->heuristic_parms.prefer_general=true;\n"
 
     return res
 

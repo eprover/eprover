@@ -84,7 +84,7 @@ HCB_p HCBAutoModeCreate(HCBARGUMENTS)
    limits->far_sum_medium_limit = 3;
    limits->far_sum_large_limit  = 75;
 
-   control->selection_strategy = SelectNoLiterals;
+   control->heuristic_parms.selection_strategy = SelectNoLiterals;
    OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
    
 #include "che_auto_cases.c"
@@ -94,18 +94,18 @@ HCB_p HCBAutoModeCreate(HCBARGUMENTS)
       fprintf(stdout, 
 	      "# Auto-Mode selected heuristic %s\n"
 	      "# and selection function %s.\n#\n", res, 
-	      GetLitSelName(control->selection_strategy)); 
+	      GetLitSelName(control->heuristic_parms.selection_strategy)); 
    }
    if(parms->mem_limit>2 && (parms->delete_bad_limit ==
 			     DEFAULT_DELETE_BAD_LIMIT))
    {
-      control->delete_bad_limit =
+      control->heuristic_parms.delete_bad_limit =
 	 (float)(parms->mem_limit-2)*0.7*MEGA;
-      /* control->filter_copies_limit = control->delete_bad_limit*0.7; */
+      /* control->heuristic_parms.filter_copies_limit = control->heuristic_parms.delete_bad_limit*0.7; */
    }
    if(SpecNoEq(spec))
    {
-      control->ac_handling = NoACHandling;
+      control->heuristic_parms.ac_handling = NoACHandling;
       OUTPRINT(1, "# No equality, disabling AC handling.\n#\n");
    }
    SpecLimitsCellFree(limits);
@@ -134,7 +134,7 @@ HCB_p HCB071AutoModeCreate(HCBARGUMENTS)
    SpecFeature_p spec = &(control->problem_specs);
    SpecLimits_p limits =  SpecLimitsAlloc();
 
-   control->selection_strategy = SelectNoLiterals;
+   control->heuristic_parms.selection_strategy = SelectNoLiterals;
    OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
    
 #include "che_auto_cases.c"
@@ -144,18 +144,18 @@ HCB_p HCB071AutoModeCreate(HCBARGUMENTS)
       fprintf(stdout, 
 	      "# Auto-Mode (0.71) selected heuristic %s\n"
 	      "# and selection function %s.\n#\n", res, 
-	      GetLitSelName(control->selection_strategy)); 
+	      GetLitSelName(control->heuristic_parms.selection_strategy)); 
    }
    if(parms->mem_limit>2 && (parms->delete_bad_limit ==
 			     DEFAULT_DELETE_BAD_LIMIT))
    {
-      control->delete_bad_limit =
+      control->heuristic_parms.delete_bad_limit =
 	 (float)(parms->mem_limit-2)*0.7*MEGA;
-      /* control->filter_copies_limit = control->delete_bad_limit*0.7; */
+      /* control->heuristic_parms.filter_copies_limit = control->heuristic_parms.delete_bad_limit*0.7; */
    }
    if(SpecNoEq(spec))
    {
-      control->ac_handling = NoACHandling;
+      control->heuristic_parms.ac_handling = NoACHandling;
       OUTPRINT(1, "# No equality, disabling AC handling.\n#\n");
    }
    SpecLimitsCellFree(limits);
@@ -194,7 +194,7 @@ HCB_p HCBDevAutoModeCreate(HCBARGUMENTS)
    limits->far_sum_medium_limit = 3;
    limits->far_sum_large_limit  = 75;
 
-   control->selection_strategy = SelectNoLiterals;
+   control->heuristic_parms.selection_strategy = SelectNoLiterals;
    OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
    
 #include "che_auto_cases.c"
@@ -204,18 +204,18 @@ HCB_p HCBDevAutoModeCreate(HCBARGUMENTS)
       fprintf(stdout, 
 	      "# Auto-Mode (Dev) selected heuristic %s\n"
 	      "# and selection function %s.\n#\n", res, 
-	      GetLitSelName(control->selection_strategy)); 
+	      GetLitSelName(control->heuristic_parms.selection_strategy)); 
    }
    if(parms->mem_limit>2 && (parms->delete_bad_limit ==
 			     DEFAULT_DELETE_BAD_LIMIT))
    {
-      control->delete_bad_limit =
+      control->heuristic_parms.delete_bad_limit =
 	 (float)(parms->mem_limit-2)*0.7*MEGA;
-      /* control->filter_copies_limit = control->delete_bad_limit*0.7; */
+      /* control->heuristic_parms.filter_copies_limit = control->heuristic_parms.delete_bad_limit*0.7; */
    }
    if(SpecNoEq(spec))
    {
-      control->ac_handling = NoACHandling;
+      control->heuristic_parms.ac_handling = NoACHandling;
       OUTPRINT(1, "# No equality, disabling AC handling.\n#\n");
    }
    SpecLimitsCellFree(limits);

@@ -865,14 +865,14 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "G_E___045_B07_F1_PI_AE_S4_CS_Y";
-      control->prefer_initial_clauses=true;
-      control->forward_context_sr = true;
-      control->selection_strategy=SelectMaxLComplex;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectMaxLComplex;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -910,9 +910,9 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "H_____031_K16_F1_PI_P";
-      control->prefer_initial_clauses=true;
-      control->selection_strategy=PSelectMinOptimalLiteral;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.selection_strategy=PSelectMinOptimalLiteral;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -938,14 +938,14 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "H_____072_K18_F1_PI_AE_CS_S4_Y";
-      control->prefer_initial_clauses=true;
-      control->forward_context_sr = true;
-      control->selection_strategy=SelectMaxLComplex;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectMaxLComplex;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -997,14 +997,14 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "H_____102_K18_F1_PI_AE_S4_CS_U";
-      control->prefer_initial_clauses=true;
-      control->forward_context_sr = true;
-      control->selection_strategy=SelectComplexExceptRRHorn;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectComplexExceptRRHorn;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1030,10 +1030,10 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "U_____009_B02_F1_PI_CS_S1";
-      control->prefer_initial_clauses=true;
-      control->forward_context_sr = true;
-      control->selection_strategy=SelectNewComplex;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectNewComplex;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1059,14 +1059,14 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "H_____042_B02_F1_PI_AE_S4_CS_S1";
-      control->prefer_initial_clauses=true;
-      control->forward_context_sr = true;
-      control->selection_strategy=SelectNewComplex;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectNewComplex;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1091,10 +1091,10 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "G_E___070_K18_F1_AE_S1";
-      control->selection_strategy=SelectNewComplex;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.selection_strategy=SelectNewComplex;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1120,11 +1120,11 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "H_____014_K18_F1_PI_AE_S1";
-      control->prefer_initial_clauses=true;
-      control->selection_strategy=SelectNewComplex;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.selection_strategy=SelectNewComplex;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1150,13 +1150,13 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "H_____042_B01_F1_PI_AE_S4_S1";
-      control->prefer_initial_clauses=true;
-      control->selection_strategy=SelectNewComplex;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.selection_strategy=SelectNewComplex;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1206,12 +1206,12 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "U_____043_K18_F1_PI_AE_CS_Y";
-      control->prefer_initial_clauses=true;
-      control->forward_context_sr = true;
-      control->selection_strategy=SelectMaxLComplex;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectMaxLComplex;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1406,14 +1406,14 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "H_____031_K07_F1_PI_AE_S4_CS_6";
-      control->prefer_initial_clauses=true;
-      control->forward_context_sr = true;
-      control->selection_strategy=PSelectComplexExceptUniqMaxHorn;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=PSelectComplexExceptUniqMaxHorn;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1451,11 +1451,11 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "H_____082_K18_F1_PI_AE_l";
-      control->prefer_initial_clauses=true;
-      control->selection_strategy=PSelectGroundNegativeLiteral;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.selection_strategy=PSelectGroundNegativeLiteral;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1481,14 +1481,14 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "G_E___046_K18_F1_PI_AE_S4_CS_S1";
-      control->prefer_initial_clauses=true;
-      control->forward_context_sr = true;
-      control->selection_strategy=SelectNewComplex;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectNewComplex;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1514,11 +1514,11 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "H_____011_K07_F1_PI_AE_U";
-      control->prefer_initial_clauses=true;
-      control->selection_strategy=SelectComplexExceptRRHorn;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.selection_strategy=SelectComplexExceptRRHorn;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1543,14 +1543,14 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "G_E___045_B03_F1_PI_AE_S4_CS_Y";
-      control->prefer_initial_clauses=true;
-      control->forward_context_sr = true;
-      control->selection_strategy=SelectMaxLComplex;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectMaxLComplex;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1588,11 +1588,11 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "H_____011_K07_F1_PI_AE_V";
-      control->prefer_initial_clauses=true;
-      control->selection_strategy=PSelectComplexExceptRRHorn;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.selection_strategy=PSelectComplexExceptRRHorn;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1617,12 +1617,12 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "G_N___023_K07_F1_PI_S4_CS_Y";
-      control->prefer_initial_clauses=true;
-      control->forward_context_sr = true;
-      control->selection_strategy=SelectMaxLComplex;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectMaxLComplex;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1673,14 +1673,14 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "H_____072_K16_F1_PI_AE_CS_S4_Y";
-      control->prefer_initial_clauses=true;
-      control->forward_context_sr = true;
-      control->selection_strategy=SelectMaxLComplex;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectMaxLComplex;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1706,11 +1706,11 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "G_E___084_K16_F1_PI_AE_Y1";
-      control->prefer_initial_clauses=true;
-      control->selection_strategy=SelectMaxLComplexNoTypePred;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.selection_strategy=SelectMaxLComplexNoTypePred;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1749,11 +1749,11 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "G_E___081_K07_F1_PI_AE_Z1";
-      control->prefer_initial_clauses=true;
-      control->selection_strategy=PSelectMaxLComplexNoTypePred;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.selection_strategy=PSelectMaxLComplexNoTypePred;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1778,11 +1778,11 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "G_E___040_K18_F1_PI_AE_a0";
-      control->prefer_initial_clauses=true;
-      control->selection_strategy=SelectMinInfpos;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.selection_strategy=SelectMinInfpos;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1808,12 +1808,12 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "H_____036_K18_F2_PI_AE_S4_S1";
-      control->prefer_initial_clauses=true;
-      control->selection_strategy=SelectNewComplex;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.selection_strategy=SelectNewComplex;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1943,13 +1943,13 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "G_E___044_K18_F1_PI_AE_S4_S1";
-      control->prefer_initial_clauses=true;
-      control->selection_strategy=SelectNewComplex;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.selection_strategy=SelectNewComplex;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1975,13 +1975,13 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "H_____048_K18_F1_PI_AE_S4_S1";
-      control->prefer_initial_clauses=true;
-      control->selection_strategy=SelectNewComplex;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.selection_strategy=SelectNewComplex;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -2007,11 +2007,11 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "H_____031_K09_F1_PI_AE_V";
-      control->prefer_initial_clauses=true;
-      control->selection_strategy=PSelectComplexExceptRRHorn;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.selection_strategy=PSelectComplexExceptRRHorn;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -2036,14 +2036,14 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "G_E___045_K07_F1_PI_AE_S4_CS_Y";
-      control->prefer_initial_clauses=true;
-      control->forward_context_sr = true;
-      control->selection_strategy=SelectMaxLComplex;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectMaxLComplex;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -2094,14 +2094,14 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "G_E___045_K18_F1_PI_AE_S4_CS_I";
-      control->prefer_initial_clauses=true;
-      control->forward_context_sr = true;
-      control->selection_strategy=SelectUnlessUniqMaxOptimalLiteral;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectUnlessUniqMaxOptimalLiteral;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -2127,12 +2127,12 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "G_N___023_B02_F1_PI_S4_CS_Y";
-      control->prefer_initial_clauses=true;
-      control->forward_context_sr = true;
-      control->selection_strategy=SelectMaxLComplex;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectMaxLComplex;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -2287,12 +2287,12 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "H_____031_K18_F1_PI_AE_CS_61";
-      control->prefer_initial_clauses=true;
-      control->forward_context_sr = true;
-      control->selection_strategy=PSelectNewComplexExceptUniqMaxHorn;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=PSelectNewComplexExceptUniqMaxHorn;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -2331,14 +2331,14 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "G_E___045_K18_F1_PI_AE_S4_CS_W";
-      control->prefer_initial_clauses=true;
-      control->forward_context_sr = true;
-      control->selection_strategy=SelectLComplex;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectLComplex;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -2364,14 +2364,14 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "H_____031_K16_F0_PI_AE_S4_CS_S1";
-      control->prefer_initial_clauses=true;
-      control->forward_context_sr = true;
-      control->selection_strategy=SelectNewComplex;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=0;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectNewComplex;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=0;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -7103,14 +7103,14 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "G_E___045_K18_F1_PI_AE_S4_CS_Y";
-      control->prefer_initial_clauses=true;
-      control->forward_context_sr = true;
-      control->selection_strategy=SelectMaxLComplex;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectMaxLComplex;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -7162,17 +7162,17 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "H_____102_K18_F1_PI_AE_S4_AB_S1";
-      control->prefer_initial_clauses=true;
-      control->forward_context_sr = true;
-      control->forward_context_sr = true;
-      control->forward_context_sr_aggressive = true;
-      control->backward_context_sr = true;
-      control->selection_strategy=SelectNewComplex;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.forward_context_sr_aggressive = true;
+      control->heuristic_parms.backward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectNewComplex;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -7211,10 +7211,10 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "H_____081_K10_F2_PI_AE_l";
-      control->prefer_initial_clauses=true;
-      control->selection_strategy=PSelectGroundNegativeLiteral;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.selection_strategy=PSelectGroundNegativeLiteral;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -7239,12 +7239,12 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "U_____043_K18_F1_PI_AE_CS_O1";
-      control->prefer_initial_clauses=true;
-      control->forward_context_sr = true;
-      control->selection_strategy=SelectMinOptimalNoTypePred;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectMinOptimalNoTypePred;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -7270,11 +7270,11 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "H_____013_K16_F1_PI_AE_o";
-      control->prefer_initial_clauses=true;
-      control->selection_strategy=SelectCondOptimalLiteral;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.selection_strategy=SelectCondOptimalLiteral;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -7326,15 +7326,15 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "H_____024_K18_F1_PI_OP_AE_S4_CS_S1";
-      control->prefer_initial_clauses=true;
-      control->forward_context_sr = true;
-      control->selection_strategy=SelectNewComplex;
-      control->select_on_proc_only=true;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectNewComplex;
+      control->heuristic_parms.select_on_proc_only=true;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -7386,11 +7386,11 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "H_____032_K18_F1_PI_AE_i";
-      control->prefer_initial_clauses=true;
-      control->selection_strategy=SelectDiffNegativeLiteral;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.selection_strategy=SelectDiffNegativeLiteral;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -7416,9 +7416,9 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "H_____031_K16_F1_PI_Y";
-      control->prefer_initial_clauses=true;
-      control->selection_strategy=SelectMaxLComplex;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.selection_strategy=SelectMaxLComplex;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -7444,14 +7444,14 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "H_____031_K04_F1_PI_AE_S4_CS_Y";
-      control->prefer_initial_clauses=true;
-      control->forward_context_sr = true;
-      control->selection_strategy=SelectMaxLComplexNoTypePred;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectMaxLComplexNoTypePred;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -7502,14 +7502,14 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "G_E___081_K18_F1_PI_AE_S4_CS_51";
-      control->prefer_initial_clauses=true;
-      control->forward_context_sr = true;
-      control->selection_strategy=SelectNewComplexExceptUniqMaxHorn;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectNewComplexExceptUniqMaxHorn;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -7535,12 +7535,12 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "H_____014_K18_F1_PI_AE_CS_S1";
-      control->prefer_initial_clauses=true;
-      control->forward_context_sr = true;
-      control->selection_strategy=SelectNewComplex;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectNewComplex;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -7579,12 +7579,12 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "G_N___023_B07_F1_PI_S4_CS_Y";
-      control->prefer_initial_clauses=true;
-      control->forward_context_sr = true;
-      control->selection_strategy=SelectMaxLComplex;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectMaxLComplex;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -7609,11 +7609,11 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "G_E___030_K01_F1_PI_AE_Y";
-      control->prefer_initial_clauses=true;
-      control->selection_strategy=SelectMaxLComplex;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.selection_strategy=SelectMaxLComplex;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -7636,12 +7636,12 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "U_____002_B07_F1_PI_PG_AE_S1";
-      control->prefer_initial_clauses=true;
-      control->selection_strategy=SelectNewComplex;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
-      control->prefer_general=true;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.selection_strategy=SelectNewComplex;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
+      control->heuristic_parms.prefer_general=true;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -8056,14 +8056,14 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "H_____102_K18_F1_PI_AE_S4_CS_S1";
-      control->prefer_initial_clauses=true;
-      control->forward_context_sr = true;
-      control->selection_strategy=SelectNewComplex;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectNewComplex;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -8115,11 +8115,11 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "H_____031_K09_F1_PI_AE_Z1";
-      control->prefer_initial_clauses=true;
-      control->selection_strategy=PSelectMaxLComplexNoTypePred;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.selection_strategy=PSelectMaxLComplexNoTypePred;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -8157,13 +8157,13 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "H_____042_K18_F1_PI_AE_S4_6";
-      control->prefer_initial_clauses=true;
-      control->selection_strategy=SelectComplexExceptUniqMaxHorn;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.selection_strategy=SelectComplexExceptUniqMaxHorn;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -8189,13 +8189,13 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "H_____042_K02_F1_PI_AE_S4_S1";
-      control->prefer_initial_clauses=true;
-      control->selection_strategy=SelectNewComplex;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.selection_strategy=SelectNewComplex;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -8247,14 +8247,14 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "G_E___047_K18_F1_PI_AE_S4_CS_Y";
-      control->prefer_initial_clauses=true;
-      control->forward_context_sr = true;
-      control->selection_strategy=SelectMaxLComplex;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectMaxLComplex;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -8332,14 +8332,14 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "G_E___049_K18_F1_PI_AE_S4_CS_Y";
-      control->prefer_initial_clauses=true;
-      control->forward_context_sr = true;
-      control->selection_strategy=SelectMaxLComplex;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectMaxLComplex;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -8365,14 +8365,14 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "H_____031_B02_F1_PI_AE_S4_CS_Y";
-      control->prefer_initial_clauses=true;
-      control->forward_context_sr = true;
-      control->selection_strategy=SelectMaxLComplexNoTypePred;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectMaxLComplexNoTypePred;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -8397,13 +8397,13 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "G_E___070_K18_F1_AE_S4_CS_Y";
-      control->forward_context_sr = true;
-      control->selection_strategy=SelectMaxLComplex;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectMaxLComplex;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -8442,14 +8442,14 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "G_E___045_K19_F1_PI_AE_S4_CS_Y";
-      control->prefer_initial_clauses=true;
-      control->forward_context_sr = true;
-      control->selection_strategy=SelectMaxLComplex;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectMaxLComplex;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -8475,14 +8475,14 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "H_____047_K18_F1_PI_AE_S4_CS_S1";
-      control->prefer_initial_clauses=true;
-      control->forward_context_sr = true;
-      control->selection_strategy=SelectNewComplex;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectNewComplex;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -8534,12 +8534,12 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "G_E___045_K18_F1_PI_AE_CS_Y";
-      control->prefer_initial_clauses=true;
-      control->forward_context_sr = true;
-      control->selection_strategy=SelectMaxLComplex;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectMaxLComplex;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -8578,14 +8578,14 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "G_E___047_K18_F1_PI_AE_S4_CS_O1";
-      control->prefer_initial_clauses=true;
-      control->forward_context_sr = true;
-      control->selection_strategy=SelectMinOptimalNoTypePred;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectMinOptimalNoTypePred;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -8611,14 +8611,14 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "G_E___047_K18_F1_PI_AE_S4_CS_J";
-      control->prefer_initial_clauses=true;
-      control->forward_context_sr = true;
-      control->selection_strategy=PSelectUnlessUniqMaxOptimalLiteral;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=PSelectUnlessUniqMaxOptimalLiteral;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -8657,14 +8657,14 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "H_____042_B19_F1_PI_AE_S4_CS_S1";
-      control->prefer_initial_clauses=true;
-      control->forward_context_sr = true;
-      control->selection_strategy=SelectNewComplex;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectNewComplex;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -8702,9 +8702,9 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "H_____031_K02_F1_PI_6";
-      control->prefer_initial_clauses=true;
-      control->selection_strategy=PSelectComplexExceptUniqMaxHorn;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.selection_strategy=PSelectComplexExceptUniqMaxHorn;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -8729,13 +8729,13 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "H_____042_B02_F1_PI_AE_S4_S1";
-      control->prefer_initial_clauses=true;
-      control->selection_strategy=SelectNewComplex;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.selection_strategy=SelectNewComplex;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -8760,11 +8760,11 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "G_E___070_K18_F1_AE_CS_S1";
-      control->forward_context_sr = true;
-      control->selection_strategy=SelectNewComplex;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectNewComplex;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -8790,11 +8790,11 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "G_E___082_K02_F1_PI_AE_Y";
-      control->prefer_initial_clauses=true;
-      control->selection_strategy=SelectMaxLComplex;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.selection_strategy=SelectMaxLComplex;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -8819,11 +8819,11 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "H_____042_B03_F1_PI_AE_S1";
-      control->prefer_initial_clauses=true;
-      control->selection_strategy=SelectNewComplex;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.selection_strategy=SelectNewComplex;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -8848,14 +8848,14 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "H_____042_B07_F1_PI_AE_S4_CS_S1";
-      control->prefer_initial_clauses=true;
-      control->forward_context_sr = true;
-      control->selection_strategy=SelectNewComplex;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectNewComplex;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -8893,14 +8893,14 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "H_____081_B07_F1_PI_AE_S4_CS_S1";
-      control->prefer_initial_clauses=true;
-      control->forward_context_sr = true;
-      control->selection_strategy=SelectNewComplex;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectNewComplex;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -8913,14 +8913,14 @@
    {
 #ifdef CHE_HEURISTICS_INTERNAL
   res = "G_E___045_K18_F1_PI_AE_S4_CS_Y";
-      control->prefer_initial_clauses=true;
-      control->forward_context_sr = true;
-      control->selection_strategy=SelectMaxLComplex;
-      control->split_clauses=4;
-      control->split_aggressive=true;
-      control->er_varlit_destructive=true;
-      control->er_aggressive=true;
-      control->forward_demod=1;
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectMaxLComplex;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_aggressive=true;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
