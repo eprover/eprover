@@ -98,6 +98,11 @@ typedef struct formula_cell
 #define   FormulaIsUnary(form)      OpIsUnary((form)->op)
 #define   FormulaIsQuantified(form) OpIsQuantor((form)->op)
 #define   FormulaIsLiteral(form)    ((form)->op==OpNoOp)
+#define   FormulaIsPropConst(form, positive) \
+          FormulaIsLiteral(form) &&\
+          ((positive)?EqnIsPropTrue((form)->special.literal)\
+                     :EqnIsPropFalse((form)->special.literal))
+
 #define   FormulaIsPropTrue(form)   (FormulaIsLiteral(form) && \
                                     EqnIsPropTrue((form)->special.literal))
 #define   FormulaIsPropFalse(form)  (FormulaIsLiteral(form) && \

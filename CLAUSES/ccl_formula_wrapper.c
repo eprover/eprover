@@ -458,9 +458,10 @@ bool WFormulaConjectureNegate(WFormula_p wform)
 
 /*-----------------------------------------------------------------------
 //
-// Function: WFormulaSimplify()
+// Function: WFormulaCNF()
 //
-//   Simplify the formula of a wrapped formula.
+//   Transform the formula of a wrapped formula into CNF (but not yet
+//   clausal representation).
 //
 // Global Variables: -
 //
@@ -468,9 +469,9 @@ bool WFormulaConjectureNegate(WFormula_p wform)
 //
 /----------------------------------------------------------------------*/
 
-void WFormulaSimplify(WFormula_p form, TB_p terms)
+void WFormulaCNF(WFormula_p form, TB_p terms)
 {
-   FormulaRefSimplify(form->formula, terms) 
+   form->formula = FormulaCNF(form->formula, terms,1);
 }
 
 
@@ -660,9 +661,9 @@ long FormulaSetPreprocConjectures(FormulaSet_p set)
 
 /*-----------------------------------------------------------------------
 //
-// Function: FormulaSetSimplify()
+// Function: FormulaSetCNF()
 //
-//   Simplify all formulae in set.
+//   Transform all formulae in set into CNF.
 //
 // Global Variables: -
 //
@@ -670,7 +671,7 @@ long FormulaSetPreprocConjectures(FormulaSet_p set)
 //
 /----------------------------------------------------------------------*/
 
-void FormulaSetSimplify(FormulaSet_p set, TB_p terms)
+void FormulaSetCNF(FormulaSet_p set, TB_p terms)
 {
    WFormula_p handle;
    
@@ -678,7 +679,7 @@ void FormulaSetSimplify(FormulaSet_p set, TB_p terms)
    
    while(handle!=set->anchor)
    {
-      WFormulaSimplify(handle, terms);
+      WFormulaCNF(handle, terms);
       handle = handle->succ;
    }
 }

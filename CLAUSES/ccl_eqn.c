@@ -739,21 +739,28 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
 
 void EqnTSTPPrint(FILE* out, Eqn_p eq, bool fullterms)
 {
-   if(EqnIsNegative(eq))
+   if(EqnIsPropFalse(eq))
    {
-      fputc('~', out);
+      fputs("false", out);
    }
-   if(EqnIsEquLit(eq))
+   else 
    {
-      fprintf(out, EQUAL_PREDICATE"(");
-      tstptermprint(out, eq->bank, eq->lterm, fullterms);
-      fprintf(out, ", ");
-      tstptermprint(out, eq->bank, eq->rterm, fullterms);
-      fputc(')', out);
-   }
-   else
-   {
-      tstptermprint(out, eq->bank, eq->lterm, fullterms);
+      if(EqnIsNegative(eq))
+      {
+         fputc('~', out);
+      }
+      if(EqnIsEquLit(eq))
+      {
+         fprintf(out, EQUAL_PREDICATE"(");
+         tstptermprint(out, eq->bank, eq->lterm, fullterms);
+         fprintf(out, ", ");
+         tstptermprint(out, eq->bank, eq->rterm, fullterms);
+         fputc(')', out);
+      }
+      else
+      {
+         tstptermprint(out, eq->bank, eq->lterm, fullterms);
+      }
    }
 }
 

@@ -924,7 +924,7 @@ int main(int argc, char* argv[])
    }
    VERBOUT2("Specification read\n");
    /* Debug code! */
-   FormulaSetSimplify(proofstate->f_axioms, proofstate->original_terms);
+   FormulaSetCNF(proofstate->f_axioms, proofstate->original_terms);
    FormulaSetPrint(GlobalOut, proofstate->f_axioms, true);
 
    if(error_on_empty && (ClauseSetEmpty(proofstate->axioms)||

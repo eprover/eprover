@@ -105,7 +105,7 @@ FOFOperatorType tptp_operator_parse(Scanner_p in)
          else
          {
             AcceptInpTokNoSkip(in, EqualSign);
-            res = OpBImpl;
+            res = OpBNImpl;
             if(TestInpTok(in, GreaterSign))
             {            
                AcceptInpTokNoSkip(in, GreaterSign);
@@ -571,6 +571,8 @@ Formula_p FormulaTPTPParse(Scanner_p in, TB_p terms)
 bool FormulaEqual(Formula_p form1, Formula_p form2)
 {
    bool res = false;
+
+   /* printf("FormulaEqual()...\n"); */
 
    if(form1 == form2)
    {
