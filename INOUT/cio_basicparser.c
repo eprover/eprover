@@ -21,18 +21,9 @@ Changes
 
 -----------------------------------------------------------------------*/
 
-/* Hack to get realpath() without warning under Solaris 2.6 - should
-   not hurt anywhere else (and might help) */
-#define __EXTENSIONS__ 1
-/* Hack to get realpath() without warning under Red Hat 5.2 - should
-   not hurt anywhere else (and might help) */
-#define _SVID_SOURCE 1
-#define _XOPEN_SOURCE 1
-#define _XOPEN_SOURCE_EXTENDED 1
 
 #include <stdlib.h>
 #include "cio_basicparser.h"
-
 
 
 /*---------------------------------------------------------------------*/
