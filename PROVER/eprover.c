@@ -32,7 +32,7 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-#define VERSION      "0.82dev013"
+#define VERSION      "0.82dev014"
 #define NAME         "eprover"
 
 #define NICKNAME     "Lung Ching"
@@ -1341,7 +1341,8 @@ CLState_p process_options(int argc, char* argv[])
 
                if(tmpmem==-1)
                {
-                  Error("Cannot find physical memory automatically", OTHER_ERROR);
+                  Error("Cannot find physical memory automatically. "
+                        "Give explicit value to --memory-limit", OTHER_ERROR);
                }               
                h_parms->mem_limit = mem_limit;
                VERBOSE(fprintf(stderr, 

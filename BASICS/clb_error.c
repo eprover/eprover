@@ -20,6 +20,12 @@ Changes
 
 -----------------------------------------------------------------------*/
 
+#define _XOPEN_SOURCE /* To get popen()/pclose() on Linux/Solaris */
+#define __USE_POSIX2
+#include <stdio.h>
+#undef __USE_POSIX2
+#undef _XOPEN_SOURCE
+
 #include "clb_error.h"
 
 
@@ -125,11 +131,11 @@ long GetSystemPhysMemory(void)
    {
       long long tmpres = 0, pages, pagesize;
 
-      page_size = GetSystemPageSize();
+      pagesize = GetSystemPageSize();
       pages = sysconf(_SC_PHYS_PAGES);
-      if((page_size !=-1) && (pages != -1))
+      if((pagesize !=-1) && (pages != -1))
       {
-         tmpres = page_size * pages;
+         tmpres = pagesize * pages;
          res = tmpres / MEGA;
       }
    }
@@ -151,7 +157,7 @@ long GetSystemPhysMemory(void)
             }
          }
    
-         fclose(pipe);
+         pclose(pipe);
       }      
    }
    return res;
