@@ -36,9 +36,6 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-extern bool ParamodOverlapNonEqLiterals;
-extern bool ParamodOverlapIntoNegativeLiterals;
-
 
 Term_p ComputeOverlap(TB_p bank, OCB_p ocb, ClausePos_p from, Term_p
 		      into, TermPos_p pos,  Subst_p subst, VarBank_p
@@ -51,6 +48,8 @@ Eqn_p  EqnOrderedParamod(TB_p bank, OCB_p ocb, ClausePos_p from,
 Clause_p ClauseOrderedParamod(TB_p bank, OCB_p ocb, ClausePos_p
 			      from,ClausePos_p into, VarBank_p
 			      freshvars);
+
+
 
 Term_p   ClausePosFirstParamodInto(Clause_p clause, ClausePos_p pos,
 				   ClausePos_p from_pos, bool no_top);

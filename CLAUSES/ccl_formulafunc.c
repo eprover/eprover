@@ -178,7 +178,8 @@ static void check_all_found(Scanner_p in, StrTree_p name_selector)
          DStrSet(err_str, in->include_pos);
          DStrAppendStr(err_str, " ");
       }
-      DStrAppendStr(err_str, "\"include\" statement cannot find the following requested clauses/formulae in ");
+      DStrAppendStr(err_str, "\"include\" statement cannot "
+                    "find the following requested clauses/formulae in ");
       DStrAppendDStr(err_str, Source(in));
       DStrAppendStr(err_str, ": ");
       

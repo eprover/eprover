@@ -161,7 +161,7 @@ void    EqnFree(Eqn_p junk);
 #define EqnIsPropFalse(eq) (((eq)->lterm == (eq)->rterm) && EqnIsNegative(eq))
 
 #define EqnIsGround(eq) \
-        (TermIsGround((eq)->lterm) && TermIsGround((eq)->rterm))
+        (TBTermIsGround((eq)->lterm) && TBTermIsGround((eq)->rterm))
 #define EqnIsPureVar(eq) \
         (TermIsVar((eq)->lterm) && TermIsVar((eq)->rterm))
 #define EqnIsPartVar(eq) \
@@ -204,6 +204,7 @@ void    EqnSwapSides(Eqn_p eq);
 void    EqnRecordTermDates(Eqn_p eq);
 
 Eqn_p   EqnCopy(Eqn_p eq, TB_p bank);
+Eqn_p   EqnCopyRepl(Eqn_p eq, TB_p bank, Term_p old, Term_p repl);
 #define EqnSkolemSubst(handle, subst, sig)\
         SubstSkolemizeTerm((handle)->lterm, (subst), (sig));\
         SubstSkolemizeTerm((handle)->rterm, (subst), (sig))

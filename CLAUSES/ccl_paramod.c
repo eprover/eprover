@@ -354,19 +354,17 @@ Clause_p ClauseOrderedParamod(TB_p bank, OCB_p ocb, ClausePos_p from,
 //
 //   Check wether a position is a valid paramod-position. Ugly!
 //
-// Global Variables: ParamodOverlapIntoNegativeLiterals,
-//                   ParamodOverlapNonEqLiterals, also reads local
-//                   scope variable pos, no_top amd res.
+// Global Variables: Reads local scope variable pos, no_top amd res.
 //
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
 #define IS_NO_PARAMOD_POS \
-   (TermIsVar(res)||\
-    (!EqnIsPositive(pos->literal) && !ParamodOverlapIntoNegativeLiterals)||\
-    (EqnIsPositive(pos->literal) && no_top && TermPosIsTopPos(pos->pos))||\
-    (!ParamodOverlapNonEqLiterals && !EqnIsEquLit(pos->literal))||\
+   (TermIsVar(res)|| /* No paramod into variables */ \
+  /* Only overlap positive root positions once */\
+  (EqnIsPositive(pos->literal) && no_top && TermPosIsTopPos(pos->pos))||\
+  /* Don't overlap variable into predicate position */\
     (TermIsVar(ClausePosGetSide(from_pos)) &&\
      !EqnIsEquLit(pos->literal) &&\
      TermPosIsTopPos(pos->pos)))

@@ -959,6 +959,38 @@ Eqn_p EqnCopy(Eqn_p eq, TB_p bank)
 
 /*-----------------------------------------------------------------------
 //
+// Function: EqnCopyRepl()
+//
+//   As EqnCopy(), but replace occurrences of old with repl.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+Eqn_p EqnCopyRepl(Eqn_p eq, TB_p bank, Term_p old, Term_p repl)
+{
+   Eqn_p  handle;
+   Term_p lterm, rterm;
+
+   lterm = TBInsertRepl(bank, eq->lterm, DEREF_ALWAYS, old, repl);
+   rterm = TBInsertRepl(bank, eq->rterm, DEREF_ALWAYS, old, repl);
+
+   handle = EqnAlloc(lterm, rterm, bank, false); /* Properties will be
+						    taken care of
+						    later! */
+   handle->properties = eq->properties;
+   EqnDelProp(handle, EPMaxIsUpToDate);
+   EqnDelProp(handle, EPIsOriented);
+
+   return handle;
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: EqnIsACTrivial()
 //
 //   Return true iff the two terms are AC-equal (with respect to the
