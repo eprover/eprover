@@ -23,10 +23,10 @@ def firstfield(str):
 
 def without(file_source, file_remove, abstract_fun):
     source = {}
-    lines = file_source.readlines()
+    lines = file_remove.readlines()
     for line in lines:
         source[abstract_fun(line)] = 1;
-    lines = file_remove.readlines()
+    lines = file_source.readlines()
     for line in lines:
         if(not (abstract_fun(line) in source)):
             sys.stdout.write(line)
