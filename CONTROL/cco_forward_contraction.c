@@ -140,6 +140,8 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
    return pclause;
 }
 
+
+#ifdef NEVER_DEFINED
 /*-----------------------------------------------------------------------
 //
 // Function: forward_contract_keep_wrap()
@@ -177,7 +179,7 @@ static bool forward_contract_keep_wrap(ProofState_p state, ProofControl_p
    }
    return false;
 }
-
+#endif
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
