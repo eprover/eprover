@@ -32,7 +32,7 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-#define VERSION      "0.82dev012"
+#define VERSION      "0.82dev013"
 #define NAME         "eprover"
 
 #define NICKNAME     "Lung Ching"
