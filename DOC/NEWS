@@ -1,6 +1,11 @@
 This history list describes the major differences between versions of
 the E equational theorem prover.
 
+Version 0.8 ->
+
+- Fixed the SOS propagation bug in splitting.
+
+
 Version 0.71 -> 0.8 Steinthal
 
 - Finally fixed that SOS bug. There still is an SOS problem with
