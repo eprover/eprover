@@ -4878,11 +4878,11 @@ void PSelectComplexExceptUniqMaxPosHorn(OCB_p ocb, Clause_p clause)
 
 static void diversification_weight(LitEval_p lit, Clause_p clause)
 {
-   if(!EqnIsPositive(lit->literal))
+   if(EqnIsNegative(lit->literal))
    {
       lit->w1 = literal_weight_counter % clause->neg_lit_no;
-      literal_weight_counter++;   
    }
+   literal_weight_counter++;   
 }
 
 
@@ -4922,11 +4922,11 @@ void SelectDiversificationLiterals(OCB_p ocb, Clause_p clause)
 static void diversification_prefer_into_weight(LitEval_p lit, Clause_p clause)
 {
    lit->w1 = -ClauseQueryProp(lit->literal, EPIsPMIntoLit);
-   if(!EqnIsPositive(lit->literal))
+   if(EqnIsNegative(lit->literal))
    {
       lit->w2 = literal_weight_counter % clause->neg_lit_no;
-      literal_weight_counter++;   
    }
+   literal_weight_counter++;   
 }
 
 
@@ -4983,8 +4983,8 @@ static void maxlcomplex_weight(LitEval_p lit, Clause_p clause)
       }
       lit->w2 = -lit_sel_diff_weight(lit->literal);
       lit->w3 = literal_weight_counter % clause->neg_lit_no;
-      literal_weight_counter++;
    }
+   literal_weight_counter++;
 }
 
 /*-----------------------------------------------------------------------
