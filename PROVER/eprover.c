@@ -32,7 +32,7 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-#define VERSION      "0.81dev016"
+#define VERSION      "0.81dev017"
 #define NAME         "eprover"
 
 #ifdef SAFELOGIC
