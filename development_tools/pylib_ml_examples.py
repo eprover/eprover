@@ -48,6 +48,7 @@ from UserList import UserList
 
 import pylib_basics
 import pylib_io
+import pylib_probabilities
 
 
 UnknownClass = "UnknownClass"
@@ -130,6 +131,9 @@ class ml_example:
     def feature_val(self, f_no):
         return self.features[f_no]
 
+    def tclass_val(self):
+        return self.tclass
+        
 
 class ml_exampleset(UserList):
     """
@@ -139,8 +143,12 @@ class ml_exampleset(UserList):
         UserList.__init__(self)
         self.feature_types = None
         self.feature_no = None
+        self.name = None
         for i in data:
             self.append(i)
+
+    def set_name(self, name):
+        self.name = name
 
     def append(self, element):
         if self.feature_no:
@@ -173,13 +181,49 @@ class ml_exampleset(UserList):
             self.append(ex)            
 
     def __repr__(self):
-        res = ""
+        if self.name:
+            res = "# "+self.name +"\n"
+        else:
+            res = ""
         for i in self:
             res+=repr(i)+"\n"
         return res
     
 
+class partition:
+    def __init__(self, examples):
+        self.partitions = {}
+        for i in examples:
+            part = self.abstracter(i)
+            try:
+                self.partitions[part].append(i)
+            except KeyError:
+                tmp = ml_exampleset()
+                tmp.set_name(part)
+                tmp.append(i)
+                self.partitions[part] = tmp                
+                
+    def abstracter(self, example):
+        assert false, "Virtual function only!"
 
+    def __repr__(self):
+        res = "# Partition:\n"
+        tmp = self.partitions.keys()
+        tmp.sort()
+        for i in tmp:
+            res = res+repr(self.partitions[i])
+        return res
+
+    def entropy(self):
+        af = pylib_probabilities.abs_freq_vector(self.partitions)
+        return pylib_probabilities.compute_entropy(af)
+        
+    
+class class_partion(partition):
+    def __init__(self, examples):
+        self.abstracter = lambda x:x.tclass_val()
+        partition.__init__(self, examples)
+            
 
 
 

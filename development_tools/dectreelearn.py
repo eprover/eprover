@@ -48,10 +48,14 @@ import string
 
 import pylib_io
 import pylib_ml_examples
+import pylib_probabilities
 
 pylib_io.check_argc(1)
 
 set = pylib_ml_examples.ml_exampleset()
 set.parse(sys.argv[1])
 
-print set.compute_feature_types()
+part = pylib_ml_examples.class_partion(set)
+print part.entropy()
+
+print pylib_probabilities.compute_entropy([1,1,1,1,4])

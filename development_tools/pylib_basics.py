@@ -41,9 +41,19 @@
 #
 # or via email (address above).
 
+
+import math
+
+# Types for which sign is well-defined
 NumericScalarTypes = [type(1), type(1L), type(1.0)]
 
+# Logarithm of 2 in base e
+LogE2              =  math.log(2)
+
 def sign(number):
+    """
+    Return the sign of a number.
+    """
     if type(number) in NumericScalarTypes:
         if number > 0:
             return 1
@@ -53,5 +63,11 @@ def sign(number):
             return 0
     raise TypeError
 
-           
+
+def log2(n):
+    """
+    Return the logarithm dualis of the number given.
+    """
+    return math.log(n)/LogE2
+
         
