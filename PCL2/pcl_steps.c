@@ -149,7 +149,7 @@ void PCLStepPrintExtra(FILE* out, PCLStep_p step, bool data)
    }
    if(data)
    {
-      fprintf(out, " /* %#8X %6ld %6ld %3ld %3ld %3ld %3ld %4.3f */",
+      fprintf(out, " /* %#8X %6ld %6ld %3ld %3ld %3ld %3ld %4.3f %3ld */",
 	      step->properties,
 	      step->proof_dag_size,
 	      step->proof_tree_size,
@@ -157,7 +157,8 @@ void PCLStepPrintExtra(FILE* out, PCLStep_p step, bool data)
 	      step->other_generating_refs,
 	      step->active_simpl_refs,
 	      step->passive_simpl_refs,
-	      step->lemma_quality);
+	      step->lemma_quality,
+              step->proof_distance);
    }
 }
 
@@ -269,6 +270,7 @@ void PCLStepResetTreeData(PCLStep_p step, bool just_weights)
       step->passive_simpl_refs    = 0;  
       step->pure_quote_refs       = 0;
       step->lemma_quality         = 0.0;
+      step->proof_distance        = LONG_MAX;
       PCLStepDelProp(step,PCLIsLemma|PCLIsMarked);
    }
 }

@@ -55,6 +55,7 @@ typedef struct pclstepcell
    long              active_simpl_refs;
    long              passive_simpl_refs;
    long              pure_quote_refs;
+   long              proof_distance;
    float             lemma_quality;
 }PCLStepCell, *PCLStep_p;
 

@@ -424,6 +424,7 @@ bool PCLProtMarkProofClauses(PCLProt_p prot)
 }
 
 
+
 /*-----------------------------------------------------------------------
 //
 // Function: PCLProtSetProp()

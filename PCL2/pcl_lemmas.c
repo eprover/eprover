@@ -142,7 +142,7 @@ InferenceWeight_p InferenceWeightsAlloc()
 //
 // Function: PCLExprUpdateRefs()
 //
-//   Given a PCL expression, update the counter in all leave according
+//   Given a PCL expression, update the counter in all leafs according
 //   to the inferences they directly paricipate in.
 //
 // Global Variables: -
