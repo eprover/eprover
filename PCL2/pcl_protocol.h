@@ -33,6 +33,7 @@ Changes
 typedef struct pclprotcell
 {
    TB_p     terms;
+   long     number;
    PTree_p  steps; /* Ordered by PCL-Id's */
    PStack_p in_order; /* Steps in increasing order of ids. */
    bool     is_ordered; /* True if previous is true ;-) */
@@ -51,15 +52,14 @@ void      PCLProtFree(PCLProt_p junk);
 
 #define PCLProtInsertStep(prot, step) \
         (((prot)->is_ordered = false),\
+         ((prot)->number++),\
         (PTreeObjStore(&((prot)->steps), (step),\
         (ComparisonFunctionType)PCLStepIdCompare)))
 
-#define PCLProtExtractStep(prot, step) \
-        PTreeObjExtractObject(&((prot)->steps), (step),\
-        (ComparisonFunctionType)PCLStepIdCompare) 
-
+PCLStep_p PCLProtExtractStep(PCLProt_p prot, PCLStep_p step);
 bool      PCLProtDeleteStep(PCLProt_p prot, PCLStep_p step);
 
+#define   PCLProtStepNo(prot) ((prot->number))
 PCLStep_p PCLProtFindStep(PCLProt_p prot, PCLId_p id);
 void      PCLProtSerialize(PCLProt_p prot);
 

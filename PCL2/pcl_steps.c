@@ -202,6 +202,7 @@ void PCLStepResetTreeData(PCLStep_p step, bool just_weights)
       step->other_generating_refs = 0;
       step->active_simpl_refs     = 0;  
       step->passive_simpl_refs    = 0;  
+      step->pure_quote_refs       = 0;
       step->lemma_quality         = 0.0;
       PCLStepDelProp(step,PCLIsLemma|PCLIsMarked);
    }

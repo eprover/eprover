@@ -307,6 +307,10 @@ void PCLExprPrint(FILE* out, PCLExpr_p expr, bool mini)
 	 fprintf(out, PCL_CN);
 	 assert(expr->arg_no==1);
 	 break;
+   case PCLOpSplitClause:
+	 fprintf(out, PCL_SPLIT);
+	 assert(expr->arg_no==1);
+	 break;
    default:
 	 assert(false && "Unknown PCL operator");
 	 break;

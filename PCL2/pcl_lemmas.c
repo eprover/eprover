@@ -90,13 +90,14 @@ LemmaParam_p LemmaParamAlloc(void)
 {
    LemmaParam_p handle = LemmaParamCellAlloc();
 
-   handle->base_weight  = LEMMA_BASE_W;
-   handle->act_pm_w     = LEMMA_ACT_PM_W;
-   handle->o_gen_w      = LEMMA_O_GEN_W;
-   handle->act_simpl_w  = LEMMA_ACT_SIMPL_W;
-   handle->pas_simpl_w  = LEMMA_PAS_SIMPL_W;
-   handle->proof_tree_w = LEMMA_PROOF_TREE_W;
-   handle->proof_dag_w  = LEMMA_PROOF_DAG_W;
+   handle->base_weight        = LEMMA_BASE_W;
+   handle->act_pm_w           = LEMMA_ACT_PM_W;
+   handle->o_gen_w            = LEMMA_O_GEN_W;
+   handle->act_simpl_w        = LEMMA_ACT_SIMPL_W;
+   handle->pas_simpl_w        = LEMMA_PAS_SIMPL_W;
+   handle->proof_tree_w       = LEMMA_PROOF_TREE_W;
+   handle->proof_dag_w        = LEMMA_PROOF_DAG_W;
+   handle->horn_bonus         = LEMMA_HORN_BONUS_W;
 
    return handle;
 }
@@ -221,6 +222,11 @@ void PCLExprUpdateRefs(PCLProt_p prot, PCLExpr_p expr)
 void PCLStepUpdateRefs(PCLProt_p prot, PCLStep_p step)
 {
    /* PCLStepPrint(stdout, step);printf("\n"); */
+   if(step->just->op == PCLOpQuote)
+   {
+      PCLStep_p handle = PCLExprArg(step->just,0);
+      handle->pure_quote_refs++;
+   }
    PCLExprUpdateRefs(prot, step->just);
 }
 
@@ -250,6 +256,38 @@ void PCLProtUpdateRefs(PCLProt_p prot)
       step = PStackElementP(prot->in_order, i);
       PCLStepUpdateRefs(prot,step);
    }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PCLStepLemmaCmp()
+//
+//   Compare the lemma rating of two PCL steps, returning -1, 0, 1
+//   depending on outcome.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+int PCLStepLemmaCmp(PCLStep_p *step1, PCLStep_p *step2)
+{
+   float r1, r2;
+
+   r1 = (*step1)->lemma_quality;
+   r2 = (*step2)->lemma_quality;
+
+   if(r1 < r2)
+   {
+      return -1;
+   }
+   if(r2 < r1)
+   {
+      return 1;
+   }
+   return 0;
 }
 
 
@@ -385,10 +423,14 @@ float PCLStepComputeLemmaWeight(PCLProt_p prot, PCLStep_p step,
        step->active_simpl_refs     * params->act_simpl_w + 
        step->passive_simpl_refs    * params->pas_simpl_w)
       *
-      (step->proof_tree_size)
+      step->proof_tree_size
       /
       (ClauseStandardWeight(step->clause)+1);
-   
+   if(ClauseIsHorn(step->clause))
+   {
+      res = res*params->horn_bonus;
+   }   
+
    if(step->passive_simpl_refs && 
       !(step->active_pm_refs+step->other_generating_refs+step->active_simpl_refs) )
    {
@@ -430,7 +472,7 @@ PCLStep_p PCLProtComputeLemmaWeights(PCLProt_p prot, LemmaParam_p params)
    {
       step = PStackElementP(prot->in_order, i);
       current_rating = PCLStepComputeLemmaWeight(prot, step, params);
-      if(current_rating > best_rating)
+      if(current_rating > best_rating && !PCLStepQueryProp(step, PCLIsLemma))
       {
 	 best_rating = current_rating;
 	 res = step;
@@ -445,10 +487,10 @@ PCLStep_p PCLProtComputeLemmaWeights(PCLProt_p prot, LemmaParam_p params)
 // Function: PCLProtSeqFindLemmas()
 //
 //   Mark all lemmas in procol which have a lemma rating of at least
-//   quality_limit. Goes from first to last step, taking already
-//   marked lemmas into account. Assumes topologically ordered
-//   protocol (otherwise lemma ratings might be off). Returns number
-//   of lemmas found.
+//   quality_limit, but not more than max_number. Goes from first to
+//   last step, taking already marked lemmas into account. Assumes
+//   topologically ordered protocol (otherwise lemma ratings might be
+//   off). Returns number of lemmas found.
 //
 // Global Variables: -
 //
@@ -458,8 +500,8 @@ PCLStep_p PCLProtComputeLemmaWeights(PCLProt_p prot, LemmaParam_p params)
 
 
 long PCLProtSeqFindLemmas(PCLProt_p prot, LemmaParam_p params, 
-			       InferenceWeight_p iw, 
-			       double quality_limit)
+			  InferenceWeight_p iw, long max_number, 
+			  float quality_limit)
 {
    PStackPointer i;
    PCLStep_p step;
@@ -477,14 +519,96 @@ long PCLProtSeqFindLemmas(PCLProt_p prot, LemmaParam_p params,
       {
 	 PCLStepSetProp(step, PCLIsLemma);
 	 res++;
+	 if(res > max_number)
+	 {
+	    break;
+	 }
       }
    }
    return res;
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: PCLProtRecFindLemmas()
+//
+//   Recursively mark lemmas in prot as follows: Find the globally
+//   best one, mark it. Recalculate all weight. Repeat. Return number
+//   of lemmas found. Terminate if max_number lemmas have
+//   been found or quality drops below quality limit.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes lemma weights.
+//
+/----------------------------------------------------------------------*/
+
+long PCLProtRecFindLemmas(PCLProt_p prot, LemmaParam_p params, 
+			    InferenceWeight_p iw, long max_number, 
+			    float quality_limit)
+{
+   long i;
+   PCLStep_p lemma = NULL;
+
+   PCLProtResetTreeData(prot, false);
+   PCLProtUpdateRefs(prot);
+   for(i=0; i<max_number; i++)
+   {
+      PCLProtResetTreeData(prot, true);
+      PCLProtComputeProofSize(prot, iw, true);
+      lemma = PCLProtComputeLemmaWeights(prot, params);
+      if(lemma->lemma_quality < quality_limit)
+      {
+	 break;
+      }
+      PCLStepSetProp(lemma, PCLIsLemma);
+   }
+   return i;
+}
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: PCLProtFlatFindLemmas()
+//
+//   Find lemmas by computing scores once, sorting (by score) and
+//   picking the best lemmas (down to quality_limit). Returns number
+//   of lemmas selected.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes weight, reorders protocol.
+//
+/----------------------------------------------------------------------*/
+
+long PCLProtFlatFindLemmas(PCLProt_p prot, LemmaParam_p params, 
+			   InferenceWeight_p iw, long max_number, 
+			   float quality_limit)
+{
+   long i;
+   PCLStep_p step = NULL;
+   
+   PCLProtResetTreeData(prot, false);
+   PCLProtUpdateRefs(prot);
+   PCLProtComputeProofSize(prot, iw, true);
+   PCLProtComputeLemmaWeights(prot, params);
+   PCLProtSerialize(prot);
+   prot->is_ordered = false;
+   PStackSort(prot->in_order, (ComparisonFunctionType)PCLStepLemmaCmp);
+   
+   max_number = MIN(max_number, PStackGetSP(prot->in_order));
+   for(i=0; i<max_number; i++)
+   {
+      step = PStackPopP(prot->in_order);
+      if(step->lemma_quality < quality_limit)
+      {
+	 break;
+      }
+      PCLStepSetProp(step, PCLIsLemma);
+   }
+   return i;
+}
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

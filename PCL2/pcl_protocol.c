@@ -61,6 +61,7 @@ PCLProt_p PCLProtAlloc(void)
    PCLProt_p handle = PCLProtCellAlloc();
 
    handle->terms = TBAlloc(TPIgnoreProps, SigAlloc());
+   handle->number = 0;
    handle->steps = NULL;
    handle->in_order = PStackAlloc();
    handle->is_ordered = false;
@@ -105,6 +106,34 @@ void PCLProtFree(PCLProt_p junk)
 
 /*-----------------------------------------------------------------------
 //
+// Function: PCLProtExtractStep()
+//
+//   (Try to) take a step out of the protocol. Return true if it
+//   exists, false otherwise. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+PCLStep_p PCLProtExtractStep(PCLProt_p prot, PCLStep_p step)
+{
+   PCLStep_p res;
+   
+   res = PTreeObjExtractObject(&(prot->steps), step, 
+			       (ComparisonFunctionType)PCLStepIdCompare);
+   if(res)
+   {
+      prot->number--;
+      prot->in_order = false;
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: PCLProtDeleteStep()
 //
 //   Delete a step from a protocol. Return true if the step existed in
@@ -130,7 +159,6 @@ bool PCLProtDeleteStep(PCLProt_p prot, PCLStep_p step)
       PCLStepFree(tree_step);
       return true;
    }
-   prot->in_order = false;
    return false;
 }
 
