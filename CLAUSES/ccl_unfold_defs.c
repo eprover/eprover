@@ -82,7 +82,7 @@ static Term_p term_top_unfold_def(TB_p bank, Term_p term, ClausePos_p demod)
 //   Apply demod everywhere in term. One-traversal leftmost-innermost
 //   is complete, because we know that the top symbol of the
 //   demodulator cannot occur in demodulated terms. pos_stack is
-//   intendet to keep positions, at the moment it just counts
+//   intended to keep positions, at the moment it just counts
 //   applications in a very expensive way ;-)
 //
 // Global Variables: -
@@ -169,7 +169,7 @@ static bool eqn_unfold_def(Eqn_p eqn, PStack_p pos_stack, ClausePos_p demod)
 // Function: ClauseUnfoldEqDef()
 //
 //   Apply demod to normalize clause. Print unfolding as (annotated)
-//   rewrite steps.
+//   rewrite steps. Return true if clause changed.
 //
 // Global Variables: -
 //
@@ -184,7 +184,7 @@ bool ClauseUnfoldEqDef(Clause_p clause, ClausePos_p demod)
    Eqn_p handle;
    
    for(handle = clause->literals; handle; handle = handle->next)
-   {
+   {      
       eqn_unfold_def(handle, pos_stack, demod);
    }
 
@@ -193,6 +193,10 @@ bool ClauseUnfoldEqDef(Clause_p clause, ClausePos_p demod)
       res = true;
       DocClauseEqUnfold(GlobalOut, OutputLevel, clause, demod,
 			pos_stack);
+      if(ClauseQueryTPTPType(demod->clause) == CPTypeConjecture)
+      {
+	 ClauseSetTPTPType(clause, CPTypeConjecture);
+      }
    }
    PStackFree(pos_stack);
    return res;
