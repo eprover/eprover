@@ -160,7 +160,7 @@ simpler, because we have access to the signature from any shared term!
 Sharing factor used introspectively!
 
 Rewriting by linking (see blue sky above). Annotate links with clauses
-for reconstruction (?)
+for reconstruction (?) -> Much of it done!
 
 Search for non-equational equivalences, add them as rewrite rules. Can
 we generalize this to equational literals? Does it make sense there or
@@ -169,12 +169,13 @@ is it somehow subsumed by rewriting?
 Try to select (or unselect?) sort predicates of the form -p(X) for
 some p. On the plus side, may only instantiate X to terms of the
 correct sort. On the down side, perhap we can only prove sort for very
-specific instances and enumerate them.
+specific instances and enumerate them. -> Done, never selecting them
+is good!
 
 For eground: Implement a special clause type taking up less
 memory. Implement the incomplete grounder by just taking the
 ungrounded system, instantiating everything to some constant (the most
-frequent constant?) and copying the set.
+frequent constant?) and copying the set. (partially done)
 
 Literal sharing (with external sign?)! We can share lots of
 operations: 
