@@ -1,4 +1,5 @@
 
+CC=gcc
 CFLAGS=-O3
 
 eprover: $(PROJ)

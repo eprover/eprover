@@ -436,7 +436,7 @@ int ClauseStructWeightCompare(Clause_p c1, Clause_p c2)
 // Function: ClauseStructWeightLexCompare()
 //
 //   Compare two clauses based on structure, break ties by lexical
-//   comparison. 
+//   comparison, then by clause id.
 // 
 // Side Effects    : -
 //
@@ -462,8 +462,8 @@ int ClauseStructWeightLexCompare(Clause_p c1, Clause_p c2)
       {
 	 return res;
       }          
-   }
-   return 0;
+   }   
+   return c1->ident-c2->ident;
 }
  
 /*-----------------------------------------------------------------------
