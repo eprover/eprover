@@ -291,7 +291,8 @@ FVPackedClause_p ForwardContractClause(ProofState_p state,
 // Function: ForwardContractSet()
 //
 //   Apply the forward-contracting inferences to all clauses in
-//   set. Delete redundant clauses. Return empty clause (if found), 
+//   set. Delete redundant clauses. If terminate_on_empty is trur,
+//   return empty clause (if found),  
 //   NULL otherwise. The empty clause will be extracted from set,
 //   which may not be fully contracted in this case.
 //
@@ -304,7 +305,8 @@ FVPackedClause_p ForwardContractClause(ProofState_p state,
 Clause_p ForwardContractSet(ProofState_p state, ProofControl_p
 			    control, ClauseSet_p set, bool
 			    non_unit_subsumption, RewriteLevel level,
-			    ulong_c* count_eleminated)
+			    ulong_c* count_eleminated, bool
+			    terminate_on_empty)
 {
    Clause_p handle, next;
 
@@ -323,7 +325,7 @@ Clause_p ForwardContractSet(ProofState_p state, ProofControl_p
 			       count_eleminated, count_eleminated,
 			       non_unit_subsumption, false,level))
       {
-	 if(ClauseIsEmpty(handle))
+	 if(terminate_on_empty&&ClauseIsEmpty(handle))
 	 {
 	    printf("Extracting empty clause...\n");
 	    ClauseSetExtractEntry(handle);
@@ -410,7 +412,7 @@ Clause_p ForwardContractSetReweight(ProofState_p state, ProofControl_p
    
    handle = ForwardContractSet(state, control, set,
 			       non_unit_subsumption, level,
-			       count_eleminated);
+			       count_eleminated, true);
    
    if(handle)
    {
@@ -481,42 +483,42 @@ Clause_p ProofStateFilterUnprocessed(ProofState_p state,
 	       ForwardContractSet(state, control,
 				  state->unprocessed,
 				  false, NoRewrite,
-				  &(state->proc_trivial_count));
+				  &(state->proc_trivial_count), true);
 	    break;
       case 'N':
 	    handle = 
 	       ForwardContractSet(state, control,
 				  state->unprocessed,
 				  true, NoRewrite,
-				  &(state->proc_trivial_count));
+				  &(state->proc_trivial_count), true);
 	    break;
       case 'r':
 	    handle = 
 	       ForwardContractSet(state, control,
 				  state->unprocessed,
 				  false, RuleRewrite,
-				  &(state->proc_trivial_count));
+				  &(state->proc_trivial_count), true);
 	    break;
       case 'R':
 	    handle = 
 	       ForwardContractSet(state, control,
 				  state->unprocessed,
 				  true, RuleRewrite,
-				  &(state->proc_trivial_count));
+				  &(state->proc_trivial_count), true);
 	    break;
       case 'f':
 	    handle = 
 	       ForwardContractSet(state, control,
 				  state->unprocessed,
 				  false, FullRewrite,
-				  &(state->proc_trivial_count));
+				  &(state->proc_trivial_count), true);
 	    break;
       case 'F':
 	    handle = 
 	       ForwardContractSet(state, control,
 				  state->unprocessed,
 				  true, FullRewrite,
-				  &(state->proc_trivial_count));
+				  &(state->proc_trivial_count), true);
 	    break;
       }
       if(handle)

@@ -80,8 +80,8 @@ static Term_p term_unrestrict(TB_p bank, Term_p term)
 //
 // Function: ClauseMoveSimplified()
 //
-//   Remove a processed simplified clause from its set and add it to a
-//   temporary set.
+//   Remove a processed simplifiable clause from its set and add it to
+//   a temporary set.
 //
 // Global Variables: -
 //
@@ -101,7 +101,7 @@ void ClauseMoveSimplified(Clause_p clause, ClauseSet_p tmp_set)
       handle->lterm = term_unrestrict(handle->bank, handle->lterm);
       handle->rterm = term_unrestrict(handle->bank, handle->rterm);
    }
-   DocClauseQuoteDefault(6, clause, "back_simplified");
+   DocClauseQuoteDefault(6, clause, "simplifiable");
    ClauseSetInsert(tmp_set, clause);
 }
 

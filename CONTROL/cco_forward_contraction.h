@@ -60,8 +60,8 @@ FVPackedClause_p ForwardContractClause(ProofState_p state,
 Clause_p ForwardContractSet(ProofState_p state, ProofControl_p
 			    control, ClauseSet_p set, bool
 			    non_unit_subsumption, RewriteLevel level,
-			    ulong_c* count_eleminated);
-
+			    ulong_c* count_eleminated, bool
+			    terminate_on_empty);
 
 void     ClauseSetReweight(HCB_p heuristic, ClauseSet_p set);
 

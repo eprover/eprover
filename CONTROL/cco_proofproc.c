@@ -308,6 +308,58 @@ void check_watchlist(ClauseSet_p watchlist, Clause_p clause)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: simplify_watchlist()
+//
+//   Simplify all clauses in state->watchlist with processed positive
+//   units from state. Assumes that all those clauses are in normal
+//   form with respect to all clauses but clause!
+//
+// Global Variables: -
+//
+// Side Effects    : Changes watchlist, introduces new rewrite links
+//                   into the term bank!
+//
+/----------------------------------------------------------------------*/
+
+void simplify_watchlist(ProofState_p state, ProofControl_p control,
+			Clause_p clause)
+{
+   ClauseSet_p tmp_set;
+   Clause_p handle;
+   long     removed_lits;
+   
+   if(!ClauseIsDemodulator(clause))
+   {
+      return;
+   }
+   tmp_set = ClauseSetAlloc();
+
+   RemoveRewritableClauses(control->ocb, state->watchlist,
+			   tmp_set, clause, clause->date);
+   while((handle = ClauseSetExtractFirst(tmp_set)))
+   {
+      ClauseComputeLINormalform(control->ocb,
+				state->terms, 
+				handle,
+				state->demods,
+				control->forward_demod,
+				control->prefer_general);      
+      removed_lits = ClauseRemoveSuperfluousLiterals(handle);
+      if(removed_lits)
+      {
+	 DocClauseModificationDefault(handle, inf_minimize, NULL);
+      }
+      if(control->ac_handling_active)
+      {
+	 ClauseRemoveACResolved(handle);
+      }
+      ClauseSetIndexedInsertClause(state->watchlist, handle);
+   }   
+   ClauseSetFree(tmp_set);
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -616,6 +668,7 @@ void ProofControlInit(ProofState_p state,ProofControl_p control,
    control->split_method        = params->split_method;      
    control->split_aggressive    = params->split_aggressive;      
    control->unproc_simplify     = params->unproc_simplify;
+   control->watchlist_simplify  = params->watchlist_simplify;
    control->hcb = GetHeuristic(params->heuristic_name,
 			       state,
 			       control, 
@@ -863,7 +916,10 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
    }
    FVUnpackClause(pclause);
    ENSURE_NULL(pclause);
-
+   if(state->watchlist && control->watchlist_simplify)
+   {
+      simplify_watchlist(state, control, clause);
+   }
    if(control->selection_strategy != SelectNoGeneration)
    {
       generate_new_clauses(state, control, clause, tmp_copy);
@@ -872,15 +928,13 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
    if(TermCellStoreNodes(&(state->tmp_terms->term_store))>TMPBANK_GC_LIMIT)
    {
       TBGCSweep(state->tmp_terms);
-   }
-   
+   }  
 #ifdef PRINT_SHARING
    print_sharing_factor(state);
 #endif
 #ifdef PRINT_RW_STATE
    print_rw_state(state);
 #endif
-
    if((empty = insert_new_clauses(state, control)))
    {
       return empty;
@@ -997,7 +1051,7 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
 	 unsatisfiable = 
 	    ForwardContractSet(state, control,
 			       state->unprocessed, false, FullRewrite,
-			       &(state->other_redundant_count));
+			       &(state->other_redundant_count), true);
 	 
 	 if(OutputLevel)
 	 {
