@@ -42,12 +42,25 @@ typedef enum
    OPT_VERSION,
    OPT_VERBOSE,
    OPT_OUTPUT,
-   OPT_SILENT
-,
+   OPT_SILENT,
    OPT_TPTP_PRINT,
-   OPT_TPTP_FORMAT
+   OPT_TPTP_FORMAT,
+   OPT_ITERATIVE_LEMMAS,
+   OPT_RECURSIVE_LEMMAS,
+   OPT_FLAT_LEMMAS,
+   OPT_ABS_LEMMA_LIMIT,
+   OPT_REL_LEMMA_LIMIT,
+   OPT_ABS_LEMQUAL_LIMIT,
+   OPT_REL_LEMQUAL_LIMIT
 }OptionCodes;
 
+
+typedef enum 
+{
+   LIterative,
+   LRecursive,
+   LFlat
+}LemmaAlgorithm;
 
 
 /*---------------------------------------------------------------------*/
@@ -91,16 +104,81 @@ OptCell opts[] =
     NoArg, NULL,
     "Equivalent to --tptp-out (supplied for consistency in the E toolchain."},
 
+   {OPT_ITERATIVE_LEMMAS,
+    'l', "iterative-lemmas",
+    NoArg, NULL,
+    "Use a simple iterative lemma generation algorithm that will traverse the PCL"
+    " listing in a topological ordering (from axioms to leave nodes),"
+    " picking out lemmas that reach a "
+    "certain score. Good for getting a reasonably even distribution of "
+    "lemmata for proof presentation. This is the default behaviour (the "
+    "option exists just for documentation purposes)."},
+
+   {OPT_RECURSIVE_LEMMAS,
+    'r', "recursive-lemmas",
+    NoArg, NULL,
+    "Use a recursive lemma generation algorithm that will pick out the lemma"
+    " with the highest score, recompute scores, and repeat for a given "
+    "number of steps. This may lead to very irregular proofs (because"
+    " later lemmata may change the score of previous ones), but ensures"
+    " that the lemma with the highest score is chosen."},
+
+   {OPT_FLAT_LEMMAS,
+    'f', "flat-lemmas",
+    NoArg, NULL,
+    "Compute lemma scores once and pick the N lemmas with the highest "
+    "score. These are bound to be nodes that are close to the "
+    "derivation graph boundary, so they are not necessarily good for"
+    " strucuring the proof. They may be good for theory exploration, "
+    "though. This algorithm is also O(n) in the number of PCL steps "
+    "(well, there is a small O(log(n)) component, but its close enough), "
+    "while the others may end up O(n^2) in the (unexpected) worst case."},
+
+   {OPT_ABS_LEMMA_LIMIT,
+    'a', "max-lemmas",
+    ReqArg, NULL,
+    "Set the maximal number of lemmas to be selected absolutely."},
+
+   {OPT_REL_LEMMA_LIMIT,
+    'R', "max-lemmas-rel",
+    ReqArg, NULL,
+    "Set the maximal number of lemmas to be selected as a fraction "
+    "of the total number of PCL steps in the protocol (always "
+    "overwritten if an absolute value is also provided)."},
+
+   {OPT_ABS_LEMQUAL_LIMIT,
+    'q', "min-lemma-quality",
+    ReqArg, NULL,
+    "Set a mimimum lemma score absolutely. Steps with this or a "
+    "higher score become lemmata unless another limit prohibits "
+    "that.",
+   },
+   
+   {OPT_REL_LEMQUAL_LIMIT,
+    'Q', "min-lemma-quality-rel",
+    ReqArg, NULL,
+    "Set a mimimum lemma score as a fraction of the best possible "
+    "lemma score in the proof tree."
+   },
+
    {OPT_NOOPT,
     '\0', NULL,
     NoArg, NULL,
     NULL}
 };
 
-char       *outname    = NULL;
-long       time_limit  = 10;
-char       *executable = NULL;
-
+char       *outname          = NULL;
+long       time_limit        = 10;
+char       *executable       = NULL;
+LemmaAlgorithm algo          = LIterative;
+InferenceWeight_p iw         = NULL;
+LemmaParam_p      lp         = NULL;
+long       max_lemmas        = 0;
+float      max_lemmas_rel    = 0.001;
+bool       max_lemmas_rel_p  = true;
+float      min_quality       = 100;
+float      min_quality_rel   = 0.3;
+bool       min_quality_rel_p = false;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -119,26 +197,22 @@ int main(int argc, char* argv[])
    CLState_p       state;
    Scanner_p       in; 
    PCLProt_p       prot;
-   PCLStep_p       best_lemma;
+   PCLStep_p       step;
    long            steps;
    int             i;
-   InferenceWeight_p iw;
-   LemmaParam_p      lp;
 
    assert(argv[0]);
 
    InitOutput();
    InitError(NAME);
-   atexit(TempFileCleanup);
-
-   ESignalSetup(SIGTERM);
-   ESignalSetup(SIGINT);
    
    /* TPTPFormatPrint = true; */
    /* We need consistent name->var mappings here because we
       potentially read the compressed input format. */
    ClausesHaveLocalVariables = false;
 
+   iw = InferenceWeightsAlloc();
+   lp = LemmaParamAlloc();
    state = process_options(argc, argv);
 
    GlobalOut = OutOpen(outname);
@@ -158,22 +232,40 @@ int main(int argc, char* argv[])
       DestroyScanner(in); 
    }
    VERBOUT2("PCL input read\n");
-   iw = InferenceWeightsAlloc();
-   lp = LemmaParamAlloc();
-   PCLProtResetTreeData(prot, false);
-   PCLProtUpdateRefs(prot);
-   PCLProtComputeProofSize(prot, iw, false);
-   best_lemma = PCLProtComputeLemmaWeights(prot, lp);   
-   /*  PCLProtPrintExtra(GlobalOut, prot, true); */
-   if(best_lemma)
-   {
-      PCLProtSeqFindLemmas(prot, lp, iw, best_lemma->lemma_quality);
-      PCLProtPrintPropClauses(GlobalOut, prot, PCLIsLemma, true);
-   }
    
+   if(max_lemmas_rel_p)
+   {     
+      max_lemmas = PCLProtStepNo(prot) * max_lemmas_rel +0.99;
+   }
+   printf("# Selecting at most %ld lemmas\n", max_lemmas);
+   if(min_quality_rel_p)
+   {
+      PCLProtComputeProofSize(prot, iw, false);
+      step = PCLProtComputeLemmaWeights(prot, lp);      
+      min_quality = step?(step->lemma_quality*min_quality_rel):0;
+   }
+   printf("# Minimum lemma quality: %f\n", min_quality);
+
+   switch(algo)
+   {
+   case LRecursive:
+	 PCLProtRecFindLemmas(prot, lp, iw, max_lemmas, min_quality);
+	 break;
+   case LIterative:
+	 PCLProtSeqFindLemmas(prot, lp, iw, max_lemmas, min_quality);
+	 break;
+   case LFlat:
+	 PCLProtFlatFindLemmas(prot, lp, iw, max_lemmas, min_quality);
+	 break;
+   default:
+	 assert(false && "Unknown algorithm type ???");
+	 break;
+   }
+   PCLProtPrintPropClauses(GlobalOut, prot, PCLIsLemma, true);
+   
+   PCLProtFree(prot);
    InferenceWeightsFree(iw);
    LemmaParamFree(lp);
-   PCLProtFree(prot);
    CLStateFree(state); 
    fflush(GlobalOut);
    OutClose(GlobalOut);
@@ -207,6 +299,9 @@ CLState_p process_options(int argc, char* argv[])
    CLState_p state;
    char*  arg;
    
+   assert(iw);
+   assert(lp);
+
    state = CLStateAlloc(argc,argv);
    
    while((handle = CLStateGetOpt(state, &arg, opts)))
@@ -239,6 +334,31 @@ CLState_p process_options(int argc, char* argv[])
 	    TPTPFormatPrint = true;
 	    EqnFullEquationalRep = false;
 	    EqnUseInfix = false;
+	    break;
+      case OPT_ITERATIVE_LEMMAS:
+	    algo = LIterative;
+	    break;
+      case OPT_RECURSIVE_LEMMAS:
+	    algo = LRecursive;
+	    break;
+      case OPT_FLAT_LEMMAS:
+	    algo = LFlat;
+	    break;
+      case OPT_ABS_LEMMA_LIMIT:
+	    max_lemmas = CLStateGetIntArg(handle, arg);
+	    max_lemmas_rel_p = false;
+	    break;
+      case OPT_REL_LEMMA_LIMIT:
+	    max_lemmas_rel = CLStateGetFloatArg(handle, arg);
+	    max_lemmas_rel_p = true;
+	    break;
+      case OPT_ABS_LEMQUAL_LIMIT:
+	    min_quality = CLStateGetFloatArg(handle, arg);	    
+	    min_quality_rel_p = false;
+	    break;
+      case OPT_REL_LEMQUAL_LIMIT:
+	    min_quality_rel = CLStateGetFloatArg(handle, arg);	    
+	    min_quality_rel_p = true;
 	    break;
        default:
 	    assert(false);
