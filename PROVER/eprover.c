@@ -601,7 +601,7 @@ OptCell opts[] =
    {OPT_TO_CONSTWEIGHT,
     'c', "order-constant-weight", 
     ReqArg, NULL,
-    "Set a special weight > 0 for constants in the term ordering."
+    "Set a special weight > 0 for constants in the term ordering. "
     "By default, constants are treated like other function symbols."
    },
 
@@ -915,30 +915,27 @@ int main(int argc, char* argv[])
    {
       in = CreateScanner(StreamTypeFile, state->argv[i] , true, NULL);
       ScannerSetFormat(in, parse_format);
-      /* Testing code {
-	 WFormula_p form;
-	 
-	 while(TestInpId(in,"input_formula"))
-	 {
-	    form = WFormulaTPTPParse(in, proofstate->original_terms);
-	    WFormulaTSTPPrint(GlobalOut, form, true, true);
-	    fprintf(GlobalOut,"\n");
-	    WFormulaFree(form);
-	 }
-	 }*/
-      ClauseSetParseList(in, proofstate->axioms,
-			 proofstate->original_terms);
+      
+      FormulaAndClauseSetParse(in, proofstate->axioms, 
+                               proofstate->f_axioms,
+                               proofstate->original_terms);
       CheckInpTok(in, NoToken);
       DestroyScanner(in); 
    }
    VERBOUT2("Specification read\n");
-   if(error_on_empty && ClauseSetEmpty(proofstate->axioms))
+   if(error_on_empty && (ClauseSetEmpty(proofstate->axioms)||
+                         (FormulaSetEmpty(proofstate->f_axioms))))
    {
 #ifdef PRINT_SOMEERRORS_STDOUT
       fprintf(GlobalOut, "# Error: Input file contains no clauses\n");
       TSTPOUT(GlobalOut, "InputError");
 #endif
       Error("Input file contains no clauses", OTHER_ERROR);
+   }
+   if(!FormulaSetEmpty(proofstate->f_axioms))
+   {
+      Warning("Full FOF format support is under development"
+              " and not supposed to work at the moment!");
    }
    ClauseSetDocInital(GlobalOut, OutputLevel, proofstate->axioms);
    if(watchlist_filename)
