@@ -76,6 +76,7 @@ ProofState_p ProofStateAlloc(void)
    handle->processed_non_units = ClauseSetAlloc();
    handle->unprocessed         = ClauseSetAlloc();
    handle->tmp_store           = ClauseSetAlloc();
+   handle->fvi_initialized     = false;
    handle->processed_pos_rules->demod_index = PDTreeAlloc();
    handle->processed_pos_eqns->demod_index  = PDTreeAlloc();
    handle->processed_neg_units->demod_index = PDTreeAlloc();

@@ -150,6 +150,27 @@ FVIndex_p fv_index_get_next_node(FVIndex_p node, long key)
 
 /*-----------------------------------------------------------------------
 //
+// Function: FVIndexParmsInit()
+//
+//   Initialize a FVIndexParmCell with rational values.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void FVIndexParmsInit(FVIndexParms_p parms)
+{
+   parms->features                = FVIACFeatures;
+   parms->use_perm_vectors        = true;
+   parms->eleminate_uninformative = false;
+   parms->max_symbols             = FVINDEX_MAX_FEATURES_DEFAULT;
+   parms->symbol_slack            = FVINDEX_SYMBOL_SLACK_DEFAULT;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: FVIndexParmsAlloc()
 //
 //   Allocate an FVIndexParmsCell with rational values.
@@ -163,12 +184,9 @@ FVIndex_p fv_index_get_next_node(FVIndex_p node, long key)
 FVIndexParms_p FVIndexParmsAlloc(void)
 {
    FVIndexParms_p handle = FVIndexParmsCellAlloc();
-   
-   handle->features                = FVIACFeatures;
-   handle->use_perm_vectors        = true;
-   handle->eleminate_uninformative = false;
-   handle->max_symbols             = FVINDEX_MAX_FEATURES_DEFAULT;
-   handle->symbol_slack            = FVINDEX_SYMBOL_SLACK_DEFAULT;
+
+   FVIndexParmsInit(handle);
+
    return handle;
 }
 

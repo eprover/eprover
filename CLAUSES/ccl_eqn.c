@@ -271,19 +271,13 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
    
    lterm = TBTermParse(in, bank);
    BOOL_TERM_NORMALIZE(lterm);
-   if(TestInpTok(in, Exclamation | EqualSign) && 
-      /* Now take care of the case =>, which we cannot currently
-         handle at the lexer level, as we are out of token codes. */
-      (LookToken(in, 1)->skipped ||
-       !TestTok(LookToken(in,1), GreaterSign)))
+   if(TestInpTok(in, NegEqualSign | EqualSign))
    {
-      if(TestInpTok(in, Exclamation))
+      if(TestInpTok(in, NegEqualSign))
       {
-         NextToken(in);
          positive = !positive;
-         CheckInpTokNoSkip(in, EqualSign);
       }
-      AcceptInpTok(in, EqualSign);	 
+      AcceptInpTok(in, NegEqualSign|EqualSign);	 
       rterm = TBTermParse(in, bank);
       BOOL_TERM_NORMALIZE(rterm);
    }

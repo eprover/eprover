@@ -45,7 +45,7 @@ Formula_p elem_form_tptp_parse(Scanner_p in, TB_p terms);
 //
 // Function: tptp_operator_parse()
 //
-//   Parse an return a TPTP quantor. Rather trivial ;-)
+//   Parse and return a TPTP operator. Rather trivial ;-)
 //
 // Global Variables: -
 //
@@ -55,65 +55,40 @@ Formula_p elem_form_tptp_parse(Scanner_p in, TB_p terms);
 
 FOFOperatorType tptp_operator_parse(Scanner_p in)
 {
-   FOFOperatorType res;
+   FOFOperatorType res=OpNoOp;
 
-   CheckInpTok(in, TildeSign|Ampersand|Pipe|EqualSign|LesserSign);
-   if(TestInpTok(in, TildeSign))
+   CheckInpTok(in, FOFBinOp);
+   switch(AktTokenType(in))
    {
-      NextToken(in);
-      CheckInpTokNoSkip(in, Ampersand|Pipe);
-      if(TestInpTok(in, Ampersand))
-      {
-         res = OpBNand;         
-      }
-      else
-      {
-         res = OpBNor;
-      }
-      NextToken(in);
-   }
-   else
-   {
-      CheckInpTok(in, Ampersand|Pipe|EqualSign|LesserSign);
-      if(TestInpTok(in, Ampersand))
-      {
-         res = OpBAnd;
-         NextToken(in);
-            
-      }
-      else if(TestInpTok(in, Pipe))
-      {
+   case FOFOr:
          res = OpBOr;
-         NextToken(in);
-      }
-      else if(TestInpTok(in, EqualSign))
-      {
-         NextToken(in);
-         CheckInpTokNoSkip(in, GreaterSign);
+         break;
+   case FOFAnd:
+         res = OpBAnd;
+         break;
+   case FOFLRImpl:
          res = OpBImpl;
-         NextToken(in);
-      }
-      else
-      {
-         AcceptInpTok(in, LesserSign);
-         if(TestInpTok(in, TildeSign))
-         {
-            AcceptInpTokNoSkip(in, TildeSign);
-            AcceptInpTokNoSkip(in, GreaterSign);
-            res = OpBXor;
-         }
-         else
-         {
-            AcceptInpTokNoSkip(in, EqualSign);
-            res = OpBNImpl;
-            if(TestInpTok(in, GreaterSign))
-            {            
-               AcceptInpTokNoSkip(in, GreaterSign);
-               res = OpBEquiv;
-            }
-         }
-      }
+         break;
+   case FOFRLImpl:
+         res = OpBNImpl;
+         break;
+   case FOFEquiv:
+         res = OpBEquiv;
+         break;
+   case FOFXor:
+         res = OpBXor;
+         break;
+   case FOFNand:
+         res = OpBNand;
+         break;
+   case FOFNor:
+         res = OpBNor;
+         break;
+   default:
+         assert(false && "Unknown/Impossibe operator.");
+         break;
    }
+   NextToken(in);
    return res;
 }
 
@@ -541,7 +516,7 @@ Formula_p FormulaTPTPParse(Scanner_p in, TB_p terms)
    Formula_p      f1, f2, res;
    FOFOperatorType op;
    f1 = elem_form_tptp_parse(in, terms);   
-   if(TestInpTok(in, Ampersand|LesserSign|EqualSign|Pipe|TildeSign))
+   if(TestInpTok(in, FOFBinOp))
    {
       op = tptp_operator_parse(in);
       f2 = FormulaTPTPParse(in, terms);

@@ -53,6 +53,8 @@ typedef struct proofstatecell
    ClauseSet_p       processed_non_units;
    ClauseSet_p       unprocessed;
    ClauseSet_p       tmp_store;
+   bool              fvi_initialized; /* Are the feature vector
+                                         indices set up? */
    ClauseSet_p       demods[3];
    ClauseSet_p       watchlist;
    bool              state_is_complete;

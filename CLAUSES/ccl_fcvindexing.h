@@ -102,6 +102,7 @@ typedef struct fvi_anchor_cell
 #define FVIndexParmsCellAlloc() (FVIndexParmsCell*)SizeMalloc(sizeof(FVIndexParmsCell))
 #define FVIndexParmsCellFree(junk) SizeFree(junk, sizeof(FVIndexParmsCell))
 
+void           FVIndexParmsInit(FVIndexParms_p parms);
 FVIndexParms_p FVIndexParmsAlloc(void);
 #define FVIndexParmsFree(junk) FVIndexParmsCellFree(junk)
 
