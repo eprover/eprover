@@ -60,6 +60,7 @@ typedef struct pdarraycell
 #else
 #define PDARRAYCELL_MEM MEMSIZE(PDArrayCell)
 #endif
+#define PDArrayStorage(arr) (PDARRAYCELL_MEM+INTORP_MEM+((arr)->size*INTORP_MEM))
 
 PDArray_p PDArrayAlloc(long init_size, long grow);
 PDArray_p PDIntArrayAlloc(long init_size, long grow);

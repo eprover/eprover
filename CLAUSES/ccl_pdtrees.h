@@ -95,8 +95,7 @@ typedef struct pd_tree_cell
    bool      prefer_general; /* Ditto */
    long      node_count;     /* How many tree nodes? */
    long      clause_count;   /* How many clauses? */
-   long      max_var;        /* Biggest variable, for memory estimation*/
-   long      max_fun;        /* Biggest function symbol -- ditto */
+   long      arr_storage_est;/* How much memory used by arrays? */
    unsigned  long match_count;   /* How often has the index been
 				   searched? */ 
    unsigned  long visited_count; /* How many nodes in the index have
@@ -136,17 +135,15 @@ void      PDTreeFree(PDTree_p tree);
 #define PDTNODE_MEM MEMSIZE(PDTNodeCell)
 #endif
 
-#define   PDTNODE_DYN_MEM (PDTNODE_MEM+2*PDARRAYCELL_MEM)
-
 #define   PDTreeStorage(tree) \
           ((tree)\
           ?\
-          ((tree)->node_count*(PDTNODE_DYN_MEM+INTORP_MEM*\
-                               (tree->max_var+tree->max_fun+\
-				(PDNODE_FUN_GROW_ALT+PDNODE_VAR_GROW_ALT)/2))\
+          ((tree)->node_count*PDTNODE_MEM\
+           +(tree)->arr_storage_est\
            +(tree)->clause_count*(PDTREE_CELL_MEM+CLAUSEPOSCELL_MEM))\
           :\
-          0)
+           0)
+
 
 #define   PDTNodeCellAlloc()    (PDTNodeCell*)SizeMalloc(sizeof(PDTNodeCell))
 #define   PDTNodeCellFree(junk) SizeFree(junk, sizeof(PDTNodeCell))

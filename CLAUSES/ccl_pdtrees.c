@@ -79,19 +79,23 @@ static void pdtree_default_cell_free(PDTNode_p junk)
 //
 /----------------------------------------------------------------------*/
 
-static void* pdt_select_alt_ref(PDTNode_p node, Term_p term)
+static void* pdt_select_alt_ref(PDTree_p tree, PDTNode_p node, Term_p term)
 {
    void* res;
 
    if(TermIsVar(term))
    {
+      tree->arr_storage_est -= PDArrayStorage(node->v_alternatives);
       res = &(PDArrayElementP(node->v_alternatives, 
 			       -term->f_code));
+      tree->arr_storage_est += PDArrayStorage(node->v_alternatives);
    }
    else
    {
+      tree->arr_storage_est -= PDArrayStorage(node->f_alternatives);
       res = &(PDArrayElementP(node->f_alternatives,
 			       term->f_code));
+      tree->arr_storage_est += PDArrayStorage(node->f_alternatives);
    }
    return res;
 }
@@ -400,23 +404,22 @@ PDTree_p PDTreeAlloc(void)
 
    handle = PDTreeCellAlloc();
 
-   handle->tree           = PDTNodeAlloc();
-   handle->term_stack     = PStackAlloc();
-   handle->term_proc      = PStackAlloc();
-   handle->tree_pos       = NULL;
-   handle->store_stack    = NULL;
-   handle->term           = NULL;
-   handle->term_date      = SysDateCreationTime();
-   handle->term_weight    = LONG_MAX;
-   handle->prefer_general = false; /* Not really necessary, it's
+   handle->tree            = PDTNodeAlloc();
+   handle->term_stack      = PStackAlloc();
+   handle->term_proc       = PStackAlloc();
+   handle->tree_pos        = NULL;
+   handle->store_stack     = NULL;
+   handle->term            = NULL;
+   handle->term_date       = SysDateCreationTime();
+   handle->term_weight     = LONG_MAX;
+   handle->prefer_general  = false; /* Not really necessary, it's
 				      reinitialized in
                                       PDTreeSearchInit() anyways.*/ 
-   handle->clause_count   = 0;
-   handle->node_count     = 0; 
-   handle->max_var        = PDNODE_VAR_INIT_ALT; 
-   handle->max_fun        = PDNODE_FUN_INIT_ALT; 
-   handle->match_count    = 0;
-   handle->visited_count  = 0;
+   handle->clause_count    = 0;
+   handle->node_count      = 0; 
+   handle->arr_storage_est = 0;
+   handle->match_count     = 0;
+   handle->visited_count   = 0;
 
    return handle;
 }
@@ -651,24 +654,24 @@ void PDTreeInsert(PDTree_p tree, ClausePos_p demod_side)
    curr = TermLRTraverseNext(tree->term_stack);
    
    while(curr)
-   {
-      next = pdt_select_alt_ref(node, curr);
+   {      
+      next = pdt_select_alt_ref(tree, node, curr);
 
       if(!(*next))
       {
 	 *next = PDTNodeAlloc();
+         tree->arr_storage_est+= (PDArrayStorage((*next)->f_alternatives)+
+                                  PDArrayStorage((*next)->v_alternatives));
 	 (*next)->parent = node;
 	 tree->node_count++;
 	 if(TermIsVar(curr))
 	 {
 	    (*next)->variable = curr;
 	    node->max_var = MAX(node->max_var, -curr->f_code);
-	    tree->max_var = MAX(tree->max_var, -curr->f_code);
 	 }
 	 else
 	 {
-	    node->max_fun = MAX(node->max_fun, curr->f_code);
-	    tree->max_fun = MAX(tree->max_fun, curr->f_code);
+	    node->max_fun = MAX(node->max_fun, curr->f_code);	    
 	 }
       }
       node = *next;
@@ -731,7 +734,7 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
    
    while(curr)
    {
-      next = pdt_select_alt_ref(node, curr);
+      next = pdt_select_alt_ref(tree, node, curr);
       assert(next);
       PStackPushP(del_stack, next);
 
@@ -749,6 +752,8 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
       node->ref_count -= res;
       if(!node->ref_count)
       {
+         tree->arr_storage_est -= (PDArrayStorage(node->f_alternatives)+
+                                   PDArrayStorage(node->v_alternatives));
 	 pdtree_default_cell_free(node);
 	 tree->node_count--;
 	 *del = NULL;

@@ -993,15 +993,15 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
       {
 	 break;
       }
-      /* printf("*** Total: %ld \n"
+      /*printf("*** Total: %ld \n"
 	     "*** Proc. Rules   : %8ld,  %8ld Eqns, %8ld Bytes %ld index cells\n"
 	     "*** Proc. Eqns    : %8ld,  %8ld Eqns, %8ld Bytes %ld index cells\n"
-	     "*** Proc. NegUnits: %8ld,  %8ld Eqns, %8ld Bytes %ld index cells\n"
+	     "*** Proc. NegUnits: %8ld,  %8ld Eqns, %8ld Bytes %ld PDIndex %ld index cells\n"
 	     "*** Proc. NonUnits: %8ld,  %8ld Eqns, %8ld Bytes\n"
 	     "*** Unprocessed   : %8ld,  %8ld Eqns, %8ld Bytes %ld index cells\n"
 	     "*** Term cells    : %8ld, %8ld Bytes\n",
 	     ProofStateStorage(state),
-
+             
 	     state->processed_pos_rules->members,
 	     state->processed_pos_rules->literals,
 	     ClauseSetStorage(state->processed_pos_rules),
@@ -1015,6 +1015,7 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
 	     state->processed_neg_units->members,
 	     state->processed_neg_units->literals,
 	     ClauseSetStorage(state->processed_neg_units),
+             PDTreeStorage(state->processed_neg_units->demod_index),
 	     state->processed_neg_units->demod_index->node_count,
 
 	     state->processed_non_units->members,
@@ -1028,7 +1029,7 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
 
 	     
 	     TBTermNodes(state->terms),
-	     TBStorage(state->terms)); */
+	     TBStorage(state->terms));*/
       current_storage = ProofStateStorage(state);
       filter_copies_base = MIN(filter_copies_base,current_storage); 
       if((current_storage - filter_copies_base) >
