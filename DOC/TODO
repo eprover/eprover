@@ -1,9 +1,19 @@
 Fix inheritance of SOS and clause types for split clauses. The code is
 there, but commented out -> I have not enough CPU time to rerun tests
-before CASC-19.
+before CASC-19. Now fixed in E 0.8dev001
 
 Try copying instantiated terms (non-shared) before doing ordering
 comparisons -> we can count variable occurences in the variables!
+
+Simultaneous paramodulation.
+
+Precedences giving different weights to frequencies in positive and
+negative literals (positive more seems better).
+
+Geoff's Idea: Goal-Directed heuristics, using similarity measures on
+frequency vectors. Alternatively: Giving bonus for smaller features.
+
+Waldmeister-Style MixWeight: |max(s,t)| * (|s|+|t|+1) + |s| + |t|
 
 Caching term orderings:
 
