@@ -74,8 +74,8 @@ previous experience) and consists of the selection of one of about 50
 different strategies for each problem. All test runs have been
 performed on SUN Ultra 60/300 machines with a time limit of 300
 seconds (or roughly equivalent configurations). All individual
-strategies are general purpose, the worst one solves about 45% of TPTP
-2.5.1, the best one 55%.
+strategies are general purpose, the worst one solves about 49% of TPTP
+2.6.0, the best one about 60%.
 
 E distinguishes problem classes based on a number of features, all of
 which have between two and 4 possible  values. The most important ones
@@ -94,15 +94,15 @@ are:
 
 Wherever there is a three-way split on a numerical feature value,
 the limits are selected automatically with the aim of
-splitting the set of clauses into approximately equal
+splitting the set of problems into approximately equal
 sized parts based on this one feature.
 
 <p>
-For classes beyond a threshold size, we assign the absolute best
+For classes above a threshold size, we assign the absolute best
 heuristic to the class. For smaller, non-empty classes, we assign the
 globally best heuristic that solves the same number of problems on
 this class as the best heuristic on this class does. Empty classes are
-assigned the globally best heristic. Typically, most selected
+assigned the globally best heuristic. Typically, most selected
 heuristics are assigned to more than one class.
 
 
@@ -119,7 +119,7 @@ but hope that E will be competitive.
 EP&nbsp;0.82 will be hampered by the fact that it has to analyse the
 inference step listing, an operation that typically is about as
 expensive as the proof search itself. Nevertheless, it should be
-competitive among the MIX* systems.
+competitive among the MIX* and FOF* systems.
 <p>
 
 
@@ -141,13 +141,13 @@ competitive among the MIX* systems.
 <DD> Schulz S. (2004),
      <STRONG>Simple and Efficient Clause Subsumption with Feature
      Vector Indexing</STRONG>,
-     <EM>Proceedings the IJCAR-2004 Workshop on Empirically
+     <EM>Proceedings of the IJCAR-2004 Workshop on Empirically
      Successful First-Order Theorem Proving</EM>, (Cork, Ireland),
      ENTCS, Elsevier Science
 <DT> Loe2004
 <DD> L&ouml;chner b. (2004),
      <STRONG>What to know when implementing LPO</STRONG>,
-     <EM>Proceedings the IJCAR-2004 Workshop on Empirically
+     <EM>Proceedings of the IJCAR-2004 Workshop on Empirically
      Successful First-Order Theorem Proving</EM>, (Cork, Ireland),
      ENTCS, Elsevier Science
 
