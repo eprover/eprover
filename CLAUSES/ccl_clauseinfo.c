@@ -117,10 +117,10 @@ void ClauseInfoFree(ClauseInfo_p info)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ClauseSourceInfoPrintTSTP()
+// Function: ClauseSourceInfoPrint()
 //
-//   Print the source part of a clause info cell as a TSTP source
-//   field. 
+//   Print the source part of a clause info cell in TSTP or PCL (or
+//   weird) format.
 //
 // Global Variables: -
 //
@@ -128,7 +128,7 @@ void ClauseInfoFree(ClauseInfo_p info)
 //
 /----------------------------------------------------------------------*/
 
-void ClauseSourceInfoPrintTSTP(FILE* out, ClauseInfo_p info)
+void ClauseSourceInfoPrint(FILE* out, ClauseInfo_p info, char *inf_lit, char delim)
 {
    DStr_p source_accu = DStrAlloc();
    char *source = "unknown";
@@ -137,9 +137,9 @@ void ClauseSourceInfoPrintTSTP(FILE* out, ClauseInfo_p info)
 
    if(info->source)
    {
-      DStrAppendChar(source_accu, '\'');
+      DStrAppendChar(source_accu, delim);
       DStrAppendStr(source_accu, info->source);
-      DStrAppendChar(source_accu, '\'');
+      DStrAppendChar(source_accu, delim);
       source = DStrView(source_accu);
    }
    name = info->name;
@@ -156,7 +156,7 @@ void ClauseSourceInfoPrintTSTP(FILE* out, ClauseInfo_p info)
          name = buffer;
       }
    }
-   fprintf(out, "file(%s, %s)", source, name);
+   fprintf(out, "%s(%s, %s)", inf_lit, source, name);
    DStrFree(source_accu);
 }
 

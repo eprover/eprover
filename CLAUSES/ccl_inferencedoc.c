@@ -174,7 +174,7 @@ static void print_initial(FILE* out, Clause_p clause, char* comment)
    {
    case pcl_format:
 	 pcl_print_start(out, clause);
-	 fprintf(out, "initial");
+         ClauseSourceInfoPrintPCL(out, clause->info);
 	 pcl_print_end(out, comment, clause);
 	 break;
    case tstp_format:
@@ -753,14 +753,7 @@ static void print_formula_initial(FILE* out, WFormula_p form, char* comment)
    {
    case pcl_format:
 	 pcl_formula_print_start(out, form);
-         if(FormulaQueryType(form)==WPTypeConjecture)
-         {
-            fprintf(out, "initial");
-         }
-         else
-         {
-            fprintf(out, "initial");
-         }
+         ClauseSourceInfoPrintPCL(out, form->info);
 	 pcl_formula_print_end(out, comment);
 	 break;
    case tstp_format:
