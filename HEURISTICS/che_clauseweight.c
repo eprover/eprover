@@ -381,7 +381,7 @@ void ClauseWeightExit(void* data)
 // Function: UniqWeightInit()
 //
 //   Return an initialized WFCB for UniqWeight evaluation. UniqWeight
-//   is designet to return a "maximally unique" weight that is
+//   is designed to return a "maximally unique" weight that is
 //   invariant with respect to function symbol renaming, reordering
 //   and so on.
 //
@@ -445,6 +445,69 @@ double UniqWeightCompute(void* data, Clause_p clause)
    return weight;
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: DefaultWeightInit()
+//
+//   Return an initialized WFCB for DefaultWeight evaluation. This
+//   uses the precomputed default clause weight for evaluation.
+//
+// Global Variables: -
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+WFCB_p DefaultWeightInit(ClausePrioFun prio_fun)
+{
+   return WFCBAlloc(DefaultWeightCompute, prio_fun,
+		    TrivialWeightExit, NULL);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: DefaultWeightParse()
+//
+//   Parse a default weight-definition.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations, Input
+//
+/----------------------------------------------------------------------*/
+
+WFCB_p DefaultWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
+{
+   ClausePrioFun prio_fun;
+   
+   AcceptInpTok(in, OpenBracket);
+   prio_fun = ParsePrioFun(in);
+   AcceptInpTok(in, CloseBracket);
+   
+   return DefaultWeightInit(prio_fun);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: DefaultWeightCompute()
+//
+//   Compute return the default weight.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+double DefaultWeightCompute(void* data, Clause_p clause)
+{
+   Eqn_p  handle;
+   double weight = 0;
+   
+   return ClauseStandardWeight(clause);
+}
 
 /*-----------------------------------------------------------------------
 //

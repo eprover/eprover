@@ -82,6 +82,13 @@ WFCB_p UniqWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
 
 double UniqWeightCompute(void* data, Clause_p clause);
 
+WFCB_p DefaultWeightInit(ClausePrioFun prio_fun);
+
+WFCB_p DefaultWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
+			  state);
+
+double DefaultWeightCompute(void* data, Clause_p clause);
+
 void TrivialWeightExit(void* data);
 
 #endif
