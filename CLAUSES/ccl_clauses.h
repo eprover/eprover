@@ -38,6 +38,7 @@ typedef enum
 {
    CPIgnoreProps    = 0,        /* For masking properties out */
    CPInitial        = 1,        /* Initial clause */
+   CPInputClause    = 2,        /* _Really_ initial clause in TSTP sense */
    CPIsProcessed    = 4,        /* Clause has been processed previously */
    CPIsOriented     = 8,        /* Term and literal comparisons are up to
 			           date */
@@ -53,6 +54,8 @@ typedef enum
    CPTypeHypothesis = CPType2,         /* Clause is Hypothesis */
    CPTypeConjecture = CPType1|CPType2, /* Clause is Conjecture */
    CPTypeLemma      = CPType3,         /* Clause is Lemma */
+   CPTypeAssumption = CPType3|CPType1, /* Clause is an Assumption
+                                        * (relevant for FOF only) */
    CPIsWatched      = 1024,     /* Clause is of special interest */
    CPOpFlag         = 2048,     /* Temporary marker */
    CPIsSelected     = 4096,     /* For analysis of selected clauses only */

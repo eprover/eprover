@@ -181,7 +181,7 @@ static void print_paramod(FILE* out, Clause_p clause, Clause_p
    case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
-		 ", inference("PCL_PM",[status(thm)],[c_0_%ld,c_0_%ld,theory(equality)])",
+		 ",inference("PCL_PM",[status(thm)],[c_0_%ld,c_0_%ld,theory(equality)])",
 		 parent1->ident,
 		 parent2->ident);
 	 tstp_print_end(out, comment, clause);
@@ -218,7 +218,7 @@ static void print_eres(FILE* out, Clause_p clause, Clause_p
    case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
-		 ", inference("PCL_ER",[status(thm)],[c_0_%ld,theory(equality)])",
+		 ",inference("PCL_ER",[status(thm)],[c_0_%ld,theory(equality)])",
 		 parent1->ident);
 	 tstp_print_end(out, comment, clause);
 	 break;
@@ -254,7 +254,7 @@ static void print_efactor(FILE* out, Clause_p clause, Clause_p
    case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
-		 ", inference("PCL_EF",[status(thm)],[c_0_%ld,theory(equality)])",
+		 ",inference("PCL_EF",[status(thm)],[c_0_%ld,theory(equality)])",
 		 parent1->ident);
 	 tstp_print_end(out, comment, clause);
 	 break;
@@ -290,7 +290,7 @@ static void print_factor(FILE* out, Clause_p clause, Clause_p
    case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
-		 ", inference("PCL_OF",[status(thm)],[c_0_%ld,theory(equality:s)])",
+		 ",inference("PCL_OF",[status(thm)],[c_0_%ld,theory(equality:s)])",
 		 parent1->ident);
 	 tstp_print_end(out, comment, clause);
 	 break;
@@ -327,7 +327,7 @@ static void print_split(FILE* out, Clause_p clause, Clause_p
    case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
-		 ", inference("
+		 ",inference("
                  TSTP_SPLIT_BASE
                  ",["TSTP_SPLIT_BASE"("TSTP_SPLIT_REFINED
                  ",[])],[c_0_%ld])",
@@ -366,7 +366,7 @@ static void print_simplify_reflect(FILE* out, Clause_p clause, long
   case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
-		 ", inference("PCL_SR",[status(thm)],[c_0_%ld,c_0_%ld,theory(equality)])",
+		 ",inference("PCL_SR",[status(thm)],[c_0_%ld,c_0_%ld,theory(equality)])",
 		 old_id,
 		 partner->ident);
 	 tstp_print_end(out, comment, clause);
@@ -403,7 +403,7 @@ static void print_context_simplify_reflect(FILE* out, Clause_p clause, long
  case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
-		 ", inference("PCL_CSR
+		 ",inference("PCL_CSR
                  ",[status(thm)],[c_0_%ld,c_0_%ld,theory(equality:s)])",
 		 old_id,
 		 partner->ident);
@@ -450,7 +450,7 @@ static void print_ac_res(FILE* out, Clause_p clause, long
    case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
-		 ", inference("PCL_ACRES
+		 ",inference("PCL_ACRES
                  ",[status(thm)],[c_0_%ld,theory(equality)", old_id);
 	 assert(!PStackEmpty(sig->ac_axioms));
 	 sp = PStackGetSP(sig->ac_axioms);
@@ -494,7 +494,7 @@ static void print_minimize(FILE* out, Clause_p clause, long
    case tstp_format:
          ClauseTSTPPrint(out, clause, PCLFullTerms, false);
          fprintf(out, 
-                 ", inference("PCL_CN",[status(thm)],[c_0_%ld, theory(equality:s)])", 
+                 ",inference("PCL_CN",[status(thm)],[c_0_%ld, theory(equality:s)])", 
                  old_id);
          tstp_print_end(out, comment, clause);
          break;
@@ -763,7 +763,7 @@ static void print_fof_simpl(FILE* out, WFormula_p form,
 	 break;
    case tstp_format:
 	 WFormulaTSTPPrint(out, form, PCLFullTerms, false);
-         fprintf(out, ", inference("PCL_FS", [status(thm)],[c_0_%ld])", old_id);
+         fprintf(out, ",inference("PCL_FS", [status(thm)],[c_0_%ld])", old_id);
          tstp_formula_print_end(out, comment);
 	 break;
    default:
@@ -797,7 +797,7 @@ static void print_neg_conj(FILE* out, WFormula_p form,
 	 break;
    case tstp_format:
 	 WFormulaTSTPPrint(out, form, PCLFullTerms, false);
-         fprintf(out, ", inference("PCL_NC", [c_0_%ld])", old_id);
+         fprintf(out, ",inference("PCL_NC", [status(cth)],[c_0_%ld])", old_id);
          tstp_formula_print_end(out, comment);
 	 break;
    default:
@@ -831,7 +831,7 @@ static void print_fof_nnf(FILE* out, WFormula_p form,
 	 break;
    case tstp_format:
 	 WFormulaTSTPPrint(out, form, PCLFullTerms, false);
-         fprintf(out, ", inference("PCL_NNF", [status(thm)],[c_0_%ld])", old_id);
+         fprintf(out, ",inference("PCL_NNF", [status(thm)],[c_0_%ld])", old_id);
          tstp_formula_print_end(out, comment);
 	 break;
    default:
@@ -866,7 +866,7 @@ static void print_shift_quantors(FILE* out, WFormula_p form,
 	 break;
    case tstp_format:
 	 WFormulaTSTPPrint(out, form, PCLFullTerms, false);
-         fprintf(out, ", inference("PCL_SQ", [status(thm)],[c_0_%ld])", old_id);
+         fprintf(out, ",inference("PCL_SQ", [status(thm)],[c_0_%ld])", old_id);
          tstp_formula_print_end(out, comment);
 	 break;
    default:
@@ -901,7 +901,7 @@ static void print_skolemize(FILE* out, WFormula_p form,
 	 break;
    case tstp_format:
 	 WFormulaTSTPPrint(out, form, PCLFullTerms, false);
-         fprintf(out, ", inference("PCL_SK", [c_0_%ld])", old_id);
+         fprintf(out, ",inference("PCL_SK", [status(sab)], [c_0_%ld])", old_id);
          tstp_formula_print_end(out, comment);
 	 break;
    default:
@@ -935,7 +935,7 @@ static void print_distribute(FILE* out, WFormula_p form,
 	 break;
    case tstp_format:
 	 WFormulaTSTPPrint(out, form, PCLFullTerms, false);
-         fprintf(out, ", inference("PCL_DSTR", [status(thm)],[c_0_%ld])", old_id);
+         fprintf(out, ",inference("PCL_DSTR", [status(thm)],[c_0_%ld])", old_id);
          tstp_formula_print_end(out, comment);
 	 break;
    default:
@@ -970,7 +970,7 @@ static void print_var_rename(FILE* out, WFormula_p form,
 	 break;
    case tstp_format:
 	 WFormulaTSTPPrint(out, form, PCLFullTerms, false);
-         fprintf(out, ", inference("PCL_VR", [status(thm)],[c_0_%ld])", old_id);
+         fprintf(out, ",inference("PCL_VR", [status(thm)],[c_0_%ld])", old_id);
          tstp_formula_print_end(out, comment);
 	 break;
    default:
@@ -1070,6 +1070,7 @@ void DocClauseFromForm(FILE* out, long level, Clause_p clause,
    assert(clause);
    assert(parent);
 
+   ClauseDelProp(clause, CPInputClause);
    if(level >= 2)
    {
       switch(DocOutputFormat)
@@ -1113,6 +1114,7 @@ void DocClauseModification(FILE* out, long level, Clause_p clause, InfType
 {
    long old_id;
 
+   ClauseDelProp(clause, CPInputClause);
    if(level >= 2)
    {
       assert(clause);
@@ -1176,6 +1178,7 @@ void DocClauseQuote(FILE* out, long level, long target_level,
 
    assert(clause);
 
+   ClauseDelProp(clause, CPInputClause);
    old_id = clause->ident;
    
    if(level >= target_level)
@@ -1241,6 +1244,7 @@ void DocClauseRewrite(FILE* out, long level, ClausePos_p rewritten,
 {
    long old_id;
 
+   ClauseDelProp(rewritten->clause, CPInputClause);
    if(level >= 2)
    {
       assert(rewritten);
@@ -1271,6 +1275,7 @@ void DocClauseEqUnfold(FILE* out, long level, Clause_p rewritten,
 {
    long old_id;
    
+   ClauseDelProp(rewritten, CPInputClause);
    if(level >= 2)
    {
       assert(rewritten);
@@ -1331,6 +1336,7 @@ void DocFormulaCreation(FILE* out, long level, WFormula_p formula,
 void DocFormulaModification(FILE* out, long level, WFormula_p form, 
                             InfType op, char* comment)
 {
+   FormulaDelProp(form, WPInputFormula);
    if(level >= 2)
    {
       long old_id = form->ident;

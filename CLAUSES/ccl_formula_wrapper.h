@@ -36,18 +36,17 @@ typedef enum
 {
    WPIgnoreProps       = 0,        /* For masking properties out */
    WPInitial           = 1,        /* Input formula */
-   WPInitialConjecture = 2,        /* Formula was a conjecture in the
-                                      input (and may have been negated
-                                      in preprocessing */
+   WPInputFormula      = CPInputClause, /* _Really_ initial in TSTP sense */
    WPType1          = CPType1, /* 128 */
    WPType2          = CPType2, 
    WPType3          = CPType3,
-   WPTypeMask       = CPType1|CPType2|CPType3,
-   WPTypeUnknown    = 0,               /* Also used as wildcard */
-   WPTypeAxiom      = CPType1,         /* Clause is Axiom */
-   WPTypeHypothesis = CPType2,         /* Clause is Hypothesis */
-   WPTypeConjecture = CPType1|CPType2, /* Clause is Conjecture */
-   WPTypeLemma      = CPType3,         /* Clause is Lemma */
+   WPTypeMask       = CPTypeMask,
+   WPTypeUnknown    = 0,                /* Also used as wildcard */
+   WPTypeAxiom      = CPTypeAxiom,      /* Formula is Axiom */
+   WPTypeHypothesis = CPTypeHypothesis, /* Formula is Hypothesis */
+   WPTypeConjecture = CPTypeConjecture, /* Formula is Conjecture */
+   WPTypeLemma      = CPTypeLemma,      /* Formula is Lemma */
+   WPTypeAssumption = CPTypeAssumption, /* Formula is Assumption */
 }WFormulaProperties;
 
 

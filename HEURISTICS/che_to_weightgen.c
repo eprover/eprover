@@ -81,7 +81,7 @@ char* TOWeightGenNames[]=
 // Side Effects    : Output
 //
 /----------------------------------------------------------------------*/
-/* Uncomment for debugging
+
 static void print_weight_array(FILE* out,OCB_p ocb)
 {
    FunCode i;
@@ -96,7 +96,7 @@ static void print_weight_array(FILE* out,OCB_p ocb)
       }
    }
    fprintf(out, "\n");
-}*/
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -530,8 +530,8 @@ static void generate_freqranksq_weights(OCB_p ocb, ClauseSet_p axioms)
 //
 // Function: generate_invfreqranksq_weights()
 //
-//   Make the weight of a function symbol equal to its inverse
-//   "frequency rank". 
+//   Make the weight of a function symbol equal to the square of its
+//   inverse "frequency rank". 
 //
 // Global Variables: -
 //
@@ -784,7 +784,7 @@ void TOGenerateWeights(OCB_p ocb, ClauseSet_p axioms,
       }
    }
    *OCBFunWeightPos(ocb, SIG_TRUE_CODE) = ocb->var_weight;
-   /*  print_weight_array(GlobalOut,ocb); */
+   print_weight_array(GlobalOut,ocb);
 }
 
 

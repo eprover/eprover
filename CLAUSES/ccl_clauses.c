@@ -1236,7 +1236,7 @@ void ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms, bool complete)
    switch(ClauseQueryTPTPType(clause))
    {
    case CPTypeAxiom:
-         if(ClauseQueryProp(clause, CPInitial))
+         if(ClauseQueryProp(clause, CPInputClause))
          {
             typename = "axiom";
          }
@@ -1253,6 +1253,9 @@ void ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms, bool complete)
          break;
    case CPTypeLemma:
          typename = "lemma";
+         break; 
+   case CPTypeAssumption:
+         typename = "assumption";
          break;
    default:
 	 typename = "";
@@ -1266,7 +1269,7 @@ void ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms, bool complete)
 	      source, 
 	      clause->ident, 
               typename,
-	      ClauseQueryProp(clause, CPInitial)?"":"-derived");
+	      ClauseQueryProp(clause, CPInputClause)?"":"-derived");
    }
    else
    {
@@ -1274,7 +1277,7 @@ void ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms, bool complete)
 	      source,
 	      clause->ident-LONG_MIN, 
               typename,
-	      ClauseQueryProp(clause, CPInitial)?"":"-derived");
+	      ClauseQueryProp(clause, CPInputClause)?"":"-derived");
    }   
    ClauseTSTPCorePrint(out, clause, fullterms);
    if(complete)
@@ -1341,6 +1344,10 @@ ClauseProperties ClauseTypeParse(Scanner_p in, char *legal_types)
    else if(TestInpId(in, "conjecture"))
    {
       res = CPTypeConjecture;
+   }   
+   else if(TestInpId(in, "assumption"))
+   {
+      res = CPTypeAssumption;
    }
    else if(TestInpId(in, "hypothesis"))
    {
@@ -1377,6 +1384,7 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
    Eqn_p    concl, precond;
    bool     procedural = false;
    ClauseProperties type = CPTypeAxiom;
+   ClauseProperties input = CPInputClause;
    Clause_p handle;
    bool     conjecture = false;
 
@@ -1425,12 +1433,14 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
          {
             AcceptInpTok(in, Hyphen);
             AcceptInpId(in, "derived");
+            input = CPIgnoreProps;
          }
       }
       else
       {
          AcceptInpId(in, "derived");
          type = CPTypeAxiom;
+         input = CPIgnoreProps;                     
       }
       AcceptInpTok(in, Comma);
       AcceptInpTok(in, OpenBracket);
@@ -1508,7 +1518,7 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
    AcceptInpTok(in, Fullstop);
    handle = ClauseAlloc(concl);
    ClauseSetTPTPType(handle, type);
-   ClauseSetProp(handle, CPInitial);
+   ClauseSetProp(handle, CPInitial|input);
    return handle;
 }
 

@@ -390,6 +390,6 @@ homomorphism(Xh, Xf1, Xf2) <-
  <- equal(unordered_pair(singleton(x), unordered_pair(x, null_class)), ordered_pair(x, y)).
 
 # prove_property_1_of_ordered_pair_2, conjecture.
- <- member(y, universal_class).
+ ?- member(y, universal_class).
 
 #--------------------------------------------------------------------------

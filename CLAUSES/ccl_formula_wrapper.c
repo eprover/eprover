@@ -147,7 +147,7 @@ WFormula_p WFormulaTPTPParse(Scanner_p in, TB_p terms)
    WFormula_p         handle;
    
    AcceptInpId(in, "input_formula");
-   AcceptInpTok(in, OpenBracket);
+   AcceptInpTok(in, OpenBracket);  
    CheckInpTok(in, Name|PosInt);
    name = DStrCopy(AktToken(in)->literal);
    NextToken(in);
@@ -173,7 +173,7 @@ WFormula_p WFormulaTPTPParse(Scanner_p in, TB_p terms)
    handle = WFormulaAlloc(form);
    handle->ext_ident = name;
    FormulaSetType(handle, type);
-   FormulaSetProp(handle, WPInitial);
+   FormulaSetProp(handle, WPInitial|WPInputFormula);
 
    return handle;
 }
@@ -203,7 +203,10 @@ void WFormulaTPTPPrint(FILE* out, WFormula_p form, bool fullterms)
 	 break;
    case WPTypeHypothesis:
 	 typename = "hypothesis";
-	 break;      
+	 break;       
+   case WPTypeAssumption:
+	 typename = "assumption";
+	 break;  
    case WPTypeConjecture:
 	 typename = "conjecture";
 	 break;
@@ -244,7 +247,7 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
    char*              name;
    Formula_p          form;
    WFormulaProperties type = WPTypeAxiom;
-   WFormulaProperties initial = WPInitial;
+   WFormulaProperties initial = WPInputFormula;
    WFormula_p         handle;
       
    AcceptInpId(in, "fof");
@@ -277,6 +280,7 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
    else
    {
       AcceptInpId(in, "derived");
+      initial = WPIgnoreProps;
       type = WPTypeAxiom;
    } 
    AcceptInpTok(in, Comma);
@@ -297,7 +301,7 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
    handle = WFormulaAlloc(form);
    handle->ext_ident = name;
    FormulaSetType(handle, type);
-   FormulaSetProp(handle, initial);
+   FormulaSetProp(handle, initial|WPInitial);
 
    return handle;
 }
@@ -328,7 +332,7 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
    switch(FormulaQueryType(form))
    {
    case WPTypeAxiom:
-         if(FormulaQueryProp(form, WPInitial))
+         if(FormulaQueryProp(form, WPInputFormula))
          {
             typename = "axiom";
          }
@@ -342,12 +346,15 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
 	 break;      
    case WPTypeConjecture:
 	 typename = "conjecture";
-	 break;
+	 break; 
+   case WPTypeAssumption:
+	 typename = "assumption";
+	 break;  
    default:
 	 typename = "unknown";
 	 break;
    }   
-   if(!FormulaQueryProp(form, WPInitial))
+   if(!FormulaQueryProp(form, WPInputFormula))
    {
       initial = "-derived";
    }
