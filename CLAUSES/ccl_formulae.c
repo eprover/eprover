@@ -592,6 +592,64 @@ bool FormulaEqual(Formula_p form1, Formula_p form2)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaHasFreeVar()
+//
+//   Return true iff var is a free variable in form.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool FormulaHasFreeVar(Formula_p form, Term_p var)
+{
+   bool res = false;
+
+   switch(form->op)
+   {
+   case OpIsLit:
+         res = TermIsSubterm(form->special.literal->lterm, var, 
+                             DEREF_NEVER, TBTermEqual)
+            ||TermIsSubterm(form->special.literal->rterm, var, 
+                            DEREF_NEVER, TBTermEqual);         
+         break;
+   case OpUNot:
+         res = FormulaHasFreeVar(form->arg1, var);
+         break;
+   case OpQEx:
+   case OpQAll:
+         if(TBTermEqual(form->special.var, var))
+         {
+            res = false;
+         }
+         else
+         {
+            res = FormulaHasFreeVar(form->arg1, var);
+         }
+         break;
+   case OpBAnd:
+   case OpBOr:
+   case OpBImpl:
+   case OpBEquiv:
+   case OpBNand:
+   case OpBNor:
+   case OpBNImpl:
+   case OpBXor:
+         res = FormulaHasFreeVar(form->arg1,var)
+            || FormulaHasFreeVar(form->arg2,var);
+         break; 
+   default:
+         assert(false && "Illegal operator in formula");
+         break;
+   }
+   return res;
+}
+
+
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

@@ -110,7 +110,7 @@ Formula_p FormulaTPTPParse(Scanner_p in, TB_p terms);
 Formula_p FormulaCopy(Formula_p formula, TB_p bank);
 
 bool      FormulaEqual(Formula_p form1, Formula_p form2);
-bool      FormulaHasFreeVar(Formula_p form1, Term_p var);
+bool      FormulaHasFreeVar(Formula_p form, Term_p var);
 
 
 #endif
