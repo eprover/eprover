@@ -260,6 +260,8 @@ TB_p TBAlloc(TermProperties prop_mask, Sig_p sig)
    TB_p handle;
    Term_p t, term;
 
+   assert(sig);
+
    handle = TBCellAlloc();
 
    handle->prop_mask = prop_mask;

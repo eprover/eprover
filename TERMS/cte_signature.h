@@ -44,9 +44,9 @@ typedef enum
    FPAssociative =  4, /* Function symbol is binary and associative */
    FPCommutative =  8, /* Function symbol is binary and commutates */
    FPIsAC        =  FPAssociative|FPCommutative,
-   FPIsInverse   = 16  /* Funcion symbol is unary and we have seen
-			  inverse equation f(x,i(x)) = c or
-			  f(i(x),x)=c */
+   FPIsNumber    = 16, /* Sequence of digits, may be semi-interpreted */
+   FPIsObject    = 32  /* ""-enclosed string, by definition denotes
+                          unique object." */
 }FunctionProperties;
 
 
