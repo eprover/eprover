@@ -4,6 +4,9 @@ the E equational theorem prover.
 Version 0.8 ->
 
 - Fixed the SOS propagation bug in splitting.
+- Overhauled feature vector indexing and added a lot of bells and
+  whistles
+- Added support for the watch list
 
 
 Version 0.71 -> 0.8 Steinthal

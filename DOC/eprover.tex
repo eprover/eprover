@@ -140,7 +140,7 @@ denote $t$ with $t|_p$ replaced by $t'$. An equation \eqn{s}{t} is an
 equation \eqn{s}{t}, a negative literal is a negated equation
 \neqn{s}{t}.  We write \ueqn{s}{t} to denote an arbitrary
 literal\footnote{Nonequational literals are encoded as equations or
-  disequations of the form \ueqn{P(t_1, \ldots, P_n)}{\top}. In this
+  disequations \ueqn{P(t_1, \ldots, t_n)}{\top}. In this
   case, we treat predicate symbols as special function symbols that
   can only occur at the top-most positions and demand that atoms
   (terms formed with a top predicate symbol) cannot be unified with a
@@ -346,10 +346,10 @@ variables.
    \bigskip (TD) \CInferenz{C}{}{if C is a tautology\footnotemark{}.}
    \footnotetext{This rule can only be implemented approximately, as
      the problem of recognizing tautologies is only semi-decidable in
-     equational logic. The latest versions of 
-     E} try to detect tautologies by checking if the ground-completed
+     equational logic. Current versions of 
+     E try to detect tautologies by checking if the ground-completed
    negative literals imply at least one of the positive literals, as
-   suggested in~\cite{NN:RTA-93}.
+   suggested in~\cite{NN:RTA-93}.}
    
  \item \emph{Deletion of duplicate literals}:
    
@@ -386,10 +386,10 @@ completion~\cite{BDP89} as implemented in DISCOUNT. E can also
 simulate the positive unit strategy for Horn clauses described
 in~\cite{Dershowitz:IJCAI-91} using appropriate selection functions.
 
-Contrary to e.g. SPASS, E does not implement special
-rules for non-equational literals or sort theories, as we expect this
-part to be taken care of by SETHEO in a later combined system.
-Instead, non-equation literals are encoded as equations and dealt with
+Contrary to e.g.\ SPASS, E does not implement special rules for
+non-equa\-tio\-nal literals or sort theories, as we expect this part
+to be taken care of by SETHEO in a later combined system.  Instead,
+non-equation literals are encoded as equations and dealt with
 accordingly.
 
 
@@ -398,19 +398,21 @@ accordingly.
 \label{sec:procedure}
 
 
-The basic proof procedure of E is quite straightforward. The set of
+The basic proof procedure of E is quite straightforward\footnote{Note
+  that the proof procedure has been further simplified for version 0.8
+  and up. The pseudo-code describes the current version.}. The set of
 all clauses is split into two sets, a set \texttt{P} of
 \emph{processed} clauses and a set \texttt{U} of \emph{unprocessed}
 clauses. Initially, all input clauses are in in \texttt{U}, and
 \texttt{P} is empty. The algorithm selects a new clause from
 \texttt{U}, simplifies it w.r.t. to \texttt{P}, then uses it to
-simplify the clauses in \texttt{P} in turn. It then performs equality
-factoring, equality resolution and superposition between the selected
-clause and the set of processed clauses. The generated clauses are
-added to the set of unprocessed clauses. The process stops when the
-empty clause is derived or no further inferences are possible.
-Fig.~\ref{fig:procedure} shows a (slightly simplified) pseudocode
-sketch of the procedure.
+back-simplify the clauses in \texttt{P} in turn. It then performs
+equality factoring, equality resolution and superposition between the
+selected clause and the set of processed clauses. The generated
+clauses are added to the set of unprocessed clauses. The process stops
+when the empty clause is derived or no further inferences are
+possible.  Fig.~\ref{fig:procedure} shows a (slightly simplified)
+pseudocode sketch of the procedure.
 
 \begin{figure}[htb]
   \begin{center}
@@ -433,14 +435,10 @@ sketch of the procedure.
         else\+\\
           T := $\emptyset{}$ \# Temporary clause set\\
           foreach p $\in$ P do\+\\
-            if c simplifies a term in a maximal literal of p\\
-               such that the set of maximal terms or\\
-               the set of maximal literals of p potentially changes\\
-               then\+\\
+            if c simplifies p \+\\
               P := P $\backslash$ p\\
               T := T $\cup$ p\-\\
             done\\
-            simplify(p, (P $\backslash$ p) $\cup$ \{c\})\-\\
           end\\
           T := T $\cup$ e-resolvents(c)    \# (ER)\\
           T := T $\cup$ e-factors(c)       \# (EF)\\
@@ -505,10 +503,11 @@ criteria) and an evalution. Priorities are usually \emph{not} suitable
 to encode heuristical control knowledge, but rather are used to
 express certain elements of a search strategy, or to restrict the
 effect of heuristic evaluation functions to certain classes of
-clauses.
+clauses. It is quite trivial to add a new priority function to E, so
+at any time there probably exist a few not yet documented here.
 
-Syntactically, the currently available priority functions are
-described by the following rule:
+Syntactically, a large subset of currently available priority
+functions is described by the following rule:
 
 \begin{verbatim}
 <prio-fun> ::= PreferGroundGoals ||
@@ -534,7 +533,9 @@ described by the following rule:
                PreferNonHorn||
                PreferUnitAndNonEq||
                DeferNonUnitMaxEq||
-               ByCreationDate
+               ByCreationDate||
+               PreferWatchlist||
+               DeferWatchlist
 \end{verbatim}
 
 The priority functions are interpreted as follows:
@@ -600,6 +601,10 @@ The priority functions are interpreted as follows:
   clauses. Clauses generated from the same given clause are grouped
   together (and can be ordered with any evaluation function among each
   other).
+\item[\texttt{PreferWatchlist}] Prefer clauses on the watchlist
+  (see~\ref{sec:options:watchlist}).
+\item[\texttt{PreferWatchlist}] Defer clauses on the watchlist (see
+  above).
 \end{description}
 
 Please note that careless use of certain priority functions can make
@@ -836,6 +841,65 @@ information about the set of implemented functions, run
 \texttt{eprover -W none}. The indiviual functions are implemented and
 somewhat described in \texttt{E/HEURISTICS/che\_litselection.h}.
 
+
+\subsection{The Watchlist Feature}
+\label{sec:options:watchlist}
+
+Since version 0.8dev (to be publically released in version
+0.81), E supports a \emph{watchlist}. A watchlist is a user-defined
+set of clauses. Whenever the prover encounters\footnote{Clauses are
+  checked against the watchlist after normalization, both when they
+  are inserted into \texttt{U} or if they are selected for
+  processing.} a clause that subsumes one or more clauses from the
+watchlist, those clauses are removed from it. The saturation process
+terminates if the watchlist is empty (or, of course, if a saturated
+state or the empty clause have been reached).
+
+There are two uses for a watchlist: To guide the proof search (using a
+heuristic that prefers clauses on the watchlist), or to find purely
+constructive proofs for clauses on the watchlist. 
+
+If you want to guide the proof search, place clauses you believe to be
+important lemmata onto the watchlist. Also include the empty clause to
+make sure that the prover will not terminate prematurely.  You can
+then use a clause selection heuristic that will give special
+consideration to clauses on the watchlist. This is currently supported
+via the \emph{priority functions} \texttt{PreferWatchlist} and
+\texttt{DeferWatchlist}. A clause evaluation function using
+\texttt{PreferWatchlist} will always select clauses wich subsume
+watchlist clauses first. Similarly, using \texttt{DeferWatchlist} can
+be used to put the processing of watchlist clauses off.
+
+There is a predefined clause selection heuristic \texttt{UseWatchlist}
+(select it with \texttt{-xUseWatchlist}) that will make sure that
+watchlist clauses are selected relatively early. It is a strong
+general purpose heuristic, and will maintain completeness of the
+prover. This should allow easy access to the watchlist feature even
+if you don't yet feel comfortable with specifying your own
+heuristics. 
+
+To generate constructive proofs of clauses, just place them on the
+watch list and select output level 4 or greater (see
+section~\ref{sec:output:lots}). Steps effecting the watch list will be
+marked in the PCL2 output file. If you use the \emph{eproof} script
+for proof output or run \emph{epclextract} of your own, subproof for
+watchlist steps will be automatically extracted.
+
+Note that this forward reasoning is not complete, i.e.\ the prover may
+never generate a given watchlist clause, even if it would be trivial
+to prove it via refutation.
+
+Options controlling the use of the watch list:\\
+\begin{tabular}{lp{5.8cm}}
+  \texttt{--watchlist=<arg>} & Select a file containing the watch list
+  clauses. Syntax should be the same syntax as your proof problem
+  (E-LOP, TPTP or TSTP). Just write down a list of clauses.\\
+  \texttt{--no-watchlist-simplification} & By default, watch list
+  clauses are simplified with respect to the current set
+  \texttt{P}. Use this option to disable the feature.
+\end{tabular}
+
+
 \subsection{Other Options}
 \label{sec:options:others}
 
@@ -879,7 +943,12 @@ As an alternative, E also supports TPTP syntax~\cite{SS:TPTP-97} (if
 given the option \texttt{--tptp-in} or \texttt{--tptp-format}) without
 includes and as far as it can be divined from the TPTP manual. In TPTP
 format, clauses with TPTP type \texttt{conjecture} are considered goal
-clauses for the \texttt{--sos-uses-input-types} option.
+clauses for the \texttt{--sos-uses-input-types} option. 
+
+Finally, the latest versions of E also support (restricted) TSTP
+clause format~\cite{SZS:IJCAI-WS-2003} (the restriction being that
+none of the optional parts are recognized) with the option
+\texttt{--tstp-in} or \texttt{--tstp-format}.
 
 
 \section{Output\ldots or how to interpret what you see}
@@ -1067,7 +1136,7 @@ The short form, \texttt{-S}, is equivalent to
 \texttt{--print-saturated=eigEIG}. If the option
 \texttt{--print-sat-info} is set, then each of the clauses is followed
 by a comment of the form \texttt{\# info(id, pd, pl, sc, cd, nl,
-  no, nv)}. The followig table explains the meaning of these values:
+  no, nv)}. The following table explains the meaning of these values:
 
 \begin{tabular}{lp{10cm}}
 \texttt{id} & Clause ident (probably only useful internally) \\

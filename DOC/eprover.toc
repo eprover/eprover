@@ -11,11 +11,12 @@
 \contentsline {subsubsection}{\numberline {4.1.4}Heuristics}{13}
 \contentsline {subsection}{\numberline {4.2}Term Orderings}{14}
 \contentsline {subsection}{\numberline {4.3}Literal Selection Strategies}{14}
-\contentsline {subsection}{\numberline {4.4}Other Options}{15}
-\contentsline {section}{\numberline {5}Input Language}{15}
-\contentsline {section}{\numberline {6}Output\ldots or how to interpret what you see}{16}
-\contentsline {subsection}{\numberline {6.1}The Bare Essentials}{16}
-\contentsline {subsection}{\numberline {6.2}Impressing your Friends}{17}
-\contentsline {subsection}{\numberline {6.3}Detailed Reporting}{18}
-\contentsline {subsection}{\numberline {6.4}Requesting Specific Results}{18}
-\contentsline {section}{\numberline {A}License}{20}
+\contentsline {subsection}{\numberline {4.4}The Watchlist Feature}{15}
+\contentsline {subsection}{\numberline {4.5}Other Options}{16}
+\contentsline {section}{\numberline {5}Input Language}{16}
+\contentsline {section}{\numberline {6}Output\ldots or how to interpret what you see}{17}
+\contentsline {subsection}{\numberline {6.1}The Bare Essentials}{17}
+\contentsline {subsection}{\numberline {6.2}Impressing your Friends}{19}
+\contentsline {subsection}{\numberline {6.3}Detailed Reporting}{19}
+\contentsline {subsection}{\numberline {6.4}Requesting Specific Results}{19}
+\contentsline {section}{\numberline {A}License}{21}

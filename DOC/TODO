@@ -1,3 +1,5 @@
+Rippling-like annotated terms for E. 
+
 Split only if clause has multiple inference literals.
 
 Implement simple indexing for paramodulation. Idea: Processed clauses
