@@ -69,7 +69,7 @@ done
 
 $EXECPATH/eprover $newargs -l4 -R -o- --pcl-terms-compressed --pcl-compact> $tmpfile
 tail -60 $tmpfile > $tmpfile2
-searchtime=`cat $tmpfile2|grep "Total time"|cut -d: -f2|sed -e's/[s ]//g'|cut -d. -f1`
+searchtime=`cat $tmpfile2|grep "Total time"|cut -d: -f2|sed -e 's/[s ]//g'|cut -d. -f1`
 if [ "$searchtime" ]; then
     statusline=`grep -c 'No proof found!' $tmpfile2`
     if [ "$statusline" = "1" ] ; then
