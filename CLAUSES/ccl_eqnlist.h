@@ -42,12 +42,12 @@ Changes
 void    EqnListFree(Eqn_p list);
 void    EqnListGCMarkTerms(Eqn_p list);
 
-void    EqnListSetProp(Eqn_p list, EqnProperties prop);
-void    EqnListDelProp(Eqn_p list, EqnProperties prop);
-void    EqnListFlipProp(Eqn_p list, EqnProperties prop);
-long    EqnListQueryPropNumber(Eqn_p list, EqnProperties prop);
+int     EqnListSetProp(Eqn_p list, EqnProperties prop);
+int     EqnListDelProp(Eqn_p list, EqnProperties prop);
+int     EqnListFlipProp(Eqn_p list, EqnProperties prop);
+int     EqnListQueryPropNumber(Eqn_p list, EqnProperties prop);
 
-long     EqnListLength(Eqn_p list);
+int      EqnListLength(Eqn_p list);
 Eqn_p    EqnListFromArray(Eqn_p* array, int lenght);
 PStack_p EqnListToStack(Eqn_p list);
 
@@ -78,8 +78,8 @@ bool    EqnListIsGround(Eqn_p list);
 bool    EqnListIsEquational(Eqn_p list);
 bool    EqnListIsPureEquational(Eqn_p list);
 
-long    EqnListOrient(OCB_p ocb, Eqn_p list);
-long    EqnListMaximalLiterals(OCB_p ocb, Eqn_p list);
+int     EqnListOrient(OCB_p ocb, Eqn_p list);
+int     EqnListMaximalLiterals(OCB_p ocb, Eqn_p list);
 bool    EqnListEqnIsMaximal(OCB_p ocb, Eqn_p list, Eqn_p eqn);
 bool    EqnListEqnIsStrictlyMaximal(OCB_p ocb, Eqn_p list, Eqn_p eqn);
 void    EqnListMarkRestrictedTerms(Eqn_p list);

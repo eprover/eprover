@@ -680,14 +680,15 @@ Term_p EqnTBTermParse(Scanner_p in, TB_p bank)
 void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
 {
    bool positive = XOR(EqnIsPositive(eq), negated);
-   /* if(EqnIsMaximal(eq))
+
+   if(EqnIsMaximal(eq))
    {
       fprintf(out, "{");
-   }
+   }   
    if(EqnIsSelected(eq))
    {
       fprintf(out, "+");
-      } */
+      } 
    /* if(EqnIsXTypePred(eq))
    {
       fprintf(out, "*");
@@ -761,10 +762,10 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
 	    TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
 	 }
       }
-      /* if(EqnIsMaximal(eq))
+      if(EqnIsMaximal(eq))
       {
 	 fprintf(out, "}");
-	 } */
+      } 
    }
 }
 

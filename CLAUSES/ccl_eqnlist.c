@@ -116,7 +116,8 @@ void EqnListGCMarkTerms(Eqn_p list)
 //
 // Function: EqnListSetProp()
 //
-//   Set the properties prop in all literals from list.
+//   Set the properties prop in all literals from list. Return the
+//   lenght of the list.
 //
 // Global Variables: -
 //
@@ -124,13 +125,17 @@ void EqnListGCMarkTerms(Eqn_p list)
 //
 /----------------------------------------------------------------------*/
 
-void EqnListSetProp(Eqn_p list, EqnProperties prop)
+int EqnListSetProp(Eqn_p list, EqnProperties prop)
 {
+   int res = 0;
+
    while(list)
    {
       EqnSetProp(list, prop);
       list = list->next;
+      res++;
    }
+   return res;
 }
 
 
@@ -138,7 +143,8 @@ void EqnListSetProp(Eqn_p list, EqnProperties prop)
 //
 // Function: EqnListDelProp()
 //
-//   Delete the properties prop in all literals from list.
+//   Delete the properties prop in all literals from list. Return
+//   lenght of the list.
 //
 // Global Variables: -
 //
@@ -146,13 +152,17 @@ void EqnListSetProp(Eqn_p list, EqnProperties prop)
 //
 /----------------------------------------------------------------------*/
 
-void EqnListDelProp(Eqn_p list, EqnProperties prop)
+int EqnListDelProp(Eqn_p list, EqnProperties prop)
 {
+   int res = 0;
+
    while(list)
    {
       EqnDelProp(list, prop);
       list = list->next;
+      res++;
    }
+   return res;
 }
 
 
@@ -160,7 +170,8 @@ void EqnListDelProp(Eqn_p list, EqnProperties prop)
 //
 // Function: EqnListFlipProp()
 //
-//   Delete the properties prop in all literals from list.
+//   Delete the properties prop in all literals from list. Return
+//   lenght of the list.
 //
 // Global Variables: -
 //
@@ -168,13 +179,17 @@ void EqnListDelProp(Eqn_p list, EqnProperties prop)
 //
 /----------------------------------------------------------------------*/
 
-void EqnListFlipProp(Eqn_p list, EqnProperties prop)
+int EqnListFlipProp(Eqn_p list, EqnProperties prop)
 {
+   int res = 0;
+
    while(list)
    {
       EqnFlipProp(list, prop);
       list = list->next;
+      res++;
    }
+   return res;
 }
 
 
@@ -190,9 +205,9 @@ void EqnListFlipProp(Eqn_p list, EqnProperties prop)
 //
 /----------------------------------------------------------------------*/
 
-long EqnListQueryPropNumber(Eqn_p list, EqnProperties prop)
+int EqnListQueryPropNumber(Eqn_p list, EqnProperties prop)
 {
-   long res = 0;
+   int res = 0;
 
    while(list)
    {
@@ -219,9 +234,9 @@ long EqnListQueryPropNumber(Eqn_p list, EqnProperties prop)
 //
 /----------------------------------------------------------------------*/
 
-long EqnListLength(Eqn_p list)
+int EqnListLength(Eqn_p list)
 {
-   long i=0;
+   int i=0;
 
    while(list)
    {
@@ -788,9 +803,9 @@ bool EqnListIsPureEquational(Eqn_p list)
 //
 /----------------------------------------------------------------------*/
 
-long EqnListOrient(OCB_p ocb, Eqn_p list)
+int EqnListOrient(OCB_p ocb, Eqn_p list)
 {
-   long res = 0;
+   int res = 0;
    Eqn_p handle;
 
    for(handle = list; handle; handle = handle->next)
@@ -819,17 +834,13 @@ long EqnListOrient(OCB_p ocb, Eqn_p list)
 //
 /----------------------------------------------------------------------*/
 
-long EqnListMaximalLiterals(OCB_p ocb, Eqn_p list)
+int EqnListMaximalLiterals(OCB_p ocb, Eqn_p list)
 {
    Eqn_p handle, stepper;
    CompareResult cmp;
-   long res = 0;
+   int res = 0;
 
-   for(handle = list; handle; handle = handle->next)
-   {
-      EqnSetProp(handle, EPIsMaximal|EPIsStrictlyMaximal);
-      res++;
-   }
+   res = EqnListSetProp(list, EPIsMaximal|EPIsStrictlyMaximal);
    for(handle = list; handle; handle = handle->next)
    {
       for(stepper = handle->next; stepper; stepper = stepper->next)
