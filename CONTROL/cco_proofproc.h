@@ -30,6 +30,7 @@ Changes
 #include <cco_clausesplitting.h>
 #include <cco_forward_contraction.h>
 #include <cio_signals.h>
+#include <ccl_fcvindexing.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -50,7 +51,7 @@ Changes
 void     ProofControlInit(ProofState_p state, ProofControl_p control,
 			  HeuristicParms_p params);
 void     ProofStateInit(ProofState_p state, ProofControl_p control,
-			HeuristicParms_p h_parms);
+			HeuristicParms_p h_parms, bool use_fvindexing);
 Clause_p ProcessClause(ProofState_p state, ProofControl_p control);
 Clause_p Saturate(ProofState_p state, ProofControl_p control, long
 		  step_limit, long proc_limit, long unproc_limit, long

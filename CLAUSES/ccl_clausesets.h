@@ -27,10 +27,10 @@ Changes
 #define CCL_CLAUSESETS
 
 #include <ccl_inferencedoc.h>
+#include <ccl_fcvindexing.h>
 #include <ccl_tautologies.h>
 #include <ccl_pdtrees.h>
 #include <clb_objtrees.h>
-
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -49,6 +49,7 @@ typedef struct clausesetcell
 			 is used to indicate ignoring of dates when
 			 checking for irreducability. */
    PDTree_p  demod_index; /* If used for demodulators */
+   FVIAnchor_p fvindex; /* Used for non-unit subsumption */
    PDArray_p eval_indices;
    long      eval_no;
 }ClauseSetCell, *ClauseSet_p;

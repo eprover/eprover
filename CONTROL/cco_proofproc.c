@@ -123,24 +123,25 @@ static long remove_unit_subsumed(Clause_p subsumer, ClauseSet_p set)
 
 static long remove_subsumed(Clause_p subsumer, ClauseSet_p set)
 {
-   Clause_p handle, next;
-   long     res = 0;
-
+   Clause_p handle;
+   long     res;
+   PStack_p stack = PStackAlloc();
+   FVPackedClause_p pclause = FVPackClause(subsumer, set->fvindex);
+            
    assert(ClauseLiteralNumber(subsumer) > 1);
 
-   DEBUGMARK(PP_HIGHDETAILS , "remove_subsumed()...\n");
-   next = set->anchor->succ;
-   while((handle = ClauseSetFindSubsumedClause(set, next,
-					       subsumer)))
+   res = ClauseSetFindSubsumedClauses(set, pclause, stack);
+   
+   while(!PStackEmpty(stack))	    
    {
-      res++;
       DEBUGMARK(PP_HIGHDETAILS, "*\n");
-      next = handle->succ;      
+      handle = PStackPopP(stack);
       ClauseKillChildren(handle);
       ClauseSetDeleteEntry(handle);  
    }
-   DEBUGMARK(PP_HIGHDETAILS, "...remove_subsumed()\n");
-
+   
+   FVUnpackClause(pclause);
+   PStackFree(stack);
    return res;
 }
 
@@ -685,7 +686,7 @@ void ProofControlInit(ProofState_p state,ProofControl_p control,
 /----------------------------------------------------------------------*/
 
 void ProofStateInit(ProofState_p state, ProofControl_p control,
-		    HeuristicParms_p h_parms)
+		    HeuristicParms_p h_parms, bool use_fvindexing)
 {
    Clause_p handle, new;
    HCB_p    tmphcb;
@@ -740,6 +741,11 @@ void ProofStateInit(ProofState_p state, ProofControl_p control,
 	 }
       }
    }
+   if(use_fvindexing)
+   {
+      state->processed_non_units->fvindex =
+	 FVIAnchorAlloc(MIN(state->signature->f_count,FV_MAX_SYMBOL_COUNT));
+   }
 }
 
 
@@ -761,7 +767,6 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
    Clause_p clause, tmp_copy, empty;
    SysDate  clausedate;
    long     clause_count;
-   bool     interred_needed;
 
    DEBUGMARK(PP_LOWDETAILS, "ProcessClause...\n");
    clause = control->hcb->hcb_select(control->hcb,
@@ -861,10 +866,6 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
 	 state->processed_pos_eqns->date = clausedate;
 	 DemodInsert(state->processed_pos_eqns, clause);
       }
-      /* if(interred_needed)
-      {
-	 interreduce_clause_sets(state, control);
-	 }*/
    }
    else if(ClauseLiteralNumber(clause) == 1)
    {
@@ -874,6 +875,14 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
    else
    {
       DemodInsert(state->processed_non_units, clause);
+      if(state->processed_non_units->fvindex)
+      {
+	 FreqVector_p vec =
+	    StandardFreqVectorCompute(clause,
+				      state->processed_non_units->fvindex->symbol_limit);
+	 FVIndexInsert(state->processed_non_units->fvindex, vec);
+	 FreqVectorFree(vec);
+      }
    }
       
    if(control->selection_strategy != SelectNoGeneration)

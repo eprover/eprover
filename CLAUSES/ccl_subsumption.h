@@ -39,6 +39,7 @@ Changes
 /*---------------------------------------------------------------------*/
 
 extern bool StrongUnitForwardSubsumption;
+extern long ClauseClauseSubsumptionCalls;
 
 bool     LiteralSubsumesClause(Eqn_p literal, Clause_p clause); 
 bool     UnitClauseSubsumesClause(Clause_p unit, Clause_p clause); 
@@ -58,6 +59,10 @@ bool     ClauseSetSubsumesClause(ClauseSet_p set, Clause_p
 Clause_p ClauseSetFindSubsumedClause(ClauseSet_p set, Clause_p
 				     set_position, Clause_p
 				     subsumer);
+
+long     ClauseSetFindSubsumedClauses(ClauseSet_p set, 
+				      FVPackedClause_p subsumer, 
+				      PStack_p res);
 #endif
 
 /*---------------------------------------------------------------------*/

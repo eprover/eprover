@@ -42,8 +42,7 @@ typedef enum
    CPIsOriented     = 8,        /* Term and literal comparisons are up to
 			           date */
    CPIsDIndexed     = 16,       /* Clause is in the demod_index of its set */
-   CPIsSIndexed     = 32,       /* Clause is in the subsumption index of
-			           its set (currently unused) */
+   CPIsSIndexed     = 32,       /* Clause is in the fvindex of its set */
    CPDeleteClause   = 64,       /* Clause should be deleted for some reason */
    CPTypeAxiom      = 128,      /* Clause is TPTPAxiom */
    CPTypeHypothesis = 256,      /* Clause is TPTPHypothesis */

@@ -328,6 +328,7 @@ ClauseSet_p ClauseSetAlloc(void)
    handle->date = SysDateCreationTime();
    SysDateInc(&handle->date);
    handle->demod_index = NULL;
+   handle->fvindex = NULL;
    
    handle->eval_indices = PDArrayAlloc(4,4);
    handle->eval_no = 0;
@@ -363,6 +364,10 @@ void ClauseSetFree(ClauseSet_p junk)
    if(junk->demod_index)
    {
       PDTreeFree(junk->demod_index);
+   }
+   if(junk->fvindex)
+   {
+      FVIAnchorFree(junk->fvindex);
    }
    PDArrayFree(junk->eval_indices);
    ClauseCellFree(junk->anchor);
@@ -496,18 +501,20 @@ Clause_p ClauseSetExtractEntry(Clause_p clause)
       assert(clause->set->demod_index);
       if(clause->set->demod_index)
       {
-	 assert(ClauseIsUnit(clause));
-	 /* printf("ClauseSetIndexedExtractEntry() left\n"); */
+	 assert(ClauseIsUnit(clause));	 
 	 PDTreeDelete(clause->set->demod_index, clause->literals->lterm,
 		      clause); 
 	 if(!EqnIsOriented(clause->literals))
 	 {
-	    /* printf("ClauseSetIndexedExtractEntry() right\n"); */
 	    PDTreeDelete(clause->set->demod_index,
 			 clause->literals->rterm, clause);
 	 }
 	 ClauseDelProp(clause, CPIsDIndexed);
       }
+   }
+   if(ClauseQueryProp(clause, CPIsSIndexed))
+   {
+      FVIndexDelete(clause->set->fvindex, clause);
    }
    clause_set_extract_entry(clause);
    return clause;

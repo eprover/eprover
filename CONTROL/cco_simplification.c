@@ -121,7 +121,7 @@ void ClauseMoveSimplified(Clause_p clause, ClauseSet_p tmp_set)
    
    ClauseKillChildren(clause);
    ClauseSetExtractEntry(clause);
-   /* ClauseDeleteTermProperties(clause, TPRestricted); */
+
    for(handle = clause->literals; handle; handle=handle->next)
    {
       handle->lterm = term_unrestrict(handle->bank, handle->lterm);

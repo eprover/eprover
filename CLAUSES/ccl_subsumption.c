@@ -28,7 +28,7 @@ Changes
 /*---------------------------------------------------------------------*/
 
 bool StrongUnitForwardSubsumption = false;
-
+long ClauseClauseSubsumptionCalls = 0;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -387,6 +387,7 @@ static bool check_subsumption_possibility(Clause_p subsumer, Clause_p
 //
 /----------------------------------------------------------------------*/
 
+static
 bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
 			  Subst_p subst, long* pick_list)
 {
@@ -495,6 +496,8 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
    assert(sub_candidate->weight == ClauseStandardWeight(sub_candidate));
    assert(subsumer->weight == ClauseStandardWeight(subsumer));
 
+   ClauseClauseSubsumptionCalls++;
+
    if((subsumer->pos_lit_no > sub_candidate->pos_lit_no) ||
       (subsumer->neg_lit_no > sub_candidate->neg_lit_no))
    {
@@ -523,6 +526,232 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: clause_set_subsumes_clause()
+//
+//   Return true if the set subsumes sub_candidate. All clauses need
+//   correct weights!
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static
+bool clause_set_subsumes_clause(ClauseSet_p set, Clause_p sub_candidate)
+{
+   Clause_p handle;
+
+   assert(ClauseLiteralNumber(sub_candidate)>1);
+   assert(sub_candidate->weight ==
+          ClauseStandardWeight(sub_candidate));
+   
+   for(handle = set->anchor->succ; handle != set->anchor;
+       handle = handle->succ)
+   {
+      if(clause_subsumes_clause(handle, sub_candidate))
+      {
+         /* printf("\nTrue: ");
+         ClausePrint(stdout, handle, true);
+         printf("\n subsumes: ");
+         ClausePrint(stdout, sub_candidate, true);
+         printf("\n"); */
+         DocClauseQuote(GlobalOut, OutputLevel, 6, sub_candidate,
+                        "subsumed", handle);
+         ClauseSetProp(handle, ClauseQueryProp(sub_candidate,CPIsSOS));
+         return true;
+      }
+   }
+   return false;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: clause_tree_find_subsuming_clause()
+//
+//   Given a PTree of clauses and a clause, return true if one of the
+//   clauses subsume the candidate.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+static
+bool clause_tree_find_subsuming_clause(PTree_p tree, Clause_p sub_candidate)
+{
+   Clause_p clause;
+   
+   if(!tree)
+   {
+      return false;
+   }
+   clause = tree->key;
+   if(clause_subsumes_clause(clause,sub_candidate))
+   {
+      DocClauseQuote(GlobalOut, OutputLevel, 6, sub_candidate,
+		     "subsumed", clause);
+      ClauseSetProp(clause, ClauseQueryProp(sub_candidate,CPIsSOS));
+      return true;
+   }
+   return clause_tree_find_subsuming_clause(tree->lson, sub_candidate)
+      ||clause_tree_find_subsuming_clause(tree->rson, sub_candidate);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: clause_set_subsumes_clause_indexed()
+//
+//   Return true if the set subsumes sub_candidate. All clauses need
+//   correct weights!
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+static
+bool clause_set_subsumes_clause_indexed(FVIndex_p index, FreqVector_p vec, long feature)
+{
+   if(FVIndexFinalNode(index))
+   {
+      return clause_tree_find_subsuming_clause(index->u1.clauses, vec->clause);
+   }
+   else
+   {
+      long i;
+      FVIndex_p next;
+      
+      for(i=0; i<=vec->freq_vector[feature]; i++)
+      {
+	 next = FVIndexGetNextNode(index, i);
+	 if(next && 
+	    clause_set_subsumes_clause_indexed(next, vec, feature+1))
+	 {
+	    return true;
+	 }
+      }
+      return false;
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: clause_tree_find_subsumed_clause()
+//
+//   Given a PTree of clauses and a clause, push all subsumed clauses
+//   onto res.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+static
+void clause_tree_find_subsumed_clauses(PTree_p tree, Clause_p subsumer, 
+				       PStack_p res)
+{
+   Clause_p clause;
+   
+   if(!tree)
+   {
+      return;
+   }
+   clause = tree->key;
+   if(clause_subsumes_clause(subsumer, clause))
+   {
+      DocClauseQuote(GlobalOut, OutputLevel, 6, clause,
+		     "subsumed", subsumer);
+      ClauseSetProp(subsumer, ClauseQueryProp(clause,CPIsSOS));
+      PStackPushP(res, clause);
+   }
+   clause_tree_find_subsumed_clauses(tree->lson, subsumer, res);
+   clause_tree_find_subsumed_clauses(tree->rson, subsumer, res);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: clauseset_find_subsumed_clauses();
+//
+//   Find all clauses subsumed by subsumer and push them onto
+//   stack. Also write PCL statements to that effect (if required by
+//   output level).
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+static
+void clauseset_find_subsumed_clauses(ClauseSet_p set, 
+				     Clause_p subsumer, 
+				     PStack_p res)
+{
+   Clause_p handle;
+
+   for(handle = set->anchor->succ; 
+       handle!= set->anchor; 
+       handle = handle->succ)
+   {
+      if(clause_subsumes_clause(subsumer, handle))
+      {
+	 DocClauseQuote(GlobalOut, OutputLevel, 6, handle,
+			"subsumed", subsumer); 
+	 PStackPushP(res, handle);
+      }
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: clauseset_find_subsumed_clauses_indexed()
+//
+//   Find all clauses subsumed by vec->clause in index and push them
+//   onto res.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static 
+void clauseset_find_subsumed_clauses_indexed(FVIndex_p index, 
+					     FreqVector_p vec, 
+					     long feature, 
+					     PStack_p res)
+{
+   if(FVIndexFinalNode(index))
+   {
+      clause_tree_find_subsumed_clauses(index->u1.clauses, vec->clause, res);
+   }
+   else
+   {
+      long i, limit;
+      FVIndex_p next;
+      
+      limit = MAX(index->array_size, index->type_or_key+1); /* Hack!*/
+      
+      for(i=vec->freq_vector[feature]; i<limit; i++)
+      {
+	 next = FVIndexGetNextNode(index, i);
+	 if(next)
+	 {
+	    clauseset_find_subsumed_clauses_indexed(next, vec, 
+						    feature+1, res);
+	 }
+      }
+   }   
+}
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -813,29 +1042,16 @@ bool ClauseSubsumesClause(Clause_p subsumer, Clause_p sub_candidate)
 
 bool ClauseSetSubsumesClause(ClauseSet_p set, Clause_p sub_candidate)
 {
-   Clause_p handle;
-
-   assert(ClauseLiteralNumber(sub_candidate)>1);
-   assert(sub_candidate->weight ==
-	  ClauseStandardWeight(sub_candidate));
-   
-   for(handle = set->anchor->succ; handle != set->anchor;
-       handle = handle->succ)
+   if(set->fvindex)
    {
-      if(clause_subsumes_clause(handle, sub_candidate))
-      {
-	 /* printf("\nTrue: ");
-	 ClausePrint(stdout, handle, true);
-	 printf("\n subsumes: ");
-	 ClausePrint(stdout, sub_candidate, true);
-	 printf("\n"); */
-	 DocClauseQuote(GlobalOut, OutputLevel, 6, sub_candidate,
-			"subsumed", handle);
-	 ClauseSetProp(handle, ClauseQueryProp(sub_candidate,CPIsSOS));
-	 return true;
-      }
+      bool res; 
+      FreqVector_p vec = StandardFreqVectorCompute(sub_candidate,
+						   set->fvindex->symbol_limit);
+      res =  clause_set_subsumes_clause_indexed(set->fvindex->index, vec, 0);
+      FreqVectorFree(vec);
+      return res;
    }
-   return false;
+   return clause_set_subsumes_clause(set, sub_candidate);
 }
 
 
@@ -873,7 +1089,44 @@ Clause_p ClauseSetFindSubsumedClause(ClauseSet_p set, Clause_p
    }
    return NULL;
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetFindSubsumedClauses()
+//
+//   Find all clauses in set that are subsumed by subsumer, and push
+//   them onto stack. Return number of clauses found.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
    
+long ClauseSetFindSubsumedClauses(ClauseSet_p set, 
+				  FVPackedClause_p subsumer, 
+				  PStack_p res)
+{
+   long old_sp = PStackGetSP(res);
+
+   assert(ClauseLiteralNumber(subsumer->clause) > 1);
+   assert(subsumer->clause->weight == ClauseStandardWeight(subsumer->clause));
+   
+   if(set->fvindex)
+   {
+      clauseset_find_subsumed_clauses_indexed(set->fvindex->index,
+					      subsumer, 0, res);
+   }
+   else
+   {
+      clauseset_find_subsumed_clauses(set, subsumer->clause, res);
+   }
+   return PStackGetSP(res)-old_sp;
+}
+
+
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
