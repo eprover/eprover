@@ -64,17 +64,29 @@ import os.path
 import pylib_io
 import pylib_graphs
 
-cvc_sc_pat = re.compile("storecomm.*nf")
-cvc_scf_pat = re.compile("storecomm.*sf")
-e_sc_pat   = re.compile("storecomm.*sf")
+cvc_sc_pat = re.compile("storecomm_[^i].*nf")
+cvc_scf_pat = re.compile("storecomm[^i].*sf")
+e_sc_pat   = re.compile("storecomm[^i].*sf")
 
-cvc_si_pat = re.compile("storeinv.*nf")
-cvc_sif_pat = re.compile("storeinv.*sf")
-e_si_pat   = re.compile("storeinv.*sf")
+cvc_si_pat = re.compile("storeinv[^i].*nf")
+cvc_sif_pat = re.compile("storeinv[^i].*sf")
+e_si_pat   = re.compile("storeinv[^i].*sf")
 
-cvc_sw_pat = re.compile("swap.*nf")
-cvc_swf_pat = re.compile("swap.*sf")
-e_sw_pat   = re.compile("swap.*sf")
+cvc_sw_pat = re.compile("swap[^i].*nf")
+cvc_swf_pat = re.compile("swap[^i].*sf")
+e_sw_pat   = re.compile("swap[^i].*sf")
+
+cvc_scinv_pat = re.compile("storecomm_invalid.*nf")
+cvc_scfinv_pat = re.compile("storecomminvalid.*sf")
+e_scinv_pat   = re.compile("storecomminvalid.*sf")
+
+cvc_siinv_pat = re.compile("storeinvinvalid.*nf")
+cvc_sifinv_pat = re.compile("storeinvinvalid.*sf")
+e_siinv_pat   = re.compile("storeinvinvalid.*sf")
+
+cvc_swinv_pat = re.compile("swapinvalid.*nf")
+cvc_swfinv_pat = re.compile("swapinvalid.*sf")
+e_swinv_pat   = re.compile("swapinvalid.*sf")
 
 
 dir = "/Users/schulz/SOURCES/Projects/VERONA/dp/array/TEST_RESULTS/"
