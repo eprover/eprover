@@ -100,8 +100,8 @@ void CompClauseAddTerms(CompClause_p clause, Clause_p term_clause)
       assert(i<clause->literal_no);
       
       clause->sign[i] = EqnIsPositive(literal);
-      TermGetRef(&(clause->lit_terms[(2*i)]), literal->lterm);
-      TermGetRef(&(clause->lit_terms[(2*i)+1]), literal->rterm);
+      clause->lit_terms[(2*i)]  = literal->lterm;
+      clause->lit_terms[(2*i)+1]= literal->rterm;
    }
 }
 
@@ -119,18 +119,10 @@ void CompClauseAddTerms(CompClause_p clause, Clause_p term_clause)
 
 void CompClauseRemoveTerms(CompClause_p clause, TB_p bank)
 {
-   int i;
-
    assert(clause->lit_terms);
    assert(clause->sign);
    
-   for(i=0; i<clause->literal_no; i++)
-   {
-      TermReleaseRef(&(clause->lit_terms[(2*i)]));
-      /* TBDelete(bank, clause->lit_terms[(2*i)]); */
-      TermReleaseRef(&(clause->lit_terms[(2*i)+1]));
-      /* TBDelete(bank, clause->lit_terms[(2*i)+1]); */
-   }
+   /* Terms will be garbage-collected automatically */
    SizeFree(clause->sign, clause->literal_no*sizeof(short));
    clause->sign = NULL;
    SizeFree(clause->lit_terms, 2*clause->literal_no*sizeof(Term_p));
