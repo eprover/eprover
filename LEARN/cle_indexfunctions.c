@@ -6,9 +6,10 @@ Author: Stephan Schulz
 
 Contents
  
-  
+  Functions and data types realizing simple index function for
+  learning heuristics.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2005 by the author.
   This code is released under the GNU General Public Licence.
   See the file COPYING in the main CLIB directory for details.
   Run "eprover -h" for contact information.
@@ -236,8 +237,10 @@ void IndexTermFree(IndexTerm_p junk, TB_p bank)
 //
 /----------------------------------------------------------------------*/
 
-int IndexTermCompareFun(IndexTerm_p t1, IndexTerm_p t2)
+int IndexTermCompareFun(const void* term1, const void* term2)
 {
+   const IndexTerm_p t1 = (const IndexTerm_p) term1;
+   const IndexTerm_p t2 = (const IndexTerm_p) term2;
    int res = 0;
 
    switch(PatternTermCompare(t1->subst, t1->term, t2->subst,
@@ -424,7 +427,6 @@ long TSMIndexFind(TSMIndex_p index, Term_p term, PatternSubst_p subst)
 				    index->bank->vars);
 	 query.subst = subst;
 	 cell2 = PTreeObjFind(&(index->tree.t_index), &query,
-                               (ComparisonFunctionType)
 			       IndexTermCompareFun);
 	 if(cell2)
 	 {
@@ -437,7 +439,6 @@ long TSMIndexFind(TSMIndex_p index, Term_p term, PatternSubst_p subst)
 	 query.term  = term;
 	 query.subst = subst;
 	 cell2 = PTreeObjFind(&(index->tree.t_index), &query,
-                               (ComparisonFunctionType)
 			       IndexTermCompareFun);
 	 if(cell2)
 	 {
@@ -527,7 +528,6 @@ long TSMIndexInsert(TSMIndex_p index, Term_p term)
 				    index->bank->vars);
 	 query.subst = index->subst;
 	 cell2 = PTreeObjFind(&(index->tree.t_index), &query,
-			      (ComparisonFunctionType)
 			      IndexTermCompareFun);
 	 if(cell2)
 	 {
@@ -542,7 +542,6 @@ long TSMIndexInsert(TSMIndex_p index, Term_p term)
 	    res = index->count++;
 	    tmp.p_val = entry;
 	    entry = PTreeObjStore(&(index->tree.t_index), entry,
-				  (ComparisonFunctionType)
 				  IndexTermCompareFun);
 	    assert(!entry);
 	 }
@@ -552,7 +551,6 @@ long TSMIndexInsert(TSMIndex_p index, Term_p term)
 	 query.term  = term;
 	 query.subst = index->subst;
 	 cell2 = PTreeObjFind(&(index->tree.t_index), &query,
-			      (ComparisonFunctionType)
 			      IndexTermCompareFun);
 	 if(cell2)
 	 {
@@ -567,7 +565,6 @@ long TSMIndexInsert(TSMIndex_p index, Term_p term)
 	    res = index->count++;
 	    tmp.p_val = entry;
 	    entry = PTreeObjStore(&(index->tree.t_index), entry,
-				  (ComparisonFunctionType)
 				  IndexTermCompareFun);
 	    assert(!entry);
 	 }

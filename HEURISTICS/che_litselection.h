@@ -34,9 +34,23 @@ Changes
 
 typedef void (*LiteralSelectionFun)(OCB_p ocb, Clause_p clause);
 
+typedef struct lit_eval_cell
+{
+   bool forbidden; /* Never select this; */
+   bool exclusive; /* If this is selected, select no others */
+   int  w1; /* Lexicographically compared weights */
+   int  w2;
+   int  w3;
+}LitEvalCell, LitEval_p;
+
+
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
+
+#define LitEvalInit(cell) \
+        {(cell)->forbidden = false;cell->exclusive=true;\
+        cell->w1=0;cell->w2=0;cell->w3=0}
 
 extern char* LiteralSelectionFunNames[];
 

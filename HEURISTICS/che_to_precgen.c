@@ -40,7 +40,7 @@ char* TOPrecGenNames[]=
    "const_min",        /* PInvArConstMin */
    "freq",             /* PByFrequency */
    "invfreq",          /* PByInvFrequency */
-   "invfreqconstmin",  /* PByFreqConstMin */
+   "invfreqconstmin",  /* PByInvFreqConstMin */
    "invfreqhack",      /* PByInvFreqHack */
    "arrayopt",         /* PArrayOpt */
    "orient_axioms",    /* POrientAxioms */

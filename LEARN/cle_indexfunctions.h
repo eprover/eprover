@@ -100,7 +100,7 @@ IndexTerm_p IndexTermAlloc(Term_p term, PatternSubst_p subst, long
 			   key);
 void         IndexTermFree(IndexTerm_p junk, TB_p bank);
 
-int          IndexTermCompareFun(IndexTerm_p t1, IndexTerm_p t2);
+int          IndexTermCompareFun(const void* term1, const void* term2);
 
 #define TSMIndexCellAlloc()    (TSMIndexCell*)SizeMalloc(sizeof(TSMIndexCell))
 #define TSMIndexCellFree(junk) SizeFree(junk, sizeof(TSMIndexCell))

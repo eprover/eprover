@@ -52,8 +52,11 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-int p_atom_compare(PLiteralCode* a1, PLiteralCode* a2)
+int p_atom_compare(const void* atom1, const void* atom2)
 {
+   const PLiteralCode *a1 = (const PLiteralCode*)atom1; 
+   const PLiteralCode *a2 = (const PLiteralCode*)atom2; 
+
    PLiteralCode abs_a1, abs_a2;
 
    if(a1==a2)
@@ -181,7 +184,7 @@ bool DPLLClauseNormalize(DPLLClause_p clause)
    }
    assert(clause->lit_no == clause->active_no);
    qsort(clause->literals, clause->lit_no, sizeof(PLiteralCode), 
-	 (ComparisonFunctionType)p_atom_compare);
+	 p_atom_compare);
    to = 0;
    from = 1;
    while(from<clause->lit_no)

@@ -51,9 +51,12 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-static int feature_compare_function(FCodeFeatureSort_p entry1,
-                                    FCodeFeatureSort_p entry2)
+static int feature_compare_function(const void* e1,
+                                    const void* e2)
 {
+   const FCodeFeatureSort_p entry1 = (const FCodeFeatureSort_p)e1;
+   const FCodeFeatureSort_p entry2 = (const FCodeFeatureSort_p)e2;
+
    int res;
 
    if((res = entry1->key1-entry2->key1))
@@ -160,7 +163,7 @@ void FCodeFeatureArraySort(FCodeFeatureArray_p array)
    qsort(&(array->array[SIG_TRUE_CODE+1]), 
 	 array->size-(SIG_TRUE_CODE+1),
 	 sizeof(FCodeFeatureSortCell),
-	 (ComparisonFunctionType)feature_compare_function);
+	 feature_compare_function);
 }
 
 /*---------------------------------------------------------------------*/

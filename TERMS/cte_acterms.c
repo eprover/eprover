@@ -52,8 +52,10 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-static int acterm_uniq_compare(ACTerm_p t1, ACTerm_p t2)
+static int acterm_uniq_compare(const void* term1, const void* term2)
 {
+   const ACTerm_p t1 = (const ACTerm_p) term1;
+   const ACTerm_p t2 = (const ACTerm_p) term2;
    int res = ACTermCompare(t1, t2);
 
    if(!res)
@@ -87,8 +89,7 @@ static void ac_collect_args(PTree_p* root, Sig_p sig, FunCode f,
 
       ACTerm_p tmp = ACTermNormalize(sig, term);
 
-      res = PTreeObjStore(root, tmp,
-			  (ComparisonFunctionType)acterm_uniq_compare);
+      res = PTreeObjStore(root, tmp, acterm_uniq_compare);
       assert(!res);
    }
    else
