@@ -229,9 +229,10 @@ void     ClauseTSTPCorePrint(FILE* out, Clause_p clause, bool fullterms);
 void     ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms,
 			 bool complete);
 
-bool     ClauseStartsMaybe(Scanner_p in);
-Clause_p ClauseParse(Scanner_p in, TB_p bank);
-Clause_p ClausePCLParse(Scanner_p in, TB_p bank);
+bool             ClauseStartsMaybe(Scanner_p in);
+ClauseProperties ClauseTypeParse(Scanner_p in, char *legal_types);
+Clause_p         ClauseParse(Scanner_p in, TB_p bank);
+Clause_p         ClausePCLParse(Scanner_p in, TB_p bank);
 
 void     ClauseMarkMaximalTerms(OCB_p ocb, Clause_p clause);
 #define  ClauseCondMarkMaximalTerms(ocb, clause)\

@@ -163,6 +163,29 @@ int eqn_canon_compare(Eqn_p *l1, Eqn_p *l2)
    return EqnStructWeightLexCompare(*l1, *l2);
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: skip_tstp_source()
+//
+//   Skip a TSTP source field.
+//
+// Global Variables: -
+//
+// Side Effects    : Input
+//
+/----------------------------------------------------------------------*/
+
+void skip_tstp_source(Scanner_p in)
+{
+   AcceptInpTok(in, Identifier|PosInt);
+   if(TestInpTok(in, OpenBracket))
+   {
+      ParseSkipParenthesizedExpr(in);
+   }
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
@@ -1285,6 +1308,51 @@ bool ClauseStartsMaybe(Scanner_p in)
 
 /*-----------------------------------------------------------------------
 //
+// Function: ClauseTypeParse()
+//
+//   Parse a clause type specifier and return a matching type.
+//
+// Global Variables: -
+//
+// Side Effects    : Input
+//
+/----------------------------------------------------------------------*/
+
+ClauseProperties ClauseTypeParse(Scanner_p in, char *legal_types)
+{
+   ClauseProperties res;
+   
+   CheckInpId(in, legal_types);
+   
+   if(TestInpId(in, 
+                "axiom|definition|knowledge|"
+                "assumption"))
+   {
+      res = CPTypeAxiom;
+   }
+   else if(TestInpId(in, "conjecture"))
+   {
+      res = CPTypeConjecture;
+   }
+   else if(TestInpId(in, "hypothesis"))
+   {
+      res = CPTypeHypothesis;
+   }
+   else if(TestInpId(in, "lemma"))
+   {
+      res = CPTypeLemma;
+   }
+   else
+   {
+      res = CPTypeUnknown;
+   }
+   AcceptInpTok(in, Ident);
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: ClauseParse()
 //
 //   Parse a clause.
@@ -1318,28 +1386,7 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
       AcceptInpTok(in, OpenBracket);
       AcceptInpTok(in, Name);
       AcceptInpTok(in, Comma);
-      CheckInpId(in, "axiom|hypothesis|conjecture|lemma|unknown");
-      if(TestInpId(in, "axiom"))
-      {
-	 type = CPTypeAxiom;
-      }
-      else if(TestInpId(in, "hypothesis"))
-      {
-	 type = CPTypeHypothesis;
-      }
-      else if(TestInpId(in, "conjecture"))
-      {
-	 type = CPTypeConjecture;
-      }
-      else if(TestInpId(in, "lemma"))
-      {
-	 type = CPTypeLemma;
-      }
-      else
-      {
-	 type = CPTypeUnknown;
-      }
-      AcceptInpTok(in, Ident);
+      type = ClauseTypeParse(in, "axiom|hypothesis|conjecture|lemma|unknown");     
       AcceptInpTok(in, Comma);
       AcceptInpTok(in, OpenSquare);
       concl = EqnListParse(in, bank, Comma);
@@ -1367,37 +1414,25 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
       }
       if(check_type)
       {
-	 CheckInpId(in, 
-		    "axiom|definition|knowledge|assumption|"
-		    "hypothesis|conjecture|lemma|unknown");
-	 if(TestInpId(in, 
-		      "axiom|definition|knowledge|"
-		      "assumption"))
-	 {
-	    type = CPTypeAxiom;
-	 }
-	 else if(TestInpId(in, "conjecture"))
-	 {
-	    type = CPTypeConjecture;
-	 }
-	 else if(TestInpId(in, "hypothesis"))
-	 {
-	    type = CPTypeHypothesis;
-	 }
-	 else if(TestInpId(in, "lemma"))
-	 {
-	    type = CPTypeLemma;
-	 }
-	 else
-	 {
-	    type = CPTypeUnknown;
-	 }
-	 AcceptInpTok(in, Ident);
+         type = ClauseTypeParse(in, 
+                                "axiom|definition|knowledge|assumption|"
+                                "hypothesis|conjecture|lemma|unknown" );
       }
       AcceptInpTok(in, Comma);
       AcceptInpTok(in, OpenBracket);
       concl = EqnListParse(in, bank, Pipe);
       AcceptInpTok(in, CloseBracket);
+      if(TestInpTok(in, Comma))
+      {
+         AcceptInpTok(in, Comma);
+         skip_tstp_source(in);
+         if(TestInpTok(in, Comma))
+         {
+            AcceptInpTok(in, Comma);
+            CheckInpTok(in, OpenSquare);
+            ParseSkipParenthesizedExpr(in);
+         }
+      }
       AcceptInpTok(in, CloseBracket);         
    }
    else
