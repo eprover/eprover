@@ -65,6 +65,7 @@ void    EqnListInsertElement(EqnRef pos, Eqn_p element);
 Eqn_p   EqnListAppend(EqnRef list, Eqn_p newpart);
 Eqn_p   EqnListCopy(Eqn_p list, TB_p bank);
 Eqn_p   EqnListCopyExcept(Eqn_p list, Eqn_p except, TB_p bank);
+Eqn_p   EqnListCopyRepl(Eqn_p list, TB_p bank, Term_p old, Term_p repl);
 Eqn_p   EqnListNegateEqns(Eqn_p list);
 int     EqnListRemoveDuplicates(Eqn_p list, TermEqualTestFun
 				EqualTest);

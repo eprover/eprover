@@ -486,6 +486,38 @@ Eqn_p EqnListCopyExcept(Eqn_p list, Eqn_p except, TB_p bank)
    return newlist;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: EqnListCopyRepl()
+//
+//   Return a copy of the list with terms from bank, except that
+//   all occurances of "old" are replaced with repl (which has to be
+//   in bank).
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+Eqn_p EqnListCopyRepl(Eqn_p list, TB_p bank, Term_p old, Term_p repl)
+{
+   Eqn_p  newlist = NULL;
+   EqnRef insert = &newlist;
+
+   while(list)
+   {
+      *insert = EqnCopyRepl(list, bank, old, repl);
+      insert = &((*insert)->next);
+      list = list->next;
+   }
+   *insert = NULL;
+   
+   return newlist;
+}
+
+
+
 
 /*-----------------------------------------------------------------------
 //
