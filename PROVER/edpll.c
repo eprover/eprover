@@ -23,7 +23,7 @@ Changes
 #include <cio_commandline.h>
 #include <cio_output.h>
 #include <cio_signals.h>
-#include <cpr_propclauses.h>
+#include <cpr_dpllformula.h>
 
 /*---------------------------------------------------------------------*/
 /*                  Data types                                         */
@@ -151,14 +151,11 @@ void print_help(FILE* out);
 
 int main(int argc, char* argv[])
 {
-   TB_p            terms;
    Sig_p           sig;
-   PropSig_p       psig;
    Scanner_p       in;    
    int             i;
    CLState_p       state;
-   Clause_p        clause;
-   DPLLClause_p    pclause;
+   DPLLFormula_p   form;
    
    assert(argv[0]);
    
@@ -177,23 +174,20 @@ int main(int argc, char* argv[])
    }
    
    sig     = SigAlloc();
-   psig    = PropSigAlloc();
-   terms   = TBAlloc(TPIgnoreProps, sig);
+   form    = DPLLFormulaAlloc();
    for(i=0; state->argv[i]; i++)
    {
       in = CreateScanner(StreamTypeFile, state->argv[i] , true, NULL);
       ScannerSetFormat(in, parse_format);
       
-      clause = ClauseParse(in, terms);
-      pclause = DPLLClauseFromClause(psig, clause);
+      DPLLFormulaParseLOP(in, sig, form);
+      DPLLFormulaPrint(GlobalOut, form, DPLLOutLOP, true);
       DestroyScanner(in);
    }
    CLStateFree(state);
 #ifndef FAST_EXIT
-   terms->sig = NULL;
-   TBFree(terms);
+   DPLLFormulaFree(form);
    SigFree(sig);
-   PropSigFree(psig);
 #endif
    fflush(GlobalOut);
    OutClose(GlobalOut);   

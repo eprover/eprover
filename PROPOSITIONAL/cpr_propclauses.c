@@ -38,12 +38,67 @@ Changes
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
+/*-----------------------------------------------------------------------
+//
+// Function: p_atom_compare()
+//
+//   Compare the two propositional atoms pointed to. Atoms are
+//   compared by alsolute value, then by sign (smaller is smaller,
+//   positive is smaller).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 
+int p_atom_compare(PLiteralCode* a1, PLiteralCode* a2)
+{
+   PLiteralCode abs_a1, abs_a2;
+
+   if(a1==a2)
+   {
+      return 0;
+   }
+   abs_a1 = ABS(*a1);
+   abs_a2 = ABS(*a1);
+   if(abs_a1 < abs_a2)
+   {
+      return -1;
+   }
+   if(abs_a1 > abs_a2)
+   {
+      return 1;
+   }   
+   if(*a1>0)
+   {
+      return -1;
+   }   
+   return 1;
+}
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: DPLLClauseFree()
+//
+//   Free a DPLLClause.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations.
+//
+/----------------------------------------------------------------------*/
+
+void DPLLClauseFree(DPLLClause_p junk)
+{
+   SizeFree(junk->literals, junk->mem_size);
+   DPLLClauseCellFree(junk);
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -65,11 +120,12 @@ DPLLClause_p DPLLClauseFromClause(PropSig_p psig, Clause_p clause)
    DPLLClause_p handle = DPLLClauseCellAlloc();
    Eqn_p        eqn;
    long         i;
-   PAtomCode    atom;
+   PLiteralCode    atom;
 
    handle->lit_no    = lit_no;
    handle->active_no = lit_no;
-   handle->literals  = SizeMalloc(sizeof(PAtomCode));
+   handle->mem_size  = lit_no*sizeof(PLiteralCode);
+   handle->literals  = SizeMalloc(handle->mem_size);
    
    for(i=0,eqn=clause->literals;
        eqn;
@@ -95,6 +151,56 @@ DPLLClause_p DPLLClauseFromClause(PropSig_p psig, Clause_p clause)
 
    return handle;
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: DPLLClauseNormalize()
+//
+//   Destructively normalize a clause: Literals are sorted by atom
+//   encoding (positive comes before negative if both exist). Doubly
+//   occuring literals are removed. Return value is true if clause is 
+//   tautological, false otherwise. Does not reduce size of literal
+//   array, as I don't expect much reduction in the number of atoms
+//   here.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes clause
+//
+/----------------------------------------------------------------------*/
+
+bool DPLLClauseNormalize(DPLLClause_p clause)
+{
+   long to,from;
+   bool tautology = false;
+
+   if(clause->lit_no <= 1)
+   {
+      return false;
+   }
+   assert(clause->lit_no == clause->active_no);
+   qsort(clause->literals, clause->lit_no, sizeof(PLiteralCode), 
+	 (ComparisonFunctionType)p_atom_compare);
+   to = 0;
+   from = 1;
+   while(from<clause->lit_no)
+   {
+      if(clause->literals[from] != clause->literals[to])
+      {
+	 if(clause->literals[from] == -(clause->literals[to]))
+	 {
+	    tautology=true;
+	 }
+	 to++;
+	 clause->literals[to]=clause->literals[from];
+      }
+      from++;
+   }
+   clause->lit_no = clause->active_no = to+1;
+   return tautology;
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -157,7 +263,7 @@ void DPLLClausePrintLOP(FILE* out, PropSig_p psig, DPLLClause_p clause)
 void DPLLClausePrintDimacs(FILE* out,DPLLClause_p clause)
 {
    int i;
-   for(i=0; i<i<clause->lit_no;i++)
+   for(i=0; i<clause->lit_no;i++)
    {
       fprintf(out,"%ld ", clause->literals[i]);
    }

@@ -33,12 +33,19 @@ Changes
 /*---------------------------------------------------------------------*/
 
 
+typedef enum
+{
+   DPLLOutNoFormat,
+   DPLLOutLOP,
+   DPLLOutDimacs
+}DPLLOutputFormat;
 
 typedef struct dpll_clause_cell
 {
+   unsigned long mem_size;
    unsigned long lit_no;
    unsigned long active_no;
-   PAtomCode     *literals;
+   PLiteralCode  *literals;
 }DPLLClauseCell, *DPLLClause_p;
 
 
@@ -50,7 +57,9 @@ typedef struct dpll_clause_cell
 
 #define DPLLClauseCellAlloc() (DPLLClauseCell*)SizeMalloc(sizeof(DPLLClauseCell))
 #define DPLLClauseCellFree(junk)            SizeFree(junk, sizeof(DPLLClauseCell))
+void         DPLLClauseFree(DPLLClause_p junk);
 DPLLClause_p DPLLClauseFromClause(PropSig_p psig, Clause_p clause);
+bool         DPLLClauseNormalize(DPLLClause_p clause);
 void         DPLLClausePrintLOP(FILE* out, PropSig_p psig, DPLLClause_p clause);
 void         DPLLClausePrintDimacs(FILE* out, DPLLClause_p clause);
 

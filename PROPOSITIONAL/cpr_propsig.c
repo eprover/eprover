@@ -62,6 +62,7 @@ PropSig_p PropSigAlloc(void)
    PropSig_p handle = PropSigCellAlloc();
 
    handle->enc_to_name = PStackAlloc();
+   PStackPushP(handle->enc_to_name, NULL); /* Don't use literal 0 */
    handle->name_to_enc = NULL;
    
    return handle;
@@ -101,7 +102,7 @@ void PropSigFree(PropSig_p junk)
 //
 /----------------------------------------------------------------------*/
 
-PAtomCode PropSigGetAtomEnc(PropSig_p psig, char* name)
+PLiteralCode PropSigGetAtomEnc(PropSig_p psig, char* name)
 {
    StrTree_p handle;
 
@@ -110,7 +111,7 @@ PAtomCode PropSigGetAtomEnc(PropSig_p psig, char* name)
    {
       return handle->val1.i_val;
    }
-   return PAtomNoAtom;
+   return PLiteralNoLit;
 }
 
 
@@ -127,9 +128,9 @@ PAtomCode PropSigGetAtomEnc(PropSig_p psig, char* name)
 //
 /----------------------------------------------------------------------*/
 
-PAtomCode PropSigInsertAtom(PropSig_p psig, char* name)
+PLiteralCode PropSigInsertAtom(PropSig_p psig, char* name)
 {
-   PAtomCode enc;
+   PLiteralCode enc;
    StrTree_p handle;
 
    enc = PropSigGetAtomEnc(psig,name);
@@ -139,8 +140,8 @@ PAtomCode PropSigInsertAtom(PropSig_p psig, char* name)
    }
    handle = StrTreeCellAlloc();
    handle->key = SecureStrdup(name);
-   PStackPushP(psig->enc_to_name,handle->key);
    enc = PropSigAtomNumber(psig);
+   PStackPushP(psig->enc_to_name,handle->key);
    handle->val1.i_val = enc;
    handle = StrTreeInsert(&(psig->name_to_enc), handle);
    assert(!handle);
@@ -162,8 +163,9 @@ PAtomCode PropSigInsertAtom(PropSig_p psig, char* name)
 /----------------------------------------------------------------------*/
 
 
-char* PropSigGetAtomName(PropSig_p psig, PAtomCode atom)
+char* PropSigGetAtomName(PropSig_p psig, PLiteralCode atom)
 {
+   /* printf("Atom: %ld\n",atom); */
    assert(psig);
    assert(PAtomP(atom));
    assert(atom<PropSigAtomNumber(psig));
@@ -189,7 +191,7 @@ void PropSigPrint(FILE* out, PropSig_p psig)
 
    fprintf(out, "# Propositional signature:\n");
    fprintf(out, "# ------------------------\n");
-   for(i=0; i<PropSigAtomNumber(psig); i++)
+   for(i=1; i<PropSigAtomNumber(psig); i++)
    {
       fprintf(out, "# %6ld : %s\n", i, PropSigGetAtomName(psig,i));
    }

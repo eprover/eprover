@@ -35,7 +35,7 @@ include ../Makefile.services
 
 # Build the  library
 
-PROP_LIB = cpr_propsig.o cpr_propclauses.o
+PROP_LIB = cpr_propsig.o cpr_propclauses.o cpr_dpllformula.o
 
 
 $(LIB): $(PROP_LIB)
