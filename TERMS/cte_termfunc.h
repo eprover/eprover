@@ -98,7 +98,10 @@ bool    TermHasVariables(Term_p term, bool unbound_only);
 
 long    VarBankCheckBindings(FILE* out, VarBank_p bank, Sig_p sig);
 
-void    TermAddSymbolDistribution(Term_p term, long *dist_array);
+#define TermAddSymbolDistribution(term, dist_array)\
+        TermAddSymbolDistributionLimited((term),(dist_array), LONG_MAX)
+void    TermAddSymbolDistributionLimited(Term_p term, long *dist_array, 
+					 long limit);
 void    TermComputeFunctionRanks(Term_p term, long *rank_array, long *count);
 long    TermCollectPropVariables(Term_p term, PTree_p *tree,
 				  TermProperties prop);

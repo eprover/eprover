@@ -1271,10 +1271,10 @@ long VarBankCheckBindings(FILE* out, VarBank_p bank, Sig_p sig)
 
 /*-----------------------------------------------------------------------
 //
-// Function: TermAddSymbolDistribution()
+// Function: TermAddSymbolDistributionLimited()
 //
-//   As EqnListAddSymbolDistribution() (below), but for single
-//   terms. Terms are not dereferenced!
+//   Count occurences of function symbols with f_code<limit in
+//   dist_array. Terms are not dereferenced!
 //
 // Global Variables: -
 //
@@ -1282,7 +1282,7 @@ long VarBankCheckBindings(FILE* out, VarBank_p bank, Sig_p sig)
 //
 /----------------------------------------------------------------------*/
 
-void TermAddSymbolDistribution(Term_p term, long *dist_array)
+void TermAddSymbolDistributionLimited(Term_p term, long *dist_array, long limit)
 {
    PStack_p stack = PStackAlloc();
    assert(term);
@@ -1298,8 +1298,10 @@ void TermAddSymbolDistribution(Term_p term, long *dist_array)
 	 int i;
 	 
 	 assert(term->f_code > 0);
-	 dist_array[term->f_code]++;
-
+	 if(term->f_code < limit)
+	 {
+	    dist_array[term->f_code]++;
+	 }
 	 for(i=0; i<term->arity; i++)
 	 {
 	    assert(term->args);
