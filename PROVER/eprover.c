@@ -920,6 +920,8 @@ int main(int argc, char* argv[])
       ProofStateStatisticsPrint(GlobalOut, proofstate);
       fprintf(GlobalOut, "# Clause-clause subsumption calls      : %ld\n",
 	      ClauseClauseSubsumptionCalls);
+      fprintf(GlobalOut, "# Rec. Clause-clause subsumption calls : %ld\n",
+	      ClauseClauseSubsumptionCallsRec);
    }
    /* {char c = getc(stdin);} */
 #ifndef FAST_EXIT
