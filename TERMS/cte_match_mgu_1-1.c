@@ -252,7 +252,8 @@ bool SubstComputeMatch(Term_p matcher, Term_p to_match, Subst_p subst,
 //   above). Terms have to be variable disjoint, otherwise behaviour
 //   is unpredictable!
 //
-//   Solution with stacks is more efficient than unsorted Queues!
+//   Solution with stacks is more efficient than unsorted queues,
+//   sorted queues are significantly better again!
 //
 // Global Variables: 
 //
@@ -283,6 +284,11 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
       t2 =  TermDeref(PQueueGetLastP(jobs), &deref);
       t1 =  TermDeref(PQueueGetLastP(jobs), &deref);	    
       
+      if(TermIsVar(t2))
+      {
+         SWAP(Term_p, t1, t2);
+      }
+
       if(TermIsVar(t1))
       {
 	 if(!TBTermEqual(t1,t2))
@@ -301,24 +307,6 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
 	    }
 	 }
       }
-      else if((TermIsVar(t2)))
-      {
-	 if(!TBTermEqual(t2,t1))
-	 {
-	    /* Occur-Check - remember, variables are elementary and
-	       shared! */
-	    if(occur_check(t1, t2))
-	    {
-	       SubstBacktrackToPos(subst,backtrack);
-	       PQueueFree(jobs);
-	       return false;
-	    }
-	    else
-	    {
-	       SubstAddBinding(subst, t2, t1);
-	    }
-	 }
-      }      
       else
       {
 	 if(t1->f_code != t2->f_code)
