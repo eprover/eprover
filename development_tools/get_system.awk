@@ -21,6 +21,35 @@ function assert(val, comment)
    }   
 }
 
+# round --- do normal rounding
+#
+# Arnold Robbins, arnold@gnu.org, August, 1996
+# Public Domain
+
+function round(x,   ival, aval, fraction)
+{
+   ival = int(x)    # integer part, int() truncates
+
+   # see if fractional part
+   if (ival == x)   # no fraction
+      return x
+
+   if (x < 0) {
+      aval = -x     # absolute value
+      ival = int(aval)
+      fraction = aval - ival
+      if (fraction >= .5)
+         return int(x) - 1   # -2.5 --> -3
+      else
+         return int(x)       # -2.3 --> -2
+   } else {
+      fraction = x - ival
+      if (fraction >= .5)
+         return ival + 1
+      else
+         return ival
+   }
+}
 
 
 # Return the result of a single, simple shell command yieding exactly
@@ -145,7 +174,7 @@ function get_platform_info_Linux(    pipe, tmp, res, tmpres,  i, arr, elements)
 	    print "Cannot parse processor information" > "/dev/stderr";
 	    exit 1;
 	 }
-	 tmpmhz = arr[2];
+	 tmpmhz = round(arr[2]); # PCs have NO reliable frequency!
       }      
       if(i = index(tmp, "bogomips")==1)
       {
@@ -205,7 +234,8 @@ function get_platform_info_Darwin(     pipe, tmp, i, arr, elements, tmpname)
    }
    close(pipe);
 
-   return tmpname "-1000";
+   return tmpname "-1000"; # I have no other Apple and no way to get
+			   # the frequency
 }
 
 

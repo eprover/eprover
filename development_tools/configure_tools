@@ -20,3 +20,32 @@ for file in *.awk ; do
     chmod ugo+x $file
 done
 
+
+if which python2.3; then
+    PYTHON=`which python2.3`;
+    echo "configure_tools: Found Python 2.3 in your search path"
+elif which python2.2; then
+    PYTHON=`which python2.2`;
+    echo "configure_tools: Found Python 2.2 in your search path"
+elif which python2.1; then
+    PYTHON=`which python2.1`;
+    echo "configure_tools: Found Python 2.1 in your search path"
+elif which python; then
+    PYTHON=`which python`;
+    echo "configure_tools: Found Python in your search path (Note: Required version >=2.0, otherwise expect trouble)"
+else
+    echo "configure_tools: No Python available, tools unconfigured."
+    echo "configure_tools: Try to get Python 2.X installed in your search path."
+    exit 0;
+fi
+
+PYTHON=`basename $PYTHON`
+
+for file in *.py ; do
+    # cp $file $file.bak
+    echo "#!/usr/bin/env $PYTHON" > tmpfile
+    tail +2  $file >> tmpfile
+    mv tmpfile $file
+    chmod ugo+x $file
+done
+

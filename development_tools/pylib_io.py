@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python2.2
 # ----------------------------------
 #
 # Module pylib_io
