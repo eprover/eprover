@@ -507,8 +507,8 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
    handle->bank = bank;   
    handle->next = NULL;
 
-   TermGetRef(&(handle->lterm), lterm);
-   TermGetRef(&(handle->rterm), rterm);
+   handle->lterm = lterm;
+   handle->rterm = rterm;
 
    return handle;
 }

@@ -58,6 +58,7 @@ typedef struct rw_desc_cell
 
 extern long RewriteAttempts;
 extern long RewriteSucesses;
+extern long RewriteUnboundVarFails;
 
 
 Term_p TermComputeLINormalform(OCB_p ocb, TB_p bank, Term_p term,

@@ -30,7 +30,8 @@ Changes
 
 long RewriteAttempts = 0;
 long RewriteSucesses = 0;
-/* long RewriteTermDepth = 0; */
+long RewriteUnboundVarFails = 0;
+bool StrongRewrite = false;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -62,8 +63,13 @@ static bool instance_is_rule(OCB_p ocb, Term_p lside, Term_p rside,
 			     Subst_p subst)
 
 {   
-   if(TermHasUnboundVariables(rside))
+   if(StrongRewrite)
    {
+      
+   }
+   else if(TermHasUnboundVariables(rside))
+   {
+      RewriteUnboundVarFails++;
       return false;
    }
    if(SubstIsRenaming(subst)) /* Save comparisons */
