@@ -89,6 +89,7 @@ WFCB_p DefaultWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
 
 double DefaultWeightCompute(void* data, Clause_p clause);
 
+
 void TrivialWeightExit(void* data);
 
 #endif

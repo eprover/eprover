@@ -1277,6 +1277,40 @@ long ClauseSetFilterTautologies(ClauseSet_p set, TB_p work_bank)
    return count;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetFindMaxStandardWeight()
+//
+//   Return a pointer to a clause with the largest standard weight
+//   among clauses in set (or NULL if set is empty).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Clause_p ClauseSetFindMaxStandardWeight(ClauseSet_p set)
+{
+   long max_weight = 0, weight;
+   Clause_p handle, res = NULL;
+   
+   assert(set);
+   
+   handle = set->anchor->succ;
+   while(handle != set->anchor)
+   {  
+      weight = ClauseStandardWeight(handle);
+      if(weight > max_weight)
+      {
+	 res = handle;
+	 max_weight = weight;
+      }
+      handle = handle->succ;
+   }
+   return res;
+}
+
 
 /*-----------------------------------------------------------------------
 //

@@ -110,6 +110,8 @@ void        ClauseSetRemoveEvaluations(ClauseSet_p set);
 long        ClauseSetFilterTrivial(ClauseSet_p set);
 long        ClauseSetFilterTautologies(ClauseSet_p set, TB_p work_bank);
 
+Clause_p    ClauseSetFindMaxStandardWeight(ClauseSet_p set);
+
 ClausePos_p ClauseSetFindEqDefinition(ClauseSet_p set, int min_arity);
 
 void        ClauseSetDocInital(FILE* out, long level, ClauseSet_p set);

@@ -740,6 +740,32 @@ long ClauseSetCountEqnLiterals(ClauseSet_p set)
 
 /*-----------------------------------------------------------------------
 //
+// Function: ClauseSetMaxStandardWeight()
+//
+//   Return the standard weight of the largest clause in set (or -1 if
+//   set is empty).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetMaxStandardWeight(ClauseSet_p set)
+{
+   long res = -1;
+   Clause_p handle = ClauseSetFindMaxStandardWeight(set);
+
+   if(handle)
+   {
+      res = ClauseStandardWeight(handle);
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: ClauseSetTermCells()
 //
 //   Return the number of term positions in the clause set.

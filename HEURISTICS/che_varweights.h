@@ -25,7 +25,7 @@ Changes
 #define CHE_VARWEIGHTS
 
 #include <che_refinedweight.h>
-#include <che_clausefeatures.h>
+#include <che_clausesetfeatures.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -52,7 +52,8 @@ typedef struct varweightparamcell
    long   nvweight;
    long   nfweight;
    long   cweight;
-   long   pweight;   
+   long   pweight;
+   long   stagger_limit;
 }VarWeightParamCell, *VarWeightParam_p;
 
 
@@ -157,6 +158,16 @@ WFCB_p ClauseWeightAgeInit(ClausePrioFun prio_fun, int fweight, int
 WFCB_p ClauseWeightAgeParse(Scanner_p in, OCB_p ocb, ProofState_p state);
 
 double ClauseWeightAgeCompute(void* data, Clause_p clause);
+
+
+WFCB_p StaggeredWeightInit(ClausePrioFun prio_fun, 
+			   double stagger_factor, ClauseSet_p axioms);
+
+WFCB_p StaggeredWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
+			    state);
+
+double StaggeredWeightCompute(void* data, Clause_p clause);
+
 
 void   VarWeightExit(void* data);
 

@@ -1044,7 +1044,7 @@ WFCB_p ClauseWeightAgeParse(Scanner_p in, OCB_p ocb, ProofState_p state)
    return ClauseWeightAgeInit(prio_fun, fweight, vweight,
 			      pos_multiplier, weight_multiplier); 
 }
-
+ 
 
 /*-----------------------------------------------------------------------
 //
@@ -1070,6 +1070,91 @@ double ClauseWeightAgeCompute(void* data, Clause_p clause)
 			false))
       +clause->create_date;
 }
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: StaggeredWeightInit()
+//
+//   Initialize a staggered evaluation function (to replace FIFO).
+//   Assign weight
+//   (int)(ClauseStandardWeight(clause)/
+//   (max(ClauseStandardWeight(initial_clause_set)*stagger_factor)).
+//   Precedence within each class is by the tie-breaking fifo.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+WFCB_p StaggeredWeightInit(ClausePrioFun prio_fun, 
+			   double stagger_factor, ClauseSet_p axioms)
+{
+   VarWeightParam_p data = VarWeightParamCellAlloc();
+   long clause_max_size = ClauseSetMaxStandardWeight(axioms);
+
+   if(clause_max_size < 1)
+   {
+      clause_max_size = 1;
+   }
+   data->stagger_limit = stagger_factor*clause_max_size; 
+   return WFCBAlloc(StaggeredWeightCompute, prio_fun, VarWeightExit, data);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: StaggeredWeightParse()
+//
+//   Parse a staggered weight evaluation function.
+//
+// Global Variables: -
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+
+WFCB_p StaggeredWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
+			  state)
+{
+   ClausePrioFun prio_fun;
+   double stagger_factor;
+   
+   AcceptInpTok(in, OpenBracket);
+   prio_fun = ParsePrioFun(in);
+   AcceptInpTok(in, Comma);
+   stagger_factor = ParseFloat(in);   
+   AcceptInpTok(in, CloseBracket);
+      
+   return StaggeredWeightInit(prio_fun, stagger_factor, state->axioms);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: StaggeredWeightCompute()
+//
+//   Compute the staggered weight of a clause.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+double StaggeredWeightCompute(void* data, Clause_p clause)
+{
+   long res, weight;
+   VarWeightParam_p local = data;
+   
+   weight = ClauseStandardWeight(clause);
+   res = weight/local->stagger_limit;
+   return (double)res;
+}
+
 
 
 

@@ -254,6 +254,7 @@ long    ClauseSetCountMaximalTerms(ClauseSet_p set);
 long    ClauseSetCountMaximalLiterals(ClauseSet_p set);
 long    ClauseSetCountUnorientableLiterals(ClauseSet_p set);
 long    ClauseSetCountEqnLiterals(ClauseSet_p set);
+long    ClauseSetMaxStandardWeight(ClauseSet_p set);
 
 long    ClauseSetTermCells(ClauseSet_p set);
 long    ClauseSetMaxLiteralNumber(ClauseSet_p set);
