@@ -117,6 +117,8 @@ char* LiteralSelectionFunNames[]=
    "PSelectMinInfpos",
    "HSelectMinInfpos",
    "GSelectMinInfpos",
+   "SelectMinInfposNoTypePred",
+   "PSelectMinInfposNoTypePred",
    "SelectMin2Infpos",
    "PSelectMin2Infpos",
    "SelectComplexExceptUniqMaxPosHorn",
@@ -219,6 +221,8 @@ static LiteralSelectionFun litsel_fun_array[]=
    PSelectMinInfpos,
    HSelectMinInfpos,
    GSelectMinInfpos,
+   SelectMinInfposNoTypePred,
+   PSelectMinInfposNoTypePred,
    SelectMin2Infpos,
    PSelectMin2Infpos,
    SelectComplexExceptUniqMaxPosHorn,
@@ -648,7 +652,7 @@ char* GetLitSelName(LiteralSelectionFun fun)
 //
 // Function: SelectNoLiterals()
 //
-//   Unselect all literals.
+//   Unselect all literals (now a dummy, this is done further up).
 //
 // Global Variables: -
 //
@@ -678,8 +682,6 @@ void SelectNoGeneration(OCB_p ocb, Clause_p clause)
 {
    assert(clause);
    assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
-
-   return;
 }
 
 
@@ -821,7 +823,7 @@ void PSelectFirstVariableLiteral(OCB_p ocb, Clause_p clause)
 void SelectLargestNegativeLiteral(OCB_p ocb, Clause_p clause)
 {
    assert(clause);
-   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+   assert(EqnLisQueryPropNumber(clause->literals, EPIsSelected)==0);
 
    if(clause->neg_lit_no)
    {
@@ -3633,7 +3635,7 @@ void PSelectMaxLComplexNoTypePred(OCB_p ocb, Clause_p clause)
 //   largest difference non-ground
 //   
 //   Never select an extended type literal P(X1,...,Xn). If all
-//   negative literals are extendet type literals, select nothing.
+//   negative literals are extended type literals, select nothing.
 //
 // Global Variables: -
 //
@@ -4558,6 +4560,109 @@ void GSelectMinInfpos(OCB_p ocb, Clause_p clause)
 	       EqnSetProp(handle, EPIsSelected);	    
 	    }
 	 }
+      }
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectMinInfposNoTypePred()
+//
+//   Select the literal with the smallest number of potential
+//   inference positions, i.e. smallest sum of maximal size weights,
+//   but never select type predicates.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void SelectMinInfposNoTypePred(OCB_p ocb, Clause_p clause)
+{
+   assert(clause);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+   
+   if(clause->neg_lit_no)
+   {
+      Eqn_p handle = clause->literals, selected = NULL;
+      long  select_weight = LONG_MAX, currw;
+      
+      ClauseCondMarkMaximalTerms(ocb, clause); 
+      while(handle)
+      {
+	 if(EqnIsNegative(handle)&&!EqnIsTypePred(handle))
+	 {
+	    currw = TermStandardWeight(handle->lterm);
+	    if(!EqnIsOriented(handle))
+	    {
+	       currw += TermStandardWeight(handle->rterm);
+	    }
+	    if(currw < select_weight)
+	    {
+	       select_weight = currw;
+	       selected = handle;
+	    }
+	 }
+	 handle = handle->next;
+      }
+      if(selected)
+      {
+	 EqnSetProp(selected, EPIsSelected);
+	 ClauseDelProp(clause, CPIsOriented);
+      }
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: PSelectMinInfposNoTypePred()
+//
+//   Select the literal with the smallest number of potential
+//   inference positions, i.e. smallest sum of maximal size weights,
+//   but never select type predicates. If literal is selected, also
+//   select positive ones.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void PSelectMinInfposNoTypePred(OCB_p ocb, Clause_p clause)
+{
+   assert(clause);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+   
+   if(clause->neg_lit_no)
+   {
+      Eqn_p handle = clause->literals, selected = NULL;
+      long  select_weight = LONG_MAX, currw;
+      
+      ClauseCondMarkMaximalTerms(ocb, clause); 
+      while(handle)
+      {
+	 if(EqnIsNegative(handle)&&!EqnIsTypePred(handle))
+	 {
+	    currw = TermStandardWeight(handle->lterm);
+	    if(!EqnIsOriented(handle))
+	    {
+	       currw += TermStandardWeight(handle->rterm);
+	    }
+	    if(currw < select_weight)
+	    {
+	       select_weight = currw;
+	       selected = handle;
+	    }
+	 }
+	 handle = handle->next;
+      }
+      if(selected)
+      {
+	 EqnSetProp(selected, EPIsSelected);
+	 clause_select_pos(clause);
+	 ClauseDelProp(clause, CPIsOriented);
       }
    }
 }

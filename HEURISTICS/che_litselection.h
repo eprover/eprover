@@ -150,6 +150,8 @@ void SelectMinInfpos(OCB_p ocb, Clause_p clause);
 void PSelectMinInfpos(OCB_p ocb, Clause_p clause);
 void HSelectMinInfpos(OCB_p ocb, Clause_p clause);
 void GSelectMinInfpos(OCB_p ocb, Clause_p clause);
+void SelectMinInfposNoTypePred(OCB_p ocb, Clause_p clause);
+void PSelectMinInfposNoTypePred(OCB_p ocb, Clause_p clause);
 
 void SelectMin2Infpos(OCB_p ocb, Clause_p clause);
 void PSelectMin2Infpos(OCB_p ocb, Clause_p clause);
