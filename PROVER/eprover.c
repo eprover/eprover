@@ -32,8 +32,8 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-/*  cvs tag E-0-82dev031 */
-#define VERSION      "0.82dev031"
+/*  cvs tag E-0-82dev032 */
+#define VERSION      "0.82dev032"
 #define NAME         "eprover"
 
 #define NICKNAME     "Lung Ching"
@@ -592,7 +592,7 @@ OptCell opts[] =
     '\0', "disable-paramod-into-neg-units",
     NoArg, NULL,
     "Disable paramodulation into negative unit clause. This makes the"
-    " prover incomplete in the general case, but  helps for some "
+    " prover incomplete in the general case, but helps for some "
     "specialized classes."}, 
    {OPT_NO_GC_FORWARD_SIMPL,
     '\0', "disable-given-clause-fw-contraction",
@@ -604,7 +604,7 @@ OptCell opts[] =
     " procedure. However, there are some problem classes in which "
     " this simplifications empirically never occurs. In such cases, we "
     "can save significant overhead. The option _should_ work in all "
-    "cases, but is not expexted to imptove things in most cases."},
+    "cases, but is not expected to improve things in most cases."},
 
    {OPT_SPLIT_TYPES,
     '\0', "split-clauses",
@@ -645,10 +645,11 @@ OptCell opts[] =
    {OPT_ORDERING,
     't', "term-ordering",
     ReqArg, NULL,
-    "Select an ordering type (currently Auto, LPO, KBO or "
+    "Select an ordering type (currently Auto, LPO, LPO4, KBO or "
     "KBO1). -tAuto is suggested, in particular with -xAuto. KBO and"
     " KBO1 are different implementations of the same ordering, KBO is"
-    " usually faster and has had more testing."},
+    " usually faster and has had more testing. Similarly, LPO4 is an "
+    "new, equivalent but superior implementation of LPO."},
 
    {OPT_TO_WEIGHTGEN,
     'w', "order-weight-generation",
@@ -716,7 +717,7 @@ OptCell opts[] =
     "(clauses of the form ?-l(X),...,m(Y)). Normaly, all negative "
     "clauses are used. Please note that " 
     "most E heuristics do not use this information at all, it is currently "
-    "only useful for certain parameter settings (including the SimulateSOS"
+    "only useful for certain parameter settings (including the SimulateSOS "
     "priority function)."},
 
    {OPT_ER_DESTRUCTIVE,
@@ -763,8 +764,9 @@ OptCell opts[] =
    {OPT_RULES_GENERAL,
     'g', "prefer-general-demodulators",
     NoArg, NULL,
-    "Prefer general demodulators. By default, use specialized"
-    " demodulators."}, 
+    "Prefer general demodulators. By default, E prefers specialized"
+    " demodulators. This affects in which order the rewrite "
+    " index is traversed."}, 
    
    {OPT_FORWARD_DEMOD,
     'F', "forward_demod_level",
@@ -772,7 +774,7 @@ OptCell opts[] =
     "Set the desired level for rewriting of unprocessed clauses. A "
     "value of 0 means no rewriting, 1 indicates to use rules "
     "(orientable equations) only, 2 indicates full rewriting with "
-    "rules and instances of unorientable equations. Default is 2."},
+    "rules and instances of unorientable equations. Default behavior is 2."},
 
    {OPT_STRONG_RHS_INSTANCE,
     '\0', "strong-rw-inst",
@@ -1007,7 +1009,7 @@ int main(int argc, char* argv[])
    
    for(i=0; state->argv[i]; i++)
    {
-      in = CreateScanner(StreamTypeFile, state->argv[i] , true, NULL);
+      in = CreateScanner(StreamTypeFile, state->argv[i] , true, "include");
       ScannerSetFormat(in, parse_format);
       
       FormulaAndClauseSetParse(in, proofstate->axioms, 
@@ -1047,7 +1049,7 @@ int main(int argc, char* argv[])
    {
       proofstate->watchlist = ClauseSetAlloc();
       
-      in = CreateScanner(StreamTypeFile, watchlist_filename, true, NULL);
+      in = CreateScanner(StreamTypeFile, watchlist_filename, true, "include");
       ScannerSetFormat(in, parse_format);
       ClauseSetParseList(in, proofstate->watchlist,
 			 proofstate->original_terms);
@@ -1633,7 +1635,7 @@ CLState_p process_options(int argc, char* argv[])
 	    else
 	    {
 	       Error("Option -t (--term-ordering) requires Auto, "
-		     "Auto071, AutoDev, Optimize, LPO, or KBO as an "
+		     "Auto071, AutoDev, Optimize, LPO, LPO4, or KBO as an "
 		     "argument", 
 		     USAGE_ERROR);
 	    }
