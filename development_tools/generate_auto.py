@@ -5,6 +5,7 @@ import re
 import string
 
 pick_by_global_performance = 1
+optimize_large_class_limit = 50
 
 white_space     = re.compile('\s+')
 trail_space     = re.compile('\s*$')
@@ -653,9 +654,11 @@ for i in classlist:
     opt_res[i] = solved
     sum = sum+solved
 
-class_list_iter = classlist
+class_list_iter = list(classlist)
 result = {}
 used   = []
+myused = {}
+
 if pick_by_global_performance:
     ordered_strats = stratperf.keys()
     ordered_strats.sort(compare_strat_global)
@@ -673,12 +676,24 @@ while class_list_iter:
         result[i] = h
         class_list_iter.remove(i)
     used.append(h)
-
+    myused[h] = True
 
 
 # Now we might want to do some post-optimization....or not!
 
-
+if optimize_large_class_limit > 0:
+    class_list_iter = list(classlist)
+    
+    while class_list_iter:
+        cand = class_list_iter.pop()
+        if classsize[cand] > optimize_large_class_limit:
+            h = find_optimal_heuristic([cand], [])
+            tmp = result[cand]
+            result[cand] = h
+            # print "Heuristic for "+cand+" changed from "+tmp+" to "+h
+            if not h in myused:
+                used.apped.h
+                myused[h] = True
 
 # And now we print the results
 
