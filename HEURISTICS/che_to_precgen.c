@@ -56,7 +56,9 @@ char* TOPrecGenNames[]=
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
+/* #define PRINT_PRECEDENCE */
 
+#ifdef PRINT_PRECEDENCE
 /*-----------------------------------------------------------------------
 //
 // Function: print_prec_array()
@@ -86,6 +88,7 @@ void print_prec_array(FILE* out, Sig_p sig, FCodeFeatureArray_p array)
    }
    fprintf(out, "\n");
 }
+#endif
 
 
 /*-----------------------------------------------------------------------
@@ -130,7 +133,9 @@ static void compute_precedence_from_array(OCB_p ocb, FCodeFeatureArray_p
 	 last = array->array[i].symbol;
       }
    }
+#ifdef PRINT_PRECEDENCE
    print_prec_array(GlobalOut, ocb->sig, array);
+#endif
 }
 
 

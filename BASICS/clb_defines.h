@@ -161,39 +161,6 @@ typedef unsigned long ulong_c;
 #define KILO 1024
 #define MEGA (KILO*KILO)
 
-/* Macros for debugging: If debugging is enabled and DEBUGLEVEL
-   matches the given level, do something arbitrary or print a
-   message. DEBUGLEVEL is set in CLIB/Makefile.vars, the following
-   values are predefined. */
-
-
-#define PP_LOWDETAILS          1   /* Main loop stuff */
-#define PP_HIGHDETAILS         2   /* Primary subroutines in
-				      cco_proofproc.c */
-#define PP_INSERTING_NEW     128  /*  Monitor new (and rewritten)
-				      clauses */
-#define CO_SIMPLIFICATION      4  /* Control of simplification */
-#define RW_INTERFACE_WATCH1    8  /* Rewriting, Equations and up */
-#define RW_INTERFACE_WATCH2   16  /* Rewriting, terms */
-#define RW_MATCH_WATCH        32  /* Individual Matches */
-#define RW_REWRITE_WATCH      64  /* Results of rewrite steps */
-#define PDT_INTERFACE_WATCH  512  /* Discrimination trees input and
-				     output */
-#define PM_INPUT_PRINT       256  /* What goes into paramod? */
-#define RPL_TERM_WATCH      2048  /* Term replacing in term banks */
-
-
-#if defined(DEBUGLEVEL)
-#define DEBUGCMD(level,op)       if((level)&DEBUGLEVEL){op}
-#define DEBUGMARK(level,text) if((level)&DEBUGLEVEL)\
-                                 {printf("# [%3d]"text,(level));}
-#define DEBUGOUT(level,text)  if((level)&DEBUGLEVEL)\
-                                 {printf(text);}
-#else
-#define DEBUGCMD(level,op)
-#define DEBUGMARK(level,text)
-#define DEBUGOUT(level,text)
-#endif
 
 #ifdef PRINT_TSTP_STATUS
 #define TSTPOUT(file,msg) fprintf(file, "# TSTP exit status: %s\n", msg)

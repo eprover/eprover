@@ -142,16 +142,6 @@ static bool term_is_top_rewritable(OCB_p ocb, Term_p term, Clause_p
    
    eqn = new_demod->literals;
 
-   DEBUGMARK(RW_MATCH_WATCH, "Matching ");
-   DEBUGCMD(RW_MATCH_WATCH, 
-	 ClausePrint(stdout, new_demod, true););
-   DEBUGOUT(RW_MATCH_WATCH, " (l) onto ");
-   DEBUGCMD(RW_MATCH_WATCH, 
-	 TermPrint(stdout, term, ocb->sig, DEREF_NEVER););
-   DEBUGOUT(RW_MATCH_WATCH, "\nInstantiated lside: ");
-   DEBUGCMD(RW_MATCH_WATCH,
-	 TermPrint(stdout, eqn->lterm, ocb->sig, DEREF_ONCE););
-   DEBUGOUT(RW_MATCH_WATCH, "\n");
    if(SubstComputeMatch(eqn->lterm, term, subst, TBTermEqual))
    {
       if((EqnIsOriented(eqn) 
@@ -482,9 +472,6 @@ static ClausePos_p indexed_find_demodulator(OCB_p ocb, Term_p term,
    Eqn_p       eqn;   
    ClausePos_p pos, res = NULL;
    
-   DEBUGMARK(RW_INTERFACE_WATCH2,
-	     "TermIndexedFindDemodulator()...\n");
-   
    assert(term);
    assert(demodulators);
    assert(demodulators->demod_index);
@@ -493,11 +480,6 @@ static ClausePos_p indexed_find_demodulator(OCB_p ocb, Term_p term,
    assert(!TermIsTopRewritten(term));
 
    RewriteAttempts++;   
-   
-   DEBUGMARK(RW_MATCH_WATCH, "\nSearching match for: ");
-   DEBUGCMD(RW_MATCH_WATCH, TermPrint(stdout, term, ocb->sig,
-				   DEREF_NEVER);
-	 printf("\n"););
    
    PDTreeSearchInit(demodulators->demod_index, term, date, prefer_general);
    
@@ -519,17 +501,6 @@ static ClausePos_p indexed_find_demodulator(OCB_p ocb, Term_p term,
       switch(pos->side)
       {
       case LeftSide:
-	    DEBUGMARK(RW_MATCH_WATCH, "Found: ");
-	    DEBUGCMD(RW_MATCH_WATCH, 
-		  ClausePrint(stdout, pos->clause, true);
-		  printf(" (l), instantiated: ");
-		  TermPrint(stdout, pos->clause->literals->lterm,
-			    ocb->sig, DEREF_ONCE);
-		  printf(" <=> ");
-		  TermPrint(stdout, pos->clause->literals->rterm,
-			    ocb->sig, DEREF_ONCE);
-		  printf("\n");
-	       );
 	    if((EqnIsOriented(eqn) 
 		|| instance_is_rule(ocb, eqn, eqn->lterm, eqn->rterm, subst))
 	       &&
@@ -540,17 +511,6 @@ static ClausePos_p indexed_find_demodulator(OCB_p ocb, Term_p term,
 	    }
 	    break;
       case RightSide:
-	    DEBUGMARK(RW_MATCH_WATCH, "Found: ");
-	    DEBUGCMD(RW_MATCH_WATCH, 
-		  ClausePrint(stdout, pos->clause, true);
-		  printf(" (r), instantiated: ");
-		  TermPrint(stdout, pos->clause->literals->lterm,
-			    ocb->sig, DEREF_ONCE);
-		  printf(" <=> ");
-		  TermPrint(stdout, pos->clause->literals->rterm,
-			    ocb->sig, DEREF_ONCE);
-		  printf("\n");
-	       );
 	    assert(!EqnIsOriented(eqn));
 	    if(instance_is_rule(ocb, eqn, eqn->rterm, eqn->lterm, subst)
 	       &&
@@ -572,8 +532,6 @@ static ClausePos_p indexed_find_demodulator(OCB_p ocb, Term_p term,
    }
    PDTreeSearchExit(demodulators->demod_index);
 
-   DEBUGMARK(RW_INTERFACE_WATCH2,
-	     "...TermIndexedFindDemodulator()\n");
    return res;
 }
 
@@ -692,14 +650,12 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term)
 {
    bool    modified = true;
 
-   DEBUGMARK(RW_INTERFACE_WATCH2, "TermComputeLINormalform()...\n");   
    /* printf("Term: ");
    TermPrint(stdout, term, desc->ocb->sig, DEREF_NEVER);
    printf("\n"); */
    
    if(desc->level == NoRewrite)
    {
-      DEBUGMARK(RW_INTERFACE_WATCH2, "...TermComputeLINormalform() (RW-Level = 0)\n");  
       return term;
    }
    term = term_follow_top_RW_chain(term, desc);
@@ -713,12 +669,10 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term)
       SysDateCompare(term->rw_data.nf_date[desc->level-1],
 		     desc->demod_date)!=DateEarlier)
    {
-      DEBUGMARK(RW_INTERFACE_WATCH2, "...TermComputeLINormalform() (Used dates)\n");  
       return term;
    }      
    if(TermIsVar(term))
    {
-      DEBUGMARK(RW_INTERFACE_WATCH2, "...TermComputeLINormalform() (Variable)\n");        
       assert(!TermIsRewritten(term));
       return term;
    }
@@ -787,7 +741,6 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term)
 	 term->rw_data.nf_date[RewriteAdr(FullRewrite)] = desc->demod_date;
       }   
    }
-   DEBUGMARK(RW_INTERFACE_WATCH2, "...TermComputeLINormalform()\n");   
    return term;
 }
 
@@ -955,9 +908,7 @@ bool ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
       ClauseDelProp(clause, CPInitial);
    }
    RWDescCellFree(desc);
-   DEBUGCMD(RW_INTERFACE_WATCH1, printf("# Res :");
-	 ClausePrint(stdout, clause, true);printf("\n"););
-   DEBUGMARK(RW_INTERFACE_WATCH1, "...ClauseComputeLINormalform()\n");      
+
    return res;
 }
 
@@ -985,9 +936,6 @@ long ClauseSetComputeLINormalform(OCB_p ocb, TB_p bank, ClauseSet_p
    bool     tmp;
    long     res = 0;
 
-   DEBUGMARK(RW_INTERFACE_WATCH1,
-	     "ClauseSetComputeLINormalform()...\n");
-
    for(handle=set->anchor->succ; handle!=set->anchor; handle =
 	  handle->succ)
    {
@@ -1002,7 +950,6 @@ long ClauseSetComputeLINormalform(OCB_p ocb, TB_p bank, ClauseSet_p
       }
       /* assert(handle->weight == ClauseStandardWeight(handle)); */
    }
-   DEBUGMARK(RW_INTERFACE_WATCH1, "...ClauseSetComputeLINormalform()\n");
    return res;
 }
 

@@ -260,8 +260,6 @@ static __inline__ Term_p TermDeref(Term_p term, DerefType_p deref)
       while(term->binding)
       {
          term = term->binding;
-         DEBUGCMD(1024, printf("# TermDeref ALWAYS: %p, %ld\n",
-                               term, *deref););
       }
    }
    else
@@ -273,8 +271,6 @@ static __inline__ Term_p TermDeref(Term_p term, DerefType_p deref)
             break;
          }
          term = term->binding;
-         DEBUGCMD(1024, printf("# TermDeref ELSE: %p, %ld\n",
-                               term, *deref););
          (*deref)--;     
       }
    }

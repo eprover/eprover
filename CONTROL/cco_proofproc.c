@@ -96,7 +96,6 @@ static long remove_subsumed(FVPackedClause_p subsumer, ClauseSet_p set)
    
    while(!PStackEmpty(stack))
    {
-      DEBUGMARK(PP_HIGHDETAILS, "*\n");
       handle = PStackPopP(stack);
       if(ClauseQueryProp(handle, CPWatchOnly))
       {
@@ -695,7 +694,6 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
 
    OUTPRINT(1, "# Initializing proof state\n");
    
-   DEBUGMARK(PP_LOWDETAILS,"ProofStateInit()...starting to copy\n");
    
    assert(ClauseSetEmpty(state->processed_pos_rules));
    assert(ClauseSetEmpty(state->processed_pos_eqns));
@@ -795,7 +793,6 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
    SysDate          clausedate;
    long             clause_count;
 
-   DEBUGMARK(PP_LOWDETAILS, "ProcessClause...\n");
    clause = control->hcb->hcb_select(control->hcb,
 				     state->unprocessed);   
    if(OutputLevel==1)
@@ -983,7 +980,6 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
 		      state->unprocessed->members)&&
 	 (!state->watchlist||!ClauseSetEmpty(state->watchlist)))
    {     
-      DEBUGMARK(PP_LOWDETAILS,"Saturate loop entry.\n");
 
       count++;
       unsatisfiable = ProcessClause(state, control);

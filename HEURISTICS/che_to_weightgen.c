@@ -70,6 +70,10 @@ char* TOWeightGenNames[]=
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
+/* #define PRINT_FUNWEIGHTS */
+
+#ifdef PRINT_FUNWEIGHTS
+
 /*-----------------------------------------------------------------------
 //
 // Function: print_weight_array()
@@ -81,7 +85,7 @@ char* TOWeightGenNames[]=
 // Side Effects    : Output
 //
 /----------------------------------------------------------------------*/
-/*
+
 static void print_weight_array(FILE* out,OCB_p ocb)
 {
    FunCode i;
@@ -97,7 +101,8 @@ static void print_weight_array(FILE* out,OCB_p ocb)
    }
    fprintf(out, "\n");
 }
-*/
+
+#endif
 
 /*-----------------------------------------------------------------------
 //
@@ -785,7 +790,10 @@ void TOGenerateWeights(OCB_p ocb, ClauseSet_p axioms,
       }
    }
    *OCBFunWeightPos(ocb, SIG_TRUE_CODE) = ocb->var_weight;
-   /* print_weight_array(GlobalOut,ocb); */
+
+#ifdef PRINT_FUNWEIGHTS
+   print_weight_array(GlobalOut,ocb);
+#endif
 }
 
 

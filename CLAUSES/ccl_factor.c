@@ -156,10 +156,7 @@ Clause_p ComputeOrderedFactor(TB_p bank, OCB_p ocb, ClausePos_p pos1,
 					  pos2->literal, bank);
 	 EqnListRemoveResolved(&new_literals);
 	 EqnListRemoveDuplicates(new_literals, TBTermEqual);
-	 new_clause = ClauseAlloc(new_literals);
-	 DEBUGCMD(128, ClausePrint(stdout, new_clause, true);
-	       printf("# Factor of %ld\n", pos1->clause->ident););
-	 
+	 new_clause = ClauseAlloc(new_literals);	 
       }
    }
    SubstDelete(subst);
@@ -307,8 +304,6 @@ Clause_p ComputeEqualityFactor(TB_p bank, OCB_p ocb, ClausePos_p pos1,
 	 EqnListRemoveResolved(&new_literals);
 	 EqnListRemoveDuplicates(new_literals, TBTermEqual);
 	 new_clause = ClauseAlloc(new_literals);
-	 DEBUGCMD(128, ClausePrint(stdout, new_clause, true);
-	       printf("# Equality Factor of %ld\n", pos1->clause->ident););	 
       }
    }
    SubstDelete(subst);

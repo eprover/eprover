@@ -184,15 +184,6 @@ Term_p ComputeOverlap(TB_p bank, OCB_p ocb, ClausePos_p from, Term_p
 
    if(unify_success)
    {
-      DEBUGMARK(8, "ComputeOverlap(): Unified ");
-      DEBUGCMD(8, 
-	    ClausePrint(stdout, from->clause, true);
-	    printf("\n# ==> ");
-	    TermPrint(stdout, sub_into, bank->sig, DEREF_NEVER);
-	    printf(" with ");
-	    TermPrint(stdout, max_side, bank->sig, DEREF_NEVER);
-	    printf("\n"););
-      
       if(!EqnIsOriented(from->literal)
 	 && TOGreater(ocb, rep_side, max_side, DEREF_ALWAYS,
 		      DEREF_ALWAYS))
@@ -345,10 +336,6 @@ Clause_p ClauseOrderedParamod(TB_p bank, OCB_p ocb, ClausePos_p from,
 	 EqnListRemoveResolved(&new_literals);
 	 EqnListRemoveDuplicates(new_literals, TBTermEqual);
 	 new_clause = ClauseAlloc(new_literals);
-	 DEBUGMARK(8, "New clause:");
-	 DEBUGCMD(128, ClausePrint(stdout, new_clause, true);
-	       printf(" # Paramod from %ld into %ld\n", from->clause->ident,
-		      into->clause->ident););
       }
       else
       {

@@ -124,7 +124,6 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
       }
       if(subsumer)
       {
-         DEBUGMARK(PP_LOWDETAILS, "Clause subsumed!\n");
          DocClauseQuote(GlobalOut, OutputLevel, 6, pclause->clause, 
                         "subsumed", subsumer);
          (*subsumed_count)++;
@@ -238,7 +237,6 @@ FVPackedClause_p ForwardContractClause(ProofState_p state,
 {
    FVPackedClause_p res;
 
-   DEBUGMARK(PP_HIGHDETAILS, "ForwardContractClause...\n");
    assert(clause);
    assert(state);
    
@@ -252,7 +250,6 @@ FVPackedClause_p ForwardContractClause(ProofState_p state,
    {
       ClauseFree(clause);
    }
-   DEBUGMARK(PP_HIGHDETAILS, "...ForwardContractClause\n");
    return res;
 }
 

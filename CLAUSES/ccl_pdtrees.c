@@ -438,7 +438,6 @@ PDTree_p PDTreeAlloc(void)
 
 void PDTreeFree(PDTree_p tree)
 {
-   DEBUGMARK(PDT_INTERFACE_WATCH, "PDTreeFree()...\n");
 
    assert(tree);
    PDTNodeFree(tree->tree);
@@ -446,7 +445,6 @@ void PDTreeFree(PDTree_p tree)
    PStackFree(tree->term_proc);
    assert(!tree->store_stack);
    PDTreeCellFree(tree);
-   DEBUGMARK(PDT_INTERFACE_WATCH, "...PDTreeFree()\n");
 }
 
 
@@ -466,7 +464,6 @@ PDTNode_p PDTNodeAlloc(void)
 {
    PDTNode_p handle;
 
-   DEBUGMARK(PDT_INTERFACE_WATCH, "PDTNodeAlloc() called\n");
 
    handle = PDTNodeCellAlloc();
    
@@ -506,7 +503,6 @@ void PDTNodeFree(PDTNode_p tree)
    ClausePos_p  tmp;
    PDTNode_p     subtree;
  
-   DEBUGMARK(PDT_INTERFACE_WATCH, "PDTNodeFree()...\n");
   
    iter = IntMapIterAlloc(tree->f_alternatives, 0, LONG_MAX);
    while((subtree = IntMapIterNext(iter, &i)))
@@ -532,7 +528,6 @@ void PDTNodeFree(PDTNode_p tree)
    }   
    pdtree_default_cell_free(tree);   
 
-   DEBUGMARK(PDT_INTERFACE_WATCH, "...PDTNodeFree()\n");
 }
 
 
@@ -636,7 +631,6 @@ void PDTreeInsert(PDTree_p tree, ClausePos_p demod_side)
    bool      res;
    long      tmp;
 
-   DEBUGMARK(PDT_INTERFACE_WATCH, "PDTreeInsert()...\n");
    assert(tree);
    assert(tree->tree);
    assert(demod_side);
@@ -681,7 +675,6 @@ void PDTreeInsert(PDTree_p tree, ClausePos_p demod_side)
    res = PTreeStore(&(node->entries), demod_side);
    tree->clause_count++;
    assert(res);   
-   DEBUGMARK(PDT_INTERFACE_WATCH, "...PDTreeInsert()\n");
 }
 
 
@@ -706,7 +699,6 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
    PDTNode_p node, prev, *next, *del;
    bool      constr_change = true;
 
-   DEBUGMARK(PDT_INTERFACE_WATCH, "PDTreeDelete()...\n");
 
    assert(tree);
    assert(tree->tree);
@@ -759,7 +751,6 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
       }
    }
    PStackFree(del_stack);
-   DEBUGMARK(PDT_INTERFACE_WATCH, "...PDTreeDelete()\n");
    tree->clause_count-=res;
    /* printf("...removed\n"); */
    
@@ -837,7 +828,6 @@ void PDTreeSearchExit(PDTree_p tree)
 
 PDTNode_p PDTreeFindNextIndexedLeaf(PDTree_p tree, Subst_p subst)
 {   
-   DEBUGMARK(PDT_INTERFACE_WATCH, "PDTreeFindNextIndexedLeaf()...\n");
    while(tree->tree_pos)
    {
       if(!pdtree_verify_node_constr(tree)||
@@ -855,7 +845,6 @@ PDTNode_p PDTreeFindNextIndexedLeaf(PDTree_p tree, Subst_p subst)
 	 pdtree_forward(tree, subst);
       }
    }
-   DEBUGMARK(PDT_INTERFACE_WATCH, "...PDTreeFindNextIndexedLeaf()\n");
    return tree->tree_pos;
 }
 
@@ -876,7 +865,6 @@ ClausePos_p PDTreeFindNextDemodulator(PDTree_p tree, Subst_p subst)
 {
    PTree_p res_cell = NULL;
    
-   DEBUGMARK(PDT_INTERFACE_WATCH, "PDTreeFindNextDemodulator()...\n");
    assert(tree->tree_pos);
    while(tree->tree_pos)
    {
@@ -885,7 +873,6 @@ ClausePos_p PDTreeFindNextDemodulator(PDTree_p tree, Subst_p subst)
 	 res_cell = PTreeTraverseNext(tree->store_stack);
 	 if(res_cell)
 	 {
-	    DEBUGMARK(PDT_INTERFACE_WATCH, "...PDTreeFindNextDemodulator()+\n");
 	    return res_cell->key;
 	 }
 	 else
@@ -901,7 +888,6 @@ ClausePos_p PDTreeFindNextDemodulator(PDTree_p tree, Subst_p subst)
 	    PTreeTraverseInit(tree->tree_pos->entries);
       }
    }
-   DEBUGMARK(PDT_INTERFACE_WATCH, "...PDTreeFindNextDemodulator()-\n");
    return NULL;
 }
 

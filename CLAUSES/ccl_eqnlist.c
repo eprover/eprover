@@ -980,9 +980,6 @@ void EqnListMarkRestrictedTerms(Eqn_p list)
       {
 	 if(EqnIsOriented(list))
 	 {
-	    DEBUGMARK(4, "Marking ");
-	    DEBUGCMD(4, TermPrint(stdout, list->lterm, list->bank->sig, DEREF_NEVER););
-	    DEBUGOUT(4, "\n");
 	    TBRefSetProp(list->bank, &(list->lterm), TPRestricted); 
 	 }
       }

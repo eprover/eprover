@@ -182,7 +182,6 @@ Term_p TBTermPosReplace(TB_p bank, Term_p repl, TermPos_p pos,
    PStackPointer i;
    PStack_p      store = PStackAlloc();
 
-   DEBUGMARK(RPL_TERM_WATCH, "TBTermPosReplace()...\n");
 
    assert(bank);
    assert(repl);
@@ -213,7 +212,6 @@ Term_p TBTermPosReplace(TB_p bank, Term_p repl, TermPos_p pos,
    }
    PStackFree(store);
 
-   DEBUGMARK(RPL_TERM_WATCH, "...TBTermPosReplace()\n");
    return repl;
 }
 
