@@ -22,6 +22,29 @@ Simplest installation (in-place):
 > eprover -h | more
 
 
+Additional information for the CASC organizers:
+
+Problem format for both E and EP 0.8:
+
+tptp2X -f tptp -t rm_equality:rstfp
+
+Command lines
+
+eprover -xAuto -tAuto --tptp-in -s --memory-limit=384 --cpu-limit=%d %s
+eproof  -xAuto -tAuto --tptp-in --memory-limit=384 --cpu-limit=%d %s
+
+Output:
+# TSTP exit status: Unsatisfiable
+# TSTP exit status: Satisfiable
+# TSTP exit status: ResourceOut
+# TSTP exit status: GaveUp
+
+Proof Object:
+
+# Proof object starts here.
+# Proof object ends here.
+
+
 Read the rest of this file if anything fails.
 
 
