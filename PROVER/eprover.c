@@ -33,7 +33,7 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-#define VERSION      "0.8dev012"
+#define VERSION      "0.8dev013"
 #define NAME         "eprover"
 
 #ifdef SAFELOGIC
@@ -118,6 +118,7 @@ typedef enum
    OPT_FORWARD_DEMOD,
    OPT_STRONGSUBSUMPTION,
    OPT_WATCHLIST,
+   OPT_WATCHLIST_NO_SIMPLIFY,
    OPT_NO_INDEXED_SUBSUMPTION,
    OPT_FVINDEX_STYLE,
    OPT_FVINDEX_FEATURETYPES,
@@ -713,6 +714,13 @@ OptCell opts[] =
     "selection heuristic "
     "'UseWatchlist' (or build a heuristic yourself using the priority"
     " functions 'PreferWatchlist' and 'DeferWatchlist')."},
+   
+   {OPT_WATCHLIST_NO_SIMPLIFY,
+    '\0', "no-watchlist-simplification",
+    NoArg, NULL,
+    "Normaly, that watchlist is brought into normal form with respect "
+    "to the current processed clause set and certain simplifications."
+    " This option disables this behaviour."},
    
    {OPT_NO_INDEXED_SUBSUMPTION,
     '\0', "conventional-subsumption",
@@ -1516,6 +1524,9 @@ CLState_p process_options(int argc, char* argv[])
 	    break;  
       case OPT_WATCHLIST:
 	    watchlist_filename = arg;
+	    break;
+      case OPT_WATCHLIST_NO_SIMPLIFY:
+	    h_parms->watchlist_simplify = false;
 	    break;
       case OPT_NO_INDEXED_SUBSUMPTION:
 	    fvi_parms->features = FVINoFeatures;
