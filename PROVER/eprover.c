@@ -49,10 +49,11 @@ typedef enum
    OPT_VERBOSE,
    OPT_OUTPUT,
    OPT_PRINT_STATISTICS,
-   OPT_EXPENSIVE_DETAILS,
+   OPT_EXPENSIVE_DETAILS,   
    OPT_PRINT_SATURATED,
    OPT_PRINT_SAT_INFO,
    OPT_FILTER_SATURATED,
+   OPT_CNF_ONLY,
    OPT_PRINT_PID,
    OPT_REQUIRE_NONEMPTY,
    OPT_SILENT,
@@ -242,6 +243,15 @@ OptCell opts[] =
     " lower case counterparts, but with non-unit-subsumption enabled"
     " as well)."}, 
    
+   {OPT_CNF_ONLY,
+    '\0', "cnf",
+    NoArg, NULL,
+    "Convert the input problem into clause normal form and print it."
+    " This is equivalent to '--print-saturated=eigEIG"
+    " --processed-clauses-limit=0' and will by default perform some "
+    "usually usefull simplifications. You can additionally specify e.g. "
+    "'--no-preprocessing' if you want just the result of CNF translation."},
+
    {OPT_PRINT_PID,
     '\0', "print-pid",
     NoArg, NULL,
@@ -924,8 +934,10 @@ int main(int argc, char* argv[])
    }
    VERBOUT2("Specification read\n");
    /* Debug code! */
-   FormulaSetCNF(proofstate->f_axioms, proofstate->original_terms);
-   FormulaSetPrint(GlobalOut, proofstate->f_axioms, true);
+   FormulaSetPreprocConjectures(proofstate->f_axioms);
+   FormulaSetCNF(proofstate->f_axioms, proofstate->axioms, 
+                 proofstate->original_terms, proofstate->freshvars);
+   /* FormulaSetPrint(GlobalOut, proofstate->f_axioms, true); */
 
    if(error_on_empty && (ClauseSetEmpty(proofstate->axioms)||
                          (FormulaSetEmpty(proofstate->f_axioms))))
@@ -938,8 +950,8 @@ int main(int argc, char* argv[])
    }
    if(!FormulaSetEmpty(proofstate->f_axioms))
    {
-      Warning("Full FOF format support is under development"
-              " and not supposed to work at the moment!");
+      Warning("Full FOF format support is in an experimental "
+              "state and not well tested at the moment!");
    }
    ClauseSetDocInital(GlobalOut, OutputLevel, proofstate->axioms);
    if(watchlist_filename)
@@ -1225,6 +1237,11 @@ CLState_p process_options(int argc, char* argv[])
 	    }
 	    filter_sat = true;	    
 	    break;
+      case OPT_CNF_ONLY:
+            outdesc   = "eigEIG";
+            print_sat = true;
+            proc_limit = 0;
+            break;
       case OPT_PRINT_PID:
 	    print_pid = true;
 	    break;
@@ -1740,7 +1757,7 @@ Read a set of clauses and try to refute it.\n\
 \n");
    PrintOptions(stdout, opts);
    fprintf(out, "\n\
-Copyright 1998-2003 by Stephan Schulz, " STS_MAIL "\n\
+Copyright 1998-2004 by Stephan Schulz, " STS_MAIL "\n\
 \n\
 You can find the latest version of E and additional information at\n"
 E_URL
