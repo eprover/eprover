@@ -7,7 +7,7 @@ Author: Stephan Schulz
 Contents
  
   Read a PCL protocol and print all steps that are needed to print
-  "proof" or "final" steps.
+  "proof", "final", or "extract" steps.
 
   Copyright 2002 by the author.
   This code is released under the GNU General Public Licence.
@@ -34,7 +34,7 @@ Changes
 /*---------------------------------------------------------------------*/
 
 #define NAME    "epclextract"
-#define VERSION "0.4"
+#define VERSION "0.41"
 
 typedef enum
 {
@@ -351,7 +351,7 @@ NAME " " VERSION "\n"
 "Usage: " NAME " [options] [files]\n"
 "\n"
 "Read an PCL2 protocol and print the steps necessary for proving"
-"the clauses in \"proof\" or \"final\" steps.\n"
+" the clauses in \"proof\", \"final\", or \"extract\" steps.\n"
 "\n");
    PrintOptions(stdout, opts);
    fprintf(out, "\n\
