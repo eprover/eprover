@@ -32,6 +32,19 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
+typedef enum 
+{
+   ParamodPlain,                /* Use standard paramodulation */
+   ParamodAlwaysSim,            /* Always use simultaneous paramod */
+   ParamodOrientedSim,          /* Use simultaneous if rw-literal is
+                                   oriented */
+   /* The rest not yet implemented */
+   ParamodDecreasingSim,        /* Use sim if rw-literal instance is
+                                   orientable */
+   ParamodSizeDecreasingSim     /* Use sim if instantiated RHS is
+                                   smaller */
+}ParamodulationType;   
+
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/

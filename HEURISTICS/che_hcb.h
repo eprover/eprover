@@ -87,8 +87,7 @@ typedef struct heuristic_parms_cell
    bool                enable_neg_unit_paramod; /* Default is on */
    bool                enable_given_forward_simpl; /* On */
 
-   bool                enable_sim_paramod; /* Default is off */
-   bool                enable_plain_paramod; /* Default is on */
+   ParamodulationType  pm_type;  /* Default is ParamodPlain */
 
    ACHandlingType      ac_handling;
    bool                ac_res_aggressive;

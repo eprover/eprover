@@ -114,8 +114,7 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->enable_neg_unit_paramod       = true;
    handle->enable_given_forward_simpl    = true;
 
-   handle->enable_sim_paramod            = false;
-   handle->enable_plain_paramod          = true;
+   handle->pm_type                       = ParamodPlain;
 
    handle->ac_handling                   = ACDiscardAll;
    handle->ac_res_aggressive             = true;
