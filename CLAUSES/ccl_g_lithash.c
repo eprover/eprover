@@ -95,8 +95,11 @@ void lit_tree_free(PTree_p tree)
 //
 /----------------------------------------------------------------------*/
 
-int LitDescCompare(LitDesc_p l1, LitDesc_p l2)
+int LitDescCompare(const void* lit1, const void* lit2)
 {
+   const LitDesc_p l1 = (const LitDesc_p) lit1;
+   const LitDesc_p l2 = (const LitDesc_p) lit2;
+
    return PCmp(l1->lit, l2->lit);
 }
 
@@ -194,7 +197,7 @@ void LitHashInsertEqn(LitHash_p hash, Eqn_p eqn, Clause_p clause)
    {
       root = &(hash->neg_lits[eqn->lterm->f_code]);
    }
-   old = PTreeObjStore(root, handle, (ComparisonFunctionType)LitDescCompare);
+   old = PTreeObjStore(root, handle, LitDescCompare);
    if(old) /* Literal already known */
    {
       LitDescCellFree(handle);

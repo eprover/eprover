@@ -769,7 +769,7 @@ void ClauseSetPrintPrefix(FILE* out, char* prefix, ClauseSet_p set)
 //
 /----------------------------------------------------------------------*/
 
-void ClauseSetSort(ClauseSet_p set, ClauseCmpFunType cmp_fun)
+void ClauseSetSort(ClauseSet_p set, ComparisonFunctionType cmp_fun)
 {
    PStack_p stack = PStackAlloc();
    Clause_p clause;
@@ -782,8 +782,7 @@ void ClauseSetSort(ClauseSet_p set, ClauseCmpFunType cmp_fun)
    }
    assert(ClauseSetEmpty(set));
 
-   qsort(stack->stack, PStackGetSP(stack), sizeof(IntOrP),
-	 (ComparisonFunctionType)cmp_fun);
+   qsort(stack->stack, PStackGetSP(stack), sizeof(IntOrP), cmp_fun);
 
    for(i=0; i<PStackGetSP(stack); i++)
    {
@@ -870,7 +869,7 @@ long ClauseSetMarkCopies(ClauseSet_p set)
 	  handle->succ)
    {
       if((exists = PTreeObjStore(&store, handle,
-			       (ComparisonFunctionType)ClauseCompareFun)))
+                                 ClauseCompareFun)))
       {
 	 if(!ClauseParentsAreSubset(exists, handle))
 	 {

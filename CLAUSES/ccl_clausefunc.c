@@ -51,8 +51,11 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-static int clause_canon_compare(const Clause_p *c1, const Clause_p *c2)
+static int clause_canon_compare(const void *cl1, const void *cl2)
 {
+   const Clause_p *c1 = (const Clause_p*) cl1;
+   const Clause_p *c2 = (const Clause_p*) cl2;
+
    return ClauseStructWeightLexCompare(*c1, *c2);
 }
 

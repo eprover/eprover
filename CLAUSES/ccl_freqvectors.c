@@ -51,8 +51,11 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-int tuple3_compare_23lex(Tuple3Cell *t1, Tuple3Cell *t2)
+int tuple3_compare_23lex(const void* tuple1, const void* tuple2)
 {
+   const Tuple3Cell *t1 = (const Tuple3Cell *)tuple1;
+   const Tuple3Cell *t2 = (const Tuple3Cell *)tuple2;
+   
    if(t1->diff < t2->diff)
    {
       return -1;
@@ -121,8 +124,7 @@ PermVector_p PermVectorComputeInternal(FreqVector_p fmax, FreqVector_p fmin,
       array[i].diff  = diff;
       array[i].value = fsum->array[i];
    }
-   qsort(array, fsum->size, sizeof(Tuple3Cell), 
-	 (ComparisonFunctionType)tuple3_compare_23lex);
+   qsort(array, fsum->size, sizeof(Tuple3Cell), tuple3_compare_23lex);
    
    if(fsum->size >  max_len)
    {

@@ -724,7 +724,7 @@ Clause_p clause_tree_find_subsuming_clause(PTree_p tree, Clause_p sub_candidate)
 
    if(!tree)
    {
-      return false;
+      return NULL;
    }
    clause = tree->key;
    if(clause_subsumes_clause(clause,sub_candidate))

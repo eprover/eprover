@@ -104,7 +104,7 @@ VarSetInst_p VarSetConstrInstAlloc(LitOccTable_p p_table,
 
 void VarSetConstrInstFree(VarSetInst_p junk);
 
-int  ClauseCmpByLen(const Clause_p *c1, const Clause_p *c2);
+int  ClauseCmpByLen(const void* clause1, const void* clause2);
 bool EqnEqlitRecode(Eqn_p lit);
 bool ClauseEqlitRecode(Clause_p clause);
 long ClauseSetEqlitRecode(ClauseSet_p set);

@@ -373,7 +373,7 @@ Clause_p ClauseCanonize(Clause_p clause)
       EqnCanonize(handle);
       handle = handle->next;
    }
-   ClauseSortLiterals(clause, (ComparisonFunctionType)EqnCanonCompare);
+   ClauseSortLiterals(clause, EqnCanonCompare);
    
    return clause;
 }
@@ -2053,8 +2053,10 @@ bool ClauseNotGreaterEqual(OCB_p ocb,
 //
 /----------------------------------------------------------------------*/
 
-int ClauseCompareFun(Clause_p clause1, Clause_p clause2)
+int ClauseCompareFun(const void *c1, const void* c2)
 {
+   const Clause_p clause1 = (const Clause_p) c1;
+   const Clause_p clause2 = (const Clause_p) c2;
    int res;
    Eqn_p handle1, handle2;
 

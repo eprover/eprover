@@ -54,7 +54,7 @@ typedef struct clausesetcell
    long      eval_no;
 }ClauseSetCell, *ClauseSet_p;
 
-typedef int (*ClauseCmpFunType)(const Clause_p*, const Clause_p*);
+
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
@@ -89,7 +89,7 @@ void        ClauseSetPrint(FILE* out, ClauseSet_p set, bool
 			   fullterms);
 void        ClauseSetTSTPPrint(FILE* out, ClauseSet_p set, bool fullterms);
 void        ClauseSetPrintPrefix(FILE* out, char* prefix, ClauseSet_p set);
-void        ClauseSetSort(ClauseSet_p sort, ClauseCmpFunType cmp_fun);
+void        ClauseSetSort(ClauseSet_p set, ComparisonFunctionType cmp_fun);
 
 void        ClauseSetSetProp(ClauseSet_p set, ClauseProperties prop);
 void        ClauseSetDelProp(ClauseSet_p set, ClauseProperties prop);

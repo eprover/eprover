@@ -63,7 +63,7 @@ typedef struct lit_hash_cell
 #define LitDescCellAlloc()    (LitDescCell*)SizeMalloc(sizeof(LitDescCell))
 #define LitDescCellFree(junk) SizeFree(junk, sizeof(LitDescCell))
 
-int LitDescCompare(LitDesc_p l1, LitDesc_p l2);
+int LitDescCompare(const void* lit1, const void* lit2);
 
 #define LitHashCellAlloc()    (LitHashCell*)SizeMalloc(sizeof(LitHashCell))
 #define LitHashCellFree(junk) SizeFree(junk, sizeof(LitHashCell))

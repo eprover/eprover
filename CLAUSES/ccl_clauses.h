@@ -309,7 +309,7 @@ double   ClauseOrientWeight(Clause_p clause, double
 bool     ClauseNotGreaterEqual(OCB_p ocb,
 			       Clause_p clause1, Clause_p clause2);
 
-int      ClauseCompareFun(Clause_p clause1, Clause_p clause2);
+int      ClauseCompareFun(const void *c1, const void* c2);
 
 #define  NormSubstClause(clause, subst, vars)\
          NormSubstEqnListExcept((clause)->literals,\

@@ -1132,9 +1132,11 @@ EqnSide EqnIsDefinition(Eqn_p eq, int min_arity)
 //
 /----------------------------------------------------------------------*/
 
-int EqnSubsumeQOrderCompare(Eqn_p l1, Eqn_p l2)
+int EqnSubsumeQOrderCompare(const void* lit1, const void* lit2)
 {
    int res;
+   const Eqn_p l1 = (const Eqn_p) lit1;
+   const Eqn_p l2 = (const Eqn_p) lit2;
 
    res = EqnIsPositive(l1) - EqnIsPositive(l2);
    if(res)
@@ -1167,8 +1169,9 @@ int EqnSubsumeQOrderCompare(Eqn_p l1, Eqn_p l2)
 //
 /----------------------------------------------------------------------*/
 
-int EqnSubsumeInverseCompareRef(Eqn_p *l1, Eqn_p *l2)
+int EqnSubsumeInverseCompareRef(const void* lit1ref, const void* lit2ref)
 {
+   const Eqn_p *l1 = lit1ref, *l2 = lit2ref;
    int res = EqnSubsumeQOrderCompare(*l2, *l1);
 
    if(!res)
@@ -1296,8 +1299,9 @@ int EqnStructWeightCompare(Eqn_p l1, Eqn_p l2)
 //
 /----------------------------------------------------------------------*/
 
-int EqnCanonCompare(Eqn_p *l1, Eqn_p *l2)
+int EqnCanonCompare(const void* lit1, const void* lit2)
 {
+   const Eqn_p *l1=lit1, *l2=lit2;
    return EqnStructWeightLexCompare(*l1, *l2);
 }
 
