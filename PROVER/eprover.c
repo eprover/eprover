@@ -1067,6 +1067,18 @@ int main(int argc, char* argv[])
    
    success = Saturate(proofstate, proofcontrol, step_limit,
 		      proc_limit, unproc_limit, total_limit);
+
+   fprintf(GlobalOut, "# Minimal constant: f_code %ld == %s\n", 
+          proofcontrol->ocb->min_constant, 
+          proofcontrol->ocb->min_constant?
+          SigFindName(proofcontrol->ocb->sig, 
+                      proofcontrol->ocb->min_constant)
+          :"<none>");
+   fprintf(GlobalOut, "# Minimal term: ");
+   TBPrintTermFull(GlobalOut, 
+                   proofstate->terms, 
+                   OCBDesignatedMinTerm(proofcontrol->ocb, proofstate->terms));
+   fprintf(GlobalOut, "\n");
    
    out_of_clauses = ClauseSetEmpty(proofstate->unprocessed);
    if(filter_sat)
@@ -1173,6 +1185,9 @@ int main(int argc, char* argv[])
 	      ClauseClauseSubsumptionCallsRec);
       fprintf(GlobalOut, "# Unit Clause-clause subsumption calls : %ld\n",
 	       UnitClauseClauseSubsumptionCalls);
+      fprintf(GlobalOut, "# Rewrite failures with RHS unbound    : %ld\n",
+	       RewriteUnboundVarFails);
+
    }
    /* {char c = getc(stdin);} */
 #ifndef FAST_EXIT
