@@ -47,9 +47,9 @@ typedef enum
    CPTypeAxiom      = 128,      /* Clause is TPTPAxiom */
    CPTypeHypothesis = 256,      /* Clause is TPTPHypothesis */
    CPTypeConjecture = 512,      /* Clause is TPTPConjecture */
+   CPTypeMask       = CPTypeAxiom|CPTypeHypothesis|CPTypeConjecture,
    CPIsWatched      = 1024,     /* Clause is of special interest */
    CPOpFlag         = 2048,     /* Temporary marker */
-   CPTypeMask       = CPTypeAxiom|CPTypeHypothesis|CPTypeConjecture,
    CPIsSelected     = 4096,     /* For analysis of selected clauses only */
    CPIsFinal        =  8192,    /* Clause is a final clause, i.e. a clause
 			           that might be used by a
