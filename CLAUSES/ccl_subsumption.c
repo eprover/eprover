@@ -245,14 +245,16 @@ static bool eqn_subsumes_termpair(Eqn_p eqn, Term_p t1, Term_p t2)
 // Function: check_subsumption_condition()
 //
 //   Return true if subst cannot possibly be a variable renaming or if
-//   no literal in 
+//   no literal in the subsuming clause is used to subsume more than
+//   one literal in the subsumed claues. This seems to be
+//   insufficient, so I'm now using strict multiset-subsumption.
 //
 // Global Variables: -
 //
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-
+/*
 bool check_subsumption_condition(Eqn_p sub_cand_list, Subst_p subst,
 				 long *pick_list) 
 {
@@ -284,7 +286,8 @@ bool check_subsumption_condition(Eqn_p sub_cand_list, Subst_p subst,
       }
    }
    return false;
-}
+}*/
+
 
 /*-----------------------------------------------------------------------
 //
@@ -393,7 +396,9 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
    
    if(!subsum_list)
    {
-      return check_subsumption_condition(sub_cand_list, subst, pick_list);
+      /* return check_subsumption_condition(sub_cand_list, subst,
+       * pick_list);*/
+      return true;
    }
    
    for(eqn = sub_cand_list, lcount=0; eqn; eqn = eqn->next, lcount++)
@@ -418,7 +423,13 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
       /* if(EqnIsMaximal(eqn) && !EqnIsMaximal(subsum_list))
       {
 	 continue;
-      }  */   
+      }  */
+      /* We now use strict multiset-subsumption. I should probably
+	 rewrite this code to be more efficient for that case...*/
+      if(pick_list[lcount])
+      {
+	 continue;
+      }
       pick_list[lcount]++;
       state = PStackGetSP(subst);
       
