@@ -672,6 +672,7 @@ void ClauseSetSort(ClauseSet_p set, ClauseCmpFunType cmp_fun)
 
    while((clause = ClauseSetExtractFirst(set)))
    {
+      clause->weight = ClauseStandardWeight(clause);
       PStackPushP(stack, clause);
    }
    assert(ClauseSetEmpty(set));
@@ -684,6 +685,7 @@ void ClauseSetSort(ClauseSet_p set, ClauseCmpFunType cmp_fun)
       clause = PStackElementP(stack,i);
       ClauseSetInsert(set, clause);
    }
+   /* ClauseSetPrint(GlobalOut, set, true); */
    PStackFree(stack);
 }
 

@@ -321,7 +321,7 @@ Clause_p ClauseCanonize(Clause_p clause)
 {
    int   lit_no = ClauseLiteralNumber(clause),
          arr_size = lit_no*sizeof(Eqn_p),
-         i;
+      i;
    Eqn_p *sort_array = SizeMalloc(arr_size);
    Eqn_p handle, *res;
 
@@ -377,8 +377,8 @@ int ClauseStructWeightCompare(Clause_p c1, Clause_p c2)
    int tmp1 = 1, tmp2 = 1, res;
    Eqn_p handle1, handle2;
 
-   assert(c1->weight = ClauseStandardWeight(c1));
-   assert(c2->weight = ClauseStandardWeight(c2));
+   assert(c1->weight == ClauseStandardWeight(c1));
+   assert(c2->weight == ClauseStandardWeight(c2));
 
    if(ClauseIsPositive(c1))
    {
