@@ -48,6 +48,9 @@ typedef enum
    PByInvFreqHack,      /* Make constants minimal, frequent unary
                            symbols maximal, otherwise as
                            PByInvFrequency */
+   PArrayOpt,           /* Special hack for theory of array with
+                           conceptually typed symbols recognized by
+                           name. */
    POrientAxioms,       /* My (planned) hack */
    PMinMethod = PUnaryFirst,
    PMaxMethod = POrientAxioms

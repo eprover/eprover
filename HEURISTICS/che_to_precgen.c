@@ -42,6 +42,7 @@ char* TOPrecGenNames[]=
    "invfreq",          /* PByInvFrequency */
    "invfreqconstmin",  /* PByFreqConstMin */
    "invfreqhack",      /* PByInvFreqHack */
+   "arrayopt",         /* PArrayOpt */
    "orient_axioms",    /* POrientAxioms */
    NULL
 };
@@ -123,7 +124,7 @@ static void compute_precedence_from_array(OCB_p ocb, FCodeFeatureArray_p
 	 last = array->array[i].symbol;
       }
    }
-   /* print_prec_array(GlobalOut, ocb->sig, array); */
+   print_prec_array(GlobalOut, ocb->sig, array);
 }
 
 
@@ -503,6 +504,64 @@ static void generate_invfreq_hack_precedence(OCB_p ocb, ClauseSet_p axioms)
 
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: generate_arrayopt_precedence()
+//
+//   Generate a precedence for array problems with store > select >
+//   a* > e* > whatever > i*.
+//
+//   Inverse frequency is the tie breaker.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void generate_arrayopt_precedence(OCB_p ocb, ClauseSet_p axioms)
+{
+   FCodeFeatureArray_p array = FCodeFeatureArrayAlloc(ocb->sig, axioms);
+   FunCode       i;
+   char* id;
+
+   for(i=1; i<= ocb->sig->f_count; i++)
+   {
+      id = SigFindName(ocb->sig, i);
+      if(strcmp(id, "store") == 0)
+      {
+         array->array[i].key1 = 30;
+      }
+      else if(strcmp(id, "select") == 0)
+      {
+         array->array[i].key1 = 25;
+      }
+      else if((strncmp(id, "a",1) == 0) || (strncmp(id, "b",1) == 0))
+      {
+         array->array[i].key1 = 10;
+      }
+      else if(strncmp(id, "e",1) == 0)
+      {
+         array->array[i].key1 = 7;
+      }
+      else if(strncmp(id, "i",1) == 0)
+      {
+         array->array[i].key1 = 0;
+      }
+      else
+      {
+         array->array[i].key1 = 5;
+      }            
+      array->array[i].key2 = -array->array[i].freq;
+   }
+   FCodeFeatureArraySort(array); 
+   compute_precedence_from_array(ocb, array);
+      
+   FCodeFeatureArrayFree(array);
+}
+
+
+
 
 
 /*---------------------------------------------------------------------*/
@@ -610,6 +669,9 @@ void TOGeneratePrecedence(OCB_p ocb, ClauseSet_p axioms,
 	 break;
    case PByInvFreqHack:
 	 generate_invfreq_hack_precedence(ocb, axioms);
+	 break;
+   case PArrayOpt:
+	 generate_arrayopt_precedence(ocb, axioms);
 	 break;
    default:
 	 assert(false && "Precedence generation method unimplemented");
