@@ -33,7 +33,7 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-#define VERSION      "0.8dev011"
+#define VERSION      "0.8dev012"
 #define NAME         "eprover"
 
 #ifdef SAFELOGIC
@@ -704,8 +704,15 @@ OptCell opts[] =
    {OPT_WATCHLIST,
     '\0', "watchlist",
     ReqArg, NULL,
-    "Give the file name for a file containing clauses tox be watched "
-    "for during the saturation process."},
+    "Give the name for a file containing clauses to be watched "
+    "for during the saturation process. If a clause is generated that "
+    "subsumes a watchlist clause, the subsumed clause is removed from "
+    "the watchlist. The prover will terminate when the watchlist is"
+    " empty. If you want to use the watchlist for guiding the proof,"
+    " put the empty clause onto the list and use the built-in clause "
+    "selection heuristic "
+    "'UseWatchlist' (or build a heuristic yourself using the priority"
+    " functions 'PreferWatchlist' and 'DeferWatchlist')."},
    
    {OPT_NO_INDEXED_SUBSUMPTION,
     '\0', "conventional-subsumption",
@@ -791,6 +798,7 @@ OptCell opts[] =
 };
 
 char              *outname = NULL;
+char              *watchlist_filename = NULL;
 HeuristicParms_p  h_parms;
 FVIndexParms_p    fvi_parms;
 bool              print_sat = false,
@@ -897,6 +905,20 @@ int main(int argc, char* argv[])
       Error("Input file contains no clauses", OTHER_ERROR);
    }
    ClauseSetDocInital(GlobalOut, OutputLevel, proofstate->axioms);
+   if(watchlist_filename)
+   {
+      proofstate->watchlist = ClauseSetAlloc();
+      
+      in = CreateScanner(StreamTypeFile, watchlist_filename, true, NULL);
+      ScannerSetFormat(in, parse_format);
+      ClauseSetParseList(in, proofstate->watchlist,
+			 proofstate->terms);
+      CheckInpTok(in, NoToken);
+      DestroyScanner(in);
+      ClauseSetSetProp(proofstate->watchlist, CPWatchOnly);
+      ClauseSetDocInital(GlobalOut, OutputLevel, proofstate->watchlist);
+   }
+   
    parsed_clause_no = proofstate->axioms->members;
    if(!no_preproc)
    {
@@ -931,24 +953,27 @@ int main(int argc, char* argv[])
       fprintf(GlobalOut, "\n# Proof found!\n");
       TSTPOUT(GlobalOut, "Unsatisfiable");
    }
+   else if(proofstate->watchlist && ClauseSetEmpty(proofstate->watchlist))
+   {
+      
+      ProofStatePropDocQuote(GlobalOut, OutputLevel, 
+			     CPSubsumesWatch, proofstate, 
+			     "final_subsumes_watchlist");
+      fprintf(GlobalOut, "\n# Watchlist is empty!\n");
+      TSTPOUT(GlobalOut, "ResourceOut"); 
+   }
    else
    {
       if(out_of_clauses&&
 	 proofstate->state_is_complete&&
 	 ParamodOverlapIntoNegativeLiterals&&
 	 ParamodOverlapNonEqLiterals&&
-	 proofcontrol->selection_strategy!=SelectNoGeneration)
+	 (proofcontrol->selection_strategy!=SelectNoGeneration))
       {
 	 finals_state = "final";
       }
-      ClauseSetDocQuote(GlobalOut, OutputLevel,
-			proofstate->processed_pos_rules, finals_state);
-      ClauseSetDocQuote(GlobalOut, OutputLevel,
-			proofstate->processed_pos_eqns, finals_state);
-      ClauseSetDocQuote(GlobalOut, OutputLevel,
-			proofstate->processed_neg_units, finals_state);
-      ClauseSetDocQuote(GlobalOut, OutputLevel,
-			proofstate->processed_non_units, finals_state);
+      ProofStatePropDocQuote(GlobalOut, OutputLevel, CPIgnoreProps,
+			     proofstate, finals_state);
       if(out_of_clauses)
       {
 	 if(!ParamodOverlapIntoNegativeLiterals||
@@ -963,8 +988,7 @@ int main(int argc, char* argv[])
 	 else if(proofstate->state_is_complete)
 	 {
 	    fprintf(GlobalOut, "\n# No proof found!\n");
-	    TSTPOUT(GlobalOut, "Satisfiable");
-	    
+	    TSTPOUT(GlobalOut, "Satisfiable");	    
 	 }
 	 else
 	 {
@@ -1489,6 +1513,9 @@ CLState_p process_options(int argc, char* argv[])
 	    break;	       
       case OPT_STRONGSUBSUMPTION:
 	    StrongUnitForwardSubsumption = true;
+	    break;  
+      case OPT_WATCHLIST:
+	    watchlist_filename = arg;
 	    break;
       case OPT_NO_INDEXED_SUBSUMPTION:
 	    fvi_parms->features = FVINoFeatures;
