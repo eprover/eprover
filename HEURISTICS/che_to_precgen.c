@@ -111,6 +111,12 @@ static void compute_precedence_from_array(OCB_p ocb, FCodeFeatureArray_p
    {
       for(i = SIG_TRUE_CODE+1; i<=ocb->sig_size; i++)
       {
+         if((SigFindArity(ocb->sig, i)==0) && 
+            !SigIsAnyFuncPropSet(ocb->sig, i, FPPredSymbol|FPSpecial) &&
+            !ocb->min_constant)
+         {
+            ocb->min_constant = i;
+         }
 	 ocb->prec_weights[array->array[i].symbol] = i;
       }
       ocb->prec_weights[SIG_TRUE_CODE] = (LONG_MIN/2);
@@ -536,9 +542,21 @@ static void generate_arrayopt_precedence(OCB_p ocb, ClauseSet_p axioms)
       {
          array->array[i].key1 = 25;
       }
-      else if((strncmp(id, "a",1) == 0) || (strncmp(id, "b",1) == 0))
+      else if(strcmp(id, "sk") == 28)
+      {
+         array->array[i].key1 = 20;
+      }
+      else if((strncmp(id, "a_",2) == 0) || (strncmp(id, "b_",2) == 0))
       {
          array->array[i].key1 = 10;
+      }
+      else if((strncmp(id, "a",1) == 0) || (strncmp(id, "b",1) == 0))
+      {
+         array->array[i].key1 = 15;
+      }
+      else if(strncmp(id, "e_",2) == 0)
+      {
+         array->array[i].key1 = 5;
       }
       else if(strncmp(id, "e",1) == 0)
       {
