@@ -8,17 +8,19 @@ Contents
  
   Functions for long-indexed splay trees.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2004 by the author.
   This code is released under the GNU General Public Licence.
   See the file COPYING in the main CLIB directory for details.
   Run "eprover -h" for contact information.
 
-Changes
+Changes (vastly incomplete, see CVS log)
 
 <1> Thu Sep 25 02:36:58 MET DST 1997
     New
 <2> Mon Mar  1 17:20:47 MET 1999
     Changed AVL tp splay trees
+<3> Added MaxNode
+    Wed Dec 29 17:55:10 CET 2004
 
 -----------------------------------------------------------------------*/
 
@@ -483,6 +485,74 @@ long NumTreeNodes(NumTree_p root)
 
    return res;   
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: NumTreeMaxNode()
+//
+//   Return the node with the largest key in the tree (or NULL if tree
+//   is empty). Non-destructive/non-reorganizing. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+NumTree_p NumTreeMaxNode(NumTree_p root)
+{
+   if(root)
+   {
+      while(root->rson)
+      {
+         root = root->rson;
+      }
+   }
+   return root;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: NumTreeLimitedTraverseInit()
+//
+//   Return a stack containing the path to the smallest element
+//   smaller than or equal to limit in the tree.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+PStack_p NumTreeLimitedTraverseInit(NumTree_p root, long limit)
+{
+   PStack_p stack = PStackAlloc();
+
+   while(root)
+   {
+      if(root->key<limit)
+      {
+         root = root->rson;
+      }
+      else 
+      {
+         PStackPushP(stack, root);
+         if(root->key == limit)
+         {
+            root = NULL;
+         }
+         else
+         {
+            root = root->lson;
+         }
+      }
+   }
+   return stack;
+}
+
+
 
 
 AVL_TRAVERSE_DEFINITION(NumTree, NumTree_p)

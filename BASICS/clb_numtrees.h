@@ -61,6 +61,12 @@ typedef struct numtreecell
 #define NumTreeCellAlloc() (NumTreeCell*)SizeMalloc(sizeof(NumTreeCell))
 #define NumTreeCellFree(junk)        SizeFree(junk, sizeof(NumTreeCell))
 
+#ifdef CONSTANT_MEM_ESTIMATE
+#define NUMTREECELL_MEM 24
+#else
+#define NUMTREECELL_MEM MEMSIZE(NumTreeCell)
+#endif
+
 NumTree_p NumTreeCellAllocEmpty(void);
 void      NumTreeFree(NumTree_p junk);
 NumTree_p NumTreeInsert(NumTree_p *root, NumTree_p newnode);
@@ -71,9 +77,14 @@ NumTree_p NumTreeFind(NumTree_p *root, long key);
 NumTree_p NumTreeExtractEntry(NumTree_p *root, long key);
 bool      NumTreeDeleteEntry(NumTree_p *root, long key);
 long      NumTreeNodes(NumTree_p root);
+NumTree_p NumTreeMaxNode(NumTree_p root);
+#define   NumTreeMaxKey(tree) (NumTreeMaxNode(tree)->key)
+
+PStack_p NumTreeLimitedTraverseInit(NumTree_p root, long limit);
 
 AVL_TRAVERSE_DECLARATION(NumTree, NumTree_p)
 #define NumTreeTraverseExit(stack) PStackFree(stack)
+
 
 #endif
 
