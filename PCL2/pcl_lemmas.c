@@ -560,7 +560,7 @@ long PCLProtRecFindLemmas(PCLProt_p prot, LemmaParam_p params,
       PCLProtResetTreeData(prot, true);
       PCLProtComputeProofSize(prot, iw, true);
       lemma = PCLProtComputeLemmaWeights(prot, params);
-      if(lemma->lemma_quality < quality_limit)
+      if(!lemma || (lemma->lemma_quality < quality_limit))
       {
 	 break;
       }
