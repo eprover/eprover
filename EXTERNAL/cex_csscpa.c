@@ -298,12 +298,10 @@ bool CSSCPAProcessClause(CSSCPAState_p state, Clause_p clause,
       }
       ClauseFree(clause);
    }
-   printf("Going into subsumption\n");
    if(clause_status != rejected)
    {
       clause->weight = ClauseStandardWeight(clause);
       
-      printf("Before UnitClauseSetSubsumesClause()\n");
       if((clause->pos_lit_no && 
           UnitClauseSetSubsumesClause(state->pos_units,
 				      clause)) ||
@@ -542,8 +540,8 @@ void CSSCPALoop(Scanner_p in, CSSCPAState_p state)
       }
       AcceptInpTok(in, Colon);
       handle = ClauseParse(in, state->terms);
+      handle->ident = ++ClauseIdentCounter;
       ClauseSetCSSCPASource(handle,source); 
-      printf("Clause parsed\n");
       CSSCPAProcessClause(state, handle, accept, weight_delta, average_delta);     
    }
 }

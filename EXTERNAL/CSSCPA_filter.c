@@ -140,14 +140,14 @@ int main(int argc, char* argv[])
    for(i=0; state->argv[i]; i++)
    {
       in = CreateScanner(StreamTypeFile, state->argv[i] , true, NULL);
-      ScannerSetFormat(in, TPTPFormat);
+      ScannerSetFormat(in, TSTPFormat);
       CSSCPALoop(in, procstate);
       DestroyScanner(in);
    }      
    fprintf(GlobalOut, "\n# Resulting clause set:\n");
-   ClauseSetPrint(GlobalOut, procstate->pos_units, true);
-   ClauseSetPrint(GlobalOut, procstate->neg_units, true);
-   ClauseSetPrint(GlobalOut, procstate->non_units, true);
+   ClauseSetTSTPPrint(GlobalOut, procstate->pos_units, true);
+   ClauseSetTSTPPrint(GlobalOut, procstate->neg_units, true);
+   ClauseSetTSTPPrint(GlobalOut, procstate->non_units, true);
 
    CSSCPAStateFree(procstate);
    CLStateFree(state);
