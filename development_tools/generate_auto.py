@@ -62,7 +62,7 @@ def parse_class(c, key, probs):
 def tuple_add2(t1,t2):
     return (t1[0]+t2[0],t1[1]+t2[1])
 
-def parse_prot(filename, stratname, matrix):
+def parse_prot(filename, stratname, matrix, succ_cases):
     sys.stderr.write("Parsing " + stratname + "\n")
     p=open(filename,'r')
     l=p.readline()[:-1]
@@ -75,7 +75,7 @@ def parse_prot(filename, stratname, matrix):
             clean = re.sub(trail_space,'',l)                         
             tuple=re.split(white_space,clean)
             prob = compute_problem_stem(tuple[0]);
-            if (problems.has_key(prob)) and (tuple[3]=="success"):
+            if (problems.has_key(prob)) and (tuple[1] in succ_cases):
                 cl=problems[prob]
                 time=float(tuple[2])
                 old = matrix[cl][stratname]
@@ -562,17 +562,26 @@ matrix     = {} # Keys: Class names. Objects: Dictionaries associating
                  # strategy with performance in this class
 class_dir  = "";
 
-while i<argc:
-    res = match_class.search(sys.argv[i])
+succ_cases = ["T", "N"]
+
+for i in sys.argv[1:]:
+    if i=="--proofs":
+        succ_cases = ["T"]
+    elif i=="--models":
+        succ_cases = ["N"]
+
+sys.argv = filter(lambda x:x[0]!="-", sys.argv) # Take out options
+
+for i in sys.argv[1:]:
+    res = match_class.search(i)
     if(res):
-        key = sys.argv[i][res.start():res.end()]
-        class_dir = sys.argv[i][0:res.start()]
+        key = i[res.start():res.end()]
+        class_dir = i[0:res.start()]
         classlist.append(key)
-        classsize[key] = parse_class(sys.argv[i], key, problems)
+        classsize[key] = parse_class(i, key, problems)
     else:
-        key = re.split(slash,sys.argv[i])[-1]
-        stratset[key] = sys.argv[i]
-    i=i+1
+        key = re.split(slash,i)[-1]
+        stratset[key] = i
 
 for i in classlist:
     matrix[i] = {}
@@ -581,7 +590,7 @@ for i in classlist:
 
 for i in stratset.keys():
     stratperf[i]=(0,0)
-    stratdesc[i]=parse_prot(stratset[i],i,matrix)    
+    stratdesc[i]=parse_prot(stratset[i],i,matrix,succ_cases)    
 
 
 # Start determining the strategies
