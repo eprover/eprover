@@ -32,7 +32,7 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-#define VERSION      "0.82dev004"
+#define VERSION      "0.82dev005"
 #define NAME         "eprover"
 
 #define NICKNAME     "Lung Ching"
@@ -587,7 +587,7 @@ OptCell opts[] =
     " prover incomplete in the general case, but  helps for some "
     "specialized classes."}, 
    {OPT_NO_GC_FORWARD_SIMPL,
-    '\0', "disable-given-clause-contraction",
+    '\0', "disable-given-clause-fw-contraction",
     NoArg, NULL,
     "Disable simplification and subsumption of the newly selected "
     "given clause (clauses are still simplified when they are "
