@@ -15,7 +15,7 @@ include ../Makefile.vars
 
 # Project specific variables
 
-PROJECT = eprover classify_problem termprops proofanalyze\
+PROJECT = eprover classify_problem termprops\
           direct_examples epclanalyse epclextract checkproof eground\
           edpll epcllemma\
           ekb_create ekb_insert ekb_ginsert ekb_delete tsm_classify
@@ -72,14 +72,6 @@ TERMPROPS = termprops.o ../lib/TERMS.a\
 
 termprops: $(TERMPROPS)
 	$(LD) -o termprops $(TERMPROPS)
-
-PROOFANALYZE = proofanalyze.o \
-            ../lib/ANALYSIS.a ../lib/CLAUSES.a ../lib/ORDERINGS.a \
-            ../lib/TERMS.a ../lib/INOUT.a ../lib/BASICS.a
-
-proofanalyze: $(PROOFANALYZE)
-	$(LD) -o proofanalyze $(PROOFANALYZE)
-
 
 DIRECT_EXAMPLES = direct_examples.o \
             ../lib/ANALYSIS.a ../lib/CLAUSES.a ../lib/ORDERINGS.a \
