@@ -42,7 +42,7 @@ Changes
 //
 // Function: insert_empty_node()
 //
-//   Insert an empty node into FVIndex  at node node and key key.
+//   Insert an empty node into FVIndex at node node and key key.
 //
 // Global Variables: -
 //
@@ -52,95 +52,24 @@ Changes
 
 static FVIndex_p insert_empty_node(FVIndex_p node, FVIAnchor_p anchor, long key)
 {
-   FVIndex_p handle = FVIndexAlloc(), tmp;
-   long i, new_limit;
+   FVIndex_p handle = FVIndexAlloc();
 
    assert(node);
-   assert(!FVIndexFinalNode(node));
    assert(key >= 0);
 
-   if(FVIndexEmptyNode(node))
+   if(!node->u1.successors)
    {
-      assert(key!=node->type_or_key);      
-      node->u1.succ = handle;
-      node->type_or_key = key;
-      assert(node->array_size == 0);
+      node->u1.successors = IntMapAlloc();
+      anchor->storage += IntMapStorage(node->u1.successors);
    }
-   else if(FVIndexUnaryNode(node))
-   {
-      tmp = node->u1.succ;
-      new_limit = MAX(key, node->type_or_key)+1;
-      node->u1.successors = SecureMalloc(sizeof(long)*new_limit);
-      anchor->array_count += new_limit;
-      for(i=0; i<new_limit; i++)
-      {
-	 node->u1.successors[i] = NULL;
-      }
-      node->u1.successors[key] = handle;
-      node->u1.successors[node->type_or_key] = tmp;
-      node->type_or_key = FVINDEXTYPE_MANY;
-      node->array_size = new_limit;
-   }
-   else
-   {
-      assert(FVIndexManySuccNode(node));
-      if(key >= node->array_size)
-      {
-	 new_limit = MAX(key, node->array_size)+1;
-	 node->u1.successors = SecureRealloc(node->u1.successors,
-					     sizeof(long)*new_limit);
-	 anchor->array_count += (new_limit-node->array_size);
 
-	 for(i=node->array_size; i<new_limit; i++)
-	 {
-	    node->u1.successors[i] = NULL;
-	 }
-	 node->array_size = new_limit;
-      }
-      node->u1.successors[key] = handle;      
-   }
+   anchor->storage -= IntMapStorage(node->u1.successors);
+   IntMapAssign(node->u1.successors, key, handle);
+   anchor->storage += IntMapStorage(node->u1.successors);
+   anchor->storage += FVINDEX_MEM;
+
    return handle;
 }
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: fv_index_get_next_node()
-//
-//   Given a key, return a pointer to the corresponding cell, or NULL
-//   if no such cell exists (up to now).
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-static
-FVIndex_p fv_index_get_next_node(FVIndex_p node, long key)
-{
-   assert(!FVIndexFinalNode(node));
-   
-   if(FVIndexEmptyNode(node))
-   {
-      return NULL;
-   }
-   if(FVIndexUnaryNode(node))
-   {
-      if(node->type_or_key == key)
-      {
-	 return node->u1.succ;
-      }
-      return NULL;
-   }
-   assert(FVIndexManySuccNode(node));
-   if(key < node->array_size)
-   {
-      return node->u1.successors[key];
-   }
-   return NULL;
-}
-
 
 
 /*---------------------------------------------------------------------*/
@@ -207,11 +136,10 @@ FVIndex_p FVIndexAlloc(void)
 {
    FVIndex_p handle = FVIndexCellAlloc();
 
-   handle->type_or_key   = FVINDEXTYPE_EMPTY;
    handle->clause_count  = 0;
-   handle->array_size    = 0;
    handle->u1.successors = NULL;
-   
+   handle->final         = false;
+
    return handle;
 }
 
@@ -231,32 +159,28 @@ FVIndex_p FVIndexAlloc(void)
 
 void FVIndexFree(FVIndex_p junk)
 {
-   if(junk)
+   IntMapIter_p iter;
+   long         i;
+   FVIndex_p    succ;
+
+   if(junk)      
    {
-      switch(junk->type_or_key)
+      if(junk->final)
       {
-      case FVINDEXTYPE_FINAL:
-	    PTreeFree(junk->u1.clauses);
-	    break;
-      case FVINDEXTYPE_MANY:
-	    if(junk->array_size > 0)
-	    {
-	       long i;
-	       for(i=0; i<junk->array_size; i++)
-	       {	       
-		  FVIndexFree(junk->u1.successors[i]);
-	       }
-	    }
-	    FREE(junk->u1.successors);
-	    break;
-      case FVINDEXTYPE_EMPTY:
-	    break;
-      default:
-	    FVIndexFree(junk->u1.succ);
-	    break;
+         PTreeFree(junk->u1.clauses);
       }
-      FVIndexCellFree(junk);
+      else if(junk->u1.successors)
+      {
+         iter = IntMapIterAlloc(junk->u1.successors, 0, LONG_MAX);
+         while((succ = IntMapIterNext(iter, &i)))
+         {
+            FVIndexFree(succ);
+         }
+         IntMapIterFree(iter);
+         IntMapFree(junk->u1.successors);
+      }
    }
+   FVIndexCellFree(junk);
 }
 
 
@@ -279,9 +203,8 @@ FVIAnchor_p FVIAnchorAlloc(long symbol_limit, FVIndexType features, PermVector_p
    handle->symbol_limit = symbol_limit;
    handle->perm_vector  = perm;
    handle->features     = features;   
-   handle->node_count   = 0;
-   handle->array_count  = 0;
    handle->index        = FVIndexAlloc();
+   handle->storage      = 0;
 
    return handle;
 }
@@ -308,7 +231,7 @@ void FVIAnchorFree(FVIAnchor_p junk)
 	   "# Freeing FVIndex. %ld leaves, %ld empty. Total nodes: %ld. Mem: %ld\n",
 	   FVIndexCountNodes(junk->index, true, false),
 	   FVIndexCountNodes(junk->index, true, true),
-	   junk->node_count,
+	   FVIndexCountNodes(junk->index, false, false),
 	   FVIndexStorage(junk));
 
    FVIndexFree(junk->index);
@@ -336,9 +259,9 @@ FVIndex_p FVIndexGetNextNonEmptyNode(FVIndex_p node, long key)
 {
    FVIndex_p handle;
    
-   assert(!FVIndexFinalNode(node));
+   assert(!node->final);
    
-   handle = fv_index_get_next_node(node, key);
+   handle = IntMapGetVal(node->u1.successors, key);
    if(handle&&handle->clause_count)
    {
       return handle;
@@ -362,7 +285,7 @@ FVIndex_p FVIndexGetNextNonEmptyNode(FVIndex_p node, long key)
 
 void FVIndexInsert(FVIAnchor_p index, FreqVector_p vec_clause)
 {
-   FVIndex_p handle, newnode;
+   FVIndex_p handle, newnode = NULL;
    long i;
 
    handle = index->index;
@@ -370,19 +293,19 @@ void FVIndexInsert(FVIAnchor_p index, FreqVector_p vec_clause)
 
    for(i=0; i<vec_clause->size; i++)
    {
-      assert(!FVIndexFinalNode(handle));
-      newnode = fv_index_get_next_node(handle, vec_clause->array[i]);
+      assert(!handle->final);
+
+      newnode = IntMapGetVal(handle->u1.successors, vec_clause->array[i]);
       if(!newnode)
       {
 	 newnode = insert_empty_node(handle, 
 				     index,
 				     vec_clause->array[i]);
-	 index->node_count++;
       }      
       handle = newnode;
       handle->clause_count++;
    }
-   handle->type_or_key = FVINDEXTYPE_FINAL;
+   handle->final = true;
    PTreeStore(&(handle->u1.clauses), vec_clause->clause);
    /* ClauseSetProp(vec_clause->clause, CPIsSIndexed); */
 }
@@ -417,8 +340,8 @@ bool FVIndexDelete(FVIAnchor_p index, Clause_p clause)
 
    for(i=0; i<vec->size; i++)
    {
-      assert(!FVIndexFinalNode(handle));
-      handle = fv_index_get_next_node(handle, vec->array[i]);
+      assert(!handle->final);
+      handle = IntMapGetVal(handle->u1.successors, vec->array[i]);
       if(!handle)
       {
 	 break;
@@ -445,11 +368,13 @@ bool FVIndexDelete(FVIAnchor_p index, Clause_p clause)
 
 long FVIndexCountNodes(FVIndex_p index, bool leafs, bool empty)
 {
-   long res = 0;
-   
+   long res = 0, i;
+   IntMapIter_p iter;
+   FVIndex_p succ;
+
    if(index)
    {
-      if(FVIndexFinalNode(index))
+      if(index->final)
       {
 	 if(!empty || !index->u1.clauses)
 	 {
@@ -463,17 +388,16 @@ long FVIndexCountNodes(FVIndex_p index, bool leafs, bool empty)
 	 {
 	    res++;
 	 }
-	 if(FVIndexUnaryNode(index))
-	 {
-	    res+=FVIndexCountNodes(index->u1.succ,leafs,empty);
-	 }
-	 else
-	 {
-	    long i;
-	    for(i=0; i<index->array_size; i++)
-	    {	       
-	       res += FVIndexCountNodes(index->u1.successors[i], leafs, empty);
-	    }
+         if(index->u1.successors)
+         {
+            iter = IntMapIterAlloc(index->u1.successors, 0, LONG_MAX);
+            {
+               while((succ = IntMapIterNext(iter, &i)))
+               {
+                  res += FVIndexCountNodes(succ, leafs, empty);
+               }
+            }
+            IntMapIterFree(iter);
 	 }
       }
    }

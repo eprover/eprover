@@ -26,7 +26,7 @@ Changes
 #define CCL_FCVINDEXING
 
 #include <ccl_freqvectors.h>
-
+#include <clb_intmap.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -73,15 +73,13 @@ Initial case: Many successors with array size N
 
 typedef struct fv_index_cell
 {
-   long type_or_key;
-   long clause_count;
-   long array_size;
-   union 
+   bool     final;
+   long     clause_count;
+   union
    {
-      struct fv_index_cell **successors;
-      struct fv_index_cell *succ;
-      PTree_p clauses;
-   } u1;
+      IntMap_p successors;
+      PTree_p  clauses;
+   }u1;
 }FVIndexCell, *FVIndex_p;
 
 typedef struct fvi_anchor_cell
@@ -89,9 +87,8 @@ typedef struct fvi_anchor_cell
    long         symbol_limit;
    FVIndexType  features;
    PermVector_p perm_vector;
-   long         node_count;
-   long         array_count;
    FVIndex_p    index;
+   long         storage;
 }FVIAnchorCell, *FVIAnchor_p;
 
 
@@ -106,15 +103,6 @@ void           FVIndexParmsInit(FVIndexParms_p parms);
 FVIndexParms_p FVIndexParmsAlloc(void);
 #define FVIndexParmsFree(junk) FVIndexParmsCellFree(junk)
 
-#define FVINDEXTYPE_EMPTY   -1
-#define FVINDEXTYPE_MANY    -2
-#define FVINDEXTYPE_FINAL   -3
-
-#define FVIndexEmptyNode(node) ((node)->type_or_key == FVINDEXTYPE_EMPTY)
-#define FVIndexUnaryNode(node) ((node)->type_or_key >= 0)
-#define FVIndexFinalNode(node) ((node)->type_or_key == FVINDEXTYPE_FINAL)
-#define FVIndexManySuccNode(node) ((node)->type_or_key == FVINDEXTYPE_MANY)
-
 #define FVIndexCellAlloc()    (FVIndexCell*)SizeMalloc(sizeof(FVIndexCell))
 #define FVIndexCellFree(junk) SizeFree(junk, sizeof(FVIndexCell))
 
@@ -128,13 +116,12 @@ FVIAnchor_p FVIAnchorAlloc(long symbol_limit, FVIndexType features, PermVector_p
 void        FVIAnchorFree(FVIAnchor_p junk);
 
 #ifdef CONSTANT_MEM_ESTIMATE
-#define FVINDEX_MEM 20
+#define FVINDEX_MEM 16
 #else
 #define FVINDEX_MEM MEMSIZE(FVIndexCell)
 #endif
 
-#define FVIndexStorage(index) ((index)?(index)->node_count*FVINDEX_MEM+\
-			       (index)->array_count*LONG_MEM:0)
+#define FVIndexStorage(index) ((index)?(index)->storage:0)
 
 FVIndex_p   FVIndexGetNextNonEmptyNode(FVIndex_p node, long key);
 void        FVIndexInsert(FVIAnchor_p index, FreqVector_p vec_clause);

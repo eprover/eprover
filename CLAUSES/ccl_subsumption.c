@@ -615,8 +615,8 @@ Clause_p clause_tree_find_subsuming_clause(PTree_p tree, Clause_p sub_candidate)
 //
 // Function: clause_set_subsumes_clause_indexed()
 //
-//   Return true if the set subsumes sub_candidate. All clauses need
-//   correct weights!
+//   Return clause if the indexed set subsumes sub_candidate. All
+//   clauses need correct weights!
 //
 // Global Variables: 
 //
@@ -632,27 +632,30 @@ Clause_p clause_set_subsumes_clause_indexed(FVIndex_p index,
 
    assert(vec->clause->weight == ClauseStandardWeight(vec->clause));
 
-   if(FVIndexFinalNode(index))
+   if(feature == vec->size)
    {
       return clause_tree_find_subsuming_clause(index->u1.clauses, vec->clause);
    }
-   else
+   else if(index->u1.successors)
    {
       long i;
       FVIndex_p next;
+      IntMapIter_p iter;
       Clause_p res = NULL;
       
-      for(i=0; i<=vec->array[feature]; i++)
+      iter = IntMapIterAlloc(index->u1.successors, 0, vec->array[feature]);
+      while((next = IntMapIterNext(iter, &i)))
       {
-	 next = FVIndexGetNextNonEmptyNode(index, i);
-	 if(next && 
+	 if(next->clause_count && 
 	    (res = clause_set_subsumes_clause_indexed(next, vec, feature+1)))
 	 {
-	    return res;
+	    break;
 	 }
       }
+      IntMapIterFree(iter);
       return res;
    }
+   return NULL;
 }
 
 /*-----------------------------------------------------------------------
@@ -747,26 +750,27 @@ void clauseset_find_subsumed_clauses_indexed(FVIndex_p index,
 					     long feature, 
 					     PStack_p res)
 {
-   if(FVIndexFinalNode(index))
+   if(feature == vec->size)
    {
       clause_tree_find_subsumed_clauses(index->u1.clauses, vec->clause, res);
    }
-   else
+   else if(index->u1.successors)
    {
-      long i, limit;
+      long i;
       FVIndex_p next;
+      IntMapIter_p iter;
       
-      limit = MAX(index->array_size, index->type_or_key+1); /* Hack!*/
+      iter = IntMapIterAlloc(index->u1.successors, vec->array[feature], LONG_MAX);
       
-      for(i=vec->array[feature]; i<limit; i++)
+      while((next = IntMapIterNext(iter, &i)))
       {
-	 next = FVIndexGetNextNonEmptyNode(index, i);
-	 if(next)
+	 if(next->clause_count)
 	 {
 	    clauseset_find_subsumed_clauses_indexed(next, vec, 
 						    feature+1, res);
 	 }
       }
+      IntMapIterFree(iter);
    }   
 }
 

@@ -278,10 +278,13 @@ void IntMapFree(IntMap_p map)
 
 void* IntMapGetVal(IntMap_p map, long key)
 {
-   assert(map);
    assert(key >=0);
    void* res = NULL;
 
+   if(!map)
+   {
+      return NULL;
+   }
    switch(map->type)
    {
    case IMEmpty:         
@@ -444,7 +447,7 @@ void IntMapAssign(IntMap_p map, long key, void* value)
    void** ref;
    
    assert(map);
-   assert(key > 0);
+   assert(key >= 0);
 
    ref  = IntMapGetRef(map, key);
    *ref = value;
