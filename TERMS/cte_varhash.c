@@ -216,6 +216,52 @@ void VarHashAddVarDistrib(VarHash_p hash, Term_p term, DerefType
    PStackFree(stack);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: PDArrayAddVarDistrib()
+//
+//   Scans a term and adds the variable occurences to the array, with
+//   each occurence being counted with the "add" value.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void PDArrayAddVarDistrib(PDArray_p array, Term_p term, DerefType
+			  deref, long add)
+{
+   PStack_p stack = PStackAlloc();
+   int      i;
+   long     tmp;
+   
+   PStackPushP(stack, term);
+   PStackPushInt(stack, deref);
+   
+   while(!PStackEmpty(stack))
+   {
+      deref = PStackPopInt(stack);
+      term = PStackPopP(stack);
+      term = TermDeref(term, &deref);
+      
+      if(TermIsVar(term))
+      {
+	 tmp = PDArrayElementInt(array, (-(term->f_code)));
+	 PDArrayAssignInt(array, (-(term->f_code)), tmp+add);
+      }
+      else
+      {
+	 for(i=0; i<term->arity; i++)
+	 {
+	    PStackPushP(stack, term->args[i]);
+	    PStackPushInt(stack, deref);
+	 }
+      }
+   }
+   PStackFree(stack);
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

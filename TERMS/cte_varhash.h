@@ -17,6 +17,9 @@ Changes
 
 <1> Wed Jul 22 04:53:43 MET DST 1998
     New
+<2> Sun Jul 13 02:33:42 CEST 2003
+    Added code for using PDArrays instead of slow and complicated
+    VarHashes...I'm reasonably stupid on occasion.
 
 -----------------------------------------------------------------------*/
 
@@ -83,6 +86,9 @@ void VarHashAddVarDistrib(VarHash_p hash, Term_p term, DerefType
 			  deref, long add);
 static __inline__ VarHashEntry_p VarHashFind(VarHash_p hash, Term_p
 					     var);
+
+void PDArrayAddVarDistrib(PDArray_p array, Term_p term, DerefType
+			  deref, long add);
 
 
 
