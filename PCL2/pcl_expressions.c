@@ -451,7 +451,7 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
       assert(expr->arg_no==1);
       if(mini)
       {
-	 fprintf(out, "%ld", PCLExprArgInt(expr,0));
+	 fprintf(out, "c_0_%ld", PCLExprArgInt(expr,0));
       }
       else
       {
