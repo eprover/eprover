@@ -71,66 +71,77 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
    assert(clause);
    assert(state);
    
-
-   trivial = ForwardModifyClause(state, control, clause, context_sr, level);
-   if(trivial)
+   if(control->heuristic_parms.enable_given_forward_simpl)
    {
-      (*trivial_count)++;
-      return NULL;
-   }
-   
-   if(ClauseIsEmpty(clause))
-   {
-      return FVIndexPackClause(clause, NULL);
-   }
-   
-   if(control->ac_handling_active && ClauseIsACRedundant(clause))
-   {
-      if(!ClauseIsUnit(clause)||
-	 (control->heuristic_parms.ac_handling==ACDiscardAll)||
-	 ((control->heuristic_parms.ac_handling==ACKeepOrientable)&&
-	  !EqnIsOriented(clause->literals)))
+      trivial = ForwardModifyClause(state, control, clause, context_sr, level);
+      if(trivial)
       {
-	 (*trivial_count)++;
-	 return NULL;
+         (*trivial_count)++;
+         return NULL;
       }
-      ClauseSetProp(clause, CPNoGeneration);
+      
+      if(ClauseIsEmpty(clause))
+      {
+         return FVIndexPackClause(clause, NULL);
+      }
+      
+      if(control->ac_handling_active && ClauseIsACRedundant(clause))
+      {
+         if(!ClauseIsUnit(clause)||
+            (control->heuristic_parms.ac_handling==ACDiscardAll)||
+            ((control->heuristic_parms.ac_handling==ACKeepOrientable)&&
+             !EqnIsOriented(clause->literals)))
+         {
+            (*trivial_count)++;
+            return NULL;
+         }
+         ClauseSetProp(clause, CPNoGeneration);
+      }
+      
+      if(ClauseIsTautology(state->tmp_terms, clause))
+      {
+         (*trivial_count)++;
+         return NULL;
+      }
+      assert(!ClauseIsTrivial(clause));
+      
+      clause->weight = ClauseStandardWeight(clause);
+      pclause = FVIndexPackClause(clause, state->processed_non_units->fvindex);
+      
+      if(clause->pos_lit_no)
+      {
+         subsumer = UnitClauseSetSubsumesClause(state->processed_pos_eqns, clause);
+      }
+      if(!subsumer && clause->neg_lit_no)
+      {
+         subsumer = UnitClauseSetSubsumesClause(state->processed_neg_units,
+                                                clause);
+      }
+      if(!subsumer && (ClauseLiteralNumber(clause)>1) && non_unit_subsumption)
+      {
+         subsumer = ClauseSetSubsumesFVPackedClause(state->processed_non_units, pclause);
+      }
+      if(subsumer)
+      {
+         DEBUGMARK(PP_LOWDETAILS, "Clause subsumed!\n");
+         DocClauseQuote(GlobalOut, OutputLevel, 6, pclause->clause, 
+                        "subsumed", subsumer);
+         (*subsumed_count)++;
+         FVUnpackClause(pclause);
+         ENSURE_NULL(pclause);
+         return NULL;
+      }
    }
-   
-   if(ClauseIsTautology(state->tmp_terms, clause))
-      /* if(ClauseIsTrivial(clause)) */
+   else /* !control->enable_given_forward_simpl -- this is just a
+         * subset of what is done above*/
    {
-      (*trivial_count)++;
-      return NULL;
-   }
-   assert(!ClauseIsTrivial(clause));
-   
-   clause->weight = ClauseStandardWeight(clause);
-   pclause = FVIndexPackClause(clause, state->processed_non_units->fvindex);
-
-   if(clause->pos_lit_no)
-   {
-      subsumer = UnitClauseSetSubsumesClause(state->processed_pos_eqns, clause);
-   }
-   if(!subsumer && clause->neg_lit_no)
-   {
-      subsumer = UnitClauseSetSubsumesClause(state->processed_neg_units,
-					     clause);
-   }
-   if(!subsumer && (ClauseLiteralNumber(clause)>1) && non_unit_subsumption)
-   {
-      subsumer = ClauseSetSubsumesFVPackedClause(state->processed_non_units, pclause);
-   }
-   if(subsumer)
-   {
-      DEBUGMARK(PP_LOWDETAILS, "Clause subsumed!\n");
-      DocClauseQuote(GlobalOut, OutputLevel, 6, pclause->clause, 
-		     "subsumed", subsumer);
-      (*subsumed_count)++;
-      FVUnpackClause(pclause);
-      ENSURE_NULL(pclause);
-      return NULL;
-   }
+      if(ClauseIsEmpty(clause))
+      {
+         return FVIndexPackClause(clause, NULL);
+      }
+      clause->weight = ClauseStandardWeight(clause);
+      pclause = FVIndexPackClause(clause, state->processed_non_units->fvindex);      
+   }         
    ClauseDelProp(clause, CPIsOriented);
    DoLiteralSelection(control, clause);
    if(!ClauseQueryProp(clause, CPIsOriented))

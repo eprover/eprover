@@ -74,8 +74,6 @@ typedef enum
    OPT_TSTP_FORMAT,
    OPT_NO_PREPROCESSING,
    OPT_NO_EQ_UNFOLD,
-   OPT_NO_NEG_PARAMOD,
-   OPT_NO_NONEQ_PARAMOD,
    OPT_AC_HANDLING,
    OPT_AC_ON_PROC,
    OPT_LITERAL_SELECT,
@@ -95,8 +93,12 @@ typedef enum
    OPT_FILTER_COPIES_LIMIT,
    OPT_REWEIGHT_LIMIT,
    OPT_DELETE_BAD_LIMIT,
+   OPT_ASSUME_COMPLETENESS,
+   OPT_NO_NEG_PARAMOD,
+   OPT_NO_NONEQ_PARAMOD,
    OPT_DISABLE_EQ_FACTORING,
    OPT_DISABLE_NEGUNIT_PM,
+   OPT_NO_GC_FORWARD_SIMPL,
    OPT_SPLIT_TYPES,
    OPT_SPLIT_HOW,
    OPT_SPLIT_AGGRESSIVE,
@@ -408,18 +410,6 @@ OptCell opts[] =
     "default, AC resolution is done after clause creation). Only "
     "effective if AC handling is not disabled."},
 
-   {OPT_NO_NEG_PARAMOD,
-    'N', "no-paramod-into-negatives",
-    NoArg, NULL,
-    "Refrain from paramodulating into negative literals "
-    "(option is deprecated and may not be supported in the future)."},
-
-   {OPT_NO_NONEQ_PARAMOD,
-    'E', "paramod-equational-literals-only",
-    NoArg, NULL,
-    "Don't paramodulate from or into non-equational literals "
-    "(option is deprecated and may not be supported in the future)."},
-    
    {OPT_LITERAL_SELECT,
     'W', "literal-selection-strategy",
     ReqArg, NULL,
@@ -559,6 +549,29 @@ OptCell opts[] =
     " memory limit, the prover will determine a good value"
     " automatically."}, 
 
+   {OPT_ASSUME_COMPLETENESS,
+    '\0', "assume-completeness",
+    NoArg, NULL,
+    "There are various way (e.g. the next few options) to configure the "
+    "prover to be strongly incomplete in the general case. E will detect"
+    " when such an option is selected and return corresponding exit "
+    "states (i.e. it will not claim satisfiability just because it ran"
+    " out of unprocessed clauses). If you _know_ that for your class "
+    "of problems the selected strategy is still complete, use this "
+    "option to tell the system that this is the case."},
+
+   {OPT_NO_NEG_PARAMOD,
+    'N', "no-paramod-into-negatives",
+    NoArg, NULL,
+    "Refrain from paramodulating into negative literals "
+    "(option is deprecated and may not be supported in the future)."},
+
+   {OPT_NO_NONEQ_PARAMOD,
+    'E', "paramod-equational-literals-only",
+    NoArg, NULL,
+    "Don't paramodulate from or into non-equational literals "
+    "(option is deprecated and may not be supported in the future)."},
+    
    {OPT_DISABLE_EQ_FACTORING,
     '\0', "disable-eq-factoring",
     NoArg, NULL,
@@ -568,12 +581,23 @@ OptCell opts[] =
     ", as Horn clauses are not factored anyways."}, 
    
    {OPT_DISABLE_NEGUNIT_PM,
-    '\0', "disable-paramod-into-processed-neg-units",
+    '\0', "disable-paramod-into-neg-units",
     NoArg, NULL,
-    "Disable paramodulation of the given clause into processed negative"
-    " units. This makes the prover incomplete in the general case, but "
-    "helps for some specialized classes."}, 
-   
+    "Disable paramodulation into negative unit clause. This makes the"
+    " prover incomplete in the general case, but  helps for some "
+    "specialized classes."}, 
+   {OPT_NO_GC_FORWARD_SIMPL,
+    '\0', "disable-given-clause-contraction",
+    NoArg, NULL,
+    "Disable simplification and subsumption of the newly selected "
+    "given clause (clauses are still simplified when they are "
+    "generated). In general," 
+    " this breaks some basic assumptions of the DISCOUNT loop proof search"
+    " procedure. However, there are some problem classes in which "
+    " this simplifications empirically never occurs. In such cases, we "
+    "can save significant overhead. The option _should_ work in all "
+    "cases, but is not expexted to imptove things in most cases."},
+
    {OPT_SPLIT_TYPES,
     '\0', "split-clauses",
     OptArg, "7",
@@ -868,7 +892,9 @@ bool              print_sat = false,
                   no_eq_unfold = false,
                   pcl_full_terms = true,
                   indexed_subsumption = true,
-                  cnf_only = false;
+                  cnf_only = false,
+                  inf_sys_complete = true,
+                  assume_inf_sys_complete = false;
 IOFormat          parse_format = LOPFormat;
 long              step_limit = LONG_MAX, 
                   proc_limit = LONG_MAX,
@@ -1049,9 +1075,7 @@ int main(int argc, char* argv[])
    {
       if(out_of_clauses&&
 	 proofstate->state_is_complete&&
-	 ParamodOverlapIntoNegativeLiterals&&
-	 ParamodOverlapNonEqLiterals&&
-	 (proofcontrol->heuristic_parms.selection_strategy!=SelectNoGeneration))
+	 (inf_sys_complete || assume_inf_sys_complete))
       {
 	 finals_state = "final";
       }
@@ -1065,9 +1089,7 @@ int main(int argc, char* argv[])
       }
       else if(out_of_clauses)
       {
-	 if(!ParamodOverlapIntoNegativeLiterals||
-	    !ParamodOverlapNonEqLiterals||
-	    (proofcontrol->heuristic_parms.selection_strategy==SelectNoGeneration))
+	 if(!(inf_sys_complete || assume_inf_sys_complete))
 	 {
 	    fprintf(GlobalOut, 
 		    "\n# Clause set closed under "
@@ -1386,12 +1408,6 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_NO_EQ_UNFOLD:
 	    no_eq_unfold = true;
 	    break;
-      case OPT_NO_NEG_PARAMOD:
-	    ParamodOverlapIntoNegativeLiterals = false;
-	    break;	    
-      case OPT_NO_NONEQ_PARAMOD:
-	    ParamodOverlapNonEqLiterals = false;
-	    break;
       case OPT_AC_HANDLING:
 	    if(strcmp(arg, "None")==0)
 	    {
@@ -1443,7 +1459,11 @@ CLState_p process_options(int argc, char* argv[])
 	       DStrAppendStrArray(err, LiteralSelectionFunNames, ", ");
 	       Error(DStrView(err), USAGE_ERROR);
 	       DStrFree(err);
-	    }		      
+	    }
+            if(h_parms->selection_strategy == SelectNoGeneration)
+            {
+               inf_sys_complete = false;
+            }
 	    break;
       case OPT_POS_LITSEL_MIN:
 	    h_parms->pos_lit_sel_min = CLStateGetIntArg(handle, arg);
@@ -1481,11 +1501,26 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_DELETE_BAD_LIMIT:
 	    h_parms->delete_bad_limit = CLStateGetIntArg(handle, arg);
 	    break; 
+      case OPT_ASSUME_COMPLETENESS:
+            assume_inf_sys_complete = true;
+      case OPT_NO_NEG_PARAMOD:
+	    ParamodOverlapIntoNegativeLiterals = false;
+            inf_sys_complete = false;
+	    break;	    
+      case OPT_NO_NONEQ_PARAMOD:
+	    ParamodOverlapNonEqLiterals = false;
+            inf_sys_complete = false;
+	    break;
+      case OPT_NO_GC_FORWARD_SIMPL:
+            h_parms->enable_given_forward_simpl = false;
+            break;
       case OPT_DISABLE_EQ_FACTORING:
             h_parms->enable_eq_factoring = false;
+            inf_sys_complete = false;
             break;
       case OPT_DISABLE_NEGUNIT_PM:
             h_parms->enable_neg_unit_paramod = false;
+            inf_sys_complete = false;
             break;
       case OPT_SPLIT_TYPES:
 	    h_parms->split_clauses = CLStateGetIntArg(handle, arg);

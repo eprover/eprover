@@ -85,6 +85,7 @@ typedef struct heuristic_parms_cell
    /* Inference control elements */
    bool                enable_eq_factoring; /* Default is on! */
    bool                enable_neg_unit_paramod; /* Default is on */
+   bool                enable_given_forward_simpl; /* On */
 
    ACHandlingType      ac_handling;
    bool                ac_res_aggressive;
