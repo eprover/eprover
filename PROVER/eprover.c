@@ -33,7 +33,7 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-#define VERSION      "0.8dev007"
+#define VERSION      "0.8dev008"
 #define NAME         "eprover"
 
 #ifdef SAFELOGIC
@@ -718,10 +718,10 @@ OptCell opts[] =
     '\0', "fvindex-featuretypes",
     ReqArg, NULL,
     "Select the feature types used for indexing. Choices are \"None\""
-    " to disable FV-indexing, \"AC\" for AC compatible features "
+    " to disable FV-indexing, \"AC\" for AC compatible features (the default) "
     "(literal number and symbol counts), \"SS\" for set subsumption "
-    "compatible features (symbol depth), and \"All\" for all features "
-    "(the default). Unless you want to measure the effects of the "
+    "compatible features (symbol depth), and \"All\" for all features."
+    "Unless you want to measure the effects of the "
     "different features, I suggest you stick with the default."},
 
    {OPT_FVINDEX_MAXFEATURES,
