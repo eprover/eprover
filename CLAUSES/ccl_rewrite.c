@@ -860,6 +860,10 @@ bool ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
       tmp = eqn_li_normalform(desc, &pos);
       res = res || tmp;
    }
+   /* if(desc->sos_rewritten)
+   {
+      ClauseSetProp(clause, CPIsSOS);
+      } Commented out because testruns have to be rerun!*/
    RWDescCellFree(desc);
    DEBUG(RW_INTERFACE_WATCH1, printf("# Res :");
 	 ClausePrint(stdout, clause, true);printf("\n"););
