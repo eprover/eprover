@@ -149,13 +149,13 @@ void WFCBAdminFree(WFCBAdmin_p junk)
    while(!PStackEmpty(junk->names))
    {
       name = PStackPopP(junk->names);
-      FREE(name);      
+      FREE(name);
    }
    PStackFree(junk->names);
 
    while(!PStackEmpty(junk->wfcb_set))
    {
-      WFCBFree(PStackPopP(junk->wfcb_set));      
+      WFCBFree(PStackPopP(junk->wfcb_set));
    }
    PStackFree(junk->wfcb_set);
 

@@ -574,10 +574,10 @@ void TSMWeightExit(void* data)
    if(local->tsmadmin)
    {
       PatternSubstFree(local->tsmadmin->subst);
+      PatternSubstFree(local->pat_subst);
       TSMAdminFree(local->tsmadmin);
    }
-   FREE(local->kb);
-   PatternSubstFree(local->pat_subst);
+   FREE(local->kb); 
    TSMParamCellFree(local);
 }
 
