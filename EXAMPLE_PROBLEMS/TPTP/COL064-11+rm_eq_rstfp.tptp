@@ -1,0 +1,38 @@
+%--------------------------------------------------------------------------
+% File     : COL064-11 : TPTP v2.1.0. Bugfixed v1.2.0.
+% Domain   : Combinatory Logic
+% Problem  : Find combinator equivalent to V from B and T
+% Version  : [WM88] (equality) axioms.
+%            Theorem formulation : The combinator is provided and checked.
+% English  : Construct from B and T alone a combinator that behaves as the 
+%            combinator V does, where ((Bx)y)z = x(yz), (Tx)y = yx, 
+%            ((Vx)y)z = (zx)y.
+
+% Refs     : [WM88]  Wos & McCune (1988), Challenge Problems Focusing on Eq
+%          : [WW+90] Wos et al. (1990), Automated Reasoning Contributes to 
+% Source   : [TPTP]
+% Names    : 
+
+% Status   : unsatisfiable
+% Rating   : 0.20 v2.1.0, 0.71 v2.0.0
+% Syntax   : Number of clauses    :    3 (   0 non-Horn;   3 unit;   1 RR)
+%            Number of literals   :    3 (   3 equality)
+%            Maximal clause size  :    1 (   1 average)
+%            Number of predicates :    1 (   0 propositional; 2-2 arity)
+%            Number of functors   :    6 (   5 constant; 0-2 arity)
+%            Number of variables  :    5 (   0 singleton)
+%            Maximal term depth   :   13 (   4 average)
+
+% Comments : 
+%          : tptp2X -f tptp -t rm_equality:rstfp COL064-11.p 
+% Bugfixes : v1.2.0 : Redundant [fgh]_substitution axioms removed.
+%--------------------------------------------------------------------------
+input_clause(b_definition,axiom,
+    [++ equal(apply(apply(apply(b, X), Y), Z), apply(X, apply(Y, Z)))]).
+
+input_clause(t_definition,axiom,
+    [++ equal(apply(apply(t, X), Y), apply(Y, X))]).
+
+input_clause(prove_v_combinator,conjecture,
+    [-- equal(apply(apply(apply(apply(apply(b, apply(apply(b, apply(apply(b, apply(t, apply(apply(b, b), t))), b)), t)), t), x), y), z), apply(apply(z, x), y))]).
+%--------------------------------------------------------------------------

@@ -1,0 +1,16 @@
+Executable: ~/EPROVER/bin/eprover
+Logfile:    ~/EPROVER/TESTRUNS/protokoll_UU--G_0
+Problemdir: ~/EPROVER/TPTP/ALL_PROBLEMS
+Arguments: -H'(1*Refinedweight(PreferGoals,2,1,1.5,1,1))'
+Time limit: 10
+Include: ~/EPROVER/CLASS_LISTS/CLASS_UU??G
+
+
+
+
+
+
+
+
+
+

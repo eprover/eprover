@@ -1,0 +1,40 @@
+%--------------------------------------------------------------------------
+% File     : SYN072-1 : TPTP v2.1.0. Released v1.0.0.
+% Domain   : Syntactic
+% Problem  : Pelletier Problem 49
+% Version  : Special.
+% English  : 
+
+% Refs     : [Pel86] Pelletier (1986), Seventy-five Problems for Testing Au
+% Source   : [Pel86]
+% Names    : Pelletier 49 [Pel86]
+
+% Status   : unsatisfiable
+% Rating   : 0.27 v2.1.0, 0.00 v2.0.0
+% Syntax   : Number of clauses    :    5 (   1 non-Horn;   4 unit;   4 RR)
+%            Number of literals   :    6 (   3 equality)
+%            Maximal clause size  :    2 (   1 average)
+%            Number of predicates :    2 (   0 propositional; 1-2 arity)
+%            Number of functors   :    5 (   5 constant; 0-0 arity)
+%            Number of variables  :    1 (   0 singleton)
+%            Maximal term depth   :    1 (   1 average)
+
+% Comments : 
+%          : tptp2X -f tptp -t rm_equality:rstfp SYN072-1.p 
+%--------------------------------------------------------------------------
+input_clause(clause_1,axiom,
+    [++ equal(X, c),
+     ++ equal(X, d)]).
+
+input_clause(clause_2,axiom,
+    [++ big_p(a)]).
+
+input_clause(clause_3,axiom,
+    [++ big_p(b)]).
+
+input_clause(clause_4,axiom,
+    [-- equal(a, b)]).
+
+input_clause(prove_this,conjecture,
+    [-- big_p(e)]).
+%--------------------------------------------------------------------------

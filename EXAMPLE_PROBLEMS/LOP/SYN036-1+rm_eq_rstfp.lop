@@ -1,0 +1,1309 @@
+#--------------------------------------------------------------------------
+# File     : SYN036-1 : TPTP v2.1.0. Released v1.0.0.
+# Domain   : Syntactic
+# Problem  : Andrews Challenge Problem
+# Version  : Special.
+#            Theorem formulation : Erroneous, as in [Pel86]
+# English  : 
+
+# Refs     : [DeC79] DeChampeaux (1979), Sub-problem Finder and Instance Ch
+#          : [Pel86] Pelletier (1986), Seventy-five Problems for Testing Au
+#          : [Pel88] Pelletier (1988), Errata
+# Source   : [OTTER]
+# Names    : Pelletier 34 [Pel86]
+#          : andrews.in [OTTER]
+
+# Status   : unsatisfiable
+# Rating   : 0.89 v2.1.0, 0.00 v2.0.0
+# Syntax   : Number of clauses    :  128 ( 127 non-Horn;   0 unit;   8 RR)
+#            Number of literals   : 1024 (   0 equality)
+#            Maximal clause size  :    8 (   8 average)
+#            Number of predicates :    2 (   0 propositional; 1-1 arity)
+#            Number of functors   :   24 (  20 constant; 0-1 arity)
+#            Number of variables  :  512 ( 384 singleton)
+#            Maximal term depth   :    2 (   1 average)
+
+# Comments : This problem is incorrect in [Pel86] and is corrected in [Pel88].
+#          : tptp2X -f setheo:sign -t rm_equality:rstfp SYN036-1.p 
+#--------------------------------------------------------------------------
+# clause_1, conjecture.
+big_p(X);
+big_p(f1(X));
+big_p(V);
+big_q(f2(W));
+big_q(W);
+big_q(X2) <- 
+    big_q(U),
+    big_p(X1).
+
+# clause_2, conjecture.
+big_p(X);
+big_p(f1(X));
+big_p(V);
+big_q(f2(W));
+big_q(W);
+big_p(c6) <- 
+    big_q(U),
+    big_q(c7).
+
+# clause_3, conjecture.
+big_p(X);
+big_p(f1(X));
+big_p(V);
+big_q(X2) <- 
+    big_q(U),
+    big_q(f2(W)),
+    big_q(W),
+    big_p(X1).
+
+# clause_4, conjecture.
+big_p(X);
+big_p(f1(X));
+big_p(V);
+big_p(c6) <- 
+    big_q(U),
+    big_q(f2(W)),
+    big_q(W),
+    big_q(c7).
+
+# clause_5, conjecture.
+big_p(X);
+big_p(f1(X));
+big_p(V);
+big_q(c8);
+big_p(c9);
+big_q(X5) <- 
+    big_q(U),
+    big_q(Z).
+
+# clause_6, conjecture.
+big_p(X);
+big_p(f1(X));
+big_p(V);
+big_q(c8) <- 
+    big_q(U),
+    big_q(Z),
+    big_p(X6),
+    big_q(c10).
+
+# clause_7, conjecture.
+big_p(X);
+big_p(f1(X));
+big_p(V);
+big_q(Z);
+big_p(c9);
+big_q(X5) <- 
+    big_q(U),
+    big_q(c8).
+
+# clause_8, conjecture.
+big_p(X);
+big_p(f1(X));
+big_p(V);
+big_q(Z) <- 
+    big_q(U),
+    big_q(c8),
+    big_p(X6),
+    big_q(c10).
+
+# clause_9, conjecture.
+big_p(X);
+big_p(f1(X));
+big_q(c1);
+big_q(f2(W));
+big_q(W);
+big_q(X2) <- 
+    big_p(c2),
+    big_p(X1).
+
+# clause_10, conjecture.
+big_p(X);
+big_p(f1(X));
+big_q(c1);
+big_q(f2(W));
+big_q(W);
+big_p(c6) <- 
+    big_p(c2),
+    big_q(c7).
+
+# clause_11, conjecture.
+big_p(X);
+big_p(f1(X));
+big_q(c1);
+big_q(X2) <- 
+    big_p(c2),
+    big_q(f2(W)),
+    big_q(W),
+    big_p(X1).
+
+# clause_12, conjecture.
+big_p(X);
+big_p(f1(X));
+big_q(c1);
+big_p(c6) <- 
+    big_p(c2),
+    big_q(f2(W)),
+    big_q(W),
+    big_q(c7).
+
+# clause_13, conjecture.
+big_p(X);
+big_p(f1(X));
+big_q(c1);
+big_q(c8);
+big_p(c9);
+big_q(X5) <- 
+    big_p(c2),
+    big_q(Z).
+
+# clause_14, conjecture.
+big_p(X);
+big_p(f1(X));
+big_q(c1);
+big_q(c8) <- 
+    big_p(c2),
+    big_q(Z),
+    big_p(X6),
+    big_q(c10).
+
+# clause_15, conjecture.
+big_p(X);
+big_p(f1(X));
+big_q(c1);
+big_q(Z);
+big_p(c9);
+big_q(X5) <- 
+    big_p(c2),
+    big_q(c8).
+
+# clause_16, conjecture.
+big_p(X);
+big_p(f1(X));
+big_q(c1);
+big_q(Z) <- 
+    big_p(c2),
+    big_q(c8),
+    big_p(X6),
+    big_q(c10).
+
+# clause_17, conjecture.
+big_p(V);
+big_q(f2(W));
+big_q(W);
+big_q(X2) <- 
+    big_p(X),
+    big_p(f1(X)),
+    big_q(U),
+    big_p(X1).
+
+# clause_18, conjecture.
+big_p(V);
+big_q(f2(W));
+big_q(W);
+big_p(c6) <- 
+    big_p(X),
+    big_p(f1(X)),
+    big_q(U),
+    big_q(c7).
+
+# clause_19, conjecture.
+big_p(V);
+big_q(X2) <- 
+    big_p(X),
+    big_p(f1(X)),
+    big_q(U),
+    big_q(f2(W)),
+    big_q(W),
+    big_p(X1).
+
+# clause_20, conjecture.
+big_p(V);
+big_p(c6) <- 
+    big_p(X),
+    big_p(f1(X)),
+    big_q(U),
+    big_q(f2(W)),
+    big_q(W),
+    big_q(c7).
+
+# clause_21, conjecture.
+big_p(V);
+big_q(c8);
+big_p(c9);
+big_q(X5) <- 
+    big_p(X),
+    big_p(f1(X)),
+    big_q(U),
+    big_q(Z).
+
+# clause_22, conjecture.
+big_p(V);
+big_q(c8) <- 
+    big_p(X),
+    big_p(f1(X)),
+    big_q(U),
+    big_q(Z),
+    big_p(X6),
+    big_q(c10).
+
+# clause_23, conjecture.
+big_p(V);
+big_q(Z);
+big_p(c9);
+big_q(X5) <- 
+    big_p(X),
+    big_p(f1(X)),
+    big_q(U),
+    big_q(c8).
+
+# clause_24, conjecture.
+big_p(V);
+big_q(Z) <- 
+    big_p(X),
+    big_p(f1(X)),
+    big_q(U),
+    big_q(c8),
+    big_p(X6),
+    big_q(c10).
+
+# clause_25, conjecture.
+big_q(c1);
+big_q(f2(W));
+big_q(W);
+big_q(X2) <- 
+    big_p(X),
+    big_p(f1(X)),
+    big_p(c2),
+    big_p(X1).
+
+# clause_26, conjecture.
+big_q(c1);
+big_q(f2(W));
+big_q(W);
+big_p(c6) <- 
+    big_p(X),
+    big_p(f1(X)),
+    big_p(c2),
+    big_q(c7).
+
+# clause_27, conjecture.
+big_q(c1);
+big_q(X2) <- 
+    big_p(X),
+    big_p(f1(X)),
+    big_p(c2),
+    big_q(f2(W)),
+    big_q(W),
+    big_p(X1).
+
+# clause_28, conjecture.
+big_q(c1);
+big_p(c6) <- 
+    big_p(X),
+    big_p(f1(X)),
+    big_p(c2),
+    big_q(f2(W)),
+    big_q(W),
+    big_q(c7).
+
+# clause_29, conjecture.
+big_q(c1);
+big_q(c8);
+big_p(c9);
+big_q(X5) <- 
+    big_p(X),
+    big_p(f1(X)),
+    big_p(c2),
+    big_q(Z).
+
+# clause_30, conjecture.
+big_q(c1);
+big_q(c8) <- 
+    big_p(X),
+    big_p(f1(X)),
+    big_p(c2),
+    big_q(Z),
+    big_p(X6),
+    big_q(c10).
+
+# clause_31, conjecture.
+big_q(c1);
+big_q(Z);
+big_p(c9);
+big_q(X5) <- 
+    big_p(X),
+    big_p(f1(X)),
+    big_p(c2),
+    big_q(c8).
+
+# clause_32, conjecture.
+big_q(c1);
+big_q(Z) <- 
+    big_p(X),
+    big_p(f1(X)),
+    big_p(c2),
+    big_q(c8),
+    big_p(X6),
+    big_q(c10).
+
+# clause_33, conjecture.
+big_p(Y);
+big_q(c4);
+big_p(X3);
+big_q(f2(W));
+big_q(W);
+big_q(X2) <- 
+    big_p(c3),
+    big_p(X1).
+
+# clause_34, conjecture.
+big_p(Y);
+big_q(c4);
+big_p(X3);
+big_q(f2(W));
+big_q(W);
+big_p(c6) <- 
+    big_p(c3),
+    big_q(c7).
+
+# clause_35, conjecture.
+big_p(Y);
+big_q(c4);
+big_p(X3);
+big_q(X2) <- 
+    big_p(c3),
+    big_q(f2(W)),
+    big_q(W),
+    big_p(X1).
+
+# clause_36, conjecture.
+big_p(Y);
+big_q(c4);
+big_p(X3);
+big_p(c6) <- 
+    big_p(c3),
+    big_q(f2(W)),
+    big_q(W),
+    big_q(c7).
+
+# clause_37, conjecture.
+big_p(Y);
+big_q(c4);
+big_p(X3);
+big_q(c8);
+big_p(c9);
+big_q(X5) <- 
+    big_p(c3),
+    big_q(Z).
+
+# clause_38, conjecture.
+big_p(Y);
+big_q(c4);
+big_p(X3);
+big_q(c8) <- 
+    big_p(c3),
+    big_q(Z),
+    big_p(X6),
+    big_q(c10).
+
+# clause_39, conjecture.
+big_p(Y);
+big_q(c4);
+big_p(X3);
+big_q(Z);
+big_p(c9);
+big_q(X5) <- 
+    big_p(c3),
+    big_q(c8).
+
+# clause_40, conjecture.
+big_p(Y);
+big_q(c4);
+big_p(X3);
+big_q(Z) <- 
+    big_p(c3),
+    big_q(c8),
+    big_p(X6),
+    big_q(c10).
+
+# clause_41, conjecture.
+big_p(Y);
+big_q(f2(W));
+big_q(W);
+big_q(X2) <- 
+    big_p(c3),
+    big_q(X4),
+    big_p(c5),
+    big_p(X1).
+
+# clause_42, conjecture.
+big_p(Y);
+big_q(f2(W));
+big_q(W);
+big_p(c6) <- 
+    big_p(c3),
+    big_q(X4),
+    big_p(c5),
+    big_q(c7).
+
+# clause_43, conjecture.
+big_p(Y);
+big_q(X2) <- 
+    big_p(c3),
+    big_q(X4),
+    big_p(c5),
+    big_q(f2(W)),
+    big_q(W),
+    big_p(X1).
+
+# clause_44, conjecture.
+big_p(Y);
+big_p(c6) <- 
+    big_p(c3),
+    big_q(X4),
+    big_p(c5),
+    big_q(f2(W)),
+    big_q(W),
+    big_q(c7).
+
+# clause_45, conjecture.
+big_p(Y);
+big_q(c8);
+big_p(c9);
+big_q(X5) <- 
+    big_p(c3),
+    big_q(X4),
+    big_p(c5),
+    big_q(Z).
+
+# clause_46, conjecture.
+big_p(Y);
+big_q(c8) <- 
+    big_p(c3),
+    big_q(X4),
+    big_p(c5),
+    big_q(Z),
+    big_p(X6),
+    big_q(c10).
+
+# clause_47, conjecture.
+big_p(Y);
+big_q(Z);
+big_p(c9);
+big_q(X5) <- 
+    big_p(c3),
+    big_q(X4),
+    big_p(c5),
+    big_q(c8).
+
+# clause_48, conjecture.
+big_p(Y);
+big_q(Z) <- 
+    big_p(c3),
+    big_q(X4),
+    big_p(c5),
+    big_q(c8),
+    big_p(X6),
+    big_q(c10).
+
+# clause_49, conjecture.
+big_p(c3);
+big_q(c4);
+big_p(X3);
+big_q(f2(W));
+big_q(W);
+big_q(X2) <- 
+    big_p(Y),
+    big_p(X1).
+
+# clause_50, conjecture.
+big_p(c3);
+big_q(c4);
+big_p(X3);
+big_q(f2(W));
+big_q(W);
+big_p(c6) <- 
+    big_p(Y),
+    big_q(c7).
+
+# clause_51, conjecture.
+big_p(c3);
+big_q(c4);
+big_p(X3);
+big_q(X2) <- 
+    big_p(Y),
+    big_q(f2(W)),
+    big_q(W),
+    big_p(X1).
+
+# clause_52, conjecture.
+big_p(c3);
+big_q(c4);
+big_p(X3);
+big_p(c6) <- 
+    big_p(Y),
+    big_q(f2(W)),
+    big_q(W),
+    big_q(c7).
+
+# clause_53, conjecture.
+big_p(c3);
+big_q(c4);
+big_p(X3);
+big_q(c8);
+big_p(c9);
+big_q(X5) <- 
+    big_p(Y),
+    big_q(Z).
+
+# clause_54, conjecture.
+big_p(c3);
+big_q(c4);
+big_p(X3);
+big_q(c8) <- 
+    big_p(Y),
+    big_q(Z),
+    big_p(X6),
+    big_q(c10).
+
+# clause_55, conjecture.
+big_p(c3);
+big_q(c4);
+big_p(X3);
+big_q(Z);
+big_p(c9);
+big_q(X5) <- 
+    big_p(Y),
+    big_q(c8).
+
+# clause_56, conjecture.
+big_p(c3);
+big_q(c4);
+big_p(X3);
+big_q(Z) <- 
+    big_p(Y),
+    big_q(c8),
+    big_p(X6),
+    big_q(c10).
+
+# clause_57, conjecture.
+big_p(c3);
+big_q(f2(W));
+big_q(W);
+big_q(X2) <- 
+    big_p(Y),
+    big_q(X4),
+    big_p(c5),
+    big_p(X1).
+
+# clause_58, conjecture.
+big_p(c3);
+big_q(f2(W));
+big_q(W);
+big_p(c6) <- 
+    big_p(Y),
+    big_q(X4),
+    big_p(c5),
+    big_q(c7).
+
+# clause_59, conjecture.
+big_p(c3);
+big_q(X2) <- 
+    big_p(Y),
+    big_q(X4),
+    big_p(c5),
+    big_q(f2(W)),
+    big_q(W),
+    big_p(X1).
+
+# clause_60, conjecture.
+big_p(c3);
+big_p(c6) <- 
+    big_p(Y),
+    big_q(X4),
+    big_p(c5),
+    big_q(f2(W)),
+    big_q(W),
+    big_q(c7).
+
+# clause_61, conjecture.
+big_p(c3);
+big_q(c8);
+big_p(c9);
+big_q(X5) <- 
+    big_p(Y),
+    big_q(X4),
+    big_p(c5),
+    big_q(Z).
+
+# clause_62, conjecture.
+big_p(c3);
+big_q(c8) <- 
+    big_p(Y),
+    big_q(X4),
+    big_p(c5),
+    big_q(Z),
+    big_p(X6),
+    big_q(c10).
+
+# clause_63, conjecture.
+big_p(c3);
+big_q(Z);
+big_p(c9);
+big_q(X5) <- 
+    big_p(Y),
+    big_q(X4),
+    big_p(c5),
+    big_q(c8).
+
+# clause_64, conjecture.
+big_p(c3);
+big_q(Z) <- 
+    big_p(Y),
+    big_q(X4),
+    big_p(c5),
+    big_q(c8),
+    big_p(X6),
+    big_q(c10).
+
+# clause_65, conjecture.
+big_p(X7);
+big_p(X9);
+big_q(c16);
+big_q(X15) <- 
+    big_p(c11),
+    big_q(X8),
+    big_q(X13),
+    big_p(X14).
+
+# clause_66, conjecture.
+big_p(X7);
+big_p(X9);
+big_q(c16);
+big_p(c17) <- 
+    big_p(c11),
+    big_q(X8),
+    big_q(X13),
+    big_q(c18).
+
+# clause_67, conjecture.
+big_p(X7);
+big_p(X9);
+big_q(X13);
+big_q(X15) <- 
+    big_p(c11),
+    big_q(X8),
+    big_q(c16),
+    big_p(X14).
+
+# clause_68, conjecture.
+big_p(X7);
+big_p(X9);
+big_q(X13);
+big_p(c17) <- 
+    big_p(c11),
+    big_q(X8),
+    big_q(c16),
+    big_q(c18).
+
+# clause_69, conjecture.
+big_p(X7);
+big_p(X9);
+big_q(f4(X16));
+big_q(X16);
+big_p(c19);
+big_q(X17) <- 
+    big_p(c11),
+    big_q(X8).
+
+# clause_70, conjecture.
+big_p(X7);
+big_p(X9);
+big_q(f4(X16));
+big_q(X16) <- 
+    big_p(c11),
+    big_q(X8),
+    big_p(X18),
+    big_q(c20).
+
+# clause_71, conjecture.
+big_p(X7);
+big_p(X9);
+big_p(c19);
+big_q(X17) <- 
+    big_p(c11),
+    big_q(X8),
+    big_q(f4(X16)),
+    big_q(X16).
+
+# clause_72, conjecture.
+big_p(X7);
+big_p(X9) <- 
+    big_p(c11),
+    big_q(X8),
+    big_q(f4(X16)),
+    big_q(X16),
+    big_p(X18),
+    big_q(c20).
+
+# clause_73, conjecture.
+big_p(X7);
+big_q(c12);
+big_q(c16);
+big_q(X15) <- 
+    big_p(c11),
+    big_p(c13),
+    big_q(X13),
+    big_p(X14).
+
+# clause_74, conjecture.
+big_p(X7);
+big_q(c12);
+big_q(c16);
+big_p(c17) <- 
+    big_p(c11),
+    big_p(c13),
+    big_q(X13),
+    big_q(c18).
+
+# clause_75, conjecture.
+big_p(X7);
+big_q(c12);
+big_q(X13);
+big_q(X15) <- 
+    big_p(c11),
+    big_p(c13),
+    big_q(c16),
+    big_p(X14).
+
+# clause_76, conjecture.
+big_p(X7);
+big_q(c12);
+big_q(X13);
+big_p(c17) <- 
+    big_p(c11),
+    big_p(c13),
+    big_q(c16),
+    big_q(c18).
+
+# clause_77, conjecture.
+big_p(X7);
+big_q(c12);
+big_q(f4(X16));
+big_q(X16);
+big_p(c19);
+big_q(X17) <- 
+    big_p(c11),
+    big_p(c13).
+
+# clause_78, conjecture.
+big_p(X7);
+big_q(c12);
+big_q(f4(X16));
+big_q(X16) <- 
+    big_p(c11),
+    big_p(c13),
+    big_p(X18),
+    big_q(c20).
+
+# clause_79, conjecture.
+big_p(X7);
+big_q(c12);
+big_p(c19);
+big_q(X17) <- 
+    big_p(c11),
+    big_p(c13),
+    big_q(f4(X16)),
+    big_q(X16).
+
+# clause_80, conjecture.
+big_p(X7);
+big_q(c12) <- 
+    big_p(c11),
+    big_p(c13),
+    big_q(f4(X16)),
+    big_q(X16),
+    big_p(X18),
+    big_q(c20).
+
+# clause_81, conjecture.
+big_p(c11);
+big_p(X9);
+big_q(c16);
+big_q(X15) <- 
+    big_p(X7),
+    big_q(X8),
+    big_q(X13),
+    big_p(X14).
+
+# clause_82, conjecture.
+big_p(c11);
+big_p(X9);
+big_q(c16);
+big_p(c17) <- 
+    big_p(X7),
+    big_q(X8),
+    big_q(X13),
+    big_q(c18).
+
+# clause_83, conjecture.
+big_p(c11);
+big_p(X9);
+big_q(X13);
+big_q(X15) <- 
+    big_p(X7),
+    big_q(X8),
+    big_q(c16),
+    big_p(X14).
+
+# clause_84, conjecture.
+big_p(c11);
+big_p(X9);
+big_q(X13);
+big_p(c17) <- 
+    big_p(X7),
+    big_q(X8),
+    big_q(c16),
+    big_q(c18).
+
+# clause_85, conjecture.
+big_p(c11);
+big_p(X9);
+big_q(f4(X16));
+big_q(X16);
+big_p(c19);
+big_q(X17) <- 
+    big_p(X7),
+    big_q(X8).
+
+# clause_86, conjecture.
+big_p(c11);
+big_p(X9);
+big_q(f4(X16));
+big_q(X16) <- 
+    big_p(X7),
+    big_q(X8),
+    big_p(X18),
+    big_q(c20).
+
+# clause_87, conjecture.
+big_p(c11);
+big_p(X9);
+big_p(c19);
+big_q(X17) <- 
+    big_p(X7),
+    big_q(X8),
+    big_q(f4(X16)),
+    big_q(X16).
+
+# clause_88, conjecture.
+big_p(c11);
+big_p(X9) <- 
+    big_p(X7),
+    big_q(X8),
+    big_q(f4(X16)),
+    big_q(X16),
+    big_p(X18),
+    big_q(c20).
+
+# clause_89, conjecture.
+big_p(c11);
+big_q(c12);
+big_q(c16);
+big_q(X15) <- 
+    big_p(X7),
+    big_p(c13),
+    big_q(X13),
+    big_p(X14).
+
+# clause_90, conjecture.
+big_p(c11);
+big_q(c12);
+big_q(c16);
+big_p(c17) <- 
+    big_p(X7),
+    big_p(c13),
+    big_q(X13),
+    big_q(c18).
+
+# clause_91, conjecture.
+big_p(c11);
+big_q(c12);
+big_q(X13);
+big_q(X15) <- 
+    big_p(X7),
+    big_p(c13),
+    big_q(c16),
+    big_p(X14).
+
+# clause_92, conjecture.
+big_p(c11);
+big_q(c12);
+big_q(X13);
+big_p(c17) <- 
+    big_p(X7),
+    big_p(c13),
+    big_q(c16),
+    big_q(c18).
+
+# clause_93, conjecture.
+big_p(c11);
+big_q(c12);
+big_q(f4(X16));
+big_q(X16);
+big_p(c19);
+big_q(X17) <- 
+    big_p(X7),
+    big_p(c13).
+
+# clause_94, conjecture.
+big_p(c11);
+big_q(c12);
+big_q(f4(X16));
+big_q(X16) <- 
+    big_p(X7),
+    big_p(c13),
+    big_p(X18),
+    big_q(c20).
+
+# clause_95, conjecture.
+big_p(c11);
+big_q(c12);
+big_p(c19);
+big_q(X17) <- 
+    big_p(X7),
+    big_p(c13),
+    big_q(f4(X16)),
+    big_q(X16).
+
+# clause_96, conjecture.
+big_p(c11);
+big_q(c12) <- 
+    big_p(X7),
+    big_p(c13),
+    big_q(f4(X16)),
+    big_q(X16),
+    big_p(X18),
+    big_q(c20).
+
+# clause_97, conjecture.
+big_p(X10);
+big_p(f3(X10));
+big_q(c14);
+big_p(X11);
+big_q(c16);
+big_q(X15) <- 
+    big_q(X13),
+    big_p(X14).
+
+# clause_98, conjecture.
+big_p(X10);
+big_p(f3(X10));
+big_q(c14);
+big_p(X11);
+big_q(c16);
+big_p(c17) <- 
+    big_q(X13),
+    big_q(c18).
+
+# clause_99, conjecture.
+big_p(X10);
+big_p(f3(X10));
+big_q(c14);
+big_p(X11);
+big_q(X13);
+big_q(X15) <- 
+    big_q(c16),
+    big_p(X14).
+
+# clause_100, conjecture.
+big_p(X10);
+big_p(f3(X10));
+big_q(c14);
+big_p(X11);
+big_q(X13);
+big_p(c17) <- 
+    big_q(c16),
+    big_q(c18).
+
+# clause_101, conjecture.
+big_p(X10);
+big_p(f3(X10));
+big_q(c14);
+big_p(X11);
+big_q(f4(X16));
+big_q(X16);
+big_p(c19);
+big_q(X17) <- .
+
+# clause_102, conjecture.
+big_p(X10);
+big_p(f3(X10));
+big_q(c14);
+big_p(X11);
+big_q(f4(X16));
+big_q(X16) <- 
+    big_p(X18),
+    big_q(c20).
+
+# clause_103, conjecture.
+big_p(X10);
+big_p(f3(X10));
+big_q(c14);
+big_p(X11);
+big_p(c19);
+big_q(X17) <- 
+    big_q(f4(X16)),
+    big_q(X16).
+
+# clause_104, conjecture.
+big_p(X10);
+big_p(f3(X10));
+big_q(c14);
+big_p(X11) <- 
+    big_q(f4(X16)),
+    big_q(X16),
+    big_p(X18),
+    big_q(c20).
+
+# clause_105, conjecture.
+big_p(X10);
+big_p(f3(X10));
+big_q(c16);
+big_q(X15) <- 
+    big_q(X12),
+    big_p(c15),
+    big_q(X13),
+    big_p(X14).
+
+# clause_106, conjecture.
+big_p(X10);
+big_p(f3(X10));
+big_q(c16);
+big_p(c17) <- 
+    big_q(X12),
+    big_p(c15),
+    big_q(X13),
+    big_q(c18).
+
+# clause_107, conjecture.
+big_p(X10);
+big_p(f3(X10));
+big_q(X13);
+big_q(X15) <- 
+    big_q(X12),
+    big_p(c15),
+    big_q(c16),
+    big_p(X14).
+
+# clause_108, conjecture.
+big_p(X10);
+big_p(f3(X10));
+big_q(X13);
+big_p(c17) <- 
+    big_q(X12),
+    big_p(c15),
+    big_q(c16),
+    big_q(c18).
+
+# clause_109, conjecture.
+big_p(X10);
+big_p(f3(X10));
+big_q(f4(X16));
+big_q(X16);
+big_p(c19);
+big_q(X17) <- 
+    big_q(X12),
+    big_p(c15).
+
+# clause_110, conjecture.
+big_p(X10);
+big_p(f3(X10));
+big_q(f4(X16));
+big_q(X16) <- 
+    big_q(X12),
+    big_p(c15),
+    big_p(X18),
+    big_q(c20).
+
+# clause_111, conjecture.
+big_p(X10);
+big_p(f3(X10));
+big_p(c19);
+big_q(X17) <- 
+    big_q(X12),
+    big_p(c15),
+    big_q(f4(X16)),
+    big_q(X16).
+
+# clause_112, conjecture.
+big_p(X10);
+big_p(f3(X10)) <- 
+    big_q(X12),
+    big_p(c15),
+    big_q(f4(X16)),
+    big_q(X16),
+    big_p(X18),
+    big_q(c20).
+
+# clause_113, conjecture.
+big_q(c14);
+big_p(X11);
+big_q(c16);
+big_q(X15) <- 
+    big_p(X10),
+    big_p(f3(X10)),
+    big_q(X13),
+    big_p(X14).
+
+# clause_114, conjecture.
+big_q(c14);
+big_p(X11);
+big_q(c16);
+big_p(c17) <- 
+    big_p(X10),
+    big_p(f3(X10)),
+    big_q(X13),
+    big_q(c18).
+
+# clause_115, conjecture.
+big_q(c14);
+big_p(X11);
+big_q(X13);
+big_q(X15) <- 
+    big_p(X10),
+    big_p(f3(X10)),
+    big_q(c16),
+    big_p(X14).
+
+# clause_116, conjecture.
+big_q(c14);
+big_p(X11);
+big_q(X13);
+big_p(c17) <- 
+    big_p(X10),
+    big_p(f3(X10)),
+    big_q(c16),
+    big_q(c18).
+
+# clause_117, conjecture.
+big_q(c14);
+big_p(X11);
+big_q(f4(X16));
+big_q(X16);
+big_p(c19);
+big_q(X17) <- 
+    big_p(X10),
+    big_p(f3(X10)).
+
+# clause_118, conjecture.
+big_q(c14);
+big_p(X11);
+big_q(f4(X16));
+big_q(X16) <- 
+    big_p(X10),
+    big_p(f3(X10)),
+    big_p(X18),
+    big_q(c20).
+
+# clause_119, conjecture.
+big_q(c14);
+big_p(X11);
+big_p(c19);
+big_q(X17) <- 
+    big_p(X10),
+    big_p(f3(X10)),
+    big_q(f4(X16)),
+    big_q(X16).
+
+# clause_120, conjecture.
+big_q(c14);
+big_p(X11) <- 
+    big_p(X10),
+    big_p(f3(X10)),
+    big_q(f4(X16)),
+    big_q(X16),
+    big_p(X18),
+    big_q(c20).
+
+# clause_121, conjecture.
+big_q(c16);
+big_q(X15) <- 
+    big_p(X10),
+    big_p(f3(X10)),
+    big_q(X12),
+    big_p(c15),
+    big_q(X13),
+    big_p(X14).
+
+# clause_122, conjecture.
+big_q(c16);
+big_p(c17) <- 
+    big_p(X10),
+    big_p(f3(X10)),
+    big_q(X12),
+    big_p(c15),
+    big_q(X13),
+    big_q(c18).
+
+# clause_123, conjecture.
+big_q(X13);
+big_q(X15) <- 
+    big_p(X10),
+    big_p(f3(X10)),
+    big_q(X12),
+    big_p(c15),
+    big_q(c16),
+    big_p(X14).
+
+# clause_124, conjecture.
+big_q(X13);
+big_p(c17) <- 
+    big_p(X10),
+    big_p(f3(X10)),
+    big_q(X12),
+    big_p(c15),
+    big_q(c16),
+    big_q(c18).
+
+# clause_125, conjecture.
+big_q(f4(X16));
+big_q(X16);
+big_p(c19);
+big_q(X17) <- 
+    big_p(X10),
+    big_p(f3(X10)),
+    big_q(X12),
+    big_p(c15).
+
+# clause_126, conjecture.
+big_q(f4(X16));
+big_q(X16) <- 
+    big_p(X10),
+    big_p(f3(X10)),
+    big_q(X12),
+    big_p(c15),
+    big_p(X18),
+    big_q(c20).
+
+# clause_127, conjecture.
+big_p(c19);
+big_q(X17) <- 
+    big_p(X10),
+    big_p(f3(X10)),
+    big_q(X12),
+    big_p(c15),
+    big_q(f4(X16)),
+    big_q(X16).
+
+# clause_128, conjecture.
+ <- big_p(X10),
+    big_p(f3(X10)),
+    big_q(X12),
+    big_p(c15),
+    big_q(f4(X16)),
+    big_q(X16),
+    big_p(X18),
+    big_q(c20).
+
+#--------------------------------------------------------------------------

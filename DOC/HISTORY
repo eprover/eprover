@@ -1,0 +1,40 @@
+You will probably find more useful information in the NEWS file.
+
+
+Sat Jul  5 02:28:25 MET DST 1997: First line of code written (in
+   BASICS/clb_defines.h). StS
+
+Wed Apr 15 15:24:44 MET DST 1998
+   Everything up to the TERM library seems to be pretty stable. Did a
+   lot of work on documentation, too. StS
+
+Tue Jul  7 09:00:00 MET DST 1998 
+   E version 0.1 at the CASC 15 website. Indexing still shaky, no good
+   subsumption...
+
+Mon Aug 10 17:23:06 MET DST 1998
+   Prepared E version 0.2 for release under the GPL
+
+Mon Aug 24 20:48:17 MET DST 1998
+   Released E version 0.21, added NEWS file for changes
+
+Fri Oct  9 18:52:49 MET DST 1998
+   Released E version 0.22 "Risheehat". 
+
+Mon Nov  2 15:21:09 MET DST 1998
+   Released E version 0.23 "StopGap". 
+
+Fri Dec  4 15:06:23 MET 1998
+   Released E version 0.24 "Yunnan".
+
+Wed Jan  6 00:51:13 MET 1999 (or therearound)
+   The FSF has a link to E on their web site.
+
+Wed Jan 20 00:51:13 MET 1999 (or therearound)
+   Released E version 0.3 "Castleton"
+
+Fri Apr  2 00:06:51 MET DST 1999
+   Released E version 0.31 "Jungpana"
+
+Thu Jun 15 15:12:53 MET DST 1999
+   Released E version 0.32 "Lingia"

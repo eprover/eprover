@@ -1,0 +1,133 @@
+#--------------------------------------------------------------------------
+# File     : GEO048-2 : TPTP v2.1.0. Released v1.0.0.
+# Domain   : Geometry
+# Problem  : Inner points of triangle
+# Version  : [Qua89] axioms.
+# English  : 
+
+# Refs     : [SST83] Schwabbauser et al. (1983), Metamathematische Methoden
+#          : [Qua89] Quaife (1989), Automated Development of Tarski's Geome
+# Source   : [TPTP]
+# Names    : 
+
+# Status   : unsatisfiable
+# Rating   : 0.73 v2.1.0, 0.78 v2.0.0
+# Syntax   : Number of clauses    :   23 (   5 non-Horn;  11 unit;  20 RR)
+#            Number of literals   :   61 (   7 equality)
+#            Maximal clause size  :    8 (   2 average)
+#            Number of predicates :    3 (   0 propositional; 2-4 arity)
+#            Number of functors   :   14 (   9 constant; 0-6 arity)
+#            Number of variables  :   71 (   3 singleton)
+#            Maximal term depth   :    3 (   1 average)
+
+# Comments : 
+#          : tptp2X -f setheo:sign -t rm_equality:rstfp GEO048-2.p 
+#--------------------------------------------------------------------------
+# reflexivity_for_equidistance, axiom.
+equidistant(X, Y, Y, X) <- .
+
+# transitivity_for_equidistance, axiom.
+equidistant(Z, V, V2, W) <- 
+    equidistant(X, Y, Z, V),
+    equidistant(X, Y, V2, W).
+
+# identity_for_equidistance, axiom.
+equal(X, Y) <- 
+    equidistant(X, Y, Z, Z).
+
+# segment_construction1, axiom.
+between(X, Y, extension(X, Y, W, V)) <- .
+
+# segment_construction2, axiom.
+equidistant(Y, extension(X, Y, W, V), W, V) <- .
+
+# outer_five_segment, axiom.
+equal(X, Y);
+equidistant(Z, V, Z1, V1) <- 
+    equidistant(X, Y, X1, Y1),
+    equidistant(Y, Z, Y1, Z1),
+    equidistant(X, V, X1, V1),
+    equidistant(Y, V, Y1, V1),
+    between(X, Y, Z),
+    between(X1, Y1, Z1).
+
+# identity_for_betweeness, axiom.
+equal(X, Y) <- 
+    between(X, Y, X).
+
+# inner_pasch1, axiom.
+between(V, inner_pasch(U, V, W, X, Y), Y) <- 
+    between(U, V, W),
+    between(Y, X, W).
+
+# inner_pasch2, axiom.
+between(X, inner_pasch(U, V, W, X, Y), U) <- 
+    between(U, V, W),
+    between(Y, X, W).
+
+# lower_dimension1, axiom.
+ <- between(lower_dimension_point_1, lower_dimension_point_2, lower_dimension_point_3).
+
+# lower_dimension2, axiom.
+ <- between(lower_dimension_point_2, lower_dimension_point_3, lower_dimension_point_1).
+
+# lower_dimension3, axiom.
+ <- between(lower_dimension_point_3, lower_dimension_point_1, lower_dimension_point_2).
+
+# upper_dimension, axiom.
+between(X, Y, Z);
+between(Y, Z, X);
+between(Z, X, Y);
+equal(W, V) <- 
+    equidistant(X, W, X, V),
+    equidistant(Y, W, Y, V),
+    equidistant(Z, W, Z, V).
+
+# euclid1, axiom.
+equal(U, W);
+between(U, V, euclid1(U, V, W, X, Y)) <- 
+    between(U, W, Y),
+    between(V, W, X).
+
+# euclid2, axiom.
+equal(U, W);
+between(U, X, euclid2(U, V, W, X, Y)) <- 
+    between(U, W, Y),
+    between(V, W, X).
+
+# euclid3, axiom.
+equal(U, W);
+between(euclid1(U, V, W, X, Y), Y, euclid2(U, V, W, X, Y)) <- 
+    between(U, W, Y),
+    between(V, W, X).
+
+# continuity1, axiom.
+between(V1, continuous(U, V, V1, W, X, X1), X1) <- 
+    equidistant(U, V, U, V1),
+    equidistant(U, X, U, X1),
+    between(U, V, X),
+    between(V, W, X).
+
+# continuity2, axiom.
+equidistant(U, W, U, continuous(U, V, V1, W, X, X1)) <- 
+    equidistant(U, V, U, V1),
+    equidistant(U, X, U, X1),
+    between(U, V, X),
+    between(V, W, X).
+
+# v_between_u_and_w, hypothesis.
+between(u, v, w) <- .
+
+# v1_between_u1_and_w, hypothesis.
+between(u1, v1, w) <- .
+
+# x_between_u_and_u1, hypothesis.
+between(u, x, u1) <- .
+
+# prove_conclusion1, conjecture.
+ <- between(x, inner_pasch(v1, inner_pasch(u, x, u1, v1, w), u, v, w), w).
+
+# prove_conclusion2, conjecture.
+ <- between(v, inner_pasch(v1, inner_pasch(u, x, u1, v1, w), u, v, w), v1).
+
+#--------------------------------------------------------------------------

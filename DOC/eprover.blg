@@ -1,0 +1,45 @@
+This is BibTeX, Version 0.99c (Web2C 7.3.1)
+The top-level auxiliary file: eprover.aux
+The style file: alpha.bst
+Database file #1: /home/schulz/TEXT/BIB/stsbib.bib
+You've used 22 entries,
+            2543 wiz_defined-function locations,
+            716 strings with 7967 characters,
+and the built_in function-call counts, 10192 in all, are:
+= -- 1040
+> -- 484
+< -- 28
++ -- 159
+- -- 158
+* -- 736
+:= -- 1628
+add.period$ -- 81
+call.type$ -- 22
+change.case$ -- 141
+chr.to.int$ -- 21
+cite$ -- 22
+duplicate$ -- 408
+empty$ -- 730
+format.name$ -- 185
+if$ -- 2144
+int.to.chr$ -- 2
+int.to.str$ -- 0
+missing$ -- 17
+newline$ -- 119
+num.names$ -- 84
+pop$ -- 132
+preamble$ -- 1
+purify$ -- 164
+quote$ -- 0
+skip$ -- 359
+stack$ -- 0
+substring$ -- 554
+swap$ -- 123
+text.length$ -- 28
+text.prefix$ -- 7
+top$ -- 0
+type$ -- 172
+warning$ -- 0
+while$ -- 105
+width$ -- 24
+write$ -- 314

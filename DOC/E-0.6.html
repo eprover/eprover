@@ -1,0 +1,76 @@
+<HR><!------------------------------------------------------------------------>
+<H2>E&nbsp;0.7</H2>
+S. Schulz<BR>
+Institut f&uuml;r Informatik, Technische Universit&auml;t
+M&uuml;nchen, Germany<BR>schulz@informatik.tu-muenchen.de<p>
+
+<H3>Architecture</H3>
+
+E&nbsp;0.7[<A HREF="#EReferences">Sch99</A>] is a purely equational
+theorem prover. The calculus used by E combines superposition (with
+selection of negative literals) and rewriting. For the special case
+that only unit clauses are present, it degenerates into <EM>unfailing
+completion</EM>, for the Horn case, E can simulate various positive
+unit strategies. No special rules for non-equational literals have
+been implemented, i.e., resolution is simulated via paramodulation and
+equality resolution.
+<p>
+Proof search in E is controlled by a literal selection strategy and an
+evaluation heuristic. A variety of selection strategies (including
+e.g., <EM>no selection</EM>, or <EM>select all negative literals</EM>)
+is available. Evaluation heuristics can be constructed on the fly by
+combining various parameterized primitive evaluation functions. A
+simple automatic mode can select strategy, term ordering, and
+heuristic based on simple problem characteristics.
+<p>
+New features since last year include a wider variety of literal
+selection strategies, and an improved automatic mode that now also
+switches between two different Knuth-Bendix orderings. A proof checker
+is now available as well.
+
+<H3>Implementation</H3>
+
+E is implemented in ANSI C, using the GNU C compiler. The most unique
+feature of the implementation is the maximally shared term
+representation. This includes parallel rewriting for all instances of
+a particular subterm.  A second important feature is the use of
+<EM>perfect discrimination trees</EM> with age and size constraints
+for rewriting and unit-subsumption.
+<P>
+The program has been successfully installed under SunOS&nbsp;4.3.x,
+Solaris&nbsp;2.x, HP-UX&nbsp;B&nbsp;10.20, and various versions of
+Linux.  Sources are available freely from:
+<PRE>
+    <A HREF="http://wwwjessen.informatik.tu-muenchen.de/~schulz/WORK/eprover.html">http://wwwjessen.informatik.tu-muenchen.de/~schulz/WORK/eprover.html</A>
+</PRE>
+
+<H3>Expected Competition Performance</H3>
+
+As in the last year, we expect E to perform pretty well in all
+categories it participates in, with particularly strong showing for
+Horn problems. We have spend very little effort on the performance for
+unit problems, however, and it is unlikely that we can come close to
+Waldmeister's performance in this category.
+<p>
+E's auto mode is optimized for performance on the complete TPTP
+2.3.0. The optimization is based on a fairly large number of test runs
+and consists of the selection of one of about 50 different strategies
+for each problem.
+
+<A NAME="EReferences">
+<H3>References</H3>
+<DL>
+<DT> Sch99
+<DD> Schulz S. (1999),
+     <STRONG>System Abstract: E 0.3</STRONG>,
+     Ganzinger  H.,
+     <EM>Proceedings of the 16th International Conference on Automated 
+     Deduction</EM>
+     (Trento, Italy),
+     Lecture Notes in Artificial Intelligence,
+     Springer-Verlag, pp.297--391
+</DL>
+
+<P>
+
+<HR><!------------------------------------------------------------------------>

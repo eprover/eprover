@@ -1,0 +1,12 @@
+Contributors to CLIB/E (see also credits in the header files, normally
+much more up to date):
+
+
+Joachim Steinbach, steinbac@informatik.tu-muenchen.de:
+
+- Most of the original code for term orderings (LPO and KBO).
+
+Stephan Schulz, schulz@informatik.tu-muenchen.de:
+
+- Everything not credited to somebody else.
+

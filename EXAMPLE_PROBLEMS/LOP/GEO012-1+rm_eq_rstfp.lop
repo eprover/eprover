@@ -1,0 +1,171 @@
+#--------------------------------------------------------------------------
+# File     : GEO012-1 : TPTP v2.1.0. Bugfixed v1.0.1.
+# Domain   : Geometry
+# Problem  : Collinearity for 4 points
+# Version  : [MOW76] axioms.
+# English  : If any three distinct points x, y, and z are collinear and 
+#            a fourth point w is collinear with x and y, then 
+#            w is collinear with x and z and also with x and y.
+
+# Refs     : [MOW76] McCharen et al. (1976), Problems and Experiments for a
+#          : [SST83] Schwabbauser et al. (1983), Metamathematische Methoden
+# Source   : [ANL]
+# Names    : T12 [MOW76]
+#          : t12.ver1.in [ANL]
+
+# Status   : unsatisfiable
+# Rating   : 0.82 v2.1.0, 0.89 v2.0.0
+# Syntax   : Number of clauses    :   30 (   7 non-Horn;  11 unit;  27 RR)
+#            Number of literals   :   81 (  11 equality)
+#            Maximal clause size  :    8 (   2 average)
+#            Number of predicates :    4 (   0 propositional; 2-4 arity)
+#            Number of functors   :   12 (   7 constant; 0-6 arity)
+#            Number of variables  :   91 (   3 singleton)
+#            Maximal term depth   :    2 (   1 average)
+
+# Comments : 
+#          : tptp2X -f setheo:sign -t rm_equality:rstfp GEO012-1.p 
+# Bugfixes : v1.0.1 - Bug in GEO001-0.eq fixed.
+#--------------------------------------------------------------------------
+# identity_for_betweeness, axiom.
+equal(X, Y) <- 
+    between(X, Y, X).
+
+# transitivity_for_betweeness, axiom.
+between(X, Y, Z) <- 
+    between(X, Y, V),
+    between(Y, Z, V).
+
+# connectivity_for_betweeness, axiom.
+equal(X, Y);
+between(X, Z, V);
+between(X, V, Z) <- 
+    between(X, Y, Z),
+    between(X, Y, V).
+
+# reflexivity_for_equidistance, axiom.
+equidistant(X, Y, Y, X) <- .
+
+# identity_for_equidistance, axiom.
+equal(X, Y) <- 
+    equidistant(X, Y, Z, Z).
+
+# transitivity_for_equidistance, axiom.
+equidistant(Z, V, V2, W) <- 
+    equidistant(X, Y, Z, V),
+    equidistant(X, Y, V2, W).
+
+# outer_pasch1, axiom.
+between(X, outer_pasch(W, X, Y, Z, V), Y) <- 
+    between(X, W, V),
+    between(Y, V, Z).
+
+# outer_pasch2, axiom.
+between(Z, W, outer_pasch(W, X, Y, Z, V)) <- 
+    between(X, W, V),
+    between(Y, V, Z).
+
+# euclid1, axiom.
+equal(X, V);
+between(X, Z, euclid1(W, X, Y, Z, V)) <- 
+    between(X, V, W),
+    between(Y, V, Z).
+
+# euclid2, axiom.
+equal(X, V);
+between(X, Y, euclid2(W, X, Y, Z, V)) <- 
+    between(X, V, W),
+    between(Y, V, Z).
+
+# euclid3, axiom.
+equal(X, V);
+between(euclid1(W, X, Y, Z, V), W, euclid2(W, X, Y, Z, V)) <- 
+    between(X, V, W),
+    between(Y, V, Z).
+
+# outer_five_segment, axiom.
+equal(X, Y);
+equidistant(Z, V, Z1, V1) <- 
+    equidistant(X, Y, X1, Y1),
+    equidistant(Y, Z, Y1, Z1),
+    equidistant(X, V, X1, V1),
+    equidistant(Y, V, Y1, V1),
+    between(X, Y, Z),
+    between(X1, Y1, Z1).
+
+# segment_construction1, axiom.
+between(X, Y, extension(X, Y, W, V)) <- .
+
+# segment_construction2, axiom.
+equidistant(Y, extension(X, Y, W, V), W, V) <- .
+
+# lower_dimension1, axiom.
+ <- between(lower_dimension_point_1, lower_dimension_point_2, lower_dimension_point_3).
+
+# lower_dimension2, axiom.
+ <- between(lower_dimension_point_2, lower_dimension_point_3, lower_dimension_point_1).
+
+# lower_dimension3, axiom.
+ <- between(lower_dimension_point_3, lower_dimension_point_1, lower_dimension_point_2).
+
+# upper_dimension, axiom.
+between(X, Y, Z);
+between(Y, Z, X);
+between(Z, X, Y);
+equal(W, V) <- 
+    equidistant(X, W, X, V),
+    equidistant(Y, W, Y, V),
+    equidistant(Z, W, Z, V).
+
+# continuity1, axiom.
+equidistant(V, Y, Z, continuous(X, Y, Z, X1, Z1, V)) <- 
+    equidistant(V, X, V, X1),
+    equidistant(V, Z, V, Z1),
+    between(V, X, Z),
+    between(X, Y, Z).
+
+# continuity2, axiom.
+between(X1, continuous(X, Y, Z, X1, Z1, V), Z1) <- 
+    equidistant(V, X, V, X1),
+    equidistant(V, Z, V, Z1),
+    between(V, X, Z),
+    between(X, Y, Z).
+
+# colinearity1, axiom.
+between(X, Y, Z);
+between(Y, X, Z);
+between(X, Z, Y) <- 
+    colinear(X, Y, Z).
+
+# colinearity2, axiom.
+colinear(X, Y, Z) <- 
+    between(X, Y, Z).
+
+# colinearity3, axiom.
+colinear(X, Y, Z) <- 
+    between(Y, X, Z).
+
+# colinearity4, axiom.
+colinear(X, Y, Z) <- 
+    between(X, Z, Y).
+
+# a_not_b, hypothesis.
+ <- equal(a, b).
+
+# a_not_c, hypothesis.
+ <- equal(a, c).
+
+# b_not_c, hypothesis.
+ <- equal(b, c).
+
+# abc_colinear, hypothesis.
+colinear(a, b, c) <- .
+
+# abd_colinear, hypothesis.
+colinear(a, b, d) <- .
+
+# prove_colinearity, conjecture.
+ <- colinear(a, c, d),
+    colinear(b, c, d).
+
+#--------------------------------------------------------------------------

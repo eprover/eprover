@@ -1,0 +1,83 @@
+#--------------------------------------------------------------------------
+# File     : GRP170-3 : TPTP v2.1.0. Bugfixed v1.2.1.
+# Domain   : Group Theory (Lattice Ordered)
+# Problem  : General form of monotonicity
+# Version  : [Fuc94] (equality) axioms.
+#            Theorem formulation : Using different definitions for =<.
+# English  : 
+
+# Refs     : [Fuc94] Fuchs (1994), The Application of Goal-Orientated Heuri
+#          : [Sch95] Schulz (1995), Explanation Based Learning for Distribu
+# Source   : [Sch95]
+# Names    : p03c [Sch95] 
+
+# Status   : unsatisfiable
+# Rating   : 0.40 v2.1.0, 0.57 v2.0.0
+# Syntax   : Number of clauses    :   18 (   0 non-Horn;  18 unit;   3 RR)
+#            Number of literals   :   18 (  18 equality)
+#            Maximal clause size  :    1 (   1 average)
+#            Number of predicates :    1 (   0 propositional; 2-2 arity)
+#            Number of functors   :    9 (   5 constant; 0-2 arity)
+#            Number of variables  :   33 (   2 singleton)
+#            Maximal term depth   :    3 (   2 average)
+
+# Comments : ORDERING LPO inverse > product > greatest_lower_bound >
+#            least_upper_bound > iden ity > a > b > c > d
+#          : tptp2X -f setheo:sign -t rm_equality:rstfp GRP170-3.p 
+# Bugfixes : v1.2.1 - Duplicate axioms in GRP004-2.ax removed.
+#--------------------------------------------------------------------------
+# left_identity, axiom.
+equal(multiply(identity, X), X) <- .
+
+# left_inverse, axiom.
+equal(multiply(inverse(X), X), identity) <- .
+
+# associativity, axiom.
+equal(multiply(multiply(X, Y), Z), multiply(X, multiply(Y, Z))) <- .
+
+# symmetry_of_glb, axiom.
+equal(greatest_lower_bound(X, Y), greatest_lower_bound(Y, X)) <- .
+
+# symmetry_of_lub, axiom.
+equal(least_upper_bound(X, Y), least_upper_bound(Y, X)) <- .
+
+# associativity_of_glb, axiom.
+equal(greatest_lower_bound(X, greatest_lower_bound(Y, Z)), greatest_lower_bound(greatest_lower_bound(X, Y), Z)) <- .
+
+# associativity_of_lub, axiom.
+equal(least_upper_bound(X, least_upper_bound(Y, Z)), least_upper_bound(least_upper_bound(X, Y), Z)) <- .
+
+# idempotence_of_lub, axiom.
+equal(least_upper_bound(X, X), X) <- .
+
+# idempotence_of_gld, axiom.
+equal(greatest_lower_bound(X, X), X) <- .
+
+# lub_absorbtion, axiom.
+equal(least_upper_bound(X, greatest_lower_bound(X, Y)), X) <- .
+
+# glb_absorbtion, axiom.
+equal(greatest_lower_bound(X, least_upper_bound(X, Y)), X) <- .
+
+# monotony_lub1, axiom.
+equal(multiply(X, least_upper_bound(Y, Z)), least_upper_bound(multiply(X, Y), multiply(X, Z))) <- .
+
+# monotony_glb1, axiom.
+equal(multiply(X, greatest_lower_bound(Y, Z)), greatest_lower_bound(multiply(X, Y), multiply(X, Z))) <- .
+
+# monotony_lub2, axiom.
+equal(multiply(least_upper_bound(Y, Z), X), least_upper_bound(multiply(Y, X), multiply(Z, X))) <- .
+
+# monotony_glb2, axiom.
+equal(multiply(greatest_lower_bound(Y, Z), X), greatest_lower_bound(multiply(Y, X), multiply(Z, X))) <- .
+
+# p03c_1, hypothesis.
+equal(least_upper_bound(a, b), b) <- .
+
+# p03c_2, hypothesis.
+equal(least_upper_bound(c, d), d) <- .
+
+# prove_p03c, conjecture.
+ <- equal(greatest_lower_bound(multiply(a, c), multiply(b, d)), multiply(a, c)).
+
+#--------------------------------------------------------------------------

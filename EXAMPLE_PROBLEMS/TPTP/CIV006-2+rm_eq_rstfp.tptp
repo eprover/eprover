@@ -1,0 +1,296 @@
+%--------------------------------------------------------------------------
+% File     : CIV006-2 : TPTP v2.1.0. Released v2.1.0.
+% Domain   : Circuit Verification
+% Problem  : A fulladder built from two halfadders and an or gate
+% Version  : [Gei96] axioms.
+% English  :
+
+% Refs     : [Gei96] Geisler (1996), Email to G. Sutcliffe
+% Source   : [Gei96]
+% Names    :
+
+% Status   : unsatisfiable
+% Rating   : ? v2.1.0
+% Syntax   : Number of clauses    :   64 (   5 non-Horn;  11 unit;  64 RR)
+%            Number of literals   :  144 (   0 equality)
+%            Maximal clause size  :    4 (   2 average)
+%            Number of predicates :   12 (   0 propositional; 1-2 arity)
+%            Number of functors   :   13 (   1 constant; 0-1 arity)
+%            Number of variables  :   55 (   0 singleton)
+%            Maximal term depth   :    3 (   1 average)
+
+% Comments : 
+%          : tptp2X -f tptp -t rm_equality:rstfp CIV006-2.p 
+%--------------------------------------------------------------------------
+input_clause(value_propagation_zero1,axiom,
+    [-- connection(P1, P2),
+     -- zero(P1),
+     ++ zero(P2)]).
+
+input_clause(value_propagation_one1,axiom,
+    [-- connection(P1, P2),
+     -- one(P1),
+     ++ one(P2)]).
+
+input_clause(value_propagation_zero2,axiom,
+    [-- connection(P1, P2),
+     -- zero(P2),
+     ++ zero(P1)]).
+
+input_clause(value_propagation_one2,axiom,
+    [-- connection(P1, P2),
+     -- one(P2),
+     ++ one(P1)]).
+
+input_clause(unique_value,axiom,
+    [-- zero(P),
+     -- one(P)]).
+
+input_clause(and_0x_0,axiom,
+    [-- and_ok(K),
+     -- zero(in1(K)),
+     ++ zero(out1(K))]).
+
+input_clause(and_x0_0,axiom,
+    [-- and_ok(K),
+     -- zero(in2(K)),
+     ++ zero(out1(K))]).
+
+input_clause(and_11_1,axiom,
+    [-- and_ok(K),
+     -- one(in1(K)),
+     -- one(in2(K)),
+     ++ one(out1(K))]).
+
+input_clause(and_0_00,axiom,
+    [-- and_ok(K),
+     -- zero(out1(K)),
+     ++ zero(in1(K)),
+     ++ zero(in2(K))]).
+
+input_clause(and_1_1x,axiom,
+    [-- and_ok(K),
+     -- one(out1(K)),
+     ++ one(in1(K))]).
+
+input_clause(and_1_x1,axiom,
+    [-- and_ok(K),
+     -- one(out1(K)),
+     ++ one(in2(K))]).
+
+input_clause(not_and_ok_and_abnormal,axiom,
+    [-- and_ok(K),
+     -- abnormal(K)]).
+
+input_clause(and_ok_or_abnormal,axiom,
+    [-- and(K),
+     ++ and_ok(K),
+     ++ abnormal(K)]).
+
+input_clause(or_1x_1,axiom,
+    [-- or_ok(K),
+     -- one(in1(K)),
+     ++ one(out1(K))]).
+
+input_clause(or_x1_1,axiom,
+    [-- or_ok(K),
+     -- one(in2(K)),
+     ++ one(out1(K))]).
+
+input_clause(or_00_0,axiom,
+    [-- or_ok(K),
+     -- zero(in1(K)),
+     -- zero(in2(K)),
+     ++ zero(out1(K))]).
+
+input_clause(or_1_11,axiom,
+    [-- or_ok(K),
+     -- one(out1(K)),
+     ++ one(in1(K)),
+     ++ one(in2(K))]).
+
+input_clause(or_0_0x,axiom,
+    [-- or_ok(K),
+     -- zero(out1(K)),
+     ++ zero(in1(K))]).
+
+input_clause(or_0_01,axiom,
+    [-- or_ok(K),
+     -- zero(out1(K)),
+     ++ zero(in2(K))]).
+
+input_clause(not_or_ok_and_abnormal,axiom,
+    [-- or_ok(K),
+     -- abnormal(K)]).
+
+input_clause(or_ok_or_abnormal,axiom,
+    [-- or(K),
+     ++ or_ok(K),
+     ++ abnormal(K)]).
+
+input_clause(not_0_1_fw,axiom,
+    [-- not_ok(K),
+     -- zero(in1(K)),
+     ++ one(out1(K))]).
+
+input_clause(not_1_0_fw,axiom,
+    [-- not_ok(K),
+     -- one(in1(K)),
+     ++ zero(out1(K))]).
+
+input_clause(not_0_1_bw,axiom,
+    [-- not_ok(K),
+     -- zero(out1(K)),
+     ++ one(in1(K))]).
+
+input_clause(not_1_0_bw,axiom,
+    [-- not_ok(K),
+     -- one(out1(K)),
+     ++ zero(in1(K))]).
+
+input_clause(not__not_ok_and_abnormal,axiom,
+    [-- not_ok(K),
+     -- abnormal(K)]).
+
+input_clause(not_ok_or_abnormal,axiom,
+    [-- not(K),
+     ++ not_ok(K),
+     ++ abnormal(K)]).
+
+input_clause(halfadder_and1,axiom,
+    [-- halfadder(X),
+     ++ and(and1(X))]).
+
+input_clause(halfadder_and2,axiom,
+    [-- halfadder(X),
+     ++ and(and2(X))]).
+
+input_clause(halfadder_not1,axiom,
+    [-- halfadder(X),
+     ++ not(not1(X))]).
+
+input_clause(halfadder_or1,axiom,
+    [-- halfadder(X),
+     ++ or(or1(X))]).
+
+input_clause(halfadder_connection_in1_in1or1,axiom,
+    [-- halfadder(X),
+     ++ connection(in1(X), in1(or1(X)))]).
+
+input_clause(halfadder_connection_in2_in2or1,axiom,
+    [-- halfadder(X),
+     ++ connection(in2(X), in2(or1(X)))]).
+
+input_clause(halfadder_connection_in1_in1and2,axiom,
+    [-- halfadder(X),
+     ++ connection(in1(X), in1(and2(X)))]).
+
+input_clause(halfadder_connection_in2_in2and2,axiom,
+    [-- halfadder(X),
+     ++ connection(in2(X), in2(and2(X)))]).
+
+input_clause(halfadder_connection_outs_out1and1,axiom,
+    [-- halfadder(X),
+     ++ connection(outs(X), out1(and1(X)))]).
+
+input_clause(halfadder_connection_outc_out1and2,axiom,
+    [-- halfadder(X),
+     ++ connection(outc(X), out1(and2(X)))]).
+
+input_clause(halfadder_connection_out1or1_in1_and1,axiom,
+    [-- halfadder(X),
+     ++ connection(out1(or1(X)), in1(and1(X)))]).
+
+input_clause(halfadder_connection_out1and2_in1not1,axiom,
+    [-- halfadder(X),
+     ++ connection(out1(and2(X)), in1(not1(X)))]).
+
+input_clause(halfadder_connection_out1not1_in2and1,axiom,
+    [-- halfadder(X),
+     ++ connection(out1(not1(X)), in2(and1(X)))]).
+
+input_clause(fulladder_halfadder1,axiom,
+    [-- fulladder(X),
+     ++ halfadder(h1(X))]).
+
+input_clause(fulladder_halfadder2,axiom,
+    [-- fulladder(X),
+     ++ halfadder(h2(X))]).
+
+input_clause(fulladder_or1,axiom,
+    [-- fulladder(X),
+     ++ or(or1(X))]).
+
+input_clause(fulladder_connection_outsh1_in2h2,axiom,
+    [-- fulladder(X),
+     ++ connection(outs(h1(X)), in2(h2(X)))]).
+
+input_clause(fulladder_connection_outch1_in2or1,axiom,
+    [-- fulladder(X),
+     ++ connection(outc(h1(X)), in2(or1(X)))]).
+
+input_clause(fulladder_connection_outch2_in1or1,axiom,
+    [-- fulladder(X),
+     ++ connection(outc(h2(X)), in1(or1(X)))]).
+
+input_clause(fulladder_connection_in1_in1h2,axiom,
+    [-- fulladder(X),
+     ++ connection(in1(X), in1(h2(X)))]).
+
+input_clause(fulladder_connection_in2_in1h1,axiom,
+    [-- fulladder(X),
+     ++ connection(in2(X), in1(h1(X)))]).
+
+input_clause(fulladder_connection_inc_in2h1,axiom,
+    [-- fulladder(X),
+     ++ connection(inc(X), in2(h1(X)))]).
+
+input_clause(fulladder_connection_outs_outsh2,axiom,
+    [-- fulladder(X),
+     ++ connection(outs(X), outs(h2(X)))]).
+
+input_clause(fulladder_connection_outc_out1or1,axiom,
+    [-- fulladder(X),
+     ++ connection(outc(X), out1(or1(X)))]).
+
+input_clause(f_isa_fulladder,hypothesis,
+    [++ fulladder(f)]).
+
+input_clause(in1_1,hypothesis,
+    [++ one(in1(f))]).
+
+input_clause(in2_0,hypothesis,
+    [++ zero(in2(f))]).
+
+input_clause(inc_1,hypothesis,
+    [++ one(inc(f))]).
+
+input_clause(outs_1,hypothesis,
+    [++ one(outs(f))]).
+
+input_clause(outc_0,hypothesis,
+    [++ zero(outc(f))]).
+
+input_clause(diagnosis_or1_not1h2,conjecture,
+    [-- abnormal(or1(f)),
+     -- abnormal(not1(h2(f)))]).
+
+input_clause(diagnosis_and2,conjecture,
+    [-- abnormal(and2(h2(f)))]).
+
+input_clause(diagnosis_or1_and1h2,conjecture,
+    [-- abnormal(or1(f)),
+     -- abnormal(and1(h2(f)))]).
+
+input_clause(diagnosis_or1h1,conjecture,
+    [-- abnormal(or1(h1(f)))]).
+
+input_clause(diagnosis_not1h1,conjecture,
+    [-- abnormal(not1(h1(f)))]).
+
+input_clause(diagnosis_and2h1,conjecture,
+    [-- abnormal(and2(h1(f)))]).
+
+input_clause(diagnosis_and1h1,conjecture,
+    [-- abnormal(and1(h1(f)))]).
+%--------------------------------------------------------------------------

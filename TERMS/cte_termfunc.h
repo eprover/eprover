@@ -1,0 +1,122 @@
+/*-----------------------------------------------------------------------
+
+File  : cte_termfunc.h
+
+Author: Stephan Schulz
+
+Contents
+ 
+  Most of the user-level functionality for unshared terms.
+
+  Copyright 1998, 1999 by the author.
+  This code is released under the GNU General Public Licence.
+  See the file COPYING in the main CLIB directory for details.
+  Run "eprover -h" for contact information.
+
+Changes
+
+<1> Wed Feb 25 16:50:36 MET 1998
+    Ripped from cte_terms.h (should be obsolete by now)
+
+-----------------------------------------------------------------------*/
+
+#ifndef CTE_TERMFUNC
+
+#define CTE_TERMFUNC
+
+#include <clb_numtrees.h>
+#include <cte_termvars.h>
+
+
+/*---------------------------------------------------------------------*/
+/*                    Data type declarations                           */
+/*---------------------------------------------------------------------*/
+
+
+
+
+/*---------------------------------------------------------------------*/
+/*                Exported Functions and Variables                     */
+/*---------------------------------------------------------------------*/
+
+
+extern bool      TermPrintLists; /* Using [...] notation */
+extern bool      TermPrologVars; /* Capital words are variables */ 
+
+#define TermStartToken (SigSupportLists?\
+                       (SigIdentToken|Dollar|OpenSquare|Mult):\
+		       (SigIdentToken|Dollar|Mult))
+
+void   TermPrint(FILE* out, Term_p term, Sig_p sig, DerefType deref);
+void   TermPrintArgList(FILE* out, Term_p *args, int arity, Sig_p sig,
+			DerefType deref);
+bool   TermParseOperator(Scanner_p in, DStr_p id);
+Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars);
+int    TermParseArgList(Scanner_p in, Term_p** arg_anchor, Sig_p sig,
+                         VarBank_p vars);
+Term_p TermCopy(Term_p source, VarBank_p vars, DerefType deref);
+Term_p TermEquivCellAlloc(Term_p source, VarBank_p vars);
+
+bool   TermStructEqual(Term_p t1, Term_p t2);
+bool   TermStructEqualNoDeref(Term_p t1, Term_p t2);
+
+bool   TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1,
+	  		    DerefType deref_2);
+
+int    TermStructWeightCompare(Term_p t1, Term_p t2);
+
+bool   TermIsSubterm(Term_p super, Term_p test, DerefType deref,
+                      TermEqualTestFun EqualTest);
+
+bool    TermIsSubtermDeref(Term_p super, Term_p test, DerefType
+			   deref_super, DerefType deref_test);
+
+#define TermIsStructSubterm(super, term) \
+        TermIsSubterm((super),(term),DEREF_ALWAYS,TermStructEqual)
+
+long    TermWeight(Term_p term, long vweight, long fweight);
+#define TermStandardWeight(term) \
+        (TermIsShared(term)? \
+	 (term)->weight:\
+	 TermWeight((term),DEFAULT_VWEIGHT,DEFAULT_FWEIGHT))
+
+long    TermNonLinearWeight(Term_p term, long vlweight, long vweight,
+			    long fweight);
+long    TermSymTypeWeight(Term_p term, long vweight, long fweight,
+			  long cweight, long pweight);
+long    TermDepth(Term_p term);
+
+bool    TermIsDefTerm(Term_p term, int min_arity);
+
+bool     TermHasFCode(Term_p term, FunCode f);
+
+bool    TermHasVariables(Term_p term, bool unbound_only);
+#define TermIsGround(term) (!TermHasVariables((term), false))
+#define TermHasUnboundVariables(term) TermHasVariables((term), true)
+
+long    VarBankCheckBindings(FILE* out, VarBank_p bank, Sig_p sig);
+
+void    TermAddSymbolDistribution(Term_p term, long *dist_array);
+void    TermComputeFunctionRanks(Term_p term, long *rank_array, long *count);
+long    TermCollectPropVariables(Term_p term, PTree_p *tree,
+				  TermProperties prop);
+#define TermCollectVariables(term,tree)\
+        TermCollectPropVariables((term), (tree), TPIgnoreProps)
+
+Term_p  TermCheckConsistency(Term_p term, DerefType deref);
+
+#ifdef SAFELOGIC
+Term_p  TermIntRepresentation(Sig_p sig, long number);
+#endif
+
+
+#endif
+
+/*---------------------------------------------------------------------*/
+/*                        End of File                                  */
+/*---------------------------------------------------------------------*/
+
+
+
+
+

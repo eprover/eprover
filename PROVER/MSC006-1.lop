@@ -1,0 +1,60 @@
+#--------------------------------------------------------------------------
+# File     : MSC006-1 : TPTP v2.0.0. Released v1.0.0.
+# Domain   : Miscellaneous
+# Problem  : A "non-obvious" problem
+# Version  : Special.
+# English  : Suppose there are two relations, P and Q. P is transitive, 
+#            and Q is both transitive and symmetric.
+#            Suppose further the "squareness" of P and Q: any two things 
+#            are related either in the P manner or the Q manner. Prove 
+#            that either P is total or Q is total.
+
+# Refs     : Pelletier F.J., and Rudnicki P. (1986), Non-Obviousness, 
+#            In Wos L. (Ed.), Association for Automated Reasoning 
+#            Newsletter (6), Association for Automated Reasoning, Argonne, 
+#            Il, 4-5.
+# Source   : [Pelletier & Rudnicki, 1986]
+# Names    : nonob.lop [SETHEO]
+
+# Status   : unsatisfiable
+# Rating   : 0.00 v2.0.0
+# Syntax   : Number of clauses    :    6 (   1 non-Horn;   2 unit;   5 RR)
+#            Number of literals   :   12 (   0 equality)
+#            Maximal clause size  :    3 (   2 average)
+#            Number of predicates :    2 (   0 propositional; 2-2 arity)
+#            Number of functors   :    4 (   4 constant; 0-0 arity)
+#            Number of variables  :   10 (   0 singleton)
+#            Maximal term depth   :    1 (   1 average)
+
+# Comments : Rudnicki says "I think that what you call the non-obvious 
+#            problem from our write-up with Jeff should be attributed 
+#            to J. \Lo\'{s} (in LaTeX)." and "J. \Lo\'{s}  is in LaTeX, 
+#            and it is the name of my Polish prof that told me that. 
+#            English approximation of his name can be typed as J. Los.".
+#          : tptp2X: -fsetheo:sign MSC006-1.p 
+#--------------------------------------------------------------------------
+#clausename transitivity_of_p
+p(X, Z) <- 
+    p(X, Y),
+    p(Y, Z).
+
+#clausename transitivity_of_q
+q(X, Z) <- 
+    q(X, Y),
+    q(Y, Z).
+
+#clausename symmetry_of_q
+q(Y, X) <- 
+    q(X, Y).
+
+#clausename every_2_elements_in_relation_p_or_q
+p(X, Y);
+q(X, Y) <- .
+
+#clausename conjecture_that_p_is_total
+ <- p(a, b).
+
+#clausename conjecture_that_q_is_total
+ <- q(c, d).
+
+#--------------------------------------------------------------------------

@@ -1,0 +1,39 @@
+%--------------------------------------------------------------------------
+% File     : GRP080-1 : TPTP v2.1.0. Released v1.0.0.
+% Domain   : Group Theory
+% Problem  : Single axiom for group theory, in double division and identity
+% Version  : [McC93] (equality) axioms.
+% English  : This is a single axiom for group theory, in terms of double 
+%            division and identity.
+
+% Refs     : [McC93] McCune (1993), Single Axioms for Groups and Abelian Gr
+% Source   : [McC93]
+% Names    : Axiom 3.5.5 [McC93]
+
+% Status   : unsatisfiable
+% Rating   : 0.33 v2.1.0, 0.67 v2.0.0
+% Syntax   : Number of clauses    :    4 (   0 non-Horn;   3 unit;   1 RR)
+%            Number of literals   :    6 (   6 equality)
+%            Maximal clause size  :    3 (   1 average)
+%            Number of predicates :    1 (   0 propositional; 2-2 arity)
+%            Number of functors   :   11 (   8 constant; 0-2 arity)
+%            Number of variables  :    6 (   0 singleton)
+%            Maximal term depth   :    5 (   2 average)
+
+% Comments : 
+%          : tptp2X -f tptp -t rm_equality:rstfp GRP080-1.p 
+%--------------------------------------------------------------------------
+input_clause(single_axiom,axiom,
+    [++ equal(double_divide(double_divide(identity, double_divide(X, double_divide(Y, identity))), double_divide(double_divide(Y, double_divide(Z, X)), identity)), Z)]).
+
+input_clause(double_division,axiom,
+    [++ equal(double_divide(X, Y), multiply(inverse(X), inverse(Y)))]).
+
+input_clause(identity,axiom,
+    [++ equal(identity, double_divide(X, inverse(X)))]).
+
+input_clause(prove_these_axioms,conjecture,
+    [-- equal(multiply(inverse(a1), a1), multiply(inverse(b1), b1)),
+     -- equal(multiply(multiply(inverse(b2), b2), a2), a2),
+     -- equal(multiply(multiply(a3, b3), c3), multiply(a3, multiply(b3, c3)))]).
+%--------------------------------------------------------------------------

@@ -1,0 +1,464 @@
+/*-----------------------------------------------------------------------
+
+File  : cte_signature.h
+
+Author: Stephan Schulz
+
+Contents
+ 
+  Definitions for dealing with signatures, i.e. data structures
+  storing information about function symbols and their properties. 
+
+  Copyright 1998, 1999 by the author.
+  This code is released under the GNU General Public Licence.
+  See the file COPYING in the main CLIB directory for details.
+  Run "eprover -h" for contact information.
+
+Changes
+
+<1> Thu Sep 18 16:54:31 MET DST 1997
+    New
+
+-----------------------------------------------------------------------*/
+
+#ifndef CTE_SIGNATURE
+
+#define CTE_SIGNATURE
+
+#include <clb_stringtrees.h>
+#include <clb_pdarrays.h>
+#include <clb_properties.h>
+#include <cio_scanner.h>
+#include <cte_types.h>
+
+/*---------------------------------------------------------------------*/
+/*                    Data type declarations                           */
+/*---------------------------------------------------------------------*/
+
+
+typedef enum
+{
+   FPIgnoreProps =  0, /* No properties, mask everything out */
+   FPPredSymbol  =  1, /* Symbol is a transformed predicate symbol */
+   FPSpecial     =  2, /* Symbol is a special symbol introduced internally */
+   FPAssociative =  4, /* Function symbol is binary and associative */
+   FPCommutative =  8, /* Function symbol is binary and commutates */
+   FPIsAC        =  FPAssociative|FPCommutative,
+   FPIsInverse   = 16  /* Funcion symbol is unary and we have seen
+			  inverse equation f(x,i(x)) = c or
+			  f(i(x),x)=c */
+}FunctionProperties;
+
+
+/* Keep information about function symbols: Access external name and
+   arity (and possibly additional information at a later time) by
+   internal numerical code for function symbol. */
+
+typedef struct funccell
+{
+   /* f_code is implicit by position in the array */
+   char* name;
+   int   arity;
+   int   alpha_rank; /* We sometimes need an arbitrary but stable
+			order on symbols and use alphabetic. */
+   FunctionProperties properties;
+}FuncCell, *Func_p;
+
+
+/* A signature contains information about function symbols with
+   direct access by internal code (f_info is organized as a array,
+   with f_info[f_code] being the information associated with f_code)
+   and efficient access by external name (via the f_index array). 
+
+   Function codes are integers starting at 1, while variables are
+   encoded by negative integers. 0 is unused and can thus express
+   error conditions when accessing somethings f_code. f_info[0] is
+   unused. */
+
+#define DEFAULT_SIGNATURE_SIZE 20
+
+typedef struct sigcell
+{
+   long      size;     /* Size of the array */
+   FunCode   f_count;  /* Largest used f_code */
+   FunCode   internal_symbols; /* Largest auto-inserted internal symbol */
+   Func_p    f_info;   /* The array */
+   StrTree_p f_index;  /* Back-assoc: Given a symbol, get the index */
+   PStack_p  ac_axioms; /* Identifiers of all recognized AC axioms */
+   /* The following are special symbols needed for pattern
+      manipulation. We want very efficient access to them! */
+   FunCode   eqn_code;
+   FunCode   neqn_code;
+   FunCode   or_code;
+   FunCode   cnil_code;
+   PDArray_p orn_codes;
+   /* Preparation for interpreting integers in the input as s^i(0) */
+   FunCode   null_code;
+   FunCode   succ_code;
+   /* Counters for generating new symbols */
+   long      skolem_count;
+   long      newpred_count;
+}SigCell, *Sig_p;
+
+
+
+
+/*---------------------------------------------------------------------*/
+/*                Exported Functions and Variables                     */
+/*---------------------------------------------------------------------*/
+
+/* Special constant for internal operations */
+
+#define SIG_TRUE_CODE 1
+
+/* Handle properties */
+
+#define FuncSetProp(symb, prop) SetProp((symb), (prop))
+#define FuncDelProp(symb, prop) DelProp((symb), (prop))
+
+/* Are _all_ properties in prop set for symb? */
+#define FuncQueryProp(symb, prop) QueryProp((symb), (prop))
+
+/* Are any properties in prop set in term? */
+#define FuncIsAnyPropSet(symb, prop) IsAnyPropSet((symb), (prop))
+
+/* With a more convenient external interface: */
+
+#define SigSetFuncProp(sig, symb, prop) \
+        FuncSetProp(&(sig->f_info[(symb)]), (prop))
+#define SigDelFuncProp(sig, symb, prop) \
+        FuncDelProp(&(sig->f_info[(symb)]), (prop))
+#define SigQueryFuncProp(sig, symb, prop) \
+        FuncQueryProp(&(sig->f_info[(symb)]), (prop))
+#define SigIsAnyFuncPropSet(sig, symb, prop) \
+        FuncIsAnyPropSet(&(sig->f_info[(symb)]), (prop))
+
+extern bool      SigSupportLists; /* Auto-Insert special symbols
+				     $nil=3, $cons=4 for list
+				     representations */
+extern TokenType SigIdentToken; /* What is a potential function symbol
+				   name? */
+
+#define SIG_NIL_CODE  2
+#define SIG_CONS_CODE 3
+
+#define SigCellAlloc() (SigCell*)SizeMalloc(sizeof(SigCell))
+#define SigCellFree(junk)         SizeFree(junk, sizeof(SigCell))
+
+Sig_p   SigAlloc(void);
+void    SigFree(Sig_p junk);
+#define SigExternalSymbols(sig) \
+        ((sig)->f_count-(sig)->internal_symbols)
+
+#define SigInterpreteNumbers(sig) ((sig)->null_code)
+
+FunCode SigFindFCode(Sig_p sig, char* name);
+static __inline__ int     SigFindArity(Sig_p sig, FunCode f_code);
+static __inline__ char*   SigFindName(Sig_p sig, FunCode f_code);
+static __inline__ void    SigSetPredicate(Sig_p sig, FunCode f_code, bool value);
+static __inline__ bool    SigIsPredicate(Sig_p sig, FunCode f_code);
+static __inline__ void    SigSetSpecial(Sig_p sig, FunCode f_code, bool value);
+void    SigSetAllSpecial(Sig_p sig, bool value);
+static __inline__ bool    SigIsSpecial(Sig_p sig, FunCode f_code);
+static __inline__ int     SigGetAlphaRank(Sig_p sig, FunCode f_code);
+
+FunCode SigInsertId(Sig_p sig, char* name, int arity, bool
+		    special_id);
+void    SigPrint(FILE* out, Sig_p sig);
+void    SigPrintSpecial(FILE* out, Sig_p sig);
+void    SigPrintACStatus(FILE* out, Sig_p sig);
+void    SigParseOperator(Scanner_p in, DStr_p id);
+FunCode SigParseKnownOperator(Scanner_p in, Sig_p sig);
+FunCode SigParseSymbol(Scanner_p in, Sig_p sig, bool special_id);
+FunCode SigParse(Scanner_p in, Sig_p sig, bool special_ids);
+int     SigFindMaxUsedArity(Sig_p sig);
+int     SigFindMaxPredicateArity(Sig_p sig);
+int     SigFindMinPredicateArity(Sig_p sig);
+int     SigFindMaxFunctionArity(Sig_p sig);
+int     SigFindMinFunctionArity(Sig_p sig);
+int     SigCountAritySymbols(Sig_p sig, int arity, bool predicates);
+int     SigCountSymbols(Sig_p sig, bool predicates);
+int     SigAddSymbolArities(Sig_p sig, PDArray_p distrib, bool
+			    predicates, long selection[]);
+
+/* Special functions for dealing with special symbols */
+
+static __inline__ FunCode SigGetEqnCode(Sig_p sig, bool positive);
+static __inline__ FunCode SigGetOrCode(Sig_p sig);
+static __inline__ FunCode SigGetCNilCode(Sig_p sig);
+FunCode SigGetOrNCode(Sig_p sig, int arity);
+FunCode SigGetNewSkolemCode(Sig_p sig, int arity);
+FunCode SigGetNewPredicateCode(Sig_p sig, int arity);
+
+
+/*---------------------------------------------------------------------*/
+/*                        Inline functions                             */
+/*---------------------------------------------------------------------*/
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SigFindArity()
+//
+//   Given  signature and a function symbol code, return the arity of
+//   the symbol.
+//
+// Global Variables: -
+//
+// Side Effects    : Abort if illegal f_code
+//
+/----------------------------------------------------------------------*/
+
+static __inline__ int SigFindArity(Sig_p sig, FunCode f_code)
+{
+   assert(f_code > 0);
+   assert(f_code <= sig->f_count);
+
+   return (sig->f_info[f_code]).arity;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SigSetPredicate()
+//
+//   Set the value of the predicate field for a function symbol.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static __inline__ void SigSetPredicate(Sig_p sig, FunCode f_code, bool value)
+{
+   assert(f_code > 0);
+   assert(f_code <= sig->f_count);
+
+   if(value)
+   {
+      FuncSetProp(&(sig->f_info[f_code]),FPPredSymbol);
+   }
+   else
+   {
+      FuncDelProp(&(sig->f_info[f_code]),FPPredSymbol);
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: SigIsPredicate()
+//
+//   Return the value of the predicate field for a function symbol.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static __inline__ bool SigIsPredicate(Sig_p sig, FunCode f_code)
+{
+   assert(f_code > 0);
+   assert(f_code <= sig->f_count);
+
+   return FuncQueryProp(&(sig->f_info[f_code]), FPPredSymbol);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SigSetSpecial()
+//
+//   Set the value of the special field for a function symbol.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static __inline__ void SigSetSpecial(Sig_p sig, FunCode f_code, bool value)
+{
+   assert(f_code > 0);
+   assert(f_code <= sig->f_count);
+
+   if(value)
+   {
+      SigSetFuncProp(sig,f_code,FPSpecial);
+   }
+   else
+   {
+      SigDelFuncProp(sig,f_code,FPSpecial);
+   }
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SigIsSpecial()
+//
+//   Return the value of the special field for a function symbol.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static __inline__ bool SigIsSpecial(Sig_p sig, FunCode f_code)
+{
+   assert(f_code > 0);
+   assert(f_code <= sig->f_count);
+
+   return FuncQueryProp(&(sig->f_info[f_code]), FPSpecial);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SigFindName()
+//
+//   Given  signature and a function symbol code, return a pointer to
+//   the name. This pointer is only valid as long as the signature
+//   exists! 
+//
+// Global Variables: -
+//
+// Side Effects    : Abort if illegal f_code
+//
+/----------------------------------------------------------------------*/
+
+static __inline__ char*  SigFindName(Sig_p sig, FunCode f_code)
+{
+   assert(f_code > 0);
+   assert(f_code <= sig->f_count);
+
+   return (sig->f_info[f_code]).name;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: SigGetAlphaRank()
+//
+//   Given a signature and an function symbol code, return the symbols
+//   alpha-rank.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static __inline__ int SigGetAlphaRank(Sig_p sig, FunCode f_code)
+{
+   assert(f_code > 0);
+   assert(f_code <= sig->f_count);
+
+   return (sig->f_info[f_code]).alpha_rank;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: SigGetEqnCode()
+//
+//   Return the FunCode for $eq or $neq, create them if non-existant.
+//
+// Global Variables: -
+//
+// Side Effects    : May change sig
+//
+/----------------------------------------------------------------------*/
+
+static __inline__ FunCode SigGetEqnCode(Sig_p sig, bool positive)
+{
+   assert(sig);
+
+   if(positive)
+   {
+      if(sig->eqn_code)
+      {
+	 return sig->eqn_code;
+      }
+      sig->eqn_code = SigInsertId(sig, "$eq", 2, true);
+      SigSetPredicate(sig, sig->eqn_code, true);
+      assert(sig->eqn_code);
+      return sig->eqn_code;
+   }
+   else
+   {
+      if(sig->neqn_code)
+      {
+	 return sig->neqn_code;
+      }
+      sig->neqn_code = SigInsertId(sig, "$neq", 2, true);
+      SigSetPredicate(sig, sig->eqn_code, true);
+      assert(sig->neqn_code);
+      return sig->neqn_code;      
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function:  SigGetOrCode()
+//
+//   As above, for $or
+//
+// Global Variables: -
+//
+// Side Effects    : May change sig
+//
+/----------------------------------------------------------------------*/
+
+static __inline__ FunCode SigGetOrCode(Sig_p sig)
+{
+   assert(sig);
+
+   if(sig->or_code)
+   {
+      return sig->or_code;
+   }
+   sig->or_code = SigInsertId(sig, "$or", 2, true);
+   assert(sig->or_code);
+   return sig->or_code;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function:  SigGetCNilCode()
+//
+//   As above, for $cnil
+//
+// Global Variables: -
+//
+// Side Effects    : May change sig
+//
+/----------------------------------------------------------------------*/
+
+static __inline__ FunCode SigGetCNilCode(Sig_p sig)
+{
+   assert(sig);
+
+   if(sig->cnil_code)
+   {
+      return sig->cnil_code;
+   }
+   sig->cnil_code = SigInsertId(sig, "$cnil", 0, true);
+   assert(sig->cnil_code);
+   return sig->cnil_code;
+}
+
+
+#endif
+
+/*---------------------------------------------------------------------*/
+/*                        End of File                                  */
+/*---------------------------------------------------------------------*/
+
+
+
+
+

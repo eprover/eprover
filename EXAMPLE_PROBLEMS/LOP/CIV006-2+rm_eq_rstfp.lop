@@ -1,0 +1,297 @@
+#--------------------------------------------------------------------------
+# File     : CIV006-2 : TPTP v2.1.0. Released v2.1.0.
+# Domain   : Circuit Verification
+# Problem  : A fulladder built from two halfadders and an or gate
+# Version  : [Gei96] axioms.
+# English  :
+
+# Refs     : [Gei96] Geisler (1996), Email to G. Sutcliffe
+# Source   : [Gei96]
+# Names    :
+
+# Status   : unsatisfiable
+# Rating   : ? v2.1.0
+# Syntax   : Number of clauses    :   64 (   5 non-Horn;  11 unit;  64 RR)
+#            Number of literals   :  144 (   0 equality)
+#            Maximal clause size  :    4 (   2 average)
+#            Number of predicates :   12 (   0 propositional; 1-2 arity)
+#            Number of functors   :   13 (   1 constant; 0-1 arity)
+#            Number of variables  :   55 (   0 singleton)
+#            Maximal term depth   :    3 (   1 average)
+
+# Comments : 
+#          : tptp2X -f setheo:sign -t rm_equality:rstfp CIV006-2.p 
+#--------------------------------------------------------------------------
+# value_propagation_zero1, axiom.
+zero(P2) <- 
+    connection(P1, P2),
+    zero(P1).
+
+# value_propagation_one1, axiom.
+one(P2) <- 
+    connection(P1, P2),
+    one(P1).
+
+# value_propagation_zero2, axiom.
+zero(P1) <- 
+    connection(P1, P2),
+    zero(P2).
+
+# value_propagation_one2, axiom.
+one(P1) <- 
+    connection(P1, P2),
+    one(P2).
+
+# unique_value, axiom.
+ <- zero(P),
+    one(P).
+
+# and_0x_0, axiom.
+zero(out1(K)) <- 
+    and_ok(K),
+    zero(in1(K)).
+
+# and_x0_0, axiom.
+zero(out1(K)) <- 
+    and_ok(K),
+    zero(in2(K)).
+
+# and_11_1, axiom.
+one(out1(K)) <- 
+    and_ok(K),
+    one(in1(K)),
+    one(in2(K)).
+
+# and_0_00, axiom.
+zero(in1(K));
+zero(in2(K)) <- 
+    and_ok(K),
+    zero(out1(K)).
+
+# and_1_1x, axiom.
+one(in1(K)) <- 
+    and_ok(K),
+    one(out1(K)).
+
+# and_1_x1, axiom.
+one(in2(K)) <- 
+    and_ok(K),
+    one(out1(K)).
+
+# not_and_ok_and_abnormal, axiom.
+ <- and_ok(K),
+    abnormal(K).
+
+# and_ok_or_abnormal, axiom.
+and_ok(K);
+abnormal(K) <- 
+    and(K).
+
+# or_1x_1, axiom.
+one(out1(K)) <- 
+    or_ok(K),
+    one(in1(K)).
+
+# or_x1_1, axiom.
+one(out1(K)) <- 
+    or_ok(K),
+    one(in2(K)).
+
+# or_00_0, axiom.
+zero(out1(K)) <- 
+    or_ok(K),
+    zero(in1(K)),
+    zero(in2(K)).
+
+# or_1_11, axiom.
+one(in1(K));
+one(in2(K)) <- 
+    or_ok(K),
+    one(out1(K)).
+
+# or_0_0x, axiom.
+zero(in1(K)) <- 
+    or_ok(K),
+    zero(out1(K)).
+
+# or_0_01, axiom.
+zero(in2(K)) <- 
+    or_ok(K),
+    zero(out1(K)).
+
+# not_or_ok_and_abnormal, axiom.
+ <- or_ok(K),
+    abnormal(K).
+
+# or_ok_or_abnormal, axiom.
+or_ok(K);
+abnormal(K) <- 
+    or(K).
+
+# not_0_1_fw, axiom.
+one(out1(K)) <- 
+    not_ok(K),
+    zero(in1(K)).
+
+# not_1_0_fw, axiom.
+zero(out1(K)) <- 
+    not_ok(K),
+    one(in1(K)).
+
+# not_0_1_bw, axiom.
+one(in1(K)) <- 
+    not_ok(K),
+    zero(out1(K)).
+
+# not_1_0_bw, axiom.
+zero(in1(K)) <- 
+    not_ok(K),
+    one(out1(K)).
+
+# not__not_ok_and_abnormal, axiom.
+ <- not_ok(K),
+    abnormal(K).
+
+# not_ok_or_abnormal, axiom.
+not_ok(K);
+abnormal(K) <- 
+    not(K).
+
+# halfadder_and1, axiom.
+and(and1(X)) <- 
+    halfadder(X).
+
+# halfadder_and2, axiom.
+and(and2(X)) <- 
+    halfadder(X).
+
+# halfadder_not1, axiom.
+not(not1(X)) <- 
+    halfadder(X).
+
+# halfadder_or1, axiom.
+or(or1(X)) <- 
+    halfadder(X).
+
+# halfadder_connection_in1_in1or1, axiom.
+connection(in1(X), in1(or1(X))) <- 
+    halfadder(X).
+
+# halfadder_connection_in2_in2or1, axiom.
+connection(in2(X), in2(or1(X))) <- 
+    halfadder(X).
+
+# halfadder_connection_in1_in1and2, axiom.
+connection(in1(X), in1(and2(X))) <- 
+    halfadder(X).
+
+# halfadder_connection_in2_in2and2, axiom.
+connection(in2(X), in2(and2(X))) <- 
+    halfadder(X).
+
+# halfadder_connection_outs_out1and1, axiom.
+connection(outs(X), out1(and1(X))) <- 
+    halfadder(X).
+
+# halfadder_connection_outc_out1and2, axiom.
+connection(outc(X), out1(and2(X))) <- 
+    halfadder(X).
+
+# halfadder_connection_out1or1_in1_and1, axiom.
+connection(out1(or1(X)), in1(and1(X))) <- 
+    halfadder(X).
+
+# halfadder_connection_out1and2_in1not1, axiom.
+connection(out1(and2(X)), in1(not1(X))) <- 
+    halfadder(X).
+
+# halfadder_connection_out1not1_in2and1, axiom.
+connection(out1(not1(X)), in2(and1(X))) <- 
+    halfadder(X).
+
+# fulladder_halfadder1, axiom.
+halfadder(h1(X)) <- 
+    fulladder(X).
+
+# fulladder_halfadder2, axiom.
+halfadder(h2(X)) <- 
+    fulladder(X).
+
+# fulladder_or1, axiom.
+or(or1(X)) <- 
+    fulladder(X).
+
+# fulladder_connection_outsh1_in2h2, axiom.
+connection(outs(h1(X)), in2(h2(X))) <- 
+    fulladder(X).
+
+# fulladder_connection_outch1_in2or1, axiom.
+connection(outc(h1(X)), in2(or1(X))) <- 
+    fulladder(X).
+
+# fulladder_connection_outch2_in1or1, axiom.
+connection(outc(h2(X)), in1(or1(X))) <- 
+    fulladder(X).
+
+# fulladder_connection_in1_in1h2, axiom.
+connection(in1(X), in1(h2(X))) <- 
+    fulladder(X).
+
+# fulladder_connection_in2_in1h1, axiom.
+connection(in2(X), in1(h1(X))) <- 
+    fulladder(X).
+
+# fulladder_connection_inc_in2h1, axiom.
+connection(inc(X), in2(h1(X))) <- 
+    fulladder(X).
+
+# fulladder_connection_outs_outsh2, axiom.
+connection(outs(X), outs(h2(X))) <- 
+    fulladder(X).
+
+# fulladder_connection_outc_out1or1, axiom.
+connection(outc(X), out1(or1(X))) <- 
+    fulladder(X).
+
+# f_isa_fulladder, hypothesis.
+fulladder(f) <- .
+
+# in1_1, hypothesis.
+one(in1(f)) <- .
+
+# in2_0, hypothesis.
+zero(in2(f)) <- .
+
+# inc_1, hypothesis.
+one(inc(f)) <- .
+
+# outs_1, hypothesis.
+one(outs(f)) <- .
+
+# outc_0, hypothesis.
+zero(outc(f)) <- .
+
+# diagnosis_or1_not1h2, conjecture.
+ <- abnormal(or1(f)),
+    abnormal(not1(h2(f))).
+
+# diagnosis_and2, conjecture.
+ <- abnormal(and2(h2(f))).
+
+# diagnosis_or1_and1h2, conjecture.
+ <- abnormal(or1(f)),
+    abnormal(and1(h2(f))).
+
+# diagnosis_or1h1, conjecture.
+ <- abnormal(or1(h1(f))).
+
+# diagnosis_not1h1, conjecture.
+ <- abnormal(not1(h1(f))).
+
+# diagnosis_and2h1, conjecture.
+ <- abnormal(and2(h1(f))).
+
+# diagnosis_and1h1, conjecture.
+ <- abnormal(and1(h1(f))).
+
+#--------------------------------------------------------------------------

@@ -1,0 +1,877 @@
+/*-----------------------------------------------------------------------
+
+File  : clb_ptrees.c
+
+Author: Stephan Schulz
+
+Contents
+ 
+  Functions for pointer storing SPLAY trees.
+
+  Copyright 1998, 1999 by the author.
+  This code is released under the GNU General Public Licence.
+  See the file COPYING in the main CLIB directory for details.
+  Run "eprover -h" for contact information.
+
+Changes
+
+<1> Wed Dec 17 21:17:34 MET 1997
+    New
+
+-----------------------------------------------------------------------*/
+
+#include "clb_ptrees.h"
+
+
+
+/*---------------------------------------------------------------------*/
+/*                        Global Variables                             */
+/*---------------------------------------------------------------------*/
+
+
+/*---------------------------------------------------------------------*/
+/*                      Forward Declarations                           */
+/*---------------------------------------------------------------------*/
+
+
+/*---------------------------------------------------------------------*/
+/*                         Internal Functions                          */
+/*---------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------------------
+//
+// Function: splay_tree() 
+//
+//   Perform the splay operation on tree at node with key.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes tree
+//
+/----------------------------------------------------------------------*/
+
+static PTree_p splay_ptree(PTree_p tree, void* key) 
+{
+   PTree_p   left, right, tmp;
+   PTreeCell new;
+   int       cmpres;
+
+   if (!tree) 
+   {
+      return tree;
+   }
+   
+   new.lson = NULL;
+   new.rson = NULL;
+   left = &new;
+   right = &new;
+   
+   for (;;) 
+   {
+      cmpres = PCmp(key, tree->key);
+      if (cmpres < 0) 
+      {
+	 if(!tree->lson)
+	 {
+	    break;
+	 }
+	 if(PCmp(key, tree->lson->key) < 0)
+	 {
+	    tmp = tree->lson;
+	    tree->lson = tmp->rson;
+	    tmp->rson = tree;
+	    tree = tmp;
+	    if (!tree->lson)
+	    {
+	       break;
+	    }
+	 }
+	 right->lson = tree;
+	 right = tree;
+	 tree = tree->lson;
+      } 
+      else if(cmpres > 0)
+      {
+	 if (!tree->rson)
+	 {
+	    break;
+	 }
+	 if(PCmp(key, tree->rson->key) > 0) 
+	 {
+	    tmp = tree->rson;
+	    tree->rson = tmp->lson;
+	    tmp->lson = tree;
+	    tree = tmp;
+	    if (!tree->rson) 
+	    {
+	       break;
+	    }
+	 }
+	 left->rson = tree;
+	 left = tree;
+	 tree = tree->rson;
+      }
+      else 
+      {
+	 break;
+      }
+   }
+   left->rson = tree->lson;
+   right->lson = tree->rson;
+   tree->lson = new.rson;
+   tree->rson = new.lson;
+   
+   return tree;
+}
+
+
+
+
+/*---------------------------------------------------------------------*/
+/*                         Exported Functions                          */
+/*---------------------------------------------------------------------*/
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PCmpFun()
+//
+//   Compare two pointers, return 1 if the first one is bigger, 0 if
+//   both are equal, and -1 if the second one is bigger. Might be
+//   machine dependend and of limited portability (comparing two
+//   arbitrary pointers is not ANSI kosher, but the compiler has no
+//   way to detect this, as pointers to the same array can be compared
+//   under ANSI), but should be easy to hack on any
+//   machine. Subtracting pointers and casting the result to int is
+//   probably more efficient, but even more dangerous.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+int PCmpFun(void* p1, void*p2)
+{
+   if(p1 > p2)
+   {
+      return 1;
+   }
+   else if(p1 < p2)
+   {
+      return -1;
+   }
+   assert(p1 == p2);
+   return 0;
+}
+      
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PTreeCellAllocEmpty()
+//
+//   Allocate a empty, initialized PTreeCell. Pointers to children
+//   are NULL, int values are 0 (and pointer values in ANSI-World
+//   undefined, in practice NULL on 32 bit machines)(This comment is
+//   superfluous!). The balance field is (correctly) set to 0.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+PTree_p PTreeCellAllocEmpty(void)
+{
+   PTree_p handle = PTreeCellAlloc();
+   
+   handle->lson = handle->rson = NULL;
+
+   return handle;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: PTreeFree()
+//
+//   Free a PTree (including the keys, but not potential objects
+//   pointed to in the val fields
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+void PTreeFree(PTree_p junk)
+{
+   if(junk)
+   {
+      PStack_p stack = PStackAlloc();
+      
+      PStackPushP(stack, junk);
+      
+      while(!PStackEmpty(stack))
+      {
+	 junk = PStackPopP(stack);
+	 if(junk->lson)
+	 {
+	    PStackPushP(stack, junk->lson);
+	 }
+	 if(junk->rson)
+	 { 
+	    PStackPushP(stack, junk->rson);
+	 }
+	 PTreeCellFree(junk);	    	 
+      }
+      PStackFree(stack);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PTreeInsert()
+//
+//   If an entry with key *new->key exists in the tree return a
+//   pointer to it. Otherwise insert *new in the tree and return
+//   NULL. Will splay the tree!
+//
+// Global Variables: -
+//
+// Side Effects    : Changes the tree.
+//
+/----------------------------------------------------------------------*/
+
+PTree_p PTreeInsert(PTree_p *root, PTree_p new)
+{
+   int cmpres;
+   if (!*root) 
+   {
+      new->lson = new->rson = NULL;
+      *root = new;
+      return NULL;
+   }
+   *root = splay_ptree(*root, new->key);
+
+   cmpres = PCmp(new->key, (*root)->key);
+   
+   if (cmpres < 0) 
+   {
+      new->lson = (*root)->lson;
+      new->rson = *root;
+      (*root)->lson = NULL;
+      *root = new;
+      return NULL;
+   } 
+   else if(cmpres > 0) 
+   {
+      new->rson = (*root)->rson;
+      new->lson = *root;
+      (*root)->rson = NULL;
+      *root = new;
+      return NULL;
+   }
+   return *root;
+}
+
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PTreeStore()
+//
+//   Insert a cell with given key into the tree. Return false if an
+//   entry for this key exists, true otherwise. 
+//
+// Global Variables: -
+//
+// Side Effects    : Changes tree
+//
+/----------------------------------------------------------------------*/
+
+bool PTreeStore(PTree_p *root, void* key)
+{
+   PTree_p handle, new;
+
+   handle = PTreeCellAlloc();
+   handle->key = key;
+ 
+   new = PTreeInsert(root, handle);
+
+   if(new)
+   {
+      PTreeCellFree(handle);
+      return false;
+   }
+   return true;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: PTreeFind()
+//
+//   Find the entry with key key in the tree and return it. Return
+//   NULL if no such key exists.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+PTree_p PTreeFind(PTree_p *root, void* key)
+{
+   if(*root)
+   {
+      *root = splay_ptree(*root, key);  
+      if(PCmp((*root)->key, key)==0)
+      {
+	 return *root;
+      }
+   }
+   return NULL;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PTreeFindBinary()
+//
+//   Find an entry by simple binary search. This does not reorganize
+//   the tree, otherwise it is inferior to PTreeFind()!
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+PTree_p PTreeFindBinary(PTree_p root, void* key)
+{
+   int cmpres;
+
+   while(root)
+   {
+      cmpres = PCmp(key, root->key);
+      if(cmpres < 0)
+      {
+	 root = root->lson;
+      }
+      else if(cmpres > 0)
+      {
+	 root = root->rson;
+      }
+      else
+      {
+	 break;
+      }
+   }   
+   return root;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PTreeExtractEntry()
+//
+//   Find the entry with key key, remove it from the tree, rebalance
+//   the tree, and return the pointer to the removed element. Return
+//   NULL if no matching element exists.
+//
+//
+// Global Variables: -
+//
+// Side Effects    : Changes the tree
+//
+/----------------------------------------------------------------------*/
+
+
+PTree_p PTreeExtractEntry(PTree_p *root, void* key)
+{
+   PTree_p x, cell;
+
+   if (!(*root))
+   {
+      return NULL;
+   }
+   *root = splay_ptree(*root, key);
+   if(PCmp(key, (*root)->key)==0)
+   {
+      if (!(*root)->lson)
+      {
+	 x = (*root)->rson;
+      } 
+      else
+      {
+	 x = splay_ptree((*root)->lson, key);
+	 x->rson = (*root)->rson;
+      }
+      cell = *root;
+      cell->lson = cell->rson = NULL;
+      *root = x;
+      return cell;
+   }
+   return NULL;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PTreeExtractKey()
+//
+//   Extract the entry with key key, delete the PTree-Node and return
+//   the key.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations, by PTreeExtractEntry()
+//
+/----------------------------------------------------------------------*/
+
+void* PTreeExtractKey(PTree_p *root, void* key)
+{
+   PTree_p handle;
+   void*   res = NULL;
+
+   handle = PTreeExtractEntry(root, key);
+   if(handle)
+   {
+      res = handle->key;
+      PTreeCellFree(handle);
+   }
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: PTreeExtractRootKey()
+//
+//   Extract the root node of the tree, delete it and return the
+//   key. Return NULL if the tree is empty.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes tree
+//
+/----------------------------------------------------------------------*/
+
+void* PTreeExtractRootKey(PTree_p *root)
+{
+   if(*root)
+   {
+      return PTreeExtractKey(root, (*root)->key);
+   }
+   return NULL;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: PTreeDeleteEntry()
+//
+//   Delete the entry with key key from the tree. Return true, if the
+//   key existed, false otherwise.
+//
+// Global Variables: -
+//
+// Side Effects    : By PTreeExtract(), memory operations
+//
+/----------------------------------------------------------------------*/
+
+bool PTreeDeleteEntry(PTree_p *root, void* key)
+{
+   PTree_p cell;
+   
+   cell = PTreeExtractEntry(root, key);
+   if(cell)
+   {
+      PTreeCellFree(cell);
+      return true;
+   }
+   return false;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PTreeMerge()
+//
+//   Merge the two trees, i.e. destroy the second one and add it's
+//   elements to the first one. Return true if *root gains a new
+//   element. 
+//
+// Global Variables: -
+//
+// Side Effects    : Changes both trees.
+//
+/----------------------------------------------------------------------*/
+
+bool PTreeMerge(PTree_p *root, PTree_p add)
+{
+   PStack_p stack = PStackAlloc();
+   PTree_p  tmp;
+   bool     res = false;
+
+   PStackPushP(stack, add);
+
+   while(!PStackEmpty(stack))
+   {
+      add = PStackPopP(stack);
+      if(add)
+      {
+	 PStackPushP(stack, add->lson);
+	 PStackPushP(stack, add->rson);
+	 tmp = PTreeInsert(root, add);
+	 if(tmp)
+	 {
+	    PTreeCellFree(add);
+	 }
+	 else
+	 {
+	    res = true;
+	 }
+      }
+   } 
+   PStackFree(stack);
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PTreeInsertTree()
+//
+//   Insert the elements stored in add into *root.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations.
+//
+/----------------------------------------------------------------------*/
+
+void PTreeInsertTree(PTree_p *root, PTree_p add)
+{
+   PStack_p stack = PStackAlloc();
+
+   PStackPushP(stack, add);
+
+   while(!PStackEmpty(stack))
+   {
+      add = PStackPopP(stack);
+      if(add)
+      {
+	 PStackPushP(stack, add->lson);
+	 PStackPushP(stack, add->rson);
+	 PTreeStore(root, add->key);
+      }
+   } 
+   PStackFree(stack);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PTreeNodes()
+//
+//   Return the number of nodes in the tree.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long PTreeNodes(PTree_p root)
+{
+   PStack_p stack = PStackAlloc();
+   long     res   = 0;
+
+   PStackPushP(stack, root);
+   
+   while(!PStackEmpty(stack))
+   {
+      root = PStackPopP(stack);
+      if(root)
+      {
+	 PStackPushP(stack, root->lson);
+	 PStackPushP(stack, root->rson);
+	 res++;
+      }
+   }
+   PStackFree(stack);
+
+   return res;   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PTreeDebugPrint()
+//
+//   Print the keys stored in the tree. Returns number of nodes (why
+//   not ?). 
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+long PTreeDebugPrint(FILE* out, PTree_p root)
+{
+   PStack_p stack = PStackAlloc();
+   long     res   = 0;
+   
+   PStackPushP(stack, root);
+   
+   while(!PStackEmpty(stack))
+   {      
+      root = PStackPopP(stack);
+      if(root)
+      {
+	 if(res % 10 == 0)
+	 {
+	    fprintf(out, "\n#");
+	 }
+	 fprintf(out, " %7p", root->key);
+	 PStackPushP(stack, root->lson);
+	 PStackPushP(stack, root->rson);
+	 res++;
+      }
+   }
+   PStackFree(stack);
+   fprintf(out, "\n");
+   
+   return res;   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PStackToPTree()
+//
+//   Interprete a stack as a list of pointers and insert these
+//   pointers into the tree at *root. Returns number of new elements
+//   in the tree.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long PStackToPTree(PTree_p *root, PStack_p stack)
+{
+   PStackPointer i;
+   long          res = 0;
+
+   for(i=0; i<PStackGetSP(stack); i++)
+   {
+      if(PTreeStore(root, PStackElementP(stack,i)))
+      {
+	 res++;	 
+      }
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PTreeToPStack()
+//
+//   Push all the keys in the tree onto the stack (in arbitrary
+//   order). Return number of values pushed.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long PTreeToPStack(PStack_p target_stack, PTree_p root)
+{
+   long res = 0;
+   PStack_p stack = PStackAlloc();
+   PTree_p handle;
+
+   PStackPushP(stack, root);
+   
+   while(!PStackEmpty(stack))
+   {
+      handle = PStackPopP(stack);
+      if(handle)
+      {	 
+	 PStackPushP(target_stack, handle->key);
+	 res++;
+	 PStackPushP(stack,handle->lson);
+	 PStackPushP(stack,handle->rson);
+      }
+   } 
+   PStackFree(stack);
+   
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PTreeSharedElement()
+//
+//   If there exists an element common in both trees, return the first
+//   one found. Otherwise return NULL. This iterates over the elements
+//   of the second tree and searches in the first, so make the second
+//   one smaller if you have a choice.
+//
+// Global Variables: -
+//
+// Side Effects    : Reorganizes tree1!
+//
+/----------------------------------------------------------------------*/
+
+void* PTreeSharedElement(PTree_p *tree1, PTree_p tree2)
+{
+   PStack_p stack = PStackAlloc();
+   PTree_p handle, tmp;
+   void* res = NULL;
+
+   PStackPushP(stack, tree2);
+
+   while(!PStackEmpty(stack))
+   {
+      handle = PStackPopP(stack);
+      if(handle)
+      {
+	 tmp = PTreeFind(tree1, handle->key);
+	 if(tmp)
+	 {
+	    res = tmp->key;
+	    break;
+	 }
+	 PStackPushP(stack,handle->lson);
+	 PStackPushP(stack,handle->rson);
+      }
+   } 
+   PStackFree(stack);
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PTreeIntersection()
+//
+//   Compute the intersection of the two PTrees and return it.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+PTree_p PTreeIntersection(PTree_p tree1, PTree_p tree2)
+{
+   PStack_p stack = PStackAlloc();
+   PTree_p handle, tmp, res=NULL;
+   
+   PStackPushP(stack, tree2);
+   
+   while(!PStackEmpty(stack))
+   {
+      handle = PStackPopP(stack);
+      if(handle)
+      {
+	 tmp = PTreeFindBinary(tree1, handle->key);
+	 if(tmp)
+	 {
+	    PTreeStore(&res, handle->key);
+	 }
+	 PStackPushP(stack,handle->lson);
+	 PStackPushP(stack,handle->rson);
+      }
+   } 
+   PStackFree(stack);
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: PTreeIntersection()
+//
+//   Make tree1 the intersection of tree1 and tree2. Does not change
+//   tree 2. Return the number of keys removed.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+long PTreeDestrIntersection(PTree_p *tree1, PTree_p tree2)
+{
+   PTree_p tmp = NULL;
+   void* key;
+   long res = 0;
+
+   while((key = PTreeExtractRootKey(tree1)))
+   {
+      if(PTreeFindBinary(tree2, key))
+      {
+	 PTreeStore(&tmp, key);
+      }
+      else
+      {
+	 res++;
+      }
+   }
+   assert(!(*tree1));
+   *tree1 = tmp;
+
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PTreeCopy()
+//
+//   Return a Ptree that stores the same elements as tree.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations.
+//
+/----------------------------------------------------------------------*/
+
+PTree_p PTreeCopy(PTree_p tree)
+{
+   PTree_p res = NULL, handle;
+   PStack_p stack = PStackAlloc();   
+
+   PStackPushP(stack, tree);
+   
+   while(!PStackEmpty(stack))
+   {
+      handle = PStackPopP(stack);
+      if(handle)
+      {
+	 PTreeStore(&res, handle->key);
+	 PStackPushP(stack,handle->lson);
+	 PStackPushP(stack,handle->rson);
+      }
+   }    
+   PStackFree(stack);
+   return res;
+}
+
+AVL_TRAVERSE_DEFINITION(PTree, PTree_p)
+
+/*---------------------------------------------------------------------*/
+/*                        End of File                                  */
+/*---------------------------------------------------------------------*/
+
+
+
+

@@ -1,0 +1,22 @@
+#! /bin/sh
+
+if which gawk; then
+    AWK=`which gawk`;
+    echo "configure_tools: Found gawk in your search path"
+elif which awk; then
+    AWK=`which awk`;
+    echo "configure_tools: Cannot find gawk, trying awk (untested)"
+else
+    echo "configure_tools: No awk available, tools unconfigured."
+    echo "configure_tools: Try to get gawk installed in your search path."
+    exit 0;
+fi
+
+for file in *.awk ; do
+    # cp $file $file.bak
+    echo "#!$AWK -f" > tmpfile
+    tail +2  $file >> tmpfile
+    mv tmpfile $file
+    chmod ugo+x $file
+done
+

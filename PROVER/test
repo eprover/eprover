@@ -1,0 +1,32 @@
+# No proof found!
+# Proof status evidence starts here.
+     1 : [++equal(f(X1,0), X1)] : initial
+     2 : [++equal(f(X1,i(X1)), 0)] : initial
+     3 : [++equal(f(f(X1,X2),X3), f(X1,f(X2,X3)))] : initial
+     5 : [++equal(f(X1,X2), f(X1,f(0,X2)))] : pm(1,3)
+     6 : [++equal(f(X1,f(X2,i(f(X1,X2)))), 0)] : pm(3,2)
+     7 : [++equal(f(0,X2), f(X1,f(i(X1),X2)))] : pm(2,3)
+    27 : [++equal(f(X1,0), f(0,i(i(X1))))] : pm(2,7)
+    36 : [++equal(X1, f(0,i(i(X1))))] : rw(27,1)
+    46 : [++equal(f(X1,X2), f(X1,i(i(X2))))] : pm(36,5)
+    52 : [++equal(f(0,X1), X1)] : rw(36,46)
+    60 : [++equal(f(X1,f(i(X1),X2)), X2)] : rw(7,52)
+    61 : [++equal(i(0), 0)] : pm(52,2)
+    65 : [++equal(i(i(X1)), f(0,X1))] : pm(52,46)
+    68 : [++equal(i(i(X1)), X1)] : rw(65,52)
+    77 : [++equal(f(i(X1),X1), 0)] : pm(68,2)
+    78 : [++equal(f(i(X1),f(X1,X2)), X2)] : pm(68,60)
+   124 : [++equal(f(i(X1),0), f(X2,i(f(X1,X2))))] : pm(6,78)
+   141 : [++equal(i(X1), f(X2,i(f(X1,X2))))] : rw(124,1)
+   155 : [++equal(f(i(X1),i(X2)), i(f(X2,X1)))] : pm(141,78)
+   231 : [++equal(f(X1,0), X1)] : 1 : "final"
+   232 : [++equal(f(X1,i(X1)), 0)] : 2 : "final"
+   233 : [++equal(f(f(X1,X2),X3), f(X1,f(X2,X3)))] : 3 : "final"
+   234 : [++equal(f(X1,f(i(X1),X2)), X2)] : 60 : "final"
+   235 : [++equal(f(0,X1), X1)] : 52 : "final"
+   236 : [++equal(i(0), 0)] : 61 : "final"
+   237 : [++equal(i(i(X1)), X1)] : 68 : "final"
+   238 : [++equal(f(i(X1),X1), 0)] : 77 : "final"
+   239 : [++equal(f(i(X1),f(X1,X2)), X2)] : 78 : "final"
+   240 : [++equal(i(f(X2,X1)), f(i(X1),i(X2)))] : 155 : "final"
+# Proof status evidence ends here.

@@ -1,0 +1,35 @@
+#-------------------------------------------------------------
+# Equational specification of a field. 
+#
+
+# (M, f) is a commutative group:
+
+f(X,0) = X.
+f(X,i(X)) = 0.
+f(f(X,Y),Z) = f(X,f(Y,Z)).
+f(X,Y) = f(Y,X).
+
+# (M\{0}, g) is a commutative group
+
+1!=0. /* Because 1 in M\{0} */
+g(X,1)=X <- X!=0.
+g(X,j(X)) = 1<- X!=0. 
+g(g(X,Y),Z) = g(X,g(Y,Z)) <-  X!=0, Y!=0, Z!=0.
+g(X,Y) = g(Y,X) <-  X!=0, Y!=0.
+
+# Distributivity:
+
+g(X,f(Y,Z))=f(g(X,Y),g(X,Z)).
+
+# Ordering:
+
+X=Y <- less_or_equal(X, Y), less_or_equal(Y, X).
+less_or_equal(X, Y);less_or_equal(Y, X) <-.
+less_or_equal(f(X, Z), f(Y, Z)) <- less_or_equal(X, Y).
+less_or_equal(0, g(Y, Z)) <- less_or_equal(0, Y), less_or_equal(0, Z).
+a!=0.
+b!=0.
+less_or_equal(j(b),j(a)) <- .
+less_or_equal(j(a), 0) <- .
+
+<- less_or_equal(a, b).

@@ -1,0 +1,39 @@
+#--------------------------------------------------------------------------
+# File     : COL011-1 : TPTP v2.1.0. Released v1.0.0.
+# Domain   : Combinatory Logic
+# Problem  : Weak fixed point for O and Q1
+# Version  : [WM88] (equality) axioms.
+# English  : The weak fixed point property holds for the set P consisting 
+#            of the combinators O and Q1, where (Ox)y = y(xy), ((Q1x)y)z 
+#            = x(zy).
+
+# Refs     : [Smu85] Smullyan (1978), To Mock a Mocking Bird and Other Logi
+#          : [MW87]  McCune & Wos (1987), A Case Study in Automated Theorem
+#          : [WM88]  Wos & McCune (1988), Challenge Problems Focusing on Eq
+#          : [MW88]  McCune & Wos (1988), Some Fixed Point Problems in Comb
+# Source   : [MW88]
+# Names    : - [MW88]
+
+# Status   : unsatisfiable
+# Rating   : 0.17 v2.1.0, 0.62 v2.0.0
+# Syntax   : Number of clauses    :    3 (   0 non-Horn;   3 unit;   1 RR)
+#            Number of literals   :    3 (   3 equality)
+#            Maximal clause size  :    1 (   1 average)
+#            Number of predicates :    1 (   0 propositional; 2-2 arity)
+#            Number of functors   :    4 (   3 constant; 0-2 arity)
+#            Number of variables  :    6 (   0 singleton)
+#            Maximal term depth   :    4 (   2 average)
+
+# Comments : 
+#          : tptp2X -f setheo:sign -t rm_equality:rstfp COL011-1.p 
+#--------------------------------------------------------------------------
+# o_definition, axiom.
+equal(apply(apply(o, X), Y), apply(Y, apply(X, Y))) <- .
+
+# q1_definition, axiom.
+equal(apply(apply(apply(q1, X), Y), Z), apply(X, apply(Z, Y))) <- .
+
+# prove_fixed_point, conjecture.
+ <- equal(Y, apply(combinator, Y)).
+
+#--------------------------------------------------------------------------

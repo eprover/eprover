@@ -1,0 +1,239 @@
+#--------------------------------------------------------------------------
+# File     : RNG039-1 : TPTP v2.1.0. Released v1.0.0.
+# Domain   : Ring Theory
+# Problem  : Ring property 2
+# Version  : [Wos65] axioms.
+# English  : 
+
+# Refs     : [Wos65] Wos (1965), Unpublished Note
+#          : [MOW76] McCharen et al. (1976), Problems and Experiments for a
+# Source   : [SPRFN]
+# Names    : Problem 28 [Wos65]
+
+# Status   : unsatisfiable
+# Rating   : 0.50 v2.1.0, 0.60 v2.0.0
+# Syntax   : Number of clauses    :   60 (   0 non-Horn;  49 unit;  40 RR)
+#            Number of literals   :   93 (   8 equality)
+#            Maximal clause size  :    5 (   1 average)
+#            Number of predicates :    3 (   0 propositional; 2-3 arity)
+#            Number of functors   :    8 (   5 constant; 0-2 arity)
+#            Number of variables  :   91 (   1 singleton)
+#            Maximal term depth   :    2 (   1 average)
+
+# Comments : These are the same axioms as in [MOW76].
+#          : tptp2X -f setheo:sign -t rm_equality:rstfp RNG039-1.p 
+#--------------------------------------------------------------------------
+# additive_identity1, axiom.
+sum(additive_identity, X, X) <- .
+
+# additive_identity2, axiom.
+sum(X, additive_identity, X) <- .
+
+# closure_of_multiplication, axiom.
+product(X, Y, multiply(X, Y)) <- .
+
+# closure_of_addition, axiom.
+sum(X, Y, add(X, Y)) <- .
+
+# left_inverse, axiom.
+sum(additive_inverse(X), X, additive_identity) <- .
+
+# right_inverse, axiom.
+sum(X, additive_inverse(X), additive_identity) <- .
+
+# associativity_of_addition1, axiom.
+sum(X, V, W) <- 
+    sum(X, Y, U),
+    sum(Y, Z, V),
+    sum(U, Z, W).
+
+# associativity_of_addition2, axiom.
+sum(U, Z, W) <- 
+    sum(X, Y, U),
+    sum(Y, Z, V),
+    sum(X, V, W).
+
+# commutativity_of_addition, axiom.
+sum(Y, X, Z) <- 
+    sum(X, Y, Z).
+
+# associativity_of_multiplication1, axiom.
+product(X, V, W) <- 
+    product(X, Y, U),
+    product(Y, Z, V),
+    product(U, Z, W).
+
+# associativity_of_multiplication2, axiom.
+product(U, Z, W) <- 
+    product(X, Y, U),
+    product(Y, Z, V),
+    product(X, V, W).
+
+# distributivity1, axiom.
+sum(V1, V2, V4) <- 
+    product(X, Y, V1),
+    product(X, Z, V2),
+    sum(Y, Z, V3),
+    product(X, V3, V4).
+
+# distributivity2, axiom.
+product(X, V3, V4) <- 
+    product(X, Y, V1),
+    product(X, Z, V2),
+    sum(Y, Z, V3),
+    sum(V1, V2, V4).
+
+# distributivity3, axiom.
+sum(V1, V2, V4) <- 
+    product(Y, X, V1),
+    product(Z, X, V2),
+    sum(Y, Z, V3),
+    product(V3, X, V4).
+
+# distributivity4, axiom.
+product(V3, X, V4) <- 
+    product(Y, X, V1),
+    product(Z, X, V2),
+    sum(Y, Z, V3),
+    sum(V1, V2, V4).
+
+# addition_is_well_defined, axiom.
+equal(U, V) <- 
+    sum(X, Y, U),
+    sum(X, Y, V).
+
+# multiplication_is_well_defined, axiom.
+equal(U, V) <- 
+    product(X, Y, U),
+    product(X, Y, V).
+
+# absorbtion1, axiom.
+sum(A, add(A, B), B) <- .
+
+# absorbtion2, axiom.
+sum(add(A, B), B, A) <- .
+
+# clause32, axiom.
+sum(A, A, additive_identity) <- .
+
+# clause33, axiom.
+equal(add(A, additive_identity), A) <- .
+
+# clause34, axiom.
+equal(add(A, A), additive_identity) <- .
+
+# clause35, axiom.
+equal(multiply(A, A), A) <- .
+
+# clause36, axiom.
+equal(multiply(a, b), c) <- .
+
+# clause37, axiom.
+equal(multiply(b, a), d) <- .
+
+# clause38, axiom.
+sum(A, B, add(B, A)) <- .
+
+# clause39, axiom.
+product(a, c, c) <- .
+
+# clause40, axiom.
+product(b, d, d) <- .
+
+# clause41, axiom.
+product(c, b, c) <- .
+
+# clause42, axiom.
+product(d, a, d) <- .
+
+# clause43, axiom.
+product(A, multiply(A, B), multiply(A, B)) <- .
+
+# clause44, axiom.
+product(a, multiply(b, A), multiply(B, A)) <- .
+
+# clause45, axiom.
+product(a, b, multiply(c, b)) <- .
+
+# clause46, axiom.
+product(a, multiply(b, c), c) <- .
+
+# clause47, axiom.
+product(b, multiply(a, A), multiply(d, A)) <- .
+
+# clause48, axiom.
+product(b, a, multiply(d, a)) <- .
+
+# clause49, axiom.
+product(b, multiply(a, d), d) <- .
+
+# clause50, axiom.
+product(b, c, multiply(d, b)) <- .
+
+# clause51, axiom.
+product(a, d, multiply(c, a)) <- .
+
+# clause52, axiom.
+product(multiply(A, B), B, multiply(A, B)) <- .
+
+# clause53, axiom.
+product(multiply(A, a), b, multiply(A, c)) <- .
+
+# clause54, axiom.
+product(a, b, multiply(a, c)) <- .
+
+# clause55, axiom.
+product(multiply(c, a), b, c) <- .
+
+# clause56, axiom.
+product(d, b, multiply(b, c)) <- .
+
+# clause57, axiom.
+product(multiply(A, b), a, multiply(A, d)) <- .
+
+# clause58, axiom.
+product(b, a, multiply(b, d)) <- .
+
+# clause59, axiom.
+product(multiply(d, b), a, d) <- .
+
+# clause60, axiom.
+product(c, a, multiply(a, d)) <- .
+
+# clause63, axiom.
+product(a, add(b, a), add(c, a)) <- .
+
+# clause64, axiom.
+product(a, add(a, b), add(a, c)) <- .
+
+# clause65, axiom.
+product(b, add(a, b), add(d, b)) <- .
+
+# clause66, axiom.
+product(b, add(b, a), add(b, d)) <- .
+
+# clause67, axiom.
+product(add(a, b), b, add(c, b)) <- .
+
+# clause68, axiom.
+product(add(b, a), b, add(b, c)) <- .
+
+# clause69, axiom.
+product(add(b, a), a, add(d, a)) <- .
+
+# clause70, axiom.
+product(add(a, b), a, add(a, d)) <- .
+
+# clause71, axiom.
+product(A, A, A) <- .
+
+# a_times_b, conjecture.
+product(a, b, c) <- .
+
+# b_times_a, conjecture.
+product(b, a, d) <- .
+
+# prove_c_equals_d, conjecture.
+ <- equal(c, d).
+
+#--------------------------------------------------------------------------

@@ -1,0 +1,7 @@
+f:1 a:0.
+.
+a
+f(X)
+lesser
+false
+true

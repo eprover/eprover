@@ -1,0 +1,78 @@
+#--------------------------------------------------------------------------
+# File     : LCL153-1 : TPTP v2.1.0. Released v1.0.0.
+# Domain   : Logic Calculi (Wajsberg Algebra)
+# Problem  : The 1st alternative Wajsberg algebra axiom
+# Version  : [Bon91] (equality) axioms.
+# English  : 
+
+# Refs     : [FRT84] Font et al. (1984), Wajsberg Algebras
+#          : [AB90]  Anantharaman & Bonacina (1990), An Application of the 
+#          : [Bon91] Bonacina (1991), Problems in Lukasiewicz Logic
+# Source   : [Bon91]
+# Names    : W' axiom 1 [Bon91]
+
+# Status   : unsatisfiable
+# Rating   : 0.33 v2.1.0, 0.38 v2.0.0
+# Syntax   : Number of clauses    :   17 (   0 non-Horn;  17 unit;   2 RR)
+#            Number of literals   :   17 (  17 equality)
+#            Maximal clause size  :    1 (   1 average)
+#            Number of predicates :    1 (   0 propositional; 2-2 arity)
+#            Number of functors   :    9 (   3 constant; 0-2 arity)
+#            Number of variables  :   33 (   0 singleton)
+#            Maximal term depth   :    4 (   2 average)
+
+# Comments : 
+#          : tptp2X -f setheo:sign -t rm_equality:rstfp LCL153-1.p 
+#--------------------------------------------------------------------------
+# wajsberg_1, axiom.
+equal(implies(true, X), X) <- .
+
+# wajsberg_2, axiom.
+equal(implies(implies(X, Y), implies(implies(Y, Z), implies(X, Z))), true) <- .
+
+# wajsberg_3, axiom.
+equal(implies(implies(X, Y), Y), implies(implies(Y, X), X)) <- .
+
+# wajsberg_4, axiom.
+equal(implies(implies(not(X), not(Y)), implies(Y, X)), true) <- .
+
+# or_definition, axiom.
+equal(or(X, Y), implies(not(X), Y)) <- .
+
+# or_associativity, axiom.
+equal(or(or(X, Y), Z), or(X, or(Y, Z))) <- .
+
+# or_commutativity, axiom.
+equal(or(X, Y), or(Y, X)) <- .
+
+# and_definition, axiom.
+equal(and(X, Y), not(or(not(X), not(Y)))) <- .
+
+# and_associativity, axiom.
+equal(and(and(X, Y), Z), and(X, and(Y, Z))) <- .
+
+# and_commutativity, axiom.
+equal(and(X, Y), and(Y, X)) <- .
+
+# xor_definition, axiom.
+equal(xor(X, Y), or(and(X, not(Y)), and(not(X), Y))) <- .
+
+# xor_commutativity, axiom.
+equal(xor(X, Y), xor(Y, X)) <- .
+
+# and_star_definition, axiom.
+equal(and_star(X, Y), not(or(not(X), not(Y)))) <- .
+
+# and_star_associativity, axiom.
+equal(and_star(and_star(X, Y), Z), and_star(X, and_star(Y, Z))) <- .
+
+# and_star_commutativity, axiom.
+equal(and_star(X, Y), and_star(Y, X)) <- .
+
+# false_definition, axiom.
+equal(not(true), false) <- .
+
+# prove_alternative_wajsberg_axiom, conjecture.
+ <- equal(not(x), xor(x, true)).
+
+#--------------------------------------------------------------------------

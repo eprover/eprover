@@ -1,0 +1,98 @@
+#--------------------------------------------------------------------------
+# File     : GRP002-1 : TPTP v2.1.0. Released v1.0.0.
+# Domain   : Group Theory
+# Problem  : Commutator equals identity in groups of order 3
+# Version  : [MOW76] axioms.
+# English  : In a group, if (for all x) the cube of x is the identity 
+#            (i.e. a group of order 3), then the equation [[x,y],y]= 
+#            identity holds, where [x,y] is the product of x, y, the 
+#            inverse of x and the inverse of y (i.e. the commutator 
+#            of x and y).
+
+# Refs     : [MOW76] McCharen et al. (1976), Problems and Experiments for a
+#          : [OMW76] Overbeek et al. (1976), Complexity and Related Enhance
+#          : [Wos88] Wos (1988), Automated Reasoning - 33 Basic Research Pr
+#          : [Ove90] Overbeek (1990), ATP competition announced at CADE-10
+#          : [Ove93] Overbeek (1993), The CADE-11 Competitions: A Personal 
+#          : [LM93]  Lusk & McCune (1993), Uniform Strategies: The CADE-11 
+# Source   : [MOW76]
+# Names    : G6 [MOW76]
+#          : Theorem 1 [OMW76]
+#          : Test Problem 2 [Wos88]
+#          : Commutator Theorem [Wos88]
+#          : CADE-11 Competition 2 [Ove90]
+#          : THEOREM 2 [LM93]
+#          : commutator.ver1.in [ANL]
+
+# Status   : unsatisfiable
+# Rating   : 0.67 v2.1.0, 1.00 v2.0.0
+# Syntax   : Number of clauses    :   16 (   0 non-Horn;  11 unit;  11 RR)
+#            Number of literals   :   26 (   1 equality)
+#            Maximal clause size  :    4 (   1 average)
+#            Number of predicates :    2 (   0 propositional; 2-3 arity)
+#            Number of functors   :   10 (   8 constant; 0-2 arity)
+#            Number of variables  :   26 (   0 singleton)
+#            Maximal term depth   :    2 (   1 average)
+
+# Comments : 
+#          : tptp2X -f setheo:sign -t rm_equality:rstfp GRP002-1.p 
+#--------------------------------------------------------------------------
+# left_identity, axiom.
+product(identity, X, X) <- .
+
+# right_identity, axiom.
+product(X, identity, X) <- .
+
+# left_inverse, axiom.
+product(inverse(X), X, identity) <- .
+
+# right_inverse, axiom.
+product(X, inverse(X), identity) <- .
+
+# total_function1, axiom.
+product(X, Y, multiply(X, Y)) <- .
+
+# total_function2, axiom.
+equal(Z, W) <- 
+    product(X, Y, Z),
+    product(X, Y, W).
+
+# associativity1, axiom.
+product(X, V, W) <- 
+    product(X, Y, U),
+    product(Y, Z, V),
+    product(U, Z, W).
+
+# associativity2, axiom.
+product(U, Z, W) <- 
+    product(X, Y, U),
+    product(Y, Z, V),
+    product(X, V, W).
+
+# x_cubed_is_identity_1, hypothesis.
+product(X, Y, identity) <- 
+    product(X, X, Y).
+
+# x_cubed_is_identity_2, hypothesis.
+product(Y, X, identity) <- 
+    product(X, X, Y).
+
+# a_times_b_is_c, conjecture.
+product(a, b, c) <- .
+
+# c_times_inverse_a_is_d, conjecture.
+product(c, inverse(a), d) <- .
+
+# d_times_inverse_b_is_h, conjecture.
+product(d, inverse(b), h) <- .
+
+# h_times_b_is_j, conjecture.
+product(h, b, j) <- .
+
+# j_times_inverse_h_is_k, conjecture.
+product(j, inverse(h), k) <- .
+
+# prove_k_times_inverse_b_is_e, conjecture.
+ <- product(k, inverse(b), identity).
+
+#--------------------------------------------------------------------------

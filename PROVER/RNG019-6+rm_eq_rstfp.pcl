@@ -1,0 +1,66 @@
+      1 : [++equal(additive_inverse(additive_inverse(X1)), X1)] : initial
+      2 : [++equal(additive_inverse(additive_inverse(X1)), X1)] : 1 : "eval"
+      7 : [++equal(add(additive_identity,X1), X1)] : initial
+      8 : [++equal(add(additive_identity,X1), X1)] : 7 : "eval"
+     13 : [++equal(add(X1,additive_inverse(X1)), additive_identity)] : initial
+     14 : [++equal(add(X1,additive_inverse(X1)), additive_identity)] : 13 : "eval"
+     15 : [++equal(add(X1,X2), add(X2,X1))] : initial
+     16 : [++equal(add(X1,X2), add(X2,X1))] : 15 : "eval"
+     17 : [++equal(add(X1,add(X2,X3)), add(add(X1,X2),X3))] : initial
+     18 : [++equal(add(add(X1,X2),X3), add(X1,add(X2,X3)))] : 17 : "eval"
+     23 : [++equal(multiply(X1,add(X2,X3)), add(multiply(X1,X2),multiply(X1,X3)))] : initial
+     24 : [++equal(multiply(X1,add(X2,X3)), add(multiply(X1,X2),multiply(X1,X3)))] : 23 : "eval"
+     29 : [++equal(associator(X1,X2,X3), add(multiply(multiply(X1,X2),X3),additive_inverse(multiply(X1,multiply(X2,X3)))))] : initial
+     30 : [++equal(associator(X1,X2,X3), add(multiply(multiply(X1,X2),X3),additive_inverse(multiply(X1,multiply(X2,X3)))))] : 29 : "eval"
+     31 : [--equal(associator(x,y,add(u,v)), add(associator(x,y,u),associator(x,y,v)))] : initial
+     32 : [--equal(associator(x,y,add(u,v)), add(associator(x,y,u),associator(x,y,v)))] : 31 : "eval"
+     33 : [++equal(additive_inverse(additive_inverse(X1)), X1)] : 2 : "new_given"
+     34 : [++equal(add(additive_identity,X1), X1)] : 8 : "new_given"
+     43 : [++equal(add(X1,additive_inverse(X1)), additive_identity)] : 14 : "new_given"
+     48 : [++equal(add(X1,X2), add(X2,X1))] : 16 : "new_given"
+     60 : [++equal(add(add(X1,X2),X3), add(X1,add(X2,X3)))] : 18 : "new_given"
+     65 : [++equal(add(additive_identity,X2), add(X1,add(additive_inverse(X1),X2)))] : pm(43,60)
+     69 : [++equal(add(add(X2,X1),X3), add(X1,add(X2,X3)))] : pm(48,60)
+     75 : [++equal(X2, add(X1,add(additive_inverse(X1),X2)))] : rw(65,34)
+     76 : [++equal(add(X1,add(additive_inverse(X1),X2)), X2)] : 75 : "eval"
+     81 : [++equal(add(X2,add(X1,X3)), add(X1,add(X2,X3)))] : rw(69,60)
+     82 : [++equal(add(X2,add(X1,X3)), add(X1,add(X2,X3)))] : 81 : "eval"
+    111 : [++equal(multiply(X1,add(X2,X3)), add(multiply(X1,X2),multiply(X1,X3)))] : 24 : "new_given"
+    173 : [++equal(associator(X1,X2,X3), add(additive_inverse(multiply(X1,multiply(X2,X3))),multiply(multiply(X1,X2),X3)))] : rw(30,48)
+    174 : [++equal(associator(X1,X2,X3), add(additive_inverse(multiply(X1,multiply(X2,X3))),multiply(multiply(X1,X2),X3)))] : 173 : "new_given"
+    175 : [--equal(add(additive_inverse(add(multiply(x,multiply(y,u)),multiply(x,multiply(y,v)))),add(multiply(multiply(x,y),u),multiply(multiply(x,y),v))), add(associator(x,y,u),associator(x,y,v)))] : rw(rw(rw(rw(32,174),111),111),111)
+    176 : [--equal(add(additive_inverse(add(multiply(x,multiply(y,u)),multiply(x,multiply(y,v)))),add(multiply(multiply(x,y),u),multiply(multiply(x,y),v))), add(additive_inverse(multiply(x,multiply(y,u))),add(multiply(multiply(x,y),u),add(additive_inverse(multiply(x,multiply(y,v))),multiply(multiply(x,y),v)))))] : rw(rw(rw(175,174),174),60)
+    177 : [--equal(add(additive_inverse(multiply(x,multiply(y,u))),add(multiply(multiply(x,y),u),add(additive_inverse(multiply(x,multiply(y,v))),multiply(multiply(x,y),v)))), add(additive_inverse(add(multiply(x,multiply(y,u)),multiply(x,multiply(y,v)))),add(multiply(multiply(x,y),u),multiply(multiply(x,y),v))))] : 176 : "new_given"
+    184 : [++equal(add(X1,add(additive_inverse(X1),X2)), X2)] : 76 : "new_given"
+    185 : [++equal(add(additive_inverse(X1),add(X1,X2)), X2)] : pm(33,184)
+    197 : [++equal(add(additive_inverse(X1),add(X1,X2)), X2)] : 185 : "eval"
+    212 : [++equal(add(additive_inverse(X1),add(X1,X2)), X2)] : 197 : "new_given"
+    223 : [++equal(add(additive_inverse(X1),add(X2,X1)), X2)] : pm(48,212)
+    237 : [++equal(add(additive_inverse(X1),add(X2,X1)), X2)] : 223 : "eval"
+    275 : [++equal(add(additive_inverse(X1),add(X2,X1)), X2)] : 237 : "new_given"
+    291 : [++equal(add(additive_inverse(add(X1,X2)),X1), additive_inverse(X2))] : pm(275,275)
+    313 : [++equal(add(additive_inverse(add(X1,X2)),X1), additive_inverse(X2))] : 291 : "eval"
+    427 : [++equal(add(X1,additive_inverse(add(X1,X2))), additive_inverse(X2))] : rw(313,48)
+    428 : [++equal(add(X1,additive_inverse(add(X1,X2))), additive_inverse(X2))] : 427 : "new_given"
+    438 : [++equal(add(X1,additive_inverse(X2)), additive_inverse(add(additive_inverse(X1),X2)))] : pm(428,184)
+    464 : [++equal(additive_inverse(add(additive_inverse(X1),X2)), add(X1,additive_inverse(X2)))] : 438 : "eval"
+    484 : [++equal(additive_inverse(add(additive_inverse(X1),X2)), add(X1,additive_inverse(X2)))] : 464 : "new_given"
+    485 : [++equal(additive_inverse(add(X1,additive_inverse(X2))), add(additive_inverse(X1),X2))] : pm(484,33)
+    506 : [++equal(add(additive_inverse(X1),X2), additive_inverse(add(X1,additive_inverse(X2))))] : 485 : "eval"
+    539 : [++equal(add(additive_inverse(X1),X2), additive_inverse(add(X1,additive_inverse(X2))))] : 506 : "new_given"
+    544 : [--equal(add(additive_inverse(multiply(x,multiply(y,u))),add(multiply(multiply(x,y),u),add(additive_inverse(multiply(x,multiply(y,v))),multiply(multiply(x,y),v)))), add(additive_inverse(add(multiply(x,multiply(y,u)),multiply(x,multiply(y,v)))),add(multiply(multiply(x,y),u),multiply(multiply(x,y),v))))] : 177 : "back_simplified"
+    565 : [--equal(additive_inverse(add(multiply(x,multiply(y,u)),additive_inverse(add(multiply(multiply(x,y),u),additive_inverse(add(multiply(x,multiply(y,v)),additive_inverse(multiply(multiply(x,y),v)))))))), add(additive_inverse(add(multiply(x,multiply(y,u)),multiply(x,multiply(y,v)))),add(multiply(multiply(x,y),u),multiply(multiply(x,y),v))))] : rw(rw(544,539),539)
+    566 : [--equal(additive_inverse(add(multiply(x,multiply(y,u)),additive_inverse(add(multiply(multiply(x,y),u),additive_inverse(add(multiply(x,multiply(y,v)),additive_inverse(multiply(multiply(x,y),v)))))))), additive_inverse(add(multiply(x,multiply(y,u)),add(multiply(x,multiply(y,v)),additive_inverse(add(multiply(multiply(x,y),u),multiply(multiply(x,y),v)))))))] : rw(rw(565,539),60)
+    567 : [--equal(additive_inverse(add(multiply(x,multiply(y,u)),additive_inverse(add(multiply(multiply(x,y),u),additive_inverse(add(multiply(x,multiply(y,v)),additive_inverse(multiply(multiply(x,y),v)))))))), additive_inverse(add(multiply(x,multiply(y,u)),add(multiply(x,multiply(y,v)),additive_inverse(add(multiply(multiply(x,y),u),multiply(multiply(x,y),v)))))))] : 566 : "eval"
+    586 : [--equal(additive_inverse(add(multiply(x,multiply(y,u)),additive_inverse(add(multiply(multiply(x,y),u),additive_inverse(add(multiply(x,multiply(y,v)),additive_inverse(multiply(multiply(x,y),v)))))))), additive_inverse(add(multiply(x,multiply(y,u)),add(multiply(x,multiply(y,v)),additive_inverse(add(multiply(multiply(x,y),u),multiply(multiply(x,y),v)))))))] : 567 : "new_given"
+    988 : [++equal(add(X2,add(X1,X3)), add(X1,add(X2,X3)))] : 82 : "new_given"
+   1019 : [++equal(add(X2,add(additive_inverse(X1),X3)), additive_inverse(add(X1,additive_inverse(add(X2,X3)))))] : pm(988,539)
+   1099 : [++equal(add(X2,additive_inverse(add(X1,additive_inverse(X3)))), additive_inverse(add(X1,additive_inverse(add(X2,X3)))))] : rw(1019,539)
+   1100 : [++equal(add(X2,additive_inverse(add(X1,additive_inverse(X3)))), additive_inverse(add(X1,additive_inverse(add(X2,X3)))))] : 1099 : "eval"
+  24033 : [++equal(add(X2,additive_inverse(add(X1,additive_inverse(X3)))), additive_inverse(add(X1,additive_inverse(add(X2,X3)))))] : 1100 : "new_given"
+  24034 : [--equal(additive_inverse(add(multiply(x,multiply(y,u)),additive_inverse(add(multiply(multiply(x,y),u),additive_inverse(add(multiply(x,multiply(y,v)),additive_inverse(multiply(multiply(x,y),v)))))))), additive_inverse(add(multiply(x,multiply(y,u)),add(multiply(x,multiply(y,v)),additive_inverse(add(multiply(multiply(x,y),u),multiply(multiply(x,y),v)))))))] : 586 : "back_simplified"
+  24305 : [--equal(additive_inverse(add(multiply(x,multiply(y,u)),additive_inverse(add(multiply(multiply(x,y),u),additive_inverse(add(multiply(x,multiply(y,v)),additive_inverse(multiply(multiply(x,y),v)))))))), additive_inverse(add(multiply(x,multiply(y,u)),add(multiply(x,multiply(y,v)),additive_inverse(add(multiply(multiply(x,y),u),multiply(multiply(x,y),v)))))))] : 24034 : "eval"
+  24789 : [--equal(additive_inverse(add(multiply(x,multiply(y,u)),add(multiply(x,multiply(y,v)),additive_inverse(add(multiply(multiply(x,y),u),multiply(multiply(x,y),v)))))), additive_inverse(add(multiply(x,multiply(y,u)),add(multiply(x,multiply(y,v)),additive_inverse(add(multiply(multiply(x,y),u),multiply(multiply(x,y),v)))))))] : rw(rw(24305,24033),33)
+  24790 : [] : cn(24789)
+  24791 : [] : 24790 : "new_given"
+  24792 : [] : 24791 : "proof"

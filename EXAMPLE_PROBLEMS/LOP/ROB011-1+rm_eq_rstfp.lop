@@ -1,0 +1,54 @@
+#--------------------------------------------------------------------------
+# File     : ROB011-1 : TPTP v2.1.0. Released v1.0.0.
+# Domain   : Robbins Algebra
+# Problem  : If -(a + -b) = c then -(a + -(b + k(a + c))) = c, k=1
+# Version  : [Win90] (equality) axioms.
+# English  : This is the base step of an induction proof.
+
+# Refs     : [Win90] Winker (1990), Robbins Algebra: Conditions that make a
+# Source   : [Win90]
+# Names    : Lemma 3.4 [Win90]
+
+# Status   : unsatisfiable
+# Rating   : 0.50 v2.1.0, 0.60 v2.0.0
+# Syntax   : Number of clauses    :    9 (   0 non-Horn;   7 unit;   4 RR)
+#            Number of literals   :   11 (   7 equality)
+#            Maximal clause size  :    2 (   1 average)
+#            Number of predicates :    2 (   0 propositional; 1-2 arity)
+#            Number of functors   :    8 (   4 constant; 0-2 arity)
+#            Number of variables  :   11 (   0 singleton)
+#            Maximal term depth   :    7 (   2 average)
+
+# Comments : 
+#          : tptp2X -f setheo:sign -t rm_equality:rstfp ROB011-1.p 
+#--------------------------------------------------------------------------
+# commutativity_of_add, axiom.
+equal(add(X, Y), add(Y, X)) <- .
+
+# associativity_of_add, axiom.
+equal(add(add(X, Y), Z), add(X, add(Y, Z))) <- .
+
+# robbins_axiom, axiom.
+equal(negate(add(negate(add(X, Y)), negate(add(X, negate(Y))))), X) <- .
+
+# one_times_x, axiom.
+equal(multiply(one, X), X) <- .
+
+# times_by_adding, axiom.
+equal(multiply(successor(V), X), add(X, multiply(V, X))) <- 
+    positive_integer(X).
+
+# one, axiom.
+positive_integer(one) <- .
+
+# next_integer, axiom.
+positive_integer(successor(X)) <- 
+    positive_integer(X).
+
+# condition, hypothesis.
+equal(negate(add(a, negate(b))), c) <- .
+
+# prove_base_step, conjecture.
+ <- equal(negate(add(a, negate(add(b, multiply(one, add(a, c)))))), c).
+
+#--------------------------------------------------------------------------

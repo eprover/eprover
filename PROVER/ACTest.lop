@@ -1,0 +1,3 @@
+f(X,Y)=f(Y,X).
+f(X,f(Y,Z))=f(f(X,Y),Z).
+f(g(X),h(Y))!=f(h(Y),g(X)).

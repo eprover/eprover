@@ -1,0 +1,16 @@
+K01_F2_0 
+K02_F2_0 -wconstant -Garity
+K08_F2_0 -wmodarity -Garity
+K01_F2_PI_0 --prefer-initial-clauses
+K02_F2_PI_0 -wconstant -Garity --prefer-initial-clauses
+K08_F2_PI_0 -wmodarity -Garity --prefer-initial-clauses
+K02_F2_PI_S4_0 -wconstant -Garity --prefer-initial-clauses --split-aggressive --split-clauses=4
+K02_F2_PI_AE_0 -wconstant -Garity --prefer-initial-clauses --destructive-er-aggressive --destructive-er
+K02_F2_PI_DE_0 -wconstant -Garity --prefer-initial-clauses --destructive-er
+K02_F2_PI_FU_0 -wconstant -Garity --prefer-initial-clauses --simplify-with-unprocessed-units=FullSimplify
+K02_F2_FU_0 -wconstant -Garity --simplify-with-unprocessed-units=FullSimplify
+
+
+
+
+

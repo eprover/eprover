@@ -1,0 +1,110 @@
+#--------------------------------------------------------------------------
+# File     : CAT005-3 : TPTP v2.1.0. Released v1.0.0.
+# Domain   : Category Theory
+# Problem  : Domain is the unique right identity
+# Version  : [Sco79] axioms : Reduced > Complete.
+# English  : domain(x) is the unique identity i such that xi is defined.
+
+# Refs     : [Sco79] Scott (1979), Identity and Existence in Intuitionist L
+# Source   : [ANL]
+# Names    : p5.ver3.in [ANL]
+
+# Status   : unsatisfiable
+# Rating   : 0.73 v2.1.0, 0.56 v2.0.0
+# Syntax   : Number of clauses    :   21 (   2 non-Horn;   5 unit;  16 RR)
+#            Number of literals   :   43 (  18 equality)
+#            Maximal clause size  :    4 (   2 average)
+#            Number of predicates :    3 (   0 propositional; 1-2 arity)
+#            Number of functors   :    6 (   2 constant; 0-2 arity)
+#            Number of variables  :   33 (   4 singleton)
+#            Maximal term depth   :    3 (   1 average)
+
+# Comments : Axioms simplified by Art Quaife.
+#          : tptp2X -f setheo:sign -t rm_equality:rstfp CAT005-3.p 
+#--------------------------------------------------------------------------
+# equivalence_implies_existence1, axiom.
+there_exists(X) <- 
+    equivalent(X, Y).
+
+# equivalence_implies_existence2, axiom.
+equal(X, Y) <- 
+    equivalent(X, Y).
+
+# existence_and_equality_implies_equivalence1, axiom.
+equivalent(X, Y) <- 
+    there_exists(X),
+    equal(X, Y).
+
+# domain_has_elements, axiom.
+there_exists(X) <- 
+    there_exists(domain(X)).
+
+# codomain_has_elements, axiom.
+there_exists(X) <- 
+    there_exists(codomain(X)).
+
+# composition_implies_domain, axiom.
+there_exists(domain(X)) <- 
+    there_exists(compose(X, Y)).
+
+# domain_codomain_composition1, axiom.
+equal(domain(X), codomain(Y)) <- 
+    there_exists(compose(X, Y)).
+
+# domain_codomain_composition2, axiom.
+there_exists(compose(X, Y)) <- 
+    there_exists(domain(X)),
+    equal(domain(X), codomain(Y)).
+
+# associativity_of_compose, axiom.
+equal(compose(X, compose(Y, Z)), compose(compose(X, Y), Z)) <- .
+
+# compose_domain, axiom.
+equal(compose(X, domain(X)), X) <- .
+
+# compose_codomain, axiom.
+equal(compose(codomain(X), X), X) <- .
+
+# equivalence_implies_existence3, axiom.
+there_exists(Y) <- 
+    equivalent(X, Y).
+
+# existence_and_equality_implies_equivalence2, axiom.
+equivalent(X, Y) <- 
+    there_exists(X),
+    there_exists(Y),
+    equal(X, Y).
+
+# composition_implies_codomain, axiom.
+there_exists(codomain(X)) <- 
+    there_exists(compose(X, Y)).
+
+# indiscernibles1, axiom.
+there_exists(f1(X, Y));
+equal(X, Y) <- .
+
+# indiscernibles2, axiom.
+equal(X, f1(X, Y));
+equal(Y, f1(X, Y));
+equal(X, Y) <- .
+
+# indiscernibles3, axiom.
+equal(X, Y) <- 
+    equal(X, f1(X, Y)),
+    equal(Y, f1(X, Y)).
+
+# ad_exists, hypothesis.
+there_exists(compose(a, d)) <- .
+
+# xd_equals_x, hypothesis.
+equal(compose(X, d), X) <- 
+    there_exists(compose(X, d)).
+
+# dy_equals_y, hypothesis.
+equal(compose(d, Y), Y) <- 
+    there_exists(compose(d, Y)).
+
+# prove_domain_of_a_is_d, conjecture.
+ <- equal(domain(a), d).
+
+#--------------------------------------------------------------------------

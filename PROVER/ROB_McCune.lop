@@ -1,0 +1,8 @@
+add(X,Y) = add(Y,X).
+add(X,add(Y,Z)) = add(add(X,Y),Z).
+n(add(n(add(n(Y),X)),n(add(X,Y))))=X. % Robbins axiom
+#add(X,Y) != X.                        % denial of Winker condition 1
+n(add(X,Y)) != n(X).                  % denial of Winker condition 2
+
+
+

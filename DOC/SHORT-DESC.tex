@@ -1,0 +1,58 @@
+\documentclass{article}
+
+\bibliographystyle{alpha}
+\begin{document}
+
+
+E~0.5~\cite{Schulz:CADE-99} is a purely equational theorem prover for
+clausal logic. It is based on superposition (with literal selection)
+and rewriting. The two most unique features of E are term
+representation and search control. Terms are represented as perfectly
+shared graphs, and rewriting is performed on all instances of a
+particular subterm in parallel. As terms are shared, we can afford to
+store additional information for optimized rewriting with the term
+cells. This includes e.g. term weights and rewritability status with
+respect to a particular system of unit clauses. The proof search is
+organized using the \emph{given-clause} algorithm, and is controlled
+by a \emph{literal selection function} and a \emph{clause selection
+  heuristic}. The clause selection heuristic is realized by a set of
+priority queues and a weighted round robin scheme for picking from
+them. Order within each queue is determined by a priority function
+(e.g. \emph{prefer all negative clauses}) and a weight function
+usually based on symbol counting and term ordering comparisons. A
+simple automatic mode selects a suitable heuristic (for both clause
+and literal selection) based on simple problem features. E is
+implemented in ANSI C and widely portable among modern UNIX variants.
+The latest version of E and additional information is available from
+{\tt \small
+  http://wwwjessen.informatik.tu-muenchen.de/$\sim$schulz/WORK/eprover.html}.
+
+%\bibliography{/home/schulz/TEXT/BIB/stsbib}
+\begin{thebibliography}{Sch99}
+
+\bibitem[Sch99]{Schulz:CADE-99}
+S.~Schulz.
+\newblock {System Abstract: E 0.3}.
+\newblock In H.~Ganzinger, editor, {\em Proc.\ of the 16th CADE, Trento},
+  number 1632 in LNAI, pages 297--391. Springer, 1999.
+
+\end{thebibliography}
+
+\end{document}
+
+
+@InProceedings{Schulz:CADE-99,
+  author =       {S. Schulz},
+  title =        {{System Abstract: E 0.3}},
+  booktitle =    {Proc.\ of the 16th CADE, Trento},
+  editor =       {H. Ganzinger},
+  number =       {1632},
+  series =       {LNAI},
+  year =         {1999},
+  publisher =    {Springer},
+  OPTaddress =   {},
+  OPTmonth =     {},
+  pages =        {297--391},
+  OPTnote =      {},
+  OPTannote =    {}
+}

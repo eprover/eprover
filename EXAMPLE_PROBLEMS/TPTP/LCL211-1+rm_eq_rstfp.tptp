@@ -1,0 +1,59 @@
+%--------------------------------------------------------------------------
+% File     : LCL211-1 : TPTP v2.1.0. Released v1.1.0.
+% Domain   : Logic Calculi (Propositional)
+% Problem  : Principia Mathematica 2.56
+% Version  : [WR27] axioms.
+% English  : 
+
+% Refs     : [WR27]  Whitehead & Russell (1927), Principia Mathematica
+%          : [NSS63] Newell et al. (1963), Empirical Explorations with the 
+%          : [ORo89] O'Rourke (1989), LT Revisited: Explanation-Based Learn
+%          : [SE94]  Segre & Elkan (1994), A High-Performance Explanation-B
+% Source   : [SE94]
+% Names    : Problem 2.56 [WR27]
+
+% Status   : unsatisfiable
+% Rating   : 0.56 v2.1.0, 0.38 v2.0.0
+% Syntax   : Number of clauses    :    9 (   0 non-Horn;   6 unit;   4 RR)
+%            Number of literals   :   14 (   0 equality)
+%            Maximal clause size  :    3 (   1 average)
+%            Number of predicates :    2 (   0 propositional; 1-1 arity)
+%            Number of functors   :    4 (   2 constant; 0-2 arity)
+%            Number of variables  :   17 (   1 singleton)
+%            Maximal term depth   :    5 (   3 average)
+
+% Comments : 
+%          : tptp2X -f tptp -t rm_equality:rstfp LCL211-1.p 
+%--------------------------------------------------------------------------
+input_clause(axiom_1_2,axiom,
+    [++ axiom(or(not(or(A, A)), A))]).
+
+input_clause(axiom_1_3,axiom,
+    [++ axiom(or(not(A), or(B, A)))]).
+
+input_clause(axiom_1_4,axiom,
+    [++ axiom(or(not(or(A, B)), or(B, A)))]).
+
+input_clause(axiom_1_5,axiom,
+    [++ axiom(or(not(or(A, or(B, C))), or(B, or(A, C))))]).
+
+input_clause(axiom_1_6,axiom,
+    [++ axiom(or(not(or(not(A), B)), or(not(or(C, A)), or(C, B))))]).
+
+input_clause(rule_1,axiom,
+    [++ theorem(X),
+     -- axiom(X)]).
+
+input_clause(rule_2,axiom,
+    [++ theorem(X),
+     -- axiom(or(not(Y), X)),
+     -- theorem(Y)]).
+
+input_clause(rule_3,axiom,
+    [++ theorem(or(not(X), Z)),
+     -- axiom(or(not(X), Y)),
+     -- theorem(or(not(Y), Z))]).
+
+input_clause(prove_this,conjecture,
+    [-- theorem(or(not(not(q)), or(not(or(p, q)), p)))]).
+%--------------------------------------------------------------------------

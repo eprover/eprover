@@ -1,0 +1,30 @@
+# This will make E produce a proof using all inference rules but "ef"
+# if called as follows:
+# ./eprover -l4 --split-clauses=3 test_all_rules.lop 
+#
+# "er"     Equality resolution: x!=a v x=x ==> a=a
+# "pm"     Paramodulation
+# "ef"     Equality factoring (BG94): x=a v b=c v x=d ==> 
+#                                     a!=c v b=c vb=d  
+# "split"  Clause splitting a la Vampire (non-deductive, but maintains
+#          unsatisfiability)  
+# "rw"     Rewriting, can mean repeated application (but only of one
+#          equation in one direction
+# "sr"     Simplify-reflect: a=b and f(a)!=f(b) => empty clause
+# "ar"     AC-resolution: Delete literals that are trivial modulo the
+#          AC-theory induced by the named clauses
+# "cn"     Clause normalize, delete trivial and repeated literals
+
+
+f(X,Y) = f(Y,X).
+f(X,f(Y,Z)) = f(f(X,Y),Z).
+g(X,Y) = g(Y,X).
+<- f(f(X,Y),f(Z,g(U,V)))=f(f(g(U,V),Z),f(Y,X)),k(X,X)=k(a,b).
+
+b=c <- X=Y, Z=U, c=d.
+
+a=b; a=c <-.
+
+i(X)=i(Y).
+c=d <- h(i(a))=h(i(e)).
+

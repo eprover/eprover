@@ -1,0 +1,1295 @@
+/*-----------------------------------------------------------------------
+
+File  : che_clausesetfeatures.c
+
+Author: Stephan Schulz
+
+Contents
+ 
+  Functions for calculating certain features of clause sets.
+
+  Copyright 1998, 1999 by the author.
+  This code is released under the GNU General Public Licence.
+  See the file COPYING in the main CLIB directory for details.
+  Run "eprover -h" for contact information.
+
+Changes
+
+<1> Tue Sep 29 02:50:34 MET DST 1998
+    New
+
+-----------------------------------------------------------------------*/
+
+#include "che_clausesetfeatures.h"
+
+
+/*---------------------------------------------------------------------*/
+/*                        Global Variables                             */
+/*---------------------------------------------------------------------*/
+
+double FewLimit  = FEW_DEFAULT;
+double ManyLimit = MANY_DEFAULT;
+
+/*---------------------------------------------------------------------*/
+/*                      Forward Declarations                           */
+/*---------------------------------------------------------------------*/
+
+
+/*---------------------------------------------------------------------*/
+/*                         Internal Functions                          */
+/*---------------------------------------------------------------------*/
+
+
+
+/*---------------------------------------------------------------------*/
+/*                         Exported Functions                          */
+/*---------------------------------------------------------------------*/
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetCountGoals()
+//
+//   Count number of goal clauses.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetCountGoals(ClauseSet_p set)
+{
+   long     res = 0;
+   Clause_p handle;
+   
+   for(handle = set->anchor->succ; handle!=set->anchor; handle =
+	  handle->succ)
+   {
+      if(ClauseIsGoal(handle))
+      {
+	 res++;
+      }
+   }
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetCountUnit()
+//
+//   Count the unit clauses in set.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetCountUnit(ClauseSet_p set)
+{
+   long     res = 0;
+   Clause_p handle;
+   
+   for(handle = set->anchor->succ; handle!=set->anchor; handle =
+	  handle->succ)
+   {
+      if(ClauseIsUnit(handle))
+      {
+	 res++;
+      }
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetCountUnitGoals()
+//
+//   Count the unit goal clauses in set.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetCountUnitGoals(ClauseSet_p set)
+{
+   long     res = 0;
+   Clause_p handle;
+   
+   for(handle = set->anchor->succ; handle!=set->anchor; handle =
+	  handle->succ)
+   {
+      if(ClauseIsUnit(handle)&&ClauseIsGoal(handle))
+      {
+	 res++;
+      }
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetCountHorn()
+//
+//   Count the unit clauses in set.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetCountHorn(ClauseSet_p set)
+{
+   long     res = 0;
+   Clause_p handle;
+   
+   for(handle = set->anchor->succ; handle!=set->anchor; handle =
+	  handle->succ)
+   {
+      if(ClauseIsHorn(handle))
+      {
+	 res++;
+      }
+   }
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetCountHornGoals()
+//
+//   Count the unit clauses in set.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetCountHornGoals(ClauseSet_p set)
+{
+   long     res = 0;
+   Clause_p handle;
+   
+   for(handle = set->anchor->succ; handle!=set->anchor; handle =
+	  handle->succ)
+   {
+      if(ClauseIsHorn(handle)&&ClauseIsGoal(handle))
+      {
+	 res++;
+      }
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetCountEquational()
+//
+//   Count number of clauses with at least one equational literal.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetCountEquational(ClauseSet_p set)
+{
+   long     res = 0;
+   Clause_p handle;
+   
+   for(handle = set->anchor->succ; handle!=set->anchor; handle =
+	  handle->succ)
+   {
+      if(ClauseIsEquational(handle))
+      {
+	 res++;
+      }
+   }
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetCountPureEquational()
+//
+//   Count number of clauses which have only equational literals.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetCountPureEquational(ClauseSet_p set)
+{
+   long     res = 0;
+   Clause_p handle;
+   
+   for(handle = set->anchor->succ; handle!=set->anchor; handle =
+	  handle->succ)
+   {
+      if(ClauseIsPureEquational(handle))
+      {
+	 res++;
+      }
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetCountPosUnits()
+//
+//   Count number of positive unit clauses.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetCountPosUnits(ClauseSet_p set)
+{
+   long     res = 0;
+   Clause_p handle;
+   
+   for(handle = set->anchor->succ; handle!=set->anchor; handle =
+	  handle->succ)
+   {
+      if(ClauseIsDemodulator(handle))
+      {
+	 res++;
+      }
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetCountGroundGoals()
+//
+//   Count number of ground goal clauses.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetCountGroundGoals(ClauseSet_p set)
+{
+   long     res = 0;
+   Clause_p handle;
+   
+   for(handle = set->anchor->succ; handle!=set->anchor; handle =
+	  handle->succ)
+   {
+      if(ClauseIsGoal(handle) && ClauseIsGround(handle))
+      {
+	 res++;
+      }
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetCountGround()
+//
+//   Count number of ground clauses.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetCountGround(ClauseSet_p set)
+{
+   long     res = 0;
+   Clause_p handle;
+   
+   for(handle = set->anchor->succ; handle!=set->anchor; handle =
+	  handle->succ)
+   {
+      if(ClauseIsGround(handle))
+      {
+	 res++;
+      }
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetCountGroundUnitAxioms()
+//
+//   Count number of positive ground unit clauses.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetCountGroundUnitAxioms(ClauseSet_p set)
+{
+   long     res = 0;
+   Clause_p handle;
+   
+   for(handle = set->anchor->succ; handle!=set->anchor; handle =
+	  handle->succ)
+   {
+      if(ClauseIsDemodulator(handle) && ClauseIsGround(handle))
+      {
+	 res++;
+      }
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetCountGroundPositiveAxioms()
+//
+//   Count number of positive ground clauses.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetCountGroundPositiveAxioms(ClauseSet_p set)
+{
+   long     res = 0;
+   Clause_p handle;
+   
+   for(handle = set->anchor->succ; handle!=set->anchor; handle =
+	  handle->succ)
+   {
+      if(ClauseIsPositive(handle) && ClauseIsGround(handle))
+      {
+	 res++;
+      }
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetCountPositiveAxioms()
+//
+//   Count number of positive ground clauses.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetCountPositiveAxioms(ClauseSet_p set)
+{
+   long     res = 0;
+   Clause_p handle;
+   
+   for(handle = set->anchor->succ; handle!=set->anchor; handle =
+	  handle->succ)
+   {
+      if(ClauseIsPositive(handle))
+      {
+	 res++;
+      }
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetCountTPTPRangeRestricted()
+//
+//   Count number of positive ground clauses.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetCountTPTPRangeRestricted(ClauseSet_p set)
+{
+   long     res = 0;
+   Clause_p handle;
+   
+   for(handle = set->anchor->succ; handle!=set->anchor; handle =
+	  handle->succ)
+   {
+      if(ClauseIsTPTPRangeRestricted(handle))
+      {
+	 res++;
+      }
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetNonGoundAxiomPart()
+//
+//   Return the percentage of non-ground clauses among the unit
+//   clauses (0 if no unit clauses exist).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+double ClauseSetNonGoundAxiomPart(ClauseSet_p set)
+{
+   long tmp = ClauseSetCountUnitAxioms(set);
+
+   if(tmp == 0)
+   {
+      return 0.0;
+   }
+   return (tmp-ClauseSetCountGroundUnitAxioms(set))/(double)tmp;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetCollectArityInformation()
+//
+//   Collect information about the arities of function and predicate
+//   symbol arities. Average and sum for function symbols does not
+//   include constants, it does for predicate symbols. Equality is not
+//   counted, Returns number of function symbol constants.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetCollectArityInformation(ClauseSet_p set, Sig_p sig,
+				      int *max_fun_arity,
+				      int *avg_fun_arity,
+				      int *sum_fun_arity,
+				      int *max_pred_arity,
+				      int *avg_pred_arity,
+				      int *sum_pred_arity)
+{
+   int max_f_arity = 0,
+      sum_f_arity = 0,
+      f_count = 0,
+      c_count = 0;
+   int max_p_arity = 0,
+      sum_p_arity = 0,
+      p_count = 0;
+   long  array_size = sizeof(long)*(sig->f_count+1);
+   long *dist_array= SizeMalloc(array_size);
+   FunCode i;
+
+   for(i=1; i<= sig->f_count; i++)
+   {
+      dist_array[i] = 0;
+   }
+   ClauseSetAddSymbolDistribution(set, dist_array);
+   
+   for(i=1; i<= sig->f_count; i++)
+   {
+      if(!SigIsSpecial(sig, i)&&dist_array[i])
+      {
+	 short arity = SigFindArity(sig, i);
+	 if(SigIsPredicate(sig, i))
+	 {
+	    max_p_arity = MAX(arity, max_p_arity);
+	    sum_p_arity += arity;
+	    p_count++;
+	 }
+	 else
+	 {
+	    if(arity)
+	    {
+	       max_f_arity = MAX(arity, max_f_arity);
+	       sum_f_arity += arity;
+	       f_count++;
+	       
+	    }
+	    else
+	    {
+	       c_count++;
+	    }
+	 }
+      }
+   }
+   SizeFree(dist_array, array_size);
+   
+   *max_fun_arity = max_f_arity;
+   *avg_fun_arity = f_count?sum_f_arity/f_count:0;
+   *sum_fun_arity = sum_f_arity;
+   *max_pred_arity = max_p_arity;
+   *avg_pred_arity = p_count?sum_p_arity/p_count:0;
+   *sum_pred_arity = sum_p_arity;
+
+   return c_count;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetCountMaximalTerms()
+//
+//   Count the number of maximal terms in maximal literals in clauses
+//   in set.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetCountMaximalTerms(ClauseSet_p set)
+{
+   Clause_p handle;
+   long     res = 0;
+
+   for(handle = set->anchor->succ; handle!=set->anchor; handle =
+	  handle->succ)
+   {
+      res += ClauseCountMaximalTerms(handle);
+   }
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetCountMaximalLiterals()
+//
+//   Count the number of maximal literals in clauses in set.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetCountMaximalLiterals(ClauseSet_p set)
+{
+   Clause_p handle;
+   long     res = 0;
+
+   for(handle = set->anchor->succ; handle!=set->anchor; handle =
+	  handle->succ)
+   {
+      res += ClauseCountMaximalLiterals(handle);
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetCountVariables()
+//
+//   Count the number of variables in a clause set, where variables in
+//   different clauses are considered to be distinct.
+//
+// Global Variables: -
+//
+// Side Effects    : By calling ClauseCountVariableSet
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetCountVariables(ClauseSet_p set)
+{
+   Clause_p handle;
+   long     res = 0;
+   
+   for(handle = set->anchor->succ; handle!=set->anchor; handle =
+	  handle->succ)
+   {
+      res += ClauseCountVariableSet(handle);
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetCountSingletons()
+//
+//   Count the number of singletons in a clause set, where variables in
+//   different clauses are considered to be distinct.
+//
+// Global Variables: -
+//
+// Side Effects    : By calling ClauseCountSingletonSet
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetCountSingletons(ClauseSet_p set)
+{
+   Clause_p handle;
+   long     res = 0;
+   
+   for(handle = set->anchor->succ; handle!=set->anchor; handle =
+	  handle->succ)
+   {
+      res += ClauseCountSingletonSet(handle);
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetTPTPDepthInfoAdd()
+//
+//   Add the depth information in TPTP interpretation to the
+//   variables. See che_clausefeatures.c for more.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetTPTPDepthInfoAdd(ClauseSet_p set, long* depthmax, long*
+			       depthsum, long* count)
+{
+   Clause_p handle;
+   
+   for(handle = set->anchor->succ; handle!=set->anchor; handle =
+	  handle->succ)
+   {
+      ClauseTPTPDepthInfoAdd(handle, depthmax, depthsum, count);
+   }
+   return *depthmax;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetCountUnorientableLiterals()
+//
+//   Count the number of Unorientable literals in clauses in set.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetCountUnorientableLiterals(ClauseSet_p set)
+{
+   Clause_p handle;
+   long     res = 0;
+
+   for(handle = set->anchor->succ; handle!=set->anchor; handle =
+	  handle->succ)
+   {
+      res += ClauseCountUnorientableLiterals(handle);
+   }
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetCountEqnLiterals()
+//
+//   Count the number of equational literals in clauses in set.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetCountEqnLiterals(ClauseSet_p set)
+{
+   Clause_p handle;
+   long     res = 0;
+
+   for(handle = set->anchor->succ; handle!=set->anchor; handle =
+	  handle->succ)
+   {
+      res += ClausePropLitNumber(handle, EPIsEquLiteral);
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetTermCells()
+//
+//   Return the number of term positions in the clause set.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetTermCells(ClauseSet_p set)
+{
+   Clause_p handle;
+   long     res = 0;
+
+   for(handle = set->anchor->succ; handle!=set->anchor; handle =
+	  handle->succ)
+   {
+      res += ClauseWeight(handle, 1, 1, 1, 1, 1, false);
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetMaxLiteralNumber()
+//
+//   Return the length of the longest clause.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetMaxLiteralNumber(ClauseSet_p set)
+{
+   Clause_p handle;
+   long     res = 0;
+
+   for(handle = set->anchor->succ; handle!=set->anchor; handle =
+	  handle->succ)
+   {
+      res = MAX(res, ClauseLiteralNumber(handle));
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SpecFeaturesCompute()
+//
+//   Compute all relevant features for a set of clauses.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p set,
+			 Sig_p sig)
+{
+   features->clauses          = set->members;
+   features->goals            = ClauseSetCountGoals(set);
+   features->axioms           = features->clauses-features->goals;
+
+   features->literals         = set->literals;
+   features->term_cells       = ClauseSetTermCells(set);
+
+   features->unit             = ClauseSetCountUnit(set);
+   features->unitgoals        = ClauseSetCountUnitGoals(set);
+   features->unitaxioms       = features->unit-features->unitgoals;
+
+   features->horn             = ClauseSetCountHorn(set);
+   features->horngoals        = ClauseSetCountHornGoals(set);
+   features->hornaxioms       = features->horn-features->horngoals;
+
+   features->eq_clauses       = ClauseSetCountEquational(set);
+   features->peq_clauses      = ClauseSetCountPureEquational(set);
+   features->groundunitaxioms = ClauseSetCountGroundUnitAxioms(set);
+   features->groundgoals      = ClauseSetCountGroundGoals(set);   
+   features->positiveaxioms   = ClauseSetCountPositiveAxioms(set);
+   features->groundpositiveaxioms = ClauseSetCountGroundPositiveAxioms(set);
+   features->fun_const_count   = 
+      ClauseSetCollectArityInformation(set, sig,
+				       &(features->max_fun_arity),
+				       &(features->avg_fun_arity),
+				       &(features->sum_fun_arity),
+				       &(features->max_pred_arity),
+				       &(features->avg_pred_arity),
+				       &(features->sum_pred_arity));
+
+   features->goals_are_ground = (features->groundgoals ==
+				 features->goals);
+   
+   if(features->unitaxioms == features->axioms)
+   {
+      features->axiomtypes = SpecUnit;
+   }
+   else if(features->hornaxioms == features->axioms)
+   {     
+      features->axiomtypes = SpecHorn;
+   }
+   else 
+   {
+      features->axiomtypes = SpecGeneral;
+   }
+
+   if(features->unitgoals == features->goals)
+   {
+      features->goaltypes = SpecUnit;
+   }
+   else if(features->horngoals == features->goals)
+   {     
+      features->goaltypes = SpecHorn;
+   }
+   else 
+   {
+      features->goaltypes = SpecGeneral;
+   }
+   
+   if(features->peq_clauses == features->clauses)
+   {
+      features->eq_content = SpecPureEq;
+   }
+   else if(features->eq_clauses)
+   {     
+      features->eq_content = SpecSomeEq;
+   }
+   else 
+   {
+      features->eq_content = SpecNoEq;
+   }
+   
+   switch(features->max_fun_arity)
+   {
+   case 0:
+	 features->max_fun_ar_class = SpecMaxArity0;
+	 break;
+   case 1:
+	 features->max_fun_ar_class = SpecMaxArity1;
+	 break;
+   case 2:
+	 features->max_fun_ar_class = SpecMaxArity2;
+	 break;
+   default:
+	 features->max_fun_ar_class = SpecMaxArity3Plus;
+	 break;
+   }
+   features->ng_unit_axioms_part = features->unitaxioms?
+      ((double)(features->unitaxioms-features->groundunitaxioms)/
+      (double)(features->unitaxioms))
+      :0.0;
+
+   features->ground_positive_axioms_part = features->positiveaxioms?
+      ((double)(features->groundpositiveaxioms)/
+       (double)(features->positiveaxioms))
+      :0.0;
+   
+   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SpecFeaturesAddEval()
+//
+//   Add the cheap, subjective things to a SpecFeatureCell.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void SpecFeaturesAddEval(SpecFeature_p features, double few_limit,
+			 double many_limit, bool absolute, long
+			 ax_some_limit, long ax_many_limit, long
+			 lit_some_limit, long lit_many_limit, long
+			 term_medium_limit, long term_large_limit)
+{
+   if(absolute)
+   {
+      features->ng_unit_content = SpecFewPosNonGroundUnits;
+      if((features->unitaxioms-features->groundunitaxioms)>
+	 few_limit)
+      {
+	 features->ng_unit_content = SpecSomePosNonGroundUnits;
+      }
+      if((features->unitaxioms-features->groundunitaxioms)>
+	 many_limit)
+      {
+	 features->ng_unit_content = SpecManyPosNonGroundUnits;
+      }
+   }
+   else
+   {
+      if(features->ng_unit_axioms_part<=few_limit)
+      {
+	 features->ng_unit_content = SpecFewPosNonGroundUnits;
+      }
+      else if(features->ng_unit_axioms_part>=many_limit)
+      {
+	 features->ng_unit_content = SpecManyPosNonGroundUnits;
+      }
+      else
+      {
+	 features->ng_unit_content = SpecSomePosNonGroundUnits;
+      }
+   }
+
+   if(absolute)
+   {
+      features->ground_positive_content = SpecFewPosGround;
+      if(features->groundpositiveaxioms > few_limit)
+      {
+	 features->ground_positive_content = SpecSomePosGround;
+      }
+      if(features->groundpositiveaxioms > many_limit)
+      {
+	 features->ground_positive_content = SpecManyPosGround;
+      }
+   }
+   else
+   {
+      if(features->ground_positive_axioms_part<=few_limit)
+      {
+	 features->ground_positive_content = SpecFewPosGround;
+      }
+      else if(features->ground_positive_axioms_part>=many_limit)
+      {
+	 features->ground_positive_content = SpecManyPosGround;
+      }
+      else
+      {
+	 features->ground_positive_content = SpecSomePosGround;
+      }
+   }
+
+   if(features->clauses < ax_some_limit)
+   {
+      features->set_clause_size = SpecFewAxioms;
+   }
+   else if(features->clauses < ax_many_limit)
+   {
+      features->set_clause_size = SpecSomeAxioms;
+   }
+   else
+   {
+      features->set_clause_size = SpecManyAxioms;
+   }
+
+   if(features->literals < lit_some_limit)
+   {
+      features->set_literal_size = SpecFewLiterals;
+   }
+   else if(features->literals < lit_many_limit)
+   {
+      features->set_literal_size = SpecSomeLiterals;
+   }
+   else
+   {
+      features->set_literal_size = SpecManyLiterals;
+   }
+    
+   if(features->term_cells < term_medium_limit)
+   {
+      features->set_termcell_size = SpecSmallTerms;
+   }
+   else if(features->term_cells < term_large_limit)
+   {
+      features->set_termcell_size = SpecMediumTerms;
+   }
+   else
+   {
+      features->set_termcell_size = SpecLargeTerms;
+   }    
+}
+
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SpecFeaturesPrint()
+//
+//   Print the feature vector.
+//
+// Global Variables: -
+//
+// Side Effects    : Outpur
+//
+/----------------------------------------------------------------------*/
+
+void SpecFeaturesPrint(FILE* out, SpecFeature_p features)
+{
+   assert(features);
+
+   fprintf(out, 
+	   "(%3ld, %3ld, %3ld, %3ld, %3ld, %3ld, %3ld, %3ld, %3ld,"
+	   " %3ld, %3ld, %3ld, %3ld, %3ld, %3ld, %8.6f, %8.6f, %d)",
+	   features->goals,
+	   features->axioms,
+	   features->clauses,
+	   features->literals,
+	   features->term_cells,
+	   features->unitgoals,
+	   features->unitaxioms,
+	   features->horngoals,
+	   features->hornaxioms,
+	   features->eq_clauses,
+	   features->peq_clauses,
+	   features->groundunitaxioms,
+	   features->groundgoals,
+	   features->groundpositiveaxioms,
+	   features->positiveaxioms,
+	   features->ng_unit_axioms_part,
+	   features->ground_positive_axioms_part,
+	   features->max_fun_arity
+      );
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: SpecTypePrint()
+//
+//   Print the type of the problem as a 5-letter code. 
+//   1) Axioms are [U]nit, [H]orn, [General]
+//   2) Goals  are [U]nit, [H]orn, [General]
+//   3) [N]o equality, [S]ome equality, [P]ure equality
+//   4) [F]ew, [S]ome, [M]any non-ground facts
+//   5) [G]round goals or [N]o ground goals
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void SpecTypePrint(FILE* out, SpecFeature_p features, char* mask)
+{
+   const char encoding[]="UHGNSPFSMFSMFSMFSMSML0123";
+   char       result[10];
+   int        i, limit;
+
+   assert(features);
+   assert(mask && (strlen(mask)==10));
+   limit = strlen(mask);
+
+   sprintf(result, "%c%c%c%c%c%c%c%c%c%c", 
+	   encoding[features->axiomtypes],
+	   encoding[features->goaltypes],
+	   encoding[features->eq_content],
+	   encoding[features->ng_unit_content],
+	   features->goals_are_ground?'G':'N',
+	   encoding[features->set_clause_size],
+	   encoding[features->set_literal_size],
+	   encoding[features->set_termcell_size],
+	   encoding[features->ground_positive_content],
+	   encoding[features->max_fun_ar_class]);
+   for(i=0; i<limit; i++)
+   {
+      if(mask[i]=='-')
+      {
+	 result[i]= '-';
+      }
+   }
+   fprintf(out, result);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetPrintPosUnits()
+//
+//   Print the positive unit clauses from set.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void ClauseSetPrintPosUnits(FILE* out, ClauseSet_p set, bool
+			    printinfo)
+{
+   Clause_p handle;
+
+   for(handle = set->anchor->succ; handle!=set->anchor; handle =
+          handle->succ)
+   {
+      if(ClauseIsDemodulator(handle))
+      {
+	 ClauseLinePrint(out, handle, printinfo);
+      }
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetPrintNegUnits()
+//
+//   Print the negative unit clauses from set.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void ClauseSetPrintNegUnits(FILE* out, ClauseSet_p set, bool
+			    printinfo)
+{
+   Clause_p handle;
+
+   for(handle = set->anchor->succ; handle!=set->anchor; handle =
+          handle->succ)
+   {
+      if(ClauseIsUnit(handle)&&ClauseIsGoal(handle))
+      {
+	 ClauseLinePrint(out, handle, printinfo);
+      }
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetPrintNonUnits()
+//
+//   Print the non-unit clauses from set.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void ClauseSetPrintNonUnits(FILE* out, ClauseSet_p set, bool
+			    printinfo)
+{
+   Clause_p handle;
+
+   for(handle = set->anchor->succ; handle!=set->anchor; handle =
+          handle->succ)
+   {
+      if(!ClauseIsUnit(handle))
+      {
+	 ClauseLinePrint(out, handle, printinfo);
+      }
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ProofStatePrintSelective()
+//
+//   Print parts of the proof state to the given stream. Descriptor
+//   controls which parts. 
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void ProofStatePrintSelective(FILE* out, ProofState_p state, char*
+			      descriptor, bool printinfo)
+{
+   char* current = descriptor;
+
+   while(*current)
+   {
+      switch(*current)
+      {
+      case 'e':
+	    fprintf(out, "# Processed positive unit clauses:\n");
+	    ClauseSetPrintPosUnits(out, state->processed_pos_rules,
+				   printinfo);
+	    ClauseSetPrintPosUnits(out, state->processed_pos_eqns,
+				   printinfo);
+	    fputc('\n', out);
+	    break;
+      case 'i':
+	    fprintf(out, "# Processed negative unit clauses:\n");
+	    ClauseSetPrintNegUnits(out, state->processed_neg_units,
+				   printinfo);
+	    fputc('\n', out);
+	    break;
+      case 'g':
+	    fprintf(out, "# Processed non-unit clauses:\n");
+	    ClauseSetPrintNonUnits(out, state->processed_non_units,
+				   printinfo);
+	    fputc('\n', out);
+	    break;
+      case 'E':
+	    fprintf(out, "# Unprocessed positive unit clauses:\n");
+	    ClauseSetPrintPosUnits(out, state->unprocessed,
+				   printinfo);
+	    fputc('\n', out);
+	    break;
+      case 'I':
+	    fprintf(out, "# Unprocessed negative unit clauses:\n");
+	    ClauseSetPrintNegUnits(out, state->unprocessed,
+				   printinfo);
+	    fputc('\n', out);
+	    break;
+      case 'G':
+	    fprintf(out, "# Unprocessed non-unit clauses:\n");
+	    ClauseSetPrintNonUnits(out, state->unprocessed,
+				   printinfo);
+	    fputc('\n', out);
+	    break;	    
+      case 'a':
+	    if(ClauseSetIsEquational(state->axioms))
+	    {
+	       fprintf(out, "# Equality axioms:\n");	    
+	       EqAxiomsPrint(out, state->signature, true);
+	    }
+	    else
+	    {
+	       fprintf(out, "# No equality axioms required.\n");	       
+	    }
+	       
+	    break;
+      case 'A':
+	    if(ClauseSetIsEquational(state->axioms))
+	    {
+	       fprintf(out, "# Equality axioms:\n");	    
+	       EqAxiomsPrint(out, state->signature, false);
+	    }
+	    else
+	    {
+	       fprintf(out, "# No equality axioms required.\n");	       
+	    }	    
+	    break;
+      default: 
+	    assert(false && "Illegal character in descriptor string");
+	    break;
+      }
+      current++;
+   }   
+}
+
+
+/*---------------------------------------------------------------------*/
+/*                        End of File                                  */
+/*---------------------------------------------------------------------*/
+
+

@@ -1,0 +1,8 @@
+5  SelectComplexExceptUniqMaxHorn
+6  PSelectComplexExceptUniqMaxHorn
+S  SelectComplex
+T  PSelectComplex
+U  SelectComplexExceptRRHorn
+V  PSelectComplexExceptRRHorn
+I  SelectUnlessUniqMax
+J  PSelectUnlessUniqMax
