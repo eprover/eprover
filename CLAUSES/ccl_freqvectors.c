@@ -356,7 +356,7 @@ void VarFreqVectorAddVals(FreqVector_p vec, long symbols, FVIndexType features,
    }   
    if(unused)
    {
-      SizeFree(unused, unused_size);
+      SizeFree(unused, sizeof(long)*unused_size);
    }
 }
 

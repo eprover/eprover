@@ -224,7 +224,7 @@ void TermPrint(FILE* out, Term_p term, Sig_p sig, DerefType deref)
    {
       if(TermIsVar(term))
       {
-	 fprintf(out, "X%ld_%p", -term->f_code,term);
+	 fprintf(out, "X%ld", -term->f_code);
       }
       else
       {
