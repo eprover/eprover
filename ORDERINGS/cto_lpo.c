@@ -387,21 +387,25 @@ static bool lpo4_lex_ma(OCB_p ocb, Term_p s, Term_p t, int pos,
 {
    assert(s->f_code == t->f_code);
    
-   if(pos == s->arity)
+   for(/* Nothing */; pos<s->arity; pos++)
    {
-      return false;
+      if(pos >= t->arity) /* s->args >_lex t->args */
+      {
+         return true;
+      }
+      if(TermStructEqualDerefHardVars(s->args[pos], t->args[pos], deref_s, deref_t))
+      {
+         /* Next argument */
+         continue;         
+      }
+      if(lpo4_greater(ocb, s->args[pos], t->args[pos], deref_s, deref_t))
+      {
+         return lpo4_majo(ocb, s,t,pos+1, deref_s, deref_t);
+      }
+      return lpo4_alpha(ocb, s, pos+1, t, deref_s, deref_t);
    }
-   if(TermStructEqualDerefHardVars(s->args[pos], t->args[pos], deref_s, deref_t))
-   {
-      return lpo4_lex_ma(ocb, s, t, pos+1, deref_s, deref_t);
-   }
-   if(lpo4_greater(ocb, s->args[pos], t->args[pos], deref_s, deref_t))
-   {
-      return lpo4_majo(ocb, s,t,pos+1, deref_s, deref_t);
-   }
-   return lpo4_alpha(ocb, s, pos+1, t, deref_s, deref_t);
+   return false;
 }
-
 
 /*-----------------------------------------------------------------------
 //
@@ -415,32 +419,49 @@ static bool lpo4_lex_ma(OCB_p ocb, Term_p s, Term_p t, int pos,
 //
 /----------------------------------------------------------------------*/
 
+
 static bool lpo4_greater(OCB_p ocb, Term_p s, Term_p t, 
                          DerefType deref_s, DerefType deref_t)
 {
+   static long   recursion_depth = 0;
    CompareResult f_code_res;
+   bool res;
+
+   if(recursion_depth > LPORecursionDepthLimit)
+   {
+      return false;
+   }
+   recursion_depth++;
 
    s = TermDeref(s, &deref_s);
    t = TermDeref(t, &deref_t);
    
    if(TermIsVar(s))
-   {
-      return false;
+   {      
+      res = false;
    }
-   if(TermIsVar(t))
+   else if(TermIsVar(t))
    {
-      return TermIsSubterm(s, t, deref_s, TBTermEqual);
+      res = TermIsSubterm(s, t, deref_s, TBTermEqual);
    }
-   f_code_res = OCBFunCompare(ocb, s->f_code, t->f_code);
-   if(f_code_res==to_greater)
+   else
    {
-      return lpo4_majo(ocb, s, t, 0, deref_s, deref_t);
+      f_code_res = OCBFunCompare(ocb, s->f_code, t->f_code);
+      if(f_code_res==to_greater)
+      {
+         res = lpo4_majo(ocb, s, t, 0, deref_s, deref_t);
+      }
+      else if(f_code_res==to_equal)
+      {
+         res = lpo4_lex_ma(ocb, s, t, 0, deref_s, deref_t);
+      }
+      else
+      {
+         res = lpo4_alpha(ocb, s, 0, t, deref_s, deref_t);
+      }
    }
-   if(f_code_res==to_equal)
-   {
-      return lpo4_lex_ma(ocb, s, t, 0, deref_s, deref_t);
-   }
-   return lpo4_alpha(ocb, s, 0, t, deref_s, deref_t);
+   recursion_depth--;
+   return res;
 }
 
 
@@ -695,7 +716,7 @@ bool LPO4Greater(OCB_p ocb, Term_p s, Term_p t,
    res =  lpo4_greater(ocb, s, t, deref_s, deref_t);
    /* printf("...LPO4Greater()=%d\n", res); */
    assert(res == LPOGreater(ocb, s, t, deref_s, deref_t));
-   return res;
+  return res;
 }
 
 
