@@ -119,6 +119,7 @@ typedef enum
    OPT_NO_INDEXED_SUBSUMPTION,
    OPT_FVINDEX_STYLE,
    OPT_FVINDEX_MAXDEPTH,
+   OPT_FVINDEX_SLACK,
    OPT_UNPROC_UNIT_SIMPL,
    OPT_DEFINE_WFUN,
    OPT_DEFINE_HEURISTIC,
@@ -706,9 +707,18 @@ OptCell opts[] =
     '\0', "fvindex-maxdepth",
     OptArg, "200",
     "Set the maximum dept of the FV-Index for subsumption. Maximal "
-    "theoretical depth is 2*signature size + 3 at the moment. If you "
+    "theoretical depth is 4*(signature size + slack) + 2 at the moment. If you "
     "set a small limit here, you should probably also choose 'Perm' (the"
     " default) or 'PermOpt' for the previous option."},
+   
+   {OPT_FVINDEX_SLACK,
+    '\0', "fvindex-slack",
+    OptArg, "0",
+    "Set the number of slots reserved for symbols that may be introduced "
+    "later, e.g. by splitting.If no new symbols are introduced, this just "
+    "wastes time and memory.If PermOpt is choosen, the slackness slots will "
+    "be deleted from the index anyways, but will still waste time in "
+    "computing frequency vectors."},
 
    {OPT_UNPROC_UNIT_SIMPL,
     '\0', "simplify-with-unprocessed-units",
@@ -1131,7 +1141,7 @@ CLState_p process_options(int argc, char* argv[])
 	       TmpErrno = errno;
 	       SysError("Unable to get current memory limit", SYS_ERROR);
 	    }
-	    limit.rlim_cur = MEGA*h_parms->mem_limit;
+	    limit.rlim_cur = ((rlim_t)(MEGA))*h_parms->mem_limit;
 	    if(setrlimit(RLIMIT_DATA, &limit))
 	    {
 	       TmpErrno = errno;
@@ -1326,7 +1336,7 @@ CLState_p process_options(int argc, char* argv[])
 	       h_parms->ordertype = AUTO;
 	    }
 #ifdef SAFELOGIC
-	    else if(strcmp(arg, "SLAuto")==0)
+	    else if(strcmp(arg, "Auto")==0)
 	    {
 	       h_parms->ordertype = SL_AUTO;
 	    }
@@ -1482,12 +1492,21 @@ CLState_p process_options(int argc, char* argv[])
 	       Error("Argument to option --fvindex-maxdepth "
 		     "has to be > 0", USAGE_ERROR);
 	    }
-	    if(tmp<=2)
+	    if(tmp<=5)
 	    {
 	       Warning("FV-Index depth will automatically be adjusted to "
-		       "5 for direct mapped indices.");
+		       "6 for direct mapped indices.");
 	    }	    
 	    fvi_parms->max_features = tmp;
+	    break;
+      case OPT_FVINDEX_SLACK:
+	    tmp = CLStateGetIntArg(handle, arg);
+	    if(tmp<0)
+	    {
+	       Error("Argument to option --fvindex-slack "
+		     "has to be >= 0", USAGE_ERROR);
+	    }
+	    fvi_parms->symbol_slack = tmp;
 	    break;
       case OPT_UNPROC_UNIT_SIMPL:
 	    h_parms->unproc_simplify = TransUnitSimplifyString(arg);
