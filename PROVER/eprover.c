@@ -32,13 +32,13 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-#define VERSION      "0.82rc002"
+#define VERSION      "0.82"
 #define NAME         "eprover"
 
 #ifdef SAFELOGIC
-#define NICKNAME     "Tumsong (Proprietary Safelogic build)"
+#define NICKNAME     "Lung Ching (Proprietary Safelogic build)"
 #else
-#define NICKNAME     "Tumsong"
+#define NICKNAME     "Lung Ching"
 #endif
 
 typedef enum
@@ -382,7 +382,7 @@ OptCell opts[] =
     "Do not perform preprocessing on the initial clause set. "
     "Preprocessing currently removes tautologies and orders terms, "
     "literals and clauses in a certain (\"canonical\") way before "
-    "anything else happens. Unless the next option is set, it will"
+    "anything else happens. Unless the next option is set, it will "
     "also unfold equational definitions."},
    {OPT_NO_EQ_UNFOLD,
     '\0', "no-eq-unfolding",

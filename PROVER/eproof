@@ -19,6 +19,7 @@ timeout=""
 
 cleanup () 
 {  
+    ulimit -S unlimited
     touch $tmpfile $tmpfile2
     rm $tmpfile $tmpfile2
     if [ "$timeout" = "" ] ; then
@@ -28,6 +29,7 @@ cleanup ()
 } 
 
 trap 'cleanup' EXIT
+trap 'cleanup' SIGXCPU
 
 cat /dev/null > $tmpfile 
 cat /dev/null > $tmpfile2 
@@ -52,7 +54,7 @@ for argument in  $*; do
 	fi    
 	if [ "$head" = "-o" ] ; then
 	    echo "Short option -o not supported by eproof, use --output-file=<file>"
-	    exit 1
+	    cleanup
 	fi    
 	if [ "$head" = "--output-file" ] ; then
 	    outfile=`echo $argument|cut -d= -f2`
@@ -84,7 +86,7 @@ if [ "$searchtime" ]; then
 		echo "# All watchlist clauses generated, constructing derivation"
 	    else
 		echo "# Cannot determine problem status"
-		exit 1
+		cleanup
 	    fi
 	fi
     fi
@@ -99,6 +101,7 @@ if [ "$searchtime" ]; then
     tail -$print_tail $tmpfile2
 else
     echo "# Cannot determine problem status within resource limit"
+    cleanup
 fi
 
 timeout="1"
