@@ -240,6 +240,7 @@ long RemoveContextualSRClauses(ClauseSet_p from,
 	 res++;
       }
    }
+   PStackFree(stack);
    return res;
 }
 

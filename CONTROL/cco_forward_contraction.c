@@ -323,6 +323,7 @@ Clause_p ForwardContractSet(ProofState_p state, ProofControl_p
       {
 	 if(ClauseIsEmpty(handle))
 	 {
+	    printf("Extracting empty clause...\n");
 	    ClauseSetExtractEntry(handle);
 	    return handle;
 	 }

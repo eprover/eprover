@@ -652,71 +652,25 @@ void ProofStateInit(ProofState_p state, ProofControl_p control,
       }
    }
    state->original_symbols = state->signature->f_count;
-   if(fvi_parms->use_fv_indexing)
-   {      
-      if(fvi_parms->use_perm_vectors)
-      {
-	 FreqVector_p fsum, fmax, fmin;
-	 long clause_no;
-	 PermVector_p perm;
-	 long symbol_size = control->split_clauses? /* Leave some slack for
-						       split symbols */
-	    state->original_symbols+fvi_parms->symbol_slack:
-	    state->original_symbols;
-	 
-	 state->processed_non_units->fvindex =
-	    FVIAnchorAlloc(symbol_size);
-	 state->processed_pos_rules->fvindex =
-	    FVIAnchorAlloc(symbol_size);
-	 state->processed_pos_eqns->fvindex =
-	    FVIAnchorAlloc(symbol_size);
-	 state->processed_neg_units->fvindex =
-	    FVIAnchorAlloc(symbol_size);
-      	 
-	 fsum = FreqVectorAlloc(FVFullSize(symbol_size));
-	 fmax = FreqVectorAlloc(FVFullSize(symbol_size));
-	 fmin = FreqVectorAlloc(FVFullSize(symbol_size));
-	 
-	 clause_no = ClauseSetFindCharFreqVectors(state->axioms,
-						  fsum,
-						  fmax, 
-						  fmin, 
-						  symbol_size);
-	 
-	 perm = PermVectorCompute(fmax, fmin, fsum, clause_no, 
-				  fvi_parms->max_features,
-				  fvi_parms->eleminate_uninformative);
-	 FreqVectorFree(fsum);
-	 FreqVectorFree(fmax);
-	 FreqVectorFree(fmin);
-	 
-	 state->processed_non_units->fvindex->perm_vector = perm;
-	 state->processed_neg_units->fvindex->perm_vector = PermVectorCopy(perm);
-	 state->processed_pos_rules->fvindex->perm_vector = PermVectorCopy(perm);
-	 state->processed_pos_eqns->fvindex->perm_vector  = PermVectorCopy(perm);
-      }
-      else
-      {
-	 long symbol_size, tmpsize;
-
-	 tmpsize = control->split_clauses? /* Leave some slack for
-					      split symbols */
-	    state->original_symbols+fvi_parms->symbol_slack:
-	    state->original_symbols;
-	 symbol_size = MIN((fvi_parms->max_features-FV_CLAUSE_FEATURES)/2,
-			   tmpsize);
-	 symbol_size = MAX(1,symbol_size);
-
-	 state->processed_non_units->fvindex =
-	    FVIAnchorAlloc(symbol_size);
-	 state->processed_pos_rules->fvindex =
-	    FVIAnchorAlloc(symbol_size);
-	 state->processed_pos_eqns->fvindex =
-	    FVIAnchorAlloc(symbol_size);
-	 state->processed_neg_units->fvindex =
-	    FVIAnchorAlloc(symbol_size);
-	 
-      }
+   if(!control->split_clauses)
+   {
+      fvi_parms->symbol_slack = 0;
+   }
+   if(fvi_parms->features != FVINoFeatures)
+   {
+      long symbols = MIN(state->original_symbols+fvi_parms->symbol_slack, 
+			 fvi_parms->max_features);     
+      PermVector_p perm = PermVectorCompute(state->axioms,		    
+					    fvi_parms,
+					    symbols);  
+      state->processed_non_units->fvindex =
+	 FVIAnchorAlloc(symbols, fvi_parms->features, perm);
+      state->processed_pos_rules->fvindex =
+	 FVIAnchorAlloc(symbols, fvi_parms->features, PermVectorCopy(perm));
+      state->processed_pos_eqns->fvindex =
+	 FVIAnchorAlloc(symbols, fvi_parms->features, PermVectorCopy(perm));
+      state->processed_neg_units->fvindex =
+	 FVIAnchorAlloc(symbols, fvi_parms->features, PermVectorCopy(perm));
    }
 }
 
