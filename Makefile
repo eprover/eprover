@@ -67,9 +67,13 @@ clean: remove_links
 	   cd $$subdir; touch Makefile.dependencies;$(MAKE) clean; cd ..;\
 	done;
 
+default_config:
+	sed -e 's/CC         = kgcc/CC         = gcc/' Makefile.vars| \
+	awk '/^NODEBUG/{print "NODEBUG    = -DNDEBUG -DFAST_EXIT";next}/^MEMDEBUG/{print "MEMDEBUG   = # -DCLB_MEMORY_DEBUG # -DCLB_MEMORY_DEBUG2";next}{print}' > __tmpmake__;mv __tmpmake__ Makefile.vars
+
 # Build a distribution
 
-distrib: clean
+distrib: clean default_config
 	@echo "Did you think about: "
 	@echo " - Changing the bibliographies to local version"
 	@echo "    ??? "
@@ -83,7 +87,7 @@ distrib: clean
 # Include proprietary code not part of the GPL'ed version, 
 # as well as CVS subdirecctories
 
-fulldistrib: clean
+fulldistrib: clean default_config
 	@echo "Warning: You are building a full archive!"
 	@echo "Did you remember to increase the dev version number and commit to CVS?"
 	cd ..; $(TAR) cf - $(PROJECT)|$(GZIP) - -c > $(PROJECT)_FULL.tgz
@@ -124,6 +128,22 @@ install:
 	echo 'Installing and configuring in place!'
 	$(MAKE) tools
 	$(MAKE) rebuild
+
+
+# Red Hat has smeared a badly broken version of gcc all over the Linux
+# world. If gcc -v answers with something containing 2.96 go and bash
+# your vendor repeatedly. However, all systems configured to build the
+# kernel have an unbroken (if ancient) gcc installed as kgcc. Try
+# building E with "make install-with-broken-gcc-but-kgcc-available" to
+# work around the broken compiler.
+
+install-with-broken-gcc-but-kgcc-available: 
+	echo 'Configuring for kgcc'
+	sed -e 's/CC         = gcc/CC         = kgcc/' Makefile.vars > __tmpmake__
+	mv __tmpmake__ Makefile.vars
+	make install
+
+# Configure and copy executables to the installation directory
 
 install-exec:	
 	@echo "#!"`which bash` > tmpfile
