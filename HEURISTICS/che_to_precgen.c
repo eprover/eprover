@@ -544,9 +544,13 @@ static void generate_arrayopt_precedence(OCB_p ocb, ClauseSet_p axioms)
       {
          array->array[i].key1 = 7;
       }
-      else if(strncmp(id, "i",1) == 0)
+      else if(strncmp(id, "i_",2) == 0)
       {
          array->array[i].key1 = 0;
+      }
+      else if(strncmp(id, "i",1) == 0)
+      {
+         array->array[i].key1 = 2;
       }
       else
       {
