@@ -1,4 +1,6 @@
-#! /bin/sh
+#! /bin/bash
+#
+# I normaly use /bin/sh, but that is broken on our SUNs....
 #
 # Usage: cd E;spec_version.sh <dest>
 #
@@ -45,7 +47,7 @@ for file in *.[ch] ; do
 done;
 
 
-echo "PROJ="`ls *.c | grep -v che_X_____auto_pp_opt.c | grep -v che_auto_cases.c | sed -e 's/\.c/\.o/'` >> Makefile.flat
+echo "PROJ="`ls *.c | grep -v che_X_____auto | grep -v che_auto_cases.c | sed -e 's/\.c/\.o/'` >> Makefile.flat
 cat Makefile.tmp >> Makefile.flat
 rm Makefile.tmp
 makedepend -f Makefile.flat *.c
