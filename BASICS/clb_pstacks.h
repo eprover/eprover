@@ -78,6 +78,8 @@ static __inline__ IntOrP   PStackElement(PStack_p stack, PStackPointer pos);
 #define  PStackElementInt(stack,pos) (PStackElement(stack,pos).i_val)
 #define  PStackElementP(stack,pos) (PStackElement(stack,pos).p_val)
 
+void     PStackSort(PStack_p stack, ComparisonFunctionType cmpfun);
+
 
 /*---------------------------------------------------------------------*/
 /*                  Implementations as inline functions                */

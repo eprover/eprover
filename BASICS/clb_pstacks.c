@@ -40,7 +40,24 @@ Changes
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
 
-/* Everything is now defined as inline stuff.... */
+/* Most things are now defined as inline stuff.... */
+
+/*-----------------------------------------------------------------------
+//
+// Function: PStackSort()
+//
+//   Sort the elements of the PStack using qsort.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void PStackSort(PStack_p stack, ComparisonFunctionType cmpfun)
+{
+   qsort(stack->stack, stack->current, sizeof(IntOrP), cmpfun);
+}
 
 
 /*---------------------------------------------------------------------*/
