@@ -32,8 +32,8 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-/*  cvs tag E-0-82dev024 */
-#define VERSION      "0.82dev024"
+/*  cvs tag E-0-82dev025 */
+#define VERSION      "0.82dev025"
 #define NAME         "eprover"
 
 #define NICKNAME     "Lung Ching"
@@ -119,6 +119,7 @@ typedef enum
    OPT_BACKWARD_CSR,
    OPT_RULES_GENERAL,
    OPT_FORWARD_DEMOD,
+   OPT_STRONG_RHS_INSTANCE,
    OPT_STRONGSUBSUMPTION,
    OPT_WATCHLIST,
    OPT_WATCHLIST_NO_SIMPLIFY,
@@ -772,6 +773,12 @@ OptCell opts[] =
     "value of 0 means no rewriting, 1 indicates to use rules "
     "(orientable equations) only, 2 indicates full rewriting with "
     "rules and instances of unorientable equations. Default is 2."},
+
+   {OPT_STRONG_RHS_INSTANCE,
+    '\0', "strong-rw-inst",
+    NoArg, NULL,
+    "Instantiate unbound variables in matching potential "
+    "demodulators with a small constant terms."},
 
    {OPT_STRONGSUBSUMPTION,
     'u', "strong-forward-subsumption",
@@ -1732,7 +1739,10 @@ CLState_p process_options(int argc, char* argv[])
 		     "argument from {0..2}", USAGE_ERROR);
 	    }
 	    h_parms->forward_demod = tmp;
-	    break;	       
+	    break;
+      case OPT_STRONG_RHS_INSTANCE:
+            RewriteStrongRHSInst = true;
+            break;
       case OPT_STRONGSUBSUMPTION:
 	    StrongUnitForwardSubsumption = true;
 	    break;  
