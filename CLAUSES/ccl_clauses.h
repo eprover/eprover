@@ -298,7 +298,10 @@ int      ClauseCompareFun(Clause_p clause1, Clause_p clause2);
 
 #define  NormSubstClause(clause, subst, vars)\
          NormSubstEqnListExcept((clause)->literals,\
-				NULL, (subst), (vars));
+				NULL, (subst), (vars))
+
+Clause_p ClauseNormalizeVars(Clause_p clause, VarBank_p fresh_vars);
+
 #define  ClauseAddSymbolDistribution(clause, dist_array)\
          EqnListAddSymbolDistribution((clause)->literals, (dist_array))
 #define  ClauseComputeFunctionRanks(clause, rank_array, count)\

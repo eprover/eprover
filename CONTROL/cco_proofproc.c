@@ -869,7 +869,6 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
       return FVUnpackClause(pclause);
    }
 
-   /* ClauseCanonize(clause); */
 
    /* Now on to backward simplification. */   
    clausedate = ClauseSetListGetMaxDate(state->demods, FullRewrite);
@@ -880,6 +879,8 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
    eleminate_context_sr_clauses(state, control, pclause->clause);
 
    clause = pclause->clause;
+   /* ClauseCanonize(clause); */
+   ClauseNormalizeVars(clause, state->freshvars);
    tmp_copy = ClauseCopy(clause, state->tmp_terms);      
    tmp_copy->ident = clause->ident;
 

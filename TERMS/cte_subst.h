@@ -47,6 +47,7 @@ typedef PStack_p   Subst_p;
 
 #define SubstDelete(junk) SubstBacktrack(junk);SubstFree(junk)
 #define SubstDeleteSkolem(junk) SubstBacktrackSkolem(junk);SubstFree(junk)
+#define SubstIsEmpty(subst) PStackEmpty(subst)
 
 PStackPointer SubstAddBinding(Subst_p subst, Term_p var, Term_p bind);
 bool          SubstBacktrackSingle(Subst_p subst);

@@ -2040,6 +2040,45 @@ int ClauseCompareFun(Clause_p clause1, Clause_p clause2)
    return res;
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseNormalizeVars()
+//
+//   Destructively normalize variables in clause.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Clause_p ClauseNormalizeVars(Clause_p clause, VarBank_p fresh_vars)
+{
+   Eqn_p tmplist;
+   Subst_p subst;
+
+   assert(!ClauseQueryProp(clause,CPIsDIndexed));
+
+   if(!ClauseIsEmpty(clause))
+   {            
+      subst = SubstAlloc();
+      VarBankResetVCount(fresh_vars);
+
+      NormSubstClause(clause, subst, fresh_vars);
+
+      if(!SubstIsEmpty(subst))
+      {
+         tmplist = EqnListCopy(clause->literals, clause->literals->bank);
+         EqnListFree(clause->literals);
+         clause->literals = tmplist;
+      }
+      SubstDelete(subst);         
+   }
+   return clause;
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

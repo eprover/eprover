@@ -199,8 +199,8 @@ FunCode SubstNormTerm(Term_p term, Subst_p subst, VarBank_p vars)
 	 if(!TermCellQueryProp(term, TPSpecialFlag))
 	 {
 	    newvar = VarBankGetFreshVar(vars);
-	    TermCellSetProp(newvar, TPSpecialFlag);
-	    SubstAddBinding(subst, term, newvar);
+            TermCellSetProp(newvar, TPSpecialFlag);
+            SubstAddBinding(subst, term, newvar);
 	 }
       }
       else
