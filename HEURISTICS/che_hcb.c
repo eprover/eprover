@@ -106,6 +106,7 @@ HeuristicParms_p HeuristicParmsAlloc(void)
    handle->prefer_general                = false;
    handle->er_varlit_destructive         = false;
    handle->er_strong_destructive         = false;
+   handle->er_aggressive                 = false;
    handle->prefer_initial_clauses        = false;
    handle->select_on_proc_only           = false;
    handle->inherit_paramod_lit           = false;
@@ -119,6 +120,8 @@ HeuristicParms_p HeuristicParmsAlloc(void)
    handle->all_lit_sel_max               = LONG_MAX; 
    handle->weight_sel_min                = 0;
    handle->split_clauses                 = SplitNone;
+   handle->split_method                  = SplitGroundNone;
+   handle->split_aggressive              = false;
    handle->split_method                  = SplitGroundNone;
    handle->unproc_simplify               = NoUnitSimplify;
    handle->watchlist_simplify            = true;
