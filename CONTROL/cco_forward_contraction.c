@@ -119,6 +119,7 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
       }
       if(!subsumer && (ClauseLiteralNumber(clause)>1) && non_unit_subsumption)
       {
+         ClauseSubsumeOrderSortLits(clause);
          subsumer = ClauseSetSubsumesFVPackedClause(state->processed_non_units, pclause);
       }
       if(subsumer)

@@ -817,6 +817,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
    {
       return NULL;
    }
+   assert(ClauseIsSubsumeOrdered(pclause->clause));
    check_ac_status(state, control, pclause->clause);
 
    if(OutputLevel)
@@ -830,6 +831,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
       }
       DocClauseQuoteDefault(6, pclause->clause, "new_given");
    }
+   assert(ClauseIsSubsumeOrdered(pclause->clause));
 
    state->proc_non_trivial_count++;
 
@@ -872,7 +874,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
 
    /* Now on to backward simplification. */   
    clausedate = ClauseSetListGetMaxDate(state->demods, FullRewrite);
-   
+
    eleminate_backward_rewritten_clauses(state, control, pclause->clause, &clausedate);   
    eleminate_backward_subsumed_clauses(state, pclause);
    eleminate_unit_simplified_clauses(state, pclause->clause);
