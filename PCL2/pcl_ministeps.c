@@ -143,8 +143,68 @@ void PCLMiniStepPrint(FILE* out, PCLMiniStep_p step, TB_p bank)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: PCLMiniStepPrintTSTP()
+//
+//   Print a PCLMini step in TSTP format.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void PCLMiniStepPrintTSTP(FILE* out, PCLMiniStep_p step, TB_p bank)
+{
+   assert(step);
+
+   fprintf(out, "cnf(%ld,%s,",step->id,
+	   ClauseQueryProp(step->clause, CPInitial)? "initial":"derived");
+   MiniClauseTSTPCorePrint(out, step->clause, bank);
+   fputc(',', out);   
+   PCLExprPrintTSTP(out, step->just, true);
+   if(step->extra)
+   {
+      fprintf(out, ",[\"%s\"]", step->extra);
+   }
+   fputs(").", out);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PCLMiniStepPrintFormat()
+//
+//   Print a PCL step in the requested format.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void PCLMiniStepPrintFormat(FILE* out, PCLMiniStep_p step, TB_p bank, 
+			OutputFormatType format)
+{
+   switch(format)
+   {
+   case pcl_format:
+	 PCLMiniStepPrint(out, step, bank);      
+	 break;
+   case tstp_format:
+	 PCLMiniStepPrintTSTP(out, step, bank);      
+	 break;
+   default:
+	 assert(false);
+	 break;
+   }
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
+
 
 

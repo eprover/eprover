@@ -93,6 +93,11 @@ typedef struct pclexprcell
 PCLExpr_p PCLExprAlloc();
 void      PCLExprFree(PCLExpr_p junk);
 
+/* MiniExprs are the same basic data type. However, MiniPCL-Ids are
+   just plain longs, not full PCL identifiers */
+void      PCLMiniExprFree(PCLExpr_p junk);
+
+
 PCLExpr_p PCLExprParse(Scanner_p in, bool mini);
 #define   PCLFullExprParse(in) PCLExprParse((in),false)
 #define   PCLMiniExprParse(in) PCLExprParse((in),true)
@@ -101,10 +106,10 @@ void      PCLExprPrint(FILE* out, PCLExpr_p expr, bool mini);
 #define   PCLFullExprPrint(out, expr) PCLExprPrint((out),(expr),false)
 #define   PCLMiniExprPrint(out, expr) PCLExprPrint((out),(expr),true)
 
-/* MiniExprs are the same basic data type. However, MiniPCL-Ids are
-   just plain longs, not full PCL identifiers */
+void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini);
+#define   PCLFullExprPrintTSTP(out, expr) PCLExprPrintTSTP((out),(expr),false)
+#define   PCLMiniExprPrintTSTP(out, expr) PCLExprPrintTSTP((out),(expr),true)
 
-void      PCLMiniExprFree(PCLExpr_p junk);
 
 #endif
 

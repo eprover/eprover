@@ -51,6 +51,7 @@ typedef PDArray_p   PCLId_p;
 PCLId_p PCLIdParse(Scanner_p in);
 void    PCLIdPrintFormatted(FILE* out, PCLId_p id, bool formatted);
 #define PCLIdPrint(out, id) PCLIdPrintFormatted((out),(id),false)
+void    PCLIdPrintTSTP(FILE* out, PCLId_p id);
 int     PCLIdCompare(PCLId_p id1, PCLId_p id2);
 
 #endif

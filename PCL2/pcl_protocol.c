@@ -284,7 +284,8 @@ long PCLProtParse(Scanner_p in, PCLProt_p prot)
 //
 /----------------------------------------------------------------------*/
 
-void PCLProtPrintExtra(FILE* out, PCLProt_p prot, bool data)
+void PCLProtPrintExtra(FILE* out, PCLProt_p prot, bool data,
+		       OutputFormatType format)
 {
    PCLStep_p step;
    PStackPointer i;
@@ -294,8 +295,8 @@ void PCLProtPrintExtra(FILE* out, PCLProt_p prot, bool data)
    for(i=0; i<PStackGetSP(prot->in_order); i++)
    {
       step = PStackElementP(prot->in_order, i);
-      PCLStepPrintExtra(out, step, data);
-      fputc('\n',out);
+      PCLStepPrintFormat(out, step, data, format);
+      fputc('\n',out);      
    }
 }
 
@@ -441,7 +442,7 @@ bool PCLProtMarkProofClauses(PCLProt_p prot)
 
 void PCLProtPrintPropClauses(FILE* out, PCLProt_p prot, 
 			     PCLStepProperties prop, 
-			     bool just_clauses)
+			     bool just_clauses, OutputFormatType format)
 {
    PCLStep_p step;
    PStackPointer i;
@@ -462,7 +463,7 @@ void PCLProtPrintPropClauses(FILE* out, PCLProt_p prot,
 	 }
 	 else
 	 {
-	    PCLStepPrint(out, step);
+	    PCLStepPrintFormat(out, step, false, format);
 	 }
 	 fputc('\n',out);
       }

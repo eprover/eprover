@@ -110,6 +110,44 @@ void PCLIdPrintFormatted(FILE* out, PCLId_p id, bool formatted)
 
 /*-----------------------------------------------------------------------
 //
+// Function: PCLIdPrintTSTP()
+//
+//   Print a PCL identifier in a format suitable for TSTP. If a single
+//   number, print it, otherwise convert it to pclid<no1>_<no2>...
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void PCLIdPrintTSTP(FILE* out, PCLId_p id)
+{
+   long i;
+
+   assert(id);
+   assert(PDArrayElementInt(id,0)>=0);
+   assert(PDArrayElementInt(id,0)!=NO_PCL_ID_ELEMENT); /* Redundant,
+							  but
+							  well...erm...*/ 
+
+   if(PDArrayElementInt(id,1)==NO_PCL_ID_ELEMENT)
+   {
+      fprintf(out, "%ld", PDArrayElementInt(id,0));
+   }
+   else
+   {
+      fprintf(out, "pclid%ld", PDArrayElementInt(id,0));
+      for(i=1;PDArrayElementInt(id,i)!=NO_PCL_ID_ELEMENT;i++)
+      {
+	 fprintf(out, "_%ld", PDArrayElementInt(id,i));
+      }
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: PCLIdCompare()
 //
 //   Compare two PCL identifiers lexicographically.

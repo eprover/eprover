@@ -64,8 +64,12 @@ PCLStep_p PCLProtFindStep(PCLProt_p prot, PCLId_p id);
 void      PCLProtSerialize(PCLProt_p prot);
 
 long      PCLProtParse(Scanner_p in, PCLProt_p prot);
-void      PCLProtPrintExtra(FILE* out, PCLProt_p prot, bool data);
-#define   PCLProtPrint(out, prot) PCLProtPrintExtra((out), (prot), false)
+void      PCLProtPrintExtra(FILE* out, PCLProt_p prot, bool data,
+			    OutputFormatType format);
+#define   PCLProtPrint(out, prot, format) PCLProtPrintExtra((out),\
+							    (prot),\
+							    false, \
+							    (format))
 
 void      PCLProtResetTreeData(PCLProt_p prot, bool just_weights);
 
@@ -74,9 +78,11 @@ void      PCLExprCollectPreconds(PCLProt_p prot, PCLExpr_p expr,
 
 bool      PCLProtMarkProofClauses(PCLProt_p prot);
 void      PCLProtPrintPropClauses(FILE* out, PCLProt_p prot, 
-				  PCLStepProperties prop, bool just_clauses);
-#define PCLProtPrintProofClauses(out, prot)\
-        PCLProtPrintPropClauses((out), (prot), PCLIsProofStep, false)
+				  PCLStepProperties prop, 
+				  bool just_clauses, 
+				  OutputFormatType format);
+#define PCLProtPrintProofClauses(out, prot, format)\
+        PCLProtPrintPropClauses((out), (prot), PCLIsProofStep, false, format)
 
 
 #endif

@@ -53,7 +53,8 @@ void          PCLMiniStepFree(PCLMiniStep_p junk);
 
 PCLMiniStep_p PCLMiniStepParse(Scanner_p in, TB_p bank);
 void          PCLMiniStepPrint(FILE* out, PCLMiniStep_p step, TB_p bank);
-
+void          PCLMiniStepPrintFormat(FILE* out, PCLMiniStep_p step, 
+				     TB_p bank, OutputFormatType format);
 
 #endif
 

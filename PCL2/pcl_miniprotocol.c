@@ -276,7 +276,8 @@ long PCLMiniProtParse(Scanner_p in, PCLMiniProt_p prot)
 //
 /----------------------------------------------------------------------*/
 
-void PCLMiniProtPrint(FILE* out, PCLMiniProt_p prot)
+void PCLMiniProtPrint(FILE* out, PCLMiniProt_p prot,
+		      OutputFormatType format)
 {
    long i;
    PCLMiniStep_p step;
@@ -288,7 +289,7 @@ void PCLMiniProtPrint(FILE* out, PCLMiniProt_p prot)
       step = PDArrayElementP(prot->steps, i);
       if(step)
       {
-	 PCLMiniStepPrint(out, step, prot->terms);
+	 PCLMiniStepPrintFormat(out, step, prot->terms, format);
       }
    }
 }
@@ -426,7 +427,8 @@ bool PCLMiniProtMarkProofClauses(PCLMiniProt_p prot, bool fast)
 //
 /----------------------------------------------------------------------*/
 
-void PCLMiniProtPrintProofClauses(FILE* out, PCLMiniProt_p prot)
+void PCLMiniProtPrintProofClauses(FILE* out, PCLMiniProt_p prot,
+				  OutputFormatType format)
 {
    long i;
    PCLMiniStep_p step;
@@ -438,7 +440,7 @@ void PCLMiniProtPrintProofClauses(FILE* out, PCLMiniProt_p prot)
       step = PDArrayElementP(prot->steps, i);
       if(step&&ClauseQueryProp(step->clause,CPIsProofClause))
       {
-	 PCLMiniStepPrint(out, step, prot->terms);
+	 PCLMiniStepPrintFormat(out, step, prot->terms, format);
 	 fputc('\n',out);
       }
    }

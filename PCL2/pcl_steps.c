@@ -108,8 +108,12 @@ PCLStep_p PCLStepParse(Scanner_p in, TB_p bank)
    else
    {
       handle->extra = NULL;
-   }
+   }   
    ClauseDelProp(handle->clause, CPIsProofClause);
+   if(handle->just->op == PCLOpInitial)
+   {
+      ClauseSetProp(handle->clause, CPInitial);
+   }
    return handle;
 }
 
@@ -168,6 +172,78 @@ void PCLStepPrintExtra(FILE* out, PCLStep_p step, bool data)
 
 /*-----------------------------------------------------------------------
 //
+// Function: PCLStepPrintTSTP()
+//
+//   Print a PCL step in TSTP format.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void PCLStepPrintTSTP(FILE* out, PCLStep_p step)
+{
+   assert(step);
+
+   fprintf(out, "cnf(");
+   
+   PCLIdPrintTSTP(out, step->id);
+   fputs(ClauseQueryProp(step->clause, CPInitial)?
+	 ",initial,":",derived,", 
+	 out);   
+   ClauseTSTPCorePrint(out, step->clause, true);
+   fputc(',', out);   
+   PCLExprPrintTSTP(out, step->just, false);
+   if(step->extra)
+   {
+      if(step->extra_string)
+      {
+	 fprintf(out, ",[\"%s\"]", step->extra);
+      }
+      else
+      {
+	 fprintf(out, ",[%s]", step->extra);
+      }	 
+   }
+   else if(PCLStepQueryProp(step, PCLIsLemma))
+   {
+      fputs(",[lemma]", out);
+   }
+   fputs(").", out);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: PCLStepPrintFormat()
+//
+//   Print a PCL step in the requested format.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void PCLStepPrintFormat(FILE* out, PCLStep_p step, bool data, 
+			OutputFormatType format)
+{
+   switch(format)
+   {
+   case pcl_format:
+	 PCLStepPrintExtra(out, step, data);      
+	 break;
+   case tstp_format:
+	 PCLStepPrintTSTP(out, step);      
+	 break;
+   default:
+	 assert(false);
+	 break;
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: PCLStepIdCompare()
 //
 //   Compare two PCL steps by idents (forPTreeObj-Operations). 
@@ -211,7 +287,6 @@ void PCLStepResetTreeData(PCLStep_p step, bool just_weights)
       PCLStepDelProp(step,PCLIsLemma|PCLIsMarked);
    }
 }
-
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

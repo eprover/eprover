@@ -119,6 +119,53 @@ void PCLExprFree(PCLExpr_p junk)
 
 /*-----------------------------------------------------------------------
 //
+// Function: PCLMiniExprFree()
+//
+//   Free a PCL Mini-Expression.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+void PCLMiniExprFree(PCLExpr_p junk)
+{
+   long      i;
+   PCLExpr_p expr;
+   PCL2Pos_p pos;
+   
+   assert(junk);
+   
+   for(i=0; i<junk->arg_no; i++)
+   {
+      if(junk->op==PCLOpQuote)
+      {
+	 /* Do nothing - its' just a a long stored in the array */
+      }
+      else if(junk->op==PCLOpInitial)
+      {
+         assert(PCLExprArg(junk,i));
+	 FREE(PCLExprArg(junk,i)); /* It's just a string */
+      }
+      else
+      {
+	 expr = PCLExprArg(junk,i);
+	 PCLMiniExprFree(expr);
+      }
+      pos = PCLExprArgPos(junk,i);
+      if(pos)
+      {
+	 PCL2PosFree(pos);
+      }	 
+   }
+   PDArrayFree(junk->args);
+   PCLExprCellFree(junk);
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: PCLExprParse()
 //
 //   Parse a PCL-expression or Mini-expression
@@ -258,6 +305,7 @@ PCLExpr_p PCLExprParse(Scanner_p in, bool mini)
 }
 
 
+
 /*-----------------------------------------------------------------------
 //
 // Function: PCLExprPrint()
@@ -292,59 +340,59 @@ void PCLExprPrint(FILE* out, PCLExpr_p expr, bool mini)
       assert(expr->arg_no==1);
       if(mini)
       {
-	 fprintf(out, "%ld", PCLExprArgInt(expr,0));
+         fprintf(out, "%ld", PCLExprArgInt(expr,0));
       }
       else
       {
-	 PCLIdPrint(out, PCLExprArg(expr,0));
+         PCLIdPrint(out, PCLExprArg(expr,0));
       }
       if(PCLExprArgPos(expr,0))
       {
-	 PCL2PosPrint(out, PCLExprArgPos(expr,0));
+         PCL2PosPrint(out, PCLExprArgPos(expr,0));
       }
       return;
    }
    switch(expr->op)
    {
    case PCLOpParamod:
-	 fprintf(out, PCL_PM);
-	 assert(expr->arg_no==2);
-	 break;
+         fprintf(out, PCL_PM);
+         assert(expr->arg_no==2);
+         break;
    case PCLOpEResolution:
-	 fprintf(out, PCL_ER);
-	 assert(expr->arg_no==1);
-	 break;
+         fprintf(out, PCL_ER);
+         assert(expr->arg_no==1);
+         break;
    case PCLOpEFactoring:
-	 fprintf(out, PCL_EF);
-	 assert(expr->arg_no==1);
-	 break;
+         fprintf(out, PCL_EF);
+         assert(expr->arg_no==1);
+         break;
    case PCLOpSimplifyReflect:
-	 fprintf(out, PCL_SR);
-	 assert(expr->arg_no==2);
-	 break;
+         fprintf(out, PCL_SR);
+         assert(expr->arg_no==2);
+         break;
    case PCLOpContextSimplifyReflect:
-	 fprintf(out, PCL_CSR);
-	 assert(expr->arg_no==2);
-	 break;
+         fprintf(out, PCL_CSR);
+         assert(expr->arg_no==2);
+         break;
    case PCLOpACResolution:
-	 fprintf(out, PCL_ACRES);
-	 assert(expr->arg_no>0);
-	 break;
+         fprintf(out, PCL_ACRES);
+         assert(expr->arg_no>0);
+         break;
    case PCLOpRewrite:
-	 fprintf(out, PCL_RW);
-	 assert(expr->arg_no==2);
-	 break;
+         fprintf(out, PCL_RW);
+         assert(expr->arg_no==2);
+         break;
    case PCLOpClauseNormalize:
-	 fprintf(out, PCL_CN);
-	 assert(expr->arg_no==1);
-	 break;
+         fprintf(out, PCL_CN);
+         assert(expr->arg_no==1);
+         break;
    case PCLOpSplitClause:
-	 fprintf(out, PCL_SPLIT);
-	 assert(expr->arg_no==1);
-	 break;
+         fprintf(out, PCL_SPLIT);
+         assert(expr->arg_no==1);
+         break;
    default:
-	 assert(false && "Unknown PCL operator");
-	 break;
+         assert(false && "Unknown PCL operator");
+         break;
    }
    fputc('(',out);
    PCLExprPrint(out, PCLExprArg(expr,0), mini);
@@ -358,63 +406,131 @@ void PCLExprPrint(FILE* out, PCLExpr_p expr, bool mini)
       PCLExprPrint(out, PCLExprArg(expr,i), mini);
       if(PCLExprArgPos(expr,i))
       {
-	 PCL2PosPrint(out, PCLExprArgPos(expr,i));
+         PCL2PosPrint(out, PCLExprArgPos(expr,i));
       }
    }
-   fputc(')',out);	 
+   fputc(')',out);       
 }
 
 
 /*-----------------------------------------------------------------------
 //
-// Function: PCLMiniExprFree()
+// Function: PCLExprPrintTSTP()
 //
-//   Free a PCL Mini-Expression.
+//   Print a PCL expression in TSTP format.
 //
 // Global Variables: -
 //
-// Side Effects    : Memory operations
+// Side Effects    : Output
 //
 /----------------------------------------------------------------------*/
 
-void PCLMiniExprFree(PCLExpr_p junk)
+void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
 {
-   long      i;
-   PCLExpr_p expr;
-   PCL2Pos_p pos;
+   long i;
+   bool needs_equality = true;
+   char *status = ",[status(unknown)]", 
+      *status_thm = ",[status(thm)]",
+      *status_split = ",[status(split)]";
+
+   assert(expr);
+   assert(expr->args);
    
-   assert(junk);
-   
-   for(i=0; i<junk->arg_no; i++)
+   if(expr->op== PCLOpInitial)
    {
-      if(junk->op==PCLOpQuote)
+      fprintf(out, "unknown");
+      if(expr->arg_no)
       {
-	 /* Do nothing - its' just a a long stored in the array */
+         assert(expr->arg_no == 1);
+         fprintf(out,"(\"%s\")", (char*)PCLExprArg(expr,0));
       }
-      else if(junk->op==PCLOpInitial)
+      return;
+   }
+   if(expr->op==PCLOpQuote)
+   {
+      assert(expr->arg_no==1);
+      if(mini)
       {
-         assert(PCLExprArg(junk,i));
-	 FREE(PCLExprArg(junk,i)); /* It's just a string */
+	 fprintf(out, "%ld", PCLExprArgInt(expr,0));
       }
       else
       {
-	 expr = PCLExprArg(junk,i);
-	 PCLMiniExprFree(expr);
+	 PCLIdPrintTSTP(out, PCLExprArg(expr,0));
       }
-      pos = PCLExprArgPos(junk,i);
-      if(pos)
-      {
-	 PCL2PosFree(pos);
-      }	 
+      return;
    }
-   PDArrayFree(junk->args);
-   PCLExprCellFree(junk);
+   fprintf(out, "inference(");
+   switch(expr->op)
+   {
+   case PCLOpParamod:
+	 fprintf(out, PCL_PM);
+	 status = status_thm;
+	 assert(expr->arg_no==2);
+	 break;
+   case PCLOpEResolution:
+	 fprintf(out, PCL_ER);
+	 status = status_thm;
+	 assert(expr->arg_no==1);
+	 break;
+   case PCLOpEFactoring:
+	 fprintf(out, PCL_EF);
+	 status = status_thm;
+	 assert(expr->arg_no==1);
+	 break;
+   case PCLOpSimplifyReflect:
+	 fprintf(out, PCL_SR);
+	 status = status_thm;
+	 assert(expr->arg_no==2);
+	 break;
+   case PCLOpContextSimplifyReflect:
+	 fprintf(out, PCL_CSR);
+	 needs_equality = false;
+	 status = status_thm;
+	 assert(expr->arg_no==2);
+	 break;
+   case PCLOpACResolution:
+	 fprintf(out, PCL_ACRES);
+	 status = status_thm;
+	 assert(expr->arg_no>0);
+	 break;
+   case PCLOpRewrite:
+	 fprintf(out, PCL_RW);
+	 status = status_thm;
+	 assert(expr->arg_no==2);
+	 break;
+   case PCLOpClauseNormalize:
+	 fprintf(out, PCL_CN);
+	 status = status_thm;
+	 assert(expr->arg_no==1);
+	 break;
+   case PCLOpSplitClause:
+	 fprintf(out, PCL_SPLIT);
+	 status = status_split;
+	 needs_equality = false;
+	 assert(expr->arg_no==1);
+	 break;
+   default:
+	 assert(false && "Unknown PCL operator");
+	 break;
+   }
+   fprintf(out, "%s,", status);
+   PCLExprPrintTSTP(out, PCLExprArg(expr,0), mini);
+   for(i=1; i<expr->arg_no; i++)
+   {
+      fputc(',',out);
+      PCLExprPrintTSTP(out, PCLExprArg(expr,i), mini);
+   }
+   if(needs_equality)
+   {
+      fputs(",theory(equality)", out);
+   }
+   fputs("])",out);	 
 }
-
-
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
+
+
 
 

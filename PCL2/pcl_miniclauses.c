@@ -263,6 +263,28 @@ void MiniClausePCLPrint(FILE* out, MiniClause_p compact, TB_p bank)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: MiniClauseTSTPCorePrint()
+//
+//   Print the core clause in TSTP format, i.e. as a literal list.
+//
+// Global Variables: -
+//
+// Side Effects    : Output, memory operations.
+//
+/----------------------------------------------------------------------*/
+
+void MiniClauseTSTPCorePrint(FILE* out, MiniClause_p compact, TB_p bank)
+{
+   Clause_p clause;
+   
+   clause = MiniClauseToClause(compact, bank);
+   ClauseTSTPCorePrint(out, clause, true);
+   ClauseFree(clause);
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

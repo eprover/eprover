@@ -58,13 +58,15 @@ bool          PCLMiniProtDeleteStep(PCLMiniProt_p prot, PCLMiniStep_p
 
 
 long      PCLMiniProtParse(Scanner_p in, PCLMiniProt_p prot);
-void      PCLMiniProtPrint(FILE* out, PCLMiniProt_p prot);
+void      PCLMiniProtPrint(FILE* out, PCLMiniProt_p prot,
+			   OutputFormatType format);
 
 void      PCLMiniExprCollectPreconds(PCLMiniProt_p prot, PCLExpr_p expr,
 				     PTree_p *tree);
 
 bool      PCLMiniProtMarkProofClauses(PCLMiniProt_p prot, bool fast);
-void      PCLMiniProtPrintProofClauses(FILE* out, PCLMiniProt_p prot);
+void      PCLMiniProtPrintProofClauses(FILE* out, PCLMiniProt_p prot,
+				       OutputFormatType format);
 
 #endif
 

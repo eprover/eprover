@@ -68,6 +68,7 @@ void MiniClausePrint(FILE* out, MiniClause_p compact, TB_p bank, bool
 		     full_terms);
 
 void MiniClausePCLPrint(FILE* out, MiniClause_p compact, TB_p bank);
+void MiniClauseTSTPCorePrint(FILE* out, MiniClause_p compact, TB_p bank);
 
 #endif
 
