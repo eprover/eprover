@@ -194,8 +194,15 @@ static long eleminate_backward_subsumed_clauses(ProofState_p state,
    {
       if(pclause->clause->pos_lit_no)
       {
-         res += remove_subsumed(pclause, state->processed_pos_rules);
-	 res += remove_subsumed(pclause, state->processed_pos_eqns);
+         /* A unit rewrite rule that is a variant of an old rule is
+            already subsumed by the older one. 
+            A unit rewrite rule can never subsume an unorientable
+            equation (else it would be unorientable itself). */               
+         if(!ClauseIsRWRule(pclause->clause))            
+         {
+            res += remove_subsumed(pclause, state->processed_pos_rules);
+            res += remove_subsumed(pclause, state->processed_pos_eqns);
+         }
 	 res += remove_subsumed(pclause, state->processed_non_units);
       }
       else
