@@ -112,6 +112,10 @@ PCLMiniStep_p PCLMiniStepParse(Scanner_p in, TB_p bank)
       handle->extra = NULL;
    }
    ClauseDelProp(handle->clause, CPIsProofClause);
+   if(handle->just->op == PCLOpInitial)
+   {
+      ClauseSetProp(handle->clause, CPInitial);
+   }   
    return handle;
 }
 
@@ -166,7 +170,7 @@ void PCLMiniStepPrintTSTP(FILE* out, PCLMiniStep_p step, TB_p bank)
    PCLExprPrintTSTP(out, step->just, true);
    if(step->extra)
    {
-      fprintf(out, ",[\"%s\"]", step->extra);
+      fprintf(out, ",['%s\']", step->extra);
    }
    fputs(").", out);
 }

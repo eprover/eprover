@@ -65,6 +65,9 @@ void      PCLMiniExprCollectPreconds(PCLMiniProt_p prot, PCLExpr_p expr,
 				     PTree_p *tree);
 
 bool      PCLMiniProtMarkProofClauses(PCLMiniProt_p prot, bool fast);
+void      PCLMiniProtSetClauseProp(PCLMiniProt_p prot, ClauseProperties props);
+void      PCLMiniProtDelClauseProp(PCLMiniProt_p prot, ClauseProperties props);
+
 void      PCLMiniProtPrintProofClauses(FILE* out, PCLMiniProt_p prot,
 				       OutputFormatType format);
 

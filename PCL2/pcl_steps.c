@@ -199,7 +199,7 @@ void PCLStepPrintTSTP(FILE* out, PCLStep_p step)
    {
       if(step->extra_string)
       {
-	 fprintf(out, ",[\"%s\"]", step->extra);
+	 fprintf(out, ",[\'%s\']", step->extra);
       }
       else
       {

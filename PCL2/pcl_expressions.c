@@ -513,7 +513,7 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
 	 assert(false && "Unknown PCL operator");
 	 break;
    }
-   fprintf(out, "%s,", status);
+   fprintf(out, "%s,[", status);
    PCLExprPrintTSTP(out, PCLExprArg(expr,0), mini);
    for(i=1; i<expr->arg_no; i++)
    {

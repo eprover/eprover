@@ -77,6 +77,8 @@ void      PCLExprCollectPreconds(PCLProt_p prot, PCLExpr_p expr,
 				 PTree_p *tree);
 
 bool      PCLProtMarkProofClauses(PCLProt_p prot);
+void      PCLProtSetProp(PCLProt_p prot, PCLStepProperties props);
+void      PCLProtDelProp(PCLProt_p prot, PCLStepProperties props);
 void      PCLProtPrintPropClauses(FILE* out, PCLProt_p prot, 
 				  PCLStepProperties prop, 
 				  bool just_clauses, 

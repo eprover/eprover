@@ -414,6 +414,64 @@ bool PCLMiniProtMarkProofClauses(PCLMiniProt_p prot, bool fast)
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: PCLMiniProtSetClauseProp()
+//
+//   Set a property in a PCLMiniSteps MiniClause (the only place
+//   mini-steps have properties).
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+void PCLMiniProtSetClauseProp(PCLMiniProt_p prot, ClauseProperties props)
+{
+   long i;
+   PCLMiniStep_p step;
+   
+   for(i=0; i<=prot->max_ident; i++)
+   {
+      step = PDArrayElementP(prot->steps, i);
+      if(step)
+      {
+	 ClauseSetProp(step->clause,props);
+      }
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: PCLMiniProtDelClauseProp()
+//
+//   Delete a property in a PCLMiniSteps MiniClause (the only place
+//   mini-steps have properties).
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+void PCLMiniProtDelClauseProp(PCLMiniProt_p prot, ClauseProperties props)
+{
+   long i;
+   PCLMiniStep_p step;
+   
+   for(i=0; i<=prot->max_ident; i++)
+   {
+      step = PDArrayElementP(prot->steps, i);      
+      if(step)
+      {
+	 ClauseDelProp(step->clause,props);
+      }
+   }
+}
+
+
+
 
 /*-----------------------------------------------------------------------
 //

@@ -430,6 +430,59 @@ bool PCLProtMarkProofClauses(PCLProt_p prot)
 
 /*-----------------------------------------------------------------------
 //
+// Function: PCLProtSetProp()
+//
+//   Set props in all clauses in the protocol.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void PCLProtSetProp(PCLProt_p prot, PCLStepProperties props)
+{
+   PCLStep_p step;   
+   PStackPointer i;
+   
+   PCLProtSerialize(prot);
+   
+   for(i=0; i<PStackGetSP(prot->in_order); i++)
+   {
+      step = PStackElementP(prot->in_order, i);
+      PCLStepSetProp(step,props);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PCLProtDelProp()
+//
+//   Set props in all clauses in the protocol.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void PCLProtDelProp(PCLProt_p prot, PCLStepProperties props)
+{
+   PCLStep_p step;   
+   PStackPointer i;
+   
+   PCLProtSerialize(prot);
+   
+   for(i=0; i<PStackGetSP(prot->in_order); i++)
+   {
+      step = PStackElementP(prot->in_order, i);
+      PCLStepDelProp(step,props);
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: PCLProtPrintPropClauses()
 //
 //   Print all steps with prop set.
