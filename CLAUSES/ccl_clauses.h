@@ -179,6 +179,7 @@ bool     ClauseHasMaxPosEqLit(Clause_p clause);
 
 Clause_p ClauseCanonize(Clause_p clause);
 int      ClauseStructWeightCompare(Clause_p c1, Clause_p c2);
+int      ClauseStructWeightLexCompare(Clause_p c1, Clause_p c2);
 bool     ClauseIsACRedundant(Clause_p clause);
 
 #define  ClauseIsEquational(clause) \

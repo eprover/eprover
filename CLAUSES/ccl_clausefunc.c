@@ -53,7 +53,7 @@ Changes
 
 static int clause_canon_compare(const Clause_p *c1, const Clause_p *c2)
 {
-   return ClauseStructWeightCompare(*c1, *c2);
+   return ClauseStructWeightLexCompare(*c1, *c2);
 }
 
 

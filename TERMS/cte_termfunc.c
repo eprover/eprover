@@ -769,6 +769,40 @@ int TermStructWeightCompare(Term_p t1, Term_p t2)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: TermLexCompare()
+//
+//   Compare two terms lexicographically by f_codes.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+int TermLexCompare(Term_p t1, Term_p t2)
+{
+   long res;
+   int i;
+
+   res = t1->f_code - t2->f_code;
+   if(res)
+   {
+      return res;
+   }
+   assert(t1->arity == t2->arity);
+   for(i=0; i<t1->arity; i++)
+   {
+      res = TermLexCompare(t1->args[i], t2->args[i]);
+      if(res)
+      {
+	 return res;
+      }
+   }   
+   return 0;
+}
+
 
 /*-----------------------------------------------------------------------
 //

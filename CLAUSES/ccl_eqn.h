@@ -208,6 +208,7 @@ EqnSide EqnIsDefinition(Eqn_p eq, int min_arity);
 
 Eqn_p   EqnCanonize(Eqn_p eq);
 int     EqnStructWeightCompare(Eqn_p l1, Eqn_p l2);
+int     EqnStructWeightLexCompare(Eqn_p l1, Eqn_p l2);
 bool    EqnEqualDirected(Eqn_p eq1,  Eqn_p eq2, TermEqualTestFun EqualTest);
 bool    EqnEqual(Eqn_p eq1,  Eqn_p eq2, TermEqualTestFun EqualTest);
 #define LiteralEqual(eq1, eq2, EqualTest) \

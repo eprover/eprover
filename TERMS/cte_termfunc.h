@@ -65,6 +65,8 @@ bool   TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1,
 
 int    TermStructWeightCompare(Term_p t1, Term_p t2);
 
+int    TermLexCompare(Term_p t1, Term_p t2);
+
 bool   TermIsSubterm(Term_p super, Term_p test, DerefType deref,
                       TermEqualTestFun EqualTest);
 

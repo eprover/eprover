@@ -797,8 +797,8 @@ EqnSide EqnIsDefinition(Eqn_p eq, int min_arity)
 //   Bring equation into canonical form: If there is at least one
 //   $true-term, RHS is a true term. Otherwise, the bigger term (by
 //   standard weight) is the LHS. If they are equal, the one with the
-//   smaller top symbol arity is LHS. Otherwise, the result is
-//   undetermined.
+//   smaller top symbol arity is LHS. Otherwise, compare
+//   lexicographically. 
 //
 // Global Variables: -
 //
@@ -808,7 +808,13 @@ EqnSide EqnIsDefinition(Eqn_p eq, int min_arity)
 
 Eqn_p EqnCanonize(Eqn_p eq)
 {
-   if(TermStructWeightCompare(eq->lterm, eq->rterm) < 0)
+   int res = TermStructWeightCompare(eq->lterm, eq->rterm);
+   
+   if(!res)
+   {
+      res = TermLexCompare(eq->lterm, eq->rterm);
+   }
+   if(res < 0)
    {
       EqnSwapSides(eq);
    }
@@ -865,6 +871,36 @@ int EqnStructWeightCompare(Eqn_p l1, Eqn_p l2)
       return res;
    }
    res = TermStructWeightCompare(l1->rterm, l2->rterm);   
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: EqnStructWeightLexCompare()
+//
+//   Compare equations first by structure, then by lexical f_codes. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+int EqnStructWeightLexCompare(Eqn_p l1, Eqn_p l2)
+{
+   int res = EqnStructWeightCompare(l1, l2);
+
+   if(res)
+   {
+      return res;
+   }
+   res = TermLexCompare(l1->lterm, l2->lterm);
+   if(res)
+   {
+      return res;
+   }
+   res = TermLexCompare(l1->rterm, l2->rterm);   
    return res;
 }
 

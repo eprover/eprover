@@ -160,7 +160,7 @@ static bool term_query_var_prop(Term_p term, TermProperties query,
 
 int eqn_canon_compare(Eqn_p *l1, Eqn_p *l2)
 {
-   return EqnStructWeightCompare(*l1, *l2);
+   return EqnStructWeightLexCompare(*l1, *l2);
 }
 
 /*---------------------------------------------------------------------*/
@@ -364,7 +364,7 @@ Clause_p ClauseCanonize(Clause_p clause)
 //   smaller number of neg literals < greater number of neg literals 
 //   smaller number of literals < greater number of literals 
 //   StandardWeight
-//   Lex Eq comparison.
+//   Lexical extension of structural 
 //
 // Global Variables: -
 //
@@ -431,7 +431,41 @@ int ClauseStructWeightCompare(Clause_p c1, Clause_p c2)
    return 0;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseStructWeightLexCompare()
+//
+//   Compare two clauses based on structure, break ties by lexical
+//   comparison. 
+// 
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 
+int ClauseStructWeightLexCompare(Clause_p c1, Clause_p c2)
+{
+   Eqn_p handle1, handle2;
+   int res = ClauseStructWeightCompare(c1, c2);
+
+   if(res)
+   {
+      return res;
+   }
+   for(handle1=c1->literals, handle2=c2->literals; 
+       handle1;
+       handle1=handle1->next,handle2=handle2->next)
+   {
+      assert(handle2);
+      
+      res = EqnStructWeightLexCompare(handle1, handle2);
+      if(res)
+      {
+	 return res;
+      }          
+   }
+   return 0;
+}
+ 
 /*-----------------------------------------------------------------------
 //
 // Function: ClauseIsACRedundant()
