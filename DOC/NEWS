@@ -4,6 +4,12 @@ the E equational theorem prover.
 Version 0.82 ->
 
 - Small improvement in unification
+- Reworked parser
+- Rebuild indexing data structures with IntMaps (should be more
+  memory efficient for large signatures)
+- Added preliminary support for distinct objects and numbers
+- Added support for stronger rewriting (instantiating unbound
+  variables in potential right hand sides)
 
 Version 0.81 -> 0.82 Lung Ching
 
