@@ -32,8 +32,8 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-/*  cvs tag E-0-82dev036 */
-#define VERSION      "0.82dev036"
+/*  cvs tag E-0-82dev038 */
+#define VERSION      "0.82dev038"
 #define NAME         "eprover"
 
 #define NICKNAME     "Lung Ching"
@@ -143,6 +143,7 @@ typedef enum
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
+
 
 OptCell opts[] =
 {
@@ -791,7 +792,7 @@ OptCell opts[] =
    
    {OPT_WATCHLIST,
     '\0', "watchlist",
-    ReqArg, NULL,
+    OptArg, WATCHLIST_INLINE_QSTRING,
     "Give the name for a file containing clauses to be watched "
     "for during the saturation process. If a clause is generated that "
     "subsumes a watchlist clause, the subsumed clause is removed from "
@@ -800,7 +801,11 @@ OptCell opts[] =
     " put the empty clause onto the list and use the built-in clause "
     "selection heuristic "
     "'UseWatchlist' (or build a heuristic yourself using the priority"
-    " functions 'PreferWatchlist' and 'DeferWatchlist')."},
+    " functions 'PreferWatchlist' and 'DeferWatchlist')."
+    " Use the argument " WATCHLIST_INLINE_QSTRING " (or no argument)"
+    " and the special clause type "
+    "'watchlist' if you want to put watchlist clauses into the normal input"
+    " stream. This is only supported for TPTP input formats."}, 
    
    {OPT_WATCHLIST_NO_SIMPLIFY,
     '\0', "no-watchlist-simplification",
@@ -1049,12 +1054,37 @@ int main(int argc, char* argv[])
    {
       proofstate->watchlist = ClauseSetAlloc();
       
-      in = CreateScanner(StreamTypeFile, watchlist_filename, true, "include");
-      ScannerSetFormat(in, parse_format);
-      ClauseSetParseList(in, proofstate->watchlist,
-			 proofstate->original_terms);
-      CheckInpTok(in, NoToken);
-      DestroyScanner(in);
+      if(watchlist_filename != UseInlinedWatchList)
+      {
+         in = CreateScanner(StreamTypeFile, watchlist_filename, true, "include");
+         ScannerSetFormat(in, parse_format);
+         ClauseSetParseList(in, proofstate->watchlist,
+                            proofstate->original_terms);
+         CheckInpTok(in, NoToken);
+         DestroyScanner(in);
+      }
+      else
+      {
+         PStack_p stack = PStackAlloc();
+         Clause_p handle;
+         
+         for(handle =  proofstate->axioms->anchor->succ; 
+             handle!= proofstate->axioms->anchor;
+             handle = handle->succ)
+         {
+            if(ClauseQueryTPTPType(handle)==CPTypeWatchClause)
+            {
+               PStackPushP(stack, handle);
+            }
+         }
+         while(!PStackEmpty(stack))
+         {
+            handle = PStackPopP(stack);
+            ClauseSetExtractEntry(handle);
+            ClauseSetInsert(proofstate->watchlist, handle);
+         }         
+         PStackFree(stack);
+      }       
       ClauseSetSetProp(proofstate->watchlist, CPWatchOnly);
       ClauseSetDocInital(GlobalOut, OutputLevel, proofstate->watchlist);
    }
@@ -1739,7 +1769,15 @@ CLState_p process_options(int argc, char* argv[])
 	    StrongUnitForwardSubsumption = true;
 	    break;  
       case OPT_WATCHLIST:
-	    watchlist_filename = arg;
+            if(strcmp(WATCHLIST_INLINE_STRING, arg)==0 ||
+               strcmp(WATCHLIST_INLINE_QSTRING, arg)==0  )
+            {
+               watchlist_filename = UseInlinedWatchList;
+            }
+            else
+            {
+               watchlist_filename = arg;
+            }
 	    break;
       case OPT_WATCHLIST_NO_SIMPLIFY:
 	    h_parms->watchlist_simplify = false;
