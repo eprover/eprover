@@ -119,7 +119,7 @@ static bool pcl_verify_eprover(ClauseSet_p problem,char *executable,
    char*  name=TempFileName();
    FILE*  problemfile;
 
-   assert(TPTPFormatPrint);
+   assert(OutputFormat == TPTPFormat);
 
    if(!executable)
    {
@@ -166,7 +166,7 @@ static bool pcl_verify_eprover(ClauseSet_p problem,char *executable,
 
 static void eqn_print_otter(FILE* out, Eqn_p eqn)
 {
-   assert(!TPTPFormatPrint);
+   assert(OutputFormat == LOPFormat);
 
    if(EqnIsEquLit(eqn))
    {
@@ -399,7 +399,7 @@ static void sig_print_dfg(FILE* out, ClauseSet_p set, Sig_p sig)
 
 static void eqn_print_dfg(FILE* out, Eqn_p eqn)
 {
-   assert(!TPTPFormatPrint);
+   assert(OutputFormat == LOPFormat);
    assert(!EqnUseInfix);
 
    if(EqnIsNegative(eqn))
