@@ -224,8 +224,8 @@ void PCLStepUpdateRefs(PCLProt_p prot, PCLStep_p step)
    /* PCLStepPrint(stdout, step);printf("\n"); */
    if(step->just->op == PCLOpQuote)
    {
-      PCLStep_p handle = PCLExprArg(step->just,0);
-      handle->pure_quote_refs++;
+      PCLStep_p handle = PCLProtFindStep(prot, PCLExprArg(step->just,0));
+      handle->pure_quote_refs++;	 
    }
    PCLExprUpdateRefs(prot, step->just);
 }
@@ -431,7 +431,8 @@ float PCLStepComputeLemmaWeight(PCLProt_p prot, PCLStep_p step,
       res = res*params->horn_bonus;
    }   
 
-   if(step->passive_simpl_refs && 
+   if((step->passive_simpl_refs || step->pure_quote_refs)
+      && 
       !(step->active_pm_refs+step->other_generating_refs+step->active_simpl_refs) )
    {
       res = 0;
