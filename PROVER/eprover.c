@@ -32,8 +32,8 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-/*  cvs tag E-0-82dev032 */
-#define VERSION      "0.82dev032"
+/*  cvs tag E-0-82dev033 */
+#define VERSION      "0.82dev033"
 #define NAME         "eprover"
 
 #define NICKNAME     "Lung Ching"
@@ -1582,12 +1582,13 @@ CLState_p process_options(int argc, char* argv[])
 	    h_parms->split_clauses = CLStateGetIntArg(handle, arg);
 	    break;	    
       case OPT_SPLIT_HOW:
-	    h_parms->split_method = CLStateGetIntArg(handle, arg);
-	    if((h_parms->split_method < 0) ||(h_parms->split_method>2))
+	    tmp = CLStateGetIntArg(handle, arg);
+	    if((tmp < 0) ||(tmp > 2))
 	    {
 	       Error("Argument to option --split-method "
 		     "has to be value between 0 and 2", USAGE_ERROR);
 	    }
+            h_parms->split_method = tmp;
 	    break;
       case OPT_SPLIT_AGGRESSIVE:
 	    h_parms->split_aggressive = true;
