@@ -94,10 +94,17 @@ e_swinv_pat    = re.compile("swap_invalid.*sf_ai")
 
 cvc_ios_pat = re.compile("ios_t1_ios_bia_np_sf_ai.*cvc")
 e_ios_pat   = re.compile("ios_t1_ios_np_sf_ai.*tptp")
-cvc_circqueue_pat = re.compile("circular_queue_t1_record_ios_mod_np_sf_ai.*cvc");
-cvc_queue_pat = re.compile("queue_t1_record_ios_np_sf_ai.*cvc");
-e_circqueue_pat = re.compile("circular_queue_t1_record_ios_mod_np_sf_ai.*tptp");
-e_queue_pat = re.compile("queue_t1_record_ios_np_sf_ai.*tptp");
+
+#cvc_circqueue_pat = re.compile("circular_queue_t1_record_ios_mod_np_sf_ai.*cvc");
+#cvc_queue_pat = re.compile("queue_t1_record_ios_np_sf_ai.*cvc");
+#e_circqueue_pat = re.compile("circular_queue_t1_record_ios_mod_np_sf_ai.*tptp");
+#e_queue_pat = re.compile("queue_t1_record_ios_np_sf_ai.*tptp");
+
+cvc_circqueue_pat = re.compile("circular_queue_t1_native_record_ios_mod_np_sf_ai.*cvc");
+cvc_queue_pat = re.compile("queue_t1_native_record_ios_np_sf_ai.*cvc");
+e_circqueue_pat = re.compile("circular_queue_t1_native_record_ios_mod_np_sf_ai.*tptp");
+e_queue_pat = re.compile("queue_t1_native_record_ios_np_sf_ai.*tptp");
+
 
 
 
