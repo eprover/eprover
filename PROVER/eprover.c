@@ -918,10 +918,12 @@ int main(int argc, char* argv[])
       fprintf(GlobalOut, "# Removed in preprocessing             : %ld\n",
 	      preproc_removed);
       ProofStateStatisticsPrint(GlobalOut, proofstate);
-      fprintf(GlobalOut, "# Clause-clause subsumption calls      : %ld\n",
+      fprintf(GlobalOut, "# Clause-clause subsumption calls (NU) : %ld\n",
 	      ClauseClauseSubsumptionCalls);
       fprintf(GlobalOut, "# Rec. Clause-clause subsumption calls : %ld\n",
 	      ClauseClauseSubsumptionCallsRec);
+      fprintf(GlobalOut, "# Unit Clause-clause subsumption calls : %ld\n",
+	       UnitClauseClauseSubsumptionCalls);
    }
    /* {char c = getc(stdin);} */
 #ifndef FAST_EXIT

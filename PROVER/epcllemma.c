@@ -43,6 +43,7 @@ typedef enum
    OPT_VERBOSE,
    OPT_OUTPUT,
    OPT_SILENT,
+   OPT_OUTPUTLEVEL,
    OPT_TPTP_PRINT,
    OPT_TPTP_FORMAT,
    OPT_ITERATIVE_LEMMAS,
@@ -51,7 +52,14 @@ typedef enum
    OPT_ABS_LEMMA_LIMIT,
    OPT_REL_LEMMA_LIMIT,
    OPT_ABS_LEMQUAL_LIMIT,
-   OPT_REL_LEMQUAL_LIMIT
+   OPT_REL_LEMQUAL_LIMIT,
+   OPT_LEMMA_BASE_W,
+   OPT_LEMMA_ACT_PM_W,
+   OPT_LEMMA_O_GEN_W,
+   OPT_LEMMA_ACT_SIMPL_W,
+   OPT_LEMMA_PAS_SIMPL_W,
+   OPT_NO_REFERENCE_WEIGHTS,
+   OPT_LEMMA_HORN_BONUS
 }OptionCodes;
 
 
@@ -88,11 +96,20 @@ OptCell opts[] =
     'o', "output-file",
     ReqArg, NULL,
    "Redirect output into the named file."},
-    
+   
    {OPT_SILENT,
     's', "silent",
     NoArg, NULL,
     "Equivalent to --output-level=0."},
+
+   {OPT_OUTPUTLEVEL,
+    'l', "output-level",
+    ReqArg, NULL,
+    "Select an output level, greater values imply more verbose "
+    "output. Level 0 produces "
+    "nearly no output, level 1 will print lemmas as clause, "
+    "level 2 will print PCL steps selected as lemmas, and "
+    "level 3 will give a full protocol with lemmas marked as such."},
    
    {OPT_TPTP_PRINT,
     '\0', "tptp-out",
@@ -105,7 +122,7 @@ OptCell opts[] =
     "Equivalent to --tptp-out (supplied for consistency in the E toolchain."},
 
    {OPT_ITERATIVE_LEMMAS,
-    'l', "iterative-lemmas",
+    'i', "iterative-lemmas",
     NoArg, NULL,
     "Use a simple iterative lemma generation algorithm that will traverse the PCL"
     " listing in a topological ordering (from axioms to leave nodes),"
@@ -135,7 +152,7 @@ OptCell opts[] =
     "while the others may end up O(n^2) in the (unexpected) worst case."},
 
    {OPT_ABS_LEMMA_LIMIT,
-    'a', "max-lemmas",
+    'A', "max-lemmas",
     ReqArg, NULL,
     "Set the maximal number of lemmas to be selected absolutely."},
 
@@ -160,6 +177,53 @@ OptCell opts[] =
     "Set a mimimum lemma score as a fraction of the best possible "
     "lemma score in the proof tree."
    },
+   
+   {OPT_LEMMA_BASE_W,
+    'b', "lemma-base-weight",
+    ReqArg, NULL,
+    "Set the base weight for the influence of references in the lemma "
+    "quality evaluation. The larger it is in relation to the "
+    "inference weights (below), the less important is the actual "
+    "number of references. If you want to use only the lemma size, set this to "
+    "one and the individual reference weights to 0 (using e.g. the "
+    "--no-reference-weights option)."},
+   {OPT_LEMMA_ACT_PM_W,
+    'a', "active-pm-weight",
+    ReqArg, NULL,
+    "Determine the weight to use for eaach use of the clause as an active"
+    " paramodulation partner (i.e. in a conditional rewrite step (if you "
+    "follow a strictly equational paradigm (which I do)))."},
+   
+   {OPT_LEMMA_O_GEN_W,
+    'g',"generating-inference-weight",
+    ReqArg, NULL,
+    "Detemine the weight to give to references in generating infences other than "
+    "active paramodulation inferences."},
+
+   {OPT_LEMMA_ACT_SIMPL_W,
+    'S',"simplifying-weight",
+    ReqArg, NULL,
+    "Determine the weight to give to a reference to a clause used as a "
+    "simplifying clause."},
+
+   {OPT_LEMMA_PAS_SIMPL_W,
+    'p',"simplified-weight",
+    ReqArg, NULL,
+    "Determine the weight of a reference where a clause is "
+    "being simplified."},
+
+   {OPT_NO_REFERENCE_WEIGHTS,
+    'N',"no-reference-weights",
+    NoArg, NULL,
+    "Set all the weights given to references to 0. If the base weight "
+    "(see above) is not 0, this leads to a pure size/prooftree evaluation."},
+
+   {OPT_LEMMA_HORN_BONUS,
+    'H',"horn-bonus",
+    ReqArg, NULL,
+    "Weight factor to apply to the evaluation of Horn clauses. Use 1 to be"
+    " fair, 2.5 if you think Horn clauses are 2.5 times more dandy than "
+    "non-Horn clauses. Yes, nice lemmas _are_ amatter of taste ;-)."},   
 
    {OPT_NOOPT,
     '\0', NULL,
@@ -261,7 +325,20 @@ int main(int argc, char* argv[])
 	 assert(false && "Unknown algorithm type ???");
 	 break;
    }
-   PCLProtPrintPropClauses(GlobalOut, prot, PCLIsLemma, true);
+   switch(OutputLevel)
+   {
+   case 0:
+	 break;
+   case 1:
+	 PCLProtPrintPropClauses(GlobalOut, prot, PCLIsLemma, true);
+	 break;
+   case 2:
+	 PCLProtPrintPropClauses(GlobalOut, prot, PCLIsLemma, false);
+	 break;
+   default:
+	 PCLProtPrint(GlobalOut, prot);
+	 break;
+   }
    
    PCLProtFree(prot);
    InferenceWeightsFree(iw);
@@ -325,6 +402,9 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_SILENT:
 	    OutputLevel = 0;
 	    break;
+      case OPT_OUTPUTLEVEL:
+            OutputLevel = CLStateGetIntArg(handle, arg);
+            break;	    
       case OPT_TPTP_PRINT:
 	    TPTPFormatPrint = true;
 	    EqnFullEquationalRep = false;
@@ -360,7 +440,30 @@ CLState_p process_options(int argc, char* argv[])
 	    min_quality_rel = CLStateGetFloatArg(handle, arg);	    
 	    min_quality_rel_p = true;
 	    break;
-       default:
+      case OPT_LEMMA_BASE_W:
+	    lp->base_weight = CLStateGetIntArg(handle, arg);
+	    break;
+      case OPT_LEMMA_ACT_PM_W:
+	    lp->act_pm_w = CLStateGetFloatArg(handle, arg);	    
+	    break;
+      case OPT_LEMMA_O_GEN_W:
+	    lp->o_gen_w = CLStateGetFloatArg(handle, arg);	    
+	    break;
+      case OPT_LEMMA_ACT_SIMPL_W:
+	    lp->act_simpl_w = CLStateGetFloatArg(handle, arg);	    
+	    break;
+      case OPT_LEMMA_PAS_SIMPL_W:
+	    lp->pas_simpl_w = CLStateGetFloatArg(handle, arg);	    
+	    break;
+      case OPT_NO_REFERENCE_WEIGHTS:
+	    lp->act_pm_w    = 0;
+	    lp->o_gen_w     = 0;
+	    lp->pas_simpl_w = 0;
+	    lp->pas_simpl_w = 0;
+	    break;
+      case OPT_LEMMA_HORN_BONUS:
+	    break;
+      default:
 	    assert(false);
 	    break;
       }
