@@ -141,46 +141,6 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
 }
 
 
-#ifdef NEVER_DEFINED
-/*-----------------------------------------------------------------------
-//
-// Function: forward_contract_keep_wrap()
-//
-//   As forward_contract_keep(), but return just true or false as the
-//   old version did.
-//
-// Global Variables: -
-//
-// Side Effects    : Memory operations
-//
-/----------------------------------------------------------------------*/
-
-
-static bool forward_contract_keep_wrap(ProofState_p state, ProofControl_p
-				       control, Clause_p clause, ulong_c*
-				       subsumed_count, ulong_c* trivial_count,
-				       bool non_unit_subsumption,
-				       bool context_sr,
-				       RewriteLevel level)
-{
-   FVPackedClause_p pclause = forward_contract_keep(state, 
-						    control,
-						    clause,
-						    subsumed_count, 
-						    trivial_count, 
-						    non_unit_subsumption, 
-						    context_sr,
-						    level);
-   if(pclause)
-   {
-      FVUnpackClause(pclause);
-      ENSURE_NULL(pclause);
-      return true;
-   }
-   return false;
-}
-#endif
-
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
