@@ -21,7 +21,7 @@ Options:
  Point to the directory where the result files can be found. This
  overrides the hard-coded default.
 
-Copyright 2004 Stephan Schulz, schulz@eprover.org
+Copyright 2004, 2005 Stephan Schulz, schulz@eprover.org
 
 This code is part of the support structure for the equational
 heorem prover E. Visit
@@ -90,6 +90,15 @@ e_siinv_pat    = re.compile("storeinv_invalid.*sf_ai")
 cvc_swinv_pat  = re.compile("swap_invalid.*nf_ai")
 cvc_swfinv_pat = re.compile("swap_invalid.*sf_ai")
 e_swinv_pat    = re.compile("swap_invalid.*sf_ai")
+
+
+cvc_ios_pat = re.compile("ios_t1_ios_bia_np_sf_ai.*cvc")
+e_ios_pat   = re.compile("ios_t1_ios_np_sf_ai.*tptp")
+cvc_circqueue_pat = re.compile("circular_queue_t1_record_ios_mod_np_sf_ai.*cvc");
+cvc_queue_pat = re.compile("queue_t1_record_ios_np_sf_ai.*cvc");
+e_circqueue_pat = re.compile("circular_queue_t1_record_ios_mod_np_sf_ai.*tptp");
+e_queue_pat = re.compile("queue_t1_record_ios_np_sf_ai.*tptp");
+
 
 
 dir = "/Users/schulz/SOURCES/Projects/VERONA/dp/array/TEST_RESULTS/"
@@ -289,6 +298,84 @@ data = [
 plot = pylib_graphs.plot("Swap, T3, Flat", data)
 plot_list.append(plot)
 
+
+
+# IOS
+
+data = [
+    ("CVC" , dir+"protokoll_CVC_Auto_ios", cvc_ios_pat),
+    ("CVC Lite" , dir+"protokoll_CVCL_Auto_ios", cvc_ios_pat),
+    ("E (sts28), axiomatized indices" , dir+"protokoll_E_sts28_ios", e_ios_pat),
+    ("E (sts11), axiomatized indices" , dir+"protokoll_E_sts11_ios", e_ios_pat),
+    ("E (Auto), axiomatized indices" , dir+"protokoll_E_Auto_ios", e_ios_pat)
+    ]
+
+
+plot = pylib_graphs.plot("IOS", data)
+plot_list.append(plot)
+
+data = [
+    ("CVC" , dir+"protokoll_CVC_Auto_ios", cvc_ios_pat),
+    ("CVC Lite" , dir+"protokoll_CVCL_Auto_ios", cvc_ios_pat),
+    ("E (sts28), axiomatized indices" , dir+"protokoll_E_sts28_ios", e_ios_pat)
+    ]
+
+
+plot = pylib_graphs.plot("IOS_opt", data)
+plot_list.append(plot)
+
+# Queues
+
+data = [
+    ("CVC" , dir+"protokoll_CVC_Auto_ios", cvc_queue_pat),
+    ("CVC Lite" , dir+"protokoll_CVCL_Auto_ios", cvc_queue_pat),
+    ("E (sts28), axiomatized indices" , dir+"protokoll_E_sts28_ios", e_queue_pat),
+    ("E (sts11), axiomatized indices" , dir+"protokoll_E_sts11_ios", e_queue_pat),
+    ("E (Auto), axiomatized indices" , dir+"protokoll_E_Auto_ios", e_queue_pat)
+    ]
+
+
+plot = pylib_graphs.plot("Queues", data)
+plot_list.append(plot)
+
+
+# Circular queues
+
+data = [
+    ("CVC Lite" , dir+"protokoll_CVCL_Auto_ios", cvc_circqueue_pat),
+    ("E (sts28), axiomatized indices" , dir+"protokoll_E_sts28_ios", e_circqueue_pat),
+    ("E (sts11), axiomatized indices" , dir+"protokoll_E_sts11_ios", e_circqueue_pat),
+    ("E (Auto), axiomatized indices" , dir+"protokoll_E_Auto_ios", e_circqueue_pat)
+    ]
+
+
+plot = pylib_graphs.plot("Circular queues", data)
+plot_list.append(plot)
+
+
+# E for IWIL
+
+
+data = [
+    ("CVC (flattened)" , dir+"protokoll_CVC_Auto", cvc_scf_pat),
+    ("CVC Lite (flattened)" , dir+"protokoll_CVCL_Auto", cvc_scf_pat),
+    ("E (sts11), built-in index type" , dir+"protokoll_E_sts11_t1", e_sc_ni_pat),
+    ("E (sts11), axiomatized indices" , dir+"protokoll_E_sts11_t1", e_sc_pat)
+    ]
+
+plot = pylib_graphs.plot("Storecomm, Flat, IWIL", data)
+plot_list.append(plot)
+
+
+data = [
+    ("CVC (flattened)" , dir+"protokoll_CVC_Auto", cvc_scfinv_pat),
+    ("CVC Lite (flattened)" , dir+"protokoll_CVCL_Auto", cvc_scfinv_pat),
+    ("E (sts11), built-in index type", dir+"protokoll_E_sts11_t1", e_scinv_ni_pat),    
+    ("E (sts11), axiomatized indices" , dir+"protokoll_E_sts11_t1", e_scinv_pat)
+    ]
+
+plot = pylib_graphs.plot("Storecomm_Invalid, Flat, IWIL", data)
+plot_list.append(plot)
 
 
 # Create files

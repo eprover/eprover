@@ -38,6 +38,8 @@ memory. This should not be a problem with current memory sizes and
 typical PostScript files. If your files are larger than your swap
 space, you are in trouble.
 
+Options:
+
 -h
  Print this information and exit.
 

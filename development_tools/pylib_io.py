@@ -97,14 +97,14 @@ def get_options(argv=sys.argv[1:]):
     """
     Filter argument list for arguments starting with a -.
     """
-    options = filter(lambda x:x[0:1]=="-", argv)
+    options = filter(lambda x:x[0:1]=="-" and x!="-", argv)
     return options
 
 def get_args(argv=sys.argv[1:]):
     """
     Filter argument list for real arguments.
     """
-    files   = filter(lambda x:x[0:1]!="-", argv)
+    files   = filter(lambda x:x[0:1]!="-" or x=="-", argv)
     return files
 
 

@@ -119,7 +119,7 @@ def uniq(l):
     """
     Create a new list by replacing sublists containing the same element
     in l  with a single copy of the element. Not very efficient, but
-    quite Pythonic. I think.
+    quite Pythonic. I think. This, as UNIX uniq, requires a sorted list.
     """
     nl = list(l)
     i = 0
@@ -133,6 +133,13 @@ def uniq(l):
         except IndexError:
             break
     return nl
+
+def uniq_unsorted(l):
+    """
+    Return a list of different elements in order of first occurance.
+    """
+    set = {}
+    return [set.setdefault(e,e) for e in l if e not in set]
 
 
 def element_seq_count(l):
@@ -155,12 +162,6 @@ def element_seq_count(l):
     nl.append(count)
     return nl
 
-
-def sum(l):
-    """
-    Return the sum of elements of l.
-    """
-    return reduce(lambda x,y:x+y, l, 0)
 
 def mean(l):
     """

@@ -73,7 +73,7 @@ def prob_vector(abs_freq_vector, sample_size, omega_size):
     pv = map(lambda x:rule_of_succession(x,sample_size,omega_size), abs_freq_vector)
     #print "prob_vector:", abs_freq_vector
     #print "prob_vector:", pv
-    #print  "prob_vector:", pylib_basics.sum(pv)
+    #print  "prob_vector:", sum(pv)
     return pv
 
 
@@ -102,7 +102,7 @@ def compute_entropy_absdistrib(distrib):
     elementary event!
     """
     omega_size = len(distrib)
-    sample_size = pylib_basics.sum(distrib)
+    sample_size = sum(distrib)
     prob_distrib = prob_vector(distrib,sample_size, omega_size)
     return compute_entropy(prob_distrib)
 
@@ -115,13 +115,13 @@ def remainder_entropy(sample, estimator=rel_frequency):
     """
     assert type(sample)  == ListType
     
-    sample_size = reduce(lambda x,y:x+y, map(pylib_basics.sum, sample),0)
+    sample_size = reduce(lambda x,y:x+y, map(sum, sample),0)
     outer_omega_size = len(sample)
     #print "remainder_entropy:", sample    
-    outer_abs_freq = map(pylib_basics.sum, sample)
+    outer_abs_freq = map(sum, sample)
     outer_probs = prob_vector(outer_abs_freq,estimator)
     #print  "remainder_entropy:", outer_abs_freq
-    #print  "remainder_entropy:", outer_probs, pylib_basics.sum(outer_probs)
+    #print  "remainder_entropy:", outer_probs, sum(outer_probs)
     weighted_entropies= map(lambda x, y: (y,
                                           compute_entropy(x, estimator)),
                             sample,
@@ -143,18 +143,18 @@ def compute_entropies(distrib):
     remainder entropy of B|A.
     """
     omega_size = len(distrib*len(distrib[0]))
-    sample_size = pylib_basics.sum(map(pylib_basics.sum, distrib))
+    sample_size = sum(map(sum, distrib))
     # print sample_size, omega_size
     prob_distrib = map(lambda x:prob_vector(x,sample_size, omega_size),distrib)
 
-    part_distrib = map(pylib_basics.sum, prob_distrib)
+    part_distrib = map(sum, prob_distrib)
     part_entropy = compute_entropy(part_distrib)
-    # print "part_distrib:", part_distrib, pylib_basics.sum(part_distrib)
+    # print "part_distrib:", part_distrib, sum(part_distrib)
 
     class_distrib = reduce(lambda l1, l2:map(lambda x,y:x+y, l1, l2),
                            prob_distrib)
     class_entropy = compute_entropy(class_distrib)
-    # print "Class_distrib:", class_distrib, pylib_basics.sum(class_distrib)
+    # print "Class_distrib:", class_distrib, sum(class_distrib)
     
     remainder_entropy = 0;
     for i in range(0, len(distrib)):

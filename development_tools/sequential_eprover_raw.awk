@@ -107,7 +107,7 @@ function check_and_initialize(    tmp, job)
                 match(job, /^[0-9A-Za-z].*\.p/)||   
                 match(job, /^[0-9A-Za-z].*\.e/)  || 
                 match(job, /^[0-9A-Za-z].*\.tpt/)  ||
-                match(job, /^[0-9A-Za-z].*\.tptp/)
+                match(job, /^[0-9A-Za-z].*\.tptp/))
 	     {
 		job = substr(tmp, RSTART, RLENGTH);
 		processed_jobs[job] = 1;

@@ -6,12 +6,12 @@
 # Functions (and classes) for manipulating E result protocols (this is
 # probably fairly specialized and not that useful for others...
 #
-# Copyright 2003 Stephan Schulz, schulz@informatik.tu-muenchen.de
+# Copyright 2003-2005 Stephan Schulz, schulz@eprover.org
 #
 # This code is part of the support structure for the equational
 # theorem prover E. Visit
 #
-#  http://www4.informatik.tu-muenchen.de/~schulz/WORK/eprover.html 
+#  http://www.eprover.org
 #
 # for more information.
 #
@@ -230,7 +230,17 @@ class eprotocol:
                 res.append( (i, value[1]));
         res.sort();
         return res;
-        
+
+    def collect_times(self, success_only=False):
+        """
+        Return a list of the run times for all problems (or all
+        successfully solved problems) in the protocol.
+        """
+        if success_only:
+            return [i[1] for i in self.data.values()  if i[0]!='F']
+        else:
+            return [i[1] for i in self.data.values()]
+
     
     def repr_entry(self, key):
         """
