@@ -32,7 +32,8 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-#define VERSION      "0.82dev016"
+/*  cvs tag E-0-82dev018 */
+#define VERSION      "0.82dev018"
 #define NAME         "eprover"
 
 #define NICKNAME     "Lung Ching"
