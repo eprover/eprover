@@ -106,6 +106,96 @@ Clause_p formula_collect_clause(Formula_p form, TB_p terms,
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: verify_name()
+//
+//   If name_selector is NULL, return true. Otherwise, check if
+//   info->name is in name_selector. Return true if yes, false
+//   otherwise. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static bool verify_name(StrTree_p *name_selector, ClauseInfo_p info)
+{
+   StrTree_p handle;
+
+   if(!(*name_selector))
+   {
+      return true;
+   }
+   handle = StrTreeFind(name_selector, info->name);
+   if(!handle)
+   {
+      return false;
+   }
+   handle->val1.i_val = 1; /* Mark as found */
+   return true;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: check_all_found()
+//
+//   Check if all names in name_selector are marked as found. Print a
+//   useful error message and terminate otherwise.
+//
+// Global Variables: -
+//
+// Side Effects    : Possibly exit, memory operations.
+//
+/----------------------------------------------------------------------*/
+
+static void check_all_found(Scanner_p in, StrTree_p name_selector)
+{
+   PStack_p trav_stack, err_stack = PStackAlloc();
+   StrTree_p handle;
+
+   trav_stack = StrTreeTraverseInit(name_selector);
+   
+   while((handle = StrTreeTraverseNext(trav_stack)))
+   {
+      if(!handle->val1.i_val)
+      {
+         PStackPushP(err_stack, handle->key);
+      }
+   }
+   StrTreeTraverseExit(trav_stack);
+
+   if(!PStackEmpty(err_stack))
+   {
+      DStr_p err_str = DStrAlloc();
+      char *sep = "";
+      PStackPointer i;
+
+      DStrSet(err_str, "Error: ");
+      if(in->include_pos)
+      {
+         DStrAppendStr(err_str, "Include statement at ");
+         DStrAppendStr(err_str, in->include_pos);
+         DStrAppendStr(err_str, " ");
+      }
+      DStrAppendStr(err_str, "Missing the following requested clauses/formulae in ");
+      DStrAppendDStr(err_str, Source(in));
+      DStrAppendStr(err_str, ": ");
+      
+      for(i=0; i< PStackGetSP(err_stack); i++)
+      {
+         DStrAppendStr(err_str, sep);
+         DStrAppendStr(err_str, PStackElementP(err_stack, i));
+         sep = ", ";
+      }
+      Error(DStrView(err_str), INPUT_SEMANTIC_ERROR);
+      DStrFree(err_str);
+   }   
+
+   PStackFree(err_stack);
+}
 
 
 /*---------------------------------------------------------------------*/
@@ -236,7 +326,8 @@ long FormulaSetCNF(FormulaSet_p set, ClauseSet_p clauseset,
 // Function: FormulaAndClauseSetParse()
 //
 //   Parse a mixture of clauses and formulas (if the syntax supports
-//   it). Return number of elements parsed.
+//   it). Return number of elements parsed (even if discarded by
+//   filter).
 //
 // Global Variables: -
 //
@@ -245,12 +336,19 @@ long FormulaSetCNF(FormulaSet_p set, ClauseSet_p clauseset,
 /----------------------------------------------------------------------*/
 
 long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset, 
-                              FormulaSet_p fset, TB_p terms)  
+                              FormulaSet_p fset, TB_p terms, 
+                              StrTree_p *name_selector)
 {
    long res = 0;
-   WFormula_p form;
-   Clause_p   clause;
-   
+   WFormula_p form, nextform;
+   Clause_p   clause, nextclause;
+   StrTree_p  stand_in = NULL;
+
+   if(!name_selector)
+   {
+      name_selector = &stand_in;
+   }
+
    switch(ScannerGetFormat(in))
    {
    case LOPFormat:
@@ -258,22 +356,71 @@ long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset,
          res = ClauseSetParseList(in, cset, terms);
          break;
    default:
-         while(TestInpId(in, "input_formula|input_clause|fof|cnf"))
+         while(TestInpId(in, "input_formula|input_clause|fof|cnf|include"))
          {
-            if(TestInpId(in, "input_formula|fof"))
+            if(TestInpId(in, "include"))
             {
-               form = WFormulaParse(in, terms);
-               FormulaSetInsert(fset, form);
+               StrTree_p new_limit = NULL;
+               Scanner_p new_in;
+               ClauseSet_p  ncset = ClauseSetAlloc();
+               FormulaSet_p nfset = FormulaSetAlloc();
+               
+               new_in = ScannerParseInclude(in, &new_limit);
+               res += FormulaAndClauseSetParse(new_in, 
+                                               ncset, 
+                                               nfset, 
+                                               terms, 
+                                               &new_limit);               
+               DestroyScanner(new_in);
+               StrTreeFree(new_limit);
+               ClauseSetInsertSet(cset, ncset);
+               FormulaSetInsertSet(fset, nfset);
+               assert(ClauseSetEmpty(ncset));
+               assert(ClauseSetEmpty(nfset));
+               ClauseSetFree(ncset);
+               FormulaSetFree(nfset);
             }
             else
             {
-               assert(TestInpId(in, "input_clause|cnf"));
-               clause = ClauseParse(in, terms);
-               ClauseSetInsert(cset, clause);
+               if(TestInpId(in, "input_formula|fof"))
+               {
+                  form = WFormulaParse(in, terms);
+                  FormulaSetInsert(fset, form);
+               }
+               else
+               {
+                  assert(TestInpId(in, "input_clause|cnf"));
+                  clause = ClauseParse(in, terms);
+                  ClauseSetInsert(cset, clause);
+               }
+               res++;
             }
-            res++;
          }
          break;
+   }
+   if(*name_selector)
+   {
+      form = fset->anchor->succ;
+      while(form!= fset->anchor)
+      {
+         nextform = form->succ;
+         if(!verify_name(name_selector, form->info))
+         {
+            FormulaSetDeleteEntry(form);
+         }
+         form = nextform;
+      }
+      clause = cset->anchor->succ;
+      while(clause!= cset->anchor)
+      {
+         nextclause = clause->succ;
+         if(!verify_name(name_selector, clause->info))
+         {
+            ClauseSetDeleteEntry(clause);
+         }
+         clause = nextclause;
+      }
+      check_all_found(in, *name_selector);
    }
    return res;
 }

@@ -459,6 +459,34 @@ void ClauseSetInsert(ClauseSet_p set, Clause_p newclause)
 
 /*-----------------------------------------------------------------------
 //
+// Function: ClauseSetInsertSet()
+//
+//   Move all clauses from from into set (leaving from empty, but not
+//   deleted). 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetInsertSet(ClauseSet_p set, ClauseSet_p from)
+{
+   Clause_p handle;
+   long res = 0;
+   
+   while(!ClauseSetEmpty(from))
+   {
+      handle = ClauseSetExtractFirst(from);
+      ClauseSetInsert(set, handle);
+      res++;
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: ClauseSetPDTIndexedInsert()
 //
 //   Insert a demodulator into the set and the sets index.

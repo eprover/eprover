@@ -138,7 +138,6 @@ void WFormulaFree(WFormula_p form)
 
 WFormula_p WFormulaTPTPParse(Scanner_p in, TB_p terms)
 {
-   char*              name;
    Formula_p          form;
    WFormulaProperties type;
    WFormula_p         handle;
@@ -151,7 +150,6 @@ WFormula_p WFormulaTPTPParse(Scanner_p in, TB_p terms)
    AcceptInpTok(in, OpenBracket);  
    CheckInpTok(in, Name|PosInt);
    info->name = DStrCopy(AktToken(in)->literal);
-   name = DStrCopy(AktToken(in)->literal);
    NextToken(in);
    AcceptInpTok(in, Comma);
    CheckInpId(in, "axiom|hypothesis|negated_conjecture|conjecture|lemma|unknown");
@@ -553,6 +551,36 @@ void FormulaSetInsert(FormulaSet_p set, WFormula_p newform)
    newform->set = set;
    set->members++;
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaSetInsertSet()
+//
+//   Move all formulas from from into set (leaving from empty, but not
+//   deleted). 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long FormulaSetInsertSet(FormulaSet_p set, FormulaSet_p from)
+{
+   WFormula_p handle;
+   long res = 0;
+   
+   while(!FormulaSetEmpty(from))
+   {
+      handle = FormulaSetExtractFirst(from);
+      FormulaSetInsert(set, handle);
+      res++;
+   }
+   return res;
+}
+
+
 
 /*-----------------------------------------------------------------------
 //

@@ -111,6 +111,7 @@ FormulaSet_p FormulaSetAlloc();
 void         FormulaSetFreeFormulas(FormulaSet_p set);
 void         FormulaSetFree(FormulaSet_p set);
 void         FormulaSetInsert(FormulaSet_p set, WFormula_p newform);
+long         FormulaSetInsertSet(FormulaSet_p set, FormulaSet_p from);
 WFormula_p   FormulaSetExtractEntry(WFormula_p form);
 #define      FormulaSetEmpty(set)\
              ((set)->anchor->succ == (set)->anchor)
