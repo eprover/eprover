@@ -34,6 +34,12 @@ Changes
 
 typedef void (*LiteralSelectionFun)(OCB_p ocb, Clause_p clause);
 
+typedef struct litsel_name_fun_assoc_cell
+{
+   char*                name;
+   LiteralSelectionFun  fun;
+}LitSelNameFunAssocCell;
+
 typedef struct lit_eval_cell
 {
    bool forbidden; /* Never select this; */

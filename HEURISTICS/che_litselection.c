@@ -30,206 +30,103 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
-char* LiteralSelectionFunNames[]=
-{ 
-   "NoSelection",
-   "NoGeneration",
-   "SelectNegativeLiterals",
-   "PSelectNegativeLiterals",
-   "SelectPureVarNegLiterals",
-   "PSelectPureVarNegLiterals",
-   "SelectLargestNegLit",
-   "PSelectLargestNegLit",
-   "SelectSmallestNegLit",
-   "PSelectSmallestNegLit",
-   "SelectLargestOrientable",
-   "PSelectLargestOrientable",
-   "MSelectLargestOrientable",
-   "SelectSmallestOrientable",
-   "PSelectSmallestOrientable",
-   "MSelectSmallestOrientable",
-   "SelectDiffNegLit",
-   "PSelectDiffNegLit",
-   "SelectGroundNegLit",
-   "PSelectGroundNegLit",
-   "SelectOptimalLit",
-   "PSelectOptimalLit",
-   "SelectMinOptimalLit",
-   "PSelectMinOptimalLit",
-   "SelectMinOptimalNoTypePred",
-   "PSelectMinOptimalNoTypePred",
-   "SelectMinOptimalNoXTypePred",
-   "PSelectMinOptimalNoXTypePred",
-   "SelectMinOptimalNoRXTypePred",
-   "PSelectMinOptimalNoRXTypePred",
-   "SelectCondOptimalLit",
-   "PSelectCondOptimalLit",
-   "SelectAllCondOptimalLit",
-   "PSelectAllCondOptimalLit",
-   "SelectOptimalRestrDepth2",
-   "PSelectOptimalRestrDepth2",
-   "SelectOptimalRestrPDepth2",
-   "PSelectOptimalRestrPDepth2",
-   "SelectOptimalRestrNDepth2",
-   "PSelectOptimalRestrNDepth2",
-   "SelectNonRROptimalLit",
-   "PSelectNonRROptimalLit",
-   "SelectNonStrongRROptimalLit",
-   "PSelectNonStrongRROptimalLit",
-   "SelectAntiRROptimalLit",
-   "PSelectAntiRROptimalLit",
-   "SelectNonAntiRROptimalLit",
-   "PSelectNonAntiRROptimalLit",
-   "SelectStrongRRNonRROptimalLit",
-   "PSelectStrongRRNonRROptimalLit",
-   "SelectUnlessUniqMax",
-   "PSelectUnlessUniqMax",
-   "SelectUnlessPosMax",
-   "PSelectUnlessPosMax",
-   "SelectUnlessUniqPosMax",
-   "PSelectUnlessUniqPosMax",
-   "SelectUnlessUniqMaxPos",
-   "PSelectUnlessUniqMaxPos",
-   "SelectComplex",
-   "PSelectComplex",
-   "SelectComplexExceptRRHorn",
-   "PSelectComplexExceptRRHorn",
-   "SelectLComplex",
-   "PSelectLComplex",
-   "SelectMaxLComplex",
-   "PSelectMaxLComplex",
-   "SelectMaxLComplexNoTypePred",
-   "PSelectMaxLComplexNoTypePred",
-   "SelectMaxLComplexNoXTypePred",
-   "PSelectMaxLComplexNoXTypePred",
-   "SelectComplexPreferNEQ",
-   "PSelectComplexPreferNEQ",
-   "SelectComplexPreferEQ",
-   "PSelectComplexPreferEQ",
-   "SelectComplexExceptUniqMaxHorn",
-   "PSelectComplexExceptUniqMaxHorn",
-   "MSelectComplexExceptUniqMaxHorn",
-   "SelectNewComplex",
-   "PSelectNewComplex",
-   "SelectNewComplexExceptUniqMaxHorn",
-   "PSelectNewComplexExceptUniqMaxHorn",
-   "SelectMinInfpos",
-   "PSelectMinInfpos",
-   "HSelectMinInfpos",
-   "GSelectMinInfpos",
-   "SelectMinInfposNoTypePred",
-   "PSelectMinInfposNoTypePred",
-   "SelectMin2Infpos",
-   "PSelectMin2Infpos",
-   "SelectComplexExceptUniqMaxPosHorn",
-   "PSelectComplexExceptUniqMaxPosHorn",
-   "SelectUnlessUniqMaxSmallestOrientable",
-   "PSelectUnlessUniqMaxSmallestOrientable",
-   NULL
-};
 
-
-
-static LiteralSelectionFun litsel_fun_array[]=
+static LitSelNameFunAssocCell name_fun_assoc[] =
 {
-   SelectNoLiterals,
-   SelectNoGeneration,
-   SelectNegativeLiterals,
-   PSelectNegativeLiterals,
-   SelectFirstVariableLiteral,
-   PSelectFirstVariableLiteral,
-   SelectLargestNegativeLiteral,
-   PSelectLargestNegativeLiteral,
-   SelectSmallestNegativeLiteral,
-   PSelectSmallestNegativeLiteral,
-   SelectLargestOrientableLiteral,
-   PSelectLargestOrientableLiteral,
-   MSelectLargestOrientableLiteral,
-   SelectSmallestOrientableLiteral,
-   PSelectSmallestOrientableLiteral,
-   MSelectSmallestOrientableLiteral,
-   SelectDiffNegativeLiteral,
-   PSelectDiffNegativeLiteral,
-   SelectGroundNegativeLiteral,
-   PSelectGroundNegativeLiteral,
-   SelectOptimalLiteral,
-   PSelectOptimalLiteral,          
-   SelectMinOptimalLiteral,
-   PSelectMinOptimalLiteral,          
-
-   SelectMinOptimalNoTypePred,
-   PSelectMinOptimalNoTypePred,          
-
-   SelectMinOptimalNoXTypePred,
-   PSelectMinOptimalNoXTypePred,          
-
-   SelectMinOptimalNoRXTypePred,
-   PSelectMinOptimalNoRXTypePred,          
-
-   SelectCondOptimalLiteral,
-   PSelectCondOptimalLiteral,
-   SelectAllCondOptimalLiteral,
-   PSelectAllCondOptimalLiteral,
-   SelectDepth2OptimalLiteral,
-   PSelectDepth2OptimalLiteral,
-   SelectPDepth2OptimalLiteral,
-   PSelectPDepth2OptimalLiteral,
-   SelectNDepth2OptimalLiteral,
-   PSelectNDepth2OptimalLiteral,
-   SelectNonRROptimalLiteral,
-   PSelectNonRROptimalLiteral,
-   SelectNonStrongRROptimalLiteral,
-   PSelectNonStrongRROptimalLiteral,
-   SelectAntiRROptimalLiteral,
-   PSelectAntiRROptimalLiteral,
-   SelectNonAntiRROptimalLiteral,
-   PSelectNonAntiRROptimalLiteral,
-   SelectStrongRRNonRROptimalLiteral,
-   PSelectStrongRRNonRROptimalLiteral,
-   SelectUnlessUniqMaxOptimalLiteral,
-   PSelectUnlessUniqMaxOptimalLiteral,
-   SelectUnlessPosMaxOptimalLiteral,
-   PSelectUnlessPosMaxOptimalLiteral,
-   SelectUnlessUniqPosMaxOptimalLiteral,
-   PSelectUnlessUniqPosMaxOptimalLiteral,
-   SelectUnlessUniqMaxPosOptimalLiteral,
-   PSelectUnlessUniqMaxPosOptimalLiteral,
-   SelectComplex,
-   PSelectComplex,
-   SelectComplexExceptRRHorn,
-   PSelectComplexExceptRRHorn,
-   SelectLComplex,
-   PSelectLComplex,
-   SelectMaxLComplex,
-   PSelectMaxLComplex,
-   SelectMaxLComplexNoTypePred,
-   PSelectMaxLComplexNoTypePred,
-   SelectMaxLComplexNoXTypePred,
-   PSelectMaxLComplexNoXTypePred,
-   SelectComplexPreferNEQ,
-   PSelectComplexPreferNEQ,
-   SelectComplexPreferEQ,
-   PSelectComplexPreferEQ,
-   SelectComplexExceptUniqMaxHorn,
-   PSelectComplexExceptUniqMaxHorn,
-   MSelectComplexExceptUniqMaxHorn,
-   SelectNewComplex,
-   PSelectNewComplex,
-   SelectNewComplexExceptUniqMaxHorn,
-   PSelectNewComplexExceptUniqMaxHorn,
-   SelectMinInfpos,
-   PSelectMinInfpos,
-   HSelectMinInfpos,
-   GSelectMinInfpos,
-   SelectMinInfposNoTypePred,
-   PSelectMinInfposNoTypePred,
-   SelectMin2Infpos,
-   PSelectMin2Infpos,
-   SelectComplexExceptUniqMaxPosHorn,
-   PSelectComplexExceptUniqMaxPosHorn,
-   SelectUnlessUniqMaxSmallestOrientable,
-   PSelectUnlessUniqMaxSmallestOrientable,
-   (LiteralSelectionFun)NULL
+   {"NoSelection",                           SelectNoLiterals}, 
+   {"NoGeneration",                          SelectNoGeneration},                    
+   {"SelectNegativeLiterals",                SelectNegativeLiterals},                
+   {"PSelectNegativeLiterals",               PSelectNegativeLiterals},               
+   {"SelectPureVarNegLiterals",              SelectFirstVariableLiteral},            
+   {"PSelectPureVarNegLiterals",             PSelectFirstVariableLiteral},           
+   {"SelectLargestNegLit",                   SelectLargestNegativeLiteral},          
+   {"PSelectLargestNegLit",                  PSelectLargestNegativeLiteral},         
+   {"SelectSmallestNegLit",                  SelectSmallestNegativeLiteral},         
+   {"PSelectSmallestNegLit",                 PSelectSmallestNegativeLiteral},        
+   {"SelectLargestOrientable",               SelectLargestOrientableLiteral},        
+   {"PSelectLargestOrientable",              PSelectLargestOrientableLiteral},       
+   {"MSelectLargestOrientable",              MSelectLargestOrientableLiteral},       
+   {"SelectSmallestOrientable",              SelectSmallestOrientableLiteral},       
+   {"PSelectSmallestOrientable",             PSelectSmallestOrientableLiteral},      
+   {"MSelectSmallestOrientable",             MSelectSmallestOrientableLiteral},      
+   {"SelectDiffNegLit",                      SelectDiffNegativeLiteral},             
+   {"PSelectDiffNegLit",                     PSelectDiffNegativeLiteral},            
+   {"SelectGroundNegLit",                    SelectGroundNegativeLiteral},           
+   {"PSelectGroundNegLit",                   PSelectGroundNegativeLiteral},          
+   {"SelectOptimalLit",                      SelectOptimalLiteral},                  
+   {"PSelectOptimalLit",                     PSelectOptimalLiteral},                 
+   {"SelectMinOptimalLit",                   SelectMinOptimalLiteral},               
+   {"PSelectMinOptimalLit",                  PSelectMinOptimalLiteral},              
+   {"SelectMinOptimalNoTypePred",            SelectMinOptimalNoTypePred},            
+   {"PSelectMinOptimalNoTypePred",           PSelectMinOptimalNoTypePred},           
+   {"SelectMinOptimalNoXTypePred",           SelectMinOptimalNoXTypePred},           
+   {"PSelectMinOptimalNoXTypePred",          PSelectMinOptimalNoXTypePred},          
+   {"SelectMinOptimalNoRXTypePred",          SelectMinOptimalNoRXTypePred},          
+   {"PSelectMinOptimalNoRXTypePred",         PSelectMinOptimalNoRXTypePred},         
+   {"SelectCondOptimalLit",                  SelectCondOptimalLiteral},              
+   {"PSelectCondOptimalLit",                 PSelectCondOptimalLiteral},             
+   {"SelectAllCondOptimalLit",               SelectAllCondOptimalLiteral},           
+   {"PSelectAllCondOptimalLit",              PSelectAllCondOptimalLiteral},          
+   {"SelectOptimalRestrDepth2",              SelectDepth2OptimalLiteral},            
+   {"PSelectOptimalRestrDepth2",             PSelectDepth2OptimalLiteral},           
+   {"SelectOptimalRestrPDepth2",             SelectPDepth2OptimalLiteral},           
+   {"PSelectOptimalRestrPDepth2",            PSelectPDepth2OptimalLiteral},          
+   {"SelectOptimalRestrNDepth2",             SelectNDepth2OptimalLiteral},           
+   {"PSelectOptimalRestrNDepth2",            PSelectNDepth2OptimalLiteral},          
+   {"SelectNonRROptimalLit",                 SelectNonRROptimalLiteral},             
+   {"PSelectNonRROptimalLit",                PSelectNonRROptimalLiteral},            
+   {"SelectNonStrongRROptimalLit",           SelectNonStrongRROptimalLiteral},       
+   {"PSelectNonStrongRROptimalLit",          PSelectNonStrongRROptimalLiteral},      
+   {"SelectAntiRROptimalLit",                SelectAntiRROptimalLiteral},            
+   {"PSelectAntiRROptimalLit",               PSelectAntiRROptimalLiteral},           
+   {"SelectNonAntiRROptimalLit",             SelectNonAntiRROptimalLiteral},         
+   {"PSelectNonAntiRROptimalLit",            PSelectNonAntiRROptimalLiteral},        
+   {"SelectStrongRRNonRROptimalLit",         SelectStrongRRNonRROptimalLiteral},     
+   {"PSelectStrongRRNonRROptimalLit",        PSelectStrongRRNonRROptimalLiteral},    
+   {"SelectUnlessUniqMax",                   SelectUnlessUniqMaxOptimalLiteral},     
+   {"PSelectUnlessUniqMax",                  PSelectUnlessUniqMaxOptimalLiteral},    
+   {"SelectUnlessPosMax",                    SelectUnlessPosMaxOptimalLiteral},      
+   {"PSelectUnlessPosMax",                   PSelectUnlessPosMaxOptimalLiteral},     
+   {"SelectUnlessUniqPosMax",                SelectUnlessUniqPosMaxOptimalLiteral},  
+   {"PSelectUnlessUniqPosMax",               PSelectUnlessUniqPosMaxOptimalLiteral}, 
+   {"SelectUnlessUniqMaxPos",                SelectUnlessUniqMaxPosOptimalLiteral},  
+   {"PSelectUnlessUniqMaxPos",               PSelectUnlessUniqMaxPosOptimalLiteral}, 
+   {"SelectComplex",                         SelectComplex},                         
+   {"PSelectComplex",                        PSelectComplex},                        
+   {"SelectComplexExceptRRHorn",             SelectComplexExceptRRHorn},             
+   {"PSelectComplexExceptRRHorn",            PSelectComplexExceptRRHorn},            
+   {"SelectLComplex",                        SelectLComplex},                        
+   {"PSelectLComplex",                       PSelectLComplex},                       
+   {"SelectMaxLComplex",                     SelectMaxLComplex},                     
+   {"PSelectMaxLComplex",                    PSelectMaxLComplex},                    
+   {"SelectMaxLComplexNoTypePred",           SelectMaxLComplexNoTypePred},           
+   {"PSelectMaxLComplexNoTypePred",          PSelectMaxLComplexNoTypePred},          
+   {"SelectMaxLComplexNoXTypePred",          SelectMaxLComplexNoXTypePred},          
+   {"PSelectMaxLComplexNoXTypePred",         PSelectMaxLComplexNoXTypePred},         
+   {"SelectComplexPreferNEQ",                SelectComplexPreferNEQ},                
+   {"PSelectComplexPreferNEQ",               PSelectComplexPreferNEQ},               
+   {"SelectComplexPreferEQ",                 SelectComplexPreferEQ},                 
+   {"PSelectComplexPreferEQ",                PSelectComplexPreferEQ},                
+   {"SelectComplexExceptUniqMaxHorn",        SelectComplexExceptUniqMaxHorn},        
+   {"PSelectComplexExceptUniqMaxHorn",       PSelectComplexExceptUniqMaxHorn},       
+   {"MSelectComplexExceptUniqMaxHorn",       MSelectComplexExceptUniqMaxHorn},       
+   {"SelectNewComplex",                      SelectNewComplex},                      
+   {"PSelectNewComplex",                     PSelectNewComplex},                     
+   {"SelectNewComplexExceptUniqMaxHorn",     SelectNewComplexExceptUniqMaxHorn},     
+   {"PSelectNewComplexExceptUniqMaxHorn",    PSelectNewComplexExceptUniqMaxHorn},    
+   {"SelectMinInfpos",                       SelectMinInfpos},                       
+   {"PSelectMinInfpos",                      PSelectMinInfpos},                      
+   {"HSelectMinInfpos",                      HSelectMinInfpos},                      
+   {"GSelectMinInfpos",                      GSelectMinInfpos},                      
+   {"SelectMinInfposNoTypePred",             SelectMinInfposNoTypePred},             
+   {"PSelectMinInfposNoTypePred",            PSelectMinInfposNoTypePred},            
+   {"SelectMin2Infpos",                      SelectMin2Infpos},                      
+   {"PSelectMin2Infpos",                     PSelectMin2Infpos},                     
+   {"SelectComplexExceptUniqMaxPosHorn",     SelectComplexExceptUniqMaxPosHorn},     
+   {"PSelectComplexExceptUniqMaxPosHorn",    PSelectComplexExceptUniqMaxPosHorn},    
+   {"SelectUnlessUniqMaxSmallestOrientable", SelectUnlessUniqMaxSmallestOrientable}, 
+   {"PSelectUnlessUniqMaxSmallestOrientable",PSelectUnlessUniqMaxSmallestOrientable},
+   {NULL, (LiteralSelectionFun)0}
 };
 
 
@@ -603,17 +500,18 @@ static void clause_select_pos(Clause_p clause)
 
 LiteralSelectionFun GetLitSelFun(char* name)
 {
-   int index;
+   int i;
 
    assert(name);
 
-   index = StringIndex(name, LiteralSelectionFunNames);
-   
-   if(index>=0)
+   for(i=0; name_fun_assoc[i].name; i++)
    {
-      return litsel_fun_array[index];
+      if(strcmp(name, name_fun_assoc[i].name)==0)
+      {
+         return name_fun_assoc[i].fun;
+      }
    }
-   return (LiteralSelectionFun)NULL;
+   return (LiteralSelectionFun)0;
 }
 
 
@@ -621,7 +519,8 @@ LiteralSelectionFun GetLitSelFun(char* name)
 //
 // Function: GetLitSelName()
 //
-//   Given a LiteralSelectionFun, return the corresponding name.
+//   Given a LiteralSelectionFun, return the corresponding
+//   name. Fails/Undefined, if function is not found.
 //
 // Global Variables: -
 //
@@ -634,11 +533,12 @@ char* GetLitSelName(LiteralSelectionFun fun)
    int  i;
    char *res = NULL;
 
-   for(i=0; litsel_fun_array[i]; i++)
+   assert(fun);
+   for(i=0; name_fun_assoc[i].name; i++)
    {
-      if(litsel_fun_array[i] == fun)
+      if(name_fun_assoc[i].fun == fun)
       {
-	 res = LiteralSelectionFunNames[i];
+	 res = name_fun_assoc[i].name;
 	 assert(res);
 	 break;
       }
@@ -646,7 +546,6 @@ char* GetLitSelName(LiteralSelectionFun fun)
    assert(res);
    return res;
 }
-
 
 
 /*-----------------------------------------------------------------------
