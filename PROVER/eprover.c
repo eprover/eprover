@@ -32,8 +32,8 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-/*  cvs tag E-0-82dev046 */
-#define VERSION      "0.82dev046"
+/*  cvs tag E-0-82dev047 */
+#define VERSION      "0.82dev047"
 #define NAME         "eprover"
 
 #define NICKNAME     "Lung Ching"
@@ -95,8 +95,6 @@ typedef enum
    OPT_REWEIGHT_LIMIT,
    OPT_DELETE_BAD_LIMIT,
    OPT_ASSUME_COMPLETENESS,
-   OPT_NO_NEG_PARAMOD,
-   OPT_NO_NONEQ_PARAMOD,
    OPT_DISABLE_EQ_FACTORING,
    OPT_DISABLE_NEGUNIT_PM,
    OPT_NO_GC_FORWARD_SIMPL,
@@ -569,18 +567,6 @@ OptCell opts[] =
     "of problems the selected strategy is still complete, use this "
     "option to tell the system that this is the case."},
 
-   {OPT_NO_NEG_PARAMOD,
-    'N', "no-paramod-into-negatives",
-    NoArg, NULL,
-    "Refrain from paramodulating into negative literals "
-    "(option is deprecated and may not be supported in the future)."},
-
-   {OPT_NO_NONEQ_PARAMOD,
-    'E', "paramod-equational-literals-only",
-    NoArg, NULL,
-    "Don't paramodulate from or into non-equational literals "
-    "(option is deprecated and may not be supported in the future)."},
-    
    {OPT_DISABLE_EQ_FACTORING,
     '\0', "disable-eq-factoring",
     NoArg, NULL,
@@ -1535,14 +1521,7 @@ CLState_p process_options(int argc, char* argv[])
 	    break; 
       case OPT_ASSUME_COMPLETENESS:
             assume_inf_sys_complete = true;
-      case OPT_NO_NEG_PARAMOD:
-	    ParamodOverlapIntoNegativeLiterals = false;
-            inf_sys_complete = false;
 	    break;	    
-      case OPT_NO_NONEQ_PARAMOD:
-	    ParamodOverlapNonEqLiterals = false;
-            inf_sys_complete = false;
-	    break;
       case OPT_NO_GC_FORWARD_SIMPL:
             h_parms->enable_given_forward_simpl = false;
             break;
