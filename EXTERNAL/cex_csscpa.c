@@ -540,7 +540,6 @@ void CSSCPALoop(Scanner_p in, CSSCPAState_p state)
       }
       AcceptInpTok(in, Colon);
       handle = ClauseParse(in, state->terms);
-      handle->ident = ++ClauseIdentCounter;
       ClauseSetCSSCPASource(handle,source); 
       CSSCPAProcessClause(state, handle, accept, weight_delta, average_delta);     
    }
