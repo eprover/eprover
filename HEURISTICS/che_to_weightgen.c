@@ -81,7 +81,7 @@ char* TOWeightGenNames[]=
 // Side Effects    : Output
 //
 /----------------------------------------------------------------------*/
-
+/* Uncomment for debugging
 static void print_weight_array(FILE* out,OCB_p ocb)
 {
    FunCode i;
@@ -96,7 +96,7 @@ static void print_weight_array(FILE* out,OCB_p ocb)
       }
    }
    fprintf(out, "\n");
-}
+}*/
 
 /*-----------------------------------------------------------------------
 //
