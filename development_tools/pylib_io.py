@@ -9,6 +9,7 @@
 import sys
 
 NoStdRWStreamException = "You cannot open '-' for both reading and writing!"
+UsageErrorException = "Usage Error"
 
 def myopen(name, mode):
     if(name == "-"):
@@ -36,7 +37,7 @@ def check_argc(argmin,argv=None):
            print "Usage: "+sys.argv[0]+" <arg1> <arg2>"
        else:
            print "Usage: "+sys.argv[0]+" <arg1> ... <arg" +repr(argmin)+">"
-
+       raise UsageErrorException
 
 
            
