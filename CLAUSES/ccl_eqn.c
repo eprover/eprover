@@ -324,10 +324,12 @@ static bool eqn_base_parse(Scanner_p in, TB_p bank, Term_p *lref,
 	    positive = !positive;
 	 }
 	 AcceptInpTok(in, EqualSign);	 
-	 if(TestInpTok(in, GreaterSign))
+         /* We disallow => in equations now to avoid trouble with =>
+            used for implications! It was never used anyways.
+	 if(TestInpTok(in, GreaterSign)) 
 	 {
 	    AcceptInpTokNoSkip(in, GreaterSign);
-	 }
+            } */
 	 rterm = TBTermParse(in, bank);
       }
       else
@@ -483,6 +485,19 @@ Eqn_p EqnParse(Scanner_p in, TB_p bank)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: EqnPosParse
+//
+//   Parse an equation that has to be positive
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+
 
 /*-----------------------------------------------------------------------
 //
@@ -620,11 +635,13 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
 	 {
 	    fputc('!', out);
 	 }
-	 if(EqnIsOriented(eq))
+	 /* See above. => as an alternative infix symbol for equations
+            is now officially dead!
+         if(EqnIsOriented(eq))
 	 {
 	    fprintf(out, "=>");
 	 }
-	 else
+	 else */
 	 {
 	    fprintf(out, "=");
 	 }
