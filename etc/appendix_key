@@ -92,5 +92,6 @@ T1 PSelectNewComplex
 61 PSelectNewComplexExceptUniqMaxHorn
 0a SelectDivLits
 0c SelectDivPreferIntoLits
+0e SelectMaxLComplexG
 
 
