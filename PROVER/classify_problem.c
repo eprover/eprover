@@ -202,9 +202,9 @@ long   ax_some_limit     = AX_SOME_DEFAULT,
        lit_many_limit    = LIT_MANY_DEFAULT, 
        term_some_limit   = TERM_MED_DEFAULT,
        term_many_limit   = TERM_LARGE_DEFAULT;
-InputFormat parse_format = LOPFormat;
-bool   tptp_header       = false,
-       no_preproc        = false;
+IOFormat parse_format    = LOPFormat;
+bool     tptp_header     = false,
+         no_preproc      = false;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -470,13 +470,13 @@ CLState_p process_options(int argc, char* argv[])
 	    parse_format = TPTPFormat;
 	    break;
       case OPT_TPTP_PRINT:
-	    TPTPFormatPrint = true;
+	    OutputFormat = TPTPFormat;
 	    EqnFullEquationalRep = false;
 	    EqnUseInfix = false;
 	    break;
       case OPT_TPTP_FORMAT:
 	    parse_format = TPTPFormat;	    
-	    TPTPFormatPrint = true;
+	    OutputFormat = TPTPFormat;
 	    EqnFullEquationalRep = false;
 	    EqnUseInfix = false;
 	    break;	

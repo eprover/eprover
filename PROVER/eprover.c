@@ -835,7 +835,7 @@ bool              print_sat = false,
                   no_eq_unfold = false,
                   pcl_full_terms = true,
                   indexed_subsumption = true;
-InputFormat       parse_format = LOPFormat;
+IOFormat          parse_format = LOPFormat;
 long              step_limit = LONG_MAX, 
                   proc_limit = LONG_MAX,
                   unproc_limit = LONG_MAX, 
@@ -1184,7 +1184,7 @@ CLState_p process_options(int argc, char* argv[])
 	    {
 	       EqnUseInfix = true;
 	       EqnFullEquationalRep = false;
-	       TPTPFormatPrint = true;
+	       OutputFormat = TPTPFormat;
 	    }
 	    break;
       case OPT_PCL_COMPRESSED:
@@ -1297,13 +1297,13 @@ CLState_p process_options(int argc, char* argv[])
 	    parse_format = TPTPFormat;
 	    break;
       case OPT_TPTP_PRINT:
-	    TPTPFormatPrint = true;
+	    OutputFormat = TPTPFormat;
 	    EqnFullEquationalRep = false;
 	    EqnUseInfix = false;
 	    break;
       case OPT_TPTP_FORMAT:
 	    parse_format = TPTPFormat;	    
-	    TPTPFormatPrint = true;
+	    OutputFormat = TPTPFormat;
 	    EqnFullEquationalRep = false;
 	    EqnUseInfix = false;
 	    break;
@@ -1311,11 +1311,11 @@ CLState_p process_options(int argc, char* argv[])
 	    parse_format = TSTPFormat;
 	    break;
       case OPT_TSTP_PRINT:
-	    OutputFormat = tstp_format;
+	    DocOutputFormat = tstp_format;
 	    break;
       case OPT_TSTP_FORMAT:
 	    parse_format = TSTPFormat;
-	    OutputFormat = tstp_format;
+	    DocOutputFormat = tstp_format;
 	    break;
       case OPT_NO_PREPROCESSING:
 	    no_preproc = true;

@@ -33,7 +33,8 @@ Changes
 
 bool EqnUseInfix = true;
 bool EqnFullEquationalRep = false;
-bool TPTPFormatPrint = false;
+/* bool TPTPFormatPrint = false; */
+IOFormat OutputFormat =LOPFormat;
 
 
 /*---------------------------------------------------------------------*/
@@ -648,7 +649,7 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
    {
       fprintf(out, "*");
       }*/
-   if(TPTPFormatPrint)
+   if(OutputFormat == TPTPFormat)
    {
       if(positive)
       {

@@ -120,7 +120,7 @@ int main(int argc, char* argv[])
    ESignalSetup(SIGTERM);
    ESignalSetup(SIGINT);
    
-   TPTPFormatPrint = true;
+   OutputFormat = TPTPFormat;
    /* We need consistent name->var mappings here because we
       potentially read the compressed input format. */
    ClausesHaveLocalVariables = false;
@@ -254,7 +254,7 @@ Boston, MA  02111-1307 USA\n\
 The original copyright holder can be contacted as\n\
 \n\
 Stephan Schulz\n\
-Technische Universitaet Muenchen\n\
+Technische Universitaet Muenchen\n`\
 Fakultaet fuer Informatik\n\
 Arcisstrasse 20\n\
 D-80290 Muenchen\n\

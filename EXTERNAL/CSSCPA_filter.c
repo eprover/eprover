@@ -128,7 +128,7 @@ int main(int argc, char* argv[])
 
    GlobalOut = OutOpen(outname);
    
-   TPTPFormatPrint = true;
+   OutputFormat = TPTPFormat;
    
    if(state->argc ==  0)
    {

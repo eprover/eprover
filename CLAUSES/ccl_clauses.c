@@ -1110,7 +1110,7 @@ void ClausePrint(FILE* out, Clause_p clause, bool fullterms)
    }
 #endif
 
-   if(TPTPFormatPrint)
+   if(OutputFormat == TPTPFormat)
    {
       ClausePrintTPTPFormat(out, clause);
    }
@@ -1134,8 +1134,7 @@ void ClausePrint(FILE* out, Clause_p clause, bool fullterms)
 //
 // Function: ClausePCLPrint()
 //
-//   Print a clause in PCL format. Requires TPTPFormatPrint to be
-//   true! 
+//   Print a clause in PCL format. 
 //
 // Global Variables: TPTPFormatPrint
 //
@@ -1145,7 +1144,7 @@ void ClausePrint(FILE* out, Clause_p clause, bool fullterms)
 
 void ClausePCLPrint(FILE* out, Clause_p clause, bool fullterms)
 {
-   bool tptp_format_hack = TPTPFormatPrint;
+   IOFormat tptp_format_hack = OutputFormat;
    
 #ifdef PRINT_SOS_PROP
    if(ClauseQueryProp(clause, CPIsSOS))
@@ -1157,11 +1156,11 @@ void ClausePCLPrint(FILE* out, Clause_p clause, bool fullterms)
       fprintf(out, "/* --- */");
    }
 #endif
-   TPTPFormatPrint = true;
+   OutputFormat = TPTPFormat;
    fputc('[', out);
    EqnListPrint(out, clause->literals, ",", false, fullterms);
    fputc(']', out);
-   TPTPFormatPrint = tptp_format_hack;
+   OutputFormat = tptp_format_hack;
 }
 
 

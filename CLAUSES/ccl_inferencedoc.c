@@ -28,7 +28,7 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
-OutputFormatType OutputFormat   = pcl_format;
+OutputFormatType DocOutputFormat   = pcl_format;
 bool             PCLFullTerms   = true;
 bool             PCLStepCompact = false;
 
@@ -135,7 +135,7 @@ static void tstp_print_end(FILE* out, char* comment, Clause_p clause)
 
 static void print_initial(FILE* out, Clause_p clause, char* comment)
 {
-   switch(OutputFormat)
+   switch(DocOutputFormat)
    {
    case pcl_format:
 	 pcl_print_start(out, clause);
@@ -170,7 +170,7 @@ static void print_initial(FILE* out, Clause_p clause, char* comment)
 static void print_paramod(FILE* out, Clause_p clause, Clause_p
 			  parent1, Clause_p parent2, char* comment)
 {
-   switch(OutputFormat)
+   switch(DocOutputFormat)
    {
    case pcl_format:
 	 pcl_print_start(out, clause);
@@ -208,7 +208,7 @@ static void print_paramod(FILE* out, Clause_p clause, Clause_p
 static void print_eres(FILE* out, Clause_p clause, Clause_p
 			  parent1, char* comment)
 {
-   switch(OutputFormat)
+   switch(DocOutputFormat)
    {
    case pcl_format:
 	 pcl_print_start(out, clause);
@@ -244,7 +244,7 @@ static void print_eres(FILE* out, Clause_p clause, Clause_p
 static void print_efactor(FILE* out, Clause_p clause, Clause_p
 			  parent1, char* comment)
 {
-   switch(OutputFormat)
+   switch(DocOutputFormat)
    {
    case pcl_format:
 	 pcl_print_start(out, clause);
@@ -280,7 +280,7 @@ static void print_efactor(FILE* out, Clause_p clause, Clause_p
 static void print_factor(FILE* out, Clause_p clause, Clause_p
 			  parent1, char* comment)
 {
-   switch(OutputFormat)
+   switch(DocOutputFormat)
    {
    case pcl_format:
 	 pcl_print_start(out, clause);
@@ -317,7 +317,7 @@ static void print_factor(FILE* out, Clause_p clause, Clause_p
 static void print_split(FILE* out, Clause_p clause, Clause_p
 			  parent1, char* comment)
 {
-   switch(OutputFormat)
+   switch(DocOutputFormat)
    {
    case pcl_format:
 	 pcl_print_start(out, clause);
@@ -355,7 +355,7 @@ static void print_split(FILE* out, Clause_p clause, Clause_p
 static void print_simplify_reflect(FILE* out, Clause_p clause, long
 				   old_id, Clause_p partner, char* comment)
 {
-   switch(OutputFormat)
+   switch(DocOutputFormat)
    {
    case pcl_format:
 	 pcl_print_start(out, clause);
@@ -392,7 +392,7 @@ static void print_simplify_reflect(FILE* out, Clause_p clause, long
 static void print_context_simplify_reflect(FILE* out, Clause_p clause, long
 				   old_id, Clause_p partner, char* comment)
 {
-   switch(OutputFormat)
+   switch(DocOutputFormat)
    {
    case pcl_format:
 	 pcl_print_start(out, clause);
@@ -433,7 +433,7 @@ static void print_ac_res(FILE* out, Clause_p clause, long
 {
    PStackPointer i, sp;
 
-   switch(OutputFormat)
+   switch(DocOutputFormat)
    {
    case pcl_format:
 	 pcl_print_start(out, clause);
@@ -484,7 +484,7 @@ static void print_ac_res(FILE* out, Clause_p clause, long
 static void print_minimize(FILE* out, Clause_p clause, long
 			 old_id, char* comment)
 {
-   switch(OutputFormat)
+   switch(DocOutputFormat)
    {
    case pcl_format:
 	 pcl_print_start(out, clause);
@@ -530,7 +530,7 @@ static void print_rewrite(FILE* out, ClausePos_p rewritten, long
    TBPrintTerm(stdout, rewritten->literal->bank, nf, true);
    printf(" \n"); */
 
-   switch(OutputFormat)
+   switch(DocOutputFormat)
    {
    case pcl_format:
 	 tmp = TermComputeRWSequence(rwsteps, old_term, nf);
@@ -590,7 +590,7 @@ static void print_eq_unfold(FILE* out, Clause_p rewritten,
 {
    PStackPointer i;
    
-   switch(OutputFormat)
+   switch(DocOutputFormat)
    {
    case pcl_format:
 	 pcl_print_start(out, rewritten);
@@ -780,7 +780,7 @@ void DocClauseQuote(FILE* out, long level, long target_level,
    
    if(level >= target_level)
    {
-      switch(OutputFormat)
+      switch(DocOutputFormat)
       {
       case pcl_format:	    
 	    clause->ident = ++ClauseIdentCounter;

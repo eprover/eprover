@@ -452,8 +452,8 @@ static void generate_invfreq_constmin_precedence(OCB_p ocb, ClauseSet_p axioms)
 //
 //   Generate a precedence in which symbols which occur more often in
 //   the specification are smaller, but constants are smaller
-//   still. All unary function symols that occur with the maximal
-//   frequency are maximal. Arity is used as an additional
+//   still. All unary function symbols that occur with the maximal
+//   frequency are largest. Arity is used as an additional
 //   tie-breaker, then order of occurence in the signature.
 //
 // Global Variables: -

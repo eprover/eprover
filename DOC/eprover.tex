@@ -40,17 +40,17 @@
 \section{Introduction}
 \label{sec:intro}
 
-This is a short and very sketchy documentation to the E equational
-theorem prover. E is an purely equational theorem prover for clausal
-logic with equality. It is based on paramodulation and rewriting. This
-means that E reads a set of clauses and saturates it by systematically
-applying a number of inference rules until either all possible
-inferences have been performed or until the empty clause has been
-derived, i.e. the clause set has been found to be unsatisfiable and
-thus a conjecture has been proved.
+This is a short and currently very sketchy documentation to the E
+equational theorem prover. E is an purely equational theorem prover
+for clausal logic with equality. It is based on paramodulation and
+rewriting. This means that E reads a set of clauses and saturates it
+by systematically applying a number of inference rules until either
+all possible inferences have been performed or until the empty clause
+has been derived, i.e. the clause set has been found to be
+unsatisfiable and thus a conjecture has been proved.
 
 E is still a moving target, but most recent releases have been quite
-stable, and it the prover is being used productively by serveral
+stable, and the prover is being used productively by several
 independent groups of people. This manual should enable you to
 experiment with the prover and to use some of its more advanced
 features.
@@ -58,7 +58,7 @@ features.
 The manual assumes a working knowledge of refutational theorem
 proving, which can be gained from e.g.~\cite{CL73}. For a short
 description of E including performance data,
-see~\cite{Schulz:IJCAR-2001}, a more detailed description will be
+see~\cite{Schulz:IJCAR-2001}, a more detailed description has been
 published as~\cite{Schulz:AICOM-2002}. Most papers on E and much more
 information is available at or a few hops away from the E homepage,
 \url{http://www4.informatik.tu-muenchen.de/~schulz/WORK/eprover.html}.
@@ -239,64 +239,64 @@ variables.
  $>_L$ and $>_C$ on literals and clauses) and let $\mw{sel}$ be a
  selection function.  The inference system \textbf{SP} consists of the
  following inference rules:
-
-  \begin{itemize}
-  \item \emph{Equality Resolution}\index{equality resolution}:
-    
-    \bigskip (ER) \GInferenz{\neqn{u}{v} \vee R}{\sigma(R)}{if
-      $\sigma{} = \mw{mgu}(u,v)$ and $\sigma(\neqn{u}{v})$ is eligible
-      for resolution.}
-    
-  \item \emph{Superposition into negative literals}\index{superposition}:
-    
-    \bigskip (SN) \GInferenz{\eqn{s}{t} \vee S \phantom{ae}
-      \neqn{u}{v} \vee R}{\sigma(\neqn{u[p\leftarrow t]}{v} \vee S
-      \vee R)}{if $\sigma=mgu(u|_p,s)$, $\sigma(s)\not<\sigma(t)$,
-      $\sigma(u)\not<\sigma(v)$, $\sigma(\eqn{s}{t})$ is eligible for
-      paramodulation, $\sigma(\neqn{u}{v})$ is eligible for resolution,
-      and $u|_p \notin V$.}
-    
-  \item \emph{Superposition into positive literals}\index{superposition}:
-    
-    \bigskip (SP) \GInferenz{\eqn{s}{t} \vee S \phantom{ae}
-      \eqn{u}{v} \vee R}{\sigma(\eqn{u[p\leftarrow t]}{v} \vee S \vee
-      R)}{if $\sigma=mgu(u|_p,s)$, $\sigma(s)\not<\sigma(t)$,
-      $\sigma(u)\not<\sigma(v)$, $\sigma(\eqn{s}{t})$ is eligible for
-      paramodulation, $\sigma(\neqn{u}{v})$ is eligible for
-      resolution, and $u|_p \notin V$.}
-
-  \item \emph{Equality factoring}\index{equality factoring}:
-    
-    \bigskip (EF) \GInferenz{\eqn{s}{t} \vee \eqn{u}{v} \vee
-      R}{\sigma(\neqn{t}{v} \vee \eqn{u}{v} \vee R)}{if
-      $\sigma=mgu(s,u)$, $\sigma(s) \not> \sigma(t)$ and
-      $\sigma(\eqn{s}{t})$ eligible for paramodulation.}
-
-    
-  \item \emph{Rewriting of negative literals}\index{rewriting}:
-    
-    \bigskip (RN) \CInferenz{\eqn{s}{t} \phantom{ae}
-      \neqn{u}{v} \vee R} {\eqn{s}{t}
-      \phantom{ae} \neqn{u[p\leftarrow{} \sigma(t)]}{v} \vee R} {if
-      $u|_p = \sigma(s)$ and $\sigma(s)>\sigma(t)$.}
-
-    
-  \item \emph{Rewriting of positive
-      literals}\index{rewriting}\footnote{A stronger version of (RP)
-      is proven to maintain completeness for Unit and Horn problems
-      and is generally believed to maintain completeness for the
-      general case as well~\cite{Bachmair:personal-98}.  However, the
-      proof of completeness for the general case seems to be rather
-      involved, as it requires a very different clause ordering than
-      the one introduced~\cite{BG94}, and we are not aware of any
-      existing proof in the literature. The variant rule allows
-      rewriting of maximal terms of maximal literals under certain
-      circumstances:
-       
-       \medskip
-       (RP') \CInferenzFoot{\eqn{s}{t} \phantom{ae}
-         \eqn{u}{v} \vee R} {\eqn{s}{t}
-         \phantom{ae} \eqn{u[p\leftarrow{} \sigma(t)]}{v} \vee R} {if
+ 
+ \begin{itemize}
+ \item \emph{Equality Resolution}\index{equality resolution}:
+   
+   \bigskip (ER) \GInferenz{\neqn{u}{v} \vee R}{\sigma(R)}{if
+     $\sigma{} = \mw{mgu}(u,v)$ and $\sigma(\neqn{u}{v})$ is eligible
+     for resolution.}
+   
+ \item \emph{Superposition into negative literals}\index{superposition}:
+   
+   \bigskip (SN) \GInferenz{\eqn{s}{t} \vee S \phantom{ae}
+     \neqn{u}{v} \vee R}{\sigma(\neqn{u[p\leftarrow t]}{v} \vee S
+     \vee R)}{if $\sigma=mgu(u|_p,s)$, $\sigma(s)\not<\sigma(t)$,
+     $\sigma(u)\not<\sigma(v)$, $\sigma(\eqn{s}{t})$ is eligible for
+     paramodulation, $\sigma(\neqn{u}{v})$ is eligible for resolution,
+     and $u|_p \notin V$.}
+   
+ \item \emph{Superposition into positive literals}\index{superposition}:
+   
+   \bigskip (SP) \GInferenz{\eqn{s}{t} \vee S \phantom{ae}
+     \eqn{u}{v} \vee R}{\sigma(\eqn{u[p\leftarrow t]}{v} \vee S \vee
+     R)}{if $\sigma=mgu(u|_p,s)$, $\sigma(s)\not<\sigma(t)$,
+     $\sigma(u)\not<\sigma(v)$, $\sigma(\eqn{s}{t})$ is eligible for
+     paramodulation, $\sigma(\neqn{u}{v})$ is eligible for
+     resolution, and $u|_p \notin V$.}
+   
+ \item \emph{Equality factoring}\index{equality factoring}:
+   
+   \bigskip (EF) \GInferenz{\eqn{s}{t} \vee \eqn{u}{v} \vee
+     R}{\sigma(\neqn{t}{v} \vee \eqn{u}{v} \vee R)}{if
+     $\sigma=mgu(s,u)$, $\sigma(s) \not> \sigma(t)$ and
+     $\sigma(\eqn{s}{t})$ eligible for paramodulation.}
+   
+   
+ \item \emph{Rewriting of negative literals}\index{rewriting}:
+   
+   \bigskip (RN) \CInferenz{\eqn{s}{t} \phantom{ae}
+     \neqn{u}{v} \vee R} {\eqn{s}{t}
+     \phantom{ae} \neqn{u[p\leftarrow{} \sigma(t)]}{v} \vee R} {if
+     $u|_p = \sigma(s)$ and $\sigma(s)>\sigma(t)$.}
+   
+   
+ \item \emph{Rewriting of positive
+     literals}\index{rewriting}\footnote{A stronger version of (RP)
+     is proven to maintain completeness for Unit and Horn problems
+     and is generally believed to maintain completeness for the
+     general case as well~\cite{Bachmair:personal-98}.  However, the
+     proof of completeness for the general case seems to be rather
+     involved, as it requires a very different clause ordering than
+     the one introduced~\cite{BG94}, and we are not aware of any
+     existing proof in the literature. The variant rule allows
+     rewriting of maximal terms of maximal literals under certain
+     circumstances:
+     
+     \medskip
+     (RP') \CInferenzFoot{\eqn{s}{t} \phantom{ae}
+       \eqn{u}{v} \vee R} {\eqn{s}{t}
+       \phantom{ae} \eqn{u[p\leftarrow{} \sigma(t)]}{v} \vee R} {if
        $u|_p = \sigma(s)$, $\sigma(s)>\sigma(t)$ and
        if \eqn{u}{v} is not eligible for
        resolution or $u \not> v$ or $p \not=
@@ -311,15 +311,15 @@ variables.
      R} {if $u|_p = \sigma(s)$, $\sigma(s)>\sigma(t)$, and if
      \eqn{u}{v} is not eligible for resolution or $u \not> v$ or $p
      \not= \lambda$.}
-    
+   
  \item \emph{Clause subsumption}\index{subsumption}:
-       
+   
    \bigskip (CS) \CInferenz{C \phantom{ae} \sigma(C \vee R)}{C}{where
      $C$ and $R$ are arbitrary (partial) clauses and $\sigma$ is a
      substitution.} 
    
  \item \emph{Equality subsumption}\index{subsumption}:
-       
+   
    \bigskip (ES) \CInferenz{\eqn{s}{t} \phantom{ae}
      \eqn{u[p\leftarrow{} \sigma(s)]}{u[p\leftarrow{}
        \sigma(t)]\vee R}}{\eqn{s}{t}}{}
@@ -329,28 +329,27 @@ variables.
        $\sigma(t)$ are $>$-incomparable -- in all other cases this
        rule is subsumed by (RN) and the deletion of resolved literals
        (DR).}}:
-
+   
    \bigskip (PS) \CInferenz{\eqn{s}{t} \phantom{ae}
      \neqn{u[p\leftarrow{} \sigma(s)]}{u[p\leftarrow{}
        \sigma(t)]\vee R}}{\eqn{s}{t} \phantom{aee} R}{}
        
-
-   \item \emph{Negative simplify-reflect\index{simplify-reflect}}
-     
-     \bigskip (NS) \CInferenz{\neqn{s}{t} \phantom{ae}
+   
+ \item \emph{Negative simplify-reflect\index{simplify-reflect}}
+   
+   \bigskip (NS) \CInferenz{\neqn{s}{t} \phantom{ae}
      \eqn{\sigma(s)}{\sigma(t)\vee R}}{\eqn{s}{t} \phantom{aee} R}{}
-
-   \item \emph{Contextual simplify-reflect\index{xontextual simplify-reflect}}
+   
+ \item \emph{Contextual (top level) simplify-reflect\index{xontextual
+       simplify-reflect}}
+   
+   \bigskip (CSR) \CInferenz{\sigma(C \vee R \vee \doteqn{s}{t})
+     \hspace{2em} C \vee \overline{\doteqn{s}{t}}}{\sigma(C \vee R)
+     \hspace{5em} C \vee \overline{\doteqn{s}{t}}}
+   {where $\overline{\doteqn{s}{t}}$ is the negation of $\doteqn{s}{t}$
+     and $\sigma$ is a substitution} 
      
-     \bigskip (CSR) \CInferenz{\sigma(C \vee R \vee \doteqn{s}{t})
-       \hspace{2em} C \vee \overline{\doteqn{s}{t}}}{\sigma(C \vee R)
-       \hspace{5em} C \vee \overline{\doteqn{s}{t}}}
-     {where $\overline{\eqn{s}{t}}$ is the negation of $\eqn{s}{t}$
-       and $\sigma$ is a substitution} 
-
-
-       
-          
+  
  \item \emph{Tautology deletion}\index{tautology deletion}:
    
    \bigskip (TD) \CInferenz{C}{}{if C is a tautology\footnotemark{}.}
@@ -358,8 +357,8 @@ variables.
      the problem of recognizing tautologies is only semi-decidable in
      equational logic. Current versions of 
      E try to detect tautologies by checking if the ground-completed
-   negative literals imply at least one of the positive literals, as
-   suggested in~\cite{NN:RTA-93}.}
+     negative literals imply at least one of the positive literals, as
+     suggested in~\cite{NN:RTA-93}.}
    
  \item \emph{Deletion of duplicate literals}:
    
@@ -373,10 +372,9 @@ variables.
  \item \emph{Destructive equality resolution}:
    
    \bigskip (DE) \CInferenz{\neqn{x}{y} \vee R}{\sigma(R)}{if $x,y \in
-   V, \sigma = mgu(x,y)$}
+     V, \sigma = mgu(x,y)$}
    
-
-
+   
  \end{itemize}
  We write $\mathbf{SP}(N)$ to denote the set of all clauses that can
  be generated with one generating inference from $I$ on a set of
@@ -407,24 +405,7 @@ accordingly.
 \subsection{Proof Procedure}
 \label{sec:procedure}
 
-
-The basic proof procedure of E is quite straightforward\footnote{Note
-  that the proof procedure has been further simplified for version 0.8
-  and up. The pseudo-code describes the current version.}. The set of
-all clauses is split into two sets, a set \texttt{P} of
-\emph{processed} clauses and a set \texttt{U} of \emph{unprocessed}
-clauses. Initially, all input clauses are in in \texttt{U}, and
-\texttt{P} is empty. The algorithm selects a new clause from
-\texttt{U}, simplifies it w.r.t. to \texttt{P}, then uses it to
-back-simplify the clauses in \texttt{P} in turn. It then performs
-equality factoring, equality resolution and superposition between the
-selected clause and the set of processed clauses. The generated
-clauses are added to the set of unprocessed clauses. The process stops
-when the empty clause is derived or no further inferences are
-possible.  Fig.~\ref{fig:procedure} shows a (slightly simplified)
-pseudocode sketch of the procedure.
-
-\begin{figure}[htb]
+\begin{figure}[hp]
   \begin{center}
     \tt
     \begin{tabbing}
@@ -434,9 +415,9 @@ pseudocode sketch of the procedure.
         c := select(U)\\
         U := U $\backslash$ c\\
 
-        \# Apply (RN), (RP), (SR), (DR1), (DR2)\\
+        \# Apply (RN), (RP), (NS), (PS), (CSR), (DR), (DD), (DE)\\
         simplify(c,P)\\
-        \# Apply (SS1), (SS2), (TD1), (TD2)\\
+        \# Apply (CS), (ES), (TD)\\
         if c is trivial or subsumed by P then\+\\
           delete(c)\-\\
         else if c is the empty clause then\+\\
@@ -454,7 +435,15 @@ pseudocode sketch of the procedure.
           T := T $\cup$ e-factors(c)       \# (EF)\\
           T := T $\cup$ paramodulants(c,P) \# (SN), (SP)\\
           foreach p $\in$ T do\+\\
-            U := U $\cup$ simplify(p, P)\-\\
+            \# Apply efficient ly implemented subset of (RN),\\
+            \# (RP), (NS), (PS), (CSR), (DR), (DD), (DE)\\
+            p := cheap\_simplify(p, P)\\
+            \# Apply (TD) or efficient approximation of it
+            if p is trivial\+\\
+              delete(p)\-\\
+            else\+\\
+               U := U $\cup$ cheap\_simplify(p, P)\-\\
+            fi\-\\
           end\-\\
         fi\-\\        
       end\\
@@ -465,6 +454,22 @@ pseudocode sketch of the procedure.
     \label{fig:procedure}
   \end{center}
 \end{figure}
+
+Fig.~\ref{fig:procedure} shows a (slightly simplified) pseudocode
+sketch of the quite straightforward proof procedure of E\footnote{Note
+  that the proof procedure has been further simplified for version 0.8
+  and up. The pseudo-code describes the current version.}. The set of
+all clauses is split into two sets, a set \texttt{P} of
+\emph{processed} clauses and a set \texttt{U} of \emph{unprocessed}
+clauses. Initially, all input clauses are in in \texttt{U}, and
+\texttt{P} is empty. The algorithm selects a new clause from
+\texttt{U}, simplifies it w.r.t. to \texttt{P}, then uses it to
+back-simplify the clauses in \texttt{P} in turn. It then performs
+equality factoring, equality resolution and superposition between the
+selected clause and the set of processed clauses. The generated
+clauses are added to the set of unprocessed clauses. The process stops
+when the empty clause is derived or no further inferences are
+possible.
 
 The proof search is controlled by three major parameters: The term
 ordering (described in section~\ref{sec:options:orderings}), the
@@ -874,16 +879,55 @@ supported as argument to \texttt{--order-precedence-generation}:
   arity are larger).
 \item[\texttt{invarity}:] Sort symbols by arity (symbols with higher
   arity are smaller).
-\item[\texttt{const\_max}:] 
-\item[\texttt{const\_min}:]
-\item[\texttt{freq}:]
-\item[\texttt{invfreq}:]
-\item[\texttt{invfreqconstmin}:]
-\item[\texttt{invfreqhack}:]
+\item[\texttt{const\_max}:] Sort symbols by arity (symbols with higher
+  arity are larger), but make constants the largest symbols. This is allegedly
+  used by SPASS~\cite{Weidenbach:SPASS-2001} in some configurations.
+\item[\texttt{const\_min}:] Sort symbols by arity (symbols with higher
+  arity are smaller), but make constants the smallest symbols.
+  Provided for reasons of symmetry.
+\item[\texttt{freq}:] Sort symbols by frequency (frequently occuring
+  symbols are larger). Arity is used as a tiebreaker.
+\item[\texttt{invfreq}:] Sort symbols by frequency (frequently occuring
+  symbols are smaller). In our experience, this is one of the best
+  general-purpose precedence generation schemes.
+\item[\texttt{invfreqconstmin}:] Same as \texttt{invfreq}, but make
+  constants always smaller than everything else.
+\item[\texttt{invfreqhack}:] As \texttt{invfreqconstmin}, but unary
+  symbols with maximal frequency become largest.
 \end{description}
 
 
+\subsubsection{Weight Generation Schemes}
 
+Weight generation schemes are based on syntactic features of the
+symbol and the input clause set, or on the predefined
+\emph{precedence}. The following options are available for
+\texttt{--order-weight-generation}: 
+
+\begin{description}
+\item[\texttt{firstmaximal0}:]
+\item[\texttt{arity}:]
+\item[\texttt{aritymax0}:]
+\item[\texttt{modarity}:]
+\item[\texttt{modaritymax0}:]
+\item[\texttt{aritysquared}:]
+\item[\texttt{aritysquaredmax0}:]
+\item[\texttt{invarity}:]
+\item[\texttt{invaritymax0}:]
+\item[\texttt{invaritysquared}:]
+\item[\texttt{invaritysquaredmax0}:]
+\item[\texttt{precedence}:]
+\item[\texttt{invprecedence}:]
+\item[\texttt{freqcount}:]
+\item[\texttt{invfreqcount}:]
+\item[\texttt{freqrank}:]
+\item[\texttt{invfreqrank}:]
+\item[\texttt{freqranksquare}:]
+\item[\texttt{invfreqranksquare}:]
+\item[\texttt{invmodfreqrank}:]
+\item[\texttt{invmodfreqrankmax0}:]
+\item[\texttt{constant}:]
+\end{description}
 
 
 \subsection{Literal Selection Strategies}
@@ -899,35 +943,36 @@ selected with the option \texttt{--literal-selection-strategy}.
 Currently, at least the following strategies are implemented:
 
 \begin{description}
-\item[NoSelection:] Perform ordinary superposition without selection.
-\item[NoGeneration:] Do not perform any generating inferences. This
-  strategy is not complete, but applying it to a formula generates a
-  normal form that does not contain any tautologies or redundant
-  clauses.
-\item[SelectNegativeLiterals:] Select all negative literals. For Horn
+\item[\texttt{NoSelection}:]
+ Perform ordinary superposition without selection.
+\item[\texttt{NoGeneration}:] Do not perform any generating
+  inferences. This strategy is not complete, but applying it to a
+  formula generates a normal form that does not contain any
+  tautologies or redundant clauses.
+\item[\texttt{SelectNegativeLiterals}:] Select all negative literals. For Horn
   clauses, this implements the maximal literal positive unit
   strateg~\cite{Dershowitz:IJCAI-91} previously realized separately in
   E.
-\item[SelectPureVarNegLiterals:] Select the first negative literal of
+\item[\texttt{SelectPureVarNegLiterals}:] Select the first negative literal of
   the form \eqn{X}{Y}.
-\item[SelectLargestNegLit:] Select the largest negative literal (by
+\item[\texttt{SelectLargestNegLit}:] Select the largest negative literal (by
   symbol counting, function symbols count as 2, variables as 1).
-\item[SelectSmallestNegLit:] As above, but select the smallest
+\item[\texttt{SelectSmallestNegLit}:] As above, but select the smallest
   literal.
-\item[SelectDiffNegLit:] Select the negative literal in which both
+\item[\texttt{SelectDiffNegLit}:] Select the negative literal in which both
   terms have the largest size difference.
-\item[SelectGroundNegLit:] Select the first negative ground literal
+\item[\texttt{SelectGroundNegLit}:] Select the first negative ground literal
   for which the size difference between both terms is maximal.
-\item[SelectOptimalLit:] If there is a ground negative literal, select
-  as in the case of \textbf{SelectGroundNegLit}, otherwise as in
-  \textbf{SelectDiffNegLit}.
+\item[\texttt{SelectOptimalLit}:] If there is a ground negative literal, select
+  as in the case of \texttt{SelectGroundNegLit}, otherwise as in
+  \texttt{SelectDiffNegLit}.
 \end{description}
 
 Each of the strategies that do actually select negative literals has a
-corresponding counterpart starting with \textbf{P} that additionally
+corresponding counterpart starting with \texttt{P} that additionally
 allows paramodulation into maximal positive literals\footnote{Except
-  for \textbf{SelectOptimalLit}, where the resulting strategy,
-  \textbf{PSelectOptimalLit} will allow paramodulation into positive
+  for \texttt{SelectOptimalLit}, where the resulting strategy,
+  \texttt{PSelectOptimalLit} will allow paramodulation into positive
   literals only if no ground literal has been selected.}.
 
 
@@ -955,15 +1000,14 @@ somewhat described in \texttt{E/HEURISTICS/che\_litselection.h}.
 \subsection{The Watchlist Feature}
 \label{sec:options:watchlist}
 
-Since version 0.8dev (to be publically released in version
-0.81), E supports a \emph{watchlist}. A watchlist is a user-defined
-set of clauses. Whenever the prover encounters\footnote{Clauses are
-  checked against the watchlist after normalization, both when they
-  are inserted into \texttt{U} or if they are selected for
-  processing.} a clause that subsumes one or more clauses from the
-watchlist, those clauses are removed from it. The saturation process
-terminates if the watchlist is empty (or, of course, if a saturated
-state or the empty clause have been reached).
+Since public release 0.81, E supports a \emph{watchlist}. A watchlist
+is a user-defined set of clauses. Whenever the prover
+encounters\footnote{Clauses are checked against the watchlist after
+  normalization, both when they are inserted into \texttt{U} or if
+  they are selected for processing.} a clause that subsumes one or
+more clauses from the watchlist, those clauses are removed from it.
+The saturation process terminates if the watchlist is empty (or, of
+course, if a saturated state or the empty clause have been reached).
 
 There are two uses for a watchlist: To guide the proof search (using a
 heuristic that prefers clauses on the watchlist), or to find purely
@@ -1121,7 +1165,7 @@ search after termination. The following possibilities exist:
 \item A user-defined limit was reached during saturation, and the
   saturation process was stopped gracefully. Limits include number of
   processed clauses, number of total clauses, and cpu time (as set
-  with \texttt{--soft-cpu-limit}. The output string is
+  with \texttt{--soft-cpu-limit}). The output string is
 \begin{verbatim}
 # Faiure: User resource limit exceeded!
 \end{verbatim}
@@ -1218,7 +1262,7 @@ possibly with statistical information for filtering. This is supported
 with the \texttt{--print-saturated} and \texttt{--print-sat-info}
 options for E.
 
-The option \texttt{--print-saturated} takes as it's argument a string
+The option \texttt{--print-saturated} takes as its argument a string
 of letters, each of which represents a part of the total set of
 clauses E knows about. The following table contains the meaning of the
 individual letters:
@@ -1235,7 +1279,7 @@ individual letters:
   \texttt{G} & Unprocessed non-unit clause (this set may contain the
   empty clause in very rare cases).\\ 
   \texttt{a} & Print equality axioms (if equality is present in the
-  problem). This letter prints axioms for refelxivity, symmetry, and
+  problem). This letter prints axioms for reflexivity, symmetry, and
   transitivity, and a set of substitutivity axioms, one for each
   argument position of every function symbol and predicate symbol.\\
   \texttt{A} & As \texttt{a}, but print a single substitutivity axiom
@@ -1619,176 +1663,7 @@ Public License instead of this License.
 \normalsize
 \end{appendix}
 
-%\bibliography{stsbib}
-\newcommand{\etalchar}[1]{$^{#1}$}
-\begin{thebibliography}{WAB{\etalchar{+}}99}
-
-\bibitem[Bac98]{Bachmair:personal-98}
-L.~Bachmair.
-\newblock {Personal communication at CADE-15, Lindau}.
-\newblock Unpublished, 1998.
-
-\bibitem[BDP89]{BDP89}
-L.~Bachmair, N.~Dershowitz, and D.A. Plaisted.
-\newblock {Completion Without Failure}.
-\newblock In H.~Ait-Kaci and M.~Nivat, editors, {\em Resolution of Equations in
-  Algebraic Structures}, volume~2, pages 1--30. Academic Press, 1989.
-
-\bibitem[BG94]{BG94}
-L.~Bachmair and H.~Ganzinger.
-\newblock {Rewrite-Based Equational Theorem Proving with Selection and
-  Simplification}.
-\newblock {\em Journal of Logic and Computation}, 3(4):217--247, 1994.
-
-\bibitem[CL73]{CL73}
-C.~Chang and R.C. Lee.
-\newblock {\em {Symbolic Logic and Mechanical Theorem Proving}}.
-\newblock Computer Science and Applied Mathematics. Academic Press, 1973.
-
-\bibitem[Der91]{Dershowitz:IJCAI-91}
-N.~Dershowitz.
-\newblock {Ordering-Based Strategies for Horn Clauses}.
-\newblock In J.~Mylopoulos, editor, {\em Proc. of the 12th IJCAI, Sydney},
-  volume~1, pages 118--124. Morgan Kaufmann, 1991.
-
-\bibitem[DKS97]{DKS97}
-J.~Denzinger, M.~Kronenburg, and S.~Schulz.
-\newblock {DISCOUNT: A Distributed and Learning Equational Prover}.
-\newblock {\em Journal of Automated Reasoning}, 18(2):189--198, 1997.
-\newblock Special Issue on the CADE 13 ATP System Competition.
-
-\bibitem[DS94a]{DS94a}
-J.~Denzinger and S.~Schulz.
-\newblock {Analysis and Representation of Equational Proofs Generated by a
-  Distributed Completion Based Proof System}.
-\newblock Seki-Report SR-94-05, Universit{\"a}t Kai\-sers\-lau\-tern, 1994.
-
-\bibitem[DS94b]{DS94b}
-J.~Denzinger and S.~Schulz.
-\newblock {Recording, Analyzing and Presenting Distributed Deduction
-  Processes}.
-\newblock In H.~Hong, editor, {\em Proc.\ 1st PASCO, Hagenberg/Linz}, volume~5
-  of {\em Lecture Notes Series in Computing}, pages 114--123, Singapore, 1994.
-  World Scientific Publishing.
-
-\bibitem[DS96]{DS96a}
-J.~Denzinger and S.~Schulz.
-\newblock {Recording and Analysing Knowledge-Based Distributed Deduction
-  Processes}.
-\newblock {\em Journal of Symbolic Computation}, 21(4/5):523--541, 1996.
-
-\bibitem[HBF96]{BHF96}
-T.~Hillenbrand, A.~Buch, and R.~Fettig.
-\newblock {On Gaining Efficiency in Completion-Based Theorem Proving}.
-\newblock In H.~Ganzinger, editor, {\em Proc.\ of the 7th RTA, New Brunswick},
-  volume 1103 of {\em LNCS}, pages 432--435. Springer, 1996.
-
-\bibitem[HJL99]{HJL:CADE-99}
-T.~Hillenbrand, A.~Jaeger, and B.~L{\"o}chner.
-\newblock {System Abstract: Waldmeister -- Improvements in Performance and Ease
-  of Use}.
-\newblock In H.~Ganzinger, editor, {\em Proc.\ of the 16th CADE, Trento},
-  volume 1632 of {\em LNAI}, pages 232--236. Springer, 1999.
-
-\bibitem[McC94]{Mc94}
-W.W. McCune.
-\newblock {Otter 3.0 Reference Manual and Guide}.
-\newblock Technical Report ANL-94/6, Argonne National Laboratory, 1994.
-
-\bibitem[MIL{\etalchar{+}}97]{MILSGSM:JAR-97}
-M.~Moser, O.~Ibens, R.~Letz, J.~Steinbach, C.~Goller, J.~Schumann, and K.~Mayr.
-\newblock {SETHEO and E-SETHEO -- The CADE-13 Systems}.
-\newblock {\em Journal of Automated Reasoning}, 18(2):237--246, 1997.
-\newblock Special Issue on the CADE 13 ATP System Competition.
-
-\bibitem[MW97]{MW:JAR-97}
-W.W. McCune and L.~Wos.
-\newblock {Otter: The CADE-13 Competition Incarnations}.
-\newblock {\em Journal of Automated Reasoning}, 18(2):211--220, 1997.
-\newblock Special Issue on the CADE 13 ATP System Competition.
-
-\bibitem[NN93]{NN:RTA-93}
-P.~Nivela and R.~Nieuwenhuis.
-\newblock {Saturation of First-Order (Constrained) Clauses with the Saturate
-  System}.
-\newblock In C.~Kirchner, editor, {\em Proc.\ of the 5th RTA, Montreal}, volume
-  690 of {\em LNCS}, pages 436--440. Springer, 1993.
-
-\bibitem[RV01]{RV:IJCAR-2001}
-A.~Riazanov and A.~Voronkov.
-\newblock {Vampire 1.1 (System Description)}.
-\newblock In R.~Gor{\'e}, A.~Leitsch, and T.~Nipkow, editors, {\em Proc.\ of
-  the 1st IJCAR, Siena}, volume 2083 of {\em LNAI}, pages 376--380. Springer,
-  2001.
-
-\bibitem[RV02]{RV:AICOM-2002}
-A.~Riazanov and A.~Voronkov.
-\newblock {The Design and Implementation of VAMPIRE}.
-\newblock {\em Journal of AI Communications}, 15(2/3):91--110, 2002.
-
-\bibitem[Sch99]{E:WWW-99}
-S.~Schulz.
-\newblock {The E Web Site}.
-\newblock
-  \url{http://www4.informatik.tu-muenchen.de/\-$\sim$schulz/\-WORK/\-eprover.h%
-tml}, 1999.
-
-\bibitem[Sch01]{Schulz:IJCAR-2001}
-S.~Schulz.
-\newblock {System Abstract: E 0.61}.
-\newblock In R.~Gor{\'e}, A.~Leitsch, and T.~Nipkow, editors, {\em Proc.\ of
-  the 1st IJCAR, Siena}, volume 2083 of {\em LNAI}, pages 370--375. Springer,
-  2001.
-
-\bibitem[Sch02]{Schulz:AICOM-2002}
-S.~Schulz.
-\newblock {E -- A Brainiac Theorem Prover}.
-\newblock {\em Journal of AI Communications}, 15(2/3):111--126, 2002.
-
-\bibitem[SS97]{SS:TPTP-97}
-C.B. Suttner and G.~Sutcliffe.
-\newblock {The TPTP Problem Library (TPTP v2.1.0)}.
-\newblock Technical Report AR-97-01 (TUM), 97/04 (JCU), Institut f{\"u}r
-  Informatik, Technische Universit{\"a}t M{\"u}nchen, Munich,
-  Germany/Department of Computer Science, James Cook University, Townsville,
-  Australia, 1997.
-\newblock Jointly published.
-
-\bibitem[SZS03]{SZS:IJCAI-WS-2003}
-G.~Suctcliffe, J.~Zimmer, and S.~Schulz.
-\newblock {Communication Formalisms for Automated Theorem Proving Tools}.
-\newblock In V.~Sorge, S.~Colton, M.~Fisher, and J.~Gow, editors, {\em Proc.\
-  of the IJCAI-18 Workshop on Agents and Automated Reasoning}, pages 53--58,
-  2003.
-\newblock Available at
-  \url{http://www.cs.bham.ac.uk/~vxs/ijcai03/index.html#program}.
-
-\bibitem[Tam97]{Tammet:JAR-97}
-T.~Tammet.
-\newblock {Gandalf}.
-\newblock {\em Journal of Automated Reasoning}, 18(2):199--204, 1997.
-\newblock Special Issue on the CADE 13 ATP System Competition.
-
-\bibitem[WAB{\etalchar{+}}99]{WABCEKTT:CADE-99}
-C.~Weidenbach, B.~Afshordel, U.~Brahm, C.~Cohrs, T.~Engel, G.~Jung, E.~Keen,
-  C.~Theobalt, and D.~Topic.
-\newblock {System Abstract: SPASS Version 1.0.0}.
-\newblock In H.~Ganzinger, editor, {\em Proc.\ of the 16th CADE, Trento},
-  volume 1632 of {\em LNAI}, pages 378--382. Springer, 1999.
-
-\bibitem[Wei99]{Weidenbach:personal-99}
-C.~Weidenbach.
-\newblock {Personal communication at CADE-16, Trento}.
-\newblock Unpublished, 1999.
-
-\bibitem[WGR96]{WGR96}
-C.~Weidenbach, B.~Gaede, and G.~Rock.
-\newblock {SPASS \& FLOTTER Version 0.42}.
-\newblock In M.A. McRobbie and J.K. Slaney, editors, {\em Proc.\ of the 13th
-  CADE, New Brunswick}, volume 1104 of {\em LNAI}, pages 141--145. Springer,
-  1996.
-
-\end{thebibliography}
+\bibliography{stsbib}
 
 \end{document}
 

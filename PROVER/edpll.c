@@ -135,7 +135,7 @@ OptCell opts[] =
 };
 
 char   *outname = NULL;
-InputFormat parse_format = LOPFormat;
+IOFormat parse_format = LOPFormat;
 bool   dimacs_format = false;
 
 /*---------------------------------------------------------------------*/

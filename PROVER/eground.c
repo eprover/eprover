@@ -242,7 +242,7 @@ OptCell opts[] =
 };
 
 char   *outname = NULL;
-InputFormat parse_format = LOPFormat;
+IOFormat parse_format = LOPFormat;
 bool   dimacs_format = false;
 int    split_tries = 0;
 bool   unit_sub = true, 
@@ -517,13 +517,13 @@ CLState_p process_options(int argc, char* argv[])
 	    parse_format = TPTPFormat;
 	    break;
       case OPT_TPTP_PRINT:
-	    TPTPFormatPrint = true;
+	    OutputFormat = TPTPFormat;
 	    EqnFullEquationalRep = false;
 	    EqnUseInfix = false;
 	    break;
       case OPT_TPTP_FORMAT:
 	    parse_format = TPTPFormat;	    
-	    TPTPFormatPrint = true;
+	    OutputFormat = TPTPFormat;
 	    EqnFullEquationalRep = false;
 	    EqnUseInfix = false;
 	    break;

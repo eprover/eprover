@@ -487,12 +487,12 @@ CLState_p process_options(int argc, char* argv[])
             OutputLevel = CLStateGetIntArg(handle, arg);
             break;	    
       case OPT_TPTP_PRINT:
-	    TPTPFormatPrint = true;
+	    OutputFormat = TPTPFormat;
 	    EqnFullEquationalRep = false;
 	    EqnUseInfix = false;
 	    break;
       case OPT_TPTP_FORMAT:
-	    TPTPFormatPrint = true;
+	    OutputFormat = TPTPFormat;
 	    EqnFullEquationalRep = false;
 	    EqnUseInfix = false;
 	    break;

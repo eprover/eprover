@@ -159,6 +159,13 @@ C.~Weidenbach.
 \newblock {Personal communication at CADE-16, Trento}.
 \newblock Unpublished, 1999.
 
+\bibitem[Wei01]{Weidenbach:SPASS-2001}
+C.~Weidenbach.
+\newblock {SPASS: Combining Superposition, Sorts and Splitting}.
+\newblock In A.~Robinson and A.~Voronkov, editors, {\em Handbook of Automated
+  Reasoning}, volume~II, chapter~27, pages 1965--2013. Elsevier Science and MIT
+  Press, 2001.
+
 \bibitem[WGR96]{WGR96}
 C.~Weidenbach, B.~Gaede, and G.~Rock.
 \newblock {SPASS \& FLOTTER Version 0.42}.

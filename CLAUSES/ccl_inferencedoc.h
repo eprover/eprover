@@ -77,7 +77,7 @@ typedef enum
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-extern OutputFormatType OutputFormat;
+extern OutputFormatType DocOutputFormat;
 extern bool             PCLFullTerms;
 extern bool             PCLStepCompact;
 

@@ -87,7 +87,7 @@ typedef enum
    LOPFormat,
    TPTPFormat,
    TSTPFormat,
-}InputFormat;
+}IOFormat;
 
 
 typedef struct tokenrepcell
@@ -116,7 +116,7 @@ typedef struct tokencell
 typedef struct scannercell
 {
    Stream_p    source;  /* Input stack from which to read */
-   InputFormat format;
+   IOFormat    format;
    DStr_p      accu; /* Place for Multi-Token constructs or messages */
    bool        ignore_comments; /* Comments can be skipped completely */
    char*       include_key; /* An Identifier,  e.g. "include" */

@@ -1632,7 +1632,7 @@ void EqAxiomsPrint(FILE* out, Sig_p sig, bool single_subst)
    FunCode i;
    int arity;
 
-   if(TPTPFormatPrint)      
+   if(OutputFormat == TPTPFormat)      
    {
       fprintf(out, 
 	      "input_clause(eq_reflexive, axiom, [++equal(X,X)]).\n"

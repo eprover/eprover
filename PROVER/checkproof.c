@@ -157,7 +157,7 @@ int main(int argc, char* argv[])
    ESignalSetup(SIGTERM);
    ESignalSetup(SIGINT);
 
-   TPTPFormatPrint = true;
+   OutputFormat = TPTPFormat;
    /* We need consistent name->var mappings here because we
       potentially read the compressed input format. */
    ClausesHaveLocalVariables = false;
@@ -272,13 +272,13 @@ CLState_p process_options(int argc, char* argv[])
 	    else if(strcmp(arg, "Otter")==0)
 	    {
 	       prover = Otter;
-	       TPTPFormatPrint = false;
+	       OutputFormat = LOPFormat;
 	       EqnUseInfix = false;
 	    }
 	    else if(strcmp(arg, "SPASS")==0)
 	    {
 	       prover = Spass;
-	       TPTPFormatPrint = false;
+	       OutputFormat = LOPFormat;
 	       EqnUseInfix = false;
 	    }
 	    else if(strcmp(arg, "scheme-setheo")==0)
