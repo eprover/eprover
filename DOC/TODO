@@ -1,3 +1,9 @@
+Use plain back propagation MLP for classification (n out of m
+multiplexer, error measure: Difference from wanted result (-1 for bad,
+1 for giid heuristics). For input of discrete features use individual
+neurons. Can e.g. finally encode the UEQ <= HEQ <= GEQ (if that makes
+sense...). Do a Python prototype soon!
+
 Rippling-like annotated terms for E. 
 
 Split only if clause has multiple inference literals.
