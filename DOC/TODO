@@ -1,3 +1,5 @@
+Split only if clause has multiple inference literals.
+
 Implement simple indexing for paramodulation. Idea: Processed clauses
 get an _into_ and a _from_ index. Both are a simple PDArray_p indexed
 by the rop function symbol of the respective inference terms (or 0 for
