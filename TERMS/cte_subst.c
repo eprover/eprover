@@ -409,6 +409,41 @@ void SubstSkolemizeTerm(Term_p term, Subst_p subst, Sig_p sig)
    }
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: SubstCompleteInstance()
+//
+//   Add bindings for all free variables in term subst, binding them
+//   to default_term. 
+//
+// Global Variables: -
+//
+// Side Effects    : Changes subst.
+//
+/----------------------------------------------------------------------*/
+
+void SubstCompleteInstance(Subst_p subst, Term_p term,
+                           Term_p default_binding)
+{
+   int i;
+   
+   if(TermIsVar(term))
+   {
+      if(!(term->binding))
+      {
+         SubstAddBinding(subst, term, default_binding);
+      }
+   }
+   else
+   {
+      for(i=0;i<term->arity;i++)
+      {
+	 SubstCompleteInstance(subst, term->args[i], default_binding);
+      }
+   }
+}  
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

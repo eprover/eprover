@@ -63,6 +63,8 @@ bool          SubstIsRenaming(Subst_p subt);
 
 void          SubstBacktrackSkolem(Subst_p subst);
 void          SubstSkolemizeTerm(Term_p term, Subst_p subst, Sig_p sig);
+void          SubstCompleteInstance(Subst_p subst, Term_p term,
+                                    Term_p default_binding);
 
 #endif
 
