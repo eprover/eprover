@@ -926,11 +926,11 @@ bool ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
    assert(!ClauseIsAnyPropSet(clause, CPIsDIndexed|CPIsSIndexed));
    
    /* printf("# ClauseComputeLINormalform(%ld)...\n",clause->ident); */
-   if(prefer_general!=0)
+   /* if(prefer_general!=0)
    {
-      printf("ClauseComputeLINormalform(level=%d prefer_general=%d\n",
-             level, prefer_general);
-   }
+   printf("ClauseComputeLINormalform(level=%d prefer_general=%d)\n",
+   level, prefer_general);
+   } */
 
    pos.clause = clause;
    for(handle = clause->literals; handle; handle=handle->next)
