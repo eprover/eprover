@@ -136,7 +136,7 @@ static void tb_print_dag(FILE *out, NumTree_p in_index, Sig_p sig)
 static Term_p tb_termtop_insert(TB_p bank, Term_p t)
 {
    Term_p new;
-
+   
    assert(t);
    assert(!TermIsVar(t));
 
@@ -151,7 +151,7 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
    else
    {
       int i;
-
+      
       t->entry_no     = ++(bank->in_count);
       TermCellAssignProp(t,TPGarbageFlag, bank->garbage_state);      
       TermCellSetProp(t, TPIsShared); /* Now it becomes a shared cell! */
@@ -161,6 +161,10 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
       {
 	 assert(TermIsShared(t->args[i])||TermIsVar(t->args[i]));
 	 t->weight+=t->args[i]->weight;
+         if(!TermCellQueryProp(t->args[i], TPTermIsGround))
+         {
+            TermCellDelProp(t,TPTermIsGround); 
+         }
       }
       assert(TermStandardWeight(t) == 
 	     TermWeight(t, DEFAULT_VWEIGHT, 
@@ -492,12 +496,59 @@ Term_p TBInsertNoProps(TB_p bank, Term_p term, DerefType deref)
 
 /*-----------------------------------------------------------------------
 //
+// Function: TBInsertRepl()
+//
+//   As TBInsertNoProps, but when old is encountered as a subterm
+//   (regardless of instantiation), replace it with uninstantiated
+//   repl (which _must_ be in bank).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p  TBInsertRepl(TB_p bank, Term_p term, DerefType deref, Term_p old, Term_p repl)
+{
+   int    i;
+   Term_p t;
+   
+   assert(term);
+   
+   if(term == old)
+   {
+      assert(TBFind(bank, repl));
+      return repl;
+   }
+   t = TermEquivCellAlloc(term, bank->vars); /* This is an unshared
+						term cell at the
+						moment */
+   if(!TermIsVar(t))
+   {
+      t->properties    = TPIgnoreProps;
+      assert(SysDateIsCreationDate(t->rw_data.nf_date[0]));
+      assert(SysDateIsCreationDate(t->rw_data.nf_date[1]));
+      
+      for(i=0; i<t->arity; i++)
+      {
+	 t->args[i] = TBInsertRepl(bank, t->args[i], deref, old, repl);
+      }
+      t = tb_termtop_insert(bank, t);
+   }
+   return t;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: TBInsertInstantiated()
 //
 //   Insert a term into the termbank under the assumption that it is a
-//   right side of a rule (or equation) instantiated with terms from
-//   the bank - i.e. don't insert terms that are bound to variables,
-//   but assume that they are in the term bank. Properties are deleted.
+//   right side of a rule (or equation) composed of terms from bank,
+//   and (possibly) instantiated with terms from bank - i.e. don't
+//   insert terms that are bound to variables and ground terms, but
+//   assume that they are in the term bank. Properties in newly
+//   created nodes are deleted.  
 //
 // Global Variables: TBSupportReplace
 //
@@ -512,6 +563,11 @@ Term_p TBInsertInstantiated(TB_p bank, Term_p term)
 
    assert(term);
 
+   if(TBTermIsGround(term))
+   {
+      assert(TBFind(bank, term));
+      return term;
+   }
    if(term->binding)
    {
       assert(TBFind(bank, term->binding));
