@@ -206,13 +206,13 @@ static void scan_line_comment(Scanner_p in)
 {
    AktToken(in)->tok = Comment;
 
-   while(CurrChar(in) != '\n')
+   while((CurrChar(in)) != '\n' && (CurrChar(in)!=EOF))
    {
       DStrAppendChar(AktToken(in)->literal, CurrChar(in));
       NextChar(in);
    }
-   DStrAppendChar(AktToken(in)->literal, CurrChar(in));
-   NextChar(in);
+   DStrAppendChar(AktToken(in)->literal, '\n');
+   NextChar(in); /* Should be harmless even at EOF */
 }
 
 
