@@ -32,7 +32,7 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-#define VERSION      "0.82dev011"
+#define VERSION      "0.82dev012"
 #define NAME         "eprover"
 
 #define NICKNAME     "Lung Ching"
@@ -131,6 +131,8 @@ typedef enum
    OPT_DEFINE_HEURISTIC,
    OPT_HEURISTIC,
    OPT_INTERPRETE_NUMBERS,
+   OPT_FREE_NUMBERS,
+   OPT_FREE_OBJECTS,
    OPT_DUMMY
 }OptionCodes;
 
@@ -870,6 +872,24 @@ OptCell opts[] =
     "Interprete numbers in the input as successor-terms. The argument "
      "is a comma-separated tuple of function symbols for the "
      "successor function and the 0 element."}, 
+
+   {OPT_FREE_NUMBERS,
+    '\0', "free-numbers",
+     NoArg, NULL,
+     "Treat numbers (strings of decimal digits) as normal free function "
+    "symbols in the input. By default, number now are supposed to denote"
+    " domain constants and to be implicitely different from each other. "
+    "It is not particularly useful to combine this with the option "
+    "--interprete-numbers above, since that will decode numbers into "
+    "composite terms."}, 
+   
+   {OPT_FREE_OBJECTS,
+    '\0', "free-objects",
+     NoArg, NULL,
+     "Treat object identifiers (strings in double quotes) as normal "
+    "free function symbols in the input. By default, object identifiers "
+    "now represent domain objects and are implicitely different from "
+    "each other (and from numbers, unless those are declared to be free)."}, 
    
    {OPT_NOOPT,
     '\0', NULL,
@@ -905,6 +925,7 @@ char              *outdesc = DEFAULT_OUTPUT_DESCRIPTOR,
 char              *null_symbol=NULL, *succ_symbol=NULL;
 PStack_p          wfcb_definitions, hcb_definitions;
 
+FunctionProperties free_symb_prop = FPIgnoreProps;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -958,6 +979,8 @@ int main(int argc, char* argv[])
    }
 
    proofstate = ProofStateAlloc();
+   proofstate->signature->distinct_props = 
+      proofstate->signature->distinct_props&(~free_symb_prop);
    if(null_symbol)
    {
       FunCode tmp;
@@ -983,11 +1006,6 @@ int main(int argc, char* argv[])
    }
    VERBOUT2("Specification read\n");
 
-   /* if(!FormulaSetEmpty(proofstate->f_axioms))
-   {
-      Warning("Full FOF format support is in an experimental "
-              "state and not well tested at the moment!");
-              }  */ 
    if(error_on_empty 
       && ClauseSetEmpty(proofstate->axioms) 
       && FormulaSetEmpty(proofstate->f_axioms))
@@ -1011,7 +1029,7 @@ int main(int argc, char* argv[])
    }
    /* FormulaSetPrint(GlobalOut, proofstate->f_axioms, true); */
    
-
+   /* SigPrint(stdout, proofstate->signature); */
    if(watchlist_filename)
    {
       proofstate->watchlist = ClauseSetAlloc();
@@ -1786,6 +1804,12 @@ CLState_p process_options(int argc, char* argv[])
 	 DestroyScanner(in);
       }
       break;
+      case OPT_FREE_NUMBERS:
+            free_symb_prop = free_symb_prop | FPIsNumber;
+            break;
+      case OPT_FREE_OBJECTS:
+            free_symb_prop = free_symb_prop | FPIsObject;
+            break;
       default:
 	    assert(false && "Unknown option");
 	    break;
