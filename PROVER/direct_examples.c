@@ -149,11 +149,8 @@ int main(int argc, char* argv[])
    VERBOUT2("PCL input read\n");
 
    PCLProtResetTreeData(prot, false);
-   printf("After PCLProtResetTreeData\n");
    PCLProtMarkProofClauses(prot);
-   printf("Proof clauses found\n");
    PCLProtProofDistance(prot);
-   printf("Proog distance computed\n");
    PCLProtUpdateGRefs(prot);
    proof_steps = PCLProtCountProp(prot, PCLIsProofStep);
    neg_steps = proof_steps?neg_proportion*proof_steps:neg_examples;
