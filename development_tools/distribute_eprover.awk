@@ -155,9 +155,10 @@ function create_host_list(   i)
      host_is_available["sunhalle" i] = 0;
      host_in_use["sunhalle" i] = 0;      
   }
-  exclude_hosts["sunhalle3"]   = 1; # Borked strangely
-  exclude_hosts["sunhalle34"]  = 1; # Only 128 MB
-  exclude_hosts["sunhalle77"]  = 1; # Only 192 MB
+  # Now computed automatically
+  #exclude_hosts["sunhalle3"]   = 1; # Borked strangely
+  #exclude_hosts["sunhalle34"]  = 1; # Only 128 MB
+  #exclude_hosts["sunhalle77"]  = 1; # Only 192 MB
 }
 
 
@@ -240,7 +241,7 @@ function extract_host(string)
 }
 
 
-function collect_host_info(    res, sum, count, i)
+function collect_host_info(    res, count, i)
 {
   count = 0;
   sum = 0;
@@ -255,15 +256,14 @@ function collect_host_info(    res, sum, count, i)
 	res = check_availablity(all_hosts[i]);
 	if(res != 1000000)
 	{	  
-	   sum+=res;
 	   count++;
 	   host_proc_power[all_hosts[i]] = e_mark[get_host_type(all_hosts[i])];
 	   print "..." all_hosts[i] " is ready at " host_proc_power[all_hosts[i]] " EMark";
 	}
      }
   }
-  print "Found " count " hosts, average load is " sum/count ".";
-  return sum/count;
+  print "Found " count " hosts.";
+  return count;
 }
 
 
@@ -289,7 +289,7 @@ function ping_host(host,   pipe, tmp)
 }
 
 
-function check_availablity(host,       pipe, tmp)
+function check_availablity(host,       pipe, tmp, cmd, mem)
 {
   if(exclude_hosts[host]==1)
   {
@@ -298,18 +298,30 @@ function check_availablity(host,       pipe, tmp)
   }
   if(!ping_host(host))
   {
-     /* No good response -> dont use machine */
+     # No good response -> dont use machine 
 	 return 1000000;
   } 
 
-  #tmp = get_shell_res_nocheck("ssh -x " host " uptime");
-  #if(!index(tmp, "load average"))
+  cmd = "ssh -x " host " \"top -d1 | grep ^Memory | awk '{print \\$2}'\"";
+  #print cmd;
+  tmp = get_shell_res_nocheck(cmd);
+  mem = tmp+0;
+  if(index(tmp, "G"))
+  {
+     mem = mem*1024;
+  }  
+  if(mem < 256)
+  {
+     print "# Checking " host ": Not enough memory " tmp;
+     exclude_hosts[host] = 1;
+     return 1000000; # Not enough memory
+  }
   #{
   #   /* No good response -> dont use machine */
   #  return 1000000;
   #}  
   #return extract_load(tmp, 2);
-  return 0.1;
+  return 0;
 }
 
   
@@ -494,10 +506,10 @@ function get_host(   i, host, load, tmp_count)
    host = "";
    
    global_hostinfoage++;
-   if(global_hostinfoage >= 4000)
-   {
-      collect_host_info();
-   }
+   #if(global_hostinfoage >= 4000)
+   #{
+   #   collect_host_info();
+   #}
    
    while(!host)
    {
@@ -511,8 +523,7 @@ function get_host(   i, host, load, tmp_count)
 	    {
 	       load = check_availablity(all_hosts[global_host_count]);
 	       
-	       if((load <= no_real_load) || 
-		  (load <= min(acceptable_load, avg_load+1.5)))
+	       if(load != 1000000)
 	       {		  
 		  host = all_hosts[global_host_count];
 		  break;
@@ -700,8 +711,6 @@ BEGIN{
   print "Initializing...";
   init_machine_ratings();
   soft_cpu_limit = 0;
-  no_real_load = 1;
-  acceptable_load = 4;
   time_limit = 10; /* Default, may be overridden */
   auto_args = "-s --print-pid --resources-info --print-statistics --memory-limit=192";
   first_job = 1;
@@ -725,7 +734,7 @@ BEGIN{
   print "Creating host list";
   create_host_list();
   print "Getting host information";
-  avg_load = collect_host_info();
+  collect_host_info();
   global_host_count = lower_host;
   print "...complete";
 }
