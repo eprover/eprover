@@ -213,7 +213,8 @@ function host_cpu_limit_opt(limit, e_mark,    res, host_limit)
 
 function process_result(job,    file, name, tmp,  time, status,
                         reason, generated, processed, shared_terms,
-                        raw_terms, rewrite_steps, r_matches, e_matches, literals)
+                        raw_terms, rewrite_steps, r_matches, 
+                        e_matches, literals, nu_subs, nurec_subs, u_subs)
 {
    file = cwd "/__prvout__" procid "_" global_hostname "__";
    name = job;
@@ -277,7 +278,7 @@ function process_result(job,    file, name, tmp,  time, status,
       else if(index(tmp, "# Shared rewrite steps                 :"))
       {
          rewrite_steps = substr(tmp, 42);
-         }       
+      }       
       else if(index(tmp, "# Match attempts with oriented units   :"))
       {
          r_matches = substr(tmp, 42);
@@ -290,6 +291,18 @@ function process_result(job,    file, name, tmp,  time, status,
       {
          literals = substr(tmp, 42);
       }       
+      else if(index(tmp, "# Clause-clause subsumption calls (NU) :"))
+      {
+         nu_subs = substr(tmp, 42);
+      }	 
+      else if(index(tmp, "# Rec. Clause-clause subsumption calls :"))
+      {
+         nurec_subs = substr(tmp, 42);
+      }	 
+      else if(index(tmp, "# Unit Clause-clause subsumption calls :"))
+      {
+         u_subs = substr(tmp, 42);
+      }	 
       else if(index(tmp, "# Total time"))
       {
          time = substr(tmp, 30)*e_mark_host/100;
@@ -297,9 +310,9 @@ function process_result(job,    file, name, tmp,  time, status,
    }
    close(file);
 
-   printf("%-29s " status " %8.3f  %-10s %10d %10d %10d %10d %10d %10d %10d %10d\n",
-          name, 0+time, reason, generated, processed, shared_terms,
-          raw_terms, rewrite_steps, r_matches, e_matches, literals) >> logfile;
+   printf("%-29s " status " %8.3f  %-10s %10d %10d %10d %10d %10d\n", \
+          name, 0+time, reason, generated, processed, \
+          nu_subs, nurec_subs,u_subs) >> logfile;   
    printf("%-29s " status " %8.3f  " reason "\n", name, 0+time);
    system("rm " file);
 }
