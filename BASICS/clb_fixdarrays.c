@@ -103,14 +103,21 @@ void FixedDArrayFree(FixedDArray_p junk)
 
 FixedDArray_p FixedDArrayCopy(FixedDArray_p array)
 {
-   FixedDArray_p handle = FixedDArrayAlloc(array->size);
-   long i;
-
-   for(i=0; i<array->size; i++)
+   if(!array)
    {
-      handle->array[i] = array->array[i];
+      return NULL;
    }
-   return handle;
+   else
+   {
+      FixedDArray_p handle = FixedDArrayAlloc(array->size);
+      long i;
+      
+      for(i=0; i<array->size; i++)
+      {
+	 handle->array[i] = array->array[i];
+      }
+      return handle;
+   }
 }
 
 
