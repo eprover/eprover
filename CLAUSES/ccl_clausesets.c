@@ -1572,7 +1572,8 @@ bool PDTreeVerifyIndex(PDTree_p tree, ClauseSet_p demods)
 {
    PStack_p stack = PStackAlloc(), trav;
    PDTNode_p handle;
-   int              i;
+   long             i;
+   IntMapIter_p     iter;
    ClausePos_p      pos;
    PTree_p          entry;
    bool             res = true;   
@@ -1585,13 +1586,15 @@ bool PDTreeVerifyIndex(PDTree_p tree, ClauseSet_p demods)
       
       if(!handle->entries)
       {
-	 for(i=1; i<handle->max_fun; i++)
+         iter = IntMapIterAlloc(handle->f_alternatives, 0, LONG_MAX);
+         while((handle = IntMapIterNext(iter, &i)))
 	 {
-	    if(PDArrayElementP(handle->f_alternatives, i))
+	    if(handle)
 	    {
-	       PStackPushP(stack, PDArrayElementP(handle->f_alternatives, i));
+	       PStackPushP(stack, handle);
 	    }
 	 }
+         IntMapIterFree(iter);
 	 for(i=1; i<=handle->max_var; i++)
 	 {
 	    if(PDArrayElementP(handle->v_alternatives, i))
@@ -1615,10 +1618,12 @@ bool PDTreeVerifyIndex(PDTree_p tree, ClauseSet_p demods)
 	    }
 	 }
 	 PTreeTraverseExit(trav);
-	 for(i=0; i<handle->max_fun; i++)
+         iter = IntMapIterAlloc(handle->f_alternatives, 0, LONG_MAX);
+         while((handle = IntMapIterNext(iter, &i)))
 	 {
-	    assert(!PDArrayElementP(handle->f_alternatives, i));
-	 }
+            assert(!handle);
+         }
+         IntMapIterFree(iter);
 	 for(i=0; i<handle->max_var; i++)
 	 {
 	    assert(!PDArrayElementP(handle->v_alternatives, i));

@@ -684,7 +684,7 @@ void IntMapDebugPrint(FILE* out, IntMap_p map)
    void* val;
    long  key;
 
-   fprintf(out, "# ==== IntMapType %d\n", map->type);
+   fprintf(out, "# ==== IntMapType %d Size = %ld\n", map->type, IntMapStorage(map));
    for(val=IntMapIterNext(iter, &key); val; val=IntMapIterNext(iter, &key))
    {
       fprintf(out, "# %5ld : %p\n", key, val);

@@ -60,7 +60,7 @@ static void pdtree_default_cell_free(PDTNode_p junk)
    assert(junk->v_alternatives);
    assert(!junk->entries);
 
-   PDArrayFree(junk->f_alternatives);
+   IntMapFree(junk->f_alternatives);
    PDArrayFree(junk->v_alternatives);
    PDTNodeCellFree(junk);
 }
@@ -92,10 +92,9 @@ static void* pdt_select_alt_ref(PDTree_p tree, PDTNode_p node, Term_p term)
    }
    else
    {
-      tree->arr_storage_est -= PDArrayStorage(node->f_alternatives);
-      res = &(PDArrayElementP(node->f_alternatives,
-			       term->f_code));
-      tree->arr_storage_est += PDArrayStorage(node->f_alternatives);
+      tree->arr_storage_est -= IntMapStorage(node->f_alternatives);
+      res = IntMapGetRef(node->f_alternatives, term->f_code);
+      tree->arr_storage_est += IntMapStorage(node->f_alternatives);
    }
    return res;
 }
@@ -142,10 +141,11 @@ static bool recompute_node_constraints(PDTNode_p node)
       FunCode i;
       PDTNode_p next;
       int tmpmax = 0;
+      IntMapIter_p iter;
 
-      for(i=1; i<=node->max_fun; i++)
+      iter = IntMapIterAlloc(node->f_alternatives, 0, LONG_MAX);
+      while((next=IntMapIterNext(iter, &i)))
       {
-	 next = PDArrayElementP(node->f_alternatives, i);
 	 if(next)
 	 {
 	    new_age  = SysDateMaximum(new_age, next->age_constr);
@@ -153,6 +153,7 @@ static bool recompute_node_constraints(PDTNode_p node)
 	    tmpmax = i;
 	 }
       }
+      IntMapIterFree(iter);
       node->max_fun = tmpmax;
       tmpmax = 0;
       for(i=1; i<=node->max_var; i++)
@@ -287,7 +288,7 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
    {
       if(((i==0)||(i>handle->max_var))&&!TermIsVar(term))
       {
-	 next = PDArrayElementP(handle->f_alternatives,term->f_code);
+	 next = IntMapGetVal(handle->f_alternatives,term->f_code);
 	 i++;
 	 if(next)
 	 {
@@ -471,8 +472,7 @@ PDTNode_p PDTNodeAlloc(void)
 
    handle = PDTNodeCellAlloc();
    
-   handle->f_alternatives = PDArrayAlloc(PDNODE_FUN_INIT_ALT,
-					 PDNODE_FUN_GROW_ALT);
+   handle->f_alternatives = IntMapAlloc();
    handle->v_alternatives = PDArrayAlloc(PDNODE_VAR_INIT_ALT,
 					 PDNODE_VAR_GROW_ALT);
    handle->max_var        = 0;
@@ -505,19 +505,21 @@ PDTNode_p PDTNodeAlloc(void)
 void PDTNodeFree(PDTNode_p tree)
 {
    FunCode      i;
+   IntMapIter_p iter;
    ClausePos_p  tmp;
    PDTNode_p     subtree;
  
    DEBUGMARK(PDT_INTERFACE_WATCH, "PDTNodeFree()...\n");
   
-   for(i=1; i<=tree->max_fun; i++)
+   iter = IntMapIterAlloc(tree->f_alternatives, 0, LONG_MAX);
+   while((subtree = IntMapIterNext(iter, &i)))
    {
-      subtree = PDArrayElementP(tree->f_alternatives, i);
       if(subtree)
       {
          PDTNodeFree(subtree);
       }
    }
+   IntMapIterFree(iter);
    for(i=1; i<=tree->max_var; i++)
    {
       subtree = PDArrayElementP(tree->v_alternatives, i);
@@ -660,7 +662,7 @@ void PDTreeInsert(PDTree_p tree, ClausePos_p demod_side)
       if(!(*next))
       {
 	 *next = PDTNodeAlloc();
-         tree->arr_storage_est+= (PDArrayStorage((*next)->f_alternatives)+
+         tree->arr_storage_est+= (IntMapStorage((*next)->f_alternatives)+
                                   PDArrayStorage((*next)->v_alternatives));
 	 (*next)->parent = node;
 	 tree->node_count++;
@@ -752,7 +754,7 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
       node->ref_count -= res;
       if(!node->ref_count)
       {
-         tree->arr_storage_est -= (PDArrayStorage(node->f_alternatives)+
+         tree->arr_storage_est -= (IntMapStorage(node->f_alternatives)+
                                    PDArrayStorage(node->v_alternatives));
 	 pdtree_default_cell_free(node);
 	 tree->node_count--;

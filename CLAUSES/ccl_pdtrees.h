@@ -29,7 +29,7 @@ Changes
 
 #define CCL_PDTREES
 
-#include <clb_pdarrays.h>
+#include <clb_intmap.h>
 #include <ccl_clausepos.h>
 
 /*---------------------------------------------------------------------*/
@@ -41,7 +41,7 @@ Changes
 
 typedef struct pdt_node_cell
 {
-   PDArray_p          f_alternatives;   /* Function symbols */
+   IntMap_p           f_alternatives;   /* Function symbols */
    PDArray_p          v_alternatives;   /* Variables */
    FunCode            max_var;          /* Largest variable... */
    FunCode            max_fun;          /* ...or function symbol
