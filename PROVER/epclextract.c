@@ -45,6 +45,7 @@ typedef enum
    OPT_FAST,
    OPT_TSTP_PRINT,
    OPT_COMPETITION,
+   OPT_NO_EXTRACT,
    OPT_OUTPUT,
    OPT_SILENT,
    OPT_OUTPUTLEVEL
@@ -86,6 +87,13 @@ OptCell opts[] =
     "Print special \"begin\" and \"end\"comments around the proof "
     "object, as requiered by the CASC MIX* class."},
 
+   {OPT_NO_EXTRACT,
+    'n', "no-extract",
+    NoArg, NULL,
+    "Don't extract, print back all steps (actually, it treats all "
+    "steps as proof steps). Useful as a syntax checker, or if you want"
+    " to convert PCL to TSTP with the next option."},
+
    {OPT_TSTP_PRINT,
     '\0', "tstp-out",
     NoArg, NULL,
@@ -111,7 +119,8 @@ char       *outname    = NULL;
 long       time_limit  = 10;
 char       *executable = NULL;
 bool       fast_extract = false,
-           comp_frame = false;
+           comp_frame = false,
+           no_extract = false;
 OutputFormatType output_format = pcl_format;
 
 /*---------------------------------------------------------------------*/
@@ -132,7 +141,7 @@ int main(int argc, char* argv[])
    Scanner_p       in; 
    long            steps;
    int             i;
-   bool            empty_clause;
+   bool            empty_clause = false;
    PCLMiniProt_p   mprot = NULL;
    PCLProt_p       prot = NULL;
 
@@ -186,22 +195,40 @@ int main(int argc, char* argv[])
    
    if(fast_extract)
    {
-      empty_clause = PCLMiniProtMarkProofClauses(mprot, true);
+      if(no_extract)
+      {
+	 PCLMiniProtSetClauseProp(mprot, CPIsProofClause);
+      }
+      else
+      {
+	 empty_clause = PCLMiniProtMarkProofClauses(mprot, true);
+      }
    }
    else
    {
-      empty_clause = PCLProtMarkProofClauses(prot);
+      if(no_extract)
+      {
+	 PCLProtSetProp(prot, PCLIsProofStep);
+      }
+      else
+      {
+	 empty_clause = PCLProtMarkProofClauses(prot);
+      }
    }
    if(comp_frame)
    {
-      if(empty_clause)
+      if(no_extract)
+      {
+	 fprintf(GlobalOut, "# Derivation starts here.\n");
+      }
+      else if(empty_clause)
       {
 	 fprintf(GlobalOut, "# Proof object starts here.\n");
       }
       else
       {
 	 fprintf(GlobalOut, "# Saturation derivation starts here.\n");
-      }    
+      }      
    }
    if(fast_extract)
    {
@@ -213,7 +240,11 @@ int main(int argc, char* argv[])
    }
    if(comp_frame)
    {
-      if(empty_clause)
+      if(no_extract)
+      {
+	 fprintf(GlobalOut, "# Derivation ends here.\n");
+      }
+      else if(empty_clause)
       {
 	 fprintf(GlobalOut, "# Proof object ends here.\n");
       }
@@ -287,11 +318,14 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_FAST:
 	    fast_extract = true;
 	    break;
-      case OPT_TSTP_PRINT:
-	    output_format = tstp_format;
-	    break;
       case OPT_COMPETITION:
 	    comp_frame = true;
+	    break;
+      case OPT_NO_EXTRACT:
+	    no_extract = true;
+	    break;
+      case OPT_TSTP_PRINT:
+	    output_format = tstp_format;
 	    break;
       case OPT_OUTPUT:
 	    outname = arg;

@@ -33,7 +33,7 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-#define VERSION      "0.8dev010"
+#define VERSION      "0.8dev011"
 #define NAME         "eprover"
 
 #ifdef SAFELOGIC
@@ -117,6 +117,7 @@ typedef enum
    OPT_RULES_GENERAL,
    OPT_FORWARD_DEMOD,
    OPT_STRONGSUBSUMPTION,
+   OPT_WATCHLIST,
    OPT_NO_INDEXED_SUBSUMPTION,
    OPT_FVINDEX_STYLE,
    OPT_FVINDEX_FEATURETYPES,
@@ -699,7 +700,13 @@ OptCell opts[] =
     NoArg, NULL,
     "Try multiple positions and unit-equations to try to subsume a "
     "single new clause. Default is to search for a single position."},
-
+   
+   {OPT_WATCHLIST,
+    '\0', "watchlist",
+    ReqArg, NULL,
+    "Give the file name for a file containing clauses tox be watched "
+    "for during the saturation process."},
+   
    {OPT_NO_INDEXED_SUBSUMPTION,
     '\0', "conventional-subsumption",
     NoArg, NULL,
