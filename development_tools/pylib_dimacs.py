@@ -30,12 +30,22 @@ Options:
   Batch operation: For each input file, generate an seperate output
   file, named by appending '.<app>' to the original file name.
 
+ -f
+--fix-broken-dimacs
+  Many DIMACS syntax input files incorrectly use the empty clause (a
+  line containing just '0') as an end-of-file marker. Use this option
+  to ignore the empty clause in the input.
+
 --tptp2
 --oldtptp
   Convert to classic TPTP CNF format.
 
 --mathsat
   Convert to MathSAT-3 format.
+
+--broken-dimacs
+  Print output in DIMACS syntax with a trailing empty clause (this is
+  required by some braindead solvers).
 
 Copyright 2005 Stephan Schulz, schulz@eprover.org
 
@@ -178,7 +188,13 @@ class prop_formula(object):
         pylib_io.flexclose(fp)
         l = [i for i in l if not (i.startswith("%") or
                         i.startswith("#") or i.startswith("c") or
-                        i == "\n" or i.startswith("0"))]
+                        i == "\n")]
+        if l[-1].startswith("0"):
+            if fix_broken_dimacs:
+                del(l[-1])
+            else:
+                sys.stderr.write("Warning: Problem ends in empty "+
+                                 "clause. Use --fix-broken-dimacs to suppres it")
         for i in l[1:]:
             self.add_clause(prop_clause(i))
 
@@ -187,7 +203,8 @@ class prop_formula(object):
         res.append("p cnf %d %d\n" % (self.get_max_atom(),
                                     self.clause_count()))
         res.extend(map(str, self.clauses))
-        res.append("0\n")
+        if format == "broken_dimacs":
+            res.append("0\n")
         return "".join(res);
 
     def mathsat_str(self):
@@ -206,11 +223,16 @@ if __name__ == '__main__':
     format = "dimacs"
     outfile = None
     batch_app = None
+    fix_broken_dimacs = False
     
     for option in pylib_io.get_options():
         if option == "-h":
             print __doc__
             sys.exit()
+        elif option == "-f" or option == "--fix-broken-dimacs":
+            fix_broken_dimacs = True;            
+        elif option == "--broken-dimacs":
+            format = "broken_dimacs"
         elif option == "--tptp2" or option == "--oldtptp":
             format = "tptp2"
         elif option == "--mathsat":
