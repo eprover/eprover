@@ -46,7 +46,7 @@ typedef enum
    OpBNand,
    OpBNor,
    OpBNImpl,
-   OpBXor,
+   OpBXor
 }FOFOperatorType;
 
 

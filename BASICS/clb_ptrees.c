@@ -53,7 +53,7 @@ Changes
 static PTree_p splay_ptree(PTree_p tree, void* key) 
 {
    PTree_p   left, right, tmp;
-   PTreeCell new;
+   PTreeCell newnode;
    int       cmpres;
 
    if (!tree) 
@@ -61,10 +61,10 @@ static PTree_p splay_ptree(PTree_p tree, void* key)
       return tree;
    }
    
-   new.lson = NULL;
-   new.rson = NULL;
-   left = &new;
-   right = &new;
+   newnode.lson = NULL;
+   newnode.rson = NULL;
+   left = &newnode;
+   right = &newnode;
    
    for (;;) 
    {
@@ -118,8 +118,8 @@ static PTree_p splay_ptree(PTree_p tree, void* key)
    }
    left->rson = tree->lson;
    right->lson = tree->rson;
-   tree->lson = new.rson;
-   tree->rson = new.lson;
+   tree->lson = newnode.rson;
+   tree->rson = newnode.lson;
    
    return tree;
 }
@@ -234,8 +234,8 @@ void PTreeFree(PTree_p junk)
 //
 // Function: PTreeInsert()
 //
-//   If an entry with key *new->key exists in the tree return a
-//   pointer to it. Otherwise insert *new in the tree and return
+//   If an entry with key *newnode->key exists in the tree return a
+//   pointer to it. Otherwise insert *newnode in the tree and return
 //   NULL. Will splay the tree!
 //
 // Global Variables: -
@@ -244,33 +244,33 @@ void PTreeFree(PTree_p junk)
 //
 /----------------------------------------------------------------------*/
 
-PTree_p PTreeInsert(PTree_p *root, PTree_p new)
+PTree_p PTreeInsert(PTree_p *root, PTree_p newnode)
 {
    int cmpres;
    if (!*root) 
    {
-      new->lson = new->rson = NULL;
-      *root = new;
+      newnode->lson = newnode->rson = NULL;
+      *root = newnode;
       return NULL;
    }
-   *root = splay_ptree(*root, new->key);
+   *root = splay_ptree(*root, newnode->key);
 
-   cmpres = PCmp(new->key, (*root)->key);
+   cmpres = PCmp(newnode->key, (*root)->key);
    
    if (cmpres < 0) 
    {
-      new->lson = (*root)->lson;
-      new->rson = *root;
+      newnode->lson = (*root)->lson;
+      newnode->rson = *root;
       (*root)->lson = NULL;
-      *root = new;
+      *root = newnode;
       return NULL;
    } 
    else if(cmpres > 0) 
    {
-      new->rson = (*root)->rson;
-      new->lson = *root;
+      newnode->rson = (*root)->rson;
+      newnode->lson = *root;
       (*root)->rson = NULL;
-      *root = new;
+      *root = newnode;
       return NULL;
    }
    return *root;
@@ -294,14 +294,14 @@ PTree_p PTreeInsert(PTree_p *root, PTree_p new)
 
 bool PTreeStore(PTree_p *root, void* key)
 {
-   PTree_p handle, new;
+   PTree_p handle, newnode;
 
    handle = PTreeCellAlloc();
    handle->key = key;
  
-   new = PTreeInsert(root, handle);
+   newnode = PTreeInsert(root, handle);
 
-   if(new)
+   if(newnode)
    {
       PTreeCellFree(handle);
       return false;

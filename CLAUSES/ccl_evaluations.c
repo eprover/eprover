@@ -57,7 +57,7 @@ unsigned long EvaluationCounter = 0;
 static Eval_p splay_tree(Eval_p tree, Eval_p splay) 
 {
    Eval_p   left, right, tmp;
-   EvalCell new;
+   EvalCell newnode;
    int       cmpres;
    
    if (!tree) 
@@ -65,10 +65,10 @@ static Eval_p splay_tree(Eval_p tree, Eval_p splay)
       return tree;
    }
    
-   new.lson = NULL;
-   new.rson = NULL;
-   left = &new;
-   right = &new;
+   newnode.lson = NULL;
+   newnode.rson = NULL;
+   left = &newnode;
+   right = &newnode;
    
    for (;;) 
    {
@@ -122,8 +122,8 @@ static Eval_p splay_tree(Eval_p tree, Eval_p splay)
    }
    left->rson = tree->lson;
    right->lson = tree->rson;
-   tree->lson = new.rson;
-   tree->rson = new.lson;
+   tree->lson = newnode.rson;
+   tree->rson = newnode.lson;
    
    return tree;
 }
@@ -428,8 +428,8 @@ void EvalTreeFree(Eval_p junk)
 //
 // Function: EvalTreeInsert()
 //
-//   If an entry with new exists in the tree return a
-//   pointer to it. Otherwise insert new in the tree and return
+//   If an entry with newnode exists in the tree return a
+//   pointer to it. Otherwise insert newnode in the tree and return
 //   NULL. 
 //
 // Global Variables: -
@@ -438,33 +438,33 @@ void EvalTreeFree(Eval_p junk)
 //
 /----------------------------------------------------------------------*/
 
-Eval_p EvalTreeInsert(Eval_p *root, Eval_p new)
+Eval_p EvalTreeInsert(Eval_p *root, Eval_p newnode)
 {
    int cmpres;
    if (!*root) 
    {
-      new->lson = new->rson = NULL;
-      *root = new;
+      newnode->lson = newnode->rson = NULL;
+      *root = newnode;
       return NULL;
    }
-   *root = splay_tree(*root, new);
+   *root = splay_tree(*root, newnode);
 
-   cmpres = EvalCompare(new, *root);
+   cmpres = EvalCompare(newnode, *root);
    
    if (cmpres < 0) 
    {
-      new->lson = (*root)->lson;
-      new->rson = *root;
+      newnode->lson = (*root)->lson;
+      newnode->rson = *root;
       (*root)->lson = NULL;
-      *root = new;
+      *root = newnode;
       return NULL;
    } 
    else if(cmpres > 0) 
    {
-      new->rson = (*root)->rson;
-      new->lson = *root;
+      newnode->rson = (*root)->rson;
+      newnode->lson = *root;
       (*root)->rson = NULL;
-      *root = new;
+      *root = newnode;
       return NULL;
    }
    return *root;

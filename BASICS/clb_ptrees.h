@@ -79,7 +79,7 @@ typedef struct ptreecell
 int     PCmpFun(void* p1, void*p2);
 PTree_p PTreeCellAllocEmpty(void);
 void    PTreeFree(PTree_p junk);
-PTree_p PTreeInsert(PTree_p *root, PTree_p new);
+PTree_p PTreeInsert(PTree_p *root, PTree_p newnode);
 bool    PTreeStore(PTree_p *root, void* key);
 PTree_p PTreeFind(PTree_p *root, void* key);
 PTree_p PTreeFindBinary(PTree_p root, void* key);

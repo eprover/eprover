@@ -40,7 +40,7 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-PTree_p PTreeObjInsert(PTree_p *root, PTree_p new,
+PTree_p PTreeObjInsert(PTree_p *root, PTree_p newnode,
 		       ComparisonFunctionType cmpfun);
 void*   PTreeObjStore(PTree_p *root, void* key,
 		      ComparisonFunctionType cmpfun);

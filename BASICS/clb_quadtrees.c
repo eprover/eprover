@@ -54,7 +54,7 @@ Changes
 static QuadTree_p splay_tree(QuadTree_p tree, QuadKey_p key) 
 {
    QuadTree_p   left, right, tmp;
-   QuadTreeCell new;
+   QuadTreeCell newnode;
    int       cmpres;
 
    if (!tree) 
@@ -62,10 +62,10 @@ static QuadTree_p splay_tree(QuadTree_p tree, QuadKey_p key)
       return tree;
    }
    
-   new.lson = NULL;
-   new.rson = NULL;
-   left = &new;
-   right = &new;
+   newnode.lson = NULL;
+   newnode.rson = NULL;
+   left = &newnode;
+   right = &newnode;
    
    for (;;) 
    {
@@ -119,8 +119,8 @@ static QuadTree_p splay_tree(QuadTree_p tree, QuadKey_p key)
    }
    left->rson = tree->lson;
    right->lson = tree->rson;
-   tree->lson = new.rson;
-   tree->rson = new.lson;
+   tree->lson = newnode.rson;
+   tree->rson = newnode.lson;
    
    return tree;
 }
@@ -227,8 +227,8 @@ void QuadTreeFree(QuadTree_p junk)
 //
 // Function: QuadTreeInsert()
 //
-//   If an entry with key *new->key exists in the tree return a
-//   pointer to it. Otherwise insert *new in the tree and return
+//   If an entry with key *newnode->key exists in the tree return a
+//   pointer to it. Otherwise insert *newnode in the tree and return
 //   NULL. Will splay the tree!
 //
 // Global Variables: -
@@ -237,34 +237,34 @@ void QuadTreeFree(QuadTree_p junk)
 //
 /----------------------------------------------------------------------*/
 
-QuadTree_p QuadTreeInsert(QuadTree_p *root, QuadTree_p new)
+QuadTree_p QuadTreeInsert(QuadTree_p *root, QuadTree_p newnode)
 {
    int cmpres;
 
    if (!*root) 
    {
-      new->lson = new->rson = NULL;
-      *root = new;
+      newnode->lson = newnode->rson = NULL;
+      *root = newnode;
       return NULL;
    }
-   *root = splay_tree(*root, &(new->key));
+   *root = splay_tree(*root, &(newnode->key));
 
-   cmpres = QuadKeyCmp(&(new->key), &(*root)->key);
+   cmpres = QuadKeyCmp(&(newnode->key), &(*root)->key);
    
    if (cmpres < 0) 
    {
-      new->lson = (*root)->lson;
-      new->rson = *root;
+      newnode->lson = (*root)->lson;
+      newnode->rson = *root;
       (*root)->lson = NULL;
-      *root = new;
+      *root = newnode;
       return NULL;
    } 
    else if(cmpres > 0) 
    {
-      new->rson = (*root)->rson;
-      new->lson = *root;
+      newnode->rson = (*root)->rson;
+      newnode->lson = *root;
       (*root)->rson = NULL;
-      *root = new;
+      *root = newnode;
       return NULL;
    }
    return *root;
@@ -289,7 +289,7 @@ QuadTree_p QuadTreeInsert(QuadTree_p *root, QuadTree_p new)
 
 bool QuadTreeStore(QuadTree_p *root, QuadKey_p key, IntOrP val)
 {
-   QuadTree_p handle, new;
+   QuadTree_p handle, newnode;
 
    handle = QuadTreeCellAlloc();
    handle->key.p1    = key->p1;
@@ -298,9 +298,9 @@ bool QuadTreeStore(QuadTree_p *root, QuadKey_p key, IntOrP val)
    handle->key.i2    = key->i2;
    handle->val.i_val = val.i_val;
 
-   new = QuadTreeInsert(root, handle);
+   newnode = QuadTreeInsert(root, handle);
 
-   if(new)
+   if(newnode)
    {
       QuadTreeCellFree(handle);
       return false;

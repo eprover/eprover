@@ -74,10 +74,10 @@ typedef int (*ClauseCmpFunType)(const Clause_p*, const Clause_p*);
 ClauseSet_p ClauseSetAlloc(void);
 void        ClauseSetFree(ClauseSet_p junk);
 void        ClauseSetGCMarkTerms(ClauseSet_p set);
-void        ClauseSetInsert(ClauseSet_p set, Clause_p new);
-void        ClauseSetPDTIndexedInsert(ClauseSet_p set, Clause_p new);
-void        ClauseSetIndexedInsert(ClauseSet_p set, FVPackedClause_p new);
-void        ClauseSetIndexedInsertClause(ClauseSet_p set, Clause_p new);
+void        ClauseSetInsert(ClauseSet_p set, Clause_p newclause);
+void        ClauseSetPDTIndexedInsert(ClauseSet_p set, Clause_p newclause);
+void        ClauseSetIndexedInsert(ClauseSet_p set, FVPackedClause_p newclause);
+void        ClauseSetIndexedInsertClause(ClauseSet_p set, Clause_p newclause);
 Clause_p    ClauseSetExtractEntry(Clause_p clause);
 #define     ClauseSetEmpty(set)\
             ((set)->anchor->succ == (set)->anchor)

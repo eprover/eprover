@@ -63,7 +63,7 @@ typedef struct quadtreecell
 int        DoubleKeyCmp(void* p1, int i1, void *p2, int i2);
 int        QuadKeyCmp(QuadKey_p p1, QuadKey_p p2);
 void       QuadTreeFree(QuadTree_p junk);
-QuadTree_p QuadTreeInsert(QuadTree_p *root, QuadTree_p new);
+QuadTree_p QuadTreeInsert(QuadTree_p *root, QuadTree_p newnode);
 bool       QuadTreeStore(QuadTree_p *root, QuadKey_p key, IntOrP val);
 QuadTree_p QuadTreeFind(QuadTree_p *root, QuadKey_p key);
 QuadTree_p QuadTreeExtractEntry(QuadTree_p *root, QuadKey_p key);

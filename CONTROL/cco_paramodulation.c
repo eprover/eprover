@@ -78,7 +78,7 @@ long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
    pos2 = ClausePosAlloc();
 
    test = ClausePosFirstParamodPair(clause, pos1, with, pos2,
-				    normal);
+				    false);
    
    while(test)
    {
@@ -115,7 +115,7 @@ long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
 				  parent_alias);
 	 ClauseSetInsert(store, paramod);
       }
-      test = ClausePosNextParamodPair(pos1, pos2, normal);
+      test = ClausePosNextParamodPair(pos1, pos2, false);
    }
    /* Paramod clause into with - no top positions this time ;-) */
    

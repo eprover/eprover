@@ -41,25 +41,18 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-/* Booleans with two twists: 
-   + Use true/false equivalents for some typical operations, so that
-     calls are easier to read.  
-   + We have a special value undefined for options that are not set
-     from the outside. Note that you need to compare against this
-     value explicitely, otherwise it will evaluate as true. Also keep
-     in mind that you _never ever_ compare against true - all values
-     != 0 are true in C. */
+
+/* Booleans (if we don't already have them */
+
+#ifndef  __cplusplus
 
 typedef enum
 {
-   undefined = -1,
    false = 0,
-   normal = 0,
-   brief = 0,
-   true = 1,
-   special = 1,
-   verbose = 1
+   true = 1
 }bool;
+
+#endif*/
 
 
 /* Trick the stupid type concept for polymorphic indices (hashes,
@@ -82,10 +75,13 @@ typedef union int_or_p
 
 /* The NULL pointer */
 
-#ifdef NULL
-#undef NULL
-#endif
+#ifndef NULL
+#ifndef  __cplusplus
 #define NULL ((void*)0)
+#else
+#define NULL 0
+#endif
+#endif
 
 
 #define E_URL "http://www.eprover.org"

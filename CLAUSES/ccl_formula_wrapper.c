@@ -513,7 +513,7 @@ void FormulaSetFree(FormulaSet_p set)
 //
 // Function: FormulaSetInsert()
 //
-//   Insert new into set.
+//   Insert newnode into set.
 //
 // Global Variables: -
 //
@@ -521,17 +521,17 @@ void FormulaSetFree(FormulaSet_p set)
 //
 /----------------------------------------------------------------------*/
 
-void FormulaSetInsert(FormulaSet_p set, WFormula_p new)
+void FormulaSetInsert(FormulaSet_p set, WFormula_p newform)
 {
    assert(set);
-   assert(new);
-   assert(!new->set);
+   assert(newform);
+   assert(!newform->set);
    
-   new->succ = set->anchor;
-   new->pred = set->anchor->pred;
-   set->anchor->pred->succ = new;
-   set->anchor->pred = new;
-   new->set = set;
+   newform->succ = set->anchor;
+   newform->pred = set->anchor->pred;
+   set->anchor->pred->succ = newform;
+   set->anchor->pred = newform;
+   newform->set = set;
    set->members++;
 }
 

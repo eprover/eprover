@@ -65,7 +65,7 @@ typedef struct strtreecell
 
 StrTree_p StrTreeCellAllocEmpty(void);
 void      StrTreeFree(StrTree_p junk);
-StrTree_p StrTreeInsert(StrTree_p *root, StrTree_p new);
+StrTree_p StrTreeInsert(StrTree_p *root, StrTree_p newnode);
 StrTree_p StrTreeStore(StrTree_p *root, char* key, IntOrP val1, IntOrP
 		       val2);
 StrTree_p StrTreeFind(StrTree_p *root, char* key);

@@ -46,7 +46,7 @@ typedef enum
    WPTypeHypothesis = CPTypeHypothesis, /* Formula is Hypothesis */
    WPTypeConjecture = CPTypeConjecture, /* Formula is Conjecture */
    WPTypeLemma      = CPTypeLemma,      /* Formula is Lemma */
-   WPTypeNegConjecture = CPTypeNegConjecture, /* Formula is NegConjecture */
+   WPTypeNegConjecture = CPTypeNegConjecture /* Formula is NegConjecture */
 }WFormulaProperties;
 
 
@@ -109,7 +109,7 @@ void       WFormulaPrint(FILE* out, WFormula_p form, bool fullterms);
 
 FormulaSet_p FormulaSetAlloc();
 void         FormulaSetFree(FormulaSet_p set);
-void         FormulaSetInsert(FormulaSet_p set, WFormula_p new);
+void         FormulaSetInsert(FormulaSet_p set, WFormula_p newform);
 WFormula_p   FormulaSetExtractEntry(WFormula_p form);
 #define      FormulaSetEmpty(set)\
              ((set)->anchor->succ == (set)->anchor)

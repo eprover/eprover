@@ -925,7 +925,7 @@ Clause_p ClauseSkolemize(Clause_p clause, TB_p bank)
 
 void ClausePrintList(FILE* out, Clause_p clause, bool fullterms)
 {
-   EqnListPrint(out, clause->literals, "; ", normal, fullterms);
+   EqnListPrint(out, clause->literals, "; ", false, fullterms);
    fprintf(out, " <-.");
 }
 
@@ -953,7 +953,7 @@ void ClausePrintAxiom(FILE* out, Clause_p clause, bool fullterms)
    {
       if(EqnIsPositive(handle))
       {
-	 EqnPrint(out, handle, normal, fullterms);
+	 EqnPrint(out, handle, false, fullterms);
 	 i++;
 	 if(i<clause->pos_lit_no)
 	 {
@@ -968,7 +968,7 @@ void ClausePrintAxiom(FILE* out, Clause_p clause, bool fullterms)
    {
       if(!EqnIsPositive(handle))
       {
-	 EqnPrint(out, handle, special, fullterms);
+	 EqnPrint(out, handle, true, fullterms);
 	 i++;
 	 if(i<clause->neg_lit_no)
 	 {
@@ -998,11 +998,11 @@ void ClausePrintRule(FILE* out, Clause_p clause, bool fullterms)
 {
    if(clause->literals)
    {
-      EqnPrint(out, clause->literals, normal, fullterms);
+      EqnPrint(out, clause->literals, false, fullterms);
       if(clause->literals->next)
       {
 	 fprintf(out, " <- ");
-	 EqnListPrint(out, clause->literals->next, ", ", special,
+	 EqnListPrint(out, clause->literals->next, ", ", true,
 		      fullterms);
       }
    }
@@ -1029,7 +1029,7 @@ void ClausePrintRule(FILE* out, Clause_p clause, bool fullterms)
 void ClausePrintGoal(FILE* out, Clause_p clause, bool fullterms)
 {
    fprintf(out, "<- ");
-   EqnListPrint(out, clause->literals, ", ", special, fullterms);
+   EqnListPrint(out, clause->literals, ", ", true, fullterms);
    fprintf(out, ".");
 }
 
@@ -1052,7 +1052,7 @@ void ClausePrintQuery(FILE* out, Clause_p clause, bool fullterms)
    assert(ClauseLiteralNumber(clause));
 
    fprintf(out, "?- ");
-   EqnListPrint(out, clause->literals, ", ", special, fullterms);
+   EqnListPrint(out, clause->literals, ", ", true, fullterms);
    fprintf(out, ".");
 }
 

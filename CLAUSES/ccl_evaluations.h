@@ -86,7 +86,7 @@ long     EvalCompare(Eval_p ev1, Eval_p ev2);
 
 void     EvalListFree(Eval_p junk);
 void     EvalTreeFree(Eval_p junk);
-Eval_p   EvalTreeInsert(Eval_p *root, Eval_p new);
+Eval_p   EvalTreeInsert(Eval_p *root, Eval_p newnode);
 Eval_p   EvalTreeFind(Eval_p *root, Eval_p key);
 Eval_p   EvalTreeExtractEntry(Eval_p *root, Eval_p key);
 bool     EvalTreeDeleteEntry(Eval_p *root, Eval_p key);

@@ -63,7 +63,7 @@ typedef struct numtreecell
 
 NumTree_p NumTreeCellAllocEmpty(void);
 void      NumTreeFree(NumTree_p junk);
-NumTree_p NumTreeInsert(NumTree_p *root, NumTree_p new);
+NumTree_p NumTreeInsert(NumTree_p *root, NumTree_p newnode);
 bool      NumTreeStore(NumTree_p *root, long key, IntOrP val1, IntOrP val2);
 long      NumTreeDebugPrint(FILE* out, NumTree_p tree, 
 			    bool keys_only);

@@ -193,7 +193,7 @@ Term_p ClausePosFindFirstMaximalSubterm(ClausePos_p pos)
 {
    Term_p res;
    
-   res = ClausePosFindFirstMaximalSide(pos, normal);
+   res = ClausePosFindFirstMaximalSide(pos, false);
    
    if(res)
    {
@@ -229,7 +229,7 @@ Term_p ClausePosFindNextMaximalSubterm(ClausePos_p pos)
 
    if(!res)
    {
-      side = ClausePosFindNextMaximalSide(pos, normal);
+      side = ClausePosFindNextMaximalSide(pos, false);
       if(side)
       {
          res = TermPosFirstLIPosition(side, pos->pos);

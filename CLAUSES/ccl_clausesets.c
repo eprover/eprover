@@ -410,26 +410,26 @@ void ClauseSetGCMarkTerms(ClauseSet_p set)
 //
 /----------------------------------------------------------------------*/
 
-void ClauseSetInsert(ClauseSet_p set, Clause_p new)
+void ClauseSetInsert(ClauseSet_p set, Clause_p newclause)
 {
    int    i;
    Eval_p handle, test;
 
-   assert(!new->set);
+   assert(!newclause->set);
 
-   new->succ = set->anchor;
-   new->pred = set->anchor->pred;
-   set->anchor->pred->succ = new;
-   set->anchor->pred = new;
-   new->set = set;
+   newclause->succ = set->anchor;
+   newclause->pred = set->anchor->pred;
+   set->anchor->pred->succ = newclause;
+   set->anchor->pred = newclause;
+   newclause->set = set;
    set->members++;
-   set->literals+=ClauseLiteralNumber(new);
+   set->literals+=ClauseLiteralNumber(newclause);
 
    i=0;
-   for(handle = new->evaluations; handle; handle = handle->next)
+   for(handle = newclause->evaluations; handle; handle = handle->next)
    {
       test = EvalTreeInsert((Eval_p*)
-			    &PDArrayElementP(new->set->eval_indices,
+			    &PDArrayElementP(newclause->set->eval_indices,
 					     i),
 			    handle);
       assert(!test);
@@ -451,30 +451,30 @@ void ClauseSetInsert(ClauseSet_p set, Clause_p new)
 //
 /----------------------------------------------------------------------*/
 
-void ClauseSetPDTIndexedInsert(ClauseSet_p set, Clause_p new)
+void ClauseSetPDTIndexedInsert(ClauseSet_p set, Clause_p newclause)
 {
    ClausePos_p pos;
 
    assert(set->demod_index);
-   assert(ClauseIsUnit(new));
+   assert(ClauseIsUnit(newclause));
    
-   ClauseSetInsert(set, new);
+   ClauseSetInsert(set, newclause);
    pos          = ClausePosCellAlloc();
-   pos->clause  = new;
-   pos->literal = new->literals;
+   pos->clause  = newclause;
+   pos->literal = newclause->literals;
    pos->side    = LeftSide;
    pos->pos     = NULL;
    PDTreeInsert(set->demod_index, pos);
-   if(!EqnIsOriented(new->literals))
+   if(!EqnIsOriented(newclause->literals))
    {
       pos          = ClausePosCellAlloc();
-      pos->clause  = new;
-      pos->literal = new->literals;
+      pos->clause  = newclause;
+      pos->literal = newclause->literals;
       pos->side    = RightSide;
       pos->pos     = NULL;
       PDTreeInsert(set->demod_index, pos);
    }
-   ClauseSetProp(new, CPIsDIndexed);
+   ClauseSetProp(newclause, CPIsDIndexed);
 }
 
 
@@ -492,20 +492,20 @@ void ClauseSetPDTIndexedInsert(ClauseSet_p set, Clause_p new)
 //
 /----------------------------------------------------------------------*/
 
-void ClauseSetIndexedInsert(ClauseSet_p set, FVPackedClause_p new)
+void ClauseSetIndexedInsert(ClauseSet_p set, FVPackedClause_p newclause)
 {
    if(!set->demod_index)
    {
-      ClauseSetInsert(set, new->clause);
+      ClauseSetInsert(set, newclause->clause);
    }
    else
    {
-      ClauseSetPDTIndexedInsert(set, new->clause);
+      ClauseSetPDTIndexedInsert(set, newclause->clause);
    }
    if(set->fvindex)
    {
-      FVIndexInsert(set->fvindex, new);
-      ClauseSetProp(new->clause, CPIsSIndexed);
+      FVIndexInsert(set->fvindex, newclause);
+      ClauseSetProp(newclause->clause, CPIsSIndexed);
    }
 }
 
@@ -523,9 +523,9 @@ void ClauseSetIndexedInsert(ClauseSet_p set, FVPackedClause_p new)
 //
 /----------------------------------------------------------------------*/
 
-void ClauseSetIndexedInsertClause(ClauseSet_p set, Clause_p new)
+void ClauseSetIndexedInsertClause(ClauseSet_p set, Clause_p newclause)
 {
-   FVPackedClause_p pclause = FVIndexPackClause(new, set->fvindex);
+   FVPackedClause_p pclause = FVIndexPackClause(newclause, set->fvindex);
    ClauseSetIndexedInsert(set, pclause);
    FVUnpackClause(pclause);
 }

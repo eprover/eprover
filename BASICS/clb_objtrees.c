@@ -54,7 +54,7 @@ static PTree_p splay_tree(PTree_p tree, void* key,
 			  ComparisonFunctionType cmpfun) 
 {
    PTree_p   left, right, tmp;
-   PTreeCell new;
+   PTreeCell newnode;
    int       cmpres;
 
    if (!tree) 
@@ -62,10 +62,10 @@ static PTree_p splay_tree(PTree_p tree, void* key,
       return tree;
    }
    
-   new.lson = NULL;
-   new.rson = NULL;
-   left = &new;
-   right = &new;
+   newnode.lson = NULL;
+   newnode.rson = NULL;
+   left = &newnode;
+   right = &newnode;
    
    for (;;) 
    {
@@ -119,8 +119,8 @@ static PTree_p splay_tree(PTree_p tree, void* key,
    }
    left->rson = tree->lson;
    right->lson = tree->rson;
-   tree->lson = new.rson;
-   tree->rson = new.lson;
+   tree->lson = newnode.rson;
+   tree->rson = newnode.lson;
    
    return tree;
 }
@@ -137,8 +137,8 @@ static PTree_p splay_tree(PTree_p tree, void* key,
 //
 // Function: PTreeObjInsert()
 //
-//   If an entry with cmpfun(*root->key, new->key) == 0  exists in the
-//   tree return a pointer to it. Otherwise insert *new in the tree
+//   If an entry with cmpfun(*root->key, newnode->key) == 0  exists in the
+//   tree return a pointer to it. Otherwise insert *newnode in the tree
 //   and return NULL. Will splay the tree!
 //
 // Global Variables: -
@@ -147,34 +147,34 @@ static PTree_p splay_tree(PTree_p tree, void* key,
 //
 /----------------------------------------------------------------------*/
 
-PTree_p PTreeObjInsert(PTree_p *root, PTree_p new,
+PTree_p PTreeObjInsert(PTree_p *root, PTree_p newnode,
 		    ComparisonFunctionType cmpfun)
 {
    int cmpres;
    if (!*root) 
    {
-      new->lson = new->rson = NULL;
-      *root = new;
+      newnode->lson = newnode->rson = NULL;
+      *root = newnode;
       return NULL;
    }
-   *root = splay_tree(*root, new->key, cmpfun);
+   *root = splay_tree(*root, newnode->key, cmpfun);
 
-   cmpres = cmpfun(new->key, (*root)->key);
+   cmpres = cmpfun(newnode->key, (*root)->key);
    
    if (cmpres < 0) 
    {
-      new->lson = (*root)->lson;
-      new->rson = *root;
+      newnode->lson = (*root)->lson;
+      newnode->rson = *root;
       (*root)->lson = NULL;
-      *root = new;
+      *root = newnode;
       return NULL;
    } 
    else if(cmpres > 0) 
    {
-      new->rson = (*root)->rson;
-      new->lson = *root;
+      newnode->rson = (*root)->rson;
+      newnode->lson = *root;
       (*root)->rson = NULL;
-      *root = new;
+      *root = newnode;
       return NULL;
    }
    return *root;
@@ -201,17 +201,17 @@ PTree_p PTreeObjInsert(PTree_p *root, PTree_p new,
 void* PTreeObjStore(PTree_p *root, void* key,
 		    ComparisonFunctionType cmpfun)
 {
-   PTree_p handle, new;
+   PTree_p handle, newnode;
 
    handle = PTreeCellAlloc();
    handle->key = key;
  
-   new = PTreeObjInsert(root, handle, cmpfun);
+   newnode = PTreeObjInsert(root, handle, cmpfun);
 
-   if(new)
+   if(newnode)
    {
       PTreeCellFree(handle);
-      return new->key;
+      return newnode->key;
    }
    return NULL;
 }
