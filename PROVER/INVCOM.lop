@@ -15,6 +15,5 @@ f(f(X,Y),Z)=f(X,f(Y,Z)).
 
 # Skolemized and inverted hypothesis: Multiplication with inverse
 # element is commutative.  
-
-f(a,i(a)) != f(i(a),a).
-
+#f(a,i(a)) != f(i(a),a).
+f(0,a)!=a.
