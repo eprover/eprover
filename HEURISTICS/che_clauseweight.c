@@ -503,9 +503,6 @@ WFCB_p DefaultWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
 
 double DefaultWeightCompute(void* data, Clause_p clause)
 {
-   Eqn_p  handle;
-   double weight = 0;
-   
    return ClauseStandardWeight(clause);
 }
 

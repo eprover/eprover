@@ -76,7 +76,7 @@ long ClauseSetComputeLINormalform(OCB_p ocb, TB_p bank, ClauseSet_p
 				  prefer_general);
 
 bool FindClausesWithRewritableMaxSides(OCB_p ocb, ClauseSet_p set,
-				       PTree_p* results, Clause_p
+				       PStack_p results, Clause_p
 				       new_demod, SysDate nf_date);
 
 

@@ -356,7 +356,7 @@ static EqnSide clause_has_rw_max_side(OCB_p ocb, Clause_p clause,
 /----------------------------------------------------------------------*/
 
 static bool find_clauses_with_rw_max_sides(OCB_p ocb, ClauseSet_p set,
-					   PTree_p* results, Clause_p
+					   PStack_p results, Clause_p
 					   new_demod, SysDate nf_date)
 {
    Clause_p handle;
@@ -374,7 +374,7 @@ static bool find_clauses_with_rw_max_sides(OCB_p ocb, ClauseSet_p set,
       if(tmp==MaxSide)
       /* if(tmp!=NoSide) */
       {
-	 PTreeStore(results, handle);
+	 PStackPushP(results, handle);
       }
       res = res || (tmp==MinSide);
    }
@@ -940,7 +940,7 @@ long ClauseSetComputeLINormalform(OCB_p ocb, TB_p bank, ClauseSet_p
 /----------------------------------------------------------------------*/
 
 bool FindClausesWithRewritableMaxSides(OCB_p ocb, ClauseSet_p set,
-				       PTree_p* results, Clause_p
+				       PStack_p results, Clause_p
 				       new_demod, SysDate nf_date)
 {   
    return find_clauses_with_rw_max_sides(ocb, set, results, new_demod,

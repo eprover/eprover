@@ -150,31 +150,21 @@ bool RemoveClausesWithRewritableMaxSides(OCB_p ocb, ClauseSet_p from,
 					 ClauseSet_p into, Clause_p
 					 new_demod, SysDate nf_date)
 {
-   PTree_p  store = NULL;
    PStack_p stack = PStackAlloc();
    Clause_p handle;
-   PTree_p  cell;
    bool     res;
 
    res = FindClausesWithRewritableMaxSides(ocb, from,
-					   &store,
+					   stack,
 					   new_demod,
 					   nf_date);
-   PStackPushP(stack, store);
    while(!PStackEmpty(stack))
    {
-      cell = PStackPopP(stack);
-      if(cell)
-      {
-	 PStackPushP(stack, cell->lson);
-	 PStackPushP(stack, cell->rson);
-	 handle = cell->key;	 
+      handle = PStackPopP(stack);
 
-	 ClauseMoveSimplified(handle, into);
-      }
+      ClauseMoveSimplified(handle, into);
    }
    PStackFree(stack);
-   PTreeFree(store);
 
    return res;
 }
