@@ -32,8 +32,8 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-/*  cvs tag E-0-82dev039 */
-#define VERSION      "0.82dev039"
+/*  cvs tag E-0-82dev040 */
+#define VERSION      "0.82dev040"
 #define NAME         "eprover"
 
 #define NICKNAME     "Lung Ching"
@@ -1543,7 +1543,7 @@ CLState_p process_options(int argc, char* argv[])
 			     "Wrong argument to option -W "
 			     "(--literal-selection-strategy). Possible "
 			     "values: "); 
-	       DStrAppendStrArray(err, LiteralSelectionFunNames, ", ");
+	       LitSelAppendNames(err);
 	       Error(DStrView(err), USAGE_ERROR);
 	       DStrFree(err);
 	    }
