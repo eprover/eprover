@@ -53,6 +53,7 @@ import pylib_eprots
 
 split_res = re.compile("_");
 filter_re = re.compile(".*");
+name_break = re.compile("[, ]+");
 
 
 class graph:
@@ -94,13 +95,14 @@ class plot:
     """
     Represents a plot: Labels+Format+Graphs.
     """
-    def __init__(self, graph_descs = []):
+    def __init__(self, title = "Unnamed plot", graph_descs = []):
         self.graphs = []
 
         for i in graph_descs:
             g = graph(i[0])
             g.parse(i[1], i[2])
             self.add_graph(g)
+            self.title = title
 
     def add_graph(self, graph):
         self.graphs.append(graph)
@@ -136,12 +138,26 @@ class plot:
             res = res+i.__repr__()+"e\n";
         return res;
 
-    def gnuplot(self, file=None, log=False):
+    def file_name(self, log=False):
+        """
+        Return a filename suitable for an eps file of this graph.
+        Generated from the title.
+        """
+        tmp = re.sub(name_break, "_", self.title);
+        if log:
+            tmp = tmp + "_log";
+        return tmp+".eps"
+    
+    def gnuplot(self, file=False, log=False):
         """
         Call gnuplot and do the plotting.
         """
+        filename = None;
+        if file:
+            filename = self.file_name(log)
+        
         pipe=os.popen("gnuplot", "w")
-        pipe.write(self.settings(file, log))
+        pipe.write(self.settings(filename, log))
         pipe.write(self.plot_command())
         pipe.flush()
         if not file:

@@ -64,29 +64,31 @@ import os.path
 import pylib_io
 import pylib_graphs
 
-cvc_sc_pat = re.compile("storecomm_[^i].*nf")
-cvc_scf_pat = re.compile("storecomm[^i].*sf")
-e_sc_pat   = re.compile("storecomm[^i].*sf")
+cvc_sc_pat    = re.compile("storecomm_[^i].*nf_ai")
+cvc_scf_pat   = re.compile("storecomm_[^i].*sf_ai")
+e_sc_pat      = re.compile("storecomm_[^i].*sf_ai")
+e_sc_ni_pat   = re.compile("storecomm_[^i].*sf_ni")
 
-cvc_si_pat = re.compile("storeinv[^i].*nf")
-cvc_sif_pat = re.compile("storeinv[^i].*sf")
-e_si_pat   = re.compile("storeinv[^i].*sf")
+cvc_si_pat  = re.compile("storeinv_[^i].*nf_ai")
+cvc_sif_pat = re.compile("storeinv_[^i].*sf_ai")
+e_si_pat    = re.compile("storeinv_[^i].*sf_ai")
 
-cvc_sw_pat = re.compile("swap[^i].*nf")
-cvc_swf_pat = re.compile("swap[^i].*sf")
-e_sw_pat   = re.compile("swap[^i].*sf")
+cvc_sw_pat  = re.compile("swap_[^i].*nf_ai")
+cvc_swf_pat = re.compile("swap_[^i].*sf_ai")
+e_sw_pat    = re.compile("swap_[^i].*sf_ai")
 
-cvc_scinv_pat = re.compile("storecomm_invalid.*nf")
-cvc_scfinv_pat = re.compile("storecomminvalid.*sf")
-e_scinv_pat   = re.compile("storecomminvalid.*sf")
+cvc_scinv_pat    = re.compile("storecomm_invalid.*nf_ai")
+cvc_scfinv_pat   = re.compile("storecomm_invalid.*sf_ai")
+e_scinv_pat      = re.compile("storecomm_invalid.*sf_ai")
+e_scinv_ni_pat   = re.compile("storecomm_invalid.*sf_ni")
 
-cvc_siinv_pat = re.compile("storeinvinvalid.*nf")
-cvc_sifinv_pat = re.compile("storeinvinvalid.*sf")
-e_siinv_pat   = re.compile("storeinvinvalid.*sf")
+cvc_siinv_pat  = re.compile("storeinv_invalid.*nf_ai")
+cvc_sifinv_pat = re.compile("storeinv_invalid.*sf_ai")
+e_siinv_pat    = re.compile("storeinv_invalid.*sf_ai")
 
-cvc_swinv_pat = re.compile("swapinvalid.*nf")
-cvc_swfinv_pat = re.compile("swapinvalid.*sf")
-e_swinv_pat   = re.compile("swapinvalid.*sf")
+cvc_swinv_pat  = re.compile("swap_invalid.*nf_ai")
+cvc_swfinv_pat = re.compile("swap_invalid.*sf_ai")
+e_swinv_pat    = re.compile("swap_invalid.*sf_ai")
 
 
 dir = "/Users/schulz/SOURCES/Projects/VERONA/dp/array/TEST_RESULTS/"
@@ -108,306 +110,210 @@ if dir[-1]!="/":
 
 dir = os.path.expanduser(dir)
 
+plot_list = []
 
-# All systems with system-specific input
+# All systems with system-specific input - T1
 
-t1_sc_data = [
+# Storecomm
+
+data = [
     ("CVC" , dir+"protokoll_CVC_Auto", cvc_sc_pat),
     ("CVC Lite" , dir+"protokoll_CVCL_Auto", cvc_sc_pat),
-    ("E (sts11), built-in index type" ,
-     dir+"protokoll_E_sts11ni_t1", e_sc_pat),
-    ("E (sts13), axiomatized indices" ,
-     dir+"protokoll_E_sts13_t1",
-     e_sc_pat),    
-    ("E (auto), axiomatized indices" ,
-     dir+"protokoll_E_auto_t1",
-     e_sc_pat),    
+    ("E (sts11), built-in index type" , dir+"protokoll_E_sts11_t1", e_sc_ni_pat),
+    ("E (sts11), axiomatized indices" , dir+"protokoll_E_sts11_t1", e_sc_pat),    
+    ("E (sts13), axiomatized indices" , dir+"protokoll_E_sts13_t1", e_sc_pat),    
+    ("E (sts14), axiomatized indices", dir+"protokoll_E_sts14_t1", e_sc_pat), 
     ]
 
-t1_sc_plot = pylib_graphs.plot(t1_sc_data)
+plot = pylib_graphs.plot("Storecomm, T1, Native", data)
+plot_list.append(plot)
 
-t2_sc_data = [
-    ("CVC" , dir+"protokoll_CVC_Auto", cvc_sc_pat),
-    ("CVC Lite" , dir+"protokoll_CVCL_Auto", cvc_sc_pat),
-    ("E (sts11), built-in index type" ,
-     dir+"protokoll_E_sts11ni_t2", e_sc_pat),
-    ("E (sts13), axiomatized indices" ,
-     dir+"protokoll_E_sts13_t2",
-     e_sc_pat),    
-    ("E (auto), axiomatized indices" ,
-     dir+"protokoll_E_auto_t2",
-     e_sc_pat),
+# Storecomm_invalid
+
+data = [
+    ("CVC" , dir+"protokoll_CVC_Auto", cvc_scinv_pat),
+    ("CVC Lite" , dir+"protokoll_CVCL_Auto", cvc_scinv_pat),
+    ("E (sts11), axiomatized indices" , dir+"protokoll_E_sts11_t1", e_scinv_pat),    
+    ("E (sts13), axiomatized indices" , dir+"protokoll_E_sts13_t1", e_scinv_pat),    
+    ("E (sts14), axiomatized indices", dir+"protokoll_E_sts14_t1", e_scinv_pat), 
     ]
 
-t2_sc_plot =  pylib_graphs.plot(t2_sc_data)
+plot = pylib_graphs.plot("Storecomm_invalid, T1, Native", data)
+plot_list.append(plot)
 
-# Broken, as E solves no single problem
-# t2_sc_plot.gnuplot(None)
+#Storeinv
 
-t1_si_data = [
+data = [
     ("CVC" , dir+"protokoll_CVC_Auto", cvc_si_pat),
     ("CVC Lite" , dir+"protokoll_CVCL_Auto", cvc_si_pat),
-    ("E (sts11)" ,
-     dir+"protokoll_E_sts11ni_t1", e_si_pat),
-    ("E (sts13)" ,
-     dir+"protokoll_E_sts13_t1",
-     e_si_pat),    
-    ("E (auto)" ,
-     dir+"protokoll_E_auto_t1",
-     e_si_pat),    
+    ("E (sts11), axiomatized indices" , dir+"protokoll_E_sts11_t1", e_si_pat),    
+    ("E (sts13), axiomatized indices" , dir+"protokoll_E_sts13_t1", e_si_pat),    
+    ("E (sts14), axiomatized indices", dir+"protokoll_E_sts14_t1", e_si_pat), 
     ]
 
-t1_si_plot =  pylib_graphs.plot(t1_si_data)
+plot = pylib_graphs.plot("Storeinv, T1, Native", data)
+plot_list.append(plot)
+
+#Storeinv_invalid
+
+data = [
+    ("CVC" , dir+"protokoll_CVC_Auto", cvc_siinv_pat),
+    ("CVC Lite" , dir+"protokoll_CVCL_Auto", cvc_siinv_pat),
+    ("E (sts11), axiomatized indices" , dir+"protokoll_E_sts11_t1", e_siinv_pat),    
+    ("E (sts13), axiomatized indices" , dir+"protokoll_E_sts13_t1", e_siinv_pat),    
+    ("E (sts14), axiomatized indices", dir+"protokoll_E_sts14_t1", e_siinv_pat), 
+    ]
+
+plot = pylib_graphs.plot("Storeinv_invalid, T1, Native", data)
+plot_list.append(plot)
+
+#Swap
+
+data = [
+    ("CVC" , dir+"protokoll_CVC_Auto", cvc_sw_pat),
+    ("CVC Lite" , dir+"protokoll_CVCL_Auto", cvc_sw_pat),
+    ("E (sts11), axiomatized indices" , dir+"protokoll_E_sts11_t1", e_sw_pat),    
+    ("E (sts13), axiomatized indices" , dir+"protokoll_E_sts13_t1", e_sw_pat),    
+    ("E (sts14), axiomatized indices", dir+"protokoll_E_sts14_t1", e_sw_pat), 
+    ]
 
 
-t2_si_data = [
+plot = pylib_graphs.plot("Swap, T1, Native", data)
+plot_list.append(plot)
+
+#Swap_invalid
+
+data = [
+    ("CVC" , dir+"protokoll_CVC_Auto", cvc_swinv_pat),
+    ("CVC Lite" , dir+"protokoll_CVCL_Auto", cvc_swinv_pat),
+    ("E (sts11), axiomatized indices" , dir+"protokoll_E_sts11_t1", e_swinv_pat),    
+    ("E (sts13), axiomatized indices" , dir+"protokoll_E_sts13_t1", e_swinv_pat),    
+    ("E (sts14), axiomatized indices", dir+"protokoll_E_sts14_t1", e_swinv_pat), 
+    ]
+
+plot = pylib_graphs.plot("Swap_invalid, T1, Native", data)
+plot_list.append(plot)
+
+# All systems with flattend input - T1
+
+# Storecomm
+
+data = [
+    ("CVC (flattened)" , dir+"protokoll_CVC_Auto", cvc_scf_pat),
+    ("CVC Lite (flattened)" , dir+"protokoll_CVCL_Auto", cvc_scf_pat),
+    ("E (sts11), built-in index type" , dir+"protokoll_E_sts11_t1", e_sc_ni_pat),
+    ("E (sts11), axiomatized indices" , dir+"protokoll_E_sts11_t1", e_sc_pat),    
+    ("E (sts13), axiomatized indices" , dir+"protokoll_E_sts13_t1", e_sc_pat),    
+    ("E (sts14), axiomatized indices", dir+"protokoll_E_sts14_t1", e_sc_pat), 
+    ]
+
+plot = pylib_graphs.plot("Storecomm, T1, Flat", data)
+plot_list.append(plot)
+
+# Storecomm_invalid
+
+data = [
+    ("CVC (flattened)" , dir+"protokoll_CVC_Auto", cvc_scfinv_pat),
+    ("CVC Lite (flattened)" , dir+"protokoll_CVCL_Auto", cvc_scfinv_pat),
+    ("E (sts11), axiomatized indices" , dir+"protokoll_E_sts11_t1", e_scinv_pat),    
+    ("E (sts13), axiomatized indices" , dir+"protokoll_E_sts13_t1", e_scinv_pat),    
+    ("E (sts14), axiomatized indices", dir+"protokoll_E_sts14_t1", e_scinv_pat), 
+    ]
+
+plot = pylib_graphs.plot("Storecomm_invalid, T1, Native",data)
+plot_list.append(plot)
+
+#Storeinv
+
+data = [
     ("CVC" , dir+"protokoll_CVC_Auto", cvc_si_pat),
     ("CVC Lite" , dir+"protokoll_CVCL_Auto", cvc_si_pat),
-    ("E (sts11)" ,
-     dir+"protokoll_E_sts11ni_t2", e_si_pat),
-    ("E (sts13)" ,
-     dir+"protokoll_E_sts13_t2",
-     e_si_pat),    
-    ("E (auto)" ,
-     dir+"protokoll_E_auto_t2",
-     e_si_pat),    
+    ("E (sts11), axiomatized indices" , dir+"protokoll_E_sts11_t1", e_si_pat),    
+    ("E (sts13), axiomatized indices" , dir+"protokoll_E_sts13_t1", e_si_pat),    
+    ("E (sts14), axiomatized indices", dir+"protokoll_E_sts14_t1", e_si_pat), 
     ]
 
-t2_si_plot =  pylib_graphs.plot(t2_si_data)
+plot = pylib_graphs.plot("Storeinv, T1, Native", data)
+plot_list.append(plot)
 
-t1_sw_data = [
+#Storeinv_invalid
+
+data = [
+    ("CVC" , dir+"protokoll_CVC_Auto", cvc_siinv_pat),
+    ("CVC Lite" , dir+"protokoll_CVCL_Auto", cvc_siinv_pat),
+    ("E (sts11), axiomatized indices" , dir+"protokoll_E_sts11_t1", e_siinv_pat),    
+    ("E (sts13), axiomatized indices" , dir+"protokoll_E_sts13_t1", e_siinv_pat),    
+    ("E (sts14), axiomatized indices", dir+"protokoll_E_sts14_t1", e_siinv_pat), 
+    ]
+
+plot = pylib_graphs.plot("Storeinv_invalid, T1, Native", data)
+plot_list.append(plot)
+
+#Swap
+
+data = [
     ("CVC" , dir+"protokoll_CVC_Auto", cvc_sw_pat),
     ("CVC Lite" , dir+"protokoll_CVCL_Auto", cvc_sw_pat),
-    ("E (sts11)" ,
-     dir+"protokoll_E_sts11ni_t1", e_sw_pat),
-    ("E (sts13)" ,
-     dir+"protokoll_E_sts13_t1",
-     e_sw_pat),    
-    ("E (auto)" ,
-     dir+"protokoll_E_auto_t1",
-     e_sw_pat),    
+    ("E (sts11), axiomatized indices" , dir+"protokoll_E_sts11_t1", e_sw_pat),    
+    ("E (sts13), axiomatized indices" , dir+"protokoll_E_sts13_t1", e_sw_pat),    
+    ("E (sts14), axiomatized indices", dir+"protokoll_E_sts14_t1", e_sw_pat), 
     ]
 
-t1_sw_plot =  pylib_graphs.plot(t1_sw_data)
+plot = pylib_graphs.plot("Swap, T1, Native", data)
+plot_list.append(plot)
 
-t2_sw_data = [
+#Swap_invalid
+
+data = [
+    ("CVC" , dir+"protokoll_CVC_Auto", cvc_swinv_pat),
+    ("CVC Lite" , dir+"protokoll_CVCL_Auto", cvc_swinv_pat),
+    ("E (sts11), axiomatized indices" , dir+"protokoll_E_sts11_t1", e_swinv_pat),    
+    ("E (sts13), axiomatized indices" , dir+"protokoll_E_sts13_t1", e_swinv_pat),    
+    ("E (sts14), axiomatized indices", dir+"protokoll_E_sts14_t1", e_swinv_pat), 
+    ]
+
+plot = pylib_graphs.plot("Swap_invalid, T1, Native", data)
+plot_list.append(plot)
+
+
+# All systems with system-specific input - T3 on swap
+
+
+#Swap
+
+data = [
     ("CVC" , dir+"protokoll_CVC_Auto", cvc_sw_pat),
     ("CVC Lite" , dir+"protokoll_CVCL_Auto", cvc_sw_pat),
-    ("E (sts11)" ,
-     dir+"protokoll_E_sts11ni_t2", e_sw_pat),
-    ("E (sts13)" ,
-     dir+"protokoll_E_sts13_t2",
-     e_sw_pat),    
-    ("E (auto)" ,
-     dir+"protokoll_E_auto_t2",
-     e_sw_pat),    
-    ("E (sts14_t2_K18_F2_S)",
-     dir+"protokoll_E_sts14_t2_K18_F2_S",
-     e_sw_pat),
+    ("E (sts11), axiomatized indices" , dir+"protokoll_E_sts11_t3", e_sw_pat),    
+    ("E (sts13), axiomatized indices" , dir+"protokoll_E_sts13_t3", e_sw_pat),    
+    ("E (sts14), axiomatized indices", dir+"protokoll_E_sts14_t3", e_sw_pat), 
     ]
 
-t2_sw_plot =  pylib_graphs.plot(t2_sw_data)
+
+plot = pylib_graphs.plot("Swap, T3, Native", data)
+plot_list.append(plot)
 
 
-t2x_sw_data = [
-    ("CVC" , dir+"protokoll_CVC_Auto", cvc_sw_pat),
-    ("CVC Lite" , dir+"protokoll_CVCL_Auto", cvc_sw_pat),
-    ("E (sts11)" ,
-     dir+"protokoll_E_sts11ni_t2", e_sw_pat),
-    ("E (sts13)" ,
-     dir+"protokoll_E_sts13_t2",
-     e_sw_pat),    
-    ("E (sts14)" ,
-     dir+"protokoll_E_sts14_t2",
-     e_sw_pat),    
-    ("E (auto)" ,
-     dir+"protokoll_E_auto_t2",
-     e_sw_pat),    
+data = [
+    ("CVC" , dir+"protokoll_CVC_Auto", cvc_swf_pat),
+    ("CVC Lite" , dir+"protokoll_CVCL_Auto", cvc_swf_pat),
+    ("E (sts11), axiomatized indices" , dir+"protokoll_E_sts11_t3", e_sw_pat),    
+    ("E (sts13), axiomatized indices" , dir+"protokoll_E_sts13_t3", e_sw_pat),    
+    ("E (sts14), axiomatized indices", dir+"protokoll_E_sts14_t3", e_sw_pat), 
     ]
 
-t2x_sw_plot =  pylib_graphs.plot(t2x_sw_data)
 
-# All systems with flattened input!
+plot = pylib_graphs.plot("Swap, T3, Flat", data)
+plot_list.append(plot)
 
-t1_scf_data = [
-    ("CVC (flat)" , dir+"protokoll_CVC_Auto", cvc_scf_pat),
-    ("CVC Lite (flat)" , dir+"protokoll_CVCL_Auto", cvc_scf_pat),
-    ("E (sts11), built-in index type" ,
-     dir+"protokoll_E_sts11ni_t1", e_sc_pat),
-    ("E (sts13), axiomatized indices" ,
-     dir+"protokoll_E_sts13_t1",
-     e_sc_pat),    
-    ("E (auto), axiomatized indices" ,
-     dir+"protokoll_E_auto_t1",
-     e_sc_pat),    
-    ]
-
-t1_scf_plot = pylib_graphs.plot(t1_scf_data)
-
-t1_sif_data = [
-    ("CVC (flat)" , dir+"protokoll_CVC_Auto", cvc_sif_pat),
-    ("CVC Lite (flat)" , dir+"protokoll_CVCL_Auto", cvc_sif_pat),
-    ("E (sts11)" ,
-     dir+"protokoll_E_sts11ni_t1", e_si_pat),
-    ("E (sts13)" ,
-     dir+"protokoll_E_sts13_t1",
-     e_si_pat),    
-    ("E (auto)" ,
-     dir+"protokoll_E_auto_t1",
-     e_si_pat),    
-    ]
-
-t1_sif_plot = pylib_graphs.plot(t1_sif_data)
-
-t1_swf_data = [
-    ("CVC (flat)" , dir+"protokoll_CVC_Auto", cvc_swf_pat),
-    ("CVC Lite (flat)" , dir+"protokoll_CVCL_Auto", cvc_swf_pat),
-    ("E (sts11)" ,
-     dir+"protokoll_E_sts11ni_t1", e_sw_pat),
-    ("E (sts13)" ,
-     dir+"protokoll_E_sts13_t1",
-     e_sw_pat),    
-    ("E (auto)" ,
-     dir+"protokoll_E_auto_t1",
-     e_sw_pat),    
-    ]
-
-t1_swf_plot = pylib_graphs.plot(t1_swf_data)
-
-# T2
-
-t2_scf_data = [
-    ("CVC (flat)" , dir+"protokoll_CVC_Auto", cvc_scf_pat),
-    ("CVC Lite (flat)" , dir+"protokoll_CVCL_Auto", cvc_scf_pat),
-    ("E (sts11), built-in index type" ,
-     dir+"protokoll_E_sts11ni_t2", e_sc_pat),
-    ("E (sts13), axiomatized indices" ,
-     dir+"protokoll_E_sts13_t2",
-     e_sc_pat),    
-    ("E (auto), axiomatized indices" ,
-     dir+"protokoll_E_auto_t2",
-     e_sc_pat),    
-    ]
-
-t2_scf_plot = pylib_graphs.plot(t2_scf_data)
-
-t2_sif_data = [
-    ("CVC (flat)" , dir+"protokoll_CVC_Auto", cvc_sif_pat),
-    ("CVC Lite (flat)" , dir+"protokoll_CVCL_Auto", cvc_sif_pat),
-    ("E (sts11)" ,
-     dir+"protokoll_E_sts11ni_t2", e_si_pat),
-    ("E (sts13)" ,
-     dir+"protokoll_E_sts13_t2",
-     e_si_pat),    
-    ("E (auto)" ,
-     dir+"protokoll_E_auto_t2",
-     e_si_pat),    
-    ]
-
-t2_sif_plot = pylib_graphs.plot(t2_sif_data)
-
-t2_swf_data = [
-    ("CVC (flat)" , dir+"protokoll_CVC_Auto", cvc_swf_pat),
-    ("CVC Lite (flat)" , dir+"protokoll_CVCL_Auto", cvc_swf_pat),
-    ("E (sts11)" ,
-     dir+"protokoll_E_sts11ni_t2", e_sw_pat),
-    ("E (sts13)" ,
-     dir+"protokoll_E_sts13_t2",
-     e_sw_pat),    
-    ("E (auto)" ,
-     dir+"protokoll_E_auto_t2",
-     e_sw_pat),    
-    ]
-
-t2_swf_plot = pylib_graphs.plot(t2_swf_data)
-
-# All systems with flattened input for the Object Identifier paper
-
-t1_oi_sc_data = [
-    ("CVC" , dir+"protokoll_CVC_Auto", cvc_scf_pat),
-    ("CVC Lite" , dir+"protokoll_CVCL_Auto", cvc_scf_pat),
-    ("E (build-in object identifiers)" ,
-     dir+"protokoll_E_sts11ni_t1", e_sc_pat),
-    ("E (axiomatized indices)" ,
-     dir+"protokoll_E_sts11ai_t1",
-     e_sc_pat), 
-    ]
-
-t1_oi_sc_plot = pylib_graphs.plot(t1_oi_sc_data)
 
 
 # Create files
 
 
-if files:
-    t1_oi_sc_plot.gnuplot("e_cmp_plot.eps")
-
-    t1_sc_plot.gnuplot("t1_storecomm_plot.eps")
-    t1_si_plot.gnuplot("t1_storeinv_plot.eps")
-    t2_si_plot.gnuplot("t2_storeinv_plot.eps")
-    t1_sw_plot.gnuplot("t1_swap_plot.eps")
-    t2_sw_plot.gnuplot("t2_swap_plot.eps")
-
-    t1_sc_plot.gnuplot("t1_storecomm_log_plot.eps", True)
-    t1_si_plot.gnuplot("t1_storeinv_log_plot.eps", True)
-    t2_si_plot.gnuplot("t2_storeinv_log_plot.eps", True)
-    t1_sw_plot.gnuplot("t1_swap_log_plot.eps", True)
-    t2_sw_plot.gnuplot("t2_swap_log_plot.eps", True)
-    
-    t1_scf_plot.gnuplot("t1_storecomm_plot_f.eps")
-    t1_sif_plot.gnuplot("t1_storeinv_plot_f.eps")
-    t2_sif_plot.gnuplot("t2_storeinv_plot_f.eps")
-    t1_swf_plot.gnuplot("t1_swap_plot_f.eps")
-    t2_swf_plot.gnuplot("t2_swap_plot_f.eps")
-
-    t1_scf_plot.gnuplot("t1_storecomm_log_plot_f.eps", True)
-    t1_sif_plot.gnuplot("t1_storeinv_log_plot_f.eps", True)
-    t2_sif_plot.gnuplot("t2_storeinv_log_plot_f.eps", True)
-    t1_swf_plot.gnuplot("t1_swap_log_plot_f.eps", True)
-    t2_swf_plot.gnuplot("t2_swap_log_plot_f.eps", True)
-
-
-else:
-    print "Linear Scale Plots:"
-    print "  STORECOMM, t1"
-    t1_sc_plot.gnuplot(None)
-    print "  STORECOMM, t1"
-    t1_scf_plot.gnuplot(None)
-    print "  STOREINV, t1"
-    t1_si_plot.gnuplot(None)
-    print "  STOREINV, t1"
-    t1_sif_plot.gnuplot(None)
-    print "  STOREINV, t2"
-    t2_si_plot.gnuplot(None)
-    print "  STOREINV, t2"
-    t2_sif_plot.gnuplot(None)
-    print "  SWAP, t1"
-    t1_sw_plot.gnuplot(None)
-    print "  SWAP, t1"
-    t1_swf_plot.gnuplot(None)
-    print "  SWAP, t2"
-    t2_sw_plot.gnuplot(None)
-    print "  SWAP, t2"
-    t2_swf_plot.gnuplot(None)
-    print "  SWAP X, t2"
-    t2x_sw_plot.gnuplot(None)
-
-    print "Log Scale Plots:"
-    print "  STORECOMM, t1"
-    t1_sc_plot.gnuplot(None, True)
-    print "  STORECOMM, t1"
-    t1_scf_plot.gnuplot(None, True)
-    print "  STOREINV, t1"
-    t1_si_plot.gnuplot(None, True)
-    print "  STOREINV, t2"
-    t2_si_plot.gnuplot(None, True)
-    print "  STOREINV, t2"
-    t2_sif_plot.gnuplot(None, True)
-    print "  SWAP, t1"
-    t1_sw_plot.gnuplot(None, True)
-    print "  SWAP, t1"
-    t1_swf_plot.gnuplot(None, True)
-    print "  SWAP, t2"
-    t2_sw_plot.gnuplot(None, True)
-    print "  SWAP, t2"
-    t2_swf_plot.gnuplot(None, True)
+for i in plot_list:
+    print "Title: "+i.title+ " (linear)";
+    i.gnuplot(files, None);
+    print "Title: "+i.title+ " (log)";
+    i.gnuplot(files, True);
+        
