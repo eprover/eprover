@@ -61,6 +61,10 @@ typedef enum
 		       * quasi-ordering */
    WFrequencyRankSq,  /* As above, but squared */
    WInvFrequencyRankSq,/* Ditto */
+   WInvModFreqRank,    /* As WInvFrequencyRank, but difference between
+			  ranks is cardinality of set of symbols in
+			  rank */
+   WInvModFreqRankMax0,  /* As above, but first maximal unary is 0 */
    WConstantWeight,   /* All weights 1 */
    WMinMethod = WSelectMaximal,
    WMaxMethod = WConstantWeight /* Update as required! */

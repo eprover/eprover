@@ -41,6 +41,7 @@ char* TOPrecGenNames[]=
    "freq",             /* PByFrequency */
    "invfreq",          /* PByInvFrequency */
    "invfreqconstmin",  /* PByFreqConstMin */
+   "invfreqhack",      /* PByInvFreqHack */
    "orient_axioms",    /* POrientAxioms */
    NULL
 };
@@ -328,7 +329,7 @@ static void generate_const_min_precedence(OCB_p ocb, ClauseSet_p axioms)
       array->array[i].key1 = -SigFindArity(ocb->sig, i);
       if(!array->array[i].key1)
       {
-	 array->array[i].key1 = INT_MIN;
+	 array->array[i].key1 = -FREQ_SEMI_INFTY;
       }
    }
    FCodeFeatureArraySort(array);
@@ -429,8 +430,7 @@ static void generate_invfreq_constmin_precedence(OCB_p ocb, ClauseSet_p axioms)
       arity = SigFindArity(ocb->sig, i);
       if(arity == 0)
       {
-	 array->array[i].key1 = INT_MIN ; /* Smaller than all real
-				             frequencies */
+	 array->array[i].key1 = -FREQ_SEMI_INFTY;
 	 array->array[i].key2 = array->array[i].freq;
       }
       else
@@ -444,6 +444,63 @@ static void generate_invfreq_constmin_precedence(OCB_p ocb, ClauseSet_p axioms)
       
    FCodeFeatureArrayFree(array);
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: generate_invfreq_hack_precedence()
+//
+//   Generate a precedence in which symbols which occur more often in
+//   the specification are smaller, but constants are smaller
+//   still. All unary function symols that occur with the maximal
+//   frequency are maximal. Arity is used as an additional
+//   tie-breaker, then order of occurence in the signature.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void generate_invfreq_hack_precedence(OCB_p ocb, ClauseSet_p axioms)
+{
+   FCodeFeatureArray_p array = FCodeFeatureArrayAlloc(ocb->sig, axioms);
+   FunCode       i;
+   int arity, max_freq=-1;
+
+   for(i=1; i<= ocb->sig->f_count; i++)
+   {
+      arity = SigFindArity(ocb->sig, i);
+      if(arity == 1)
+      {
+	 max_freq = MAX(max_freq, array->array[i].freq);
+      }
+   }
+   for(i=1; i<= ocb->sig->f_count; i++)
+   {
+      arity = SigFindArity(ocb->sig, i);
+      if(arity == 0)
+      {
+	 array->array[i].key1 = -FREQ_SEMI_INFTY;
+	 array->array[i].key2 = -array->array[i].freq;
+      }
+      else if((arity == 1) && (array->array[i].freq == max_freq))
+      {
+	 array->array[i].key1 = FREQ_SEMI_INFTY;
+	 array->array[i].key2 = 0; 
+      }
+      else
+      {
+	 array->array[i].key1 = -array->array[i].freq;
+	 array->array[i].key2 = SigFindArity(ocb->sig, i);
+      }
+   }
+   FCodeFeatureArraySort(array);
+   compute_precedence_from_array(ocb, array);
+      
+   FCodeFeatureArrayFree(array);
+}
+
 
 
 
@@ -550,6 +607,9 @@ void TOGeneratePrecedence(OCB_p ocb, ClauseSet_p axioms,
 	 break;
    case PByInvFreqConstMin:
 	 generate_invfreq_constmin_precedence(ocb, axioms);
+	 break;
+   case PByInvFreqHack:
+	 generate_invfreq_hack_precedence(ocb, axioms);
 	 break;
    default:
 	 assert(false && "Precedence generation method unimplemented");

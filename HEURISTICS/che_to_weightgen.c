@@ -54,6 +54,8 @@ char* TOWeightGenNames[]=
    "invfreqrank",
    "freqranksquare",
    "invfreqranksquare",
+   "invmodfreqrank",     /* WModFreqRank */
+   "invmodfreqrankmax0", /* WModFreqRankMax0 */
    "constant",           /* WConstantWeight */
    NULL
 };
@@ -131,6 +133,48 @@ static void set_maximal_0(OCB_p ocb)
       {
 	 *OCBFunWeightPos(ocb, i) = 0;
 	 break;
+      }
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: set_maximal_unary_0()
+//
+//   Set the weight of the first unary maximal symbol in OCB to
+//   0. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void set_maximal_unary_0(OCB_p ocb)
+{
+   FunCode i,j;
+   bool    max;
+   assert(ocb->precedence||ocb->prec_weights);
+   
+   for(i=SIG_TRUE_CODE+1; i<=ocb->sig_size; i++)
+   {
+      if(SigFindArity(ocb->sig, i) == 1)
+      {
+	 max = true;
+      
+	 for(j=1; j<=ocb->sig_size; j++)
+	 {
+	    if(OCBFunCompare(ocb, i, j) == to_lesser)
+	    {
+	       max = false;
+	       break;
+	    }	 
+	 }   
+	 if(max)
+	 {
+	    *OCBFunWeightPos(ocb, i) = 0;
+	    break;
+	 }
       }
    }
 }
@@ -521,6 +565,88 @@ static void generate_invfreqranksq_weights(OCB_p ocb, ClauseSet_p axioms)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: generate_inv_modfreqrank_weights()
+//
+//   Make the weight of a function symbol equal to its modified
+//   frequency rank.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void generate_inv_modfreqrank_weights(OCB_p ocb, ClauseSet_p axioms)
+{
+   FCodeFeatureArray_p array = FCodeFeatureArrayAlloc(ocb->sig, axioms);
+   FunCode       i;
+   long          weight = 0, base=0, freq;
+   
+   for(i=SIG_TRUE_CODE+1; i<= ocb->sig->f_count; i++)
+   {
+      array->array[i].key1 = array->array[i].freq;
+   }
+   FCodeFeatureArraySort(array);
+   freq = 0;
+   for(i=ocb->sig->f_count; i>=SIG_TRUE_CODE+1; i--)
+   {
+      base++;
+      if(freq!=array->array[i].freq)
+      {
+	 freq=array->array[i].freq;
+	 weight=base;
+      }
+      *OCBFunWeightPos(ocb, array->array[i].symbol) =
+	 weight*W_DEFAULT_WEIGHT;
+   }
+   FCodeFeatureArrayFree(array);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: generate_inv_modfreqrank_weights_max0()
+//
+//   Make the weight of a function symbol equal to its modified
+//   frequency rank, but make the first unary maximal symbol 0.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void generate_inv_modfreqrank_weights_max_0(OCB_p ocb, ClauseSet_p axioms)
+{
+   FCodeFeatureArray_p array = FCodeFeatureArrayAlloc(ocb->sig, axioms);
+   FunCode       i;
+   long          weight = 0, base=0, freq;
+   
+
+   for(i=SIG_TRUE_CODE+1; i<= ocb->sig->f_count; i++)
+   {
+      array->array[i].key1 = array->array[i].freq;
+   }
+   FCodeFeatureArraySort(array);
+   freq = 0;
+   for(i=ocb->sig->f_count; i>=SIG_TRUE_CODE+1; i--)
+   {
+      base++;
+      if(freq!=array->array[i].freq)
+      {
+	 freq=array->array[i].freq;
+	 weight=base;
+      }
+      *OCBFunWeightPos(ocb, array->array[i].symbol) =
+	 weight*W_DEFAULT_WEIGHT;
+   }
+   set_maximal_unary_0(ocb);
+   FCodeFeatureArrayFree(array);
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
@@ -633,6 +759,12 @@ void TOGenerateWeights(OCB_p ocb, ClauseSet_p axioms,
    case WInvFrequencyRankSq:
 	 generate_invfreqranksq_weights(ocb, axioms);
 	 break;
+   case WInvModFreqRank:
+	 generate_inv_modfreqrank_weights(ocb, axioms);
+	 break;
+   case WInvModFreqRankMax0:
+	 generate_inv_modfreqrank_weights_max_0(ocb, axioms);
+	 break;
    case WNoMethod:
 	 generate_selmax_weights(ocb);
 	 break;
@@ -652,7 +784,7 @@ void TOGenerateWeights(OCB_p ocb, ClauseSet_p axioms,
       }
    }
    *OCBFunWeightPos(ocb, SIG_TRUE_CODE) = ocb->var_weight;
-   /* print_weight_array(GlobalOut,ocb); */
+   /*  print_weight_array(GlobalOut,ocb); */
 }
 
 

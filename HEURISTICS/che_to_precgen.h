@@ -43,8 +43,11 @@ typedef enum
 			   minimal */
    PByFrequency,        /* Make often occuring symbols big */
    PByInvFrequency,     /* Make often occuring symbols small */
-   PByInvFreqConstMin,  /* Make often occuring symbols big, except for
+   PByInvFreqConstMin,  /* Make rarely occuring symbols small, except for
 			   constants */
+   PByInvFreqHack,      /* Make constants minimal, frequent unary
+                           symbols maximal, otherwise as
+                           PByInvFrequency */
    POrientAxioms,       /* My (planned) hack */
    PMinMethod = PUnaryFirst,
    PMaxMethod = POrientAxioms
@@ -55,6 +58,9 @@ typedef enum
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+#define FREQ_SEMI_INFTY 2000000 /* Bigger than any expected frequency,
+				 * small enough to never cause over-
+				 * or underflow */
 
 extern char* TOPrecGenNames[];
 
