@@ -297,7 +297,21 @@ static bool eqn_base_parse(Scanner_p in, TB_p bank, Term_p *lref,
    }
    if(!TestInpId(in, EQUAL_PREDICATE))
    {
-      lterm = TBTermParse(in, bank);
+      if((ScannerGetFormat(in) == TSTPFormat) && TestInpId(in, "true"))
+      {
+	 NextToken(in);	 
+	 lterm = bank->true_term;
+      }
+      else if((ScannerGetFormat(in) == TSTPFormat) && TestInpId(in, "false"))
+      {
+	 NextToken(in);	 
+	 lterm = bank->true_term;
+	 positive = !positive;
+      }
+      else
+      {
+	 lterm = TBTermParse(in, bank);
+      }
       if(TestInpTok(in, Exclamation | EqualSign))
       {
 	 if(!positive)
