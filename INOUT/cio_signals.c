@@ -127,6 +127,7 @@ void ESignalHandler(int mysignal)
 	 VERBOUT("SIGTERM/SIGINT caught.\n");
 	 if(fatal_error_in_progress)
 	 {
+	    signal(mysignal, SIG_DFL);
 	    raise(mysignal);
 	 }
 	 fatal_error_in_progress = 1;
