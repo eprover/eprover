@@ -609,8 +609,9 @@ function kill_job(lockfile,     host, pid)
       if(ping_host(host))
       {
 	 pid  = find_pid_in_protocoll(lockfile);
-	 print "ssh -x " host " kill " pid | "/bin/sh"
-	 print "rm " cwd "/" host "_*" | "/bin/sh"
+	 print "ssh -x " host " kill " pid | "/bin/sh";
+	 print "rm " cwd "/" host "_*" | "/bin/sh";
+	 close("/bin/sh");
 	 return 1;
       }
       else
