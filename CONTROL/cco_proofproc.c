@@ -651,16 +651,48 @@ void ProofStateInit(ProofState_p state, ProofControl_p control,
 	 }
       }
    }
+   state->original_symbols = state->signature->f_count;
    if(use_fvindexing)
-   {
+   {      
+      long symbol_size = MIN(state->original_symbols,FV_MAX_SYMBOL_COUNT);
+
       state->processed_non_units->fvindex =
-	 FVIAnchorAlloc(MIN(state->signature->f_count,FV_MAX_SYMBOL_COUNT));
+	 FVIAnchorAlloc(symbol_size);
       state->processed_pos_rules->fvindex =
-	 FVIAnchorAlloc(MIN(state->signature->f_count,FV_MAX_SYMBOL_COUNT));
+	 FVIAnchorAlloc(symbol_size);
       state->processed_pos_eqns->fvindex =
-	 FVIAnchorAlloc(MIN(state->signature->f_count,FV_MAX_SYMBOL_COUNT));
+	 FVIAnchorAlloc(symbol_size);
       state->processed_neg_units->fvindex =
-	 FVIAnchorAlloc(MIN(state->signature->f_count,FV_MAX_SYMBOL_COUNT));
+	 FVIAnchorAlloc(symbol_size);
+      
+      if(true)
+      {
+	 FreqVector_p fsum, fmax, fmin;
+	 long clause_no;
+	 PermVector_p perm;
+	 
+	 fsum = FreqVectorAlloc(SigSizeToFreqVectorSize(state->original_symbols));
+	 fmax = FreqVectorAlloc(SigSizeToFreqVectorSize(state->original_symbols));
+	 fmin = FreqVectorAlloc(SigSizeToFreqVectorSize(state->original_symbols));
+	 
+	 clause_no = ClauseSetFindCharFreqVectors(state->axioms,
+						  fsum,
+						  fmax, 
+						  fmin, 
+						  state->original_symbols);
+	 
+	 perm = PermVectorCompute(fmax, fmin, fsum, clause_no, 
+				  SigSizeToFreqVectorSize(symbol_size), 
+				  true);
+	 FreqVectorFree(fsum);
+	 FreqVectorFree(fmax);
+	 FreqVectorFree(fmin);
+	 
+	 state->processed_non_units->fvindex->perm_vector = perm;
+	 state->processed_neg_units->fvindex->perm_vector = PermVectorCopy(perm);
+	 state->processed_pos_rules->fvindex->perm_vector = PermVectorCopy(perm);
+	 state->processed_pos_eqns->fvindex->perm_vector  = PermVectorCopy(perm);
+      }
    }
 }
 
