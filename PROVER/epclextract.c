@@ -34,7 +34,7 @@ Changes
 /*---------------------------------------------------------------------*/
 
 #define NAME    "epclextract"
-#define VERSION "0.3"
+#define VERSION "0.4"
 
 typedef enum
 {
