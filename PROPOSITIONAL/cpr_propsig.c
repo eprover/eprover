@@ -171,6 +171,31 @@ char* PropSigGetAtomName(PropSig_p psig, PAtomCode atom)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: PSigPrint()
+//
+//   Print a PSig (mainly for debugging)
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void PropSigPrint(FILE* out, PropSig_p psig)
+{
+   long i;
+
+   fprintf(out, "# Propositional signature:\n");
+   fprintf(out, "# ------------------------\n");
+   for(i=0; i<PropSigAtomNumber(psig); i++)
+   {
+      fprintf(out, "# %6ld : %s\n", i, PropSigGetAtomName(psig,i));
+   }
+   fprintf(out, "\n");
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

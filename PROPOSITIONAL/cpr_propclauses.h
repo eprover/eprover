@@ -26,23 +26,19 @@ Changes
 #define CPR_PROPCLAUSES
 
 #include <ccl_clauses.h>
+#include <cpr_propsig.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
 
-typedef struct lit_rep_cell
-{
-   long  literal;
-   bool   active;
-}LitRepCell, *LitRep_p;
 
 typedef struct dpll_clause_cell
 {
    unsigned long lit_no;
    unsigned long active_no;
-   LitRep_p      literals;
+   PAtomCode     *literals;
 }DPLLClauseCell, *DPLLClause_p;
 
 
@@ -51,8 +47,12 @@ typedef struct dpll_clause_cell
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+
+#define DPLLClauseCellAlloc() (DPLLClauseCell*)SizeMalloc(sizeof(DPLLClauseCell))
+#define DPLLClauseCellFree(junk)            SizeFree(junk, sizeof(DPLLClauseCell))
 DPLLClause_p DPLLClauseFromClause(PropSig_p psig, Clause_p clause);
-void         DPLLClausePrintLOP(PropSig_p psig, DPLLClause_p clause);
+void         DPLLClausePrintLOP(FILE* out, PropSig_p psig, DPLLClause_p clause);
+void         DPLLClausePrintDimacs(FILE* out, DPLLClause_p clause);
 
 
 #endif
