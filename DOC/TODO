@@ -2,6 +2,9 @@ Fix inheritance of SOS and clause types for split clauses. The code is
 there, but commented out -> I have not enough CPU time to rerun tests
 before CASC-19.
 
+Try copying instantiated terms (non-shared) before doing ordering
+comparisons -> we can count variable occurences in the variables!
+
 Caching term orderings:
 
 - Key: Only three kinds of instantiations (Never, Always, Once) ->
