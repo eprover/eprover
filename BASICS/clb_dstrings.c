@@ -306,7 +306,7 @@ char* DStrCopy(DStr_p strdes)
    {
       /* As we know the length, this should be more efficient than
 	 using SecureStrdup() */
-
+      
       handle = SecureMalloc(strdes->len+1);
       strcpy(handle,strdes->string);
       return handle;

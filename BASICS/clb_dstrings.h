@@ -70,6 +70,7 @@ char*   DStrAppendStrArray(DStr_p strdes, char* array[], char*
 #define DStrAppendDStr(strdes, str) \
         DStrAppendStr((strdes), DStrView(str))
 char    DStrDeleteLastChar(DStr_p strdes);
+#define DStrLastChar(strdes) (DStrLen(strdes)?DStrView(strdes)[DStrLen(strdes)-1]:'\0')
 char*   DStrView(DStr_p strdes);
 char*   DStrCopy(DStr_p strdes);
 char*   DStrCopyCore(DStr_p strdes);
