@@ -12,13 +12,16 @@ fi
 
 tmpfile=$TMPDIR/"eproof_"${host}"_"${pid}
 tmpfile2=$TMPDIR/"eprooftmp_"${host}"_"${pid}
-touch tmpfile tmpfile2
+tmpfile3=$TMPDIR/"eproofres_"${host}"_"${pid}
+cat /dev/null > $tmpfile 
+cat /dev/null > $tmpfile2 
+cat /dev/null > $tmpfile3
 
 timeout=""
 
 cleanup () 
 {     
-    rm $tmpfile
+    rm $tmpfile $tmpfile2 $tmpfile3
     if [ "$timeout" = "" ] ; then
 	echo "# Terminated by signal or interrupt, cleaning up"
     fi
@@ -30,26 +33,30 @@ trap 'cleanup' EXIT
 searchlimit=2000000000 # Effectively unlimited
 prooflimit=2000000000
 timelimit=2000000000
-outfile=""
+outfile=$tmpfile3
+
+print_tail=0
 
 for argument in  $*; do
-    head=`echo "$argument"|cut -d= -f1`
-    if [ "$head" = "--cpu-limit" ] ; then
-    	timelimit=`echo $argument|cut -d= -f2`
-    fi    
-    if [ "$head" = "-o" ] ; then
-    	echo "Short option -o not supported by eproof, use --output-file=<file>"
-	exit 1
-    fi    
-    if [ "$head" = "--output-file" ] ; then
-	outfile=`echo $argument|cut -d= -f2`
-	cat /dev/null > $outfile
-    	#outputoption="--output-file="$outfile
-    fi    
+    if [ "$argument" = "-R" -o "$argument" = "--resources-info" -o "$argument" = "--print-statistics" ] ; then
+	print_tail=29
+    else
+	head=`echo "$argument"|cut -d= -f1`
+	if [ "$head" = "--cpu-limit" ] ; then
+	    timelimit=`echo $argument|cut -d= -f2`
+	fi    
+	if [ "$head" = "-o" ] ; then
+	    echo "Short option -o not supported by eproof, use --output-file=<file>"
+	    exit 1
+	fi    
+	if [ "$head" = "--output-file" ] ; then
+	    outfile=`echo $argument|cut -d= -f2`
+	    cat /dev/null > $outfile
+	fi
+    fi
 done
 
 $EXECPATH/eprover $* -l4 -R -o- --pcl-terms-compressed > $tmpfile
-#$EXECPATH/eprover $* -l4 -R -o- > $tmpfile
 tail -40 $tmpfile > $tmpfile2
 searchtime=`cat $tmpfile2|grep "Total time"|cut -d: -f2|sed -e's/[s ]//g'|cut -d. -f1`
 if [ "$searchtime" ]; then
@@ -67,20 +74,17 @@ if [ "$searchtime" ]; then
     fi
     prooflimit=`expr $timelimit - $searchtime - 1`
     ulimit -S -t $prooflimit
-    if  [ "$outfile" = "" ] ; then
-	grep "# Proof found!" $tmpfile2
-	grep "# No proof found!" $tmpfile2
-	grep "# Failure" $tmpfile2
-	$EXECPATH/epclextract -f --competition-framing $tmpfile
-    else 
-	grep "# Proof found!" $tmpfile2 >> $outfile
-	grep "# No proof found!" $tmpfile2 >> $outfile
-	grep "# Failure" $tmpfile2 >> $outfile
-	$EXECPATH/epclextract -f --competition-framing $tmpfile >> $outfile
+    grep "# TSTP exit status" $tmpfile2 >> $outfile
+    grep "# Failure"          $tmpfile2 >> $outfile
+    $EXECPATH/epclextract -f --competition-framing $tmpfile >> $outfile
+    tail -$print_tail $tmpfile2 >> $outfile
+    if [ "$outfile" = "$tmpfile3" ] ; then
+       cat $outfile
     fi
 else
     echo "# Cannot determine problem status within resource limit"
 fi
+
 timeout="1"
 
 

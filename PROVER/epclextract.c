@@ -94,8 +94,8 @@ OptCell opts[] =
     's', "silent",
     NoArg, NULL,
     "Equivalent to --output-level=0."},
-   
-   {OPT_NOOPT,
+
+    {OPT_NOOPT,
     '\0', NULL,
     NoArg, NULL,
     NULL}

@@ -32,7 +32,7 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-#define NAME    "epclanalyse"
+#define NAME    "epcllemma"
 #define VERSION "0.1"
 
 typedef enum
@@ -43,6 +43,9 @@ typedef enum
    OPT_VERBOSE,
    OPT_OUTPUT,
    OPT_SILENT
+,
+   OPT_TPTP_PRINT,
+   OPT_TPTP_FORMAT
 }OptionCodes;
 
 
@@ -77,6 +80,16 @@ OptCell opts[] =
     's', "silent",
     NoArg, NULL,
     "Equivalent to --output-level=0."},
+   
+   {OPT_TPTP_PRINT,
+    '\0', "tptp-out",
+    NoArg, NULL,
+    "Print lemma sets in TPTP format instead of lop."},
+
+   {OPT_TPTP_FORMAT,
+    '\0', "tptp-format",
+    NoArg, NULL,
+    "Equivalent to --tptp-out (supplied for consistency in the E toolchain."},
 
    {OPT_NOOPT,
     '\0', NULL,
@@ -121,7 +134,7 @@ int main(int argc, char* argv[])
    ESignalSetup(SIGTERM);
    ESignalSetup(SIGINT);
    
-   TPTPFormatPrint = true;
+   /* TPTPFormatPrint = true; */
    /* We need consistent name->var mappings here because we
       potentially read the compressed input format. */
    ClausesHaveLocalVariables = false;
@@ -147,18 +160,17 @@ int main(int argc, char* argv[])
    VERBOUT2("PCL input read\n");
    iw = InferenceWeightsAlloc();
    lp = LemmaParamAlloc();
-   PCLProtResetTreeData(prot);
+   PCLProtResetTreeData(prot, false);
    PCLProtUpdateRefs(prot);
    PCLProtComputeProofSize(prot, iw, false);
-   best_lemma = PCLProtComputeLemmaWeights(prot, lp);
-   
+   best_lemma = PCLProtComputeLemmaWeights(prot, lp);   
+   /*  PCLProtPrintExtra(GlobalOut, prot, true); */
    if(best_lemma)
    {
-      PCLStepPrintExtra(GlobalOut, best_lemma, true);
+      PCLProtSeqFindLemmas(prot, lp, iw, best_lemma->lemma_quality);
+      PCLProtPrintPropClauses(GlobalOut, prot, PCLIsLemma, true);
    }
-   fprintf(GlobalOut, "\n====================\n");
-   PCLProtPrintExtra(GlobalOut, prot, true);
-
+   
    InferenceWeightsFree(iw);
    LemmaParamFree(lp);
    PCLProtFree(prot);
@@ -218,7 +230,17 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_SILENT:
 	    OutputLevel = 0;
 	    break;
-      default:
+      case OPT_TPTP_PRINT:
+	    TPTPFormatPrint = true;
+	    EqnFullEquationalRep = false;
+	    EqnUseInfix = false;
+	    break;
+      case OPT_TPTP_FORMAT:
+	    TPTPFormatPrint = true;
+	    EqnFullEquationalRep = false;
+	    EqnUseInfix = false;
+	    break;
+       default:
 	    assert(false);
 	    break;
       }
