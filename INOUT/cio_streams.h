@@ -54,6 +54,7 @@ typedef struct streamcell
 {
    struct streamcell* next;
    DStr_p             source;
+   DStr_p             dir;
    StreamType         stream_type; /* Only constant strings allowed
 				      here! */
    long               string_pos;
@@ -79,7 +80,7 @@ extern const StreamType StreamTypeOptionString;
 #define StreamCellAlloc() (StreamCell*)SizeMalloc(sizeof(StreamCell))
 #define StreamCellFree(junk)         SizeFree(junk, sizeof(StreamCell))
 
-Stream_p CreateStream(StreamType type, char* source);
+Stream_p CreateStream(StreamType type, char* source, bool fail);
 void     DestroyStream(Stream_p stream);
 
 #define  STREAMREALPOS(pos) ((pos) % MAXLOOKAHEAD)
@@ -94,7 +95,7 @@ void     DestroyStream(Stream_p stream);
 int      StreamNextChar(Stream_p stream);
 
 void     OpenStackedInput(Inpstack_p stack, StreamType type,
-			  char* source);
+			  char* source, bool fail);
 void     CloseStackedInput(Inpstack_p stack);
 
 

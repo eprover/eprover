@@ -533,7 +533,7 @@ Token_p scan_token_follow_includes(Scanner_p in)
          DStrDeleteLastChar(name);
       }
       OpenStackedInput(&(in->source), StreamTypeFile,
-		       DStrView(name));
+		       DStrView(name), true);
       DStrFree(name);
       scan_token_follow_includes(in);
    }
@@ -754,7 +754,7 @@ void PrintToken(FILE* out, Token_p token)
    fprintf(out, "Token:    %d = %s\n", (int)token->tok, handle);
    FREE(handle);
    fprintf(out, "Position: %s   ", TokenPosRep(token));
-   fprintf(out, "Literal:  %s\n", DStrView(token->literal));
+   fprintf(out, "Literal:  %s\n", token->literal?DStrView(token->literal):"");
    fprintf(out, "Numval:   %6lu   Skipped:  %s\n", token->numval,
 	   token->skipped ? "true" : "false");
    fprintf(out, "Comment:  %s\n", DStrView(token->comment));
@@ -786,17 +786,17 @@ Scanner_p CreateScanner(StreamType type, char* name, bool
    handle->include_key = include_key;
    handle->format = LOPFormat;
 
-   OpenStackedInput(&handle->source, type, name);
+   OpenStackedInput(&handle->source, type, name, true);
    
    for(handle->current = 0; handle->current < MAXTOKENLOOKAHEAD;
 	  handle->current++)
    {
+      handle->tok_sequence[handle->current].tok = NoToken;
       handle->tok_sequence[handle->current].literal = DStrAlloc();
       handle->tok_sequence[handle->current].comment = DStrAlloc();
       handle->tok_sequence[handle->current].source      = NULL;
       handle->tok_sequence[handle->current].stream_type = NULL;
       scan_real_token(handle);
-      /* PrintToken(stdout,AktToken(handle));*/
    }
    handle->current = 0;
 
@@ -1068,6 +1068,14 @@ void NextToken(Scanner_p in)
 {
    scan_real_token(in);
    in->current = TOKENREALPOS(in->current+1);
+   /*
+   printf("Current token:\n");
+   PrintToken(stdout, AktToken(in));
+   printf("Next token:\n");
+   PrintToken(stdout, LookToken(in,1));
+   printf("SuperNext token:\n");
+   PrintToken(stdout, LookToken(in,2));
+   printf("\n");*/
 }
 
 /*---------------------------------------------------------------------*/

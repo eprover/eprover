@@ -45,6 +45,7 @@ long  ConcatFiles(char* target, char** sources);
 void  FileRemove(char* name);
 char* FileBaseName(char *file);
 void  FilePrint(FILE* out, char* name);
+#define FileNameIsAbsolute(name) ((name)[0]='/')
 
 #endif
 
