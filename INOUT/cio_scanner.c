@@ -35,7 +35,7 @@ static TokenRepCell token_print_rep[] =
    {Comment,      "Comment"},
    {Ident,        "Identifier not terminating in a number"},
    {Idnum,        "Identifier terminating in a number"},
-   {String,       "String enclosed in \"\""},
+   {String,       "String enclosed in \"\" or ''"},
    {PosInt,       "Integer (sequence of digits)"},
    {OpenBracket,  "Opening bracket ('(')"},
    {CloseBracket, "Closing bracket (')')"},
@@ -246,12 +246,13 @@ static void scan_C_comment(Scanner_p in)
 //
 /----------------------------------------------------------------------*/
 
-static void scan_string(Scanner_p in)
+static void scan_string(Scanner_p in, char delim)
 {
    AktToken(in)->tok = String;
    
+   DStrAppendChar(AktToken(in)->literal, CurrChar(in));
    NextChar(in);
-   while(CurrChar(in) != '"')
+   while(CurrChar(in) != delim)
    {
       if(!isprint(CurrChar(in)))
       {
@@ -262,6 +263,7 @@ static void scan_string(Scanner_p in)
       DStrAppendChar(AktToken(in)->literal, CurrChar(in));
       NextChar(in);
    }
+   DStrAppendChar(AktToken(in)->literal, CurrChar(in));
    NextChar(in);
 }
 
@@ -318,9 +320,9 @@ static Token_p scan_token(Scanner_p in)
    {
       scan_C_comment(in);
    }
-   else if(CurrChar(in)=='"')
+   else if((CurrChar(in)=='"') || (CurrChar(in)=='\''))
    {
-      scan_string(in);
+      scan_string(in, CurrChar(in));
    }
    else
    {
