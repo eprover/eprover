@@ -62,6 +62,8 @@ PCLProt_p PCLProtAlloc(void)
 
    handle->terms = TBAlloc(TPIgnoreProps, SigAlloc());
    handle->steps = NULL;
+   handle->in_order = PStackAlloc();
+   handle->is_ordered = false;
 
    return handle;
 }
@@ -96,6 +98,7 @@ void PCLProtFree(PCLProt_p junk)
    SigFree(junk->terms->sig);
    junk->terms->sig = NULL;
    TBFree(junk->terms);
+   PStackFree(junk->in_order);
    PCLProtCellFree(junk);
 }
 
@@ -127,6 +130,7 @@ bool PCLProtDeleteStep(PCLProt_p prot, PCLStep_p step)
       PCLStepFree(tree_step);
       return true;
    }
+   prot->in_order = false;
    return false;
 }
 
@@ -158,6 +162,41 @@ PCLStep_p PCLProtFindStep(PCLProt_p prot, PCLId_p id)
    }
    return NULL;
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PCLProtSerialize()
+//
+//   Ensure that prot->in_order is up to date
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+void PCLProtSerialize(PCLProt_p prot)
+{
+   if(!prot->is_ordered)
+   {
+      PStack_p  stack;
+      PTree_p   cell;
+      PCLStep_p step;
+
+      PStackReset(prot->in_order);
+      stack = PTreeTraverseInit(prot->steps);
+      while((cell=PTreeTraverseNext(stack)))
+      {
+	 step = cell->key;
+	 PStackPushP(prot->in_order, step);
+      }
+      PStackFree(stack);      
+      prot->is_ordered = true;
+   }
+}
+
+
 
 /*-----------------------------------------------------------------------
 //
@@ -207,7 +246,7 @@ long PCLProtParse(Scanner_p in, PCLProt_p prot)
 
 /*-----------------------------------------------------------------------
 //
-// Function: PCLProtPrint()
+// Function: PCLProtPrintExtra()
 //
 //   Print a PCL protocol.
 //
@@ -217,18 +256,19 @@ long PCLProtParse(Scanner_p in, PCLProt_p prot)
 //
 /----------------------------------------------------------------------*/
 
-void PCLProtPrint(FILE* out, PCLProt_p prot)
+void PCLProtPrintExtra(FILE* out, PCLProt_p prot, bool data)
 {
-   PStack_p stack;
-   PTree_p  cell; 
-
-   stack = PTreeTraverseInit(prot->steps);
-   while((cell=PTreeTraverseNext(stack)))
+   PCLStep_p step;
+   PStackPointer i;
+   
+   PCLProtSerialize(prot);
+   
+   for(i=0; i<PStackGetSP(prot->in_order); i++)
    {
-      PCLStepPrint(out, cell->key);
+      step = PStackElementP(prot->in_order, i);
+      PCLStepPrintExtra(out, step, data);
       fputc('\n',out);
    }
-   PTreeTraverseExit(stack);
 }
 
 
@@ -246,15 +286,16 @@ void PCLProtPrint(FILE* out, PCLProt_p prot)
 
 void PCLProtResetTreeData(PCLProt_p prot)
 {
-   PStack_p stack;
-   PTree_p  cell; 
+   PCLStep_p step;
+   PStackPointer i;
    
-   stack = PTreeTraverseInit(prot->steps);
-   while((cell=PTreeTraverseNext(stack)))
+   PCLProtSerialize(prot);
+   
+   for(i=0; i<PStackGetSP(prot->in_order); i++)
    {
-      PCLStepResetTreeData(cell->key);
+      step = PStackElementP(prot->in_order, i);
+      PCLStepResetTreeData(step);
    }
-   PTreeTraverseExit(stack);
 }
 
 
@@ -302,8 +343,10 @@ void PCLExprCollectPreconds(PCLProt_p prot, PCLExpr_p expr, PTree_p *tree)
 //
 // Function: PCLProtMarkProofClauses()
 //
-//   Mark all proof steps in protokoll with CPIsProofClause. Return
-//   number of steps.
+//   Mark all proof steps in protocol with CPIsProofClause. Return
+//   true if protocol describes a proof (i.e. contains the empty
+//   clause). 
+//   otherwise. 
 //
 // Global Variables: -
 //
@@ -311,17 +354,23 @@ void PCLExprCollectPreconds(PCLProt_p prot, PCLExpr_p expr, PTree_p *tree)
 //
 /----------------------------------------------------------------------*/
 
-long PCLProtMarkProofClauses(PCLProt_p prot)
+bool PCLProtMarkProofClauses(PCLProt_p prot)
 {
-   long res = 0;
-   PStack_p stack, to_proc = PStackAlloc();
-   PTree_p  cell, root = NULL;
-   PCLStep_p step;
+   bool res = false;
+   PStack_p to_proc = PStackAlloc();
+   PTree_p root = NULL;
+   PCLStep_p step;   
+   PStackPointer i;
    
-   stack = PTreeTraverseInit(prot->steps);
-   while((cell=PTreeTraverseNext(stack)))
+   PCLProtSerialize(prot);
+   
+   for(i=0; i<PStackGetSP(prot->in_order); i++)
    {
-      step = cell->key;
+      step = PStackElementP(prot->in_order, i);
+      if(ClauseIsEmpty(step->clause))
+      {
+	 res = true;
+      }
       if(step->extra)
       {
 	 if((strcmp(step->extra,"proof")==0)||(strcmp(step->extra,"final")==0))
@@ -329,9 +378,8 @@ long PCLProtMarkProofClauses(PCLProt_p prot)
 	    PStackPushP(to_proc, step);
 	 }
       }
+      
    }
-   PTreeTraverseExit(stack);
-   
    while(!PStackEmpty(to_proc))
    {
       step = PStackPopP(to_proc);
@@ -365,21 +413,21 @@ long PCLProtMarkProofClauses(PCLProt_p prot)
 
 void PCLProtPrintProofClauses(FILE* out, PCLProt_p prot)
 {
-   PStack_p stack;
-   PTree_p  cell; 
    PCLStep_p step;
-
-   stack = PTreeTraverseInit(prot->steps);
-   while((cell=PTreeTraverseNext(stack)))
+   PStackPointer i;
+   
+   PCLProtSerialize(prot);
+   
+   for(i=0; i<PStackGetSP(prot->in_order); i++)
    {
-      step = cell->key;
+      step = PStackElementP(prot->in_order, i);
       if(ClauseQueryProp(step->clause,CPIsProofClause))
       {
 	 PCLStepPrint(out, step);
 	 fputc('\n',out);
       }
+      
    }
-   PTreeTraverseExit(stack);
 }
 
 

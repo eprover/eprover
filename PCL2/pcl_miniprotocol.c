@@ -346,7 +346,7 @@ void PCLMiniExprCollectPreconds(PCLMiniProt_p prot, PCLExpr_p expr, PTree_p *tre
 // Function: PCLMiniProtMarkProofClauses()
 //
 //   Mark all proof steps in protokoll with CPIsProofClause. Return
-//   number of steps.
+//   true if empty clause was encountered.
 //
 // Global Variables: -
 //
@@ -354,9 +354,10 @@ void PCLMiniExprCollectPreconds(PCLMiniProt_p prot, PCLExpr_p expr, PTree_p *tre
 //
 /----------------------------------------------------------------------*/
 
-long PCLMiniProtMarkProofClauses(PCLMiniProt_p prot, bool fast)
+bool PCLMiniProtMarkProofClauses(PCLMiniProt_p prot, bool fast)
 {
-   long res = 0, i;
+   bool res = false;
+   long i;
    PStack_p to_proc = PStackAlloc();
    PCLMiniStep_p step;
    PTree_p root = NULL;
@@ -393,6 +394,10 @@ long PCLMiniProtMarkProofClauses(PCLMiniProt_p prot, bool fast)
    while(!PStackEmpty(to_proc))
    {
       step = PStackPopP(to_proc);
+      if(step->clause->literal_no == 0)
+      {
+	 res = true;
+      }
       if(!ClauseQueryProp(step->clause,CPIsProofClause))
       {
 	 ClauseSetProp(step->clause,CPIsProofClause);

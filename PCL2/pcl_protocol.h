@@ -32,8 +32,10 @@ Changes
 
 typedef struct pclprotcell
 {
-   TB_p    terms;
-   PTree_p steps; /* Ordered by PCL-Id's */
+   TB_p     terms;
+   PTree_p  steps; /* Ordered by PCL-Id's */
+   PStack_p in_order; /* Steps in increasing order of ids. */
+   bool     is_ordered; /* True if previous is true ;-) */
 }PCLProtCell, *PCLProt_p;
 
 
@@ -48,8 +50,9 @@ PCLProt_p PCLProtAlloc(void);
 void      PCLProtFree(PCLProt_p junk);
 
 #define PCLProtInsertStep(prot, step) \
-        PTreeObjStore(&((prot)->steps), (step),\
-        (ComparisonFunctionType)PCLStepIdCompare)
+        (((prot)->is_ordered = false),\
+        (PTreeObjStore(&((prot)->steps), (step),\
+        (ComparisonFunctionType)PCLStepIdCompare)))
 
 #define PCLProtExtractStep(prot, step) \
         PTreeObjExtractObject(&((prot)->steps), (step),\
@@ -58,16 +61,18 @@ void      PCLProtFree(PCLProt_p junk);
 bool      PCLProtDeleteStep(PCLProt_p prot, PCLStep_p step);
 
 PCLStep_p PCLProtFindStep(PCLProt_p prot, PCLId_p id);
+void      PCLProtSerialize(PCLProt_p prot);
 
 long      PCLProtParse(Scanner_p in, PCLProt_p prot);
-void      PCLProtPrint(FILE* out, PCLProt_p prot);
+void      PCLProtPrintExtra(FILE* out, PCLProt_p prot, bool data);
+#define   PCLProtPrint(out, prot) PCLProtPrintExtra((out), (prot), false)
 
 void      PCLProtResetTreeData(PCLProt_p prot);
 
 void      PCLExprCollectPreconds(PCLProt_p prot, PCLExpr_p expr,
 				 PTree_p *tree);
 
-long      PCLProtMarkProofClauses(PCLProt_p prot);
+bool      PCLProtMarkProofClauses(PCLProt_p prot);
 void      PCLProtPrintProofClauses(FILE* out, PCLProt_p prot);
 
 

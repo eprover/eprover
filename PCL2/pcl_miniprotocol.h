@@ -63,7 +63,7 @@ void      PCLMiniProtPrint(FILE* out, PCLMiniProt_p prot);
 void      PCLMiniExprCollectPreconds(PCLMiniProt_p prot, PCLExpr_p expr,
 				     PTree_p *tree);
 
-long      PCLMiniProtMarkProofClauses(PCLMiniProt_p prot, bool fast);
+bool      PCLMiniProtMarkProofClauses(PCLMiniProt_p prot, bool fast);
 void      PCLMiniProtPrintProofClauses(FILE* out, PCLMiniProt_p prot);
 
 #endif

@@ -32,6 +32,8 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
+/* If you extend this, also extend InferenceWeightParamAlloc() in
+ * pcl_lemmas.c */
 
 typedef enum
 {
@@ -46,8 +48,23 @@ typedef enum
    PCLOpRewrite,
    PCLOpURewrite,
    PCLOpClauseNormalize,
-   PCLOpSplitClause
+   PCLOpSplitClause,
+   PCLOpMaxOp
 }PCLOpcodes;
+
+
+#define PCL_OP_NOOP_WEIGHT            0
+#define PCL_OP_INITIAL_WEIGHT         0
+#define PCL_OP_QUOTE_WEIGHT           0
+#define PCL_OP_PARAMOD_WEIGHT         1
+#define PCL_OP_ERESOLUTION_WEIGHT     1
+#define PCL_OP_EFACTORING_WEIGHT      1
+#define PCL_OP_SIMPLIFYREFLECT_WEIGHT 1
+#define PCL_OP_ACRESOLUTION_WEIGHT    2
+#define PCL_OP_REWRITE_WEIGHT         1
+#define PCL_OP_UREWRITE_WEIGHT        1
+#define PCL_OP_CLAUSENORMALIZE_WEIGHT 1
+#define PCL_OP_SPLITCLAUSE_WEIGHT     1
 
 
 typedef struct pclexprcell

@@ -32,10 +32,11 @@ Changes
 
 typedef enum 
 {
-   PCLNoProp,
-   PLCIsLemma,
-   PCLIsInitial,
-   PCLIsFinal   
+   PCLNoProp     = 0,
+   PCLIsLemma    = 1,
+   PCLIsInitial  = 2,
+   PCLIsFinal    = 4,
+   PCLIsMarked   = 8
 }PCLStepProperties;
 
 
@@ -53,9 +54,10 @@ typedef struct pclstepcell
    long              other_generating_refs;
    long              active_simpl_refs;
    long              passive_simpl_refs;
-   long              subsum_refs;
+   float             lemma_quality;
 }PCLStepCell, *PCLStep_p;
 
+#define PCLNoWeight -1
 
 
 /*---------------------------------------------------------------------*/
@@ -75,7 +77,8 @@ typedef struct pclstepcell
 void      PCLStepFree(PCLStep_p junk);
 
 PCLStep_p PCLStepParse(Scanner_p in, TB_p bank);
-void      PCLStepPrint(FILE* out, PCLStep_p step);
+void      PCLStepPrintExtra(FILE* out, PCLStep_p step, bool data);
+#define   PCLStepPrint(out, step) PCLStepPrintExtra((out),(step),false)
 
 int       PCLStepIdCompare(PCLStep_p step1, PCLStep_p step2);
 void      PCLStepResetTreeData(PCLStep_p step);
