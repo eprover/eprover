@@ -1,7 +1,7 @@
 
 CC=gcc
 CFLAGS=-O3
-LDFLAGS=
+LDFLAGS=-lm
 
 eprover: $(PROJ)
 
