@@ -417,7 +417,7 @@ bool eqn_parse_real(Scanner_p in, TB_p bank, Term_p *lref,
             negate = true;
             NextToken(in);
          }
-         eqn_parse_mixfix(in, bank, lref, rref);            
+         positive = eqn_parse_mixfix(in, bank, lref, rref);            
          break;
    case TPTPFormat:
          if(fof)
