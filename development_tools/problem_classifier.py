@@ -42,9 +42,13 @@
 # or via email (address above).
 
 import sys
+import re
+
 import pylib_io
 import pylib_eprots
 from pylib_discretize import *
+
+para_re  = re.compile("[0-9]+(\.[0-9]+)?")
 
 files   = pylib_io.get_args(sys.argv)
 options = pylib_io.get_options(sys.argv)
@@ -72,14 +76,20 @@ Options:
 
      const   : Each problem is assigned the globally best heuristic
                that solves it.
-     equidist: Times are rounded to the nearest 10 second, each
+     equidist: Times are rounded to the nearest k seconds, each
                problem is assigned the globally best heuristic that
                solves it in minimal time.
      prop    : Times are rounded to the nearest [1,2,5]*10^X, each
                problem is assigned the globally best heuristic that
                solves it in minimal time.
+     log     : Times are rounded to the nearest k*2^X, each
+               problem is assigned the globally best heuristic that
+               solves it in minimal time.
      none    : Each problem is assigned the globally best heuristic
                that solves it in minimal time.
+
+equidist and log accept an numeric argument for k, e.g. -rlog0.5 or
+-requidist10.
 
 Suggestions are preceded by an mnemonic string denoting the algorithm
 and a colon, so you can grep and cut suitable results out. Parsing is
@@ -90,24 +100,38 @@ If no -r option is given, uses prop algorithm, but ommits mnemonic
 strings.
 """
         sys.exit(1)
-        
+
+def get_param(option, default):
+    mr = para_re.search(option)
+    if mr:
+        tmp = mr.group()
+        try:
+            res = int(tmp)
+        except ValueError:
+            res = float(tmp)
+        return res
+    return default
+     
 if len(formats) == 0:
     res = protlist.make_classification(prop_round)
     res.printout()
 else:
     for o in formats:
-        if o == "-rconst":
+        if o.startswith("-rconst"):
             res = protlist.make_classification(const_round)
-            res.printout("const: ")
-        elif  o == "-rprop":
+            res.printout("const :")
+        elif o.startswith("-rprop"):
             res = protlist.make_classification(prop_round)
-            res.printout("prop : ")
-        elif  o == "-requidist":
-            res = protlist.make_classification(equidist_round(10))
-            res.printout("equi : ")
-        elif o == "-rnone":
+            res.printout("prop  : ")
+        elif o.startswith("-rlog"):
+            res = protlist.make_classification(log_round(get_param(o, 0.5)))
+            res.printout("log%02d :" % get_param(o, 5))
+        elif o.startswith("-requidist"):
+            res = protlist.make_classification(equidist_round(get_param(o, 5)))
+            res.printout("equi%02d:" % get_param(o, 5))
+        elif o.startswith("-rnone"):
             res = protlist.make_classification(no_round)
-            res.printout("none : ")
+            res.printout("none  :")
         else:
             raise pylib_io.UsageErrorException
         

@@ -219,17 +219,35 @@ class classification(UserList):
         UserList.__init__(self)
         for i in data:
             self.append(i)
-
+        self.hash = {}
+        
     def append(self, new):
         if len(new)!=2:
             raise TypeError
-        UserList.append(self,new)        
+        UserList.append(self,new)
+        self.hash[new[0]] = new[1]
 
     def printout(self, prefix = ""):
         self.sort()
         for i in self:
             print "%s%-29s : %s" % (prefix, i[0], i[1])
 
+    def parse(self, file):
+        f = pylib_io.flexopen(file,"r")
+        l = f.readlines()
+        pylib_io.flexclose(f)
+        for i in l:
+            if i.startswith("#"):
+                continue
+            tmp = string.split(i, ":");
+            if len(tmp) == 3:
+                del(tmp[0])
+            tmp = map(string.strip, tmp)
+            self.append((tmp[0], tmp[1]))
+    
+    def classify(self, pron):
+        return self.hash(prob)
+    
 
 class eprot_set:
     """
