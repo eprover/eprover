@@ -220,13 +220,13 @@ OptCell opts[] =
     "considered to be large size with respect to this measure."},
 
    {OPT_FAR_SUM_MEDIUM_LIMIT,
-    '\0', "term-medium-limit",
+    '\0', "farity-medium-limit",
     ReqArg, NULL,
     "Set the mimumum sum of function symbol arities for a specification to be "
     "considered to be medium size with respect to this measure."},
 
    {OPT_FAR_SUM_LARGE_LIMIT,
-    '\0', "term-large-limit",
+    '\0', "farity-large-limit",
     ReqArg, NULL,
     "Set the mimumum sum of function symbol arities for a specification to be "
     "considered to be large size with respect to this measure."},
