@@ -128,6 +128,7 @@ static LitSelNameFunAssocCell name_fun_assoc[] =
    {"PSelectUnlessUniqMaxSmallestOrientable",PSelectUnlessUniqMaxSmallestOrientable},
    {"SelectDivLits",                         SelectDiversificationLiterals},
    {"SelectDivPreferIntoLits",               SelectDiversificationPreferIntoLiterals},
+   {"SelectMaxLComplexG",                    SelectMaxLComplexG}, 
    {NULL, (LiteralSelectionFun)0}
 };
 
@@ -541,7 +542,7 @@ void generic_uniq_selection(OCB_p ocb, Clause_p clause, bool positive,
                             LitWeightFun weight_fun)
 {
    int       len  = ClauseLiteralNumber(clause);
-   LitEval_p lits = SizeMalloc(len*sizeof(LitEvalCell)), tmp;
+   LitEval_p lits, tmp;
    int i, cand;
    Eqn_p handle;
    
@@ -552,7 +553,9 @@ void generic_uniq_selection(OCB_p ocb, Clause_p clause, bool positive,
    if(clause->neg_lit_no==0)
    {
       return;
-   }      
+   }   
+   
+   lits = SizeMalloc(len*sizeof(LitEvalCell));
    if(needs_ordering)
    {
       ClauseCondMarkMaximalTerms(ocb, clause);   
@@ -4877,8 +4880,8 @@ static void diversification_weight(LitEval_p lit, Clause_p clause)
    if(!EqnIsPositive(lit->literal))
    {
       lit->w1 = literal_weight_counter % clause->neg_lit_no;
+      literal_weight_counter++;   
    }
-   literal_weight_counter++;   
 }
 
 
@@ -4921,8 +4924,8 @@ static void diversification_prefer_into_weight(LitEval_p lit, Clause_p clause)
    if(!EqnIsPositive(lit->literal))
    {
       lit->w2 = literal_weight_counter % clause->neg_lit_no;
+      literal_weight_counter++;   
    }
-   literal_weight_counter++;   
 }
 
 
@@ -4945,8 +4948,79 @@ void SelectDiversificationPreferIntoLiterals(OCB_p ocb, Clause_p clause)
                           diversification_prefer_into_weight);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: maxlcomplex_weight()
+//
+//   Initialize weights to mimic SelectMaxLComplexWeight()
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 
+static void maxlcomplex_weight(LitEval_p lit, Clause_p clause)
+{
+   if(EqnIsNegative(lit->literal))
+   {
+      if(EqnIsMaximal(lit->literal))
+      {
+         lit->w1=0;
+      }
+      else
+      {
+         lit->w1=100;
+      }
+      if(!EqnIsPureVar(lit->literal))
+      {
+         lit->w1+=10;
+      }
+      if(!EqnIsGround(lit->literal))
+      {
+         lit->w1+=1;
+      }
+      lit->w2 = -lit_sel_diff_weight(lit->literal);
+      lit->w3 = literal_weight_counter % clause->neg_lit_no;
+      literal_weight_counter++;
+   }
+}
 
+/*-----------------------------------------------------------------------
+//
+// Function: SelectMaxLComplexG()
+//
+//   Reimplementation of SelectMaxLComplex() using the generic literal
+//   selection framework.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void SelectMaxLComplexG(OCB_p ocb, Clause_p clause)
+{  
+   long  lit_no;
+
+   assert(ocb);
+   assert(clause);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+   
+   if(clause->neg_lit_no==0)
+   {
+      return;
+   }
+   ClauseCondMarkMaximalTerms(ocb, clause);
+   
+   lit_no = EqnListQueryPropNumber(clause->literals, EPIsMaximal);
+   if(lit_no <=1)
+   {
+      return;
+   }
+   generic_uniq_selection(ocb,clause,false, true, 
+                          maxlcomplex_weight);   
+}
 
 
 /*---------------------------------------------------------------------*/

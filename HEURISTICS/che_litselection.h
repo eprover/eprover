@@ -182,6 +182,7 @@ void PSelectComplexExceptUniqMaxPosHorn(OCB_p ocb, Clause_p clause);
 
 void SelectDiversificationLiterals(OCB_p ocb, Clause_p clause);
 void SelectDiversificationPreferIntoLiterals(OCB_p ocb, Clause_p clause);
+void SelectMaxLComplexG(OCB_p ocb, Clause_p clause);
 
 #endif
 
