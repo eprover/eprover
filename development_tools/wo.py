@@ -32,7 +32,7 @@ def without(file_source, file_remove, abstract_fun):
             sys.stdout.write(line)
 
 pylib_io.check_argc(2)
-file_source = pylib_io.myopen(sys.argv[1], "r")
-file_remove = pylib_io.myopen(sys.argv[2], "r")
+file_source = pylib_io.flexopen(sys.argv[1], "r")
+file_remove = pylib_io.flexopen(sys.argv[2], "r")
 
 without(file_source, file_remove, id)

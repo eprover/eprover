@@ -18,6 +18,7 @@ import sys
 import re
 import string
 from pylib_discretize import *
+import pylib_io
 import pylib_eprots
 
 ed_opt = "--equidist"
@@ -27,8 +28,9 @@ ed_spclen = len(ed_optspc);
 
 round_fun = equidist_round(10)
 
-options = filter(lambda x:x[0:2]=="--", sys.argv) # Take out options
-files   = filter(lambda x:x[0:2]!="--", sys.argv)[1:] # Take out options ;-)
+options = pylib_io.get_options(sys.argv)
+files   = pylib_io.get_args(sys.argv)
+
 
 for opt in options:
     if opt == "--constant":

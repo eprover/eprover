@@ -43,11 +43,16 @@
 
 import re
 import string
+import sys
+from UserList import UserList
 
 import pylib_basics
 import pylib_io
 import pylib_discretize
 
+
+InfiniteTime = 1000000000
+EmptyProtSetException = "Cannot get required information from empty protocol set"
 
 def break_prot_line(line):
     """
@@ -97,7 +102,11 @@ class process_line:
 
 
 class eprotocol:
-    def __init__(self):
+    """
+    Data type for storing (the relevant parts of) a standard E test
+    protocol.
+    """
+    def __init__(self, name=None, silent=False):
         self.name      = "Unknown"
         self.data      = {}
         self.proofs    = 0
@@ -106,6 +115,9 @@ class eprotocol:
         self.succ_time = 0.0
         self.entries   = 0
         self.comments  = ""
+        self.silent    = silent
+        if name:
+            self.parse(name)
 
     def __cmp__(self, other):
         """
@@ -138,6 +150,8 @@ class eprotocol:
             self.comments += line
 
     def parse(self, file):
+        if not self.silent:        
+            sys.stderr.write("Parsing "+file+".\n")
         f = pylib_io.flexopen(file,'r')
         l = f.readlines()
         pylib_io.flexclose(f)
@@ -165,3 +179,116 @@ class eprotocol:
             res += "\n"
         return res;
         
+    def eval_problem(self, problem, round_fun=pylib_discretize.no_round):
+        """
+        Return a tuple (time, solutions, succ_time), where time is the
+        time for a successful proof attempt at problem (or
+        InfiniteTime for failure), solutions is the number of
+        solutions in the protocol, and succ_time is the sum of all
+        solution times in the protocol. Unknown problems are treated
+        as failures.
+        """
+        try:
+            state, time = self.data[problem]
+            if state == "F":
+                return (InfiniteTime, self.successes, self.succ_time)
+            else:
+                return (round_fun(time), self.successes, self.succ_time)
+        except KeyError:
+            return (InfiniteTime, self.successes, self.succ_time)
+
+
+def eval_is_better(e1, e2):
+    """
+    Return true if e1 is better than e2
+    """
+    if e1[0] < e2[0]:
+        return True
+    elif e1[0] == e2[0]:
+        if e1[1] > e2[1]:
+            return True
+        elif e1[1] == e2[1]:
+            if e1[2] > e2[2]:
+                return True
+    return False
+
+
+
+class classification(UserList):
+    def __init__(self, data=[]):
+        UserList.__init__(self)
+        for i in data:
+            self.append(i)
+
+    def append(self, new):
+        if len(new)!=2:
+            raise TypeError
+        UserList.append(self,new)        
+
+    def printout(self, prefix = ""):
+        self.sort()
+        for i in self:
+            print "%s%-29s : %s" % (prefix, i[0], i[1])
+
+
+class eprot_set:
+    """
+    Class for storing an arbitrary number of E protocols and
+    answering interesting questions about them.
+    """    
+    def __init__(self, names=[]):
+        self.protlist = []
+        self.sorted = True;
+        self.parse(names)        
+
+    def insert(self,prot):
+        self.sorted = False;
+        self.protlist.append(prot)        
+
+    def parse(self, names, silent=False):
+        for name in names:
+            prot = eprotocol(name, silent)
+            self.insert(prot)
+
+    def __repr__(self):
+        res = ""
+        sep = "["
+        for i in self.protlist:
+            res += sep
+            res += i.name
+            sep = "\n "
+        return res+"]"
+
+    def sort(self):
+        if not self.sorted:
+            self.protlist.sort()
+
+    def find_class(self, problem, round_fun=pylib_discretize.no_round):
+        self.sort()
+        try:
+            res     = self.protlist[0].name+"(Default)"
+            reseval = (InfiniteTime, 10000000, 0)
+        except IndexError:
+            raise EmptyProtSetException
+        for i in self.protlist:
+            eval = i.eval_problem(problem, round_fun)
+            if eval_is_better(eval, reseval):
+                res = i.name
+                reseval = eval
+        return res
+
+    def make_classification(self,round_fun=pylib_discretize.no_round):
+        self.sort()
+        try:
+            source = self.protlist[0]
+        except IndexError:
+            raise EmptyProtSetException
+        res = classification()
+        for i in source.data.keys():
+            res.append((i, self.find_class(i,round_fun)))
+        return res
+
+    
+
+
+

@@ -42,17 +42,75 @@
 # or via email (address above).
 
 import sys
+import pylib_io
 import pylib_eprots
+from pylib_discretize import *
 
+files   = pylib_io.get_args(sys.argv)
+options = pylib_io.get_options(sys.argv)
+formats = filter(lambda x:x[0:2]=="-r", options)
+stuff   = filter(lambda x:x[0:2]!="-r", options)
 
-protlist = []
+protlist = pylib_eprots.eprot_set(files);
 
-for name in sys.argv[1:]:
-    prot = pylib_eprots.eprotocol()
-    prot.parse(name)
-    protlist.append(prot)
+for i in stuff:
+    if i=="-h"or i=="--help":
+        print """
+problem_classifier 0.1
 
-protlist.sort()
+Usage: problem_classifier.py [-r<format1> ...-r<formatn>]  <protocols>
 
-for p in protlist:
-    print p.name
+Read a set of E protocols and suggest various assignments of protocols
+(i.e. heuristics) to proof problems. Only problems occurring in the
+best overal protocol are handled.
+
+Options:
+
+-r<format>: Select an algorithms for computing the
+            assignment.
+     Available:
+
+     const   : Each problem is assigned the globally best heuristic
+               that solves it.
+     equidist: Times are rounded to the nearest 10 second, each
+               problem is assigned the globally best heuristic that
+               solves it in minimal time.
+     prop    : Times are rounded to the nearest [1,2,5]*10^X, each
+               problem is assigned the globally best heuristic that
+               solves it in minimal time.
+     none    : Each problem is assigned the globally best heuristic
+               that solves it in minimal time.
+
+Suggestions are preceded by an mnemonic string denoting the algorithm
+and a colon, so you can grep and cut suitable results out. Parsing is
+expensive, computing assignments is cheap, so it makes sense to
+compute all assignments at once.
+
+If no -r option is given, uses prop algorithm, but ommits mnemonic
+strings.
+"""
+        sys.exit(1)
+        
+if len(formats) == 0:
+    res = protlist.make_classification(prop_round)
+    res.printout()
+else:
+    for o in formats:
+        if o == "-rconst":
+            res = protlist.make_classification(const_round)
+            res.printout("const: ")
+        elif  o == "-rprop":
+            res = protlist.make_classification(prop_round)
+            res.printout("prop : ")
+        elif  o == "-requidist":
+            res = protlist.make_classification(equidist_round(10))
+            res.printout("equi : ")
+        elif o == "-rnone":
+            res = protlist.make_classification(no_round)
+            res.printout("none : ")
+        else:
+            raise pylib_io.UsageErrorException
+        
+        
+        
+

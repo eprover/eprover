@@ -39,6 +39,14 @@ def check_argc(argmin,argv=None):
            print "Usage: "+sys.argv[0]+" <arg1> ... <arg" +repr(argmin)+">"
        raise UsageErrorException
 
+def get_options(arglist):
+    options = filter(lambda x:x[0:1]=="-", sys.argv)
+    return options
+
+def get_args(arglist):    
+    files   = filter(lambda x:x[0:1]!="-", sys.argv)[1:]
+    return files
+
 
            
         
