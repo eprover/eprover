@@ -100,6 +100,45 @@ FVIndex_p insert_empty_node(FVIndex_p node, long key)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: fv_index_get_next_node()
+//
+//   Given a key, return a pointer to the corresponding cell, or NULL
+//   if no such cell exists (up to now).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static
+FVIndex_p fv_index_get_next_node(FVIndex_p node, long key)
+{
+   assert(!FVIndexFinalNode(node));
+   
+   if(FVIndexEmptyNode(node))
+   {
+      return NULL;
+   }
+   if(FVIndexUnaryNode(node))
+   {
+      if(node->type_or_key == key)
+      {
+	 return node->u1.succ;
+      }
+      return NULL;
+   }
+   assert(FVIndexManySuccNode(node));
+   if(key < node->array_size)
+   {
+      return node->u1.successors[key];
+   }
+   return NULL;
+}
+
+
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -119,14 +158,12 @@ FVIndex_p insert_empty_node(FVIndex_p node, long key)
 //
 /----------------------------------------------------------------------*/
 
-FreqVector_p FreqVectorAlloc(long sig_start, long sig_symbols)
+FreqVector_p FreqVectorAlloc(long size)
 {
    FreqVector_p handle = FreqVectorCellAlloc();
    long i;
 
-   handle->size         = sig_start+2*sig_symbols;
-      handle->sig_start = sig_start;
-   handle->sig_symbols  = sig_symbols;
+   handle->size         = size;
    handle->freq_vector  = SizeMalloc(sizeof(long)*handle->size);
    for(i=0; i<handle->size;i++)
    {
@@ -189,51 +226,41 @@ void FreqVectorPrint(FILE* out, FreqVector_p vec)
       fprintf(out, "# FV, no clause given.\n");
    }
    fprintf(out, "# FV:");
-   for(i=0; i<vec->sig_start; i++)
-   {
-      fprintf(out, " %ld", vec->freq_vector[i]);
-   }
-   fprintf(out, "|- ");
-   for(i=vec->sig_start; i<vec->sig_start+vec->sig_symbols; i++)
-   {
-      fprintf(out, " %ld", vec->freq_vector[i]);
-   }
-   fprintf(out, "|+ ");
-   for(i=vec->sig_start+vec->sig_symbols; 
-       i<vec->sig_start+2*vec->sig_symbols; 
-       i++)
+   for(i=0; i<vec->size; i++)
+
    {
       fprintf(out, " %ld", vec->freq_vector[i]);
    }  
    fprintf(out, "\n");
 }
 
+
 /*-----------------------------------------------------------------------
 //
-// Function: StandardFreqVectorCompute()
+// Function: StandardFreqVectorAddVals()
+// 
+//   Add the numerical features of the clause to the corresponding
+//   positions in the frequency vector.
 //
-//   Compute a frequency count vector for clause.
+// Global Variables: -
 //
-// Global Variables: 
-//
-// Side Effects    : 
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
-FreqVector_p StandardFreqVectorCompute(Clause_p clause, long sig_symbols)
-{
-   FreqVector_p vec = FreqVectorAlloc(2,sig_symbols);
+void StandardFreqVectorAddVals(FreqVector_p vec, long sig_symbols, 
+			       Clause_p clause)
+{   
    long *pstart, *nstart;
    Eqn_p handle;
 
    assert(sig_symbols<=FV_MAX_SYMBOL_COUNT);
-   assert(clause);
    
-   vec->clause = clause;
-   vec->freq_vector[0] = clause->pos_lit_no;
-   vec->freq_vector[1] = clause->neg_lit_no;
-   nstart = &(vec->freq_vector[2]);
-   pstart = &(vec->freq_vector[2+sig_symbols]);
+   vec->freq_vector[0] += clause->pos_lit_no;
+   vec->freq_vector[1] += clause->neg_lit_no;
+   /* vec->freq_vector[2] += 0; */
+   nstart = &(vec->freq_vector[NON_SIG_FEATURES-1]);
+   pstart = &(vec->freq_vector[sig_symbols+NON_SIG_FEATURES-2]);
    for(handle = clause->literals; handle; handle = handle->next)
    {
       if(EqnIsPositive(handle))
@@ -250,6 +277,32 @@ FreqVector_p StandardFreqVectorCompute(Clause_p clause, long sig_symbols)
 					 sig_symbols);	 
       }
    }
+   /* SWAP(long,vec->freq_vector[2],vec->freq_vector[SigSizeToFreqVectorSize(sig_symbols)-1]); */
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: StandardFreqVectorCompute()
+//
+//   Compute a frequency count vector for clause.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+FreqVector_p StandardFreqVectorCompute(Clause_p clause, long sig_symbols)
+{
+   FreqVector_p vec;
+
+   assert(sig_symbols<=FV_MAX_SYMBOL_COUNT);
+   assert(clause);
+   vec = FreqVectorAlloc(SigSizeToFreqVectorSize(sig_symbols));
+   vec->clause = clause;
+   StandardFreqVectorAddVals(vec, sig_symbols, clause);
+   /* FreqVectorPrint(GlobalOut, vec); */
    return vec;
 }
 
@@ -342,6 +395,7 @@ FVIndex_p FVIndexAlloc(void)
    FVIndex_p handle = FVIndexCellAlloc();
 
    handle->type_or_key   = FVINDEXTYPE_EMPTY;
+   handle->clause_count  = 0;
    handle->array_size    = 0;
    handle->u1.successors = NULL;
    
@@ -410,6 +464,7 @@ FVIAnchor_p FVIAnchorAlloc(long symbol_limit)
    FVIAnchor_p handle = FVIAnchorCellAlloc();
    
    handle->symbol_limit = symbol_limit;
+   handle->node_count   = 0;
    handle->index        = FVIndexAlloc();
 
    return handle;
@@ -433,6 +488,12 @@ FVIAnchor_p FVIAnchorAlloc(long symbol_limit)
 
 void FVIAnchorFree(FVIAnchor_p junk)
 {
+   fprintf(GlobalOut, 
+	   "# Freeing FVIndex. %ld leaves, %ld empty. Total nodes: %ld\n",
+	   FVIndexCountNodes(junk->index, true, false),
+	   FVIndexCountNodes(junk->index, true, true),
+	   junk->node_count);
+
    FVIndexFree(junk->index);
    FVIAnchorCellFree(junk);
 }
@@ -440,10 +501,9 @@ void FVIAnchorFree(FVIAnchor_p junk)
 
 /*-----------------------------------------------------------------------
 //
-// Function: FVIndexGetNextNode()
+// Function: FVIndexGetNextNonEmptyNode()
 //
-//   Given a key, return a pointer to the corresponding cell, or NULL
-//   if no such cell exists (up to now).
+//   Get the next node if it is not empty. Otherwise return NULL.
 //
 // Global Variables: -
 //
@@ -451,29 +511,20 @@ void FVIAnchorFree(FVIAnchor_p junk)
 //
 /----------------------------------------------------------------------*/
 
-FVIndex_p FVIndexGetNextNode(FVIndex_p node, long key)
+FVIndex_p FVIndexGetNextNonEmptyNode(FVIndex_p node, long key)
 {
+   FVIndex_p handle;
+   
    assert(!FVIndexFinalNode(node));
    
-   if(FVIndexEmptyNode(node))
+   handle = fv_index_get_next_node(node, key);
+   if(handle&&handle->clause_count)
    {
-      return NULL;
-   }
-   if(FVIndexUnaryNode(node))
-   {
-      if(node->type_or_key == key)
-      {
-	 return node->u1.succ;
-      }
-      return NULL;
-   }
-   assert(FVIndexManySuccNode(node));
-   if(key < node->array_size)
-   {
-      return node->u1.successors[key];
+      return handle;
    }
    return NULL;
 }
+
 
 
 /*-----------------------------------------------------------------------
@@ -494,17 +545,20 @@ void FVIndexInsert(FVIAnchor_p index, FreqVector_p vec_clause)
    long i;
 
    handle = index->index;
-   
+   handle->clause_count++;
+
    for(i=0; i<vec_clause->size; i++)
    {
       assert(!FVIndexFinalNode(handle));
-      newnode = FVIndexGetNextNode(handle, vec_clause->freq_vector[i]);
+      newnode = fv_index_get_next_node(handle, vec_clause->freq_vector[i]);
       if(!newnode)
       {
 	 newnode = insert_empty_node(handle, 
 				     vec_clause->freq_vector[i]);
+	 index->node_count++;
       }      
       handle = newnode;
+      handle->clause_count++;
    }
    handle->type_or_key = FVINDEXTYPE_FINAL;
    PTreeStore(&(handle->u1.clauses), vec_clause->clause);
@@ -536,19 +590,71 @@ bool FVIndexDelete(FVIAnchor_p index, Clause_p clause)
    vec = StandardFreqVectorCompute(clause, index->symbol_limit);
    
    handle = index->index;
-   
+   handle->clause_count--;
+
    for(i=0; i<vec->size; i++)
    {
       assert(!FVIndexFinalNode(handle));
-      handle = FVIndexGetNextNode(handle, vec->freq_vector[i]);
+      handle = fv_index_get_next_node(handle, vec->freq_vector[i]);
       if(!handle)
       {
 	 break;
-      }      
+      }
+      handle->clause_count--;
    }
    FreqVectorFree(vec);
    ClauseDelProp(clause, CPIsSIndexed);
    return handle?PTreeDeleteEntry(&(handle->u1.clauses), clause):false;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: FVIndexCountNodes()
+//
+//   Count the number of nodes. If empty is true, count empty leaves
+//   only. If leaves it true, count leaves only.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+long FVIndexCountNodes(FVIndex_p index, bool leafs, bool empty)
+{
+   long res = 0;
+   
+   if(index)
+   {
+      if(FVIndexFinalNode(index))
+      {
+	 if(!empty || !index->u1.clauses)
+	 {
+	    res++;
+	 }
+	 assert(EQUIV(index->clause_count,index->u1.clauses));
+      }
+      else 
+      {
+	 if(!(empty||leafs))
+	 {
+	    res++;
+	 }
+	 if(FVIndexUnaryNode(index))
+	 {
+	    res+=FVIndexCountNodes(index->u1.succ,leafs,empty);
+	 }
+	 else
+	 {
+	    long i;
+	    for(i=0; i<index->array_size; i++)
+	    {	       
+	       res += FVIndexCountNodes(index->u1.successors[i], leafs, empty);
+	    }
+	 }
+      }
+   }
+   return res;
 }
 
 

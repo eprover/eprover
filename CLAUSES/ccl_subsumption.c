@@ -29,6 +29,7 @@ Changes
 
 bool StrongUnitForwardSubsumption = false;
 long ClauseClauseSubsumptionCalls = 0;
+long ClauseClauseSubsumptionCallsRec = 0;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -491,8 +492,11 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
    bool    res;
    long* pick_list;
 
-   assert(ClauseLiteralNumber(subsumer) >1);
-   assert(ClauseLiteralNumber(sub_candidate) >1);
+   assert(ClauseLiteralNumber(subsumer) > 0);
+   if(ClauseLiteralNumber(subsumer)==1)
+   {
+      return UnitClauseSubsumesClause(subsumer, sub_candidate);
+   }
    assert(sub_candidate->weight == ClauseStandardWeight(sub_candidate));
    assert(subsumer->weight == ClauseStandardWeight(subsumer));
 
@@ -514,6 +518,7 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
       return false;
    }
    subst = SubstAlloc();
+   ClauseClauseSubsumptionCallsRec++;
 
    pick_list = IntArrayAlloc(ClauseLiteralNumber(sub_candidate));
    res = eqn_list_rec_subsume(subsumer->literals,
@@ -629,7 +634,7 @@ bool clause_set_subsumes_clause_indexed(FVIndex_p index, FreqVector_p vec, long 
       
       for(i=0; i<=vec->freq_vector[feature]; i++)
       {
-	 next = FVIndexGetNextNode(index, i);
+	 next = FVIndexGetNextNonEmptyNode(index, i);
 	 if(next && 
 	    clause_set_subsumes_clause_indexed(next, vec, feature+1))
 	 {
@@ -743,7 +748,7 @@ void clauseset_find_subsumed_clauses_indexed(FVIndex_p index,
       
       for(i=vec->freq_vector[feature]; i<limit; i++)
       {
-	 next = FVIndexGetNextNode(index, i);
+	 next = FVIndexGetNextNonEmptyNode(index, i);
 	 if(next)
 	 {
 	    clauseset_find_subsumed_clauses_indexed(next, vec, 
@@ -1073,7 +1078,6 @@ Clause_p ClauseSetFindSubsumedClause(ClauseSet_p set, Clause_p
 				     set_position, Clause_p
 				     subsumer)
 {
-   assert(ClauseLiteralNumber(subsumer) > 1);
    assert(subsumer->weight == ClauseStandardWeight(subsumer));
 
    while(set_position != set->anchor)
@@ -1110,7 +1114,6 @@ long ClauseSetFindSubsumedClauses(ClauseSet_p set,
 {
    long old_sp = PStackGetSP(res);
 
-   assert(ClauseLiteralNumber(subsumer->clause) > 1);
    assert(subsumer->clause->weight == ClauseStandardWeight(subsumer->clause));
    
    if(set->fvindex)

@@ -35,13 +35,9 @@ Changes
 
 typedef struct freq_vector_cell
 {
-   long sig_start;   /* Where in the vector starts the signature
-		        frequency count */
-   long sig_symbols; /* How many different symbols do we count? */
-   long size;        /* How many symbols */
+   long size;        /* How many fields? */
    long *freq_vector;
-   Clause_p clause; /* Just for debugging, and just a unprotected
-		       reference */
+   Clause_p clause; /* Just an unprotected reference */
 }FreqVectorCell, *FreqVector_p, *FVPackedClause_p;
 
 #define FV_MAX_SYMBOL_COUNT 50
@@ -87,6 +83,7 @@ Initial case: Many successors with array size N
 typedef struct fv_index_cell
 {
    long type_or_key;
+   long clause_count;
    long array_size;
    union 
    {
@@ -99,6 +96,7 @@ typedef struct fv_index_cell
 typedef struct fvi_anchor_cell
 {
    long      symbol_limit;
+   long      node_count;
    FVIndex_p index;
 }FVIAnchorCell, *FVIAnchor_p;
 
@@ -111,11 +109,15 @@ typedef struct fvi_anchor_cell
 #define FreqVectorCellAlloc()    (FreqVectorCell*)SizeMalloc(sizeof(FreqVectorCell))
 #define FreqVectorCellFree(junk) SizeFree(junk, sizeof(FreqVectorCell))
 
-FreqVector_p FreqVectorAlloc(long sig_start, long sig_symbols);
+#define NON_SIG_FEATURES 2
+#define SigSizeToFreqVectorSize(size) (size*2-2+NON_SIG_FEATURES)
+FreqVector_p FreqVectorAlloc(long size);
 void         FreqVectorFree(FreqVector_p junk);
 
 void         FreqVectorPrint(FILE* out, FreqVector_p vec);
 
+void             StandardFreqVectorAddVals(FreqVector_p vec, long sig_symbols, 
+					   Clause_p clause);
 FreqVector_p     StandardFreqVectorCompute(Clause_p clause, long sig_symbols);
 FVPackedClause_p FVPackClause(Clause_p clause, FVIAnchor_p index);
 Clause_p         FVUnpackClause(FVPackedClause_p pack);
@@ -133,11 +135,12 @@ void      FVIndexFree(FVIndex_p junk);
 FVIAnchor_p FVIAnchorAlloc(long symbol_limit);
 void        FVIAnchorFree(FVIAnchor_p junk);
 
-FVIndex_p   FVIndexGetNextNode(FVIndex_p node, long key);
+FVIndex_p   FVIndexGetNextNonEmptyNode(FVIndex_p node, long key);
 void        FVIndexInsert(FVIAnchor_p index, FreqVector_p vec_clause);
 
 bool        FVIndexDelete(FVIAnchor_p index, Clause_p clause);
 
+long        FVIndexCountNodes(FVIndex_p index, bool leafs, bool empty);
 
 #endif
 

@@ -40,6 +40,7 @@ Changes
 
 extern bool StrongUnitForwardSubsumption;
 extern long ClauseClauseSubsumptionCalls;
+extern long ClauseClauseSubsumptionCallsRec;
 
 bool     LiteralSubsumesClause(Eqn_p literal, Clause_p clause); 
 bool     UnitClauseSubsumesClause(Clause_p unit, Clause_p clause); 
