@@ -69,6 +69,7 @@ char*   DStrAppendStrArray(DStr_p strdes, char* array[], char*
 			   separator); 
 #define DStrAppendDStr(strdes, str) \
         DStrAppendStr((strdes), DStrView(str))
+char    DStrDeleteLastChar(DStr_p strdes);
 char*   DStrView(DStr_p strdes);
 char*   DStrCopy(DStr_p strdes);
 char*   DStrCopyCore(DStr_p strdes);

@@ -612,66 +612,6 @@ void IntMapIterFree(IntMapIter_p junk)
 }
 
 
-/*-----------------------------------------------------------------------
-//
-// Function: IntMapIterNext()
-//
-//   Return the next value/key pair in the map (or NULL/ndef) if the
-//   iterator is exhausted.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-void* IntMapIterNext(IntMapIter_p iter, long *key)
-{
-   assert(iter);
-   assert(key);
-   void* res = NULL;
-   long  i;
-   NumTree_p handle;
-
-   switch(iter->map->type)
-   {
-   case IMEmpty:
-         break;
-   case IMSingle:
-         if(!iter->admin_data.seen)
-         {
-            iter->admin_data.seen = true;
-            *key = iter->map->max_key;
-            res = iter->map->values.value;
-         }
-         break;
-   case IMArray: 
-         for(i=iter->admin_data.current; i<= iter->upper_key; i++)
-         {
-            res = PDArrayElementP(iter->map->values.array, i);
-            if(res)
-            {
-               *key = i;
-               break;
-            }
-         }
-         iter->admin_data.current = i+1;
-         break;
-   case IMTree:
-         handle = NumTreeTraverseNext(iter->admin_data.tree_iter);
-         if(handle && (handle->key <= iter->upper_key))
-         {
-            *key = handle->key;
-            res = handle->val1.p_val;
-         }
-         break;
-   default:
-         assert(false && "Unknown IntMap type.");
-         break;
-   }
-   return res;
-}
-
 
 /*-----------------------------------------------------------------------
 //

@@ -124,10 +124,79 @@ void*    IntMapDelKey(IntMap_p map, long key);
 
 IntMapIter_p IntMapIterAlloc(IntMap_p map, long lower_key, long upper_key); 
 void         IntMapIterFree(IntMapIter_p junk);
-void*        IntMapIterNext(IntMapIter_p iter, long *key);
+static __inline__ void* IntMapIterNext(IntMapIter_p iter, long *key);
 
 void     IntMapDebugPrint(FILE* out, IntMap_p map);
 long     IntMapRecFree(IntMap_p map, IntMapFreeFunc free_func);
+
+
+
+
+/*---------------------------------------------------------------------*/
+/*                      Inline Functions                               */
+/*---------------------------------------------------------------------*/
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: IntMapIterNext()
+//
+//   Return the next value/key pair in the map (or NULL/ndef) if the
+//   iterator is exhausted.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static __inline__ void* IntMapIterNext(IntMapIter_p iter, long *key)
+{
+   assert(iter);
+   assert(key);
+   void* res = NULL;
+   long  i;
+   NumTree_p handle;
+
+   switch(iter->map->type)
+   {
+   case IMEmpty:
+         break;
+   case IMSingle:
+         if(!iter->admin_data.seen)
+         {
+            iter->admin_data.seen = true;
+            *key = iter->map->max_key;
+            res = iter->map->values.value;
+         }
+         break;
+   case IMArray: 
+         for(i=iter->admin_data.current; i<= iter->upper_key; i++)
+         {
+            res = PDArrayElementP(iter->map->values.array, i);
+            if(res)
+            {
+               *key = i;
+               break;
+            }
+         }
+         iter->admin_data.current = i+1;
+         break;
+   case IMTree:
+         handle = NumTreeTraverseNext(iter->admin_data.tree_iter);
+         if(handle && (handle->key <= iter->upper_key))
+         {
+            *key = handle->key;
+            res = handle->val1.p_val;
+         }
+         break;
+   default:
+         assert(false && "Unknown IntMap type.");
+         break;
+   }
+   return res;
+}
 
 
 #endif

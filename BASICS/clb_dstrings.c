@@ -228,6 +228,35 @@ char* DStrAppendStrArray(DStr_p strdes, char* array[], char*
 
 /*-----------------------------------------------------------------------
 //
+// Function: DStrDeleteLastChar()
+//
+//   If String is not empty, delete last character and return
+//   is. Otherwise return '\0'.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+char DStrDeleteLastChar(DStr_p strdes)
+{
+   char res = '\0';
+
+   assert(strdes);
+   if(strdes->len > 0)
+   {
+      strdes->len--;
+      res = strdes->string[strdes->len];
+      assert(res);
+      strdes->string[strdes->len] = '\0';
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: DStrView()
 //
 //   Return a pointer to the stored C-string. This is guaranteed to stay
