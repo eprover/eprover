@@ -161,6 +161,7 @@ void      DestroyScanner(Scanner_p  junk);
 
 #define TOKENREALPOS(pos) ((pos) % MAXTOKENLOOKAHEAD)
 #define AktToken(in) (&((in)->tok_sequence[(in)->current]))
+#define AktTokenType(in) (AktToken(in)->tok)
 #define LookToken(in,look) \
     (&((in)->tok_sequence[TOKENREALPOS((in)->current+(look))]))
 

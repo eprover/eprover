@@ -242,7 +242,6 @@ char* ParseFilename(Scanner_p in)
    return SecureStrdup(DStrView(in->accu));
 #else
    res = realpath(DStrView(in->accu), store);      
-   res = realpath(DStrView(in->accu), store);      
    if(!res)
    {
       DStr_p errstr = DStrAlloc();
@@ -257,6 +256,64 @@ char* ParseFilename(Scanner_p in)
    return SecureStrdup(res);
 #endif /* !SPEC_CPU2004 */
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ParseSkipParenthesizedExpr()
+//
+//   Skip any expression containing balanced (), [], {}. Print error
+//   on missmatch. Note that no full syntax check is performed, we are
+//   only interested in the different braces.
+//
+// Global Variables: -
+//
+// Side Effects    : Input
+//
+/----------------------------------------------------------------------*/
+
+void ParseSkipParenthesizedExpr(Scanner_p in)
+{
+   PStack_p paren_stack = PStackAlloc();
+   TokenType tok;
+
+   CheckInpTok(in, OpenBracket|OpenCurly|OpenSquare);
+   PStackPushInt(paren_stack, AktTokenType(in));
+   NextToken(in);
+   while(!PStackEmpty(paren_stack))
+   {
+      if(TestInpTok(in, OpenBracket|OpenCurly|OpenSquare))
+      {
+         PStackPushInt(paren_stack, AktTokenType(in));         
+         NextToken(in);
+      }
+      else if(TestInpTok(in, CloseBracket|CloseCurly|CloseSquare))
+      {
+         tok = PStackPopInt(paren_stack);
+         switch(tok)
+         {
+         case OpenBracket:
+               AcceptInpTok(in,CloseBracket);
+               break;
+         case OpenCurly:
+               AcceptInpTok(in, CloseCurly);
+               break;
+         case OpenSquare:
+               AcceptInpTok(in,CloseSquare);
+               break;
+         default:
+               assert(false && "Impossible value on parentheses stack");
+               break;
+         }
+      }
+      else
+      {
+         NextToken(in);
+      }
+   }
+   PStackFree(paren_stack);
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

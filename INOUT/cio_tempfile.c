@@ -97,7 +97,7 @@ void TempFileCleanup(void)
 
 void TempFileRegister(char *name)
 {
-   bool  res;
+   StrTree_p res;
    IntOrP tmp;
 
    tmp.p_val = NULL;     
