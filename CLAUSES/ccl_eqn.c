@@ -56,7 +56,7 @@ void tstptermprint(FILE* out, TB_p bank, Term_p term, bool fullterms)
 {
    if(TermIsTrueTerm(term))
    {
-      fputs("true", false);
+      fputs("true", out);
    }
    else
    {
