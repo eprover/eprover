@@ -237,11 +237,10 @@ FVIAnchor_p FVIAnchorAlloc(long symbol_limit)
    handle->node_count   = 0;
    handle->array_count  = 0;
    handle->index        = FVIndexAlloc();
+   handle->perm_vector  = NULL;
 
    return handle;
 }
-
-
 
 
 
@@ -259,6 +258,8 @@ FVIAnchor_p FVIAnchorAlloc(long symbol_limit)
 
 void FVIAnchorFree(FVIAnchor_p junk)
 {
+   assert(junk);
+
    fprintf(GlobalOut, 
 	   "# Freeing FVIndex. %ld leaves, %ld empty. Total nodes: %ld. Mem: %ld\n",
 	   FVIndexCountNodes(junk->index, true, false),
@@ -267,6 +268,7 @@ void FVIAnchorFree(FVIAnchor_p junk)
 	   FVIndexStorage(junk));
 
    FVIndexFree(junk->index);
+   PermVectorFree(junk->perm_vector);
    FVIAnchorCellFree(junk);
 }
 
@@ -322,12 +324,12 @@ void FVIndexInsert(FVIAnchor_p index, FreqVector_p vec_clause)
    for(i=0; i<vec_clause->size; i++)
    {
       assert(!FVIndexFinalNode(handle));
-      newnode = fv_index_get_next_node(handle, vec_clause->freq_vector[i]);
+      newnode = fv_index_get_next_node(handle, vec_clause->array[i]);
       if(!newnode)
       {
 	 newnode = insert_empty_node(handle, 
 				     index,
-				     vec_clause->freq_vector[i]);
+				     vec_clause->array[i]);
 	 index->node_count++;
       }      
       handle = newnode;
@@ -360,15 +362,15 @@ bool FVIndexDelete(FVIAnchor_p index, Clause_p clause)
    FVIndex_p handle;
    long i;
 
-   vec = StandardFreqVectorCompute(clause, index->symbol_limit);
-   
+   vec = OptimizedFreqVectorCompute(clause, index->perm_vector, 
+				    index->symbol_limit);   
    handle = index->index;
    handle->clause_count--;
 
    for(i=0; i<vec->size; i++)
    {
       assert(!FVIndexFinalNode(handle));
-      handle = fv_index_get_next_node(handle, vec->freq_vector[i]);
+      handle = fv_index_get_next_node(handle, vec->array[i]);
       if(!handle)
       {
 	 break;
@@ -428,6 +430,29 @@ long FVIndexCountNodes(FVIndex_p index, bool leafs, bool empty)
       }
    }
    return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: FVIndexPackClause()
+//
+//   Pack a clause into an apropriate FVPackedClauseStructure for the
+//   index. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+FVPackedClause_p FVIndexPackClause(Clause_p clause, FVIAnchor_p anchor)
+{
+   if(!anchor)
+   {
+      return FVPackClause(clause, NULL,0);
+   }
+   return FVPackClause(clause, anchor->perm_vector, 
+		       anchor->symbol_limit);
 }
 
 

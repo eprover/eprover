@@ -77,6 +77,7 @@ typedef struct fvi_anchor_cell
    long      node_count;
    long      array_count;
    FVIndex_p index;
+   PermVector_p perm_vector;
 }FVIAnchorCell, *FVIAnchor_p;
 
 
@@ -115,8 +116,7 @@ bool        FVIndexDelete(FVIAnchor_p index, Clause_p clause);
 
 long        FVIndexCountNodes(FVIndex_p index, bool leafs, bool empty);
 
-#define FVIndexPackClause(clause, anchor) \
-        FVPackClause((clause), (anchor)?((FVIAnchor_p)(anchor))->symbol_limit:0)
+FVPackedClause_p FVIndexPackClause(Clause_p clause, FVIAnchor_p anchor);
 
 #endif
 

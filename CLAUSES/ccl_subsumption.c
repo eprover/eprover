@@ -633,7 +633,7 @@ bool clause_set_subsumes_clause_indexed(FVIndex_p index, FreqVector_p vec, long 
       long i;
       FVIndex_p next;
       
-      for(i=0; i<=vec->freq_vector[feature]; i++)
+      for(i=0; i<=vec->array[feature]; i++)
       {
 	 next = FVIndexGetNextNonEmptyNode(index, i);
 	 if(next && 
@@ -747,7 +747,7 @@ void clauseset_find_subsumed_clauses_indexed(FVIndex_p index,
       
       limit = MAX(index->array_size, index->type_or_key+1); /* Hack!*/
       
-      for(i=vec->freq_vector[feature]; i<limit; i++)
+      for(i=vec->array[feature]; i<limit; i++)
       {
 	 next = FVIndexGetNextNonEmptyNode(index, i);
 	 if(next)
@@ -1050,7 +1050,7 @@ bool ClauseSubsumesClause(Clause_p subsumer, Clause_p sub_candidate)
 bool ClauseSetSubsumesFVPackedClause(ClauseSet_p set, 
 				     FVPackedClause_p sub_candidate)
 {
-   if(set->fvindex && sub_candidate->freq_vector)
+   if(set->fvindex && sub_candidate->array)
    {
       bool res; 
       res =  clause_set_subsumes_clause_indexed(set->fvindex->index, 
@@ -1079,8 +1079,9 @@ bool ClauseSetSubsumesClause(ClauseSet_p set, Clause_p sub_candidate)
    if(set->fvindex)
    {
       bool res; 
-      FreqVector_p vec = StandardFreqVectorCompute(sub_candidate,
-						   set->fvindex->symbol_limit);
+      FreqVector_p vec = OptimizedFreqVectorCompute(sub_candidate,
+						    set->fvindex->perm_vector,
+						    set->fvindex->symbol_limit);
       res =  clause_set_subsumes_clause_indexed(set->fvindex->index, vec, 0);
       FreqVectorFree(vec);
       return res;

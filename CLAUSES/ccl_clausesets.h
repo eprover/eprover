@@ -141,6 +141,13 @@ FunCode     ClauseSetFindFreqSymbol(ClauseSet_p set, Sig_p sig, int
 				    arity, bool least);
 long        ClauseSetMaxVarNumber(ClauseSet_p set);
 
+long        ClauseSetFindCharFreqVectors(ClauseSet_p set,
+					 FreqVector_p fsum,
+					 FreqVector_p fmax, 
+					 FreqVector_p fmin, 
+					 long symbol_size);
+
+
 #endif
 
 /*---------------------------------------------------------------------*/

@@ -1726,6 +1726,46 @@ long ClauseSetMaxVarNumber(ClauseSet_p set)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetFindCharFreqVectors()
+//
+//   Compute the characteristic frequency vectors for set. Vectors are
+//   re-initialized. Returns number of clauses in set.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations.
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetFindCharFreqVectors(ClauseSet_p set, FreqVector_p fsum,
+				  FreqVector_p fmax, FreqVector_p fmin, 
+				  long symbol_size)
+{
+   Clause_p handle;
+   FreqVector_p current;
+
+   assert(set && fsum && fmax && fmin);
+ 
+   FreqVectorInitialize(fsum, 0);
+   FreqVectorInitialize(fmax, 0);
+   FreqVectorInitialize(fmin, LONG_MAX);
+   
+   for(handle = set->anchor->succ;
+       handle!= set->anchor;
+       handle = handle->succ)
+   {
+      current = StandardFreqVectorCompute(handle, symbol_size);
+      FreqVectorAdd(fsum, fsum, current);
+      FreqVectorMax(fmax, fmax, current);
+      FreqVectorMin(fmin, fmin, current);
+      FreqVectorFree(current);
+   }   
+   return set->members;
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

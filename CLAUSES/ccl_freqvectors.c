@@ -38,11 +38,113 @@ Changes
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
+/*-----------------------------------------------------------------------
+//
+// Function: tuple_2_compare_2nd()
+//
+//   Compare 2 tuple-2 cells by value (and by pos, to make it stable).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 
+int tuple_2_compare_2nd(Tuple2Cell *t1, Tuple2Cell *t2)
+{
+   if(t1->value < t2->value)
+   {
+      return -1;
+   }
+   if(t1->value > t2->value)
+   {
+      return 1;
+   }
+   if(t1->pos < t2->pos)
+   {
+      return -1;
+   }
+   if(t1->pos > t2->pos)
+   {
+      return 1;
+   }   
+   return 0;
+}
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------------------
+//
+// Function: PermVectorCompute()
+//
+//   Find a "good" permutation (and selection) vector for
+//   FVIndexing by:
+//   - Ordering features from lesser to higher informativity
+//   - Selecting the best max_len features
+//   - Optionally drop features that have no projected informational
+//     value. 
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+PermVector_p PermVectorCompute(FreqVector_p fmax, FreqVector_p fmin, 
+			       FreqVector_p fsum,
+			       long clauses, long max_len, 
+			       bool eleminate_uninformative)
+{
+   Tuple2Cell *array;
+   long i, size, start=0, start1=0, diff;
+   PermVector_p handle;
+
+   assert(fsum->size == fmax->size);
+   assert(fsum->size == fmin->size);
+
+   
+   array = SizeMalloc(fsum->size * sizeof(Tuple2Cell));
+   for(i=0; i<fsum->size; i++)
+   {
+      array[i].pos = i;
+      diff = fmax->array[i]-fmin->array[i];
+      array[i].value = clauses*diff+fsum->array[i];
+      if(eleminate_uninformative && !diff && (clauses>1))
+      {
+	 array[i].value = 0;
+      }
+   }
+   qsort(array, fsum->size, sizeof(Tuple2Cell), 
+	 (ComparisonFunctionType)tuple_2_compare_2nd);
+   
+   if(fsum->size >  max_len)
+   {
+      start = fsum->size - max_len;
+   }
+   if(eleminate_uninformative)
+   {
+      for(i=0; i<fsum->size && !array[i].value; i++);/* Intentional */
+      start1 = i;
+   }
+   start = MAX(start, start1);
+   if(start == fsum->size)
+   {
+      start--;
+   }
+   size = fsum->size - start;
+
+   handle = PermVectorAlloc(size);
+
+   for(i=0; i < size; i++)
+   {
+      handle->array[i] = array[i+start].pos;
+   }  
+   PermVectorPrint(GlobalOut, handle);
+   return handle;
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -61,14 +163,10 @@ Changes
 FreqVector_p FreqVectorAlloc(long size)
 {
    FreqVector_p handle = FreqVectorCellAlloc();
-   long i;
 
    handle->size         = size;
-   handle->freq_vector  = SizeMalloc(sizeof(long)*handle->size);
-   for(i=0; i<handle->size;i++)
-   {
-      handle->freq_vector[i] = 0;
-   }
+   handle->array  = SizeMalloc(sizeof(long)*handle->size);
+   FreqVectorInitialize(handle, 0);
    handle->clause = NULL;
    return handle;
 }
@@ -90,13 +188,35 @@ void FreqVectorFree(FreqVector_p junk)
 {
    assert(junk);
 
-   if(junk->freq_vector)
+   if(junk->array)
    {
-      SizeFree(junk->freq_vector, sizeof(long)*junk->size);
+      SizeFree(junk->array, sizeof(long)*junk->size);
    }
    FreqVectorCellFree(junk);
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: FreqVectorInitialize()
+//
+//   Store value in all fields of vec.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void FreqVectorInitialize(FreqVector_p vec, long value)
+{
+   long i;
+
+   for(i=0; i<vec->size;i++)
+   {
+      vec->array[i] = value;
+   }
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -129,7 +249,7 @@ void FreqVectorPrint(FILE* out, FreqVector_p vec)
    for(i=0; i<vec->size; i++)
 
    {
-      fprintf(out, " %ld", vec->freq_vector[i]);
+      fprintf(out, " %ld", vec->array[i]);
    }  
    fprintf(out, "\n");
 }
@@ -156,12 +276,12 @@ void StandardFreqVectorAddVals(FreqVector_p vec, long sig_symbols,
 
    assert(sig_symbols<=FV_MAX_SYMBOL_COUNT);
    
-   vec->freq_vector[0] += clause->pos_lit_no;
-   vec->freq_vector[1] += clause->neg_lit_no;
-   /* vec->freq_vector[2] += ClauseDepth(clause); */
+   vec->array[0] += clause->pos_lit_no;
+   vec->array[1] += clause->neg_lit_no;
+   /* vec->array[2] += ClauseDepth(clause); */
    
-   nstart = &(vec->freq_vector[NON_SIG_FEATURES-1]);
-   pstart = &(vec->freq_vector[sig_symbols+NON_SIG_FEATURES-2]);
+   nstart = &(vec->array[NON_SIG_FEATURES-1]);
+   pstart = &(vec->array[sig_symbols+NON_SIG_FEATURES-2]);
    for(handle = clause->literals; handle; handle = handle->next)
    {
       if(EqnIsPositive(handle))
@@ -178,7 +298,7 @@ void StandardFreqVectorAddVals(FreqVector_p vec, long sig_symbols,
 					 sig_symbols);	 
       }
    }
-   /* SWAP(long,vec->freq_vector[2],vec->freq_vector[SigSizeToFreqVectorSize(sig_symbols)-1]); */
+   /* SWAP(long,vec->array[2],vec->array[SigSizeToFreqVectorSize(sig_symbols)-1]); */
 }
 
 
@@ -207,6 +327,44 @@ FreqVector_p StandardFreqVectorCompute(Clause_p clause, long sig_symbols)
    return vec;
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: OptimizedFreqVectorCompute()
+//
+//   Compute an "optimized" frequency count vector, based on a given
+//   permutation vector. If no permutation vector is given, return a
+//   StandardFreqVector. 
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+FreqVector_p OptimizedFreqVectorCompute(Clause_p clause, 
+					PermVector_p perm, 
+					long sig_symbols)
+{
+   FreqVector_p vec, res;
+
+   res = vec = StandardFreqVectorCompute(clause, sig_symbols);
+   if(perm)
+   {
+      long i;
+      
+      res = FreqVectorAlloc(perm->size);
+      for(i=0; i<perm->size; i++)
+      {
+	 res->array[i] = vec->array[perm->array[i]];
+      }
+      res->clause = clause;
+      FreqVectorFree(vec);
+   }  
+   return res;
+}
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: FVPackClause()
@@ -221,16 +379,17 @@ FreqVector_p StandardFreqVectorCompute(Clause_p clause, long sig_symbols)
 //
 /----------------------------------------------------------------------*/
 
-FVPackedClause_p FVPackClause(Clause_p clause, long symbol_limit)
+FVPackedClause_p FVPackClause(Clause_p clause, PermVector_p perm, 
+			      long symbol_limit)
 {
    FVPackedClause_p res;
 
    if(symbol_limit)
    {
-      return StandardFreqVectorCompute(clause, symbol_limit);
+      return OptimizedFreqVectorCompute(clause, perm, symbol_limit);
    }
    res = FreqVectorCellAlloc();
-   res->freq_vector = NULL;
+   res->array = NULL;
    res->clause = clause;
 
    return res; 
@@ -281,6 +440,118 @@ void FVPackedClauseFree(FVPackedClause_p pack)
    FreqVectorFree(pack);
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: FreqVectorAdd()
+//
+//   Component-wise addition of both sources. Guaranteed to work if
+//   dest is a source (but not maximally efficient - who cares). Yes,
+//   it's worth mentioning it ;-)
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void FreqVectorAdd(FreqVector_p dest, FreqVector_p s1, FreqVector_p s2)
+{
+   long i;
+
+   assert(s1 && s2 && dest);
+   assert(s1->size == dest->size);
+   assert(s2->size == dest->size);
+
+   for(i=0; i<dest->size; i++)
+   {
+      dest->array[i] = s1->array[i]+s2->array[i];
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FreqVectorMulAdd()
+//
+//   Component-wise addition of both weighted sources. Guaranteed to
+//   work if dest is a source (but not maximally efficient - who
+//   cares). Yes, it's worth mentioning it ;-)
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void FreqVectorMulAdd(FreqVector_p dest, FreqVector_p s1, long f1, 
+		      FreqVector_p s2, long f2)
+{
+   long i;
+
+   assert(s1 && s2 && dest);
+   assert(s1->size == dest->size);
+   assert(s2->size == dest->size);
+
+   for(i=0; i<dest->size; i++)
+   {
+      dest->array[i] = f1*s1->array[i]+f2*s2->array[i];
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FreqVectorMax()
+//
+//   Compute componentwise  max of vectors. See above.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void FreqVectorMax(FreqVector_p dest, FreqVector_p s1, FreqVector_p s2)
+{
+   long i;
+
+   assert(s1 && s2 && dest);
+   assert(s1->size == dest->size);
+   assert(s2->size == dest->size);
+
+   for(i=0; i<dest->size; i++)
+   {
+      dest->array[i] = MAX(s1->array[i],s2->array[i]);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FreqVectorMin()
+//
+//   Compute componentwise  min of vectors. See above.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void FreqVectorMin(FreqVector_p dest, FreqVector_p s1, FreqVector_p s2)
+{
+   long i;
+
+   assert(s1 && s2 && dest);
+   assert(s1->size == dest->size);
+   assert(s2->size == dest->size);
+
+   for(i=0; i<dest->size; i++)
+   {
+      dest->array[i] = MIN(s1->array[i],s2->array[i]);
+   }
+}
 
 
 /*---------------------------------------------------------------------*/

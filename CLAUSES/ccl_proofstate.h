@@ -39,6 +39,7 @@ Changes
 typedef struct proofstatecell
 {
    Sig_p             signature;
+   long              original_symbols;
    TB_p              original_terms;
    TB_p              terms;
    TB_p              tmp_terms;
@@ -52,8 +53,6 @@ typedef struct proofstatecell
    ClauseSet_p       tmp_store;
    ClauseSet_p       demods[3];
    bool              state_is_complete;
-   /* long              clause_count; */ /* Yields idents for clauses as 
-				      well */
    ulong_c           processed_count;
    ulong_c           proc_trivial_count;
    ulong_c           proc_forward_subsumed_count;

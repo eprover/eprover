@@ -63,6 +63,7 @@ ProofState_p ProofStateAlloc(void)
    ProofState_p handle = ProofStateCellAlloc();
 
    handle->signature           = SigAlloc();
+   handle->original_symbols    = 0;
    handle->original_terms      = TBAlloc(TPIgnoreProps, handle->signature);
    handle->terms               = TBAlloc(TPRestricted, handle->signature);
    handle->tmp_terms           = TBAlloc(TPIgnoreProps, handle->signature);
