@@ -56,6 +56,8 @@ char* LiteralSelectionFunNames[]=
    "PSelectOptimalLit",
    "SelectMinOptimalLit",
    "PSelectMinOptimalLit",
+   "SelectMinOptimalNoTypePred",
+   "PSelectMinOptimalNoTypePred",
    "SelectCondOptimalLit",
    "PSelectCondOptimalLit",
    "SelectAllCondOptimalLit",
@@ -148,6 +150,8 @@ static LiteralSelectionFun litsel_fun_array[]=
    PSelectOptimalLiteral,          
    SelectMinOptimalLiteral,
    PSelectMinOptimalLiteral,          
+   SelectMinOptimalNoTypePred,
+   PSelectMinOptimalNoTypePred,          
    SelectCondOptimalLiteral,
    PSelectCondOptimalLiteral,
    SelectAllCondOptimalLiteral,
@@ -375,6 +379,43 @@ static Eqn_p find_lcomplex_literal(Clause_p clause)
    return selected;
 }
 
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: find_smallest_neg_ground_lit()
+//
+//   Return smallest negative ground literal, or NULL if no negative
+//   ground literal exists.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static Eqn_p find_smallest_neg_ground_lit(Clause_p clause)
+{
+   Eqn_p handle = clause->literals, selected = NULL; 
+   long select_weight = LONG_MAX;
+         
+   while(handle)
+   {      
+      if(EqnIsNegative(handle)&&
+	 EqnIsGround(handle))
+      {
+	 assert(EqnIsOriented(handle));
+
+	 if(EqnStandardWeight(handle) < select_weight)
+	 {
+	    selected = handle;
+	    select_weight = EqnStandardWeight(handle);
+	 }
+      }
+      handle = handle->next;
+   }
+   return selected;
+}
 
 
 /*-----------------------------------------------------------------------
@@ -1575,6 +1616,113 @@ void PSelectMinOptimalLiteral(OCB_p ocb, Clause_p clause)
 
 /*-----------------------------------------------------------------------
 //
+// Function: SelectMinOptimalNoTypePred()
+//
+//   If there is a ground negative
+//   literal, select it, otherwise select the smallest negative
+//   literal, but never select type literals.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes property in literals
+//
+/----------------------------------------------------------------------*/
+
+void SelectMinOptimalNoTypePred(OCB_p ocb, Clause_p clause)
+{
+   assert(clause);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+   
+   if(clause->neg_lit_no)
+   {
+      Eqn_p selected = NULL;
+      
+      selected = find_smallest_neg_ground_lit(clause);
+      
+      if(!selected)
+      {
+	 Eqn_p handle = clause->literals;
+	 long select_weight = LONG_MAX, weight;
+	 while(handle)
+	 {
+	    if(EqnIsNegative(handle) && !EqnIsTypePred(handle))
+	    {
+	       weight = EqnStandardWeight(handle);
+	       if(weight < select_weight)
+	       {
+		  select_weight = weight;
+		  selected = handle;
+	       }
+	    }
+	    handle = handle->next;
+	 }
+      }
+      if(selected)
+      {
+	 EqnSetProp(selected, EPIsSelected);
+	 ClauseDelProp(clause, CPIsOriented);
+      }
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PSelectMinOptimalNoTypePred()
+//
+//   If there is a ground negative
+//   literal, select it, otherwise select the smallest negative
+//   literal, but never select type literals. If a negative literal is
+//   selected, also select positive ones.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes property in literals
+//
+/----------------------------------------------------------------------*/
+
+void PSelectMinOptimalNoTypePred(OCB_p ocb, Clause_p clause)
+{
+   assert(clause);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+   
+   if(clause->neg_lit_no)
+   {
+      Eqn_p selected = NULL;
+      
+      selected = find_smallest_neg_ground_lit(clause);
+      
+      if(!selected)
+      {
+	 Eqn_p handle = clause->literals;
+	 long select_weight = LONG_MAX, weight;
+	 while(handle)
+	 {
+	    if(EqnIsNegative(handle) && !EqnIsTypePred(handle))
+	    {
+	       weight = EqnStandardWeight(handle);
+	       if(weight < select_weight)
+	       {
+		  select_weight = weight;
+		  selected = handle;
+	       }
+	    }
+	    handle = handle->next;
+	 }
+      }
+      if(selected)
+      {
+	 EqnSetProp(selected, EPIsSelected);
+	 clause_select_pos(clause);
+	 ClauseDelProp(clause, CPIsOriented);
+      }
+   }
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: SelectCondOptimalLiteral()
 //
 //   As above, but if the clause has a positive literal that is very
@@ -1737,7 +1885,7 @@ void SelectAllCondOptimalLiteral(OCB_p ocb, Clause_p clause)
       }
       else
       {
-      EqnListDelProp(clause->literals, EPIsSelected);
+	 EqnListDelProp(clause->literals, EPIsSelected);
       }
    }
 }

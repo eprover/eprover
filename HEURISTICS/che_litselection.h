@@ -65,8 +65,12 @@ void SelectGroundNegativeLiteral(OCB_p ocb, Clause_p clause);
 void PSelectGroundNegativeLiteral(OCB_p ocb, Clause_p clause);
 void SelectOptimalLiteral(OCB_p ocb, Clause_p clause);
 void PSelectOptimalLiteral(OCB_p ocb, Clause_p clause);
+
 void SelectMinOptimalLiteral(OCB_p ocb, Clause_p clause);
 void PSelectMinOptimalLiteral(OCB_p ocb, Clause_p clause);
+void SelectMinOptimalNoTypePred(OCB_p ocb, Clause_p clause);
+void PSelectMinOptimalNoTypePred(OCB_p ocb, Clause_p clause);
+
 void SelectCondOptimalLiteral(OCB_p ocb, Clause_p clause);
 void PSelectCondOptimalLiteral(OCB_p ocb, Clause_p clause);
 void SelectAllCondOptimalLiteral(OCB_p ocb, Clause_p clause);

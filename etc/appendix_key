@@ -41,6 +41,8 @@ M  SelectUnlessUniqPosMax
 N  PSelectUnlessUniqPosMax
 O  SelectMinOptimalLit
 P  PSelectMinOptimalLit
+O1 SelectMinOptimalNoTypePred
+P1 PSelectMinOptimalNoTypePred
 Q  SelectUnlessUniqMaxPos
 R  PSelectUnlessUniqMaxPos
 S  SelectComplex

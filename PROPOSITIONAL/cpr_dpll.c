@@ -38,6 +38,47 @@ Changes
 /*---------------------------------------------------------------------*/
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: deactivate_clauses()
+//
+//   Deactivete all clauses in *tree and record them on
+//   state->decativated. Return number of clauses.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes state.
+//
+/----------------------------------------------------------------------*/
+
+long deactivate_clauses(DPLLState_p state, PTree_p *clauses)
+{
+   long res = 0;
+
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: shorten_clauses()
+//
+//   Shorten all clauses in *tree by one.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes state
+//
+/----------------------------------------------------------------------*/
+
+long shorten_clauses(DPLLState_p state, PTree_p *clauses)
+{
+   long res = 0;
+
+   return res;
+}
+
+
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -109,6 +150,48 @@ void DPLLStateFree(DPLLState_p junk)
    DPLLFormulaFree(junk->form);
    DPLLStateCellFree(junk);
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: DPLLAssignVar()
+//
+//   Extend the assignment with the given new propositional variable
+//   assignment. Return true if no empty clause has been generated.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes state!
+//
+/----------------------------------------------------------------------*/
+
+bool DPLLAssignVar(DPLLState_p state, PLiteralCode assignment)
+{
+   bool res = true;
+   Atom_p atom;
+
+   PStackPushInt(state->assignment, assignment);
+   PStackPushP(state->deactivated, NULL); /* Mark new subset */
+
+   if(assignment > 0)
+   {
+      atom = &(state->form->atoms[assignment]);
+      deactivate_clauses(state, &(atom->pos_active));
+      res = shorten_clauses(state, &(atom->neg_active));
+   }
+   else
+   {
+      assignment = -assignment;
+      atom = &(state->form->atoms[assignment]);
+      deactivate_clauses(state, &(atom->pos_active));
+      res = shorten_clauses(state, &(atom->neg_active));
+   }
+   return res;
+}
+
+
+
+void      DPLLRetractLastAss(DPLLState_p state);
 
 
 /*---------------------------------------------------------------------*/

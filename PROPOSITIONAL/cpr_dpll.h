@@ -45,12 +45,6 @@ typedef struct dpll_state_cell
 }DPLLStateCell, *DPLLState_p;
 
 
-typedef enum
-{
-   PropSatisfiable,
-   PropUnsatisfiable,
-   PropOpen
-}PropState;
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
@@ -62,7 +56,7 @@ typedef enum
 DPLLState_p DPLLStateAlloc(DPLLFormula_p form);
 void        DPLLStateFree(DPLLState_p junk);
 
-PropState DPLLAssignVar(DPLLState_p state, PLiteralCode assignment);
+bool      DPLLAssignVar(DPLLState_p state, PLiteralCode assignment);
 void      DPLLRetractLastAss(DPLLState_p state);
 
 #endif
