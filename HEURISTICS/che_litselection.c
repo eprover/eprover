@@ -58,6 +58,10 @@ char* LiteralSelectionFunNames[]=
    "PSelectMinOptimalLit",
    "SelectMinOptimalNoTypePred",
    "PSelectMinOptimalNoTypePred",
+   "SelectMinOptimalNoXTypePred",
+   "PSelectMinOptimalNoXTypePred",
+   "SelectMinOptimalNoRXTypePred",
+   "PSelectMinOptimalNoRXTypePred",
    "SelectCondOptimalLit",
    "PSelectCondOptimalLit",
    "SelectAllCondOptimalLit",
@@ -150,8 +154,16 @@ static LiteralSelectionFun litsel_fun_array[]=
    PSelectOptimalLiteral,          
    SelectMinOptimalLiteral,
    PSelectMinOptimalLiteral,          
+
    SelectMinOptimalNoTypePred,
    PSelectMinOptimalNoTypePred,          
+
+   SelectMinOptimalNoXTypePred,
+   PSelectMinOptimalNoXTypePred,          
+
+   SelectMinOptimalNoRXTypePred,
+   PSelectMinOptimalNoRXTypePred,          
+
    SelectCondOptimalLiteral,
    PSelectCondOptimalLiteral,
    SelectAllCondOptimalLiteral,
@@ -1699,6 +1711,220 @@ void PSelectMinOptimalNoTypePred(OCB_p ocb, Clause_p clause)
 	 while(handle)
 	 {
 	    if(EqnIsNegative(handle) && !EqnIsTypePred(handle))
+	    {
+	       weight = EqnStandardWeight(handle);
+	       if(weight < select_weight)
+	       {
+		  select_weight = weight;
+		  selected = handle;
+	       }
+	    }
+	    handle = handle->next;
+	 }
+      }
+      if(selected)
+      {
+	 EqnSetProp(selected, EPIsSelected);
+	 clause_select_pos(clause);
+	 ClauseDelProp(clause, CPIsOriented);
+      }
+   }
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectMinOptimalNoXTypePred()
+//
+//   If there is a ground negative
+//   literal, select it, otherwise select the smallest negative
+//   literal, but never select extendet type literals.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes property in literals
+//
+/----------------------------------------------------------------------*/
+
+void SelectMinOptimalNoXTypePred(OCB_p ocb, Clause_p clause)
+{
+   assert(clause);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+   
+   if(clause->neg_lit_no)
+   {
+      Eqn_p selected = NULL;
+      
+      selected = find_smallest_neg_ground_lit(clause);
+      
+      if(!selected)
+      {
+	 Eqn_p handle = clause->literals;
+	 long select_weight = LONG_MAX, weight;
+	 while(handle)
+	 {
+	    if(EqnIsNegative(handle) && !EqnIsXTypePred(handle))
+	    {
+	       weight = EqnStandardWeight(handle);
+	       if(weight < select_weight)
+	       {
+		  select_weight = weight;
+		  selected = handle;
+	       }
+	    }
+	    handle = handle->next;
+	 }
+      }
+      if(selected)
+      {
+	 EqnSetProp(selected, EPIsSelected);
+	 ClauseDelProp(clause, CPIsOriented);
+      }
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PSelectMinOptimalNoXTypePred()
+//
+//   If there is a ground negative
+//   literal, select it, otherwise select the smallest negative
+//   literal, but never select extendet type literals. If a negative
+//   literal is selected, also select positive ones.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes property in literals
+//
+/----------------------------------------------------------------------*/
+
+void PSelectMinOptimalNoXTypePred(OCB_p ocb, Clause_p clause)
+{
+   assert(clause);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+   
+   if(clause->neg_lit_no)
+   {
+      Eqn_p selected = NULL;
+      
+      selected = find_smallest_neg_ground_lit(clause);
+      
+      if(!selected)
+      {
+	 Eqn_p handle = clause->literals;
+	 long select_weight = LONG_MAX, weight;
+	 while(handle)
+	 {
+	    if(EqnIsNegative(handle) && !EqnIsXTypePred(handle))
+	    {
+	       weight = EqnStandardWeight(handle);
+	       if(weight < select_weight)
+	       {
+		  select_weight = weight;
+		  selected = handle;
+	       }
+	    }
+	    handle = handle->next;
+	 }
+      }
+      if(selected)
+      {
+	 EqnSetProp(selected, EPIsSelected);
+	 clause_select_pos(clause);
+	 ClauseDelProp(clause, CPIsOriented);
+      }
+   }
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectMinOptimalNoRXTypePred()
+//
+//   If there is a ground negative
+//   literal, select it, otherwise select the smallest negative
+//   literal, but never select real extended type literals.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes property in literals
+//
+/----------------------------------------------------------------------*/
+
+void SelectMinOptimalNoRXTypePred(OCB_p ocb, Clause_p clause)
+{
+   assert(clause);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+   
+   if(clause->neg_lit_no)
+   {
+      Eqn_p selected = NULL;
+      
+      selected = find_smallest_neg_ground_lit(clause);
+      
+      if(!selected)
+      {
+	 Eqn_p handle = clause->literals;
+	 long select_weight = LONG_MAX, weight;
+	 while(handle)
+	 {
+	    if(EqnIsNegative(handle) && !EqnIsRealXTypePred(handle))
+	    {
+	       weight = EqnStandardWeight(handle);
+	       if(weight < select_weight)
+	       {
+		  select_weight = weight;
+		  selected = handle;
+	       }
+	    }
+	    handle = handle->next;
+	 }
+      }
+      if(selected)
+      {
+	 EqnSetProp(selected, EPIsSelected);
+	 ClauseDelProp(clause, CPIsOriented);
+      }
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PSelectMinOptimalNoRXTypePred()
+//
+//   If there is a ground negative
+//   literal, select it, otherwise select the smallest negative
+//   literal, but never select real extendet type literals. If a
+//   negative literal is selected, also select positive ones.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes property in literals
+//
+/----------------------------------------------------------------------*/
+
+void PSelectMinOptimalNoRXTypePred(OCB_p ocb, Clause_p clause)
+{
+   assert(clause);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+   
+   if(clause->neg_lit_no)
+   {
+      Eqn_p selected = NULL;
+      
+      selected = find_smallest_neg_ground_lit(clause);
+      
+      if(!selected)
+      {
+	 Eqn_p handle = clause->literals;
+	 long select_weight = LONG_MAX, weight;
+	 while(handle)
+	 {
+	    if(EqnIsNegative(handle) && !EqnIsRealXTypePred(handle))
 	    {
 	       weight = EqnStandardWeight(handle);
 	       if(weight < select_weight)

@@ -70,6 +70,10 @@ void SelectMinOptimalLiteral(OCB_p ocb, Clause_p clause);
 void PSelectMinOptimalLiteral(OCB_p ocb, Clause_p clause);
 void SelectMinOptimalNoTypePred(OCB_p ocb, Clause_p clause);
 void PSelectMinOptimalNoTypePred(OCB_p ocb, Clause_p clause);
+void SelectMinOptimalNoXTypePred(OCB_p ocb, Clause_p clause);
+void PSelectMinOptimalNoXTypePred(OCB_p ocb, Clause_p clause);
+void SelectMinOptimalNoRXTypePred(OCB_p ocb, Clause_p clause);
+void PSelectMinOptimalNoRXTypePred(OCB_p ocb, Clause_p clause);
 
 void SelectCondOptimalLiteral(OCB_p ocb, Clause_p clause);
 void PSelectCondOptimalLiteral(OCB_p ocb, Clause_p clause);
