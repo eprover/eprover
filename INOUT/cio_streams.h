@@ -27,6 +27,7 @@ Changes
 
 #define CIO_STREAMS
 
+#include <cio_initio.h>
 #include <cio_fileops.h>
 
 /*---------------------------------------------------------------------*/
@@ -54,7 +55,6 @@ typedef struct streamcell
 {
    struct streamcell* next;
    DStr_p             source;
-   DStr_p             dir;
    StreamType         stream_type; /* Only constant strings allowed
 				      here! */
    long               string_pos;
@@ -94,7 +94,7 @@ void     DestroyStream(Stream_p stream);
 
 int      StreamNextChar(Stream_p stream);
 
-void     OpenStackedInput(Inpstack_p stack, StreamType type,
+Stream_p OpenStackedInput(Inpstack_p stack, StreamType type,
 			  char* source, bool fail);
 void     CloseStackedInput(Inpstack_p stack);
 

@@ -125,7 +125,6 @@ Stream_p CreateStream(StreamType type, char* source, bool fail)
    handle = StreamCellAlloc();
 
    handle->source = DStrAlloc();
-   handle->dir    = DStrAlloc();
    handle->stream_type = type;
 
    if(type == StreamTypeFile)
@@ -136,6 +135,7 @@ Stream_p CreateStream(StreamType type, char* source, bool fail)
       {
 	 DStrSet(handle->source, "<stdin>");
 	 handle->file = stdin;
+         /* handle->dir  == "" */
       }
       else
       {
@@ -143,11 +143,12 @@ Stream_p CreateStream(StreamType type, char* source, bool fail)
 	 handle->file = InputOpen(source, fail);
          if(!handle->file)
          {
+            DStrFree(handle->source);
             StreamCellFree(handle);
             return NULL;
          }
       }
-      VERBOUTARG("Opening ", DStrView(handle->source));
+      VERBOUTARG("Opened ", DStrView(handle->source));
    }
    else
    {
@@ -199,7 +200,6 @@ void DestroyStream(Stream_p stream)
       }
       VERBOUTARG("Closing ", DStrView(stream->source));
    }
-   DStrFree(stream->dir);
    DStrFree(stream->source);
    StreamCellFree(stream);
 }
@@ -252,13 +252,17 @@ int StreamNextChar(Stream_p stream)
 //
 /----------------------------------------------------------------------*/
 
-void OpenStackedInput(Inpstack_p stack, StreamType type, char* source, bool fail)
+Stream_p OpenStackedInput(Inpstack_p stack, StreamType type, char* source, bool fail)
 {
    Stream_p handle;
 
    handle = CreateStream(type, source, fail);
-   handle->next = *stack;
-   *stack = handle;
+   if(handle)
+   {   
+      handle->next = *stack;
+      *stack = handle;
+   }
+   return handle;
 }
 
 

@@ -774,19 +774,81 @@ void PrintToken(FILE* out, Token_p token)
 //
 /----------------------------------------------------------------------*/
 
-Scanner_p CreateScanner(StreamType type, char* name, bool
-			ignore_comments, char* include_key)
+Scanner_p CreateScanner(StreamType type, char *name, bool
+			ignore_comments, char *default_dir)
 {
    Scanner_p handle;
+   Stream_p  stream;
+   char      *tmp_name;
+   
 
    handle = ScannerCellAlloc();
    handle->source = NULL;
+   handle->default_dir = DStrAlloc();
    handle->accu = DStrAlloc();
    handle->ignore_comments = ignore_comments;
-   handle->include_key = include_key;
+   handle->include_key = NULL;
    handle->format = LOPFormat;
 
-   OpenStackedInput(&handle->source, type, name, true);
+   if((type == StreamTypeFile && strcmp(name,"-")==0)||
+      (type != StreamTypeFile))
+   {
+      stream = OpenStackedInput(&handle->source, type, name, true);
+      assert(stream);
+   }
+   else
+   {
+      assert(type == StreamTypeFile);
+      if(FileNameIsAbsolute(name))
+      {
+         stream = OpenStackedInput(&handle->source, type, name, true);
+         tmp_name = FileNameDirName(name);
+         DStrAppendStr(handle->default_dir, tmp_name);
+         FREE(tmp_name);
+         assert(stream);
+      }
+      else
+      {
+         DStr_p full_file_name = DStrAlloc();
+         
+         if(default_dir)
+         {
+            DStrAppendStr(handle->default_dir, default_dir);
+            assert(!DStrLen(handle->default_dir)||
+                   DStrLastChar(handle->default_dir) =='/');
+         }
+         tmp_name = FileNameDirName(name);
+         DStrAppendStr(handle->default_dir, tmp_name);
+         assert(DStrLen(handle->default_dir)==0 ||
+                DStrLastChar(handle->default_dir) =='/');
+         FREE(tmp_name);
+         tmp_name = FileNameBaseName(name);
+         DStrAppendStr(full_file_name, 
+                       DStrView(handle->default_dir));
+         DStrAppendStr(full_file_name, 
+                       tmp_name);
+         FREE(tmp_name);
+         stream = OpenStackedInput(&handle->source, type, 
+                                   DStrView(full_file_name), !TPTP_dir);
+         if(!stream)
+         {
+            assert(TPTP_dir);
+            DStrSet(handle->default_dir, TPTP_dir);
+            tmp_name = FileNameDirName(name);
+            DStrAppendStr(handle->default_dir, tmp_name);
+            FREE(tmp_name);            
+            tmp_name = FileNameBaseName(name);
+            DStrSet(full_file_name, 
+                    DStrView(handle->default_dir));
+            DStrAppendStr(full_file_name, 
+                          tmp_name);
+            FREE(tmp_name);
+            stream = OpenStackedInput(&handle->source, type, 
+                                      DStrView(full_file_name), true);
+         }
+         DStrFree(full_file_name);
+      }
+   }
    
    for(handle->current = 0; handle->current < MAXTOKENLOOKAHEAD;
 	  handle->current++)
@@ -799,7 +861,7 @@ Scanner_p CreateScanner(StreamType type, char* name, bool
       scan_real_token(handle);
    }
    handle->current = 0;
-
+   handle->include_pos = NULL;
    return handle;
 }
 
@@ -830,7 +892,12 @@ void DestroyScanner(Scanner_p  junk)
    assert(junk->source);
    CloseStackedInput(&junk->source);
    assert(!junk->source);
+   DStrFree(junk->default_dir);
    DStrFree(junk->accu);
+   if(junk->include_pos)
+   {
+      FREE(junk->include_pos);
+   }
    ScannerCellFree(junk);
 }
 
@@ -934,7 +1001,7 @@ bool TestIdnum(Token_p akt, char* ids)
 VOLATILE void AktTokenError(Scanner_p in, char* msg, bool syserr)
 {
    DStr_p err = DStrAlloc();
-   DStrReset(err);
+
    DStrAppendStr(err, TokenPosRep(AktToken(in)));
    DStrAppendStr(err, "(just read '");
    DStrAppendDStr(err, AktToken(in)->literal);
@@ -1038,8 +1105,7 @@ void CheckInpId(Scanner_p in, char* ids)
    {
       char* tmp;
 
-      DStrReset(in->accu);
-      DStrAppendStr(in->accu, "Identifier (");
+      DStrSet(in->accu, "Identifier (");
       DStrAppendStr(in->accu, ids);
       DStrAppendStr(in->accu, ") expected, but ");
       tmp = DescribeToken(AktToken(in)->tok);
@@ -1077,6 +1143,90 @@ void NextToken(Scanner_p in)
    PrintToken(stdout, LookToken(in,2));
    printf("\n");*/
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ScannerParseInclude()
+//
+//   Parse a TPTP-Style include statement. Return a scanner for the
+//   included file, and put (optional) selected names into
+//   name_selector. 
+//
+// Global Variables: -
+//
+// Side Effects    : Reads input.
+//
+/----------------------------------------------------------------------*/
+
+Scanner_p ScannerParseInclude(Scanner_p in, StrTree_p *name_selector)
+{
+   Scanner_p new_scanner;
+   char* name;
+   char* pos_rep;
+   
+   pos_rep = SecureStrdup(TokenPosRep(AktToken(in)));
+   AcceptInpId(in, "include");
+   AcceptInpTok(in, OpenBracket);
+   CheckInpTok(in, SQString);
+   name = DStrCopyCore(AktToken(in)->literal);
+   
+   new_scanner = CreateScanner(StreamTypeFile, name, 
+                               in->ignore_comments, 
+                               ScannerGetDefaultDir(in));   
+   ScannerSetFormat(new_scanner, ScannerGetFormat(in));
+   new_scanner->include_pos = pos_rep;
+   FREE(name);
+   NextToken(in);
+
+   if(TestInpTok(in, Comma))
+   {
+      IntOrP dummy;
+      
+      dummy.i_val = 0;
+      NextToken(in);
+      CheckInpTok(in, Name|PosInt|OpenSquare);
+      
+      if(TestInpTok(in, Name|PosInt))
+      {
+         printf("Single name found.\n");
+         StrTreeStore(name_selector, DStrView(AktToken(in)->literal),
+                      dummy, dummy);
+         printf("Stored...\n");
+         NextToken(in);
+      }
+      else
+      {
+         AcceptInpTok(in, OpenSquare);
+         if(!TestInpTok(in, CloseSquare))
+         {            
+            StrTreeStore(name_selector, DStrView(AktToken(in)->literal),
+                         dummy, dummy);
+            AcceptInpTok(in, Name|PosInt);
+            while(TestInpTok(in, Comma))
+            {
+               NextToken(in);
+               StrTreeStore(name_selector, DStrView(AktToken(in)->literal),
+                            dummy, dummy);
+               AcceptInpTok(in, Name|PosInt);
+            }
+         }
+         else /* Empty list - insert full dummy */
+         {
+            dummy.i_val = 1;
+            StrTreeStore(name_selector, "** Not a legal name**",
+                         dummy, dummy);
+            
+         }
+         AcceptInpTok(in, CloseSquare);
+      }      
+   }
+   AcceptInpTok(in, CloseBracket);
+   AcceptInpTok(in, Fullstop);
+
+   return new_scanner;
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

@@ -24,7 +24,8 @@ Changes
 
 #define CIO_SCANNER
 
-#include "cio_streams.h"
+#include <cio_streams.h>
+#include <clb_stringtrees.h>
 #include <ctype.h>
 #include <limits.h>
 
@@ -134,12 +135,14 @@ typedef struct tokencell
 typedef struct scannercell
 {
    Stream_p    source;  /* Input stack from which to read */
+   DStr_p      default_dir; /* Directory we read from, if any */
    IOFormat    format;
    DStr_p      accu; /* Place for Multi-Token constructs or messages */
    bool        ignore_comments; /* Comments can be skipped completely */
    char*       include_key; /* An Identifier,  e.g. "include" */
    TokenCell   tok_sequence[MAXTOKENLOOKAHEAD]; /* Need help? Bozo! */
    int         current; /* Pointer to current token in tok_sequence */
+   char*       include_pos; /* If created by "include", by which one? */
 }ScannerCell, *Scanner_p;
 
     
@@ -163,6 +166,8 @@ typedef struct scannercell
 #define  ScannerSetFormat(scanner, fmt) ((scanner)->format = (fmt))
 #define  ScannerGetFormat(scanner)        ((scanner)->format)
 
+#define  ScannerGetDefaultDir(scanner) DStrView((scanner)->default_dir)
+
 #define isstartidchar(ch)  (isalpha(ch) || (ch) == '_')
 #define isidchar(ch)       (isalnum(ch) || (ch) == '_')
 #define ischar(ch)         ((ch)!=EOF)
@@ -173,8 +178,8 @@ char*     TokenPosRep(Token_p token);
 char*     DescribeToken(TokenType token);
 void      PrintToken(FILE* out, Token_p token);
 
-Scanner_p CreateScanner(StreamType type, char* name, bool
-			ignore_comments, char* include_key);
+Scanner_p CreateScanner(StreamType type, char *name, bool
+			ignore_comments, char *default_dir);
 void      DestroyScanner(Scanner_p  junk);
 
 #define TOKENREALPOS(pos) ((pos) % MAXTOKENLOOKAHEAD)
@@ -208,6 +213,8 @@ void CheckInpId(Scanner_p in, char* ids);
                                NextToken(in)
 
 void NextToken(Scanner_p in);
+
+Scanner_p ScannerParseInclude(Scanner_p in, StrTree_p *name_selector);
 
 #endif
 

@@ -85,14 +85,19 @@ FILE* InputOpen(char *name, bool fail)
    
    if(name && strcmp(name,"-")!= 0)
    {
-      VERBOUTARG("Input file is ", name);
       
+      VERBOUTARG2("Trying file ", name);
       in = fopen(name, "r");
 
       if(fail && !in)
       {
          FileOpenErrorPrint(name);
       }
+      if(fail)
+      {
+         VERBOUTARG("Input file is ", name);
+      }
+
    }
    else
    {
@@ -249,7 +254,7 @@ void  FilePrint(FILE* out, char* name)
 // Function: FileNameDirName()
 //
 //   Given a path name, return the directory portion (i.e. the part
-//   from the first character to the last / character (not including
+//   from the first character to the last / character (including
 //   it). Return "" if no directory part exists. It is the users
 //   responsibility to FREE the memory returned.
 //
@@ -270,10 +275,10 @@ char* FileNameDirName(char* name)
    {
       if(name[i] == '/')
       {
-         endpos = i;
+         endpos = i+1;
       }
    }
-   res = SecureStrndup(name, endpos);      
+   res = SecureStrndup(name, endpos);
    
    return res;
 }

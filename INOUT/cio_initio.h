@@ -1,30 +1,33 @@
 /*-----------------------------------------------------------------------
 
-File  : cio_fileops.h
+File  : cio_initio.h
 
-Author: Stephan Schulz
+Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
  
-  Simple operations on files.
+  Rather trivial code for initializing all I/O related stuff once and
+  in one go.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 2005 by the author.
   This code is released under the GNU General Public Licence.
   See the file COPYING in the main CLIB directory for details.
   Run "eprover -h" for contact information.
 
 Changes
 
-<1> Wed Jul 28 12:43:28 MET DST 1999
+<1> Thu Mar 17 11:20:32 UYT 2005
     New
 
 -----------------------------------------------------------------------*/
 
-#ifndef CIO_FILEOPS
+#ifndef CIO_INITIO
 
-#define CIO_FILEOPS
+#define CIO_INITIO
 
-#include  <cio_output.h>
+#include <unistd.h>
+#include <cio_output.h>
+
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -37,17 +40,11 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+extern char* TPTP_dir;
 
-void FileOpenErrorPrint(char* name);
-FILE* InputOpen(char *name, bool fail);
-void  InputClose(FILE* file);
-long  ConcatFiles(char* target, char** sources);
-void  FileRemove(char* name);
-char* FileBaseName(char *file);
-void  FilePrint(FILE* out, char* name);
-#define FileNameIsAbsolute(name) ((name)[0]=='/')
-char* FileNameDirName(char* name);
-char* FileNameBaseName(char* name);
+void InitIO(char* progname);
+
+void ExitIO();
 
 #endif
 
