@@ -64,7 +64,7 @@ WFormula_p DefaultWFormulaAlloc()
    
    handle->properties = FPIgnoreProps; 
    handle->ident      = 0;
-   handle->ext_ident  = NULL;
+   handle->info       = NULL;
    handle->formula    = 0;
    handle->set        = NULL;
    handle->pred       = NULL;
@@ -91,7 +91,7 @@ WFormula_p WFormulaAlloc(Formula_p formula)
    WFormula_p handle = DefaultWFormulaAlloc();
    
    handle->formula = FormulaGetRef(formula);
-   handle->ident   = ++global_formula_counter;
+   handle->ident   = ++global_formula_counter;   
    
    return handle;
 }
@@ -119,10 +119,7 @@ void WFormulaFree(WFormula_p form)
    
    FormulaRelRef(form->formula);
    FormulaFree(form->formula);
-   if(form->ext_ident)
-   {
-      FREE(form->ext_ident);
-   }
+   ClauseInfoFree(form->info);
    WFormulaCellFree(form);
 }
 
@@ -145,10 +142,15 @@ WFormula_p WFormulaTPTPParse(Scanner_p in, TB_p terms)
    Formula_p          form;
    WFormulaProperties type;
    WFormula_p         handle;
-   
+   ClauseInfo_p       info;
+
+   info = ClauseInfoAlloc(NULL, DStrView(AktToken(in)->source), 
+                          AktToken(in)->line, 
+                          AktToken(in)->column); 
    AcceptInpId(in, "input_formula");
    AcceptInpTok(in, OpenBracket);  
    CheckInpTok(in, Name|PosInt);
+   info->name = DStrCopy(AktToken(in)->literal);
    name = DStrCopy(AktToken(in)->literal);
    NextToken(in);
    AcceptInpTok(in, Comma);
@@ -171,9 +173,9 @@ WFormula_p WFormulaTPTPParse(Scanner_p in, TB_p terms)
    AcceptInpTok(in, CloseBracket);
    AcceptInpTok(in, Fullstop);
    handle = WFormulaAlloc(form);
-   handle->ext_ident = name;
    FormulaSetType(handle, type);
    FormulaSetProp(handle, WPInitial|WPInputFormula);
+   handle->info = info;
 
    return handle;
 }
@@ -249,10 +251,16 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
    WFormulaProperties type = WPTypeAxiom;
    WFormulaProperties initial = WPInputFormula;
    WFormula_p         handle;
+   ClauseInfo_p       info;
+
+   info = ClauseInfoAlloc(NULL, DStrView(AktToken(in)->source), 
+                          AktToken(in)->line, 
+                          AktToken(in)->column); 
       
    AcceptInpId(in, "fof");
    AcceptInpTok(in, OpenBracket);
    CheckInpTok(in, Name|PosInt);
+   info->name = DStrCopy(AktToken(in)->literal);
    name = DStrCopy(AktToken(in)->literal);
    NextToken(in);
    AcceptInpTok(in, Comma);
@@ -299,9 +307,9 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
    AcceptInpTok(in, CloseBracket);
    AcceptInpTok(in, Fullstop);
    handle = WFormulaAlloc(form);
-   handle->ext_ident = name;
    FormulaSetType(handle, type);
    FormulaSetProp(handle, initial|WPInitial);
+   handle->info = info;
 
    return handle;
 }
@@ -325,7 +333,8 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
 void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
 		       bool complete)
 {
-   char *typename, *initial="";
+   char *typename = NULL;
+   char *derived = NULL; 
    char prefix;
    long id;
 
@@ -336,28 +345,27 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
          {
             typename = "axiom";
          }
-         else
-         {
-            typename = "plain";
-         }
-	 break;
+         break;
    case WPTypeHypothesis:
-	 typename = "hypothesis";
-	 break;      
+         typename = "hypothesis";
+         break;      
    case WPTypeConjecture:
-	 typename = "conjecture";
-	 break; 
+         typename = "conjecture";
+         break;
+   case WPTypeLemma:
+         typename = "lemma";
+         break; 
    case WPTypeAssumption:
-	 typename = "assumption";
-	 break;  
+         typename = "assumption";
+         break;
    default:
-	 typename = "unknown";
 	 break;
    }   
-   if(!FormulaQueryProp(form, WPInputFormula))
+   if(!FormulaQueryProp(form, CPInputClause))
    {
-      initial = "-derived";
+      derived = "derived";
    }
+
    if(form->ident < 0)
    {
       id = form->ident - LONG_MIN;
@@ -368,7 +376,9 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
       id = form->ident;
       prefix = 'c';
    }
-   fprintf(out, "fof(%c_0_%ld,%s%s,", prefix, id, typename, initial);
+   fprintf(out, "fof(%c_0_%ld,", prefix, id);
+   PrintDashedStatuses(out, typename, derived, "plain");
+   fprintf(out, ",");   
    FormulaTPTPPrint(out, form->formula,fullterms);
    if(complete)
    {

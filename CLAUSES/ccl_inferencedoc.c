@@ -179,7 +179,8 @@ static void print_initial(FILE* out, Clause_p clause, char* comment)
 	 break;
    case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
-	 fprintf(out, ", unknown");
+	 fprintf(out, ", ");
+         ClauseSourceInfoPrintTSTP(out, clause->info);
 	 tstp_print_end(out, comment, clause);
 	 break;
    default:
@@ -764,7 +765,8 @@ static void print_formula_initial(FILE* out, WFormula_p form, char* comment)
 	 break;
    case tstp_format:
 	 WFormulaTSTPPrint(out, form, PCLFullTerms, false);
-	 fprintf(out, ", unknown");
+	 fprintf(out, ", ");
+         ClauseSourceInfoPrintTSTP(out, form->info);
 	 tstp_formula_print_end(out, comment);
 	 break;
    default:

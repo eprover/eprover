@@ -67,6 +67,8 @@ ClauseInfo_p ClauseInfoAlloc(char* name, char* source,
 {
    ClauseInfo_p handle = ClauseInfoCellAlloc();
 
+   handle->name = NULL;
+   handle->source = NULL;
    if(name)
    {
       handle->name = SecureStrdup(name);

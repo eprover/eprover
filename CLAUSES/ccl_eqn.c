@@ -40,30 +40,6 @@ IOFormat OutputFormat =LOPFormat;
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
 
-/*-----------------------------------------------------------------------
-//
-// Function: tstptermprint()
-//
-//   Print a TSTP term - only difference is that $true becomes true. 
-//
-// Global Variables: -
-//
-// Side Effects    : Output
-//
-/----------------------------------------------------------------------*/
-
-void tstptermprint(FILE* out, TB_p bank, Term_p term, bool fullterms)
-{
-   if(TermIsTrueTerm(term))
-   {
-      fputs("true", out);
-   }
-   else
-   {
-      TBPrintTerm(out, bank, term, fullterms);
-   }
-}
-
 
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
@@ -254,105 +230,62 @@ static CompareResult compare_poseqn_negeqn(OCB_p ocb,
 
 /*-----------------------------------------------------------------------
 //
-// Function: eqn_base_parse()
+// MACRO:  BOOL_TERM_NORMALIZE()
 //
-//   Parse an equation and return two terms (via
-//   call-by-reference-variables) and a sign. 
+//   Internal, local maxro to simplify handling of $false.
 //
-// Global Variables: 
+// Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
-static bool eqn_base_parse(Scanner_p in, TB_p bank, Term_p *lref,
-			   Term_p *rref)
+#define BOOL_TERM_NORMALIZE(t) \
+if(t == bank->false_term)\
+{\
+   t =  bank->true_term;\
+   positive = !positive;\
+}\
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: eqn_parse_infix()
+//
+//   Parse a literal without external sign assuming that _all_
+//   equational literals are infix. Return sign. This is for TSTP
+//   syntax and E-LOP style.
+//
+// Global Variables: -
+//
+// Side Effects    : Input, memory management.
+//
+/----------------------------------------------------------------------*/
+
+static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
+                            Term_p *rref)
 {
    Term_p  lterm;
    Term_p  rterm;
    bool    positive = true;
    
-   if(ScannerGetFormat(in) == TPTPFormat)
+   lterm = TBTermParse(in, bank);
+   BOOL_TERM_NORMALIZE(lterm);
+   if(TestInpTok(in, Exclamation | EqualSign))
    {
-      CheckInpTok(in, Plus|Hyphen);
-      if(TestInpTok(in, Hyphen))
+      if(TestInpTok(in, Exclamation))
       {
-	 positive = false;
-	 NextToken(in);
-	 AcceptInpTokNoSkip(in, Hyphen);
+         NextToken(in);
+         positive = !positive;
+         CheckInpTokNoSkip(in, EqualSign);
       }
-      else
-      {
-	 NextToken(in);	       
-	 AcceptInpTokNoSkip(in, Plus);
-      }
+      AcceptInpTok(in, EqualSign);	 
+      rterm = TBTermParse(in, bank);
+      BOOL_TERM_NORMALIZE(rterm);
    }
    else
    {
-      if(TestInpTok(in, TildeSign))
-      {
-	 NextToken(in);
-	 positive = false;
-      }
-   }
-   if(!TestInpId(in, EQUAL_PREDICATE))
-   {
-      if((ScannerGetFormat(in) == TSTPFormat) && TestInpId(in, "true"))
-      {
-	 NextToken(in);	 
-	 lterm = bank->true_term;
-      }
-      else if((ScannerGetFormat(in) == TSTPFormat) && TestInpId(in, "false"))
-      {
-	 NextToken(in);	 
-	 lterm = bank->true_term;
-	 positive = !positive;
-      }
-      else
-      {
-	 lterm = TBTermParse(in, bank);
-      }
-      if(TestInpTok(in, Exclamation | EqualSign))
-      {
-	 if(!positive)
-	 {
-	    Warning("Negation sign ('~' or '--') used in infix equational literal");
-	 }
-	 if(TestInpTok(in, Exclamation))
-	 {
-	    NextToken(in);
-	    positive = !positive;
-	 }
-	 AcceptInpTok(in, EqualSign);	 
-         /* We disallow => in equations now to avoid trouble with =>
-            used for implications! It was never used anyways.
-	 if(TestInpTok(in, GreaterSign)) 
-	 {
-	    AcceptInpTokNoSkip(in, GreaterSign);
-            } */
-	 rterm = TBTermParse(in, bank);
-      }
-      else
-      {
-	 rterm = bank->true_term; /* Non-Equational literal */
-      }
-   }
-   else
-   {
-      if(TestInpId(in, EQUAL_PREDICATE))
-      {	 
-	 NextToken(in);
-	 AcceptInpTok(in, OpenBracket);
-	 lterm = TBTermParse(in, bank);
-	 AcceptInpTok(in, Comma);
-	 rterm = TBTermParse(in, bank);
-	 AcceptInpTok(in, CloseBracket);
-      }
-      else
-      {
-	 lterm = TBTermParse(in, bank);
-	 rterm = bank->true_term; /* Non-Equational literal */
-      }
+      rterm = bank->true_term; /* Non-Equational literal */
    }
    if(rterm == bank->true_term)
    {
@@ -371,6 +304,160 @@ static bool eqn_base_parse(Scanner_p in, TB_p bank, Term_p *lref,
 }
 
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: eqn_parse_prefix()
+//
+//   Parse a literal without external sign assuming that _all_
+//   equational literals are prefix. Return sign. This is for TPTP
+//   format and old-style LOP.
+//
+// Global Variables: -
+//
+// Side Effects    : Input, memory management.
+//
+/----------------------------------------------------------------------*/
+
+static bool eqn_parse_prefix(Scanner_p in, TB_p bank, Term_p *lref,
+			   Term_p *rref)
+{
+   Term_p  lterm;
+   Term_p  rterm;
+   bool    positive = true;
+
+   
+
+   if(TestInpId(in, EQUAL_PREDICATE))
+   {
+      NextToken(in);
+      AcceptInpTok(in, OpenBracket);	       
+      lterm = TBTermParse(in, bank);
+      BOOL_TERM_NORMALIZE(lterm);
+      AcceptInpTok(in, Comma);	 
+      rterm = TBTermParse(in, bank);
+      BOOL_TERM_NORMALIZE(rterm);
+      AcceptInpTok(in, CloseBracket);	       
+   }
+   else
+   {
+      lterm = TBTermParse(in, bank);
+      BOOL_TERM_NORMALIZE(lterm);
+      rterm = bank->true_term; /* Non-Equational literal */
+   }
+   if(rterm == bank->true_term)
+   {
+      if(TermIsVar(lterm))
+      {
+	 AktTokenError(in, "Individual variable "
+		       "used at predicate position", false); 
+	 
+      }
+      SigSetPredicate(bank->sig, lterm->f_code, true);
+   }
+   *lref = lterm;
+   *rref = rterm;
+   
+   return positive;   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: eqn_parse_mixfix()
+//
+//   Parse a literal without external sign, allowing both infix and
+//   prefix notations (this is for mixed LOP).
+//
+// Global Variables: -
+//
+// Side Effects    : Input, memory management.
+//
+/----------------------------------------------------------------------*/
+
+static bool eqn_parse_mixfix(Scanner_p in, TB_p bank, Term_p *lref,
+			   Term_p *rref)
+{
+   if(TestInpId(in, EQUAL_PREDICATE))
+   {
+      return eqn_parse_prefix(in, bank, lref, rref);
+   }
+   return eqn_parse_infix(in, bank, lref, rref);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: eqn_parse_real()
+//
+//   Parse an equation with optional external sign and depending on
+//   wether FOF or CNF is being parsed.
+//
+// Global Variables: -
+//
+// Side Effects    : Input, memory management.
+//
+/----------------------------------------------------------------------*/
+
+
+bool eqn_parse_real(Scanner_p in, TB_p bank, Term_p *lref,
+                     Term_p *rref, bool fof)
+{
+   bool    positive = true;
+   bool    negate = false;
+   
+   switch(ScannerGetFormat(in))
+   {
+   case LOPFormat:
+         if(TestInpTok(in, TildeSign))
+         {
+            negate = true;
+            NextToken(in);
+         }
+         eqn_parse_mixfix(in, bank, lref, rref);            
+         break;
+   case TPTPFormat:
+         if(fof)
+         {
+            if(TestInpTok(in, TildeSign))
+            {
+               negate = true;
+               NextToken(in);
+            }
+         }
+         else
+         {
+            CheckInpTok(in, Plus|Hyphen);
+            if(TestInpTok(in, Hyphen))
+            {
+               negate = true;
+               NextToken(in);
+               AcceptInpTokNoSkip(in, Hyphen);
+            }
+            else
+            {
+               NextToken(in);	       
+               AcceptInpTokNoSkip(in, Plus);
+            }
+         }
+         positive = eqn_parse_prefix(in, bank,  lref, rref);            
+         break;   
+   case TSTPFormat:
+         if(TestInpTok(in, TildeSign))
+         {
+            negate = true;
+            NextToken(in);
+         }
+         positive = eqn_parse_infix(in, bank,  lref, rref);            
+         break;
+   default:
+         assert(false && "Format not supported");
+   }
+   if(negate)
+   {
+      positive = !positive;
+   }
+   return positive;
+}
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -458,12 +545,8 @@ void EqnFree(Eqn_p junk)
 //
 // Function: EqnParse()
 //
-//   Parse an equation and return a pointer to the resulting cell. If
-//   EqnUseInfix is true, = and != (and =>, !=>) are used as infix
-//   operators, otherwise eq() and ~eq() are used. Non-equational
-//   literals are transformed into equational form. Note that
-//   EqnStrictEquationalRep is not enforced (it is only used for
-//   output). 
+//   Parse a CNF style equation according to the current input format
+//   and return a pointer to the resulting cell.
 //
 // Global Variables: EqnUseInfix
 //
@@ -473,12 +556,11 @@ void EqnFree(Eqn_p junk)
 
 Eqn_p EqnParse(Scanner_p in, TB_p bank)
 {
-   Term_p  lterm;
-   Term_p  rterm;
-   bool    positive;
-   Eqn_p   handle;
-   
-   positive = eqn_base_parse(in, bank, &lterm, &rterm);
+   bool positive;
+   Term_p lterm, rterm;
+   Eqn_p handle;
+
+   positive = eqn_parse_real(in, bank, &lterm, &rterm, false);
    handle = EqnAlloc(lterm, rterm, bank, positive);
 
    return handle;
@@ -489,10 +571,9 @@ Eqn_p EqnParse(Scanner_p in, TB_p bank)
 
 /*-----------------------------------------------------------------------
 //
-// Function: EqnTSTPParse()
+// Function: EqnFOFParse()
 //
-//   Parse a literal in TPTP FOF/TSTP format - the standard code
-//   becomes to complex for my taste.
+//   Parse a literal in FOF format (changes syntax for TPTP literals).
 //
 // Global Variables: -
 //
@@ -500,51 +581,16 @@ Eqn_p EqnParse(Scanner_p in, TB_p bank)
 //
 /----------------------------------------------------------------------*/
 
-Eqn_p EqnTSTPParse(Scanner_p in, TB_p bank)
+Eqn_p EqnFOFParse(Scanner_p in, TB_p bank)
 {
-   Term_p  lterm;
-   Term_p  rterm;
-   bool    positive = true; /* Just needed for "false" */
+   bool positive;
+   Term_p lterm, rterm;
+   Eqn_p handle;
 
-   if(!TestInpId(in, EQUAL_PREDICATE))
-   {
-      if(TestInpId(in, "true"))
-      {
-         NextToken(in);	 
-         lterm = bank->true_term;
-      }
-      else if(TestInpId(in, "false"))
-      {
-         NextToken(in);	 
-         lterm = bank->true_term;
-         positive = false;
-      }
-      else
-      {
-         lterm = TBTermParse(in, bank);      
-      }
-      rterm = bank->true_term; /* Non-Equational literal */
-   }
-   else
-   {
-      NextToken(in);
-      AcceptInpTok(in, OpenBracket);
-      lterm = TBTermParse(in, bank);
-      AcceptInpTok(in, Comma);
-      rterm = TBTermParse(in, bank);
-      AcceptInpTok(in, CloseBracket);
-   }
-   if(rterm == bank->true_term)
-   {
-      if(TermIsVar(lterm))
-      {
-	 AktTokenError(in, "Individual variable "
-		       "used at predicate position", false); 
-	 
-      }
-      SigSetPredicate(bank->sig, lterm->f_code, true);
-   }
-   return EqnAlloc(lterm, rterm, bank, positive);
+   positive = eqn_parse_real(in, bank, &lterm, &rterm, true);
+   handle = EqnAlloc(lterm, rterm, bank, positive);
+
+   return handle;
 }
 
 
@@ -599,7 +645,7 @@ Term_p EqnTermsTBTermEncode(TB_p bank, Term_p lterm, Term_p rterm, bool
 //   Parse an equation, encode it as a term bank term and return a
 //   pointer to it.
 //
-// Global Variables: EqnUseInfix
+// Global Variables: -
 //
 // Side Effects    : Input, memory management.
 //
@@ -611,7 +657,7 @@ Term_p EqnTBTermParse(Scanner_p in, TB_p bank)
    Term_p  rterm;
    bool    positive;
 
-   positive = eqn_base_parse(in, bank, &lterm, &rterm);
+   positive = eqn_parse_real(in, bank, &lterm, &rterm, false);
 
    return EqnTermsTBTermEncode(bank, lterm, rterm, positive,
 			       PENormal);
@@ -741,25 +787,23 @@ void EqnTSTPPrint(FILE* out, Eqn_p eq, bool fullterms)
 {
    if(EqnIsPropFalse(eq))
    {
-      fputs("false", out);
+      fputs("$false", out);
    }
    else 
    {
-      if(EqnIsNegative(eq))
-      {
-         fputc('~', out);
-      }
       if(EqnIsEquLit(eq))
-      {
-         fprintf(out, EQUAL_PREDICATE"(");
-         tstptermprint(out, eq->bank, eq->lterm, fullterms);
-         fprintf(out, ", ");
-         tstptermprint(out, eq->bank, eq->rterm, fullterms);
-         fputc(')', out);
+      {         
+         TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
+         fprintf(out, "%s", EqnIsNegative(eq)?"!=":"=");
+         TBPrintTerm(out, eq->bank, eq->rterm, fullterms);
       }
       else
       {
-         tstptermprint(out, eq->bank, eq->lterm, fullterms);
+         if(EqnIsNegative(eq))
+         {
+            fputc('~', out);
+         }
+         TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
       }
    }
 }

@@ -242,7 +242,7 @@ Formula_p elem_form_tptp_parse(Scanner_p in, TB_p terms)
    else 
    {
       Eqn_p lit;
-      lit = EqnTSTPParse(in, terms);
+      lit = EqnFOFParse(in, terms);
       res = FormulaLitAlloc(lit);
    }
    return res;

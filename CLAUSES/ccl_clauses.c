@@ -234,6 +234,7 @@ Clause_p EmptyClauseAlloc(void)
    handle->weight      = 0;
    handle->evaluations = NULL;
    handle->properties  = CPIgnoreProps;
+   handle->info        = NULL;
    handle->create_date = 0;
    handle->proof_depth = 0;
    handle->proof_size  = 0;
@@ -538,6 +539,7 @@ void ClauseFree(Clause_p junk)
    EvalListFree(junk->evaluations);
    EqnListFree(junk->literals);
    PTreeFree(junk->children);
+   ClauseInfoFree(junk->info);
    ClauseCellFree(junk);
 }
 
@@ -843,7 +845,8 @@ EqnSide ClauseIsEqDefinition(Clause_p clause, int min_arity)
 //   Create a semantically equivalent clause and return a pointer to
 //   it. Does not copy parents, children, etc. Terms in the original
 //   clause are interpreted as instantiated, and are created in or
-//   retrived from the new bank. Evaluations are not copied. 
+//   retrived from the new bank. Evaluations are not copied, and
+//   neither is info.
 //
 // Global Variables: -
 //
@@ -862,6 +865,7 @@ Clause_p ClauseCopy(Clause_p clause, TB_p bank)
    handle->evaluations = NULL;
    handle->set         = NULL;
    handle->properties  = clause->properties;
+   handle->info        = NULL;
    handle->create_date = clause->create_date;
    handle->proof_depth = clause->proof_depth;
    handle->proof_size  = clause->proof_size;
@@ -1206,7 +1210,7 @@ void ClauseTSTPCorePrint(FILE* out, Clause_p clause, bool fullterms)
    fputc('(', out);
    if(ClauseIsEmpty(clause))
    {
-      fprintf(out, "false");
+      fprintf(out, "$false");
    }
    else
    {
@@ -1232,7 +1236,8 @@ void ClauseTSTPCorePrint(FILE* out, Clause_p clause, bool fullterms)
 void ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms, bool complete)
 {
    int source;
-   char* typename;
+   char *typename = NULL;
+   char *derived = NULL; 
 
    switch(ClauseQueryTPTPType(clause))
    {
@@ -1241,10 +1246,6 @@ void ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms, bool complete)
          {
             typename = "axiom";
          }
-         else
-         {
-            typename = "plain";
-         } /* Ugly...do I really need this? */
          break;
    case CPTypeHypothesis:
          typename = "hypothesis";
@@ -1259,27 +1260,28 @@ void ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms, bool complete)
          typename = "assumption";
          break;
    default:
-	 typename = "";
 	 break;
    }   
    source = ClauseQueryCSSCPASource(clause);
+   if(!ClauseQueryProp(clause, CPInputClause))
+   {
+      derived = "derived";
+   }
 
    if(clause->ident >= 0)
    {
-      fprintf(out, "cnf(c_%d_%ld, %s%s,", 
+      fprintf(out, "cnf(c_%d_%ld,", 
 	      source, 
-	      clause->ident, 
-              typename,
-	      ClauseQueryProp(clause, CPInputClause)?"":"-derived");
+	      clause->ident);
    }
    else
    {
-      fprintf(out, "cnf(i_%d_%ld, %s%s,", 
+      fprintf(out, "cnf(i_%d_%ld,",
 	      source,
-	      clause->ident-LONG_MIN, 
-              typename,
-	      ClauseQueryProp(clause, CPInputClause)?"":"-derived");
-   }   
+	      clause->ident-LONG_MIN);
+   }
+   PrintDashedStatuses(out, typename, derived, "plain");
+   fprintf(out, ",");   
    ClauseTSTPCorePrint(out, clause, fullterms);
    if(complete)
    {
@@ -1388,6 +1390,7 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
    ClauseProperties input = CPInputClause;
    Clause_p handle;
    bool     conjecture = false;
+   ClauseInfo_p info;
 
    if(ClausesHaveLocalVariables)
    {
@@ -1397,10 +1400,13 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
    {
       VarBankClearExtNamesNoReset(bank->vars);
    }
+   info = ClauseInfoAlloc(NULL, DStrView(AktToken(in)->source),
+                          AktToken(in)->line, AktToken(in)->column); 
    if(ScannerGetFormat(in) == TPTPFormat)
    {      
       AcceptInpId(in, "input_clause");
       AcceptInpTok(in, OpenBracket);
+      info->name = DStrCopy(AktToken(in)->literal);
       AcceptInpTok(in, Name);
       AcceptInpTok(in, Comma);
       type = ClauseTypeParse(in, "axiom|hypothesis|conjecture|lemma|unknown");     
@@ -1414,6 +1420,7 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
    {
       AcceptInpId(in, "cnf");
       AcceptInpTok(in, OpenBracket);
+      info->name = DStrCopy(AktToken(in)->literal);
       AcceptInpTok(in, Name|PosInt);
       AcceptInpTok(in, Comma);
 
@@ -1520,6 +1527,7 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
    handle = ClauseAlloc(concl);
    ClauseSetTPTPType(handle, type);
    ClauseSetProp(handle, CPInitial|input);
+   handle->info = info;
    return handle;
 }
 

@@ -28,6 +28,7 @@ Changes
 
 #include <ccl_evaluations.h>
 #include <ccl_eqnlist.h>
+#include <ccl_clauseinfo.h>
 #include <clb_properties.h>
 
 /*---------------------------------------------------------------------*/
@@ -95,6 +96,8 @@ typedef struct clause_cell
    Eval_p                evaluations; /* List of evauations */
    ClauseProperties      properties;  /* Anything we want to note at
 					 the clause? */
+   ClauseInfo_p          info;        /* Currently about source in
+                                         input, NULL for dreived clauses */
    long                  create_date; /* At what iteration of the
 					 main loop has this
 					 clause been created? */

@@ -54,7 +54,7 @@ typedef struct wformula_cell
 { 
    WFormulaProperties    properties;
    long                  ident;
-   char                  *ext_ident;
+   ClauseInfo_p          info;
    Formula_p             formula;
    struct formula_set_cell* set;         /* Is the formula in a set? */
    struct wformula_cell* pred;        /* For fomula sets = doubly  */
