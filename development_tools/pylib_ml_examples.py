@@ -46,13 +46,13 @@ from __future__ import generators
 
 from types import *
 import string
+import random
 from UserList import UserList
 
 import pylib_basics
 import pylib_io
 import pylib_probabilities
 
-UnknownClass = "UnknownClass"
 
 def atofeatureval(str):
     """Try to convert a string to an integer or a float,
@@ -119,7 +119,7 @@ class ml_example:
         if len(tmp)==3:
             self.tclass = self.classadmin.insert(tmp[2])
         else:
-            self.tclass = UnknownClass
+            self.tclass = None
 
     def feature_no(self):
         """
@@ -130,7 +130,7 @@ class ml_example:
     def __repr__(self):
         features = string.join(map(str, self.features),",")
         res = self.id + " : " +features;
-        if self.tclass!=UnknownClass:
+        if self.tclass!=None:
             res+= " : "+self.classadmin.get_name(self.tclass)
         return res
 
@@ -145,7 +145,7 @@ class ml_example:
         Return target class of feature.
         """
         return self.tclass
-        
+    
 
 class ml_exampleset(UserList):
     """
@@ -161,7 +161,6 @@ class ml_exampleset(UserList):
         for i in data:
             self.append(i)        
         
-        
     def set_name(self, name):
         self.name = name
 
@@ -172,6 +171,10 @@ class ml_exampleset(UserList):
             self.feature_no = element.feature_no()
         UserList.append(self, element)
         self.init_precomputed()
+
+    def extend(self, l):
+        for i in l:
+            self.append(i)
 
     def init_precomputed(self):
         """
@@ -333,6 +336,75 @@ class ml_exampleset(UserList):
                                                  real_entropy,
                                                  real_entropy)
 
+    def random_split(self,n):
+        """
+        Randomly split the example set into n neary equal-sized subsets.
+        """
+        tmp = list(self)
+        random.shuffle(tmp)
+        res = []
+        for i in range(n):
+            res.append([])
+        count = 0
+        for i in tmp:
+            res[count].append(i)
+            count+=1
+            count = count % n
+        return res
+
+    def stratified_split(self,n):
+        """
+        Randomly split the example set into n neary equal-sized
+        subsets stratified for class.
+        """
+        def weird_cmp(ex1, ex2):
+            tmp = cmp(ex1.tclass_val(), ex2.tclass_val)
+            if tmp:
+                return tmp
+            return cmp(ex1.tmp, ex2.tmp)
+        
+        tmp = list(self)
+        random.shuffle(tmp)
+        count = 0
+        for i in tmp:
+            i.tmp = count
+            count += 1
+
+        tmp.sort(weird_cmp)        
+        res = []
+        for i in range(n):
+            res.append([])
+        count = 0
+        for i in tmp:
+            res[count].append(i)
+            count+=1
+            count = count % n
+        return res
+    
+
+    def crossval_sets(self,n, stratified=True):
+        """
+        Return a list of n tuples (training_set, test_set), so that
+        the union of both is the full set, the 10 test sets are
+        disjoint, and the union of the 10 test sets is the full set.
+        """
+        res = []
+        if stratified:
+            tmp = self.stratified_split(n)
+        else:
+            tmp = self.random_split(n)            
+        for i in range(len(tmp)):
+            train = ml_exampleset()
+            train.classadmin = self.classadmin 
+            for j in range(len(tmp)):
+                if j!=i:
+                    train.extend(tmp[j])
+            test =  ml_exampleset()
+            test.classadmin = self.classadmin
+            test.extend(tmp[i])
+            res.append((train, test))
+        return res
+
 def class_partitioner(example):
     return example.tclass_val()
     
@@ -409,9 +481,14 @@ class partition:
     def compute_entropies(self):
         if self.entropy != None:
             return
-        tmp = self.get_class_distributions()
-        (self.entropy, self.class_entropy, self.remainder_entropy) =\
-                       pylib_probabilities.compute_entropies(tmp)
+        if len(self.parts)==1: # Avoid rounding errors        
+            tmp = self.parts.values()[0].get_class_entropy()
+            (self.entropy, self.class_entropy, self.remainder_entropy) =\
+                           (0,tmp,tmp)
+        else:
+            tmp = self.get_class_distributions()
+            (self.entropy, self.class_entropy, self.remainder_entropy) =\
+                           pylib_probabilities.compute_entropies(tmp)
                 
     def get_class_entropy(self):
         """
@@ -685,8 +762,33 @@ class discrete_feature_partition(partition):
                                 examples.get_distinct_feature_values(feature),\
                                 examples.get_feature_values(feature))
         partition.__init__(self, examples)
-    
 
+
+class one_and_rest_partitioner(discrete_feature_partitioner):
+    """
+    Generate a functional object that will sort examples into two
+    classes based on wether a certain feature has a given value or
+    not.
+    """
+    def __init__(self, feature, value):
+        self.feature_no = feature
+        self.ctests = []
+        tmp = discrete_feature_else_test(feature, [value])
+        self.ctests.append(tmp)
+        tmp = discrete_feature_test(feature, [value])
+        self.ctests.append(tmp)
+
+class one_and_rest_partition(partition):
+    """
+    Generate a partion of a set of examples based on a binary outcome
+    feature test (feature = value or feature != value)
+    """
+    def __init__(self, examples, feature, value):
+        self.abstracter = one_and_rest_partitioner(feature, value)
+        partition.__init__(self, examples)
+
+    
+    
 def partition_generator(examples, feature, max_splits):
     """
     Generate sequence of partitions for the given feature. Tries to
@@ -696,7 +798,13 @@ def partition_generator(examples, feature, max_splits):
     if type == StringType:
         tmp = discrete_feature_partition(examples, feature)
         if not tmp.trivial():
-            yield tmp
+            yield tmp        
+        dvalues = examples.get_distinct_feature_values(feature)
+        if len(dvalues) > max_splits:
+            return
+        for i in dvalues:
+            yield one_and_rest_partition(examples, feature, i)        
+
         return
 
     values  = examples.get_feature_values(feature)
@@ -740,19 +848,20 @@ def partition_generator(examples, feature, max_splits):
 
     # Generate some weird splits:
     ws = [[0.1,0.9], [0.2,0.8], [0.1,0.5,0.1]]
-    for i in ws:
-        boundaries = prop_n_nary_split(dvalues, i)
-        if len(boundaries)>0:
-            part = scalar_feature_partition(examples, feature, boundaries)
-            yield part
-        boundaries = prop_n_nary_split(values, i)
-        if len(boundaries)>0:
-            part = scalar_feature_partition(examples, feature, boundaries)
-            yield part                
-        boundaries = prop_n_nary_rangesplit(dvalues, i)
-        if len(boundaries)>0:
-            part = scalar_feature_partition(examples, feature, boundaries)
-            yield part
+    if max_splits >= 3:
+        for i in ws:
+            boundaries = prop_n_nary_split(dvalues, i)
+            if len(boundaries)>0:
+                part = scalar_feature_partition(examples, feature, boundaries)
+                yield part
+            boundaries = prop_n_nary_split(values, i)
+            if len(boundaries)>0:
+                part = scalar_feature_partition(examples, feature, boundaries)
+                yield part                
+            boundaries = prop_n_nary_rangesplit(dvalues, i)
+            if len(boundaries)>0:
+                part = scalar_feature_partition(examples, feature, boundaries)
+                yield part
 
     # Generate some even weirder splits ;-)
     limit = min(6,max_splits)
@@ -811,25 +920,28 @@ def find_best_partition(examples,
     best_absinfgain = -1
     best_part       = None    
 
-    for i in range(0,examples.feature_no):        
-        (relinfgain, absinfgain, part) = \
-                     find_best_feature_partition(examples,
-                                                 compare_fun,
-                                                 i,
-                                                 10)
-        
-        print "# Evaluating feature %d: %1.6f, %1.6f "\
-              %(i,relinfgain, absinfgain),
-        if part:
-            print part.abstracter
-        else:
-            print "# No split possible, feature is homogenous:",
-            print examples.get_distinct_feature_values(i)
-        if compare_fun((relinfgain, absinfgain),
-                       (best_relinfgain,best_absinfgain)) > 0:
-            best_relinfgain = relinfgain
-            best_absinfgain = absinfgain
-            best_part = part                
+    if len(examples) > 1:
+        for i in range(0,examples.feature_no):        
+            (relinfgain, absinfgain, part) = \
+                         find_best_feature_partition(examples,
+                                                     compare_fun,
+                                                     i,
+                                                     max_splits)
+            if pylib_basics.verbose():
+                print "# Evaluating feature %d: %1.6f, %1.6f "\
+                      %(i,relinfgain, absinfgain),
+            if part:
+                if pylib_basics.verbose():
+                    print part.abstracter
+            else:
+                if pylib_basics.verbose():
+                    print "# No split possible, feature is homogenous:",
+                    print examples.get_distinct_feature_values(i)
+            if compare_fun((relinfgain, absinfgain),
+                           (best_relinfgain,best_absinfgain)) > 0:
+                best_relinfgain = relinfgain
+                best_absinfgain = absinfgain
+                best_part = part                
                 
     return  (best_relinfgain, best_absinfgain, best_part)
 

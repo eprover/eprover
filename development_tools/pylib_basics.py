@@ -55,6 +55,9 @@ LogE2              =  math.log(2)
 # Names for floating point infinity
 
 def compute_infinity():
+    """
+    Find a value that does not grow by squaring it (i.e. inf).
+    """
     base = 2.0
     cand = base*base
     for i in xrange(1,1000):
@@ -66,6 +69,18 @@ def compute_infinity():
 
 Infinity = compute_infinity()
 
+
+
+# Global variables:
+
+class Globals:
+    pass
+
+globals = Globals()
+globals.verbose = False
+
+def verbose():
+    return globals.verbose
 
 def sign(number):
     """
@@ -146,6 +161,29 @@ def sum(l):
     Return the sum of elements of l.
     """
     return reduce(lambda x,y:x+y, l, 0)
+
+def mean(l):
+    """
+    Return the mean of a list (of numbers, hopefully).
+    """
+    if l:
+        return float(sum(l))/len(l)
+    raise ValueError, "Cannot get the mean of an empty list!"
+
+def variance(l):
+    """
+    Compute the variance of a list of numbers.
+    """
+    m = mean(l)
+    sqdiffs = [(i-m)**2 for i in l]
+    res = sum(sqdiffs)/(len(l)-1)
+    return res
+
+def standard_deviation(l):
+    """
+    Return the standard deviation of a list of numbers.
+    """
+    return math.sqrt(variance(l))
 
 def rl_lex_compare(t1, t2):
     """
