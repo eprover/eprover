@@ -35,12 +35,12 @@ def flexclose(file):
     else:
         file.close()
 
-def check_argc(argmin,argv=sys.argv):
+def check_argc(argmin,argv=sys.argv[1:]):
     """
     Print if the required number of arguments has been given, print an
     error message, if not.
     """
-    if((len(argv)-1)<argmin):
+    if(len(argv)<argmin):
        if(argmin==1):
            sys.stderr.write("Usage: "+sys.argv[0]+" <arg>\n")
        elif(argmin==2):

@@ -49,21 +49,36 @@ import string
 import pylib_io
 import pylib_ml_examples
 import pylib_probabilities
+import pylib_dectrees
 
-pylib_io.check_argc(1)
+relgain_limit = 0.5
+options = pylib_io.get_options()
+for o in options:
+    if o[0:2] == "-g":
+        relgain_limit = float(o[2:])
+args    =  pylib_io.get_args()
+
+pylib_io.check_argc(1,args)
 
 set = pylib_ml_examples.ml_exampleset()
-set.parse(sys.argv[1])
+set.parse(args[0])
 
-cpart =  pylib_ml_examples.class_partition(set)
-apriori    = cpart.entropy()
+set.set_class_omega()
+tree = pylib_dectrees.decision_tree(set,relgain_limit)
+tree.printout()
 
-print "A-priori entropy:", apriori
-    
-for i in range(0,set.feature_no):
-    tmp = pylib_ml_examples.find_best_feature_partition(set, apriori, i, 10)
-    part = tmp[2]
-    rig  = tmp[0]
-    aig  = tmp[1]
-    print "Ig: %1.6f, %1.6f "%(rig, aig), part.abstracter
+if len(args) == 1:
+    (succ, count) = tree.classify_set(set)
+    print "Successes: %d out of %d, %f%%"% (succ, count, float(succ)/count*100)
+else:
+    testset = pylib_ml_examples.ml_exampleset()
+    testset.parse(args[1])
+    (succ, count) = tree.classify_set(testset)
+    print "Successes: %d out of %d, %f%%"% (succ, count, float(succ)/count*100)
 
+#tree.printout()
+
+#tmp = pylib_ml_examples.find_best_partition(set, 10)
+
+#print "Best partion: %1.6f, %1.6f "\
+#              %(tmp[0], tmp[1]), tmp[2].abstracter

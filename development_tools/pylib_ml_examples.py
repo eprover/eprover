@@ -151,12 +151,14 @@ class ml_exampleset(UserList):
     """
     def __init__(self, data=[]):
         UserList.__init__(self)
-        self.feature_no = None
-        self.name       = None
+        self.feature_no  = None
+        self.name        = None
+        self.class_omega = None
         self.init_precomputed()
         for i in data:
-            self.append(i)
-
+            self.append(i)        
+        
+        
     def set_name(self, name):
         self.name = name
 
@@ -179,7 +181,6 @@ class ml_exampleset(UserList):
         self.feature_range   = None
         self.class_values    = None
         self.class_dvalues   = None
-
 
     def get_feature_type(self, feature):
         """
@@ -263,6 +264,30 @@ class ml_exampleset(UserList):
         if self.class_dvalues == None:
             self.class_dvalues = pylib_basics.uniq(self.get_class_values())
         return self.class_dvalues     
+
+    def get_class_number(self):
+        """
+        Return the number of distinct classes.
+        """
+        return len(self.get_distinct_class_values())
+
+    def get_class_omega(self):
+        """
+        Return the number of possible classes for classification.
+        """
+        if self.class_omega == None:
+            self.class_omega = self.get_class_number()
+            print "# Warning: Estimating class omega!"
+        return self.class_omega
+
+    def set_class_omega(self, new_omega=None):
+        """
+        Set the size of the set of possible classes.
+        """
+        if new_omega == None:
+            self.class_omega = self.get_class_number()
+        else:
+            self.class_omega = new_omega
     
     def parse(self, file):
         f = pylib_io.flexopen(file,'r')
@@ -289,15 +314,35 @@ class ml_exampleset(UserList):
         tmppart.insert_set(self)
         return tmppart.abs_freq_vector()
 
+    def most_frequent_class(self):
+        """
+        Find the most frequent class of examples in the set and return
+        it (and its relative frequency). 
+        """
+        classes = self.get_distinct_class_values()
+        class_occ =  self.get_class_values()
+        class_freq = [(class_occ.count(cl),cl) for cl in classes]
+        class_freq.sort()
+        abs_freq, mf_class = class_freq[-1]
+        rel_freq = float(abs_freq)/len(class_occ)
+        return (mf_class, rel_freq)
+
     def class_freq_vector(self):
         """
         Return a vector of absolute class frequencies.
         """
-        classes   = self.get_distinct_class_values()
         class_occ = self.get_class_values()
-        res = map(lambda x,l=class_occ:l.count(x), classes)
-        # print res
+        res = pylib_basics.element_seq_count(class_occ)
+        res.extend([0]*(self.get_class_omega()-len(res)))
+        # print res, len(res)
         return res
+
+    def class_entropy(self):
+        """
+        Return the entropy of the class distribution in the set.
+        """
+        return pylib_probabilities.compute_entropy(self.class_freq_vector(),
+                                                   pylib_probabilities.rel_frequency)
 
 
 def class_partitioner(example):
@@ -317,7 +362,10 @@ class partition:
     def empty(self):
         return len(self.parts)==0
 
-    def insert(self, example):
+    def trivial(self):
+        return len(self.parts)<=1
+
+    def insert(self, example, omega_size=None):
         """
         Insert a single example.
         """
@@ -326,6 +374,7 @@ class partition:
             self.parts[part].append(example)
         except KeyError:
             tmp = ml_exampleset()
+            tmp.set_class_omega(omega_size)
             tmp.set_name(part)
             tmp.append(example)
             self.parts[part] = tmp     
@@ -333,9 +382,11 @@ class partition:
     def insert_set(self, examples):
         """
         Insert a whole set of examples.
-        """
+        """        
+        if isinstance(examples, ml_exampleset):
+            omega_size = examples.get_class_omega()
         for i in examples:
-            self.insert(i)
+            self.insert(i, omega_size)
                 
     def abstracter(self, example):
         """
@@ -354,28 +405,15 @@ class partition:
     def abs_freq_vector(self):
         return pylib_probabilities.abs_freq_vector(self.parts)
 
-    def entropy(self):
+    def entropy(self, omega_size = None):
+        if omega_size == None:
+            omega_size = len(self.parts)
         af = self.abs_freq_vector()
-        return pylib_probabilities.compute_entropy(af)
+        return pylib_probabilities.compute_entropy(af,
+                                   pylib_probabilities.rel_frequency)
 
-    def remainder_entropy(self, abstracter=class_partitioner):
-        """
-        Compute the remainder entropy of performaning the
-        abstracter-defined split after the partition.
-        """
-        # Weird, but the general function is faster than this hack...
-        #if abstracter==class_partitioner:
-        #    return self.remainder_entropy_class()
-        distrib = []
-        for i in self.parts.keys():
-            tmppart = partition()
-            tmppart.abstracter = abstracter
-            tmppart.insert_set(self.parts[i])
-            distrib.append(tmppart.abs_freq_vector())
-        res = pylib_probabilities.remainder_entropy(distrib)        
-        return res
-    
-    def remainder_entropy_class(self):
+
+    def remainder_entropy_class(self, class_omega):
         """
         Compute the remainder entropy of performing the target class
         split after the partition. This is hopefully faster for the
@@ -384,7 +422,8 @@ class partition:
         distrib = []
         for i in self.parts.keys():
             distrib.append(self.parts[i].class_freq_vector())
-        return pylib_probabilities.remainder_entropy(distrib)
+        return pylib_probabilities.remainder_entropy(distrib,
+                                    pylib_probabilities.rel_frequency)
 
 
 class scalar_feature_test:
@@ -392,16 +431,15 @@ class scalar_feature_test:
     Callable object representing a single interval constraint on a
     scalar variable. It returns True for values with lb <= val < ub.
     """
-    def __init__(self, lower_bound, upper_bound):
+    def __init__(self, feature, lower_bound, upper_bound):
         assert not lower_bound or not upper_bound or lower_bound <= upper_bound
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
-        self.name = "X"
+        self.feature = feature
+        self.name = "feature["+repr(feature)+"]"
 
-    def set_name(self, name):
-        self.name = name
-
-    def __call__(self, value):
+    def __call__(self, example):
+        value = example.feature_val(self.feature)
         if self.lower_bound==None:
             lb = True
         else:
@@ -430,25 +468,21 @@ class scalar_feature_partitioner(partition):
         tmpname = "feature["+repr(self.feature_no)+"]"
         if len(limits)==0:
             tmp = scalar_feature_test(None, None)
-            tmp.set_name(tmpname)
             self.features = [tmp]
         else:
             lb = None
             self.features = []
             for i in limits:
-                tmp = scalar_feature_test(lb,i)
-                tmp.set_name(tmpname)
+                tmp = scalar_feature_test(feature,lb,i)
                 self.features.append(tmp)
                 lb = i
-            tmp = scalar_feature_test(lb, None)
-            tmp.set_name(tmpname)
+            tmp = scalar_feature_test(feature,lb, None)
             self.features.append(tmp)
 
     def __call__(self, example):
-        tmp = example.feature_val(self.feature_no)
         for i in self.features:
-            if i(tmp):
-                return repr(i)
+            if i(example):
+                return i
         assert False, "Not a partition!"
 
     def __repr__(self):
@@ -558,15 +592,14 @@ def first_n_and_rest_split(dfeature_values, n):
 
 
 class discrete_feature_test:
-    def __init__(self, set=[]):
+    def __init__(self, feature, set=[]):
         self.set = set
-        self.name = "X"
+        self.feature = feature
+        self.name = "feature["+repr(feature)+"]"
         self.positive = True
 
-    def set_name(self, name):
-        self.name = name
-
-    def __call__(self, value):
+    def __call__(self, example):
+        value = example.feature_val(self.feature)
         return value in self.set
 
     def __repr__(self):
@@ -574,11 +607,12 @@ class discrete_feature_test:
         return res
 
 class discrete_feature_else_test(discrete_feature_test):
-    def __init__(self, set=[]):
-        discrete_feature_test.__init__(self,set)
+    def __init__(self, feature, set=[]):
+        discrete_feature_test.__init__(self,feature,set)
         self.positive = False
 
-    def __call__(self, value):
+    def __call__(self, example):
+        value = example.feature_val(self.feature)
         return not(value in self.set)
 
     def __repr__(self):
@@ -607,19 +641,16 @@ class discrete_feature_partitioner:
         self.ctests = []
         for i in values:
             if i==most_freq:
-                tmp = discrete_feature_else_test(else_set)
-                tmp.set_name("feature["+repr(feature)+"]")
+                tmp = discrete_feature_else_test(feature,else_set)
                 self.ctests.append(tmp)
             else:
-                tmp = discrete_feature_test([i])
-                tmp.set_name("feature["+repr(feature)+"]")
+                tmp = discrete_feature_test(feature,[i])
                 self.ctests.append(tmp)
             
     def __call__(self, example):
-        tmp = example.feature_val(self.feature_no)
         for i in self.ctests:
-            if i(tmp):
-                return repr(i)
+            if i(example):
+                return i
         assert False, "Not a partition!"
 
     def __repr__(self):
@@ -652,7 +683,9 @@ def partition_generator(examples, feature, max_splits):
     """    
     type = examples.get_feature_type(feature)
     if type == StringType:
-        yield discrete_feature_partition(examples, feature)
+        tmp = discrete_feature_partition(examples, feature)
+        if not tmp.trivial():
+            yield tmp
         return
 
     values  = examples.get_feature_values(feature)
@@ -720,7 +753,15 @@ def partition_generator(examples, feature, max_splits):
         
     return
 
-def find_best_feature_partition(examples, a_priory_entropy, feature, max_splits):
+def find_best_feature_partition(examples,
+                                a_priori_entropy,
+                                feature,
+                                max_splits):
+    assert isinstance(examples, ml_exampleset)
+    assert type(a_priori_entropy) == FloatType
+    assert type(feature) == IntType
+    assert type(max_splits) == IntType
+
     best_relinfgain = -1
     best_absinfgain = -1
     best_part       = None
@@ -729,9 +770,13 @@ def find_best_feature_partition(examples, a_priory_entropy, feature, max_splits)
         try:
             part       = part_gen.next()
             cost       = part.entropy()
-            remainder  = part.remainder_entropy()
-            absinfgain = a_priory_entropy-remainder
-            relinfgain = pylib_probabilities.rel_info_gain(a_priory_entropy,remainder,cost)
+            remainder  = part.remainder_entropy_class(examples.get_class_omega())
+            #print remainder
+            #print a_priori_entropy
+            absinfgain = a_priori_entropy-remainder
+            relinfgain = pylib_probabilities.rel_info_gain(a_priori_entropy,
+                                                           remainder,
+                                                           cost)
             if relinfgain> best_relinfgain or \
                relinfgain == best_relinfgain and absinfgain>best_absinfgain:
                 best_relinfgain = relinfgain
@@ -744,7 +789,35 @@ def find_best_feature_partition(examples, a_priory_entropy, feature, max_splits)
 
 
 
+def find_best_partition(examples,
+                        max_splits):
+    assert type(max_splits == IntType)
+    apriori         = examples.class_entropy()
+    best_relinfgain = -1
+    best_absinfgain = -1
+    best_part       = None    
 
-
-
+    print "A-Priori class entropy:",apriori
+    if apriori != 0:
+        for i in range(0,examples.feature_no):
+            (relinfgain, absinfgain, part) = \
+                         find_best_feature_partition(examples,
+                                                     apriori,
+                                                     i,
+                                                     10)
+            
+            print "# Evaluating feature %d: %1.6f, %1.6f "\
+                  %(i,relinfgain, absinfgain),
+            if part:
+                print part.abstracter
+            else:
+                print "# No split possible, feature is homogenous:",
+                print examples.get_distinct_feature_values(i)
+            if relinfgain> best_relinfgain or \
+               relinfgain == best_relinfgain and absinfgain>best_absinfgain:
+                best_relinfgain = relinfgain
+                best_absinfgain = absinfgain
+                best_part = part                
+    
+    return  (best_relinfgain, best_absinfgain, best_part)
 

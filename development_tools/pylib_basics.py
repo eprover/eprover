@@ -112,7 +112,7 @@ def is_sorted(l, cmpfun = cmp):
 
 def uniq(l):
     """
-    Create a new list by replacing sublists containing the same elemen
+    Create a new list by replacing sublists containing the same element
     in l  with a single copy of the element. Not very efficient, but
     quite Pythonic. I think.
     """
@@ -128,6 +128,28 @@ def uniq(l):
         except IndexError:
             break
     return nl
+
+
+def element_seq_count(l):
+    """
+    As uniq, but return a list of the length of the subsequences with
+    the same element.
+    """
+    if len(l) == 0:
+        return []
+    nl = []
+    init = l[0]
+    count = 1
+    for i in l[1:]:
+        if i==init:
+            count +=1
+        else:
+            nl.append(count)
+            count = 1
+            init = i
+    nl.append(count)
+    return nl
+
 
 def sum(l):
     """
