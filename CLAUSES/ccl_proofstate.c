@@ -83,7 +83,6 @@ ProofState_p ProofStateAlloc(void)
    handle->demods[1]           = handle->processed_pos_eqns;
    handle->demods[2]           = NULL;
    handle->state_is_complete   = true;
-   /* handle->clause_count        = 0; */
    handle->processed_count     = 0;
    handle->proc_trivial_count           = 0; 
    handle->proc_forward_subsumed_count  = 0; 
@@ -96,6 +95,7 @@ ProofState_p ProofStateAlloc(void)
    handle->generated_count              = 0;
    handle->generated_lit_count          = 0;
    handle->non_trivial_generated_count  = 0;
+   handle->context_sr_count   = 0; 
    handle->paramod_count      = 0;
    handle->factor_count       = 0;
    handle->resolv_count       = 0;
@@ -213,6 +213,8 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
 	   state->backward_subsumed_count);
    fprintf(out, "# Backward-rewritten                   : %ld\n",
 	   state->backward_rewritten_count);
+   fprintf(out, "# Contextual simplify-reflections      : %ld\n",
+	   state->context_sr_count);
    fprintf(out, "# Generated clauses                    : %ld\n",
 	   state->generated_count - state->backward_rewritten_count);   
    fprintf(out, "# ...of the previous two non-trivial   : %ld\n",

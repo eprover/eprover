@@ -42,7 +42,8 @@ Changes
 //
 // Function: tuple_2_compare_2nd()
 //
-//   Compare 2 tuple-2 cells by value (and by pos, to make it stable).
+//   Compare 2 tuple-2 cells by value (and by pos, to make it
+//   anti-stable but reproducible).
 //
 // Global Variables: -
 //
@@ -60,11 +61,11 @@ int tuple_2_compare_2nd(Tuple2Cell *t1, Tuple2Cell *t2)
    {
       return 1;
    }
-   if(t1->pos < t2->pos)
+   if(t1->pos > t2->pos)
    {
       return -1;
    }
-   if(t1->pos > t2->pos)
+   if(t1->pos < t2->pos)
    {
       return 1;
    }   
@@ -202,13 +203,17 @@ FreqVector_p FreqVectorAlloc(long size)
 //
 /----------------------------------------------------------------------*/
 
-void FreqVectorFree(FreqVector_p junk)
+void FreqVectorFreeReal(FreqVector_p junk)
 {
    assert(junk);
 
    if(junk->array)
    {
       SizeFree(junk->array, sizeof(long)*junk->size);
+#ifndef NDEBUG
+      junk->array = NULL;
+      junk->clause = NULL;
+#endif
    }
    FreqVectorCellFree(junk);
 }
@@ -365,7 +370,7 @@ FreqVector_p OptimizedFreqVectorCompute(Clause_p clause,
 {
    FreqVector_p vec, res;
 
-   res = vec = StandardFreqVectorCompute(clause, sig_symbols);
+   vec = StandardFreqVectorCompute(clause, sig_symbols);
    if(perm)
    {
       long i;
@@ -377,8 +382,9 @@ FreqVector_p OptimizedFreqVectorCompute(Clause_p clause,
       }
       res->clause = clause;
       FreqVectorFree(vec);
-   }  
-   return res;
+      return res;
+   }
+   return vec;
 }
 
 
@@ -430,6 +436,9 @@ Clause_p FVUnpackClause(FVPackedClause_p pack)
 {
    Clause_p res = pack->clause;
 
+#ifndef NDEBUG
+   pack->clause = NULL;
+#endif
    FreqVectorFree(pack);
 
    return res;
@@ -438,7 +447,7 @@ Clause_p FVUnpackClause(FVPackedClause_p pack)
 
 /*-----------------------------------------------------------------------
 //
-// Function: FVPackedClauseFree()
+// Function: FVPackedClauseFreeReal()
 //
 //   Fully free a packed clause.
 //
@@ -448,7 +457,7 @@ Clause_p FVUnpackClause(FVPackedClause_p pack)
 //
 /----------------------------------------------------------------------*/
 
-void FVPackedClauseFree(FVPackedClause_p pack)
+void FVPackedClauseFreeReal(FVPackedClause_p pack)
 {
    if(pack->clause)
    {

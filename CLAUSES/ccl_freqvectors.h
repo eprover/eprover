@@ -79,7 +79,13 @@ PermVector_p PermVectorCompute(FreqVector_p fmax, FreqVector_p fmin,
         (((i)>((vec)->sig_symbols+NON_SIG_FEATURES-1)) && \
 	 ((i)<SigSizeToFreqVectorSize((vec)->sig_symbols)))
 FreqVector_p FreqVectorAlloc(long size);
-void         FreqVectorFree(FreqVector_p junk);
+
+void         FreqVectorFreeReal(FreqVector_p junk);
+#ifndef NDEBUG
+#define FreqVectorFree(junk) FreqVectorFreeReal(junk);junk=NULL
+#else
+#define FreqVectorFree(junk) FreqVectorFreeReal(junk)
+#endif
 
 void         FreqVectorInitialize(FreqVector_p vec, long value);
 
@@ -94,7 +100,14 @@ FreqVector_p     OptimizedFreqVectorCompute(Clause_p clause,
 FVPackedClause_p FVPackClause(Clause_p clause, PermVector_p perm, 
 			      long symbol_limit);
 Clause_p         FVUnpackClause(FVPackedClause_p pack);
-void             FVPackedClauseFree(FVPackedClause_p pack);
+
+void             FVPackedClauseFreeReal(FVPackedClause_p pack);
+#ifndef NDEBUG
+#define FVPackedClauseFree(junk) FVPackedClauseFreeReal(junk);junk=NULL
+#else
+#define FVPackedClauseFree(junk) FVPackedClauseFreeReal(junk)
+#endif
+
 
 void FreqVectorAdd(FreqVector_p dest, FreqVector_p s1, FreqVector_p s2);
 void FreqVectorMulAdd(FreqVector_p dest, FreqVector_p s1, long f1, 

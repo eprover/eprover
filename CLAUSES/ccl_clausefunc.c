@@ -90,7 +90,36 @@ void ClauseRemoveLiteral(Clause_p clause, Eqn_p *lit)
    {
       clause->set->literals--;
    }
+   clause->weight -= EqnStandardWeight(handle);
    EqnListDeleteElement(lit);   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseFlipLiteralSign()
+//
+//   Change the sign of lit, adjusting counters as necessary.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes clause.
+//
+/----------------------------------------------------------------------*/
+
+void ClauseFlipLiteralSign(Clause_p clause, Eqn_p lit)
+{
+   if(EqnIsPositive(lit))
+   {
+      clause->pos_lit_no--;
+      clause->neg_lit_no++;
+   }
+   else
+   {
+      clause->neg_lit_no--;
+      clause->pos_lit_no++;
+   }
+   EqnFlipProp(lit, EPIsPositive);
 }
 
 

@@ -32,7 +32,7 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-#define FVINDEX_MAX_FEATURES_DEFAULT 100
+#define FVINDEX_MAX_FEATURES_DEFAULT 150
 
 typedef struct fvindex_parms_cell
 {

@@ -66,6 +66,7 @@ typedef struct proofstatecell
    ulong_c           generated_count;
    ulong_c           generated_lit_count;
    ulong_c           non_trivial_generated_count;
+   ulong_c           context_sr_count;
    ulong_c           paramod_count;
    ulong_c           factor_count;
    ulong_c           resolv_count;   

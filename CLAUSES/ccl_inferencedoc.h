@@ -43,6 +43,7 @@ typedef enum
    inf_eres,
    inf_split,
    inf_simplify_reflect,
+   inf_context_simplify_reflect,
    inf_ac_resolution,
    inf_minimize,
    inf_rewrite
@@ -64,6 +65,7 @@ typedef enum
 #define PCL_SPLIT "split"
 #define PCL_RW    "rw"
 #define PCL_SR    "sr"
+#define PCL_CSR   "csr"
 #define PCL_ACRES "ar"
 #define PCL_CN    "cn"
 

@@ -39,7 +39,8 @@ CLAUSE_LIB = ccl_evaluations.o ccl_eqn.o ccl_eqnlist.o ccl_clauses.o\
              ccl_fcvindexing.o ccl_clausesets.o ccl_unfold_defs.o\
              ccl_clausefunc.o ccl_groundconstr.o ccl_grounding.o ccl_g_lithash.o \
              ccl_inferencedoc.o ccl_paramod.o ccl_factor.o ccl_eqnresolution.o\
-             ccl_rewrite.o ccl_unit_simplify.o ccl_subsumption.o ccl_splitting.o\
+             ccl_rewrite.o ccl_unit_simplify.o ccl_subsumption.o ccl_context_sr.o \
+             ccl_splitting.o\
              ccl_proofstate.o
 
 $(LIB): $(CLAUSE_LIB)

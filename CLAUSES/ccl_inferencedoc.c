@@ -285,6 +285,35 @@ static void print_simplify_reflect(FILE* out, Clause_p clause, long
    }   
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: print_context_simplify_reflect()
+//
+//   Print a clause modification by contextual simplify-reflect.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+static void print_context_simplify_reflect(FILE* out, Clause_p clause, long
+				   old_id, Clause_p partner, char* comment)
+{
+   switch(OutputFormat)
+   {
+   case pcl_format:
+	 pcl_print_start(out, clause);
+	 fprintf(out, PCL_CSR"(%ld,%ld)", old_id,
+		 partner->ident);
+	 pcl_print_end(out, comment);
+	 break;
+   default:
+	 fprintf(out, "# Output format not implemented.\n");
+	 break;
+   }   
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -542,6 +571,13 @@ void DocClauseModification(FILE* out, long level, Clause_p clause, InfType
 	    assert(partner);
 	    clause->ident = ++ClauseIdentCounter;
 	    print_simplify_reflect(out, clause, old_id, partner,
+				   comment);
+	    break;
+      case inf_context_simplify_reflect:
+	    assert(clause);
+	    assert(partner);
+	    clause->ident = ++ClauseIdentCounter;
+	    print_context_simplify_reflect(out, clause, old_id, partner,
 				   comment);
 	    break;
       case inf_ac_resolution:
