@@ -362,6 +362,7 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
       {
 	 ClauseRemoveACResolved(handle);
       }
+      ClauseSubsumeOrderSortLits(handle);
       ClauseSetIndexedInsertClause(state->watchlist, handle);
    }   
    ClauseSetFree(tmp_set);

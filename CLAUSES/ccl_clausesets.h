@@ -108,6 +108,8 @@ long        ClauseSetGetSharedTermNodes(ClauseSet_p set);
 
 long        ClauseSetParseList(Scanner_p in, ClauseSet_p set, TB_p bank);
 void        ClauseSetMarkMaximalTerms(OCB_p ocb, ClauseSet_p set);
+void        ClauseSetSortLiterals(ClauseSet_p set, ComparisonFunctionType cmp_fun);
+
 SysDate     ClauseSetListGetMaxDate(ClauseSet_p *demodulators, int
 				    limit);
 Clause_p    ClauseSetFind(ClauseSet_p set, Clause_p clause);

@@ -32,8 +32,8 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-/*  cvs tag E-0-82dev038 */
-#define VERSION      "0.82dev038"
+/*  cvs tag E-0-82dev039 */
+#define VERSION      "0.82dev039"
 #define NAME         "eprover"
 
 #define NICKNAME     "Lung Ching"
@@ -1087,6 +1087,7 @@ int main(int argc, char* argv[])
       }       
       ClauseSetSetProp(proofstate->watchlist, CPWatchOnly);
       ClauseSetDocInital(GlobalOut, OutputLevel, proofstate->watchlist);
+      ClauseSetSortLiterals(proofstate->watchlist, EqnSubsumeInverseCompareRef);
    }
    
    parsed_clause_no = proofstate->axioms->members;

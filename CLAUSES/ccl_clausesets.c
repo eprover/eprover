@@ -1178,6 +1178,29 @@ void ClauseSetMarkMaximalTerms(OCB_p ocb, ClauseSet_p set)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetSortLiterals()
+//
+//   Sort literals in all clauses by cmp_fun.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+void ClauseSetSortLiterals(ClauseSet_p set, ComparisonFunctionType cmp_fun)
+{
+   Clause_p handle;
+
+   for(handle = set->anchor->succ; handle!=set->anchor; handle =
+	  handle->succ)
+   {
+      ClauseSortLiterals(handle, cmp_fun);
+   }
+}
+
 
 /*-----------------------------------------------------------------------
 //
