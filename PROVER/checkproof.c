@@ -328,7 +328,7 @@ If a proof protocol fails to pass this test, the proof may still be\n\
 correct. Due to e.g. incomplete strategies (this applies in particular\n\
 to Otter), build-in limits (Otter), and bugs in the prover (potentially\n\
 all systems, but observed in SPASS 0.55), a prover might fail to\n\
-verify a correct step. Moreover, due to the different stratgies,\n\
+verify a correct step. Moreover, due to the different strategies,\n\
 calculi, and in particular different term orderings chosen by the\n\
 systems, a single UPCL2 inference may result in a proof problem that\n\
 is very hard to verify for other provers. However, if a proof step is\n\
@@ -337,13 +337,13 @@ step in detail.\n\
 \n");
    PrintOptions(stdout, opts);
    fprintf(out, "\n\
-Copyright 1998-2000 by Stephan Schulz, schulz@informatik.tu-muenchen.de\n\
+Copyright 1998-2003 by Stephan Schulz, " STS_MAIL "\n\
 \n\
 This program is a part of the support structure for the E equational\n\
 theorem prover. You can find the latest version of the E distribution\n\
-as well as additional information at\n\
-http://wwwjessen.informatik.tu-muenchen.de/~schulz/WORK/eprover.html.\n\
-\n\
+as well as additional information at\n"
+E_URL
+"\n\n\
 This program is free software; you can redistribute it and/or modify\n\
 it under the terms of the GNU General Public License as published by\n\
 the Free Software Foundation; either version 2 of the License, or\n\
@@ -361,14 +361,9 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330,\n\
 Boston, MA  02111-1307 USA\n\
 \n\
 The original copyright holder can be contacted as\n\
-\n\
-Stephan Schulz\n\
-Technische Universitaet Muenchen\n\
-Fakultaet fuer Informatik\n\
-Arcisstrasse 20\n\
-D-80290 Muenchen\n\
-Germany\n\
-");
+\n"
+STS_SNAIL
+"\n");
 
 }
 

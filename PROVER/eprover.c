@@ -609,10 +609,10 @@ OptCell opts[] =
     NoArg, NULL,
     "If input is TPTP format, use TPTP conjectures for initializing "
     "the Set of Support. If not in TPTP format, use E-LOP queries "
-    "(clauses of the form ?-L(X),...M(X)). Normaly, all negative "
+    "(clauses of the form ?-l(X),...,m(Y)). Normaly, all negative "
     "clauses are used. Please note that " 
-    "most E heuristics do not use this information at all, it is only "
-    "useful for certain parameter settings."},
+    "most E heuristics do not use this information at all, it is currently "
+    "only useful for certain parameter settings."},
 
    {OPT_ER_DESTRUCTIVE,
      '\0', "destructive-er",
@@ -1452,11 +1452,11 @@ Read a set of clauses and try to refute it.\n\
 \n");
    PrintOptions(stdout, opts);
    fprintf(out, "\n\
-Copyright 1998-2002 by Stephan Schulz, schulz@informatik.tu-muenchen.de\n\
+Copyright 1998-2003 by Stephan Schulz, " STS_MAIL "\n\
 \n\
-You can find the latest version of E and additional information at\n\
-http://www4.informatik.tu-muenchen.de/~schulz/WORK/eprover.html.\n\
-\n"
+You can find the latest version of E and additional information at\n"
+E_URL
+"\n\n"
 #ifdef SAFELOGIC
 "This version of E includes proprietary code of Safelogic A.B.,\n\
 Gothenburg, Sweden, and you are bound by the licensing conditions of\n\
@@ -1482,13 +1482,9 @@ Boston, MA  02111-1307 USA\n"
 #endif
 "\n\
 The original copyright holder can be contacted as\n\
-\n\
-Stephan Schulz\n\
-Technische Universitaet Muenchen\n\
-Fakultaet fuer Informatik\n\
-D-80290 Muenchen\n\
-Germany\n\
-");
+\n"
+STS_SNAIL
+"\n");
 
 }
 

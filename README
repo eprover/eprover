@@ -65,7 +65,7 @@ is very much like a game....
 
 At the moment CLIB is more suited for theorem provers and similar
 programs, and less useful for games. This will probably change as soon
-as the game potential of theorem provers is recognized ;-)
+as the game potential of theorem provers is recognized...
 
 CLIB is layered, with higher layers becoming more specialized. Lower
 levels take care of the scientifically uninteresting, but necessary
@@ -89,13 +89,13 @@ possibly come around versions sold or given to you under a different
 license, probably by Safelogic A.B. in Gothenburg, Sweden. Safelogic
 bought the right to distribute (and relicense) closed-source versions
 of E with proprietary modifications. If you are interested in their
-modifications, want a proprietary version with support, or want to
+modifications, want a proprietary version with supporCSt, or want to
 relicense a modified version under a non-GPL license, you can contact
 them at <johan.alfredsson@safelogic.se> or visit them on the web at
 http://www.safelogic.se.
 
 The E homepage can be found at
-http://wwwjessen.informatik.tu-muenchen.de/~schulz/WORK/eprover.html.
+http://www4.informatik.tu-muenchen.de/~schulz/WORK/eprover.html.
 
 
 Installation:
@@ -218,7 +218,7 @@ SIMPLE_APPS:
 PROVER:
 
   - The main program for the E prover, also contains some examples and
-    stuff.
+    stuff, as well as all the major support programs for E.
 
 SKELETONS:
 

@@ -1264,7 +1264,7 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
 	 }
 	 type = CPTypeConjecture;
 	 conjecture = true;
-	 printf("CPTypeConjecture\n");
+	 /* printf("CPTypeConjecture\n"); */
       }
       if(TestInpTok(in, Fullstop))
       {

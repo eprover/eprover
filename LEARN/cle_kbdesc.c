@@ -139,9 +139,7 @@ KBDesc_p KBDescParse(Scanner_p in)
    if(strcmp(handle->version, KB_VERSION) > 0)
    {
       Error("Knowledge base is younger than your tool set. Please"
-	    " update from"
-	    "http://wwwjessen.informatik.tu-muenchen.de/"
-	    "~schulz/WORK/eprover.html", USAGE_ERROR);
+	    " update from" E_URL, USAGE_ERROR);
    }
    NextToken(in);
    AcceptInpId(in, "NegProp");

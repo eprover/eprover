@@ -265,12 +265,11 @@ to overcome CLIB's input buffering.\n\
 \n");  
    PrintOptions(stdout, opts);
    fprintf(out, "\n\
-Copyright 1998-2000 by Stephan Schulz, schulz@informatik.tu-muenchen.de\n\
+Copyright 1998-2003 by Stephan Schulz, " STS_MAIL "\n\
 \n\
 This program is build on CLIB, the theorem proving library developed\n\
 for the E equational theoem prover. You can find the latest version of\n\
-the E distribution as well as additional information at\n\
-http://wwwjessen.informatik.tu-muenchen.de/~schulz/WORK/eprover.html.\n\
+the E distribution as well as additional information at\n" E_URL "\n\
 \n\
 This program is free software; you can redistribute it and/or modify\n\
 it under the terms of the GNU General Public License as published by\n\
@@ -289,15 +288,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330,\n\
 Boston, MA  02111-1307 USA\n\
 \n\
 The original copyright holder can be contacted as\n\
-\n\
-Stephan Schulz\n\
-Technische Universitaet Muenchen\n\
-Fakultaet fuer Informatik\n\
-Arcisstrasse 20\n\
-D-80290 Muenchen\n\
-Germany\n\
-");
-
+\n" STS_SNAIL "\n");
 }
 
 
