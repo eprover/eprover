@@ -184,7 +184,7 @@ typedef unsigned long ulong_c;
 #endif
 
 #ifdef PRINT_TSTP_STATUS
-#define TSTPOUT(file,msg) fprintf(file, "# TSTS exit status: " msg "\n")
+#define TSTPOUT(file,msg) fprintf(file, "# TSTP exit status: " msg "\n")
 #else
 #define TSTPOUT(file, msg)
 #endif
