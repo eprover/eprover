@@ -91,7 +91,7 @@ HCB_p HCBAutoModeCreate(HCBARGUMENTS)
 
    if(OutputLevel)
    {
-      fprintf(stdout, 
+      fprintf(GlobalOut, 
 	      "# Auto-Mode selected heuristic %s\n"
 	      "# and selection function %s.\n#\n", res, 
 	      GetLitSelName(control->heuristic_parms.selection_strategy)); 
@@ -101,7 +101,7 @@ HCB_p HCBAutoModeCreate(HCBARGUMENTS)
    {
       control->heuristic_parms.delete_bad_limit =
 	 (float)(parms->mem_limit-2)*0.7*MEGA;
-      /* control->heuristic_parms.filter_copies_limit = control->heuristic_parms.delete_bad_limit*0.7; */
+      /*printf("Delete-bad-limit set to %ld\n", control->heuristic_parms.delete_bad_limit);*/
    }
    if(SpecNoEq(spec))
    {
@@ -141,7 +141,7 @@ HCB_p HCB071AutoModeCreate(HCBARGUMENTS)
 
    if(OutputLevel)
    {
-      fprintf(stdout, 
+      fprintf(GlobalOut, 
 	      "# Auto-Mode (0.71) selected heuristic %s\n"
 	      "# and selection function %s.\n#\n", res, 
 	      GetLitSelName(control->heuristic_parms.selection_strategy)); 
@@ -201,7 +201,7 @@ HCB_p HCBDevAutoModeCreate(HCBARGUMENTS)
 
    if(OutputLevel)
    {
-      fprintf(stdout, 
+      fprintf(GlobalOut, 
 	      "# Auto-Mode (Dev) selected heuristic %s\n"
 	      "# and selection function %s.\n#\n", res, 
 	      GetLitSelName(control->heuristic_parms.selection_strategy)); 
