@@ -433,7 +433,7 @@ void ClauseSetGCMarkTerms(ClauseSet_p set)
 void ClauseSetInsert(ClauseSet_p set, Clause_p newclause)
 {
    int    i;
-   Eval_p handle, test;
+   Eval_p handle, test, *root;
 
    assert(!newclause->set);
 
@@ -448,10 +448,8 @@ void ClauseSetInsert(ClauseSet_p set, Clause_p newclause)
    i=0;
    for(handle = newclause->evaluations; handle; handle = handle->next)
    {
-      test = EvalTreeInsert((Eval_p*)
-			    &PDArrayElementP(newclause->set->eval_indices,
-					     i),
-			    handle);
+      root = (Eval_p*)&(PDArrayElementP(newclause->set->eval_indices,i));
+      test = EvalTreeInsert(root, handle);
       assert(!test);
       i++;
    }

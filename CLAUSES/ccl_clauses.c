@@ -1437,12 +1437,12 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
          clauses. */
       if(TestInpId(in, "axiom|definition|knowledge|assumption|"
                    "hypothesis|conjecture|negated_conjecture|"
-                   "lemma|unknown|plain"))
+                   "lemma|unknown|plain|theorem"))
       {
          type = ClauseTypeParse(in, 
                                 "axiom|definition|knowledge|assumption|"
                                 "hypothesis|conjecture|negated_conjecture|"
-                                "lemma|unknown|plain");
+                                "lemma|unknown|plain|theorem");
          if(TestInpTok(in, Hyphen))
          {
             AcceptInpTok(in, Hyphen);
