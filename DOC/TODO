@@ -1,3 +1,13 @@
+Implement simple indexing for paramodulation. Idea: Processed clauses
+get an _into_ and a _from_ index. Both are a simple PDArray_p indexed
+by the rop function symbol of the respective inference terms (or 0 for
+variables - only in _from_ case). Each entry in the index is a
+clb_objtrees, indexed by the clause, and containing all inference
+positions in that clause that start with the indexed symbol.
+- Should safe an enourmous amount of iteration - especially from
+positions are very rare indeed! Will change generation order, though
+(but not significantly). 
+
 Fix inheritance of SOS and clause types for split clauses. The code is
 there, but commented out -> I have not enough CPU time to rerun tests
 before CASC-19. Now fixed in E 0.8dev001
