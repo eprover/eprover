@@ -43,6 +43,11 @@ char* ProgName = "Unknown program";
 static char* reserve_memory = NULL;
 #define ERROR_MEM_RESERVE (128*KILO)
 
+/* The empty string as a global, external variable that cannot easily
+ * be optimize away. See InitError() for more explanation. */
+
+char* EmptyString = "";
+
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -84,7 +89,14 @@ void InitError(char* progname)
 #ifdef MEMORY_RESERVE_PARANOID
    StrideMemory(reserve_memory, ERROR_MEM_RESERVE);
 #endif
-   /* fprintf(stdout, "# %s error handling initialized\n", progname); */
+   /* If we try to print to stderr for the first time in an
+    * out-of-memory situation, fprintf() occaqsionally fails because
+    * the necessary buffers cannot be allocated. This is an attempt to
+    * fix this behaviour. Note that I know of no standard that
+    * guarantees this to work (in fact, I don't know how to reliably
+    * print in out-of-memory cases. */
+
+   fprintf(stderr, EmptyString);
 }
 
 
