@@ -259,22 +259,13 @@ void PCLStepPrintFormat(FILE* out, PCLStep_p step, bool data,
 void PCLStepPrintExample(FILE* out, PCLStep_p step, long id, 
                         long proof_steps, long total_steps)
 {
-   if(proof_steps<=0)
-   {
-      proof_steps=1;
-   }
-   if(total_steps<=1)
-   {
-      proof_steps=2;
-   }
-
    fprintf(out, "%4ld:(%ld, %f,%f,%f,%f):",
            id, 
            step->proof_distance,
-           step->contrib_simpl_refs/(float)proof_steps,
-           step->useless_simpl_refs/(float)(total_steps-proof_steps),
-           step->contrib_gen_refs/(float)proof_steps,
-           step->useless_gen_refs/(float)(total_steps-proof_steps));
+           step->contrib_simpl_refs/(float)(proof_steps+1),
+           step->useless_simpl_refs/(float)(total_steps-proof_steps+1),
+           step->contrib_gen_refs/(float)(proof_steps+1),
+           step->useless_gen_refs/(float)(total_steps-proof_steps+1));
    ClausePrint(out, step->clause, true);   
 }
 

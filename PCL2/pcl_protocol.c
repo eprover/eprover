@@ -604,7 +604,7 @@ void PCLProtPrintExamples(FILE* out, PCLProt_p prot)
    long proof_steps;
    PCLStep_p step;
    PStackPointer i;
-
+   
    proof_steps = PCLProtCountProp(prot, PCLIsProofStep);
    /* The above also serializes the protocol! */
    assert(prot->is_ordered);
