@@ -62,7 +62,7 @@ WFormula_p DefaultWFormulaAlloc()
 {
    WFormula_p handle = WFormulaCellAlloc();
    
-   handle->properties = FPIgnoreProps; 
+   handle->properties = WPIgnoreProps; 
    handle->ident      = 0;
    handle->info       = NULL;
    handle->formula    = 0;

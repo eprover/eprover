@@ -256,6 +256,46 @@ static bool eqn_subsumes_termpair(Eqn_p eqn, Term_p t1, Term_p t2)
 //
 /----------------------------------------------------------------------*/
 
+#ifdef OLD_SUBSUMPTION
+static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
+{
+   Subst_p subst = SubstAlloc();
+
+   for(;list;list = list->next)
+   {
+      if(!PropsAreEquiv(lit, list, EPIsPositive|EPIsEquLiteral))
+      {
+         continue;
+      }
+      if(EqnIsOriented(lit) && !EqnIsOriented(list))
+      {
+         continue;
+      }
+      if(SubstComputeMatch(lit->lterm, list->lterm, subst,
+                           TBTermEqual)&&
+         SubstComputeMatch(lit->rterm, list->rterm, subst,
+                           TBTermEqual)) 
+      {  
+         break;
+      }
+      SubstBacktrack(subst);
+      if(EqnIsOriented(lit))
+      {
+         continue;
+      }
+      if(SubstComputeMatch(lit->lterm, list->rterm, subst,
+                           TBTermEqual)&&
+         SubstComputeMatch(lit->rterm, list->lterm, subst,
+                           TBTermEqual))
+      {
+         break;
+      }
+      SubstBacktrack(subst);
+   }
+   SubstDelete(subst);
+   return list;
+}
+#else
 static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
 {
    Subst_p subst = SubstAlloc();
@@ -267,8 +307,7 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
       if(cmpres < 0)
       {
          list = NULL;
-            break; 
-         continue;
+         break; 
       }
       if(cmpres >  0)
       {
@@ -280,11 +319,6 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
          list = NULL;
          break;
       } 
-
-      /* if(!PropsAreEquiv(lit, list, EPIsPositive|EPIsEquLiteral))
-      {
-         continue;
-         }  */          
       assert(PropsAreEquiv(lit, list, EPIsPositive|EPIsEquLiteral));
       if(EqnIsOriented(lit) && !EqnIsOriented(list))
       {
@@ -314,6 +348,7 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
    SubstDelete(subst);
    return list;
 }
+#endif
 
 
 /*-----------------------------------------------------------------------
@@ -331,6 +366,7 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
 
 static bool check_subsumption_possibility(Clause_p subsumer, Clause_p
 					  sub_candidate)
+#ifdef NEVER_DEFINED
 {
    bool    res = true;
    Eqn_p   sub_eqn;
@@ -343,6 +379,24 @@ static bool check_subsumption_possibility(Clause_p subsumer, Clause_p
 	 break;
       }
    }
+   return res;
+}
+#endif
+{
+   bool    res = true;
+   Eqn_p   sub_eqn;
+   PStack_p lit_stack = ClauseToStack(subsumer);
+
+   while(!PStackEmpty(lit_stack))
+   {
+      sub_eqn = PStackPopP(lit_stack);
+      if(!find_spec_literal(sub_eqn, sub_candidate->literals))
+      {
+	 res = false;
+	 break;
+      }
+   }
+   PStackFree(lit_stack);
    return res;
 }
 
@@ -361,6 +415,7 @@ static bool check_subsumption_possibility(Clause_p subsumer, Clause_p
 //
 /----------------------------------------------------------------------*/
 
+#ifdef OLD_SUBSUMPTION
 static
 bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
 			  Subst_p subst, long* pick_list)
@@ -378,6 +433,13 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
    
    for(eqn = sub_cand_list, lcount=0; eqn; eqn = eqn->next, lcount++)
    {
+      /* We now use strict multiset-subsumption. I should probably
+	 rewrite this code to be more efficient for that case...*/
+      if(pick_list[lcount])
+      {
+	 continue;
+      }
+      
       /* Some optimizations: Of course both equation need to have the
 	 same sign. If the potentially more general equation
 	 is oriented, then the potentially more specialized has to be
@@ -399,12 +461,93 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
       {
 	 continue;
       }  */
+      pick_list[lcount]++;
+      state = PStackGetSP(subst);
+      
+      if(SubstComputeMatch(subsum_list->lterm, eqn->lterm, subst,
+			   TBTermEqual)&&
+	 SubstComputeMatch(subsum_list->rterm, eqn->rterm,
+			   subst, TBTermEqual))
+      {	 
+	 if(eqn_list_rec_subsume(subsum_list->next, sub_cand_list,
+				    subst, pick_list))
+	 {
+	    return true;
+	 }
+      }
+      SubstBacktrackToPos(subst, state);
+      if(EqnIsOriented(subsum_list))
+      {
+	 state = PStackGetSP(subst);
+	 pick_list[lcount]--;
+	 continue;
+      }
+      if(SubstComputeMatch(subsum_list->lterm, eqn->rterm, subst,
+			   TBTermEqual)&&
+	 SubstComputeMatch(subsum_list->rterm, eqn->lterm,
+			   subst, TBTermEqual))
+      {
+	 if(eqn_list_rec_subsume(subsum_list->next, sub_cand_list,
+				 subst, pick_list))
+	 {
+	    return true;
+	 }
+      }
+      SubstBacktrackToPos(subst, state);
+      pick_list[lcount]--;
+   }
+   return false;      
+}
+#else
+static
+bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
+			  Subst_p subst, long* pick_list)
+{
+   Eqn_p         eqn;
+   PStackPointer state;
+   int lcount, cmpres;
+   
+   if(!subsum_list)
+   {
+      return true;
+   }
+   
+   for(eqn = sub_cand_list, lcount=0; eqn; eqn = eqn->next, lcount++)
+   {
       /* We now use strict multiset-subsumption. I should probably
 	 rewrite this code to be more efficient for that case...*/
       if(pick_list[lcount])
       {
 	 continue;
       }
+      
+      cmpres = EqnSubsumeQOrderCompare(subsum_list, eqn);
+      if(cmpres < 0)
+      {
+         return false;
+      }
+      if(cmpres >  0)
+      {
+         continue;
+      }      
+      cmpres = EqnSubsumeCompare(subsum_list, eqn);
+      if(cmpres <  0)
+      {
+         return false;
+      } 
+      assert(PropsAreEquiv(subsum_list, eqn, EPIsPositive|EPIsEquLiteral));
+      /* Some optimizations:If the potentially more general equation
+	 is oriented, then the potentially more specialized has to be
+	 oriented as well. */
+      if(!PropsAreEquiv(eqn, subsum_list, EPIsPositive|EPIsEquLiteral))
+      {
+	 continue;
+      }
+      if(EqnIsOriented(subsum_list) && !EqnIsOriented(eqn))
+      {
+	 continue;
+      }
+
       pick_list[lcount]++;
       state = PStackGetSP(subst);
       
@@ -443,6 +586,7 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
    return false;      
 }
 
+#endif
 
 
 /*-----------------------------------------------------------------------
