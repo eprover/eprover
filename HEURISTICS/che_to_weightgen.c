@@ -40,7 +40,7 @@ char* TOWeightGenNames[]=
    "aritymax0",          /* WArityMax0 */
    "modarity",           /* WModArityWeight */
    "modaritymax0",       /* WModArityMax0 */
-   "aritysquared",       /* WInvArityWeight */
+   "aritysquared",       /* WAritySqWeight */
    "aritysquaredmax0",   /* WAritySqMax0 */
    "invarity",           /* WInvArityWeight */
    "invaritymax0",       /* WInvArityMax0 */
