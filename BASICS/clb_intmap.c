@@ -57,7 +57,7 @@ static bool switch_to_array(long old_max, long new_key, long entries)
 {
    long max_key = MAX(old_max, new_key);
 
-   if((entries * MAX_TREE_DENSITY) > max_key)
+   if((entries * MIN_TREE_DENSITY) > max_key)
    {
       return true;
    }
@@ -82,7 +82,7 @@ static bool switch_to_tree(long old_max, long new_key, long entries)
 {
    long max_key = MAX(old_max, new_key);
 
-   if((entries * MIN_TREE_DENSITY) < max_key)
+   if((entries * MAX_TREE_DENSITY) < max_key)
    {
       return true;
    }      
@@ -340,6 +340,10 @@ void** IntMapGetRef(IntMap_p map, long key)
    assert(map);
    assert(key >= 0);
 
+   /* printf("IntMapGetRef(%p,%ld) type %d, entries=%ld,
+      maxkey=%ld...\n", map, key, map->type,map->entry_no,
+      map->max_key); 
+   */
    switch(map->type)
    {
    case IMEmpty:        

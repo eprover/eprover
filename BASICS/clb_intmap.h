@@ -26,6 +26,7 @@ Changes
 
 #define CLB_INTMAP
 
+#include <limits.h>
 #include <clb_numtrees.h>
 #include <clb_pdarrays.h>
 

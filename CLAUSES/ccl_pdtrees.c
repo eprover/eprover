@@ -653,7 +653,7 @@ void PDTreeInsert(PDTree_p tree, ClausePos_p demod_side)
    curr = TermLRTraverseNext(tree->term_stack);
    
    while(curr)
-   {      
+   {
       next = pdt_select_alt_ref(tree, node, curr);
 
       if(!(*next))
@@ -720,9 +720,8 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
       printf("-- term: ");
       TBPrintTerm(stdout, clause->literals->bank, term, true);
    }	 
-   printf("\n");
-   */
-
+   printf("\n");*/
+   
    TermLRTraverseInit(tree->term_stack, term);
    node = tree->tree;
    curr = TermLRTraverseNext(tree->term_stack);
@@ -762,6 +761,8 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
    PStackFree(del_stack);
    DEBUGMARK(PDT_INTERFACE_WATCH, "...PDTreeDelete()\n");
    tree->clause_count-=res;
+   /* printf("...removed\n"); */
+   
    return res;
 }
 
