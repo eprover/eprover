@@ -1,3 +1,9 @@
+Get rid of the ugly distinction between LHS top terms and other
+terms. Now that simplification is driven from the clause level, it's
+unecessary. Just annotate if a term was rewritten with a real
+instance, and if not, set the flag temporarily and search for another
+rewrite possibility. 
+
 Use plain back propagation MLP for classification (n out of m
 multiplexer, error measure: Difference from wanted result (-1 for bad,
 1 for giid heuristics). For input of discrete features use individual
