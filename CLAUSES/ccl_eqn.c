@@ -33,7 +33,6 @@ Changes
 
 bool EqnUseInfix = true;
 bool EqnFullEquationalRep = false;
-/* bool TPTPFormatPrint = false; */
 IOFormat OutputFormat =LOPFormat;
 
 
