@@ -70,7 +70,6 @@ typedef struct lemma_param_cell
 }LemmaParamCell, *LemmaParam_p;
 
 #define LEMMA_BASE_W       1
-#define LEMMA_SIZE_W       1
 #define LEMMA_ACT_PM_W     2
 #define LEMMA_O_GEN_W      1
 #define LEMMA_ACT_SIMPL_W  2
@@ -118,6 +117,10 @@ float PCLStepComputeLemmaWeight(PCLProt_p prot, PCLStep_p step,
 float PCLStepComputeLemmaWeight(PCLProt_p prot, PCLStep_p step, 
 				LemmaParam_p params);
 PCLStep_p PCLProtComputeLemmaWeights(PCLProt_p prot, LemmaParam_p params);
+
+long      PCLProtSeqFindLemmas(PCLProt_p prot, LemmaParam_p params, 
+			       InferenceWeight_p iw, 
+			       double quality_limit);
 
 
 #endif

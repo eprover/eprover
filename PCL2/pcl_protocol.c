@@ -284,7 +284,7 @@ void PCLProtPrintExtra(FILE* out, PCLProt_p prot, bool data)
 //
 /----------------------------------------------------------------------*/
 
-void PCLProtResetTreeData(PCLProt_p prot)
+void PCLProtResetTreeData(PCLProt_p prot, bool just_weights)
 {
    PCLStep_p step;
    PStackPointer i;
@@ -294,7 +294,7 @@ void PCLProtResetTreeData(PCLProt_p prot)
    for(i=0; i<PStackGetSP(prot->in_order); i++)
    {
       step = PStackElementP(prot->in_order, i);
-      PCLStepResetTreeData(step);
+      PCLStepResetTreeData(step, just_weights);
    }
 }
 
@@ -383,9 +383,9 @@ bool PCLProtMarkProofClauses(PCLProt_p prot)
    while(!PStackEmpty(to_proc))
    {
       step = PStackPopP(to_proc);
-      if(!ClauseQueryProp(step->clause,CPIsProofClause))
+      if(!PCLStepQueryProp(step,PCLIsProofStep))
       {
-	 ClauseSetProp(step->clause,CPIsProofClause);
+	 PCLStepSetProp(step,PCLIsProofStep);
 	 PCLExprCollectPreconds(prot, step->just, &root);	 
 	 while(root)
 	 {
@@ -401,9 +401,9 @@ bool PCLProtMarkProofClauses(PCLProt_p prot)
 
 /*-----------------------------------------------------------------------
 //
-// Function: PCLProtPrintProofClauses()
+// Function: PCLProtPrintPropClauses()
 //
-//   Print a PCL protocol.
+//   Print all steps with prop set.
 //
 // Global Variables: -
 //
@@ -411,7 +411,9 @@ bool PCLProtMarkProofClauses(PCLProt_p prot)
 //
 /----------------------------------------------------------------------*/
 
-void PCLProtPrintProofClauses(FILE* out, PCLProt_p prot)
+void PCLProtPrintPropClauses(FILE* out, PCLProt_p prot, 
+			     PCLStepProperties prop, 
+			     bool just_clauses)
 {
    PCLStep_p step;
    PStackPointer i;
@@ -421,9 +423,17 @@ void PCLProtPrintProofClauses(FILE* out, PCLProt_p prot)
    for(i=0; i<PStackGetSP(prot->in_order); i++)
    {
       step = PStackElementP(prot->in_order, i);
-      if(ClauseQueryProp(step->clause,CPIsProofClause))
+      if(PCLStepQueryProp(step,prop))
       {
-	 PCLStepPrint(out, step);
+	 if(just_clauses)
+	 {
+	    ClausePrint(out, step->clause, true);
+	    fprintf(GlobalOut, "/* %f */", step->lemma_quality);
+	 }
+	 else
+	 {
+	    PCLStepPrint(out, step);
+	 }
 	 fputc('\n',out);
       }
       

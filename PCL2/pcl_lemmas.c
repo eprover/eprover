@@ -387,14 +387,21 @@ float PCLStepComputeLemmaWeight(PCLProt_p prot, PCLStep_p step,
       *
       (step->proof_tree_size)
       /
-      ClauseStandardWeight(step->clause);
-
+      (ClauseStandardWeight(step->clause)+1);
+   
    if(step->passive_simpl_refs && 
-      (!step->active_pm_refs+step->other_generating_refs+step->active_simpl_refs)) 
+      !(step->active_pm_refs+step->other_generating_refs+step->active_simpl_refs) )
    {
       res = 0;
    }
-   step->lemma_quality = res;
+   else
+   {
+      if(ClauseIsTrivial(step->clause))
+      {
+	 res = 0;
+      }
+   }
+   step->lemma_quality = res;        
    return res;
 }   
 
@@ -404,7 +411,7 @@ float PCLStepComputeLemmaWeight(PCLProt_p prot, PCLStep_p step,
 //
 //   Compute the lemma rating for all steps. Return the step with the
 //   best lemma rating.
-//PCLProtComputeLemmaWeights
+//
 // Global Variables: -
 //
 // Side Effects    : Caches lemma rating in the steps.
@@ -431,6 +438,51 @@ PCLStep_p PCLProtComputeLemmaWeights(PCLProt_p prot, LemmaParam_p params)
    }
    return res;
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PCLProtSeqFindLemmas()
+//
+//   Mark all lemmas in procol which have a lemma rating of at least
+//   quality_limit. Goes from first to last step, taking already
+//   marked lemmas into account. Assumes topologically ordered
+//   protocol (otherwise lemma ratings might be off). Returns number
+//   of lemmas found.
+//
+// Global Variables: -
+//
+// Side Effects    : Marks lemmata, changes weights in steps.
+//
+/----------------------------------------------------------------------*/
+
+
+long PCLProtSeqFindLemmas(PCLProt_p prot, LemmaParam_p params, 
+			       InferenceWeight_p iw, 
+			       double quality_limit)
+{
+   PStackPointer i;
+   PCLStep_p step;
+   long res = 0;
+      
+   PCLProtSerialize(prot);
+   PCLProtResetTreeData(prot, false);
+   PCLProtUpdateRefs(prot);
+   
+   for(i=0; i<PStackGetSP(prot->in_order); i++)
+   {
+      step = PStackElementP(prot->in_order, i);
+      PCLStepProofSize(prot, step, iw, true);
+      if(PCLStepComputeLemmaWeight(prot, step, params) >= quality_limit)
+      {
+	 PCLStepSetProp(step, PCLIsLemma);
+	 res++;
+      }
+   }
+   return res;
+}
+
+
 
 
 

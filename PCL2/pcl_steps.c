@@ -91,7 +91,7 @@ PCLStep_p PCLStepParse(Scanner_p in, TB_p bank)
    assert(bank);
    
    handle->properties = PCLNoProp;
-   PCLStepResetTreeData(handle);
+   PCLStepResetTreeData(handle, false);
    handle->id = PCLIdParse(in);
    AcceptInpTok(in, Colon);
    handle->clause = ClausePCLParse(in, bank);
@@ -192,18 +192,20 @@ int PCLStepIdCompare(PCLStep_p step1, PCLStep_p step2)
 //
 /----------------------------------------------------------------------*/
 
-void PCLStepResetTreeData(PCLStep_p step)
+void PCLStepResetTreeData(PCLStep_p step, bool just_weights)
 {
    step->proof_dag_size        = PCLNoWeight;
    step->proof_tree_size       = PCLNoWeight;
-   step->active_pm_refs        = 0;
-   step->other_generating_refs = 0;
-   step->active_simpl_refs     = 0;  
-   step->passive_simpl_refs    = 0;  
-   step->lemma_quality         = 0.0;
-   PCLStepDelProp(step,PCLIsLemma|PCLIsMarked);
+   if(!just_weights)
+   {
+      step->active_pm_refs        = 0;
+      step->other_generating_refs = 0;
+      step->active_simpl_refs     = 0;  
+      step->passive_simpl_refs    = 0;  
+      step->lemma_quality         = 0.0;
+      PCLStepDelProp(step,PCLIsLemma|PCLIsMarked);
+   }
 }
-
 
 
 /*---------------------------------------------------------------------*/

@@ -67,13 +67,16 @@ long      PCLProtParse(Scanner_p in, PCLProt_p prot);
 void      PCLProtPrintExtra(FILE* out, PCLProt_p prot, bool data);
 #define   PCLProtPrint(out, prot) PCLProtPrintExtra((out), (prot), false)
 
-void      PCLProtResetTreeData(PCLProt_p prot);
+void      PCLProtResetTreeData(PCLProt_p prot, bool just_weights);
 
 void      PCLExprCollectPreconds(PCLProt_p prot, PCLExpr_p expr,
 				 PTree_p *tree);
 
 bool      PCLProtMarkProofClauses(PCLProt_p prot);
-void      PCLProtPrintProofClauses(FILE* out, PCLProt_p prot);
+void      PCLProtPrintPropClauses(FILE* out, PCLProt_p prot, 
+				  PCLStepProperties prop, bool just_clauses);
+#define PCLProtPrintProofClauses(out, prot)\
+        PCLProtPrintPropClauses((out), (prot), PCLIsProofStep, false)
 
 
 #endif

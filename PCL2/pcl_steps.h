@@ -32,11 +32,12 @@ Changes
 
 typedef enum 
 {
-   PCLNoProp     = 0,
-   PCLIsLemma    = 1,
-   PCLIsInitial  = 2,
-   PCLIsFinal    = 4,
-   PCLIsMarked   = 8
+   PCLNoProp        =  0,
+   PCLIsLemma       =  1,
+   PCLIsInitial     =  2,
+   PCLIsFinal       =  4,
+   PCLIsMarked      =  8,
+   PCLIsProofStep   = 16
 }PCLStepProperties;
 
 
@@ -81,7 +82,7 @@ void      PCLStepPrintExtra(FILE* out, PCLStep_p step, bool data);
 #define   PCLStepPrint(out, step) PCLStepPrintExtra((out),(step),false)
 
 int       PCLStepIdCompare(PCLStep_p step1, PCLStep_p step2);
-void      PCLStepResetTreeData(PCLStep_p step);
+void      PCLStepResetTreeData(PCLStep_p step, bool just_weights);
 
 #endif
 
