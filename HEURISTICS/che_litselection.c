@@ -292,7 +292,7 @@ static Eqn_p find_maxlcomplex_literal(Clause_p clause)
 	 {
 	    select_weight = weight;
 	    selected = handle;
-	       }
+         }
       }
       handle = handle->next;	    
    }
