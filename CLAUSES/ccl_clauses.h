@@ -55,10 +55,13 @@ typedef enum
    CPTypeHypothesis = CPType2,         /* Clause is Hypothesis */
    CPTypeConjecture = CPType1|CPType2, /* Clause is Conjecture */
    CPTypeLemma      = CPType3,         /* Clause is Lemma */
-   CPTypeNegConjecture = CPType3|CPType1, /* Clause is an negated
+   CPTypeNegConjecture = CPType1|CPType3, /* Clause is an negated
                                            * conjecture (used for
                                            * refutation) */
-   CPIsWatched      = 1024,     /* Clause is of special interest */
+   CPTypeWatchClause= CPType1|CPType2|CPType3, /* Clause is intended
+                                                  as a watch list
+                                                  clause */
+   /* 1024 available again */
    CPOpFlag         = 2048,     /* Temporary marker */
    CPIsSelected     = 4096,     /* For analysis of selected clauses only */
    CPIsFinal        =  8192,    /* Clause is a final clause, i.e. a clause

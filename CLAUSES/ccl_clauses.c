@@ -1398,6 +1398,10 @@ ClauseProperties ClauseTypeParse(Scanner_p in, char *legal_types)
    {
       res = CPTypeLemma;
    }
+   else if(TestInpId(in, "watchlist"))
+   {
+      res = CPTypeWatchClause;
+   }
    else
    {
       res = CPTypeUnknown;
@@ -1447,7 +1451,7 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
       info->name = DStrCopy(AktToken(in)->literal);
       AcceptInpTok(in, Name);
       AcceptInpTok(in, Comma);
-      type = ClauseTypeParse(in, "axiom|hypothesis|conjecture|lemma|unknown");
+      type = ClauseTypeParse(in, "axiom|hypothesis|conjecture|lemma|unknown|watchlist");
       if(type == CPTypeConjecture)
       {
          type = CPTypeNegConjecture; /* Old TPTP syntax lies ;-) */
@@ -1475,12 +1479,12 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
          clauses. */
       if(TestInpId(in, "axiom|definition|knowledge|assumption|"
                    "hypothesis|conjecture|negated_conjecture|"
-                   "lemma|unknown|plain|theorem"))
+                   "lemma|unknown|plain|theorem|watchlist"))
       {
          type = ClauseTypeParse(in, 
                                 "axiom|definition|knowledge|assumption|"
                                 "hypothesis|conjecture|negated_conjecture|"
-                                "lemma|unknown|plain|theorem");
+                                "lemma|unknown|plain|theorem|watchlist");
          if(TestInpTok(in, Hyphen))
          {
             AcceptInpTok(in, Hyphen);

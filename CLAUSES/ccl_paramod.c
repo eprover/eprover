@@ -333,6 +333,11 @@ Clause_p ClauseOrderedParamod(TB_p bank, OCB_p ocb, ClausePos_p from,
 				       into->literal, bank);
 	 from_copy = EqnListCopyExcept(from->clause->literals,
 				       from->literal, bank);
+
+	 EqnListDelProp(into_copy, EPFromClauseLit);         
+	 EqnListSetProp(from_copy, EPFromClauseLit);         
+         EqnSetProp(new_literals, EPFromClauseLit);
+
 	 into_copy = EqnListAppend(&into_copy, from_copy);
 	 EqnListDelProp(into_copy, EPIsPMIntoLit);
 	 new_literals =  EqnListAppend(&new_literals, into_copy);

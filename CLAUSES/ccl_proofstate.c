@@ -30,6 +30,7 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
+char* UseInlinedWatchList = WATCHLIST_INLINE_STRING;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */

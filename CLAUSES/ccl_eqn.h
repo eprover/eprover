@@ -62,8 +62,10 @@ typedef enum
    EPIsPMIntoLit       =  2048, /* For inheriting selection */
    EPLPatMinimal       =  4096, /* Eqn l=r is Pattern-Minimal */
    EPRPatMinimal       =  8192, /* Eqn r=l is Pattern-Minimal */
-   EPIsSplitLit        = 16384  /* This literal has been introduced by
+   EPIsSplitLit        = 16384, /* This literal has been introduced by
 				   splitting */
+   EPFromClauseLit     = 32768  /* This comes from the from clause in
+                                   a paramod step */
 }EqnProperties;
 
 
