@@ -611,6 +611,8 @@ for i in sys.argv[1:]:
         succ_cases = ["T"]
     elif i=="--models":
         succ_cases = ["N"]
+    elif i[0:1] == "--":
+        raise RuntimeError, "Unknown option (probably typo)"
 
 sys.argv = filter(lambda x:x[0]!="-", sys.argv) # Take out options
 
