@@ -50,6 +50,7 @@ import os
 import pylib_io
 import pylib_basics
 import pylib_eprots
+import pylib_psfixbb
 
 split_res = re.compile("_");
 filter_re = re.compile(".*");
@@ -104,6 +105,17 @@ class plot:
             self.add_graph(g)
             self.title = title
 
+        self.generic_options = """
+set style data linespoints
+set xlabel 'Instance size'
+set ylabel 'Run time (s)'
+set key left
+"""
+        self.file_options ="""
+set terminal postscript eps 16 color
+set size square
+"""
+
     def add_graph(self, graph):
         self.graphs.append(graph)
 
@@ -111,13 +123,9 @@ class plot:
         """
         return a sequence of 'set' commands for gnuplot.
         """
-        res = "unset logscale\n"+\
-              "set style data linespoints\n"+\
-              "set xlabel 'Instance size'\n"+\
-              "set ylabel 'Run time (s)'\n"+\
-              "set key left\n";
+        res = self.generic_options
         if file:
-            res = res+"set terminal postscript eps color\n";
+            res = res+self.file_options            
             res = res+"set output \""+file+"\"\n";
         if log:
             res = res+"set logscale y\n";       
@@ -163,4 +171,6 @@ class plot:
         if not file:
             print "  Return to continue!"
             sys.stdin.readline()
+        else:
+            pylib_psfixbb.fixbb(filename)
         pipe.close()
