@@ -152,14 +152,14 @@ OptCell opts[] =
    {OPT_NGU_FEW_LIMIT,
     'f', "ngu-few-limit",
     ReqArg, NULL,
-    "Set the limit (either an absolute integer value or a part "
+    "Set the limit (either an absolute integer value or a fraction "
     "between 0 and 1) for the size of the set of non-ground units "
     "to consist of 'few' clauses."},
    
    {OPT_NGU_MANY_LIMIT,
     'm', "ngu-many-limit",
     ReqArg, NULL,
-    "Set the limit (either an absolute integer value or a part "
+    "Set the limit (either an absolute integer value or a fraction "
     "between 0 and 1) for the size of the set of non-ground units "
     "to consist of 'many' clauses."},
 
@@ -172,14 +172,14 @@ OptCell opts[] =
    {OPT_GPC_FEW_LIMIT,
     '\0', "gpc-few-limit",
     ReqArg, NULL,
-    "Set the limit (either an absolute integer value or a part "
+    "Set the limit (either an absolute integer value or a fraction "
     "between 0 and 1) for the size of the set of ground positive clauses "
     "to consist of 'few' clauses."},
    
    {OPT_GPC_MANY_LIMIT,
     '\0', "gpc-many-limit",
     ReqArg, NULL,
-    "Set the limit (either an absolute integer value or a part "
+    "Set the limit (either an absolute integer value or a fraction "
     "between 0 and 1) for the size of the set of ground positive clauses "
     "to consist of 'many' clauses."},
 
