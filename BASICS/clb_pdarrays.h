@@ -6,9 +6,14 @@ Author: Stephan Schulz
 
 Contents
  
-  Dynamic arrays of pointers and long integers.
+  Dynamic arrays of pointers and long integers. You can define the
+  growth behaviour by specifying a value. If it is GROW_EXPONENTIAL,
+  arrays will always grow by a factor that is the lowest power of two
+  that will make the array big enough. Otherwise it will grow by the
+  smallest multiple of the value specified that creates the requested
+  position. 
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998, 1999, 2004 by the author.
   This code is released under the GNU General Public Licence.
   See the file COPYING in the main CLIB directory for details.
   Run "eprover -h" for contact information.
@@ -17,6 +22,8 @@ Changes
 
 <1> Wed Jul 22 21:34:41 MET DST 1998
     New
+<2> Tue Mar 23 00:30:16 CET 2004
+    Added comments about growth behaviour.
 
 -----------------------------------------------------------------------*/
 
@@ -39,6 +46,7 @@ typedef struct pdarraycell
    IntOrP *array;
 }PDArrayCell, *PDArray_p; 
 
+#define GROW_EXPONENTIAL 0
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */

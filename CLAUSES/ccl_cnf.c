@@ -663,10 +663,136 @@ Formula_p FormulaSkolemizeOutermost(Formula_p form, TB_p terms)
       var = PTreeExtractRootKey(&free_vars);
       PStackPushP(var_stack, var);
    }
-   printf("# %d globally free variables found!\n", PStackGetSP(var_stack));
    res = formula_rek_skolemize(form, terms, var_stack);
    PStackFree(var_stack);   
    return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaShiftQuantors()
+//
+//   Shift all remaining all-quantors outward.
+//
+// Global Variables: -
+//
+// Side Effects    : Destroys original formula.
+//
+/----------------------------------------------------------------------*/
+
+Formula_p FormulaShiftQuantors(Formula_p form)
+{
+   Formula_p handle, narg1, narg2, newform;
+   Term_p var;
+
+   if(FormulaHasSubForm1(form))
+   {
+      form->arg1 = FormulaShiftQuantors(form->arg1);
+   }
+   if(FormulaHasSubForm2(form))
+   {
+      form->arg2 = FormulaShiftQuantors(form->arg2);
+   }   
+   switch(form->op)
+   {
+   case OpBAnd:
+   case OpBOr:
+         if(form->arg1->op == OpQAll)
+         {
+            narg1  = form->arg1->arg1;
+            narg2  = form->arg2;
+            var    = form->arg1->special.var;
+            assert(!FormulaVarIsFree(narg2, var));
+            handle = FormulaOpAlloc(form->op, narg1, narg2);
+            newform = FormulaQuantorAlloc(OpQAll, var, handle);
+            FormulaGetRef(newform);
+            FormulaRelRef(form);
+            FormulaFree(form);
+            form = FormulaShiftQuantors(newform);            
+         }
+         else if(form->arg2->op == OpQAll)
+         {
+            narg2  = form->arg2->arg1;
+            narg1  = form->arg1;
+            var    = form->arg2->special.var;
+            assert(!FormulaVarIsFree(narg1, var));
+            handle = FormulaOpAlloc(form->op, narg1, narg2);
+            newform = FormulaQuantorAlloc(OpQAll, var, handle);
+            FormulaGetRef(newform);
+            FormulaRelRef(form);
+            FormulaFree(form);
+            form = FormulaShiftQuantors(newform);            
+         }       
+   case OpQAll:
+   case OpIsLit:
+         break;
+   default:
+         assert(false && "Wrong formula operator in FormulaShiftQuantors()");
+         break;
+   }
+   return form;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaDistributeDisjunctions()
+//
+//   Apply distributivity law to transform a suitably preprocessed
+//   formula into conjunctive normal form.
+//
+// Global Variables: -
+//
+// Side Effects    : May destroy formula
+//
+/----------------------------------------------------------------------*/
+
+Formula_p FormulaDistributeDisjunctions(Formula_p form)
+{
+   Formula_p handle, narg1, narg2;
+
+   if(FormulaHasSubForm1(form))
+   {
+      form->arg1 = FormulaDistributeDisjunctions(form->arg1);
+   }
+   if(FormulaHasSubForm2(form))
+   {
+      form->arg2 = FormulaDistributeDisjunctions(form->arg2);
+   }   
+   switch(form->op)
+   {
+   case OpQAll:
+   case OpBAnd:
+   case OpIsLit:
+         break;
+   case OpBOr:
+         if(form->arg1->op == OpBAnd)
+         {
+            narg1 = FormulaOpAlloc(OpBOr, form->arg1->arg1, form->arg2);
+            narg2 = FormulaOpAlloc(OpBOr, form->arg1->arg2, form->arg2);
+            handle = FormulaOpAlloc(OpBAnd, narg1, narg2);
+            FormulaGetRef(handle);
+            FormulaRelRef(form);
+            FormulaFree(form);
+            form = FormulaDistributeDisjunctions(handle);
+         }
+         else if(form->arg2->op == OpBAnd)
+         {
+            narg2 = FormulaOpAlloc(OpBOr, form->arg2->arg2, form->arg1);
+            narg1 = FormulaOpAlloc(OpBOr, form->arg2->arg1, form->arg1);
+            handle = FormulaOpAlloc(OpBAnd, narg1, narg2);
+            FormulaGetRef(handle);
+            FormulaRelRef(form);
+            FormulaFree(form);
+            form = FormulaDistributeDisjunctions(handle);
+         }
+         break;
+   default:
+         assert(false && "Wrong formula operator in FormulaDistributeDisjunctions()");
+         break;
+   }   
+   return form;
 }
 
 
@@ -704,7 +830,8 @@ bool FormulaCNF(Formula_p *form, TB_p terms)
    *form = handle;
    VarBankVarsSetProp(terms->vars, TPIsFreeVar);
    *form = FormulaSkolemizeOutermost(*form, terms);
-
+   *form = FormulaShiftQuantors(*form);
+   *form = FormulaDistributeDisjunctions(*form);
    return res;
 }
 

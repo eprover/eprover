@@ -48,6 +48,8 @@ Formula_p FormulaVarRename(Formula_p form, TB_p terms);
 
 Formula_p FormulaSkolemizeOutermost(Formula_p form, TB_p terms);
 
+Formula_p FormulaDistributeDisjunctions(Formula_p form);
+
 bool FormulaCNF(Formula_p *form, TB_p terms);
 
 

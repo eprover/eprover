@@ -66,7 +66,7 @@ VarBank_p VarBankAlloc(void)
    handle->max_var = 0;
    handle->ext_index = NULL;
    handle->f_code_index = PDIntArrayAlloc(DEFAULT_VARBANK_SIZE,
-					  DEFAULT_VARBANK_SIZE);
+					  GROW_EXPONENTIAL);
 
    return handle;
 }
