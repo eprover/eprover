@@ -129,6 +129,9 @@ Sig_p SigAlloc(void)
    SigInsertId(handle, "$true", 0, special);
    assert(SigFindFCode(handle, "$true")==SIG_TRUE_CODE);  
    SigSetFuncProp(handle, SIG_TRUE_CODE, FPPredSymbol);
+   SigInsertId(handle, "$false", 0, special);
+   assert(SigFindFCode(handle, "$false")==SIG_FALSE_CODE);  
+   SigSetFuncProp(handle, SIG_FALSE_CODE, FPPredSymbol);
    
    if(SigSupportLists)
    {

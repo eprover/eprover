@@ -109,7 +109,10 @@ typedef struct sigcell
 
 /* Special constant for internal operations */
 
-#define SIG_TRUE_CODE 1
+#define SIG_TRUE_CODE  1
+#define SIG_FALSE_CODE 2
+#define SIG_NIL_CODE   3
+#define SIG_CONS_CODE  4
 
 /* Handle properties */
 
@@ -138,10 +141,6 @@ extern bool      SigSupportLists; /* Auto-Insert special symbols
 				     representations */
 extern TokenType SigIdentToken; /* What is a potential function symbol
 				   name? */
-
-#define SIG_NIL_CODE  2
-#define SIG_CONS_CODE 3
-
 #define SigCellAlloc() (SigCell*)SizeMalloc(sizeof(SigCell))
 #define SigCellFree(junk)         SizeFree(junk, sizeof(SigCell))
 

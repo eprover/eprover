@@ -277,6 +277,12 @@ TB_p TBAlloc(TermProperties prop_mask, Sig_p sig)
    t = TBInsert(handle, term, DEREF_NEVER);
    TermGetRef(&(handle->true_term), t);
    TermFree(term);
+   term = TermDefaultCellAlloc();
+   term->f_code = SIG_FALSE_CODE;
+   TermCellSetProp(term, TPPredPos);
+   t = TBInsert(handle, term, DEREF_NEVER);
+   TermGetRef(&(handle->false_term), t);
+   TermFree(term);
 
    return handle;
 }

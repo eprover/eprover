@@ -72,6 +72,8 @@ typedef struct tbcell
    VarBank_p     vars;           /* Information about (shared) variables */
    Term_p        true_term;      /* Pointer to the special term with the
 				    $true constant. */
+   Term_p        false_term;     /* Pointer to the special term with the
+				    $false constant. */
    unsigned long rewrite_steps;  /* How many calls to TBTermReplace? */
    TermCellStoreCell term_store; /* Here are the terms */
 }TBCell, *TB_p;
