@@ -53,11 +53,12 @@ typedef enum
 
 typedef struct ocb_cell
 {
-   TermOrdering   type;
-   Sig_p          sig;         /* Slightly hacked...this is only an
-				  unsupervised reference (but will
-				  stay) ! */
-   int            sig_size;
+   TermOrdering  type;
+   Sig_p         sig;          /* Slightly hacked...this is only an
+				   unsupervised reference (but will
+				   stay) ! */
+   FunCode       min_constant;
+   int           sig_size;
    long          *weights;     /* Array of weights */
    long          var_weight;   /* Variable Weight */
    long          *prec_weights;/* Precedence defined by weight - only
@@ -106,6 +107,16 @@ bool          OCBPrecedenceBacktrack(OCB_p ocb, PStackPointer state);
               (assert((f1)>0), assert((f2)>0), assert((f1)<=(ocb)->sig_size),\
 	       assert((f2)<=(ocb)->sig_size),\
               (&((ocb)->precedence[((f2)-1)*(ocb)->sig_size+((f1)-1)])))
+
+
+FunCode OCBFindMinConst(OCB_p ocb);
+
+#define OCBDesignatedMinConst(ocb) ((ocb)->min_constant?\
+                                   (ocb)->min_constant:OCBFindMinConst(ocb))
+
+#define OCBDesignatedMinTerm(ocb, terms) ((terms)->min_term?\
+                                   (terms)->min_term:\
+                                   TBCreateMinTerm((terms),OCBDesignatedMinConst(ocb)))
 
 /* Functions for Querying the OCB */
 

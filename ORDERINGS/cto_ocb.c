@@ -161,6 +161,7 @@ OCB_p OCBAlloc(TermOrdering type, bool prec_by_weight, Sig_p sig)
 
    handle->type  = type;
    handle->sig   = sig;
+   handle->min_constant  = 0;
    handle->sig_size = sig->f_count;
    handle->statestack = PStackAlloc();
    handle->var_weight = 1;
@@ -440,6 +441,47 @@ bool OCBPrecedenceBacktrack(OCB_p ocb, PStackPointer state)
       *OCBFunComparePos(ocb, f2, f1) = to_uncomparable;
    }
    return !PStackEmpty(ocb->statestack);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: OCBFindMinConst()
+//
+//   Find a minimal (by precedence) function symbol constant in
+//   ocb->sig. Store it in ocb->min_constant. If no constant
+//   exists, create one. 
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+FunCode OCBFindMinConst(OCB_p ocb)
+{
+   FunCode i, cand=0;
+
+   assert(ocb && ocb->sig);
+   if(!ocb->min_constant)
+   {
+      for(i=ocb->sig->internal_symbols+1; i<=ocb->sig->f_count; i++)
+      {
+         if(SigIsFunConst(ocb->sig, i) && 
+            !SigIsSpecial(ocb->sig, i) &&
+            (!cand || (OCBFunCompare(ocb, i, cand)==to_greater)))
+         {
+            cand = i;
+         }
+      }
+      if(cand)
+      {
+         cand = SigGetNewSkolemCode(ocb->sig, 0);
+      }
+      ocb->min_constant = cand;
+   }
+   assert(ocb->min_constant);
+   return ocb->min_constant;
 }
 
 
