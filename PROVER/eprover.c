@@ -709,11 +709,12 @@ OptCell opts[] =
    {OPT_FVINDEX_MAXDEPTH,
     '\0', "fvindex-maxdepth",
     OptArg, "200",
-    "Set the maximum dept of the FV-Index for subsumption. Maximal "
-    "theoretical depth is 4*(signature size + slack + 1) + 2 "
-    "at the moment. If you "
-    "set a small limit here, you should probably also choose 'Perm' (the"
-    " default) or 'PermOpt' for the previous option."},
+    "Set the maximum dept of the FV-Index for subsumption. Actual size "
+    "depends on the signature and the feature types you chose. Depending "
+    "on the feature types, the value you provide may be rounded to a "
+    "suitable value not more than 3 away from your actual request. If you "
+    "set a very small limit here, you should probably also choose 'Perm'"
+    " (the default anyways) or 'PermOpt' for the previous option."},
    
    {OPT_FVINDEX_SLACK,
     '\0', "fvindex-slack",
@@ -1460,27 +1461,27 @@ CLState_p process_options(int argc, char* argv[])
 	    StrongUnitForwardSubsumption = true;
 	    break;
       case OPT_NO_INDEXED_SUBSUMPTION:
-	    fvi_parms->use_fv_indexing = false;
+	    fvi_parms->features = FVINoFeatures;
 	    break;
       case OPT_FVINDEX_STYLE:
 	    if(strcmp(arg, "None")==0)
 	    {
-	       fvi_parms->use_fv_indexing = false;
+	       fvi_parms->features = FVINoFeatures;
 	    }
 	    else if(strcmp(arg, "Direct")==0)
 	    {
-	       fvi_parms->use_fv_indexing = true;
+	       fvi_parms->features = FVIAllFeatures;
 	       fvi_parms->use_perm_vectors = false;
 	    }
 	    else if(strcmp(arg, "Perm")==0)
 	    {
-	       fvi_parms->use_fv_indexing = true;
+	       fvi_parms->features = FVIAllFeatures;
 	       fvi_parms->use_perm_vectors = true;
 	       fvi_parms->eleminate_uninformative = false;       
 	    }
 	    else if(strcmp(arg, "PermOpt")==0)
 	    {
-	       fvi_parms->use_fv_indexing = true;
+	       fvi_parms->features = FVIAllFeatures;
 	       fvi_parms->use_perm_vectors = true;
 	       fvi_parms->eleminate_uninformative = true;
 	    }
