@@ -36,11 +36,12 @@ Changes
 
 typedef FixedDArray_p PermVector_p;
 
-typedef struct tuple2_cell
+typedef struct tuple3_cell
 {
    long pos;
+   long diff;
    long value;
-}Tuple2Cell;
+}Tuple3Cell;
 
 typedef struct freq_vector_cell
 {
@@ -50,7 +51,7 @@ typedef struct freq_vector_cell
    Clause_p clause; /* Just an unprotected reference */
 }FreqVectorCell, *FreqVector_p, *FVPackedClause_p;
 
-#define NON_SIG_FEATURES 2
+#define FV_CLAUSE_FEATURES 2
 
 
 /*---------------------------------------------------------------------*/
@@ -64,20 +65,18 @@ typedef struct freq_vector_cell
 
 PermVector_p PermVectorCompute(FreqVector_p fmax, FreqVector_p fmin, 
 			       FreqVector_p sums, 
-			       long clauses, long pos_lit_clauses,
-			       long neg_lit_clauses ,long max_len, 
+			       long clauses, long max_len, 
 			       bool eleminate_uninformative);
 
 
 #define FreqVectorCellAlloc()    (FreqVectorCell*)SizeMalloc(sizeof(FreqVectorCell))
 #define FreqVectorCellFree(junk) SizeFree(junk, sizeof(FreqVectorCell))
 
-#define SigSizeToFreqVectorSize(size) (size*4+2+NON_SIG_FEATURES)
-#define StandardFreqVNegIndex(vec, i) \
-        (((i)>=NON_SIG_FEATURES) && ((i)<=((vec)->sig_symbols+NON_SIG_FEATURES-1)))
-#define StandardFreqVPosIndex(vec, i) \
-        (((i)>((vec)->sig_symbols+NON_SIG_FEATURES-1)) && \
-	 ((i)<SigSizeToFreqVectorSize((vec)->sig_symbols)))
+
+#define FVACCompatSizea(size)   ((size+1)*2+FV_CLAUSE_FEATURES)
+#define FVSSCompatSize(size)    ((size+1)*2)
+#define FVFullSize(size)        ((size+1)*4+FV_CLAUSE_FEATURES)
+
 FreqVector_p FreqVectorAlloc(long size);
 
 void         FreqVectorFreeReal(FreqVector_p junk);

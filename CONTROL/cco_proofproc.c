@@ -657,7 +657,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control,
       if(fvi_parms->use_perm_vectors)
       {
 	 FreqVector_p fsum, fmax, fmin;
-	 long clause_no, pos_lit_clauses, neg_lit_clauses;
+	 long clause_no;
 	 PermVector_p perm;
 	 long symbol_size = control->split_clauses? /* Leave some slack for
 						       split symbols */
@@ -673,20 +673,17 @@ void ProofStateInit(ProofState_p state, ProofControl_p control,
 	 state->processed_neg_units->fvindex =
 	    FVIAnchorAlloc(symbol_size);
       	 
-	 fsum = FreqVectorAlloc(SigSizeToFreqVectorSize(symbol_size));
-	 fmax = FreqVectorAlloc(SigSizeToFreqVectorSize(symbol_size));
-	 fmin = FreqVectorAlloc(SigSizeToFreqVectorSize(symbol_size));
+	 fsum = FreqVectorAlloc(FVFullSize(symbol_size));
+	 fmax = FreqVectorAlloc(FVFullSize(symbol_size));
+	 fmin = FreqVectorAlloc(FVFullSize(symbol_size));
 	 
 	 clause_no = ClauseSetFindCharFreqVectors(state->axioms,
 						  fsum,
 						  fmax, 
 						  fmin, 
-						  symbol_size,
-						  &pos_lit_clauses, 
-						  &neg_lit_clauses);
+						  symbol_size);
 	 
 	 perm = PermVectorCompute(fmax, fmin, fsum, clause_no, 
-				  pos_lit_clauses, neg_lit_clauses,
 				  fvi_parms->max_features,
 				  fvi_parms->eleminate_uninformative);
 	 FreqVectorFree(fsum);
@@ -706,7 +703,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control,
 					      split symbols */
 	    state->original_symbols+fvi_parms->symbol_slack:
 	    state->original_symbols;
-	 symbol_size = MIN((fvi_parms->max_features-NON_SIG_FEATURES)/2,
+	 symbol_size = MIN((fvi_parms->max_features-FV_CLAUSE_FEATURES)/2,
 			   tmpsize);
 	 symbol_size = MAX(1,symbol_size);
 

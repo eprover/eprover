@@ -145,10 +145,7 @@ long        ClauseSetFindCharFreqVectors(ClauseSet_p set,
 					 FreqVector_p fsum,
 					 FreqVector_p fmax, 
 					 FreqVector_p fmin, 
-					 long symbol_size, 
-					 long *pos_l_clauses, 
-					 long *neg_l_clause);
-
+					 long symbol_size);
 
 #endif
 

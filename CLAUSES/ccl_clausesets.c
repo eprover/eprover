@@ -1741,11 +1741,8 @@ long ClauseSetMaxVarNumber(ClauseSet_p set)
 
 long ClauseSetFindCharFreqVectors(ClauseSet_p set, FreqVector_p fsum,
 				  FreqVector_p fmax, FreqVector_p fmin, 
-				  long symbol_size, long *pos_l_clauses, 
-				  long *neg_l_clauses) 
+				  long symbol_size) 
 {
-   long pos_lit_clauses = 0;
-   long neg_lit_clauses = 0;
    Clause_p handle;
    FreqVector_p current;
 
@@ -1762,17 +1759,12 @@ long ClauseSetFindCharFreqVectors(ClauseSet_p set, FreqVector_p fsum,
        handle!= set->anchor;
        handle = handle->succ)
    {
-      pos_lit_clauses+=handle->pos_lit_no?1:0;
-      neg_lit_clauses+=handle->neg_lit_no?1:0;
-
       current = StandardFreqVectorCompute(handle, symbol_size);
       FreqVectorAdd(fsum, fsum, current);
       FreqVectorMax(fmax, fmax, current);
       FreqVectorMin(fmin, fmin, current);
       FreqVectorFree(current);
    }   
-   *pos_l_clauses = pos_lit_clauses;
-   *neg_l_clauses = neg_lit_clauses;
    return set->members;
 }
 

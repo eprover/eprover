@@ -40,10 +40,10 @@ Changes
 
 /*-----------------------------------------------------------------------
 //
-// Function: tuple_2_compare_2nd()
+// Function: tuple_3_compare_23lex()
 //
-//   Compare 2 tuple-2 cells by value (and by pos, to make it
-//   anti-stable but reproducible).
+//   Compare 2 tuple-2 cells lexicographically, with diff more
+//   significant than value, which is more significant than pos.
 //
 // Global Variables: -
 //
@@ -51,8 +51,16 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-int tuple_2_compare_2nd(Tuple2Cell *t1, Tuple2Cell *t2)
+int tuple3_compare_23lex(Tuple3Cell *t1, Tuple3Cell *t2)
 {
+   if(t1->diff < t2->diff)
+   {
+      return -1;
+   }
+   if(t1->diff > t2->diff)
+   {
+      return 1;
+   }
    if(t1->value < t2->value)
    {
       return -1;
@@ -95,47 +103,26 @@ int tuple_2_compare_2nd(Tuple2Cell *t1, Tuple2Cell *t2)
 
 PermVector_p PermVectorCompute(FreqVector_p fmax, FreqVector_p fmin, 
 			       FreqVector_p fsum,
-			       long clauses, long pos_lit_clauses,
-			       long neg_lit_clauses, long max_len, 
+			       long clauses, long max_len, 
 			       bool eleminate_uninformative)
 {
-   Tuple2Cell *array;
+   Tuple3Cell *array;
    long i, size, start=0, start1=0, diff;
    PermVector_p handle;
 
    assert(fsum->size == fmax->size);
    assert(fsum->size == fmin->size);
 
-   array = SizeMalloc(fsum->size * sizeof(Tuple2Cell));
+   array = SizeMalloc(fsum->size * sizeof(Tuple3Cell));
    for(i=0; i<fsum->size; i++)
    {
       array[i].pos = i;
       diff = fmax->array[i]-fmin->array[i];
-      array[i].value = clauses*diff+fsum->array[i];
-      if(eleminate_uninformative && !diff && (clauses>1))
-      {
-	 if(StandardFreqVNegIndex(fsum,i))
-	 {
-	    if(neg_lit_clauses > 1)
-	    {
-	       array[i].value = 0;
-	    }
-	 }
-	 else if(StandardFreqVPosIndex(fsum,i))
-	 {
-	    if(pos_lit_clauses > 1)
-	    {
-	       array[i].value = 0;
-	    }	    
-	 }
-	 else
-	 {
-	    array[i].value = 0;
-	 }
-      }
+      array[i].diff  = diff;
+      array[i].value = fsum->array[i];
    }
-   qsort(array, fsum->size, sizeof(Tuple2Cell), 
-	 (ComparisonFunctionType)tuple_2_compare_2nd);
+   qsort(array, fsum->size, sizeof(Tuple3Cell), 
+	 (ComparisonFunctionType)tuple3_compare_23lex);
    
    if(fsum->size >  max_len)
    {
@@ -143,7 +130,10 @@ PermVector_p PermVectorCompute(FreqVector_p fmax, FreqVector_p fmin,
    }
    if(eleminate_uninformative)
    {
-      for(i=0; i<fsum->size && !array[i].value; i++);/* Intentional */
+      for(i=0; i<fsum->size && !array[i].diff; i++)
+      {
+	 /* Intentionally empty */
+      };
       start1 = i;
    }
    start = MAX(start, start1);
@@ -159,7 +149,7 @@ PermVector_p PermVectorCompute(FreqVector_p fmax, FreqVector_p fmin,
    {
       handle->array[i] = array[i+start].pos;
    }  
-   SizeFree(array, fsum->size * sizeof(Tuple2Cell));
+   SizeFree(array, fsum->size * sizeof(Tuple3Cell));
    /* PermVectorPrint(GlobalOut, handle); */
    return handle;
 }
@@ -301,10 +291,10 @@ void StandardFreqVectorAddVals(FreqVector_p vec, long sig_symbols,
    vec->array[0] += clause->pos_lit_no;
    vec->array[1] += clause->neg_lit_no;
    
-   nfreqstart  = &(vec->array[NON_SIG_FEATURES]);
-   pfreqstart  = &(vec->array[NON_SIG_FEATURES+1*(sig_symbols+1)]);
-   pdepthstart = &(vec->array[NON_SIG_FEATURES+2*(sig_symbols+1)]);
-   ndepthstart = &(vec->array[NON_SIG_FEATURES+3*(sig_symbols+1)]);
+   nfreqstart  = &(vec->array[FV_CLAUSE_FEATURES]);
+   pfreqstart  = &(vec->array[FV_CLAUSE_FEATURES+1*(sig_symbols+1)]);
+   pdepthstart = &(vec->array[FV_CLAUSE_FEATURES+2*(sig_symbols+1)]);
+   ndepthstart = &(vec->array[FV_CLAUSE_FEATURES+3*(sig_symbols+1)]);
    for(handle = clause->literals; handle; handle = handle->next)
    {
       if(EqnIsPositive(handle))
@@ -342,7 +332,7 @@ FreqVector_p StandardFreqVectorCompute(Clause_p clause, long sig_symbols)
    FreqVector_p vec;
 
    assert(clause);
-   vec = FreqVectorAlloc(SigSizeToFreqVectorSize(sig_symbols));
+   vec = FreqVectorAlloc(FVFullSize(sig_symbols));
    vec->clause = clause;
    StandardFreqVectorAddVals(vec, sig_symbols, clause);
    /* FreqVectorPrint(GlobalOut, vec); */
