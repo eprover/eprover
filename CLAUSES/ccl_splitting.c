@@ -262,14 +262,14 @@ int clause_split_general(Clause_p clause, ClauseSet_p set, SplitType
    FunCode          new_pred;
    TB_p             bank;
    Clause_p         new;
-   /* ClauseProperties props = ClauseGiveProps(clause,
-    * CPTypeMask|CPIsSOS); */
+   ClauseProperties props;
 
    assert(clause);
    assert(!clause->children);
    assert(!clause->set);
    assert(set);
 
+   props = ClauseGiveProps(clause, CPTypeMask|CPIsSOS);
    lit_no = ClauseLiteralNumber(clause);
 
    if(lit_no<=1 || ClauseHasSplitLiteral(clause))
@@ -345,7 +345,7 @@ int clause_split_general(Clause_p clause, ClauseSet_p set, SplitType
 	    }
 	 }
 	 new = ClauseAlloc(handle);
-	 /* new->properties = props; */
+	 new->properties = props;
 	 if(parent1)
 	 {
 	    new->parent1 = parent1;
@@ -366,7 +366,7 @@ int clause_split_general(Clause_p clause, ClauseSet_p set, SplitType
 	 DocClauseCreationDefault(new, inf_split, clause, NULL);
       }
       new = ClauseAlloc(join);
-      /*  new->properties = props; */
+      new->properties = props;
       if(parent1)
       {
 	 new->parent1 = parent1;
