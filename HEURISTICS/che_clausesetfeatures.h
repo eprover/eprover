@@ -78,6 +78,8 @@ typedef struct spec_feature_cell
    long         axioms;
    long         literals;
    long         term_cells;
+   long         clause_max_depth;
+   long         clause_avg_depth;
    long         unit;
    long         unitgoals;
    long         unitaxioms;
