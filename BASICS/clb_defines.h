@@ -88,8 +88,9 @@ typedef union int_or_p
 #define NULL ((void*)0)
 
 
-#define E_URL "http://www4.informatik.tu-muenchen.de/~schulz/WORK/eprover.html"
-#define STS_MAIL "schulz@informatik.tu-muenchen.de"
+#define E_URL "http://www.eprover.org"
+
+#define STS_MAIL "schulz@eprover.org"
 #define STS_SNAIL "Stephan Schulz (I4)\nTechnische Universitaet Muenchen\nInstitut fuer Informatik\nBoltzmannstrasse 3\n85748 Garching bei Muenchen\nGermany\n"
 
 /* Allow for volatile functions if the compiler supports them - 
