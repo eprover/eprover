@@ -6,7 +6,8 @@ Author: Stephan Schulz
 
 Contents
  
-  Functions and datatypes for handling and reporting errors. 
+  Functions and datatypes for handling and reporting errors, warnings,
+  and dealing with simple system stuff.
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence.
@@ -17,6 +18,8 @@ Changes
 
 <1> Sat Jul  5 02:20:53 MET DST 1997
     New
+<2> Wed Nov  3 13:30:39 CET 2004
+    Added real memory code.
 
 -----------------------------------------------------------------------*/
 
@@ -25,6 +28,7 @@ Changes
 #define CLB_ERROR
 
 #include <clb_defines.h>
+#include <string.h>
 
 #ifndef RESTRICTED_FOR_WINDOWS
 #include <sys/time.h>
@@ -35,6 +39,7 @@ Changes
 #include <syscall.h>
 #define getrusage(a, b)  syscall(SYS_GETRUSAGE, a, b)
 #endif
+
 
 
 /*---------------------------------------------------------------------*/
@@ -65,6 +70,9 @@ extern char  ErrStr[];
 extern int   TmpErrno;
 extern char* ProgName;
 
+long          GetSystemPageSize(void);
+long          GetSystemPhysMemory(void);
+
 void          InitError(char* progname);
 void          ReleaseErrorReserve(void);
 VOLATILE void Error(char* message, ErrorCodes ret);
@@ -74,6 +82,8 @@ void          PrintRusage(FILE* out);
 void          StrideMemory(char* mem, long size);
 
 bool          CheckLetterString(char* to_check, char* options);
+
+
 
 #endif
 

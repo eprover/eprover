@@ -273,10 +273,14 @@ OptCell opts[] =
     'm', "memory-limit",
     ReqArg, NULL,
     "Limit the memory the prover may use. The argument is "
-    "the allowed amount of memory in MB. This option may not work "
+    "the allowed amount of memory in MB. If you use the argument 'Auto',"
+    " the system will try to figure out the amount of physical memory of "
+    "your machine and claim most of it. This option may not work "
     "everywhere, due to broken and/or strange behaviour of setrlimit() "
-    "in some UNIX implementations. It does work under all tested "
-    "versions of Solaris and GNU/Linux."},   
+    "in some UNIX implementations, and due to the fact that I know "
+    "of no portable way to figure out the physical memory in a machine. "
+    "Both the option and the 'Auto' version  do work under all tested "
+    "versions of Solaris and GNU/Linux."},
 
    {OPT_CPU_LIMIT,
     '\0', "cpu-limit",
@@ -1330,7 +1334,26 @@ CLState_p process_options(int argc, char* argv[])
 	    break;
 #ifndef RESTRICTED_FOR_WINDOWS
       case OPT_MEM_LIMIT:
-	    h_parms->mem_limit = CLStateGetIntArg(handle, arg);
+            if(strcmp(arg, "Auto")==0)
+            {              
+               long tmpmem =  GetSystemPhysMemory();
+               long mem_limit = 0.8*tmpmem;
+
+               if(tmpmem==-1)
+               {
+                  Error("Cannot find physical memory automatically", OTHER_ERROR);
+               }               
+               h_parms->mem_limit = mem_limit;
+               VERBOSE(fprintf(stderr, 
+                               "Physical memory determined as %ld MB\n"
+                               "Memory limit set to %ld MB\n", 
+                               tmpmem, 
+                               mem_limit););
+            }
+            else
+            {
+               h_parms->mem_limit = CLStateGetIntArg(handle, arg);
+            }
 	    if(getrlimit(RLIMIT_DATA, &limit))
 	    {
 	       TmpErrno = errno;

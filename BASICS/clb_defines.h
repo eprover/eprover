@@ -126,14 +126,6 @@ typedef unsigned long ulong_c;
 /*---------------------------------------------------------------------*/
 
 
-#ifdef _SC_PAGESIZE
-#define E_PAGE_SIZE sysconf(_SC_PAGESIZE)
-#else
-#define E_PAGE_SIZE 4096 /* Should not be bigger as system page size -
-			    I need to find a portable way to get the
-			    page size! */
-#endif
-
 /* Maximum and minimum, absolute values, exclusive or functions */
 
 #ifdef MAX

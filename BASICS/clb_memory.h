@@ -30,7 +30,6 @@ Changes
 #include "clb_newmem.h"
 #else
 
-#include <string.h>
 #include "clb_verbose.h"
 
 /*---------------------------------------------------------------------*/

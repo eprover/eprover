@@ -6,7 +6,7 @@ Author: Stephan Schulz
 
 Contents
  
-  Routines for handling errors and warnings.
+  Routines for handling errors, warnings, and system stuff.
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence.
@@ -62,6 +62,101 @@ char* EmptyString = "";
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
+
+/* Handle various versions of sysconf() pagesize (usually from
+ * unistd.h) */
+
+#ifdef _SC_PAGESIZE
+#define E_SC_PAGE_SIZE _SC_PAGESIZE
+#elif defined(_SC_PAGE_SIZE)
+#define E_SC_PAGE_SIZE _SC_PAGE_SIZE
+#endif
+
+/*-----------------------------------------------------------------------
+//
+// Function: GetSystemPageSize()
+//
+//   Find and return the system page size (in bytes), if
+//   possible. Return -1 otherwise. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long GetSystemPageSize(void)
+{
+   long res = -1;
+
+#ifdef E_SC_PAGE_SIZE
+   errno = 0;
+   res = sysconf(E_SC_PAGE_SIZE);
+   if(errno)
+   {
+      assert(res==-1);
+      Warning("sysconf() call to get page size failed!\n");
+      res = -1;
+   }
+#endif
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: GetSystemPhysMemory()
+//
+//   Try to find the phyical memory installed in the machine. Return
+//   it (in MB) or -1 if no information can be obtained.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+#define MEM_PHRASE "Primary memory available: "
+
+long GetSystemPhysMemory(void)
+{
+   long res = 0;
+#if defined(E_SC_PAGE_SIZE) && defined(_SC_PHYS_PAGES)
+   {
+      long long tmpres = 0, pages, pagesize;
+
+      page_size = GetSystemPageSize();
+      pages = sysconf(_SC_PHYS_PAGES);
+      if((page_size !=-1) && (pages != -1))
+      {
+         tmpres = page_size * pages;
+         res = tmpres / MEGA;
+      }
+   }
+#endif
+   if(!res)
+   {
+      FILE* pipe;
+      char line[120];
+      int limit = strlen(MEM_PHRASE);
+
+      pipe = popen("hostinfo", "r");
+      if(pipe)
+      {
+         while(fgets(line, 120, pipe))
+         {
+            if(strncmp(MEM_PHRASE, line, limit)==0)
+            {
+               res = atol(line+limit);
+            }
+         }
+   
+         fclose(pipe);
+      }      
+   }
+   return res;
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -251,8 +346,19 @@ void PrintRusage(FILE* out)
 void StrideMemory(char* mem, long size)
 {
    char* stride;
+   static long e_page_size = 0;
+
+   if(!e_page_size)
+   {
+      e_page_size = GetSystemPageSize();
+   }
+   if(e_page_size==-1)
+   {
+      Warning("Could not determine page size, guessing 4096!");
+      e_page_size=4096;
+   }
    
-   for(stride = mem; stride < mem+size; stride+=E_PAGE_SIZE) 
+   for(stride = mem; stride < mem+size; stride+=e_page_size) 
    {
       *stride = 'S'; /* Arbitrary value*/
    }
