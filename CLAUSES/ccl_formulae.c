@@ -33,6 +33,7 @@ Changes
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
 
+Formula_p elem_form_tptp_parse(Scanner_p in, TB_p terms);
 
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
@@ -43,6 +44,30 @@ Changes
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaAlloc()
+//
+//   Return an empty, initialized FormulaCell.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+Formula_p FormulaAlloc(void)
+{
+   Formula_p res = FormulaCellAlloc();
+   
+   res->special.var = NULL;
+   res->ref_count = 0;
+   res->arg1 = NULL;
+   res->arg2 = NULL;
+   return res;
+}
+   
 
 
 /*-----------------------------------------------------------------------
@@ -61,9 +86,8 @@ Changes
 void FormulaFree(Formula_p form)
 {
    assert(form);
-   assert(form->ref_count>0);
+   assert(form->ref_count>=0);
 
-   form->ref_count--;
    if(form->ref_count)
    {
       return;
@@ -76,10 +100,12 @@ void FormulaFree(Formula_p form)
    {
       if(FormulaHasSubForm1(form))
       {
+	 FormulaRelRef(form->arg1);
          FormulaFree(form->arg1);
       }
       if(FormulaHasSubForm2(form))
       {
+	 FormulaRelRef(form->arg2);
          FormulaFree(form->arg2);
       }    
    }
@@ -102,16 +128,15 @@ void FormulaFree(Formula_p form)
 
 Formula_p FormulaOpAlloc(FOFOperatorType op, Formula_p arg1, Formula_p arg2)
 {
-   Formula_p res = FormulaCellAlloc();
+   Formula_p res = FormulaAlloc();
    
    assert(OpIsUnary(op)||OpIsBinary(op));
-   assert(EQUIV(OpIsBinary(op),!arg2));
-
+   assert(EQUIV(OpIsBinary(op),arg2));
+   
    res->op = op;
    res->special.var = NULL;
    res->arg1 = FormulaGetRef(arg1);
    res->arg2 = FormulaGetRef(arg2);
-   res->polarity = 0;
 
    return res;          
 }
@@ -131,7 +156,7 @@ Formula_p FormulaOpAlloc(FOFOperatorType op, Formula_p arg1, Formula_p arg2)
 
 Formula_p FormulaLitAlloc(Eqn_p literal)
 {
-   Formula_p res = FormulaCellAlloc();
+   Formula_p res = FormulaAlloc();
    
    assert(literal);
 
@@ -139,7 +164,6 @@ Formula_p FormulaLitAlloc(Eqn_p literal)
    res->special.literal =literal;
    res->arg1 = NULL;
    res->arg2 = NULL;
-   res->polarity = 0;
 
    return res;          
 
@@ -160,7 +184,7 @@ Formula_p FormulaLitAlloc(Eqn_p literal)
 
 Formula_p FormulaQuantorAlloc(FOFOperatorType quantor, Term_p var, Formula_p arg1)
 {
-   Formula_p res = FormulaCellAlloc();
+   Formula_p res = FormulaAlloc();
    
    assert(OpIsQuantor(quantor));
    assert(var);
@@ -171,7 +195,6 @@ Formula_p FormulaQuantorAlloc(FOFOperatorType quantor, Term_p var, Formula_p arg
    res->special.var = var;
    res->arg1 = FormulaGetRef(arg1);
    res->arg2 = NULL;
-   res->polarity = 0;
 
    return res;
 }   
@@ -193,7 +216,7 @@ void FormulaTPTPPrint(FILE* out, Formula_p form, bool fullterms)
    assert(form);
 
    if(FormulaIsLiteral(form))
-   {
+   {      
       EqnTSTPPrint(out, form->special.literal, fullterms);
    }
    else if(FormulaIsQuantified(form))
@@ -201,13 +224,13 @@ void FormulaTPTPPrint(FILE* out, Formula_p form, bool fullterms)
       switch(form->op)
       {
       case OpQEx:
-            fputs("![", out);
-            break;
-      case OpQAll:
             fputs("?[", out);
             break;
+      case OpQAll:
+            fputs("![", out);
+            break;
       default:
-            assert(false && "Wrong operator");
+            assert(false && "Wrong quantor");
       }
       TermPrint(out, form->special.var, NULL, DEREF_NEVER);
       fputs("]:", out);
@@ -216,13 +239,21 @@ void FormulaTPTPPrint(FILE* out, Formula_p form, bool fullterms)
    else if(FormulaIsUnary(form))
    {
       assert(form->op == OpUNot);
-      fputs("~(", out);
-      FormulaTPTPPrint(out, form->arg1, fullterms);
-      fputs(")", out);
+      if(FormulaIsBinary(form->arg1))
+      {
+	 fputs("~(", out);
+	 FormulaTPTPPrint(out, form->arg1, fullterms);
+	 fputs(")", out);
+      }
+      else
+      {
+	 fputc('~', out);
+	 FormulaTPTPPrint(out, form->arg1, fullterms);
+      }
    }
    else
    {
-      char* oprep;
+      char* oprep = "XXX";
 
       assert(FormulaIsBinary(form));
       fputs("(", out);
@@ -377,7 +408,7 @@ FOFOperatorType tptp_quantor_parse(Scanner_p in)
 //
 //   Parse a quantified TPTP/TSTP formula. At this point, the quantor
 //   has already been read (and is passed into the function), and we
-//   are at the first variable.
+//   are at the first (or current) variable.
 //
 // Global Variables: -
 //
@@ -387,9 +418,43 @@ FOFOperatorType tptp_quantor_parse(Scanner_p in)
 
 Formula_p quantified_form_tptp_parse(Scanner_p in, 
                                      TB_p terms, 
-                                     FOFOperatorType op)
+                                     FOFOperatorType quantor)
 {
+   Term_p     var;
+   Formula_p  rest, res;
+   DStr_p     source_name, errpos;
+   long       line, column;
+   StreamType type;
    
+   line = AktToken(in)->line;
+   column = AktToken(in)->column;
+   source_name = DStrGetRef(AktToken(in)->source);
+   type = AktToken(in)->stream_type;
+
+   var = TBTermParse(in, terms);
+   if(!TermIsVar(var))
+   {
+      errpos = DStrAlloc();
+      
+      DStrAppendStr(errpos, PosRep(type, source_name, line, column));
+      DStrAppendStr(errpos, " Variable expected, non-variable term found");
+      Error(DStrView(errpos), SYNTAX_ERROR);
+      DStrFree(errpos);
+   }
+   DStrReleaseRef(source_name);
+   if(TestInpTok(in, Comma))
+   {
+      AcceptInpTok(in, Comma);
+      rest = quantified_form_tptp_parse(in, terms, quantor);
+   }
+   else
+   {
+      AcceptInpTok(in, CloseSquare);
+      AcceptInpTok(in, Colon);      
+      rest = elem_form_tptp_parse(in, terms);
+   }
+   res = FormulaQuantorAlloc(quantor, var, rest);
+   return res;
 }
 
 

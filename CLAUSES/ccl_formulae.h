@@ -30,27 +30,29 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-/* Operand for FOF formulae. There is some reason for this scheme:
-   Quantors have bit 1 set, binary operators have bit 2 set (counting
-   starts at 0! */
+/* Operand for FOF formulae. */
 
 typedef enum 
 {
    OpNoOp   = 0,
    OpIsLit  = OpNoOp,
-   OpUNot   = 1,
-   OpQEx    = 2,
-   OpQAll   = 3,
-   OpBAnd   = 4,
-   OpBOr    = 5,
-   OpBImpl  = 6,
-   OpBEquiv = 7,
-   OpBNand  = 12,
-   OpBNor   = 13,
-   OpBNImpl = 14,
-   OpBXor  =  15,
+   OpUNot,
+   OpQEx,
+   OpQAll,
+   OpBAnd,
+   OpBOr,
+   OpBImpl,
+   OpBEquiv,
+   OpBNand,
+   OpBNor,
+   OpBNImpl,
+   OpBXor,
 }FOFOperatorType;
 
+
+/* We are going with opportunistic sharing here, i.e. we do not look
+   for identical subformula, but whenever we need an uninstantiated
+   copy, we just hand out a new reference. */
 
 typedef struct formula_cell
 {
@@ -65,7 +67,6 @@ typedef struct formula_cell
    }special;
    struct formula_cell *arg1;
    struct formula_cell *arg2;
-   short               polarity;
    long                ref_count;
 }FormulaCell, *Formula_p;
 
@@ -75,13 +76,13 @@ typedef struct formula_cell
 /*---------------------------------------------------------------------*/
 
 #define OpIsUnary(op)   ((op)==OpUNot)
-#define OpIsBinary(op)  ((op) & 4)
-#define OpIsQuantor(op) ((op) &2)
+#define OpIsBinary(op)  ((op)>= OpBAnd)
+#define OpIsQuantor(op) (((op)==OpQEx) || ((op)==OpQAll))
 
 #define FormulaCellAlloc()    (FormulaCell*)SizeMalloc(sizeof(FormulaCell))
 #define FormulaCellFree(junk) SizeFree(junk, sizeof(FormulaCell))
-#define FormulaGetRef(form) ((form)?(form)->ref_count++,(form):NULL)
-#define FormulaRelRef(form) ((form)?:(form)->ref_count--,NULL:NULL)
+#define FormulaGetRef(form)   ((form)?(form)->ref_count++,(form):NULL)
+#define FormulaRelRef(form)   ((form)?(form)->ref_count--,NULL:NULL)
 
 
 #ifdef CONSTANT_MEM_ESTIMATE
@@ -90,14 +91,14 @@ typedef struct formula_cell
 #define FORMULACELL_MEM MEMSIZE(FormulaCell)
 #endif
 
-#define   FormulaHasSubForm1(form) ((form)->op!=OpNoOp)
-#define   FormulaHasSubForm2(form) OpIsBinary((form)->op)
-#define   FormulaIsBinary(form)       OpIsBinary((form)->op)
-#define   FormulaIsUnary(form)        OpIsUnary((form)->op)
-#define   FormulaIsQuantified(form)      OpIsQuantor((form)->op)
-#define   FormulaIsLiteral(form)   ((form)->op==OpNoOp)
+#define   FormulaHasSubForm1(form)  ((form)->op!=OpNoOp)
+#define   FormulaHasSubForm2(form)  OpIsBinary((form)->op)
+#define   FormulaIsBinary(form)     OpIsBinary((form)->op)
+#define   FormulaIsUnary(form)      OpIsUnary((form)->op)
+#define   FormulaIsQuantified(form) OpIsQuantor((form)->op)
+#define   FormulaIsLiteral(form)    ((form)->op==OpNoOp)
 
-
+Formula_p FormulaAlloc(void);
 void      FormulaFree(Formula_p form);
 Formula_p FormulaOpAlloc(FOFOperatorType op, Formula_p arg1, Formula_p arg2);
 Formula_p FormulaLitAlloc(Eqn_p literal);
