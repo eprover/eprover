@@ -661,7 +661,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control,
 	 PermVector_p perm;
 	 long symbol_size = control->split_clauses? /* Leave some slack for
 						       split symbols */
-	    state->original_symbols+30:
+	    state->original_symbols+fvi_parms->symbol_slack:
 	    state->original_symbols;
 	 
 	 state->processed_non_units->fvindex =
@@ -704,7 +704,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control,
 
 	 tmpsize = control->split_clauses? /* Leave some slack for
 					      split symbols */
-	    state->original_symbols+30:
+	    state->original_symbols+fvi_parms->symbol_slack:
 	    state->original_symbols;
 	 symbol_size = MIN((fvi_parms->max_features-NON_SIG_FEATURES)/2,
 			   tmpsize);
