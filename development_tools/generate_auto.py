@@ -415,7 +415,7 @@ def parse_ordering_info(line):
 #------------------------------------------------------------------
 
 class_int={
-    6: {"U": "AxiomsAreUnit", "H": "AxiomsAreHorn", "G": "AxiomsAreGeneral"},
+    6: {"U": "AxiomsAreUnit", "H": "AxiomsAreNonUnitHorn", "G": "AxiomsAreGeneral"},
     7: {"U": "GoalsAreUnit", "H": "GoalsAreHorn", "G": "GoalsAreGeneral"},
     8: {"N": "NoEq", "S": "SomeEq", "P": "PureEq"},
     9: {"F": "FewNGPosUnits", "S": "SomeNGPosUnits", "M": "ManyNGPosUnits"},
@@ -692,7 +692,7 @@ if optimize_large_class_limit > 0:
             result[cand] = h
             # print "Heuristic for "+cand+" changed from "+tmp+" to "+h
             if not h in myused:
-                used.apped.h
+                used.append(h)
                 myused[h] = True
 
 # And now we print the results
