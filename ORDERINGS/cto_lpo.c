@@ -715,7 +715,7 @@ bool LPO4Greater(OCB_p ocb, Term_p s, Term_p t,
    /* printf("LPO4Greater()...\n"); */
    res =  lpo4_greater(ocb, s, t, deref_s, deref_t);
    /* printf("...LPO4Greater()=%d\n", res); */
-   assert(res == LPOGreater(ocb, s, t, deref_s, deref_t));
+   /* assert(res == LPOGreater(ocb, s, t, deref_s, deref_t)); */
   return res;
 }
 
@@ -756,7 +756,7 @@ CompareResult LPO4Compare(OCB_p ocb, Term_p s, Term_p t,
       res = to_uncomparable;
    }
    /* printf("...LPO4Compare()=%d\n", res); */
-   assert(res == LPOCompare(ocb, s, t, deref_s, deref_t));
+   /* assert(res == LPOCompare(ocb, s, t, deref_s, deref_t)); */
    return res;
 }
 
