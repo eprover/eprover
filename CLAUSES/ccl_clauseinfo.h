@@ -57,12 +57,12 @@ ClauseInfo_p ClauseInfoAlloc(char* name, char* source, long line, long column);
 #define      ClauseInfoAllocEmpty() ClauseInfoAlloc(NULL, NULL, -1, -1)
 void         ClauseInfoFree(ClauseInfo_p info);
 void         ClauseSourceInfoPrint(FILE* out, ClauseInfo_p info, 
-                                   char *inf_lit, char delim); 
+                                   char *inf_lit, char* delim); 
 #define ClauseSourceInfoPrintTSTP(out, info) \
-        ClauseSourceInfoPrint((out), (info), "file", '\'')
+        ClauseSourceInfoPrint((out), (info), "file", "'")
 
 #define ClauseSourceInfoPrintPCL(out, info) \
-        ClauseSourceInfoPrint((out), (info), "initial", '"')
+        ClauseSourceInfoPrint((out), (info), "initial", "\"")
 
 
 #endif

@@ -71,6 +71,7 @@ char*   DStrAppendStrArray(DStr_p strdes, char* array[], char*
         DStrAppendStr((strdes), DStrView(str))
 char*   DStrView(DStr_p strdes);
 char*   DStrCopy(DStr_p strdes);
+char*   DStrCopyCore(DStr_p strdes);
 char*   DStrSet(DStr_p strdes, char* string);
 long    DStrLen(DStr_p strdes);
 void    DStrReset(DStr_p strdes);

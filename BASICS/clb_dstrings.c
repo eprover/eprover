@@ -263,7 +263,7 @@ char* DStrView(DStr_p strdes)
 //
 // Global Variables: -
 //
-// Side Effects    : -
+// Side Effects    : Memort operations
 //
 /----------------------------------------------------------------------*/
 
@@ -284,6 +284,37 @@ char* DStrCopy(DStr_p strdes)
    }
    return SecureStrdup(NullStr);
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: DStrCopyCore()
+//
+//   Return a pointer to a copy of the stored string without the fiest
+//   and last character (this is useful for stripping quotes off
+//   string literals). The user is responsible for freeing the memory
+//   (via free()/FREE()). Fails if string has less than two characters.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+char* DStrCopyCore(DStr_p strdes)
+{
+   char* handle;
+
+   assert(strdes);
+   assert(strdes->string);
+   assert(strdes->len >= 2);
+
+   handle = SecureMalloc(strdes->len-1);
+   strncpy(handle,strdes->string+1, strdes->len-2);
+   handle[strdes->len-2] = 0;
+   return handle;
+}
+
 
 
 /*-----------------------------------------------------------------------

@@ -99,7 +99,7 @@ void PCLExprFree(PCLExpr_p junk)
       else if(junk->op==PCLOpInitial)
       {
          assert(PCLExprArg(junk,i));
-	 FREE(PCLExprArg(junk,i)); /* It's just a string */
+	 ClauseInfoFree(PCLExprArg(junk,i));
       }
       else
       {
@@ -146,7 +146,7 @@ void PCLMiniExprFree(PCLExpr_p junk)
       else if(junk->op==PCLOpInitial)
       {
          assert(PCLExprArg(junk,i));
-	 FREE(PCLExprArg(junk,i)); /* It's just a string */
+	 ClauseInfoFree(PCLExprArg(junk,i));
       }
       else
       {
@@ -180,6 +180,7 @@ PCLExpr_p PCLExprParse(Scanner_p in, bool mini)
 {
    PCLExpr_p handle=PCLExprAlloc();
    long      i, arg_no=0;
+   ClauseInfo_p info = NULL;
 
    if(TestInpTok(in,PosInt))
    {      
@@ -208,12 +209,16 @@ PCLExpr_p PCLExprParse(Scanner_p in, bool mini)
       NextToken(in);
       if(TestInpTok(in, OpenBracket))
       {
+         info = ClauseInfoAllocEmpty();
          NextToken(in);
-         CheckInpTok(in, Name|PosInt);
-         handle->arg_no = 1;
-         PCLExprArg(handle,0) = DStrCopy(AktToken(in)->literal);
-         NextToken(in);
+         info->source = DStrCopyCore(AktToken(in)->literal);
+         AcceptInpTok(in, String);
+         AcceptInpTok(in, Comma);
+         info->name = DStrCopy(AktToken(in)->literal);
+         AcceptInpTok(in, Name|PosInt);
          AcceptInpTok(in, CloseBracket);
+         handle->arg_no = 1;
+         PCLExprArg(handle,0) = info;
       }
       else
       {
@@ -369,12 +374,15 @@ void PCLExprPrint(FILE* out, PCLExpr_p expr, bool mini)
    assert(expr->args);
    
    if(expr->op== PCLOpInitial)
-   {
-      fprintf(out, "initial");
+   {      
       if(expr->arg_no)
       {
          assert(expr->arg_no == 1);
-         fprintf(out,"(\"%s\")", (char*)PCLExprArg(expr,0));
+         ClauseSourceInfoPrintPCL(out, PCLExprArg(expr,0));
+      }
+      else
+      {
+         fprintf(out, "initial");
       }
       return;
    }
@@ -514,11 +522,15 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
    
    if(expr->op== PCLOpInitial)
    {
-      fprintf(out, "unknown");
+     
       if(expr->arg_no)
       {
          assert(expr->arg_no == 1);
-         fprintf(out,"(\"%s\")", (char*)PCLExprArg(expr,0));
+         ClauseSourceInfoPrintTSTP(out, PCLExprArg(expr,0));
+      }
+      else
+      {
+         fprintf(out, "unknown");
       }
       return;
    }

@@ -271,7 +271,11 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
    
    lterm = TBTermParse(in, bank);
    BOOL_TERM_NORMALIZE(lterm);
-   if(TestInpTok(in, Exclamation | EqualSign))
+   if(TestInpTok(in, Exclamation | EqualSign) && 
+      /* Now take care of the case =>, which we cannot currently
+         handle at the lexer level, as we are out of token codes. */
+      (LookToken(in, 1)->skipped ||
+       !TestTok(LookToken(in,1), GreaterSign)))
    {
       if(TestInpTok(in, Exclamation))
       {
@@ -769,6 +773,72 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
 	 } */
    }
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: EqnFOFPrint()
+//
+//   Print an equation in FOF format. For LOP/TSTP that is infix, for
+//   TPTP it is prefix.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void EqnFOFPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
+{
+   bool positive = XOR(EqnIsPositive(eq), negated);
+
+   switch(OutputFormat)
+   {
+   case TPTPFormat:
+         if(!positive)
+         {
+            fprintf(out,"~");
+         }
+         if(EqnIsEquLit(eq))
+         {
+            fprintf(out, EQUAL_PREDICATE"(");
+            TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
+            fprintf(out, ", ");
+            TBPrintTerm(out, eq->bank, eq->rterm, fullterms);
+            fputc(')', out);
+         }
+         else
+         {
+            TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
+         }
+         break;
+   case TSTPFormat:
+   case LOPFormat:
+         if(EqnIsEquLit(eq))
+         {
+            TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
+            if(!positive)
+            {
+               fputc('!', out);
+            }
+	    fputc('=', out);
+            TBPrintTerm(out, eq->bank, eq->rterm, fullterms);
+	 }         
+         else
+         {
+            if(!positive)
+            {
+               fputc('~', out);
+            }
+             TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
+         }
+         break;
+   default:
+         assert(false && "Format nor supported.");
+         break;
+   }
+}
+
 
 
 /*-----------------------------------------------------------------------

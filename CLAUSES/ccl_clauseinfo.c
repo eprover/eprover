@@ -128,7 +128,7 @@ void ClauseInfoFree(ClauseInfo_p info)
 //
 /----------------------------------------------------------------------*/
 
-void ClauseSourceInfoPrint(FILE* out, ClauseInfo_p info, char *inf_lit, char delim)
+void ClauseSourceInfoPrint(FILE* out, ClauseInfo_p info, char *inf_lit, char* delim)
 {
    DStr_p source_accu = DStrAlloc();
    char *source = "unknown";
@@ -137,9 +137,9 @@ void ClauseSourceInfoPrint(FILE* out, ClauseInfo_p info, char *inf_lit, char del
 
    if(info->source)
    {
-      DStrAppendChar(source_accu, delim);
+      DStrAppendStr(source_accu, delim);
       DStrAppendStr(source_accu, info->source);
-      DStrAppendChar(source_accu, delim);
+      DStrAppendStr(source_accu, delim);
       source = DStrView(source_accu);
    }
    name = info->name;

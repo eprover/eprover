@@ -27,6 +27,7 @@ Changes
 #include <can_infstate.h>
 #include <pcl_idents.h>
 #include <pcl_positions.h>
+#include <ccl_clauseinfo.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */

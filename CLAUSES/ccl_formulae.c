@@ -447,7 +447,7 @@ void FormulaTPTPPrint(FILE* out, Formula_p form, bool fullterms)
 
    if(FormulaIsLiteral(form))
    {      
-      EqnTSTPPrint(out, form->special.literal, fullterms);
+      EqnFOFPrint(out, form->special.literal, false, fullterms);
    }
    else if(FormulaIsQuantified(form))
    {
