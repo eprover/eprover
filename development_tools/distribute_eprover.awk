@@ -728,7 +728,7 @@ function kill_job(lockfile,     host, pid, res)
       if(ping_host(host))
       {
 	 pid  = find_pid_in_protocoll(lockfile);
-	 print "ssh -x " host " kill " pid | "/bin/sh";
+	 print "ssh -x " host " kill " pid "\n"| "/bin/sh";
 	 res = 1;
       }
       else
@@ -736,8 +736,8 @@ function kill_job(lockfile,     host, pid, res)
 	 print "Host " host " not reachable";
 	 res = 0;
       }
-      print "rm " cwd "/" host "_lock" | "/bin/sh";
-      print "rm " cwd "/" host "_complete" | "/bin/sh";
+      print "rm " cwd "/" host "_lock\n" | "/bin/sh";
+      print "rm " cwd "/" host "_complete\n" | "/bin/sh";
       close("/bin/sh");
       return res;
    }
