@@ -122,7 +122,7 @@ PCLMiniStep_p PCLMiniStepParse(Scanner_p in, TB_p bank)
    if(TestInpTok(in, Colon))
    {
       NextToken(in);
-      CheckInpTok(in, String);
+      CheckInpTok(in, SQString);
       handle->extra = DStrCopy(AktToken(in)->literal);
       NextToken(in);
    }    

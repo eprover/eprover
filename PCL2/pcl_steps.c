@@ -163,7 +163,7 @@ PCLStep_p PCLStepParse(Scanner_p in, TB_p bank)
    if(TestInpTok(in, Colon))
    {
       NextToken(in);
-      CheckInpTok(in, Name|PosInt);
+      CheckInpTok(in, SQString|Name|PosInt);
       handle->extra = DStrCopy(AktToken(in)->literal);
       NextToken(in);
    }    
