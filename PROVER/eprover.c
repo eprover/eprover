@@ -33,7 +33,7 @@ Changes
 /*---------------------------------------------------------------------*/
 
 /*  cvs tag E-0-82dev027 */
-#define VERSION      "0.82dev027"
+#define VERSION      "0.82dev028"
 #define NAME         "eprover"
 
 #define NICKNAME     "Lung Ching"
