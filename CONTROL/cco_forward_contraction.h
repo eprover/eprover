@@ -50,9 +50,11 @@ Changes
 void ForwardModifyClause(ProofState_p state, ProofControl_p control,
 			 Clause_p clause, RewriteLevel level);
 
-bool ForwardContractClause(ProofState_p state, ProofControl_p control,
-			   Clause_p clause, bool non_unit_subsumption,
-			   RewriteLevel level);
+FVPackedClause_p ForwardContractClause(ProofState_p state, 
+				       ProofControl_p control,
+				       Clause_p clause,
+				       bool non_unit_subsumption,
+				       RewriteLevel level);
 
 Clause_p ForwardContractSet(ProofState_p state, ProofControl_p
 			    control, ClauseSet_p set, bool

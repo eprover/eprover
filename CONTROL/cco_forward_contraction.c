@@ -45,11 +45,11 @@ Changes
 //
 // Function: forward_contract_keep()
 //
-//   Apply all forward-contracting inferences to clause. Return false
-//   it becomes trivial, return true otherwise. Does not delete
-//   clause. Subsumed and trivial clauses are counted in the cells
-//   pointed to by the 3rd and 4th argument. Provide dummies to avoid
-//   this. 
+//   Apply all forward-contracting inferences to clause. Return NULL
+//   if it becomes trivial, a FVPackedClause containing it
+//   otherwise. Does not delete clause. Subsumed and trivial clauses
+//   are counted in the cells pointed to by the 3rd and 4th
+//   argument. Provide dummies to avoid this.
 //
 // Global Variables: -
 //
@@ -57,20 +57,23 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-static bool forward_contract_keep(ProofState_p state, ProofControl_p
-				  control, Clause_p clause, ulong_c*
-				  subsumed_count, ulong_c* trivial_count,
-				  bool non_unit_subsumption,
-				  RewriteLevel level)
+static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
+					      control, Clause_p clause, ulong_c*
+					      subsumed_count, ulong_c* trivial_count,
+					      bool non_unit_subsumption,
+					      RewriteLevel level)
 {
+   FVPackedClause_p pclause;
+   
    assert(clause);
    assert(state);
+   
 
    ForwardModifyClause(state, control, clause, level);
 
    if(ClauseIsEmpty(clause))
    {
-      return true;
+      return FVPackClause(clause, NULL);
    }
    
    if(control->ac_handling_active && ClauseIsACRedundant(clause))
@@ -81,24 +84,25 @@ static bool forward_contract_keep(ProofState_p state, ProofControl_p
 	  !EqnIsOriented(clause->literals)))
       {
 	 (*trivial_count)++;
-	 return false;
+	 return NULL;
       }
       ClauseSetProp(clause, CPNoGeneration);
    }
-
+   
    if(ClauseIsTautology(state->tmp_terms, clause))
       /* if(ClauseIsTrivial(clause)) */
    {
       (*trivial_count)++;
-      return false;
+      return NULL;
    }
    assert(!ClauseIsTrivial(clause));
-         
+   
    if(ClauseLiteralNumber(clause)>1)
    {
       clause->weight = ClauseStandardWeight(clause);
    }
-      
+   pclause = FVPackClause(clause, state->processed_non_units->fvindex);
+   
    if((clause->pos_lit_no &&        
        UnitClauseSetSubsumesClause(state->processed_pos_eqns,
 				   clause)) ||
@@ -107,11 +111,12 @@ static bool forward_contract_keep(ProofState_p state, ProofControl_p
 				   clause)) ||
       (ClauseLiteralNumber(clause)>1 &&
        non_unit_subsumption &&
-       ClauseSetSubsumesClause(state->processed_non_units, clause)))      
+       ClauseSetSubsumesFVPackedClause(state->processed_non_units, pclause)))      
    {
       DEBUGMARK(PP_LOWDETAILS, "Clause subsumed!\n");
       (*subsumed_count)++;
-      return false;
+      FVUnpackClause(pclause);
+      return NULL;
    }
    ClauseDelProp(clause, CPIsOriented);
    DoLiteralSelection(control, clause);
@@ -119,8 +124,44 @@ static bool forward_contract_keep(ProofState_p state, ProofControl_p
    {
       ClauseMarkMaximalLiterals(control->ocb, clause);
    }
-   return true;
+   return pclause;
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: forward_contract_keep_wrap()
+//
+//   As forward_contract_keep(), but return just true or false as the
+//   old version did.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+
+static bool forward_contract_keep_wrap(ProofState_p state, ProofControl_p
+				       control, Clause_p clause, ulong_c*
+				       subsumed_count, ulong_c* trivial_count,
+				       bool non_unit_subsumption,
+				       RewriteLevel level)
+{
+   FVPackedClause_p pclause = forward_contract_keep(state, 
+						    control,
+						    clause,
+						    subsumed_count, 
+						    trivial_count, 
+						    non_unit_subsumption, 
+						    level);
+   if(pclause)
+   {
+      FVUnpackClause(pclause);
+      return true;
+   }
+   return false;
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -177,9 +218,9 @@ void ForwardModifyClause(ProofState_p state, ProofControl_p control,
 //
 // Function: ForwardContractClause()
 //
-//   Apply all forward-contracting inferences to clause. Return false
-//   and delete the clause if it becomes trivial, return true
-//   otherwise. 
+//   Apply all forward-contracting inferences to clause. Return NULL
+//   and delete the clause if it becomes trivial, return
+//   FVPackedClause otherwise. 
 //
 // Global Variables: -
 //
@@ -187,11 +228,13 @@ void ForwardModifyClause(ProofState_p state, ProofControl_p control,
 //
 /----------------------------------------------------------------------*/
 
-bool ForwardContractClause(ProofState_p state, ProofControl_p control,
-			   Clause_p clause, bool non_unit_subsumption,
-			   RewriteLevel level)
+FVPackedClause_p ForwardContractClause(ProofState_p state, 
+				       ProofControl_p control,
+				       Clause_p clause, 
+				       bool non_unit_subsumption,
+				       RewriteLevel level)
 {
-   bool res;
+   FVPackedClause_p res;
 
    DEBUGMARK(PP_HIGHDETAILS, "ForwardContractClause...\n");
    assert(clause);

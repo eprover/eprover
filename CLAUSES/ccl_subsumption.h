@@ -54,9 +54,10 @@ Clause_p ClauseSetFindUnitSubsumedClause(ClauseSet_p set, Clause_p
 
 bool     ClauseSubsumesClause(Clause_p subsumer, Clause_p
 			      sub_candidate);
+bool     ClauseSetSubsumesFVPackedClause(ClauseSet_p set, 
+					 FVPackedClause_p sub_candidate);
 bool     ClauseSetSubsumesClause(ClauseSet_p set, Clause_p
 				 sub_candidate);
-
 Clause_p ClauseSetFindSubsumedClause(ClauseSet_p set, Clause_p
 				     set_position, Clause_p
 				     subsumer);

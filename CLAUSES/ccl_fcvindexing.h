@@ -89,7 +89,7 @@ typedef struct fv_index_cell
    {
       struct fv_index_cell **successors;
       struct fv_index_cell *succ;
-      PTree_p              clauses;
+      PTree_p clauses;
    } u1;
 }FVIndexCell, *FVIndex_p;
 
@@ -97,6 +97,7 @@ typedef struct fvi_anchor_cell
 {
    long      symbol_limit;
    long      node_count;
+   long      array_count;
    FVIndex_p index;
 }FVIAnchorCell, *FVIAnchor_p;
 
@@ -121,7 +122,7 @@ void             StandardFreqVectorAddVals(FreqVector_p vec, long sig_symbols,
 FreqVector_p     StandardFreqVectorCompute(Clause_p clause, long sig_symbols);
 FVPackedClause_p FVPackClause(Clause_p clause, FVIAnchor_p index);
 Clause_p         FVUnpackClause(FVPackedClause_p pack);
-void             FVFreePackedClause(FVPackedClause_p pack);
+void             FVPackedClauseFree(FVPackedClause_p pack);
 
 #define FVIndexCellAlloc()    (FVIndexCell*)SizeMalloc(sizeof(FVIndexCell))
 #define FVIndexCellFree(junk) SizeFree(junk, sizeof(FVIndexCell))
@@ -134,6 +135,9 @@ void      FVIndexFree(FVIndex_p junk);
 
 FVIAnchor_p FVIAnchorAlloc(long symbol_limit);
 void        FVIAnchorFree(FVIAnchor_p junk);
+
+#define FVIndexStorage(index) ((index)?(index)->node_count*MEMSIZE(FVIndexCell)+\
+			       (index)->array_count*sizeof(long):0)
 
 FVIndex_p   FVIndexGetNextNonEmptyNode(FVIndex_p node, long key);
 void        FVIndexInsert(FVIAnchor_p index, FreqVector_p vec_clause);

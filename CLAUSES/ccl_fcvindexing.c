@@ -50,7 +50,7 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-FVIndex_p insert_empty_node(FVIndex_p node, long key)
+static FVIndex_p insert_empty_node(FVIndex_p node, FVIAnchor_p anchor, long key)
 {
    FVIndex_p handle = FVIndexAlloc(), tmp;
    long i, new_limit;
@@ -71,6 +71,7 @@ FVIndex_p insert_empty_node(FVIndex_p node, long key)
       tmp = node->u1.succ;
       new_limit = MAX(key, node->type_or_key)+1;
       node->u1.successors = SecureMalloc(sizeof(long)*new_limit);
+      anchor->array_count += new_limit;
       for(i=0; i<new_limit; i++)
       {
 	 node->u1.successors[i] = NULL;
@@ -88,6 +89,8 @@ FVIndex_p insert_empty_node(FVIndex_p node, long key)
 	 new_limit = MAX(key, node->array_size)+1;
 	 node->u1.successors = SecureRealloc(node->u1.successors,
 					     sizeof(long)*new_limit);
+	 anchor->array_count += (new_limit-node->array_size);
+
 	 for(i=node->array_size; i<new_limit; i++)
 	 {
 	    node->u1.successors[i] = NULL;
@@ -329,7 +332,7 @@ FVPackedClause_p FVPackClause(Clause_p clause, FVIAnchor_p index)
       return StandardFreqVectorCompute(clause, index->symbol_limit);
    }
    res = FreqVectorCellAlloc();
-   res->freq_vector = 0;
+   res->freq_vector = NULL;
    res->clause = clause;
 
    return res; 
@@ -361,7 +364,7 @@ Clause_p FVUnpackClause(FVPackedClause_p pack)
 
 /*-----------------------------------------------------------------------
 //
-// Function: FVFreePackedClause()
+// Function: FVPackedClauseFree()
 //
 //   Fully free a packed clause.
 //
@@ -371,9 +374,12 @@ Clause_p FVUnpackClause(FVPackedClause_p pack)
 //
 /----------------------------------------------------------------------*/
 
-void FVFreePackedClause(FVPackedClause_p pack)
+void FVPackedClauseFree(FVPackedClause_p pack)
 {
-   ClauseFree(pack->clause);
+   if(pack->clause)
+   {
+      ClauseFree(pack->clause);
+   }
    FreqVectorFree(pack);
 }
 
@@ -465,6 +471,7 @@ FVIAnchor_p FVIAnchorAlloc(long symbol_limit)
    
    handle->symbol_limit = symbol_limit;
    handle->node_count   = 0;
+   handle->array_count  = 0;
    handle->index        = FVIndexAlloc();
 
    return handle;
@@ -489,10 +496,11 @@ FVIAnchor_p FVIAnchorAlloc(long symbol_limit)
 void FVIAnchorFree(FVIAnchor_p junk)
 {
    fprintf(GlobalOut, 
-	   "# Freeing FVIndex. %ld leaves, %ld empty. Total nodes: %ld\n",
+	   "# Freeing FVIndex. %ld leaves, %ld empty. Total nodes: %ld. Mem: %ld\n",
 	   FVIndexCountNodes(junk->index, true, false),
 	   FVIndexCountNodes(junk->index, true, true),
-	   junk->node_count);
+	   junk->node_count,
+	   FVIndexStorage(junk));
 
    FVIndexFree(junk->index);
    FVIAnchorCellFree(junk);
@@ -554,6 +562,7 @@ void FVIndexInsert(FVIAnchor_p index, FreqVector_p vec_clause)
       if(!newnode)
       {
 	 newnode = insert_empty_node(handle, 
+				     index,
 				     vec_clause->freq_vector[i]);
 	 index->node_count++;
       }      

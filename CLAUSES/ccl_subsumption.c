@@ -1034,6 +1034,33 @@ bool ClauseSubsumesClause(Clause_p subsumer, Clause_p sub_candidate)
 
 /*-----------------------------------------------------------------------
 //
+// Function: ClauseSetSubsumesFVPackedClause()
+//
+//   Return true if the set subsumes sub_candidate->clause. All
+//   clauses need correct weights!
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool ClauseSetSubsumesFVPackedClause(ClauseSet_p set, 
+				     FVPackedClause_p sub_candidate)
+{
+   if(set->fvindex && sub_candidate->freq_vector)
+   {
+      bool res; 
+      res =  clause_set_subsumes_clause_indexed(set->fvindex->index, 
+						sub_candidate, 0);
+      return res;
+   }
+   return clause_set_subsumes_clause(set, sub_candidate->clause);
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: ClauseSetSubsumesClause()
 //
 //   Return true if the set subsumes sub_candidate. All clauses need
@@ -1041,7 +1068,7 @@ bool ClauseSubsumesClause(Clause_p subsumer, Clause_p sub_candidate)
 //
 // Global Variables: -
 //
-// Side Effects    : -
+// Side Effects    : Memory operations
 //
 /----------------------------------------------------------------------*/
 

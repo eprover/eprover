@@ -121,16 +121,15 @@ static long remove_unit_subsumed(Clause_p subsumer, ClauseSet_p set)
 //
 /----------------------------------------------------------------------*/
 
-static long remove_subsumed(Clause_p subsumer, ClauseSet_p set)
+static long remove_subsumed(FVPackedClause_p subsumer, ClauseSet_p set)
 {
    Clause_p handle;
    long     res;
    PStack_p stack = PStackAlloc();
-   FVPackedClause_p pclause = FVPackClause(subsumer, set->fvindex);
             
-   assert(ClauseLiteralNumber(subsumer) > 1);
+   assert(ClauseLiteralNumber(subsumer->clause) > 1);
 
-   res = ClauseSetFindSubsumedClauses(set, pclause, stack);
+   res = ClauseSetFindSubsumedClauses(set, subsumer, stack);
    
    while(!PStackEmpty(stack))	    
    {
@@ -139,8 +138,6 @@ static long remove_subsumed(Clause_p subsumer, ClauseSet_p set)
       ClauseKillChildren(handle);
       ClauseSetDeleteEntry(handle);  
    }
-   
-   FVUnpackClause(pclause);
    PStackFree(stack);
    return res;
 }
@@ -216,28 +213,28 @@ eleminate_backward_rewritten_clauses(ProofState_p
 /----------------------------------------------------------------------*/
 
 static long eleminate_backward_subsumed_clauses(ProofState_p state,
-						Clause_p clause)
+						FVPackedClause_p pclause)
 {
    long res = 0;
 
-   if(ClauseLiteralNumber(clause) == 1)
+   if(ClauseLiteralNumber(pclause->clause) == 1)
    {
-      if(clause->pos_lit_no)
+      if(pclause->clause->pos_lit_no)
       {
 	 /* res += remove_subsumed(clause,
 	    state->processed_pos_rules); Should be impossible! */
-	 res += remove_unit_subsumed(clause, state->processed_pos_eqns);
-	 res += remove_unit_subsumed(clause, state->processed_non_units);
+	 res += remove_unit_subsumed(pclause->clause, state->processed_pos_eqns);
+	 res += remove_unit_subsumed(pclause->clause, state->processed_non_units);
       }
       else
       {
-	 res += remove_unit_subsumed(clause, state->processed_neg_units);
-	 res += remove_unit_subsumed(clause, state->processed_non_units);
+	 res += remove_unit_subsumed(pclause->clause, state->processed_neg_units);
+	 res += remove_unit_subsumed(pclause->clause, state->processed_non_units);
       }
    }
    else
    {
-      res += remove_subsumed(clause, state->processed_non_units);
+      res += remove_subsumed(pclause, state->processed_non_units);
    }
    state->backward_subsumed_count+=res;
    return res;
@@ -764,9 +761,10 @@ void ProofStateInit(ProofState_p state, ProofControl_p control,
 
 Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
 {
-   Clause_p clause, tmp_copy, empty;
-   SysDate  clausedate;
-   long     clause_count;
+   Clause_p         clause, tmp_copy, empty;
+   FVPackedClause_p pclause;
+   SysDate          clausedate;
+   long             clause_count;
 
    DEBUGMARK(PP_LOWDETAILS, "ProcessClause...\n");
    clause = control->hcb->hcb_select(control->hcb,
@@ -784,11 +782,13 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
    ClauseDetachParents(clause);
    ClauseRemoveEvaluations(clause);
    
-   if(!ForwardContractClause(state, control, clause, true, FullRewrite))
+
+   pclause = ForwardContractClause(state, control, clause, true, FullRewrite);
+   if(!pclause)
    {
       return NULL;
    }
-   check_ac_status(state, control, clause);
+   check_ac_status(state, control, pclause->clause);
 
    if(OutputLevel)
    {
@@ -796,57 +796,56 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
       {
 	 putc('\n', GlobalOut);
 	 putc('#', GlobalOut);
-	 ClausePrint(GlobalOut, clause, true);
+	 ClausePrint(GlobalOut, pclause->clause, true);
 	 putc('\n', GlobalOut);
       }
-      DocClauseQuoteDefault(6, clause, "new_given");
+      DocClauseQuoteDefault(6, pclause->clause, "new_given");
    }
 
    state->proc_non_trivial_count++;
 
    if(control->er_varlit_destructive &&
       (clause_count = ClauseERNormalizeVar(state->terms,
-					   clause,
+					   pclause->clause,
 					   state->tmp_store,
 					   state->freshvars,
 					   control->er_strong_destructive)))
    {
       state->other_redundant_count += clause_count;
       state->resolv_count += clause_count;
-      clause = NULL;
+      pclause->clause = NULL;
    }
-   else if(ControlledClauseSplit(clause, state->tmp_store,
+   else if(ControlledClauseSplit(pclause->clause, state->tmp_store,
 				 control->split_clauses,
 				 control->split_method))
    {
-      clause = NULL;
+      pclause->clause = NULL;
    }
    
-   if(!clause) 
+   if(!pclause->clause) 
    {  /* ...then it has been destroyed by one of the above methods */
       if((empty = insert_new_clauses(state, control)))
       {
 	 return empty;
       }
-      return NULL;
+      return FVUnpackClause(pclause);
    }
    
-   if(ClauseIsEmpty(clause))
+   if(ClauseIsEmpty(pclause->clause))
    {
-      return clause;
+      return FVUnpackClause(pclause);
    }
 
    /* ClauseCanonize(clause); */
 
    /* Now on to backward simplification. */   
    clausedate = ClauseSetListGetMaxDate(state->demods, FullRewrite);
-   /* interred_needed = */eleminate_backward_rewritten_clauses(state, control,
-							  clause,
-							  &clausedate);
    
-   eleminate_backward_subsumed_clauses(state, clause);
-   eleminate_unit_simplified_clauses(state, clause);
-
+   eleminate_backward_rewritten_clauses(state, control, pclause->clause, &clausedate);   
+   eleminate_backward_subsumed_clauses(state, pclause);
+   eleminate_unit_simplified_clauses(state, pclause->clause);
+   
+   clause = FVUnpackClause(pclause);
    tmp_copy = ClauseCopy(clause, state->tmp_terms);      
    tmp_copy->ident = clause->ident;
 

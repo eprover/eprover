@@ -68,7 +68,8 @@ typedef int (*ClauseCmpFunType)(const Clause_p*, const Clause_p*);
 #define     ClauseSetStorage(set)\
             (((CLAUSECELL_DYN_MEM+(set)->eval_no*EVALCELL_MEM)*(set)->members+\
             EQN_CELL_MEM*(set)->literals)+\
-            PDTreeStorage(set->demod_index))
+            PDTreeStorage(set->demod_index)+\
+	    FVIndexStorage(set->fvindex))
 
 ClauseSet_p ClauseSetAlloc(void);
 void        ClauseSetFree(ClauseSet_p junk);
