@@ -3,7 +3,7 @@ E.
 
 [1] Compilation with other compilers
     
-    Note: There is a variety of known bugs in then optimizer stage of
+    Note: There is a variety of known bugs in the optimizer stage of
     gcc 2.95.1. At least on SPARC, E seens to trigger one of these
     bugs. Compile without optimization ot get a different compiler
     version. Moreover, gcc 2.96 and gcc 2.97 are not official
@@ -30,7 +30,7 @@ E.
     - Type "make install" and hope ;-)
 
     The basic E code has now been tested under a lot of very different
-    environments, and seems to work fine everywhere.    
+    environments, and seems to work fine everywhere.
 
 [2] The PCmp() macro from BASICS/clb_ptrees.h uses potentially
     non-portable casts and pointer arithmetic to get a fast total

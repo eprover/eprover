@@ -17,6 +17,7 @@
 \documentclass{article}
 
 \usepackage{estyle}
+\usepackage{supertabular}
 \usepackage{url}
 
 \author{Stephan Schulz}
@@ -313,10 +314,9 @@ variables.
     
  \item \emph{Clause subsumption}\index{subsumption}:
        
-   \bigskip (CS) \CInferenz{T \phantom{ae} R \vee S}{T}{if
-     $\sigma(S) = T$ for a substitution $\sigma$ or $\forall
-     \eqn{s}{t} \in \sigma(S): \eqn{s}{t} \in T$ for a
-     substitution $\sigma$ that is not a variable renaming.} 
+   \bigskip (CS) \CInferenz{C \phantom{ae} \sigma(C \vee R)}{C}{where
+     $C$ and $R$ are arbitrary (partial) clauses and $\sigma$ is a
+     substitution.} 
    
  \item \emph{Equality subsumption}\index{subsumption}:
        
@@ -339,6 +339,16 @@ variables.
      
      \bigskip (NS) \CInferenz{\neqn{s}{t} \phantom{ae}
      \eqn{\sigma(s)}{\sigma(t)\vee R}}{\eqn{s}{t} \phantom{aee} R}{}
+
+   \item \emph{Contextual simplify-reflect\index{xontextual simplify-reflect}}
+     
+     \bigskip (CSR) \CInferenz{\sigma(C \vee R \vee \doteqn{s}{t})
+       \hspace{2em} C \vee \overline{\doteqn{s}{t}}}{\sigma(C \vee R)
+       \hspace{5em} C \vee \overline{\doteqn{s}{t}}}
+     {where $\overline{\eqn{s}{t}}$ is the negation of $\eqn{s}{t}$
+       and $\sigma$ is a substitution} 
+
+
        
           
  \item \emph{Tautology deletion}\index{tautology deletion}:
@@ -603,7 +613,7 @@ The priority functions are interpreted as follows:
   other).
 \item[\texttt{PreferWatchlist}] Prefer clauses on the watchlist
   (see~\ref{sec:options:watchlist}).
-\item[\texttt{PreferWatchlist}] Defer clauses on the watchlist (see
+\item[\texttt{DeferWatchlist}] Defer clauses on the watchlist (see
   above).
 \end{description}
 
@@ -772,9 +782,109 @@ automatically choose if no other heuristic is selected with the
 \subsection{Term Orderings}
 \label{sec:options:orderings}
 
-\ldots exist and are important. Use the default or \texttt{-tAuto}
-until either better documentation turns up or you can pick up the
-necessary information some other way.
+E currently supports two families of orderings: The
+\emph{Knuth-Bendix-Ordering} (KBO), which is used by default, and the
+\emph{Lexicographical Path Ordering} (LPO). The KBO is weight-based
+and uses a precedence on function symbols to break ties. Consequently,
+to specify a concrete KBO, we need a weight function that assigns a
+weight to all function symbols, and a precedence on those symbols.
+
+The LPO is based on a lexicographic comparison of symbols and
+subterms, and is fully specified by giving just a precedence.
+
+Currently it is possible to explicitely specify an arbitrary
+(including incomplete or empty) precedence, or to use one of several
+precedence generating schemes. Similarly, there is a number of
+predefined weight function. There currently no way to specify weights
+for individual function symbols.
+
+The most simple way to get a reasonable term ordering is to specify
+\emph{automatic} ordering selection using the \texttt{-tAuto} option. 
+
+\noindent
+Options controlling the choice of term ordering:\\[1ex]
+\begin{supertabular}{lp{9.5cm}}
+  \multicolumn{2}{l}{\texttt{-term-ordering=<arg>}}\\
+  \texttt{-t<arg>} & Select a term ordering class (or
+  automatic selection). Supported arguments are \texttt{LPO},
+  \texttt{KBO}, and \texttt{Auto}. If \texttt{Auto} is selected, all
+  aspects of the term ordering are fixed, additional options will be
+  (or at least should be) silently ignored.\\[1ex]
+
+  \multicolumn{2}{l}{\texttt{\texttt{--order-precedence-generation=<arg>}}}\\
+  \texttt{-G <arg>} & Select a precedence generation scheme (see
+  below).\\[1ex]
+
+  \multicolumn{2}{l}{\texttt{\texttt{--order-weight-generation=<arg>}}}\\
+  \texttt{-w <arg>} & Select a symbol weight function (see
+  below).\\[1ex]
+
+  \multicolumn{2}{l}{\texttt{\texttt{--order-constant-weight=<arg>}}}\\
+  \texttt{\texttt{-c <arg>}} & Modify any symbol weight function by
+  assigning a special weight to constant function symbols.\\[1ex]
+
+  \multicolumn{2}{l}{\texttt{--precedence[=<arg>]}}\\
+  & Describe a (partial) precedence for the term ordering. The argument
+   is a comma-separated list of precedence chains, where a precedence
+   chain is a list of function symbols (which all have to appear in
+   the proof problem), connected by \texttt{>}, \texttt{<}, or
+  \texttt{=} (to denote equivalent symbols).
+  If this option is used in connection with
+  \texttt{--order-precedence-generation}, the partial ordering will be
+  completed using the selected method, otherwise the prover runs with
+  a non-ground-total ordering. The option without the optional
+  argument is equivalent to \texttt{--precedence=} (the empty
+  precedence). There is a drawback to using \texttt{--precedence}:
+  Normally, total precedences are represented by mapping symbols to a
+  totally ordered set (small integers) which can be compared using
+  standard machine instructions. The used data structure is linear in
+  the number $n$ of function symbols. However, if \texttt{--precedence}
+  is used, the prover allocates (and completes) a $n\times n$ lookup
+  table to efficiently represent an arbitrary partial ordering. If $n$
+  is very big, this matrix takes up significant  space, and takes a
+  long time to compute in the first place. This is unlikely to be a
+  problem unless there are at least hundreds of symbols.\\[1ex]
+  \multicolumn{2}{l}{\texttt{--lpo-recursion-limit[=<arg>]}}\\
+  & Limits the recursion depth of LPO comparison. This is useful in rare
+  cases where very large term comparions can lead to stack overflow
+  issues. It does not change completeness, but may lead to unnecessary
+  inferences in rare cases (Note: By default, recursion depth is
+  limited to 1000. To get effectively unlimed recursion depth, use
+  this option with an outrageously large argument. Don't forget to
+  increase process stack size with \texttt{limit/ulimit} from your
+  favourite shell).\\
+\end{supertabular}
+
+\subsubsection{Precedence Generation Schemes}
+
+Precedence generation schemes are based on syntactic features of the
+symbol and the input clause set, like symbol arity or number of
+occurances in the formula. At least the following options are
+supported as argument to \texttt{--order-precedence-generation}:
+
+\begin{description}
+\item[\texttt{unary\_first}:] Sort symbols by arity, with the
+  exception that unary symbols come first. Frequency is used as a
+  tiebreaker (rarer symbols are greater).
+\item[\texttt{unary\_freq}:] Sort symbols by frequency (rarer symbols
+  are bigger), with the exception that unary symbols come first. Yes,
+  this should better be named \texttt{unary\_invfreq} for
+  consistency, but is not\ldots
+\item[\texttt{arity}:] Sort symbols by arity (symbols with higher
+  arity are larger).
+\item[\texttt{invarity}:] Sort symbols by arity (symbols with higher
+  arity are smaller).
+\item[\texttt{const\_max}:] 
+\item[\texttt{const\_min}:]
+\item[\texttt{freq}:]
+\item[\texttt{invfreq}:]
+\item[\texttt{invfreqconstmin}:]
+\item[\texttt{invfreqhack}:]
+\end{description}
+
+
+
+
 
 \subsection{Literal Selection Strategies}
 \label{sec:options:strategies}
