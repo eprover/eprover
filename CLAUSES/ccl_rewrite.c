@@ -666,7 +666,7 @@ static Term_p rewrite_with_clause_setlist(OCB_p ocb, TB_p bank, Term_p term,
 
 /*-----------------------------------------------------------------------
 //
-// Function: term_LI_normalform()
+// Function: term_li_normalform()
 //
 //   Compute a leftmost-innermost normal form of term. This is more
 //   tricky than expected, as supertems on the stack may change. I'll
