@@ -34,20 +34,19 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-typedef enum
-{
-   PrioBest   = 0,
-   PrioPrefer = 30,
-   PrioNormal = 40,
-   PrioDefer  = 50
-}EvalPriority;
+typedef long EvalPriority;
+
+#define PrioBest     0
+#define PrioPrefer  30
+#define PrioNormal  40
+#define PrioDefer   50
 
 
 typedef struct eval_cell
 {
    EvalPriority      priority;   /* Technical considerations */
    float             heuristic;  /* Heuristical evaluation   */
-   unsigned long     eval_count; /* Evaluation cell count, used as
+   long              eval_count; /* Evaluation cell count, used as
 				    FIFO tiebreaker */
    void*             object;     /* Evaluated object.*/
    struct eval_cell* next;       /* For chaining together multiple
@@ -61,7 +60,7 @@ typedef struct eval_cell
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-extern unsigned long EvaluationCounter;
+long EvaluationCounter;
 
 #define EvalCellAlloc()   (EvalCell*)SizeMalloc(sizeof(EvalCell))
 #define EvalCellFree(junk) SizeFree(junk, sizeof(EvalCell))

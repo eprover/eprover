@@ -30,7 +30,7 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
-unsigned long EvaluationCounter = 0;
+long EvaluationCounter = 0;
 
 
 /*---------------------------------------------------------------------*/
@@ -171,7 +171,7 @@ Eval_p EvalAlloc(void)
 
 void EvalPrint(FILE* out, Eval_p eval)
 {
-   fprintf(out, "[%3d:%.10f:%ld]", eval->priority,
+   fprintf(out, "[%3ld:%.10f:%ld]", eval->priority,
 	   eval->heuristic, eval->eval_count);
 }
 
@@ -341,7 +341,7 @@ long EvalCompare(Eval_p ev1, Eval_p ev2)
    {
       return res;
    }
-   /* Hack to avoid unreliable floating point comparions on Itanium */
+   /* Hack to avoid unreliable floating point comparions */
    if(ev1->eval_count==ev2->eval_count)
    {
       return 0;
