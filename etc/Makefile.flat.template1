@@ -1,0 +1,4 @@
+# This is a Makefile for building the flat (SPEC) version of E. It is
+# generated semi-automatically, and _not_ needed for the SPEC build
+# process! 
+

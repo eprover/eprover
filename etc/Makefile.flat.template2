@@ -1,0 +1,7 @@
+
+CFLAGS=-O3
+
+eprover: $(PROJ)
+	gcc -o eprover $(PROJ)
+
+
