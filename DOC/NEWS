@@ -1,6 +1,9 @@
 This history list describes the major differences between versions of
 the E equational theorem prover.
 
+Version 0.81 ->
+
+
 Version 0.8 -> 0.81 Tumsong
 
 - Fixed the SOS propagation bug in splitting.
