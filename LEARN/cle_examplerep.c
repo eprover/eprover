@@ -217,12 +217,13 @@ ExampleRep_p  ExampleSetFindName(ExampleSet_p set, char* name)
 bool ExampleSetInsert(ExampleSet_p set, ExampleRep_p rep)
 {
    IntOrP tmp;
-   bool   res;
-   
+   StrTree_p res;
+   bool res1;
+
    tmp.p_val = rep;
 
-   res = NumTreeStore(&(set->ident_index), rep->ident, tmp, tmp);
-   if(!res)
+   res1 = NumTreeStore(&(set->ident_index), rep->ident, tmp, tmp);
+   if(!res1)
    {
       return false;
    }  
