@@ -67,16 +67,6 @@ def compute_infinity():
 Infinity = compute_infinity()
 
 
-# Portable booleans (missing in older Python versions):
-
-try:
-    True
-    False
-except NameError:
-    True  = 1
-    False = 0
-
-
 def sign(number):
     """
     Return the sign of a number.
@@ -156,3 +146,45 @@ def sum(l):
     Return the sum of elements of l.
     """
     return reduce(lambda x,y:x+y, l, 0)
+
+def rl_lex_compare(t1, t2):
+    """
+    Compare two tuples of the same length lexicograhically left to right.
+    """
+    assert len(t1)==len(t2)
+    for i in range(len(t1)-1,-1,-1):
+        tmp = cmp(t1[i], t2[i])
+        if tmp:
+            return tmp
+    return 0
+
+
+class name_number_hash:
+    """
+    Datatype for maintaining an efficient bijection associating a set
+    of n abitrary names into the numbers 0..n.
+    """
+    def __init__(self):
+        self.name_index   = {}
+        self.number_index = []
+        self.count        = 0
+
+    def insert(self, name):
+        try:
+            res = self.get_code(name)
+        except KeyError:
+            self.name_index[name] = self.count
+            self.number_index.append(name)
+            res = self.count
+            self.count += 1
+        return res
+                                                
+    def get_name(self, index):
+        return self.number_index[index]
+
+    def get_code(self, name):
+        return self.name_index[name]
+
+    def get_entry_no(self):
+        return self.count
+

@@ -47,24 +47,32 @@ import sys
 import string
 
 import pylib_io
+import pylib_basics
 import pylib_ml_examples
 import pylib_probabilities
 import pylib_dectrees
 
 relgain_limit = 0.5
+entropy_compare_fun = cmp
+
 options = pylib_io.get_options()
 for o in options:
     if o[0:2] == "-g":
         relgain_limit = float(o[2:])
+    if o == "-r":
+        entropy_compare_fun = pylib_basics.rl_lex_compare
+    
 args    =  pylib_io.get_args()
 
 pylib_io.check_argc(1,args)
 
 set = pylib_ml_examples.ml_exampleset()
 set.parse(args[0])
+print set.plain_rel_inf_gain()
 
-set.set_class_omega()
-tree = pylib_dectrees.decision_tree(set,relgain_limit)
+tree = pylib_dectrees.decision_tree(set,
+                                    entropy_compare_fun,
+                                    relgain_limit)
 tree.printout()
 
 if len(args) == 1:
