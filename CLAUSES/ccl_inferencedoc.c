@@ -470,12 +470,12 @@ static void print_minimize(FILE* out, Clause_p clause, long
 	 pcl_print_end(out, comment);
 	 break;
    case tstp_format:
-	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
-	 fprintf(out, 
-		 ", inference(cm,[status(thm)],[%ld, theory(equality)])", 
-		 clause->ident);
-	 tstp_print_end(out, comment);
-	 break;
+         ClauseTSTPPrint(out, clause, PCLFullTerms, false);
+         fprintf(out, 
+                 ", inference(cn,[status(thm)],[%ld, theory(equality)])", 
+                 old_id);
+         tstp_print_end(out, comment);
+         break;
    default:
 	 fprintf(out, "# Output format not implemented.\n");
 	 break;
