@@ -39,7 +39,6 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-void     DemodInsert(ClauseSet_p set, FVPackedClause_p new);
 void     ClauseMoveSimplified(Clause_p clause, ClauseSet_p tmp_set);
 
 bool     RemoveRewritableClauses(OCB_p ocb, ClauseSet_p from,

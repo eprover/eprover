@@ -45,36 +45,6 @@ Changes
 /*---------------------------------------------------------------------*/
 
 
-/*-----------------------------------------------------------------------
-//
-// Function: DemodInsert()
-//
-//   Insert an FVPackedClause clause into the set...
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-void DemodInsert(ClauseSet_p set, FVPackedClause_p new)
-{
-   assert(!new->clause->evaluations);
-
-   if(!set->demod_index)
-   {
-      ClauseSetInsert(set, new->clause);
-   }
-   else
-   {
-      ClauseSetIndexedInsert(set, new->clause);
-   }
-   if(set->fvindex)
-   {
-      FVIndexInsert(set->fvindex, new);
-   }
-}
-
 
 /*-----------------------------------------------------------------------
 //

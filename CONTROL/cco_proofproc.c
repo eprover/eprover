@@ -39,6 +39,7 @@ Changes
 /*---------------------------------------------------------------------*/
 
 
+
 /*-----------------------------------------------------------------------
 //
 // Function: check_ac_status()
@@ -93,12 +94,20 @@ static long remove_subsumed(FVPackedClause_p subsumer, ClauseSet_p set)
             
    res = ClauseSetFindFVSubsumedClauses(set, subsumer, stack);
    
-   while(!PStackEmpty(stack))	    
+   while(!PStackEmpty(stack))
    {
       DEBUGMARK(PP_HIGHDETAILS, "*\n");
       handle = PStackPopP(stack);
-      DocClauseQuote(GlobalOut, OutputLevel, 6, handle,
-		     "subsumed", subsumer->clause);
+      if(ClauseQueryProp(handle, CPWatchOnly))
+      {
+	 DocClauseQuote(GlobalOut, OutputLevel, 6, handle,
+			"subsumed_watchlist", subsumer->clause);
+      }
+      else
+      {
+	 DocClauseQuote(GlobalOut, OutputLevel, 6, handle,
+			"subsumed", subsumer->clause);
+      }
       ClauseKillChildren(handle);
       ClauseSetDeleteEntry(handle);  
    }
@@ -267,6 +276,37 @@ static long eleminate_context_sr_clauses(ProofState_p state,
 				    state->tmp_store, clause);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: check_watchlist()
+//
+//   Check if a clause subsumes one or more watchlist clauses, if yes,
+//   set appropriate property in clause and remove subsumed clauses.
+//
+// Global Variables: -
+//
+// Side Effects    : As decribed.
+//
+/----------------------------------------------------------------------*/
+
+void check_watchlist(ClauseSet_p watchlist, Clause_p clause)
+{
+   FVPackedClause_p pclause = FVIndexPackClause(clause, watchlist->fvindex);
+   long removed;
+   
+   clause->weight = ClauseStandardWeight(clause);
+   if((removed = remove_subsumed(pclause, watchlist)))
+   {
+      ClauseSetProp(clause, CPSubsumesWatch);
+      if(OutputLevel == 1)
+      {
+	 fprintf(GlobalOut,"# Watchlist reduced by %ld clause%s\n",
+		 removed,removed==1?"":"s");
+      }
+   }
+   FVUnpackClause(pclause);   
+}
+
 
 
 /*-----------------------------------------------------------------------
@@ -354,6 +394,10 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
 	 ClauseFree(handle);
 	 continue;
       }
+      if(state->watchlist)
+      {
+	 check_watchlist(state->watchlist, handle);
+      }
       if(ClauseIsEmpty(handle))
       {
 	 return handle;	 
@@ -396,7 +440,7 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
       DocClauseQuoteDefault(6, handle, "eval");
       if(control->unproc_simplify && ClauseIsUnit(handle))
       {
-	 ClauseSetIndexedInsert(state->unprocessed, handle);	    
+	 ClauseSetPDTIndexedInsert(state->unprocessed, handle);	    
       }
       else
       {
@@ -616,8 +660,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control,
    ClauseSetReweight(tmphcb, state->axioms);
    
    traverse =
-      EvalTreeTraverseInit(
-	 PDArrayElementP(state->axioms->eval_indices,0));
+      EvalTreeTraverseInit(PDArrayElementP(state->axioms->eval_indices,0));
    
    while((cell = EvalTreeTraverseNext(traverse)))
    {
@@ -670,7 +713,15 @@ void ProofStateInit(ProofState_p state, ProofControl_p control,
       state->processed_pos_eqns->fvindex =
 	 FVIAnchorAlloc(symbols, fvi_parms->features, PermVectorCopy(perm));
       state->processed_neg_units->fvindex =
-	 FVIAnchorAlloc(symbols, fvi_parms->features, PermVectorCopy(perm));
+	 FVIAnchorAlloc(symbols, fvi_parms->features,
+			PermVectorCopy(perm));
+      if(state->watchlist)
+      {
+	 state->watchlist->fvindex = 
+	    FVIAnchorAlloc(symbols, fvi_parms->features,
+			   PermVectorCopy(perm));
+	 ClauseSetFVIndexify(state->watchlist);
+      }
    }
 }
 
@@ -760,7 +811,11 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
       }
       return FVUnpackClause(pclause);
    }
-   
+   if(state->watchlist)
+   {
+      check_watchlist(state->watchlist, pclause->clause);
+   }
+    
    if(ClauseIsEmpty(pclause->clause))
    {
       return FVUnpackClause(pclause);
@@ -789,22 +844,22 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
       if(EqnIsOriented(clause->literals))
       {
 	 state->processed_pos_rules->date = clausedate;
-	 DemodInsert(state->processed_pos_rules, pclause);
+	 ClauseSetIndexedInsert(state->processed_pos_rules, pclause);
       }
       else
       {
 	 state->processed_pos_eqns->date = clausedate;
-	 DemodInsert(state->processed_pos_eqns, pclause);
+	 ClauseSetIndexedInsert(state->processed_pos_eqns, pclause);
       }
    }
    else if(ClauseLiteralNumber(clause) == 1)
    {
       assert(clause->neg_lit_no == 1);
-      DemodInsert(state->processed_neg_units, pclause);
+      ClauseSetIndexedInsert(state->processed_neg_units, pclause);
    }
    else
    {
-      DemodInsert(state->processed_non_units, pclause);
+      ClauseSetIndexedInsert(state->processed_non_units, pclause);
    }
    FVUnpackClause(pclause);
    ENSURE_NULL(pclause);
@@ -872,7 +927,8 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
 		      state->processed_pos_eqns->members +
 		      state->processed_neg_units->members +
 		      state->processed_non_units->members+
-		      state->unprocessed->members))
+		      state->unprocessed->members)&&
+	 (!state->watchlist||!ClauseSetEmpty(state->watchlist)))
    {     
       DEBUGMARK(PP_LOWDETAILS,"Saturate loop entry.\n");
 
