@@ -583,6 +583,7 @@ void generic_uniq_selection(OCB_p ocb, Clause_p clause, bool positive,
    if(!lits[cand].forbidden)
    {
       EqnSetProp(lits[cand].literal, EPIsSelected);
+      ClauseDelProp(clause, CPIsOriented);
    }
    SizeFree(lits,len*sizeof(LitEvalCell));
    if(positive)
