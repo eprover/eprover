@@ -41,6 +41,215 @@ Formula_p elem_form_tptp_parse(Scanner_p in, TB_p terms);
 
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: tptp_operator_parse()
+//
+//   Parse an return a TPTP quantor. Rather trivial ;-)
+//
+// Global Variables: -
+//
+// Side Effects    : Input
+//
+/----------------------------------------------------------------------*/
+
+FOFOperatorType tptp_operator_parse(Scanner_p in)
+{
+   FOFOperatorType res;
+
+   CheckInpTok(in, TildeSign|Ampersand|Pipe|EqualSign|LesserSign);
+   if(TestInpTok(in, TildeSign))
+   {
+      NextToken(in);
+      CheckInpTokNoSkip(in, Ampersand|Pipe);
+      if(TestInpTok(in, Ampersand))
+      {
+         res = OpBNand;         
+      }
+      else
+      {
+         res = OpBNor;
+      }
+      NextToken(in);
+   }
+   else
+   {
+      CheckInpTok(in, Ampersand|Pipe|EqualSign|LesserSign);
+      if(TestInpTok(in, Ampersand))
+      {
+         res = OpBAnd;
+         NextToken(in);
+            
+      }
+      else if(TestInpTok(in, Pipe))
+      {
+         res = OpBOr;
+         NextToken(in);
+      }
+      else if(TestInpTok(in, EqualSign))
+      {
+         NextToken(in);
+         CheckInpTokNoSkip(in, GreaterSign);
+         res = OpBImpl;
+         NextToken(in);
+      }
+      else
+      {
+         AcceptInpTok(in, LesserSign);
+         if(TestInpTok(in, TildeSign))
+         {
+            AcceptInpTokNoSkip(in, TildeSign);
+            AcceptInpTokNoSkip(in, GreaterSign);
+            res = OpBXor;
+         }
+         else
+         {
+            AcceptInpTokNoSkip(in, EqualSign);
+            res = OpBImpl;
+            if(TestInpTok(in, GreaterSign))
+            {            
+               AcceptInpTokNoSkip(in, GreaterSign);
+               res = OpBEquiv;
+            }
+         }
+      }
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: tptp_quantor_parse()
+//
+//   Parse an return a TPTP quantor. Rather trivial ;-)
+//
+// Global Variables: -
+//
+// Side Effects    : Input
+//
+/----------------------------------------------------------------------*/
+
+FOFOperatorType tptp_quantor_parse(Scanner_p in)
+{
+   FOFOperatorType res;
+
+   CheckInpTok(in, AllQuantor|ExistQuantor);
+   if(TestInpTok(in, ExistQuantor))
+   {
+      res = OpQEx;
+   }
+   else
+   {
+      res = OpQAll;      
+   }
+   NextToken(in);
+
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: quantified_form_tptp_parse()
+//
+//   Parse a quantified TPTP/TSTP formula. At this point, the quantor
+//   has already been read (and is passed into the function), and we
+//   are at the first (or current) variable.
+//
+// Global Variables: -
+//
+// Side Effects    : Input, memory operations
+//
+/----------------------------------------------------------------------*/
+
+Formula_p quantified_form_tptp_parse(Scanner_p in, 
+                                     TB_p terms, 
+                                     FOFOperatorType quantor)
+{
+   Term_p     var;
+   Formula_p  rest, res;
+   DStr_p     source_name, errpos;
+   long       line, column;
+   StreamType type;
+   
+   line = AktToken(in)->line;
+   column = AktToken(in)->column;
+   source_name = DStrGetRef(AktToken(in)->source);
+   type = AktToken(in)->stream_type;
+
+   var = TBTermParse(in, terms);
+   if(!TermIsVar(var))
+   {
+      errpos = DStrAlloc();
+      
+      DStrAppendStr(errpos, PosRep(type, source_name, line, column));
+      DStrAppendStr(errpos, " Variable expected, non-variable term found");
+      Error(DStrView(errpos), SYNTAX_ERROR);
+      DStrFree(errpos);
+   }
+   DStrReleaseRef(source_name);
+   if(TestInpTok(in, Comma))
+   {
+      AcceptInpTok(in, Comma);
+      rest = quantified_form_tptp_parse(in, terms, quantor);
+   }
+   else
+   {
+      AcceptInpTok(in, CloseSquare);
+      AcceptInpTok(in, Colon);      
+      rest = elem_form_tptp_parse(in, terms);
+   }
+   res = FormulaQuantorAlloc(quantor, var, rest);
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: elem_form_tptp_parse()
+//
+//   Parse an elementary formula in TPTP/TSTP format.
+//
+// Global Variables: -
+//
+// Side Effects    : I/O
+//
+/----------------------------------------------------------------------*/
+
+Formula_p elem_form_tptp_parse(Scanner_p in, TB_p terms)
+{
+   Formula_p res, tmp;
+   
+   if(TestInpTok(in, AllQuantor|ExistQuantor))
+   {
+      FOFOperatorType quantor;
+      quantor = tptp_quantor_parse(in);
+      AcceptInpTok(in, OpenSquare);
+      res = quantified_form_tptp_parse(in, terms, quantor);
+   }
+   else if(TestInpTok(in, OpenBracket))
+   {
+      AcceptInpTok(in, OpenBracket);
+      res = FormulaTPTPParse(in, terms);
+      AcceptInpTok(in, CloseBracket);
+   }
+   else if(TestInpTok(in, TildeSign))
+   {
+      AcceptInpTok(in, TildeSign);
+      tmp = elem_form_tptp_parse(in, terms);
+      res = FormulaOpAlloc(OpUNot, tmp, NULL);
+   }
+   else 
+   {
+      Eqn_p lit;
+      lit = EqnTSTPParse(in, terms);
+      res = FormulaLitAlloc(lit);
+   }
+   return res;
+}
+
+
+
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
@@ -293,215 +502,6 @@ void FormulaTPTPPrint(FILE* out, Formula_p form, bool fullterms)
    }   
 }
 
-
-/*-----------------------------------------------------------------------
-//
-// Function: tptp_operator_parse()
-//
-//   Parse an return a TPTP quantor. Rather trivial ;-)
-//
-// Global Variables: -
-//
-// Side Effects    : Input
-//
-/----------------------------------------------------------------------*/
-
-FOFOperatorType tptp_operator_parse(Scanner_p in)
-{
-   FOFOperatorType res;
-
-   CheckInpTok(in, TildeSign|Ampersand|Pipe|EqualSign|LesserSign);
-   if(TestInpTok(in, TildeSign))
-   {
-      NextToken(in);
-      CheckInpTokNoSkip(in, Ampersand|Pipe);
-      if(TestInpTok(in, Ampersand))
-      {
-         res = OpBNand;         
-      }
-      else
-      {
-         res = OpBNor;
-      }
-      NextToken(in);
-   }
-   else
-   {
-      CheckInpTok(in, Ampersand|Pipe|EqualSign|LesserSign);
-      if(TestInpTok(in, Ampersand))
-      {
-         res = OpBAnd;
-         NextToken(in);
-            
-      }
-      else if(TestInpTok(in, Pipe))
-      {
-         res = OpBOr;
-         NextToken(in);
-      }
-      else if(TestInpTok(in, EqualSign))
-      {
-         NextToken(in);
-         CheckInpTokNoSkip(in, GreaterSign);
-         res = OpBImpl;
-         NextToken(in);
-      }
-      else
-      {
-         AcceptInpTok(in, LesserSign);
-         if(TestInpTok(in, TildeSign))
-         {
-            AcceptInpTokNoSkip(in, TildeSign);
-            AcceptInpTokNoSkip(in, GreaterSign);
-            res = OpBXor;
-         }
-         else
-         {
-            AcceptInpTokNoSkip(in, EqualSign);
-            res = OpBImpl;
-            if(TestInpTok(in, GreaterSign))
-            {            
-               AcceptInpTokNoSkip(in, GreaterSign);
-               res = OpBEquiv;
-            }
-         }
-      }
-   }
-   return res;
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: tptp_quantor_parse()
-//
-//   Parse an return a TPTP quantor. Rather trivial ;-)
-//
-// Global Variables: -
-//
-// Side Effects    : Input
-//
-/----------------------------------------------------------------------*/
-
-FOFOperatorType tptp_quantor_parse(Scanner_p in)
-{
-   FOFOperatorType res;
-
-   CheckInpTok(in, AllQuantor|ExistQuantor);
-   if(TestInpTok(in, ExistQuantor))
-   {
-      res = OpQEx;
-   }
-   else
-   {
-      res = OpQAll;      
-   }
-   NextToken(in);
-
-   return res;
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: quantified_form_tptp_parse()
-//
-//   Parse a quantified TPTP/TSTP formula. At this point, the quantor
-//   has already been read (and is passed into the function), and we
-//   are at the first (or current) variable.
-//
-// Global Variables: -
-//
-// Side Effects    : Input, memory operations
-//
-/----------------------------------------------------------------------*/
-
-Formula_p quantified_form_tptp_parse(Scanner_p in, 
-                                     TB_p terms, 
-                                     FOFOperatorType quantor)
-{
-   Term_p     var;
-   Formula_p  rest, res;
-   DStr_p     source_name, errpos;
-   long       line, column;
-   StreamType type;
-   
-   line = AktToken(in)->line;
-   column = AktToken(in)->column;
-   source_name = DStrGetRef(AktToken(in)->source);
-   type = AktToken(in)->stream_type;
-
-   var = TBTermParse(in, terms);
-   if(!TermIsVar(var))
-   {
-      errpos = DStrAlloc();
-      
-      DStrAppendStr(errpos, PosRep(type, source_name, line, column));
-      DStrAppendStr(errpos, " Variable expected, non-variable term found");
-      Error(DStrView(errpos), SYNTAX_ERROR);
-      DStrFree(errpos);
-   }
-   DStrReleaseRef(source_name);
-   if(TestInpTok(in, Comma))
-   {
-      AcceptInpTok(in, Comma);
-      rest = quantified_form_tptp_parse(in, terms, quantor);
-   }
-   else
-   {
-      AcceptInpTok(in, CloseSquare);
-      AcceptInpTok(in, Colon);      
-      rest = elem_form_tptp_parse(in, terms);
-   }
-   res = FormulaQuantorAlloc(quantor, var, rest);
-   return res;
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: elem_form_tptp_parse()
-//
-//   Parse an elementary formula in TPTP/TSTP format.
-//
-// Global Variables: -
-//
-// Side Effects    : I/O
-//
-/----------------------------------------------------------------------*/
-
-Formula_p elem_form_tptp_parse(Scanner_p in, TB_p terms)
-{
-   Formula_p res, tmp;
-   
-   if(TestInpTok(in, AllQuantor|ExistQuantor))
-   {
-      FOFOperatorType quantor;
-      quantor = tptp_quantor_parse(in);
-      AcceptInpTok(in, OpenSquare);
-      res = quantified_form_tptp_parse(in, terms, quantor);
-   }
-   else if(TestInpTok(in, OpenBracket))
-   {
-      AcceptInpTok(in, OpenBracket);
-      res = FormulaTPTPParse(in, terms);
-      AcceptInpTok(in, CloseBracket);
-   }
-   else if(TestInpTok(in, TildeSign))
-   {
-      AcceptInpTok(in, TildeSign);
-      tmp = elem_form_tptp_parse(in, terms);
-      res = FormulaOpAlloc(OpUNot, tmp, NULL);
-   }
-   else 
-   {
-      Eqn_p lit;
-      lit = EqnTSTPParse(in, terms);
-      res = FormulaLitAlloc(lit);
-   }
-   return res;
-}
-
 /*-----------------------------------------------------------------------
 //
 // Function: FormulaTPTPParse()
@@ -533,6 +533,63 @@ Formula_p FormulaTPTPParse(Scanner_p in, TB_p terms)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaEqual()
+//
+//   Return true if form1 and form2 are equal. Terms are supposed to
+//   be shared. We only check syntactic equality and ignore AC here.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool FormulaEqual(Formula_p form1, Formula_p form2)
+{
+   bool res = false;
+
+   if(form1 == form2)
+   {
+      return true;
+   }
+   if(form1->op != form2->op)
+   {
+      return false;
+   }
+   switch(form1->op)
+   {
+   case OpIsLit:
+         res = EqnEqual(form1->special.literal, 
+                        form2->special.literal, 
+                        TBTermEqual);
+         break;
+   case OpUNot:
+         res = FormulaEqual(form1->arg1, form2->arg1);
+         break;
+   case OpQEx:
+   case OpQAll:
+         res = TBTermEqual(form1->special.var, form2->special.var)
+            && FormulaEqual(form1->arg1, form2->arg1);
+         break;
+   case OpBAnd:
+   case OpBOr:
+   case OpBImpl:
+   case OpBEquiv:
+   case OpBNand:
+   case OpBNor:
+   case OpBNImpl:
+   case OpBXor:
+         res = FormulaEqual(form1->arg1, form2->arg1)
+           && FormulaEqual(form1->arg2, form2->arg2);
+         break; 
+   default:
+         assert(false && "Illegal operator in formula");
+         break;
+   }
+   return res;
+}
 
 
 /*---------------------------------------------------------------------*/

@@ -57,10 +57,10 @@ typedef enum
 typedef struct formula_cell
 {
    FOFOperatorType op;
-   union /* Bound variable for quantifier, pointer to true literal for
+   union /* Bound variable for quantifier, pointer to real literal for
             leaf nodes in the formula tree. I could fold this into
             one of the args, but it saves only one word, and I don't
-            expect to need to many formula cells anyways. */
+            expect to need too many formula cells anyways. */
    {
       Term_p           var;
       Eqn_p            literal;
@@ -109,6 +109,8 @@ Formula_p FormulaTPTPParse(Scanner_p in, TB_p terms);
 
 Formula_p FormulaCopy(Formula_p formula, TB_p bank);
 
+bool      FormulaEqual(Formula_p form1, Formula_p form2);
+bool      FormulaHasFreeVar(Formula_p form1, Term_p var);
 
 
 #endif
