@@ -128,6 +128,7 @@ function init_machine_ratings()
    e_mark["SUNW-Ultra-5_10-sparcv9-300"]                 = 87.2878;
    e_mark["SUNW-Ultra-5_10-sparcv9-440"]                 = 140.591;
    e_mark["SUNW-Sun-Fire-880-sparcv9-900"]               = 285.646;
+   e_mark["SUNW-Sun-Fire-sparcv9-750"]                   = 211.921;
    e_mark["ppc7450-1000"]                                = 267.552;
    e_mark["IntelR-PentiumR-4-CPU-1400MHz-1395.787"]      = 300.922;
    e_mark["SUNW-Ultra-60-sparcv9-296"]                   = 100;
