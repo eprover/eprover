@@ -32,7 +32,7 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-#define VERSION      "0.81dev020"
+#define VERSION      "0.81dev021"
 #define NAME         "eprover"
 
 #ifdef SAFELOGIC
@@ -1034,7 +1034,13 @@ int main(int argc, char* argv[])
       }
       ProofStatePropDocQuote(GlobalOut, OutputLevel, CPIgnoreProps,
 			     proofstate, finals_state);
-      if(out_of_clauses)
+
+      if(cnf_only)
+      {
+         fprintf(GlobalOut, "\n# CNFization successful!\n");	    
+         TSTPOUT(GlobalOut, "Unknown");
+      }
+      else if(out_of_clauses)
       {
 	 if(!ParamodOverlapIntoNegativeLiterals||
 	    !ParamodOverlapNonEqLiterals||
@@ -1056,12 +1062,7 @@ int main(int argc, char* argv[])
 	    TSTPOUT(GlobalOut, "GaveUp");	    
 	 }
       }
-      else if(cnf_only)
-      {
-         fprintf(GlobalOut, "\n# CNFization successful!\n");	    
-         TSTPOUT(GlobalOut, "Unknown");
-      }
-      else
+      else 
       {
 	 fprintf(GlobalOut, "\n# Failure: User resource limit exceeded!\n");
 	 TSTPOUT(GlobalOut, "ResourceOut");
