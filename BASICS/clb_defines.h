@@ -27,7 +27,11 @@ Changes
 #include <assert.h>
 #include <stdio.h> 
 #include <errno.h>
+#ifdef SPEC
+#define MAXPATHLEN 256
+#else
 #include <sys/param.h>
+#endif
 #include <unistd.h>
 #include <stdlib.h>
 #include <math.h>
