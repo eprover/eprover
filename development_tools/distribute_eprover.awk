@@ -235,7 +235,7 @@ function init_machine_ratings()
 
 function get_host_type(host,          res)
 {
-   res = get_shell_res("ssh -x " host " get_system.awk");
+   res = get_shell_res("ssh -x " host " ~/bin/get_system.awk");
    if(!e_mark[res])
    {
       return "";
