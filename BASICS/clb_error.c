@@ -97,6 +97,7 @@ void InitError(char* progname)
     * print in out-of-memory cases. */
 
    fprintf(stderr, EmptyString);
+   fprintf(stdout, EmptyString);
 }
 
 

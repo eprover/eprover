@@ -792,6 +792,7 @@ int main(int argc, char* argv[])
    {
 #ifdef PRINT_SOMEERRORS_STDOUT
       fprintf(GlobalOut, "# Error: Input file contains no clauses\n");
+      fprintf(GlobalOut, "# TSTP status: Input error\n");
 #endif
       Error("Input file contains no clauses", OTHER_ERROR);
    }
@@ -828,6 +829,7 @@ int main(int argc, char* argv[])
    {
       DocClauseQuoteDefault(2, success, "proof");
       fprintf(GlobalOut, "\n# Proof found!\n");
+      fprintf(GlobalOut, "# TSTP status: Unsatisfiable\n");
    }
    else
    {
@@ -856,20 +858,24 @@ int main(int argc, char* argv[])
 	    fprintf(GlobalOut, 
 		    "\n# Clause set closed under "
 		    "restricted calculus!\n");
+	    fprintf(GlobalOut, "# TSTP status: Gave up\n");
 	 }
 	 else if(proofstate->state_is_complete)
 	 {
 	    fprintf(GlobalOut, "\n# No proof found!\n");
+	    fprintf(GlobalOut, "# TSTP status: Satisfiable\n");
 	    
 	 }
 	 else
 	 {
 	    fprintf(GlobalOut, "\n# Failure: Out of unprocessed clauses!\n");	    
+	    fprintf(GlobalOut, "# TSTP status: Gave up\n");	    
 	 }
       }
       else
       {
 	 fprintf(GlobalOut, "\n# Failure: User resource limit exceeded!\n");
+	 fprintf(GlobalOut, "# TSTP status: Resource out\n");
       }
    }
    if(print_sat)
