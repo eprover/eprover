@@ -1,4 +1,4 @@
-Short Installation Instructions for the impatient
+Short Installation Instructions for the Impatient
 -------------------------------------------------
 
 This assumes that you have GNU tar, bash and gawk in your search path!
@@ -38,8 +38,8 @@ file COPYING for details about the license and the fact that THERE IS
 NO WARRANTY!  If you are interested in a proprietary version of E with
 support, see below.
 
-Release 0.8 is a mmajor release, improving on search heuristics,
-support tools, and the inference engine. Moreover, a couple of minot
+Release 0.8 is a major release, improving on search heuristics,
+support tools, and the inference engine. Moreover, a couple of minor
 bugs have been fixed. Performance in automatic mode has increased
 significantly, so it should be worth updating for everyone. For more
 on new features, read DOC/NEWS.
@@ -59,14 +59,14 @@ using up all of your machines resources. Very occasionally it will
 find a proof for the hypothesis and tell you so ;-).
 
 CLIB is a collection of library functions for building one class of
-interesting and cool programs. Interesting and cool programs read a
-specification file (or multiple files), process the input, and print a
-result, or they are games. Examples for cool and interesting programs
-are DISCOUNT (a distributed theorem prover), proof (a proof
-transformation tool), DOOM (a game) and xevil (also a game). The sole
-exception to this rule is EMACS, which is interesting and cool despite
-being interactive and not a game. But it has a LISP interpreter, which
-is very much like a game....
+interesting and cool programs. Interesting and cool programs read an
+input file (or multiple files), process the input, and print a result,
+or they are games. Examples for cool and interesting programs are
+DISCOUNT (a distributed theorem prover), proof (a proof transformation
+tool), DOOM (a game) and xevil (also a game). The sole exception to
+this rule is EMACS, which is interesting and cool despite being
+interactive and not a game. But it has a LISP interpreter, which is
+very much like a game....
 
 At the moment CLIB is more suited for theorem provers and similar
 programs, and less useful for games. This will probably change as soon
@@ -162,7 +162,7 @@ For impatient people who do not want to read anything:
 should give a reasonable performance on a large class of problems
 (unless your main memory is really small).
 
-One of the new features of E is the ability to produce semi-readable
+One of the newer features of E is the ability to produce semi-readable
 proofs. To use this, type
 
   eprover -l4 <other-stuff> | epclextract
@@ -206,6 +206,7 @@ ANALYSIS:
 LEARN:
 HEURISTICS:
 PCL2:
+PROPOSITIONAL:
 CONTROL:
 
   - Sources and object files for the individual library modules
