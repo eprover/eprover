@@ -94,7 +94,7 @@ void    TBFree(TB_p junk);
 
 long    TBTermNodes(TB_p bank);
 #define TBStorage(bank)\
-         (TERM_CELL_MEM*(bank)->term_store.entries\
+         (TERMCELL_DYN_MEM*(bank)->term_store.entries\
          +(bank)->term_store.arg_count*sizeof(Term_p))
 
 #define TBCellIdent(term) (TermIsVar(term)?(term)->f_code:term->entry_no)

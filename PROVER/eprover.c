@@ -908,20 +908,22 @@ int main(int argc, char* argv[])
 #ifndef FAST_EXIT
 #ifdef FULL_MEM_STATS
    fprintf(GlobalOut,
-	   "# sizeof TermCell     : %d\n"
-	   "# sizeof EqnCell      : %d\n"
-	   "# sizeof ClauseCell   : %d\n"
-	   "# sizeof PTreeCell    : %d\n"
-	   "# sizeof PDTNodeCell  : %d\n"
-	   "# sizeof EvalCell     : %d\n"
-	   "# sizeof ClausePosCell: %d\n",
+	   "# sizeof TermCell     : %ld\n"
+	   "# sizeof EqnCell      : %ld\n"
+	   "# sizeof ClauseCell   : %ld\n"
+	   "# sizeof PTreeCell    : %ld\n"
+	   "# sizeof PDTNodeCell  : %ld\n"
+	   "# sizeof EvalCell     : %ld\n"
+	   "# sizeof ClausePosCell: %ld\n"
+	   "# sizeof PDArrayCell  : %ld\n",
 	   sizeof(TermCell),
 	   sizeof(EqnCell),
 	   sizeof(ClauseCell),
 	   sizeof(PTreeCell),
 	   sizeof(PDTNodeCell),
 	   sizeof(EvalCell),
-	   sizeof(ClausePosCell));	
+	   sizeof(ClausePosCell),
+	   sizeof(PDArrayCell));	
    fprintf(GlobalOut, "# Estimated memory usage: %ld\n",
 	   ProofStateStorage(proofstate));
    MemFreeListPrint(GlobalOut);

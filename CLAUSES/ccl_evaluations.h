@@ -66,6 +66,12 @@ extern unsigned long EvaluationCounter;
 #define EvalCellAlloc()   (EvalCell*)SizeMalloc(sizeof(EvalCell))
 #define EvalCellFree(junk) SizeFree(junk, sizeof(EvalCell))
 
+#ifdef CONSTANT_MEM_ESTIMATE
+#define EVALCELL_MEM 32
+#else
+#define EVALCELL_MEM MEMSIZE(EvalCell)
+#endif
+
 Eval_p   EvalAlloc(void);
 
 void     EvalPrint(FILE* out, Eval_p eval);

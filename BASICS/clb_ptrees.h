@@ -58,6 +58,12 @@ typedef struct ptreecell
 #define PTreeCellAlloc()    (PTreeCell*)SizeMalloc(sizeof(PTreeCell))
 #define PTreeCellFree(junk) SizeFree(junk, sizeof(PTreeCell))
 
+#ifdef CONSTANT_MEM_ESTIMATE
+#define PTREE_CELL_MEM 16
+#else
+#define PTREE_CELL_MEM MEMSIZE(PTreeCell)
+#endif
+
 /* As I found out now, _if_ int or long, respectively, is large enough
    for this conversion, this is guaranteed to work! */
 #ifdef P_EQUAL_INT

@@ -105,9 +105,14 @@ typedef enum
 
 #define EQUAL_PREDICATE "equal"
 
+#ifdef CONSTANT_MEM_ESTIMATE
+#define EQN_CELL_MEM 24
+#else
 #define EQN_CELL_MEM   (MEMSIZE(EqnCell)+8) /* Just a hack because
 					       SPARCs seem to work
 					       like that... */
+#endif
+
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */

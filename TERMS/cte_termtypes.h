@@ -133,12 +133,17 @@ typedef long DerefType, *DerefType_p;
 
 
 /* The following is an estimate for the memory taken up by a term cell
-   (the argument array is not counted separately). We allow a little
-   bit extra for the fact that many malloc() implmentation round to
-   the nearest 2^n bytes or words for small blocks. This "reserve" is
-   for both term cell and argument list. */
+   with arguments (the argument array is not counted separately). */
 
-#define TERM_CELL_MEM (sizeof(TermCell)+5*sizeof(void*))
+#ifdef CONSTANT_MEM_ESTIMATE
+#define TERMCELL_MEM 48
+#define TERMARG_MEM  4
+#else
+#define TERMCELL_MEM MEMSIZE(TermCell)
+#define TERMARG_MEM  sizeof(void*)
+#endif
+
+#define TERMCELL_DYN_MEM (TERMCELL_MEM+4*TERMARG_MEM)
 
 
 /*---------------------------------------------------------------------*/

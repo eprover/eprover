@@ -47,4 +47,5 @@ rm Makefile.tmp
 makedepend -f Makefile.flat *.c
 mv clb_defines.h tmpfile
 echo "#define NDEBUG /* Automatically added for SPEC */" > clb_defines.h
+echo "#define CONSTANT_MEM_ESTIMATE /* Automatically added for SPEC */" >> clb_defines.h
 cat tmpfile >> clb_defines.h

@@ -59,13 +59,13 @@ typedef int (*ClauseCmpFunType)(const Clause_p*, const Clause_p*);
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-#define CLAUSE_CELL_MEM (MEMSIZE(ClauseCell)+3*MEMSIZE(PTreeCell))
+#define CLAUSECELL_DYN_MEM (CLAUSECELL_MEM+3*PTREE_CELL_MEM)
 
 #define ClauseSetCellAlloc()    (ClauseSetCell*)SizeMalloc(sizeof(ClauseSetCell))
 #define ClauseSetCellFree(junk) SizeFree(junk, sizeof(ClauseSetCell))
 
 #define     ClauseSetStorage(set)\
-            (((CLAUSE_CELL_MEM+(set)->eval_no*MEMSIZE(EvalCell))*(set)->members+\
+            (((CLAUSECELL_DYN_MEM+(set)->eval_no*EVALCELL_MEM)*(set)->members+\
             EQN_CELL_MEM*(set)->literals)+\
             PDTreeStorage(set->demod_index))
 

@@ -47,6 +47,12 @@ typedef struct pdarraycell
 #define PDArrayCellAlloc() (PDArrayCell*)SizeMalloc(sizeof(PDArrayCell))
 #define PDArrayCellFree(junk) SizeFree(junk, sizeof(PDArrayCell))
 
+#ifdef CONSTANT_MEM_ESTIMATE
+#define PDARRAYCELL_MEM 20
+#else
+#define PDARRAYCELL_MEM MEMSIZE(PDArrayCell)
+#endif
+
 PDArray_p PDArrayAlloc(long init_size, long grow);
 PDArray_p PDIntArrayAlloc(long init_size, long grow);
 void      PDArrayFree(PDArray_p junk);

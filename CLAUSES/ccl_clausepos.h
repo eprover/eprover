@@ -52,6 +52,12 @@ typedef struct clauseposcell
 #define ClausePosCellAlloc() (ClausePosCell*)SizeMalloc(sizeof(ClausePosCell))
 #define ClausePosCellFree(junk)         SizeFree(junk, sizeof(ClausePosCell))
 
+#ifdef CONSTANT_MEM_ESTIMATE
+#define CLAUSEPOSCELL_MEM 20
+#else
+#define CLAUSEPOSCELL_MEM MEMSIZE(ClausePosCell)
+#endif
+
 static __inline__ ClausePos_p ClausePosAlloc(void);
 static __inline__ void        ClausePosFree(ClausePos_p junk);
 

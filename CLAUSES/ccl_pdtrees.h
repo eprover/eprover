@@ -120,18 +120,31 @@ typedef struct pd_tree_cell
 
 #define   PDTreeCellAlloc()    (PDTreeCell*)SizeMalloc(sizeof(PDTreeCell))
 #define   PDTreeCellFree(junk) SizeFree(junk, sizeof(PDTreeCell))
+
+#ifdef CONSTANT_MEM_ESTIMATE
+#define PDTREE_CELL_MEM 16
+#else
+#define PDTREE_CELL_MEM MEMSIZE(PDTreeCell)
+#endif
+
 PDTree_p  PDTreeAlloc(void);
 void      PDTreeFree(PDTree_p tree);
 
-#define   PDTNODE_MEM (MEMSIZE(PDTNodeCell)+2*MEMSIZE(PDArrayCell))
+#ifdef CONSTANT_MEM_ESTIMATE
+#define PDNODE_MEM 52
+#else
+#define PDTNODE_MEM MEMSIZE(PDTNodeCell)
+#endif
+
+#define   PDTNODE_DYN_MEM (PDTNODE_MEM+2*PDARRAYCELL_MEM)
 
 #define   PDTreeStorage(tree) \
           ((tree)\
           ?\
-          ((tree)->node_count*(PDTNODE_MEM+sizeof(IntOrP)*\
+          ((tree)->node_count*(PDTNODE_DYN_MEM+sizeof(IntOrP)*\
                                (tree->max_var+tree->max_fun+\
 				(PDNODE_FUN_GROW_ALT+PDNODE_VAR_GROW_ALT)/2))\
-           +(tree)->clause_count*(MEMSIZE(PTreeCell)+MEMSIZE(ClausePosCell)))\
+           +(tree)->clause_count*(PDTREE_CELL_MEM+CLAUSEPOSCELL_MEM))\
           :\
           0)
 

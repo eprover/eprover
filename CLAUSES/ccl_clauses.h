@@ -142,6 +142,12 @@ void ClauseSetTPTPType(Clause_p clause, ClauseProperties type);
 #define ClauseCellAlloc()    (ClauseCell*)SizeMalloc(sizeof(ClauseCell))
 #define ClauseCellFree(junk) SizeFree(junk, sizeof(ClauseCell))
 
+#ifdef CONSTANT_MEM_ESTIMATE
+#define CLAUSECELL_MEM 68
+#else
+#define CLAUSECELL_MEM MEMSIZE(ClauseCell)
+#endif
+
 Clause_p EmptyClauseAlloc(void);
 Clause_p ClauseAlloc(Eqn_p literals);
 void     ClauseFree(Clause_p junk);
