@@ -362,8 +362,9 @@ Clause_p ClauseOrderedParamod(TB_p bank, OCB_p ocb, ClausePos_p from,
 //
 //   Check wether a position is a valid paramod-position. Ugly!
 //
-// Global Variables: ParamodOverlapAllLiterals, also reads local scope
-//                   variable pos, no_top amd res.
+// Global Variables: ParamodOverlapIntoNegativeLiterals,
+//                   ParamodOverlapNonEqLiterals, also reads local
+//                   scope variable pos, no_top amd res.
 //
 // Side Effects    : -
 //
@@ -386,7 +387,8 @@ Clause_p ClauseOrderedParamod(TB_p bank, OCB_p ocb, ClausePos_p from,
 //   true, do not select top positions of terms. Returns the term at
 //   the selected position, or NULL if no position exists.
 //
-// Global Variables: ParamodOverlapAllLiterals
+// Global Variables: ParamodOverlapIntoNegativeLiterals,
+//                   ParamodOverlapNonEqLiterals
 //
 // Side Effects    : Changes pos
 //
@@ -429,7 +431,8 @@ Term_p ClausePosFirstParamodInto(Clause_p clause, ClausePos_p pos,
 //   top-positions if no_top is true. Returns the term at
 //   the selected position, or NULL if no position exists.
 //
-// Global Variables: ParamodOverlapAllLiterals
+// Global Variables: ParamodOverlapIntoNegativeLiterals,
+//                   ParamodOverlapNonEqLiterals
 //
 // Side Effects    : Changes pos
 //
@@ -476,7 +479,8 @@ Term_p ClausePosNextParamodInto(ClausePos_p pos, ClausePos_p from_pos, bool
 //   for efficiency reasons ClausePos*ParamodPair() should ensure that
 //   this is only called in cases were it makes sense.
 //
-// Global Variables: ParamodOverlapAllLiterals
+// Global Variables: ParamodOverlapIntoNegativeLiterals,
+//                   ParamodOverlapNonEqLiterals
 //
 // Side Effects    : Changes pos
 //
@@ -511,7 +515,8 @@ Term_p ClausePosFirstParamodFromSide(Clause_p from, ClausePos_p
 //   reasons. ClausePos*ParamodPair() should ensure that this is only
 //   called in cases were it makes sense.
 //
-// Global Variables: ParamodOverlapAllLiterals
+// Global Variables: ParamodOverlapIntoNegativeLiterals,
+//                   ParamodOverlapNonEqLiterals
 //
 // Side Effects    : Changes pos
 //

@@ -378,9 +378,12 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
 static void generate_new_clauses(ProofState_p state, ProofControl_p
 				 control, Clause_p clause, Clause_p tmp_copy)
 {
-   state->factor_count+=
-      ComputeAllEqualityFactors(state->terms, control->ocb, clause,
-				state->tmp_store, state->freshvars);
+   if(control->heuristic_parms.enable_eq_factoring)
+   {
+      state->factor_count+=
+         ComputeAllEqualityFactors(state->terms, control->ocb, clause,
+                                   state->tmp_store, state->freshvars);
+   }
    state->resolv_count+=
       ComputeAllEqnResolvents(state->terms, clause, state->tmp_store,
 			      state->freshvars);
@@ -394,8 +397,10 @@ static void generate_new_clauses(ProofState_p state, ProofControl_p
 			      tmp_copy, clause,
 			      state->processed_pos_eqns,
 			      state->tmp_store, state->freshvars); 
-   if(!ClauseIsNegative(clause))
-   { /* We don't need to try to overlap purely negative clauses! */
+
+   if(control->heuristic_parms.enable_neg_unit_paramod && !ClauseIsNegative(clause))
+   { /* We never need to try to overlap purely negative clauses! */
+      
       state->paramod_count+=
 	 ComputeAllParamodulants(state->terms, control->ocb,
 				 tmp_copy, clause,

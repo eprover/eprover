@@ -48,7 +48,7 @@ Changes
 //   Apply all forward-contracting inferences to clause. Return NULL
 //   if it becomes trivial, a FVPackedClause containing it
 //   otherwise. Does not delete clause. Subsumed and trivial clauses
-//   are counted in the cells pointed to by the 3rd and 4th
+//   are counted in the cells pointed to by the 4th and 5th
 //   argument. Provide dummies to avoid this.
 //
 // Global Variables: -

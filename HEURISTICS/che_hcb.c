@@ -88,33 +88,15 @@ void default_exit_fun(void* data)
 void HeuristicParmsInitialize(HeuristicParms_p handle)
 {
    handle->heuristic_name                = HCB_DEFAULT_HEURISTIC;
-   /* handle->wfcb_definitions              = PStackAlloc();
-      handle->hcb_definitions               = PStackAlloc();*/
+   handle->prefer_initial_clauses        = false;
+
    handle->ordertype                     = KBO;
    handle->to_weight_gen                 = WNoMethod;
    handle->to_prec_gen                   = PNoMethod;
    handle->to_pre_prec                   = NULL;
    handle->to_const_weight               = WConstNoWeight;
-   handle->filter_limit                  = DEFAULT_FILTER_LIMIT;
-   handle->filter_copies_limit           = DEFAULT_FILTER_COPIES_LIMIT;
-   handle->reweight_limit                = DEFAULT_REWEIGHT_INTERVAL;
-   handle->mem_limit                     = 0;
-   handle->ac_handling                   = ACDiscardAll;
-   handle->ac_res_aggressive             = true;
-   handle->forward_context_sr            = false;
-   handle->forward_context_sr_aggressive = false;
-   handle->backward_context_sr           = false; 
    handle->no_lit_cmp                    = false;
-   handle->delete_bad_limit              = DEFAULT_DELETE_BAD_LIMIT;
-   handle->forward_demod                 = FullRewrite;
-   handle->prefer_general                = false;
-   handle->er_varlit_destructive         = false;
-   handle->er_strong_destructive         = false;
-   handle->er_aggressive                 = false;
-   handle->prefer_initial_clauses        = false;
-   handle->select_on_proc_only           = false;
-   handle->inherit_paramod_lit           = false;
-   handle->inherit_goal_pm_lit           = false;
+
    handle->selection_strategy            = SelectNoLiterals;   
    handle->pos_lit_sel_min               = 0; 
    handle->pos_lit_sel_max               = LONG_MAX; 
@@ -123,11 +105,40 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->all_lit_sel_min               = 0; 
    handle->all_lit_sel_max               = LONG_MAX; 
    handle->weight_sel_min                = 0;
+   handle->select_on_proc_only           = false;
+   handle->inherit_paramod_lit           = false;
+   handle->inherit_goal_pm_lit           = false;
+   
+
+   handle->enable_eq_factoring           = true;
+   handle->enable_neg_unit_paramod       = true;
+
+   handle->ac_handling                   = ACDiscardAll;
+   handle->ac_res_aggressive             = true;
+
+   handle->forward_context_sr            = false;
+   handle->forward_context_sr_aggressive = false;
+   handle->backward_context_sr           = false; 
+
+   handle->forward_demod                 = FullRewrite;
+   handle->prefer_general                = false;
+
+   handle->er_varlit_destructive         = false;
+   handle->er_strong_destructive         = false;
+   handle->er_aggressive                 = false;
+
    handle->split_clauses                 = SplitNone;
    handle->split_method                  = SplitGroundNone;
    handle->split_aggressive              = false;
    handle->split_method                  = SplitGroundNone;
+
    handle->unproc_simplify               = NoUnitSimplify;
+
+   handle->filter_limit                  = DEFAULT_FILTER_LIMIT;
+   handle->filter_copies_limit           = DEFAULT_FILTER_COPIES_LIMIT;
+   handle->reweight_limit                = DEFAULT_REWEIGHT_INTERVAL;
+   handle->delete_bad_limit              = DEFAULT_DELETE_BAD_LIMIT;
+   handle->mem_limit                     = 0;
    handle->watchlist_simplify            = true;
    handle->use_tptp_sos                  = false;
 }

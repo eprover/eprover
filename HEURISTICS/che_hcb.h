@@ -59,8 +59,6 @@ typedef struct heuristic_parms_cell
 {
    /* Clause selection elements */
    char                *heuristic_name;
-   /* PStack_p            wfcb_definitions;
-      PStack_p            hcb_definitions; */
    bool                prefer_initial_clauses;
 
    /* Ordering elements */
@@ -85,6 +83,9 @@ typedef struct heuristic_parms_cell
    bool                inherit_goal_pm_lit;
 
    /* Inference control elements */
+   bool                enable_eq_factoring; /* Default is on! */
+   bool                enable_neg_unit_paramod; /* Default is on */
+
    ACHandlingType      ac_handling;
    bool                ac_res_aggressive;
 

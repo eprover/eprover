@@ -95,6 +95,8 @@ typedef enum
    OPT_FILTER_COPIES_LIMIT,
    OPT_REWEIGHT_LIMIT,
    OPT_DELETE_BAD_LIMIT,
+   OPT_DISABLE_EQ_FACTORING,
+   OPT_DISABLE_NEGUNIT_PM,
    OPT_SPLIT_TYPES,
    OPT_SPLIT_HOW,
    OPT_SPLIT_AGGRESSIVE,
@@ -557,6 +559,21 @@ OptCell opts[] =
     " memory limit, the prover will determine a good value"
     " automatically."}, 
 
+   {OPT_DISABLE_EQ_FACTORING,
+    '\0', "disable-eq-factoring",
+    NoArg, NULL,
+    "Disable equality factoring. This makes the prover incomplete for "
+    "general non-Horn problems, but helps for some specialized classes."
+    " It is not necessary to disable equality factoring for Horn problems"
+    ", as Horn clauses are not factored anyways."}, 
+   
+   {OPT_DISABLE_NEGUNIT_PM,
+    '\0', "disable-paramod-into-processed-neg-units",
+    NoArg, NULL,
+    "Disable paramodulation of the given clause into processed negative"
+    " units. This makes the prover incomplete in the general case, but "
+    "helps for some specialized classes."}, 
+   
    {OPT_SPLIT_TYPES,
     '\0', "split-clauses",
     OptArg, "7",
@@ -1463,7 +1480,13 @@ CLState_p process_options(int argc, char* argv[])
 	    break;
       case OPT_DELETE_BAD_LIMIT:
 	    h_parms->delete_bad_limit = CLStateGetIntArg(handle, arg);
-	    break;
+	    break; 
+      case OPT_DISABLE_EQ_FACTORING:
+            h_parms->enable_eq_factoring = false;
+            break;
+      case OPT_DISABLE_NEGUNIT_PM:
+            h_parms->enable_neg_unit_paramod = false;
+            break;
       case OPT_SPLIT_TYPES:
 	    h_parms->split_clauses = CLStateGetIntArg(handle, arg);
 	    break;	    
