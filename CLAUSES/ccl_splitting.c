@@ -256,12 +256,14 @@ static void build_part(LitSplitDesc_p lit_table, int lit_no, int
 int clause_split_general(Clause_p clause, ClauseSet_p set, SplitType
 			 how, PStack_p split_vars)
 {
-   int            res = 0, part = 0,i,j,size, lit_no, split_var_no;
-   LitSplitDesc_p lit_table;
-   Eqn_p          handle,tmp, join;
-   FunCode        new_pred;
-   TB_p           bank;
-   Clause_p       new;
+   int              res = 0, part = 0,i,j,size, lit_no, split_var_no;
+   LitSplitDesc_p   lit_table;
+   Eqn_p            handle,tmp, join;
+   FunCode          new_pred;
+   TB_p             bank;
+   Clause_p         new;
+   /* ClauseProperties props = ClauseGiveProps(clause,
+    * CPTypeMask|CPIsSOS); */
 
    assert(clause);
    assert(!clause->children);
@@ -343,6 +345,7 @@ int clause_split_general(Clause_p clause, ClauseSet_p set, SplitType
 	    }
 	 }
 	 new = ClauseAlloc(handle);
+	 /* new->properties = props; */
 	 if(parent1)
 	 {
 	    new->parent1 = parent1;
@@ -363,6 +366,7 @@ int clause_split_general(Clause_p clause, ClauseSet_p set, SplitType
 	 DocClauseCreationDefault(new, inf_split, clause, NULL);
       }
       new = ClauseAlloc(join);
+      /*  new->properties = props; */
       if(parent1)
       {
 	 new->parent1 = parent1;

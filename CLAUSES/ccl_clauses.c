@@ -1113,7 +1113,7 @@ void ClausePrint(FILE* out, Clause_p clause, bool fullterms)
    }
    else
    {
-      if(ClauseQueryTPTPType(clause) == CPTypeConjecture)
+      if(ClauseQueryTPTPType(clause) == CPTypeConjecture && !ClauseIsEmpty(clause))
       {
 	 ClausePrintQuery(out, clause, fullterms);
       }

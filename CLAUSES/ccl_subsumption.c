@@ -30,6 +30,7 @@ Changes
 bool StrongUnitForwardSubsumption = false;
 long ClauseClauseSubsumptionCalls = 0;
 long ClauseClauseSubsumptionCallsRec = 0;
+long UnitClauseClauseSubsumptionCalls = 0;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -825,6 +826,7 @@ bool UnitClauseSubsumesClause(Clause_p unit, Clause_p clause)
 
    assert(ClauseLiteralNumber(unit) == 1);
    
+   UnitClauseClauseSubsumptionCalls++;
    res = LiteralSubsumesClause(unit->literals, clause);
    if(res)
    {
