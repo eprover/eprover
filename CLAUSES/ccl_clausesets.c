@@ -1439,8 +1439,7 @@ void ClauseSetDocInital(FILE* out, long level, ClauseSet_p set)
       {
 	 DocClauseCreation(out, OutputLevel, handle, 
 			   inf_initial, NULL, NULL,
-			   ClauseQueryProp(handle, CPWatchOnly)?
-			   "NoInfWatchOnly":NULL);
+			   NULL);
       }
    }   
 }
@@ -1912,6 +1911,44 @@ long ClauseSetFVIndexify(ClauseSet_p set)
    PStackFree(stack);
    return set->members;
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetNewTerms()
+//
+//   Substitute all clause in set withj otherwise identical copies
+//   taking terms from the new termbank.
+//
+// Global Variables: -
+//
+// Side Effects    : May indexify the clause set.
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetNewTerms(ClauseSet_p set, TB_p terms)
+{
+   PStack_p stack = PStackAlloc();
+   Clause_p clause, copy;
+
+   assert(set);
+   
+   while((clause = ClauseSetExtractFirst(set)))
+   {
+      PStackPushP(stack, clause);
+   }
+   while(!PStackEmpty(stack))
+   {
+      clause = PStackPopP(stack);
+      copy = ClauseCopy(clause, terms);
+      ClauseSetIndexedInsertClause(set, copy);
+      ClauseFree(clause);
+   }
+   PStackFree(stack);
+   return set->members;
+}
+
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

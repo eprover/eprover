@@ -246,7 +246,8 @@ bool ClauseSetUnfoldEqDef(ClauseSet_p set, ClausePos_p demod)
 //
 /----------------------------------------------------------------------*/
 
-long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, int min_arity)
+long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, ClauseSet_p passive,
+			      int min_arity)
 {
    ClausePos_p demod;
    long res = false;
@@ -255,6 +256,10 @@ long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, int min_arity)
    {
       ClauseSetExtractEntry(demod->clause);
       ClauseSetUnfoldEqDef(set, demod);
+      if(passive)
+      {
+	 ClauseSetUnfoldEqDef(passive, demod);	 
+      }
       ClauseFree(demod->clause);
       ClausePosCellFree(demod);
       res++;
@@ -269,7 +274,8 @@ long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, int min_arity)
 //
 //   Perform preprocessing on the clause set: Removing tautologies,
 //   definition unfolding and canonization. Returns number of clauses
-//   removed. 
+//   removed. If passive is true, potential unolding is applied to
+//   clauses in that set as well.
 //
 // Global Variables: -
 //
@@ -277,7 +283,8 @@ long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, int min_arity)
 //
 /----------------------------------------------------------------------*/
 
-long ClauseSetPreprocess(ClauseSet_p set, TB_p tmp_terms, bool no_eq_unfold)
+long ClauseSetPreprocess(ClauseSet_p set, ClauseSet_p passive, TB_p
+			 tmp_terms, bool no_eq_unfold)
 {
    long res, tmp;
 
@@ -287,7 +294,7 @@ long ClauseSetPreprocess(ClauseSet_p set, TB_p tmp_terms, bool no_eq_unfold)
    {
       return res;
    }
-   if((tmp = ClauseSetUnfoldAllEqDefs(set, 1)))
+   if((tmp = ClauseSetUnfoldAllEqDefs(set, passive, 1)))
    {	
       res += tmp;
       res += ClauseSetFilterTautologies(set, tmp_terms);

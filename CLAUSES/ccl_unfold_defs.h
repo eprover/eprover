@@ -47,8 +47,10 @@ Changes
 
 bool ClauseUnfoldEqDef(Clause_p clause, ClausePos_p demod);
 bool ClauseSetUnfoldEqDef(ClauseSet_p set, ClausePos_p demod);
-long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, int min_arity);
-long ClauseSetPreprocess(ClauseSet_p set, TB_p tmp_terms, bool no_eq_unfold);
+long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, ClauseSet_p passive,
+			      int min_arity);
+long ClauseSetPreprocess(ClauseSet_p set, ClauseSet_p passive, TB_p
+			 tmp_terms, bool no_eq_unfold);
 
 
 

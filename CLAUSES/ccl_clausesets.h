@@ -158,6 +158,7 @@ PermVector_p PermVectorCompute(ClauseSet_p set, FVIndexParms_p params,
 			       long symbols);
 
 long         ClauseSetFVIndexify(ClauseSet_p set);
+long         ClauseSetNewTerms(ClauseSet_p set, TB_p terms);
 
 #endif
 

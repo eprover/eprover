@@ -57,10 +57,6 @@ static void pcl_print_start(FILE* out, Clause_p clause)
 {
    fprintf(out, PCLStepCompact?"%ld:":"%6ld : ", clause->ident);
    ClausePCLPrint(out, clause, PCLFullTerms);
-   if(ClauseQueryProp(clause, CPWatchOnly))
-   {
-      fputs(" /* Watchlistclause */ ", out);
-   }
    fputs(" : ", out);
 }
 
@@ -78,20 +74,20 @@ static void pcl_print_start(FILE* out, Clause_p clause)
 
 static void pcl_print_end(FILE* out, char* comment, Clause_p clause)
 {
-   char *addon="extract_watchlist";
+   char *addon="wl";
    
    if(ClauseQueryProp(clause, CPWatchOnly)&&comment)
    {
-      fprintf(out, PCLStepCompact?":\"%s,%s\"":" : \"%s,%s\"",
+      fprintf(out, PCLStepCompact?":'%s,%s'" : ": '%s,%s'",
 	      addon,comment);
    }
    else if(comment)
    {
-      fprintf(out, PCLStepCompact?":\"%s\"":" : \"%s\"",comment);
+      fprintf(out, PCLStepCompact?":'%s'":" : '%s'",comment);
    }
    else if(ClauseQueryProp(clause, CPWatchOnly))
    {
-      fprintf(out, PCLStepCompact?":\"%s\"":" : \"%s\"",addon);
+      fprintf(out, PCLStepCompact?":'%s'":" : '%s'",addon);
    }   
    fputc('\n', out);
 }
@@ -596,7 +592,7 @@ static void print_eq_unfold(FILE* out, Clause_p rewritten,
 	 {
 	    fprintf(out, ",%ld)", demod->clause->ident);
 	 }
-	 pcl_print_end(out, "Preprocessing/Unfolding", rewritten);
+	 pcl_print_end(out, "unfolding", rewritten);
 	 break;
    case tstp_format:
 	 ClauseTSTPPrint(out, rewritten, PCLFullTerms, false);
@@ -611,7 +607,7 @@ static void print_eq_unfold(FILE* out, Clause_p rewritten,
 	    fprintf(out, ",%ld,theory(equality)])", 
 		    PStackElementInt(demod_pos,i));
 	 }
-	 tstp_print_end(out, "PreprocessingUnfolding");
+	 tstp_print_end(out, "Unfolding");
 	 break;
     default:
 	 fprintf(out, "# Output format not implemented.\n");
@@ -782,7 +778,7 @@ void DocClauseQuote(FILE* out, long level, long target_level,
 	    if(opt_partner)
 	    {
 	       assert(comment);
-	       fprintf(out, " : \"%s(%ld)\"\n", comment, opt_partner->ident);
+	       fprintf(out, " : '%s(%ld)'\n", comment, opt_partner->ident);
 	    }
 	    else
 	    {
