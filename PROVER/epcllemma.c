@@ -406,6 +406,7 @@ int main(int argc, char* argv[])
 	 assert(false && "Unknown algorithm type ???");
 	 break;
    }
+   VERBOUT("Lemmas selected\n");
    switch(OutputLevel)
    {
    case 0:
