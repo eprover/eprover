@@ -1,6 +1,6 @@
 #!/bin/bash -f
 
-EXECPATH=~/bin
+EXECPATH=.
 
 pid=$$
 host=`hostname`

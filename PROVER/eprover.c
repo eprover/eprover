@@ -33,13 +33,13 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-#define VERSION      "0.71dev"
+#define VERSION      "0.8pre"
 #define NAME         "eprover"
 
 #ifdef SAFELOGIC
-#define NICKNAME     "Puttabong (Proprietary Safelogic build)"
+#define NICKNAME     "Steinthal (Proprietary Safelogic build)"
 #else
-#define NICKNAME     "Puttabong"
+#define NICKNAME     "Steinthal"
 #endif
 
 typedef enum
