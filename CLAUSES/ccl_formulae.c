@@ -673,6 +673,97 @@ bool FormulaVarIsFree(Formula_p form, Term_p var)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaCopy()
+//
+//   Return an (instantiated) copy of form. This will _not_ work if an
+//   instantiated variable will be quantified somewhere, and there is
+//   an assertion to catch this case.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+Formula_p FormulaCopy(Formula_p form, TB_p terms)
+{
+   Formula_p handle, arg1, arg2;
+
+   if(!form)
+   {
+      return NULL;
+   }
+
+   if(FormulaIsQuantified(form))
+   {
+      assert(!form->special.var->binding);
+      
+      arg1 = FormulaCopy(form->arg1, terms);
+      handle = FormulaQuantorAlloc(form->op, form->special.var, arg1);
+   }
+   else if(FormulaIsLiteral(form))
+   {
+      Eqn_p lit;
+      
+      lit = EqnCopy(form->special.literal, terms);
+      handle = FormulaLitAlloc(lit);
+   }
+   else
+   {
+      arg1 = FormulaCopy(form->arg1, terms);
+      arg2 = FormulaCopy(form->arg2, terms);
+      handle = FormulaOpAlloc(form->op, arg1, arg2);
+   }         
+   return handle;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaCollectFreeVars()
+//
+//   Collect the _free_ variables in form in *vars. This is somewhat
+//   tricky. We require that initially all variables have TPIsFreeVar
+//   set. 
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations.
+//
+/----------------------------------------------------------------------*/
+
+void FormulaCollectFreeVars(Formula_p form, PTree_p *vars)
+{
+   TermProperties old_prop;
+   
+   if(FormulaIsQuantified(form))
+   {
+      old_prop = TermCellGiveProps(form->special.var, TPIsFreeVar);
+      TermCellDelProp(form->special.var, TPIsFreeVar);
+      FormulaCollectFreeVars(form->arg1, vars);
+      TermCellSetProp(form->special.var, old_prop);      
+   }
+   else if(FormulaIsLiteral(form))
+   {
+      TermCollectPropVariables(form->special.literal->lterm, vars, TPIsFreeVar);
+      TermCollectPropVariables(form->special.literal->rterm, vars, TPIsFreeVar);
+   }
+   else
+   {
+      if(FormulaHasSubForm1(form))
+      {
+         FormulaCollectFreeVars(form->arg1, vars);
+      }
+      if(FormulaHasSubForm2(form))
+      {
+         FormulaCollectFreeVars(form->arg2, vars);
+      }
+   }
+}
+
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

@@ -71,7 +71,8 @@ typedef enum
    TPIsRewritten    =  4096,/* Term has been rewritten (for the new
 			       rewriting scheme) */ 
    TPIsShared       = 16384,/* Term is in a term bank */
-   TPGarbageFlag    = 32768 /* For the term bank garbage collection */
+   TPGarbageFlag    = 32768,/* For the term bank garbage collection */
+   TPIsFreeVar      = 65536 /* For Skolemization */
 }TermProperties;
 
 typedef enum  /* See CLAUSES/ccl_rewrite.c for more */
@@ -172,7 +173,7 @@ typedef bool (*TermEqualTestFun)(Term_p t1, Term_p t2);
 /* Are any properties in prop set in term? */
 #define TermCellIsAnyPropSet(term, prop) IsAnyPropSet((term), (prop))
 
-#define TermCellGiveProps(term, props) GiveProps((t1),(props))
+#define TermCellGiveProps(term, props) GiveProps((term),(props))
 #define TermCellFlipProp(term, props) FlipProp((term),(props))
 
 #define TermCellAlloc() (TermCell*)SizeMalloc(sizeof(TermCell))

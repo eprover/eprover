@@ -471,7 +471,7 @@ bool WFormulaConjectureNegate(WFormula_p wform)
 
 void WFormulaCNF(WFormula_p form, TB_p terms)
 {
-   form->formula = FormulaCNF(form->formula, terms,1);
+   FormulaCNF(&(form->formula), terms);
 }
 
 

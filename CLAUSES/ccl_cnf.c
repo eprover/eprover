@@ -196,10 +196,7 @@ bool root_nnf(Formula_p *form, TB_p terms, int polarity)
 // Function: FormulaSimplify()
 //
 //   Maximally (and destructively) simplify a formula using (primarily)
-//   the simplification rules (from [NW:SmallCNF-2001]). Note that
-//   polarity is a dummy parameter neither used nor correctly
-//   computed. It is ony there to get a consistent interface for all
-//   the NNF functions.
+//   the simplification rules (from [NW:SmallCNF-2001]). 
 //
 //   P | P => P    P | T => T     P | F => P
 //   P & P => F    P & T => P     P & F -> F
@@ -215,147 +212,164 @@ bool root_nnf(Formula_p *form, TB_p terms, int polarity)
 //
 /----------------------------------------------------------------------*/
 
-Formula_p FormulaSimplify(Formula_p form, TB_p terms, 
-                          int polarity /* dummy!*/)
+bool FormulaSimplify(Formula_p *form, TB_p terms)
 {
-   Formula_p handle;
+   Formula_p handle, newform = *form;
+   bool modified = false, tmpmod = false;
+   
 
    /* printf("Simplifying: ");
    FormulaTPTPPrint(stdout, form, true);
    printf("\n");*/
 
-   if(FormulaHasSubForm1(form))
+   if(FormulaHasSubForm1(*form))
    {
-      FormulaRefSimplify(form->arg1, terms, polarity);
+      modified = FormulaSimplify(&((*form)->arg1), terms);
    }
-   if(FormulaHasSubForm2(form))
+   if(FormulaHasSubForm2(*form))
    {
-      FormulaRefSimplify(form->arg2, terms, polarity);
+      tmpmod = FormulaSimplify(&((*form)->arg2), terms);
+      modified = modified || tmpmod;
    }
-   switch(form->op)
+   switch((*form)->op)
    {
    case OpUNot:
-         if(FormulaIsLiteral(form->arg1))
+         if(FormulaIsLiteral((*form)->arg1))
          {
             Eqn_p tmp;
-            tmp = EqnAlloc(form->arg1->special.literal->lterm, 
-                           form->arg1->special.literal->rterm, 
+            tmp = EqnAlloc((*form)->arg1->special.literal->lterm, 
+                           (*form)->arg1->special.literal->rterm, 
                            terms,
-                           !EqnIsPositive(form->arg1->special.literal));
-            form = FormulaLitAlloc(tmp);
+                           !EqnIsPositive((*form)->arg1->special.literal));
+            newform = FormulaLitAlloc(tmp);
          }
          break;
    case OpBOr:
-         if((handle = prop_arg_return_other(form->arg1, form->arg2, false)))
+         if((handle = prop_arg_return_other((*form)->arg1, (*form)->arg2, false)))
          {
-            form = handle;
+            newform = handle;
          }
-         else if((handle = prop_arg_return(form->arg1, form->arg2, true)))
+         else if((handle = prop_arg_return((*form)->arg1, (*form)->arg2, true)))
          {
-            form = handle;
+            newform = handle;
          }
-         else if(FormulaEqual(form->arg1,form->arg2))
+         else if(FormulaEqual((*form)->arg1,(*form)->arg2))
          {
-            form = form->arg1;
+            newform = (*form)->arg1;
          }
          break;
    case OpBAnd:
-         if((handle = prop_arg_return_other(form->arg1, form->arg2, true)))
+         if((handle = prop_arg_return_other((*form)->arg1, (*form)->arg2, true)))
          {
-            form = handle;
+            newform = handle;
          }
-         else if((handle = prop_arg_return(form->arg1, form->arg2, false)))
+         else if((handle = prop_arg_return((*form)->arg1, (*form)->arg2, false)))
          {
-            form = handle;
+            newform = handle;
          }
-         else if(FormulaEqual(form->arg1,form->arg2))
+         else if(FormulaEqual((*form)->arg1,(*form)->arg2))
          {
-            form = form->arg1;
+            newform = (*form)->arg1;
          }
          break;         
    case OpBEquiv:
-         if((handle = prop_arg_return_other(form->arg1, form->arg2, true)))
+         if((handle = prop_arg_return_other((*form)->arg1, (*form)->arg2, true)))
          {
-            form = handle;
+            newform = handle;
          }
-         else if((handle = prop_arg_return_other(form->arg1, form->arg2, false)))
+         else if((handle = prop_arg_return_other((*form)->arg1, (*form)->arg2, false)))
          {
-            form = FormulaOpAlloc(OpUNot, handle, NULL);
-            handle = FormulaGetRef(form);
-            FormulaRefSimplify(handle, terms, polarity);
-            form = FormulaRelRef(handle);            
+            newform = FormulaOpAlloc(OpUNot, handle, NULL);
+            FormulaGetRef(newform);
+            tmpmod = FormulaSimplify(&newform, terms);
+            FormulaRelRef(newform);
+            modified = tmpmod || modified;
          }
-         else if(FormulaEqual(form->arg1,form->arg2))
+         else if(FormulaEqual((*form)->arg1,(*form)->arg2))
          {
-            form = FormulaPropConstantAlloc(terms, true);
+            newform = FormulaPropConstantAlloc(terms, true);
          }
          break;
    case OpBImpl: 
-         if(FormulaIsPropTrue(form->arg1))
+         if(FormulaIsPropTrue((*form)->arg1))
          {
-            form = form->arg2;
+            newform = (*form)->arg2;
          }
-         else if(FormulaIsPropFalse(form->arg1))
+         else if(FormulaIsPropFalse((*form)->arg1))
          {
-            form = FormulaPropConstantAlloc(terms, true);
+            newform = FormulaPropConstantAlloc(terms, true);
          }
-         else if(FormulaIsPropFalse(form->arg2))
+         else if(FormulaIsPropFalse((*form)->arg2))
          {
-            form = FormulaOpAlloc(OpUNot, form->arg1, NULL);
-            handle = FormulaGetRef(form);
-            FormulaRefSimplify(handle, terms, polarity);
-            form = FormulaRelRef(handle); 
+            newform = FormulaOpAlloc(OpUNot, (*form)->arg1, NULL);
+            FormulaGetRef(newform);
+            tmpmod = FormulaSimplify(&newform, terms);
+            FormulaRelRef(newform);
+            modified = tmpmod || modified;
          }
-         else if(FormulaIsPropTrue(form->arg2))
+         else if(FormulaIsPropTrue((*form)->arg2))
          {
-            form = FormulaPropConstantAlloc(terms, true);
+            newform = FormulaPropConstantAlloc(terms, true);
          }
-         else if(FormulaEqual(form->arg1,form->arg2))
+         else if(FormulaEqual((*form)->arg1,(*form)->arg2))
          {
-            form = FormulaPropConstantAlloc(terms, true);
+            newform = FormulaPropConstantAlloc(terms, true);
          }
          break;
    case OpBXor:
-         form = FormulaOpAlloc(OpBEquiv, form->arg1, form->arg2);
-         form = FormulaOpAlloc(OpUNot, form, NULL);
-         handle = FormulaGetRef(form);
-         FormulaRefSimplify(handle, terms, polarity);
-         form = FormulaRelRef(handle);                    
+         handle = FormulaOpAlloc(OpBEquiv, (*form)->arg1, (*form)->arg2);
+         newform = FormulaOpAlloc(OpUNot, handle, NULL);
+         FormulaGetRef(newform);
+         tmpmod = FormulaSimplify(&newform, terms);
+         FormulaRelRef(newform);
+         modified = tmpmod || modified;
          break;
    case OpBNor:
-         form = FormulaOpAlloc(OpBOr, form->arg1, form->arg2);
-         form = FormulaOpAlloc(OpUNot, form, NULL);
-         handle = FormulaGetRef(form);
-         FormulaRefSimplify(handle, terms, polarity);
-         form = FormulaRelRef(handle);                    
+         handle = FormulaOpAlloc(OpBOr, (*form)->arg1, (*form)->arg2);
+         newform = FormulaOpAlloc(OpUNot, handle, NULL);
+         FormulaGetRef(newform);
+         tmpmod = FormulaSimplify(&newform, terms);
+         FormulaRelRef(newform);
+         modified = tmpmod || modified;
          break;
    case OpBNand:
-         form = FormulaOpAlloc(OpBAnd, form->arg1, form->arg2);
-         form = FormulaOpAlloc(OpUNot, form, NULL);
-         handle = FormulaGetRef(form);
-         FormulaRefSimplify(handle, terms, polarity);
-         form = FormulaRelRef(handle);                    
+         handle = FormulaOpAlloc(OpBAnd, (*form)->arg1, (*form)->arg2);
+         newform = FormulaOpAlloc(OpUNot, handle, NULL);
+         FormulaGetRef(newform);
+         tmpmod = FormulaSimplify(&newform, terms);
+         FormulaRelRef(newform);
+         modified = tmpmod || modified;
          break;         
    case OpBNImpl:
-         form = FormulaOpAlloc(OpBImpl, form->arg2, form->arg1);
-         handle = FormulaGetRef(form);
-         FormulaRefSimplify(handle, terms, polarity);
-         form = FormulaRelRef(handle);                    
+         handle = FormulaOpAlloc(OpBImpl, (*form)->arg2, (*form)->arg1);
+         newform = FormulaOpAlloc(OpUNot, handle, NULL);
+         FormulaGetRef(newform);
+         tmpmod = FormulaSimplify(&newform, terms);
+         FormulaRelRef(newform);
+         modified = tmpmod || modified;
          break;
    case OpQEx:
    case OpQAll:
-         if(!FormulaVarIsFree(form->arg1, form->special.var))
+         if(!FormulaVarIsFree((*form)->arg1, (*form)->special.var))
          {
-            form = form->arg1;
+            newform = (*form)->arg1;
          }
          break;
    default:
          break;
    }
+   if(newform != *form)
+   {
+      tmpmod = true;
+      FormulaRelRef(*form);
+      FormulaGetRef(newform);
+      FormulaFree(*form);
+      *form = newform;
+   }
    /* printf("...done: ");
    FormulaTPTPPrint(stdout, form, true);
    printf("\n");*/
-   return form;
+   return modified || tmpmod;
 }
 
 
@@ -419,6 +433,145 @@ bool FormulaNNF(Formula_p *form, TB_p terms, int polarity)
 
 /*-----------------------------------------------------------------------
 //
+// Function: FormulaMiniScope()
+//
+//   Perform mini-scoping, i.e. move quantors inward as far as
+//   possible. Return true if the formula changed, false otherwise. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool FormulaMiniScope(Formula_p *form)
+{
+   bool modified = false, tmpmod;
+   Formula_p newform = NULL, arg1,arg2;
+   FOFOperatorType op, quant;   
+
+   if(FormulaIsQuantified(*form))
+   {
+      op = (*form)->arg1->op;
+      quant = (*form)->op;
+      if((op == OpBAnd) || (op == OpBOr))
+      {
+         if(!FormulaVarIsFree((*form)->arg1->arg1, 
+                              (*form)->special.var))
+         {
+            arg2 = FormulaQuantorAlloc(quant, (*form)->special.var,
+                                       (*form)->arg1->arg2);
+            arg1 = (*form)->arg1->arg1;
+            newform = FormulaOpAlloc(op, arg1, arg2);
+         }
+         else if(!FormulaVarIsFree((*form)->arg1->arg2, 
+                                   (*form)->special.var))
+         {
+            arg1 = FormulaQuantorAlloc(quant, (*form)->special.var,
+                                       (*form)->arg1->arg1);
+            arg2 = (*form)->arg1->arg2;
+            newform = FormulaOpAlloc(op, arg1, arg2);
+         }
+         else
+         {
+            if((op == OpBAnd) && (quant == OpQAll))
+            {
+               arg1 = FormulaQuantorAlloc(OpQAll, (*form)->special.var,
+                                          (*form)->arg1->arg1);
+               arg2 = FormulaQuantorAlloc(OpQAll, (*form)->special.var,
+                                          (*form)->arg1->arg2);
+               newform = FormulaOpAlloc(OpBAnd, arg1, arg2);
+            }
+            else if((op == OpBOr) && (quant == OpQEx))
+            {
+               arg1 = FormulaQuantorAlloc(OpQEx, (*form)->special.var,
+                                          (*form)->arg1->arg1);
+               arg2 = FormulaQuantorAlloc(OpQEx, (*form)->special.var,
+                                          (*form)->arg1->arg2);
+               newform = FormulaOpAlloc(OpBOr, arg1, arg2);
+            } 
+         }
+         if(newform)
+         {
+            modified = true;
+            FormulaRelRef(*form);
+            FormulaGetRef(newform);
+            FormulaFree(*form);
+            *form = newform;
+         }
+      }
+   }
+   if(FormulaHasSubForm1(*form))
+   {
+      tmpmod = FormulaMiniScope(&((*form)->arg1));
+      modified = modified || tmpmod;
+   }
+   if(FormulaHasSubForm2(*form))
+   {
+      tmpmod = FormulaMiniScope(&((*form)->arg2));
+      modified = modified || tmpmod;
+   }
+   if(modified)
+   {
+      FormulaMiniScope(form);
+   }
+   return modified;
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaVarRename()
+//
+//   Convert the formula into one where all the bound variables have
+//   been replaced by fresh one. Does not free the old formula!
+//
+// Global Variables: -
+//
+// Side Effects    : Consumes fresh variables from the term bank.
+//
+/----------------------------------------------------------------------*/
+
+Formula_p FormulaVarRename(Formula_p form, TB_p terms)
+{
+   Term_p old_var = NULL, new_var = NULL;
+   Formula_p handle = NULL, arg1=NULL, arg2=NULL;
+
+   if(FormulaIsQuantified(form))
+   {
+      old_var = form->special.var->binding;
+      new_var = VarBankGetFreshVar(terms->vars);
+      form->special.var->binding = new_var;
+   }
+   if(FormulaIsLiteral(form))
+   {      
+      handle = FormulaCopy(form, terms);
+   }
+   if(FormulaHasSubForm1(form))
+   {
+      arg1 = FormulaVarRename(form->arg1, terms);
+   }
+   if(FormulaHasSubForm2(form))
+   {
+      arg2 = FormulaVarRename(form->arg2, terms);
+   }   
+   if(FormulaIsQuantified(form))
+   {      
+      handle = FormulaQuantorAlloc(form->op, new_var, arg1);
+      form->special.var->binding = old_var;
+   }
+   else if(!FormulaIsLiteral(form))
+   {
+      handle = FormulaOpAlloc(form->op, arg1, arg2);
+   }
+   return handle;   
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: FormulaCNF()
 //
 //   Transform a formula into CNF.
@@ -429,18 +582,32 @@ bool FormulaNNF(Formula_p *form, TB_p terms, int polarity)
 //
 /----------------------------------------------------------------------*/
 
-Formula_p FormulaCNF(Formula_p form, TB_p terms, int polarity)
+bool FormulaCNF(Formula_p *form, TB_p terms)
 {
-   printf("FormulaCNF()...\n");
+   bool res, tmp;
+   Formula_p handle;
+
+   /* printf("FormulaCNF()...\n");
    printf("CNFing: ");
    FormulaTPTPPrint(stdout, form, true);
-   printf("\n");
-   FormulaRefSimplify(form, terms,1);
-   printf("...FormulaCNF()...\n");
-   FormulaNNF(&form, terms,1);
-   printf("...FormulaCNF()\n");
-   return form;
+   printf("\n"); */
+   res = FormulaSimplify(form, terms);
+   /* printf("...FormulaCNF()...\n"); */
+   tmp = FormulaNNF(form, terms,1);
+   res = res || tmp;
+   tmp = FormulaMiniScope(form);
+   res = res || tmp;
+   handle = FormulaVarRename(*form, terms);
+   FormulaRelRef(*form);
+   FormulaGetRef(handle);
+   FormulaFree(*form);
+   *form = handle;
+   VarBankVarsSetProp(terms->vars, TPIsFreeVar);
+   
+   return res;
 }
+
+
 
 
 /*---------------------------------------------------------------------*/

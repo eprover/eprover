@@ -69,6 +69,8 @@ VarBank_p  VarBankAlloc(void);
 void       VarBankFree(VarBank_p junk);
 void       VarBankClearExtNames(VarBank_p bank);
 void       VarBankClearExtNamesNoReset(VarBank_p bank);
+void       VarBankVarsSetProp(VarBank_p bank, TermProperties prop);
+void       VarBankVarsDelProp(VarBank_p bank, TermProperties prop);
 
 Term_p VarBankFCodeFind(VarBank_p bank, FunCode f_code);
 Term_p VarBankExtNameFind(VarBank_p bank, char* name);

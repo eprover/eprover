@@ -140,6 +140,61 @@ void VarBankClearExtNamesNoReset(VarBank_p vars)
    vars->ext_index = NULL;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: VarBankVarsSetProp()
+//
+//   Set the given properties in all variables.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void VarBankVarsSetProp(VarBank_p bank, TermProperties prop)
+{
+   Term_p handle;
+   int i;
+
+   for(i=0; i<bank->f_code_index->size; i++)
+   {
+      handle = PDArrayElementP(bank->f_code_index, i);
+      if(handle)
+      {         
+	 TermCellSetProp(handle, prop);
+      }
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: VarBankVarsDelProp()
+//
+//   Delete the given properties in all variables.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+void VarBankVarsDelProp(VarBank_p bank, TermProperties prop)
+{
+   Term_p handle;
+   int i;
+
+   for(i=0; i<bank->f_code_index->size; i++)
+   {
+      handle = PDArrayElementP(bank->f_code_index, i);
+      if(handle)
+      {         
+	 TermCellDelProp(handle, prop);
+      }
+   }
+}
+
 
 /*-----------------------------------------------------------------------
 //

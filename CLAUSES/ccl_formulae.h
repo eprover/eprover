@@ -119,6 +119,8 @@ Formula_p FormulaTPTPParse(Scanner_p in, TB_p terms);
 
 bool      FormulaEqual(Formula_p form1, Formula_p form2);
 bool      FormulaVarIsFree(Formula_p form, Term_p var);
+Formula_p FormulaCopy(Formula_p form, TB_p terms);
+void      FormulaCollectFreeVars(Formula_p form, PTree_p *vars);
 
 
 #endif

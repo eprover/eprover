@@ -38,34 +38,16 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-
-/* Given a variable (which is a counted reference to a formula),
- * rewrite the formula pointed to by the variable with the named
- * function, making sure that 
- * unused parts get freed */
-
-#define FormulaRefRewrite(var, terms, func, polarity) \
-{\
-   Formula_p frs_internal_tmp,frs_internal_var;\
-   frs_internal_var    = var;\
-   frs_internal_tmp    = func(frs_internal_var, (terms), (polarity));\
-   var = FormulaGetRef(frs_internal_tmp);\
-   FormulaRelRef(frs_internal_var);\
-   FormulaFree(frs_internal_var);\
-   assert(var->ref_count >= 1);\
-}
-
-#define FormulaRefSimplify(var, terms,polarity)\
-        FormulaRefRewrite((var),(terms),FormulaSimplify,0)
-Formula_p FormulaSimplify(Formula_p form, TB_p terms, int polarity);
-
+bool FormulaSimplify(Formula_p *form, TB_p terms);
 
 bool FormulaNNF(Formula_p *form, TB_p terms, int polarity);
 
+bool FormulaMiniScope(Formula_p *form);
 
-#define FormulaRefCNF(var, terms,polarity)\
-        FormulaRefRewrite((var),(terms),FormulaCNF,polarity)
-Formula_p FormulaCNF(Formula_p form, TB_p terms, int polarity);
+Formula_p FormulaVarRename(Formula_p form, TB_p terms);
+
+bool FormulaCNF(Formula_p *form, TB_p terms);
+
 
 
 
