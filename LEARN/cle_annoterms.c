@@ -121,7 +121,7 @@ AnnoTerm_p AnnoTermAlloc(Term_p term, Annotation_p annos)
 {
    AnnoTerm_p handle = AnnoTermCellAlloc();
 
-   TermGetRef(&(handle->term), term);
+   handle->term = term;
    handle->annotation = annos;
 
    return handle;
@@ -144,8 +144,6 @@ void AnnoTermFree(TB_p bank, AnnoTerm_p junk)
 {
    assert(junk->term);
    
-   TermReleaseRef(&(junk->term));
-   /* TBDelete(bank, junk->term); */
    AnnotationTreeFree(junk->annotation);
    AnnoTermCellFree(junk);
 }
@@ -219,9 +217,7 @@ void AnnoTermRecToFlatEnc(TB_p bank, AnnoTerm_p term)
 
    new = FlatRecodeRecClauseRep(bank,term->term);
    store = term->term;
-   TermReleaseRef(&(term->term));
-   TermGetRef(&(term->term), new);
-   /* TBDelete(bank, store);  */
+   term->term = new;
 }
 
 

@@ -99,8 +99,8 @@ void MiniClauseAddTerms(MiniClause_p clause, Clause_p term_clause)
       assert(i<clause->literal_no);
       
       clause->sign[i] = EqnIsPositive(literal);
-      TermGetRef(&(clause->lit_terms[(2*i)]), literal->lterm);
-      TermGetRef(&(clause->lit_terms[(2*i)+1]), literal->rterm);
+      clause->lit_terms[(2*i)]   = literal->lterm;
+      clause->lit_terms[(2*i)+1] = literal->rterm;
    }
 }
 

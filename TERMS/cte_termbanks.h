@@ -74,6 +74,9 @@ typedef struct tbcell
 				    $true constant. */
    Term_p        false_term;     /* Pointer to the special term with the
 				    $false constant. */
+   Term_p        min_term;       /* A small (ideally the minimal
+                                    possible) term, to be used for RHS
+                                    instantiation. */
    unsigned long rewrite_steps;  /* How many calls to TBTermReplace? */
    TermCellStoreCell term_store; /* Here are the terms */
 }TBCell, *TB_p;
@@ -102,8 +105,6 @@ long    TBTermNodes(TB_p bank);
 #define TBCellIdent(term) (TermIsVar(term)?(term)->f_code:term->entry_no)
 
 Term_p  DefaultSharedTermCellAlloc(void);
-void    TermGetRef(Term_p *ref, Term_p term);
-void    TermReleaseRef(Term_p *ref);
 #define TermIsTrueTerm(term) ((term)->f_code==SIG_TRUE_CODE)
 
 static __inline__ bool TBTermEqual(Term_p t1, Term_p t2);
@@ -145,7 +146,7 @@ long    TBTermDelPropCount(Term_p term, TermProperties prop);
         (GiveProps((term),TPGarbageFlag)!=(bank)->garbage_state)
 void    TBGCMarkTerm(TB_p bank, Term_p term);
 long    TBGCSweep(TB_p bank);
-
+Term_p  TBCreateMinTerm(TB_p bank, FunCode min_const);
 
 
 /*---------------------------------------------------------------------*/

@@ -157,9 +157,15 @@ void    SigFree(Sig_p junk);
 
 FunCode SigFindFCode(Sig_p sig, const char* name);
 static __inline__ int     SigFindArity(Sig_p sig, FunCode f_code);
+
 static __inline__ char*   SigFindName(Sig_p sig, FunCode f_code);
 void    SigSetPredicate(Sig_p sig, FunCode f_code, bool value);
 bool    SigIsPredicate(Sig_p sig, FunCode f_code);
+
+#define SigIsFunConst(sig, f_code) (SigFindArity((sig), (f_code))==0&&\
+                                    SigIsPredicate((sig),(f_code)))
+
+
 void    SigSetSpecial(Sig_p sig, FunCode f_code, bool value);
 void    SigSetAllSpecial(Sig_p sig, bool value);
 bool    SigIsSpecial(Sig_p sig, FunCode f_code);

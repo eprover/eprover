@@ -258,7 +258,7 @@ static Term_p tb_parse_cons_list(Scanner_p in, TB_p bank)
 TB_p TBAlloc(TermProperties prop_mask, Sig_p sig)
 {
    TB_p handle;
-   Term_p t, term;
+   Term_p term;
 
    assert(sig);
 
@@ -276,15 +276,14 @@ TB_p TBAlloc(TermProperties prop_mask, Sig_p sig)
    term = TermDefaultCellAlloc();
    term->f_code = SIG_TRUE_CODE;
    TermCellSetProp(term, TPPredPos);
-   t = TBInsert(handle, term, DEREF_NEVER);
-   TermGetRef(&(handle->true_term), t);
+   handle->true_term = TBInsert(handle, term, DEREF_NEVER);
    TermFree(term);
    term = TermDefaultCellAlloc();
    term->f_code = SIG_FALSE_CODE;
    TermCellSetProp(term, TPPredPos);
-   t = TBInsert(handle, term, DEREF_NEVER);
-   TermGetRef(&(handle->false_term), t);
+   handle->false_term = TBInsert(handle, term, DEREF_NEVER);
    TermFree(term);
+   handle->min_term = 0;
 
    return handle;
 }
@@ -358,52 +357,6 @@ Term_p DefaultSharedTermCellAlloc(void)
    TermCellSetProp(handle, TPIsShared);
    
    return handle;
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function: TermGetRef()
-//
-//   Make ref a registered pointer to term, i.e. a pointer the term.
-//   This is a left-over from the old rewriting, and probably could be
-//   replaced by a simple assignment. I'm leaving it in because a) I'm
-//   lazy and b) I might want to revert to reference counting at some
-//   time. 
-//
-// Global Variables: -
-//
-// Side Effects    : Changes *ref.
-//
-/----------------------------------------------------------------------*/
-
-void TermGetRef(Term_p *ref, Term_p term)
-{
-   assert(ref);
-   assert(term);
-   
-   *ref = term;
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: TermReleaseRef()
-//
-//   !!! This is now a dummy. See TermGetRef above. !!!
-//   Remove the external reference. Does not change the reference - it
-//   can still be used, but will no longer be updated. This allows
-//   TBDelete() to be called on this term easily. 
-//
-// Global Variables: -
-//
-// Side Effects    : Changes reference tree of term.
-//
-/----------------------------------------------------------------------*/
-
-void TermReleaseRef(Term_p *ref)
-{
-   assert(ref);
-   assert(*ref);
 }
 
 
@@ -922,9 +875,7 @@ Term_p TBTermParse(Scanner_p in, TB_p bank)
 	 
 	 if(properties)
 	 { 
-	    TermGetRef(&handle, handle);
 	    TBRefSetProp(bank, &handle, properties);
-	    TermReleaseRef(&handle);
 	 }
 	 /* printf("# Term %ld = %ld\n", abbrev, handle->entry_no); */
 	 PDArrayAssignP(bank->ext_index, abbrev, handle);
@@ -1110,13 +1061,10 @@ void TBRefSetProp(TB_p bank, TermRef ref, TermProperties prop)
    
    new = TermTopCopy(term);
    /* new->properties = new->properties&bank->prop_mask; Bad and wrong!*/
-   TermReleaseRef(ref);
    TermCellSetProp(new, prop);
    new = tb_termtop_insert(bank, new);
-   TermGetRef(ref, new);
-   /* We cannot delete the old term anymore - will this be a problem?
-      If yes, think (but I think no) */
-   /* TBDelete(bank, term); */
+   *ref = new;
+   /* Old term will be garbage-collected eventually */
 }
 
 
@@ -1144,11 +1092,9 @@ void TBRefDelProp(TB_p bank, TermRef ref, TermProperties prop)
       return;
    }
    new = TermTopCopy(term);
-   TermReleaseRef(ref);
    TermCellDelProp(new, prop);
    new = tb_termtop_insert(bank, new);
-   TermGetRef(ref, new);
-   /* TBDelete(bank, term); See above */
+   *ref = new;
 }
 
 
@@ -1253,6 +1199,11 @@ long TBGCSweep(TB_p bank)
    assert(bank);
    assert(!TermIsRewritten(bank->true_term));
    TBGCMarkTerm(bank, bank->true_term);
+   TBGCMarkTerm(bank, bank->false_term);
+   if(bank->min_term)
+   {
+      TBGCMarkTerm(bank, bank->min_term);
+   }
   
    VERBOUT("Garbage collection started.\n");
    recovered = TermCellStoreGCSweep(&(bank->term_store),
@@ -1271,6 +1222,32 @@ long TBGCSweep(TB_p bank)
       bank->garbage_state?TPIgnoreProps:TPGarbageFlag;
 
    return recovered;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TBCreateMinTerm()
+//
+//   If bank->min_term exists, return it. Otherwise create and return
+//   it. 
+//
+// Global Variables: -
+//
+// Side Effects    : Might set bank->min_term
+//
+/----------------------------------------------------------------------*/
+
+Term_p TBCreateMinTerm(TB_p bank, FunCode min_const)
+{
+   if(!bank->min_term)
+   {
+      Term_p t = TermConstCellAlloc(min_const);
+      bank->min_term = TBInsert(bank, t, DEREF_NEVER);
+      TermFree(t);
+   }
+   assert(bank->min_term->f_code == min_const);
+   return bank->min_term;
 }
 
 

@@ -195,7 +195,7 @@ IndexTerm_p IndexTermAlloc(Term_p term, PatternSubst_p subst, long
 {
    IndexTerm_p handle = IndexTermCellAlloc();
 
-   TermGetRef(&(handle->term), term);
+   handle->term = term;
    handle->subst = subst;
    handle->key = key;
 
@@ -220,7 +220,6 @@ void IndexTermFree(IndexTerm_p junk, TB_p bank)
    assert(junk);
    assert(bank);
    
-   TermReleaseRef(&(junk->term));
    IndexTermCellFree(junk);
 }
 
