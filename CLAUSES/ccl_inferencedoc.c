@@ -164,7 +164,7 @@ static void print_paramod(FILE* out, Clause_p clause, Clause_p
    case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
-		 ", inference(pm,[status(thm)],[%ld,%ld,theory(equality)])",
+		 ", inference("PCL_PM",[status(thm)],[%ld,%ld,theory(equality)])",
 		 parent1->ident,
 		 parent2->ident);
 	 tstp_print_end(out, comment);
@@ -201,7 +201,7 @@ static void print_eres(FILE* out, Clause_p clause, Clause_p
    case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
-		 ", inference(er,[status(thm)],[%ld,theory(equality)])",
+		 ", inference("PCL_ER",[status(thm)],[%ld,theory(equality)])",
 		 parent1->ident);
 	 tstp_print_end(out, comment);
 	 break;
@@ -237,7 +237,7 @@ static void print_efactor(FILE* out, Clause_p clause, Clause_p
    case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
-		 ", inference(ef,[status(thm)],[%ld,theory(equality)])",
+		 ", inference("PCL_EF",[status(thm)],[%ld,theory(equality)])",
 		 parent1->ident);
 	 tstp_print_end(out, comment);
 	 break;
@@ -273,7 +273,7 @@ static void print_factor(FILE* out, Clause_p clause, Clause_p
    case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
-		 ", inference(of,[status(thm)],[%ld,theory(equality)])",
+		 ", inference("PCL_OF",[status(thm)],[%ld,theory(equality)])",
 		 parent1->ident);
 	 tstp_print_end(out, comment);
 	 break;
@@ -310,7 +310,7 @@ static void print_split(FILE* out, Clause_p clause, Clause_p
    case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
-		 ", inference(split,[status(split)], [%ld])",
+		 ", inference("PCL_SPLIT",[status(split)], [%ld])",
 		 parent1->ident);
 	 tstp_print_end(out, comment);
 	 break;
@@ -346,7 +346,7 @@ static void print_simplify_reflect(FILE* out, Clause_p clause, long
   case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
-		 ", inference(sr,[status(thm)],[%ld,%ld,theory(equality)])",
+		 ", inference("PCL_SR",[status(thm)],[%ld,%ld,theory(equality)])",
 		 old_id,
 		 partner->ident);
 	 tstp_print_end(out, comment);
@@ -383,7 +383,7 @@ static void print_context_simplify_reflect(FILE* out, Clause_p clause, long
  case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
-		 ", inference(csr,[status(thm)],[%ld,%ld])",
+		 ", inference("PCL_CSR",[status(thm)],[%ld,%ld])",
 		 old_id,
 		 partner->ident);
 	 tstp_print_end(out, comment);
@@ -429,7 +429,7 @@ static void print_ac_res(FILE* out, Clause_p clause, long
    case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
-		 ", inference(ar,[status(thm)],[%ld", old_id);
+		 ", inference("PCL_ACRES",[status(thm)],[%ld", old_id);
 	 assert(!PStackEmpty(sig->ac_axioms));
 	 sp = PStackGetSP(sig->ac_axioms);
 	 for(i=0; i< sp; i++)
@@ -472,7 +472,7 @@ static void print_minimize(FILE* out, Clause_p clause, long
    case tstp_format:
          ClauseTSTPPrint(out, clause, PCLFullTerms, false);
          fprintf(out, 
-                 ", inference(cn,[status(thm)],[%ld, theory(equality)])", 
+                 ", inference("PCL_CN",[status(thm)],[%ld, theory(equality)])", 
                  old_id);
          tstp_print_end(out, comment);
          break;
@@ -532,7 +532,7 @@ static void print_rewrite(FILE* out, ClausePos_p rewritten, long
 	 fputc(',', out);
 	 for(i=0; i<PStackGetSP(rwsteps); i++)
 	 {
-	    fprintf(out,"inference(rw, [status(thm)],[");
+	    fprintf(out,"inference("PCL_RW", [status(thm)],[");
 	 }
 	 fprintf(out, "%ld", old_id);
 	 for(i=0; i<PStackGetSP(rwsteps); i++)
@@ -588,7 +588,7 @@ static void print_eq_unfold(FILE* out, Clause_p rewritten,
 	 fputc(',', out);
 	 for(i=0; i<PStackGetSP(demod_pos); i++)
 	 {
-	    fprintf(out,"inference(rw, [status(thm)],[");
+	    fprintf(out,"inference("PCL_RW", [status(thm)],[");
 	 }
 	 fprintf(out, "%ld", old_id);
 	 for(i=0; i<PStackGetSP(demod_pos); i++)
