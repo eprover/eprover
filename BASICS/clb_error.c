@@ -200,6 +200,11 @@ void Warning(char* message)
 
 void PrintRusage(FILE* out)
 {
+#ifdef RESTRICTED_FOR_WINDOWS
+   fprintf(out, 
+	   "\n# -------------------------------------------------\n");
+   fprintf(out, "# No resource usage information under Windows.\n");
+#else
    struct rusage usage;
    
    if(getrusage(RUSAGE_SELF, &usage))
@@ -223,6 +228,7 @@ void PrintRusage(FILE* out)
    fprintf(out, 
 	   "# Maximum resident set size: %ld pages\n",
 	   usage.ru_maxrss);
+#endif
 }
 
 

@@ -6,8 +6,11 @@ Author: Stephan Schulz
 
 Contents
  
-  Macros for the creation of generic AVL-Tree functions. Currently
-  used for traversal functions only.
+  Macros for the creation of generic binary tree functions. Currently
+  used for traversal functions only. Please note that the name is
+  obsolete (used for convenience only). The functions currently
+  implemented are generic for binary search trees, and binary search
+  trees in E are splay trees by now.
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence.

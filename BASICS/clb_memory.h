@@ -67,7 +67,7 @@ static __inline__ void  SizeFreeReal(void* junk, int size);
    for many situations */
 
 #ifdef CONSTANT_MEM_ESTIMATE
-/* Don't define MEMSIZE at all - everything has to work with constants */
+#define MEMSIZE(type) "There is a bug in the code! Everything has to work with constants."
 #else
 #define MEMSIZE(type) (sizeof(type)+sizeof(void*))
 #endif

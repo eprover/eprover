@@ -29,6 +29,7 @@ Changes
 #include <errno.h>
 #ifdef SPEC
 #define MAXPATHLEN 256
+#define RESTRICTED_FOR_WINDOWS
 #else
 #include <sys/param.h>
 #endif
@@ -72,8 +73,10 @@ typedef union int_or_p
 
 #ifdef CONSTANT_MEM_ESTIMATE
 #define INTORP_MEM 4
+#define LONG_MEM 4
 #else
 #define INTORP_MEM sizeof(IntOrP)
+#define LONG_MEM sizeof(long)
 #endif
 
 
@@ -82,12 +85,12 @@ typedef union int_or_p
 #ifdef NULL
 #undef NULL
 #endif
+#define NULL ((void*)0)
+
 
 #define E_URL "http://www4.informatik.tu-muenchen.de/~schulz/WORK/eprover.html"
 #define STS_MAIL "schulz@informatik.tu-muenchen.de"
 #define STS_SNAIL "Stephan Schulz (I4)\nTechnische Universitaet Muenchen\nInstitut fuer Informatik\nBoltzmannstrasse 3\n85748 Garching bei Muenchen\nGermany\n"
-
-#define NULL ((void*)0)
 
 /* Allow for volatile functions if the compiler supports them - 
    gcc version egcs-2.90.23 980102 (egcs-1.0.1 release)

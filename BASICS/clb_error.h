@@ -25,8 +25,11 @@ Changes
 #define CLB_ERROR
 
 #include <clb_defines.h>
+
+#ifndef RESTRICTED_FOR_WINDOWS
 #include <sys/time.h>
 #include <sys/resource.h>
+#endif
 
 #ifdef HP_UX
 #include <syscall.h>
