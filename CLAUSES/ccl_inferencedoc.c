@@ -127,7 +127,7 @@ static void print_initial(FILE* out, Clause_p clause, char* comment)
 	 break;
    case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
-	 fprintf(out, ", prover_input");
+	 fprintf(out, ", unknown");
 	 tstp_print_end(out, comment);
 	 break;
    default:
@@ -310,7 +310,7 @@ static void print_split(FILE* out, Clause_p clause, Clause_p
    case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
-		 ", inference(split,[status(geoff_fix)], [%ld])",
+		 ", inference(split,[status(split)], [%ld])",
 		 parent1->ident);
 	 tstp_print_end(out, comment);
 	 break;

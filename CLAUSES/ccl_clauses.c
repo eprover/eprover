@@ -1177,7 +1177,14 @@ void ClausePCLPrint(FILE* out, Clause_p clause, bool fullterms)
 void ClauseTSTPCorePrint(FILE* out, Clause_p clause, bool fullterms)
 {
    fputc('(', out);
-   EqnListTSTPPrint(out, clause->literals, "|", fullterms);
+   if(ClauseIsEmpty(clause))
+   {
+      fprintf(out, "false");
+   }
+   else
+   {
+      EqnListTSTPPrint(out, clause->literals, "|", fullterms);
+   }
    fputc(')', out);
 }
 
