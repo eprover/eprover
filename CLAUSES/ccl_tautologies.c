@@ -296,7 +296,7 @@ static void ground_backward_contract(EqnRef from, Eqn_p eqns, EqnRef to)
 // Function: ground_complete_neg_eqns()
 //
 //   Complete the negative equations in *list. Return completed
-//   system (and remaining positive eqauations in list).
+//   system.
 //
 // Global Variables: -
 //

@@ -492,7 +492,7 @@ static void print_minimize(FILE* out, Clause_p clause, long
    case tstp_format:
          ClauseTSTPPrint(out, clause, PCLFullTerms, false);
          fprintf(out, 
-                 ", inference("PCL_CN",[status(thm)],[%ld, theory(equality)])", 
+                 ", inference("PCL_CN",[status(thm)],[c_0_%ld, theory(equality)])", 
                  old_id);
          tstp_print_end(out, comment, clause);
          break;
