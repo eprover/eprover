@@ -20,8 +20,10 @@ Changes
 
 -----------------------------------------------------------------------*/
 
+#ifndef RESTRICTED_FOR_WINDOWS
 #include <sys/time.h>
 #include <unistd.h>
+#endif
 
 #include <cio_commandline.h>
 #include <cio_output.h>
@@ -34,7 +36,7 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-#define VERSION      "0.8dev019"
+#define VERSION      "0.8dev020"
 #define NAME         "eprover"
 
 #ifdef SAFELOGIC
@@ -873,7 +875,9 @@ int main(int argc, char* argv[])
    
    InitOutput();
    InitError(NAME);
+#ifndef RESTRICTED_FOR_WINDOWS
    ESignalSetup(SIGXCPU);
+#endif
 
    h_parms = HeuristicParmsAlloc();
    fvi_parms = FVIndexParmsAlloc();
@@ -912,13 +916,13 @@ int main(int argc, char* argv[])
    {
       in = CreateScanner(StreamTypeFile, state->argv[i] , true, NULL);
       ScannerSetFormat(in, parse_format);
-      {
+      /* Testing code {
 	 Formula_p form;
 
 	 form = FormulaTPTPParse(in, proofstate->original_terms);
 	 FormulaTPTPPrint(GlobalOut, form, true);
 	 FormulaFree(form);
-      }
+	 }*/
       ClauseSetParseList(in, proofstate->axioms,
 			 proofstate->original_terms);
       CheckInpTok(in, NoToken);
@@ -1146,7 +1150,9 @@ CLState_p process_options(int argc, char* argv[])
    Opt_p handle;
    CLState_p state;
    char*  arg;
+#ifndef RESTRICTED_FOR_WINDOWS
    struct rlimit limit = {RLIM_INFINITY, RLIM_INFINITY};
+#endif
    long   tmp;
 
    state = CLStateAlloc(argc,argv);
@@ -1221,6 +1227,7 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_REQUIRE_NONEMPTY:
 	    error_on_empty = true;
 	    break;
+#ifndef RESTRICTED_FOR_WINDOWS
       case OPT_MEM_LIMIT:
 	    h_parms->mem_limit = CLStateGetIntArg(handle, arg);
 	    if(getrlimit(RLIMIT_DATA, &limit))
@@ -1264,6 +1271,7 @@ CLState_p process_options(int argc, char* argv[])
 	       }
 	    }	    
 	    break;
+#endif /*  RESTRICTED_FOR_WINDOWS */
       case OPT_RUSAGE_INFO:
 	    print_rusage = true;
 	    break;
@@ -1675,6 +1683,7 @@ CLState_p process_options(int argc, char* argv[])
 	    break;
       }
    }
+#ifndef RESTRICTED_FOR_WINDOWS
    if((HardTimeLimit!=RLIM_INFINITY)||(SoftTimeLimit!=RLIM_INFINITY))
    {
       if(getrlimit(RLIMIT_CPU, &limit))
@@ -1712,6 +1721,7 @@ CLState_p process_options(int argc, char* argv[])
 	 SysError("Unable to prevent core dumps", SYS_ERROR);
       }
    }
+#endif /* RESTRICTED_FOR_WINDOWS */
    return state;
 }
 
