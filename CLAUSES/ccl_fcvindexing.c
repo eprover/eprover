@@ -164,7 +164,7 @@ FVIndexParms_p FVIndexParmsAlloc(void)
 {
    FVIndexParms_p handle = FVIndexParmsCellAlloc();
    
-   handle->features                = FVIAllFeatures;
+   handle->features                = FVIACFeatures;
    handle->use_perm_vectors        = true;
    handle->eleminate_uninformative = false;
    handle->max_symbols             = FVINDEX_MAX_FEATURES_DEFAULT;
