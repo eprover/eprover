@@ -294,34 +294,34 @@ void FreqVectorPrint(FILE* out, FreqVector_p vec)
 void StandardFreqVectorAddVals(FreqVector_p vec, long sig_symbols, 
 			       Clause_p clause)
 {   
-   long *pstart, *nstart;
+   long *pfreqstart, *nfreqstart, *pdepthstart, *ndepthstart;
    Eqn_p handle;
 
    vec->sig_symbols = sig_symbols;
    vec->array[0] += clause->pos_lit_no;
    vec->array[1] += clause->neg_lit_no;
-   vec->array[2] += ClauseDepth(clause);
-   /* vec->array[2] += ClauseDepth(clause); */
    
-   nstart = &(vec->array[NON_SIG_FEATURES-1]);
-   pstart = &(vec->array[sig_symbols+NON_SIG_FEATURES-2]);
+   nfreqstart  = &(vec->array[NON_SIG_FEATURES]);
+   pfreqstart  = &(vec->array[NON_SIG_FEATURES+1*(sig_symbols+1)]);
+   pdepthstart = &(vec->array[NON_SIG_FEATURES+2*(sig_symbols+1)]);
+   ndepthstart = &(vec->array[NON_SIG_FEATURES+3*(sig_symbols+1)]);
    for(handle = clause->literals; handle; handle = handle->next)
    {
       if(EqnIsPositive(handle))
       {
-
-	 EqnAddSymbolDistributionLimited(handle, 
-					 pstart, 
-					 sig_symbols);
+	 EqnAddSymbolFeaturesLimited(handle, 
+				     pfreqstart,
+				     pdepthstart,				    
+				     sig_symbols);
       }
       else
       {
-	 EqnAddSymbolDistributionLimited(handle, 
-					 nstart, 
-					 sig_symbols);	 
+	 EqnAddSymbolFeaturesLimited(handle, 
+				     nfreqstart,
+				     ndepthstart,				    
+				     sig_symbols);	 
       }
    }
-   /* SWAP(long,vec->array[2],vec->array[SigSizeToFreqVectorSize(sig_symbols)-1]); */
 }
 
 

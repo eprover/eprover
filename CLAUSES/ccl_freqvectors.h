@@ -50,7 +50,7 @@ typedef struct freq_vector_cell
    Clause_p clause; /* Just an unprotected reference */
 }FreqVectorCell, *FreqVector_p, *FVPackedClause_p;
 
-#define NON_SIG_FEATURES 3
+#define NON_SIG_FEATURES 2
 
 
 /*---------------------------------------------------------------------*/
@@ -72,7 +72,7 @@ PermVector_p PermVectorCompute(FreqVector_p fmax, FreqVector_p fmin,
 #define FreqVectorCellAlloc()    (FreqVectorCell*)SizeMalloc(sizeof(FreqVectorCell))
 #define FreqVectorCellFree(junk) SizeFree(junk, sizeof(FreqVectorCell))
 
-#define SigSizeToFreqVectorSize(size) (size*2-2+NON_SIG_FEATURES)
+#define SigSizeToFreqVectorSize(size) (size*4+2+NON_SIG_FEATURES)
 #define StandardFreqVNegIndex(vec, i) \
         (((i)>=NON_SIG_FEATURES) && ((i)<=((vec)->sig_symbols+NON_SIG_FEATURES-1)))
 #define StandardFreqVPosIndex(vec, i) \

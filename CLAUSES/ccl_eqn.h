@@ -303,6 +303,11 @@ int     LiteralCompareFun(Eqn_p lit1, Eqn_p lit2);
 #define EqnAddSymbolDistributionLimited(eqn, dist_array, limit)\
         TermAddSymbolDistributionLimited((eqn)->lterm, (dist_array), (limit));\
 	TermAddSymbolDistributionLimited((eqn)->rterm, (dist_array), (limit))
+#define EqnAddSymbolFeaturesLimited(eqn, freq_array, depth_array, limit)\
+        TermAddSymbolFeaturesLimited((eqn)->lterm, 0, (freq_array), \
+                                     (depth_array), (limit));\
+        TermAddSymbolFeaturesLimited((eqn)->rterm, 0, (freq_array),\
+                                    (depth_array), (limit))
 #define EqnComputeFunctionRanks(eqn, rank_array, count)\
         TermComputeFunctionRanks((eqn)->lterm, (rank_array), (count));\
         TermComputeFunctionRanks((eqn)->rterm, (rank_array), (count))
