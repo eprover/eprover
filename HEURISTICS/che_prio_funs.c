@@ -6,7 +6,7 @@ Author: Stephan Schulz
 
 Contents
  
-  Functions for computiong priorities. To add a new one, add the
+  Functions for computing priorities. To add a new one, add the
   external name to PrioFunNames and the name of the function to
   prio_fun_array.
 
