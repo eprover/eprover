@@ -881,6 +881,41 @@ void DocClauseEqUnfold(FILE* out, long level, Clause_p rewritten,
 
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: DocFormulaCreation()
+//
+//   Document the creation of a full FOF formula.
+//
+// Global Variables: ClauseIdentCounter
+//
+// Side Effects    : Output, generates new id for formula
+//
+/----------------------------------------------------------------------*/
+/*
+void DocFormulaCreation(FILE* out, long level, WFormula_p formula, 
+                        InfType op, WFormula_p parent1,
+                        WFormula_p parent2, char* comment)
+{
+   if(level >= 2)
+   {
+      switch(op)
+      {
+      case inf_initial:
+	    assert(!parent1);
+	    assert(!parent2);
+	    formula->ident = ++ClauseIdentCounter;
+	    print_form_initial(out, formula, comment);
+	    break;
+      default:
+            assert(false && "Unsupported formula creation method");
+            break;
+      }
+   }
+}
+
+*/
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

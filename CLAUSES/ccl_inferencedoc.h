@@ -46,7 +46,11 @@ typedef enum
    inf_context_simplify_reflect,
    inf_ac_resolution,
    inf_minimize,
-   inf_rewrite
+   inf_rewrite,
+
+   inf_fof_simpl,
+   inf_o_skolemize,
+   inf_neg_conjecture,
 }InfType;
    
 typedef enum
@@ -111,6 +115,14 @@ void    DocClauseRewrite(FILE* out, long level, ClausePos_p rewritten,
 void    DocClauseEqUnfold(FILE* out, long level, Clause_p rewritten,
 			  ClausePos_p demod, PStack_p demod_pos);
 
+ 
+void    DocFormulaCreation(FILE* out, long level, WFormula_p formula, 
+                           InfType op, WFormula_p parent1,
+                           WFormula_p parent2, char* comment);
+
+#define DocFormulaCreationDefault(formula, op, parent1, parent2)\
+        DocClauseCreation(GlobalOut, OutputLevel, (formula),\
+        (op), (parent1), (parent2), NULL) 
 #endif
 
 /*---------------------------------------------------------------------*/

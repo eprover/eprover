@@ -26,8 +26,7 @@ Changes
 
 #define CCL_FORMULA_WRAPPER
 
-#include <ccl_cnf.h>
-#include <ccl_clausesets.h>
+#include <ccl_formulae.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */

@@ -26,7 +26,7 @@ Changes
 #include <cco_proofproc.h>
 #include <cio_signals.h>
 #include <ccl_unfold_defs.h>
-#include <ccl_formula_wrapper.h>
+#include <ccl_formulafunc.h>
 
 /*---------------------------------------------------------------------*/
 /*                  Data types                                         */
