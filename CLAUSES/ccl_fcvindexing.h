@@ -32,7 +32,8 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-#define FVINDEX_MAX_FEATURES_DEFAULT 150
+#define FVINDEX_MAX_FEATURES_DEFAULT 150 /* Maximal lenght of feature vector */
+#define DVINDEX_SYMBOL_SLACK_DEFAULT 30  /* Reserve symbols for splitting */
 
 typedef struct fvindex_parms_cell
 {
@@ -40,6 +41,7 @@ typedef struct fvindex_parms_cell
    bool use_perm_vectors;
    bool eleminate_uninformative;
    long max_features;
+   long symbol_slack;
 }FVIndexParmsCell, *FVIndexParms_p;
 
 

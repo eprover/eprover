@@ -164,11 +164,11 @@ FVIndexParms_p FVIndexParmsAlloc(void)
 {
    FVIndexParms_p handle = FVIndexParmsCellAlloc();
    
-   handle->use_fv_indexing = true;
-   handle->use_perm_vectors = true;
+   handle->use_fv_indexing         = true;
+   handle->use_perm_vectors        = true;
    handle->eleminate_uninformative = false;
-   handle->max_features = FVINDEX_MAX_FEATURES_DEFAULT;
-;
+   handle->max_features            = FVINDEX_MAX_FEATURES_DEFAULT;
+   handle->symbol_slack            = DVINDEX_SYMBOL_SLACK_DEFAULT;
    return handle;
 }
 
