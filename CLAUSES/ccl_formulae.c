@@ -585,9 +585,9 @@ bool FormulaEqual(Formula_p form1, Formula_p form2)
    switch(form1->op)
    {
    case OpIsLit:
-         res = EqnEqual(form1->special.literal, 
-                        form2->special.literal, 
-                        TBTermEqual);
+         res = LiteralEqual(form1->special.literal, 
+                            form2->special.literal, 
+                            TBTermEqual);
          break;
    case OpUNot:
          res = FormulaEqual(form1->arg1, form2->arg1);

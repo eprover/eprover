@@ -28,6 +28,7 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
+/* long SimplificationCounter = 0; */
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -291,10 +292,10 @@ bool FormulaSimplify(Formula_p *form, TB_p terms)
 {
    Formula_p handle, newform = *form;
    bool modified = false, tmpmod = false;
-   
+   /* long debug_count = SimplificationCounter++;
 
-   /* printf("Simplifying: ");
-   FormulaTPTPPrint(stdout, form, true);
+   printf("%3ld =>", debug_count);
+   FormulaTPTPPrint(stdout, *form, true);
    printf("\n");*/
 
    if(FormulaHasSubForm1(*form))
@@ -441,8 +442,8 @@ bool FormulaSimplify(Formula_p *form, TB_p terms)
       FormulaFree(*form);
       *form = newform;
    }
-   /* printf("...done: ");
-   FormulaTPTPPrint(stdout, form, true);
+   /* printf("%3ld...done: ", debug_count);
+   FormulaTPTPPrint(stdout, *form, true);
    printf("\n");*/
    return modified || tmpmod;
 }

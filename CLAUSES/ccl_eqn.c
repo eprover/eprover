@@ -1081,8 +1081,8 @@ bool EqnEqualDirected(Eqn_p eq1,  Eqn_p eq2, TermEqualTestFun EqualTest)
 //
 // Function: EqnEqual()
 //
-//   Test wether two equations are equivalen (modulo EqualTest and
-//   commutativity). Treats equations as unsigned term sets.
+//   Test wether two equations are equivalent (modulo EqualTest and
+//   commutativity). Treats equations as _unsigned_ term sets.
 //
 // Global Variables: -
 //
