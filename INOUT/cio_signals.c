@@ -29,9 +29,11 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
+#ifndef RESTRICTED_FOR_WINDOWS
 rlim_t                SystemTimeLimit = RLIM_INFINITY;
 rlim_t                SoftTimeLimit   = RLIM_INFINITY;
 rlim_t                HardTimeLimit   = RLIM_INFINITY;
+#endif
 VOLATILE sig_atomic_t TimeIsUp        = 0;
 VOLATILE sig_atomic_t TimeLimitIsSoft = 0;
 static VOLATILE sig_atomic_t fatal_error_in_progress = 0;
@@ -68,11 +70,15 @@ static VOLATILE sig_atomic_t fatal_error_in_progress = 0;
 
 void ESignalSetup(int mysignal)
 {
+#ifndef RESTRICTED_FOR_WINDOWS
    if(signal(mysignal, ESignalHandler) == SIG_ERR)
    {
       TmpErrno = errno;
       SysError("Unable to set up signal handler", SYS_ERROR);
    }
+#else
+   VERBOUT("Unable to set up signal handling for Windows\n");
+#endif
 }
 
 
@@ -91,6 +97,7 @@ void ESignalSetup(int mysignal)
 
 void ESignalHandler(int mysignal)
 {
+#ifndef RESTRICTED_FOR_WINDOWS
    struct rlimit     limit;
 
    switch(mysignal)
@@ -138,6 +145,9 @@ void ESignalHandler(int mysignal)
 	 Warning("Unexpected signal caught, continuing");
 	 break;
    }
+#else 
+/* No signal handling for Windows */
+#endif
 }
 
 /*---------------------------------------------------------------------*/

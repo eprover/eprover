@@ -39,7 +39,7 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-
+#ifndef RESTRICTED_FOR_WINDOWS
 extern rlim_t                SystemTimeLimit; /* Returned by the
 						 initial getrlimit
 						 call as general hard
@@ -47,6 +47,7 @@ extern rlim_t                SystemTimeLimit; /* Returned by the
 extern rlim_t                SoftTimeLimit;   /* Try to exit
 						 gracefully */
 extern rlim_t                HardTimeLimit;   /* Exit now! */
+#endif /* RESTRICTED_FOR_WINDOWS */
 extern VOLATILE sig_atomic_t TimeIsUp;
 extern VOLATILE sig_atomic_t TimeLimitIsSoft; /* Have we hit hard or
 						 soft? */

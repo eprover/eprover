@@ -238,6 +238,11 @@ char* ParseFilename(Scanner_p in)
       DStrAppendDStr(in->accu, AktToken(in)->literal);
       NextToken(in);
    }
+#ifdef RESTRICTED_FOR_WINDOWS
+   return SecureStrdup(DStrView(in->accu));
+#else
+   res = realpath(DStrView(in->accu), store);      
+#endif /* !SPEC_CPU2004 */
 
    res = realpath(DStrView(in->accu), store);      
    if(!res)
