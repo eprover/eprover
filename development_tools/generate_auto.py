@@ -194,6 +194,9 @@ match_g_demod_s = re.compile(" --prefer-general-demodulators")
 match_g_demod_l = re.compile(" -g")
 match_unproc_s  = re.compile(" --simplify-with-unprocessed-units=")
 match_unproc_sd = re.compile(" --simplify-with-unprocessed-units")
+match_fcsr      = re.compile(" --forward-context-sr")
+match_fcsra     = re.compile(" --forward-context-sr-aggressive")
+match_bcsr      = re.compile(" --backward-context-sr")
 
 def parse_control_info(line):
     res = ""
@@ -223,7 +226,24 @@ def parse_control_info(line):
         m = match_unproc_sd.search(line)
         if m:
             res = res+ "      control->unproc_simplify=TopLevelUnitSimplify;\n" 
-            
+
+    #
+    # Contextual simplify-reflect
+    #
+
+    m = match_fcsr.search(line)
+    if m:
+        res = res+ "      control->forward_context_sr = true;\n" 
+
+    m = match_fcsra.search(line)
+    if m:
+        res = res+ "      control->forward_context_sr = true;\n" 
+        res = res+ "      control->forward_context_sr_aggressive = true;\n" 
+        
+    m = match_bcsr.search(line)
+    if m:
+        res = res+ "      control->backward_context_sr = true;\n" 
+
     #
     # Literal selection parameters
     #
@@ -289,6 +309,7 @@ def parse_control_info(line):
     m = match_sder_l.search(line)
     if m:
         res = res+ "      control->er_strong_destructive=true;\n"
+        res = res+ "      control->er_varlit_destructive=true;\n"
 
     m = match_dera_l.search(line)
     if m:

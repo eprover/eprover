@@ -404,6 +404,7 @@ BEGIN{
    e_mark["NC-AMD-Athlontm-MP-Processor-1600+-1400.058"] = 366.393;
    e_mark["Pentium-II-Deschutes-448.882"]                = 157.919;
    e_mark["IntelR-PentiumR-4-CPU-2.40GHz-2405.486"]      = 496.488;
+   e_mark["IntelR-PentiumR-4-CPU-2.40GHz-2405.487"]      = 496.488;
    e_mark["IntelR-PentiumR-4-CPU-2.40GHz-2405.526"]      = 518.546;
    e_mark["IntelR-PentiumR-4-CPU-2.40GHz-2405.502"]      = 521.253;
 

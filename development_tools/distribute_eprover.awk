@@ -128,13 +128,13 @@ function init_machine_ratings()
    e_mark["SUNW-Ultra-5_10-sparcv9-300"]                 = 87.2878;
    e_mark["SUNW-Ultra-5_10-sparcv9-440"]                 = 140.591;
    e_mark["SUNW-Sun-Fire-880-sparcv9-900"]               = 285.646;
-   e_mark["SUNW-Sun-Fire-sparcv9-750"]                   = 211.921;
    e_mark["ppc7450-1000"]                                = 267.552;
    e_mark["IntelR-PentiumR-4-CPU-1400MHz-1395.787"]      = 300.922;
    e_mark["SUNW-Ultra-60-sparcv9-296"]                   = 100;
    e_mark["NC-AMD-Athlontm-MP-Processor-1600+-1400.058"] = 366.393;
    e_mark["Pentium-II-Deschutes-448.882"]                = 157.919;
    e_mark["IntelR-PentiumR-4-CPU-2.40GHz-2405.486"]      = 496.488;
+   e_mark["IntelR-PentiumR-4-CPU-2.40GHz-2405.487"]      = 496.488;
    e_mark["IntelR-PentiumR-4-CPU-2.40GHz-2405.526"]      = 518.546;
    e_mark["IntelR-PentiumR-4-CPU-2.40GHz-2405.502"]      = 521.253;
 }
@@ -607,8 +607,8 @@ function kill_job(lockfile,     host, pid)
       if(ping_host(host))
       {
 	 pid  = find_pid_in_protocoll(lockfile);
-	 system("ssh -x " host " kill " pid);
-	 system("rm " cwd "/" host "_*");
+	 print "ssh -x " host " kill " pid | "/bin/sh"
+	 print "rm " cwd "/" host "_*" | "/bin/sh"
 	 return 1;
       }
       else
@@ -815,13 +815,13 @@ BEGIN{
       cpu_opt = host_cpu_limit_opt(time_limit, host_proc_power[host_local]);
       
       command = executable " " auto_args " " cpu_opt " " args " " problemdir "/" job " > " outfile1;
-      prefix = "/bin/nice -15 ";
-      sysstring = "ssh -x " host_local " \"" "(touch " \
-	 outfile1  "; (" prefix command "; sync; sleep 3; echo " \
-	 job ">" outfile2 ")&)>&/dev/null\"";
+
       printf "Distributing " job " onto " host_local ". ";
-      # print sysstring;
-      system(sysstring);
+      remote_shell =  "ssh -x -T " host_local " 2>&1 1> /dev/null";
+      print  "touch " outfile1 |remote_shell;
+      print "(/bin/nice -15 " command "; sync; sleep 3; echo " job ">" \
+	 outfile2 ")< /dev/null > & /dev/null &" | remote_shell;
+      close(remote_shell);
       open_jobs++;	       
       print "Open jobs: " open_jobs;
       host_in_use[host_local] = systime();
