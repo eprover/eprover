@@ -58,8 +58,8 @@ typedef struct memcell
 extern bool MemIsLow;
 extern Mem_p free_mem_list[];
 
-static __inline__ void* SizeMallocReal(int size);
-static __inline__ void  SizeFreeReal(void* junk, int size);
+static __inline__ void* SizeMallocReal(size_t size);
+static __inline__ void  SizeFreeReal(void* junk, size_t size);
 
 
 /* For estimating the real memory consumption of a data type - this
@@ -100,9 +100,10 @@ static __inline__ void  SizeFreeReal(void* junk, int size);
 
 void  MemFlushFreeList(void);
 void  AllocReserveMemory(int size);
-void* SecureMalloc(int size);
-void* SecureRealloc(void *ptr, int size);
+void* SecureMalloc(size_t size);
+void* SecureRealloc(void *ptr, size_t size);
 char* SecureStrdup(const char* source);
+char* SecureStrndup(const char* source, size_t n);
 #define FREE(junk) assert(junk);free(junk)
 
 long* IntArrayAlloc(int size);
@@ -151,10 +152,10 @@ void MemFreeListPrint(FILE* out);
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ void* SizeMallocReal(int size)
+static __inline__ void* SizeMallocReal(size_t size)
 {
-   Mem_p   handle;
-   int    mem_index;
+   Mem_p  handle;
+   size_t mem_index;
    
    mem_index = size - sizeof(MemCell);
    
@@ -202,9 +203,9 @@ static __inline__ void* SizeMallocReal(int size)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ void SizeFreeReal(void* junk, int size)
+static __inline__ void SizeFreeReal(void* junk, size_t size)
 {
-   int    mem_index;
+   size_t mem_index;
    
    assert(junk!=NULL);
 

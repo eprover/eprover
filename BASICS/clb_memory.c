@@ -172,7 +172,7 @@ void  AllocReserveMemory(int size)
 //
 /----------------------------------------------------------------------*/
 
-void* SecureMalloc(int size)
+void* SecureMalloc(size_t size)
 {
    void* handle;
 
@@ -224,7 +224,7 @@ void* SecureMalloc(int size)
 //
 //-----------------------------------------------------------------------*/
 
-void* SecureRealloc(void *ptr, int size)
+void* SecureRealloc(void *ptr, size_t size)
 {
    void* handle;
    
@@ -283,11 +283,51 @@ char* SecureStrdup(const char* source)
 {
    char* handle;
 
-   handle = (char*)SecureMalloc(strlen(source)+1);
+   handle = CPPCAST(char*)SecureMalloc(strlen(source)+1);
    strcpy(handle,source);
 
    return handle;
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: SecureStrndup()
+//
+//   Implements the functionality of GNU strndup, but uses
+//   SecureMalloc() for the memory handling (creates a NULL-terminated
+//   copy of the string or the first n bytes of it).
+//
+// Global Variables: -
+//
+// Side Effects    : By SecureMalloc()
+//
+/----------------------------------------------------------------------*/
+
+char* SecureStrndup(const char* source, size_t n)
+{
+   char* handle;
+   int len;
+
+   assert(source);
+   assert(n>=0);
+
+   len = strlen(source);
+   
+   if(len > n)
+   {
+      handle = CPPCAST(char*)SecureMalloc(n+1);
+      strncpy(handle,source, n);
+      handle[n]='\0';
+   }
+   else
+   {
+      handle = SecureStrdup(source);
+   }
+   return handle;
+}
+
+
+
 
 /*-----------------------------------------------------------------------
 //

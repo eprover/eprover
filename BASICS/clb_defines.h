@@ -54,7 +54,6 @@ typedef enum
    true = 1
 }bool;
 
-
 #define CPPCAST(type) /* Nothing */
 
 #else
