@@ -318,11 +318,7 @@ void VarFreqVectorAddVals(FreqVector_p vec, long symbols, FVIndexType features,
 	 unused = NULL;
 	 nfreqstart  = &(vec->array[FV_CLAUSE_FEATURES]);
 	 pfreqstart  = &(vec->array[FV_CLAUSE_FEATURES+1*(symbols+1)]);
-	 void             StandardFreqVectorAddVals(FreqVector_p vec, long sig_symbols, 
-					   Clause_p clause);
-FreqVector_p     StandardFreqVectorCompute(Clause_p clause, long sig_symbols);
-
-pdepthstart = &(vec->array[FV_CLAUSE_FEATURES+2*(symbols+1)]);
+	 pdepthstart = &(vec->array[FV_CLAUSE_FEATURES+2*(symbols+1)]);
 	 ndepthstart = &(vec->array[FV_CLAUSE_FEATURES+3*(symbols+1)]);	 
 	 break;
    default:

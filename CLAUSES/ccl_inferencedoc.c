@@ -347,7 +347,7 @@ static void print_simplify_reflect(FILE* out, Clause_p clause, long
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
 		 ", inference(sr,[status(thm)],[%ld,%ld,theory(equality)])",
-		 clause->ident,
+		 old_id,
 		 partner->ident);
 	 tstp_print_end(out, comment);
 	 break;
@@ -384,7 +384,7 @@ static void print_context_simplify_reflect(FILE* out, Clause_p clause, long
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
 		 ", inference(csr,[status(thm)],[%ld,%ld])",
-		 clause->ident,
+		 old_id,
 		 partner->ident);
 	 tstp_print_end(out, comment);
 	 break;
@@ -429,7 +429,7 @@ static void print_ac_res(FILE* out, Clause_p clause, long
    case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
-		 ", inference(ar,[status(thm)],[%ld", clause->ident);
+		 ", inference(ar,[status(thm)],[%ld", old_id);
 	 assert(!PStackEmpty(sig->ac_axioms));
 	 sp = PStackGetSP(sig->ac_axioms);
 	 for(i=0; i< sp; i++)
