@@ -19,7 +19,7 @@ Changes
 
 -----------------------------------------------------------------------*/
 
-#include <clb_ddarrays.h>
+#include <clb_intmap.h>
 #include <cio_commandline.h>
 #include <cio_output.h>
 #include <cio_basicparser.h>
@@ -70,10 +70,10 @@ void print_help(FILE* out);
 int main(int argc, char* argv[])
 {   
    Scanner_p in; 
-   long      i = 0;
-   DDArray_p array = DDArrayAlloc(10000,10000);
-   double    part;
    CLState_p state;
+   IntMap_p  map;
+   long      key;
+   char*     val = "Test";
    
    assert(argv[0]);
    InitOutput();
@@ -87,19 +87,28 @@ int main(int argc, char* argv[])
    }
    in = CreateScanner(StreamTypeFile, state->argv[0] , true, NULL);
    
-   part = ParseFloat(in);;
-   i=0;
-   while(!TestInpTok(in, NoToken))
+   map = IntMapAlloc();
+
+   while(TestInpId(in, "i|d"))
    {
-      DDArrayAssign(array, i, ParseFloat(in));
-      i++;
+      if(TestInpId(in, "i"))
+      {
+         AcceptInpTok(in, Ident);
+         key = ParseInt(in);
+         IntMapAssign(map, key, val);
+         printf("Inserting %4ld (new type %d)\n", key, map->type);
+      }
+      else
+      {
+         AcceptInpTok(in, Ident);
+         key = ParseInt(in);
+         IntMapDelKey(map, key);
+         printf("Deleting  %4ld (new type %d)\n", key, map->type);
+      }
+      IntMapDebugPrint(stdout, map);
    }
-   printf("Values parsed:    %ld\n"
-	  "Part requested:   %f\n"
-	  "Separating value: %f\n", i, part, DDArraySelectPart(array,
-							       part,
-							       i));   
-   DDArrayFree(array);   
+   
+   IntMapFree(map);
    DestroyScanner(in);
    CLStateFree(state);
 #ifdef CLB_MEMORY_DEBUG
