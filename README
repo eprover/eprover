@@ -24,7 +24,8 @@ Simplest installation (in-place):
 This will only allow you to run the eproof script in place (most other
 programs, including eprover, should run from everywhere).
 
-Read the rest of this file if anything fails.
+Read the rest of this file and the fine (if incomplete) manual if
+anything fails. There should be a copy in DOC/eprover.pdf.
 
 
 
@@ -32,16 +33,18 @@ Read the rest of this file if anything fails.
              ===============================
 
 
-This is the README file for version 0.81 "Tumsong" of the E
+This is the README file for version 0.82 "Lung Ching" of the E
 equational theorem prover. This version of E is free software, see the
 file COPYING for details about the license and the fact that THERE IS
 NO WARRANTY!  If you are interested in a proprietary version of E with
 support, see below.
 
-Release 0.81 is an update on 0.81, improving on search heuristics,
-possible user interaction, and the inference engine. Performance in
-automatic mode has increased significantly, so it should be worth
-updating for everyone. For more on new features, read DOC/NEWS.
+Release 0.82 is an update on 0.81, improving on search heuristics and
+the inference engine (in particular LPO). It also introduces support
+for full first order format in TPTP and TSTP input
+formats. Performance in automatic mode has increased significantly, so
+it should be worth updating for everyone. For more on new features,
+read DOC/NEWS.
 
 If you are using gcc 2.95.1, 2.96.X or 2.97.X, please read DOC/PORTING
 for important information (hint: Get a new compiler. Yes, there are
@@ -87,19 +90,15 @@ add. In fact, E and CLIB are now so intertwined that you will not find
 a pure CLIB anymore.
 
 CLIB and E have been created and are currently maintained by Stephan
-Schulz, <schulz@informatik.tu-muenchen.de>. They are developed and
-distributed under the GNU General Public License. However, you may
-possibly come around versions sold or given to you under a different
-license, probably by Safelogic A.B. in Gothenburg, Sweden. Safelogic
-bought the right to distribute (and relicense) closed-source versions
-of E with proprietary modifications. If you are interested in their
-modifications, want a proprietary version with support, or want to
-relicense a modified version under a non-GPL license, you can contact
-them at <johan.alfredsson@safelogic.se> or visit them on the web at
-http://www.safelogic.se.
+Schulz, <schulz@eprover.org>. They are developed and distributed under
+the GNU General Public License. However, you may possibly come around
+versions sold or given to you under a different license, probably by
+Safelogic A.B. in Gothenburg, Sweden. Safelogic bought the right to
+distribute (and relicense) closed-source versions of E with
+proprietary modifications.
 
 The E homepage can be found at
-http://www4.informatik.tu-muenchen.de/~schulz/WORK/eprover.html.
+http://www.eprover.org
 
 
 Installation:
@@ -149,7 +148,7 @@ After installation, go to E/PROVER and type
 
 to see the prover in action. Type 
 
-  ./eprover BOO007-2+rm_eq_rstfp.lop
+  ./eprover LUSK6.lop
 
 for a harder example. "./eprover -h" will give you some information and
 a list of options.
