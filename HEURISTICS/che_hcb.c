@@ -97,7 +97,7 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->to_const_weight               = WConstNoWeight;
    handle->no_lit_cmp                    = false;
 
-   handle->selection_strategy            = SelectNoLiterals;   
+   handle->selection_strategy            = SelectNoLiterals;
    handle->pos_lit_sel_min               = 0; 
    handle->pos_lit_sel_max               = LONG_MAX; 
    handle->neg_lit_sel_min               = 0; 

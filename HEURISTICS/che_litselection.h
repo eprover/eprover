@@ -50,7 +50,7 @@ typedef struct lit_eval_cell
    int   w3;
 }LitEvalCell, *LitEval_p;
 
-typedef void LitWeightFun(LitEval_p, Clause_p);
+typedef void LitWeightFun(LitEval_p, Clause_p, void*);
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
@@ -183,6 +183,7 @@ void PSelectComplexExceptUniqMaxPosHorn(OCB_p ocb, Clause_p clause);
 void SelectDiversificationLiterals(OCB_p ocb, Clause_p clause);
 void SelectDiversificationPreferIntoLiterals(OCB_p ocb, Clause_p clause);
 void SelectMaxLComplexG(OCB_p ocb, Clause_p clause);
+void SelectMaxLComplexAvoidPosPred(OCB_p ocb, Clause_p clause);
 
 #endif
 
