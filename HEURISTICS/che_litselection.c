@@ -130,6 +130,7 @@ static LitSelNameFunAssocCell name_fun_assoc[] =
    {"SelectDivPreferIntoLits",               SelectDiversificationPreferIntoLiterals},
    {"SelectMaxLComplexG",                    SelectMaxLComplexG}, 
    {"SelectMaxLComplexAvoidPosPred",         SelectMaxLComplexAvoidPosPred},
+   {"SelectMaxLComplexAvoidPosUPred",        SelectMaxLComplexAvoidPosUPred},
    {NULL, (LiteralSelectionFun)0}
 };
 
@@ -5032,8 +5033,8 @@ void SelectMaxLComplexG(OCB_p ocb, Clause_p clause)
 //
 // Function: maxlcomplexavoidpospred_weight()
 //
-//   Initialize weights to mimic SelectMaxLComplexWeight(), but avoid
-//   predicate symbols occuring in positive literals.
+//   Initialize weights to mimic SelectMaxLComplexWeight(), but defer
+//   literals with predicate symbols occuring in positive literals.
 //
 // Global Variables: -
 //
@@ -5119,20 +5120,118 @@ void SelectMaxLComplexAvoidPosPred(OCB_p ocb, Clause_p clause)
    {
       if(EqnIsEquLit(handle))
       {
-         PDArrayAssignInt(pred_dist, 0, PDArrayElementInt(pred_dist, 0)+1);
+         PDArrayElementIncInt(pred_dist, 0, 1);
       }
       else
       {
-         PDArrayAssignInt(pred_dist, 
-                          handle->lterm->f_code, 
-                          PDArrayElementInt(pred_dist, handle->lterm->f_code)+1);
+         PDArrayElementIncInt(pred_dist, handle->lterm->f_code, 1);
       }
    }   
-
    generic_uniq_selection(ocb,clause,false, true, 
                           maxlcomplexavoidpospred_weight, pred_dist);   
    PDArrayFree(pred_dist);
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: maxlcomplexavoidposupred_weight()
+//
+//   Initialize weights to mimic SelectMaxLComplexWeight(), but avoid
+//   (non-equality) predicate symbols occuring in positive literals.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void maxlcomplexavoidposupred_weight(LitEval_p lit, Clause_p clause, 
+                                           void *pred_dist)
+{
+   PDArray_p pd = pred_dist;
+   
+   if(EqnIsNegative(lit->literal))
+   {
+      if(EqnIsMaximal(lit->literal))
+      {
+         lit->w1=0;
+      }
+      else
+      {
+         lit->w1=100;
+      }
+      if(!EqnIsPureVar(lit->literal))
+      {
+         lit->w1+=10;
+      }
+      if(!EqnIsGround(lit->literal))
+      {
+         lit->w1+=1;
+      }
+      lit->w2 = -lit_sel_diff_weight(lit->literal);
+      lit->w3 = 0;
+      if(!EqnIsEquLit(lit->literal))
+      {
+         lit->w3 = PDArrayElementInt(pd, lit->literal->lterm->f_code);
+      }
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectMaxLComplexAvoidPosUPred()
+//
+//   As SelectMaxLComplex, but preferably select literals that do not
+//   share the predicate symbol with a positive literal.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+
+void SelectMaxLComplexAvoidPosUPred(OCB_p ocb, Clause_p clause)
+{  
+   long  lit_no;
+   PDArray_p pred_dist;
+   Eqn_p handle;
+
+   assert(ocb);
+   assert(clause);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+   
+   if(clause->neg_lit_no==0)
+   {
+      return;
+   }
+   ClauseCondMarkMaximalTerms(ocb, clause);
+   
+   lit_no = EqnListQueryPropNumber(clause->literals, EPIsMaximal);
+
+   if(lit_no <=1)
+   {
+      return;
+   }
+   pred_dist = PDIntArrayAlloc(10,30);
+   for(handle = clause->literals;
+       handle && EqnIsPositive(handle);
+       handle = handle->next)
+   {
+      if(!EqnIsEquLit(handle))
+      {
+         PDArrayElementIncInt(pred_dist, handle->lterm->f_code, 1);
+      }
+   }   
+   generic_uniq_selection(ocb,clause,false, true, 
+                          maxlcomplexavoidposupred_weight, pred_dist);   
+   PDArrayFree(pred_dist);
+}
+
+
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
