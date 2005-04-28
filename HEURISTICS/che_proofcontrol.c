@@ -263,7 +263,8 @@ void DoLiteralSelection(ProofControl_p control, Clause_p clause)
 	 return;
       }
    }
-   if((clause->pos_lit_no >= control->heuristic_parms.pos_lit_sel_min) && 
+   if(clause->neg_lit_no &&
+      (clause->pos_lit_no >= control->heuristic_parms.pos_lit_sel_min) && 
       (clause->pos_lit_no <= control->heuristic_parms.pos_lit_sel_max) &&
       (clause->neg_lit_no >= control->heuristic_parms.neg_lit_sel_min) && 
       (clause->neg_lit_no <= control->heuristic_parms.neg_lit_sel_max) &&
