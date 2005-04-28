@@ -972,7 +972,7 @@ FunCode SigGetNewPredicateCode(Sig_p sig, int arity)
    while(SigFindFCode(sig,new_symbol))
    {
       sig->newpred_count++;
-      sprintf(new_symbol,"esk%ld_%d",sig->newpred_count,arity);
+      sprintf(new_symbol,"epred%ld_%d",sig->newpred_count,arity);
    }
    res = SigInsertId(sig, new_symbol, arity, false);
    SigSetFuncProp(sig, res, FPPredSymbol);
