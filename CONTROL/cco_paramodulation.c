@@ -43,7 +43,7 @@ Clause_p variable_paramod(TB_p bank, OCB_p ocb, ClausePos_p from,
                           ClausePos_p into, VarBank_p freshvars, 
                           ParamodulationType pm_type)
 {
-   Clause_p paramod;
+   Clause_p paramod = NULL;
    
    switch(pm_type)
    {
