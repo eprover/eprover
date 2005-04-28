@@ -279,10 +279,11 @@ static bool pdtree_verify_node_constr(PDTree_p tree)
 static void pdtree_forward(PDTree_p tree, Subst_p subst)
 {
    PDTNode_p handle = tree->tree_pos, next = NULL;
-   FunCode   i = tree->tree_pos->trav_count;
+   FunCode   i = tree->tree_pos->trav_count, limit;
    Term_p    term = PStackTopP(tree->term_stack);
    
-   while(i<PDT_NODE_CLOSED(tree,handle))
+   limit = PDT_NODE_CLOSED(tree,handle);
+   while(i<limit)
    {
       if(((i==0)||(i>handle->max_var))&&!TermIsVar(term))
       {
@@ -411,7 +412,7 @@ PDTree_p PDTreeAlloc(void)
    handle->term            = NULL;
    handle->term_date       = SysDateCreationTime();
    handle->term_weight     = LONG_MAX;
-   handle->prefer_general  = false; /* Not really necessary, it's
+   handle->prefer_general  = 0; /* Not really necessary, it's
 				      reinitialized in
                                       PDTreeSearchInit() anyways.*/ 
    handle->clause_count    = 0;
@@ -778,7 +779,7 @@ void PDTreeSearchInit(PDTree_p tree, Term_p term, SysDate age_constr,
    TermLRTraverseInit(tree->term_stack, term);
    PStackReset(tree->term_proc);
    tree->tree_pos         = tree->tree;
-   tree->prefer_general   = prefer_general;
+   tree->prefer_general   = prefer_general?1:0;
    tree->tree->trav_count = PDT_NODE_INIT_VAL(tree);
    tree->term             = term;
    tree->term_date        = age_constr;

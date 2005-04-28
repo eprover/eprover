@@ -90,7 +90,7 @@ typedef struct pd_tree_cell
    Term_p    term;           /* ...used as a key during search */
    SysDate   term_date;      /* Temporarily bound during matching */
    long      term_weight;    /* Ditto */
-   bool      prefer_general; /* Ditto */
+   int       prefer_general; /* Ditto */
    long      node_count;     /* How many tree nodes? */
    long      clause_count;   /* How many clauses? */
    long      arr_storage_est;/* How much memory used by arrays? */
@@ -111,7 +111,7 @@ typedef struct pd_tree_cell
 
 #define  PDTREE_IGNORE_TERM_WEIGHT LONG_MAX
 #define  PDTREE_IGNORE_NF_DATE     SysDateCreationTime()
-#define  PDT_NODE_INIT_VAL(tree)   ((tree)->prefer_general?1:0)
+#define  PDT_NODE_INIT_VAL(tree)   ((tree)->prefer_general)
 #define  PDT_NODE_CLOSED(tree,node) ((tree)->prefer_general?\
                                     (((node)->max_var)+2):(((node)->max_var)+1))
 

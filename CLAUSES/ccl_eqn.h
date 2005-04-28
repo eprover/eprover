@@ -152,6 +152,8 @@ void    EqnFree(Eqn_p junk);
 #define EqnIsStrictlyMaximal(eq)\
                           EqnQueryProp((eq), EPIsStrictlyMax)
 
+#define EqnGetPredCode(eq) (EqnIsEquLit(eq)?0:(eq)->lterm->f_code)
+
 #define EqnHasEquiv(eq)  EqnQueryProp((eq), EPHasEquiv)
 #define EqnIsDominated(eq)  EqnQueryProp((eq), EPIsDominated)
 #define EqnDominates(eq)  EqnQueryProp((eq), EPDominates)
