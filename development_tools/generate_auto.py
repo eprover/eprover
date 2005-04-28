@@ -5,7 +5,7 @@ import re
 import string
 
 pick_by_global_performance = 1
-optimize_large_class_limit = 50
+optimize_large_class_limit = 200
 
 white_space     = re.compile('\s+')
 trail_space     = re.compile('\s*$')
@@ -523,6 +523,11 @@ selstrat={
    "PSelectComplexExceptUniqMaxPosHorn" : "PSelectComplexExceptUniqMaxPosHorn",
    "SelectUnlessUniqMaxSmallestOrientable" : "SelectUnlessUniqMaxSmallestOrientable",
    "PSelectUnlessUniqMaxSmallestOrientable": "PSelectUnlessUniqMaxSmallestOrientable"
+   "SelectDivLits",                     : "SelectDiversificationLiterals",
+   "SelectDivPreferIntoLits"            : "SelectDiversificationPreferIntoLiterals",
+   "SelectMaxLComplexG"                 : "SelectMaxLComplexG", 
+   "SelectMaxLComplexAvoidPosPred"      : "SelectMaxLComplexAvoidPosPred",
+   "SelectMaxLComplexAvoidPosUPred"     : "SelectMaxLComplexAvoidPosUPred"
 }
 
 ac_handling ={

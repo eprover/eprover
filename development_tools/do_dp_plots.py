@@ -351,7 +351,6 @@ data = [
     ("CVC" , dir+"protokoll_CVC_Auto_ios", cvc_queue_pat),
     ("CVC Lite" , dir+"protokoll_CVCL_Auto_ios", cvc_queue_pat),
     ("E (good-lpo)" , dir+"protokoll_E_sts11_ios", e_queue_pat),
-    ("E (std-kbo)" , dir+"protokoll_E_sts28_ios", e_queue_pat)
     ]
 
 
@@ -364,7 +363,6 @@ plot_list.append(plot)
 data = [
     ("CVC Lite" , dir+"protokoll_CVCL_Auto_ios", cvc_circqueue_pat),
     ("E (good-lpo)" , dir+"protokoll_E_sts11_ios", e_circqueue_pat),
-    ("E (std-kbo)" , dir+"protokoll_E_sts28_ios", e_circqueue_pat)
     ]
 
 
