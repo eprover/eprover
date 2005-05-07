@@ -60,7 +60,7 @@ typedef struct eval_cell
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-long EvaluationCounter;
+extern long EvaluationCounter;
 
 #define EvalCellAlloc()   (EvalCell*)SizeMalloc(sizeof(EvalCell))
 #define EvalCellFree(junk) SizeFree(junk, sizeof(EvalCell))
