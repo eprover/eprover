@@ -89,6 +89,9 @@ long    TermWeight(Term_p term, long vweight, long fweight);
 	 (term)->weight:\
 	 TermWeight((term),DEFAULT_VWEIGHT,DEFAULT_FWEIGHT))
 
+long    TermFsumWeight(Term_p term, long vweight, long flimit, 
+                       long *fweights, long default_fweight);
+
 long    TermNonLinearWeight(Term_p term, long vlweight, long vweight,
 			    long fweight);
 long    TermSymTypeWeight(Term_p term, long vweight, long fweight,

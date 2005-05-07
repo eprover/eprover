@@ -1097,6 +1097,58 @@ long TermWeight(Term_p term, long vweight, long fweight)
 
 /*-----------------------------------------------------------------------
 //
+// Function: TermFsumWeight()
+//
+//   Return a weighted sum of the function symbols weights (and
+//   variable weights) in the term.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+long TermFsumWeight(Term_p term, long vweight, long flimit, 
+                    long *fweights, long default_fweight)
+{
+   long     res = 0;
+   PStack_p stack = PStackAlloc();
+   Term_p   handle;
+   
+   assert(term);
+   
+   PStackPushP(stack, term);
+   
+   while(!PStackEmpty(stack))
+   {
+      handle = PStackPopP(stack);
+      if(TermIsVar(handle))
+      {
+	 res += vweight;
+      }
+      else
+      {
+	 int i;
+         
+	 res += (handle->f_code < flimit)? 
+            fweights[handle->f_code]:default_fweight;
+
+	 for(i=0; i<handle->arity; i++)
+	 {
+	    PStackPushP(stack, handle->args[i]);
+	 }
+      }
+   }
+   PStackFree(stack);
+
+   return res;
+
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: TermNonLinearWeight()
 //
 //   Compute the weight of a term, counting variables that occur for
