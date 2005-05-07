@@ -41,6 +41,7 @@
 # or via email (address above).
 
 import sys
+import os
 
 NoStdRWStreamException = "You cannot open '-' for both reading and writing!"
 UsageErrorException = "Usage Error"
@@ -57,6 +58,7 @@ def flexopen(name, mode):
             return sys.stdout
         else:
             raise NoStdRWStreamException
+    name = os.path.expanduser(name)
     return open(name, mode)
 
 def flexclose(file):
@@ -107,6 +109,60 @@ def get_args(argv=sys.argv[1:]):
     files   = filter(lambda x:x[0:1]!="-" or x=="-", argv)
     return files
 
+def clean_list(l):
+    """
+    Given a list of strings, return the list stripped, and with empty
+    lines and comment lines (sarting in #) removed.
+    """
+    res = map(lambda x:x.strip(), l)
+    res = filter(lambda x:not ((x.startswith("#") or x=="")), res);
+    return res
 
-           
-        
+
+def read_real_lines(fp):
+    """
+    As fp.readlines(), but strip newlines, empty lines, comment lines.
+    """
+    tmp = fp.readlines()
+    return clean_list(tmp)
+
+
+def parse_lines(name):
+    """
+    Read a file and return a list of stripped, non-comment, nonempty
+    lines.
+    """
+    fp = flexopen(name, "r")
+    res = read_real_lines(fp)
+    flexclose(fp)
+
+    return res
+
+def decode_wait_status(status):
+    """
+    Given a 16 bit status as returned by wait, decode it into a tuple
+    (status, signal, core).
+    """
+    signal = status % 128
+    exit_status = status / 256
+    if status%256/256 == 1:
+        core = True
+    else:
+        core = false
+
+    return (status, signal, core)
+
+
+def run_shell_command(cmd):
+    """
+    Run a local shell command and return the output (or None if an
+    error occured).
+    """
+    fp = os.popen(cmd)
+    res = fp.readlines()
+    status = fp.close()
+    if status:
+        print "# Warning: '"+cmd+"' returned status "+\
+              repr(decode_wait_status(status)[0])
+
+    return res
