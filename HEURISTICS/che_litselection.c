@@ -565,6 +565,7 @@ void generic_uniq_selection(OCB_p ocb, Clause_p clause, bool positive,
       lits[i].literal = handle;
       tmp = &(lits[i]);
       LitEvalInit(tmp);
+      assert(clause);
       weight_fun(tmp, clause, data);
    }      
    cand = 0;
@@ -610,8 +611,6 @@ static PDArray_p pos_pred_dist_array_compute(Clause_p clause)
 {
    PDArray_p pred_dist;
    Eqn_p     handle;
-
-   assert(ClauseIsSorted(clause));
 
    pred_dist = PDIntArrayAlloc(10,30);
    
@@ -4714,6 +4713,8 @@ static void complex_weight_ahp(LitEval_p lit, Clause_p clause,
 {   
    PDArray_p pd = pred_dist;
 
+   assert(clause);
+
    if(EqnIsNegative(lit->literal))
    {
       if(EqnIsPureVar(lit->literal))
@@ -4731,7 +4732,11 @@ static void complex_weight_ahp(LitEval_p lit, Clause_p clause,
          lit->w2 = -lit_sel_diff_weight(lit->literal);
       }
    }
-   lit->w3 = PDArrayElementInt(pd, lit->literal->lterm->f_code);
+   lit->w3 = 0;
+   if(lit->literal->lterm->f_code > 0)
+   {
+      lit->w3 = PDArrayElementInt(pd, lit->literal->lterm->f_code);
+   }
 }
 
 /*-----------------------------------------------------------------------

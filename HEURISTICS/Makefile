@@ -39,6 +39,7 @@ HEURISTICS_LIB = che_wfcb.o che_wfcbadmin.o \
                  che_clausesetfeatures.o che_clauseweight.o \
                  che_refinedweight.o \
 		 che_varweights.o \
+		 che_funweights.o \
 		 che_orientweight.o \
 		 che_fifo.o che_lifo.o \
                  che_learning.o \

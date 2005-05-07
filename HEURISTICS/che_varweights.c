@@ -1168,7 +1168,9 @@ double StaggeredWeightCompute(void* data, Clause_p clause)
  
 void VarWeightExit(void* data)
 {
-   VarWeightParamCellFree(data);
+   VarWeightParam_p junk = data;
+   
+   VarWeightParamCellFree(junk);
 }
 
 

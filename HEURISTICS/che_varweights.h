@@ -2,13 +2,13 @@
 
 File  : che_varweights.h
 
-Author: Stephan Schulz
+Author: Stephan Schulz, schulz@eprover.org
 
 Contents
  
   Weight functions that play around a bit ;-)
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998, 1999, 2005 by the author.
   This code is released under the GNU General Public Licence.
   See the file COPYING in the main CLIB directory for details.
   Run "eprover -h" for contact information.

@@ -26,11 +26,13 @@ Changes
 
 #include <che_clauseweight.h>
 #include <che_varweights.h>
+#include <che_funweights.h>
 #include <che_orientweight.h>
 #include <che_simweight.h>
 #include <che_fifo.h>
 #include <che_lifo.h>
 #include <che_learning.h>
+
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
