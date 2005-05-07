@@ -283,6 +283,11 @@ double   ClauseWeight(Clause_p clause, double max_term_multiplier,
 		      pos_multiplier, long vweight, long fweight, bool
 		      count_eq_encoding);
 
+double ClauseFunWeight(Clause_p clause, double max_term_multiplier,
+                       double max_literal_multiplier, double
+                       pos_multiplier, long vweight, long flimit,
+                       long *fweights, long default_fweight);
+
 double ClauseNonLinearWeight(Clause_p clause, double
 			     max_term_multiplier, double
 			     max_literal_multiplier, double

@@ -281,6 +281,10 @@ double  EqnWeight(Eqn_p eq, double max_multiplier, long vweight, long
         SigGetSpecialWeight(eqn->bank->sig, eqn->lterm->f_code):\
         EqnStandardWeight(eqn)
 
+
+double EqnFunWeight(Eqn_p eq, double max_multiplier, long vweight, 
+                    long flimit, long *fweights, long default_fweight);
+
 double  EqnNonLinearWeight(Eqn_p eq, double max_multiplier, long
 			   vlweight, long vweight, long fweight);
 double  EqnSymTypeWeight(Eqn_p eq, double max_multiplier, long
@@ -299,6 +303,17 @@ double  LiteralWeight(Eqn_p eq, double max_term_multiplier, double
 		      max_literal_multiplier, double
 		      pos_multiplier, long vweight, long fweight, bool
 		      count_eq_encoding);
+
+double  LiteralFunWeight(Eqn_p eq, 
+                         double max_term_multiplier, 
+                         double max_literal_multiplier, 
+                         double pos_multiplier,
+                         long vweight, 
+                         long flimit, 
+                         long *fweights, 
+                         long default_fweight);
+
+
 
 double LiteralNonLinearWeight(Eqn_p eq, double max_term_multiplier,
 			      double max_literal_multiplier, double

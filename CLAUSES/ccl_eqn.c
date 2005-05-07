@@ -1909,6 +1909,43 @@ double EqnWeight(Eqn_p eq, double max_multiplier, long vweight, long
 
 /*-----------------------------------------------------------------------
 //
+// Function: EqnFunWeight()
+//
+//   As EqnWeight(), but use weighted FSum instead of plain term
+//   weight.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+double EqnFunWeight(Eqn_p eq, double max_multiplier, long vweight, 
+                     long flimit, long *fweights, long default_fweight)
+{
+   double res;
+   
+   if(EqnIsOriented(eq))
+   {
+      res = (double)TermFsumWeight(eq->rterm, vweight, flimit, 
+                                   fweights, default_fweight);
+   }
+   else
+   {
+      res = (double)TermFsumWeight(eq->rterm, vweight, flimit, 
+                                   fweights, default_fweight) *
+	 max_multiplier;
+   }
+   res += ((double)TermFsumWeight(eq->lterm, vweight, flimit, 
+                                  fweights, default_fweight) * 
+           max_multiplier);
+   
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: EqnNonLinearWeight()
 //
 //   Compute the non-linear weight of an equation. Weights of
@@ -2121,6 +2158,45 @@ double  LiteralWeight(Eqn_p eq, double max_term_multiplier, double
       res = res*pos_multiplier;
    }
 
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: LiteralFunWeight()
+//
+//   As LiteralWeight(), but use individual functgion symbol
+//   weights. The eq encoding is always counted.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+double  LiteralFunWeight(Eqn_p eq, 
+                         double max_term_multiplier, 
+                         double max_literal_multiplier, 
+                         double pos_multiplier,
+                         long vweight, 
+                         long flimit,
+                         long *fweights, 
+                         long default_fweight)
+{
+   double res;
+
+   res = EqnFunWeight(eq, max_term_multiplier, vweight, flimit, 
+                      fweights, default_fweight);
+
+   if(EqnIsMaximal(eq))
+   {
+      res = res*max_literal_multiplier;
+   }
+   if(EqnIsPositive(eq))
+   {
+      res = res*pos_multiplier;
+   }
    return res;
 }
 

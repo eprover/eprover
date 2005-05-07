@@ -1818,6 +1818,39 @@ double ClauseWeight(Clause_p clause, double max_term_multiplier,
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseFunWeight()
+//
+//   Compute the weight of a clause by summing weights for individual
+//   function symbols and variables and applying various modifiers.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+double ClauseFunWeight(Clause_p clause, double max_term_multiplier,
+                       double max_literal_multiplier, double
+                       pos_multiplier, long vweight, long flimit,
+                       long *fweights, long default_fweight)
+{
+   Eqn_p  handle;
+   double res = 0;
+
+   for(handle = clause->literals; handle; handle = handle->next)
+   {
+      res += LiteralFunWeight(handle, max_term_multiplier,
+                              max_literal_multiplier, pos_multiplier,
+                              vweight, flimit, fweights,
+                              default_fweight);
+   }
+   return res;
+}
+
+
+
 
 
 /*-----------------------------------------------------------------------
