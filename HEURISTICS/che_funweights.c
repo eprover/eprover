@@ -69,8 +69,10 @@ WFCB_p ConjectureSymbolWeightInit(ClausePrioFun prio_fun,
                                   double pos_multiplier,
                                   long   vweight,
                                   long   fweight,
+                                  long   cweight,
                                   long   pweight,
                                   long   conj_fweight,
+                                  long   conj_cweight,
                                   long   conj_pweight)
 {
    FunWeightParam_p data = FunWeightParamCellAlloc();
@@ -83,9 +85,13 @@ WFCB_p ConjectureSymbolWeightInit(ClausePrioFun prio_fun,
    data->max_literal_multiplier = max_literal_multiplier;
    
    data->vweight                = vweight;
+
    data->fweight                = fweight;
+   data->cweight                = cweight;
    data->pweight                = pweight;
+
    data->conj_fweight           = conj_fweight;
+   data->conj_cweight           = conj_cweight;
    data->conj_fweight           = conj_pweight;
 
    data->flimit                 = ocb->sig->f_count+1;
@@ -109,17 +115,21 @@ WFCB_p ConjectureSymbolWeightInit(ClausePrioFun prio_fun,
    {
       if(data->fweights[i] == 0)
       {
-         data->fweights[i] = SigIsPredicate(ocb->sig, i)?pweight:fweight;
+         data->fweights[i] = SigIsPredicate(ocb->sig, i)?pweight:
+            (SigFindArity(ocb->sig,i)?fweight:cweight);
       }
       else
       {
-         data->fweights[i] = SigIsPredicate(ocb->sig, i)?conj_pweight:conj_fweight;
+         data->fweights[i] = SigIsPredicate(ocb->sig, i)?conj_pweight:
+            (SigFindArity(ocb->sig,i)?conj_fweight:conj_cweight);
       }   
    }   
 
    return WFCBAlloc(GenericFunWeightCompute, prio_fun,
                     GenericFunWeightExit, data);
 }
+
+
 
 
 /*-----------------------------------------------------------------------
@@ -137,6 +147,70 @@ WFCB_p ConjectureSymbolWeightInit(ClausePrioFun prio_fun,
 
 WFCB_p ConjectureSymbolWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
                                 state)
+{   
+   ClausePrioFun prio_fun;
+   int vweight, fweight, pweight, cweight, conj_fweight, conj_pweight, conj_cweight;
+   double pos_multiplier, max_term_multiplier, max_literal_multiplier;
+
+   AcceptInpTok(in, OpenBracket);
+   prio_fun = ParsePrioFun(in);
+   AcceptInpTok(in, Comma);
+   
+   fweight = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   cweight = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   pweight = ParseInt(in);
+   AcceptInpTok(in, Comma);
+
+   conj_fweight = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   conj_cweight = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   conj_pweight = ParseInt(in);
+   AcceptInpTok(in, Comma);
+ 
+   vweight = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   
+   max_term_multiplier = ParseFloat(in);
+   AcceptInpTok(in, Comma);
+   max_literal_multiplier = ParseFloat(in);
+   AcceptInpTok(in, Comma);
+   pos_multiplier = ParseFloat(in);
+   AcceptInpTok(in, CloseBracket);
+   
+   return ConjectureSymbolWeightInit(prio_fun, 
+                                     ocb,
+                                     state->axioms,
+                                     max_term_multiplier,
+                                     max_literal_multiplier,
+                                     pos_multiplier,
+                                     vweight,
+                                     fweight,
+                                     cweight,
+                                     pweight,
+                                     conj_fweight,
+                                     conj_cweight,
+                                     conj_pweight);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ConjectureSimplifiedSymbolWeightParse()
+//
+//   Parse a funweight-weight function giving different weights to
+//   conjecture symbols and other symbols. Does not special-case
+//   constants. 
+//
+// Global Variables: -
+//
+// Side Effects    : Via ConjectureFunWeightInit, I/O.
+//
+/----------------------------------------------------------------------*/
+
+WFCB_p ConjectureSimplifiedSymbolWeightParse(Scanner_p in, OCB_p ocb, 
+                                             ProofState_p state)
 {   
    ClausePrioFun prio_fun;
    int vweight, fweight, pweight, conj_fweight, conj_pweight;
@@ -173,9 +247,72 @@ WFCB_p ConjectureSymbolWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
                                      pos_multiplier,
                                      vweight,
                                      fweight,
+                                     fweight,
                                      pweight,
                                      conj_fweight,
+                                     conj_fweight,
                                      conj_pweight);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ConjectureRelativeSymbolWeightParse()
+//
+//   As above, but give the weight of nonjecture symbols as a
+//   multiple of non symbols. Note that all weights are rounded
+//   down to the next integer!
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+WFCB_p ConjectureRelativeSymbolWeightParse(Scanner_p in, OCB_p ocb, 
+                                           ProofState_p state)
+{   
+   ClausePrioFun prio_fun;
+   int fweight, pweight, cweight, vweight;
+   double conj_multiplier, pos_multiplier, max_term_multiplier, max_literal_multiplier;
+
+   AcceptInpTok(in, OpenBracket);
+   prio_fun = ParsePrioFun(in);
+   AcceptInpTok(in, Comma);
+
+   conj_multiplier = ParseFloat(in);
+   AcceptInpTok(in, Comma);
+
+   fweight = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   cweight = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   pweight = ParseInt(in);
+   AcceptInpTok(in, Comma);
+
+   vweight = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   
+   max_term_multiplier = ParseFloat(in);
+   AcceptInpTok(in, Comma);
+   max_literal_multiplier = ParseFloat(in);
+   AcceptInpTok(in, Comma);
+   pos_multiplier = ParseFloat(in);
+   AcceptInpTok(in, CloseBracket);
+   
+   return ConjectureSymbolWeightInit(prio_fun, 
+                                     ocb,
+                                     state->axioms,
+                                     max_term_multiplier,
+                                     max_literal_multiplier,
+                                     pos_multiplier,
+                                     vweight,
+                                     fweight,
+                                     cweight,
+                                     pweight,
+                                     conj_multiplier*fweight,
+                                     conj_multiplier*cweight,
+                                     conj_multiplier*pweight);
 }
 
 

@@ -55,6 +55,8 @@ char* WeightFunParseFunNames[]=
    "TSMWeight",
    "TSMRWeight",
    "ConjectureSymbolWeight",
+   "ConjectureGeneralSymbolWeight",
+   "ConjectureRelativeSymbolWeight",
    NULL
 };
 
@@ -84,7 +86,9 @@ static WeightFunParseFun parse_fun_array[]=
    ClauseWeightAgeParse,
    TSMWeightParse,
    TSMRWeightParse,
+   ConjectureSimplifiedSymbolWeightParse,
    ConjectureSymbolWeightParse,
+   ConjectureRelativeSymbolWeightParse,
    (WeightFunParseFun)NULL
 };
 

@@ -46,10 +46,12 @@ typedef struct funweightparamcell
 
    /* Weights for non-conjecture symbols (by type) */
    long   fweight;
+   long   cweight;
    long   pweight;
 
    /* Weights for conjecture-symbols (by type) */
    long   conj_fweight;
+   long   conj_cweight;
    long   conj_pweight;
    
    /* Actual encoding for the weights */
@@ -77,12 +79,19 @@ WFCB_p ConjectureSymbolWeightInit(ClausePrioFun prio_fun,
                                   double pos_multiplier,
                                   long   vweight,
                                   long   fweight,
+                                  long   cweight,
                                   long   pweight,
                                   long   conj_fweight,
+                                  long   conj_cweight,
                                   long   conj_pweight);
 
 WFCB_p ConjectureSymbolWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
                                    state);
+WFCB_p ConjectureSimplifiedSymbolWeightParse(Scanner_p in, OCB_p ocb, 
+                                             ProofState_p state);
+
+WFCB_p ConjectureRelativeSymbolWeightParse(Scanner_p in, OCB_p ocb, 
+                                           ProofState_p state);
 
 double GenericFunWeightCompute(void* data, Clause_p clause);
 
