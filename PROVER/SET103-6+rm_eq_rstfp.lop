@@ -387,7 +387,7 @@ homomorphism(Xh, Xf1, Xf2) <-
     equal(apply(Xf2, ordered_pair(apply(Xh, not_homomorphism1(Xh, Xf1, Xf2)), apply(Xh, not_homomorphism2(Xh, Xf1, Xf2)))), apply(Xh, apply(Xf1, ordered_pair(not_homomorphism1(Xh, Xf1, Xf2), not_homomorphism2(Xh, Xf1, Xf2))))).
 
 # prove_property_1_of_ordered_pair_1, conjecture.
- <- equal(unordered_pair(singleton(x), unordered_pair(x, null_class)), ordered_pair(x, y)).
+ ?- equal(unordered_pair(singleton(x), unordered_pair(x, null_class)), ordered_pair(x, y)).
 
 # prove_property_1_of_ordered_pair_2, conjecture.
  ?- member(y, universal_class).
