@@ -147,7 +147,7 @@ function has_interactive_user(host,    user)
 
 
 # Compute memory in Megabytes from a string containing Bytes (no
-# suffixe), Killobytes (Suffix K), Megabytes (Suffix M) or Gigabytes
+# suffixe), Kilobytes (Suffix K), Megabytes (Suffix M) or Gigabytes
 # (Suffix G)
 
 function normalize_mem(valstring)
@@ -252,6 +252,7 @@ function create_host_list(   i)
      host_is_available["sunhalle" i] = 0;
      host_in_use["sunhalle" i] = 0;      
   }
+  exclude_hosts["sunhalle83"] = 1; # ssh trouble 
 }
 
 
@@ -613,7 +614,11 @@ function process_result(host     , file, tmp, name, time, org_time, status,\
 	 system("cat "  file " >> buggy_complete");
       }
    }
-   system("rm " cwd "/" host "_lock; rm " cwd "/" host "_complete");
+   shell = "/bin/sh";
+   print "rm " cwd "/" host "_lock" | shell;
+   print "rm " cwd "/" host "_complete" | shell;
+   close(shell);
+
    host_in_use[host] = 0;
 }
 
@@ -720,7 +725,7 @@ function find_pid_in_protocoll(file,      pid, tmp)
 }
 
 
-function kill_job(lockfile,     host, pid, res)
+function kill_job(lockfile,     host, pid, res, shell)
 {
    if(match(lockfile, /sunhalle[0-9]+/))
    {
@@ -736,9 +741,10 @@ function kill_job(lockfile,     host, pid, res)
 	 print "Host " host " not reachable";
 	 res = 0;
       }
-      print "rm " cwd "/" host "_lock\n" | "/bin/sh";
-      print "rm " cwd "/" host "_complete\n" | "/bin/sh";
-      close("/bin/sh");
+      shell = "/bin/sh";
+      print "rm " cwd "/" host "_lock\n" | shell;
+      print "rm " cwd "/" host "_complete\n" | shell;
+      close(shell);
       return res;
    }
    return 0;
@@ -756,9 +762,11 @@ function kill_old_jobs(         pipe, count, tmp)
      host_in_use[tmp] = 0;
   }	  
   close(pipe);
-  system("rm " cwd "/sunhalle*_complete");
-  system("rm " cwd "/sunhalle*_lock");
-  
+  shell = "/bin/sh";
+  print "rm " cwd "/sunhalle*_complete" | shell;
+  print "rm " cwd "/sunhalle*_lock" | shell;
+  close(shell);
+
   open_jobs = 0;
   print "Killed " count " old job(s)";
 }
@@ -947,7 +955,7 @@ BEGIN{
       remote_shell =  "ssh -x -T " host_local " 2>&1 1> /dev/null";
       print  "touch " outfile1 |remote_shell;
       print "(/bin/nice -15 " command "; sync; sleep 3; echo " job ">" \
-	 outfile2 ")< /dev/null > & /dev/null &" | remote_shell;
+	 outfile2 ")< /dev/null > & /dev/null &\n" | remote_shell;
       close(remote_shell);
       open_jobs++;	       
       print "Open jobs: " open_jobs;

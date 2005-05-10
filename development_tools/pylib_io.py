@@ -148,7 +148,7 @@ def decode_wait_status(status):
     if status%256/256 == 1:
         core = True
     else:
-        core = false
+        core = False
 
     return (status, signal, core)
 
