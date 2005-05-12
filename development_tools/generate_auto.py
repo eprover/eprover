@@ -153,6 +153,7 @@ def trans_heuristic_name(name):
 
 
 def heuristic_define(name):
+    print "Name = ", name
     mr = match_heuristic.search(stratdesc[name])
     if not mr:
         raise RuntimeError, "No heuristic defined in " + name;
@@ -522,8 +523,8 @@ selstrat={
    "SelectComplexExceptUniqMaxPosHorn"  : "SelectComplexExceptUniqMaxPosHorn",
    "PSelectComplexExceptUniqMaxPosHorn" : "PSelectComplexExceptUniqMaxPosHorn",
    "SelectUnlessUniqMaxSmallestOrientable" : "SelectUnlessUniqMaxSmallestOrientable",
-   "PSelectUnlessUniqMaxSmallestOrientable": "PSelectUnlessUniqMaxSmallestOrientable"
-   "SelectDivLits",                     : "SelectDiversificationLiterals",
+   "PSelectUnlessUniqMaxSmallestOrientable": "PSelectUnlessUniqMaxSmallestOrientable",
+   "SelectDivLits"                      : "SelectDiversificationLiterals",
    "SelectDivPreferIntoLits"            : "SelectDiversificationPreferIntoLiterals",
    "SelectMaxLComplexG"                 : "SelectMaxLComplexG", 
    "SelectMaxLComplexAvoidPosPred"      : "SelectMaxLComplexAvoidPosPred",
@@ -727,6 +728,7 @@ print """
 """
 
 for i in by_heuristic.keys():
+    print "Here..."
     print heuristic_define(i)
 
 if used[0] in by_heuristic.keys():
