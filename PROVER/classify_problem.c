@@ -17,6 +17,8 @@ Changes
 
 <1> Sat Dec 12 22:39:18 MET 1998
     New
+<2> Thu May 12 12:35:46 CEST 2005
+    Added TSTP support
 
 -----------------------------------------------------------------------*/
 
@@ -30,7 +32,7 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-#define VERSION "0.5"
+#define VERSION "0.6"
 
 typedef enum
 {
@@ -43,6 +45,9 @@ typedef enum
    OPT_TPTP_PARSE,
    OPT_TPTP_PRINT,
    OPT_TPTP_FORMAT,
+   OPT_TSTP_PARSE,
+   OPT_TSTP_PRINT,
+   OPT_TSTP_FORMAT,
    OPT_GEN_TPTP_HEADER,
    OPT_NO_PREPROCESSING,
    OPT_MASK,
@@ -119,6 +124,23 @@ OptCell opts[] =
     '\0', "tptp-format",
     NoArg, NULL,
     "Equivalent to --tptp-in and --tptp-out."},
+
+   {OPT_TSTP_PARSE,
+    '\0', "tstp-in",
+    NoArg, NULL,
+    "Parse TSTP format instead of E-LOP (not all all optional "
+    "extensions are currently supported)."},
+   
+   {OPT_TSTP_PRINT,
+    '\0', "tstp-out",
+    NoArg, NULL,
+    "Print proof protocol in TSTP (v.0.3) syntax (default is PCL). Only "
+    "effective for output levels greater than 1."},
+
+   {OPT_TSTP_FORMAT,
+    '\0', "tstp-format",
+    NoArg, NULL,
+    "Equivalent to --tstp-in and --tstp-out."},
 
    {OPT_GEN_TPTP_HEADER,
     'H', "generate-tptp-header",
@@ -500,7 +522,19 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
 	    parse_format = TPTPFormat;	    
 	    OutputFormat = TPTPFormat;
 	    EqnFullEquationalRep = false;
+	    break;	
+      case OPT_TSTP_PARSE:
+	    parse_format = TSTPFormat;
+	    break;
+      case OPT_TSTP_PRINT:
+	    OutputFormat = TSTPFormat;
+	    EqnFullEquationalRep = false;
 	    EqnUseInfix = false;
+	    break;
+      case OPT_TSTP_FORMAT:
+	    parse_format = TSTPFormat;	    
+	    OutputFormat = TSTPFormat;
+	    EqnFullEquationalRep = false;
 	    break;	
       case OPT_GEN_TPTP_HEADER:
 	    tptp_header = true;
