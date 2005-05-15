@@ -133,6 +133,7 @@ static LitSelNameFunAssocCell name_fun_assoc[] =
    {"SelectMaxLComplexAvoidPosUPred",        SelectMaxLComplexAvoidPosUPred},
    {"SelectComplexG",                        SelectComplexG},
    {"SelectComplexAHP",                      SelectComplexAHP},
+   {"SelectNewComplexAHP",                   SelectNewComplexAHP},
    {NULL, (LiteralSelectionFun)0}
 };
 
@@ -549,6 +550,7 @@ void generic_uniq_selection(OCB_p ocb, Clause_p clause, bool positive,
    LitEval_p lits, tmp;
    int i, cand;
    Eqn_p handle;
+   bool selected = false;
    
    assert(ocb);
    assert(clause);
@@ -582,12 +584,13 @@ void generic_uniq_selection(OCB_p ocb, Clause_p clause, bool positive,
 
    assert(EqnIsNegative(lits[cand].literal));
    if(!lits[cand].forbidden)
-   {
+   {      
       EqnSetProp(lits[cand].literal, EPIsSelected);
+      selected = true;
       ClauseDelProp(clause, CPIsOriented);
    }
    SizeFree(lits,len*sizeof(LitEvalCell));
-   if(positive)
+   if(positive && selected)
    {
       clause_select_pos(clause);
    }
@@ -4739,6 +4742,7 @@ static void complex_weight_ahp(LitEval_p lit, Clause_p clause,
    }
 }
 
+
 /*-----------------------------------------------------------------------
 //
 // Function: SelectComplexAHP()
@@ -4769,6 +4773,89 @@ void SelectComplexAHP(OCB_p ocb, Clause_p clause)
    pred_dist_array_free(pred_dist);
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: new_complex_notp_ahp
+//
+//   Implement a weight function mimicking the old SelectNewComplex,
+//   but, other things being equal, avoid head predicate symbols.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+
+static void new_complex_notp_ahp(LitEval_p lit, Clause_p clause, 
+                                 void *pred_dist)
+{   
+   PDArray_p pd = pred_dist;
+
+   assert(clause);
+
+   if(EqnIsNegative(lit->literal))
+   {
+      if(EqnIsGround(lit->literal))
+      {
+         lit->w1 = 0;
+         lit->w2 = TermStandardWeight(lit->literal->lterm);
+      }
+      else if(!EqnIsXTypePred(lit->literal))
+      {
+         lit->w1 = 10;
+         lit->w2 = EqnMaxTermPositions(lit->literal);
+      }
+      else if(!EqnIsTypePred(lit->literal))
+      {
+         lit->w1 = 20;
+         lit->w2 = -TermStandardWeight(lit->literal->lterm);
+      }
+      else
+      {
+         assert(EqnIsTypePred(lit->literal));
+         lit->w1 = 100000;
+         lit->forbidden = 1;
+      }
+   }
+   lit->w3 = 0;
+   if(lit->literal->lterm->f_code > 0)
+   {
+      lit->w3 = PDArrayElementInt(pd, lit->literal->lterm->f_code);
+   }
+}
+
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectNewComplexAHP
+//
+//   Mimic SelectNewComplex(),  but with thw AHP property.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void SelectNewComplexAHP(OCB_p ocb, Clause_p clause)
+{  
+   PDArray_p pred_dist;
+
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+   
+   pred_dist = pos_pred_dist_array_compute(clause);
+   
+   generic_uniq_selection(ocb,clause,false, true, 
+                          new_complex_notp_ahp, pred_dist);   
+   pred_dist_array_free(pred_dist);
+}
 
 
 

@@ -187,6 +187,7 @@ void SelectMaxLComplexAvoidPosPred(OCB_p ocb, Clause_p clause);
 void SelectMaxLComplexAvoidPosUPred(OCB_p ocb, Clause_p clause);
 void SelectComplexG(OCB_p ocb, Clause_p clause);
 void SelectComplexAHP(OCB_p ocb, Clause_p clause);
+void SelectNewComplexAHP(OCB_p ocb, Clause_p clause);
 
 #endif
 
