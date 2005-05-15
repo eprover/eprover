@@ -199,6 +199,8 @@ match_unproc_sd = re.compile(" --simplify-with-unprocessed-units")
 match_fcsr      = re.compile(" --forward-context-sr")
 match_fcsra     = re.compile(" --forward-context-sr-aggressive")
 match_bcsr      = re.compile(" --backward-context-sr")
+match_simul_pm  = re.compile("--simul-paramod");
+match_osimul_pm = re.compile("--oriented-simul-paramod");
 
 def parse_control_info(line):
     res = ""
@@ -337,6 +339,17 @@ def parse_control_info(line):
     m = match_g_demod_l.search(line)
     if m:
         res = res+ "      control->heuristic_parms.prefer_general=true;\n"
+
+    #
+    # Paramodulation
+    #
+    m = match_simul_pm.search(line)
+    if m:
+        res = res+ "      control->heuristic_parms.pm_type=ParamodAlwaysSim;\n"
+ 
+    m = match_osimul_pm.search(line)
+    if m:
+        res = res+ "      control->heuristic_parms.pm_type=ParamodOrientedSim;\n"
 
     return res
 
@@ -530,7 +543,8 @@ selstrat={
    "SelectMaxLComplexAvoidPosPred"      : "SelectMaxLComplexAvoidPosPred",
    "SelectMaxLComplexAvoidPosUPred"     : "SelectMaxLComplexAvoidPosUPred",
    "SelectComplexG"                     : "SelectComplexG",
-   "SelectComplexAHP"                   : "SelectComplexAHP"
+   "SelectComplexAHP"                   : "SelectComplexAHP",
+   "SelectNewComplexAHP"                : "SelectNewComplexAHP"
 }
 
 ac_handling ={
