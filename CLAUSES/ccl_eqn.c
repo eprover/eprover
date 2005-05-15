@@ -2123,6 +2123,55 @@ double EqnCorrectedNonLinearWeight(Eqn_p eq, double max_multiplier,
 
 /*-----------------------------------------------------------------------
 //
+// Function: EqnMaxTermPositions()
+//
+//   Return the number of positions in maximal terms of eqn.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long EqnMaxTermPositions(Eqn_p eqn)
+{
+   long res = TermWeight(eqn->lterm, 1, 1);
+
+   if(EqnIsOriented(eqn))
+   {
+      res += TermWeight(eqn->rterm, 1, 1);
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: EqnInferencePositions()
+//
+//   Return the number of potential inference positions in maximal
+//   terms of eqn. Variables are not inference positions.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+long EqnInferencePositions(Eqn_p eqn)
+{
+   long res = TermWeight(eqn->lterm, 0, 1);
+      
+   if(EqnIsOriented(eqn))
+   {
+      res += TermWeight(eqn->rterm, 0, 1);
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: LiteralWeight()
 //
 //   Return weight of a literal. max_term_multipler is applied to maximal

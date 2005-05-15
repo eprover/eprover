@@ -299,6 +299,9 @@ double  EqnMaxWeight(Eqn_p eq, long vweight, long fweight);
          MIN(TermStandardWeight((eqn)->lterm),\
 	     TermStandardWeight((eqn)->rterm)))
 
+long EqnMaxTermPositions(Eqn_p eqn);
+long EqnInferencePositions(Eqn_p eqn);
+
 double  LiteralWeight(Eqn_p eq, double max_term_multiplier, double
 		      max_literal_multiplier, double
 		      pos_multiplier, long vweight, long fweight, bool
