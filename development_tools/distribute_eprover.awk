@@ -614,10 +614,9 @@ function process_result(host     , file, tmp, name, time, org_time, status,\
 	 system("cat "  file " >> buggy_complete");
       }
    }
-   shell = "/bin/sh";
-   print "rm " cwd "/" host "_lock" | shell;
-   print "rm " cwd "/" host "_complete" | shell;
-   close(shell);
+   
+   system("rm " cwd "/" host "_lock");
+   system("rm " cwd "/" host "_complete");
 
    host_in_use[host] = 0;
 }
@@ -733,18 +732,16 @@ function kill_job(lockfile,     host, pid, res, shell)
       if(ping_host(host))
       {
 	 pid  = find_pid_in_protocoll(lockfile);
-	 print "ssh -x " host " kill " pid "\n"| "/bin/sh";
+	 system("ssh -x " host " kill " pid "\n");
 	 res = 1;
       }
       else
       {
 	 print "Host " host " not reachable";
 	 res = 0;
-      }
-      shell = "/bin/sh";
-      print "rm " cwd "/" host "_lock\n" | shell;
-      print "rm " cwd "/" host "_complete\n" | shell;
-      close(shell);
+      }      
+      system("rm " cwd "/" host "_lock");
+      system("rm " cwd "/" host "_complete");
       return res;
    }
    return 0;
@@ -762,10 +759,9 @@ function kill_old_jobs(         pipe, count, tmp)
      host_in_use[tmp] = 0;
   }	  
   close(pipe);
-  shell = "/bin/sh";
-  print "rm " cwd "/sunhalle*_complete" | shell;
-  print "rm " cwd "/sunhalle*_lock" | shell;
-  close(shell);
+  
+  system("rm " cwd "/sunhalle*_complete");
+  system("rm " cwd "/sunhalle*_lock");
 
   open_jobs = 0;
   print "Killed " count " old job(s)";

@@ -99,7 +99,7 @@ def tuple_is_better2(t1,t2):
 
 def find_optimal_heuristic(classes, exclude):
     res  = ""
-    eval = (0.0,0.0)
+    eval = (-1.0,0.0)
     for i in stratset.keys():
         if not i in exclude:
             tmp = eval_heuristic(classes, i)
@@ -528,7 +528,9 @@ selstrat={
    "SelectDivPreferIntoLits"            : "SelectDiversificationPreferIntoLiterals",
    "SelectMaxLComplexG"                 : "SelectMaxLComplexG", 
    "SelectMaxLComplexAvoidPosPred"      : "SelectMaxLComplexAvoidPosPred",
-   "SelectMaxLComplexAvoidPosUPred"     : "SelectMaxLComplexAvoidPosUPred"
+   "SelectMaxLComplexAvoidPosUPred"     : "SelectMaxLComplexAvoidPosUPred",
+   "SelectComplexG"                     : "SelectComplexG",
+   "SelectComplexAHP"                   : "SelectComplexAHP"
 }
 
 ac_handling ={
