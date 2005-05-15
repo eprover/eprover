@@ -140,13 +140,28 @@ Sig_p SigAlloc(void)
       SigInsertId(handle, "$cons", 2, true);
       assert(SigFindFCode(handle, "$cons")==SIG_CONS_CODE);
    }
+   
+
    handle->internal_symbols = handle->f_count;
    
    handle->eqn_code      = 0;
    handle->neqn_code     = 0;
-   handle->or_code       = 0;
    handle->cnil_code     = 0;
    handle->orn_codes     = NULL;
+
+   handle->or_code       = 0;
+   handle->not_code      = 0;
+   handle->qex_code      = 0;
+   handle->qall_code     = 0;
+   handle->and_code      = 0;
+   handle->or_code       = 0;
+   handle->impl_code     = 0;
+   handle->equiv_code    = 0;
+   handle->nand_code     = 0;
+   handle->nor_code      = 0;
+   handle->nimpl_code    = 0;
+   handle->xor_code      = 0;
+
    handle->skolem_count  = 0;
    handle->newpred_count = 0;
    handle->null_code     = 0;
@@ -155,6 +170,45 @@ Sig_p SigAlloc(void)
    handle->distinct_props = FPDistinctProp;
    return handle;
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: SigInitFOFCodes()
+//
+//   Put all the FOF operators as function symbols into sig. Sig
+//   should be empty, so that sig->internal symbols can be properly
+//   initialized.  Note that this will be used for plain term
+//   signatures. It reuses some equivalent fields of signatures used
+//   for patterns, but morphs the f_codes into internal symbols.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes sig...
+//
+/----------------------------------------------------------------------*/
+
+void SigInsertFOFCodes(Sig_p sig)
+{
+   assert(SigSupportLists && sig->internal_codes == SIG_CONS_CODE ||
+          !SigSupportsList && sig->internal_codes == SIG_FALSE_CODE);
+   
+   sig->eqn_code   = SigInsertFOFOp(sig, "$eqn",   2);
+   SigSetPredicate(sig, sig->eqn_code, true);
+   sig->not_code   = SigInsertFOFOp(sig, "$not",   1);
+   sig->qex_code   = SigInsertFOFOp(sig, "$qex",   2);
+   sig->qall_code  = SigInsertFOFOp(sig, "$qall",  2);
+   sig->and_code   = SigInsertFOFOp(sig, "$and",   2);
+   sig->or_code    = SigInsertFOFOp(sig, "$or",    2);
+   sig->impl_code  = SigInsertFOFOp(sig, "$impl",  2);
+   sig->equiv_code = SigInsertFOFOp(sig, "$equiv", 2);
+   sig->nand_code  = SigInsertFOFOp(sig, "$nand",  2);
+   sig->nor_code   = SigInsertFOFOp(sig, "$nor",   2);
+   sig->nimpl_code = SigInsertFOFOp(sig, "$nimpl", 2);
+   sig->xor_code   = SigInsertFOFOp(sig, "$xor",   2);
+   sig->internal_symbols = sig->f_count;
+}
+
+
 
 /*-----------------------------------------------------------------------
 //
@@ -392,6 +446,26 @@ FunCode SigInsertId(Sig_p sig, const char* name, int arity, bool special_id)
    return sig->f_count;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: SigInsertFOFOp()
+//
+//   Insert a special function symbol used to encode a first-order
+//   operator. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+FunCode SigInsertFOFOp(Sig_p sig, const char* name, int arity)
+{
+   FunCode res = SigInsertId(sig, name, arity, true);
+   
+   SigSetFuncProp(sig, res, FPFOFOp);
+   return res; 
+}
 
 /*-----------------------------------------------------------------------
 //

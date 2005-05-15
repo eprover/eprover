@@ -38,15 +38,16 @@ Changes
 
 typedef enum
 {
-   FPIgnoreProps  =  0, /* No properties, mask everything out */
-   FPPredSymbol   =  1, /* Symbol is a transformed predicate symbol */
-   FPSpecial      =  2, /* Symbol is a special symbol introduced internally */
-   FPAssociative  =  4, /* Function symbol is binary and associative */
-   FPCommutative  =  8, /* Function symbol is binary and commutates */
-   FPIsAC         =  FPAssociative|FPCommutative,
-   FPInterpreted  = 16, /* Interpreted symbol $ident */
-   FPIsNumber     = 32, /* Sequence of digits, may be semi-interpreted */
-   FPIsObject     = 64,  /* ""-enclosed string, by definition denotes
+   FPIgnoreProps  =   0, /* No properties, mask everything out */
+   FPPredSymbol   =   1, /* Symbol is a transformed predicate symbol */
+   FPFOFOp        =   2, /* Symbol is encoded first order operator */
+   FPSpecial      =   4, /* Symbol is a special symbol introduced internally */
+   FPAssociative  =   8, /* Function symbol is binary and associative */
+   FPCommutative  =  16, /* Function symbol is binary and commutates */
+   FPIsAC         =   FPAssociative|FPCommutative,
+   FPInterpreted  =  32, /* Interpreted symbol $ident */
+   FPIsNumber     =  64, /* Sequence of digits, may be semi-interpreted */
+   FPIsObject     = 128,  /* ""-enclosed string, by definition denotes
                            unique object." */
    FPDistinctProp = FPIsObject | FPIsNumber
 }FunctionProperties;
@@ -88,12 +89,28 @@ typedef struct sigcell
    StrTree_p f_index;  /* Back-assoc: Given a symbol, get the index */
    PStack_p  ac_axioms; /* Identifiers of all recognized AC axioms */
    /* The following are special symbols needed for pattern
-      manipulation. We want very efficient access to them! */
+      manipulation. We want very efficient access to them! Also
+      resuses in FOF parsing. */
    FunCode   eqn_code;
    FunCode   neqn_code;
-   FunCode   or_code;
    FunCode   cnil_code;
    PDArray_p orn_codes;
+   
+   /* The following is for encoding first order formulae as terms. I
+      do like to reuse the robust sharing infrastructure for
+      CNFization and formula rewriting (inspired by Tommi Juntilla's
+      reuse of the same in MathSAT). */      
+   FunCode   not_code;
+   FunCode   qex_code;
+   FunCode   qall_code;
+   FunCode   and_code;
+   FunCode   or_code;
+   FunCode   impl_code;
+   FunCode   equiv_code;
+   FunCode   nand_code;
+   FunCode   nor_code;
+   FunCode   nimpl_code;
+   FunCode   xor_code;
    /* Preparation for interpreting integers in the input as s^i(0) */
    FunCode   null_code;
    FunCode   succ_code;
@@ -173,6 +190,7 @@ static __inline__ int     SigGetAlphaRank(Sig_p sig, FunCode f_code);
 
 FunCode SigInsertId(Sig_p sig, const char* name, int arity, bool
 		    special_id);
+FunCode SigInsertFOFOp(Sig_p sig, const char* name, int arity);
 void    SigPrint(FILE* out, Sig_p sig);
 void    SigPrintSpecial(FILE* out, Sig_p sig);
 void    SigPrintACStatus(FILE* out, Sig_p sig);
