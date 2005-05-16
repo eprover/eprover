@@ -189,8 +189,8 @@ Sig_p SigAlloc(void)
 
 void SigInsertFOFCodes(Sig_p sig)
 {
-   assert(SigSupportLists && sig->internal_codes == SIG_CONS_CODE ||
-          !SigSupportsList && sig->internal_codes == SIG_FALSE_CODE);
+   assert((SigSupportLists && sig->internal_symbols == SIG_CONS_CODE) ||
+          (!SigSupportLists && sig->internal_symbols == SIG_FALSE_CODE));
    
    sig->eqn_code   = SigInsertFOFOp(sig, "$eqn",   2);
    SigSetPredicate(sig, sig->eqn_code, true);
