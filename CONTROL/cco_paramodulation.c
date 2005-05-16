@@ -41,7 +41,7 @@ Changes
 
 Clause_p variable_paramod(TB_p bank, OCB_p ocb, ClausePos_p from,
                           ClausePos_p into, VarBank_p freshvars, 
-                          ParamodulationType pm_type)
+                          ParamodulationType pm_type, InfType *inf)
 {
    Clause_p paramod = NULL;
    
@@ -50,21 +50,25 @@ Clause_p variable_paramod(TB_p bank, OCB_p ocb, ClausePos_p from,
    case ParamodPlain:
          paramod = ClauseOrderedParamod(bank, ocb, from, into,
                                         freshvars);
+         *inf = inf_paramod;
          break;
    case ParamodAlwaysSim:   
          paramod = ClauseOrderedSimParamod(bank, ocb, from, into,
                                            freshvars);
+         *inf = inf_sim_paramod;         
          break;
    case ParamodOrientedSim:
          if(EqnIsOriented(from->literal))
          {
             paramod = ClauseOrderedSimParamod(bank, ocb, from, into,
                                               freshvars);
+            *inf = inf_sim_paramod;         
          }
          else
          {
             paramod = ClauseOrderedParamod(bank, ocb, from, into,
                                            freshvars);
+            *inf = inf_paramod;
          }
          break;
    default:
@@ -104,6 +108,7 @@ long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
    Term_p      test;
    ClausePos_p pos1, pos2;
    long        paramod_count = 0;
+   InfType     inf_type;
 
 
    if(ClauseQueryProp(clause, CPNoGeneration)||
@@ -116,17 +121,13 @@ long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
    pos2 = ClausePosAlloc();
 
    test = ClausePosFirstParamodPair(clause, pos1, with, pos2,
-				    false);
-   if(test)
-   {
-      EqnListTermSetProp(pos2->clause->literals, TPPotentialParamod);
-   }
+				    false, pm_type != ParamodPlain);
    while(test)
    {
       assert(TermPosIsTopPos(pos1->pos));
 
       paramod = variable_paramod(bank, ocb, pos1, pos2,
-                                 freshvars, pm_type);
+                                 freshvars, pm_type, &inf_type);
 
       if(paramod)	    
       {
@@ -153,11 +154,11 @@ long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
 	    
 	    ClauseRegisterChild(with, paramod);
 	 }
-	 DocClauseCreationDefault(paramod, inf_sim_paramod, with, 
+	 DocClauseCreationDefault(paramod, inf_type, with, 
 				  parent_alias);
 	 ClauseSetInsert(store, paramod);
       }
-      test = ClausePosNextParamodPair(pos1, pos2, false);
+      test = ClausePosNextParamodPair(pos1, pos2, false, pm_type != ParamodPlain);
    }
    /* Paramod clause into with - no top positions this time ;-) */
    
@@ -168,17 +169,14 @@ long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
    }
    else
    {
-      test = ClausePosFirstParamodPair(with, pos1, clause, pos2, true);
-      if(test)
-      {
-         EqnListTermSetProp(pos2->clause->literals, TPPotentialParamod);
-      }
+      test = ClausePosFirstParamodPair(with, pos1, clause, pos2, true, 
+                                       pm_type != ParamodPlain); 
       
       while(test)
       {
 	 assert(TermPosIsTopPos(pos1->pos));
          paramod = variable_paramod(bank, ocb, pos1, pos2,
-                                    freshvars, pm_type);
+                                    freshvars, pm_type, &inf_type);
 	 if(paramod)
 	 {
 	    paramod_count++;
@@ -202,10 +200,10 @@ long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
 				    ClauseQueryTPTPType(parent_alias)));
 	       ClauseRegisterChild(parent_alias, paramod);
 	    }
-	    DocClauseCreationDefault(paramod, inf_sim_paramod, parent_alias, with);
+	    DocClauseCreationDefault(paramod, inf_type, parent_alias, with);
 	    ClauseSetInsert(store, paramod);
 	 }
-	 test = ClausePosNextParamodPair(pos1, pos2, true);
+	 test = ClausePosNextParamodPair(pos1, pos2, true, pm_type != ParamodPlain);
       }
    }
    ClausePosFree(pos1);

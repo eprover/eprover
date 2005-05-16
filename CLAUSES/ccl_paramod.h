@@ -67,7 +67,8 @@ Clause_p ClauseOrderedSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
                                  freshvars);
 
 Term_p   ClausePosFirstParamodInto(Clause_p clause, ClausePos_p pos,
-				   ClausePos_p from_pos, bool no_top);
+				   ClausePos_p from_pos, bool no_top, 
+                                   bool simu_paramod);
 Term_p   ClausePosNextParamodInto(ClausePos_p pos, ClausePos_p
 				  from_pos, bool no_top);
 
@@ -77,9 +78,10 @@ Term_p   ClausePosNextParamodFromSide(ClausePos_p from_pos);
    
 Term_p   ClausePosFirstParamodPair(Clause_p from, ClausePos_p
 				   from_pos, Clause_p into,
-				   ClausePos_p into_pos, bool no_top);
+				   ClausePos_p into_pos, bool no_top,
+                                   bool simu_paramod);
 Term_p   ClausePosNextParamodPair(ClausePos_p from_pos, ClausePos_p
-				  into_pos, bool no_top);
+				  into_pos, bool no_top, bool simu_paramod);
 
 
 #endif

@@ -400,7 +400,7 @@ Clause_p ClauseOrderedSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
                      DEREF_ALWAYS, DEREF_ALWAYS))
    {
       /* Do nothing - we fail because of an into-property that is not
-         invariant over positions (the intantiated into-position is no
+         invariant over positions (the instantiated into-position is no
          longer in a maximal term in the literal) */
    }
    else if(!EqnListEqnIsStrictlyMaximal(ocb, 
@@ -498,7 +498,9 @@ Clause_p ClauseOrderedSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
 //
 //   Find the first potential paramod-position in clause. If no_top is
 //   true, do not select top positions of terms. Returns the term at
-//   the selected position, or NULL if no position exists.
+//   the selected position, or NULL if no position exists. If
+//   successful and simu_paramod is true, also resets
+//   TPPotentialParamod in this and potentially following positions.
 //
 // Global Variables: ParamodOverlapIntoNegativeLiterals,
 //                   ParamodOverlapNonEqLiterals
@@ -508,7 +510,8 @@ Clause_p ClauseOrderedSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
 /----------------------------------------------------------------------*/
 
 Term_p ClausePosFirstParamodInto(Clause_p clause, ClausePos_p pos,
-				 ClausePos_p from_pos, bool no_top)
+				 ClausePos_p from_pos, bool no_top,
+                                 bool simu_paramod)
 {
    Term_p res;
    
@@ -531,6 +534,12 @@ Term_p ClausePosFirstParamodInto(Clause_p clause, ClausePos_p pos,
       {
          res = ClausePosNextParamodInto(pos, from_pos, no_top);
       }
+   }
+   if(simu_paramod&&res)
+   {
+      /* Hack: We only need to reset this from here on! Previous
+       * position will not be tested anyways */
+      EqnListTermSetProp(pos->literal, TPPotentialParamod);
    }
    return res;
 }
@@ -668,7 +677,8 @@ Term_p ClausePosNextParamodFromSide(ClausePos_p from_pos)
 
 Term_p ClausePosFirstParamodPair(Clause_p from, ClausePos_p
 				 from_pos, Clause_p into,
-				 ClausePos_p into_pos, bool no_top)
+				 ClausePos_p into_pos, bool no_top,
+                                 bool simu_paramod)
 {
    Term_p res;
 
@@ -678,7 +688,7 @@ Term_p ClausePosFirstParamodPair(Clause_p from, ClausePos_p
    while(res)	
    {
       res = ClausePosFirstParamodInto(into, into_pos,
-				      from_pos, no_top);
+				      from_pos, no_top, simu_paramod);
       if(res)
       {
 	 break;
@@ -707,7 +717,7 @@ Term_p ClausePosFirstParamodPair(Clause_p from, ClausePos_p
 /----------------------------------------------------------------------*/
 
 Term_p ClausePosNextParamodPair(ClausePos_p from_pos, ClausePos_p
-				into_pos, bool no_top)
+				into_pos, bool no_top, bool simu_paramod)
 {
    Term_p res;
 
@@ -716,10 +726,10 @@ Term_p ClausePosNextParamodPair(ClausePos_p from_pos, ClausePos_p
    {
       res = ClausePosNextParamodFromSide(from_pos);
       assert(TermPosIsTopPos(from_pos->pos));
-      while(res)	
+      while(res)
       {
 	 res = ClausePosFirstParamodInto(into_pos->clause, into_pos,
-					 from_pos, no_top);
+					 from_pos, no_top, simu_paramod);
 	 if(res)
 	 {
 	    break;
