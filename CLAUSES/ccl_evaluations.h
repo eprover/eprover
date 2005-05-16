@@ -40,7 +40,7 @@ typedef long EvalPriority;
 #define PrioPrefer  30
 #define PrioNormal  40
 #define PrioDefer   50
-
+#define PrioLargestReasonable MEGA
 
 typedef struct eval_cell
 {

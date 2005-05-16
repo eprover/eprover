@@ -721,7 +721,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
       DocClauseQuoteDefault(6, new, "eval");
       if(control->heuristic_parms.prefer_initial_clauses)
       {
-	 EvalListSetPriority(new->evaluations, PrioBest);
+	 EvalListChangePriority(new->evaluations, -PrioLargestReasonable);
       }
       ClauseSetInsert(state->unprocessed, new);
    }
