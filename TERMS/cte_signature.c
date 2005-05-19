@@ -159,7 +159,7 @@ Sig_p SigAlloc(void)
    handle->equiv_code    = 0;
    handle->nand_code     = 0;
    handle->nor_code      = 0;
-   handle->nimpl_code    = 0;
+   handle->bimpl_code    = 0;
    handle->xor_code      = 0;
 
    handle->skolem_count  = 0;
@@ -203,7 +203,7 @@ void SigInsertFOFCodes(Sig_p sig)
    sig->equiv_code = SigInsertFOFOp(sig, "$equiv", 2);
    sig->nand_code  = SigInsertFOFOp(sig, "$nand",  2);
    sig->nor_code   = SigInsertFOFOp(sig, "$nor",   2);
-   sig->nimpl_code = SigInsertFOFOp(sig, "$nimpl", 2);
+   sig->bimpl_code = SigInsertFOFOp(sig, "$bimpl", 2);
    sig->xor_code   = SigInsertFOFOp(sig, "$xor",   2);
    sig->internal_symbols = sig->f_count;
 }

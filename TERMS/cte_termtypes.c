@@ -104,34 +104,29 @@ Term_p TermConstCellAlloc(FunCode symbol)
 
 /*-----------------------------------------------------------------------
 //
-// Function: TermNewSkolemTerm()
+// Function: TermTopAlloc()
 //
-//   Create a new Skolem term with the named variables as arguments.
+//   Allocate a term top with given f_code and (uninitialized)
+//   argument array. 
 //
 // Global Variables: -
 //
-// Side Effects    : Memory operations, creates new Skolem function in
-//                   sig. 
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
-Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables)
+Term_p  TermTopAlloc(FunCode f_code, int arity)
 {
-   Term_p handle = TermDefaultCellAlloc();
-   PStackPointer arity = PStackGetSP(variables), i;
+   Term_p res = TermDefaultCellAlloc();
 
-   handle->f_code = SigGetNewSkolemCode(sig, arity);
+   res->f_code = f_code;
    if(arity)
    {
-      handle->arity = arity;
-      handle->args = TermArgArrayAlloc(arity);
-      for(i=0; i<arity; i++)
-      {
-         handle->args[i] = PStackElementP(variables, i);
-      }
+      res->args = TermArgArrayAlloc(arity);
    }
-   return handle;
+   return res;
 }
+
 
 
 /*-----------------------------------------------------------------------
@@ -195,6 +190,38 @@ void TermFree(Term_p junk)
       }
       TermTopFree(junk);
    }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermNewSkolemTerm()
+//
+//   Create a new Skolem term with the named variables as arguments.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations, creates new Skolem function in
+//                   sig. 
+//
+/----------------------------------------------------------------------*/
+
+Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables)
+{
+   Term_p handle = TermDefaultCellAlloc();
+   PStackPointer arity = PStackGetSP(variables), i;
+
+   handle->f_code = SigGetNewSkolemCode(sig, arity);
+   if(arity)
+   {
+      handle->arity = arity;
+      handle->args = TermArgArrayAlloc(arity);
+      for(i=0; i<arity; i++)
+      {
+         handle->args[i] = PStackElementP(variables, i);
+      }
+   }
+   return handle;
 }
 
 

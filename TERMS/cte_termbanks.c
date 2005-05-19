@@ -598,7 +598,7 @@ Term_p TBInsertInstantiated(TB_p bank, Term_p term)
 
 /*-----------------------------------------------------------------------
 //
-// Function: TBTermtopInsert()
+// Function: TBTermTopInsert()
 //
 //   See tb_termtop_insert, for export without hurting inlining
 //   capabilities. 
@@ -609,7 +609,7 @@ Term_p TBInsertInstantiated(TB_p bank, Term_p term)
 //
 /----------------------------------------------------------------------*/
 
-Term_p TBTermtopInsert(TB_p bank, Term_p t)
+Term_p TBTermTopInsert(TB_p bank, Term_p t)
 {
    return tb_termtop_insert(bank,t);
 }

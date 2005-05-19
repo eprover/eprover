@@ -109,7 +109,7 @@ typedef struct sigcell
    FunCode   equiv_code;
    FunCode   nand_code;
    FunCode   nor_code;
-   FunCode   nimpl_code;
+   FunCode   bimpl_code;
    FunCode   xor_code;
    /* Preparation for interpreting integers in the input as s^i(0) */
    FunCode   null_code;

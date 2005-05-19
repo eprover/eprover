@@ -122,7 +122,7 @@ Term_p  TBInsert(TB_p bank, Term_p term, DerefType deref);
 Term_p  TBInsertNoProps(TB_p bank, Term_p term, DerefType deref);
 Term_p  TBInsertRepl(TB_p bank, Term_p term, DerefType deref, Term_p old, Term_p repl);
 Term_p  TBInsertInstantiated(TB_p bank, Term_p term);
-Term_p  TBTermtopInsert(TB_p bank, Term_p t);
+Term_p  TBTermTopInsert(TB_p bank, Term_p t);
 
 Term_p  TBAllocNewSkolem(TB_p bank, PStack_p variables);
 
