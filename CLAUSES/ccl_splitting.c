@@ -78,7 +78,7 @@ static Eqn_p gen_split_lit(TB_p bank, FunCode pred, bool positive,
 	 lside->args[i] = PStackElementP(split_vars, i);
       }
    }   
-   lside = TBTermtopInsert(bank, lside);
+   lside = TBTermTopInsert(bank, lside);
    res = EqnAlloc(lside, bank->true_term, bank, positive);
    EqnSetProp(res, EPIsSplitLit);
    

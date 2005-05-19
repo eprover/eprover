@@ -631,7 +631,7 @@ Term_p EqnTermsTBTermEncode(TB_p bank, Term_p lterm, Term_p rterm, bool
       handle->args[1] = lterm;
    }
 
-   handle = TBTermtopInsert(bank, handle);		 
+   handle = TBTermTopInsert(bank, handle);		 
 
    return handle;
 }

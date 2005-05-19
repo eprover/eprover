@@ -689,7 +689,7 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term)
       }
       if(modified)
       {
-	 new_term = TBTermtopInsert(desc->bank, new_term);
+	 new_term = TBTermTopInsert(desc->bank, new_term);
 	 assert(new_term!=term);
 	 TermAddRWLink(term, new_term, REWRITE_AT_SUBTERM, false);	 
 	 term = new_term;

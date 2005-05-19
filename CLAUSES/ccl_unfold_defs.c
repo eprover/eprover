@@ -111,7 +111,7 @@ static Term_p term_unfold_def(TB_p bank, Term_p term, PStack_p
    }
    if(changed)
    {
-      tmp = TBTermtopInsert(bank, res);
+      tmp = TBTermTopInsert(bank, res);
    }
    else
    {

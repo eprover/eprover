@@ -289,7 +289,7 @@ bool EqnEqlitRecode(Eqn_p lit)
       t->arity = 2;
       t->args[0] = lit->lterm;
       t->args[1] = lit->rterm;
-      t = TBTermtopInsert(lit->bank, t);
+      t = TBTermTopInsert(lit->bank, t);
       lit->lterm = t;
       lit->rterm = lit->bank->true_term;
       EqnDelProp(lit, EPIsEquLiteral);

@@ -67,7 +67,7 @@ static Term_p term_unrestrict(TB_p bank, Term_p term)
       return term;
    }
    term = TermTopCopy(term); /* This deletes the property! */
-   term = TBTermtopInsert(bank, term);
+   term = TBTermTopInsert(bank, term);
    TermCellDelProp(term, TPIsRewritten|TPIsSOSRewritten);
    term->rw_data.nf_date[0] = SysDateCreationTime();
    term->rw_data.nf_date[1] = SysDateCreationTime();

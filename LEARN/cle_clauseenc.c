@@ -81,7 +81,7 @@ Term_p FlatEncodeClauseListRep(TB_p bank, PStack_p list)
 	 handle->args[i/2] = EqnTBTermEncode(current,dir);
       }
    }
-   handle = TBTermtopInsert(bank, handle);
+   handle = TBTermTopInsert(bank, handle);
    assert(handle->weight ==
 	  TermWeight(handle,DEFAULT_VWEIGHT,DEFAULT_FWEIGHT));
 
@@ -116,7 +116,7 @@ Term_p   RecEncodeClauseListRep(TB_p bank, PStack_p list)
    rest->arity = 0;      
    rest->f_code = SigGetCNilCode(bank->sig);
    assert(rest->f_code);
-   rest = TBTermtopInsert(bank, rest);
+   rest = TBTermTopInsert(bank, rest);
 
    while(arity)
    {
@@ -130,7 +130,7 @@ Term_p   RecEncodeClauseListRep(TB_p bank, PStack_p list)
       handle->args = TermArgArrayAlloc(2);
       handle->args[1] = rest;
       handle->args[0] = EqnTBTermEncode(current,dir);
-      rest = TBTermtopInsert(bank, handle);		 
+      rest = TBTermTopInsert(bank, handle);		 
 	 
    }
    assert(rest->weight ==

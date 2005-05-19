@@ -336,7 +336,7 @@ long SigCollectConstantTerms(TB_p bank, PStack_p stack, FunCode uniq)
       assert((uniq > 0) && (uniq <= bank->sig->f_count) &&
 	     (SigFindArity(bank->sig,uniq)==0));
       tmp = TermConstCellAlloc(uniq);
-      found = TBTermtopInsert(bank, tmp);
+      found = TBTermTopInsert(bank, tmp);
       PStackPushP(stack, found);
       res=1;
    }
@@ -348,7 +348,7 @@ long SigCollectConstantTerms(TB_p bank, PStack_p stack, FunCode uniq)
 	    SigFindArity(bank->sig,i)==0)
 	 {
 	    tmp = TermConstCellAlloc(i);
-	    found = TBTermtopInsert(bank, tmp);
+	    found = TBTermTopInsert(bank, tmp);
 	    PStackPushP(stack, found);
 	    res++;
 	 }
@@ -360,7 +360,7 @@ long SigCollectConstantTerms(TB_p bank, PStack_p stack, FunCode uniq)
 	       "added new Skolem constant\n");
       i = SigGetNewSkolemCode(bank->sig, 0);
       tmp = TermConstCellAlloc(i);
-      found = TBTermtopInsert(bank, tmp);
+      found = TBTermTopInsert(bank, tmp);
       PStackPushP(stack, found);
       res++;
    }
