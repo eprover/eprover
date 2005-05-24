@@ -27,6 +27,7 @@ Changes
 #define CCL_FORMULA_WRAPPER
 
 #include <ccl_formulae.h>
+#include <ccl_tformulae.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -54,9 +55,11 @@ typedef struct wformula_cell
 { 
    WFormulaProperties    properties;
    long                  ident;
+   TB_p                  terms;
    ClauseInfo_p          info;
    Formula_p             formula;
-   struct formula_set_cell* set;         /* Is the formula in a set? */
+   TFormula_p            tformula;
+   struct formula_set_cell* set;      /* Is the formula in a set? */
    struct wformula_cell* pred;        /* For fomula sets = doubly  */
    struct wformula_cell* succ;        /* linked lists */
 }WFormulaCell, *WFormula_p;
@@ -74,6 +77,7 @@ typedef struct formula_set_cell
 /*---------------------------------------------------------------------*/
 
 extern long FormulaIdentCounter;
+extern bool FormulaTermEncoding;
 
 #define FormulaSetProp(form, prop) SetProp((form), (prop))
 #define FormulaDelProp(form, prop) DelProp((form), (prop))
@@ -92,7 +96,8 @@ extern long FormulaIdentCounter;
 #define WFormulaCellFree(junk) SizeFree(junk, sizeof(WFormulaCell))
 
 WFormula_p DefaultWFormulaAlloc();
-WFormula_p WFormulaAlloc(Formula_p formula);
+WFormula_p WFormulaAlloc(TB_p terms, Formula_p formula);
+WFormula_p WTFormulaAlloc(TB_p terms, TFormula_p formula);
 void       WFormulaFree(WFormula_p form);
 
 WFormula_p WFormulaTPTPParse(Scanner_p in, TB_p terms);

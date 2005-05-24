@@ -29,6 +29,7 @@ Changes
 /*---------------------------------------------------------------------*/
 
 long global_formula_counter = LONG_MIN;
+bool FormulaTermEncoding    = true;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -64,8 +65,10 @@ WFormula_p DefaultWFormulaAlloc()
    
    handle->properties = WPIgnoreProps; 
    handle->ident      = 0;
+   handle->terms      = NULL;
    handle->info       = NULL;
-   handle->formula    = 0;
+   handle->formula    = NULL;
+   handle->tformula   = NULL;
    handle->set        = NULL;
    handle->pred       = NULL;
    handle->succ       = NULL;
@@ -86,11 +89,37 @@ WFormula_p DefaultWFormulaAlloc()
 //
 /----------------------------------------------------------------------*/
 
-WFormula_p WFormulaAlloc(Formula_p formula)
+WFormula_p WFormulaAlloc(TB_p terms, Formula_p formula)
 {
    WFormula_p handle = DefaultWFormulaAlloc();
    
+   handle->terms   = terms;
    handle->formula = FormulaGetRef(formula);
+   handle->ident   = ++global_formula_counter;   
+   
+   return handle;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: WTFormulaAlloc()
+//
+//   Allocate a wrapped formula given the essential information. id
+//   will automagically be set to a new value.
+//
+// Global Variables: FormulaIdentCounter
+//
+// Side Effects    : Via DefaultWFormulaAlloc()
+//
+/----------------------------------------------------------------------*/
+
+WFormula_p WTFormulaAlloc(TB_p terms, TFormula_p formula)
+{
+   WFormula_p handle = DefaultWFormulaAlloc();
+   
+   handle->terms   = terms;
+   handle->tformula = formula;
    handle->ident   = ++global_formula_counter;   
    
    return handle;
@@ -116,9 +145,16 @@ void WFormulaFree(WFormula_p form)
    assert(!form->set);
    assert(!form->pred);
    assert(!form->succ);
-   
-   FormulaRelRef(form->formula);
-   FormulaFree(form->formula);
+
+   if(form->formula)
+   {
+      FormulaRelRef(form->formula);
+      FormulaFree(form->formula);
+   }
+   else
+   {
+      /* tformula handled by Garbage Collection */
+   }
    ClauseInfoFree(form->info);
    WFormulaCellFree(form);
 }
@@ -139,6 +175,7 @@ void WFormulaFree(WFormula_p form)
 WFormula_p WFormulaTPTPParse(Scanner_p in, TB_p terms)
 {
    Formula_p          form;
+   TFormula_p         tform;
    WFormulaProperties type;
    WFormula_p         handle;
    ClauseInfo_p       info;
@@ -171,10 +208,18 @@ WFormula_p WFormulaTPTPParse(Scanner_p in, TB_p terms)
    }
    NextToken(in);
    AcceptInpTok(in, Comma);
-   form = FormulaTPTPParse(in, terms); /* TSTP = TPTP! */
+   if(FormulaTermEncoding)
+   {
+      tform = TFormulaTPTPParse(in, terms);
+      handle = WTFormulaAlloc(terms, tform);
+   }
+   else
+   {      
+      form = FormulaTPTPParse(in, terms); /* TSTP = TPTP! */
+      handle = WFormulaAlloc(terms, form);
+   }   
    AcceptInpTok(in, CloseBracket);
    AcceptInpTok(in, Fullstop);
-   handle = WFormulaAlloc(form);
    FormulaSetType(handle, type);
    FormulaSetProp(handle, WPInitial|WPInputFormula);
    handle->info = info;
@@ -227,7 +272,14 @@ void WFormulaTPTPPrint(FILE* out, WFormula_p form, bool fullterms)
       prefix = 'e';
    }
    fprintf(out, "input_formula(f%c_%ld,%s,", prefix, id, typename);
-   FormulaTPTPPrint(out, form->formula,fullterms);
+   if(FormulaTermEncoding)
+   {
+      TFormulaTPTPPrint(out, form->terms, form->tformula,fullterms);
+   }
+   else
+   {
+      FormulaTPTPPrint(out, form->formula,fullterms);
+   }
    fprintf(out,").");   
 }
 
@@ -247,7 +299,8 @@ void WFormulaTPTPPrint(FILE* out, WFormula_p form, bool fullterms)
 WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
 {
    char*              name;
-   Formula_p          form;
+   Formula_p          form; 
+   TFormula_p         tform; 
    WFormulaProperties type = WPTypeAxiom;
    WFormulaProperties initial = WPInputFormula;
    WFormula_p         handle;
@@ -294,7 +347,16 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
       type = WPTypeAxiom;
    } 
    AcceptInpTok(in, Comma);
-   form = FormulaTPTPParse(in, terms); /* TSTP = TPTP! */
+   if(FormulaTermEncoding)
+   {
+      tform = TFormulaTPTPParse(in, terms);
+      handle = WTFormulaAlloc(terms, tform);
+   }
+   else
+   {      
+      form = FormulaTPTPParse(in, terms); /* TSTP = TPTP! */
+      handle = WFormulaAlloc(terms, form);
+   }   
    if(TestInpTok(in, Comma))
    {
       AcceptInpTok(in, Comma);
@@ -308,7 +370,6 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
    }
    AcceptInpTok(in, CloseBracket);
    AcceptInpTok(in, Fullstop);
-   handle = WFormulaAlloc(form);
    FormulaSetType(handle, type);
    FormulaSetProp(handle, initial|WPInitial);
    handle->info = info;
@@ -381,7 +442,14 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
    fprintf(out, "fof(%c_0_%ld,", prefix, id);
    PrintDashedStatuses(out, typename, derived, "plain");
    fprintf(out, ",");   
-   FormulaTPTPPrint(out, form->formula,fullterms);
+   if(FormulaTermEncoding)
+   {
+      TFormulaTPTPPrint(out, form->terms, form->tformula,fullterms);
+   }
+   else
+   {
+      FormulaTPTPPrint(out, form->formula,fullterms);
+   }
    if(complete)
    {
       fprintf(out, ").");
@@ -424,6 +492,8 @@ WFormula_p WFormulaParse(Scanner_p in, TB_p terms)
          assert(false);
          break;
    }
+   WFormulaPrint(stdout, wform, true);
+   printf("\n");
    return wform;
 }
 
