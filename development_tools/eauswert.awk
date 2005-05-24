@@ -99,6 +99,6 @@ function float(x)
 }
 
 END{
-  printf "Total : %4d S/F/I/N/B: %3d/%3d/%3d/%3d/%3d Time: %f\n", 
+  printf "Total : %4d S/F/I/N/B: %4d/%4d/%3d/%3d/%3d Time: %f\n", 
          total, succ, total-succ, incomplete, nomem, bugs, ttime;
 }
