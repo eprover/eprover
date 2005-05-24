@@ -192,11 +192,15 @@ void SigInsertFOFCodes(Sig_p sig)
    assert((SigSupportLists && sig->internal_symbols == SIG_CONS_CODE) ||
           (!SigSupportLists && sig->internal_symbols == SIG_FALSE_CODE));
    
-   sig->eqn_code   = SigInsertFOFOp(sig, "$eqn",   2);
+   sig->eqn_code    = SigInsertId(sig, "$eqn",   2, true);
    SigSetPredicate(sig, sig->eqn_code, true);
+   sig->neqn_code   = SigInsertId(sig, "$neqn",   2, true);
+   SigSetPredicate(sig, sig->neqn_code, true);
+
+   sig->qex_code   = SigInsertId(sig, "$qex",   2, true);
+   sig->qall_code  = SigInsertId(sig, "$qall",  2, true);
+
    sig->not_code   = SigInsertFOFOp(sig, "$not",   1);
-   sig->qex_code   = SigInsertFOFOp(sig, "$qex",   2);
-   sig->qall_code  = SigInsertFOFOp(sig, "$qall",  2);
    sig->and_code   = SigInsertFOFOp(sig, "$and",   2);
    sig->or_code    = SigInsertFOFOp(sig, "$or",    2);
    sig->impl_code  = SigInsertFOFOp(sig, "$impl",  2);
@@ -991,6 +995,31 @@ FunCode SigGetOrNCode(Sig_p sig, int arity)
       return res;
    }
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SigGetOtherEqnCode()
+//
+//   If eqn_code is passed in, return neqn_code, and vice
+//   versa. Assumes FOF-initialized signature.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+FunCode SigGetOtherEqnCode(Sig_p sig, FunCode f_code)
+{
+   if(f_code == sig->eqn_code)
+   {
+      return sig->neqn_code;
+   }
+   assert(f_code == sig->neqn_code);
+   return sig->eqn_code;      
+}
+
 
 
 /*-----------------------------------------------------------------------

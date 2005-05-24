@@ -166,6 +166,7 @@ extern TokenType SigIdentToken; /* What is a potential function symbol
 #define SigCellFree(junk)         SizeFree(junk, sizeof(SigCell))
 
 Sig_p   SigAlloc(void);
+void    SigInsertFOFCodes(Sig_p sig);
 void    SigFree(Sig_p junk);
 #define SigExternalSymbols(sig) \
         ((sig)->f_count-(sig)->internal_symbols)
@@ -211,6 +212,7 @@ int     SigAddSymbolArities(Sig_p sig, PDArray_p distrib, bool
 /* Special functions for dealing with special symbols */
 
 static __inline__ FunCode SigGetEqnCode(Sig_p sig, bool positive);
+FunCode SigGetOtherEqnCode(Sig_p sig, FunCode f_code);
 static __inline__ FunCode SigGetOrCode(Sig_p sig);
 static __inline__ FunCode SigGetCNilCode(Sig_p sig);
 FunCode SigGetOrNCode(Sig_p sig, int arity);

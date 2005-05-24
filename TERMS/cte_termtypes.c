@@ -120,6 +120,7 @@ Term_p  TermTopAlloc(FunCode f_code, int arity)
    Term_p res = TermDefaultCellAlloc();
 
    res->f_code = f_code;
+   res->arity  = arity;
    if(arity)
    {
       res->args = TermArgArrayAlloc(arity);
