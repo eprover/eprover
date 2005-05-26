@@ -134,6 +134,8 @@ static LitSelNameFunAssocCell name_fun_assoc[] =
    {"SelectComplexG",                        SelectComplexG},
    {"SelectComplexAHP",                      SelectComplexAHP},
    {"SelectNewComplexAHP",                   SelectNewComplexAHP},
+   {"SelectComplexAHPExceptRRHorn",          SelectComplexAHPExceptRRHorn},
+   {"SelectNewComplexAHPExceptRRHorn",       SelectNewComplexAHPExceptRRHorn},
    {NULL, (LiteralSelectionFun)0}
 };
 
@@ -4833,7 +4835,7 @@ static void new_complex_notp_ahp(LitEval_p lit, Clause_p clause,
 //
 // Function: SelectNewComplexAHP
 //
-//   Mimic SelectNewComplex(),  but with thw AHP property.
+//   Mimic SelectNewComplex(),  but with the AHP property.
 //
 // Global Variables: -
 //
@@ -4856,6 +4858,53 @@ void SelectNewComplexAHP(OCB_p ocb, Clause_p clause)
                           new_complex_notp_ahp, pred_dist);   
    pred_dist_array_free(pred_dist);
 }
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectComplexAHPExceptRRHorn()
+//
+//   If a clause is Horn and range-restricted, do no select. Otherwise
+//   use SelectComplexAHP() (above).
+//
+// Global Variables: -
+//
+// Side Effects    : Changes property in literals
+//
+/----------------------------------------------------------------------*/
+
+void SelectComplexAHPExceptRRHorn(OCB_p ocb, Clause_p clause)
+{
+   if(!(ClauseIsHorn(clause) && ClauseIsRangeRestricted(clause)))
+   {
+      SelectComplexAHP(ocb, clause);
+   }
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectNewComplexAHPExceptRRHorn()
+//
+//   If a clause is Horn and range-restricted, do no select. Otherwise
+//   use SelectNewComplexAHP() (above).
+//
+// Global Variables: -
+//
+// Side Effects    : Changes property in literals
+//
+/----------------------------------------------------------------------*/
+
+void SelectNewComplexAHPExceptRRHorn(OCB_p ocb, Clause_p clause)
+{
+   if(!(ClauseIsHorn(clause) && ClauseIsRangeRestricted(clause)))
+   {
+      SelectNewComplexAHP(ocb, clause);
+   }
+}
+
 
 
 

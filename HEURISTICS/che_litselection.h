@@ -189,6 +189,10 @@ void SelectComplexG(OCB_p ocb, Clause_p clause);
 void SelectComplexAHP(OCB_p ocb, Clause_p clause);
 void SelectNewComplexAHP(OCB_p ocb, Clause_p clause);
 
+void SelectComplexAHPExceptRRHorn(OCB_p ocb, Clause_p clause);
+void SelectNewComplexAHPExceptRRHorn(OCB_p ocb, Clause_p clause);
+
+
 #endif
 
 /*---------------------------------------------------------------------*/
