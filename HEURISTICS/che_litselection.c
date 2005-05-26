@@ -133,8 +133,10 @@ static LitSelNameFunAssocCell name_fun_assoc[] =
    {"SelectMaxLComplexAvoidPosUPred",        SelectMaxLComplexAvoidPosUPred},
    {"SelectComplexG",                        SelectComplexG},
    {"SelectComplexAHP",                      SelectComplexAHP},
+   {"PSelectComplexAHP",                     PSelectComplexAHP},
    {"SelectNewComplexAHP",                   SelectNewComplexAHP},
    {"SelectComplexAHPExceptRRHorn",          SelectComplexAHPExceptRRHorn},
+   {"PSelectComplexAHPExceptRRHorn",         PSelectComplexAHPExceptRRHorn},
    {"SelectNewComplexAHPExceptRRHorn",       SelectNewComplexAHPExceptRRHorn},
    {NULL, (LiteralSelectionFun)0}
 };
@@ -4778,6 +4780,36 @@ void SelectComplexAHP(OCB_p ocb, Clause_p clause)
 
 /*-----------------------------------------------------------------------
 //
+// Function: PSelectComplexAHP()
+//
+//   As SelectComplexAHP, but also select positive literals.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+
+void PSelectComplexAHP(OCB_p ocb, Clause_p clause)
+{  
+   PDArray_p pred_dist;
+
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+   
+   pred_dist = pos_pred_dist_array_compute(clause);
+   
+   generic_uniq_selection(ocb,clause,true, true, 
+                          complex_weight_ahp, pred_dist);   
+   pred_dist_array_free(pred_dist);
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: new_complex_notp_ahp
 //
 //   Implement a weight function mimicking the old SelectNewComplex,
@@ -4882,6 +4914,27 @@ void SelectComplexAHPExceptRRHorn(OCB_p ocb, Clause_p clause)
    }
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: PSelectComplexAHPExceptRRHorn()
+//
+//   If a clause is Horn and range-restricted, do no select. Otherwise
+//   use PSelectComplexAHP() (above).
+//
+// Global Variables: -
+//
+// Side Effects    : Changes property in literals
+//
+/----------------------------------------------------------------------*/
+
+void PSelectComplexAHPExceptRRHorn(OCB_p ocb, Clause_p clause)
+{
+   if(!(ClauseIsHorn(clause) && ClauseIsRangeRestricted(clause)))
+   {
+      SelectComplexAHP(ocb, clause);
+   }
+}
 
 
 /*-----------------------------------------------------------------------
