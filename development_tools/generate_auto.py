@@ -744,7 +744,6 @@ print """
 """
 
 for i in by_heuristic.keys():
-    print "Here..."
     print heuristic_define(i)
 
 if used[0] in by_heuristic.keys():
