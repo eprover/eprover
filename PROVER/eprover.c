@@ -32,8 +32,8 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-/*  cvs tag E-0-82dev058 */
-#define VERSION      "0.82dev058"
+/*  cvs tag E-0-82dev059 */
+#define VERSION      "0.82dev059"
 #define NAME         "eprover"
 
 #define NICKNAME     "Lung Ching"
@@ -360,8 +360,8 @@ OptCell opts[] =
    {OPT_TPTP_PARSE,
     '\0', "tptp-in",
     NoArg, NULL,
-    "Parse TPTP format instead of E-LOP (does not understand includes, "
-    "as TPTP includes are a brain-dead design)."},
+    "Parse TPTP-2 format instead of E-LOP (but note that includes are "
+    "handled according to TPTP-3 semantics)."},
 
    {OPT_TPTP_PRINT,
     '\0', "tptp-out",
@@ -374,22 +374,54 @@ OptCell opts[] =
     NoArg, NULL,
     "Equivalent to --tptp-in and --tptp-out."},
 
+   {OPT_TPTP_PARSE,
+    '\0', "tptp2-in",
+    NoArg, NULL,
+    "Synonymous with --tptp-in."},
+
+   {OPT_TPTP_PRINT,
+    '\0', "tptp2-out",
+    NoArg, NULL,
+    "Synonymous with --tptp-out."},
+
+   {OPT_TPTP_FORMAT,
+    '\0', "tptp2-format",
+    NoArg, NULL,
+    "Synonymous with --tptp-format."},
+
    {OPT_TSTP_PARSE,
     '\0', "tstp-in",
     NoArg, NULL,
-    "Parse TSTP format instead of E-LOP (not all all optional "
-    "extensions are currently supported)."},
+    "Parse TPTP-3 format instead of E-LOP (Note that TPTP-3 syntax "
+    "is still under development, and the version in E may not be "
+    "fully conformant at all times. E works on all TPTP 3.0.1 input "
+    "files (including includes)."},
    
    {OPT_TSTP_PRINT,
     '\0', "tstp-out",
     NoArg, NULL,
-    "Print proof protocol in TSTP (v.0.3) syntax (default is PCL). Only "
-    "effective for output levels greater than 1."},
+    "Print proof protocol in TPTP-3 syntax (default is PCL). Only "
+    "effective for output levels greater than 2."},
 
    {OPT_TSTP_FORMAT,
     '\0', "tstp-format",
     NoArg, NULL,
     "Equivalent to --tstp-in and --tstp-out."},
+
+   {OPT_TSTP_PARSE,
+    '\0', "tptp3-in",
+    NoArg, NULL,
+    "Synonymous with --tstp-in."},
+
+   {OPT_TSTP_PRINT,
+    '\0', "tptp3-out",
+    NoArg, NULL,
+    "Synonymous with --tstp-out."},
+
+   {OPT_TSTP_FORMAT,
+    '\0', "tptp3-format",
+    NoArg, NULL,
+    "Synonymous with --tstp-format."},
 
    {OPT_NO_PREPROCESSING,
     '\0', "no-preprocessing",
