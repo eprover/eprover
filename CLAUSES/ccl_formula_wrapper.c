@@ -29,7 +29,7 @@ Changes
 /*---------------------------------------------------------------------*/
 
 long global_formula_counter = LONG_MIN;
-bool FormulaTermEncoding    = true;
+bool FormulaTermEncoding    = false;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -492,8 +492,8 @@ WFormula_p WFormulaParse(Scanner_p in, TB_p terms)
          assert(false);
          break;
    }
-   WFormulaPrint(stdout, wform, true);
-   printf("\n");
+   /* WFormulaPrint(stdout, wform, true);
+      printf("\n"); */
    return wform;
 }
 
