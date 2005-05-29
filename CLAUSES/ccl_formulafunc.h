@@ -27,6 +27,7 @@ Changes
 
 #include <ccl_formula_wrapper.h>
 #include <ccl_cnf.h>
+#include <ccl_tcnf.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -50,6 +51,9 @@ long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset,
                               StrTree_p *name_selector);
 long FormulaToCNF(WFormula_p form, ClauseProperties type, 
                   ClauseSet_p set, TB_p terms, VarBank_p fresh_vars);
+long TFormulaToCNF(WFormula_p form, ClauseProperties type, ClauseSet_p set, 
+                   TB_p terms, VarBank_p fresh_vars);
+
 
 void FormulaSetDocInital(FILE* out, long level, FormulaSet_p set);
 

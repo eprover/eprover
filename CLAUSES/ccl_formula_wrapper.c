@@ -122,6 +122,7 @@ WFormula_p WTFormulaAlloc(TB_p terms, TFormula_p formula)
    handle->tformula = formula;
    handle->ident   = ++global_formula_counter;   
    
+   assert(!handle->formula);
    return handle;
 }
 
@@ -212,6 +213,7 @@ WFormula_p WFormulaTPTPParse(Scanner_p in, TB_p terms)
    {
       tform = TFormulaTPTPParse(in, terms);
       handle = WTFormulaAlloc(terms, tform);
+      assert(!handle->formula);
    }
    else
    {      
@@ -492,8 +494,8 @@ WFormula_p WFormulaParse(Scanner_p in, TB_p terms)
          assert(false);
          break;
    }
-   /* WFormulaPrint(stdout, wform, true);
-      printf("\n"); */
+   WFormulaPrint(stdout, wform, true);
+   printf("\n");
    return wform;
 }
 

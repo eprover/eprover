@@ -194,6 +194,7 @@ Term_p  EqnTermsTBTermEncode(TB_p bank, Term_p lterm, Term_p rterm,
 #define EqnTBTermEncode(eqn, dir) \
         EqnTermsTBTermEncode((eqn)->bank, (eqn)->lterm,\
 			     (eqn)->rterm, EqnIsPositive(eqn), (dir))
+Eqn_p   EqnTBTermDecode(TB_p terms, Term_p eqn);
 Term_p  EqnTBTermParse(Scanner_p in, TB_p bank);
 void    EqnPrint(FILE* out, Eqn_p eq, bool negated, bool fullterms);
 #define EqnPrintOriginal(out, eq) \

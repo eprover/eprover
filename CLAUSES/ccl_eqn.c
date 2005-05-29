@@ -638,6 +638,37 @@ Term_p EqnTermsTBTermEncode(TB_p bank, Term_p lterm, Term_p rterm, bool
 
 /*-----------------------------------------------------------------------
 //
+// Function: EqnTBTermDecode()
+//
+//   Given a term encoding of an equation, create and return a
+//   suitable Equation.
+//   
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+Eqn_p EqnTBTermDecode(TB_p terms, Term_p eqn)
+{
+   Eqn_p res;
+   bool positive = false;
+
+   assert((eqn->f_code == terms->sig->eqn_code)||
+          (eqn->f_code == terms->sig->neqn_code));
+   if(eqn->f_code == terms->sig->eqn_code)
+   {
+      positive = true;
+   }
+   res = EqnAlloc(eqn->args[0], eqn->args[1], terms, positive);
+
+   return res;  
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: EqnTBTermParse()
 //
 //   Parse an equation, encode it as a term bank term and return a

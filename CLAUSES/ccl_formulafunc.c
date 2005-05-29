@@ -94,7 +94,7 @@ Clause_p formula_collect_clause(Formula_p form, TB_p terms,
    PStackFree(lit_stack);
 
    VarBankResetVCount(fresh_vars);
-   NormSubstEqnList(tmp_list, normsubst, fresh_vars);   
+   NormSubstEqnList(lit_list, normsubst, fresh_vars);   
    tmp_list = EqnListCopy(lit_list, terms);
    res = ClauseAlloc(tmp_list);   
    /* ClausePrint(stdout, res, true);
@@ -105,6 +105,68 @@ Clause_p formula_collect_clause(Formula_p form, TB_p terms,
    SubstDelete(normsubst);                    
    return res;
 }
+
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: tformula_collect_clause()
+//
+//   Given a term-encoded formula that is a disjunction of literals,
+//   transform it into a clause.
+//
+// Global Variables: -
+//
+// Side Effects    : Same as in TFormulaConjunctiveToCNF() below.
+//
+/----------------------------------------------------------------------*/
+
+Clause_p tformula_collect_clause(TFormula_p form, TB_p terms, 
+                                 VarBank_p fresh_vars)
+{
+   Clause_p res;
+   Eqn_p lit_list = NULL, tmp_list = NULL, lit;
+   PStack_p stack, lit_stack = PStackAlloc();
+   Subst_p  normsubst = SubstAlloc();
+
+   stack = PStackAlloc();
+   PStackPushP(stack, form);
+   while(!PStackEmpty(stack))
+   {
+      form = PStackPopP(stack);
+      if(form->f_code == terms->sig->or_code)
+      {
+         PStackPushP(stack, form->args[0]);
+         PStackPushP(stack, form->args[1]);
+      }
+      else
+      {
+         assert(TFormulaIsLiteral(terms->sig, form));
+         lit = EqnTBTermDecode(terms, form);
+         PStackPushP(lit_stack, lit);
+            
+      }
+   }
+   PStackFree(stack);
+   while(!PStackEmpty(lit_stack))
+   {
+      lit = PStackPopP(lit_stack);
+      EqnListInsertFirst(&lit_list, lit);
+   }
+   PStackFree(lit_stack);
+
+   VarBankResetVCount(fresh_vars);
+   NormSubstEqnList(lit_list, normsubst, fresh_vars);   
+   tmp_list = EqnListCopy(lit_list, terms);
+   res = ClauseAlloc(tmp_list);
+   EqnListFree(lit_list); /* Created just for this */
+   ClausePrint(stdout, res, true);
+   printf("\n");
+   SubstDelete(normsubst);                    
+   return res;
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -222,11 +284,21 @@ bool WFormulaConjectureNegate(WFormula_p wform)
 
    if(FormulaQueryProp(wform, WPTypeConjecture)) 
    {
-      form = FormulaRelRef(wform->formula);
-      newform = FormulaOpAlloc(OpUNot, form, NULL);
-      wform->formula = FormulaGetRef(newform);
-      FormulaSetType(wform, WPTypeNegConjecture);
-      DocFormulaModificationDefault(wform, inf_neg_conjecture);
+      if(FormulaTermEncoding)
+      {
+         wform->tformula = TFormulaFCodeAlloc(wform->terms,
+                                              wform->terms->sig->not_code,
+                                              wform->tformula,
+                                              NULL);
+      }
+      else
+      {
+         form = FormulaRelRef(wform->formula);
+         newform = FormulaOpAlloc(OpUNot, form, NULL);
+         wform->formula = FormulaGetRef(newform);
+      }
+         FormulaSetType(wform, WPTypeNegConjecture);
+         DocFormulaModificationDefault(wform, inf_neg_conjecture);
       return true;
    }
    return false;
@@ -283,9 +355,18 @@ long FormulaSetPreprocConjectures(FormulaSet_p set)
 long WFormulaCNF(WFormula_p form, ClauseSet_p set, 
                  TB_p terms, VarBank_p fresh_vars)
 {
-   WFormulaConjunctiveNF(form, terms);
-   return FormulaToCNF(form, FormulaQueryType(form), 
-                       set, terms, fresh_vars);
+   if(FormulaTermEncoding)
+   {
+      WTFormulaConjunctiveNF(form, terms);     
+      return TFormulaToCNF(form, FormulaQueryType(form), 
+                           set, terms, fresh_vars);
+   }
+   else
+   {
+      WFormulaConjunctiveNF(form, terms);
+      return FormulaToCNF(form, FormulaQueryType(form), 
+                          set, terms, fresh_vars);
+   }
 }
 
 
@@ -451,12 +532,6 @@ long FormulaToCNF(WFormula_p form, ClauseProperties type, ClauseSet_p set,
    PStack_p stack = PStackAlloc();
    Clause_p clause;
 
-   /* if(type == CPTypeNegConjecture) *//* FOF assumptions == negated conjectures
-                                         - this is historical uglicity */
-   /* {
-      type = CPTypeConjecture;1
-      } */
-
    /* Skip quantors */
    for(handle = form->formula; handle->op == OpQAll; handle = handle->arg1)
    {
@@ -474,6 +549,59 @@ long FormulaToCNF(WFormula_p form, ClauseProperties type, ClauseSet_p set,
       else
       {
          clause = formula_collect_clause(handle, terms, fresh_vars);
+         ClauseSetTPTPType(clause, type);
+         DocClauseFromForm(GlobalOut, OutputLevel, clause, form);
+         ClauseSetInsert(set, clause);
+      }
+   }
+   PStackFree(stack);
+   return set->members - old_clause_number;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaConjunctiveToCNF()
+//
+//   Convert a term-encoded formula from conjunctive normal form into
+//   a set of (variable-normalized) clauses. Return number of clauses
+//   generated. 
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations, may allocate new variables in
+//                   fresh_vars, may create new terms in the term
+//                   bank.
+//
+/----------------------------------------------------------------------*/
+
+long TFormulaToCNF(WFormula_p form, ClauseProperties type, ClauseSet_p set, 
+                  TB_p terms, VarBank_p fresh_vars)
+{
+   TFormula_p handle;
+   long old_clause_number = set->members;
+   PStack_p stack = PStackAlloc();
+   Clause_p clause;
+
+   /* Skip quantors */
+   for(handle = form->tformula;
+       handle->f_code == terms->sig->qall_code;
+       handle = handle->args[1])
+   {
+      assert(handle);
+   }
+   PStackPushP(stack, handle);
+   while(!PStackEmpty(stack))
+   {
+      handle = PStackPopP(stack);
+      if(handle->f_code == terms->sig->and_code)
+      {
+         PStackPushP(stack, handle->args[0]);
+         PStackPushP(stack, handle->args[1]);
+      }
+      else
+      {
+         clause = tformula_collect_clause(handle, terms, fresh_vars);
          ClauseSetTPTPType(clause, type);
          DocClauseFromForm(GlobalOut, OutputLevel, clause, form);
          ClauseSetInsert(set, clause);
