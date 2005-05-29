@@ -153,7 +153,6 @@ def trans_heuristic_name(name):
 
 
 def heuristic_define(name):
-    print "Name = ", name
     mr = match_heuristic.search(stratdesc[name])
     if not mr:
         raise RuntimeError, "No heuristic defined in " + name;
