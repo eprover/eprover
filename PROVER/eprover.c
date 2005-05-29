@@ -32,8 +32,8 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-/*  cvs tag E-0-82dev060 */
-#define VERSION      "0.82dev060"
+/*  cvs tag E-0-82dev061 */
+#define VERSION      "0.82dev061"
 #define NAME         "eprover"
 
 #define NICKNAME     "Lung Ching"
@@ -135,6 +135,7 @@ typedef enum
    OPT_INTERPRETE_NUMBERS,
    OPT_FREE_NUMBERS,
    OPT_FREE_OBJECTS,
+   OPT_TERM_CNF,
    OPT_DUMMY
 }OptionCodes;
 
@@ -941,6 +942,12 @@ OptCell opts[] =
     "free function symbols in the input. By default, object identifiers "
     "now represent domain objects and are implicitely different from "
     "each other (and from numbers, unless those are declared to be free)."}, 
+
+   {OPT_TERM_CNF,
+    '\0', "term-encoded-fof",
+    NoArg, NULL,
+    "Use the experimental new clausification algorithm based on "
+    "term-encoding of first order formulas."},
    
    {OPT_NOOPT,
     '\0', NULL,
@@ -1866,6 +1873,9 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_FREE_OBJECTS:
             free_symb_prop = free_symb_prop | FPIsObject;
+            break;
+      case OPT_TERM_CNF:
+            FormulaTermEncoding = true;
             break;
       default:
 	    assert(false && "Unknown option");
