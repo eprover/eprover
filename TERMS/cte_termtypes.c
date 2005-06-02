@@ -198,7 +198,8 @@ void TermFree(Term_p junk)
 //
 // Function: TermNewSkolemTerm()
 //
-//   Create a new Skolem term with the named variables as arguments.
+//   Create a new Skolem term (or renaming atom) with the named
+//   variables as arguments.
 //
 // Global Variables: -
 //
@@ -207,12 +208,19 @@ void TermFree(Term_p junk)
 //
 /----------------------------------------------------------------------*/
 
-Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables)
+Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, bool atom)
 {
    Term_p handle = TermDefaultCellAlloc();
    PStackPointer arity = PStackGetSP(variables), i;
 
-   handle->f_code = SigGetNewSkolemCode(sig, arity);
+   if(!atom)
+   {
+      handle->f_code = SigGetNewSkolemCode(sig, arity);
+   }
+   else
+   {
+      handle->f_code = SigGetNewPredicateCode(sig, arity);
+   }
    if(arity)
    {
       handle->arity = arity;

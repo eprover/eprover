@@ -220,7 +220,7 @@ Term_p  TermConstCellAlloc(FunCode symbol);
 Term_p  TermTopAlloc(FunCode f_code, int arity); 
 void    TermTopFree(Term_p junk); 
 void    TermFree(Term_p junk);
-Term_p  TermAllocNewSkolem(Sig_p sig, PStack_p variables);
+Term_p  TermAllocNewSkolem(Sig_p sig, PStack_p variables, bool atom);
 
 void    TermSetProp(Term_p term, DerefType deref, TermProperties prop);
 bool    TermSearchProp(Term_p term, DerefType deref, TermProperties prop);

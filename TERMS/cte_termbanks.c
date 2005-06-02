@@ -619,8 +619,8 @@ Term_p TBTermTopInsert(TB_p bank, Term_p t)
 //
 // Function: TBAllocNewSkolem()
 //
-//   Create a news Skolem term with the given variables in the term
-//   bank and return the pointer to it.
+//   Create a news Skolem term (or definition atom) with the given
+//   variables in the term bank and return the pointer to it.
 //
 // Global Variables: 
 //
@@ -628,11 +628,11 @@ Term_p TBTermTopInsert(TB_p bank, Term_p t)
 //
 /----------------------------------------------------------------------*/
 
-Term_p TBAllocNewSkolem(TB_p bank, PStack_p variables)
+Term_p TBAllocNewSkolem(TB_p bank, PStack_p variables, bool atom)
 {
    Term_p handle, res;
 
-   handle = TermAllocNewSkolem(bank->sig, variables);
+   handle = TermAllocNewSkolem(bank->sig, variables, atom);
    res = TBInsert(bank, handle, DEREF_NEVER);
    TermFree(handle);
 

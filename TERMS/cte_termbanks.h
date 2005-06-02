@@ -124,7 +124,7 @@ Term_p  TBInsertRepl(TB_p bank, Term_p term, DerefType deref, Term_p old, Term_p
 Term_p  TBInsertInstantiated(TB_p bank, Term_p term);
 Term_p  TBTermTopInsert(TB_p bank, Term_p t);
 
-Term_p  TBAllocNewSkolem(TB_p bank, PStack_p variables);
+Term_p  TBAllocNewSkolem(TB_p bank, PStack_p variables, bool atom);
 
 Term_p  TBFind(TB_p bank, Term_p term);
 /* Deletion is now only to be handled via the garbage collection
