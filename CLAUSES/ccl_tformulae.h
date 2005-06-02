@@ -64,11 +64,16 @@ TFormula_p TFormulaQuantorAlloc(TB_p bank, FunCode quantor, Term_p var, TFormula
 void       TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms);
 TFormula_p TFormulaTPTPParse(Scanner_p in, TB_p terms);
 
-#define   TFormulaEqual(f1,f2) ((f1)==(f2))
-bool      TFormulaVarIsFree(TB_p bank, TFormula_p form, Term_p var);
-#define   TFormulaCopy(bank, form) TBInsertNoProps(bank, form, DEREF_ALWAYS)
+#define    TFormulaEqual(f1,f2) ((f1)==(f2))
+bool       TFormulaVarIsFree(TB_p bank, TFormula_p form, Term_p var);
+#define    TFormulaCopy(bank, form) TBInsertNoProps(bank, form, DEREF_ALWAYS)
 
-void      TFormulaCollectFreeVars(TB_p bank, TFormula_p form, PTree_p *vars);
+void       TFormulaCollectFreeVars(TB_p bank, TFormula_p form, PTree_p *vars);
+
+TFormula_p TFormulaAddQuantor(TB_p bank, TFormula_p form, bool universal, Term_p var);
+TFormula_p TFormulaAddQuantors(TB_p bank, TFormula_p form, bool universal,
+                               PTree_p vars); 
+TFormula_p TFormulaClosure(TB_p bank, TFormula_p form, bool universal);
 
 #define   TFormulaFindMaxVarCode(form) TermFindMaxVarCode(form)
 

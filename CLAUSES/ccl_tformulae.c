@@ -251,6 +251,7 @@ TFormula_p TFormulaFCodeAlloc(TB_p bank, FunCode op, TFormula_p arg1, TFormula_p
    int arity = SigFindArity(bank->sig, op);
    TFormula_p res;
 
+   assert(bank);
    assert((arity == 1) || (arity == 2));
    assert(EQUIV((arity==2), arg2));
    
@@ -261,6 +262,7 @@ TFormula_p TFormulaFCodeAlloc(TB_p bank, FunCode op, TFormula_p arg1, TFormula_p
    }
    res->args[0] = arg1;
    res->args[1] = arg2;
+   assert(bank);
    res = TBTermTopInsert(bank, res);
 
    return res;          
@@ -558,6 +560,85 @@ void TFormulaCollectFreeVars(TB_p bank, TFormula_p form, PTree_p *vars)
          TFormulaCollectFreeVars(bank, form->args[1], vars);
       }
    }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaAddQuantor()
+//
+//   Given F and X, create !X.F or ?X.F. Requires F and X to be in the
+//   term bank!
+//
+// Global Variables: -
+//
+// Side Effects    : (potentially) Changes term bank
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p TFormulaAddQuantor(TB_p bank, TFormula_p form, bool universal, Term_p var)
+{
+   FunCode quantor;
+   TFormula_p new_form;
+
+   quantor = universal?bank->sig->qall_code:bank->sig->qex_code;
+   new_form = TFormulaFCodeAlloc(bank, quantor, var, form);
+
+   return new_form;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaAddQuantors()
+//
+//   Given F and X1...Xn, create Q[X1...Xn]:F, where Q is ? or ! as
+//   requested.
+//
+// Global Variables: 
+//
+// Side Effects    : As TFormulaAddQuantor.
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p TFormulaAddQuantors(TB_p bank, TFormula_p form, bool universal,
+                               PTree_p vars)
+{
+   PStack_p var_stack = PStackAlloc();
+   PStackPointer i;
+   Term_p var;
+
+   PTreeToPStack(var_stack,vars);
+   for(i=0; i<PStackGetSP(var_stack); i++)
+   {
+      var = PStackElementP(var_stack, i);
+      form = TFormulaAddQuantor(bank, form, universal, var);
+   }   
+   PStackFree(var_stack);
+   return form;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaClosure()
+//
+//   Create the existential or universal closure of form.
+//
+// Global Variables: -
+//
+// Side Effects    : As TFormulaAddQuantor.
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p TFormulaClosure(TB_p bank, TFormula_p form, bool universal)
+{
+   PTree_p vars;
+
+   TFormulaCollectFreeVars(bank, form, &vars);
+   form = TFormulaAddQuantors(bank, form, universal, vars);
+   PTreeFree(vars);
+   
+   return form;
 }
 
 

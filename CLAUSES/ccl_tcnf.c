@@ -97,8 +97,7 @@ TFormula_p tprop_arg_return(TFormula_p arg1, TFormula_p arg2, bool positive)
 // Function: troot_nnf()
 //
 //   Apply all NNF-transformation rules that can be applied at the
-//   root level to *form.  Return true, if formula changed, false
-//   otherwise.
+//   root level form and return it.
 //
 // Global Variables: 
 //
@@ -108,7 +107,7 @@ TFormula_p tprop_arg_return(TFormula_p arg1, TFormula_p arg2, bool positive)
 
 TFormula_p troot_nnf(TB_p terms, TFormula_p form, int polarity)
 {
-   TFormula_p handle = form, arg1, arg2, arg21, arg22, res = form;
+   TFormula_p handle = form, arg1, arg2, arg21, arg22;
    FunCode f_code;
    
    while(handle)
@@ -178,7 +177,6 @@ TFormula_p troot_nnf(TB_p terms, TFormula_p form, int polarity)
       else if (form->f_code == terms->sig->equiv_code)
       {
          assert((polarity == 1) || (polarity == -1));
-         printf("Equiv...\n");
          if(polarity == 1)
          {
             arg1 = TFormulaFCodeAlloc(terms, terms->sig->impl_code, 
@@ -199,7 +197,7 @@ TFormula_p troot_nnf(TB_p terms, TFormula_p form, int polarity)
             arg1 = TFormulaFCodeAlloc(terms, terms->sig->and_code,
                                       form->args[0],
                                       form->args[1]);
-            handle = TFormulaFCodeAlloc(terms, terms->sig->and_code,
+            handle = TFormulaFCodeAlloc(terms, terms->sig->or_code,
                                         arg1, arg2);
          }         
       }
@@ -252,7 +250,7 @@ TFormula_p tformula_rek_skolemize(TB_p terms, TFormula_p form,
       var = form->args[0];
       assert(TermIsVar(var));
       assert(!var->binding);
-      sk_term = TBAllocNewSkolem(terms,free_vars);
+      sk_term = TBAllocNewSkolem(terms,free_vars, false);
       var->binding = sk_term;
       form = tformula_rek_skolemize(terms, form->args[1],
                                     free_vars);               
@@ -297,6 +295,59 @@ TFormula_p tformula_rek_skolemize(TB_p terms, TFormula_p form,
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaDefRename()
+//
+//   Given a tformula, return a renaming atom for it and register
+//   the (potential) need for a renaming formula of the proper
+//   polarity in defs. In defs, the key is the term_id, val1 is the
+//   mosty general polarity, and val2 is the renaming atom.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes bank and defs.
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p TFormulaDefRename(TB_p bank, TFormula_p form, int polarity, 
+                             NumTree_p *defs)
+{
+   NumTree_p def = NumTreeFind(defs, form->entry_no);
+   
+   if(def)
+   {
+      if(polarity!=def->val1.i_val)
+      {
+         def->val1.i_val = 0;
+      }
+      return def->val2.p_val;
+   }
+   else
+   {
+      PTree_p free_vars = NULL;
+      PStack_p var_stack = PStackAlloc();
+      TFormula_p rename_atom;
+
+      TFormulaCollectFreeVars(bank, form, &free_vars);
+      PTreeToPStack(var_stack, free_vars);
+      
+      rename_atom = TBAllocNewSkolem(bank, var_stack, true);
+      
+      PStackFree(var_stack);
+      PTreeFree(free_vars);
+
+      def->val1.i_val = polarity;
+      def->val2.p_val = rename_atom;
+
+      return def->val2.p_val;
+   }
+}
+
+
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: TFormulaSimplify()
@@ -324,6 +375,8 @@ TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form)
    FunCode f_code;
    bool modified=false;
 
+   assert(terms);
+   
    if(TFormulaIsLiteral(terms->sig, form))      
    {
       return form;
@@ -333,6 +386,11 @@ TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form)
       arg1 = TFormulaSimplify(terms, form->args[0]);
       modified = arg1!=form->args[0];
    }
+   else if(TFormulaIsQuantified(terms->sig, form))
+   {
+      arg1 = form->args[0];
+   }
+
    if(TFormulaHasSubForm2(terms->sig, form)||
       TFormulaIsQuantified(terms->sig, form))
    {
@@ -341,6 +399,7 @@ TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form)
    }
    if(modified)
    {
+      assert(terms);
       form = TFormulaFCodeAlloc(terms, form->f_code, arg1, arg2);
    }   
    if(form->f_code == terms->sig->not_code)
@@ -478,21 +537,13 @@ TFormula_p TFormulaNNF(TB_p terms, TFormula_p form, int polarity)
       
    while(!normalform)
    {
-      printf("Loop1:\n");
-      TFormulaTPTPPrint(GlobalOut, terms, form, true);
-      printf("\n");
       normalform = true;
       handle = troot_nnf(terms, form, polarity);
       assert(handle);
       form = handle;            
-      printf("Loop2:\n");
-      TFormulaTPTPPrint(GlobalOut, terms, form, true);
-      printf("\nLoop3\n");
       if(form->f_code == terms->sig->not_code)
       {
-         printf("Not-case\n");
          handle = TFormulaNNF(terms, form->args[0], -polarity);
-         printf("Not case - after recursion\n");
          if(handle!=form->args[0])
          {
             normalform = false;
@@ -503,9 +554,7 @@ TFormula_p TFormulaNNF(TB_p terms, TFormula_p form, int polarity)
       else if((form->f_code == terms->sig->qex_code)||
               (form->f_code == terms->sig->qall_code))
       {
-         printf("Quantor-case\n");
          handle = TFormulaNNF(terms, form->args[1], polarity);
-         printf("Quantor-case - after recursion\n");
          if(handle!=form->args[1])
          {
             normalform = false;
@@ -516,16 +565,12 @@ TFormula_p TFormulaNNF(TB_p terms, TFormula_p form, int polarity)
       else if((form->f_code == terms->sig->and_code)||
               (form->f_code == terms->sig->or_code))
       {
-         printf("And/Or-case\n");
-         printf("form->f_code = %ld\n", form->f_code);
          handle  = TFormulaNNF(terms, form->args[0], polarity);
          assert(handle);
          handle2 = TFormulaNNF(terms, form->args[1], polarity);
-         printf("And/Or-case - after recursion\n");
          assert(handle2);
          if((handle!=form->args[0]) || (handle2!=form->args[1]))
          {
-            printf("form->f_code = %ld\n", form->f_code);
             normalform = false;            
             form = TFormulaFCodeAlloc(terms, form->f_code,
                                       handle, handle2);
@@ -533,16 +578,11 @@ TFormula_p TFormulaNNF(TB_p terms, TFormula_p form, int polarity)
       }
       else
       {
-         printf("Literal-case\n");
          assert(TFormulaIsLiteral(terms->sig, form)
                 && "Top level term not in normal form");
-         printf("Exit Literal-case\n");
       }
    }
    assert(form);
-   printf("Returning: ");
-   TFormulaTPTPPrint(GlobalOut, terms, form, true);
-   printf("\n");
    return form;
 }
 
@@ -760,7 +800,8 @@ TFormula_p TFormulaShiftQuantors(TB_p terms, TFormula_p form)
       narg1 = TFormulaShiftQuantors(terms, form->args[0]);
       modified = narg1!=form->args[0];
    }
-   if(TFormulaHasSubForm2(terms->sig, form))
+   if(TFormulaHasSubForm2(terms->sig, form)||
+      TFormulaIsQuantified(terms->sig, form))
    {
       narg2 = TFormulaShiftQuantors(terms, form->args[1]);
       modified |= narg2!=form->args[1];
@@ -824,7 +865,8 @@ TFormula_p TFormulaDistributeDisjunctions(TB_p terms, TFormula_p form)
    {
       narg1=form->args[0];      
    }
-   if(TFormulaHasSubForm2(terms->sig, form))
+   if(TFormulaHasSubForm2(terms->sig, form)||
+      TFormulaIsQuantified(terms->sig, form))
    {
       narg2 = TFormulaDistributeDisjunctions(terms, form->args[1]);
       change |= narg2!=form->args[1];
@@ -879,15 +921,16 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
    TFormula_p handle;
    FunCode   max_var;
 
+   /*printf("Start: ");
+   WFormulaPrint(GlobalOut, form, true);
+   printf("\n");*/
+
    handle = TFormulaSimplify(terms, form->tformula);
    if(handle!=form->tformula)
    {
       form->tformula = handle;
       DocFormulaModificationDefault(form, inf_fof_simpl);
    }
-   printf("Here\n");
-   WFormulaPrint(GlobalOut, form, true);
-   printf("\nHere1\n");
 
    handle = TFormulaNNF(terms, form->tformula, 1);
    if(handle!=form->tformula)
@@ -895,7 +938,8 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
       form->tformula = handle;
       DocFormulaModificationDefault(form, inf_fof_nnf);
    }
-   
+
+  
    handle = TFormulaMiniScope(terms, form->tformula);
    if(handle!=form->tformula)
    {
@@ -924,6 +968,7 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
       form->tformula = handle;  
       DocFormulaModificationDefault(form, inf_shift_quantors);
    }   
+   
    handle = TFormulaDistributeDisjunctions(terms, form->tformula);
 
    if(handle!=form->tformula)

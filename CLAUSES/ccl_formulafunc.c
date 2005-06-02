@@ -130,6 +130,10 @@ Clause_p tformula_collect_clause(TFormula_p form, TB_p terms,
    PStack_p stack, lit_stack = PStackAlloc();
    Subst_p  normsubst = SubstAlloc();
 
+   /*printf("tformula_collect_clause(): ");
+     TFormulaTPTPPrint(GlobalOut, terms, form, true);
+     printf("\n"); */
+
    stack = PStackAlloc();
    PStackPushP(stack, form);
    while(!PStackEmpty(stack))
@@ -161,8 +165,6 @@ Clause_p tformula_collect_clause(TFormula_p form, TB_p terms,
    tmp_list = EqnListCopy(lit_list, terms);
    res = ClauseAlloc(tmp_list);
    EqnListFree(lit_list); /* Created just for this */
-   ClausePrint(stdout, res, true);
-   printf("\n");
    SubstDelete(normsubst);                    
    return res;
 }
@@ -537,6 +539,7 @@ long FormulaToCNF(WFormula_p form, ClauseProperties type, ClauseSet_p set,
    {
       assert(handle);
    }
+
    PStackPushP(stack, handle);
    while(!PStackEmpty(stack))
    {

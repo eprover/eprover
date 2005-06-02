@@ -226,7 +226,7 @@ Formula_p formula_rek_skolemize(Formula_p form, TB_p terms, bool *modified,
          var = form->special.var;
          assert(TermIsVar(var));
          assert(!var->binding);
-         sk_term = TBAllocNewSkolem(terms,free_vars);
+         sk_term = TBAllocNewSkolem(terms,free_vars, false);
          var->binding = sk_term;
          handle = formula_rek_skolemize(form->arg1, terms, 
                                         modified, free_vars);         

@@ -142,7 +142,7 @@ WFormula_p WTFormulaAlloc(TB_p terms, TFormula_p formula)
 void WFormulaFree(WFormula_p form)
 {
    assert(form);
-   assert(form->formula);
+   assert(form->formula || form->tformula);
    assert(!form->set);
    assert(!form->pred);
    assert(!form->succ);
@@ -494,8 +494,8 @@ WFormula_p WFormulaParse(Scanner_p in, TB_p terms)
          assert(false);
          break;
    }
-   WFormulaPrint(stdout, wform, true);
-   printf("\n");
+   /* WFormulaPrint(stdout, wform, true);
+      printf("\n"); */
    return wform;
 }
 

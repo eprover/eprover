@@ -33,13 +33,17 @@ Changes
 /*---------------------------------------------------------------------*/
 
 
-
-
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+
+TFormula_p TFormulaDefRename(TB_p bank, TFormula_p form, int polarity, 
+                             NumTree_p *defs);
+
 TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form);
+
+TFormula_p TFormulaNNF(TB_p terms, TFormula_p form, int polarity);
 
 TFormula_p TFormulaMiniScope(TB_p terms,  TFormula_p form);
 
