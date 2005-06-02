@@ -38,7 +38,9 @@ Changes
 typedef struct funweightparamcell
 {
    /* Generic stuff, see Refinedweight() */
-   OCB_p  ocb;
+   OCB_p       ocb;
+   ClauseSet_p axioms;
+
    double max_term_multiplier;
    double max_literal_multiplier;
    double pos_multiplier;

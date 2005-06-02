@@ -39,6 +39,59 @@ Changes
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
+/*-----------------------------------------------------------------------
+//
+// Function: init_weight_vector()
+//
+//   Initialize the function weight vector based on the data in data
+//   ;-). Factored out so it can be called from the weight
+//   function(s). 
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+static void init_weight_vector(FunWeightParam_p data)
+{
+   if(!data->fweights)
+   {
+      FunCode i;
+      Clause_p handle;
+
+      data->flimit   = data->ocb->sig->f_count+1;
+      data->fweights = SizeMalloc(data->flimit*sizeof(long));
+      
+      for(i=0;i<data->flimit; i++)
+      {
+         data->fweights[i] = 0;
+      }
+      for(handle=data->axioms->anchor->succ;
+          handle!=data->axioms->anchor;
+          handle = handle->succ)
+      {
+         if(ClauseQueryTPTPType(handle)==CPTypeNegConjecture)
+         {
+            ClauseAddSymbolDistribution(handle, data->fweights);
+         }
+      }
+      for(i=1;i<data->flimit; i++)
+      {
+         if(data->fweights[i] == 0)
+         {
+            data->fweights[i] = SigIsPredicate(data->ocb->sig, i)?data->pweight:
+               (SigFindArity(data->ocb->sig,i)?data->fweight:data->cweight);
+         }
+         else
+         {
+            data->fweights[i] = SigIsPredicate(data->ocb->sig, i)?data->conj_pweight:
+               (SigFindArity(data->ocb->sig,i)?data->conj_fweight:data->conj_cweight);
+         }   
+      }   
+      
+   }
+}
 
 
 /*---------------------------------------------------------------------*/
@@ -76,10 +129,9 @@ WFCB_p ConjectureSymbolWeightInit(ClausePrioFun prio_fun,
                                   long   conj_pweight)
 {
    FunWeightParam_p data = FunWeightParamCellAlloc();
-   Clause_p handle;
-   FunCode i;
    
    data->ocb                    = ocb;
+   data->axioms                 = axioms;
    data->pos_multiplier         = pos_multiplier;
    data->max_term_multiplier    = max_term_multiplier;
    data->max_literal_multiplier = max_literal_multiplier;
@@ -94,37 +146,11 @@ WFCB_p ConjectureSymbolWeightInit(ClausePrioFun prio_fun,
    data->conj_cweight           = conj_cweight;
    data->conj_fweight           = conj_pweight;
 
-   data->flimit                 = ocb->sig->f_count+1;
-   data->fweights               = SizeMalloc(data->flimit*sizeof(long));
+   data->fweights               = NULL;
 
-   for(i=0;i<data->flimit; i++)
-   {
-      data->fweights[i] = 0;
-   }
-   for(handle=axioms->anchor->succ;
-       handle!=axioms->anchor;
-       handle = handle->succ)
-   {
-      if(ClauseQueryTPTPType(handle)==CPTypeNegConjecture)
-      {
-         printf("Conjecture clause found.\n");
-         ClauseAddSymbolDistribution(handle, data->fweights);
-      }
-   }
-   for(i=1;i<data->flimit; i++)
-   {
-      if(data->fweights[i] == 0)
-      {
-         data->fweights[i] = SigIsPredicate(ocb->sig, i)?pweight:
-            (SigFindArity(ocb->sig,i)?fweight:cweight);
-      }
-      else
-      {
-         data->fweights[i] = SigIsPredicate(ocb->sig, i)?conj_pweight:
-            (SigFindArity(ocb->sig,i)?conj_fweight:conj_cweight);
-      }   
-   }   
-
+   /* Weight vector is computed on first call of weight function to
+      avoid overhead is many funweigh-based functions are predefined
+      */
    return WFCBAlloc(GenericFunWeightCompute, prio_fun,
                     GenericFunWeightExit, data);
 }
@@ -333,6 +359,7 @@ double GenericFunWeightCompute(void* data, Clause_p clause)
 {
    FunWeightParam_p local = data;
    
+   init_weight_vector(data);
    return ClauseFunWeight(clause, 
                           local->max_term_multiplier,
                           local->max_literal_multiplier,

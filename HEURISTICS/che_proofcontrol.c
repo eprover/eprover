@@ -90,7 +90,7 @@ char* DefaultHeuristics=
 #endif
 "/* All: */\n"
 #include "che_X_____auto_pp_opt_071.c" 
-#include "che_X_____auto_pp_opt_dev.c" 
+#include "che_X_____auto.c" 
 #include "che_X_____auto_dev.c"
 
 ;
