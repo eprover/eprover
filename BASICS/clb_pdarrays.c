@@ -168,11 +168,11 @@ void PDArayEnlarge(PDArray_p array, long idx)
    {
       if(array->integer)
       {
-	 array->array[i].p_val = NULL;
+	 array->array[i].i_val = 0;
       }
       else
       {
-	 array->array[i].i_val = 0;
+	 array->array[i].p_val = NULL;
       }
    }
 }
