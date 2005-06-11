@@ -69,3 +69,5 @@ L02_F1_PI -F1 -tLPO -wconstant -Garity --prefer-initial-clauses
 #L08_F1_PI -F1 -tLPO --precedence= --prefer-initial-clauses
 #L08_F2_PI -tLPO --precedence= --prefer-initial-clauses
 
+B30 -tLPO4 -Ginvfreqhack
+B31 -tLPO4 -Ginvfreqconstmin
