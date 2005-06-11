@@ -64,6 +64,18 @@ for argument in  $*; do
 	    argument=""
 	    format="--tstp-out"
 	fi
+	if  [ "$argument" = "--tstp-format" ] ; then
+	    argument="--tstp-in"
+	    format="--tstp-out"
+	fi
+	if  [ "$argument" = "--tptp3-out" ] ; then
+	    argument=""
+	    format="--tstp-out"
+	fi
+	if  [ "$argument" = "--tptp3-format" ] ; then
+	    argument="--tstp-in"
+	    format="--tstp-out"
+	fi
     fi
     newargs=$newargs" "$argument
 done
@@ -74,11 +86,11 @@ searchtime=`cat $tmpfile2|grep "Total time"|cut -d: -f2|sed -e 's/[s ]//g'|cut -
 if [ "$searchtime" ]; then
     statusline=`grep -c 'No proof found!' $tmpfile2`
     if [ "$statusline" = "1" ] ; then
-        echo "# Problem is satisfiable, generating saturation derivation"
+        echo "# Problem is satisfiable (or invalid), generating saturation derivation"
     else
 	statusline=`grep -c 'Proof found!' $tmpfile2`
         if [ "$statusline" = "1" ] ; then
-            echo "# Problem is unsatisfiable, constructing proof object"
+            echo "# Problem is unsatisfiable (or provable), constructing proof object"
 	else
 	    statusline=`grep -c 'Watchlist is empty!' $tmpfile2`
 	    if [ "$statusline" = "1" ] ; then
