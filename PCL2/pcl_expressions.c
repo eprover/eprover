@@ -565,6 +565,11 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
 	 status = status_thm;
 	 assert(expr->arg_no==2);
 	 break;
+   case PCLOpSimParamod:
+	 fprintf(out, PCL_SPM);
+	 status = status_thm;
+	 assert(expr->arg_no==2);
+	 break;
    case PCLOpEResolution:
 	 fprintf(out, PCL_ER);
 	 status = status_thm;
