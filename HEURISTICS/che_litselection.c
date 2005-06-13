@@ -138,6 +138,8 @@ static LitSelNameFunAssocCell name_fun_assoc[] =
    {"SelectComplexAHPExceptRRHorn",          SelectComplexAHPExceptRRHorn},
    {"PSelectComplexAHPExceptRRHorn",         PSelectComplexAHPExceptRRHorn},
    {"SelectNewComplexAHPExceptRRHorn",       SelectNewComplexAHPExceptRRHorn},
+   {"SelectNewComplexAHPExceptUniqMaxHorn",  SelectNewComplexAHPExceptUniqMaxHorn},
+   {"PSelectNewComplexAHPExceptUniqMaxHorn", PSelectNewComplexAHPExceptUniqMaxHorn},
    {NULL, (LiteralSelectionFun)0}
 };
 
@@ -4892,6 +4894,36 @@ void SelectNewComplexAHP(OCB_p ocb, Clause_p clause)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: PSelectNewComplexAHP
+//
+//   Mimic PSelectNewComplex(),  but with the AHP property.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void PSelectNewComplexAHP(OCB_p ocb, Clause_p clause)
+{  
+   PDArray_p pred_dist;
+
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+   
+   pred_dist = pos_pred_dist_array_compute(clause);
+   
+   generic_uniq_selection(ocb,clause, true, true, 
+                          new_complex_notp_ahp, pred_dist);   
+   pred_dist_array_free(pred_dist);
+}
+
+
+
 
 /*-----------------------------------------------------------------------
 //
@@ -4932,7 +4964,7 @@ void PSelectComplexAHPExceptRRHorn(OCB_p ocb, Clause_p clause)
 {
    if(!(ClauseIsHorn(clause) && ClauseIsRangeRestricted(clause)))
    {
-      SelectComplexAHP(ocb, clause);
+      PSelectComplexAHP(ocb, clause);
    }
 }
 
@@ -4957,6 +4989,64 @@ void SelectNewComplexAHPExceptRRHorn(OCB_p ocb, Clause_p clause)
       SelectNewComplexAHP(ocb, clause);
    }
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectNewComplexAHPExceptUniqMaxHorn()
+//
+//   Select literal as in SelectNewComplexAHP unless the clause is a
+//   Horn clause with a unique maximal literal.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes property in literals
+//
+/----------------------------------------------------------------------*/
+
+void SelectNewComplexAHPExceptUniqMaxHorn(OCB_p ocb, Clause_p clause)
+{
+   if(ClauseIsHorn(clause))
+   {
+      ClauseCondMarkMaximalTerms(ocb, clause);      
+      if(EqnListQueryPropNumber(clause->literals, EPIsMaximal)==1)
+      {
+	 return;
+      }
+   }
+   SelectNewComplexAHP(ocb,clause);
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PSelectNewComplexAHPExceptUniqMaxHorn()
+//
+//   Select literal as in PSelectNewComplexAHP unless the clause is a
+//   Horn clause with a unique maximal literal.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes property in literals
+//
+/----------------------------------------------------------------------*/
+
+void PSelectNewComplexAHPExceptUniqMaxHorn(OCB_p ocb, Clause_p clause)
+{
+   if(ClauseIsHorn(clause))
+   {
+      ClauseCondMarkMaximalTerms(ocb, clause);      
+      if(EqnListQueryPropNumber(clause->literals, EPIsMaximal)==1)
+      {
+	 return;
+      }
+   }
+   PSelectNewComplexAHP(ocb,clause);
+}
+
+
+
 
 
 
