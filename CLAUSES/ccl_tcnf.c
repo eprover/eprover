@@ -568,6 +568,57 @@ TFormula_p TFormulaDefRename(TB_p bank, TFormula_p form, int polarity,
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaFindDefs()
+//
+//   Find all useful definitions in form and enter them in defs.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity, 
+                      NumTree_p *defs)
+{
+   if(TermCellQueryProp(form, TPCheckFlag) ||
+      TFormulaIsLiteral(bank->sig, form))
+   {
+      return;
+   }
+   /* Handle args[0] */
+   if((form->f_code == bank->sig->and_code)||
+      (form->f_code == bank->sig->or_code))
+   {
+      TFormulaFindDefs(bank, form->args[0], polarity, defs);               
+   }
+   else if((form->f_code == bank->sig->not_code)||
+           (form->f_code == bank->sig->impl_code))
+   {
+      TFormulaFindDefs(bank, form->args[0], -polarity, defs);
+   }
+   else if((form->f_code == bank->sig->equiv_code))
+   {
+      TFormulaFindDefs(bank, form->args[0], 0, defs);
+   }
+   /* Handle args[1] */
+   if((form->f_code == bank->sig->and_code)||
+      (form->f_code == bank->sig->or_code) ||
+      (form->f_code == bank->sig->impl_code)||
+      (form->f_code == bank->sig->qex_code)||
+      (form->f_code == bank->sig->qall_code))
+   {
+      TFormulaFindDefs(bank, form->args[1], polarity, defs);               
+   }
+   else if((form->f_code == bank->sig->equiv_code))
+   {
+      TFormulaFindDefs(bank, form->args[1], 0, defs);
+   }
+     
+
+}
 
 
 /*-----------------------------------------------------------------------
