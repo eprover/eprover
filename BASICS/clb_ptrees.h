@@ -34,6 +34,7 @@ Changes
 #include <clb_pstacks.h>
 #include <clb_avlgeneric.h>
 
+
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
@@ -69,6 +70,7 @@ typedef struct ptreecell
 #else
 #define PTREE_CELL_MEM MEMSIZE(PTreeCell)
 #endif
+
 
 /* As I found out now, _if_ int or long, respectively, is large enough
    for this conversion, this is guaranteed to work! */
