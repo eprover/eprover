@@ -32,8 +32,8 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-/*  cvs tag E-0-82dev064 */
-#define VERSION      "0.82dev064"
+/*  cvs tag E-0-82dev065 */
+#define VERSION      "0.82dev065"
 #define NAME         "eprover"
 
 #define NICKNAME     "Lung Ching"
@@ -1396,6 +1396,12 @@ CLState_p process_options(int argc, char* argv[])
 	       SysError("Unable to set memory limit", SYS_ERROR);
 	    }
 #ifdef RLIMIT_AS
+	    if(getrlimit(RLIMIT_AS, &limit))
+	    {
+	       TmpErrno = errno;
+	       SysError("Unable to get current memory limit", SYS_ERROR);
+	    }
+	    limit.rlim_cur = ((rlim_t)(MEGA))*h_parms->mem_limit;
 	    if(setrlimit(RLIMIT_AS, &limit))
 	    {
 	       TmpErrno = errno;
