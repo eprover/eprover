@@ -616,7 +616,6 @@ void TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity,
    {
       TFormulaFindDefs(bank, form->args[1], 0, defs);
    }
-     
 
 }
 
