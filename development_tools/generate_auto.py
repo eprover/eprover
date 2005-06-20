@@ -539,12 +539,26 @@ selstrat={
    "SelectDivLits"                      : "SelectDiversificationLiterals",
    "SelectDivPreferIntoLits"            : "SelectDiversificationPreferIntoLiterals",
    "SelectMaxLComplexG"                 : "SelectMaxLComplexG", 
+
    "SelectMaxLComplexAvoidPosPred"      : "SelectMaxLComplexAvoidPosPred",
    "SelectMaxLComplexAvoidPosUPred"     : "SelectMaxLComplexAvoidPosUPred",
    "SelectComplexG"                     : "SelectComplexG",
+
    "SelectComplexAHP"                   : "SelectComplexAHP",
-   "SelectNewComplexAHP"                : "SelectNewComplexAHP"
+   "PSelectComplexAHP"                  : "PSelectComplexAHP",
+
+   "SelectNewComplexAHP"                : "SelectNewComplexAHP",
+   "PSelectNewComplexAHP"               : "PSelectNewComplexAHP",
+
+   "SelectComplexAHPExceptRRHorn"       : "SelectComplexAHPExceptRRHorn",
+   "PSelectComplexAHPExceptRRHorn"      : "PSelectComplexAHPExceptRRHorn",
+
+   "SelectNewComplexAHPExceptUniqMaxHorn" : "SelectNewComplexAHPExceptUniqMaxHorn",
+   "PSelectNewComplexAHPExceptUniqMaxHorn": "PSelectNewComplexAHPExceptUniqMaxHorn",
 }
+
+
+
 
 ac_handling ={
     "None"          : "NoACHandling",

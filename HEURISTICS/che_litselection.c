@@ -135,9 +135,13 @@ static LitSelNameFunAssocCell name_fun_assoc[] =
    {"SelectComplexAHP",                      SelectComplexAHP},
    {"PSelectComplexAHP",                     PSelectComplexAHP},
    {"SelectNewComplexAHP",                   SelectNewComplexAHP},
+   {"PSelectNewComplexAHP",                  PSelectNewComplexAHP},
    {"SelectComplexAHPExceptRRHorn",          SelectComplexAHPExceptRRHorn},
    {"PSelectComplexAHPExceptRRHorn",         PSelectComplexAHPExceptRRHorn},
+
    {"SelectNewComplexAHPExceptRRHorn",       SelectNewComplexAHPExceptRRHorn},
+   {"PSelectNewComplexAHPExceptRRHorn",      PSelectNewComplexAHPExceptRRHorn},
+
    {"SelectNewComplexAHPExceptUniqMaxHorn",  SelectNewComplexAHPExceptUniqMaxHorn},
    {"PSelectNewComplexAHPExceptUniqMaxHorn", PSelectNewComplexAHPExceptUniqMaxHorn},
    {NULL, (LiteralSelectionFun)0}
@@ -4987,6 +4991,28 @@ void SelectNewComplexAHPExceptRRHorn(OCB_p ocb, Clause_p clause)
    if(!(ClauseIsHorn(clause) && ClauseIsRangeRestricted(clause)))
    {
       SelectNewComplexAHP(ocb, clause);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PSelectNewComplexAHPExceptRRHorn()
+//
+//   If a clause is Horn and range-restricted, do no select. Otherwise
+//   use PSelectNewComplexAHP() (above).
+//
+// Global Variables: -
+//
+// Side Effects    : Changes property in literals
+//
+/----------------------------------------------------------------------*/
+
+void PSelectNewComplexAHPExceptRRHorn(OCB_p ocb, Clause_p clause)
+{
+   if(!(ClauseIsHorn(clause) && ClauseIsRangeRestricted(clause)))
+   {
+      PSelectNewComplexAHP(ocb, clause);
    }
 }
 
