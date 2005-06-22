@@ -512,6 +512,7 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
       HCBClauseEvaluate(control->hcb, handle);
       ClauseDelProp(handle, CPIsOriented);
       DocClauseQuoteDefault(6, handle, "eval");
+      
       if(control->heuristic_parms.unproc_simplify && ClauseIsUnit(handle))
       {
 	 ClauseSetPDTIndexedInsert(state->unprocessed, handle);	    
@@ -719,6 +720,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
       ClauseSetProp(new, CPInitial);
       HCBClauseEvaluate(control->hcb, new);
       DocClauseQuoteDefault(6, new, "eval");
+
       if(control->heuristic_parms.prefer_initial_clauses)
       {
 	 EvalListChangePriority(new->evaluations, -PrioLargestReasonable);
