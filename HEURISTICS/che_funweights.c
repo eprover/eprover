@@ -144,7 +144,7 @@ WFCB_p ConjectureSymbolWeightInit(ClausePrioFun prio_fun,
 
    data->conj_fweight           = conj_fweight;
    data->conj_cweight           = conj_cweight;
-   data->conj_fweight           = conj_pweight;
+   data->conj_pweight           = conj_pweight;
 
    data->fweights               = NULL;
 
