@@ -137,6 +137,7 @@ FVIndex_p FVIndexAlloc(void)
    FVIndex_p handle = FVIndexCellAlloc();
 
    handle->clause_count  = 0;
+   handle->u1.clauses    = NULL;
    handle->u1.successors = NULL;
    handle->final         = false;
 

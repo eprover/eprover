@@ -51,13 +51,34 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-static int clause_canon_compare(const void *cl1, const void *cl2)
+static int clause_canon_compare(Clause_p c1, Clause_p c2)
 {
-   const Clause_p *c1 = (const Clause_p*) cl1;
-   const Clause_p *c2 = (const Clause_p*) cl2;
-
-   return ClauseStructWeightLexCompare(*c1, *c2);
+   return ClauseStructWeightLexCompare(c1, c2);
 }
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: clause_canon_compare_wrapper()
+//
+//   A ComparisonFunctionType wrapper for clause_canon_compare in
+//   IntOrPs. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static int clause_canon_compare_wrapper(const void *c1, const void* c2)
+{
+   const IntOrP* clause1 = (const IntOrP*) c1;
+   const IntOrP* clause2 = (const IntOrP*) c2;
+   
+   return clause_canon_compare(clause1->p_val,clause2->p_val);
+}
+
 
 
 /*---------------------------------------------------------------------*/
@@ -287,7 +308,7 @@ void ClauseSetCanonize(ClauseSet_p set)
       ClauseRemoveSuperfluousLiterals(handle);
       ClauseCanonize(handle);
    }
-   ClauseSetSort(set, clause_canon_compare);
+   ClauseSetSort(set, clause_canon_compare_wrapper);
    
    /* printf("Canonized: \n");
       ClauseSetPrint(stdout, set, true); */

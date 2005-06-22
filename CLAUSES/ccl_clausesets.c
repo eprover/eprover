@@ -810,7 +810,7 @@ void ClauseSetSort(ClauseSet_p set, ComparisonFunctionType cmp_fun)
    }
    assert(ClauseSetEmpty(set));
 
-   qsort(stack->stack, PStackGetSP(stack), sizeof(IntOrP), cmp_fun);
+   PStackSort(stack, cmp_fun);
 
    for(i=0; i<PStackGetSP(stack); i++)
    {

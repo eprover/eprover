@@ -106,7 +106,8 @@ void PCLExprUpdateRefs(PCLProt_p prot, PCLExpr_p expr);
 void PCLStepUpdateRefs(PCLProt_p prot, PCLStep_p step);
 void PCLProtUpdateRefs(PCLProt_p prot);
 
-int PCLStepLemmaCmp(const void* s1, const void* s2);
+int PCLStepLemmaCmpWrapper(const void* s1, const void* s2);
+int PCLStepLemmaCmp(PCLStep_p step1, PCLStep_p step2);
 
 long PCLExprProofSize(PCLProt_p prot, PCLExpr_p expr, InferenceWeight_p iw,
 		      bool use_lemmas);

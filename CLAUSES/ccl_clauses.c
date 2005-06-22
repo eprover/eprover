@@ -419,6 +419,27 @@ bool ClauseIsSorted(Clause_p clause, ComparisonFunctionType cmp_fun)
 
 /*-----------------------------------------------------------------------
 //
+// Function: ClauseStructWeightCompareWrapper()
+//
+//   A ComparisonFunctionType wrapper for ClauseStructWeightCompare in
+//   IntOrPs. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+int ClauseStructWeightCompareWrapper(const void *c1, const void* c2)
+{
+   const IntOrP* clause1 = (const IntOrP*) c1;
+   const IntOrP* clause2 = (const IntOrP*) c2;
+   
+   return ClauseStructWeightCompare(clause1->p_val,clause2->p_val);
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: ClauseStructWeightCompare()
 //
 //   Compare two clauses based on structure. Clauses are assumed to be

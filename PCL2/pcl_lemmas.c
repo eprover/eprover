@@ -255,6 +255,28 @@ void PCLProtUpdateRefs(PCLProt_p prot)
 }
 
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: PCLStepLemmaCmpWrapper()
+//
+//   Wrapper for PCLStepLemmaCmp in IntOrP's
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+int PCLStepLemmaCmpWrapper(const void* s1, const void* s2)
+{
+   const IntOrP* step1 = (const IntOrP*) s1;
+   const IntOrP* step2 = (const IntOrP*) s2;
+
+   return PCLStepLemmaCmp(step1->p_val, step2->p_val);
+}
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: PCLStepLemmaCmp()
@@ -262,20 +284,18 @@ void PCLProtUpdateRefs(PCLProt_p prot)
 //   Compare the lemma rating of two PCL steps, returning -1, 0, 1
 //   depending on outcome.
 //
-// Global Variables: 
+// Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
-int PCLStepLemmaCmp(const void* s1, const void* s2)
+int PCLStepLemmaCmp(PCLStep_p step1, PCLStep_p step2)
 {
-   const PCLStep_p *step1 = (const PCLStep_p*) s1;
-   const PCLStep_p *step2 = (const PCLStep_p*) s2;
    float r1, r2;
 
-   r1 = (*step1)->lemma_quality;
-   r2 = (*step2)->lemma_quality;
+   r1 = step1->lemma_quality;
+   r2 = step2->lemma_quality;
    if(r1 < r2)
    {
       return -1;
@@ -610,7 +630,7 @@ long PCLProtFlatFindLemmas(PCLProt_p prot, LemmaParam_p params,
    PCLProtComputeLemmaWeights(prot, params);
    PCLProtSerialize(prot);
    prot->is_ordered = false;
-   PStackSort(prot->in_order, PCLStepLemmaCmp);
+   PStackSort(prot->in_order, PCLStepLemmaCmpWrapper);
    
    max_number = MIN(max_number, PStackGetSP(prot->in_order));
    for(i=0; i<max_number; i++)
