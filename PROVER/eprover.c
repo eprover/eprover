@@ -32,8 +32,8 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-/*  cvs tag E-0-82dev069 */
-#define VERSION      "0.82dev069"
+/*  cvs tag E-0-82dev071 */
+#define VERSION      "0.82dev071"
 #define NAME         "eprover"
 
 #define NICKNAME     "Lung Ching"
@@ -401,8 +401,8 @@ OptCell opts[] =
    {OPT_TSTP_PRINT,
     '\0', "tstp-out",
     NoArg, NULL,
-    "Print proof protocol in TPTP-3 syntax (default is PCL). Only "
-    "effective for output levels greater than 2."},
+    "Print output clauses in TPTP-3 syntax. In particular, for output "
+    "levels >=2, write derivations as TPTP-3 derivations (default is PCL)."},
 
    {OPT_TSTP_FORMAT,
     '\0', "tstp-format",
@@ -1164,6 +1164,7 @@ int main(int argc, char* argv[])
    }
    if(print_sat)
    {
+      printf("OutputFormat = %d\n", OutputFormat);
       if(proofstate->non_redundant_deleted)
       {
 	 fprintf(GlobalOut, "\n# Saturated system is incomplete!\n");
@@ -1308,12 +1309,6 @@ CLState_p process_options(int argc, char* argv[])
 	    break;
       case OPT_OUTPUTLEVEL:
 	    OutputLevel = CLStateGetIntArg(handle, arg);
-	    if(OutputLevel >= 2)
-	    {
-	       EqnUseInfix = true;
-	       EqnFullEquationalRep = false;
-	       OutputFormat = TPTPFormat;
-	    }
 	    break;
       case OPT_PCL_COMPRESSED:
 	    pcl_full_terms = false;
@@ -1472,11 +1467,13 @@ CLState_p process_options(int argc, char* argv[])
 	    break;
       case OPT_TSTP_PRINT:
 	    DocOutputFormat = tstp_format;
+	    OutputFormat = TSTPFormat;
 	    EqnUseInfix = true;
 	    break;
       case OPT_TSTP_FORMAT:
 	    parse_format = TSTPFormat;
 	    DocOutputFormat = tstp_format;
+	    OutputFormat = TSTPFormat;
 	    EqnUseInfix = true;
 	    break;
       case OPT_NO_PREPROCESSING:

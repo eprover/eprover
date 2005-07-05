@@ -68,7 +68,9 @@ typedef enum
    OPT_TERM_MEDIUM_LIMIT,
    OPT_TERM_LARGE_LIMIT,
    OPT_FAR_SUM_MEDIUM_LIMIT,
-   OPT_FAR_SUM_LARGE_LIMIT
+   OPT_FAR_SUM_LARGE_LIMIT,
+   OPT_MAX_DEPTH_MEDIUM_LIMIT,
+   OPT_MAX_DEPTH_DEEP_LIMIT,
 }OptionCodes;
 
 
@@ -253,6 +255,16 @@ OptCell opts[] =
     "Set the mimumum sum of function symbol arities for a specification to be "
     "considered to be large size with respect to this measure."},
 
+   {OPT_MAX_DEPTH_MEDIUM_LIMIT,
+    '\0', "max-depth-medium-limit",
+    ReqArg, NULL,
+    "Set the mimumum maximal clause depth for medium depth specifications."},
+
+   {OPT_MAX_DEPTH_DEEP_LIMIT,
+    '\0', "max-depth-deep-limit",
+    ReqArg, NULL,
+    "Set the mimumum maximal clause depth for deep depth specifications."},
+
    {OPT_NOOPT,
     '\0', NULL,
     NoArg, NULL,
@@ -260,7 +272,7 @@ OptCell opts[] =
 };
 
 char   *outname = NULL, 
-       *mask = "aaaaa----aaa";
+       *mask = "aaaaa----aaaa";
 IOFormat parse_format    = LOPFormat;
 bool     tptp_header     = false,
          no_preproc      = false,
@@ -544,7 +556,7 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
 	    break;
       case OPT_MASK:
 	    mask = arg;
-	    if(strlen(mask)!=12)
+	    if(strlen(mask)!=13)
 	    {
 	       Error("Option -c (--class-mask) requires 12-letter "
 		     "string as an argument", USAGE_ERROR);
@@ -591,6 +603,12 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
 	    break;
       case OPT_FAR_SUM_LARGE_LIMIT:
 	    limits->far_sum_large_limit = CLStateGetIntArg(handle, arg);
+	    break;
+      case OPT_MAX_DEPTH_MEDIUM_LIMIT:
+	    limits->depth_medium_limit = CLStateGetIntArg(handle, arg);
+	    break;
+      case OPT_MAX_DEPTH_DEEP_LIMIT:
+	    limits->depth_deep_limit = CLStateGetIntArg(handle, arg);
 	    break;
       default:
 	 assert(false);
