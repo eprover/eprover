@@ -239,7 +239,7 @@ void PCLStepPrintExtra(FILE* out, PCLStep_p step, bool data)
    fputs(" : ", out);   
    if(PCLStepIsFOF(step))
    {
-      FormulaTPTPPrint(out, step->logic.formula, true);
+      FormulaTPTPPrint(out, step->logic.formula, true, true);
    }
    else
    {
@@ -376,7 +376,7 @@ void PCLStepPrintTSTP(FILE* out, PCLStep_p step)
       fputc(',', out);
       fputs(PCLPropToTSTPType(step->properties), out);
       fputc(',', out);
-      FormulaTPTPPrint(out, step->logic.formula, true);      
+      FormulaTPTPPrint(out, step->logic.formula, true, true);      
    }
    fputc(',', out);   
    PCLExprPrintTSTP(out, step->just, false);

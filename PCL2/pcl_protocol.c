@@ -572,7 +572,7 @@ void PCLProtPrintPropClauses(FILE* out, PCLProt_p prot,
 	 {
             if(PCLStepQueryProp(step, PCLIsFOFStep))
             {
-               FormulaTPTPPrint(out, step->logic.formula, true);
+               FormulaTPTPPrint(out, step->logic.formula, true, true);
             }
             else
             {

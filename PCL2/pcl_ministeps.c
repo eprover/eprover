@@ -160,7 +160,7 @@ void PCLMiniStepPrint(FILE* out, PCLMiniStep_p step, TB_p bank)
    fputs(" : ", out);   
    if(PCLStepIsFOF(step))
    {
-      FormulaTPTPPrint(out, step->logic.formula, true);
+      FormulaTPTPPrint(out, step->logic.formula, true, true);
    }
    else
    {
@@ -201,7 +201,7 @@ void PCLMiniStepPrintTSTP(FILE* out, PCLMiniStep_p step, TB_p bank)
    {
       fprintf(out, "fof(%ld, %s,", step->id,
               PCLPropToTSTPType(step->properties));
-      FormulaTPTPPrint(out, step->logic.formula, true);      
+      FormulaTPTPPrint(out, step->logic.formula, true, true);      
    }
    fputc(',', out);   
    PCLExprPrintTSTP(out, step->just, true);
