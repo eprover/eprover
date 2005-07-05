@@ -89,6 +89,8 @@ SpecLimits_p SpecLimitsAlloc()
    handle->term_large_limit       = TERM_LARGE_DEFAULT    ;
    handle->far_sum_medium_limit   = FAR_SUM_MED_DEFAULT  ;
    handle->far_sum_large_limit    = FAR_SUM_LARGE_DEFAULT;
+   handle->depth_medium_limit     = DEPTH_MEDIUM_DEFAULT;
+   handle->depth_deep_limit       = DEPTH_DEEP_DEFAULT;
 
    return handle;
 }
@@ -1182,7 +1184,21 @@ void SpecFeaturesAddEval(SpecFeature_p features, SpecLimits_p limits)
       features->sum_fun_ar_class = SpecAritySumLarge;
    }    
 
-      
+   if(features->clause_max_depth < limits->depth_medium_limit)
+   {
+      features->max_depth_class = SpecDepthShallow;
+      /* printf("Shallow %ld %ld\n", features->clause_max_depth, limits->depth_medium_limit);*/
+   }
+   else if(features->clause_max_depth < limits->depth_deep_limit)
+   {
+      features->max_depth_class = SpecDepthMedium;
+      /* printf("Medium %ld %ld\n", features->clause_max_depth, limits->depth_medium_limit);*/
+   }
+   else
+   {
+      features->max_depth_class = SpecDepthDeep;
+      /* printf("Deep %ld %ld\n", features->clause_max_depth, limits->depth_medium_limit);*/
+   }            
 }
 
 
@@ -1205,9 +1221,9 @@ void SpecFeaturesPrint(FILE* out, SpecFeature_p features)
    assert(features);
 
    fprintf(out, 
-	   "(%3ld, %3ld, %3ld, %3ld, %3ld, %3ld, %3ld, %3ld, %3ld,"
+	   "( %3ld, %3ld, %3ld, %3ld, %3ld, %3ld, %3ld, %3ld, %3ld,"
 	   " %3ld, %3ld, %3ld, %3ld, %3ld, %3ld, %8.6f, %8.6f,"
-           " %3d, %3d, %3d, %3ld, %3ld)",
+           " %3d, %3d, %3d, %3ld, %3ld )",
 	   features->goals,
 	   features->axioms,
 	   features->clauses,
@@ -1384,7 +1400,7 @@ void SpecFeaturesParse(Scanner_p in, SpecFeature_p features)
 
 void SpecTypePrint(FILE* out, SpecFeature_p features, char* mask)
 {
-   const char encoding[]="UHGNSPFSMFSMFSMFSMSML0123SML";
+   const char encoding[]="UHGNSPFSMFSMFSMFSMSML0123SMLSMD";
    char       result[13];
    int        i, limit;
 
@@ -1392,7 +1408,7 @@ void SpecTypePrint(FILE* out, SpecFeature_p features, char* mask)
    assert(mask && (strlen(mask)==12));
    limit = strlen(mask);
 
-   sprintf(result, "%c%c%c%c%c%c%c%c%c%c%c%c", 
+   sprintf(result, "%c%c%c%c%c%c%c%c%c%c%c%c%c", 
 	   encoding[features->axiomtypes],
 	   encoding[features->goaltypes],
 	   encoding[features->eq_content],
@@ -1404,7 +1420,8 @@ void SpecTypePrint(FILE* out, SpecFeature_p features, char* mask)
 	   encoding[features->ground_positive_content],
 	   encoding[features->max_fun_ar_class],
 	   encoding[features->avg_fun_ar_class],
-	   encoding[features->sum_fun_ar_class]);
+	   encoding[features->sum_fun_ar_class],
+           encoding[features->max_depth_class]);
    for(i=0; i<limit; i++)
    {
       if(mask[i]=='-')

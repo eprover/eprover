@@ -60,7 +60,10 @@ typedef enum
    SpecArity3Plus,
    SpecAritySumSmall,
    SpecAritySumMedium,
-   SpecAritySumLarge
+   SpecAritySumLarge,
+   SpecDepthShallow,
+   SpecDepthMedium,
+   SpecDepthDeep,
 }SpecFeatures;
 
 
@@ -84,6 +87,8 @@ typedef struct spec_limits_cell
    long   term_large_limit;
    long   far_sum_medium_limit;
    long   far_sum_large_limit;
+   long   depth_medium_limit;
+   long   depth_deep_limit;
 }SpecLimitsCell, *SpecLimits_p;
 
 
@@ -104,6 +109,7 @@ typedef struct spec_feature_cell
 				   0,1,2,>2 */
    SpecFeatures avg_fun_ar_class;
    SpecFeatures sum_fun_ar_class;
+   SpecFeatures max_depth_class;
    long         clauses;
    long         goals;
    long         axioms;
@@ -159,6 +165,10 @@ typedef struct spec_feature_cell
 #define TERM_LARGE_DEFAULT     1000
 #define FAR_SUM_MED_DEFAULT      5
 #define FAR_SUM_LARGE_DEFAULT   24
+#define DEPTH_MEDIUM_DEFAULT     0 /* Partitioning two ways turns out
+                                      to be nearly as good as 3 way on
+                                      the test set */  
+#define DEPTH_DEEP_DEFAULT       6
 
 
 #define DEFAULT_OUTPUT_DESCRIPTOR "eigEIG"
@@ -251,6 +261,13 @@ SpecLimits_p SpecLimitsAlloc();
 #define SpecLargeFArSum(spec) \
         ((spec)->sum_fun_ar_class == SpecAritySumLarge)
   
+#define SpecShallowMaxDepth(spec) \
+        ((spec)->max_depth_class == SpecDepthShallow)
+#define SpecMediumMaxDepth(spec) \
+        ((spec)->max_depth_class == SpecDepthMedium)
+#define SpecDeepMaxDepth(spec) \
+        ((spec)->max_depth_class == SpecDepthDeep)
+
 long    ClauseSetCountGoals(ClauseSet_p set);
 #define ClauseSetCountAxioms(set)\
         ((set)->members-ClauseSetCountGoals(set))
