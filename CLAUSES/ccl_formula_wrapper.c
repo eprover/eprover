@@ -276,11 +276,11 @@ void WFormulaTPTPPrint(FILE* out, WFormula_p form, bool fullterms)
    fprintf(out, "input_formula(f%c_%ld,%s,", prefix, id, typename);
    if(FormulaTermEncoding)
    {
-      TFormulaTPTPPrint(out, form->terms, form->tformula,fullterms);
+      TFormulaTPTPPrint(out, form->terms, form->tformula,fullterms, false);
    }
    else
    {
-      FormulaTPTPPrint(out, form->formula,fullterms);
+      FormulaTPTPPrint(out, form->formula,fullterms, false);
    }
    fprintf(out,").");   
 }
@@ -443,15 +443,16 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
    }
    fprintf(out, "fof(%c_0_%ld,", prefix, id);
    PrintDashedStatuses(out, typename, derived, "plain");
-   fprintf(out, ",");   
+   fprintf(out, ", (");   
    if(FormulaTermEncoding)
    {
-      TFormulaTPTPPrint(out, form->terms, form->tformula,fullterms);
+      TFormulaTPTPPrint(out, form->terms, form->tformula,fullterms, false);
    }
    else
    {
-      FormulaTPTPPrint(out, form->formula,fullterms);
+      FormulaTPTPPrint(out, form->formula,fullterms, false);
    }
+   fprintf(out, ") ");   
    if(complete)
    {
       fprintf(out, ").");

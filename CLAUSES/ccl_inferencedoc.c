@@ -691,11 +691,11 @@ static void pcl_formula_print_start(FILE* out, WFormula_p form)
    fprintf(out, "%s:", pcl_type_str(FormulaQueryType(form)));
    if(FormulaTermEncoding)
    {
-      TFormulaTPTPPrint(out, form->terms, form->tformula, PCLFullTerms);
+      TFormulaTPTPPrint(out, form->terms, form->tformula, PCLFullTerms, true);
    }
    else
    {
-      FormulaTPTPPrint(out, form->formula, PCLFullTerms);
+      FormulaTPTPPrint(out, form->formula, PCLFullTerms, true);
    }
    fputs(" : ", out);
 }

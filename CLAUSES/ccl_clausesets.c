@@ -1730,6 +1730,11 @@ void EqAxiomsPrint(FILE* out, Sig_p sig, bool single_subst)
 	 }
       }      
    }
+   else if(OutputFormat == TSTPFormat)      
+   {
+      Error("Adding of equality axioms not (yet) supported for TSTP/TPTP-3 format.", 
+            OTHER_ERROR);
+   }
    else
    {
       fprintf(out, 

@@ -1202,6 +1202,10 @@ void ClausePrint(FILE* out, Clause_p clause, bool fullterms)
    {
       ClausePrintTPTPFormat(out, clause);
    }
+   else if(OutputFormat == TSTPFormat)
+   {
+      ClauseTSTPPrint(out, clause, fullterms, true);
+   }
    else
    {
       if(((ClauseQueryTPTPType(clause) == CPTypeConjecture)||
@@ -1233,7 +1237,7 @@ void ClausePrint(FILE* out, Clause_p clause, bool fullterms)
 void ClausePCLPrint(FILE* out, Clause_p clause, bool fullterms)
 {
    IOFormat tptp_format_hack = OutputFormat;
-   
+
 #ifdef PRINT_SOS_PROP
    if(ClauseQueryProp(clause, CPIsSOS))
    {

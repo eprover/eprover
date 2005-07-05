@@ -760,16 +760,7 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
 	 {
 	    fputc('!', out);
 	 }
-	 /* See above. => as an alternative infix symbol for equations
-            is now officially dead!
-         if(EqnIsOriented(eq))
-	 {
-	    fprintf(out, "=>");
-	 }
-	 else */
-	 {
-	    fprintf(out, "=");
-	 }
+         fprintf(out, "=");
 	 TBPrintTerm(out, eq->bank, eq->rterm, fullterms);
       }
       else
@@ -806,7 +797,7 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
 // Function: EqnFOFPrint()
 //
 //   Print an equation in FOF format. For LOP/TSTP that is infix, for
-//   TPTP it is prefix.
+//   TPTP/PCL it is prefix.
 //
 // Global Variables: -
 //
@@ -814,54 +805,64 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
 //
 /----------------------------------------------------------------------*/
 
-void EqnFOFPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
+void EqnFOFPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms, bool pcl)
 {
    bool positive = XOR(EqnIsPositive(eq), negated);
+   bool infix = false;
 
+   
    switch(OutputFormat)
    {
    case TPTPFormat:
-         if(!positive)
-         {
-            fprintf(out,"~");
-         }
-         if(EqnIsEquLit(eq))
-         {
-            fprintf(out, EQUAL_PREDICATE"(");
-            TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
-            fprintf(out, ", ");
-            TBPrintTerm(out, eq->bank, eq->rterm, fullterms);
-            fputc(')', out);
-         }
-         else
-         {
-            TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
-         }
          break;
    case TSTPFormat:
    case LOPFormat:
-         if(EqnIsEquLit(eq))
-         {
-            TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
-            if(!positive)
-            {
-               fputc('!', out);
-            }
-	    fputc('=', out);
-            TBPrintTerm(out, eq->bank, eq->rterm, fullterms);
-	 }         
-         else
-         {
-            if(!positive)
-            {
-               fputc('~', out);
-            }
-             TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
-         }
+         infix = !pcl;
          break;
    default:
          assert(false && "Format nor supported.");
          break;
+   }
+   
+   if(infix)
+   {      
+      if(EqnIsEquLit(eq))
+      {
+         TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
+         if(!positive)
+         {
+            fputc('!', out);
+         }
+         fputc('=', out);
+         TBPrintTerm(out, eq->bank, eq->rterm, fullterms);
+      }         
+      else
+      {
+         if(!positive)
+         {
+            fputc('~', out);
+         }
+         TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
+      }
+   }
+   else
+   {
+      if(!positive)
+      {
+         fprintf(out,"~");
+      }
+      if(EqnIsEquLit(eq))
+      {
+         fprintf(out, EQUAL_PREDICATE"(");
+         TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
+         fprintf(out, ", ");
+         TBPrintTerm(out, eq->bank, eq->rterm, fullterms);
+         fputc(')', out);
+      }
+      else
+      {
+         TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
+      }
    }
 }
 

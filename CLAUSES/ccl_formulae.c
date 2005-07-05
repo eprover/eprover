@@ -416,13 +416,13 @@ Formula_p FormulaQuantorAlloc(FOFOperatorType quantor, Term_p var, Formula_p arg
 //
 /----------------------------------------------------------------------*/
 
-void FormulaTPTPPrint(FILE* out, Formula_p form, bool fullterms)
+void FormulaTPTPPrint(FILE* out, Formula_p form, bool fullterms, bool pcl)
 {
    assert(form);
 
    if(FormulaIsLiteral(form))
    {      
-      EqnFOFPrint(out, form->special.literal, false, fullterms);
+      EqnFOFPrint(out, form->special.literal, false, fullterms, pcl);
    }
    else if(FormulaIsQuantified(form))
    {
@@ -439,7 +439,7 @@ void FormulaTPTPPrint(FILE* out, Formula_p form, bool fullterms)
       }
       TermPrint(out, form->special.var, NULL, DEREF_NEVER);
       fputs("]:", out);
-      FormulaTPTPPrint(out, form->arg1, fullterms);
+      FormulaTPTPPrint(out, form->arg1, fullterms, pcl);
    }
    else if(FormulaIsUnary(form))
    {
@@ -447,13 +447,13 @@ void FormulaTPTPPrint(FILE* out, Formula_p form, bool fullterms)
       if(true /*FormulaIsBinary(form->arg1)*/)
       {
 	 fputs("~(", out);
-	 FormulaTPTPPrint(out, form->arg1, fullterms);
+	 FormulaTPTPPrint(out, form->arg1, fullterms, pcl);
 	 fputs(")", out);
       }
       else
       {
 	 fputc('~', out);
-	 FormulaTPTPPrint(out, form->arg1, fullterms);
+	 FormulaTPTPPrint(out, form->arg1, fullterms, pcl);
       }
    }
    else
@@ -462,7 +462,7 @@ void FormulaTPTPPrint(FILE* out, Formula_p form, bool fullterms)
 
       assert(FormulaIsBinary(form));
       fputs("(", out);
-      FormulaTPTPPrint(out, form->arg1, fullterms);
+      FormulaTPTPPrint(out, form->arg1, fullterms, pcl);
       switch(form->op)
       {
       case OpBAnd:
@@ -493,7 +493,7 @@ void FormulaTPTPPrint(FILE* out, Formula_p form, bool fullterms)
             assert(false && "Wrong operator");
       }
       fputs(oprep, out);
-      FormulaTPTPPrint(out, form->arg2, fullterms);      
+      FormulaTPTPPrint(out, form->arg2, fullterms, pcl);
       fputs(")", out);      
    }   
 }

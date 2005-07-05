@@ -294,7 +294,8 @@ TFormula_p tformula_rek_skolemize(TB_p terms, TFormula_p form,
 //
 // Function: tformula_rename_test()
 //
-//   Return true if formula|i should be renamed, false otherwise.
+//   Return true if formula|i should be renamed, false
+//   otherwise. Polarity is the polarity of root, not root|i. 
 //
 // Global Variables: 
 //
@@ -363,6 +364,63 @@ bool tformula_rename_test(TB_p bank, TFormula_p root, int pos, int polarity)
    }   
    return false;
 }
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: tformula_copy_def()
+//
+//   Copy a formula, replacing all defined subforumlas with the proper
+//   predicate. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p tformula_copy_def(TB_p bank, TFormula_p form, NumTree_p *defs)
+{
+   TFormula_p res, arg1, arg2 = NULL;
+   NumTree_p def_entry;
+
+   if(TFormulaIsLiteral(bank->sig, form))
+   {
+      res = form;
+   }
+   else if(TermCellQueryProp(form, TPCheckFlag))
+   {
+      def_entry = NumTreeFind(defs, form->entry_no);
+      assert(def_entry);
+      res = def_entry->val2.p_val;      
+   }
+   else
+   {
+      if((form->f_code == bank->sig->and_code)||
+         (form->f_code == bank->sig->or_code)||
+         (form->f_code == bank->sig->impl_code)||
+         (form->f_code == bank->sig->equiv_code)||
+         (form->f_code == bank->sig->not_code))
+      {
+         arg1 = tformula_copy_def(bank, form->args[0], defs);
+      }
+      else
+      {
+         assert((form->f_code == bank->sig->qex_code) ||
+                (form->f_code == bank->sig->qallcode));
+         arg1 = form->args[0];
+      }
+      if(form->f_code != bank->sig->not_code)
+      {
+         arg2 = tformula_copy_def(bank, form->args[1], defs);         
+      }
+      res = TFormulaFCodeAlloc(bank, form->f_code, arg1, arg2);
+   }
+   return res;
+}
+
+
 
 
 
@@ -523,8 +581,8 @@ long TFormulaEstimateClauses(TB_p bank, TFormula_p form, bool pos)
 //
 //   Given a tformula, return a renaming atom for it and register
 //   the (potential) need for a renaming formula of the proper
-//   polarity in defs. In defs, the key is the term_id, val1 is the
-//   mosty general polarity, and val2 is the renaming atom.
+//   polarity in defs. In defs, the key is the entry_no, val1 is the
+//   most general polarity, and val2 is the renaming atom.
 //
 // Global Variables: -
 //
@@ -588,20 +646,35 @@ void TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity,
    {
       return;
    }
-   /* Handle args[0] */
+   /* Handle args[0] (we are doing depth first) */
    if((form->f_code == bank->sig->and_code)||
       (form->f_code == bank->sig->or_code))
    {
-      TFormulaFindDefs(bank, form->args[0], polarity, defs);               
+      TFormulaFindDefs(bank, form->args[0], polarity, defs);
+      if(tformula_rename_test(bank, form, 0, polarity))
+      {
+         TFormulaDefRename(bank, form, polarity, 
+                           defs);         
+      }
    }
    else if((form->f_code == bank->sig->not_code)||
            (form->f_code == bank->sig->impl_code))
    {
       TFormulaFindDefs(bank, form->args[0], -polarity, defs);
+      if(tformula_rename_test(bank, form, 0, polarity))
+      {
+         TFormulaDefRename(bank, form, -polarity, 
+                           defs);         
+      }
    }
    else if((form->f_code == bank->sig->equiv_code))
    {
       TFormulaFindDefs(bank, form->args[0], 0, defs);
+      if(tformula_rename_test(bank, form, 0, polarity))
+      {
+         TFormulaDefRename(bank, form, 0, 
+                           defs);         
+      }
    }
    /* Handle args[1] */
    if((form->f_code == bank->sig->and_code)||
@@ -611,12 +684,19 @@ void TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity,
       (form->f_code == bank->sig->qall_code))
    {
       TFormulaFindDefs(bank, form->args[1], polarity, defs);               
+      if(tformula_rename_test(bank, form, 0, polarity))
+      {
+         TFormulaDefRename(bank, form, polarity, defs);         
+      }
    }
    else if((form->f_code == bank->sig->equiv_code))
    {
       TFormulaFindDefs(bank, form->args[1], 0, defs);
+      if(tformula_rename_test(bank, form, 0, polarity))
+      {
+         TFormulaDefRename(bank, form, 0, defs);         
+      }
    }
-
 }
 
 

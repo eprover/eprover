@@ -352,7 +352,7 @@ TFormula_p TFormulaQuantorAlloc(TB_p bank, FunCode quantor, Term_p var, TFormula
 //
 /----------------------------------------------------------------------*/
 
-void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms)
+void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms, bool pcl)
 {
    assert(form);
 
@@ -365,7 +365,7 @@ void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms)
 
       tmp = EqnAlloc(form->args[0], form->args[1], bank, true);
 
-      EqnFOFPrint(out, tmp, form->f_code == bank->sig->neqn_code, fullterms);
+      EqnFOFPrint(out, tmp, form->f_code == bank->sig->neqn_code, fullterms, pcl);
       EqnFree(tmp);
    }
    else if(TFormulaIsQuantified(bank->sig,form))
@@ -380,13 +380,13 @@ void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms)
       }      
       TermPrint(out, form->args[0], NULL, DEREF_NEVER);
       fputs("]:", out);
-      TFormulaTPTPPrint(out, bank, form->args[1], fullterms);
+      TFormulaTPTPPrint(out, bank, form->args[1], fullterms, fullterms);
    }
    else if(TFormulaIsUnary(form))
    {
       assert(form->f_code == bank->sig->not_code);
       fputs("~(", out);
-      TFormulaTPTPPrint(out, bank, form->args[0], fullterms);
+      TFormulaTPTPPrint(out, bank, form->args[0], fullterms, fullterms);
       fputs(")", out);
    }
    else
@@ -395,7 +395,7 @@ void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms)
 
       assert(TFormulaIsBinary(form));
       fputs("(", out);
-      TFormulaTPTPPrint(out, bank, form->args[0], fullterms);
+      TFormulaTPTPPrint(out, bank, form->args[0], fullterms, fullterms);
       if(form->f_code == bank->sig->and_code)
       {
          oprep = "&";
@@ -433,7 +433,7 @@ void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms)
          assert(false && "Wrong operator");
       }
       fputs(oprep, out);
-      TFormulaTPTPPrint(out, bank, form->args[1], fullterms);      
+      TFormulaTPTPPrint(out, bank, form->args[1], fullterms, fullterms);      
       fputs(")", out);      
    }   
 }
