@@ -12,24 +12,32 @@ Follow the instructions you find there.
 
 Translating to input format:
 
-   tptp2X -f tptp -t rm_equality:rstfp <file>
+   None required, E reads TPTP-3 format with includes
 
 Command line:
 
-   eprover -xAuto -tAuto --tptp-in -s --memory-limit=384 %s
+   eprover -xAuto -tAuto --tstp-in -s --memory-limit=384 %s
 
-   eproof  -xAuto -tAuto --tptp-in --tstp-out --memory-limit=384 %s
+   eproof  -xAuto -tAuto --tstp-in --tstp-out --memory-limit=384 %s
 
 
 Distinguished strings for the results:
 
-- Proof found:
+Problem is CNF and unsatisfiable:
 
 # TSTP exit status: Unsatisfiable
 
-- No proof found (no proof exists):
+Problem is CNF and satisfiable:
 
 # TSTP exit status: Satisfiable
+
+Problem is FOF and a theorem: 
+
+# TSTP exit status: Theorem
+
+Problem is FOF and not a theorem:
+
+# TSTP exit status: CounterSatisfiable
 
 - System gave up (usually resource limit)
 

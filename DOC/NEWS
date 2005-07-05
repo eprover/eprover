@@ -18,7 +18,12 @@ Version 0.82 ->
 - Reworked subsumption by ordering clauses (still need to look at the
   effect this has on search).
 - Got rid of ancient options restricting paramodulation (dating back
-- to METOP, and never used)
+  to METOP, and never used)
+- Modified/rewrote some literal selection functions, taking the AHP
+  (Avoid Head Predicates) property into account (solves some of the
+  interference with heuristic search)
+- Added simultaneous paramodulation (very useful)
+- Added goal-directed heuristics 
 
 Version 0.81 -> 0.82 Lung Ching
 
