@@ -38,7 +38,7 @@ BEGIN{
    }
    if(int($1) != $1)
    {
-      all_int_keys = 0;
+      all_int_keys = 0;      
    }
    array[$1]++;
    if(array[$1] > maxcount)

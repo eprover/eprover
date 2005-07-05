@@ -439,7 +439,8 @@ class_int={
     14:{"F": "FewGroundPos", "S": "SomeGroundPos", "M": "ManyGroundPos"},
     15:{"0": "MaxFArity0", "1": "MaxFArity1", "2": "MaxFArity2","3": "MaxFArity3Plus"},
     16:{"0": "AvgFArity0", "1": "AvgFArity1", "2": "AvgFArity2","3": "AvgFArity3Plus"},
-    17:{"S": "SmallFArSum", "M": "MediumFArSum", "L": "LargeFArSum"}
+    17:{"S": "SmallFArSum", "M": "MediumFArSum", "L": "LargeFArSum"},
+    18:{"S": "ShallowMaxDepth", "M": "MediumMaxDepth", "D": "DeepMaxDepth"}
 }
 
 selstrat={
