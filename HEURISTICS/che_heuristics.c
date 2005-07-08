@@ -81,8 +81,16 @@ HCB_p HCBAutoModeCreate(HCBARGUMENTS)
    limits->lit_many_limit       = 620;
    limits->term_medium_limit    = 163;
    limits->term_large_limit     = 2270;
-   limits->far_sum_medium_limit = 3;
-   limits->far_sum_large_limit  = 75;
+   limits->far_sum_medium_limit = 5;
+   limits->far_sum_large_limit  = 24;
+   limits->depth_medium_limit   = 0;
+   limits->depth_deep_limit     = 6;
+   limits->gpc_absolute         = true;
+   limits->gpc_few_limit        = 1;
+   limits->gpc_many_limit       = 3;
+   limits->ngu_absolute         = true;
+   limits->ngu_few_limit        = 1;
+   limits->ngu_many_limit       = 3;
 
    control->heuristic_parms.selection_strategy = SelectNoLiterals;
    OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
