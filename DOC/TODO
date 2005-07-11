@@ -1,7 +1,9 @@
+Condensing.
+
 Finally get rid of the ugly second termbank. Just have two variable
 banks per term bank, the Xs (normal variables) and the Ys (used when
 distinct variables are needed. Possibly better sharing, more general
-use of pointer compariasons, and fround term inserting becomes free.
+use of pointer compariasons, and ground term inserting becomes free.
 
 Flattening of ground terms (anti-unfolding ;-), useful for termination
 in many theories, and maybe in general.
@@ -148,7 +150,8 @@ Generate signature fingerprint of clauses (for each symbol: 0 if it
 does not occur, 1 if it occurs positively, 2 if negatively, 3 if
 both). Use fingerprint to pretest subsumption (fingerprint of
 subsuming clause must be subset of subsumed clause). Recompute
-fingerprint if nf-date has changed.
+fingerprint if nf-date has changed. -> Done, and much better, in
+feature vector indexing
 
 Select biggest/Smallest orientable literal -> Done
 
