@@ -36,7 +36,7 @@ Changes
 #define VERSION      "0.9pre001"
 #define NAME         "eprover"
 
-#define NICKNAME     "Soom"
+#define NICKNAME     "Lung Ching"
 
 typedef enum
 {
