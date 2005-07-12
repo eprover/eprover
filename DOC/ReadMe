@@ -1,16 +1,9 @@
 This is the required ReadMe file for the CASC competitions.
 -----------------------------------------------------------
 
-Installation:
+For installation, follow the instructions in the main README file. 
 
-Do:
-   gtar xzf E.tgz
-   cd E
-   more README
-
-Follow the instructions you find there.
-
-Translating to input format:
+Translating to proper input format:
 
    None required, E reads TPTP-3 format with includes
 
@@ -43,13 +36,26 @@ Problem is FOF and not a theorem:
 
 # Failure:
 
-Please remind the TSTP people that TSTP exit statuses have to become
-hierarchic! 
 
-The start of solution output:
+The start of solution output for proofs:
 
 # Proof object starts here.
 
-The end of solution output:
+The end of solution output for proofs:
 
 # Proof object ends here.
+
+
+
+
+The start of solution output for models/saturations:
+
+# Saturation derivation starts here.
+
+The end of solution output for models/saturations:
+
+# Saturation derivation ends here.
+
+
+
+

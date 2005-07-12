@@ -1,4 +1,4 @@
-See DOC/ReadMe for CASC-20 instructions.
+See DOC/ReadMe for additional CASC-20 instructions.
 
 Short Installation Instructions for the Impatient
 -------------------------------------------------
@@ -24,7 +24,8 @@ Simplest installation (in-place):
 > eprover -h | more
 
 This will only allow you to run the eproof script in place (most other
-programs, including eprover, should run from everywhere).
+programs, including eprover, are stand-alone binaries and should run
+from everywhere).
 
 Read the rest of this file and the fine (if incomplete) manual if
 anything fails. There should be a copy in DOC/eprover.pdf.

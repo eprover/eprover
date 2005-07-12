@@ -1,6 +1,26 @@
 # This file contains old entries moved from the TODO file to unclutter
 # it 
 
+Generate signature fingerprint of clauses (for each symbol: 0 if it
+does not occur, 1 if it occurs positively, 2 if negatively, 3 if
+both). Use fingerprint to pretest subsumption (fingerprint of
+subsuming clause must be subset of subsumed clause). Recompute
+fingerprint if nf-date has changed. -> Done, and much better, in
+feature vector indexing
+
+Select biggest/Smallest orientable literal -> Done
+
+More efficient (caching) LPO -> Suggestion Roberto. Cache within one
+comparison. -> Done (not very well), but no improvement. Now let's
+talk to Bernd about a more efficient LPO -> Done, Bernd's LPO4 makes
+caching unncessary!
+
+Simultaneous paramodulation. -> Done (for E 0.9), very good
+
+Fix inheritance of SOS and clause types for split clauses. The code is
+there, but commented out -> I have not enough CPU time to rerun tests
+before CASC-19. Now fixed in E 0.8dev001
+
 Signature extension with OCB: Standard weight and Precedence -> done
 
 If parsing literals and clauses into terms is to slow: Extend
@@ -31,6 +51,14 @@ Rework subsumption:
        3) Does s or s subsume s or t ? -> Logically yes, but this is
           not allowed in superposition, as s or s is not a
           multi-subset of s or t!
+
+This is strictly BLUE SKY: Do _not_ remove (all) rewritten terms, but
+insert a pointer to the normal form. Construct new terms during
+TBInsert directly with normal forms. -> Done, my hair grows back.
+
+Rewriting by linking (see blue sky above). Annotate links with clauses
+for reconstruction (?) -> Much of it done as part of the new rewrite
+engine! 
 
 More important: Make distribute-eprover check bug-conditions and
 memory overflows! -> done

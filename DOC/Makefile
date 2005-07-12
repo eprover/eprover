@@ -16,7 +16,7 @@ include ../Makefile.vars
 # Project specific variables
 
 PROJECT = DOC
-LIB     = clib.ps eprover.ps
+LIB     = clib.ps eprover.ps eprover.pdf
 
 all: $(LIB)
 
@@ -43,4 +43,5 @@ $(LIB): $(DOC_LIB)
 #        $(BIBTEX) eprover
 	$(LATEX) eprover.tex
 	$(LATEX) eprover.tex
+	$(PDFLATEX) eprover.tex
 	$(DVIPS) -o eprover.ps eprover.dvi

@@ -1,3 +1,8 @@
+Implements Bernd's KBO.
+
+Purity. For the equational case, use non-E-unifiability as the
+criterion (approximate it with universal equality). 
+
 Condensing.
 
 Finally get rid of the ugly second termbank. Just have two variable
@@ -39,14 +44,8 @@ positions in that clause that start with the indexed symbol.
 positions are very rare indeed! Will change generation order, though
 (but not significantly). 
 
-Fix inheritance of SOS and clause types for split clauses. The code is
-there, but commented out -> I have not enough CPU time to rerun tests
-before CASC-19. Now fixed in E 0.8dev001
-
 Try copying instantiated terms (non-shared) before doing ordering
 comparisons -> we can count variable occurences in the variables!
-
-Simultaneous paramodulation.
 
 Precedences giving different weights to frequencies in positive and
 negative literals (positive more seems better).
@@ -54,7 +53,7 @@ negative literals (positive more seems better).
 Geoff's Idea: Goal-Directed heuristics, using similarity measures on
 frequency vectors. Alternatively: Giving bonus for smaller features.
 Simpler: Use frequency of symbols in goals to compute weights (symbols
-in goals are preferred).
+in goals are preferred). -> Simple version now done.
 
 Waldmeister-Style MixWeight: |max(s,t)| * (|s|+|t|+1) + |s| + |t|
 
@@ -76,10 +75,6 @@ Caching term orderings:
 Replace VarHash with simple PDArrays if time critical. As variables
 idents are small in practice, should work with little memory overhead,
 but much faster.
-
-More efficient (caching) LPO -> Suggestion Roberto. Cache within one
-comparison. -> Done (not very well), but no improvement. Now let's
-talk to Bernd about a more efficient LPO
 
 Perhaps put outputlevel and stream into proofstate? Allows for more
 customization. Again perhaps: Give names to proofstates and termbanks
@@ -113,9 +108,6 @@ Syntax: n@m[+-*/]k  - initial value n
 Rethink Simweight...return something based on the comparison of equal
 and unequal parts!
 
-This is strictly BLUE SKY: Do _not_ remove (all) rewritten terms, but
-insert a pointer to the normal form. Construct new terms during
-TBInsert directly with normal forms.
 
 gettermweight() is somewhat inefficient. If we don't need the weight
 multiplier, we can perhaps speed it up with a simple stack-based
@@ -146,14 +138,6 @@ SelectComplexExceptRRHorn -> Check if the maximal literal is
 orientable, check if rule is range restricted with respect to this
 maximal term...
 
-Generate signature fingerprint of clauses (for each symbol: 0 if it
-does not occur, 1 if it occurs positively, 2 if negatively, 3 if
-both). Use fingerprint to pretest subsumption (fingerprint of
-subsuming clause must be subset of subsumed clause). Recompute
-fingerprint if nf-date has changed. -> Done, and much better, in
-feature vector indexing
-
-Select biggest/Smallest orientable literal -> Done
 
 Select DiffNeg orientable literal
 
@@ -220,10 +204,6 @@ into the TermCell. This also would make many debugging operations
 simpler, because we have access to the signature from any shared term!
 
 Sharing factor used introspectively!
-
-Rewriting by linking (see blue sky above). Annotate links with clauses
-for reconstruction (?) -> Much of it done as part of the new rewrite
-engine! 
 
 Search for non-equational equivalences, add them as rewrite rules. Can
 we generalize this to equational literals? Does it make sense there or
