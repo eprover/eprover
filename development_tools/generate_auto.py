@@ -37,7 +37,7 @@ def print_list_lines(l):
 def compute_problem_stem(key):
     mr = problem_ext.search(key)
     if not mr:
-        raise RuntimeError, "Problem name has no extension (?!?)" + key
+        raise RuntimeError, "Problem name has no extension (?!?) <" + key+">"
     res = key[0:mr.start()]
     # print key + " : " + res
     return res;
