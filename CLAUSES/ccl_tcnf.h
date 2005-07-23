@@ -41,6 +41,7 @@ Changes
 #define TFORM_MANY_LIMIT   1024
 #define TFORM_RENAME_LIMIT 8
 
+
 long       TFormulaEstimateClauses(TB_p bank, TFormula_p form, bool pos);
 
 TFormula_p TFormulaDefRename(TB_p bank, TFormula_p form, int polarity, 

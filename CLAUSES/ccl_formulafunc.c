@@ -396,6 +396,13 @@ long FormulaSetCNF(FormulaSet_p set, ClauseSet_p clauseset,
    while(handle!=set->anchor)
    {
       res += WFormulaCNF(handle,clauseset, terms, fresh_vars);
+      if(handle->tformula)
+      {
+         FormulaSetGCMarkCells(set);
+         assert(terms == handle->terms);
+         ClauseSetGCMarkTerms(clauseset);
+         TBGCSweep(handle->terms);
+      }
       handle = handle->succ;
    }
    return res;

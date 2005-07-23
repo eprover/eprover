@@ -163,6 +163,31 @@ void WFormulaFree(WFormula_p form)
 
 /*-----------------------------------------------------------------------
 //
+// Function: WFormulaGCMarkCells()
+//
+//   If formula is a term formula, mark the terms. Otherwise a noop.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void WFormulaGCMarkCells(WFormula_p form)
+{
+   if(form->formula)
+   {
+      /* Noting */
+   }   
+   else
+   {
+      TFormulaGCMarkCells(form->terms, form->tformula);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: WFormulaTPTPParse()
 //
 //   Parse a formula in TPTP format.
@@ -598,6 +623,31 @@ void FormulaSetFree(FormulaSet_p set)
    FormulaSetCellFree(set);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaSetGCMarkCells()
+//
+//   For all tformulas in set, mark their cells as being in use (for
+//   garbage collection).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void FormulaSetGCMarkCells(FormulaSet_p set)
+{
+   WFormula_p handle;
+   
+   handle = set->anchor->succ;
+   
+   while(handle!=set->anchor)
+   {
+      WFormulaGCMarkCells(handle);
+      handle = handle->succ;
+   }
+}
 
 /*-----------------------------------------------------------------------
 //

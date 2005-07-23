@@ -57,6 +57,7 @@ typedef Term_p TFormula_p;
 #define   TFormulaIsPropFalse(form) ((form)->f_code == SIG_FALSE_CODE)
 
 
+#define    TFormulaGCMarkCells(bank, form) TBGCMarkTerm((bank),(form))
 TFormula_p TFormulaFCodeAlloc(TB_p bank, FunCode op, TFormula_p arg1, TFormula_p arg2);
 TFormula_p TFormulaLitAlloc(Eqn_p literal);
 TFormula_p TFormulaPropConstantAlloc(TB_p bank, bool positive);
