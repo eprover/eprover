@@ -98,6 +98,7 @@ TB_p    TBAlloc(TermProperties prop_mask, Sig_p sig);
 void    TBFree(TB_p junk);
 
 long    TBTermNodes(TB_p bank);
+#define TBNonVarTermNodes(bank) TermCellStoreNodes(&(bank)->term_store)
 #define TBStorage(bank)\
          (TERMCELL_DYN_MEM*(bank)->term_store.entries\
          +(bank)->term_store.arg_count*TERMP_MEM)
