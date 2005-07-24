@@ -390,21 +390,30 @@ long FormulaSetCNF(FormulaSet_p set, ClauseSet_p clauseset,
 {
    WFormula_p handle;
    long res = 0;
-   
+   long old_nodes = TBNonVarTermNodes(terms);
+
    handle = set->anchor->succ;
    
    while(handle!=set->anchor)
    {
       res += WFormulaCNF(handle,clauseset, terms, fresh_vars);
-      if(handle->tformula)
+      if(handle->tformula &&  
+         ((TBNonVarTermNodes(terms)-old_nodes)>TFORMULA_GC_LIMIT))
       {
-         FormulaSetGCMarkCells(set);
          assert(terms == handle->terms);
+         FormulaSetGCMarkCells(set);
          ClauseSetGCMarkTerms(clauseset);
          TBGCSweep(handle->terms);
+         old_nodes = TBNonVarTermNodes(terms);
       }
       handle = handle->succ;
    }
+   if(TBNonVarTermNodes(terms)!=old_nodes)
+   {
+      FormulaSetGCMarkCells(set);
+      ClauseSetGCMarkTerms(clauseset);
+      TBGCSweep(terms);
+   }  
    return res;
 }
 
