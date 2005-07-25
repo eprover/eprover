@@ -56,15 +56,17 @@ typedef struct memcell
 #define MEM_RSET_PATTERN 0x00000000
 
 extern bool MemIsLow;
-extern Mem_p free_mem_list[];
+extern Mem_p free_mem_list[]; /* Exported for use by inline
+                               * functions/Macros */
 
 static __inline__ void* SizeMallocReal(size_t size);
 static __inline__ void  SizeFreeReal(void* junk, size_t size);
 
 
-/* For estimating the real memory consumption of a data type - this
-   may be way of for some memory managers, but should be reasonably ok
-   for many situations */
+/* For estimating the real memory consumption of a data type - the
+   default may be way of for some memory managers, but should be
+   reasonably ok for many situations. If CONSTANT_MEM_ESTIMATE is on,
+   a very rough but machine-independent estimate is used. */
 
 #ifdef CONSTANT_MEM_ESTIMATE
 #define MEMSIZE(type) "There is a bug in the code! Everything has to work with constants."
@@ -98,8 +100,13 @@ static __inline__ void  SizeFreeReal(void* junk, size_t size);
 
 #endif
 
+#ifndef RESTRICTED_FOR_WINDOWS
+void  SetMemoryLimit(rlim_t mem_limit);
+#else
+#define SetMemoryLimit(dummy) /* Nothing */
+#endif
+
 void  MemFlushFreeList(void);
-void  AllocReserveMemory(int size);
 void* SecureMalloc(size_t size);
 void* SecureRealloc(void *ptr, size_t size);
 char* SecureStrdup(const char* source);

@@ -33,8 +33,7 @@ Changes
 /* This global variable is set whenever malloc() failed and triggered
    a free memory reorganization. User programs may examine this
    variable to take certain measures (and may reset it if they think
-   that they freed significant amounts of memory - in that case it
-   might be useful to also call AllocReserveMemory()). However, this
+   that they freed significant amounts of memory). However, this
    is somewhat discouraged - do you really want your program to depend
    in pretty complex ways on uncontrolable features like the amount of
    free memory available to your process? _I_ only used to use it for
@@ -42,10 +41,6 @@ Changes
 
 bool MemIsLow = false;
 
-static char* reserve_mem = NULL; /* Reserve memory freed in case of
-				    allocation failure. Should be
-				    void*, but then I cannot stride
-				    over it (I think) */
 Mem_p free_mem_list[MEM_ARR_SIZE] = {NULL};
 
 #ifdef CLB_MEMORY_DEBUG 
@@ -99,7 +94,55 @@ static long free_list_size(Mem_p list)
 /*                  Exportierte Funktionen                               */
 /*-----------------------------------------------------------------------*/
 
-  
+
+/*-----------------------------------------------------------------------
+//
+// Function: SetMemoryLimit()
+//
+//   Set memory limit to the given limit (ir any), or the largest
+//   possible.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+#ifndef RESTRICTED_FOR_WINDOWS
+void SetMemoryLimit(rlim_t mem_limit)
+{
+   struct rlimit limit = {RLIM_INFINITY, RLIM_INFINITY};
+   
+   if(!mem_limit)
+   {
+      return;
+   }  
+   if(getrlimit(RLIMIT_DATA, &limit))
+   {
+      TmpErrno = errno;
+      SysError("Unable to get current memory limit", SYS_ERROR);
+   }
+   limit.rlim_cur = MAX(mem_limit,limit.rlim_max);
+   if(setrlimit(RLIMIT_DATA, &limit))
+   {
+      TmpErrno = errno;
+      SysError("Unable to set memory limit", SYS_ERROR);
+   }
+#ifdef RLIMIT_AS
+   if(getrlimit(RLIMIT_AS, &limit))
+   {
+      TmpErrno = errno;
+      SysError("Unable to get current memory limit", SYS_ERROR);
+   }
+   limit.rlim_cur = MAX(mem_limit,limit.rlim_max);
+   if(setrlimit(RLIMIT_AS, &limit))
+   {
+      TmpErrno = errno;
+      SysError("Unable to set memory limit", SYS_ERROR);
+   }
+#endif /* RLIMIT_AS */
+}
+#endif /* RESTRICTED_FOR_WINDOWS */
 
 /*-----------------------------------------------------------------------
 //
@@ -136,37 +179,15 @@ void MemFlushFreeList(void)
 
 /*-----------------------------------------------------------------------
 //
-// Function: AllocReserveMemory()
-//
-//   Allocate size bytes of memory (which may be returned to the
-//   memory subsystem if SecureMalloc() fails.
-//
-// Global Variables: reserve_mem
-//
-// Side Effects    : As stated above
-//
-/----------------------------------------------------------------------*/
-
-void  AllocReserveMemory(int size)
-{
-   reserve_mem = SecureMalloc(size);   
-#ifdef MEMORY_RESERVE_PARANOID
-   StrideMemory(reserve_mem, size);
-#endif
-}
-
-
-/*-----------------------------------------------------------------------
-//
 // Function: SecureMalloc()
 //
 //  Returns a pointer to an unused memory block sized size. If
 //  possible, a fresh block is allocated, if not, the
-//  reorganization of free_mem_list is triggered and reserve_mem is
-//  released, if still no memory is available, an error will be
-//  produced. If the first malloc fails, MemIsLow will be set.
+//  reorganization of free_mem_list is triggered, if still no memory
+//  is available, an error will be produced. If the first malloc
+//  fails, MemIsLow will be set. 
 //
-// Global Variables: free_mem_list
+// Global Variables: free_mem_list, MemIsLow
 //
 // Side Effects    : Memory operations, possibly error
 //
@@ -187,18 +208,13 @@ void* SecureMalloc(size_t size)
    {    /* malloc has no memory left  */
       MemIsLow = true;
       MemFlushFreeList(); /* Return own freelist */
-      if(reserve_mem)
-      {
-	 FREE(reserve_mem);
-	 reserve_mem = NULL;
-      }
 
       handle = (void*)malloc(size);
       
       if(!handle)
       {   /*  Still nothing...*/
 #ifdef PRINT_SOMEERRORS_STDOUT
-	 ReleaseErrorReserve();
+         SetMemoryLimit(RLIM_INFINITY);
 	 fprintf(stdout, "# Failure: Resource limit exceeded (memory)\n");
 	 TSTPOUT(stdout, "ResourceOut");
 	 fflush(stdout);
@@ -246,16 +262,11 @@ void* SecureRealloc(void *ptr, size_t size)
    {
       MemIsLow = true;
       MemFlushFreeList();
-      if(reserve_mem)
-      {
-	 FREE(reserve_mem);
-	 reserve_mem = NULL;
-      }
       handle = ptr?realloc(ptr,size):malloc(size);
       if(!handle)
       {   /*  Still nothing...*/
 #ifdef PRINT_SOMEERRORS_STDOUT
-	 ReleaseErrorReserve();
+         SetMemoryLimit(RLIM_INFINITY);
 	 fprintf(stdout, "# Failure: Resource limit exceeded (memory)\n");
 	 fflush(stdout);
 	 PrintRusage(stdout);
