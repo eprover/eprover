@@ -122,7 +122,7 @@ void SetMemoryLimit(rlim_t mem_limit)
       TmpErrno = errno;
       SysError("Unable to get current memory limit", SYS_ERROR);
    }
-   limit.rlim_cur = MAX(mem_limit,limit.rlim_max);
+   limit.rlim_cur = MIN(mem_limit,limit.rlim_max);
    if(setrlimit(RLIMIT_DATA, &limit))
    {
       TmpErrno = errno;
@@ -134,7 +134,7 @@ void SetMemoryLimit(rlim_t mem_limit)
       TmpErrno = errno;
       SysError("Unable to get current memory limit", SYS_ERROR);
    }
-   limit.rlim_cur = MAX(mem_limit,limit.rlim_max);
+   limit.rlim_cur = MIN(mem_limit,limit.rlim_max);
    if(setrlimit(RLIMIT_AS, &limit))
    {
       TmpErrno = errno;
