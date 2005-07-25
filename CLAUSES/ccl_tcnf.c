@@ -408,7 +408,7 @@ TFormula_p tformula_copy_def(TB_p bank, TFormula_p form, NumTree_p *defs)
       else
       {
          assert((form->f_code == bank->sig->qex_code) ||
-                (form->f_code == bank->sig->qallcode));
+                (form->f_code == bank->sig->qall_code));
          arg1 = form->args[0];
       }
       if(form->f_code != bank->sig->not_code)
