@@ -108,7 +108,7 @@ HCB_p HCBAutoModeCreate(HCBARGUMENTS)
 			     DEFAULT_DELETE_BAD_LIMIT))
    {
       control->heuristic_parms.delete_bad_limit =
-	 (float)(parms->mem_limit-2)*0.7*MEGA;
+	 (float)(parms->mem_limit-2)*0.7;
       /*printf("Delete-bad-limit set to %ld\n", control->heuristic_parms.delete_bad_limit);*/
    }
    if(SpecNoEq(spec))
@@ -158,7 +158,7 @@ HCB_p HCB071AutoModeCreate(HCBARGUMENTS)
 			     DEFAULT_DELETE_BAD_LIMIT))
    {
       control->heuristic_parms.delete_bad_limit =
-	 (float)(parms->mem_limit-2)*0.7*MEGA;
+	 (float)(parms->mem_limit-2)*0.7;
       /* control->heuristic_parms.filter_copies_limit = control->heuristic_parms.delete_bad_limit*0.7; */
    }
    if(SpecNoEq(spec))
@@ -226,7 +226,7 @@ HCB_p HCBDevAutoModeCreate(HCBARGUMENTS)
 			     DEFAULT_DELETE_BAD_LIMIT))
    {
       control->heuristic_parms.delete_bad_limit =
-	 (float)(parms->mem_limit-2)*0.7*MEGA;
+	 (float)(parms->mem_limit-2)*0.7;
       /* control->heuristic_parms.filter_copies_limit = control->heuristic_parms.delete_bad_limit*0.7; */
    }
    if(SpecNoEq(spec))
