@@ -285,7 +285,6 @@ int main(int argc, char* argv[])
    
    InitIO("eground");
    ESignalSetup(SIGXCPU);
-   AllocReserveMemory(4*MEGA);
 
    state = process_options(argc, argv);
    
@@ -476,7 +475,7 @@ CLState_p process_options(int argc, char* argv[])
    CLState_p state;
    char*  arg;
    struct rlimit limit = {RLIM_INFINITY, RLIM_INFINITY};
-   long    mem_limit;
+   rlim_t mem_limit = 0;
    
    state = CLStateAlloc(argc,argv);
    
@@ -549,26 +548,28 @@ CLState_p process_options(int argc, char* argv[])
 	    taut_check = false;
 	    break;
       case OPT_MEM_LIMIT:
-	    mem_limit = CLStateGetIntArg(handle, arg);
-	    if(getrlimit(RLIMIT_DATA, &limit))
-	    {
-	       TmpErrno = errno;
-	       SysError("Unable to get current memory limit", SYS_ERROR);
-	    }
-	    limit.rlim_cur = MEGA*mem_limit;
-	    if(setrlimit(RLIMIT_DATA, &limit))
-	    {
-	       TmpErrno = errno;
-	       SysError("Unable to set memory limit", SYS_ERROR);
-	    }
-#ifdef RLIMIT_AS
-	    if(setrlimit(RLIMIT_AS, &limit))
-	    {
-	       TmpErrno = errno;
-	       SysError("Unable to set memory limit", SYS_ERROR);
-	    }
-#endif
-	    break; 
+            if(strcmp(arg, "Auto")==0)
+            {              
+               long tmpmem =  GetSystemPhysMemory();
+               long mem_limit = 0.8*tmpmem;
+               
+               if(tmpmem==-1)
+               {
+                  Error("Cannot find physical memory automatically. "
+                        "Give explicit value to --memory-limit", OTHER_ERROR);
+               }               
+               mem_limit = MEGA*mem_limit;
+               VERBOSE(fprintf(stderr, 
+                               "Physical memory determined as %ld MB\n"
+                               "Memory limit set to %ld MB\n", 
+                               tmpmem, 
+                               mem_limit););
+            }
+            else
+            {
+               mem_limit = MEGA*CLStateGetIntArg(handle, arg);
+            }
+	    break;
       case OPT_CPU_LIMIT:
 	    HardTimeLimit = CLStateGetIntArg(handle, arg);
 	    if(SoftTimeLimit != RLIM_INFINITY)
@@ -645,6 +646,7 @@ CLState_p process_options(int argc, char* argv[])
 	 SysError("Unable to prevent core dumps", SYS_ERROR);
       }
    }   
+   SetMemoryLimit(mem_limit);
    return state;
 }
 

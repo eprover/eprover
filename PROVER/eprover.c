@@ -32,8 +32,8 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-/*  cvs tag E-0-9pre005 */
-#define VERSION      "0.9pre005"
+/*  cvs tag E-0-9pre006 */
+#define VERSION      "0.9pre006"
 #define NAME         "eprover"
 
 #define NICKNAME     "Soom"
@@ -1362,13 +1362,13 @@ CLState_p process_options(int argc, char* argv[])
             {              
                long tmpmem =  GetSystemPhysMemory();
                long mem_limit = 0.8*tmpmem;
-
+               
                if(tmpmem==-1)
                {
                   Error("Cannot find physical memory automatically. "
                         "Give explicit value to --memory-limit", OTHER_ERROR);
                }               
-               h_parms->mem_limit = mem_limit;
+               h_parms->mem_limit = MEGA*mem_limit;
                VERBOSE(fprintf(stderr, 
                                "Physical memory determined as %ld MB\n"
                                "Memory limit set to %ld MB\n", 
@@ -1377,32 +1377,8 @@ CLState_p process_options(int argc, char* argv[])
             }
             else
             {
-               h_parms->mem_limit = CLStateGetIntArg(handle, arg);
+               h_parms->mem_limit = MEGA*CLStateGetIntArg(handle, arg);
             }
-	    if(getrlimit(RLIMIT_DATA, &limit))
-	    {
-	       TmpErrno = errno;
-	       SysError("Unable to get current memory limit", SYS_ERROR);
-	    }
-	    limit.rlim_cur = ((rlim_t)(MEGA))*h_parms->mem_limit;
-	    if(setrlimit(RLIMIT_DATA, &limit))
-	    {
-	       TmpErrno = errno;
-	       SysError("Unable to set memory limit", SYS_ERROR);
-	    }
-#ifdef RLIMIT_AS
-	    if(getrlimit(RLIMIT_AS, &limit))
-	    {
-	       TmpErrno = errno;
-	       SysError("Unable to get current memory limit", SYS_ERROR);
-	    }
-	    limit.rlim_cur = ((rlim_t)(MEGA))*h_parms->mem_limit;
-	    if(setrlimit(RLIMIT_AS, &limit))
-	    {
-	       TmpErrno = errno;
-	       SysError("Unable to set memory limit", SYS_ERROR);
-	    }
-#endif
 	    break;
       case OPT_CPU_LIMIT:
 	    HardTimeLimit = CLStateGetIntArg(handle, arg);
@@ -1923,6 +1899,8 @@ CLState_p process_options(int argc, char* argv[])
 	 SysError("Unable to prevent core dumps", SYS_ERROR);
       }
    }
+   SetMemoryLimit(h_parms->mem_limit);
+
 #endif /* RESTRICTED_FOR_WINDOWS */
    return state;
 }
