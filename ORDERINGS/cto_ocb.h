@@ -39,7 +39,7 @@ typedef enum
 {
    NoOrdering,
    AUTO,
-   AUTO071,
+   AUTOCASC,
    AUTODEV,
    OPTIMIZE_AX,
    KBO,

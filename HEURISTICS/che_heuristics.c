@@ -33,7 +33,7 @@ Changes
 HeuristicAssocCell HeuristicsTable[]=
 {
    {HEU_AUTO_MODE,     "Auto",      HCBAutoModeCreate},
-   {HEU_AUTO_MODE_071, "Auto071",   HCB071AutoModeCreate},
+   {HEU_AUTO_MODE_CASC, "AutoCASC", HCBCASCAutoModeCreate},
    {HEU_AUTO_MODE_DEV, "AutoDev",   HCBDevAutoModeCreate},
    {HEU_NO_HEURISTIC, NULL,         (HCBCreateFun)NULL}
 };
@@ -121,13 +121,13 @@ HCB_p HCBAutoModeCreate(HCBARGUMENTS)
 }
 #undef CHE_HEURISTICS_AUTO
 
+
 /*-----------------------------------------------------------------------
 //
-// Function: HCB071AutoModeCreate()
+// Function: HCBCASCAutoModeCreate()
 //
 //   Analyse the proof problem and return an hopefully suitable
-//   heuristic, using the criteria from E 0.71, the last version
-//   without contextual cutting.
+//   heuristic. This is the CASC-20 auto mode
 //
 // Global Variables: -
 //
@@ -135,12 +135,29 @@ HCB_p HCBAutoModeCreate(HCBARGUMENTS)
 //
 /----------------------------------------------------------------------*/
 
-#define CHE_HEURISTICS_AUTO_071
-HCB_p HCB071AutoModeCreate(HCBARGUMENTS)
+#define CHE_HEURISTICS_AUTO_CASC
+HCB_p HCBCASCAutoModeCreate(HCBARGUMENTS)
 {
    char *res = "Default";
    SpecFeature_p spec = &(control->problem_specs);
    SpecLimits_p limits =  SpecLimitsAlloc();
+
+   limits->ax_some_limit        = 46;
+   limits->ax_many_limit        = 205;
+   limits->lit_some_limit       = 212;
+   limits->lit_many_limit       = 620;
+   limits->term_medium_limit    = 163;
+   limits->term_large_limit     = 2270;
+   limits->far_sum_medium_limit = 5;
+   limits->far_sum_large_limit  = 24;
+   limits->depth_medium_limit   = 0;
+   limits->depth_deep_limit     = 6;
+   limits->gpc_absolute         = true;
+   limits->gpc_few_limit        = 1;
+   limits->gpc_many_limit       = 3;
+   limits->ngu_absolute         = true;
+   limits->ngu_few_limit        = 1;
+   limits->ngu_many_limit       = 3;
 
    control->heuristic_parms.selection_strategy = SelectNoLiterals;
    OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
@@ -150,7 +167,7 @@ HCB_p HCB071AutoModeCreate(HCBARGUMENTS)
    if(OutputLevel)
    {
       fprintf(GlobalOut, 
-	      "# Auto-Mode (0.71) selected heuristic %s\n"
+	      "# Auto-Mode selected heuristic %s\n"
 	      "# and selection function %s.\n#\n", res, 
 	      GetLitSelName(control->heuristic_parms.selection_strategy)); 
    }
@@ -159,7 +176,7 @@ HCB_p HCB071AutoModeCreate(HCBARGUMENTS)
    {
       control->heuristic_parms.delete_bad_limit =
 	 (float)(parms->mem_limit-2)*0.7;
-      /* control->heuristic_parms.filter_copies_limit = control->heuristic_parms.delete_bad_limit*0.7; */
+      /*printf("Delete-bad-limit set to %ld\n", control->heuristic_parms.delete_bad_limit);*/
    }
    if(SpecNoEq(spec))
    {
@@ -169,7 +186,7 @@ HCB_p HCB071AutoModeCreate(HCBARGUMENTS)
    SpecLimitsCellFree(limits);
    return GetHeuristic(res, state, control, parms);
 }
-#undef CHE_HEURISTICS_AUTO_071
+#undef CHE_HEURISTICS_AUTO_CASC
 
 
 /*-----------------------------------------------------------------------

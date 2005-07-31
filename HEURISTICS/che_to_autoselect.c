@@ -104,12 +104,13 @@ OCB_p generate_auto_ordering(ProofState_p state, SpecFeature_p spec)
 }
 #undef CHE_HEURISTICS_AUTO
 
+
 /*-----------------------------------------------------------------------
 //
-// Function: generate_auto071_ordering()
+// Function: generate_autocasc_ordering()
 //
-//   Generate a term ordering suitable to the problem in state, using
-//   the Heuristic from E 0.71.
+//   Generate a term ordering suitable to the problem in state. This
+//   is the CASC-20 auto mode
 //
 // Global Variables: -
 //
@@ -118,31 +119,48 @@ OCB_p generate_auto_ordering(ProofState_p state, SpecFeature_p spec)
 //
 /----------------------------------------------------------------------*/
 
-#define CHE_HEURISTICS_AUTO_071
+#define CHE_HEURISTICS_AUTO_CASC
 
-OCB_p generate_auto071_ordering(ProofState_p state, SpecFeature_p spec)
+OCB_p generate_autocasc_ordering(ProofState_p state, SpecFeature_p spec)
 {
    OrderParmsCell  oparms; 
    SpecLimits_p    limits = SpecLimitsAlloc();
-   
+
+   limits->ax_some_limit        = 46;
+   limits->ax_many_limit        = 205;
+   limits->lit_some_limit       = 212;
+   limits->lit_many_limit       = 620;
+   limits->term_medium_limit    = 163;
+   limits->term_large_limit     = 2270;
+   limits->far_sum_medium_limit = 5;
+   limits->far_sum_large_limit  = 24;
+   limits->depth_medium_limit   = 0;
+   limits->depth_deep_limit     = 6;
+   limits->gpc_absolute         = true;
+   limits->gpc_few_limit        = 1;
+   limits->gpc_many_limit       = 3;
+   limits->ngu_absolute         = true;
+   limits->ngu_few_limit        = 1;
+   limits->ngu_many_limit       = 3;
+
    oparms.ordertype       = KBO;
    oparms.to_const_weight = WConstNoSpecialWeight; 
    oparms.to_weight_gen   = WSelectMaximal;
    oparms.to_prec_gen     = PUnaryFirst;
    oparms.no_lit_cmp      = false;
-
    OUTPRINT(1, "\n# Auto-Ordering is analysing problem.\n");
+
    #include "che_auto_cases.c"
 
    if(OutputLevel)
    {
-      fprintf(GlobalOut, "# Auto-mode (0.71) selected ordering type %s\n", 
+      fprintf(GlobalOut, "# Auto-mode selected ordering type %s\n", 
 	      TONames[oparms.ordertype]);
-      fprintf(GlobalOut, "# Auto-mode (0.71) selected ordering precedence scheme <%s>\n",
+      fprintf(GlobalOut, "# Auto-mode selected ordering precedence scheme <%s>\n",
 	      TOGetPrecGenName(oparms.to_prec_gen));
       if(oparms.ordertype == KBO)
       {
-	 fprintf(GlobalOut, "# Auto-mode (0.71) selected weight ordering scheme <%s>\n",
+	 fprintf(GlobalOut, "# Auto-mode selected weight ordering scheme <%s>\n",
 	         TOGetWeightGenName(oparms.to_weight_gen));
       }
       fputs("#\n", GlobalOut);
@@ -150,8 +168,8 @@ OCB_p generate_auto071_ordering(ProofState_p state, SpecFeature_p spec)
    SpecLimitsCellFree(limits);
    return TOCreateOrdering(state, &oparms, NULL);
 }
+#undef CHE_HEURISTICS_AUTO_CASC
 
-#undef CHE_HEURISTICS_AUTO_071
 
 
 /*-----------------------------------------------------------------------
@@ -594,9 +612,9 @@ OCB_p TOSelectOrdering(ProofState_p state, HeuristicParms_p params,
    {
       result = generate_auto_ordering(state, specs);
    }
-   else if(tmp.ordertype == AUTO071)
+   else if(tmp.ordertype == AUTOCASC)
    {
-      result = generate_auto071_ordering(state, specs);
+      result = generate_autocasc_ordering(state, specs);
    }
    else if(tmp.ordertype == AUTODEV)
    {

@@ -55,7 +55,7 @@ typedef enum
    OPT_REQUIRE_NONEMPTY,
    OPT_SILENT,
    OPT_OUTPUTLEVEL,
-   OPT_PCL_COMPRESSED,
+  OPT_PCL_COMPRESSED,
    OPT_PCL_COMPACT,
    OPT_MEM_LIMIT,
    OPT_CPU_LIMIT,
@@ -1594,9 +1594,9 @@ CLState_p process_options(int argc, char* argv[])
 	    {
 	       h_parms->ordertype = AUTO;
 	    }
-	    else if(strcmp(arg, "Auto071")==0)
+	    else if(strcmp(arg, "AutoCASC")==0)
 	    {
-	       h_parms->ordertype = AUTO071;
+	       h_parms->ordertype = AUTOCASC;
 	    }
 	    else if(strcmp(arg, "AutoDev")==0)
 	    {

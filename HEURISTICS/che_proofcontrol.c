@@ -74,22 +74,7 @@ char* DefaultHeuristics=
 
 
 "/* Here start the auto-mode-heuristics*/            \n"
-#ifdef NEVER_DEFINED
-"/* H*-Strategies: */  \n"
-
-#include "che_H_____auto.c"
-
-"/* G* Strategies: */  \n"
-
-#include "che_G_E___auto.c"
-   #include "che_G_N___auto.c"
-
-"U* Strategies */ \n"
-
-#include "che_U_____auto.c"
-#endif
-"/* All: */\n"
-#include "che_X_____auto_pp_opt_071.c" 
+#include "che_X_____auto_casc.c" 
 #include "che_X_____auto.c" 
 #include "che_X_____auto_dev.c"
 

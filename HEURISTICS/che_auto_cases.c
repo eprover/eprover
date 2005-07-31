@@ -37,8 +37,8 @@ if(false)
 #ifdef CHE_HEURISTICS_AUTO
 #include "che_X_____auto.c"         
 #endif
-#ifdef CHE_HEURISTICS_AUTO_071
-#include "che_X_____auto_pp_opt_071.c"         
+#ifdef CHE_HEURISTICS_AUTO_CASC
+#include "che_X_____auto_casc.c"         
 #endif
 #ifdef CHE_HEURISTICS_AUTO_DEV
 #include "che_X_____auto_dev.c"         
