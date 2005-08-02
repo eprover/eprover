@@ -178,6 +178,12 @@ You can check the output of epclextract (and eproof) for correctness
 using the tool checkproof in the same directory. "checkproof -h"
 should give you all necessary information.
 
+E 0.9 differs slightly from E 0.9pre003 as used in the CASC-20
+competition. To recreate the competition behaviour, run the prover as 
+
+eprover -xAutoCASC -tAutoCASC --memory-limit=384 <file>
+
+
 
 Directory overview:
 -------------------

@@ -27,7 +27,10 @@ Version 0.82 -> 0.9
 - Added goal-directed heuristics.
 - New auto-mode taking some of the new features into account.
 - Cleaned up output (--tptp3-out will now also work for output levels
-  <=2 and for final clause sets)
+  <=2 and for final clause sets).
+- Removed old Auto071 mode (it did not work well with the new
+  internals anyways) and added AutoCASC mode (corresponding to E
+  0.9pre003 as used in CASC-20).
 
 Version 0.81 -> 0.82 Lung Ching
 
