@@ -1,13 +1,14 @@
 This history list describes the major differences between versions of
 the E equational theorem prover.
 
-Version 0.82 ->
+Version 0.82 -> 0.9
 
 - Small improvement in unification
 - Reworked parser
-- Rebuild indexing data structures with IntMaps (should be more
+- Rebuild indexing data structures with IntMaps (should be much more
   memory efficient for large signatures)
-- Added preliminary support for distinct objects and numbers
+- Added preliminary support for distinct objects and numbers (only
+  ground case so far)
 - Added support for stronger rewriting (instantiating unbound
   variables in potential right hand sides)
 - Implemented TPTP style includes for TPTP/TSTP syntax
@@ -21,9 +22,12 @@ Version 0.82 ->
   to METOP, and never used)
 - Modified/rewrote some literal selection functions, taking the AHP
   (Avoid Head Predicates) property into account (solves some of the
-  interference with heuristic search)
+  interference of the new literal order with heuristic search)
 - Added simultaneous paramodulation (very useful)
-- Added goal-directed heuristics 
+- Added goal-directed heuristics.
+- New auto-mode taking some of the new features into account.
+- Cleaned up output (--tptp3-out will now also work for output levels
+  <=2 and for final clause sets)
 
 Version 0.81 -> 0.82 Lung Ching
 
