@@ -45,8 +45,9 @@ Changes
 long       TFormulaEstimateClauses(TB_p bank, TFormula_p form, bool pos);
 
 TFormula_p TFormulaDefRename(TB_p bank, TFormula_p form, int polarity, 
-                             NumTree_p *defs);
-
+                             NumTree_p *defs, PStack_p renamed_forms);
+void       TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity, 
+                            NumTree_p *defs, PStack_p renamed_forms);
 TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form);
 
 TFormula_p TFormulaNNF(TB_p terms, TFormula_p form, int polarity);

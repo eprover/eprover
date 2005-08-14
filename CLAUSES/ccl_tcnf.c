@@ -307,6 +307,11 @@ bool tformula_rename_test(TB_p bank, TFormula_p root, int pos, int polarity)
 {
    int subform_sign;
 
+   if((root->f_code == bank->sig->qex_code) || 
+      (root->f_code == bank->sig->qall_code))
+   {
+      return false;
+   }
    if(root->f_code == bank->sig->equiv_code)
    {
       if(TFormulaEstimateClauses(bank, root->args[pos],true) > TFORM_RENAME_LIMIT)
@@ -371,8 +376,8 @@ bool tformula_rename_test(TB_p bank, TFormula_p root, int pos, int polarity)
 //
 // Function: tformula_copy_def()
 //
-//   Copy a formula, replacing all defined subforumlas with the proper
-//   predicate. 
+//   Copy a formula, replacing all defined subformulas (except for the
+//   top) with the proper definition).
 //
 // Global Variables: -
 //
@@ -380,7 +385,8 @@ bool tformula_rename_test(TB_p bank, TFormula_p root, int pos, int polarity)
 //
 /----------------------------------------------------------------------*/
 
-TFormula_p tformula_copy_def(TB_p bank, TFormula_p form, NumTree_p *defs)
+TFormula_p tformula_copy_def(TB_p bank, TFormula_p form, bool top, 
+                             NumTree_p *defs)
 {
    TFormula_p res, arg1, arg2 = NULL;
    NumTree_p def_entry;
@@ -389,7 +395,7 @@ TFormula_p tformula_copy_def(TB_p bank, TFormula_p form, NumTree_p *defs)
    {
       res = form;
    }
-   else if(TermCellQueryProp(form, TPCheckFlag))
+   else if(!top && TermCellQueryProp(form, TPCheckFlag))
    {
       def_entry = NumTreeFind(defs, form->entry_no);
       assert(def_entry);
@@ -403,7 +409,7 @@ TFormula_p tformula_copy_def(TB_p bank, TFormula_p form, NumTree_p *defs)
          (form->f_code == bank->sig->equiv_code)||
          (form->f_code == bank->sig->not_code))
       {
-         arg1 = tformula_copy_def(bank, form->args[0], defs);
+         arg1 = tformula_copy_def(bank, form->args[0], false, defs);
       }
       else
       {
@@ -413,7 +419,7 @@ TFormula_p tformula_copy_def(TB_p bank, TFormula_p form, NumTree_p *defs)
       }
       if(form->f_code != bank->sig->not_code)
       {
-         arg2 = tformula_copy_def(bank, form->args[1], defs);         
+         arg2 = tformula_copy_def(bank, form->args[1], false, defs);         
       }
       res = TFormulaFCodeAlloc(bank, form->f_code, arg1, arg2);
    }
@@ -451,9 +457,10 @@ long TFormulaEstimateClauses(TB_p bank, TFormula_p form, bool pos)
 {
    long posres1, posres2, negres1, negres2, res=0;
 
+
    if(TermCellQueryProp(form, TPCheckFlag) ||
       TFormulaIsLiteral(bank->sig, form))
-   {
+   {      
       return 1;
    }
    if(pos)
@@ -570,6 +577,7 @@ long TFormulaEstimateClauses(TB_p bank, TFormula_p form, bool pos)
    {
       res = TFORM_MANY_CLAUSES;
    }
+   
    return res;
 }
 
@@ -591,7 +599,7 @@ long TFormulaEstimateClauses(TB_p bank, TFormula_p form, bool pos)
 /----------------------------------------------------------------------*/
 
 TFormula_p TFormulaDefRename(TB_p bank, TFormula_p form, int polarity, 
-                             NumTree_p *defs)
+                             NumTree_p *defs, PStack_p renamed_forms)
 {
    NumTree_p def = NumTreeFind(defs, form->entry_no);
    
@@ -607,7 +615,7 @@ TFormula_p TFormulaDefRename(TB_p bank, TFormula_p form, int polarity,
    {
       PTree_p free_vars = NULL;
       PStack_p var_stack = PStackAlloc();
-      TFormula_p rename_atom;
+      TFormula_p rename_atom;      
 
       TFormulaCollectFreeVars(bank, form, &free_vars);
       PTreeToPStack(var_stack, free_vars);
@@ -616,11 +624,15 @@ TFormula_p TFormulaDefRename(TB_p bank, TFormula_p form, int polarity,
       
       PStackFree(var_stack);
       PTreeFree(free_vars);
-
+      
+      def = NumTreeCellAlloc();
+      def->key = form->entry_no;      
       def->val1.i_val = polarity;
       def->val2.p_val = rename_atom;
+      NumTreeInsert(defs, def);
       TermCellSetProp(form, TPCheckFlag);
-      
+      PStackPushP(renamed_forms, form);
+
       return def->val2.p_val;
    }
 }
@@ -630,7 +642,8 @@ TFormula_p TFormulaDefRename(TB_p bank, TFormula_p form, int polarity,
 //
 // Function: TFormulaFindDefs()
 //
-//   Find all useful definitions in form and enter them in defs.
+//   Find all useful definitions in form and enter them in defs and
+//   renamed_forms.
 //
 // Global Variables: -
 //
@@ -639,7 +652,7 @@ TFormula_p TFormulaDefRename(TB_p bank, TFormula_p form, int polarity,
 /----------------------------------------------------------------------*/
 
 void TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity, 
-                      NumTree_p *defs)
+                      NumTree_p *defs, PStack_p renamed_forms)
 {
    if(TermCellQueryProp(form, TPCheckFlag) ||
       TFormulaIsLiteral(bank->sig, form))
@@ -650,30 +663,30 @@ void TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity,
    if((form->f_code == bank->sig->and_code)||
       (form->f_code == bank->sig->or_code))
    {
-      TFormulaFindDefs(bank, form->args[0], polarity, defs);
+      TFormulaFindDefs(bank, form->args[0], polarity, defs, renamed_forms);
       if(tformula_rename_test(bank, form, 0, polarity))
       {
          TFormulaDefRename(bank, form, polarity, 
-                           defs);         
+                           defs, renamed_forms);         
       }
    }
    else if((form->f_code == bank->sig->not_code)||
            (form->f_code == bank->sig->impl_code))
    {
-      TFormulaFindDefs(bank, form->args[0], -polarity, defs);
+      TFormulaFindDefs(bank, form->args[0], -polarity, defs, renamed_forms);
       if(tformula_rename_test(bank, form, 0, polarity))
       {
          TFormulaDefRename(bank, form, -polarity, 
-                           defs);         
+                           defs, renamed_forms);         
       }
    }
    else if((form->f_code == bank->sig->equiv_code))
    {
-      TFormulaFindDefs(bank, form->args[0], 0, defs);
+      TFormulaFindDefs(bank, form->args[0], 0, defs, renamed_forms);
       if(tformula_rename_test(bank, form, 0, polarity))
       {
          TFormulaDefRename(bank, form, 0, 
-                           defs);         
+                           defs, renamed_forms);         
       }
    }
    /* Handle args[1] */
@@ -683,21 +696,23 @@ void TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity,
       (form->f_code == bank->sig->qex_code)||
       (form->f_code == bank->sig->qall_code))
    {
-      TFormulaFindDefs(bank, form->args[1], polarity, defs);               
-      if(tformula_rename_test(bank, form, 0, polarity))
+      TFormulaFindDefs(bank, form->args[1], polarity, defs, renamed_forms);               
+      if(tformula_rename_test(bank, form, 1, polarity))
       {
-         TFormulaDefRename(bank, form, polarity, defs);         
+         TFormulaDefRename(bank, form, polarity, defs, renamed_forms);         
       }
    }
    else if((form->f_code == bank->sig->equiv_code))
    {
-      TFormulaFindDefs(bank, form->args[1], 0, defs);
-      if(tformula_rename_test(bank, form, 0, polarity))
+      TFormulaFindDefs(bank, form->args[1], 0, defs, renamed_forms);
+      if(tformula_rename_test(bank, form, 1, polarity))
       {
-         TFormulaDefRename(bank, form, 0, defs);         
+         TFormulaDefRename(bank, form, 0, defs, renamed_forms);         
       }
    }
 }
+
+
 
 
 /*-----------------------------------------------------------------------

@@ -392,8 +392,9 @@ long FormulaSetCNF(FormulaSet_p set, ClauseSet_p clauseset,
    long res = 0;
    long old_nodes = TBNonVarTermNodes(terms);
 
-   handle = set->anchor->succ;
-   
+   /* TFormulaSetIntroduceDefs(set, terms); */
+
+   handle = set->anchor->succ;   
    while(handle!=set->anchor)
    {
       res += WFormulaCNF(handle,clauseset, terms, fresh_vars);
@@ -629,6 +630,109 @@ long TFormulaToCNF(WFormula_p form, ClauseProperties type, ClauseSet_p set,
    PStackFree(stack);
    return set->members - old_clause_number;
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaSetDelTermpProp()
+//
+//   Go through a set of term-encoded formulas and delete prop in all
+//   term and formula cells.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void TFormulaSetDelTermpProp(FormulaSet_p set, TermProperties prop)
+{
+   WFormula_p handle;
+   
+   for(handle = set->anchor->succ; handle!=set->anchor; handle =
+          handle->succ)
+   {
+      if(handle->tformula)
+      {
+         TermDelProp(handle->tformula, DEREF_NEVER, prop);
+      }
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaSetFindDefs()
+//
+//   Go through a set of formulas and generate and record all
+//   necessary definitions.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+void TFormulaSetFindDefs(FormulaSet_p set, TB_p terms, NumTree_p *defs, 
+                         PStack_p renamed_forms)
+{
+   WFormula_p handle;
+   
+   for(handle = set->anchor->succ; handle!=set->anchor; handle =
+          handle->succ)
+   {
+      if(handle->tformula)
+      {
+         TFormulaFindDefs(terms, handle->tformula, 1, defs, renamed_forms);
+      }
+   }   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaSetIntroduceDefs()
+//
+//   Transform a formula set by renaming certain subformulae and
+//   adding the necessary definitions. Returns the number of
+//   definitions.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes set!
+//
+/----------------------------------------------------------------------*/
+
+long TFormulaSetIntroduceDefs(FormulaSet_p set, TB_p terms)
+{
+   long res = 0;
+   NumTree_p defs = NULL, cell;
+   PStack_p  renamed_forms = PStackAlloc();
+   PStackPointer i;
+   TFormula_p form, def;
+
+   TFormulaSetDelTermpProp(set, TPCheckFlag);
+
+   TFormulaSetFindDefs(set, terms, &defs, renamed_forms);
+   
+   res = PStackGetSP(renamed_forms);
+   printf("# Introduced %ld definitions\n", res);
+   for(i=0; i<PStackGetSP(renamed_forms); i++)
+   {
+      form = PStackElementP(renamed_forms,i);
+      cell = NumTreeFind(&defs, form->entry_no);
+      assert(cell);
+      def = cell->val2.p_val;
+      printf("# ");
+      TBPrintTermFull(stdout, terms, def);
+      printf(" === ");
+      TFormulaTPTPPrint(stdout, terms, form, true, false);
+      printf("\n");      
+   }
+   PStackFree(renamed_forms);
+   NumTreeFree(defs);
+   return res;
+}
+
 
 
 /*-----------------------------------------------------------------------

@@ -48,7 +48,7 @@ typedef Term_p TFormula_p;
 #define   TFormulaIsUnary(form)      ((form)->arity==1)
 #define   TFormulaIsQuantified(sig,form)\
           ((form)->f_code == sig->qex_code || (form)->f_code == sig->qall_code )
-#define   TFormulaIsLiteral(sig,form)    (SigIsPredicate(sig, (form)->f_code))
+#define   TFormulaIsLiteral(sig,form)    (SigIsPredicate((sig), (form)->f_code))
 #define   TFormulaIsPropConst(form, positive)\
           ((positive)?((form)->f_code == SIG_TRUE_CODE):\
                       ((form)->f_code == SIG_FALSE_CODE))
