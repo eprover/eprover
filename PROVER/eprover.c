@@ -32,8 +32,8 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-/*  cvs tag E-0-9 */
-#define VERSION      "0.9"
+/*  cvs tag E-0-9a */
+#define VERSION      "0.9a"
 #define NAME         "eprover"
 
 #define NICKNAME     "Soom"
@@ -1164,7 +1164,6 @@ int main(int argc, char* argv[])
    }
    if(print_sat)
    {
-      printf("OutputFormat = %d\n", OutputFormat);
       if(proofstate->non_redundant_deleted)
       {
 	 fprintf(GlobalOut, "\n# Saturated system is incomplete!\n");
