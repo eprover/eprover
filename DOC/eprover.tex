@@ -657,8 +657,8 @@ in this rule\footnote{Note that there now are many additional generic
 \medskip
 \noindent{}\texttt{Clauseweight(prio, fweight, vweight, pos\_mult)}:
 This is the basic symbol counting heuristic. Variables are counted
-with weight \texttt{fweight}, function symbols with weight
-\texttt{vweight}. The weight of positive literals is multiplied by
+with weight \texttt{vweight}, function symbols with weight
+\texttt{fweight}. The weight of positive literals is multiplied by
 \texttt{pos\_mult} before being added into the final weight.
 
 \medskip
@@ -813,11 +813,12 @@ The most simple way to get a reasonable term ordering is to specify
 Options controlling the choice of term ordering:\\[1ex]
 \begin{supertabular}{lp{9.5cm}}
   \multicolumn{2}{l}{\texttt{-term-ordering=<arg>}}\\
-  \texttt{-t<arg>} & Select a term ordering class (or
-  automatic selection). Supported arguments are \texttt{LPO},
+  \texttt{-t<arg>} & Select a term ordering class (or automatic
+  selection). Supported arguments are at least \texttt{LPO},
+  \texttt{LPO4} (for a much faster new implementation of LPO),
   \texttt{KBO}, and \texttt{Auto}. If \texttt{Auto} is selected, all
-  aspects of the term ordering are fixed, additional options will be
-  (or at least should be) silently ignored.\\[1ex]
+  aspects of the term ordering are fixed, additional
+  options will be (or at least should be) silently ignored.\\[1ex]
 
   \multicolumn{2}{l}{\texttt{\texttt{--order-precedence-generation=<arg>}}}\\
   \texttt{-G <arg>} & Select a precedence generation scheme (see
@@ -1148,11 +1149,19 @@ The knowledge in a knowledge base can be ustilized by the two clause
 evaluation functions \texttt{TSMWeight()} and \texttt{TSMRWeight()}.
 Both compute a modification weight based on the learned knowledge, and
 apply it to a conventional symbol-counting base weight (similar to
-\texttt{Clauseweight()} for \texttt{TSMWeight()} and
-\texttt{Refinedweight()} for \texttt{TSMWeight()}.
+\texttt{Clauseweight()} for \texttt{TSMWeight()} and 
+\texttt{Refinedweight()} for \texttt{TSMWeight()}. An example command
+line is:
 
-\texttt{eprover -x'(1*TSMWeight(ConstPrio, 1, 1, 2, flat, E\_KNOWLEDGE, 100000,1.0,1.0,Flat,IndexIdentity,100000,-20,20,-2,-1,0,2))'}
+\texttt{eprover -x'(1*TSMWeight(ConstPrio, 1, 1, 2, flat,
+  E\_KNOWLEDGE,}
 
+\texttt{100000,1.0,1.0,Flat,IndexIdentity,100000,-20,20,-2,-1,0,2))'}
+
+There are also two fully predefined learning clause selection
+heuristics. Select them with \texttt{-xUseTSM1} (for some influence of
+the learned knowledge) or \texttt{-xUseTSM2} (for a lot of influence
+of the learned knowledge).
 
 
 
