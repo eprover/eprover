@@ -285,7 +285,8 @@ void PCLExprUpdateGRefs(PCLProt_p prot, PCLExpr_p expr, bool proofstep)
          }
          break;
    default:
-         assert(false);
+         /* These are unknown inferences (typcally FOF), we ignore
+            them. */
          break;
    }
 }
@@ -351,6 +352,10 @@ long PCLProtSelectExamples(PCLProt_p prot, long neg_examples)
    for(i=0; (i<PStackGetSP(prot->in_order))&&(neg_examples>0); i++)
    {
       step = PStackElementP(prot->in_order, i);
+      if(PCLStepQueryProp(step, PCLIsFOFStep))
+      {
+         continue; /* We only consider clauses */
+      }
       PCLStepSetProp(step, PCLIsExample);
       if(!PCLStepQueryProp(step, PCLIsProofStep))
       {
