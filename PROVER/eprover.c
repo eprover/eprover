@@ -33,7 +33,7 @@ Changes
 /*---------------------------------------------------------------------*/
 
 /*  cvs tag E-0-9a */
-#define VERSION      "0.9a"
+#define VERSION      "0.9dev001"
 #define NAME         "eprover"
 
 #define NICKNAME     "Soom"
@@ -55,7 +55,7 @@ typedef enum
    OPT_REQUIRE_NONEMPTY,
    OPT_SILENT,
    OPT_OUTPUTLEVEL,
-  OPT_PCL_COMPRESSED,
+   OPT_PCL_COMPRESSED,
    OPT_PCL_COMPACT,
    OPT_MEM_LIMIT,
    OPT_CPU_LIMIT,
