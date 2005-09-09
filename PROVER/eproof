@@ -47,13 +47,13 @@ for argument in  $*; do
 	print_tail=29
     else
 	head=`echo "$argument"|cut -d= -f1`
+	head1=`echo "$argument"|cut -c1-2`
 	if [ "$head" = "--cpu-limit" ] ; then
 	    timelimit=`echo $argument|cut -d= -f2`
-            argument=""
 	fi    
-	if [ "$head" = "-o" ] ; then
+	if [ "$head1" = "-o" ] ; then
 	    echo "Short option -o not supported by eproof, use --output-file=<file>"
-	    cleanup
+	    exit 1
 	fi    
 	if [ "$head" = "--output-file" ] ; then
 	    outfile=`echo $argument|cut -d= -f2`
