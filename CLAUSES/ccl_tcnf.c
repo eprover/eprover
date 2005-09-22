@@ -621,7 +621,8 @@ TFormula_p TFormulaDefRename(TB_p bank, TFormula_p form, int polarity,
       PTreeToPStack(var_stack, free_vars);
       
       rename_atom = TBAllocNewSkolem(bank, var_stack, true);
-      
+      rename_atom = EqnTermsTBTermEncode(bank, rename_atom, 
+                                         bank->true_term, true, PENormal); 
       PStackFree(var_stack);
       PTreeFree(free_vars);
       

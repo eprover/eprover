@@ -75,8 +75,11 @@ TFormula_p TFormulaAddQuantor(TB_p bank, TFormula_p form, bool universal, Term_p
 TFormula_p TFormulaAddQuantors(TB_p bank, TFormula_p form, bool universal,
                                PTree_p vars); 
 TFormula_p TFormulaClosure(TB_p bank, TFormula_p form, bool universal);
+TFormula_p TFormulaCreateDef(TB_p bank, TFormula_p def_atom, TFormula_p defined,
+                             int polarity); 
 
 #define   TFormulaFindMaxVarCode(form) TermFindMaxVarCode(form)
+
 
 #endif
 

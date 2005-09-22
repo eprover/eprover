@@ -51,6 +51,8 @@ typedef enum
 
    inf_fof_simpl,
    inf_fof_nnf,
+   inf_fof_intro_def,
+   inf_fof_apply_def,
    inf_shift_quantors,
    inf_fof_distrib,
    inf_var_rename,
@@ -85,6 +87,8 @@ typedef enum
 #define PCL_SC    "split_conjunct"
 #define PCL_FS    "fof_simplification"
 #define PCL_NNF   "fof_nnf"
+#define PCL_ID    "into_def"
+#define PCL_AD    "apply_def"
 #define PCL_SQ    "shift_quantors"
 #define PCL_VR    "variable_rename"
 #define PCL_SK    "skolemize"

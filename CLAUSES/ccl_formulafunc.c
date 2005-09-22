@@ -392,7 +392,7 @@ long FormulaSetCNF(FormulaSet_p set, ClauseSet_p clauseset,
    long res = 0;
    long old_nodes = TBNonVarTermNodes(terms);
 
-   /* TFormulaSetIntroduceDefs(set, terms); */
+   TFormulaSetIntroduceDefs(set, terms);
 
    handle = set->anchor->succ;   
    while(handle!=set->anchor)
@@ -708,7 +708,9 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, TB_p terms)
    NumTree_p defs = NULL, cell;
    PStack_p  renamed_forms = PStackAlloc();
    PStackPointer i;
-   TFormula_p form, def;
+   TFormula_p form, def, newdef;
+   long       polarity;
+   WFormula_p w_def;
 
    TFormulaSetDelTermpProp(set, TPCheckFlag);
 
@@ -721,12 +723,13 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, TB_p terms)
       form = PStackElementP(renamed_forms,i);
       cell = NumTreeFind(&defs, form->entry_no);
       assert(cell);
-      def = cell->val2.p_val;
-      printf("# ");
-      TBPrintTermFull(stdout, terms, def);
-      printf(" === ");
-      TFormulaTPTPPrint(stdout, terms, form, true, false);
-      printf("\n");      
+      polarity = cell->val1.i_val;
+      def      = cell->val2.p_val;
+      newdef = TFormulaCreateDef(terms, def, form, polarity);
+      w_def = WTFormulaAlloc(terms, newdef);
+      FormulaSetInsert(set, w_def);
+      DocFormulaCreation(GlobalOut, 4, w_def, 
+                         inf_fof_intro_def, NULL, NULL, NULL);
    }
    PStackFree(renamed_forms);
    NumTreeFree(defs);

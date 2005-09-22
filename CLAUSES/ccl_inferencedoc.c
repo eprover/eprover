@@ -190,7 +190,6 @@ static void print_initial(FILE* out, Clause_p clause, char* comment)
 }
 
 
-
 /*-----------------------------------------------------------------------
 //
 // Function: print_paramod()
@@ -781,6 +780,40 @@ static void print_formula_initial(FILE* out, WFormula_p form, char* comment)
 
 /*-----------------------------------------------------------------------
 //
+// Function: print_fof_intro_def()
+//
+//   Print the introduction of a formula definition.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+static void print_fof_intro_def(FILE* out, WFormula_p form, char* comment)
+{
+   switch(DocOutputFormat)
+   {
+   case pcl_format:
+	 pcl_formula_print_start(out, form);
+         fprintf(out, PCL_ID);
+	 pcl_formula_print_end(out, comment);
+	 break;
+   case tstp_format:
+	 WFormulaTSTPPrint(out, form, PCLFullTerms, false);
+	 fprintf(out, ", ");
+         fprintf(out, PCL_ID);         
+	 tstp_formula_print_end(out, comment);
+	 break;
+   default:
+	 fprintf(out, "# Output format not implemented.\n");
+	 break;
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: print_fof_simpl()
 //
 //   Print a fof simplification step.
@@ -1354,7 +1387,12 @@ void DocFormulaCreation(FILE* out, long level, WFormula_p formula,
 	    formula->ident = ++ClauseIdentCounter;
 	    print_formula_initial(out, formula, comment);
 	    break;
-
+      case inf_fof_intro_def:
+	    assert(!parent1);
+	    assert(!parent2);
+	    formula->ident = ++ClauseIdentCounter;
+	    print_fof_intro_def(out, formula, comment);
+	    break;            
       default:
             assert(false && "Unsupported formula creation method");
             break;
