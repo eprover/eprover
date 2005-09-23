@@ -392,7 +392,10 @@ long FormulaSetCNF(FormulaSet_p set, ClauseSet_p clauseset,
    long res = 0;
    long old_nodes = TBNonVarTermNodes(terms);
 
-   TFormulaSetIntroduceDefs(set, terms);
+   if(FormulaTermEncoding)
+   {
+      TFormulaSetIntroduceDefs(set, terms);
+   }
 
    handle = set->anchor->succ;   
    while(handle!=set->anchor)
