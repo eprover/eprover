@@ -659,26 +659,24 @@ TFormula_p TFormulaCreateDef(TB_p bank, TFormula_p def_atom, TFormula_p defined,
                              int polarity)
 {
    PTree_p vars=NULL;  
-   TFormula_p res;
-   FunCode op;
+   TFormula_p res = NULL;
 
    switch(polarity)
    {
    case -1:
-         op = bank->sig->impl_code;
+         res = TFormulaFCodeAlloc(bank, bank->sig->impl_code, defined, def_atom);
          break;
    case 0:
-         op = bank->sig->equiv_code;
+         res = TFormulaFCodeAlloc(bank, bank->sig->equiv_code, def_atom, defined);
          break;
    case 1:
-         op = bank->sig->bimpl_code;
+         res = TFormulaFCodeAlloc(bank, bank->sig->impl_code, def_atom, defined);
          break;
    default:
          assert(false && "Illegal polarity");
          break;
    }
    TFormulaCollectFreeVars(bank, def_atom, &vars);
-   res = TFormulaFCodeAlloc(bank, op, def_atom, defined);
    res = TFormulaAddQuantors(bank, res, true, vars);
    PTreeFree(vars);
    

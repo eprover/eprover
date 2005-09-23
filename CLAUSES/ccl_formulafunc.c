@@ -680,11 +680,59 @@ void TFormulaSetFindDefs(FormulaSet_p set, TB_p terms, NumTree_p *defs,
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
           handle->succ)
    {
+      /* printf("Finding defs for: ");     
+      WFormulaTPTPPrint(GlobalOut, handle, true);
+      printf("\n");*/
+      
       if(handle->tformula)
       {
          TFormulaFindDefs(terms, handle->tformula, 1, defs, renamed_forms);
       }
    }   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaApplyDefs()
+//
+//   Given a formula and a number of definitions represented by defs
+//   and tags in bank, apply all apropriate definitions to simplify
+//   the formula. Return the number of definitions used. Note that
+//   defs has to contain the defined atoms in val2 and the ident of
+//   the corresponding definition in val1 of its cells.
+//
+// Global Variables: -
+//
+// Side Effects    : Simplifies set, may print simplification steps.
+//
+/----------------------------------------------------------------------*/
+
+long TFormulaApplyDefs(WFormula_p form, TB_p terms, NumTree_p *defs)
+{
+   TFormula_p reduced;
+   long       res = 0;
+   PStack_p   defs_used = PStackAlloc();
+   
+   reduced = TFormulaCopyDef(terms, form->tformula, form->ident, 
+                             defs, defs_used);
+   if(!PStackEmpty(defs_used))
+   {
+      assert(form->tformula != reduced);
+      printf("# Reduction: ");
+      form->tformula = reduced; /* Old one will be picke up by gc */
+      res = PStackGetSP(defs_used);
+   }
+   else
+   {
+      assert(form->tformula == reduced);
+      printf("# No reduction: ");
+   }
+   WFormulaTSTPPrint(GlobalOut, form, true, true);
+   printf("\n");
+   
+   PStackFree(defs_used);
+   return res;
 }
 
 
@@ -698,7 +746,7 @@ void TFormulaSetFindDefs(FormulaSet_p set, TB_p terms, NumTree_p *defs,
 //
 // Global Variables: -
 //
-// Side Effects    : Changes set!
+// Side Effects    : Changes set.
 //
 /----------------------------------------------------------------------*/
 
@@ -710,14 +758,13 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, TB_p terms)
    PStackPointer i;
    TFormula_p form, def, newdef;
    long       polarity;
-   WFormula_p w_def;
+   WFormula_p w_def, formula;
 
    TFormulaSetDelTermpProp(set, TPCheckFlag);
 
    TFormulaSetFindDefs(set, terms, &defs, renamed_forms);
    
    res = PStackGetSP(renamed_forms);
-   printf("# Introduced %ld definitions\n", res);
    for(i=0; i<PStackGetSP(renamed_forms); i++)
    {
       form = PStackElementP(renamed_forms,i);
@@ -727,15 +774,19 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, TB_p terms)
       def      = cell->val2.p_val;
       newdef = TFormulaCreateDef(terms, def, form, polarity);
       w_def = WTFormulaAlloc(terms, newdef);
-      FormulaSetInsert(set, w_def);
-      DocFormulaCreation(GlobalOut, 4, w_def, 
-                         inf_fof_intro_def, NULL, NULL, NULL);
+      FormulaSetInsert(set, w_def);      
+      DocFormulaCreationDefault(w_def, inf_fof_intro_def, NULL, NULL);
+      cell->val1.i_val = w_def->ident; /* Replace polarity with ident */
    }
    PStackFree(renamed_forms);
+
+   for(formula = set->anchor->succ; formula!=set->anchor; formula=formula->succ)
+   {
+      TFormulaApplyDefs(formula, terms, &defs);
+   }    
    NumTreeFree(defs);
    return res;
 }
-
 
 
 /*-----------------------------------------------------------------------

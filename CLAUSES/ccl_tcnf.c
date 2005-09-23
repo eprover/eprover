@@ -370,14 +370,12 @@ bool tformula_rename_test(TB_p bank, TFormula_p root, int pos, int polarity)
    return false;
 }
 
-
-
 /*-----------------------------------------------------------------------
 //
-// Function: tformula_copy_def()
+// Function: collect_applied_defs()
 //
-//   Copy a formula, replacing all defined subformulas (except for the
-//   top) with the proper definition).
+//   Given a tformula, find and record all the definitions for its
+//   sub-formulas. 
 //
 // Global Variables: -
 //
@@ -385,48 +383,40 @@ bool tformula_rename_test(TB_p bank, TFormula_p root, int pos, int polarity)
 //
 /----------------------------------------------------------------------*/
 
-TFormula_p tformula_copy_def(TB_p bank, TFormula_p form, bool top, 
-                             NumTree_p *defs)
+static long collect_applied_defs(Sig_p sig, TFormula_p form,
+                                 NumTree_p *defs, PStack_p defs_used) 
 {
-   TFormula_p res, arg1, arg2 = NULL;
    NumTree_p def_entry;
-
-   if(TFormulaIsLiteral(bank->sig, form))
+   long res = 0;
+   
+   if(TFormulaIsLiteral(sig, form))
    {
-      res = form;
+      /* done */
    }
-   else if(!top && TermCellQueryProp(form, TPCheckFlag))
+   else 
    {
-      def_entry = NumTreeFind(defs, form->entry_no);
-      assert(def_entry);
-      res = def_entry->val2.p_val;      
-   }
-   else
-   {
-      if((form->f_code == bank->sig->and_code)||
-         (form->f_code == bank->sig->or_code)||
-         (form->f_code == bank->sig->impl_code)||
-         (form->f_code == bank->sig->equiv_code)||
-         (form->f_code == bank->sig->not_code))
+      if(TermCellQueryProp(form, TPCheckFlag))
       {
-         arg1 = tformula_copy_def(bank, form->args[0], false, defs);
+         def_entry = NumTreeFind(defs, form->entry_no);
+         assert(def_entry);
+         PStackPushInt(defs_used, def_entry->val1.i_val);
+         res++;
       }
-      else
+      if((form->f_code == sig->and_code)||
+         (form->f_code == sig->or_code)||
+         (form->f_code == sig->impl_code)||
+         (form->f_code == sig->equiv_code)||
+         (form->f_code == sig->not_code))
       {
-         assert((form->f_code == bank->sig->qex_code) ||
-                (form->f_code == bank->sig->qall_code));
-         arg1 = form->args[0];
+         res += collect_applied_defs(sig, form->args[0], defs, defs_used);
       }
-      if(form->f_code != bank->sig->not_code)
+      if(form->f_code != sig->not_code)
       {
-         arg2 = tformula_copy_def(bank, form->args[1], false, defs);         
+         res += collect_applied_defs(sig, form->args[1], defs, defs_used);
       }
-      res = TFormulaFCodeAlloc(bank, form->f_code, arg1, arg2);
    }
    return res;
 }
-
-
 
 
 
@@ -714,6 +704,65 @@ void TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity,
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaCopyDef()
+//
+//   Copy a formula, replacing all defined subformulas (except for the
+//   blocked one, if any) with the proper definition). Record _all_
+//   definitions (even sub-definitions) on the stack (by pushing the
+//   definition numbers onto the stack).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p TFormulaCopyDef(TB_p bank, TFormula_p form, long blocked, 
+                           NumTree_p *defs, PStack_p defs_used) 
+{
+   TFormula_p res = NULL, arg1, arg2 = NULL;
+   NumTree_p def_entry;
+
+   if(TFormulaIsLiteral(bank->sig, form))
+   {
+      res = form;
+   }
+   else if(TermCellQueryProp(form, TPCheckFlag))
+   {
+      def_entry = NumTreeFind(defs, form->entry_no);
+      assert(def_entry);
+      if(def_entry->val1.i_val!=blocked)
+      {
+         res = def_entry->val2.p_val;
+         collect_applied_defs(bank->sig, form, defs, defs_used);
+      }
+   }
+   if(!res)
+   {
+      if((form->f_code == bank->sig->and_code)||
+         (form->f_code == bank->sig->or_code)||
+         (form->f_code == bank->sig->impl_code)||
+         (form->f_code == bank->sig->equiv_code)||
+         (form->f_code == bank->sig->not_code))
+      {
+         arg1 = TFormulaCopyDef(bank, form->args[0], blocked, defs, defs_used);
+      }
+      else
+      {
+         assert((form->f_code == bank->sig->qex_code) ||
+                (form->f_code == bank->sig->qall_code));
+         arg1 = form->args[0];
+      }
+      if(form->f_code != bank->sig->not_code)
+      {
+         arg2 = TFormulaCopyDef(bank, form->args[1], blocked, defs, defs_used);         
+      }
+      res = TFormulaFCodeAlloc(bank, form->f_code, arg1, arg2);
+   }
+   return res;
+}
 
 
 /*-----------------------------------------------------------------------

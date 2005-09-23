@@ -33,7 +33,7 @@ Changes
 /*---------------------------------------------------------------------*/
 
 /*  cvs tag E-0-9dev001 */
-#define VERSION      "0.9dev001"
+#define VERSION      "0.9dev002"
 #define NAME         "eprover"
 
 #define NICKNAME     "Soom"
