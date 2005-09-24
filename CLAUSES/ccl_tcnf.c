@@ -788,7 +788,7 @@ TFormula_p TFormulaCopyDef(TB_p bank, TFormula_p form, long blocked,
 
 TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form)
 {
-   TFormula_p handle, arg1=NULL, arg2=NULL, newform = form;
+   TFormula_p handle, arg1=NULL, arg2=NULL, newform;
    FunCode f_code;
    bool modified=false;
 
@@ -818,7 +818,8 @@ TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form)
    {
       assert(terms);
       form = TFormulaFCodeAlloc(terms, form->f_code, arg1, arg2);
-   }   
+   }
+   newform = form; /* Inelegant, fix when awake! */
    if(form->f_code == terms->sig->not_code)
    {
       if(TFormulaIsLiteral(terms->sig, form->args[0]))
@@ -912,7 +913,7 @@ TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form)
       handle = TFormulaFCodeAlloc(terms, terms->sig->equiv_code, 
                                   form->args[0], form->args[1]);
       newform = TFormulaFCodeAlloc(terms, terms->sig->not_code, 
-                                   form->args[0], NULL);
+                                   handle, NULL);
       newform =  TFormulaSimplify(terms, newform);
    }
    else if(form->f_code == terms->sig->bimpl_code)
@@ -1338,11 +1339,12 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
    TFormula_p handle;
    FunCode   max_var;
 
-   /*printf("Start: ");
+   /* printf("Start: ");
    WFormulaPrint(GlobalOut, form, true);
-   printf("\n");*/
+   printf("\n"); */
 
    handle = TFormulaSimplify(terms, form->tformula);
+   
    if(handle!=form->tformula)
    {
       form->tformula = handle;
