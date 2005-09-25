@@ -392,10 +392,10 @@ long FormulaSetCNF(FormulaSet_p set, ClauseSet_p clauseset,
    long res = 0;
    long old_nodes = TBNonVarTermNodes(terms);
 
-   /*if(FormulaTermEncoding)
+   if(FormulaTermEncoding)
    {
       TFormulaSetIntroduceDefs(set, terms);
-      }*/
+   }
 
    handle = set->anchor->succ;   
    while(handle!=set->anchor)
@@ -679,10 +679,26 @@ void TFormulaSetFindDefs(FormulaSet_p set, TB_p terms, NumTree_p *defs,
                          PStack_p renamed_forms)
 {
    WFormula_p handle;
-   
+   TFormula_p form;
+
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
           handle->succ)
    {
+      assert(handle->tformula);
+      
+      /* This is rather ugly. We want to simplify the code before
+         introducing definitions, as a) it may lead to less of them and
+         b) it safes us from handling the weird operators (<~>, <=) in
+         definitions. On the other hand, this further breaks symmetry
+         with the original case, and currently leads to double
+         simplification (I think the second one is unecessary, but we
+         may not always go there...). */
+      form = TFormulaSimplify(terms, handle->tformula);
+      if(form!=handle->tformula)
+      {
+         handle->tformula = form;
+         DocFormulaModificationDefault(handle, inf_fof_simpl);
+      }
       /* printf("Finding defs for: ");     
       WFormulaTPTPPrint(GlobalOut, handle, true);
       printf("\n");*/

@@ -1339,11 +1339,18 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
    TFormula_p handle;
    FunCode   max_var;
 
-   /* printf("Start: ");
+   printf("Start: ");
    WFormulaPrint(GlobalOut, form, true);
-   printf("\n"); */
+   printf("\n");
 
+   printf("Before Simp:");
+   TBPrintTermFull(stdout, terms, form->tformula);
+   printf("\n");
    handle = TFormulaSimplify(terms, form->tformula);
+   printf("handle!=form->tformula?: %d\n", (handle!=form->tformula));
+   printf("After Simp:");
+   TBPrintTermFull(stdout, terms, handle);
+   printf("\n");
    
    if(handle!=form->tformula)
    {
