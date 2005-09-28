@@ -295,7 +295,9 @@ TFormula_p tformula_rek_skolemize(TB_p terms, TFormula_p form,
 // Function: tformula_rename_test()
 //
 //   Return true if formula|i should be renamed, false
-//   otherwise. Polarity is the polarity of root, not root|i. 
+//   otherwise. Polarity is the polarity of root, not
+//   root|i. def_limit determines how often a subformula can be
+//   replicated before it is renamed.
 //
 // Global Variables: 
 //
@@ -303,7 +305,8 @@ TFormula_p tformula_rek_skolemize(TB_p terms, TFormula_p form,
 //
 /----------------------------------------------------------------------*/
 
-bool tformula_rename_test(TB_p bank, TFormula_p root, int pos, int polarity)
+bool tformula_rename_test(TB_p bank, TFormula_p root, int pos, 
+                          int polarity, long def_limit)
 {
    int subform_sign;
 
@@ -314,11 +317,11 @@ bool tformula_rename_test(TB_p bank, TFormula_p root, int pos, int polarity)
    }
    if(root->f_code == bank->sig->equiv_code)
    {
-      if(TFormulaEstimateClauses(bank, root->args[pos],true) > TFORM_RENAME_LIMIT)
+      if(TFormulaEstimateClauses(bank, root->args[pos],true) > def_limit)
       {
          return true;
       }
-      if(TFormulaEstimateClauses(bank, root->args[pos],false) > TFORM_RENAME_LIMIT)
+      if(TFormulaEstimateClauses(bank, root->args[pos],false) > def_limit)
       {
          return true;
       }
@@ -330,14 +333,14 @@ bool tformula_rename_test(TB_p bank, TFormula_p root, int pos, int polarity)
       case 1:
             if(root->f_code == bank->sig->or_code && 
                TFormulaEstimateClauses(bank, root->args[pos],true) 
-               > TFORM_RENAME_LIMIT)
+               > def_limit)
             {
                return true;
             }
             subform_sign = pos==2;
             if(root->f_code == bank->sig->impl_code && 
                TFormulaEstimateClauses(bank, root->args[pos],subform_sign) 
-               > TFORM_RENAME_LIMIT)
+               > def_limit)
             {
                return true;
             }
@@ -345,7 +348,7 @@ bool tformula_rename_test(TB_p bank, TFormula_p root, int pos, int polarity)
       case -1:
             if(root->f_code == bank->sig->and_code && 
                TFormulaEstimateClauses(bank, root->args[pos],false) 
-               > TFORM_RENAME_LIMIT)
+               > def_limit)
             {
                return true;
             }
@@ -355,9 +358,9 @@ bool tformula_rename_test(TB_p bank, TFormula_p root, int pos, int polarity)
                 root->f_code == bank->sig->or_code ||
                 root->f_code == bank->sig->impl_code) &&
                (TFormulaEstimateClauses(bank, root->args[pos],true) >
-                TFORM_RENAME_LIMIT ||
+                def_limit ||
                 TFormulaEstimateClauses(bank, root->args[pos],false) >
-                TFORM_RENAME_LIMIT))
+                def_limit))
             {
                return true;
             }
@@ -634,7 +637,8 @@ TFormula_p TFormulaDefRename(TB_p bank, TFormula_p form, int polarity,
 // Function: TFormulaFindDefs()
 //
 //   Find all useful definitions in form and enter them in defs and
-//   renamed_forms.
+//   renamed_forms. def_limit determines when a formula is
+//   replicated sufficiently often to warrant renaming.
 //
 // Global Variables: -
 //
@@ -642,8 +646,9 @@ TFormula_p TFormulaDefRename(TB_p bank, TFormula_p form, int polarity,
 //
 /----------------------------------------------------------------------*/
 
-void TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity, 
-                      NumTree_p *defs, PStack_p renamed_forms)
+void TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity,
+                      long def_limit, NumTree_p *defs, 
+                      PStack_p renamed_forms)
 {
    if(TermCellQueryProp(form, TPCheckFlag) ||
       TFormulaIsLiteral(bank->sig, form))
@@ -654,8 +659,9 @@ void TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity,
    if((form->f_code == bank->sig->and_code)||
       (form->f_code == bank->sig->or_code))
    {
-      TFormulaFindDefs(bank, form->args[0], polarity, defs, renamed_forms);
-      if(tformula_rename_test(bank, form, 0, polarity))
+      TFormulaFindDefs(bank, form->args[0], polarity, def_limit,
+                       defs, renamed_forms);
+      if(tformula_rename_test(bank, form, 0, polarity, def_limit))
       {
          TFormulaDefRename(bank, form, polarity, 
                            defs, renamed_forms);         
@@ -664,8 +670,9 @@ void TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity,
    else if((form->f_code == bank->sig->not_code)||
            (form->f_code == bank->sig->impl_code))
    {
-      TFormulaFindDefs(bank, form->args[0], -polarity, defs, renamed_forms);
-      if(tformula_rename_test(bank, form, 0, polarity))
+      TFormulaFindDefs(bank, form->args[0], -polarity, 
+                       def_limit,defs, renamed_forms);
+      if(tformula_rename_test(bank, form, 0, polarity, def_limit))
       {
          TFormulaDefRename(bank, form, -polarity, 
                            defs, renamed_forms);         
@@ -673,8 +680,9 @@ void TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity,
    }
    else if((form->f_code == bank->sig->equiv_code))
    {
-      TFormulaFindDefs(bank, form->args[0], 0, defs, renamed_forms);
-      if(tformula_rename_test(bank, form, 0, polarity))
+      TFormulaFindDefs(bank, form->args[0], 0, def_limit, 
+                       defs, renamed_forms);
+      if(tformula_rename_test(bank, form, 0, polarity, def_limit))
       {
          TFormulaDefRename(bank, form, 0, 
                            defs, renamed_forms);         
@@ -687,16 +695,18 @@ void TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity,
       (form->f_code == bank->sig->qex_code)||
       (form->f_code == bank->sig->qall_code))
    {
-      TFormulaFindDefs(bank, form->args[1], polarity, defs, renamed_forms);               
-      if(tformula_rename_test(bank, form, 1, polarity))
+      TFormulaFindDefs(bank, form->args[1], polarity, def_limit,
+                       defs, renamed_forms);               
+      if(tformula_rename_test(bank, form, 1, polarity, def_limit))
       {
          TFormulaDefRename(bank, form, polarity, defs, renamed_forms);         
       }
    }
    else if((form->f_code == bank->sig->equiv_code))
    {
-      TFormulaFindDefs(bank, form->args[1], 0, defs, renamed_forms);
-      if(tformula_rename_test(bank, form, 1, polarity))
+      TFormulaFindDefs(bank, form->args[1], 0, def_limit, 
+                       defs, renamed_forms);
+      if(tformula_rename_test(bank, form, 1, polarity, def_limit))
       {
          TFormulaDefRename(bank, form, 0, defs, renamed_forms);         
       }
@@ -710,7 +720,7 @@ void TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity,
 //
 //   Copy a formula, replacing all defined subformulas (except for the
 //   blocked one, if any) with the proper definition). Record _all_
-//   definitions (even sub-definitions) on the stack (by pushing the
+//   definitions (but not sub-definitions) on the stack (by pushing the
 //   definition numbers onto the stack).
 //
 // Global Variables: -
@@ -724,6 +734,7 @@ TFormula_p TFormulaCopyDef(TB_p bank, TFormula_p form, long blocked,
 {
    TFormula_p res = NULL, arg1, arg2 = NULL;
    NumTree_p def_entry;
+   WFormula_p def;
 
    if(TFormulaIsLiteral(bank->sig, form))
    {
@@ -733,10 +744,11 @@ TFormula_p TFormulaCopyDef(TB_p bank, TFormula_p form, long blocked,
    {
       def_entry = NumTreeFind(defs, form->entry_no);
       assert(def_entry);
-      if(def_entry->val1.i_val!=blocked)
+      def = def_entry->val1.p_val;
+      if(def->ident!=blocked)
       {
          res = def_entry->val2.p_val;
-         collect_applied_defs(bank->sig, form, defs, defs_used);
+         PStackPushInt(defs_used, def->ident);
       }
    }
    if(!res)
@@ -1339,18 +1351,11 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
    TFormula_p handle;
    FunCode   max_var;
 
-   printf("Start: ");
+   /*printf("Start: ");
    WFormulaPrint(GlobalOut, form, true);
-   printf("\n");
+   printf("\n");*/
 
-   printf("Before Simp:");
-   TBPrintTermFull(stdout, terms, form->tformula);
-   printf("\n");
    handle = TFormulaSimplify(terms, form->tformula);
-   printf("handle!=form->tformula?: %d\n", (handle!=form->tformula));
-   printf("After Simp:");
-   TBPrintTermFull(stdout, terms, handle);
-   printf("\n");
    
    if(handle!=form->tformula)
    {

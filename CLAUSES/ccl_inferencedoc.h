@@ -151,6 +151,10 @@ void    DocFormulaModification(FILE* out, long level, WFormula_p form,
 #define DocFormulaModificationDefault(form, op)\
         DocFormulaModification(GlobalOut, OutputLevel, (form), (op), NULL)
 
+void    DocFormulaIntroDefs(FILE* out, long level, WFormula_p form, 
+                            PStack_p def_list, char* comment);
+#define DocFormulaIntroDefsDefault(form, def_list)\
+        DocFormulaIntroDefs(GlobalOut, OutputLevel, (form), (def_list), NULL)
 
 #endif
 

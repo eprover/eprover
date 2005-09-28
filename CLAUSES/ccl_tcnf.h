@@ -39,15 +39,14 @@ Changes
 
 #define TFORM_MANY_CLAUSES LONG_MAX
 #define TFORM_MANY_LIMIT   1024
-#define TFORM_RENAME_LIMIT 8
-
 
 long       TFormulaEstimateClauses(TB_p bank, TFormula_p form, bool pos);
 
 TFormula_p TFormulaDefRename(TB_p bank, TFormula_p form, int polarity, 
                              NumTree_p *defs, PStack_p renamed_forms);
-void       TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity, 
-                            NumTree_p *defs, PStack_p renamed_forms);
+void TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity,
+                      long def_limit, NumTree_p *defs, 
+                      PStack_p renamed_forms);
 TFormula_p TFormulaCopyDef(TB_p bank, TFormula_p form, long blocked, 
                            NumTree_p *defs, PStack_p defs_used);
 TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form);

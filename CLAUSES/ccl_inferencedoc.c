@@ -1451,6 +1451,67 @@ void DocFormulaModification(FILE* out, long level, WFormula_p form,
    }
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: DocFormulaIntroDefs()
+//
+//   Print the application of a set of definitions to a formula.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void DocFormulaIntroDefs(FILE* out, long level, WFormula_p form, 
+                         PStack_p def_list, char* comment)
+{
+   PStackPointer i;
+
+   if(level >= 2)
+   {
+      long old_id = form->ident;
+
+      form->ident = ++ClauseIdentCounter;
+      
+      switch(DocOutputFormat)
+      {
+      case pcl_format:
+            pcl_formula_print_start(out, form);
+            for(i=0; i<PStackGetSP(def_list); i++)
+            {
+               fputs(PCL_AD "(", out);
+            }
+            fprintf(out, "%ld", old_id);
+            for(i=0; i<PStackGetSP(def_list); i++)
+            {
+               fprintf(out, ",%ld)", PStackElementInt(def_list, i));
+            }
+            pcl_formula_print_end(out, comment);
+            break;
+      case tstp_format:
+            WFormulaTSTPPrint(out, form, PCLFullTerms, false);
+            fprintf(out, ", ");
+            for(i=0; i<PStackGetSP(def_list); i++)
+            {
+               fputs(PCL_AD "(", out);
+            }
+            fprintf(out, "c_0_%ld", old_id);
+            for(i=0; i<PStackGetSP(def_list); i++)
+            {
+               fprintf(out, ",c_0_%ld)", PStackElementInt(def_list, i));
+            }
+            tstp_formula_print_end(out, comment);
+            break;
+      default:
+            fprintf(out, "# Output format not implemented.\n");
+            break;
+      }
+   }
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

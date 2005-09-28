@@ -703,9 +703,10 @@ void TFormulaSetFindDefs(FormulaSet_p set, TB_p terms, NumTree_p *defs,
       WFormulaTPTPPrint(GlobalOut, handle, true);
       printf("\n");*/
       
-      if(handle->tformula)
+      if(handle->tformula && FormulaDefLimit)
       {
-         TFormulaFindDefs(terms, handle->tformula, 1, defs, renamed_forms);
+         TFormulaFindDefs(terms, handle->tformula, 1, 
+                          FormulaDefLimit, defs,  renamed_forms);
       }
    }   
 }
@@ -738,17 +739,14 @@ long TFormulaApplyDefs(WFormula_p form, TB_p terms, NumTree_p *defs)
    if(!PStackEmpty(defs_used))
    {
       assert(form->tformula != reduced);
-      printf("# Reduction: ");
-      form->tformula = reduced; /* Old one will be picke up by gc */
+      form->tformula = reduced; /* Old one will be picked up by gc */
+      DocFormulaIntroDefsDefault(form, defs_used);
       res = PStackGetSP(defs_used);
    }
    else
    {
       assert(form->tformula == reduced);
-      printf("# No reduction: ");
    }
-   WFormulaTSTPPrint(GlobalOut, form, true, true);
-   printf("\n");
    
    PStackFree(defs_used);
    return res;
@@ -795,7 +793,7 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, TB_p terms)
       w_def = WTFormulaAlloc(terms, newdef);
       FormulaSetInsert(set, w_def);      
       DocFormulaCreationDefault(w_def, inf_fof_intro_def, NULL, NULL);
-      cell->val1.i_val = w_def->ident; /* Replace polarity with ident */
+      cell->val1.p_val = w_def; /* Replace polarity with definition */
    }
    PStackFree(renamed_forms);
 

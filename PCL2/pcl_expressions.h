@@ -40,6 +40,7 @@ typedef enum
 {
    PCLOpNoOp,
    PCLOpInitial,
+   PCLOpIntroDef,
    PCLOpQuote,
    PCLOpParamod,
    PCLOpSimParamod,
@@ -52,6 +53,7 @@ typedef enum
    PCLOpURewrite,
    PCLOpClauseNormalize,
    PCLOpSplitClause,
+   PCLOpApplyDef,
    PCLOpFOFSplitConjunct,
    PCLOpFOFSimplify,
    PCLOpFOFDeMorgan,
@@ -107,7 +109,6 @@ void      PCLExprFree(PCLExpr_p junk);
 /* MiniExprs are the same basic data type. However, MiniPCL-Ids are
    just plain longs, not full PCL identifiers */
 void      PCLMiniExprFree(PCLExpr_p junk);
-
 
 PCLExpr_p PCLExprParse(Scanner_p in, bool mini);
 #define   PCLFullExprParse(in) PCLExprParse((in),false)

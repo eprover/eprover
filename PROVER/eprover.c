@@ -32,8 +32,8 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-/*  cvs tag E-0-9dev005 */
-#define VERSION      "0.9dev005"
+/*  cvs tag E-0-9dev006 */
+#define VERSION      "0.9dev006"
 #define NAME         "eprover"
 
 #define NICKNAME     "Soom"
@@ -136,6 +136,7 @@ typedef enum
    OPT_FREE_NUMBERS,
    OPT_FREE_OBJECTS,
    OPT_TERM_CNF,
+   OPT_DEF_CNF,
    OPT_DUMMY
 }OptionCodes;
 
@@ -947,7 +948,17 @@ OptCell opts[] =
     '\0', "term-encoded-fof",
     NoArg, NULL,
     "Use the experimental new clausification algorithm based on "
-    "term-encoding of first order formulas."},
+    "term-encoding of first order formulas. This option is deprecated"
+    " in favour of the following one."},
+
+   {OPT_DEF_CNF,
+    '\0', "definitional-cnf",
+    OptArg, TFORM_RENAME_LIMIT_STR,
+    "Use the experimental new clausification algorithm that possibly "
+    "introduces definitions for subformula to avoid exponential blow-up."
+    " The optional argument is a fudge factor that determines when a "
+    "definition is introduced. 0 disables definitions, the default works"
+    " well."},
    
    {OPT_NOOPT,
     '\0', NULL,
@@ -1854,6 +1865,10 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_TERM_CNF:
             FormulaTermEncoding = true;
+            break;
+      case OPT_DEF_CNF:
+            FormulaTermEncoding = true;
+            FormulaDefLimit     = CLStateGetIntArg(handle, arg);
             break;
       default:
 	    assert(false && "Unknown option");

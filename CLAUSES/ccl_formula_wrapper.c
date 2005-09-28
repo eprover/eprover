@@ -30,6 +30,7 @@ Changes
 
 long global_formula_counter = LONG_MIN;
 bool FormulaTermEncoding    = false;
+long FormulaDefLimit        = TFORM_RENAME_LIMIT;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */

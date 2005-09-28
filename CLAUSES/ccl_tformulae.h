@@ -37,6 +37,9 @@ typedef Term_p TFormula_p;
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+#define TFORM_RENAME_LIMIT     8
+#define TFORM_RENAME_LIMIT_STR "8"
+
 #define   TFormulaHasSubForm1(sig, form)\
           (SigQueryFuncProp((sig),(form)->f_code, FPFOFOp) &&\
           ((form)->arity>=1))

@@ -229,7 +229,7 @@ PCLExpr_p PCLExprParse(Scanner_p in, bool mini)
    {
       CheckInpId(in, PCL_ER"|"PCL_PM"|"PCL_SPM"|"PCL_EF"|"PCL_RW"|"
 		 PCL_SR"|"PCL_CSR"|"PCL_ACRES"|"PCL_CN"|"PCL_SPLIT"|"
-                 PCL_SC"|"PCL_FS"|"PCL_NNF"|"PCL_SQ"|"PCL_VR"|"
+                 PCL_SC"|"PCL_FS"|"PCL_NNF"|"PCL_ID"|"PCL_AD"|"PCL_SQ"|"PCL_VR"|"
                  PCL_SK"|"PCL_DSTR"|"PCL_NC  );
 
       if(TestInpId(in, PCL_ER))
@@ -297,10 +297,15 @@ PCLExpr_p PCLExprParse(Scanner_p in, bool mini)
 	 handle->op=PCLOpFOFDeMorgan;
 	 arg_no=1;
       }
-      else if(TestInpId(in, PCL_SQ))
+      else if(TestInpId(in, PCL_ID))
       {
-	 handle->op=PCLOpFOFDistributeQuantors;
-	 arg_no=1;
+	 handle->op=PCLOpIntroDef;
+	 arg_no=0;
+      }
+      else if(TestInpId(in, PCL_AD))
+      {
+	 handle->op=PCLOpApplyDef;
+         arg_no=2;
       }
       else if(TestInpId(in, PCL_VR))
       {
@@ -323,36 +328,43 @@ PCLExpr_p PCLExprParse(Scanner_p in, bool mini)
 	 arg_no=1;
       }
       NextToken(in);
-      AcceptInpTok(in,OpenBracket);
-      PCLExprArg(handle,0)=PCLExprParse(in, mini);
-      if(TestInpTok(in,OpenBracket))
+      if(arg_no)
       {
-	 PCLExprArgPos(handle,0)=PCL2PosParse(in);
+         AcceptInpTok(in,OpenBracket);
+         PCLExprArg(handle,0)=PCLExprParse(in, mini);
+         if(TestInpTok(in,OpenBracket))
+         {
+            PCLExprArgPos(handle,0)=PCL2PosParse(in);
+         }
+         else
+         {
+            PCLExprArgPos(handle,0)=NULL;
+         }
+         for(i=1; TestInpTok(in, Comma); i++)
+         {
+            AcceptInpTok(in, Comma);
+            PCLExprArg(handle,i)=PCLExprParse(in, mini);
+            if(TestInpTok(in,OpenBracket))
+            {
+               PCLExprArgPos(handle,i)=PCL2PosParse(in);
+            }
+            else
+            {
+               PCLExprArgPos(handle,i)=NULL;
+            }
+         }
+         if((arg_no!=PCL_VAR_ARG) && (arg_no!=i))
+         {
+            AktTokenError(in, "Wrong number of arguments in PCL "
+                          "expression", false); 
+         }
+         AcceptInpTok(in,CloseBracket);
+         handle->arg_no=i;
       }
       else
       {
-	 PCLExprArgPos(handle,0)=NULL;
+         handle->arg_no=0;
       }
-      for(i=1; TestInpTok(in, Comma); i++)
-      {
-	 AcceptInpTok(in, Comma);
-	 PCLExprArg(handle,i)=PCLExprParse(in, mini);
-	 if(TestInpTok(in,OpenBracket))
-	 {
-	    PCLExprArgPos(handle,i)=PCL2PosParse(in);
-	 }
-	 else
-	 {
-	    PCLExprArgPos(handle,i)=NULL;
-	 }
-      }
-      if((arg_no!=PCL_VAR_ARG) && (arg_no!=i))
-      {
-	 AktTokenError(in, "Wrong number of arguments in PCL "
-		       "expression", false); 
-      }
-      AcceptInpTok(in,CloseBracket);
-      handle->arg_no=i;
    }
    return handle;
 }
@@ -410,6 +422,10 @@ void PCLExprPrint(FILE* out, PCLExpr_p expr, bool mini)
    }
    switch(expr->op)
    {
+   case PCLOpIntroDef:
+         fprintf(out, PCL_ID);
+         assert(expr->arg_no==0);
+         break;         
    case PCLOpParamod:
          fprintf(out, PCL_PM);
          assert(expr->arg_no==2);
@@ -445,6 +461,10 @@ void PCLExprPrint(FILE* out, PCLExpr_p expr, bool mini)
    case PCLOpClauseNormalize:
          fprintf(out, PCL_CN);
          assert(expr->arg_no==1);
+         break;
+   case PCLOpApplyDef:
+         fprintf(out, PCL_AD);
+         assert(expr->arg_no==2);
          break;
    case PCLOpSplitClause:
          fprintf(out, PCL_SPLIT);
@@ -486,22 +506,25 @@ void PCLExprPrint(FILE* out, PCLExpr_p expr, bool mini)
          assert(false && "Unknown PCL operator");
          break;
    }
-   fputc('(',out);
-   PCLExprPrint(out, PCLExprArg(expr,0), mini);
-   if(PCLExprArgPos(expr,0))
+   if(expr->arg_no)
    {
-      PCL2PosPrint(out, PCLExprArgPos(expr,0));
-   }
-   for(i=1; i<expr->arg_no; i++)
-   {
-      fputc(',',out);
-      PCLExprPrint(out, PCLExprArg(expr,i), mini);
-      if(PCLExprArgPos(expr,i))
+      fputc('(',out);
+      PCLExprPrint(out, PCLExprArg(expr,0), mini);
+      if(PCLExprArgPos(expr,0))
       {
-         PCL2PosPrint(out, PCLExprArgPos(expr,i));
+         PCL2PosPrint(out, PCLExprArgPos(expr,0));
       }
+      for(i=1; i<expr->arg_no; i++)
+      {
+         fputc(',',out);
+         PCLExprPrint(out, PCLExprArg(expr,i), mini);
+         if(PCLExprArgPos(expr,i))
+         {
+            PCL2PosPrint(out, PCLExprArgPos(expr,i));
+         }
+      }
+      fputc(')',out);       
    }
-   fputc(')',out);       
 }
 
 
