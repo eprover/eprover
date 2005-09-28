@@ -109,7 +109,9 @@ TFormula_p troot_nnf(TB_p terms, TFormula_p form, int polarity)
 {
    TFormula_p handle = form, arg1, arg2, arg21, arg22;
    FunCode f_code;
-   
+
+   assert((polarity<=1) && (polarity >=-1));
+
    while(handle)
    {
       handle = NULL;
@@ -310,6 +312,8 @@ bool tformula_rename_test(TB_p bank, TFormula_p root, int pos,
 {
    int subform_sign;
 
+   assert((polarity<=1) && (polarity >=-1));
+
    if((root->f_code == bank->sig->qex_code) || 
       (root->f_code == bank->sig->qall_code))
    {
@@ -337,7 +341,7 @@ bool tformula_rename_test(TB_p bank, TFormula_p root, int pos,
             {
                return true;
             }
-            subform_sign = pos==2;
+            subform_sign = (pos==2?true:false);
             if(root->f_code == bank->sig->impl_code && 
                TFormulaEstimateClauses(bank, root->args[pos],subform_sign) 
                > def_limit)
@@ -449,7 +453,11 @@ static long collect_applied_defs(Sig_p sig, TFormula_p form,
 long TFormulaEstimateClauses(TB_p bank, TFormula_p form, bool pos)
 {
    long posres1, posres2, negres1, negres2, res=0;
+  
+   assert(bank && form);
+   assert((pos == true) || (pos == false));
 
+   /* printf("Estimating: ");TBPrintTermFull(stdout, bank, form);*/
 
    if(TermCellQueryProp(form, TPCheckFlag) ||
       TFormulaIsLiteral(bank->sig, form))
@@ -502,7 +510,7 @@ long TFormulaEstimateClauses(TB_p bank, TFormula_p form, bool pos)
       }
       else if(TFormulaIsQuantified(bank->sig,form))
       {
-         posres1 = TFormulaEstimateClauses(bank, form->args[0], true);
+         posres1 = TFormulaEstimateClauses(bank, form->args[1], true);
          RETURN_IF_LARGE(posres1);
          res = posres1;         
       }
@@ -557,7 +565,7 @@ long TFormulaEstimateClauses(TB_p bank, TFormula_p form, bool pos)
       }
       else if(TFormulaIsQuantified(bank->sig,form))
       {
-         negres1 = TFormulaEstimateClauses(bank, form->args[0], false);
+         negres1 = TFormulaEstimateClauses(bank, form->args[1], false);
          RETURN_IF_LARGE(negres1);
          res = negres1;         
       }
@@ -596,6 +604,8 @@ TFormula_p TFormulaDefRename(TB_p bank, TFormula_p form, int polarity,
 {
    NumTree_p def = NumTreeFind(defs, form->entry_no);
    
+   assert((polarity<=1) && (polarity >=-1));
+
    if(def)
    {
       if(polarity!=def->val1.i_val)
@@ -650,6 +660,8 @@ void TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity,
                       long def_limit, NumTree_p *defs, 
                       PStack_p renamed_forms)
 {
+   assert((polarity<=1) && (polarity >=-1));
+
    if(TermCellQueryProp(form, TPCheckFlag) ||
       TFormulaIsLiteral(bank->sig, form))
    {
@@ -963,7 +975,8 @@ TFormula_p TFormulaNNF(TB_p terms, TFormula_p form, int polarity)
    bool normalform = false;
    TFormula_p handle, handle2;
 
-   assert(form);
+   assert(form && terms);
+   assert((polarity<=1) && (polarity >=-1));
       
    while(!normalform)
    {
