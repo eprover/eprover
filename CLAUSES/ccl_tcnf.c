@@ -620,9 +620,11 @@ TFormula_p TFormulaDefRename(TB_p bank, TFormula_p form, int polarity,
       PStack_p var_stack = PStackAlloc();
       TFormula_p rename_atom;      
 
+      VarBankVarsSetProp(bank->vars, TPIsFreeVar);
       TFormulaCollectFreeVars(bank, form, &free_vars);
       PTreeToPStack(var_stack, free_vars);
-      
+      printf("# Found %d free variables\n", PStackGetSP(var_stack));
+
       rename_atom = TBAllocNewSkolem(bank, var_stack, true);
       rename_atom = EqnTermsTBTermEncode(bank, rename_atom, 
                                          bank->true_term, true, PENormal); 
@@ -667,7 +669,9 @@ void TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity,
    {
       return;
    }
-   /* Handle args[0] (we are doing depth first) */
+   /* Check if we want to rename Handle args[0] (we are doing depth
+    * first). Also remember that we check if a _subformula_ should be
+    * renamed! */
    if((form->f_code == bank->sig->and_code)||
       (form->f_code == bank->sig->or_code))
    {
@@ -675,7 +679,7 @@ void TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity,
                        defs, renamed_forms);
       if(tformula_rename_test(bank, form, 0, polarity, def_limit))
       {
-         TFormulaDefRename(bank, form, polarity, 
+         TFormulaDefRename(bank, form->args[0], polarity, 
                            defs, renamed_forms);         
       }
    }
@@ -684,9 +688,9 @@ void TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity,
    {
       TFormulaFindDefs(bank, form->args[0], -polarity, 
                        def_limit,defs, renamed_forms);
-      if(tformula_rename_test(bank, form, 0, polarity, def_limit))
+      if(tformula_rename_test(bank, form, 0, -polarity, def_limit))
       {
-         TFormulaDefRename(bank, form, -polarity, 
+         TFormulaDefRename(bank, form->args[0], -polarity,  
                            defs, renamed_forms);         
       }
    }
@@ -696,7 +700,7 @@ void TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity,
                        defs, renamed_forms);
       if(tformula_rename_test(bank, form, 0, polarity, def_limit))
       {
-         TFormulaDefRename(bank, form, 0, 
+         TFormulaDefRename(bank, form->args[0], 0, 
                            defs, renamed_forms);         
       }
    }
@@ -711,7 +715,7 @@ void TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity,
                        defs, renamed_forms);               
       if(tformula_rename_test(bank, form, 1, polarity, def_limit))
       {
-         TFormulaDefRename(bank, form, polarity, defs, renamed_forms);         
+         TFormulaDefRename(bank, form->args[1], polarity, defs, renamed_forms);         
       }
    }
    else if((form->f_code == bank->sig->equiv_code))
@@ -720,7 +724,7 @@ void TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity,
                        defs, renamed_forms);
       if(tformula_rename_test(bank, form, 1, polarity, def_limit))
       {
-         TFormulaDefRename(bank, form, 0, defs, renamed_forms);         
+         TFormulaDefRename(bank, form->args[1], 0, defs, renamed_forms);         
       }
    }
 }

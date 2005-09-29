@@ -634,6 +634,7 @@ TFormula_p TFormulaClosure(TB_p bank, TFormula_p form, bool universal)
 {
    PTree_p vars = NULL;
 
+   VarBankVarsSetProp(bank->vars, TPIsFreeVar);
    TFormulaCollectFreeVars(bank, form, &vars);
    form = TFormulaAddQuantors(bank, form, universal, vars);
    PTreeFree(vars);
@@ -676,7 +677,7 @@ TFormula_p TFormulaCreateDef(TB_p bank, TFormula_p def_atom, TFormula_p defined,
          assert(false && "Illegal polarity");
          break;
    }
-   TFormulaCollectFreeVars(bank, def_atom, &vars);
+   TermCollectVariables(def_atom, &vars);
    res = TFormulaAddQuantors(bank, res, true, vars);
    PTreeFree(vars);
    

@@ -32,8 +32,8 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-/*  cvs tag E-0-9dev007 */
-#define VERSION      "0.9dev007"
+/*  cvs tag E-0-9dev008 */
+#define VERSION      "0.9dev008"
 #define NAME         "eprover"
 
 #define NICKNAME     "Soom"
