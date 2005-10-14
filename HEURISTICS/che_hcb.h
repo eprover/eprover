@@ -81,6 +81,7 @@ typedef struct heuristic_parms_cell
    bool                select_on_proc_only;
    bool                inherit_paramod_lit;
    bool                inherit_goal_pm_lit;
+   bool                inherit_conj_pm_lit;
 
    /* Inference control elements */
    bool                enable_eq_factoring; /* Default is on! */

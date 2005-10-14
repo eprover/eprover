@@ -1,3 +1,5 @@
+Evaluate --inherit-conjecture-pm-literals.
+
 Implements Bernd's KBO.
 
 Purity. For the equational case, use non-E-unifiability as the
@@ -8,7 +10,7 @@ Condensing.
 Finally get rid of the ugly second termbank. Just have two variable
 banks per term bank, the Xs (normal variables) and the Ys (used when
 distinct variables are needed. Possibly better sharing, more general
-use of pointer compariasons, and ground term inserting becomes free.
+use of pointer compariasons, and ground term inserting becomes free. 
 
 Flattening of ground terms (anti-unfolding ;-), useful for termination
 in many theories, and maybe in general.

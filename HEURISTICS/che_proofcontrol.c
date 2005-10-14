@@ -241,7 +241,9 @@ void DoLiteralSelection(ProofControl_p control, Clause_p clause)
    assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
 
    if(control->heuristic_parms.inherit_paramod_lit||
-      (control->heuristic_parms.inherit_goal_pm_lit&&ClauseIsGoal(clause)))
+      (control->heuristic_parms.inherit_goal_pm_lit&&ClauseIsGoal(clause))||
+      (control->heuristic_parms.inherit_conj_pm_lit&&ClauseIsConjecture(clause))
+      )
    {
       if(select_inherited_literal(clause))
       {

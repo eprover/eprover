@@ -1405,7 +1405,7 @@ void SpecTypePrint(FILE* out, SpecFeature_p features, char* mask)
    int        i, limit;
 
    assert(features);
-   assert(mask && (strlen(mask)==12));
+   assert(mask && (strlen(mask)==13));
    limit = strlen(mask);
 
    sprintf(result, "%c%c%c%c%c%c%c%c%c%c%c%c%c", 

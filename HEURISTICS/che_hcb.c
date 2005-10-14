@@ -108,7 +108,7 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->select_on_proc_only           = false;
    handle->inherit_paramod_lit           = false;
    handle->inherit_goal_pm_lit           = false;
-   
+   handle->inherit_conj_pm_lit           = false;
 
    handle->enable_eq_factoring           = true;
    handle->enable_neg_unit_paramod       = true;
