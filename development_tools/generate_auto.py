@@ -181,6 +181,7 @@ match_ipl_s     = re.compile(" -i")
 match_ipl_l     = re.compile(" --inherit-paramod-literals")
 match_ipg_s     = re.compile(" -j")
 match_ipg_l     = re.compile(" --inherit-goal-pm-literals")
+match_ipc_l     = re.compile(" --inherit-conjecture-pm-literals")
 match_pic_l     = re.compile(" --prefer-initial-clauses")
 match_split_l   = re.compile(" --split-clauses=")
 match_splitm_l  = re.compile(" --split-method=")
@@ -279,6 +280,10 @@ def parse_control_info(line):
     m = match_ipg_l.search(line)
     if m:
         res = res+ "      control->heuristic_parms.inherit_goal_pm_lit=true;\n"
+
+    m = match_ipc_l.search(line)
+    if m:
+        res = res+ "      control->heuristic_parms.inherit_conj_pm_lit=true;\n"
 
     m = match_snm_l.search(line)
     if m:
