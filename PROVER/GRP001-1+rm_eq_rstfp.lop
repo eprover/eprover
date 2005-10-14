@@ -73,6 +73,6 @@ product(X, X, identity) <- .
 product(a, b, c) <- .
 
 # prove_b_times_a_is_c, conjecture.
- <- product(b, a, c).
+ ?- product(b, a, c).
 
 #--------------------------------------------------------------------------

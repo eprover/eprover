@@ -32,8 +32,8 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-/*  cvs tag E-0-9dev008 */
-#define VERSION      "0.9dev008"
+/*  cvs tag E-0-9dev009 */
+#define VERSION      "0.9dev009"
 #define NAME         "eprover"
 
 #define NICKNAME     "Soom"
@@ -82,6 +82,7 @@ typedef enum
    OPT_SELECT_ON_PROC_ONLY,
    OPT_INHERIT_PM_LIT,
    OPT_INHERIT_GOAL_PM_LIT,
+   OPT_INHERIT_CONJ_PM_LIT,
    OPT_POS_LITSEL_MIN,
    OPT_POS_LITSEL_MAX,
    OPT_NEG_LITSEL_MIN,
@@ -494,6 +495,14 @@ OptCell opts[] =
     "literals a previous inference " 
     "paramodulated into (if possible). If no such literal exists,"
     " select as dictated by the selection strategy."}, 
+
+   {OPT_INHERIT_CONJ_PM_LIT,
+    'j', "inherit-conjecture-pm-literals",
+    NoArg, NULL,
+    "In a conjecure-derived clause), always select the negative "
+    "literals a previous inference paramodulated into (if possible). "
+    "If no such literal exists, select as dictated by the selection "
+    "strategy."},
 
    {OPT_POS_LITSEL_MIN,
     '\0', "selection-pos-min",
@@ -1507,6 +1516,10 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_INHERIT_GOAL_PM_LIT:
 	    h_parms->inherit_goal_pm_lit = true;
 	    break;
+      case OPT_INHERIT_CONJ_PM_LIT:
+	    h_parms->inherit_conj_pm_lit = true;
+	    break;
+
       case OPT_LITERAL_SELECT:
 	    h_parms->selection_strategy = GetLitSelFun(arg);
 	    if(!h_parms->selection_strategy)

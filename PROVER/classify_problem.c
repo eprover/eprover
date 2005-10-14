@@ -8,7 +8,7 @@ Contents
  
   Read a specification and print classification and feature vector.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2005 by the author.
   This code is released under the GNU General Public Licence.
   See the file COPYING in the main CLIB directory for details.
   Run "eprover -h" for contact information.
@@ -32,7 +32,7 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-#define VERSION "0.6"
+#define VERSION "0.7"
 
 typedef enum
 {
@@ -50,6 +50,8 @@ typedef enum
    OPT_TSTP_FORMAT,
    OPT_GEN_TPTP_HEADER,
    OPT_NO_PREPROCESSING,
+   OPT_TERM_CNF,
+   OPT_DEF_CNF,
    OPT_MASK,
    OPT_NGU_ABSOLUTE,
    OPT_NGU_FEW_LIMIT,
@@ -159,6 +161,22 @@ OptCell opts[] =
     "anything else happens. It also unfolds equational definitons (and "
     "removes them)."},
 
+   {OPT_TERM_CNF,
+    '\0', "term-encoded-fof",
+    NoArg, NULL,
+    "Use the experimental new clausification algorithm based on "
+    "term-encoding of first order formulas. This option is deprecated"
+    " in favour of the following one."},
+
+   {OPT_DEF_CNF,
+    '\0', "definitional-cnf",
+    OptArg, TFORM_RENAME_LIMIT_STR,
+    "Use the experimental new clausification algorithm that possibly "
+    "introduces definitions for subformula to avoid exponential blow-up."
+    " The optional argument is a fudge factor that determines when a "
+    "definition is introduced. 0 disables definitions, the default works"
+    " well."},
+  
    {OPT_MASK,
     'c', "class-mask",
     ReqArg, NULL,
@@ -554,11 +572,18 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
       case OPT_NO_PREPROCESSING:
 	    no_preproc = true;
 	    break;
+      case OPT_TERM_CNF:
+            FormulaTermEncoding = true;
+            break;
+      case OPT_DEF_CNF:
+            FormulaTermEncoding = true;
+            FormulaDefLimit     = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_MASK:
 	    mask = arg;
 	    if(strlen(mask)!=13)
 	    {
-	       Error("Option -c (--class-mask) requires 12-letter "
+	       Error("Option -c (--class-mask) requires 13-letter "
 		     "string as an argument", USAGE_ERROR);
 	    }
 	    break;
