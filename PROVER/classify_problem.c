@@ -695,7 +695,7 @@ Read sets of clauses and classify them according to predefined criteria.\n\
 \n");
    PrintOptions(stdout, opts);
    fprintf(out, "\n\
-Copyright 1998-2003 by Stephan Schulz, " STS_MAIL "\n\
+Copyright 1998-2005 by Stephan Schulz, " STS_MAIL "\n\
 \n\
 This program is a part of the support structure for the E equational\n\
 theorem prover. You can find the latest version of the E distribution\n\

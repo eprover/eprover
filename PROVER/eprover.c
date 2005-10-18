@@ -285,7 +285,7 @@ OptCell opts[] =
     "everywhere, due to broken and/or strange behaviour of setrlimit() "
     "in some UNIX implementations, and due to the fact that I know "
     "of no portable way to figure out the physical memory in a machine. "
-    "Both the option and the 'Auto' version  do work under all tested "
+    "Both the option and the 'Auto' version do work under all tested "
     "versions of Solaris and GNU/Linux."},
 
    {OPT_CPU_LIMIT,
@@ -1943,7 +1943,7 @@ Read a set of first-order clauses and formulae and try to refute it.\n\
 \n");
    PrintOptions(stdout, opts);
    fprintf(out, "\n\
-Copyright 1998-2004 by Stephan Schulz, " STS_MAIL "\n\
+Copyright 1998-2005 by Stephan Schulz, " STS_MAIL "\n\
 \n\
 You can find the latest version of E and additional information at\n"
 E_URL
