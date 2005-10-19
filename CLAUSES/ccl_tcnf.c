@@ -652,6 +652,9 @@ TFormula_p TFormulaDefRename(TB_p bank, TFormula_p form, int polarity,
 //   renamed_forms. def_limit determines when a formula is
 //   replicated sufficiently often to warrant renaming.
 //
+//    Remember: TPCheckFlag means we already have a definition for
+//    this formula (though possibly not of the right polarity).
+//
 // Global Variables: -
 //
 // Side Effects    : -
@@ -664,9 +667,20 @@ void TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity,
 {
    assert((polarity<=1) && (polarity >=-1));
 
-   if(TermCellQueryProp(form, TPCheckFlag) ||
-      TFormulaIsLiteral(bank->sig, form))
+   if(TFormulaIsLiteral(bank->sig, form))
    {
+      return;
+   }
+   if(TermCellQueryProp(form, TPCheckFlag))
+   {
+      /* We already have a definition, but it may be of the wrong
+       * polarity to be applied here (and it will be, for
+       * consistency). Easiest way to handle this is to just to re-add
+       * it with the current polarity - if necessary, this will extend
+       * the definition to deal with a more general polarity.*/
+
+      TFormulaDefRename(bank, form, polarity, 
+                        defs, renamed_forms);
       return;
    }
    /* Check if we want to rename Handle args[0] (we are doing depth
