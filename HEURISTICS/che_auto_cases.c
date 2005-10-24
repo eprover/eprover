@@ -27,7 +27,7 @@ SpecFeaturesAddEval(spec, limits);
 if(OutputLevel)
 {
    fprintf(GlobalOut, "# Problem is type ");
-   SpecTypePrint(GlobalOut, spec, "aaaaaaaaaaaa");
+   SpecTypePrint(GlobalOut, spec, DEFAULT_CLASS_MASK);
    fputc('\n', GlobalOut);
 }
 if(false)

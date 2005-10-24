@@ -172,6 +172,8 @@ typedef struct spec_feature_cell
 
 
 #define DEFAULT_OUTPUT_DESCRIPTOR "eigEIG"
+#define DEFAULT_CLASS_MASK "aaaaaaaaaaaaa"
+
 
 #define SpecLimitsCellAlloc() \
         (SpecLimitsCell*)SizeMalloc(sizeof(SpecLimitsCell)) 
