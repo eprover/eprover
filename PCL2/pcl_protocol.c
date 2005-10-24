@@ -126,7 +126,7 @@ PCLStep_p PCLProtExtractStep(PCLProt_p prot, PCLStep_p step)
    if(res)
    {
       prot->number--;
-      prot->in_order = false;
+      prot->is_ordered = false;
    }
    return res;
 }
@@ -304,6 +304,100 @@ void PCLProtPrintExtra(FILE* out, PCLProt_p prot, bool data,
 
 /*-----------------------------------------------------------------------
 //
+// Function: PCLStepHasFOFParent()
+//
+//   Return true if one of the parents of step is a FOF step, false
+//   otherwise. 
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+bool PCLStepHasFOFParent(PCLProt_p prot, PCLStep_p step)
+{
+   PTree_p parents = NULL, cell;
+   PCLStep_p parent;
+   PStack_p iter_stack;
+   bool res = false;
+
+   PCLStepCollectPreconds(prot, step, &parents);
+   
+   iter_stack = PTreeTraverseInit(parents);
+   while((cell = PTreeTraverseNext(iter_stack)))
+   {
+      parent = cell->key;
+      if(PCLStepQueryProp(parent, PCLIsFOFStep))
+      {
+         res = true;
+         break;
+      }
+   }
+   PTreeTraverseExit(iter_stack);
+   PTreeFree(parents);
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PCLProtStripFOF()
+//
+//   Remove all FOF steps from protocol. Make steps referencing a FOF
+//   step into initials and rewrite the justification
+//   accordingly. Expensive if there are FOF steps, reasonably cheap
+//   otherwise... 
+//
+// Global Variables: -
+//
+// Side Effects    : Changes prot, memory operations.
+//
+/----------------------------------------------------------------------*/
+
+long PCLProtStripFOF(PCLProt_p prot)
+{
+   PCLStep_p step;
+   PStackPointer i;
+   long res;
+   PStack_p fof_steps = PStackAlloc();
+
+   PCLProtCollectPropSteps(prot, PCLIsFOFStep, fof_steps);
+   res = PStackGetSP(fof_steps);
+
+   if(res)
+   {
+      PCLProtSerialize(prot); /* Should be serialized, but let's play
+                               * it safe */
+      for(i=0; i<PStackGetSP(prot->in_order); i++)
+      {
+         step = PStackElementP(prot->in_order, i);
+         if(!PCLStepQueryProp(step,PCLIsFOFStep) 
+            && 
+            PCLStepHasFOFParent(prot, step))
+         {
+            PCLExprFree(step->just);
+            step->just = PCLExprAlloc();
+            step->just->arg_no = 0;
+            step->just->op = PCLOpInitial;
+         }
+      }
+   }
+   while(!PStackEmpty(fof_steps))
+   {
+      bool check;
+
+      step = PStackPopP(fof_steps);
+      check = PCLProtDeleteStep(prot, step);
+      assert(check);
+   }
+   PStackFree(fof_steps);
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: PCLProtResetTreeData()
 //
 //   Reset the tree data counters in all steps in the protocol.
@@ -326,6 +420,7 @@ void PCLProtResetTreeData(PCLProt_p prot, bool just_weights)
       step = PStackElementP(prot->in_order, i);
       PCLStepResetTreeData(step, just_weights);
    }
+
 }
 
 
@@ -540,6 +635,38 @@ long PCLProtCountProp(PCLProt_p prot, PCLStepProperties props)
       }
    }
    return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PCLProtCollectPropSteps()
+//
+//   Push all steps in prot with properties props set onto stack.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+long PCLProtCollectPropSteps(PCLProt_p prot, PCLStepProperties props,
+                             PStack_p steps)
+{
+   PCLStep_p step;   
+   PStackPointer i;
+   
+   PCLProtSerialize(prot);
+   
+   for(i=0; i<PStackGetSP(prot->in_order); i++)
+   {
+      step = PStackElementP(prot->in_order, i);
+      if(PCLStepQueryProp(step,props))
+      {
+         PStackPushP(steps, step);
+      }
+   }
+   return PStackGetSP(steps);  
 }
 
 /*-----------------------------------------------------------------------

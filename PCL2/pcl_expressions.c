@@ -307,6 +307,11 @@ PCLExpr_p PCLExprParse(Scanner_p in, bool mini)
 	 handle->op=PCLOpApplyDef;
          arg_no=2;
       }
+      else if(TestInpId(in, PCL_SQ))
+      {
+	 handle->op=PCLOpFOFDistributeQuantors;
+         arg_no=1;
+      }
       else if(TestInpId(in, PCL_VR))
       {
 	 handle->op=PCLOpFOFVarRename;
