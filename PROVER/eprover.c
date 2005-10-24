@@ -1168,7 +1168,7 @@ int main(int argc, char* argv[])
 	 else if(proofstate->state_is_complete)
 	 {
 	    fprintf(GlobalOut, "\n# No proof found!\n");
-	    TSTPOUT(GlobalOut, neg_conjectures?"CounterSatisfiable":"Satisfiable");	    
+	    TSTPOUT(GlobalOut, neg_conjectures?"CounterSatisfiable":"Satisfiable");
 	 }
 	 else
 	 {
