@@ -46,6 +46,9 @@ typedef enum
    OPT_OUTPUTLEVEL,
    OPT_TPTP_PRINT,
    OPT_TPTP_FORMAT,
+   OPT_TSTP_PRINT,
+   OPT_TSTP_FORMAT,
+   OPT_LOP_PRINT,
    OPT_ITERATIVE_LEMMAS,
    OPT_RECURSIVE_LEMMAS,
    OPT_FLAT_LEMMAS,
@@ -117,20 +120,38 @@ OptCell opts[] =
     'l', "output-level",
     ReqArg, NULL,
     "Select an output level, greater values imply more verbose "
-    "output. Level 0 produces "
-    "nearly no output, level 1 will print lemmas as clause, "
-    "level 2 will print PCL steps selected as lemmas, and "
-    "level 3 will give a full protocol with lemmas marked as such."},
+    "output. Level 0 produces nearly no output, level 1 and 2 will"
+    " print just lemmas, level 3 and higher will give a full protocol "
+    "with lemmas marked as such."},
    
    {OPT_TPTP_PRINT,
     '\0', "tptp-out",
     NoArg, NULL,
-    "Print lemma sets in TPTP format instead of lop."},
+    "Print lemma sets in TPTP-2 format instead of lop."},
 
    {OPT_TPTP_FORMAT,
     '\0', "tptp-format",
     NoArg, NULL,
     "Equivalent to --tptp-out (supplied for consistency in the E toolchain."},
+   
+   {OPT_TSTP_PRINT,
+    '\0', "tstp-out",
+    NoArg, NULL,
+    "Print lemma sets in TPTP-3 (TSTP) format instead of lop."},
+
+   {OPT_TSTP_FORMAT,
+    '\0', "tstp-format",
+    NoArg, NULL,
+    "Equivalent to --tstp-out (supplied for consistency in the E toolchain."
+    " Note that this does not enable parsing of TPTP-3 proofs."},
+
+   {OPT_LOP_PRINT,
+    '\0', "lop-out",
+    NoArg, NULL,
+    "Print output in LOP format. This is only useful for output level 1, "
+    "as LOP has no way of distinguishing lemmas and other clauses/formulas."
+    " It also is problematic for non-CNF first order proofs, as LOP has "
+    "no good syntax for full first-order formulae."},
 
    {OPT_ITERATIVE_LEMMAS,
     'i', "iterative-lemmas",
@@ -324,6 +345,7 @@ bool       max_lemmas_rel_p  = true;
 float      min_quality       = 100;
 float      min_quality_rel   = 0.3;
 bool       min_quality_rel_p = false;
+OutputFormatType outputformat = pcl_format;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -411,13 +433,13 @@ int main(int argc, char* argv[])
    case 0:
 	 break;
    case 1:
-	 PCLProtPrintPropClauses(GlobalOut, prot, PCLIsLemma, true, pcl_format);
+	 PCLProtPrintPropClauses(GlobalOut, prot, PCLIsLemma, true, outputformat);
 	 break;
    case 2:
-	 PCLProtPrintPropClauses(GlobalOut, prot, PCLIsLemma, false, pcl_format);
+	 PCLProtPrintPropClauses(GlobalOut, prot, PCLIsLemma, false, outputformat);
 	 break;
    default:
-	 PCLProtPrint(GlobalOut, prot, pcl_format);
+	 PCLProtPrint(GlobalOut, prot, outputformat);
 	 break;
    }
    
@@ -488,15 +510,15 @@ CLState_p process_options(int argc, char* argv[])
             OutputLevel = CLStateGetIntArg(handle, arg);
             break;	    
       case OPT_TPTP_PRINT:
-	    OutputFormat = TPTPFormat;
-	    EqnFullEquationalRep = false;
-	    EqnUseInfix = false;
-	    break;
       case OPT_TPTP_FORMAT:
-	    OutputFormat = TPTPFormat;
-	    EqnFullEquationalRep = false;
-	    EqnUseInfix = false;
+            outputformat = tptp_format;
 	    break;
+      case OPT_TSTP_PRINT:
+      case OPT_TSTP_FORMAT:
+            outputformat = tstp_format;
+	    break;
+      case OPT_LOP_PRINT:
+            outputformat = lop_format;
       case OPT_ITERATIVE_LEMMAS:
 	    algo = LIterative;
 	    break;
