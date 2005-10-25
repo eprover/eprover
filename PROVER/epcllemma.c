@@ -8,7 +8,7 @@ Contents
  
   Read a PCL protocol and suggest certain clauses as lemmas.
 
-  Copyright 2003 by the author.
+  Copyright 2003-2005 by the author.
   This code is released under the GNU General Public Licence.
   See the file COPYING in the main CLIB directory for details.
   Run "eprover -h" for contact information.
@@ -33,7 +33,7 @@ Changes
 /*---------------------------------------------------------------------*/
 
 #define NAME    "epcllemma"
-#define VERSION "0.1"
+#define VERSION "0.2"
 
 typedef enum
 {
@@ -622,7 +622,7 @@ NAME " " VERSION "\n"
 "\n");
    PrintOptions(stdout, opts);
    fprintf(out, "\n\
-Copyright 2003 by Stephan Schulz, " STS_MAIL "\n\
+Copyright 2003-2005 by Stephan Schulz, " STS_MAIL "\n\
 \n\
 This program is a part of the support structure for the E equational\n\
 theorem prover. You can find the latest version of the E distribution\n\
