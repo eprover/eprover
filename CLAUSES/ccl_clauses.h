@@ -248,6 +248,8 @@ void     ClausePrintAxiom(FILE* out, Clause_p clause, bool fullterms);
 void     ClausePrintRule(FILE* out, Clause_p clause, bool fullterms);
 void     ClausePrintGoal(FILE* out, Clause_p clause, bool fullterms);
 void     ClausePrintQuery(FILE* out, Clause_p clause, bool fullterms);
+void     ClausePrintTPTPFormat(FILE* out, Clause_p clause);
+void     ClausePrintLOPFormat(FILE* out, Clause_p clause, bool fullterms);
 
 void     ClausePrint(FILE* out, Clause_p clause, bool fullterms); 
 void     ClausePCLPrint(FILE* out, Clause_p clause, bool fullterms);

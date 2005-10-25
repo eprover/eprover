@@ -63,8 +63,10 @@ typedef enum
 typedef enum
 {
    no_format,
+   lop_format,
    pcl_format,
    tstp_format,
+   tptp_format,
    xml_format
 }OutputFormatType;
  

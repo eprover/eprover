@@ -1167,6 +1167,32 @@ void ClausePrintTPTPFormat(FILE* out, Clause_p clause)
    fprintf(out, "]).");
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: ClausePrintLOPFormat()
+//
+//   Print a clause in LOP format.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void ClausePrintLOPFormat(FILE* out, Clause_p clause, bool fullterms)
+{
+   if(((ClauseQueryTPTPType(clause) == CPTypeConjecture)||
+       (ClauseQueryTPTPType(clause) == CPTypeNegConjecture) )&& 
+      !ClauseIsEmpty(clause))
+   {
+      ClausePrintQuery(out, clause, fullterms);
+   }
+   else
+   {
+      ClausePrintAxiom(out, clause, fullterms);
+   }   
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -1208,16 +1234,7 @@ void ClausePrint(FILE* out, Clause_p clause, bool fullterms)
    }
    else
    {
-      if(((ClauseQueryTPTPType(clause) == CPTypeConjecture)||
-          (ClauseQueryTPTPType(clause) == CPTypeNegConjecture) )&& 
-         !ClauseIsEmpty(clause))
-      {
-	 ClausePrintQuery(out, clause, fullterms);
-      }
-      else
-      {
-	 ClausePrintAxiom(out, clause, fullterms);
-      }
+      ClausePrintLOPFormat(out, clause, fullterms);
    }
 }
 
