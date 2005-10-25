@@ -297,36 +297,15 @@ char * PCLPropToTSTPType(PCLStepProperties props)
    switch(props & PCLTypeMask)
    {
    case PCLTypeConjecture:
-         if(props&PCLIsInitial)
-         {
-            return "conjecture";
-         }
-         else
-         {
-            return "conjecture-derived";
-         }   
+         return "conjecture";
          break;
    case PCLTypeNegConjecture:
-         if(props&PCLIsInitial)
-         {
-            return "negated_conjecture";
-         }
-         else
-         {
-            return "negated_conjecture-derived";
-         }
+         return "negated_conjecture";
          break;
    default:
          if(props&PCLIsLemma)
          {
-            if(props&PCLIsInitial)
-            {
-               return "lemma";
-            }
-            else
-            {
-               return "lemma-derived";
-            }
+            return "lemma";
          }
          else
          {
@@ -336,7 +315,7 @@ char * PCLPropToTSTPType(PCLStepProperties props)
             } 
             else
             {
-               return "derived";
+               return "plain";
             }
          }
          break;
@@ -384,12 +363,74 @@ void PCLStepPrintTSTP(FILE* out, PCLStep_p step)
    {
       fprintf(out, ",[%s]", step->extra);
    }
-   else if(PCLStepQueryProp(step, PCLIsLemma))
+   /* else if(PCLStepQueryProp(step, PCLIsLemma))
    {
       fputs(",['lemma']", out);
-   }
+      }*/
    fputs(").", out);
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PCLStepPrintTPTP
+//
+//   Print the logical part of a PCL step as a TPTP-2 clause or
+//   formula. 
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void PCLStepPrintTPTP(FILE* out, PCLStep_p step)
+{
+   assert(step);
+
+   if(PCLStepIsClausal(step))
+   {
+      ClausePrintTPTPFormat(out, step->logic.clause);
+   }
+   else
+   {
+      fprintf(out, "input_formula("); 
+      PCLIdPrintTSTP(out, step->id);
+      fputc(',', out);
+      fputs(PCLPropToTSTPType(step->properties), out);
+      fputc(',', out);
+      FormulaTPTPPrint(out, step->logic.formula, true, true);
+      fputc(')',out);
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: PCLStepPrintLOP()
+//
+//   Print the logical part of a PCL step as a LOP clause or formula
+//   (where TPTP core syntax has to stand in for missing LOP syntac). 
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void PCLStepPrintLOP(FILE* out, PCLStep_p step)
+{
+   assert(step);
+
+   if(PCLStepIsClausal(step))
+   {
+      ClausePrintLOPFormat(out, step->logic.clause, true);
+   }
+   else
+   {
+      FormulaTPTPPrint(out, step->logic.formula, true, true);
+   }
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -410,6 +451,12 @@ void PCLStepPrintFormat(FILE* out, PCLStep_p step, bool data,
    {
    case pcl_format:
 	 PCLStepPrintExtra(out, step, data);      
+	 break;
+   case lop_format:
+	 PCLStepPrintLOP(out, step);      
+	 break;
+   case tptp_format:
+	 PCLStepPrintTPTP(out, step);      
 	 break;
    case tstp_format:
 	 PCLStepPrintTSTP(out, step);      

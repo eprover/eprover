@@ -695,7 +695,7 @@ void PCLProtPrintPropClauses(FILE* out, PCLProt_p prot,
       step = PStackElementP(prot->in_order, i);
       if(PCLStepQueryProp(step,prop))
       {
-	 if(just_clauses)
+	 if(format==pcl_format && just_clauses)
 	 {
             if(PCLStepQueryProp(step, PCLIsFOFStep))
             {
@@ -705,7 +705,7 @@ void PCLProtPrintPropClauses(FILE* out, PCLProt_p prot,
             {
                ClausePrint(out, step->logic.clause, true);
             }
-	    #ifdef NEVER_DEFINED
+            #ifdef NEVER_DEFINED
 	    fprintf(GlobalOut, "/* %f */", step->lemma_quality);
 	    #endif
 	 }
@@ -714,8 +714,7 @@ void PCLProtPrintPropClauses(FILE* out, PCLProt_p prot,
 	    PCLStepPrintFormat(out, step, false, format);
 	 }
 	 fputc('\n',out);
-      }
-      
+      }      
    }
 }
 

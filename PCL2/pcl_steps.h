@@ -120,6 +120,8 @@ void      PCLStepPrintExtra(FILE* out, PCLStep_p step, bool data);
 #define   PCLStepPrint(out, step) PCLStepPrintExtra((out),(step),false)
 char *    PCLPropToTSTPType(PCLStepProperties props);
 void      PCLStepPrintTSTP(FILE* out, PCLStep_p step);
+void      PCLStepPrintTPTP(FILE* out, PCLStep_p step);
+void      PCLStepPrintLOP(FILE* out, PCLStep_p step);
 void      PCLStepPrintFormat(FILE* out, PCLStep_p step, bool data, 
 			     OutputFormatType format);
 void      PCLStepPrintExample(FILE* out, PCLStep_p step, long id, 
