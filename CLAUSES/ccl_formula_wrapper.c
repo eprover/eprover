@@ -361,6 +361,7 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
                              "axiom|definition|knowledge|assumption|"
                              "hypothesis|conjecture||negated_conjecture|"
                              "lemma|unknown|plain");
+      /* Left for backwards-compatibility */
       if(TestInpTok(in, Hyphen))
       {
          AcceptInpTok(in, Hyphen);
@@ -424,8 +425,7 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
 void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
 		       bool complete)
 {
-   char *typename = NULL;
-   char *derived = NULL; 
+   char *typename = "plain";
    char prefix;
    long id;
 
@@ -452,11 +452,6 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
    default:
 	 break;
    }   
-   if(!FormulaQueryProp(form, CPInputClause))
-   {
-      derived = "derived";
-   }
-
    if(form->ident < 0)
    {
       id = form->ident - LONG_MIN;
@@ -467,8 +462,7 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
       id = form->ident;
       prefix = 'c';
    }
-   fprintf(out, "fof(%c_0_%ld,", prefix, id);
-   PrintDashedStatuses(out, typename, derived, "plain");
+   fprintf(out, "fof(%c_0_%ld, %s", prefix, id, typename);
    fprintf(out, ", (");   
    if(FormulaTermEncoding)
    {

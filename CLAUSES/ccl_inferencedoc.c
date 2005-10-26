@@ -802,7 +802,7 @@ static void print_fof_intro_def(FILE* out, WFormula_p form, char* comment)
    case tstp_format:
 	 WFormulaTSTPPrint(out, form, PCLFullTerms, false);
 	 fprintf(out, ", ");
-         fprintf(out, PCL_ID);         
+         fprintf(out, PCL_ID"(definition)");         
 	 tstp_formula_print_end(out, comment);
 	 break;
    default:

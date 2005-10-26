@@ -89,7 +89,7 @@ typedef enum
 #define PCL_SC    "split_conjunct"
 #define PCL_FS    "fof_simplification"
 #define PCL_NNF   "fof_nnf"
-#define PCL_ID    "intro_def"
+#define PCL_ID    "introduced"
 #define PCL_AD    "apply_def"
 #define PCL_SQ    "shift_quantors"
 #define PCL_VR    "variable_rename"
