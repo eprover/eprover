@@ -803,10 +803,10 @@ subterms, and is fully specified by giving just a precedence.
 Currently it is possible to explicitely specify an arbitrary
 (including incomplete or empty) precedence, or to use one of several
 precedence generating schemes. Similarly, there is a number of
-predefined weight function. There currently no way to specify weights
-for individual function symbols.
+predefined weight function and the ability to assign arbitrary weights
+to function and predicate symbols.
 
-The most simple way to get a reasonable term ordering is to specify
+The simplest way to get a reasonable term ordering is to specify
 \emph{automatic} ordering selection using the \texttt{-tAuto} option. 
 
 \noindent
@@ -853,6 +853,20 @@ Options controlling the choice of term ordering:\\[1ex]
   is very big, this matrix takes up significant  space, and takes a
   long time to compute in the first place. This is unlikely to be a
   problem unless there are at least hundreds of symbols.\\[1ex]
+
+  \multicolumn{2}{l}{\texttt{--order-weights=<arg>}}\\
+  & Give explicit weights to function symbols. The argument syntax is
+  a comma-seperated list of items of the form \texttt{f:w}, where
+  \texttt{f} is a symbol from the specification, and \texttt{w} is a
+  non-negative integer. Note that at best very simple checks are
+  performed, so you can specify weights that do not obey the KBO
+  weight constraints. Behaviour in this case is undefined. If all your
+  weights are positive, this is unlikely to happen.
+
+  Since KBO needs a total weight function, E always uses a weight
+  generation scheme in addition to the user-defined options. You may
+  want to use \texttt{-wconstant} for predictable behaviour.\\[1ex]
+
   \multicolumn{2}{l}{\texttt{--lpo-recursion-limit[=<arg>]}}\\
   & Limits the recursion depth of LPO comparison. This is useful in rare
   cases where very large term comparions can lead to stack overflow
@@ -936,11 +950,11 @@ symbol and the input clause set, or on the predefined
 \item[\texttt{precedence}:] Let $<$ be the (pre-determined) precedence
   on function symbols $F$ in the problem. Then the weight of $f$ is
   given by $|{g|g<f}|+1$ (the number of symbols smaller than $f$ in
-  the precedence increase by one).
+  the precedence increased by one).
 \item[\texttt{invprecedence}:] Let $<$ be the (pre-determined)
   precedence on function symbols $F$ in the problem. Then the weight
   of $f$ is given by $|{g|f<g}|+1$ (the number of symbols larger than
-  $f$ in the precedence increase by one).
+  $f$ in the precedence increased by one).
 \item[\texttt{freqcount}:] Make the weight of a symbol the number of
   occurences of that symbol in the (potentially preprocessed) input
   problem. 

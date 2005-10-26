@@ -7,7 +7,9 @@ Version 0.9 ->
   (still needs more testing) (use option --definitional-cnf)
 - More goal-directed heuristics, and better evaluation of same
 - Fixed classification bug in auto mode
-
+- Added option --order-weights for user-defined KBO
+- Fixed and updated a number of tools, all of which should now work
+  with full FOF format
 
 Version 0.82 -> 0.9 Soom
 
