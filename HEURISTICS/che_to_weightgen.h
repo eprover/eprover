@@ -76,11 +76,6 @@ typedef enum
 #define WConstNoWeight         0
 
 
-/* Default weight for symbols not treated in a special way, also used
-   as multiplier for other generated weights. */
-
-#define W_DEFAULT_WEIGHT 1
-
 /* Used as base weight for ModArity */
 #define W_TO_BASEWEIGHT 4
 
@@ -102,7 +97,7 @@ TOWeightGenMethod TOTranslateWeightGenMethod(char* name);
         TOGenerateWeights((ocb), NULL, WSelectMaximal, \
 			  W_DEFAULT_WEIGHT)
 
-void TOGenerateWeights(OCB_p ocb, ClauseSet_p axioms,
+void TOGenerateWeights(OCB_p ocb, ClauseSet_p axioms, char *pre_weights,
 		       TOWeightGenMethod method, long const_weight); 
 
 

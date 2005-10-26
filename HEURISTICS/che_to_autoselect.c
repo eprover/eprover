@@ -687,6 +687,7 @@ OCB_p  TOCreateOrdering(ProofState_p state, OrderParms_p params,
 	 TOGeneratePrecedence(handle, state->axioms, pre_precedence,
 			      params->to_prec_gen); 
 	 TOGenerateWeights(handle, state->axioms,
+                           pre_weights,
 			   params->to_weight_gen,
 			   params->to_const_weight);
 	 break;

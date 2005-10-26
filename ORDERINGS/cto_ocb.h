@@ -75,6 +75,11 @@ typedef struct ocb_cell
 
 #define OCB_FUN_DEFAULT_WEIGHT 1
 
+/* Default weight for symbols not treated in a special way, also used
+   as multiplier for other generated weights. */
+
+#define W_DEFAULT_WEIGHT 1
+
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/

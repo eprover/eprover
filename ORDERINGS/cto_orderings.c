@@ -333,6 +333,68 @@ PStackPointer TOPrecedenceParse(Scanner_p in, OCB_p ocb)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: TOSymbolWeightParse()
+//
+//   Parse a f:w declaration.
+//
+// Global Variables: -
+//
+// Side Effects    : Input, changes OCB, may generate error.
+//
+/----------------------------------------------------------------------*/
+
+void TOSymbolWeightParse(Scanner_p in, OCB_p ocb)
+{
+   FunCode       f; 
+   long          weight;
+   
+   f      = SigParseKnownOperator(in, ocb->sig);
+   AcceptInpTok(in, Colon);
+   weight = AktToken(in)->numval;
+   AcceptInpTok(in, PosInt);
+
+   *OCBFunWeightPos(ocb, f) =
+      weight*W_DEFAULT_WEIGHT;   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TOWeightsParse()
+//
+//   Parse a list of weight assignments. Return number of assignments
+//   parsed. 
+//
+// Global Variables: -
+//
+// Side Effects    : Changes OCB, reads input
+//
+/----------------------------------------------------------------------*/
+
+long TOWeightsParse(Scanner_p in, OCB_p ocb)
+{
+   long res = 0;
+
+   assert(ocb);
+   assert(ocb->sig_size == ocb->sig->f_count);
+
+   if(TestInpTok(in, Identifier))
+   {
+      TOSymbolWeightParse(in, ocb);
+      res++;
+      while(TestInpTok(in, Comma))
+      {
+	 AcceptInpTok(in, Comma);
+	 TOSymbolWeightParse(in, ocb);
+         res++;
+      }
+   }
+   return res;
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

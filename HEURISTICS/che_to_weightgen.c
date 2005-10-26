@@ -70,7 +70,7 @@ char* TOWeightGenNames[]=
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
-/* #define PRINT_FUNWEIGHTS */
+/* #define PRINT_FUNWEIGHTS*/
 
 #ifdef PRINT_FUNWEIGHTS
 
@@ -653,6 +653,29 @@ static void generate_inv_modfreqrank_weights_max_0(OCB_p ocb, ClauseSet_p axioms
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: set_user_weights()
+//
+//   Given a user weight string, set the symbols to the desired
+//   weight. 
+//
+// Global Variables: -
+//
+// Side Effects    : May fail with syntax error
+//
+/----------------------------------------------------------------------*/
+
+void set_user_weights(OCB_p ocb, char* pre_weights)
+{
+   Scanner_p in = CreateScanner(StreamTypeUserString, pre_weights,
+                                true, NULL);
+   
+   TOWeightsParse(in, ocb);
+      
+   DestroyScanner(in);      
+}
+
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
@@ -700,7 +723,7 @@ TOWeightGenMethod TOTranslateWeightGenMethod(char* name)
 //
 /----------------------------------------------------------------------*/
 
-void TOGenerateWeights(OCB_p ocb, ClauseSet_p axioms,
+void TOGenerateWeights(OCB_p ocb, ClauseSet_p axioms, char *pre_weights,
 		       TOWeightGenMethod method, long const_weight)
 {
    FunCode i;
@@ -790,6 +813,11 @@ void TOGenerateWeights(OCB_p ocb, ClauseSet_p axioms,
       }
    }
    *OCBFunWeightPos(ocb, SIG_TRUE_CODE) = ocb->var_weight;
+   
+   if(pre_weights)
+   {
+      set_user_weights(ocb, pre_weights);
+   }
 
 #ifdef PRINT_FUNWEIGHTS
    print_weight_array(GlobalOut,ocb);
