@@ -155,7 +155,7 @@ int main(int argc, char* argv[])
    neg_steps = proof_steps?neg_proportion*proof_steps:neg_examples;
    PCLProtSelectExamples(prot, neg_steps);
    fprintf(GlobalOut, "# Axioms:\n");
-   PCLProtPrintPropClauses(GlobalOut, prot, PCLIsInitial, true, no_format);  
+   PCLProtPrintPropClauses(GlobalOut, prot, PCLIsInitial, lop_format);  
    fprintf(GlobalOut, ".\n\n# Examples:\n");  
    PCLProtPrintExamples(GlobalOut, prot);
 

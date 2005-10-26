@@ -219,7 +219,7 @@ int main(int argc, char* argv[])
       kb_desc->fail_neg_examples;
    PCLProtSelectExamples(prot, neg_steps);
    fprintf(out, "# Axioms:\n");
-   PCLProtPrintPropClauses(out, prot, PCLIsInitial, true, no_format);  
+   PCLProtPrintPropClauses(out, prot, PCLIsInitial, lop_format);  
    fprintf(out, ".\n\n# Examples:\n");  
    PCLProtPrintExamples(out, prot);
    PCLProtFree(prot);

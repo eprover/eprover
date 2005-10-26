@@ -433,10 +433,8 @@ int main(int argc, char* argv[])
    case 0:
 	 break;
    case 1:
-	 PCLProtPrintPropClauses(GlobalOut, prot, PCLIsLemma, true, outputformat);
-	 break;
    case 2:
-	 PCLProtPrintPropClauses(GlobalOut, prot, PCLIsLemma, false, outputformat);
+	 PCLProtPrintPropClauses(GlobalOut, prot, PCLIsLemma, outputformat);
 	 break;
    default:
 	 PCLProtPrint(GlobalOut, prot, outputformat);

@@ -106,6 +106,7 @@ typedef enum
    OPT_SPLIT_AGGRESSIVE,
    OPT_ORDERING,
    OPT_TO_WEIGHTGEN,
+   OPT_TO_WEIGHTS,
    OPT_TO_PRECGEN,
    OPT_TO_CONSTWEIGHT,
    OPT_TO_PRECEDENCE,
@@ -700,6 +701,19 @@ OptCell opts[] =
     ReqArg, NULL,
     "Select a method for the generation of weights for use with the "
     "term ordering. Run '" NAME " -w none' for a list of options."},
+
+   {OPT_TO_WEIGHTS,
+    '\0', "order-weights",
+    ReqArg, NULL,
+    "Describe a (partial) assignments of weights to function symbols for "
+    "term orderings (in particular, KBO). You can specify a list of weights"
+    " of the form 'f1:w1,f2:w2, ...'. Since a total weight assignment is"
+    " needed, E will _first_ apply any weight generation scheme specified"
+    " (or the default one), and then "
+    "modify the weights as specified. Note that E performs only very "
+    "basic sanity checks, so you probably can specify weights that break"
+    " KBO constraints."
+   },
 
    {OPT_TO_PRECGEN,
     'G', "order-precedence-generation",
@@ -1671,6 +1685,9 @@ CLState_p process_options(int argc, char* argv[])
 	       DStrFree(err);
 	    }		      
 	    break;
+      case OPT_TO_WEIGHTS:
+	    h_parms->to_pre_weights = arg;
+            break;
       case OPT_TO_PRECGEN:
 	    h_parms->to_prec_gen = TOTranslatePrecGenMethod(arg);
 	    if(!h_parms->to_prec_gen)
