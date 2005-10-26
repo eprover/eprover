@@ -94,6 +94,7 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->to_weight_gen                 = WNoMethod;
    handle->to_prec_gen                   = PNoMethod;
    handle->to_pre_prec                   = NULL;
+   handle->to_pre_weights                = NULL;
    handle->to_const_weight               = WConstNoWeight;
    handle->no_lit_cmp                    = false;
 

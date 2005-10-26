@@ -100,7 +100,7 @@ OCB_p generate_auto_ordering(ProofState_p state, SpecFeature_p spec)
       fputs("#\n", GlobalOut);
    }
    SpecLimitsCellFree(limits);
-   return TOCreateOrdering(state, &oparms, NULL);
+   return TOCreateOrdering(state, &oparms, NULL, NULL);
 }
 #undef CHE_HEURISTICS_AUTO
 
@@ -166,7 +166,7 @@ OCB_p generate_autocasc_ordering(ProofState_p state, SpecFeature_p spec)
       fputs("#\n", GlobalOut);
    }
    SpecLimitsCellFree(limits);
-   return TOCreateOrdering(state, &oparms, NULL);
+   return TOCreateOrdering(state, &oparms, NULL, NULL);
 }
 #undef CHE_HEURISTICS_AUTO_CASC
 
@@ -232,7 +232,7 @@ OCB_p generate_autodev_ordering(ProofState_p state, SpecFeature_p spec)
       fputs("#\n", GlobalOut);
    }
    SpecLimitsCellFree(limits);
-   return TOCreateOrdering(state, &oparms, NULL);
+   return TOCreateOrdering(state, &oparms, NULL, NULL);
 }
 #define CHE_HEURISTICS_AUTO_DEV
 
@@ -551,12 +551,12 @@ OCB_p OrderFindOptimal(OrderParms_p mask, OrderEvaluationFun eval_fun,
       (mask->to_const_weight==WConstNoWeight)?1:mask->to_const_weight;
    
    store = local;
-   best_ocb  = TOCreateOrdering(state, &local,NULL);
+   best_ocb  = TOCreateOrdering(state, &local,NULL, NULL);
    best_eval = eval_fun(best_ocb, state, parms);
    
    while(OrderNextOrdering(&local, mask))
    {
-      tmp_ocb  = TOCreateOrdering(state, &local, NULL);
+      tmp_ocb  = TOCreateOrdering(state, &local, NULL, NULL);
       tmp_eval = eval_fun(tmp_ocb, state, parms);    
       if(tmp_eval < best_eval)
       {
@@ -630,7 +630,8 @@ OCB_p TOSelectOrdering(ProofState_p state, HeuristicParms_p params,
       {
 	 tmp.to_const_weight = WConstNoSpecialWeight;
       }
-      result = TOCreateOrdering(state, &tmp, params->to_pre_prec);
+      result = TOCreateOrdering(state, &tmp, params->to_pre_prec, 
+                                params->to_pre_weights); 
    }
    return result;
 }
@@ -649,11 +650,11 @@ OCB_p TOSelectOrdering(ProofState_p state, HeuristicParms_p params,
 //
 /----------------------------------------------------------------------*/
 
-OCB_p TOCreateOrdering(ProofState_p state, OrderParms_p params, char*
-		       predefined)
+OCB_p  TOCreateOrdering(ProofState_p state, OrderParms_p params, 
+                        char* pre_precedence, char* pre_weights)
 {
    OCB_p handle;
-   bool prec_by_weight = predefined?false:true;
+   bool prec_by_weight = pre_precedence?false:true;
 
    /* printf("TOCreateOrdering(%d, %d, %d, %ld)\n", params->ordertype,
 	  params->to_weight_gen, params->to_prec_gen,
@@ -663,27 +664,27 @@ OCB_p TOCreateOrdering(ProofState_p state, OrderParms_p params, char*
    {      
    case LPO:
 	 handle = OCBAlloc(LPO, prec_by_weight, state->signature);
-	 TOGeneratePrecedence(handle, state->axioms, predefined,
+	 TOGeneratePrecedence(handle, state->axioms, pre_precedence,
 			      params->to_prec_gen);
 	 break;
    case LPOCopy:
          handle = OCBAlloc(LPOCopy, prec_by_weight, state->signature);
-	 TOGeneratePrecedence(handle, state->axioms, predefined,
+	 TOGeneratePrecedence(handle, state->axioms, pre_precedence,
 			      params->to_prec_gen);
 	 break;
    case LPO4:
          handle = OCBAlloc(LPO4, prec_by_weight, state->signature);
-	 TOGeneratePrecedence(handle, state->axioms, predefined,
+	 TOGeneratePrecedence(handle, state->axioms, pre_precedence,
 			      params->to_prec_gen);
 	 break;
    case LPO4Copy:
          handle = OCBAlloc(LPO4Copy, prec_by_weight, state->signature);
-	 TOGeneratePrecedence(handle, state->axioms, predefined,
+	 TOGeneratePrecedence(handle, state->axioms, pre_precedence,
 			      params->to_prec_gen);
 	 break;
    case KBO:
 	 handle = OCBAlloc(KBO, prec_by_weight, state->signature);
-	 TOGeneratePrecedence(handle, state->axioms, predefined,
+	 TOGeneratePrecedence(handle, state->axioms, pre_precedence,
 			      params->to_prec_gen); 
 	 TOGenerateWeights(handle, state->axioms,
 			   params->to_weight_gen,

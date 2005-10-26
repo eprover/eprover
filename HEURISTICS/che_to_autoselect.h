@@ -83,7 +83,7 @@ OCB_p  OrderFindOptimal(OrderParms_p mask, OrderEvaluationFun
 OCB_p  TOSelectOrdering(ProofState_p state, HeuristicParms_p params,
 			SpecFeature_p specs);
 OCB_p  TOCreateOrdering(ProofState_p state, OrderParms_p params, char*
-			predefined);
+			pre_precedence, char* pre_weights);
 
 #endif
 

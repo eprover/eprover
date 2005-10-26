@@ -66,6 +66,7 @@ typedef struct heuristic_parms_cell
    TOWeightGenMethod   to_weight_gen;
    TOPrecGenMethod     to_prec_gen;
    char*               to_pre_prec;
+   char*               to_pre_weights;
    long                to_const_weight;
    bool                no_lit_cmp;
    
