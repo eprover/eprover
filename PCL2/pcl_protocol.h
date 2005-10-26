@@ -89,12 +89,11 @@ long      PCLProtCountProp(PCLProt_p prot, PCLStepProperties props);
 long      PCLProtCollectPropSteps(PCLProt_p prot, PCLStepProperties props, 
                                   PStack_p steps); 
 void      PCLProtPrintPropClauses(FILE* out, PCLProt_p prot, 
-				  PCLStepProperties prop, 
-				  bool just_clauses, 
+				  PCLStepProperties prop,
 				  OutputFormatType format);
 
 #define PCLProtPrintProofClauses(out, prot, format)\
-        PCLProtPrintPropClauses((out), (prot), PCLIsProofStep, false, format)
+        PCLProtPrintPropClauses((out), (prot), PCLIsProofStep, format)
 void    PCLProtPrintExamples(FILE* out, PCLProt_p prot);
 
 

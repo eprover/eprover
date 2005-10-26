@@ -556,35 +556,42 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
 
    assert(expr);
    assert(expr->args);
-   
-   if(expr->op== PCLOpInitial)
+
+
+   switch(expr->op)
    {
-     
-      if(expr->arg_no)
-      {
-         assert(expr->arg_no == 1);
-         ClauseSourceInfoPrintTSTP(out, PCLExprArg(expr,0));
-      }
-      else
-      {
-         fprintf(out, "unknown");
-      }
-      return;
+   case PCLOpInitial:
+         if(expr->arg_no)
+         {
+            assert(expr->arg_no == 1);
+            ClauseSourceInfoPrintTSTP(out, PCLExprArg(expr,0));
+         }
+         else
+         {
+            fprintf(out, "unknown()");
+         }
+         return;
+         break;
+   case PCLOpQuote:
+         assert(expr->arg_no==1);
+         if(mini)
+         {
+            /* fprintf(out, "c_0_%ld", PCLExprArgInt(expr,0)); */
+            fprintf(out, "%ld", PCLExprArgInt(expr,0));
+         }
+         else
+         {
+            PCLIdPrintTSTP(out, PCLExprArg(expr,0));
+         }
+         return;
+   case PCLOpIntroDef:
+         fprintf(out, PCL_ID"(definition)");         
+         return;
+         break;
+   default:
+         break;
    }
-   if(expr->op==PCLOpQuote)
-   {
-      assert(expr->arg_no==1);
-      if(mini)
-      {
-	 /* fprintf(out, "c_0_%ld", PCLExprArgInt(expr,0)); */
-	 fprintf(out, "%ld", PCLExprArgInt(expr,0));
-      }
-      else
-      {
-	 PCLIdPrintTSTP(out, PCLExprArg(expr,0));
-      }
-      return;
-   }
+
    fprintf(out, "inference(");
    switch(expr->op)
    {
@@ -634,6 +641,11 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
 	 status = status_thm;
 	 assert(expr->arg_no==1);
 	 break;
+   case PCLOpApplyDef:
+         fprintf(out, PCL_AD);
+	 status = status_sab;         
+         assert(expr->arg_no==2);
+         break;
    case PCLOpSplitClause:
 	 fprintf(out, TSTP_SPLIT_BASE
                  ",["TSTP_SPLIT_BASE"("

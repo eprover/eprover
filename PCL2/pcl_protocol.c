@@ -683,7 +683,7 @@ long PCLProtCollectPropSteps(PCLProt_p prot, PCLStepProperties props,
 
 void PCLProtPrintPropClauses(FILE* out, PCLProt_p prot, 
 			     PCLStepProperties prop, 
-			     bool just_clauses, OutputFormatType format)
+			     OutputFormatType format)
 {
    PCLStep_p step;
    PStackPointer i;
@@ -695,26 +695,9 @@ void PCLProtPrintPropClauses(FILE* out, PCLProt_p prot,
       step = PStackElementP(prot->in_order, i);
       if(PCLStepQueryProp(step,prop))
       {
-	 if(format==pcl_format && just_clauses)
-	 {
-            if(PCLStepQueryProp(step, PCLIsFOFStep))
-            {
-               FormulaTPTPPrint(out, step->logic.formula, true, true);
-            }
-            else
-            {
-               ClausePrint(out, step->logic.clause, true);
-            }
-            #ifdef NEVER_DEFINED
-	    fprintf(GlobalOut, "/* %f */", step->lemma_quality);
-	    #endif
-	 }
-	 else
-	 {
-	    PCLStepPrintFormat(out, step, false, format);
-	 }
-	 fputc('\n',out);
-      }      
+         PCLStepPrintFormat(out, step, false, format);
+         fputc('\n',out);
+      }
    }
 }
 
