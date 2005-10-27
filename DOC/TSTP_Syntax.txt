@@ -1,3 +1,19 @@
+Hi Stephan,
+
+> The complete file with version number (I suggest 3.1.0.13 or so ;-).
+
+Here you go!
+
+Cheers,
+
+Geoff
+
+Geoff Sutcliffe                           http://www.cs.miami.edu/~geoff
+Department of Computer Science            Email : geoff@cs.miami.edu
+University of Miami                       Phone : +1 305 2842158/2842268
+(Director of Undergraduate Studies)       FAX   : +1 305 2842264
+
+%----Version 3.1.0.23 (TPTP version.internal development number)
 %----Intended uses of the various parts of the TPTP syntax are explained
 %----in the TPTP technical manual, linked from www.tptp.org.
 %----See the <comment> entries regarding text that can be discarded before 
@@ -52,12 +68,11 @@
 %----Unknown formulae have unknown type. This is an error situation.
 %----Future user types may include ... knowledge | 
 
-%----FOF formulae
+%----FOF formulae. All formulae must be closed.
 <fof formula>        ::= <literal formula> | <binary formula>
 <literal formula>    ::= <atomic formula> | <unary formula>
 <atomic formula>     ::= <quantified formula> | <atom> | (<fof formula>)
-%----Quantifers have higher precedence than binary connectives. The
-%----<quantified formula> must be closed.
+%----Quantifers have higher precedence than binary connectives. 
 <quantified formula> ::= <quantifier> <variables> : <literal formula>
 %----! is universal quantification and ? is existential
 <quantifier>         ::= ! | ?
@@ -201,8 +216,3 @@
 <star>               ::= ... a star character
 <plus>               ::= ... a plus character
 <null>               ::=
-
-Geoff Sutcliffe                           http://www.cs.miami.edu/~geoff
-Department of Computer Science            Email : geoff@cs.miami.edu
-University of Miami                       Phone : +1 305 2842158/2842268
-(Director of Undergraduate Studies)       FAX   : +1 305 2842264
