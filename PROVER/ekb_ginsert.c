@@ -129,7 +129,7 @@ int main(int argc, char* argv[])
    
    if(!ex_name && state->argv[0] && (strcmp(state->argv[0], "-")!= 0))
    {
-      ex_name = FileBaseName(state->argv[0]);
+      ex_name = FileFindBaseName(state->argv[0]);
       /* printf("ex_name = %s\n", state->argv[0]); */
    }   
    if(state->argc ==  0)

@@ -43,10 +43,10 @@ FILE* InputOpen(char *name, bool fail);
 void  InputClose(FILE* file);
 long  ConcatFiles(char* target, char** sources);
 void  FileRemove(char* name);
-char* FileBaseName(char *file);
 void  FilePrint(FILE* out, char* name);
 #define FileNameIsAbsolute(name) ((name)[0]=='/')
 char* FileNameDirName(char* name);
+char* FileFindBaseName(char *file);
 char* FileNameBaseName(char* name);
 
 #endif

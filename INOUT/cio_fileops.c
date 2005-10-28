@@ -198,33 +198,6 @@ void FileRemove(char* name)
 
 /*-----------------------------------------------------------------------
 //
-// Function: FileBaseName()
-//
-//   Return a pointer to the first character of the last file name
-//   component of name. 
-//
-// Global Variables: 
-//
-// Side Effects    : 
-//
-/----------------------------------------------------------------------*/
-
-char *FileBaseName(char* name)
-{
-   char *res = name, *step;
-
-   for(step=name; *step; step++)
-   {
-      if(*step == '/')
-      {
-	 res = step+1;
-      }
-   }
-   return res;
-}
-
-/*-----------------------------------------------------------------------
-//
 // Function: FilePrint()
 //
 //   Print the contents of the named file to out.
@@ -286,12 +259,40 @@ char* FileNameDirName(char* name)
 
 /*-----------------------------------------------------------------------
 //
+// Function: FileFindBaseName()
+//
+//   Return a pointer to the first character of the last file name
+//   component of name. 
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+char *FileFindBaseName(char* name)
+{
+   char *res = name;
+
+   for( ; *name; name++)
+   {
+      if(*name == '/')
+      {
+	 res = name+1;
+      }
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: FileNameBaseName()
 //
-// Given a path, return the base name part of it, i.e. the string
-// starting at the last / (if any). In contrast to the UNIX command
-// 'basename', it will return the empty string for a string ending in
-// "/".
+// Given a path, return a copy of the base name part of it, i.e. the
+// string starting at the last / (if any). In contrast to the UNIX
+// command 'basename', it will return the empty string for a string
+// ending in "/".
 //
 // Global Variables: -
 //
@@ -303,15 +304,7 @@ char* FileNameBaseName(char* name)
 {
    char *res, *endpos = name;
 
-   assert(name);
-
-   for(; *name; name++)
-   {
-      if(*name == '/')
-      {
-         endpos = name+1;
-      }
-   }
+   endpos = FileFindBaseName(name);
    res = SecureStrdup(endpos);      
    
    return res;
