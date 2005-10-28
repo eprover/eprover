@@ -499,11 +499,12 @@ void FormulaTPTPPrint(FILE* out, Formula_p form, bool fullterms, bool pcl)
 }
 
 
+
 /*-----------------------------------------------------------------------
 //
 // Function: FormulaTPTPParse()
 //
-//   Parse a formula in TSTP/TPTP formula.
+//   Parse a formula in TPTP-2 format..
 //
 // Global Variables: -
 //
@@ -528,6 +529,40 @@ Formula_p FormulaTPTPParse(Scanner_p in, TB_p terms)
    }
    return res;
 }
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaTSTPParse()
+//
+//   Parse a formula in TPTP-3/TSTP format. This now differs from the
+//   above since the requirements for parenthesis are stricter.
+//
+// Global Variables: -
+//
+// Side Effects    : I/O, memory operations
+//
+/----------------------------------------------------------------------*/
+
+Formula_p FormulaTSTPParse(Scanner_p in, TB_p terms)
+{
+   Formula_p      f1, f2, res;
+   FOFOperatorType op, op_old;
+   f1 = elem_form_tptp_parse(in, terms);   
+   if(TestInpTok(in, FOFBinOp))
+   {
+      op = tptp_operator_parse(in);
+      f2 = FormulaTSTPParse(in, terms);
+      res = FormulaOpAlloc(op, f1, f2);
+   }
+   else
+   {
+      res = f1;
+   }
+   return res;
+}
+
 
 
 /*-----------------------------------------------------------------------

@@ -116,6 +116,7 @@ Formula_p FormulaPropConstantAlloc(TB_p terms, bool positive);
 Formula_p FormulaQuantorAlloc(FOFOperatorType quantor, Term_p var,Formula_p arg1);
 void      FormulaTPTPPrint(FILE* out, Formula_p form, bool fullterms, bool pcl);
 Formula_p FormulaTPTPParse(Scanner_p in, TB_p terms);
+Formula_p FormulaTSTPParse(Scanner_p in, TB_p terms);
 
 bool      FormulaEqual(Formula_p form1, Formula_p form2);
 bool      FormulaVarIsFree(Formula_p form, Term_p var);
