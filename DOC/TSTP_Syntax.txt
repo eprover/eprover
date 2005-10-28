@@ -1,18 +1,3 @@
-Hi Stephan,
-
-> The complete file with version number (I suggest 3.1.0.13 or so ;-).
-
-Here you go!
-
-Cheers,
-
-Geoff
-
-Geoff Sutcliffe                           http://www.cs.miami.edu/~geoff
-Department of Computer Science            Email : geoff@cs.miami.edu
-University of Miami                       Phone : +1 305 2842158/2842268
-(Director of Undergraduate Studies)       FAX   : +1 305 2842264
-
 %----Version 3.1.0.23 (TPTP version.internal development number)
 %----Intended uses of the various parts of the TPTP syntax are explained
 %----in the TPTP technical manual, linked from www.tptp.org.
