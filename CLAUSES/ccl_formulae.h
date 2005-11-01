@@ -103,7 +103,7 @@ typedef struct formula_cell
           ((positive)?EqnIsPropTrue((form)->special.literal)\
                      :EqnIsPropFalse((form)->special.literal))
 
-#define   FormulaIsPropTrue(form)   (FormulaIsLiteral(form) && \
+ #define   FormulaIsPropTrue(form)   (FormulaIsLiteral(form) && \
                                     EqnIsPropTrue((form)->special.literal))
 #define   FormulaIsPropFalse(form)  (FormulaIsLiteral(form) && \
                                     EqnIsPropFalse((form)->special.literal))

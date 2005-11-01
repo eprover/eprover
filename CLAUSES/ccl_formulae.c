@@ -33,32 +33,33 @@ Changes
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
 
-Formula_p elem_form_tptp_parse(Scanner_p in, TB_p terms);
+static Formula_p elem_form_tptp_parse(Scanner_p in, TB_p terms);
+
+static Formula_p literal_form_tstp_parse(Scanner_p in, TB_p terms);
+
 
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
 
-
 /*-----------------------------------------------------------------------
 //
-// Function: tptp_operator_parse()
+// Function: tptp_operator_convert()
 //
-//   Parse and return a TPTP operator. Rather trivial ;-)
+//   Given a token, return the suitable operator type.
 //
 // Global Variables: -
 //
-// Side Effects    : Input
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
-FOFOperatorType tptp_operator_parse(Scanner_p in)
+static FOFOperatorType tptp_operator_convert(TokenType tok)
 {
-   FOFOperatorType res=OpNoOp;
+   FOFOperatorType res = OpNoOp;
 
-   CheckInpTok(in, FOFBinOp);
-   switch(AktTokenType(in))
+   switch(tok)
    {
    case FOFOr:
          res = OpBOr;
@@ -88,6 +89,29 @@ FOFOperatorType tptp_operator_parse(Scanner_p in)
          assert(false && "Unknown/Impossibe operator.");
          break;
    }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: tptp_operator_parse()
+//
+//   Parse and return a binarty TPTP operator. Rather trivial ;-)
+//
+// Global Variables: -
+//
+// Side Effects    : Input
+//
+/----------------------------------------------------------------------*/
+
+static FOFOperatorType tptp_operator_parse(Scanner_p in)
+{
+   FOFOperatorType res=OpNoOp;
+
+   CheckInpTok(in, FOFBinOp);
+
+   res = tptp_operator_convert(AktTokenType(in));
    NextToken(in);
    return res;
 }
@@ -105,7 +129,7 @@ FOFOperatorType tptp_operator_parse(Scanner_p in)
 //
 /----------------------------------------------------------------------*/
 
-FOFOperatorType tptp_quantor_parse(Scanner_p in)
+static FOFOperatorType tptp_quantor_parse(Scanner_p in)
 {
    FOFOperatorType res;
 
@@ -138,7 +162,7 @@ FOFOperatorType tptp_quantor_parse(Scanner_p in)
 //
 /----------------------------------------------------------------------*/
 
-Formula_p quantified_form_tptp_parse(Scanner_p in, 
+static Formula_p quantified_form_tptp_parse(Scanner_p in, 
                                      TB_p terms, 
                                      FOFOperatorType quantor)
 {
@@ -183,7 +207,7 @@ Formula_p quantified_form_tptp_parse(Scanner_p in,
 //
 // Function: elem_form_tptp_parse()
 //
-//   Parse an elementary formula in TPTP/TSTP format.
+//   Parse an elementary formula in TPTP format.
 //
 // Global Variables: -
 //
@@ -191,7 +215,7 @@ Formula_p quantified_form_tptp_parse(Scanner_p in,
 //
 /----------------------------------------------------------------------*/
 
-Formula_p elem_form_tptp_parse(Scanner_p in, TB_p terms)
+static Formula_p elem_form_tptp_parse(Scanner_p in, TB_p terms)
 {
    Formula_p res, tmp;
    
@@ -223,6 +247,139 @@ Formula_p elem_form_tptp_parse(Scanner_p in, TB_p terms)
    return res;
 }
 
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: quantified_form_tstp_parse()
+//
+//   Parse a quantified TSTP formula. At this point, the quantor
+//   and  '[' have already been read (and the quantor is passed into
+//   the function), and we are at the first (or current) variable.
+//
+// Global Variables: -
+//
+// Side Effects    : Input, memory operations
+//
+/----------------------------------------------------------------------*/
+
+static Formula_p quantified_form_tstp_parse(Scanner_p in, 
+                                     TB_p terms, 
+                                     FOFOperatorType quantor)
+{
+   Term_p     var;
+   Formula_p  rest, res;
+   DStr_p     source_name, errpos;
+   long       line, column;
+   StreamType type;
+   
+   line = AktToken(in)->line;
+   column = AktToken(in)->column;
+   source_name = DStrGetRef(AktToken(in)->source);
+   type = AktToken(in)->stream_type;
+
+   var = TBTermParse(in, terms);
+   if(!TermIsVar(var))
+   {
+      errpos = DStrAlloc();
+      
+      DStrAppendStr(errpos, PosRep(type, source_name, line, column));
+      DStrAppendStr(errpos, " Variable expected, non-variable term found");
+      Error(DStrView(errpos), SYNTAX_ERROR);
+      DStrFree(errpos);
+   }
+   DStrReleaseRef(source_name);
+   if(TestInpTok(in, Comma))
+   {
+      AcceptInpTok(in, Comma);
+      rest = quantified_form_tstp_parse(in, terms, quantor);
+   }
+   else
+   {
+      AcceptInpTok(in, CloseSquare);
+      AcceptInpTok(in, Colon);      
+      rest = literal_form_tstp_parse(in, terms);
+   }
+   res = FormulaQuantorAlloc(quantor, var, rest);
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: literal_form_tstp_parse()
+//
+//   Parse a literal formula in TSTP format.
+//
+// Global Variables: -
+//
+// Side Effects    : I/O
+//
+/----------------------------------------------------------------------*/
+
+static Formula_p literal_form_tstp_parse(Scanner_p in, TB_p terms)
+{
+   Formula_p res, tmp;
+   
+   if(TestInpTok(in, AllQuantor|ExistQuantor))
+   {
+      FOFOperatorType quantor;
+      quantor = tptp_quantor_parse(in);
+      AcceptInpTok(in, OpenSquare);
+      res = quantified_form_tstp_parse(in, terms, quantor);
+   }
+   else if(TestInpTok(in, OpenBracket))
+   {
+      AcceptInpTok(in, OpenBracket);
+      res = FormulaTSTPParse(in, terms);
+      AcceptInpTok(in, CloseBracket);
+   }
+   else if(TestInpTok(in, TildeSign))
+   {
+      AcceptInpTok(in, TildeSign);
+      tmp = literal_form_tstp_parse(in, terms);
+      res = FormulaOpAlloc(OpUNot, tmp, NULL);
+   }
+   else 
+   {
+      Eqn_p lit;
+      lit = EqnFOFParse(in, terms);
+      res = FormulaLitAlloc(lit);
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: assoc_form_tstp_parse()
+//
+//   Parse a sequence of formulas connected by a single AC operator
+//   and return it.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+static Formula_p assoc_form_tstp_parse(Scanner_p in, TB_p terms, Formula_p head)
+{
+   TokenType       optok;
+   FOFOperatorType op;
+   Formula_p f2;
+
+   optok =  AktTokenType(in);
+   op    =  tptp_operator_convert(optok);
+
+   while(TestInpTok(in, optok))
+   {
+      AcceptInpTok(in, optok);
+      f2 = literal_form_tstp_parse(in, terms);
+      head = FormulaOpAlloc(op, head, f2);
+   }  
+   return head;
+}
 
 
 /*---------------------------------------------------------------------*/
@@ -548,12 +705,18 @@ Formula_p FormulaTPTPParse(Scanner_p in, TB_p terms)
 Formula_p FormulaTSTPParse(Scanner_p in, TB_p terms)
 {
    Formula_p      f1, f2, res;
-   FOFOperatorType op, op_old;
-   f1 = elem_form_tptp_parse(in, terms);   
-   if(TestInpTok(in, FOFBinOp))
+   FOFOperatorType op;
+
+   f1 = literal_form_tstp_parse(in, terms);
+   
+   if(TestInpTok(in, FOFAssocOp))
+   {
+      res = assoc_form_tstp_parse(in, terms, f1);
+   }
+   else if(TestInpTok(in, FOFBinOp))
    {
       op = tptp_operator_parse(in);
-      f2 = FormulaTSTPParse(in, terms);
+      f2 = literal_form_tstp_parse(in, terms);   
       res = FormulaOpAlloc(op, f1, f2);
    }
    else

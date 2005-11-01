@@ -378,12 +378,12 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
    AcceptInpTok(in, Comma);
    if(FormulaTermEncoding)
    {
-      tform = TFormulaTPTPParse(in, terms);
+      tform = TFormulaTSTPParse(in, terms);
       handle = WTFormulaAlloc(terms, tform);
    }
    else
    {      
-      form = FormulaTPTPParse(in, terms); /* TSTP = TPTP! */
+      form = FormulaTSTPParse(in, terms); 
       handle = WFormulaAlloc(terms, form);
    }   
    if(TestInpTok(in, Comma))

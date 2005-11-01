@@ -271,7 +271,12 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
    
    lterm = TBTermParse(in, bank);
    BOOL_TERM_NORMALIZE(lterm);
-   if(TestInpTok(in, NegEqualSign | EqualSign))
+   
+   if(!TermIsVar(lterm) && SigIsPredicate(bank->sig,lterm->f_code))
+   {
+      rterm = bank->true_term; /* Non-Equational literal */
+   }
+   if(TermIsVar(lterm) || SigIsFunction(bank->sig, lterm->f_code))
    {
       if(TestInpTok(in, NegEqualSign))
       {
@@ -279,20 +284,38 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
       }
       AcceptInpTok(in, NegEqualSign|EqualSign);	 
       rterm = TBTermParse(in, bank);
-      BOOL_TERM_NORMALIZE(rterm);
+      if(!TermIsVar(rterm))
+      {
+         if(SigIsPredicate(bank->sig, rterm->f_code))
+         {
+            AktTokenError(in, "Predicate symbol used as "
+                          "function symbol in preceding atom", SYNTAX_ERROR);
+         }
+         SigSetFunction(bank->sig, rterm->f_code, true);
+      }
+   }
+   else if(TestInpTok(in, NegEqualSign|EqualSign))
+   { /* Now both sides must be terms */
+      SigSetFunction(bank->sig, lterm->f_code, true);
+      if(TestInpTok(in, NegEqualSign))
+      {
+         positive = !positive;
+      }
+      AcceptInpTok(in, NegEqualSign|EqualSign);	 
+      rterm = TBTermParse(in, bank);
+      if(!TermIsVar(rterm))
+      {
+         if(SigIsPredicate(bank->sig, rterm->f_code))
+         {
+            AktTokenError(in, "Predicate symbol used as "
+                          "function symbol in preceding atom", SYNTAX_ERROR);
+         }
+         SigSetFunction(bank->sig, rterm->f_code, true);
+      }
    }
    else
-   {
+   { /* It's a predicate */
       rterm = bank->true_term; /* Non-Equational literal */
-   }
-   if(rterm == bank->true_term)
-   {
-      if(TermIsVar(lterm))
-      {
-	 AktTokenError(in, "Individual variable "
-		       "used at predicate position", false); 
-	 
-      }
       SigSetPredicate(bank->sig, lterm->f_code, true);
    }
    *lref = lterm;
