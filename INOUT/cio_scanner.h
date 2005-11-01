@@ -94,7 +94,7 @@ typedef unsigned long long TokenType;
 #define Identifier    (Ident | Idnum)
 #define Name          (Identifier | String)
 #define FOFBinOp      (FOFAnd|FOFOr|FOFLRImpl|FOFRLImpl|FOFEquiv|FOFXor|FOFNand|FOFNor)
-
+#define FOFAssocOp    (FOFAnd|FOFOr)
 
 
 
