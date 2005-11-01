@@ -321,6 +321,55 @@ bool SigIsPredicate(Sig_p sig, FunCode f_code)
 
 /*-----------------------------------------------------------------------
 //
+// Function: SigSetFunction()
+//
+//   Set the value of the function field for a function symbol.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void SigSetFunction(Sig_p sig, FunCode f_code, bool value)
+{
+   assert(f_code > 0);
+   assert(f_code <= sig->f_count);
+
+   if(value)
+   {
+      FuncSetProp(&(sig->f_info[f_code]),FPFuncSymbol);
+   }
+   else
+   {
+      FuncDelProp(&(sig->f_info[f_code]),FPFuncSymbol);
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: SigIsFunction()
+//
+//   Return the value of the Function field for a function symbol.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool SigIsFunction(Sig_p sig, FunCode f_code)
+{
+   assert(f_code > 0);
+   assert(f_code <= sig->f_count);
+
+   return FuncQueryProp(&(sig->f_info[f_code]), FPFuncSymbol);
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: SigSetSpecial()
 //
 //   Set the value of the special field for a function symbol.

@@ -1053,7 +1053,7 @@ Term_p TBTermParse(Scanner_p in, TB_p bank)
 
 int TBTermParseArgList(Scanner_p in, Term_p** arg_anchor, TB_p bank) 
 {
-   Term_p *handle;
+   Term_p *handle, tmp;
    int    arity;
    int    size;
    int    i;
@@ -1068,7 +1068,18 @@ int TBTermParseArgList(Scanner_p in, Term_p** arg_anchor, TB_p bank)
    size = TERMS_INITIAL_ARGS;
    handle = (Term_p*)SizeMalloc(size*sizeof(Term_p));
    arity = 0;
-   handle[arity] = TBTermParse(in, bank);
+   tmp = TBTermParse(in, bank);
+   if(!TermIsVar(tmp))
+   {
+      if(SigIsPredicate(bank->sig, tmp->f_code))
+      {
+         AktTokenError(in, 
+                    "Predicate used as function symbol in preceeding term",
+                       SYNTAX_ERROR);
+      }
+      SigSetFunction(bank->sig, tmp->f_code, true);
+   }
+   handle[arity] = tmp;
    arity++;
    while(TestInpTok(in, Comma))
    {
