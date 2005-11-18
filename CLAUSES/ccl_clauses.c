@@ -1316,8 +1316,7 @@ void ClauseTSTPCorePrint(FILE* out, Clause_p clause, bool fullterms)
 void ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms, bool complete)
 {
    int source;
-   char *typename = NULL;
-   char *derived = NULL; 
+   char *typename = "plain";
 
    switch(ClauseQueryTPTPType(clause))
    {
@@ -1343,11 +1342,6 @@ void ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms, bool complete)
 	 break;
    }   
    source = ClauseQueryCSSCPASource(clause);
-   if(!ClauseQueryProp(clause, CPInputClause))
-   {
-      derived = "derived";
-   }
-
    if(clause->ident >= 0)
    {
       fprintf(out, "cnf(c_%d_%ld,", 
@@ -1360,8 +1354,7 @@ void ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms, bool complete)
 	      source,
 	      clause->ident-LONG_MIN);
    }
-   PrintDashedStatuses(out, typename, derived, "plain");
-   fprintf(out, ",");   
+   fprintf(out, "%s,", typename);   
    ClauseTSTPCorePrint(out, clause, fullterms);
    if(complete)
    {
