@@ -50,6 +50,9 @@ typedef enum
    OPT_TPTP_PARSE,
    OPT_TPTP_PRINT,
    OPT_TPTP_FORMAT,
+   OPT_TSTP_PARSE,
+   OPT_TSTP_PRINT,
+   OPT_TSTP_FORMAT,
    OPT_DIMACS_PRINT,
    OPT_SPLIT_TRIES,
    OPT_DISABLE_UNIT_SUBSUMPTION,
@@ -130,19 +133,67 @@ OptCell opts[] =
    {OPT_TPTP_PARSE,
     '\0', "tptp-in",
     NoArg, NULL,
-    "Parse TPTP format instead of lop (does not understand includes, "
-    "as TPTP include syntax is considered harmful)."},
+    "Parse TPTP-2 format instead of E-LOP (except includes, "
+    "which are handles as in TPTP-3, as TPTP-2 include syntax"
+    " is considered harmful)."},
 
    {OPT_TPTP_PRINT,
     '\0', "tptp-out",
     NoArg, NULL,
-    "Print TPTP format instead of lop. Implies --eqn-no-infix and "
-    "will ignore --full-equational-rep."},
+    "Print TPTP-2 format instead of E-LOP."},
 
    {OPT_TPTP_FORMAT,
     '\0', "tptp-format",
     NoArg, NULL,
     "Equivalent to --tptp-in and --tptp-out."},
+
+   {OPT_TPTP_PARSE,
+    '\0', "tptp2-in",
+    NoArg, NULL,
+    "Synonymous with --tptp-in."},
+
+   {OPT_TPTP_PRINT,
+    '\0', "tptp2-out",
+    NoArg, NULL,
+    "Synonymous with --tptp-out."},
+
+   {OPT_TPTP_FORMAT,
+    '\0', "tptp2-format",
+    NoArg, NULL,
+    "Synonymous with --tptp-format."},
+
+   {OPT_TSTP_PARSE,
+    '\0', "tstp-in",
+    NoArg, NULL,
+    "Parse TPTP-3 format instead of E-LOP (Note that TPTP-3 syntax "
+    "is still under development, and the version implemented may not be "
+    "fully conformant at all times. It works on all TPTP 3.0.1 input "
+    "files (including includes)."},
+   
+   {OPT_TSTP_PRINT,
+    '\0', "tstp-out",
+    NoArg, NULL,
+    "Print output clauses in TPTP-3 syntax."},
+
+   {OPT_TSTP_FORMAT,
+    '\0', "tstp-format",
+    NoArg, NULL,
+    "Equivalent to --tstp-in and --tstp-out."},
+
+   {OPT_TSTP_PARSE,
+    '\0', "tptp3-in",
+    NoArg, NULL,
+    "Synonymous with --tstp-in."},
+
+   {OPT_TSTP_PRINT,
+    '\0', "tptp3-out",
+    NoArg, NULL,
+    "Synonymous with --tstp-out."},
+
+   {OPT_TSTP_FORMAT,
+    '\0', "tptp3-format",
+    NoArg, NULL,
+    "Synonymous with --tstp-format."},
 
    {OPT_DIMACS_PRINT,
     'd', "dimacs",
@@ -526,6 +577,18 @@ CLState_p process_options(int argc, char* argv[])
 	    EqnFullEquationalRep = false;
 	    EqnUseInfix = false;
 	    break;
+      case OPT_TSTP_PARSE:
+            parse_format = TSTPFormat;
+            break;
+      case OPT_TSTP_PRINT:
+            OutputFormat = TSTPFormat;
+            EqnUseInfix = true;
+            break;
+      case OPT_TSTP_FORMAT:
+            parse_format = TSTPFormat;
+            OutputFormat = TSTPFormat;
+            EqnUseInfix = true;
+            break;
       case OPT_DIMACS_PRINT:
 	    dimacs_format = true;
 	    break;
