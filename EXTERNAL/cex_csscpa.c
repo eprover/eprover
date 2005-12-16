@@ -303,18 +303,18 @@ bool CSSCPAProcessClause(CSSCPAState_p state, Clause_p clause,
       clause->weight = ClauseStandardWeight(clause);
       
       if((clause->pos_lit_no && 
-          UnitClauseSetSubsumesClause(state->pos_units,
-				      clause)) ||
+          (handle=UnitClauseSetSubsumesClause(state->pos_units,
+				      clause))) ||
          (clause->neg_lit_no &&
-          UnitClauseSetSubsumesClause(state->neg_units,
-				      clause)) ||
-         (ClauseLiteralNumber(clause)>1 &&
-          ClauseSetSubsumesClause(state->non_units, clause)))      
+          (handle=UnitClauseSetSubsumesClause(state->neg_units,
+				      clause))) ||
+         ((ClauseLiteralNumber(clause)>1) &&
+          (handle=ClauseSetSubsumesClause(state->non_units, clause))))
       {
          if(OutputLevel)
          {
-	    fprintf(GlobalOut, "# Clause %ld rejected (subsumed)\n",
-		    clause->ident);
+	    fprintf(GlobalOut, "# Clause %ld rejected (subsumed by %ld)\n",
+		    clause->ident,handle->ident);
          }
          clause_status = rejected;
          ClauseFree(clause);
@@ -369,6 +369,12 @@ bool CSSCPAProcessClause(CSSCPAState_p state, Clause_p clause,
 	    state->clauses--;
 	    state->literals -= ClauseLiteralNumber(handle);
 	    state->weight   -= handle->weight;
+            if(OutputLevel)
+            {
+	       fprintf(GlobalOut, 
+	  	       "# Clause %ld removed from list (subsumed by %ld)\n", 
+		       handle->ident, clause->ident);
+            } 
 	    ClauseSetDeleteEntry(handle);
          }
          state->clauses++;
