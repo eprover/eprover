@@ -29,7 +29,7 @@ Changes
 /*---------------------------------------------------------------------*/
 
 long global_formula_counter = LONG_MIN;
-bool FormulaTermEncoding    = false;
+bool FormulaTermEncoding    = true;
 long FormulaDefLimit        = TFORM_RENAME_LIMIT;
 
 /*---------------------------------------------------------------------*/
