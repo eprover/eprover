@@ -32,8 +32,8 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-/*  cvs tag E-0-9dev012 */
-#define VERSION      "0.9dev012"
+/*  cvs tag E-0-91pre001 */
+#define VERSION      "0.91pre001"
 #define NAME         "eprover"
 
 #define NICKNAME     "Soom"
@@ -137,7 +137,7 @@ typedef enum
    OPT_INTERPRETE_NUMBERS,
    OPT_FREE_NUMBERS,
    OPT_FREE_OBJECTS,
-   OPT_TERM_CNF,
+   OPT_OLD_STYLE_CNF,
    OPT_DEF_CNF,
    OPT_DUMMY
 }OptionCodes;
@@ -967,18 +967,21 @@ OptCell opts[] =
     "now represent domain objects and are implicitely different from "
     "each other (and from numbers, unless those are declared to be free)."}, 
 
-   {OPT_TERM_CNF,
-    '\0', "term-encoded-fof",
+   {OPT_OLD_STYLE_CNF,
+    '\0', "old-style-cnf",
     NoArg, NULL,
-    "Use the experimental new clausification algorithm based on "
-    "term-encoding of first order formulas. This option is deprecated"
-    " in favour of the following one."},
+    "Use the old clausification algorithm. This may currently be very"
+    " slightly faster for problems with a well-behaved structure. "
+    "It also has been in use for some time and hence has seen more "
+    "testing. However, it does not support formula renaming, and "
+    "hence may be a lot slower or even fail on more complex formulae."},
 
    {OPT_DEF_CNF,
     '\0', "definitional-cnf",
     OptArg, TFORM_RENAME_LIMIT_STR,
-    "Use the experimental new clausification algorithm that possibly "
+    "Use the new clausification algorithm that possibly "
     "introduces definitions for subformula to avoid exponential blow-up."
+    " This is now the default."
     " The optional argument is a fudge factor that determines when a "
     "definition is introduced. 0 disables definitions, the default works"
     " well."},
@@ -1893,8 +1896,8 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_FREE_OBJECTS:
             free_symb_prop = free_symb_prop | FPIsObject;
             break;
-      case OPT_TERM_CNF:
-            FormulaTermEncoding = true;
+      case OPT_OLD_STYLE_CNF:
+            FormulaTermEncoding = false;
             break;
       case OPT_DEF_CNF:
             FormulaTermEncoding = true;
