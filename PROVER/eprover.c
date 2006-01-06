@@ -32,11 +32,11 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-/*  cvs tag E-0-91pre001 */
-#define VERSION      "0.91pre001"
+/*  cvs tag E-0-91 */
+#define VERSION      "0.91"
 #define NAME         "eprover"
 
-#define NICKNAME     "Soom"
+#define NICKNAME     "Kanyam"
 
 typedef enum
 {
@@ -1963,7 +1963,7 @@ Read a set of first-order clauses and formulae and try to refute it.\n\
 \n");
    PrintOptions(stdout, opts);
    fprintf(out, "\n\
-Copyright 1998-2005 by Stephan Schulz, " STS_MAIL "\n\
+Copyright 1998-2006 by Stephan Schulz, " STS_MAIL "\n\
 \n\
 You can find the latest version of E and additional information at\n"
 E_URL

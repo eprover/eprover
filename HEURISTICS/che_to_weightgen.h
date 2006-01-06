@@ -88,8 +88,7 @@ typedef enum
 extern char* TOWeightGenNames[];
 
 #define TOGetWeightGenName(method) \
-        (assert((method)>=WNoMethod), assert((method)<=WMaxMethod), \
-	 TOWeightGenNames[(method)])
+        (TOWeightGenNames[(method)])
 
 TOWeightGenMethod TOTranslateWeightGenMethod(char* name);
 

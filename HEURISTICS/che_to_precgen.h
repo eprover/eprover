@@ -67,9 +67,7 @@ typedef enum
 
 extern char* TOPrecGenNames[];
 
-#define TOGetPrecGenName(method) \
-        (assert((method)>=PNoMethod), assert((method)<=PMaxMethod), \
-	 TOPrecGenNames[(method)])
+#define TOGetPrecGenName(method) (TOPrecGenNames[(method)])
 
 TOPrecGenMethod TOTranslatePrecGenMethod(char* name);
 

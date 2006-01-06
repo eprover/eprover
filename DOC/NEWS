@@ -3,13 +3,17 @@ the E equational theorem prover.
 
 Version 0.9 ->
 
+
 - Alternative CNF translator with configurable renaming finally done
   (still needs more testing) (use option --definitional-cnf)
 - More goal-directed heuristics, and better evaluation of same
 - Fixed classification bug in auto mode
+- Result: Better auto-mode
 - Added option --order-weights for user-defined KBO
 - Fixed and updated a number of tools, all of which should now work
   with full FOF format
+- Fixed TSTP parser to conform to new parenthesizing/precedence
+  handling.  
 
 Version 0.82 -> 0.9 Soom
 

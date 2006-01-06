@@ -34,22 +34,16 @@ anything fails. There should be a copy in DOC/eprover.pdf.
              ===============================
 
 
-This is the README file for version 0.9 "Soom" of the E equational
+This is the README file for version 0.91 "Kanyam" of the E equational
 theorem prover. This version of E is free software, see the file
 COPYING for details about the license and the fact that THERE IS NO
 WARRANTY!  
 
-Release 0.9 is a major update on 0.82. It particularly improves on the
-inference engine. It also adds new search heuristics and probably will
-exhibit more stable search behaviour. Performance in automatic mode
-has increased significantly, so it should be worth updating for
-everyone. For more on new features, read DOC/NEWS.
-
-E 0.9 also fixed a couple of previously undetected portability
-bugs. In particular, it should now work on P64 architectures (but this
-is untested, as I have no access to a Windows/Itanium system (with
-GNU-compatible development tools) -- and this is the only Processor/OS
-combination I know that uses P64).
+Release 0.91 is a relatively minor update on 0.9. It particularly
+improves on the CNF translator, which should now be able to handle
+very complex formula. Other changes are minor, but performance in
+automatic mode has increased significantly, so it should be worth
+updating for everyone. For more on new features, read DOC/NEWS.
 
 If you are using certain gcc 2.95.1, 2.96.X, 2.97.X or 3.2.X releases,
 you may or may not experience strange bugs. In that case, please read

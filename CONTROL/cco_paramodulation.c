@@ -108,7 +108,7 @@ long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
    Term_p      test;
    ClausePos_p pos1, pos2;
    long        paramod_count = 0;
-   InfType     inf_type;
+   InfType     inf_type = inf_noinf;
 
 
    if(ClauseQueryProp(clause, CPNoGeneration)||

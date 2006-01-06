@@ -106,12 +106,17 @@ bool          OCBPrecedenceBacktrack(OCB_p ocb, PStackPointer state);
 /* Getting the addresses of OCB entries for modification */
 
 
+/*
 #define OCBFunWeightPos(ocb, f) \
               (assert((f)>0), assert((f)<=(ocb)->sig_size), &((ocb)->weights[(f)-1]))
 #define OCBFunComparePos(ocb, f1, f2) \
               (assert((f1)>0), assert((f2)>0), assert((f1)<=(ocb)->sig_size),\
 	       assert((f2)<=(ocb)->sig_size),\
               (&((ocb)->precedence[((f2)-1)*(ocb)->sig_size+((f1)-1)])))
+*/
+
+#define OCBFunWeightPos(ocb, f) &((ocb)->weights[(f)-1])
+#define OCBFunComparePos(ocb, f1, f2) (&((ocb)->precedence[((f2)-1)*(ocb)->sig_size+((f1)-1)]))
 
 
 FunCode OCBFindMinConst(OCB_p ocb);
