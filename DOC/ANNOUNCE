@@ -776,12 +776,12 @@ released.
 
 E is a a purely equational theorem prover for full first order logic
 with equality. It has successfully competed in several CASC
-competitions and is generally considered a friendly and powerful systm
-(as theorem prover go).
+competitions and is generally considered a friendly and powerful
+system (as theorem provers go).
 
 The new version has an improved clause normal form converter that will
 work even on very demanding formulas, improved heuristics and search
-behaviour, and comples with the latest TPTP-3 syntax.
+behaviour, and complies with the latest TPTP-3 syntax.
 
 E is available as a source distribution for UNIX-variants. It installs
 cleanly under all UNIX variants I could get my hands on: Various
