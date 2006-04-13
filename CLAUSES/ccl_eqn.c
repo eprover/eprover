@@ -774,8 +774,9 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
    {
       if(EqnUseInfix && 
 	 (EqnFullEquationalRep || 
-	  eq->rterm!=eq->bank->true_term ||
-	  eq->lterm==eq->bank->true_term))
+	  eq->rterm!=eq->bank->true_term
+          /* || eq->lterm==eq->bank->true_term*/
+            ))
       {
 	 TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
 	 
@@ -793,8 +794,8 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
 	    fputc('~', out);
 	 }
 	 if((eq->rterm!=eq->bank->true_term) ||
-	    EqnFullEquationalRep ||
-	    eq->lterm==eq->bank->true_term)
+	    EqnFullEquationalRep/* ||
+                                   eq->lterm==eq->bank->true_term*/)
 	 {
 	    fprintf(out, EQUAL_PREDICATE"(");
 	    TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
