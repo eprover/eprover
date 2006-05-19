@@ -32,8 +32,8 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-/*  cvs tag E-0-91dev001 */
-#define VERSION      "0.91dev001"
+/*  cvs tag E-0-91dev002 */
+#define VERSION      "0.91dev002"
 #define NAME         "eprover"
 
 #define NICKNAME     "Kanyam"
