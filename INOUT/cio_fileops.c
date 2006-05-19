@@ -139,7 +139,8 @@ void  InputClose(FILE* file)
 //
 //   Concatenate all file in (NULL-terminated) array sources into
 //   target. "-" is stdin, as always. Return number of files
-//   concated. 
+//   concated. This could be much optimized. Let me know if it ever
+//   shows up in a profile...
 //
 // Global Variables: -
 //
@@ -169,6 +170,28 @@ long ConcatFiles(char* target, char** sources)
    return i;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: CopyFile()
+//
+//   Copy source to target (the lazy way ;-). Notice argument order
+//   (compatible with = and strcpy(), not with cp!)
+//
+// Global Variables: -
+//
+// Side Effects    : Via ConcatFiles()
+//
+/----------------------------------------------------------------------*/
+
+long CopyFile(char* target, char* source)
+{
+   char* tmp[2];
+   
+   tmp[0] = source;
+   tmp[1] = NULL;
+
+   return ConcatFiles(target, tmp);
+}
 
 
 

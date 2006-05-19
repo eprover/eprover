@@ -42,6 +42,7 @@ void FileOpenErrorPrint(char* name);
 FILE* InputOpen(char *name, bool fail);
 void  InputClose(FILE* file);
 long  ConcatFiles(char* target, char** sources);
+long  CopyFile(char* target, char* source);
 void  FileRemove(char* name);
 void  FilePrint(FILE* out, char* name);
 #define FileNameIsAbsolute(name) ((name)[0]=='/')
