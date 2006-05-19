@@ -36,7 +36,11 @@ function get_basename(name,     tmp)
 # Skipping comments
 
 /^#/{
-  next;
+   if(ARGIND != 1)
+   {
+      print;
+   }
+   next;
 }
 
 # Process all non-empty lines
