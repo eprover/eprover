@@ -281,6 +281,7 @@ void     ClauseDetachParents(Clause_p clause);
 void     ClauseRegisterChild(Clause_p clause, Clause_p child);
 
 void     ClauseAddEvalCell(Clause_p clause, Eval_p evaluation);
+
 void     ClauseRemoveEvaluations(Clause_p clause);
 
 double   ClauseWeight(Clause_p clause, double max_term_multiplier,

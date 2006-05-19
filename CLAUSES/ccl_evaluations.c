@@ -22,7 +22,12 @@ Changes
 
 -----------------------------------------------------------------------*/
 
+
+
 #include "ccl_evaluations.h"
+#ifdef NEW_EVALUATIONS
+#include "ccl_neweval.c"
+#else
 
 
 
@@ -391,44 +396,6 @@ void EvalListFree(Eval_p junk)
 
 /*-----------------------------------------------------------------------
 //
-// Function: EvalTreeFree()
-//
-//   Free a evaluation tree (does not free the object).
-//
-// Global Variables: -
-//
-// Side Effects    : Memory operations
-//
-/----------------------------------------------------------------------*/
-
-void EvalTreeFree(Eval_p junk)
-{
-   if(junk)
-   {
-      PStack_p stack = PStackAlloc();
-      
-      PStackPushP(stack, junk);
-      
-      while(!PStackEmpty(stack))
-      {
-         junk = PStackPopP(stack);
-         if(junk->lson)
-         {
-            PStackPushP(stack, junk->lson);
-         }
-         if(junk->rson)
-         { 
-            PStackPushP(stack, junk->rson);
-         }
-	 EvalCellFree(junk);            
-      }
-      PStackFree(stack);
-   }
-}
-
-
-/*-----------------------------------------------------------------------
-//
 // Function: EvalTreeInsert()
 //
 //   If an entry with newnode exists in the tree return a
@@ -645,6 +612,6 @@ void EvalTreePrintInOrder(FILE* out, Eval_p tree)
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
 
-
+#endif
 
 

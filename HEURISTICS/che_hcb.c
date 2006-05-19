@@ -42,8 +42,8 @@ Changes
 //
 // Function: get_next_clause()
 //
-//   Return the next clause from the EvalTreeTraverse-Stack, or NULL
-//   if the stack is empty.
+//   Return the next clause from the selected EvalTreeTraverse-Stack,
+//   or NULL if the stack is empty.
 //
 // Global Variables: -
 //
@@ -51,11 +51,15 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-static Clause_p get_next_clause(PStack_p stack)
+static Clause_p get_next_clause(PStack_p *stacks, int pos)
 {
    Eval_p current;
-   
-   current = EvalTreeTraverseNext(stack);
+
+#ifdef NEW_EVALUATIONS
+   current = EvalTreeTraverseNext(stacks[pos], pos);
+#else
+   current = EvalTreeTraverseNext(stacks[pos]);
+#endif
    if(current)
    {
       return current->object;
@@ -301,11 +305,19 @@ void HCBClauseEvaluate(HCB_p hcb, Clause_p clause)
    long i;
    
    assert(clause->evaluations == NULL);
-
+#ifdef NEW_EVALUATIONS
+   ClauseAddEvalCell(clause, EvalsAlloc(hcb->wfcb_no));
+   
+   for(i=0; i< hcb->wfcb_no; i++)
+   {
+      ClauseAddEvaluation(PDArrayElementP(hcb->wfcb_list, i), clause, i);
+   }
+#else
    for(i=hcb->wfcb_no-1; i>=0; i--)
    {
       ClauseAddEvaluation(PDArrayElementP(hcb->wfcb_list, i), clause);
    }
+#endif
 }
 
 
@@ -388,7 +400,11 @@ long HCBClauseSetDelProp(HCB_p hcb, ClauseSet_p set, long number,
    for(i=0; i< hcb->wfcb_no; i++)
    {
       stacks[i]=
+#ifdef NEW_EVALUATIONS
+	 EvalTreeTraverseInit(PDArrayElementP(set->eval_indices, i),i);
+#else
 	 EvalTreeTraverseInit(PDArrayElementP(set->eval_indices, i));
+#endif
    }
    while(number)
    {
@@ -397,7 +413,7 @@ long HCBClauseSetDelProp(HCB_p hcb, ClauseSet_p set, long number,
 	 for(j=0; j < PDArrayElementInt(hcb->select_switch, j); j++)
 	 {
 	    while((clause =
-		  get_next_clause(stacks[i])))
+		  get_next_clause(stacks,i)))
 	    {
 	       if(ClauseQueryProp(clause, prop))
 	       {

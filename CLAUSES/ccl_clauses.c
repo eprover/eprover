@@ -595,7 +595,7 @@ bool ClauseIsACRedundant(Clause_p clause)
 void ClauseFree(Clause_p junk)
 {
    assert(!junk->set);
-   EvalListFree(junk->evaluations);
+   EvalsFree(junk->evaluations);
    EqnListFree(junk->literals);
    PTreeFree(junk->children);
    ClauseInfoFree(junk->info);
@@ -1797,11 +1797,12 @@ void ClauseRegisterChild(Clause_p clause, Clause_p child)
 //                   to clause.
 //
 /----------------------------------------------------------------------*/
-
 void ClauseAddEvalCell(Clause_p clause, Eval_p evaluation)
 {
    evaluation->object  = clause;
+#ifndef NEW_EVALUATIONS
    evaluation->next    = clause->evaluations;
+#endif
    clause->evaluations = evaluation;
 }
 
@@ -1820,7 +1821,7 @@ void ClauseAddEvalCell(Clause_p clause, Eval_p evaluation)
 
 void ClauseRemoveEvaluations(Clause_p clause)
 {
-   EvalListFree(clause->evaluations);
+   EvalsFree(clause->evaluations);
    clause->evaluations = NULL;
 }
 

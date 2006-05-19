@@ -66,7 +66,7 @@ typedef struct clausesetcell
 #define ClauseSetCellFree(junk) SizeFree(junk, sizeof(ClauseSetCell))
 
 #define     ClauseSetStorage(set)\
-            (((CLAUSECELL_DYN_MEM+(set)->eval_no*EVALCELL_MEM)*(set)->members+\
+            (((CLAUSECELL_DYN_MEM+EVAL_MEM((set)->eval_no))*(set)->members+\
             EQN_CELL_MEM*(set)->literals)+\
             PDTreeStorage(set->demod_index)+\
 	    FVIndexStorage(set->fvindex))

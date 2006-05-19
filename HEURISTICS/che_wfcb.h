@@ -94,7 +94,11 @@ WFCB_p WFCBAlloc(ClauseEvalFun wfcb_eval, ClausePrioFun prio_fun,
 		 GenericExitFun wfcb_exit, void* data);
 void   WFCBFree(WFCB_p junk);
 
+#ifdef NEW_EVALUATIONS
+void   ClauseAddEvaluation(WFCB_p wfcb, Clause_p clause, int pos);
+#else
 void   ClauseAddEvaluation(WFCB_p wfcb, Clause_p clause);
+#endif
 
 #endif
 

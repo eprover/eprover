@@ -710,10 +710,17 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
    assert(tmphcb);
    ClauseSetReweight(tmphcb, state->axioms);
    
+#ifdef NEW_EVALUATIONS
+   traverse =
+      EvalTreeTraverseInit(PDArrayElementP(state->axioms->eval_indices,0),0);
+
+   while((cell = EvalTreeTraverseNext(traverse, 0)))
+#else
    traverse =
       EvalTreeTraverseInit(PDArrayElementP(state->axioms->eval_indices,0));
-   
+
    while((cell = EvalTreeTraverseNext(traverse)))
+#endif
    {
       handle = cell->object;
       new = ClauseCopy(handle, state->terms);

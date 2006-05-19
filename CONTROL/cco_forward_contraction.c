@@ -339,6 +339,7 @@ void ClauseSetReweight(HCB_p heuristic, ClauseSet_p set)
    {
       ClauseSetInsert(tmp_set, ClauseSetExtractFirst(set));
    }
+
    while(!ClauseSetEmpty(tmp_set))
    {
       handle = ClauseSetExtractFirst(tmp_set);

@@ -268,7 +268,10 @@ static void tptp_eq_pred_axiom_print(FILE* out, char* symbol, int arity,
 static void clause_set_extract_entry(Clause_p clause)
 {
    int     i;
-   Eval_p  handle, test;
+#ifndef NEW_EVALUATIONS
+   Eval_p  handle;
+#endif
+   Eval_p test;
 
    assert(clause);
    assert(clause->set);
@@ -277,6 +280,20 @@ static void clause_set_extract_entry(Clause_p clause)
    
    /* printf("ClauseSetExtractEntry: %d\n", (int)clause); */
 
+#ifdef NEW_EVALUATIONS
+   if(clause->evaluations)
+   {
+      for(i=0; i<clause->evaluations->eval_no; i++)
+      {
+         test = EvalTreeExtractEntry((Eval_p*)
+                                     &PDArrayElementP(clause->set->eval_indices, i),
+                                     clause->evaluations,
+                                     i); 
+         assert(test);
+         assert(test->object == clause);
+      }
+   }
+#else
    i=0;
    for(handle = clause->evaluations; handle; handle = handle->next)
    {
@@ -288,6 +305,7 @@ static void clause_set_extract_entry(Clause_p clause)
       assert(test->object == clause);
       i++;
    }
+#endif
    clause->pred->succ = clause->succ;
    clause->succ->pred = clause->pred;
    clause->set->literals-=ClauseLiteralNumber(clause);
@@ -433,7 +451,10 @@ void ClauseSetGCMarkTerms(ClauseSet_p set)
 void ClauseSetInsert(ClauseSet_p set, Clause_p newclause)
 {
    int    i;
-   Eval_p handle, test, *root;
+#ifndef NEW_EVALUATIONS
+   Eval_p handle;
+#endif
+   Eval_p test, *root;
 
    assert(!newclause->set);
 
@@ -444,7 +465,18 @@ void ClauseSetInsert(ClauseSet_p set, Clause_p newclause)
    newclause->set = set;
    set->members++;
    set->literals+=ClauseLiteralNumber(newclause);
-
+#ifdef NEW_EVALUATIONS
+   if(newclause->evaluations)
+   {
+      for(i=0; i<newclause->evaluations->eval_no; i++)
+      {
+         root = (Eval_p*)&(PDArrayElementP(newclause->set->eval_indices,i));
+         test = EvalTreeInsert(root, newclause->evaluations, i);
+         assert(!test);
+      }
+      set->eval_no = MAX(newclause->evaluations->eval_no, set->eval_no);
+   }
+#else
    i=0;
    for(handle = newclause->evaluations; handle; handle = handle->next)
    {
@@ -454,6 +486,7 @@ void ClauseSetInsert(ClauseSet_p set, Clause_p newclause)
       i++;
    }
    set->eval_no = MAX(i, set->eval_no);
+#endif
 }
 
 
@@ -688,7 +721,8 @@ Clause_p ClauseSetFindBest(ClauseSet_p set, int idx)
    Eval_p   evaluation;
 
    evaluation =
-      EvalTreeFindSmallest(PDArrayElementP(set->eval_indices, idx));
+      EvalTreeFindSmallestWrap(PDArrayElementP(set->eval_indices, idx), idx);
+   
    if(!evaluation)
    {
       assert(set->anchor->succ == set->anchor);
@@ -1342,12 +1376,12 @@ void ClauseSetRemoveEvaluations(ClauseSet_p set)
    Clause_p handle;
    for(i=0; i<set->eval_indices->size; i++)
    {
-      EvalTreeFree(PDArrayElementP(set->eval_indices, i));
       PDArrayAssignP(set->eval_indices, i, NULL);
    }
    for(handle = set->anchor->succ; handle!=set->anchor;
        handle=handle->succ)
    {
+      EvalsFree(handle->evaluations);
       handle->evaluations = NULL;
    }
 }

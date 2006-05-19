@@ -22,6 +22,10 @@ Changes
 
 -----------------------------------------------------------------------*/
 
+#ifdef NEW_EVALUATIONS
+#include "ccl_neweval.h"
+#else
+
 #ifndef CCL_EVALUATIONS
 
 #define CCL_EVALUATIONS
@@ -57,6 +61,13 @@ typedef struct eval_cell
 
 
 /*---------------------------------------------------------------------*/
+/*        Macros for a common interface with new evaluations           */
+/*---------------------------------------------------------------------*/
+
+#define EvalsFree(list) EvalListFree(list) 
+#define EvalTreeFindSmallestWrap(root, pos) EvalTreeFindSmallest(root)
+
+/*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
@@ -67,8 +78,10 @@ extern long EvaluationCounter;
 
 #ifdef CONSTANT_MEM_ESTIMATE
 #define EVALCELL_MEM 32
+#define EVAL_MEM(eval_no) ((eval_no)*EVALCELL_MEM)
 #else
 #define EVALCELL_MEM MEMSIZE(EvalCell)
+#define EVAL_MEM(eval_no) ((eval_no)*MEMSIZE(EvalCell))
 #endif
 
 Eval_p   EvalAlloc(void);
@@ -84,7 +97,6 @@ bool     EvalGreater(Eval_p ev1, Eval_p ev2);
 long     EvalCompare(Eval_p ev1, Eval_p ev2);
 
 void     EvalListFree(Eval_p junk);
-void     EvalTreeFree(Eval_p junk);
 Eval_p   EvalTreeInsert(Eval_p *root, Eval_p newnode);
 Eval_p   EvalTreeFind(Eval_p *root, Eval_p key);
 Eval_p   EvalTreeExtractEntry(Eval_p *root, Eval_p key);
@@ -103,6 +115,7 @@ void     EvalTreePrintInOrder(FILE* out, Eval_p tree);
 
 
 
+#endif
 #endif
 
 /*---------------------------------------------------------------------*/
