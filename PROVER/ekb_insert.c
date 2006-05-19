@@ -8,7 +8,7 @@ Contents
  
   Insert an new training example file into a knowledge base.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998, 1999-2006 by the author.
   This code is released under the GNU General Public Licence.
   See the file COPYING in the main CLIB directory for details.
   Run "eprover -h" for contact information.
@@ -17,11 +17,15 @@ Changes
 
 <1> Wed Jul 28 16:21:33 MET DST 1999
     New
+<2> Sun May  7 20:48:22 CEST 2006
+    Changed semantics for more efficiency (suggested and prototyped by
+    Josef Urban, <urban@ktilinux.ms.mff.cuni.cz>
 
 -----------------------------------------------------------------------*/
 
 #include <cio_commandline.h>
 #include <cio_output.h>
+#include <cio_fileops.h>
 #include <cle_kbinsert.h>
 
 /*---------------------------------------------------------------------*/
@@ -29,7 +33,7 @@ Changes
 /*---------------------------------------------------------------------*/
 
 #define NAME    "ekb_insert"
-#define VERSION "0.1dev"
+#define VERSION "0.2dev"
 
 typedef enum
 {
@@ -109,21 +113,13 @@ int main(int argc, char* argv[])
    Sig_p           reserved_symbols;
    Scanner_p       in;
    char            defaultname[30];
+   int             i;
 
    assert(argv[0]);
 
    InitIO(NAME);
    
    state = process_options(argc, argv);
-   
-   if(!ex_name && state->argv[0] && (strcmp(state->argv[0], "-")!= 0))
-   {
-      ex_name = FileFindBaseName(state->argv[0]);
-   }   
-   if(state->argc ==  0)
-   {
-      CLStateInsertArg(state, "-");
-   }  
 
    name = DStrAlloc();
    
@@ -153,45 +149,63 @@ int main(int argc, char* argv[])
 
    VERBOUT("Old knowledge base files parsed successfully\n");
    
-   /* Step 2: Finally determine name and check validity */
-   
-   if(!ex_name)
+   if(state->argc ==  0)
    {
-      sprintf(defaultname, "__problem__%ld",
-	      proof_examples->count+1);
-      ex_name = defaultname;
-   }
-   if(ExampleSetFindName(proof_examples, ex_name))
+      CLStateInsertArg(state, "-");
+   }  
+
+   /* Loop over all new examples and integrate them */
+
+   for(i=0; state->argv[i]; i++)
    {
-      DStr_p error = DStrAlloc();
-
-      DStrAppendStr(error, "Example name '");
-      DStrAppendStr(error, ex_name);
-      DStrAppendStr(error, "' already in use");
-      Error(DStrView(error), USAGE_ERROR);
-
-      DStrFree(error);
-   }
-
-   VERBOUTARG("New example will use name ", ex_name);
-   
-   /* Step 3: Copy input into files-directory */
-   
-   store_file = DStrAlloc();
-   DStrAppendStr(store_file, KBFileName(name, kb_name, "FILES/"));
-   DStrAppendStr(store_file, ex_name);
-   
-   ConcatFiles(DStrView(store_file), state->argv);
-
-   /* Step 4: Integrate new examples into existing structures */
-   
-   in = CreateScanner(StreamTypeFile, DStrView(store_file), true, NULL);
-   
-   KBParseExampleFile(in, ex_name, proof_examples, clause_examples,
-		      reserved_symbols);
-   DestroyScanner(in);
-   DStrFree(store_file);
       
+      /* Step 2: Determine name and check validity */
+
+      if(!ex_name && state->argv[i] && (strcmp(state->argv[i], "-")!= 0))
+      {
+	 ex_name = FileFindBaseName(state->argv[i]);
+      }
+
+      if(!ex_name)
+      {
+	 sprintf(defaultname, "__problem__%ld",
+		 proof_examples->count+1);
+	 ex_name = defaultname;
+      }
+
+      if(ExampleSetFindName(proof_examples, ex_name))
+      {
+	 DStr_p error = DStrAlloc();
+
+	 DStrAppendStr(error, "Example name '");
+	 DStrAppendStr(error, ex_name);
+	 DStrAppendStr(error, "' already in use");
+	 Error(DStrView(error), USAGE_ERROR);
+
+	 DStrFree(error);
+      }
+
+      VERBOUTARG("New example will use name ", ex_name);
+
+      /* Step 3: Copy input file into files-directory */
+   
+      store_file = DStrAlloc();
+      DStrAppendStr(store_file, KBFileName(name, kb_name, "FILES/"));
+      DStrAppendStr(store_file, ex_name);
+   
+      CopyFile(DStrView(store_file), state->argv[i]);
+
+      /* Step 4: Integrate new examples into existing structures */
+   
+      in = CreateScanner(StreamTypeFile, DStrView(store_file), true, NULL);
+   
+      KBParseExampleFile(in, ex_name, proof_examples, clause_examples,
+			 reserved_symbols);
+      DestroyScanner(in);
+      DStrFree(store_file);
+      ex_name = NULL;
+   }      
+
    /* Step 5: Write everything back: problems, clausepatterns */
 
    out = OutOpen(KBFileName(name, kb_name, "clausepatterns"));
@@ -279,12 +293,13 @@ void print_help(FILE* out)
 \n"
 NAME " " VERSION "\n\
 \n\
-Usage: ekb_insert [options] [name]\n\
+Usage: ekb_insert [options] [names]\n\
 \n\
-Insert an example file into an E knowledge base.\n\n"); 
+Insert example files into an E knowledge base. Each non-option argument\n\
+is considered as one individual example file.\n\n"); 
    PrintOptions(stdout, opts);
    fprintf(out, "\n\
-Copyright 1999-2004 by Stephan Schulz, " STS_MAIL "\n\
+Copyright 1999-2006 by Stephan Schulz, " STS_MAIL "\n\
 \n\
 This program is a part of the support structure for the E equational\n\
 theorem prover. You can find the latest version of the E distribution\n\

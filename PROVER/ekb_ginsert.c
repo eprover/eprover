@@ -6,10 +6,10 @@ Author: Stephan Schulz
 
 Contents
  
-  Generate new training examples from protocol and insert it into a
+  Generate new training examples from protocols and insert them into a
   knowledge base.
 
-  Copyright 1998-2004 by the author.
+  Copyright 1998-2006 by the author.
   This code is released under the GNU General Public Licence.
   See the file COPYING in the main CLIB directory for details.
   Run "eprover -h" for contact information.
