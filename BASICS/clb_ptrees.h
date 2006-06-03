@@ -71,17 +71,13 @@ typedef struct ptreecell
 #define PTREE_CELL_MEM MEMSIZE(PTreeCell)
 #endif
 
-
-/* As I found out now, _if_ int or long, respectively, is large enough
+/* As I found out now, _if_ ptr_int is large enough
    for this conversion, this is guaranteed to work! */
-#ifdef P_EQUAL_INT
-#define PCmp(p1, p2) ((int)(p1)-(int)(p2))
-#elif P_EQUAL_LONG
-#define PCmp(p1, p2) ((long)(p1)-(long)(p2))
-#elif P_EQUAL_LONG_LONG
-#define PCmp(p1, p2) ((long long)(p1)-(long long)(p2))
-#else 
+
+#ifdef SLOW_PTR_CMP
 #define PCmp(p1, p2) PCmpFun(p1, p2) 
+#else
+#define PCmp(p1, p2) ((ptr_int)(p1)-(ptr_int)(p2))
 #endif
 
 int     PCmpFun(void* p1, void*p2);
