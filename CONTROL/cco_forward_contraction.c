@@ -342,9 +342,14 @@ void ClauseSetReweight(HCB_p heuristic, ClauseSet_p set)
 
    while(!ClauseSetEmpty(tmp_set))
    {
+      /* printf("Current tree:\n");
+         EvalTreePrintInOrderWrap(stdout, 
+         (Eval_p)PDArrayElementP(set->eval_indices, 0),
+         0);
+         printf("end\n");*/
       handle = ClauseSetExtractFirst(tmp_set);
       HCBClauseEvaluate(heuristic, handle);
-      ClauseSetInsert(set, handle);
+      ClauseSetInsert(set, handle); 
    }
    ClauseSetFree(tmp_set);
 }
