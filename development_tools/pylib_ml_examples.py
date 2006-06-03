@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.3
+#!/usr/bin/env python2.4
 # ----------------------------------
 #
 # Module pylib_ml_examples.py

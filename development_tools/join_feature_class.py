@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.3
+#!/usr/bin/env python2.4
 # ----------------------------------
 #
 # Usage: join_feature_class.py <class-file> <feature-file>

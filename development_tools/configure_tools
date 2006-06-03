@@ -15,15 +15,18 @@ fi
 for file in *.awk ; do
     # cp $file $file.bak
     echo "#!$AWK -f" > tmpfile
-    tail +2  $file >> tmpfile
+    tail -n+2  $file >> tmpfile
     mv tmpfile $file
     chmod ugo+x $file
 done
 
 
-if which python2.3; then
-    PYTHON=`which python2.3`;
+if which python2.4; then
+    PYTHON=`which python2.4`;
     echo "configure_tools: Found Python 2.3 in your search path"
+elif which python2.3; then
+    PYTHON=`which python2.2`;
+    echo "configure_tools: Found Python 2.2 in your search path"
 elif which python2.2; then
     PYTHON=`which python2.2`;
     echo "configure_tools: Found Python 2.2 in your search path"
@@ -44,7 +47,7 @@ PYTHON=`basename $PYTHON`
 for file in *.py ; do
     # cp $file $file.bak
     echo "#!/usr/bin/env $PYTHON" > tmpfile
-    tail +2  $file >> tmpfile
+    tail -n+2  $file >> tmpfile
     mv tmpfile $file
     chmod ugo+x $file
 done
