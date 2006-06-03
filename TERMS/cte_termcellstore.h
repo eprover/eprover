@@ -53,8 +53,8 @@ typedef struct termcellstore
 /*---------------------------------------------------------------------*/
 
 #define tcs_arity0hash(term) ((term)->f_code)
-#define tcs_arity1hash(term) (tcs_arity0hash(term)^(((int)(term)->args[0])>>3))
-#define tcs_aritynhash(term) (tcs_arity1hash(term)^(((int)(term)->args[1])>>4))
+#define tcs_arity1hash(term) (tcs_arity0hash(term)^(((ptr_int)(term)->args[0])>>3))
+#define tcs_aritynhash(term) (tcs_arity1hash(term)^(((ptr_int)(term)->args[1])>>4))
 
 #define TermCellHash(term)\
 ((((term)->arity == 0)?\
