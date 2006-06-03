@@ -66,6 +66,7 @@ typedef struct eval_cell
 
 #define EvalsFree(list) EvalListFree(list) 
 #define EvalTreeFindSmallestWrap(root, pos) EvalTreeFindSmallest(root)
+#define EvalTreePrintInOrderWrap(file, root, pos) EvalTreePrintInOrder(file, root)
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
