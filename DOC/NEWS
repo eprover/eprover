@@ -1,6 +1,15 @@
 This history list describes the major differences between versions of
 the E equational theorem prover.
 
+
+Version 0.91
+
+- Introduced new and (maybe) better evaluation data type.
+- Updated install scripts.
+- Found (and fixed) mismatch between split handling and split
+  documentation (argh!). 
+ 
+
 Version 0.9 -> 0.91
 
 

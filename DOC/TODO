@@ -1,3 +1,7 @@
+Beautify the handling of FVIndexing somehow (the trouble is that the
+index can only be computed when the preprocessed clause set is
+there...hmmm). 
+
 Evaluate --inherit-conjecture-pm-literals.
 
 Implements Bernd's KBO.
