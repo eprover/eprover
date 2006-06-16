@@ -229,7 +229,7 @@ PCLExpr_p PCLExprParse(Scanner_p in, bool mini)
    {
       CheckInpId(in, PCL_ER"|"PCL_PM"|"PCL_SPM"|"PCL_EF"|"PCL_RW"|"
 		 PCL_SR"|"PCL_CSR"|"PCL_ACRES"|"PCL_CN"|"PCL_SPLIT"|"
-                 PCL_SC"|"PCL_FS"|"PCL_NNF"|"PCL_ID"|"PCL_AD"|"PCL_SQ"|"PCL_VR"|"
+                 PCL_SC"|"PCL_SE"|"PCL_FS"|"PCL_NNF"|"PCL_ID"|"PCL_AD"|"PCL_SQ"|"PCL_VR"|"
                  PCL_SK"|"PCL_DSTR"|"PCL_NC  );
 
       if(TestInpId(in, PCL_ER))
@@ -285,6 +285,11 @@ PCLExpr_p PCLExprParse(Scanner_p in, bool mini)
       else if(TestInpId(in, PCL_SC))
       {
 	 handle->op=PCLOpFOFSplitConjunct;
+	 arg_no=1;
+      }
+      else if(TestInpId(in, PCL_SE))
+      {
+         handle->op=PCLOpSplitEquiv;
 	 arg_no=1;
       }
       else if(TestInpId(in, PCL_FS))
@@ -479,6 +484,10 @@ void PCLExprPrint(FILE* out, PCLExpr_p expr, bool mini)
          fprintf(out, PCL_SC);
          assert(expr->arg_no==1);
          break;
+   case PCLOpSplitEquiv:
+         fprintf(out, PCL_SE);
+         assert(expr->arg_no==1);
+         break;
    case PCLOpFOFSimplify:
          fprintf(out, PCL_FS);
          assert(expr->arg_no==1);
@@ -656,6 +665,12 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
 	 break;
    case PCLOpFOFSplitConjunct:
          fprintf(out, PCL_SC);
+         status = status_thm;
+	 needs_equality = false;
+         assert(expr->arg_no==1);
+         break;
+   case PCLOpSplitEquiv:
+         fprintf(out, PCL_SE);
          status = status_thm;
 	 needs_equality = false;
          assert(expr->arg_no==1);

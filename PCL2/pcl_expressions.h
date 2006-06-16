@@ -53,6 +53,7 @@ typedef enum
    PCLOpURewrite,
    PCLOpClauseNormalize,
    PCLOpSplitClause,
+   PCLOpSplitEquiv,
    PCLOpApplyDef,
    PCLOpFOFSplitConjunct,
    PCLOpFOFSimplify,
