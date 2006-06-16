@@ -104,6 +104,7 @@ typedef enum
    OPT_SPLIT_TYPES,
    OPT_SPLIT_HOW,
    OPT_SPLIT_AGGRESSIVE,
+   OPT_SPLIT_REUSE_DEFS,
    OPT_ORDERING,
    OPT_TO_WEIGHTGEN,
    OPT_TO_WEIGHTS,
@@ -658,8 +659,8 @@ OptCell opts[] =
     "argument is the binary 'OR' of values for the desired classes:\n"
     "     1:  Horn clauses\n"
     "     2:  Non-Horn clauses\n"
-    "     4:  Positive clauses\n"
-    "     8:  Negative clauses\n"
+    "     4:  Negative clauses\n"
+    "     8:  Positive clauses\n"
     "    16:  Clauses with both positive and negative literals\n"
     "Each set bit adds that class to the set of clauses which will be "
     "split."},
@@ -680,6 +681,11 @@ OptCell opts[] =
     "Apply splitting to new clauses (after simplification) and before "
     "evaluation. By default, splitting (if activated) is only "
     "performed on selected clauses. "},
+
+   {OPT_SPLIT_REUSE_DEFS,
+    '\0', "split-reuse-defs",
+    NoArg, NULL,
+    "If possible, reuse previous definitions for splitting."},
 
    {OPT_REWEIGHT_LIMIT,
     '\0', "reweight-limit",
@@ -1625,6 +1631,9 @@ CLState_p process_options(int argc, char* argv[])
 	    break;
       case OPT_SPLIT_AGGRESSIVE:
 	    h_parms->split_aggressive = true;
+	    break;
+      case OPT_SPLIT_REUSE_DEFS:
+	    h_parms->split_fresh_defs = false;
 	    break;
       case OPT_REWEIGHT_LIMIT:
 	    h_parms->reweight_limit = CLStateGetIntArg(handle, arg);

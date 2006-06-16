@@ -108,6 +108,7 @@ typedef struct heuristic_parms_cell
    SplitClassType      split_clauses;
    SplitType           split_method;
    bool                split_aggressive;
+   bool                split_fresh_defs;
 
    UnitSimplifyType    unproc_simplify;
    

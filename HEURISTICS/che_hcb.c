@@ -138,7 +138,7 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->split_clauses                 = SplitNone;
    handle->split_method                  = SplitGroundNone;
    handle->split_aggressive              = false;
-   handle->split_method                  = SplitGroundNone;
+   handle->split_fresh_defs              = true;
 
    handle->unproc_simplify               = NoUnitSimplify;
 
@@ -306,6 +306,7 @@ void HCBClauseEvaluate(HCB_p hcb, Clause_p clause)
    
    assert(clause->evaluations == NULL);
 #ifdef NEW_EVALUATIONS
+   /* printf("Wfcb_no: %d\n", hcb->wfcb_no); */
    ClauseAddEvalCell(clause, EvalsAlloc(hcb->wfcb_no));
    
    for(i=0; i< hcb->wfcb_no; i++)

@@ -331,7 +331,10 @@ int main(int argc, char* argv[])
    CLState_p       state;
    SpecFeatureCell features;
    FunCode         selected_symbol = 0;
-   
+   DefStore_p      def_store;
+   PermVector_p    perm;
+   long            symbols = 100; /* Temporary fix */
+
    assert(argv[0]);
    
    InitIO("eground");
@@ -346,8 +349,9 @@ int main(int argc, char* argv[])
       CLStateInsertArg(state, "-");
    }
    
-   sig     = SigAlloc();
-   terms   = TBAlloc(TPIgnoreProps, sig);
+   sig       = SigAlloc();
+   terms     = TBAlloc(TPIgnoreProps, sig);
+   def_store = DefStoreAlloc(terms);
    clauses = ClauseSetAlloc();
    for(i=0; state->argv[i]; i++)
    {
@@ -357,6 +361,12 @@ int main(int argc, char* argv[])
       DestroyScanner(in);
    }
    CLStateFree(state);
+
+   perm = PermVectorCompute(clauses,		    
+                            &FVIDefaultParameters,
+                            symbols);  
+   def_store->def_clauses->fvindex =
+      FVIAnchorAlloc(symbols, FVIDefaultParameters.features, perm);
 
    SpecFeaturesCompute(&features, clauses, sig);   
 
@@ -387,7 +397,7 @@ int main(int argc, char* argv[])
    {
       ClauseSet_p tmpset = ClauseSetAlloc();
     
-      ClauseSetSplitClausesGeneral(clauses, tmpset, split_tries-1);
+      ClauseSetSplitClausesGeneral(def_store, true, clauses, tmpset, split_tries-1);
       
       ClauseSetFree(clauses);
       clauses = tmpset;
@@ -485,6 +495,7 @@ int main(int argc, char* argv[])
    GroundSetFree(groundset);
    ClauseSetFree(clauses);
    terms->sig = NULL;
+   DefStoreFree(def_store);
    TBFree(terms);
    SigFree(sig);
 #endif

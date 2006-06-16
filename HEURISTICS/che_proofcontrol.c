@@ -160,36 +160,6 @@ ProofControl_p ProofControlAlloc(void)
    handle->hcb                           = NULL;
    HeuristicParmsInitialize(&handle->heuristic_parms);
 
-#ifdef NEVER_DEFINED
-   handle->forward_demod                 = FullRewrite;
-   handle->prefer_general                = false;
-   handle->er_varlit_destructive         = false;
-   handle->er_strong_destructive         = false;
-   handle->er_aggressive                 = false;
-   handle->prefer_initial_clauses        = false;
-   handle->select_on_proc_only           = false;
-   handle->inherit_paramod_lit           = false;
-   handle->inherit_goal_pm_lit           = false;
-   handle->ac_handling                   = ACDiscardAll;
-   handle->ac_res_aggressive             = true;
-   handle->ac_handling_active            = false;
-   handle->forward_context_sr            = false;
-   handle->forward_context_sr_aggressive = false;
-   handle->backward_context_sr           = false; 
-   handle->selection_strategy            = SelectNoLiterals;
-   handle->pos_lit_sel_min               = 0; 
-   handle->pos_lit_sel_max               = LONG_MAX; 
-   handle->neg_lit_sel_min               = 0; 
-   handle->neg_lit_sel_max               = LONG_MAX; 
-   handle->all_lit_sel_min               = 0; 
-   handle->all_lit_sel_max               = LONG_MAX; 
-   handle->weight_sel_min                = 0;
-   handle->split_clauses                 = SplitNone;
-   handle->split_method                  = SplitGroundNone;
-   handle->split_aggressive              = false;
-   handle->unproc_simplify               = NoUnitSimplify;
-   handle->watchlist_simplify            = true;
-#endif   
    return handle;
 }
 
