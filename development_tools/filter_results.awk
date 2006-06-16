@@ -24,7 +24,7 @@ BEGIN{
 
 function get_basename(name,     tmp)
 {
-   if(!match(name, /[A-Z]*[0-9]*[+-][0-9]*(\.[0-9]+)?/))
+   if(!match(name, /[^.]*/))
    {
       print "filter_results.awk: Cannot find problem basename in '" name "'";
    }   
