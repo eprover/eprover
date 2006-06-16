@@ -1617,40 +1617,48 @@ void DocClauseApplyDefs(FILE* out, long level, Clause_p clause,
                         Clause_p parent, PStack_p def_ids, char* comment)
 {
    PStackPointer i;
-   
-   switch(DocOutputFormat)
-   {
-   case pcl_format:
-	 pcl_print_start(out, clause);
-	 for(i=0; i<PStackGetSP(def_ids); i++)
-	 {
-	    fputs(PCL_AD"(", out);
-	 }
-	 fprintf(out, "%ld", parent->ident);
-	 for(i=0; i<PStackGetSP(def_ids); i++)
-	 {
-	    fprintf(out, ",%ld)", PStackElementInt(def_ids, i));
-	 }
-	 pcl_print_end(out, "split", clause);
-	 break;
-   case tstp_format:
-	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
-	 fputc(',', out);
-	 for(i=0; i<PStackGetSP(def_ids); i++)
-	 {
-	    fprintf(out,"inference("PCL_AD", [status(thm)],[");
-	 }
-	 fprintf(out, "c_0_%ld", parent->ident);
-	 for(i=0; i<PStackGetSP(def_ids); i++)
-	 {
-	    fprintf(out, ",c_0_%ld])", 
-		    PStackElementInt(def_ids, i));
-	 }
-	 tstp_print_end(out, "split", clause);
-	 break;
-    default:
-	 fprintf(out, "# Output format not implemented.\n");
-	 break;
+
+   assert(clause);
+   assert(parent);
+
+   if(level >= 2)
+   {      
+      switch(DocOutputFormat)
+      {
+      case pcl_format:
+            clause->ident = ++ClauseIdentCounter;
+            pcl_print_start(out, clause);
+            for(i=0; i<PStackGetSP(def_ids); i++)
+            {
+               fputs(PCL_AD"(", out);
+            }
+            fprintf(out, "%ld", parent->ident);
+            for(i=0; i<PStackGetSP(def_ids); i++)
+            {
+               fprintf(out, ",%ld)", PStackElementInt(def_ids, i));
+            }
+            pcl_print_end(out, "split", clause);
+            break;
+      case tstp_format:
+            clause->ident = ++ClauseIdentCounter;
+            ClauseTSTPPrint(out, clause, PCLFullTerms, false);
+            fputc(',', out);
+            for(i=0; i<PStackGetSP(def_ids); i++)
+            {
+               fprintf(out,"inference("PCL_AD", [status(thm)],[");
+            }
+            fprintf(out, "c_0_%ld", parent->ident);
+            for(i=0; i<PStackGetSP(def_ids); i++)
+            {
+               fprintf(out, ",c_0_%ld])", 
+                       PStackElementInt(def_ids, i));
+            }
+            tstp_print_end(out, "split", clause);
+            break;
+      default:
+            fprintf(out, "# Output format not implemented.\n");
+            break;
+      }
    }
 }
 
