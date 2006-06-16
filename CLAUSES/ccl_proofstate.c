@@ -75,10 +75,7 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop,
    ProofState_p handle = ProofStateCellAlloc();
 
    handle->signature           = SigAlloc();
-   if(FormulaTermEncoding)
-   {      
-      SigInsertFOFCodes(handle->signature);
-   }
+   SigInsertFOFCodes(handle->signature);
    handle->original_symbols    = 0;
    handle->original_terms      = TBAlloc(TPIgnoreProps, handle->signature);
    handle->terms               = TBAlloc(TPRestricted, handle->signature);
@@ -100,8 +97,9 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop,
    handle->demods[0]           = handle->processed_pos_rules;
    handle->demods[1]           = handle->processed_pos_eqns;
    handle->demods[2]           = NULL;
-   handle->watchlist          = NULL;
+   handle->watchlist           = NULL;
    handle->state_is_complete   = true;
+   handle->definition_store    = DefStoreAlloc(handle->terms);
    handle->processed_count     = 0;
    handle->proc_trivial_count           = 0; 
    handle->proc_forward_subsumed_count  = 0; 
@@ -263,6 +261,7 @@ void ProofStateFree(ProofState_p junk)
    {
       ClauseSetFree(junk->watchlist);
    }
+   DefStoreFree(junk->definition_store);
    junk->original_terms->sig = NULL;
    junk->terms->sig = NULL;
    junk->tmp_terms->sig = NULL;
@@ -300,6 +299,7 @@ void ProofStateGCMarkTerms(ProofState_p state)
    {
       ClauseSetGCMarkTerms(state->watchlist);
    }
+   ClauseSetGCMarkTerms(state->definition_store->def_clauses);
 }
 
 

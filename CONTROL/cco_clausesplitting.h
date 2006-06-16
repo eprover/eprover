@@ -36,8 +36,9 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-int  ControlledClauseSplit(Clause_p clause, ClauseSet_p set,
-			   SplitClassType which, SplitType how);
+int  ControlledClauseSplit(DefStore_p store, Clause_p clause, 
+                           ClauseSet_p set, SplitClassType which, 
+                           SplitType how, bool fresh_defs);
 
 
 

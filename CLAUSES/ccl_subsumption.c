@@ -792,7 +792,7 @@ Clause_p clause_set_subsumes_clause_indexed(FVIndex_p index,
 
 /*-----------------------------------------------------------------------
 //
-// Function: clause_tree_find_subsumed_clause()
+// Function: clause_tree_find_subsumed_clauses()
 //
 //   Given a PTree of clauses and a clause, push all subsumed clauses
 //   onto res.
@@ -905,6 +905,89 @@ void clauseset_find_subsumed_clauses_indexed(FVIndex_p index,
       IntMapIterFree(iter);
    }   
 }
+
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: clause_tree_find_variant_clause()
+//
+//   Given a PTree of clauses and a clause, return a variant clause
+//   or NULL
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+static
+Clause_p clause_tree_find_variant_clause(PTree_p tree, Clause_p cand)
+{
+   Clause_p clause;
+   
+   assert(cand->weight == ClauseStandardWeight(cand));
+
+   if(!tree)
+   {
+      return NULL;
+   }
+   clause = tree->key;
+   if(clause_subsumes_clause(clause,cand) &&
+      clause_subsumes_clause(cand, clause))
+   {
+      return clause;
+   }
+   clause =  clause_tree_find_variant_clause(tree->lson, cand);
+   if(clause)
+   {
+      return clause;
+   }
+   return clause_tree_find_variant_clause(tree->rson, cand);
+}
+
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: clauseset_find_variant_clause_indexed()
+//
+//   Find and return a variant of the clause represented by vec in set
+//   (if any such clause exists), return NULL otherwise.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static 
+Clause_p clauseset_find_variant_clause_indexed(FVIndex_p index, 
+                                               FreqVector_p vec, 
+                                               long feature)
+{
+   Clause_p res = NULL;
+   FVIndex_p next;
+   
+   if(feature == vec->size)
+   {
+      res = clause_tree_find_variant_clause(index->u1.clauses,
+                                            vec->clause);
+   }
+   else if(index->u1.successors)
+   {
+      next = IntMapGetVal(index->u1.successors, vec->array[feature]);
+      if(next && next->clause_count)
+      {
+         res = clauseset_find_variant_clause_indexed(next, vec, 
+                                                     feature+1);
+      }
+   }
+   return res;
+}   
+
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -1331,6 +1414,58 @@ long ClauseSetFindSubsumedClauses(ClauseSet_p set,
    return found;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetFindFVVariantClause()
+//
+//   Given a (FVPacked) clause and a clause set, find variant of the
+//   clause and return it if successful. Otherwise return NULL.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Clause_p ClauseSetFindFVVariantClause(ClauseSet_p set, 
+                                      FVPackedClause_p clause)
+{
+   assert(set->fvindex);
+
+   return clauseset_find_variant_clause_indexed(set->fvindex->index,
+                                                clause, 0);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetFindVariantClause()
+//
+//   Find and return a variant of clause in set (or 0 if none
+//   exists). 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+   
+Clause_p ClauseSetFindVariantClause(ClauseSet_p set, 
+                                    Clause_p clause)
+{
+   FVPackedClause_p pclause;
+   Clause_p res;
+
+   assert(clause->weight == ClauseStandardWeight(clause));
+   
+   pclause = FVIndexPackClause(clause, set->fvindex);
+   
+   res = ClauseSetFindFVVariantClause(set, pclause);
+   
+   FVUnpackClause(pclause);
+   ENSURE_NULL(pclause);
+   return res;
+}
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

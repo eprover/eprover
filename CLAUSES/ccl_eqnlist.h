@@ -63,6 +63,7 @@ void    EqnListInsertElement(EqnRef pos, Eqn_p element);
 #define EqnListInsertFirst(list, element)\
         EqnListInsertElement((list), (element))
 Eqn_p   EqnListAppend(EqnRef list, Eqn_p newpart);
+Eqn_p   EqnListFlatCopy(Eqn_p list);
 Eqn_p   EqnListCopy(Eqn_p list, TB_p bank);
 Eqn_p   EqnListCopyExcept(Eqn_p list, Eqn_p except, TB_p bank);
 Eqn_p   EqnListCopyRepl(Eqn_p list, TB_p bank, Term_p old, Term_p repl);

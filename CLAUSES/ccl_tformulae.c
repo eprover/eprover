@@ -879,6 +879,64 @@ TFormula_p TFormulaCreateDef(TB_p bank, TFormula_p def_atom, TFormula_p defined,
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaClauseEncode()
+//
+//   Given a clause, return a TFormula representing it. Quantors are
+//   not added for the universal closure!
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations, changes bank
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p TFormulaClauseEncode(TB_p bank, Clause_p clause)
+{
+   TFormula_p res = NULL, tmp;
+   Eqn_p      handle;
+   
+   assert(clause);
+   if(ClauseIsEmpty(clause))
+   {
+      res = TFormulaPropConstantAlloc(bank, false);
+   }
+   else
+   {
+      res = TFormulaLitAlloc(clause->literals);
+      for(handle = clause->literals->next;
+          handle;
+          handle = handle->next)
+      {
+         tmp = TFormulaLitAlloc(handle);
+         res = TFormulaFCodeAlloc(bank, bank->sig->or_code, res, tmp);         
+      }
+   }   
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaClauseClosedEncode()
+//
+//   Generate a tform-representation of clause with explicit
+//   universal quantification.
+//
+// Global Variables: -
+//
+// Side Effects    : Via TFormulaClauseEncode(), Memory operations
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p TFormulaClauseClosedEncode(TB_p bank, Clause_p clause)
+{
+   TFormula_p res = TFormulaClauseEncode(bank, clause);
+
+   res = TFormulaClosure(bank, res, true);
+   return res;
+}
 
 
 /*---------------------------------------------------------------------*/

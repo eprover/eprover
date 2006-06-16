@@ -70,6 +70,13 @@ long     ClauseSetFindFVSubsumedClauses(ClauseSet_p set,
 long     ClauseSetFindSubsumedClauses(ClauseSet_p set, 
 				      Clause_p subsumer, 
 				      PStack_p res);
+
+Clause_p ClauseSetFindFVVariantClause(ClauseSet_p set, 
+                                     FVPackedClause_p clause);
+
+Clause_p ClauseSetFindVariantClause(ClauseSet_p set, 
+                                   Clause_p clause);
+
 #endif
 
 /*---------------------------------------------------------------------*/

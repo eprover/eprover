@@ -29,7 +29,7 @@ Changes
 #define CTO_PROOFSTATE
 
 #include <cio_output.h>
-#include <ccl_clausesets.h>
+#include <ccl_def_handling.h>
 #include <ccl_formula_wrapper.h>
 
 
@@ -58,6 +58,7 @@ typedef struct proofstatecell
    ClauseSet_p       demods[3];
    ClauseSet_p       watchlist;
    bool              state_is_complete;
+   DefStore_p        definition_store;
    ulong_c           processed_count;
    ulong_c           proc_trivial_count;
    ulong_c           proc_forward_subsumed_count;

@@ -423,6 +423,37 @@ Eqn_p EqnListAppend(EqnRef list, Eqn_p newpart)
 }
 
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: EqnListFlatCopy()
+//
+//   Return a flat copy of the given list, reusing the existing terms.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+Eqn_p EqnListFlatCopy(Eqn_p list)
+{
+   Eqn_p  newlist = NULL;
+   EqnRef insert = &newlist;
+
+   while(list)
+   {  
+      *insert = EqnAlloc(list->lterm, list->rterm, list->bank, 
+                         EqnIsPositive(list));
+      insert = &((*insert)->next);
+      list = list->next;
+   }
+   *insert = NULL;
+   
+   return newlist;
+}
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: EqnListCopy()

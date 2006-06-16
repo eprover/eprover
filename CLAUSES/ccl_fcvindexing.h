@@ -73,6 +73,8 @@ typedef struct fvi_anchor_cell
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+extern FVIndexParmsCell FVIDefaultParameters;
+
 #define FVIndexParmsCellAlloc() (FVIndexParmsCell*)SizeMalloc(sizeof(FVIndexParmsCell))
 #define FVIndexParmsCellFree(junk) SizeFree(junk, sizeof(FVIndexParmsCell))
 

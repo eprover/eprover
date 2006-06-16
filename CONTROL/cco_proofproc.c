@@ -490,10 +490,12 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
 	 continue;
       }
       if(control->heuristic_parms.split_aggressive &&
-	 (clause_count = ControlledClauseSplit(handle,
+	 (clause_count = ControlledClauseSplit(state->definition_store,
+                                               handle,
 					       state->tmp_store,
 					       control->heuristic_parms.split_clauses,
-					       control->heuristic_parms.split_method)))
+					       control->heuristic_parms.split_method,
+                                               control->heuristic_parms.split_fresh_defs)))
       {
 	 state->generated_count += clause_count;
 	 continue;
@@ -756,18 +758,22 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
 
    if(!state->fvi_initialized)
    {
+      long symbols;
+      PermVector_p perm;
+
       state->fvi_initialized = true;
       state->original_symbols = state->signature->f_count;
       
+      symbols = MIN(state->original_symbols+control->fvi_parms.symbol_slack, 
+                    control->fvi_parms.max_symbols);     
+      perm = PermVectorCompute(state->axioms,		    
+                               (control->fvi_parms.features != FVINoFeatures)?
+                               &(control->fvi_parms):&FVIDefaultParameters,
+                               symbols);  
       if(control->fvi_parms.features != FVINoFeatures)
       {
-         long symbols = MIN(state->original_symbols+control->fvi_parms.symbol_slack, 
-                            control->fvi_parms.max_symbols);     
-         PermVector_p perm = PermVectorCompute(state->axioms,		    
-                                               &(control->fvi_parms),
-                                               symbols);  
          state->processed_non_units->fvindex =
-            FVIAnchorAlloc(symbols, control->fvi_parms.features, perm);
+            FVIAnchorAlloc(symbols, control->fvi_parms.features, PermVectorCopy(perm));
          state->processed_pos_rules->fvindex =
             FVIAnchorAlloc(symbols, control->fvi_parms.features, PermVectorCopy(perm));
          state->processed_pos_eqns->fvindex =
@@ -783,6 +789,9 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
 	 ClauseSetNewTerms(state->watchlist, state->terms);
          }
       }
+      state->definition_store->def_clauses->fvindex =
+         FVIAnchorAlloc(symbols, control->fvi_parms.features, perm);
+      
    }
 }
 
@@ -858,9 +867,11 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
       state->resolv_count += clause_count;
       pclause->clause = NULL;
    }
-   else if(ControlledClauseSplit(pclause->clause, state->tmp_store,
+   else if(ControlledClauseSplit(state->definition_store,
+                                 pclause->clause, state->tmp_store,
 				 control->heuristic_parms.split_clauses,
-				 control->heuristic_parms.split_method))
+				 control->heuristic_parms.split_method,
+				 control->heuristic_parms.split_fresh_defs))
    {
       pclause->clause = NULL;
    }

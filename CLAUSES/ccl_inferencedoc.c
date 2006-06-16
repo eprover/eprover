@@ -1512,6 +1512,152 @@ void DocFormulaIntroDefs(FILE* out, long level, WFormula_p form,
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: DocIntroSplitDef()
+//
+//   Print a split definition that defines the constant predicate
+//   represented by def_pred as the (universal closure of)
+//   clause_part. 
+//
+// Global Variables: -
+//
+// Side Effects    : Sets new id in clause (if output is active)
+//
+/----------------------------------------------------------------------*/
+
+void DocIntroSplitDef(FILE* out, long level, Clause_p clause, 
+                      Eqn_p def_lit, char* comment)   
+{
+   assert(clause->literals);
+   if(level >= 2)
+   {
+      TFormula_p def, lit;
+      TB_p bank = def_lit->bank;
+      WFormula_p def_wrapper;
+
+      EqnFlipProp(def_lit, EPIsPositive);
+      lit = TFormulaLitAlloc(def_lit);
+      def = TFormulaClauseClosedEncode(bank, clause);
+      def = TFormulaFCodeAlloc(bank, bank->sig->equiv_code, lit, def);
+      def_wrapper = WTFormulaAlloc(bank, def);
+
+      DocFormulaCreation(out, level, 
+                         def_wrapper, 
+                         inf_fof_intro_def,
+                         NULL,
+                         NULL,
+                         "split");
+      clause->ident = def_wrapper->ident;      
+      WFormulaFree(def_wrapper);
+      EqnFlipProp(def_lit, EPIsPositive);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: DocIntroSplitDefRest()
+//
+//   Print the clause representation of the expanding implication of
+//   a definition.
+//
+// Global Variables: -
+//
+// Side Effects    : Sets new id in clause (if output is active)
+//
+/----------------------------------------------------------------------*/
+
+void DocIntroSplitDefRest(FILE* out, long level, Clause_p clause, 
+                          Clause_p parent, char* comment)   
+{
+   assert(clause);
+   assert(parent);
+   assert(clause->literals);
+   if(level >= 2)
+   {
+      switch(DocOutputFormat)
+      {
+      case pcl_format:
+            clause->ident = ++ClauseIdentCounter;
+            pcl_print_start(out, clause);
+            fprintf(out, PCL_SE "(%ld)", parent->ident);
+            pcl_print_end(out, NULL, clause);
+            break;
+      case tstp_format:
+            clause->ident = ++ClauseIdentCounter;
+            ClauseTSTPPrint(out, clause, PCLFullTerms, false);
+            fprintf(out, ",inference("PCL_SE", [status(thm)],[c_0_%ld])", 
+                    parent->ident);
+            tstp_print_end(out, NULL, clause);
+	 break;
+            break;
+      default:
+            fprintf(out, "# Output format not implemented.\n");
+            break;
+      }
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: DocClauseApplyDefs()
+//
+//   Print the clause derivation describing the application of the
+//   definitions in def_ids to parent. 
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void DocClauseApplyDefs(FILE* out, long level, Clause_p clause,
+                        Clause_p parent, PStack_p def_ids, char* comment)
+{
+   PStackPointer i;
+   
+   switch(DocOutputFormat)
+   {
+   case pcl_format:
+	 pcl_print_start(out, clause);
+	 for(i=0; i<PStackGetSP(def_ids); i++)
+	 {
+	    fputs(PCL_AD"(", out);
+	 }
+	 fprintf(out, "%ld", parent->ident);
+	 for(i=0; i<PStackGetSP(def_ids); i++)
+	 {
+	    fprintf(out, ",%ld)", PStackElementInt(def_ids, i));
+	 }
+	 pcl_print_end(out, "split", clause);
+	 break;
+   case tstp_format:
+	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
+	 fputc(',', out);
+	 for(i=0; i<PStackGetSP(def_ids); i++)
+	 {
+	    fprintf(out,"inference("PCL_AD", [status(thm)],[");
+	 }
+	 fprintf(out, "c_0_%ld", parent->ident);
+	 for(i=0; i<PStackGetSP(def_ids); i++)
+	 {
+	    fprintf(out, ",c_0_%ld])", 
+		    PStackElementInt(def_ids, i));
+	 }
+	 tstp_print_end(out, "split", clause);
+	 break;
+    default:
+	 fprintf(out, "# Output format not implemented.\n");
+	 break;
+   }
+}
+
+
+
+
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

@@ -48,7 +48,7 @@ typedef enum
    inf_ac_resolution,
    inf_minimize,
    inf_rewrite,
-
+   
    inf_fof_simpl,
    inf_fof_nnf,
    inf_fof_intro_def,
@@ -87,6 +87,7 @@ typedef enum
 #define PCL_CN    "cn"
 
 #define PCL_SC    "split_conjunct"
+#define PCL_SE    "split_equiv"
 #define PCL_FS    "fof_simplification"
 #define PCL_NNF   "fof_nnf"
 #define PCL_ID    "introduced"
@@ -157,6 +158,23 @@ void    DocFormulaIntroDefs(FILE* out, long level, WFormula_p form,
                             PStack_p def_list, char* comment);
 #define DocFormulaIntroDefsDefault(form, def_list)\
         DocFormulaIntroDefs(GlobalOut, OutputLevel, (form), (def_list), NULL)
+
+
+void    DocIntroSplitDef(FILE* out, long level, Clause_p clause, 
+                         Eqn_p def_lit, char* comment);
+#define DocIntroSplitDefDefault(clause, def_lit)\
+        DocIntroSplitDef(GlobalOut, OutputLevel, (clause), (def_lit), NULL)
+
+void    DocIntroSplitDefRest(FILE* out, long level, Clause_p clause, 
+                             Clause_p parent, char* comment);
+#define DocIntroSplitDefRestDefault(clause, parent)\
+        DocIntroSplitDefRest(GlobalOut, OutputLevel, (clause), (parent), NULL)
+
+void    DocClauseApplyDefs(FILE* out, long level, Clause_p clause, 
+                           Clause_p parent, PStack_p def_ids, 
+                           char* comment);
+#define DocClauseApplyDefsDefault(clause, parent, def_ids)\
+        DocClauseApplyDefs(GlobalOut, OutputLevel, (clause), (parent), (def_ids), NULL);
 
 #endif
 

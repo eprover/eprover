@@ -28,6 +28,15 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
+FVIndexParmsCell FVIDefaultParameters =
+{
+   FVIACFeatures,
+   true,
+   false,
+   FVINDEX_MAX_FEATURES_DEFAULT,
+   FVINDEX_SYMBOL_SLACK_DEFAULT,
+};
+
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -91,11 +100,7 @@ static FVIndex_p insert_empty_node(FVIndex_p node, FVIAnchor_p anchor, long key)
 
 void FVIndexParmsInit(FVIndexParms_p parms)
 {
-   parms->features                = FVIACFeatures;
-   parms->use_perm_vectors        = true;
-   parms->eleminate_uninformative = false;
-   parms->max_symbols             = FVINDEX_MAX_FEATURES_DEFAULT;
-   parms->symbol_slack            = FVINDEX_SYMBOL_SLACK_DEFAULT;
+   *parms = FVIDefaultParameters;
 }
 
 /*-----------------------------------------------------------------------

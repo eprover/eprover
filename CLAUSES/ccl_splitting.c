@@ -42,52 +42,6 @@ Changes
 
 /*-----------------------------------------------------------------------
 //
-// Function: gen_split_lit()
-//
-//   Generate a split literal with terms from bank.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-static Eqn_p gen_split_lit(TB_p bank, FunCode pred, bool positive,
-			  PStack_p split_vars)
-{
-   Term_p lside;
-   Eqn_p  res;
-
-   assert(bank);assert(pred > 0);
-   assert(SigFindArity(bank->sig, pred) == PStackGetSP(split_vars));
-   
-   if(PStackEmpty(split_vars))
-   {
-      lside = TermConstCellAlloc(pred);
-   }
-   else
-   {
-      int arity = PStackGetSP(split_vars), i;
-      
-      lside = TermDefaultCellAlloc();
-      lside->f_code = pred;
-      lside->arity = arity;
-      lside->args = TermArgArrayAlloc(arity);
-      for(i=0; i<arity; i++)
-      {
-	 lside->args[i] = PStackElementP(split_vars, i);
-      }
-   }   
-   lside = TBTermTopInsert(bank, lside);
-   res = EqnAlloc(lside, bank->true_term, bank, positive);
-   EqnSetProp(res, EPIsSplitLit);
-   
-   return res;
-}
-
-
-/*-----------------------------------------------------------------------
-//
 // Function: initialize_lit_table()
 //
 //   Initialize the literal table.
@@ -219,6 +173,10 @@ static void build_part(LitSplitDesc_p lit_table, int lit_no, int
 //   variables but those in the set X and the Ti
 //   are _new_ predicate symbols. X is a parameter to the function!
 //
+//   If fresh_defs is false (and split_vars is empty), try if an
+//   existing definition already covers any of the parts and reuse it,
+//   otherwise always use fresh definitions.
+//
 // Global Variables: -
 //
 // Side Effects    : Memory allocation, if successful, destroys
@@ -226,15 +184,17 @@ static void build_part(LitSplitDesc_p lit_table, int lit_no, int
 //
 /----------------------------------------------------------------------*/
 
-int clause_split_general(Clause_p clause, ClauseSet_p set, SplitType
-			 how, PStack_p split_vars)
+int clause_split_general(DefStore_p store, Clause_p clause, 
+                         ClauseSet_p set, SplitType how, 
+                         bool fresh_defs, PStack_p split_vars)
 {
    int              res = 0, part = 0,i,j,size, lit_no, split_var_no;
    LitSplitDesc_p   lit_table;
    Eqn_p            handle,tmp, join;
    FunCode          new_pred;
+   long             def_id;
    TB_p             bank;
-   Clause_p         new;
+   Clause_p         new_clause;
    ClauseProperties props;
 
    assert(clause);
@@ -288,12 +248,9 @@ int clause_split_general(Clause_p clause, ClauseSet_p set, SplitType
    {
       Clause_p parent1 = clause->parent1;
       Clause_p parent2 = clause->parent2;
+      PStack_p def_stack = PStackAlloc();
 
       ClauseDetachParents(clause);
-      
-      /* fprintf(GlobalOut, "# SplitI: ");
-      ClausePrint(GlobalOut, clause, true);
-      fputc('\n', GlobalOut); */
       
       
       /* Build split clauses from original literals */
@@ -302,65 +259,103 @@ int clause_split_general(Clause_p clause, ClauseSet_p set, SplitType
 				  clauses, clause skeleton is
 				  deallocated below */
       for(i=1; i<=part; i++)
-      {
-	 new_pred = SigGetNewPredicateCode(bank->sig, split_var_no);
-	 tmp    = gen_split_lit(bank, new_pred, false, split_vars);
+      {   
+         if(split_var_no)
+         {
+            /* Get new predicate code */
+            new_pred = SigGetNewPredicateCode(bank->sig,
+                                              split_var_no); 
+            
+            /* Create definition clause (for maintaining completeness) */
+            handle = GenDefLit(bank, new_pred, true, split_vars);
+            assert(!handle->next);
+
+            for(j=0; j<lit_no; j++)
+            {
+               if(lit_table[j].part == i)
+               {
+                  tmp = lit_table[j].literal;
+                  tmp->next = handle; 
+                  handle = tmp;
+               }
+            }
+            new_clause = ClauseAlloc(handle);
+            assert(new_clause);
+
+            def_id = new_clause->ident;
+            assert(def_id);
+            assert(new_pred);
+         }
+         else            
+         {
+            /* Create definition clause (for maintaining completeness) */
+            handle = NULL;
+            for(j=0; j<lit_no; j++)
+            {
+               if(lit_table[j].part == i)
+               {
+                  tmp = lit_table[j].literal;
+                  tmp->next = handle; 
+                  handle = tmp;
+               }
+            }
+            new_clause = GetDefinition(store, handle, 
+                                       &new_pred, fresh_defs, &def_id);
+            assert(def_id);
+            assert(new_pred);            
+         }
+         PStackPushInt(def_stack, def_id);
+
+         if(new_clause)
+         {
+            /* Fix clause properties */
+
+            new_clause->properties = props;
+            /* Note: Potentially recycled definitions have no real
+               parents, as they are conceptually introduced ad-hoc and
+               can be reused for many other clauses. */
+            if(parent1 && fresh_defs)
+            {
+               new_clause->parent1 = parent1;
+               ClauseRegisterChild(parent1, new_clause);
+            }
+            if(parent2 && fresh_defs)
+            {
+               new_clause->parent2 = parent2;
+               ClauseRegisterChild(parent2, new_clause);
+            }
+            
+            /* Insert result clause */
+            ClauseSetInsert(set, new_clause);
+
+            /* Document creation -> Now done in ccl_def_handling.c*/
+            /* DocClauseCreationDefault(new_clause, inf_split, clause,
+               NULL); */
+         }
+         /* Extend remainder clause (after application of definition) */
+	 tmp       = GenDefLit(bank, new_pred, false, split_vars);
 	 tmp->next = join;
 	 join = tmp;
-	 handle = gen_split_lit(bank, new_pred, true, split_vars);
-	 for(j=0; j<lit_no; j++)
-	 {
-	    if(lit_table[j].part == i)
-	    {
-	       tmp = lit_table[j].literal;
-	       tmp->next = handle; 
-	       handle = tmp;
-	    }
-	 }
-	 new = ClauseAlloc(handle);
-	 new->properties = props;
-	 if(parent1)
-	 {
-	    new->parent1 = parent1;
-	    ClauseRegisterChild(parent1, new);
-	 }
-	 if(parent2)
-	 {
-	    new->parent2 = parent2;
-	    ClauseRegisterChild(parent2, new);
-	 }
-	 ClauseSetInsert(set, new);
-	 /* if(OutputLevel>=1)
-	    {
-	    fprintf(GlobalOut, "# Split1: ");
-	    ClausePrint(GlobalOut, new, true);
-	    fputc('\n',GlobalOut);
-	    }*/
-	 DocClauseCreationDefault(new, inf_split, clause, NULL);
       }
-      new = ClauseAlloc(join);
-      new->properties = props;
+      new_clause = ClauseAlloc(join);
+      new_clause->properties = props;
       if(parent1)
       {
-	 new->parent1 = parent1;
-	 ClauseRegisterChild(parent1, new);
+	 new_clause->parent1 = parent1;
+	 ClauseRegisterChild(parent1, new_clause);
       }
       if(parent2)
       {
-	 new->parent2 = parent2;
-	 ClauseRegisterChild(parent2, new);
+	 new_clause->parent2 = parent2;
+	 ClauseRegisterChild(parent2, new_clause);
       }
-      ClauseSetInsert(set, new);
-      /* if(OutputLevel>=1)
-      {
-	 fprintf(GlobalOut, "# Split2: ");
-	 ClausePrint(GlobalOut, new, true);
-	 fputc('\n',GlobalOut);
-	 }*/
-      DocClauseCreationDefault(new, inf_split, clause, NULL);
+      ClauseSetInsert(set, new_clause);
+      /* DocClauseCreationDefault(new_clause, inf_split, clause, NULL); */
+      DocClauseApplyDefsDefault(new_clause, clause, def_stack);
       ClauseFree(clause);      /* We still retain the literals in the
 				  split clauses! */
       res = part+1;
+      PStackFree(def_stack);
    }
    for(i=0; i<lit_no; i++)
    {
@@ -491,12 +486,13 @@ bool ClauseHasSplitLiteral(Clause_p clause)
 //
 /----------------------------------------------------------------------*/
 
-int ClauseSplit(Clause_p clause, ClauseSet_p set, SplitType how)
+int ClauseSplit(DefStore_p store, Clause_p clause, ClauseSet_p set, 
+                SplitType how, bool fresh_defs)
 {
    int res ;
    PStack_p dummy = PStackAlloc();
    
-   res = clause_split_general(clause, set, how, dummy);
+   res = clause_split_general(store, clause, set, how, fresh_defs, dummy);
    PStackFree(dummy);
    return res;
 }
@@ -518,14 +514,15 @@ int ClauseSplit(Clause_p clause, ClauseSet_p set, SplitType how)
 //
 /----------------------------------------------------------------------*/
 
-int ClauseSplitGeneral(Clause_p clause, ClauseSet_p set, long tries)
+int ClauseSplitGeneral(DefStore_p store, bool fresh_defs, 
+                       Clause_p clause, ClauseSet_p set, long tries)
 {
    int res, var_no, set_size;
    PStackPointer i;
    PStack_p vars, split_vars, permute_stack;
    PTree_p  vars_tree = NULL;
 
-   res =  ClauseSplit(clause, set, SplitGroundOne);
+   res =  ClauseSplit(store, clause, set, SplitGroundOne, fresh_defs);
    if(res)
    {
       return res;
@@ -557,7 +554,8 @@ int ClauseSplitGeneral(Clause_p clause, ClauseSet_p set, long tries)
 		     PStackElementP(vars,
 				    PStackElementInt(permute_stack, i)));	 
       }
-      res = clause_split_general(clause, set, SplitGroundNone, split_vars);
+      res = clause_split_general(store, clause, set, SplitGroundNone, 
+                                 fresh_defs, split_vars);
       if(res)
       {
 	 break;
@@ -592,8 +590,8 @@ int ClauseSplitGeneral(Clause_p clause, ClauseSet_p set, long tries)
 //
 /----------------------------------------------------------------------*/
 
-long ClauseSetSplitClauses(ClauseSet_p from_set, ClauseSet_p to_set,
-			  SplitType how)
+long ClauseSetSplitClauses(DefStore_p store, ClauseSet_p from_set, 
+                           ClauseSet_p to_set, SplitType how, bool fresh_defs)
 {
    long res=0, tmp;
    Clause_p handle;
@@ -603,7 +601,7 @@ long ClauseSetSplitClauses(ClauseSet_p from_set, ClauseSet_p to_set,
    while(!ClauseSetEmpty(from_set))
    {
       handle = ClauseSetExtractFirst(from_set);
-      tmp = ClauseSplit(handle, to_set, how);
+      tmp = ClauseSplit(store, handle, to_set, how, fresh_defs);
       if(!tmp)
       {
 	 ClauseSetInsert(to_set, handle);
@@ -627,8 +625,9 @@ long ClauseSetSplitClauses(ClauseSet_p from_set, ClauseSet_p to_set,
 //
 /----------------------------------------------------------------------*/
 
-long ClauseSetSplitClausesGeneral(ClauseSet_p from_set, ClauseSet_p
-				 to_set, long tries)
+long ClauseSetSplitClausesGeneral(DefStore_p store, bool fresh_defs, 
+                                  ClauseSet_p from_set, 
+                                  ClauseSet_p to_set, long tries)
 {
    long res=0, tmp;
    Clause_p handle;
@@ -638,7 +637,7 @@ long ClauseSetSplitClausesGeneral(ClauseSet_p from_set, ClauseSet_p
    while(!ClauseSetEmpty(from_set))
    {
       handle = ClauseSetExtractFirst(from_set);
-      tmp = ClauseSplitGeneral(handle, to_set, tries);
+      tmp = ClauseSplitGeneral(store, fresh_defs, handle, to_set, tries);
       if(!tmp)
       {
 	 ClauseSetInsert(to_set, handle);
