@@ -32,7 +32,7 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-/*  cvs tag E-0-91dev002 */
+/*  cvs tag E-0-91dev003 */
 #define VERSION      "0.91dev003"
 #define NAME         "eprover"
 
