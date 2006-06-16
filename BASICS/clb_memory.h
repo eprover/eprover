@@ -188,7 +188,7 @@ static __inline__ void* SizeMallocReal(size_t size)
    size_malloc_count++;
    #endif
    #ifdef CLB_MEMORY_DEBUG2
-   printf("\nBlock %p A: size %d\n", handle, size);
+   printf("\nBlock %p A: size %zd\n", handle, size);
    #endif
    return handle;
 }   
@@ -217,7 +217,7 @@ static __inline__ void SizeFreeReal(void* junk, size_t size)
    assert(junk!=NULL);
 
    #ifdef CLB_MEMORY_DEBUG2
-   printf("\nBlock %p D: size %d\n", junk, size);
+   printf("\nBlock %p D: size %zd\n", junk, size);
    #endif
 
    mem_index = size - sizeof(MemCell);
