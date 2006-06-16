@@ -2,7 +2,7 @@
 
 # Usage: sequential_eprover.awk <spec_file>
 #
-# Copyright 1998-2002 Stephan Schulz, schulz@informatik.tu-muenchen.de
+# Copyright 1998-2006 Stephan Schulz, schulz@informatik.tu-muenchen.de
 #
 # Read a specification file describing a set of parameters and a list
 # of problems, and run a sequential test of the prover over the
