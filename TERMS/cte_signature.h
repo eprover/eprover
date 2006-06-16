@@ -92,7 +92,7 @@ typedef struct sigcell
    PStack_p  ac_axioms; /* Identifiers of all recognized AC axioms */
    /* The following are special symbols needed for pattern
       manipulation. We want very efficient access to them! Also
-      resuses in FOF parsing. */
+      resused in FOF parsing. */
    FunCode   eqn_code;
    FunCode   neqn_code;
    FunCode   cnil_code;
