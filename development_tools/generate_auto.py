@@ -717,7 +717,7 @@ while class_list_iter:
         result[i] = h
         class_list_iter.remove(i)
     used.append(h)
-    myused[h] = True
+    myused[h] = 1
 
 
 # Now we might want to do some post-optimization....or not!
@@ -734,7 +734,7 @@ if optimize_large_class_limit > 0:
             # print "Heuristic for "+cand+" changed from "+tmp+" to "+h
             if not h in myused:
                 used.append(h)
-                myused[h] = True
+                myused[h] = 1
 
 # And now we print the results
 
