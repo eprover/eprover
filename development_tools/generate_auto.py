@@ -186,6 +186,7 @@ match_pic_l     = re.compile(" --prefer-initial-clauses")
 match_split_l   = re.compile(" --split-clauses=")
 match_splitm_l  = re.compile(" --split-method=")
 match_splita_l  = re.compile(" --split-aggressive")
+match_splitr_l  = re.compile(" --split-reuse-defs")
 match_der_l     = re.compile(" --destructive-er")
 match_sder_l    = re.compile(" --strong-destructive-er")
 match_dera_l    = re.compile(" --destructive-er-aggressive")
@@ -306,6 +307,10 @@ def parse_control_info(line):
     m = match_splita_l.search(line)
     if m:
         res = res+ "      control->heuristic_parms.split_aggressive=true;\n"
+
+    m = match_splita_r.search(line)
+    if m:
+        res = res+ "      control->heuristic_parms.split_fresh_defs=false;\n"
 
     #
     # Destructive equality resolution parameters
