@@ -39,7 +39,7 @@ def compute_problem_stem(key):
     if not mr:
         raise RuntimeError, "Problem name has no extension (?!?) <" + key+">"
     res = key[0:mr.start()]
-    # print key + " : " + res
+    print key + " : " + res
     return res;
 
 # Parse a class file into the problems dictionary, return class size
@@ -308,7 +308,7 @@ def parse_control_info(line):
     if m:
         res = res+ "      control->heuristic_parms.split_aggressive=true;\n"
 
-    m = match_splita_r.search(line)
+    m = match_splitr_l.search(line)
     if m:
         res = res+ "      control->heuristic_parms.split_fresh_defs=false;\n"
 
