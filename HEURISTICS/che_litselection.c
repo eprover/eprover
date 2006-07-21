@@ -544,7 +544,8 @@ int lit_eval_compare(const void* le1, const void* le2)
 // Function: generic_uniq_selection()
 //
 //   Function implementing generic weight-based selection for cases
-//   where at most one negative literal is selected.
+//   where at most one negative literal is selected (the one which is
+//   assigned minimal weight by weight_fun).
 //
 // Global Variables: -
 //
@@ -4860,7 +4861,7 @@ static void new_complex_notp_ahp(LitEval_p lit, Clause_p clause,
       }
    }
    lit->w3 = 0;
-   if(lit->literal->lterm->f_code > 0)
+   if(!TermIsVar(lit->literal->lterm))
    {
       lit->w3 = PDArrayElementInt(pd, lit->literal->lterm->f_code);
    }
