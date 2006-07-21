@@ -654,7 +654,7 @@ TFormula_p TFormulaTSTPParse(Scanner_p in, TB_p terms)
    else if(TestInpTok(in, FOFBinOp))
    {
       op = tptp_operator_parse(terms->sig, in);
-      f2 = TFormulaTPTPParse(in, terms);
+      f2 = literal_tform_tstp_parse(in, terms);
       res = TFormulaFCodeAlloc(terms, op, f1, f2);
    }
    else
