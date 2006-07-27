@@ -102,11 +102,11 @@ function check_and_initialize(    tmp, job)
 	  processed_count = 0;
 	  while ((getline tmp < logfile) > 0)
 	  {
-	     if(match(job, /^[0-9A-Za-z].*\.lop/) ||
-                match(job, /^[0-9A-Za-z].*\.p/)||   
-                match(job, /^[0-9A-Za-z].*\.e/)  || 
-                match(job, /^[0-9A-Za-z].*\.tpt/)  ||
-                match(job, /^[0-9A-Za-z].*\.tptp/))
+	     if(match(tmp, /^[0-9A-Za-z].*\.lop/) ||
+                match(tmp, /^[0-9A-Za-z].*\.p/)||   
+                match(tmp, /^[0-9A-Za-z].*\.e/)  || 
+                match(tmp, /^[0-9A-Za-z].*\.tpt/)  ||
+                match(tmp, /^[0-9A-Za-z].*\.tptp/))
 	     {
 		job = substr(tmp, RSTART, RLENGTH);
 		processed_jobs[job] = 1;
