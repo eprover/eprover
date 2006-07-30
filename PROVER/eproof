@@ -1,5 +1,117 @@
 #!/bin/bash -f
-==> ../PROVER/eproof <==
+
+EXECPATH=.
+
+pid=$$
+host=`hostname`
+
+
+if [ ! "$TMPDIR" ] ; then
+    export TMPDIR="/var/tmp"
+fi
+
+tmpfile=$TMPDIR/"eproof_"${host}"_"${pid}
+tmpfile2=$TMPDIR/"eprooftmp_"${host}"_"${pid}
+
+timeout=""
+
+
+cleanup () 
+{  
+    ulimit -S unlimited
+    touch $tmpfile $tmpfile2
+    rm $tmpfile $tmpfile2
+    if [ "$timeout" = "" ] ; then
+        echo "# Cannot determine problem status: Terminated by signal. Cleaning up"
+    fi
+    exit 
+} 
+
+trap 'cleanup' EXIT
+trap 'cleanup' SIGXCPU
+
+cat /dev/null > $tmpfile 
+cat /dev/null > $tmpfile2 
+
+searchlimit=2000000000 # Effectively unlimited
+prooflimit=2000000000
+timelimit=2000000000
+outfile=""
+
+print_tail=0
+newargs=""
+format=""
+
+
+for argument in  "$@"; do
+    if [ "$argument" = "-R" -o "$argument" = "--resources-info" -o "$argument" = "--print-statistics" ] ; then
+	print_tail=29
+    else
+	head=`echo "$argument"|cut -d= -f1`
+	head1=`echo "$argument"|cut -c1-2`
+	if [ "$head" = "--cpu-limit" ] ; then
+	    timelimit=`echo $argument|cut -d= -f2`
+	fi    
+	if [ "$head1" = "-o" ] ; then
+	    echo "Short option -o not supported by eproof, use --output-file=<file>"
+	    exit 1
+	fi    
+	if [ "$head" = "--output-file" ] ; then
+	    outfile=`echo $argument|cut -d= -f2`
+	    cat /dev/null > $outfile
+	    argument=""
+	fi
+	if  [ "$argument" = "--tstp-out" ] ; then
+	    argument=""
+	    format="--tstp-out"
+	fi
+	if  [ "$argument" = "--tstp-format" ] ; then
+	    argument="--tstp-in"
+	    format="--tstp-out"
+	fi
+	if  [ "$argument" = "--tptp3-out" ] ; then
+	    argument=""
+	    format="--tstp-out"
+	fi
+	if  [ "$argument" = "--tptp3-format" ] ; then
+	    argument="--tstp-in"
+	    format="--tstp-out"
+	fi
+    fi
+    if [ "$argument" ] ; then        
+        newargs=$newargs" '"$argument"'"
+    fi
+done
+
+sh -c "$EXECPATH/eprover $newargs -l4 -R -o- --pcl-terms-compressed --pcl-compact> $tmpfile"
+tail -n 60 $tmpfile > $tmpfile2
+searchtime=`cat $tmpfile2|grep "Total time"|cut -d: -f2|sed -e 's/[s ]//g'|cut -d. -f1`
+if [ "$searchtime" ]; then
+    statusline=`grep -c 'No proof found!' $tmpfile2`
+    if [ "$statusline" = "1" ] ; then
+        echo "# Problem is satisfiable (or invalid), generating saturation derivation"
+    else
+	statusline=`grep -c 'Proof found!' $tmpfile2`
+        if [ "$statusline" = "1" ] ; then
+            echo "# Problem is unsatisfiable (or provable), constructing proof object"
+	else
+	    statusline=`grep -c 'Watchlist is empty!' $tmpfile2`
+	    if [ "$statusline" = "1" ] ; then
+		echo "# All watchlist clauses generated, constructing derivation"
+	    else
+		echo "# Cannot determine problem status"
+		cleanup
+	    fi
+	fi
+    fi
+    prooflimit=`expr $timelimit - $searchtime - 1`
+    ulimit -S -t $prooflimit 2>&1> /dev/null
+    if [ "$outfile" ]; then
+	exec 1> "$outfile"
+    fi
+    grep "# SZS status" $tmpfile2
+    grep "# Failure"          $tmpfile2
+    $EXECPATH/epclextract $format -f --competition-framing $tmpfile
     tail -n $print_tail $tmpfile2
 else
     echo "# Cannot determine problem status within resource limit"
