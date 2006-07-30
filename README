@@ -1,3 +1,6 @@
+For CASC-J3 instructions, also see DOC/ReadMe.
+
+
 Short Installation Instructions for the Impatient
 -------------------------------------------------
 
@@ -34,16 +37,14 @@ anything fails. There should be a copy in DOC/eprover.pdf.
              ===============================
 
 
-This is the README file for version 0.91 "Kanyam" of the E equational
+This is the README file for version 0.99 "Singtom" of the E equational
 theorem prover. This version of E is free software, see the file
 COPYING for details about the license and the fact that THERE IS NO
 WARRANTY!  
 
-Release 0.91 is a relatively minor update on 0.9. It particularly
-improves on the CNF translator, which should now be able to handle
-very complex formula. Other changes are minor, but performance in
-automatic mode has increased significantly, so it should be worth
-updating for everyone. For more on new features, read DOC/NEWS.
+Release 0.99 introduces an improved automatic mode, clause splitting
+via explicit definitions, and better goal-directed heuristics For more
+on new features, read DOC/NEWS.
 
 If you are using certain gcc 2.95.1, 2.96.X, 2.97.X or 3.2.X releases,
 you may or may not experience strange bugs. In that case, please read
@@ -171,11 +172,6 @@ or use the wrapper-script
 You can check the output of epclextract (and eproof) for correctness
 using the tool checkproof in the same directory. "checkproof -h"
 should give you all necessary information.
-
-E 0.9 differs slightly from E 0.9pre003 as used in the CASC-20
-competition. To recreate the competition behaviour, run the prover as 
-
-eprover -xAutoCASC -tAutoCASC --memory-limit=384 <file>
 
 
 

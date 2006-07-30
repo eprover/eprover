@@ -18,19 +18,19 @@ Distinguished strings for the results:
 
 Problem is CNF and unsatisfiable:
 
-# TSTP exit status: Unsatisfiable
+# SZS exit status: Unsatisfiable
 
 Problem is CNF and satisfiable:
 
-# TSTP exit status: Satisfiable
+# SZS exit status: Satisfiable
 
 Problem is FOF and a theorem: 
 
-# TSTP exit status: Theorem
+# SZS exit status: Theorem
 
 Problem is FOF and not a theorem:
 
-# TSTP exit status: CounterSatisfiable
+# SZS exit status: CounterSatisfiable
 
 - System gave up (usually resource limit)
 
