@@ -780,7 +780,7 @@ void TBPrintTermCompact(FILE* out, TB_p bank, Term_p term)
       {
 	 if(TermCellIsAnyPropSet(term, bank->prop_mask))
 	 {
-	    fprintf(out, "*%ld|%d:",
+	    fprintf(out, "*%ld/%d:",
 		    term->entry_no,term->properties&bank->prop_mask);
 	 }
 	 else
@@ -911,7 +911,7 @@ Term_p TBTermParse(Scanner_p in, TB_p bank)
       NextToken(in);
       abbrev = ParseInt(in);
       
-      if(TestInpTok(in, Colon|Pipe))
+      if(TestInpTok(in, Colon|Slash))
       { /* This _defines_ the abbrev! */
 	 if(PDArrayElementP(bank->ext_index, abbrev))
 	 {
@@ -924,7 +924,7 @@ Term_p TBTermParse(Scanner_p in, TB_p bank)
 	    Error(DStrView(errpos), SYNTAX_ERROR);
 	    DStrFree(errpos);
 	 }
-	 if(TestInpTok(in, Pipe))
+	 if(TestInpTok(in, Slash))
 	 {
 	    NextToken(in);
 	    properties = ParseInt(in);
