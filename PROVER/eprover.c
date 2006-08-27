@@ -32,8 +32,8 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-/*  cvs tag E-0-99pre002 */
-#define VERSION      "0.99pre002"
+/*  cvs tag E-0-99pre003 */
+#define VERSION      "0.99pre003"
 #define NAME         "eprover"
 
 #define NICKNAME     "Singtom"
@@ -222,7 +222,7 @@ OptCell opts[] =
     OptArg, DEFAULT_OUTPUT_DESCRIPTOR,
     "Print the (semi-) saturated clause sets after terminating the "
     "saturation process. The argument given describes which parts "
-    "should be printed in which order. Legal caracters are 'eigEIGaA',"
+    "should be printed in which order. Legal characters are 'eigEIGaA',"
     " standing for processed positive units, processed negative units, "
     "processed non-units, unprocessed positive units, unprocessed "
     "negative units, unprocessed non-units, and two types of "
@@ -230,7 +230,7 @@ OptCell opts[] =
     "only be printed if the original specification contained real "
     "equality. In this case, 'a' requests axioms in which a separate" 
     " substitutivity axiom is given for each argument position of a"
-    " subction or predicate symbol, while 'A' requests a single "
+    " function or predicate symbol, while 'A' requests a single "
     "substitutivity axiom (covering all positions) for each symbol."},  
 
    {OPT_PRINT_SAT_INFO,
@@ -399,7 +399,7 @@ OptCell opts[] =
     NoArg, NULL,
     "Parse TPTP-3 format instead of E-LOP (Note that TPTP-3 syntax "
     "is still under development, and the version in E may not be "
-    "fully conformant at all times. E works on all TPTP 3.0.1 input "
+    "fully conforming at all times. E works on all TPTP 3.0.1 input "
     "files (including includes)."},
    
    {OPT_TSTP_PRINT,
@@ -465,8 +465,8 @@ OptCell opts[] =
     "NoGeneration will inhibit all generating inferences. For a list "
     "of the other (hopefully self-documenting) values run "
     "'" NAME " -W none'. There are two variants of each strategy. The "
-    "one prefixed with 'P' will allow paramodulations into maximal "
-    "positive literals in addition to paramodulations into maximal "
+    "one prefixed with 'P' will allow paramodulation into maximal "
+    "positive literals in addition to paramodulation into maximal "
     "selected negative literals."},	
 
    {OPT_NO_GENERATION,
@@ -501,7 +501,7 @@ OptCell opts[] =
    {OPT_INHERIT_CONJ_PM_LIT,
     'j', "inherit-conjecture-pm-literals",
     NoArg, NULL,
-    "In a conjecure-derived clause), always select the negative "
+    "In a conjecture-derived clause), always select the negative "
     "literals a previous inference paramodulated into (if possible). "
     "If no such literal exists, select as dictated by the selection "
     "strategy."},
@@ -574,9 +574,9 @@ OptCell opts[] =
     OptArg, "1000000",
     "Set the limit on the number of 'storage units' in the proof "
     "state, after which the set of unprocessed clauses will be "
-    "filtered against the processed clauses to eleminate redundant "
+    "filtered against the processed clauses to eliminate redundant "
     "clauses. As of E 0.7, a 'storage unit' is approximately one byte, "
-    "however, storage is estimated in an abstract way, independend of "
+    "however, storage is estimated in an abstract way, independent of "
     "hardware or memory allocation library, and the storage estimate "
     "is only an approximation."},
 
@@ -596,7 +596,7 @@ OptCell opts[] =
     " deleted without further consideration. This causes the prover to"
     " be potentially incomplete, but will allow you to limit the"
     " maximum amount of memory used fairly well. The prover will tell"
-    " you if a proof attempt failed due to the incompletness"
+    " you if a proof attempt failed due to the incompleteness"
     " introduced by this option. It is recommended to set this limit"
     " significantly higher than --filter-limit or"
     " --filter-copies-limit. If you select -xAuto and set a"
@@ -644,7 +644,7 @@ OptCell opts[] =
     '\0', "simul-paramod",
     NoArg, NULL,
     "Use simultaneous paramodulation to implement superposition. Default"
-    " is to use plain paramodulaten. This is an experimental feature."},
+    " is to use plain paramodulation. This is an experimental feature."},
 
    {OPT_USE_ORIENTED_SIM_PARAMOD,
     '\0', "oriented-simul-paramod",
@@ -767,7 +767,7 @@ OptCell opts[] =
     '\0', "restrict-literal-comparisons",
     NoArg, NULL,
     "Make all literals uncomparable in the term ordering (i.e. do not"
-    " use the term ordering to restrict paramodualtion, equality"
+    " use the term ordering to restrict paramodulation, equality"
     " resolution and factoring to certain literals. This is necessary"
     " to make Set-of-Support-strategies complete for the non-equational"
     " case (It still is incomplete for the equational case, but pretty"
@@ -778,7 +778,7 @@ OptCell opts[] =
     NoArg, NULL,
     "If input is TPTP format, use TPTP conjectures for initializing "
     "the Set of Support. If not in TPTP format, use E-LOP queries "
-    "(clauses of the form ?-l(X),...,m(Y)). Normaly, all negative "
+    "(clauses of the form ?-l(X),...,m(Y)). Normally, all negative "
     "clauses are used. Please note that " 
     "most E heuristics do not use this information at all, it is currently "
     "only useful for certain parameter settings (including the SimulateSOS "
@@ -798,7 +798,7 @@ OptCell opts[] =
     "literals of the form X!=t (where X does not occur in t), i.e. "
     "replace the original clause with the " 
     "result of an equality resolution inference on this literal. Unless I "
-    "am braindead, this maintains completeness, although the proof is"
+    "am brain-dead, this maintains completeness, although the proof is"
     " rather tricky."}, 
 
    {OPT_ER_AGGRESSIVE,
@@ -873,7 +873,7 @@ OptCell opts[] =
    {OPT_WATCHLIST_NO_SIMPLIFY,
     '\0', "no-watchlist-simplification",
     NoArg, NULL,
-    "Normaly, that watchlist is brought into normal form with respect "
+    "Normally, that watchlist is brought into normal form with respect "
     "to the current processed clause set and certain simplifications."
     " This option disables this behaviour."},
    
@@ -906,7 +906,7 @@ OptCell opts[] =
     OptArg, "200",
     "Set the maximum initial number of symbols for feature computation. Depending"
     " on the feature selection, a value of X here will convert into 2X+2 "
-    "features (for set subsumptiom features), 2X+4 features (for "
+    "features (for set subsumption features), 2X+4 features (for "
     "AC-compatible features) or 4X+6 features (if all features are used, "
     "the default). Note that the actually used set of features may be "
     "smaller than this if the signature does not contain enough symbols."
@@ -922,14 +922,14 @@ OptCell opts[] =
     "Set the number of slots reserved in the index for function symbols "
     "that may be introduced into the signature "
     "later, e.g. by splitting. If no new symbols are introduced, this just "
-    "wastes time and memory. If PermOpt is choosen, the slackness slots will "
+    "wastes time and memory. If PermOpt is chosen, the slackness slots will "
     "be deleted from the index anyways, but will still waste "
     "(a little) time in computing feature vectors."},
 
    {OPT_UNPROC_UNIT_SIMPL,
     '\0', "simplify-with-unprocessed-units",
     OptArg, "TopSimplify",
-    "Determine wether to use unprocessed unit clauses for "
+    "Determine whether to use unprocessed unit clauses for "
     "simplify-reflect (unit-cutting) "
     "and unit subsumption. Possible values are 'NoSimplify' for strict "
     "DISCOUNT loop, 'TopSimplify' to use unprocessed units at the top "
@@ -945,7 +945,7 @@ OptCell opts[] =
    {OPT_DEFINE_HEURISTIC,
     'H', "define-heuristic",
     ReqArg, NULL,
-    "Define a clause selecetion heuristic (see manual for"
+    "Define a clause selection heuristic (see manual for"
     " details). Later definitions override previous definitions."}, 
 
     {OPT_INTERPRETE_NUMBERS,
@@ -960,7 +960,7 @@ OptCell opts[] =
      NoArg, NULL,
      "Treat numbers (strings of decimal digits) as normal free function "
     "symbols in the input. By default, number now are supposed to denote"
-    " domain constants and to be implicitely different from each other. "
+    " domain constants and to be implicitly different from each other. "
     "It is not particularly useful to combine this with the option "
     "--interprete-numbers above, since that will decode numbers into "
     "composite terms."}, 
@@ -970,7 +970,7 @@ OptCell opts[] =
      NoArg, NULL,
      "Treat object identifiers (strings in double quotes) as normal "
     "free function symbols in the input. By default, object identifiers "
-    "now represent domain objects and are implicitely different from "
+    "now represent domain objects and are implicitly different from "
     "each other (and from numbers, unless those are declared to be free)."}, 
 
    {OPT_OLD_STYLE_CNF,
@@ -986,7 +986,7 @@ OptCell opts[] =
     '\0', "definitional-cnf",
     OptArg, TFORM_RENAME_LIMIT_STR,
     "Use the new clausification algorithm that possibly "
-    "introduces definitions for subformula to avoid exponential blow-up."
+    "introduces definitions for subformulas to avoid exponential blow-up."
     " This is now the default."
     " The optional argument is a fudge factor that determines when a "
     "definition is introduced. 0 disables definitions, the default works"
