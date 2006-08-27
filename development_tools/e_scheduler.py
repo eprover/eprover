@@ -110,7 +110,7 @@ def get_problem_class(filename):
     except cl_error_exception:        
         sys.exit("Could not get class of " +filename);
         
-    return res
+    return res 
 
 strat_options = {
 "protokoll_G-E--_001_B31_F1_PI_AE_S4_CS_OS_S2S":"  --split-aggressive --split-clauses=4 --oriented-simul-paramod --forward-context-sr --destructive-er-aggressive --destructive-er --prefer-initial-clauses -tLPO4 -Ginvfreqconstmin -F1 --delete-bad-limit=150000000 -WSelectNewComplexAHP -H'(10*ConjectureSymbolWeight(ConstPrio,10,10,5,5,5,1.5,1.5,1.5),1*FIFOWeight(ConstPrio))' -s --print-statistics --print-pid --resources-info --memory-limit=192",
@@ -484,10 +484,10 @@ strat_options = {
 
 "protokoll_U----_043_K18_F1_PI_AE_S4_CS_SP_S0Y":"  --delete-bad-limit=150000000 --simul-paramod --split-aggressive --split-clauses=4 --destructive-er-aggressive --destructive-er -F1 -winvfreqrank --forward-context-sr -c1 -Ginvfreq --prefer-initial-clauses -WSelectMaxLComplexAvoidPosPred -H'(4*PNRefinedweight(PreferNonGoals,4,5,5,4,2,1,1),8*PNRefinedweight(PreferGoals,5,2,2,5,2,1,0.5),1*FIFOWeight(ConstPrio))' -s --print-statistics --print-pid --resources-info --memory-limit=192",
 
-"protokoll_U----_043_K18_F2_PI_AE_CS_SP_S0Y":"  --delete-bad-limit=150000000 --simul-paramod --destructive-er-aggressive --destructive-er -F2 -winvfreqrank --forward-context-sr -c1 -Ginvfreq --prefer-initial-clauses -WSelectMaxLComplexAvoidPosPred -H'(4*PNRefinedweight(PreferNonGoals,4,5,5,4,2,1,1),8*PNRefinedweight(PreferGoals,5,2,2,5,2,1,0.5),1*FIFOWeight(ConstPrio))' -s --print-statistics --print-pid --resources-info --memory-limit=192",
+"protokoll_U----_043_K18_F2_PI_AE_CS_SP_S0Y":"  --delete-bad-limit=150000000 --simul-paramod --destructive-er-aggressive --destructive-er -F2 -winvfreqrank --forward-context-sr -c1 -Ginvfreq --prefer-initial-clauses -WSelectMaxLComplexAvoidPosPred -H'(4*PNRefinedweight    (PreferNonGoals,4,5,5,4,2,1,1),8*PNRefinedweight(PreferGoals,5,2,2,5,2,1,0.5),1*FIFOWeight(ConstPrio))' -s --print-statistics --print-pid --resources-info --memory-limit=192",
 
 "protokoll_U----_043_K19_F1_PI_AE_CS_SP_S0Y":"  --delete-bad-limit=150000000 --simul-paramod --destructive-er-aggressive --destructive-er -F1 -winvmodfreqrankmax0 -c1 -Ginvfreqhack --forward-context-sr --prefer-initial-clauses -WSelectMaxLComplexAvoidPosPred -H'(4*PNRefinedweight(PreferNonGoals,4,5,5,4,2,1,1),8*PNRefinedweight(PreferGoals,5,2,2,5,2,1,0.5),1*FIFOWeight(ConstPrio))' -s --print-statistics --print-pid --resources-info --memory-limit=192",
-}
+}   
 
 def run_prover(schedule, filename):
     """
@@ -495,12 +495,28 @@ def run_prover(schedule, filename):
     success/failure.
     """
     res = "# SZS status: ResourceOut"
+    count=1
+    count2=1
+    total=0
+    rest=0
+    
+    for item in schedule:
+    	count=count+1
     
     for strat in schedule:
+	count2=count2+1
+
+	total = total+strat[1]
 	print strat
-		
+	if(count==count2):
+		rest = 600-total
+		print "Additional Time",rest
+
+
 	#option = strat_options[strat[0]]
-	p=os.popen("eprover "+strat_options[strat[0]]+" "+"--tstp-in --cpu-limit="+ str(int(strat[1]))+" "+filename, "r");
+        time = int((strat[1]+rest) * e_mark_scale);
+	p=os.popen("eprover "+strat_options[strat[0]]+\
+                   " "+"--tstp-in --cpu-limit="+ str(time)+" "+filename, "r");
 	#print "pass"
 	res=p.readlines()
 	p.close()
@@ -975,6 +991,7 @@ schedules = {
 "CLASS_G-SS-SSMF21-M":[ ("protokoll_G-E--_005_K18_F1_PI_AE_S4_CS_OS_S0Y", 300.0 ) ],
 "CLASS_G-SM-SFMF33-M":[ ("protokoll_G-E--_005_K18_F1_PI_AE_S4_CS_OS_S0Y", 300.0 ) ],
 "CLASS_G-SF-FFMF33-M":[ ("protokoll_G-E--_005_K18_F1_PI_AE_S4_CS_OS_S0Y", 300.0 ) ],
+"DEFAULT":[ ("protokoll_G-E--_027_K18_F1_PI_AE_S4_CS_SP_S0Y",300.0 ) ],
 
 }
 
@@ -986,13 +1003,23 @@ if __name__ == '__main__':
         else:
             sys.exit("Unknown option "+ option)
 
+    e_mark_scale =  100.0 / 285.646;
     args = get_args()
     if len(args)!=1:
         print "Exactly one file name argument expected"
         sys.exit(1);
         
     cl = get_problem_class(args[0])
-    schedule = schedules[cl]
+    try:
+	#cl="vshsjhfsfhsfjhsfshhh"
+   	schedule = schedules[cl]
+	if not schedule: 
+		raise schedule_unavailable
+	
+    except :
+               schedule = schedules["DEFAULT"];
+
+ 
     res = run_prover(schedule, args[0])
     print res
     resuse = resource.getrusage(resource.RUSAGE_CHILDREN)
@@ -1001,6 +1028,6 @@ if __name__ == '__main__':
 # System time              : %f s
 # Total time               : %f s
 # Maximum resident set size: %d pages
-""" % (resuse.ru_utime, resuse.ru_stime, resuse.ru_utime+resuse.ru_stime,resuse.ru_maxrss)
+""" % (resuse.ru_utime/e_mark_scale, resuse.ru_stime/e_mark_scale, (resuse.ru_utime+resuse.ru_stime)/e_mark_scale,resuse.ru_maxrss)
 
     

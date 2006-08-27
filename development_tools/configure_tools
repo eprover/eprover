@@ -8,9 +8,9 @@ mywhich()
 
 
 if tail -n+2 $0 > /dev/null; then
-   TAIL="tail -n+2";
+   TAIL="tail -n";
 else
-   TAIL="tail +2";
+   TAIL="tail ";
 fi
 echo "Using $TAIL"
 
@@ -39,7 +39,7 @@ fi
 for file in *.awk ; do
     # cp $file $file.bak
     echo "#!$AWK -f" > tmpfile
-    $TAIL $file >> tmpfile
+    $TAIL +2 $file >> tmpfile
     mv tmpfile $file
     chmod ugo+x $file
 done
@@ -74,7 +74,7 @@ PYTHON=`basename $PYTHON`
 for file in *.py ; do
     # cp $file $file.bak
     echo "#!/usr/bin/env $PYTHON" > tmpfile
-    $TAIL $file >> tmpfile
+    $TAIL +2 $file >> tmpfile
     mv tmpfile $file
     chmod ugo+x $file
 done
