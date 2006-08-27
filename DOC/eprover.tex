@@ -60,7 +60,7 @@ proving, which can be gained from e.g.~\cite{CL73}. For a short
 description of E including performance data,
 see~\cite{Schulz:IJCAR-2004}. A more detailed description has been
 published as~\cite{Schulz:AICOM-2002}. Most papers on E and much more
-information is available at or a few hops away from the E homepage,
+information is available at or a few hops away from the E home page,
 \url{http://www.eprover.org}.
 
 Some other provers have influenced the design of E and may be
@@ -76,7 +76,7 @@ Vampire~\cite{RV:AICOM-2002,RV:IJCAR-2001}.
 
 Installation of E should be straightforward. The file \texttt{README}
 in the main directory of the distribution contains the necessary
-information. After building, you will find the standalone executable
+information. After building, you will find the stand-alone executable
 \texttt{E/PROVER/eprover}.
 
 E is controlled by a very wide range of parameters. However, if you do
@@ -140,7 +140,7 @@ denote $t$ with $t|_p$ replaced by $t'$. An equation \eqn{s}{t} is an
 (implicitly symmetrical) pair of terms. A positive literal is an
 equation \eqn{s}{t}, a negative literal is a negated equation
 \neqn{s}{t}.  We write \ueqn{s}{t} to denote an arbitrary
-literal\footnote{Nonequational literals are encoded as equations or
+literal\footnote{Non-equational literals are encoded as equations or
   disequations \ueqn{P(t_1, \ldots, t_n)}{\top}. In this
   case, we treat predicate symbols as special function symbols that
   can only occur at the top-most positions and demand that atoms
@@ -340,7 +340,7 @@ variables.
    \bigskip (NS) \CInferenz{\neqn{s}{t} \phantom{ae}
      \eqn{\sigma(s)}{\sigma(t)\vee R}}{\eqn{s}{t} \phantom{aee} R}{}
    
- \item \emph{Contextual (top level) simplify-reflect\index{xontextual
+ \item \emph{Contextual (top level) simplify-reflect\index{contextual
        simplify-reflect}}
    
    \bigskip (CSR) \CInferenz{\sigma(C \vee R \vee \doteqn{s}{t})
@@ -505,16 +505,16 @@ describes the user interface to this mechanism.
 
 Search control heuristics define the order in which the prover
 considers newly generated clauses. A heuristic is defined by a set of
-\emph{clause evaluation functions} and a selection scheme wich defines
+\emph{clause evaluation functions} and a selection scheme which defines
 how many clauses are selected according to each evaluation function. A
-clause evalution function consists of a \emph{priority function} and
+clause evaluation function consists of a \emph{priority function} and
 an instance of a generic \emph{weight function}.
 
 \subsubsection{Priority functions}
 
 Priority functions define a partition on the set of clauses.  A single
 clause evaluation consists of a priority (which is the first selection
-criteria) and an evalution. Priorities are usually \emph{not} suitable
+criteria) and an evaluation. Priorities are usually \emph{not} suitable
 to encode heuristical control knowledge, but rather are used to
 express certain elements of a search strategy, or to restrict the
 effect of heuristic evaluation functions to certain classes of
@@ -563,7 +563,7 @@ The priority functions are interpreted as follows:
 \item[\texttt{PreferGround}:] Prefer clauses without variables.
 \item[\texttt{PreferNonGround}:] Prefer clauses with variables.
 \item[\texttt{PreferProcessed}:] Prefer clauses that have already been
-  processed once and have been eleminated from the set of processed
+  processed once and have been eliminated from the set of processed
   clauses due to interreduction (forward contraction).
 \item[\texttt{PreferNew}:] Prefer new clauses, i.e. clauses that are
   processed for the first time.
@@ -632,7 +632,7 @@ Generic weight functions are templates for functions taking a clause
 and returning a weight (i.e. an estimate of the usefulness) for it,
 where a lower weight means that the corresponding clause should be
 processed before a clause with a higher weight.  A generic weight
-function is combined with a priority function and instanciated with a
+function is combined with a priority function and instantiated with a
 set of parameters to yield a clause evaluation function.
 
 You can specify an instantiated generic weight function as described
@@ -669,7 +669,7 @@ This weight function is very similar to the first one. It differs only
 in that it takes the effect of the term ordering into account. In
 particular, the weight of a term that is maximal in its literal is
 multiplied by \texttt{term\_pen}, and the weight of maximal
-literals is mutiplied by \texttt{lit\_pen}.
+literals is multiplied by \texttt{lit\_pen}.
 \end{sloppypar}
 
 \medskip
@@ -685,7 +685,7 @@ penalty \texttt{term\_pen}.
 \begin{sloppypar}
 \noindent{}\texttt{Simweight(prio, equal\_weight,
   vv\_clash, vt\_clash, tt\_clash)}: This weight function is intended
-to return a low weight for literals in which the two terms ar very
+to return a low weight for literals in which the two terms are very
 similar. It does not currently work very well even for unit clauses --
 RTFS (in \texttt{<che\_simweight.c>}) to find out more.
 \end{sloppypar}
@@ -693,8 +693,8 @@ RTFS (in \texttt{<che\_simweight.c>}) to find out more.
 \medskip
 \begin{sloppypar}
 \noindent{}\texttt{FIFOWeight(prio)}:
-This weight function assigns weights that increase in a stricly
-monotonic manner, i.e. it realises a \emph{first-in/first-out}
+This weight function assigns weights that increase in a strictly
+monotonic manner, i.e. it realizes a \emph{first-in/first-out}
 strategy if used all by itself. This is the most obviously fair
 strategy.
 \end{sloppypar}
@@ -702,8 +702,8 @@ strategy.
 \medskip
 \begin{sloppypar}
 \noindent{}\texttt{LIFOWeight(prio)}:
-This weight function assigns weights that decrease in a stricly
-monotonic manner, i.e. it realises a \emph{last-in/first-out}
+This weight function assigns weights that decrease in a strictly
+monotonic manner, i.e. it realizes a \emph{last-in/first-out}
 strategy if used all by itself (which, of course, would be unfair and
 result in an extremely incomplete prover).
 \end{sloppypar}
@@ -738,9 +738,9 @@ by a \texttt{<eval-fun-def-list>}.
                ex2=FIFOWeight(PreferGoals)" ...
 \end{verbatim}
   sets up the prover to know about two evaluation function
-  \texttt{ex1} and \texttt{ex2} (wich supposedly will be used later on
+  \texttt{ex1} and \texttt{ex2} (which supposedly will be used later on
   the command line to define one or more heuristics). The double
-  quotes are necessary because the brackets and the commata are
+  quotes are necessary because the brackets and the commas are
   special characters for most shells
 \end{example}
 
@@ -800,7 +800,7 @@ weight to all function symbols, and a precedence on those symbols.
 The LPO is based on a lexicographic comparison of symbols and
 subterms, and is fully specified by giving just a precedence.
 
-Currently it is possible to explicitely specify an arbitrary
+Currently it is possible to explicitly specify an arbitrary
 (including incomplete or empty) precedence, or to use one of several
 precedence generating schemes. Similarly, there is a number of
 predefined weight function and the ability to assign arbitrary weights
@@ -856,7 +856,7 @@ Options controlling the choice of term ordering:\\[1ex]
 
   \multicolumn{2}{l}{\texttt{--order-weights=<arg>}}\\
   & Give explicit weights to function symbols. The argument syntax is
-  a comma-seperated list of items of the form \texttt{f:w}, where
+  a comma-separated list of items of the form \texttt{f:w}, where
   \texttt{f} is a symbol from the specification, and \texttt{w} is a
   non-negative integer. Note that at best very simple checks are
   performed, so you can specify weights that do not obey the KBO
@@ -869,10 +869,10 @@ Options controlling the choice of term ordering:\\[1ex]
 
   \multicolumn{2}{l}{\texttt{--lpo-recursion-limit[=<arg>]}}\\
   & Limits the recursion depth of LPO comparison. This is useful in rare
-  cases where very large term comparions can lead to stack overflow
+  cases where very large term comparisons can lead to stack overflow
   issues. It does not change completeness, but may lead to unnecessary
   inferences in rare cases (Note: By default, recursion depth is
-  limited to 1000. To get effectively unlimed recursion depth, use
+  limited to 1000. To get effectively unlimited recursion depth, use
   this option with an outrageously large argument. Don't forget to
   increase process stack size with \texttt{limit/ulimit} from your
   favourite shell).\\
@@ -882,13 +882,13 @@ Options controlling the choice of term ordering:\\[1ex]
 
 Precedence generation schemes are based on syntactic features of the
 symbol and the input clause set, like symbol arity or number of
-occurances in the formula. At least the following options are
+occurrences in the formula. At least the following options are
 supported as argument to \texttt{--order-precedence-generation}:
 
 \begin{description}
 \item[\texttt{unary\_first}:] Sort symbols by arity, with the
   exception that unary symbols come first. Frequency is used as a
-  tiebreaker (rarer symbols are greater).
+  tie breaker (rarer symbols are greater).
 \item[\texttt{unary\_freq}:] Sort symbols by frequency (rarer symbols
   are bigger), with the exception that unary symbols come first. Yes,
   this should better be named \texttt{unary\_invfreq} for
@@ -903,9 +903,9 @@ supported as argument to \texttt{--order-precedence-generation}:
 \item[\texttt{const\_min}:] Sort symbols by arity (symbols with higher
   arity are smaller), but make constants the smallest symbols.
   Provided for reasons of symmetry.
-\item[\texttt{freq}:] Sort symbols by frequency (frequently occuring
-  symbols are larger). Arity is used as a tiebreaker.
-\item[\texttt{invfreq}:] Sort symbols by frequency (frequently occuring
+\item[\texttt{freq}:] Sort symbols by frequency (frequently occurring
+  symbols are larger). Arity is used as a tie breaker.
+\item[\texttt{invfreq}:] Sort symbols by frequency (frequently occurring
   symbols are smaller). In our experience, this is one of the best
   general-purpose precedence generation schemes.
 \item[\texttt{invfreqconstmin}:] Same as \texttt{invfreq}, but make
@@ -956,17 +956,17 @@ symbol and the input clause set, or on the predefined
   of $f$ is given by $|{g|f<g}|+1$ (the number of symbols larger than
   $f$ in the precedence increased by one).
 \item[\texttt{freqcount}:] Make the weight of a symbol the number of
-  occurences of that symbol in the (potentially preprocessed) input
+  occurrences of that symbol in the (potentially preprocessed) input
   problem. 
-\item[\texttt{invfreqcount}:]  Let $m$ be the number of occurances of
+\item[\texttt{invfreqcount}:]  Let $m$ be the number of occurrences of
   the most frequent symbol in the input problem. The weight of $f$ is
-  $m$ minus he number of occurences of $f$ in the input problem.
+  $m$ minus he number of occurrences of $f$ in the input problem.
 \item[\texttt{freqrank}:] Sort all function symbols by frequency of
-  occurance (which induces a total quasi-ordering). The weight of a
+  occurrence (which induces a total quasi-ordering). The weight of a
   symbol is the rank of it's equivalence class, with less frequent
   symbols getting lower weights.
 \item[\texttt{invfreqrank}:] Sort all function symbols by frequency of
-  occurance (which induces a total quasi-ordering). The weight of a
+  occurrence (which induces a total quasi-ordering). The weight of a
   symbol is the rank of its equivalence class, with less frequent
   symbols getting higher weights.
 \item[\texttt{freqranksquare}:] As \texttt{freqrank}, but weight is
@@ -974,7 +974,7 @@ symbol and the input clause set, or on the predefined
 \item[\texttt{invfreqranksquare}:] As \texttt{invfreqrank}, but weight is
   the square of the rank.
 \item[\texttt{invmodfreqrank}:] Sort all function symbols by frequency of
-  occurance (which induces a total quasi-ordering). The weight of an
+  occurrence (which induces a total quasi-ordering). The weight of an
    equivalence class is the sum of the cardinality of all smaller
   classes (+1). The weight of a symbol is the weight of its
   equivalence classes. Less frequent symbols get higher weights.
@@ -1006,7 +1006,7 @@ Currently, at least the following strategies are implemented:
   tautologies or redundant clauses.
 \item[\texttt{SelectNegativeLiterals}:] Select all negative literals. For Horn
   clauses, this implements the maximal literal positive unit
-  strateg~\cite{Dershowitz:IJCAI-91} previously realized separately in
+  strategy~\cite{Dershowitz:IJCAI-91} previously realized separately in
   E.
 \item[\texttt{SelectPureVarNegLiterals}:] Select the first negative literal of
   the form \eqn{X}{Y}.
@@ -1048,7 +1048,7 @@ As we aim at replacing the vast number of individual literal selection
 functions with a more abstract mechanism, we refrain from describing
 all of the currently implemented functions in detail. If you need
 information about the set of implemented functions, run
-\texttt{eprover -W none}. The indiviual functions are implemented and
+\texttt{eprover -W none}. The individual functions are implemented and
 somewhat described in \texttt{E/HEURISTICS/che\_litselection.h}.
 
 
@@ -1075,7 +1075,7 @@ then use a clause selection heuristic that will give special
 consideration to clauses on the watchlist. This is currently supported
 via the \emph{priority functions} \texttt{PreferWatchlist} and
 \texttt{DeferWatchlist}. A clause evaluation function using
-\texttt{PreferWatchlist} will always select clauses wich subsume
+\texttt{PreferWatchlist} will always select clauses which subsume
 watchlist clauses first. Similarly, using \texttt{DeferWatchlist} can
 be used to put the processing of watchlist clauses off.
 
@@ -1112,14 +1112,14 @@ Options controlling the use of the watch list:\\
 \subsection{Learning Clause Evaluation Functions}
 \label{sec:options:learning}
 
-E can use a knowledge base generated by analysing many successful
+E can use a knowledge base generated by analyzing many successful
 proof attempts to guide its search, i.e.\ it can \emph{learn} what
 kinds of clauses are likely to be useful for a proof and which ones
 are likely superfluous. The details of the learning mechanism can be
 found in~\cite{Schulz:Diss-2000,Schulz:KI-2001}. Essentially, an
-inference protocol is analysed, useful and useless clauses are
+inference protocol is analyzed, useful and useless clauses are
 identified and generalized into \emph{clause patterns}, and the
-resulting information is stored in a knowedge base. Later, new clauses
+resulting information is stored in a knowledge base. Later, new clauses
 that match a pattern are evaluated accordingly.
 
 \subsubsection{Creating Knowledge Bases}
@@ -1146,7 +1146,7 @@ program \texttt{direct\_examples}\footnote{The name is an historical
   accident and has no significance anymore}. 
 
 In a second step, the collected information is integrated into the
-knowledge base. For this puropose, the program \texttt{ekb\_insert}
+knowledge base. For this purpose, the program \texttt{ekb\_insert}
 can be used. However, it is probably more convenient to use the single
 program \texttt{ekb\_ginsert}, which directly extracts all pertinent
 information from a PCL2 protocol and inserts it into a designated
@@ -1159,7 +1159,7 @@ whole knowledge base is first parsed.
 
 \subsubsection{Using Learned Knowledge}
 
-The knowledge in a knowledge base can be ustilized by the two clause
+The knowledge in a knowledge base can be utilized by the two clause
 evaluation functions \texttt{TSMWeight()} and \texttt{TSMRWeight()}.
 Both compute a modification weight based on the learned knowledge, and
 apply it to a conventional symbol-counting base weight (similar to
@@ -1186,7 +1186,7 @@ of the learned knowledge).
 \section{Input Language}
 \label{sec:language}
 
-E natively uses E-LOP, a dialect of the LOP languange designed for
+E natively uses E-LOP, a dialect of the LOP language designed for
 SETHEO.At the moment, your best bet is to retrieve the LOP description
 from the E web site~\cite{E:WWW-99} and/or check out the examples
 available from it.  LOP is very close to Prolog, and E can usually
@@ -1266,19 +1266,19 @@ search after termination. The following possibilities exist:
 # No proof found!
 \end{verbatim}
   Ensuring the completeness of a prover is much harder than ensuring
-  correctness. Moreover, proofs can easily be checked by analysing the
+  correctness. Moreover, proofs can easily be checked by analyzing the
   output of the prover, while such a check for the absence of proofs
   is rarely possible. I do believe that the current version of E is
   both correct and complete\footnote{Unless the prover runs out of
     memory (see below), the user selects an unfair strategy (in which
     case the prover may never terminate), or some strange and
     unexpected things happen.} but my belief in the former is stronger
-  than my beliefe in the later\ldots...
+  than my belief in the later\ldots...
 \item A (hard) resource limit was hit. For memory this can be either
   due to a per process limit (set with \texttt{limit} or the prover
   option \texttt{--memory-limit}), or due to running out of virtual
-  memory. For cpu time, this case is triggered if the per process cpu
-  time limit is reached and signalled to the prover via a
+  memory. For CPU time, this case is triggered if the per process CPU
+  time limit is reached and signaled to the prover via a
   \texttt{SIGXCPU} signal. This limit can be set with \texttt{limit}
   or, more reliable, with the option \texttt{--cpu-limit}. The output
   string is one of the following two, depending on the exact reason
@@ -1305,7 +1305,7 @@ search after termination. The following possibilities exist:
 \begin{verbatim}
   # Failure: Out of unprocessed clauses!
 \end{verbatim}
-  This is roughtly equivalent to Otter's \texttt{SOS empty} message.
+  This is roughly equivalent to Otter's \texttt{SOS empty} message.
 \item Finally, it is possible to chose restricted calculi when
   starting E. This is useful if E is used as a normalization tool or
   as a preprocessor or lemma generator. In this case, E will print a
@@ -1342,7 +1342,7 @@ format\footnote{PCL2 is a proof output protocol language currently
   PCL~\cite{DS94a,DS94b,DS96a}.}.  At level 2, it only prints
 generating inferences. At level 4, it prints all generating and
 modifying inferences, and at level 6 it also prints PCL steps giving a
-lot of insight into the interal operation of the inference engine.
+lot of insight into the internal operation of the inference engine.
 This protocol is fairly readable and, from level 4 on can be used to
 check the proof with the utility \texttt{checkproof} provided with the
 distribution.
@@ -1396,7 +1396,7 @@ individual letters:
   \texttt{e} & Processed positive unit clauses (\emph{Equations}).\\ 
   \texttt{i} & Processed negative unit clauses (\emph{Inequations}).\\ 
   \texttt{g} & Processed non-unit clauses (except for the empty
-  clause, which, if present, is printed separatly). The above three
+  clause, which, if present, is printed separately). The above three
   sets are interreduced and all selected inferences between them have
   been computed.\\ 
   \texttt{E} & Unprocessed positive unit clauses.\\ 
