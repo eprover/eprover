@@ -537,13 +537,13 @@ void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms, bo
       }      
       TermPrint(out, form->args[0], NULL, DEREF_NEVER);
       fputs("]:", out);
-      TFormulaTPTPPrint(out, bank, form->args[1], fullterms, fullterms);
+      TFormulaTPTPPrint(out, bank, form->args[1], fullterms, pcl);
    }
    else if(TFormulaIsUnary(form))
    {
       assert(form->f_code == bank->sig->not_code);
       fputs("~(", out);
-      TFormulaTPTPPrint(out, bank, form->args[0], fullterms, fullterms);
+      TFormulaTPTPPrint(out, bank, form->args[0], fullterms, pcl);
       fputs(")", out);
    }
    else
@@ -552,7 +552,7 @@ void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms, bo
 
       assert(TFormulaIsBinary(form));
       fputs("(", out);
-      TFormulaTPTPPrint(out, bank, form->args[0], fullterms, fullterms);
+      TFormulaTPTPPrint(out, bank, form->args[0], fullterms, pcl);
       if(form->f_code == bank->sig->and_code)
       {
          oprep = "&";
@@ -590,7 +590,7 @@ void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms, bo
          assert(false && "Wrong operator");
       }
       fputs(oprep, out);
-      TFormulaTPTPPrint(out, bank, form->args[1], fullterms, fullterms);      
+      TFormulaTPTPPrint(out, bank, form->args[1], fullterms, pcl);      
       fputs(")", out);      
    }   
 }

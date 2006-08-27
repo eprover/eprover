@@ -847,7 +847,6 @@ void EqnFOFPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms, bool pcl)
          assert(false && "Format nor supported.");
          break;
    }
-   
    if(infix)
    {      
       if(EqnIsEquLit(eq))
