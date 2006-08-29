@@ -151,7 +151,7 @@ install-exec:
 	@echo "#!"`which bash` > tmpfile
 	@echo "" >> tmpfile
 	@echo "EXECPATH=$(EXECPATH)" >> tmpfile
-	@tail +4 PROVER/eproof >> tmpfile
+	@$(TAIL) +4 PROVER/eproof >> tmpfile
 	@mv tmpfile PROVER/eproof
 	@chmod ugo+x PROVER/eproof
 	bash -c 'cp PROVER/eprover $(EXECPATH)'
