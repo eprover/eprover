@@ -4,7 +4,7 @@ the E equational theorem prover.
 
 Version 0.91 -> 0.99
 
-- Introduced new and (maybe) better evaluation data type.
+- Introduced new and (maybe) better clause evaluation data type.
 - Updated install scripts.
 - Found (and fixed) mismatch between split handling and split
   documentation (argh!). 
