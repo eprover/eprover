@@ -5,12 +5,13 @@ the E equational theorem prover.
 Version 0.91 -> 0.99
 
 - Introduced new and (maybe) better clause evaluation data type.
-- Updated install scripts.
+- Updated install scripts to handle OSes with UCB tail.
 - Found (and fixed) mismatch between split handling and split
   documentation (argh!). 
 - New splitting via (reusable) definitions introduced and tested. 
 - Spell-checked manual and (prover) help output.
 - Better Auto-Mode
+- Some cleanup.
 
 Version 0.9 -> 0.91
 
