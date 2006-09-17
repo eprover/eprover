@@ -47,13 +47,19 @@ timelimit=2000000000
 outfile=""
 
 print_tail=0
+print_res=0
+print_stats=0
+
 newargs=""
 format=""
 
 
 for argument in  "$@"; do
-    if [ "$argument" = "-R" -o "$argument" = "--resources-info" -o "$argument" = "--print-statistics" ] ; then
-	print_tail=29
+    if [ "$argument" = "-R" -o "$argument" = "--resources-info" ] ; then
+        print_res=6
+    elif [ "$argument" = "--print-statistics" ] ; then
+	print_stats=29
+        print_res=6
     else
 	head=`echo "$argument"|cut -d= -f1`
 	head1=`echo "$argument"|cut -c1-2`
@@ -91,6 +97,8 @@ for argument in  "$@"; do
     fi
 done
 
+print_tail=`expr $print_res + $print_stats`
+
 sh -c "$EXECPATH/eprover $newargs -l4 -R -o- --pcl-terms-compressed --pcl-compact> $tmpfile"
 $TAIL +60 $tmpfile > $tmpfile2
 searchtime=`cat $tmpfile2|grep "Total time"|cut -d: -f2|sed -e 's/[s ]//g'|cut -d. -f1`
@@ -120,7 +128,7 @@ if [ "$searchtime" ]; then
     grep "# SZS status" $tmpfile2
     grep "# Failure"          $tmpfile2
     $EXECPATH/epclextract $format -f --competition-framing $tmpfile
-    $TAIL +$print_tail $tmpfile2
+    $TAIL -$print_tail $tmpfile2
 else
     echo "# Cannot determine problem status within resource limit"
     cleanup
