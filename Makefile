@@ -147,11 +147,13 @@ install-with-broken-gcc-but-kgcc-available:
 
 # Configure and copy executables to the installation directory
 
+#@$(TAIL) +4 PROVER/eproof >> tmpfile
+
 install-exec:	
-	@echo "#!"`which bash` > tmpfile
+	@echo "#!"`which bash`" -f" > tmpfile
 	@echo "" >> tmpfile
 	@echo "EXECPATH=$(EXECPATH)" >> tmpfile
-	@$(TAIL) +4 PROVER/eproof >> tmpfile
+	@awk '{count++; if(count >= 4){print}}' PROVER/eproof >> tmpfile
 	@mv tmpfile PROVER/eproof
 	@chmod ugo+x PROVER/eproof
 	bash -c 'cp PROVER/eprover $(EXECPATH)'
