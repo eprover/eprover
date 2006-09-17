@@ -1,6 +1,14 @@
 #!/bin/bash -f
 
-EXECPATH=.
+EXECPATH=~/bin
+
+
+if tail -n+2 $0 > /dev/null; then
+   TAIL="tail -n";
+else
+   TAIL="tail ";
+fi
+# echo "Using $TAIL"
 
 pid=$$
 host=`hostname`
@@ -84,7 +92,7 @@ for argument in  "$@"; do
 done
 
 sh -c "$EXECPATH/eprover $newargs -l4 -R -o- --pcl-terms-compressed --pcl-compact> $tmpfile"
-tail -n 60 $tmpfile > $tmpfile2
+$TAIL 60 $tmpfile > $tmpfile2
 searchtime=`cat $tmpfile2|grep "Total time"|cut -d: -f2|sed -e 's/[s ]//g'|cut -d. -f1`
 if [ "$searchtime" ]; then
     statusline=`grep -c 'No proof found!' $tmpfile2`
@@ -112,7 +120,7 @@ if [ "$searchtime" ]; then
     grep "# SZS status" $tmpfile2
     grep "# Failure"          $tmpfile2
     $EXECPATH/epclextract $format -f --competition-framing $tmpfile
-    tail -n $print_tail $tmpfile2
+    $TAIL $print_tail $tmpfile2
 else
     echo "# Cannot determine problem status within resource limit"
     cleanup
