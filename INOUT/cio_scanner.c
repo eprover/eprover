@@ -1189,10 +1189,8 @@ Scanner_p ScannerParseInclude(Scanner_p in, StrTree_p *name_selector)
       
       if(TestInpTok(in, Name|PosInt))
       {
-         printf("Single name found.\n");
          StrTreeStore(name_selector, DStrView(AktToken(in)->literal),
                       dummy, dummy);
-         printf("Stored...\n");
          NextToken(in);
       }
       else
