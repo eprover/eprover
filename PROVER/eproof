@@ -29,14 +29,18 @@ cleanup ()
     ulimit -S unlimited
     touch $tmpfile $tmpfile2
     rm $tmpfile $tmpfile2
-    if [ "$timeout" = "" ] ; then
-        echo "# Cannot determine problem status: Terminated by signal. Cleaning up"
-    fi
     exit 
 } 
 
+xcpuhandler ()
+{
+    cleanup 
+    echo "# Cannot determine problem status: Terminated by signal. Cleaning up"
+}
+
+
 trap 'cleanup' EXIT
-trap 'cleanup' SIGXCPU
+trap 'xcpuhandler' SIGXCPU
 
 cat /dev/null > $tmpfile 
 cat /dev/null > $tmpfile2 
@@ -60,6 +64,10 @@ for argument in  "$@"; do
     elif [ "$argument" = "--print-statistics" ] ; then
 	print_stats=29
         print_res=6
+    elif [ "$argument" = "-V" -o "$argument" = "--version" ] ; then
+        $EXECPATH/eprover --version
+        $EXECPATH/epclextract --version
+        exit 1
     else
 	head=`echo "$argument"|cut -d= -f1`
 	head1=`echo "$argument"|cut -c1-2`
