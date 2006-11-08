@@ -21,15 +21,6 @@ Changes
 
 -----------------------------------------------------------------------*/
 
-/* Hack to get popen/pclose() without warning under Solaris 2.6 - should
-   not hurt anywhere else (and might help) */
-#define __EXTENSIONS__
-/* Hack to get tempnam() without warning under SUSE Linux X.X - see
-   above) */
-#ifdef __STRICT_ANSI__
-#undef __STRICT_ANSI__
-#endif
-#include <stdio.h> 
 #include "pcl_proofcheck.h"
 
 
