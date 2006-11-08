@@ -20,12 +20,6 @@ Changes
 
 -----------------------------------------------------------------------*/
 
-#define _XOPEN_SOURCE /* To get popen()/pclose() on Linux/Solaris */
-#define __USE_POSIX2
-#include <stdio.h>
-#undef __USE_POSIX2
-#undef _XOPEN_SOURCE
-
 #include "clb_error.h"
 
 
