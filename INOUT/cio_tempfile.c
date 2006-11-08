@@ -21,16 +21,6 @@ Changes
 
 -----------------------------------------------------------------------*/
 
-/* Hack to get tempnam() without warning under Solaris 2.6 - should
-   not hurt anywhere else (and might help) */
-#define __EXTENSIONS__
-/* Hack to get tempnam() without warning under SUSE Linux X.X - see
-   above) */
-#ifdef __STRICT_ANSI__
-#undef __STRICT_ANSI__
-#endif
-#include <stdio.h> 
-
 #include "cio_tempfile.h"
 
 
@@ -121,15 +111,33 @@ void TempFileRegister(char *name)
 
 char* TempFileName(void)
 {
-   char *name = tempnam(NULL, "epr_");
+   int fd;
+   char *res, *tmp;
+   DStr_p name = DStrAlloc();
    
-   if(!name)
+   tmp = getenv("TMPDIR");
+   if(tmp)
+   {
+      DStrAppendStr(name, tmp); 
+   }
+   else
+   {
+      DStrAppendStr(name, "/tmp"); 
+   }
+   DStrAppendStr(name, "/epr_XXXXXX");
+
+   fd = mkstemp(DStrView(name));
+
+   if(fd==-1)
    {
       Error("Could not create valid temporary file name", FILE_ERROR);
    }   
-   TempFileRegister(name);
+   close(fd);
+   res = SecureStrdup(DStrView(name));
+   DStrFree(name);
+   TempFileRegister(res);
    
-   return name;
+   return res;
 }
 
 
