@@ -24,7 +24,6 @@ Changes
 
 #define CIO_TEMPFILE
 
-/* <stdio.h> included with special defs in .h! */
 #include <stdlib.h>
 #include <clb_memory.h>
 #include <cio_fileops.h>
