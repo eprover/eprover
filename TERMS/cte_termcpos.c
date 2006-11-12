@@ -42,9 +42,9 @@ Changes
 Term_p term_cpos_get_subterm(Term_p term, TermCPos* pos)
 {
    int i;
-   Term_p res=0;
+   Term_p res = NULL;
 
-   if(pos == 0)
+   if(*pos == 0)
    {
       return term;
    }
@@ -84,6 +84,38 @@ Term_p TermCPosGetSubterm(Term_p term, TermCPos pos)
 
 TermCPos TermCPosFromTermPos(TermPos_p termpos);
 bool     TermPosFromTermCPos(Term_p term, TermCPos pos);
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermPrintAllCPos()
+//
+//   Print all compact positions in a term, with the associated
+//   subterm. Probably only for testing and debugging.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+void TermPrintAllCPos(FILE* out, TB_p bank, Term_p term)
+{   
+   TermCPos i;
+   Term_p t;
+   PStack_p stack = PStackAlloc();
+
+   TermLinearize(stack, term);
+   for(i=0; (t=TermCPosGetSubterm(term, i));  i++)
+   {
+      fprintf(out, "\nPos %3ld: ", i);
+      TBPrintTermFull(out, bank, t);
+      fprintf(out, " === ", i);
+      TBPrintTermFull(out, bank, PStackElementP(stack, i));
+   }
+   fprintf(out, "\n");
+   PStackFree(stack);
+}
 
 
 /*---------------------------------------------------------------------*/

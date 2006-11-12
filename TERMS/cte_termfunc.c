@@ -1660,6 +1660,33 @@ long TermCollectPropVariables(Term_p term, PTree_p *tree,
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TermLinearize()
+//
+//   Put all subterms of term onto PStack in left-right preorder. Note
+//   that for an empty stack, that makes the index of s on the stack
+//   equal to its TermCPos. Returns number of subterms.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes stack
+//
+/----------------------------------------------------------------------*/
+
+long TermLinearize(PStack_p stack, Term_p term)
+{
+   long res = 1;
+   int i;
+   
+   PStackPushP(stack, term);
+   for(i = 0; i<term->arity; i++)
+   {
+      res += TermLinearize(stack, term->args[i]);
+   }
+   return res;
+}
+
 
 /*-----------------------------------------------------------------------
 //

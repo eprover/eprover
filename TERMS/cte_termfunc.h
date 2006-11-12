@@ -123,6 +123,8 @@ long    TermCollectPropVariables(Term_p term, PTree_p *tree,
 				  TermProperties prop);
 #define TermCollectVariables(term,tree)\
         TermCollectPropVariables((term), (tree), TPIgnoreProps)
+long    TermLinearize(PStack_p stack, Term_p term);
+
 
 Term_p  TermCheckConsistency(Term_p term, DerefType deref);
 

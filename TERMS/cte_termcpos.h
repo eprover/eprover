@@ -44,6 +44,7 @@ typedef long TermCPos;
 Term_p   TermCPosGetSubterm(Term_p term, TermCPos pos);
 TermCPos TermCPosFromTermPos(TermPos_p termpos);
 bool     TermPosFromTermCPos(Term_p term, TermCPos pos);
+void     TermPrintAllCPos(FILE* out, TB_p bank, Term_p term);
 
 
 #endif

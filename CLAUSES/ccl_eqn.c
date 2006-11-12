@@ -735,6 +735,7 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
 {
    bool positive = XOR(EqnIsPositive(eq), negated);
 
+   /* TermPrintAllCPos(out, eq->bank, eq->lterm);*/
    /* if(EqnIsMaximal(eq))
    {
       fprintf(out, "{");
