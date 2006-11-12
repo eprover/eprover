@@ -32,8 +32,8 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-/*  cvs tag E-0-99dev001 */
-#define VERSION      "0.99dev001"
+/*  cvs tag E-0-99dev002 */
+#define VERSION      "0.99dev002"
 #define NAME         "eprover"
 
 #define NICKNAME     "Singtom"

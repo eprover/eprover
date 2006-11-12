@@ -526,7 +526,6 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
    }
    return NULL;
 }
-
 #ifdef PRINT_SHARING
 
 /*-----------------------------------------------------------------------
