@@ -1,54 +1,49 @@
 /*-----------------------------------------------------------------------
 
-File  : cte_replace.h
+File  : cte_termcpos.h
 
-Author: Stephan Schulz
+Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
-  Functions for replacing and rewriting of terms.
 
-  Copyright 1998, 1999 by the author.
+  Functions dealing with compact term positions represented by simple
+  integers. Subterms are numbered in standard left-right pre-order,
+  with the root position at 0.
+
+  Copyright 2006 by the author.
   This code is released under the GNU General Public Licence.
   See the file COPYING in the main CLIB directory for details.
   Run "eprover -h" for contact information.
 
 Changes
 
-<1> Mon Jan 12 17:50:21 MET 1998
+<1> Sun Nov 12 14:18:49 ICT 2006
     New
 
 -----------------------------------------------------------------------*/
 
-#ifndef CTE_REPLACE
+#ifndef CTE_TERMCPOS
 
-#define CTE_REPLACE
+#define CTE_TERMCPOS
 
-#include <clb_pqueue.h>
-#include <cte_termcpos.h>
-#include <cio_output.h>
+#include <cte_termpos.h>
+
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-#define RPL_TERM_WATCH 2048
+typedef long TermCPos;
 
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-
-void   TermAddRWLink(Term_p term, Term_p replace, long demod,
-		     bool sos);
-
-Term_p TermFollowRWChain(Term_p term);
-
-bool   TermComputeRWSequence(PStack_p stack, Term_p from, Term_p to);
-
-Term_p TBTermPosReplace(TB_p bank, Term_p repl, TermPos_p pos,
-			DerefType deref);
+#define  TermCPosIsTopPos(pos) ((pos)==0)
+Term_p   TermCPosGetSubterm(Term_p term, TermCPos pos);
+TermCPos TermCPosFromTermPos(TermPos_p termpos);
+bool     TermPosFromTermCPos(Term_p term, TermCPos pos);
 
 
 #endif
