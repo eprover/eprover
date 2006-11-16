@@ -69,7 +69,8 @@ void TermAddRWLink(Term_p term, Term_p replace, long demod, bool sos)
 
    TermCellSetProp(term, TPIsRewritten);
    TermRWReplaceField(term) = replace;
-   TermRWDemodField(term) = demod;
+   TermRWDemodField(term)   = demod;
+
    if(sos)
    {
       TermCellSetProp(term, TPIsSOSRewritten);

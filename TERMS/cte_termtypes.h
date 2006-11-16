@@ -102,7 +102,7 @@ typedef enum  /* See CLAUSES/ccl_rewrite.c for more */
    FullRewrite = 2    /* Rewrite with rules and equations */
 }RewriteLevel;
 
-typedef union
+typedef struct
 {
    SysDate          nf_date[FullRewrite]; /* If term is not rewritten,
                                              it is in normal form with
@@ -211,7 +211,7 @@ typedef bool (*TermEqualTestFun)(Term_p t1, Term_p t2);
 
 /* Absolutely get the value of the replace and demod fields */
 #define TermRWReplaceField(term) ((term)->rw_data.rw_desc.replace)
-#define TermRWDemodField(term) ((term)->rw_data.rw_desc.demod_id)
+#define TermRWDemodField(term)   ((term)->rw_data.rw_desc.demod_id)
 #define REWRITE_AT_SUBTERM 0
 
 /* Get the logical value of the replaced term / demodulator */
