@@ -1670,6 +1670,7 @@ void ClauseMarkMaximalTerms(OCB_p ocb, Clause_p clause)
 }
 
 
+#ifdef NEVER_DEFINED
 /*-----------------------------------------------------------------------
 //
 // Function: ClauseMarkRestrictedTerms()
@@ -1686,7 +1687,7 @@ void ClauseMarkRestrictedTerms(Clause_p clause)
 {
    EqnListMarkRestrictedTerms(clause->literals);
 }
-
+#endif
 
 /*-----------------------------------------------------------------------
 //

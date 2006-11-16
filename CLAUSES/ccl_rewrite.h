@@ -77,12 +77,6 @@ long ClauseSetComputeLINormalform(OCB_p ocb, TB_p bank, ClauseSet_p
 				  RewriteLevel level, bool
 				  prefer_general);
 
-#ifdef NEVER_DEFINED
-bool FindClausesWithRewritableMaxSides(OCB_p ocb, ClauseSet_p set,
-				       PStack_p results, Clause_p
-				       new_demod, SysDate nf_date);
-#endif
-
 bool FindRewritableClauses(OCB_p ocb, ClauseSet_p set,
 			   PStack_p results, Clause_p
 			   new_demod, SysDate nf_date);

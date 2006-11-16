@@ -908,7 +908,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
    tmp_copy = ClauseCopy(clause, state->tmp_terms);      
    tmp_copy->ident = clause->ident;
 
-   ClauseMarkRestrictedTerms(clause);
+   /* ClauseMarkRestrictedTerms(clause); */
    
    clause->date = clausedate;
    if(ClauseIsDemodulator(clause))

@@ -171,7 +171,7 @@ bool ForwardModifyClause(ProofState_p state, ProofControl_p control,
 			 Clause_p clause, bool context_sr, RewriteLevel level)
 {
    int removed_lits;
-
+   
    ClauseComputeLINormalform(control->ocb,
 			     state->terms, clause,
 			     state->demods, level,

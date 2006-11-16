@@ -272,7 +272,9 @@ void     ClauseMarkMaximalTerms(OCB_p ocb, Clause_p clause);
 #define  ClauseMarkMaximalLiterals(ocb, clause) \
          EqnListMaximalLiterals((ocb), (clause)->literals)
 
+#ifdef NEVER_DEFINED
 void     ClauseMarkRestrictedTerms(Clause_p clause);
+#endif
 #define  ClauseDeleteTermProperties(clause, props) \
          EqnListDeleteTermProperties((clause)->literals, props)
 

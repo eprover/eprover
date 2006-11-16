@@ -1048,6 +1048,7 @@ bool EqnListEqnIsStrictlyMaximal(OCB_p ocb, Eqn_p list, Eqn_p eqn)
 }
 
 
+#ifdef NEVER_DEFINED
 /*-----------------------------------------------------------------------
 //
 // Function: EqnListMarkRestrictedTerms()
@@ -1080,6 +1081,7 @@ void EqnListMarkRestrictedTerms(Eqn_p list)
       list = list->next;
    }
 }
+#endif
 
 
 /*-----------------------------------------------------------------------

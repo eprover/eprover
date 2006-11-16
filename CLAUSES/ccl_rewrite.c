@@ -95,13 +95,14 @@ static bool instance_is_rule(OCB_p ocb, Eqn_p demod,
 //
 /----------------------------------------------------------------------*/
 
-static Term_p term_follow_top_RW_chain(Term_p term, RWDesc_p desc)
+/* static */ Term_p term_follow_top_RW_chain(Term_p term, RWDesc_p desc)
 {
    assert(term);
 
    /* printf("Starting chain\n"); */
    while(TermIsTopRewritten(term))
    {
+      assert(term);
       if(TermCellQueryProp(term, TPIsSOSRewritten))
       {
 	 desc->sos_rewritten = true;
@@ -210,14 +211,6 @@ static bool term_is_rewritable(OCB_p ocb, Term_p term, Clause_p
    int i;
    bool res = false;
    
-   /* if(!EQUIV(restricted_rw, TermCellQueryProp(term, TPRestricted)))
-   {
-      printf("Weird %d %d: ",restricted_rw, TermCellQueryProp(term, TPRestricted));
-      TBPrintTermFull(stdout, new_demod->literals->bank, term);
-      printf("\n");
-      }*/
-   assert(EQUIV(restricted_rw, TermCellQueryProp(term, TPRestricted)));
-
    /* printf("term_is_rewritable()...\n"); */
 
    if(TermIsVar(term))
@@ -256,7 +249,7 @@ static bool term_is_rewritable(OCB_p ocb, Term_p term, Clause_p
       /* Properties set in term_is_top_rewritable! */
       return true;
    }
-   if(!restricted_rw)
+   if(!restricted_rw && !TermIsRewritten(term))
    {
       term->rw_data.nf_date[RewriteAdr(RuleRewrite)] =
          term->rw_data.nf_date[RewriteAdr(FullRewrite)] = nf_date;
@@ -921,7 +914,9 @@ bool ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
    RWDesc_p desc = rw_desc_cell_alloc(ocb, bank, demodulators, level,
 				      prefer_general);
    ClausePosCell pos;
-
+   
+   assert(demodulators);
+   assert(desc->demods);
    assert(!ClauseIsAnyPropSet(clause, CPIsDIndexed|CPIsSIndexed));
    
    /* printf("# ClauseComputeLINormalform(%ld)...\n",clause->ident); */
@@ -975,6 +970,8 @@ long ClauseSetComputeLINormalform(OCB_p ocb, TB_p bank, ClauseSet_p
    bool     tmp;
    long     res = 0;
 
+   assert(demodulators);
+   
    for(handle=set->anchor->succ; handle!=set->anchor; handle =
 	  handle->succ)
    {
@@ -992,42 +989,6 @@ long ClauseSetComputeLINormalform(OCB_p ocb, TB_p bank, ClauseSet_p
    return res;
 }
 
-#ifdef NEVER_DEFINED
-/*-----------------------------------------------------------------------
-//
-// Function: FindClausesWithRewritableMaxSides()
-//
-//   Add pointers to all clauses in set for which (potentially)
-//   maximal sides can be rewritten with new_demod to the results
-//   tree. This uses two optimizations: 
-//
-//   1) If a terms nf_date is equal to nf_date, the term (and all
-//      subterms) are considered to be irreducible with respect to
-//      new_demod (hence nf_date should be bigger than any nf_date of
-//      terms in clauses). If a term and all its subterms are
-//      irreducible by demod, it's date will be set to nf_date.
-//   2) If a terms nf_date is equal to SysDateCreationTime(), the term
-//      is considered to be reducible with respect to new_demod. If a
-//      term is rewritable, it's nf_date will be set to
-//      SysDateCreationTime(). 
-//
-//   Returns true if any rewritable non-maximal sides are found.
-//
-// Global Variables: -
-//
-// Side Effects    : Changes nf_dates of terms
-//
-/----------------------------------------------------------------------*/
-
-bool FindClausesWithRewritableMaxSides(OCB_p ocb, ClauseSet_p set,
-				       PStack_p results, Clause_p
-				       new_demod, SysDate nf_date)
-{   
-   return find_clauses_with_rw_max_sides(ocb, set, results, new_demod,
-					 nf_date);
-   /* Later: Use the index if it exists */
-}
-#endif
 
 
 /*-----------------------------------------------------------------------

@@ -85,7 +85,9 @@ int     EqnListOrient(OCB_p ocb, Eqn_p list);
 int     EqnListMaximalLiterals(OCB_p ocb, Eqn_p list);
 bool    EqnListEqnIsMaximal(OCB_p ocb, Eqn_p list, Eqn_p eqn);
 bool    EqnListEqnIsStrictlyMaximal(OCB_p ocb, Eqn_p list, Eqn_p eqn);
+#ifdef NEVER_DEFINED
 void    EqnListMarkRestrictedTerms(Eqn_p list);
+#endif
 void    EqnListDeleteTermProperties(Eqn_p list, TermProperties props);
 
 void    EqnListPrint(FILE* out, Eqn_p list, char* sep, 
