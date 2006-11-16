@@ -59,6 +59,9 @@ typedef enum
                                    backward-rewritable clauses. Absence of
                                    this flag does not mean that the term
                                    is in any kind of normal form! POWNRS */
+   TPIsRRewritable    =     32, /* Term is rewritable even if
+                                   rewriting is restricted to proper
+                                   instances at the top level.*/
    TPIsSOSRewritten   =     64, /* Term has been rewritten with a SoS
                                    clause (at top level) */
    TPSpecialFlag      =    128, /* For internal use with normalizing variables*/

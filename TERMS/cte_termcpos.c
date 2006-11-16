@@ -110,7 +110,7 @@ void TermPrintAllCPos(FILE* out, TB_p bank, Term_p term)
    {
       fprintf(out, "\nPos %3ld: ", i);
       TBPrintTermFull(out, bank, t);
-      fprintf(out, " === ", i);
+      fprintf(out, " === ");
       TBPrintTermFull(out, bank, PStackElementP(stack, i));
    }
    fprintf(out, "\n");
