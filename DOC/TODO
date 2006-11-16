@@ -1,3 +1,15 @@
+I've changed the rewrite system and eliminated the use for
+TPRestricted. Detection of rewritable processed clauses now takes the
+restriction into account, however, actual rewriting does not, i.e. the
+first rewrite will always win, even if it is a non-intantiated top
+level step. This is of course sound - is it also complete? It _should_
+be, by the same argument that unrestricted rewriting of unprocessed
+clauses is ok...think & test!  
+* In this context: Clean up the mess by removing dead code!
+
+Detect definitions and make defined symbols large in the precedence
+(instead of automatic unfolding).
+
 Beautify the handling of FVIndexing somehow (the trouble is that the
 index can only be computed when the preprocessed clause set is
 there...hmmm). 
