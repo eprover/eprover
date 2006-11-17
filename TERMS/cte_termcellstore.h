@@ -65,14 +65,10 @@ typedef struct termcellstore
 void    TermCellStoreInit(TermCellStore_p store);
 void    TermCellStoreExit(TermCellStore_p store);
 
-Term_p  TermCellStoreFind(TermCellStore_p store, Term_p term,
-			  TermProperties prop_mask);
-Term_p  TermCellStoreInsert(TermCellStore_p store, Term_p term,
-			    TermProperties prop_mask);
-Term_p  TermCellStoreExtract(TermCellStore_p store, Term_p term,
-			     TermProperties prop_mask);
-bool    TermCellStoreDelete(TermCellStore_p store, Term_p term,
-			    TermProperties prop_mask);
+Term_p  TermCellStoreFind(TermCellStore_p store, Term_p term);
+Term_p  TermCellStoreInsert(TermCellStore_p store, Term_p term);
+Term_p  TermCellStoreExtract(TermCellStore_p store, Term_p term);
+bool    TermCellStoreDelete(TermCellStore_p store, Term_p term);
 
 void    TermCellStoreSetProp(TermCellStore_p store, TermProperties
 			     props); 
@@ -82,8 +78,7 @@ void    TermCellStoreDelProp(TermCellStore_p store, TermProperties
 #define TermCellStoreNodes(store) ((store)->entries)
 long    TermCellStoreCountNodes(TermCellStore_p store);
 
-long    TermCellStoreGCSweep(TermCellStore_p store, TermProperties
-			     gc_state, TermProperties prop_mask);
+long    TermCellStoreGCSweep(TermCellStore_p store, TermProperties gc_state );
 
 void    TermCellStorePrintDistrib(FILE* out, TermCellStore_p store);
 

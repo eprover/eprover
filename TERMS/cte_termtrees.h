@@ -48,11 +48,11 @@ Changes
 /*---------------------------------------------------------------------*/
 
 void   TermTreeFree(Term_p junk);
-int    TermTopCompare(Term_p t1, Term_p t2, TermProperties prop_mask);
-Term_p TermTreeFind(Term_p *root, Term_p term, TermProperties prop_mask);
-Term_p TermTreeInsert(Term_p *root, Term_p term, TermProperties prop_mask);
-Term_p TermTreeExtract(Term_p *root, Term_p term, TermProperties prop_mask);
-bool   TermTreeDelete(Term_p *root, Term_p term, TermProperties prop_mask);
+int    TermTopCompare(Term_p t1, Term_p t2);
+Term_p TermTreeFind(Term_p *root, Term_p term);
+Term_p TermTreeInsert(Term_p *root, Term_p term);
+Term_p TermTreeExtract(Term_p *root, Term_p term);
+bool   TermTreeDelete(Term_p *root, Term_p term);
 void   TermTreeSetProp(Term_p root, TermProperties props);
 void   TermTreeDelProp(Term_p root, TermProperties props);
 long   TermTreeNodes(Term_p root);

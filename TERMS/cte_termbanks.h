@@ -46,8 +46,6 @@ Changes
 
 typedef struct tbcell
 {
-   TermProperties prop_mask;     /* Which properties are used in this
-				    term bank? */ 
    unsigned long in_count;       /* How many terms have been inserted? */
    PDArray_p     ext_index;      /* Associate _external_ abbreviations (=
 				    entry_no's with term nodes, necessary
@@ -94,7 +92,7 @@ extern bool TBPrintDetails;
 #define TBCellAlloc() (TBCell*)SizeMalloc(sizeof(TBCell))
 #define TBCellFree(junk)         SizeFree(junk, sizeof(TBCell))
 
-TB_p    TBAlloc(TermProperties prop_mask, Sig_p sig);
+TB_p    TBAlloc(Sig_p sig);
 void    TBFree(TB_p junk);
 
 long    TBTermNodes(TB_p bank);
@@ -128,8 +126,6 @@ Term_p  TBTermTopInsert(TB_p bank, Term_p t);
 Term_p  TBAllocNewSkolem(TB_p bank, PStack_p variables, bool atom);
 
 Term_p  TBFind(TB_p bank, Term_p term);
-/* Deletion is now only to be handled via the garbage collection
- * mechanism! */
 
 void    TBPrintBankInOrder(FILE* out, TB_p bank);
 void    TBPrintTermCompact(FILE* out, TB_p bank, Term_p term);

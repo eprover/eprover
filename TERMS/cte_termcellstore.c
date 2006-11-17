@@ -140,11 +140,9 @@ void TermCellStoreExit(TermCellStore_p store)
 //
 /----------------------------------------------------------------------*/
 
-Term_p  TermCellStoreFind(TermCellStore_p store, Term_p term,
-			  TermProperties prop_mask)
+Term_p  TermCellStoreFind(TermCellStore_p store, Term_p term)
 {
-   return TermTreeFind(&(store->store[TermCellHash(term)]), term,
-		       prop_mask);
+   return TermTreeFind(&(store->store[TermCellHash(term)]), term);
 
 }
 
@@ -161,13 +159,11 @@ Term_p  TermCellStoreFind(TermCellStore_p store, Term_p term,
 //
 /----------------------------------------------------------------------*/
 
-Term_p  TermCellStoreInsert(TermCellStore_p store, Term_p term,
-			    TermProperties prop_mask)
+Term_p  TermCellStoreInsert(TermCellStore_p store, Term_p term)
 {
    Term_p ret;
 
-   ret = TermTreeInsert(&(store->store[TermCellHash(term)]), term,
-			prop_mask);
+   ret = TermTreeInsert(&(store->store[TermCellHash(term)]), term);
    if(!ret)
    {
       store->entries++;
@@ -188,12 +184,10 @@ Term_p  TermCellStoreInsert(TermCellStore_p store, Term_p term,
 //
 /----------------------------------------------------------------------*/
 
-Term_p  TermCellStoreExtract(TermCellStore_p store, Term_p term,
-			     TermProperties prop_mask)
+Term_p  TermCellStoreExtract(TermCellStore_p store, Term_p term)
 {
    Term_p ret;
-   ret = TermTreeExtract(&(store->store[TermCellHash(term)]), term,
-			 prop_mask);
+   ret = TermTreeExtract(&(store->store[TermCellHash(term)]), term);
    if(ret)
    {
       store->entries--;      
@@ -216,13 +210,11 @@ Term_p  TermCellStoreExtract(TermCellStore_p store, Term_p term,
 //
 /----------------------------------------------------------------------*/
 
-bool TermCellStoreDelete(TermCellStore_p store, Term_p term,
-			    TermProperties prop_mask)
+bool TermCellStoreDelete(TermCellStore_p store, Term_p term)
 {
    bool ret;
 
-   ret = TermTreeDelete(&(store->store[TermCellHash(term)]), term,
-			prop_mask);
+   ret = TermTreeDelete(&(store->store[TermCellHash(term)]), term);
    
    if(ret)
    {
@@ -320,8 +312,7 @@ long TermCellStoreCountNodes(TermCellStore_p store)
 //
 /----------------------------------------------------------------------*/
 
-long TermCellStoreGCSweep(TermCellStore_p store, TermProperties
-			  gc_state, TermProperties prop_mask)
+long TermCellStoreGCSweep(TermCellStore_p store, TermProperties gc_state)
 {
    long recovered = 0;
    int i;
@@ -334,11 +325,7 @@ long TermCellStoreGCSweep(TermCellStore_p store, TermProperties
       while(!PStackEmpty(del_stack))
       {
 	 cell = PStackPopP(del_stack);
-	 TermCellStoreDelete(store, cell, prop_mask); /* Could save
-							 some cycles
-							 here, but
-							 this is nicer
-						      */ 
+	 TermCellStoreDelete(store, cell); 
 	 recovered++;
       }
    }   

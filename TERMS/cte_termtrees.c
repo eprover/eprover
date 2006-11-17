@@ -52,8 +52,7 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-static Term_p splay_term_tree(Term_p tree, Term_p splay, TermProperties
-			      prop_mask)
+static Term_p splay_term_tree(Term_p tree, Term_p splay)
 {
    Term_p   left, right, tmp;
    TermCell new;
@@ -71,14 +70,14 @@ static Term_p splay_term_tree(Term_p tree, Term_p splay, TermProperties
    
    for (;;) 
    {
-      cmpres = TermTopCompare(splay, tree, prop_mask);
+      cmpres = TermTopCompare(splay, tree);
       if (cmpres < 0) 
       {
          if(!tree->lson)
          {
             break;
          }
-         if(TermTopCompare(splay, tree->lson, prop_mask) < 0)
+         if(TermTopCompare(splay, tree->lson) < 0)
          {
             tmp = tree->lson;
             tree->lson = tmp->rson;
@@ -99,7 +98,7 @@ static Term_p splay_term_tree(Term_p tree, Term_p splay, TermProperties
          {
             break;
          }
-         if(TermTopCompare(splay, tree->rson, prop_mask) > 0) 
+         if(TermTopCompare(splay, tree->rson) > 0) 
          {
             tmp = tree->rson;
             tree->rson = tmp->lson;
@@ -191,7 +190,7 @@ void TermTreeFree(Term_p junk)
 //
 /----------------------------------------------------------------------*/
 
-int TermTopCompare(Term_p t1, Term_p t2, TermProperties prop_mask)
+int TermTopCompare(Term_p t1, Term_p t2)
 {
    int i, res;
    
@@ -210,10 +209,7 @@ int TermTopCompare(Term_p t1, Term_p t2, TermProperties prop_mask)
       {
 	 return res;
       }
-   }
-
-   res = (t1->properties & prop_mask) - (t2->properties & prop_mask);
-   
+   }   
    return res;
 }
 
@@ -232,13 +228,12 @@ int TermTopCompare(Term_p t1, Term_p t2, TermProperties prop_mask)
 //
 /----------------------------------------------------------------------*/
 
-Term_p TermTreeFind(Term_p *root, Term_p key, TermProperties
-		    prop_mask)
+Term_p TermTreeFind(Term_p *root, Term_p key)
 {
    if(*root)
    {
-      *root = splay_term_tree(*root, key, prop_mask);  
-      if(TermTopCompare(*root, key, prop_mask)==0)
+      *root = splay_term_tree(*root, key);  
+      if(TermTopCompare(*root, key)==0)
       {
          return *root;
       }
@@ -261,8 +256,7 @@ Term_p TermTreeFind(Term_p *root, Term_p key, TermProperties
 //
 /----------------------------------------------------------------------*/
 
-Term_p TermTreeInsert(Term_p *root, Term_p new, 
-		      TermProperties prop_mask)
+Term_p TermTreeInsert(Term_p *root, Term_p new)
 {
    int cmpres;
 
@@ -272,9 +266,9 @@ Term_p TermTreeInsert(Term_p *root, Term_p new,
       *root = new;
       return NULL;
    }
-   *root = splay_term_tree(*root, new, prop_mask);
+   *root = splay_term_tree(*root, new);
 
-   cmpres = TermTopCompare(new, *root, prop_mask);
+   cmpres = TermTopCompare(new, *root);
    
    if (cmpres < 0) 
    {
@@ -309,8 +303,7 @@ Term_p TermTreeInsert(Term_p *root, Term_p new,
 //
 /----------------------------------------------------------------------*/
 
-Term_p TermTreeExtract(Term_p *root, Term_p key, TermProperties
-		       prop_mask) 
+Term_p TermTreeExtract(Term_p *root, Term_p key) 
 {
    Term_p x, cell;
    
@@ -318,8 +311,8 @@ Term_p TermTreeExtract(Term_p *root, Term_p key, TermProperties
    {
       return NULL;
    }
-   *root = splay_term_tree(*root, key, prop_mask);
-   if(TermTopCompare(key, (*root), prop_mask)==0)
+   *root = splay_term_tree(*root, key);
+   if(TermTopCompare(key, (*root))==0)
    {
       if (!(*root)->lson)
       {
@@ -327,7 +320,7 @@ Term_p TermTreeExtract(Term_p *root, Term_p key, TermProperties
       } 
       else
       {
-         x = splay_term_tree((*root)->lson, key, prop_mask);
+         x = splay_term_tree((*root)->lson, key);
          x->rson = (*root)->rson;
       }
       cell = *root;
@@ -351,11 +344,11 @@ Term_p TermTreeExtract(Term_p *root, Term_p key, TermProperties
 //
 /----------------------------------------------------------------------*/
 
-bool TermTreeDelete(Term_p *root, Term_p term, TermProperties prop_mask)
+bool TermTreeDelete(Term_p *root, Term_p term)
 {
    Term_p cell;
    
-   cell = TermTreeExtract(root, term, prop_mask);
+   cell = TermTreeExtract(root, term);
    if(cell)
    {
       TermTopFree(cell);

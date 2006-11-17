@@ -140,7 +140,7 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
    assert(t);
    assert(!TermIsVar(t));
 
-   new = TermCellStoreInsert(&(bank->term_store), t, bank->prop_mask);
+   new = TermCellStoreInsert(&(bank->term_store), t);
    
    if(new) /* Term node already existed, just add properties */
    {
@@ -261,7 +261,7 @@ static Term_p tb_parse_cons_list(Scanner_p in, TB_p bank)
 //
 /----------------------------------------------------------------------*/
 
-TB_p TBAlloc(TermProperties prop_mask, Sig_p sig)
+TB_p TBAlloc(Sig_p sig)
 {
    TB_p handle;
    Term_p term;
@@ -270,7 +270,6 @@ TB_p TBAlloc(TermProperties prop_mask, Sig_p sig)
 
    handle = TBCellAlloc();
 
-   handle->prop_mask = prop_mask;
    handle->in_count = 0;
    handle->rewrite_steps = 0;
    handle->ext_index = PDIntArrayAlloc(1,100000);
@@ -658,58 +657,9 @@ Term_p TBFind(TB_p bank, Term_p term)
    {
       return VarBankFCodeFind(bank->vars, term->f_code);
    }
-   return TermCellStoreFind(&(bank->term_store), term, bank->prop_mask);
+   return TermCellStoreFind(&(bank->term_store), term);
 }
 
-
-#ifdef NEVER_DEFINED
-/*-----------------------------------------------------------------------
-//
-// Function: TBDelete()
-//
-//   Delete a term and it's subterms from the term bank. This function
-//   does _not_ follow bindings (it would make little sense...). In
-//   fact, with the new rewriting, it makes little sense at all, and
-//   should probably be delete right away. I'll put in an
-//   assert(false) to catch all problems -- in fact, I'm commenting it
-//   out so the compilter tells me where to remove calls! Duh!
-//
-// Global Variables: -
-//
-// Side Effects    : Changes term bank
-//
-/----------------------------------------------------------------------*/
-
-bool TBDelete(TB_p bank, Term_p term)
-{
-   int i;
-   Term_p old;
-
-   assert(false); /* Should never be called with the new rewriting
-		     anymore. */
-   assert(term);
-
-   if(TermIsVar(term)||TermIsTrueTerm(term))
-   {
-      return false;
-   }   
-   
-   if(term->arity)
-   {
-      assert(term->args);
-      for(i=0; i<term->arity; i++)
-      {
-	 TBDelete(bank, term->args[i]);
-      }
-      old = TermCellStoreExtract(&(bank->term_store), term,
-				 bank->prop_mask);
-      assert(!TermIsVar(old));
-      TermTopFree(old);	 
-      return true;
-   }
-   return false;
-}
-#endif
 
 /*-----------------------------------------------------------------------
 //
@@ -778,15 +728,7 @@ void TBPrintTermCompact(FILE* out, TB_p bank, Term_p term)
       }
       else
       {
-	 if(TermCellIsAnyPropSet(term, bank->prop_mask))
-	 {
-	    fprintf(out, "*%ld/%d:",
-		    term->entry_no,term->properties&bank->prop_mask);
-	 }
-	 else
-	 {
-	    fprintf(out, "*%ld:", term->entry_no);
-	 }
+         fprintf(out, "*%ld:", term->entry_no);
 	 TermCellSetProp(term, TPOutputFlag);
 	 fprintf(out, SigFindName(bank->sig, term->f_code));
 	 if(!TermIsConst(term))
@@ -1130,7 +1072,6 @@ void TBRefSetProp(TB_p bank, TermRef ref, TermProperties prop)
    }
    
    new = TermTopCopy(term);
-   /* new->properties = new->properties&bank->prop_mask; Bad and wrong!*/
    TermCellSetProp(new, prop);
    new = tb_termtop_insert(bank, new);
    *ref = new;
@@ -1277,8 +1218,7 @@ long TBGCSweep(TB_p bank)
   
    VERBOUT("Garbage collection started.\n");
    recovered = TermCellStoreGCSweep(&(bank->term_store),
-				    bank->garbage_state,
-				    bank->prop_mask);
+				    bank->garbage_state);
    VERBOSE(fprintf(stderr, "Garbage collection reclaimed %ld unused term cells.\n",recovered););
 #ifdef PRINT_SOMEERRORS_STDOUT
    if(OutputLevel)
