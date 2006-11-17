@@ -822,7 +822,7 @@ TSMAdmin_p TSMAdminAlloc(Sig_p sig, TSMType type)
 {
    TSMAdmin_p handle = TSMAdminCellAlloc();
    
-   handle->index_bank      = TBAlloc(TPIgnoreProps, sig);
+   handle->index_bank      = TBAlloc(sig);
    handle->tsmtype         = type;
    handle->index_type      = IndexNoIndex;
    handle->index_depth     = 0;

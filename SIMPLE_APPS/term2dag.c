@@ -105,7 +105,7 @@ int main(int argc, char* argv[])
 
    TBPrintInternalInfo = true;
    out = OutOpen(outname);
-   bank = TBAlloc(TPIgnoreProps, SigAlloc());
+   bank = TBAlloc(SigAlloc());
 
    for(i=0; state->argv[i]; i++)
    {

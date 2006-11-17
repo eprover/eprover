@@ -350,7 +350,7 @@ int main(int argc, char* argv[])
    }
    
    sig       = SigAlloc();
-   terms     = TBAlloc(TPIgnoreProps, sig);
+   terms     = TBAlloc(sig);
    def_store = DefStoreAlloc(terms);
    clauses = ClauseSetAlloc();
    for(i=0; state->argv[i]; i++)

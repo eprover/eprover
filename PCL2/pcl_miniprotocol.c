@@ -60,7 +60,7 @@ PCLMiniProt_p PCLMiniProtAlloc(void)
 {
    PCLMiniProt_p handle = PCLMiniProtCellAlloc();
 
-   handle->terms = TBAlloc(TPIgnoreProps, SigAlloc());
+   handle->terms = TBAlloc(SigAlloc());
    handle->steps = PDArrayAlloc(1,500000);
    handle->max_ident = 0;
 

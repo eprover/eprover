@@ -111,7 +111,7 @@ int main(int argc, char* argv[])
    {
       CLStateInsertArg(state, "-");
    }
-   bank = TBAlloc(TPIgnoreProps, SigAlloc());
+   bank = TBAlloc(SigAlloc());
    
    in = CreateScanner(StreamTypeFile, state->argv[0], true, NULL);
    

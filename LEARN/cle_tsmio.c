@@ -333,7 +333,7 @@ TSMAdmin_p TSMFromKB(bool flat_patterns, double evalweights[], char*
    DStr_p         filename = DStrAlloc();
    AnnoSet_p      annoset;
    FlatAnnoSet_p  flatset = FlatAnnoSetAlloc();
-   TB_p bank =    TBAlloc(TPIgnoreProps, sig);
+   TB_p bank =    TBAlloc(sig);
    TSMAdmin_p     admin;
    PatternSubst_p subst;
    Scanner_p      in;

@@ -143,7 +143,7 @@ int main(int argc, char* argv[])
    in = CreateScanner(StreamTypeFile, 
 		      KBFileName(name, kb_name, "clausepatterns"),
 		      true, NULL);
-   annoterms = TBAlloc(TPIgnoreProps, reserved_symbols);
+   annoterms = TBAlloc(reserved_symbols);
    clause_examples = AnnoSetParse(in, annoterms, KB_ANNOTATION_NO);
    DestroyScanner(in);
 

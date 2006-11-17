@@ -100,7 +100,7 @@ int main(int argc, char* argv[])
    GlobalOut = OutOpen(outname);
 
    sig = SigAlloc();
-   bank = TBAlloc(TPIgnoreProps, sig);
+   bank = TBAlloc(sig);
    size_sum = depth_sum = size_max = depth_max = count = 0;
 
    for(i=0; state->argv[i]; i++)

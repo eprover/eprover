@@ -185,7 +185,7 @@ void KBParseExampleFile(Scanner_p in, char* name, ExampleSet_p set,
    long        ident;
    AnnoTerm_p  handle;
    
-   terms = TBAlloc(TPIgnoreProps, SigAlloc());
+   terms = TBAlloc(SigAlloc());
    ClauseSetParseList(in, axioms, terms);
    
    ident = KBAxiomsInsert(set, axioms, terms->sig, name);
@@ -196,7 +196,7 @@ void KBParseExampleFile(Scanner_p in, char* name, ExampleSet_p set,
       
    AcceptInpTok(in, Fullstop);
    
-   terms = TBAlloc(TPIgnoreProps, res_sig);
+   terms = TBAlloc(res_sig);
    
    while(!TestInpTok(in, NoToken))
    {      

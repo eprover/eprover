@@ -216,8 +216,8 @@ CSSCPAState_p CSSCPAStateAlloc()
    CSSCPAState_p handle = CSSCPAStateCellAlloc();
 
    handle->sig       = SigAlloc();
-   handle->terms     = TBAlloc(TPIgnoreProps,handle->sig);
-   handle->tmp_terms = TBAlloc(TPIgnoreProps,handle->sig);
+   handle->terms     = TBAlloc(handle->sig);
+   handle->tmp_terms = TBAlloc(handle->sig);
    handle->pos_units = ClauseSetAlloc();
    handle->neg_units = ClauseSetAlloc();
    handle->non_units = ClauseSetAlloc();

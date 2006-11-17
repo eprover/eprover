@@ -155,7 +155,7 @@ int main(int argc, char* argv[])
    in = CreateScanner(StreamTypeFile, infile, true, NULL);
    
    sig = SigAlloc();
-   bank = TBAlloc(TPIgnoreProps, sig);
+   bank = TBAlloc(sig);
    AcceptInpId(in, "Training");
    AcceptInpTok(in, Colon);   
    training_set = AnnoSetParse(in, bank, 2); /* (Sources, Class) ->2 */

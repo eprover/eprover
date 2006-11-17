@@ -60,7 +60,7 @@ PCLProt_p PCLProtAlloc(void)
 {
    PCLProt_p handle = PCLProtCellAlloc();
 
-   handle->terms = TBAlloc(TPIgnoreProps, SigAlloc());
+   handle->terms = TBAlloc(SigAlloc());
    handle->number = 0;
    handle->steps = NULL;
    handle->in_order = PStackAlloc();

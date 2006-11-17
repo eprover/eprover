@@ -268,7 +268,7 @@ void DPLLFormulaParseLOP(Scanner_p in, Sig_p sig, DPLLFormula_p form)
 {
    Clause_p clause;
    DPLLClause_p pclause;
-   TB_p terms = TBAlloc(TPIgnoreProps, sig);
+   TB_p terms = TBAlloc(sig);
    
    while(ClauseStartsMaybe(in))
    {

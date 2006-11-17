@@ -128,7 +128,7 @@ int main(int argc, char* argv[])
    DestroyScanner(in);
    
    sig = SigAlloc();
-   annoterms = TBAlloc(TPIgnoreProps, sig);
+   annoterms = TBAlloc(sig);
    in = CreateScanner(StreamTypeFile, 
 		      KBFileName(name, kb_name, "clausepatterns"),
 		      true, NULL);
