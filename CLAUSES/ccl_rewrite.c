@@ -332,7 +332,7 @@ static bool clause_is_rewritable(OCB_p ocb, Clause_p clause,
 	 res = true;
       }
    }
-   //printf("Res: %d\n", res);
+   /* printf("Res: %d\n", res); */
    return res;
 }
 

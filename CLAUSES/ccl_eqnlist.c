@@ -1048,42 +1048,6 @@ bool EqnListEqnIsStrictlyMaximal(OCB_p ocb, Eqn_p list, Eqn_p eqn)
 }
 
 
-#ifdef NEVER_DEFINED
-/*-----------------------------------------------------------------------
-//
-// Function: EqnListMarkRestrictedTerms()
-//
-//   Mark strict maximal terms of positive maximal literals with
-//   TPRestricted. The list is supposed to be oriented and have
-//   maximal literals marked.
-//
-// Global Variables: -
-//
-// Side Effects    : Changes term bank
-//
-/----------------------------------------------------------------------*/
-
-void EqnListMarkRestrictedTerms(Eqn_p list)
-{
-   while(list)
-   {
-      if(EqnIsPositive(list) && EqnIsMaximal(list))	
-      {
-	 if(EqnIsOriented(list))
-	 {
-	    TBRefSetProp(list->bank, &(list->lterm), TPRestricted); 
-	 }
-      }
-      else
-      {
-	 TBRefDelProp(list->bank, &(list->lterm), TPRestricted); 	 
-      }
-      list = list->next;
-   }
-}
-#endif
-
-
 /*-----------------------------------------------------------------------
 //
 // Function: EqnListDeleteTermProperties()

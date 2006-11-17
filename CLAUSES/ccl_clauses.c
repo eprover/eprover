@@ -1670,24 +1670,6 @@ void ClauseMarkMaximalTerms(OCB_p ocb, Clause_p clause)
 }
 
 
-#ifdef NEVER_DEFINED
-/*-----------------------------------------------------------------------
-//
-// Function: ClauseMarkRestrictedTerms()
-//
-//   Mark terms on which rewriting is restricted.
-//
-// Global Variables: -
-//
-// Side Effects    : Changes term bank...
-//
-/----------------------------------------------------------------------*/
-
-void ClauseMarkRestrictedTerms(Clause_p clause)
-{
-   EqnListMarkRestrictedTerms(clause->literals);
-}
-#endif
 
 /*-----------------------------------------------------------------------
 //

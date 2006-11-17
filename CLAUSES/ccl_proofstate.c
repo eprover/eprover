@@ -77,9 +77,9 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop,
    handle->signature           = SigAlloc();
    SigInsertFOFCodes(handle->signature);
    handle->original_symbols    = 0;
-   handle->original_terms      = TBAlloc(TPIgnoreProps, handle->signature);
-   handle->terms               = TBAlloc(TPIgnoreProps, handle->signature);
-   handle->tmp_terms           = TBAlloc(TPIgnoreProps, handle->signature);
+   handle->original_terms      = TBAlloc(handle->signature);
+   handle->terms               = TBAlloc(handle->signature);
+   handle->tmp_terms           = TBAlloc(handle->signature);
    handle->freshvars           = VarBankAlloc();
    handle->f_axioms            = FormulaSetAlloc();
    handle->axioms              = ClauseSetAlloc();
