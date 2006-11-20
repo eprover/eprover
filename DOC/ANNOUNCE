@@ -806,7 +806,7 @@ Stephan
 ----------------------------------------------------------------------------
 
 
-This is the announcement for version 0.99 of E.
+This is the announcement for version 0.99X of E.
 -----------------------------------------------
 
 comp.os.linux.announce
@@ -821,8 +821,8 @@ Summary: Announcement of availability of the E theorem prover.
 Keywords: E, equational theorem proving, ATP
 Followup-To: comp.theory
 
-The E equational theorem prover version 0.99 "Singtom" has been
-released. 
+E 0.99 "Singtom" is the latest version of the successful theorem
+prover for first order logic.
 
 E is a a purely equational theorem prover for full first order logic
 with equality. It has successfully competed in several CASC
@@ -854,3 +854,6 @@ Stephan
 -------------------------- It can be done! ---------------------------------
       Please email me as schulz@eprover.org (Stephan Schulz)
 ----------------------------------------------------------------------------
+
+
+
