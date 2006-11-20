@@ -903,19 +903,17 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
    eleminate_context_sr_clauses(state, control, pclause->clause);
 
    clause = pclause->clause;
-   /* ClauseCanonize(clause); */
    ClauseNormalizeVars(clause, state->freshvars);
    tmp_copy = ClauseCopy(clause, state->tmp_terms);      
    tmp_copy->ident = clause->ident;
 
-   /* ClauseMarkRestrictedTerms(clause); */
-   
    clause->date = clausedate;
    if(ClauseIsDemodulator(clause))
    {
       assert(clause->neg_lit_no == 0);
       if(EqnIsOriented(clause->literals))
       {
+         TermCellSetProp(clause->literals->lterm, TPIsRewritable);
 	 state->processed_pos_rules->date = clausedate;
 	 ClauseSetIndexedInsert(state->processed_pos_rules, pclause);
       }

@@ -23,6 +23,13 @@ Changes
 #include "ccl_rewrite.h"
 
 
+typedef enum 
+{
+   RWSuccess,
+   RWNoMatch,
+   RWNotDecreasing,
+   RWNoProperInstance
+}RWResultType;
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -130,12 +137,14 @@ static bool instance_is_rule(OCB_p ocb, Eqn_p demod,
 //
 /----------------------------------------------------------------------*/
 
-static bool term_is_top_rewritable(OCB_p ocb, Term_p term, Clause_p
-				   new_demod, bool restricted_rw)
+static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb, 
+                                           Term_p term, Clause_p 
+                                           new_demod, bool restricted_rw)
 {
-   Subst_p subst = SubstAlloc();
-   Eqn_p   eqn;
-   bool    res = false;
+   Subst_p      subst = SubstAlloc();
+   Eqn_p        eqn;
+   RWResultType res   = RWNoMatch;
+   Term_p       rterm;
 
    assert(new_demod->pos_lit_no == 1);
    assert(new_demod->neg_lit_no == 0);
@@ -143,36 +152,71 @@ static bool term_is_top_rewritable(OCB_p ocb, Term_p term, Clause_p
    
    eqn = new_demod->literals;
 
+   /* printf("Checking term: ");
+   TBPrintTermFull(stdout, eqn->bank, term);
+   printf("\n");
+   printf("with demod clause %ld: ", new_demod->ident);
+   ClausePrint(stdout, new_demod, true);
+   printf("\n");*/
+
    if(SubstComputeMatch(eqn->lterm, term, subst, TBTermEqual))
-   {
+   {      
       if((EqnIsOriented(eqn) 
-	  || instance_is_rule(ocb, eqn, eqn->lterm, eqn->rterm, subst))
-	 &&
-	 (!restricted_rw ||
-	  !SubstIsRenaming(subst)))
+	  || instance_is_rule(ocb, eqn, eqn->lterm, eqn->rterm, subst)))
       {
-         if(restricted_rw)
+         TermCellSetProp(term, TPIsRewritable);
+         if(EqnIsOriented(eqn)&&SubstIsRenaming(subst))
          {
+            if(restricted_rw)
+            {
+               res = RWNoProperInstance;
+            }
+            else
+            {
+               res = RWSuccess;
+            }
+         }
+         else 
+         {
+            assert(!SubstIsRenaming(subst));
             TermCellSetProp(term, TPIsRRewritable|TPIsRewritable);
+            res = RWSuccess;
          }
-         else
+         if(!TermIsRewritten(term)|| (res == RWSuccess && restricted_rw))
          {
-            TermCellSetProp(term, TPIsRewritable);
-         }
-	 res = true;
+            rterm = TBInsertInstantiated(bank, eqn->rterm);
+            TermCellDelProp(term, TPIsRewritten);
+            TermAddRWLink(term, rterm, new_demod->ident, ClauseIsSOS(new_demod));
+         }         
+      }
+      else
+      {
+         res = RWNotDecreasing;
       }
       SubstBacktrack(subst);
    }
-   if(!res && !EqnIsOriented(eqn))
+   if(res!=RWSuccess && !EqnIsOriented(eqn))
    {
       if(SubstComputeMatch(eqn->rterm, term, subst, TBTermEqual))
       {
 	 if(instance_is_rule(ocb, eqn, eqn->rterm, eqn->lterm, subst))
 	    /* If instance is rule -> subst is no renaming! */
 	 {
-	    res = true;
+            assert(!SubstIsRenaming(subst));
             TermCellSetProp(term, TPIsRRewritable|TPIsRewritable);
+	    res = RWSuccess;
+
+            rterm = TBInsertInstantiated(bank, eqn->lterm);
+            TermCellDelProp(term, TPIsRewritten);
+            TermAddRWLink(term, rterm, new_demod->ident, ClauseIsSOS(new_demod));
 	 }
+         else
+         {
+            if(res!=RWNoProperInstance)
+            {
+               res = RWNotDecreasing; 
+            }
+         }
       }
    }
    SubstDelete(subst);
@@ -204,12 +248,13 @@ static bool term_is_top_rewritable(OCB_p ocb, Term_p term, Clause_p
 //
 /----------------------------------------------------------------------*/
 
-static bool term_is_rewritable(OCB_p ocb, Term_p term, Clause_p
+static bool term_is_rewritable(TB_p bank, OCB_p ocb, Term_p term, Clause_p
                                new_demod, SysDate nf_date, 
                                bool restricted_rw)
 {
    int i;
    bool res = false;
+   RWResultType topres;
    
    /* printf("term_is_rewritable()...\n"); */
 
@@ -233,7 +278,7 @@ static bool term_is_rewritable(OCB_p ocb, Term_p term, Clause_p
    }
    for(i=0; i<term->arity; i++)
    {
-      if(term_is_rewritable(ocb, term->args[i], new_demod, nf_date, false))
+      if(term_is_rewritable(bank, ocb, term->args[i], new_demod, nf_date, false))
       {
          res = true;
          break;
@@ -244,13 +289,16 @@ static bool term_is_rewritable(OCB_p ocb, Term_p term, Clause_p
       TermCellSetProp(term, TPIsRewritable|TPIsRRewritable);
       return true;
    }
-   if(term_is_top_rewritable(ocb, term, new_demod, restricted_rw))
+   topres = term_is_top_rewritable(bank, ocb, term, new_demod, restricted_rw);
+   if(topres == RWSuccess)
    {
       /* Properties set in term_is_top_rewritable! */
       return true;
    }
-   if(!restricted_rw && !TermIsRewritten(term))
+   if(!TermIsRewritten(term) &&
+      !TermCellIsAnyPropSet(term, TPIsRewritable|TPIsRRewritable))
    {
+      assert(topres!=RWNoProperInstance);
       term->rw_data.nf_date[RewriteAdr(RuleRewrite)] =
          term->rw_data.nf_date[RewriteAdr(FullRewrite)] = nf_date;
    }
@@ -279,9 +327,9 @@ static EqnSide eqn_has_rw_side(OCB_p ocb, Eqn_p eqn, Clause_p
    bool resl, resr;
    bool restricted_rw = EqnIsMaximal(eqn) && EqnIsPositive(eqn) && EqnIsOriented(eqn);
 
-   resl = term_is_rewritable(ocb, eqn->lterm, new_demod, nf_date, 
+   resl = term_is_rewritable(eqn->bank, ocb, eqn->lterm, new_demod, nf_date,
                              restricted_rw);
-   resr = term_is_rewritable(ocb, eqn->rterm, new_demod, nf_date,
+   resr = term_is_rewritable(eqn->bank, ocb, eqn->rterm, new_demod, nf_date,
                              false);
 
    if(resl)
@@ -332,71 +380,10 @@ static bool clause_is_rewritable(OCB_p ocb, Clause_p clause,
 	 res = true;
       }
    }
-   /* printf("Res: %d\n", res); */
+   /* printf("Res: %d\n", res);  */
    return res;
 }
 
-#ifdef NEVER_DEFINED 
-/*-----------------------------------------------------------------------
-//
-// Function: clause_has_rw_max_side()
-//
-//   Return MaxSide, if the clause has a rewritable  maximal literal that
-//   may become non-maximal, MinSide if this is not the case, but it
-//   has another rewritable, NoSide otherwise.
-//
-// Global Variables: -
-//
-// Side Effects    : Changes nf_dates of terms.
-//
-/----------------------------------------------------------------------*/
-
-static EqnSide clause_has_rw_max_side(OCB_p ocb, Clause_p clause,
-				   Clause_p new_demod, SysDate
-				   nf_date)
-{
-   Eqn_p handle;
-   EqnSide tmp;
-   bool maxres = false, minres = false;
-
-   /* printf("Checking clause %ld: ", clause->ident);
-      ClausePrint(stdout, clause, false);
-   printf("\n"); */
-   for(handle = clause->literals; handle; handle = handle->next)
-   {
-      tmp = eqn_has_rw_side(ocb, handle, new_demod, nf_date);
-      if(tmp != NoSide)
-      {
-	 if(EqnIsMaximal(handle))
-	 {	
-	    if((tmp == MaxSide)||
-	       (EqnIsPositive(handle) && (clause->pos_lit_no >=2))||
-	       (EqnIsNegative(handle) && (clause->neg_lit_no >=2)))
-	    {	  
-	       maxres = true;
-	    }
-	    else
-	    {
-	       minres = true;
-	    }
-	 }
-	 else
-	 {
-	    minres = true;
-	 }
-      }	 
-   }
-   if(maxres)
-   {
-      return MaxSide;
-   }
-   if(minres)
-   {
-      return MinSide;
-   }
-   return NoSide;
-}
-#endif  
   
 /*-----------------------------------------------------------------------
 //
@@ -436,47 +423,6 @@ static bool find_rewritable_clauses(OCB_p ocb, ClauseSet_p set,
 }
 
 
-#ifdef NEVER_DEFINED 
-/*-----------------------------------------------------------------------
-//
-// Function: find_clauses_with_rw_max_sides()
-//
-//   A non-index-using implementation of
-//   FindClausesWithRewritableMaxSides(). Return true if any clause
-//   has a rewritable non-maximal side.
-//
-// Global Variables: -
-//
-// Side Effects    : Changes nf_dates of terms.
-//
-/----------------------------------------------------------------------*/
-
-static bool find_clauses_with_rw_max_sides(OCB_p ocb, ClauseSet_p set,
-					   PStack_p results, Clause_p
-					   new_demod, SysDate nf_date)
-{
-   Clause_p handle;
-   EqnSide  tmp;
-   bool     res = false;
-   
-   assert(new_demod->pos_lit_no == 1);
-   assert(new_demod->neg_lit_no == 0);
-   
-   for(handle = set->anchor->succ; handle != set->anchor; handle =
-	  handle->succ)
-   {
-      tmp = clause_has_rw_max_side(ocb, handle, new_demod, nf_date);
-      assert(tmp!=BothSides);
-      if(tmp==MaxSide)
-      /* if(tmp!=NoSide) */
-      {
-	 PStackPushP(results, handle);
-      }
-      res = res || (tmp==MinSide);
-   }
-   return res;
-}
-#endif
 
 
 /*-----------------------------------------------------------------------
