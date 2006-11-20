@@ -107,7 +107,6 @@ Term_p  DefaultSharedTermCellAlloc(void);
 #define TermIsTrueTerm(term) ((term)->f_code==SIG_TRUE_CODE)
 
 static __inline__ bool TBTermEqual(Term_p t1, Term_p t2);
-bool    TBTermStructEqual(Term_p t1, Term_p t2);
 #define TBTermIsSubterm(super, term)\
         TermIsSubterm((super),(term),DEREF_NEVER,TBTermEqual)
 

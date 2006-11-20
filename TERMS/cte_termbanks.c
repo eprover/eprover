@@ -367,53 +367,6 @@ Term_p DefaultSharedTermCellAlloc(void)
 
 /*-----------------------------------------------------------------------
 //
-// Function: TBTermStructEqual()
-//
-//   Tests, wether two terms in the same termbank are structurally
-//   identical (ignoring bindings).
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-bool TBTermStructEqual(Term_p t1, Term_p t2)
-{
-   PStack_p stack = PStackAlloc();
-   int i;
-   bool termeq = true;
-
-   PStackPushP(stack, t1);
-   PStackPushP(stack, t2);
-   
-   while(!PStackEmpty(stack))
-   {
-      t2 = PStackPopP(stack);
-      t1 = PStackPopP(stack);
-
-      if(t1 == t2)
-      {
-	 continue;
-      }
-      else if(t1->f_code != t2->f_code)
-      {
-	 termeq = false;
-	 break;
-      }
-      assert(t1->arity == t2->arity);
-      for(i=0; i<t1->arity; i++)
-      {
-	 PStackPushP(stack, t1->args[i]);
-	 PStackPushP(stack, t2->args[i]);
-      }
-   }
-   PStackFree(stack);
-   return termeq;
-}
-
-/*-----------------------------------------------------------------------
-//
 // Function: TBInsert()
 //
 //  Insert the term into the termbank. The original term will remain
