@@ -1495,13 +1495,14 @@ void DocFormulaIntroDefs(FILE* out, long level, WFormula_p form,
             fprintf(out, ", ");
             for(i=0; i<PStackGetSP(def_list); i++)
             {
-               fputs(PCL_AD "(", out);
+               fputs("inference("PCL_AD",[status(thm)],[", out);
             }
             fprintf(out, "c_0_%ld", old_id);
             for(i=0; i<PStackGetSP(def_list); i++)
             {
                fprintf(out, ",c_0_%ld)", PStackElementInt(def_list, i));
             }
+            fprintf(out, "]");            
             tstp_formula_print_end(out, comment);
             break;
       default:
@@ -1623,6 +1624,7 @@ void DocClauseApplyDefs(FILE* out, long level, Clause_p clause,
 
    if(level >= 2)
    {      
+      printf("We are here! DocOutputFormat=%d\n", DocOutputFormat);
       switch(DocOutputFormat)
       {
       case pcl_format:
