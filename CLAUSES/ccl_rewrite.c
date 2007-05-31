@@ -23,14 +23,6 @@ Changes
 #include "ccl_rewrite.h"
 
 
-typedef enum 
-{
-   RWSuccess,
-   RWNoMatch,
-   RWNotDecreasing,
-   RWNoProperInstance
-}RWResultType;
-
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
@@ -143,7 +135,7 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
 {
    Subst_p      subst = SubstAlloc();
    Eqn_p        eqn;
-   RWResultType res   = RWNoMatch;
+   RWResultType res   = RWNotRewritable;
    Term_p       rterm;
 
    assert(new_demod->pos_lit_no == 1);
@@ -163,35 +155,23 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
    {      
       if((EqnIsOriented(eqn) 
 	  || instance_is_rule(ocb, eqn, eqn->lterm, eqn->rterm, subst)))
-      {
-         TermCellSetProp(term, TPIsRewritable);
-         if(EqnIsOriented(eqn)&&SubstIsRenaming(subst))
+      {                  
+         if(!EqnIsOriented(eqn) || /* Only a performance hack */
+            !SubstIsRenaming(subst))
          {
-            if(restricted_rw)
-            {
-               res = RWNoProperInstance;
-            }
-            else
-            {
-               res = RWSuccess;
-            }
-         }
-         else 
-         {
-            assert(!SubstIsRenaming(subst));
+            res = RWAlwaysRewritable;
             TermCellSetProp(term, TPIsRRewritable|TPIsRewritable);
-            res = RWSuccess;
          }
-         if(!TermIsRewritten(term)|| (res == RWSuccess && restricted_rw))
+         else
+         {
+            res = RWLimitedRewritable;  
+            TermCellSetProp(term, TPIsRewritable);
+         }
+         if(!TermIsRewritten(term) || (res == RWAlwaysRewritable))
          {
             rterm = TBInsertInstantiated(bank, eqn->rterm);
-            TermCellDelProp(term, TPIsRewritten);
-            TermAddRWLink(term, rterm, new_demod->ident, ClauseIsSOS(new_demod));
-         }         
-      }
-      else
-      {
-         res = RWNotDecreasing;
+            TermAddRWLink(term, rterm, new_demod->ident, ClauseIsSOS(new_demod), res);
+         }
       }
       SubstBacktrack(subst);
    }
@@ -204,19 +184,11 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
 	 {
             assert(!SubstIsRenaming(subst));
             TermCellSetProp(term, TPIsRRewritable|TPIsRewritable);
-	    res = RWSuccess;
-
+	    res = RWAlwaysRewritable;
+            
             rterm = TBInsertInstantiated(bank, eqn->lterm);
-            TermCellDelProp(term, TPIsRewritten);
-            TermAddRWLink(term, rterm, new_demod->ident, ClauseIsSOS(new_demod));
+            TermAddRWLink(term, rterm, new_demod->ident, ClauseIsSOS(new_demod), res);
 	 }
-         else
-         {
-            if(res!=RWNoProperInstance)
-            {
-               res = RWNotDecreasing; 
-            }
-         }
       }
    }
    SubstDelete(subst);
@@ -290,13 +262,14 @@ static bool term_is_rewritable(TB_p bank, OCB_p ocb, Term_p term, Clause_p
       return true;
    }
    topres = term_is_top_rewritable(bank, ocb, term, new_demod, restricted_rw);
-   if(topres == RWSuccess)
+   if(topres != RWNoRewritable)
    {
       /* Properties set in term_is_top_rewritable! */
       return true;
    }
-   if(!TermIsRewritten(term) &&
-      !TermCellIsAnyPropSet(term, TPIsRewritable|TPIsRRewritable))
+   if(!TermCellIsAnyPropSet(term, 
+                            TPIsRewritable|TPIsRRewritable|
+                            TPIsRewritten|TermIsRRewritten))
    {
       assert(topres!=RWNoProperInstance);
       term->rw_data.nf_date[RewriteAdr(RuleRewrite)] =
@@ -365,12 +338,12 @@ static bool clause_is_rewritable(OCB_p ocb, Clause_p clause,
    EqnSide tmp;
    bool res = false;
 
-   /* printf("Checking clause %ld: ", clause->ident);
+   printf("Checking clause %ld: ", clause->ident);
    ClausePrint(stdout, clause, true);
    printf("\n");
    printf("with demod clause %ld: ", new_demod->ident);
    ClausePrint(stdout, new_demod, true);
-   printf("\n");*/
+   printf("\n");
 
    for(handle = clause->literals; handle; handle = handle->next)
    {
@@ -624,7 +597,8 @@ static Term_p rewrite_with_clause_setlist(OCB_p ocb, TB_p bank, Term_p term,
 //
 /----------------------------------------------------------------------*/
 
-static Term_p term_li_normalform(RWDesc_p desc, Term_p term)
+static Term_p term_li_normalform(RWDesc_p desc, Term_p term, 
+                                 bool restricted_rw)
 {
    bool    modified = true;
 
@@ -737,13 +711,14 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term)
 
 bool eqn_li_normalform(RWDesc_p desc, ClausePos_p pos)
 {   
-   Eqn_p eqn = pos->literal;
-   Term_p l_old=eqn->lterm, r_old=eqn->rterm;
+   Eqn_p  eqn = pos->literal;
+   Term_p l_old = eqn->lterm, r_old = eqn->rterm;
+   bool   restricted_rw = EqnIsMaximal(eqn) && EqnIsPositive(eqn) && EqnIsOriented(eqn);
 
    /* printf("Rewriting: ");
    TermPrint(stdout, eqn->lterm, eqn->bank->sig, DEREF_NEVER);
    printf("\n"); */
-   eqn->lterm = term_li_normalform(desc, eqn->lterm);
+   eqn->lterm = term_li_normalform(desc, eqn->lterm, restricted_rw);
    if(l_old!=eqn->lterm)
    {
       EqnDelProp(eqn, EPMaxIsUpToDate);
@@ -756,7 +731,7 @@ bool eqn_li_normalform(RWDesc_p desc, ClausePos_p pos)
    /* printf("Rewriting: ");
    TermPrint(stdout, eqn->rterm, eqn->bank->sig, DEREF_NEVER);
    printf("\n"); */
-   eqn->rterm = term_li_normalform(desc, eqn->rterm);
+   eqn->rterm = term_li_normalform(desc, eqn->rterm, false);
    if(r_old!=eqn->rterm)
    {
       if(!EqnIsOriented(eqn))
