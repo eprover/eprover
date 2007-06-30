@@ -319,10 +319,10 @@ bool FileVarsGetStr(FileVars_p vars, char* name,  char **value)
 //
 // Function: FileVarsGetIdentifier()
 //
-//   Try to get an Identifiervalue associated with a name. If it exist,
-//   set *var to the result and return true, otherwise leave *var
-//   untouched and return false. If value is not integer, exit with
-//   error. *var will only live as long as vars!
+//   Try to get an Identifier value associated with a name. If it
+//   exist, set *var to the result and return true, otherwise leave
+//   *var untouched and return false. If value is not integer, exit
+//   with error. *var will only live as long as vars!
 //
 // Global Variables: -
 //

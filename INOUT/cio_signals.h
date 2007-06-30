@@ -7,7 +7,7 @@ Author: Stephan Schulz
 Contents
  
   Signal handler for limit signals...not really necessary, but may
-  work around some Solaris bugs.
+  work around some Solaris bugs. Also some support infrastructure... 
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence.
@@ -26,6 +26,10 @@ Changes
 #define CCO_SIGNALS
 
 #include <signal.h>
+#include <sys/types.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+
 #include <cio_tempfile.h>
 
 /*---------------------------------------------------------------------*/
@@ -54,6 +58,8 @@ extern VOLATILE sig_atomic_t TimeLimitIsSoft; /* Have we hit hard or
 
 void ESignalSetup(int mysignal);
 void ESignalHandler(int mysignal);
+
+bool SetSoftRLimit(int resource, rlim_t limit_val);
 
 
 #endif
