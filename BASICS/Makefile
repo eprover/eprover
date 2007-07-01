@@ -35,7 +35,8 @@ include ../Makefile.services
 
 # Build the  library
 
-BASIC_LIB = clb_error.o clb_memory.o clb_dstrings.o clb_verbose.o\
+BASIC_LIB = clb_error.o clb_memory.o clb_os_wrapper.o \
+            clb_dstrings.o clb_verbose.o\
             clb_stringtrees.o clb_numtrees.o clb_floattrees.o clb_pstacks.o\
             clb_pqueue.o clb_dstacks.o clb_ptrees.o clb_quadtrees.o\
 	    clb_objtrees.o clb_fixdarrays.o\

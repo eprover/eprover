@@ -1,0 +1,59 @@
+/*-----------------------------------------------------------------------
+
+File  : clb_os_wrapper.h
+
+Author: Stephan Schulz (schulz@eprover.org)
+
+Contents
+ 
+  Functions wrapping some OS functions in a convenient manner. 
+
+  Copyright 2007 by the author.
+  This code is released under the GNU General Public Licence.
+  See the file COPYING in the main CLIB directory for details.
+  Run "eprover -h" for contact information.
+
+Changes
+
+<1>     New
+
+-----------------------------------------------------------------------*/
+
+#ifndef CLB_OS_WRAPPERS
+
+#define CLB_OS_WRAPPERS
+
+#include <sys/types.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+
+
+/*---------------------------------------------------------------------*/
+/*                    Data type declarations                           */
+/*---------------------------------------------------------------------*/
+
+typedef enum
+{
+   RLimFailed,
+   RLimSuccess,
+   RLimReduced
+}RlimResult;
+
+
+/*---------------------------------------------------------------------*/
+/*                Exported Functions and Variables                     */
+/*---------------------------------------------------------------------*/
+
+RlimResult SetSoftRlimit(int resource, rlim_t limit);
+
+
+#endif
+
+/*---------------------------------------------------------------------*/
+/*                        End of File                                  */
+/*---------------------------------------------------------------------*/
+
+
+
+
+

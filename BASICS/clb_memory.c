@@ -99,7 +99,7 @@ static long free_list_size(Mem_p list)
 //
 // Function: SetMemoryLimit()
 //
-//   Set memory limit to the given limit (ir any), or the largest
+//   Set memory limit to the given limit (if any), or the largest
 //   possible.
 //
 // Global Variables: -
