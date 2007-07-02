@@ -59,15 +59,21 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-void TermAddRWLink(Term_p term, Term_p replace, long demod, bool sos)
+void TermAddRWLink(Term_p term, Term_p replace, long demod, bool sos,
+                   RWResultType type)
 {
    assert(term);
    assert(replace);
    assert(term!=replace);
+   assert(res!=RWNotRewritable);
 
-   assert(!TermIsTopRewritten(term));
+   TermCellSetProp(term, TPIsRewritten);   
 
-   TermCellSetProp(term, TPIsRewritten);
+   if(type==RWAlwaysRewritable)
+   {
+      TermCellSetProp(term, TPIsRRewritten);
+   }
+   
    TermRWReplaceField(term) = replace;
    TermRWDemodField(term)   = demod;
 

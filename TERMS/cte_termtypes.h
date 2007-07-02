@@ -73,6 +73,10 @@ typedef enum
                                    top operations and the like? */
    TPIsRewritten      =   4096, /* Term has been rewritten (for the new
                                    rewriting scheme) */ 
+   TPIsRRewritten     =   8192, /* Term has been rewritten at a
+                                   subterm position or with a real
+                                   instance (for the new rewriting
+                                   scheme) */ 
    TPIsShared         =  16384, /* Term is in a term bank */
    TPGarbageFlag      =  32768, /* For the term bank garbage collection */
    TPIsFreeVar        =  65536, /* For Skolemization */
@@ -203,6 +207,7 @@ typedef bool (*TermEqualTestFun)(Term_p t1, Term_p t2);
 #define TermArgArrayFree(junk, arity) SizeFree((junk),(arity)*sizeof(Term_p))
 
 #define TermIsRewritten(term) TermCellQueryProp((term), TPIsRewritten)
+#define TermIsRRewritten(term) TermCellQueryProp((term), TPIsRRewritten)
 #define TermIsTopRewritten(term) (TermIsRewritten(term)&&TermRWDemodField(term))
 #define TermIsShared(term)       TermCellQueryProp((term), TPIsShared)
 

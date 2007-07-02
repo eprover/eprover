@@ -175,7 +175,10 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
       }
       SubstBacktrack(subst);
    }
-   if(res!=RWSuccess && !EqnIsOriented(eqn))
+   if(!((res == RWAlwaysRewritable)||
+        (!restricted_rw&&res==RWLimitedRewritable))
+      &&
+      !EqnIsOriented(eqn))
    {
       if(SubstComputeMatch(eqn->rterm, term, subst, TBTermEqual))
       {
@@ -262,14 +265,14 @@ static bool term_is_rewritable(TB_p bank, OCB_p ocb, Term_p term, Clause_p
       return true;
    }
    topres = term_is_top_rewritable(bank, ocb, term, new_demod, restricted_rw);
-   if(topres != RWNoRewritable)
+   if(topres != RWNotRewritable)
    {
       /* Properties set in term_is_top_rewritable! */
       return true;
    }
    if(!TermCellIsAnyPropSet(term, 
                             TPIsRewritable|TPIsRRewritable|
-                            TPIsRewritten|TermIsRRewritten))
+                            TPIsRewritten|TPIsRRewritten))
    {
       assert(topres!=RWNoProperInstance);
       term->rw_data.nf_date[RewriteAdr(RuleRewrite)] =
@@ -502,7 +505,8 @@ static ClausePos_p indexed_find_demodulator(OCB_p ocb, Term_p term,
 
 static Term_p rewrite_with_clause_set(OCB_p ocb, TB_p bank, Term_p term,
 				      SysDate date, ClauseSet_p
-				      demodulators, bool prefer_general)
+				      demodulators, bool prefer_general,
+                                      bool restricted_rw)
 {
    Subst_p     subst = SubstAlloc();
    ClausePos_p pos;
@@ -514,7 +518,7 @@ static Term_p rewrite_with_clause_set(OCB_p ocb, TB_p bank, Term_p term,
    assert(!TermIsTopRewritten(term));
 
    pos = indexed_find_demodulator(ocb, term, date, demodulators,
-				  subst, prefer_general);
+				  subst, prefer_general/* ,restricted_rw */);
    if(pos)
    {
       RewriteSucesses++;
@@ -523,7 +527,8 @@ static Term_p rewrite_with_clause_set(OCB_p ocb, TB_p bank, Term_p term,
       repl = TBInsertInstantiated(bank, repl);
       
       assert(pos->clause->ident);
-      TermAddRWLink(term, repl, pos->clause->ident, ClauseIsSOS(pos->clause));
+      TermAddRWLink(term, repl, pos->clause->ident, ClauseIsSOS(pos->clause), 
+                    restricted_rw?RWAlwaysRewritable:RWLimitedRewritable);
       term = repl;
    }
    SubstDelete(subst);   
@@ -549,7 +554,8 @@ static Term_p rewrite_with_clause_set(OCB_p ocb, TB_p bank, Term_p term,
 static Term_p rewrite_with_clause_setlist(OCB_p ocb, TB_p bank, Term_p term,
 					  ClauseSet_p* demodulators,
 					  RewriteLevel level, bool
-					  prefer_general)
+					  prefer_general,
+                                          bool restricted_rw)
 {
    unsigned int  i;
    Term_p res = term;
@@ -568,7 +574,8 @@ static Term_p rewrite_with_clause_setlist(OCB_p ocb, TB_p bank, Term_p term,
 	 res = rewrite_with_clause_set(ocb, bank, term,
 				       TermNFDate(term,level-1),
 				       demodulators[i],
-				       prefer_general);
+				       prefer_general,
+                                       restricted_rw);
 	 if(res!=term)
 	 {
 	    break;
@@ -636,14 +643,15 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
       modified = false;      
       for(i=0; i<term->arity; i++)
       {	 
-	 new_term->args[i] = term_li_normalform(desc, term->args[i]);
+	 new_term->args[i] = term_li_normalform(desc, term->args[i], false);
 	 modified = modified || (new_term->args[i]!= term->args[i]);
       }
       if(modified)
       {
 	 new_term = TBTermTopInsert(desc->bank, new_term);
 	 assert(new_term!=term);
-	 TermAddRWLink(term, new_term, REWRITE_AT_SUBTERM, false);	 
+	 TermAddRWLink(term, new_term, REWRITE_AT_SUBTERM, false, 
+                       RWAlwaysRewritable);	 
 	 term = new_term;
       }
       else
@@ -665,7 +673,8 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
 	    rewrite_with_clause_setlist(desc->ocb, desc->bank,
 					term, desc->demods,
 					desc->level,
-					desc->prefer_general);
+					desc->prefer_general,
+                                        restricted_rw);
 	    new_term = term_follow_top_RW_chain(term, desc);
 	 }
 	 modified = (term!=new_term);
@@ -800,14 +809,15 @@ static __inline__ RWDesc_p rw_desc_cell_alloc(OCB_p ocb, TB_p bank,
 /----------------------------------------------------------------------*/
 
 Term_p TermComputeLINormalform(OCB_p ocb, TB_p bank, Term_p term,
-			     ClauseSet_p *demodulators, RewriteLevel
-			     level, bool prefer_general)
+                               ClauseSet_p *demodulators, RewriteLevel
+                               level, bool prefer_general, 
+                               bool restricted_rw) 
 {
    Term_p res;
    RWDesc_p desc = rw_desc_cell_alloc(ocb, bank, demodulators, level,
 				      prefer_general);
 
-   res = term_li_normalform(desc, term);
+   res = term_li_normalform(desc, term, restricted_rw);
    RWDescCellFree(desc);
    return res;
 }

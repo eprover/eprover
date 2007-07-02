@@ -32,7 +32,15 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-#define RPL_TERM_WATCH 2048
+/** Can a term be rewritten, rewritten if not protected, or always
+ ** rewritten? */
+
+typedef enum 
+{
+   RWNotRewritable     = 0,
+   RWLimitedRewritable = 1,
+   RWAlwaysRewritable  = 2,
+}RWResultType;
 
 
 /*---------------------------------------------------------------------*/
@@ -41,7 +49,7 @@ Changes
 
 
 void   TermAddRWLink(Term_p term, Term_p replace, long demod,
-		     bool sos);
+		     bool sos, RWResultType type);
 
 Term_p TermFollowRWChain(Term_p term);
 

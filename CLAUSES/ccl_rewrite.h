@@ -48,6 +48,7 @@ typedef struct rw_desc_cell
 
 
 
+
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
@@ -65,8 +66,9 @@ extern bool RewriteStrongRHSInst;
 
 Term_p TermComputeLINormalform(OCB_p ocb, TB_p bank, Term_p term,
 			       ClauseSet_p *demodulators,
-			       RewriteLevel level, bool
-			       prefer_general);
+			       RewriteLevel level, 
+                               bool prefer_general,
+                               bool restricted_rw);
 
 bool ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p
 			       clause, ClauseSet_p *demodulators,
