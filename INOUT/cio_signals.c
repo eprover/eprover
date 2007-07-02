@@ -151,56 +151,6 @@ void ESignalHandler(int mysignal)
 }
 
 
-/*-----------------------------------------------------------------------
-//
-// Function: SetSoftRLimit()
-//
-//   Try to set the soft resource limit for the specified resource to
-//   the desired value. If the hard limit is lower than the desired
-//   soft limit, do nothing.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-bool SetSoftRLimit(int resource, rlim_t limit_val)
-{
-#ifndef RESTRICTED_FOR_WINDOWS
-   struct rlimit limit = {RLIM_INFINITY, RLIM_INFINITY};
-
-   if(getrlimit(resource, &limit)==-1)
-   {
-      return false;
-   }
-
-   /* We don't assume that RLIM_INFINITY is automatically greater than
-      all other possible values. */
-   if(limit.rlim_max == RLIM_INFINITY)
-   {
-      limit.rlim_cur = limit_val;
-   }
-   else if(limit_val == RLIM_INFINITY)
-
-   {
-      limit.rlim_cur = limit.rlim_max;
-   }
-   else
-   {
-      limit.rlim_cur = MIN(limit_val, limit.rlim_max);
-   }
-   
-   if(setrlimit(resource, &limit)==-1)
-   {
-      return false;
-   }
-   return true;
-#else
-   return false;
-#endif
-}
-
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

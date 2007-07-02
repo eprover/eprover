@@ -59,8 +59,6 @@ extern VOLATILE sig_atomic_t TimeLimitIsSoft; /* Have we hit hard or
 void ESignalSetup(int mysignal);
 void ESignalHandler(int mysignal);
 
-bool SetSoftRLimit(int resource, rlim_t limit_val);
-
 
 #endif
 
