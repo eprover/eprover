@@ -111,35 +111,13 @@ static long free_list_size(Mem_p list)
 #ifndef RESTRICTED_FOR_WINDOWS
 void SetMemoryLimit(rlim_t mem_limit)
 {
-   struct rlimit limit = {RLIM_INFINITY, RLIM_INFINITY};
-   
    if(!mem_limit)
    {
       return;
    }  
-   if(getrlimit(RLIMIT_DATA, &limit))
-   {
-      TmpErrno = errno;
-      SysError("Unable to get current memory limit", SYS_ERROR);
-   }
-   limit.rlim_cur = MIN(mem_limit,limit.rlim_max);
-   if(setrlimit(RLIMIT_DATA, &limit))
-   {
-      TmpErrno = errno;
-      SysError("Unable to set memory limit", SYS_ERROR);
-   }
+   SetSoftRlimitErr(RLIMIT_DATA, mem_limit, "RLIMIT_DATA");
 #ifdef RLIMIT_AS
-   if(getrlimit(RLIMIT_AS, &limit))
-   {
-      TmpErrno = errno;
-      SysError("Unable to get current memory limit", SYS_ERROR);
-   }
-   limit.rlim_cur = MIN(mem_limit,limit.rlim_max);
-   if(setrlimit(RLIMIT_AS, &limit))
-   {
-      TmpErrno = errno;
-      SysError("Unable to set memory limit", SYS_ERROR);
-   }
+   SetSoftRlimitErr(RLIMIT_DATA, mem_limit, "RLIMIT_AS");
 #endif /* RLIMIT_AS */
 }
 #endif /* RESTRICTED_FOR_WINDOWS */

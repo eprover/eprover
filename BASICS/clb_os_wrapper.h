@@ -23,9 +23,12 @@ Changes
 
 #define CLB_OS_WRAPPERS
 
+#include <assert.h>
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/resource.h>
+
+#include "clb_error.h"
 
 
 /*---------------------------------------------------------------------*/
@@ -35,16 +38,18 @@ Changes
 typedef enum
 {
    RLimFailed,
-   RLimSuccess,
-   RLimReduced
-}RlimResult;
+   RLimReduced,
+   RLimSuccess
+}RLimResult;
 
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-RlimResult SetSoftRlimit(int resource, rlim_t limit);
+RLimResult SetSoftRlimit(int resource, rlim_t limit);
+void       SetSoftRlimitErr(int resource, rlim_t limit, char* desc);
+
 
 
 #endif

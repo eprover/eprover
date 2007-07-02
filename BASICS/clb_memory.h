@@ -31,7 +31,7 @@ Changes
 #else
 
 #include "clb_verbose.h"
-
+#include "clb_os_wrapper.h"
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
