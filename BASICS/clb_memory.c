@@ -97,33 +97,6 @@ static long free_list_size(Mem_p list)
 
 /*-----------------------------------------------------------------------
 //
-// Function: SetMemoryLimit()
-//
-//   Set memory limit to the given limit (if any), or the largest
-//   possible.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-#ifndef RESTRICTED_FOR_WINDOWS
-void SetMemoryLimit(rlim_t mem_limit)
-{
-   if(!mem_limit)
-   {
-      return;
-   }  
-   SetSoftRlimitErr(RLIMIT_DATA, mem_limit, "RLIMIT_DATA");
-#ifdef RLIMIT_AS
-   SetSoftRlimitErr(RLIMIT_DATA, mem_limit, "RLIMIT_AS");
-#endif /* RLIMIT_AS */
-}
-#endif /* RESTRICTED_FOR_WINDOWS */
-
-/*-----------------------------------------------------------------------
-//
 // Function: MemFlushFreeList()
 //
 //   Returns all memory kept in free_mem_list[] to the operation

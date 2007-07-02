@@ -100,12 +100,6 @@ static __inline__ void  SizeFreeReal(void* junk, size_t size);
 
 #endif
 
-#ifndef RESTRICTED_FOR_WINDOWS
-void  SetMemoryLimit(rlim_t mem_limit);
-#else
-#define SetMemoryLimit(dummy) /* Nothing */
-#endif
-
 void  MemFlushFreeList(void);
 void* SecureMalloc(size_t size);
 void* SecureRealloc(void *ptr, size_t size);
