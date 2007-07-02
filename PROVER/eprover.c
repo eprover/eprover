@@ -288,7 +288,9 @@ OptCell opts[] =
     "in some UNIX implementations, and due to the fact that I know "
     "of no portable way to figure out the physical memory in a machine. "
     "Both the option and the 'Auto' version do work under all tested "
-    "versions of Solaris and GNU/Linux."},
+    "versions of Solaris and GNU/Linux. Due to problems with limit "
+    "datatypes, it is currently impossible to set a limit of more than "
+    "2 GB (2048 MB)."},
 
    {OPT_CPU_LIMIT,
     '\0', "cpu-limit",
@@ -1321,10 +1323,10 @@ CLState_p process_options(int argc, char* argv[])
    Opt_p handle;
    CLState_p state;
    char*  arg;
-#ifndef RESTRICTED_FOR_WINDOWS
-   struct rlimit limit = {RLIM_INFINITY, RLIM_INFINITY};
-#endif
    long   tmp;
+#ifndef RESTRICTED_FOR_WINDOWS
+   long   mem_limit;
+#endif
 
    state = CLStateAlloc(argc,argv);
    
@@ -1403,45 +1405,47 @@ CLState_p process_options(int argc, char* argv[])
             if(strcmp(arg, "Auto")==0)
             {              
                long tmpmem =  GetSystemPhysMemory();
-               long mem_limit = 0.8*tmpmem;
+               
+               mem_limit = 0.8*tmpmem;
                
                if(tmpmem==-1)
                {
                   Error("Cannot find physical memory automatically. "
                         "Give explicit value to --memory-limit", OTHER_ERROR);
                }               
-               h_parms->mem_limit = MEGA*mem_limit;
                VERBOSE(fprintf(stderr, 
-                               "Physical memory determined as %ld MB\n"
-                               "Memory limit set to %ld MB\n", 
-                               tmpmem, 
-                               mem_limit););
+                               "Physical memory determined as %ld MB\n",
+                               tmpmem););
             }
             else
             {
-               h_parms->mem_limit = MEGA*CLStateGetIntArg(handle, arg);
+               mem_limit = CLStateGetIntArg(handle, arg);
             }
-	    break;
+            if(mem_limit > 2048)
+            {
+               mem_limit = 2048; 
+            }
+            VERBOSE(fprintf(stderr, 
+                            "Memory limit set to %ld MB\n", 
+                            mem_limit););
+            h_parms->mem_limit = MEGA*mem_limit;
+            break;
       case OPT_CPU_LIMIT:
 	    HardTimeLimit = CLStateGetIntArg(handle, arg);
-	    if(SoftTimeLimit != RLIM_INFINITY)
-	    {
-	       if(HardTimeLimit<=SoftTimeLimit)
-	       {
-		  Error("Hard time limit has to be larger than soft"
-			"time limit", USAGE_ERROR);
-	       }
-	    }
-	    break;
+	    if((SoftTimeLimit != RLIM_INFINITY) &&
+               (HardTimeLimit<=SoftTimeLimit))
+            {
+               Error("Hard time limit has to be larger than soft"
+                     "time limit", USAGE_ERROR);
+            }
+            break;
       case OPT_SOFTCPU_LIMIT:
 	    SoftTimeLimit = CLStateGetIntArg(handle, arg);
-	    if(HardTimeLimit != RLIM_INFINITY)
-	    {
-	       if(HardTimeLimit<=SoftTimeLimit)
-	       {
-		  Error("Soft time limit has to be smaller than hard"
+	    if((HardTimeLimit != RLIM_INFINITY) &&
+	       (HardTimeLimit<=SoftTimeLimit))
+            {
+               Error("Soft time limit has to be smaller than hard"
 			"time limit", USAGE_ERROR);
-	       }
 	    }	    
 	    break;
 #endif /*  RESTRICTED_FOR_WINDOWS */
@@ -1920,39 +1924,21 @@ CLState_p process_options(int argc, char* argv[])
 #ifndef RESTRICTED_FOR_WINDOWS
    if((HardTimeLimit!=RLIM_INFINITY)||(SoftTimeLimit!=RLIM_INFINITY))
    {
-      if(getrlimit(RLIMIT_CPU, &limit))
-      {
-	 TmpErrno = errno;
-	 SysError("Unable to get sytem cpu time limit", SYS_ERROR);
-      }
-      SystemTimeLimit = limit.rlim_max;
-      HardTimeLimit = MIN(HardTimeLimit, SystemTimeLimit);
-      SoftTimeLimit = MIN(SoftTimeLimit, SystemTimeLimit);
-
       if(SoftTimeLimit!=RLIM_INFINITY)
       {
-	 limit.rlim_max = SystemTimeLimit; /* Redundant, but clearer */
-	 limit.rlim_cur = SoftTimeLimit;
+         SetSoftRlimit(RLIMIT_CPU, SoftTimeLimit);
 	 TimeLimitIsSoft = true;
       }
       else
       {
-	 limit.rlim_max = SystemTimeLimit;
-	 limit.rlim_cur = HardTimeLimit;
+         SetSoftRlimit(RLIMIT_CPU, HardTimeLimit);
 	 TimeLimitIsSoft = false;
       }
-      if(setrlimit(RLIMIT_CPU, &limit))
-      {
-	 TmpErrno = errno;
-	 SysError("Unable to set cpu time limit", SYS_ERROR);
-      }
-      limit.rlim_max = RLIM_INFINITY;
-      limit.rlim_cur = 0;
 
-      if(setrlimit(RLIMIT_CORE, &limit))
+      if(SetSoftRlimit(RLIMIT_CORE, 0)!=RLimSuccess)
       {
-	 TmpErrno = errno;
-	 SysError("Unable to prevent core dumps", SYS_ERROR);
+         perror("eprover");
+         Warning("Cannot prevent core dumps!");
       }
    }
    SetMemoryLimit(h_parms->mem_limit);

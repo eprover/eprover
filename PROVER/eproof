@@ -23,13 +23,14 @@ tmpfile2=$TMPDIR/"eprooftmp_"${host}"_"${pid}
 
 timeout=""
 
+status=0
 
 cleanup () 
 {  
     ulimit -S unlimited
     touch $tmpfile $tmpfile2
     rm $tmpfile $tmpfile2
-    exit 
+    exit $status
 } 
 
 xcpuhandler ()
@@ -67,7 +68,7 @@ for argument in  "$@"; do
     elif [ "$argument" = "-V" -o "$argument" = "--version" ] ; then
         $EXECPATH/eprover --version
         $EXECPATH/epclextract --version
-        exit 1
+        exit $?
     else
 	head=`echo "$argument"|cut -d= -f1`
 	head1=`echo "$argument"|cut -c1-2`
@@ -108,6 +109,7 @@ done
 print_tail=`expr $print_res + $print_stats`
 
 sh -c "$EXECPATH/eprover $newargs -l4 -R -o- --pcl-terms-compressed --pcl-compact> $tmpfile"
+status=$?
 $TAIL -60 $tmpfile > $tmpfile2
 searchtime=`cat $tmpfile2|grep "Total time"|cut -d: -f2|sed -e 's/[s ]//g'|cut -d. -f1`
 if [ "$searchtime" ]; then
@@ -136,6 +138,7 @@ if [ "$searchtime" ]; then
     grep "# SZS status" $tmpfile2
     grep "# Failure"          $tmpfile2
     $EXECPATH/epclextract $format -f --competition-framing $tmpfile
+    status=$?
     $TAIL -$print_tail $tmpfile2
 else
     echo "# Cannot determine problem status within resource limit"
