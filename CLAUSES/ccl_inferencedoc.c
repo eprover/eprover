@@ -1624,7 +1624,6 @@ void DocClauseApplyDefs(FILE* out, long level, Clause_p clause,
 
    if(level >= 2)
    {      
-      printf("We are here! DocOutputFormat=%d\n", DocOutputFormat);
       switch(DocOutputFormat)
       {
       case pcl_format:

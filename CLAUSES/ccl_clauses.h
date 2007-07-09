@@ -61,7 +61,8 @@ typedef enum
    CPTypeWatchClause= CPType1|CPType2|CPType3, /* Clause is intended
                                                   as a watch list
                                                   clause */
-   /* 1024 available again */
+   CPIsIRVictim     = 1024,     /* Clause has just been simplified in
+                                   interreduction */
    CPOpFlag         = 2048,     /* Temporary marker */
    CPIsSelected     = 4096,     /* For analysis of selected clauses only */
    CPIsFinal        =  8192,    /* Clause is a final clause, i.e. a clause

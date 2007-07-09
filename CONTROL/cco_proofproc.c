@@ -351,7 +351,8 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
 				handle,
 				state->demods,
 				control->heuristic_parms.forward_demod,
-				control->heuristic_parms.prefer_general);      
+				control->heuristic_parms.prefer_general,
+                                false);      
       removed_lits = ClauseRemoveSuperfluousLiterals(handle);
       if(removed_lits)
       {
@@ -453,11 +454,23 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
    state->generated_lit_count+=state->tmp_store->literals;
    while((handle = ClauseSetExtractFirst(state->tmp_store)))
    {
+      if(ClauseQueryProp(handle,CPIsIRVictim));
+      {
+         // printf("Limited RW\n");
+         ForwardModifyClause(state, control, handle, 
+                             control->heuristic_parms.forward_context_sr_aggressive||
+                             (control->heuristic_parms.backward_context_sr&&
+                              ClauseQueryProp(handle,CPIsProcessed)),
+                             control->heuristic_parms.forward_demod, true);
+         ClauseDelProp(handle,CPIsIRVictim);
+      }
       ForwardModifyClause(state, control, handle, 
 			  control->heuristic_parms.forward_context_sr_aggressive||
 			  (control->heuristic_parms.backward_context_sr&&
 			   ClauseQueryProp(handle,CPIsProcessed)),
-			  control->heuristic_parms.forward_demod);
+			  control->heuristic_parms.forward_demod, false);
+
+
       if(ClauseIsTrivial(handle)||
 	 (control->heuristic_parms.unproc_simplify&&
 	  !ClauseSimplifyWithUnitSet(handle, state->unprocessed,
@@ -901,6 +914,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
    eleminate_backward_subsumed_clauses(state, pclause);
    eleminate_unit_simplified_clauses(state, pclause->clause);
    eleminate_context_sr_clauses(state, control, pclause->clause);
+   ClauseSetSetProp(state->tmp_store, CPIsIRVictim);
 
    clause = pclause->clause;
    ClauseNormalizeVars(clause, state->freshvars);

@@ -94,12 +94,13 @@ static bool instance_is_rule(OCB_p ocb, Eqn_p demod,
 //
 /----------------------------------------------------------------------*/
 
-/* static */ Term_p term_follow_top_RW_chain(Term_p term, RWDesc_p desc)
+/* static */ Term_p term_follow_top_RW_chain(Term_p term, RWDesc_p desc,
+                                             bool restricted_rw)
 {
    assert(term);
 
    /* printf("Starting chain\n"); */
-   while(TermIsTopRewritten(term))
+   while(TermIsTopRewritten(term)&&(!restricted_rw||TermIsRRewritten(term)))
    {
       assert(term);
       if(TermCellQueryProp(term, TPIsSOSRewritten))
@@ -341,12 +342,12 @@ static bool clause_is_rewritable(OCB_p ocb, Clause_p clause,
    EqnSide tmp;
    bool res = false;
 
-   printf("Checking clause %ld: ", clause->ident);
-   ClausePrint(stdout, clause, true);
-   printf("\n");
-   printf("with demod clause %ld: ", new_demod->ident);
-   ClausePrint(stdout, new_demod, true);
-   printf("\n");
+   //printf("Checking clause %ld: ", clause->ident);
+   //ClausePrint(stdout, clause, true);
+   //printf("\n");
+   //printf("with demod clause %ld: ", new_demod->ident);
+   //ClausePrint(stdout, new_demod, true);
+   //printf("\n");
 
    for(handle = clause->literals; handle; handle = handle->next)
    {
@@ -417,11 +418,11 @@ static ClausePos_p indexed_find_demodulator(OCB_p ocb, Term_p term,
 					    SysDate date,
 					    ClauseSet_p demodulators,
 					    Subst_p subst,
-					    bool prefer_general)
+					    bool prefer_general, 
+                                            bool restricted_rw)
 {
    Eqn_p       eqn;   
    ClausePos_p pos, res = NULL;
-   bool restricted_rw = false /* TermCellQueryProp(term, TPRestricted) */;
    
    assert(!restricted_rw);
    assert(term);
@@ -518,7 +519,7 @@ static Term_p rewrite_with_clause_set(OCB_p ocb, TB_p bank, Term_p term,
    assert(!TermIsTopRewritten(term));
 
    pos = indexed_find_demodulator(ocb, term, date, demodulators,
-				  subst, prefer_general/* ,restricted_rw */);
+				  subst, prefer_general, restricted_rw);
    if(pos)
    {
       RewriteSucesses++;
@@ -617,8 +618,8 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
    {
       return term;
    }
-   term = term_follow_top_RW_chain(term, desc);
-   assert(!TermIsTopRewritten(term));
+   term = term_follow_top_RW_chain(term, desc, restricted_rw);
+   assert(!TermIsTopRewritten(term)||restricted_rw);
    
    /* printf("Term after top chain: ");
    TermPrint(stdout, term, desc->ocb->sig, DEREF_NEVER);
@@ -666,7 +667,7 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
       {
 	 if(TermIsTopRewritten(term))
 	 {
-	    new_term = term_follow_top_RW_chain(term, desc);
+	    new_term = term_follow_top_RW_chain(term, desc, restricted_rw);
 	 }
 	 else
 	 {
@@ -675,7 +676,7 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
 					desc->level,
 					desc->prefer_general,
                                         restricted_rw);
-	    new_term = term_follow_top_RW_chain(term, desc);
+	    new_term = term_follow_top_RW_chain(term, desc, restricted_rw);
 	 }
 	 modified = (term!=new_term);
 	 term = new_term;
@@ -718,11 +719,12 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
 //
 /----------------------------------------------------------------------*/
 
-bool eqn_li_normalform(RWDesc_p desc, ClausePos_p pos)
+bool eqn_li_normalform(RWDesc_p desc, ClausePos_p pos, bool interred_rw)
 {   
    Eqn_p  eqn = pos->literal;
    Term_p l_old = eqn->lterm, r_old = eqn->rterm;
-   bool   restricted_rw = EqnIsMaximal(eqn) && EqnIsPositive(eqn) && EqnIsOriented(eqn);
+   bool   restricted_rw = EqnIsMaximal(eqn) && EqnIsPositive(eqn) &&
+      EqnIsOriented(eqn) && interred_rw;
 
    /* printf("Rewriting: ");
    TermPrint(stdout, eqn->lterm, eqn->bank->sig, DEREF_NEVER);
@@ -838,7 +840,8 @@ Term_p TermComputeLINormalform(OCB_p ocb, TB_p bank, Term_p term,
 
 bool ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
 			       ClauseSet_p *demodulators,
-			       RewriteLevel level, bool prefer_general)
+			       RewriteLevel level, bool prefer_general,
+                               bool interred_rw)
 {
    Eqn_p handle;
    bool tmp, res=false;
@@ -861,7 +864,7 @@ bool ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
    for(handle = clause->literals; handle; handle=handle->next)
    {
       pos.literal = handle;
-      tmp = eqn_li_normalform(desc, &pos);
+      tmp = eqn_li_normalform(desc, &pos, interred_rw);
       res = res || tmp;
    }
    if(desc->sos_rewritten)
@@ -895,7 +898,7 @@ bool ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
 long ClauseSetComputeLINormalform(OCB_p ocb, TB_p bank, ClauseSet_p
 				  set, ClauseSet_p *demodulators,
 				  RewriteLevel level, bool
-				  prefer_general)
+				  prefer_general, bool interred_rw)
 {
    Clause_p handle;
    bool     tmp;
@@ -906,9 +909,12 @@ long ClauseSetComputeLINormalform(OCB_p ocb, TB_p bank, ClauseSet_p
    for(handle=set->anchor->succ; handle!=set->anchor; handle =
 	  handle->succ)
    {
-      tmp = ClauseComputeLINormalform(ocb, bank, handle,
-				      demodulators, level,
-				      prefer_general);
+      tmp = ClauseComputeLINormalform(ocb, bank,
+                                      handle,
+				      demodulators,
+                                      level,
+				      prefer_general,
+                                      interred_rw);
       
       if(tmp)
       {
