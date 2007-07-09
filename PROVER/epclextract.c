@@ -218,15 +218,15 @@ int main(int argc, char* argv[])
    {
       if(no_extract)
       {
-	 fprintf(GlobalOut, "# Derivation starts here.\n");
+	 fprintf(GlobalOut, "# SZS output start Derivation.\n");
       }
       else if(empty_clause)
       {
-	 fprintf(GlobalOut, "# Proof object starts here.\n");
+	 fprintf(GlobalOut, "# SZS output start CNFRefutation.\n");
       }
       else
       {
-	 fprintf(GlobalOut, "# Saturation derivation starts here.\n");
+	 fprintf(GlobalOut, "# SZS output start Saturation.\n");
       }      
    }
    if(fast_extract)
@@ -241,15 +241,15 @@ int main(int argc, char* argv[])
    {
       if(no_extract)
       {
-	 fprintf(GlobalOut, "# Derivation ends here.\n");
+	 fprintf(GlobalOut, "# SZS output end Derivation.\n");
       }
       else if(empty_clause)
       {
-	 fprintf(GlobalOut, "# Proof object ends here.\n");
+	 fprintf(GlobalOut, "# SZS output end CNFRefutation\n");
       }
       else
       {
-	 fprintf(GlobalOut, "# Saturation derivation ends here.\n");
+	 fprintf(GlobalOut, "# SZS output end Saturation.\n");
       }	    
    }
 #ifdef FAST_EXIT

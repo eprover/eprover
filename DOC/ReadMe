@@ -39,22 +39,22 @@ Problem is FOF and not a theorem:
 
 The start of solution output for proofs:
 
-# Proof object starts here.
+# SZS output start CNFRefutation.
 
 The end of solution output for proofs:
 
-# Proof object ends here.
+# SZS output end CNFRefutation.
 
 
 
 
 The start of solution output for models/saturations:
 
-# Saturation derivation starts here.
+# SZS output start Saturation.
 
 The end of solution output for models/saturations:
 
-# Saturation derivation ends here.
+# SZS output end Saturation.
 
 
 
