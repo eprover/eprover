@@ -32,11 +32,11 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-/*  cvs tag E-0-999pre001 */
-#define VERSION      "0.999pre001"
+/*  cvs tag E-0-999pre002 */
+#define VERSION      "0.999pre002"
 #define NAME         "eprover"
 
-#define NICKNAME     "Singtom"
+#define NICKNAME     "Longview"
 
 typedef enum
 {
