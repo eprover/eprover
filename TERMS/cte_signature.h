@@ -48,10 +48,11 @@ typedef enum
    FPCommutative  =  32, /* Function symbol is binary and commutates */
    FPIsAC         =   FPAssociative|FPCommutative,
    FPInterpreted  =  64, /* Interpreted symbol $ident */
-   FPIsNumber     = 128, /* Sequence of digits, may be semi-interpreted */
-   FPIsObject     = 256,  /* ""-enclosed string, by definition denotes
-                           unique object." */
-   FPDistinctProp = FPIsObject | FPIsNumber
+   FPIsInteger    = 128, /* Sequence of digits, may be semi-interpreted */
+   FPIsFloat      = 256, /* Floating point number */
+   FPIsObject     = 512, /* ""-enclosed string, by definition denotes
+                            unique object." */
+   FPDistinctProp = FPIsObject | FPIsInteger | FPIsFloat
 }FunctionProperties;
 
 

@@ -94,7 +94,8 @@ typedef enum
    TermIdentVariable,   /* Ident, starts with capital letter or _ */
    TermIdentFreeFun,    /* Ident, starts with Lower case letter or SQString */
    TermIdentObject,     /* String "in double quotes" */
-   TermIdentNumber,     /* PosInt */
+   TermIdentInteger,    /* Integer */
+   TermIdentFloat,      /* Floating point number */
    TermIdentInterpreted /* SemIdent */
 }TermIdentType;
 

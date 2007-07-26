@@ -349,7 +349,7 @@ TermIdentType TermParseOperator(Scanner_p in, DStr_p id)
          res = TermIdentFreeFun;
          break;
    case PosInt:
-         res = TermIdentNumber;
+         res = TermIdentInteger;
          break;
    default:
          assert(TestInpTok(in, Identifier));
@@ -394,8 +394,8 @@ FunCode TermSigInsert(Sig_p sig, const char* name, int arity, bool
    res = SigInsertId(sig, name, arity, special_id);
    switch(type)
    {
-   case TermIdentNumber:
-         SigSetFuncProp(sig, res, FPIsNumber);
+   case TermIdentInteger:
+         SigSetFuncProp(sig, res, FPIsInteger);
          break;
    case TermIdentObject:
          SigSetFuncProp(sig, res, FPIsObject);
@@ -460,8 +460,8 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
 
          if(TestInpTok(in, OpenBracket))
          {
-            if((id_type == TermIdentNumber)
-               &&(sig->distinct_props & FPIsNumber))
+            if((id_type == TermIdentInteger)
+               &&(sig->distinct_props & FPIsInteger))
             {
                AktTokenError(in, 
                              "Number cannot have argument list (consider --free-numbers)", 

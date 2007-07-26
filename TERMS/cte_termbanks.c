@@ -882,8 +882,8 @@ Term_p TBTermParse(Scanner_p in, TB_p bank)
 	 
 	    if(TestInpTok(in, OpenBracket))
 	    { 
-               if((id_type == TermIdentNumber)
-                  &&(bank->sig->distinct_props & FPIsNumber))
+               if((id_type == TermIdentInteger)
+                  &&(bank->sig->distinct_props & FPIsInteger))
                {
                   AktTokenError(in, 
                                 "Number cannot have argument list (consider --free-numbers)", 
