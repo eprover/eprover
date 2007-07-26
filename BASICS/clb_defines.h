@@ -172,7 +172,7 @@ typedef ptrdiff_t ptr_int;
 
 
 #ifdef PRINT_TSTP_STATUS
-#define TSTPOUT(file,msg) fprintf(file, "# SZS status: %s\n", msg)
+#define TSTPOUT(file,msg) fprintf(file, "# SZS status %s\n", msg)
 #else
 #define TSTPOUT(file, msg)
 #endif
