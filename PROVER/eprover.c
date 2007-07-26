@@ -32,8 +32,8 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-/*  cvs tag E-0-999pre002 */
-#define VERSION      "0.999pre002"
+/*  cvs tag E-0-999pre003 */
+#define VERSION      "0.999pre003"
 #define NAME         "eprover"
 
 #define NICKNAME     "Longview"
@@ -1904,7 +1904,7 @@ CLState_p process_options(int argc, char* argv[])
       }
       break;
       case OPT_FREE_NUMBERS:
-            free_symb_prop = free_symb_prop | FPIsNumber;
+            free_symb_prop = free_symb_prop | FPIsInteger|FPIsFloat;
             break;
       case OPT_FREE_OBJECTS:
             free_symb_prop = free_symb_prop | FPIsObject;
