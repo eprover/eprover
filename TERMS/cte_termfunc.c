@@ -325,7 +325,7 @@ void TermPrintArgList(FILE* out, Term_p *args, int arity, Sig_p sig,
 //
 //   Return value is the type
 //
-// Global Variables: SigIdentToken
+// Global Variables: SigIdentStartToken
 //
 // Side Effects    : Read input
 //
@@ -335,7 +335,7 @@ TermIdentType TermParseOperator(Scanner_p in, DStr_p id)
 {
    TermIdentType res;
 
-   CheckInpTok(in, SigIdentToken);
+   CheckInpTok(in, SigIdentStartToken);
 
    switch(AktTokenType(in))
    {
@@ -368,7 +368,7 @@ TermIdentType TermParseOperator(Scanner_p in, DStr_p id)
          break;
    }
    DStrAppendStr(id, DStrView(AktToken(in)->literal));
-   AcceptInpTok(in, SigIdentToken);
+   AcceptInpTok(in, SigIdentStartToken);
 
    return res;
 }      

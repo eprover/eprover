@@ -1,13 +1,13 @@
 /*-----------------------------------------------------------------------
 
-File  : cte_types.h
+File  : cte_functypes.h
 
 Author: Stephan Schulz
 
 Contents
  
-  Simple, widely used types (only useful for clearer naming
-  conventions).
+  Simple, widely used functions for dealing with function symbols and
+  operators. 
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence.
@@ -21,9 +21,9 @@ Changes
 
 -----------------------------------------------------------------------*/
 
-#ifndef CTE_TYPES
+#ifndef CTE_FUNCTYPES
 
-#define CTE_TYPES
+#define CTE_FUNCTYPES
 
 
 

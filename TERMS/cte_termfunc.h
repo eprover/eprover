@@ -43,8 +43,8 @@ Changes
 extern bool      TermPrintLists; /* Using [...] notation */
 
 #define TermStartToken (SigSupportLists?\
-                       (SigIdentToken|OpenSquare|Mult):\
-		       (SigIdentToken|Mult))
+                       (SigIdentStartToken|OpenSquare|Mult):\
+		       (SigIdentStartToken|Mult))
 
 Term_p  TermIntRepresentation(Sig_p sig, long number);
 

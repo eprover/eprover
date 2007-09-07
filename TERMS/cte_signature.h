@@ -28,8 +28,8 @@ Changes
 #include <clb_stringtrees.h>
 #include <clb_pdarrays.h>
 #include <clb_properties.h>
-#include <cio_scanner.h>
-#include <cte_types.h>
+#include <cio_basicparser.h>
+#include <cte_functypes.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -163,8 +163,10 @@ typedef struct sigcell
 extern bool      SigSupportLists; /* Auto-Insert special symbols
 				     $nil=3, $cons=4 for list
 				     representations */
-extern TokenType SigIdentToken; /* What is a potential function symbol
-				   name? */
+extern TokenType SigIdentToken; /* What is a potential atomic function
+				   symbol name? */
+extern TokenType SigIdentStartToken; /* What is a potential function symbol
+				   start token? */
 #define SigCellAlloc() (SigCell*)SizeMalloc(sizeof(SigCell))
 #define SigCellFree(junk)         SizeFree(junk, sizeof(SigCell))
 

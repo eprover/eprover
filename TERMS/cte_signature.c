@@ -29,7 +29,10 @@ Changes
 /*---------------------------------------------------------------------*/
 
 bool      SigSupportLists = false; 
-TokenType SigIdentToken   = Identifier | PosInt | SemIdent | SQString | String;
+// Tokens that can are always stand-alone identifiers
+TokenType SigIdentToken = Identifier | SemIdent | SQString | String;
+// Tokens that may start a (composite or atomic) identifier
+TokenType SigIdentStartToken = Identifier | PosInt | SemIdent | SQString | String | Plus | Hyphen; 
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -612,12 +615,22 @@ void SigPrintACStatus(FILE* out, Sig_p sig)
 } 
 
 
+
 /*-----------------------------------------------------------------------
 //
 // Function: SigParseOperator()
 //
-//   Parse an operator (i.e. an optional $, followed by an
-//   identifier), store the representation into id
+//   Parse an operator and store the representation into id.
+//
+//   Operators are now of the types
+//
+//   - Ident
+//   - SemIdent
+//   - String
+//   - SQString
+//   - Integers, potentially signed
+//   - Reals, potentially signed
+//
 //
 // Global Variables: SigIdentToken
 //
@@ -627,8 +640,33 @@ void SigPrintACStatus(FILE* out, Sig_p sig)
 
 void SigParseOperator(Scanner_p in, DStr_p id)
 {
-   DStrAppendStr(id, DStrView(AktToken(in)->literal));
-   AcceptInpTok(in, SigIdentToken);
+   StrNumType numtype;
+
+   CheckInpTok(in, SigIdentStartToken);
+
+   if(TestInpTok(in, SigIdentToken))
+   {
+      DStrAppendStr(id, DStrView(AktToken(in)->literal));
+      AcceptInpTok(in, SigIdentToken);
+   }
+   else
+   {
+      CheckInpTok(in, PosInt|Plus|Hyphen);
+      
+      numtype = ParseNumString(in);
+      switch(numtype)
+      {
+      case SNInteger:
+            DStrAppendStr(id, DStrView(in->accu));
+            break;
+      case SNFloat:
+            DStrAppendStr(id, DStrView(in->accu));
+            break;
+      default:
+            assert(false);
+            break;
+      }
+   }      
 }
 
 
