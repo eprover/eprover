@@ -378,7 +378,6 @@ bool ClauseIsTautology(TB_p work_bank, Clause_p clause)
    {
       ground_orient_eqn(rw_system);
    }
-   assert(rw_system);
    
    for(handle = work_copy->literals; handle; handle = handle->next)
    {

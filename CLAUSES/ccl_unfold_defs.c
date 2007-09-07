@@ -275,7 +275,7 @@ long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, ClauseSet_p passive,
 //
 //   Perform preprocessing on the clause set: Removing tautologies,
 //   definition unfolding and canonization. Returns number of clauses
-//   removed. If passive is true, potential unolding is applied to
+//   removed. If passive is true, potential unfolding is applied to
 //   clauses in that set as well.
 //
 // Global Variables: -
@@ -289,6 +289,7 @@ long ClauseSetPreprocess(ClauseSet_p set, ClauseSet_p passive, TB_p
 {
    long res, tmp;
 
+   ClauseSetRemoveSuperfluousLiterals(set);
    res = ClauseSetFilterTautologies(set, tmp_terms);
    ClauseSetCanonize(set);
    if(no_eq_unfold)

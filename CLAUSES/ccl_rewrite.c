@@ -275,7 +275,6 @@ static bool term_is_rewritable(TB_p bank, OCB_p ocb, Term_p term, Clause_p
                             TPIsRewritable|TPIsRRewritable|
                             TPIsRewritten|TPIsRRewritten))
    {
-      assert(topres!=RWNoProperInstance);
       term->rw_data.nf_date[RewriteAdr(RuleRewrite)] =
          term->rw_data.nf_date[RewriteAdr(FullRewrite)] = nf_date;
    }
@@ -424,7 +423,6 @@ static ClausePos_p indexed_find_demodulator(OCB_p ocb, Term_p term,
    Eqn_p       eqn;   
    ClausePos_p pos, res = NULL;
    
-   assert(!restricted_rw);
    assert(term);
    assert(demodulators);
    assert(demodulators->demod_index);

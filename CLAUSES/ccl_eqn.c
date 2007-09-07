@@ -276,47 +276,50 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
    {
       rterm = bank->true_term; /* Non-Equational literal */
    }
-   if(TermIsVar(lterm) || SigIsFunction(bank->sig, lterm->f_code))
-   {
-      if(TestInpTok(in, NegEqualSign))
-      {
-         positive = !positive;
-      }
-      AcceptInpTok(in, NegEqualSign|EqualSign);	 
-      rterm = TBTermParse(in, bank);
-      if(!TermIsVar(rterm))
-      {
-         if(SigIsPredicate(bank->sig, rterm->f_code))
-         {
-            AktTokenError(in, "Predicate symbol used as "
-                          "function symbol in preceding atom", SYNTAX_ERROR);
-         }
-         SigSetFunction(bank->sig, rterm->f_code, true);
-      }
-   }
-   else if(TestInpTok(in, NegEqualSign|EqualSign))
-   { /* Now both sides must be terms */
-      SigSetFunction(bank->sig, lterm->f_code, true);
-      if(TestInpTok(in, NegEqualSign))
-      {
-         positive = !positive;
-      }
-      AcceptInpTok(in, NegEqualSign|EqualSign);	 
-      rterm = TBTermParse(in, bank);
-      if(!TermIsVar(rterm))
-      {
-         if(SigIsPredicate(bank->sig, rterm->f_code))
-         {
-            AktTokenError(in, "Predicate symbol used as "
-                          "function symbol in preceding atom", SYNTAX_ERROR);
-         }
-         SigSetFunction(bank->sig, rterm->f_code, true);
-      }
-   }
    else
-   { /* It's a predicate */
-      rterm = bank->true_term; /* Non-Equational literal */
-      SigSetPredicate(bank->sig, lterm->f_code, true);
+   {
+      if(TermIsVar(lterm) || SigIsFunction(bank->sig, lterm->f_code))
+      {
+         if(TestInpTok(in, NegEqualSign))
+         {
+            positive = !positive;
+         }
+         AcceptInpTok(in, NegEqualSign|EqualSign);	 
+         rterm = TBTermParse(in, bank);
+         if(!TermIsVar(rterm))
+         {
+            if(SigIsPredicate(bank->sig, rterm->f_code))
+            {
+               AktTokenError(in, "Predicate symbol used as "
+                             "function symbol in preceding atom", SYNTAX_ERROR);
+            }
+            SigSetFunction(bank->sig, rterm->f_code, true);
+         }
+      }
+      else if(TestInpTok(in, NegEqualSign|EqualSign))
+      { /* Now both sides must be terms */
+         SigSetFunction(bank->sig, lterm->f_code, true);
+         if(TestInpTok(in, NegEqualSign))
+         {
+            positive = !positive;
+         }
+         AcceptInpTok(in, NegEqualSign|EqualSign);	 
+         rterm = TBTermParse(in, bank);
+         if(!TermIsVar(rterm))
+         {
+            if(SigIsPredicate(bank->sig, rterm->f_code))
+            {
+               AktTokenError(in, "Predicate symbol used as "
+                             "function symbol in preceding atom", SYNTAX_ERROR);
+            }
+            SigSetFunction(bank->sig, rterm->f_code, true);
+         }
+      }
+      else
+      { /* It's a predicate */
+         rterm = bank->true_term; /* Non-Equational literal */
+         SigSetPredicate(bank->sig, lterm->f_code, true);
+      }
    }
    *lref = lterm;
    *rref = rterm;
