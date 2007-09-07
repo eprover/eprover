@@ -1,3 +1,8 @@
+FVIndexing will not work that well for _very_ large signatures (in
+fact, it does not deal nicely with growing signatures now. But we can
+_group_ function symbols and count/position them (easiest done using
+modulo on the FunCode!) and use them. 
+
 I've changed the rewrite system and eliminated the use for
 TPRestricted. Detection of rewritable processed clauses now takes the
 restriction into account, however, actual rewriting does not, i.e. the
@@ -6,6 +11,7 @@ level step. This is of course sound - is it also complete? It _should_
 be, by the same argument that unrestricted rewriting of unprocessed
 clauses is ok...think & test!  
 * In this context: Clean up the mess by removing dead code!
+-> No, it didn't, but I've now fixed it.
 
 Detect definitions and make defined symbols large in the precedence
 (instead of automatic unfolding).
