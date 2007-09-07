@@ -196,6 +196,8 @@ bool TestIdnum(Token_p akt, char* ids);
 #define TestInpId(in, ids)    TestId(AktToken(in), (ids))
 #define TestInpIdnum(in, ids) TestIdnum(AktToken(in), (ids))
 #define TestInpNoSkip(in)     (!(AktToken(in)->skipped))
+#define TestInpTokNoSkip(in, toks) \
+        (TestInpNoSkip(in) && TestInpTok(in, toks))
 
 VOLATILE void AktTokenError(Scanner_p in, char* msg, bool syserr);
 

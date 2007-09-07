@@ -161,6 +161,63 @@ double ParseFloat(Scanner_p in)
 
 /*-----------------------------------------------------------------------
 //
+// Function: ParseNumString()
+//
+//   Parse a (possibly signed) number and return the most specific
+//   type compatible with it. The number is not evaluated, but
+//   it's ASCII representation is stored in in->accu.
+//
+// Global Variables: -
+//
+// Side Effects    : Reads input, DStr handling may cause memory
+//                   operations. 
+//
+/----------------------------------------------------------------------*/
+
+StrNumType ParseNumString(Scanner_p in)
+{
+   StrNumType res = SNInteger;
+   DStr_p accumulator = in->accu;
+
+   DStrReset(accumulator);
+
+   if(TestInpTok(in, Hyphen|Plus))
+   {
+      DStrAppendDStr(accumulator, AktToken(in)->literal);
+      NextToken(in);
+      CheckInpTokNoSkip(in, PosInt);
+   }
+   else
+   {
+      CheckInpTok(in, PosInt);
+   }
+   DStrAppendDStr(accumulator, AktToken(in)->literal);
+   NextToken(in);
+
+   if(TestInpTokNoSkip(in, DECIMAL_DOT))
+   {
+      DStrAppendChar(accumulator, '.');
+      AcceptInpTokNoSkip(in, DECIMAL_DOT);
+      DStrAppendDStr(accumulator,  AktToken(in)->literal);
+      AcceptInpTokNoSkip(in, PosInt);
+      res = SNFloat;
+   }
+   if(TestInpNoSkip(in)&&TestInpId(in, "e|E"))
+   {
+      DStrAppendStr(accumulator,  "e");
+      NextToken(in); /* Skip E */      
+      DStrAppendDStr(accumulator,  AktToken(in)->literal);
+      AcceptInpTokNoSkip(in, Hyphen|Plus); /* Eat - */
+      DStrAppendDStr(accumulator,  AktToken(in)->literal);
+      AcceptInpTokNoSkip(in, PosInt);
+      res = SNFloat;
+   }     
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: DDArrayParse()
 //
 //   Parse a coma-delimited list of double values into array. If

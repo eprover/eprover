@@ -23,7 +23,7 @@ Changes
 
 #ifndef CIO_BASICPARSER
 
-#define CIO_BASICPARSE
+#define CIO_BASICPARSER
 
 #include <clb_ddarrays.h>
 #include <clb_pstacks.h>
@@ -33,7 +33,12 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-
+typedef enum
+{
+   SNNoNumber,
+   SNInteger,
+   SNFloat
+}StrNumType;
 
 
 /*---------------------------------------------------------------------*/
@@ -41,12 +46,15 @@ Changes
 /*---------------------------------------------------------------------*/
 
 
-long   ParseInt(Scanner_p in);
-double ParseFloat(Scanner_p in);
-long   DDArrayParse(Scanner_p in, DDArray_p array, bool brackets);
-char*  ParseFilename(Scanner_p in);
-char*  ParsePlainFilename(Scanner_p in);
-void   ParseSkipParenthesizedExpr(Scanner_p in);
+long       ParseInt(Scanner_p in);
+double     ParseFloat(Scanner_p in);
+StrNumType ParseNumString(Scanner_p in);
+long       DDArrayParse(Scanner_p in, DDArray_p array, bool brackets);
+char*      ParseFilename(Scanner_p in);
+char*      ParsePlainFilename(Scanner_p in);
+void       ParseSkipParenthesizedExpr(Scanner_p in);
+
+
 
 #endif
 
