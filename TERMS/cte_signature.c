@@ -195,9 +195,9 @@ void SigInsertFOFCodes(Sig_p sig)
    assert((SigSupportLists && sig->internal_symbols == SIG_CONS_CODE) ||
           (!SigSupportLists && sig->internal_symbols == SIG_FALSE_CODE));
    
-   sig->eqn_code    = SigInsertId(sig, "$eqn",   2, true);
+   sig->eqn_code    = SigInsertId(sig, "$eq",   2, true);
    SigSetPredicate(sig, sig->eqn_code, true);
-   sig->neqn_code   = SigInsertId(sig, "$neqn",   2, true);
+   sig->neqn_code   = SigInsertId(sig, "$neq",   2, true);
    SigSetPredicate(sig, sig->neqn_code, true);
 
    sig->qex_code   = SigInsertId(sig, "$qex",   2, true);

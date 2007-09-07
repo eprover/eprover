@@ -65,8 +65,7 @@ void TermAddRWLink(Term_p term, Term_p replace, long demod, bool sos,
    assert(term);
    assert(replace);
    assert(term!=replace);
-   assert(res!=RWNotRewritable);
-
+   
    TermCellSetProp(term, TPIsRewritten);   
 
    if(type==RWAlwaysRewritable)

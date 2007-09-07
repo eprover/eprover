@@ -38,21 +38,21 @@ Changes
 
 typedef enum
 {
-   FPIgnoreProps  =   0, /* No properties, mask everything out */
-   FPPredSymbol   =   1, /* Symbol is a transformed predicate symbol */
-   FPFuncSymbol   =   2, /* Symbol is a real function symbol */
-                         /* If neither is set, we don't know it yet */
-   FPFOFOp        =   4, /* Symbol is encoded first order operator */
-   FPSpecial      =   8, /* Symbol is a special symbol introduced internally */
-   FPAssociative  =  16, /* Function symbol is binary and associative */
-   FPCommutative  =  32, /* Function symbol is binary and commutates */
+   FPIgnoreProps  =    0, /* No properties, mask everything out */
+   FPPredSymbol   =    1, /* Symbol is a transformed predicate symbol */
+   FPFuncSymbol   =    2, /* Symbol is a real function symbol */
+                          /* If neither is set, we don't know it yet */
+   FPFOFOp        =    4, /* Symbol is encoded first order operator */
+   FPSpecial      =    8, /* Symbol is a special symbol introduced internally */
+   FPAssociative  =   16, /* Function symbol is binary and associative */
+   FPCommutative  =   32, /* Function symbol is binary and commutates */
    FPIsAC         =   FPAssociative|FPCommutative,
-   FPInterpreted  =  64, /* Interpreted symbol $ident */
-   FPIsInteger    = 128, /* Sequence of digits, may be semi-interpreted */
-   FPIsFloat      = 256, /* Floating point number */
-   FPIsObject     = 512, /* ""-enclosed string, by definition denotes
+   FPInterpreted  =   64, /* Interpreted symbol $ident */
+   FPIsInteger    =  128, /* Sequence of digits, may be semi-interpreted */
+   FPIsFloat      =  256, /* Floating point number */
+   FPIsObject     =  512, /* ""-enclosed string, by definition denotes
                             unique object." */
-   FPDistinctProp = FPIsObject | FPIsInteger | FPIsFloat
+   FPDistinctProp =  FPIsObject | FPIsInteger | FPIsFloat
 }FunctionProperties;
 
 
@@ -204,7 +204,7 @@ void    SigPrintSpecial(FILE* out, Sig_p sig);
 void    SigPrintACStatus(FILE* out, Sig_p sig);
 void    SigParseOperator(Scanner_p in, DStr_p id);
 FunCode SigParseKnownOperator(Scanner_p in, Sig_p sig);
-FunCode SigParseSymbol(Scanner_p in, Sig_p sig, bool special_id);
+FunCode SigParseSymbolDeclaration(Scanner_p in, Sig_p sig, bool special_id);
 FunCode SigParse(Scanner_p in, Sig_p sig, bool special_ids);
 int     SigFindMaxUsedArity(Sig_p sig);
 int     SigFindMaxPredicateArity(Sig_p sig);
@@ -320,9 +320,9 @@ static __inline__ FunCode SigGetEqnCode(Sig_p sig, bool positive)
 	 return sig->eqn_code;
       }
       sig->eqn_code = SigInsertId(sig, "$eq", 2, true);
-      SigSetPredicate(sig, sig->eqn_code, true);
       assert(sig->eqn_code);
-      return sig->eqn_code;
+      SigSetPredicate(sig, sig->eqn_code, true);
+      return sig->eqn_code;      
    }
    else
    {
@@ -331,8 +331,8 @@ static __inline__ FunCode SigGetEqnCode(Sig_p sig, bool positive)
 	 return sig->neqn_code;
       }
       sig->neqn_code = SigInsertId(sig, "$neq", 2, true);
-      SigSetPredicate(sig, sig->eqn_code, true);
       assert(sig->neqn_code);
+      SigSetPredicate(sig, sig->neqn_code, true);
       return sig->neqn_code;      
    }
 }

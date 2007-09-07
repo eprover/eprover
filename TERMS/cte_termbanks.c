@@ -242,7 +242,37 @@ static Term_p tb_parse_cons_list(Scanner_p in, TB_p bank)
    PStackFree(stack);
    return handle;
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: tb_subterm_parse()
+//
+//   Parse a subterm, i.e. a term which cannot start with a predicate
+//   symbol. 
+//
+// Global Variables: -
+//
+// Side Effects    : Input, memory operations, changes termbank.
+//
+/----------------------------------------------------------------------*/
    
+Term_p tb_subterm_parse(Scanner_p in, TB_p bank)
+{
+   Term_p res = TBTermParse(in, bank);
+
+   if(!TermIsVar(res))
+   {
+      if(SigIsPredicate(bank->sig, res->f_code))
+      {
+         AktTokenError(in, 
+                       "Predicate used as function symbol in preceeding term",
+                       SYNTAX_ERROR);
+      }        
+      SigSetFunction(bank->sig, res->f_code, true);
+   }
+   return res;
+}
 
 
 /*---------------------------------------------------------------------*/
@@ -963,17 +993,7 @@ int TBTermParseArgList(Scanner_p in, Term_p** arg_anchor, TB_p bank)
    size = TERMS_INITIAL_ARGS;
    handle = (Term_p*)SizeMalloc(size*sizeof(Term_p));
    arity = 0;
-   tmp = TBTermParse(in, bank);
-   if(!TermIsVar(tmp))
-   {
-      if(SigIsPredicate(bank->sig, tmp->f_code))
-      {
-         AktTokenError(in, 
-                    "Predicate used as function symbol in preceeding term",
-                       SYNTAX_ERROR);
-      }
-      SigSetFunction(bank->sig, tmp->f_code, true);
-   }
+   tmp = tb_subterm_parse(in, bank);
    handle[arity] = tmp;
    arity++;
    while(TestInpTok(in, Comma))
@@ -983,9 +1003,8 @@ int TBTermParseArgList(Scanner_p in, Term_p** arg_anchor, TB_p bank)
       {
          size+=TERMS_INITIAL_ARGS;
          handle = (Term_p*)SecureRealloc(handle, size*sizeof(Term_p));
-     }
-      handle[arity] = TBTermParse(in, bank);
-      arity++;
+      }
+      handle[arity] = tb_subterm_parse(in, bank);
    }
    AcceptInpTok(in, CloseBracket);
    *arg_anchor = TermArgArrayAlloc(arity);
