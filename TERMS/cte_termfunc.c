@@ -298,7 +298,7 @@ TermIdentType TermParseOperator(Scanner_p in, DStr_p id)
 {
    TermIdentType res;
 
-   CheckInpTok(in, SigIdentStartToken);
+   CheckInpTok(in, FuncSymbStartToken);
 
    switch(AktTokenType(in))
    {
@@ -331,7 +331,7 @@ TermIdentType TermParseOperator(Scanner_p in, DStr_p id)
          break;
    }
    DStrAppendStr(id, DStrView(AktToken(in)->literal));
-   AcceptInpTok(in, SigIdentStartToken);
+   AcceptInpTok(in, FuncSymbStartToken);
 
    return res;
 }      

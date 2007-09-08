@@ -25,6 +25,7 @@ Changes
 
 #define CTE_FUNCTYPES
 
+#include <cio_basicparser.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -40,6 +41,11 @@ typedef long FunCode;
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
+
+extern TokenType FuncSymbToken;
+extern TokenType FuncSymbStartToken;
+
+void FuncSymbParse(Scanner_p in, DStr_p id);
 
 
 #endif

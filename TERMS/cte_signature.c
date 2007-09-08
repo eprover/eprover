@@ -29,10 +29,6 @@ Changes
 /*---------------------------------------------------------------------*/
 
 bool      SigSupportLists = false; 
-// Tokens that can are always stand-alone identifiers
-TokenType SigIdentToken = Identifier | SemIdent | SQString | String;
-// Tokens that may start a (composite or atomic) identifier
-TokenType SigIdentStartToken = Identifier | PosInt | SemIdent | SQString | String | Plus | Hyphen; 
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -616,60 +612,6 @@ void SigPrintACStatus(FILE* out, Sig_p sig)
 
 /*-----------------------------------------------------------------------
 //
-// Function: SigParseOperator()
-//
-//   Parse an operator and store the representation into id.
-//
-//   Operators are now of the types
-//
-//   - Ident
-//   - SemIdent
-//   - String
-//   - SQString
-//   - Integers, potentially signed
-//   - Reals, potentially signed
-//
-//
-// Global Variables: SigIdentToken
-//
-// Side Effects    : Reads input, changes id
-//
-/----------------------------------------------------------------------*/
-
-void SigParseOperator(Scanner_p in, DStr_p id)
-{
-   StrNumType numtype;
-
-   CheckInpTok(in, SigIdentStartToken);
-
-   if(TestInpTok(in, SigIdentToken))
-   {
-      DStrAppendStr(id, DStrView(AktToken(in)->literal));
-      AcceptInpTok(in, SigIdentToken);
-   }
-   else
-   {
-      CheckInpTok(in, PosInt|Plus|Hyphen);
-      
-      numtype = ParseNumString(in);
-      switch(numtype)
-      {
-      case SNInteger:
-            DStrAppendStr(id, DStrView(in->accu));
-            break;
-      case SNFloat:
-            DStrAppendStr(id, DStrView(in->accu));
-            break;
-      default:
-            assert(false);
-            break;
-      }
-   }      
-}
-
-
-/*-----------------------------------------------------------------------
-//
 // Function: SigParseKnownOperator()
 //
 //   Parse an operator, return it's FunCode. Error, if operator is not
@@ -694,7 +636,7 @@ FunCode SigParseKnownOperator(Scanner_p in, Sig_p sig)
    type        = AktToken(in)->stream_type;
  
    id = DStrAlloc();
-   SigParseOperator(in, id);
+   FuncSymbParse(in, id);
 
    res = SigFindFCode(sig, DStrView(id));
    
@@ -740,7 +682,7 @@ FunCode SigParseSymbolDeclaration(Scanner_p in, Sig_p sig, bool special_id)
    source_name = DStrGetRef(AktToken(in)->source);
    type        = AktToken(in)->stream_type;
    
-   SigParseOperator(in, id);
+   FuncSymbParse(in, id);
    AcceptInpTok(in, Colon);
    arity = AktToken(in)->numval;
    AcceptInpTok(in, PosInt);
@@ -784,7 +726,8 @@ FunCode SigParse(Scanner_p in, Sig_p sig, bool special_ids)
 {
    FunCode res = 0;
 
-   while(TestInpTok(in, SigIdentToken) &&
+   // FIXME: Cannot handle comples symbols here!
+   while(TestInpTok(in, FuncSymbToken) &&
          TestTok(LookToken(in, 1), Colon))
    {
       res = SigParseSymbolDeclaration(in, sig, special_ids);

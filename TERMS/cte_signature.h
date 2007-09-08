@@ -28,7 +28,6 @@ Changes
 #include <clb_stringtrees.h>
 #include <clb_pdarrays.h>
 #include <clb_properties.h>
-#include <cio_basicparser.h>
 #include <cte_functypes.h>
 
 /*---------------------------------------------------------------------*/
@@ -160,10 +159,6 @@ typedef struct sigcell
 extern bool      SigSupportLists; /* Auto-Insert special symbols
 				     $nil=3, $cons=4 for list
 				     representations */
-extern TokenType SigIdentToken; /* What is a potential atomic function
-				   symbol name? */
-extern TokenType SigIdentStartToken; /* What is a potential function symbol
-				   start token? */
 #define SigCellAlloc() (SigCell*)SizeMalloc(sizeof(SigCell))
 #define SigCellFree(junk)         SizeFree(junk, sizeof(SigCell))
 
@@ -199,7 +194,6 @@ FunCode SigInsertFOFOp(Sig_p sig, const char* name, int arity);
 void    SigPrint(FILE* out, Sig_p sig);
 void    SigPrintSpecial(FILE* out, Sig_p sig);
 void    SigPrintACStatus(FILE* out, Sig_p sig);
-void    SigParseOperator(Scanner_p in, DStr_p id);
 FunCode SigParseKnownOperator(Scanner_p in, Sig_p sig);
 FunCode SigParseSymbolDeclaration(Scanner_p in, Sig_p sig, bool special_id);
 FunCode SigParse(Scanner_p in, Sig_p sig, bool special_ids);

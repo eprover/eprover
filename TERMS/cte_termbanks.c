@@ -997,6 +997,7 @@ int TBTermParseArgList(Scanner_p in, Term_p** arg_anchor, TB_p bank)
          handle = (Term_p*)SecureRealloc(handle, size*sizeof(Term_p));
       }
       handle[arity] = tb_subterm_parse(in, bank);
+      arity++;
    }
    AcceptInpTok(in, CloseBracket);
    *arg_anchor = TermArgArrayAlloc(arity);

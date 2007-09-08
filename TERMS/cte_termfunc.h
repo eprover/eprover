@@ -43,8 +43,8 @@ Changes
 extern bool      TermPrintLists; /* Using [...] notation */
 
 #define TermStartToken (SigSupportLists?\
-                       (SigIdentStartToken|OpenSquare|Mult):\
-		       (SigIdentStartToken|Mult))
+                       (FuncSymbStartToken|OpenSquare|Mult):\
+		       (FuncSymbStartToken|Mult))
 
 void   TermPrint(FILE* out, Term_p term, Sig_p sig, DerefType deref);
 void   TermPrintArgList(FILE* out, Term_p *args, int arity, Sig_p sig,
