@@ -135,7 +135,6 @@ typedef enum
    OPT_DEFINE_WFUN,
    OPT_DEFINE_HEURISTIC,
    OPT_HEURISTIC,
-   OPT_INTERPRETE_NUMBERS,
    OPT_FREE_NUMBERS,
    OPT_FREE_OBJECTS,
    OPT_OLD_STYLE_CNF,
@@ -950,22 +949,12 @@ OptCell opts[] =
     "Define a clause selection heuristic (see manual for"
     " details). Later definitions override previous definitions."}, 
 
-    {OPT_INTERPRETE_NUMBERS,
-    '\0', "interprete-numbers",
-    OptArg, "s,0",
-    "Interprete numbers in the input as successor-terms. The argument "
-     "is a comma-separated tuple of function symbols for the "
-     "successor function and the 0 element."}, 
-
    {OPT_FREE_NUMBERS,
     '\0', "free-numbers",
      NoArg, NULL,
      "Treat numbers (strings of decimal digits) as normal free function "
     "symbols in the input. By default, number now are supposed to denote"
-    " domain constants and to be implicitly different from each other. "
-    "It is not particularly useful to combine this with the option "
-    "--interprete-numbers above, since that will decode numbers into "
-    "composite terms."}, 
+    " domain constants and to be implicitly different from each other."}, 
    
    {OPT_FREE_OBJECTS,
     '\0', "free-objects",
@@ -1025,7 +1014,6 @@ long              step_limit = LONG_MAX,
                   total_limit = LONG_MAX;
 char              *outdesc = DEFAULT_OUTPUT_DESCRIPTOR,
                   *filterdesc = DEFAULT_FILTER_DESCRIPTOR;
-char              *null_symbol=NULL, *succ_symbol=NULL;
 PStack_p          wfcb_definitions, hcb_definitions;
 
 FunctionProperties free_symb_prop = FPIgnoreProps;
@@ -1080,7 +1068,7 @@ int main(int argc, char* argv[])
       CLStateInsertArg(state, "-");
    }
 
-   proofstate = ProofStateAlloc(free_symb_prop, null_symbol, succ_symbol); 
+   proofstate = ProofStateAlloc(free_symb_prop);
    proofcontrol = ProofControlAlloc();
    
    for(i=0; state->argv[i]; i++)
@@ -1281,12 +1269,6 @@ int main(int argc, char* argv[])
 #ifdef FULL_MEM_STATS
    MemFreeListPrint(GlobalOut);
 #endif
-   if(null_symbol)
-   {
-      assert(succ_symbol);
-      FREE(null_symbol);
-      FREE(succ_symbol);
-   }
 #endif
    if(print_rusage)
    {
@@ -1890,19 +1872,6 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_DEFINE_HEURISTIC:
 	    PStackPushP(hcb_definitions, arg);
 	    break;
-      case OPT_INTERPRETE_NUMBERS:
-      {
-	 Scanner_p in = CreateScanner(StreamTypeOptionString, arg,
-				      false, NULL);
-	 succ_symbol = SecureStrdup(DStrView(AktToken(in)->literal));
-	 AcceptInpTok(in, SigIdentToken);
-	 AcceptInpTok(in, Comma);
-	 null_symbol = SecureStrdup(DStrView(AktToken(in)->literal));
-	 AcceptInpTok(in, SigIdentToken);
-	 CheckInpTok(in, NoToken);
-	 DestroyScanner(in);
-      }
-      break;
       case OPT_FREE_NUMBERS:
             free_symb_prop = free_symb_prop | FPIsInteger|FPIsFloat;
             break;

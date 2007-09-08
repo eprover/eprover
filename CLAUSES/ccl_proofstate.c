@@ -69,8 +69,7 @@ char* UseInlinedWatchList = WATCHLIST_INLINE_STRING;
 //
 /----------------------------------------------------------------------*/
 
-ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop, 
-                             char* null_symbol, char* succ_symbol) 
+ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
 {
    ProofState_p handle = ProofStateCellAlloc();
 
@@ -120,20 +119,6 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop,
    handle->signature->distinct_props = 
       handle->signature->distinct_props&(~free_symb_prop);
    
-   if(null_symbol)
-   {
-      FunCode tmp;
-      
-      assert(succ_symbol);
-      tmp = SigInsertId(handle->signature, null_symbol, 0, false);
-      handle->signature->null_code = tmp;
-      tmp = SigInsertId(handle->signature, succ_symbol, 1, false);
-      handle->signature->succ_code = tmp;
-   }
-   else
-   {
-      assert(!succ_symbol);
-   }
    return handle;
 }
 

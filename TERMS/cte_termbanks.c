@@ -894,15 +894,7 @@ Term_p TBTermParse(Scanner_p in, TB_p bank)
       {
 	 id = DStrAlloc();
 	 
-	 if(SigInterpreteNumbers(bank->sig) && TestInpTok(in, PosInt))
-	 {
-	    Term_p tmp;
-	    tmp = TermIntRepresentation(bank->sig, AktToken(in)->numval);
-	    handle = TBInsert(bank, tmp, DEREF_NEVER);
-	    TermFree(tmp);
-	    AcceptInpTok(in, PosInt);
-	 }
-	 else if((id_type=TermParseOperator(in, id))==TermIdentVariable)
+	 if((id_type=TermParseOperator(in, id))==TermIdentVariable)
 	 {
 	    handle = VarBankExtNameAssertAlloc(bank->vars, DStrView(id));
 	 }

@@ -89,8 +89,7 @@ typedef struct proofstatecell
 #define ProofStateCellFree(junk) \
    SizeFree(junk, sizeof(ProofStateCell))
 
-ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop, 
-                             char* null_symbol, char* succ_symbol);
+ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop);
 void         ProofStateInitWatchlist(ProofState_p state, 
                                      char* watchlist_filename,
                                      IOFormat parse_format);

@@ -136,6 +136,8 @@ Term_p  TBTermParse(Scanner_p in, TB_p bank);
 int     TBTermParseArgList(Scanner_p in, Term_p** arg_anchor,
 			  TB_p bank);
 
+// Term_p  TBRawTermParse(Scanner_p in, TB_p bank);
+
 void    TBRefSetProp(TB_p bank, TermRef ref, TermProperties prop);
 void    TBRefDelProp(TB_p bank, TermRef ref, TermProperties prop);
 
