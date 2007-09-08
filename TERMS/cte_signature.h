@@ -114,9 +114,6 @@ typedef struct sigcell
    FunCode   nor_code;
    FunCode   bimpl_code;
    FunCode   xor_code;
-   /* Preparation for interpreting integers in the input as s^i(0) */
-   FunCode   null_code;
-   FunCode   succ_code;
    /* Counters for generating new symbols */
    long      skolem_count;
    long      newpred_count;

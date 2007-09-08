@@ -46,8 +46,6 @@ extern bool      TermPrintLists; /* Using [...] notation */
                        (SigIdentStartToken|OpenSquare|Mult):\
 		       (SigIdentStartToken|Mult))
 
-Term_p  TermIntRepresentation(Sig_p sig, long number);
-
 void   TermPrint(FILE* out, Term_p term, Sig_p sig, DerefType deref);
 void   TermPrintArgList(FILE* out, Term_p *args, int arity, Sig_p sig,
 			DerefType deref);

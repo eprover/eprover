@@ -167,9 +167,7 @@ Sig_p SigAlloc(void)
 
    handle->skolem_count  = 0;
    handle->newpred_count = 0;
-   handle->null_code     = 0;
-   handle->succ_code     = 0;
-
+   
    handle->distinct_props = FPDistinctProp;
    return handle;
 }

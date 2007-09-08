@@ -51,17 +51,13 @@ char* UseInlinedWatchList = WATCHLIST_INLINE_STRING;
 //
 // Function: ProofStateAlloc()
 //
-//   Return an empty, initialized proof state. The arguments are:
+//   Return an empty, initialized proof state. The argument is:
 //   free_symb_prop: Which sub-properties of FPDistinctProp should be
 //                   ignored (i.e. which classes with distinct object 
 //                   syntax  should be treated as plain free
 //                   symbols). Use FPIgnoreProps for default
 //                   behaviour, FPDistinctProp for fully free
 //                   (conventional) semantics.
-//   null_symbol:    A string to use for the "0" constructor in
-//                   interpreting integer numbers. If used,
-//                   succ_symbol must also be provided.
-//   succ_symbol:    A string to use for the "s" constructor.
 //
 // Global Variables: -
 //
