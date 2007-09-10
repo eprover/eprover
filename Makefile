@@ -112,6 +112,9 @@ links: remove_links
            $(LN) ../$$subdir/$$subdir.a .;\
 	done;
 
+tags: 
+	etags */*.c */*.h
+
 tools:
 	cd development_tools;$(MAKE) tools
 
