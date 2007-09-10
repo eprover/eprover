@@ -326,7 +326,6 @@ void WFormulaTPTPPrint(FILE* out, WFormula_p form, bool fullterms)
 
 WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
 {
-   char*              name;
    Formula_p          form; 
    TFormula_p         tform; 
    WFormulaProperties type = WPTypeAxiom;
@@ -342,7 +341,6 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
    AcceptInpTok(in, OpenBracket);
    CheckInpTok(in, Name|PosInt);
    info->name = DStrCopy(AktToken(in)->literal);
-   name = DStrCopy(AktToken(in)->literal);
    NextToken(in);
    AcceptInpTok(in, Comma);
    
