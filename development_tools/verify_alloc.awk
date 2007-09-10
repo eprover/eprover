@@ -30,7 +30,7 @@
 	 mem_array[$2] = $5;
       }
    }
-   else
+   else if($3=="D:")
    {
       if(!mem_array[$2])
       {
@@ -47,6 +47,31 @@
 	 delete mem_array[$2];
       }
    }
+   else if($3=="M:" || $3=="R:")
+   {
+      if(raw_array[$2])
+      {
+	 print $0 " doubly malloc()ed";
+	 fail_array[count++] = $0 " DM";
+      }
+      else
+      {
+	 raw_array[$2] = 1;
+      }
+   }
+   else if($3=="F:")
+   {
+      if(!raw_array[$2])
+      {
+	 print $0 " FREEed but not malloc()ed";
+	 fail_array[count++] = $0 " FM";
+      }
+      else
+      {
+	 delete raw_array[$2];
+      }
+   }
+   
 }
 
 !/Block / && /.+/{
@@ -54,6 +79,12 @@
 }
 
 END{
+   print "Malloc errors:"
+   for(i in raw_array)
+   {
+      print "Remaining: " i;
+   }
+   print "SizeMalloc errors:"
    for(i in mem_array)
    {
       print "Remaining: " i " " mem_array[i];      
