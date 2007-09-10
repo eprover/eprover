@@ -32,20 +32,34 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
+/* Data type repesenting the various types of encodings for function
+ * symols (including constants) and predicates. */
+
+typedef enum 
+{
+   FSNone,             
+   FSIdentVar,         /* Ident, starts with capital letter or _ */            
+   FSIdentFreeFun,     /* Ident, starts with Lower case letter or SQString */  
+   FSIdentInt,         /* Integer */
+   FSIdentFloat,       /* Floating point number */
+   FSIdentInterpreted, /* SemIdent */                                          
+   FSIdentObject       /* String "in double quotes" */                         
+}FuncSymbType;
+
+/*---------------------------------------------------------------------*/
+/*                Exported Functions and Variables                     */
+/*---------------------------------------------------------------------*/
+
 /* Function symbols in terms are represented by positive numbers,
    variables by negative numbers. This alias allows clearer
    specifications. */
 
 typedef long FunCode;
 
-/*---------------------------------------------------------------------*/
-/*                Exported Functions and Variables                     */
-/*---------------------------------------------------------------------*/
-
 extern TokenType FuncSymbToken;
 extern TokenType FuncSymbStartToken;
 
-void FuncSymbParse(Scanner_p in, DStr_p id);
+FuncSymbType FuncSymbParse(Scanner_p in, DStr_p id);
 
 
 #endif

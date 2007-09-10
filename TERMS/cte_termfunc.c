@@ -294,45 +294,21 @@ void TermPrintArgList(FILE* out, Term_p *args, int arity, Sig_p sig,
 //
 /----------------------------------------------------------------------*/
 
-TermIdentType TermParseOperator(Scanner_p in, DStr_p id)
+FuncSymbType TermParseOperator(Scanner_p in, DStr_p id)
 {
-   TermIdentType res;
+   FuncSymbType res = FuncSymbParse(in, id);
 
-   CheckInpTok(in, FuncSymbStartToken);
-
-   switch(AktTokenType(in))
+#ifndef STRICT_TPTP
+   if((isupper(DStrView(id)[0])       
+       ||
+       (DStrView(id)[0] == '_'))
+      &&
+      TestTok(LookToken(in, 1), OpenBracket))
    {
-   case SemIdent:
-         res = TermIdentInterpreted;
-         break;
-   case String:
-         res = TermIdentObject;
-         break;
-   case SQString:
-         res = TermIdentFreeFun;
-         break;
-   case PosInt:
-         res = TermIdentInteger;
-         break;
-   default:
-         assert(TestInpTok(in, Identifier));
-         if((isupper(DStrView(AktToken(in)->literal)[0]) 
-             ||
-             DStrView(AktToken(in)->literal)[0] == '_')
-            &&
-            !TestTok(LookToken(in, 1), OpenBracket))
-         {
-            res = TermIdentVariable;
-         }
-         else
-         {
-            res = TermIdentFreeFun;
-         }
-         break;
+      res = FSIdentFreeFun;
    }
-   DStrAppendStr(id, DStrView(AktToken(in)->literal));
-   AcceptInpTok(in, FuncSymbStartToken);
-
+#endif
+   
    return res;
 }      
 
@@ -350,20 +326,20 @@ TermIdentType TermParseOperator(Scanner_p in, DStr_p id)
 /----------------------------------------------------------------------*/
 
 FunCode TermSigInsert(Sig_p sig, const char* name, int arity, bool
-                      special_id, TermIdentType type)
+                      special_id, FuncSymbType type)
 {
    FunCode res;
 
    res = SigInsertId(sig, name, arity, special_id);
    switch(type)
    {
-   case TermIdentInteger:
+   case FSIdentInt:
          SigSetFuncProp(sig, res, FPIsInteger);
          break;
-   case TermIdentObject:
+   case FSIdentObject:
          SigSetFuncProp(sig, res, FPIsObject);
          break;
-   case TermIdentInterpreted:
+   case FSIdentInterpreted:
          SigSetFuncProp(sig, res, FPInterpreted);
          break;
    default:
@@ -391,7 +367,7 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
 {
    Term_p        handle;
    DStr_p        id;
-   TermIdentType id_type;
+   FuncSymbType id_type;
    DStr_p        source_name, errpos;
    long          line, column;
    StreamType    type;
@@ -408,7 +384,7 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
       source_name = DStrGetRef(AktToken(in)->source);
       type = AktToken(in)->stream_type;
 
-      if((id_type = TermParseOperator(in, id))==TermIdentVariable)
+      if((id_type = TermParseOperator(in, id))==FSIdentVar)
       {
          handle = VarBankExtNameAssertAlloc(vars, DStrView(id));
       }      
@@ -418,14 +394,14 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
 
          if(TestInpTok(in, OpenBracket))
          {
-            if((id_type == TermIdentInteger)
+            if((id_type == FSIdentInt)
                &&(sig->distinct_props & FPIsInteger))
             {
                AktTokenError(in, 
                              "Number cannot have argument list (consider --free-numbers)", 
                              false);
             }
-            if((id_type == TermIdentObject)
+            if((id_type == FSIdentObject)
                &&(sig->distinct_props & FPIsObject))
             {
                AktTokenError(in, 

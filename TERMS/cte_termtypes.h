@@ -85,20 +85,6 @@ typedef enum
 }TermProperties;
 
 
-/* Different types of names (function symbols, constants, variables)
- * in terms */
-
-typedef enum
-{
-   TermIdentNoIdent,      
-   TermIdentVariable,   /* Ident, starts with capital letter or _ */
-   TermIdentFreeFun,    /* Ident, starts with Lower case letter or SQString */
-   TermIdentObject,     /* String "in double quotes" */
-   TermIdentInteger,    /* Integer */
-   TermIdentFloat,      /* Floating point number */
-   TermIdentInterpreted /* SemIdent */
-}TermIdentType;
-
 
 typedef enum  /* See CLAUSES/ccl_rewrite.c for more */
 {

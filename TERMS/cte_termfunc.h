@@ -49,9 +49,9 @@ extern bool      TermPrintLists; /* Using [...] notation */
 void   TermPrint(FILE* out, Term_p term, Sig_p sig, DerefType deref);
 void   TermPrintArgList(FILE* out, Term_p *args, int arity, Sig_p sig,
 			DerefType deref);
-TermIdentType TermParseOperator(Scanner_p in, DStr_p id);
+FuncSymbType TermParseOperator(Scanner_p in, DStr_p id);
 FunCode       TermSigInsert(Sig_p sig, const char* name, int arity, bool
-                            special_id, TermIdentType type);
+                            special_id, FuncSymbType type);
 Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars);
 int    TermParseArgList(Scanner_p in, Term_p** arg_anchor, Sig_p sig,
                          VarBank_p vars);

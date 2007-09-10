@@ -817,7 +817,7 @@ Term_p TBTermParse(Scanner_p in, TB_p bank)
 {
    Term_p        handle;
    DStr_p        id;
-   TermIdentType id_type;
+   FuncSymbType id_type;
    DStr_p        source_name, errpos;
    long          line, column;
    StreamType    type;
@@ -894,7 +894,7 @@ Term_p TBTermParse(Scanner_p in, TB_p bank)
       {
 	 id = DStrAlloc();
 	 
-	 if((id_type=TermParseOperator(in, id))==TermIdentVariable)
+	 if((id_type=TermParseOperator(in, id))==FSIdentVar)
 	 {
 	    handle = VarBankExtNameAssertAlloc(bank->vars, DStrView(id));
 	 }
@@ -904,14 +904,14 @@ Term_p TBTermParse(Scanner_p in, TB_p bank)
 	 
 	    if(TestInpTok(in, OpenBracket))
 	    { 
-               if((id_type == TermIdentInteger)
+               if((id_type == FSIdentInt)
                   &&(bank->sig->distinct_props & FPIsInteger))
                {
                   AktTokenError(in, 
                                 "Number cannot have argument list (consider --free-numbers)", 
                                 false);
                }
-               if((id_type == TermIdentObject)
+               if((id_type == FSIdentObject)
                   &&(bank->sig->distinct_props & FPIsObject))
                {
                   AktTokenError(in, 
