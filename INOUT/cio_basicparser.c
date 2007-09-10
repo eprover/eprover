@@ -194,7 +194,9 @@ StrNumType ParseNumString(Scanner_p in)
    DStrAppendDStr(accumulator, AktToken(in)->literal);
    NextToken(in);
 
-   if(TestInpTokNoSkip(in, DECIMAL_DOT))
+   if(TestInpTokNoSkip(in, DECIMAL_DOT) && 
+      TestTok(LookToken(in,1), PosInt) &&
+      !(LookToken(in,1)->skipped))
    {
       DStrAppendChar(accumulator, '.');
       AcceptInpTokNoSkip(in, DECIMAL_DOT);
