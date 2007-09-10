@@ -148,10 +148,10 @@ void* SecureMalloc(size_t size)
 {
    void* handle;
 
-   #ifdef CLB_MEMORY_DEBUG 
+#ifdef CLB_MEMORY_DEBUG 
    secure_malloc_count++;
    secure_malloc_mem += size;
-   #endif
+#endif
 
    handle = (void*)malloc(size);
 
@@ -174,6 +174,10 @@ void* SecureMalloc(size_t size)
          Error("Out of Memory", OUT_OF_MEMORY);
       }
    }
+#ifdef CLB_MEMORY_DEBUG2
+   printf("\nBlock %p M: %zd\n", handle, size);
+#endif 
+
    return handle;
 }
 
@@ -225,6 +229,17 @@ void* SecureRealloc(void *ptr, size_t size)
 	 Error("Out of Memory", OUT_OF_MEMORY);
       }
    }
+#ifdef CLB_MEMORY_DEBUG2
+   if(ptr != handle)
+   {
+      if(ptr)
+      {
+         printf("\nBlock %p F:\n", ptr);
+      }
+      printf("\nBlock %p R: %zd\n" ,handle, size);
+   }
+#endif
+
    return handle;
 }
 

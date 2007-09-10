@@ -127,6 +127,12 @@ void MemFreeListPrint(FILE* out);
 #define FREE(junk) assert(junk); clb_free_count++; free(junk); junk=NULL
 #endif
 
+#ifdef CLB_MEMORY_DEBUG2
+#undef FREE
+#define FREE(junk) assert(junk); printf("\nBlock %p F:\n", junk);\
+                   free(junk); junk=NULL
+#endif
+
 /*-------------------------------------------------------------------------
   If you want to have a special Allocator and Deallocator for a
   datatype just copy the following templates to your .h-file and fill
@@ -181,9 +187,9 @@ static __inline__ void* SizeMallocReal(size_t size)
    size_malloc_mem+=size;
    size_malloc_count++;
    #endif
-   #ifdef CLB_MEMORY_DEBUG2
+#ifdef CLB_MEMORY_DEBUG2
    printf("\nBlock %p A: size %zd\n", handle, size);
-   #endif
+#endif
    return handle;
 }   
 
@@ -210,9 +216,9 @@ static __inline__ void SizeFreeReal(void* junk, size_t size)
    
    assert(junk!=NULL);
 
-   #ifdef CLB_MEMORY_DEBUG2
+#ifdef CLB_MEMORY_DEBUG2
    printf("\nBlock %p D: size %zd\n", junk, size);
-   #endif
+#endif
 
    mem_index = size - sizeof(MemCell);
 
@@ -227,10 +233,10 @@ static __inline__ void SizeFreeReal(void* junk, size_t size)
    {
       FREE(junk);
    }
-   #ifdef CLB_MEMORY_DEBUG 
+#ifdef CLB_MEMORY_DEBUG 
    size_free_mem+=size;
    size_free_count++;
-   #endif
+#endif
 } 
 
 #endif
