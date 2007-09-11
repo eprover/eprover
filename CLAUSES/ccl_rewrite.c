@@ -144,7 +144,7 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
    assert(!TermIsVar(term));
    
    eqn = new_demod->literals;
-
+   
    /* printf("Checking term: ");
    TBPrintTermFull(stdout, eqn->bank, term);
    printf("\n");
@@ -303,6 +303,7 @@ static EqnSide eqn_has_rw_side(OCB_p ocb, Eqn_p eqn, Clause_p
    bool resl, resr;
    bool restricted_rw = EqnIsMaximal(eqn) && EqnIsPositive(eqn) && EqnIsOriented(eqn);
 
+   //printf("restricted_rw: %d\n", restricted_rw);
    resl = term_is_rewritable(eqn->bank, ocb, eqn->lterm, new_demod, nf_date,
                              restricted_rw);
    resr = term_is_rewritable(eqn->bank, ocb, eqn->rterm, new_demod, nf_date,
@@ -590,9 +591,7 @@ static Term_p rewrite_with_clause_setlist(OCB_p ocb, TB_p bank, Term_p term,
 //
 // Function: term_li_normalform()
 //
-//   Compute a leftmost-innermost normal form of term. This is more
-//   tricky than expected, as supertems on the stack may change. I'll
-//   start with a recursive version and see how it works. This uses
+//   Compute a leftmost-innermost normal form of term. This uses
 //   dates to minimize rewrite-attempts: If the normal form of the
 //   term is younger than the clause sets, no further rewrite-attempt
 //   on this term is made.
@@ -692,8 +691,9 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
       modified its right hand side (new loop!). So we may not find
       the full normal form here - the rule is gone, and we do not test
       for equations. Thus, we are not necessarily in full normal
-      form. */
-   if(!TermIsRewritten(term))
+      form. Also, if restricted_rw is enabled, non-rewritability may
+      be due to the extra constraint and does not carry over. */
+   if(!TermIsRewritten(term)&&!restricted_rw)
    {
       term->rw_data.nf_date[RewriteAdr(RuleRewrite)] = desc->demod_date;
       if(desc->level == FullRewrite)
@@ -724,9 +724,9 @@ bool eqn_li_normalform(RWDesc_p desc, ClausePos_p pos, bool interred_rw)
    bool   restricted_rw = EqnIsMaximal(eqn) && EqnIsPositive(eqn) &&
       EqnIsOriented(eqn) && interred_rw;
 
-   /* printf("Rewriting: ");
-   TermPrint(stdout, eqn->lterm, eqn->bank->sig, DEREF_NEVER);
-   printf("\n"); */
+   //printf("Rewriting (%d=>%d): ", interred_rw, restricted_rw);
+   //TermPrint(stdout, eqn->lterm, eqn->bank->sig, DEREF_NEVER);
+   //printf("\n");
    eqn->lterm = term_li_normalform(desc, eqn->lterm, restricted_rw);
    if(l_old!=eqn->lterm)
    {
@@ -753,6 +753,8 @@ bool eqn_li_normalform(RWDesc_p desc, ClausePos_p pos, bool interred_rw)
 	 DocClauseRewriteDefault(pos, r_old);
       }
    }
+   // printf("Was rewritten: %d\n", (l_old!=eqn->lterm)||(r_old!=eqn->rterm));
+
    return (l_old!=eqn->lterm)||(r_old!=eqn->rterm);
 }
 
