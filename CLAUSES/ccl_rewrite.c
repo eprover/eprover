@@ -273,7 +273,8 @@ static bool term_is_rewritable(TB_p bank, OCB_p ocb, Term_p term, Clause_p
    }
    if(!TermCellIsAnyPropSet(term, 
                             TPIsRewritable|TPIsRRewritable|
-                            TPIsRewritten|TPIsRRewritten))
+                            TPIsRewritten|TPIsRRewritten)
+      &&!restricted_rw)
    {
       term->rw_data.nf_date[RewriteAdr(RuleRewrite)] =
          term->rw_data.nf_date[RewriteAdr(FullRewrite)] = nf_date;
