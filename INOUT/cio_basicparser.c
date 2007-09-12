@@ -204,16 +204,25 @@ StrNumType ParseNumString(Scanner_p in)
       AcceptInpTokNoSkip(in, PosInt);
       res = SNFloat;
    }
-   if(TestInpNoSkip(in)&&TestInpId(in, "e|E"))
+   if(TestInpNoSkip(in))
    {
-      DStrAppendStr(accumulator,  "e");
-      NextToken(in); /* Skip E */      
-      DStrAppendDStr(accumulator,  AktToken(in)->literal);
-      AcceptInpTokNoSkip(in, Hyphen|Plus); /* Eat - */
-      DStrAppendDStr(accumulator,  AktToken(in)->literal);
-      AcceptInpTokNoSkip(in, PosInt);
-      res = SNFloat;
-   }     
+      if(TestInpId(in, "e|E"))
+      {
+         DStrAppendStr(accumulator,  "e");
+         NextToken(in); /* Skip E */      
+         DStrAppendDStr(accumulator,  AktToken(in)->literal);
+         AcceptInpTokNoSkip(in, Hyphen|Plus); /* Eat - */
+         DStrAppendDStr(accumulator,  AktToken(in)->literal);
+         AcceptInpTokNoSkip(in, PosInt);
+         res = SNFloat;
+      } 
+      else if(TestInpIdnum(in, "e|E"))
+      {
+         DStrAppendDStr(accumulator,  AktToken(in)->literal);
+         AcceptInpTokNoSkip(in, Idnum); 
+         res = SNFloat;
+      }
+   }
    return res;
 }
 
