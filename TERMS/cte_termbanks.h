@@ -132,11 +132,10 @@ void    TBPrintTermCompact(FILE* out, TB_p bank, Term_p term);
         TermPrint((out), (term), (bank)->sig, DEREF_NEVER)
 void    TBPrintTerm(FILE* out, TB_p bank, Term_p term, bool fullterms);
 void    TBPrintBankTerms(FILE* out, TB_p bank);
-Term_p  TBTermParse(Scanner_p in, TB_p bank);
-int     TBTermParseArgList(Scanner_p in, Term_p** arg_anchor,
-			  TB_p bank);
+Term_p  TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop);
 
-// Term_p  TBRawTermParse(Scanner_p in, TB_p bank);
+#define  TBTermParse(in, bank) TBTermParseReal((in),(bank), true)
+#define  TBRawTermParse(in, bank) TBTermParseReal((in),(bank), false)
 
 void    TBRefSetProp(TB_p bank, TermRef ref, TermProperties prop);
 void    TBRefDelProp(TB_p bank, TermRef ref, TermProperties prop);

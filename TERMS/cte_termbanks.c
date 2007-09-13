@@ -188,7 +188,7 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
 //
 /----------------------------------------------------------------------*/
 
-static Term_p tb_parse_cons_list(Scanner_p in, TB_p bank)
+static Term_p tb_parse_cons_list(Scanner_p in, TB_p bank, bool check_symb_prop)
 {
    Term_p   handle;
    Term_p   current;
@@ -208,7 +208,7 @@ static Term_p tb_parse_cons_list(Scanner_p in, TB_p bank)
       current->f_code = SIG_CONS_CODE;
       current->arity = 2;
       current->args = TermArgArrayAlloc(2);
-      current->args[0] = TBTermParse(in, bank); 
+      current->args[0] = TBTermParseReal(in, bank, check_symb_prop); 
       current->args[1] = DefaultSharedTermCellAlloc();
       current = current->args[1];
       PStackPushP(stack, current);
@@ -219,7 +219,7 @@ static Term_p tb_parse_cons_list(Scanner_p in, TB_p bank)
          current->f_code = SIG_CONS_CODE;             
          current->arity = 2;                          
          current->args = TermArgArrayAlloc(2);
-         current->args[0] = TBTermParse(in, bank); 
+         current->args[0] = TBTermParseReal(in, bank, check_symb_prop); 
          current->args[1] = TermDefaultCellAlloc();
          current = current->args[1];      
 	 PStackPushP(stack, current);
@@ -259,7 +259,7 @@ static Term_p tb_parse_cons_list(Scanner_p in, TB_p bank)
    
 Term_p tb_subterm_parse(Scanner_p in, TB_p bank)
 {
-   Term_p res = TBTermParse(in, bank);
+   Term_p res = TBTermParseReal(in, bank, true);
 
    if(!TermIsVar(res))
    {
@@ -273,6 +273,76 @@ Term_p tb_subterm_parse(Scanner_p in, TB_p bank)
    }
    return res;
 }
+
+
+
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: tb_term_parse_arglist()
+//
+//   Parse a list of terms (comma-separated and enclosed in brackets)
+//   into an array of (shared) term pointers. See TermParseArgList()
+//   in cte_terms.c for more.
+//
+// Global Variables: -
+//
+// Side Effects    : Input, memory operations, changes term bank
+//
+/----------------------------------------------------------------------*/
+
+int tb_term_parse_arglist(Scanner_p in, Term_p** arg_anchor, 
+                          TB_p bank, bool check_symb_prop)
+{
+   Term_p *handle, tmp;
+   int    arity;
+   int    size;
+   int    i;
+
+   AcceptInpTok(in, OpenBracket);
+   if(TestInpTok(in, CloseBracket))
+   {
+      NextToken(in);
+      *arg_anchor = NULL;
+      return 0;
+   }
+   size = TERMS_INITIAL_ARGS;
+   handle = (Term_p*)SizeMalloc(size*sizeof(Term_p));
+   arity = 0;
+   tmp = check_symb_prop?
+      tb_subterm_parse(in, bank):
+      TBRawTermParse(in,bank);
+      
+   handle[arity] = tmp;
+   arity++;
+   while(TestInpTok(in, Comma))
+   {
+      NextToken(in);
+      if(arity==size)
+      {
+         size+=TERMS_INITIAL_ARGS;
+         handle = (Term_p*)SecureRealloc(handle, size*sizeof(Term_p));
+      }
+      handle[arity] = check_symb_prop?
+         tb_subterm_parse(in, bank):
+         TBRawTermParse(in,bank);
+      arity++;
+   }
+   AcceptInpTok(in, CloseBracket);
+   *arg_anchor = TermArgArrayAlloc(arity);
+   for(i=0;i<arity;i++)
+   {
+      (*arg_anchor)[i] = handle[i];
+   }
+   SizeFree(handle, size*sizeof(Term_p));
+   
+   return arity;
+}
+
+
+
 
 
 /*---------------------------------------------------------------------*/
@@ -801,11 +871,13 @@ void TBPrintBankTerms(FILE* out, TB_p bank)
 
 /*-----------------------------------------------------------------------
 //
-// Function: TBTermParse()
+// Function: TBTermParseReal()
 //
 //   Parse a term from the given scanner object directly into the
 //   termbank. Supports abbreviations. This function will _not_ set
-//   the TPTopPos property on top terms while parsing
+//   the TPTopPos property on top terms while parsing. It will or will
+//   not check and set symbol properties (function symbol, predicate
+//   symbol), depending on the check_symb_prop parameter.
 //
 // Global Variables: -
 //
@@ -813,7 +885,7 @@ void TBPrintBankTerms(FILE* out, TB_p bank)
 //
 /----------------------------------------------------------------------*/
 
-Term_p TBTermParse(Scanner_p in, TB_p bank)
+Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
 {
    Term_p        handle;
    DStr_p        id;
@@ -855,7 +927,7 @@ Term_p TBTermParse(Scanner_p in, TB_p bank)
 	    properties = ParseInt(in);
 	 }
 	 NextToken(in);
-	 handle = TBTermParse(in, bank); /* Elegant, aint it? */
+	 handle = TBTermParseReal(in, bank, check_symb_prop); /* Elegant, aint it? */
 	 
 	 if(properties)
 	 { 
@@ -888,7 +960,7 @@ Term_p TBTermParse(Scanner_p in, TB_p bank)
       
       if(SigSupportLists && TestInpTok(in, OpenSquare))
       {
-	 handle =  tb_parse_cons_list(in, bank);
+	 handle =  tb_parse_cons_list(in, bank, check_symb_prop);
       }
       else
       {
@@ -919,8 +991,8 @@ Term_p TBTermParse(Scanner_p in, TB_p bank)
                                 false);
                }
                
-	       handle->arity = TBTermParseArgList(in, &(handle->args),
-						  bank);
+	       handle->arity = tb_term_parse_arglist(in, &(handle->args),
+                                                     bank, check_symb_prop);
 	    }
 	    else
 	    {
@@ -953,62 +1025,6 @@ Term_p TBTermParse(Scanner_p in, TB_p bank)
 }
 
 
-
-/*-----------------------------------------------------------------------
-//
-// Function: TBTermParseArgList()
-//
-//   Parse a list of terms (comma-separated and enclosed in brackets)
-//   into an array of (shared) term pointers. See TermParseArgList()
-//   in cte_terms.c for more.
-//
-// Global Variables: -
-//
-// Side Effects    : Input, memory operations, changes term bank
-//
-/----------------------------------------------------------------------*/
-
-int TBTermParseArgList(Scanner_p in, Term_p** arg_anchor, TB_p bank) 
-{
-   Term_p *handle, tmp;
-   int    arity;
-   int    size;
-   int    i;
-
-   AcceptInpTok(in, OpenBracket);
-   if(TestInpTok(in, CloseBracket))
-   {
-      NextToken(in);
-      *arg_anchor = NULL;
-      return 0;
-   }
-   size = TERMS_INITIAL_ARGS;
-   handle = (Term_p*)SizeMalloc(size*sizeof(Term_p));
-   arity = 0;
-   tmp = tb_subterm_parse(in, bank);
-   handle[arity] = tmp;
-   arity++;
-   while(TestInpTok(in, Comma))
-   {
-      NextToken(in);
-      if(arity==size)
-      {
-         size+=TERMS_INITIAL_ARGS;
-         handle = (Term_p*)SecureRealloc(handle, size*sizeof(Term_p));
-      }
-      handle[arity] = tb_subterm_parse(in, bank);
-      arity++;
-   }
-   AcceptInpTok(in, CloseBracket);
-   *arg_anchor = TermArgArrayAlloc(arity);
-   for(i=0;i<arity;i++)
-   {
-      (*arg_anchor)[i] = handle[i];
-   }
-   SizeFree(handle, size*sizeof(Term_p));
-   
-   return arity;
-}
 
 
 /*-----------------------------------------------------------------------
