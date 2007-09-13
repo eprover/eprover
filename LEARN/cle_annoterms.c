@@ -167,7 +167,7 @@ AnnoTerm_p AnnoTermParse(Scanner_p in, TB_p bank, long expected)
    Annotation_p annos = NULL;
    AnnoTerm_p   handle;
 
-   term = TBTermParse(in, bank);
+   term = TBRawTermParse(in, bank);
    AcceptInpTok(in, Colon);
    AnnotationListParse(in, &annos, expected);
    AcceptInpTok(in, Fullstop);   
