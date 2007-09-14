@@ -147,6 +147,7 @@ int main(int argc, char* argv[])
    }
    VERBOUT2("PCL input read\n");
 
+   PCLProtStripFOF(prot);
    PCLProtResetTreeData(prot, false);
    PCLProtMarkProofClauses(prot);
    PCLProtProofDistance(prot);
