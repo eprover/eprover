@@ -37,14 +37,14 @@ anything fails. There should be a copy in DOC/eprover.pdf.
              ===============================
 
 
-This is the README file for version 0.99 "Singtom" of the E equational
-theorem prover. This version of E is free software, see the file
-COPYING for details about the license and the fact that THERE IS NO
-WARRANTY!  
+This is the README file for version 0.999 "Longview" of the E
+equational theorem prover. This version of E is free software, see the
+file COPYING for details about the license and the fact that THERE IS
+NO WARRANTY!
 
-Release 0.99 introduces an improved automatic mode, clause splitting
-via explicit definitions, and better goal-directed heuristics For more
-on new features, read DOC/NEWS.
+Release 0.999 contains serious changes to the rewrite engine, some
+bug-fixes, and general cleanup. Performance should be slightly better
+than the performance version.
 
 If you are using certain gcc 2.95.1, 2.96.X, 2.97.X or 3.2.X releases,
 you may or may not experience strange bugs. In that case, please read
