@@ -907,8 +907,8 @@ void DestroyScanner(Scanner_p  junk)
 //
 //   Compares the type of the given token with a list of possible
 //   tokens. Possibilities are values of type TokenType, possibly
-//   combined with the biwise or operator '|'. The test is true if the
-//   given token matches at least one type from the list.
+//   combined with the bitwise or operator '|'. The test is true if
+//   the given token matches at least one type from the list.
 //
 // Global Variables: -
 //
@@ -918,7 +918,7 @@ void DestroyScanner(Scanner_p  junk)
 
 bool TestTok(Token_p akt, TokenType toks)
 {
-   /* PrintToken(stdout, akt);*/
+   /* PrintToken(stdout, akt); */
    return (akt->tok & toks)!=0;
 }
 
