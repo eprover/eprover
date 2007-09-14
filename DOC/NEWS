@@ -1,6 +1,18 @@
 This history list describes the major differences between versions of
 the E equational theorem prover.
 
+Version 0.99 -> 0.999
+
+- Finally got to eleminate the ugly duplicate term cells for terms
+  with rewrite restrictions. This lead to a rather simpler term bank
+  structure, too.
+- Added better syntactic support for integers and floats. 
+- Removed old '--interprete-numbers' option and associated dead code. 
+- Fixed (hopefully) the learning module, which had suffered from bit
+  rot. 
+- Made some minor changes to SZS output to make Geoff happy.
+- Fixed some bugs in the eproof script to make Larry happy.
+
 
 Version 0.91 -> 0.99
 

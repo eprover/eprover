@@ -1186,6 +1186,8 @@ of the learned knowledge).
 \section{Input Language}
 \label{sec:language}
 
+\subsection{LOP}
+
 E natively uses E-LOP, a dialect of the LOP language designed for
 SETHEO.At the moment, your best bet is to retrieve the LOP description
 from the E web site~\cite{E:WWW-99} and/or check out the examples
@@ -1218,16 +1220,41 @@ very well.  There are a couple of minor differences, however:
   negated literals.
 \end{itemize}
 
-As an alternative, E also supports TPTP syntax~\cite{SS:TPTP-97} (if
-given the option \texttt{--tptp-in} or \texttt{--tptp-format}) without
-includes and as far as it can be divined from the TPTP manual. In TPTP
-format, clauses with TPTP type \texttt{conjecture} are considered goal
-clauses for the \texttt{--sos-uses-input-types} option. 
+\subsection{TPTP Format}
 
-Finally, the latest versions of E also support (restricted) TSTP
-clause format~\cite{SZS:IJCAI-WS-2003} (the restriction being that
-none of the optional parts are recognized) with the option
-\texttt{--tstp-in} or \texttt{--tstp-format}.
+The TPTP~\cite{Sutcliffe:TPTP-WWW} is a library of problems for
+automated theorem prover. Problems in the TPTP are written in TPTP
+syntax. There are two major versions of the TPTP syntax, both of which
+are supported by E.
+
+Version 2\footnote{Version 1 allowed the specification of problems in
+  clause normal form only. Version 2 is a conservative extension of
+  version 1 and adds support for full first order formulas.} of the
+TPTP syntax was used up for TPTP releases previous to TPTP~3.0.0.
+
+The current version 3 of the TPTP syntax, described in \cite{GSCG:IJCAR-2006},
+covers both input problems and both proof and model output using one
+consistent formalism. It has been used as the native format for TPTP
+releases since TPTP~3.0.0.
+
+Parsing in TPTP format version 2 is enabled by the options
+\texttt{--tptp-in}, \texttt{tptp2-in}, \texttt{--tptp-format} and
+\texttt{--tptp2-format}. The last two options also select TPTP 2
+format for the output of normal clauses during and after
+saturation. Proof output will be in PCL2 format, however.
+
+As an alternative, E also supports TPTP-3 syntax with the options
+\texttt{--tstp-in} , \texttt{tptp3-in}, \texttt{--tstp-format} and
+\texttt{--tptp3-format}. The last two options will also enable TPTP-3
+format for proof output. Note that many of E's support tools still
+require PCL2 format. Various tools for processing TPTP-3 proof format
+are available via the TPTP web-site, \url{http://www.tptp.org}.
+
+In either TPTP format, clauses and formulas with TPTP type
+\texttt{conjecture} or \emph{negated-conjecture} (TPTP-3 only) are
+considered goal clauses for the \texttt{--sos-uses-input-types}
+option.
+
 
 
 \section{Output\ldots or how to interpret what you see}
@@ -1823,7 +1850,7 @@ N.~Dershowitz.
 \bibitem[DKS97]{DKS97}
 J.~Denzinger, M.~Kronenburg, and S.~Schulz.
 \newblock {DISCOUNT: A Distributed and Learning Equational Prover}.
-\newblock {\em Journal of Automated Reasoning}, 2(18):189--198, 1997.
+\newblock {\em Journal of Automated Reasoning}, 18(2):189--198, 1997.
 \newblock Special Issue on the CADE 13 ATP System Competition.
 
 \bibitem[DS94a]{DS94a}
@@ -1929,23 +1956,18 @@ S.~Schulz.
   IJCAR, Cork, Ireland}, volume 3097 of {\em LNAI}, pages 223--228. Springer,
   2004.
 
-\bibitem[SS97]{SS:TPTP-97}
-C.B. Suttner and G.~Sutcliffe.
-\newblock {The TPTP Problem Library (TPTP v2.1.0)}.
-\newblock Technical Report AR-97-01 (TUM), 97/04 (JCU), Institut f{\"u}r
-  Informatik, Technische Universit{\"a}t M{\"u}nchen, Munich,
-  Germany/Department of Computer Science, James Cook University, Townsville,
-  Australia, 1997.
-\newblock Jointly published.
+\bibitem[SSCG06]{GSCG:IJCAR-2006}
+Geoff Sutcliffe, Stephan Schulz, Koen Claessen, and Allen~Van Gelder.
+\newblock {Using the TPTP Language for Writing Derivations and Finite
+  Interpretations }.
+\newblock In Ulrich Fuhrbach and Natarajan Shankar, editors, {\em Proc.\ of the
+  3rd IJCAR, Seattle}, volume 4130 of {\em LNAI}, pages 67--81, 4130, 2006.
+  Springer.
 
-\bibitem[SZS03]{SZS:IJCAI-WS-2003}
-G.~Suctcliffe, J.~Zimmer, and S.~Schulz.
-\newblock {Communication Formalisms for Automated Theorem Proving Tools}.
-\newblock In V.~Sorge, S.~Colton, M.~Fisher, and J.~Gow, editors, {\em Proc.\
-  of the IJCAI-18 Workshop on Agents and Automated Reasoning}, pages 53--58,
-  2003.
-\newblock Available at
-  \url{http://www.cs.bham.ac.uk/~vxs/ijcai03/index.html#program}.
+\bibitem[Sut05]{Sutcliffe:TPTP-WWW}
+G.~Sutcliffe.
+\newblock {The TPTP Web Site}.
+\newblock \url{http://www.tptp.org}, 2004--2005.
 
 \bibitem[Tam97]{Tammet:JAR-97}
 T.~Tammet.
@@ -1969,7 +1991,7 @@ C.~Weidenbach.
 C.~Weidenbach.
 \newblock {SPASS: Combining Superposition, Sorts and Splitting}.
 \newblock In A.~Robinson and A.~Voronkov, editors, {\em Handbook of Automated
-  Reasoning}, number~II, chapter~27, pages 1965--2013. Elsevier Science and MIT
+  Reasoning}, volume~II, chapter~27, pages 1965--2013. Elsevier Science and MIT
   Press, 2001.
 
 \bibitem[WGR96]{WGR96}
