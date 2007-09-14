@@ -303,7 +303,7 @@ FuncSymbType TermParseOperator(Scanner_p in, DStr_p id)
        ||
        (DStrView(id)[0] == '_'))
       &&
-      TestTok(LookToken(in, 1), OpenBracket))
+      TestInpTok(in,OpenBracket))
    {
       res = FSIdentFreeFun;
    }
