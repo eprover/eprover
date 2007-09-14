@@ -8,7 +8,7 @@ Contents
  
   Main program for the E equational theorem prover.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2007 by the author.
   This code is released under the GNU General Public Licence.
   See the file COPYING in the main CLIB directory for details.
   Run "eprover -h" for contact information.
@@ -17,6 +17,9 @@ Changes
 
 <1> Tue Jun  9 01:32:15 MET DST 1998
     New
+<2> See CVS log ;-)
+<3> Fri Sep 14 15:29:08 EDT 2007
+    Release of 0.999.
 
 -----------------------------------------------------------------------*/
 
@@ -32,8 +35,8 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-/*  cvs tag E-0-999pre006 */
-#define VERSION      "0.999pre006"
+/*  cvs tag E-0-999 */
+#define VERSION      "0.999"
 #define NAME         "eprover"
 
 #define NICKNAME     "Longview"
