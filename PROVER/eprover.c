@@ -30,13 +30,14 @@ Changes
 #include <cio_signals.h>
 #include <ccl_unfold_defs.h>
 #include <ccl_formulafunc.h>
+#include <cte_simplesorts.h>
 
 /*---------------------------------------------------------------------*/
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-/*  cvs tag E-0-999 */
-#define VERSION      "0.999"
+/*  cvs tag E-0-999-001 */
+#define VERSION      "0.999-001"
 #define NAME         "eprover"
 
 #define NICKNAME     "Longview"
