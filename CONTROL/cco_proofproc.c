@@ -461,7 +461,7 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
                              control->heuristic_parms.forward_context_sr_aggressive||
                              (control->heuristic_parms.backward_context_sr&&
                               ClauseQueryProp(handle,CPIsProcessed)),
-                             control->heuristic_parms.forward_demod, true);
+                             FullRewrite, true);
          ClauseDelProp(handle,CPIsIRVictim);
       }
       ForwardModifyClause(state, control, handle, 
