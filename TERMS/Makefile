@@ -35,7 +35,8 @@ include ../Makefile.services
 
 # Build the  library
 
-TERM_LIB = cte_functypes.o cte_signature.o  cte_termtypes.o \
+TERM_LIB = cte_simplesorts.o cte_functypes.o cte_signature.o\
+           cte_termtypes.o \
            cte_termvars.o cte_acterms.o\
            cte_varhash.o cte_termfunc.o cte_termtrees.o\
            cte_termcellstore.o\
