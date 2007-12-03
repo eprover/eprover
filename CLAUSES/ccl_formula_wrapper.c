@@ -339,7 +339,7 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
       
    AcceptInpId(in, "fof");
    AcceptInpTok(in, OpenBracket);
-   CheckInpTok(in, Name|PosInt);
+   CheckInpTok(in, Name|PosInt|SQString);
    info->name = DStrCopy(AktToken(in)->literal);
    NextToken(in);
    AcceptInpTok(in, Comma);

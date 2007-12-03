@@ -1501,7 +1501,7 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
       AcceptInpId(in, "cnf");
       AcceptInpTok(in, OpenBracket);
       info->name = DStrCopy(AktToken(in)->literal);
-      AcceptInpTok(in, Name|PosInt);
+      AcceptInpTok(in, Name|PosInt|SQString);
       AcceptInpTok(in, Comma);
 
       /* This is hairy! E's internal types do not map very well to
@@ -1533,9 +1533,16 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
          input = CPIgnoreProps;                     
       }
       AcceptInpTok(in, Comma);
-      AcceptInpTok(in, OpenBracket);
-      concl = EqnListParse(in, bank, Pipe);
-      AcceptInpTok(in, CloseBracket);
+      if(TestInpTok(in, OpenBracket))
+      {
+         AcceptInpTok(in, OpenBracket);
+         concl = EqnListParse(in, bank, Pipe);
+         AcceptInpTok(in, CloseBracket);
+      }
+      else
+      {
+         concl = EqnListParse(in, bank, Pipe);
+      }
       if(TestInpTok(in, Comma))
       {
          AcceptInpTok(in, Comma);

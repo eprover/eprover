@@ -215,7 +215,7 @@ PCLExpr_p PCLExprParse(Scanner_p in, bool mini)
          AcceptInpTok(in, String);
          AcceptInpTok(in, Comma);
          info->name = DStrCopy(AktToken(in)->literal);
-         AcceptInpTok(in, Name|PosInt);
+         AcceptInpTok(in, Name|PosInt|SQString);
          AcceptInpTok(in, CloseBracket);
          handle->arg_no = 1;
          PCLExprArg(handle,0) = info;

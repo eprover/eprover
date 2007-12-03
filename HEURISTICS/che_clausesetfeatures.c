@@ -1401,7 +1401,7 @@ void SpecFeaturesParse(Scanner_p in, SpecFeature_p features)
 void SpecTypePrint(FILE* out, SpecFeature_p features, char* mask)
 {
    const char encoding[]="UHGNSPFSMFSMFSMFSMSML0123SMLSMD";
-   char       result[13];
+   char       result[14]; // Big enough for the '\0'!!!
    int        i, limit;
 
    assert(features);

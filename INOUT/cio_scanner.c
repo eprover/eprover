@@ -259,17 +259,27 @@ static void scan_C_comment(Scanner_p in)
 
 static void scan_string(Scanner_p in, char delim)
 {
+   bool escape = false;
+
    AktToken(in)->tok = (delim=='\'')?SQString:String;
    
    DStrAppendChar(AktToken(in)->literal, CurrChar(in));
    NextChar(in);
-   while(CurrChar(in) != delim)
+   while(escape || (CurrChar(in) != delim))
    {
       if(!isprint(CurrChar(in)))
       {
 	 AktTokenError(in, 
 		       "Non-printable character in string constant",
 		       false);
+      }
+      if(CurrChar(in)=='\\')
+      {
+         escape = !escape;
+      }
+      else
+      {
+         escape = false;
       }
       DStrAppendChar(AktToken(in)->literal, CurrChar(in));
       NextChar(in);

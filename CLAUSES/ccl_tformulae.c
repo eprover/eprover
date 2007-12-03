@@ -417,8 +417,14 @@ TFormula_p TFormulaFCodeAlloc(TB_p bank, FunCode op, TFormula_p arg1, TFormula_p
    {
       TermCellSetProp(res, TPPredPos);
    }
-   res->args[0] = arg1;
-   res->args[1] = arg2;
+   if(arity > 0)
+   {
+      res->args[0] = arg1;
+      if(arity > 1)
+      {
+         res->args[1] = arg2;
+      }
+   }
    assert(bank);
    res = TBTermTopInsert(bank, res);
 
