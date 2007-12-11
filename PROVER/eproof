@@ -21,22 +21,20 @@ fi
 tmpfile=$TMPDIR/"eproof_"${host}"_"${pid}
 tmpfile2=$TMPDIR/"eprooftmp_"${host}"_"${pid}
 
-timeout=""
-
 status=0
 
 cleanup () 
 {  
     ulimit -S unlimited
     touch $tmpfile $tmpfile2
-    rm $tmpfile $tmpfile2
+    rm -f $tmpfile $tmpfile2
     exit $status
 } 
 
 xcpuhandler ()
 {
-    cleanup 
     echo "# Cannot determine problem status: Terminated by signal. Cleaning up"
+    cleanup 
 }
 
 
@@ -142,10 +140,8 @@ if [ "$searchtime" ]; then
     $TAIL -$print_tail $tmpfile2
 else
     echo "# Cannot determine problem status within resource limit"
-    cleanup
 fi
-
-timeout="1"
+cleanup
 
 
 
