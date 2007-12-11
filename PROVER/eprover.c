@@ -36,11 +36,11 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-/*  cvs tag E-0-999-002 */
-#define VERSION      "0.999-002"
+/*  cvs tag E-0-999-003 */
+#define VERSION      "0.999-003"
 #define NAME         "eprover"
 
-#define NICKNAME     "Longview"
+#define NICKNAME     "Longview2"
 
 typedef enum
 {
