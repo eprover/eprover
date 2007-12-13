@@ -1,6 +1,3 @@
-For CASC-21 instructions, also see DOC/ReadMe.
-
-
 Short Installation Instructions for the impatient
 -------------------------------------------------
 
@@ -37,19 +34,21 @@ anything fails. There should be a copy in DOC/eprover.pdf.
              ===============================
 
 
-This is the README file for version 0.999-003 "Longview2" of the E
+This is the README file for version 0.999-004 "Longview2" of the E
 equational theorem prover. This version of E is free software, see the
 file COPYING for details about the license and the fact that THERE IS
 NO WARRANTY!
 
 Release 0.999 contains serious changes to the rewrite engine, some
-bug-fixes, and general cleanup. Version 0.999-003 is only a minor
+bug-fixes, and general cleanup. Version 0.999-004 is only a minor
 update. It fixes two longstanding memory corruption bugs, at least one
 of which caused unexpected behaviour for some combinations of
 architecture, operating systems, compilers, and optimization
-levels. The latest version also updates the TPTP-3 parser to
-(hopefully) conform to version v3.3.0.0 (accessed 2007-12-11) of the
-first-order syntax.
+levels. 
+
+The latest version also updates the TPTP-3 parser to (hopefully)
+conform to version v3.3.0.0 (accessed 2007-12-11) of the first-order
+syntax.
 
 
 What is E? What is CLIB?

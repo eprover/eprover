@@ -1,6 +1,16 @@
 This history list describes the major differences between versions of
 the E equational theorem prover.
 
+Version 0.999 -> 0.999-004
+
+- Fixed string overflow bug sometimes corrupting auto mode
+  classification (Thanks to Josef Urban for finding it)
+- Fixed illegal memory access in term formula building 
+  (Thanks to Josef Urban for pointing it out).
+- Updated TPTP-3 parser.
+- Cleanup of eproof script (thanks to Larry Paulson for bugging me
+  over and over again).
+
 Version 0.99 -> 0.999
 
 - Finally got to eleminate the ugly duplicate term cells for terms
