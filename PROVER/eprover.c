@@ -36,8 +36,8 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-/*  cvs tag E-0-999-005 */
-#define VERSION      "0.999-005"
+/*  cvs tag E-0-999-006 */
+#define VERSION      "0.999-006"
 #define NAME         "eprover"
 
 #define NICKNAME     "Longview2"
