@@ -1500,9 +1500,9 @@ void DocFormulaIntroDefs(FILE* out, long level, WFormula_p form,
             fprintf(out, "c_0_%ld", old_id);
             for(i=0; i<PStackGetSP(def_list); i++)
             {
-               fprintf(out, ",c_0_%ld", PStackElementInt(def_list, i));
+               fprintf(out, ",c_0_%ld])", PStackElementInt(def_list, i));
             }
-            fprintf(out, "])");            
+            //fprintf(out, "])");            
             tstp_formula_print_end(out, comment);
             break;
       default:
