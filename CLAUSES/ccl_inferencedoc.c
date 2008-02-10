@@ -1502,7 +1502,6 @@ void DocFormulaIntroDefs(FILE* out, long level, WFormula_p form,
             {
                fprintf(out, ",c_0_%ld])", PStackElementInt(def_list, i));
             }
-            //fprintf(out, "])");            
             tstp_formula_print_end(out, comment);
             break;
       default:
