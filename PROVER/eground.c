@@ -362,6 +362,8 @@ int main(int argc, char* argv[])
    }
    CLStateFree(state);
 
+   ClauseSetRemoveSuperfluousLiterals(clauses);
+
    perm = PermVectorCompute(clauses,		    
                             &FVIDefaultParameters,
                             symbols);  
