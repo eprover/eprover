@@ -48,6 +48,7 @@ searchlimit=2000000000 # Effectively unlimited
 prooflimit=2000000000
 timelimit=2000000000
 outfile=""
+limitprooftime="yes"
 
 print_tail=0
 print_res=0
@@ -98,6 +99,11 @@ for argument in  "$@"; do
 	    argument="--tstp-in"
 	    format="--tstp-out"
 	fi
+	if  [ "$argument" = "--proof-time-unlimited" ] ; then
+	    limitprooftime=""
+	    argument=""
+	fi
+
     fi
     if [ "$argument" ] ; then        
         newargs=$newargs" '"$argument"'"
@@ -128,8 +134,11 @@ if [ "$searchtime" ]; then
 	    fi
 	fi
     fi
-    prooflimit=`expr $timelimit - $searchtime - 1`
-    ulimit -S -t $prooflimit 2>&1> /dev/null
+    if [ "$limitprooftime" ]; then
+        echo "Limiting"
+        prooflimit=`expr $timelimit - $searchtime - 1`
+        ulimit -S -t $prooflimit 2>&1> /dev/null
+    fi
     if [ "$outfile" ]; then
 	exec 1> "$outfile"
     fi
