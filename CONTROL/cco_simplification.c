@@ -45,37 +45,6 @@ Changes
 /*---------------------------------------------------------------------*/
 
 
-
-/*-----------------------------------------------------------------------
-//
-// Function: term_unrestrict()
-//
-//   Create a copy of term cell that does not carry any non-intrinsic
-//   properties (in particularly not TPIsRestricted). If such a cell
-//   already exists, delete it's rewrite information and return it.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-static Term_p term_unrestrict(TB_p bank, Term_p term)
-{
-   if(!TermCellIsAnyPropSet(term, TPRestricted)||TermIsVar(term))
-   {
-      return term;
-   }
-   term = TermTopCopy(term); /* This deletes the property! */
-   term = TBTermTopInsert(bank, term);
-   TermCellDelProp(term, TPIsRewritten|TPIsSOSRewritten);
-   term->rw_data.nf_date[0] = SysDateCreationTime();
-   term->rw_data.nf_date[1] = SysDateCreationTime();
-
-   return term;
-}
-
-
 /*-----------------------------------------------------------------------
 //
 // Function: ClauseMoveSimplified()
@@ -91,16 +60,8 @@ static Term_p term_unrestrict(TB_p bank, Term_p term)
 
 void ClauseMoveSimplified(Clause_p clause, ClauseSet_p tmp_set) 
 {
-   Eqn_p handle;
-   
    ClauseKillChildren(clause);
    ClauseSetExtractEntry(clause);
-
-   for(handle = clause->literals; handle; handle=handle->next)
-   {
-      handle->lterm = term_unrestrict(handle->bank, handle->lterm);
-      handle->rterm = term_unrestrict(handle->bank, handle->rterm);
-   }
    DocClauseQuoteDefault(6, clause, "simplifiable");
    ClauseSetInsert(tmp_set, clause);
 }

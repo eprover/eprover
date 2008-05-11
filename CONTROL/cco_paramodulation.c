@@ -111,6 +111,12 @@ long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
    InfType     inf_type = inf_noinf;
 
 
+   assert(EqnListQueryPropNumber(clause->literals, EPIsMaximal));
+   assert(EqnListQueryPropNumber(clause->literals, EPIsMaximal) 
+          == 
+          EqnListQueryPropNumber(parent_alias->literals, EPIsMaximal));
+   assert(EqnListQueryPropNumber(with->literals, EPIsMaximal));
+
    if(ClauseQueryProp(clause, CPNoGeneration)||
       ClauseQueryProp(with, CPNoGeneration))
    {

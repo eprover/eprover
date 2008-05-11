@@ -1265,6 +1265,17 @@ void ClausePCLPrint(FILE* out, Clause_p clause, bool fullterms)
       fprintf(out, "/* --- */");
    }
 #endif
+   if(clause->literals)
+   {
+      fprintf(out, "/* %d; %lu; %lu(%lu)=%lu(%lu)*/", 
+              ClauseQueryProp(clause, CPLimitedRW), 
+              clause->date.date,
+              clause->literals->lterm->entry_no,
+              clause->literals->lterm->rw_data.nf_date[RewriteAdr(FullRewrite)].date, 
+              clause->literals->rterm->entry_no,
+              clause->literals->rterm->rw_data.nf_date[RewriteAdr(FullRewrite)].date
+         );
+   }
    OutputFormat = TPTPFormat;
    fputc('[', out);
    EqnListPrint(out, clause->literals, ",", false, fullterms);

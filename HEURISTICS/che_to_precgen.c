@@ -56,7 +56,7 @@ char* TOPrecGenNames[]=
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
-/* #define PRINT_PRECEDENCE */
+#define PRINT_PRECEDENCE
 
 #ifdef PRINT_PRECEDENCE
 /*-----------------------------------------------------------------------

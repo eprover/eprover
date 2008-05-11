@@ -45,7 +45,7 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
-bool TBPrintInternalInfo = false; /* Print internal information about
+bool TBPrintInternalInfo = true;  /* Print internal information about
 				     term nodes, e.g. the flag field */
 bool TBPrintDetails = false;      /* Collect potentially expensive
 				     information (number of nodes,
@@ -110,6 +110,8 @@ static void tb_print_dag(FILE *out, NumTree_p in_index, Sig_p sig)
 	 }
 	 putc(')', out);
       }
+      printf("   =   ");
+      TermPrint(out, term, sig, DEREF_NEVER);
    }
    if(TBPrintInternalInfo)
    {

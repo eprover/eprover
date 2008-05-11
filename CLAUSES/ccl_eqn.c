@@ -746,7 +746,7 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
    /* if(EqnIsSelected(eq))
    {
       fprintf(out, "+");
-      }*/
+      } */
    /* if(EqnIsXTypePred(eq))
    {
       fprintf(out, "*");

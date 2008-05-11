@@ -36,6 +36,8 @@ bool RewriteStrongRHSInst = false;
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
 
+static Term_p term_li_normalform(RWDesc_p desc, Term_p term, 
+                                 bool restricted_rw);
 
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
@@ -113,9 +115,7 @@ static bool instance_is_rule(OCB_p ocb, Eqn_p demod,
    }
    return term;
 }
-
-
-
+  
 
 /*-----------------------------------------------------------------------
 //
@@ -209,7 +209,7 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
 //   systems).
 //
 //   I keep this like it is for the moment despite the new
-//   rewriting. We may loose a few cycle by not immediately adding a
+//   rewriting. We may loose a few cycles by not immediately adding a
 //   rewrite link if we detected a possible rewrite step, but on the
 //   other hand we may have fewer intermediate term cells this way,
 //   since the actual rewriting is performed later. The most elegant
@@ -232,8 +232,10 @@ static bool term_is_rewritable(TB_p bank, OCB_p ocb, Term_p term, Clause_p
    bool res = false;
    RWResultType topres;
    
-   /* printf("term_is_rewritable()...\n"); */
-
+   /*printf("term_is_rewritable(");
+     TermPrint(stdout, term, ocb->sig, DEREF_NEVER);
+     printf(")...\n"); */
+   
    if(TermIsVar(term))
    {
       return false;
@@ -277,9 +279,9 @@ static bool term_is_rewritable(TB_p bank, OCB_p ocb, Term_p term, Clause_p
       &&!restricted_rw)
    {
       term->rw_data.nf_date[RewriteAdr(RuleRewrite)] =
-         term->rw_data.nf_date[RewriteAdr(FullRewrite)] = nf_date;
+      term->rw_data.nf_date[RewriteAdr(FullRewrite)] = nf_date;
    }
-   /* printf("...term_is_rewritable() = false (no match)\n"); */
+   /* printf("...term_is_rewritable() = false (no match)\n");*/
    return false;
 }
 
@@ -342,13 +344,13 @@ static bool clause_is_rewritable(OCB_p ocb, Clause_p clause,
    Eqn_p handle;
    EqnSide tmp;
    bool res = false;
-
+   
    //printf("Checking clause %ld: ", clause->ident);
    //ClausePrint(stdout, clause, true);
    //printf("\n");
-   //printf("with demod clause %ld: ", new_demod->ident);
-   //ClausePrint(stdout, new_demod, true);
-   //printf("\n");
+   // printf("with demod clause %ld: ", new_demod->ident);
+   // ClausePrint(stdout, new_demod, true);
+   // printf("\n");
 
    for(handle = clause->literals; handle; handle = handle->next)
    {
@@ -358,7 +360,7 @@ static bool clause_is_rewritable(OCB_p ocb, Clause_p clause,
 	 res = true;
       }
    }
-   /* printf("Res: %d\n", res);  */
+   // printf("Res: %d\n", res);
    return res;
 }
 
@@ -425,11 +427,15 @@ static ClausePos_p indexed_find_demodulator(OCB_p ocb, Term_p term,
    Eqn_p       eqn;   
    ClausePos_p pos, res = NULL;
    
+   //printf("indexed_find_demodulator(...,");
+   //TermPrint(stdout, term, ocb->sig, DEREF_NEVER);  
+   //printf(",...,%d)\n", restricted_rw);
+
    assert(term);
    assert(demodulators);
    assert(demodulators->demod_index);
-   /* assert(term->weight == TermWeight(term, DEFAULT_VWEIGHT, 
-      DEFAULT_FWEIGHT));*/
+   /* assert(term->weight == TermWeight(term, DEFAULT_VWEIGHT,  
+      DEFAULT_FWEIGHT)); */
    assert(!TermIsTopRewritten(term));
 
    RewriteAttempts++;   
@@ -437,9 +443,9 @@ static ClausePos_p indexed_find_demodulator(OCB_p ocb, Term_p term,
    PDTreeSearchInit(demodulators->demod_index, term, date, prefer_general);
    
    while((pos = PDTreeFindNextDemodulator(demodulators->demod_index, subst)))
-   {
+   {      
       eqn = pos->literal;
-      
+
       if((EqnIsOriented(eqn)&&
 	  SysDateCompare(TermNFDate(term,RewriteAdr(FullRewrite)),
 			 pos->clause->date)!=DateEarlier)
@@ -449,8 +455,7 @@ static ClausePos_p indexed_find_demodulator(OCB_p ocb, Term_p term,
 			 pos->clause->date)!=DateEarlier))
       {
 	 continue;
-      }
-
+      }      
       switch(pos->side)
       {
       case LeftSide:
@@ -487,6 +492,7 @@ static ClausePos_p indexed_find_demodulator(OCB_p ocb, Term_p term,
    }
    PDTreeSearchExit(demodulators->demod_index);
 
+   //printf("...indexed_find_demodulator()=%p\n", res);
    return res;
 }
 
@@ -590,6 +596,45 @@ static Term_p rewrite_with_clause_setlist(OCB_p ocb, TB_p bank, Term_p term,
 
 /*-----------------------------------------------------------------------
 //
+// Function: term_subterm_rewrite()
+//
+//   Normalize the subterms of the given term and propagate the result
+//   to term. Returns modification, result per *term.
+//
+// Global Variables: -
+//
+// Side Effects    : May change termbank, introduce rw-links.
+//
+/----------------------------------------------------------------------*/
+
+static bool term_subterm_rewrite(RWDesc_p desc, Term_p *term)
+{ 
+   bool modified = false;
+   Term_p new_term = TermTopCopy(*term);
+   int  i;
+   
+   for(i=0; i<(*term)->arity; i++)
+   {	 
+      new_term->args[i] = term_li_normalform(desc, (*term)->args[i], false);
+      modified = modified || (new_term->args[i]!= (*term)->args[i]);
+   }
+   if(modified)
+   {
+      new_term = TBTermTopInsert(desc->bank, new_term);
+      assert(new_term!=*term);
+      TermAddRWLink(*term, new_term, REWRITE_AT_SUBTERM, false, 
+                    RWAlwaysRewritable);	 
+      *term = new_term;
+   }
+   else
+   {
+      TermTopFree(new_term);
+   }
+   return modified;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: term_li_normalform()
 //
 //   Compute a leftmost-innermost normal form of term. This uses
@@ -607,21 +652,14 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
                                  bool restricted_rw)
 {
    bool    modified = true;
+   Term_p new_term;
 
-   /* printf("Term: ");
-   TermPrint(stdout, term, desc->ocb->sig, DEREF_NEVER);
-   printf("\n"); */
-   
    if(desc->level == NoRewrite)
    {
       return term;
    }
    term = term_follow_top_RW_chain(term, desc, restricted_rw);
    assert(!TermIsTopRewritten(term)||restricted_rw);
-   
-   /* printf("Term after top chain: ");
-   TermPrint(stdout, term, desc->ocb->sig, DEREF_NEVER);
-   printf("\n"); */
    
    if(!TermIsRewritten(term)&&
       SysDateCompare(term->rw_data.nf_date[desc->level-1],
@@ -636,36 +674,13 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
    }
    while(modified)
    {
-      Term_p new_term = TermTopCopy(term);
-      int  i;
-      
-      modified = false;      
-      for(i=0; i<term->arity; i++)
-      {	 
-	 new_term->args[i] = term_li_normalform(desc, term->args[i], false);
-	 modified = modified || (new_term->args[i]!= term->args[i]);
-      }
-      if(modified)
-      {
-	 new_term = TBTermTopInsert(desc->bank, new_term);
-	 assert(new_term!=term);
-	 TermAddRWLink(term, new_term, REWRITE_AT_SUBTERM, false, 
-                       RWAlwaysRewritable);	 
-	 term = new_term;
-      }
-      else
-      {
-	 TermTopFree(new_term);
-      }
-      /* printf("After subterm rewriting: ");
-      TermPrint(stdout, term, desc->ocb->sig, DEREF_NEVER);
-      printf("\n"); */
+      modified = term_subterm_rewrite(desc, &term);      
       
       if(!TermIsVar(term))
       {
 	 if(TermIsTopRewritten(term))
 	 {
-	    new_term = term_follow_top_RW_chain(term, desc, restricted_rw);
+	    new_term = term_follow_top_RW_chain(term, desc, restricted_rw&&(!modified));
 	 }
 	 else
 	 {
@@ -673,20 +688,16 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
 					term, desc->demods,
 					desc->level,
 					desc->prefer_general,
-                                        restricted_rw);
-	    new_term = term_follow_top_RW_chain(term, desc, restricted_rw);
+                                        restricted_rw&&(!modified));
+	    new_term = term_follow_top_RW_chain(term, desc, restricted_rw&&(!modified));
 	 }
-	 modified = (term!=new_term);
-	 term = new_term;
-	 /* printf("After top level step: ");
-	 TermPrint(stdout, term, desc->ocb->sig, DEREF_NEVER);
-	 printf("\n"); */
+         if(term != new_term)
+         {
+            modified = true;
+            term = new_term;
+         }
       }
    }
-   /* printf("Assumed normal form: ");
-   TermPrint(stdout, term, desc->ocb->sig, DEREF_NEVER);
-   printf("\n"); */
-
    /* This is tricky! The term may be sub-top-level rewritten by a
       rule that had been eliminated by an equation, or by a rule that
       modified its right hand side (new loop!). So we may not find
@@ -699,7 +710,7 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
       term->rw_data.nf_date[RewriteAdr(RuleRewrite)] = desc->demod_date;
       if(desc->level == FullRewrite)
       {
-	 term->rw_data.nf_date[RewriteAdr(FullRewrite)] = desc->demod_date;
+         term->rw_data.nf_date[RewriteAdr(FullRewrite)] = desc->demod_date;
       }   
    }
    return term;
@@ -718,32 +729,29 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
 //
 /----------------------------------------------------------------------*/
 
-bool eqn_li_normalform(RWDesc_p desc, ClausePos_p pos, bool interred_rw)
+EqnSide eqn_li_normalform(RWDesc_p desc, ClausePos_p pos, bool interred_rw)
 {   
    Eqn_p  eqn = pos->literal;
    Term_p l_old = eqn->lterm, r_old = eqn->rterm;
    bool   restricted_rw = EqnIsMaximal(eqn) && EqnIsPositive(eqn) &&
       EqnIsOriented(eqn) && interred_rw;
+   EqnSide res = NoSide;
 
-   //printf("Rewriting (%d=>%d): ", interred_rw, restricted_rw);
-   //TermPrint(stdout, eqn->lterm, eqn->bank->sig, DEREF_NEVER);
-   //printf("\n");
    eqn->lterm = term_li_normalform(desc, eqn->lterm, restricted_rw);
    if(l_old!=eqn->lterm)
    {
       EqnDelProp(eqn, EPMaxIsUpToDate);
+      res = MaxSide;
       if(OutputLevel>=4)
       {
 	 pos->side = LeftSide;
 	 DocClauseRewriteDefault(pos, l_old);
       }
    }
-   /* printf("Rewriting: ");
-   TermPrint(stdout, eqn->rterm, eqn->bank->sig, DEREF_NEVER);
-   printf("\n"); */
    eqn->rterm = term_li_normalform(desc, eqn->rterm, false);
    if(r_old!=eqn->rterm)
    {
+      res = res|MinSide;
       if(!EqnIsOriented(eqn))
       {
 	 EqnDelProp(eqn, EPMaxIsUpToDate);
@@ -754,9 +762,7 @@ bool eqn_li_normalform(RWDesc_p desc, ClausePos_p pos, bool interred_rw)
 	 DocClauseRewriteDefault(pos, r_old);
       }
    }
-   // printf("Was rewritten: %d\n", (l_old!=eqn->lterm)||(r_old!=eqn->rterm));
-
-   return (l_old!=eqn->lterm)||(r_old!=eqn->rterm);
+   return res;
 }
 
 /*-----------------------------------------------------------------------
@@ -841,11 +847,11 @@ Term_p TermComputeLINormalform(OCB_p ocb, TB_p bank, Term_p term,
 
 bool ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
 			       ClauseSet_p *demodulators,
-			       RewriteLevel level, bool prefer_general,
-                               bool interred_rw)
+			       RewriteLevel level, bool prefer_general)
 {
    Eqn_p handle;
-   bool tmp, res=false;
+   EqnSide tmp = NoSide;
+   bool res=false;
    RWDesc_p desc = rw_desc_cell_alloc(ocb, bank, demodulators, level,
 				      prefer_general);
    ClausePosCell pos;
@@ -865,7 +871,14 @@ bool ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
    for(handle = clause->literals; handle; handle=handle->next)
    {
       pos.literal = handle;
-      tmp = eqn_li_normalform(desc, &pos, interred_rw);
+      tmp = eqn_li_normalform(desc, &pos, ClauseQueryProp(clause,CPLimitedRW));
+      if((tmp&MaxSide)
+         && EqnIsPositive(handle)
+         &&EqnIsMaximal(handle)
+         &&ClauseQueryProp(clause,CPLimitedRW))
+      {
+         ClauseDelProp(clause,CPLimitedRW); 
+      }
       res = res || tmp;
    }
    if(desc->sos_rewritten)
@@ -899,7 +912,7 @@ bool ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
 long ClauseSetComputeLINormalform(OCB_p ocb, TB_p bank, ClauseSet_p
 				  set, ClauseSet_p *demodulators,
 				  RewriteLevel level, bool
-				  prefer_general, bool interred_rw)
+				  prefer_general)
 {
    Clause_p handle;
    bool     tmp;
@@ -914,8 +927,7 @@ long ClauseSetComputeLINormalform(OCB_p ocb, TB_p bank, ClauseSet_p
                                       handle,
 				      demodulators,
                                       level,
-				      prefer_general,
-                                      interred_rw);
+				      prefer_general);
       
       if(tmp)
       {

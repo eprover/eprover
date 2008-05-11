@@ -72,8 +72,10 @@ int ClauseContextualSimplifyReflect(ClauseSet_p set, Clause_p clause)
 
       ClauseFlipLiteralSign(clause, handle);
       ClauseSubsumeOrderSortLits(clause);
+      
+      subsumer = ClauseSetSubsumesClause(set, clause);
 
-      if((subsumer = ClauseSetSubsumesClause(set, clause)))
+      if(subsumer)
       {
 	 ClauseRemoveLiteral(clause, handle);
 	 assert(clause->weight == ClauseStandardWeight(clause));

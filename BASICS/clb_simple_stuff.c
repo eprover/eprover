@@ -218,6 +218,33 @@ double pow(double x, double y)
 
 #endif
 
+/*-----------------------------------------------------------------------
+//
+// Function: IndentStr()
+//
+//   Return a pointer to a string of level spaces, or MAXINDENTSPACES
+//   if this is smaller. Not reentrant. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+char* IndentStr(unsigned level)
+{
+   static char spaces[MAXINDENTSPACES+1];
+   int i;
+
+   for(i=0; i<MIN(MAXINDENTSPACES, level); i++)
+   {
+      spaces[i] = ' ';
+   }
+   spaces[i] = '\0';
+   
+   return spaces;
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

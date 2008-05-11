@@ -351,8 +351,7 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
 				handle,
 				state->demods,
 				control->heuristic_parms.forward_demod,
-				control->heuristic_parms.prefer_general,
-                                false);      
+				control->heuristic_parms.prefer_general);      
       removed_lits = ClauseRemoveSuperfluousLiterals(handle);
       if(removed_lits)
       {
@@ -454,21 +453,21 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
    state->generated_lit_count+=state->tmp_store->literals;
    while((handle = ClauseSetExtractFirst(state->tmp_store)))
    {
-      if(ClauseQueryProp(handle,CPIsIRVictim));
-      {
-         // printf("Limited RW\n");
+      if(ClauseQueryProp(handle,CPIsIRVictim))
+      {         
+         assert(ClauseQueryProp(handle, CPLimitedRW));
          ForwardModifyClause(state, control, handle, 
                              control->heuristic_parms.forward_context_sr_aggressive||
                              (control->heuristic_parms.backward_context_sr&&
                               ClauseQueryProp(handle,CPIsProcessed)),
-                             FullRewrite, true);
+                             FullRewrite);
          ClauseDelProp(handle,CPIsIRVictim);
       }
       ForwardModifyClause(state, control, handle, 
 			  control->heuristic_parms.forward_context_sr_aggressive||
 			  (control->heuristic_parms.backward_context_sr&&
 			   ClauseQueryProp(handle,CPIsProcessed)),
-			  control->heuristic_parms.forward_demod, false);
+			  control->heuristic_parms.forward_demod);
 
 
       if(ClauseIsTrivial(handle)||
@@ -843,6 +842,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
    ClauseDetachParents(clause);
    ClauseRemoveEvaluations(clause);
    
+   assert(!ClauseQueryProp(clause, CPIsIRVictim));
    pclause = ForwardContractClause(state, control, clause, true, 
 				   control->heuristic_parms.forward_context_sr,
 				   FullRewrite);
@@ -889,13 +889,15 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
    }
    
    if(!pclause->clause) 
-   {  /* ...then it has been destroyed by one of the above methods */
+   {  /* ...then it has been destroyed by one of the above methods,
+       * which may have put some clauses into tmp_store. */
       if((empty = insert_new_clauses(state, control)))
       {
 	 return empty;
       }
       return FVUnpackClause(pclause);
    }
+
    if(state->watchlist)
    {
       check_watchlist(state->watchlist, pclause->clause);
@@ -905,7 +907,6 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
    {
       return FVUnpackClause(pclause);
    }
-
 
    /* Now on to backward simplification. */   
    clausedate = ClauseSetListGetMaxDate(state->demods, FullRewrite);
@@ -917,14 +918,17 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
    ClauseSetSetProp(state->tmp_store, CPIsIRVictim);
 
    clause = pclause->clause;
+
    ClauseNormalizeVars(clause, state->freshvars);
    tmp_copy = ClauseCopy(clause, state->tmp_terms);      
    tmp_copy->ident = clause->ident;
 
    clause->date = clausedate;
+   ClauseSetProp(clause, CPLimitedRW);
+
    if(ClauseIsDemodulator(clause))
    {
-      assert(clause->neg_lit_no == 0);
+       assert(clause->neg_lit_no == 0);
       if(EqnIsOriented(clause->literals))
       {
          TermCellSetProp(clause->literals->lterm, TPIsRewritable);

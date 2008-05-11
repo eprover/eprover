@@ -146,12 +146,11 @@ static bool recompute_node_constraints(PDTNode_p node)
       iter = IntMapIterAlloc(node->f_alternatives, 0, LONG_MAX);
       while((next=IntMapIterNext(iter, &i)))
       {
-	 if(next)
-	 {
-	    new_age  = SysDateMaximum(new_age, next->age_constr);
-	    new_size = MIN(new_size, next->size_constr);
-	    tmpmax = i;
-	 }
+	 assert(next);
+
+         new_age  = SysDateMaximum(new_age, next->age_constr);
+         new_size = MIN(new_size, next->size_constr);
+         tmpmax = i;
       }
       IntMapIterFree(iter);
       for(i=1; i<=node->max_var; i++)
@@ -242,9 +241,6 @@ static bool pdtree_verify_node_constr(PDTree_p tree)
 {
    /* Is largest term at or beyond node greater than the query term? */ 
 
-   /* printf("Term: %6ld  Node: %6ld\n", tree->term_weight,
-      tree->tree_pos->size_constr);*/
-   
    if(tree->term_weight < tree->tree_pos->size_constr)
    {
       return false;
@@ -317,7 +313,8 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
 	       next->trav_count   = PDT_NODE_INIT_VAL(tree);
 	       next->bound        = true;
 	       tree->tree_pos     = next;
-	       tree->term_weight  -= (TermStandardWeight(term) -1);
+	       tree->term_weight  -= (TermStandardWeight(term) -
+                                      TermStandardWeight(next->variable));
 #ifdef MEASURE_EXPENSIVE
 	       tree->visited_count++;
 #endif 
@@ -329,7 +326,8 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
 	       next->trav_count   = PDT_NODE_INIT_VAL(tree);
 	       next->bound        = false;
 	       tree->tree_pos     = next;
-	       tree->term_weight  -= (TermStandardWeight(term) -1);
+	       tree->term_weight  -= (TermStandardWeight(term) -
+                                      TermStandardWeight(next->variable));
 #ifdef MEASURE_EXPENSIVE
 	       tree->visited_count++;
 #endif 
@@ -361,7 +359,8 @@ static void pdtree_backtrack(PDTree_p tree, Subst_p subst)
 
    if(handle->variable)
    {
-      tree->term_weight  += (TermStandardWeight(handle->variable->binding) -1);
+      tree->term_weight  += (TermStandardWeight(handle->variable->binding) -
+                             TermStandardWeight(handle->variable));
       PStackPushP(tree->term_stack, handle->variable->binding);
       if(handle->bound)
       {
@@ -380,6 +379,71 @@ static void pdtree_backtrack(PDTree_p tree, Subst_p subst)
    tree->tree_pos = handle->parent;
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: pdt_node_print()
+//
+//   Print a PDT node (and subtrees) for debugging.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+void pdt_node_print(FILE* out, PDTNode_p node, unsigned level)
+{
+   if(node->entries)
+   {
+      PStack_p trav_stack;
+      PTree_p trav;
+      ClausePos_p entry;
+
+      fprintf(out, "%sleaf size=%ld age=%lu\n", IndentStr(2*level), 
+             node->size_constr, node->age_constr.date);
+      trav_stack = PTreeTraverseInit(node->entries);
+
+      while((trav = PTreeTraverseNext(trav_stack)))
+      {
+	 fprintf(out, "%s: ",IndentStr(2*level));
+         entry = trav->key;
+         ClausePrint(out, entry->clause, true);
+	 fprintf(out, "\n");
+      }
+      PTreeTraverseExit(trav_stack);
+   }
+   else
+   {
+      FunCode i = 0; /* Stiffle warning */
+      PDTNode_p next;
+      IntMapIter_p iter;
+
+      fprintf(out, "%sinternal size=%ld age=%lu f_alts=%p, type=%d\n", 
+              IndentStr(2*level), 
+              node->size_constr, 
+              node->age_constr.date, 
+              node->f_alternatives, 
+              node->f_alternatives?node->f_alternatives->type:-1);
+      
+      iter = IntMapIterAlloc(node->f_alternatives, 0, LONG_MAX);
+      while((next=IntMapIterNext(iter, &i)))
+      {
+	 fprintf(out, "%sBranch %ld\n", IndentStr(2*level), i); 
+         pdt_node_print(out, next, level+1);
+      }
+      IntMapIterFree(iter);
+      for(i=1; i<=node->max_var; i++)
+      {
+	 next = PDArrayElementP(node->v_alternatives, i);
+	 if(next)
+	 {
+            fprintf(out, "%sBranch %ld\n", IndentStr(2*level), -i); 
+            pdt_node_print(out, next, level+1);
+	 }
+      }
+   } 
+}
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -508,10 +572,7 @@ void PDTNodeFree(PDTNode_p tree)
    iter = IntMapIterAlloc(tree->f_alternatives, 0, LONG_MAX);
    while((subtree = IntMapIterNext(iter, &i)))
    {
-      if(subtree)
-      {
-         PDTNodeFree(subtree);
-      }
+      assert(subtree);
    }
    IntMapIterFree(iter);
    for(i=1; i<=tree->max_var; i++)
@@ -891,6 +952,25 @@ ClausePos_p PDTreeFindNextDemodulator(PDTree_p tree, Subst_p subst)
    }
    return NULL;
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PDTreePrint()
+//
+//   Print a PD tree in human-readable form (for debugging).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void PDTreePrint(FILE* out, PDTree_p tree)
+{   
+   pdt_node_print(out, tree->tree, 0);
+}
+
 
 
 /*---------------------------------------------------------------------*/

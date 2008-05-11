@@ -79,9 +79,14 @@ typedef enum
    CP_CSSCPA_8      = 1048576,
    CP_CSSCPA_Mask   = CP_CSSCPA_1|CP_CSSCPA_2|CP_CSSCPA_4|CP_CSSCPA_8,
    CP_CSSCPA_Unkown = 0,
-   CPIsProtected    = 2097152,
+   CPIsProtected    = 2097152, /* Unprocessed clause has been used in
+                                  simplification and cannot be deleted
+                                  even if parents die. */
    CPWatchOnly      = 4194304,
-   CPSubsumesWatch  = 8388608
+   CPSubsumesWatch  = 8388608, 
+   CPLimitedRW      = 16777216  /* Clause has been processed and hence
+                                 * can only be rewritten in limited
+                                 * ways. */
 }ClauseProperties;
 
 

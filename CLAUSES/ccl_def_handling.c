@@ -172,6 +172,7 @@ Clause_p GetDefinition(DefStore_p store, Eqn_p litlist,
 
    def_clause = ClauseAlloc(EqnListFlatCopy(litlist));
    def_clause->weight = ClauseStandardWeight(def_clause);
+   ClauseSubsumeOrderSortLits(def_clause);
 
    assert(litlist);
    if(fresh)

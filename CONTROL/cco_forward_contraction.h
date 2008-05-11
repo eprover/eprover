@@ -48,8 +48,8 @@ Changes
 #define DEFAULT_FILTER_DESCRIPTOR "Fc"
 
 bool ForwardModifyClause(ProofState_p state, ProofControl_p control,
-			 Clause_p clause, bool context_sr, RewriteLevel level, 
-                         bool processed_rw);
+			 Clause_p clause, bool context_sr, RewriteLevel level);
+                         
 
 FVPackedClause_p ForwardContractClause(ProofState_p state, 
 				       ProofControl_p control,

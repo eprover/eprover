@@ -31,6 +31,7 @@ Changes
 
 #include <clb_intmap.h>
 #include <ccl_clausepos.h>
+#include <clb_simple_stuff.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -163,6 +164,7 @@ PDTNode_p PDTreeFindNextIndexedLeaf(PDTree_p tree, Subst_p subst);
 
 ClausePos_p PDTreeFindNextDemodulator(PDTree_p tree, Subst_p subst);
 
+void PDTreePrint(FILE* out, PDTree_p tree);
 
 #endif
 

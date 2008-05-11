@@ -73,12 +73,12 @@ Term_p TermComputeLINormalform(OCB_p ocb, TB_p bank, Term_p term,
 bool ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p
 			       clause, ClauseSet_p *demodulators,
 			       RewriteLevel level, bool
-			       prefer_general, bool interred_rw);
+			       prefer_general);
 
 long ClauseSetComputeLINormalform(OCB_p ocb, TB_p bank, ClauseSet_p
 				  set, ClauseSet_p *demodulators,
 				  RewriteLevel level, bool
-				  prefer_general, bool interred_rw);
+				  prefer_general);
 
 bool FindRewritableClauses(OCB_p ocb, ClauseSet_p set,
 			   PStack_p results, Clause_p

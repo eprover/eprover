@@ -44,6 +44,8 @@ typedef struct
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+#define MAXINDENTSPACES 72
+
 #define WeightedObjectArrayAlloc(number) \
         SecureMalloc(number * sizeof(WeightedObjectCell))
 #define WeightedObjectArrayFree(array) FREE(array)
@@ -60,7 +62,7 @@ int    StringIndex(char* key, char* list[]);
 double Log2(double value);
 
 long   Log2Ceil(long value);
-
+char*  IndentStr(unsigned level); 
 
 #endif
 

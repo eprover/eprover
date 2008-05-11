@@ -185,11 +185,23 @@ static __inline__ void* IntMapIterNext(IntMapIter_p iter, long *key)
          iter->admin_data.current = i+1;
          break;
    case IMTree:
-         handle = NumTreeTraverseNext(iter->admin_data.tree_iter);
-         if(handle && (handle->key <= iter->upper_key))
-         {
-            *key = handle->key;
-            res = handle->val1.p_val;
+         while((handle = NumTreeTraverseNext(iter->admin_data.tree_iter)))
+         {               
+            if(handle)
+            {
+               if(handle->key > iter->upper_key)
+               {
+                  // Overrun limit
+                  break;
+               }
+               if(handle->val1.p_val)
+               {
+                  // Found real value
+                  *key = handle->key;
+                  res = handle->val1.p_val;
+                  break;
+               }
+            }
          }
          break;
    default:

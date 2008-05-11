@@ -74,7 +74,7 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
    if(control->heuristic_parms.enable_given_forward_simpl)
    {
       trivial = ForwardModifyClause(state, control, clause, 
-                                    context_sr, level, false);
+                                    context_sr, level);
       if(trivial)
       {
          (*trivial_count)++;
@@ -169,16 +169,14 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
 /----------------------------------------------------------------------*/
 
 bool ForwardModifyClause(ProofState_p state, ProofControl_p control,
-			 Clause_p clause, bool context_sr, RewriteLevel level,
-                         bool interred_rw)
+			 Clause_p clause, bool context_sr, RewriteLevel level)
 {
    int removed_lits;
    
    ClauseComputeLINormalform(control->ocb,
 			     state->terms, clause,
 			     state->demods, level,
-			     control->heuristic_parms.prefer_general,
-                             interred_rw);
+			     control->heuristic_parms.prefer_general);
 
    removed_lits = ClauseRemoveSuperfluousLiterals(clause);
    if(removed_lits)
@@ -211,7 +209,7 @@ bool ForwardModifyClause(ProofState_p state, ProofControl_p control,
    {
       state->context_sr_count += 
 	 ClauseContextualSimplifyReflect(state->processed_non_units, 
-					 clause);
+                                         clause);
    }
    return false;
 }

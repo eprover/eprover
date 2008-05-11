@@ -1247,7 +1247,7 @@ bool ClauseNegativeSimplifyReflect(ClauseSet_p set, Clause_p clause)
 bool ClauseSubsumesClause(Clause_p subsumer, Clause_p sub_candidate)
 {
    bool res;
-   
+
    assert(sub_candidate->weight == ClauseStandardWeight(sub_candidate));
    assert(subsumer->weight == ClauseStandardWeight(subsumer));
    res = clause_subsumes_clause(subsumer, sub_candidate);
