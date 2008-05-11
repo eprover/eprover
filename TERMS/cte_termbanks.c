@@ -45,7 +45,7 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
-bool TBPrintInternalInfo = true;  /* Print internal information about
+bool TBPrintInternalInfo = false;  /* Print internal information about
 				     term nodes, e.g. the flag field */
 bool TBPrintDetails = false;      /* Collect potentially expensive
 				     information (number of nodes,
