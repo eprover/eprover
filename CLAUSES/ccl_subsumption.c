@@ -1169,7 +1169,7 @@ bool ClausePositiveSimplifyReflect(ClauseSet_p set, Clause_p clause)
 	 {
 	    ClauseSetProp(clause, CPIsSOS);
 	 }
-         ClauseDelProp(clause, CPInitial);
+         ClauseDelProp(clause, CPInitial|CPLimitedRW);
 	 DocClauseModificationDefault(clause, inf_simplify_reflect,
 				      res->clause);
       }
@@ -1219,7 +1219,7 @@ bool ClauseNegativeSimplifyReflect(ClauseSet_p set, Clause_p clause)
 	 {
 	    ClauseSetProp(clause, CPIsSOS);
 	 }
-         ClauseDelProp(clause, CPInitial);
+         ClauseDelProp(clause, CPInitial|CPLimitedRW);
 	 DocClauseModificationDefault(clause, inf_simplify_reflect,
 				      res->clause);
       }

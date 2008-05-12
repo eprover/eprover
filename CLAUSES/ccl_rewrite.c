@@ -855,7 +855,8 @@ bool ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
    RWDesc_p desc = rw_desc_cell_alloc(ocb, bank, demodulators, level,
 				      prefer_general);
    ClausePosCell pos;
-   
+   bool done = false;
+
    assert(demodulators);
    assert(desc->demods);
    assert(!ClauseIsAnyPropSet(clause, CPIsDIndexed|CPIsSIndexed));
@@ -868,9 +869,13 @@ bool ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
    } */
 
    pos.clause = clause;
-   for(handle = clause->literals; handle; handle=handle->next)
+
+   while(!done)
    {
-      pos.literal = handle;
+      done = true;
+      for(handle = clause->literals; handle; handle=handle->next)
+      {
+         pos.literal = handle;
       tmp = eqn_li_normalform(desc, &pos, ClauseQueryProp(clause,CPLimitedRW));
       if((tmp&MaxSide)
          && EqnIsPositive(handle)
@@ -878,8 +883,11 @@ bool ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
          &&ClauseQueryProp(clause,CPLimitedRW))
       {
          ClauseDelProp(clause,CPLimitedRW); 
+         // We need to try everything again...
+         done = false;
       }
       res = res || tmp;
+      }
    }
    if(desc->sos_rewritten)
    {

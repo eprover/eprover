@@ -265,6 +265,7 @@ bool ClauseSimplifyWithUnitSet(Clause_p clause, ClauseSet_p unit_set,
 	    ClauseSetProp(res->clause, ClauseQueryProp(clause, CPIsSOS));
 	    return false;
 	 }
+         ClauseDelProp(clause, CPLimitedRW);
 	 ClauseRemoveLiteralRef(clause, handle);
 	 DocClauseModification(GlobalOut, OutputLevel, clause,
 			       inf_simplify_reflect, res->clause,

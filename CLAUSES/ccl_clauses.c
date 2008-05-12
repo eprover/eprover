@@ -1265,6 +1265,7 @@ void ClausePCLPrint(FILE* out, Clause_p clause, bool fullterms)
       fprintf(out, "/* --- */");
    }
 #endif
+#ifdef PCLPRINTDEGBUG
    if(clause->literals)
    {
       fprintf(out, "/* %d; %lu; %lu(%lu)=%lu(%lu)*/", 
@@ -1276,6 +1277,7 @@ void ClausePCLPrint(FILE* out, Clause_p clause, bool fullterms)
               clause->literals->rterm->rw_data.nf_date[RewriteAdr(FullRewrite)].date
          );
    }
+#endif
    OutputFormat = TPTPFormat;
    fputc('[', out);
    EqnListPrint(out, clause->literals, ",", false, fullterms);

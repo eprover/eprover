@@ -77,14 +77,13 @@ int ClauseContextualSimplifyReflect(ClauseSet_p set, Clause_p clause)
 
       if(subsumer)
       {
-	 ClauseRemoveLiteral(clause, handle);
-	 assert(clause->weight == ClauseStandardWeight(clause));
-
 	 if(ClauseQueryProp(subsumer, CPIsSOS))
 	 {
 	    ClauseSetProp(clause, CPIsSOS);
 	 }
-         ClauseDelProp(clause, CPInitial);
+         ClauseDelProp(clause, CPInitial|CPLimitedRW);
+	 ClauseRemoveLiteral(clause, handle);
+	 assert(clause->weight == ClauseStandardWeight(clause));
 	 DocClauseModificationDefault(clause, 
 				      inf_context_simplify_reflect,
 				      subsumer);
