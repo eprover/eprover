@@ -172,44 +172,52 @@ bool ForwardModifyClause(ProofState_p state, ProofControl_p control,
 			 Clause_p clause, bool context_sr, RewriteLevel level)
 {
    int removed_lits;
-   
-   ClauseComputeLINormalform(control->ocb,
-			     state->terms, clause,
-			     state->demods, level,
-			     control->heuristic_parms.prefer_general);
+   bool done = false;
+   bool limited_rw;
 
-   removed_lits = ClauseRemoveSuperfluousLiterals(clause);
-   if(removed_lits)
+   while(!done)
    {
-      DocClauseModificationDefault(clause, inf_minimize, NULL);
-   }
-   if(control->ac_handling_active)
-   {
-      ClauseRemoveACResolved(clause);
-   }
-   
-   /* Now we mark maximal terms... */
-   ClauseOrientLiterals(control->ocb, clause);
-    
-   if(ClauseIsTrivial(clause))
-   {
-      return true;
-   }
-  
-   /* Still forward simplification... */   
-   if(clause->neg_lit_no)
-   {
-      ClausePositiveSimplifyReflect(state->processed_pos_eqns, clause);
-   }
-   if(clause->pos_lit_no)
-   {
-      ClauseNegativeSimplifyReflect(state->processed_neg_units, clause);
-   }
-   if(context_sr && ClauseLiteralNumber(clause) > 1)
-   {
-      state->context_sr_count += 
-	 ClauseContextualSimplifyReflect(state->processed_non_units, 
-                                         clause);
+      ClauseComputeLINormalform(control->ocb,
+                                state->terms, clause,
+                                state->demods, level,
+                                control->heuristic_parms.prefer_general);
+
+      limited_rw = ClauseQueryProp(clause, CPLimitedRW);
+      removed_lits = ClauseRemoveSuperfluousLiterals(clause);      
+      if(removed_lits)
+      {
+         DocClauseModificationDefault(clause, inf_minimize, NULL);
+      }
+
+      if(control->ac_handling_active)
+      {
+         ClauseRemoveACResolved(clause);
+      }
+      
+      /* Now we mark maximal terms... */
+      ClauseOrientLiterals(control->ocb, clause);
+      
+      if(ClauseIsTrivial(clause))
+      {
+         return true;
+      }
+      
+      /* Still forward simplification... */   
+      if(clause->neg_lit_no)
+      {
+         ClausePositiveSimplifyReflect(state->processed_pos_eqns, clause);
+      }
+      if(clause->pos_lit_no)
+      {
+         ClauseNegativeSimplifyReflect(state->processed_neg_units, clause);
+      }
+      if(context_sr && ClauseLiteralNumber(clause) > 1)
+      {
+         state->context_sr_count += 
+            ClauseContextualSimplifyReflect(state->processed_non_units, 
+                                            clause);
+      }
+      done = ClauseQueryProp(clause, CPLimitedRW)==limited_rw;
    }
    return false;
 }

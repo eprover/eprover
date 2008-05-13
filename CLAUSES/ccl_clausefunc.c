@@ -233,7 +233,7 @@ int ClauseRemoveSuperfluousLiterals(Clause_p clause)
       clause->neg_lit_no = 0;
       clause->pos_lit_no = 0;   
       handle = clause->literals;
-      ClauseDelProp(clause, CPInitial);
+      ClauseDelProp(clause, CPInitial|CPLimitedRW);
 
       while(handle)
       {
@@ -340,7 +340,7 @@ int ClauseRemoveACResolved(Clause_p clause)
    clause->neg_lit_no -= removed ;
    if(removed)
    {
-      ClauseDelProp(clause, CPInitial);
+      ClauseDelProp(clause, CPInitial|CPLimitedRW);
       DocClauseModification(GlobalOut, OutputLevel, clause,
 			    inf_ac_resolution, NULL, sig, NULL);	 
    }
