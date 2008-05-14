@@ -36,8 +36,8 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-/*  cvs tag E-0-999-010 */
-#define VERSION      "0.999-010"
+/*  cvs tag E-0-999-011 */
+#define VERSION      "0.999-011"
 #define NAME         "eprover"
 
 #define NICKNAME     "Longview2"
@@ -828,7 +828,7 @@ OptCell opts[] =
     '\0', "backward-context-sr",
     NoArg, NULL,
     "Apply contextual simplify-reflect with the given clause to "
-    "processed clauses. Not yet implemented!"},
+    "processed clauses."},
 
    {OPT_RULES_GENERAL,
     'g', "prefer-general-demodulators",
