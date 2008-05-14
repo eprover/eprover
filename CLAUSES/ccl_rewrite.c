@@ -751,7 +751,14 @@ EqnSide eqn_li_normalform(RWDesc_p desc, ClausePos_p pos, bool interred_rw)
    eqn->rterm = term_li_normalform(desc, eqn->rterm, false);
    if(r_old!=eqn->rterm)
    {
-      res = res|MinSide;
+      if(EqnIsOriented(eqn))
+      {
+         res = res|MinSide;
+      }
+      else
+      {
+         res = res|MaxSide;
+      }
       if(!EqnIsOriented(eqn))
       {
 	 EqnDelProp(eqn, EPMaxIsUpToDate);
