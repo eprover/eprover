@@ -1270,6 +1270,15 @@ int EqnSubsumeInverseCompareRef(const void* lit1ref, const void* lit2ref)
    {
       res = EqnWeightCompare(*l2, *l1);
    }
+   if(!res)
+   {
+      res = (*l2)->lterm->entry_no - (*l1)->lterm->entry_no;
+   }
+   if(!res)
+   {
+      res = (*l2)->rterm->entry_no - (*l1)->rterm->entry_no;
+   }
+   
    return res;
 }
 

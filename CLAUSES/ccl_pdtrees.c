@@ -401,7 +401,7 @@ void pdt_node_print(FILE* out, PDTNode_p node, unsigned level)
       ClausePos_p entry;
 
       fprintf(out, "%sleaf size=%ld age=%lu\n", IndentStr(2*level), 
-             node->size_constr, node->age_constr.date);
+             node->size_constr, node->age_constr);
       trav_stack = PTreeTraverseInit(node->entries);
 
       while((trav = PTreeTraverseNext(trav_stack)))
@@ -422,7 +422,7 @@ void pdt_node_print(FILE* out, PDTNode_p node, unsigned level)
       fprintf(out, "%sinternal size=%ld age=%lu f_alts=%p, type=%d\n", 
               IndentStr(2*level), 
               node->size_constr, 
-              node->age_constr.date, 
+              node->age_constr, 
               node->f_alternatives, 
               node->f_alternatives?node->f_alternatives->type:-1);
       

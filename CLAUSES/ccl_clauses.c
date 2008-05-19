@@ -218,6 +218,7 @@ Clause_p EmptyClauseAlloc(void)
    handle->properties  = CPIgnoreProps;
    handle->info        = NULL;
    handle->create_date = 0;
+   handle->date        = SysDateCreationTime();
    handle->proof_depth = 0;
    handle->proof_size  = 0;
    handle->children    = NULL;
@@ -926,6 +927,7 @@ Clause_p ClauseCopy(Clause_p clause, TB_p bank)
    handle->properties  = clause->properties;
    handle->info        = NULL;
    handle->create_date = clause->create_date;
+   handle->date        = clause->date;
    handle->proof_depth = clause->proof_depth;
    handle->proof_size  = clause->proof_size;
    handle->children    = NULL;
@@ -1271,11 +1273,11 @@ void ClausePCLPrint(FILE* out, Clause_p clause, bool fullterms)
    {
       fprintf(out, "/* %d; %lu; %lu(%lu)=%lu(%lu)*/", 
               ClauseQueryProp(clause, CPLimitedRW), 
-              clause->date.date,
+              clause->date,
               clause->literals->lterm->entry_no,
-              clause->literals->lterm->rw_data.nf_date[RewriteAdr(FullRewrite)].date, 
+              clause->literals->lterm->rw_data.nf_date[RewriteAdr(FullRewrite)], 
               clause->literals->rterm->entry_no,
-              clause->literals->rterm->rw_data.nf_date[RewriteAdr(FullRewrite)].date
+              clause->literals->rterm->rw_data.nf_date[RewriteAdr(FullRewrite)]
          );
    }
 #endif

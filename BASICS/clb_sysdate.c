@@ -60,7 +60,7 @@ Changes
 
 void SysDatePrint(FILE* out, SysDate date)
 {
-   fprintf(out, "%5lu", date.date);
+   fprintf(out, "%5lu", date);
 }
 
 /*---------------------------------------------------------------------*/

@@ -36,13 +36,9 @@ Changes
 /*---------------------------------------------------------------------*/
 
 /* Data type used both for "time" keeping and recording of
-   "dates". Uses a struct because it may become necessary to extend
-   this (2 to the power of 32 is not _really_ big...) */
+   "dates". */
 
-typedef struct sysdate
-{
-   unsigned long date;
-}SysDate, *SysDate_p;
+typedef long SysDate;
    
 
 typedef enum 
@@ -56,9 +52,9 @@ typedef enum
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-static __inline__ SysDate      SysDateCreationTime(void);
-static __inline__ SysDate      SysDateArmageddonTime(void);
-#define      SysDateInc(sd) (((sd)->date)++);assert((sd)->date);
+#define      SysDateCreationTime() 0L
+#define      SysDateArmageddonTime() ULONG_MAX
+#define      SysDateInc(sd) ((*(sd))++);assert(*(sd));
 static __inline__ DateRelation SysDateCompare(SysDate date1, SysDate date2);
 void         SysDatePrint(FILE* out, SysDate date);
 #define      SysDateMaximum(date1, date2) \
@@ -67,49 +63,6 @@ void         SysDatePrint(FILE* out, SysDate date);
 #define      SysDateIsCreationDate(date)\
              (SysDateCompare((date),SysDateCreationTime())==DateEqual)
 
-
-/*-----------------------------------------------------------------------
-//
-// Function:  SysDateCreationTime()
-//
-//   Return a representation of the earliest possible time.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-static __inline__ SysDate SysDateCreationTime(void)
-{
-   SysDate date;
-   
-   date.date = 0;
-   
-   return date;
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function:  SysDateArmageddonTime()
-//
-//   Return a representation of the latest possible time.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-static __inline__ SysDate SysDateArmageddonTime(void)
-{
-   SysDate date;
-   
-   date.date = ULONG_MAX;
-   
-   return date;
-}
 
 
 /*-----------------------------------------------------------------------
@@ -128,11 +81,11 @@ static __inline__ SysDate SysDateArmageddonTime(void)
 
 static __inline__ DateRelation SysDateCompare(SysDate date1, SysDate date2)
 {
-   if(date1.date > date2.date)
+   if(date1 > date2)
    {
       return DateLater;
    }
-   else if(date1.date < date2.date)
+   else if(date1 < date2)
    {
       return DateEarlier;
    }
