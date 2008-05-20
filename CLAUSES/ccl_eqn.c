@@ -1289,7 +1289,7 @@ int EqnSubsumeInverseCompareRef(const void* lit1ref, const void* lit2ref)
 int EqnSubsumeInverseRefinedCompareRef(const void* lit1ref, const void* lit2ref)
 {
    const Eqn_p *l1 = lit1ref, *l2 = lit2ref;
-   int res = EqnSubsumeInverseCompareRef(l2, l1);
+   int res = EqnSubsumeInverseCompareRef(lit1ref, lit2ref);
 
    if(!res)
    {
@@ -1299,7 +1299,6 @@ int EqnSubsumeInverseRefinedCompareRef(const void* lit1ref, const void* lit2ref)
    {
       res = (*l2)->rterm->entry_no - (*l1)->rterm->entry_no;
    }
-   
    return res;
 }
 
