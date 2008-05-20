@@ -228,6 +228,7 @@ EqnSide EqnIsDefinition(Eqn_p eq, int min_arity);
 #define EqnWeightCompare(l1, l2) (EqnStandardWeight(l1)-EqnStandardWeight(l2))
 int     EqnSubsumeQOrderCompare(const void* lit1, const void* lit2);
 int     EqnSubsumeInverseCompareRef(const void* lit1ref, const void* lit2ref);
+int     EqnSubsumeInverseRefinedCompareRef(const void* lit1ref, const void* lit2ref);
 int     EqnSubsumeCompare(Eqn_p l1, Eqn_p l2);
 
 Eqn_p   EqnCanonize(Eqn_p eq);

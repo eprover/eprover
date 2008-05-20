@@ -168,12 +168,12 @@ void ProofStateInitWatchlist(ProofState_p state, char* watchlist_filename,
             handle = PStackPopP(stack);
             ClauseSetExtractEntry(handle);
             ClauseSetInsert(state->watchlist, handle);
-         }         
+         }        
          PStackFree(stack);
       }       
       ClauseSetSetProp(state->watchlist, CPWatchOnly);
       ClauseSetDocInital(GlobalOut, OutputLevel, state->watchlist);
-      ClauseSetSortLiterals(state->watchlist, EqnSubsumeInverseCompareRef);
+      ClauseSetSortLiterals(state->watchlist, EqnSubsumeInverseRefinedCompareRef);
    } 
 }
 
