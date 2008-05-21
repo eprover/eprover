@@ -443,6 +443,7 @@ bool eqn_list_rec_subsume_old(Eqn_p subsum_list, Eqn_p sub_cand_list,
    {
       /* We now use strict multiset-subsumption. I should probably
 	 rewrite this code to be more efficient for that case...*/
+
       if(pick_list[lcount])
       {
 	 continue;
@@ -516,15 +517,18 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
    PStackPointer state;
    int lcount, cmpres;
    
+   //int subsum_list_len = EqnListLength(subsum_list);
+
    if(!subsum_list)
    {
       return true;
    }
-   
+ 
    for(eqn = sub_cand_list, lcount=0; eqn; eqn = eqn->next, lcount++)
    {
       /* We now use strict multiset-subsumption. I should probably
 	 rewrite this code to be more efficient for that case...*/
+      // printf("len=%3d lcount=%3d\n", subsum_list_len, lcount);
       if(pick_list[lcount])
       {
 	 continue;
@@ -650,13 +654,12 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
    res = eqn_list_rec_subsume(subsumer->literals,
 			      sub_candidate->literals, subst,
 			      pick_list);
-
    IntArrayFree(pick_list, ClauseLiteralNumber(sub_candidate));
 #ifndef NDEBUG
    pick_list = IntArrayAlloc(ClauseLiteralNumber(sub_candidate));
-   assert(res == eqn_list_rec_subsume_old(subsumer->literals,
-                                          sub_candidate->literals, subst,
-                                          pick_list));
+   //assert(res == eqn_list_rec_subsume_old(subsumer->literals,
+   //sub_candidate->literals, subst,
+   //pick_list));
    
    IntArrayFree(pick_list, ClauseLiteralNumber(sub_candidate));  
 #endif

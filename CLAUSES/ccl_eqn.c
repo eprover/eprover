@@ -1293,11 +1293,11 @@ int EqnSubsumeInverseRefinedCompareRef(const void* lit1ref, const void* lit2ref)
 
    if(!res)
    {
-      res = (*l2)->lterm->entry_no - (*l1)->lterm->entry_no;
+      res = (*l1)->lterm->entry_no - (*l2)->lterm->entry_no;
    }
    if(!res)
    {
-      res = (*l2)->rterm->entry_no - (*l1)->rterm->entry_no;
+      res = (*l1)->rterm->entry_no - (*l2)->rterm->entry_no;
    }
    return res;
 }
