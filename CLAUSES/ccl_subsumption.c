@@ -509,6 +509,7 @@ bool eqn_list_rec_subsume_old(Eqn_p subsum_list, Eqn_p sub_cand_list,
 }
 #endif
 
+
 static
 bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
 			  Subst_p subst, long* pick_list)
@@ -517,8 +518,6 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
    PStackPointer state;
    int lcount, cmpres;
    
-   //int subsum_list_len = EqnListLength(subsum_list);
-
    if(!subsum_list)
    {
       return true;
@@ -528,7 +527,9 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
    {
       /* We now use strict multiset-subsumption. I should probably
 	 rewrite this code to be more efficient for that case...*/
-      // printf("len=%3d lcount=%3d\n", subsum_list_len, lcount);
+      //printf("len=%3d lcount=%3d :", subsum_list_len, lcount);
+      //EqnListPrint(stdout, subsum_list, ";", true, true);
+      //printf("\n");
       if(pick_list[lcount])
       {
 	 continue;
@@ -615,7 +616,7 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
    Subst_p subst;
    bool    res;
    long* pick_list;
-   
+      
    assert(ClauseIsSubsumeOrdered(subsumer));
    assert(ClauseIsSubsumeOrdered(sub_candidate));
 
@@ -650,17 +651,30 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
    subst = SubstAlloc();
    ClauseClauseSubsumptionCallsRec++;
 
+   /*
    pick_list = IntArrayAlloc(ClauseLiteralNumber(sub_candidate));
+   printf("Going in (%ld)...\n", hack_count++);
+   ClausePrint(stdout, subsumer, true);
+   printf("\n");
+   ClausePrint(stdout, sub_candidate, true);
+   printf("\n==\n");
+   res = eqn_list_rec_subsume_old(subsumer->literals, 
+                                    sub_candidate->literals, subst, pick_list); 
+   printf("Old method found res=%d\n", res);
+   IntArrayFree(pick_list, ClauseLiteralNumber(sub_candidate));
+   */
+   pick_list = IntArrayAlloc(ClauseLiteralNumber(sub_candidate));
+   
    res = eqn_list_rec_subsume(subsumer->literals,
 			      sub_candidate->literals, subst,
 			      pick_list);
+   /* printf("...coming out\n");*/
    IntArrayFree(pick_list, ClauseLiteralNumber(sub_candidate));
 #ifndef NDEBUG
    pick_list = IntArrayAlloc(ClauseLiteralNumber(sub_candidate));
-   //assert(res == eqn_list_rec_subsume_old(subsumer->literals,
-   //sub_candidate->literals, subst,
-   //pick_list));
-   
+   assert(res == eqn_list_rec_subsume_old(subsumer->literals,
+                                          sub_candidate->literals, subst,
+                                          pick_list));   
    IntArrayFree(pick_list, ClauseLiteralNumber(sub_candidate));  
 #endif
 
