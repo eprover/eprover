@@ -173,7 +173,7 @@ void ProofStateInitWatchlist(ProofState_p state, char* watchlist_filename,
       }       
       ClauseSetSetProp(state->watchlist, CPWatchOnly);
       ClauseSetDocInital(GlobalOut, OutputLevel, state->watchlist);
-      ClauseSetSortLiterals(state->watchlist, EqnSubsumeInverseRefinedCompareRef);
+      ClauseSetSortLiterals(state->watchlist, EqnSubsumeInverseCompareRef);
    } 
 }
 

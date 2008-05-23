@@ -214,11 +214,11 @@ Clause_p ClauseSortLiterals(Clause_p clause, ComparisonFunctionType cmp_fun);
 Clause_p ClauseCanonize(Clause_p clause);
 #define  ClauseSubsumeOrderSortLits(clause) \
          ClauseSortLiterals((clause), \
-                            (ComparisonFunctionType)EqnSubsumeInverseRefinedCompareRef)
+                            (ComparisonFunctionType)EqnSubsumeInverseCompareRef)
 bool     ClauseIsSorted(Clause_p clause, ComparisonFunctionType cmp_fun);
 #define  ClauseIsSubsumeOrdered(clause) \
          ClauseIsSorted((clause), \
-         (ComparisonFunctionType)EqnSubsumeInverseRefinedCompareRef)
+         (ComparisonFunctionType)EqnSubsumeInverseCompareRef)
 
 int      ClauseStructWeightCompare(Clause_p c1, Clause_p c2);
 int      ClauseStructWeightLexCompare(Clause_p c1, Clause_p c2);
