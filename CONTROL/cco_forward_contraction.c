@@ -118,10 +118,12 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
       // as a formerly processed interreduction victim protected from
       // rewriting with s->t (but still redundant with respect to
       // s->t, of course).
-      if(!subsumer && clause->pos_lit_no)
-      {
-         subsumer = UnitClauseSetSubsumesClause(state->processed_pos_rules, clause);
-      }
+      // ....
+      // _Should_ not be needed anymore ;-)    
+      //if(!subsumer && clause->pos_lit_no)
+      //{
+      // subsumer = UnitClauseSetSubsumesClause(state->processed_pos_rules, clause);
+      //}
       if(!subsumer && clause->neg_lit_no)
       {
          subsumer = UnitClauseSetSubsumesClause(state->processed_neg_units,
