@@ -19,7 +19,7 @@ Changes
 <1> Fri Sep 25 02:49:11 MET DST 1998
     New
 <2> Mon Jan 11 19:54:13 MET 1999
-    Eleminated all those weight generation schemes that did not result
+    Eliminated all those weight generation schemes that did not result
     in an reduction ordering. Hit my head on the desk 15 times, too!
 
 -----------------------------------------------------------------------*/

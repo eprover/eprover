@@ -279,7 +279,7 @@ EvalPriority PrioFunPreferNonGround(Clause_p clause)
 //
 // Function: PrioFunPreferProcessed()
 //
-//   Return PrioPrefer for clauses already procesed and eleminated by
+//   Return PrioPrefer for clauses already procesed and eliminated by
 //   backwards-contraction.
 //
 // Global Variables: -

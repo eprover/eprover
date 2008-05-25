@@ -1019,7 +1019,7 @@ long ClauseSetDeleteCopies(ClauseSet_p set)
 // Function: ClauseSetDeleteNonUnits()
 //
 //   Remove all non-empty-non-unit-clauses from set, return number of
-//   clauses eleminated. 
+//   clauses eliminated. 
 //
 // Global Variables: -
 //
@@ -2007,7 +2007,7 @@ PermVector_p PermVectorCompute(ClauseSet_p set, FVIndexParms_p params,
       
       res = PermVectorComputeInternal(fmax, fmin, fsum, 
 				      params->max_symbols,
-				      params->eleminate_uninformative);
+				      params->eliminate_uninformative);
       FreqVectorFree(fsum);
       FreqVectorFree(fmax);
       FreqVectorFree(fmin);      

@@ -22,7 +22,7 @@ nice +10 ~/EPROVER/bin/eprover
 # ...of these trivial                  : 54109
 # ...subsumed                          : 372914
 # ...remaining for further processing  : 7137
-# Other redundant clauses eleminated   : 135999
+# Other redundant clauses eliminated   : 135999
 # Clauses deleted for lack of memory   : 7183805
 # Backward-subsumed                    : 0
 # Backward-rewritten                   : 2009
@@ -63,7 +63,7 @@ E Version: 0.30dev 29 Mar 1999 13:29:23 +0100
 # ...of these trivial                  : 64545
 # ...subsumed                          : 56527
 # ...remaining for further processing  : 22862
-# Other redundant clauses eleminated   : 122318
+# Other redundant clauses eliminated   : 122318
 # Clauses deleted for lack of memory   : 472913
 # Backward-subsumed                    : 0
 # Backward-rewritten                   : 6381

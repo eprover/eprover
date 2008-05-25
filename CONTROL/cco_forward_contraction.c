@@ -7,7 +7,7 @@ Author: Stephan Schulz
 Contents
  
   Functions that apply the processed clause sets to simplify or
-  eleminate a potential new clause. Extracted from
+  eliminate a potential new clause. Extracted from
   cco_proofproc.[ch]. 
 
   Copyright 1998, 1999 by the author.
@@ -290,7 +290,7 @@ FVPackedClause_p ForwardContractClause(ProofState_p state,
 Clause_p ForwardContractSet(ProofState_p state, ProofControl_p
 			    control, ClauseSet_p set, bool
 			    non_unit_subsumption, RewriteLevel level,
-			    ulong_c* count_eleminated, bool
+			    ulong_c* count_eliminated, bool
 			    terminate_on_empty)
 {
    Clause_p handle, next;
@@ -307,7 +307,7 @@ Clause_p ForwardContractSet(ProofState_p state, ProofControl_p
       assert(handle);
 
       if(forward_contract_keep(state, control, handle,
-			       count_eleminated, count_eleminated,
+			       count_eliminated, count_eliminated,
 			       non_unit_subsumption, false,level))
       {
 	 if(terminate_on_empty&&ClauseIsEmpty(handle))
@@ -392,7 +392,7 @@ void ClauseSetReweight(HCB_p heuristic, ClauseSet_p set)
 Clause_p ForwardContractSetReweight(ProofState_p state, ProofControl_p
 				    control, ClauseSet_p set, bool
 				    non_unit_subsumption, RewriteLevel
-				    level, ulong_c* count_eleminated)
+				    level, ulong_c* count_eliminated)
 {
    Clause_p    handle;
    
@@ -402,7 +402,7 @@ Clause_p ForwardContractSetReweight(ProofState_p state, ProofControl_p
    
    handle = ForwardContractSet(state, control, set,
 			       non_unit_subsumption, level,
-			       count_eleminated, true);
+			       count_eliminated, true);
    
    if(handle)
    {
@@ -422,15 +422,15 @@ Clause_p ForwardContractSetReweight(ProofState_p state, ProofControl_p
 //
 // Global Variables: -
 //
-// Side Effects    : Changes set and *count_eleminated
+// Side Effects    : Changes set and *count_eliminated
 //
 /----------------------------------------------------------------------*/
 
 void ClauseSetFilterReweigth(ProofControl_p
 			     control, ClauseSet_p set,
-			     ulong_c* count_eleminated)
+			     ulong_c* count_eliminated)
 {
-   *count_eleminated += ClauseSetFilterTrivial(set);
+   *count_eliminated += ClauseSetFilterTrivial(set);
    ClauseSetReweight(control->hcb, set);
 }
 

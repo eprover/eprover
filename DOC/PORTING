@@ -74,4 +74,4 @@ E.
     exact behaviour of the prover. In particular, I found that very
     rarely a version compiled under MacOS X ran differently from the
     same version compiled under Solaris or Linux. I hopefully have
-    eleminated all such influences now.
+    eliminated all such influences now.

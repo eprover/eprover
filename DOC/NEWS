@@ -13,7 +13,7 @@ Version 0.999 -> 0.999-004
 
 Version 0.99 -> 0.999
 
-- Finally got to eleminate the ugly duplicate term cells for terms
+- Finally got to eliminate the ugly duplicate term cells for terms
   with rewrite restrictions. This lead to a rather simpler term bank
   structure, too.
 - Added better syntactic support for integers and floats. 
@@ -289,7 +289,7 @@ Version  0.51 --> 0.6 prerelease
   errors in E-SETHEO
 + Implemented e2pcl, translating E output to UPCL2 language.
 + Implemented proof checker for UPCL2.
-+ Eleminated option --no-pdt-indexing (and associated code)
++ Eliminated option --no-pdt-indexing (and associated code)
 + Removed option --discount-vars and associated code (nobody used it
   anyways, and it lead to code bloat).
 + Changed option --memory-limit to require an argument.
@@ -340,10 +340,10 @@ Version 0.31a --> 0.32 (Lingia)
 
 + Added support to use the prover as a clause set normalizer
   (basically doing interreduction and subsumption).
-+ Implemented stronger tautology detection (should now eleminate _all_
++ Implemented stronger tautology detection (should now eliminate _all_
   tautologies. Does e.g. remove equality axioms). Thanks to Roberto
   Nieuwenhuis for the suggestion. Needs testing!
-+ Removed obsolete option "--paramod-with-units-only", eleminated
++ Removed obsolete option "--paramod-with-units-only", eliminated
   paramodulation strategies and replaced them with literal selection
   strategies (once more, thanks to Roberto for pointing out the
   relationship forcefully enough for me to believe in it

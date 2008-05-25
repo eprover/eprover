@@ -473,7 +473,7 @@ static ClausePos_p indexed_find_demodulator(OCB_p ocb, Term_p term,
 	    if(instance_is_rule(ocb, eqn, eqn->rterm, eqn->lterm, subst)
 	       /* &&
 	        !restricted_rw */) 
-	       /* Case SubstIsRenaming(subst) already eleminated in
+	       /* Case SubstIsRenaming(subst) already eliminated in
 		  instance_is_rule! */
                /* The prevous condition seems wrong! If subst is a
                   real substitution, we can alwayws rewrite! TODO! */

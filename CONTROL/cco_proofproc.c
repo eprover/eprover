@@ -117,7 +117,7 @@ static long remove_subsumed(FVPackedClause_p subsumer, ClauseSet_p set)
 
 /*-----------------------------------------------------------------------
 //
-// Function: eleminate_backward_rewritten_clauses()
+// Function: eliminate_backward_rewritten_clauses()
 //
 //   Remove all processed clauses rewritable with clause and put
 //   them into state->tmp_store.
@@ -129,7 +129,7 @@ static long remove_subsumed(FVPackedClause_p subsumer, ClauseSet_p set)
 /----------------------------------------------------------------------*/
 
 static bool
-eleminate_backward_rewritten_clauses(ProofState_p
+eliminate_backward_rewritten_clauses(ProofState_p
 				     state, ProofControl_p control,
 				     Clause_p clause, SysDate *date)
 {
@@ -173,9 +173,9 @@ eleminate_backward_rewritten_clauses(ProofState_p
 
 /*-----------------------------------------------------------------------
 //
-// Function: eleminate_backward_subsumed_clauses()
+// Function: eliminate_backward_subsumed_clauses()
 //
-//   Eleminate subsumed processed clauses, return number of clauses
+//   Eliminate subsumed processed clauses, return number of clauses
 //   deleted. 
 //
 // Global Variables: -
@@ -184,7 +184,7 @@ eleminate_backward_rewritten_clauses(ProofState_p
 //
 /----------------------------------------------------------------------*/
 
-static long eleminate_backward_subsumed_clauses(ProofState_p state,
+static long eliminate_backward_subsumed_clauses(ProofState_p state,
 						FVPackedClause_p pclause)
 {
    long res = 0;
@@ -222,7 +222,7 @@ static long eleminate_backward_subsumed_clauses(ProofState_p state,
 
 /*-----------------------------------------------------------------------
 //
-// Function: eleminate_unit_simplified_clauses()
+// Function: eliminate_unit_simplified_clauses()
 //
 //   Perform unit-back-simplification on the proof state.
 //
@@ -232,7 +232,7 @@ static long eleminate_backward_subsumed_clauses(ProofState_p state,
 //
 /----------------------------------------------------------------------*/
 
-static void eleminate_unit_simplified_clauses(ProofState_p state,
+static void eliminate_unit_simplified_clauses(ProofState_p state,
 					      Clause_p clause)
 {
    if(ClauseIsRWRule(clause)||!ClauseIsUnit(clause))
@@ -257,7 +257,7 @@ static void eleminate_unit_simplified_clauses(ProofState_p state,
 
 /*-----------------------------------------------------------------------
 //
-// Function: eleminate_context_sr_clauses()
+// Function: eliminate_context_sr_clauses()
 //
 //   If required by control, remove all
 //   backward-contextual-simplify-reflectable clauses.
@@ -269,7 +269,7 @@ static void eleminate_unit_simplified_clauses(ProofState_p state,
 //
 /----------------------------------------------------------------------*/
 
-static long eleminate_context_sr_clauses(ProofState_p state, 
+static long eliminate_context_sr_clauses(ProofState_p state, 
 					 ProofControl_p control, 
 					 Clause_p clause)
 {
@@ -911,10 +911,10 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
    /* Now on to backward simplification. */   
    clausedate = ClauseSetListGetMaxDate(state->demods, FullRewrite);
 
-   eleminate_backward_rewritten_clauses(state, control, pclause->clause, &clausedate);   
-   eleminate_backward_subsumed_clauses(state, pclause);
-   eleminate_unit_simplified_clauses(state, pclause->clause);
-   eleminate_context_sr_clauses(state, control, pclause->clause);
+   eliminate_backward_rewritten_clauses(state, control, pclause->clause, &clausedate);   
+   eliminate_backward_subsumed_clauses(state, pclause);
+   eliminate_unit_simplified_clauses(state, pclause->clause);
+   eliminate_context_sr_clauses(state, control, pclause->clause);
    ClauseSetSetProp(state->tmp_store, CPIsIRVictim);
 
    clause = pclause->clause;

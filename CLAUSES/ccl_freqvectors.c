@@ -107,7 +107,7 @@ int tuple3_compare_23lex(const void* tuple1, const void* tuple2)
 PermVector_p PermVectorComputeInternal(FreqVector_p fmax, FreqVector_p fmin,
 				       FreqVector_p fsum,
 				       long max_len, 
-				       bool eleminate_uninformative)
+				       bool eliminate_uninformative)
 {
    Tuple3Cell *array;
    long i, size, start=0, start1=0, diff;
@@ -130,7 +130,7 @@ PermVector_p PermVectorComputeInternal(FreqVector_p fmax, FreqVector_p fmin,
    {
       start = fsum->size - max_len;
    }
-   if(eleminate_uninformative)
+   if(eliminate_uninformative)
    {
       for(i=0; i<fsum->size && !array[i].diff; i++)
       {

@@ -1,10 +1,10 @@
 #!/sw/bin/gawk -f
 
-# Usage: eleminate_protocolls.awk <input_file>
+# Usage: eliminate_protocolls.awk <input_file>
 #
 # Copyright 1999 Stephan Schulz, schulz@informatik.tu-muenchen.de
 #
-#   Read the output of find_optimal.awk and eleminate all protocol
+#   Read the output of find_optimal.awk and eliminate all protocol
 #   lines not matching one of the hard-coded patterns.
 #
 

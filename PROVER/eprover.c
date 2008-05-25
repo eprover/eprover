@@ -1802,12 +1802,12 @@ CLState_p process_options(int argc, char* argv[])
 	    else if(strcmp(arg, "Perm")==0)
 	    {
 	       fvi_parms->use_perm_vectors = true;
-	       fvi_parms->eleminate_uninformative = false;       
+	       fvi_parms->eliminate_uninformative = false;       
 	    }
 	    else if(strcmp(arg, "PermOpt")==0)
 	    {
 	       fvi_parms->use_perm_vectors = true;
-	       fvi_parms->eleminate_uninformative = true;
+	       fvi_parms->eliminate_uninformative = true;
 	    }
 	    else
 	    {

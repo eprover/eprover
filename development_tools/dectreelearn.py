@@ -24,7 +24,7 @@ Options:
 -S<n>
  Provide a seed for the pseudo-random number generator used in
  splitting the set for cross-validation. If none is given, current
- system time is used. Use this option to eleminate one random factor
+ system time is used. Use this option to eliminate one random factor
  when comparing different parameters.
 
 -g<limit>

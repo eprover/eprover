@@ -89,7 +89,7 @@ Caching term orderings:
 - Cache is of term cells affected
 - Term stores its cache entry in multi-function field (reuse
   rewrite_hack). Invariant: Field is NULL unless used (side effect:
-  eleminate TPIsReplaced, use field instead)
+  eliminate TPIsReplaced, use field instead)
 - Cache entry: For KBO array of weighs, for LPO array of trees of
   other terms with comparison (key: (term, instatiation)).
 - After comparisons for a given instantiation are done, call
