@@ -225,8 +225,8 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
 /----------------------------------------------------------------------*/
 
 static bool term_is_rewritable(TB_p bank, OCB_p ocb, Term_p term, Clause_p
-                               new_demod, SysDate nf_date, 
-                               bool restricted_rw)
+                                       new_demod, SysDate nf_date, 
+                                       bool restricted_rw)
 {
    int i;
    bool res = false;
@@ -268,10 +268,18 @@ static bool term_is_rewritable(TB_p bank, OCB_p ocb, Term_p term, Clause_p
       return true;
    }
    topres = term_is_top_rewritable(bank, ocb, term, new_demod, restricted_rw);
-   if(topres != RWNotRewritable)
+   /* Properties set in term_is_top_rewritable! */
+   switch(topres)
    {
-      /* Properties set in term_is_top_rewritable! */
-      return true;
+   case RWLimitedRewritable:
+         return !restricted_rw;
+         break;
+   case RWAlwaysRewritable:
+         return true;
+         break;
+   default:
+         // Nothing to do, see below.
+         break;
    }
    if(!TermCellIsAnyPropSet(term, 
                             TPIsRewritable|TPIsRRewritable|
@@ -279,7 +287,7 @@ static bool term_is_rewritable(TB_p bank, OCB_p ocb, Term_p term, Clause_p
       &&!restricted_rw)
    {
       term->rw_data.nf_date[RewriteAdr(RuleRewrite)] =
-      term->rw_data.nf_date[RewriteAdr(FullRewrite)] = nf_date;
+         term->rw_data.nf_date[RewriteAdr(FullRewrite)] = nf_date;
    }
    /* printf("...term_is_rewritable() = false (no match)\n");*/
    return false;
