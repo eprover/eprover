@@ -338,6 +338,7 @@ Clause_p ClauseSortLiterals(Clause_p clause, ComparisonFunctionType cmp_fun)
           i++, handle = handle->next)
       {
          assert(i<lit_no);
+         handle->pos = i;
          sort_array[i] = handle;
       }
       qsort(sort_array, lit_no, sizeof(Eqn_p), cmp_fun);

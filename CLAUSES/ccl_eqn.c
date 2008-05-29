@@ -1293,7 +1293,7 @@ int EqnSubsumeInverseRefinedCompareRef(const void* lit1ref, const void* lit2ref)
 
    // The following tries to bring a bit more determinism into
    // subsumption and literal order. For reasons I don't quite grasp,
-   // this plays a major role and leads into very bad cas behaviour if
+   // this plays a major role and leads into very bad case behaviour if
    // overdone...
    /*if(!res)
    {
@@ -1303,6 +1303,12 @@ int EqnSubsumeInverseRefinedCompareRef(const void* lit1ref, const void* lit2ref)
    {
       res = (*l1)->rterm->entry_no%2 - (*l2)->rterm->entry_no%2;
       }*/
+
+   /* This hack makes the ordering stable */
+   if(!res)
+   {
+      res = (*l1)->pos - (*l2)->pos;
+   }
    return res;
 }
 

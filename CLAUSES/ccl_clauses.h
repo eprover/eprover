@@ -214,7 +214,7 @@ Clause_p ClauseSortLiterals(Clause_p clause, ComparisonFunctionType cmp_fun);
 Clause_p ClauseCanonize(Clause_p clause);
 #define  ClauseSubsumeOrderSortLits(clause) \
          ClauseSortLiterals((clause), \
-                            (ComparisonFunctionType)EqnSubsumeInverseCompareRef)
+                            (ComparisonFunctionType)EqnSubsumeInverseRefinedCompareRef)
 bool     ClauseIsSorted(Clause_p clause, ComparisonFunctionType cmp_fun);
 #define  ClauseIsSubsumeOrdered(clause) \
          ClauseIsSorted((clause), \

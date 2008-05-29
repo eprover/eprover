@@ -78,6 +78,7 @@ typedef struct eqncell
    EqnProperties  properties;/* Positive, maximal, equational */      
    Term_p         lterm;
    Term_p         rterm;
+   int            pos;
    TB_p           bank;      /* Terms are from this bank */
    struct eqncell *next;     /* For lists of equations */
 }EqnCell, *Eqn_p, **EqnRef;
