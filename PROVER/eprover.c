@@ -1225,7 +1225,7 @@ int main(int argc, char* argv[])
    
    if(OutputLevel||print_statistics)
    {
-      fprintf(GlobalOut, "# Initial clauses:                     : %ld\n",
+      fprintf(GlobalOut, "# Initial clauses                      : %ld\n",
 	      parsed_clause_no);
       fprintf(GlobalOut, "# Removed in preprocessing             : %ld\n",
 	      preproc_removed);
