@@ -45,6 +45,7 @@ or via email (address above).
 import sys
 import re
 import getopt
+from socket import gethostbyname
 import pylib_generic
 import pylib_io
 
@@ -67,6 +68,7 @@ Problem directory:  %s
 E-Mark:             %f
 Memory limit:       %d
 Auto options:       %s
+Master:             %s
 """
     
     def __init__(self, config=None):
@@ -78,6 +80,7 @@ Auto options:       %s
         self.e_mark       = 100.0
         self.memory_limit = 384
         self.auto_opt     = "-s --print-statistics"
+        self.masters      = []
         
         if not config:
             return
@@ -100,6 +103,16 @@ Auto options:       %s
                     self.memory_limir = int(value)
                 elif key == "Auto options":
                     self.auto_opt = value
+                elif key == "Master":
+                    masterlist = value.split(",")
+                    for i in masterlist:
+                        try:
+                            host, port = i.split(":")
+                            host = gethostbyname(host.strip())
+                            self.masters.append((host, int(port.strip())))
+                        except ValueError:
+                            raise pylib_io.ECconfigSyntaxError("Malformed IP address",
+                                                               i)
                 else:
                     raise pylib_io.ECconfigSyntaxError("Unknown keyword",
                                                        key)
@@ -108,9 +121,14 @@ Auto options:       %s
             sys.exit(1)
         
     def __str__(self):
+        addr = []
+        for i in self.masters:
+            addr.append(i[0]+":"+str(i[1]))
+        masters = ",".join(addr)
+
         return e_config.template%(self.port, self.bindir, self.problemdir,
                                   self.e_mark, self.memory_limit,
-                                  self.auto_opt)
+                                  self.auto_opt, masters)
 
 
     def concrete_time(self, time, rawtime=False):

@@ -45,6 +45,7 @@ or via email (address above).
 import sys
 import os
 import re
+import time
 
 
 whitespace_re = re.compile('\s+')
@@ -91,6 +92,27 @@ def break_shell_str(opts):
     return res   
 
 
+class timer(object):
+    def __init__(self, settime):
+        self.set(settime)
+
+    def remaining(self):
+        now = time.time()
+        if now > self.expiry:
+            return 0
+        return self.expiry - now
+
+    def expired(self):
+        return self.remaining() == 0
+
+
+    def set(self, settime):
+        self.expiry = time.time()+settime
+
+    def __str__(self):
+        return "<timer: %f (%f remaining)>"%(self.expiry, self.remaining())
+
+
 if __name__ == '__main__':
 
     tmp = """
@@ -98,3 +120,4 @@ if __name__ == '__main__':
     """
     print break_shell_str(tmp)
     
+

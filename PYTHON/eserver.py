@@ -54,11 +54,14 @@ import select
 import os
 import getopt
 import socket
+import pylib_generic
 import pylib_io
 import pylib_econf
 import pylib_erun
 
 jobend_re = re.compile("(^|\n|\r\n)\.(\n|\r\n)")
+solution_re = re.compile("\[.*?\]")
+
 
 class connection:
     def __init__(self, conn):
@@ -115,6 +118,8 @@ class tcp_server:
     creating connected sockets.
     """
     def __init__(self, port):
+        self.udpout = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
         self.listen_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         inst = None
 
@@ -141,6 +146,13 @@ class tcp_server:
         except:
             connect = None
         return connect
+
+    def announce_self(self, addr):
+        msg = "eserver:%d\n"%(self.port,)
+        print "Announcing: ", msg, " to ", addr
+        self.udpout.sendto(msg ,0, addr)
+
+
 
 
 class running_job:
@@ -179,7 +191,14 @@ class eserver:
         self.config      = config
 
     def process(self):
+        announce = pylib_generic.timer(0)
+        
         while True:
+            print "Announce.expired():", announce.expired()
+            if announce.expired():
+                self.announce()
+                announce.set(3.0)
+
             ractive = [self.server]+self.connections+self.running
             wactive = [i for i in self.connections if i.sendable()]
             ready   = select.select(ractive, wactive, [], 1)
@@ -208,6 +227,11 @@ class eserver:
 
             if len(self.running) < self.max_jobs():
                 self.run_job()
+
+    def announce(self):
+        print "Announce:"
+        for addr, port in self.config.masters:
+            self.server.announce_self((addr, port))
 
     def run_job(self):
         if  len(self.jobs) == 0:
@@ -295,6 +319,7 @@ if __name__ == '__main__':
 
     print args
     config = pylib_econf.e_config(args[0])
+    print config
 
     server =eserver(config)
 
