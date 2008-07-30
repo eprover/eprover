@@ -1,6 +1,8 @@
 Short Installation Instructions for the impatient
 -------------------------------------------------
 
+For CASC-J4 instructions, see DOC/ReadMe.
+
 This assumes that you have GNU tar, bash and gawk in your search path!
 
 Simple installation (will install executables):

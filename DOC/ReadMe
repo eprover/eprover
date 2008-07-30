@@ -1,7 +1,9 @@
 This is the required ReadMe file for the CASC competitions.
 -----------------------------------------------------------
 
-For installation, follow the instructions in the main README file. 
+For installation, follow the instructions in the main README
+file. Make sure to do a proper install, so that eproof can find
+eprover. 
 
 Translating to proper input format:
 
@@ -12,6 +14,14 @@ Command line:
    eprover -xAuto -tAuto --tstp-in -s --memory-limit=384 %s
 
    eproof  -xAuto -tAuto --tstp-in --tstp-out --memory-limit=384 %s
+
+For the LTB category, run
+
+   PYTHON/e_ltb_runner.py <path_to_ltp_problem_file> <total_time> <path_to_eprover>
+
+For the LTB* category, run
+
+   PYTHON/e_ltb_runner.py <path_to_ltp_problem_file> <total_time> <path_to_eproof>
 
 
 Distinguished strings for the results:
@@ -32,7 +42,7 @@ Problem is FOF and not a theorem:
 
 # SZS status CounterSatisfiable
 
-- System gave up (usually resource limit)
+System gave up (usually resource limit)
 
 # Failure:
 

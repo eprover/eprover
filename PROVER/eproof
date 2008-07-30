@@ -1,6 +1,6 @@
 #!/bin/bash -f
 
-EXECPATH=.
+EXECPATH=/Users/schulz/SOURCES/Projects/E_0.999/E/PROVER
 
 
 if tail -n+2 $0 > /dev/null 2>&1; then
@@ -135,7 +135,6 @@ if [ "$searchtime" ]; then
 	fi
     fi
     if [ "$limitprooftime" ]; then
-        echo "Limiting"
         prooflimit=`expr $timelimit - $searchtime - 1`
         ulimit -S -t $prooflimit 2>&1> /dev/null
     fi

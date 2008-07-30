@@ -117,6 +117,7 @@ tags:
 
 tools:
 	cd development_tools;$(MAKE) tools
+	cd PYTHON; $(MAKE) tools
 
 # Rebuilding from scratch
 

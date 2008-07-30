@@ -45,7 +45,10 @@ for file in *.awk ; do
 done
 
 
-if $WHICH python2.5; then
+if $WHICH python2.6; then
+    PYTHON=`which python2.6`;
+    echo "configure_tools: Found Python 2.5 in your search path"
+elif $WHICH python2.5; then
     PYTHON=`which python2.5`;
     echo "configure_tools: Found Python 2.5 in your search path"
 elif $WHICH python2.4; then
