@@ -46,25 +46,25 @@ done
 
 
 if $WHICH python2.6; then
-    PYTHON=`which python2.6`;
+    PYTHON_DUMMY=`which python2.6`;
     echo "configure_tools: Found Python 2.5 in your search path"
 elif $WHICH python2.5; then
-    PYTHON=`which python2.5`;
+    PYTHON_DUMMY=`which python2.5`;
     echo "configure_tools: Found Python 2.5 in your search path"
 elif $WHICH python2.4; then
-    PYTHON=`which python2.4`;
+    PYTHON_DUMMY=`which python2.4`;
     echo "configure_tools: Found Python 2.4 in your search path"
 elif $WHICH python2.3; then
-    PYTHON=`which python2.3`;
+    PYTHON_DUMMY=`which python2.3`;
     echo "configure_tools: Found Python 2.3 in your search path"
 elif $WHICH python2.2; then
-    PYTHON=`which python2.2`;
+    PYTHON_DUMMY=`which python2.2`;
     echo "configure_tools: Found Python 2.2 in your search path"
 elif $WHICH python2.1; then
-    PYTHON=`which python2.1`;
+    PYTHON_DUMMY=`which python2.1`;
     echo "configure_tools: Found Python 2.1 in your search path"
 elif $WHICH python; then
-    PYTHON=`which python`;
+    PYTHON_DUMMY=`which python`;
     echo "configure_tools: Found Python in your search path (Note: Required version >=2.0, otherwise expect trouble)"
 else
     echo "configure_tools: No Python available, tools unconfigured."
@@ -72,13 +72,15 @@ else
     exit 0;
 fi
 
-PYTHON=`basename $PYTHON`
+PYTHON_DUMMY=`basename $PYTHON_DUMMY`
 
 for file in *.py ; do
     # cp $file $file.bak
-    echo "#!/usr/bin/env $PYTHON" > tmpfile
+    echo "#!/usr/bin/env $PYTHON_DUMMY" > tmpfile
     $TAIL +2 $file >> tmpfile
     mv tmpfile $file
     chmod ugo+x $file
 done
+
+
 

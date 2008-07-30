@@ -1,6 +1,6 @@
 #!/bin/bash -f
 
-EXECPATH=/Users/schulz/SOURCES/Projects/E_0.999/E/PROVER
+EXECPATH=./
 
 
 if tail -n+2 $0 > /dev/null 2>&1; then

@@ -23,5 +23,5 @@ include ../Makefile.services
 
 tools:
 	@echo "Configuring tools"
-	./configure_tools
+	../development_tools/configure_tools
 
