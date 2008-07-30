@@ -98,7 +98,6 @@ def run_e(prover, timelimit, problem):
 
     status = "unknown"
     for l in res:
-        print l
         if l.startswith("# SZS status"):
             status = l[len("# SZS status "):-1]
             break
@@ -139,12 +138,22 @@ if __name__ == '__main__':
     jobs = filejob_parser(jobfile)
     worklist = list(jobs)
 
-    for i in worklist:
+    time = 5
+    iter = 0
+    while len(worklist):
+        print "Pass", iter, "with", time, "seconds per each of",len(worklist),"problems"
         solved = []
-        if run_e(prover, 10, i):
-            print "Solved:", i
-            solved.append(i)
-        else:
-            print "Failed on:", i
-    for i in solved:
-        worklist.remove(i)
+        for i in worklist:
+            if run_e(prover, time, i):
+                print "Solved:", i
+                solved.append(i)
+            else:
+                print "Failed on:", i
+        print "Solved:"
+        for i in solved:
+            print i
+        for i in solved:
+            worklist.remove(i)
+        
+        time = time*2
+        iter = iter+1
