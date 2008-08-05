@@ -53,7 +53,7 @@ import os
 import string
 import getopt
 
-e_template = "%s -s -xAuto -tAuto --tptp3-format --print-statistics --resources-info --cpu-limit=%d %s"
+e_template = "%s -s -xAuto -tAuto --memory-limit=768 --tptp3-format --print-statistics --resources-info --cpu-limit=%d %s"
 
 
 def run_shell_command(cmd):
@@ -149,9 +149,6 @@ if __name__ == '__main__':
                 solved.append(i)
             else:
                 print "Failed on:", i
-        print "Solved:"
-        for i in solved:
-            print i
         for i in solved:
             worklist.remove(i)
         
