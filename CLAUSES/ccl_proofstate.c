@@ -184,7 +184,7 @@ void ProofStateInitWatchlist(ProofState_p state, char* watchlist_filename,
 // Function: ProofStateResetClauseSets()
 //
 //   Empty _all_ clause and formula sets in proof state. Keep the
-//   signature and term bank. If term_gc is true, performa a garbage
+//   signature and term bank. If term_gc is true, perform a garbage
 //   collection of term cells. 
 //
 // Global Variables: -

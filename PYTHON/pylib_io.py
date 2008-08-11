@@ -44,6 +44,7 @@ or via email (address above).
 
 import sys
 import os
+import os.path
 import re
 import select
 
@@ -306,5 +307,13 @@ def parse_config_file(source, sep=":", allowed_keys=None, required_keys=None):
 
     return parse_config_string(inpstr, sourcename, sep, allowed_keys, required_keys)
 
-
+def get_directory(filename):
+    """
+    Given a filename, return the directory that file is in.
+    """
+    if filename == "-":
+        return os.getcwd()
+    return os.path.dirname(os.path.abspath(os.path.expanduser(filename)))
+        
+        
       

@@ -84,6 +84,7 @@ typedef struct funccell
 
 typedef struct sigcell
 {
+   bool      alpha_ranks_valid; /* The alpha-ranks are up to date */
    long      size;     /* Size of the array */
    FunCode   f_count;  /* Largest used f_code */
    FunCode   internal_symbols; /* Largest auto-inserted internal symbol */
@@ -186,7 +187,7 @@ bool    SigIsFunction(Sig_p sig, FunCode f_code);
 void    SigSetSpecial(Sig_p sig, FunCode f_code, bool value);
 void    SigSetAllSpecial(Sig_p sig, bool value);
 bool    SigIsSpecial(Sig_p sig, FunCode f_code);
-static __inline__ int     SigGetAlphaRank(Sig_p sig, FunCode f_code);
+int     SigGetAlphaRank(Sig_p sig, FunCode f_code);
 
 FunCode SigInsertId(Sig_p sig, const char* name, int arity, bool
 		    special_id);
@@ -267,26 +268,6 @@ static __inline__ char*  SigFindName(Sig_p sig, FunCode f_code)
    return (sig->f_info[f_code]).name;
 }
 
-/*-----------------------------------------------------------------------
-//
-// Function: SigGetAlphaRank()
-//
-//   Given a signature and an function symbol code, return the symbols
-//   alpha-rank.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-static __inline__ int SigGetAlphaRank(Sig_p sig, FunCode f_code)
-{
-   assert(f_code > 0);
-   assert(f_code <= sig->f_count);
-
-   return (sig->f_info[f_code]).alpha_rank;
-}
 
 /*-----------------------------------------------------------------------
 //

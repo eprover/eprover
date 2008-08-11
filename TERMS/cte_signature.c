@@ -93,6 +93,8 @@ static void sig_compute_alpha_ranks(Sig_p sig)
       sig->f_info[handle->val1.i_val].alpha_rank = count++;
    }
    StrTreeTraverseExit(stack);
+
+   sig->alpha_ranks_valid = true;
 }
 
 
@@ -118,9 +120,10 @@ Sig_p SigAlloc(void)
 
    handle = SigCellAlloc();
 
-   handle->size    = DEFAULT_SIGNATURE_SIZE;
-   handle->f_count = 0;
-   handle->f_info  =
+   handle->alpha_ranks_valid = false;
+   handle->size           = DEFAULT_SIGNATURE_SIZE;
+   handle->f_count        = 0;
+   handle->f_info         =
       SecureMalloc(sizeof(FuncCell)*DEFAULT_SIGNATURE_SIZE); 
    handle->f_index = NULL;
    handle->ac_axioms = PStackAlloc();
@@ -239,6 +242,7 @@ void SigFree(Sig_p junk)
    }
    SigCellFree(junk);
 }
+
 
 /*-----------------------------------------------------------------------
 //
@@ -417,6 +421,34 @@ bool SigIsSpecial(Sig_p sig, FunCode f_code)
 
 /*-----------------------------------------------------------------------
 //
+// Function: SigGetAlphaRank()
+//
+//   Given a signature and an function symbol code, return the symbols
+//   alpha-rank.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+int SigGetAlphaRank(Sig_p sig, FunCode f_code)
+{
+   assert(f_code > 0);
+   assert(f_code <= sig->f_count);
+
+   if(!sig->alpha_ranks_valid)
+   {
+      sig_compute_alpha_ranks(sig);
+   }
+   assert(sig->alpha_ranks_valid);
+
+   return (sig->f_info[f_code]).alpha_rank;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: SigSetAllSpecial()
 //
 //   Set the special value of all symbols in sig.
@@ -492,7 +524,8 @@ FunCode SigInsertId(Sig_p sig, const char* name, int arity, bool special_id)
    test = StrTreeInsert(&(sig->f_index), new);
    assert(test == NULL);   
    SigSetSpecial(sig,sig->f_count,special_id);
-   sig_compute_alpha_ranks(sig);
+   sig->alpha_ranks_valid = false;
+
    return sig->f_count;
 }
 

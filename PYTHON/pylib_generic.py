@@ -54,8 +54,14 @@ whitespace_re = re.compile('\s+')
 dstring_re     = re.compile('".*?"')
 """Regular expression representing a string in double quotes."""
 
+dqstring_re     = re.compile('".*?[^\\\\]"')
+"""Regular expression representing a string in double quotes with quoting."""
+
 sstring_re     = re.compile("'.*?'")
 """Regular expression representing a string in single quotes."""
+
+sqstring_re     = re.compile("'.*?[^\\\\]'")
+"""Regular expression representing a string in single quotes with quoting."""
 
 other_re       = re.compile("[^'\"\s]+")
 """
@@ -63,6 +69,8 @@ Regular expression representing anything not containing white space or
 quotes.
 """ 
 
+sqquote_re = re.compile("[^\\\\]'")
+"""Regular expression represening  an unquoted single quote."""
 
 def break_shell_str(opts):
     """
