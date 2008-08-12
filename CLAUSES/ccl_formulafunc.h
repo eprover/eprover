@@ -39,7 +39,7 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-#define TFORMULA_GC_LIMIT (65536*16)
+#define TFORMULA_GC_LIMIT 1.5
 
 bool WFormulaConjectureNegate(WFormula_p wform);
 long FormulaSetPreprocConjectures(FormulaSet_p set);

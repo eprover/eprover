@@ -391,8 +391,7 @@ long FormulaSetCNF(FormulaSet_p set, ClauseSet_p clauseset,
    WFormula_p handle;
    long res = 0;
    long old_nodes = TBNonVarTermNodes(terms);
-   int  gc_counter = 0;
-
+   long gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
 
    if(FormulaTermEncoding)
    {
@@ -402,16 +401,16 @@ long FormulaSetCNF(FormulaSet_p set, ClauseSet_p clauseset,
    handle = set->anchor->succ;   
    while(handle!=set->anchor)
    {
-      gc_counter++;
       res += WFormulaCNF(handle,clauseset, terms, fresh_vars);
       if(handle->tformula &&  
-         ((TBNonVarTermNodes(terms)-old_nodes)>TFORMULA_GC_LIMIT))
+         (TBNonVarTermNodes(terms)>gc_threshold))
       {
          assert(terms == handle->terms);
          FormulaSetGCMarkCells(set);
          ClauseSetGCMarkTerms(clauseset);
          TBGCSweep(handle->terms);
          old_nodes = TBNonVarTermNodes(terms);
+         gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
       }
       handle = handle->succ;
    }
