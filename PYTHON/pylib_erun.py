@@ -69,20 +69,21 @@ class runner(object):
 
     def get_result(self):
         """
-        Check if command has completed. If yes, return the
-        result. Otherwise return None. Please note that this will
+        Check if command has completed. If yes, return (True,
+        result). Otherwise return (False, undefined (implemented as
+        the temporary result)). Please note that this will  
         block if cmd has neither finished nor provided new data. To
         avoid blocking, use select() first.
         """
         tmp = self.fp.read()
         if tmp != "":
             self.result = self.result+tmp;
-            return None
+            return (False, self.result)
         status = self.fp.close()
         if status:
             print "# Warning: '"+cmd+"' returned status "+\
                   repr(decode_wait_status(status)[0])
-        return self.result      
+        return (True, self.result)
 
 
 class e_runner(runner):
@@ -121,8 +122,8 @@ class e_runner(runner):
         self.key = key
         self.rawtime = rawtime
         self.time    = time
+        self.problem = problem
         cmd = config.command(prover, args, problem, time, rawtime)
-        print "Command: ", cmd
         runner.__init__(self, cmd)
 
     def __str__(self):
@@ -133,8 +134,8 @@ class e_runner(runner):
         Check if a result is available. If yes, return the list of
         result items. If no, return None.
         """
-        res = runner.get_result(self)
-        if not res:
+        status, res = runner.get_result(self)
+        if not status:
             return None
 
         resl = res.splitlines()
@@ -165,13 +166,12 @@ class e_runner(runner):
         try:
             tmp   = resdict["# Total time"]
             time  = float(tmp.split()[0])
-            print "Real time:", time
             atime = self.config.abstract_time(time)
         except:
             time = -1.0
             atime = -1.0
             
-        result = [self.key, status, atime, reason, time]
+        result = [self.key, self.problem, status, atime, reason, time]
 
         for i in self.res_descriptor:
             try:
@@ -201,13 +201,10 @@ if __name__ == '__main__':
 
     running = [r1, r2]
     while len(running)!=0:
-        print "Checking..."
         readable = select.select(running, [], [], 1)
         print readable
         for r in readable[0]:
             result = r.get_result()
             if result:
-                print "Result"
-                print result
                 running.remove(r)
                 

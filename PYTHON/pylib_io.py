@@ -53,6 +53,19 @@ UsageErrorException = Exception("Usage Error")
 
 whitespace_re = re.compile('\s+')
 
+Verbose = 0
+"""
+Verbose level.
+"""
+
+def verbout(str, level=1):
+    """
+    Print messages in verbose mode.
+    """
+    if level <= Verbose:
+        print str
+
+
 class ECconfigSyntaxError(Exception):
     """
     Exceptions for configuration file errors.
