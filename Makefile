@@ -18,7 +18,9 @@
 #
 #------------------------------------------------------------------------
 
-include Makefile.vars
+.PHONY: all warn depend remove_links clean default_config debug_config distrib fulldistrib top links tags tools rebuild install install-exec remake documentation E
+
+ include Makefile.vars
 
 # Project specific variables
 
@@ -150,8 +152,6 @@ install-with-broken-gcc-but-kgcc-available:
 	make install
 
 # Configure and copy executables to the installation directory
-
-#@$(TAIL) +4 PROVER/eproof >> tmpfile
 
 install-exec:	
 	@echo "#!"`which bash`" -f" > tmpfile

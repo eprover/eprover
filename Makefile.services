@@ -14,9 +14,7 @@
 #
 #------------------------------------------------------------------------
 
-
-disk:
-	cd ..; $(MAKE) disk
+.PHONY: distrib fulldistrib top links install rebuild
 
 distrib:
 	cd ..; $(MAKE) distrib

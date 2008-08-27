@@ -11,6 +11,8 @@
 #
 #------------------------------------------------------------------------
 
+.PHONY: tags tools all
+
 include ../Makefile.vars
 
 # Project specific variables
@@ -20,6 +22,9 @@ all: $(LIB)
 # Services (provided by the master Makefile)
 
 include ../Makefile.services
+
+tags:
+	etags *.py
 
 tools:
 	@echo "Configuring tools"

@@ -56,16 +56,16 @@ import getopt
 import socket
 import pylib_generic
 import pylib_io
-import pylib_econf
+import pylib_emconf
 
 
 class emaster(object):
     def __init__(self, config):
         pass
 
-    def process(self):1
+    def process(self):
         while True:
-            print Processing
+            print "Processing"
         
 
 if __name__ == '__main__':
@@ -84,7 +84,7 @@ if __name__ == '__main__':
         print __doc__
         sys.exit()
 
-    config = pylib_econf.e_masterconfig(args[0])
+    config = pylib_emconf.e_mconfig(args[0])
 
     master = emaster(config)
 
