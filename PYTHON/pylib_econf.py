@@ -162,7 +162,7 @@ Master:             %s
         else:
             procname = "%s/%s" % (self.bindir, prover)
             limits   = "--cpu-limit=%d --memory-limit=%d" %\
-                       (self.concrete_time(timelimit), self.memory_limit)
+                       (self.concrete_time(timelimit, rawtime), self.memory_limit)
             probname = "%s/%s" % (self.problemdir, prob)
             cmd_array = [procname] + \
                         pylib_generic.break_shell_str(limits)+\

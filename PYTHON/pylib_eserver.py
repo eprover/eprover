@@ -51,111 +51,18 @@ import pylib_generic
 import pylib_io
 import pylib_econf
 import pylib_erun
+import pylib_tcp
 
 
 service = "eserver"
 version = "0.1dev"
 
 jobend_re = re.compile("(^|\n|\r\n)\.(\n|\r\n)")
+
 solution_re = re.compile("\[.*?\]")
 
 
-class connection:
-    def __init__(self, conn):
-        self.sock = conn[0]
-        self.peeradr = conn[1]
-        self.inbuffer  = ""
-        self.outbuffer = ""
-        self.filenum   = self.sock.fileno()
-
-    def __str__(self):
-        return "<conn (%d) to %s>" % (self.filenum, str(self.peeradr))
-
-    def fileno(self):
-         return self.filenum
-
-    def send(self):
-        if self.sendable() and not pylib_io.write_will_block(self):
-            res = self.sock.send(self.outbuffer)
-            if res > 0:
-                self.outbuffer = self.outbuffer[res:]
-            return res
-
-    def write(self, data):
-        self.outbuffer = self.outbuffer+data
-        return self.send
-    
-    def sendable(self):
-        return self.outbuffer!=""
-
-    def readable(self):
-        return self.filenum != -1
-
-    def recv(self):
-        res = self.sock.recv(2048)
-        if res == "":
-            self.sock.close()
-            self.finalize()
-            return res        
-        self.inbuffer = self.inbuffer+res
-        mo = jobend_re.search(self.inbuffer)
-        if mo:
-            res = self.inbuffer[:mo.start()]+"\n"
-            self.inbuffer = self.inbuffer[mo.end():]
-        else:
-            res = None
-        return res
-
-    def finalize(self):
-        self.outbuffer = ""
-        self.filenum   = -1
-
-
-      
-class tcp_server:
-    """
-    Class implementing the listening port of a server and
-    creating connected sockets.
-    """
-    def __init__(self, port):
-        self.udpout = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-        self.listen_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        inst = None
-
-        while port < 65536:
-            try:
-                self.port = port
-                self.listen_sock.bind(("", port))
-                self.listen_sock.listen(5)
-                pylib_io.verbout("EServer listening on port "+str(self.port))
-                return
-            except socket.error, inst:
-                port = port+1
-        raise inst
-
-    def fileno(self):
-        """
-        Return the servers fileno to support select.
-        """
-        return self.listen_sock.fileno() 
-    
-    def accept(self):
-        try:
-            connect = connection(self.listen_sock.accept())
-        except:
-            connect = None
-        return connect
-
-    def announce_self(self, addr):
-        msg = "eserver:%d\n"%(self.port,)
-        pylib_io.verbout("Announcing: "+msg+" to "+str(addr))
-        self.udpout.sendto(msg ,0, addr)
-
-
-
-
-class running_job:
+class running_job(object):
     def __init__(self, connection, runner):
         self.connection = connection
         self.runner     = runner
@@ -174,7 +81,7 @@ class running_job:
         else:
             return False
 
-class waiting_job:
+class waiting_job(object):
     def __init__(self, connection, deflist):
         self.deflist    = deflist
         self.connection = connection
@@ -182,12 +89,12 @@ class waiting_job:
     def __str__(self):
         return "<:"+":".join(self.deflist)+":>"
 
-class eserver:
+class eserver(object):
     def __init__(self, config):
         self.jobs        = []
         self.running     = []
         self.connections = []
-        self.server      = tcp_server(config.port)
+        self.server      = pylib_tcp.tcp_server(config.port)
         self.config      = config
 
     def process(self):
@@ -210,12 +117,11 @@ class eserver:
                     self.connections.append(new_conn)
 
                 if i in self.connections:
-                    command = i.recv()
+                    (match, command) = i.read(jobend_re)
                     if command == "":
                         pylib_io.verbout("Connection "+str(i)+" terminated")
                         self.connections.remove(i)
-                        i.finalize()
-                    elif command:
+                    elif match:
                         self.dispatch(i, command)
 
                 if i in self.running:
@@ -286,17 +192,16 @@ class eserver:
     def dispatch(self, connection, command):
         cl = command.split("\n")
         cl = pylib_io.clean_list(cl)
-
-        if cl[0] == "run":
-            self.create_job(connection, cl)
-        elif cl[0] == "ls":
-            self.list_state(connection)
-        elif cl[0] == "restart":
-            os.execv(sys.argv[0], sys.argv)
-        elif cl[0] == "version":
-            connection.write(service+" "+version+"\n")
-        else:
-            connection.write("Error: Unkown command "+cl[0]+"\n")
-        connection.write(".\n")
-            
+        if cl:
+            if cl[0] == "run":
+                self.create_job(connection, cl)
+            elif cl[0] == "ls":
+                self.list_state(connection)
+            elif cl[0] == "restart":
+                os.execv(sys.argv[0], sys.argv)
+            elif cl[0] == "version":
+                connection.write(service+" "+version+"\n")
+            else:
+                connection.write("Error: Unkown command "+cl[0]+".\n")
+        
                 
