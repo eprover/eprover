@@ -103,7 +103,8 @@ class eserver(object):
         while True:
             if announce.expired():
                 self.announce()
-                announce.set(60.0)
+                #announce.set(60.0)
+                announce.set(5.0)
 
             ractive = [self.server]+self.running+\
                       [i for i in self.connections if i.readable()]

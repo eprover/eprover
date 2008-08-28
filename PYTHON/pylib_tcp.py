@@ -173,5 +173,6 @@ class tcp_client(object):
 
     def connect(self, address):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        socket.connect(address)
+        sock.connect(address)
         return connection((sock,address))
+

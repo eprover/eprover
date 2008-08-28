@@ -57,13 +57,26 @@ import socket
 import select
 import pylib_generic
 import pylib_io
+import pylib_tcp
 import pylib_emconf
+
+
+announce_matcher = re.compile("eserver:[0-9]+")
+
+class eslave(object):
+    def __init__(self, connection):
+        self.connection = connection
+        self.open_jobs = 0
+
 
 
 class emaster(object):
     def __init__(self, config):
         self.rec_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.rec_sock.bind(("", config.port))
+        self.client = pylib_tcp.tcp_client()
+        self.slaves = {}
+
         
     def process(self):
         while True:
@@ -71,13 +84,21 @@ class emaster(object):
             wactive = []
             ready   = select.select(ractive, wactive, [], 1)
             if self.rec_sock in ready[0]:
-                print "Got Announcement (?)"
                 self.handle_announce()
 
     def handle_announce(self):
         (data,sender) = self.rec_sock.recvfrom(1024)
-        print data
-        print sender
+        slave_addr, port = sender
+        if slave_addr in self.slaves:
+            return
+        if not announce_matcher.match(data):
+            return
+        slave_port = int(data[8:])
+        if port<1000 or port > 65535:
+            return
+        connection = self.client.connect((slave_addr, slave_port))
+        slave = eslave(connection)
+        self.slaves[slave_addr] = slave
 
 if __name__ == '__main__':
     opts, args = getopt.gnu_getopt(sys.argv[1:], "hv", ["Verbose"])
