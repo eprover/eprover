@@ -54,6 +54,7 @@ import string
 import os
 import getopt
 import socket
+import select
 import pylib_generic
 import pylib_io
 import pylib_emconf
@@ -61,12 +62,22 @@ import pylib_emconf
 
 class emaster(object):
     def __init__(self, config):
-        pass
-
+        self.rec_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.rec_sock.bind(("", config.port))
+        
     def process(self):
         while True:
-            print "Processing"
-        
+            ractive = [self.rec_sock]
+            wactive = []
+            ready   = select.select(ractive, wactive, [], 1)
+            if self.rec_sock in ready[0]:
+                print "Got Announcement (?)"
+                self.handle_announce()
+
+    def handle_announce(self):
+        (data,sender) = self.rec_sock.recvfrom(1024)
+        print data
+        print sender
 
 if __name__ == '__main__':
     opts, args = getopt.gnu_getopt(sys.argv[1:], "hv", ["Verbose"])
