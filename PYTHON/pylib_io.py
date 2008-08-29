@@ -255,12 +255,14 @@ def parse_config_string(configstr, sourcename=None, sep=":",
                           acepted. If None, all keys are accepted.
     \param required_keys  describes the list of required keys. If
                           None, no keys are required.
-    \return               Dictionary of key/value pairs.
+    \return               Dictionary of key/value association and list
+                          of key/value pairs.
     """
     if not sourcename:
         sourcename = "Configuration string starting with "+inpstr[:20]
 
-    result = {}
+    result = []
+    keys   = {}
     config_list = configstr.split("\n")
     lineno = 0
     for line in config_list:
@@ -281,15 +283,16 @@ def parse_config_string(configstr, sourcename=None, sep=":",
             raise ECconfigSyntaxError("Unknown key '"+key+"'",
                                      sourcename, lineno)
         value = value.strip()
-        result[key] = value
-
+        result.append((key, value))
+        keys[key] = value
+        
     if required_keys:
         for i in required_keys:
-            if not key in result:
+            if not key in keys:
                 raise EConfigSyntaxError("Missing key '"+i+"'",
                                          sourcename)
 
-    return result
+    return (keys, result)
 
 
 

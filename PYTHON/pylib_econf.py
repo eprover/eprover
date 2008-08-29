@@ -86,7 +86,7 @@ Master:             %s
             return
 
         try:
-            confdict = pylib_io.parse_config_file(config)
+            confdict, conflist = pylib_io.parse_config_file(config)
 
             for key in confdict:
                 value = confdict[key]
