@@ -196,7 +196,41 @@ class eprot(object):
     def add_result(self, result):
         self.results[result.name()]=result
         self.synced = False
-        
+
+    def del_result(self, res):
+        """
+        Remove a result, which may be a full result or just a problem
+        name (i.e. a string).
+        """
+        try:
+            del(self.results[res.name()])
+        except AttributeError:
+            del(self.results[res])
+        self.synced = False
+
+    def filter(self, problemlist):
+        """
+        Filter result list against a problemlist.
+        """
+        count = 0
+        tmp = self.results
+        self.results = {}
+        for i in problemlist:
+            if i in tmp:
+                self.results[i] = tmp[i]
+                count = count+1
+        return count                
+
+    def find_missing(self, problemlist):
+        """
+        Return the list of problems in problemlist, but without a
+        result in self.
+        """
+        res = []
+        for i in problemlist:
+            if not i in self.results:
+                res.append(i)
+        return res
 
     def parse(self, directory=""):
         filename = os.path.join(directory, self.protname())
@@ -326,16 +360,19 @@ class ejob(object):
     def jobname(self):
         return "tptp_"+self.name
 
+    def filter_prot(self):
+        """
+        Filter the results against the problem list.
+        """
+
     def parse(self, specdir, protdir):
         self.spec.parse(specdir)
         self.prot.parse(protdir)
+        self.prot.filter(self.spec.problems)
+        missing = self.prot.find_missing(self.spec.problems)
+        self.job_complete = len(missing)==0
 
-        self.job_complete = True
-        for i in self.spec.problems:
-            if not self.prot.result(i):
-                print i
-                self.job_complete = False
-                break
+
 
 
 if __name__ == '__main__':
@@ -364,5 +401,5 @@ if __name__ == '__main__':
     
     job = ejob("X----_auto_300")
     job.parse("~/EPROVER/TESTRUNS_CASC/", "~/EPROVER/TESTRUNS_CASC/")
-    print job.prot
+    #print job.prot
     print job.job_complete
