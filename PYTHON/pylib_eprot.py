@@ -147,6 +147,9 @@ class eresult(object):
         self.values = line.split()
         assert len(self.values) >= 4
 
+    def success(self):
+        return self.status() in ['T', 'N']
+
     def name(self):
         return self.values[0]
 
@@ -176,13 +179,31 @@ class eprot(object):
         self.comments = []
         self.results  = {}
         self.filename = None
+        self.synced   = True
+
+    def result(self, problem):
+        try:
+            return self.results[problem]
+        except KeyError:
+            return None
+
+    def entry_no(self):
+        return len(self.results)
 
     def protname(self):
         return eprot_name+self.name
 
+    def add_result(self, result):
+        self.results[result.name()]=result
+        self.synced = False
+        
+
     def parse(self, directory=""):
         filename = os.path.join(directory, self.protname())
-        fp = open(filename, "r")
+        try:
+            fp = pylib_io.flexopen(filename, "r")
+        except IOError:
+            return False
         prot = fp.read().split("\n")
         for i in prot:
             if i:
@@ -190,14 +211,50 @@ class eprot(object):
                     self.comments.append(i)
                 else:
                     res = eresult(i)
-                    self.results[res.name()]=res
+                    self.add_result(res)
         self.filename = filename
+        self.synced   = True
+        return True
+
+    def evaluate(self):
+        count      = 0
+        success    = 0
+        failure    = 0
+        incomplete = 0
+        nomem      = 0
+        unknown    = 0
+        time       = 0.0        
+        for i in self.results.values():
+            count = count+1
+            if i.success():
+                success = success+1
+                time    = time + i.cputime()
+            else:
+                failure = failure+1
+            if i.reason() == "maxmem":
+                nomem = nomem+1
+            elif i.reason() == "incomplete":
+                incomplete = incomplete+1
+            elif i.reason() == "unknown":
+                unknown = unknown+1
+        return (count, success, failure, incomplete, nomem, unknown, time)
 
     def __str__(self):
         results = [i.__str__() for i in self.results.values()]
         results.sort()
         return "\n".join(self.comments+results)
 
+    def sync(self):
+        """
+        Safe the protocol to the associated disk file (if any and if
+        necessary).
+        """
+        if self.filename and not self.synced:
+            verbout("Syncing "+self.filename)
+            fp = pylib_io.flexopen(filename, "w")
+            fp.write(self.__str__())
+            pylib_io.flexclose(fp)
+            self.synced = True
 
 
 class espec(object):
@@ -215,7 +272,7 @@ Arguments:   %s
 """
              
     def __init__(self, name):
-        self.name         = name
+        self.name         = e_strip_name(name)
         self.filename     = None
         self.problems     = []
         self.executable   = "eprover"
@@ -255,6 +312,7 @@ Arguments:   %s
         jobs   = "\n".join(self.problems)
         return params+jobs
 
+        
 
 class ejob(object):
     """
@@ -262,13 +320,22 @@ class ejob(object):
     def __init__(self, name):
         self.name         = name
         self.prot         = eprot(name)
+        self.spec         = espec(name)
         self.job_complete = False
         
     def jobname(self):
         return "tptp_"+self.name
 
-    def parse(self, directory=""):
-        filename = os.path.join(directory, self.protname())
+    def parse(self, specdir, protdir):
+        self.spec.parse(specdir)
+        self.prot.parse(protdir)
+
+        self.job_complete = True
+        for i in self.spec.problems:
+            if not self.prot.result(i):
+                print i
+                self.job_complete = False
+                break
 
 
 if __name__ == '__main__':
@@ -289,9 +356,13 @@ if __name__ == '__main__':
     testprt = eprot("X----_auto_300")
     testprt.parse("/Users/schulz/EPROVER/TESTRUNS_CASC")
     #print testprt
+    print testprt.evaluate()
     #print parse_espec_file("~/EPROVER/TESTRUNS_CASC/tptp_U----_043_B07_F1_PI_AE_CS_SP_S0Y")
     testspec = espec("X----_auto_300")
     testspec.parse("/Users/schulz/EPROVER/TESTRUNS_CASC")
-    print testspec
+    #print testspec
     
-    
+    job = ejob("X----_auto_300")
+    job.parse("~/EPROVER/TESTRUNS_CASC/", "~/EPROVER/TESTRUNS_CASC/")
+    print job.prot
+    print job.job_complete

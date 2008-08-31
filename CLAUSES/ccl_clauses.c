@@ -1425,7 +1425,7 @@ bool ClauseStartsMaybe(Scanner_p in)
 ClauseProperties ClauseTypeParse(Scanner_p in, char *legal_types)
 {
    ClauseProperties res;
-   
+
    CheckInpId(in, legal_types);
    
    if(TestInpId(in, 
@@ -1529,12 +1529,15 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
          ignore the "derived" modifier, and use CPTypeAxiom for plain
          clauses. */
       if(TestInpId(in, "axiom|definition|knowledge|assumption|"
-                   "hypothesis|conjecture|negated_conjecture|"
+                   "hypothesis|negated_conjecture|conjecture|"
                    "lemma|unknown|plain|theorem|watchlist"))
       {
+         /* This is hairy again. "conjecture" is not allowed here and
+            very misleading, so we want a good error message. We go
+            into this case anyways and provoke the error below. */
          type = ClauseTypeParse(in, 
                                 "axiom|definition|knowledge|assumption|"
-                                "hypothesis|conjecture|negated_conjecture|"
+                                "hypothesis|negated_conjecture|"
                                 "lemma|unknown|plain|theorem|watchlist");
          if(TestInpTok(in, Hyphen))
          {
