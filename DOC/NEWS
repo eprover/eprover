@@ -1,5 +1,12 @@
+
+
 This history list describes the major differences between versions of
 the E equational theorem prover.
+
+Version 0.999-004->
+
+- Removed old style formulas and CNF algorithm.
+- Fixed a number of bugs in backwards rewriting.
 
 Version 0.999 -> 0.999-004
 
