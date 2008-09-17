@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.4
+#!/usr/bin/env python2.5
 # ----------------------------------
 """
 Usage: do_dp_plots.py [Options]
