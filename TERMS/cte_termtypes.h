@@ -80,8 +80,12 @@ typedef enum
    TPIsShared         =  16384, /* Term is in a term bank */
    TPGarbageFlag      =  32768, /* For the term bank garbage collection */
    TPIsFreeVar        =  65536, /* For Skolemization */
-   TPPotentialParamod = 131072 /* This position needs to be tried for
-                                  paramodulation */
+   TPPotentialParamod = 131072, /* This position needs to be tried for
+                                   paramodulation */
+   TPPosPolarity      = 1<<18,  /* In the term encoding of a formula,
+                                   this occurs with positive polarity. */
+   TPNegPolarity      = 1<<19,  /* In the term encoding of a formula,
+                                   this occurs with negative polarity. */
 }TermProperties;
 
 
