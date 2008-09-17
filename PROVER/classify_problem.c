@@ -50,7 +50,6 @@ typedef enum
    OPT_TSTP_FORMAT,
    OPT_GEN_TPTP_HEADER,
    OPT_NO_PREPROCESSING,
-   OPT_TERM_CNF,
    OPT_DEF_CNF,
    OPT_MASK,
    OPT_NGU_ABSOLUTE,
@@ -160,13 +159,6 @@ OptCell opts[] =
     "literals and clauses in a certain (\"canonical\") way before "
     "anything else happens. It also unfolds equational definitons (and "
     "removes them)."},
-
-   {OPT_TERM_CNF,
-    '\0', "term-encoded-fof",
-    NoArg, NULL,
-    "Use the experimental new clausification algorithm based on "
-    "term-encoding of first order formulas. This option is deprecated"
-    " in favour of the following one."},
 
    {OPT_DEF_CNF,
     '\0', "definitional-cnf",
@@ -572,11 +564,7 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
       case OPT_NO_PREPROCESSING:
 	    no_preproc = true;
 	    break;
-      case OPT_TERM_CNF:
-            FormulaTermEncoding = true;
-            break;
       case OPT_DEF_CNF:
-            FormulaTermEncoding = true;
             FormulaDefLimit     = CLStateGetIntArg(handle, arg);
             break;
       case OPT_MASK:
