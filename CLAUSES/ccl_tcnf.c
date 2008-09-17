@@ -52,13 +52,14 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-TFormula_p tprop_arg_return_other(TFormula_p arg1, TFormula_p arg2, bool positive)
+TFormula_p tprop_arg_return_other(Sig_p sig, TFormula_p arg1, TFormula_p arg2,
+                                  bool positive) 
 {
-   if(TFormulaIsPropConst(arg1, positive))
+   if(TFormulaIsPropConst(sig, arg1, positive))
    {
       return arg2;
    }
-   else if (TFormulaIsPropConst(arg2, positive))
+   else if (TFormulaIsPropConst(sig, arg2, positive))
    {
       return arg1;
    }
@@ -78,13 +79,14 @@ TFormula_p tprop_arg_return_other(TFormula_p arg1, TFormula_p arg2, bool positiv
 //
 /----------------------------------------------------------------------*/
 
-TFormula_p tprop_arg_return(TFormula_p arg1, TFormula_p arg2, bool positive)
+TFormula_p tprop_arg_return(Sig_p sig, TFormula_p arg1, TFormula_p arg2, 
+                            bool positive)
 {
-   if(TFormulaIsPropConst(arg1, positive))
+   if(TFormulaIsPropConst(sig, arg1, positive))
    {
       return arg1;
    }
-   else if (TFormulaIsPropConst(arg2, positive))
+   else if (TFormulaIsPropConst(sig, arg2, positive))
    {
       return arg2;
    }
@@ -644,6 +646,7 @@ TFormula_p TFormulaDefRename(TB_p bank, TFormula_p form, int polarity,
 }
 
 
+
 /*-----------------------------------------------------------------------
 //
 // Function: TFormulaFindDefs()
@@ -681,9 +684,11 @@ void TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity,
 
       TFormulaDefRename(bank, form, polarity, 
                         defs, renamed_forms);
-      return;
+      // And this potentially different polarity applies to
+      // subformulae, hence "return" is WRONG!!!
+      // return;
    }
-   /* Check if we want to rename Handle args[0] (we are doing depth
+   /* Check if we want to rename args[0] (we are doing depth
     * first). Also remember that we check if a _subformula_ should be
     * renamed! */
    if((form->f_code == bank->sig->and_code)||
@@ -861,116 +866,130 @@ TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form)
       assert(terms);
       form = TFormulaFCodeAlloc(terms, form->f_code, arg1, arg2);
    }
-   newform = form; /* Inelegant, fix when awake! */
-   if(form->f_code == terms->sig->not_code)
+   modified = true;
+   while(modified)
    {
-      if(TFormulaIsLiteral(terms->sig, form->args[0]))
+      //printf("Simplifying: ");
+      //TFormulaTPTPPrint(stdout, terms, form, true, false);
+      //printf("\n");
+      
+      modified = false;
+      newform = form; /* Inelegant, fix when awake! */
+      if(form->f_code == terms->sig->not_code)
       {
-         f_code = SigGetOtherEqnCode(terms->sig, form->args[0]->f_code);
-         newform = TFormulaFCodeAlloc(terms, f_code, 
-                                      form->args[0]->args[0],
-                                      form->args[0]->args[1]);
+         if(TFormulaIsLiteral(terms->sig, form->args[0]))
+         {
+            f_code = SigGetOtherEqnCode(terms->sig, form->args[0]->f_code);
+            newform = TFormulaFCodeAlloc(terms, f_code, 
+                                         form->args[0]->args[0],
+                                         form->args[0]->args[1]);
+         }
       }
-   }
-   else if(form->f_code == terms->sig->or_code)
-   {
-      if((handle = tprop_arg_return_other(form->args[0], form->args[1],
-                                          false)))
+      else if(form->f_code == terms->sig->or_code)
       {
-         newform = handle;
+         if((handle = tprop_arg_return_other(terms->sig, form->args[0], 
+                                             form->args[1], false)))
+         {
+            newform = handle;
+         }
+         else if((handle = tprop_arg_return(terms->sig, form->args[0],
+                                            form->args[1], true)))
+         {
+            newform = handle;
+         }
+         else if(TFormulaEqual(form->args[0], form->args[1]))
+         {
+            newform = form->args[0];
+         }
       }
-      else if((handle = tprop_arg_return(form->args[0], form->args[1],
-                                         true)))
+      else if(form->f_code == terms->sig->and_code)
       {
-         newform = handle;
+         if((handle = tprop_arg_return_other(terms->sig, form->args[0], 
+                                             form->args[1], true)))
+         {
+            newform = handle;
+         }
+         else if((handle = tprop_arg_return(terms->sig, form->args[0],
+                                            form->args[1], false)))
+         {
+            newform = handle;
+         }
+         else if(TFormulaEqual(form->args[0], form->args[1]))
+         {
+            newform = form->args[0];
+         }
       }
-      else if(TFormulaEqual(form->args[0], form->args[1]))
+      else if(form->f_code == terms->sig->equiv_code)
       {
-         newform = form->args[0];
+         if((handle = tprop_arg_return_other(terms->sig, form->args[0],
+                                             form->args[1], true)))
+         {
+            newform = handle;
+         }
+         else if((handle = tprop_arg_return_other(terms->sig, form->args[0], 
+                                                  form->args[1], false)))
+         {
+            newform = TFormulaFCodeAlloc(terms, terms->sig->not_code, 
+                                         handle, NULL);
+            newform = TFormulaSimplify(terms, newform);
+         }
+         else if(TFormulaEqual(form->args[0], form->args[1]))
+         {
+            newform = TFormulaPropConstantAlloc(terms, true);
+         }
       }
-   }
-   else if(form->f_code == terms->sig->and_code)
-   {
-      if((handle = tprop_arg_return_other(form->args[0], form->args[1],
-                                          true)))
+      else if(form->f_code == terms->sig->impl_code)
       {
-         newform = handle;
+         if(TFormulaIsPropTrue(terms->sig, form->args[0]))
+         {
+            newform = form->args[1];
+         }
+         else if(TFormulaIsPropFalse(terms->sig, form->args[0]))
+         {
+            newform = TFormulaPropConstantAlloc(terms, true);
+         }
+         else if(TFormulaIsPropFalse(terms->sig, form->args[1]))
+         {
+            newform = TFormulaFCodeAlloc(terms, terms->sig->not_code, 
+                                         form->args[0], NULL);
+            newform = TFormulaSimplify(terms, newform);
+         }
+         else if(TFormulaIsPropTrue(terms->sig, form->args[1]))
+         {
+            newform = TFormulaPropConstantAlloc(terms, true);
+         }
+         else if(TFormulaEqual(form->args[0], form->args[1]))
+         {
+            newform = TFormulaPropConstantAlloc(terms, true);
+         }
       }
-      else if((handle = tprop_arg_return(form->args[0], form->args[1],
-                                         false)))
+      else if(form->f_code == terms->sig->xor_code)
       {
-         newform = handle;
-      }
-      else if(TFormulaEqual(form->args[0], form->args[1]))
-      {
-         newform = form->args[0];
-      }
-   }
-   else if(form->f_code == terms->sig->equiv_code)
-   {
-      if((handle = tprop_arg_return_other(form->args[0], form->args[1],
-                                          true)))
-      {
-         newform = handle;
-      }
-      else if((handle = tprop_arg_return_other(form->args[0], form->args[1],
-                                               false)))
-      {
+         handle = TFormulaFCodeAlloc(terms, terms->sig->equiv_code, 
+                                     form->args[0], form->args[1]);
          newform = TFormulaFCodeAlloc(terms, terms->sig->not_code, 
                                       handle, NULL);
+         newform =  TFormulaSimplify(terms, newform);
+      }
+      else if(form->f_code == terms->sig->bimpl_code)
+      {
+         newform = TFormulaFCodeAlloc(terms, terms->sig->impl_code, 
+                                      form->args[1], form->args[0]);
          newform = TFormulaSimplify(terms, newform);
       }
-      else if(TFormulaEqual(form->args[0], form->args[1]))
+      else if((form->f_code == terms->sig->qex_code)||
+              (form->f_code == terms->sig->qex_code))
       {
-         newform = TFormulaPropConstantAlloc(terms, true);
+         if(!TFormulaVarIsFree(terms, form->args[1], form->args[0]))
+         {
+            newform = form->args[1];
+         }
       }
-   }
-   else if(form->f_code == terms->sig->impl_code)
-   {
-      if(TFormulaIsPropTrue(form->args[0]))
+      if(newform!=form)
       {
-         newform = form->args[1];
+         modified = true;
+         form = newform;
       }
-      else if(TFormulaIsPropFalse(form->args[0]))
-      {
-         newform = TFormulaPropConstantAlloc(terms, true);
-      }
-      else if(TFormulaIsPropFalse(form->args[1]))
-      {
-         newform = TFormulaFCodeAlloc(terms, terms->sig->not_code, 
-                                       form->args[0], NULL);
-         newform = TFormulaSimplify(terms, newform);
-      }
-      else if(TFormulaIsPropTrue(form->args[1]))
-      {
-         newform = TFormulaPropConstantAlloc(terms, true);
-      }
-      else if(TFormulaEqual(form->args[0], form->args[1]))
-      {
-         newform = TFormulaPropConstantAlloc(terms, true);
-      }
-   }
-   else if(form->f_code == terms->sig->xor_code)
-   {
-      handle = TFormulaFCodeAlloc(terms, terms->sig->equiv_code, 
-                                  form->args[0], form->args[1]);
-      newform = TFormulaFCodeAlloc(terms, terms->sig->not_code, 
-                                   handle, NULL);
-      newform =  TFormulaSimplify(terms, newform);
-   }
-   else if(form->f_code == terms->sig->bimpl_code)
-   {
-      newform = TFormulaFCodeAlloc(terms, terms->sig->impl_code, 
-                                  form->args[1], form->args[0]);
-      newform = TFormulaSimplify(terms, newform);
-   }
-   else if((form->f_code == terms->sig->qex_code)||
-           (form->f_code == terms->sig->qex_code))
-   {
-      if(!TFormulaVarIsFree(terms, form->args[1], form->args[0]))
-      {
-         newform = form->args[1];
-      }      
    }
    return newform;
 }

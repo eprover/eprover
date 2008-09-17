@@ -29,7 +29,6 @@ Changes
 /*---------------------------------------------------------------------*/
 
 long global_formula_counter = LONG_MIN;
-bool FormulaTermEncoding    = true;
 long FormulaDefLimit        = TFORM_RENAME_LIMIT;
 
 /*---------------------------------------------------------------------*/
@@ -68,7 +67,6 @@ WFormula_p DefaultWFormulaAlloc()
    handle->ident      = 0;
    handle->terms      = NULL;
    handle->info       = NULL;
-   handle->formula    = NULL;
    handle->tformula   = NULL;
    handle->set        = NULL;
    handle->pred       = NULL;
@@ -76,31 +74,6 @@ WFormula_p DefaultWFormulaAlloc()
 
    return handle;
 }
-
-/*-----------------------------------------------------------------------
-//
-// Function: WFormulaAlloc()
-//
-//   Allocate a wrapped formula given the essential information. id
-//   will automagically be set to a new value.
-//
-// Global Variables: FormulaIdentCounter
-//
-// Side Effects    : Via DefaultWFormulaAlloc()
-//
-/----------------------------------------------------------------------*/
-
-WFormula_p WFormulaAlloc(TB_p terms, Formula_p formula)
-{
-   WFormula_p handle = DefaultWFormulaAlloc();
-   
-   handle->terms   = terms;
-   handle->formula = FormulaGetRef(formula);
-   handle->ident   = ++global_formula_counter;   
-   
-   return handle;
-}
-
 
 /*-----------------------------------------------------------------------
 //
@@ -123,7 +96,6 @@ WFormula_p WTFormulaAlloc(TB_p terms, TFormula_p formula)
    handle->tformula = formula;
    handle->ident   = ++global_formula_counter;   
    
-   assert(!handle->formula);
    return handle;
 }
 
@@ -143,20 +115,13 @@ WFormula_p WTFormulaAlloc(TB_p terms, TFormula_p formula)
 void WFormulaFree(WFormula_p form)
 {
    assert(form);
-   assert(form->formula || form->tformula);
+   assert(form->tformula);
    assert(!form->set);
    assert(!form->pred);
    assert(!form->succ);
+   
+   /* tformula handled by Garbage Collection */
 
-   if(form->formula)
-   {
-      FormulaRelRef(form->formula);
-      FormulaFree(form->formula);
-   }
-   else
-   {
-      /* tformula handled by Garbage Collection */
-   }
    ClauseInfoFree(form->info);
    WFormulaCellFree(form);
 }
@@ -176,16 +141,25 @@ void WFormulaFree(WFormula_p form)
 
 void WFormulaGCMarkCells(WFormula_p form)
 {
-   if(form->formula)
-   {
-      /* Noting */
-   }   
-   else
-   {
       TFormulaGCMarkCells(form->terms, form->tformula);
-   }
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: WFormulaMarkPolarity()
+//
+//   Mark the polarity of all subformulas in form.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void WFormulaMarkPolarity(WFormula_p form)
+{
+   TFormulaMarkPolarity(form->terms, form->tformula, 1);
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -201,7 +175,6 @@ void WFormulaGCMarkCells(WFormula_p form)
 
 WFormula_p WFormulaTPTPParse(Scanner_p in, TB_p terms)
 {
-   Formula_p          form;
    TFormula_p         tform;
    WFormulaProperties type;
    WFormula_p         handle;
@@ -235,17 +208,10 @@ WFormula_p WFormulaTPTPParse(Scanner_p in, TB_p terms)
    }
    NextToken(in);
    AcceptInpTok(in, Comma);
-   if(FormulaTermEncoding)
-   {
-      tform = TFormulaTPTPParse(in, terms);
-      handle = WTFormulaAlloc(terms, tform);
-      assert(!handle->formula);
-   }
-   else
-   {      
-      form = FormulaTPTPParse(in, terms); /* TSTP = TPTP! */
-      handle = WFormulaAlloc(terms, form);
-   }   
+
+   tform = TFormulaTPTPParse(in, terms);
+   handle = WTFormulaAlloc(terms, tform);
+
    AcceptInpTok(in, CloseBracket);
    AcceptInpTok(in, Fullstop);
    FormulaSetType(handle, type);
@@ -300,14 +266,8 @@ void WFormulaTPTPPrint(FILE* out, WFormula_p form, bool fullterms)
       prefix = 'e';
    }
    fprintf(out, "input_formula(f%c_%ld,%s,", prefix, id, typename);
-   if(FormulaTermEncoding)
-   {
-      TFormulaTPTPPrint(out, form->terms, form->tformula,fullterms, false);
-   }
-   else
-   {
-      FormulaTPTPPrint(out, form->formula,fullterms, false);
-   }
+
+   TFormulaTPTPPrint(out, form->terms, form->tformula,fullterms, false);
    fprintf(out,").");   
 }
 
@@ -326,7 +286,6 @@ void WFormulaTPTPPrint(FILE* out, WFormula_p form, bool fullterms)
 
 WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
 {
-   Formula_p          form; 
    TFormula_p         tform; 
    WFormulaProperties type = WPTypeAxiom;
    WFormulaProperties initial = WPInputFormula;
@@ -374,16 +333,10 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
       type = WPTypeAxiom;
    } 
    AcceptInpTok(in, Comma);
-   if(FormulaTermEncoding)
-   {
-      tform = TFormulaTSTPParse(in, terms);
-      handle = WTFormulaAlloc(terms, tform);
-   }
-   else
-   {      
-      form = FormulaTSTPParse(in, terms); 
-      handle = WFormulaAlloc(terms, form);
-   }   
+
+   tform = TFormulaTSTPParse(in, terms);
+   handle = WTFormulaAlloc(terms, tform);
+
    if(TestInpTok(in, Comma))
    {
       AcceptInpTok(in, Comma);
@@ -462,14 +415,9 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
    }
    fprintf(out, "fof(%c_0_%ld, %s", prefix, id, typename);
    fprintf(out, ", (");   
-   if(FormulaTermEncoding)
-   {
-      TFormulaTPTPPrint(out, form->terms, form->tformula,fullterms, false);
-   }
-   else
-   {
-      FormulaTPTPPrint(out, form->formula,fullterms, false);
-   }
+
+   TFormulaTPTPPrint(out, form->terms, form->tformula,fullterms, false);
+
    fprintf(out, ") ");   
    if(complete)
    {
@@ -641,6 +589,32 @@ void FormulaSetGCMarkCells(FormulaSet_p set)
       handle = handle->succ;
    }
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaSetMarkPolarity()
+//
+//   Mark the polarity of all subformulas in set.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+void FormulaSetMarkPolarity(FormulaSet_p set)
+{
+   WFormula_p handle;
+   
+   handle = set->anchor->succ;
+   
+   while(handle!=set->anchor)
+   {
+      WFormulaMarkPolarity(handle);
+      handle = handle->succ;
+   }
+}
+
 
 /*-----------------------------------------------------------------------
 //

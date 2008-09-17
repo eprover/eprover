@@ -389,6 +389,28 @@ static TFormula_p assoc_tform_tstp_parse(Scanner_p in, TB_p terms, TFormula_p he
 /*---------------------------------------------------------------------*/
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: 
+//
+//   
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+bool TFormulaIsPropConst(Sig_p sig, TFormula_p form, bool positive)
+{
+   FunCode f_code = SigGetEqnCode(sig, positive);
+   
+   if(form->f_code!=f_code)
+   {
+      return false;
+   }
+   return (form->args[0]->f_code == SIG_TRUE_CODE)&&
+      (form->args[1]->f_code == SIG_TRUE_CODE);
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -866,12 +888,14 @@ TFormula_p TFormulaCreateDef(TB_p bank, TFormula_p def_atom, TFormula_p defined,
    {
    case -1:
          res = TFormulaFCodeAlloc(bank, bank->sig->impl_code, defined, def_atom);
+         assert(!TermCellQueryProp(defined, TPPosPolarity));
          break;
    case 0:
          res = TFormulaFCodeAlloc(bank, bank->sig->equiv_code, def_atom, defined);
          break;
    case 1:
          res = TFormulaFCodeAlloc(bank, bank->sig->impl_code, def_atom, defined);
+         assert(!TermCellQueryProp(defined, TPNegPolarity));
          break;
    default:
          assert(false && "Illegal polarity");
@@ -920,6 +944,108 @@ TFormula_p TFormulaClauseEncode(TB_p bank, Clause_p clause)
       }
    }   
    return res;
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaMarkPolarity()
+//
+//   For all subformulas of form, mark if they occur with positive
+//   and/or negative polarity. Assumes that the properties are
+//   properly reset!
+//
+// Global Variables: -
+//
+// Side Effects    :  -
+//
+/----------------------------------------------------------------------*/
+
+void TFormulaMarkPolarity(TB_p bank, TFormula_p form, int polarity)
+{
+   assert((polarity<=1) && (polarity >=-1));
+
+   if(TFormulaIsLiteral(bank->sig, form))
+   {
+      return;
+   }
+   switch(polarity)
+   {
+   case -1:
+         TermCellSetProp(form, TPNegPolarity);
+         break;
+   case 0:
+         TermCellSetProp(form, TPPosPolarity|TPNegPolarity);
+         break;
+   case 1:
+         TermCellSetProp(form, TPPosPolarity);
+         break;
+   default:
+         assert(false && "Impossible polarity in TFormulaMarkPolarity");
+   }
+
+   if((form->f_code == bank->sig->and_code)||
+      (form->f_code == bank->sig->or_code))
+   {
+      TFormulaMarkPolarity(bank, form->args[0], polarity);
+   }
+   else if((form->f_code == bank->sig->not_code)||
+           (form->f_code == bank->sig->impl_code))
+   {
+      TFormulaMarkPolarity(bank, form->args[0], -polarity);
+   }
+   else if((form->f_code == bank->sig->equiv_code))
+   {
+      TFormulaMarkPolarity(bank, form->args[0], 0);
+   }
+   /* Handle args[1] */
+   if((form->f_code == bank->sig->and_code)||
+      (form->f_code == bank->sig->or_code) ||
+      (form->f_code == bank->sig->impl_code)||
+      (form->f_code == bank->sig->qex_code)||
+      (form->f_code == bank->sig->qall_code))
+   {
+      TFormulaMarkPolarity(bank, form->args[1], polarity);
+   }
+   else if((form->f_code == bank->sig->equiv_code))
+   {
+      TFormulaMarkPolarity(bank, form->args[1], 0);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaDecodePolarity()
+//
+//   Return the polarity indicated by the polarity properties.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+int TFormulaDecodePolarity(TB_p bank, TFormula_p form)
+{
+   if(TermCellQueryProp(form, TPPosPolarity|TPNegPolarity))
+   {
+      return 0;
+   }
+   if(TermCellQueryProp(form, TPPosPolarity))
+   {
+      return 1;
+   }
+   if(TermCellQueryProp(form, TPNegPolarity))
+   {
+      return -1;
+   }
+   printf("No polarity\n");
+   TFormulaTPTPPrint(stdout, bank, form, true, false);            
+   printf("\n");
+   assert(false && "Formula without polarity !?!");
+   return 0;
 }
 
 

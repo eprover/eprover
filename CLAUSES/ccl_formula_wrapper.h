@@ -26,7 +26,7 @@ Changes
 
 #define CCL_FORMULA_WRAPPER
 
-#include <ccl_formulae.h>
+//#include <ccl_formulae.h>
 #include <ccl_tformulae.h>
 
 /*---------------------------------------------------------------------*/
@@ -57,7 +57,6 @@ typedef struct wformula_cell
    long                  ident;
    TB_p                  terms;
    ClauseInfo_p          info;
-   Formula_p             formula;
    TFormula_p            tformula;
    struct formula_set_cell* set;      /* Is the formula in a set? */
    struct wformula_cell* pred;        /* For fomula sets = doubly  */
@@ -97,10 +96,10 @@ extern long FormulaDefLimit;
 #define WFormulaCellFree(junk) SizeFree(junk, sizeof(WFormulaCell))
 
 WFormula_p DefaultWFormulaAlloc();
-WFormula_p WFormulaAlloc(TB_p terms, Formula_p formula);
 WFormula_p WTFormulaAlloc(TB_p terms, TFormula_p formula);
 void       WFormulaFree(WFormula_p form);
 void       WFormulaGCMarkCells(WFormula_p form);
+void       WFormulaMarkPolarity(WFormula_p form);
 
 WFormula_p WFormulaTPTPParse(Scanner_p in, TB_p terms);
 void       WFormulaTPTPPrint(FILE* out, WFormula_p form, bool fullterms);
@@ -118,6 +117,7 @@ FormulaSet_p FormulaSetAlloc();
 void         FormulaSetFreeFormulas(FormulaSet_p set);
 void         FormulaSetFree(FormulaSet_p set);
 void         FormulaSetGCMarkCells(FormulaSet_p set);
+void         FormulaSetMarkPolarity(FormulaSet_p set);
 void         FormulaSetInsert(FormulaSet_p set, WFormula_p newform);
 long         FormulaSetInsertSet(FormulaSet_p set, FormulaSet_p from);
 WFormula_p   FormulaSetExtractEntry(WFormula_p form);

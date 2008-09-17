@@ -35,8 +35,8 @@ include ../Makefile.services
 
 CLAUSE_LIB = ccl_evaluations.o ccl_eqn.o ccl_eqnlist.o \
              ccl_clauseinfo.o ccl_clauses.o\
-             ccl_formulae.o ccl_tformulae.o ccl_formula_wrapper.o \
-             ccl_cnf.o ccl_tcnf.o \
+	     ccl_tformulae.o ccl_formula_wrapper.o \
+             ccl_tcnf.o \
              ccl_propclauses.o\
              ccl_tautologies.o ccl_clausepos.o ccl_pdtrees.o ccl_freqvectors.o \
              ccl_fcvindexing.o ccl_clausesets.o ccl_unfold_defs.o\

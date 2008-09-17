@@ -40,71 +40,6 @@ Changes
 /*---------------------------------------------------------------------*/
 
 
-/*-----------------------------------------------------------------------
-//
-// Function: formula_collect_clause()
-//
-//   Given a formula that is a disjunction of literals, transform it
-//   into a clause.
-//
-// Global Variables: -
-//
-// Side Effects    : Same as in FormulaConjunctiveToCNF() below.
-//
-/----------------------------------------------------------------------*/
-
-Clause_p formula_collect_clause(Formula_p form, TB_p terms, 
-                                VarBank_p fresh_vars)
-{
-   Clause_p res;
-   Eqn_p lit_list = NULL, tmp_list = NULL, lit;
-   PStack_p stack, lit_stack = PStackAlloc();
-   Subst_p  normsubst = SubstAlloc();
-
-   stack = PStackAlloc();
-   PStackPushP(stack, form);
-   while(!PStackEmpty(stack))
-   {
-      form = PStackPopP(stack);
-      switch(form->op)
-      {
-      case OpIsLit:
-            PStackPushP(lit_stack, form->special.literal);
-            EqnDelProp(form->special.literal, EPIsUsed);
-            break;
-      case OpBOr:
-            PStackPushP(stack, form->arg1);
-            PStackPushP(stack, form->arg2);
-            break;
-      default:
-            assert(false && "Formula does not describe a clause.");
-            break;
-      }
-   }
-   PStackFree(stack);
-   while(!PStackEmpty(lit_stack))
-   {
-      lit = PStackPopP(lit_stack);
-      if(!EqnQueryProp(lit, EPIsUsed))
-      {
-         EqnListInsertFirst(&lit_list, lit);
-         EqnSetProp(lit, EPIsUsed);
-      }
-   }
-   PStackFree(lit_stack);
-
-   VarBankResetVCount(fresh_vars);
-   NormSubstEqnList(lit_list, normsubst, fresh_vars);   
-   tmp_list = EqnListCopy(lit_list, terms);
-   res = ClauseAlloc(tmp_list);   
-   /* ClausePrint(stdout, res, true);
-      printf("\n");*/
-   /* We could disassemble lit_list now, but don't have to. tmp_list
-    * is, *OF COURSE* consumed by ClauseAlloc(). This comment has no
-    * background story.*/
-   SubstDelete(normsubst);                    
-   return res;
-}
 
 
 
@@ -282,29 +217,48 @@ static void check_all_found(Scanner_p in, StrTree_p name_selector)
 
 bool WFormulaConjectureNegate(WFormula_p wform)
 {
-   Formula_p form, newform;
-
    if(FormulaQueryProp(wform, WPTypeConjecture)) 
    {
-      if(FormulaTermEncoding)
-      {
-         wform->tformula = TFormulaFCodeAlloc(wform->terms,
-                                              wform->terms->sig->not_code,
-                                              wform->tformula,
-                                              NULL);
-      }
-      else
-      {
-         form = FormulaRelRef(wform->formula);
-         newform = FormulaOpAlloc(OpUNot, form, NULL);
-         wform->formula = FormulaGetRef(newform);
-      }
-         FormulaSetType(wform, WPTypeNegConjecture);
-         DocFormulaModificationDefault(wform, inf_neg_conjecture);
+      wform->tformula = TFormulaFCodeAlloc(wform->terms,
+                                           wform->terms->sig->not_code,
+                                           wform->tformula,
+                                           NULL);
+      FormulaSetType(wform, WPTypeNegConjecture);
+      DocFormulaModificationDefault(wform, inf_neg_conjecture);
       return true;
    }
    return false;
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: WFormulaSimplify()
+//
+//   Apply standard simplifications to the wrapped formula. Return
+//   true if the formula has changed. Outputs inferences!
+//
+// Global Variables: -
+//
+// Side Effects    : Output, memory operations.
+//
+/----------------------------------------------------------------------*/
+
+bool WFormulaSimplify(WFormula_p form, TB_p terms)
+{
+   TFormula_p simplified;
+   bool res = false;
+
+   simplified = TFormulaSimplify(terms, form->tformula);
+   if(simplified!=form->tformula)
+   {
+      form->tformula = simplified;
+      DocFormulaModificationDefault(form, inf_fof_simpl);
+      res = true;
+   }
+   return res;
+}
+
 
 
 /*-----------------------------------------------------------------------
@@ -357,20 +311,59 @@ long FormulaSetPreprocConjectures(FormulaSet_p set)
 long WFormulaCNF(WFormula_p form, ClauseSet_p set, 
                  TB_p terms, VarBank_p fresh_vars)
 {
-   if(FormulaTermEncoding)
-   {
-      WTFormulaConjunctiveNF(form, terms);     
-      return TFormulaToCNF(form, FormulaQueryType(form), 
-                           set, terms, fresh_vars);
-   }
-   else
-   {
-      WFormulaConjunctiveNF(form, terms);
-      return FormulaToCNF(form, FormulaQueryType(form), 
-                          set, terms, fresh_vars);
-   }
+   WTFormulaConjunctiveNF(form, terms);     
+   return TFormulaToCNF(form, FormulaQueryType(form), 
+                        set, terms, fresh_vars);
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaSetSimplify()
+//
+//   Apply standard FOF simplification rules to all formulae in the
+//   set. Returns numer of changed formulas.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes formulas, output of inference steps.
+//
+/----------------------------------------------------------------------*/
+
+long FormulaSetSimplify(FormulaSet_p set, TB_p terms)
+{
+   WFormula_p handle;
+   long res = 0;
+   long old_nodes = TBNonVarTermNodes(terms);
+   long gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
+   bool changed;
+
+   handle = set->anchor->succ;   
+   while(handle!=set->anchor)
+   {
+      changed =  WFormulaSimplify(handle, terms);
+      if(changed)
+      {
+         res++;
+         if(TBNonVarTermNodes(terms)>gc_threshold)
+         {
+            assert(terms == handle->terms);
+            FormulaSetGCMarkCells(set);
+            TBGCSweep(handle->terms);
+            old_nodes = TBNonVarTermNodes(terms);
+            gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
+         }
+      }
+      handle = handle->succ;
+   }
+   if(TBNonVarTermNodes(terms)!=old_nodes)
+   {
+      FormulaSetGCMarkCells(set);
+      TBGCSweep(terms);
+   }  
+   return res;
+   
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -393,10 +386,8 @@ long FormulaSetCNF(FormulaSet_p set, ClauseSet_p clauseset,
    long old_nodes = TBNonVarTermNodes(terms);
    long gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
 
-   if(FormulaTermEncoding)
-   {
-      TFormulaSetIntroduceDefs(set, terms);
-   }
+   FormulaSetSimplify(set, terms);
+   TFormulaSetIntroduceDefs(set, terms);
 
    handle = set->anchor->succ;   
    while(handle!=set->anchor)
@@ -532,60 +523,6 @@ long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset,
 
 /*-----------------------------------------------------------------------
 //
-// Function: FormulaConjunctiveToCNF()
-//
-//   Convert a formula from conjunctive normal form into a set of
-//   (variable-normalized) clauses. Return number of clauses
-//   generated. 
-//
-// Global Variables: -
-//
-// Side Effects    : Memory operations, may allocate new variables in
-//                   fresh_vars, may create new terms in the term
-//                   bank, manipulates next pointers in literals (they
-//                   keep pointing somewhere, but that should have no
-//                   significance). 
-//
-/----------------------------------------------------------------------*/
-
-long FormulaToCNF(WFormula_p form, ClauseProperties type, ClauseSet_p set, 
-                  TB_p terms, VarBank_p fresh_vars)
-{
-   Formula_p handle;
-   long old_clause_number = set->members;
-   PStack_p stack = PStackAlloc();
-   Clause_p clause;
-
-   /* Skip quantors */
-   for(handle = form->formula; handle->op == OpQAll; handle = handle->arg1)
-   {
-      assert(handle);
-   }
-
-   PStackPushP(stack, handle);
-   while(!PStackEmpty(stack))
-   {
-      handle = PStackPopP(stack);
-      if(handle->op == OpBAnd)
-      {
-         PStackPushP(stack, handle->arg1);
-         PStackPushP(stack, handle->arg2);
-      }
-      else
-      {
-         clause = formula_collect_clause(handle, terms, fresh_vars);
-         ClauseSetTPTPType(clause, type);
-         DocClauseFromForm(GlobalOut, OutputLevel, clause, form);
-         ClauseSetInsert(set, clause);
-      }
-   }
-   PStackFree(stack);
-   return set->members - old_clause_number;
-}
-
-
-/*-----------------------------------------------------------------------
-//
 // Function: TFormulaConjunctiveToCNF()
 //
 //   Convert a term-encoded formula from conjunctive normal form into
@@ -669,7 +606,7 @@ void TFormulaSetDelTermpProp(FormulaSet_p set, TermProperties prop)
 // Function: TFormulaSetFindDefs()
 //
 //   Go through a set of formulas and generate and record all
-//   necessary definitions.
+//   necessary definitions. Assumes that the formulas are simplified!
 //
 // Global Variables: -
 //
@@ -681,29 +618,11 @@ void TFormulaSetFindDefs(FormulaSet_p set, TB_p terms, NumTree_p *defs,
                          PStack_p renamed_forms)
 {
    WFormula_p handle;
-   TFormula_p form;
 
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
           handle->succ)
    {
       assert(handle->tformula);
-      
-      /* This is rather ugly. We want to simplify the code before
-         introducing definitions, as a) it may lead to less of them and
-         b) it safes us from handling the weird operators (<~>, <=) in
-         definitions. On the other hand, this further breaks symmetry
-         with the original case, and currently leads to double
-         simplification (I think the second one is unecessary, but we
-         may not always go there...). */
-      form = TFormulaSimplify(terms, handle->tformula);
-      if(form!=handle->tformula)
-      {
-         handle->tformula = form;
-         DocFormulaModificationDefault(handle, inf_fof_simpl);
-      }
-      /* printf("Finding defs for: ");     
-      WFormulaTPTPPrint(GlobalOut, handle, true);
-      printf("\n");*/
       
       if(handle->tformula && FormulaDefLimit)
       {
@@ -779,7 +698,8 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, TB_p terms)
    long       polarity;
    WFormula_p w_def, formula;
 
-   TFormulaSetDelTermpProp(set, TPCheckFlag);
+   TFormulaSetDelTermpProp(set, TPCheckFlag|TPPosPolarity|TPNegPolarity);
+   FormulaSetMarkPolarity(set);
 
    TFormulaSetFindDefs(set, terms, &defs, renamed_forms);
    
@@ -791,7 +711,8 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, TB_p terms)
       assert(cell);
       polarity = cell->val1.i_val;
       def      = cell->val2.p_val;
-      newdef = TFormulaCreateDef(terms, def, form, polarity);
+      newdef = TFormulaCreateDef(terms, def, form, 
+                                 TFormulaDecodePolarity(terms, form));
       w_def = WTFormulaAlloc(terms, newdef);
       FormulaSetInsert(set, w_def);      
       DocFormulaCreationDefault(w_def, inf_fof_intro_def, NULL, NULL);

@@ -64,6 +64,7 @@ TFormula_p TFormulaDistributeDisjunctions(TB_p terms, TFormula_p form);
 void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms);
 
 
+
 #endif
 
 /*---------------------------------------------------------------------*/

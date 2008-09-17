@@ -52,13 +52,12 @@ typedef Term_p TFormula_p;
 #define   TFormulaIsQuantified(sig,form)\
           ((form)->f_code == sig->qex_code || (form)->f_code == sig->qall_code )
 #define   TFormulaIsLiteral(sig,form)    (SigIsPredicate((sig), (form)->f_code))
-#define   TFormulaIsPropConst(form, positive)\
-          ((positive)?((form)->f_code == SIG_TRUE_CODE):\
-                      ((form)->f_code == SIG_FALSE_CODE))
 
-#define   TFormulaIsPropTrue(form)  ((form)->f_code == SIG_TRUE_CODE)
-#define   TFormulaIsPropFalse(form) ((form)->f_code == SIG_FALSE_CODE)
 
+bool TFormulaIsPropConst(Sig_p sig, TFormula_p form, bool positive);
+
+#define   TFormulaIsPropTrue(sig, form)  TFormulaIsPropConst(sig, form, true)
+#define   TFormulaIsPropFalse(sig, form) TFormulaIsPropConst(sig, form, false)
 
 #define    TFormulaGCMarkCells(bank, form) TBGCMarkTerm((bank),(form))
 TFormula_p TFormulaFCodeAlloc(TB_p bank, FunCode op, TFormula_p arg1, TFormula_p arg2);
@@ -83,6 +82,10 @@ TFormula_p TFormulaCreateDef(TB_p bank, TFormula_p def_atom, TFormula_p defined,
                              int polarity); 
 
 #define   TFormulaFindMaxVarCode(form) TermFindMaxVarCode(form)
+
+void       TFormulaMarkPolarity(TB_p bank, TFormula_p form, int polarity);
+int        TFormulaDecodePolarity(TB_p bank, TFormula_p form);
+//int        TFormulaDecodePolarity(TFormula_p form);
 
 TFormula_p TFormulaClauseEncode(TB_p bank, Clause_p clause);
 TFormula_p TFormulaClauseClosedEncode(TB_p bank, Clause_p clause);
