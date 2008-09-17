@@ -67,7 +67,7 @@ void PCLStepFree(PCLStep_p junk)
    }
    else
    {
-      FormulaFree(junk->logic.formula);
+      /* tformula collected by garbage collector */
    }
    PCLExprFree(junk->just);
    if(junk->extra)
@@ -142,7 +142,8 @@ PCLStep_p PCLStepParse(Scanner_p in, TB_p bank)
    
    assert(in);
    assert(bank);
-   
+
+   handle->bank = bank;
    PCLStepResetTreeData(handle, false);
    handle->id = PCLIdParse(in);
    AcceptInpTok(in, Colon);
@@ -155,7 +156,7 @@ PCLStep_p PCLStepParse(Scanner_p in, TB_p bank)
    }
    else
    {
-      handle->logic.formula = FormulaTPTPParse(in, bank);
+      handle->logic.formula = TFormulaTPTPParse(in, bank);
       PCLStepSetProp(handle, PCLIsFOFStep);
    }
    AcceptInpTok(in, Colon);
@@ -239,7 +240,7 @@ void PCLStepPrintExtra(FILE* out, PCLStep_p step, bool data)
    fputs(" : ", out);   
    if(PCLStepIsFOF(step))
    {
-      FormulaTPTPPrint(out, step->logic.formula, true, true);
+      TFormulaTPTPPrint(out, step->bank, step->logic.formula, true, true);
    }
    else
    {
@@ -355,7 +356,7 @@ void PCLStepPrintTSTP(FILE* out, PCLStep_p step)
       fputc(',', out);
       fputs(PCLPropToTSTPType(step->properties), out);
       fputc(',', out);
-      FormulaTPTPPrint(out, step->logic.formula, true, true);      
+      TFormulaTPTPPrint(out, step->bank, step->logic.formula, true, true);      
    }
    fputc(',', out);   
    PCLExprPrintTSTP(out, step->just, false);
@@ -399,7 +400,7 @@ void PCLStepPrintTPTP(FILE* out, PCLStep_p step)
       fputc(',', out);
       fputs(PCLPropToTSTPType(step->properties), out);
       fputc(',', out);
-      FormulaTPTPPrint(out, step->logic.formula, true, true);
+      TFormulaTPTPPrint(out, step->bank, step->logic.formula, true, true);
       fputc(')',out);
    }
 }
@@ -427,7 +428,7 @@ void PCLStepPrintLOP(FILE* out, PCLStep_p step)
    }
    else
    {
-      FormulaTPTPPrint(out, step->logic.formula, true, true);
+      TFormulaTPTPPrint(out, step->bank, step->logic.formula, true, true);
    }
 }
 

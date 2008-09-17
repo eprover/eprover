@@ -676,7 +676,8 @@ ClauseSet_p PCLGenerateCheck(PCLProt_p prot, PCLStep_p step)
    }
    else
    {
-      assert(step->just->op == PCLOpInitial);
+      // assert(step->just->op == PCLOpInitial);
+      // Not true as long as no FOF support is there
       ClauseSetFree(set);
       set = NULL;
    }   

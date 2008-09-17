@@ -59,8 +59,10 @@ Changes
 PCLProt_p PCLProtAlloc(void)
 {
    PCLProt_p handle = PCLProtCellAlloc();
+   Sig_p sig = SigAlloc();
 
-   handle->terms = TBAlloc(SigAlloc());
+   SigInsertFOFCodes(sig);
+   handle->terms = TBAlloc(sig);
    handle->number = 0;
    handle->steps = NULL;
    handle->in_order = PStackAlloc();

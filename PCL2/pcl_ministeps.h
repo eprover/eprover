@@ -34,11 +34,12 @@ Changes
 
 typedef struct pclministepcell
 {
+   TB_p             bank;
    unsigned long id;
    union
    {
       MiniClause_p  clause;
-      Formula_p     formula;
+      TFormula_p    formula;
    }logic;
    PCLStepProperties properties;
    PCLExpr_p just;

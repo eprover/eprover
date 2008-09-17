@@ -61,11 +61,12 @@ typedef enum
 
 typedef struct pclstepcell
 {
+   TB_p              bank;
    PCLId_p           id;
    union
    {
       Clause_p          clause;
-      Formula_p         formula;
+      TFormula_p        formula;
    }logic;
    PCLExpr_p         just;
    char*             extra;

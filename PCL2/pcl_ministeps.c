@@ -62,7 +62,7 @@ void PCLMiniStepFree(PCLMiniStep_p junk)
    
    if(PCLStepIsFOF(junk))
    {
-      FormulaFree(junk->logic.formula);
+      /* Formua is garbage collected */
    }
    else
    {
@@ -95,7 +95,8 @@ PCLMiniStep_p PCLMiniStepParse(Scanner_p in, TB_p bank)
    
    assert(in);
    assert(bank);
-   
+
+   handle->bank = bank;
    handle->id = ParseInt(in);
    if(TestInpTok(in, Fullstop))
    {
@@ -114,7 +115,7 @@ PCLMiniStep_p PCLMiniStepParse(Scanner_p in, TB_p bank)
    }
    else
    {
-      handle->logic.formula = FormulaTPTPParse(in, bank);
+      handle->logic.formula = TFormulaTPTPParse(in, bank);
       PCLStepSetProp(handle, PCLIsFOFStep);
    }
    AcceptInpTok(in, Colon);
@@ -160,7 +161,7 @@ void PCLMiniStepPrint(FILE* out, PCLMiniStep_p step, TB_p bank)
    fputs(" : ", out);   
    if(PCLStepIsFOF(step))
    {
-      FormulaTPTPPrint(out, step->logic.formula, true, true);
+      TFormulaTPTPPrint(out, step->bank, step->logic.formula, true, true);
    }
    else
    {
@@ -201,7 +202,7 @@ void PCLMiniStepPrintTSTP(FILE* out, PCLMiniStep_p step, TB_p bank)
    {
       fprintf(out, "fof(%ld, %s,", step->id,
               PCLPropToTSTPType(step->properties));
-      FormulaTPTPPrint(out, step->logic.formula, true, true);      
+      TFormulaTPTPPrint(out, step->bank, step->logic.formula, true, true);      
    }
    fputc(',', out);   
    PCLExprPrintTSTP(out, step->just, true);
