@@ -18,7 +18,7 @@
 #
 #------------------------------------------------------------------------
 
-.PHONY: all warn depend remove_links clean default_config debug_config distrib fulldistrib top links tags tools rebuild install install-exec remake documentation E
+.PHONY: all depend remove_links clean default_config debug_config distrib fulldistrib top links tags tools rebuild install configure remake documentation E
 
  include Makefile.vars
 
@@ -32,25 +32,8 @@ HEADERS  = $(LIBS) EXTERNAL
 CODE     = $(LIBS) PROVER TEST SIMPLE_APPS EXTERNAL
 PARTS    = $(CODE) DOC
 
-all: warn E
+all: E
 
-# Warn uninformed first-time installers, e.g. Bernd Loechner ;-)
-
-warn:
-	@echo "If you try to install E (instead of just remaking"
-	@echo "the system after a change), you need to type"
-	@echo ""
-	@echo "    make install"
-	@echo ""
-	@echo "instead of plain make. Installing will rebuild the"
-	@echo "system from scratch and adapt all scripts to run in the"
-	@echo "current directory and with the tools found on your"
-	@echo "system (if any). If you just want to rebuild the system"
-	@echo "without  configuration, use"
-	@echo ""
-	@echo "    make rebuild"
-	@echo ""
-	@echo "-------------------------------------------------"
 
 # Generate dependencies
 
@@ -126,52 +109,44 @@ tools:
 rebuild:
 	echo 'Rebuilding with debug options $(DEBUGFLAGS)'	
 	$(MAKE) clean
-	$(MAKE) links
-	$(MAKE) depend
+	$(MAKE) configure
 	$(MAKE)
 
-# Install the complete library
+# Configure the whole package
 
-install: 
-	echo 'Installing and configuring in place!'
+configure: 
+	echo 'Configuring build system and tools'
+	$(MAKE) links
 	$(MAKE) tools
-	$(MAKE) rebuild
+	$(MAKE) depend
 
-
-# Red Hat has smeared a badly broken version of gcc all over the Linux
-# world. If gcc -v answers with something containing 2.96 go and bash
-# your vendor repeatedly. However, all systems configured to build the
-# kernel have an unbroken (if ancient) gcc installed as kgcc. Try
-# building E with "make install-with-broken-gcc-but-kgcc-available" to
-# work around the broken compiler.
-
-install-with-broken-gcc-but-kgcc-available: 
-	echo 'Configuring for kgcc'
-	sed -e 's/CC         = gcc/CC         = kgcc/' Makefile.vars > __tmpmake__
-	mv __tmpmake__ Makefile.vars
-	make install
 
 # Configure and copy executables to the installation directory
 
-install-exec:	
-	@echo "#!"`which bash`" -f" > tmpfile
-	@echo "" >> tmpfile
-	@echo "EXECPATH=$(EXECPATH)" >> tmpfile
-	@awk '{count++; if(count >= 4){print}}' PROVER/eproof >> tmpfile
-	@mv tmpfile PROVER/eproof
+# Old eproof config - I hope it now runs with /bin/sh, which is 
+# guaranteed to be where it belongs. Kept as a historical reference.
+# 	@echo "#!"`which bash`" -f" > tmpfile
+#	@echo "" >> tmpfile
+#	@echo "EXECPATH=$(EXECPATH)" >> tmpfile
+#	@awk '{count++; if(count >= 4){print}}' PROVER/eproof >> tmpfile
+#	@mv tmpfile PROVER/eproof
+
+
+install:	
 	@chmod ugo+x PROVER/eproof
-	bash -c 'cp PROVER/eprover $(EXECPATH)'
-	bash -c 'cp PROVER/epclextract $(EXECPATH)'
-	bash -c 'cp PROVER/eproof $(EXECPATH)'
-	bash -c 'cp  PROVER/eground $(EXECPATH)'	
-#	bash -c 'install -c $(EXECPATH) PROVER/eprover'
-#	bash -c 'install -c $(EXECPATH) PROVER/e2pcl'
-#	bash -c 'install -c $(EXECPATH) PROVER/eproof'
-#	bash -c 'install -c $(EXECPATH) PROVER/eground'
+	-sh -c 'mkdir -p $(EXECPATH)'
+	-sh -c 'cp PROVER/eprover $(EXECPATH)'
+	-sh -c 'cp PROVER/epclextract $(EXECPATH)'
+	-sh -c 'cp PROVER/eproof $(EXECPATH)'
+	-sh -c 'cp  PROVER/eground $(EXECPATH)'	
+#	sh -c 'install -c $(EXECPATH) PROVER/eprover'
+#	sh -c 'install -c $(EXECPATH) PROVER/e2pcl'
+#	sh -c 'install -c $(EXECPATH) PROVER/eproof'
+#	sh -c 'install -c $(EXECPATH) PROVER/eground'
 
 # Also remake documentation
 
-remake: install documentation
+remake: configure rebuild documentation
 
 documentation:
 	cd DOC; $(MAKE)

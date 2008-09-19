@@ -14,7 +14,7 @@
 #
 #------------------------------------------------------------------------
 
-.PHONY: distrib fulldistrib top links install rebuild
+.PHONY: distrib fulldistrib top links rebuild
 
 distrib:
 	cd ..; $(MAKE) distrib
@@ -27,9 +27,6 @@ top:
 
 links: 
 	cd ..; $(MAKE) links
-
-install: 
-	cd ..; $(MAKE) install
 
 rebuild: 
 	cd ..; $(MAKE) rebuild

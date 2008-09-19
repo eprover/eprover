@@ -1,25 +1,23 @@
 Short Installation Instructions for the impatient
 -------------------------------------------------
 
-For CASC-J4 instructions, see DOC/ReadMe.
-
-This assumes that you have GNU tar, bash and gawk in your search path!
+This assumes that you have GNU tar, sh and gawk in your search path! 
 
 Simple installation (will install executables):
 
 > tar -xzf E.tgz 
 > cd E
-> vi Makefile.vars
-> Set EXECPATH to the directory the programs should live in
+> ./configure --bindir=/path/to/EXECDIR
+> make
 > make install
-> make install-exec
 > /path/to/EXECDIR/eprover -h | more
 
 Simplest installation (in-place):
 
 > tar -xzf E.tgz 
 > cd E
-> make install
+> ./configure
+> make
 > cd PROVER
 > eprover -h | more
 
@@ -117,20 +115,36 @@ this, you probably already did):
 
   (g)tar -xzf E.tgz   (if you have GNU tar)
 
-This should create a directory named E. After unpacking, edit
-E/Makefile.vars to your liking. In particular, if building for HPUX,
-comment out the suitable CFLAGS definition (for most systems, the
-default definition should be ok).
+This should create a directory named E. After unpacking, optionally
+edit E/Makefile.vars to your liking. In particular, if building for
+HPUX, comment out the suitable CFLAGS definition (for most systems,
+the default definition should be ok). Then change to the E directory: 
 
   cd E
+
+Determine if you want to run E from it's own build directory or wether
+you want to install the executables in some other directory
+EXECDIR. In the firs case, run
+
+   ./configure
+
+otherwise
+
+   ./configure --bindir=EXECDIR
+
+Then type 
+
+   make
+
+
+to compile the library and all included programs under the E
+directory. If you want to install E in a particular EXECDIR, type
+
   make install
 
-to compile and install the library and all included programs under the
-E directory. If you want to use the wrapper script "eproof" anywhere
-except in the E/PROVER directory, set the EXECPATH variable in
-Makefile.vars to a suitable directory and type
-
-  make install-exec
+You must have write permission in the EXECDIR, so if you install E
+outside your own home directory, you may need to become root or use
+sudo. 
 
 Type 
 
@@ -140,8 +154,8 @@ to translate the rudimentary LaTeX documentation (this requires
 LaTeX2e, pdflatex, and the packages theorem, amssymb and epsfig, which
 are included in most current LaTeX distributions). For some operating
 systems, especially if you do not have the GNU gcc compiler installed,
-you may need to edit Makefile.vars to select tools and options. If you
-have any problems, look into E/DOC/PORTING.
+you may need to edit Makefile.vars manually to select tools and
+options. If you have any problems, look into E/DOC/PORTING.
 
 After installation, go to E/PROVER and type 
 
@@ -239,6 +253,14 @@ EXTERNAL:
   - Code that does not belong to the core prover but uses it or parts
     of it. Not fully maintained by me, check the headers.
 
+devopment_tools:
+  - Various tools for working with large scale experimental test runs,
+    mostly shell or awk scripts. Probably not useful for
+    non-developers, certainly not documented.
+
+PYTHON:
+  - More complex tools for large scale experimental evaluation. See
+    previous comment.
 
 
 
