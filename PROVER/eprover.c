@@ -36,8 +36,8 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-/*  cvs tag E-1-0-pre006 */
-#define VERSION      "1.0.pre006"
+/*  cvs tag E-1-0-pre007 */
+#define VERSION      "1.0.pre007"
 #define NAME         "eprover"
 
 #define NICKNAME     "Temi"

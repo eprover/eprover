@@ -107,6 +107,7 @@ done
 
 echo "Configuring with executable path "$EXECPATH
 
-sed -i -e "/^EXECPATH =.*/{s|.*|EXECPATH = $EXECPATH|}" Makefile.vars 
+sed -e "/^EXECPATH =.*/s|.*|EXECPATH = $EXECPATH|" Makefile.vars > tmpfile
+mv tmpfile Makefile.vars
 
-make configure
+make config

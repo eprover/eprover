@@ -18,7 +18,7 @@
 #
 #------------------------------------------------------------------------
 
-.PHONY: all depend remove_links clean default_config debug_config distrib fulldistrib top links tags tools rebuild install configure remake documentation E
+.PHONY: all depend remove_links clean default_config debug_config distrib fulldistrib top links tags tools rebuild install config remake documentation E
 
  include Makefile.vars
 
@@ -110,13 +110,13 @@ tools:
 rebuild:
 	echo 'Rebuilding with debug options $(DEBUGFLAGS)'	
 	$(MAKE) clean
-	$(MAKE) configure
+	$(MAKE) config
 	$(MAKE) depend
 	$(MAKE)
 
 # Configure the whole package
 
-configure: 
+config: 
 	echo 'Configuring build system and tools'
 	$(MAKE) links
 	$(MAKE) tools
@@ -148,7 +148,7 @@ install:
 
 # Also remake documentation
 
-remake: configure rebuild documentation
+remake: config rebuild documentation
 
 documentation:
 	cd DOC; $(MAKE)
