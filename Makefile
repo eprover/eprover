@@ -99,6 +99,7 @@ links: remove_links
 
 tags: 
 	etags */*.c */*.h
+	cd PYTHON; make tags
 
 tools:
 	cd development_tools;$(MAKE) tools
@@ -110,6 +111,7 @@ rebuild:
 	echo 'Rebuilding with debug options $(DEBUGFLAGS)'	
 	$(MAKE) clean
 	$(MAKE) configure
+	$(MAKE) depend
 	$(MAKE)
 
 # Configure the whole package
