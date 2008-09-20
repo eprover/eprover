@@ -110,4 +110,8 @@ echo "Configuring with executable path "$EXECPATH
 sed -e "/^EXECPATH =.*/s|.*|EXECPATH = $EXECPATH|" Makefile.vars > tmpfile
 mv tmpfile Makefile.vars
 
+sed -e "/^EXECPATH=.*/s|.*|EXECPATH=$EXECPATH|" PROVER/eproof > tmpfile
+mv tmpfile PROVER/eproof
+chmod ugo+x PROVER/eproof
+
 make config

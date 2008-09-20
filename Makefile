@@ -135,7 +135,6 @@ config:
 
 
 install:	
-	@chmod ugo+x PROVER/eproof
 	-sh -c 'mkdir -p $(EXECPATH)'
 	-sh -c 'cp PROVER/eprover $(EXECPATH)'
 	-sh -c 'cp PROVER/epclextract $(EXECPATH)'
