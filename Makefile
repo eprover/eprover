@@ -18,7 +18,7 @@
 #
 #------------------------------------------------------------------------
 
-.PHONY: all depend remove_links clean default_config debug_config distrib fulldistrib top links tags tools rebuild install config remake documentation E
+.PHONY: all depend remove_links clean cleandist default_config debug_config distrib fulldistrib top links tags tools rebuild install config remake documentation E
 
  include Makefile.vars
 
@@ -48,10 +48,16 @@ remove_links:
 	cd include; touch does_exist.h; rm *.h
 	cd lib; touch does_exist.a; rm *.a
 
+
 clean: remove_links
 	for subdir in $(PARTS); do\
 	   cd $$subdir; touch Makefile.dependencies;$(MAKE) clean; cd ..;\
 	done;
+
+cleandist: clean
+	@touch dummy~ PROVER/dummy~
+	rm *~ */*~
+
 
 default_config:
 	sed -e 's/CC         = kgcc/CC         = gcc/' Makefile.vars| \
@@ -63,7 +69,7 @@ debug_config:
 
 # Build a distribution
 
-distrib: clean default_config
+distrib: cleandist default_config
 	@echo "Did you think about: "
 	@echo " - Changing the bibliographies to local version"
 	@echo "    ??? "
@@ -74,7 +80,7 @@ distrib: clean default_config
 # Include proprietary code not part of the GPL'ed version, 
 # as well as CVS subdirecctories
 
-fulldistrib: clean default_config
+fulldistrib: cleandist default_config
 	@echo "Warning: You are building a full archive!"
 	@echo "Did you remember to increase the dev version number and commit to CVS?"
 	cd ..; $(TAR) cf - $(PROJECT)|$(GZIP) - -c > $(PROJECT)_FULL.tgz
@@ -134,16 +140,12 @@ config:
 #	@mv tmpfile PROVER/eproof
 
 
-install:	
+install: E
 	-sh -c 'mkdir -p $(EXECPATH)'
 	-sh -c 'cp PROVER/eprover $(EXECPATH)'
 	-sh -c 'cp PROVER/epclextract $(EXECPATH)'
 	-sh -c 'cp PROVER/eproof $(EXECPATH)'
 	-sh -c 'cp  PROVER/eground $(EXECPATH)'	
-#	sh -c 'install -c $(EXECPATH) PROVER/eprover'
-#	sh -c 'install -c $(EXECPATH) PROVER/e2pcl'
-#	sh -c 'install -c $(EXECPATH) PROVER/eproof'
-#	sh -c 'install -c $(EXECPATH) PROVER/eground'
 
 # Also remake documentation
 
