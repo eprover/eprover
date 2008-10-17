@@ -310,28 +310,10 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
       all clauses in the initial unprocessed clause set. So we
       ignore the "derived" modifier, and use CPTypeAxiom for plain
       clauses. */
-   if(TestInpId(in, "axiom|definition|knowledge|assumption|"
-                "hypothesis|conjecture|negated_conjecture|"
-                "lemma|unknown|plain"))
-   {
-      type = ClauseTypeParse(in, 
-                             "axiom|definition|knowledge|assumption|"
-                             "hypothesis|conjecture||negated_conjecture|"
-                             "lemma|unknown|plain");
-      /* Left for backwards-compatibility */
-      if(TestInpTok(in, Hyphen))
-      {
-         AcceptInpTok(in, Hyphen);
-         AcceptInpId(in, "derived");
-         initial = WPIgnoreProps;
-      }
-   }
-   else
-   {
-      AcceptInpId(in, "derived");
-      initial = WPIgnoreProps;
-      type = WPTypeAxiom;
-   } 
+   type = ClauseTypeParse(in, 
+                          "axiom|hypothesis|definition|assumption|"
+                          "lemma|theorem|conjecture|negated_conjecture|"
+                          "plain|unknown");
    AcceptInpTok(in, Comma);
 
    tform = TFormulaTSTPParse(in, terms);

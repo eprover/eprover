@@ -278,7 +278,7 @@ static bool term_is_rewritable(TB_p bank, OCB_p ocb, Term_p term, Clause_p
          return true;
          break;
    default:
-         // Nothing to do, see below.
+         /* Nothing to do, see below. */
          break;
    }
    if(!TermCellIsAnyPropSet(term, 
@@ -314,7 +314,7 @@ static EqnSide eqn_has_rw_side(OCB_p ocb, Eqn_p eqn, Clause_p
    bool resl, resr;
    bool restricted_rw = EqnIsMaximal(eqn) && EqnIsPositive(eqn) && EqnIsOriented(eqn);
 
-   //printf("restricted_rw: %d\n", restricted_rw);
+   /* printf("restricted_rw: %d\n", restricted_rw); */
    resl = term_is_rewritable(eqn->bank, ocb, eqn->lterm, new_demod, nf_date,
                              restricted_rw);
    resr = term_is_rewritable(eqn->bank, ocb, eqn->rterm, new_demod, nf_date,
@@ -353,13 +353,6 @@ static bool clause_is_rewritable(OCB_p ocb, Clause_p clause,
    EqnSide tmp;
    bool res = false;
    
-   //printf("Checking clause %ld: ", clause->ident);
-   //ClausePrint(stdout, clause, true);
-   //printf("\n");
-   // printf("with demod clause %ld: ", new_demod->ident);
-   // ClausePrint(stdout, new_demod, true);
-   // printf("\n");
-
    for(handle = clause->literals; handle; handle = handle->next)
    {
       tmp = eqn_has_rw_side(ocb, handle, new_demod, nf_date);
@@ -368,7 +361,6 @@ static bool clause_is_rewritable(OCB_p ocb, Clause_p clause,
 	 res = true;
       }
    }
-   // printf("Res: %d\n", res);
    return res;
 }
 
@@ -435,10 +427,6 @@ static ClausePos_p indexed_find_demodulator(OCB_p ocb, Term_p term,
    Eqn_p       eqn;   
    ClausePos_p pos, res = NULL;
    
-   //printf("indexed_find_demodulator(...,");
-   //TermPrint(stdout, term, ocb->sig, DEREF_NEVER);  
-   //printf(",...,%d)\n", restricted_rw);
-
    assert(term);
    assert(demodulators);
    assert(demodulators->demod_index);
@@ -500,7 +488,6 @@ static ClausePos_p indexed_find_demodulator(OCB_p ocb, Term_p term,
    }
    PDTreeSearchExit(demodulators->demod_index);
 
-   //printf("...indexed_find_demodulator()=%p\n", res);
    return res;
 }
 
@@ -898,7 +885,7 @@ bool ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
          &&ClauseQueryProp(clause,CPLimitedRW))
       {
          ClauseDelProp(clause,CPLimitedRW); 
-         // We need to try everything again...
+         /* We need to try everything again...*/
          done = false;
       }
       res = res || tmp;

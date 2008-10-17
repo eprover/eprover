@@ -759,7 +759,7 @@ FunCode SigParse(Scanner_p in, Sig_p sig, bool special_ids)
 {
    FunCode res = 0;
 
-   // FIXME: Cannot handle comples symbols here!
+   /* FIXME: Cannot handle complex symbols here! */
    while(TestInpTok(in, FuncSymbToken) &&
          TestTok(LookToken(in, 1), Colon))
    {

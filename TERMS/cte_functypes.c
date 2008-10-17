@@ -83,7 +83,7 @@ void normalize_int_rep(DStr_p int_rep)
    {
       work++;
    }
-   // Check if there is anything left
+   /* Check if there is anything left */
    if(*work)
    {
       DStrAppendStr(tmp, sign);

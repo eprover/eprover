@@ -1429,7 +1429,7 @@ ClauseProperties ClauseTypeParse(Scanner_p in, char *legal_types)
    CheckInpId(in, legal_types);
    
    if(TestInpId(in, 
-                "axiom|definition|knowledge"))
+                "axiom|definition|theorem"))
    {
       res = CPTypeAxiom;
    }
@@ -1525,33 +1525,11 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
          TSTP types, and E uses the "initial" properties in ways that
          make it highly desirable that anything in the input is
          actually initial (the CPInitialProperty is actually set in
-         all clauses in the initial unprocessed clause set. So we
-         ignore the "derived" modifier, and use CPTypeAxiom for plain
-         clauses. */
-      if(TestInpId(in, "axiom|definition|knowledge|assumption|"
-                   "hypothesis|negated_conjecture|conjecture|"
-                   "lemma|unknown|plain|theorem|watchlist"))
-      {
-         /* This is hairy again. "conjecture" is not allowed here and
-            very misleading, so we want a good error message. We go
-            into this case anyways and provoke the error below. */
-         type = ClauseTypeParse(in, 
-                                "axiom|definition|knowledge|assumption|"
-                                "hypothesis|negated_conjecture|"
-                                "lemma|unknown|plain|theorem|watchlist");
-         if(TestInpTok(in, Hyphen))
-         {
-            AcceptInpTok(in, Hyphen);
-            AcceptInpId(in, "derived");
-            input = CPIgnoreProps;
-         }
-      }
-      else
-      {
-         AcceptInpId(in, "derived");
-         type = CPTypeAxiom;
-         input = CPIgnoreProps;                     
-      }
+         all clauses in the initial unprocessed clause set. */
+      type = ClauseTypeParse(in, 
+                             "axiom|definition|theorem|assumption|"
+                             "hypothesis|negated_conjecture|"
+                             "lemma|unknown|plain|watchlist");
       AcceptInpTok(in, Comma);
       if(TestInpTok(in, OpenBracket))
       {

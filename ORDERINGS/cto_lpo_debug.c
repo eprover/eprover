@@ -515,11 +515,11 @@ CompareResult D_LPOCompare(OCB_p ocb, Term_p s, Term_p t,
 	 }
 	 break;
    default:         /* Leave the switch statement whenever the leading
-                    // operators are incomparable.                  */
+                       operators are incomparable.                  */
 	 break;
    }
            /* Check the third condition of the lpo (see `(iii)' of the
-           // definition at the top of this file.                   */
+              definition at the top of this file.                   */
    if ((res_funs != to_greater) &&
        ((res_funs != to_equal) || (s->arity >= 2)) &&
        (lpocheckarg(ocb, s, t, deref_s, deref_t) == to_greater))

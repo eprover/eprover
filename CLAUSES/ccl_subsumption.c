@@ -527,9 +527,6 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
    {
       /* We now use strict multiset-subsumption. I should probably
 	 rewrite this code to be more efficient for that case...*/
-      //printf("len=%3d lcount=%3d :", subsum_list_len, lcount);
-      //EqnListPrint(stdout, subsum_list, ";", true, true);
-      //printf("\n");
       if(pick_list[lcount])
       {
 	 continue;

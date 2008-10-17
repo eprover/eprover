@@ -1291,10 +1291,12 @@ int EqnSubsumeInverseRefinedCompareRef(const void* lit1ref, const void* lit2ref)
    const Eqn_p *l1 = lit1ref, *l2 = lit2ref;
    int res = EqnSubsumeInverseCompareRef(lit1ref, lit2ref);
 
+   /*
    // The following tries to bring a bit more determinism into
    // subsumption and literal order. For reasons I don't quite grasp,
    // this plays a major role and leads into very bad case behaviour if
    // overdone...
+   */
    /*if(!res)
    {
       res = (*l2)->lterm->entry_no%2 - (*l1)->lterm->entry_no%2;

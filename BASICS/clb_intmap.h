@@ -191,12 +191,12 @@ static __inline__ void* IntMapIterNext(IntMapIter_p iter, long *key)
             {
                if(handle->key > iter->upper_key)
                {
-                  // Overrun limit
+                  /* Overrun limit */
                   break;
                }
                if(handle->val1.p_val)
                {
-                  // Found real value
+                  /* Found real value */
                   *key = handle->key;
                   res = handle->val1.p_val;
                   break;

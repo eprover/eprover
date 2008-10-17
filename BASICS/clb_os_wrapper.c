@@ -122,7 +122,7 @@ void SetSoftRlimitErr(int resource, rlim_t limit, char* desc)
          Warning(message);
          break;
    case RLimSuccess:
-         // Nothing to do 
+         /* Nothing to do */
          break;
    default:
          assert(false && "Out of bounds return from SetSoftRlimit()");

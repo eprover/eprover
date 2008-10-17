@@ -684,9 +684,9 @@ void TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity,
 
       TFormulaDefRename(bank, form, polarity, 
                         defs, renamed_forms);
-      // And this potentially different polarity applies to
+      /* And this potentially different polarity applies to
       // subformulae, hence "return" is WRONG!!!
-      // return;
+      // return;*/
    }
    /* Check if we want to rename args[0] (we are doing depth
     * first). Also remember that we check if a _subformula_ should be
@@ -869,10 +869,6 @@ TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form)
    modified = true;
    while(modified)
    {
-      //printf("Simplifying: ");
-      //TFormulaTPTPPrint(stdout, terms, form, true, false);
-      //printf("\n");
-      
       modified = false;
       newform = form; /* Inelegant, fix when awake! */
       if(form->f_code == terms->sig->not_code)
