@@ -3,10 +3,17 @@
 This history list describes the major differences between versions of
 the E equational theorem prover.
 
-Version 0.999-004->
+Version 0.999-004->1.0
 
 - Removed old style formulas and CNF algorithm.
 - Fixed a number of bugs in backwards rewriting.
+- Made parser more compliant to TPTP 3.5.0 (stricter checking of
+  formula roles)
+- New GNU-like build and installation system
+- Fixed one completeness bug in CNF, fixed two serious performance
+  bugs for very large formula CNFization.
+- Removed dependency on bash (only POSIX Bourne Shell required, I
+  hope)
 
 Version 0.999 -> 0.999-004
 
