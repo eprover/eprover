@@ -28,10 +28,11 @@ cleanup ()
     ulimit -S unlimited
     touch $tmpfile $tmpfile2
     rm -f $tmpfile $tmpfile2
+    trap - EXIT 
     exit $status
 } 
 
-xcpuhandler ()
+sighandler ()
 {
     echo "# Cannot determine problem status: Terminated by signal. Cleaning up"
     cleanup 
@@ -39,7 +40,8 @@ xcpuhandler ()
 
 
 trap 'cleanup' EXIT
-trap 'xcpuhandler' SIGXCPU
+trap 'sighandler' SIGXCPU SIGINT SIGQUIT SIGTERM SIGXFSZ SIGHUP SIGABRT
+
 
 cat /dev/null > $tmpfile 
 cat /dev/null > $tmpfile2 
