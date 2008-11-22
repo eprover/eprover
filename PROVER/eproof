@@ -35,12 +35,18 @@ cleanup ()
 sighandler ()
 {
     echo "# Cannot determine problem status: Terminated by signal. Cleaning up"
+    # Reset the signal trap to ignore further signals
+    trap "" SIGXCPU SIGINT SIGQUIT SIGTERM SIGXFSZ SIGHUP SIGABRT SIGPIPE
+    # Kill subprocesses in the process group, if any. 
+    kill -TERM -$$
+    
+    #Now cleanup and exit
     cleanup 
 }
 
 
 trap 'cleanup' EXIT
-trap 'sighandler' SIGXCPU SIGINT SIGQUIT SIGTERM SIGXFSZ SIGHUP SIGABRT
+trap 'sighandler' SIGXCPU SIGINT SIGQUIT SIGTERM SIGXFSZ SIGHUP SIGABRT SIGPIPE
 
 
 cat /dev/null > $tmpfile 
@@ -114,7 +120,8 @@ done
 
 print_tail=`expr $print_res + $print_stats`
 
-sh -c "$EXECPATH/eprover $newargs -l4 -R -o- --pcl-terms-compressed --pcl-compact> $tmpfile"
+sh -c "$EXECPATH/eprover $newargs -l4 -R -o- --pcl-terms-compressed --pcl-compact> $tmpfile" &
+wait %%
 status=$?
 $TAIL -60 $tmpfile > $tmpfile2
 searchtime=`cat $tmpfile2|grep "Total time"|cut -d: -f2|sed -e 's/[s ]//g'|cut -d. -f1`
@@ -145,7 +152,8 @@ if [ "$searchtime" ]; then
     fi
     grep "# SZS status" $tmpfile2
     grep "# Failure"          $tmpfile2
-    $EXECPATH/epclextract $format -f --competition-framing $tmpfile
+    $EXECPATH/epclextract $format -f --competition-framing $tmpfile &
+    wait %%
     status=$?
     $TAIL -$print_tail $tmpfile2
 else
