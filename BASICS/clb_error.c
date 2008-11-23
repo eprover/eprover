@@ -142,6 +142,7 @@ long GetSystemPhysMemory(void)
       char line[220];
       int limit = strlen(MEM_PHRASE);
       char *convert;
+      double resmult = 0.0;
 
       pipe = popen("hostinfo", "r");
       if(pipe)
@@ -150,26 +151,22 @@ long GetSystemPhysMemory(void)
          {
             if(strncmp(MEM_PHRASE, line, limit)==0)
             {               
-               res = strtol(line+limit, &convert, 10);
-               if(convert == line+limit)
-               {
-                  res = -1;
-               }
-               else if(strstr(convert, "kilobyte"))
+               resmult = strtod(line+limit, &convert);
+               if(strstr(convert, "kilobyte"))
                {  /* Past-proof, of course */
-                  res/=1024;
+                  res = resmult*1024;
                }
                else if(strstr(convert, "megabyte"))
                {
-                  /* Pass */
+                  res = resmult;
                }
                else if(strstr(convert, "gigabyte"))
                {
-                  res*=1024;
+                  res = resmult*1024;
                }
                else if(strstr(convert, "terabyte"))
                { /* Future-proof */
-                  res*=(1024*1024);
+                  res = resmult*(1024*1024);
                }
                else
                {
