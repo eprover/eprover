@@ -3,6 +3,12 @@
 This history list describes the major differences between versions of
 the E equational theorem prover.
 
+Version 1.0 ->
+
+- Improved eproof script signal handling.
+- Fixed automatic memory determination bug on large-memory Macs.
+- Fixed a number of warnings with the latest gcc version.
+
 Version 0.999-004->1.0
 
 - Removed old style formulas and CNF algorithm.
