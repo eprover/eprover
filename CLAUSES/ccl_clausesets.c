@@ -271,7 +271,7 @@ static void clause_set_extract_entry(Clause_p clause)
 #ifndef NEW_EVALUATIONS
    Eval_p  handle;
 #endif
-   Eval_p test;
+   Eval_p test, *root;
 
    assert(clause);
    assert(clause->set);
@@ -285,8 +285,8 @@ static void clause_set_extract_entry(Clause_p clause)
    {
       for(i=0; i<clause->evaluations->eval_no; i++)
       {
-         test = EvalTreeExtractEntry((Eval_p*)
-                                     &PDArrayElementP(clause->set->eval_indices, i),
+	 root = (void*)&PDArrayElementP(clause->set->eval_indices, i);
+         test = EvalTreeExtractEntry(root,
                                      clause->evaluations,
                                      i); 
          assert(test);
@@ -470,7 +470,7 @@ void ClauseSetInsert(ClauseSet_p set, Clause_p newclause)
    {
       for(i=0; i<newclause->evaluations->eval_no; i++)
       {
-         root = (Eval_p*)&(PDArrayElementP(newclause->set->eval_indices,i));
+         root = (void*)&(PDArrayElementP(newclause->set->eval_indices,i));
          test = EvalTreeInsert(root, newclause->evaluations, i);
          assert(!test);
       }

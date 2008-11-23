@@ -110,9 +110,9 @@ long GetSystemPageSize(void)
 //   Try to find the phyical memory installed in the machine. Return
 //   it (in MB) or -1 if no information can be obtained.
 //
-// Global Variables: 
+// Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    : No persistent ones
 //
 /----------------------------------------------------------------------*/
 
@@ -139,17 +139,42 @@ long GetSystemPhysMemory(void)
    if(res==-1)
    {
       FILE* pipe;
-      char line[120];
+      char line[220];
       int limit = strlen(MEM_PHRASE);
+      char *convert;
 
       pipe = popen("hostinfo", "r");
       if(pipe)
       {
-         while(fgets(line, 120, pipe))
+         while(fgets(line, 220, pipe))
          {
             if(strncmp(MEM_PHRASE, line, limit)==0)
-            {
-               res = atol(line+limit);
+            {               
+               res = strtol(line+limit, &convert, 10);
+               if(convert == line+limit)
+               {
+                  res = -1;
+               }
+               else if(strstr(convert, "kilobyte"))
+               {  /* Past-proof, of course */
+                  res/=1024;
+               }
+               else if(strstr(convert, "megabyte"))
+               {
+                  /* Pass */
+               }
+               else if(strstr(convert, "gigabyte"))
+               {
+                  res*=1024;
+               }
+               else if(strstr(convert, "terabyte"))
+               { /* Future-proof */
+                  res*=(1024*1024);
+               }
+               else
+               {
+                  res = -1;
+               }
                break;
             }
          }

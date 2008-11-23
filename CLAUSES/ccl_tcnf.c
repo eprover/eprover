@@ -270,7 +270,7 @@ TFormula_p tformula_rek_skolemize(TB_p terms, TFormula_p form,
                                       free_vars);
       form = TFormulaFCodeAlloc(terms, terms->sig->qall_code, 
                                 var, handle);
-      PStackPopP(free_vars);
+      (void)PStackPopP(free_vars);
    }
    else 
    {

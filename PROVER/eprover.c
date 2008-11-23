@@ -1383,8 +1383,6 @@ CLState_p process_options(int argc, char* argv[])
             {              
                long tmpmem =  GetSystemPhysMemory();
                
-               mem_limit = 0.8*tmpmem;
-               
                if(tmpmem==-1)
                {
                   Error("Cannot find physical memory automatically. "
@@ -1393,13 +1391,15 @@ CLState_p process_options(int argc, char* argv[])
                VERBOSE(fprintf(stderr, 
                                "Physical memory determined as %ld MB\n",
                                tmpmem););
+
+               mem_limit = 0.8*tmpmem;               
             }
             else
             {
                mem_limit = CLStateGetIntArg(handle, arg);
             }
             if(mem_limit > 2048)
-            {
+            {  /* Many OSes cannot handle more than 2GB per process */
                mem_limit = 2048; 
             }
             VERBOSE(fprintf(stderr, 
