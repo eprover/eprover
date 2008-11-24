@@ -969,7 +969,7 @@ static void print_skolemize(FILE* out, WFormula_p form,
 	 break;
    case tstp_format:
 	 WFormulaTSTPPrint(out, form, PCLFullTerms, false);
-         fprintf(out, ",inference("PCL_SK", [status(sab)], [c_0_%ld])", old_id);
+         fprintf(out, ",inference("PCL_SK", [status(esa)], [c_0_%ld])", old_id);
          tstp_formula_print_end(out, comment);
 	 break;
    default:

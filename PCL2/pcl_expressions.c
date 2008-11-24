@@ -652,7 +652,7 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
 	 break;
    case PCLOpApplyDef:
          fprintf(out, PCL_AD);
-	 status = status_thm;         
+	 status = status_esa;         
          assert(expr->arg_no==2);
          break;
    case PCLOpSplitClause:
