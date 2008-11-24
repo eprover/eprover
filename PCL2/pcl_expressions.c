@@ -561,7 +561,7 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
    char *status = ",[status(unknown)]", 
       *status_thm = ",[status(thm)]", 
       *status_cth = ",[status(cth)]", 
-      *status_sab = ",[status(sab)]";      
+      *status_esa = ",[status(esa)]";      
 
    assert(expr);
    assert(expr->args);
@@ -652,7 +652,7 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
 	 break;
    case PCLOpApplyDef:
          fprintf(out, PCL_AD);
-	 status = status_sab;         
+	 status = status_thm;         
          assert(expr->arg_no==2);
          break;
    case PCLOpSplitClause:
@@ -706,7 +706,7 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
          break;
    case PCLOpFOFSkolemize:
          fprintf(out, PCL_SK);
-         status = status_sab;
+         status = status_esa;
 	 needs_equality = false;
          assert(expr->arg_no==1);
          break;

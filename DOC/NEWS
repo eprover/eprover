@@ -8,6 +8,7 @@ Version 1.0 ->
 - Improved eproof script signal handling.
 - Fixed automatic memory determination bug on large-memory Macs.
 - Fixed a number of warnings with the latest gcc version.
+- Updated 
 
 Version 0.999-004->1.0
 
