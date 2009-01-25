@@ -85,7 +85,6 @@ TFormula_p TFormulaCreateDef(TB_p bank, TFormula_p def_atom, TFormula_p defined,
 
 void       TFormulaMarkPolarity(TB_p bank, TFormula_p form, int polarity);
 int        TFormulaDecodePolarity(TB_p bank, TFormula_p form);
-//int        TFormulaDecodePolarity(TFormula_p form);
 
 TFormula_p TFormulaClauseEncode(TB_p bank, Clause_p clause);
 TFormula_p TFormulaClauseClosedEncode(TB_p bank, Clause_p clause);

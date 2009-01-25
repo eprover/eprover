@@ -193,6 +193,7 @@ class eserver(object):
     def dispatch(self, connection, command):
         cl = command.split("\n")
         cl = pylib_io.clean_list(cl)
+        pylib_io.verbout(cl[0])
         if cl:
             if cl[0] == "run":
                 self.create_job(connection, cl)
@@ -206,3 +207,25 @@ class eserver(object):
                 connection.write("Error: Unkown command "+cl[0]+".\n")
         
                 
+
+def eserver_get_reply(address, command):
+    """
+    Connect to an eserver, issue a command, and return the first
+    complete reply (or None) if the connection fails.
+    """
+    try:
+        conn = pylib_tcp.tcp_client().connect(address)
+    except socket.error:
+        pylib_io.verbout("No running server found.")
+        return None
+
+    conn.write(command)
+    while conn.sendable():
+        conn.send()
+
+    complete, res = None, ""
+    while not complete:
+        complete, res = conn.read()
+    conn.close()
+    return res
+    

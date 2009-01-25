@@ -26,7 +26,6 @@ Changes
 
 #define CCL_FORMULA_WRAPPER
 
-//#include <ccl_formulae.h>
 #include <ccl_tformulae.h>
 
 /*---------------------------------------------------------------------*/

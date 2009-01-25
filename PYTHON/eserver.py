@@ -77,7 +77,15 @@ if __name__ == '__main__':
         sys.exit()
 
     config = pylib_econf.e_config(args[0])
+    
+    exists = pylib_eserver.eserver_get_reply(("localhost",
+                                              config.port),
+                                             "version\n.\n\n")
 
+    if exists:
+        sys.exit("Other process listening on port %d\nVersion reply: %s"%
+                 (config.port, exists))
+    
     server = pylib_eserver.eserver(config)
 
     server.process()

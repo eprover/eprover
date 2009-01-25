@@ -355,7 +355,7 @@ class ejob(object):
         self.name         = name
         self.prot         = eprot(name)
         self.spec         = espec(name)
-        self.job_complete = False
+        self.job_complete = False        
         
     def jobname(self):
         return "tptp_"+self.name
@@ -371,6 +371,9 @@ class ejob(object):
         self.prot.filter(self.spec.problems)
         missing = self.prot.find_missing(self.spec.problems)
         self.job_complete = len(missing)==0
+
+    def find_missing(self):
+        return self.prot.find_missing(self.spec.problems)
 
 
 
@@ -403,3 +406,4 @@ if __name__ == '__main__':
     job.parse("~/EPROVER/TESTRUNS_CASC/", "~/EPROVER/TESTRUNS_CASC/")
     #print job.prot
     print job.job_complete
+    print job.find_missing()

@@ -32,9 +32,9 @@ Changes
 
 #define ATOMIC_FUNC_SYM_TOK (Identifier | SemIdent | SQString | String)
 
-// Tokens that always are stand-alone identifiers
+/* Tokens that always are stand-alone identifiers */
 TokenType FuncSymbToken = ATOMIC_FUNC_SYM_TOK;
-// Tokens that may start a (composite or atomic) identifier
+/* Tokens that may start a (composite or atomic) identifier */
 TokenType FuncSymbStartToken = ATOMIC_FUNC_SYM_TOK| PosInt | String | Plus | Hyphen; 
 
 

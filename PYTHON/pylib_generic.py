@@ -72,6 +72,21 @@ quotes.
 sqquote_re = re.compile("[^\\\\]'")
 """Regular expression represening  an unquoted single quote."""
 
+nonprint_ascii_re = re.compile("[^ -\177]")
+"""
+Regular expression representing all non-printable characters, where
+only ASCII 32-127 are considered printable.
+"""
+
+def asciify_str(str, repl="_"):
+    """
+    Return str with all non-printable characters replaced according to
+    repl (which can be a strig or a function as per re.sub()).
+    """
+    res = nonprint_ascii_re.sub(repl, str)
+    return res
+
+
 def break_shell_str(opts):
     """
     Break a string of arguments into an array of argments as the shell would.
