@@ -227,7 +227,7 @@ void PCLMiniStepPrintTSTP(FILE* out, PCLMiniStep_p step, TB_p bank)
 /----------------------------------------------------------------------*/
 
 void PCLMiniStepPrintFormat(FILE* out, PCLMiniStep_p step, TB_p bank, 
-			OutputFormatType format)
+                            OutputFormatType format)
 {
    switch(format)
    {

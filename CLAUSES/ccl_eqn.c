@@ -844,6 +844,8 @@ void EqnFOFPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms, bool pcl)
    case TPTPFormat:
          break;
    case TSTPFormat:
+         infix = true;
+         break;
    case LOPFormat:
          infix = !pcl;
          break;

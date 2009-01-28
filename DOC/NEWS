@@ -9,6 +9,8 @@ Version 1.0 ->
 - Fixed automatic memory determination bug on large-memory Macs.
 - Fixed a number of warnings with the latest gcc version.
 - Updated proof objects to latest SZS ontology.
+- Removed some C99-style comments that bothered ancient compilers
+- Improves TPTP-3/TSTP output (fof used prefix eqal, not infix =)
 
 Version 0.999-004->1.0
 

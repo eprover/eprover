@@ -299,7 +299,7 @@ CLState_p process_options(int argc, char* argv[])
    char*  arg;
    
    state = CLStateAlloc(argc,argv);
-   
+
    while((handle = CLStateGetOpt(state, &arg, opts)))
    {
       switch(handle->option_code)
@@ -326,6 +326,7 @@ CLState_p process_options(int argc, char* argv[])
 	    break;
       case OPT_TSTP_PRINT:
 	    output_format = tstp_format;
+            OutputFormat = TSTPFormat;
 	    break;
       case OPT_OUTPUT:
 	    outname = arg;
