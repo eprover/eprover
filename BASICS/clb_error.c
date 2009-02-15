@@ -154,7 +154,7 @@ long GetSystemPhysMemory(void)
                resmult = strtod(line+limit, &convert);
                if(strstr(convert, "kilobyte"))
                {  /* Past-proof, of course */
-                  res = resmult*1024;
+                  res = resmult/1024;
                }
                else if(strstr(convert, "megabyte"))
                {

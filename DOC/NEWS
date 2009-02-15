@@ -1,5 +1,3 @@
-
-
 This history list describes the major differences between versions of
 the E equational theorem prover.
 
@@ -10,7 +8,8 @@ Version 1.0 ->
 - Fixed a number of warnings with the latest gcc version.
 - Updated proof objects to latest SZS ontology.
 - Removed some C99-style comments that bothered ancient compilers
-- Improves TPTP-3/TSTP output (fof used prefix eqal, not infix =)
+- Improves TPTP-3/TSTP output (fof sometimes used prefix eqal, not
+  infix =)
 
 Version 0.999-004->1.0
 
