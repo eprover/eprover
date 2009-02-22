@@ -5,7 +5,7 @@ E.
     
     Note: There is a variety of known bugs in the optimizer stage of
     gcc 2.95.1. At least on SPARC, E seens to trigger one of these
-    bugs. Compile without optimization ot get a different compiler
+    bugs. Compile without optimization or get a different compiler
     version. Moreover, gcc 2.96 and gcc 2.97 are not official
     releases, and are known to be buggy. Again, these bugs seem to be
     triggered by E on the x86 architecture, leading to unexplainable
@@ -27,7 +27,7 @@ E.
       (an example for the SunPro compiler is included in the file)    
     - Set the variable MAKEDEPEND to use makedepend instead of gcc (an
       example line is included in the Makefile)
-    - Type "make install" and hope ;-)
+    - Type "make" and hope ;-)
 
     The basic E code has now been tested under a lot of very different
     environments, and seems to work fine everywhere.
@@ -70,7 +70,7 @@ E.
 [7] Since some of the conceptual set- and bag operations are indeed
     implemented as set and bag-operations, the order in which some
     operations are performed may depend on the addresses your C
-    library hands out for malloc()ed blocks. This used to affect the
+    library hands out for malloc()ed blocks. This used to effect the
     exact behaviour of the prover. In particular, I found that very
     rarely a version compiled under MacOS X ran differently from the
     same version compiled under Solaris or Linux. I hopefully have
