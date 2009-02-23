@@ -93,7 +93,7 @@ static void tb_print_dag(FILE *out, NumTree_p in_index, Sig_p sig)
    }
    else
    {
-      fprintf(out, SigFindName(sig, term->f_code));
+      fputs(SigFindName(sig, term->f_code), out);
       if(!TermIsConst(term))
       {
 	 int i;
@@ -785,7 +785,7 @@ void TBPrintTermCompact(FILE* out, TB_p bank, Term_p term)
       {
          fprintf(out, "*%ld:", term->entry_no);
 	 TermCellSetProp(term, TPOutputFlag);
-	 fprintf(out, SigFindName(bank->sig, term->f_code));
+	 fputs(SigFindName(bank->sig, term->f_code), out);
 	 if(!TermIsConst(term))
 	 {
 	    fputc('(',out);

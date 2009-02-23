@@ -8,7 +8,7 @@ Contents
  
   Main program for the E equational theorem prover.
 
-  Copyright 1998-2007 by the author.
+  Copyright 1998-2009 by the author.
   This code is released under the GNU General Public Licence.
   See the file COPYING in the main CLIB directory for details.
   Run "eprover -h" for contact information.
@@ -1918,7 +1918,7 @@ Read a set of first-order clauses and formulae and try to refute it.\n\
 \n");
    PrintOptions(stdout, opts);
    fprintf(out, "\n\
-Copyright 1998-2006 by Stephan Schulz, " STS_MAIL "\n\
+Copyright 1998-2009 by Stephan Schulz, " STS_MAIL "\n\
 \n\
 You can find the latest version of E and additional information at\n"
 E_URL

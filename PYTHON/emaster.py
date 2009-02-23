@@ -112,12 +112,16 @@ if __name__ == '__main__':
         else:
             sys.exit("Unknown option "+ option)
 
-    if len(args) > 1 or len(args)<1:
+    if len(args)<1:
         print __doc__
         sys.exit()
 
     config = pylib_emconf.e_mconfig(args[0])
-
     master = emaster(config)
+
+    for job in args[1:]:
+        job = pylib_eprot.estrat_task(job)
+
+
 
     master.process()

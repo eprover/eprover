@@ -60,10 +60,10 @@ static void print_var_pattern(FILE* out, char* symbol, int arity, char*
    
    for(i=1; i<= arity; i++)
    {
-      fprintf(out, prefix);
+      fputs(prefix, out);
       if(i==exception)
       {
-	 fprintf(out, alt_var);
+	 fputs(alt_var, out);
       }
       else
       {

@@ -138,6 +138,34 @@ def e_strip_name(name):
     return name
     
 
+class ejob(object):
+    """
+    Class representing a single job to run.    
+    """
+    def __init__(self, strat_key, executable, arguments, problem, time_limit):
+        self.strat_key  = strat_key
+        self.executable = executable
+        self.arguments  = arguments
+        self.problem    = problem
+        self.time_limit = time_limit
+
+    def __repr__(self):
+        return ("<%s:%s:%s:%s:%f>" %
+                (self.strat_key,
+                 self.executable,
+                 self.arguments,
+                 self.problem,
+                 self.time_limit))
+        
+    def __str__(self):
+        return ("run\n%s\n%s\n%s\n%s\n%f\n.\n" %
+                (self.strat_key,
+                 self.executable,
+                 self.arguments,
+                 self.problem,
+                 self.time_limit))
+
+
 class eresult(object):
     """
     Class representing a single result (i.e. line in an E protocol).
@@ -346,10 +374,16 @@ Arguments:   %s
         jobs   = "\n".join(self.problems)
         return params+jobs
 
+    def create_job(self, problem):
+        return ejob(self.name, self.executable,
+                    self.arguments, problem,
+                    self.time_limit)
         
 
-class ejob(object):
+class estrat_task(object):
     """
+    Class representing a single strategy to test, including
+    specification and results (so far).
     """
     def __init__(self, name):
         self.name         = name
@@ -357,15 +391,10 @@ class ejob(object):
         self.spec         = espec(name)
         self.job_complete = False        
         
-    def jobname(self):
-        return "tptp_"+self.name
-
-    def filter_prot(self):
-        """
-        Filter the results against the problem list.
-        """
-
     def parse(self, specdir, protdir):
+        """
+        Parse spec and protocol.
+        """
         self.spec.parse(specdir)
         self.prot.parse(protdir)
         self.prot.filter(self.spec.problems)
@@ -375,7 +404,20 @@ class ejob(object):
     def find_missing(self):
         return self.prot.find_missing(self.spec.problems)
 
+    def add_result(self, res):
+        self.prot.add_result(res)
 
+    def sync(self):
+        self.prot.sync()
+
+    def generate_jobs(self):
+        return [self.spec.create_job(i) for i in self.find_missing()]
+
+    def complete(self):
+        if len(self.prot.results) >= len(self.spec.problems):
+            return len(self.find_missing(self))==0
+        else:
+            return False
 
 
 if __name__ == '__main__':
@@ -402,8 +444,9 @@ if __name__ == '__main__':
     testspec.parse("/Users/schulz/EPROVER/TESTRUNS_CASC")
     #print testspec
     
-    job = ejob("X----_auto_300")
+    job = estrat_task("X----_auto_300")
     job.parse("~/EPROVER/TESTRUNS_CASC/", "~/EPROVER/TESTRUNS_CASC/")
     #print job.prot
     print job.job_complete
-    print job.find_missing()
+    jobs = [job.spec.create_job(i) for i in job.find_missing()]
+    print jobs

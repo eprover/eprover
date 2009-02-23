@@ -226,7 +226,7 @@ void TermPrint(FILE* out, Term_p term, Sig_p sig, DerefType deref)
       }
       else
       {
-	 fprintf(out, SigFindName(sig, term->f_code));
+	 fputs(SigFindName(sig, term->f_code), out);
          if(!TermIsConst(term))
          {
             assert(term->args);

@@ -763,7 +763,7 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
       }
       if(EqnIsEquLit(eq))
       {
-	 fprintf(out, EQUAL_PREDICATE"(");
+	 fputs(EQUAL_PREDICATE"(", out);
 	 TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
 	 fprintf(out, ", ");
 	 TBPrintTerm(out, eq->bank, eq->rterm, fullterms);
@@ -801,7 +801,7 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
 	    EqnFullEquationalRep/* ||
                                    eq->lterm==eq->bank->true_term*/)
 	 {
-	    fprintf(out, EQUAL_PREDICATE"(");
+	    fputs(EQUAL_PREDICATE"(", out);
 	    TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
 	    fprintf(out, ", ");
 	    TBPrintTerm(out, eq->bank, eq->rterm, fullterms);
@@ -882,7 +882,7 @@ void EqnFOFPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms, bool pcl)
       }
       if(EqnIsEquLit(eq))
       {
-         fprintf(out, EQUAL_PREDICATE"(");
+         fputs(EQUAL_PREDICATE"(", out);
          TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
          fprintf(out, ", ");
          TBPrintTerm(out, eq->bank, eq->rterm, fullterms);

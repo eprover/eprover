@@ -312,7 +312,7 @@ void ACTermPrint(FILE* out, ACTerm_p term, Sig_p sig)
       ACTerm_p arg;
 
       assert(term->args);
-      fprintf(out, SigFindName(sig, term->f_code));
+      fputs(SigFindName(sig, term->f_code),out);
       arg = PDArrayElementP(term->args, 0);
       
       if(arg)

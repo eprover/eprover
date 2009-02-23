@@ -21,6 +21,8 @@
 
 EXECPATH=/Users/schulz/SOURCES/Projects/E/PROVER
 
+VERSION=`$EXECPATH/eprover --version|cut -d' ' -f2-`
+
 if tail -n+2 $0 > /dev/null 2>&1; then
    TAIL="tail -n";
 else
@@ -64,15 +66,14 @@ sighandler ()
 
 print_help ()
 {
+    echo "eproof " $VERSION
     sed -e 's/\\n/\n/g' <<EOF
-\n\
-eproof\n\
 \n\
 Usage: eproof [options] [files]\n\
 \n\
 Eproof is a wrapper around E and epclextract. It will run E with\n\
 output level 4 (full output of all potentially proof-relevant\n\
-inferences and, in the case of success, automatically run epclextract\n\
+inferences) and, in the case of success, automatically run epclextract\n\
 to provide a proof derivation or a derivation of all clauses in the\n\
 saturated proof state.\n\
 \n\
@@ -161,8 +162,7 @@ for argument in  "$@"; do
 	print_stats=29
         print_res=6
     elif [ "$argument" = "-V" -o "$argument" = "--version" ] ; then
-        $EXECPATH/eprover --version
-        $EXECPATH/epclextract --version
+        echo eproof $VERSION "(using "`$EXECPATH/epclextract --version`")"
         exit $?
     elif [ "$argument" = "-h" -o "$argument" = "--help" ] ; then
         print_help

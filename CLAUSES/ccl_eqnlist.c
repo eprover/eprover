@@ -1099,7 +1099,7 @@ void EqnListPrint(FILE* out, Eqn_p list, char* sep,
       while(handle->next)
       {
 	 handle = handle->next;
-	 fprintf(out, sep);
+	 fputs(sep, out);
 	 EqnPrint(out, handle, negated, fullterms);
       }
    }
@@ -1128,7 +1128,7 @@ void EqnListTSTPPrint(FILE* out, Eqn_p list, char* sep, bool fullterms)
       while(handle->next)
       {
 	 handle = handle->next;
-	 fprintf(out, sep);
+	 fputs(sep, out);
 	 EqnTSTPPrint(out, handle, fullterms);
       }
    }
