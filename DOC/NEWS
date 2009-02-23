@@ -3,6 +3,7 @@ the E equational theorem prover.
 
 Version 1.0 ->
 
+- Added --help output to eproof
 - Improved eproof script signal handling.
 - Fixed automatic memory determination bug on large-memory Macs.
 - Fixed a number of warnings with the latest gcc version.
