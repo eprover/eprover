@@ -265,7 +265,7 @@ to overcome CLIB's input buffering.\n\
 \n");  
    PrintOptions(stdout, opts);
    fprintf(out, "\n\
-Copyright 1998-2003 by Stephan Schulz, " STS_MAIL "\n\
+Copyright (C) 1998-2003 by Stephan Schulz, " STS_MAIL "\n\
 \n\
 This program is build on CLIB, the theorem proving library developed\n\
 for the E equational theoem prover. You can find the latest version of\n\
