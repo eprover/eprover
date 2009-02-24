@@ -165,7 +165,7 @@ Usage: cl_test [options] [files]\n\
 \n\
 Do test stuff ;-).\n\
 \n");
-   PrintOptions(stdout, opts);
+   PrintOptions(stdout, opts, "Options\n\n");
 }
 
 

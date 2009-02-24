@@ -214,7 +214,7 @@ Usage: termprops [options] [files]\n\
 \n\
 Read a set of terms and print it with size and depth information.\n\
 \n");
-   PrintOptions(stdout, opts);
+   PrintOptions(stdout, opts, "Options\n\n");
 }
 
 

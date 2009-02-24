@@ -324,7 +324,7 @@ Usage: " NAME " [options] [files]\n\
 Parse a classification problem specification file and return\n\
 results. This is an experimental programm and does not have all the\n\
 usual error checking and hand holding features as E proper!\n");
-   PrintOptions(stdout, opts);
+   PrintOptions(stdout, opts, "Options\n\n");
    fprintf(out, "\n\
 Copyright (C) 1998 by Stephan Schulz, schulz@informatik.tu-muenchen.de\n\
 \n\

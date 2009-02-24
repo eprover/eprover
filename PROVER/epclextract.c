@@ -9,7 +9,7 @@ Contents
   Read a PCL protocol and print all steps that are needed to print
   "proof", "final", or "extract" steps.
 
-  Copyright 2002 by the author.
+  Copyright 2002-2009 by the author.
   This code is released under the GNU General Public Licence.
   See the file COPYING in the main CLIB directory for details.
   Run "eprover -h" for contact information.
@@ -355,7 +355,7 @@ NAME " " VERSION "\n"
 "Read an PCL2 protocol and print the steps necessary for proving"
 " the clauses in \"proof\", \"final\", or \"extract\" steps.\n"
 "\n");
-   PrintOptions(stdout, opts);
+   PrintOptions(stdout, opts, "Options\n\n");
    fprintf(out, "\n\
 Copyright (C) 2002-2003 by Stephan Schulz, " STS_MAIL "\n\
 \n\

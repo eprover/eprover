@@ -351,7 +351,7 @@ Usage: ekb_ginsert [options] [name]\n\
 \n\
 Generate a set of training examples from an E inference list and\n\
 insert it into a knowledge base.\n\n"); 
-   PrintOptions(stdout, opts);
+   PrintOptions(stdout, opts, "Options\n\n");
    fprintf(out, "\n\
 Copyright (C) 1999-2004 by Stephan Schulz, " STS_MAIL "\n\
 \n\

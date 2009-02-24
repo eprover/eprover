@@ -263,7 +263,7 @@ wonder of the world, most beautiful program ever written.\n\
 to overcome CLIB's input buffering.\n\
 \n\
 \n");  
-   PrintOptions(stdout, opts);
+   PrintOptions(stdout, opts, "Options\n\n");
    fprintf(out, "\n\
 Copyright (C) 1998-2003 by Stephan Schulz, " STS_MAIL "\n\
 \n\

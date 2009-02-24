@@ -764,10 +764,15 @@ void PrintOption(FILE* out, Opt_p option)
 //
 /----------------------------------------------------------------------*/
 
-void PrintOptions(FILE* out, OptCell option[])
+void PrintOptions(FILE* out, OptCell option[], char* header)
 {
    int i;
    
+   if(header)
+   {
+      fprintf(out, "%s", header);
+   }
+
    for(i=0; option[i].option_code; i++)
    {
       PrintOption(out, &option[i]);

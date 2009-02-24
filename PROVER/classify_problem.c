@@ -682,7 +682,7 @@ Usage: classify_problem [options] [files]\n\
 \n\
 Read sets of clauses and classify them according to predefined criteria.\n\
 \n");
-   PrintOptions(stdout, opts);
+   PrintOptions(stdout, opts, "Options:\n\n");
    fprintf(out, "\n\
 Copyright (C) 1998-2005 by Stephan Schulz, " STS_MAIL "\n\
 \n\

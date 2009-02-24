@@ -335,7 +335,7 @@ is very hard to verify for other provers. However, if a proof step is\n\
 rejected by more than one system, you should probably look at this\n\
 step in detail.\n\
 \n");
-   PrintOptions(stdout, opts);
+   PrintOptions(stdout, opts, "Options\n\n");
    fprintf(out, "\n\
 Copyright (C) 1998-2003 by Stephan Schulz, " STS_MAIL "\n\
 \n\

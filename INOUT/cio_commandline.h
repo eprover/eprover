@@ -97,7 +97,7 @@ long   CLStateGetIntArg(Opt_p option, char* arg);
 bool   CLStateGetBoolArg(Opt_p option, char* arg);
 
 void PrintOption(FILE* out, Opt_p option);
-void PrintOptions(FILE* out, OptCell option[]);
+void PrintOptions(FILE* out, OptCell option[], char* header);
 
 
 #endif

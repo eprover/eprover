@@ -247,7 +247,7 @@ Usage: " NAME " [options] [files]\n\
 Parse a full PCL listing (possibly\n\
 spread over multiple files), and generate training examples\n\
 corresponding to the selected clauses.\n"); 
-   PrintOptions(stdout, opts);
+   PrintOptions(stdout, opts, "Options\n\n");
    fprintf(out, "\n\
 Copyright (C) 1998 by Stephan Schulz, schulz@informatik.tu-muenchen.de\n\
 \n\

@@ -252,7 +252,7 @@ NAME " " VERSION "\n\
 Usage: " NAME " [options] <name>\n\
 \n\
 Remove the example <name> from an E knowledge base.\n\n"); 
-   PrintOptions(stdout, opts);
+   PrintOptions(stdout, opts, "Options\n\n");
    fprintf(out, "\n\
 Copyright (C) 1999 by Stephan Schulz, schulz@informatik.tu-muenchen.de\n\
 \n\

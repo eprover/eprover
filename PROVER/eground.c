@@ -744,7 +744,7 @@ this is the case, print sufficiently many ground instances of the\n\
 clauses to guarantee that a ground refutation can be found for\n\
 unsatisfiable clause sets.\n\
 \n");
-   PrintOptions(stdout, opts);
+   PrintOptions(stdout, opts, "Options\n\n");
    fprintf(out, "\n\
 Copyright (C) 1998-2003 by Stephan Schulz, " STS_MAIL "\n\
 \n\

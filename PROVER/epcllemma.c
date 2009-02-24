@@ -8,7 +8,7 @@ Contents
  
   Read a PCL protocol and suggest certain clauses as lemmas.
 
-  Copyright 2003-2005 by the author.
+  Copyright 2003-2009 by the author.
   This code is released under the GNU General Public Licence.
   See the file COPYING in the main CLIB directory for details.
   Run "eprover -h" for contact information.
@@ -618,7 +618,7 @@ NAME " " VERSION "\n"
 "\n"
 "Read an UPCL2 protocol and suggest certain steps as lemmas."
 "\n");
-   PrintOptions(stdout, opts);
+   PrintOptions(stdout, opts, "Options\n\n");
    fprintf(out, "\n\
 Copyright (C) 2003-2005 by Stephan Schulz, " STS_MAIL "\n\
 \n\

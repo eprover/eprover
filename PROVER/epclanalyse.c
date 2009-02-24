@@ -9,7 +9,7 @@ Contents
   Read a PCL protocol and collect and print a number of statistics on
   the protocol.
 
-  Copyright 2002 by the author.
+  Copyright 2002-2009 by the author.
   This code is released under the GNU General Public Licence.
   See the file COPYING in the main CLIB directory for details.
   Run "eprover -h" for contact information.
@@ -27,6 +27,7 @@ Changes
 #include <cio_tempfile.h>
 #include <cio_signals.h>
 #include <pcl_propanalysis.h>
+#include <e_version.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -34,7 +35,6 @@ Changes
 /*---------------------------------------------------------------------*/
 
 #define NAME    "epclanalyse"
-#define VERSION "0.1"
 
 typedef enum
 {
@@ -221,14 +221,14 @@ void print_help(FILE* out)
 	   "\n"
 NAME " " VERSION "\n"
 	   "\n"
-"Usage: " NAME " [options] [files]\n"
-"\n"
-"Read an UPCL2 protocol and print a number of statistics about the\n"
-"protocol and it's clauses.\n"
-"\n");
-   PrintOptions(stdout, opts);
+"Usage: " NAME " [options] [files]\n\
+\n\
+Read an PCL2 protocol and print a number of statistics about the\n\
+protocol and it's clauses.\n\
+\n");
+   PrintOptions(stdout, opts, "Options\n\n");
    fprintf(out, "\n\
-Copyright (C) 2002 by Stephan Schulz, schulz@informatik.tu-muenchen.de\n\
+Copyright (C) 2002-2009 by Stephan Schulz, " STS_MAIL "\n\
 \n\
 This program is a part of the support structure for the E equational\n\
 theorem prover. You can find the latest version of the E distribution\n\
@@ -252,14 +252,9 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330,\n\
 Boston, MA  02111-1307 USA\n\
 \n\
 The original copyright holder can be contacted as\n\
-\n\
-Stephan Schulz\n\
-Technische Universitaet Muenchen\n`\
-Fakultaet fuer Informatik\n\
-Arcisstrasse 20\n\
-D-80290 Muenchen\n\
-Germany\n\
-");
+\n"
+STS_SNAIL
+"\n");
 }
 
 

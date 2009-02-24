@@ -297,7 +297,7 @@ Usage: ekb_insert [options] [names]\n\
 \n\
 Insert example files into an E knowledge base. Each non-option argument\n\
 is considered as one individual example file.\n\n"); 
-   PrintOptions(stdout, opts);
+   PrintOptions(stdout, opts, "Options\n\n");
    fprintf(out, "\n\
 Copyright (C) 1999-2006 by Stephan Schulz, " STS_MAIL "\n\
 \n\

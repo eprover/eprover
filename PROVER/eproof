@@ -69,13 +69,16 @@ print_help ()
     echo "eproof " $VERSION
     sed -e 's/\\n/\n/g' <<EOF
 \n\
-Usage: eproof [options] [files]\n\
+Usage: eproof [options] <file1> ...\n\
 \n\
 Eproof is a wrapper around E and epclextract. It will run E with\n\
 output level 4 (full output of all potentially proof-relevant\n\
 inferences) and, in the case of success, automatically run epclextract\n\
 to provide a proof derivation or a derivation of all clauses in the\n\
 saturated proof state.\n\
+\n\
+Please note that eproof, unlike most E tools, does not support reading\n\
+problems from stdin. It will silently assume an empty input from stdin.\n\
 \n\
 Eproof will intercept the command line arguments and interprete certain\n\
 options as described below. All other options and arguments are passed\n\
@@ -85,6 +88,8 @@ pages for the supported options.\n\
 In particular, eproof will automatically do a close approximation of\n\
 'the right thing' (tm) with the options describing input- and output\n\
 formats. \n\
+\n\
+Options:
 \n\
    -h\n\
   --help\n\
@@ -162,7 +167,7 @@ for argument in  "$@"; do
 	print_stats=29
         print_res=6
     elif [ "$argument" = "-V" -o "$argument" = "--version" ] ; then
-        echo eproof $VERSION "(using "`$EXECPATH/epclextract --version`")"
+        echo eproof $VERSION
         exit $?
     elif [ "$argument" = "-h" -o "$argument" = "--help" ] ; then
         print_help

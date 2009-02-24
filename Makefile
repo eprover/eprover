@@ -18,7 +18,7 @@
 #
 #------------------------------------------------------------------------
 
-.PHONY: all depend remove_links clean cleandist default_config debug_config distrib fulldistrib top links tags tools rebuild install config remake documentation E
+.PHONY: all depend remove_links clean cleandist default_config debug_config distrib fulldistrib top links tags tools rebuild install config remake documentation E man
 
  include Makefile.vars
 
@@ -69,7 +69,7 @@ debug_config:
 
 # Build a distribution
 
-distrib: cleandist default_config
+distrib: man cleandist default_config
 	@echo "Did you think about: "
 	@echo " - Changing the bibliographies to local version"
 	@echo "    ??? "
@@ -80,7 +80,7 @@ distrib: cleandist default_config
 # Include proprietary code not part of the GPL'ed version, 
 # as well as CVS subdirecctories
 
-fulldistrib: cleandist default_config
+fulldistrib: man cleandist default_config
 	@echo "Warning: You are building a full archive!"
 	@echo "Did you remember to increase the dev version number and commit to CVS?"
 	cd ..; $(TAR) cf - $(PROJECT)|$(GZIP) - -c > $(PROJECT)_FULL.tgz
@@ -153,6 +153,12 @@ remake: config rebuild documentation
 
 documentation:
 	cd DOC; $(MAKE)
+
+man: top
+	help2man -N PROVER/eproof > DOC/man/eproof.1
+	help2man -N PROVER/eprover > DOC/man/eprover.1
+	help2man -N PROVER/eground > DOC/man/eground.1
+	help2man -N PROVER/epclextract > DOC/man/epclextract.1
 
 # Build the single libraries
 

@@ -227,7 +227,7 @@ Usage: cl_patterntest [options] [files]\n\
 \n\
 Read a set of clauses and transform them into patterns.\n\
 \n");
-   PrintOptions(stdout, opts);
+   PrintOptions(stdout, opts, "Options\n\n");
 }
 
 

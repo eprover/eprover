@@ -188,7 +188,7 @@ Usage: term2dag [options] [files]\n\
 \n\
 Read a set of terms and print a DAG representing it.\n\
 \n");
-   PrintOptions(stdout, opts);
+   PrintOptions(stdout, opts, "Options\n\n");
 }
 
 

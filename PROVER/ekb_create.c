@@ -262,7 +262,7 @@ NAME " " VERSION "\n\
 Usage: " NAME " [options] [<name>]\n\
 \n\
 Create an empty knowledge base with name <name> for E.\n\n"); 
-   PrintOptions(stdout, opts);
+   PrintOptions(stdout, opts, "Options\n\n");
    fprintf(out, "\n\
 Copyright (C) 1999-2004 by Stephan Schulz, " STS_MAIL "\n\
 \n\

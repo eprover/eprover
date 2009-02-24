@@ -357,7 +357,7 @@ Usage: edpll [options] [files]\n\
 Read a set of ground clauses and try to refute (or satisfy) it.\n\
 Not completed yet!\n\
 \n");
-   PrintOptions(stdout, opts);
+   PrintOptions(stdout, opts, "Options\n\n");
    fprintf(out, "\n\
 Copyright (C) 2003 by Stephan Schulz, " STS_MAIL" \n\
 \n\

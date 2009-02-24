@@ -158,7 +158,7 @@ Usage: ex_commandline [options] [files]\n\
 \n\
 Shows the usage of options, print non-option commandline arguments.\n\
 \n");
-   PrintOptions(stdout, opts);
+   PrintOptions(stdout, opts, "Options\n\n");
 }
 
 
