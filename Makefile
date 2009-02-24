@@ -155,10 +155,10 @@ documentation:
 	cd DOC; $(MAKE)
 
 man: top
-	help2man -N PROVER/eproof > DOC/man/eproof.1
-	help2man -N PROVER/eprover > DOC/man/eprover.1
-	help2man -N PROVER/eground > DOC/man/eground.1
-	help2man -N PROVER/epclextract > DOC/man/epclextract.1
+	help2man -N -i DOC/bug_reporting PROVER/eproof > DOC/man/eproof.1
+	help2man -N -i DOC/bug_reporting PROVER/eprover > DOC/man/eprover.1
+	help2man -N -i DOC/bug_reporting PROVER/eground > DOC/man/eground.1
+	help2man -N -i DOC/bug_reporting PROVER/epclextract > DOC/man/epclextract.1
 
 # Build the single libraries
 
