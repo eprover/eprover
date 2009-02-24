@@ -26,6 +26,7 @@ Changes
 #include <cio_tempfile.h>
 #include <cio_signals.h>
 #include <pcl_proofcheck.h>
+#include <e_version.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -33,7 +34,6 @@ Changes
 /*---------------------------------------------------------------------*/
 
 #define NAME    "checkproof"
-#define VERSION "0.4"
 
 typedef enum
 {
@@ -337,7 +337,7 @@ step in detail.\n\
 \n");
    PrintOptions(stdout, opts);
    fprintf(out, "\n\
-Copyright 1998-2003 by Stephan Schulz, " STS_MAIL "\n\
+Copyright (C) 1998-2003 by Stephan Schulz, " STS_MAIL "\n\
 \n\
 This program is a part of the support structure for the E equational\n\
 theorem prover. You can find the latest version of the E distribution\n\

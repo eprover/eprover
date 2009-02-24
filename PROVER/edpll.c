@@ -24,12 +24,13 @@ Changes
 #include <cio_output.h>
 #include <cio_signals.h>
 #include <cpr_dpll.h>
+#include <e_version.h>
 
 /*---------------------------------------------------------------------*/
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-#define VERSION "0.1"
+#define NAME "edpll"
 
 typedef enum
 {
@@ -358,7 +359,7 @@ Not completed yet!\n\
 \n");
    PrintOptions(stdout, opts);
    fprintf(out, "\n\
-Copyright 20032 by Stephan Schulz, " STS_MAIL" \n\
+Copyright (C) 2003 by Stephan Schulz, " STS_MAIL" \n\
 \n\
 This program is a part of the support structure for the E equational\n\
 theorem prover. You can find the latest version of the E distribution\n\

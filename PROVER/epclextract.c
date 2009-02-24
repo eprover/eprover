@@ -28,13 +28,14 @@ Changes
 #include <cio_signals.h>
 #include <pcl_protocol.h>
 #include <pcl_miniprotocol.h>
+#include <e_version.h>
+
 
 /*---------------------------------------------------------------------*/
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
 #define NAME    "epclextract"
-#define VERSION "0.41"
 
 typedef enum
 {
@@ -356,7 +357,7 @@ NAME " " VERSION "\n"
 "\n");
    PrintOptions(stdout, opts);
    fprintf(out, "\n\
-Copyright 2002-2003 by Stephan Schulz, " STS_MAIL "\n\
+Copyright (C) 2002-2003 by Stephan Schulz, " STS_MAIL "\n\
 \n\
 This program is a part of the support structure for the E equational\n\
 theorem prover. You can find the latest version of the E distribution\n\

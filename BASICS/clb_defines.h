@@ -93,12 +93,6 @@ typedef union int_or_p
 #endif
 #endif
 
-
-#define E_URL "http://www.eprover.org"
-
-#define STS_MAIL "schulz@eprover.org"
-#define STS_SNAIL "Stephan Schulz (I4)\nTechnische Universitaet Muenchen\nInstitut fuer Informatik\nBoltzmannstrasse 3\n85748 Garching bei Muenchen\nGermany\n"
-
 /* Allow for volatile functions if the compiler supports them - 
    gcc version egcs-2.90.23 980102 (egcs-1.0.1 release)
    apparently defines __GNUC__  but does not *sigh* */

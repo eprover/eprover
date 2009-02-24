@@ -27,12 +27,12 @@ Changes
 #include <cle_kbinsert.h>
 #include <pcl_analysis.h>
 #include <cio_signals.h>
+#include <e_version.h>
 
 /*---------------------------------------------------------------------*/
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-#define VERSION "0.1dev"
 
 typedef enum
 {
@@ -353,7 +353,7 @@ Generate a set of training examples from an E inference list and\n\
 insert it into a knowledge base.\n\n"); 
    PrintOptions(stdout, opts);
    fprintf(out, "\n\
-Copyright 1999-2004 by Stephan Schulz, " STS_MAIL "\n\
+Copyright (C) 1999-2004 by Stephan Schulz, " STS_MAIL "\n\
 \n\
 This program is a part of the support structure for the E equational\n\
 theorem prover. You can find the latest version of the E distribution\n\

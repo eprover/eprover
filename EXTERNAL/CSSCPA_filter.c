@@ -24,13 +24,13 @@ Changes
 #include <cio_commandline.h>
 #include <cex_csscpa.h>
 #include <stdio.h>
+#include <e_version.h>
 
 /*---------------------------------------------------------------------*/
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
 #define NAME    "CSSCPA_filter"
-#define VERSION "0.1dev"
 
 typedef enum
 {

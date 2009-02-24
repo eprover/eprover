@@ -27,12 +27,13 @@ Changes
 #include <ccl_unfold_defs.h>
 #include <ccl_formulafunc.h>
 #include <che_clausesetfeatures.h>
+#include <e_version.h>
 
 /*---------------------------------------------------------------------*/
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-#define VERSION "0.7"
+#define NAME "classify_problem"
 
 typedef enum
 {
@@ -312,7 +313,7 @@ int main(int argc, char* argv[])
 
    assert(argv[0]);
    
-   InitIO("classify_problem");
+   InitIO(NAME);
 
    limits = SpecLimitsAlloc();
    state = process_options(argc, argv, limits);
@@ -523,7 +524,7 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
 	    exit(NO_ERROR);
 	    break;
       case OPT_VERSION:
-	    printf("classify_problem " VERSION "\n");
+	    printf(NAME" " VERSION "\n");
 	    exit(NO_ERROR);
 	    break;
       case OPT_PARSE_FEATURES:
@@ -675,7 +676,7 @@ void print_help(FILE* out)
 {
    fprintf(out, "\n\
 \n\
-classify_problem " VERSION "\n\
+" NAME " " VERSION "\n\
 \n\
 Usage: classify_problem [options] [files]\n\
 \n\
@@ -683,7 +684,7 @@ Read sets of clauses and classify them according to predefined criteria.\n\
 \n");
    PrintOptions(stdout, opts);
    fprintf(out, "\n\
-Copyright 1998-2005 by Stephan Schulz, " STS_MAIL "\n\
+Copyright (C) 1998-2005 by Stephan Schulz, " STS_MAIL "\n\
 \n\
 This program is a part of the support structure for the E equational\n\
 theorem prover. You can find the latest version of the E distribution\n\

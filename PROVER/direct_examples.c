@@ -249,7 +249,7 @@ spread over multiple files), and generate training examples\n\
 corresponding to the selected clauses.\n"); 
    PrintOptions(stdout, opts);
    fprintf(out, "\n\
-Copyright 1998 by Stephan Schulz, schulz@informatik.tu-muenchen.de\n\
+Copyright (C) 1998 by Stephan Schulz, schulz@informatik.tu-muenchen.de\n\
 \n\
 This program is a part of the support structure for the E equational\n\
 theorem prover. You can find the latest version of the E distribution\n\

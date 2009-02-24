@@ -31,16 +31,14 @@ Changes
 #include <ccl_unfold_defs.h>
 #include <ccl_formulafunc.h>
 #include <cte_simplesorts.h>
+#include <e_version.h>
+
 
 /*---------------------------------------------------------------------*/
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-/*  cvs tag E-1-0-004 */
-#define VERSION      "1.0-004"
 #define NAME         "eprover"
-
-#define NICKNAME     "Temi"
 
 typedef enum
 {
@@ -971,12 +969,10 @@ OptCell opts[] =
    {OPT_DEF_CNF,
     '\0', "definitional-cnf",
     OptArg, TFORM_RENAME_LIMIT_STR,
-    "Use the new clausification algorithm that possibly "
-    "introduces definitions for subformulas to avoid exponential blow-up."
-    " This is now the default."
-    " The optional argument is a fudge factor that determines when a "
-    "definition is introduced. 0 disables definitions, the default works"
-    " well."},
+    "Tune the clausification algorithm to introduces definitions for "
+    "subformulae to avoid exponential blow-up. The optional argument "
+    "is a fudge factor that determines whendefinitions are introduced. "
+    "0 disables definitions completely. The default works well."},
    
    {OPT_NOOPT,
     '\0', NULL,
@@ -1319,7 +1315,7 @@ CLState_p process_options(int argc, char* argv[])
 	    exit(NO_ERROR);
 	    break;
       case OPT_VERSION:
-	    fprintf(stdout, "E " VERSION " " NICKNAME "\n");
+	    fprintf(stdout, "E " VERSION " " E_NICKNAME "\n");
 	    exit(NO_ERROR);
 	    break;
       case OPT_OUTPUT:
@@ -1910,7 +1906,7 @@ CLState_p process_options(int argc, char* argv[])
 void print_help(FILE* out)
 {
    fprintf(out, "\n\
-E " VERSION " \"" NICKNAME "\"\n\
+E " VERSION " \"" E_NICKNAME "\"\n\
 \n\
 Usage: " NAME " [options] [files]\n\
 \n\
@@ -1918,7 +1914,7 @@ Read a set of first-order clauses and formulae and try to refute it.\n\
 \n");
    PrintOptions(stdout, opts);
    fprintf(out, "\n\
-Copyright 1998-2009 by Stephan Schulz, " STS_MAIL "\n\
+Copyright (C) 1998-2009 by Stephan Schulz, " STS_MAIL "\n\
 \n\
 You can find the latest version of E and additional information at\n"
 E_URL

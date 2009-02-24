@@ -28,12 +28,15 @@ Changes
 #include <ccl_splitting.h>
 #include <ccl_grounding.h>
 #include <che_clausesetfeatures.h>
+#include <e_version.h>
+
+
 
 /*---------------------------------------------------------------------*/
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-#define VERSION "0.4"
+#define NAME "eground"
 
 typedef enum
 {
@@ -108,7 +111,7 @@ OptCell opts[] =
     "output. Level 0 produces "
     "nearly no output except for the final clauses, level 1 produces"
     " minimal additional output. Higher levels are without meaning in"
-    " eground (I think)."},
+    " " NAME " (I think)."},
  
    {OPT_PRINT_STATISTICS,
     '\0', "print-statistics",
@@ -337,7 +340,7 @@ int main(int argc, char* argv[])
 
    assert(argv[0]);
    
-   InitIO("eground");
+   InitIO(NAME);
    ESignalSetup(SIGXCPU);
 
    state = process_options(argc, argv);
@@ -555,7 +558,7 @@ CLState_p process_options(int argc, char* argv[])
 	    exit(NO_ERROR);
 	    break;
       case OPT_VERSION:
-	    printf("classify_problem " VERSION "\n");
+	    printf(NAME" " VERSION "\n");
 	    exit(NO_ERROR);
 	    break;
       case OPT_OUTPUT:
@@ -731,7 +734,7 @@ void print_help(FILE* out)
 {
    fprintf(out, "\n\
 \n\
-eground " VERSION "\n\
+"NAME " " VERSION "\n\
 \n\
 Usage: eground [options] [files]\n\
 \n\
@@ -743,7 +746,7 @@ unsatisfiable clause sets.\n\
 \n");
    PrintOptions(stdout, opts);
    fprintf(out, "\n\
-Copyright 1998-2003 by Stephan Schulz, " STS_MAIL "\n\
+Copyright (C) 1998-2003 by Stephan Schulz, " STS_MAIL "\n\
 \n\
 This program is a part of the support structure for the E equational\n\
 theorem prover. You can find the latest version of the E distribution\n\

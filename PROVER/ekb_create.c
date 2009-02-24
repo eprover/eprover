@@ -25,13 +25,13 @@ Changes
 #include <cio_commandline.h>
 #include <cio_output.h>
 #include <cle_kbdesc.h>
+#include <e_version.h>
 
 /*---------------------------------------------------------------------*/
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
 #define NAME    "ekb_create"
-#define VERSION "0.2dev"
 
 typedef enum
 {
@@ -264,7 +264,7 @@ Usage: " NAME " [options] [<name>]\n\
 Create an empty knowledge base with name <name> for E.\n\n"); 
    PrintOptions(stdout, opts);
    fprintf(out, "\n\
-Copyright 1999-2004 by Stephan Schulz, " STS_MAIL "\n\
+Copyright (C) 1999-2004 by Stephan Schulz, " STS_MAIL "\n\
 \n\
 This program is a part of the support structure for the E equational\n\
 theorem prover. You can find the latest version of the E distribution\n\

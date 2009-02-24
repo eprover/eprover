@@ -326,7 +326,7 @@ results. This is an experimental programm and does not have all the\n\
 usual error checking and hand holding features as E proper!\n");
    PrintOptions(stdout, opts);
    fprintf(out, "\n\
-Copyright 1998 by Stephan Schulz, schulz@informatik.tu-muenchen.de\n\
+Copyright (C) 1998 by Stephan Schulz, schulz@informatik.tu-muenchen.de\n\
 \n\
 This program is a part of the support structure for the E equational\n\
 theorem prover. You can find the latest version of the E distribution\n\

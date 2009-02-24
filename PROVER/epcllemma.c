@@ -26,6 +26,7 @@ Changes
 #include <cio_tempfile.h>
 #include <cio_signals.h>
 #include <pcl_lemmas.h>
+#include <e_version.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -33,7 +34,6 @@ Changes
 /*---------------------------------------------------------------------*/
 
 #define NAME    "epcllemma"
-#define VERSION "0.2"
 
 typedef enum
 {
@@ -620,7 +620,7 @@ NAME " " VERSION "\n"
 "\n");
    PrintOptions(stdout, opts);
    fprintf(out, "\n\
-Copyright 2003-2005 by Stephan Schulz, " STS_MAIL "\n\
+Copyright (C) 2003-2005 by Stephan Schulz, " STS_MAIL "\n\
 \n\
 This program is a part of the support structure for the E equational\n\
 theorem prover. You can find the latest version of the E distribution\n\

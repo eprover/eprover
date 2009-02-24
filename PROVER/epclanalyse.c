@@ -228,7 +228,7 @@ NAME " " VERSION "\n"
 "\n");
    PrintOptions(stdout, opts);
    fprintf(out, "\n\
-Copyright 2002 by Stephan Schulz, schulz@informatik.tu-muenchen.de\n\
+Copyright (C) 2002 by Stephan Schulz, schulz@informatik.tu-muenchen.de\n\
 \n\
 This program is a part of the support structure for the E equational\n\
 theorem prover. You can find the latest version of the E distribution\n\

@@ -27,13 +27,13 @@ Changes
 #include <cio_output.h>
 #include <cio_fileops.h>
 #include <cle_kbinsert.h>
+#include <e_version.h>
 
 /*---------------------------------------------------------------------*/
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
 #define NAME    "ekb_insert"
-#define VERSION "0.2dev"
 
 typedef enum
 {
@@ -299,7 +299,7 @@ Insert example files into an E knowledge base. Each non-option argument\n\
 is considered as one individual example file.\n\n"); 
    PrintOptions(stdout, opts);
    fprintf(out, "\n\
-Copyright 1999-2006 by Stephan Schulz, " STS_MAIL "\n\
+Copyright (C) 1999-2006 by Stephan Schulz, " STS_MAIL "\n\
 \n\
 This program is a part of the support structure for the E equational\n\
 theorem prover. You can find the latest version of the E distribution\n\
