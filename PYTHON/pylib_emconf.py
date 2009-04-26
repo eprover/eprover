@@ -51,6 +51,20 @@ import pylib_io
 
 
 DEFAULT_ANNOUNCE_PORT = 30000
+"""
+Servers announce their presence here.
+"""
+
+DEFAULT_CONTROL_PORT  = 40000
+"""
+Control applications connect here.
+"""
+
+DEFAULT_TESTDIR = "EPROVER/TESTRUNS_SERVER"
+"""
+Default directory for test specs and results.
+"""
+
 
 filename_hack_re = re.compile("\.\.")
 
@@ -70,8 +84,10 @@ Result directory:   %s
         homedir = pylib_io.get_homedir()
 
         self.port         = DEFAULT_ANNOUNCE_PORT
-        self.jobdir       = homedir+"/EPROVER/TESTRUNS_SERVER"
-        self.resultdir    = homedir+"/EPROVER/TESTRUNS_SERVER"
+        self.ctrl_port    = DEFAULT_CONTROL_PORT
+        self.specdir      = homedir+"/"+DEFAULT_TESTDIR
+        self.protdir      = homedir+"/"+DEFAULT_TESTDIR
+        
         
         if not config:
             return
@@ -81,13 +97,16 @@ Result directory:   %s
 
             for key in confdict:
                 value = confdict[key]
+                print key, value
 
                 if key == "Job directory":
-                    self.jondir = value
+                    self.specdir = value
                 elif key == "Result directory":
-                    self.resultdir = value
+                    self.protdir = value
                 elif key == "Port":
                     self.port = int(value)
+                elif key == "Control port":
+                    self.ctrl_port = int(value)
                 else:
                     raise pylib_io.ECconfigSyntaxError("Unknown keyword",
                                                        key)
@@ -96,7 +115,7 @@ Result directory:   %s
             sys.exit(1)
         
     def __str__(self):        
-        return e_mconfig.template%(self.port, self.jobdir, self.resultdir)
+        return e_mconfig.template%(self.port, self.specdir, self.protdir)
         
 
 if __name__ == '__main__':

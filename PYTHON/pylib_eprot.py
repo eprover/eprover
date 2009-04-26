@@ -43,6 +43,7 @@ or via email (address above).
 
 import sys
 import string
+import time
 import getopt
 import os.path
 import pylib_generic
@@ -165,6 +166,9 @@ class ejob(object):
                  self.problem,
                  self.time_limit))
 
+    def key(self):        
+        return self.strat_key+self.problem
+
 
 class eresult(object):
     """
@@ -203,7 +207,9 @@ class eprot(object):
     Class representing an E protocol.
     """
     def __init__(self, name):
+        print "eprot(", name, ")"
         self.name     = e_strip_name(name)
+        print "self.name:", self.name
         self.comments = []
         self.results  = {}
         self.filename = None
@@ -215,7 +221,7 @@ class eprot(object):
         except KeyError:
             return None
 
-    def entry_no(self):
+    def results_no(self):
         return len(self.results)
 
     def protname(self):
@@ -262,6 +268,7 @@ class eprot(object):
 
     def parse(self, directory=""):
         filename = os.path.join(directory, self.protname())
+        self.filename = filename
         try:
             fp = pylib_io.flexopen(filename, "r")
         except IOError:
@@ -274,7 +281,6 @@ class eprot(object):
                 else:
                     res = eresult(i)
                     self.add_result(res)
-        self.filename = filename
         self.synced   = True
         return True
 
@@ -311,9 +317,10 @@ class eprot(object):
         Safe the protocol to the associated disk file (if any and if
         necessary).
         """
+        print "eprot->sync", self.filename, self.synced
         if self.filename and not self.synced:
-            verbout("Syncing "+self.filename)
-            fp = pylib_io.flexopen(filename, "w")
+            pylib_io.verbout("Syncing "+self.filename)
+            fp = pylib_io.flexopen(self.filename, "w")
             fp.write(self.__str__())
             pylib_io.flexclose(fp)
             self.synced = True
@@ -385,11 +392,23 @@ class estrat_task(object):
     Class representing a single strategy to test, including
     specification and results (so far).
     """
-    def __init__(self, name):
-        self.name         = name
-        self.prot         = eprot(name)
-        self.spec         = espec(name)
-        self.job_complete = False        
+    def __init__(self, name, auto_sync = None):
+        self.name          = e_strip_name(name)
+        self.prot          = eprot(name)
+        self.spec          = espec(name)
+        self.job_complete  = False
+        self.auto_sync     = auto_sync
+        self.specdir       = None
+        self.protdir       = None
+        self.retired       = pylib_generic.timer(0)
+        self.refresh()
+
+
+    def __str__(self):
+        return "<estrat %15s: %5d of %5d : Stale in: %f>" % (self.name,
+                                                             self.results_no(),
+                                                             self.total_no(),
+                                                             self.retired.remaining())
         
     def parse(self, specdir, protdir):
         """
@@ -397,15 +416,42 @@ class estrat_task(object):
         """
         self.spec.parse(specdir)
         self.prot.parse(protdir)
+        self.specdir = specdir
+        self.protdir = protdir
         self.prot.filter(self.spec.problems)
         missing = self.prot.find_missing(self.spec.problems)
         self.job_complete = len(missing)==0
 
+    def results_no(self):
+        return self.prot.results_no()
+
+    def total_no(self):
+        return len(self.spec.problems)
+
     def find_missing(self):
         return self.prot.find_missing(self.spec.problems)
 
+    def refresh(self):
+        """
+        Wait for half an hour before considering this protocol stale.
+        """
+        self.retired.set(1800)
+
+    def stale(self):
+        return self.retired.expired()
+
     def add_result(self, res):
+        print "Result: ", res
+        print self.results_no(), self.auto_sync,  self.results_no() % self.auto_sync 
+
+        self.refresh()
         self.prot.add_result(res)
+        if self.auto_sync:
+            if self.results_no() % self.auto_sync == 0:
+                print "Syncing!"
+                self.sync()
+                return True
+        return False
 
     def sync(self):
         self.prot.sync()
@@ -418,6 +464,8 @@ class estrat_task(object):
             return len(self.find_missing(self))==0
         else:
             return False
+
+        
 
 
 if __name__ == '__main__':

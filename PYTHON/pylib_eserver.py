@@ -77,6 +77,7 @@ class running_job(object):
         res = self.runner.get_result()
         if res != None:
             self.connection.write(str(res)+"\n")
+            pylib_io.verbout("Job"+str(self)+"done: "+str(res))
             return True
         else:
             return False
@@ -94,7 +95,7 @@ class eserver(object):
         self.jobs        = []
         self.running     = []
         self.connections = []
-        self.server      = pylib_tcp.tcp_server(config.port)
+        self.server      = pylib_tcp.etcp_server(config.port)
         self.config      = config
 
     def process(self):
@@ -113,17 +114,18 @@ class eserver(object):
 
             for i in ready[0]:
                 if i == self.server:
-                    new_conn =  self.server.accept()
+                    new_conn =  self.server.accept(jobend_re)
                     pylib_io.verbout("New connection "+str(new_conn))
                     self.connections.append(new_conn)
 
                 if i in self.connections:
-                    (match, command) = i.read(jobend_re)
-                    if command == "":
-                        pylib_io.verbout("Connection "+str(i)+" terminated")
-                        self.connections.remove(i)
-                    elif match:
-                        self.dispatch(i, command)
+                    commands = i.read()
+                    for command in commands:
+                        if command == "":
+                            pylib_io.verbout("Connection "+str(i)+" terminated")
+                            self.connections.remove(i)
+                        else:
+                            self.dispatch(i, command)
 
                 if i in self.running:
                     if i.check_and_report():
@@ -176,6 +178,7 @@ class eserver(object):
 
     def create_job(self, connection, command_list):
         job = waiting_job(connection, command_list)
+        pylib_io.verbout("Creating job"+str(job))
         self.jobs.append(job)
         
 

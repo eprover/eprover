@@ -168,8 +168,8 @@ class e_runner(runner):
             time  = float(tmp.split()[0])
             atime = self.config.abstract_time(time)
         except:
-            time = -1.0
-            atime = -1.0
+            time = self.time
+            atime = self.time
             
         result = [self.key, self.problem, status, atime, reason, time]
 

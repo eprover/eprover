@@ -59,32 +59,224 @@ import pylib_generic
 import pylib_io
 import pylib_tcp
 import pylib_emconf
+import pylib_eprot
+import pylib_etestset
 
 
 announce_matcher = re.compile("eserver:[0-9]+")
+SLAVE_OPEN_JOB_LIMIT = 5
+
+class xresult(object):
+    def __init__(self, desc_str):
+        tmp = map(lambda x:x.strip(),desc_str[1:-2].split(","))
+        self.strat      = tmp[0].strip("'")
+        self.prob       = tmp[1].strip("'")
+        self.state      = tmp[2].strip("'")
+        self.raw_time   = float(tmp[3])
+        self.terminated = tmp[4].strip("'")
+        self.norm_time  = float(tmp[5])
+        self.rest       = tmp[6:]
+
+    def key(self):
+        return self.strat+self.prob
+
+    def res_str(self):
+        if self.state in ["Theorem", "Unsatisfiable"]:
+            status = "T"
+        elif self.state in ["CounterSatisfiable", "Satisfiable"]:
+            status = "N"
+        else:
+            status = "F"
+        fixed = "%-29s %s %8s %-10s "%(self.prob, status,
+                                       self.norm_time, self.terminated)
+        res = fixed+" ".join([str(i) for i in self.rest])
+        return res
+            
+           
 
 class eslave(object):
-    def __init__(self, connection):
+    def __init__(self, connection, addr):
         self.connection = connection
-        self.open_jobs = 0
+        self.addr = addr
+        self.open_jobs = {}
+
+    def __str__(self):
+        return "<eslave "+str(self.addr)+":open:"+str(self.jobs_no())+">"
+
+    def address(self):
+        """
+        Return the IP addess of the partner.
+        """
+        return self.addr
+
+    def fileno(self):
+        return self.connection.fileno()
+
+    def sendable(self):
+        return self.connection.sendable()
+
+    def jobs(self):
+        return self.open_jobs.values()
+
+    def jobs_no(self):
+        return len(self.jobs())
+
+    def add_job(self, job):
+        self.open_jobs[job.key()] = job
+        pylib_io.verbout("Adding:"+str(job))
+        self.connection.write(str(job))
+
+    def proc_read(self):
+        """
+        Try to read a result from the connection. Return a list of
+        (results or empty string), with empty string indicating a
+        broken connection.
+        """
+        tmp = self.connection.read()
+        ret = list()
+        for i in tmp:
+            if i== "":
+                ret.append("")
+            else:
+                try:
+                    res = xresult(i)
+                    ret.append(res)
+                    del self.open_jobs[res.key()]
+                except IndexError, KeyError:
+                    pass
+                       
+        return ret
+
+    def proc_write(self):
+        """
+        Try to write to the connection. Return the number of bytes
+        written.
+        """
+        res = self.connection.send()
 
 
 
 class emaster(object):
-    def __init__(self, config):
-        self.rec_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    def __init__(self, config, auto_sync=5):
+        self.rec_sock    = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.rec_sock.bind(("", config.port))
-        self.client = pylib_tcp.tcp_client()
-        self.slaves = {}
+        self.config      = config
+        self.client      = pylib_tcp.tcp_client()
+        self.slaves      = {}
+        self.strats      = pylib_etestset.etestset([], auto_sync)
+        self.ctrl_server = pylib_tcp.tcp_server(config.ctrl_port)
+        self.ctrls       = []
 
+
+    def add_strat(self, strat):
+        self.strats.add_strat(strat, self.config.specdir, self.config.protdir)
+        pylib_io.verbout("New job (%d open):"%(len(self.strats.strats),)+str(strat))
+
+    def add_slave_jobs(self, slave):
+        res = 0
+        while slave.jobs_no() < SLAVE_OPEN_JOB_LIMIT:
+            job = self.strats.next_job()
+            if job:
+                slave.add_job(job)
+                res = res+1
+            else:
+                break
+        return res
+
+    def prune_stale_strats(self):
+        for i in  self.strats.processing.values():
+            if i.stale():
+                print "Deactivating!"
+                self.strats.deactivate_strat(i)
+                
         
     def process(self):
         while True:
-            ractive = [self.rec_sock]
-            wactive = []
+            self.prune_stale_strats()
+
+            ractive = [self.rec_sock, self.ctrl_server]+self.slaves.values()+self.ctrls
+            wactive = ([i for i in self.slaves.values() if i.sendable()] +
+                       [i for i in self.ctrls if i.sendable()])
+            
             ready   = select.select(ractive, wactive, [], 1)
-            if self.rec_sock in ready[0]:
-                self.handle_announce()
+            
+            for reader in ready[0]:
+                if reader == self.rec_sock:
+                    self.handle_announce()
+                elif reader == self.ctrl_server:
+                    new_ctrl = reader.accept()
+                    if new_ctrl:
+                        self.ctrls.append(new_ctrl)
+                elif isinstance(reader, eslave):
+                    results = reader.proc_read()
+                    if not self.add_results(results):
+                        del(self.slaves[reader.address()])
+                else:
+                    self.process_ctrl(reader)
+            for writer in ready[1]:
+                if isinstance(writer, eslave):
+                    writer.proc_write()
+                else:
+                    writer.send()
+
+            for i in self.slaves.values():
+                if self.add_slave_jobs(i) == 0:
+                    break
+
+
+    def process_ctrl(self, ctrl):
+        """
+        Read and process control commands.
+        """
+        print "process_ctrl"
+        commands = ctrl.read()
+        for i in commands:
+            if i == "":
+                self.ctrls.remove(ctrl)
+                return
+            else:
+                self.ctrl_command(ctrl, i[:-1])
+
+    def ctrl_command(self, ctrl, command):
+        """
+        Execute control commands.
+        """
+        print "ctrl_command", command
+        if command == "ls":
+            self.exec_ls(ctrl)
+        elif command.startswith("add"):
+            self.exec_add(self, command)
+            
+            
+    def exec_ls(self, ctrl):
+        ctrl.write("Slaves:\n")
+        for i in self.slaves.values():
+            print str(i)
+            ctrl.write(str(i)+"\n")
+        ctrl.write("Running tasks:\n")
+        ctrl.write(self.strats.proc_str())
+        ctrl.write("Scheduled tasks:\n")               
+        ctrl.write(self.strats.strats_str())
+
+    def exec_add(self, ctrl, command):
+        for i in command.split()[1:]:
+            self.add_strat(i)
+        
+        
+
+    def add_results(self, results):
+        """
+        Take a list of xresults and add them to the testset.
+        """
+        for i in results:
+            if i == "":
+                return False
+            else:
+                res = pylib_eprot.eresult(i.res_str())
+                self.strats.add_result(i.strat, res)
+
+        return True
+        
 
     def handle_announce(self):
         (data,sender) = self.rec_sock.recvfrom(1024)
@@ -97,7 +289,8 @@ class emaster(object):
         if port<1000 or port > 65535:
             return
         connection = self.client.connect((slave_addr, slave_port))
-        slave = eslave(connection)
+        pylib_io.verbout("New slave: "+str(connection))
+        slave = eslave(connection, slave_addr)
         self.slaves[slave_addr] = slave
 
 if __name__ == '__main__':
@@ -117,11 +310,11 @@ if __name__ == '__main__':
         sys.exit()
 
     config = pylib_emconf.e_mconfig(args[0])
+    print config
     master = emaster(config)
 
-    for job in args[1:]:
-        job = pylib_eprot.estrat_task(job)
-
+    for arg in args[1:]:
+        master.add_strat(arg)
 
 
     master.process()

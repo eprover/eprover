@@ -54,12 +54,13 @@ import pylib_io
 lineend_re = re.compile("\n|\r\n")
 
 class connection(object):
-    def __init__(self, conn):
+    def __init__(self, conn, rec_end = lineend_re):
         self.sock = conn[0]
         self.peeradr = conn[1]
         self.inbuffer  = ""
         self.outbuffer = ""
         self.filenum   = self.sock.fileno()
+        self.rec_end = rec_end
 
     def __str__(self):
         return "<conn (%d) to %s>" % (self.filenum, str(self.peeradr))
@@ -77,7 +78,7 @@ class connection(object):
 
     def write(self, data):
         """
-        Add data to the write buffer and try to end it. Returns number
+        Add data to the write buffer and try to send it. Returns number
         of bytes actually written. Any remaining characters are
         buffered for future calls to send(). 
         """
@@ -99,18 +100,26 @@ class connection(object):
         self.inbuffer = self.inbuffer+res
         return res
 
-    def read(self, act_match = lineend_re):
+    def read(self):
+        """
+        Try to read complete expressions separated by self.rec_end off
+        the connection. Returns a list [expr*], where each expr is
+        terminated by a rec_end instance. If any record is "", the
+        connection has been broken. An empty list just indicates that
+        no complete expression has been found yet.
+        """        
         tmp = self.recv()
-        if tmp == "":
-            return (None, "")
 
-        res = None
-        mo = act_match.search(self.inbuffer)
-        if mo:
-            res = self.inbuffer[:mo.start()]+"\n"
+        res = list()
+        mo = self.rec_end.search(self.inbuffer)
+        while mo:
+            res.append(self.inbuffer[:mo.start()]+"\n")
             self.inbuffer = self.inbuffer[mo.end():]
-            return (act_match, res)
-        return (None, self.inbuffer)
+            mo = self.rec_end.search(self.inbuffer)
+        if tmp == "":
+            res.append("")
+
+        return res
 
     def close(self):
         if self.filenum!=-1:
@@ -136,7 +145,7 @@ class tcp_server(object):
                 self.port = port
                 self.listen_sock.bind(("", port))
                 self.listen_sock.listen(5)
-                pylib_io.verbout("EServer listening on port "+str(self.port))
+                pylib_io.verbout("TCP Server listening on port "+str(self.port))
                 return
             except socket.error, inst:
                 port = port+1
@@ -148,19 +157,25 @@ class tcp_server(object):
         """
         return self.listen_sock.fileno() 
     
-    def accept(self):
+    def accept(self,rec_end = lineend_re):
         try:
-            connect = connection(self.listen_sock.accept())
+            connect = connection(self.listen_sock.accept(), rec_end)
         except:
             connect = None
         return connect
+
+
+
+class etcp_server(tcp_server):
+    """
+    Class implementing a specialized E TCP server.
+    """
 
     def announce_self(self, addr):
         msg = "eserver:%d\n"%(self.port,)
         pylib_io.verbout("Announcing: "+msg+" to "+str(addr))
         self.udpout.sendto(msg ,0, addr)
-
-
+        
 
 class tcp_client(object):
     """
