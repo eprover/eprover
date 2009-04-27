@@ -207,9 +207,7 @@ class eprot(object):
     Class representing an E protocol.
     """
     def __init__(self, name):
-        print "eprot(", name, ")"
         self.name     = e_strip_name(name)
-        print "self.name:", self.name
         self.comments = []
         self.results  = {}
         self.filename = None
@@ -317,7 +315,6 @@ class eprot(object):
         Safe the protocol to the associated disk file (if any and if
         necessary).
         """
-        print "eprot->sync", self.filename, self.synced
         if self.filename and not self.synced:
             pylib_io.verbout("Syncing "+self.filename)
             fp = pylib_io.flexopen(self.filename, "w")
@@ -441,14 +438,10 @@ class estrat_task(object):
         return self.retired.expired()
 
     def add_result(self, res):
-        print "Result: ", res
-        print self.results_no(), self.auto_sync,  self.results_no() % self.auto_sync 
-
         self.refresh()
         self.prot.add_result(res)
         if self.auto_sync:
             if self.results_no() % self.auto_sync == 0:
-                print "Syncing!"
                 self.sync()
                 return True
         return False

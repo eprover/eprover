@@ -65,6 +65,10 @@ DEFAULT_TESTDIR = "EPROVER/TESTRUNS_SERVER"
 Default directory for test specs and results.
 """
 
+DEFAULT_SYNC_COUNT = 30
+"""
+How often will a protocol be automatically synced to disk?
+"""
 
 filename_hack_re = re.compile("\.\.")
 
@@ -87,7 +91,7 @@ Result directory:   %s
         self.ctrl_port    = DEFAULT_CONTROL_PORT
         self.specdir      = homedir+"/"+DEFAULT_TESTDIR
         self.protdir      = homedir+"/"+DEFAULT_TESTDIR
-        
+        spec.auto_sync    = DEFAULT_SYNC_COUNT
         
         if not config:
             return
@@ -97,7 +101,6 @@ Result directory:   %s
 
             for key in confdict:
                 value = confdict[key]
-                print key, value
 
                 if key == "Job directory":
                     self.specdir = value
@@ -107,6 +110,8 @@ Result directory:   %s
                     self.port = int(value)
                 elif key == "Control port":
                     self.ctrl_port = int(value)
+                elif key = "Synchronize":
+                    self.auto_sync = int(value)
                 else:
                     raise pylib_io.ECconfigSyntaxError("Unknown keyword",
                                                        key)

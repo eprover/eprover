@@ -186,7 +186,6 @@ class emaster(object):
     def prune_stale_strats(self):
         for i in  self.strats.processing.values():
             if i.stale():
-                print "Deactivating!"
                 self.strats.deactivate_strat(i)
                 
         
@@ -228,7 +227,6 @@ class emaster(object):
         """
         Read and process control commands.
         """
-        print "process_ctrl"
         commands = ctrl.read()
         for i in commands:
             if i == "":
@@ -241,7 +239,6 @@ class emaster(object):
         """
         Execute control commands.
         """
-        print "ctrl_command", command
         if command == "ls":
             self.exec_ls(ctrl)
         elif command.startswith("add"):
@@ -251,7 +248,6 @@ class emaster(object):
     def exec_ls(self, ctrl):
         ctrl.write("Slaves:\n")
         for i in self.slaves.values():
-            print str(i)
             ctrl.write(str(i)+"\n")
         ctrl.write("Running tasks:\n")
         ctrl.write(self.strats.proc_str())
@@ -310,7 +306,6 @@ if __name__ == '__main__':
         sys.exit()
 
     config = pylib_emconf.e_mconfig(args[0])
-    print config
     master = emaster(config)
 
     for arg in args[1:]:
