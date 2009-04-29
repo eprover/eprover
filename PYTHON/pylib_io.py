@@ -111,6 +111,20 @@ def flexclose(file):
     else:
         file.close()
 
+
+def closerange(fd_low, fd_high):
+    """
+    Close a range of fds. This is a back-port of the eponymous
+    function in os for version 2.6.
+    """
+    for fd in xrange(fd_low, fd_high):
+        try:
+            os.close(fd)
+        except OSError:
+            pass
+
+
+
 def check_argc(argmin,argmax=None,argv=sys.argv[1:]):
     """
     Print if the required number of arguments has been given, print an

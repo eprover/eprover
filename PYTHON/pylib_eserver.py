@@ -203,6 +203,7 @@ class eserver(object):
             elif cl[0] == "ls":
                 self.list_state(connection)
             elif cl[0] == "restart":
+                pylib_io.closerange(sys.stderr.fileno()+1, 10000)
                 os.execv(sys.argv[0], sys.argv)
             elif cl[0] == "version":
                 connection.write(service+" "+version+"\n")

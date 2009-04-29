@@ -206,6 +206,7 @@ class emaster(object):
                     new_ctrl = reader.accept()
                     if new_ctrl:
                         self.ctrls.append(new_ctrl)
+                        new_ctrl.write("> ")
                 elif isinstance(reader, eslave):
                     results = reader.proc_read()
                     if not self.add_results(results):
@@ -243,7 +244,11 @@ class emaster(object):
             self.exec_ls(ctrl)
         elif command.startswith("add"):
             self.exec_add(self, command)
-            
+        elif command == "restart slaves":
+            self.exec_restart()
+        else:
+            ctrl.write("Unknown command\n")
+        ctrl.write("> ")
             
     def exec_ls(self, ctrl):
         ctrl.write("Slaves:\n")
@@ -257,7 +262,10 @@ class emaster(object):
     def exec_add(self, ctrl, command):
         for i in command.split()[1:]:
             self.add_strat(i)
-        
+
+    def exec_restart(self):
+        for i in self.slaves.values():
+            i.connection.write("\nrestart\n.\n")
         
 
     def add_results(self, results):

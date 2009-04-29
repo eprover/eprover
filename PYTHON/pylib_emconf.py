@@ -91,7 +91,7 @@ Result directory:   %s
         self.ctrl_port    = DEFAULT_CONTROL_PORT
         self.specdir      = homedir+"/"+DEFAULT_TESTDIR
         self.protdir      = homedir+"/"+DEFAULT_TESTDIR
-        spec.auto_sync    = DEFAULT_SYNC_COUNT
+        self.auto_sync    = DEFAULT_SYNC_COUNT
         
         if not config:
             return
@@ -110,7 +110,7 @@ Result directory:   %s
                     self.port = int(value)
                 elif key == "Control port":
                     self.ctrl_port = int(value)
-                elif key = "Synchronize":
+                elif key == "Synchronize":
                     self.auto_sync = int(value)
                 else:
                     raise pylib_io.ECconfigSyntaxError("Unknown keyword",
