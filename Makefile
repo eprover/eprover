@@ -69,7 +69,7 @@ debug_config:
 
 # Build a distribution
 
-distrib: man cleandist default_config
+distrib: cleandist default_config
 	@echo "Did you think about: "
 	@echo " - Changing the bibliographies to local version"
 	@echo "    ??? "
@@ -80,7 +80,7 @@ distrib: man cleandist default_config
 # Include proprietary code not part of the GPL'ed version, 
 # as well as CVS subdirecctories
 
-fulldistrib: man cleandist default_config
+fulldistrib: cleandist default_config
 	@echo "Warning: You are building a full archive!"
 	@echo "Did you remember to increase the dev version number and commit to CVS?"
 	cd ..; $(TAR) cf - $(PROJECT)|$(GZIP) - -c > $(PROJECT)_FULL.tgz
