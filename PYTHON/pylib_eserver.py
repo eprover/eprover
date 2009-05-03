@@ -174,7 +174,7 @@ class eserver(object):
 
 
     def max_jobs(self):
-        return 2
+        return self.config.max_procs
 
     def create_job(self, connection, command_list):
         job = waiting_job(connection, command_list)

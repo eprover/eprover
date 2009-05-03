@@ -88,9 +88,12 @@ class etestset(object):
         """
         name, specdir, protdir = self.strats.pop(0)
         strat = pylib_eprot.estrat_task(name, self.auto_sync)
-        strat.parse(specdir, protdir)
-        self.jobqueue.extend(strat.generate_jobs())
-        self.processing[strat.name] = strat
+        try:
+            strat.parse(specdir, protdir)
+            self.jobqueue.extend(strat.generate_jobs())
+            self.processing[strat.name] = strat
+        except IOError:
+            print "Error!"
 
 
     def deactivate_strat(self, strat, back=True):

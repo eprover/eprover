@@ -87,13 +87,16 @@ def parse_espec_string(specstr, sourcename=None, resdict = None, joblist = None)
             key = key.strip()
             value = value.strip()
             if key == "Include":
-                fp = pylib_io.flexopen(value, "r")
-                newstr = fp.read()
-                pylib_io.flexclose(fp)
-                resdict, joblist =\
-                         parse_espec_string(newstr,\
-                                            "Included file "+value,\
-                                            resdict, joblist)
+                try:
+                    fp = pylib_io.flexopen(value, "r")
+                    newstr = fp.read()
+                    pylib_io.flexclose(fp)
+                    resdict, joblist =\
+                             parse_espec_string(newstr,\
+                                                "Included file "+value,\
+                                                resdict, joblist)
+                except IOError:
+                    pass # have to put logging in
             else:
                 resdict[key] = value
         except ValueError:
@@ -116,7 +119,7 @@ def parse_espec_file(source):
         fp = pylib_io.flexopen(source, "r")
         inpstr = fp.read()
         pylib_io.flexclose(fp)
-        sourcename = source
+        sourcename = source            
     else:
         assert(type(source)==type(sys.stdin))
         inpstr = fp.read()
@@ -308,7 +311,7 @@ class eprot(object):
     def __str__(self):
         results = [i.__str__() for i in self.results.values()]
         results.sort()
-        return "\n".join(self.comments+results)
+        return "\n".join(self.comments+results)+"\n"
 
     def sync(self):
         """
@@ -454,7 +457,7 @@ class estrat_task(object):
 
     def complete(self):
         if len(self.prot.results) >= len(self.spec.problems):
-            return len(self.find_missing(self))==0
+            return len(self.find_missing())==0
         else:
             return False
 

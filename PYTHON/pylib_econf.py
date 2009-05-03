@@ -79,6 +79,7 @@ Master:             %s
         self.problemdir   = homedir+"/EPROVER/TPTP"
         self.e_mark       = 100.0
         self.memory_limit = 384
+        self.max_procs    = 1
         self.auto_opt     = "-s --print-statistics"
         self.masters      = []
         
@@ -100,7 +101,9 @@ Master:             %s
                 elif key == "E-Mark":
                     self.e_mark = float(value)
                 elif key == "Memory limit":
-                    self.memory_limir = int(value)
+                    self.memory_limit = int(value)
+                elif key == "Max processes":
+                    self.max_procs = int(value)
                 elif key == "Auto options":
                     self.auto_opt = value
                 elif key == "Master":
