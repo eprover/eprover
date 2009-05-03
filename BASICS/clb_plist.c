@@ -48,7 +48,7 @@ Changes
 //
 // Function: PListAlloc()
 //
-//   Aoolcate an empty PList.
+//   Allocate an empty PList.
 //
 // Global Variables: -
 //
