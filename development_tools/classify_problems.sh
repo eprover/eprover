@@ -1,9 +1,9 @@
 #!/bin/sh
 
-cat /dev/null > ../problem_features_tcnf16_new
+cat /dev/null > ../problem_features_tptp_3.5.0
 
 for file in `ls|grep \.p`; do
     echo $file
-    ulimit -t 100
-    classify_problem --tstp-in -caaaaaaaaaaaaa $file>> ../problem_features
+    ulimit -t 300
+    classify_problem --tstp-in --no-eq-unfolding -caaaaaaaaaaaaa $file>> ../problem_features_tptp_3.5.0
 done
