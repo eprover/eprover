@@ -51,6 +51,7 @@ typedef enum
    OPT_TSTP_FORMAT,
    OPT_GEN_TPTP_HEADER,
    OPT_NO_PREPROCESSING,
+   OPT_NO_EQ_UNFOLD,
    OPT_DEF_CNF,
    OPT_MASK,
    OPT_NGU_ABSOLUTE,
@@ -160,6 +161,12 @@ OptCell opts[] =
     "literals and clauses in a certain (\"canonical\") way before "
     "anything else happens. It also unfolds equational definitons (and "
     "removes them)."},
+
+   {OPT_NO_EQ_UNFOLD,
+    '\0', "no-eq-unfolding",
+    NoArg, NULL,
+    "During preprocessing, abstain from unfolding (and removing) "
+    "equational definitions."},
 
    {OPT_DEF_CNF,
     '\0', "definitional-cnf",
@@ -287,6 +294,7 @@ char   *outname = NULL,
 IOFormat parse_format    = LOPFormat;
 bool     tptp_header     = false,
          no_preproc      = false,
+         no_eq_unfold    = false,
          parse_features  = false;
 
 /*---------------------------------------------------------------------*/
@@ -366,7 +374,7 @@ int main(int argc, char* argv[])
             ClauseSetPreprocess(fstate->axioms,
                                 fstate->watchlist,
                                 fstate->tmp_terms,
-                                false);
+                                no_eq_unfold);
          }
          SpecFeaturesCompute(&features, fstate->axioms, fstate->signature);
          SpecFeaturesAddEval(&features, limits);
@@ -564,6 +572,9 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
 	    break;
       case OPT_NO_PREPROCESSING:
 	    no_preproc = true;
+	    break;
+      case OPT_NO_EQ_UNFOLD:
+	    no_eq_unfold = true;
 	    break;
       case OPT_DEF_CNF:
             FormulaDefLimit     = CLStateGetIntArg(handle, arg);

@@ -439,6 +439,7 @@ OptCell opts[] =
     "literals and clauses in a certain (\"canonical\") way before "
     "anything else happens. Unless the next option is set, it will "
     "also unfold equational definitions."},
+
    {OPT_NO_EQ_UNFOLD,
     '\0', "no-eq-unfolding",
     NoArg, NULL,
