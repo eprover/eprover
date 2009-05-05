@@ -77,6 +77,8 @@ if __name__ == '__main__':
         sys.exit()
 
     config = pylib_econf.e_config(args[0])
+
+    os.nice(config.nicelevel)
     
     exists = pylib_eserver.eserver_get_reply(("localhost",
                                               config.port),

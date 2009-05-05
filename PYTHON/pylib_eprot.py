@@ -215,6 +215,7 @@ class eprot(object):
         self.results  = {}
         self.filename = None
         self.synced   = True
+        self.params   = ""
 
     def result(self, problem):
         try:
@@ -224,6 +225,9 @@ class eprot(object):
 
     def results_no(self):
         return len(self.results)
+
+    def set_params(self, params):
+        self.params = params
 
     def protname(self):
         return eprot_name+self.name
@@ -311,7 +315,7 @@ class eprot(object):
     def __str__(self):
         results = [i.__str__() for i in self.results.values()]
         results.sort()
-        return "\n".join(self.comments+results)+"\n"
+        return "# %s\n"%(self.params,)+"\n".join(self.comments+results)+"\n"
 
     def sync(self):
         """
@@ -416,6 +420,7 @@ class estrat_task(object):
         """
         self.spec.parse(specdir)
         self.prot.parse(protdir)
+        self.prot.set_params(self.spec.arguments)
         self.specdir = specdir
         self.protdir = protdir
         self.prot.filter(self.spec.problems)

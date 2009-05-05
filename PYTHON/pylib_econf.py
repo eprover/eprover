@@ -69,6 +69,7 @@ E-Mark:             %f
 Memory limit:       %d
 Auto options:       %s
 Master:             %s
+Nice:               %d
 """
     
     def __init__(self, config=None):
@@ -81,6 +82,7 @@ Master:             %s
         self.memory_limit = 384
         self.max_procs    = 1
         self.auto_opt     = "-s --print-statistics"
+        self.nicelevel    = 10
         self.masters      = []
         
         if not config:
@@ -106,6 +108,8 @@ Master:             %s
                     self.max_procs = int(value)
                 elif key == "Auto options":
                     self.auto_opt = value
+                elif key == "Nice":
+                    self.nicelevel = int(value)
                 elif key == "Master":
                     masterlist = value.split(",")
                     for i in masterlist:
