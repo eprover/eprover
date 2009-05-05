@@ -114,7 +114,13 @@ class etestset(object):
         Add a strategy to the strats queue.
         """
         self.strats.append((name, specdir, protdir))
-        
+
+    def sneak_strat(self, name, specdir, protdir):
+        """
+        Add a strategy to the top of strats queue.
+        """
+        self.strats.insert(0, (name, specdir, protdir))
+
 
     def next_job(self):
         """

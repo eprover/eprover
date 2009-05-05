@@ -172,6 +172,10 @@ class emaster(object):
         self.strats.add_strat(strat, self.config.specdir, self.config.protdir)
         pylib_io.verbout("New job (%d open):"%(len(self.strats.strats),)+str(strat))
 
+    def sneak_strat(self, strat):
+        self.strats.sneak_strat(strat, self.config.specdir, self.config.protdir)
+        pylib_io.verbout("New job (%d open):"%(len(self.strats.strats),)+str(strat))
+
     def add_slave_jobs(self, slave):
         res = 0
         while slave.jobs_no() < SLAVE_OPEN_JOB_LIMIT:
@@ -244,6 +248,10 @@ class emaster(object):
             self.exec_ls(ctrl)
         elif command.startswith("add"):
             self.exec_add(self, command)
+        elif command.startswith("sneak"):
+            self.exec_sneak(self, command)
+        elif command.startswith("help"):
+            self.exec_help(ctrl)
         elif command == "restart slaves":
             self.exec_restart()
         elif command == "quit":
@@ -252,8 +260,8 @@ class emaster(object):
             ctrl.write("Unknown command\n")
         ctrl.write("> ")
             
-    def exec_ls(self, ctrl):
-        ctrl.write("Slaves:\n")
+    def exec_ls(self, ctrl):        
+        ctrl.write("Slaves (%d):\n"%(len(self.slaves,)))
         for i in self.slaves.values():
             ctrl.write(str(i)+"\n")
         ctrl.write("Running tasks:\n")
@@ -261,9 +269,25 @@ class emaster(object):
         ctrl.write("Scheduled tasks:\n")               
         ctrl.write(self.strats.strats_str())
 
+    def exec_help(self, ctrl):
+        ctrl.write("""
+Commands:
+
+ls
+add <strategies>
+sneak <strategies> 
+help
+restart slaves
+quit
+""")
+
     def exec_add(self, ctrl, command):
         for i in command.split()[1:]:
             self.add_strat(i)
+
+    def exec_sneak(self, ctrl, command):
+        for i in command.split()[1:]:
+            self.sneak_strat(i)
 
     def exec_restart(self):
         for i in self.slaves.values():
