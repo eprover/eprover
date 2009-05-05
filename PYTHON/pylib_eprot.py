@@ -282,7 +282,7 @@ class eprot(object):
         for i in prot:
             if i:
                 if i[0]=="#":
-                    # pass
+                    pass
                 else:
                     res = eresult(i)
                     self.add_result(res)
