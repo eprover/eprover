@@ -11,7 +11,7 @@ Options:
 
 -h Print this help.
 
-Copyright 2008 Stephan Schulz, schulz@eprover.org
+Copyright 2008-2009 Stephan Schulz, schulz@eprover.org
 
 This code is part of the support structure for the equational
 theorem prover E. Visit
@@ -79,7 +79,7 @@ if __name__ == '__main__':
     config = pylib_econf.e_config(args[0])
 
     nice = os.nice(0)
-    if config.nicelevel < nice:        
+    if config.nicelevel > nice:        
         os.nice(config.nicelevel-nice)
     
     exists = pylib_eserver.eserver_get_reply(("localhost",

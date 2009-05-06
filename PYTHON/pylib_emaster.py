@@ -1,18 +1,15 @@
 #!/usr/bin/env python2.5
 
 """
-emaster 0.1
+pylib_emaster.py 0.1
 
-Usage: emaster.py <config_file> [jobfile]...
-
-Run a master process waiting for E-server announcements and
-distibuting E jobs to the recognized servers. 
+Library containing the master code for the distributed E test system. 
 
 Options:
 
 -h Print this help.
 
-Copyright 2008 Stephan Schulz, schulz@eprover.org
+Copyright 2009 Stephan Schulz, schulz@eprover.org
 
 This code is part of the support structure for the equational
 theorem prover E. Visit

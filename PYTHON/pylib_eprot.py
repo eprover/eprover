@@ -276,10 +276,10 @@ class eprot(object):
         self.filename = filename
         try:
             fp = pylib_io.flexopen(filename, "r")
-        except IOError:
+        except IOError,err:
             return False
         prot = fp.read().split("\n")
-        for i in prot:
+        for i in prot:            
             if i:
                 if i[0]=="#":
                     pass
@@ -453,6 +453,9 @@ class estrat_task(object):
                 self.sync()
                 return True
         return False
+
+    def set_synced(self, synced = True):
+        self.prot.synced = synced
 
     def sync(self):
         self.prot.sync()
