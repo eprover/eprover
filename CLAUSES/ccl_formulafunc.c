@@ -374,7 +374,8 @@ long FormulaSetSimplify(FormulaSet_p set, TB_p terms)
 //
 // Global Variables: -
 //
-// Side Effects    : Changes formulae (yes, really)
+// Side Effects    : Changes formulae (yes, really) and empties the
+//                   formula set.
 //
 /----------------------------------------------------------------------*/
 
@@ -389,9 +390,10 @@ long FormulaSetCNF(FormulaSet_p set, ClauseSet_p clauseset,
    FormulaSetSimplify(set, terms);
    TFormulaSetIntroduceDefs(set, terms);
 
-   handle = set->anchor->succ;   
-   while(handle!=set->anchor)
+
+   while(!FormulaSetEmpty(set))
    {
+      handle = FormulaSetExtractFirst(set);
       res += WFormulaCNF(handle,clauseset, terms, fresh_vars);
       if(handle->tformula &&  
          (TBNonVarTermNodes(terms)>gc_threshold))
@@ -403,7 +405,7 @@ long FormulaSetCNF(FormulaSet_p set, ClauseSet_p clauseset,
          old_nodes = TBNonVarTermNodes(terms);
          gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
       }
-      handle = handle->succ;
+      WFormulaFree(handle);
    }
    if(TBNonVarTermNodes(terms)!=old_nodes)
    {
@@ -413,8 +415,6 @@ long FormulaSetCNF(FormulaSet_p set, ClauseSet_p clauseset,
    }  
    return res;
 }
-
-
 
 /*-----------------------------------------------------------------------
 //
