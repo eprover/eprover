@@ -1505,8 +1505,9 @@ Clause_p ClauseSetFindMaxStandardWeight(ClauseSet_p set)
 //
 // Function: ClauseSetFindEqDefinition()
 //
-//   If set contains an equality definition, return the potential
-//   matching side (as a reduced clause position), otherwise NULL.
+//   If set contains an equality definition at or after start, return
+//   the potential matching side (as a reduced clause position),
+//   otherwise NULL. 
 //
 // Global Variables: -
 //
@@ -1514,13 +1515,19 @@ Clause_p ClauseSetFindMaxStandardWeight(ClauseSet_p set)
 //
 /----------------------------------------------------------------------*/
 
-ClausePos_p ClauseSetFindEqDefinition(ClauseSet_p set, int min_arity)
+ClausePos_p ClauseSetFindEqDefinition(ClauseSet_p set, int min_arity, 
+                                      Clause_p start)
 {
    Clause_p handle;
    ClausePos_p res = NULL;
    EqnSide side;
 
-   for(handle = set->anchor->succ;
+   if(!start)
+   {
+      start = set->anchor->succ;
+   }
+
+   for(handle = start;
        handle!=set->anchor;
        handle = handle->succ)
    {

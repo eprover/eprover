@@ -121,7 +121,7 @@ long        ClauseSetFilterTautologies(ClauseSet_p set, TB_p work_bank);
 
 Clause_p    ClauseSetFindMaxStandardWeight(ClauseSet_p set);
 
-ClausePos_p ClauseSetFindEqDefinition(ClauseSet_p set, int min_arity);
+ClausePos_p ClauseSetFindEqDefinition(ClauseSet_p set, int min_arity,                                       Clause_p start);
 
 void        ClauseSetDocInital(FILE* out, long level, ClauseSet_p set);
 void        ClauseSetDocQuote(FILE* out, long level, ClauseSet_p set,

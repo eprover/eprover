@@ -76,6 +76,7 @@ typedef enum
    OPT_TSTP_PRINT,
    OPT_TSTP_FORMAT,
    OPT_NO_PREPROCESSING,
+   OPT_EQ_UNFOLD_LIMIT,
    OPT_NO_EQ_UNFOLD,
    OPT_AC_HANDLING,
    OPT_AC_ON_PROC,
@@ -440,6 +441,14 @@ OptCell opts[] =
     "anything else happens. Unless the next option is set, it will "
     "also unfold equational definitions."},
 
+   {OPT_EQ_UNFOLD_LIMIT,
+    '\0', "eq-unfold-limit",
+    ReqArg, NULL,
+    "During preprocessing, limit unfolding (and removing) of "
+    "equational definitions to those where the expanded definiton "
+    "is at most the given limit bigger (in terms of standard "
+    "weight) than the defined term.."},
+   
    {OPT_NO_EQ_UNFOLD,
     '\0', "no-eq-unfolding",
     NoArg, NULL,
@@ -1004,6 +1013,7 @@ long              step_limit = LONG_MAX,
                   proc_limit = LONG_MAX,
                   unproc_limit = LONG_MAX, 
                   total_limit = LONG_MAX;
+int               eqdef_incrlimit = DEFAULT_EQDEF_INCRLIMIT;
 char              *outdesc = DEFAULT_OUTPUT_DESCRIPTOR,
                   *filterdesc = DEFAULT_FILTER_DESCRIPTOR;
 PStack_p          wfcb_definitions, hcb_definitions;
@@ -1106,7 +1116,7 @@ int main(int argc, char* argv[])
       preproc_removed = ClauseSetPreprocess(proofstate->axioms,
 					    proofstate->watchlist,
 					    proofstate->tmp_terms,
-					    no_eq_unfold);
+					    eqdef_incrlimit);
    }
    ProofControlInit(proofstate, proofcontrol, h_parms, 
                     fvi_parms, wfcb_definitions, hcb_definitions);
@@ -1475,8 +1485,11 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_NO_PREPROCESSING:
 	    no_preproc = true;
 	    break;
+      case OPT_EQ_UNFOLD_LIMIT:
+            eqdef_incrlimit = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_NO_EQ_UNFOLD:
-	    no_eq_unfold = true;
+	    eqdef_incrlimit = INT_MIN;
 	    break;
       case OPT_AC_HANDLING:
 	    if(strcmp(arg, "None")==0)

@@ -238,8 +238,9 @@ bool ClauseSetUnfoldEqDef(ClauseSet_p set, ClausePos_p demod)
 //
 // Function: ClauseSetUnfoldAllEqDefs()
 //
-//   While there are equational definitions, apply them and remove
-//   them. Returns number of removed clauses.
+//   While there are equational definitions where the right hand side
+//   is not to much (eqdef_incrlimit) bigger than the left hand side,
+//   apply them and remove them. Returns number of removed clauses.
 //
 // Global Variables: -
 //
@@ -248,22 +249,28 @@ bool ClauseSetUnfoldEqDef(ClauseSet_p set, ClausePos_p demod)
 /----------------------------------------------------------------------*/
 
 long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, ClauseSet_p passive,
-			      int min_arity)
+			      int min_arity, int eqdef_incrlimit) 
 {
    ClausePos_p demod;
    long res = false;
-   
-   while((demod = ClauseSetFindEqDefinition(set, min_arity)))
+   Clause_p start = NULL;
+
+   while((demod = ClauseSetFindEqDefinition(set, min_arity, start)))
    {
-      ClauseSetExtractEntry(demod->clause);
-      ClauseSetUnfoldEqDef(set, demod);
-      if(passive)
+      start = demod->clause->succ;
+      if((TermStandardWeight(ClausePosGetOtherSide(demod))-
+          TermStandardWeight(ClausePosGetSide(demod)))<=eqdef_incrlimit)
       {
-	 ClauseSetUnfoldEqDef(passive, demod);	 
+         ClauseSetExtractEntry(demod->clause);
+         ClauseSetUnfoldEqDef(set, demod);
+         if(passive)
+         {
+            ClauseSetUnfoldEqDef(passive, demod);	 
+         }
+         ClauseFree(demod->clause);
+         res++;
       }
-      ClauseFree(demod->clause);
       ClausePosCellFree(demod);
-      res++;
    }
    return res;
 }
@@ -285,18 +292,18 @@ long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, ClauseSet_p passive,
 /----------------------------------------------------------------------*/
 
 long ClauseSetPreprocess(ClauseSet_p set, ClauseSet_p passive, TB_p
-			 tmp_terms, bool no_eq_unfold)
+			 tmp_terms, int eqdef_incrlimit)
 {
    long res, tmp;
 
    ClauseSetRemoveSuperfluousLiterals(set);
    res = ClauseSetFilterTautologies(set, tmp_terms);
    ClauseSetCanonize(set);
-   if(no_eq_unfold)
+   if(eqdef_incrlimit==INT_MIN)
    {
       return res;
    }
-   if((tmp = ClauseSetUnfoldAllEqDefs(set, passive, 1)))
+   if((tmp = ClauseSetUnfoldAllEqDefs(set, passive, 1, eqdef_incrlimit)))
    {	
       res += tmp;
       res += ClauseSetFilterTautologies(set, tmp_terms);

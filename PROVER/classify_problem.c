@@ -51,6 +51,7 @@ typedef enum
    OPT_TSTP_FORMAT,
    OPT_GEN_TPTP_HEADER,
    OPT_NO_PREPROCESSING,
+   OPT_EQ_UNFOLD_LIMIT,
    OPT_NO_EQ_UNFOLD,
    OPT_DEF_CNF,
    OPT_MASK,
@@ -161,6 +162,14 @@ OptCell opts[] =
     "literals and clauses in a certain (\"canonical\") way before "
     "anything else happens. It also unfolds equational definitons (and "
     "removes them)."},
+
+   {OPT_EQ_UNFOLD_LIMIT,
+    '\0', "eq-unfold-limit",
+    ReqArg, NULL,
+    "During preprocessing, limit unfolding (and removing) of "
+    "equational definitions to those where the expanded definiton "
+    "is at most the given limit bigger (in terms of standard "
+    "weight) than the defined term.."},
 
    {OPT_NO_EQ_UNFOLD,
     '\0', "no-eq-unfolding",
@@ -289,13 +298,14 @@ OptCell opts[] =
     NULL}
 };
 
-char   *outname = NULL, 
-       *mask = "aaaaa----aaaa";
+char     *outname = NULL, 
+         *mask = "aaaaa----aaaa";
 IOFormat parse_format    = LOPFormat;
 bool     tptp_header     = false,
          no_preproc      = false,
-         no_eq_unfold    = false,
          parse_features  = false;
+int      eqdef_incrlimit = DEFAULT_EQDEF_INCRLIMIT;
+
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -374,7 +384,7 @@ int main(int argc, char* argv[])
             ClauseSetPreprocess(fstate->axioms,
                                 fstate->watchlist,
                                 fstate->tmp_terms,
-                                no_eq_unfold);
+                                eqdef_incrlimit);
          }
          SpecFeaturesCompute(&features, fstate->axioms, fstate->signature);
          SpecFeaturesAddEval(&features, limits);
@@ -573,8 +583,11 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
       case OPT_NO_PREPROCESSING:
 	    no_preproc = true;
 	    break;
+      case OPT_EQ_UNFOLD_LIMIT:
+            eqdef_incrlimit = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_NO_EQ_UNFOLD:
-	    no_eq_unfold = true;
+	    eqdef_incrlimit = INT_MIN;
 	    break;
       case OPT_DEF_CNF:
             FormulaDefLimit     = CLStateGetIntArg(handle, arg);

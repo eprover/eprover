@@ -36,21 +36,24 @@ Changes
 /*---------------------------------------------------------------------*/
 
 
-
+/* How much is a definition allowed to increase term size to be still
+ * applicable? */
+#define DEFAULT_EQDEF_INCRLIMIT 20
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
 /* We'll not export term and clause versions, because we need the
-   clause information for proog output anyways */
+   clause information for proof output anyways */
 
 bool ClauseUnfoldEqDef(Clause_p clause, ClausePos_p demod);
 bool ClauseSetUnfoldEqDef(ClauseSet_p set, ClausePos_p demod);
 long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, ClauseSet_p passive,
-			      int min_arity);
+			      int min_arity, int eqdef_incrlimit);
+
 long ClauseSetPreprocess(ClauseSet_p set, ClauseSet_p passive, TB_p
-			 tmp_terms, bool no_eq_unfold);
+			 tmp_terms, int eqdef_incrlimit);
 
 
 
