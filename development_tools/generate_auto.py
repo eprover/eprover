@@ -39,7 +39,6 @@ def compute_problem_stem(key):
     if not mr:
         raise RuntimeError, "Problem name has no extension (?!?) <" + key+">"
     res = key[0:mr.start()]
-    print key + " : " + res
     return res;
 
 # Parse a class file into the problems dictionary, return class size

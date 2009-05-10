@@ -103,6 +103,8 @@ class etestset(object):
         """
         if strat.name in self.processing:
             del(self.processing[strat.name])
+            tmp = filter(lambda x:not strat.has_job(x)  ,self.jobqueue)
+            self.jobqueue = tmp
         if back:
             self.strats.append((strat.name, strat.specdir, strat.protdir))
         else:

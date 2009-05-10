@@ -61,7 +61,7 @@ import pylib_etestset
 
 
 announce_matcher = re.compile("eserver:[0-9]+")
-SLAVE_OPEN_JOB_LIMIT = 5
+SLAVE_OPEN_JOB_LIMIT = 10
 
 class xresult(object):
     def __init__(self, desc_str):

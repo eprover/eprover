@@ -292,14 +292,15 @@ long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, ClauseSet_p passive,
 /----------------------------------------------------------------------*/
 
 long ClauseSetPreprocess(ClauseSet_p set, ClauseSet_p passive, TB_p
-			 tmp_terms, int eqdef_incrlimit)
+			 tmp_terms, int eqdef_incrlimit, 
+                         long eqdef_maxclauses)
 {
    long res, tmp;
 
    ClauseSetRemoveSuperfluousLiterals(set);
    res = ClauseSetFilterTautologies(set, tmp_terms);
    ClauseSetCanonize(set);
-   if(eqdef_incrlimit==INT_MIN)
+   if((eqdef_incrlimit==INT_MIN) || (set->members > eqdef_maxclauses))
    {
       return res;
    }

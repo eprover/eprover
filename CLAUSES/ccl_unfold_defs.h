@@ -40,6 +40,9 @@ Changes
  * applicable? */
 #define DEFAULT_EQDEF_INCRLIMIT 20
 
+/* When to not even try unfilding during preprocessing? */
+#define DEFAULT_EQDEF_MAXCLAUSES 20000
+
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
@@ -53,7 +56,8 @@ long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, ClauseSet_p passive,
 			      int min_arity, int eqdef_incrlimit);
 
 long ClauseSetPreprocess(ClauseSet_p set, ClauseSet_p passive, TB_p
-			 tmp_terms, int eqdef_incrlimit);
+			 tmp_terms, int eqdef_incrlimit,
+                         long eqdef_maxclauses);
 
 
 

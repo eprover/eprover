@@ -77,6 +77,7 @@ typedef enum
    OPT_TSTP_FORMAT,
    OPT_NO_PREPROCESSING,
    OPT_EQ_UNFOLD_LIMIT,
+   OPT_EQ_UNFOLD_MAXCLAUSES,
    OPT_NO_EQ_UNFOLD,
    OPT_AC_HANDLING,
    OPT_AC_ON_PROC,
@@ -447,8 +448,14 @@ OptCell opts[] =
     "During preprocessing, limit unfolding (and removing) of "
     "equational definitions to those where the expanded definiton "
     "is at most the given limit bigger (in terms of standard "
-    "weight) than the defined term.."},
+    "weight) than the defined term."},
    
+   {OPT_EQ_UNFOLD_MAXCLAUSES,
+    '\0', "eq-unfold-maxclauses",
+    ReqArg, NULL,
+    "During preprocessing, don't try unfolding of equational "
+    "definitions if the problem has more than this limit of clauses."},
+
    {OPT_NO_EQ_UNFOLD,
     '\0', "no-eq-unfolding",
     NoArg, NULL,
@@ -1012,7 +1019,8 @@ IOFormat          parse_format = LOPFormat;
 long              step_limit = LONG_MAX, 
                   proc_limit = LONG_MAX,
                   unproc_limit = LONG_MAX, 
-                  total_limit = LONG_MAX;
+                  total_limit = LONG_MAX,
+                  eqdef_maxclauses = DEFAULT_EQDEF_MAXCLAUSES;
 int               eqdef_incrlimit = DEFAULT_EQDEF_INCRLIMIT;
 char              *outdesc = DEFAULT_OUTPUT_DESCRIPTOR,
                   *filterdesc = DEFAULT_FILTER_DESCRIPTOR;
@@ -1116,7 +1124,8 @@ int main(int argc, char* argv[])
       preproc_removed = ClauseSetPreprocess(proofstate->axioms,
 					    proofstate->watchlist,
 					    proofstate->tmp_terms,
-					    eqdef_incrlimit);
+					    eqdef_incrlimit, 
+                                            eqdef_maxclauses);
    }
    ProofControlInit(proofstate, proofcontrol, h_parms, 
                     fvi_parms, wfcb_definitions, hcb_definitions);
@@ -1487,6 +1496,9 @@ CLState_p process_options(int argc, char* argv[])
 	    break;
       case OPT_EQ_UNFOLD_LIMIT:
             eqdef_incrlimit = CLStateGetIntArg(handle, arg);
+            break;
+      case OPT_EQ_UNFOLD_MAXCLAUSES:
+            eqdef_maxclauses = CLStateGetIntArg(handle, arg);
             break;
       case OPT_NO_EQ_UNFOLD:
 	    eqdef_incrlimit = INT_MIN;

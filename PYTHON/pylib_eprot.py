@@ -169,6 +169,9 @@ class ejob(object):
                  self.problem,
                  self.time_limit))
 
+    def strat(self):
+        return self.strat_key
+
     def key(self):        
         return self.strat_key+self.problem
 
@@ -462,6 +465,9 @@ class estrat_task(object):
 
     def generate_jobs(self):
         return [self.spec.create_job(i) for i in self.find_missing()]
+
+    def has_job(self, job):
+        return job.strat() == self.name
 
     def complete(self):
         if len(self.prot.results) >= len(self.spec.problems):

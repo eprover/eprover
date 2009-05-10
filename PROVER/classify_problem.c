@@ -52,6 +52,7 @@ typedef enum
    OPT_GEN_TPTP_HEADER,
    OPT_NO_PREPROCESSING,
    OPT_EQ_UNFOLD_LIMIT,
+   OPT_EQ_UNFOLD_MAXCLAUSES,
    OPT_NO_EQ_UNFOLD,
    OPT_DEF_CNF,
    OPT_MASK,
@@ -112,7 +113,7 @@ OptCell opts[] =
     'p', "parse-features",
     NoArg, NULL,
     "Parse precomputed feature lines, not real formulae. This "
-    "coonflicts with the '--generate-tptp-header' option, as not "
+    "conflicts with the '--generate-tptp-header' option, as not "
     "all information needed for this is stored in feature lines."},
    {OPT_TPTP_PARSE,
     '\0', "tptp-in",
@@ -170,6 +171,12 @@ OptCell opts[] =
     "equational definitions to those where the expanded definiton "
     "is at most the given limit bigger (in terms of standard "
     "weight) than the defined term.."},
+
+   {OPT_EQ_UNFOLD_MAXCLAUSES,
+    '\0', "eq-unfold-maxclauses",
+    ReqArg, NULL,
+    "During preprocessing, don't try unfolding of equational "
+    "definitions if the problem has more than this limit of clauses."},
 
    {OPT_NO_EQ_UNFOLD,
     '\0', "no-eq-unfolding",
@@ -300,11 +307,12 @@ OptCell opts[] =
 
 char     *outname = NULL, 
          *mask = "aaaaa----aaaa";
-IOFormat parse_format    = LOPFormat;
-bool     tptp_header     = false,
-         no_preproc      = false,
-         parse_features  = false;
-int      eqdef_incrlimit = DEFAULT_EQDEF_INCRLIMIT;
+IOFormat parse_format     = LOPFormat;
+bool     tptp_header      = false,
+         no_preproc       = false,
+         parse_features   = false;
+long     eqdef_maxclauses = DEFAULT_EQDEF_MAXCLAUSES;
+int      eqdef_incrlimit  = DEFAULT_EQDEF_INCRLIMIT;
 
 
 /*---------------------------------------------------------------------*/
@@ -384,7 +392,8 @@ int main(int argc, char* argv[])
             ClauseSetPreprocess(fstate->axioms,
                                 fstate->watchlist,
                                 fstate->tmp_terms,
-                                eqdef_incrlimit);
+                                eqdef_incrlimit,
+                                eqdef_maxclauses);
          }
          SpecFeaturesCompute(&features, fstate->axioms, fstate->signature);
          SpecFeaturesAddEval(&features, limits);
@@ -583,6 +592,9 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
       case OPT_NO_PREPROCESSING:
 	    no_preproc = true;
 	    break;
+      case OPT_EQ_UNFOLD_MAXCLAUSES:
+            eqdef_maxclauses = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_EQ_UNFOLD_LIMIT:
             eqdef_incrlimit = CLStateGetIntArg(handle, arg);
             break;
@@ -708,7 +720,7 @@ Read sets of clauses and classify them according to predefined criteria.\n\
 \n");
    PrintOptions(stdout, opts, "Options:\n\n");
    fprintf(out, "\n\
-Copyright (C) 1998-2005 by Stephan Schulz, " STS_MAIL "\n\
+Copyright (C) 1998-2009 by Stephan Schulz, " STS_MAIL "\n\
 \n\
 This program is a part of the support structure for the E equational\n\
 theorem prover. You can find the latest version of the E distribution\n\

@@ -49,13 +49,7 @@ or via email (address above).
 """
 
 import sys
-import re
-import string
-import os
 import getopt
-import socket
-import select
-import pylib_generic
 import pylib_emconf
 import pylib_emaster
 
