@@ -69,9 +69,9 @@ class xresult(object):
         self.strat      = tmp[0].strip("'")
         self.prob       = tmp[1].strip("'")
         self.state      = tmp[2].strip("'")
-        self.raw_time   = float(tmp[3])
+        self.raw_time   = float(tmp[5])
         self.terminated = tmp[4].strip("'")
-        self.norm_time  = float(tmp[5])
+        self.norm_time  = float(tmp[3])
         self.rest       = tmp[6:]
 
     def key(self):

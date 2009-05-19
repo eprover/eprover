@@ -50,6 +50,7 @@ or via email (address above).
 
 import sys
 import getopt
+import pylib_io
 import pylib_emconf
 import pylib_emaster
 
