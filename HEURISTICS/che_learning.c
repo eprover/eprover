@@ -81,7 +81,7 @@ static TSMParam_p tsm_param_init(ClausePrioFun prio_fun, int fweight,
    local->e_weights[3] = f_simp_w;
    local->e_weights[4] = p_gen_w;
    local->e_weights[5] = f_gen_w;
-   for(i=0; i<=6 ; i++)
+   for(i=0; i<(ANNOTATION_DEFAULT_SIZE-1); i++)
    {
       if(local->e_weights[i] > 0)
       {
