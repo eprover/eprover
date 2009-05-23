@@ -92,13 +92,16 @@ class xresult(object):
            
 
 class eslave(object):
-    def __init__(self, connection, addr):
+    def __init__(self, connection, addr, name, emark):
         self.connection = connection
-        self.addr = addr
+        self.addr  = addr
+        self.name  = name
+        self.emark = emark
         self.open_jobs = {}
 
     def __str__(self):
-        return "<eslave "+str(self.addr)+":open:"+str(self.jobs_no())+">"
+        return "<eslave:%s:open=%d:%s:emark=%f>"%\
+               (str(self.addr),self.jobs_no(),self.name,self.emark)
 
     def address(self):
         """
@@ -315,12 +318,23 @@ quit
             return
         if not announce_matcher.match(data):
             return
-        slave_port = int(data[8:])
+        slave_name  = "<unknown>"
+        slave_emark = -1.0
+        print data
+        tmp = data.split(":")
+        print tmp
+        slave_port = int(tmp[1])      
         if port<1000 or port > 65535:
             return
+        try:
+            slave_name = tmp[2]
+            slave_emark = float(tmp[3])
+        except IndexError, ValueError:
+            pass
+        
         connection = self.client.connect((slave_addr, slave_port))
         pylib_io.verbout("New slave: "+str(connection))
-        slave = eslave(connection, slave_addr)
+        slave = eslave(connection, slave_addr, slave_name, slave_emark)
         self.slaves[slave_addr] = slave
 
 if __name__ == '__main__':

@@ -95,7 +95,7 @@ class eserver(object):
         self.jobs        = []
         self.running     = []
         self.connections = []
-        self.server      = pylib_tcp.etcp_server(config.port)
+        self.server      = pylib_tcp.etcp_server(config.port, config.e_mark)
         self.config      = config
 
     def process(self):
@@ -227,9 +227,9 @@ def eserver_get_reply(address, command):
     while conn.sendable():
         conn.send()
 
-    complete, res = None, ""
-    while not complete:
-        complete, res = conn.read()
+    res = []
+    while not res:
+        res = conn.read()
     conn.close()
-    return res
+    return res[0]
     

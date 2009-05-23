@@ -171,8 +171,17 @@ class etcp_server(tcp_server):
     Class implementing a specialized E TCP server.
     """
 
-    def announce_self(self, addr):
-        msg = "eserver:%d\n"%(self.port,)
+    def __init__(self, port, emark):
+        tcp_server.__init__(self, port)
+        tmp = pylib_io.run_shell_command("hostname")
+        try:
+            self.hostname = tmp[0].strip("\n")
+        except IndexError:
+            self.hostname = "<unknown>"
+        self.emark = emark
+
+    def announce_self(self, addr, ):
+        msg = "eserver:%d:%s:%f\n"%(self.port,self.hostname, self.emark)
         pylib_io.verbout("Announcing: "+msg+" to "+str(addr))
         self.udpout.sendto(msg ,0, addr)
         
