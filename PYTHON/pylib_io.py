@@ -47,6 +47,7 @@ import os
 import os.path
 import re
 import select
+import getopt
 
 NoStdRWStreamException = Exception("You cannot open '-' for both reading and writing!")
 UsageErrorException = Exception("Usage Error")
@@ -148,21 +149,6 @@ def check_argc(argmin,argmax=None,argv=sys.argv[1:]):
         raise UsageErrorException;
 
 
-        
-def get_options(argv=sys.argv[1:]):
-    """
-    Filter argument list for arguments starting with a -.
-    """
-    options = filter(lambda x:x[0:1]=="-" and x!="-", argv)
-    return options
-
-def get_args(argv=sys.argv[1:]):
-    """
-    Filter argument list for real arguments.
-    """
-    files   = filter(lambda x:x[0:1]!="-" or x=="-", argv)
-    return files
-
 def clean_list(l):
     """
     Given a list of strings, return the list stripped, and with empty
@@ -231,6 +217,32 @@ def run_shell_command(cmd):
 
     return res
 
+def get_load_info():
+    """
+    Check if an interactive user is logged on to the console and check
+    the current load. Return tuple (User, Load), where user is the
+    name of the interactive oder or None, and Load is the 5 minute
+    average Load.
+    """
+    who = run_shell_command("w")
+    try:
+        tmp = who[0].split(",")
+        tmp = tmp[3].split()
+        load = float(tmp[3])
+    except IndexError, ValueError:
+        load = -1.0
+
+    user = None
+    for i in who[2:]:
+        tmp = i.split()
+        try:
+            if tmp[1] == "console" or tmp[2] == ":0":
+                user = tmp[0]
+        except IndexError:
+            pass
+
+    return (user, load)       
+    
 
 def read_will_block(fdobj):
     """
@@ -346,4 +358,15 @@ def get_directory(filename):
     return os.path.dirname(os.path.abspath(os.path.expanduser(filename)))
         
         
-      
+if __name__ == '__main__':
+    opts, args = getopt.gnu_getopt(sys.argv[1:], "h")
+
+    for option, optarg in opts:
+        if option == "-h":
+            print __doc__
+            sys.exit()
+        else:
+            sys.exit("Unknown option "+ option)
+
+    print get_load_info()
+    

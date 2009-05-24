@@ -99,14 +99,19 @@ class eserver(object):
         self.config      = config
 
     def process(self):
-        announce = pylib_generic.timer(0)
+        announce_timer = pylib_generic.timer(0)
+        check_load_timer = pylib_generic.timer(0)
+        load_ok = True
         
         while True:
-            if announce.expired():
+            if announce_timer.expired():
                 self.announce()
-                #announce.set(60.0)
-                announce.set(10.0)
+                announce_timer.set(10.0)
 
+            if check_load_timer.expired():
+                load_ok = self.check_load()                
+                check_load_timer.set(30.0)
+                        
             ractive = [self.server]+self.running+\
                       [i for i in self.connections if i.readable()]
             wactive = [i for i in self.connections if i.sendable()]
@@ -134,12 +139,30 @@ class eserver(object):
             for i in ready[1]:
                 i.send()
 
-            if len(self.running) < self.max_jobs():
+            if len(self.running) < self.max_jobs() and load_ok:
                 self.run_job()
 
     def announce(self):
+        """
+        Announce existance of this server to all configured masters.
+        """
         for addr, port in self.config.masters:
             self.server.announce_self((addr, port))
+
+    def check_load(self):
+        """
+        Check if the system load is ok for running jobs. Note that
+        this also checks the presence of interactive users, who may be
+        granted preference.
+        """
+        user, load = pylib_io.get_load_info()
+        if user and self.config.local_blocks:
+            return False
+        if load > self.config.load_limit:
+            return False
+        return True
+        
+
 
     def run_job(self):
         if  len(self.jobs) == 0:

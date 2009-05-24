@@ -51,6 +51,15 @@ import pylib_io
 
 
 DEFAULT_LISTEN_PORT = 20000
+"""
+What is the deault port for listening?
+"""
+
+DEFAULT_LOAD_LIMIT = 5000.0
+"""
+Maximum load acceptable for starting new jobs.
+"""
+
 
 filename_hack_re = re.compile("\.\.")
 
@@ -83,6 +92,8 @@ Nice:               %d
         self.max_procs    = 1
         self.auto_opt     = "-s --print-statistics"
         self.nicelevel    = 10
+        self.local_blocks = False
+        self.load_limit   = DEFAULT_LOAD_LIMIT
         self.masters      = []
         
         if not config:
@@ -110,6 +121,10 @@ Nice:               %d
                     self.auto_opt = value
                 elif key == "Nice":
                     self.nicelevel = int(value)
+                elif key == "Local blocks":
+                    self.local_blocks = value=="true"
+                elif key == "Load limit":
+                    self.load_limit = float(value)
                 elif key == "Master":
                     masterlist = value.split(",")
                     for i in masterlist:

@@ -70,6 +70,7 @@ DEFAULT_SYNC_COUNT = 30
 How often will a protocol be automatically synced to disk?
 """
 
+
 filename_hack_re = re.compile("\.\.")
 
 
@@ -92,6 +93,7 @@ Result directory:   %s
         self.specdir      = homedir+"/"+DEFAULT_TESTDIR
         self.protdir      = homedir+"/"+DEFAULT_TESTDIR
         self.auto_sync    = DEFAULT_SYNC_COUNT
+
         
         if not config:
             return

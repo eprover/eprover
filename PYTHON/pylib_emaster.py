@@ -320,9 +320,7 @@ quit
             return
         slave_name  = "<unknown>"
         slave_emark = -1.0
-        print data
         tmp = data.split(":")
-        print tmp
         slave_port = int(tmp[1])      
         if port<1000 or port > 65535:
             return
