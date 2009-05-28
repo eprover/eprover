@@ -236,7 +236,7 @@ def get_load_info():
     for i in who[2:]:
         tmp = i.split()
         try:
-            if tmp[1] == "console" or tmp[2] == ":0":
+            if tmp[1] == "console" or tmp[2] == ":0" or tmp[1]==":0":
                 user = tmp[0]
         except IndexError:
             pass
