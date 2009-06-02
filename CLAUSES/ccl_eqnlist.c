@@ -1380,6 +1380,34 @@ long EqnListTermDelProp(Eqn_p list, TermProperties props)
     return count;
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: EqnListCollectSubterms()
+//
+//   Collect all subterms of list onto collector. Assumes that
+//   TPOpFlag is set if and only if the term is already in the
+//   collection. Returns the number of new terms found.
+//
+// Global Variables: -
+//
+// Side Effects    : Sets the OpFlag of newly collected terms.
+//
+/----------------------------------------------------------------------*/
+
+long EqnListCollectSubterms(Eqn_p list, PStack_p collector)
+{
+   long res = 0;
+   
+   while(list)
+   {
+      res+= EqnCollectSubterms(list, collector);
+      list = list->next;
+   }
+   return res;
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

@@ -2476,6 +2476,33 @@ int LiteralCompareFun(Eqn_p lit1, Eqn_p lit2)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: EqnCollectSubterms()
+//
+//   Collect all subterms of eqn onto collector. Assumes that
+//   TPOpFlag is set if and only if the term is already in the
+//   collection. Returns the number of new terms found.
+//
+// Global Variables: -
+//
+// Side Effects    : Sets the OpFlag of newly collected terms.
+//
+/----------------------------------------------------------------------*/
+
+long EqnCollectSubterms(Eqn_p eqn, PStack_p collector)
+{
+   long res = 0;
+
+   assert(eqn);
+   assert(collector);
+
+   res += TBTermCollectSubterms(eqn->lterm, collector);
+   res += TBTermCollectSubterms(eqn->rterm, collector);
+   
+   return res;
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

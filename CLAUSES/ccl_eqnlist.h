@@ -107,6 +107,8 @@ void    EqnListTermSetProp(Eqn_p list, TermProperties props);
 long    EqnListTBTermDelPropCount(Eqn_p list, TermProperties props);
 long    EqnListTermDelProp(Eqn_p list, TermProperties props);
 
+long    EqnListCollectSubterms(Eqn_p list, PStack_p collector);
+
 #endif
 
 /*---------------------------------------------------------------------*/

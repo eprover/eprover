@@ -360,6 +360,7 @@ int     LiteralCompareFun(Eqn_p lit1, Eqn_p lit2);
         (TermCollectPropVariables((eqn)->lterm,(tree), (prop))+\
 	 TermCollectPropVariables((eqn)->rterm,(tree), (prop)))
 
+long    EqnCollectSubterms(Eqn_p eqn, PStack_p collector);
 
 
 /*---------------------------------------------------------------------*/
