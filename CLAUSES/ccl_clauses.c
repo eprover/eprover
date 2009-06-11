@@ -2201,6 +2201,69 @@ long ClauseCollectSubterms(Clause_p clause, PStack_p collector)
 
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseReturnFCodes()
+//
+//   Push all function symbol codes from clause onto f_codes. Return
+//   number of symbols found.
+//
+// Global Variables: -
+//
+// Side Effects    : Uses and resets FPOpFlag in the signature
+//
+/----------------------------------------------------------------------*/
+
+long ClauseReturnFCodes(Clause_p clause, PStack_p f_codes)
+{
+   long res = 0;
+   PStack_p stack;
+   Sig_p sig;
+   PStackPointer i, start;
+   Term_p t;
+   FunCode f;
+
+   assert(clause);
+   assert(f_codes);
+
+   if(ClauseIsEmpty(clause))
+   {
+      return res;
+   }
+   assert(clause->literals);
+   sig = clause->literals->bank->sig;
+   assert(sig);
+
+   stack = PStackAlloc();
+   ClauseCollectSubterms(clause, stack);
+
+   start = PStackGetSP(f_codes);
+   for(i=0; i<PStackGetSP(stack);i++)
+   {
+      t = PStackElementP(stack,i);
+      if(!TermIsVar(t))
+      {
+         if(!SigQueryFuncProp(sig, t->f_code, FPOpFlag))
+         {
+            SigSetFuncProp(sig, t->f_code, FPOpFlag);
+            PStackPushInt(f_codes, t->f_code);
+            res++;
+         }
+      }
+   }
+   PStackFree(stack);
+
+   /* Reset FPOpFlags */
+   for(i=start; i<PStackGetSP(f_codes);i++)
+   {
+      f =  PStackElementInt(f_codes, i);
+      SigDelFuncProp(sig, f, FPOpFlag);      
+   }
+   return res;
+}
+
+
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

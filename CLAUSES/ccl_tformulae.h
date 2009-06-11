@@ -90,6 +90,7 @@ TFormula_p TFormulaClauseEncode(TB_p bank, Clause_p clause);
 TFormula_p TFormulaClauseClosedEncode(TB_p bank, Clause_p clause);
 
 
+
 #endif
 
 /*---------------------------------------------------------------------*/

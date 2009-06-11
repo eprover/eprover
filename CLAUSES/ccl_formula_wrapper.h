@@ -63,12 +63,6 @@ typedef struct wformula_cell
 }WFormulaCell, *WFormula_p;
 
 
-typedef struct formula_set_cell
-{
-   WFormula_p anchor;
-   long       members;
-}FormulaSetCell, *FormulaSet_p;
-
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
@@ -109,24 +103,11 @@ void       WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
 WFormula_p WFormulaParse(Scanner_p in, TB_p terms);
 void       WFormulaPrint(FILE* out, WFormula_p form, bool fullterms);
 
-#define FormulaSetCellAlloc()    (FormulaSetCell*)SizeMalloc(sizeof(FormulaSetCell))
-#define FormulaSetCellFree(junk) SizeFree(junk, sizeof(FormulaSetCell))
+#define  WFormulaIsConjecture(form) \
+   ((FormulaQueryType(form)==WPTypeNegConjecture) ||    \
+    (FormulaQueryType(form)==WPTypeConjecture))
 
-FormulaSet_p FormulaSetAlloc();
-void         FormulaSetFreeFormulas(FormulaSet_p set);
-void         FormulaSetFree(FormulaSet_p set);
-void         FormulaSetGCMarkCells(FormulaSet_p set);
-void         FormulaSetMarkPolarity(FormulaSet_p set);
-void         FormulaSetInsert(FormulaSet_p set, WFormula_p newform);
-long         FormulaSetInsertSet(FormulaSet_p set, FormulaSet_p from);
-WFormula_p   FormulaSetExtractEntry(WFormula_p form);
-#define      FormulaSetEmpty(set)\
-             ((set)->anchor->succ == (set)->anchor)
-WFormula_p   FormulaSetExtractFirst(FormulaSet_p set);
-void         FormulaSetDeleteEntry(WFormula_p form);
-
-void         FormulaSetPrint(FILE* out, FormulaSet_p set, 
-                             bool fullterms);
+long     WFormulaReturnFCodes(WFormula_p form, PStack_p f_codes);
 
 
 #endif

@@ -24,6 +24,7 @@ Changes
 
 #define CCL_FINDEX
 
+#include <clb_plist.h>
 #include <ccl_clausesets.h>
 
 
@@ -52,7 +53,12 @@ FIndex_p FIndexAlloc();
 void     FIndexFree(FIndex_p junk);
 
 void FIndexAddClause(FIndex_p index, Clause_p clause);
+void FindexRemoveClause(FIndex_p index, Clause_p clause);
 void FIndexAddClauseSet(FIndex_p index, ClauseSet_p set);
+
+void FIndexAddPLClause(FIndex_p index, PList_p lclause);
+void FindexRemovePLClause(FIndex_p index, Clause_p clause);
+void FIndexAddPLClauseSet(FIndex_p index, PList_p set);
 
 
 #endif

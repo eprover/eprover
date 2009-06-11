@@ -341,6 +341,7 @@ Clause_p ClauseNormalizeVars(Clause_p clause, VarBank_p fresh_vars);
          EqnListCollectVariables((clause)->literals,(tree))
 
 long     ClauseCollectSubterms(Clause_p clause, PStack_p collector);
+long     ClauseReturnFCodes(Clause_p clause, PStack_p f_codes);
 
 
 #endif

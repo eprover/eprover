@@ -59,6 +59,27 @@ static void findex_add_instance(FIndex_p index, FunCode i, void* inst)
    PTreeStore(tmp, inst);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: findex_remove_instance()
+//
+//   Add an instance (of clause or formula) from index with function
+//   symbol i.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void findex_remove_instance(FIndex_p index, FunCode i, void* inst)
+{
+   void *tmp;
+
+   tmp = &(PDArrayElementP(index->index, i));
+   PTreeDeleteEntry(tmp, inst);
+}
+
 
 
 /*---------------------------------------------------------------------*/
@@ -129,26 +150,48 @@ void FIndexFree(FIndex_p junk)
 
 void FIndexAddClause(FIndex_p index, Clause_p clause)
 {
-   PStack_p subterms = PStackAlloc();
+   PStack_p f_codes = PStackAlloc();
    long i;
-   Term_p term;   
+   FunCode f;
 
-   /* The following assumes TPOpFlag to be unset in all subterms of
-      clause, and will set it. */
-   ClauseCollectSubterms(clause, subterms);
+   ClauseReturnFCodes(clause, f_codes);
    
-   for(i=0; i<PStackGetSP(subterms); i++)
+   for(i=0; i<PStackGetSP(f_codes); i++)
    {
-      term = PStackElementP(subterms, i);
-      if(!TermIsVar(term))
-      {
-         findex_add_instance(index, term->f_code, clause);
-      }
+      f = PStackElementInt(f_codes, i);
+      findex_add_instance(index, f, clause);
    }
-   /* Reset TPpFlag */
-   TermStackDelProps(subterms, TPOpFlag);
-   PStackFree(subterms);
+   PStackFree(f_codes);
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: FIndexRemoveClause()
+//
+//   Remove a clause from the FIndex.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void FIndexRemoveClause(FIndex_p index, Clause_p clause)
+{
+   PStack_p f_codes = PStackAlloc();
+   long i;
+   FunCode f;
+   
+   ClauseReturnFCodes(clause, f_codes);
+   
+   for(i=0; i<PStackGetSP(f_codes); i++)
+   {
+      f = PStackElementInt(f_codes, i);
+      findex_remove_instance(index, f, clause);
+   }
+   PStackFree(f_codes);
+}
+
 
 
 /*-----------------------------------------------------------------------
@@ -174,6 +217,93 @@ void FIndexAddClauseSet(FIndex_p index, ClauseSet_p set)
       FIndexAddClause(index, handle);
    }
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FIndexAddPLClause()
+//
+//   Add PListCell containing a clause as payload to the index.
+//
+// Global Variables: -
+//
+// Side Effects    : As FIndexAddClause()
+//
+/----------------------------------------------------------------------*/
+
+void FIndexAddPLClause(FIndex_p index, PList_p lclause)
+{
+   PStack_p f_codes = PStackAlloc();
+   long i;
+   FunCode f;
+   
+   ClauseReturnFCodes(lclause->key.p_val, f_codes);
+   
+   for(i=0; i<PStackGetSP(f_codes); i++)
+   {
+      f = PStackElementInt(f_codes, i);
+      findex_add_instance(index, f, lclause);
+   }
+   PStackFree(f_codes);
+
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FIndexRemovePLClause()
+//
+//   Remove a PListCell conaining a clause from the FIndex.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void FIndexRemovePLClause(FIndex_p index,  PList_p lclause)
+{
+   PStack_p f_codes = PStackAlloc();
+   long i;
+   FunCode f;
+   
+   ClauseReturnFCodes(lclause->key.p_val, f_codes);
+   
+   for(i=0; i<PStackGetSP(f_codes); i++)
+   {
+      f = PStackElementInt(f_codes, i);
+      findex_remove_instance(index, f, lclause);
+   }
+   PStackFree(f_codes);
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FIndexAddPLClauseSet()
+//
+//   Add all the clauses in a PList to the index.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void FIndexAddPLClauseSet(FIndex_p index, PList_p set)
+{
+   PList_p handle;
+
+   for(handle = set->succ;
+       handle!=set;
+       handle = handle->succ)
+   {
+      FIndexAddPLClause(index, handle);
+   }
+}
+
 
 
 /*---------------------------------------------------------------------*/
