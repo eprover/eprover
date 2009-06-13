@@ -2184,19 +2184,30 @@ Clause_p ClauseNormalizeVars(Clause_p clause, VarBank_p fresh_vars)
 // Function: ClauseCollectSubterms()
 //
 //   Collect all subterms of clause onto collector. Assumes that
-//   TPOpFlag is set if and only if the term is already in the
-//   collection. Returns the number of new terms found.
+//   TPOpFlag is unset in all subterms. Returns the number of new
+//   terms found. 
 //
 // Global Variables: -
 //
-// Side Effects    : Sets the OpFlag of newly collected terms.
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
 long ClauseCollectSubterms(Clause_p clause, PStack_p collector)
 {
+   PStackPointer i, start;
+   long res;
+   Term_p t;
+   
+   start = PStackGetSP(collector);
+   res = EqnListCollectSubterms(clause->literals, collector);
 
-   return EqnListCollectSubterms(clause->literals, collector);
+   for(i=start; i<PStackGetSP(collector); i++)
+   {
+      t = PStackElementP(collector, i);
+      TermCellDelProp(t, TPOpFlag);
+   }
+   return res;
 }
 
 

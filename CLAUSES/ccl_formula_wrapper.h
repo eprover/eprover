@@ -85,6 +85,10 @@ extern long FormulaDefLimit;
     FormulaSetProp((form), (type))
 #define FormulaQueryType(form) ((form)->properties&CPTypeMask)
 
+#define  FormulaIsConjecture(form) \
+   ((FormulaQueryType(form)==WPTypeNegConjecture) ||    \
+    (FormulaQueryType(form)==WPTypeConjecture))
+
 #define WFormulaCellAlloc()    (WFormulaCell*)SizeMalloc(sizeof(WFormulaCell))
 #define WFormulaCellFree(junk) SizeFree(junk, sizeof(WFormulaCell))
 
@@ -103,11 +107,8 @@ void       WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
 WFormula_p WFormulaParse(Scanner_p in, TB_p terms);
 void       WFormulaPrint(FILE* out, WFormula_p form, bool fullterms);
 
-#define  WFormulaIsConjecture(form) \
-   ((FormulaQueryType(form)==WPTypeNegConjecture) ||    \
-    (FormulaQueryType(form)==WPTypeConjecture))
 
-long     WFormulaReturnFCodes(WFormula_p form, PStack_p f_codes);
+long       WFormulaReturnFCodes(WFormula_p form, PStack_p f_codes);
 
 
 #endif

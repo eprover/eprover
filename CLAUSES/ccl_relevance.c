@@ -39,85 +39,217 @@ Changes
 /*---------------------------------------------------------------------*/
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: find_level_fcodes()
+//
+//   Find all (non-special) function symbols in the relevance cores
+//   and assign their relevance level. Push them onto the new_codes
+//   stack (once).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void find_level_fcodes(Relevance_p reldata, long level)
+{
+   PList_p handle;
+   PStack_p collector = PStackAlloc();
+   Clause_p clause;
+   WFormula_p form;
+   FunCode   f;
+   
+   for(handle = reldata->clauses_core->succ;
+       handle != reldata->clauses_core;
+       handle = handle->succ)
+   {
+      clause = handle->key.p_val;
+      ClauseReturnFCodes(clause, collector);
+      while(!PStackEmpty(collector))
+      {
+         f = PStackPopInt(collector);
+         if(!SigIsSpecial(reldata->sig, f))
+         {
+            if(!PDArrayElementInt(reldata->fcode_relevance, f))
+            {
+               PDArrayAssignInt(reldata->fcode_relevance, f, level);
+               PStackPushInt(reldata->new_codes, f);
+            }
+         }
+      }
+   }
+   
+   for(handle = reldata->formulas_core->succ;
+       handle != reldata->formulas_core;
+       handle = handle->succ)
+   {
+      form = handle->key.p_val;
+      WFormulaReturnFCodes(form, collector);
+      while(!PStackEmpty(collector))
+      {
+         f = PStackPopInt(collector);
+         if(!SigIsSpecial(reldata->sig, f))
+         {
+            if(!PDArrayElementInt(reldata->fcode_relevance, f))
+            {
+               PDArrayAssignInt(reldata->fcode_relevance, f, level);
+               PStackPushInt(reldata->new_codes, f);
+            }
+         }
+      }
+   }
+   PStackFree(collector);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: extract_new_core()
+//
+//   Find the formulas and clauses in the the "rest" part and put them
+//   into the core.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void extract_new_core(Relevance_p reldata)
+{
+   FunCode f;
+   PTree_p root;
+   PList_p entry;
+
+   while(!PStackEmpty(reldata->new_codes))
+   {
+      f = PStackPopInt(reldata->new_codes);
+      // printf("Fcode: %ld\n", f);
+
+      while((root = PDArrayElementP(reldata->clauses_index->index, f)))
+      {
+         // printf("Clauses\n");
+         entry = root->key;         
+         FIndexRemovePLClause(reldata->clauses_index, entry);
+         PListExtract(entry);
+         PListInsert(reldata->clauses_core, entry);
+      }
+      while((root = PDArrayElementP(reldata->formulas_index->index, f)))
+      {
+         // printf("Formulae %p\n", root);
+         entry = root->key;
+         FIndexRemovePLFormula(reldata->formulas_index, entry);
+         PListExtract(entry);
+         PListInsert(reldata->formulas_core, entry);
+      }
+   }
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: 
+//
+//   
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+static void move_clauses(PList_p from, ClauseSet_p to)
+{
+   PList_p handle;
+   Clause_p clause;
+
+   for(handle = from->succ;
+       handle != from;
+       handle = handle->succ)
+   {
+      clause = handle->key.p_val;
+      ClauseSetExtractEntry(clause);
+      ClauseSetInsert(to, clause);
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: 
+//
+//   
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+static void move_formulas(PList_p from, FormulaSet_p to)
+{
+   PList_p handle;
+   WFormula_p form;
+
+   for(handle = from->succ;
+       handle != from;
+       handle = handle->succ)
+   {
+      form = handle->key.p_val;
+      FormulaSetExtractEntry(form);
+      FormulaSetInsert(to, form);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: proofstate_rel_prune()
+//
+//   Use the relevance data to prune axioms to those with a relevancy <=
+//   level. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void proofstate_rel_prune(ProofState_p state, 
+                                  Relevance_p reldata, 
+                                  long level) 
+{
+   ClauseSet_p  new_ax  = ClauseSetAlloc();
+   FormulaSet_p new_fax = FormulaSetAlloc(); 
+   PStackPointer i, base;
+   PList_p       set;
+   
+
+   for(i=0; i<level; i++)
+   {
+      base = 2*i;
+      if(base >= PStackGetSP(reldata->relevance_levels))
+      {
+         break;         
+      }
+      set = PStackElementP(reldata->relevance_levels, base);
+      move_clauses(set, new_ax);
+
+      set = PStackElementP(reldata->relevance_levels, base+1);
+      move_formulas(set, new_fax);
+   }  
+   ClauseSetFree(state->axioms);
+   FormulaSetFree(state->f_axioms);
+   state->axioms   = new_ax;
+   state->f_axioms = new_fax;
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: ClauseSetSplitConjectures()
-//
-//   Find all (real or negated) conjectures in set and sort them into
-//   conjectures. Collect the rest in rest. Return number of
-//   conjectures found.
-//
-// Global Variables: -
-//
-// Side Effects    : Memory operations
-//
-/----------------------------------------------------------------------*/
-
-long ClauseSetSplitConjectures(ClauseSet_p set, 
-                               PList_p conjectures, PList_p rest)
-{
-   Clause_p handle;
-   long     res = 0;
-
-   for(handle = set->anchor->succ;
-       handle!=set->anchor;
-       handle = handle->succ)
-   {
-      if(ClauseIsConjecture(handle))
-      {
-         PListStoreP(conjectures, handle);
-         res++;
-      }
-      else
-      {
-         PListStoreP(rest, handle);                  
-      }
-   }
-   return res;
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function: FormulaSetSplitConjectures()
-//
-//   Find all (real or negated) conjectures in set and sort them into
-//   conjectures. Collect the rest in rest. Return number of
-//   conjectures found.
-//
-// Global Variables: -
-//
-// Side Effects    : Memory operations
-//
-/----------------------------------------------------------------------*/
-
-long FormulaSetSplitConjectures(FormulaSet_p set, 
-                                PList_p conjectures, PList_p rest)
-{
-   WFormula_p handle;
-   long     res = 0;
-
-   for(handle = set->anchor->succ;
-       handle!=set->anchor;
-       handle = handle->succ)
-   {
-      if(WFormulaIsConjecture(handle))
-      {
-         PListStoreP(conjectures, handle);
-         res++;
-      }
-      else
-      {
-         PListStoreP(rest, handle);                  
-      }
-   }
-   return res;
-}
 
 
 
@@ -144,15 +276,20 @@ Relevance_p RelevanceAlloc()
 {
    Relevance_p handle = RelevanceCellAlloc();
 
-   handle->clauses_core   = PListAlloc();
-   handle->formulas_core  = PListAlloc();
+   handle->sig              = NULL;
+
+   handle->clauses_core     = PListAlloc();
+   handle->formulas_core    = PListAlloc();
    
-    handle->clauses_rest  = PListAlloc();
-    handle->formulas_rest = PListAlloc();
-
-    handle->fcode_relevance = PDArrayAlloc(100, 0);
-    handle->new_codes       = PStackAlloc();
-
+   handle->clauses_rest     = PListAlloc();
+   handle->formulas_rest    = PListAlloc();
+   
+   handle->clauses_index    = FIndexAlloc();
+   handle->formulas_index   = FIndexAlloc();
+   
+   handle->fcode_relevance  = PDArrayAlloc(100, 0);
+   handle->new_codes        = PStackAlloc();
+   handle->relevance_levels =  PStackAlloc();
    return handle;
 }
 
@@ -171,12 +308,24 @@ Relevance_p RelevanceAlloc()
 
 void RelevanceFree(Relevance_p junk)
 {
+   PList_p level;
+
    PListFree(junk->clauses_core);
    PListFree(junk->formulas_core);
    PListFree(junk->clauses_rest);
    PListFree(junk->formulas_rest);
+   FIndexFree(junk->clauses_index);
+   FIndexFree(junk->formulas_index);
+
    PDArrayFree(junk->fcode_relevance);
    PStackFree(junk->new_codes);
+
+   while(!PStackEmpty(junk->relevance_levels))
+   {
+      level = PStackPopP(junk->relevance_levels);
+      PListFree(level);
+   }
+   PStackFree(junk->relevance_levels);
 
    RelevanceCellFree(junk);
 }
@@ -243,13 +392,14 @@ void FormulaPListPrint(FILE* out, PList_p list)
 
 /*-----------------------------------------------------------------------
 //
-// Function: 
+// Function: RelevanceDataInit()
 //
-//   
+//   Initialize a relevancy data structure - Split conjectures and
+//   non-conjectures, and index the non-conjectures.
 //
-// Global Variables: 
+// Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
@@ -257,22 +407,27 @@ long RelevanceDataInit(ProofState_p state, Relevance_p data)
 {
    long res = 0;
 
+   data->sig = state->signature;
+
    res += ClauseSetSplitConjectures(state->axioms, 
                                     data->clauses_core, 
                                     data->clauses_rest);
-   printf("Clauses done...\n");
    res += FormulaSetSplitConjectures(state->f_axioms, 
                                     data->formulas_core, 
                                     data->formulas_rest);
+
+   FIndexAddPLClauseSet(data->clauses_index, data->clauses_rest);
+   FIndexAddPLFormulaSet(data->formulas_index, data->formulas_rest);
+   
    return res;
 }
 
 
 /*-----------------------------------------------------------------------
 //
-// Function: 
+// Function: RelevanceDataCompute()
 //
-//   
+//   Compute the 
 //
 // Global Variables: 
 //
@@ -284,18 +439,34 @@ Relevance_p RelevanceDataCompute(ProofState_p state)
 {
    Relevance_p handle = RelevanceAlloc();
    long goals;
-
+   long level = 1;
+   
    goals = RelevanceDataInit(state, handle);
 
-   printf("Conjectures:\n");
-   ClausePListPrint(stdout, handle->clauses_core);
-   FormulaPListPrint(stdout, handle->formulas_core);
-   printf("Rest:\n");
-   ClausePListPrint(stdout, handle->clauses_rest);
-   FormulaPListPrint(stdout, handle->formulas_rest);
-   
+   while(!(PListEmpty(handle->clauses_core) && 
+           PListEmpty(handle->formulas_core)))
+   {  
+      /* 
+      printf("Level %ld core:\n", level);
+      ClausePListPrint(stdout, handle->clauses_core);
+      FormulaPListPrint(stdout, handle->formulas_core);
+      printf("\n");
+      */
+      find_level_fcodes(handle, level);
+      
+      PStackPushP(handle->relevance_levels, handle->clauses_core);
+      PStackPushP(handle->relevance_levels, handle->formulas_core);
+      
+      handle->clauses_core  = PListAlloc();
+      handle->formulas_core = PListAlloc();
+      
+      extract_new_core(handle);      
+      level = level+1;
+   }
    return handle;
 }
+
+
 
 /*-----------------------------------------------------------------------
 //
@@ -310,12 +481,24 @@ Relevance_p RelevanceDataCompute(ProofState_p state)
 //
 /----------------------------------------------------------------------*/
 
-long ProofStatePreprocess(ProofState_p state)
+long ProofStatePreprocess(ProofState_p state, long level)
 {
-   Relevance_p reldata = RelevanceDataCompute(state);
+   Relevance_p reldata;
+   long old_axno, new_axno;
+
+   if(!level)
+   {
+      return 0;
+   }
+   reldata = RelevanceDataCompute(state);
+
+   old_axno = state->axioms->members+state->f_axioms->members;
+   proofstate_rel_prune(state, reldata, level);
+   new_axno = state->axioms->members+state->f_axioms->members;
 
    RelevanceFree(reldata);
-   return 0;
+   
+  return old_axno-new_axno;
 }
 
 

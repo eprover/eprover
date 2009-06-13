@@ -38,14 +38,20 @@ Changes
 
 typedef struct relevance_cell
 {
+   Sig_p     sig;
+
    PList_p   clauses_core;
    PList_p   formulas_core;
    
    PList_p   clauses_rest;
    PList_p   formulas_rest;
 
+   FIndex_p  clauses_index;
+   FIndex_p  formulas_index;
+
    PDArray_p fcode_relevance;
    PStack_p  new_codes;
+   PStack_p  relevance_levels;
 }RelevanceCell, *Relevance_p;
 
 
@@ -58,11 +64,6 @@ typedef struct relevance_cell
 #define RelevanceCellFree(junk) SizeFree(junk, sizeof(RelevanceCell))
 
 
-long ClauseSetSplitConjectures(ClauseSet_p set, 
-                               PList_p conjectures, PList_p rest);
-long FormulaSetSplitConjectures(FormulaSet_p set, 
-                                PList_p conjectures, PList_p rest);
-
 Relevance_p RelevanceAlloc();
 void        RelevanceFree(Relevance_p junk);
 
@@ -71,7 +72,7 @@ void FormulaPListPrint(FILE* out, PList_p list);
 
 long        RelevanceDataInit(ProofState_p state, Relevance_p data);
 Relevance_p RelevanceDataCompute(ProofState_p state);
-long ProofStatePreprocess(ProofState_p state);
+long ProofStatePreprocess(ProofState_p state, long level);
 
 
 

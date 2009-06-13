@@ -479,6 +479,64 @@ void WFormulaPrint(FILE* out, WFormula_p form, bool fullterms)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: WFormulaReturnFCodes()
+//
+//   Push all function symbol codes from form onto f_codes. Return
+//   number of symbols found.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long WFormulaReturnFCodes(WFormula_p form, PStack_p f_codes)
+{
+   long res = 0;
+   PStack_p stack;
+   Sig_p sig;
+   PStackPointer i, start;
+   Term_p t;
+   FunCode f;
+
+   assert(form);
+   assert(f_codes);
+
+   sig = form->terms->sig;
+   assert(sig);
+
+   stack = PStackAlloc();
+   TBTermCollectSubterms(form->tformula, stack);
+
+   start = PStackGetSP(f_codes);
+   for(i=0; i<PStackGetSP(stack);i++)
+   {
+      t = PStackElementP(stack,i);
+      TermCellDelProp(t, TPOpFlag);
+      if(!TermIsVar(t))
+      {
+         if(!SigQueryFuncProp(sig, t->f_code, FPOpFlag))
+         {
+            SigSetFuncProp(sig, t->f_code, FPOpFlag);
+            PStackPushInt(f_codes, t->f_code);
+            res++;
+         }
+      }
+   }
+   PStackFree(stack);
+
+   /* Reset FPOpFlags */
+   for(i=start; i<PStackGetSP(f_codes);i++)
+   {
+      f =  PStackElementInt(f_codes, i);
+      SigDelFuncProp(sig, f, FPOpFlag);      
+   }
+   return res;
+}
+
+
 
 
 /*---------------------------------------------------------------------*/

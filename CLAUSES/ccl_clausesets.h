@@ -30,6 +30,7 @@ Changes
 #include <ccl_fcvindexing.h>
 #include <ccl_tautologies.h>
 #include <ccl_pdtrees.h>
+#include <clb_plist.h>
 #include <clb_objtrees.h>
 
 /*---------------------------------------------------------------------*/
@@ -164,6 +165,10 @@ PermVector_p PermVectorCompute(ClauseSet_p set, FVIndexParms_p params,
 
 long         ClauseSetFVIndexify(ClauseSet_p set);
 long         ClauseSetNewTerms(ClauseSet_p set, TB_p terms);
+
+long         ClauseSetSplitConjectures(ClauseSet_p set, 
+                                       PList_p conjectures, 
+                                       PList_p rest);
 
 #endif
 

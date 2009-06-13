@@ -2095,6 +2095,44 @@ long ClauseSetNewTerms(ClauseSet_p set, TB_p terms)
 
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetSplitConjectures()
+//
+//   Find all (real or negated) conjectures in set and sort them into
+//   conjectures. Collect the rest in rest. Return number of
+//   conjectures found.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetSplitConjectures(ClauseSet_p set, 
+                               PList_p conjectures, PList_p rest)
+{
+   Clause_p handle;
+   long     res = 0;
+
+   for(handle = set->anchor->succ;
+       handle!=set->anchor;
+       handle = handle->succ)
+   {
+      if(ClauseIsConjecture(handle))
+      {
+         PListStoreP(conjectures, handle);
+         res++;
+      }
+      else
+      {
+         PListStoreP(rest, handle);                  
+      }
+   }
+   return res;
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

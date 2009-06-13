@@ -306,6 +306,99 @@ void FIndexAddPLClauseSet(FIndex_p index, PList_p set)
 
 
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: FIndexAddPLFormula()
+//
+//   Add PListCell containing a formula as payload to the index.
+//
+// Global Variables: -
+//
+// Side Effects    : As FIndexAddFormula()
+//
+/----------------------------------------------------------------------*/
+
+void FIndexAddPLFormula(FIndex_p index, PList_p lformula)
+{
+   PStack_p f_codes = PStackAlloc();
+   long i;
+   FunCode f;
+   
+   WFormulaReturnFCodes(lformula->key.p_val, f_codes);
+   
+   for(i=0; i<PStackGetSP(f_codes); i++)
+   {
+      f = PStackElementInt(f_codes, i);
+      findex_add_instance(index, f, lformula);
+   }
+   PStackFree(f_codes);
+
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FIndexRemovePLFormula()
+//
+//   Remove a PListCell conaining a formula from the FIndex.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void FIndexRemovePLFormula(FIndex_p index,  PList_p lformula)
+{
+   PStack_p f_codes = PStackAlloc();
+   long i;
+   FunCode f;
+
+   // WFormulaPrint(stdout, lformula->key.p_val, true);
+   // printf("\n");
+   
+   WFormulaReturnFCodes(lformula->key.p_val, f_codes);
+   // printf("Found %ld symbols\n", PStackGetSP(f_codes));
+
+
+   for(i=0; i<PStackGetSP(f_codes); i++)
+   {
+      f = PStackElementInt(f_codes, i);
+      findex_remove_instance(index, f, lformula);
+   }
+   PStackFree(f_codes);
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FIndexAddPLFormulaSet()
+//
+//   Add all the formulas in a PList to the index.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void FIndexAddPLFormulaSet(FIndex_p index, PList_p set)
+{
+   PList_p handle;
+
+   for(handle = set->succ;
+       handle!=set;
+       handle = handle->succ)
+   {
+      FIndexAddPLFormula(index, handle);
+   }
+}
+
+
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

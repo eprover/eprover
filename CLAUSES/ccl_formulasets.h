@@ -24,6 +24,7 @@ Changes
 
 #define CCL_FORMULASETS
 
+#include <clb_plist.h>
 #include <ccl_formula_wrapper.h>
 
 /*---------------------------------------------------------------------*/
@@ -60,7 +61,9 @@ void         FormulaSetDeleteEntry(WFormula_p form);
 
 void         FormulaSetPrint(FILE* out, FormulaSet_p set, 
                              bool fullterms);
-
+long         FormulaSetSplitConjectures(FormulaSet_p set, 
+                                        PList_p conjectures, 
+                                        PList_p rest);
 
 #endif
 

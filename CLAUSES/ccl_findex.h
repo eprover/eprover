@@ -57,8 +57,12 @@ void FindexRemoveClause(FIndex_p index, Clause_p clause);
 void FIndexAddClauseSet(FIndex_p index, ClauseSet_p set);
 
 void FIndexAddPLClause(FIndex_p index, PList_p lclause);
-void FindexRemovePLClause(FIndex_p index, Clause_p clause);
+void FIndexRemovePLClause(FIndex_p index, PList_p lclause);
 void FIndexAddPLClauseSet(FIndex_p index, PList_p set);
+
+void FIndexAddPLFormula(FIndex_p index, PList_p lform);
+void FIndexRemovePLFormula(FIndex_p index, PList_p lform);
+void FIndexAddPLFormulaSet(FIndex_p index, PList_p set);
 
 
 #endif

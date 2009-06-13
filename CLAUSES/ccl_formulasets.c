@@ -321,6 +321,44 @@ void FormulaSetPrint(FILE* out, FormulaSet_p set, bool fullterms)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaSetSplitConjectures()
+//
+//   Find all (real or negated) conjectures in set and sort them into
+//   conjectures. Collect the rest in rest. Return number of
+//   conjectures found.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+long FormulaSetSplitConjectures(FormulaSet_p set, 
+                                PList_p conjectures, PList_p rest)
+{
+   WFormula_p handle;
+   long     res = 0;
+
+   for(handle = set->anchor->succ;
+       handle!=set->anchor;
+       handle = handle->succ)
+   {
+      if(FormulaIsConjecture(handle))
+      {
+         PListStoreP(conjectures, handle);
+         res++;
+      }
+      else
+      {
+         PListStoreP(rest, handle);                  
+      }
+   }
+   return res;
+}
+
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
