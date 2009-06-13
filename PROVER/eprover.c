@@ -26,6 +26,7 @@ Changes
 #include <clb_defines.h>
 #include <cio_commandline.h>
 #include <cio_output.h>
+#include "ccl_relevance.h"
 #include <cco_proofproc.h>
 #include <cio_signals.h>
 #include <ccl_unfold_defs.h>
@@ -79,6 +80,7 @@ typedef enum
    OPT_EQ_UNFOLD_LIMIT,
    OPT_EQ_UNFOLD_MAXCLAUSES,
    OPT_NO_EQ_UNFOLD,
+   OPT_REL_PRUNE_LEVEL,
    OPT_AC_HANDLING,
    OPT_AC_ON_PROC,
    OPT_LITERAL_SELECT,
@@ -461,6 +463,12 @@ OptCell opts[] =
     NoArg, NULL,
     "During preprocessing, abstain from unfolding (and removing) "
     "equational definitions."},
+
+   {OPT_REL_PRUNE_LEVEL,
+    '\0', "rel_pruning_level",
+    OptArg, "3",
+    "Perform relevancy pruning up to the givel level on the"
+    " unprocessed axioms."},
 
    {OPT_AC_HANDLING,
     '\0', "ac-handling",
@@ -1020,7 +1028,8 @@ long              step_limit = LONG_MAX,
                   proc_limit = LONG_MAX,
                   unproc_limit = LONG_MAX, 
                   total_limit = LONG_MAX,
-                  eqdef_maxclauses = DEFAULT_EQDEF_MAXCLAUSES;
+                  eqdef_maxclauses = DEFAULT_EQDEF_MAXCLAUSES,
+                  relevance_prune_level = 0;
 int               eqdef_incrlimit = DEFAULT_EQDEF_INCRLIMIT;
 char              *outdesc = DEFAULT_OUTPUT_DESCRIPTOR,
                   *filterdesc = DEFAULT_FILTER_DESCRIPTOR;
@@ -1107,6 +1116,12 @@ int main(int argc, char* argv[])
    }
    FormulaSetDocInital(GlobalOut, OutputLevel, proofstate->f_axioms);
    ClauseSetDocInital(GlobalOut, OutputLevel, proofstate->axioms);
+
+   if(ProofStatePreprocess(proofstate, relevance_prune_level))
+   {
+      proofstate->state_is_complete = false;
+   }
+
    if((neg_conjectures =
        FormulaSetPreprocConjectures(proofstate->f_axioms)))
    {
@@ -1503,6 +1518,9 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_NO_EQ_UNFOLD:
 	    eqdef_incrlimit = INT_MIN;
 	    break;
+      case OPT_REL_PRUNE_LEVEL:
+            relevance_prune_level = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_AC_HANDLING:
 	    if(strcmp(arg, "None")==0)
 	    {
