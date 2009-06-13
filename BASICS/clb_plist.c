@@ -105,7 +105,7 @@ void PListInsert(PList_p where, PList_p cell)
    cell->pred = where; 
    cell->succ = where->succ;
    where->succ->pred = cell;
-   where->pred = cell;
+   where->succ = cell;
 }
 
 
