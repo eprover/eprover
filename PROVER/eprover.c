@@ -1058,7 +1058,11 @@ int main(int argc, char* argv[])
    Clause_p         success, filter_success;
    bool             out_of_clauses;
    char*            finals_state = "exists";
-   long             parsed_clause_no, preproc_removed=0, neg_conjectures;
+   long             raw_clause_no, 
+                    preproc_removed=0, 
+                    neg_conjectures,
+                    parsed_ax_no,
+                    relevancy_pruned = 0;
 
    assert(argv[0]);
    
@@ -1104,9 +1108,10 @@ int main(int argc, char* argv[])
    }
    VERBOUT2("Specification read\n");
 
-   if(error_on_empty 
-      && ClauseSetEmpty(proofstate->axioms) 
-      && FormulaSetEmpty(proofstate->f_axioms))
+   parsed_ax_no = ClauseSetCardinality(proofstate->axioms)+
+      FormulaSetCardinality(proofstate->f_axioms);
+
+   if(error_on_empty && (parsed_ax_no == 0))
    {
 #ifdef PRINT_SOMEERRORS_STDOUT
       fprintf(GlobalOut, "# Error: Input file contains no clauses or formulas\n");
@@ -1117,7 +1122,8 @@ int main(int argc, char* argv[])
    FormulaSetDocInital(GlobalOut, OutputLevel, proofstate->f_axioms);
    ClauseSetDocInital(GlobalOut, OutputLevel, proofstate->axioms);
 
-   if(ProofStatePreprocess(proofstate, relevance_prune_level))
+   relevancy_pruned = ProofStatePreprocess(proofstate, relevance_prune_level);
+   if(relevancy_pruned)
    {
       proofstate->state_is_complete = false;
    }
@@ -1133,7 +1139,7 @@ int main(int argc, char* argv[])
       VERBOUT("CNFization done\n");
    }
    ProofStateInitWatchlist(proofstate, watchlist_filename, parse_format);
-   parsed_clause_no = proofstate->axioms->members;
+   raw_clause_no = proofstate->axioms->members;
    if(!no_preproc)
    {
       preproc_removed = ClauseSetPreprocess(proofstate->axioms,
@@ -1247,9 +1253,13 @@ int main(int argc, char* argv[])
    
    if(OutputLevel||print_statistics)
    {
+      fprintf(GlobalOut, "# Parsed axioms                        : %ld\n",
+              parsed_ax_no);
+      fprintf(GlobalOut, "# Removed by relevancy pruning         : %ld\n",
+              relevancy_pruned);
       fprintf(GlobalOut, "# Initial clauses                      : %ld\n",
-	      parsed_clause_no);
-      fprintf(GlobalOut, "# Removed in preprocessing             : %ld\n",
+	      raw_clause_no);
+      fprintf(GlobalOut, "# Removed in clause preprocessing      : %ld\n",
 	      preproc_removed);
       ProofStateStatisticsPrint(GlobalOut, proofstate);
       fprintf(GlobalOut, "# Clause-clause subsumption calls (NU) : %ld\n",
