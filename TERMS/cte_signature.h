@@ -51,7 +51,9 @@ typedef enum
    FPIsFloat      =  256, /* Floating point number */
    FPIsObject     =  512, /* ""-enclosed string, by definition denotes
                             unique object." */
-   FPDistinctProp =  FPIsObject | FPIsInteger | FPIsFloat
+   FPDistinctProp =  FPIsObject | FPIsInteger | FPIsFloat,
+   FPOpFlag       = 1024, /* Used for temporary oerations, by
+                           * defintion off if not in use! */
 }FunctionProperties;
 
 

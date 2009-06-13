@@ -470,6 +470,61 @@ void TermVarDelProp(Term_p term, DerefType deref, TermProperties prop)
    PStackFree(stack);
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermStackSetProps()
+//
+//   Set the given properties in all term cells on the stack.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void TermStackSetProps(PStack_p stack, TermProperties prop)
+{
+   PStackPointer i;
+   Term_p term;
+
+   for(i=0; i<PStackGetSP(stack); i++)
+   {
+      term = PStackElementP(stack, i);
+      TermCellSetProp(term, prop);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermStackDelProps()
+//
+//   Delete the given properties in all term cells on the stack.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void TermStackDelProps(PStack_p stack, TermProperties prop)
+{
+   PStackPointer i;
+   Term_p term;
+
+   for(i=0; i<PStackGetSP(stack); i++)
+   {
+      term = PStackElementP(stack, i);
+      TermCellDelProp(term, prop);
+   }
+}
+
+
+
+
+
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

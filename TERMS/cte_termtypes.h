@@ -235,6 +235,11 @@ static __inline__ Term_p* TermArgListCopy(Term_p source);
 static __inline__ Term_p  TermTopCopy(Term_p source);
 #endif
 
+void    TermStackSetProps(PStack_p stack, TermProperties prop);
+void    TermStackDelProps(PStack_p stack, TermProperties prop);
+
+
+
 /*---------------------------------------------------------------------*/
 /*                  Inline functions                                   */
 /*---------------------------------------------------------------------*/

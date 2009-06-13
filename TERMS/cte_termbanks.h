@@ -16,7 +16,7 @@ Contents
   tree with key f_code.masked_properties.entry_nos_of_args and are
   implemented in cte_termtrees.[ch]
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2009 by the author.
   This code is released under the GNU General Public Licence.
   See the file COPYING in the main CLIB directory for details.
   Run "eprover -h" for contact information.
@@ -147,6 +147,8 @@ long    TBTermDelPropCount(Term_p term, TermProperties prop);
 void    TBGCMarkTerm(TB_p bank, Term_p term);
 long    TBGCSweep(TB_p bank);
 Term_p  TBCreateMinTerm(TB_p bank, FunCode min_const);
+
+long    TBTermCollectSubterms(Term_p term, PStack_p collector);
 
 
 /*---------------------------------------------------------------------*/

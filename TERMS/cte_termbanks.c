@@ -14,7 +14,7 @@ Contents
   followed whenever a term is treated as an individual term, but not
   when they form part of a term bank and are manipulated as such.  
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2009 by the author.
   This code is released under the GNU General Public Licence.
   See the file COPYING in the main CLIB directory for details.
   Run "eprover -h" for contact information.
@@ -1241,6 +1241,42 @@ Term_p TBCreateMinTerm(TB_p bank, FunCode min_const)
    }
    assert(bank->min_term->f_code == min_const);
    return bank->min_term;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TBTermCollectSubterms()
+//
+//   Collect all subterms of term onto collector. Assumes that
+//   TPOpFlag is set if and only if the term is already in the
+//   collection. Returns the number of new terms found.
+//
+// Global Variables: -
+//
+// Side Effects    : Sets the OpFlag of newly collected terms.
+//
+/----------------------------------------------------------------------*/
+
+long TBTermCollectSubterms(Term_p term, PStack_p collector)
+{
+   long res = 0;
+   int i;
+
+   assert(term);
+   assert(TermIsShared(term));
+   
+   if(!TermCellQueryProp(term, TPOpFlag))
+   {
+      res = 1;
+      TermCellSetProp(term, TPOpFlag);
+      PStackPushP(collector, term);
+      for(i=0; i<term->arity; i++)
+      {
+         res += TBTermCollectSubterms(term->args[i], collector);
+      }
+   }
+   return res;
 }
 
 
