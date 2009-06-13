@@ -82,6 +82,7 @@ void        ClauseSetPDTIndexedInsert(ClauseSet_p set, Clause_p newclause);
 void        ClauseSetIndexedInsert(ClauseSet_p set, FVPackedClause_p newclause);
 void        ClauseSetIndexedInsertClause(ClauseSet_p set, Clause_p newclause);
 Clause_p    ClauseSetExtractEntry(Clause_p clause);
+#define     ClauseSetCardinality(set) ((set)->members)
 #define     ClauseSetEmpty(set)\
             ((set)->anchor->succ == (set)->anchor)
 Clause_p    ClauseSetExtractFirst(ClauseSet_p set);

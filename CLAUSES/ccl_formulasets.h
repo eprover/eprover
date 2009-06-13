@@ -54,6 +54,7 @@ void         FormulaSetMarkPolarity(FormulaSet_p set);
 void         FormulaSetInsert(FormulaSet_p set, WFormula_p newform);
 long         FormulaSetInsertSet(FormulaSet_p set, FormulaSet_p from);
 WFormula_p   FormulaSetExtractEntry(WFormula_p form);
+#define      FormulaSetCardinality(set) ((set)->members)
 #define      FormulaSetEmpty(set)\
              ((set)->anchor->succ == (set)->anchor)
 WFormula_p   FormulaSetExtractFirst(FormulaSet_p set);
