@@ -151,13 +151,13 @@ void extract_new_core(Relevance_p reldata)
 
 /*-----------------------------------------------------------------------
 //
-// Function: 
+// Function: move_clauses()
 //
-//   
+//   Given a plist of clauses, move them into the clauseset.
 //
-// Global Variables: 
+// Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
@@ -178,13 +178,13 @@ static void move_clauses(PList_p from, ClauseSet_p to)
 
 /*-----------------------------------------------------------------------
 //
-// Function: 
+// Function: move_formulas()
 //
-//   
+//   Given a plist of formulas, move them into the formulaset.
 //
-// Global Variables: 
+// Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
@@ -232,6 +232,10 @@ static void proofstate_rel_prune(ProofState_p state,
       base = 2*i;
       if(base >= PStackGetSP(reldata->relevance_levels))
       {
+         /* Not enough levels to fullfil the request, add the
+            remaining clauses.*/
+         move_clauses(reldata->clauses_rest, new_ax);
+         move_formulas(reldata->formulas_rest, new_fax);
          break;         
       }
       set = PStackElementP(reldata->relevance_levels, base);

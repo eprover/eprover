@@ -41,7 +41,8 @@ CLAUSE_LIB = ccl_evaluations.o ccl_eqn.o ccl_eqnlist.o \
              ccl_tautologies.o ccl_clausepos.o ccl_pdtrees.o ccl_freqvectors.o \
              ccl_fcvindexing.o ccl_clausesets.o ccl_unfold_defs.o\
              ccl_clausefunc.o ccl_formulafunc.o ccl_groundconstr.o\
-             ccl_grounding.o ccl_g_lithash.o ccl_findex.o ccl_relevance.o\
+             ccl_grounding.o ccl_g_lithash.o ccl_axiomsorter.o \
+	     ccl_findex.o ccl_relevance.o\
              ccl_inferencedoc.o ccl_paramod.o ccl_factor.o ccl_eqnresolution.o\
              ccl_rewrite.o ccl_unit_simplify.o ccl_subsumption.o ccl_context_sr.o \
              ccl_def_handling.o ccl_splitting.o\
