@@ -467,6 +467,8 @@ Relevance_p RelevanceDataCompute(ProofState_p state)
       extract_new_core(handle);      
       level = level+1;
    }
+   handle->max_level = level;
+
    return handle;
 }
 

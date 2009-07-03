@@ -48,7 +48,8 @@ typedef struct relevance_cell
 
    FIndex_p  clauses_index;
    FIndex_p  formulas_index;
-
+   
+   long      max_level;
    PDArray_p fcode_relevance;
    PStack_p  new_codes;
    PStack_p  relevance_levels;
