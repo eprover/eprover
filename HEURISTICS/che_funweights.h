@@ -111,6 +111,9 @@ WFCB_p ConjectureRelativeSymbolWeightParse(Scanner_p in, OCB_p ocb,
 WFCB_p RelevanceLevelWeightParse(Scanner_p in, OCB_p ocb, 
                                  ProofState_p state);
 
+WFCB_p RelevanceLevelWeightParse2(Scanner_p in, OCB_p ocb, 
+                                  ProofState_p state);
+
 double GenericFunWeightCompute(void* data, Clause_p clause);
 
 

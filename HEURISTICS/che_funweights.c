@@ -96,6 +96,58 @@ static void init_conj_vector(FunWeightParam_p data)
 
 /*-----------------------------------------------------------------------
 //
+// Function: init_relevance_vector2()
+//
+//   Initialize the function weight vector based on the data in data
+//   ;-). Uses relevance levels.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void init_relevance_vector2(FunWeightParam_p data)
+{
+   if(!data->fweights)
+   {
+      Relevance_p reldata = RelevanceDataCompute(data->proofstate);
+      FunCode i;
+      long eff_rel, base;
+
+      data->flimit   = data->ocb->sig->f_count+1;
+      data->fweights = SizeMalloc(data->flimit*sizeof(long));
+      
+      for(i=0;i<data->flimit; i++)
+      {
+         if(SigIsSpecial(data->ocb->sig, i))
+         {
+            eff_rel = 1;
+         }
+         else
+         {
+            eff_rel = PDArrayElementInt(reldata->fcode_relevance, i);
+         }
+         
+         if(!eff_rel)
+         {
+            eff_rel = data->default_level_penalty+reldata->max_level;
+         }
+         base = SigIsPredicate(data->ocb->sig, i)?data->pweight:
+            (SigFindArity(data->ocb->sig,i)?data->fweight:data->cweight);
+                  
+         data->fweights[i] = base*
+            (data->level_poly_const
+             +data->level_poly_lin*eff_rel
+             +data->level_poly_square*eff_rel*eff_rel);
+      }
+      RelevanceFree(reldata);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: init_relevance_vector()
 //
 //   Initialize the function weight vector based on the data in data
@@ -262,6 +314,66 @@ WFCB_p RelevanceLevelWeightInit(ClausePrioFun prio_fun,
    return WFCBAlloc(GenericFunWeightCompute, prio_fun,
                     GenericFunWeightExit, data);
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: RelevanceLevelWeightInit2()
+//
+//   Return an initialized WFCB for FunWeight evaluation. This
+//   gives different weights based on the relevancy level.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations.
+//
+/----------------------------------------------------------------------*/
+
+WFCB_p RelevanceLevelWeightInit2(ClausePrioFun prio_fun, 
+                                OCB_p ocb,
+                                ProofState_p state,
+                                double max_term_multiplier,
+                                double max_literal_multiplier,
+                                double pos_multiplier,
+                                long   vweight,
+                                long   fweight,
+                                long   cweight,
+                                long   pweight,
+                                long   level_poly_const,
+                                double level_poly_lin,
+                                double level_poly_square,
+                                long   default_level_penalty)
+
+{
+   FunWeightParam_p data = FunWeightParamCellAlloc();
+   
+   data->init_fun               = init_relevance_vector2;
+   data->ocb                    = ocb;
+   data->proofstate             = state;
+   data->pos_multiplier         = pos_multiplier;
+   data->max_term_multiplier    = max_term_multiplier;
+   data->max_literal_multiplier = max_literal_multiplier;
+   
+   data->vweight                = vweight;
+
+   data->fweight                = fweight;
+   data->cweight                = cweight;
+   data->pweight                = pweight;
+
+   data->level_poly_const       = level_poly_const;
+   data->level_poly_lin         = level_poly_lin;
+   data->level_poly_square      = level_poly_square;
+   data->default_level_penalty  = default_level_penalty;
+
+   data->fweights               = NULL;
+
+   /* Weight vector is computed on first call of weight function to
+      avoid overhead is many funweigh-based functions are predefined
+      */
+   return WFCBAlloc(GenericFunWeightCompute, prio_fun,
+                    GenericFunWeightExit, data);
+}
+
+
 
 
 
@@ -533,6 +645,88 @@ WFCB_p RelevanceLevelWeightParse(Scanner_p in, OCB_p ocb,
                                    default_level_penalty);
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: RelevanceLevelWeightParse2()
+//
+//   Parse the specification of a RelevanceLevelWeight function.
+//
+//   The parameters are:
+//
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+
+WFCB_p RelevanceLevelWeightParse2(Scanner_p in, OCB_p ocb, 
+                                 ProofState_p state)
+{   
+   ClausePrioFun prio_fun;
+   int 
+      fweight, 
+      pweight, 
+      cweight, 
+      vweight, 
+      default_level_penalty;
+   
+   double 
+      max_term_multiplier, 
+      max_literal_multiplier,
+      pos_multiplier,
+      level_poly_const,
+      level_poly_lin,
+      level_poly_square;
+
+   AcceptInpTok(in, OpenBracket);
+   prio_fun = ParsePrioFun(in);
+   AcceptInpTok(in, Comma);
+
+   level_poly_const = ParseFloat(in);
+   AcceptInpTok(in, Comma);
+   level_poly_lin = ParseFloat(in);
+   AcceptInpTok(in, Comma);
+   level_poly_square = ParseFloat(in);
+   AcceptInpTok(in, Comma);
+
+   default_level_penalty = ParseInt(in);
+   AcceptInpTok(in, Comma);
+
+   fweight = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   cweight = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   pweight = ParseInt(in);
+   AcceptInpTok(in, Comma);
+
+   vweight = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   
+   max_term_multiplier = ParseFloat(in);
+   AcceptInpTok(in, Comma);
+   max_literal_multiplier = ParseFloat(in);
+   AcceptInpTok(in, Comma);
+   pos_multiplier = ParseFloat(in);
+   AcceptInpTok(in, CloseBracket);
+   
+   return RelevanceLevelWeightInit2(prio_fun, 
+                                   ocb,
+                                   state,
+                                   max_term_multiplier,
+                                   max_literal_multiplier,
+                                   pos_multiplier,
+                                   vweight,
+                                   fweight,
+                                   cweight,
+                                   pweight,
+                                   level_poly_const,
+                                   level_poly_lin,
+                                   level_poly_square,
+                                   default_level_penalty);
+}
 
 
 /*-----------------------------------------------------------------------
