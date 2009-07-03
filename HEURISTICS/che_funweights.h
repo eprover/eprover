@@ -25,6 +25,7 @@ Changes
 
 #define CHE_FUNWEIGHTS
 
+#include <ccl_relevance.h>
 #include <che_refinedweight.h>
 
 
@@ -38,8 +39,9 @@ Changes
 typedef struct funweightparamcell
 {
    /* Generic stuff, see Refinedweight() */
-   OCB_p       ocb;
-   ClauseSet_p axioms;
+   OCB_p        ocb;
+   ClauseSet_p  axioms;
+   ProofState_p proofstate;
 
    double max_term_multiplier;
    double max_literal_multiplier;
@@ -56,6 +58,17 @@ typedef struct funweightparamcell
    long   conj_cweight;
    long   conj_pweight;
    
+   /* Extra values for relevancy-based heuristics */
+   long default_level_penalty; /* Effective level of irrelevant
+                                * symbols is max_level plus this.*/
+   double level_poly_const;
+   double level_poly_lin;
+   double level_poly_square; /* Weight of a symbol is
+                              * base*lpc+lpl*l+lps*l*l, 
+                              * where l is the effective level */
+   void   (*init_fun)(struct funweightparamcell*);
+
+
    /* Actual encoding for the weights */
    long   flimit;
    long   *fweights;
@@ -94,6 +107,9 @@ WFCB_p ConjectureSimplifiedSymbolWeightParse(Scanner_p in, OCB_p ocb,
 
 WFCB_p ConjectureRelativeSymbolWeightParse(Scanner_p in, OCB_p ocb, 
                                            ProofState_p state);
+
+WFCB_p RelevanceLevelWeightParse(Scanner_p in, OCB_p ocb, 
+                                 ProofState_p state);
 
 double GenericFunWeightCompute(void* data, Clause_p clause);
 
