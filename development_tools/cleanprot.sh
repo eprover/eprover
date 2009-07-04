@@ -6,11 +6,11 @@
 # usually bogus and caused by the unreliable and changing runtime
 # environment on our sunhalle hosts. 
 
-runcmd=""
+runcmd="add "
 for file in $* ; do
     echo Cleaning $file
    grep -v maxmem $file | grep -v unknown > tmpXXXfile; mv tmpXXXfile $file
-   runcmd=$runcmd"add" `echo " "$file |sed -e 's/protokoll/tptp/'`"\n"
+   runcmd=`echo $runcmd " " $file`
 done
 echo $runcmd
 
