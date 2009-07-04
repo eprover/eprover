@@ -10,7 +10,7 @@ runcmd=""
 for file in $* ; do
     echo Cleaning $file
    grep -v maxmem $file | grep -v unknown > tmpXXXfile; mv tmpXXXfile $file
-   runcmd=$runcmd" sequential_eprover.awk"`echo " "$file |sed -e 's/protokoll/tptp/'`";"
+   runcmd=$runcmd"add" `echo " "$file |sed -e 's/protokoll/tptp/'`"\n"
 done
 echo $runcmd
 
