@@ -184,6 +184,7 @@ class emaster(object):
                 slave.add_job(job)
                 res = res+1
             else:
+                res = None
                 break
         return res
 
@@ -224,7 +225,7 @@ class emaster(object):
                     writer.send()
 
             for i in self.slaves.values():
-                if self.add_slave_jobs(i) == 0:
+                if self.add_slave_jobs(i) == None:
                     break
 
 

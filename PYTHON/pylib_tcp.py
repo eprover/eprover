@@ -93,7 +93,10 @@ class connection(object):
         return self.filenum != -1
 
     def recv(self):
-        res = self.sock.recv(2048)
+        try:
+            res = self.sock.recv(2048)
+        except socket.error:
+            res = ""
         if res == "":
             self.close()
             return res        
