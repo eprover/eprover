@@ -33,7 +33,7 @@ clean:
 
 include ../Makefile.services
 
-CLAUSE_LIB = ccl_evaluations.o ccl_eqn.o ccl_eqnlist.o \
+CLAUSE_LIB = ccl_neweval.o ccl_eqn.o ccl_eqnlist.o \
              ccl_clauseinfo.o ccl_clauses.o\
 	     ccl_tformulae.o ccl_formula_wrapper.o ccl_formulasets.o \
              ccl_tcnf.o \

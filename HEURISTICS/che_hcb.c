@@ -55,11 +55,7 @@ static Clause_p get_next_clause(PStack_p *stacks, int pos)
 {
    Eval_p current;
 
-#ifdef NEW_EVALUATIONS
    current = EvalTreeTraverseNext(stacks[pos], pos);
-#else
-   current = EvalTreeTraverseNext(stacks[pos]);
-#endif
    if(current)
    {
       return current->object;
@@ -305,20 +301,12 @@ void HCBClauseEvaluate(HCB_p hcb, Clause_p clause)
    long i;
    
    assert(clause->evaluations == NULL);
-#ifdef NEW_EVALUATIONS
-   /* printf("Wfcb_no: %d\n", hcb->wfcb_no); */
    ClauseAddEvalCell(clause, EvalsAlloc(hcb->wfcb_no));
    
    for(i=0; i< hcb->wfcb_no; i++)
    {
       ClauseAddEvaluation(PDArrayElementP(hcb->wfcb_list, i), clause, i);
    }
-#else
-   for(i=hcb->wfcb_no-1; i>=0; i--)
-   {
-      ClauseAddEvaluation(PDArrayElementP(hcb->wfcb_list, i), clause);
-   }
-#endif
 }
 
 
@@ -401,11 +389,7 @@ long HCBClauseSetDelProp(HCB_p hcb, ClauseSet_p set, long number,
    for(i=0; i< hcb->wfcb_no; i++)
    {
       stacks[i]=
-#ifdef NEW_EVALUATIONS
 	 EvalTreeTraverseInit(PDArrayElementP(set->eval_indices, i),i);
-#else
-	 EvalTreeTraverseInit(PDArrayElementP(set->eval_indices, i));
-#endif
    }
    while(number)
    {

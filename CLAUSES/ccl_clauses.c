@@ -1788,9 +1788,6 @@ void ClauseRegisterChild(Clause_p clause, Clause_p child)
 void ClauseAddEvalCell(Clause_p clause, Eval_p evaluation)
 {
    evaluation->object  = clause;
-#ifndef NEW_EVALUATIONS
-   evaluation->next    = clause->evaluations;
-#endif
    clause->evaluations = evaluation;
 }
 

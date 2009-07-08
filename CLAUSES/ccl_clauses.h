@@ -26,7 +26,7 @@ Changes
 
 #define CCL_CLAUSES
 
-#include <ccl_evaluations.h>
+#include <ccl_neweval.h>
 #include <ccl_eqnlist.h>
 #include <ccl_clauseinfo.h>
 #include <clb_properties.h>

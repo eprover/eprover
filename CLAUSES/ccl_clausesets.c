@@ -268,9 +268,6 @@ static void tptp_eq_pred_axiom_print(FILE* out, char* symbol, int arity,
 static void clause_set_extract_entry(Clause_p clause)
 {
    int     i;
-#ifndef NEW_EVALUATIONS
-   Eval_p  handle;
-#endif
    Eval_p test, *root;
 
    assert(clause);
@@ -280,7 +277,6 @@ static void clause_set_extract_entry(Clause_p clause)
    
    /* printf("ClauseSetExtractEntry: %d\n", (int)clause); */
 
-#ifdef NEW_EVALUATIONS
    if(clause->evaluations)
    {
       for(i=0; i<clause->evaluations->eval_no; i++)
@@ -293,19 +289,6 @@ static void clause_set_extract_entry(Clause_p clause)
          assert(test->object == clause);
       }
    }
-#else
-   i=0;
-   for(handle = clause->evaluations; handle; handle = handle->next)
-   {
-      /* EvalListPrint(stdout, handle);printf("\n"); */
-      test = EvalTreeExtractEntry((Eval_p*)
-				  &PDArrayElementP(clause->set->eval_indices, i), 
-				  handle); 
-      assert(test);
-      assert(test->object == clause);
-      i++;
-   }
-#endif
    clause->pred->succ = clause->succ;
    clause->succ->pred = clause->pred;
    clause->set->literals-=ClauseLiteralNumber(clause);
@@ -451,9 +434,6 @@ void ClauseSetGCMarkTerms(ClauseSet_p set)
 void ClauseSetInsert(ClauseSet_p set, Clause_p newclause)
 {
    int    i;
-#ifndef NEW_EVALUATIONS
-   Eval_p handle;
-#endif
    Eval_p test, *root;
 
    assert(!newclause->set);
@@ -465,7 +445,6 @@ void ClauseSetInsert(ClauseSet_p set, Clause_p newclause)
    newclause->set = set;
    set->members++;
    set->literals+=ClauseLiteralNumber(newclause);
-#ifdef NEW_EVALUATIONS
    if(newclause->evaluations)
    {
       for(i=0; i<newclause->evaluations->eval_no; i++)
@@ -476,17 +455,6 @@ void ClauseSetInsert(ClauseSet_p set, Clause_p newclause)
       }
       set->eval_no = MAX(newclause->evaluations->eval_no, set->eval_no);
    }
-#else
-   i=0;
-   for(handle = newclause->evaluations; handle; handle = handle->next)
-   {
-      root = (Eval_p*)&(PDArrayElementP(newclause->set->eval_indices,i));
-      test = EvalTreeInsert(root, handle);
-      assert(!test);
-      i++;
-   }
-   set->eval_no = MAX(i, set->eval_no);
-#endif
 }
 
 
