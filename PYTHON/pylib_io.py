@@ -229,7 +229,7 @@ def get_load_info():
         tmp = who[0].split(",")
         tmp = tmp[3].split()
         load = float(tmp[3])
-    except IndexError, ValueError:
+    except (IndexError, ValueError):
         load = -1.0
 
     user = None

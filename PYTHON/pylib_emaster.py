@@ -142,7 +142,7 @@ class eslave(object):
                     res = xresult(i)
                     ret.append(res)
                     del self.open_jobs[res.key()]
-                except IndexError, KeyError:
+                except (IndexError, KeyError):
                     pass
                        
         return ret
@@ -328,7 +328,7 @@ quit
         try:
             slave_name = tmp[2]
             slave_emark = float(tmp[3])
-        except IndexError, ValueError:
+        except (IndexError, ValueError):
             pass
         
         connection = self.client.connect((slave_addr, slave_port))
