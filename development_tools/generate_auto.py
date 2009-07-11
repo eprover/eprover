@@ -201,6 +201,7 @@ match_fcsra     = re.compile(" --forward-context-sr-aggressive")
 match_bcsr      = re.compile(" --backward-context-sr")
 match_simul_pm  = re.compile("--simul-paramod");
 match_osimul_pm = re.compile("--oriented-simul-paramod");
+match_presat_ir = re.compile("--presat-simplify");
 
 def parse_control_info(line):
     res = ""
@@ -358,6 +359,13 @@ def parse_control_info(line):
     m = match_osimul_pm.search(line)
     if m:
         res = res+ "      control->heuristic_parms.pm_type=ParamodOrientedSim;\n"
+
+    #
+    # Presaturation simplification
+    #
+    m = match_presat_ir.search(line)
+    if m:
+        res = res+ "      control->heuristic_parms->presat_interreduction=true;\n"
 
     return res
 
