@@ -365,7 +365,7 @@ def parse_control_info(line):
     #
     m = match_presat_ir.search(line)
     if m:
-        res = res+ "      control->heuristic_parms->presat_interreduction=true;\n"
+        res = res+ "      control->heuristic_parms.presat_interreduction=true;\n"
 
     return res
 
