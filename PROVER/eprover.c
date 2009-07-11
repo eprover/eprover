@@ -81,6 +81,7 @@ typedef enum
    OPT_EQ_UNFOLD_MAXCLAUSES,
    OPT_NO_EQ_UNFOLD,
    OPT_REL_PRUNE_LEVEL,
+   OPT_PRESAT_SIMPLIY,
    OPT_AC_HANDLING,
    OPT_AC_ON_PROC,
    OPT_LITERAL_SELECT,
@@ -469,6 +470,12 @@ OptCell opts[] =
     OptArg, "3",
     "Perform relevancy pruning up to the givel level on the"
     " unprocessed axioms."},
+
+   {OPT_PRESAT_SIMPLIY,
+    '\0', "presat-simplify",
+    NoArg, NULL,
+    "Before proper saturation do a complete interreduction of "
+    "the proof state."},
 
    {OPT_AC_HANDLING,
     '\0', "ac-handling",
@@ -1055,7 +1062,8 @@ int main(int argc, char* argv[])
    ProofState_p     proofstate;
    ProofControl_p   proofcontrol;
    int              i;
-   Clause_p         success, filter_success;
+   Clause_p         success = NULL, 
+                    filter_success;
    bool             out_of_clauses;
    char*            finals_state = "exists";
    long             raw_clause_no, 
@@ -1155,9 +1163,27 @@ int main(int argc, char* argv[])
    ProofStateInit(proofstate, proofcontrol);
 
    VERBOUT2("Prover state initialized\n");
-   
-   success = Saturate(proofstate, proofcontrol, step_limit,
-		      proc_limit, unproc_limit, total_limit);
+
+   if(proofcontrol->heuristic_parms.presat_interreduction)
+   {
+      LiteralSelectionFun sel_strat = 
+         proofcontrol->heuristic_parms.selection_strategy;
+
+      proofcontrol->heuristic_parms.selection_strategy = SelectNoGeneration;
+      success = Saturate(proofstate, proofcontrol, LONG_MAX,
+                         LONG_MAX, LONG_MAX, LONG_MAX);
+      fprintf(GlobalOut, "# Presaturation interreduction done\n");
+      proofcontrol->heuristic_parms.selection_strategy = sel_strat;
+      if(!success)
+      {
+         ProofStateResetProcessed(proofstate, proofcontrol);
+      }
+   }
+   if(!success)
+   {
+      success = Saturate(proofstate, proofcontrol, step_limit,
+                         proc_limit, unproc_limit, total_limit);
+   }
    
    out_of_clauses = ClauseSetEmpty(proofstate->unprocessed);
    if(filter_sat)
@@ -1210,7 +1236,7 @@ int main(int argc, char* argv[])
 		    "restricted calculus!\n");
 	    TSTPOUT(GlobalOut, "GaveUp");
 	 }
-	 else if(proofstate->state_is_complete)
+	 else if(proofstate->state_is_complete && inf_sys_complete)
 	 {
 	    fprintf(GlobalOut, "\n# No proof found!\n");
 	    TSTPOUT(GlobalOut, neg_conjectures?"CounterSatisfiable":"Satisfiable");
@@ -1530,6 +1556,9 @@ CLState_p process_options(int argc, char* argv[])
 	    break;
       case OPT_REL_PRUNE_LEVEL:
             relevance_prune_level = CLStateGetIntArg(handle, arg);
+            break;
+      case OPT_PRESAT_SIMPLIY:
+            h_parms->presat_interreduction = true;
             break;
       case OPT_AC_HANDLING:
 	    if(strcmp(arg, "None")==0)

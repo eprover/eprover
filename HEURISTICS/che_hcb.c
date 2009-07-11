@@ -145,6 +145,7 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->mem_limit                     = 0;
    handle->watchlist_simplify            = true;
    handle->use_tptp_sos                  = false;
+   handle->presat_interreduction         = false;
 }
 
 

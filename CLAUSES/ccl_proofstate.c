@@ -123,11 +123,13 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
 //
 // Function: ProofStateInitWatchlist()
 //
-//   
+//   Initialize the watchlist, either by parsing it from the provided
+//   file, or by collecting all clauses of type CPTypeWatchClause from
+//   state->axioms. 
 //
-// Global Variables: 
+// Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    : Changes state->axioms, IO, memory ops.
 //
 /----------------------------------------------------------------------*/
 

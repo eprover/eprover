@@ -120,6 +120,7 @@ typedef struct heuristic_parms_cell
    rlim_t              mem_limit;
    bool                watchlist_simplify;
    bool                use_tptp_sos;
+   bool                presat_interreduction;
 }HeuristicParmsCell, *HeuristicParms_p;
 
 

@@ -54,6 +54,11 @@ void     ProofControlInit(ProofState_p state, ProofControl_p control,
                           PStack_p wfcb_defs, 
                           PStack_p hcb_defs);
 void     ProofStateInit(ProofState_p state, ProofControl_p control);
+void     ProofStateResetProcessedSet(ProofState_p state,  
+                                     ProofControl_p control, 
+                                     ClauseSet_p set);
+void     ProofStateResetProcessed(ProofState_p state,
+                                  ProofControl_p control);
 Clause_p ProcessClause(ProofState_p state, ProofControl_p control);
 Clause_p Saturate(ProofState_p state, ProofControl_p control, long
 		  step_limit, long proc_limit, long unproc_limit, long

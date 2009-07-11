@@ -105,23 +105,12 @@ void WFCBFree(WFCB_p junk)
 // Side Effects    : Adds evaluation, by calling wfcb->compute_eval()
 //
 /----------------------------------------------------------------------*/
-#ifdef NEW_EVALUATIONS
 void ClauseAddEvaluation(WFCB_p wfcb, Clause_p clause, int pos)
 {
    assert(clause->evaluations);
    clause->evaluations->evals[pos].heuristic = wfcb->wfcb_eval(wfcb->data, clause);
    clause->evaluations->evals[pos].priority  = wfcb->wfcb_priority(clause);
 }
-#else
-void ClauseAddEvaluation(WFCB_p wfcb, Clause_p clause)
-{
-   Eval_p eval = EvalAlloc();
-   
-   eval->heuristic = wfcb->wfcb_eval(wfcb->data, clause);
-   eval->priority  = wfcb->wfcb_priority(clause);
-   ClauseAddEvalCell(clause, eval);
-}
-#endif
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

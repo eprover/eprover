@@ -490,11 +490,12 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
       }
       if(control->heuristic_parms.er_aggressive &&
 	 control->heuristic_parms.er_varlit_destructive &&
-	 (clause_count = ClauseERNormalizeVar(state->terms,
-					      handle,
-					      state->tmp_store,
-					      state->freshvars,
-					      control->heuristic_parms.er_strong_destructive)))
+	 (clause_count = 
+          ClauseERNormalizeVar(state->terms,
+                               handle,
+                               state->tmp_store,
+                               state->freshvars,
+                               control->heuristic_parms.er_strong_destructive)))
       {
 	 state->other_redundant_count += clause_count;
 	 state->resolv_count += clause_count;
@@ -688,6 +689,68 @@ void ProofControlInit(ProofState_p state,ProofControl_p control,
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: ProofStateResetProcessedSet()
+//
+//   Move all clauses from set into state->unprocessed.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void ProofStateResetProcessedSet(ProofState_p state,  
+                                 ProofControl_p control, 
+                                 ClauseSet_p set)
+{
+   Clause_p handle;
+   
+   while((handle = ClauseSetExtractFirst(set)))
+   {
+      ClauseKillChildren(handle); /* Should be none, but better be safe */
+      HCBClauseEvaluate(control->hcb, handle);
+      ClauseDelProp(handle, CPIsOriented);
+      DocClauseQuoteDefault(6, handle, "move_eval");
+      
+      if(control->heuristic_parms.prefer_initial_clauses)
+      {
+	 EvalListChangePriority(handle->evaluations, -PrioLargestReasonable);
+      }
+ 
+      if(control->heuristic_parms.unproc_simplify && ClauseIsUnit(handle))
+      {
+	 ClauseSetPDTIndexedInsert(state->unprocessed, handle);	    
+      }
+      else
+      {
+	 ClauseSetInsert(state->unprocessed, handle);
+      }
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ProofStateResetProcessed()
+//
+//   Move all clauses from the processed clause sets to unprocessed.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void ProofStateResetProcessed(ProofState_p state, ProofControl_p control)
+{
+   ProofStateResetProcessedSet(state, control, state->processed_pos_rules);
+   ProofStateResetProcessedSet(state, control, state->processed_pos_eqns);
+   ProofStateResetProcessedSet(state, control, state->processed_neg_units);
+   ProofStateResetProcessedSet(state, control, state->processed_non_units);
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -862,11 +925,12 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
    state->proc_non_trivial_count++;
 
    if(control->heuristic_parms.er_varlit_destructive &&
-      (clause_count = ClauseERNormalizeVar(state->terms,
-					   pclause->clause,
-					   state->tmp_store,
-					   state->freshvars,
-					   control->heuristic_parms.er_strong_destructive)))
+      (clause_count = 
+       ClauseERNormalizeVar(state->terms,
+                            pclause->clause,
+                            state->tmp_store,
+                            state->freshvars,
+                            control->heuristic_parms.er_strong_destructive)))
    {
       state->other_redundant_count += clause_count;
       state->resolv_count += clause_count;
