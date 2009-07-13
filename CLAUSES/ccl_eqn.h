@@ -154,6 +154,9 @@ void    EqnFree(Eqn_p junk);
                           EqnQueryProp((eq), EPIsStrictlyMax)
 
 #define EqnGetPredCode(eq) (EqnIsEquLit(eq)?0:(eq)->lterm->f_code)
+#define EqnIsSplitLit(eq) \
+   (EqnIsEquLit(eq)?false:\
+    SigQueryFuncProp((eq)->bank->sig, EqnGetPredCode(eq), FPClSplitDef))
 
 #define EqnHasEquiv(eq)  EqnQueryProp((eq), EPHasEquiv)
 #define EqnIsDominated(eq)  EqnQueryProp((eq), EPIsDominated)

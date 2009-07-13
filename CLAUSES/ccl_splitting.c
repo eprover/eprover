@@ -265,6 +265,7 @@ int clause_split_general(DefStore_p store, Clause_p clause,
             /* Get new predicate code */
             new_pred = SigGetNewPredicateCode(bank->sig,
                                               split_var_no); 
+            SigSetFuncProp(bank->sig, new_pred, FPClSplitDef);
             
             /* Create definition clause (for maintaining completeness) */
             handle = GenDefLit(bank, new_pred, true, split_vars);
