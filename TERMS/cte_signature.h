@@ -54,6 +54,7 @@ typedef enum
    FPDistinctProp =  FPIsObject | FPIsInteger | FPIsFloat,
    FPOpFlag       = 1024, /* Used for temporary oerations, by
                            * defintion off if not in use! */
+   FPClSplitDef   = 2048  /* Predicate is a clause split defined symbol. */
 }FunctionProperties;
 
 
