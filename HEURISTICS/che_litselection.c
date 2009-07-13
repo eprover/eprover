@@ -144,6 +144,7 @@ static LitSelNameFunAssocCell name_fun_assoc[] =
 
    {"SelectNewComplexAHPExceptUniqMaxHorn",  SelectNewComplexAHPExceptUniqMaxHorn},
    {"PSelectNewComplexAHPExceptUniqMaxHorn", PSelectNewComplexAHPExceptUniqMaxHorn},
+   {"SelectNewComplexAHPNS",                 SelectNewComplexAHPNS},
    {NULL, (LiteralSelectionFun)0}
 };
 
@@ -5070,6 +5071,100 @@ void PSelectNewComplexAHPExceptUniqMaxHorn(OCB_p ocb, Clause_p clause)
       }
    }
    PSelectNewComplexAHP(ocb,clause);
+}
+
+
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: new_complex_notp_ahp_ns
+//
+//   Implement a weight function mimicking the old SelectNewComplex,
+//   but, other things being equal, avoid head predicate
+//   symbols. Always avoid split symbols.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+
+static void new_complex_notp_ahp_ns(LitEval_p lit, Clause_p clause, 
+                                    void *pred_dist)
+{   
+   PDArray_p pd = pred_dist;
+
+   assert(clause);
+
+   if(EqnIsNegative(lit->literal))
+   {
+      if(EqnIsSplitLit(lit->literal))
+      {
+         lit->w1 = 100000;
+         lit->forbidden = 1;
+      }
+      else if(EqnIsGround(lit->literal))
+      {
+         lit->w1 = 0;
+         lit->w2 = TermStandardWeight(lit->literal->lterm);
+      }
+      else if(!EqnIsXTypePred(lit->literal))
+      {
+         lit->w1 = 10;
+         lit->w2 = EqnMaxTermPositions(lit->literal);
+      }
+      else if(!EqnIsTypePred(lit->literal))
+      {
+         lit->w1 = 20;
+         lit->w2 = -TermStandardWeight(lit->literal->lterm);
+      }
+      else
+      {
+         assert(EqnIsTypePred(lit->literal));
+         lit->w1 = 100000;
+         lit->forbidden = 1;
+      }
+   }
+   lit->w3 = 0;
+   if(!TermIsVar(lit->literal->lterm))
+   {
+      lit->w3 = PDArrayElementInt(pd, lit->literal->lterm->f_code);
+   }
+}
+
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectNewComplexAHPNS
+//
+//   Mimic SelectNewComplex(),  but with the AHP property and never
+//   select split literals.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void SelectNewComplexAHPNS(OCB_p ocb, Clause_p clause)
+{  
+   PDArray_p pred_dist;
+
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+    
+   pred_dist = pos_pred_dist_array_compute(clause);
+   
+   generic_uniq_selection(ocb,clause,false, true, 
+                          new_complex_notp_ahp_ns, pred_dist);   
+   pred_dist_array_free(pred_dist);
 }
 
 

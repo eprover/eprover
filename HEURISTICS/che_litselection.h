@@ -200,6 +200,7 @@ void PSelectNewComplexAHPExceptRRHorn(OCB_p ocb, Clause_p clause);
 
 void SelectNewComplexAHPExceptUniqMaxHorn(OCB_p ocb, Clause_p clause);
 void PSelectNewComplexAHPExceptUniqMaxHorn(OCB_p ocb, Clause_p clause);
+void SelectNewComplexAHPNS(OCB_p ocb, Clause_p clause);
 
 #endif
 
