@@ -583,6 +583,8 @@ selstrat={
 
    "SelectNewComplexAHPExceptUniqMaxHorn" : "SelectNewComplexAHPExceptUniqMaxHorn",
    "PSelectNewComplexAHPExceptUniqMaxHorn": "PSelectNewComplexAHPExceptUniqMaxHorn",
+
+   "SelectNewComplexAHPNS"              : "SelectNewComplexAHPNS",
 }
 
 
