@@ -164,7 +164,7 @@ for argument in  "$@"; do
     if [ "$argument" = "-R" -o "$argument" = "--resources-info" ] ; then
         print_res=6
     elif [ "$argument" = "--print-statistics" ] ; then
-	print_stats=29
+	print_stats=30
         print_res=6
     elif [ "$argument" = "-V" -o "$argument" = "--version" ] ; then
         echo eproof $VERSION

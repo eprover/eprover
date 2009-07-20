@@ -37,8 +37,8 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/*  cvs tag E-1-0-021 */
-#define VERSION      "1.0-021"
+/*  cvs tag E-1-1-pre01 */
+#define VERSION      "1.1-pre01"
 
 #define E_NICKNAME     "Temi"
 

@@ -1071,6 +1071,7 @@ int main(int argc, char* argv[])
                     neg_conjectures,
                     parsed_ax_no,
                     relevancy_pruned = 0;
+   double           preproc_time;
 
    assert(argv[0]);
    
@@ -1162,7 +1163,8 @@ int main(int argc, char* argv[])
 				     terms! */
    ProofStateInit(proofstate, proofcontrol);
 
-   VERBOUT2("Prover state initialized\n");
+   VERBOUT2("Prover state initialized\n");   
+   preproc_time = GetTotalCPUTime();
 
    if(proofcontrol->heuristic_parms.presat_interreduction)
    {
@@ -1335,6 +1337,7 @@ int main(int argc, char* argv[])
    if(print_rusage)
    {
       PrintRusage(GlobalOut);
+      fprintf(GlobalOut, "# Preprocessing time       : %.3f s\n", preproc_time);
    }
    fflush(GlobalOut);
    OutClose(GlobalOut);
