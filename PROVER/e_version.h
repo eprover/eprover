@@ -40,7 +40,7 @@ Changes
 /*  cvs tag E-1-1-pre01 */
 #define VERSION      "1.1-pre01"
 
-#define E_NICKNAME     "Temi"
+#define E_NICKNAME     "Balasun"
 
 #define E_URL "http://www.eprover.org"
 

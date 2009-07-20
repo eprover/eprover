@@ -1,5 +1,5 @@
-NOTE: The installation procedure has changed for E 1.0. Read this even 
-if you have installed E before! Thanks.
+NOTE: The installation procedure has changed for E 1.0 and later. Read
+this even if you have installed E before! Thanks.
 
 Short Installation Instructions for the impatient
 -------------------------------------------------
@@ -37,7 +37,7 @@ anything fails. There should be a copy in DOC/eprover.pdf.
              ===============================
 
 
-This is the README file for version 1.0 "Temi" of the E equational
+This is the README file for version 1.1 "Balasun" of the E equational
 theorem prover. This version of E is free software, see the file
 COPYING for details about the license and the fact that THERE IS NO
 WARRANTY!

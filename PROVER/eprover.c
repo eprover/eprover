@@ -466,9 +466,9 @@ OptCell opts[] =
     "equational definitions."},
 
    {OPT_REL_PRUNE_LEVEL,
-    '\0', "rel_pruning_level",
+    '\0', "rel-pruning-level",
     OptArg, "3",
-    "Perform relevancy pruning up to the givel level on the"
+    "Perform relevancy pruning up to the given level on the"
     " unprocessed axioms."},
 
    {OPT_PRESAT_SIMPLIY,
@@ -1165,7 +1165,10 @@ int main(int argc, char* argv[])
 
    VERBOUT2("Prover state initialized\n");   
    preproc_time = GetTotalCPUTime();
-
+   if(print_rusage)
+   {
+      fprintf(GlobalOut, "# Preprocessing time       : %.3f s\n", preproc_time);
+   }
    if(proofcontrol->heuristic_parms.presat_interreduction)
    {
       LiteralSelectionFun sel_strat = 
@@ -1337,7 +1340,6 @@ int main(int argc, char* argv[])
    if(print_rusage)
    {
       PrintRusage(GlobalOut);
-      fprintf(GlobalOut, "# Preprocessing time       : %.3f s\n", preproc_time);
    }
    fflush(GlobalOut);
    OutClose(GlobalOut);

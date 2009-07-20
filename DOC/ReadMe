@@ -2,8 +2,8 @@ This is the required ReadMe file for the CASC competitions.
 -----------------------------------------------------------
 
 For installation, follow the instructions in the main README
-file. Make sure to do a proper install, so that eproof can find
-eprover. 
+file. Make sure to do a proper install, so that eproof and
+e_ltb_runner22.py can find eprover. 
 
 Translating to proper input format:
 
