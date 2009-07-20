@@ -78,6 +78,7 @@ void          ReleaseErrorReserve(void);
 VOLATILE void Error(char* message, ErrorCodes ret);
 VOLATILE void SysError(char* message, ErrorCodes ret);
 void          Warning(char* message);
+double        GetTotalCPUTime(void);
 void          PrintRusage(FILE* out);
 void          StrideMemory(char* mem, long size);
 
