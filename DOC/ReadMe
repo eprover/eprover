@@ -5,23 +5,22 @@ For installation, follow the instructions in the main README
 file. Make sure to do a proper install, so that eproof and
 e_ltb_runner22.py can find eprover. 
 
-Translating to proper input format:
-
-   None required, E reads TPTP-3 format with includes
 
 Command line:
 
-   eprover -xAuto -tAuto --tstp-in -s --memory-limit=384 %s
+   eprover -xAuto -tAuto --tstp-in -s --memory-limit=1536 %s
 
-   eproof  -xAuto -tAuto --tstp-in --tstp-out --memory-limit=384 %s
+   eproof  -xAuto -tAuto --tstp-in --tstp-out --memory-limit=1536 %s
 
 For the LTB category, run
 
-   PYTHON/e_ltb_runner.py <path_to_ltp_problem_file> <total_time> <path_to_eprover>
+   PYTHON/e_ltb_runner22.py <path_to_ltb_problem_file> <total_time> <path_to_eprover>
 
 For the LTB* category, run
 
-   PYTHON/e_ltb_runner.py <path_to_ltp_problem_file> <total_time> <path_to_eproof>
+   PYTHON/e_ltb_runner22.py <path_to_ltb_problem_file> <total_time> <path_to_eproof>
+
+Expect this to run like a dog ;-)
 
 
 Distinguished strings for the results:
