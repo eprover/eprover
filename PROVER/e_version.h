@@ -37,8 +37,8 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/*  cvs tag E-1-1-pre01 */
-#define VERSION      "1.1-pre01"
+/*  cvs tag E-1-1-pre02 */
+#define VERSION      "1.1-pre02"
 
 #define E_NICKNAME     "Balasun"
 
