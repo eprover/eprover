@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.5
+#!/usr/bin/env python2.3
 
 """
 e_ltb_runner22 0.1
@@ -7,7 +7,7 @@ Usage: e_ltb_runner22.py <jobfile> [<timelimit> [<proverpath>]]
 
 Try to prove as many problems as possible from the jobs in jobfile,
 using the competition setup of CASC-22. This tries three strategies on
-each problem (time permitting) - Auto-Mode with relevance prruning
+each problem (time permitting) - Auto-Mode with relevance pruning
 levels 2, 3, and unlimited.
 
 Options:
@@ -55,6 +55,7 @@ import re
 import os
 import string
 import getopt
+import resource
 
 e_template = "%s -s %s -xAuto -tAuto --delete-bad-limit=2147483647 --tptp3-format --print-statistics --resources-info --cpu-limit=%d %s"
 
@@ -127,6 +128,12 @@ def run_e(prover, filter, timelimit, problem):
         fp.close()
         return (status, cpu_time, preproc_estimate)
     return (False, cpu_time, preproc_estimate)
+
+def get_cpu_time():
+    self_usage  = resource.getrusage(resource.RUSAGE_SELF)
+    child_usage = resource.getrusage(resource.RUSAGE_CHILDREN)
+    return self_usage.ru_utime+self_usage.ru_stime+\
+           child_usage.ru_utime+child_usage.ru_stime
  
 
 if __name__ == '__main__':
@@ -159,34 +166,37 @@ if __name__ == '__main__':
 
     # We need to go into the first problem, anyways.
     estimated_preproc_time = -10.0
+    limit = timelimit/(len(worklist)*2)
     
     while worklist:
         problem = worklist.pop(0)
 
         print "\n% SZS status Started for", problem.infile
+        sys.stdout.flush()
         joblist = [ "--rel-pruning-level=2", "--rel-pruning-level=3", ""]
         
-        while joblist:
+        while joblist:        
+            remaining_time = timelimit - get_cpu_time()
             jobno = (3.0 * len(worklist))+len(joblist)
-            time_per_problem = timelimit/jobno
+            time_per_problem = remaining_time/jobno
             status = None
 
             job = joblist.pop(0)
             if time_per_problem > estimated_preproc_time+5.0:
                 if estimated_preproc_time < 0:
-                    limit = timelimit
+                    limit = limit*2
                 else:
                     limit = time_per_problem
                 status, cpu_time, preproc = run_e(prover, job, limit, problem)
                 
                 if preproc and preproc > estimated_preproc_time:
                     estimated_preproc_time = preproc
-                timelimit = timelimit - cpu_time
                 if status:
                     print "% SZS status", status, "for", problem.infile
+                    sys.stdout.flush()
                     break
                 
         print "% SZS status Ended for", problem.infile
-                
+        sys.stdout.flush()       
             
             
