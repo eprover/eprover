@@ -99,17 +99,19 @@ class etestset(object):
     def deactivate_strat(self, strat, back=True):
         """
         Remove a strategy from processing and re-add it to the
-        strats-queue.
+        strats-queue (unless it is complete)
         """
         if strat.name in self.processing:
             del(self.processing[strat.name])
             tmp = filter(lambda x:not strat.has_job(x)  ,self.jobqueue)
             self.jobqueue = tmp
-        if back:
-            self.strats.append((strat.name, strat.specdir, strat.protdir))
-        else:
-            self.strats.insert((strat.name, strat.specdir, strat.protdir))
 
+        strat.sync()
+        if not strat.complete():
+            if back:
+                self.strats.append((strat.name, strat.specdir, strat.protdir))
+            else:
+                self.strats.insert((strat.name, strat.specdir, strat.protdir))
 
     def add_strat(self, name, specdir, protdir):
         """

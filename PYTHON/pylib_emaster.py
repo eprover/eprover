@@ -92,16 +92,26 @@ class xresult(object):
            
 
 class eslave(object):
+    counter = 0
+        
     def __init__(self, connection, addr, name, emark):
         self.connection = connection
         self.addr  = addr
         self.name  = name
         self.emark = emark
         self.open_jobs = {}
+        self.serial = eslave.counter
+        eslave.counter =  eslave.counter+1
 
     def __str__(self):
         return "<eslave:%s:open=%d:%s:emark=%f>"%\
                (str(self.addr),self.jobs_no(),self.name,self.emark)
+
+    def __cmp__(self, other):
+        res = cmp(self.name, other.name)
+        if not res:
+            res = cmp(self.serial, other.serial)
+        return res
 
     def address(self):
         """
@@ -257,13 +267,17 @@ class emaster(object):
             self.exec_restart()
         elif command == "quit":
             self.exec_quit(ctrl)
+        elif command =="":
+            pass
         else:
             ctrl.write("Unknown command\n")
         ctrl.write("> ")
             
     def exec_ls(self, ctrl):        
         ctrl.write("Slaves (%d):\n"%(len(self.slaves,)))
-        for i in self.slaves.values():
+        slaves = self.slaves.values()
+        slaves.sort()
+        for i in slaves:
             ctrl.write(str(i)+"\n")
         ctrl.write("Running tasks:\n")
         ctrl.write(self.strats.proc_str())
