@@ -92,25 +92,24 @@ class xresult(object):
            
 
 class eslave(object):
-    counter = 0
-        
     def __init__(self, connection, addr, name, emark):
         self.connection = connection
         self.addr  = addr
         self.name  = name
         self.emark = emark
         self.open_jobs = {}
-        self.serial = eslave.counter
-        eslave.counter =  eslave.counter+1
 
     def __str__(self):
         return "<eslave:%s:open=%d:%s:emark=%f>"%\
                (str(self.addr),self.jobs_no(),self.name,self.emark)
 
     def __cmp__(self, other):
-        res = cmp(self.name, other.name)
+        try:
+            res = cmp(self.name, other.name)
+        except AttributeError:
+            res = 0
         if not res:
-            res = cmp(self.serial, other.serial)
+            res = cmp(hash(self), hash(other))
         return res
 
     def address(self):
