@@ -640,6 +640,7 @@ prec_gen={
    "const_min"       : "PInvArConstMin",
    "freq"            : "PByFrequency",
    "invfreq"         : "PByInvFrequency",
+   "invconjfreq"     : "PByInvConjFrequency",
    "invfreqconstmin" : "PByInvFreqConstMin",
    "invfreqhack"     : "PByInvFreqHack",
    "orient_axioms"   : "POrientAxioms"

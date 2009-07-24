@@ -431,7 +431,7 @@ long RelevanceDataInit(ProofState_p state, Relevance_p data)
 //
 // Function: RelevanceDataCompute()
 //
-//   Compute the 
+//   Compute the relevance levels.
 //
 // Global Variables: 
 //

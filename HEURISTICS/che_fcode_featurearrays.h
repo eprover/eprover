@@ -38,7 +38,9 @@ typedef struct fcode_feature_sort_cell
 {
    int     key1;
    int     key2;
+   int     key3;
    int     freq;
+   int     conjfreq;
    int     pos_rank;
    FunCode symbol;
 }FCodeFeatureSortCell, *FCodeFeatureSort_p;

@@ -1795,6 +1795,32 @@ void ClauseSetAddSymbolDistribution(ClauseSet_p set, long *dist_array)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetAddConjSymbolDistribution()
+//
+//   Count the occurrences of function symbols in conjectures in set.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void ClauseSetAddConjSymbolDistribution(ClauseSet_p set, long *dist_array)
+{
+   Clause_p handle;
+   
+   for(handle = set->anchor->succ; handle!=set->anchor; handle =
+	  handle->succ)
+   {
+      if(ClauseIsConjecture(handle))
+      {
+         ClauseAddSymbolDistribution(handle, dist_array);
+      }
+   }
+}
+
 
 /*-----------------------------------------------------------------------
 //

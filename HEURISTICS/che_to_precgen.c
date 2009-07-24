@@ -40,6 +40,7 @@ char* TOPrecGenNames[]=
    "const_min",        /* PInvArConstMin */
    "freq",             /* PByFrequency */
    "invfreq",          /* PByInvFrequency */
+   "invconjfreq",      /* PByInvConjFrequency */
    "invfreqconstmin",  /* PByInvFreqConstMin */
    "invfreqhack",      /* PByInvFreqHack */
    "arrayopt",         /* PArrayOpt */
@@ -414,6 +415,39 @@ static void generate_invfreq_precedence(OCB_p ocb, ClauseSet_p axioms)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: generate_invconjfreq_precedence()
+//
+//   Generate a precedence in which symbols which occur in conjectures
+//   are larger, ordered by inverse frequency in conjectures. Ties are
+//   broken by inverse overall frequency. Arity is used as a
+//   tie-breaker, then order of occurence in the signature. .  
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void generate_invconjfreq_precedence(OCB_p ocb, ClauseSet_p axioms)
+{
+   FCodeFeatureArray_p array = FCodeFeatureArrayAlloc(ocb->sig, axioms);
+   FunCode       i;
+
+   for(i=1; i<= ocb->sig->f_count; i++)
+   {
+      array->array[i].key1 = array->array[i].conjfreq?
+         (INT_MAX-array->array[i].conjfreq):0;
+      array->array[i].key2 = -array->array[i].freq;
+      array->array[i].key3 = SigFindArity(ocb->sig, i);
+   }
+   FCodeFeatureArraySort(array); 
+   compute_precedence_from_array(ocb, array);
+      
+   FCodeFeatureArrayFree(array);
+}
+
 
 
 /*-----------------------------------------------------------------------
@@ -690,6 +724,9 @@ void TOGeneratePrecedence(OCB_p ocb, ClauseSet_p axioms,
 	 break;
    case PByInvFrequency:
 	 generate_invfreq_precedence(ocb, axioms);
+	 break;
+   case PByInvConjFrequency:
+	 generate_invconjfreq_precedence(ocb, axioms);
 	 break;
    case PByInvFreqConstMin:
 	 generate_invfreq_constmin_precedence(ocb, axioms);

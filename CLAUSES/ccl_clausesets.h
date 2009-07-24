@@ -146,6 +146,8 @@ void        EqAxiomsPrint(FILE* out, Sig_p sig, bool single_subst);
 
 void        ClauseSetAddSymbolDistribution(ClauseSet_p set, long
 				        *dist_array);
+void        ClauseSetAddConjSymbolDistribution(ClauseSet_p set, 
+                                               long *dist_array);
 
 void        ClauseSetComputeFunctionRanks(ClauseSet_p set, long 
 					  *rank_array, long* count);

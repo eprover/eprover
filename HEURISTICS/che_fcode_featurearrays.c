@@ -67,6 +67,10 @@ static int feature_compare_function(const void* e1,
    {
       return res;
    }      
+   if((res = entry1->key3-entry2->key3))
+   {
+      return res;
+   }      
    /* if((res = entry1->freq-entry2->freq))
    {
       return res;
@@ -99,6 +103,7 @@ FCodeFeatureArray_p FCodeFeatureArrayAlloc(Sig_p sig, ClauseSet_p axioms)
    long  array_size = sizeof(long)*(sig->f_count+1);
    long *rank_array= SizeMalloc(array_size);
    long *dist_array= SizeMalloc(array_size);
+   long *conjdist_array= SizeMalloc(array_size);
    long  rank = 0;
 
    handle = FCodeFeatureArrayCellAlloc();
@@ -107,18 +112,22 @@ FCodeFeatureArray_p FCodeFeatureArrayAlloc(Sig_p sig, ClauseSet_p axioms)
 
    for(i=1; i<= sig->f_count; i++)
    {
-      rank_array[i] = 0;
-      dist_array[i] = 0;
+      rank_array[i]      = 0;
+      dist_array[i]      = 0;
+      conjdist_array[i] = 0;
    }
    ClauseSetComputeFunctionRanks(axioms, rank_array, &rank);
    ClauseSetAddSymbolDistribution(axioms, dist_array);
+   ClauseSetAddConjSymbolDistribution(axioms, conjdist_array);
    for(i=1; i<= sig->f_count; i++)
    {
-      handle->array[i].key1 = 0;
-      handle->array[i].key2 = 0;
-      handle->array[i].freq = dist_array[i];
+      handle->array[i].key1     = 0;
+      handle->array[i].key2     = 0;
+      handle->array[i].key3     = 0;
+      handle->array[i].freq     = dist_array[i];
+      handle->array[i].conjfreq = conjdist_array[i];
       handle->array[i].pos_rank = rank_array[i];
-      handle->array[i].symbol = i;
+      handle->array[i].symbol   = i;
    }
    SizeFree(rank_array, array_size);
    SizeFree(dist_array, array_size);

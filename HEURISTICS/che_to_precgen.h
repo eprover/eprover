@@ -43,6 +43,8 @@ typedef enum
 			   minimal */
    PByFrequency,        /* Make often occuring symbols big */
    PByInvFrequency,     /* Make often occuring symbols small */
+   PByInvConjFrequency, /* Make often occuring symbols small,
+                         * conjecture symbols large */
    PByInvFreqConstMin,  /* Make rarely occuring symbols small, except for
 			   constants */
    PByInvFreqHack,      /* Make constants minimal, frequent unary
