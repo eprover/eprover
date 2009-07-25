@@ -35,37 +35,41 @@ Changes
 
 typedef enum
 {
-   WNoMethod = 0,     /* Nothing */
-   WSelectMaximal,    /* First maximal symbol in precedence gets
-			 weight 0 */
-   WArityWeight,      /* Weight(f) = Arity(f)+1 */
-   WArityMax0,        /* Weight(f) = Arity(f)+1, 0 for first max*/
-   WModArityWeight,   /* Weight(f) = Arity(f)+W_TO_BASEWEIGHT */
-   WModArityMax0,     /* Weight(f) = Arity(f)+W_TO_BASEWEIGHT, 0 for
-			 first max*/
-   WAritySqWeight,    /* Weight(f) = Arity(f)^2+1) */
-   WAritySqMax0,      /* Weight(f) = Arity(f)^2+1), 0 for first max */
-   WInvArityWeight,   /* Weight(f) = Maxarity+1-Arity(f) */
-   WInvArityMax0,     /* Weight(f) = Maxarity+1-Arity(f), 0 for first
-			 max */
-   WInvAritySqWeight, /* Weight(f) = Maxarity^2+1-Arity(f)^2 */
-   WInvAritySqMax0,   /* Weight(f) = Maxarity^2+1-Arity(f)^2, 0 for
-			 first max */
-   WPrecedence,       /* Weight(f) = |{g|g<f}| */
-   WPrecedenceInv,    /* Weight(f) = |{g|g>f}| */
-   WFrequency,        /* Weight(f) = |Axioms|_f */
-   WInvFrequency,     /* Weight(f) = Maxfreq+1-|Axioms|_f */
-   WFrequencyRank,    /* Weight(f) = Rank in frequency-induced
-		       * quasi-ordering */
-   WInvFrequencyRank, /* Weight(f) = Inverse rank in frequency-induced
-		       * quasi-ordering */
-   WFrequencyRankSq,  /* As above, but squared */
-   WInvFrequencyRankSq,/* Ditto */
-   WInvModFreqRank,    /* As WInvFrequencyRank, but difference between
-			  ranks is cardinality of set of symbols in
-			  rank */
-   WInvModFreqRankMax0,  /* As above, but first maximal unary is 0 */
-   WConstantWeight,   /* All weights 1 */
+   WNoMethod = 0,         /* Nothing */
+   WSelectMaximal,        /* First maximal symbol in precedence gets
+                             weight 0 */ 
+   WArityWeight,          /* Weight(f) = Arity(f)+1 */
+   WArityMax0,            /* Weight(f) = Arity(f)+1, 0 for first max*/
+   WModArityWeight,       /* Weight(f) = Arity(f)+W_TO_BASEWEIGHT */
+   WModArityMax0,         /* Weight(f) = Arity(f)+W_TO_BASEWEIGHT, 0
+                             for first max*/ 
+   WAritySqWeight,        /* Weight(f) = Arity(f)^2+1) */
+   WAritySqMax0,          /* Weight(f) = Arity(f)^2+1), 0 for first
+                             max */ 
+   WInvArityWeight,       /* Weight(f) = Maxarity+1-Arity(f) */
+   WInvArityMax0,         /* Weight(f) = Maxarity+1-Arity(f), 0 for
+                             first max */ 
+   WInvAritySqWeight,     /* Weight(f) = Maxarity^2+1-Arity(f)^2 */
+   WInvAritySqMax0,       /* Weight(f) = Maxarity^2+1-Arity(f)^2, 0
+                             for first max */ 
+   WPrecedence,           /* Weight(f) = |{g|g<f}| */
+   WPrecedenceInv,        /* Weight(f) = |{g|g>f}| */
+   WFrequency,            /* Weight(f) = |Axioms|_f */
+   WInvFrequency,         /* Weight(f) = Maxfreq+1-|Axioms|_f */
+   WFrequencyRank,        /* Weight(f) = Rank in frequency-induced
+                             quasi-ordering */ 
+   WInvFrequencyRank,     /* Weight(f) = Inverse rank in
+                             frequency-induced * quasi-ordering */
+   WInvConjFrequencyRank, /* Weight(f) = Inverse rank in
+                             conjecture-frequency-induced
+                             quasi-ordering */
+   WFrequencyRankSq,      /* As above, but squared */
+   WInvFrequencyRankSq,   /* Ditto */
+   WInvModFreqRank,       /* As WInvFrequencyRank, but difference
+                             between ranks is cardinality of set of
+                             symbols in rank */
+   WInvModFreqRankMax0,   /* As above, but first maximal unary is 0 */
+   WConstantWeight,       /* All weights 1 */
    WMinMethod = WSelectMaximal,
    WMaxMethod = WConstantWeight /* Update as required! */
 }TOWeightGenMethod;

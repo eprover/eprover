@@ -52,6 +52,7 @@ char* TOWeightGenNames[]=
    "invfreqcount",
    "freqrank",
    "invfreqrank",
+   "invconjfreqrank",    /* WInvConjFrequencyRank */
    "freqranksquare",
    "invfreqranksquare",
    "invmodfreqrank",     /* WModFreqRank */
@@ -70,7 +71,7 @@ char* TOWeightGenNames[]=
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
-/* #define PRINT_FUNWEIGHTS*/
+/* #define PRINT_FUNWEIGHTS */
 
 #ifdef PRINT_FUNWEIGHTS
 
@@ -495,6 +496,51 @@ static void generate_invfreqrank_weights(OCB_p ocb, ClauseSet_p axioms)
 
 /*-----------------------------------------------------------------------
 //
+// Function: generate_invconjfreqrank_weights()
+//
+//   Make the weight of a function symbol equal to its inverse
+//   "conjecture frequency rank". 
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void generate_invconjfreqrank_weights(OCB_p ocb, ClauseSet_p axioms)
+{
+   FCodeFeatureArray_p array = FCodeFeatureArrayAlloc(ocb->sig, axioms);
+   FunCode       i;
+   long          weight = 0, freq, conjfreq;
+   
+   for(i=SIG_TRUE_CODE+1; i<= ocb->sig->f_count; i++)
+   {
+      array->array[i].key1 = array->array[i].conjfreq?
+         (INT_MAX-array->array[i].conjfreq):0;
+      array->array[i].key2 = -array->array[i].freq;
+   }
+   FCodeFeatureArraySort(array);
+   freq = 0;
+   conjfreq = 0;
+   for(i=SIG_TRUE_CODE+1; i<=ocb->sig->f_count ;i++)
+   {
+      if((freq!=array->array[i].freq) || 
+         (conjfreq!=array->array[i].conjfreq))
+      {
+	 freq=array->array[i].freq;
+         conjfreq=array->array[i].conjfreq;
+	 weight++;
+      }
+      *OCBFunWeightPos(ocb, array->array[i].symbol) = 
+	 weight*W_DEFAULT_WEIGHT;
+   }
+   FCodeFeatureArrayFree(array);
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: generate_freqranksq_weights()
 //
 //   Make the weight of a function symbol equal to its "frequency
@@ -782,6 +828,9 @@ void TOGenerateWeights(OCB_p ocb, ClauseSet_p axioms, char *pre_weights,
    case WInvFrequencyRank:
 	 generate_invfreqrank_weights(ocb, axioms);
 	 break;
+   case WInvConjFrequencyRank:
+         generate_invconjfreqrank_weights(ocb, axioms);
+         break;
    case WFrequencyRankSq:
 	 generate_freqranksq_weights(ocb, axioms);
 	 break;
