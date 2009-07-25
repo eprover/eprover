@@ -51,6 +51,7 @@ import string
 import os
 import getopt
 import socket
+import time
 import select
 import pylib_generic
 import pylib_io
@@ -98,10 +99,12 @@ class eslave(object):
         self.name  = name
         self.emark = emark
         self.open_jobs = {}
+        self.last_activity = time.time()
 
     def __str__(self):
-        return "<eslave:%s:open=%d:%s:emark=%f>"%\
-               (str(self.addr),self.jobs_no(),self.name,self.emark)
+        gap = time.time() - self.last_activity
+        return "<eslave:%s:open=%d:%s:gap=%.2f:emark=%f>"%\
+               (str(self.addr),self.jobs_no(),self.name,gap, self.emark)
 
     def __cmp__(self, other):
         try:
@@ -141,6 +144,7 @@ class eslave(object):
         (results or empty string), with empty string indicating a
         broken connection.
         """
+        self.last_activity = time.time()
         tmp = self.connection.read()
         ret = list()
         for i in tmp:
@@ -264,6 +268,8 @@ class emaster(object):
             self.exec_help(ctrl)
         elif command == "restart slaves":
             self.exec_restart()
+        elif command == "terminate master":
+            self.exec_terminate()
         elif command == "quit":
             self.exec_quit(ctrl)
         elif command =="":
@@ -292,6 +298,7 @@ add <strategies>
 sneak <strategies> 
 help
 restart slaves
+terminate master
 quit
 """)
 
@@ -306,6 +313,9 @@ quit
     def exec_restart(self):
         for i in self.slaves.values():
             i.connection.write("\nrestart\n.\n")
+
+    def exec_terminate(self):
+        sys.exit()
         
     def exec_quit(self, ctrl):
         ctrl.close()
