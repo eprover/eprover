@@ -619,6 +619,9 @@ weight_gen={
    "invaritysquaredmax0": "WInvAritySqMax0",
    "precedence"         : "WPrecedence",
    "invprecedence"      : "WPrecedenceInv",
+   "precrank5"          : "WPrecRank5",
+   "precrank10"         : "WPrecRank10",
+   "precrank20"         : "WPrecRank20",
    "freqcount"          : "WFrequency",
    "invfreqcount"       : "WInvFrequency",
    "freqrank"           : "WFrequencyRank",
@@ -642,6 +645,8 @@ prec_gen={
    "freq"            : "PByFrequency",
    "invfreq"         : "PByInvFrequency",
    "invconjfreq"     : "PByInvConjFrequency",
+   "invfreqconjmax"  : "PByInvFreqConjMax",
+   "invfreqconjmin"  : "PByInvFreqConjMin",
    "invfreqconstmin" : "PByInvFreqConstMin",
    "invfreqhack"     : "PByInvFreqHack",
    "orient_axioms"   : "POrientAxioms"
