@@ -54,6 +54,9 @@ typedef enum
                              for first max */ 
    WPrecedence,           /* Weight(f) = |{g|g<f}| */
    WPrecedenceInv,        /* Weight(f) = |{g|g>f}| */
+   WPrecRank5,            /* */
+   WPrecRank10,            /* */
+   WPrecRank20,            /* */
    WFrequency,            /* Weight(f) = |Axioms|_f */
    WInvFrequency,         /* Weight(f) = Maxfreq+1-|Axioms|_f */
    WFrequencyRank,        /* Weight(f) = Rank in frequency-induced

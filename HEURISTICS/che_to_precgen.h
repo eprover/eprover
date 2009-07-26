@@ -45,6 +45,10 @@ typedef enum
    PByInvFrequency,     /* Make often occuring symbols small */
    PByInvConjFrequency, /* Make often occuring symbols small,
                          * conjecture symbols large */
+   PByInvFreqConjMax,   /* Make conjecture symbols maximal, otherwise
+                           use invfreq */
+   PByInvFreqConjMin,   /* Make conjecture symbols mminimal, otherwise
+                           use invfreq */
    PByInvFreqConstMin,  /* Make rarely occuring symbols small, except for
 			   constants */
    PByInvFreqHack,      /* Make constants minimal, frequent unary

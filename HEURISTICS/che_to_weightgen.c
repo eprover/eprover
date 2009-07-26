@@ -48,6 +48,9 @@ char* TOWeightGenNames[]=
    "invaritysquaredmax0",/* WInvAritySqMax0 */
    "precedence",         /* WPrecedence */
    "invprecedence",      /* WPrecedenceInv */
+   "precrank5",
+   "precrank10",
+   "precrank20",
    "freqcount",
    "invfreqcount",
    "freqrank",
@@ -62,6 +65,17 @@ char* TOWeightGenNames[]=
 };
 
 
+
+/* Cell for sorting by precedence */
+
+typedef struct prec_rank_cell
+{
+   FunCode f_code;
+   OCB_p   ocb; /* Needed for precedence comparisons */
+}PrecRankCell, *PrecRank_p;
+
+
+
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
@@ -71,7 +85,7 @@ char* TOWeightGenNames[]=
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
-/* #define PRINT_FUNWEIGHTS */
+#define PRINT_FUNWEIGHTS
 
 #ifdef PRINT_FUNWEIGHTS
 
@@ -105,12 +119,97 @@ static void print_weight_array(FILE* out,OCB_p ocb)
 
 #endif
 
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: prec_rank_cell_cmp()
+//
+//   Comparison function for sorting signatures by precedence.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+int prec_rank_cell_cmp(const void* rc1, const void* rc2)
+{
+   PrecRank_p 
+      r1 = (const PrecRank_p)rc1,
+      r2 = (const PrecRank_p)rc2;
+   
+   if(r1->f_code == r2->f_code)
+   {
+      return 0;
+   }
+   if(OCBFunCompare(r1->ocb, r1->f_code, r2->f_code)== to_lesser)
+   {
+      return -1;
+   }
+   else if(OCBFunCompare(r1->ocb, r2->f_code, r1->f_code)== to_lesser)
+   {
+      return 1;
+   }
+   return SigGetAlphaRank(r1->ocb->sig, r1->f_code)-
+      SigGetAlphaRank(r1->ocb->sig, r2->f_code);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: generate_precrank_weights()
+//
+//    Sort symbols by precedence, split them into n ranks, then assign
+//    weights to each rank (lowest rank = 1, then up). Assumes a total
+//    precedence (and will make it total by alpha-rank in a
+//    pinch). Note to self: Is is always kosher? Better only try on
+//    complete precedences (but then, most are).
+//
+// Global Variables: -
+//
+// Side Effects    : Sets weights in ocb.
+//
+/----------------------------------------------------------------------*/
+
+static void generate_precrank_weights(OCB_p ocb, float ranks)
+{
+   FunCode    i;
+   PrecRank_p array;
+   long       size = ocb->sig->f_count+1;
+   long       symb_no;
+
+   assert(ocb->precedence||ocb->prec_weights);
+   
+   array = SizeMalloc(size*sizeof(PrecRankCell));
+   for(i=1; i<=ocb->sig->f_count; i++)
+   {
+      array[i].f_code = i;
+      array[i].ocb = ocb;
+   }  
+   qsort(&(array[SIG_TRUE_CODE+1]), 
+         size-(SIG_TRUE_CODE+1),
+         sizeof(PrecRankCell),
+         prec_rank_cell_cmp);
+
+   symb_no = size-(SIG_TRUE_CODE+1);
+   for(i=0; i<symb_no; i++)
+   {
+      *OCBFunWeightPos(ocb, array[i+SIG_TRUE_CODE+1].f_code) = 
+         ((i/(symb_no/ranks))+1)*W_DEFAULT_WEIGHT;
+   }
+   SizeFree(array, size*sizeof(PrecRankCell));
+}
+
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: set_maximal_0()
 //
 //   Set the weight of the first non-constant maximal symbol in OCB to
-//   0. 
+ //   0. 
 //
 // Global Variables: -
 //
@@ -356,6 +455,65 @@ static void generate_invprecedence_weights(OCB_p ocb)
      *OCBFunWeightPos(ocb, i) = weight*W_DEFAULT_WEIGHT;
   }
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: generate_precrank5_weights()
+//
+//    Weight(f) = rank (of 5) in the precedence.
+//
+// Global Variables: -
+//
+// Side Effects    : Sets weights in ocb.
+//
+/----------------------------------------------------------------------*/
+
+static void generate_precrank5_weights(OCB_p ocb)
+{
+   generate_precrank_weights(ocb, 5);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: generate_precrank10_weights()
+//
+//    Weight(f) = rank (of 10) in the precedence.
+//
+// Global Variables: -
+//
+// Side Effects    : Sets weights in ocb.
+//
+/----------------------------------------------------------------------*/
+
+static void generate_precrank10_weights(OCB_p ocb)
+{
+   generate_precrank_weights(ocb, 10);
+}
+
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: generate_precrank20_weights()
+//
+//    Weight(f) = rank (of 20) in the precedence.
+//
+// Global Variables: -
+//
+// Side Effects    : Sets weights in ocb.
+//
+/----------------------------------------------------------------------*/
+
+static void generate_precrank20_weights(OCB_p ocb)
+{
+   generate_precrank_weights(ocb, 20);
+}
+
+
+
 
 /*-----------------------------------------------------------------------
 //
@@ -699,6 +857,8 @@ static void generate_inv_modfreqrank_weights_max_0(OCB_p ocb, ClauseSet_p axioms
 }
 
 
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: set_user_weights()
@@ -816,6 +976,15 @@ void TOGenerateWeights(OCB_p ocb, ClauseSet_p axioms, char *pre_weights,
    case WPrecedenceInv:
 	 generate_invprecedence_weights(ocb);
 	 break;
+   case WPrecRank5:
+         generate_precrank5_weights(ocb);
+         break;
+   case WPrecRank10:
+         generate_precrank10_weights(ocb);
+         break;
+   case WPrecRank20:
+         generate_precrank20_weights(ocb);
+         break;
    case WFrequency:
 	 generate_freq_weights(ocb, axioms);
 	 break;

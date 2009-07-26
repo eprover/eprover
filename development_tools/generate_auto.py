@@ -623,6 +623,7 @@ weight_gen={
    "invfreqcount"       : "WInvFrequency",
    "freqrank"           : "WFrequencyRank",
    "invfreqrank"        : "WInvFrequencyRank",
+   "invconjfreqrank"    : "WInvConjFrequencyRank",
    "freqranksquare"     : "WFrequencyRankSq",
    "invfreqranksquare"  : "WInvFrequencyRankSq",
    "invmodfreqrank"     : "WInvModFreqRank",
