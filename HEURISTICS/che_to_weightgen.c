@@ -85,9 +85,9 @@ typedef struct prec_rank_cell
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
-/* #define PRINT_FUNWEIGHTS */
+#define PRINT_FUNWEIGHTS
 
-#ifdef PRINT_FUNWEIGHTS
+/* #ifdef PRINT_FUNWEIGHTS */
 
 /*-----------------------------------------------------------------------
 //
