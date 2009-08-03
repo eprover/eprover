@@ -93,7 +93,7 @@ static __inline__ void  SizeFreeReal(void* junk, size_t size);
 #define SizeMalloc(size)     SizeMallocReal(size)
 #define ENSURE_NULL(junk)    junk=NULL
 #else
-#define SizeFree(junk, size) SizeFreeReal(junk, size)
+#define SizeFree(junk, size) SizeFreeReal(junk, size);
 #define SizeMalloc(size)     SizeMallocReal(size)
 #define ENSURE_NULL(junk) /* Only defined in debug mode */
 #endif
@@ -105,7 +105,7 @@ void* SecureMalloc(size_t size);
 void* SecureRealloc(void *ptr, size_t size);
 char* SecureStrdup(const char* source);
 char* SecureStrndup(const char* source, size_t n);
-#define FREE(junk) assert(junk);free(junk)
+#define FREE(junk) assert(junk);free(junk); junk=NULL
 
 long* IntArrayAlloc(int size);
 #define IntArrayFree(array, size) SizeFree(array, size*sizeof(long))

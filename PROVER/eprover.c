@@ -1072,8 +1072,32 @@ int main(int argc, char* argv[])
                     parsed_ax_no,
                     relevancy_pruned = 0;
    double           preproc_time;
+   pid_t            pid;
+   int              status;
 
    assert(argv[0]);
+
+#ifdef STACK_SIZE
+   /* We need to increase stack size, but this only affects children
+      (at least in MacOS-X). So we set it and fork() the process, with
+      the child doing the work, the father just waiting. */
+
+   SetSoftRlimit(RLIMIT_STACK, STACK_SIZE);
+   
+   pid = fork();
+
+   if(pid==-1)
+   {
+      SysError("Cannot fork worker process", SYS_ERROR);
+   }
+   if(pid)
+   {
+      /* Parent, just wait and propagate exit value */
+      wait(&status);
+      exit(WEXITSTATUS(status));
+   }
+   /* Else: We are the child and do the work */
+#endif
    
    InitIO(NAME);
 #ifndef RESTRICTED_FOR_WINDOWS

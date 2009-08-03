@@ -159,6 +159,29 @@ void SetMemoryLimit(rlim_t mem_limit)
 #endif /* RESTRICTED_FOR_WINDOWS */
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: GetSoftRlimit()
+//
+//   Return the soft limit for the given resource, or 0 on failure.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+rlim_t GetSoftRlimit(int resource)
+{
+   struct rlimit rlim;
+ 
+   if(getrlimit(resource, &rlim)==-1)
+   {
+      return 0;      
+   }
+   return rlim.rlim_cur;
+}
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

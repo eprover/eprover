@@ -118,7 +118,7 @@ static void init_relevance_vector2(FunWeightParam_p data)
       data->flimit   = data->ocb->sig->f_count+1;
       data->fweights = SizeMalloc(data->flimit*sizeof(long));
       
-      for(i=0;i<data->flimit; i++)
+      for(i=1;i<data->flimit; i++)
       {
          if(SigIsSpecial(data->ocb->sig, i))
          {
@@ -170,7 +170,7 @@ static void init_relevance_vector(FunWeightParam_p data)
       data->flimit   = data->ocb->sig->f_count+1;
       data->fweights = SizeMalloc(data->flimit*sizeof(long));
       
-      for(i=0;i<data->flimit; i++)
+      for(i=1;i<data->flimit; i++)
       {
          eff_rel = PDArrayElementInt(reldata->fcode_relevance, i);
          if(!eff_rel)

@@ -50,6 +50,7 @@ typedef enum
 RLimResult SetSoftRlimit(int resource, rlim_t limit);
 void       SetSoftRlimitErr(int resource, rlim_t limit, char* desc);
 void       SetMemoryLimit(rlim_t mem_limit);
+rlim_t     GetSoftRlimit(int resource);
 
 
 #endif

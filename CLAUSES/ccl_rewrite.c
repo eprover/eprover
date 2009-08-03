@@ -649,6 +649,7 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
    bool    modified = true;
    Term_p new_term;
 
+  
    if(desc->level == NoRewrite)
    {
       return term;
