@@ -112,7 +112,9 @@ int main(int argc, char* argv[])
    PCLPropDataCell data;
 
    assert(argv[0]);
-
+#ifdef STACK_SIZE
+   IncreaseMaxStackSize(STACK_SIZE);
+#endif
    InitIO(NAME);
    atexit(TempFileCleanup);
 

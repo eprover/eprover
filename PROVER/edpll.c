@@ -161,7 +161,9 @@ int main(int argc, char* argv[])
    
    assert(argv[0]);
    
-   InitIO("edpll");
+#ifdef STACK_SIZE
+   IncreaseMaxStackSize(STACK_SIZE);
+#endif   InitIO("edpll");
    ESignalSetup(SIGXCPU);
    
    state = process_options(argc, argv);

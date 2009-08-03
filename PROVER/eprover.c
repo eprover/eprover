@@ -1072,8 +1072,6 @@ int main(int argc, char* argv[])
                     parsed_ax_no,
                     relevancy_pruned = 0;
    double           preproc_time;
-   pid_t            pid;
-   int              status;
 
    assert(argv[0]);
 
