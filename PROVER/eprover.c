@@ -1078,38 +1078,10 @@ int main(int argc, char* argv[])
    assert(argv[0]);
 
 #ifdef STACK_SIZE
-   /* We need to increase stack size, but this only affects children
-      (at least in MacOS-X). So we set it and fork() the process, with
-      the child doing the work, the father just waiting. */
-
-   SetSoftRlimit(RLIMIT_STACK, STACK_SIZE);
-   
-   pid = fork();
-
-   if(pid==-1)
-   {
-      SysError("Cannot fork worker process", SYS_ERROR);
-   }
-   if(pid)
-   {
-      /* Parent, just wait and propagate exit value */
-      wait(&status);
-      if(WIFEXITED(status))
-      {
-         exit(WEXITSTATUS(status));
-      }
-      else if(WIFSIGNALED(status))
-      {
-         kill(getpid(), WTERMSIG(status));
-      }
-      exit(OTHER_ERROR);
-   }
-   /* Else: We are the child and do the work */
+   IncreaseMaxStackSize(STACK_SIZE);
 #endif
    InitIO(NAME);
-#ifndef RESTRICTED_FOR_WINDOWS
    ESignalSetup(SIGXCPU);
-#endif
 
    h_parms = HeuristicParmsAlloc();
    fvi_parms = FVIndexParmsAlloc();
@@ -1404,9 +1376,7 @@ CLState_p process_options(int argc, char* argv[])
    CLState_p state;
    char*  arg;
    long   tmp;
-#ifndef RESTRICTED_FOR_WINDOWS
    long   mem_limit;
-#endif
 
    state = CLStateAlloc(argc,argv);
    
@@ -1480,7 +1450,6 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_REQUIRE_NONEMPTY:
 	    error_on_empty = true;
 	    break;
-#ifndef RESTRICTED_FOR_WINDOWS
       case OPT_MEM_LIMIT:
             if(strcmp(arg, "Auto")==0)
             {              
@@ -1528,7 +1497,6 @@ CLState_p process_options(int argc, char* argv[])
 			"time limit", USAGE_ERROR);
 	    }	    
 	    break;
-#endif /*  RESTRICTED_FOR_WINDOWS */
       case OPT_RUSAGE_INFO:
 	    print_rusage = true;
 	    break;
@@ -1996,7 +1964,6 @@ CLState_p process_options(int argc, char* argv[])
 	    break;
       }
    }
-#ifndef RESTRICTED_FOR_WINDOWS
    if((HardTimeLimit!=RLIM_INFINITY)||(SoftTimeLimit!=RLIM_INFINITY))
    {
       if(SoftTimeLimit!=RLIM_INFINITY)
@@ -2018,7 +1985,6 @@ CLState_p process_options(int argc, char* argv[])
    }
    SetMemoryLimit(h_parms->mem_limit);
 
-#endif /* RESTRICTED_FOR_WINDOWS */
    return state;
 }
 

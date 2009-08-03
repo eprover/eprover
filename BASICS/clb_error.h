@@ -30,10 +30,8 @@ Changes
 #include <clb_defines.h>
 #include <string.h>
 
-#ifndef RESTRICTED_FOR_WINDOWS
 #include <sys/time.h>
 #include <sys/resource.h>
-#endif
 
 #ifdef HP_UX
 #include <syscall.h>

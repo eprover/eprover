@@ -28,13 +28,8 @@ Changes
 #include <stdio.h> 
 #include <string.h> 
 #include <errno.h>
-#ifdef SPEC_CPU2004
-#define MAXPATHLEN 256
-#define RESTRICTED_FOR_WINDOWS
-#else
 #include <sys/param.h>
 #include <unistd.h>
-#endif
 #include <stddef.h>
 #include <stdlib.h>
 #include <math.h>
@@ -169,10 +164,6 @@ typedef ptrdiff_t ptr_int;
 #define TSTPOUT(file,msg) fprintf(file, "# SZS status %s\n", msg)
 #else
 #define TSTPOUT(file, msg)
-#endif
-
-#ifdef RESTRICTED_FOR_WINDOWS /* Windowss is broken */
-#define rlim_t long
 #endif
 
 #endif

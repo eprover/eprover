@@ -122,7 +122,6 @@ long GetSystemPhysMemory(void)
 {
    long res = -1;
 
-#ifndef RESTRICTED_FOR_WINDOWS
 #if defined(E_SC_PAGE_SIZE) && defined(_SC_PHYS_PAGES)
    {
       long long tmpres = 0, pages, pagesize;
@@ -179,8 +178,6 @@ long GetSystemPhysMemory(void)
          pclose(pipe);
       }      
    }
-#endif 
-/* RESTRICTED_FOR_WINDOWS */
    return res;
 }
 
@@ -326,7 +323,6 @@ double GetTotalCPUTime(void)
 {
    double res = -1;
    
-#ifndef RESTRICTED_FOR_WINDOWS
    struct rusage usage;
 
    if(!getrusage(RUSAGE_SELF, &usage))
@@ -334,7 +330,6 @@ double GetTotalCPUTime(void)
       res = (usage.ru_utime.tv_sec+usage.ru_stime.tv_sec)+
          ((usage.ru_utime.tv_usec+usage.ru_stime.tv_usec)/1000000.0);
    }
-#endif
    return res;
 }
 
@@ -353,11 +348,6 @@ double GetTotalCPUTime(void)
 
 void PrintRusage(FILE* out)
 {
-#ifdef RESTRICTED_FOR_WINDOWS
-   fprintf(out, 
-	   "\n# -------------------------------------------------\n");
-   fprintf(out, "# No resource usage information under Windows.\n");
-#else
    struct rusage usage;
    
    if(getrusage(RUSAGE_SELF, &usage))
@@ -381,7 +371,6 @@ void PrintRusage(FILE* out)
    fprintf(out, 
 	   "# Maximum resident set size: %ld pages\n",
 	   usage.ru_maxrss);
-#endif
 }
 
 

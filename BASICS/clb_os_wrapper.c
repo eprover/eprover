@@ -20,6 +20,9 @@ Changes
 
 -----------------------------------------------------------------------*/
 
+#include <sys/types.h>
+#include <sys/wait.h>
+
 #include "clb_os_wrapper.h"
 
 
@@ -144,7 +147,6 @@ void SetSoftRlimitErr(int resource, rlim_t limit, char* desc)
 //
 /----------------------------------------------------------------------*/
 
-#ifndef RESTRICTED_FOR_WINDOWS
 void SetMemoryLimit(rlim_t mem_limit)
 {
    if(!mem_limit)
@@ -156,7 +158,6 @@ void SetMemoryLimit(rlim_t mem_limit)
    SetSoftRlimitErr(RLIMIT_DATA, mem_limit, "RLIMIT_AS");
 #endif /* RLIMIT_AS */
 }
-#endif /* RESTRICTED_FOR_WINDOWS */
 
 
 /*-----------------------------------------------------------------------
@@ -181,6 +182,55 @@ rlim_t GetSoftRlimit(int resource)
    }
    return rlim.rlim_cur;
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: IncreaseMaxStackSize()
+//
+//   Try to increase the maximum stack size, then create a forked copy
+//   of the process to work under the new limit. Wait for this process
+//   to do the actual work, then propagate its exit
+//   status/condition. At least on some UNIXES, maximum stack size
+//   cannot increase after the process has started).
+//
+// Global Variables: -
+//
+// Side Effects    : Well, all, but really none ;-)
+//
+/----------------------------------------------------------------------*/
+
+void IncreaseMaxStackSize(rlim_t stacksize)
+{
+   pid_t pid;
+   int   status;
+   
+   if(SetSoftRlimit(RLIMIT_STACK, stacksize)!=RLimSuccess)
+   {
+      return; /*We've tried */
+   }
+   pid = fork();
+
+   if(pid==-1)
+   {
+      SysError("Cannot fork worker process", SYS_ERROR);
+   }
+   if(pid)
+   {
+      /* Parent, just wait and propagate exit value */
+      wait(&status);
+      if(WIFEXITED(status))
+      {
+         exit(WEXITSTATUS(status));
+      }
+      else if(WIFSIGNALED(status))
+      {
+         kill(getpid(), WTERMSIG(status));
+      }
+      exit(OTHER_ERROR);
+   }
+   /* Else: We are the child and do the work */
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

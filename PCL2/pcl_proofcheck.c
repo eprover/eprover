@@ -58,7 +58,6 @@ static bool pcl_run_prover(char* command, char*success)
    char   line[180],*l;
    FILE*  ppipe;
 
-#ifndef RESTRICTED_FOR_WINDOWS
    if(OutputLevel>1)
    {
       fprintf(GlobalOut, "# Running %s\n", command);
@@ -81,12 +80,7 @@ static bool pcl_run_prover(char* command, char*success)
       }
    }
    pclose(ppipe);
-#else
-   if(OutputLevel>0)
-   {
-      fprintf(GlobalOut, "# Cannot run verifier under Windows.");
-   }
-#endif
+
    return res;
 }
 
