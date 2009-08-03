@@ -1094,11 +1094,18 @@ int main(int argc, char* argv[])
    {
       /* Parent, just wait and propagate exit value */
       wait(&status);
-      exit(WEXITSTATUS(status));
+      if(WIFEXITED(status))
+      {
+         exit(WEXITSTATUS(status));
+      }
+      else if(WIFSIGNALED(status))
+      {
+         kill(getpid(), WTERMSIG(status));
+      }
+      exit(OTHER_ERROR);
    }
    /* Else: We are the child and do the work */
 #endif
-   
    InitIO(NAME);
 #ifndef RESTRICTED_FOR_WINDOWS
    ESignalSetup(SIGXCPU);
