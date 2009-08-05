@@ -259,7 +259,7 @@ static Term_p tb_parse_cons_list(Scanner_p in, TB_p bank, bool check_symb_prop)
 //
 /----------------------------------------------------------------------*/
    
-Term_p tb_subterm_parse(Scanner_p in, TB_p bank)
+static Term_p tb_subterm_parse(Scanner_p in, TB_p bank)
 {
    Term_p res = TBTermParseReal(in, bank, true);
 
@@ -295,7 +295,7 @@ Term_p tb_subterm_parse(Scanner_p in, TB_p bank)
 //
 /----------------------------------------------------------------------*/
 
-int tb_term_parse_arglist(Scanner_p in, Term_p** arg_anchor, 
+static int tb_term_parse_arglist(Scanner_p in, Term_p** arg_anchor, 
                           TB_p bank, bool check_symb_prop)
 {
    Term_p *handle, tmp;

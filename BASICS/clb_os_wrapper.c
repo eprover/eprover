@@ -20,8 +20,7 @@ Changes
 
 -----------------------------------------------------------------------*/
 
-#include <sys/types.h>
-#include <sys/wait.h>
+#include <unistd.h>
 
 #include "clb_os_wrapper.h"
 
@@ -183,6 +182,9 @@ rlim_t GetSoftRlimit(int resource)
    return rlim.rlim_cur;
 }
 
+
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: IncreaseMaxStackSize()
@@ -199,37 +201,26 @@ rlim_t GetSoftRlimit(int resource)
 //
 /----------------------------------------------------------------------*/
 
-void IncreaseMaxStackSize(rlim_t stacksize)
+void IncreaseMaxStackSize(char *argv[], rlim_t stacksize)
 {
-   pid_t pid;
-   int   status;
-   
-   if(SetSoftRlimit(RLIMIT_STACK, stacksize)!=RLimSuccess)
+   if(GetSoftRlimit(RLIMIT_STACK)>=stacksize*KILO)
    {
-      return; /*We've tried */
-   }
-   pid = fork();
-
-   if(pid==-1)
+      return;
+   }  
+   if(SetSoftRlimit(RLIMIT_STACK, stacksize*KILO)!=RLimSuccess)
    {
-      SysError("Cannot fork worker process", SYS_ERROR);
+      TmpErrno = errno;
+      SysError("Cannot set stack size", SYS_ERROR);
    }
-   if(pid)
+   if(execvp(argv[0], argv))
    {
-      /* Parent, just wait and propagate exit value */
-      wait(&status);
-      if(WIFEXITED(status))
-      {
-         exit(WEXITSTATUS(status));
-      }
-      else if(WIFSIGNALED(status))
-      {
-         kill(getpid(), WTERMSIG(status));
-      }
-      exit(OTHER_ERROR);
+      printf("execing\n");
+      TmpErrno = errno;
+      SysError("Cannot exec", SYS_ERROR);
    }
-   /* Else: We are the child and do the work */
 }
+
+
 
 
 /*---------------------------------------------------------------------*/

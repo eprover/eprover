@@ -340,9 +340,10 @@ int main(int argc, char* argv[])
 
    assert(argv[0]);
    
+   InitIO(NAME);
 #ifdef STACK_SIZE
-   IncreaseMaxStackSize(STACK_SIZE);
-#endif   InitIO(NAME);
+   IncreaseMaxStackSize(argv, STACK_SIZE);
+#endif   
    ESignalSetup(SIGXCPU);
 
    state = process_options(argc, argv);

@@ -119,9 +119,10 @@ int main(int argc, char* argv[])
 
    assert(argv[0]);
 
+   InitIO("ekb_ginsert");
 #ifdef STACK_SIZE
-   IncreaseMaxStackSize(STACK_SIZE);
-#endif   InitIO("ekb_ginsert");
+   IncreaseMaxStackSize(argv, STACK_SIZE);
+#endif
    atexit(TempFileCleanup);
    ESignalSetup(SIGTERM);
    ESignalSetup(SIGINT);

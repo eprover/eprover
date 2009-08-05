@@ -117,10 +117,10 @@ int main(int argc, char* argv[])
 
    assert(argv[0]);
 
-#ifdef STACK_SIZE
-   IncreaseMaxStackSize(STACK_SIZE);
-#endif
    InitIO(NAME);
+#ifdef STACK_SIZE
+   IncreaseMaxStackSize(argv, STACK_SIZE);
+#endif
    
    state = process_options(argc, argv);
 
