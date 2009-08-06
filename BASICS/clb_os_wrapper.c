@@ -214,7 +214,6 @@ void IncreaseMaxStackSize(char *argv[], rlim_t stacksize)
    }
    if(execvp(argv[0], argv))
    {
-      printf("execing\n");
       TmpErrno = errno;
       SysError("Cannot exec", SYS_ERROR);
    }
