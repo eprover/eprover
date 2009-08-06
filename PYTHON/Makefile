@@ -23,7 +23,7 @@ all: $(LIB)
 
 include ../Makefile.services
 
-tags:
+ptags:
 	etags *.py
 
 tools:
