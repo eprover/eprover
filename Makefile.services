@@ -25,6 +25,9 @@ fulldistrib:
 top:
 	cd ..; $(MAKE) top
 
+tags:
+	cd ..; $(MAKE) tags
+
 links: 
 	cd ..; $(MAKE) links
 

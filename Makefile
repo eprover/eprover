@@ -105,7 +105,7 @@ links: remove_links
 
 tags: 
 	etags */*.c */*.h
-	cd PYTHON; make tags
+	cd PYTHON; make ptags
 
 tools:
 	cd development_tools;$(MAKE) tools
