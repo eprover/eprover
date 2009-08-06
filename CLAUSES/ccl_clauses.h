@@ -37,56 +37,77 @@ Changes
 
 typedef enum 
 {
-   CPIgnoreProps    = 0,        /* For masking properties out */
-   CPInitial        = 1,        /* Initial clause */
-   CPInputClause    = 2,        /* _Really_ initial clause in TSTP sense */
-   CPIsProcessed    = 4,        /* Clause has been processed previously */
-   CPIsOriented     = 8,        /* Term and literal comparisons are up to
-			           date */
-   CPIsDIndexed     = 16,       /* Clause is in the demod_index of its set */
-   CPIsSIndexed     = 32,       /* Clause is in the fvindex of its set */
-   CPDeleteClause   = 64,       /* Clause should be deleted for some reason */
-   CPType1          = 128,      /* Three bits used to encode the */
-   CPType2          = 256,      /* clause type, taken from TPTP or */
-   CPType3          = 512,      /* TSTP input format or assumed */
-   CPTypeMask       = CPType1|CPType2|CPType3,
-   CPTypeUnknown    = 0,               /* Also used as wildcard */
-   CPTypeAxiom      = CPType1,         /* Clause is Axiom */
-   CPTypeHypothesis = CPType2,         /* Clause is Hypothesis */
-   CPTypeConjecture = CPType1|CPType2, /* Clause is Conjecture */
-   CPTypeLemma      = CPType3,         /* Clause is Lemma */
+   CPIgnoreProps       = 0,               /* For masking properties
+                                           * out */ 
+   CPInitial           = 1,               /* Initial clause */
+   CPInputClause       = 2*CPInitial,     /* _Really_ initial clause
+                                           * in TSTP sense */ 
+   CPIsProcessed       = 2*CPInputClause, /* Clause has been processed
+                                           * previously */ 
+   CPIsOriented        = 2*CPIsProcessed, /* Term and literal
+		                             comparisons are up to
+		                             date */ 
+   CPIsDIndexed        = 2*CPIsOriented,  /* Clause is in the
+                                           * demod_index of its set */ 
+   CPIsSIndexed        = 2*CPIsDIndexed,  /* Clause is in the fvindex
+                                           * of its set */ 
+   CPIsTIndexed        = 2*CPIsSIndexed,  /* Clause is in the subterm
+                                           * index */ 
+   CPIsOIndexed        = 2*CPIsTIndexed,  /* Clause is in the Overlap
+                                           * index */    
+   CPDeleteClause      = 2*CPIsOIndexed,  /* Clause should be deleted
+                                           * for some reason */ 
+   CPType1             = 2*CPDeleteClause,/* Three bits used to encode
+                                           * the Clause type, taken
+                                           * from TPTP or  TSTP input
+                                           * format or assumed */
+   CPType2             = 2*CPType1,        
+   CPType3             = 2*CPType2,       
+   CPTypeMask          = CPType1|CPType2|CPType3,
+   CPTypeUnknown       = 0,               /* Also used as wildcard */
+   CPTypeAxiom         = CPType1,         /* Clause is Axiom */
+   CPTypeHypothesis    = CPType2,         /* Clause is Hypothesis */
+   CPTypeConjecture    = CPType1|CPType2, /* Clause is Conjecture */
+   CPTypeLemma         = CPType3,         /* Clause is Lemma */
    CPTypeNegConjecture = CPType1|CPType3, /* Clause is an negated
                                            * conjecture (used for
                                            * refutation) */
-   CPTypeWatchClause= CPType1|CPType2|CPType3, /* Clause is intended
-                                                  as a watch list
-                                                  clause */
-   CPIsIRVictim     = 1024,     /* Clause has just been simplified in
-                                   interreduction */
-   CPOpFlag         = 2048,     /* Temporary marker */
-   CPIsSelected     = 4096,     /* For analysis of selected clauses only */
-   CPIsFinal        =  8192,    /* Clause is a final clause, i.e. a clause
-			           that might be used by a
-			           postprocessor. */
-   CPIsProofClause  = 16384,     /* Clause is part of a successful
-			           proof. */
-   CPIsSOS          = 32768,    /* Clause is in the set of support.*/
-   CPNoGeneration   = 65536,    /* No generating inferences with this
-				   clause are necessary */
-   CP_CSSCPA_1      = 131072,    /* CSSCPA clause sources */
-   CP_CSSCPA_2      = 262144, 
-   CP_CSSCPA_4      = 524288, 
-   CP_CSSCPA_8      = 1048576,
+   CPTypeWatchClause   = CPType1|CPType2|CPType3,
+                                          /* Clause is intended as a
+                                           * watch list clause */
+   CPIsIRVictim        = 2*CPType3,       /* Clause has just been
+                                             simplified in
+                                             interreduction */ 
+   CPOpFlag            = 2*CPIsIRVictim,  /* Temporary marker */
+   CPIsSelected        = 2*CPOpFlag,      /* For analysis of selected
+                                           * clauses only */ 
+   CPIsFinal           = 2*CPIsSelected,  /* Clause is a final clause,
+                                               i.e. a clause that
+                                               might be used by a
+                                               postprocessor. */ 
+   CPIsProofClause  = 2*CPIsFinal,        /* Clause is part of a
+                                             successful proof. */
+   CPIsSOS          = 2*CPIsProofClause,  /* Clause is in the set of support.*/
+   CPNoGeneration   = 2*CPIsSOS,          /* No generating inferences
+                                             with this clause are
+                                             necessary */
+   CP_CSSCPA_1      = 2*CPNoGeneration,   /* CSSCPA clause sources */
+   CP_CSSCPA_2      = 2*CP_CSSCPA_1, 
+   CP_CSSCPA_4      = 2*CP_CSSCPA_2, 
+   CP_CSSCPA_8      = 2*CP_CSSCPA_4,
    CP_CSSCPA_Mask   = CP_CSSCPA_1|CP_CSSCPA_2|CP_CSSCPA_4|CP_CSSCPA_8,
    CP_CSSCPA_Unkown = 0,
-   CPIsProtected    = 2097152, /* Unprocessed clause has been used in
-                                  simplification and cannot be deleted
-                                  even if parents die. */
-   CPWatchOnly      = 4194304,
-   CPSubsumesWatch  = 8388608, 
-   CPLimitedRW      = 16777216  /* Clause has been processed and hence
-                                 * can only be rewritten in limited
-                                 * ways. */
+   CPIsProtected    = 2*CP_CSSCPA_8,      /* Unprocessed clause has
+                                             been used in
+                                             simplification and cannot
+                                             be deleted even if
+                                             parents die. */
+   CPWatchOnly      = 2*CPIsProtected,
+   CPSubsumesWatch  = 2*CPWatchOnly,
+   CPLimitedRW      = 2*CPSubsumesWatch   /* Clause has been processed
+                                           * and hence can only be
+                                           * rewritten in limited
+                                           * ways. */
 }ClauseProperties;
 
 
