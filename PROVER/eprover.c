@@ -1462,15 +1462,18 @@ CLState_p process_options(int argc, char* argv[])
                                "Physical memory determined as %ld MB\n",
                                tmpmem););
 
-               mem_limit = 0.8*tmpmem;               
+               mem_limit = 0.8*tmpmem;  
+               if(mem_limit > 2048)
+               {  /* Many OSes cannot handle more than 2GB per process */
+                  mem_limit = 2048; 
+               }
+               h_parms->delete_bad_limit =
+                  (float)(mem_limit-2)*0.7;
             }
             else
             {
+               /* We expect the user to know what he is doing */
                mem_limit = CLStateGetIntArg(handle, arg);
-            }
-            if(mem_limit > 2048)
-            {  /* Many OSes cannot handle more than 2GB per process */
-               mem_limit = 2048; 
             }
             VERBOSE(fprintf(stderr, 
                             "Memory limit set to %ld MB\n", 
