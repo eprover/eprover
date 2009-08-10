@@ -1,6 +1,3 @@
-The ReadMe for CASC-22 is in DOC/ReadMe.
-
-
 NOTE: The installation procedure has changed for E 1.0 and later. Read
 this even if you have installed E before! Thanks.
 
@@ -45,9 +42,9 @@ theorem prover. This version of E is free software, see the file
 COPYING for details about the license and the fact that THERE IS NO
 WARRANTY!
 
-Release 1.0 is the culmination of a long development phase. Important
-changes vs. version 0.999 include the fixing of some bugs in
-definitional clausification for large problems and general cleanup.
+Release 1.1 is the culmination of a long development phase. Important
+changes vs. version 1.0 include improved goal-directed heuristics,
+improved preprocessing, better auto-mode and some general cleanup.
 
 
 What is E? What is CLIB?
