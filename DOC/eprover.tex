@@ -16,23 +16,26 @@
 
 \documentclass{article}
 
+\usepackage{makeidx}
 \usepackage{estyle}
 \usepackage{supertabular}
 \usepackage{url}
 
 \author{Stephan Schulz}
-\title{E 1.0x\\[1.5ex]User Manual\\[1.5ex]{\normalsize --preliminary
+\title{E 1.1x\\[1.5ex]User Manual\\[1.5ex]{\normalsize --preliminary
     version--}}
+
+\makeindex{}
 
 \begin{document}
 \maketitle{}
 
 \begin{abstract}
-  E is an equational theorem prover for full clausal logic, based on
-  superposition and rewriting. In this \emph{very preliminary} manual
-  we first give a short introduction for impatient new users, and then
-  cover calculus, control, options and input/output of the prover in
-  some more detail.
+  E is an equational theorem prover for full first-order logic, based
+  on superposition and rewriting. In this \emph{very preliminary}
+  manual we first give a short introduction for impatient new users,
+  and then cover calculus, control, options and input/output of the
+  prover in some more detail.
 \end{abstract}
 
 \tableofcontents{}
@@ -87,13 +90,14 @@ line options:
 \bigskip
 \noindent
 \begin{tabular}{lp{7.5cm}}
-  \texttt{-xAuto} & Select a literal selection strategy and a
-  selection heuristic automagically (based on problem features).\\
+  \texttt{-xAuto} & Choose a literal selection strategy and a
+  clause evaluation heuristic automagically\index{xyzzy} (based on
+  problem features).\\
   \texttt{-tAuto} & Select a term ordering automagically.\\
   \texttt{--memory-limit=xx} & Tell the prover how much memory
   (measured in MB) to use at most. In automatic mode E will optimize
-  its behaviour for this amount (20~MB will work, 64~MB is
-  reasonable, 192~MB is what I use. \emph{More is
+  its behaviour for this amount (20~MB will work, 96~MB is
+  reasonable, 768~MB is what I use. \emph{More is
   better}\footnotemark, but if you go over
   your physical memory, you will probably experience \emph{very} heavy
   swapping.).\\
@@ -125,35 +129,41 @@ the source code included with the distribution).
 E is a purely equational theorem prover, based on ordered
 paramodulation and rewriting. As such, it implements an instance of
 the superposition calculus described in~\cite{BG94}. We have extended
-the calculus with some stronger contraction rules and more general
+the calculus with some stronger contraction rules and a more general
 approach to literal selection. The proof procedure is a variant of the
 \emph{given-clause} algorithm.
 
 
 \subsection{Calculus}
 
-\emph{Term}$(F,V)$ denotes the set of (first order) \emph{terms} over
-a finite set of function symbols \emph{F} (with associated arities)
-and an enumerable set of variables \emph{V}. We write $t|_p$ to denote
-the subterm of $t$ at a position $p$ and write $t[p\leftarrow t']$ to
-denote $t$ with $t|_p$ replaced by $t'$. An equation \eqn{s}{t} is an
-(implicitly symmetrical) pair of terms. A positive literal is an
-equation \eqn{s}{t}, a negative literal is a negated equation
-\neqn{s}{t}.  We write \ueqn{s}{t} to denote an arbitrary
+\emph{Term}$(F,V)$\index{terms} denotes the set of (first order)
+\emph{terms} over a finite set of function symbols \emph{F} (with
+associated arities) and an enumerable set of variables
+\emph{V}\index{variables}. We write $t|_p$ to denote the
+subterm\index{subterm} of $t$ at a position $p$ and write
+$t[p\leftarrow t']$ to denote $t$ with $t|_p$ replaced by $t'$. An
+equation\index{equations} \eqn{s}{t} is an (implicitly symmetrical)
+pair of terms. A positive literal\index{literal} is an equation
+\eqn{s}{t}, a negative literal is a negated equation \neqn{s}{t}.  We
+write \ueqn{s}{t} to denote an arbitrary
 literal\footnote{Non-equational literals are encoded as equations or
-  disequations \ueqn{P(t_1, \ldots, t_n)}{\top}. In this
-  case, we treat predicate symbols as special function symbols that
-  can only occur at the top-most positions and demand that atoms
-  (terms formed with a top predicate symbol) cannot be unified with a
-  first-order variable from $V$, i.e.\ we treat normal terms and
-  predicate terms as two disjoint types.}. Literals can be represented
-as multi-sets of multi-sets of terms, with \eqn{s}{t} represented as
-$\{\{s\},\{t\}\}$ and \neqn{s}{t} represented as $\{\{s, t\}\}$.  A
-\emph{ground reduction ordering} $>$ is a Noetherian partial ordering
-that is stable w.r.t. the term structure and substitutions and total
-on ground terms. $>$ can be extended to an ordering $>_l$ on literals
-by comparing the multi-set representation of literals with $>\!\!>
->\!\!>$ (the multi-set-multi-set extension of $>$).
+  disequations \ueqn{P(t_1, \ldots, t_n)}{\top}. In this case, we
+  treat predicate symbols as special function symbols that can only
+  occur at the top-most positions and demand that atoms (terms formed
+  with a top predicate symbol) cannot be unified with a first-order
+  variable from $V$, i.e.\ we treat normal terms and predicate terms
+  as two disjoint sorts. We sometimes write the literal $\eqn{P(t_1,
+    \ldots, t_n)}{\top}$ as $P(t_1, \ldots, t_n)$ and $\neqn{P(t_1,
+    \ldots, t_n)}{\top}$ as $\neg P(t_1, \ldots, t_n)$ for
+  simplicity.} Literals can be represented as multi-sets of multi-sets
+of terms, with \eqn{s}{t} represented as $\{\{s\},\{t\}\}$ and
+\neqn{s}{t} represented as $\{\{s, t\}\}$.  A \emph{ground reduction
+  ordering}\index{ordering}\index{reduction ordering} $>$ is a
+Noetherian partial ordering that is stable w.r.t. the term structure
+and substitutions and total on ground terms. $>$ can be extended to an
+ordering $>_l$ on literals by comparing the multi-set representation
+of literals with $>\!\!> >\!\!>$ (the multi-set-multi-set extension of
+$>$).
 
 Clauses are multi-sets of literals. They are usually represented as
 disjunctions of literals, $\ueqn{s_1}{t_1} \vee \ueqn{s_2}{t_2} \ldots
@@ -229,7 +239,8 @@ double line, the result clauses are substituted for the clauses in the
 precondition. In the following, $u$, $v$, $s$ and $t$ are terms,
 $\sigma$ is a substitution and $R$, $S$ and $T$ are (partial) clauses.
 $p$ is a position in a term and $\lambda$ is the empty or
-top-position. Different clauses are assumed to not share any common
+top-position. $D \subseteq F$ is a set of unused constant predicate
+symbols. Different clauses are assumed to not share any common
 variables.
 
 
@@ -237,7 +248,7 @@ variables.
  \label{def:basics:inferences:sp}\index{SP@\textbf{SP} (calculus)}
  Let $>$ be a total simplification ordering (extended to orderings
  $>_L$ and $>_C$ on literals and clauses) and let $\mw{sel}$ be a
- selection function.  The inference system \textbf{SP} consists of the
+ selection function. The inference system \textbf{SP} consists of the
  following inference rules:
  
  \begin{itemize}
@@ -369,11 +380,29 @@ variables.
    
    \bigskip (DR) \CInferenz{\neqn{s}{s} \vee R}{R}{}
    
- \item \emph{Destructive equality resolution}:
+ \item \emph{Destructive equality resolution}\index{equality
+     resolution}:
    
    \bigskip (DE) \CInferenz{\neqn{x}{y} \vee R}{\sigma(R)}{if $x,y \in
      V, \sigma = mgu(x,y)$}
    
+
+\item \emph{Introduce definition\index{clause splitting}}
+
+  \bigskip (ID) \CInferenz{R \vee S}{d \vee R \phantom{ae} \neg d \vee
+    S}{if $R$ and $S$ do not share any variables, $d \in D$ has not
+    been used in a previous definition, $R$ does not contain any
+    symbol from $D$, and $S$ does not consist of only symbols from
+    $D$}
+
+\item \emph{Apply definition\index{clause splitting}}
+
+  \bigskip (AD) \CInferenz{\sigma (d \vee R) \phantom{ae} R \vee S}
+  {\sigma(d \vee R) \phantom{ae} \neg d \vee S}{if $\sigma$ is a
+    variable renaming, $R$ and $S$ do not share
+    any variables, $d \in D$, $R$ does not contain any symbol from
+    $D$, and $S$ does not consist of only symbols from $D$}
+
    
  \end{itemize}
  We write $\mathbf{SP}(N)$ to denote the set of all clauses that can
@@ -390,15 +419,14 @@ variables.
 As \textbf{SP} only removes clauses that are \emph{composite} with
 respect to the remaining set of clauses, the calculus is complete. For
 the case of unit clauses, it degenerates into \emph{unfailing}
-completion~\cite{BDP89} as implemented in DISCOUNT. E can also
-simulate the positive unit strategy for Horn clauses described
-in~\cite{Dershowitz:IJCAI-91} using appropriate selection functions.
+completion~\cite{BDP89} as implemented in DISCOUNT\index{DISCOUNT}. E
+can also simulate the positive unit strategy for Horn clauses
+described in~\cite{Dershowitz:IJCAI-91} using appropriate selection
+functions.
 
-Contrary to e.g.\ SPASS, E does not implement special rules for
-non-equa\-tio\-nal literals or sort theories, as we expect this part
-to be taken care of by SETHEO in a later combined system.  Instead,
-non-equation literals are encoded as equations and dealt with
-accordingly.
+Contrary to e.g.\ SPASS\index{SPASS}, E does not implement special
+rules for non-equa\-tio\-nal literals or sort theories. Non-equational
+literals are encoded as equations and dealt with accordingly.
 
 
 
@@ -451,14 +479,12 @@ accordingly.
     \end{tabbing}
     \normalfont
     \caption{Main proof procedure of E}
-    \label{fig:procedure}
+    \label{fig:procedure}\index{proof procedure}
   \end{center}
 \end{figure}
 
 Fig.~\ref{fig:procedure} shows a (slightly simplified) pseudocode
-sketch of the quite straightforward proof procedure of E\footnote{Note
-  that the proof procedure has been further simplified for version 0.8
-  and up. The pseudo-code describes the current version.}. The set of
+sketch of the quite straightforward proof procedure of E. The set of
 all clauses is split into two sets, a set \texttt{P} of
 \emph{processed} clauses and a set \texttt{U} of \emph{unprocessed}
 clauses. Initially, all input clauses are in in \texttt{U}, and
@@ -710,12 +736,13 @@ result in an extremely incomplete prover).
 
 
 \subsubsection{Clause Evaluation Functions}
+\index{clause evaluation}
 
 A clause evaluation function is constructed by instantiating a generic
 weight function. It can either be specified directly, or specified and
 given a name for later reference at once:
 
-\begin{verbatim}
+ \begin{verbatim}
 <eval-fun>          ::= <ident>         ||
                         <weight-fun>    ||
                         <eval-fun-def>  
@@ -789,6 +816,7 @@ automatically choose if no other heuristic is selected with the
 
 \subsection{Term Orderings}
 \label{sec:options:orderings}
+\index{term ordering}
 
 E currently supports two families of orderings: The
 \emph{Knuth-Bendix-Ordering} (KBO), which is used by default, and the
@@ -1464,7 +1492,8 @@ by a comment of the form \texttt{\# info(id, pd, pl, sc, cd, nl,
   may also have bought a commercial version of E from Safelogic
   A.B. in Gothenburg, Sweden. In this case, you are bound by whatever
   license you agreed to. If you are in doubt about which version of E
-  you have, run \texttt{eprover -V} or \texttt{eprover -h}.
+  you have, run \texttt{eprover -V} or \texttt{eprover
+    -h}\index{GPL}\index{GNU General Public License}.
 
 \small
 \begin{verbatim}
@@ -2002,6 +2031,8 @@ C.~Weidenbach, B.~Gaede, and G.~Rock.
   1996.
 
 \end{thebibliography}
+
+\printindex
 
 \end{document}
 

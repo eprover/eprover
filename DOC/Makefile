@@ -42,6 +42,8 @@ $(LIB): $(DOC_LIB)
 	$(LATEX) eprover.tex
 #        $(BIBTEX) eprover
 	$(LATEX) eprover.tex
+	$(MAKEINDEX) eprover
+	$(LATEX) eprover.tex
 	$(LATEX) eprover.tex
 	$(PDFLATEX) eprover.tex
 	$(DVIPS) -o eprover.ps eprover.dvi
