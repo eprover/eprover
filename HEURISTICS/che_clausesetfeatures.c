@@ -1429,7 +1429,7 @@ void SpecTypePrint(FILE* out, SpecFeature_p features, char* mask)
 	 result[i]= '-';
       }
    }
-   fprintf(out, result);
+   fputs(result, out);
 }
 
 /*-----------------------------------------------------------------------

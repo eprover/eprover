@@ -214,8 +214,8 @@ void InitError(char* progname)
     * this behaviour. Note that I know of no standard that guarantees
     * this to work (in fact, I don't know how to reliably print on
     * POSIX systems in out-of-memory cases at all). */
-   fprintf(stderr, EmptyString);
-   fprintf(stdout, EmptyString);
+   fprintf(stderr, "%s", EmptyString);
+   fprintf(stdout, "%s", EmptyString);
 }
 
 

@@ -379,53 +379,6 @@ bool tformula_rename_test(TB_p bank, TFormula_p root, int pos,
    return false;
 }
 
-/*-----------------------------------------------------------------------
-//
-// Function: collect_applied_defs()
-//
-//   Given a tformula, find and record all the definitions for its
-//   sub-formulas. 
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-static long collect_applied_defs(Sig_p sig, TFormula_p form,
-                                 NumTree_p *defs, PStack_p defs_used) 
-{
-   NumTree_p def_entry;
-   long res = 0;
-   
-   if(TFormulaIsLiteral(sig, form))
-   {
-      /* done */
-   }
-   else 
-   {
-      if(TermCellQueryProp(form, TPCheckFlag))
-      {
-         def_entry = NumTreeFind(defs, form->entry_no);
-         assert(def_entry);
-         PStackPushInt(defs_used, def_entry->val1.i_val);
-         res++;
-      }
-      if((form->f_code == sig->and_code)||
-         (form->f_code == sig->or_code)||
-         (form->f_code == sig->impl_code)||
-         (form->f_code == sig->equiv_code)||
-         (form->f_code == sig->not_code))
-      {
-         res += collect_applied_defs(sig, form->args[0], defs, defs_used);
-      }
-      if(form->f_code != sig->not_code)
-      {
-         res += collect_applied_defs(sig, form->args[1], defs, defs_used);
-      }
-   }
-   return res;
-}
 
 
 
