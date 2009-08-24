@@ -1,7 +1,7 @@
 This history list describes the major differences between versions of
 the E equational theorem prover.
 
-Version 1.0 ->
+Version 1.0 -> 1.1
 
 - Added --help output to eproof
 - Improved eproof script signal handling.
@@ -13,6 +13,10 @@ Version 1.0 ->
   infix =).
 - Fixed bug in the output of symbols with an embedded %.
 - Added man pages for the major binaries
+- Added various goal-directed heuristics
+- Improved pre-processing (cut-off-limit for eq-def-expansion)
+- Better auto-mode
+- Optional pre-saturation simplificaton
 
 
 Version 0.999-004->1.0
