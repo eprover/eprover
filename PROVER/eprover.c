@@ -1468,7 +1468,7 @@ CLState_p process_options(int argc, char* argv[])
                   mem_limit = 2048; 
                }
                h_parms->delete_bad_limit =
-                  (float)(mem_limit-2)*0.7;
+                  (float)(mem_limit-2)*0.7*MEGA;
             }
             else
             {
