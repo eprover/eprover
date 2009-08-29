@@ -189,11 +189,9 @@ rlim_t GetSoftRlimit(int resource)
 //
 // Function: IncreaseMaxStackSize()
 //
-//   Try to increase the maximum stack size, then create a forked copy
-//   of the process to work under the new limit. Wait for this process
-//   to do the actual work, then propagate its exit
-//   status/condition. At least on some UNIXES, maximum stack size
-//   cannot increase after the process has started).
+//   Try to increase the maximum stack size, then re0exec the process
+//   to work under the new limit. At least on some UNIXES, maximum
+//   stack size cannot increase after the process has started).
 //
 // Global Variables: -
 //
@@ -210,7 +208,10 @@ void IncreaseMaxStackSize(char *argv[], rlim_t stacksize)
    if(SetSoftRlimit(RLIMIT_STACK, stacksize*KILO)!=RLimSuccess)
    {
       TmpErrno = errno;
-      SysError("Cannot set stack size", SYS_ERROR);
+      Warning("Cannot set stack limit:");
+      Warning(strerror(TmpErrno));
+      Warning("Continuing with default stack limit");
+      return;
    }
    if(execvp(argv[0], argv))
    {
