@@ -44,8 +44,10 @@ Changes
 
 extern long  OutputLevel;
 extern FILE* GlobalOut;
+extern int   GlobalOutFD;
 
-#define      InitOutput() GlobalOut=stdout;
+#define      InitOutput() GlobalOut=stdout;GlobalOutFD=STDOUT_FILENO
+void         OpenGlobalOut(char* outname);
 FILE*        OutOpen(char* name);
 void         OutClose(FILE* file);
 void         PrintDashedStatuses(FILE* out, char *stat1, char *stat2, char *fallback);

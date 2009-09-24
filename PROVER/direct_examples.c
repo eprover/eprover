@@ -130,6 +130,7 @@ int main(int argc, char* argv[])
    state = process_options(argc, argv);
 
    GlobalOut = OutOpen(outname);
+   OpenGlobalOut(outname);
    prot = PCLProtAlloc();
 
    if(state->argc ==  0)

@@ -48,6 +48,7 @@ cleanup ()
     ulimit -S unlimited
     touch $tmpfile $tmpfile2
     rm -f $tmpfile $tmpfile2
+    wait
     trap - EXIT 
     exit $status
 } 

@@ -34,6 +34,7 @@ Changes
 
 long  OutputLevel = 1;
 FILE* GlobalOut;
+int   GlobalOutFD = STDOUT_FILENO;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -49,6 +50,27 @@ FILE* GlobalOut;
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: OpenGlobalOut()
+//
+//   Set GobalOut to a FILE* connected to file outname, set
+//   GlobalOutFD accordingly.
+//
+// Global Variables: GlobalOut, GlobalOutFD
+//
+// Side Effects    : As above.
+//
+/----------------------------------------------------------------------*/
+
+void OpenGlobalOut(char* outname)
+{
+   GlobalOut   = OutOpen(outname);
+   GlobalOutFD = fileno(GlobalOut);
+}
+
 
 
 /*-----------------------------------------------------------------------

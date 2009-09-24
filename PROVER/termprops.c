@@ -97,7 +97,7 @@ int main(int argc, char* argv[])
    {
       CLStateInsertArg(state, "-");
    }
-   GlobalOut = OutOpen(outname);
+   OpenGlobalOut(outname);
 
    sig = SigAlloc();
    bank = TBAlloc(sig);

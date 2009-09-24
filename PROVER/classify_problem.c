@@ -344,7 +344,7 @@ int main(int argc, char* argv[])
    limits = SpecLimitsAlloc();
    state = process_options(argc, argv, limits);
     
-   GlobalOut = OutOpen(outname);
+   OpenGlobalOut(outname);
 
    if(state->argc ==  0)
    {

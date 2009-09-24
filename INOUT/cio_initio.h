@@ -25,7 +25,6 @@ Changes
 
 #define CIO_INITIO
 
-#include <unistd.h>
 #include <cio_output.h>
 
 
