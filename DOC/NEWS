@@ -1,6 +1,10 @@
 This history list describes the major differences between versions of
 the E equational theorem prover.
 
+Version 1.1 ->
+
+- Made stack limit increase fail gracefully (run with default)
+
 Version 1.0 -> 1.1
 
 - Added --help output to eproof
