@@ -72,7 +72,6 @@ long          GetSystemPageSize(void);
 long          GetSystemPhysMemory(void);
 
 void          InitError(char* progname);
-void          ReleaseErrorReserve(void);
 VOLATILE void Error(char* message, ErrorCodes ret);
 VOLATILE void SysError(char* message, ErrorCodes ret);
 void          Warning(char* message);

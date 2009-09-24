@@ -20,6 +20,8 @@ Changes
 
 -----------------------------------------------------------------------*/
 
+#include <sys/types.h>
+#include <sys/uio.h>
 #include "clb_error.h"
 
 
@@ -39,9 +41,6 @@ int TmpErrno;
 
 char* ProgName = "Unknown program";
 
-/* Memory we can use for error processing */
-static char* reserve_memory = NULL;
-#define ERROR_MEM_RESERVE (128*KILO)
 
 /* The empty string as a global, external variable that cannot easily
  * be optimize away. See InitError() for more explanation. */
@@ -199,46 +198,6 @@ long GetSystemPhysMemory(void)
 void InitError(char* progname)
 {
    ProgName = progname;
-   reserve_memory = malloc(ERROR_MEM_RESERVE);
-   if(!reserve_memory)
-   {
-      Error("Cannot allocate memory for error handling!",
-	    OUT_OF_MEMORY);
-   }
-#ifdef MEMORY_RESERVE_PARANOID
-   StrideMemory(reserve_memory, ERROR_MEM_RESERVE);
-#endif
-   /* If we try to print for the first time in an out-of-memory
-    * situation, fprintf() occasionally fails (segfaults) because the
-    * necessary buffers cannot be allocated. This is an attempt to fix
-    * this behaviour. Note that I know of no standard that guarantees
-    * this to work (in fact, I don't know how to reliably print on
-    * POSIX systems in out-of-memory cases at all). */
-   fprintf(stderr, "%s", EmptyString);
-   fprintf(stdout, "%s", EmptyString);
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: ReleaseErrorReserve()
-//
-//   Release the memory reserved for error handling, so that functions
-//   higher up in the hierarchy can use it.
-//
-// Global Variables: reserve_memory
-//
-// Side Effects    : Memory release
-//
-/----------------------------------------------------------------------*/
-
-void ReleaseErrorReserve(void)
-{
-   if(reserve_memory)
-   {
-      free(reserve_memory);
-      reserve_memory=NULL;
-   }
 }
 
 
@@ -257,8 +216,10 @@ void ReleaseErrorReserve(void)
 
 VOLATILE void Error(char* message, ErrorCodes ret)
 {
-   ReleaseErrorReserve();
-   fprintf(stderr, "%s: %s\n", ProgName, message);
+   WRITE_STR(STDERR_FILENO, ProgName);
+   WRITE_STR(STDERR_FILENO, ": ");
+   WRITE_STR(STDERR_FILENO, message);
+   WRITE_STR(STDERR_FILENO, "\n");
    exit(ret);
 }
 
@@ -279,8 +240,10 @@ VOLATILE void Error(char* message, ErrorCodes ret)
 
 VOLATILE void SysError(char* message, ErrorCodes ret)
 {
-   ReleaseErrorReserve();
-   fprintf(stderr, "%s: %s\n", ProgName, message);
+   WRITE_STR(STDERR_FILENO, ProgName);
+   WRITE_STR(STDERR_FILENO, ": ");
+   WRITE_STR(STDERR_FILENO, message);
+   WRITE_STR(STDERR_FILENO, "\n");
    errno = TmpErrno;
    perror(ProgName);
    exit(ret);

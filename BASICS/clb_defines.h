@@ -160,10 +160,18 @@ typedef ptrdiff_t ptr_int;
 #define MEGA (KILO*KILO)
 
 
+/* Convenience function */
+#define WRITE_STR(fd,msg) write(fd,msg,strlen(msg));
+
+
 #ifdef PRINT_TSTP_STATUS
 #define TSTPOUT(file,msg) fprintf(file, "# SZS status %s\n", msg)
+#define TSTPOUTFD(fd,msg) \
+        WRITE_STR(fd, "# SZS status ");WRITE_STR(fd, msg);WRITE_STR(fd, "\n")
+
 #else
 #define TSTPOUT(file, msg)
+#define TSTPOUTFD(fd,msg)
 #endif
 
 #endif
