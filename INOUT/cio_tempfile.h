@@ -47,9 +47,6 @@ char*    TempFileName(void);
 char*    TempFileCreate(FILE* source);
 void     TempFileRemove(char* name);
 
-PStack_p CLStateCreateTempFiles(CLState_p state);
-void     CLStateDestroyTempFiles(CLState_p state, PStack_p files);
-
 #endif
 
 /*---------------------------------------------------------------------*/

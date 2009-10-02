@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.5
+#!/usr/bin/env python2.6
 
 """
 tptp_analyse.py 0.1

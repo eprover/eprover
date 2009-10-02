@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.5
+#!/usr/bin/env python2.6
 # ----------------------------------
 #
 # Usage: problem_classifyer.py <prot1> ... <protn>

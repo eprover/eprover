@@ -264,7 +264,10 @@ VOLATILE void SysError(char* message, ErrorCodes ret)
 
 void Warning(char* message)
 {
-   fprintf(stderr, "%s: Warning: %s\n", ProgName, message);
+   WRITE_STR(STDERR_FILENO, ProgName);
+   WRITE_STR(STDERR_FILENO, ": Warning: ");
+   WRITE_STR(STDERR_FILENO, message);
+   WRITE_STR(STDERR_FILENO, "\n");
 }
 
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.5
+#!/usr/bin/env python2.6
 # ----------------------------------
 #
 # pylib_psfixbb.py 1.1

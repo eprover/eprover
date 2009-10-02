@@ -103,10 +103,7 @@ void ESignalHandler(int mysignal)
 	    TmpErrno = errno;
 	    SysError("Unable to reset cpu time limit", SYS_ERROR);
 	 }
-         if(Verbose)
-         {
-            WRITE_STR(GlobalOutFD, "SIGXCPU caught.\n");
-         }
+         VERBOSE(WRITE_STR(GlobalOutFD, "SIGXCPU caught.\n"));
 	 if(TimeLimitIsSoft)
 	 {	  	    
 	    TimeIsUp = 1;
@@ -127,7 +124,7 @@ void ESignalHandler(int mysignal)
 	 break;
    case SIGTERM:
    case SIGINT:
-	 VERBOUT("SIGTERM/SIGINT caught.\n");
+	 VERBOSE(WRITE_STR(GlobalOutFD, "SIGTERM/SIGINT caught.\n"));
 	 if(fatal_error_in_progress)
 	 {
 	    signal(mysignal, SIG_DFL);
@@ -138,7 +135,8 @@ void ESignalHandler(int mysignal)
 	 raise(mysignal); 
 	 break;
    default:
-	 Warning("Unexpected signal caught, continuing");
+         WRITE_STR(STDERR_FILENO, "Warning: ");
+	 WRITE_STR(STDERR_FILENO, "Unexpected signal caught, continuing");
 	 break;
    }
 }
