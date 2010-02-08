@@ -13,6 +13,17 @@ clauses is ok...think & test!
 * In this context: Clean up the mess by removing dead code!
 -> No, it didn't, but I've now fixed it.
 
+Index for backwards-rewriting: Two separate indices, one for
+restricted terms, one for unrestricted ones. Data structure:
+(key->(term, clause*)) - position is not needed for this (or is it?
+Check current code if RW-link is always added). Abstract interface:
+Index returns candidate. One implementation: Return _all_ term/clause*
+pairs (i.e. no indexing), second: Use top-level hashing, third: use
+more advances path indexing.
+
+Index for unification: Store all candidate terms. Data structure:
+(key->(term, (clause, position)*))*. See above.
+
 Detect definitions and make defined symbols large in the precedence
 (instead of automatic unfolding).
 
@@ -285,5 +296,6 @@ For eground:
 - Found and fixed a bug in the implementation of SoS. Redo the
   corresponding test runs! Fix another bug: If a SoS clause is used in
   simplification, then the child is SoS! Fix for E 0.71!
+
 
 

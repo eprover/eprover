@@ -147,9 +147,11 @@ class tptp_store(object):
             
 
     def add(self, line):
+        print line
         tmp = line.split("%")
         probdesc = tmp[0]
         tmp = probdesc.split("/")
+        print tmp
         tptp = tmp[1][5:]
         prob = tmp[4][:-1].replace(":", ".")
 

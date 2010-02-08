@@ -1121,12 +1121,17 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
 	     
 	     TBTermNodes(state->terms),
 	     TBStorage(state->terms)); */
-      /* printf("#Stats: %ld %ld\n", count, 
-         (state->processed_pos_rules->members +
-         state->processed_pos_eqns->members +
-         state->processed_neg_units->members +
-         state->processed_non_units->members+
-         state->unprocessed->members)); */
+      /* printf("#Stats (CPUA): %ld %ld %ld %ld\n", count, 
+             (state->processed_pos_rules->members +
+              state->processed_pos_eqns->members +
+              state->processed_neg_units->members +
+              state->processed_non_units->members),
+             state->unprocessed->members,
+             (state->processed_pos_rules->members +
+              state->processed_pos_eqns->members +
+              state->processed_neg_units->members +
+              state->processed_non_units->members+
+              state->unprocessed->members));*/
       current_storage = ProofStateStorage(state);
       filter_copies_base = MIN(filter_copies_base,current_storage); 
       if((current_storage - filter_copies_base) >
