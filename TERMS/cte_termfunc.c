@@ -174,6 +174,32 @@ static Term_p term_check_consistency_rek(Term_p term, PTree_p *branch,
 /*---------------------------------------------------------------------*/
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: VarPrint()
+//
+//   Print a variable with FunCode var out.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void VarPrint(FILE* out, FunCode var)
+{
+   char id;
+   
+   assert(var<0);
+   
+   id = 'Y';
+   if(var%2)
+   {
+      id = 'X';
+   }
+
+   fprintf(out, "%c%ld", id, -(var/2));
+}
 
 
 /*-----------------------------------------------------------------------
@@ -222,7 +248,7 @@ void TermPrint(FILE* out, Term_p term, Sig_p sig, DerefType deref)
    {
       if(TermIsVar(term))
       {
-	 fprintf(out, "X%ld", -term->f_code);
+	 VarPrint(out, term->f_code);
       }
       else
       {

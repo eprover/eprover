@@ -46,6 +46,7 @@ extern bool      TermPrintLists; /* Using [...] notation */
                        (FuncSymbStartToken|OpenSquare|Mult):\
 		       (FuncSymbStartToken|Mult))
 
+void   VarPrint(FILE* out, FunCode var);
 void   TermPrint(FILE* out, Term_p term, Sig_p sig, DerefType deref);
 void   TermPrintArgList(FILE* out, Term_p *args, int arity, Sig_p sig,
 			DerefType deref);

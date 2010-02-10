@@ -131,6 +131,7 @@ FCodeFeatureArray_p FCodeFeatureArrayAlloc(Sig_p sig, ClauseSet_p axioms)
    }
    SizeFree(rank_array, array_size);
    SizeFree(dist_array, array_size);
+   SizeFree(conjdist_array, array_size);
 
    return handle;
 }

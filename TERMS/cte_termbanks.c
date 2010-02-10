@@ -89,7 +89,7 @@ static void tb_print_dag(FILE *out, NumTree_p in_index, Sig_p sig)
 
    if(TermIsVar(term))
    {
-      fprintf(out, "X%ld", -term->f_code);
+      VarPrint(out, term->f_code);
    }
    else
    {
@@ -779,7 +779,7 @@ void TBPrintTermCompact(FILE* out, TB_p bank, Term_p term)
    {
       if(TermIsVar(term))
       {
-	 fprintf(out, "X%ld", -term->f_code);
+	 VarPrint(out, term->f_code);
       }
       else
       {

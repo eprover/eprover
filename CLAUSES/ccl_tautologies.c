@@ -124,8 +124,6 @@ static bool ground_orient_eqn(Eqn_p eqn)
    cmp = TO_ground_compare(eqn->lterm, eqn->rterm);
    assert(cmp != to_uncomparable);
 
-   /* printf("ground_orient_eqn:"); */
-   /* EqnPrintOriginal(stdout, eqn); */
    if(cmp == to_greater)
    {
       EqnSetProp(eqn, EPGONatural);
@@ -237,7 +235,6 @@ static bool ground_normalize_eqn(Eqn_p eqn, Eqn_p eqns)
       shared = TBInsert(eqn->bank, term, DEREF_NEVER);
       store = eqn->lterm;
       eqn->lterm = shared;
-      /* TBDelete(eqn->bank, store); */
       res = EqnQueryProp(eqn, EPGONatural);
    }
    TermFree(term);
@@ -249,7 +246,6 @@ static bool ground_normalize_eqn(Eqn_p eqn, Eqn_p eqns)
       shared = TBInsert(eqn->bank, term, DEREF_NEVER);
       store = eqn->rterm;
       eqn->rterm = shared;
-      /* TBDelete(eqn->bank, store); */
       res = res || EqnQueryProp(eqn, EPGONatural);
    }
    TermFree(term);

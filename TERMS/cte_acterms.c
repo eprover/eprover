@@ -304,7 +304,7 @@ void ACTermPrint(FILE* out, ACTerm_p term, Sig_p sig)
 {
    if(term->f_code < 0)
    {
-      fprintf(out, "X%ld", -term->f_code);
+      VarPrint(out, term->f_code);
    }
    else
    {

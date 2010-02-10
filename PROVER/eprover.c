@@ -1129,6 +1129,7 @@ int main(int argc, char* argv[])
 #endif
       Error("Input file contains no clauses or formulas", OTHER_ERROR);
    }
+
    FormulaSetDocInital(GlobalOut, OutputLevel, proofstate->f_axioms);
    ClauseSetDocInital(GlobalOut, OutputLevel, proofstate->axioms);
 

@@ -653,6 +653,7 @@ void ProofControlInit(ProofState_p state,ProofControl_p control,
 		      true, NULL);
    WeightFunDefListParse(control->wfcbs, in, control->ocb, state);
    DestroyScanner(in);
+
    for(sp = 0; sp < PStackGetSP(wfcb_defs); sp++)
    {
       in = CreateScanner(StreamTypeOptionString,
