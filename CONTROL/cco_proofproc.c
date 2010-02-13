@@ -869,7 +869,8 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
 // Function: ProcessClause()
 //
 //   Select an unprocessed clause, process it. Return pointer to empty
-//   clause if it can be derived, NULL otherwise.
+//   clause if it can be derived, NULL otherwise. This is the core of
+//   the main proof procedure.
 //
 // Global Variables: -
 //
@@ -978,7 +979,8 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
    clause = pclause->clause;
 
    ClauseNormalizeVars(clause, state->freshvars);
-   tmp_copy = ClauseCopy(clause, state->tmp_terms);      
+   //tmp_copy = ClauseCopy(clause, state->tmp_terms);      
+   tmp_copy = ClauseCopyDisjoint(clause);      
    tmp_copy->ident = clause->ident;
 
    clause->date = clausedate;
@@ -986,7 +988,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
 
    if(ClauseIsDemodulator(clause))
    {
-       assert(clause->neg_lit_no == 0);
+      assert(clause->neg_lit_no == 0);
       if(EqnIsOriented(clause->literals))
       {
          TermCellSetProp(clause->literals->lterm, TPIsRewritable);

@@ -517,6 +517,102 @@ Eqn_p EqnListCopyExcept(Eqn_p list, Eqn_p except, TB_p bank)
    return newlist;
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: EqnListCopyOpt()
+//
+//   Copy an Eqnlist with the optimizations possible if all terms
+//   (source and target) are from the same term bank.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+Eqn_p EqnListCopyOpt(Eqn_p list)
+{
+   Eqn_p  newlist = NULL;
+   EqnRef insert = &newlist;
+
+   while(list)
+   {
+      *insert = EqnCopyOpt(list);
+      insert = &((*insert)->next);
+      list = list->next;
+   }
+   *insert = NULL;
+   
+   return newlist;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: EqnListCopyOptExcept()
+//
+//   Copy an Eqnlist with one exception using the optimizations
+//   possible if all terms (source and target) are from the same term
+//   bank. 
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+Eqn_p EqnListCopyOptExcept(Eqn_p list, Eqn_p except)
+{
+   Eqn_p  newlist = NULL;
+   EqnRef insert = &newlist;
+
+   while(list)
+   {
+      if(list != except)
+      {
+	 *insert = EqnCopyOpt(list);
+	 insert = &((*insert)->next);
+      }
+      list = list->next;
+   }
+   *insert = NULL;
+   
+   return newlist;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: EqnListCopyDisjoint()
+//
+//   Create a copy of list with disjoint variables (using the even/odd
+//   convention). 
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+Eqn_p EqnListCopyDisjoint(Eqn_p list)
+{
+   Eqn_p  newlist = NULL;
+   EqnRef insert = &newlist;
+
+   while(list)
+   {
+      *insert = EqnCopyDisjoint(list);
+      insert = &((*insert)->next);
+      list = list->next;
+   }
+   *insert = NULL;
+   
+   return newlist;
+}
+
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: EqnListCopyRepl()

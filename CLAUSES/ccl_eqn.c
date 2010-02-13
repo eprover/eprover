@@ -1048,6 +1048,70 @@ Eqn_p EqnCopyRepl(Eqn_p eq, TB_p bank, Term_p old, Term_p repl)
    return handle;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: EqnCopyOpt()
+//
+//   Copy an instantiated equation into the same term bank (using the
+//   common optimizations possible in that case).
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+Eqn_p EqnCopyOpt(Eqn_p eq)
+{
+   Eqn_p  handle;
+   Term_p lterm, rterm;
+
+   lterm = TBInsertOpt(eq->bank, eq->lterm, DEREF_ALWAYS);
+   rterm = TBInsertOpt(eq->bank, eq->rterm, DEREF_ALWAYS);
+
+   handle = EqnAlloc(lterm, rterm, eq->bank, false); /* Properties will be
+						    taken care of
+						    later! */
+   handle->properties = eq->properties;
+   EqnDelProp(handle, EPMaxIsUpToDate);
+   EqnDelProp(handle, EPIsOriented);
+
+   return handle;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: EqnCopyDisjoint()
+//
+//   Copy an equation into the same term bank, but with dijoint
+//   (odd->even or vice versa) variable.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+Eqn_p EqnCopyDisjoint(Eqn_p eq)
+{
+   Eqn_p  handle;
+   Term_p lterm, rterm;
+
+   lterm = TBInsertDisjoint(eq->bank, eq->lterm);
+   rterm = TBInsertDisjoint(eq->bank, eq->rterm);
+
+   handle = EqnAlloc(lterm, rterm, eq->bank, false); /* Properties will be
+						    taken care of
+						    later! */
+   handle->properties = eq->properties;
+   EqnDelProp(handle, EPMaxIsUpToDate);
+   EqnDelProp(handle, EPIsOriented);
+
+   return handle;
+}
+
+
 
 
 /*-----------------------------------------------------------------------

@@ -650,6 +650,103 @@ Term_p TBInsertInstantiated(TB_p bank, Term_p term)
 }
 
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: TBInsertOpt()
+//
+//   Insert term into bank under the assumption that it it already is
+//   in the bank (except possibly for variables appearing as
+//   bindings). This allows us to just return term for ground terms.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes term bank.
+//
+/----------------------------------------------------------------------*/
+
+Term_p TBInsertOpt(TB_p bank, Term_p term, DerefType deref)
+{
+   int    i;
+   Term_p t;
+
+   assert(term);
+
+   term = TermDeref(term, &deref);
+
+   if(TermIsGround(term))
+   {
+      return term;
+   }
+   
+   t = TermEquivCellAlloc(term, bank->vars); /* This is an unshared
+						term cell at the
+						moment, */
+   if(!TermIsVar(t))
+   {
+      assert(SysDateIsCreationDate(t->rw_data.nf_date[0]));
+      assert(SysDateIsCreationDate(t->rw_data.nf_date[1]));
+      
+      for(i=0; i<t->arity; i++)
+      {
+	 t->args[i] = TBInsertOpt(bank, t->args[i], deref);
+      }
+      t = tb_termtop_insert(bank, t);
+   }
+   return t;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TBInsertDisjoint()
+//
+//   Create a copy of (uninstantiated) term with disjoint
+//   variables. This assumes that all variables in term are odd or
+//   even, the returned copy will have variable ids shifted by -1.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes bank.
+//
+/----------------------------------------------------------------------*/
+
+Term_p  TBInsertDisjoint(TB_p bank, Term_p term)
+{
+   int    i;
+   Term_p t;
+
+   assert(term);
+
+
+   if(TermIsGround(term))
+   {
+      return term;
+   }
+
+   if(TermIsVar(term))
+   {
+      t = VarBankFCodeAssertAlloc(bank->vars, term->f_code+1);
+   }
+   else
+   {
+      t = TermEquivCellAlloc(term, bank->vars); /* This is an unshared
+                                                   term cell at the
+                                                   moment, */
+      assert(SysDateIsCreationDate(t->rw_data.nf_date[0]));
+      assert(SysDateIsCreationDate(t->rw_data.nf_date[1]));
+      
+      for(i=0; i<t->arity; i++)
+      {
+	 t->args[i] = TBInsertDisjoint(bank, t->args[i]);
+      }
+      t = tb_termtop_insert(bank, t);
+   }
+   return t;
+}
+
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: TBTermTopInsert()

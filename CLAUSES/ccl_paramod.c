@@ -231,7 +231,7 @@ Eqn_p  EqnOrderedParamod(TB_p bank, OCB_p ocb, ClausePos_p from,
    assert(EqnIsPositive(from->literal));
    assert(TermPosIsTopPos(from->pos));
    assert(into->side == LeftSide || !EqnIsOriented(into->literal));   
-   assert(from->literal->bank != into->literal->bank);
+   //assert(from->literal->bank != into->literal->bank);
    
    lside = ClausePosGetSide(into);
    rside = ClausePosGetOtherSide(into);
@@ -245,7 +245,6 @@ Eqn_p  EqnOrderedParamod(TB_p bank, OCB_p ocb, ClausePos_p from,
 	 && TOGreater(ocb, rside, lside, DEREF_ALWAYS, DEREF_ALWAYS))
       {
 	 SubstBacktrackToPos(subst, oldstate);
-	 /* TBDelete(bank, new_lside); Left to GC */
       }
       else
       {
@@ -356,7 +355,7 @@ Clause_p ClauseOrderedParamod(TB_p bank, OCB_p ocb, ClausePos_p from,
 //
 // Global Variables: - (but reads term property TPPotentialParamod)
 //
-// Side Effects    : Memory operations
+// Side Effects    : Memory operations, changes fresh variable counter
 //
 /----------------------------------------------------------------------*/
 
@@ -705,7 +704,7 @@ Term_p ClausePosFirstParamodPair(Clause_p from, ClausePos_p
 //
 // Function:  ClausePosNextParamodPair()
 //
-//   Given two clause position, compute the next possible
+//   Given two clause positions, compute the next possible
 //   paramod-position from a literal in from into a literal in
 //   into. Return term paramodualated into, or NULL if no position
 //   exists.

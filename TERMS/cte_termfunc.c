@@ -192,13 +192,13 @@ void VarPrint(FILE* out, FunCode var)
    
    assert(var<0);
    
-   id = 'Y';
+   id = 'X';
    if(var%2)
    {
-      id = 'X';
+      id = 'Y';
    }
 
-   fprintf(out, "%c%ld", id, -(var/2));
+   fprintf(out, "%c%ld", id, -((var-1)/2));
 }
 
 

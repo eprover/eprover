@@ -145,7 +145,41 @@ static bool term_query_var_prop(Term_p term, TermProperties query,
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: clause_copy_meta()
+//
+//   Return a copy of the clause cell, but without literals.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
 
+Clause_p clause_copy_meta(Clause_p clause)
+{
+   Clause_p handle = ClauseCellAlloc();
+
+   handle->ident       = clause->ident;
+   handle->neg_lit_no  = clause->neg_lit_no;
+   handle->pos_lit_no  = clause->pos_lit_no;
+   handle->evaluations = NULL;
+   handle->set         = NULL;
+   handle->properties  = clause->properties;
+   handle->info        = NULL;
+   handle->create_date = clause->create_date;
+   handle->date        = clause->date;
+   handle->proof_depth = clause->proof_depth;
+   handle->proof_size  = clause->proof_size;
+   handle->children    = NULL;
+   handle->parent1     = NULL;
+   handle->parent2     = NULL;
+   handle->pred        = NULL;
+   handle->succ        = NULL;
+
+   return handle;
+}
 
 
 /*---------------------------------------------------------------------*/
@@ -917,25 +951,53 @@ EqnSide ClauseIsEqDefinition(Clause_p clause, int min_arity)
 
 Clause_p ClauseCopy(Clause_p clause, TB_p bank)
 {
-   Clause_p handle = ClauseCellAlloc();
+   Clause_p handle = clause_copy_meta(clause);
 
-   handle->literals    = EqnListCopy(clause->literals, bank);
-   handle->ident       = clause->ident;
-   handle->neg_lit_no  = clause->neg_lit_no;
-   handle->pos_lit_no  = clause->pos_lit_no;
-   handle->evaluations = NULL;
-   handle->set         = NULL;
-   handle->properties  = clause->properties;
-   handle->info        = NULL;
-   handle->create_date = clause->create_date;
-   handle->date        = clause->date;
-   handle->proof_depth = clause->proof_depth;
-   handle->proof_size  = clause->proof_size;
-   handle->children    = NULL;
-   handle->parent1     = NULL;
-   handle->parent2     = NULL;
-   handle->pred        = NULL;
-   handle->succ        = NULL;
+   handle->literals = EqnListCopy(clause->literals, bank);
+
+   return handle;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseCopyOpt()
+//
+//   Copy a (possibly instantiated) clause using the "same term bank"
+//   optimizations. 
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+Clause_p ClauseCopyOpt(Clause_p clause)
+{
+   Clause_p handle = clause_copy_meta(clause);
+
+   handle->literals = EqnListCopyOpt(clause->literals);
+
+   return handle;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseCopyDisjoint()
+//
+//   Create a variable-disjoint copy of clause.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+Clause_p ClauseCopyDisjoint(Clause_p clause)
+{
+   Clause_p handle = clause_copy_meta(clause);
+
+   handle->literals = EqnListCopyDisjoint(clause->literals);
 
    return handle;
 }

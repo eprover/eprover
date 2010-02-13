@@ -106,11 +106,6 @@ typedef struct
    struct {
       struct termcell*   replace;         /* ...otherwise, it has been
                                              rewritten to this term */
-#ifdef REWORK_LATER
-      struct clause_cell* demod;          /* ...using this clause (if
-                                             NULL, at least one
-                                             subterm has changed)*/
-#endif 
       long               demod_id;        /* 0 means subterm! */
    }rw_desc;
 }RewriteState;

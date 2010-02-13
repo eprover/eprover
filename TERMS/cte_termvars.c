@@ -285,6 +285,10 @@ Term_p VarBankFCodeAssertAlloc(VarBank_p bank, FunCode f_code)
 //   fresh if VarBankFCodeAssertAlloc() calls are not mixed with
 //   VarBankGetFreshVar() calls.
 //
+//   As of 2010-02-10 this will only return even numbered variables -
+//   odd ones are reserved to create clause copies that are
+//   guaranteed to be variable-disjoint.
+//
 // Global Variables: 
 //
 // Side Effects    : 
@@ -294,8 +298,10 @@ Term_p VarBankFCodeAssertAlloc(VarBank_p bank, FunCode f_code)
 Term_p  VarBankGetFreshVar(VarBank_p bank)
 {
    Term_p var;
+
+   bank->v_count+=2;
    
-   var = VarBankFCodeAssertAlloc(bank, -(++(bank->v_count)));   
+   var = VarBankFCodeAssertAlloc(bank, -bank->v_count);   
    assert(var);
    return var;
 }

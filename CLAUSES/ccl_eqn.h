@@ -215,6 +215,8 @@ Eqn_p   EqnCopyRepl(Eqn_p eq, TB_p bank, Term_p old, Term_p repl);
 #define EqnSkolemSubst(handle, subst, sig)\
         SubstSkolemizeTerm((handle)->lterm, (subst), (sig));\
         SubstSkolemizeTerm((handle)->rterm, (subst), (sig))
+Eqn_p   EqnCopyOpt(Eqn_p eq);
+Eqn_p   EqnCopyDisjoint(Eqn_p eq);
 
 #define EqnIsTrivial(eq, EqualTest) \
         EqualTest((eq)->lterm, (eq)->rterm)
