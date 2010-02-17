@@ -732,7 +732,7 @@ OptCell opts[] =
     't', "term-ordering",
     ReqArg, NULL,
     "Select an ordering type (currently Auto, LPO, LPO4, KBO or "
-    "KBO1). -tAuto is suggested, in particular with -xAuto. KBO and"
+    "KBO6). -tAuto is suggested, in particular with -xAuto. KBO and"
     " KBO1 are different implementations of the same ordering, KBO is"
     " usually faster and has had more testing. Similarly, LPO4 is an "
     "new, equivalent but superior implementation of LPO."},
@@ -1740,6 +1740,10 @@ CLState_p process_options(int argc, char* argv[])
 	    else if(strcmp(arg, "KBO")==0)
 	    {
 	       h_parms->ordertype = KBO;
+            }
+	    else if(strcmp(arg, "KBO6")==0)
+	    {
+	       h_parms->ordertype = KBO6;
 	    }
 	    else
 	    {

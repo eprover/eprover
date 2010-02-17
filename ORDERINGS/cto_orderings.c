@@ -113,6 +113,9 @@ bool TOGreater(OCB_p ocb, Term_p s, Term_p t, DerefType deref_s,
    case KBO:
 	 res = KBOGreater(ocb, s, t, deref_s, deref_t); 
 	 break;
+   case KBO6:
+	 res = KBO6Greater(ocb, s, t, deref_s, deref_t); 
+	 break;
    default:
 	 assert(false);
 	 break;
@@ -144,10 +147,10 @@ CompareResult TOCompare(OCB_p ocb, Term_p s, Term_p t, DerefType deref_s,
    assert(t);
 
    /* printf("TOCompare...\n");
-   TermPrint(stdout, s, ocb->sig, deref_s);
-   printf(" -|- ");
-   TermPrint(stdout, t, ocb->sig, deref_t);
-   printf("\n");*/
+      TermPrint(stdout, s, ocb->sig, deref_s);
+      printf(" -|- ");
+      TermPrint(stdout, t, ocb->sig, deref_t);
+      printf("\n"); */
 
    switch(ocb->type)
    {
@@ -188,11 +191,14 @@ CompareResult TOCompare(OCB_p ocb, Term_p s, Term_p t, DerefType deref_s,
    case KBO:
 	 res = KBOCompare(ocb, s, t, deref_s, deref_t);
 	 break;
+   case KBO6:
+	 res = KBO6Compare(ocb, s, t, deref_s, deref_t);
+	 break;
    default:
 	 assert(false);
 	 break;
    }
-   /* printf("...TOCompare\n"); */
+   /* printf("...TOCompare (%d)\n", res);  */
    return res;
 }
 

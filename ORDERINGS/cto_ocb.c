@@ -36,6 +36,7 @@ char* TONames[]=
    "AutoDev",
    "Optimize",
    "KBO",
+   "KBO6",
    "LPO",
    "LPOCopy",
    "LPO4",
@@ -165,11 +166,11 @@ OCB_p OCBAlloc(TermOrdering type, bool prec_by_weight, Sig_p sig)
    handle->sig_size = sig->f_count;
    handle->statestack = PStackAlloc();
    handle->var_weight = 1;
-   handle->no_lit_cmp = false;
-   handle->cmp_cache = NULL;
+   handle->no_lit_cmp = false;   
    switch(type)
    {
    case KBO:
+   case KBO6:
 	 handle->weights    = SizeMalloc(sizeof(long)*(handle->sig_size+1));
 	 alloc_precedence(handle, prec_by_weight);
 	 break;
@@ -207,6 +208,7 @@ OCB_p OCBAlloc(TermOrdering type, bool prec_by_weight, Sig_p sig)
 	 }
       }
    }
+   handle->kbobalance = KBOLinAlloc();
    return handle;
 }
 
@@ -227,11 +229,10 @@ OCB_p OCBAlloc(TermOrdering type, bool prec_by_weight, Sig_p sig)
 void OCBFree(OCB_p junk)
 {
    assert(junk);
-   assert(junk->cmp_cache == NULL);
 
    if(junk->weights)
    {
-      assert(junk->type == KBO);
+      assert(junk->type == KBO || junk->type==KBO6);
       SizeFree(junk->weights, sizeof(long)*(junk->sig_size+1));
       junk->weights = NULL;
    }
@@ -239,6 +240,7 @@ void OCBFree(OCB_p junk)
    {
       assert(!junk->prec_weights);
       assert(junk->type == KBO || 
+             junk->type == KBO6 || 
              junk->type == LPO || 
              junk->type == LPOCopy || 
              junk->type == LPO4 || 
@@ -252,6 +254,7 @@ void OCBFree(OCB_p junk)
    {
       assert(!junk->precedence);
       assert(junk->type == KBO || 
+             junk->type == KBO6 || 
              junk->type == LPO ||
              junk->type == LPOCopy ||
              junk->type == LPO4 ||
@@ -261,6 +264,7 @@ void OCBFree(OCB_p junk)
       junk->prec_weights = NULL;
    }
    PStackFree(junk->statestack);
+   KBOLinFree(junk->kbobalance);
    OCBCellFree(junk);
 }
 

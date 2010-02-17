@@ -26,7 +26,7 @@ Changes
 #define CTO_OCB
 
 #include <cte_termbanks.h>
-#include <cto_cmpcache.h>
+#include <cto_kbodata.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -43,6 +43,7 @@ typedef enum
    AUTODEV,
    OPTIMIZE_AX,
    KBO,
+   KBO6,
    LPO,
    LPOCopy,
    LPO4,
@@ -70,7 +71,7 @@ typedef struct ocb_cell
 				  uncomparable (useful for SOS
 				  strategy) */
    PStack_p       statestack;  /* Contains backtrack information */
-   CmpCache_p     cmp_cache;   /* Cache for LPO, RPO and the like... */
+   KBOLin_p       kbobalance; 
 }OCBCell, *OCB_p;
 
 #define OCB_FUN_DEFAULT_WEIGHT 1

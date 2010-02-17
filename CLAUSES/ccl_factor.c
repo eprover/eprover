@@ -152,8 +152,8 @@ Clause_p ComputeOrderedFactor(TB_p bank, OCB_p ocb, ClausePos_p pos1,
       {
 	 NormSubstEqnListExcept(pos1->clause->literals, pos2->literal,
 				subst, freshvars);
-	 new_literals = EqnListCopyExcept(pos1->clause->literals,
-					  pos2->literal, bank);
+	 new_literals = EqnListCopyOptExcept(pos1->clause->literals,
+                                             pos2->literal);
 	 EqnListRemoveResolved(&new_literals);
 	 EqnListRemoveDuplicates(new_literals, TBTermEqual);
 	 new_clause = ClauseAlloc(new_literals);	 
@@ -298,8 +298,8 @@ Clause_p ComputeEqualityFactor(TB_p bank, OCB_p ocb, ClausePos_p pos1,
 				     ClausePosGetOtherSide(pos2),
 				     DEREF_ALWAYS);
 	 new_condition = EqnAlloc(new_lside, new_rside, bank, false);
-	 new_literals = EqnListCopyExcept(pos1->clause->literals,
-					  pos1->literal, bank);
+	 new_literals = EqnListCopyOptExcept(pos1->clause->literals,
+					  pos1->literal);
 	 EqnListInsertFirst(&new_literals, new_condition);
 	 EqnListRemoveResolved(&new_literals);
 	 EqnListRemoveDuplicates(new_literals, TBTermEqual);

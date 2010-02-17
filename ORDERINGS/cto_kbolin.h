@@ -1,34 +1,33 @@
 /*-----------------------------------------------------------------------
 
-File  : cto_orderings.h
+File  : cto_kbolin.h
 
 Author: Stephan Schulz
 
 Contents
  
-  Generic Interface to the term comparison routines.
+  Definitions for implementing a linear time implementation of the
+  Knuth-Bendix ordering. The implementation is based in the ideas
+  presented in [Loechner:JAR-2006] (Bernd Loechner, "Things to Know
+  when Implementing KBO", JAR 36(4):289-310, 2006.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 2010 by the author.
   This code is released under the GNU General Public Licence.
   See the file COPYING in the main CLIB directory for details.
   Run "eprover -h" for contact information.
 
 Changes
 
-<1> Mon May  4 23:24:41 MET DST 1998
-    New
+<1> Mon Feb 15 14:41:04 EET 2010
+    New (from cto_kbo.h)
 
 -----------------------------------------------------------------------*/
 
-#ifndef CTO_ORDERINGS
+#ifndef CTO_KBOLIN
 
-#define CTO_ORDERINGS
+#define CTO_KBOLIN
 
-#include <cto_lpo.h>
-#include <cto_lpo_debug.h>
-/* #include <cto_rpo.h> */
-#include <cto_kbo.h>
-#include <cto_kbolin.h>
+#include <cto_ocb.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -36,26 +35,28 @@ Changes
 /*---------------------------------------------------------------------*/
 
 
-
-
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+bool          KBO6Greater(OCB_p ocb, Term_p s, Term_p t, DerefType
+                          deref_s, DerefType deref_t);
 
-bool          TOGreater(OCB_p ocb, Term_p s, Term_p t, DerefType
-			deref_s, DerefType deref_t); 
-CompareResult TOCompare(OCB_p ocb, Term_p s, Term_p t, DerefType
-			deref_s, DerefType deref_t);
-
-CompareResult TOCompareSymbolParse(Scanner_p in);
-PStackPointer TOSymbolComparisonChainParse(Scanner_p in, OCB_p ocb);
-PStackPointer TOPrecedenceParse(Scanner_p in, OCB_p ocb);
-void          TOSymbolWeightParse(Scanner_p in, OCB_p ocb);
-long          TOWeightsParse(Scanner_p in, OCB_p ocb);
+CompareResult KBO6Compare(OCB_p ocb, Term_p t1, Term_p t2,
+                          DerefType deref_t1, DerefType deref_t2);
 
 #endif
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
+
+
+
+
+
+
+
+
+
+

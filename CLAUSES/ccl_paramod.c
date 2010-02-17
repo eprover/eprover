@@ -318,10 +318,10 @@ Clause_p ClauseOrderedParamod(TB_p bank, OCB_p ocb, ClausePos_p from,
 				subst, freshvars);
 	 new_literals->next = NULL;
 	 
-	 into_copy = EqnListCopyExcept(into->clause->literals,
-				       into->literal, bank);
-	 from_copy = EqnListCopyExcept(from->clause->literals,
-				       from->literal, bank);
+	 into_copy = EqnListCopyOptExcept(into->clause->literals,
+				       into->literal);
+	 from_copy = EqnListCopyOptExcept(from->clause->literals,
+				       from->literal);
 
 	 EqnListDelProp(into_copy, EPFromClauseLit);         
 	 EqnListSetProp(from_copy, EPFromClauseLit);         
@@ -444,8 +444,8 @@ Clause_p ClauseOrderedSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
       }
       else
       {
-         from_copy = EqnListCopyExcept(from->clause->literals,
-                                       from->literal, bank);
+         from_copy = EqnListCopyOptExcept(from->clause->literals,
+                                          from->literal);
          if(EqnListFindTrue(into_copy))
          {
             EqnListFree(into_copy);

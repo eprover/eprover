@@ -691,6 +691,15 @@ OCB_p  TOCreateOrdering(ProofState_p state, OrderParms_p params,
 			   params->to_weight_gen,
 			   params->to_const_weight);
 	 break;
+   case KBO6:
+	 handle = OCBAlloc(KBO6, prec_by_weight, state->signature);
+	 TOGeneratePrecedence(handle, state->axioms, pre_precedence,
+			      params->to_prec_gen); 
+	 TOGenerateWeights(handle, state->axioms,
+                           pre_weights,
+			   params->to_weight_gen,
+			   params->to_const_weight);
+	 break;
    case RPO:
 	 assert(false && "RPO not yet implemented!");
 	 handle = NULL;

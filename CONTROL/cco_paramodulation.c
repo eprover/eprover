@@ -39,6 +39,19 @@ Changes
 /*---------------------------------------------------------------------*/
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: variable_paramod()
+//
+//   Perform paramodulation or simulated paramodulation as
+//   requested. Return result (if any)
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
 Clause_p variable_paramod(TB_p bank, OCB_p ocb, ClausePos_p from,
                           ClausePos_p into, VarBank_p freshvars, 
                           ParamodulationType pm_type, InfType *inf)
@@ -168,7 +181,7 @@ long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
    }
    /* Paramod clause into with - no top positions this time ;-) */
    
-   if((parent_alias==with)&&ClauseIsDemodulator(parent_alias))
+   if(parent_alias==with)
    {
       /* Both clauses are identical, i.e. both cases are
 	 symmetric. Ergo do nothing... */

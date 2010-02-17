@@ -53,12 +53,12 @@ typedef struct kbo_lin_cell
 /*---------------------------------------------------------------------*/
 
 
-#define KBOLinCellAlloc()    (Kbolincell*)SizeMalloc(sizeof(KBOLinCell))
+#define KBOLinCellAlloc()    (KBOLinCell*)SizeMalloc(sizeof(KBOLinCell))
 #define KBOLinCellFree(junk) SizeFree(junk, sizeof(KBOLinCell))
 
 KBOLin_p KBOLinAlloc();
 void     KBOLinFree(KBOLin_p junk);
-void     KBOLinReset();
+void     KBOLinReset(KBOLin_p kbobal);
 
 
 #endif

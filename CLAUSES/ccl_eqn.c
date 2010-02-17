@@ -1105,8 +1105,6 @@ Eqn_p EqnCopyDisjoint(Eqn_p eq)
 						    taken care of
 						    later! */
    handle->properties = eq->properties;
-   EqnDelProp(handle, EPMaxIsUpToDate);
-   EqnDelProp(handle, EPIsOriented);
 
    return handle;
 }
