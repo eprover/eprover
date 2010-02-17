@@ -356,12 +356,7 @@ void FIndexRemovePLFormula(FIndex_p index,  PList_p lformula)
    long i;
    FunCode f;
 
-   // WFormulaPrint(stdout, lformula->key.p_val, true);
-   // printf("\n");
-   
    WFormulaReturnFCodes(lformula->key.p_val, f_codes);
-   // printf("Found %ld symbols\n", PStackGetSP(f_codes));
-
 
    for(i=0; i<PStackGetSP(f_codes); i++)
    {
