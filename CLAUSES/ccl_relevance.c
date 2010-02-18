@@ -126,11 +126,9 @@ void extract_new_core(Relevance_p reldata)
    while(!PStackEmpty(reldata->new_codes))
    {
       f = PStackPopInt(reldata->new_codes);
-      // printf("Fcode: %ld\n", f);
 
       while((root = PDArrayElementP(reldata->clauses_index->index, f)))
       {
-         // printf("Clauses\n");
          entry = root->key;         
          FIndexRemovePLClause(reldata->clauses_index, entry);
          PListExtract(entry);
@@ -138,7 +136,6 @@ void extract_new_core(Relevance_p reldata)
       }
       while((root = PDArrayElementP(reldata->formulas_index->index, f)))
       {
-         // printf("Formulae %p\n", root);
          entry = root->key;
          FIndexRemovePLFormula(reldata->formulas_index, entry);
          PListExtract(entry);

@@ -38,7 +38,8 @@ CLAUSE_LIB = ccl_neweval.o ccl_eqn.o ccl_eqnlist.o \
 	     ccl_tformulae.o ccl_formula_wrapper.o ccl_formulasets.o \
              ccl_tcnf.o \
              ccl_propclauses.o\
-             ccl_tautologies.o ccl_clausepos.o ccl_pdtrees.o ccl_freqvectors.o \
+             ccl_tautologies.o ccl_clausepos.o ccl_clausecpos.o \
+             ccl_pdtrees.o ccl_freqvectors.o \
              ccl_fcvindexing.o ccl_clausesets.o ccl_unfold_defs.o\
              ccl_clausefunc.o ccl_formulafunc.o ccl_groundconstr.o\
              ccl_grounding.o ccl_g_lithash.o ccl_axiomsorter.o \
