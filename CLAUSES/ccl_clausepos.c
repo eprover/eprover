@@ -45,6 +45,37 @@ Changes
 /*---------------------------------------------------------------------*/
 
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClausePosPrint()
+//
+//   Print a clause position.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void ClausePosPrint(FILE* out, ClausePos_p pos)
+{
+   long i = 0;
+   Eqn_p handle;
+   
+   for(handle=pos->clause->literals; 
+       handle!=pos->literal; 
+       handle=handle->next)
+   {
+      i++;
+   }
+   fprintf(out, "%ld.%ld.%c.", pos->clause->ident, i, 
+           pos->side==RightSide?'R':'L');
+   TermPosPrint(out, pos->pos);
+}
+
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: ClausePosFindPosLiteral()

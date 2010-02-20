@@ -86,6 +86,35 @@ Term_p TermPosNextLIPosition(TermPos_p pos)
 
 /*-----------------------------------------------------------------------
 //
+// Function: TermPosPrint()
+//
+//   Print the position as a doted list.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void TermPosPrint(FILE* out, TermPos_p pos)
+{
+   PStackPointer i;
+
+   if(PStackEmpty(pos))
+   {
+      return;
+   }
+   fprintf(out, "%ld", PStackElementInt(pos, 1));
+   for(i=2; i<PStackGetSP(pos); i+=2)
+   {
+      fprintf(out, ".%ld\n", PStackElementInt(pos, i+1));
+   }                    
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: TermPosDebugPrint() 
 //
 //   Print a position in a term. If sig!=NULL, print terms, otherwise

@@ -21,7 +21,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "ccl_paramod.h"
-
+#include "ccl_clausecpos.h"
 
 
 /*---------------------------------------------------------------------*/
@@ -289,6 +289,31 @@ Clause_p ClauseOrderedParamod(TB_p bank, OCB_p ocb, ClausePos_p from,
    assert(!EqnIsOriented(from->literal)||(from->side==LeftSide));
    assert(!TermIsVar(ClausePosGetSide(from))||
 	  EqnIsEquLit(into->literal)||!TermPosIsTopPos(into->pos));
+
+   /*{
+      ClausePos_p tmp1, tmp2;
+      CompactPos  ctmp1, ctmp2;
+
+      printf("\nO:");
+      ClausePosPrint(stdout, from);
+      printf("(%ld)->(%ld)", PackClausePos(from),PackClausePos(into));
+      ClausePosPrint(stdout, into);
+      printf("\n");
+
+      ctmp1 = PackClausePos(from);
+      ctmp2 = PackClausePos(into);
+      tmp1 = UnpackClausePos(ctmp1, from->clause);
+      tmp2 = UnpackClausePos(ctmp2, into->clause);
+
+      printf("T:");
+      ClausePosPrint(stdout, tmp1);
+      printf("(%ld)->(%ld)", ctmp1, ctmp2);
+      ClausePosPrint(stdout, tmp2);
+      printf("\n");
+
+      ClausePosFree(tmp1);
+      ClausePosFree(tmp2);
+      }*/
 
    subst = SubstAlloc();
    VarBankResetVCount(freshvars);

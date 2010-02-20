@@ -42,6 +42,8 @@ typedef long CompactPos;
 
 CompactPos  PackTermPos(TermPos_p pos);
 CompactPos  PackClausePos(ClausePos_p pos);
+
+void        UnpackTermPos(TermPos_p pos, Term_p t, CompactPos cpos);
 void        UnpackClausePosInto(CompactPos cpos, Clause_p clause, 
                           ClausePos_p pos);
 ClausePos_p UnpackClausePos(CompactPos cpos, Clause_p clause);

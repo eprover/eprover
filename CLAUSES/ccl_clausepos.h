@@ -65,6 +65,7 @@ static __inline__ Term_p   ClausePosGetSide(ClausePos_p pos);
 static __inline__ Term_p   ClausePosGetOtherSide(ClausePos_p pos);
 static __inline__ Term_p   ClausePosGetSubterm(ClausePos_p pos);
       
+void     ClausePosPrint(FILE* out, ClausePos_p pos);
 Eqn_p    ClausePosFindPosLiteral(ClausePos_p pos, bool maximal);
 Eqn_p    ClausePosFindMaxLiteral(ClausePos_p pos, bool positive);
 Term_p   ClausePosFindFirstMaximalSide(ClausePos_p pos, bool positive);
