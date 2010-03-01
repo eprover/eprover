@@ -41,7 +41,7 @@ TERM_LIB = cte_simplesorts.o cte_functypes.o cte_signature.o\
            cte_varhash.o cte_termfunc.o cte_termtrees.o\
            cte_termcellstore.o\
            cte_termbanks.o cte_subst.o cte_termpos.o cte_termcpos.o \
-           cte_replace.o cte_match_mgu_1-1.o
+           cte_replace.o cte_match_mgu_1-1.o cte_idx_fp.o cte_fp_index.o
 
 
 $(LIB): $(TERM_LIB)
