@@ -49,7 +49,7 @@ typedef enum
 
 /* This is the main thing - a datatype that keeps key/value pairs and
  * allows inserting, updating, deleting, and ordered iteration. I
- * expect addtions to be frequent and deletions to be rare. Element
+ * expect additons to be frequent and deletions to be rare. Element
  * access and iteration are the most frequent operations. We want this
  * time- and space efficient for many different key distributions. */
 
