@@ -24,6 +24,7 @@ Changes
 
 #define CCO_PARAMODULATION
 
+#include <cte_idx_fp.h>
 #include <ccl_paramod.h>
 #include <che_proofcontrol.h>
 

@@ -147,8 +147,8 @@ long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
 
       paramod = variable_paramod(bank, ocb, pos1, pos2,
                                  freshvars, pm_type, &inf_type);
-
-      if(paramod)	    
+      
+      if(paramod)
       {
 	 paramod_count++;
 	 paramod->parent1 = parent_alias;	    
