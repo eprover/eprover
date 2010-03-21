@@ -30,7 +30,7 @@ Changes
 
 #include <cio_output.h>
 #include <ccl_def_handling.h>
-#include <ccl_formulasets.h>
+#include <ccl_garbage_coll.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -45,6 +45,8 @@ typedef struct proofstatecell
    TB_p              terms;
    TB_p              tmp_terms;
    VarBank_p         freshvars;
+   GCAdmin_p         gc_original_terms; 
+   GCAdmin_p         gc_terms; 
    FormulaSet_p      f_axioms;
    ClauseSet_p       axioms;
    ClauseSet_p       processed_pos_rules;
@@ -95,8 +97,8 @@ void         ProofStateInitWatchlist(ProofState_p state,
                                      IOFormat parse_format);
 void         ProofStateResetClauseSets(ProofState_p state, bool term_gc);
 void         ProofStateFree(ProofState_p junk);
-void         ProofStateGCMarkTerms(ProofState_p state);
-long         ProofStateGCSweepTerms(ProofState_p state);
+//void         ProofStateGCMarkTerms(ProofState_p state);
+//long         ProofStateGCSweepTerms(ProofState_p state);
 
 #define      ProofStateStorage(state) \
    (ClauseSetStorage((state)->unprocessed)+\

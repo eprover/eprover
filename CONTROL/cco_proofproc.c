@@ -1198,8 +1198,9 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
 		    " incomplete now)\n", tmp);
 	 }
 	 state->state_is_complete = false;
-	 ProofStateGCMarkTerms(state); 
-	 ProofStateGCSweepTerms(state);
+//	 ProofStateGCMarkTerms(state); 
+//	 ProofStateGCSweepTerms(state);
+         GCCollect(state->terms->gc);
 	 current_storage = ProofStateStorage(state);
 	 filter_base = MIN(filter_base, current_storage);
 	 filter_copies_base = MIN(filter_copies_base, current_storage);

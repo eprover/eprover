@@ -47,7 +47,9 @@ Changes
 typedef struct fp_index_cell
 {
    IntMap_p           f_alternatives;   /* Function symbols */
+   long               f_count;
    PDArray_p          v_alternatives;   /* Variables */
+   long               v_count;
    long               max_var;
    void               *payload;
 }FPIndexCell, *FPIndex_p;
@@ -72,7 +74,7 @@ void      FPIndexFree(FPIndex_p index, FPIndexFreeFun payload_free);
 
 FPIndex_p FPIndexFind(FPIndex_p root, IndexFP_p key);
 FPIndex_p FPIndexInsert(FPIndex_p root, IndexFP_p key);
-FPIndex_p FPIndexDelete(FPIndex_p root, IndexFP_p key);
+void      FPIndexDelete(FPIndex_p root, IndexFP_p key);
 
 long      FPIndexFindUnifiable(FPIndex_p root, IndexFP_p key, PStack_p res);
 long      FPIndexFindMatchable(FPIndex_p root, IndexFP_p key, PStack_p res);

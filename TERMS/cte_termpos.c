@@ -142,7 +142,7 @@ void TermPosDebugPrint(FILE* out, Sig_p sig, TermPos_p pos)
       }
       else
       {
-	 fprintf(out, "<%d>", (int)PStackElementP(pos, i));
+	 fprintf(out, "<%p>", PStackElementP(pos, i));
       }
       fprintf(out, " Subterm %ld\n", PStackElementInt(pos, i+1));
    }

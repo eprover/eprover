@@ -60,6 +60,8 @@ GCAdmin_p GCAdminAlloc(TB_p bank)
 {
    GCAdmin_p handle = GCAdminCellAlloc();
 
+   assert(bank);
+
    handle->bank         = bank;
    handle->clause_sets  = NULL;
    handle->formula_sets = NULL;
@@ -83,6 +85,8 @@ GCAdmin_p GCAdminAlloc(TB_p bank)
 
 void GCAdminFree(GCAdmin_p junk)
 {
+   assert(junk);
+
    PTreeFree(junk->clause_sets);
    PTreeFree(junk->formula_sets);
 
@@ -104,6 +108,8 @@ void GCAdminFree(GCAdmin_p junk)
 
 void GCRegisterFormulaSet(GCAdmin_p gc, FormulaSet_p set)
 {
+   assert(gc);
+   assert(set);
    PTreeStore(&(gc->formula_sets), set);
 }
 
@@ -122,7 +128,9 @@ void GCRegisterFormulaSet(GCAdmin_p gc, FormulaSet_p set)
 
 void GCRegisterClauseSet(GCAdmin_p gc, ClauseSet_p set)
 {
-   PTreeStore(&(gc->formula_sets), set);  
+   assert(gc);
+   assert(set);
+   PTreeStore(&(gc->clause_sets), set);  
 }
 
 
@@ -140,6 +148,8 @@ void GCRegisterClauseSet(GCAdmin_p gc, ClauseSet_p set)
 
 void GCDeregisterFormulaSet(GCAdmin_p gc, FormulaSet_p set)
 {
+   assert(gc);
+   assert(set);
    PTreeDeleteEntry(&(gc->formula_sets), set);
 }
 
@@ -157,7 +167,9 @@ void GCDeregisterFormulaSet(GCAdmin_p gc, FormulaSet_p set)
 
 void GCDeregisterClauseSet(GCAdmin_p gc, FormulaSet_p set)
 {
-   PTreeDeleteEntry(&(gc->formula_sets), set);
+   assert(gc);
+   assert(set);
+   PTreeDeleteEntry(&(gc->clause_sets), set);
 }
 
 /*-----------------------------------------------------------------------
@@ -177,20 +189,23 @@ long GCCollect(GCAdmin_p gc)
    PTree_p entry;
    PStack_p trav;
 
+   assert(gc);
+   assert(gc->bank);
+
    trav = PTreeTraverseInit(gc->clause_sets);
    while((entry = PTreeTraverseNext(trav)))
    {
       ClauseSetGCMarkTerms(entry->key);
    }
    PTreeTraverseExit(trav);
-   
+ 
    trav = PTreeTraverseInit(gc->formula_sets);
    while((entry = PTreeTraverseNext(trav)))
    {
       FormulaSetGCMarkCells(entry->key);
    }
    PTreeTraverseExit(trav);
-       
+
    return TBGCSweep(gc->bank);
 }
 

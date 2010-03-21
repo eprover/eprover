@@ -348,19 +348,17 @@ long FormulaSetSimplify(FormulaSet_p set, TB_p terms)
          if(TBNonVarTermNodes(terms)>gc_threshold)
          {
             assert(terms == handle->terms);
-            FormulaSetGCMarkCells(set);
-            TBGCSweep(handle->terms);
+            GCCollect(terms->gc);
             old_nodes = TBNonVarTermNodes(terms);
             gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
-         }
+         } 
       }
       handle = handle->succ;
    }
    if(TBNonVarTermNodes(terms)!=old_nodes)
    {
-      FormulaSetGCMarkCells(set);
-      TBGCSweep(terms);
-   }  
+      GCCollect(terms->gc);
+   }
    return res;
    
 }
@@ -390,6 +388,8 @@ long FormulaSetCNF(FormulaSet_p set, ClauseSet_p clauseset,
    FormulaSetSimplify(set, terms);
    TFormulaSetIntroduceDefs(set, terms);
 
+   FormulaSetDocInital(GlobalOut, OutputLevel, set);
+   ClauseSetDocInital(GlobalOut, OutputLevel, clauseset);
 
    while(!FormulaSetEmpty(set))
    {
@@ -412,7 +412,7 @@ long FormulaSetCNF(FormulaSet_p set, ClauseSet_p clauseset,
       FormulaSetGCMarkCells(set);
       ClauseSetGCMarkTerms(clauseset);
       TBGCSweep(terms);
-   }  
+   }
    return res;
 }
 

@@ -95,6 +95,19 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->watchlist           = NULL;
    handle->state_is_complete   = true;
    handle->definition_store    = DefStoreAlloc(handle->terms);
+   
+   handle->gc_original_terms   = GCAdminAlloc(handle->original_terms);
+   GCRegisterFormulaSet(handle->gc_original_terms, handle->f_axioms);
+   GCRegisterClauseSet(handle->gc_original_terms, handle->axioms);
+   handle->gc_terms            = GCAdminAlloc(handle->terms);
+   GCRegisterClauseSet(handle->gc_terms, handle->processed_pos_rules);
+   GCRegisterClauseSet(handle->gc_terms, handle->processed_pos_eqns);
+   GCRegisterClauseSet(handle->gc_terms, handle->processed_neg_units);
+   GCRegisterClauseSet(handle->gc_terms, handle->processed_non_units);
+   GCRegisterClauseSet(handle->gc_terms, handle->unprocessed);
+   GCRegisterClauseSet(handle->gc_terms, handle->tmp_store);
+   GCRegisterClauseSet(handle->gc_terms, handle->definition_store->def_clauses);
+
    handle->processed_count     = 0;
    handle->proc_trivial_count           = 0; 
    handle->proc_forward_subsumed_count  = 0; 
@@ -141,7 +154,8 @@ void ProofStateInitWatchlist(ProofState_p state, char* watchlist_filename,
    if(watchlist_filename)
    {
       state->watchlist = ClauseSetAlloc();
-      
+      GCRegisterClauseSet(state->gc_original_terms, state->watchlist);
+
       if(watchlist_filename != UseInlinedWatchList)
       {
          in = CreateScanner(StreamTypeFile, watchlist_filename, true, NULL);
@@ -211,8 +225,7 @@ void ProofStateResetClauseSets(ProofState_p state, bool term_gc)
    }
    if(term_gc)
    {
-      ProofStateGCMarkTerms(state);
-      ProofStateGCSweepTerms(state);
+      GCCollect(state->gc_terms);
    }
 }
 
@@ -240,10 +253,13 @@ void ProofStateFree(ProofState_p junk)
    ClauseSetFree(junk->processed_non_units);
    ClauseSetFree(junk->unprocessed);
    ClauseSetFree(junk->tmp_store);
+   GCAdminFree(junk->gc_terms);
+   GCAdminFree(junk->gc_original_terms);
    if(junk->watchlist)
    {
       ClauseSetFree(junk->watchlist);
    }
+
    DefStoreFree(junk->definition_store);
    junk->original_terms->sig = NULL;
    junk->terms->sig = NULL;
@@ -257,7 +273,7 @@ void ProofStateFree(ProofState_p junk)
    ProofStateCellFree(junk);
 }
 
-
+#ifdef NEVER_DEFINED
 /*-----------------------------------------------------------------------
 //
 // Function: ProofStateGCMarkTerms()
@@ -304,6 +320,8 @@ long ProofStateGCSweepTerms(ProofState_p state)
 {
    return TBGCSweep(state->terms);
 }
+
+#endif
 
 /*-----------------------------------------------------------------------
 //

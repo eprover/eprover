@@ -1330,7 +1330,7 @@ void ClausePCLPrint(FILE* out, Clause_p clause, bool fullterms)
       fprintf(out, "/* --- */");
    }
 #endif
-#define PCLPRINTDEGBUG
+/* #define PCLPRINTDEGBUG */
 #ifdef PCLPRINTDEGBUG
    if(clause->literals)
    {

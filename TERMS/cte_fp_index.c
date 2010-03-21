@@ -63,7 +63,9 @@ FPIndex_p FPIndexAlloc()
    FPIndex_p handle = FPIndexCellAlloc();
    
    handle->f_alternatives = NULL;
+   handle->f_count        = 0;
    handle->v_alternatives = NULL;
+   handle->v_count        = 0;
    handle->payload        = NULL;
 
    return handle;
@@ -199,6 +201,7 @@ FPIndex_p FPIndexInsert(FPIndex_p root, IndexFP_p key)
             root = FPIndexAlloc();
             PDArrayAssignP(res->v_alternatives, VAR_INDEX(current), root);
             res->max_var = MAX(res->max_var,  VAR_INDEX(current));
+            res->v_count++;
          }
          res = root;
       }
@@ -213,6 +216,7 @@ FPIndex_p FPIndexInsert(FPIndex_p root, IndexFP_p key)
          {
             root = FPIndexAlloc();
             IntMapAssign(res->f_alternatives, current, root);            
+            res->f_count++;
          }
          res = root;
       }
@@ -221,7 +225,61 @@ FPIndex_p FPIndexInsert(FPIndex_p root, IndexFP_p key)
 }
 
 
-FPIndex_p FPIndexDelete(FPIndex_p root, IndexFP_p key);
+/*-----------------------------------------------------------------------
+//
+// Function: FPIndexDelete()
+//
+//   Delete a node corresponding to a key. Assumes that payloads are
+//   already deleted!
+//
+// Global Variables: -
+//
+// Side Effects    : Changes index, memory operations
+//
+/----------------------------------------------------------------------*/
+
+void FPIndexDelete(FPIndex_p root, IndexFP_p key)
+{
+   long i, current;
+   FPIndex_p handle = root;
+   PStack_p stack = PStackAlloc();
+
+   for(i=1; i<key[0]; i++)
+   {
+      current = key[i];
+      PStackPushP(stack, handle);
+      PStackPushInt(stack, current);
+      if(current < 0)
+      {
+         if(!handle->v_alternatives)
+         {
+            handle = NULL;
+         }
+         else
+         {
+            handle = PDArrayElementP(handle->v_alternatives, VAR_INDEX(current));
+         }            
+      }
+      else
+      {
+         if(!handle->f_alternatives)
+         {
+            handle = NULL;
+         }
+         else
+         {
+            handle = IntMapGetVal(handle->f_alternatives, current);
+         }
+      }
+      if(!handle)
+      {  /* There is no node to delete */
+         return;
+      }
+   }
+   
+   
+   PStackFree(stack);
+}
 
 long      FPIndexFindUnifiable(FPIndex_p root, IndexFP_p key, PStack_p res);
 long      FPIndexFindMatchable(FPIndex_p root, IndexFP_p key, PStack_p res);

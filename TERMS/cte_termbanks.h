@@ -77,6 +77,11 @@ typedef struct tbcell
                                     instantiation. */
    unsigned long rewrite_steps;  /* How many calls to TBTermReplace? */
    TermCellStoreCell term_store; /* Here are the terms */
+   struct gc_admin_cell *gc;     /* Higher level code can register
+                                  * garbage collection information
+                                  * here. This is only a convenience
+                                  * link, memory needs to be managed
+                                  * elsewhere. */
 }TBCell, *TB_p;
    
 
