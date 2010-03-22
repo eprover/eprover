@@ -77,7 +77,7 @@ OCB_p generate_auto_ordering(ProofState_p state, SpecFeature_p spec)
    limits->ngu_few_limit        = 1;
    limits->ngu_many_limit       = 3;
 
-   oparms.ordertype       = KBO;
+   oparms.ordertype       = KBO6;
    oparms.to_const_weight = WConstNoSpecialWeight; 
    oparms.to_weight_gen   = WSelectMaximal;
    oparms.to_prec_gen     = PUnaryFirst;
@@ -92,7 +92,7 @@ OCB_p generate_auto_ordering(ProofState_p state, SpecFeature_p spec)
 	      TONames[oparms.ordertype]);
       fprintf(GlobalOut, "# Auto-mode selected ordering precedence scheme <%s>\n",
 	      TOGetPrecGenName(oparms.to_prec_gen));
-      if(oparms.ordertype == KBO)
+      if(oparms.ordertype == KBO || oparms.ordertype == KBO6)
       {
 	 fprintf(GlobalOut, "# Auto-mode selected weight ordering scheme <%s>\n",
 	         TOGetWeightGenName(oparms.to_weight_gen));
@@ -143,7 +143,7 @@ OCB_p generate_autocasc_ordering(ProofState_p state, SpecFeature_p spec)
    limits->ngu_few_limit        = 1;
    limits->ngu_many_limit       = 3;
 
-   oparms.ordertype       = KBO;
+   oparms.ordertype       = KBO6;
    oparms.to_const_weight = WConstNoSpecialWeight; 
    oparms.to_weight_gen   = WSelectMaximal;
    oparms.to_prec_gen     = PUnaryFirst;
@@ -158,7 +158,7 @@ OCB_p generate_autocasc_ordering(ProofState_p state, SpecFeature_p spec)
 	      TONames[oparms.ordertype]);
       fprintf(GlobalOut, "# Auto-mode selected ordering precedence scheme <%s>\n",
 	      TOGetPrecGenName(oparms.to_prec_gen));
-      if(oparms.ordertype == KBO)
+      if(oparms.ordertype == KBO || oparms.ordertype == KBO6)
       {
 	 fprintf(GlobalOut, "# Auto-mode selected weight ordering scheme <%s>\n",
 	         TOGetWeightGenName(oparms.to_weight_gen));
@@ -209,7 +209,7 @@ OCB_p generate_autodev_ordering(ProofState_p state, SpecFeature_p spec)
    limits->ngu_few_limit        = 1;
    limits->ngu_many_limit       = 3;
 
-   oparms.ordertype       = KBO;
+   oparms.ordertype       = KBO6;
    oparms.to_const_weight = WConstNoSpecialWeight; 
    oparms.to_weight_gen   = WSelectMaximal;
    oparms.to_prec_gen     = PUnaryFirst;
@@ -224,7 +224,7 @@ OCB_p generate_autodev_ordering(ProofState_p state, SpecFeature_p spec)
 	      TONames[oparms.ordertype]);
       fprintf(GlobalOut, "# Auto-mode (Dev) selected ordering precedence scheme <%s>\n",
 	      TOGetPrecGenName(oparms.to_prec_gen));
-      if(oparms.ordertype == KBO)
+      if(oparms.ordertype == KBO || oparms.ordertype == KBO6)
       {
 	 fprintf(GlobalOut, "# Auto-mode (Dev) selected weight ordering scheme <%s>\n",
 	         TOGetWeightGenName(oparms.to_weight_gen));
