@@ -38,7 +38,8 @@ static TokenRepCell token_print_rep[] =
    {SemIdent,     "Interpreted function/predicate name ('$name')"},
    {String,       "String enclosed in double quotes (\"\")"},
    {SQString,     "String enclosed in single quote ('')"},
-   {PosInt,       "Integer (sequence of digits)"},
+   {PosInt,       "Integer (sequence of decimal digits) "
+                  "convertable to an 'unsigned long'"},
    {OpenBracket,  "Opening bracket ('(')"},
    {CloseBracket, "Closing bracket (')')"},
    {OpenCurly,    "Opening curly brace ('{')"},
@@ -158,7 +159,9 @@ static void scan_ident(Scanner_p in)
 //
 // Function: void scan_int()
 //
-//   Scan an unsigned integer, i.e. a sequence of digits. 
+//   Scan an unsigned integer, i.e. a sequence of digits. If this
+//   cannot be parsed as an int, it will be interpreted as an
+//   identifier. 
 //
 // Global Variables: -
 //
@@ -171,7 +174,7 @@ static void scan_int(Scanner_p in)
 {
    AktToken(in)->tok = PosInt;
 
-   while(isdigit( CurrChar(in)))
+   while(isdigit(CurrChar(in)))
    {
       DStrAppendChar(AktToken(in)->literal, CurrChar(in));
       NextChar(in);
@@ -183,9 +186,7 @@ static void scan_int(Scanner_p in)
 
    if(errno)
    {
-      TmpErrno = errno;
-      
-      AktTokenError(in, "Cannot translate integer", true);
+      AktToken(in)->tok = Ident;
    }
 }
 
