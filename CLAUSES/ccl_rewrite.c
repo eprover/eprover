@@ -879,17 +879,17 @@ bool ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
       for(handle = clause->literals; handle; handle=handle->next)
       {
          pos.literal = handle;
-      tmp = eqn_li_normalform(desc, &pos, ClauseQueryProp(clause,CPLimitedRW));
-      if((tmp&MaxSide)
-         && EqnIsPositive(handle)
-         &&EqnIsMaximal(handle)
-         &&ClauseQueryProp(clause,CPLimitedRW))
-      {
-         ClauseDelProp(clause,CPLimitedRW); 
-         /* We need to try everything again...*/
+         tmp = eqn_li_normalform(desc, &pos, ClauseQueryProp(clause,CPLimitedRW));
+         if((tmp&MaxSide)
+            && EqnIsPositive(handle)
+            &&EqnIsMaximal(handle)
+            &&ClauseQueryProp(clause,CPLimitedRW))
+         {
+            ClauseDelProp(clause,CPLimitedRW); 
+            /* We need to try everything again...*/
          done = false;
-      }
-      res = res || tmp;
+         }
+         res = res || tmp;
       }
    }
    if(desc->sos_rewritten)
