@@ -57,6 +57,24 @@ Clause_p variable_paramod(TB_p bank, OCB_p ocb, ClausePos_p from,
                           ParamodulationType pm_type, InfType *inf)
 {
    Clause_p paramod = NULL;
+
+   /*
+   {
+      Term_p t = ClausePosGetSubterm(into);
+
+      IndexFP_p fp1 = IndexFP4Create(t);
+      IndexFP_p fp2 = IndexFP4AltCreate(t);
+      
+      printf("\n");
+      IndexFPPrint(stdout, fp1);          
+      printf(" = ");
+      IndexFPPrint(stdout, fp2);          
+      printf("\n");
+      
+      IndexFPFree(fp1);
+      IndexFPFree(fp2);
+   }
+   */
    
    switch(pm_type)
    {
