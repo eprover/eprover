@@ -39,7 +39,8 @@ static TokenRepCell token_print_rep[] =
    {String,       "String enclosed in double quotes (\"\")"},
    {SQString,     "String enclosed in single quote ('')"},
    {PosInt,       "Integer (sequence of decimal digits) "
-                  "convertable to an 'unsigned long'"},
+                  "convertable to an 'unsigned long'"}, 
+   /* May need LargePosInt here... */
    {OpenBracket,  "Opening bracket ('(')"},
    {CloseBracket, "Closing bracket (')')"},
    {OpenCurly,    "Opening curly brace ('{')"},
