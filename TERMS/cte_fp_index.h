@@ -47,14 +47,25 @@ Changes
 typedef struct fp_index_cell
 {
    IntMap_p           f_alternatives;   /* Function symbols */
-   long               f_count;
+   long               count;
    PDArray_p          v_alternatives;   /* Variables */
-   long               v_count;
    long               max_var;
    void               *payload;
+}FPTreeCell, *FPTree_p;
+
+
+typedef void (*FPTreeFreeFun)(void*);
+
+
+/* Wrapper for the index */
+
+typedef struct subterm_index_cell
+{
+   FPTree_p        index;
+   FPIndexFunction fp_fun;
+   FPTreeFreeFun   payload_free;
 }FPIndexCell, *FPIndex_p;
 
-typedef void (*FPIndexFreeFun)(void*);
 
 
 /*---------------------------------------------------------------------*/
@@ -65,19 +76,38 @@ typedef void (*FPIndexFreeFun)(void*);
 #define FPINDEX_VAR_GROW_ALT 4
 
 
+#define FPTreeCellAlloc() (FPTreeCell*)SizeMalloc(sizeof(FPTreeCell))
+#define FPTreeCellFree(junk)         SizeFree(junk, sizeof(FPTreeCell))
+
+
+FPTree_p FPTreeAlloc();
+void     FPTreeFree(FPTree_p index, FPTreeFreeFun payload_free);
+
+#define  FPTreeChildNo(icell) ((icell)->f_count+(icell)->v_count)
+
+FPTree_p FPTreeFind(FPTree_p root, IndexFP_p key);
+FPTree_p FPTreeInsert(FPTree_p root, IndexFP_p key);
+void     FPTreeDelete(FPTree_p root, IndexFP_p key);
+
+long     FPTreeFindUnifiable(FPTree_p root, IndexFP_p key, PStack_p collect);
+long     FPTreeFindMatchable(FPTree_p root, IndexFP_p key, PStack_p collect);
+
+
+
+
 #define FPIndexCellAlloc() (FPIndexCell*)SizeMalloc(sizeof(FPIndexCell))
 #define FPIndexCellFree(junk)         SizeFree(junk, sizeof(FPIndexCell))
 
 
-FPIndex_p FPIndexAlloc();
-void      FPIndexFree(FPIndex_p index, FPIndexFreeFun payload_free);
+FPIndex_p FPIndexAlloc(FPIndexFunction fp_fun, FPTreeFreeFun payload_free);
+void      FPIndexFree(FPIndex_p index);
 
-FPIndex_p FPIndexFind(FPIndex_p root, IndexFP_p key);
-FPIndex_p FPIndexInsert(FPIndex_p root, IndexFP_p key);
-void      FPIndexDelete(FPIndex_p root, IndexFP_p key);
+FPTree_p FPIndexFind(FPIndex_p index, Term_p term);
+FPTree_p  FPIndexInsert(FPIndex_p index, Term_p term);
+void      FPIndexDelete(FPIndex_p index, Term_p term);
 
-long      FPIndexFindUnifiable(FPIndex_p root, IndexFP_p key, PStack_p res);
-long      FPIndexFindMatchable(FPIndex_p root, IndexFP_p key, PStack_p res);
+long      FPIndexFindUnifiable(FPIndex_p index, Term_p term, PStack_p collect);
+long      FPIndexFindMatchable(FPIndex_p index, Term_p term, PStack_p collect);
 
 
 #endif
