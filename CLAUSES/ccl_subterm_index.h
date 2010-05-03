@@ -59,6 +59,8 @@ void         SubtermOccFree(SubtermOcc_p soc);
 
 int CmpSubtermCells(const void *soc1, const void *soc2);
 
+void         SubtermTreeFree(PTree_p root);
+
 SubtermOcc_p SubtermTreeInsertTerm(PTree_p *root, Term_p term);
 
 bool         SubtermTreeInsertTermOcc(PTree_p *root, Term_p term, 

@@ -53,7 +53,8 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-long term_collect_idx_subterms(Term_p term, PTree_p *rest, PTree_p *full, bool restricted)
+static long term_collect_idx_subterms(Term_p term, PTree_p *rest,
+                                      PTree_p *full, bool restricted) 
 {
    long res = 1;
    int i;
@@ -92,7 +93,7 @@ long term_collect_idx_subterms(Term_p term, PTree_p *rest, PTree_p *full, bool r
 //
 /----------------------------------------------------------------------*/
 
-long eqn_collect_idx_subterms(Eqn_p eqn, PTree_p *rest, PTree_p *full)
+static long eqn_collect_idx_subterms(Eqn_p eqn, PTree_p *rest, PTree_p *full)
 {
    long res = 0;
    bool restricted_rw = EqnIsMaximal(eqn) && EqnIsPositive(eqn) && EqnIsOriented(eqn);
@@ -103,6 +104,23 @@ long eqn_collect_idx_subterms(Eqn_p eqn, PTree_p *rest, PTree_p *full)
    return res;
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: subterm_occ_free_wrapper()
+//
+//   Wrapper of type ObjFreeFun.
+//
+// Global Variables: -
+//
+// Side Effects    : Via SubtermOccFree()
+//
+/----------------------------------------------------------------------*/
+
+static void subterm_occ_free_wrapper(void *junk)
+{
+   SubtermOccFree(junk);
+}
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -182,6 +200,23 @@ int CmpSubtermCells(const void *soc1, const void *soc2)
    return 0;
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: SubtermTreeFree()
+//
+//   Free a subterm tree.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+void SubtermTreeFree(PTree_p root)
+{
+   PObjTreeFree(root, subterm_occ_free_wrapper);
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -292,6 +327,12 @@ void SubtermTreeDeleteTermOcc(PTree_p *root, Term_p term,
    }
    SubtermOccFree(knode);   
 }
+
+
+
+
+
+
 
 
 
