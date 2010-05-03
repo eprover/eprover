@@ -551,30 +551,33 @@ IntMapIter_p IntMapIterAlloc(IntMap_p map, long lower_key, long upper_key)
    IntMapIter_p handle = IntMapIterCellAlloc();
 
    handle->map = map;
-   handle->lower_key = lower_key;
-   handle->upper_key = MIN(upper_key, map->max_key);
-
-   switch(map->type)
+   if(map)
    {
-   case IMEmpty:
-         break;
-   case IMSingle:
-         handle->admin_data.seen = true;
-         if((map->max_key >= lower_key) && (map->max_key <= upper_key))
-         {
-            handle->admin_data.seen = false;
+      handle->lower_key = lower_key;
+      handle->upper_key = MIN(upper_key, map->max_key);
+      
+      switch(map->type)
+      {
+      case IMEmpty:
+            break;
+      case IMSingle:
+            handle->admin_data.seen = true;
+            if((map->max_key >= lower_key) && (map->max_key <= upper_key))
+            {
+               handle->admin_data.seen = false;
          }
-         break;
-   case IMArray:
-         handle->admin_data.current = lower_key;
-         break;
-   case IMTree:
-         handle->admin_data.tree_iter = 
-            NumTreeLimitedTraverseInit(map->values.tree, lower_key);
-         break;
-   default:
-         assert(false && "Unknown IntMap type.");
-         break;
+            break;
+      case IMArray:
+            handle->admin_data.current = lower_key;
+            break;
+      case IMTree:
+            handle->admin_data.tree_iter = 
+               NumTreeLimitedTraverseInit(map->values.tree, lower_key);
+            break;
+      default:
+            assert(false && "Unknown IntMap type.");
+            break;
+      }
    }
    return handle;
 }
@@ -595,18 +598,21 @@ void IntMapIterFree(IntMapIter_p junk)
 {
    assert(junk);
 
-   switch(junk->map->type)
+   if(junk->map)
    {
-   case IMEmpty:
-   case IMSingle:
-   case IMArray:
+      switch(junk->map->type)
+      {
+      case IMEmpty:
+      case IMSingle:
+      case IMArray:
+            break;
+      case IMTree:
+            PStackFree(junk->admin_data.tree_iter);
          break;
-   case IMTree:
-         PStackFree(junk->admin_data.tree_iter);
-         break;
-   default:
-         assert(false && "Unknown IntMap type.");
-         break;
+      default:
+            assert(false && "Unknown IntMap type.");
+            break;
+      }
    }
    IntMapIterCellFree(junk);
 }
@@ -642,7 +648,6 @@ void IntMapDebugPrint(FILE* out, IntMap_p map)
 }
 
 
-long     IntMapRecFree(IntMap_p map, IntMapFreeFunc free_func);
 
 
 /*---------------------------------------------------------------------*/

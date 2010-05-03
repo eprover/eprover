@@ -298,7 +298,6 @@ PTree_p PTreeObjFindBinary(PTree_p root, void* key, ComparisonFunctionType
 //
 /----------------------------------------------------------------------*/
 
-
 PTree_p PTreeObjExtractEntry(PTree_p *root, void* key,
 			     ComparisonFunctionType cmpfun)
 {
@@ -416,6 +415,31 @@ void PTreeObjMerge(PTree_p *root, PTree_p add, ComparisonFunctionType
    } 
    PStackFree(stack);
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PObjTreeFree()
+//
+//   Free a PObjTree, including the objects.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+void PObjTreeFree(PTree_p root, ObjDelFun del_fun)
+{
+   if(root)
+   {
+      PObjTreeFree(root->lson, del_fun);
+      PObjTreeFree(root->rson, del_fun);
+      del_fun(root->key);
+      PTreeCellFree(root);
+   }
+}
+
 
 
 /*---------------------------------------------------------------------*/

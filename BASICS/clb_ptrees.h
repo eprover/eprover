@@ -72,7 +72,7 @@ typedef struct ptreecell
 #endif
 
 /* As I found out now, _if_ ptr_int is large enough
-   for this conversion, this is guaranteed to work! - actually* ist
+   for this conversion, this is guaranteed to work! - actually it's
    does not if the pointers are great enough to overflow. "Slow"
    inlined is fast enough and seems to work fine. */
 

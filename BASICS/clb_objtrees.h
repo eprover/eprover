@@ -11,7 +11,7 @@ Contents
   on objects (by a user-provided comparison function) instead of pointer
   comparisons.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2010 by the author.
   This code is released under the GNU General Public Licence.
   See the file COPYING in the main CLIB directory for details.
   Run "eprover -h" for contact information.
@@ -33,7 +33,7 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-
+typedef void (*ObjDelFun)(void *junk);
 
 
 /*---------------------------------------------------------------------*/
@@ -56,6 +56,8 @@ void*   PTreeObjExtractRootObject(PTree_p *root,
 				  ComparisonFunctionType cmpfun);
 void    PTreeObjMerge(PTree_p *root, PTree_p add,
 		      ComparisonFunctionType cmpfun);
+
+void    PObjTreeFree(PTree_p root, ObjDelFun del_fun);
 
 
 #endif

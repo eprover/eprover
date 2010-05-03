@@ -127,7 +127,6 @@ void         IntMapIterFree(IntMapIter_p junk);
 static __inline__ void* IntMapIterNext(IntMapIter_p iter, long *key);
 
 void     IntMapDebugPrint(FILE* out, IntMap_p map);
-long     IntMapRecFree(IntMap_p map, IntMapFreeFunc free_func);
 
 
 
@@ -159,6 +158,11 @@ static __inline__ void* IntMapIterNext(IntMapIter_p iter, long *key)
 
    assert(iter);
    assert(key);
+
+   if(!iter->map)
+   {
+      return NULL;
+   }
 
    switch(iter->map->type)
    {
