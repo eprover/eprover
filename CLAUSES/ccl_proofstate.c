@@ -69,37 +69,39 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
 {
    ProofState_p handle = ProofStateCellAlloc();
 
-   handle->signature           = SigAlloc();
+   handle->signature            = SigAlloc();
    SigInsertFOFCodes(handle->signature);
-   handle->original_symbols    = 0;
-   handle->original_terms      = TBAlloc(handle->signature);
-   handle->terms               = TBAlloc(handle->signature);
-   handle->tmp_terms           = TBAlloc(handle->signature);
-   handle->freshvars           = VarBankAlloc();
-   handle->f_axioms            = FormulaSetAlloc();
-   handle->axioms              = ClauseSetAlloc();
-   handle->processed_pos_rules = ClauseSetAlloc();
-   handle->processed_pos_eqns  = ClauseSetAlloc();
-   handle->processed_neg_units = ClauseSetAlloc();
-   handle->processed_non_units = ClauseSetAlloc();
-   handle->unprocessed         = ClauseSetAlloc();
-   handle->tmp_store           = ClauseSetAlloc();
+   handle->original_symbols     = 0;
+   handle->original_terms       = TBAlloc(handle->signature);
+   handle->terms                = TBAlloc(handle->signature);
+   handle->tmp_terms            = TBAlloc(handle->signature);
+   handle->freshvars            = VarBankAlloc();
+   handle->f_axioms             = FormulaSetAlloc();
+   handle->axioms               = ClauseSetAlloc();
+   handle->processed_pos_rules  = ClauseSetAlloc();
+   handle->processed_pos_eqns   = ClauseSetAlloc();
+   handle->processed_neg_units  = ClauseSetAlloc();
+   handle->processed_non_units  = ClauseSetAlloc();
+   handle->unprocessed          = ClauseSetAlloc();
+   handle->tmp_store            = ClauseSetAlloc();
+   GlobalIndicesReset(&(handle->gindices));
    handle->fvi_initialized     = false;
    handle->processed_pos_rules->demod_index = PDTreeAlloc();
    handle->processed_pos_eqns->demod_index  = PDTreeAlloc();
    handle->processed_neg_units->demod_index = PDTreeAlloc();
    handle->unprocessed->demod_index         = PDTreeAlloc();
-   handle->demods[0]           = handle->processed_pos_rules;
-   handle->demods[1]           = handle->processed_pos_eqns;
-   handle->demods[2]           = NULL;
-   handle->watchlist           = NULL;
-   handle->state_is_complete   = true;
-   handle->definition_store    = DefStoreAlloc(handle->terms);
+   handle->demods[0]            = handle->processed_pos_rules;
+   handle->demods[1]            = handle->processed_pos_eqns;
+   handle->demods[2]            = NULL;
+   handle->watchlist            = NULL;
+   GlobalIndicesReset(&(handle->wlindices));
+   handle->state_is_complete    = true;
+   handle->definition_store     = DefStoreAlloc(handle->terms);
    
-   handle->gc_original_terms   = GCAdminAlloc(handle->original_terms);
+   handle->gc_original_terms    = GCAdminAlloc(handle->original_terms);
    GCRegisterFormulaSet(handle->gc_original_terms, handle->f_axioms);
    GCRegisterClauseSet(handle->gc_original_terms, handle->axioms);
-   handle->gc_terms            = GCAdminAlloc(handle->terms);
+   handle->gc_terms             = GCAdminAlloc(handle->terms);
    GCRegisterClauseSet(handle->gc_terms, handle->processed_pos_rules);
    GCRegisterClauseSet(handle->gc_terms, handle->processed_pos_eqns);
    GCRegisterClauseSet(handle->gc_terms, handle->processed_neg_units);
@@ -108,7 +110,7 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    GCRegisterClauseSet(handle->gc_terms, handle->tmp_store);
    GCRegisterClauseSet(handle->gc_terms, handle->definition_store->def_clauses);
 
-   handle->processed_count     = 0;
+   handle->processed_count      = 0;
    handle->proc_trivial_count           = 0; 
    handle->proc_forward_subsumed_count  = 0; 
    handle->proc_non_trivial_count       = 0;
@@ -188,6 +190,7 @@ void ProofStateInitWatchlist(ProofState_p state, char* watchlist_filename,
          PStackFree(stack);
       }       
       ClauseSetSetProp(state->watchlist, CPWatchOnly);
+      GlobalIndicesInsertClauseSet(&(state->wlindices),state->watchlist);
       ClauseSetDocInital(GlobalOut, OutputLevel, state->watchlist);
       ClauseSetSortLiterals(state->watchlist, EqnSubsumeInverseCompareRef);
    } 
@@ -253,6 +256,10 @@ void ProofStateFree(ProofState_p junk)
    ClauseSetFree(junk->processed_non_units);
    ClauseSetFree(junk->unprocessed);
    ClauseSetFree(junk->tmp_store);
+   if(junk->gindices.bw_rw_index)
+   {
+      FPIndexFree(junk->gindices.bw_rw_index);
+   }
    GCAdminFree(junk->gc_terms);
    GCAdminFree(junk->gc_original_terms);
    if(junk->watchlist)

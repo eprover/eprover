@@ -138,6 +138,10 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
 
    handle->unproc_simplify               = NoUnitSimplify;
 
+   handle->use_bw_rw_index               = true;
+   handle->use_pm_into_index             = false;
+   handle->use_pm_from_index             = false;
+
    handle->filter_limit                  = DEFAULT_FILTER_LIMIT;
    handle->filter_copies_limit           = DEFAULT_FILTER_COPIES_LIMIT;
    handle->reweight_limit                = DEFAULT_REWEIGHT_INTERVAL;

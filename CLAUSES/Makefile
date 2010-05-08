@@ -36,7 +36,7 @@ include ../Makefile.services
 CLAUSE_LIB = ccl_neweval.o ccl_eqn.o ccl_eqnlist.o \
              ccl_clauseinfo.o ccl_clauses.o\
 	     ccl_tformulae.o ccl_formula_wrapper.o ccl_formulasets.o \
- 	     ccl_garbage_coll.o ccl_tcnf.o \
+	     ccl_garbage_coll.o ccl_tcnf.o \
              ccl_propclauses.o\
              ccl_tautologies.o ccl_clausepos.o ccl_clausecpos.o \
              ccl_pdtrees.o ccl_freqvectors.o \
@@ -46,7 +46,7 @@ CLAUSE_LIB = ccl_neweval.o ccl_eqn.o ccl_eqnlist.o \
 	     ccl_findex.o ccl_subterm_tree.o ccl_subterm_index.o ccl_relevance.o\
              ccl_inferencedoc.o ccl_paramod.o ccl_factor.o ccl_eqnresolution.o\
              ccl_rewrite.o ccl_unit_simplify.o ccl_subsumption.o ccl_context_sr.o \
-             ccl_def_handling.o ccl_splitting.o\
+             ccl_def_handling.o ccl_splitting.o ccl_global_indices.o\
              ccl_proofstate.o
 
 $(LIB): $(CLAUSE_LIB)

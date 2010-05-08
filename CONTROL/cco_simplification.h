@@ -28,6 +28,7 @@ Changes
 #include <che_proofcontrol.h>
 #include <ccl_rewrite.h>
 #include <ccl_context_sr.h>
+#include <ccl_global_indices.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -39,18 +40,20 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-void     ClauseMoveSimplified(Clause_p clause, ClauseSet_p tmp_set);
+void     ClauseMoveSimplified(GlobalIndices_p gindices, 
+                              Clause_p clause, 
+                              ClauseSet_p tmp_set);
 
 bool     RemoveRewritableClauses(OCB_p ocb, ClauseSet_p from,
-				 ClauseSet_p into, Clause_p
-				 new_demod, SysDate nf_date);
+				 ClauseSet_p into,           
+                                 Clause_p new_demod, SysDate nf_date,
+                                 GlobalIndices_p gindices);
 long     ClauseSetUnitSimplify(ClauseSet_p set, Clause_p simplifier,
-			       ClauseSet_p tmp_set);
+			       ClauseSet_p tmp_set, GlobalIndices_p gindices);
 
 long     RemoveContextualSRClauses(ClauseSet_p from,
-				   ClauseSet_p into, Clause_p simplifier);
-
-
+				   ClauseSet_p into, Clause_p simplifier,
+                                   GlobalIndices_p gindices);
 
 #endif
 

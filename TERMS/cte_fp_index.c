@@ -38,7 +38,7 @@ Changes
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
-#define VAR_INDEX(f_code) ((f_code == BELOW_VAR?0:-f_code))
+#define VAR_INDEX(f_code) ((f_code) == BELOW_VAR?0:-f_code)
 
 
 /*-----------------------------------------------------------------------
@@ -189,7 +189,8 @@ static bool fpindex_rek_delete(FPTree_p index, IndexFP_p key, int current)
                                current+1);
    if(delete)
    {
-      FPTreeCellFree(fpindex_extract_alt(index, key[current]));
+      FPTree_p junk = fpindex_extract_alt(index, key[current]); 
+      FPTreeCellFree(junk);
    }   
    return index->count==0;
 }
@@ -377,11 +378,14 @@ FPTree_p FPTreeAlloc()
    handle->f_alternatives = NULL;
    handle->v_alternatives = NULL;
    handle->count          = 0;
+   handle->max_var        = 0;
    handle->payload        = NULL;
 
    return handle;
 }
 
+
+long free_depth = 0;
 
 /*-----------------------------------------------------------------------
 //
@@ -401,6 +405,8 @@ void FPTreeFree(FPTree_p index, FPTreeFreeFun payload_free)
    long         i;
    FPTree_p    child;
 
+   free_depth++;
+
    if(index->payload)
    {
       payload_free(index->payload);
@@ -414,6 +420,7 @@ void FPTreeFree(FPTree_p index, FPTreeFreeFun payload_free)
          FPTreeFree(child, payload_free);
       }
       IntMapIterFree(iter);
+      IntMapFree(index->f_alternatives);
    }
    if(index->v_alternatives)
    {
@@ -425,8 +432,10 @@ void FPTreeFree(FPTree_p index, FPTreeFreeFun payload_free)
             FPTreeFree(child, payload_free);
          }
       }   
+      PDArrayFree(index->v_alternatives);
    }
    FPTreeCellFree(index);
+   free_depth--;
 }
 
 
@@ -599,7 +608,6 @@ FPIndex_p FPIndexAlloc(FPIndexFunction fp_fun, FPTreeFreeFun payload_free)
 void FPIndexFree(FPIndex_p index)
 {
    FPTreeFree(index->index, index->payload_free);
-
    FPIndexCellFree(index);
 }
 

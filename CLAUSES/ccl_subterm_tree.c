@@ -40,73 +40,6 @@ Changes
 
 /*-----------------------------------------------------------------------
 //
-// Function: term_collect_idx_subterms()
-//
-//   
-//   Collect all non-variable subterms in term either into rest or
-//   full (rest for "restricted rewriting" terms, full for the "full
-//   rewriting" terms).
-//
-// Global Variables: -
-//
-// Side Effects    : Memory operations
-//
-/----------------------------------------------------------------------*/
-
-static long term_collect_idx_subterms(Term_p term, PTree_p *rest,
-                                      PTree_p *full, bool restricted) 
-{
-   long res = 1;
-   int i;
-
-   if(TermIsVar(term))
-   {
-      return 0;
-   }
-   if(restricted)
-   {
-      PTreeStore(rest, term);
-   }
-   else
-   {
-      PTreeStore(full, term);
-   }
-   for(i=0; i<term->arity; i++)
-   {
-      res += term_collect_idx_subterms(term->args[i], rest, full, false);
-   }
-   return res;
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: eqn_collect_idx_subterms()
-//
-//   Collect all non-variable subterms in eqn either into rest or
-//   full (rest for "restricted rewriting" terms, full for the "full
-//   rewriting" terms).
-//
-// Global Variables: -
-//
-// Side Effects    : Via term_collect_idx_subterms()
-//
-/----------------------------------------------------------------------*/
-
-static long eqn_collect_idx_subterms(Eqn_p eqn, PTree_p *rest, PTree_p *full)
-{
-   long res = 0;
-   bool restricted_rw = EqnIsMaximal(eqn) && EqnIsPositive(eqn) && EqnIsOriented(eqn);
-
-   res += term_collect_idx_subterms(eqn->lterm, rest, full, restricted_rw);
-   res += term_collect_idx_subterms(eqn->lterm, rest, full, false);
-
-   return res;
-}
-
-
-/*-----------------------------------------------------------------------
-//
 // Function: subterm_occ_free_wrapper()
 //
 //   Wrapper of type ObjFreeFun.
@@ -128,7 +61,7 @@ static void subterm_occ_free_wrapper(void *junk)
 
 /*-----------------------------------------------------------------------
 //
-// Function: SubtermOccCellAlloc()
+// Function: SubtermOccAlloc()
 //
 //   Allocate an initialized Subterm-Occurance-Cell.
 //
@@ -138,7 +71,7 @@ static void subterm_occ_free_wrapper(void *junk)
 //
 /----------------------------------------------------------------------*/
 
-SubtermOcc_p SubtermOcclAlloc(Term_p term)
+SubtermOcc_p SubtermOccAlloc(Term_p term)
 {
    SubtermOcc_p handle = SubtermOccCellAlloc();
 
@@ -188,6 +121,8 @@ int CmpSubtermCells(const void *soc1, const void *soc2)
 {
    const SubtermOcc_p s1 = (const SubtermOcc_p) soc1;
    const SubtermOcc_p s2 = (const SubtermOcc_p) soc2;
+
+   return PCmp(s1->term, s2->term);
    
    if(s1->term->entry_no > s2->term->entry_no)
    {
@@ -218,6 +153,25 @@ void SubtermTreeFree(PTree_p root)
    PObjTreeFree(root, subterm_occ_free_wrapper);
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: SubtermTreeFreeWrapper()
+//
+//   Free a subterm tree, with proper signature for FPIndexFree().
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+void SubtermTreeFreeWrapper(void *junk)
+{
+   SubtermTreeFree(junk);
+}
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: SubtermTreeInsertTerm()
@@ -233,7 +187,7 @@ void SubtermTreeFree(PTree_p root)
 
 SubtermOcc_p SubtermTreeInsertTerm(PTree_p *root, Term_p term)
 {
-   SubtermOcc_p old, newnode = SubtermOcclAlloc(term);
+   SubtermOcc_p old, newnode = SubtermOccAlloc(term);
 
    old = PTreeObjStore(root, newnode, CmpSubtermCells);
    if(old)
@@ -306,11 +260,12 @@ void SubtermTreeDeleteTerm(PTree_p *root, Term_p term)
 //
 /----------------------------------------------------------------------*/
 
-void SubtermTreeDeleteTermOcc(PTree_p *root, Term_p term, 
+bool SubtermTreeDeleteTermOcc(PTree_p *root, Term_p term, 
                               Clause_p clause, bool restricted)
 {
-   SubtermOcc_p old, knode = SubtermOcclAlloc(term);
+   SubtermOcc_p old, knode = SubtermOccAlloc(term);
    PTree_p oldnode;
+   bool res = false;
 
    oldnode = PTreeObjFind(root, knode, CmpSubtermCells);
    if(oldnode)
@@ -318,52 +273,23 @@ void SubtermTreeDeleteTermOcc(PTree_p *root, Term_p term,
       old = oldnode->key;
       if(restricted)
       {
-         PTreeDeleteEntry(&(old->rw_rest), clause);
+         res = PTreeDeleteEntry(&(old->rw_rest), clause);
       }
       else
       {
-         PTreeDeleteEntry(&(old->rw_full), clause);
+         res = PTreeDeleteEntry(&(old->rw_full), clause);
+      }
+      if((old->rw_rest == NULL) && (old->rw_full == NULL))
+      {
+         SubtermTreeDeleteTerm(root, term);
       }
    }
    SubtermOccFree(knode);   
-}
 
-
-
-
-
-
-
-
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: ClauseCollectIdxSubterms()
-//
-//   Collect all non-variable subterms in clause either into rest or
-//   full (rest for "restricted rewriting" terms, full for the "full
-//   rewriting" terms).
-//
-// Global Variables: -
-//
-// Side Effects    : Memory operations
-//
-/----------------------------------------------------------------------*/
-
-long ClauseCollectIdxSubterms(Clause_p clause, 
-                              PTree_p *rest, 
-                              PTree_p *full)
-{
-   long res = 0;
-   Eqn_p handle;
-
-   for(handle = clause->literals; handle; handle = handle->next)
-   {
-      res += eqn_collect_idx_subterms(handle, rest, full);
-   }
    return res;
 }
+
+
 
 
 /*---------------------------------------------------------------------*/

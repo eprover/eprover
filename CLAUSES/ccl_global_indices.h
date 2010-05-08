@@ -1,13 +1,12 @@
 /*-----------------------------------------------------------------------
 
-File  : ccl_subterm_index.h
+File  : ccl_global_indices.h
 
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
  
-  A simple (hashed) index from terms to clauses in which this term
-  appears as priviledged (rewriting restricted) or unpriviledged term. 
+  Code abstracting several (optional) indices into one structure. 
 
   Copyright 2010 by the author.
   This code is released under the GNU General Public Licence.
@@ -16,42 +15,45 @@ Contents
 
 Changes
 
-<1> Wed May  5 10:19:14 CEST 2010
+<1> Fri May  7 21:13:39 CEST 2010
     New
 
 -----------------------------------------------------------------------*/
 
-#ifndef CCL_SUBTERM_INDEX
+#ifndef CCL_GLOBAL_INDICES
 
-#define CCL_SUBTERM_INDEX
+#define CCL_GLOBAL_INDICES
 
-#include <cte_fp_index.h>
-#include <ccl_subterm_tree.h>
+#include <ccl_subterm_index.h>
+#include <ccl_subterm_index.h>
+#include <ccl_clausesets.h>
 
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-typedef FPIndex_p SubtermIndex_p;
+
+typedef struct global_indices_cell
+{
+   SubtermIndex_p    bw_rw_index;   
+}GlobalIndices, *GlobalIndices_p;
+
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
 
-bool SubtermIndexInsertOcc(SubtermIndex_p index, Clause_p clause, 
-                           Term_p term, bool restricted);
-bool SubtermIndexDeleteOcc(SubtermIndex_p index, Clause_p clause, 
-                           Term_p term, bool restricted);
+void GlobalIndicesReset(GlobalIndices_p indices);
+void GlobalIndicesInit(GlobalIndices_p indices, 
+                       bool use_bw_rw_index,
+                       bool use_pm_into_index,
+                       bool use_pm_from_index);
+void GlobalIndicesInsertClause(GlobalIndices_p indices, Clause_p clause);
+void GlobalIndicesDeleteClause(GlobalIndices_p indices, Clause_p clause);
+void GlobalIndicesInsertClauseSet(GlobalIndices_p indices, ClauseSet_p set);
 
-
-long ClauseCollectIdxSubterms(Clause_p clause, 
-                              PTree_p *rest, 
-                              PTree_p *full);
-
-void SubtermIndexInsertClause(SubtermIndex_p index, Clause_p clause);
-void SubtermIndexDeleteClause(SubtermIndex_p index, Clause_p clause);
 
 #endif
 

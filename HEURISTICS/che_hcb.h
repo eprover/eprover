@@ -111,6 +111,11 @@ typedef struct heuristic_parms_cell
    bool                split_fresh_defs;
 
    UnitSimplifyType    unproc_simplify;
+
+   /* Global indexing */
+   bool                use_bw_rw_index;
+   bool                use_pm_into_index;
+   bool                use_pm_from_index;
    
    /* Various things */
    long                filter_limit;

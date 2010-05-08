@@ -143,22 +143,22 @@ eliminate_backward_rewritten_clauses(ProofState_p
       min_rw = RemoveRewritableClauses(control->ocb,
 				       state->processed_pos_rules,
 				       state->tmp_store,
-				       clause, *date)
+				       clause, *date, &(state->gindices))
 	 ||min_rw;
       min_rw = RemoveRewritableClauses(control->ocb,
 				       state->processed_pos_eqns,
 				       state->tmp_store,
-				       clause, *date)
+				       clause, *date, &(state->gindices))
 	 ||min_rw;
       min_rw = RemoveRewritableClauses(control->ocb, 
 				       state->processed_neg_units,
 				       state->tmp_store,
-				       clause, *date)
+				       clause, *date, &(state->gindices))
 	 ||min_rw;
       min_rw = RemoveRewritableClauses(control->ocb, 
 				       state->processed_non_units,
 				       state->tmp_store,
-				       clause, *date)
+				       clause, *date, &(state->gindices))
 	 ||min_rw;
       state->backward_rewritten_lit_count+=
 	 (state->tmp_store->literals-old_lit_count);
@@ -240,18 +240,18 @@ static void eliminate_unit_simplified_clauses(ProofState_p state,
       return;
    }
    ClauseSetUnitSimplify(state->processed_non_units, clause,
-			 state->tmp_store);
+			 state->tmp_store, &(state->gindices));
    if(ClauseIsPositive(clause))
    {
       ClauseSetUnitSimplify(state->processed_neg_units, clause,
-			    state->tmp_store);
+			    state->tmp_store, &(state->gindices));
    }
    else
    {
       ClauseSetUnitSimplify(state->processed_pos_rules, clause,
-			    state->tmp_store);
+			    state->tmp_store, &(state->gindices));
       ClauseSetUnitSimplify(state->processed_pos_eqns, clause,
-			    state->tmp_store);
+			    state->tmp_store, &(state->gindices));
    }
 }
 
@@ -278,7 +278,8 @@ static long eliminate_context_sr_clauses(ProofState_p state,
       return 0;
    }
    return RemoveContextualSRClauses(state->processed_non_units,
-				    state->tmp_store, clause);
+				    state->tmp_store, clause, 
+                                    &(state->gindices));
 }
 
 /*-----------------------------------------------------------------------
@@ -343,7 +344,8 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
    tmp_set = ClauseSetAlloc();
 
    RemoveRewritableClauses(control->ocb, state->watchlist,
-			   tmp_set, clause, clause->date);
+			   tmp_set, clause, clause->date,
+                           &(state->wlindices));
    while((handle = ClauseSetExtractFirst(tmp_set)))
    {
       ClauseComputeLINormalform(control->ocb,
@@ -363,6 +365,7 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
       }
       ClauseSubsumeOrderSortLits(handle);
       ClauseSetIndexedInsertClause(state->watchlist, handle);
+      GlobalIndicesInsertClause(&(state->wlindices), handle);
    }   
    ClauseSetFree(tmp_set);
 }
@@ -806,6 +809,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
    }
    ClauseSetMarkSOS(state->unprocessed, control->heuristic_parms.use_tptp_sos);
    EvalTreeTraverseExit(traverse);
+   
    if(control->heuristic_parms.ac_handling!=NoACHandling)
    {
       if(OutputLevel)
@@ -823,6 +827,15 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
 	 }
       }
    }
+
+   GlobalIndicesInit(&(state->gindices),
+                     control->heuristic_parms.use_bw_rw_index,
+                     control->heuristic_parms.use_pm_into_index,
+                     control->heuristic_parms.use_pm_from_index);
+   GlobalIndicesInit(&(state->wlindices),
+                     control->heuristic_parms.use_bw_rw_index,
+                     control->heuristic_parms.use_pm_into_index,
+                     control->heuristic_parms.use_pm_from_index);
 
    if(!state->fvi_initialized)
    {
@@ -1010,6 +1023,8 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
    {
       ClauseSetIndexedInsert(state->processed_non_units, pclause);
    }
+   GlobalIndicesInsertClause(&(state->gindices), clause);
+
    FVUnpackClause(pclause);
    ENSURE_NULL(pclause);
    if(state->watchlist && control->heuristic_parms.watchlist_simplify)

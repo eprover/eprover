@@ -31,11 +31,13 @@ Changes
 #include <cio_output.h>
 #include <ccl_def_handling.h>
 #include <ccl_garbage_coll.h>
-
+#include <ccl_global_indices.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
+
+/* Proof state */
 
 typedef struct proofstatecell
 {
@@ -55,10 +57,14 @@ typedef struct proofstatecell
    ClauseSet_p       processed_non_units;
    ClauseSet_p       unprocessed;
    ClauseSet_p       tmp_store;
+   GlobalIndices     gindices;
    bool              fvi_initialized; /* Are the feature vector
                                          indices set up? */
-   ClauseSet_p       demods[3];
+   ClauseSet_p       demods[3];       /* Synonyms for
+                                         processed_pos_rules and
+                                         processed_pos_eqns */
    ClauseSet_p       watchlist;
+   GlobalIndices     wlindices;
    bool              state_is_complete;
    DefStore_p        definition_store;
    ulong_c           processed_count;
@@ -117,6 +123,7 @@ void ProofStatePropDocQuote(FILE* out, int level,
 #define WATCHLIST_INLINE_STRING "Use inline watchlist type"
 #define WATCHLIST_INLINE_QSTRING "'" WATCHLIST_INLINE_STRING "'"
 extern char* UseInlinedWatchList;
+
 
 #endif
 
