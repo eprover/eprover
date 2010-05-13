@@ -27,6 +27,7 @@ Changes
 #include <cte_replace.h>
 #include <ccl_pdtrees.h>
 #include <ccl_clausefunc.h>
+#include <ccl_subterm_index.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -59,9 +60,11 @@ typedef struct rw_desc_cell
 
 
 extern long RewriteAttempts;
-extern long RewriteSucesses;
+extern long RewriteSuccesses;
 extern long RewriteUnboundVarFails;
 extern bool RewriteStrongRHSInst;
+extern long BWRWMatchAttempts;
+extern long BWRWMatchSuccesses;
 
 
 Term_p TermComputeLINormalform(OCB_p ocb, TB_p bank, Term_p term,
@@ -84,6 +87,9 @@ bool FindRewritableClauses(OCB_p ocb, ClauseSet_p set,
 			   PStack_p results, Clause_p
 			   new_demod, SysDate nf_date);
 
+long FindRewritableClausesIndexed(OCB_p ocb, SubtermIndex_p index, 
+                                  PStack_p stack, Clause_p new_demod, 
+                                  SysDate nf_date);
 
 #endif
 

@@ -86,7 +86,9 @@ static void check_ac_status(ProofState_p state, ProofControl_p
 //
 /----------------------------------------------------------------------*/
 
-static long remove_subsumed(FVPackedClause_p subsumer, ClauseSet_p set)
+static long remove_subsumed(GlobalIndices_p indices, 
+                            FVPackedClause_p subsumer, 
+                            ClauseSet_p set)
 {
    Clause_p handle;
    long     res;
@@ -101,6 +103,7 @@ static long remove_subsumed(FVPackedClause_p subsumer, ClauseSet_p set)
       {
 	 DocClauseQuote(GlobalOut, OutputLevel, 6, handle,
 			"extract_wl_subsumed", subsumer->clause);
+         
       }
       else
       {
@@ -108,6 +111,7 @@ static long remove_subsumed(FVPackedClause_p subsumer, ClauseSet_p set)
 			"subsumed", subsumer->clause);
       }
       ClauseKillChildren(handle);
+      GlobalIndicesDeleteClause(indices, handle);
       ClauseSetDeleteEntry(handle);  
    }
    PStackFree(stack);
@@ -138,35 +142,45 @@ eliminate_backward_rewritten_clauses(ProofState_p
    bool min_rw = false;
 
    if(ClauseIsDemodulator(clause))
-   {
+   {      
       SysDateInc(date);
-      min_rw = RemoveRewritableClauses(control->ocb,
-				       state->processed_pos_rules,
-				       state->tmp_store,
-				       clause, *date, &(state->gindices))
-	 ||min_rw;
-      min_rw = RemoveRewritableClauses(control->ocb,
-				       state->processed_pos_eqns,
-				       state->tmp_store,
-				       clause, *date, &(state->gindices))
-	 ||min_rw;
-      min_rw = RemoveRewritableClauses(control->ocb, 
+      if(state->gindices.bw_rw_index)
+      {
+         min_rw = RemoveRewritableClausesIndexed(control->ocb,
+                                                 state->tmp_store,
+                                                 clause, *date, &(state->gindices));
+      }
+      else
+      {
+         min_rw = RemoveRewritableClauses(control->ocb,
+                                          state->processed_pos_rules,
+                                          state->tmp_store,
+                                          clause, *date, &(state->gindices))
+            ||min_rw;
+         min_rw = RemoveRewritableClauses(control->ocb,
+                                          state->processed_pos_eqns,
+                                          state->tmp_store,
+                                          clause, *date, &(state->gindices))
+            ||min_rw;
+         min_rw = RemoveRewritableClauses(control->ocb, 
 				       state->processed_neg_units,
-				       state->tmp_store,
-				       clause, *date, &(state->gindices))
-	 ||min_rw;
-      min_rw = RemoveRewritableClauses(control->ocb, 
-				       state->processed_non_units,
-				       state->tmp_store,
-				       clause, *date, &(state->gindices))
-	 ||min_rw;
+                                          state->tmp_store,
+                                          clause, *date, &(state->gindices))
+            ||min_rw;
+         min_rw = RemoveRewritableClauses(control->ocb, 
+                                          state->processed_non_units,
+                                          state->tmp_store,
+                                          clause, *date, &(state->gindices))
+            ||min_rw;
+      }
       state->backward_rewritten_lit_count+=
 	 (state->tmp_store->literals-old_lit_count);
       state->backward_rewritten_count+=
 	 (state->tmp_store->members-old_clause_count);
+      /* ClauseSetSort(state->tmp_store, ClauseCmpById); */
    }
    /*printf("# Removed %ld clauses\n",
-     (state->tmp_store->members-old_clause_count));*/
+     (state->tmp_store->members-old_clause_count)); */
    return min_rw;
 }
    
@@ -199,20 +213,20 @@ static long eliminate_backward_subsumed_clauses(ProofState_p state,
             equation (else it would be unorientable itself). */               
          if(!ClauseIsRWRule(pclause->clause))            
          {
-            res += remove_subsumed(pclause, state->processed_pos_rules);
-            res += remove_subsumed(pclause, state->processed_pos_eqns);
+            res += remove_subsumed(&(state->gindices), pclause, state->processed_pos_rules);
+            res += remove_subsumed(&(state->gindices), pclause, state->processed_pos_eqns);
          }
-	 res += remove_subsumed(pclause, state->processed_non_units);
+	 res += remove_subsumed(&(state->gindices), pclause, state->processed_non_units);
       }
       else
       {
-	 res += remove_subsumed(pclause, state->processed_neg_units);
-	 res += remove_subsumed(pclause, state->processed_non_units);
+	 res += remove_subsumed(&(state->gindices), pclause, state->processed_neg_units);
+	 res += remove_subsumed(&(state->gindices), pclause, state->processed_non_units);
       }
    }
    else
    {
-      res += remove_subsumed(pclause, state->processed_non_units);
+      res += remove_subsumed(&(state->gindices), pclause, state->processed_non_units);
    }
    state->backward_subsumed_count+=res;
    return res;
@@ -295,13 +309,13 @@ static long eliminate_context_sr_clauses(ProofState_p state,
 //
 /----------------------------------------------------------------------*/
 
-void check_watchlist(ClauseSet_p watchlist, Clause_p clause)
+void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist, Clause_p clause)
 {
    FVPackedClause_p pclause = FVIndexPackClause(clause, watchlist->fvindex);
    long removed;
    
    clause->weight = ClauseStandardWeight(clause);
-   if((removed = remove_subsumed(pclause, watchlist)))
+   if((removed = remove_subsumed(indices, pclause, watchlist)))
    {
       ClauseSetProp(clause, CPSubsumesWatch);
       if(OutputLevel == 1)
@@ -485,7 +499,7 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
       }
       if(state->watchlist)
       {
-	 check_watchlist(state->watchlist, handle);
+	 check_watchlist(&(state->wlindices), state->watchlist, handle);
       }
       if(ClauseIsEmpty(handle))
       {
@@ -972,7 +986,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
 
    if(state->watchlist)
    {
-      check_watchlist(state->watchlist, pclause->clause);
+      check_watchlist(&(state->gindices), state->watchlist, pclause->clause);
    }
     
    if(ClauseIsEmpty(pclause->clause))

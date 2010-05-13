@@ -138,7 +138,7 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
 
    handle->unproc_simplify               = NoUnitSimplify;
 
-   handle->use_bw_rw_index               = true;
+   handle->use_bw_rw_index               = false;
    handle->use_pm_into_index             = false;
    handle->use_pm_from_index             = false;
 

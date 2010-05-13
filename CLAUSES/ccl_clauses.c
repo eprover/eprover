@@ -2202,6 +2202,56 @@ int ClauseCompareFun(const void *c1, const void* c2)
 
 /*-----------------------------------------------------------------------
 //
+// Function: ClauseCmpById()
+//
+//   Compare two clauses by identifier.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+int ClauseCmpById(const void* clause1, const void* clause2)
+{
+   const Clause_p *c1 = (const Clause_p*) clause1;
+   const Clause_p *c2 = (const Clause_p*) clause2;
+   
+   if((*c1)->ident < (*c2)->ident)
+   {
+      return -1;
+   }
+   if((*c1)->ident > (*c2)->ident)
+   {
+      return -1;
+   }
+   return 0;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseCmpByPtr()
+//
+//   Compare two clauses by address. This is rarely useful outside
+//   debugging!
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+int ClauseCmpByPtr(const void* clause1, const void* clause2)
+{
+   const Clause_p *c1 = (const Clause_p*) clause1;
+   const Clause_p *c2 = (const Clause_p*) clause2;
+   
+   return PCmp(*c1, *c2);
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: ClauseNormalizeVars()
 //
 //   Destructively normalize variables in clause.
@@ -2331,7 +2381,6 @@ long ClauseReturnFCodes(Clause_p clause, PStack_p f_codes)
    }
    return res;
 }
-
 
 
 /*---------------------------------------------------------------------*/

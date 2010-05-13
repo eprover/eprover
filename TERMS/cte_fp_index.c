@@ -38,8 +38,6 @@ Changes
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
-#define VAR_INDEX(f_code) ((f_code) == BELOW_VAR?0:-f_code)
-
 
 /*-----------------------------------------------------------------------
 //
@@ -58,16 +56,13 @@ static FPTree_p fpindex_alternative(FPTree_p index, FunCode f_code)
 {
    assert(index);
    
-   if(f_code < 0)
+   if(f_code == BELOW_VAR)
    {
-      if(!index->v_alternatives)
-      {
-         return NULL;
-      }
-      else
-      {
-         return PDArrayElementP(index->v_alternatives, VAR_INDEX(f_code));
-      }            
+      return index->below_var;
+   }            
+   else if(f_code == ANY_VAR)
+   {
+      return index->any_var;      
    }
    else
    {
@@ -102,15 +97,15 @@ static FPTree_p* fpindex_alternative_ref(FPTree_p index, FunCode f_code)
 
    assert(index);
    
-   if(f_code < 0)
+
+   if(f_code == BELOW_VAR)
    {
-      if(!index->v_alternatives)
-      {
-         index->v_alternatives = PDArrayAlloc(FPINDEX_VAR_INIT_ALT,
-                                              FPINDEX_VAR_GROW_ALT);
-      }
-      res = &(PDArrayElementP(index->v_alternatives, VAR_INDEX(f_code)));
+      return &(index->below_var);
    }            
+   else if(f_code == ANY_VAR)
+   {
+      return &(index->any_var);      
+   }
    else
    {
       if(!index->f_alternatives)
@@ -141,14 +136,19 @@ static FPTree_p fpindex_extract_alt(FPTree_p index, FunCode f_code)
 
    assert(index);
    
-   if((f_code > 0) && index->f_alternatives)
+   if(f_code == BELOW_VAR)
+   {
+      res = index->below_var;
+      index->below_var = NULL;
+   }            
+   else if(f_code == ANY_VAR)
+   {
+      res = index->any_var;      
+      index->any_var = NULL;
+   }
+   else if(index->f_alternatives)
    {
       res = IntMapDelKey(index->f_alternatives, f_code);
-   }
-   else if(index->v_alternatives)
-   {
-      res = PDArrayElementP(index->v_alternatives, VAR_INDEX(f_code));
-      PDArrayElementDeleteP(index->v_alternatives, VAR_INDEX(f_code));
    }
    if(res)
    {
@@ -236,13 +236,14 @@ static long fp_index_rek_find_unif(FPTree_p index, IndexFP_p key,
                                     key, 
                                     current+1,
                                     collect);
-      for(i=0; i<=index->max_var; i++)
-      {
-          fp_index_rek_find_unif(fpindex_alternative(index, i), 
-                                 key, 
-                                 current+1,
-                                 collect);
-      }
+      res += fp_index_rek_find_unif(index->any_var, 
+                                    key, 
+                                    current+1,
+                                    collect);
+      res += fp_index_rek_find_unif(index->below_var, 
+                                    key, 
+                                    current+1,
+                                    collect);
    }
    else if(key[current] == NOT_IN_TERM)
    {
@@ -253,25 +254,27 @@ static long fp_index_rek_find_unif(FPTree_p index, IndexFP_p key,
                                     current+1,
                                     collect);
    }
-   else if(key[current] <= BELOW_VAR)
+   else if(key[current] == BELOW_VAR || key[current] == ANY_VAR)
    {
       /* t|p is a variable or below a variable -> all but NOT_IN_TERM
-         can unify. */
-      for(i=0; i<=index->max_var; i++)
-      {
-         fp_index_rek_find_unif(fpindex_alternative(index, i), 
-                                key, 
-                                current+1,
-                                collect);
-      }
+         can unify. */      
+      res += fp_index_rek_find_unif(index->any_var, 
+                                    key, 
+                                    current+1,
+                                    collect);
+      res += fp_index_rek_find_unif(index->below_var, 
+                                    key, 
+                                    current+1,
+                                    collect);
+      
       iter = IntMapIterAlloc(index->f_alternatives, 1, LONG_MAX); 
       while((child=IntMapIterNext(iter, &i)))
       {
          assert(child);
-         fp_index_rek_find_unif(child,
-                                key, 
-                                current+1,
-                                collect);
+         res += fp_index_rek_find_unif(child,
+                                       key, 
+                                       current+1,
+                                       collect);
       }
       IntMapIterFree(iter);
    }
@@ -306,7 +309,7 @@ static long fp_index_rek_find_matchable(FPTree_p index, IndexFP_p key,
    if(current == key[0])
    {
       PStackPushP(collect, index->payload);
-      return 1;
+      return 1; 
    }
    if(key[current] > 0)
    {
@@ -326,25 +329,29 @@ static long fp_index_rek_find_matchable(FPTree_p index, IndexFP_p key,
                                          current+1,
                                          collect);
    }
-   else if(key[current] <= BELOW_VAR)
+   else if(key[current] == BELOW_VAR || key[current] == ANY_VAR)
    {
-      /* t|p is a variable or below a variable -> all but NOT_IN_TERM
-         can be matched. */
-      for(i=0; i<=index->max_var; i++)
-      {
-         fp_index_rek_find_matchable(fpindex_alternative(index, i), 
-                                     key, 
-                                     current+1,
-                                     collect);
-      }
-      iter = IntMapIterAlloc(index->f_alternatives, 1, LONG_MAX); 
+      /* t|p is a variable or below a variable -> everything can be
+       * matched (even NOT_IN_TERM, as the instantiation may create a
+       * non-in-term position that is currently below_var. */
+      
+      res += fp_index_rek_find_matchable(index->any_var, 
+                                         key, 
+                                         current+1,
+                                         collect);
+      res += fp_index_rek_find_matchable(index->below_var, 
+                                         key, 
+                                         current+1,
+                                         collect);      
+
+      iter = IntMapIterAlloc(index->f_alternatives, 0, LONG_MAX); 
       while((child=IntMapIterNext(iter, &i)))
       {
          assert(child);
-         fp_index_rek_find_matchable(child,
-                                     key, 
-                                     current+1,
-                                     collect);
+         res += fp_index_rek_find_matchable(child,
+                                            key, 
+                                            current+1,
+                                            collect);
       }
       IntMapIterFree(iter);
    }
@@ -376,16 +383,14 @@ FPTree_p FPTreeAlloc()
    FPTree_p handle = FPTreeCellAlloc();
    
    handle->f_alternatives = NULL;
-   handle->v_alternatives = NULL;
+   handle->below_var      = NULL;
+   handle->any_var        = NULL;
    handle->count          = 0;
-   handle->max_var        = 0;
    handle->payload        = NULL;
 
    return handle;
 }
 
-
-long free_depth = 0;
 
 /*-----------------------------------------------------------------------
 //
@@ -405,8 +410,6 @@ void FPTreeFree(FPTree_p index, FPTreeFreeFun payload_free)
    long         i;
    FPTree_p    child;
 
-   free_depth++;
-
    if(index->payload)
    {
       payload_free(index->payload);
@@ -422,20 +425,16 @@ void FPTreeFree(FPTree_p index, FPTreeFreeFun payload_free)
       IntMapIterFree(iter);
       IntMapFree(index->f_alternatives);
    }
-   if(index->v_alternatives)
+   if(index->below_var)
    {
-      for(i=0; i<=index->max_var; i++)
-      {
-         child = PDArrayElementP(index->v_alternatives, i);
-         if(child)
-         {
-            FPTreeFree(child, payload_free);
-         }
-      }   
-      PDArrayFree(index->v_alternatives);
+      FPTreeFree(index->below_var, payload_free);
    }
+   if(index->any_var)
+   {
+      FPTreeFree(index->any_var, payload_free);
+   }
+
    FPTreeCellFree(index);
-   free_depth--;
 }
 
 
@@ -494,10 +493,6 @@ FPTree_p FPTreeInsert(FPTree_p root, IndexFP_p key)
          root = FPTreeAlloc();
          *pos = root;
          res->count++;
-         if(current < 0)
-         {
-            res->max_var = MAX(res->max_var,  VAR_INDEX(current));
-         }
       }
       res = root;
    }
@@ -718,8 +713,11 @@ long FPIndexFindMatchable(FPIndex_p index, Term_p term, PStack_p collect)
 {
    IndexFP_p key = index->fp_fun(term);
    long res = FPTreeFindMatchable(index->index, key, collect);
-   
+
+   /* IndexFPPrint(stdout, key);
+      printf("\n"); */
    IndexFPFree(key);
+   
    return res; 
 }
 

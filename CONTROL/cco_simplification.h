@@ -48,6 +48,10 @@ bool     RemoveRewritableClauses(OCB_p ocb, ClauseSet_p from,
 				 ClauseSet_p into,           
                                  Clause_p new_demod, SysDate nf_date,
                                  GlobalIndices_p gindices);
+bool     RemoveRewritableClausesIndexed(OCB_p ocb, ClauseSet_p into, 
+                                        Clause_p new_demod, SysDate nf_date, 
+                                        GlobalIndices_p gindices);
+
 long     ClauseSetUnitSimplify(ClauseSet_p set, Clause_p simplifier,
 			       ClauseSet_p tmp_set, GlobalIndices_p gindices);
 

@@ -51,6 +51,7 @@ typedef enum
 void   TermAddRWLink(Term_p term, Term_p replace, long demod,
 		     bool sos, RWResultType type);
 
+void   TermDeleteRWLink(Term_p term);
 Term_p TermFollowRWChain(Term_p term);
 
 bool   TermComputeRWSequence(PStack_p stack, Term_p from, Term_p to);

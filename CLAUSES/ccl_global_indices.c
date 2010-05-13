@@ -47,7 +47,7 @@ Changes
 
 /*-----------------------------------------------------------------------
 //
-// Function: GlobalIndicesReset()
+// Function: GlobalIndicesNull()
 //
 //   Set the global indices to NULL.
 //
@@ -57,10 +57,11 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-void GlobalIndicesReset(GlobalIndices_p indices)
+void GlobalIndicesNull(GlobalIndices_p indices)
 {
    indices->bw_rw_index = NULL;
 }
+
 
 /*-----------------------------------------------------------------------
 //
@@ -81,8 +82,66 @@ void GlobalIndicesInit(GlobalIndices_p indices,
 {
    if(use_bw_rw_index)
    {
-      indices->bw_rw_index = FPIndexAlloc(IndexFP4Create, SubtermTreeFreeWrapper);
+      indices->bw_rw_index = FPIndexAlloc(IndexFP7Create, SubtermTreeFreeWrapper);
    }
+   if(use_pm_into_index)
+   {
+      /* Alloc PM index */
+   }
+   if(use_pm_from_index)
+   {
+      /* Alloc PM index */
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: GlobalIndicesFreeIndices()
+//
+//   Free the existing indices.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+void GlobalIndicesFreeIndices(GlobalIndices_p indices)
+{
+   if(indices->bw_rw_index)
+   {
+      FPIndexFree(indices->bw_rw_index);          
+      indices->bw_rw_index = NULL;
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: GlobalIndicesReset()
+//
+//   Reset all exisiting indices.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+void GlobalIndicesReset(GlobalIndices_p indices)
+{
+   bool 
+      use_bw_rw_index = false, 
+      use_pm_into_index = false, 
+      use_pm_from_index = false;
+
+   use_bw_rw_index = indices->bw_rw_index!=NULL;
+
+   GlobalIndicesInit(indices, 
+                     use_bw_rw_index,
+                     use_pm_into_index,
+                     use_pm_from_index);
 }
 
 

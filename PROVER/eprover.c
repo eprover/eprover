@@ -138,6 +138,7 @@ typedef enum
    OPT_FVINDEX_FEATURETYPES,
    OPT_FVINDEX_MAXFEATURES,
    OPT_FVINDEX_SLACK,
+   OPT_BW_RW_INDEX,
    OPT_UNPROC_UNIT_SIMPL,
    OPT_DEFINE_WFUN,
    OPT_DEFINE_HEURISTIC,
@@ -961,6 +962,11 @@ OptCell opts[] =
     "be deleted from the index anyways, but will still waste "
     "(a little) time in computing feature vectors."},
 
+   {OPT_BW_RW_INDEX,
+    '\0', "bw-rw-index",
+    NoArg, NULL,
+    "Use fingerprint indexing for backward rewriting."},
+
    {OPT_UNPROC_UNIT_SIMPL,
     '\0', "simplify-with-unprocessed-units",
     OptArg, "TopSimplify",
@@ -1300,9 +1306,13 @@ int main(int argc, char* argv[])
       fprintf(GlobalOut, "# Rec. Clause-clause subsumption calls : %ld\n",
 	      ClauseClauseSubsumptionCallsRec);
       fprintf(GlobalOut, "# Unit Clause-clause subsumption calls : %ld\n",
-	       UnitClauseClauseSubsumptionCalls);
+              UnitClauseClauseSubsumptionCalls);
       fprintf(GlobalOut, "# Rewrite failures with RHS unbound    : %ld\n",
-	       RewriteUnboundVarFails);
+              RewriteUnboundVarFails);
+      fprintf(GlobalOut, "# Indexed BW rewrite attempts          : %ld\n",
+              BWRWMatchAttempts);
+      fprintf(GlobalOut, "# Indexed BW rewrite successes         : %ld\n",
+              BWRWMatchSuccesses);
 
    }
 #ifndef FAST_EXIT
@@ -1936,6 +1946,9 @@ CLState_p process_options(int argc, char* argv[])
 	    }
 	    fvi_parms->symbol_slack = tmp;
 	    break;
+      case OPT_BW_RW_INDEX:
+            h_parms->use_bw_rw_index = true;
+            break;
       case OPT_UNPROC_UNIT_SIMPL:
 	    h_parms->unproc_simplify = TransUnitSimplifyString(arg);
 	    if(h_parms->unproc_simplify==-1)

@@ -148,7 +148,7 @@ int CmpSubtermCells(const void *soc1, const void *soc2)
 //
 /----------------------------------------------------------------------*/
 
-void SubtermTreeFree(PTree_p root)
+void SubtermTreeFree(SubtermTree_p root)
 {
    PObjTreeFree(root, subterm_occ_free_wrapper);
 }
@@ -185,7 +185,7 @@ void SubtermTreeFreeWrapper(void *junk)
 //
 /----------------------------------------------------------------------*/
 
-SubtermOcc_p SubtermTreeInsertTerm(PTree_p *root, Term_p term)
+SubtermOcc_p SubtermTreeInsertTerm(SubtermTree_p *root, Term_p term)
 {
    SubtermOcc_p old, newnode = SubtermOccAlloc(term);
 
@@ -212,7 +212,7 @@ SubtermOcc_p SubtermTreeInsertTerm(PTree_p *root, Term_p term)
 //
 /----------------------------------------------------------------------*/
 
-bool SubtermTreeInsertTermOcc(PTree_p *root, Term_p term, 
+bool SubtermTreeInsertTermOcc(SubtermTree_p *root, Term_p term, 
                               Clause_p clause, bool restricted)   
 {
    SubtermOcc_p handle = SubtermTreeInsertTerm(root, term);
@@ -237,7 +237,7 @@ bool SubtermTreeInsertTermOcc(PTree_p *root, Term_p term,
 //
 /----------------------------------------------------------------------*/
 
-void SubtermTreeDeleteTerm(PTree_p *root, Term_p term)
+void SubtermTreeDeleteTerm(SubtermTree_p *root, Term_p term)
 {
    SubtermOcc_p old, knode = SubtermOccAlloc(term);
 
@@ -260,11 +260,11 @@ void SubtermTreeDeleteTerm(PTree_p *root, Term_p term)
 //
 /----------------------------------------------------------------------*/
 
-bool SubtermTreeDeleteTermOcc(PTree_p *root, Term_p term, 
+bool SubtermTreeDeleteTermOcc(SubtermTree_p *root, Term_p term, 
                               Clause_p clause, bool restricted)
 {
    SubtermOcc_p old, knode = SubtermOccAlloc(term);
-   PTree_p oldnode;
+   SubtermTree_p oldnode;
    bool res = false;
 
    oldnode = PTreeObjFind(root, knode, CmpSubtermCells);

@@ -51,11 +51,11 @@ typedef enum
                                            * demod_index of its set */ 
    CPIsSIndexed        = 2*CPIsDIndexed,  /* Clause is in the fvindex
                                            * of its set */ 
-   CPIsTIndexed        = 2*CPIsSIndexed,  /* Clause is in the subterm
-                                           * index */ 
-   CPIsOIndexed        = 2*CPIsTIndexed,  /* Clause is in the Overlap
-                                           * index */    
-   CPDeleteClause      = 2*CPIsOIndexed,  /* Clause should be deleted
+   CPRWDetected        = 2*CPIsSIndexed,  /* Rewritability of the
+                                             clause has been
+                                             established. Temporary
+                                             property. */
+   CPDeleteClause      = 2*CPRWDetected,  /* Clause should be deleted
                                            * for some reason */ 
    CPType1             = 2*CPDeleteClause,/* Three bits used to encode
                                            * the Clause type, taken
@@ -350,6 +350,8 @@ bool     ClauseNotGreaterEqual(OCB_p ocb,
 			       Clause_p clause1, Clause_p clause2);
 
 int      ClauseCompareFun(const void *c1, const void* c2);
+int      ClauseCmpById(const void* clause1, const void* clause2);
+int      ClauseCmpByPtr(const void* clause1, const void* clause2);
 
 #define  NormSubstClause(clause, subst, vars)\
          NormSubstEqnListExcept((clause)->literals,\

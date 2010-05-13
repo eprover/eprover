@@ -85,6 +85,29 @@ void TermAddRWLink(Term_p term, Term_p replace, long demod, bool sos,
 
 /*-----------------------------------------------------------------------
 //
+// Function: TermDeleteRWLink()
+//
+//   Delete rewrite link from term. 
+//
+// Global Variables: -
+//
+// Side Effects    : As described
+//
+/----------------------------------------------------------------------*/
+
+void TermDeleteRWLink(Term_p term)
+{
+   assert(term);
+   
+   TermCellDelProp(term, TPIsRewritten|TPIsRRewritten|TPIsSOSRewritten);   
+   
+   TermRWReplaceField(term) = NULL;
+   TermRWDemodField(term)   = 0;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: TermFollowRWChain()
 //
 //   Return the last term in an existing rewrite link chain.

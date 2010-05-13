@@ -27,10 +27,13 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
-long RewriteAttempts = 0;
-long RewriteSucesses = 0;
+long RewriteAttempts    = 0;
+long RewriteSuccesses   = 0;
 long RewriteUnboundVarFails = 0;
 bool RewriteStrongRHSInst = false;
+long BWRWMatchAttempts  = 0;
+long BWRWMatchSuccesses = 0;
+long BWRWRwSuccesses = 0;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -60,14 +63,14 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
 //
 /----------------------------------------------------------------------*/
 
-static bool instance_is_rule(OCB_p ocb, Eqn_p demod, 
+static bool instance_is_rule(OCB_p ocb, TB_p bank, 
                              Term_p lside, Term_p rside, Subst_p subst)
 
 {   
    if(RewriteStrongRHSInst)
    {
       SubstCompleteInstance(subst, rside, 
-                            OCBDesignatedMinTerm(ocb, demod->bank)); 
+                            OCBDesignatedMinTerm(ocb, bank)); 
    }
    else if(TermHasUnboundVariables(rside))
    {
@@ -155,7 +158,7 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
    if(SubstComputeMatch(eqn->lterm, term, subst, TBTermEqual))
    {      
       if((EqnIsOriented(eqn) 
-	  || instance_is_rule(ocb, eqn, eqn->lterm, eqn->rterm, subst)))
+	  || instance_is_rule(ocb, eqn->bank, eqn->lterm, eqn->rterm, subst)))
       {                  
          if(!EqnIsOriented(eqn) || /* Only a performance hack */
             !SubstIsRenaming(subst))
@@ -183,7 +186,7 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
    {
       if(SubstComputeMatch(eqn->rterm, term, subst, TBTermEqual))
       {
-	 if(instance_is_rule(ocb, eqn, eqn->rterm, eqn->lterm, subst))
+	 if(instance_is_rule(ocb, eqn->bank, eqn->rterm, eqn->lterm, subst))
 	    /* If instance is rule -> subst is no renaming! */
 	 {
             assert(!SubstIsRenaming(subst));
@@ -456,7 +459,7 @@ static ClausePos_p indexed_find_demodulator(OCB_p ocb, Term_p term,
       {
       case LeftSide:
 	    if((EqnIsOriented(eqn) 
-		|| instance_is_rule(ocb, eqn, eqn->lterm, eqn->rterm, subst))
+		|| instance_is_rule(ocb, eqn->bank, eqn->lterm, eqn->rterm, subst))
 	       &&
 	       (!restricted_rw ||
 		!SubstIsRenaming(subst)))
@@ -466,7 +469,7 @@ static ClausePos_p indexed_find_demodulator(OCB_p ocb, Term_p term,
 	    break;
       case RightSide:
 	    assert(!EqnIsOriented(eqn));
-	    if(instance_is_rule(ocb, eqn, eqn->rterm, eqn->lterm, subst)
+	    if(instance_is_rule(ocb, eqn->bank, eqn->rterm, eqn->lterm, subst)
 	       /* &&
 	        !restricted_rw */) 
 	       /* Case SubstIsRenaming(subst) already eliminated in
@@ -523,7 +526,7 @@ static Term_p rewrite_with_clause_set(OCB_p ocb, TB_p bank, Term_p term,
 				  subst, prefer_general, restricted_rw);
    if(pos)
    {
-      RewriteSucesses++;
+      RewriteSuccesses++;
 
       repl = ClausePosGetOtherSide(pos);      
       repl = TBInsertInstantiated(bank, repl);
@@ -800,6 +803,185 @@ static __inline__ RWDesc_p rw_desc_cell_alloc(OCB_p ocb, TB_p bank,
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: clause_tree_push()
+//
+//   Push all clauses in the tree onto stack (unless already there,
+//   indicated by CPRWDetected).
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+long clause_tree_push(PStack_p stack, PTree_p clausetree)
+{
+   PStack_p iterstack;
+   PTree_p  cell;
+   Clause_p clause;
+   long     res = 0;
+
+   iterstack = PTreeTraverseInit(clausetree);
+
+   while((cell = PTreeTraverseNext(iterstack)))
+   {
+      clause = cell->key;
+      if(!ClauseQueryProp(clause, CPRWDetected))
+      {
+         ClauseSetProp(clause, CPRWDetected);
+         PStackPushP(stack, clause);
+         res++;
+      }
+   }
+   PTreeTraverseExit(iterstack);
+   return res;
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: term_find_rw_clauses()
+//
+//   Push all clauses stored at termocc that are rewritable with
+//   lterm->rterm onto stack. Return true if there is at least one.
+//
+// Global Variables: -
+//
+// Side Effects    : Sets properties and links in affected terms and
+//                   clauses.
+//
+/----------------------------------------------------------------------*/
+
+bool term_find_rw_clauses(Clause_p demod,
+                          OCB_p ocb, 
+                          SubtermOcc_p termocc, 
+                          PStack_p stack, 
+                          Term_p lterm,
+                          Term_p rterm,
+                          bool oriented)
+{
+   Eqn_p eqn = demod->literals;
+   RWResultType rwres = RWNotRewritable;
+   bool    res = 0;
+   Subst_p subst = SubstAlloc();
+   Term_p  term = termocc->term;    
+
+   assert(!TermIsVar(term));
+   
+   BWRWMatchAttempts++;
+   if(SubstComputeMatch(lterm, term, subst, TBTermEqual))
+   {      
+      BWRWMatchSuccesses++;
+      if(oriented
+         || instance_is_rule(ocb, eqn->bank, lterm, rterm, subst))
+      {                  
+         if(!oriented || /* Only a performance hack */
+            !SubstIsRenaming(subst))
+         {
+            TermCellSetProp(term, TPIsRRewritable|TPIsRewritable);
+            rwres = RWAlwaysRewritable;
+            res += clause_tree_push(stack, termocc->rw_full);
+            res += clause_tree_push(stack, termocc->rw_rest);
+         }
+         else
+         {
+            TermCellSetProp(term, TPIsRewritable);
+            rwres = RWLimitedRewritable;  
+            res += clause_tree_push(stack, termocc->rw_full);
+         }
+         if(!TermIsRewritten(term) || (rwres == RWAlwaysRewritable))
+         {
+            rterm = TBInsertInstantiated(eqn->bank, rterm);
+            TermAddRWLink(term, rterm, demod->ident, ClauseIsSOS(demod), rwres);
+            //TermDeleteRWLink(term);
+         }
+      }
+   }
+   SubstDelete(subst);
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: tree_find_rw_clauses()
+//
+//   Push all clauses in termtree that are rewritable with
+//   lterm->rterm onto stack. Return number of clauses.
+//
+// Global Variables: -
+//
+// Side Effects    : Sets properties and links in affected terms and
+//                   clauses.
+//
+/----------------------------------------------------------------------*/
+
+long tree_find_rw_clauses(Clause_p demod,
+                          OCB_p ocb, 
+                          SubtermTree_p termtree, 
+                          PStack_p stack, 
+                          Term_p lterm,
+                          Term_p rterm,
+                          bool oriented)
+{
+   bool          res = 0;
+   PStack_p      iterstack;
+   SubtermTree_p cell;
+   
+   iterstack = PTreeTraverseInit(termtree);
+
+   while((cell = PTreeTraverseNext(iterstack)))
+   {
+      res += term_find_rw_clauses(demod, ocb, cell->key, stack, 
+                                  lterm, rterm, oriented);
+   }
+   PTreeTraverseExit(iterstack);
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: find_rewritable_clauses_indexed()
+//
+//   Push all clauses in index that are rewritable with lterm->rterm
+//   onto stack. Return true if there is at least one.
+//
+// Global Variables: -
+//
+// Side Effects    : Sets properties and links in affected terms and
+//                   clauses.
+//
+/----------------------------------------------------------------------*/
+
+long find_rewritable_clauses_indexed(Clause_p demod,
+                                     OCB_p ocb, 
+                                     SubtermIndex_p index, 
+                                     PStack_p stack, 
+                                     Term_p lterm,
+                                     Term_p rterm,
+                                     bool oriented)
+{
+   long          res = 0;
+   PStack_p      termtrees = PStackAlloc();
+   SubtermTree_p tree;
+
+   FPIndexFindMatchable(index, lterm, termtrees);
+   
+   while(!PStackEmpty(termtrees))
+   {
+      tree = PStackPopP(termtrees);
+      res += tree_find_rw_clauses(demod, ocb, tree, stack, 
+                                  lterm, rterm, oriented);
+   }
+   PStackFree(termtrees);
+   return res;
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
@@ -972,8 +1154,63 @@ bool FindRewritableClauses(OCB_p ocb, ClauseSet_p set,
 {   
    return find_rewritable_clauses(ocb, set, results, new_demod,
 				  nf_date);
-   /* Later: Use the index if it exists */
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FindRewritableClausesIndexed()
+//
+//   New version - find all clauses that are rewritable with
+//   new_demod using the subterm index. Returns true if any rewritable
+//   clause was found.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes nf_dates of terms, may add rewrite
+//                   links.
+//
+/----------------------------------------------------------------------*/
+
+long FindRewritableClausesIndexed(OCB_p ocb, SubtermIndex_p index, 
+                                  PStack_p stack, Clause_p new_demod, 
+                                  SysDate nf_date)
+{
+   long res;
+   Eqn_p eqn = new_demod->literals;
+
+   assert(ClauseIsDemodulator(new_demod));
+
+   res = find_rewritable_clauses_indexed(new_demod,
+                                         ocb, index, 
+                                         stack, 
+                                         eqn->lterm,
+                                         eqn->rterm,
+                                         EqnIsOriented(eqn));
+   if(!EqnIsOriented(eqn))
+   {
+      res += find_rewritable_clauses_indexed(new_demod,
+                                             ocb, index, 
+                                             stack,
+                                             eqn->rterm,
+                                             eqn->lterm,
+                                             false);
+   }
+   /*printf("Found %ld rewritable clauses\n", res);
+   {
+      PStackPointer i;
+
+      for(i=0; i< PStackGetSP(stack); i++)
+      {
+         ClausePrint(stdout, PStackElementP(stack, i), true);
+         printf("\n");
+      }
+      printf("---\n");
+      }*/
+   return res;
+}
+
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

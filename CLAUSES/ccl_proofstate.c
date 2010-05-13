@@ -84,7 +84,7 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->processed_non_units  = ClauseSetAlloc();
    handle->unprocessed          = ClauseSetAlloc();
    handle->tmp_store            = ClauseSetAlloc();
-   GlobalIndicesReset(&(handle->gindices));
+   GlobalIndicesNull(&(handle->gindices));
    handle->fvi_initialized     = false;
    handle->processed_pos_rules->demod_index = PDTreeAlloc();
    handle->processed_pos_eqns->demod_index  = PDTreeAlloc();
@@ -94,7 +94,7 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->demods[1]            = handle->processed_pos_eqns;
    handle->demods[2]            = NULL;
    handle->watchlist            = NULL;
-   GlobalIndicesReset(&(handle->wlindices));
+   GlobalIndicesNull(&(handle->wlindices));
    handle->state_is_complete    = true;
    handle->definition_store     = DefStoreAlloc(handle->terms);
    
@@ -222,9 +222,11 @@ void ProofStateResetClauseSets(ProofState_p state, bool term_gc)
    ClauseSetFreeClauses(state->processed_non_units);
    ClauseSetFreeClauses(state->unprocessed);
    ClauseSetFreeClauses(state->tmp_store);
+   GlobalIndicesReset(&(state->gindices));
    if(state->watchlist)
    {
       ClauseSetFreeClauses(state->watchlist);
+      GlobalIndicesReset(&(state->wlindices));
    }
    if(term_gc)
    {
@@ -256,16 +258,14 @@ void ProofStateFree(ProofState_p junk)
    ClauseSetFree(junk->processed_non_units);
    ClauseSetFree(junk->unprocessed);
    ClauseSetFree(junk->tmp_store);
-   if(junk->gindices.bw_rw_index)
-   {
-      FPIndexFree(junk->gindices.bw_rw_index);
-   }
+   GlobalIndicesFreeIndices(&(junk->gindices));
    GCAdminFree(junk->gc_terms);
    GCAdminFree(junk->gc_original_terms);
    if(junk->watchlist)
    {
       ClauseSetFree(junk->watchlist);
    }
+   GlobalIndicesFreeIndices(&(junk->wlindices));
 
    DefStoreFree(junk->definition_store);
    junk->original_terms->sig = NULL;
@@ -280,55 +280,6 @@ void ProofStateFree(ProofState_p junk)
    ProofStateCellFree(junk);
 }
 
-#ifdef NEVER_DEFINED
-/*-----------------------------------------------------------------------
-//
-// Function: ProofStateGCMarkTerms()
-//
-//   Mark all terms still used to represent the actual proof
-//   state. Does not mark axiom terms and temporary terms.
-//
-// Global Variables: -
-//
-// Side Effects    : Marks terms
-//
-/----------------------------------------------------------------------*/
-
-void ProofStateGCMarkTerms(ProofState_p state)
-{
-   ClauseSetGCMarkTerms(state->processed_pos_rules);
-   ClauseSetGCMarkTerms(state->processed_pos_eqns);
-   ClauseSetGCMarkTerms(state->processed_neg_units);
-   ClauseSetGCMarkTerms(state->processed_non_units);
-   ClauseSetGCMarkTerms(state->unprocessed);
-   if(state->watchlist)
-   {
-      ClauseSetGCMarkTerms(state->watchlist);
-   }
-   ClauseSetGCMarkTerms(state->definition_store->def_clauses);
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: ProofStateGCSweepTerms()
-//
-//   Collect unmarked term cells from the proof state term bank (not
-//   from the temporary term bank or the axiom term bank). Returns
-//   number of term cells collected.
-//
-// Global Variables: -
-//
-// Side Effects    : Collects memory (Surprise!)
-//
-/----------------------------------------------------------------------*/
-
-long ProofStateGCSweepTerms(ProofState_p state)
-{
-   return TBGCSweep(state->terms);
-}
-
-#endif
 
 /*-----------------------------------------------------------------------
 //

@@ -45,11 +45,16 @@ typedef struct global_indices_cell
 /*---------------------------------------------------------------------*/
 
 
-void GlobalIndicesReset(GlobalIndices_p indices);
+void GlobalIndicesNull(GlobalIndices_p indices);
 void GlobalIndicesInit(GlobalIndices_p indices, 
                        bool use_bw_rw_index,
                        bool use_pm_into_index,
                        bool use_pm_from_index);
+void GlobalIndicesFreeIndices(GlobalIndices_p indices);
+void GlobalIndicesReset(GlobalIndices_p indices);
+
+void GlobalIndicesRelease(GlobalIndices_p indices);
+
 void GlobalIndicesInsertClause(GlobalIndices_p indices, Clause_p clause);
 void GlobalIndicesDeleteClause(GlobalIndices_p indices, Clause_p clause);
 void GlobalIndicesInsertClauseSet(GlobalIndices_p indices, ClauseSet_p set);

@@ -38,19 +38,19 @@ Changes
 /* This datatype is used for building fingerprint indexes for terms. A
  * fingerprint index is a trie over fingerprints. Fingerprints contain
  * the actual f_codes of certain sampled positions in a term, or the
- * values LONG_MIN and 0 to describe positions not in the term and
- * not in any possible instance of the term,
- * respectively. Variable alternatives and function symbol
- * alternatives are handled in the obvious way. The value 0 is encoded
- * ar f_alternatives[0], the value LONG_MIN in v_alternatives[0]. */
+ * values BELOW_VAR, ANY_VAR and NOT_IN_TERM to describe positions not
+ * in the term and not in any possible instance of the term,
+ * respectively. Function symbol
+ * alternatives are handled in the obvious way. The value NOT_IN_TEM
+ * is encoded  * ar f_alternatives[0]. */
 
 typedef struct fp_index_cell
 {
-   IntMap_p           f_alternatives;   /* Function symbols */
-   long               count;
-   PDArray_p          v_alternatives;   /* Variables */
-   long               max_var;
-   void               *payload;
+   IntMap_p             f_alternatives;   /* Function symbols */
+   struct fp_index_cell *below_var;
+   struct fp_index_cell *any_var;
+   long                 count;
+   void                 *payload;
 }FPTreeCell, *FPTree_p;
 
 

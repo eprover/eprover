@@ -43,6 +43,7 @@ typedef struct subterm_occ_cell
    PTree_p rw_full; /* Of clauses in which it appeats unrestricted */ 
 }SubtermOccCell, *SubtermOcc_p;
 
+typedef PTree_p SubtermTree_p;
 
 
 /*---------------------------------------------------------------------*/
@@ -57,15 +58,15 @@ void         SubtermOccFree(SubtermOcc_p soc);
 
 int CmpSubtermCells(const void *soc1, const void *soc2);
 
-void         SubtermTreeFree(PTree_p root);
+void         SubtermTreeFree(SubtermTree_p root);
 void         SubtermTreeFreeWrapper(void *junk);
 
-SubtermOcc_p SubtermTreeInsertTerm(PTree_p *root, Term_p term);
+SubtermOcc_p SubtermTreeInsertTerm(SubtermTree_p *root, Term_p term);
 
-bool         SubtermTreeInsertTermOcc(PTree_p *root, Term_p term, 
+bool         SubtermTreeInsertTermOcc(SubtermTree_p *root, Term_p term, 
                                       Clause_p clause, bool restricted);  
-void         SubtermTreeDeleteTerm(PTree_p *root, Term_p term);
-bool         SubtermTreeDeleteTermOcc(PTree_p *root, Term_p term, 
+void         SubtermTreeDeleteTerm(SubtermTree_p *root, Term_p term);
+bool         SubtermTreeDeleteTermOcc(SubtermTree_p *root, Term_p term, 
                                       Clause_p clause, bool restricted);
 
 

@@ -64,6 +64,7 @@ void ClauseMoveSimplified(GlobalIndices_p gindices,
 {
    ClauseKillChildren(clause);
    ClauseSetExtractEntry(clause);
+   GlobalIndicesDeleteClause(gindices, clause);
    DocClauseQuoteDefault(6, clause, "simplifiable");
    ClauseSetInsert(tmp_set, clause);
    
@@ -95,6 +96,41 @@ bool RemoveRewritableClauses(OCB_p ocb, ClauseSet_p from, ClauseSet_p into,
    {
       handle = PStackPopP(stack);
 
+      ClauseMoveSimplified(gindices, handle, into);
+   }
+   PStackFree(stack);
+
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: RemoveRewritableClausesIndexed()
+//
+//   Remove all clauses in gindices->bw_rw_index which can be
+//   rewritten with new_demod. 
+//
+// Global Variables: -
+//
+// Side Effects    : As specified...
+//
+/----------------------------------------------------------------------*/
+
+bool RemoveRewritableClausesIndexed(OCB_p ocb, ClauseSet_p into, 
+                                    Clause_p new_demod, SysDate nf_date, 
+                                    GlobalIndices_p gindices)
+{
+   PStack_p stack = PStackAlloc();
+   Clause_p handle;
+   bool     res;
+
+   res = FindRewritableClausesIndexed(ocb, gindices->bw_rw_index, 
+                                      stack, new_demod, nf_date);
+   while(!PStackEmpty(stack))
+   {
+      handle = PStackPopP(stack);
+      ClauseDelProp(handle, CPRWDetected);
       ClauseMoveSimplified(gindices, handle, into);
    }
    PStackFree(stack);
