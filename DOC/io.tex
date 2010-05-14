@@ -1,0 +1,450 @@
+
+\section{Input and Output}
+\label{sec:io}
+
+The INOUT part of the library offers powerful facilities for building
+programs that read input from Unix files, the standard input stream,
+or NULL-delimited strings. The central interface offers access to a
+comfortable and powerful scanner for breaking input text into token
+sequences. Additional support exists for parsing command lines and
+output to a standard channel.
+
+\subsection{Processing Input}
+\label{sec:io:input}
+
+One of the most common (and tedious) tasks necessary for most programs
+is the reading of input data into the internal representation used by
+the program. CLIB contains a powerful scanner for reading input
+(possibly from multiple sources), transforming it into sequences of
+tokens, testing for syntactical correctness (with a interfaced for
+standardized and meaningful error messages), and building larger
+structures.
+
+The scanner is build on top of a stream model whose basic function is
+to keep track of the current position in the input and to deliver the
+iput character by character to the scanner. User lever programs do not
+usually interact with this module at all.
+
+
+\subsection{Usage Information}
+
+\begin{verbatim}
+#include <cio_scanner.h>
+
+Requires: lib/BASICS.a
+          lib/INOUT.a
+\end{verbatim}
+
+
+\subsubsection{The Scanner Object}
+
+All data needed to scan an input source is kept in a single objecct of
+the type \texttt{ScannerCell}. Scanner cells are created and destroyed
+by simple functions:
+
+\begin{verbatim}
+Scanner_p CreateScanner(StreamType type, char* name, bool
+                        ignore_comments, char* include_key)
+\end{verbatim}
+\begin{quote}
+  This function returns an initialized scanner object for scanning the
+  desired input source. There are four predefined types of input,
+  selected by the first argument to the function:
+
+  \begin{description}
+  \item[\texttt{StreamTypeFile}:] Read the input from a file or
+    standard input. The second argument to \texttt{CreateScanner()} is
+    interpreted as the name of a file (with ``\texttt{-}''
+    representing \texttt{<stdin>} as usual) from whicht to read
+    input. 
+  \item[\texttt{StreamTypeInternalString}:] Read input from a static
+    string embedded into the program. This allows the compact and easy
+    integration of data into the program code. The second argument to
+    \texttt{CreateScanner()} is interpreted as the string to be
+    read.
+  \item[\texttt{StreamTypeOptionString}:] Read input from a string
+    provided as an argument to a program option. The second argument
+    to \texttt{CreateScanner()} is interpreted as the string to be
+    read.
+  \item[\texttt{StreamTypeUserString}:] Read input from a string
+    provided by the user of the programm in some other way. The second
+    argument to \texttt{CreateScanner()} is interpreted as the string
+    to be read.
+  \end{description}
+  
+  The last three types differ only in the way they construct the
+  position description for error messages. 
+  
+  The third argument denotes whether the scanner should skip comments
+  or pass them on to the calling functions. CLIB uses two typed of
+  comments: C-style comments, included in \texttt{/* ... */}, and line
+  comments, starting at a special comment character and continuing
+  till the end of the current line. Comment characters are defined by
+  \texttt{isstartcomment()} in \texttt{<cio\_scanner.h>}, the default
+  comment characters are \texttt{\%} and \texttt{\#}.
+  
+  The final argument to \texttt{CreateScanner()} can be used to
+  implement an include mechanism.  It has to be either \texttt{NULL},
+  or a string containing a valid identifier \texttt{<ident>}. In the
+  second case, the sequence \texttt{<ident> <name>} in the input
+  stream is replaced by the content of the file described by
+  \texttt{<name>}. \texttt{<name>} has to be either an identifier or a
+  string (enclosed in double quotes \texttt{"..."}).
+\end{quote}
+\begin{verbatim}
+void DestroyScanner(Scanner_p void)
+\end{verbatim}
+\begin{quote}
+  Destroy a scanner object, return all allocated memory, close the
+  associated files (if any).
+\end{quote}
+
+
+\subsubsection{Handling Tokens}
+
+The CLIB scanner breaks input into a sequence of tokens. Token types
+are biased towards programming and specification languages. For an
+overview of the currently implemented token types look at the
+definition of \texttt{TokenType} in \texttt{<cio\_scanner.h>}, for
+their definition at the array \texttt{token\_print\_rep[]} in
+\texttt{<cio\_scanner.c>}.
+
+The scanner represents the input as a sequence of tokens, of wich a
+finite window (whose size is fixed at compile time) is accessible at
+any one moment. The last of the currently accessible token for each
+input stream is \texttt{AktToken(in)}, the other visible tokens are
+\emph{look-ahead} tokens, accessible via \texttt{LookToken(in,
+  n)}. The scanner always represents the input as an infinite
+sequence of tokens by padding the input with an unlimited amount of
+tokens with type \texttt{NoToken}.
+
+Tokens contain various types of information. In addition to the type,
+this includes information about the position of a token in the input
+stream (useful e.g. for error messages), the literal representation of
+the token (particularly useful for identifiers and numbers), a
+possible numerical value of a token and information about skipped
+comments and whitespace. The definition of a token cell is as follows:
+
+\small
+\begin{verbatim}
+typedef struct tokencell
+{
+   TokenType     tok;         /* Type for AcceptTok(), TestTok() ...   */
+   DStr_p        literal;     /* Verbatim copy of input for the token  */
+   unsigned long numval;      /* Numerical value (if any) of the token */
+   DStr_p        comment;     /* Accumulated preceding comments        */
+   bool          skipped;     /* Was this token preceded by SkipSpace? */
+   DStr_p        source;      /* Ref. to the input stream source       */   
+   StreamType    stream_type; /* File or string? */
+   long          line;        /* Position in this stream               */
+   long          column;      /*  "               "                    */
+}TokenCell, *Token_p;
+\end{verbatim}
+\normalsize
+
+
+\subsection{Command Line Parsing}
+\label{sec:io:cl}
+
+This part of the library duplicates most of the functionality of the
+Unix/GNU \texttt{getopt} library (and partially extends on it). It
+offers a somewhat different interface and some other differences. The
+main advantages of using this are as follows:
+
+\begin{itemize}
+\item Implementations of \texttt{getopt()} seem to differ significantly
+  between UNIX versions, and GNU getopt is not available on all
+  systems. Finding out what the differences are and coding around them
+  seems to be more work (and less certain) than including this part of
+  the library with user programs\footnote{It even seemed to be more
+  work than writing this library\ldots}.
+\item This implementation comes with direct support for the handling
+  of numerical (integer and float) and boolean arguments to options.
+\item Finally, this implementation allows (well, forces) the
+  programmer to document an option {\em immediately}, and automates
+  the process of presenting this information to the user.
+\end{itemize}
+
+Options are parsed following POSIX conventions\footnote{With the
+  exception that CLIB offers no direct support for multi-argument
+  options.} and supporting the GNU style long options. Thus, options
+can either consist of a dash, followed by a single character (and
+optionally a {\em required} argument, with or without a separating
+space), or a double dash, followed by an sequence of characters, and
+possibly a (required or optional) argument appended after an equal
+sign. Single character options without arguments can be run together.
+The special string \texttt{--} (two dashes) denotes the end of all
+options, everything following this string on the command line is
+interpreted as a non-option. For more information check out the
+documentation of GNU \texttt{getopt()}.
+
+\subsubsection{Usage Information}
+
+\begin{verbatim}
+#include <cio_commandline.h>
+
+Requires: lib/BASICS.a
+          lib/INOUT.a
+\end{verbatim}
+
+
+\subsubsection{Specifying Options}
+
+Options are specified by defining an array of type \texttt{OptCell[]}.
+The \texttt{OptCell} data structure contains all information about a
+single option. A set of options is defined by an array of these cells
+which is terminated by an entry with the value 0 in the
+\texttt{option\_code} field of the structure.
+
+\begin{verbatim}
+typedef struct optcell
+{
+   int         option_code; 
+   char        shortopt;    /* Single Character options */
+   char*       longopt;     /* Double dash, GNU-Style */
+   OptArgType  type;        /* What about Arguments? */
+   char*       arg_default; /* Default for optional 
+                               argument (long style only */
+   char*       desc;        /* Put the documentation in
+                               immediately! */
+}OptCell, *Opt_p;
+\end{verbatim}
+
+The fields of the \texttt{OptCell} structure are used as follows:
+
+\begin{description}
+\item[\textmd{\texttt{option\_code}}:] Unique integer code for each
+  option. You may want to use an enumeration type with symbolic names
+  here.  This field is typically interpreted in a \texttt{switch}
+  instruction to distinguish between options. The special value 0 is
+  reserved for marking the end of an option array.
+\item[\textmd{\texttt{shortopt}}:] The single character for the short
+  form of an option. Use '\verb|\0|' if the option has no short form.
+\item[\textmd{\texttt{longopt}}:] Long form of the option. The leading dashes
+  \texttt{--} are implied, they do not need to be written explicitly.
+\item[\textmd{\texttt{type}}:] Describes the arguments for the option. It can
+  take one of the three values \texttt{NoArg} (no argument),
+  \texttt{OptArg} (optional argument, you need to supply a default
+  (see below)), and \texttt{ReqArg} (the option required an argument).
+\item[\textmd{\texttt{arg\_default}}:] Default value for optional arguments
+  (used if no argument is given on the command line), ignored in all
+  other cases.
+\item[\textmd{\texttt{desc}}:] User description of the option (used by
+  \texttt{PrintOptions()} for printing a formatted description for the
+  option).
+\end{description}
+
+
+\subsubsection{Processing Options}
+
+In contrast to many other implementations, the CLIB version of
+\texttt{getopt()}, {\tt CLStateGetOpt()} does not modify the original
+values of {\tt argc} and {\tt argv[]}. Instead, information about the
+parsing process is maintained in a special object of type {\tt
+  CLStateCell}. The following functions are used for reading and
+interpreting options:
+
+\begin{verbatim}
+CLState_p CLStateAlloc(int argc, char* argv[])
+\end{verbatim}
+\begin{quote}
+  Allocate an initialized state cell. This function is typically
+  called with the original \texttt{argc} and \texttt{argv} values to
+  return a state object for parsing the command line.
+\end{quote}
+
+
+
+\begin{verbatim}
+int CLStateInsertArg(CLState_p state, char* arg)
+\end{verbatim}
+\begin{quote}
+Insert a new argument in the state. The argument is inserted at the
+first position. This function is useful if you want to add
+e.g. default arguments to the command line.
+\end{quote}
+
+\begin{verbatim}
+void CLStateFree(CLState_p junk)
+\end{verbatim}
+\begin{quote}
+Free the memory used by a \texttt{CLStateCell}.
+\end{quote}
+
+\begin{verbatim}
+Opt_p CLStateGetOpt(CLState_p state, 
+                    char** arg,
+                    OptCell options[])
+\end{verbatim}
+\begin{quote}
+This is the core function of this part of the library. It takes a
+parsing state and a set of options and returns a pointer to the option
+cell describing the next option (or \texttt{NULL} if no further option
+exists in the state) and a pointer to the argument string (via a
+reference parameter \texttt{arg}). The state is updated accordingly. 
+
+If a non-specified option is encountered, or a required argument is
+missing, \texttt{CLStateGetOpt()} will print an error message to
+\texttt{stderr} and exit the program with the return value
+\texttt{USAGE\_ERROR}. 
+
+If the function returns \texttt{NULL}, all options have been
+processed. In this case, \texttt{state->argc} contains the number of
+remaining (non-option) arguments. Pointers to those arguments are
+stored in the first elements of \texttt{state->argv}, i.e.\\
+\texttt{state->argv[0]\ldots{}state->argv[state->argc-1]}.\\ The array
+is terminated by a \texttt{NULL} element, that is,\\
+\texttt{state->argv[state->argc]} is guaranteed to exist and contain
+the \texttt{NULL} pointer.
+\end{quote}
+
+\begin{verbatim}
+double CLStateGetFloatArg(Opt_p option, char* arg)
+long   CLStateGetIntArg(Opt_p option, char* arg)
+bool   CLStateGetBoolArg(Opt_p option, char* arg)
+\end{verbatim}
+\begin{quote}
+Given an option (for error messages) and an argument string, compute a
+numerical or boolean argument and return it. If the argument is not of
+the required type, print an error message and exit the program.
+\end{quote}
+
+\begin{verbatim}
+void PrintOption(FILE* out, Opt_p option)
+void PrintOptions(FILE* out, OptCell option[])
+\end{verbatim}
+\begin{quote}
+These functions serve to print either a single option and its
+documentation or an entire array of options to the desired output
+stream (usually either \texttt{stdout} or \texttt{stderr}).
+\end{quote}
+
+\subsubsection{Example}
+
+This example demonstrates the specification and parsing of some
+actions. For the full programm text check out
+\texttt{SIMPLE\_APPS/ex\_commandline.c}. 
+
+\begin{verbatim}
+#include <cio_commandline.h>
+...
+#define VERSION "1.0 Tue Jan 20 00:35:40 MET 1998"
+
+typedef enum
+{
+   OPT_NOOPT=0,
+   OPT_HELP,
+   OPT_INT_EXAMPLE,
+   OPT_FLOAT_EXAMPLE
+}OptionCodes;
+
+OptCell opts[] =
+{
+   {OPT_HELP, 
+    'h', "help", 
+    NoArg, NULL,
+    "Print a short description of program usage and options."},
+   {OPT_INT_EXAMPLE, 
+    'i', "int_example", 
+    ReqArg, "1",
+    "Print the value given with the option.."},
+   {OPT_FLOAT_EXAMPLE,
+    'f', "float_example",
+    OptArg, "3.1415",
+    "Print the given argument or a default value."},
+   {OPT_NOOPT,
+    '\0', NULL,
+    NoArg, NULL,
+    NULL}
+};
+
+void      print_help(FILE* out);
+CLState_p process_options(int argc, char* argv[]);
+
+int main(int argc, char* argv[])
+{
+   CLState_p state;
+   int i;
+   
+   assert(argv[0]);
+   InitError(argv[0]);
+   
+   /* Process options */
+   state = process_options(argc, argv);
+   ...
+   FreeCLState(state);
+   return NO_ERROR;
+}
+
+/*-----------------------------------------------------
+//
+// Function: process_options()
+//
+//   Read and process the command line option, return 
+//   (the pointer to) a CLState object containing the
+//    remaining arguments. 
+//
+/-----------------------------------------------------*/
+
+CLState_p process_options(int argc, char* argv[])
+{
+   Opt_p handle;
+   CLState_p state;
+   char*  arg;
+   
+   state = AllocCLState(argc,argv);
+   while((handle = CLStateGetOpt(state, &arg, opts)))
+   {
+      switch(handle->option_code)
+      {
+      case OPT_HELP: 
+         print_help(stdout);
+         exit(NO_ERROR);
+      case OPT_INT_EXAMPLE:
+         printf("Integer option has value %ld\n",
+                CLStateGetIntArg(handle, arg));
+         break;
+      case OPT_FLOAT_EXAMPLE:
+         printf("Float option has value %f\n",
+                CLStateGetFloatArg(handle, arg));
+         break;
+      default:
+         assert(false);
+         break;
+      }
+   }
+   return state;
+}
+
+void print_help(FILE* out)
+{
+   fprintf(out, "\n\
+\n\
+ex_commandline.c "VERSION"\n\
+\n\
+Usage: ex_commandline [options] [files]\n\
+\n\
+Shows the usage of options, print non-option\
+commandline arguments.\n\
+\n");
+   PrintOptions(stdout, opts);
+}
+\end{verbatim}
+
+
+\subsubsection{But I want to have more than one argument to an
+  option!}
+
+Bad luck. CLIB offers no direct support for this feature, as it is
+rarely needed, but would seriously complicate the code. If you really
+need an option with multiple arguments, use quotes to group them into
+a single word (or use a delimiter other than white space), then
+use\texttt{CLStateGetOpt()} to get the argument string and parse the
+string yourself (possibly using the scanner/source handler documented
+in section~\ref{sec:io:input}).
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "clib"
+%%% End: 

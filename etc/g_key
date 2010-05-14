@@ -1,0 +1,20 @@
+K01_F2_0 
+K02_F2_0 -wconstant -Garity
+K04_F2_0 -warity -Garity
+K08_F2_0 -wmodarity -Garity
+K01_F2_PI_0 --prefer-initial-clauses
+K02_F2_PI_0 -wconstant -Garity --prefer-initial-clauses
+K04_F2_PI_0 -warity -Garity --prefer-initial-clauses
+K08_F2_PI_0 -wmodarity -Garity
+K01_F2_PI_S4_0 --prefer-initial-clauses --split-aggressive --split-clauses=4
+K02_F2_PI_S4_0 -wconstant -Garity --prefer-initial-clauses --split-aggressive --split-clauses=4
+K04_F2_PI_S4_0 -warity -Garity --prefer-initial-clauses --split-aggressive --split-clauses=4
+K08_F2_PI_S4_0 -wmodarity -Garity --prefer-initial-clauses --split-aggressive --split-clauses=4
+#K01_F2_PI_DE_0 --prefer-initial-clauses --destructive-er
+#K02_F2_PI_DE_0 -wconstant -Garity --prefer-initial-clauses --destructive-er
+#K04_F2_PI_DE_0 -warity -Garity --prefer-initial-clauses --destructive-er
+#K08_F2_PI_DE_0 -wmodarity -Garity --destructive-er
+#K01_F2_PI_AE_0 --prefer-initial-clauses --destructive-er --destructive-er-aggressive
+#K02_F2_PI_AE_0 -wconstant -Garity --prefer-initial-clauses --destructive-er --destructive-er-aggressive
+#K04_F2_PI_AE_0 -warity -Garity --prefer-initial-clauses --destructive-er --destructive-er-aggressive
+#K08_F2_PI_AE_0 -wmodarity -Garity --destructive-er --destructive-er-aggressive

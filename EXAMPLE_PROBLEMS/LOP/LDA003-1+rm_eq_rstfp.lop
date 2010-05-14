@@ -1,0 +1,48 @@
+#--------------------------------------------------------------------------
+# File     : LDA003-1 : TPTP v2.1.0. Released v1.0.0.
+# Domain   : LD-Algebras (Left segments)
+# Problem  : Show that 3 is a left segment of U = 2*2
+# Version  : [Jec93] axioms.
+# English  : 
+
+# Refs     : [Jec93] Jech (1993), LD-Algebras
+# Source   : [Jec93]
+# Names    : Problem 3 [Jec93]
+
+# Status   : unsatisfiable
+# Rating   : 0.33 v2.1.0, 0.20 v2.0.0
+# Syntax   : Number of clauses    :    7 (   0 non-Horn;   6 unit;   5 RR)
+#            Number of literals   :    9 (   4 equality)
+#            Maximal clause size  :    3 (   1 average)
+#            Number of predicates :    2 (   0 propositional; 2-2 arity)
+#            Number of functors   :    5 (   4 constant; 0-2 arity)
+#            Number of variables  :    8 (   1 singleton)
+#            Maximal term depth   :    3 (   1 average)
+
+# Comments : 
+#          : tptp2X -f setheo:sign -t rm_equality:rstfp LDA003-1.p 
+#--------------------------------------------------------------------------
+# a1, axiom.
+equal(f(X, f(Y, Z)), f(f(X, Y), f(X, Z))) <- .
+
+# a2, axiom.
+left(X, f(X, Y)) <- .
+
+# a3, axiom.
+left(X, Z) <- 
+    left(X, Y),
+    left(Y, Z).
+
+# clause_4, axiom.
+equal(2, f(1, 1)) <- .
+
+# clause_5, axiom.
+equal(3, f(2, 1)) <- .
+
+# clause_6, axiom.
+equal(u, f(2, 2)) <- .
+
+# prove_equation, conjecture.
+ <- left(3, u).
+
+#--------------------------------------------------------------------------

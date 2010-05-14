@@ -1,0 +1,132 @@
+%--------------------------------------------------------------------------
+% File     : GEO030-2 : TPTP v2.1.0. Released v1.0.0.
+% Domain   : Geometry
+% Problem  : Corollary to the outer five-segment axiom
+% Version  : [Qua89] axioms.
+% English  : 
+
+% Refs     : [SST83] Schwabbauser et al. (1983), Metamathematische Methoden
+%          : [Qua89] Quaife (1989), Automated Development of Tarski's Geome
+% Source   : [TPTP]
+% Names    : 
+
+% Status   : unsatisfiable
+% Rating   : 0.45 v2.1.0, 0.56 v2.0.0
+% Syntax   : Number of clauses    :   23 (   5 non-Horn;  11 unit;  20 RR)
+%            Number of literals   :   61 (   9 equality)
+%            Maximal clause size  :    8 (   2 average)
+%            Number of predicates :    3 (   0 propositional; 2-4 arity)
+%            Number of functors   :   12 (   7 constant; 0-6 arity)
+%            Number of variables  :   71 (   3 singleton)
+%            Maximal term depth   :    2 (   1 average)
+
+% Comments : Proving corollaries from axioms is not usual.
+%          : tptp2X -f tptp -t rm_equality:rstfp GEO030-2.p 
+%--------------------------------------------------------------------------
+input_clause(reflexivity_for_equidistance,axiom,
+    [++ equidistant(X, Y, Y, X)]).
+
+input_clause(transitivity_for_equidistance,axiom,
+    [-- equidistant(X, Y, Z, V),
+     -- equidistant(X, Y, V2, W),
+     ++ equidistant(Z, V, V2, W)]).
+
+input_clause(identity_for_equidistance,axiom,
+    [-- equidistant(X, Y, Z, Z),
+     ++ equal(X, Y)]).
+
+input_clause(segment_construction1,axiom,
+    [++ between(X, Y, extension(X, Y, W, V))]).
+
+input_clause(segment_construction2,axiom,
+    [++ equidistant(Y, extension(X, Y, W, V), W, V)]).
+
+input_clause(outer_five_segment,axiom,
+    [-- equidistant(X, Y, X1, Y1),
+     -- equidistant(Y, Z, Y1, Z1),
+     -- equidistant(X, V, X1, V1),
+     -- equidistant(Y, V, Y1, V1),
+     -- between(X, Y, Z),
+     -- between(X1, Y1, Z1),
+     ++ equal(X, Y),
+     ++ equidistant(Z, V, Z1, V1)]).
+
+input_clause(identity_for_betweeness,axiom,
+    [-- between(X, Y, X),
+     ++ equal(X, Y)]).
+
+input_clause(inner_pasch1,axiom,
+    [-- between(U, V, W),
+     -- between(Y, X, W),
+     ++ between(V, inner_pasch(U, V, W, X, Y), Y)]).
+
+input_clause(inner_pasch2,axiom,
+    [-- between(U, V, W),
+     -- between(Y, X, W),
+     ++ between(X, inner_pasch(U, V, W, X, Y), U)]).
+
+input_clause(lower_dimension1,axiom,
+    [-- between(lower_dimension_point_1, lower_dimension_point_2, lower_dimension_point_3)]).
+
+input_clause(lower_dimension2,axiom,
+    [-- between(lower_dimension_point_2, lower_dimension_point_3, lower_dimension_point_1)]).
+
+input_clause(lower_dimension3,axiom,
+    [-- between(lower_dimension_point_3, lower_dimension_point_1, lower_dimension_point_2)]).
+
+input_clause(upper_dimension,axiom,
+    [-- equidistant(X, W, X, V),
+     -- equidistant(Y, W, Y, V),
+     -- equidistant(Z, W, Z, V),
+     ++ between(X, Y, Z),
+     ++ between(Y, Z, X),
+     ++ between(Z, X, Y),
+     ++ equal(W, V)]).
+
+input_clause(euclid1,axiom,
+    [-- between(U, W, Y),
+     -- between(V, W, X),
+     ++ equal(U, W),
+     ++ between(U, V, euclid1(U, V, W, X, Y))]).
+
+input_clause(euclid2,axiom,
+    [-- between(U, W, Y),
+     -- between(V, W, X),
+     ++ equal(U, W),
+     ++ between(U, X, euclid2(U, V, W, X, Y))]).
+
+input_clause(euclid3,axiom,
+    [-- between(U, W, Y),
+     -- between(V, W, X),
+     ++ equal(U, W),
+     ++ between(euclid1(U, V, W, X, Y), Y, euclid2(U, V, W, X, Y))]).
+
+input_clause(continuity1,axiom,
+    [-- equidistant(U, V, U, V1),
+     -- equidistant(U, X, U, X1),
+     -- between(U, V, X),
+     -- between(V, W, X),
+     ++ between(V1, continuous(U, V, V1, W, X, X1), X1)]).
+
+input_clause(continuity2,axiom,
+    [-- equidistant(U, V, U, V1),
+     -- equidistant(U, X, U, X1),
+     -- between(U, V, X),
+     -- between(V, W, X),
+     ++ equidistant(U, W, U, continuous(U, V, V1, W, X, X1))]).
+
+input_clause(v_between_u_and_w,hypothesis,
+    [++ between(u, v, w)]).
+
+input_clause(u_to_w_equals_u_to_w1,hypothesis,
+    [++ equidistant(u, w, u, w1)]).
+
+input_clause(v_to_w_equals_v_to_w1,hypothesis,
+    [++ equidistant(v, w, v, w1)]).
+
+input_clause(u_not_v,hypothesis,
+    [-- equal(u, v)]).
+
+input_clause(prove_w_is_w1,conjecture,
+    [-- equal(w, w1)]).
+%--------------------------------------------------------------------------

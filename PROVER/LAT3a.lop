@@ -1,0 +1,19 @@
+
+n(X,Y) = n(Y,X).
+u(X,Y) = u(Y,X).
+n(X,n(Y,Z)) = n(n(X,Y),Z).
+u(X,u(Y,Z)) = u(u(X,Y),Z).
+u(X,X) = X.
+n(X,X) = X.
+u(X,n(X,Y)) = X.
+n(X,u(X,Y)) = X.
+f(X,f(Y,Z)) = f(f(X,Y),Z).
+f(1,X) = X.
+f(i(X),X) = 1.
+f(X,u(Y,Z)) = u(f(X,Y),f(X,Z)).
+f(X,n(Y,Z)) = n(f(X,Y),f(X,Z)).
+f(u(Y,Z),X) = u(f(Y,X),f(Z,X)).
+f(n(Y,Z),X) = n(f(Y,X),f(Z,X)).
+u(a,1) = a.
+u(b,1) = b.
+<- u(a,f(b,a)) = f(b,a).

@@ -1,0 +1,54 @@
+#--------------------------------------------------------------------------
+# File     : COL003-1 : TPTP v2.3.0. Released v1.0.0.
+# Domain   : Combinatory Logic
+# Problem  : Strong fixed point for B and W
+# Version  : [WM88] (equality) axioms.
+# English  : The strong fixed point property holds for the set 
+#            P consisting of the combinators B and W alone, where ((Bx)y)z 
+#            = x(yz) and (Wx)y = (xy)y.
+
+# Refs     : [Smu85] Smullyan (1978), To Mock a Mocking Bird and Other Logi
+#          : [MW87]  McCune & Wos (1987), A Case Study in Automated Theorem
+#          : [WM88]  Wos & McCune (1988), Challenge Problems Focusing on Eq
+#          : [Wos88] Wos (1988), Automated Reasoning - 33 Basic Research Pr
+#          : [Ove90] Overbeek (1990), ATP competition announced at CADE-10
+#          : [LW92]  Lusk & Wos (1992), Benchmark Problems in Which Equalit
+#          : [Wos93] Wos (1993), The Kernel Strategy and Its Use for the St
+#          : [Ove93] Overbeek (1993), The CADE-11 Competitions: A Personal 
+#          : [LM93]  Lusk & McCune (1993), Uniform Strategies: The CADE-11 
+#          : [Zha93] Zhang (1993), Automated Proofs of Equality Problems in
+# Source   : [WM88]
+# Names    : C2 [WM88]
+#          : Problem 2 [WM88]
+#          : Test Problem 17 [Wos88]
+#          : Sages and Combinatory Logic [Wos88]
+#          : CADE-11 Competition Eq-8 [Ove90]
+#          : CL2 [LW92]
+#          : THEOREM EQ-8 [LM93]
+#          : Question 3 [Wos93]
+#          : Question 5 [Wos93]
+#          : PROBLEM 8 [Zha93]
+
+# Status   : unsatisfiable
+# Rating   : 0.67 v2.2.1, 1.00 v2.0.0
+# Syntax   : Number of clauses    :    3 (   0 non-Horn;   3 unit;   1 RR)
+#            Number of literals   :    3 (   3 equality)
+#            Maximal clause size  :    1 (   1 average)
+#            Number of predicates :    1 (   0 propositional; 2-2 arity)
+#            Number of functors   :    4 (   2 constant; 0-2 arity)
+#            Number of variables  :    6 (   0 singleton)
+#            Maximal term depth   :    4 (   3 average)
+
+# Comments : 
+#          : tptp2X -f setheo:sign -t rm_equality:rstfp COL003-1.p 
+#--------------------------------------------------------------------------
+# b_definition, axiom.
+equal(apply(apply(apply(b, X), Y), Z), apply(X, apply(Y, Z))) <- .
+
+# w_definition, axiom.
+equal(apply(apply(w, X), Y), apply(apply(X, Y), Y)) <- .
+
+# prove_strong_fixed_point, conjecture.
+ <- equal(apply(Y, f(Y)), apply(f(Y), apply(Y, f(Y)))).
+
+#--------------------------------------------------------------------------

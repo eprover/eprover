@@ -1,0 +1,117 @@
+%--------------------------------------------------------------------------
+% File     : SYN014-1 : TPTP v2.1.0. Released v1.0.0.
+% Domain   : Syntactic
+% Problem  : A problem in quantification theory
+% Version  : [Wan65] axioms : Special.
+% English  : 
+
+% Refs     : [Wan65] Wang (1965), Formalization and Automatic Theorem-Provi
+%          : [MOW76] McCharen et al. (1976), Problems and Experiments for a
+% Source   : [MOW76]
+% Names    : ExQ2 [Wan65]
+%          : EXQ2 [MOW76]
+%          : exq2.ver1.in [ANL]
+%          : exq2.ver2.in [ANL]
+
+% Status   : unsatisfiable
+% Rating   : 0.91 v2.1.0, 0.00 v2.0.0
+% Syntax   : Number of clauses    :   17 (  14 non-Horn;   1 unit;  15 RR)
+%            Number of literals   :   55 (  32 equality)
+%            Maximal clause size  :    6 (   3 average)
+%            Number of predicates :    2 (   0 propositional; 2-2 arity)
+%            Number of functors   :    6 (   4 constant; 0-1 arity)
+%            Number of variables  :   17 (   0 singleton)
+%            Maximal term depth   :    2 (   1 average)
+
+% Comments : 
+%          : tptp2X -f tptp -t rm_equality:rstfp SYN014-1.p 
+%--------------------------------------------------------------------------
+input_clause(c_1,conjecture,
+    [-- equal(m, n)]).
+
+input_clause(c_2,conjecture,
+    [++ equal(n, k),
+     ++ equal(m, k)]).
+
+input_clause(c_3,conjecture,
+    [++ equal(Y, j),
+     -- equal(Y, k),
+     ++ element(Y, j)]).
+
+input_clause(c_4,conjecture,
+    [++ equal(Y, j),
+     ++ equal(Y, k),
+     -- element(Y, j)]).
+
+input_clause(c_5,conjecture,
+    [++ equal(Y, m),
+     -- element(Y, m),
+     -- equal(f(Y), m)]).
+
+input_clause(c_6,conjecture,
+    [++ equal(Y, m),
+     -- element(Y, m),
+     -- equal(f(Y), Y)]).
+
+input_clause(c_7,conjecture,
+    [++ equal(Y, m),
+     -- element(Y, m),
+     ++ element(Y, f(Y))]).
+
+input_clause(c_8,conjecture,
+    [++ equal(Y, m),
+     -- element(Y, m),
+     ++ element(f(Y), Y)]).
+
+input_clause(c_9,conjecture,
+    [++ equal(Y, m),
+     ++ element(Y, m),
+     ++ equal(V1, m),
+     ++ equal(V1, Y),
+     -- element(Y, V1),
+     -- element(V1, Y)]).
+
+input_clause(c_10,conjecture,
+    [++ equal(Y, n),
+     ++ element(Y, n),
+     -- equal(g(Y), n)]).
+
+input_clause(c_11,conjecture,
+    [++ equal(Y, n),
+     ++ element(Y, n),
+     -- equal(g(Y), Y)]).
+
+input_clause(c_12,conjecture,
+    [++ equal(Y, n),
+     ++ element(Y, n),
+     ++ element(Y, g(Y))]).
+
+input_clause(c_13,conjecture,
+    [++ equal(Y, n),
+     ++ element(Y, n),
+     ++ element(g(Y), Y)]).
+
+input_clause(c_14,conjecture,
+    [++ equal(Y, n),
+     -- element(Y, n),
+     ++ equal(V, n),
+     ++ equal(V, Y),
+     -- element(Y, V),
+     -- element(V, Y)]).
+
+input_clause(c_15,conjecture,
+    [++ equal(Y, k),
+     -- equal(Y, m),
+     ++ element(Y, k)]).
+
+input_clause(c_16,conjecture,
+    [++ equal(Y, k),
+     -- equal(Y, n),
+     ++ element(Y, k)]).
+
+input_clause(c_17,conjecture,
+    [++ equal(Y, k),
+     ++ equal(Y, m),
+     ++ equal(Y, n),
+     -- element(Y, k)]).
+%--------------------------------------------------------------------------

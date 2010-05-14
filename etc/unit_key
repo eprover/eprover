@@ -1,0 +1,76 @@
+K01_F2 
+K01_F1 -F1
+K02_F2 -wconstant -Garity
+K02_F1 -F1 -wconstant -Garity 
+K02_F0 -F0 -wconstant -Garity 
+K03_F2 -wconstant -Ginvarity
+K03_F1 -F1 -wconstant -Ginvarity
+K04_F2 -warity -Garity
+K04_F1 -F1 -warity -Garity
+#K05_F2 -winvarity -Ginvarity
+#K05_F1 -F1 -winvarity -Ginvarity
+K06_F2 -wconstant -Gfreq
+K07_F2 -wconstant -Ginvfreq
+K08_F2 -wmodarity -Garity
+K08_F1 -F1 -wmodarity -Garity
+K09_F2 -waritysquared -Garity
+K09_F1 -F1 -waritysquared -Garity
+#K09_F0 -F0 -waritysquared -Garity
+K10_F2 -wfirstmaximal0 -Ginvfreq
+K10_F1 -F1 -wfirstmaximal0 -Ginvfreq
+K11_F2 -waritysquared -Ginvfreq
+K12_F2 -wmodarity -Ginvfreq
+K13_F2 -wfreqrank -c1 -Ginvfreq
+K14_F2 -wfreqranksquare -c1 -Ginvfreq
+K15_F2 -wfreqcount -c1 -Ginvfreq
+K16_F2 -wprecedence -c1 -Ginvfreq
+K17_F2 -wfirstmaximal0 -Gunary_freq
+K18_F2 -winvfreqrank -c1 -Ginvfreq
+K19_F2 -winvmodfreqrankmax0 -c1 -Ginvfreqhack 
+K20_F2 -winvmodfreqrank -c1 -Ginvfreq
+K31_F2 -winvfreqrank -c1 -Ginvfreqconstmin
+K31_F1 -F1 -winvfreqrank -c1 -Ginvfreqconstmin
+K32_F2 -wconstant -Ginvfreqconstmin
+K32_F1 -F1 -wconstant -Ginvfreqconstmin
+
+L01_F2 -tLPO
+L01_F1 -F1 -tLPO
+L02_F2 -tLPO -wconstant -Garity
+L02_F1 -F1 -tLPO -wconstant -Garity
+#L06_F2 -tLPO -Gfreq
+#L06_F1 -F1 -tLPO -Gfreq
+#L07_F2 -tLPO -Ginvfreq
+#L07_F1 -F1 -tLPO -Ginvfreq
+#L08_F1 -F1 -tLPO --precedence=
+#L08_F2 -tLPO --precedence=
+K01_F2_PI --prefer-initial-clauses
+K01_F1_PI -F1 --prefer-initial-clauses
+K02_F2_PI -wconstant -Garity --prefer-initial-clauses
+K02_F1_PI -F1 -wconstant -Garity --prefer-initial-clauses
+K02_F0_PI -F0 -wconstant -Garity --prefer-initial-clauses
+K03_F2_PI -wconstant -Ginvarity --prefer-initial-clauses
+K03_F1_PI -F1 -wconstant -Ginvarity --prefer-initial-clauses
+K04_F2_PI -warity -Garity --prefer-initial-clauses
+K04_F1_PI -F1 -warity -Garity --prefer-initial-clauses
+#K05_F2_PI -winvarity -Ginvarity --prefer-initial-clauses
+#K05_F1_PI -F1 -winvarity -Ginvarity --prefer-initial-clauses
+K06_F2_PI -wconstant -Gfreq --prefer-initial-clauses
+K07_F2_PI -wconstant -Ginvfreq --prefer-initial-clauses
+K08_F2_PI -wmodarity -Garity --prefer-initial-clauses
+K08_F1_PI -F1 -wmodarity -Garity --prefer-initial-clauses
+K09_F2_PI -waritysquared -Garity --prefer-initial-clauses
+K09_F1_PI -F1 -waritysquared -Garity --prefer-initial-clauses
+#K09_F0_PI -F0 -waritysquared -Garity --prefer-initial-clauses
+L01_F2_PI -tLPO --prefer-initial-clauses
+L01_F1_PI -F1 -tLPO --prefer-initial-clauses
+L02_F2_PI -tLPO -wconstant -Garity --prefer-initial-clauses
+L02_F1_PI -F1 -tLPO -wconstant -Garity --prefer-initial-clauses
+#L06_F2_PI -tLPO -Gfreq --prefer-initial-clauses
+#L06_F1_PI -F1 -tLPO -Gfreq --prefer-initial-clauses
+#L07_F2_PI -tLPO -Ginvfreq --prefer-initial-clauses
+#L07_F1_PI -F1 -tLPO -Ginvfreq --prefer-initial-clauses
+#L08_F1_PI -F1 -tLPO --precedence= --prefer-initial-clauses
+#L08_F2_PI -tLPO --precedence= --prefer-initial-clauses
+
+B30 -tLPO4 -Ginvfreqhack
+B31 -tLPO4 -Ginvfreqconstmin

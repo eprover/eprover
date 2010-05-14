@@ -1,0 +1,142 @@
+#--------------------------------------------------------------------------
+# File     : PLA018-1 : TPTP v2.1.0. Released v1.1.0.
+# Domain   : Planning (Blocks world)
+# Problem  : Block A on B and D on C
+# Version  : [SE94] axioms.
+# English  : 
+
+# Refs     : [Sus73] Sussman (1973), A Computational Model of Skill Acquisi
+#          : [SE94]  Segre & Elkan (1994), A High-Performance Explanation-B
+# Source   : [SE94]
+# Names    : - [SE94]
+
+# Status   : unsatisfiable
+# Rating   : 0.78 v2.1.0, 0.71 v2.0.0
+# Syntax   : Number of clauses    :   31 (   0 non-Horn;  20 unit;  28 RR)
+#            Number of literals   :   53 (   0 equality)
+#            Maximal clause size  :    4 (   1 average)
+#            Number of predicates :    2 (   0 propositional; 2-2 arity)
+#            Number of functors   :   14 (   7 constant; 0-2 arity)
+#            Number of variables  :   37 (   5 singleton)
+#            Maximal term depth   :    3 (   1 average)
+
+# Comments : The axioms are a reconstruction of the situation calculus 
+#            blocks world as in [Sus73].
+#          : tptp2X -f setheo:sign -t rm_equality:rstfp PLA018-1.p 
+#--------------------------------------------------------------------------
+# and_definition, axiom.
+holds(and(X, Y), State) <- 
+    holds(X, State),
+    holds(Y, State).
+
+# pickup_1, axiom.
+holds(holding(X), do(pickup(X), State)) <- 
+    holds(empty, State),
+    holds(clear(X), State),
+    differ(X, table).
+
+# pickup_2, axiom.
+holds(clear(Y), do(pickup(X), State)) <- 
+    holds(on(X, Y), State),
+    holds(clear(X), State),
+    holds(empty, State).
+
+# pickup_3, axiom.
+holds(on(X, Y), do(pickup(Z), State)) <- 
+    holds(on(X, Y), State),
+    differ(X, Z).
+
+# pickup_4, axiom.
+holds(clear(X), do(pickup(Z), State)) <- 
+    holds(clear(X), State),
+    differ(X, Z).
+
+# putdown_1, axiom.
+holds(empty, do(putdown(X, Y), State)) <- 
+    holds(holding(X), State),
+    holds(clear(Y), State).
+
+# putdown_2, axiom.
+holds(on(X, Y), do(putdown(X, Y), State)) <- 
+    holds(holding(X), State),
+    holds(clear(Y), State).
+
+# putdown_3, axiom.
+holds(clear(X), do(putdown(X, Y), State)) <- 
+    holds(holding(X), State),
+    holds(clear(Y), State).
+
+# putdown_4, axiom.
+holds(on(X, Y), do(putdown(Z, W), State)) <- 
+    holds(on(X, Y), State).
+
+# putdown_5, axiom.
+holds(clear(Z), do(putdown(X, Y), State)) <- 
+    holds(clear(Z), State),
+    differ(Z, Y).
+
+# symmetry_of_differ, axiom.
+differ(X, Y) <- 
+    differ(Y, X).
+
+# differ_a_b, axiom.
+differ(a, b) <- .
+
+# differ_a_c, axiom.
+differ(a, c) <- .
+
+# differ_a_d, axiom.
+differ(a, d) <- .
+
+# differ_a_table, axiom.
+differ(a, table) <- .
+
+# differ_b_c, axiom.
+differ(b, c) <- .
+
+# differ_b_d, axiom.
+differ(b, d) <- .
+
+# differ_b_table, axiom.
+differ(b, table) <- .
+
+# differ_c_d, axiom.
+differ(c, d) <- .
+
+# differ_c_table, axiom.
+differ(c, table) <- .
+
+# differ_d_table, axiom.
+differ(d, table) <- .
+
+# initial_state1, axiom.
+holds(on(a, table), s0) <- .
+
+# initial_state2, axiom.
+holds(on(b, table), s0) <- .
+
+# initial_state3, axiom.
+holds(on(c, d), s0) <- .
+
+# initial_state4, axiom.
+holds(on(d, table), s0) <- .
+
+# initial_state5, axiom.
+holds(clear(a), s0) <- .
+
+# initial_state6, axiom.
+holds(clear(b), s0) <- .
+
+# initial_state7, axiom.
+holds(clear(c), s0) <- .
+
+# initial_state8, axiom.
+holds(empty, s0) <- .
+
+# clear_table, axiom.
+holds(clear(table), State) <- .
+
+# prove_AB_DC, conjecture.
+ <- holds(and(on(a, b), on(d, c)), State).
+
+#--------------------------------------------------------------------------

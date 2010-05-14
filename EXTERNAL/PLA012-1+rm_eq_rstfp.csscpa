@@ -1,0 +1,122 @@
+check: input_clause(and_definition,axiom,
+    [++ holds(and(X, Y), State),
+     -- holds(X, State),
+     -- holds(Y, State)]).
+
+check: input_clause(pickup_1,axiom,
+    [++ holds(holding(X), do(pickup(X), State)),
+     -- holds(empty, State),
+     -- holds(clear(X), State),
+     -- differ(X, table)]).
+
+accept from 2: input_clause(pickup_2,axiom,
+    [++ holds(clear(Y), do(pickup(X), State)),
+     -- holds(on(X, Y), State),
+     -- holds(clear(X), State),
+     -- holds(empty, State)]).
+
+check: input_clause(pickup_3,axiom,
+    [++ holds(on(X, Y), do(pickup(Z), State)),
+     -- holds(on(X, Y), State),
+     -- differ(X, Z)]).
+
+check: input_clause(pickup_4,axiom,
+    [++ holds(clear(X), do(pickup(Z), State)),
+     -- holds(clear(X), State),
+     -- differ(X, Z)]).
+
+check: input_clause(putdown_1,axiom,
+    [++ holds(empty, do(putdown(X, Y), State)),
+     -- holds(holding(X), State),
+     -- holds(clear(Y), State)]).
+
+check: input_clause(putdown_2,axiom,
+    [++ holds(on(X, Y), do(putdown(X, Y), State)),
+     -- holds(holding(X), State),
+     -- holds(clear(Y), State)]).
+
+accept from 3: input_clause(putdown_3,axiom,
+    [++ holds(clear(X), do(putdown(X, Y), State)),
+     -- holds(holding(X), State),
+     -- holds(clear(Y), State)]).
+
+check: input_clause(putdown_4,axiom,
+    [++ holds(on(X, Y), do(putdown(Z, W), State)),
+     -- holds(on(X, Y), State)]).
+
+check: input_clause(putdown_5,axiom,
+    [++ holds(clear(Z), do(putdown(X, Y), State)),
+     -- holds(clear(Z), State),
+     -- differ(Z, Y)]).
+
+check from 3: input_clause(symmetry_of_differ,axiom,
+    [++ differ(X, Y),
+     -- differ(Y, X)]).
+
+check: input_clause(differ_a_b,axiom,
+    [++ differ(a, b)]).
+
+check: input_clause(differ_a_c,axiom,
+    [++ differ(a, c)]).
+
+accept from 4: input_clause(differ_a_X,axiom,
+    [++ differ(a, X)]).
+
+check from 4: input_clause(differ_a_X,axiom,
+    [-- differ(a, f(f(f(f(f(f(f(f(f(f(f(f(f(a))))))))))))))]).
+
+check: input_clause(differ_a_table,axiom,
+    [++ differ(a, table)]).
+
+check: input_clause(differ_b_c,axiom,
+    [++ differ(b, c)]).
+
+check: input_clause(differ_b_d,axiom,
+    [++ differ(b, d)]).
+
+check: input_clause(differ_b_table,axiom,
+    [++ differ(b, table)]).
+
+check: input_clause(differ_c_d,axiom,
+    [++ differ(c, d)]).
+
+check: input_clause(differ_c_table,axiom,
+    [++ differ(c, table)]).
+
+accept: input_clause(differ_d_table,axiom,
+    [++ differ(d, table)]).
+
+check: input_clause(initial_state1,axiom,
+    [++ holds(on(a, table), s0)]).
+
+check: input_clause(initial_state2,axiom,
+    [++ holds(on(b, table), s0)]).
+
+state:
+
+check: input_clause(initial_state3,axiom,
+    [++ holds(on(c, d), s0)]).
+
+check: input_clause(initial_state4,axiom,
+    [++ holds(on(d, table), s0)]).
+
+check: input_clause(initial_state5,axiom,
+    [++ holds(clear(a), s0)]).
+
+check: input_clause(initial_state6,axiom,
+    [++ holds(clear(b), s0)]).
+
+check: input_clause(initial_state7,axiom,
+    [++ holds(clear(c), s0)]).
+
+check: input_clause(initial_state8,axiom,
+    [++ holds(empty, s0)]).
+
+check: input_clause(clear_table,axiom,
+    [++ holds(clear(table), State)]).
+
+check: input_clause(prove_DBC,conjecture,
+    [-- holds(and(on(d, b), on(b, c)), State)]).
+
+Please process clauses now, I beg you, great shining CSSCPA, 
+wonder of the world, most beautiful program ever written.

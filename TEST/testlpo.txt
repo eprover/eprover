@@ -1,0 +1,695 @@
+# constant = constant #################################
+
+a:0.
+.
+a
+a
+equal
+false
+false
+
+a:0 b:0.
+.
+b
+a
+uncomparable
+false
+false
+
+a:0 b:0.
+b>a.
+b
+a
+greater
+true
+false
+
+# constant = variable #################################
+
+a:0.
+.
+a
+X
+uncomparable
+false
+false
+
+# variable = variable #################################
+
+.
+.
+X
+Y
+uncomparable
+false
+false
+
+.
+.
+X
+X
+equal
+false
+false
+
+# ground term = constant #################################
+
+f:1 a:0.
+.
+f(a)
+a
+greater
+true
+false
+
+f:1 a:0.
+f>a.
+f(a)
+a
+greater
+true
+false
+
+f:1 a:0.
+a>f.
+f(a)
+a
+greater
+true
+false
+
+f:2 a:0 b:0.
+.
+f(a,b)
+a
+greater
+true
+false
+
+f:2 a:0 b:0.
+a>f a>b.
+f(a,b)
+a
+greater
+true
+false
+
+f:2 a:0 b:0.
+.
+f(b,a)
+a
+greater
+true
+false
+
+f:2 a:0 b:0.
+a>f a>b.
+f(b,a)
+a
+greater
+true
+false
+
+f:2 a:0 b:0.
+.
+f(b,f(b,a))
+a
+greater
+true
+false
+
+f:2 a:0 b:0.
+a>f a>b.
+f(b,f(b,a))
+a
+greater
+true
+false
+
+f:1 a:0 b:0.
+.
+f(a)
+b
+uncomparable
+false
+false
+
+f:1 a:0 b:0.
+a>b.
+f(a)
+b
+greater
+true
+false
+
+f:1 a:0 b:0.
+b>a b>f.
+f(a)
+b
+lesser
+false
+true
+
+f:2 a:0 b:0.
+.
+f(b,b)
+a
+uncomparable
+false
+false
+
+f:2 a:0 b:0.
+f>a.
+f(b,b)
+a
+greater
+true
+false
+
+f:2 a:0 b:0.
+b>a.
+f(b,b)
+a
+greater
+true
+false
+
+f:2 a:0 b:0.
+a>f a>b.
+f(b,b)
+a
+lesser
+false
+true
+
+f:2 a:0 b:0 c:0.
+a>f a>b.
+f(b,c)
+a
+uncomparable
+false
+false
+
+f:2 a:0 b:0 c:0.
+a>f a>b a>c.
+f(b,c)
+a
+lesser
+false
+true
+
+f:2 a:0 b:0 c:0.
+c>a.
+f(b,c)
+a
+greater
+true
+false
+
+# ground term = variable #################################
+
+f:1 a:0.
+.
+f(a)
+X
+uncomparable
+false
+false
+
+f:2 a:0.
+.
+f(a,a)
+X
+uncomparable
+false
+false
+
+# variable term = variable #################################
+
+f:1.
+.
+f(X)
+Y
+uncomparable
+false
+false
+
+f:2.
+.
+f(X,Y)
+Z
+uncomparable
+false
+false
+
+f:1.
+.
+f(X)
+X
+greater
+true
+false
+
+f:2.
+.
+f(X,Y)
+X
+greater
+true
+false
+
+f:2.
+.
+f(Y,X)
+X
+greater
+true
+false
+
+f:2.
+.
+f(Y,f(Y,X))
+X
+greater
+true
+false
+
+f:2 g:1.
+.
+f(Y,f(Y,g(g(g(g(X))))))
+X
+greater
+true
+false
+
+# ground term = ground term #################################
+
+f:1 a:0.
+.
+f(a)
+f(a)
+equal
+false
+false
+
+f:1 a:0.
+f>a.
+f(a)
+f(a)
+equal
+false
+false
+
+f:1 a:0.
+a>f.
+f(a)
+f(a)
+equal
+false
+false
+
+f:2 a:0 b:0.
+.
+f(a,b)
+f(a,b)
+equal
+false
+false
+
+f:2 a:0 b:0.
+f>a f>b.
+f(a,b)
+f(a,b)
+equal
+false
+false
+
+f:2 a:0 b:0.
+a>f b>f.
+f(a,b)
+f(a,b)
+equal
+false
+false
+
+f:2 a:0 b:0.
+.
+f(a,b)
+f(b,a)
+uncomparable
+false
+false
+
+f:2 a:0 b:0.
+a>b.
+f(a,b)
+f(b,a)
+greater
+true
+false
+
+f:2 a:0 b:0.
+b>a.
+f(a,b)
+f(b,a)
+lesser
+false
+true
+
+f:2 a:0 b:0.
+f>a f>b.
+f(a,b)
+f(b,a)
+uncomparable
+false
+false
+
+f:2 a:0 b:0.
+a>f.
+f(a,b)
+f(b,a)
+uncomparable
+false
+false
+
+f:2 a:0 b:0.
+b>f.
+f(a,b)
+f(b,a)
+uncomparable
+false
+false
+
+f:2 a:0 b:0.
+a>f b>f.
+f(a,b)
+f(b,a)
+uncomparable
+false
+false
+
+f:1 g:1 a:0 b:0.
+.
+f(a)
+g(b)
+uncomparable
+false
+false
+
+f:1 g:1 a:0 b:0.
+f>g.
+f(a)
+g(b)
+uncomparable
+false
+false
+
+f:1 g:1 a:0 b:0.
+f>b.
+f(a)
+g(b)
+uncomparable
+false
+false
+
+f:1 g:1 a:0 b:0.
+a>b.
+f(a)
+g(b)
+uncomparable
+false
+false
+
+f:1 g:1 a:0 b:0.
+f>g f>b.
+f(a)
+g(b)
+greater
+true
+false
+
+f:1 g:1 a:0 b:0.
+a>g a>b.
+f(a)
+g(b)
+greater
+true
+false
+
+f:1 g:1 a:0 b:0.
+f>g a>b.
+f(a)
+g(b)
+greater
+true
+false
+
+f:1 g:1 a:0 b:0.
+f>b a>g.
+f(a)
+g(b)
+uncomparable
+false
+false
+
+f:1 a:0 b:0.
+.
+f(a)
+f(b)
+uncomparable
+false
+false
+
+f:1 g:1 a:0 b:0.
+f>b.
+f(a)
+f(b)
+uncomparable
+false
+false
+
+f:1 g:1 a:0 b:0.
+b>f.
+f(a)
+f(b)
+uncomparable
+false
+false
+
+f:1 g:1 a:0 b:0.
+a>f.
+f(a)
+f(b)
+uncomparable
+false
+false
+
+f:1 g:1 a:0 b:0.
+f>b a>b.
+f(a)
+f(b)
+greater
+true
+false
+
+f:1 g:1 a:0 b:0.
+a>b.
+f(a)
+f(b)
+greater
+true
+false
+
+f:2 a:0 b:0 c:0.
+.
+f(a,b)
+f(a,c)
+uncomparable
+false
+false
+
+f:2 a:0 b:0 c:0.
+f>c.
+f(a,b)
+f(a,c)
+uncomparable
+false
+false
+
+f:2 a:0 b:0 c:0.
+c>f.
+f(a,b)
+f(a,c)
+uncomparable
+false
+false
+
+f:2 a:0 b:0 c:0.
+b>f.
+f(a,b)
+f(a,c)
+uncomparable
+false
+false
+
+f:2 a:0 b:0 c:0.
+b>c.
+f(a,b)
+f(a,c)
+greater
+true
+false
+
+f:2 a:0 b:0 c:0.
+a>c.
+f(a,b)
+f(a,c)
+uncomparable
+false
+false
+
+f:2 a:0 b:0 c:0.
+c>a.
+f(a,b)
+f(a,c)
+uncomparable
+false
+false
+
+# to be cont'd
+
+# variable term = variable term #################################
+
+f:1.
+.
+f(X)
+f(X)
+equal
+false
+false
+
+f:1.
+.
+f(X)
+f(Y)
+uncomparable
+false
+false
+
+f:1 g:1.
+.
+f(X)
+g(Y)
+uncomparable
+false
+false
+
+f:1 g:1.
+f>g.
+f(X)
+g(Y)
+uncomparable
+false
+false
+
+f:1.
+.
+f(X)
+f(Y)
+uncomparable
+false
+false
+
+f:1 g:1.
+.
+f(X)
+g(X)
+uncomparable
+false
+false
+
+f:1 g:1.
+f>g.
+f(X)
+g(X)
+greater
+true
+false
+
+f:2.
+.
+f(X,Y)
+f(X,X)
+uncomparable
+false
+false
+
+f:2.
+.
+f(X,X)
+f(X,X)
+equal
+false
+false
+
+multiply:2.
+.
+multiply(X1,X2)
+multiply(X2,X1)
+uncomparable
+false
+false
+
+# test examples producing errors in previous versions ##############
+
+f:2 i:1 a:0.
+i>f f>a.
+f(X,f(i(X),Y))
+f(a,Y)
+greater
+true
+false
+
+f:2 i:1 a:0.
+i>a.
+f(X,f(i(X),Y))
+f(a,Y)
+greater
+true
+false
+
+f:2 i:1 a:0.
+.
+f(X,f(i(X),Y))
+f(a,Y)
+uncomparable
+false
+false
+
+f:2 i:1 a:0.
+a>f a>i.
+f(X,f(i(X),Y))
+f(a,Y)
+uncomparable
+false
+false
+
+
+# special cases
+
+m:3 i:1.
+.
+m(i(X2),i(X2),X2)
+m(X1,i(X2),X2)
+uncomparable
+false
+false
+
+
+m:3 i:1.
+.
+m(X1,X2,m(i(X2),i(X2),X2))
+m(X1,i(X2),X2)
+uncomparable
+false
+false

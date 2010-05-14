@@ -1,0 +1,47 @@
+\contentsline {section}{\numberline {1}Introduction}{3}
+\contentsline {section}{\numberline {2}Installation and Getting Started}{4}
+\contentsline {subsection}{\numberline {2.1}Installation}{4}
+\contentsline {subsection}{\numberline {2.2}Getting Started}{4}
+\contentsline {subsection}{\numberline {2.3}Conventions used in the Manual}{5}
+\contentsline {section}{\numberline {3}Basic Services}{6}
+\contentsline {subsection}{\numberline {3.1}Miscellaneous Stuff}{6}
+\contentsline {subsubsection}{\numberline {3.1.1}Usage Information}{6}
+\contentsline {subsubsection}{\numberline {3.1.2}The \texttt {NULL} Pointer}{6}
+\contentsline {subsubsection}{\numberline {3.1.3}Booleans}{6}
+\contentsline {subsubsection}{\numberline {3.1.4}Generic Integer Types}{7}
+\contentsline {subsubsection}{\numberline {3.1.5}Simple Macros}{7}
+\contentsline {subsection}{\numberline {3.2}Errors and Runtime Information}{7}
+\contentsline {subsubsection}{\numberline {3.2.1}Usage Information}{8}
+\contentsline {subsubsection}{\numberline {3.2.2}Errors}{8}
+\contentsline {subsubsection}{\numberline {3.2.3}Example}{9}
+\contentsline {subsection}{\numberline {3.3}Memory Management}{10}
+\contentsline {subsubsection}{\numberline {3.3.1}Usage Information}{10}
+\contentsline {subsubsection}{\numberline {3.3.2}Allocating and Freeing Memory Blocks}{10}
+\contentsline {subsubsection}{\numberline {3.3.3}Debugging Memory Leaks}{11}
+\contentsline {subsection}{\numberline {3.4}Dynamic Strings}{12}
+\contentsline {subsubsection}{\numberline {3.4.1}Usage Information}{12}
+\contentsline {subsubsection}{\numberline {3.4.2}Allocation and Handling of Strings}{12}
+\contentsline {subsubsection}{\numberline {3.4.3}String Sharing}{14}
+\contentsline {subsection}{\numberline {3.5}Tree-Based Data Structures}{14}
+\contentsline {subsection}{\numberline {3.6}Stacks}{14}
+\contentsline {section}{\numberline {4}Input and Output}{15}
+\contentsline {subsection}{\numberline {4.1}Processing Input}{15}
+\contentsline {subsection}{\numberline {4.2}Usage Information}{15}
+\contentsline {subsubsection}{\numberline {4.2.1}The Scanner Object}{15}
+\contentsline {subsubsection}{\numberline {4.2.2}Handling Tokens}{16}
+\contentsline {subsection}{\numberline {4.3}Command Line Parsing}{17}
+\contentsline {subsubsection}{\numberline {4.3.1}Usage Information}{18}
+\contentsline {subsubsection}{\numberline {4.3.2}Specifying Options}{18}
+\contentsline {subsubsection}{\numberline {4.3.3}Processing Options}{19}
+\contentsline {subsubsection}{\numberline {4.3.4}Example}{20}
+\contentsline {subsubsection}{\numberline {4.3.5}But I want to have more than one argument to an option!}{22}
+\contentsline {section}{\numberline {5}Terms and Related Data Structures}{23}
+\contentsline {subsection}{\numberline {5.1}Function Symbols and Variables}{23}
+\contentsline {subsubsection}{\numberline {5.1.1}Usage Information}{23}
+\contentsline {subsubsection}{\numberline {5.1.2}Signatures}{23}
+\contentsline {subsubsection}{\numberline {5.1.3}Variable Banks}{24}
+\contentsline {subsection}{\numberline {5.2}Unshared Terms}{25}
+\contentsline {subsubsection}{\numberline {5.2.1}Usage Information}{25}
+\contentsline {subsubsection}{\numberline {5.2.2}The \texttt {TermCell} Data Type}{26}
+\contentsline {subsubsection}{\numberline {5.2.3}Term Properties}{27}
+\contentsline {subsection}{\numberline {5.3}Term Banks}{28}

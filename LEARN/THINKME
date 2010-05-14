@@ -1,0 +1,50 @@
+Knowledge base:
+
+Which clause encoding?
+Negative example proportion
+Negative examples from negative examples?
+Version
+Problem list (name <--> number <---> feature vector)
+Axiom sets (Specification, in pattern form)
+Potentially common axiomatization
+Which symbols are kept fixed (Signature)
+
+Annotated term list
+
+
+
+Learning Strategy: Load fixed symbols from file into learn-sig, copy
+them into general sig. Use preinitialized pattern-subst in OCB (may
+not be necessary...).
+
+Set-builder: 1) Read signature
+             2) Read existing set
+             3) Read read new set, transform into annotated patterns,
+                for each pattern check if it exists (if yes, append
+                annotation, if not, insert new term)
+                (problem number value is a parameter)
+
+
+Knowledge-Base:
+
+description
+signature
+examples
+clausepatterns
+FILES
+
+ekb_create <name> -p prop -n number:
+
+1) mkdir name
+2) write description
+3) touch signature
+4) touch examples
+5) touch clausepatterns
+6) mkdir FILES
+
+
+Finding the correct limit for optimal classification:
+
+1) Find the average evaluation of input terms. Use this to count
+   positive and negative term nodes.
+2) Flatten the term set and find the median for part (pos/(pos+neg)).

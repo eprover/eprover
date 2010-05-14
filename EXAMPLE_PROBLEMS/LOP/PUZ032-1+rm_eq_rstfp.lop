@@ -1,0 +1,74 @@
+#--------------------------------------------------------------------------
+# File     : PUZ032-1 : TPTP v2.1.0. Released v1.0.0.
+# Domain   : Puzzles
+# Problem  : Knights and Knaves #26
+# Version  : Special.
+# English  : On a certain island the inhabitants are partitioned into those
+#            who always tell the truth and those who always lie. I landed on
+#            the island and met three inhabitants A, B, and C. I asked A,
+#            'Are you a truthteller or a liar?' He mumbled something which I
+#            couldn't make out. I asked B what A had said. B replied, 'A
+#            said he was a liar'. C then volunteered, 'Don't believe B, he's
+#            lying!' What can you tell about A, B, and C?
+
+# Refs     : [Smu78] Smullyan (1978), What is the Name of This Book? The Ri
+#          : [LO85]  Lusk & Overbeek (1985), Non-Horn Problems
+# Source   : [LO85]
+# Names    : Problem 26 [Smu78]
+#          : Truthtellers and the Liars [LO85]
+#          : tandl.ver1.in [ANL]
+
+# Status   : unsatisfiable
+# Rating   : 0.22 v2.1.0, 0.00 v2.0.0
+# Syntax   : Number of clauses    :   10 (   2 non-Horn;   4 unit;   9 RR)
+#            Number of literals   :   20 (   0 equality)
+#            Maximal clause size  :    3 (   2 average)
+#            Number of predicates :    1 (   0 propositional; 1-1 arity)
+#            Number of functors   :    7 (   4 constant; 0-2 arity)
+#            Number of variables  :   10 (   0 singleton)
+#            Maximal term depth   :    4 (   1 average)
+
+# Comments : 
+#          : tptp2X -f setheo:sign -t rm_equality:rstfp PUZ032-1.p 
+#--------------------------------------------------------------------------
+# truthteller_or_liar, axiom.
+a_truth(truthteller(X));
+a_truth(liar(X)) <- .
+
+# not_both, axiom.
+ <- a_truth(truthteller(X)),
+    a_truth(liar(X)).
+
+# truthtellers_tell_truth, axiom.
+a_truth(Statement) <- 
+    a_truth(truthteller(Truthteller)),
+    a_truth(says(Truthteller, Statement)).
+
+# liars_lie, axiom.
+ <- a_truth(liar(Liar)),
+    a_truth(says(Liar, Statement)),
+    a_truth(Statement).
+
+# truths_are_told_by_truthtellers, axiom.
+a_truth(truthteller(Truthteller)) <- 
+    a_truth(Statement),
+    a_truth(says(Truthteller, Statement)).
+
+# liars_are_told_by_liars, axiom.
+a_truth(Statement);
+a_truth(liar(Liar)) <- 
+    a_truth(says(Liar, Statement)).
+
+# a_mumbles, hypothesis.
+a_truth(says(a, mumble)) <- .
+
+# b_says_a_says_hes_a_liar, hypothesis.
+a_truth(says(b, says(a, liar(a)))) <- .
+
+# c_says_b_is_a_liar, hypothesis.
+a_truth(says(c, liar(b))) <- .
+
+# prove_c_is_a_truthteller, conjecture.
+ <- a_truth(truthteller(c)).
+
+#--------------------------------------------------------------------------

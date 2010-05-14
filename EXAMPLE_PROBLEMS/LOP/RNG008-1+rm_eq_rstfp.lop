@@ -1,0 +1,123 @@
+#--------------------------------------------------------------------------
+# File     : RNG008-1 : TPTP v2.1.0. Released v1.0.0.
+# Domain   : Ring Theory
+# Problem  : Boolean rings are commutative
+# Version  : [MOW76] axioms.
+# English  : Given a ring in which for all x, x * x = x, prove that for 
+#            all x and y, x * y = y * x.
+
+# Refs     : [MOW76] McCharen et al. (1976), Problems and Experiments for a
+#          : [Wos88] Wos (1988), Automated Reasoning - 33 Basic Research Pr
+# Source   : [MOW76]
+# Names    : Test Problem 8 [Wos88]
+#          : Boolean Rings [Wos88]
+#          : commute.ver3.in [ANL]
+#          : commute.ver4.in [ANL]
+
+# Status   : unsatisfiable
+# Rating   : 0.67 v2.1.0, 0.75 v2.0.0
+# Syntax   : Number of clauses    :   20 (   0 non-Horn;   9 unit;  13 RR)
+#            Number of literals   :   53 (   2 equality)
+#            Maximal clause size  :    5 (   2 average)
+#            Number of predicates :    3 (   0 propositional; 2-3 arity)
+#            Number of functors   :    7 (   4 constant; 0-2 arity)
+#            Number of variables  :   72 (   0 singleton)
+#            Maximal term depth   :    2 (   1 average)
+
+# Comments : 
+#          : tptp2X -f setheo:sign -t rm_equality:rstfp RNG008-1.p 
+#--------------------------------------------------------------------------
+# additive_identity1, axiom.
+sum(additive_identity, X, X) <- .
+
+# additive_identity2, axiom.
+sum(X, additive_identity, X) <- .
+
+# closure_of_multiplication, axiom.
+product(X, Y, multiply(X, Y)) <- .
+
+# closure_of_addition, axiom.
+sum(X, Y, add(X, Y)) <- .
+
+# left_inverse, axiom.
+sum(additive_inverse(X), X, additive_identity) <- .
+
+# right_inverse, axiom.
+sum(X, additive_inverse(X), additive_identity) <- .
+
+# associativity_of_addition1, axiom.
+sum(X, V, W) <- 
+    sum(X, Y, U),
+    sum(Y, Z, V),
+    sum(U, Z, W).
+
+# associativity_of_addition2, axiom.
+sum(U, Z, W) <- 
+    sum(X, Y, U),
+    sum(Y, Z, V),
+    sum(X, V, W).
+
+# commutativity_of_addition, axiom.
+sum(Y, X, Z) <- 
+    sum(X, Y, Z).
+
+# associativity_of_multiplication1, axiom.
+product(X, V, W) <- 
+    product(X, Y, U),
+    product(Y, Z, V),
+    product(U, Z, W).
+
+# associativity_of_multiplication2, axiom.
+product(U, Z, W) <- 
+    product(X, Y, U),
+    product(Y, Z, V),
+    product(X, V, W).
+
+# distributivity1, axiom.
+sum(V1, V2, V4) <- 
+    product(X, Y, V1),
+    product(X, Z, V2),
+    sum(Y, Z, V3),
+    product(X, V3, V4).
+
+# distributivity2, axiom.
+product(X, V3, V4) <- 
+    product(X, Y, V1),
+    product(X, Z, V2),
+    sum(Y, Z, V3),
+    sum(V1, V2, V4).
+
+# distributivity3, axiom.
+sum(V1, V2, V4) <- 
+    product(Y, X, V1),
+    product(Z, X, V2),
+    sum(Y, Z, V3),
+    product(V3, X, V4).
+
+# distributivity4, axiom.
+product(V3, X, V4) <- 
+    product(Y, X, V1),
+    product(Z, X, V2),
+    sum(Y, Z, V3),
+    sum(V1, V2, V4).
+
+# addition_is_well_defined, axiom.
+equal(U, V) <- 
+    sum(X, Y, U),
+    sum(X, Y, V).
+
+# multiplication_is_well_defined, axiom.
+equal(U, V) <- 
+    product(X, Y, U),
+    product(X, Y, V).
+
+# x_squared_is_x, hypothesis.
+product(X, X, X) <- .
+
+# a_times_b_is_c, hypothesis.
+product(a, b, c) <- .
+
+# prove_b_times_a_is_c, conjecture.
+ <- product(b, a, c).
+
+#--------------------------------------------------------------------------

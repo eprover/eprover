@@ -1,0 +1,41 @@
+%--------------------------------------------------------------------------
+% File     : LCL033-1 : TPTP v2.1.0. Released v1.0.0.
+% Domain   : Logic Calculi (Implication/Falsehood 2 valued sentential)
+% Problem  : C0-2 depends on the Merideth axiom
+% Version  : [McC92] axioms.
+% English  : Axiomatisations for the Implication/Falsehood 2 valued 
+%            sentential calculus are {C0-1,C0-2,C0-3,C0-4} 
+%            by Tarski-Bernays, {C0-2,C0-5,C0-6} by Church, and the single 
+%            Meredith axioms. Show that C0-2 can be derived from the 
+%            single Meredith axiom.
+
+% Refs     : [Mer53] Meredith (1953), Single Axioms for the Systems (C,N), 
+%          : [MW92]  McCune & Wos (1992), Experiments in Automated Deductio
+%          : [McC92] McCune (1992), Email to G. Sutcliffe
+% Source   : [McC92]
+% Names    : C0-45 [MW92]
+
+% Status   : unsatisfiable
+% Rating   : 0.33 v2.1.0, 0.13 v2.0.0
+% Syntax   : Number of clauses    :    3 (   0 non-Horn;   2 unit;   2 RR)
+%            Number of literals   :    5 (   0 equality)
+%            Maximal clause size  :    3 (   1 average)
+%            Number of predicates :    1 (   0 propositional; 1-1 arity)
+%            Number of functors   :    4 (   3 constant; 0-2 arity)
+%            Number of variables  :    7 (   2 singleton)
+%            Maximal term depth   :    6 (   2 average)
+
+% Comments : 
+%          : tptp2X -f tptp -t rm_equality:rstfp LCL033-1.p 
+%--------------------------------------------------------------------------
+input_clause(condensed_detachment,axiom,
+    [-- is_a_theorem(implies(X, Y)),
+     -- is_a_theorem(X),
+     ++ is_a_theorem(Y)]).
+
+input_clause(c0_CAMerideth,axiom,
+    [++ is_a_theorem(implies(implies(implies(implies(implies(X, Y), implies(Z, falsehood)), U), V), implies(implies(V, X), implies(Z, X))))]).
+
+input_clause(prove_c0_2,conjecture,
+    [-- is_a_theorem(implies(a, implies(b, a)))]).
+%--------------------------------------------------------------------------

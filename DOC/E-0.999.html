@@ -1,0 +1,162 @@
+<hr><!------------------------------------------------------------------------>
+<h2>E&nbsp;0.999 and EP&nbsp;0.999</h2>
+S. Schulz<br>
+Institut f&uuml;r Informatik, Technische Universit&auml;t
+M&uuml;nchen, Germany
+<br>schulz@eprover.org
+<p>
+
+<h3>Architecture</h3>
+
+E&nbsp;0.999[<a href="#References">Sch2002,Sch2004</a>] is a purely
+equational theorem prover. The core proof procedure operates on
+formulas in clause normal form, using a calculus that combines
+superposition (with selection of negative literals) and rewriting. No
+special rules for non-equational literals have been implemented, i.e.,
+resolution is simulated via paramodulation and equality
+resolution. The basic calculus is extended with rules for AC
+redundancy elimination, some contextual simplification, and
+pseudo-splitting. The latest versions of E also supports simultaneous
+paramodulation, either for all inferences or for selected inferences.
+<p>
+E is based on the DISCOUNT-loop variant of the <em>given-clause</em>
+algorithm, i.e. a strict separation of active and passive facts.
+Proof search in E is primarily controlled by a literal selection
+strategy, a clause evaluation heuristic, and a simplification
+ordering. The prover supports a large number of preprogrammed literal
+selection strategies, many of which are only experimental. Clause
+evaluation heuristics can be constructed on the fly by combining
+various parameterized primitive evaluation functions, or can be
+selected from a set of predefined heuristics. Supported term orderings
+are several parameterized instances of Knuth-Bendix-Ordering (KBO) and
+Lexicographic Path Ordering (LPO).
+<p>
+The prover uses a preprocessing step to convert formulas in full first
+order format to clause normal form. This step may introduce
+(first-order) definitions to avoid an exponential growth of the
+formula. Preprocessing also unfolds equational definitions and
+performs some simplifications on the clause level.
+<p>
+The automatic mode determines literal selection strategy, term
+ordering, and search heuristic based on simple problem characteristics
+of the preprocessed clausal problem.
+<p>
+EP&nbsp;0.999 is just a combination of E&nbsp;0.999 in verbose mode and
+a proof analysis tool extracting the used inference steps.
+<p>
+
+
+<h3>Implementation</h3>
+
+E is implemented in ANSI C, using the GNU C compiler. The most
+outstanding feature is the global sharing of rewrite steps. Current
+versions of E add <em>rewrite links</em> from rewritten to new
+terms. In effect, E is caching rewrite operations as long as
+sufficient memory is available. Other important features are the use
+of <em>perfect discrimination trees</em> with age and size constraints
+for rewriting and unit-subsumption, <em>feature vector
+indexing</em>[<a href="#References">Sch2004b</a>] for forward- and
+backward subsumption and contextual literal cutting, and a new
+polynomial implementation of LPO[<a href="#References">Loe2004</a>].
+<p>
+The program has been successfully installed under SunOS&nbsp;4.3.x,
+Solaris&nbsp;2.x, HP-UX&nbsp;B&nbsp;10.20, MacOS-X, and various
+versions of Linux.  Sources of the latest released version are
+available freely from: 
+<pre>
+    <a href="http://www.eprover.org">http://www.eprover.org</a>
+</pre>
+EP&nbsp;0.999 is a simple Bourne shell script calling E and the postprocessor in
+a pipeline.
+
+<h3>Strategies</h3>
+
+E's automatic mode is optimized for performance on TPTP. The
+optimization of E&nbsp;0.999 is based on about 90 test runs over the
+library (and previous experience) and consists of the selection of one
+of about 40 different strategies for each problem. All test runs have
+been performed on SUN Ultra 60/300 machines with a time limit of 300
+seconds (or roughly equivalent configurations). All individual
+strategies are refutationally complete. The worst one solves about 49%
+of TPTP 3.0.1, the best one about 60%. We expect similar optimization
+for E&nbsp;0.999.
+
+E distinguishes problem classes based on a number of features, all of
+which have between 2 and 4 possible values. The most important ones
+are:
+
+<ul>
+<li> Is the most general non-negative clause unit, Horn, or Non-Horn?
+<li> Is the most general negative clause unit or non-unit?
+<li> Are all negative clauses unit clauses?
+<li> Are all literals equality literals, are some literals equality
+     literals, or is the problem non-equational?
+<li> Are there a few, some, or many clauses in the problem?
+<li> Is the maximum arity of any function symbol 0, 1, 2, or greater? 
+<li> Is the sum of function symbol arities in the signature small,
+     medium, or large?
+</ul>
+
+Wherever there is a three-way split on a numerical feature value,
+the limits are selected automatically with the aim of
+splitting the set of problems into approximately equal
+sized parts based on this one feature.
+
+<p>
+For classes above a threshold size, we assign the absolute best
+heuristic to the class. For smaller, non-empty classes, we assign the
+globally best heuristic that solves the same number of problems on
+this class as the best heuristic on this class does. Empty classes are
+assigned the globally best heuristic. Typically, most selected
+heuristics are assigned to more than one class.
+
+
+<h3>Expected Competition Performance</H3>
+
+In the last years, E performed well in most proof categories. We
+believe that E will again be among the stronger provers in the CNF
+category. Performance on FOF problems should be competitive. We hope
+that E will at least be a useful complement to dedicated systems in
+the other categories. 
+
+<p>
+EP&nbsp;0.999 will be hampered by the fact that it has to analyse the
+inference step listing, an operation that typically is about as
+expensive as the proof search itself. Nevertheless, it should be
+competitive among the MIX* and FOF* systems.
+<p>
+
+
+<a NAME="References">
+<h3>References</h3>
+<dl>
+<dt> Sch2002
+<dd> Schulz S. (2002),
+     <strong>E: A Brainiac Theorem Prover</strong>,
+     <em>Journal of AI Communications</em> 15(2/3), 111-126, IOS Press
+<dt> Sch2004
+<dd> Schulz S. (2004),
+     <strong>System Abstract: E 0.81</strong>,
+     <em>Proceedings of the 3rd IJCAR</em>,
+     (Cork, Ireland),
+     Lecture Notes in Artificial Intelligence,
+     Springer-Verlag
+<dt> Sch2004b
+<dd> Schulz S. (2004),
+     <strong>Simple and Efficient Clause Subsumption with Feature
+     Vector Indexing</strong>,
+     <em>Proceedings of the IJCAR-2004 Workshop on Empirically
+     Successful First-Order Theorem Proving</em>, (Cork, Ireland)
+<dt> Loe2004
+<dd> L&ouml;chner b. (2004),
+     <strong>What to know when implementing LPO</strong>,
+     <em>Proceedings of the IJCAR-2004 Workshop on Empirically
+     Successful First-Order Theorem Proving</em>, (Cork, Ireland)
+
+</dl>
+
+<p>
+
+<hr><!------------------------------------------------------------------------>
+
+

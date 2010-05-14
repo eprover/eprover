@@ -1,0 +1,395 @@
+#--------------------------------------------------------------------------
+# File     : SET103-6 : TPTP v2.1.0. Bugfixed v2.1.0.
+# Domain   : Set Theory
+# Problem  : Special member 1 of an ordered pair
+# Version  : [Qua92] axioms.
+# English  : 
+
+# Refs     : [Qua92] Quaife (1992), Automated Deduction in von Neumann-Bern
+# Source   : [Quaife]
+# Names    : 
+
+# Status   : unsatisfiable
+# Rating   : ? v2.1.0
+# Syntax   : Number of clauses    :   93 (   8 non-Horn;  31 unit;  64 RR)
+#            Number of literals   :  183 (  40 equality)
+#            Maximal clause size  :    5 (   1 average)
+#            Number of predicates :   10 (   0 propositional; 1-3 arity)
+#            Number of functors   :   40 (  10 constant; 0-3 arity)
+#            Number of variables  :  176 (  25 singleton)
+#            Maximal term depth   :    6 (   1 average)
+
+# Comments : 
+#          : tptp2X -f setheo:sign -t rm_equality:rstfp SET103-6.p 
+# Bugfixes : v2.1.0 - Bugfix in SET004-0.ax.
+#--------------------------------------------------------------------------
+# subclass_members, axiom.
+member(U, Y) <- 
+    subclass(X, Y),
+    member(U, X).
+
+# not_subclass_members1, axiom.
+member(not_subclass_element(X, Y), X);
+subclass(X, Y) <- .
+
+# not_subclass_members2, axiom.
+subclass(X, Y) <- 
+    member(not_subclass_element(X, Y), Y).
+
+# class_elements_are_sets, axiom.
+subclass(X, universal_class) <- .
+
+# equal_implies_subclass1, axiom.
+subclass(X, Y) <- 
+    equal(X, Y).
+
+# equal_implies_subclass2, axiom.
+subclass(Y, X) <- 
+    equal(X, Y).
+
+# subclass_implies_equal, axiom.
+equal(X, Y) <- 
+    subclass(X, Y),
+    subclass(Y, X).
+
+# unordered_pair_member, axiom.
+equal(U, X);
+equal(U, Y) <- 
+    member(U, unordered_pair(X, Y)).
+
+# unordered_pair2, axiom.
+member(X, unordered_pair(X, Y)) <- 
+    member(X, universal_class).
+
+# unordered_pair3, axiom.
+member(Y, unordered_pair(X, Y)) <- 
+    member(Y, universal_class).
+
+# unordered_pairs_in_universal, axiom.
+member(unordered_pair(X, Y), universal_class) <- .
+
+# singleton_set, axiom.
+equal(unordered_pair(X, X), singleton(X)) <- .
+
+# ordered_pair, axiom.
+equal(unordered_pair(singleton(X), unordered_pair(X, singleton(Y))), ordered_pair(X, Y)) <- .
+
+# cartesian_product1, axiom.
+member(U, X) <- 
+    member(ordered_pair(U, V), cross_product(X, Y)).
+
+# cartesian_product2, axiom.
+member(V, Y) <- 
+    member(ordered_pair(U, V), cross_product(X, Y)).
+
+# cartesian_product3, axiom.
+member(ordered_pair(U, V), cross_product(X, Y)) <- 
+    member(U, X),
+    member(V, Y).
+
+# cartesian_product4, axiom.
+equal(ordered_pair(first(Z), second(Z)), Z) <- 
+    member(Z, cross_product(X, Y)).
+
+# element_relation1, axiom.
+subclass(element_relation, cross_product(universal_class, universal_class)) <- .
+
+# element_relation2, axiom.
+member(X, Y) <- 
+    member(ordered_pair(X, Y), element_relation).
+
+# element_relation3, axiom.
+member(ordered_pair(X, Y), element_relation) <- 
+    member(ordered_pair(X, Y), cross_product(universal_class, universal_class)),
+    member(X, Y).
+
+# intersection1, axiom.
+member(Z, X) <- 
+    member(Z, intersection(X, Y)).
+
+# intersection2, axiom.
+member(Z, Y) <- 
+    member(Z, intersection(X, Y)).
+
+# intersection3, axiom.
+member(Z, intersection(X, Y)) <- 
+    member(Z, X),
+    member(Z, Y).
+
+# complement1, axiom.
+ <- member(Z, complement(X)),
+    member(Z, X).
+
+# complement2, axiom.
+member(Z, complement(X));
+member(Z, X) <- 
+    member(Z, universal_class).
+
+# union, axiom.
+equal(complement(intersection(complement(X), complement(Y))), union(X, Y)) <- .
+
+# difference, axiom.
+equal(intersection(complement(intersection(X, Y)), complement(intersection(complement(X), complement(Y)))), difference(X, Y)) <- .
+
+# restriction1, axiom.
+equal(intersection(Xr, cross_product(X, Y)), restrict(Xr, X, Y)) <- .
+
+# restriction2, axiom.
+equal(intersection(cross_product(X, Y), Xr), restrict(Xr, X, Y)) <- .
+
+# domain1, axiom.
+ <- equal(restrict(X, singleton(Z), universal_class), null_class),
+    member(Z, domain_of(X)).
+
+# domain2, axiom.
+equal(restrict(X, singleton(Z), universal_class), null_class);
+member(Z, domain_of(X)) <- 
+    member(Z, universal_class).
+
+# rotate1, axiom.
+subclass(rotate(X), cross_product(cross_product(universal_class, universal_class), universal_class)) <- .
+
+# rotate2, axiom.
+member(ordered_pair(ordered_pair(V, W), U), X) <- 
+    member(ordered_pair(ordered_pair(U, V), W), rotate(X)).
+
+# rotate3, axiom.
+member(ordered_pair(ordered_pair(U, V), W), rotate(X)) <- 
+    member(ordered_pair(ordered_pair(V, W), U), X),
+    member(ordered_pair(ordered_pair(U, V), W), cross_product(cross_product(universal_class, universal_class), universal_class)).
+
+# flip1, axiom.
+subclass(flip(X), cross_product(cross_product(universal_class, universal_class), universal_class)) <- .
+
+# flip2, axiom.
+member(ordered_pair(ordered_pair(V, U), W), X) <- 
+    member(ordered_pair(ordered_pair(U, V), W), flip(X)).
+
+# flip3, axiom.
+member(ordered_pair(ordered_pair(U, V), W), flip(X)) <- 
+    member(ordered_pair(ordered_pair(V, U), W), X),
+    member(ordered_pair(ordered_pair(U, V), W), cross_product(cross_product(universal_class, universal_class), universal_class)).
+
+# inverse, axiom.
+equal(domain_of(flip(cross_product(Y, universal_class))), inverse(Y)) <- .
+
+# range_of, axiom.
+equal(domain_of(inverse(Z)), range_of(Z)) <- .
+
+# domain, axiom.
+equal(first(not_subclass_element(restrict(Z, X, singleton(Y)), null_class)), domain(Z, X, Y)) <- .
+
+# range, axiom.
+equal(second(not_subclass_element(restrict(Z, singleton(X), Y), null_class)), range(Z, X, Y)) <- .
+
+# image, axiom.
+equal(range_of(restrict(Xr, X, universal_class)), image(Xr, X)) <- .
+
+# successor, axiom.
+equal(union(X, singleton(X)), successor(X)) <- .
+
+# successor_relation1, axiom.
+subclass(successor_relation, cross_product(universal_class, universal_class)) <- .
+
+# successor_relation2, axiom.
+equal(successor(X), Y) <- 
+    member(ordered_pair(X, Y), successor_relation).
+
+# successor_relation3, axiom.
+member(ordered_pair(X, Y), successor_relation) <- 
+    equal(successor(X), Y),
+    member(ordered_pair(X, Y), cross_product(universal_class, universal_class)).
+
+# inductive1, axiom.
+member(null_class, X) <- 
+    inductive(X).
+
+# inductive2, axiom.
+subclass(image(successor_relation, X), X) <- 
+    inductive(X).
+
+# inductive3, axiom.
+inductive(X) <- 
+    member(null_class, X),
+    subclass(image(successor_relation, X), X).
+
+# omega_is_inductive1, axiom.
+inductive(omega) <- .
+
+# omega_is_inductive2, axiom.
+subclass(omega, Y) <- 
+    inductive(Y).
+
+# omega_in_universal, axiom.
+member(omega, universal_class) <- .
+
+# sum_class_definition, axiom.
+equal(domain_of(restrict(element_relation, universal_class, X)), sum_class(X)) <- .
+
+# sum_class2, axiom.
+member(sum_class(X), universal_class) <- 
+    member(X, universal_class).
+
+# power_class_definition, axiom.
+equal(complement(image(element_relation, complement(X))), power_class(X)) <- .
+
+# power_class2, axiom.
+member(power_class(U), universal_class) <- 
+    member(U, universal_class).
+
+# compose1, axiom.
+subclass(compose(Yr, Xr), cross_product(universal_class, universal_class)) <- .
+
+# compose2, axiom.
+member(Z, image(Yr, image(Xr, singleton(Y)))) <- 
+    member(ordered_pair(Y, Z), compose(Yr, Xr)).
+
+# compose3, axiom.
+member(ordered_pair(Y, Z), compose(Yr, Xr)) <- 
+    member(Z, image(Yr, image(Xr, singleton(Y)))),
+    member(ordered_pair(Y, Z), cross_product(universal_class, universal_class)).
+
+# single_valued_class1, axiom.
+subclass(compose(X, inverse(X)), identity_relation) <- 
+    single_valued_class(X).
+
+# single_valued_class2, axiom.
+single_valued_class(X) <- 
+    subclass(compose(X, inverse(X)), identity_relation).
+
+# function1, axiom.
+subclass(Xf, cross_product(universal_class, universal_class)) <- 
+    function(Xf).
+
+# function2, axiom.
+subclass(compose(Xf, inverse(Xf)), identity_relation) <- 
+    function(Xf).
+
+# function3, axiom.
+function(Xf) <- 
+    subclass(Xf, cross_product(universal_class, universal_class)),
+    subclass(compose(Xf, inverse(Xf)), identity_relation).
+
+# replacement, axiom.
+member(image(Xf, X), universal_class) <- 
+    function(Xf),
+    member(X, universal_class).
+
+# regularity1, axiom.
+equal(X, null_class);
+member(regular(X), X) <- .
+
+# regularity2, axiom.
+equal(X, null_class);
+equal(intersection(X, regular(X)), null_class) <- .
+
+# apply, axiom.
+equal(sum_class(image(Xf, singleton(Y))), apply(Xf, Y)) <- .
+
+# choice1, axiom.
+function(choice) <- .
+
+# choice2, axiom.
+equal(Y, null_class);
+member(apply(choice, Y), Y) <- 
+    member(Y, universal_class).
+
+# one_to_one1, axiom.
+function(Xf) <- 
+    one_to_one(Xf).
+
+# one_to_one2, axiom.
+function(inverse(Xf)) <- 
+    one_to_one(Xf).
+
+# one_to_one3, axiom.
+one_to_one(Xf) <- 
+    function(inverse(Xf)),
+    function(Xf).
+
+# subset_relation, axiom.
+equal(intersection(cross_product(universal_class, universal_class), intersection(cross_product(universal_class, universal_class), complement(compose(complement(element_relation), inverse(element_relation))))), subset_relation) <- .
+
+# identity_relation, axiom.
+equal(intersection(inverse(subset_relation), subset_relation), identity_relation) <- .
+
+# diagonalisation, axiom.
+equal(complement(domain_of(intersection(Xr, identity_relation))), diagonalise(Xr)) <- .
+
+# cantor_class, axiom.
+equal(intersection(domain_of(X), diagonalise(compose(inverse(element_relation), X))), cantor(X)) <- .
+
+# operation1, axiom.
+function(Xf) <- 
+    operation(Xf).
+
+# operation2, axiom.
+equal(cross_product(domain_of(domain_of(Xf)), domain_of(domain_of(Xf))), domain_of(Xf)) <- 
+    operation(Xf).
+
+# operation3, axiom.
+subclass(range_of(Xf), domain_of(domain_of(Xf))) <- 
+    operation(Xf).
+
+# operation4, axiom.
+operation(Xf) <- 
+    function(Xf),
+    equal(cross_product(domain_of(domain_of(Xf)), domain_of(domain_of(Xf))), domain_of(Xf)),
+    subclass(range_of(Xf), domain_of(domain_of(Xf))).
+
+# compatible1, axiom.
+function(Xh) <- 
+    compatible(Xh, Xf1, Xf2).
+
+# compatible2, axiom.
+equal(domain_of(domain_of(Xf1)), domain_of(Xh)) <- 
+    compatible(Xh, Xf1, Xf2).
+
+# compatible3, axiom.
+subclass(range_of(Xh), domain_of(domain_of(Xf2))) <- 
+    compatible(Xh, Xf1, Xf2).
+
+# compatible4, axiom.
+compatible(Xh, Xf1, Xf2) <- 
+    function(Xh),
+    equal(domain_of(domain_of(Xf1)), domain_of(Xh)),
+    subclass(range_of(Xh), domain_of(domain_of(Xf2))).
+
+# homomorphism1, axiom.
+operation(Xf1) <- 
+    homomorphism(Xh, Xf1, Xf2).
+
+# homomorphism2, axiom.
+operation(Xf2) <- 
+    homomorphism(Xh, Xf1, Xf2).
+
+# homomorphism3, axiom.
+compatible(Xh, Xf1, Xf2) <- 
+    homomorphism(Xh, Xf1, Xf2).
+
+# homomorphism4, axiom.
+equal(apply(Xf2, ordered_pair(apply(Xh, X), apply(Xh, Y))), apply(Xh, apply(Xf1, ordered_pair(X, Y)))) <- 
+    homomorphism(Xh, Xf1, Xf2),
+    member(ordered_pair(X, Y), domain_of(Xf1)).
+
+# homomorphism5, axiom.
+member(ordered_pair(not_homomorphism1(Xh, Xf1, Xf2), not_homomorphism2(Xh, Xf1, Xf2)), domain_of(Xf1));
+homomorphism(Xh, Xf1, Xf2) <- 
+    operation(Xf1),
+    operation(Xf2),
+    compatible(Xh, Xf1, Xf2).
+
+# homomorphism6, axiom.
+homomorphism(Xh, Xf1, Xf2) <- 
+    operation(Xf1),
+    operation(Xf2),
+    compatible(Xh, Xf1, Xf2),
+    equal(apply(Xf2, ordered_pair(apply(Xh, not_homomorphism1(Xh, Xf1, Xf2)), apply(Xh, not_homomorphism2(Xh, Xf1, Xf2)))), apply(Xh, apply(Xf1, ordered_pair(not_homomorphism1(Xh, Xf1, Xf2), not_homomorphism2(Xh, Xf1, Xf2))))).
+
+# prove_property_1_of_ordered_pair_1, conjecture.
+ ?- equal(unordered_pair(singleton(x), unordered_pair(x, null_class)), ordered_pair(x, y)).
+
+# prove_property_1_of_ordered_pair_2, conjecture.
+ ?- member(y, universal_class).
+
+#--------------------------------------------------------------------------

@@ -1,0 +1,27 @@
+#! /bin/sh
+
+# Some scripts are only tested with bash and do not work with (all
+# implementations of) /bin/sh
+
+if tail -n+2 $0 > /dev/null; then
+   TAIL="tail -n";
+else
+   TAIL="tail ";
+fi
+
+if which bash; then
+    SH=`which bash`;
+    echo "configure_bash_scripts: Found bash in your search path"
+else
+    SH="/bin/sh";
+    echo "configure_bash_scripts: Cannot find bash, trying /bin/sh (untested)"
+fi
+
+for file in ../PROVER/eproof ; do
+    # cp $file $file.bak
+    echo "#!$SH -f" > tmpfile
+    $TAIL +2  $file >> tmpfile
+    mv tmpfile $file
+    chmod ugo+x $file
+done
+

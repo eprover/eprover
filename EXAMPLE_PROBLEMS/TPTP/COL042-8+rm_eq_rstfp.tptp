@@ -1,0 +1,40 @@
+%--------------------------------------------------------------------------
+% File     : COL042-8 : TPTP v2.1.0. Released v2.1.0.
+% Domain   : Combinatory Logic
+% Problem  : Strong fixed point for B and W1
+% Version  : [WM88] (equality) axioms.
+%            Theorem formulation : The fixed point is provided and checked.
+% English  : The strong fixed point property holds for the set 
+%            P consisting of the combinators B and W1, where ((Bx)y)z 
+%            = x(yz), (W1x)y = (yx)x.
+
+% Refs     : [WM88]  Wos & McCune (1988), Challenge Problems Focusing on Eq
+%          : [Wos93] Wos (1993), The Kernel Strategy and Its Use for the St
+% Source   : [TPTP]
+% Names    : 
+
+% Status   : unsatisfiable
+% Rating   : ? v2.1.0
+% Syntax   : Number of clauses    :    4 (   0 non-Horn;   4 unit;   2 RR)
+%            Number of literals   :    4 (   4 equality)
+%            Maximal clause size  :    1 (   1 average)
+%            Number of predicates :    1 (   0 propositional; 2-2 arity)
+%            Number of functors   :    5 (   4 constant; 0-2 arity)
+%            Number of variables  :    5 (   0 singleton)
+%            Maximal term depth   :    7 (   3 average)
+
+% Comments : 
+%          : tptp2X -f tptp -t rm_equality:rstfp COL042-8.p 
+%--------------------------------------------------------------------------
+input_clause(b_definition,axiom,
+    [++ equal(apply(apply(apply(b, X), Y), Z), apply(X, apply(Y, Z)))]).
+
+input_clause(w1_definition,axiom,
+    [++ equal(apply(apply(w1, X), Y), apply(apply(Y, X), X))]).
+
+input_clause(strong_fixed_point,axiom,
+    [++ equal(strong_fixed_point, apply(apply(b, apply(apply(b, apply(w1, w1)), apply(apply(b, apply(b, w1)), b))), b))]).
+
+input_clause(prove_strong_fixed_point,conjecture,
+    [-- equal(apply(strong_fixed_point, fixed_pt), apply(fixed_pt, apply(strong_fixed_point, fixed_pt)))]).
+%--------------------------------------------------------------------------

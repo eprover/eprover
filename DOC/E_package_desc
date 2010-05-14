@@ -1,0 +1,21 @@
+Package name: eprover
+SHORT: Theorem prover for first-order logic with equality
+LONG:
+ E is a fully automatic theorem prover for full first-order logic with
+ equality. It accepts a mathematical specification and, optionally, a
+ hypothesis, and tries to prove the hypothesis and/or find a
+ saturation representing a (counter-)model for the specification.
+ .
+ E is based on a purely equational problem representation and
+ implements a variant of the superposition calculus. Proof search can
+ be guided with a multitude of options or a powerful automatic
+ configuration mode. The system can process input in a number of
+ different formats, including the standard TPTP-2 and TPTP-3
+ formats. It can generate proof objects in PCL2 or TPTP-3/TSTP
+ format.
+ .
+ E is considered one of the most powerful and friendly automated
+ theorem provers for first-order logic. It has consistently been among
+ the top systems in the major categories of the CASC system
+ competition, and has usually been the strongest free software
+ system. 

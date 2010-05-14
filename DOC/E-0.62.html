@@ -1,0 +1,91 @@
+<HR><!------------------------------------------------------------------------>
+<H2>E&nbsp;0.62 and EP&nbsp;0.62</H2>
+S. Schulz<BR>
+Institut f&uuml;r Informatik, Technische Universit&auml;t
+M&uuml;nchen, Germany<BR>schulz@informatik.tu-muenchen.de<p>
+
+<H3>Architecture</H3>
+
+E&nbsp;0.62[<A HREF="#EReferences">Sch2001</A>] is a purely equational
+theorem prover. The calculus used by E combines superposition (with
+selection of negative literals) and rewriting. No special rules for
+non-equational literals have been implemented, i.e. resolution is simulated
+via paramodulation and equality resolution. New additions to the calculus since
+E&nbsp;0.6 include AC redundancy elimination and AC simplification for
+dynamically recognized associative and commutative equational theories, as well
+as simulated clause splitting (inspired by Vampire).
+<p>
+E is based on the DISCOUNT-loop variant of the <em>given-clause</em> algorithm,
+i.e. a strict separation of active and passive facts.  Proof search in E is
+primarily controlled by a literal selection strategy, a clause evaluation
+heuristic, and a simplification ordering. The prover supports a large number of
+preprogrammed literal selection strategies, many of which are only
+experimental. Clause evaluation heuristics can be constructed on the fly by
+combining various parameterized primitive evaluation functions, or can be
+selected from a set of predefined heuristics. Supported term orderings are
+several parameterized instances of Knuth-Bendix-Ordering (KBO) and Lexicographic
+Path Ordering (LPO).
+<p>
+An automatic mode can select literal selection strategy, term ordering
+(different versions of KBO and LPO), and search heuristic based on simple
+problem characteristics.
+<p>
+EP&nbsp;0.62 is just a combination of E&nbsp;0.62 in full verbose mode and a proof
+generation tool. Proof object generation is handled by complex postprocessing
+of the full search protocol.
+<p>
+
+
+<H3>Implementation</H3>
+
+E is implemented in ANSI C, using the GNU C compiler. The most unique
+feature of the implementation is the maximally shared term
+representation. This includes parallel rewriting for all instances of
+a particular subterm.  A second important feature is the use of
+<EM>perfect discrimination trees</EM> with age and size constraints
+for rewriting and unit-subsumption. 
+<P>
+The program has been successfully installed under SunOS&nbsp;4.3.x,
+Solaris&nbsp;2.x, HP-UX&nbsp;B&nbsp;10.20, and various versions of
+Linux.  Sources of the latest released version and a current snapshot are
+available freely from: 
+<PRE>
+    <A HREF="http://wwwjessen.informatik.tu-muenchen.de/~schulz/WORK/eprover.html">http://wwwjessen.informatik.tu-muenchen.de/~schulz/WORK/eprover.html</A>
+</PRE>
+EP&nbsp;0.62 is a simple Bourne shell script calling E and the postprocessor in
+a pipeline.
+
+<H3>Expected Competition Performance</H3>
+
+In the last year, E won the MIX category of CASC and came in fourth in the UEQ
+division. We believe that E will again be among the strongest provers in the
+MIX category, in particular due to its good performance for Horn problems. We
+also hope to improve in the UEQ category, although we probably will not nearly
+reach the performance of Waldmeister. 
+<p>
+EP&nbsp;0.62 will be hampered by the fact that it has to reconstruct proofs in a
+post-processing step that typically usually uses at least the same amount of
+time as the proof search itself. This is particularly grave because E is able to
+find a relatively large number of proofs late in the proof search.
+<p>
+E's auto mode is optimized for performance on the TPTP 2.3.0. The optimization
+is based on a fairly large number of test runs and consists of the selection of
+one of about 50 different strategies for each problem.
+
+<A NAME="EReferences">
+<H3>References</H3>
+<DL>
+<DT> Sch2001
+<DD> Schulz S. (2001),
+     <STRONG>System Abstract: E 0.61</STRONG>,
+     <EM>Proceedings of the 1st IJCAR</EM>,
+     (Sienna, Italy),
+     Lecture Notes in Artificial Intelligence
+     Springer-Verlag
+</DL>
+
+<P>
+
+<HR><!------------------------------------------------------------------------>
+
+

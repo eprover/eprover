@@ -1,0 +1,19 @@
+#  Signature:  7 symbols (out of 20 allocated)
+   $nil   : 0
+   $cons  : 2
+   g      : 1
+   f      : 2
+   a      : 0
+   b      : 0
+   h      : 1
+*1 : x1		/*  Flags:          0, 2 references */
+*2 : x2		/*  Flags:          0, 1 references */
+*3 : x3		/*  Flags:          0, 1 references */
+*4 : g(*3)		/*  Flags:          0, 1 references */
+*5 : f(*2,*4)		/*  Flags:          0, 1 references */
+*6 : f(*1,*5)		/*  Flags:          2, 1 references */
+*7 : a()		/*  Flags:          0, 1 references */
+*8 : g(*7)		/*  Flags:          2, 1 references */
+*9 : b()		/*  Flags:          0, 1 references */
+*10 : g(*9)		/*  Flags:          2, 1 references */
+*11 : h(*1)		/*  Flags:          2, 1 references */

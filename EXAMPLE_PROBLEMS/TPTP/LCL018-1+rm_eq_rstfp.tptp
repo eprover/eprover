@@ -1,0 +1,38 @@
+%--------------------------------------------------------------------------
+% File     : LCL018-1 : TPTP v2.1.0. Released v1.0.0.
+% Domain   : Logic Calculi (Equivalential)
+% Problem  : PYO depends on PYM
+% Version  : [McC92] axioms.
+% English  : Show that the single Meredith axiom PYO can be derived from 
+%            the single Meredith axiom PYM.
+
+% Refs     : [MW92]  McCune & Wos (1992), Experiments in Automated Deductio
+%          : [McC92] McCune (1992), Email to G. Sutcliffe
+%          : [Wos95] Wos (1995), Searching for Circles of Pure Proofs
+% Source   : [McC92]
+% Names    : EC-81 [MW92]
+
+% Status   : unsatisfiable
+% Rating   : 0.89 v2.1.0, 0.88 v2.0.0
+% Syntax   : Number of clauses    :    3 (   0 non-Horn;   2 unit;   2 RR)
+%            Number of literals   :    5 (   0 equality)
+%            Maximal clause size  :    3 (   1 average)
+%            Number of predicates :    1 (   0 propositional; 1-1 arity)
+%            Number of functors   :    4 (   3 constant; 0-2 arity)
+%            Number of variables  :    5 (   0 singleton)
+%            Maximal term depth   :    5 (   2 average)
+
+% Comments : 
+%          : tptp2X -f tptp -t rm_equality:rstfp LCL018-1.p 
+%--------------------------------------------------------------------------
+input_clause(condensed_detachment,axiom,
+    [-- is_a_theorem(equivalent(X, Y)),
+     -- is_a_theorem(X),
+     ++ is_a_theorem(Y)]).
+
+input_clause(pym,axiom,
+    [++ is_a_theorem(equivalent(equivalent(equivalent(X, equivalent(Y, Z)), Y), equivalent(Z, X)))]).
+
+input_clause(prove_pyo,conjecture,
+    [-- is_a_theorem(equivalent(equivalent(equivalent(a, equivalent(b, c)), c), equivalent(b, a)))]).
+%--------------------------------------------------------------------------

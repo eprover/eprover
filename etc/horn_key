@@ -1,0 +1,9 @@
+K02 -wconstant -Garity
+#K03 -wconstant -Ginvarity
+#K04 -warity -Garity
+#K05 -winvarity -Ginvarity
+#K08 -wmodarity -Garity
+#K09 -waritysquared -Garity
+#L01 -tLPO
+#L02 -tLPO -wconstant -Garity
+

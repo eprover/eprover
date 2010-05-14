@@ -1,0 +1,51 @@
+For use as a prover I suggest the following command line:
+--------------------------------------------------------------------
+eprover -xAuto --memory-limit=96 <problem_file>
+
+Other important Options:
+
+-h 
+--help  
+	Explain the options
+
+--tptp-in
+        Read TPTP format
+ 
+--tptp-out
+        Write TPTP format
+
+-n 
+--eqn-no-infix
+        (If using LOP syntax): write equal(a,b) instead of a=b.
+
+-s 
+--silent
+        Restrict output to a minumum.
+
+
+
+
+Interpretation of output:
+------------------------------------------------------------------
+Proof found:
+# Proof found!
+
+Specification is satisfiable (model exists):
+# No proof found!
+
+Obvious:
+# Failure: Resource limit exceeded (memory)
+# Failure: Resource limit exceeded (time)
+
+User defined limit reached while saturating (Number of steps, number
+of clauses, soft cpu limit, etc.
+# Failure: User resource limit exceeded!
+
+Prover gives up (equivalent "SOS empty" for Otter, should happen only
+in automatic mode or with the option  --delete-bad-limit):
+# Failure: Out of unprocessed clauses!
+
+Inference system was restricted by command line option, clause set is
+saturated under the allowed inferences:
+# Clause set closed under restricted calculus!
+

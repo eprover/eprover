@@ -1,0 +1,142 @@
+<HR><!------------------------------------------------------------------------>
+<H2>E&nbsp;0.8 and EP&nbsp;0.8</H2>
+S. Schulz<BR>
+Institut f&uuml;r Informatik, Technische Universit&auml;t
+M&uuml;nchen, Germany, and RISC-Linz, Johannes Kepler Universit&auml;t
+Linz, Austria
+<BR>schulz@informatik.tu-muenchen.de<p>
+
+<H3>Architecture</H3>
+
+E&nbsp;0.8[<A HREF="#References">Sch2001,Sch2002</A>] is a purely
+equational theorem prover. The calculus used by E combines
+superposition (with selection of negative literals) and rewriting. No
+special rules for non-equational literals have been implemented,
+i.e. resolution is simulated via paramodulation and equality
+resolution. E also implements AC redundancy elimination and AC
+simplification for dynamically recognized associative and commutative
+equational theories, as well as pseudo-splitting for clauses. It now
+also unfolds equational definitions in a preprocessing stage.
+<p>
+E is based on the DISCOUNT-loop variant of the <em>given-clause</em>
+algorithm, i.e. a strict separation of active and passive facts.
+Proof search in E is primarily controlled by a literal selection
+strategy, a clause evaluation heuristic, and a simplification
+ordering. The prover supports a large number of preprogrammed literal
+selection strategies, many of which are only experimental. Clause
+evaluation heuristics can be constructed on the fly by combining
+various parameterized primitive evaluation functions, or can be
+selected from a set of predefined heuristics. Supported term orderings
+are several parameterized instances of Knuth-Bendix-Ordering (KBO) and
+Lexicographic Path Ordering (LPO).
+<p>
+An automatic mode can select literal selection strategy, term ordering
+(different versions of KBO and LPO), and search heuristic based on simple
+problem characteristics.
+<p>
+EP&nbsp;0.8 is just a combination of E&nbsp;0.8 in verbose mode and a proof
+analysis tool extracting the used inference steps.
+<p>
+
+
+<H3>Implementation</H3>
+
+E is implemented in ANSI C, using the GNU C compiler. The most
+outstanding feature is the global sharing of rewrite steps. Contrary
+to earlier version of E, which destructively changed all shared
+instances of a term, the latest version only adds a <em>rewrite
+link</em> from the rewritten to the new term. In effect, E is caching
+rewrite operations as long as sufficient memory is available. A second
+important feature is the use of <EM>perfect discrimination trees</EM>
+with age and size constraints for rewriting and unit-subsumption.
+<P>
+The program has been successfully installed under SunOS&nbsp;4.3.x,
+Solaris&nbsp;2.x, HP-UX&nbsp;B&nbsp;10.20, MacOS-X, and various
+versions of Linux.  Sources of the latest released version and a
+current snapshot are available freely from: 
+<PRE>
+    <A HREF="http://www4.informatik.tu-muenchen.de/~schulz/WORK/eprover.html">http://www4.informatik.tu-muenchen.de/~schulz/WORK/eprover.html</A>
+</PRE>
+EP&nbsp;0.8 is a simple Bourne shell script calling E and the postprocessor in
+a pipeline.
+
+<h3>Strategies</h3>
+
+E's automatic mode is optimized for performance on TPTP 2.5.1. The
+optimization is based on a fairly large number of test runs and
+consists of the selection of one of about 50 different strategies for
+each problem. All test runs have been performed on SUN Ultra 60/300
+machines with a time limit of 120 seconds (or roughly equivalent
+confogurations). All individual strategies are general purpose, the
+worst one solves about 45% of TPTP 2.5.1, the best one 55%.
+
+E distinguishes problem classes based on a number of features, all of
+which have between two and 4 possible  values. These are
+
+<ul>
+<li> Is the most general non-negative clause unit, Horn, or Non-Horn?
+<li> Is the most general negative clauce unit or non-unit?
+<li> Are all negative clauses unit clauses?
+<li> Are all literals equality literals, are some literas equality
+     literals, or is the problem non-equational?
+<li> Are there only a few, some, or many positive non-ground
+     unit clauses among the axioms? 
+<li> Are all goals (negative clauses) ground?
+<li> Are there a few, some, or many clauses in the problem?
+<li> Are there a few, some, or many literals?
+<li> Are there a few, some, or many (sub)terms?
+<li> Are there a few, some or many positive ground
+     unit clauses among the axioms?
+<li> Is the maximum arity of any function symbol 0, 1, 2, or greater? 
+</ul>
+
+Wherever there is a selection of few, some, and many of a certain
+entity, the limits are selected automatically with the aim of
+splitting the set of clauses into three sets of approximately equal
+size based on this one feature.
+
+<p>
+For each non-empty class, we assign the most general candidate
+heuristic that solves the same number of problems on this class as the
+best heuristic on this class does. Empty classes are assigned the
+globally best heristic. Typically, most selected heuristics are
+assigned to more than one class.
+
+
+<H3>Expected Competition Performance</H3>
+
+In the last year, E performed well in the MIX category of CASC and
+came in third in the UEQ division. We believe that E will again be
+among the strongest provers in the MIX category, in particular due to
+its good performance for Horn problems. In UEQ, E will probably be
+beaten only by Waldmeister, and, possibly, E-SETHEO (which
+incorporates it).
+<p>
+EP&nbsp;0.8 will be hampered by the fact that it has to analyse the
+inference step listing, an operation that typically is about as
+expensive as the proof search itself. Nevertheless, it should be
+competitive among the MIX* systems.
+<p>
+
+
+<A NAME="References">
+<H3>References</H3>
+<DL>
+<DT> Sch2001
+<DD> Schulz S. (2001),
+     <STRONG>System Abstract: E 0.61</STRONG>,
+     <EM>Proceedings of the 1st IJCAR</EM>,
+     (Sienna, Italy),
+     Lecture Notes in Artificial Intelligence,
+     Springer-Verlag
+<DT> Sch2002
+<DD> Schulz S. (2002),
+     <STRONG>E: A Brainiac Theorem Prover</STRONG>,
+     <EM>Journal of AI Communications</em> 15(2/3), 111-126, IOS Press
+</DL>
+
+<P>
+
+<HR><!------------------------------------------------------------------------>
+
+

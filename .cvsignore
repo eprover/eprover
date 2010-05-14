@@ -1,0 +1,4 @@
+Makefile.dependencies
+*.o
+*~
+

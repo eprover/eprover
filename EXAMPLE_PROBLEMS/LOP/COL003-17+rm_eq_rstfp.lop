@@ -1,0 +1,41 @@
+#--------------------------------------------------------------------------
+# File     : COL003-17 : TPTP v2.1.0. Released v2.1.0.
+# Domain   : Combinatory Logic
+# Problem  : Strong fixed point for B and W
+# Version  : [WM88] (equality) axioms.
+#            Theorem formulation : The fixed point is provided and checked.
+# English  : The strong fixed point property holds for the set 
+#            P consisting of the combinators B and W alone, where ((Bx)y)z 
+#            = x(yz) and (Wx)y = (xy)y.
+
+# Refs     : [WM88]  Wos & McCune (1988), Challenge Problems Focusing on Eq
+#          : [Wos93] Wos (1993), The Kernel Strategy and Its Use for the St
+# Source   : [Wos93]
+# Names    : 
+
+# Status   : unsatisfiable
+# Rating   : ? v2.1.0
+# Syntax   : Number of clauses    :    4 (   0 non-Horn;   4 unit;   2 RR)
+#            Number of literals   :    4 (   4 equality)
+#            Maximal clause size  :    1 (   1 average)
+#            Number of predicates :    1 (   0 propositional; 2-2 arity)
+#            Number of functors   :    5 (   4 constant; 0-2 arity)
+#            Number of variables  :    5 (   0 singleton)
+#            Maximal term depth   :    8 (   3 average)
+
+# Comments : 
+#          : tptp2X -f setheo:sign -t rm_equality:rstfp COL003-17.p 
+#--------------------------------------------------------------------------
+# b_definition, axiom.
+equal(apply(apply(apply(b, X), Y), Z), apply(X, apply(Y, Z))) <- .
+
+# w_definition, axiom.
+equal(apply(apply(w, X), Y), apply(apply(X, Y), Y)) <- .
+
+# strong_fixed_point, axiom.
+equal(strong_fixed_point, apply(apply(b, apply(apply(b, apply(apply(b, apply(w, w)), apply(b, w))), b)), b)) <- .
+
+# prove_strong_fixed_point, conjecture.
+ <- equal(apply(strong_fixed_point, fixed_pt), apply(fixed_pt, apply(strong_fixed_point, fixed_pt))).
+
+#--------------------------------------------------------------------------

@@ -1,0 +1,29 @@
+Eingaben:
+
+accept: <clause>
+test:   <cause>
+end
+
+CSSPA(state, clause, accept)
+{
+   if(state subsumes clause)
+   {
+       delete clause
+       Output "Clause subsumed";
+   }
+   else
+   {
+	collect subsumed clauses from state;
+	if(accept || weight of subsumed clauses > weight of clause)
+	{
+	   remove subsumed clauses;
+	   add clause to state;
+	   Output "Clause accepted"
+	}
+	else
+	{
+           delete clause;
+	   Output "Clause rejected"
+	}
+   }
+}

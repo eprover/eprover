@@ -1,0 +1,77 @@
+#--------------------------------------------------------------------------
+# File     : CAT018-4 : TPTP v2.1.0. Released v1.0.0.
+# Domain   : Category Theory
+# Problem  : If xy and yz exist, then so does x(yz)
+# Version  : [Sco79] axioms : Reduced > Complete.
+# English  : 
+
+# Refs     : [Sco79] Scott (1979), Identity and Existence in Intuitionist L
+# Source   : [TPTP]
+# Names    : 
+
+# Status   : unsatisfiable
+# Rating   : 0.83 v2.1.0, 0.80 v2.0.0
+# Syntax   : Number of clauses    :   14 (   0 non-Horn;   6 unit;  11 RR)
+#            Number of literals   :   24 (   7 equality)
+#            Maximal clause size  :    3 (   1 average)
+#            Number of predicates :    3 (   0 propositional; 1-2 arity)
+#            Number of functors   :    6 (   3 constant; 0-2 arity)
+#            Number of variables  :   19 (   2 singleton)
+#            Maximal term depth   :    3 (   1 average)
+
+# Comments : The dependent axioms have been removed.
+#          : tptp2X -f setheo:sign -t rm_equality:rstfp CAT018-4.p 
+#--------------------------------------------------------------------------
+# equivalence_implies_existence1, axiom.
+there_exists(X) <- 
+    equivalent(X, Y).
+
+# equivalence_implies_existence2, axiom.
+equal(X, Y) <- 
+    equivalent(X, Y).
+
+# existence_and_equality_implies_equivalence1, axiom.
+equivalent(X, Y) <- 
+    there_exists(X),
+    equal(X, Y).
+
+# domain_has_elements, axiom.
+there_exists(X) <- 
+    there_exists(domain(X)).
+
+# codomain_has_elements, axiom.
+there_exists(X) <- 
+    there_exists(codomain(X)).
+
+# composition_implies_domain, axiom.
+there_exists(domain(X)) <- 
+    there_exists(compose(X, Y)).
+
+# domain_codomain_composition1, axiom.
+equal(domain(X), codomain(Y)) <- 
+    there_exists(compose(X, Y)).
+
+# domain_codomain_composition2, axiom.
+there_exists(compose(X, Y)) <- 
+    there_exists(domain(X)),
+    equal(domain(X), codomain(Y)).
+
+# associativity_of_compose, axiom.
+equal(compose(X, compose(Y, Z)), compose(compose(X, Y), Z)) <- .
+
+# compose_domain, axiom.
+equal(compose(X, domain(X)), X) <- .
+
+# compose_codomain, axiom.
+equal(compose(codomain(X), X), X) <- .
+
+# assume_ab_exists, hypothesis.
+there_exists(compose(a, b)) <- .
+
+# assume_bc_exists, hypothesis.
+there_exists(compose(b, c)) <- .
+
+# prove_a_bc_exists, conjecture.
+ <- there_exists(compose(a, compose(b, c))).
+
+#--------------------------------------------------------------------------

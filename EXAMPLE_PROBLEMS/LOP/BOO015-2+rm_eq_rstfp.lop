@@ -1,0 +1,77 @@
+#--------------------------------------------------------------------------
+# File     : BOO015-2 : TPTP v2.1.0. Bugfixed v1.0.1.
+# Domain   : Boolean Algebra
+# Problem  : DeMorgan for inverse and sum (X^-1 + Y^-1) = (X * Y)^-1
+# Version  : [ANL] (equality) axioms.
+# English  : 
+
+# Refs     : 
+# Source   : [ANL]
+# Names    : prob10.ver2.in [ANL]
+
+# Status   : unsatisfiable
+# Rating   : 0.33 v2.1.0, 0.62 v2.0.0
+# Syntax   : Number of clauses    :   17 (   0 non-Horn;  17 unit;   3 RR)
+#            Number of literals   :   17 (  17 equality)
+#            Maximal clause size  :    1 (   1 average)
+#            Number of predicates :    1 (   0 propositional; 2-2 arity)
+#            Number of functors   :    9 (   6 constant; 0-2 arity)
+#            Number of variables  :   24 (   0 singleton)
+#            Maximal term depth   :    3 (   2 average)
+
+# Comments : 
+#          : tptp2X -f setheo:sign -t rm_equality:rstfp BOO015-2.p 
+# Bugfixes : v1.0.1 - Clause a_inverse_plus_b_inverse_is_d fixed.
+#--------------------------------------------------------------------------
+# commutativity_of_add, axiom.
+equal(add(X, Y), add(Y, X)) <- .
+
+# commutativity_of_multiply, axiom.
+equal(multiply(X, Y), multiply(Y, X)) <- .
+
+# distributivity1, axiom.
+equal(add(multiply(X, Y), Z), multiply(add(X, Z), add(Y, Z))) <- .
+
+# distributivity2, axiom.
+equal(add(X, multiply(Y, Z)), multiply(add(X, Y), add(X, Z))) <- .
+
+# distributivity3, axiom.
+equal(multiply(add(X, Y), Z), add(multiply(X, Z), multiply(Y, Z))) <- .
+
+# distributivity4, axiom.
+equal(multiply(X, add(Y, Z)), add(multiply(X, Y), multiply(X, Z))) <- .
+
+# additive_inverse1, axiom.
+equal(add(X, inverse(X)), multiplicative_identity) <- .
+
+# additive_inverse2, axiom.
+equal(add(inverse(X), X), multiplicative_identity) <- .
+
+# multiplicative_inverse1, axiom.
+equal(multiply(X, inverse(X)), additive_identity) <- .
+
+# multiplicative_inverse2, axiom.
+equal(multiply(inverse(X), X), additive_identity) <- .
+
+# multiplicative_id1, axiom.
+equal(multiply(X, multiplicative_identity), X) <- .
+
+# multiplicative_id2, axiom.
+equal(multiply(multiplicative_identity, X), X) <- .
+
+# additive_id1, axiom.
+equal(add(X, additive_identity), X) <- .
+
+# additive_id2, axiom.
+equal(add(additive_identity, X), X) <- .
+
+# a_times_b_is_c, hypothesis.
+equal(multiply(a, b), c) <- .
+
+# a_inverse_plus_b_inverse_is_d, hypothesis.
+equal(add(inverse(a), inverse(b)), d) <- .
+
+# prove_c_inverse_is_d, conjecture.
+ <- equal(inverse(c), d).
+
+#--------------------------------------------------------------------------

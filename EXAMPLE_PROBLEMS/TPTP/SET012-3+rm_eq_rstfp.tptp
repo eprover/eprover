@@ -1,0 +1,670 @@
+%--------------------------------------------------------------------------
+% File     : SET012-3 : TPTP v2.1.0. Released v1.0.0.
+% Domain   : Set Theory
+% Problem  : Complement is an involution
+% Version  : [BL+86] axioms.
+% English  : 
+
+% Refs     : [BL+86] Boyer et al. (1986), Set Theory in First-Order Logic: 
+% Source   : [TPTP]
+% Names    : 
+
+% Status   : unknown
+% Rating   : 1.00 v2.0.0
+% Syntax   : Number of clauses    :  144 (  20 non-Horn;  14 unit; 121 RR)
+%            Number of literals   :  358 (  50 equality)
+%            Maximal clause size  :    8 (   2 average)
+%            Number of predicates :   14 (   0 propositional; 1-5 arity)
+%            Number of functors   :   62 (   9 constant; 0-5 arity)
+%            Number of variables  :  320 (  28 singleton)
+%            Maximal term depth   :    4 (   1 average)
+
+% Comments : 
+%          : tptp2X -f tptp -t rm_equality:rstfp SET012-3.p 
+%--------------------------------------------------------------------------
+input_clause(a2,axiom,
+    [-- member(X, Y),
+     ++ little_set(X)]).
+
+input_clause(extensionality1,axiom,
+    [++ little_set(f1(X, Y)),
+     ++ equal(X, Y)]).
+
+input_clause(extensionality2,axiom,
+    [++ member(f1(X, Y), X),
+     ++ member(f1(X, Y), Y),
+     ++ equal(X, Y)]).
+
+input_clause(extensionality3,axiom,
+    [-- member(f1(X, Y), X),
+     -- member(f1(X, Y), Y),
+     ++ equal(X, Y)]).
+
+input_clause(non_ordered_pair1,axiom,
+    [-- member(U, non_ordered_pair(X, Y)),
+     ++ equal(U, X),
+     ++ equal(U, Y)]).
+
+input_clause(non_ordered_pair2,axiom,
+    [++ member(U, non_ordered_pair(X, Y)),
+     -- little_set(U),
+     -- equal(U, X)]).
+
+input_clause(non_ordered_pair3,axiom,
+    [++ member(U, non_ordered_pair(X, Y)),
+     -- little_set(U),
+     -- equal(U, Y)]).
+
+input_clause(non_ordered_pair4,axiom,
+    [++ little_set(non_ordered_pair(X, Y))]).
+
+input_clause(singleton_set,axiom,
+    [++ equal(singleton_set(X), non_ordered_pair(X, X))]).
+
+input_clause(ordered_pair,axiom,
+    [++ equal(ordered_pair(X, Y), non_ordered_pair(singleton_set(X), non_ordered_pair(X, Y)))]).
+
+input_clause(ordered_pair_predicate1,axiom,
+    [-- ordered_pair_predicate(X),
+     ++ little_set(f2(X))]).
+
+input_clause(ordered_pair_predicate2,axiom,
+    [-- ordered_pair_predicate(X),
+     ++ little_set(f3(X))]).
+
+input_clause(ordered_pair_predicate3,axiom,
+    [-- ordered_pair_predicate(X),
+     ++ equal(X, ordered_pair(f2(X), f3(X)))]).
+
+input_clause(ordered_pair_predicate4,axiom,
+    [++ ordered_pair_predicate(X),
+     -- little_set(Y),
+     -- little_set(Z),
+     -- equal(X, ordered_pair(Y, Z))]).
+
+input_clause(first1,axiom,
+    [-- member(Z, first(X)),
+     ++ little_set(f4(Z, X))]).
+
+input_clause(first2,axiom,
+    [-- member(Z, first(X)),
+     ++ little_set(f5(Z, X))]).
+
+input_clause(first3,axiom,
+    [-- member(Z, first(X)),
+     ++ equal(X, ordered_pair(f4(Z, X), f5(Z, X)))]).
+
+input_clause(first4,axiom,
+    [-- member(Z, first(X)),
+     ++ member(Z, f4(Z, X))]).
+
+input_clause(first5,axiom,
+    [++ member(Z, first(X)),
+     -- little_set(U),
+     -- little_set(V),
+     -- equal(X, ordered_pair(U, V)),
+     -- member(Z, U)]).
+
+input_clause(second1,axiom,
+    [-- member(Z, second(X)),
+     ++ little_set(f6(Z, X))]).
+
+input_clause(second2,axiom,
+    [-- member(Z, second(X)),
+     ++ little_set(f7(Z, X))]).
+
+input_clause(second3,axiom,
+    [-- member(Z, second(X)),
+     ++ equal(X, ordered_pair(f6(Z, X), f7(Z, X)))]).
+
+input_clause(second4,axiom,
+    [-- member(Z, second(X)),
+     ++ member(Z, f7(Z, X))]).
+
+input_clause(second5,axiom,
+    [++ member(Z, second(X)),
+     -- little_set(U),
+     -- little_set(V),
+     -- equal(X, ordered_pair(U, V)),
+     -- member(Z, V)]).
+
+input_clause(element_relation1,axiom,
+    [-- member(Z, estin),
+     ++ ordered_pair_predicate(Z)]).
+
+input_clause(element_relation2,axiom,
+    [-- member(Z, estin),
+     ++ member(first(Z), second(Z))]).
+
+input_clause(element_relation3,axiom,
+    [++ member(Z, estin),
+     -- little_set(Z),
+     -- ordered_pair_predicate(Z),
+     -- member(first(Z), second(Z))]).
+
+input_clause(intersection1,axiom,
+    [-- member(Z, intersection(X, Y)),
+     ++ member(Z, X)]).
+
+input_clause(intersection2,axiom,
+    [-- member(Z, intersection(X, Y)),
+     ++ member(Z, Y)]).
+
+input_clause(intersection3,axiom,
+    [++ member(Z, intersection(X, Y)),
+     -- member(Z, X),
+     -- member(Z, Y)]).
+
+input_clause(complement1,axiom,
+    [-- member(Z, complement(X)),
+     -- member(Z, X)]).
+
+input_clause(complement2,axiom,
+    [++ member(Z, complement(X)),
+     -- little_set(Z),
+     ++ member(Z, X)]).
+
+input_clause(union,axiom,
+    [++ equal(union(X, Y), complement(intersection(complement(X), complement(Y))))]).
+
+input_clause(domain1,axiom,
+    [-- member(Z, domain_of(X)),
+     ++ ordered_pair_predicate(f8(Z, X))]).
+
+input_clause(domain2,axiom,
+    [-- member(Z, domain_of(X)),
+     ++ member(f8(Z, X), X)]).
+
+input_clause(domain3,axiom,
+    [-- member(Z, domain_of(X)),
+     ++ equal(Z, first(f8(Z, X)))]).
+
+input_clause(domain4,axiom,
+    [++ member(Z, domain_of(X)),
+     -- little_set(Z),
+     -- ordered_pair_predicate(Xp),
+     -- member(Xp, X),
+     -- equal(Z, first(Xp))]).
+
+input_clause(cross_product1,axiom,
+    [-- member(Z, cross_product(X, Y)),
+     ++ ordered_pair_predicate(Z)]).
+
+input_clause(cross_product2,axiom,
+    [-- member(Z, cross_product(X, Y)),
+     ++ member(first(Z), X)]).
+
+input_clause(cross_product3,axiom,
+    [-- member(Z, cross_product(X, Y)),
+     ++ member(second(Z), Y)]).
+
+input_clause(cross_product4,axiom,
+    [++ member(Z, cross_product(X, Y)),
+     -- little_set(Z),
+     -- ordered_pair_predicate(Z),
+     -- member(first(Z), X),
+     -- member(second(Z), Y)]).
+
+input_clause(converse1,axiom,
+    [-- member(Z, converse(X)),
+     ++ ordered_pair_predicate(Z)]).
+
+input_clause(converse2,axiom,
+    [-- member(Z, converse(X)),
+     ++ member(ordered_pair(second(Z), first(Z)), X)]).
+
+input_clause(converse3,axiom,
+    [++ member(Z, converse(X)),
+     -- little_set(Z),
+     -- ordered_pair_predicate(Z),
+     -- member(ordered_pair(second(Z), first(Z)), X)]).
+
+input_clause(rotate_right1,axiom,
+    [-- member(Z, rotate_right(X)),
+     ++ little_set(f9(Z, X))]).
+
+input_clause(rotate_right2,axiom,
+    [-- member(Z, rotate_right(X)),
+     ++ little_set(f10(Z, X))]).
+
+input_clause(rotate_right3,axiom,
+    [-- member(Z, rotate_right(X)),
+     ++ little_set(f11(Z, X))]).
+
+input_clause(rotate_right4,axiom,
+    [-- member(Z, rotate_right(X)),
+     ++ equal(Z, ordered_pair(f9(Z, X), ordered_pair(f10(Z, X), f11(Z, X))))]).
+
+input_clause(rotate_right5,axiom,
+    [-- member(Z, rotate_right(X)),
+     ++ member(ordered_pair(f10(Z, X), ordered_pair(f11(Z, X), f9(Z, X))), X)]).
+
+input_clause(rotate_right6,axiom,
+    [++ member(Z, rotate_right(X)),
+     -- little_set(Z),
+     -- little_set(U),
+     -- little_set(V),
+     -- little_set(W),
+     -- equal(Z, ordered_pair(U, ordered_pair(V, W))),
+     -- member(ordered_pair(V, ordered_pair(W, U)), X)]).
+
+input_clause(flip_range1,axiom,
+    [-- member(Z, flip_range_of(X)),
+     ++ little_set(f12(Z, X))]).
+
+input_clause(flip_range2,axiom,
+    [-- member(Z, flip_range_of(X)),
+     ++ little_set(f13(Z, X))]).
+
+input_clause(flip_range3,axiom,
+    [-- member(Z, flip_range_of(X)),
+     ++ little_set(f14(Z, X))]).
+
+input_clause(flip_range4,axiom,
+    [-- member(Z, flip_range_of(X)),
+     ++ equal(Z, ordered_pair(f12(Z, X), ordered_pair(f13(Z, X), f14(Z, X))))]).
+
+input_clause(flip_range5,axiom,
+    [-- member(Z, flip_range_of(X)),
+     ++ member(ordered_pair(f12(Z, X), ordered_pair(f14(Z, X), f13(Z, X))), X)]).
+
+input_clause(flip_range6,axiom,
+    [++ member(Z, flip_range_of(X)),
+     -- little_set(Z),
+     -- little_set(U),
+     -- little_set(V),
+     -- little_set(W),
+     -- equal(Z, ordered_pair(U, ordered_pair(V, W))),
+     -- member(ordered_pair(U, ordered_pair(W, V)), X)]).
+
+input_clause(successor,axiom,
+    [++ equal(successor(X), union(X, singleton_set(X)))]).
+
+input_clause(empty_set,axiom,
+    [-- member(Z, empty_set)]).
+
+input_clause(universal_set,axiom,
+    [++ member(Z, universal_set),
+     -- little_set(Z)]).
+
+input_clause(infinity1,axiom,
+    [++ little_set(infinity)]).
+
+input_clause(infinity2,axiom,
+    [++ member(empty_set, infinity)]).
+
+input_clause(infinity3,axiom,
+    [-- member(X, infinity),
+     ++ member(successor(X), infinity)]).
+
+input_clause(sigma1,axiom,
+    [-- member(Z, sigma(X)),
+     ++ member(f16(Z, X), X)]).
+
+input_clause(sigma2,axiom,
+    [-- member(Z, sigma(X)),
+     ++ member(Z, f16(Z, X))]).
+
+input_clause(sigma3,axiom,
+    [++ member(Z, sigma(X)),
+     -- member(Y, X),
+     -- member(Z, Y)]).
+
+input_clause(sigma4,axiom,
+    [-- little_set(U),
+     ++ little_set(sigma(U))]).
+
+input_clause(subset1,axiom,
+    [-- subset(X, Y),
+     -- member(U, X),
+     ++ member(U, Y)]).
+
+input_clause(subset2,axiom,
+    [++ subset(X, Y),
+     ++ member(f17(X, Y), X)]).
+
+input_clause(subset3,axiom,
+    [++ subset(X, Y),
+     -- member(f17(X, Y), Y)]).
+
+input_clause(proper_subset1,axiom,
+    [-- proper_subset(X, Y),
+     ++ subset(X, Y)]).
+
+input_clause(proper_subset2,axiom,
+    [-- proper_subset(X, Y),
+     -- equal(X, Y)]).
+
+input_clause(proper_subset3,axiom,
+    [++ proper_subset(X, Y),
+     -- subset(X, Y),
+     ++ equal(X, Y)]).
+
+input_clause(powerset1,axiom,
+    [-- member(Z, powerset(X)),
+     ++ subset(Z, X)]).
+
+input_clause(powerset2,axiom,
+    [++ member(Z, powerset(X)),
+     -- little_set(Z),
+     -- subset(Z, X)]).
+
+input_clause(powerset3,axiom,
+    [-- little_set(U),
+     ++ little_set(powerset(U))]).
+
+input_clause(relation1,axiom,
+    [-- relation(Z),
+     -- member(X, Z),
+     ++ ordered_pair_predicate(X)]).
+
+input_clause(relation2,axiom,
+    [++ relation(Z),
+     ++ member(f18(Z), Z)]).
+
+input_clause(relation3,axiom,
+    [++ relation(Z),
+     -- ordered_pair_predicate(f18(Z))]).
+
+input_clause(single_valued_set1,axiom,
+    [-- single_valued_set(X),
+     -- little_set(U),
+     -- little_set(V),
+     -- little_set(W),
+     -- member(ordered_pair(U, V), X),
+     -- member(ordered_pair(U, W), X),
+     ++ equal(V, W)]).
+
+input_clause(single_valued_set2,axiom,
+    [++ single_valued_set(X),
+     ++ little_set(f19(X))]).
+
+input_clause(single_valued_set3,axiom,
+    [++ single_valued_set(X),
+     ++ little_set(f20(X))]).
+
+input_clause(single_valued_set4,axiom,
+    [++ single_valued_set(X),
+     ++ little_set(f21(X))]).
+
+input_clause(single_valued_set5,axiom,
+    [++ single_valued_set(X),
+     ++ member(ordered_pair(f19(X), f20(X)), X)]).
+
+input_clause(single_valued_set6,axiom,
+    [++ single_valued_set(X),
+     ++ member(ordered_pair(f19(X), f21(X)), X)]).
+
+input_clause(single_valued_set7,axiom,
+    [++ single_valued_set(X),
+     -- equal(f20(X), f21(X))]).
+
+input_clause(function1,axiom,
+    [-- function(Xf),
+     ++ relation(Xf)]).
+
+input_clause(function2,axiom,
+    [-- function(Xf),
+     ++ single_valued_set(Xf)]).
+
+input_clause(function3,axiom,
+    [++ function(Xf),
+     -- relation(Xf),
+     -- single_valued_set(Xf)]).
+
+input_clause(image_and_substitution1,axiom,
+    [-- member(Z, image(X, Xf)),
+     ++ ordered_pair_predicate(f22(Z, X, Xf))]).
+
+input_clause(image_and_substitution2,axiom,
+    [-- member(Z, image(X, Xf)),
+     ++ member(f22(Z, X, Xf), Xf)]).
+
+input_clause(image_and_substitution3,axiom,
+    [-- member(Z, image(X, Xf)),
+     ++ member(first(f22(Z, X, Xf)), X)]).
+
+input_clause(image_and_substitution4,axiom,
+    [-- member(Z, image(X, Xf)),
+     ++ equal(second(f22(Z, X, Xf)), Z)]).
+
+input_clause(image_and_substitution5,axiom,
+    [++ member(Z, image(X, Xf)),
+     -- little_set(Z),
+     -- ordered_pair_predicate(Y),
+     -- member(Y, Xf),
+     -- member(first(Y), X),
+     -- equal(second(Y), Z)]).
+
+input_clause(image_and_substitution6,axiom,
+    [-- little_set(X),
+     -- function(Xf),
+     ++ little_set(image(X, Xf))]).
+
+input_clause(disjoint1,axiom,
+    [-- disjoint(X, Y),
+     -- member(U, X),
+     -- member(U, Y)]).
+
+input_clause(disjoint2,axiom,
+    [++ disjoint(X, Y),
+     ++ member(f23(X, Y), X)]).
+
+input_clause(disjoint3,axiom,
+    [++ disjoint(X, Y),
+     ++ member(f23(X, Y), Y)]).
+
+input_clause(regularity1,axiom,
+    [++ equal(X, empty_set),
+     ++ member(f24(X), X)]).
+
+input_clause(regularity2,axiom,
+    [++ equal(X, empty_set),
+     ++ disjoint(f24(X), X)]).
+
+input_clause(choice1,axiom,
+    [++ function(f25)]).
+
+input_clause(choice2,axiom,
+    [-- little_set(X),
+     ++ equal(X, empty_set),
+     ++ member(f26(X), X)]).
+
+input_clause(choice3,axiom,
+    [-- little_set(X),
+     ++ equal(X, empty_set),
+     ++ member(ordered_pair(X, f26(X)), f25)]).
+
+input_clause(range_of1,axiom,
+    [-- member(Z, range_of(X)),
+     ++ ordered_pair_predicate(f27(Z, X))]).
+
+input_clause(range_of2,axiom,
+    [-- member(Z, range_of(X)),
+     ++ member(f27(Z, X), X)]).
+
+input_clause(range_of3,axiom,
+    [-- member(Z, range_of(X)),
+     ++ equal(Z, second(f27(Z, X)))]).
+
+input_clause(range_of4,axiom,
+    [++ member(Z, range_of(X)),
+     -- little_set(Z),
+     -- ordered_pair_predicate(Xp),
+     -- member(Xp, X),
+     -- equal(Z, second(Xp))]).
+
+input_clause(identity_relation1,axiom,
+    [-- member(Z, identity_relation),
+     ++ ordered_pair_predicate(Z)]).
+
+input_clause(identity_relation2,axiom,
+    [-- member(Z, identity_relation),
+     ++ equal(first(Z), second(Z))]).
+
+input_clause(identity_relation3,axiom,
+    [++ member(Z, identity_relation),
+     -- little_set(Z),
+     -- ordered_pair_predicate(Z),
+     -- equal(first(Z), second(Z))]).
+
+input_clause(restrict,axiom,
+    [++ equal(restrict(X, Y), intersection(X, cross_product(Y, universal_set)))]).
+
+input_clause(one_to_one_function1,axiom,
+    [-- one_to_one_function(Xf),
+     ++ function(Xf)]).
+
+input_clause(one_to_one_function2,axiom,
+    [-- one_to_one_function(Xf),
+     ++ function(converse(Xf))]).
+
+input_clause(one_to_one_function3,axiom,
+    [++ one_to_one_function(Xf),
+     -- function(Xf),
+     -- function(converse(Xf))]).
+
+input_clause(apply1,axiom,
+    [-- member(Z, apply(Xf, Y)),
+     ++ ordered_pair_predicate(f28(Z, Xf, Y))]).
+
+input_clause(apply2,axiom,
+    [-- member(Z, apply(Xf, Y)),
+     ++ member(f28(Z, Xf, Y), Xf)]).
+
+input_clause(apply3,axiom,
+    [-- member(Z, apply(Xf, Y)),
+     ++ equal(first(f28(Z, Xf, Y)), Y)]).
+
+input_clause(apply4,axiom,
+    [-- member(Z, apply(Xf, Y)),
+     ++ member(Z, second(f28(Z, Xf, Y)))]).
+
+input_clause(apply5,axiom,
+    [++ member(Z, apply(Xf, Y)),
+     -- ordered_pair_predicate(W),
+     -- member(W, Xf),
+     -- equal(first(W), Y),
+     -- member(Z, second(W))]).
+
+input_clause(apply_to_two_arguments,axiom,
+    [++ equal(apply_to_two_arguments(Xf, X, Y), apply(Xf, ordered_pair(X, Y)))]).
+
+input_clause(maps1,axiom,
+    [-- maps(Xf, X, Y),
+     ++ function(Xf)]).
+
+input_clause(maps2,axiom,
+    [-- maps(Xf, X, Y),
+     ++ equal(domain_of(Xf), X)]).
+
+input_clause(maps3,axiom,
+    [-- maps(Xf, X, Y),
+     ++ subset(range_of(Xf), Y)]).
+
+input_clause(maps4,axiom,
+    [++ maps(Xf, X, Y),
+     -- function(Xf),
+     -- equal(domain_of(Xf), X),
+     -- subset(range_of(Xf), Y)]).
+
+input_clause(closed1,axiom,
+    [-- closed(Xs, Xf),
+     ++ little_set(Xs)]).
+
+input_clause(closed2,axiom,
+    [-- closed(Xs, Xf),
+     ++ little_set(Xf)]).
+
+input_clause(closed3,axiom,
+    [-- closed(Xs, Xf),
+     ++ maps(Xf, cross_product(Xs, Xs), Xs)]).
+
+input_clause(closed4,axiom,
+    [++ closed(Xs, Xf),
+     -- little_set(Xs),
+     -- little_set(Xf),
+     -- maps(Xf, cross_product(Xs, Xs), Xs)]).
+
+input_clause(compose1,axiom,
+    [-- member(Z, compose(Xf, Xg)),
+     ++ little_set(f29(Z, Xf, Xg))]).
+
+input_clause(compose2,axiom,
+    [-- member(Z, compose(Xf, Xg)),
+     ++ little_set(f30(Z, Xf, Xg))]).
+
+input_clause(compose3,axiom,
+    [-- member(Z, compose(Xf, Xg)),
+     ++ little_set(f31(Z, Xf, Xg))]).
+
+input_clause(compose4,axiom,
+    [-- member(Z, compose(Xf, Xg)),
+     ++ equal(Z, ordered_pair(f29(Z, Xf, Xg), f30(Z, Xf, Xg)))]).
+
+input_clause(compose5,axiom,
+    [-- member(Z, compose(Xf, Xg)),
+     ++ member(ordered_pair(f29(Z, Xf, Xg), f31(Z, Xf, Xg)), Xf)]).
+
+input_clause(compose6,axiom,
+    [-- member(Z, compose(Xf, Xg)),
+     ++ member(ordered_pair(f31(Z, Xf, Xg), f30(Z, Xf, Xg)), Xg)]).
+
+input_clause(compose7,axiom,
+    [++ member(Z, compose(Xf, Xg)),
+     -- little_set(Z),
+     -- little_set(X),
+     -- little_set(Y),
+     -- little_set(W),
+     -- equal(Z, ordered_pair(X, Y)),
+     -- member(ordered_pair(X, W), Xf),
+     -- member(ordered_pair(W, Y), Xg)]).
+
+input_clause(homomorphism1,axiom,
+    [-- homomorphism(Xh, Xs1, Xf1, Xs2, Xf2),
+     ++ closed(Xs1, Xf1)]).
+
+input_clause(homomorphism2,axiom,
+    [-- homomorphism(Xh, Xs1, Xf1, Xs2, Xf2),
+     ++ closed(Xs2, Xf2)]).
+
+input_clause(homomorphism3,axiom,
+    [-- homomorphism(Xh, Xs1, Xf1, Xs2, Xf2),
+     ++ maps(Xh, Xs1, Xs2)]).
+
+input_clause(homomorphism4,axiom,
+    [-- homomorphism(Xh, Xs1, Xf1, Xs2, Xf2),
+     -- member(X, Xs1),
+     -- member(Y, Xs1),
+     ++ equal(apply(Xh, apply_to_two_arguments(Xf1, X, Y)), apply_to_two_arguments(Xf2, apply(Xh, X), apply(Xh, Y)))]).
+
+input_clause(homomorphism5,axiom,
+    [++ homomorphism(Xh, Xs1, Xf1, Xs2, Xf2),
+     -- closed(Xs1, Xf1),
+     -- closed(Xs2, Xf2),
+     -- maps(Xh, Xs1, Xs2),
+     ++ member(f32(Xh, Xs1, Xf1, Xs2, Xf2), Xs1)]).
+
+input_clause(homomorphism6,axiom,
+    [++ homomorphism(Xh, Xs1, Xf1, Xs2, Xf2),
+     -- closed(Xs1, Xf1),
+     -- closed(Xs2, Xf2),
+     -- maps(Xh, Xs1, Xs2),
+     ++ member(f33(Xh, Xs1, Xf1, Xs2, Xf2), Xs1)]).
+
+input_clause(homomorphism7,axiom,
+    [++ homomorphism(Xh, Xs1, Xf1, Xs2, Xf2),
+     -- closed(Xs1, Xf1),
+     -- closed(Xs2, Xf2),
+     -- maps(Xh, Xs1, Xs2),
+     -- equal(apply(Xh, apply_to_two_arguments(Xf1, f32(Xh, Xs1, Xf1, Xs2, Xf2), f33(Xh, Xs1, Xf1, Xs2, Xf2))), apply_to_two_arguments(Xf2, apply(Xh, f32(Xh, Xs1, Xf1, Xs2, Xf2)), apply(Xh, f33(Xh, Xs1, Xf1, Xs2, Xf2))))]).
+
+input_clause(complement_of_a_is_b,hypothesis,
+    [++ equal(complement(as), bs)]).
+
+input_clause(complement_of_b_is_c,hypothesis,
+    [++ equal(complement(bs), cs)]).
+
+input_clause(prove_a_equals_c,conjecture,
+    [-- equal(as, cs)]).
+%--------------------------------------------------------------------------

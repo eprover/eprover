@@ -1,0 +1,51 @@
+%--------------------------------------------------------------------------
+% File     : BOO008-4 : TPTP v2.1.0. Released v1.1.0.
+% Domain   : Boolean Algebra
+% Problem  : Sum is associative ( (X + Y) + Z = X + (Y + Z) )
+% Version  : [Ver94] (equality) axioms.
+% English  : 
+
+% Refs     : [Ver94] Veroff (1994), Problem Set
+% Source   : [Ver94]
+% Names    : TD [Ver94]
+
+% Status   : unsatisfiable
+% Rating   : 0.33 v2.1.0, 0.75 v2.0.0
+% Syntax   : Number of clauses    :    9 (   0 non-Horn;   9 unit;   1 RR)
+%            Number of literals   :    9 (   9 equality)
+%            Maximal clause size  :    1 (   1 average)
+%            Number of predicates :    1 (   0 propositional; 2-2 arity)
+%            Number of functors   :    8 (   5 constant; 0-2 arity)
+%            Number of variables  :   14 (   0 singleton)
+%            Maximal term depth   :    3 (   2 average)
+
+% Comments : 
+%          : tptp2X -f tptp -t rm_equality:rstfp BOO008-4.p 
+%--------------------------------------------------------------------------
+input_clause(commutativity_of_add,axiom,
+    [++ equal(add(X, Y), add(Y, X))]).
+
+input_clause(commutativity_of_multiply,axiom,
+    [++ equal(multiply(X, Y), multiply(Y, X))]).
+
+input_clause(distributivity1,axiom,
+    [++ equal(add(X, multiply(Y, Z)), multiply(add(X, Y), add(X, Z)))]).
+
+input_clause(distributivity2,axiom,
+    [++ equal(multiply(X, add(Y, Z)), add(multiply(X, Y), multiply(X, Z)))]).
+
+input_clause(additive_id1,axiom,
+    [++ equal(add(X, additive_identity), X)]).
+
+input_clause(multiplicative_id1,axiom,
+    [++ equal(multiply(X, multiplicative_identity), X)]).
+
+input_clause(additive_inverse1,axiom,
+    [++ equal(add(X, inverse(X)), multiplicative_identity)]).
+
+input_clause(multiplicative_inverse1,axiom,
+    [++ equal(multiply(X, inverse(X)), additive_identity)]).
+
+input_clause(prove_associativity,conjecture,
+    [-- equal(add(a, add(b, c)), add(add(a, b), c))]).
+%--------------------------------------------------------------------------

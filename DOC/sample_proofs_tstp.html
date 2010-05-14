@@ -1,0 +1,230 @@
+<HTML>
+<HEAD>
+<TITLE>CASC-JC Entrants' Sample Solutions</TITLE>
+</HEAD>
+<BODY>
+<HR><!------------------------------------------------------------------------>
+
+<A NAME="E---0.82">
+<HR><!------------------------------------------------------------------------>
+<H2>EP 0.82</H2>
+S. Schulz<BR>
+Institut f&uuml;r Informatik, Technische Universit&auml;t M&uuml;nchen,
+Germany, and ITC/irst, Trento, Italy<BR>
+schulz@informatik.tu-muenchen.de
+
+<p>
+EP will use the current version of the new TSTP output format,
+documented in [<A HREF="#References">SZS2003</A>]. Our current
+implementation lists initial clauses as of "unknown" origin. The
+following rule names are defined for the main proof search:
+<P>
+<DL>
+<DT> er
+<DD> Equality resolution: x!=a v x=x ==> a=a
+<DT> pm
+<DD> Paramodulation. Note that E considers all literals as equational,
+     and thus also performs resolution by a combination of top-level
+     paramodulation and (implicit) clause normalization.
+<DT> ef
+<DD> Equality factoring (factor equations on one side only, move the 
+     remaining disequation into the precondition): x=a v b=c v x=d ==>
+     a!=c v b=c vb=d 
+<DT> split
+<DD> Clause splitting a la Vampire (non-deductive, but maintains
+     unsatisfiability)  
+<DT> rw
+<DD> Rewriting, each rw-expression corresponds to exacly one rewrite
+     step with the named clause. This is also used for equational
+     unfolding.
+<DT> sr
+<DD> Simplify-reflect: An (equational) version of unit-cutting. As as
+      example, see this positive simplify-reflect step:  
+      [a=b], [f(a)!=f(b)] => [].
+<DT> csr
+<DD> Contextual simplify-reflect (also known as contextual literal
+     cutting or subsumption resolution): Literal cutting with non-unit
+     clauses if one of the literals is implied in the context of the
+     clause to be simplified.
+<DT> ar
+<DD> AC-resolution: Delete literals that are trivial modulo the
+     AC-theory induced by the named clauses
+<DT> cn
+<DD> Clause normalize, delete trivial and repeated literals. This step
+     is often implicit, but can sometimes occcur explicitely.
+</DL>
+<P>
+
+Additionally, the clausification will use additional rule names:
+<P>
+<DL>
+<DT> assume_negation
+<DD> Negate a conjecture for a proof by refutation.
+<DT> fof_nnf
+<DD> Convert a formula to negation normal form by moving negation
+     signs inward to the literals, and eleminating equivalences and
+     implications.
+<DT> shift_quantors
+<DD> Move quantors (inwards for mini-scoping or outwards for the final
+     conjunctive normal form).
+<DT> variable_rename
+<DD> Rename bound variables to make sure each quantor binds a
+     different variable.
+<DT> skolemize
+<DD> Eliminate existential quantors via Skolemization.
+<DT> distribute
+<DD> Apply distributivity law to move <strong>and</strong> outwards
+     over <strong>or</strong>.
+<DT> split_conjunct
+<DD> Split of one conjunct from a formula in conjunctive normal form
+     to create a clause.
+<DT> fof_simplification
+<DD> Perform standard simplification steps on the formula. This may
+     also replaces back implications and exclusive or with equivalent
+     constructs using implications and equivalences.
+</DL>
+<P>
+
+
+
+The first proof uses all proof search inferences except for "ef" and
+"csr", although it uses some in fairly trivial ways. The second is the
+required proof for SYN075-1, and contains examples for "ef" and
+"csr". The final proof is for SYN075+1, and also contains the
+clausification steps.
+
+<p>
+<strong>ALL_RULES</strong>
+<PRE>
+# Problem is unsatisfiable, constructing proof object
+# TSTP exit status: Unsatisfiable
+# Proof object starts here.
+cnf(1,axiom,(equal(f(X1,X2), f(X2,X1))),unknown).
+cnf(2,axiom,(equal(f(X1,f(X2,X3)), f(f(X1,X2),X3))),unknown).
+cnf(3,axiom,(equal(g(X1,X2), g(X2,X1))),unknown).
+cnf(4,axiom,(~equal(f(f(X1,X2),f(X3,g(X4,X5))), f(f(g(X4,X5),X3),f(X2,X1)))|~equal(k(X1,X1), k(a,b))),unknown).
+cnf(5,axiom,(equal(b, c)|~equal(X1, X2)|~equal(X3, X4)|~equal(c, d)),unknown).
+cnf(6,axiom,(equal(a, b)|equal(a, c)),unknown).
+cnf(7,axiom,(equal(i(X1), i(X2))),unknown).
+cnf(8,axiom,(equal(c, d)|~equal(h(i(a)), h(i(e)))),unknown).
+cnf(13,plain-derived,(~equal(k(a,b), k(X1,X1))),inference(ar,[status(thm)],[4,1,3,2,theory(equality)])).
+cnf(23,plain-derived,(equal(c, b)|epred1_0|~equal(d, c)|~equal(X3, X4)),inference(split,[split(esplit,[])],[5])).
+cnf(24,plain-derived,(epred2_0|~equal(X1, X2)),inference(split,[split(esplit,[])],[5])).
+cnf(25,plain-derived,(~epred2_0|~epred1_0),inference(split,[split(esplit,[])],[5])).
+cnf(26,plain-derived,(epred2_0),inference(er,[status(thm)],[24,theory(equality)])).
+cnf(27,plain-derived,(false|~epred1_0),inference(rw,[status(thm)],[25,26,theory(equality)])).
+cnf(28,plain-derived,(~epred1_0),inference(cn,[status(thm)],[27,theory(equality)])).
+cnf(29,plain-derived,(equal(c, b)|epred1_0|~equal(d, c)),inference(er,[status(thm)],[23,theory(equality)])).
+cnf(30,plain-derived,(equal(c, b)|~equal(d, c)),inference(sr,[status(thm)],[29,28,theory(equality)])).
+cnf(31,plain-derived,(equal(d, c)),inference(sr,[status(thm)],[8,7,theory(equality)])).
+cnf(32,plain-derived,(equal(c, b)|false),inference(rw,[status(thm)],[30,31,theory(equality)])).
+cnf(33,plain-derived,(equal(c, b)),inference(cn,[status(thm)],[32,theory(equality)])).
+cnf(34,plain-derived,(equal(b, a)),inference(pm,[status(thm)],[6,33,theory(equality)])).
+cnf(36,plain-derived,(~equal(k(b,b), k(X1,X1))),inference(rw,[status(thm)],[13,34,theory(equality)])).
+cnf(75,plain-derived,(false),inference(er,[status(thm)],[36,theory(equality)])).
+cnf(76,plain-derived,(false),75,['proof']).
+# Proof object ends here.
+</pre>
+<p>
+<strong>SYN075-1</strong>
+<PRE>
+# Problem is unsatisfiable, constructing proof object
+# TSTP exit status: Unsatisfiable
+# Proof object starts here.
+cnf(1,axiom,(equal(X1, a)|~big_f(X1,X2)),unknown).
+cnf(3,axiom,(big_f(X1,X2)|~equal(X1, a)|~equal(X2, b)),unknown).
+cnf(4,conjecture,(equal(f(X2), X2)|~big_f(X1,f(X2))|~equal(X1, g(X2))),unknown).
+cnf(6,conjecture,(big_f(X1,f(X2))|equal(f(X2), X2)|~equal(X1, g(X2))),unknown).
+cnf(9,conjecture,(big_f(h(X1,X2),f(X1))|equal(h(X1,X2), X2)|~equal(f(X1), X1)),unknown).
+cnf(10,conjecture,(~equal(f(X1), X1)|~equal(h(X1,X2), X2)|~big_f(h(X1,X2),f(X1))),unknown).
+cnf(13,conjecture-derived,(~equal(f(X1), X1)|~equal(h(X1,X2), X2)|~equal(a, h(X1,X2))|~equal(b, f(X1))),inference(pm,[status(thm)],[10,3,theory(equality)])).
+cnf(15,conjecture-derived,(equal(f(X2), X2)|~equal(g(X2), X1)),inference(csr,[status(thm)],[6,4])).
+cnf(16,conjecture-derived,(equal(f(X1), X1)),inference(er,[status(thm)],[15,theory(equality)])).
+cnf(23,conjecture-derived,(false|~equal(h(X1,X2), X2)|~equal(h(X1,X2), a)|~equal(f(X1), b)),inference(rw,[status(thm)],[13,16,theory(equality)])).
+cnf(24,conjecture-derived,(false|~equal(h(X1,X2), X2)|~equal(h(X1,X2), a)|~equal(X1, b)),inference(rw,[status(thm)],[23,16,theory(equality)])).
+cnf(25,conjecture-derived,(~equal(h(X1,X2), X2)|~equal(h(X1,X2), a)|~equal(X1, b)),inference(cn,[status(thm)],[24,theory(equality)])).
+cnf(30,conjecture-derived,(equal(h(X1,X2), X2)|big_f(h(X1,X2),X1)|~equal(f(X1), X1)),inference(rw,[status(thm)],[9,16,theory(equality)])).
+cnf(31,conjecture-derived,(equal(h(X1,X2), X2)|big_f(h(X1,X2),X1)|false),inference(rw,[status(thm)],[30,16,theory(equality)])).
+cnf(32,conjecture-derived,(equal(h(X1,X2), X2)|big_f(h(X1,X2),X1)),inference(cn,[status(thm)],[31,theory(equality)])).
+cnf(38,conjecture-derived,(equal(a, h(X1,X2))|equal(h(X1,X2), X2)),inference(pm,[status(thm)],[1,32,theory(equality)])).
+cnf(51,conjecture-derived,(equal(h(X5,X6), a)|~equal(X6, a)),inference(ef,[status(thm)],[38,theory(equality)])).
+cnf(54,conjecture-derived,(equal(h(X1,X2), X2)|~equal(a, X2)|~equal(h(X1,X2), a)|~equal(X1, b)),inference(pm,[status(thm)],[25,38,theory(equality)])).
+cnf(85,conjecture-derived,(~equal(a, X2)|~equal(h(X1,X2), a)|~equal(X1, b)),inference(csr,[status(thm)],[54,25])).
+cnf(86,conjecture-derived,(~equal(a, X2)|~equal(X1, b)),inference(csr,[status(thm)],[85,51])).
+cnf(87,conjecture-derived,(epred1_0|~equal(a, X2)),inference(split,[split(esplit,[])],[86])).
+cnf(88,conjecture-derived,(epred2_0|~equal(X1, b)),inference(split,[split(esplit,[])],[86])).
+cnf(89,conjecture-derived,(~epred2_0|~epred1_0),inference(split,[split(esplit,[])],[86])).
+cnf(90,conjecture-derived,(epred1_0),inference(er,[status(thm)],[87,theory(equality)])).
+cnf(92,conjecture-derived,(~epred2_0|false),inference(rw,[status(thm)],[89,90,theory(equality)])).
+cnf(93,conjecture-derived,(~epred2_0),inference(cn,[status(thm)],[92,theory(equality)])).
+cnf(94,conjecture-derived,(~equal(X1, b)),inference(sr,[status(thm)],[88,93,theory(equality)])).
+cnf(95,conjecture-derived,(false),inference(er,[status(thm)],[94,theory(equality)])).
+cnf(97,conjecture-derived,(false),95,['proof']).
+# Proof object ends here.
+</pre>
+<p>
+<strong>SYN075+1</strong>
+<PRE>
+# Problem is unsatisfiable, constructing proof object
+# TSTP exit status: Unsatisfiable
+# Proof object starts here.
+fof(1, axiom,?[X1]:?[X2]:![X3]:![X4]:(big_f(X3,X4)<=>(equal(X3, X1)&equal(X4, X2))),unknown).
+fof(2, conjecture,?[X2]:![X4]:(?[X1]:![X3]:(big_f(X3,X4)<=>equal(X3, X1))<=>equal(X4, X2)),unknown).
+fof(3, assumption-derived,~(?[X2]:![X4]:(?[X1]:![X3]:(big_f(X3,X4)<=>equal(X3, X1))<=>equal(X4, X2))),inference(assume_negation,[status(cth)],[2])).
+fof(4, plain-derived,?[X1]:?[X2]:![X3]:![X4]:((~(big_f(X3,X4))|(equal(X3, X1)&equal(X4, X2)))&((~(equal(X3, X1))|~(equal(X4, X2)))|big_f(X3,X4))),inference(fof_nnf,[status(thm)],[1])).
+fof(5, plain-derived,?[X1]:?[X2]:(![X3]:![X4]:(~(big_f(X3,X4))|(equal(X3, X1)&equal(X4, X2)))&![X3]:![X4]:((~(equal(X3, X1))|~(equal(X4, X2)))|big_f(X3,X4))),inference(shift_quantors,[status(thm)],[4])).
+fof(6, plain-derived,?[X5]:?[X6]:(![X7]:![X8]:(~(big_f(X7,X8))|(equal(X7, X5)&equal(X8, X6)))&![X9]:![X10]:((~(equal(X9, X5))|~(equal(X10, X6)))|big_f(X9,X10))),inference(variable_rename,[status(thm)],[5])).
+fof(7, plain-derived,(![X7]:![X8]:(~(big_f(X7,X8))|(equal(X7, esk1_0)&equal(X8, esk2_0)))&![X9]:![X10]:((~(equal(X9, esk1_0))|~(equal(X10, esk2_0)))|big_f(X9,X10))),inference(skolemize,[status(sab)],[6])).
+fof(8, plain-derived,![X7]:![X8]:![X9]:![X10]:(((equal(X7, esk1_0)|~(big_f(X7,X8)))&(equal(X8, esk2_0)|~(big_f(X7,X8))))&((~(equal(X9, esk1_0))|~(equal(X10, esk2_0)))|big_f(X9,X10))),inference(distribute,[status(thm)],[7])).
+cnf(9,plain-derived,(big_f(X9,X10)|~equal(X10, esk2_0)|~equal(X9, esk1_0)),inference(split_conjunct,[status(thm)],[8])).
+cnf(10,plain-derived,(equal(X8, esk2_0)|~big_f(X7,X8)),inference(split_conjunct,[status(thm)],[8])).
+cnf(11,plain-derived,(equal(X7, esk1_0)|~big_f(X7,X8)),inference(split_conjunct,[status(thm)],[8])).
+fof(12, assumption-derived,![X2]:?[X4]:((![X1]:?[X3]:((~(big_f(X3,X4))|~(equal(X3, X1)))&(big_f(X3,X4)|equal(X3, X1)))|~(equal(X4, X2)))&(?[X1]:![X3]:((big_f(X3,X4)&equal(X3, X1))|(~(big_f(X3,X4))&~(equal(X3, X1))))|equal(X4, X2))),inference(fof_nnf,[status(thm)],[3])).
+fof(13, assumption-derived,![X5]:?[X6]:((![X7]:?[X8]:((~(big_f(X8,X6))|~(equal(X8, X7)))&(big_f(X8,X6)|equal(X8, X7)))|~(equal(X6, X5)))&(?[X9]:![X10]:((big_f(X10,X6)&equal(X10, X9))|(~(big_f(X10,X6))&~(equal(X10, X9))))|equal(X6, X5))),inference(variable_rename,[status(thm)],[12])).
+fof(14, assumption-derived,![X5]:((![X7]:((~(big_f(esk4_2(X5,X7),esk3_1(X5)))|~(equal(esk4_2(X5,X7), X7)))&(big_f(esk4_2(X5,X7),esk3_1(X5))|equal(esk4_2(X5,X7), X7)))|~(equal(esk3_1(X5), X5)))&(![X10]:((big_f(X10,esk3_1(X5))&equal(X10, esk5_1(X5)))|(~(big_f(X10,esk3_1(X5)))&~(equal(X10, esk5_1(X5)))))|equal(esk3_1(X5), X5))),inference(skolemize,[status(sab)],[13])).
+fof(15, assumption-derived,![X5]:![X7]:![X10]:((((~(big_f(esk4_2(X5,X7),esk3_1(X5)))|~(equal(esk4_2(X5,X7), X7)))|~(equal(esk3_1(X5), X5)))&((big_f(esk4_2(X5,X7),esk3_1(X5))|equal(esk4_2(X5,X7), X7))|~(equal(esk3_1(X5), X5))))&((((~(big_f(X10,esk3_1(X5)))|big_f(X10,esk3_1(X5)))|equal(esk3_1(X5), X5))&((~(equal(X10, esk5_1(X5)))|big_f(X10,esk3_1(X5)))|equal(esk3_1(X5), X5)))&(((~(big_f(X10,esk3_1(X5)))|equal(X10, esk5_1(X5)))|equal(esk3_1(X5), X5))&((~(equal(X10, esk5_1(X5)))|equal(X10, esk5_1(X5)))|equal(esk3_1(X5), X5))))),inference(distribute,[status(thm)],[14])).
+cnf(18,conjecture-derived,(equal(esk3_1(X5), X5)|big_f(X10,esk3_1(X5))|~equal(X10, esk5_1(X5))),inference(split_conjunct,[status(thm)],[15])).
+cnf(20,conjecture-derived,(equal(esk4_2(X5,X7), X7)|big_f(esk4_2(X5,X7),esk3_1(X5))|~equal(esk3_1(X5), X5)),inference(split_conjunct,[status(thm)],[15])).
+cnf(21,conjecture-derived,(~equal(esk3_1(X5), X5)|~equal(esk4_2(X5,X7), X7)|~big_f(esk4_2(X5,X7),esk3_1(X5))),inference(split_conjunct,[status(thm)],[15])).
+cnf(24,conjecture-derived,(~equal(esk3_1(X1), X1)|~equal(esk4_2(X1,X2), X2)|~equal(esk1_0, esk4_2(X1,X2))|~equal(esk2_0, esk3_1(X1))),inference(pm,[status(thm)],[21,9,theory(equality)])).
+cnf(26,conjecture-derived,(equal(esk3_1(X1), X1)|big_f(esk5_1(X1),esk3_1(X1))),inference(er,[status(thm)],[18,theory(equality)])).
+cnf(27,conjecture-derived,(equal(esk1_0, esk4_2(X1,X2))|equal(esk4_2(X1,X2), X2)|~equal(esk3_1(X1), X1)),inference(pm,[status(thm)],[11,20,theory(equality)])).
+cnf(28,conjecture-derived,(equal(esk2_0, esk3_1(X1))|equal(esk4_2(X1,X2), X2)|~equal(esk3_1(X1), X1)),inference(pm,[status(thm)],[10,20,theory(equality)])).
+cnf(31,conjecture-derived,(equal(esk1_0, esk5_1(X1))|equal(esk3_1(X1), X1)),inference(pm,[status(thm)],[11,26,theory(equality)])).
+cnf(32,conjecture-derived,(equal(esk2_0, esk3_1(X1))|equal(esk3_1(X1), X1)),inference(pm,[status(thm)],[10,26,theory(equality)])).
+cnf(35,conjecture-derived,(big_f(esk1_0,esk3_1(X1))|equal(esk3_1(X1), X1)),inference(pm,[status(thm)],[26,31,theory(equality)])).
+cnf(36,conjecture-derived,(equal(esk3_1(X2), X2)|~equal(esk2_0, X2)),inference(ef,[status(thm)],[32,theory(equality)])).
+cnf(50,conjecture-derived,(~big_f(esk4_2(X1,X2),X1)|~equal(esk3_1(X1), X1)|~equal(esk4_2(X1,X2), X2)|~equal(esk2_0, X1)),inference(pm,[status(thm)],[21,36,theory(equality)])).
+cnf(64,conjecture-derived,(big_f(esk1_0,esk2_0)|equal(esk3_1(X1), X1)),inference(pm,[status(thm)],[35,32,theory(equality)])).
+cnf(79,conjecture-derived,(~big_f(esk4_2(X1,X2),X1)|~equal(esk4_2(X1,X2), X2)|~equal(esk2_0, X1)),inference(csr,[status(thm)],[50,36])).
+cnf(80,conjecture-derived,(~big_f(esk4_2(X1,X2),X1)|~equal(esk4_2(X1,X2), X2)),inference(csr,[status(thm)],[79,10])).
+cnf(100,conjecture-derived,(equal(esk3_1(X1), esk2_0)|equal(esk4_2(X1,X2), X2)),inference(csr,[status(thm)],[28,32])).
+cnf(104,conjecture-derived,(equal(esk3_1(X1), esk2_0)|~big_f(X2,X1)|~equal(esk4_2(X1,X2), X2)),inference(pm,[status(thm)],[80,100,theory(equality)])).
+cnf(108,conjecture-derived,(equal(esk3_1(X1), esk2_0)|~big_f(X2,X1)),inference(csr,[status(thm)],[104,100])).
+cnf(113,conjecture-derived,(equal(esk3_1(esk2_0), esk2_0)|equal(esk3_1(X1), X1)),inference(pm,[status(thm)],[108,64,theory(equality)])).
+cnf(136,conjecture-derived,(equal(esk3_1(esk2_0), esk2_0)),inference(ef,[status(thm)],[113,theory(equality)])).
+cnf(174,conjecture-derived,(equal(esk4_2(esk2_0,X1), esk1_0)|equal(esk4_2(esk2_0,X1), X1)),inference(pm,[status(thm)],[27,136,theory(equality)])).
+cnf(250,conjecture-derived,(equal(esk4_2(esk2_0,X1), X1)|~equal(esk1_0, X1)),inference(ef,[status(thm)],[174,theory(equality)])).
+cnf(291,conjecture-derived,(~equal(esk3_1(esk2_0), esk2_0)|~equal(esk4_2(esk2_0,X1), esk1_0)|~equal(esk1_0, X1)),inference(pm,[status(thm)],[24,250,theory(equality)])).
+cnf(304,conjecture-derived,(false|~equal(esk4_2(esk2_0,X1), esk1_0)|~equal(esk1_0, X1)),inference(rw,[status(thm)],[291,136,theory(equality)])).
+cnf(305,conjecture-derived,(~equal(esk4_2(esk2_0,X1), esk1_0)|~equal(esk1_0, X1)),inference(cn,[status(thm)],[304,theory(equality)])).
+cnf(309,conjecture-derived,(~equal(X1, esk1_0)),inference(pm,[status(thm)],[305,250,theory(equality)])).
+cnf(311,conjecture-derived,(false),inference(er,[status(thm)],[309,theory(equality)])).
+cnf(314,conjecture-derived,(false),311,['proof']).
+# Proof object ends here.
+</pre>
+
+
+<A NAME="References">
+<H3>References</H3>
+<DL>
+<DT> SZS2003
+<DD> Suctcliffe, G.; Zimmer, J.; Schulz S. (2003),
+     <STRONG>Communication Formalisms for Automated Theorem Proving Tools</STRONG>,
+     <EM>Proceedings of the IJCAI-18 Workshop on Agents and 
+      Automated Reasoning</EM>, (Acapulco, Mexico).
+</DL>
+
+<HR><!------------------------------------------------------------------------>
+</BODY>
+</HTML>

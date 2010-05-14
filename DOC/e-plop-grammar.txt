@@ -1,0 +1,61 @@
+This is not yet implemented! For FOF format, you currently *must* use
+TPTP or TSTP format.
+
+This describes the grammar of E-PLOP 1.0
+
+E-PLOP is not related to SETHEO-PLOP, but rather a conservative
+extension of E-LOP, E's dialect of the CNF only LOP format, sharing as
+much as possible with TPTP/TSTP format.
+
+Precedence (decreasing binding power):
+
+? ! ~
+&  ,   ~&  
+|  ;   ~|
+=> <= <-  ?-  :-
+<=>   <~>
+
+All operators within a group have the same precedence and are
+right-associative. 
+
+<formula>            ::= <logic formula> . 
+<logic_formula>      ::= <elem_formula> | <conj_formula>
+<elem_formula>       ::= <qprefix> <elem_formula> |
+                         ~ <elem_formula> |
+                         <atom>                            |
+                         ( <logic_formula> )
+<conj_formula>       ::= <disj_formula> | 
+                         <disj_formula> <conj_connective> <conj_formula>
+<disj_formula>       ::= <impl_formula> |
+                         <impl_formula> <disj_connective> <disj_formula>
+<impl_formula>       ::= <equiv_formula> |
+                         <equiv_formula> <impl_connective> <impl_formula> |
+                         <lop_impl_connective> <impl_formula> |
+                         <equiv_formula> <lop_impl_connective>
+<equiv_formula>      ::= <logic_formula> |
+                         <logic_formula> <equiv_connective> <equiv_formula>
+
+
+<qprefix>            ::=  <quantifier> <variables>
+<quantifier>         ::= ! | ?
+<variables>          ::= [<variable><rest_of_qvariables>*]
+<rest_of_qvariables> ::= ,<variable>
+<conj_connective>    ::= "&" | "," |  "~&"
+<disj_connective>    ::= "|" | ";" |  "~|"
+<lop_impl_connective>::= "<-" | ":-" | "?-"
+<impl_connective>    ::= "<=" | "=>" | <lop_impl_connective>
+<equiv_connective>   ::= "<=>" | "<~>"
+
+<atom> ::= $true |     
+           $false |
+           <eq_atom> |
+           <plain_atom>
+
+<eq_atom>       ::= <term> <eq_op> <term> 
+<eq_op>         ::= "=" | "!="
+<plain_atom>    ::= <comp_term> | <constant>
+<term>          ::= <comp_term> | <constant> | <variable>
+<variable>      ::= <upper_word>
+<contant>       ::= <lower_word>
+<comp_term>     ::= <lower_word> ( <term> <rest_of_terms>* )
+<rest_of_terms> ::= ,<term>

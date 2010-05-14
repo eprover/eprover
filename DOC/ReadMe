@@ -1,0 +1,70 @@
+This is the required ReadMe file for the CASC competitions.
+-----------------------------------------------------------
+
+For installation, follow the instructions in the main README
+file. Make sure to do a proper install, so that eproof and
+e_ltb_runner22.py can find eprover. 
+
+
+Command line:
+
+   eprover -xAuto -tAuto --tstp-in -s --memory-limit=1536 %s
+
+   eproof  -xAuto -tAuto --tstp-in --tstp-out --memory-limit=1536 %s
+
+For the LTB category, run
+
+   PYTHON/e_ltb_runner22.py <path_to_ltb_problem_file> <total_time> <path_to_eprover>
+
+For the LTB* category, run
+
+   PYTHON/e_ltb_runner22.py <path_to_ltb_problem_file> <total_time> <path_to_eproof>
+
+Expect this to run like a dog ;-)
+
+
+Distinguished strings for the results:
+
+Problem is CNF and unsatisfiable:
+
+# SZS status Unsatisfiable
+
+Problem is CNF and satisfiable:
+
+# SZS status Satisfiable
+
+Problem is FOF and a theorem: 
+
+# SZS status Theorem
+
+Problem is FOF and not a theorem:
+
+# SZS status CounterSatisfiable
+
+System gave up (usually resource limit)
+
+# Failure:
+
+
+The start of solution output for proofs:
+
+# SZS output start CNFRefutation.
+
+The end of solution output for proofs:
+
+# SZS output end CNFRefutation.
+
+
+
+
+The start of solution output for models/saturations:
+
+# SZS output start Saturation.
+
+The end of solution output for models/saturations:
+
+# SZS output end Saturation.
+
+
+
+
