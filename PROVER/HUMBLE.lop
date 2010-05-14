@@ -1,9 +1,0 @@
-# Test file for simplify-reflect. If your prover proofs this, it is
-# buggy. If it runs for more than a couple of seconds it is slow or
-# uses a calculus that cannot deal well with equality. If it
-# terminates with a "no proof found" message, it is (perhaps) fine.
-#
-# 
-
-g(X)=g(Y).
-f(g(a),a)!=f(g(b),b).
