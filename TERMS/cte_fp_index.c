@@ -300,6 +300,7 @@ static long fp_index_rek_find_matchable(FPTree_p index, IndexFP_p key,
    FunCode i;
    long    res = 0;
    IntMapIter_p iter;
+   long iter_start;
    FPTree_p child;
 
    if(!index)
@@ -331,9 +332,12 @@ static long fp_index_rek_find_matchable(FPTree_p index, IndexFP_p key,
    }
    else if(key[current] == BELOW_VAR || key[current] == ANY_VAR)
    {
-      /* t|p is a variable or below a variable -> everything can be
-       * matched (even NOT_IN_TERM, as the instantiation may create a
-       * non-in-term position that is currently below_var. */
+      /* t|p is a variable or below a variable -> all but NOT_IN_TERM
+         can certainly be matched, NOT_IN_TERM can be matched if
+         BELOW_VAR, but not if ANY_VAR (if t|p = X in the query term,
+         the position must exist in the search term. But if t|p =
+         BELOW_VAR in the query term, the instantiation of X may not
+         have the p. */
       
       res += fp_index_rek_find_matchable(index->any_var, 
                                          key, 
@@ -344,7 +348,8 @@ static long fp_index_rek_find_matchable(FPTree_p index, IndexFP_p key,
                                          current+1,
                                          collect);      
 
-      iter = IntMapIterAlloc(index->f_alternatives, 0, LONG_MAX); 
+      iter_start = key[current] == BELOW_VAR? 0:1;               
+      iter = IntMapIterAlloc(index->f_alternatives, iter_start, LONG_MAX); 
       while((child=IntMapIterNext(iter, &i)))
       {
          assert(child);
