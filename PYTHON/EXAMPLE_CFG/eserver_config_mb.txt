@@ -1,0 +1,11 @@
+Port:               20000
+Binaries directory: /home/schulz/DISTRIB_TEST_CFG/MAC_E/E/PROVER
+Problem directory:  /home/schulz/EPROVER/TPTP_3.5.0_FLAT
+Max processes:      1
+E-Mark:             1046.8
+Memory limit:       768
+Auto options:       -s --print-statistics --resources-info
+Master:             sunbroy2:30000
+Nice:               0
+Local blocks:       true
+Load limit:         1.5
