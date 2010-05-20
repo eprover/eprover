@@ -51,7 +51,9 @@ typedef enum
                                            * demod_index of its set */ 
    CPIsSIndexed        = 2*CPIsDIndexed,  /* Clause is in the fvindex
                                            * of its set */ 
-   CPRWDetected        = 2*CPIsSIndexed,  /* Rewritability of the
+   CPIsGlobalIndexed   = 2*CPIsSIndexed,  /* Clause is in the
+                                             Subterm FPIndex  */
+   CPRWDetected        = 2*CPIsGlobalIndexed, /* Rewritability of the
                                              clause has been
                                              established. Temporary
                                              property. */

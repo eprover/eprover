@@ -595,6 +595,8 @@ Clause_p ClauseSetExtractEntry(Clause_p clause)
    assert(clause);
    assert(clause->set);
 
+   /* ClausePCLPrint(stdout, clause, true); */
+
    if(ClauseQueryProp(clause, CPIsDIndexed))
    {
       assert(clause->set->demod_index);

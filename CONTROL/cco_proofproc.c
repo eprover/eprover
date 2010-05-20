@@ -727,7 +727,13 @@ void ProofStateResetProcessedSet(ProofState_p state,
    
    while((handle = ClauseSetExtractFirst(set)))
    {
+      if(ClauseQueryProp(handle, CPIsGlobalIndexed))
+      {
+         GlobalIndicesDeleteClause(&(state->gindices), handle);
+      }
+
       ClauseKillChildren(handle); /* Should be none, but better be safe */
+      
       HCBClauseEvaluate(control->hcb, handle);
       ClauseDelProp(handle, CPIsOriented);
       DocClauseQuoteDefault(6, handle, "move_eval");

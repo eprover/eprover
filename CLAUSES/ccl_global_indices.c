@@ -159,6 +159,10 @@ void GlobalIndicesReset(GlobalIndices_p indices)
 
 void GlobalIndicesInsertClause(GlobalIndices_p indices, Clause_p clause)
 {
+   assert(!ClauseQueryProp(clause, CPIsGlobalIndexed));
+
+   ClauseSetProp(clause, CPIsGlobalIndexed);
+
    if(indices->bw_rw_index)
    {
       SubtermIndexInsertClause(indices->bw_rw_index, clause);
@@ -181,6 +185,10 @@ void GlobalIndicesInsertClause(GlobalIndices_p indices, Clause_p clause)
 
 void GlobalIndicesDeleteClause(GlobalIndices_p indices, Clause_p clause)
 {
+   assert(ClauseQueryProp(clause, CPIsGlobalIndexed));
+
+   ClauseDelProp(clause, CPIsGlobalIndexed);
+
    if(indices->bw_rw_index)
    {
       SubtermIndexDeleteClause(indices->bw_rw_index, clause);
