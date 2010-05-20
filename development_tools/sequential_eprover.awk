@@ -429,6 +429,7 @@ BEGIN{
    e_mark["IntelR-PentiumR-4-CPU-2.40GHz-2405"]          = 496.488;
    e_mark["IntelR-PentiumR-4-CPU-2.40GHz-2406"]          = 518.546;
    e_mark["IntelR-PentiumR-4-CPU-2.40GHz-2406"]          = 521.253;
+   e_mark["i486-2800"]                                   = 1160.92;
 
    e_mark_host = e_mark[get_shell_res("get_system.awk")];
    if(!e_mark_host)
