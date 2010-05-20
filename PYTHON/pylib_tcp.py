@@ -52,6 +52,8 @@ import pylib_io
 
 
 lineend_re = re.compile("\n|\r\n")
+jobend_re = re.compile("(^|\n|\r\n)\.(\n|\r\n)")
+
 
 class connection(object):
     def __init__(self, conn, rec_end = lineend_re):
@@ -67,6 +69,9 @@ class connection(object):
 
     def fileno(self):
          return self.filenum
+
+    def peer_adr(self):
+         return self.peeradr
 
     def send(self):
         if self.sendable() and not pylib_io.write_will_block(self):
@@ -84,7 +89,7 @@ class connection(object):
         """
 
         self.outbuffer = self.outbuffer+data
-        return self.send
+        return self.send()
     
     def sendable(self):
         return self.outbuffer!=""
@@ -195,11 +200,36 @@ class tcp_client(object):
     address. 
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, rec_end = lineend_re):
+        self.rec_end = rec_end
 
     def connect(self, address):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect(address)
-        return connection((sock,address))
+        return connection((sock,address), self.rec_end)
+
+class etcp_client(tcp_client):
+    """
+    Class implementing an E-Server specific TCP client, creating a
+    connection from a given address and sending the init message.
+    """
+
+    def __init__(self, port, emark):
+        tcp_client.__init__(self, jobend_re)
+        self.port = port
+        self.emark = emark
+        tmp = pylib_io.run_shell_command("hostname")
+        try:
+            self.hostname = tmp[0].strip("\n")
+        except IndexError:
+            self.hostname = "<unknown>"
+        self.emark = emark
+
+    def connect(self, address):
+        connection = tcp_client.connect(self, address)
+        if connection:
+            msg = "eserver:%d:%s:%f\n"%(self.port,self.hostname, self.emark)
+            pylib_io.verbout("Initial msg: "+msg+" send to "+str(address))
+            connection.write(msg)
+        return connection
 

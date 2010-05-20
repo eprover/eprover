@@ -1,5 +1,5 @@
 Port:               31000
 Control port:       40000
 Synchronize:        30
-Job directory:      /home/schulz/EPROVER/TESTRUNS_SERVER
-Result directory:   /home/schulz/EPROVER/TESTRUNS_SERVER
+Job directory:      /Users/schulz/EPROVER/TESTRUNS_SERVER
+Result directory:   /Users/schulz/EPROVER/TESTRUNS_SERVER

@@ -95,6 +95,7 @@ Nice:               %d
         self.local_blocks = False
         self.load_limit   = DEFAULT_LOAD_LIMIT
         self.masters      = []
+        self.mode         = "announce"
         
         if not config:
             return
@@ -135,6 +136,8 @@ Nice:               %d
                         except ValueError:
                             raise pylib_io.ECconfigSyntaxError("Malformed IP address",
                                                                i)
+                elif key == "Mode":
+                    self.mode = value
                 else:
                     raise pylib_io.ECconfigSyntaxError("Unknown keyword",
                                                        key)

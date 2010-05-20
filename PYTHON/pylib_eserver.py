@@ -57,8 +57,6 @@ import pylib_tcp
 service = "eserver"
 version = "0.1dev"
 
-jobend_re = re.compile("(^|\n|\r\n)\.(\n|\r\n)")
-
 solution_re = re.compile("\[.*?\]")
 
 
@@ -92,11 +90,12 @@ class waiting_job(object):
 
 class eserver(object):
     def __init__(self, config):
-        self.jobs        = []
-        self.running     = []
-        self.connections = []
-        self.server      = pylib_tcp.etcp_server(config.port, config.e_mark)
-        self.config      = config
+        self.jobs         = []
+        self.running      = []
+        self.connections  = []
+        self.server       = pylib_tcp.etcp_server(config.port, config.e_mark)        
+        self.client       = pylib_tcp.etcp_client(config.port, config.e_mark)        
+        self.config       = config
 
     def process(self):
         announce_timer = pylib_generic.timer(0)
@@ -105,7 +104,11 @@ class eserver(object):
         
         while True:
             if announce_timer.expired():
-                self.announce()
+                if self.config.mode == "announce":
+                    self.announce()
+                elif self.config.mode == "connect":
+                    self.connect()
+                
                 announce_timer.set(10.0)
 
             if check_load_timer.expired():
@@ -119,7 +122,7 @@ class eserver(object):
 
             for i in ready[0]:
                 if i == self.server:
-                    new_conn =  self.server.accept(jobend_re)
+                    new_conn =  self.server.accept(pylib_tcp.jobend_re)
                     pylib_io.verbout("New connection "+str(new_conn))
                     self.connections.append(new_conn)
 
@@ -148,6 +151,19 @@ class eserver(object):
         """
         for addr, port in self.config.masters:
             self.server.announce_self((addr, port))
+            
+
+    def connect(self):
+        """
+        Actively connect to the masters and send identifying
+        information. 
+        """
+        for addr, port in self.config.masters:
+            if not addr in [i.peer_adr()[0] for i in self.connections]:
+                conn = self.client.connect((addr, port))
+                if conn:                
+                    self.connections.append(conn)
+        
 
     def check_load(self):
         """
@@ -171,7 +187,7 @@ class eserver(object):
         job = self.jobs[0]
         self.jobs.remove(job)
         try:
-            key     = job.deflist[1]
+            key     = job.deflist[1]            
             prover  = job.deflist[2]
             args    = job.deflist[3]
             problem = job.deflist[4]
@@ -187,6 +203,7 @@ class eserver(object):
             else:
                 res_descriptor = []
         except:
+            print "Exception caught in pylib_eserver.running_job.run_job()"
             return
 
         runner = pylib_erun.e_runner(key, self.config, prover,

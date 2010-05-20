@@ -61,8 +61,11 @@ import pylib_eprot
 import pylib_etestset
 
 
-announce_matcher = re.compile("eserver:[0-9]+")
+announce_matcher = re.compile("eserver:[0-9]+:[^:]*:[^:]*")
 SLAVE_OPEN_JOB_LIMIT = 10
+
+
+
 
 class xresult(object):
     def __init__(self, desc_str):
@@ -93,7 +96,7 @@ class xresult(object):
            
 
 class eslave(object):
-    def __init__(self, connection, addr, name, emark):
+    def __init__(self, connection, addr, name=None, emark=None):
         self.connection = connection
         self.addr  = addr
         self.name  = name
@@ -102,9 +105,12 @@ class eslave(object):
         self.last_activity = time.time()
 
     def __str__(self):
-        gap = time.time() - self.last_activity
-        return "<eslave:%s:open=%d:%s:gap=%.2f:emark=%f>"%\
-               (str(self.addr),self.jobs_no(),self.name,gap, self.emark)
+        if self.initialized():
+            gap = time.time() - self.last_activity
+            return "<eslave:%s:open=%d:%s:gap=%.2f:emark=%f>"%\
+                   (str(self.addr),self.jobs_no(),self.name,gap, self.emark)
+        else:
+            return "<eslave:%s:uninitialized>"%(str(self.addr),)
 
     def __cmp__(self, other):
         try:
@@ -138,6 +144,9 @@ class eslave(object):
         pylib_io.verbout("Adding:"+str(job))
         self.connection.write(str(job))
 
+    def initialized(self):
+        return self.name != None
+
     def proc_read(self):
         """
         Try to read a result from the connection. Return a list of
@@ -151,13 +160,26 @@ class eslave(object):
             if i== "":
                 ret.append("")
             else:
-                try:
-                    res = xresult(i)
-                    ret.append(res)
-                    del self.open_jobs[res.key()]
-                except (IndexError, KeyError):
-                    pass
-                       
+                if not self.initialized():
+                    tmp = i.split(":")
+                    try:
+                        slave_port = int(tmp[1])
+                        slave_name = tmp[2]
+                        slave_emark = float(tmp[3])
+                        self.name = slave_name
+                        self.emark = slave_emark
+                        pylib_io.verbout("Slave "+str(self.connection)+" initialized")
+                        
+                    except (IndexError, ValueError):
+                        pass
+                else:
+                    try:
+                        res = xresult(i)
+                        ret.append(res)
+                        del self.open_jobs[res.key()]
+                    except (IndexError, KeyError):
+                        pass
+                    
         return ret
 
     def proc_write(self):
@@ -171,14 +193,15 @@ class eslave(object):
 
 class emaster(object):
     def __init__(self, config, auto_sync=5):
-        self.rec_sock    = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.rec_sock     = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.rec_sock.bind(("", config.port))
-        self.config      = config
-        self.client      = pylib_tcp.tcp_client()
-        self.slaves      = {}
-        self.strats      = pylib_etestset.etestset([], auto_sync)
-        self.ctrl_server = pylib_tcp.tcp_server(config.ctrl_port)
-        self.ctrls       = []
+        self.config       = config
+        self.client       = pylib_tcp.tcp_client()
+        self.slaves       = {}
+        self.strats       = pylib_etestset.etestset([], auto_sync)
+        self.ctrl_server  = pylib_tcp.tcp_server(config.ctrl_port)
+        self.slave_server = pylib_tcp.tcp_server(config.port)
+        self.ctrls        = []
 
 
     def add_strat(self, strat):
@@ -191,7 +214,7 @@ class emaster(object):
 
     def add_slave_jobs(self, slave):
         res = 0
-        while slave.jobs_no() < SLAVE_OPEN_JOB_LIMIT:
+        while slave.initialized() and (slave.jobs_no() < SLAVE_OPEN_JOB_LIMIT):
             job = self.strats.next_job()
             if job:
                 slave.add_job(job)
@@ -211,7 +234,7 @@ class emaster(object):
         while True:
             self.prune_stale_strats()
 
-            ractive = [self.rec_sock, self.ctrl_server]+self.slaves.values()+self.ctrls
+            ractive = [self.rec_sock, self.ctrl_server, self.slave_server]+self.slaves.values()+self.ctrls
             wactive = ([i for i in self.slaves.values() if i.sendable()] +
                        [i for i in self.ctrls if i.sendable()])
             
@@ -229,6 +252,8 @@ class emaster(object):
                     results = reader.proc_read()
                     if not self.add_results(results):
                         del(self.slaves[reader.address()])
+                elif reader == self.slave_server:
+                    self.handle_connect(reader)
                 else:
                     self.process_ctrl(reader)
             for writer in ready[1]:
@@ -353,10 +378,26 @@ quit
             slave_emark = float(tmp[3])
         except (IndexError, ValueError):
             pass
-        
-        connection = self.client.connect((slave_addr, slave_port))
-        pylib_io.verbout("New slave: "+str(connection))
-        slave = eslave(connection, slave_addr, slave_name, slave_emark)
+
+        try:
+            connection = self.client.connect((slave_addr, slave_port))
+            pylib_io.verbout("New slave: "+str(connection))
+            slave = eslave(connection, slave_addr, slave_name, slave_emark)
+            self.slaves[slave_addr] = slave
+        except socket.timeout:
+            pass
+
+    def handle_connect(self, listener):
+        """
+        Handle a slave trying to connect.
+        """
+        connection = listener.accept()
+        if not connection:
+            return
+        slave_addr = connection.peer_adr()
+
+        pylib_io.verbout("New pre-slave: "+str(connection))
+        slave = eslave(connection, slave_addr)
         self.slaves[slave_addr] = slave
 
 if __name__ == '__main__':

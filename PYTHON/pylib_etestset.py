@@ -92,8 +92,8 @@ class etestset(object):
             strat.parse(specdir, protdir)
             self.jobqueue.extend(strat.generate_jobs())
             self.processing[strat.name] = strat
-        except IOError:
-            print "Error!"
+        except IOError, problem:
+            pylib_io.verbout("Cannot parse "+name+": "+str(problem)+"\n");
 
 
     def deactivate_strat(self, strat, back=True):
