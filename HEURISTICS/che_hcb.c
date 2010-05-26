@@ -150,6 +150,9 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->watchlist_simplify            = true;
    handle->use_tptp_sos                  = false;
    handle->presat_interreduction         = false;
+   handle->detsort_bw_rw                 = false;
+   handle->detsort_tmpset                = false;
+
 }
 
 

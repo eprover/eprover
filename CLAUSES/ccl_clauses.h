@@ -118,6 +118,10 @@ typedef struct clause_cell
    long                  ident;       /* Hopefully unique ident for
 					 all clauses created during
 					 proof run */
+#ifdef CLAUSE_PERM_IDENT
+   long                  perm_ident;  /* Running number, given on
+                                         alloc, never modified */
+#endif
    SysDate               date;        /* ...at which this clause
 					 became a demodulator */
    Eqn_p                 literals;    /* List of literals */
@@ -185,7 +189,7 @@ void ClauseSetTPTPType(Clause_p clause, ClauseProperties type);
 #define ClauseQueryCSSCPASource(clause)\
         (((clause)->properties&CP_CSSCPA_Mask)/CP_CSSCPA_1)
 
-#define ClauseCellAlloc()    (ClauseCell*)SizeMalloc(sizeof(ClauseCell))
+#define ClauseCellAllocRaw() (ClauseCell*)SizeMalloc(sizeof(ClauseCell))
 #define ClauseCellFree(junk) SizeFree(junk, sizeof(ClauseCell))
 
 #ifdef CONSTANT_MEM_ESTIMATE
@@ -194,6 +198,7 @@ void ClauseSetTPTPType(Clause_p clause, ClauseProperties type);
 #define CLAUSECELL_MEM MEMSIZE(ClauseCell)
 #endif
 
+Clause_p ClauseCellAlloc(void);
 Clause_p EmptyClauseAlloc(void);
 Clause_p ClauseAlloc(Eqn_p literals);
 void     ClauseFree(Clause_p junk);
@@ -353,6 +358,12 @@ bool     ClauseNotGreaterEqual(OCB_p ocb,
 
 int      ClauseCompareFun(const void *c1, const void* c2);
 int      ClauseCmpById(const void* clause1, const void* clause2);
+#ifdef CLAUSE_PERM_IDENT
+int      ClauseCmpByPermId(const void* clause1, const void* clause2);
+int      ClauseCmpByPermIdR(const void* clause1, const void* clause2);
+#endif
+int      ClauseCmpByStructWeight(const void* clause1, const void* clause2);
+
 int      ClauseCmpByPtr(const void* clause1, const void* clause2);
 
 #define  NormSubstClause(clause, subst, vars)\

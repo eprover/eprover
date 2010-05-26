@@ -846,26 +846,30 @@ long clause_tree_push(PStack_p stack, PTree_p clausetree)
 // Function: term_find_rw_clauses()
 //
 //   Push all clauses stored at termocc that are rewritable with
-//   lterm->rterm onto stack. Return true if there is at least one.
+//   lterm->rterm onto stack. Return number if there is at least one.
 //
 // Global Variables: -
 //
 // Side Effects    : Sets properties and links in affected terms and
-//                   clauses.
+//                   clauses. May set the normal-form date even if
+//                   this single traverse does not establish
+//                   non-rewritability, i.e. assumes that always all
+//                   possible directions will be used.
 //
 /----------------------------------------------------------------------*/
 
-bool term_find_rw_clauses(Clause_p demod,
-                          OCB_p ocb, 
-                          SubtermOcc_p termocc, 
-                          PStack_p stack, 
-                          Term_p lterm,
-                          Term_p rterm,
-                          bool oriented)
+static long term_find_rw_clauses(Clause_p demod,
+                                 OCB_p ocb, 
+                                 SubtermOcc_p termocc, 
+                                 PStack_p stack, 
+                                 Term_p lterm,
+                                 Term_p rterm,
+                                 bool oriented, 
+                                 SysDate nf_date)
 {
    Eqn_p eqn = demod->literals;
    RWResultType rwres = RWNotRewritable;
-   bool    res = 0;
+   long    res = 0;
    Subst_p subst = SubstAlloc();
    Term_p  term = termocc->term;    
 
@@ -899,6 +903,8 @@ bool term_find_rw_clauses(Clause_p demod,
             //TermDeleteRWLink(term);
          }
       }
+      /* We cannot set the NF date here, since we have no indication
+         of the state of the subterms. */
    }
    SubstDelete(subst);
    return res;
@@ -915,17 +921,21 @@ bool term_find_rw_clauses(Clause_p demod,
 // Global Variables: -
 //
 // Side Effects    : Sets properties and links in affected terms and
-//                   clauses.
+//                   clauses. May set the normal-form date even if
+//                   this single traverse does not establish
+//                   non-rewritability, i.e. assumes that always all
+//                   possible directions will be used.
 //
 /----------------------------------------------------------------------*/
 
-long tree_find_rw_clauses(Clause_p demod,
-                          OCB_p ocb, 
-                          SubtermTree_p termtree, 
-                          PStack_p stack, 
-                          Term_p lterm,
-                          Term_p rterm,
-                          bool oriented)
+static long tree_find_rw_clauses(Clause_p demod,
+                                 OCB_p ocb, 
+                                 SubtermTree_p termtree, 
+                                 PStack_p stack, 
+                                 Term_p lterm,
+                                 Term_p rterm,
+                                 bool oriented,
+                                 SysDate nf_date)
 {
    bool          res = 0;
    PStack_p      iterstack;
@@ -936,7 +946,7 @@ long tree_find_rw_clauses(Clause_p demod,
    while((cell = PTreeTraverseNext(iterstack)))
    {
       res += term_find_rw_clauses(demod, ocb, cell->key, stack, 
-                                  lterm, rterm, oriented);
+                                  lterm, rterm, oriented, nf_date);
    }
    PTreeTraverseExit(iterstack);
    return res;
@@ -953,17 +963,21 @@ long tree_find_rw_clauses(Clause_p demod,
 // Global Variables: -
 //
 // Side Effects    : Sets properties and links in affected terms and
-//                   clauses.
+//                   clauses. May set the normal-form date even if
+//                   this single traverse does not establish
+//                   non-rewritability, i.e. assumes that always all
+//                   possible directions will be used.
 //
 /----------------------------------------------------------------------*/
 
-long find_rewritable_clauses_indexed(Clause_p demod,
-                                     OCB_p ocb, 
-                                     SubtermIndex_p index, 
-                                     PStack_p stack, 
-                                     Term_p lterm,
-                                     Term_p rterm,
-                                     bool oriented)
+static long find_rewritable_clauses_indexed(Clause_p demod,
+                                            OCB_p ocb, 
+                                            SubtermIndex_p index, 
+                                            PStack_p stack, 
+                                            Term_p lterm,
+                                            Term_p rterm,
+                                            bool oriented, 
+                                            SysDate nf_date)
 {
    long          res = 0;
    PStack_p      termtrees = PStackAlloc();
@@ -975,7 +989,8 @@ long find_rewritable_clauses_indexed(Clause_p demod,
    {
       tree = PStackPopP(termtrees);
       res += tree_find_rw_clauses(demod, ocb, tree, stack, 
-                                  lterm, rterm, oriented);
+                                  lterm, rterm, oriented, 
+                                  nf_date);
    }
    PStackFree(termtrees);
    return res;
@@ -1186,7 +1201,8 @@ long FindRewritableClausesIndexed(OCB_p ocb, SubtermIndex_p index,
                                          stack, 
                                          eqn->lterm,
                                          eqn->rterm,
-                                         EqnIsOriented(eqn));
+                                         EqnIsOriented(eqn), 
+                                         nf_date);
    if(!EqnIsOriented(eqn))
    {
       res += find_rewritable_clauses_indexed(new_demod,
@@ -1194,7 +1210,8 @@ long FindRewritableClausesIndexed(OCB_p ocb, SubtermIndex_p index,
                                              stack,
                                              eqn->rterm,
                                              eqn->lterm,
-                                             false);
+                                             false,
+                                             nf_date);
    }
    /*printf("Found %ld rewritable clauses\n", res);
    {

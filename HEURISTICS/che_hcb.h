@@ -126,6 +126,9 @@ typedef struct heuristic_parms_cell
    bool                watchlist_simplify;
    bool                use_tptp_sos;
    bool                presat_interreduction;
+
+   bool                detsort_bw_rw;
+   bool                detsort_tmpset;
 }HeuristicParmsCell, *HeuristicParms_p;
 
 

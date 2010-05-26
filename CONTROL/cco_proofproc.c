@@ -149,6 +149,33 @@ eliminate_backward_rewritten_clauses(ProofState_p
          min_rw = RemoveRewritableClausesIndexed(control->ocb,
                                                  state->tmp_store,
                                                  clause, *date, &(state->gindices));
+
+         /*{
+            long res; 
+            PStack_p stack = PStackAlloc();
+            Clause_p found;
+   
+            res = FindRewritableClauses(control->ocb,
+                                        state->processed_pos_rules,
+                                        stack, clause, *date);
+            res = FindRewritableClauses(control->ocb,
+                                        state->processed_pos_eqns,
+                                        stack, clause, *date);
+            res = FindRewritableClauses(control->ocb,
+                                        state->processed_neg_units,
+                                        stack, clause, *date);
+            res = FindRewritableClauses(control->ocb,
+                                        state->processed_non_units,
+                                        stack, clause, *date);
+            while(!PStackEmpty(stack))
+            {
+               found = PStackPopP(stack);
+               printf("==>"); ClausePrint(stdout, found, true);
+               printf("  =Q=  "); ClausePrint(stdout, clause, true);
+               printf("\n");
+            }
+            PStackFree(stack);
+            }*/
       }
       else
       {
@@ -177,7 +204,11 @@ eliminate_backward_rewritten_clauses(ProofState_p
 	 (state->tmp_store->literals-old_lit_count);
       state->backward_rewritten_count+=
 	 (state->tmp_store->members-old_clause_count);
-      /* ClauseSetSort(state->tmp_store, ClauseCmpById); */
+      
+      if(control->heuristic_parms.detsort_bw_rw)
+      {
+         ClauseSetSort(state->tmp_store, ClauseCmpByStructWeight); 
+      }
    }
    /*printf("# Removed %ld clauses\n",
      (state->tmp_store->members-old_clause_count)); */
@@ -927,7 +958,10 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
    assert(clause);
    
    state->processed_count++;
-   
+
+   /*EvalListPrint(stdout, clause->evaluations);
+     printf(":");*/
+
    ClauseSetExtractEntry(clause);
    ClauseSetProp(clause, CPIsProcessed);
    ClauseDetachParents(clause);
@@ -1066,6 +1100,10 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
 #ifdef PRINT_RW_STATE
    print_rw_state(state);
 #endif
+   if(control->heuristic_parms.detsort_tmpset)
+   {
+      ClauseSetSort(state->tmp_store, ClauseCmpByStructWeight); 
+   }
    if((empty = insert_new_clauses(state, control)))
    {
       return empty;

@@ -53,6 +53,12 @@ static long global_clause_counter = LONG_MIN; /* Counts calls to
 long ClauseIdentCounter = 0; /* Used to generate new clause idents on
 				the fly. */
 
+#ifdef CLAUSE_PERM_IDENT
+static long clause_perm_ident_counter = 0; /* Used to generate new
+                                              permanent idents on
+                                              the fly. */
+#endif
+
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
@@ -226,6 +232,31 @@ void ClauseSetTPTPType(Clause_p clause, ClauseProperties type)
    ClauseSetProp(clause, type);
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseCellAlloc()
+//
+//   Allocate a clause cell. This is a thin wrapper only relevant when
+//   perm-idents are enabled for debugging.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Clause_p ClauseCellAlloc(void)
+{
+   Clause_p handle = ClauseCellAllocRaw();
+
+#ifdef CLAUSE_PERM_IDENT
+   handle->perm_ident = clause_perm_ident_counter++;
+#endif
+
+
+   return handle;
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -2223,9 +2254,88 @@ int ClauseCmpById(const void* clause1, const void* clause2)
    }
    if((*c1)->ident > (*c2)->ident)
    {
+      return 1;
+   }
+   return 0;
+}
+
+
+#ifdef CLAUSE_PERM_IDENT
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseCmpByPermId()
+//
+//   Compare two clauses by permanent identifier.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+int ClauseCmpByPermId(const void* clause1, const void* clause2)
+{
+   const Clause_p *c1 = (const Clause_p*) clause1;
+   const Clause_p *c2 = (const Clause_p*) clause2;
+   
+   if((*c1)->perm_ident < (*c2)->perm_ident)
+   {
+      return -1;
+   }
+   if((*c1)->perm_ident > (*c2)->perm_ident)
+   {
+      return 1;
+   }
+   return 0;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseCmpByPermIdR()
+//
+//   Compare two clauses by reverse permanent identifier.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+int ClauseCmpByPermIdR(const void* clause1, const void* clause2)
+{
+   const Clause_p *c1 = (const Clause_p*) clause1;
+   const Clause_p *c2 = (const Clause_p*) clause2;
+   
+   if((*c1)->perm_ident < (*c2)->perm_ident)
+   {
+      return 1;
+   }
+   if((*c1)->perm_ident > (*c2)->perm_ident)
+   {
       return -1;
    }
    return 0;
+}
+#endif
+
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseCmpByStructWeight()
+//
+//   Compare by a total syntactical order.
+// 
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+int ClauseCmpByStructWeight(const void* clause1, const void* clause2)
+{
+   const Clause_p *c1 = (const Clause_p*) clause1;
+   const Clause_p *c2 = (const Clause_p*) clause2;
+   
+   return ClauseStructWeightLexCompare(*c1, *c2);
 }
 
 /*-----------------------------------------------------------------------

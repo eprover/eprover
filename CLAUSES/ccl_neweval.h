@@ -93,7 +93,7 @@ void     EvalsFree(Eval_p junk);
 
 void     EvalPrint(FILE* out, Eval_p list, int pos);
 void     EvalPrintComment(FILE* out, Eval_p list, int pos);
-void     EvalPrintList(FILE* out, Eval_p list);
+void     EvalListPrint(FILE* out, Eval_p list);
 void     EvalListPrintComment(FILE* out, Eval_p list);
 
 void     EvalSetPriority(Eval_p list, EvalPriority priority);

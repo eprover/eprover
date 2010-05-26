@@ -40,6 +40,29 @@ long EvaluationCounter = 0;
 
 /*-----------------------------------------------------------------------
 //
+// Function: Eval_p evals_alloc_raw()
+//
+//   Allocate an evaluation cell with proper eval_no and eval_count 0.
+//
+// Global ariables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+static Eval_p evals_alloc_raw(int eval_no)
+{
+   Eval_p eval = EvalCellAlloc(eval_no);
+
+   eval->eval_no    = eval_no;
+   eval->eval_count = 0;
+   
+   return eval;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: splay_tree() 
 //
 //   Perform the splay operation on tree at node with key.
@@ -60,7 +83,7 @@ static Eval_p splay_tree(Eval_p tree, Eval_p splay, int pos)
       return tree;
    }
    
-   newnode = EvalsAlloc(splay->eval_no);
+   newnode = evals_alloc_raw(splay->eval_no);
    newnode->evals[pos].lson = NULL;
    newnode->evals[pos].rson = NULL;
    left = newnode;
@@ -147,9 +170,8 @@ static Eval_p splay_tree(Eval_p tree, Eval_p splay, int pos)
 
 Eval_p EvalsAlloc(int eval_no)
 {
-   Eval_p eval = EvalCellAlloc(eval_no);
+   Eval_p eval = evals_alloc_raw(eval_no);
 
-   eval->eval_no    = eval_no;
    eval->eval_count = EvaluationCounter++;
    
    return eval;
