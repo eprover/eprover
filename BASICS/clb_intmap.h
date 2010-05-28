@@ -28,7 +28,7 @@ Changes
 
 #include <limits.h>
 #include <clb_numtrees.h>
-#include <clb_pdarrays.h>
+#include <clb_pdrangearrays.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -60,15 +60,19 @@ typedef struct intmap_cell
                           * larger than the real value, as keys
                           * associated to NULL are indistinguishable
                           * from unassociated keys. */
+   long min_key;         /* Smallest key (may be only key). Again, this
+                          * may be an overestimate, as we do not
+                          * always correct this if a key is deleted
+                          * from an array. */
    long max_key;         /* Largest key (may be only key). Again, this
                           * may be an overestimate, as we do not
                           * always correct this if a key is deleted
                           * from an array. */
    union 
    {
-      void*     value;   /* For IMSingle */
-      PDArray_p array;   /* For IMArray  */
-      NumTree_p tree;    /* For IMTree   */
+      void*        value;   /* For IMSingle */
+      PDRangeArr_p array;   /* For IMArray  */
+      NumTree_p    tree;    /* For IMTree   */
    }values;
 }IntMapCell, *IntMap_p;
 
@@ -164,11 +168,13 @@ static __inline__ void* IntMapIterNext(IntMapIter_p iter, long *key)
       return NULL;
    }
 
+   //printf("IntMapIterNext()...\n");
    switch(iter->map->type)
    {
    case IMEmpty:
          break;
    case IMSingle:
+         //printf("Case IMSingle\n");
          if(!iter->admin_data.seen)
          {
             iter->admin_data.seen = true;
@@ -177,9 +183,10 @@ static __inline__ void* IntMapIterNext(IntMapIter_p iter, long *key)
          }
          break;
    case IMArray: 
+         //printf("Case IMArray\n");
          for(i=iter->admin_data.current; i<= iter->upper_key; i++)
          {
-            res = PDArrayElementP(iter->map->values.array, i);
+            res = PDRangeArrElementP(iter->map->values.array, i);
             if(res)
             {
                *key = i;
@@ -189,6 +196,7 @@ static __inline__ void* IntMapIterNext(IntMapIter_p iter, long *key)
          iter->admin_data.current = i+1;
          break;
    case IMTree:
+         //printf("Case IMTree\n");
          while((handle = NumTreeTraverseNext(iter->admin_data.tree_iter)))
          {               
             if(handle)
@@ -212,6 +220,7 @@ static __inline__ void* IntMapIterNext(IntMapIter_p iter, long *key)
          assert(false && "Unknown IntMap type.");
          break;
    }
+   //printf("...IntMapIterNext()\n");
    return res;
 }
 

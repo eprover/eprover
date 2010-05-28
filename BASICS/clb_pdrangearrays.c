@@ -1,6 +1,6 @@
 /*-----------------------------------------------------------------------
 
-File  : clb_pdarrays.c
+File  : clb_pdrangearrays.c
 
 Author: Stephan Schulz
 
@@ -8,19 +8,19 @@ Contents
  
   Funktions realising the dynamic array type.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 2010 by the author.
   This code is released under the GNU General Public Licence.
   See the file COPYING in the main CLIB directory for details.
   Run "eprover -h" for contact information.
 
 Changes
 
-<1> Thu Jul 23 17:40:32 MEST 1998
+<1> Thu May 27 18:33:01 CEST 2010
     New
 
 -----------------------------------------------------------------------*/
 
-#include "clb_pdarrays.h"
+#include "clb_pdrangearrays.h"
 
 
 
@@ -40,13 +40,137 @@ Changes
 
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: range_arr_size()
+//
+//   Given the current size, growths model, and minimal new size,
+//   retunr the actual new size.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static long range_arr_size(long minsize, long size, long grow)
+{
+   if(grow)
+   {
+      size = ((minsize/grow)+1)*grow;
+   }
+   else
+   {
+      /* This is certainly correct and almost certainly faster than
+         meddling with logs and exps. */
+      while(size <= minsize)
+      {
+         size *= 2;
+      }
+   }
+   return size;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: range_arr_expand_down()
+//
+//   Expand a range array down until it is big enough to accomodate
+//   idx.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory reallocations
+//
+/----------------------------------------------------------------------*/
+
+static void range_arr_expand_down(PDRangeArr_p array, long idx)
+{
+   IntOrP *tmp;
+   long   old_size, old_offset, i;
+   
+   assert(array);
+   assert(idx < array->offset+array->size);
+
+   old_size   = array->size;
+   old_offset = array->offset;
+   tmp        = array->array;
+
+   array->size   = range_arr_size(old_offset-idx+old_size,
+                                  old_size, array->grow);
+   array->offset = old_offset-(array->size-old_size);
+   array->array  = SizeMalloc(array->size * sizeof(IntOrP));
+
+   for(i=0; i< (old_offset-array->offset); i++)
+   {
+      if(array->integer)
+      {
+         array->array[i].i_val = 0;
+      }
+      else
+      {
+         array->array[i].p_val = NULL;
+      }
+   }
+   memcpy(array->array+(old_offset-array->offset), tmp, old_size*sizeof(IntOrP));
+   SizeFree(tmp, old_size * sizeof(IntOrP));
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: range_arr_expand_up()
+//
+//   Expand a range array up until it is big enough to accomodate
+//   idx.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory reallocations.
+//
+/----------------------------------------------------------------------*/
+
+static void range_arr_expand_up(PDRangeArr_p array, long idx)
+{
+   IntOrP *tmp;
+   long   old_size, old_offset, i;
+   
+   assert(array);
+   assert(idx >= (array->offset+array->size));
+
+   old_size   = array->size;
+   old_offset = array->offset;
+   tmp        = array->array;
+
+   array->size = range_arr_size(idx-old_offset+1,
+                                old_size, array->grow);
+   array->array = SizeMalloc(array->size * sizeof(IntOrP));
+   
+   memcpy(array->array, tmp, old_size*sizeof(IntOrP));
+   for(i=old_size; i<array->size; i++)
+   {
+      if(array->integer)
+      {
+         array->array[i].i_val = 0;
+      }
+      else
+      {
+         array->array[i].p_val = NULL;
+      }
+   }
+   SizeFree(tmp, old_size * sizeof(IntOrP));
+}
+   
+
+
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
 
 /*-----------------------------------------------------------------------
 //
-// Function: PDArrayAlloc()
+// Function: PDRangeArrAlloc()
 //
 //   Return an initialized dynamic array of size init_size where all
 //   elements are interpreted as pointers and initialized to NULL.
@@ -57,16 +181,17 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-PDArray_p PDArrayAlloc(long init_size, long grow)
+PDRangeArr_p PDRangeArrAlloc(long idx, long grow)
 {
-   PDArray_p handle = PDArrayCellAlloc();
+   PDRangeArr_p handle = PDRangeArrCellAlloc();
    int i;
    
-   assert(init_size > 0);
    assert(grow >= 0);
 
    handle->integer = false;
-   handle->size  = init_size;
+   handle->offset = idx;
+   
+   handle->size  = grow?grow:1;
    handle->grow  = grow;
    handle->array = SizeMalloc(handle->size*sizeof(IntOrP));
    for(i=0; i<handle->size; i++)
@@ -78,7 +203,7 @@ PDArray_p PDArrayAlloc(long init_size, long grow)
 
 /*-----------------------------------------------------------------------
 //
-// Function: PDIntArrayAlloc()
+// Function: PDIntRangeArrAlloc()
 //
 //   Return an initialized dynamic array of size init_size where all
 //   elements are interpreted as (long) integers and initialized to 0.
@@ -89,16 +214,17 @@ PDArray_p PDArrayAlloc(long init_size, long grow)
 //
 /----------------------------------------------------------------------*/
 
-PDArray_p PDIntArrayAlloc(long init_size, long grow)
+PDRangeArr_p PDIntRangeArrAlloc(long idx, long grow)
 {
-   PDArray_p handle = PDArrayCellAlloc();
+   PDRangeArr_p handle = PDRangeArrCellAlloc();
    int i;
    
-   assert(init_size > 0);
    assert(grow >= 0);
 
-   handle->integer = true;
-   handle->size  = init_size;
+   handle->integer = false;
+   handle->offset = idx;
+   
+   handle->size  = grow?grow:1;
    handle->grow  = grow;
    handle->array = SizeMalloc(handle->size*sizeof(IntOrP));
    for(i=0; i<handle->size; i++)
@@ -111,9 +237,9 @@ PDArray_p PDIntArrayAlloc(long init_size, long grow)
 
 /*-----------------------------------------------------------------------
 //
-// Function: PDArrayFree()
+// Function: PDRangeArrFree()
 //
-//   Free a PDArray. Leaves elements untouched.
+//   Free a PDRangeArr. Leaves elements untouched.
 //
 // Global Variables: -
 //
@@ -121,19 +247,19 @@ PDArray_p PDIntArrayAlloc(long init_size, long grow)
 //
 /----------------------------------------------------------------------*/
 
-void PDArrayFree(PDArray_p junk)
+void PDRangeArrFree(PDRangeArr_p junk)
 {
    assert(junk);
    assert(junk->size > 0);
    assert(junk->array);
-
+   
    SizeFree(junk->array, junk->size*sizeof(IntOrP));
-   PDArrayCellFree(junk);
+   PDRangeArrCellFree(junk);
 }
 
 /*-----------------------------------------------------------------------
 //
-// Function: PDArrayEnlarge()
+// Function: PDRangeArrEnlarge()
 //
 //   Enlarge array enough to accomodate index.
 //
@@ -143,45 +269,25 @@ void PDArrayFree(PDArray_p junk)
 //
 /----------------------------------------------------------------------*/
 
-void PDArrayEnlarge(PDArray_p array, long idx)
+void PDRangeArrEnlarge(PDRangeArr_p array, long idx)
 {
-   IntOrP *tmp;
-   long   old_size, i;
-   
-   old_size = array->size;
-   tmp      = array->array;
-   if(array->grow)
+   if(idx < array->offset)
    {
-      array->size = ((idx/array->grow)+1)*array->grow;
+      range_arr_expand_down(array, idx);
    }
    else
    {
-      while(array->size <= idx)
-      {
-	 array->size = array->size*2;
-      }
-   }
-   array->array = SizeMalloc(array->size * sizeof(IntOrP));
-   memcpy(array->array, tmp, old_size*sizeof(IntOrP));
-   SizeFree(tmp, old_size * sizeof(IntOrP));
-   for(i=old_size; i<array->size; i++)
-   {
-      if(array->integer)
-      {
-	 array->array[i].i_val = 0;
-      }
-      else
-      {
-	 array->array[i].p_val = NULL;
-      }
-   }
+      range_arr_expand_up(array, idx);
+   }   
+   assert(idx>=array->offset);
+   assert(idx<(array->offset+array->size));
 }
 
 /*-----------------------------------------------------------------------
 //
-// Function: PDArrayCopy()
+// Function: PDRangeArrCopy()
 //
-//   Copy a PDArray with contents. Use with care, as some data
+//   Copy a PDRangeArr with contents. Use with care, as some data
 //   structures may not be copyable very well (e.g. pointers to the
 //   same array, registered references, ...)
 //
@@ -191,22 +297,21 @@ void PDArrayEnlarge(PDArray_p array, long idx)
 //
 /----------------------------------------------------------------------*/
 
-PDArray_p PDArrayCopy(PDArray_p array)
+PDRangeArr_p PDRangeArrCopy(PDRangeArr_p array)
 {
-   PDArray_p handle = PDArrayAlloc(array->size, array->grow);
-   long i;
-
-   for(i=0; i<array->size; i++)
-   {
-      handle->array[i] = array->array[i];
-   }
+   PDRangeArr_p handle = PDRangeArrCellAlloc();
+   
+   *handle = *array;
+   handle->array =  SizeMalloc(handle->size*sizeof(IntOrP));
+   memcpy(handle->array, array->array, handle->size*sizeof(IntOrP));
+   
    return handle;
 }
 
 
 /*-----------------------------------------------------------------------
 //
-// Function: PDArrayElementDeleteP()
+// Function: PDRangeArrElementDeleteP()
 //
 //   If idx is within the currently allocated array, set the value
 //   to NULL. Otherwise do nothing.
@@ -217,17 +322,17 @@ PDArray_p PDArrayCopy(PDArray_p array)
 //
 /----------------------------------------------------------------------*/
 
-void PDArrayElementDeleteP(PDArray_p array, long idx)
+void PDRangeArrElementDeleteP(PDRangeArr_p array, long idx)
 {
-   if(idx < array->size)
+   if(PDRangeArrIndexIsCovered(array, idx))
    {
-      PDArrayAssignP(array, idx, NULL);
+      PDRangeArrAssignP(array, idx, NULL);
    }
 }
 
 /*-----------------------------------------------------------------------
 //
-// Function: PDArrayElementDeleteInt()
+// Function: PDRangeArrElementDeleteInt()
 //
 //   If idx is within the currently allocated array, set the value
 //   to 0. Otherwise do nothing.
@@ -238,18 +343,18 @@ void PDArrayElementDeleteP(PDArray_p array, long idx)
 //
 /----------------------------------------------------------------------*/
 
-void PDArrayElementDeleteInt(PDArray_p array, long idx)
+void PDRangeArrElementDeleteInt(PDRangeArr_p array, long idx)
 {
-   if(idx < array->size)
+   if(PDRangeArrIndexIsCovered(array, idx))
    {
-      PDArrayAssignInt(array, idx, 0);
+      PDRangeArrAssignInt(array, idx, 0);
    }
 }
 
 
 /*-----------------------------------------------------------------------
 //
-// Function: PDArrayMembers()
+// Function: PDRangeArrMembers()
 //
 //   Return number of non-NULL elements in the array.
 //
@@ -259,15 +364,15 @@ void PDArrayElementDeleteInt(PDArray_p array, long idx)
 //
 /----------------------------------------------------------------------*/
 
-long PDArrayMembers(PDArray_p array)
+long PDRangeArrMembers(PDRangeArr_p array)
 {
    long i, res =0;
    
    assert(array);
 
-   for(i=0; i<array->size; i++)
+   for(i=PDRangeArrLowKey(array); i<PDRangeArrLimitKey(array); i++)
    {
-      if(PDArrayElementP(array, i))
+      if(PDRangeArrElementP(array, i))
       {
 	 res++;
       }
@@ -276,137 +381,10 @@ long PDArrayMembers(PDArray_p array)
 }
 
 
-/*-----------------------------------------------------------------------
-//
-// Function: PDArrayFirstUnused()
-//
-//   Return 1 + the index of the largest element != NULL in array (0
-//   if the array is empty).
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-long PDArrayFirstUnused(PDArray_p array)
-{
-   long i;
-   
-   assert(array);
-
-   for(i=array->size; i; i--)
-   {
-      if(PDArrayElementP(array, i-1))
-      {
-	 break;
-      }
-   }
-   return i;
-}
-
 
 /*-----------------------------------------------------------------------
 //
-// Function: PDArrayStore()
-//
-//   Store the given value after the end of the used part of the
-//   array. This is similar to PStackPush() for stacks, but a LOT less
-//   efficient. Return value is the index assigned.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-long PDArrayStore(PDArray_p array, IntOrP value)
-{
-   long idx;
-   
-   assert(array);
-
-   idx = PDArrayFirstUnused(array);
-   PDArrayAssign(array, idx, value);
-
-   return idx;   
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function: PDArrayStoreP()
-//
-//   Store the given pointer value after the end of the used part of
-/    the array. See PDArrayStore().
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-long PDArrayStoreP(PDArray_p array, void* value)
-{
-   IntOrP tmp;
-   
-   tmp.p_val = value;
-
-   return PDArrayStore(array, tmp);
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: PDArrayStoreInt()
-//
-//   Store the given long int value after the end of the used part of
-/    the array. See PDArrayStore().
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-long PDArrayStoreInt(PDArray_p array, long value)
-{
-   IntOrP tmp;
-   
-   tmp.i_val = value;
-
-   return PDArrayStore(array, tmp);
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: PDArrayAdd()
-//
-//   Add the first limit elements from new to the corresponding entries
-//   in collect. All entries are interpreted as numerical.
-//
-// Global Variables: -
-//
-// Side Effects    : Changes collect.
-//
-/----------------------------------------------------------------------*/
-
-void PDArrayAdd(PDArray_p collect, PDArray_p data, long limit)
-{
-   long i, old, new;
-   
-   for(i=0; i<limit; i++)
-   {
-      old = PDArrayElementInt(collect, i);
-      new = PDArrayElementInt(data, i);
-      PDArrayAssignInt(collect, i, old+new);
-   }
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: PDArrayElementIncInt()
+// Function: PDRangeArrElementIncInt()
 //
 //   Increment entry indexed in array by value. Return new value.
 //
@@ -416,9 +394,9 @@ void PDArrayAdd(PDArray_p collect, PDArray_p data, long limit)
 //
 /----------------------------------------------------------------------*/
  
-long PDArrayElementIncInt(PDArray_p array, long idx, long value)
+long PDRangeArrElementIncInt(PDRangeArr_p array, long idx, long value)
 {
-   IntOrP *ref = PDArrayElementRef(array, idx);
+   IntOrP *ref = PDRangeArrElementRef(array, idx);
 
    ref->i_val += value;
 

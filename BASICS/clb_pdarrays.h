@@ -67,7 +67,7 @@ PDArray_p PDIntArrayAlloc(long init_size, long grow);
 void      PDArrayFree(PDArray_p junk);
 PDArray_p PDArrayCopy(PDArray_p array);
 
-void      PDArayEnlarge(PDArray_p array, long idx);
+void      PDArrayEnlarge(PDArray_p array, long idx);
 static __inline__ IntOrP*   PDArrayElementRef(PDArray_p array, long idx);
 
 void      PDArrayElementDeleteP(PDArray_p array, long idx);
@@ -124,7 +124,7 @@ static __inline__ IntOrP* PDArrayElementRef(PDArray_p array, long idx)
    
    if(!(idx < array->size))
    {
-      PDArayEnlarge(array, idx);
+      PDArrayEnlarge(array, idx);
    }
    return &(array->array[idx]);
 }

@@ -19,6 +19,7 @@ Changes
 
 -----------------------------------------------------------------------*/
 
+#include <clb_pdrangearrays.h>
 #include <clb_intmap.h>
 #include <cio_commandline.h>
 #include <cio_output.h>
@@ -69,46 +70,47 @@ void print_help(FILE* out);
 
 int main(int argc, char* argv[])
 {   
-   Scanner_p in; 
    CLState_p state;
-   IntMap_p  map;
-   long      key;
-   char*     val = "Test";
-   
+   int i,key;
+   PDRangeArr_p arr1, arr2;
+   IntMap_p map;
+   PStack_p stack;
+
    assert(argv[0]);
    InitIO(argv[0]);
 
    state = process_options(argc, argv);
    
-   if(state->argc ==  0)
-   {
-      CLStateInsertArg(state, "-");
-   }
-   in = CreateScanner(StreamTypeFile, state->argv[0] , true, NULL);
-   
-   map = IntMapAlloc();
+   arr1 = PDRangeArrAlloc(4, 4);
+   arr2 = PDRangeArrAlloc(4, GROW_EXPONENTIAL);
+   map  = IntMapAlloc();
 
-   while(TestInpId(in, "i|d"))
+   stack = PStackAlloc();
+   for(i=0; i<2000; i++)
    {
-      if(TestInpId(in, "i"))
-      {
-         AcceptInpTok(in, Ident);
-         key = ParseInt(in);
-         IntMapAssign(map, key, val);
-         printf("Inserting %4ld (new type %d)\n", key, map->type);
-      }
-      else
-      {
-         AcceptInpTok(in, Ident);
-         key = ParseInt(in);
-         IntMapDelKey(map, key);
-         printf("Deleting  %4ld (new type %d)\n", key, map->type);
-      }
-      IntMapDebugPrint(stdout, map);
+      key = drand48()*128-64;
+      PDRangeArrAssignInt(arr1, key, key);
+      PDRangeArrAssignInt(arr2, key, key);
+      IntMapAssign(map, key, (void*)key);
+      PStackPushInt(stack, key);
    }
-   
+   while(!PStackEmpty(stack))
+   {
+      key = PStackPopInt(stack);
+      printf("arr1[%d]=%ld\n", key, PDRangeArrElementInt(arr1,key));
+      assert(key==PDRangeArrElementInt(arr1,key));
+      printf("arr2[%d]=%ld\n", key, PDRangeArrElementInt(arr2,key));
+      assert(key==PDRangeArrElementInt(arr2,key));
+      printf("map[%d]=%ld\n", key, (long)IntMapGetVal(map,key));
+      
+   }
+   PStackFree(stack);
+  
    IntMapFree(map);
-   DestroyScanner(in);
+   PDRangeArrFree(arr2);
+   PDRangeArrFree(arr1);
+     
+
    CLStateFree(state);
    ExitIO();
 #ifdef CLB_MEMORY_DEBUG
