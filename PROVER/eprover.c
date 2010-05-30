@@ -965,9 +965,9 @@ OptCell opts[] =
     "(a little) time in computing feature vectors."},
 
    {OPT_BW_RW_INDEX,
-    '\0', "bw-rw-index",
+    '\0', "no-bw-rw-index",
     NoArg, NULL,
-    "Use fingerprint indexing for backward rewriting."},
+    "Don't use fingerprint indexing for backward rewriting."},
 
    {OPT_DETSORT_RW,
     '\0', "detsort-rw",
@@ -1961,7 +1961,7 @@ CLState_p process_options(int argc, char* argv[])
 	    fvi_parms->symbol_slack = tmp;
 	    break;
       case OPT_BW_RW_INDEX:
-            h_parms->use_bw_rw_index = true;
+            h_parms->use_bw_rw_index = false;
             break;
       case OPT_DETSORT_RW:
             h_parms->detsort_bw_rw = true;

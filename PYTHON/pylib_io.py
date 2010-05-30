@@ -260,7 +260,10 @@ def write_will_block(fdobj):
     blocking. fdobj needs to a valid file descriptor or have a method
     fileno() that returns one, as per select.select(). 
     """
-    ready = select.select([], [fdobj], [])
+    try:
+        ready = select.select([], [fdobj], [])
+    except ValueError:
+        return false
     return not fdobj in ready[1]
 
 

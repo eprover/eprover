@@ -384,7 +384,7 @@ quit
             pylib_io.verbout("New slave: "+str(connection))
             slave = eslave(connection, slave_addr, slave_name, slave_emark)
             self.slaves[slave_addr] = slave
-        except socket.timeout:
+        except (socket.timeout, socket.error):
             pass
 
     def handle_connect(self, listener):

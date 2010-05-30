@@ -160,9 +160,12 @@ class eserver(object):
         """
         for addr, port in self.config.masters:
             if not addr in [i.peer_adr()[0] for i in self.connections]:
-                conn = self.client.connect((addr, port))
-                if conn:                
-                    self.connections.append(conn)
+                try:
+                    conn = self.client.connect((addr, port))
+                    if conn:                
+                        self.connections.append(conn)
+                except (socket.error, socket.timeout):
+                    pass
         
 
     def check_load(self):
@@ -259,7 +262,7 @@ def eserver_get_reply(address, command):
     """
     try:
         conn = pylib_tcp.tcp_client().connect(address)
-    except socket.error:
+    except (socket.error, socket.timeout):
         pylib_io.verbout("No running server found.")
         return None
 
