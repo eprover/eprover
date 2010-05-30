@@ -323,9 +323,15 @@ static long fp_index_rek_find_matchable(FPTree_p index, IndexFP_p key,
    }
    else if(key[current] == NOT_IN_TERM)
    {
-      /* Position does not exist in t or any instance -> same must
-         hold for matched terms */
+      /* Position does not exist in t or any instance:
+         - it cannot match an existing position
+         - It can match below-var, though, as instantiation can
+         introduce new excluded positions */
       res += fp_index_rek_find_matchable(fpindex_alternative(index, NOT_IN_TERM), 
+                                         key, 
+                                         current+1,
+                                         collect);
+      res += fp_index_rek_find_matchable(fpindex_alternative(index, BELOW_VAR), 
                                          key, 
                                          current+1,
                                          collect);

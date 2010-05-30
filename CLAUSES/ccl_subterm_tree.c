@@ -76,8 +76,8 @@ SubtermOcc_p SubtermOccAlloc(Term_p term)
    SubtermOcc_p handle = SubtermOccCellAlloc();
 
    handle->term    = term;
-   handle->rw_rest = NULL;
-   handle->rw_full = NULL;
+   handle->pl.occs.rw_rest = NULL;
+   handle->pl.occs.rw_full = NULL;
 
    return handle;
 }
@@ -97,8 +97,8 @@ SubtermOcc_p SubtermOccAlloc(Term_p term)
 
 void SubtermOccFree(SubtermOcc_p soc)
 {
-   PTreeFree(soc->rw_rest);
-   PTreeFree(soc->rw_full);
+   PTreeFree(soc->pl.occs.rw_rest);
+   PTreeFree(soc->pl.occs.rw_full);
    SubtermOccCellFree(soc);
 }
 
@@ -219,9 +219,9 @@ bool SubtermTreeInsertTermOcc(SubtermTree_p *root, Term_p term,
 
    if(restricted)
    {
-      return PTreeStore(&(handle->rw_rest), clause);
+      return PTreeStore(&(handle->pl.occs.rw_rest), clause);
    }
-   return PTreeStore(&(handle->rw_full), clause);
+   return PTreeStore(&(handle->pl.occs.rw_full), clause);
 }
 
 
@@ -273,13 +273,13 @@ bool SubtermTreeDeleteTermOcc(SubtermTree_p *root, Term_p term,
       old = oldnode->key;
       if(restricted)
       {
-         res = PTreeDeleteEntry(&(old->rw_rest), clause);
+         res = PTreeDeleteEntry(&(old->pl.occs.rw_rest), clause);
       }
       else
       {
-         res = PTreeDeleteEntry(&(old->rw_full), clause);
+         res = PTreeDeleteEntry(&(old->pl.occs.rw_full), clause);
       }
-      if((old->rw_rest == NULL) && (old->rw_full == NULL))
+      if((old->pl.occs.rw_rest == NULL) && (old->pl.occs.rw_full == NULL))
       {
          SubtermTreeDeleteTerm(root, term);
       }

@@ -887,14 +887,14 @@ static long term_find_rw_clauses(Clause_p demod,
          {
             TermCellSetProp(term, TPIsRRewritable|TPIsRewritable);
             rwres = RWAlwaysRewritable;
-            res += clause_tree_push(stack, termocc->rw_full);
-            res += clause_tree_push(stack, termocc->rw_rest);
+            res += clause_tree_push(stack, termocc->pl.occs.rw_full);
+            res += clause_tree_push(stack, termocc->pl.occs.rw_rest);
          }
          else
          {
             TermCellSetProp(term, TPIsRewritable);
             rwres = RWLimitedRewritable;  
-            res += clause_tree_push(stack, termocc->rw_full);
+            res += clause_tree_push(stack, termocc->pl.occs.rw_full);
          }
          if(!TermIsRewritten(term) || (rwres == RWAlwaysRewritable))
          {

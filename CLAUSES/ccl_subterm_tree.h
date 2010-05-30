@@ -32,15 +32,35 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
+/* Payload for backwards-rewriting index */
+
+typedef struct bw_rw_payload
+{
+   PTree_p rw_rest; /* Of clauses in which the subterm appears in a
+                       privileged position with restricted rewriting
+                       */ 
+   PTree_p rw_full; /* Of clauses in which it appeats unrestricted */
+}BWRWPayload;
+
+
+/* Payload for overlaps (paramodulation) */
+
+typedef struct overlap_payload
+{
+   PTree_p clauses;
+}OverlapPayload;
+
+
 /* Cell for recording all occurances of a subterm.*/
 
 typedef struct subterm_occ_cell
 {
-   Term_p  term;
-   PTree_p rw_rest; /* Of clauses in which the subterm appears in a
-                       privileged position with restricted rewriting
-                       */ 
-   PTree_p rw_full; /* Of clauses in which it appeats unrestricted */ 
+   Term_p       term;
+   union 
+   {
+      BWRWPayload    occs;
+      OverlapPayload coccs;
+   }pl;
 }SubtermOccCell, *SubtermOcc_p;
 
 typedef PTree_p SubtermTree_p;

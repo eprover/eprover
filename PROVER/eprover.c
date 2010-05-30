@@ -2038,7 +2038,7 @@ Read a set of first-order clauses and formulae and try to refute it.\n\
 \n");
    PrintOptions(stdout, opts, "Options:\n\n");
    fprintf(out, "\n\
-Copyright (C) 1998-2009 by Stephan Schulz, " STS_MAIL "\n\
+Copyright (C) 1998-2010 by Stephan Schulz, " STS_MAIL "\n\
 \n\
 You can find the latest version of E and additional information at\n"
 E_URL

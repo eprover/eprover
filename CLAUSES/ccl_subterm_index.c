@@ -189,7 +189,7 @@ bool SubtermIndexInsertOcc(SubtermIndex_p index, Clause_p clause,
       
    fp_node      = FPIndexInsert(index, term);
    subterm_node = SubtermTreeInsertTerm((void*)&(fp_node->payload), term);
-   root         = restricted?&(subterm_node->rw_rest):&(subterm_node->rw_full);
+   root         = restricted?&(subterm_node->pl.occs.rw_rest):&(subterm_node->pl.occs.rw_full);
 
    return PTreeStore(root, clause);
 }
