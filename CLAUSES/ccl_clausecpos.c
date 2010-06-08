@@ -220,7 +220,7 @@ void UnpackClausePosInto(CompactPos cpos, Clause_p clause,
 //
 // Global Variables: -
 //
-// Side Effects    : -
+// Side Effects    : Memory allocation
 //
 /----------------------------------------------------------------------*/
 
@@ -233,6 +233,30 @@ ClausePos_p UnpackClausePos(CompactPos cpos, Clause_p clause)
    return handle;
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseCPosGetSubterm()
+//
+//   Given a clause and a compact position, return the indicated
+//   term. This is a very simple but obviously correct version.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory allocations/deallocations
+//
+/----------------------------------------------------------------------*/
+
+Term_p ClauseCPosGetSubterm(Clause_p clause, CompactPos cpos)
+{
+   Term_p      res;
+   ClausePos_p pos = UnpackClausePos(cpos, clause);
+
+   res = ClausePosGetSubterm(pos);
+   ClausePosFree(pos);
+
+   return res;
+}
 
 
 /*---------------------------------------------------------------------*/

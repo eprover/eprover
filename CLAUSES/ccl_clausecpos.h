@@ -48,11 +48,7 @@ void        UnpackClausePosInto(CompactPos cpos, Clause_p clause,
                           ClausePos_p pos);
 ClausePos_p UnpackClausePos(CompactPos cpos, Clause_p clause);
 
-
-
-/*---------------------------------------------------------------------*/
-/*                Inline Functions                                     */
-/*---------------------------------------------------------------------*/
+Term_p      ClauseCPosGetSubterm(Clause_p clause, CompactPos cpos);
 
 
 #endif

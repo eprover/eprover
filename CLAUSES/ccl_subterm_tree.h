@@ -26,6 +26,7 @@ Changes
 #define CCL_SUBTERM_TREE
 
 #include <ccl_clauses.h>
+#include <ccl_clausepos_tree.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -47,7 +48,7 @@ typedef struct bw_rw_payload
 
 typedef struct overlap_payload
 {
-   PTree_p clauses;
+   PObjTree_p clauses;
 }OverlapPayload;
 
 
@@ -59,11 +60,11 @@ typedef struct subterm_occ_cell
    union 
    {
       BWRWPayload    occs;
-      OverlapPayload coccs;
+      OverlapPayload pos;
    }pl;
 }SubtermOccCell, *SubtermOcc_p;
 
-typedef PTree_p SubtermTree_p;
+typedef PObjTree_p SubtermTree_p;
 
 
 /*---------------------------------------------------------------------*/

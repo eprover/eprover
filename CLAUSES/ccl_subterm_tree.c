@@ -6,7 +6,7 @@ Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
  
-  An tree-based mapping mapping subterms to occurances in clauses.
+  A tree-based mapping mapping subterms to occurances in clauses.
 
   Copyright 2010 by the author.
   This code is released under the GNU General Public Licence.
@@ -122,8 +122,6 @@ int CmpSubtermCells(const void *soc1, const void *soc2)
    const SubtermOcc_p s1 = (const SubtermOcc_p) soc1;
    const SubtermOcc_p s2 = (const SubtermOcc_p) soc2;
 
-   return PCmp(s1->term, s2->term);
-   
    if(s1->term->entry_no > s2->term->entry_no)
    {
       return 1;
