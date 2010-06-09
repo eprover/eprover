@@ -26,7 +26,6 @@ Changes
 #define CCL_SUBTERM_TREE
 
 #include <ccl_clauses.h>
-#include <ccl_clausepos_tree.h>
 
 
 /*---------------------------------------------------------------------*/
