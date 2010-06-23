@@ -99,7 +99,7 @@ long    TermDepth(Term_p term);
 
 bool    TermIsDefTerm(Term_p term, int min_arity);
 
-bool     TermHasFCode(Term_p term, FunCode f);
+bool    TermHasFCode(Term_p term, FunCode f);
 
 bool    TermHasVariables(Term_p term, bool unbound_only);
 #define TermIsGround(term) (!TermHasVariables((term), false))

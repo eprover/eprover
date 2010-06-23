@@ -215,6 +215,7 @@ static long fp_index_rek_find_unif(FPTree_p index, IndexFP_p key,
    FunCode i;
    long    res = 0;
    IntMapIter_p iter;
+   long iter_start;
    FPTree_p child;
 
    if(!index)
@@ -247,9 +248,13 @@ static long fp_index_rek_find_unif(FPTree_p index, IndexFP_p key,
    }
    else if(key[current] == NOT_IN_TERM)
    {
-      /* Position does not exist in t or any instance -> same must
-         hold for unifiable terms */
+      /* Position does not exist in t or any instance -> it cannot
+       * unify with an existing position. */
       res += fp_index_rek_find_unif(fpindex_alternative(index, NOT_IN_TERM), 
+                                    key, 
+                                    current+1,
+                                    collect);
+      res += fp_index_rek_find_unif(fpindex_alternative(index, BELOW_VAR), 
                                     key, 
                                     current+1,
                                     collect);
@@ -257,7 +262,12 @@ static long fp_index_rek_find_unif(FPTree_p index, IndexFP_p key,
    else if(key[current] == BELOW_VAR || key[current] == ANY_VAR)
    {
       /* t|p is a variable or below a variable -> all but NOT_IN_TERM
-         can unify. */      
+         can certainly be unified, NOT_IN_TERM can be unified if
+         BELOW_VAR, but not if ANY_VAR (if t|p = X in the query term,
+         the position must exist in the search term. But if t|p =
+         BELOW_VAR in the query term, the instantiation of X may not
+         have the p. */
+      
       res += fp_index_rek_find_unif(index->any_var, 
                                     key, 
                                     current+1,
@@ -265,9 +275,10 @@ static long fp_index_rek_find_unif(FPTree_p index, IndexFP_p key,
       res += fp_index_rek_find_unif(index->below_var, 
                                     key, 
                                     current+1,
-                                    collect);
-      
-      iter = IntMapIterAlloc(index->f_alternatives, 1, LONG_MAX); 
+                                    collect);      
+
+      iter_start = key[current] == BELOW_VAR? 0:1;               
+      iter = IntMapIterAlloc(index->f_alternatives, iter_start, LONG_MAX); 
       while((child=IntMapIterNext(iter, &i)))
       {
          assert(child);

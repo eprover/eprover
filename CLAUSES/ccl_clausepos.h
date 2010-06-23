@@ -64,6 +64,8 @@ static __inline__ void        ClausePosFree(ClausePos_p junk);
 static __inline__ Term_p   ClausePosGetSide(ClausePos_p pos);
 static __inline__ Term_p   ClausePosGetOtherSide(ClausePos_p pos);
 static __inline__ Term_p   ClausePosGetSubterm(ClausePos_p pos);
+#define ClausePosIsTop(position) ((PStackEmpty((position)->pos)))
+
       
 void     ClausePosPrint(FILE* out, ClausePos_p pos);
 Eqn_p    ClausePosFindPosLiteral(ClausePos_p pos, bool maximal);

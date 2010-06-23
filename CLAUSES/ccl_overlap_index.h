@@ -29,25 +29,33 @@ Changes
 
 #include <cte_fp_index.h>
 #include <ccl_subterm_tree.h>
-#include <ccl_clausecpos_tree.h>
+
+
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-bool OverlapIndexInsertPos(OverlapIndex_p index, Clause_p clause, 
-                           ClauseCPos pos, Term_p iterm, );
-bool OverlapIndexDeletePos(OverlapIndex_p index, Clause_p clause, 
-                            ClauseCPos pos, Term_p iterm, );
+typedef FPIndex_p OverlapIndex_p;
 
-bool OverlapIndexDeleteClauseOcc(OverlapIndex_p Clause, index_p clause, 
-                                 Term_p term);
 
-void ClauseCollectIntoTerms(Clause_p clause, PTree_p res);
-void ClauseCollectIntoTermsPos(Clause_p clause, PStack_p res);
+/*---------------------------------------------------------------------*/
+/*                Exported Functions and Variables                     */
+/*---------------------------------------------------------------------*/
 
-void ClauseCollectFromTerms(Clause_p clause, PTree_p res);
-void ClauseCollectFromTermsPos(Clause_p clause, PStack_p res);
+void OverlapIndexInsertPos(OverlapIndex_p index, Clause_p clause, 
+                           CompactPos pos, Term_p iterm);
+void OverlapIndexDeletePos(OverlapIndex_p index, Clause_p clause, 
+                           CompactPos pos, Term_p iterm);
+
+void OverlapIndexDeleteClauseOcc(OverlapIndex_p index, 
+                                 Clause_p clause, Term_p term);
+
+long ClauseCollectIntoTerms(Clause_p clause, PTree_p *terms);
+long ClauseCollectIntoTermsPos(Clause_p clause, PStack_p terms);
+
+long ClauseCollectFromTerms(Clause_p clause, PTree_p *terms);
+long ClauseCollectFromTermsPos(Clause_p clause, PStack_p terms);
 
 
 void OverlapIndexInsertIntoClause(OverlapIndex_p index, Clause_p clause);

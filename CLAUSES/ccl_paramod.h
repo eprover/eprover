@@ -26,6 +26,7 @@ Changes
 #define CCL_PARAMOD
 
 #include <ccl_clausesets.h>
+#include "ccl_clausecpos.h"
 #include <cte_replace.h>
 
 /*---------------------------------------------------------------------*/
@@ -45,9 +46,31 @@ typedef enum
                                    smaller */
 }ParamodulationType;   
 
+typedef struct 
+{
+   TB_p        bank;
+   OCB_p       ocb;
+   VarBank_p   freshvars;
+   Clause_p    new_orig;
+   Clause_p    from;
+   CompactPos  from_cpos;
+   ClausePos_p from_pos;
+   Clause_p    into;
+   CompactPos  into_cpos;
+   ClausePos_p into_pos;
+}ParamodInfoCell, *ParamodInfo_p;
+
+
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
+
+
+void     ParamodInfoPrint(FILE* out, ParamodInfo_p info);
+
+Clause_p ClausePlainParamodConstruct(ParamodInfo_p ol_desc);
+Clause_p ClauseSimParamodConstruct(ParamodInfo_p ol_desc);
+Clause_p ClauseParamodConstruct(ParamodInfo_p ol_desc, bool sim_pm);
 
 
 Term_p ComputeOverlap(TB_p bank, OCB_p ocb, ClausePos_p from, Term_p

@@ -254,6 +254,27 @@ void ClauseTPosTreeDeleteClause(ClauseTPosTree_p *tree, Clause_p clause)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseTPosTreePrint()
+//
+//   Print a ClauseTposTree (mostly for debuging).
+//
+// Global Variables: -
+//
+// Side Effects    : Output, temp memory operations
+//
+/----------------------------------------------------------------------*/
+
+void ClauseTPosTreePrint(FILE* out, ClauseTPos_p tree)
+{
+   fprintf(out, "OLs: ");
+   ClausePrint(out, tree->clause, true);
+   fprintf(out, "\nocc: ");
+   NumTreeDebugPrint(out, tree->pos, true);
+   fprintf(out, "\n");
+}
+
 
 
 /*---------------------------------------------------------------------*/

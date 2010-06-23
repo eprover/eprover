@@ -598,9 +598,10 @@ ac_handling ={
 }
 
 ordering={
-    "LPO":"LPO",
+    "LPO" :"LPO",
     "LPO4":"LPO4",
-    "KBO":"KBO",
+    "KBO" :"KBO",
+    "KBO6":"KBO6",
     "KBO1":"KBO"
 }
 

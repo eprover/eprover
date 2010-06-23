@@ -21,7 +21,6 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "ccl_paramod.h"
-#include "ccl_clausecpos.h"
 
 
 /*---------------------------------------------------------------------*/
@@ -138,6 +137,227 @@ static Term_p clause_pos_find_first_neg_max_lside(ClausePos_p pos)
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------------------
+//
+// Function: ParamodInfoPrint()
+//
+//   Print a paramodulation descriptor (for debugging).
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void ParamodInfoPrint(FILE* out, ParamodInfo_p info)
+{
+   fprintf(out, "# From: %6ld |%6ld\n# ", info->from->ident, info->from_cpos);
+   ClausePrint(out, info->from, true);
+   fprintf(out, "\n#Into: %6ld |%6ld\n#", info->into->ident, info->into_cpos);
+   ClausePrint(out, info->into, true);
+   fprintf(out, "\n#Orig: %6ld\n#", info->new_orig->ident);   
+   ClausePrint(out, info->new_orig, true);
+   fprintf(out, "\n");
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClausePlainParamodConstruct()
+//
+//   Construct a clause via plain paramodulation according to
+//   the data in ol_desc. Return the clause, unless it's trivial
+//   tautological (then return NULL).
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+Clause_p ClausePlainParamodConstruct(ParamodInfo_p ol_desc)
+{
+   Clause_p  res=NULL;
+   Term_p    from_rhs, into_rhs, new_rhs, new_lhs;
+   Eqn_p     into_copy, from_copy, pm_lit;
+   Subst_p   subst = SubstAlloc();
+
+   
+   assert(TermStructEqualDeref(ClausePosGetSubterm(ol_desc->from_pos),
+                               ClausePosGetSubterm(ol_desc->into_pos),
+                               DEREF_ALWAYS,
+                               DEREF_ALWAYS));
+   assert(EqnIsPositive(ol_desc->from_pos->literal));
+   assert(PStackEmpty(ol_desc->from_pos->pos));
+
+
+   VarBankResetVCount(ol_desc->freshvars);
+   NormSubstEqnList(ol_desc->into->literals, 
+                    subst, ol_desc->freshvars);
+   NormSubstEqnList(ol_desc->from->literals, 
+                    subst, ol_desc->freshvars);
+   
+   from_rhs = ClausePosGetOtherSide(ol_desc->from_pos);
+   into_rhs = ClausePosGetOtherSide(ol_desc->into_pos);
+   new_lhs = TBTermPosReplace(ol_desc->bank, from_rhs, 
+                              ol_desc->into_pos->pos,
+                              DEREF_ALWAYS);
+
+   new_rhs = TBInsert(ol_desc->bank, 
+                      into_rhs,
+                      DEREF_ALWAYS);
+
+   if(!TBTermEqual(new_lhs, new_rhs))
+   {
+      into_copy = EqnListCopyOptExcept(ol_desc->into->literals,
+                                       ol_desc->into_pos->literal);
+      if(EqnListFindTrue(into_copy))
+      {
+         EqnListFree(into_copy);
+      }
+      else
+      {
+         from_copy = EqnListCopyOptExcept(ol_desc->from->literals,
+                                    ol_desc->from_pos->literal);
+         
+         if(EqnListFindTrue(from_copy))
+         {
+            EqnListFree(into_copy);
+            EqnListFree(from_copy);
+         }
+         else
+         {
+            into_copy = EqnListAppend(&into_copy, from_copy);
+            
+            pm_lit = EqnAlloc(new_lhs, new_rhs, ol_desc->bank, 
+                              EqnIsPositive(ol_desc->into_pos->literal));
+            pm_lit =  EqnListAppend(&pm_lit, into_copy);         
+            EqnListRemoveResolved(&pm_lit);
+            EqnListRemoveDuplicates(pm_lit, TBTermEqual);
+            res = ClauseAlloc(pm_lit);
+         }
+      }
+   }
+   SubstDelete(subst);
+      
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSimParamodConstruct()
+//
+//   Construct a clause via simultaneous paramodulation according to
+//   the data in ol_desc. Return the clause, unless it's trivial
+//   tautological (then return NULL).
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+Clause_p ClauseSimParamodConstruct(ParamodInfo_p ol_desc)
+{
+   Clause_p  res=NULL;
+   Term_p    rhs_instance, into_term;
+   Eqn_p     into_copy, from_copy;
+   Subst_p   subst = SubstAlloc();
+
+   assert(TermStructEqualDeref(ClausePosGetSubterm(ol_desc->from_pos),
+                               ClausePosGetSubterm(ol_desc->into_pos),
+                               DEREF_ALWAYS,
+                               DEREF_ALWAYS));
+
+   VarBankResetVCount(ol_desc->freshvars);
+   into_term = ClausePosGetSubterm(ol_desc->into_pos);
+
+   /* All the checks are assumed to have been done and succeeded, we
+      just build the clause.. */
+
+   NormSubstEqnListExcept(ol_desc->into->literals, NULL, 
+                          subst, ol_desc->freshvars);
+   NormSubstEqnListExcept(ol_desc->from->literals, NULL, 
+                          subst, ol_desc->freshvars);
+   rhs_instance = TBInsertNoProps(ol_desc->bank,
+                                  ClausePosGetOtherSide(ol_desc->from_pos),
+                                  DEREF_ALWAYS);
+   into_copy = EqnListCopyRepl(ol_desc->into->literals, 
+                               ol_desc->bank, into_term, rhs_instance);
+   if(EqnListFindTrue(into_copy))
+   {
+      EqnListFree(into_copy);
+   }
+   else
+   {
+      from_copy = EqnListCopyOptExcept(ol_desc->from->literals,
+                                       ol_desc->from_pos->literal);
+      if(EqnListFindTrue(from_copy))
+      {
+         EqnListFree(into_copy);
+         EqnListFree(from_copy);
+      }
+      else
+      {
+         EqnListDelProp(into_copy, EPFromClauseLit);         
+         EqnListSetProp(from_copy, EPFromClauseLit);         
+            
+         into_copy = EqnListAppend(&into_copy, from_copy);
+            
+         EqnListRemoveResolved(&into_copy);
+         EqnListRemoveDuplicates(into_copy, TBTermEqual);
+         res = ClauseAlloc(into_copy);
+      }
+   }      
+   SubstDelete(subst);
+   return res;
+}
+
+
+
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseParamodConstruct()
+//
+//   Construct the clause from the overlap described (and checked!) in
+//   ol_desc, either by paramodulation or simulataneous
+//   paramodulation. Return the clause.
+//
+//   This has the implicit precondition that all variables involved
+//   are already instantiated with the mgu of ol_desc->from|from_cpos
+//   and ol_desc->into|into_pos.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations.
+//
+/----------------------------------------------------------------------*/
+
+Clause_p ClauseParamodConstruct(ParamodInfo_p ol_desc, bool sim_pm)
+{
+   Clause_p res;
+   /* ParamodInfoPrint(stdout, ol_desc); */
+
+   assert(PackClausePos(ol_desc->from_pos) == ol_desc->from_cpos);
+   assert(PackClausePos(ol_desc->into_pos) == ol_desc->into_cpos);
+
+   if(sim_pm)
+   {
+      res = ClauseSimParamodConstruct(ol_desc);
+   }
+   else
+   {
+      res =  ClausePlainParamodConstruct(ol_desc);
+   }
+   return res;
+}
+
+
 
 /*-----------------------------------------------------------------------
 //
@@ -328,14 +548,14 @@ Clause_p ClauseOrderedParamod(TB_p bank, OCB_p ocb, ClausePos_p from,
 	  ||
 	  (EqnIsNegative(into->literal)/* &&
 	   EqnListEqnIsMaximal(ocb, 
-			       into->clause->literals,
-			       into->literal)*/))
+           into->clause->literals,
+           into->literal)*/))
 	 &&
 	 EqnListEqnIsStrictlyMaximal(ocb, 
 				     from->clause->literals,
 				     from->literal)
 	 /* &&
-	 check_paramod_ordering_constraint(ocb, from, into)*/) 
+            check_paramod_ordering_constraint(ocb, from, into)*/) 
       {
 	 NormSubstEqnListExcept(into->clause->literals, into->literal,
 				subst, freshvars);
@@ -471,7 +691,7 @@ Clause_p ClauseOrderedSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
       {
          from_copy = EqnListCopyOptExcept(from->clause->literals,
                                           from->literal);
-         if(EqnListFindTrue(into_copy))
+         if(EqnListFindTrue(from_copy))
          {
             EqnListFree(into_copy);
             EqnListFree(from_copy);

@@ -50,10 +50,10 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-static PTree_p splay_tree(PTree_p tree, void* key,
+static PObjTree_p splay_tree(PObjTree_p tree, void* key,
 			  ComparisonFunctionType cmpfun) 
 {
-   PTree_p   left, right, tmp;
+   PObjTree_p   left, right, tmp;
    PTreeCell newnode;
    int       cmpres;
 
@@ -147,7 +147,7 @@ static PTree_p splay_tree(PTree_p tree, void* key,
 //
 /----------------------------------------------------------------------*/
 
-PTree_p PTreeObjInsert(PTree_p *root, PTree_p newnode,
+PObjTree_p PTreeObjInsert(PObjTree_p *root, PObjTree_p newnode,
 		    ComparisonFunctionType cmpfun)
 {
    int cmpres;
@@ -198,10 +198,10 @@ PTree_p PTreeObjInsert(PTree_p *root, PTree_p newnode,
 //
 /----------------------------------------------------------------------*/
 
-void* PTreeObjStore(PTree_p *root, void* key,
+void* PTreeObjStore(PObjTree_p *root, void* key,
 		    ComparisonFunctionType cmpfun)
 {
-   PTree_p handle, newnode;
+   PObjTree_p handle, newnode;
 
    handle = PTreeCellAlloc();
    handle->key = key;
@@ -229,7 +229,7 @@ void* PTreeObjStore(PTree_p *root, void* key,
 //
 /----------------------------------------------------------------------*/
 
-PTree_p PTreeObjFind(PTree_p *root, void* key, ComparisonFunctionType
+PObjTree_p PTreeObjFind(PObjTree_p *root, void* key, ComparisonFunctionType
 		     cmpfun) 
 {
    if(*root)
@@ -242,6 +242,32 @@ PTree_p PTreeObjFind(PTree_p *root, void* key, ComparisonFunctionType
    }
    return NULL;
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: PTreeObjFindObj()
+//
+//   Find and return object matching key (if any), return NULL if
+//   none. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void* PTreeObjFindObj(PObjTree_p *root, void* key,
+                      ComparisonFunctionType cmpfun)
+{
+   PObjTree_p node = PTreeObjFind(root, key, cmpfun);
+   
+   if(node)
+   {
+      return node->key;
+   }
+   return NULL;
+}
+
 
 
 /*-----------------------------------------------------------------------
@@ -257,7 +283,7 @@ PTree_p PTreeObjFind(PTree_p *root, void* key, ComparisonFunctionType
 //
 /----------------------------------------------------------------------*/
 
-PTree_p PTreeObjFindBinary(PTree_p root, void* key, ComparisonFunctionType
+PObjTree_p PTreeObjFindBinary(PObjTree_p root, void* key, ComparisonFunctionType
 			   cmpfun) 
 {
    int cmpres;
@@ -298,10 +324,10 @@ PTree_p PTreeObjFindBinary(PTree_p root, void* key, ComparisonFunctionType
 //
 /----------------------------------------------------------------------*/
 
-PTree_p PTreeObjExtractEntry(PTree_p *root, void* key,
+PObjTree_p PTreeObjExtractEntry(PObjTree_p *root, void* key,
 			     ComparisonFunctionType cmpfun)
 {
-   PTree_p x, cell;
+   PObjTree_p x, cell;
 
    if (!(*root))
    {
@@ -341,10 +367,10 @@ PTree_p PTreeObjExtractEntry(PTree_p *root, void* key,
 //
 /----------------------------------------------------------------------*/
 
-void* PTreeObjExtractObject(PTree_p *root, void* key,
+void* PTreeObjExtractObject(PObjTree_p *root, void* key,
 			    ComparisonFunctionType cmpfun)
 {
-   PTree_p handle;
+   PObjTree_p handle;
    void*   res = NULL;
    
    handle = PTreeObjExtractEntry(root, key, cmpfun);
@@ -369,7 +395,7 @@ void* PTreeObjExtractObject(PTree_p *root, void* key,
 //
 /----------------------------------------------------------------------*/
 
-void* PTreeObjExtractRootObject(PTree_p *root, ComparisonFunctionType
+void* PTreeObjExtractRootObject(PObjTree_p *root, ComparisonFunctionType
 				cmpfun)
 {
    if(*root)
@@ -393,11 +419,11 @@ void* PTreeObjExtractRootObject(PTree_p *root, ComparisonFunctionType
 //
 /----------------------------------------------------------------------*/
 
-void PTreeObjMerge(PTree_p *root, PTree_p add, ComparisonFunctionType
+void PTreeObjMerge(PObjTree_p *root, PObjTree_p add, ComparisonFunctionType
 		cmpfun)
 {
    PStack_p stack = PStackAlloc();
-   PTree_p  res;
+   PObjTree_p  res;
 
    PStackPushP(stack, add);
 
@@ -429,7 +455,7 @@ void PTreeObjMerge(PTree_p *root, PTree_p add, ComparisonFunctionType
 //
 /----------------------------------------------------------------------*/
 
-void PObjTreeFree(PTree_p root, ObjDelFun del_fun)
+void PObjTreeFree(PObjTree_p root, ObjDelFun del_fun)
 {
    if(root)
    {

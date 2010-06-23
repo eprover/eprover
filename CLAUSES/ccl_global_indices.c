@@ -59,7 +59,9 @@ Changes
 
 void GlobalIndicesNull(GlobalIndices_p indices)
 {
-   indices->bw_rw_index = NULL;
+   indices->bw_rw_index   = NULL;
+   indices->pm_into_index = NULL;
+   indices->pm_from_index = NULL;
 }
 
 
@@ -77,20 +79,16 @@ void GlobalIndicesNull(GlobalIndices_p indices)
 
 void GlobalIndicesInit(GlobalIndices_p indices, 
                        bool use_bw_rw_index,
-                       bool use_pm_into_index,
-                       bool use_pm_from_index)
+                       bool use_pm_index)
 {
    if(use_bw_rw_index)
    {
-      indices->bw_rw_index = FPIndexAlloc(IndexFP7Create, SubtermTreeFreeWrapper);
+      indices->bw_rw_index = FPIndexAlloc(IndexFP7Create, SubtermBWTreeFreeWrapper);
    }
-   if(use_pm_into_index)
+   if(use_pm_index)
    {
-      /* Alloc PM index */
-   }
-   if(use_pm_from_index)
-   {
-      /* Alloc PM index */
+      indices->pm_into_index = FPIndexAlloc(IndexFP7Create, SubtermOLTreeFreeWrapper);
+      indices->pm_from_index = FPIndexAlloc(IndexFP7Create, SubtermOLTreeFreeWrapper);
    }
 }
 
@@ -114,6 +112,16 @@ void GlobalIndicesFreeIndices(GlobalIndices_p indices)
       FPIndexFree(indices->bw_rw_index);          
       indices->bw_rw_index = NULL;
    }
+   if(indices->pm_into_index)
+   {
+      FPIndexFree(indices->pm_into_index);          
+      indices->pm_into_index = NULL;
+   }
+   if(indices->pm_from_index)
+   {
+      FPIndexFree(indices->pm_from_index);          
+      indices->pm_from_index = NULL;
+   }  
 }
 
 
@@ -133,15 +141,14 @@ void GlobalIndicesReset(GlobalIndices_p indices)
 {
    bool 
       use_bw_rw_index = false, 
-      use_pm_into_index = false, 
-      use_pm_from_index = false;
+      use_pm_index = false;
 
-   use_bw_rw_index = indices->bw_rw_index!=NULL;
+   use_bw_rw_index   = indices->bw_rw_index!=NULL;
+   use_pm_index      = indices->pm_into_index!=NULL;
 
    GlobalIndicesInit(indices, 
                      use_bw_rw_index,
-                     use_pm_into_index,
-                     use_pm_from_index);
+                     use_pm_index);
 }
 
 
@@ -166,6 +173,14 @@ void GlobalIndicesInsertClause(GlobalIndices_p indices, Clause_p clause)
    if(indices->bw_rw_index)
    {
       SubtermIndexInsertClause(indices->bw_rw_index, clause);
+   }
+   if(indices->pm_into_index)
+   {
+      OverlapIndexInsertIntoClause(indices->pm_into_index, clause);
+   }
+   if(indices->pm_from_index)
+   {
+      OverlapIndexInsertFromClause(indices->pm_from_index, clause);
    }
 }
 
@@ -192,6 +207,14 @@ void GlobalIndicesDeleteClause(GlobalIndices_p indices, Clause_p clause)
    if(indices->bw_rw_index)
    {
       SubtermIndexDeleteClause(indices->bw_rw_index, clause);
+   }
+   if(indices->pm_into_index)
+   {
+      OverlapIndexDeleteIntoClause(indices->pm_into_index, clause);
+   }
+   if(indices->pm_from_index)
+   {
+      OverlapIndexDeleteFromClause(indices->pm_from_index, clause);
    }
 }
 

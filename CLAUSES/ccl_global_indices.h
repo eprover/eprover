@@ -25,7 +25,7 @@ Changes
 #define CCL_GLOBAL_INDICES
 
 #include <ccl_subterm_index.h>
-#include <ccl_subterm_index.h>
+#include <ccl_overlap_index.h>
 #include <ccl_clausesets.h>
 
 
@@ -37,6 +37,8 @@ Changes
 typedef struct global_indices_cell
 {
    SubtermIndex_p    bw_rw_index;   
+   OverlapIndex_p    pm_into_index;
+   OverlapIndex_p    pm_from_index;
 }GlobalIndices, *GlobalIndices_p;
 
 
@@ -48,8 +50,7 @@ typedef struct global_indices_cell
 void GlobalIndicesNull(GlobalIndices_p indices);
 void GlobalIndicesInit(GlobalIndices_p indices, 
                        bool use_bw_rw_index,
-                       bool use_pm_into_index,
-                       bool use_pm_from_index);
+                       bool use_pm_index);
 void GlobalIndicesFreeIndices(GlobalIndices_p indices);
 void GlobalIndicesReset(GlobalIndices_p indices);
 

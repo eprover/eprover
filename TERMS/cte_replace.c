@@ -218,6 +218,10 @@ Term_p TBTermPosReplace(TB_p bank, Term_p repl, TermPos_p pos,
    
    i = PStackGetSP(pos);
    
+   
+   /* Note that we start inside-out here - the first term handled is
+      the actual subterm replaced, at the end repl is the complete
+      term generated.*/
    while(i)
    {
       i--;

@@ -139,6 +139,7 @@ typedef enum
    OPT_FVINDEX_MAXFEATURES,
    OPT_FVINDEX_SLACK,
    OPT_BW_RW_INDEX,
+   OPT_PM_INDEX,
    OPT_DETSORT_RW,
    OPT_DETSORT_NEW,
    OPT_UNPROC_UNIT_SIMPL,
@@ -968,6 +969,11 @@ OptCell opts[] =
     '\0', "no-bw-rw-index",
     NoArg, NULL,
     "Don't use fingerprint indexing for backward rewriting."},
+
+   {OPT_PM_INDEX,
+    '\0', "pm-index",
+    NoArg, NULL,
+    "Use fingerprint indexing for paramodulation."},
 
    {OPT_DETSORT_RW,
     '\0', "detsort-rw",
@@ -1962,6 +1968,9 @@ CLState_p process_options(int argc, char* argv[])
 	    break;
       case OPT_BW_RW_INDEX:
             h_parms->use_bw_rw_index = false;
+            break;
+      case OPT_PM_INDEX:
+            h_parms->use_pm_index = true;
             break;
       case OPT_DETSORT_RW:
             h_parms->detsort_bw_rw = true;

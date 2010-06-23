@@ -446,35 +446,50 @@ static void generate_new_clauses(ProofState_p state, ProofControl_p
       ||!ClauseIsUnit(clause)
       ||!ClauseIsNegative(clause))
    { /* Sometime we want to disable paramodulation for negative units */
-      
-      state->paramod_count+=
-         ComputeAllParamodulants(state->terms, control->ocb,
-                                 tmp_copy, clause,
-                                 state->processed_pos_rules,
-                                 state->tmp_store, state->freshvars, 
-                                 control->heuristic_parms.pm_type);
-      state->paramod_count+=
-         ComputeAllParamodulants(state->terms, control->ocb,
-                                 tmp_copy, clause,
-                                 state->processed_pos_eqns,
-                                 state->tmp_store, state->freshvars, 
-                                 control->heuristic_parms.pm_type); 
-         
-      if(control->heuristic_parms.enable_neg_unit_paramod && !ClauseIsNegative(clause))
-      { /* We never need to try to overlap purely negative clauses! */
+      if(state->gindices.pm_into_index)
+      {
+         state->paramod_count+=
+            ComputeAllParamodulantsIndexed(state->terms, 
+                                           control->ocb,
+                                           state->freshvars, 
+                                           tmp_copy,
+                                           clause,
+                                           state->gindices.pm_into_index,
+                                           state->gindices.pm_from_index,
+                                           state->tmp_store, 
+                                           control->heuristic_parms.pm_type);
+      }
+      else
+      {
          state->paramod_count+=
             ComputeAllParamodulants(state->terms, control->ocb,
                                     tmp_copy, clause,
-                                    state->processed_neg_units,
+                                    state->processed_pos_rules,
                                     state->tmp_store, state->freshvars, 
-                                    control->heuristic_parms.pm_type);      
+                                    control->heuristic_parms.pm_type);
+         state->paramod_count+=
+            ComputeAllParamodulants(state->terms, control->ocb,
+                                    tmp_copy, clause,
+                                    state->processed_pos_eqns,
+                                    state->tmp_store, state->freshvars, 
+                                    control->heuristic_parms.pm_type); 
+         
+         if(control->heuristic_parms.enable_neg_unit_paramod && !ClauseIsNegative(clause))
+         { /* We never need to try to overlap purely negative clauses! */
+            state->paramod_count+=
+               ComputeAllParamodulants(state->terms, control->ocb,
+                                       tmp_copy, clause,
+                                       state->processed_neg_units,
+                                       state->tmp_store, state->freshvars, 
+                                       control->heuristic_parms.pm_type);      
+         }
+         state->paramod_count+=
+            ComputeAllParamodulants(state->terms, control->ocb,
+                                    tmp_copy, clause,
+                                    state->processed_non_units, 
+                                    state->tmp_store, state->freshvars,
+                                    control->heuristic_parms.pm_type);
       }
-      state->paramod_count+=
-         ComputeAllParamodulants(state->terms, control->ocb,
-                                 tmp_copy, clause,
-                                 state->processed_non_units, 
-                                 state->tmp_store, state->freshvars,
-                                 control->heuristic_parms.pm_type);
    }
 }
 
@@ -689,7 +704,7 @@ void ProofControlInit(ProofState_p state,ProofControl_p control,
    assert(params);
    assert(!control->ocb);
    assert(!control->hcb);
-   
+
    SpecFeaturesCompute(&(control->problem_specs),
 		       state->axioms,state->signature);
 
@@ -726,6 +741,7 @@ void ProofControlInit(ProofState_p state,ProofControl_p control,
       DestroyScanner(in);
    }
    control->heuristic_parms     = *params;
+
    control->fvi_parms           = *fvi_params;
    control->hcb = GetHeuristic(params->heuristic_name,
 			       state,
@@ -881,12 +897,10 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
 
    GlobalIndicesInit(&(state->gindices),
                      control->heuristic_parms.use_bw_rw_index,
-                     control->heuristic_parms.use_pm_into_index,
-                     control->heuristic_parms.use_pm_from_index);
+                     control->heuristic_parms.use_pm_index);
    GlobalIndicesInit(&(state->wlindices),
                      control->heuristic_parms.use_bw_rw_index,
-                     control->heuristic_parms.use_pm_into_index,
-                     control->heuristic_parms.use_pm_from_index);
+                     control->heuristic_parms.use_pm_index);
 
    if(!state->fvi_initialized)
    {

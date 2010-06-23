@@ -55,6 +55,24 @@ static void subterm_occ_free_wrapper(void *junk)
    SubtermOccFree(junk);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: subterm_pos_free_wrapper()
+//
+//   Wrapper of type ObjFreeFun.
+//
+// Global Variables: -
+//
+// Side Effects    : Via SubtermOccFree()
+//
+/----------------------------------------------------------------------*/
+
+static void subterm_pos_free_wrapper(void *junk)
+{
+   SubtermPosFree(junk);
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
@@ -77,8 +95,8 @@ SubtermOcc_p SubtermOccAlloc(Term_p term)
 
    handle->term    = term;
    handle->pl.occs.rw_rest = NULL;
-   handle->pl.occs.rw_full = NULL;
-
+   handle->pl.occs.rw_full = NULL;  
+   handle->pl.pos.clauses  = NULL;
    return handle;
 }
 
@@ -101,6 +119,27 @@ void SubtermOccFree(SubtermOcc_p soc)
    PTreeFree(soc->pl.occs.rw_full);
    SubtermOccCellFree(soc);
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SubtermPosFree()
+//
+//   Free a Subtemerm-Occurance-Cell with clause positions.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+void SubtermPosFree(SubtermOcc_p soc)
+{
+   ClauseTPosTreeFree(soc->pl.pos.clauses);
+   SubtermOccCellFree(soc);
+}
+
+
 
 
 /*-----------------------------------------------------------------------
@@ -136,7 +175,7 @@ int CmpSubtermCells(const void *soc1, const void *soc2)
 
 /*-----------------------------------------------------------------------
 //
-// Function: SubtermTreeFree()
+// Function: SubtermBWTreeFree()
 //
 //   Free a subterm tree.
 //
@@ -146,7 +185,7 @@ int CmpSubtermCells(const void *soc1, const void *soc2)
 //
 /----------------------------------------------------------------------*/
 
-void SubtermTreeFree(SubtermTree_p root)
+void SubtermBWTreeFree(SubtermTree_p root)
 {
    PObjTreeFree(root, subterm_occ_free_wrapper);
 }
@@ -154,7 +193,7 @@ void SubtermTreeFree(SubtermTree_p root)
 
 /*-----------------------------------------------------------------------
 //
-// Function: SubtermTreeFreeWrapper()
+// Function: SubtermBWTreeFreeWrapper()
 //
 //   Free a subterm tree, with proper signature for FPIndexFree().
 //
@@ -164,10 +203,47 @@ void SubtermTreeFree(SubtermTree_p root)
 //
 /----------------------------------------------------------------------*/
 
-void SubtermTreeFreeWrapper(void *junk)
+void SubtermBWTreeFreeWrapper(void *junk)
 {
-   SubtermTreeFree(junk);
+   SubtermBWTreeFree(junk);
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SubtermOLTreeFree()
+//
+//   Free a subterm tree.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+void SubtermOLTreeFree(SubtermTree_p root)
+{
+   PObjTreeFree(root, subterm_pos_free_wrapper);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SubtermOLTreeFreeWrapper()
+//
+//   Free a subterm tree, with proper signature for FPIndexFree().
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+void SubtermOLTreeFreeWrapper(void *junk)
+{
+   SubtermOLTreeFree(junk);
+}
+
 
 
 /*-----------------------------------------------------------------------
@@ -199,27 +275,25 @@ SubtermOcc_p SubtermTreeInsertTerm(SubtermTree_p *root, Term_p term)
 
 /*-----------------------------------------------------------------------
 //
-// Function: SubtermTreeInsertTermOcc() 
+// Function: SubtermTreeFind()
 //
-//   Insert a term occurance into the Subterm tree. Return false if an
-//   entry already exists, true otherwise. 
+//   Find and return tree node with key term. Return it or NULL if no
+//   such node exists.
 //
 // Global Variables: -
 //
-// Side Effects    : Memory operations
+// Side Effects    : Rearranges tres
 //
 /----------------------------------------------------------------------*/
 
-bool SubtermTreeInsertTermOcc(SubtermTree_p *root, Term_p term, 
-                              Clause_p clause, bool restricted)   
+SubtermOcc_p SubtermTreeFindTerm(SubtermTree_p *root, Term_p term)
 {
-   SubtermOcc_p handle = SubtermTreeInsertTerm(root, term);
-
-   if(restricted)
-   {
-      return PTreeStore(&(handle->pl.occs.rw_rest), clause);
-   }
-   return PTreeStore(&(handle->pl.occs.rw_full), clause);
+   SubtermOcc_p found, key = SubtermOccAlloc(term);
+   
+   found = PTreeObjFindObj(root, key, 
+                           CmpSubtermCells);
+   SubtermOccFree(key);
+   return found;
 }
 
 
@@ -242,6 +316,33 @@ void SubtermTreeDeleteTerm(SubtermTree_p *root, Term_p term)
    old = PTreeObjExtractObject(root, knode, CmpSubtermCells);
    SubtermOccFree(old);
    SubtermOccFree(knode);
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SubtermTreeInsertTermOcc() 
+//
+//   Insert a term occurance into the Subterm tree. Return false if an
+//   entry already exists, true otherwise. 
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+bool SubtermTreeInsertTermOcc(SubtermTree_p *root, Term_p term, 
+                              Clause_p clause, bool restricted)   
+{
+   SubtermOcc_p handle = SubtermTreeInsertTerm(root, term);
+
+   if(restricted)
+   {
+      return PTreeStore(&(handle->pl.occs.rw_rest), clause);
+   }
+   return PTreeStore(&(handle->pl.occs.rw_full), clause);
 }
 
 
@@ -287,6 +388,33 @@ bool SubtermTreeDeleteTermOcc(SubtermTree_p *root, Term_p term,
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: SubtermTreePrint()
+//
+//   Print a suberm tree (only for debugging)
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void SubtermTreePrint(FILE* out, SubtermTree_p root, Sig_p sig)
+{
+   SubtermOcc_p data;
+
+   if(root)
+   {
+      SubtermTreePrint(out, root->lson, sig);
+      data = root->key;
+      fprintf(out, "Node: %p data=%p\n", root, data);
+      fprintf(out, "Key: %ld = ", data->term->entry_no);
+      TermPrint(out, data->term, sig, DEREF_ALWAYS);
+      fprintf(out, "\nlson=%p, rson=%p\n\n", root->lson, root->rson);
+      SubtermTreePrint(out, root->rson, sig);
+   }
+}
 
 
 

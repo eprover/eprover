@@ -26,6 +26,7 @@ Changes
 #define CCL_SUBTERM_TREE
 
 #include <ccl_clauses.h>
+#include <ccl_clausepos_tree.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -75,20 +76,25 @@ typedef PObjTree_p SubtermTree_p;
 
 SubtermOcc_p SubtermOccAlloc(Term_p term);
 void         SubtermOccFree(SubtermOcc_p soc);
+void         SubtermPosFree(SubtermOcc_p soc);
 
 int CmpSubtermCells(const void *soc1, const void *soc2);
 
-void         SubtermTreeFree(SubtermTree_p root);
-void         SubtermTreeFreeWrapper(void *junk);
+void         SubtermBWTreeFree(SubtermTree_p root);
+void         SubtermBWTreeFreeWrapper(void *junk);
+void         SubtermOLTreeFree(SubtermTree_p root);
+void         SubtermOLTreeFreeWrapper(void *junk);
 
 SubtermOcc_p SubtermTreeInsertTerm(SubtermTree_p *root, Term_p term);
+SubtermOcc_p SubtermTreeFindTerm(SubtermTree_p *root, Term_p term);
+void         SubtermTreeDeleteTerm(SubtermTree_p *root, Term_p term);
 
 bool         SubtermTreeInsertTermOcc(SubtermTree_p *root, Term_p term, 
                                       Clause_p clause, bool restricted);  
-void         SubtermTreeDeleteTerm(SubtermTree_p *root, Term_p term);
 bool         SubtermTreeDeleteTermOcc(SubtermTree_p *root, Term_p term, 
                                       Clause_p clause, bool restricted);
 
+void SubtermTreePrint(FILE* out, SubtermTree_p root, Sig_p sig);
 
 #endif
 

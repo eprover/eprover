@@ -53,6 +53,28 @@ long ComputeAllParamodulants(TB_p bank, OCB_p ocb, Clause_p clause,
 			     freshvars, ParamodulationType pm_type);
 
 
+
+long ComputeIntoParamodulants(ParamodInfo_p pminfo,
+                              ParamodulationType type,
+                              Clause_p clause,
+                              OverlapIndex_p into_index, 
+                              ClauseSet_p store);
+
+long ComputeFromParamodulants(ParamodInfo_p pminfo,
+                              ParamodulationType type,
+                              Clause_p clause,
+                              OverlapIndex_p from_index, 
+                              ClauseSet_p store);     
+
+long ComputeAllParamodulantsIndexed(TB_p bank, OCB_p ocb, 
+                                    VarBank_p freshvars,
+                                    Clause_p clause,
+                                    Clause_p parent_alias, 
+                                    OverlapIndex_p into_index,
+                                    OverlapIndex_p from_index, 
+                                    ClauseSet_p store, 
+                                    ParamodulationType pm_type);
+
 #endif
 
 /*---------------------------------------------------------------------*/

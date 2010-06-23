@@ -114,8 +114,7 @@ typedef struct heuristic_parms_cell
 
    /* Global indexing */
    bool                use_bw_rw_index;
-   bool                use_pm_into_index;
-   bool                use_pm_from_index;
+   bool                use_pm_index;
    
    /* Various things */
    long                filter_limit;

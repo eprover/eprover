@@ -21,9 +21,9 @@ Changes
 
 -----------------------------------------------------------------------*/
 
-#ifndef CLAUSECPOS
+#ifndef CCL_CLAUSECPOS
 
-#define CLAUSECPOS
+#define CCL_CLAUSECPOS
 
 #include <ccl_clausepos.h>
 

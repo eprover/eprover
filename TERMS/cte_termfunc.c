@@ -197,7 +197,6 @@ void VarPrint(FILE* out, FunCode var)
    {
       id = 'Y';
    }
-
    fprintf(out, "%c%ld", id, -((var-1)/2));
 }
 

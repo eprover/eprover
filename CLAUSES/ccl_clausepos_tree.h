@@ -65,6 +65,7 @@ void ClauseTPosTreeDeletePos(ClauseTPosTree_p *tree , Clause_p clause,
                              CompactPos pos); 
 void ClauseTPosTreeDeleteClause(ClauseTPosTree_p *tree, Clause_p clause); 
 
+void ClauseTPosTreePrint(FILE* out, ClauseTPos_p tree);
 
 
 #endif
