@@ -263,7 +263,7 @@ def write_will_block(fdobj):
     try:
         ready = select.select([], [fdobj], [])
     except ValueError:
-        return false
+        return False
     return not fdobj in ready[1]
 
 

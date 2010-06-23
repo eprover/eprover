@@ -75,7 +75,11 @@ class connection(object):
 
     def send(self):
         if self.sendable() and not pylib_io.write_will_block(self):
-            res = self.sock.send(self.outbuffer)
+            res = 0
+            try:
+                res = self.sock.send(self.outbuffer)
+            except socket.error:
+                pass
             if res > 0:
                 self.outbuffer = self.outbuffer[res:]
             return res
