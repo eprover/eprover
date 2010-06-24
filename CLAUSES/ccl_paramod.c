@@ -204,11 +204,12 @@ Clause_p ClausePlainParamodConstruct(ParamodInfo_p ol_desc)
                               ol_desc->into_pos->pos,
                               DEREF_ALWAYS);
 
-   new_rhs = TBInsert(ol_desc->bank, 
-                      into_rhs,
-                      DEREF_ALWAYS);
+   new_rhs = TBInsertOpt(ol_desc->bank, 
+                         into_rhs,
+                         DEREF_ALWAYS);
 
-   if(!TBTermEqual(new_lhs, new_rhs))
+   if(!EqnIsPositive(ol_desc->into_pos->literal)||
+      !TBTermEqual(new_lhs, new_rhs))
    {
       into_copy = EqnListCopyOptExcept(ol_desc->into->literals,
                                        ol_desc->into_pos->literal);
@@ -352,7 +353,7 @@ Clause_p ClauseParamodConstruct(ParamodInfo_p ol_desc, bool sim_pm)
    }
    else
    {
-      res =  ClausePlainParamodConstruct(ol_desc);
+      res = ClausePlainParamodConstruct(ol_desc);
    }
    return res;
 }

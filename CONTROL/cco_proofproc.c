@@ -1060,7 +1060,6 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
    clause = pclause->clause;
 
    ClauseNormalizeVars(clause, state->freshvars);
-   //tmp_copy = ClauseCopy(clause, state->tmp_terms);      
    tmp_copy = ClauseCopyDisjoint(clause);      
    tmp_copy->ident = clause->ident;
 
