@@ -221,12 +221,16 @@ static long compute_into_pm_pos_clause(ParamodInfo_p pminfo,
          &&
          ((EqnIsPositive(pminfo->into_pos->literal)&&
            EqnListEqnIsStrictlyMaximal(pminfo->ocb, 
-                                       pminfo->into_pos->clause->literals,
+                                       pminfo->into->literals,
                                        pminfo->into_pos->literal))
 	  ||
           (EqnIsNegative(pminfo->into_pos->literal)
-           /* && Non-strict maximality test should go here...*/)))
+           && 
+           EqnListEqnIsMaximal(pminfo->ocb, 
+                               pminfo->into->literals,
+                               pminfo->into_pos->literal))))
       {
+         /* printf("# compute_into_pm_pos_clause\n");  */
          clause = ClauseParamodConstruct(pminfo, sim_pm);
          if(clause)
          {
@@ -440,10 +444,10 @@ static long compute_from_pm_pos_clause(ParamodInfo_p pminfo,
           ||!TOGreater(pminfo->ocb, rside, lside, DEREF_ALWAYS, DEREF_ALWAYS))
          &&
          (EqnListEqnIsStrictlyMaximal(pminfo->ocb, 
-                                      pminfo->from_pos->clause->literals,
+                                      pminfo->from->literals,
                                       pminfo->from_pos->literal)))
       {
-         /* printf("# compute_from_pm_pos_clause\n"); */
+         /* printf("# compute_from_pm_pos_clause\n");  */
          clause = ClauseParamodConstruct(pminfo, sim_pm);
          if(clause)
          {

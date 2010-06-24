@@ -620,7 +620,7 @@ Clause_p ClauseOrderedSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
    assert(!TermIsVar(ClausePosGetSide(from))||
 	  EqnIsEquLit(into->literal)||!TermPosIsTopPos(into->pos));
    
-   into_term = ClausePosGetSubterm(into);
+      into_term = ClausePosGetSubterm(into);
 
    if(!TermCellQueryProp(into_term, TPPotentialParamod))
    {

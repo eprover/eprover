@@ -742,7 +742,7 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
    /* if(EqnIsMaximal(eq))
    {
       fprintf(out, "{");
-      }  */
+      } */
    /* if(EqnIsSelected(eq))
    {
       fprintf(out, "+");

@@ -371,7 +371,7 @@ long ClauseCollectFromTerms(Clause_p clause, PTree_p *terms)
    
    for(handle = clause->literals; handle; handle = handle->next)
    {
-      if(EqnIsMaximal(handle) && EqnIsPositive(handle))
+      if(EqnIsMaximal(handle) && EqnIsPositive(handle) && !EqnIsSelected(handle))
       {
          res++;
          PTreeStore(terms, handle->lterm);
@@ -407,7 +407,7 @@ long ClauseCollectFromTermsPos(Clause_p clause, PStack_p terms)
   
    for(handle = clause->literals; handle; handle = handle->next)
    {
-      if(EqnIsMaximal(handle) && EqnIsPositive(handle))
+      if(EqnIsMaximal(handle) && EqnIsPositive(handle) && !EqnIsSelected(handle))
       {
          res++;
          PStackPushP(terms, handle->lterm);
