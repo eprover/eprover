@@ -463,9 +463,9 @@ static long compute_from_pm_pos_clause(ParamodInfo_p pminfo,
       }
       ClausePosFree(pminfo->from_pos);
       /* Unfortunately, this optimization is wrong here - we iterate
-         over positions in the from-clause! */
+         over positions in the from-clause! 
          if(clause && sim_pm)
-      {
+         {
          break;
          }*/
    }
