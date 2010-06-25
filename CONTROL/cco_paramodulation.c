@@ -202,6 +202,7 @@ static long compute_into_pm_pos_clause(ParamodInfo_p pminfo,
    {
       clause = NULL;
       pminfo->into_cpos = cell->key;
+#ifdef NEVER_DEFINED
       if((pminfo->new_orig == pminfo->into)
          &&(pminfo->into_cpos == pminfo->from_cpos))
       {
@@ -211,7 +212,8 @@ static long compute_into_pm_pos_clause(ParamodInfo_p pminfo,
             the _from_ case, we can discard the c/c case completely
             (or can we?) */
          break;
-      }
+      } - this is wrong for the case of unbound variables! */
+#endif
       pminfo->into_pos  = UnpackClausePos(cell->key, pminfo->into);
       lside = ClausePosGetSide(pminfo->into_pos);
       rside = ClausePosGetOtherSide(pminfo->into_pos);
@@ -428,8 +430,7 @@ static long compute_from_pm_pos_clause(ParamodInfo_p pminfo,
    {
       clause = NULL;
       pminfo->from_cpos = cell->key;
-      if((pminfo->new_orig == pminfo->from)/*||
-                                             ClausePosIsTop(pminfo->into_pos)*/)
+      if((pminfo->new_orig == pminfo->from))
       {
          /* Optimization for the case that from and into are the same
           * - these are already handled in the "into" case */
@@ -456,15 +457,17 @@ static long compute_from_pm_pos_clause(ParamodInfo_p pminfo,
             update_clause_info(clause, pminfo->from, pminfo->new_orig);
             DocClauseCreationDefault(clause, 
                                      sim_pm?inf_sim_paramod:inf_paramod, 
-                                     pminfo->from, 
-                                     pminfo->new_orig);
+                                     pminfo->new_orig,
+                                     pminfo->from);
          }
       }
       ClausePosFree(pminfo->from_pos);
-      if(clause && sim_pm)
+      /* Unfortunately, this optimization is wrong here - we iterate
+         over positions in the from-clause! */
+         if(clause && sim_pm)
       {
          break;
-      }
+         }*/
    }
    NumTreeTraverseExit(iterstack);
    
