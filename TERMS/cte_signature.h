@@ -48,13 +48,14 @@ typedef enum
    FPIsAC         =   FPAssociative|FPCommutative,
    FPInterpreted  =   64, /* Interpreted symbol $ident */
    FPIsInteger    =  128, /* Sequence of digits, may be semi-interpreted */
-   FPIsFloat      =  256, /* Floating point number */
-   FPIsObject     =  512, /* ""-enclosed string, by definition denotes
+   FPIsRational   =  256, /* [-]a/b */
+   FPIsFloat      =  512, /* Floating point number */
+   FPIsObject     =  1024, /* ""-enclosed string, by definition denotes
                             unique object." */
-   FPDistinctProp =  FPIsObject | FPIsInteger | FPIsFloat,
-   FPOpFlag       = 1024, /* Used for temporary oerations, by
+   FPDistinctProp =  FPIsObject | FPIsInteger | FPIsRational | FPIsFloat,
+   FPOpFlag       = 2048, /* Used for temporary oerations, by
                            * defintion off if not in use! */
-   FPClSplitDef   = 2048  /* Predicate is a clause split defined symbol. */
+   FPClSplitDef   = 4096  /* Predicate is a clause split defined symbol. */
 }FunctionProperties;
 
 

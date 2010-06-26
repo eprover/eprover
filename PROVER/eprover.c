@@ -1999,10 +1999,10 @@ CLState_p process_options(int argc, char* argv[])
 	    PStackPushP(hcb_definitions, arg);
 	    break;
       case OPT_FREE_NUMBERS:
-            free_symb_prop = free_symb_prop | FPIsInteger|FPIsFloat;
+            free_symb_prop = free_symb_prop|FPIsInteger|FPIsRational|FPIsFloat;
             break;
       case OPT_FREE_OBJECTS:
-            free_symb_prop = free_symb_prop | FPIsObject;
+            free_symb_prop = free_symb_prop|FPIsObject;
             break;
       case OPT_DEF_CNF:
             FormulaDefLimit     = CLStateGetIntArg(handle, arg);

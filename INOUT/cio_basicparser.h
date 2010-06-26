@@ -37,6 +37,7 @@ typedef enum
 {
    SNNoNumber,
    SNInteger,
+   SNRational,
    SNFloat
 }StrNumType;
 

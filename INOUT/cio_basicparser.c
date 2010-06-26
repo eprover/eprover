@@ -163,9 +163,10 @@ double ParseFloat(Scanner_p in)
 //
 // Function: ParseNumString()
 //
-//   Parse a (possibly signed) number and return the most specific
-//   type compatible with it. The number is not evaluated, but
-//   it's ASCII representation is stored in in->accu.
+//   Parse a (possibly signed) number (Integer, Rational, or Float)
+//   and return the most specific type compatible with it. The number
+//   is not evaluated, but it's ASCII representation is stored in
+//   in->accu.
 //
 // Global Variables: -
 //
@@ -194,33 +195,51 @@ StrNumType ParseNumString(Scanner_p in)
    DStrAppendDStr(accumulator, AktToken(in)->literal);
    NextToken(in);
 
-   if(TestInpTokNoSkip(in, DECIMAL_DOT) && 
-      TestTok(LookToken(in,1), PosInt) &&
-      !(LookToken(in,1)->skipped))
+   if(TestInpTokNoSkip(in, Slash))
    {
-      DStrAppendChar(accumulator, '.');
-      AcceptInpTokNoSkip(in, DECIMAL_DOT);
+      DStrAppendChar(accumulator, '/');
+      NextToken(in);
+
+      if(TestInpTok(in, Hyphen|Plus))
+      {
+         DStrAppendDStr(accumulator, AktToken(in)->literal);
+         NextToken(in);
+      }
       DStrAppendDStr(accumulator,  AktToken(in)->literal);
       AcceptInpTokNoSkip(in, PosInt);
-      res = SNFloat;
+
+      res = SNRational;
    }
-   if(TestInpNoSkip(in))
+   else
    {
-      if(TestInpId(in, "e|E"))
+      if(TestInpTokNoSkip(in, DECIMAL_DOT) && 
+         TestTok(LookToken(in,1), PosInt) &&
+         !(LookToken(in,1)->skipped))
       {
-         DStrAppendStr(accumulator,  "e");
-         NextToken(in); /* Skip E */      
-         DStrAppendDStr(accumulator,  AktToken(in)->literal);
-         AcceptInpTokNoSkip(in, Hyphen|Plus); /* Eat - */
+         DStrAppendChar(accumulator, '.');
+         AcceptInpTokNoSkip(in, DECIMAL_DOT);
          DStrAppendDStr(accumulator,  AktToken(in)->literal);
          AcceptInpTokNoSkip(in, PosInt);
          res = SNFloat;
-      } 
-      else if(TestInpIdnum(in, "e|E"))
+      }
+      if(TestInpNoSkip(in))
       {
-         DStrAppendDStr(accumulator,  AktToken(in)->literal);
-         AcceptInpTokNoSkip(in, Idnum); 
-         res = SNFloat;
+         if(TestInpId(in, "e|E"))
+         {
+            DStrAppendStr(accumulator,  "e");
+            NextToken(in); /* Skip E */      
+            DStrAppendDStr(accumulator,  AktToken(in)->literal);
+            AcceptInpTokNoSkip(in, Hyphen|Plus); /* Eat - */
+            DStrAppendDStr(accumulator,  AktToken(in)->literal);
+            AcceptInpTokNoSkip(in, PosInt);
+            res = SNFloat;
+         } 
+         else if(TestInpIdnum(in, "e|E"))
+         {
+            DStrAppendDStr(accumulator,  AktToken(in)->literal);
+            AcceptInpTokNoSkip(in, Idnum); 
+            res = SNFloat;
+         }
       }
    }
    return res;

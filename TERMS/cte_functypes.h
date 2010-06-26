@@ -42,6 +42,7 @@ typedef enum
    FSIdentFreeFun,     /* Ident, starts with Lower case letter or SQString */  
    FSIdentInt,         /* Integer */
    FSIdentFloat,       /* Floating point number */
+   FSIdentRational,    /* Rational number */
    FSIdentInterpreted, /* SemIdent */                                          
    FSIdentObject       /* String "in double quotes" */                         
 }FuncSymbType;

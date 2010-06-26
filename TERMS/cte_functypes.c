@@ -62,7 +62,7 @@ TokenType FuncSymbStartToken = ATOMIC_FUNC_SYM_TOK| PosInt | String | Plus | Hyp
 //
 /----------------------------------------------------------------------*/
 
-void normalize_int_rep(DStr_p int_rep)
+static void normalize_int_rep(DStr_p int_rep)
 {
    char* work, *sign="";
    DStr_p tmp = DStrAlloc();
@@ -97,6 +97,96 @@ void normalize_int_rep(DStr_p int_rep)
    DStrFree(tmp);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: normalize_rational_rep()
+//
+//    Take a string representation of an integer and turn it into a
+//    normal form. This is done by dropping optional leading +es and
+//    all leading zeros (except for the case of plain '0', of
+//    course), and moving any remaining '-' to the very front.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void normalize_rational_rep(DStr_p int_rep)
+{
+   char* work;
+   bool  negative = false;
+   DStr_p tmp = DStrAlloc();
+      
+   work = DStrView(int_rep);
+   
+   if(*work=='+')
+   {
+      work++;
+   }
+   else if(*work=='-')
+   {
+      negative = true;
+      work++;
+   }
+   while(*work == '0')
+   {
+      work++;
+   }
+   /* Check if there is anything left */
+   if(*work!= '/')
+   {
+      while(*work != '/')
+      {
+         DStrAppendChar(tmp, *work);
+         work++;
+      }
+   }
+   else
+   {
+      DStrSet(tmp, "0");
+   }
+   assert(*work == '/');
+   DStrAppendChar(tmp, '/');
+   work++;
+
+   if(*work=='+')
+   {
+      work++;
+   }
+   else if(*work=='-')
+   {
+      negative = !negative;
+      work++;
+   }
+   while(*work == '0')
+   {
+      work++;
+   }
+   /* Check if there is anything left */
+   if(*work)
+   {
+      while(*work)
+      {
+         DStrAppendChar(tmp, *work);
+         work++;
+      }
+   }
+   else
+   {
+      DStrAppendChar(tmp, '0');
+   }  
+
+   DStrReset(int_rep);
+   if(negative)
+   {
+      DStrAppendChar(int_rep, '-');
+   }
+   DStrAppendStr(int_rep, DStrView(tmp));
+
+   DStrFree(tmp);
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -113,7 +203,7 @@ void normalize_int_rep(DStr_p int_rep)
 //
 /----------------------------------------------------------------------*/
 
-void normalize_float_rep(DStr_p float_rep)
+static void normalize_float_rep(DStr_p float_rep)
 {
    double value;
    char* endptr;
@@ -158,6 +248,7 @@ void normalize_float_rep(DStr_p float_rep)
 //   - SQString
 //   - Integers, potentially signed
 //   - Reals, potentially signed
+//   - Rationals (fractions)
 //
 //
 // Global Variables: SigIdentToken
@@ -222,11 +313,16 @@ FuncSymbType FuncSymbParse(Scanner_p in, DStr_p id)
             DStrAppendStr(id, DStrView(in->accu));
             res = FSIdentInt;
             break;
+      case SNRational:
+            normalize_rational_rep(in->accu);
+            DStrAppendStr(id, DStrView(in->accu));
+            res = FSIdentRational;
+            break;
       case SNFloat:
             normalize_float_rep(in->accu);
             DStrAppendStr(id, DStrView(in->accu));
             res = FSIdentFloat;
-            break;
+            break;            
       default:
             assert(false);
             break;

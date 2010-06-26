@@ -745,6 +745,10 @@ TFormula_p TFormulaCopyDef(TB_p bank, TFormula_p form, long blocked,
          (form->f_code == bank->sig->or_code)||
          (form->f_code == bank->sig->impl_code)||
          (form->f_code == bank->sig->equiv_code)||
+         (form->f_code == bank->sig->nand_code)||
+         (form->f_code == bank->sig->nor_code)||
+         (form->f_code == bank->sig->bimpl_code)||
+         (form->f_code == bank->sig->xor_code)||
          (form->f_code == bank->sig->not_code))
       {
          arg1 = TFormulaCopyDef(bank, form->args[0], blocked, defs, defs_used);
@@ -925,6 +929,22 @@ TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form)
          newform = TFormulaFCodeAlloc(terms, terms->sig->impl_code, 
                                       form->args[1], form->args[0]);
          newform = TFormulaSimplify(terms, newform);
+      }
+      else if(form->f_code == terms->sig->nor_code)
+      {
+         handle = TFormulaFCodeAlloc(terms, terms->sig->or_code, 
+                                     form->args[0], form->args[1]);
+         newform = TFormulaFCodeAlloc(terms, terms->sig->not_code, 
+                                      handle, NULL);
+         newform =  TFormulaSimplify(terms, newform);
+      }
+      else if(form->f_code == terms->sig->nand_code)
+      {
+         handle = TFormulaFCodeAlloc(terms, terms->sig->and_code, 
+                                     form->args[0], form->args[1]);
+         newform = TFormulaFCodeAlloc(terms, terms->sig->not_code, 
+                                      handle, NULL);
+         newform =  TFormulaSimplify(terms, newform);
       }
       else if((form->f_code == terms->sig->qex_code)||
               (form->f_code == terms->sig->qex_code))
