@@ -234,7 +234,9 @@ class emaster(object):
         while True:
             self.prune_stale_strats()
 
-            ractive = [self.rec_sock, self.ctrl_server, self.slave_server]+self.slaves.values()+self.ctrls
+            ractive = [self.rec_sock, self.ctrl_server,
+                       self.slave_server]+\
+                       self.slaves.values()+self.ctrls
             wactive = ([i for i in self.slaves.values() if i.sendable()] +
                        [i for i in self.ctrls if i.sendable()])
             
@@ -297,6 +299,8 @@ class emaster(object):
             self.exec_terminate()
         elif command == "quit":
             self.exec_quit(ctrl)
+        elif command == "purge":
+            self.exec_purge()
         elif command =="":
             pass
         else:
@@ -325,6 +329,7 @@ help
 restart slaves
 terminate master
 quit
+purge
 """)
 
     def exec_add(self, ctrl, command):
@@ -345,6 +350,10 @@ quit
     def exec_quit(self, ctrl):
         ctrl.close()
         self.ctrls.remove(ctrl)
+
+    def exec_purge(self):
+        self.strats.purge()
+        
 
     def add_results(self, results):
         """

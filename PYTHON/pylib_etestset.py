@@ -96,6 +96,12 @@ class etestset(object):
             pylib_io.verbout("Cannot parse "+name+": "+str(problem)+"\n");
 
 
+    def purge_jobs(self):
+        """
+        Remove all jobs from the current job queue.
+        """
+        self.jobqueue = []
+
     def deactivate_strat(self, strat, back=True):
         """
         Remove a strategy from processing and re-add it to the
