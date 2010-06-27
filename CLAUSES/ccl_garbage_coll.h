@@ -7,8 +7,8 @@ Author: Stephan Schulz (schulz@eprover.org)
 Contents
  
   High-level support for the term cell garbage collection. This
-  integrates a term cell and all clause- and formulasets which use
-  these terms.
+  integrates a term bank and all clause- and formulasets which use
+  terms from this bank.
 
   Copyright 2010 by the author.
   This code is released under the GNU General Public Licence.

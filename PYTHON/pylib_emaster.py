@@ -352,7 +352,7 @@ purge
         self.ctrls.remove(ctrl)
 
     def exec_purge(self):
-        self.strats.purge()
+        self.strats.purge_jobs()
         
 
     def add_results(self, results):

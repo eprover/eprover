@@ -971,9 +971,9 @@ OptCell opts[] =
     "Don't use fingerprint indexing for backward rewriting."},
 
    {OPT_PM_INDEX,
-    '\0', "pm-index",
+    '\0', "no-pm-index",
     NoArg, NULL,
-    "Use fingerprint indexing for paramodulation."},
+    "Disable fingerprint indexing for paramodulation."},
 
    {OPT_DETSORT_RW,
     '\0', "detsort-rw",
@@ -1970,7 +1970,7 @@ CLState_p process_options(int argc, char* argv[])
             h_parms->use_bw_rw_index = false;
             break;
       case OPT_PM_INDEX:
-            h_parms->use_pm_index = true;
+            h_parms->use_pm_index = false;
             break;
       case OPT_DETSORT_RW:
             h_parms->detsort_bw_rw = true;
