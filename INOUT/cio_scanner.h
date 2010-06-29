@@ -216,7 +216,8 @@ void CheckInpId(Scanner_p in, char* ids);
 
 void NextToken(Scanner_p in);
 
-Scanner_p ScannerParseInclude(Scanner_p in, StrTree_p *name_selector);
+Scanner_p ScannerParseInclude(Scanner_p in, StrTree_p *name_selector, 
+                              StrTree_p *skip_includes);
 
 #endif
 

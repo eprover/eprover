@@ -3,7 +3,7 @@ This is the required ReadMe file for the CASC competitions.
 
 For installation, follow the instructions in the main README
 file. Make sure to do a proper install, so that eproof and
-e_ltb_runner22.py can find eprover. 
+e_ltb_runnerj5.py can find eprover. 
 
 
 Command line:
@@ -14,13 +14,13 @@ Command line:
 
 For the LTB category, run
 
-   PYTHON/e_ltb_runner22.py <path_to_ltb_problem_file> <total_time> <path_to_eprover>
+   PYTHON/e_ltb_runnerj5.py <path_to_ltb_batch_file> <per_problem_time> <path_to_eprover>
 
 For the LTB* category, run
 
-   PYTHON/e_ltb_runner22.py <path_to_ltb_problem_file> <total_time> <path_to_eproof>
+   PYTHON/e_ltb_runnerj5.py <path_to_ltb_batch_file> <per_problem_time> <path_to_eproof>
 
-Expect this to run like a dog ;-)
+Expect this to run like a Chihuahua ;-)
 
 
 Distinguished strings for the results:

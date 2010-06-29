@@ -1098,6 +1098,7 @@ int main(int argc, char* argv[])
                     parsed_ax_no,
                     relevancy_pruned = 0;
    double           preproc_time;
+   StrTree_p        skip_includes = NULL;
 
    assert(argv[0]);
 
@@ -1138,7 +1139,8 @@ int main(int argc, char* argv[])
       FormulaAndClauseSetParse(in, proofstate->axioms, 
                                proofstate->f_axioms,
                                proofstate->original_terms, 
-                               NULL);
+                               NULL,
+                               &skip_includes);
       CheckInpTok(in, NoToken);
       DestroyScanner(in); 
    }

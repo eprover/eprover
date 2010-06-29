@@ -336,6 +336,7 @@ int main(int argc, char* argv[])
    CLState_p       state;
    SpecFeatureCell features;
    SpecLimits_p     limits;
+   StrTree_p        skip_includes = NULL;
 
    assert(argv[0]);
    
@@ -382,7 +383,8 @@ int main(int argc, char* argv[])
          
          FormulaAndClauseSetParse(in, fstate->axioms, 
                                   fstate->f_axioms,
-                                  fstate->original_terms, NULL);
+                                  fstate->original_terms, NULL, &
+                                  skip_includes);
          FormulaSetPreprocConjectures(fstate->f_axioms);
          FormulaSetCNF(fstate->f_axioms, fstate->axioms, 
                        fstate->original_terms, fstate->freshvars);

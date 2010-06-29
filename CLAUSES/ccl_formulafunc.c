@@ -432,7 +432,8 @@ long FormulaSetCNF(FormulaSet_p set, ClauseSet_p clauseset,
 
 long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset, 
                               FormulaSet_p fset, TB_p terms, 
-                              StrTree_p *name_selector)
+                              StrTree_p *name_selector, 
+                              StrTree_p *skip_includes)
 {
    long res = 0;
    WFormula_p form, nextform;
@@ -460,13 +461,18 @@ long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset,
                ClauseSet_p  ncset = ClauseSetAlloc();
                FormulaSet_p nfset = FormulaSetAlloc();
                
-               new_in = ScannerParseInclude(in, &new_limit);
-               res += FormulaAndClauseSetParse(new_in, 
-                                               ncset, 
-                                               nfset, 
-                                               terms, 
-                                               &new_limit);               
-               DestroyScanner(new_in);
+               new_in = ScannerParseInclude(in, &new_limit, skip_includes);
+               
+               if(new_in)
+               {
+                  res += FormulaAndClauseSetParse(new_in, 
+                                                  ncset, 
+                                                  nfset, 
+                                                  terms, 
+                                                  &new_limit,
+                                                  skip_includes);               
+                  DestroyScanner(new_in);
+               }
                StrTreeFree(new_limit);
                ClauseSetInsertSet(cset, ncset);
                FormulaSetInsertSet(fset, nfset);

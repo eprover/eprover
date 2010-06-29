@@ -1163,7 +1163,8 @@ void NextToken(Scanner_p in)
 //
 //   Parse a TPTP-Style include statement. Return a scanner for the
 //   included file, and put (optional) selected names into
-//   name_selector. 
+//   name_selector. If the file name is in skip_includes, skip the
+//   rest and return NULL. 
 //
 // Global Variables: -
 //
@@ -1171,9 +1172,10 @@ void NextToken(Scanner_p in)
 //
 /----------------------------------------------------------------------*/
 
-Scanner_p ScannerParseInclude(Scanner_p in, StrTree_p *name_selector)
+Scanner_p ScannerParseInclude(Scanner_p in, StrTree_p *name_selector, 
+                              StrTree_p *skip_includes)
 {
-   Scanner_p new_scanner;
+   Scanner_p new_scanner = NULL;
    char* name;
    char* pos_rep;
    
@@ -1183,11 +1185,18 @@ Scanner_p ScannerParseInclude(Scanner_p in, StrTree_p *name_selector)
    CheckInpTok(in, SQString);
    name = DStrCopyCore(AktToken(in)->literal);
    
-   new_scanner = CreateScanner(StreamTypeFile, name, 
-                               in->ignore_comments, 
-                               ScannerGetDefaultDir(in));   
-   ScannerSetFormat(new_scanner, ScannerGetFormat(in));
-   new_scanner->include_pos = pos_rep;
+   if(!StrTreeFind(skip_includes, name))
+   {
+      new_scanner = CreateScanner(StreamTypeFile, name, 
+                                  in->ignore_comments, 
+                                  ScannerGetDefaultDir(in));   
+      ScannerSetFormat(new_scanner, ScannerGetFormat(in));
+      new_scanner->include_pos = pos_rep;
+   }
+   else
+   {
+      FREE(pos_rep);
+   }
    FREE(name);
    NextToken(in);
 

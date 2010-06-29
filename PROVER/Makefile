@@ -15,7 +15,7 @@ include ../Makefile.vars
 
 # Project specific variables
 
-PROJECT = eprover classify_problem termprops\
+PROJECT = eprover e_ltb_runner classify_problem termprops\
           direct_examples epclanalyse epclextract checkproof eground\
           edpll epcllemma\
           ekb_create ekb_insert ekb_ginsert ekb_delete tsm_classify
@@ -45,6 +45,15 @@ EPROVER = eprover.o ../lib/CONTROL.a ../lib/HEURISTICS.a\
 
 eprover: $(EPROVER)
 	$(LD) -o eprover $(EPROVER)
+
+E_LTB_RUNNER = e_ltb_runner.o ../lib/CONTROL.a ../lib/HEURISTICS.a\
+            ../lib/LEARN.a\
+            ../lib/CLAUSES.a ../lib/ORDERINGS.a ../lib/TERMS.a\
+            ../lib/INOUT.a ../lib/BASICS.a
+
+e_ltb_runner: $(E_LTB_RUNNER)
+	$(LD) -o e_ltb_runner $(E_LTB_RUNNER)
+
 
 EGROUND = eground.o ../lib/HEURISTICS.a\
             ../lib/CLAUSES.a ../lib/ORDERINGS.a ../lib/TERMS.a\
