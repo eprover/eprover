@@ -46,6 +46,21 @@ typedef struct batch_spec_cell
 }BatchSpecCell, *BatchSpec_p;
 
 
+/* Batch control data structure - holding information about all the
+ * includes. */
+
+typedef struct batch_control_cell
+{
+   Sig_p     sig;
+   TB_p      terms;
+   PStack_p  clause_sets;
+   PStack_p  formula_sets;
+   StrTree_p parsed_includes;   
+}BatchControlCell, *BatchControl_p;
+
+
+
+
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
@@ -56,6 +71,16 @@ typedef struct batch_spec_cell
 BatchSpec_p BatchSpecAlloc(void);
 void        BatchSpecFree(BatchSpec_p spec);
 void        BatchSpecPrint(FILE* out, BatchSpec_p spec);
+
+BatchSpec_p BatchSpecParse(Scanner_p in);
+
+#define BatchControlCellAlloc()    (BatchControlCell*)SizeMalloc(sizeof(BatchControlCell))
+#define BatchControlCellFree(junk) SizeFree(junk, sizeof(BatchControlCell))
+
+BatchControl_p BatchControlAlloc(void);
+void           BatchControlFree(BatchControl_p ctrl);
+long           BatchControlInit(BatchSpec_p spec, BatchControl_p ctrl);
+
 
 #endif
 

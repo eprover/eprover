@@ -383,6 +383,37 @@ char* ParseBasicInclude(Scanner_p in)
 
 /*-----------------------------------------------------------------------
 //
+// Function: ParseDottedId()
+//
+//   Parse a sequence id1.id2.id2 ... and return it as a string.
+//
+// Global Variables: -
+//
+// Side Effects    : Input, memory ops.
+//
+/----------------------------------------------------------------------*/
+
+char* ParseDottedId(Scanner_p in)
+{
+   DStrReset(in->accu);
+   
+   DStrAppendDStr(in->accu, AktToken(in)->literal);
+   AcceptInpTok(in, Identifier|PosInt);
+
+   while(TestInpNoSkip(in) && TestInpTok(in, Fullstop))
+   {
+      DStrAppendDStr(in->accu, AktToken(in)->literal);
+      AcceptInpTok(in, Fullstop);
+      DStrAppendDStr(in->accu, AktToken(in)->literal);
+      AcceptInpTok(in, Identifier|PosInt);
+   }
+   return SecureStrdup(DStrView(in->accu));
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: ParseSkipParenthesizedExpr()
 //
 //   Skip any expression containing balanced (), [], {}. Print error

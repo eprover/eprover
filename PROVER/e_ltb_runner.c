@@ -24,12 +24,10 @@ Changes
 #include <clb_defines.h>
 #include <cio_commandline.h>
 #include <cio_output.h>
-#include "ccl_relevance.h"
-#include <cco_proofproc.h>
+#include <ccl_relevance.h>
 #include <cio_signals.h>
-#include <ccl_unfold_defs.h>
 #include <ccl_formulafunc.h>
-#include <cte_simplesorts.h>
+#include <cco_batch_spec.h>
 #include <e_version.h>
 
 
@@ -49,12 +47,6 @@ typedef enum
    OPT_PRINT_STATISTICS,
    OPT_SILENT,
    OPT_OUTPUTLEVEL,
-   OPT_TPTP_PARSE,
-   OPT_TPTP_PRINT,
-   OPT_TPTP_FORMAT,
-   OPT_TSTP_PARSE,
-   OPT_TSTP_PRINT,
-   OPT_TSTP_FORMAT,
    OPT_DUMMY
 }OptionCodes;
 
@@ -107,72 +99,6 @@ OptCell opts[] =
     "level 4 will include some internal clause renamings. Levels >= 2"
     " also imply PCL2 or TSTP formats (which can be post-processed"
     " with suitable tools)."},
-   
-   {OPT_TPTP_PARSE,
-    '\0', "tptp-in",
-    NoArg, NULL,
-    "Parse TPTP-2 format instead of E-LOP (but note that includes are "
-    "handled according to TPTP-3 semantics)."},
-
-   {OPT_TPTP_PRINT,
-    '\0', "tptp-out",
-    NoArg, NULL,
-    "Print TPTP format instead of E-LOP. Implies --eqn-no-infix and "
-    "will ignore --full-equational-rep."},
-
-   {OPT_TPTP_FORMAT,
-    '\0', "tptp-format",
-    NoArg, NULL,
-    "Equivalent to --tptp-in and --tptp-out."},
-
-   {OPT_TPTP_PARSE,
-    '\0', "tptp2-in",
-    NoArg, NULL,
-    "Synonymous with --tptp-in."},
-
-   {OPT_TPTP_PRINT,
-    '\0', "tptp2-out",
-    NoArg, NULL,
-    "Synonymous with --tptp-out."},
-
-   {OPT_TPTP_FORMAT,
-    '\0', "tptp2-format",
-    NoArg, NULL,
-    "Synonymous with --tptp-format."},
-
-   {OPT_TSTP_PARSE,
-    '\0', "tstp-in",
-    NoArg, NULL,
-    "Parse TPTP-3 format instead of E-LOP (Note that TPTP-3 syntax "
-    "is still under development, and the version in E may not be "
-    "fully conforming at all times. E works on all TPTP 3.0.1 input "
-    "files (including includes)."},
-   
-   {OPT_TSTP_PRINT,
-    '\0', "tstp-out",
-    NoArg, NULL,
-    "Print output clauses in TPTP-3 syntax. In particular, for output "
-    "levels >=2, write derivations as TPTP-3 derivations (default is PCL)."},
-
-   {OPT_TSTP_FORMAT,
-    '\0', "tstp-format",
-    NoArg, NULL,
-    "Equivalent to --tstp-in and --tstp-out."},
-
-   {OPT_TSTP_PARSE,
-    '\0', "tptp3-in",
-    NoArg, NULL,
-    "Synonymous with --tstp-in."},
-
-   {OPT_TSTP_PRINT,
-    '\0', "tptp3-out",
-    NoArg, NULL,
-    "Synonymous with --tstp-out."},
-
-   {OPT_TSTP_FORMAT,
-    '\0', "tptp3-format",
-    NoArg, NULL,
-    "Synonymous with --tstp-format."},
 
    {OPT_NOOPT,
     '\0', NULL,
@@ -181,7 +107,6 @@ OptCell opts[] =
 };
 
 char              *outname = NULL;
-IOFormat          parse_format = LOPFormat;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -199,11 +124,14 @@ int main(int argc, char* argv[])
    CLState_p        state;
    Scanner_p        in;    
    int              i;
-   StrTree_p        skip_includes = NULL;
+   BatchSpec_p      spec;
+   BatchControl_p   ctrl;
 
    assert(argv[0]);
 
    InitIO(NAME);
+   DocOutputFormat = tstp_format;
+   OutputFormat = TSTPFormat;
 
    state = process_options(argc, argv);
 
@@ -217,12 +145,20 @@ int main(int argc, char* argv[])
    for(i=0; state->argv[i]; i++)
    {
       in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL);
-      ScannerSetFormat(in, parse_format);
+      ScannerSetFormat(in, TSTPFormat);
+      
+      spec = BatchSpecParse(in);
+
+      ctrl = BatchControlAlloc();
+      BatchControlInit(spec, ctrl);      
+      
 
       // Parse file, putting include data and include names in a
       // suitable data structure
       // Process files: Parse file, do selection, run E.
-      
+
+      BatchControlFree(ctrl);
+      BatchSpecFree(spec);
       DestroyScanner(in); 
    }
    CLStateFree(state);
@@ -281,34 +217,6 @@ CLState_p process_options(int argc, char* argv[])
 	    break;
       case OPT_OUTPUTLEVEL:
 	    OutputLevel = CLStateGetIntArg(handle, arg);
-	    break;
-      case OPT_TPTP_PARSE:
-	    parse_format = TPTPFormat;
-	    break;
-      case OPT_TPTP_PRINT:
-	    OutputFormat = TPTPFormat;
-	    EqnFullEquationalRep = false;
-	    EqnUseInfix = false;
-	    break;
-      case OPT_TPTP_FORMAT:
-	    parse_format = TPTPFormat;	    
-	    OutputFormat = TPTPFormat;
-	    EqnFullEquationalRep = false;
-	    EqnUseInfix = false;
-	    break;
-      case OPT_TSTP_PARSE:
-	    parse_format = TSTPFormat;
-	    break;
-      case OPT_TSTP_PRINT:
-	    DocOutputFormat = tstp_format;
-	    OutputFormat = TSTPFormat;
-	    EqnUseInfix = true;
-	    break;
-      case OPT_TSTP_FORMAT:
-	    parse_format = TSTPFormat;
-	    DocOutputFormat = tstp_format;
-	    OutputFormat = TSTPFormat;
-	    EqnUseInfix = true;
 	    break;
       default:
 	    assert(false && "Unknown option");
