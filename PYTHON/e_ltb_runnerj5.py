@@ -3,7 +3,7 @@
 """
 e_ltb_runnerj5 0.1
 
-Usage: e_ltb_runnerj5.py <jobfile> [<timelimit> [<proverpath>]]
+Usage: e_ltb_runnerj5.py <jobfile> [<proverpath>]
 
 Try to prove as many problems as possible from the jobs in jobfile,
 using the competition setup of CASC-J5. This tries one strategy on
@@ -81,6 +81,8 @@ class filejob:
 
     
 def filejob_parser(filename):
+    global timelimit
+    
     res = []
     fp = open(filename, "r")
     joblines = fp.readlines()
@@ -88,6 +90,9 @@ def filejob_parser(filename):
     problem_mode = False
 
     for i in joblines:
+        if i.startswith("limit.time.problem.wc"):
+            timelimit = int(i[len("limit.time.problem.wc "):])
+        
         if i.startswith("% SZS start BatchProblems"):
             problem_mode = True
         elif i.startswith("% SZS end BatchProblems"):
@@ -148,20 +153,18 @@ if __name__ == '__main__':
     timelimit = None
     prover    = "eprover"
 
-    if len(args) < 1 or len(args) >3:
+    if len(args) < 1 or len(args) >2:
         print __doc__
         sys.exit()
         
     jobfile = args[0]
-    if len(args)> 1:
-        timelimit = int(args[1])
-    if len(args)>2:
-        prover = args[2]
+    if len(args)>1:
+        prover = args[1]
 
     jobs = filejob_parser(jobfile)
     worklist = list(jobs)
     if not timelimit:
-        timelimit = 30*len(worklist)
+        timelimit = 30
 
     # We need to go into the first problem, anyways.
     

@@ -14,11 +14,11 @@ Command line:
 
 For the LTB category, run
 
-   PYTHON/e_ltb_runnerj5.py <path_to_ltb_batch_file> <per_problem_time> <path_to_eprover>
+   PYTHON/e_ltb_runnerj5.py <path_to_ltb_batch_file> <path_to_eprover>
 
 For the LTB* category, run
 
-   PYTHON/e_ltb_runnerj5.py <path_to_ltb_batch_file> <per_problem_time> <path_to_eproof>
+   PYTHON/e_ltb_runnerj5.py <path_to_ltb_batch_file> <path_to_eproof>
 
 Expect this to run like a Chihuahua ;-)
 
