@@ -352,6 +352,34 @@ char* ParsePlainFilename(Scanner_p in)
    return SecureStrdup(DStrView(in->accu));
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: ParseBasicInclude()
+//
+//   Parse a basic TPTP-3 include (without optional selector),
+//   return the file name (which the caller has to free).
+//
+// Global Variables: -
+//
+// Side Effects    : Input, memory allocation.
+//
+/----------------------------------------------------------------------*/
+
+char* ParseBasicInclude(Scanner_p in)
+{
+   char* res;
+
+   AcceptInpId(in, "include");
+   AcceptInpTok(in, OpenBracket);
+   CheckInpTok(in, SQString);
+   res = DStrCopyCore(AktToken(in)->literal);
+   NextToken(in);
+   AcceptInpTok(in, CloseBracket);
+   AcceptInpTok(in, Fullstop);   
+   
+   return res;
+}
+
 
 /*-----------------------------------------------------------------------
 //
