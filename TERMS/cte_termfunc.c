@@ -1479,7 +1479,8 @@ void TermAddSymbolDistributionLimited(Term_p term, long *dist_array, long limit)
    while(!PStackEmpty(stack))
    {
       term = PStackPopP(stack);
-      
+      assert(term);
+
       if(!TermIsVar(term))
       {
 	 int i;

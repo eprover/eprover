@@ -51,7 +51,7 @@ typedef struct memcell
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-#define MEM_ARR_SIZE 1024
+#define MEM_ARR_SIZE 8192
 #define MEM_FREE_PATTERN 0xFAFBFAFA
 #define MEM_RSET_PATTERN 0x00000000
 
@@ -162,7 +162,7 @@ void MemFreeListPrint(FILE* out);
 static __inline__ void* SizeMallocReal(size_t size)
 {
    Mem_p  handle;
-   size_t mem_index;
+   long mem_index;
    
    mem_index = size - sizeof(MemCell);
    
@@ -212,7 +212,7 @@ static __inline__ void* SizeMallocReal(size_t size)
 
 static __inline__ void SizeFreeReal(void* junk, size_t size)
 {
-   size_t mem_index;
+   long mem_index;
    
    assert(junk!=NULL);
 

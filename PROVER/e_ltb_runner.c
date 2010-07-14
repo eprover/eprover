@@ -28,6 +28,7 @@ Changes
 #include <cio_signals.h>
 #include <ccl_formulafunc.h>
 #include <cco_batch_spec.h>
+#include <ccl_sine.h>
 #include <e_version.h>
 
 
@@ -128,7 +129,7 @@ int main(int argc, char* argv[])
    BatchControl_p   ctrl;
 
    assert(argv[0]);
-
+   
    InitIO(NAME);
    DocOutputFormat = tstp_format;
    OutputFormat = TSTPFormat;
@@ -151,18 +152,14 @@ int main(int argc, char* argv[])
 
       ctrl = BatchControlAlloc();
       BatchControlInit(spec, ctrl);      
-      
-
-      // Parse file, putting include data and include names in a
-      // suitable data structure
-      // Process files: Parse file, do selection, run E.
-
+      BatchProcessProblems(spec, ctrl);
       BatchControlFree(ctrl);
       BatchSpecFree(spec);
       DestroyScanner(in); 
    }
    CLStateFree(state);
 
+   ExitIO();
 #ifdef CLB_MEMORY_DEBUG
    MemFlushFreeList();
    MemDebugPrintStats(stdout);
