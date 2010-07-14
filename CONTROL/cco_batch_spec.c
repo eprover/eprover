@@ -240,6 +240,7 @@ BatchControl_p BatchControlAlloc(void)
    handle->clause_sets     = PStackAlloc();
    handle->formula_sets    = PStackAlloc();
    handle->parsed_includes = NULL;
+   handle->f_distrib       = GenDistribAlloc(handle->sig);
 
    return handle;
 }
@@ -279,14 +280,15 @@ void BatchControlFree(BatchControl_p ctrl)
    ctrl->terms->sig = NULL;
    TBFree(ctrl->terms);
    StrTreeFree(ctrl->parsed_includes);
-   
+   GenDistribFree(ctrl->f_distrib);
+
    BatchControlCellFree(ctrl);
 }
 
 
 /*-----------------------------------------------------------------------
 //
-// Function: BatchControlInit()
+// Function: BatchControlInitSpec()
 //
 //   Initialize a BatchControllCell by parsing all the include files
 //   in spec.
@@ -297,7 +299,7 @@ void BatchControlFree(BatchControl_p ctrl)
 //
 /----------------------------------------------------------------------*/
 
-long BatchControlInit(BatchSpec_p spec, BatchControl_p ctrl)
+long BatchControlInitSpec(BatchSpec_p spec, BatchControl_p ctrl)
 {
    PStackPointer i;
    char*        iname;
@@ -325,14 +327,272 @@ long BatchControlInit(BatchSpec_p spec, BatchControl_p ctrl)
          PStackPushP(ctrl->formula_sets, fset);
          StrTreeStore(&(ctrl->parsed_includes), iname, dummy, dummy);
          
-         ClauseSetPrint(stdout, cset, true);
-         FormulaSetPrint(stdout, fset, true);
+         // ClauseSetPrint(stdout, cset, true);
+         // FormulaSetPrint(stdout, fset, true);
          
          DestroyScanner(in);
       }
    }
+   ctrl->shared_ax_sp = PStackGetSP(ctrl->clause_sets);
+
    return res;
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: BatchControlInitDistrib()
+//
+//   Initialize the f_distrib element of an otherwise initialized
+//   batch control cell.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+void BatchControlInitDistrib(BatchControl_p ctrl)
+{
+   GenDistribSizeAdjust(ctrl->f_distrib, ctrl->sig);
+   GenDistribAddClauseSets(ctrl->f_distrib, ctrl->clause_sets);
+   GenDistribAddFormulaSets(ctrl->f_distrib, ctrl->formula_sets);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: BatchControlInit()
+//
+//   Initialize a BatchControlCell up to the symbol frequency.
+//
+// Global Variables: -
+//
+// Side Effects    : Yes ;-)
+//
+/----------------------------------------------------------------------*/
+
+long BatchControlInit(BatchSpec_p spec, BatchControl_p ctrl)
+{
+   long res;
+
+   res = BatchControlInitSpec(spec, ctrl);
+   BatchControlInitDistrib(ctrl);
+
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: BatchControlAddProblem()
+//
+//   Add a problem as one set of clauses and formulas, each. Note that
+//   this transfers the two sets into ctrl, which is responsible for
+//   freeing. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void BatchControlAddProblem(BatchControl_p ctrl, 
+                            ClauseSet_p clauses, 
+                            FormulaSet_p formulas)
+{
+   GenDistribSizeAdjust(ctrl->f_distrib, ctrl->sig);
+   PStackPushP(ctrl->clause_sets, clauses);
+   PStackPushP(ctrl->formula_sets, formulas);
+   GenDistribAddClauseSet(ctrl->f_distrib, clauses, 1);
+   GenDistribAddFormulaSet(ctrl->f_distrib, formulas, 1);   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: BatchControlBacktrackToSpec()
+//
+//   Backtrack the state to the spec state, i.e. backtrack the
+//   frequency count and free the extra clause sets.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+void BatchControlBacktrackToSpec(BatchControl_p ctrl)
+{
+   ClauseSet_p clauses;
+   FormulaSet_p formulas;
+
+   GenDistribBacktrackClauseSets(ctrl->f_distrib, 
+                                 ctrl->clause_sets,
+                                 ctrl->shared_ax_sp);
+   GenDistribBacktrackFormulaSets(ctrl->f_distrib, 
+                                  ctrl->formula_sets,
+                                  ctrl->shared_ax_sp);
+    while(PStackGetSP(ctrl->clause_sets)>ctrl->shared_ax_sp)
+    {
+       clauses = PStackPopP(ctrl->clause_sets);
+       ClauseSetFree(clauses);
+       formulas = PStackPopP(ctrl->formula_sets);
+       FormulaSetFree(formulas);
+    }    
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: BatchControlGetProblem()
+//
+//   Given a prepared BatchControl, get the clauses and formulas
+//   describing the problem.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long BatchControlGetProblem(BatchControl_p ctrl,
+                            GeneralityMeasure gen_measure,
+                            double            benevolence,
+                            PStack_p          res_clauses, 
+                            PStack_p          res_formulas)
+{
+   long res;
+
+   res = SelectAxioms(ctrl->f_distrib,
+                      ctrl->clause_sets,
+                      ctrl->formula_sets,
+                      ctrl->shared_ax_sp,
+                      gen_measure,
+                      benevolence,
+                      res_clauses, 
+                      res_formulas);
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: BatchProcessProblem()
+//
+//   Given an initialized BatchControlCell for Spec, parse the problem
+//   file and try to solve it.
+//
+// Global Variables: -
+//
+// Side Effects    : Plenty (IO, memory, time passes...)
+//
+/----------------------------------------------------------------------*/
+
+bool BatchProcessProblem(BatchSpec_p spec, 
+                         BatchControl_p ctrl, 
+                         char* source, char* dest)
+{
+   bool res = false;
+   Scanner_p in;
+   ClauseSet_p cset;
+   FormulaSet_p fset;
+   PStack_p cspec = PStackAlloc();
+   PStack_p fspec = PStackAlloc();
+
+   fprintf(GlobalOut, "# Processing %s -> %s\n", source, dest);
+   
+   in = CreateScanner(StreamTypeFile, source, true, NULL);
+   ScannerSetFormat(in, TSTPFormat);
+
+   cset = ClauseSetAlloc();
+   fset = FormulaSetAlloc();
+   FormulaAndClauseSetParse(in, cset, fset, ctrl->terms, 
+                            NULL, 
+                            &(ctrl->parsed_includes));
+   DestroyScanner(in);
+
+   BatchControlAddProblem(ctrl, 
+                          cset, 
+                          fset);
+
+   BatchControlGetProblem(ctrl, 
+                          GMFormulas,
+                          1,
+                          cspec,
+                          fspec);
+   fprintf(GlobalOut, "# Spec 1  has %d clauses and %d formulas\n",
+           PStackGetSP(cspec), PStackGetSP(fspec));
+   PStackClausePrintTSTP(GlobalOut, cspec);
+   PStackFormulaPrintTSTP(GlobalOut, fspec);
+
+   PStackFormulaDelProp(fspec, WPIsRelevant);
+   PStackClauseDelProp(cspec, CPIsRelevant);
+   PStackReset(cspec);
+   PStackReset(fspec);
+
+   BatchControlGetProblem(ctrl, 
+                          GMFormulas,
+                          1.5,
+                          cspec,
+                          fspec);
+   fprintf(GlobalOut, "# Spec 2  has %d clauses and %d formulas\n",
+           PStackGetSP(cspec), PStackGetSP(fspec));
+   PStackFormulaDelProp(fspec, WPIsRelevant);
+   PStackClauseDelProp(cspec, CPIsRelevant);
+   PStackReset(cspec);
+   PStackReset(fspec);
+
+   BatchControlGetProblem(ctrl, 
+                          GMTerms,
+                          1,
+                          cspec,
+                          fspec);
+   fprintf(GlobalOut, "# Spec 3  has %d clauses and %d formulas\n",
+           PStackGetSP(cspec), PStackGetSP(fspec));
+
+   BatchControlBacktrackToSpec(ctrl);
+   PStackFormulaDelProp(fspec, WPIsRelevant);
+   PStackClauseDelProp(cspec, CPIsRelevant);
+
+   PStackFree(cspec);
+   PStackFree(fspec);
+
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: BatchProcessProblems()
+//
+//   Process all the problems in the BatchControl structure. Return
+//   number of proofs found.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool BatchProcessProblems(BatchSpec_p spec, BatchControl_p ctrl)
+{
+   long res = 0;
+   PStackPointer i;
+
+   for(i=0; i<PStackGetSP(spec->source_files); i++)
+   {
+      if(BatchProcessProblem(spec,
+                             ctrl, 
+                             PStackElementP(spec->source_files, i),
+                             PStackElementP(spec->dest_files, i)))
+      {
+         res++;
+      }
+   }
+   return res;
+}
+                          
+
 
 
 

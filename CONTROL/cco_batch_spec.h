@@ -26,6 +26,7 @@ Changes
 #define CCO_BATCH_SPEC
 
 #include <ccl_formulafunc.h>
+#include <ccl_sine.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -51,11 +52,13 @@ typedef struct batch_spec_cell
 
 typedef struct batch_control_cell
 {
-   Sig_p     sig;
-   TB_p      terms;
-   PStack_p  clause_sets;
-   PStack_p  formula_sets;
-   StrTree_p parsed_includes;   
+   Sig_p         sig;
+   TB_p          terms;
+   PStack_p      clause_sets;
+   PStack_p      formula_sets;
+   StrTree_p     parsed_includes;
+   PStackPointer shared_ax_sp;
+   GenDistrib_p  f_distrib;
 }BatchControlCell, *BatchControl_p;
 
 
@@ -79,7 +82,30 @@ BatchSpec_p BatchSpecParse(Scanner_p in);
 
 BatchControl_p BatchControlAlloc(void);
 void           BatchControlFree(BatchControl_p ctrl);
+long           BatchControlInitSpec(BatchSpec_p spec, BatchControl_p ctrl);
+void           BatchControlInitDistrib(BatchControl_p ctrl);
 long           BatchControlInit(BatchSpec_p spec, BatchControl_p ctrl);
+
+void BatchControlAddProblem(BatchControl_p ctrl, 
+                            ClauseSet_p clauses, 
+                            FormulaSet_p formulas); 
+
+void BatchControlBacktrackToSpec(BatchControl_p ctrl);
+
+
+long BatchControlGetProblem(BatchControl_p ctrl,
+                            GeneralityMeasure gen_measure,
+                            double            benevolence,
+                            PStack_p          res_clauses, 
+                            PStack_p          res_formulas);
+
+bool BatchProcessProblem(BatchSpec_p spec, 
+                         BatchControl_p ctrl, 
+                         char* source, char* dest);
+
+bool BatchProcessProblems(BatchSpec_p spec, 
+                          BatchControl_p ctrl);
+
 
 
 #endif
