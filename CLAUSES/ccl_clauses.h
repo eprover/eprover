@@ -106,10 +106,13 @@ typedef enum
                                              parents die. */
    CPWatchOnly      = 2*CPIsProtected,
    CPSubsumesWatch  = 2*CPWatchOnly,
-   CPLimitedRW      = 2*CPSubsumesWatch   /* Clause has been processed
+   CPLimitedRW      = 2*CPSubsumesWatch,  /* Clause has been processed
                                            * and hence can only be
                                            * rewritten in limited
                                            * ways. */
+   CPIsRelevant     = 2*CPLimitedRW       /* Clause is selected as
+                                           * relevant for a proof
+                                           * attempt. */
 }ClauseProperties;
 
 
