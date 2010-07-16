@@ -7,7 +7,6 @@ Author: Stephan Schulz
 Contents
 
   Functions for temporary files.
- 
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence.
@@ -101,7 +100,7 @@ void TempFileRegister(char *name)
 // Function: TempFileName()
 //
 //   Allocate and register a new temporary file name. The caller has
-//   to free  the name!
+//   to free the name!
 //
 // Global Variables: temp_file_store
 //

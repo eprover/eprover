@@ -39,6 +39,57 @@ Changes
 /*---------------------------------------------------------------------*/
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: batch_create_runner()
+//
+//   Create a EPCtrl block associated with a running instance of E.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+EPCtrl_p batch_create_runner(BatchControl_p ctrl,
+                             long cpu_time,
+                             GeneralityMeasure gen_measure,
+                             double            benevolence)
+{
+   EPCtrl_p pctrl;
+   char     *file;
+   FILE     *fp;
+   char     name[80];
+
+   PStack_p cspec = PStackAlloc();
+   PStack_p fspec = PStackAlloc();
+
+   BatchControlGetProblem(ctrl, 
+                          gen_measure,
+                          benevolence,
+                          cspec,
+                          fspec);
+   /* fprintf(GlobalOut, "# Spec has %d clauses and %d formulas\n",
+      PStackGetSP(cspec), PStackGetSP(fspec)); */
+   
+   file = TempFileName();
+   fp   = fopen(file, "w");
+   PStackClausePrintTSTP(fp, cspec);
+   PStackFormulaPrintTSTP(fp, fspec);
+   fclose(fp);
+
+   sprintf(name, "SinE(%d, %f)", gen_measure, benevolence);
+   pctrl = ECtrlCreate(ctrl->executable, name, cpu_time, file);
+
+   PStackFormulaDelProp(fspec, WPIsRelevant);
+   PStackClauseDelProp(cspec, CPIsRelevant);
+
+   PStackFree(cspec);
+   PStackFree(fspec);
+   
+   return pctrl;
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -132,20 +183,20 @@ void BatchSpecPrint(FILE* out, BatchSpec_p spec)
 {
    PStackPointer i;
 
-   fprintf(out, "%% SZS start BatchConfiguration\n");
+   fprintf(out, "# SZS start BatchConfiguration\n");
    fprintf(out, "division.category %s\n", spec->category);
    fprintf(out, "limit.time.problem.wc %ld\n", spec->per_prob_time);
    fprintf(out, "limit.time.overall.wc %ld\n", spec->total_time);
-   fprintf(out, "%% SZS end BatchConfiguration\n");
-   fprintf(out, "%% SZS start BatchIncludes\n");
+   fprintf(out, "# SZS end BatchConfiguration\n");
+   fprintf(out, "# SZS start BatchIncludes\n");
 
    for(i=0; i<PStackGetSP(spec->includes); i++)
    {
       fprintf(out, "include('%s').\n", 
               (char*)PStackElementP(spec->includes, i));
    }
-   fprintf(out, "%% SZS end BatchIncludes\n");
-   fprintf(out, "%% SZS start BatchProblems\n");
+   fprintf(out, "# SZS end BatchIncludes\n");
+   fprintf(out, "# SZS start BatchProblems\n");
 
    for(i=0; i<PStackGetSP(spec->source_files); i++)
    {
@@ -153,7 +204,7 @@ void BatchSpecPrint(FILE* out, BatchSpec_p spec)
               (char*)PStackElementP(spec->source_files, i),
               (char*)PStackElementP(spec->dest_files, i));
    }
-   fprintf(out, "%% SZS end BatchProblems\n");
+   fprintf(out, "# SZS end BatchProblems\n");
 }
 
 
@@ -230,7 +281,7 @@ BatchSpec_p BatchSpecParse(Scanner_p in)
 //
 /----------------------------------------------------------------------*/
 
-BatchControl_p BatchControlAlloc(void)
+BatchControl_p BatchControlAlloc(char* executable)
 {
    BatchControl_p handle = BatchControlCellAlloc();
 
@@ -241,6 +292,7 @@ BatchControl_p BatchControlAlloc(void)
    handle->formula_sets    = PStackAlloc();
    handle->parsed_includes = NULL;
    handle->f_distrib       = GenDistribAlloc(handle->sig);
+   handle->executable      = SecureStrdup(executable);
 
    return handle;
 }
@@ -281,7 +333,8 @@ void BatchControlFree(BatchControl_p ctrl)
    TBFree(ctrl->terms);
    StrTreeFree(ctrl->parsed_includes);
    GenDistribFree(ctrl->f_distrib);
-
+   
+   FREE(ctrl->executable);
    BatchControlCellFree(ctrl);
 }
 
@@ -317,7 +370,7 @@ long BatchControlInitSpec(BatchSpec_p spec, BatchControl_p ctrl)
          in = CreateScanner(StreamTypeFile, iname, true, NULL);
          ScannerSetFormat(in, TSTPFormat);
 
-         fprintf(GlobalOut, "# Parsing %s\n", iname);
+         /* fprintf(GlobalOut, "# Parsing %s\n", iname); */
          cset = ClauseSetAlloc();
          fset = FormulaSetAlloc();
          res += FormulaAndClauseSetParse(in, cset, fset, ctrl->terms, 
@@ -496,10 +549,12 @@ bool BatchProcessProblem(BatchSpec_p spec,
    Scanner_p in;
    ClauseSet_p cset;
    FormulaSet_p fset;
-   PStack_p cspec = PStackAlloc();
-   PStack_p fspec = PStackAlloc();
+   EPCtrl_p handle;
+   EPCtrlSet_p procs = EPCtrlSetAlloc();
+   FILE* fp;
 
-   fprintf(GlobalOut, "# Processing %s -> %s\n", source, dest);
+   fprintf(GlobalOut, "\n# Processing %s -> %s\n", source, dest);
+   fprintf(GlobalOut, "# SZS status Started for %s\n", source);
    
    in = CreateScanner(StreamTypeFile, source, true, NULL);
    ScannerSetFormat(in, TSTPFormat);
@@ -510,52 +565,48 @@ bool BatchProcessProblem(BatchSpec_p spec,
                             NULL, 
                             &(ctrl->parsed_includes));
    DestroyScanner(in);
-
+   
    BatchControlAddProblem(ctrl, 
                           cset, 
                           fset);
 
-   BatchControlGetProblem(ctrl, 
-                          GMFormulas,
-                          1,
-                          cspec,
-                          fspec);
-   fprintf(GlobalOut, "# Spec 1  has %d clauses and %d formulas\n",
-           PStackGetSP(cspec), PStackGetSP(fspec));
-   PStackClausePrintTSTP(GlobalOut, cspec);
-   PStackFormulaPrintTSTP(GlobalOut, fspec);
-
-   PStackFormulaDelProp(fspec, WPIsRelevant);
-   PStackClauseDelProp(cspec, CPIsRelevant);
-   PStackReset(cspec);
-   PStackReset(fspec);
-
-   BatchControlGetProblem(ctrl, 
-                          GMFormulas,
-                          1.5,
-                          cspec,
-                          fspec);
-   fprintf(GlobalOut, "# Spec 2  has %d clauses and %d formulas\n",
-           PStackGetSP(cspec), PStackGetSP(fspec));
-   PStackFormulaDelProp(fspec, WPIsRelevant);
-   PStackClauseDelProp(cspec, CPIsRelevant);
-   PStackReset(cspec);
-   PStackReset(fspec);
-
-   BatchControlGetProblem(ctrl, 
-                          GMTerms,
-                          1,
-                          cspec,
-                          fspec);
-   fprintf(GlobalOut, "# Spec 3  has %d clauses and %d formulas\n",
-           PStackGetSP(cspec), PStackGetSP(fspec));
-
+   handle = batch_create_runner(ctrl, spec->per_prob_time, GMFormulas, 1);
+   EPCtrlSetAddProc(procs, handle);
+   handle = batch_create_runner(ctrl, spec->per_prob_time, GMFormulas, 1.2);
+   EPCtrlSetAddProc(procs, handle);
+   handle = batch_create_runner(ctrl, spec->per_prob_time, GMTerms, 1);
+   EPCtrlSetAddProc(procs, handle);
+   handle = batch_create_runner(ctrl, spec->per_prob_time, GMTerms, 1.2);
+   EPCtrlSetAddProc(procs, handle);
+   
+   handle = NULL;
+   while(!EPCtrlSetEmpty(procs))
+   {
+      handle = EPCtrlSetGetResult(procs);
+      if(handle)
+      {
+         break;
+      }
+   }
+   if(handle)
+   {
+      fprintf(GlobalOut, "# Proof found by %s\n", handle->name);
+      fp = fopen(dest, "w");
+      fprintf(fp, "%s", DStrView(handle->output));
+      fclose(fp);
+      fprintf(GlobalOut, "%s", DStrView(handle->output));
+   }
+   else
+   {
+      fprintf(GlobalOut, "# SZS status GaveUp for %s\n", source);
+   }
+   
    BatchControlBacktrackToSpec(ctrl);
-   PStackFormulaDelProp(fspec, WPIsRelevant);
-   PStackClauseDelProp(cspec, CPIsRelevant);
+   /* cset and fset are freed in Backtrack */
 
-   PStackFree(cspec);
-   PStackFree(fspec);
+   EPCtrlSetFree(procs);
+
+   fprintf(GlobalOut, "# SZS status Ended for %s\n\n", source);
 
    return res;
 }

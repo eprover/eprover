@@ -146,6 +146,7 @@ install: E
 	-sh -c 'cp PROVER/epclextract $(EXECPATH)'
 	-sh -c 'cp PROVER/eproof $(EXECPATH)'
 	-sh -c 'cp  PROVER/eground $(EXECPATH)'	
+	-sh -c 'cp  PROVER/e_ltb_runner $(EXECPATH)'	
 
 # Also remake documentation
 

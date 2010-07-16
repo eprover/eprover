@@ -14,13 +14,7 @@ Command line:
 
 For the LTB category, run
 
-   PYTHON/e_ltb_runnerj5.py <path_to_ltb_batch_file> <path_to_eprover>
-
-For the LTB* category, run
-
-   PYTHON/e_ltb_runnerj5.py <path_to_ltb_batch_file> <path_to_eproof>
-
-Expect this to run like a Chihuahua ;-)
+    e_ltb_runner <path_to_ltb_batch_file> <path_to_eprover>
 
 
 Distinguished strings for the results:
@@ -67,4 +61,6 @@ The end of solution output for models/saturations:
 
 
 
-
+LTB Problem processing:
+# SZS status Started for <name>
+# SZS status Ended for <name>

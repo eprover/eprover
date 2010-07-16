@@ -428,6 +428,29 @@ NumTree_p NumTreeExtractEntry(NumTree_p *root, long key)
 
 /*-----------------------------------------------------------------------
 //
+// Function: NumTreeExtractRoot()
+//
+//   Extract the NumTreeCell at the root of the tree and return it (or
+//   NULL if the tree is empty).
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+NumTree_p NumTreeExtractRoot(NumTree_p *root)
+{
+   if(*root)
+   {
+      return NumTreeExtractEntry(root, (*root)->key);
+   }
+   return NULL;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: NumTreeDeleteEntry()
 //
 //   Delete the entry with key key from the tree. 

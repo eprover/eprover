@@ -25,8 +25,11 @@ Changes
 
 #define CCO_BATCH_SPEC
 
+#include <cio_tempfile.h>
 #include <ccl_formulafunc.h>
 #include <ccl_sine.h>
+#include <cco_proc_ctrl.h>
+
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -52,6 +55,7 @@ typedef struct batch_spec_cell
 
 typedef struct batch_control_cell
 {
+   char          *executable;
    Sig_p         sig;
    TB_p          terms;
    PStack_p      clause_sets;
@@ -80,7 +84,7 @@ BatchSpec_p BatchSpecParse(Scanner_p in);
 #define BatchControlCellAlloc()    (BatchControlCell*)SizeMalloc(sizeof(BatchControlCell))
 #define BatchControlCellFree(junk) SizeFree(junk, sizeof(BatchControlCell))
 
-BatchControl_p BatchControlAlloc(void);
+BatchControl_p BatchControlAlloc(char* executable);
 void           BatchControlFree(BatchControl_p ctrl);
 long           BatchControlInitSpec(BatchSpec_p spec, BatchControl_p ctrl);
 void           BatchControlInitDistrib(BatchControl_p ctrl);

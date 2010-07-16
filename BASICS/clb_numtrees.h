@@ -75,6 +75,7 @@ long      NumTreeDebugPrint(FILE* out, NumTree_p tree,
 			    bool keys_only);
 NumTree_p NumTreeFind(NumTree_p *root, long key);
 NumTree_p NumTreeExtractEntry(NumTree_p *root, long key);
+NumTree_p NumTreeExtractRoot(NumTree_p *root);
 bool      NumTreeDeleteEntry(NumTree_p *root, long key);
 long      NumTreeNodes(NumTree_p root);
 NumTree_p NumTreeMaxNode(NumTree_p root);

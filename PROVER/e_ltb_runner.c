@@ -124,9 +124,9 @@ int main(int argc, char* argv[])
 {
    CLState_p        state;
    Scanner_p        in;    
-   int              i;
    BatchSpec_p      spec;
    BatchControl_p   ctrl;
+   char             *prover = "eprover";
 
    assert(argv[0]);
    
@@ -138,25 +138,27 @@ int main(int argc, char* argv[])
 
    OpenGlobalOut(outname);
 
-   if(state->argc ==  0)
+   if((state->argc < 1) || (state->argc > 2))
    {
-      CLStateInsertArg(state, "-");
+      Error("Usage: e_ltb_runner <spec> [<path-to-eprover>]\n", USAGE_ERROR);
+   }
+   if(state->argc == 2)
+   {
+      prover = state->argv[1];
    }
 
-   for(i=0; state->argv[i]; i++)
-   {
-      in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL);
-      ScannerSetFormat(in, TSTPFormat);
-      
-      spec = BatchSpecParse(in);
+   in = CreateScanner(StreamTypeFile, state->argv[0], true, NULL);
+   ScannerSetFormat(in, TSTPFormat);
+   
+   spec = BatchSpecParse(in);
+   
+   ctrl = BatchControlAlloc("eprover");
+   BatchControlInit(spec, ctrl);      
+   BatchProcessProblems(spec, ctrl);
+   BatchControlFree(ctrl);
+   BatchSpecFree(spec);
+   DestroyScanner(in); 
 
-      ctrl = BatchControlAlloc();
-      BatchControlInit(spec, ctrl);      
-      BatchProcessProblems(spec, ctrl);
-      BatchControlFree(ctrl);
-      BatchSpecFree(spec);
-      DestroyScanner(in); 
-   }
    CLStateFree(state);
 
    ExitIO();
