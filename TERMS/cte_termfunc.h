@@ -113,6 +113,8 @@ long    VarBankCheckBindings(FILE* out, VarBank_p bank, Sig_p sig);
         TermAddSymbolDistributionLimited((term),(dist_array), LONG_MAX)
 void    TermAddSymbolDistributionLimited(Term_p term, long *dist_array, 
 					 long limit);
+void    TermAddSymbolDistExist(Term_p term, long *dist_array, 
+                               PStack_p exists);
 void    TermAddSymbolFeaturesLimited(Term_p term, long depth,
 				     long *freq_array, long* depth_array,
 				     long limit);

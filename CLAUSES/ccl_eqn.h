@@ -345,6 +345,10 @@ int     LiteralCompareFun(Eqn_p lit1, Eqn_p lit2);
 #define EqnAddSymbolDistribution(eqn, dist_array)\
         TermAddSymbolDistribution((eqn)->lterm, (dist_array));\
 	TermAddSymbolDistribution((eqn)->rterm, (dist_array))
+#define EqnAddSymbolDistExist(eqn, dist_array, exist)                 \
+        TermAddSymbolDistExist((eqn)->lterm, (dist_array), (exist));       \
+        TermAddSymbolDistExist((eqn)->rterm, (dist_array), (exist))
+
 #define EqnAddSymbolDistributionLimited(eqn, dist_array, limit)\
         TermAddSymbolDistributionLimited((eqn)->lterm, (dist_array), (limit));\
 	TermAddSymbolDistributionLimited((eqn)->rterm, (dist_array), (limit))

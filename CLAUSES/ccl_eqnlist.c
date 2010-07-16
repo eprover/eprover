@@ -1357,6 +1357,31 @@ void EqnListAddSymbolDistribution(Eqn_p list, long *dist_array)
 
 /*-----------------------------------------------------------------------
 //
+// Function: EqnListAddSymbolDistribExist()
+//
+//   Count the number of occurences of function symbols in list and
+//   add them to dist_array, which has to be a pointer to an array of
+//   long that is sufficiently long (and preferably adequatly
+//   initialized). Push occuring symbols onto exists (once).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void EqnListAddSymbolDistExist(Eqn_p list, long *dist_array, PStack_p exist)
+{
+   while(list)
+   {
+      EqnAddSymbolDistExist(list, dist_array, exist);
+      list = list->next;
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: EqnListComputeFunctionRanks()
 //
 //   Compute the occurance rank for all function symbols in list.

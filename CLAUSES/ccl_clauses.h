@@ -375,8 +375,10 @@ int      ClauseCmpByPtr(const void* clause1, const void* clause2);
 
 Clause_p ClauseNormalizeVars(Clause_p clause, VarBank_p fresh_vars);
 
-#define  ClauseAddSymbolDistribution(clause, dist_array)\
+#define  ClauseAddSymbolDistribution(clause, dist_array)               \
          EqnListAddSymbolDistribution((clause)->literals, (dist_array))
+#define  ClauseAddSymbolDistExist(clause, dist_array, exists)                  \
+         EqnListAddSymbolDistExist((clause)->literals, (dist_array), (exists))
 #define  ClauseComputeFunctionRanks(clause, rank_array, count)\
          EqnListComputeFunctionRanks((clause)->literals, (rank_array), (count))
 #define  ClauseCollectVariables(clause,tree)\

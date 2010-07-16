@@ -1502,6 +1502,54 @@ void TermAddSymbolDistributionLimited(Term_p term, long *dist_array, long limit)
 
 /*-----------------------------------------------------------------------
 //
+// Function: TermAddSymbolDistribExist()
+//
+//   Compute the distribution of symbols in term. Push all occuring
+//   symbols onto exists (once ;-).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void TermAddSymbolDistExist(Term_p term, long *dist_array, 
+                               PStack_p exists)
+{
+   PStack_p stack = PStackAlloc();
+   assert(term);
+
+   PStackPushP(stack, term);
+   
+   while(!PStackEmpty(stack))
+   {
+      term = PStackPopP(stack);
+      assert(term);
+
+      if(!TermIsVar(term))
+      {
+	 int i;
+         
+	 assert(term->f_code > 0);
+         if(!dist_array[term->f_code])
+         {
+            PStackPushInt(exists, term->f_code);
+         }
+         dist_array[term->f_code]++;
+	 
+	 for(i=0; i<term->arity; i++)
+	 {
+	    assert(term->args);
+	    PStackPushP(stack, term->args[i]);
+	 }
+      }
+   }
+   PStackFree(stack);
+}
+
+   
+/*-----------------------------------------------------------------------
+//
 // Function: TermAddSymbolFeaturesLimited()
 //
 //   Add function symbol frequencies and deepest depth of a function

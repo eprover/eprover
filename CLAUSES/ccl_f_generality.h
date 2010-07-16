@@ -61,6 +61,7 @@ typedef struct gen_distrib_cell
    Sig_p    sig;
    long     size;
    FunGen_p dist_array;  
+   long     *f_distrib;
 }GenDistribCell, *GenDistrib_p;
 
 

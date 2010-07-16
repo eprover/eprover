@@ -69,14 +69,16 @@ EPCtrl_p batch_create_runner(BatchControl_p ctrl,
                           benevolence,
                           cspec,
                           fspec);
-   /* fprintf(GlobalOut, "# Spec has %d clauses and %d formulas\n",
-      PStackGetSP(cspec), PStackGetSP(fspec)); */
+   fprintf(GlobalOut, "# Spec has %d clauses and %d formulas (%lld)\n",
+           PStackGetSP(cspec), PStackGetSP(fspec), GetSecTimeMod());
    
    file = TempFileName();
    fp   = fopen(file, "w");
    PStackClausePrintTSTP(fp, cspec);
    PStackFormulaPrintTSTP(fp, fspec);
    fclose(fp);
+   
+   fprintf(GlobalOut, "# Written new problem (%lld)\n", GetSecTimeMod());
 
    sprintf(name, "SinE(%d, %f)", gen_measure, benevolence);
    pctrl = ECtrlCreate(ctrl->executable, name, cpu_time, file);
@@ -456,6 +458,7 @@ void BatchControlAddProblem(BatchControl_p ctrl,
    GenDistribSizeAdjust(ctrl->f_distrib, ctrl->sig);
    PStackPushP(ctrl->clause_sets, clauses);
    PStackPushP(ctrl->formula_sets, formulas);
+      
    GenDistribAddClauseSet(ctrl->f_distrib, clauses, 1);
    GenDistribAddFormulaSet(ctrl->f_distrib, formulas, 1);   
 }
@@ -516,6 +519,7 @@ long BatchControlGetProblem(BatchControl_p ctrl,
 {
    long res;
 
+   
    res = SelectAxioms(ctrl->f_distrib,
                       ctrl->clause_sets,
                       ctrl->formula_sets,
@@ -552,9 +556,11 @@ bool BatchProcessProblem(BatchSpec_p spec,
    EPCtrl_p handle;
    EPCtrlSet_p procs = EPCtrlSetAlloc();
    FILE* fp;
+   long long secs;
 
    fprintf(GlobalOut, "\n# Processing %s -> %s\n", source, dest);
    fprintf(GlobalOut, "# SZS status Started for %s\n", source);
+   fflush(GlobalOut);
    
    in = CreateScanner(StreamTypeFile, source, true, NULL);
    ScannerSetFormat(in, TSTPFormat);
@@ -566,19 +572,32 @@ bool BatchProcessProblem(BatchSpec_p spec,
                             &(ctrl->parsed_includes));
    DestroyScanner(in);
    
+   fprintf(GlobalOut, "# Adding problem (%lld)\n", GetSecTimeMod());
    BatchControlAddProblem(ctrl, 
                           cset, 
                           fset);
+   fprintf(GlobalOut, "# Added problem (%lld)\n", GetSecTimeMod());
 
-   handle = batch_create_runner(ctrl, spec->per_prob_time, GMFormulas, 1);
+
+   secs = GetSecTime();
+   handle = batch_create_runner(ctrl, spec->per_prob_time, GMTerms, 1);   
    EPCtrlSetAddProc(procs, handle);
-   handle = batch_create_runner(ctrl, spec->per_prob_time, GMFormulas, 1.2);
-   EPCtrlSetAddProc(procs, handle);
-   handle = batch_create_runner(ctrl, spec->per_prob_time, GMTerms, 1);
-   EPCtrlSetAddProc(procs, handle);
-   handle = batch_create_runner(ctrl, spec->per_prob_time, GMTerms, 1.2);
-   EPCtrlSetAddProc(procs, handle);
-   
+   if((GetSecTime()-secs) < (spec->per_prob_time/2))
+   {
+      handle = batch_create_runner(ctrl, spec->per_prob_time, GMFormulas, 1);
+      EPCtrlSetAddProc(procs, handle);
+   }
+   if((GetSecTime()-secs) < (spec->per_prob_time/2))
+   {
+      handle = batch_create_runner(ctrl, spec->per_prob_time, GMFormulas, 1.2);
+      EPCtrlSetAddProc(procs, handle);
+   }
+   if((GetSecTime()-secs) < (spec->per_prob_time/2))
+   {
+      handle = batch_create_runner(ctrl, spec->per_prob_time, GMTerms, 1.2);
+      EPCtrlSetAddProc(procs, handle);
+   }
+
    handle = NULL;
    while(!EPCtrlSetEmpty(procs))
    {
@@ -607,6 +626,7 @@ bool BatchProcessProblem(BatchSpec_p spec,
    EPCtrlSetFree(procs);
 
    fprintf(GlobalOut, "# SZS status Ended for %s\n\n", source);
+   fflush(GlobalOut);
 
    return res;
 }

@@ -103,6 +103,7 @@ FunCode NormSubstEqnListExcept(Eqn_p list, Eqn_p except, Subst_p
 long    EqnListDepth(Eqn_p list);
 
 void    EqnListAddSymbolDistribution(Eqn_p list, long *dist_array);
+void    EqnListAddSymbolDistExist(Eqn_p list, long *dist_array, PStack_p exist);
 void    EqnListComputeFunctionRanks(Eqn_p list, long *rank_array, long* count);
 long    EqnListCollectVariables(Eqn_p list, PTree_p *tree);
 

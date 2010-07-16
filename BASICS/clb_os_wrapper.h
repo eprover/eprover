@@ -52,6 +52,10 @@ void       SetSoftRlimitErr(int resource, rlim_t limit, char* desc);
 void       SetMemoryLimit(rlim_t mem_limit);
 rlim_t     GetSoftRlimit(int resource);
 void       IncreaseMaxStackSize(char *argv[], rlim_t stacksize);
+long long  GetUSecTime();
+#define    GetMSecTime() (GetUSecTime()/1000)
+#define    GetSecTime() (GetUSecTime()/1000000)
+#define    GetSecTimeMod() (GetSecTime()%1000)
 
 #endif
 

@@ -221,6 +221,27 @@ void IncreaseMaxStackSize(char *argv[], rlim_t stacksize)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: GetUSecTime()
+//
+//   Return the time in microseconds since the epoch.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long long GetUSecTime()
+{
+   struct timeval tv;
+
+   gettimeofday(&tv, NULL);
+
+   return (long long)tv.tv_sec*1000000ll+tv.tv_usec;
+}
+
 
 
 /*---------------------------------------------------------------------*/
