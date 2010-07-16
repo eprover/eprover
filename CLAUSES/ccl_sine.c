@@ -496,12 +496,13 @@ long SelectDefiningAxioms(DRelation_p drel,
    long       res = 0;
    DRel_p     frel;
    FunCode    i;
-   PStackPointer sp;
+   PStackPointer sp, ssp;
+   PStack_p   symbol_stack = PStackAlloc();
 
+   memset(dist_array, 0, (sig->f_count+1)*sizeof(long));
    while(!PQueueEmpty(axioms))
    {
       res++;
-      memset(dist_array, 0, (sig->f_count+1)*sizeof(long));
 
       type = PQueueGetNextInt(axioms);
       switch(type)
@@ -514,7 +515,7 @@ long SelectDefiningAxioms(DRelation_p drel,
             }
             ClauseSetProp(clause, CPIsRelevant);
             PStackPushP(res_clauses, clause);
-            ClauseAddSymbolDistribution(clause, dist_array);
+            ClauseAddSymbolDistExist(clause, dist_array, symbol_stack);
             break;
       case ATFormula:
             form = PQueueGetNextP(axioms);
@@ -524,15 +525,17 @@ long SelectDefiningAxioms(DRelation_p drel,
             }
             FormulaSetProp(form, WPIsRelevant);
             PStackPushP(res_formulas, form);
-            TermAddSymbolDistribution(form->tformula, dist_array);
+            TermAddSymbolDistExist(form->tformula, dist_array, symbol_stack);
             break;
       default:
             assert(false && "Unknown axiom type!");
             break;
       }
-      for(i=sig->internal_symbols+1; i<=sig->f_count; i++)
+      for(ssp=0; ssp<PStackGetSP(symbol_stack); ssp++)
+
       {
-         if(dist_array[i] && 
+         i = PStackElementInt(symbol_stack, ssp);
+         if((i > sig->internal_symbols) && 
             (frel = PDArrayElementP(drel->relation, i)) &&
             !frel->activated)
          {
@@ -548,9 +551,11 @@ long SelectDefiningAxioms(DRelation_p drel,
                PQueueStoreFormula(axioms, form);
             }
          }
+         dist_array[i] = 0;
       }
    }
    SizeFree(dist_array, (sig->f_count+1)*sizeof(long));
+   PStackFree(symbol_stack);
    return res;
 }
 
