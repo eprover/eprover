@@ -152,7 +152,7 @@ int main(int argc, char* argv[])
    
    spec = BatchSpecParse(in);
    
-   ctrl = BatchControlAlloc("eprover");
+   ctrl = BatchControlAlloc(prover);
    BatchControlInit(spec, ctrl);      
    BatchProcessProblems(spec, ctrl);
    BatchControlFree(ctrl);

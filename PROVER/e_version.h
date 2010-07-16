@@ -37,8 +37,8 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/*  cvs tag E-1-2-pre004*/
-#define VERSION      "1.2pre004"
+/*  cvs tag E-1-2-pre005*/
+#define VERSION      "1.2pre005"
 
 #define E_NICKNAME     "Badamtam"
 
