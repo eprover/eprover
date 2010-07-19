@@ -37,14 +37,14 @@ anything fails. There should be a copy in DOC/eprover.pdf.
              ===============================
 
 
-This is the README file for version 1.1 "Balasun" of the E equational
+This is the README file for version 1.2 "Badamtam" of the E equational
 theorem prover. This version of E is free software, see the file
 COPYING for details about the license and the fact that THERE IS NO
 WARRANTY!
 
-Release 1.1 is the culmination of a long development phase. Important
-changes vs. version 1.0 include improved goal-directed heuristics,
-improved preprocessing, better auto-mode and some general cleanup.
+Release 1.2 is the culmination of a long development phase. Important
+changes vs. version 1.1 include a linear time implementation of KBO,
+and fingerprint indexing for paramodulation and backwards rewriting.
 
 
 What is E? What is CLIB?

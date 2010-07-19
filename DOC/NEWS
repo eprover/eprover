@@ -1,13 +1,24 @@
 This history list describes the major differences between versions of
 the E equational theorem prover.
 
-Version 1.1 ->
+Version 1.1 -> 1.2 Badamtam
 
 - Made stack limit increase fail gracefully (run with default)
 - Fixed (most) problems with C stream output and signals. The core
   prover should be clean now.
+- Cleaned up variable handling and got rid of the ugly second term
+  bank for the given clause
+- Implemnted Bernd Loechner's linear time version of KBO (JAR
+  36(4):289-310, 2006).
+- Fixed a serious bug with mixed CNF/FOF input (now it works,
+  previously it did not).
+- Implemented fingerprint indexing for paramodulation/superposition
+  and backwards rewriting.
+- Implemented e_ltb_runner for CASC-J5. Probably not generally useful,
+  but comes with extended SinE-like functionality that will be used in
+  the main prover eventually.
 
-Version 1.0 -> 1.1
+Version 1.0 -> 1.1 Balasun
 
 - Added --help output to eproof
 - Improved eproof script signal handling.
@@ -25,7 +36,7 @@ Version 1.0 -> 1.1
 - Optional pre-saturation simplificaton
 
 
-Version 0.999-004->1.0
+Version 0.999-004->1.0 Temi
 
 - Removed old style formulas and CNF algorithm.
 - Fixed a number of bugs in backwards rewriting.
@@ -47,7 +58,7 @@ Version 0.999 -> 0.999-004
 - Cleanup of eproof script (thanks to Larry Paulson for bugging me
   over and over again).
 
-Version 0.99 -> 0.999
+Version 0.99 -> 0.999 Longview
 
 - Finally got to eliminate the ugly duplicate term cells for terms
   with rewrite restrictions. This lead to a rather simpler term bank
@@ -61,7 +72,7 @@ Version 0.99 -> 0.999
 - Fixed some bugs in the eproof script to make Larry happy.
 
 
-Version 0.91 -> 0.99
+Version 0.91 -> 0.99 Singtom
 
 - Introduced new and (maybe) better clause evaluation data type.
 - Updated install scripts to handle OSes with UCB tail.
@@ -72,7 +83,7 @@ Version 0.91 -> 0.99
 - Better Auto-Mode
 - Some cleanup.
 
-Version 0.9 -> 0.91
+Version 0.9 -> 0.91 Kanyam
 
 
 - Alternative CNF translator with configurable renaming finally done

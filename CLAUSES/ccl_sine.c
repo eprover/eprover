@@ -291,7 +291,7 @@ void DRelationAddFormulaSet(DRelation_p drel,
                             FormulaSet_p set)
 {
    WFormula_p handle;
-   
+
    for(handle = set->anchor->succ; 
        handle != set->anchor;
        handle = handle->succ)
