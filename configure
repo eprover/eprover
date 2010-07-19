@@ -75,7 +75,7 @@
 #
 
 EXECPATH=`pwd`/PROVER
-
+MANPATH=`pwd`/DOC/man
 
 for argument in  "$@"; do
     if [ "$argument" = "-h" -o "$argument" = "--help" ] ; then
@@ -88,16 +88,23 @@ for argument in  "$@"; do
         echo "  Configure E for running from <path>".
         echo "--exec-prefix=<path>"
         echo "  Equivalent to --bindir=<path>/bin".
+        echo "--man-prefix=<path>"
+        echo "  Specify directory for the man pages."
         echo "--prefix=<path>"
-        echo "  Equivalent to --bindir=<path>/bin".
+        echo "  Equivalent to --bindir=<path>/bin --mandir=<path>/man".
         exit 0
     else
         opt=`echo "$argument"|cut -d= -f1`
         arg=`echo "$argument"|cut -d= -f2-`
         if [ "$opt" = "--bindir" ] ; then
            EXECPATH=$arg
-        elif [ "$opt" = "--exec-prefix" -o "$opt" = "--prefix" ] ; then
+        elif [ "$opt" = "--exec-prefix" ] ; then 
            EXECPATH=$arg/bin 
+        elif [ "$opt" = "--man-prefix" ] ; then
+           MANPATH=$arg
+        elif [ "$opt" = "--prefix" ] ; then
+           EXECPATH=$arg/bin
+           MANPATH=$arg/man
         else
            echo "Unknown option " $argument
            exit 1
@@ -107,7 +114,8 @@ done
 
 echo "Configuring with executable path "$EXECPATH
 
-sed -e "/^EXECPATH =.*/s|.*|EXECPATH = $EXECPATH|" Makefile.vars > tmpfile
+echo $MANPATH
+sed -e "/^EXECPATH =.*/s|.*|EXECPATH = $EXECPATH|" -e "/^MANPATH =.*/s|.*|MANPATH = $MANPATH|"  Makefile.vars > tmpfile
 mv tmpfile Makefile.vars
 
 sed -e "/^EXECPATH=.*/s|.*|EXECPATH=$EXECPATH|" PROVER/eproof > tmpfile

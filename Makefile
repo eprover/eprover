@@ -131,15 +131,6 @@ config:
 
 # Configure and copy executables to the installation directory
 
-# Old eproof config - I hope it now runs with /bin/sh, which is 
-# guaranteed to be where it belongs. Kept as a historical reference.
-# 	@echo "#!"`which bash`" -f" > tmpfile
-#	@echo "" >> tmpfile
-#	@echo "EXECPATH=$(EXECPATH)" >> tmpfile
-#	@awk '{count++; if(count >= 4){print}}' PROVER/eproof >> tmpfile
-#	@mv tmpfile PROVER/eproof
-
-
 install: E
 	-sh -c 'mkdir -p $(EXECPATH)'
 	-sh -c 'cp PROVER/eprover $(EXECPATH)'
@@ -147,6 +138,12 @@ install: E
 	-sh -c 'cp PROVER/eproof $(EXECPATH)'
 	-sh -c 'cp  PROVER/eground $(EXECPATH)'	
 	-sh -c 'cp  PROVER/e_ltb_runner $(EXECPATH)'	
+	-sh -c 'mkdir -p $(MANPATH)'
+	-sh -c 'cp DOC/man/eprover.1 $(MANPATH)'
+	-sh -c 'cp DOC/man/epclextract.1 $(MANPATH)'
+	-sh -c 'cp DOC/man/eproof.1 $(MANPATH)'
+	-sh -c 'cp DOC/man/eground.1 $(MANPATH)'
+	-sh -c 'cp DOC/man/e_ltb_runner.1 $(MANPATH)'
 
 # Also remake documentation
 
@@ -160,6 +157,7 @@ man: top
 	help2man -N -i DOC/bug_reporting PROVER/eprover > DOC/man/eprover.1
 	help2man -N -i DOC/bug_reporting PROVER/eground > DOC/man/eground.1
 	help2man -N -i DOC/bug_reporting PROVER/epclextract > DOC/man/epclextract.1
+	help2man -N -i DOC/bug_reporting PROVER/e_ltb_runner > DOC/man/e_ltb_runner.1
 
 # Build the single libraries
 
