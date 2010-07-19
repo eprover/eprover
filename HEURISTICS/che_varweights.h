@@ -9,7 +9,8 @@ Contents
   Weight functions that play around a bit ;-)
 
   Copyright 1998, 1999, 2005 by the author.
-  This code is released under the GNU General Public Licence.
+  This code is released under the GNU General Public Licence and
+  the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 

@@ -12,7 +12,8 @@ Contents
   (=LONG_MIN) if p<=q, t|q=Xn, 0 otherwise.
 
   Copyright 2010 by the author.
-  This code is released under the GNU General Public Licence.
+  This code is released under the GNU General Public Licence and
+  the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
