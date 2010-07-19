@@ -276,7 +276,7 @@ void IntMapFree(IntMap_p map)
 /*-----------------------------------------------------------------------
 //
 // Function: IntMapGetVal()
-  //
+//
 //   Given a key, return the associated value or NULL, if no suitable
 //   key/value pair exists.
 //

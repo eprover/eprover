@@ -383,9 +383,6 @@ long BatchControlInitSpec(BatchSpec_p spec, BatchControl_p ctrl)
          PStackPushP(ctrl->formula_sets, fset);
          StrTreeStore(&(ctrl->parsed_includes), iname, dummy, dummy);
          
-         // ClauseSetPrint(stdout, cset, true);
-         // FormulaSetPrint(stdout, fset, true);
-         
          DestroyScanner(in);
       }
    }

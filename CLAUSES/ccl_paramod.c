@@ -453,7 +453,6 @@ Eqn_p  EqnOrderedParamod(TB_p bank, OCB_p ocb, ClausePos_p from,
    assert(EqnIsPositive(from->literal));
    assert(TermPosIsTopPos(from->pos));
    assert(into->side == LeftSide || !EqnIsOriented(into->literal));   
-   //assert(from->literal->bank != into->literal->bank);
    
    lside = ClausePosGetSide(into);
    rside = ClausePosGetOtherSide(into);
