@@ -10,7 +10,7 @@ Contents
 
   Copyright 1998--2003 by the author.
   This code is released under the GNU General Public Licence.
-  See the file COPYING in the main CLIB directory for details.
+  See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
 Changes
