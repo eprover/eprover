@@ -1078,10 +1078,10 @@ theorem prover.
 E is a theorem prover for full first order logic with equality. It has
 successfully competed in several CASC competitions and is generally
 considered a friendly and powerful system (as theorem provers go). E
-has won the "overall best system" special award at CASC-J5.
+has recently won the "overall best system" special award at CASC-J5.
 
 The new version has significantly improved in performance, added
-support for some new TPTP features, and fixed one serious bug 
+support for some new TPTP features, and fixed one serious bug
 
 E is available as a source distribution for UNIX-variants. It installs
 cleanly under all UNIX variants I could get my hands on: Various
@@ -1089,7 +1089,8 @@ versions of GNU/Linux for Intel, and XScale, Solaris on SPARC, and
 MacOS-X. Users have reported successful builds on a large number of
 other systems, including Windows/Cygwin.
 
-The system is distributed under the GNU General Public License.
+The system is dual-licenses under the GNU General Public License and
+the GNU Lesser General Public License.
 
 You can find the source distribution and additional information at
 http://www.eprover.org
