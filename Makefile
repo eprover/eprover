@@ -133,17 +133,17 @@ config:
 
 install: E
 	-sh -c 'mkdir -p $(EXECPATH)'
-	-sh -c 'cp PROVER/eprover $(EXECPATH)'
-	-sh -c 'cp PROVER/epclextract $(EXECPATH)'
-	-sh -c 'cp PROVER/eproof $(EXECPATH)'
-	-sh -c 'cp  PROVER/eground $(EXECPATH)'	
-	-sh -c 'cp  PROVER/e_ltb_runner $(EXECPATH)'	
+	-sh -c 'development_tools/e_install PROVER/eprover $(EXECPATH) ' 
+	-sh -c 'development_tools/e_install PROVER/epclextract $(EXECPATH)'
+	-sh -c 'development_tools/e_install PROVER/eproof $(EXECPATH)'
+	-sh -c 'development_tools/e_install  PROVER/eground $(EXECPATH)'	
+	-sh -c 'development_tools/e_install  PROVER/e_ltb_runner $(EXECPATH)'	
 	-sh -c 'mkdir -p $(MANPATH)'
-	-sh -c 'cp DOC/man/eprover.1 $(MANPATH)'
-	-sh -c 'cp DOC/man/epclextract.1 $(MANPATH)'
-	-sh -c 'cp DOC/man/eproof.1 $(MANPATH)'
-	-sh -c 'cp DOC/man/eground.1 $(MANPATH)'
-	-sh -c 'cp DOC/man/e_ltb_runner.1 $(MANPATH)'
+	-sh -c 'development_tools/e_install DOC/man/eprover.1 $(MANPATH)'
+	-sh -c 'development_tools/e_install DOC/man/epclextract.1 $(MANPATH)'
+	-sh -c 'development_tools/e_install DOC/man/eproof.1 $(MANPATH)'
+	-sh -c 'development_tools/e_install DOC/man/eground.1 $(MANPATH)'
+	-sh -c 'development_tools/e_install DOC/man/e_ltb_runner.1 $(MANPATH)'
 
 # Also remake documentation
 

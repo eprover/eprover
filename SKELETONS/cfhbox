@@ -35,6 +35,11 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+#define XXXCellAlloc()    (XXXCell*)SizeMalloc(sizeof(XXXCell))
+#define XXXCellFree(junk) SizeFree(junk, sizeof(XXXCell))
+
+XXX_p  XXXAlloc();
+void   XXXFree(XXX_p junk);
 
 
 
