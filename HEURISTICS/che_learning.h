@@ -27,7 +27,7 @@ Changes
 
 #include <che_wfcb.h>
 #include <cle_tsmio.h>
-#include <math.h>
+
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */

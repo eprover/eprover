@@ -49,15 +49,34 @@ typedef IndexFP_p (*FPIndexFunction)(Term_p t);
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+extern char* FPIndexNames[];
+
+
+#define MAX_PM_INDEX_NAME_LEN 20
 
 #define   BELOW_VAR     -2
 #define   ANY_VAR       -1
 #define   NOT_IN_TERM    0
 FunCode   TermFPSample(Term_p term, ...);
+FunCode   TermFPFlexSample(Term_p term, IntOrP* *seq);
+
+
 IndexFP_p IndexFP0Create(Term_p t);
 IndexFP_p IndexFP1Create(Term_p t);
+IndexFP_p IndexFP2Create(Term_p t);
+IndexFP_p IndexFP3DCreate(Term_p t);
+IndexFP_p IndexFP3WCreate(Term_p t);
+IndexFP_p IndexFP4DCreate(Term_p t);
+IndexFP_p IndexFP4WCreate(Term_p t);
+IndexFP_p IndexFP4MCreate(Term_p t);
 IndexFP_p IndexFP7Create(Term_p t);
+IndexFP_p IndexFPFlexCreate(Term_p t, PStack_p pos, int len);
+IndexFP_p IndexFP3DFlexCreate(Term_p t);
+
 void      IndexFPFree(IndexFP_p junk);
+
+FPIndexFunction GetFPIndexFunction(char* name);
+
 void      IndexFPPrint(FILE* out, IndexFP_p fp);
 
 

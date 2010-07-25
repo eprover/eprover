@@ -64,6 +64,7 @@ void       PTreeObjMerge(PObjTree_p *root, PObjTree_p add,
 
 void       PObjTreeFree(PObjTree_p root, ObjDelFun del_fun);
 
+long       PObjTreeNodes(PObjTree_p root);
 
 #endif
 

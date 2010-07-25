@@ -897,11 +897,13 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
    }
 
    GlobalIndicesInit(&(state->gindices),
-                     control->heuristic_parms.use_bw_rw_index,
-                     control->heuristic_parms.use_pm_index);
+                     control->heuristic_parms.rw_bw_index_type,
+                     control->heuristic_parms.pm_from_index_type,
+                     control->heuristic_parms.pm_into_index_type);
    GlobalIndicesInit(&(state->wlindices),
-                     control->heuristic_parms.use_bw_rw_index,
-                     control->heuristic_parms.use_pm_index);
+                     control->heuristic_parms.rw_bw_index_type,
+                     control->heuristic_parms.pm_from_index_type,
+                     control->heuristic_parms.pm_into_index_type);
 
    if(!state->fvi_initialized)
    {

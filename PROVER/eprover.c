@@ -139,8 +139,10 @@ typedef enum
    OPT_FVINDEX_FEATURETYPES,
    OPT_FVINDEX_MAXFEATURES,
    OPT_FVINDEX_SLACK,
-   OPT_BW_RW_INDEX,
-   OPT_PM_INDEX,
+   OPT_RW_BW_INDEX,
+   OPT_PM_FROM_INDEX,
+   OPT_PM_INTO_INDEX,
+   OPT_FP_INDEX,
    OPT_DETSORT_RW,
    OPT_DETSORT_NEW,
    OPT_UNPROC_UNIT_SIMPL,
@@ -966,15 +968,39 @@ OptCell opts[] =
     "be deleted from the index anyways, but will still waste "
     "(a little) time in computing feature vectors."},
 
-   {OPT_BW_RW_INDEX,
-    '\0', "no-bw-rw-index",
-    NoArg, NULL,
-    "Don't use fingerprint indexing for backward rewriting."},
+   {OPT_RW_BW_INDEX,
+    '\0', "rw-bw-index",
+    OptArg, "FP7",
+    "Select fingerprint function for backwards rewrite index. "
+    "\"NoIndex\" will disable paramodulation indexing. For a list "
+    "of the other values run '" NAME " --pm-index=none'. FPX functions"
+    "will use a fingerprint of X positions, the letters disambiguate "
+    "between different fingerprints with the same sample size."},
 
-   {OPT_PM_INDEX,
-    '\0', "no-pm-index",
-    NoArg, NULL,
-    "Disable fingerprint indexing for paramodulation."},
+   {OPT_PM_FROM_INDEX,
+    '\0', "pm-from-index",
+    OptArg, "FP7",
+    "Select fingerprint function for the index for paramodulation from "
+    "indexed clauses. \"NoIndex\" "
+    "will disable paramodulation indexing. For a list "
+    "of the other values run '" NAME " --pm-index=none'. FPX functions"
+    "will use a fingerprint of X positions, the letters disambiguate "
+    "between different fingerprints with the same sample size."},
+
+   {OPT_PM_INTO_INDEX,
+    '\0', "pm-into-index",
+    OptArg, "FP7",
+    "Select fingerprint function for the index for paramodulation into "
+    "the indexed clauses. \"NoIndex\" "
+    "will disable paramodulation indexing. For a list "
+    "of the other values run '" NAME " --pm-index=none'. FPX functions"
+    "will use a fingerprint of X positions, the letters disambiguate "
+    "between different fingerprints with the same sample size."},
+
+   {OPT_FP_INDEX,
+    '\0', "fp-index",
+    OptArg, "FP7",
+    "Select fingerprint function for all fingerprint indices. See above."},  
 
    {OPT_DETSORT_RW,
     '\0', "detsort-rw",
@@ -1337,7 +1363,23 @@ int main(int argc, char* argv[])
       fprintf(GlobalOut, "# Indexed BW rewrite successes         : %ld\n",
               BWRWMatchSuccesses);
 
-   }
+      if(proofstate->gindices.bw_rw_index)
+      {
+         fprintf(GlobalOut, "# Backwards rewriting index:\n");
+         FPIndexDistribPrint(GlobalOut, proofstate->gindices.bw_rw_index);
+      }
+      if(proofstate->gindices.pm_into_index)
+      {
+         fprintf(GlobalOut, "Paramod-into index:\n");
+         FPIndexDistribPrint(GlobalOut, proofstate->gindices.pm_into_index);
+      }
+      if(proofstate->gindices.pm_from_index)
+      {
+         fprintf(GlobalOut, "Paramod-from index:\n");
+         FPIndexDistribPrint(GlobalOut, proofstate->gindices.pm_from_index);
+      }
+      
+   }   
 #ifndef FAST_EXIT
 #ifdef FULL_MEM_STATS
    fprintf(GlobalOut,
@@ -1385,6 +1427,42 @@ int main(int argc, char* argv[])
 #endif
    
    return 0;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: check_fp_index_arg()
+//
+//   Check in arg is a valid term describing a FP-index function. If
+//   yes, return true. If no, print error (nominally return false).
+//
+// Global Variables: -
+//
+// Side Effects    : May terminate program with error.
+//
+/----------------------------------------------------------------------*/
+
+bool check_fp_index_arg(char* arg, char* opt)
+{
+   DStr_p err;
+
+   if(GetFPIndexFunction(arg)||(strcmp(arg, "NoIndex")==0))
+   {
+      return true;
+   }
+   err = DStrAlloc();
+   DStrAppendStr(err, 
+                 "Wrong argument to option ");
+   DStrAppendStr(err, 
+                 opt);
+   DStrAppendStr(err, 
+                 ". Possible values: "); 
+   DStrAppendStrArray(err, FPIndexNames, ", ");
+   Error(DStrView(err), USAGE_ERROR);
+   DStrFree(err);
+   
+   return false;
 }
 
 
@@ -1969,11 +2047,23 @@ CLState_p process_options(int argc, char* argv[])
 	    }
 	    fvi_parms->symbol_slack = tmp;
 	    break;
-      case OPT_BW_RW_INDEX:
-            h_parms->use_bw_rw_index = false;
+      case OPT_RW_BW_INDEX:
+            check_fp_index_arg(arg, "--rw-bw-index");
+            strcpy(h_parms->rw_bw_index_type, arg);
             break;
-      case OPT_PM_INDEX:
-            h_parms->use_pm_index = false;
+      case OPT_PM_FROM_INDEX:
+            check_fp_index_arg(arg, "--pm-from-index");
+            strcpy(h_parms->pm_from_index_type, arg);
+            break;
+      case OPT_PM_INTO_INDEX:
+            check_fp_index_arg(arg, "--pm-into-index");
+            strcpy(h_parms->pm_into_index_type, arg);
+            break;
+      case OPT_FP_INDEX:
+            check_fp_index_arg(arg, "--fp-index");
+            strcpy(h_parms->rw_bw_index_type, arg);
+            strcpy(h_parms->pm_from_index_type, arg);
+            strcpy(h_parms->pm_into_index_type, arg);
             break;
       case OPT_DETSORT_RW:
             h_parms->detsort_bw_rw = true;

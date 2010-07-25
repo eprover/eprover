@@ -37,6 +37,9 @@ Changes
 
 typedef struct global_indices_cell
 {
+   char              rw_bw_index_type[MAX_PM_INDEX_NAME_LEN];
+   char              pm_from_index_type[MAX_PM_INDEX_NAME_LEN];
+   char              pm_into_index_type[MAX_PM_INDEX_NAME_LEN];
    SubtermIndex_p    bw_rw_index;   
    OverlapIndex_p    pm_into_index;
    OverlapIndex_p    pm_from_index;
@@ -50,8 +53,10 @@ typedef struct global_indices_cell
 
 void GlobalIndicesNull(GlobalIndices_p indices);
 void GlobalIndicesInit(GlobalIndices_p indices, 
-                       bool use_bw_rw_index,
-                       bool use_pm_index);
+                       char* rw_bw_index_type,
+                       char* pm_from_index_type,
+                       char* pm_into_index_type);
+
 void GlobalIndicesFreeIndices(GlobalIndices_p indices);
 void GlobalIndicesReset(GlobalIndices_p indices);
 

@@ -468,6 +468,40 @@ void PObjTreeFree(PObjTree_p root, ObjDelFun del_fun)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: PObjTreeNodes()
+//
+//   Return the number of nodes in the tree.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long PObjTreeNodes(PObjTree_p root)
+{
+   PStack_p stack = PStackAlloc();
+   long     res   = 0;
+
+   PStackPushP(stack, root);
+   
+   while(!PStackEmpty(stack))
+   {
+      root = PStackPopP(stack);
+      if(root)
+      {
+	 PStackPushP(stack, root->lson);
+	 PStackPushP(stack, root->rson);
+	 res++;
+      }
+   }
+   PStackFree(stack);
+
+   return res;   
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

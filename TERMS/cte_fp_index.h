@@ -28,6 +28,7 @@ Changes
 #define CTE_FP_INDEX
 
 #include <clb_intmap.h>
+#include <clb_objtrees.h>
 #include <cte_idx_fp.h>
 
 
@@ -94,8 +95,6 @@ long     FPTreeFindUnifiable(FPTree_p root, IndexFP_p key, PStack_p collect);
 long     FPTreeFindMatchable(FPTree_p root, IndexFP_p key, PStack_p collect);
 
 
-
-
 #define FPIndexCellAlloc() (FPIndexCell*)SizeMalloc(sizeof(FPIndexCell))
 #define FPIndexCellFree(junk)         SizeFree(junk, sizeof(FPIndexCell))
 
@@ -110,6 +109,7 @@ void      FPIndexDelete(FPIndex_p index, Term_p term);
 long      FPIndexFindUnifiable(FPIndex_p index, Term_p term, PStack_p collect);
 long      FPIndexFindMatchable(FPIndex_p index, Term_p term, PStack_p collect);
 
+void      FPIndexDistribPrint(FILE* out, FPIndex_p index);
 
 #endif
 

@@ -77,9 +77,6 @@ typedef struct featurescell
 Features_p FeaturesAlloc(void);
 void       FeaturesFree(Features_p junk);
 
-double PStackComputeAverage(PStack_p stack, double *deviation);
-
-
 void ComputeClauseSetNumFeatures(Features_p features, ClauseSet_p set,			
 				 Sig_p sig);
 

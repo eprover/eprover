@@ -79,18 +79,31 @@ void GlobalIndicesNull(GlobalIndices_p indices)
 /----------------------------------------------------------------------*/
 
 void GlobalIndicesInit(GlobalIndices_p indices, 
-                       bool use_bw_rw_index,
-                       bool use_pm_index)
+                       char* rw_bw_index_type,
+                       char* pm_from_index_type,
+                       char* pm_into_index_type)
 {
-   if(use_bw_rw_index)
+   FPIndexFunction indexfun;
+   
+   indexfun = GetFPIndexFunction(rw_bw_index_type);
+   strcpy(indices->rw_bw_index_type, rw_bw_index_type);
+   if(indexfun)
    {
-      indices->bw_rw_index = FPIndexAlloc(IndexFP7Create, SubtermBWTreeFreeWrapper);
+      indices->bw_rw_index = FPIndexAlloc(indexfun, SubtermBWTreeFreeWrapper);
    }
-   if(use_pm_index)
+   indexfun = GetFPIndexFunction(pm_from_index_type);
+   strcpy(indices->pm_from_index_type, pm_from_index_type);
+   if(indexfun)
    {
-      indices->pm_into_index = FPIndexAlloc(IndexFP7Create, SubtermOLTreeFreeWrapper);
-      indices->pm_from_index = FPIndexAlloc(IndexFP7Create, SubtermOLTreeFreeWrapper);
+      indices->pm_from_index = FPIndexAlloc(indexfun, SubtermOLTreeFreeWrapper);
    }
+   indexfun = GetFPIndexFunction(pm_into_index_type);
+   strcpy(indices->pm_into_index_type, pm_into_index_type);
+   if(indexfun)
+   {
+      indices->pm_into_index = FPIndexAlloc(indexfun, SubtermOLTreeFreeWrapper);
+   }
+
 }
 
 
@@ -140,16 +153,12 @@ void GlobalIndicesFreeIndices(GlobalIndices_p indices)
 
 void GlobalIndicesReset(GlobalIndices_p indices)
 {
-   bool 
-      use_bw_rw_index = false, 
-      use_pm_index = false;
-
-   use_bw_rw_index   = indices->bw_rw_index!=NULL;
-   use_pm_index      = indices->pm_into_index!=NULL;
+   GlobalIndicesFreeIndices(indices);
 
    GlobalIndicesInit(indices, 
-                     use_bw_rw_index,
-                     use_pm_index);
+                     indices->rw_bw_index_type,
+                     indices->pm_from_index_type,
+                     indices->pm_into_index_type);
 }
 
 

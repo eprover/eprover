@@ -114,8 +114,9 @@ typedef struct heuristic_parms_cell
    UnitSimplifyType    unproc_simplify;
 
    /* Global indexing */
-   bool                use_bw_rw_index;
-   bool                use_pm_index;
+   char                rw_bw_index_type[MAX_PM_INDEX_NAME_LEN];
+   char                pm_from_index_type[MAX_PM_INDEX_NAME_LEN];
+   char                pm_into_index_type[MAX_PM_INDEX_NAME_LEN];
    
    /* Various things */
    long                filter_limit;
@@ -176,6 +177,10 @@ typedef struct hcb_cell
 #define DEFAULT_FILTER_COPIES_LIMIT LONG_MAX
 #define DEFAULT_REWEIGHT_INTERVAL LONG_MAX
 #define DEFAULT_DELETE_BAD_LIMIT LONG_MAX
+
+#define DEFAULT_RW_BW_INDEX_NAME "FP7"
+#define DEFAULT_PM_FROM_INDEX_NAME "FP7"
+#define DEFAULT_PM_INTO_INDEX_NAME "FP7"
 
 typedef Clause_p (*ClauseSelectFun)(HCB_p hcb, ClauseSet_p set);
 

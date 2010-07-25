@@ -746,6 +746,97 @@ long FPIndexFindMatchable(FPIndex_p index, Term_p term, PStack_p collect)
 
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: fp_index_tree_print()
+//
+//   
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+long fp_index_tree_print(FILE* out, FPTree_p index, PStack_p stack, long *entries)
+{
+   long res = 0, tmp;
+   IntMapIter_p iter;
+   long         i=0;
+   FPTree_p    child;
+
+   if(index->payload)
+   {
+      res++;
+      fprintf(out, "# ");
+      PStackPrintInt(out, "%4ld.", stack);
+      tmp =  PObjTreeNodes(index->payload);
+      fprintf(out, ":%ld terms\n", tmp);
+      *entries += tmp;
+   }
+   if(index->f_alternatives)
+   {
+      iter = IntMapIterAlloc(index->f_alternatives, 0, LONG_MAX); 
+      while((child=IntMapIterNext(iter, &i)))
+      {
+         PStackPushInt(stack, i);
+         res+= fp_index_tree_print(out, 
+                                   child,
+                                   stack, 
+                                   entries);
+         (void)PStackPopInt(stack);
+      }
+      IntMapIterFree(iter);
+   }
+   if(index->below_var)
+   {
+      PStackPushInt(stack, BELOW_VAR);
+      res+= fp_index_tree_print(out, 
+                                fpindex_alternative(index, BELOW_VAR), 
+                                stack, 
+                                entries);
+      (void)PStackPopInt(stack);       
+   }
+   if(index->any_var)
+   {
+      PStackPushInt(stack, ANY_VAR);
+      res+= fp_index_tree_print(out, 
+                                fpindex_alternative(index, ANY_VAR), 
+                                stack, 
+                                entries);
+      (void)PStackPopInt(stack);                    
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FPIndexDistribPrint()
+//
+//   Print the pathes in the index and the number of stored terms at
+//   each leaf of the FPTree.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+void FPIndexDistribPrint(FILE* out, FPIndex_p index)
+{
+   long leafs, entries=0;
+   PStack_p path = PStackAlloc();
+
+   leafs = fp_index_tree_print(out, index->index, path, &entries);
+   fprintf(out, "# %ld entries, %ld leafs, %f entries/leaf\n",
+           entries, leafs, (double)entries/leafs);
+   
+   PStackFree(path);
+}
+
+
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

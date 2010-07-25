@@ -43,6 +43,62 @@ Changes
 
 /* Most things are now defined as inline stuff.... */
 
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PStackComputeAverage()
+//
+//   Given a stack of integers, compute the arithmetic mean (returned)
+//   and the standard deviation (stored in *deviation) of the
+//   integers. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+double PStackComputeAverage(PStack_p stack, double *deviation)
+{
+   PStackPointer i;
+   long count = 0;
+   double sum = 0, average = 0, variance = 0;
+
+   for(i=0; i<PStackGetSP(stack); i++)
+   {
+      sum+=PStackElementInt(stack,i);
+      count++;
+   }
+   if(count)
+   {
+      average = sum / (double)count;
+   }
+   else
+   {
+      average = 0;
+   }
+
+   if(count)
+   {
+      for(i=0; i<PStackGetSP(stack); i++)
+      {
+	 variance+= (PStackElementInt(stack,i)-average)
+	 *(PStackElementInt(stack,i)-average);
+      }
+      variance = variance / (double)count;
+   }
+   else
+   {
+      variance = 0;
+   }
+   *deviation = sqrt(variance);
+
+   return average;
+}
+
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: PStackSort()
@@ -59,6 +115,30 @@ void PStackSort(PStack_p stack, ComparisonFunctionType cmpfun)
 {
    qsort(stack->stack, stack->current, sizeof(IntOrP), cmpfun);
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: PStackPrintInt()
+//
+//   Print a stack (interpreted as (long) integers) using the format
+//   given. 
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void PStackPrintInt(FILE* out, char* format, PStack_p stack)
+{
+   PStackPointer i;
+
+   for(i=0; i<PStackGetSP(stack); i++)
+   {
+      fprintf(out, format, PStackElementInt(stack, i));
+   }
+}
+
 
 
 /*---------------------------------------------------------------------*/

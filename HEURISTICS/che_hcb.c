@@ -139,8 +139,10 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
 
    handle->unproc_simplify               = NoUnitSimplify;
 
-   handle->use_bw_rw_index               = true;
-   handle->use_pm_index                  = true;
+   
+   strcpy(handle->rw_bw_index_type, DEFAULT_RW_BW_INDEX_NAME);
+   strcpy(handle->pm_from_index_type, DEFAULT_PM_FROM_INDEX_NAME);
+   strcpy(handle->pm_into_index_type, DEFAULT_PM_INTO_INDEX_NAME);
 
    handle->filter_limit                  = DEFAULT_FILTER_LIMIT;
    handle->filter_copies_limit           = DEFAULT_FILTER_COPIES_LIMIT;

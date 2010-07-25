@@ -52,6 +52,7 @@ typedef struct pstackcell
 #define PStackCellAlloc() (PStackCell*)SizeMalloc(sizeof(PStackCell))
 #define PStackCellFree(junk)         SizeFree(junk, sizeof(PStackCell))
 
+#define  PStackBaseAddress(stackarg) ((stackarg)->stack)
 static __inline__ PStack_p PStackAlloc(void);
 static __inline__ void     PStackFree(PStack_p junk);
 static __inline__ PStack_p PStackCopy(PStack_p stack);
@@ -81,6 +82,11 @@ static __inline__ IntOrP   PStackElement(PStack_p stack, PStackPointer pos);
 
 void     PStackSort(PStack_p stack, ComparisonFunctionType cmpfun);
 
+double   PStackComputeAverage(PStack_p stack, double *deviation);
+
+
+
+void     PStackPrintInt(FILE* out, char* format, PStack_p stack);
 
 /*---------------------------------------------------------------------*/
 /*                  Implementations as inline functions                */
