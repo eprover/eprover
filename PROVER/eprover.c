@@ -1365,20 +1365,22 @@ int main(int argc, char* argv[])
 
       if(proofstate->gindices.bw_rw_index)
       {
-         fprintf(GlobalOut, "# Backwards rewriting index:\n");
-         FPIndexDistribPrint(GlobalOut, proofstate->gindices.bw_rw_index);
-      }
-      if(proofstate->gindices.pm_into_index)
-      {
-         fprintf(GlobalOut, "Paramod-into index:\n");
-         FPIndexDistribPrint(GlobalOut, proofstate->gindices.pm_into_index);
+         fprintf(GlobalOut, "# Backwards rewriting index: ");
+         FPIndexDistribDataPrint(GlobalOut, proofstate->gindices.bw_rw_index);
+         fprintf(GlobalOut, "\n");
       }
       if(proofstate->gindices.pm_from_index)
       {
-         fprintf(GlobalOut, "Paramod-from index:\n");
-         FPIndexDistribPrint(GlobalOut, proofstate->gindices.pm_from_index);
+         fprintf(GlobalOut, "# Paramod-from index:        ");
+         FPIndexDistribDataPrint(GlobalOut, proofstate->gindices.pm_from_index);
+         fprintf(GlobalOut, "\n");
       }
-      
+      if(proofstate->gindices.pm_into_index)
+      {
+         fprintf(GlobalOut, "# Paramod-into index:        ");
+         FPIndexDistribDataPrint(GlobalOut, proofstate->gindices.pm_into_index);
+         fprintf(GlobalOut, "\n");
+      }     
    }   
 #ifndef FAST_EXIT
 #ifdef FULL_MEM_STATS

@@ -108,7 +108,7 @@ void        FVIndexInsert(FVIAnchor_p index, FreqVector_p vec_clause);
 
 bool        FVIndexDelete(FVIAnchor_p index, Clause_p clause);
 
-long        FVIndexCountNodes(FVIndex_p index, bool leafs, bool empty);
+long        FVIndexCountNodes(FVIndex_p index, bool leaves, bool empty);
 
 FVPackedClause_p FVIndexPackClause(Clause_p clause, FVIAnchor_p anchor);
 

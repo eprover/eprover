@@ -40,6 +40,7 @@ char* FPIndexNames[] =
    "FP4W",
    "FP4M",
    "FP7",
+   "FP4X2_2",
    "FP3DFlex",
    "NoIndex",
    NULL
@@ -56,6 +57,7 @@ static FPIndexFunction fp_index_funs[] =
    IndexFP4WCreate,
    IndexFP4MCreate,
    IndexFP7Create,
+   IndexFP4X2_2Create,
    IndexFP3DFlexCreate,
    NULL,
    NULL
@@ -405,6 +407,50 @@ IndexFP_p IndexFP7Create(Term_p t)
    res[6] = TermFPSample(t, 1, 0, -1);
    res[7] = TermFPSample(t, 1, 1, -1);
 
+   return res;
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: IndexFP4X2_2Create()
+//
+//   Create a fingerprint structure with samples at positions as
+//   specified below.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+IndexFP_p IndexFP4X2_2Create(Term_p t)
+{
+   IndexFP_p res = SizeMalloc(sizeof(FunCode)*17);
+
+   res[ 0] = 17;
+   res[ 1] = TermFPSample(t, -1);
+   res[ 2] = TermFPSample(t, 0, -1);
+   res[ 3] = TermFPSample(t, 1, -1);
+   res[ 4] = TermFPSample(t, 2, -1);
+   res[ 5] = TermFPSample(t, 3, -1);
+
+   res[ 6] = TermFPSample(t, 0, 0, -1);
+   res[ 7] = TermFPSample(t, 0, 1, -1);
+   res[ 8] = TermFPSample(t, 0, 2, -1);
+
+   res[9] = TermFPSample(t, 1, 0, -1);
+   res[10] = TermFPSample(t, 1, 1, -1);
+   res[11] = TermFPSample(t, 1, 2, -1);
+
+   res[12] = TermFPSample(t, 2, 0, -1);
+   res[13] = TermFPSample(t, 2, 1, -1);
+   res[14] = TermFPSample(t, 2, 2, -1);
+
+   res[15] = TermFPSample(t, 0, 0, 0, -1);
+   res[16] = TermFPSample(t, 1, 0, 0, -1);
+   
    return res;
 }
 

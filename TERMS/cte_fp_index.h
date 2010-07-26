@@ -52,7 +52,7 @@ typedef struct fp_index_cell
    struct fp_index_cell *below_var;
    struct fp_index_cell *any_var;
    long                 count;
-   void                 *payload;
+   PObjTree_p           payload;
 }FPTreeCell, *FPTree_p;
 
 
@@ -110,6 +110,7 @@ long      FPIndexFindUnifiable(FPIndex_p index, Term_p term, PStack_p collect);
 long      FPIndexFindMatchable(FPIndex_p index, Term_p term, PStack_p collect);
 
 void      FPIndexDistribPrint(FILE* out, FPIndex_p index);
+void      FPIndexDistribDataPrint(FILE* out, FPIndex_p index);
 
 #endif
 

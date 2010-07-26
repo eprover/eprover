@@ -88,7 +88,7 @@ typedef struct pd_tree_cell
    PStack_p  term_stack;     /* For flattening the term */
    PStack_p  term_proc;      /* Store traversed terms for backtracking */
    PDTNode_p tree_pos;       /* For traversing the tree */
-   PStack_p  store_stack;    /* For traversing entries in leafs */
+   PStack_p  store_stack;    /* For traversing entries in leaves */
    Term_p    term;           /* ...used as a key during search */
    SysDate   term_date;      /* Temporarily bound during matching */
    long      term_weight;    /* Ditto */

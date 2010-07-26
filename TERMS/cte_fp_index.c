@@ -384,6 +384,118 @@ static long fp_index_rek_find_matchable(FPTree_p index, IndexFP_p key,
 
 
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: fp_index_tree_print()
+//
+//   Print an FP index tree.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+long fp_index_tree_print(FILE* out, FPTree_p index, PStack_p stack, long *entries)
+{
+   long res = 0, tmp;
+   IntMapIter_p iter;
+   long         i=0;
+   FPTree_p    child;
+
+   if(index->payload)
+   {
+      res++;
+      fprintf(out, "# ");
+      PStackPrintInt(out, "%4ld.", stack);
+      tmp =  PObjTreeNodes(index->payload);
+      fprintf(out, ":%ld terms\n", tmp);
+      *entries += tmp;
+   }
+   if(index->f_alternatives)
+   {
+      iter = IntMapIterAlloc(index->f_alternatives, 0, LONG_MAX); 
+      while((child=IntMapIterNext(iter, &i)))
+      {
+         PStackPushInt(stack, i);
+         res+= fp_index_tree_print(out, 
+                                   child,
+                                   stack, 
+                                   entries);
+         (void)PStackPopInt(stack);
+      }
+      IntMapIterFree(iter);
+   }
+   if(index->below_var)
+   {
+      PStackPushInt(stack, BELOW_VAR);
+      res+= fp_index_tree_print(out, 
+                                fpindex_alternative(index, BELOW_VAR), 
+                                stack, 
+                                entries);
+      (void)PStackPopInt(stack);       
+   }
+   if(index->any_var)
+   {
+      PStackPushInt(stack, ANY_VAR);
+      res+= fp_index_tree_print(out, 
+                                fpindex_alternative(index, ANY_VAR), 
+                                stack, 
+                                entries);
+      (void)PStackPopInt(stack);                    
+   }
+   return res;
+}
+
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: fp_index_tree_collect_distrib()
+//
+//   Collect distribution information for an fp-tree.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void fp_index_tree_collect_distrib(FPTree_p index, PStack_p stack)
+{
+   IntMapIter_p iter;
+   long         i=0;
+   FPTree_p    child;
+
+   if(index->payload)
+   {
+      PStackPushInt(stack, PObjTreeNodes(index->payload));
+   }
+   if(index->f_alternatives)
+   {
+      iter = IntMapIterAlloc(index->f_alternatives, 0, LONG_MAX); 
+      while((child=IntMapIterNext(iter, &i)))
+      {
+         fp_index_tree_collect_distrib(child,
+                                       stack);
+      }
+      IntMapIterFree(iter);
+   }
+   if(index->below_var)
+   {
+      fp_index_tree_collect_distrib(fpindex_alternative(index, BELOW_VAR), 
+                                    stack);
+   }
+   if(index->any_var)
+   {
+      fp_index_tree_collect_distrib(fpindex_alternative(index, ANY_VAR), 
+                                    stack);
+   }
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
@@ -748,70 +860,6 @@ long FPIndexFindMatchable(FPIndex_p index, Term_p term, PStack_p collect)
 
 /*-----------------------------------------------------------------------
 //
-// Function: fp_index_tree_print()
-//
-//   
-//
-// Global Variables: 
-//
-// Side Effects    : 
-//
-/----------------------------------------------------------------------*/
-
-long fp_index_tree_print(FILE* out, FPTree_p index, PStack_p stack, long *entries)
-{
-   long res = 0, tmp;
-   IntMapIter_p iter;
-   long         i=0;
-   FPTree_p    child;
-
-   if(index->payload)
-   {
-      res++;
-      fprintf(out, "# ");
-      PStackPrintInt(out, "%4ld.", stack);
-      tmp =  PObjTreeNodes(index->payload);
-      fprintf(out, ":%ld terms\n", tmp);
-      *entries += tmp;
-   }
-   if(index->f_alternatives)
-   {
-      iter = IntMapIterAlloc(index->f_alternatives, 0, LONG_MAX); 
-      while((child=IntMapIterNext(iter, &i)))
-      {
-         PStackPushInt(stack, i);
-         res+= fp_index_tree_print(out, 
-                                   child,
-                                   stack, 
-                                   entries);
-         (void)PStackPopInt(stack);
-      }
-      IntMapIterFree(iter);
-   }
-   if(index->below_var)
-   {
-      PStackPushInt(stack, BELOW_VAR);
-      res+= fp_index_tree_print(out, 
-                                fpindex_alternative(index, BELOW_VAR), 
-                                stack, 
-                                entries);
-      (void)PStackPopInt(stack);       
-   }
-   if(index->any_var)
-   {
-      PStackPushInt(stack, ANY_VAR);
-      res+= fp_index_tree_print(out, 
-                                fpindex_alternative(index, ANY_VAR), 
-                                stack, 
-                                entries);
-      (void)PStackPopInt(stack);                    
-   }
-   return res;
-}
-
-
-/*-----------------------------------------------------------------------
-//
 // Function: FPIndexDistribPrint()
 //
 //   Print the pathes in the index and the number of stored terms at
@@ -825,14 +873,68 @@ long fp_index_tree_print(FILE* out, FPTree_p index, PStack_p stack, long *entrie
 
 void FPIndexDistribPrint(FILE* out, FPIndex_p index)
 {
-   long leafs, entries=0;
+   long leaves, entries=0;
    PStack_p path = PStackAlloc();
 
-   leafs = fp_index_tree_print(out, index->index, path, &entries);
-   fprintf(out, "# %ld entries, %ld leafs, %f entries/leaf\n",
-           entries, leafs, (double)entries/leafs);
+   leaves = fp_index_tree_print(out, index->index, path, &entries);
+   fprintf(out, "# %ld entries, %ld leaves, %f entries/leaf\n",
+           entries, leaves, (double)entries/leaves);
    
    PStackFree(path);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FPIndexCollectDistrib()
+//
+//   Collect statistics for the leaf node term distribution. Returns
+//   number of leaves directly, average and standard deviation via OUT
+//   parameters. 
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+long FPIndexCollectDistrib(FPIndex_p index, double* avg, double* stddev)
+{
+   long res;
+   PStack_p dist_stack = PStackAlloc();
+
+   fp_index_tree_collect_distrib(index->index, dist_stack);
+
+   *avg = PStackComputeAverage(dist_stack, stddev);
+   res = PStackGetSP(dist_stack);
+   PStackFree(dist_stack);
+
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FPIndexDistribDataPrint()
+//
+//   Collect and print statistics about the FP-Index.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void FPIndexDistribDataPrint(FILE* out, FPIndex_p index)
+{
+   long   leaves;
+   double avg= 0 ;
+   double stddev = 0;
+
+   leaves = FPIndexCollectDistrib(index, &avg, &stddev);
+   
+   fprintf(out, "%5ld leaves, %6.2f+/-%4.3f terms/leaf",
+           leaves, avg, stddev);
 }
 
 

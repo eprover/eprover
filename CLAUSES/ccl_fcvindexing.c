@@ -372,13 +372,13 @@ bool FVIndexDelete(FVIAnchor_p index, Clause_p clause)
 //   Count the number of nodes. If empty is true, count empty leaves
 //   only. If leaves it true, count leaves only.
 //
-// Global Variables: 
+// Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
-long FVIndexCountNodes(FVIndex_p index, bool leafs, bool empty)
+long FVIndexCountNodes(FVIndex_p index, bool leaves, bool empty)
 {
    long res = 0, i;
    IntMapIter_p iter;
@@ -396,7 +396,7 @@ long FVIndexCountNodes(FVIndex_p index, bool leafs, bool empty)
       }
       else 
       {
-	 if(!(empty||leafs))
+	 if(!(empty||leaves))
 	 {
 	    res++;
 	 }
@@ -406,7 +406,7 @@ long FVIndexCountNodes(FVIndex_p index, bool leafs, bool empty)
             {
                while((succ = IntMapIterNext(iter, &i)))
                {
-                  res += FVIndexCountNodes(succ, leafs, empty);
+                  res += FVIndexCountNodes(succ, leaves, empty);
                }
             }
             IntMapIterFree(iter);
