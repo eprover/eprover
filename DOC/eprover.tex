@@ -441,13 +441,13 @@ literals are encoded as equations and dealt with accordingly.
       \# Input: Axioms in U, P is empty\\
       while U $\not= \emptyset{}$ begin\+\\
         c := select(U)\\
-        U := U $\backslash$ c\\
+        U := U $\backslash$ \{c\}\\
 
         \# Apply (RN), (RP), (NS), (PS), (CSR), (DR), (DD), (DE)\\
         simplify(c,P)\\
         \# Apply (CS), (ES), (TD)\\
         if c is trivial or subsumed by P then\+\\
-          \# delete(c)\-\\
+          \# Delete/ignore c\-\\
         else if c is the empty clause then\+\\
           \# Success: Proof found\\
           stop\-\\
@@ -455,10 +455,13 @@ literals are encoded as equations and dealt with accordingly.
           T := $\emptyset{}$ \# Temporary clause set\\
           foreach p $\in$ P do\+\\
             if c simplifies p \+\\
-              P := P $\backslash$ p\\
-              T := T $\cup$ p\-\\
-            done\\
+              P := P $\backslash$ \{p\}\\
+              U := U $\backslash$ \{d|d \mbox{ is direct descendant of } p\}\\ 
+
+              T := T $\cup$ \{p\}\-\\
+            done\-\\
           end\\
+          P := P $\cup$ \{c\}\\
           T := T $\cup$ e-resolvents(c)    \# (ER)\\
           T := T $\cup$ e-factors(c)       \# (EF)\\
           T := T $\cup$ paramodulants(c,P) \# (SN), (SP)\\
@@ -468,7 +471,7 @@ literals are encoded as equations and dealt with accordingly.
             p := cheap\_simplify(p, P)\\
             \# Apply (TD) or efficient approximation of it\\
             if p is trivial\+\\
-              delete(p)\-\\
+              \# Delete/ignore p\-\\
             else\+\\
                U := U $\cup$ cheap\_simplify(p, P)\-\\
             fi\-\\
