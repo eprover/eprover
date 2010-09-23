@@ -1,6 +1,10 @@
 This history list describes the major differences between versions of
 the E equational theorem prover.
 
+Version 1.2 ->
+
+- Fixed redundant output resulting in broken proof extraction.
+
 Version 1.1 -> 1.2 Badamtam
 
 - Made stack limit increase fail gracefully (run with default)
@@ -8,7 +12,7 @@ Version 1.1 -> 1.2 Badamtam
   prover should be clean now.
 - Cleaned up variable handling and got rid of the ugly second term
   bank for the given clause
-- Implemnted Bernd Loechner's linear time version of KBO (JAR
+- Implemented Bernd Loechner's linear time version of KBO (JAR
   36(4):289-310, 2006).
 - Fixed a serious bug with mixed CNF/FOF input (now it works,
   previously it did not).

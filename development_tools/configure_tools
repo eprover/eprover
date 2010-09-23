@@ -47,7 +47,7 @@ done
 
 if $WHICH python2.6; then
     PYTHON_DUMMY=`which python2.6`;
-    echo "configure_tools: Found Python 2.5 in your search path"
+    echo "configure_tools: Found Python 2.6 in your search path"
 elif $WHICH python2.5; then
     PYTHON_DUMMY=`which python2.5`;
     echo "configure_tools: Found Python 2.5 in your search path"

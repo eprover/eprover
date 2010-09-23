@@ -386,9 +386,6 @@ long FormulaSetCNF(FormulaSet_p set, ClauseSet_p clauseset,
    long old_nodes = TBNonVarTermNodes(terms);
    long gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
 
-   FormulaSetDocInital(GlobalOut, OutputLevel, set);
-   ClauseSetDocInital(GlobalOut, OutputLevel, clauseset);
-
    FormulaSetSimplify(set, terms);
    TFormulaSetIntroduceDefs(set, terms);
 

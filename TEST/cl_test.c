@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
       key = drand48()*128-64;
       PDRangeArrAssignInt(arr1, key, key);
       PDRangeArrAssignInt(arr2, key, key);
-      IntMapAssign(map, key, (void*)key);
+      IntMapAssign(map, key, (void*)(intptr_t)key);
       PStackPushInt(stack, key);
    }
    while(!PStackEmpty(stack))

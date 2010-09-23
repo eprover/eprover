@@ -74,9 +74,6 @@ typedef struct subterm_index_cell
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-#define FPINDEX_VAR_INIT_ALT 4
-#define FPINDEX_VAR_GROW_ALT 4
-
 
 #define FPTreeCellAlloc() (FPTreeCell*)SizeMalloc(sizeof(FPTreeCell))
 #define FPTreeCellFree(junk)         SizeFree(junk, sizeof(FPTreeCell))
