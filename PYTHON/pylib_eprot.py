@@ -169,8 +169,17 @@ class ejob(object):
                  self.problem,
                  self.time_limit))
 
+    def get_args(self):
+        """
+        Return a string representing the (dynamic) options.
+        """
+        return "--cpu-limit=%d %s"%(self.time_limit, self.arguments)
+
     def strat(self):
         return self.strat_key
+
+    def prob(self):
+        return self.problem
 
     def key(self):        
         return self.strat_key+self.problem
@@ -475,8 +484,56 @@ class estrat_task(object):
         else:
             return False
 
-        
 
+class estrat_set(object):
+    """
+    A simple set of E strategies indexed by name.
+    """
+    
+    def __init__(self, specdir, protdir=None):
+        """
+        Constructor. The *dirs are the paths to the directories in
+        which to find specs and results, respectively.
+        """
+        self.strats  = {}
+        self.specdir = specdir
+        if protdir:
+            self.protdir = protdir
+        else:
+            self.protdir = specdir
+            
+
+    def find_strat(self, strat_name):
+        """
+        Given a name, find and return the corresponding strategy
+        object. Create it if necessary.
+        """
+        name = e_strip_name(strat_name)
+        try:
+            res = self.strats[name]
+        except KeyError:
+            res = estrat_task(name)
+            res.parse(self.specdir, self.protdir)
+            self.strats[name] = res
+        return res
+
+    def insert_res(self, strat_name, res):
+        """
+        Insert res into strat_name.
+        """
+        strat = self.find_strat(strat_name)
+        strat.add_result(res)
+
+    def sync(self):
+        """
+        Sync all results.
+        """
+        for i in self.strats.values():
+            i.sync()
+
+    def __str__(self):
+        return str(self.strats)
+        
 
 if __name__ == '__main__':
     opts, args = getopt.gnu_getopt(sys.argv[1:], "h")

@@ -86,7 +86,9 @@ class runner(object):
         return (True, self.result)
 
 
-class e_runner(runner):
+
+
+class e_res_parser(runner):
     """
     Class to run E and return an interpreted result.
     """
@@ -112,33 +114,20 @@ class e_runner(runner):
     }
     
 
-    def __init__(self, key, config, prover, args, problem, time,
-        rawtime=False, res_descriptor =[]):
+    def __init__(self, time, res_descriptor =[]):
         """
         Initialize E-Runner object.
         """
         self.res_descriptor = res_descriptor
-        self.config = config
-        self.key = key
-        self.rawtime = rawtime
         self.time    = time
-        self.problem = problem
-        cmd = config.command(prover, args, problem, time, rawtime)
-        runner.__init__(self, cmd)
 
-    def __str__(self):
-        return "<e_run:"+self.key+":"+self.problem+">"
-
-    def get_result(self):
+    def translate_result(self, e_output):
         """
-        Check if a result is available. If yes, return the list of
-        result items. If no, return None.
+        Decode the E result and return the list of
+        result items.
         """
-        status, res = runner.get_result(self)
-        if not status:
-            return None
 
-        resl = res.splitlines()
+        resl = e_output.splitlines()
 
         resdict = {}
         status = "Unknown"
@@ -155,7 +144,7 @@ class e_runner(runner):
 
         try:
             tmp = resdict["# Failure"]
-            reason = e_runner.failure_trans[tmp]
+            reason = e_res_parser.failure_trans[tmp]
         except:
             if status in ["Theorem", "Unsatisfiable", \
                           "CounterSatisfiable", "Satisfiable"]:
@@ -166,12 +155,10 @@ class e_runner(runner):
         try:
             tmp   = resdict["# Total time"]
             time  = float(tmp.split()[0])
-            atime = self.config.abstract_time(time)
         except:
-            time = self.time
-            atime = self.time
+            time = "-"
             
-        result = [self.key, self.problem, status, atime, reason, time]
+        result = [status, reason, time]
 
         for i in self.res_descriptor:
             try:
@@ -182,18 +169,92 @@ class e_runner(runner):
 
         return result
     
+    def encode_result(self, e_output, default_time):
+        """
+        Return a string representing the result status (i.e. a line in
+        an E protocol, but without the (unknown) problem name).
+        """
+        res = self.translate_result(e_output)
+        
+        if res:
+            print res
+            if res[2] == "-":
+                res[2] = default_time
+            result = "%s %f %s "%\
+                     (e_res_parser.status_trans[res[0]], res[2], res[1])
+            extra = " ".join([str(i) for i in res[3:]])
+            return result+extra
+        else:
+            return None
+
+
+class e_runner(runner):
+    """
+    Class to run E and return an interpreted result.
+    """
+
+    def __init__(self, key, config, prover, args, problem, time,
+        rawtime=False, res_descriptor =[]):
+        """
+        Initialize E-Runner object.
+        """
+        self.res_descriptor = res_descriptor
+        self.config = config
+        self.key = key
+        self.rawtime = rawtime
+        self.time    = time
+        self.problem = problem
+        cmd = config.command(prover, args, problem, time, rawtime)
+        print "Command", cmd
+        runner.__init__(self, cmd)
+        self.res_parser = e_res_parser(time, res_descriptor)
+
+
+    def __str__(self):
+        return "<e_run:"+self.key+":"+self.problem+">"
+
+    def get_result(self):
+        """
+        Check if a result is available. If yes, return the list of
+        result items. If no, return None.
+        """
+        status, res = runner.get_result(self)
+        if not status:
+            return None
+        print res
+
+        res = self.res_parser.translate_result(res)
+
+        status, reason, time = res[0:3]
+        rest = res[3:]
+
+        if time == "-":
+            time = self.time
+            atime = self.time
+        else:
+            atime = self.config.abstract_time(time)
+
+        result = [self.key, self.problem, status, atime, reason, time]
+
+        for i in rest:
+            result.append(i)          
+
+        return result
+    
 
 
 
 
 if __name__ == '__main__':
-    c = pylib_econf.e_config("eserver_config.txt")
+    c = pylib_econf.e_config("EXAMPLE_CFG/eserver_config_test.txt")
 
-    r1 = e_runner("teststrat", c, "eprover", "LUSK3.lop", "-xAuto -tAuto", 100,
+    r1 = e_runner("teststrat", c, "eprover", "--tptp3-in -xAuto -tAuto",
+                  "GRP001+6.p", 100,
                   ["# Processed clauses",
                    "# Generated clauses",
                    "# Clause-clause subsumption calls (NU)"])
-    r2 = e_runner("teststrat", c, "eprover", "LUSK6.lop", "-xAuto -tAuto", 100,
+    r2 = e_runner("teststrat", c, "eprover", "--tptp3-in -xAuto -tAuto",
+                  "RNG004-1.p", 100, 
                   ["# Processed clauses",
                    "# Generated clauses",
                    "# Clause-clause subsumption calls (NU)"])
@@ -207,4 +268,4 @@ if __name__ == '__main__':
             result = r.get_result()
             if result:
                 running.remove(r)
-                
+                print result
