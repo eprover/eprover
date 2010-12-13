@@ -120,7 +120,7 @@ def pegasus_cfg():
     Where is the eprover binary?
     """
 
-    testrun_dir = "/nethome/sschulz/TESTRUNS_PEGASUS"
+    testrun_dir = "/nethome/sschulz/EPROVER/TESTRUNS_PEGASUS"
     """
     Where are spec- and protocol files?
     """
@@ -165,7 +165,7 @@ bsub_tmplt = \
 #
 # Run serial executable on 1 cpu of one node
 cd %s
-env TPTP=%s %s/eprover -s --print-statistics --tptp3-format --resources-info %s %s
+env TPTP=%s %s/eprover -s --delete-bad-limit=512000000 --print-statistics --tptp3-format --resources-info %s %s
 echo "### Job complete ###"
 """
 """
@@ -280,12 +280,15 @@ def process_complete_jobs(decoder, stratset, resdir = "", donedir=None):
     names = os.listdir(".")
 
     for job in names:
-        print job
         if ejob_re.match(job):
             res = decode_result(decoder, stratset, job)
             if res and donedir:
-                os.rename(job, donedir+"/"+job)
-                
+                joberr = job[:-4]+".err"
+                try:
+                    os.unlink(job)
+                    os.unlink(joberr)
+                except OSError:
+                    pass
                     
 
 def process_job(name, results, running):
@@ -296,11 +299,9 @@ def process_job(name, results, running):
     """
     strat = results.find_strat(name)
     
-    print "Checking strategy:", strat
     for job in strat.generate_jobs():
         jname = encode_res_name(job.strat(), job.prob())
         if jname in running:
-            print "Skipping "+jname
         else:
             print "Submitting "+jname
             job_str = bsub_gen(job.strat(),  job.prob(), job.get_args())
@@ -324,7 +325,7 @@ if __name__ == '__main__':
 
     try:
         os.makedirs(old_job_dir)
-    except error:
+    except OSError:
         pass
 
     results = pylib_eprot.estrat_set(testrun_dir)    
