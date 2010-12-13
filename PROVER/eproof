@@ -165,7 +165,7 @@ for argument in  "$@"; do
     if [ "$argument" = "-R" -o "$argument" = "--resources-info" ] ; then
         print_res=6
     elif [ "$argument" = "--print-statistics" ] ; then
-	print_stats=30
+	print_stats=33
         print_res=6
     elif [ "$argument" = "-V" -o "$argument" = "--version" ] ; then
         echo eproof $VERSION
@@ -220,7 +220,7 @@ print_tail=`expr $print_res + $print_stats`
 sh -c "$EXECPATH/eprover $newargs -l4 -R -o- --pcl-terms-compressed --pcl-compact> $tmpfile" &
 wait %%
 status=$?
-$TAIL -60 $tmpfile > $tmpfile2
+$TAIL -70 $tmpfile > $tmpfile2
 grep "# Preprocessing time       :" $tmpfile
 searchtime=`grep "Total time" $tmpfile2|cut -d: -f2|sed -e 's/[s ]//g'|cut -d. -f1`
 if [ "$searchtime" ]; then

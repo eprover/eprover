@@ -40,6 +40,11 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+#ifdef MEASURE_UNIFICATION
+extern long UnifAttempts;
+extern long UnifSuccesses;
+#endif
+
 bool SubstComputeMatch(Term_p matcher, Term_p to_match, Subst_p subst,
 		       TermEqualTestFun EqualTest);
 bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst);

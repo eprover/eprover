@@ -1362,7 +1362,12 @@ int main(int argc, char* argv[])
               BWRWMatchAttempts);
       fprintf(GlobalOut, "# Indexed BW rewrite successes         : %ld\n",
               BWRWMatchSuccesses);
-
+#ifdef MEASURE_UNIFICATION
+      fprintf(GlobalOut, "# Unification attempts                 : %ld\n",
+              UnifAttempts);
+      fprintf(GlobalOut, "# Unification successes                : %ld\n",
+              UnifSuccesses);
+#endif
       if(proofstate->gindices.bw_rw_index)
       {
          fprintf(GlobalOut, "# Backwards rewriting index: ");

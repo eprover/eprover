@@ -31,6 +31,11 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
+#ifdef MEASURE_UNIFICATION
+long UnifAttempts  = 0;
+long UnifSuccesses = 0;
+#endif
+
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -40,45 +45,6 @@ Changes
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
-
-#ifdef NEVER_DEFINED /* Inefficient in the linear version */
-
-/*-----------------------------------------------------------------------
-//
-// Function: check_unify_job()
-//
-//   Return true is the pair (t1,t2) is already on the stacks.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-static bool check_unify_job(PStack_p s1, PStack_p s2, Term_p t1,
-			    Term_p t2)
-{
-   PStackPointer i, limit;
-
-   assert(t1);
-   assert(t2);
-   assert(s1);
-   assert(s2);
-
-   limit = PStackGetSP(s1);
-   assert(limit == PStackGetSP(s2));
-
-   for(i=limit-1; i>=0; i--)
-   {
-      if((t1==PStackElementP(s1,i))&&(t2==PStackElementP(s2,i)))
-      {
-	 return true;
-      }
-   }
-   return false;
-}
-
-#endif
 
 
 /*-----------------------------------------------------------------------
@@ -247,14 +213,14 @@ bool SubstComputeMatch(Term_p matcher, Term_p to_match, Subst_p subst,
 // Function: SubstComputeMgu()
 //
 //   Compute an mgu between two terms. Currently without any special
-//   optimization, except for checking for double entries in the
-//   to-solve stack (deleted, ineficient). Returns true and modifies
+//   optimization (double entry checking in the  to-solve stack has
+//   been deleted as ineficient). Returns true and modifies
 //   subst if sucessful, false otherwise (as for match, see
 //   above). Terms have to be variable disjoint, otherwise behaviour
 //   is unpredictable!
 //
 //   Solution with stacks is more efficient than unsorted queues,
-//   sorted queues are significantly better again!
+//   sorted queues (variables last) are significantly better again!
 //
 // Global Variables: 
 //
@@ -268,6 +234,10 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
    PStackPointer backtrack; /* For backtracking */
    int i;
    DerefType deref = DEREF_ALWAYS;
+
+#ifdef MEASURE_UNIFICATION
+   UnifAttempts++;
+#endif
 
    if((TermCellQueryProp(t1, TPPredPos) && TermIsVar(t2))||
       (TermCellQueryProp(t2, TPPredPos) && TermIsVar(t1)))
@@ -336,6 +306,10 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
       }
    }
    PQueueFree(jobs);
+
+#ifdef MEASURE_UNIFICATION
+   UnifSuccesses++;
+#endif
    return true;
 }
 
