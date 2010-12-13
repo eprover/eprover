@@ -182,6 +182,7 @@ def bsub_submit(job):
     """
     Submit a job to bsub.
     """
+    os.chdir(bsub_rundir)
     fp = os.popen(bsub_cmd, "w")
     fp.write(job)
     fp.close()
@@ -302,6 +303,7 @@ def process_job(name, results, running):
     for job in strat.generate_jobs():
         jname = encode_res_name(job.strat(), job.prob())
         if jname in running:
+            pass
         else:
             print "Submitting "+jname
             job_str = bsub_gen(job.strat(),  job.prob(), job.get_args())
@@ -333,7 +335,7 @@ if __name__ == '__main__':
                                            "# Unification attempts",
                                            "# Unification successes"])
     running = find_batch_jobs()
-    process_complete_jobs(parser, results, "EXAMPLE_CFG", old_job_dir)
+    process_complete_jobs(parser, results, bsub_rundir, old_job_dir)
     results.sync()
 
 
