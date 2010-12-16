@@ -136,7 +136,7 @@ def pegasus_cfg():
     Command to list jobs in queue. Will be bjobs -w on the cluster.
     """
 
-    bsub_rundir = "/tmp"
+    bsub_rundir = "/nethome/sschulz/RUN"
     """
     Where will E run and deposit results?
     """
@@ -172,9 +172,14 @@ echo "### Job complete ###"
 Template for generating bsub jobs.
 """
 
-ejob_re=re.compile("erun#[^ ]*.out")
+ejobname_re=re.compile("erun#[^ ]*.out")
 """
 Regular expression matching E job names.
+"""
+
+ejob_re=re.compile("erun#[^ ]*")
+"""
+Regular expression matching E jobs.
 """
 
 
@@ -281,7 +286,7 @@ def process_complete_jobs(decoder, stratset, resdir = "", donedir=None):
     names = os.listdir(".")
 
     for job in names:
-        if ejob_re.match(job):
+        if ejobname_re.match(job):
             res = decode_result(decoder, stratset, job)
             if res and donedir:
                 joberr = job[:-4]+".err"
@@ -311,17 +316,21 @@ def process_job(name, results, running):
             
 
 if __name__ == '__main__':
-    opts, args = getopt.gnu_getopt(sys.argv[1:], "hvp", ["--pegasus"])
+    opts, args = getopt.gnu_getopt(sys.argv[1:], "hvpf", ["--pegasus",
+                                                          "--force"])
+    force_scheduling = False
 
     test_cfg()
     for option, optarg in opts:
         if option == "-h":
             print __doc__
             sys.exit()
-        if option == "-v":
+        elif option == "-v":
             pylib_io.Verbose = 1
-        if option == "-p" or option == "--pegasus":
+        elif option == "-p" or option == "--pegasus":
             pegasus_cfg()
+        elif option == "-f" or option == "--force":
+            force_scheduling = True
         else:
             sys.exit("Unknown option "+ option)
 
@@ -334,7 +343,11 @@ if __name__ == '__main__':
     parser = pylib_erun.e_res_parser(300, ["# Processed clauses",
                                            "# Unification attempts",
                                            "# Unification successes"])
-    running = find_batch_jobs()
+    if force_scheduling:
+        running = set()
+    else:
+        running = find_batch_jobs()
+        
     process_complete_jobs(parser, results, bsub_rundir, old_job_dir)
     results.sync()
 

@@ -177,7 +177,6 @@ class e_res_parser(runner):
         res = self.translate_result(e_output)
         
         if res:
-            print res
             if res[2] == "-":
                 res[2] = default_time
             result = "%s %f %s "%\
