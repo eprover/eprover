@@ -74,7 +74,7 @@ WFCB_p TPTPTypeWeightInit(ClausePrioFun prio_fun, int fweight,
    data->max_term_multiplier    = max_term_multiplier;
    data->max_literal_multiplier = max_literal_multiplier;
    data->conjecture_multiplier  = conjecture_multiplier;
-   data->conjecture_multiplier  = hypothesis_multiplier;
+   data->hypothesis_multiplier  = hypothesis_multiplier;
    data->ocb                    = ocb;
 
    return WFCBAlloc(TPTPTypeWeightCompute, prio_fun,
