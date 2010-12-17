@@ -165,7 +165,7 @@ bsub_tmplt = \
 #
 # Run serial executable on 1 cpu of one node
 cd %s
-env TPTP=%s %s/eprover -s --delete-bad-limit=512000000 --print-statistics --tptp3-format --resources-info %s %s
+env TPTP=%s %s/eprover --print-statistics --tptp3-format --resources-info %s %s
 echo "### Job complete ###"
 """
 """
