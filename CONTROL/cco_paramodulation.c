@@ -882,6 +882,63 @@ long ComputeFromParamodulants(ParamodInfo_p pminfo,
 
 /*-----------------------------------------------------------------------
 //
+// Function: ComputeFromSimParamodulants()
+//
+//   Compute all simultaneouss paramodulants from clauses in
+//   from_index into clause.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+long ComputeFromSimParamodulants(ParamodInfo_p pminfo,
+                                 ParamodulationType type,
+                                 Clause_p clause,
+                                 OverlapIndex_p from_index, 
+                                 ClauseSet_p store)
+{
+   long res = 0;
+   PStack_p      pos_stack = PStackAlloc();
+   Term_p        olterm;
+   CompactPos    pos;
+
+
+   // Here: Collect terms and term positions in a double tree (or
+   // tree/stack construct)
+   ClauseCollectIntoTermsPos(clause, pos_stack);
+   
+
+   pminfo->into = clause;
+   
+
+   // Here: Iterate over the terms, and inside the terms over the
+   // positions. 
+   while(!PStackEmpty(pos_stack))
+   {
+      pos    = PStackPopInt(pos_stack);
+      olterm = PStackPopP(pos_stack);
+      pminfo->into_cpos  = pos;
+      pminfo->into_pos   = UnpackClausePos(pos, clause);
+
+      /* Positive/positive top level has already been done in the
+         into-case.*/
+      if(EqnIsNegative(pminfo->into_pos->literal)||
+         !ClausePosIsTop(pminfo->into_pos))
+      {
+         res += compute_pos_from_pm(pminfo, type, olterm, from_index, store);
+      }
+      ClausePosFree(pminfo->into_pos);
+   }
+   PStackFree(pos_stack);
+
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: ComputeAllParamodulantsIndexed()
 //
 //   Compute all paramodulants (of the right pm_type) between clause
@@ -911,17 +968,17 @@ long ComputeAllParamodulantsIndexed(TB_p bank, OCB_p ocb,
    pminfo.ocb       = ocb;
    pminfo.new_orig  = parent_alias;
 
-   res +=  ComputeIntoParamodulants(&pminfo, 
-                                    pm_type,
-                                    clause, 
-                                    into_index, 
-                                    store);  
+   res += ComputeIntoParamodulants(&pminfo, 
+                                   pm_type,
+                                   clause, 
+                                   into_index, 
+                                   store);  
 
-   res +=  ComputeFromParamodulants(&pminfo, 
-                                    pm_type,
-                                    clause, 
-                                    from_index, 
-                                    store);  
+   res += ComputeFromParamodulants(&pminfo, 
+                                   pm_type,
+                                   clause, 
+                                   from_index, 
+                                   store);  
 
    return res;
 }

@@ -67,6 +67,12 @@ long ComputeFromParamodulants(ParamodInfo_p pminfo,
                               OverlapIndex_p from_index, 
                               ClauseSet_p store);     
 
+long ComputeFromSimParamodulants(ParamodInfo_p pminfo,
+                                 ParamodulationType type,
+                                 Clause_p clause,
+                                 OverlapIndex_p from_index, 
+                                 ClauseSet_p store);     
+
 long ComputeAllParamodulantsIndexed(TB_p bank, OCB_p ocb, 
                                     VarBank_p freshvars,
                                     Clause_p clause,

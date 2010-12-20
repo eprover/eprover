@@ -6,7 +6,7 @@ Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
  
-  Implementation of
+  Implementation of function symbol indexing.
 
   Copyright 2009 by the author.
   This code is released under the GNU General Public Licence and
