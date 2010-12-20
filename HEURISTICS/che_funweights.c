@@ -40,6 +40,8 @@ Changes
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: init_conj_vector()
@@ -192,10 +194,156 @@ static void init_relevance_vector(FunWeightParam_p data)
 
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: init_fun_weights.
+//
+//   Initialize the function weight vector based on the data in
+//   data. Symbols named in data->weight_stack will get the assigned
+//   weight, the rest will get data->fweight.
+//   
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void init_fun_weights(FunWeightParam_p data)
+{
+   if(!data->fweights)
+   {
+      FunCode i;
+      PStackPointer sp;
+      char* fun;
+
+      data->flimit   = data->ocb->sig->f_count+1;
+      data->fweights = SizeMalloc(data->flimit*sizeof(long));
+      
+      for(i=1;i<data->flimit; i++)
+      {
+         data->fweights[i] = data->fweight;
+      }
+      for(sp=0; sp<PStackGetSP(data->weight_stack); sp+=2)
+      {
+         fun = PStackElementP(data->weight_stack, sp);
+         i = SigFindFCode(data->ocb->sig, fun);
+         if(i)
+         {
+            assert(i<data->flimit);
+            data->fweights[i] = PStackElementInt(data->weight_stack, sp+1);
+         }
+         else
+         {
+            DStr_p msg = DStrAlloc();
+            
+            DStrAppendStr(msg, "Cannot assign weight to unknown symbol ");
+            DStrAppendStr(msg, fun);
+            Warning(DStrView(msg));
+            DStrFree(msg);
+         }
+      }
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: parse_op_weight()
+//
+//   Parse a tuple fun:weight and push it onto the result stack. 
+//
+// Global Variables: -
+//
+// Side Effects    : Allocates a string copy, which is placed on the
+//                   stack and becomes the responsibility of the
+//                   caller. 
+//
+/----------------------------------------------------------------------*/
+
+void parse_op_weight(Scanner_p in, PStack_p res_stack)
+{
+   DStr_p op = DStrAlloc();
+   long   weight;
+
+   TermParseOperator(in, op);
+   AcceptInpTok(in, Colon);
+   weight = AktToken(in)->numval;
+   AcceptInpTok(in, PosInt);
+   PStackPushP(res_stack, DStrCopy(op));
+   PStackPushInt(res_stack, weight);
+
+   DStrFree(op);
+}
+
+
+
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FunWeightParamAlloc()
+//
+//   Return an FunWeightParamCell where the pointer-related members
+//   are properly initialized.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+FunWeightParam_p FunWeightParamAlloc(void)
+{
+   FunWeightParam_p res = FunWeightParamCellAlloc();
+
+   res->weight_stack = NULL;
+   res->fweights     = NULL;
+   res->flimit       = 0;
+
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FunWeightParamFree()
+//
+//   Free a initialized FunWeightParamCell, including the data stored
+//   on the weight_stack (if any).
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+void FunWeightParamFree(FunWeightParam_p junk)
+{
+   char* cjunk;
+   long  ijunk;
+
+   if(junk->fweights)
+   {
+      assert(junk->flimit > 0);
+      SizeFree(junk->fweights, sizeof(long)*junk->flimit);
+   }
+   if(junk->weight_stack)
+   {
+      while(!PStackEmpty(junk->weight_stack))
+      {
+         ijunk = PStackPopInt(junk->weight_stack);
+         assert(!PStackEmpty(junk->weight_stack));
+         cjunk = PStackPopP(junk->weight_stack);
+         FREE(cjunk);
+      }      
+      PStackFree(junk->weight_stack);
+   }
+   FunWeightParamCellFree(junk);
+}
 
 
 
@@ -227,7 +375,7 @@ WFCB_p ConjectureSymbolWeightInit(ClausePrioFun prio_fun,
                                   long   conj_cweight,
                                   long   conj_pweight)
 {
-   FunWeightParam_p data = FunWeightParamCellAlloc();
+   FunWeightParam_p data = FunWeightParamAlloc();
    
    data->init_fun               = init_conj_vector;
    data->ocb                    = ocb;
@@ -245,8 +393,6 @@ WFCB_p ConjectureSymbolWeightInit(ClausePrioFun prio_fun,
    data->conj_fweight           = conj_fweight;
    data->conj_cweight           = conj_cweight;
    data->conj_pweight           = conj_pweight;
-
-   data->fweights               = NULL;
 
    /* Weight vector is computed on first call of weight function to
       avoid overhead is many funweigh-based functions are predefined
@@ -287,7 +433,7 @@ WFCB_p RelevanceLevelWeightInit(ClausePrioFun prio_fun,
                                 long   default_level_penalty)
 
 {
-   FunWeightParam_p data = FunWeightParamCellAlloc();
+   FunWeightParam_p data = FunWeightParamAlloc();
    
    data->init_fun               = init_relevance_vector;
    data->ocb                    = ocb;
@@ -306,8 +452,6 @@ WFCB_p RelevanceLevelWeightInit(ClausePrioFun prio_fun,
    data->level_poly_lin         = level_poly_lin;
    data->level_poly_square      = level_poly_square;
    data->default_level_penalty  = default_level_penalty;
-
-   data->fweights               = NULL;
 
    /* Weight vector is computed on first call of weight function to
       avoid overhead is many funweigh-based functions are predefined
@@ -330,22 +474,21 @@ WFCB_p RelevanceLevelWeightInit(ClausePrioFun prio_fun,
 /----------------------------------------------------------------------*/
 
 WFCB_p RelevanceLevelWeightInit2(ClausePrioFun prio_fun, 
-                                OCB_p ocb,
-                                ProofState_p state,
-                                double max_term_multiplier,
+                                 OCB_p ocb,
+                                 ProofState_p state,
+                                 double max_term_multiplier,
                                 double max_literal_multiplier,
-                                double pos_multiplier,
-                                long   vweight,
-                                long   fweight,
-                                long   cweight,
-                                long   pweight,
-                                long   level_poly_const,
-                                double level_poly_lin,
-                                double level_poly_square,
-                                long   default_level_penalty)
-
+                                 double pos_multiplier,
+                                 long   vweight,
+                                 long   fweight,
+                                 long   cweight,
+                                 long   pweight,
+                                 long   level_poly_const,
+                                 double level_poly_lin,
+                                 double level_poly_square,
+                                 long   default_level_penalty)   
 {
-   FunWeightParam_p data = FunWeightParamCellAlloc();
+   FunWeightParam_p data = FunWeightParamAlloc();
    
    data->init_fun               = init_relevance_vector2;
    data->ocb                    = ocb;
@@ -365,10 +508,8 @@ WFCB_p RelevanceLevelWeightInit2(ClausePrioFun prio_fun,
    data->level_poly_square      = level_poly_square;
    data->default_level_penalty  = default_level_penalty;
 
-   data->fweights               = NULL;
-
    /* Weight vector is computed on first call of weight function to
-      avoid overhead is many funweigh-based functions are predefined
+      avoid overhead if many funweigh-based functions are predefined
       */
    return WFCBAlloc(GenericFunWeightCompute, prio_fun,
                     GenericFunWeightExit, data);
@@ -732,6 +873,112 @@ WFCB_p RelevanceLevelWeightParse2(Scanner_p in, OCB_p ocb,
 
 /*-----------------------------------------------------------------------
 //
+// Function: FunWeightInit()
+//
+//   Initialize a weight function with explicit weights for (some)
+//   function symbols.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+WFCB_p FunWeightInit(ClausePrioFun prio_fun,
+                     OCB_p ocb, 
+                     double max_term_multiplier,
+                     double max_literal_multiplier,
+                     double pos_multiplier,
+                     long vweight,
+                     long fweight,
+                     PStack_p fweights)
+{
+   FunWeightParam_p data = FunWeightParamAlloc();
+   
+   data->init_fun               = init_fun_weights;
+   data->ocb                    = ocb;
+   data->pos_multiplier         = pos_multiplier;
+   data->max_term_multiplier    = max_term_multiplier;
+   data->max_literal_multiplier = max_literal_multiplier;
+   
+   data->vweight                = vweight;
+
+   data->fweight                = fweight;
+   data->weight_stack           = fweights;
+   
+   return WFCBAlloc(GenericFunWeightCompute, prio_fun,
+                    GenericFunWeightExit, data);
+
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: FunWeightParse()
+//
+//   Parse a FunWeight evaluation function.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+WFCB_p FunWeightParse(Scanner_p in, OCB_p ocb, 
+                     ProofState_p state)
+{
+   ClausePrioFun 
+      prio_fun;
+   int 
+      vweight, 
+      fweight;
+   double
+      max_term_multiplier,
+      max_literal_multiplier,
+      pos_multiplier;
+   PStack_p fweights;  
+   
+   AcceptInpTok(in, OpenBracket);
+   prio_fun = ParsePrioFun(in);
+   AcceptInpTok(in, Comma);
+   
+   fweight = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   
+   vweight = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   
+   max_term_multiplier = ParseFloat(in);
+   AcceptInpTok(in, Comma);
+   max_literal_multiplier = ParseFloat(in);
+   AcceptInpTok(in, Comma);
+   pos_multiplier = ParseFloat(in);
+
+   fweights = PStackAlloc();
+   
+   while(TestInpTok(in, Comma))
+   {
+      AcceptInpTok(in, Comma);
+      parse_op_weight(in, fweights);
+   }
+         
+   AcceptInpTok(in, CloseBracket);
+   
+   return FunWeightInit(prio_fun,
+                        ocb, 
+                        max_term_multiplier,
+                        max_literal_multiplier,
+                        pos_multiplier,
+                        vweight,
+                        fweight,
+                        fweights);
+}
+
+
+
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: GenericFunWeightCompute()
 //
 //   Compute a clause weight as Refinedweight(), but use the function
@@ -775,12 +1022,7 @@ void GenericFunWeightExit(void* data)
 {
    FunWeightParam_p junk = data;
    
-   if(junk->fweights)
-   {
-      assert(junk->flimit > 0);
-      SizeFree(junk->fweights, sizeof(long)*junk->flimit);
-   }   
-   FunWeightParamCellFree(junk);
+   FunWeightParamFree(junk);
 }
 
 

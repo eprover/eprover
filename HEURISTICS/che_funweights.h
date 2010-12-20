@@ -9,7 +9,7 @@ Contents
   Heuristic weight functions dealing with individual weights for
   different symbols.
 
-  Copyright 2005 by the author.
+  Copyright 2005, 2010 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
@@ -68,8 +68,10 @@ typedef struct funweightparamcell
                               * base*lpc+lpl*l+lps*l*l, 
                               * where l is the effective level */
    void   (*init_fun)(struct funweightparamcell*);
-
-
+   
+   /* Weight/Name association (if present).  */
+   PStack_p weight_stack;
+   
    /* Actual encoding for the weights */
    long   flimit;
    long   *fweights;
@@ -86,6 +88,9 @@ typedef struct funweightparamcell
 #define FunWeightParamCellFree(junk) \
         SizeFree(junk, sizeof(FunWeightParamCell))
 
+FunWeightParam_p FunWeightParamAlloc(void);
+void             FunWeightParamFree(FunWeightParam_p junk);
+
 
 WFCB_p ConjectureSymbolWeightInit(ClausePrioFun prio_fun, 
                                   OCB_p ocb,
@@ -101,6 +106,15 @@ WFCB_p ConjectureSymbolWeightInit(ClausePrioFun prio_fun,
                                   long   conj_cweight,
                                   long   conj_pweight);
 
+WFCB_p FunWeightInit(ClausePrioFun prio_fun,
+                     OCB_p ocb, 
+                     double max_term_multiplier,
+                     double max_literal_multiplier,
+                     double pos_multiplier,
+                     long vweight,
+                     long fweight,
+                     PStack_p fweights);
+
 WFCB_p ConjectureSymbolWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
                                    state);
 WFCB_p ConjectureSimplifiedSymbolWeightParse(Scanner_p in, OCB_p ocb, 
@@ -114,6 +128,9 @@ WFCB_p RelevanceLevelWeightParse(Scanner_p in, OCB_p ocb,
 
 WFCB_p RelevanceLevelWeightParse2(Scanner_p in, OCB_p ocb, 
                                   ProofState_p state);
+
+WFCB_p FunWeightParse(Scanner_p in, OCB_p ocb, 
+                      ProofState_p state);
 
 double GenericFunWeightCompute(void* data, Clause_p clause);
 
