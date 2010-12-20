@@ -320,7 +320,7 @@ char* DStrCopy(DStr_p strdes)
 //
 // Function: DStrCopyCore()
 //
-//   Return a pointer to a copy of the stored string without the fiest
+//   Return a pointer to a copy of the stored string without the first
 //   and last character (this is useful for stripping quotes off
 //   string literals). The user is responsible for freeing the memory
 //   (via free()/FREE()). Fails if string has less than two characters.
