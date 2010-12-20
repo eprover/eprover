@@ -43,8 +43,8 @@ Changes
  * values BELOW_VAR, ANY_VAR and NOT_IN_TERM to describe positions not
  * in the term and not in any possible instance of the term,
  * respectively. Function symbol
- * alternatives are handled in the obvious way. The value NOT_IN_TEM
- * is encoded  * ar f_alternatives[0]. */
+ * alternatives are handled in the obvious way. The value NOT_IN_TERM
+ * is encoded  in f_alternatives[0]. */
 
 typedef struct fp_index_cell
 {
