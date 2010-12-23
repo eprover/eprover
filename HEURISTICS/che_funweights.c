@@ -260,7 +260,7 @@ static void init_fun_weights(FunWeightParam_p data)
 //
 /----------------------------------------------------------------------*/
 
-void parse_op_weight(Scanner_p in, PStack_p res_stack)
+static void parse_op_weight(Scanner_p in, PStack_p res_stack)
 {
    DStr_p op = DStrAlloc();
    long   weight;
@@ -269,6 +269,35 @@ void parse_op_weight(Scanner_p in, PStack_p res_stack)
    AcceptInpTok(in, Colon);
    weight = AktToken(in)->numval;
    AcceptInpTok(in, PosInt);
+   PStackPushP(res_stack, DStrCopy(op));
+   PStackPushInt(res_stack, weight);
+
+   DStrFree(op);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: parse_op_signweight()
+//
+//   Parse a tuple fun:weight and push it onto the result stack. 
+//
+// Global Variables: -
+//
+// Side Effects    : Allocates a string copy, which is placed on the
+//                   stack and becomes the responsibility of the
+//                   caller. 
+//
+/----------------------------------------------------------------------*/
+
+void parse_op_signweight(Scanner_p in, PStack_p res_stack)
+{
+   DStr_p op = DStrAlloc();
+   long   weight;
+
+   TermParseOperator(in, op);
+   AcceptInpTok(in, Colon);
+   weight = ParseInt(in);
    PStackPushP(res_stack, DStrCopy(op));
    PStackPushInt(res_stack, weight);
 
@@ -303,6 +332,7 @@ FunWeightParam_p FunWeightParamAlloc(void)
    res->weight_stack = NULL;
    res->fweights     = NULL;
    res->flimit       = 0;
+   res->f_occur      = NULL;
 
    return res;
 }
@@ -341,6 +371,10 @@ void FunWeightParamFree(FunWeightParam_p junk)
          FREE(cjunk);
       }      
       PStackFree(junk->weight_stack);
+   }
+   if(junk->f_occur)
+   {
+      PDArrayFree(junk->f_occur);
    }
    FunWeightParamCellFree(junk);
 }
@@ -975,6 +1009,111 @@ WFCB_p FunWeightParse(Scanner_p in, OCB_p ocb,
 
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: SymOffsetWeightInit()
+//
+//   Initialize a weight function with explicit offsets for (some)
+//   function symbols.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+WFCB_p SymOffsetWeightInit(ClausePrioFun prio_fun,
+                           OCB_p ocb, 
+                           double max_term_multiplier,
+                           double max_literal_multiplier,
+                           double pos_multiplier,
+                           long vweight,
+                           long fweight,
+                           PStack_p fweights)
+{
+   FunWeightParam_p data = FunWeightParamAlloc();
+   
+   data->init_fun               = init_fun_weights;
+   data->ocb                    = ocb;
+   data->pos_multiplier         = pos_multiplier;
+   data->max_term_multiplier    = max_term_multiplier;
+   data->max_literal_multiplier = max_literal_multiplier;
+   
+   data->vweight                = vweight;
+
+   data->fweight                = fweight;
+   data->weight_stack           = fweights;
+   data->f_occur                = PDIntArrayAlloc(8, 0);
+   
+   return WFCBAlloc(SymOffsetWeightCompute, prio_fun,
+                    GenericFunWeightExit, data);
+
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SymOffsetWeightParse()
+//
+//   Parse a FunWeight evaluation function.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+WFCB_p SymOffsetWeightParse(Scanner_p in, OCB_p ocb, 
+                            ProofState_p state)
+{
+   ClausePrioFun 
+      prio_fun;
+   int 
+      vweight, 
+      fweight;
+   double
+      max_term_multiplier,
+      max_literal_multiplier,
+      pos_multiplier;
+   PStack_p fweights;  
+   
+   AcceptInpTok(in, OpenBracket);
+   prio_fun = ParsePrioFun(in);
+   AcceptInpTok(in, Comma);
+   
+   fweight = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   
+   vweight = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   
+   max_term_multiplier = ParseFloat(in);
+   AcceptInpTok(in, Comma);
+   max_literal_multiplier = ParseFloat(in);
+   AcceptInpTok(in, Comma);
+   pos_multiplier = ParseFloat(in);
+
+   fweights = PStackAlloc();
+   
+   while(TestInpTok(in, Comma))
+   {
+      AcceptInpTok(in, Comma);
+      parse_op_signweight(in, fweights);
+   }
+         
+   AcceptInpTok(in, CloseBracket);
+   
+   return SymOffsetWeightInit(prio_fun,
+                              ocb, 
+                              max_term_multiplier,
+                              max_literal_multiplier,
+                              pos_multiplier,
+                              vweight,
+                              fweight,
+                              fweights);
+}
+
 
 
 /*-----------------------------------------------------------------------
@@ -995,6 +1134,7 @@ double GenericFunWeightCompute(void* data, Clause_p clause)
    FunWeightParam_p local = data;
    
    local->init_fun(data);
+   ClauseCondMarkMaximalTerms(local->ocb, clause);
    return ClauseFunWeight(clause, 
                           local->max_term_multiplier,
                           local->max_literal_multiplier,
@@ -1003,6 +1143,52 @@ double GenericFunWeightCompute(void* data, Clause_p clause)
                           local->flimit,
                           local->fweights,
                           local->fweight);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SymOffsetWeightCompute()
+//
+//   Compute a clause weight as Refinedweight(), but use the function
+//   symbol weights in data->fweights to compute an extra per-symbol
+//   (not per symbol occurrence!) offset.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+double SymOffsetWeightCompute(void* data, Clause_p clause)
+{
+   FunWeightParam_p local = data;
+   double   res;
+   long     index;
+   long     woffset;
+   PStack_p res_stack;
+
+   local->init_fun(data);
+   ClauseCondMarkMaximalTerms(local->ocb, clause);
+   res = ClauseWeight(clause, 
+                      local->max_term_multiplier,
+                      local->max_literal_multiplier,
+                      local->pos_multiplier,
+                      local->vweight,
+                      local->fweight, 
+                      false);
+   res_stack = PStackAlloc();
+   ClauseAddFunOccs(clause, local->f_occur, res_stack);
+   while(!PStackEmpty(res_stack))
+   {
+      index   = PStackPopInt(res_stack);
+      woffset = index < local->flimit? 
+         local->fweights[index]:local->fweight;
+      res += woffset;
+      PDArrayAssignInt(local->f_occur, index, 0);
+   }
+   PStackFree(res_stack);
+   return res;
 }
 
 

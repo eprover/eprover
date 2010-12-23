@@ -1431,6 +1431,36 @@ long EqnListCollectVariables(Eqn_p list, PTree_p *tree)
 
 /*-----------------------------------------------------------------------
 //
+// Function: EqnListAddFunOccs()
+//
+//   For each symbol in literals that is not already marked in
+//   f_occur, push it onto res_stack and mark its entry. Return
+//   number of symbols found.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+long EqnListAddFunOccs(Eqn_p list,
+                       PDArray_p f_occur, 
+                       PStack_p res_stack)
+{
+   long res = 0;
+
+   while(list)
+   {
+      res+=EqnAddFunOccs(list, f_occur, res_stack);
+      list = list->next;
+   }
+   return res;   
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: EqnListTermSetProp()
 //
 //   Set prop in all terms in list.

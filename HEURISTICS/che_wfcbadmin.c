@@ -61,6 +61,7 @@ char* WeightFunParseFunNames[]=
    "RelevanceLevelWeight",
    "RelevanceLevelWeight2",
    "FunWeight",
+   "SymOffsetWeight",
    NULL
 };
 
@@ -96,6 +97,7 @@ static WeightFunParseFun parse_fun_array[]=
    RelevanceLevelWeightParse,
    RelevanceLevelWeightParse2,
    FunWeightParse,
+   SymOffsetWeightParse,
    (WeightFunParseFun)NULL
 };
 

@@ -75,6 +75,11 @@ typedef struct funweightparamcell
    /* Actual encoding for the weights */
    long   flimit;
    long   *fweights;
+
+   /* Temporary store for function symbol counts, put here to avoid
+    * multiple  (expensive for large signatures) initializations. */
+   PDArray_p f_occur;
+   
 }FunWeightParamCell, *FunWeightParam_p;
 
 
@@ -115,6 +120,15 @@ WFCB_p FunWeightInit(ClausePrioFun prio_fun,
                      long fweight,
                      PStack_p fweights);
 
+WFCB_p SymOffsetWeightInit(ClausePrioFun prio_fun,
+                           OCB_p ocb, 
+                           double max_term_multiplier,
+                           double max_literal_multiplier,
+                           double pos_multiplier,
+                           long vweight,
+                           long fweight,
+                           PStack_p fweights);
+
 WFCB_p ConjectureSymbolWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
                                    state);
 WFCB_p ConjectureSimplifiedSymbolWeightParse(Scanner_p in, OCB_p ocb, 
@@ -132,7 +146,12 @@ WFCB_p RelevanceLevelWeightParse2(Scanner_p in, OCB_p ocb,
 WFCB_p FunWeightParse(Scanner_p in, OCB_p ocb, 
                       ProofState_p state);
 
+WFCB_p SymOffsetWeightParse(Scanner_p in, OCB_p ocb, 
+                            ProofState_p state);
+
 double GenericFunWeightCompute(void* data, Clause_p clause);
+
+double SymOffsetWeightCompute(void* data, Clause_p clause);
 
 
 void   GenericFunWeightExit(void* data);

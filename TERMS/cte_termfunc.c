@@ -1669,6 +1669,54 @@ long TermCollectPropVariables(Term_p term, PTree_p *tree,
    return res;
 }
 
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermAddFunOcc()
+//
+//   Insert all variables with properties prop in term into
+//   tree. Return number of new variables. 
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+long TermAddFunOcc(Term_p term, PDArray_p f_occur, PStack_p res_stack)
+{
+   long res = 0;
+   PStack_p stack = PStackAlloc();
+   int      i;
+
+   PStackPushP(stack,term);
+   
+   while(!PStackEmpty(stack))
+   {
+      term = PStackPopP(stack);
+      if(!TermIsVar(term))
+      {
+         if(!PDArrayElementInt(f_occur, term->f_code))
+         {
+            res++;
+            PStackPushInt(res_stack, term->f_code);
+            PDArrayAssignInt(f_occur, term->f_code, 1);
+         }
+         for(i=0; i<term->arity; i++)
+         {
+            PStackPushP(stack,term->args[i]);
+         }
+      }
+   }
+   PStackFree(stack);
+   
+   return res;
+}
+
+
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: TermLinearize()
