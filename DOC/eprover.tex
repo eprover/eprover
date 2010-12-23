@@ -679,7 +679,13 @@ in this rule\footnote{Note that there now are many additional generic
                  Simweight '(' <prio-fun>, <float>, <float>,        
                                <float>, <float> ')'              ||
                  FIFOWeight '(' <prio-fun> ')'                   ||
-                 LIFOWeight '(' <prio-fun> ')'
+                 LIFOWeight '(' <prio-fun> ')'                   ||
+                 FunWeight '(' <prio-fun> ', <int>, <int>,
+                               <float>, <float>, <float> 
+                               (, <fun> : <posint> )* ')'        ||
+                 SymOffsetWeight '(' <prio-fun> ', <int>, <int>,
+                                     <float>, <float>, <float> 
+                                    (, <fun> : <int> )* ')'
 \end{verbatim}
 \normalsize
 
@@ -735,6 +741,29 @@ This weight function assigns weights that decrease in a strictly
 monotonic manner, i.e. it realizes a \emph{last-in/first-out}
 strategy if used all by itself (which, of course, would be unfair and
 result in an extremely incomplete prover).
+\end{sloppypar}
+
+\medskip
+\begin{sloppypar}
+  \noindent{}\texttt{FunWeight(prio, prio, fweight, vweight,
+    term\_pen, lit\_pen, pos\_mult, fun:fweight \ldots)}: 
+  This evaluation function is a variant of \texttt{Refinedweight}. The
+  first 6 parameter are identical in meaning. The function takes an
+  arbitrary number of extra parameters of the form
+  \texttt{fun:fweight}, where \texttt{fun} is any valid function
+  symbol, and \texttt{fweight} is a non-negative integer. The extra
+  weight assignments will overwrite the default weight for the listed
+  function symbol.
+\end{sloppypar}
+
+\medskip
+\begin{sloppypar}
+  \noindent{}\texttt{SymOffsetWeight(prio, prio, fweight, vweight,
+    term\_pen, lit\_pen, pos\_mult, fun:fweight \ldots)}: 
+  This evaluation function is similar to \texttt{FunWeight}. The first
+  6 parameter are identical in meaning.  The extra arguments allow
+  both positive and negative values, and are used as weight modifiers
+  added to the weight of all clauses that contain the defined symbol.
 \end{sloppypar}
 
 
@@ -1498,7 +1527,6 @@ by a comment of the form \texttt{\# info(id, pd, pl, sc, cd, nl,
   doubt about which version of E you have, run \texttt{eprover -V} or
   \texttt{eprover -h}\index{GPL}\index{GNU General Public
     License}\index{LGPL}\index{GNU Lesser General Public License}.
-.
 
   See the file COPYING in the main directory for the full text of the
   licenses. 
