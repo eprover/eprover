@@ -61,7 +61,7 @@ cleandist: clean
 
 default_config:
 	sed -e 's/CC         = kgcc/CC         = gcc/' Makefile.vars| \
-	awk '/^NODEBUG/{print "NODEBUG    = -DNDEBUG -DFAST_EXIT";next}/^MEMDEBUG/{print "MEMDEBUG   = # -DCLB_MEMORY_DEBUG # -DCLB_MEMORY_DEBUG2";next}/^DEBUGGER/{print "DEBUGGER   = # -g -ggdb";next}{print}' > __tmpmake__;mv __tmpmake__ Makefile.vars
+	awk '/^NODEBUG/{print "NODEBUG    = -DNDEBUG -DFAST_EXIT";next}/^MEMDEBUG/{print "MEMDEBUG   = # -DCLB_MEMORY_DEBUG # -DCLB_MEMORY_DEBUG2";next}/^DEBUGGER/{print "DEBUGGER   = # -g -ggdb";next}/^PROFFLAGS/{print "PROFFLAGS  = # -pg # -DNEED_MATH_EMULATION";next}{print}' > __tmpmake__;mv __tmpmake__ Makefile.vars
 
 debug_config:
 	cat Makefile.vars| \
