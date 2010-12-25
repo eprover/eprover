@@ -136,7 +136,7 @@ def pegasus_cfg():
     Command to list jobs in queue. Will be bjobs -w on the cluster.
     """
 
-    bsub_rundir = "/nethome/sschulz/RUN"
+    bsub_rundir = "/scratch/sschulz/RUN"
     """
     Where will E run and deposit results?
     """
@@ -335,6 +335,7 @@ if __name__ == '__main__':
             sys.exit("Unknown option "+ option)
 
     try:
+        os.makedirs(bsub_rundir)
         os.makedirs(old_job_dir)
     except OSError:
         pass
