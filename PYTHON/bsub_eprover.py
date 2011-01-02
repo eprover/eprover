@@ -136,7 +136,7 @@ def pegasus_cfg():
     Command to list jobs in queue. Will be bjobs -w on the cluster.
     """
 
-    bsub_rundir = "/scratch/sschulz/RUN"
+    bsub_rundir = "/nethome/sschulz/RUN"
     """
     Where will E run and deposit results?
     """
@@ -287,6 +287,7 @@ def process_complete_jobs(decoder, stratset, resdir = "", donedir=None):
 
     for job in names:
         if ejobname_re.match(job):
+            pylib_io.verbout("Parsing "+job);
             res = decode_result(decoder, stratset, job)
             if res and donedir:
                 joberr = job[:-4]+".err"
