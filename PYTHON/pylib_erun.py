@@ -44,7 +44,7 @@ import re
 import string
 import select
 import os
-import popen2
+import subprocess
 import pylib_io
 import pylib_econf
 
@@ -58,14 +58,16 @@ class runner(object):
     """
     def __init__(self, cmd):
         
-        self.fp = popen2.popen2(cmd)[0]
-        self.result = ""
- 
+        self.proc = subprocess.Popen(cmd, stdin=None,
+                                     stdout=subprocess.PIPE,
+                                     close_fds=True)
+        self.cmd = cmd
+        
     def fileno(self):
         """
         Return the pipe's fileno to support select.
         """
-        return self.fp.fileno()
+        return self.proc.stdout.fileno()
 
     def get_result(self):
         """
@@ -75,16 +77,18 @@ class runner(object):
         block if cmd has neither finished nor provided new data. To
         avoid blocking, use select() first.
         """
-        tmp = self.fp.read()
-        if tmp != "":
-            self.result = self.result+tmp;
-            return (False, self.result)
-        status = self.fp.close()
-        if status:
-            print "# Warning: '"+cmd+"' returned status "+\
-                  repr(decode_wait_status(status)[0])
-        return (True, self.result)
+        ret = self.proc.poll()
 
+        if ret==None:
+            return (False, "")
+        
+        tmp, tmperr = self.proc.communicate()
+
+        if ret and ret != 6:
+            # 6 is E result from CPU timeout
+            print "# Warning: '", self.cmd, "' returned status "+\
+                  repr(ret)
+        return (True, tmp)
 
 
 
@@ -248,18 +252,23 @@ if __name__ == '__main__':
     c = pylib_econf.e_config("EXAMPLE_CFG/eserver_config_test.txt")
 
     r1 = e_runner("teststrat", c, "eprover", "--tptp3-in -xAuto -tAuto",
-                  "GRP001+6.p", 100,
+                  "GRP001+6.p", 10,
                   ["# Processed clauses",
                    "# Generated clauses",
                    "# Clause-clause subsumption calls (NU)"])
     r2 = e_runner("teststrat", c, "eprover", "--tptp3-in -xAuto -tAuto",
-                  "RNG004-1.p", 100, 
+                  "RNG004-1.p", 10, 
+                  ["# Processed clauses",
+                   "# Generated clauses",
+                   "# Clause-clause subsumption calls (NU)"]) 
+    r3 = e_runner("teststrat", c, "eprover", "--tptp3-in -xAuto -tAuto",
+                  "SET542-6.p", 10, 
                   ["# Processed clauses",
                    "# Generated clauses",
                    "# Clause-clause subsumption calls (NU)"])
-    
+   
 
-    running = [r1, r2]
+    running = [r1, r2, r3]
     while len(running)!=0:
         readable = select.select(running, [], [], 1)
         print readable

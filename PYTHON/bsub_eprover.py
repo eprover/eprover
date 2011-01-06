@@ -61,13 +61,14 @@ import os
 import string
 import getopt
 import pylib_io
+import pylib_db
 import pylib_eprot
 import pylib_erun
 
 
 def test_cfg():
     global tptp_dir, eprover_dir, testrun_dir, bsub_cmd, bjobs_cmd,\
-    bsub_rundir, old_job_dir
+    bsub_rundir, old_job_dir, db_file
     
     tptp_dir = "/Users/schulz/EPROVER/TPTP_4.1.0_FLAT"
     """
@@ -105,10 +106,15 @@ def test_cfg():
     Where to move old result files (if any).
     """
 
+    db_file = "EXAMPLE_CFG/bjob_db.db"
+    """
+    Where to store the job/run associations.
+    """
+
 
 def pegasus_cfg():
     global tptp_dir, eprover_dir, testrun_dir, bsub_cmd, bjobs_cmd,\
-    bsub_rundir, old_job_dir
+    bsub_rundir, old_job_dir, db_file
     
     tptp_dir = "/nethome/sschulz/EPROVER/TPTP_4.1.0_FLAT"
     """
@@ -146,6 +152,21 @@ def pegasus_cfg():
     Where to move old result files (if any).
     """
 
+    db_file = "/nethome/sschulz/RUN/bjob_db.db"
+    """
+    Where to store the job/run associations.
+    """
+
+
+max_bsub_jobs = 900
+"""
+How many jobs are allowed at the same time.
+"""
+
+max_bsub_batch = 100
+"""
+How many prover runs are combined in one batch.
+"""
 
 
 res_complete_marker = re.compile("### Job complete ###")
@@ -170,6 +191,33 @@ echo "### Job complete ###"
 """
 """
 Template for generating bsub jobs.
+"""
+
+
+bsub_header_tmplt = \
+"""
+#!/bin/bash
+#BSUB -J %s
+#BSUB -o %s.out   
+#BSUB -e %s.err  
+#BSUB -W 0:10   
+#BSUB -q small 
+#BSUB -n 1      
+#
+# Run serial executable on 1 cpu of one node
+"""
+"""
+Template for generating bsub job headers.
+"""
+
+bsub_job_tmplt = \
+"""
+echo "### Running : %s"
+cd %s
+env TPTP=%s %s/eprover --print-statistics --tptp3-format --resources-info %s %s
+"""
+"""
+Template for generating bsub job entries.
 """
 
 ejobname_re=re.compile("erun#[^ ]*.out")
@@ -215,20 +263,27 @@ def decode_res_name(filename):
     return tmp[1], tmp[2]
     
 
-def find_batch_jobs():
+def find_batch_jobs(job_db):
     """
     Find all jobs in the job queue and return them in the form of a
     set. 
     """
     res = set()
+    count = 0;
     
     txt = pylib_io.run_shell_command(bjobs_cmd)
     for i in txt:
         mo = ejob_re.search(i)
         if mo:
-            res.add(mo.group())
+            count = count+1
+            job = mo.group()
+            assoc = job_db.find_entry(job)
+            if assoc:
+                res.extend(assoc)
+            else:
+                res.add(job)
 
-    return res
+    return count,res
 
 def bsub_gen(stratname, probname, args):
     """
@@ -296,29 +351,81 @@ def process_complete_jobs(decoder, stratset, resdir = "", donedir=None):
                     os.unlink(joberr)
                 except OSError:
                     pass
-                    
 
-def process_job(name, results, running):
+
+def bsub_gen_header(job):
+    """
+    Generate a bsub specification header.
+    """
+    stratname = job.strat()
+    probname  = job.prob()
+    jname = encode_res_name(stratname, probname)
+    return bsub_header_tmplt%\
+           (jname, jname, jname)
+
+
+def bsub_gen_job(job):
+    """
+    Generate a bsub single job command.
+    """
+    stratname = job.strat()
+    probname  = job.prob()
+    args      = job.get_args()
+    jname = encode_res_name(stratname, probname)
+    return bsub_job_tmplt%\
+           (jname, bsub_rundir,  tptp_dir, eprover_dir,
+            args, probname)
+
+             
+def bsub_gen_batch(batch):
+    """
+    Generate a batch description for bsub to run the jobs in batch.
+    """
+    header = bsub_gen_header(batch[0])
+
+    joblist = [bsub_gen_job(i) for i in batch]
+    jobs = "\n".join(joblist)
+    
+    footer = '\necho "### Job complete ###"\n'
+
+    return header+jobs+footer
+
+
+def process_strat(name, results, running, max_jobs):
     """
     Determine the strategy base name, parse any results (individually
     and collected), determine the missing problems, and submit them
     via bsub.
     """
     strat = results.find_strat(name)
-    
+
+    open_jobs = []
     for job in strat.generate_jobs():
         jname = encode_res_name(job.strat(), job.prob())
-        if jname in running:
-            pass
-        else:
-            print "Submitting "+jname
-            job_str = bsub_gen(job.strat(),  job.prob(), job.get_args())
-            bsub_submit(job_str)
-            
+        if not jname in running:
+            open_jobs.append(job)
+
+    print "Found ", len(open_jobs), " open jobs in ", name
+
+    res = 0
+    while len(open_jobs) and res < max_jobs:
+        batch     = open_jobs[:max_bsub_batch]
+        open_jobs = open_jobs[max_bsub_batch:]
+        res = res+1
+        
+        job_str = bsub_gen_batch(batch)
+        jname = encode_res_name(batch[0].strat(), batch[0].prob())
+        print "Submitting ", jname, " with ", len(batch), " problems"
+        bsub_submit(job_str)
+
+    return res
 
 if __name__ == '__main__':
-    opts, args = getopt.gnu_getopt(sys.argv[1:], "hvpf", ["--pegasus",
-                                                          "--force"])
+    opts, args = getopt.gnu_getopt(sys.argv[1:], "hvpfb:j:",
+                                   ["--pegasus",
+                                    "--force",
+                                    "--batchsize="
+                                    "--jobs="])
     force_scheduling = False
 
     test_cfg()
@@ -332,6 +439,10 @@ if __name__ == '__main__':
             pegasus_cfg()
         elif option == "-f" or option == "--force":
             force_scheduling = True
+        elif option =="-b" or option =="--batchsize":
+            max_bsub_batch = int(optarg)
+        elif option =="-j" or option =="--jobs":
+            max_bsub_jobs = int(optarg)
         else:
             sys.exit("Unknown option "+ option)
 
@@ -341,18 +452,25 @@ if __name__ == '__main__':
     except OSError:
         pass
 
+    job_db = pylib_db.key_db(db_file)
     results = pylib_eprot.estrat_set(testrun_dir)    
     parser = pylib_erun.e_res_parser(300, ["# Processed clauses",
                                            "# Unification attempts",
                                            "# Unification successes"])
+
+    jobcount, scheduled = find_batch_jobs(job_db)
+
+    print "Currently running:", jobcount
+
     if force_scheduling:
-        running = set()
-    else:
-        running = find_batch_jobs()
+        scheduled = set()
         
     process_complete_jobs(parser, results, bsub_rundir, old_job_dir)
     results.sync()
 
-
+    max_bsub_jobs = max_bsub_jobs - jobcount
     for name in args:
-        process_job(name, results, running)
+        newscheduled = process_strat(name, results, scheduled, max_bsub_jobs)
+        max_bsub_jobs = max_bsub_jobs - newscheduled
+        if max_bsub_jobs <= 0:
+            break
