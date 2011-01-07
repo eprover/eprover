@@ -19,6 +19,23 @@ Options:
 --verbose
    Switch on verbose mode.
 
+-p
+--pegasus
+   Switch to Pegasus config.
+
+-f
+--force
+   Force scheduling even of jobs already running.
+
+-b
+--batchsize
+   Determine how many jobs to put into one batch.
+
+-j
+--jobs
+   Determine maximal number of jobs to schedule.
+
+
 Copyright 2010 Stephan Schulz, schulz@eprover.org
 
 This code is part of the support structure for the equational
@@ -205,6 +222,7 @@ bsub_header_tmplt = \
 #BSUB -n 1      
 #
 # Run serial executable on 1 cpu of one node
+cd %s
 """
 """
 Template for generating bsub job headers.
@@ -212,8 +230,7 @@ Template for generating bsub job headers.
 
 bsub_job_tmplt = \
 """
-echo "### Running : %s"
-cd %s
+echo "### Running: %s"
 env TPTP=%s %s/eprover --print-statistics --tptp3-format --resources-info %s %s
 """
 """
@@ -229,6 +246,8 @@ ejob_re=re.compile("erun#[^ ]*")
 """
 Regular expression matching E jobs.
 """
+
+ejobhead_str="### Running:"
 
 
 def bsub_submit(job):
@@ -331,8 +350,31 @@ def decode_result(decoder, stratset, filename):
     else:
         return False
         
+def decode_results(decoder, stratset, filename):
+    """
+    Parse a batch result file and insert the results into
+    stratset. 
+    """
+    resstr = read_res_file(filename)
+    if resstr:
+        reslist = resstr.split(ejobhead_str)
+        for i in reslist[1:]:
+            print "Processing ",i
+            filename, rest = i.split("\n", 1)
+            filename = filename.strip()
+            sname, pname = decode_res_name(filename)
+            strat = stratset.find_strat(sname)
+            maxtime = strat.spec.time_limit
+            res = pylib_eprot.eresult(pname+" "+decoder.encode_result(rest,maxtime))
+            if res:
+                strat.add_result(res)
+        return True
+    else:
+        return False
 
-def process_complete_jobs(decoder, stratset, resdir = "", donedir=None):
+
+   
+def process_complete_jobs(decoder, stratset, job_db, resdir = ""):
     """
     Process all jobs in resdir. Store the results in stratset, move
     processed complete files to donedir (if this argument is given).
@@ -343,8 +385,9 @@ def process_complete_jobs(decoder, stratset, resdir = "", donedir=None):
     for job in names:
         if ejobname_re.match(job):
             pylib_io.verbout("Parsing "+job);
-            res = decode_result(decoder, stratset, job)
-            if res and donedir:
+            res = decode_results(decoder, stratset, job)
+            if res:
+                job_db.del_entry(job)
                 joberr = job[:-4]+".err"
                 try:
                     os.unlink(job)
@@ -352,29 +395,33 @@ def process_complete_jobs(decoder, stratset, resdir = "", donedir=None):
                 except OSError:
                     pass
 
+def encode_job_name(job):
+    """
+    Given a job, return the unique name of the running job.
+    """
+    stratname = job.strat()
+    probname  = job.prob()
+    jname = encode_res_name(stratname, probname)
+    return jname
 
 def bsub_gen_header(job):
     """
     Generate a bsub specification header.
     """
-    stratname = job.strat()
-    probname  = job.prob()
-    jname = encode_res_name(stratname, probname)
+    jname = encode_job_name(job)
     return bsub_header_tmplt%\
-           (jname, jname, jname)
+           (jname, jname, jname, bsub_rundir)
 
 
 def bsub_gen_job(job):
     """
     Generate a bsub single job command.
     """
-    stratname = job.strat()
     probname  = job.prob()
     args      = job.get_args()
-    jname = encode_res_name(stratname, probname)
+    jname     = encode_job_name(job)
     return bsub_job_tmplt%\
-           (jname, bsub_rundir,  tptp_dir, eprover_dir,
-            args, probname)
+           (jname,  tptp_dir, eprover_dir, args, probname)
 
              
 def bsub_gen_batch(batch):
@@ -391,7 +438,7 @@ def bsub_gen_batch(batch):
     return header+jobs+footer
 
 
-def process_strat(name, results, running, max_jobs):
+def process_strat(name, results, running, max_jobs, job_db):
     """
     Determine the strategy base name, parse any results (individually
     and collected), determine the missing problems, and submit them
@@ -414,10 +461,13 @@ def process_strat(name, results, running, max_jobs):
         res = res+1
         
         job_str = bsub_gen_batch(batch)
-        jname = encode_res_name(batch[0].strat(), batch[0].prob())
+        jname = encode_job_name(batch[0])
         print "Submitting ", jname, " with ", len(batch), " problems"
         bsub_submit(job_str)
+        namelist = [encode_job_name(j) for j in batch]
+        job_db.add_entry(jname, namelist)
 
+    job_db.sync()
     return res
 
 if __name__ == '__main__':
@@ -465,12 +515,13 @@ if __name__ == '__main__':
     if force_scheduling:
         scheduled = set()
         
-    process_complete_jobs(parser, results, bsub_rundir, old_job_dir)
+    process_complete_jobs(parser, results, job_db, bsub_rundir)
     results.sync()
 
     max_bsub_jobs = max_bsub_jobs - jobcount
     for name in args:
-        newscheduled = process_strat(name, results, scheduled, max_bsub_jobs)
+        newscheduled = process_strat(name, results, scheduled,
+                                     max_bsub_jobs, job_db)
         max_bsub_jobs = max_bsub_jobs - newscheduled
         if max_bsub_jobs <= 0:
             break

@@ -62,9 +62,11 @@ class key_db(object):
         state from the file.
         """
         self.data = {}
-        self.file_store = file_store
-        if self.file_store:
-            self.db_dir = os.path.dirname(os.path.abspath(self.file_store))
+        self.file_store = None
+        if file_store:
+            self.file_store = os.path.abspath(file_store)
+            self.db_dir = os.path.dirname(self.file_store)
+            
             self.load(self.file_store)
                 
     def add_entry(self, key, data):
@@ -108,6 +110,7 @@ class key_db(object):
         try:
             self.write_db(fp)
             fp.close()
+            #print "rename", tmpfile, "->", self.file_store
             os.rename(tmpfile, self.file_store)
         except OSError:
             pass
