@@ -42,21 +42,23 @@ Changes
 
 typedef struct batch_spec_cell
 {
+   char          *executable;
    char* category;        /* Just a name */
    long  per_prob_time;   /* Wall clock, in seconds */
    long  total_time;      /* Wall clock, in seconds */
    PStack_p includes;     /* Names of include files (char*) */
+   IOFormat format;
    PStack_p source_files; /* Input files (char*) */
    PStack_p dest_files;   /* Output files (char*) */
 }BatchSpecCell, *BatchSpec_p;
 
 
-/* Batch control data structure - holding information about all the
- * includes. */
+/* Complex, multi-file problem specification data structure - holding
+ * information about all the includes parsed so they are parsed at
+ * most once. */
 
-typedef struct batch_control_cell
+typedef struct strtuctured_FPO_spec_cell
 {
-   char          *executable;
    Sig_p         sig;
    TB_p          terms;
    PStack_p      clause_sets;
@@ -64,7 +66,7 @@ typedef struct batch_control_cell
    StrTree_p     parsed_includes;
    PStackPointer shared_ax_sp;
    GenDistrib_p  f_distrib;
-}BatchControlCell, *BatchControl_p;
+}StructFOFSpecCell, *StructFOFSpec_p;
 
 
 
@@ -76,40 +78,43 @@ typedef struct batch_control_cell
 #define BatchSpecCellAlloc()    (BatchSpecCell*)SizeMalloc(sizeof(BatchSpecCell))
 #define BatchSpecCellFree(junk) SizeFree(junk, sizeof(BatchSpecCell))
 
-BatchSpec_p BatchSpecAlloc(void);
+BatchSpec_p BatchSpecAlloc(char* executable, IOFormat format);
 void        BatchSpecFree(BatchSpec_p spec);
 void        BatchSpecPrint(FILE* out, BatchSpec_p spec);
 
-BatchSpec_p BatchSpecParse(Scanner_p in);
+BatchSpec_p BatchSpecParse(Scanner_p in, char* executable, IOFormat format);
 
-#define BatchControlCellAlloc()    (BatchControlCell*)SizeMalloc(sizeof(BatchControlCell))
-#define BatchControlCellFree(junk) SizeFree(junk, sizeof(BatchControlCell))
+#define StructFOFSpecCellAlloc()    (StructFOFSpecCell*)SizeMalloc(sizeof(StructFOFSpecCell))
+#define StructFOFSpecCellFree(junk) SizeFree(junk, sizeof(StructFOFSpecCell))
 
-BatchControl_p BatchControlAlloc(char* executable);
-void           BatchControlFree(BatchControl_p ctrl);
-long           BatchControlInitSpec(BatchSpec_p spec, BatchControl_p ctrl);
-void           BatchControlInitDistrib(BatchControl_p ctrl);
-long           BatchControlInit(BatchSpec_p spec, BatchControl_p ctrl);
+StructFOFSpec_p StructFOFSpecAlloc(void);
+void           StructFOFSpecFree(StructFOFSpec_p ctrl);
+long           StructFOFSpecParseAxioms(StructFOFSpec_p ctrl, 
+                                       PStack_p axfiles, 
+                                       IOFormat parse_format);
+#define       StructFOFSpecResetShared(ctrl) (ctrl)->shared_ax_sp = 0
 
-void BatchControlAddProblem(BatchControl_p ctrl, 
+void           StructFOFSpecInitDistrib(StructFOFSpec_p ctrl);
+long           StructFOFSpecInit(BatchSpec_p spec, StructFOFSpec_p ctrl);
+
+void StructFOFSpecAddProblem(StructFOFSpec_p ctrl, 
                             ClauseSet_p clauses, 
                             FormulaSet_p formulas); 
 
-void BatchControlBacktrackToSpec(BatchControl_p ctrl);
+void StructFOFSpecBacktrackToSpec(StructFOFSpec_p ctrl);
 
 
-long BatchControlGetProblem(BatchControl_p ctrl,
-                            GeneralityMeasure gen_measure,
-                            double            benevolence,
-                            PStack_p          res_clauses, 
-                            PStack_p          res_formulas);
+long StructFOFSpecGetProblem(StructFOFSpec_p ctrl,
+                             AxFilter_p filter,
+                             PStack_p res_clauses, 
+                             PStack_p res_formulas);
 
 bool BatchProcessProblem(BatchSpec_p spec, 
-                         BatchControl_p ctrl, 
+                         StructFOFSpec_p ctrl, 
                          char* source, char* dest);
 
 bool BatchProcessProblems(BatchSpec_p spec, 
-                          BatchControl_p ctrl);
+                          StructFOFSpec_p ctrl);
 
 
 

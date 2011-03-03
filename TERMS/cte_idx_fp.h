@@ -62,6 +62,7 @@ FunCode   TermFPFlexSample(Term_p term, IntOrP* *seq);
 
 
 IndexFP_p IndexFP0Create(Term_p t);
+IndexFP_p IndexFPfpCreate(Term_p t);
 IndexFP_p IndexFP1Create(Term_p t);
 IndexFP_p IndexFP2Create(Term_p t);
 IndexFP_p IndexFP3DCreate(Term_p t);

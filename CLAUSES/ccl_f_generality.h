@@ -29,21 +29,12 @@ Changes
 
 #include <ccl_formulasets.h>
 #include <ccl_clausesets.h>
-
+#include <che_axfilter.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-
-/* Type of generality measure: Number of occurences in terms or in
- * formulas (and possibly later in equations). */
-
-typedef enum
-{
-   GMTerms,
-   GMFormulas
-}GeneralityMeasure;
 
 
 /* How often does a give f_code occur in certain substructures? */

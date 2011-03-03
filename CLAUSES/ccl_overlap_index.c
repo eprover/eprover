@@ -260,7 +260,7 @@ void OverlapIndexDeleteClauseOcc(OverlapIndex_p index,
    ClausePrint(stdout, clause, true);
    printf("\n");
    TermPrint(stdout, term, clause->literals->bank->sig, DEREF_NEVER);         
-   printf("\n");*/
+   printf("\n"); */
 
    fp_node   = FPIndexFind(index, term);
    if(!fp_node)
@@ -278,6 +278,7 @@ void OverlapIndexDeleteClauseOcc(OverlapIndex_p index,
       return;
    }
    ClauseTPosTreeDeleteClause(&(subterm_node->pl.pos.clauses), clause);
+   //printf("Del\n");
    if(!subterm_node->pl.pos.clauses)
    {
       SubtermTreeDeleteTerm((PTree_p*)&(fp_node->payload), term);
@@ -357,7 +358,7 @@ long ClauseCollectIntoTermsPos(Clause_p clause, PStack_p terms)
 // Function: ClauseCollectFromTerms()
 //
 //   Collect all "from" terms (i.e. potential left hand sides of the
-//   rule of a clause seen as a conditional rewrite rule) in terms.
+//   rule of a clause seen as a conditional rewrite rule) into terms.
 //
 // Global Variables: -
 //
@@ -505,6 +506,7 @@ void OverlapIndexInsertFromClause(OverlapIndex_p index, Clause_p clause)
    Term_p     term;
    
    ClauseCollectFromTermsPos(clause, collector);
+
    while(!PStackEmpty(collector))
    {
       pos  = PStackPopInt(collector);
@@ -544,6 +546,96 @@ void OverlapIndexDeleteFromClause(OverlapIndex_p index, Clause_p clause)
    PTreeTraverseExit(trans);
    PTreeFree(collector);
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: OverlapIndexClauseTreePrint()
+//
+//   
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+void OverlapIndexClauseTreePrint(FILE* out, PObjTree_p root)
+{
+   if(root)
+   {
+      OverlapIndexClauseTreePrint(out, root->lson); 
+      ClauseTPosTreePrint(out, root->key);
+      OverlapIndexClauseTreePrint(out, root->rson); 
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: OverlapIndexSubtermTreePrint()
+//
+//   Print a suberm tree (only for debugging)
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void OverlapIndexSubtermTreePrint(FILE* out, SubtermTree_p root)
+{
+   SubtermOcc_p data;
+
+   if(root)
+   {
+      OverlapIndexSubtermTreePrint(out, root->lson);
+      data = root->key;
+      fprintf(out, "Node: %p data=%p\n", root, data);
+      fprintf(out, "Key: %ld = ", data->term->entry_no);
+      if(data->pl.pos.clauses)
+      {
+         ClauseTPos_p clause_tpos = data->pl.pos.clauses->key;
+         Clause_p clause = clause_tpos->clause;
+         if(clause->literals)
+         {
+             TermPrint(out, data->term, clause->literals->bank->sig, DEREF_ALWAYS);
+         }
+         fprintf(out, "\n");
+         OverlapIndexClauseTreePrint(out, data->pl.pos.clauses);
+      }
+      else
+      {
+         fprintf(out, "\nlson=%p, rson=%p\n\n", root->lson, root->rson);
+      }
+      OverlapIndexSubtermTreePrint(out, root->rson);
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: OverlapIndexFPLeavePrint()
+//
+//   Print a leaf as the path leading to it and the number of direct
+//   entries in the subterm.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void OverlapIndexFPLeavePrint(FILE* out, PStack_p stack, FPTree_p leaf)
+{
+   PStack_p iter = PStackAlloc();
+
+   fprintf(out, "# ");
+   PStackPrintInt(out, "%4ld.", stack);
+   fprintf(out, ":%ld terms\n", PObjTreeNodes(leaf->payload));
+   OverlapIndexSubtermTreePrint(out, leaf->payload);
+
+   PStackFree(iter);
+}
+
 
 
 /*---------------------------------------------------------------------*/

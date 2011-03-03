@@ -235,6 +235,8 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
    int i;
    DerefType deref = DEREF_ALWAYS;
 
+
+   //printf("Unify %lu %lu\n", t1->entry_no, t2->entry_no);
 #ifdef MEASURE_UNIFICATION
    UnifAttempts++;
 #endif

@@ -32,6 +32,7 @@ Changes
 char* FPIndexNames[] =
 {   
    "FP0",
+   "FPfp",
    "FP1",
    "FP2",
    "FP3D",
@@ -49,6 +50,7 @@ char* FPIndexNames[] =
 static FPIndexFunction fp_index_funs[] =
 {
    IndexFP0Create,
+   IndexFPfpCreate,
    IndexFP1Create,
    IndexFP2Create,
    IndexFP3DCreate,
@@ -193,6 +195,33 @@ IndexFP_p IndexFP0Create(Term_p t)
    IndexFP_p res = SizeMalloc(sizeof(FunCode)*1);
 
    res[0] = 1;
+
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: IndexFPfpCreate()
+//
+//   Create a fingerprint structure using an abstraction to just avoid
+//   function/predicate unifications/matches.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+IndexFP_p IndexFPfpCreate(Term_p t)
+{
+   IndexFP_p res = SizeMalloc(sizeof(FunCode)*2);
+
+   res[0] = 2;
+   res[1] = TermFPSample(t, -1);
+   if(res[1] > 0)
+   {
+      res[1]=TermCellQueryProp((t), TPPredPos)?1:2;
+   }
 
    return res;
 }

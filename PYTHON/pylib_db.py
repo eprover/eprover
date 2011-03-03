@@ -103,9 +103,10 @@ class key_db(object):
         """
         if not self.file_store:
             return
-        fp = tempfile.NamedTemporaryFile("wb", -1, ".db",
-                                              "dbtmp_", self.db_dir,
-                                              False)
+        #fp = tempfile.NamedTemporaryFile("wb", -1, ".db",
+        #                                      "dbtmp_", self.db_dir,
+        #                                      False)
+        fp = open(self.db_dir+"/dbtmp_017.db", "wb")
         tmpfile = fp.name
         try:
             self.write_db(fp)

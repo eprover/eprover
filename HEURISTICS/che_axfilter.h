@@ -7,7 +7,9 @@ Author: Stephan Schulz (schulz@eprover.org)
 Contents
  
   Definitions dealing with the description of axiom set filters based
-  on relevancy/SinE principles.
+  on relevancy/SinE principles. This only deals with their parameters
+  and specifications. The real code is (for now) in CONTROL and knows
+  nothing about this ;-).
 
   Copyright 2011 by the author.
   This code is released under the GNU General Public Licence.
@@ -25,6 +27,7 @@ Changes
 
 #define CHE_AXFILTER
 
+#include <cio_basicparser.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -34,7 +37,7 @@ Changes
 typedef enum 
 {
    AFNoFilter = 0,
-   AFSineE
+   AFGSineE
 }AxFilterType;
 
 
@@ -43,20 +46,25 @@ typedef enum
 
 typedef enum
 {
+   GMNoMeasure,
    GMTerms,
+   GMLiterals,
    GMFormulas
 }GeneralityMeasure;
 
 
 /* Parameters for a single Axiom filter */
 
-typedef struct
+typedef struct 
 {
+   char*             name;
    AxFilterType      type;
    GeneralityMeasure gen_measure;
+   double            benevolence;
+   long              generosity;
    long              max_recursion_depth;
    long long         max_set_size;
-   float             max_set_fraction;   
+   double            max_set_fraction;   
 }AxFilterCell, *AxFilter_p;
 
 
@@ -70,22 +78,29 @@ typedef struct
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+extern char* AxFilterDefaultSet;
+
 #define AxFilterCellAlloc()    (AxFilterCell*)SizeMalloc(sizeof(AxFilterCell))
 #define AxFilterCellFree(junk) SizeFree(junk, sizeof(AxFilterCell))
 
 AxFilter_p AxFilterAlloc();
 void       AxFilterFree(AxFilter_p junk);
 AxFilter_p AxFilterParse(Scanner_p in);
+AxFilter_p AxFilterDefParse(Scanner_p in);
 void       AxFilterPrint(FILE* out, AxFilter_p filter);
+void       AxFilterDefPrint(FILE* out, AxFilter_p filter);
 
 
 #define AxFilterSetCellAlloc()    (AxFilterSetCell*)SizeMalloc(sizeof(AxFilterSetCell))
 #define AxFilterSetCellFree(junk) SizeFree(junk, sizeof(AxFilterSetCell))
 
-AxFilter_p AxFilterSetAlloc();
-void       AxFilterSetFree(AxFilterSet_p junk);
-
-
+AxFilterSet_p AxFilterSetAlloc();
+void          AxFilterSetFree(AxFilterSet_p junk);
+long          AxFilterSetParse(Scanner_p in, AxFilterSet_p set);
+AxFilterSet_p AxFilterSetCreateInternal(char* str);
+void          AxFilterSetPrint(FILE* out, AxFilterSet_p set);
+#define       AxFilterSetElements(s) PStackGetSP((s)->set)
+#define       AxFilterSetGetFilter(s, i) ((AxFilter_p)PStackElementP((s)->set,(i)))
 
 #endif
 

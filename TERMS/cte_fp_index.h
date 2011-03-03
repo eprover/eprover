@@ -68,6 +68,7 @@ typedef struct subterm_index_cell
    FPTreeFreeFun   payload_free;
 }FPIndexCell, *FPIndex_p;
 
+typedef void (*FPLeafPrintFun)(FILE* stdout, PStack_p stack, FPTree_p leaf);
 
 
 /*---------------------------------------------------------------------*/
@@ -108,6 +109,8 @@ long      FPIndexFindMatchable(FPIndex_p index, Term_p term, PStack_p collect);
 
 void      FPIndexDistribPrint(FILE* out, FPIndex_p index);
 void      FPIndexDistribDataPrint(FILE* out, FPIndex_p index);
+
+void      FPIndexPrint(FILE* out, FPIndex_p index, FPLeafPrintFun prtfun);
 
 #endif
 

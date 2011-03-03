@@ -65,6 +65,8 @@ void OverlapIndexDeleteIntoClause(OverlapIndex_p index, Clause_p clause);
 void OverlapIndexInsertFromClause(OverlapIndex_p index, Clause_p clause);
 void OverlapIndexDeleteFromClause(OverlapIndex_p index, Clause_p clause);
 
+void OverlapIndexFPLeavePrint(FILE* out, PStack_p stack, FPTree_p leaf);
+
 #endif
 
 /*---------------------------------------------------------------------*/

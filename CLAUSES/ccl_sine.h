@@ -134,8 +134,7 @@ long SelectAxioms(GenDistrib_p      f_distrib,
                   PStack_p          clause_sets,
                   PStack_p          formula_sets,
                   PStackPointer     hyp_start,
-                  GeneralityMeasure gen_measure,
-                  double            benevolence,
+                  AxFilter_p        ax_filter,
                   PStack_p          res_clauses, 
                   PStack_p          res_formulas);
 

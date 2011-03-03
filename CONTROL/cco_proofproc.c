@@ -1094,7 +1094,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
       ClauseSetIndexedInsert(state->processed_non_units, pclause);
    }
    GlobalIndicesInsertClause(&(state->gindices), clause);
-
+   
    FVUnpackClause(pclause);
    ENSURE_NULL(pclause);
    if(state->watchlist && control->heuristic_parms.watchlist_simplify)
@@ -1169,7 +1169,6 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
 		      state->unprocessed->members)&&
 	 (!state->watchlist||!ClauseSetEmpty(state->watchlist)))
    {     
-
       count++;
       unsatisfiable = ProcessClause(state, control);
       if(unsatisfiable)

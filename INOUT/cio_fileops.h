@@ -50,6 +50,7 @@ void  FilePrint(FILE* out, char* name);
 char* FileNameDirName(char* name);
 char* FileFindBaseName(char *file);
 char* FileNameBaseName(char* name);
+char* FileNameStrip(char* name);
 
 #endif
 

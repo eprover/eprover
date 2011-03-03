@@ -1379,6 +1379,9 @@ int main(int argc, char* argv[])
          fprintf(GlobalOut, "# Paramod-from index:        ");
          FPIndexDistribDataPrint(GlobalOut, proofstate->gindices.pm_from_index);
          fprintf(GlobalOut, "\n");
+         /* FPIndexPrint(GlobalOut, 
+                      proofstate->gindices.pm_from_index, 
+                      OverlapIndexFPLeavePrint); */
       }
       if(proofstate->gindices.pm_into_index)
       {

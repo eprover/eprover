@@ -60,7 +60,6 @@ void GlobalIndicesInit(GlobalIndices_p indices,
 void GlobalIndicesFreeIndices(GlobalIndices_p indices);
 void GlobalIndicesReset(GlobalIndices_p indices);
 
-void GlobalIndicesRelease(GlobalIndices_p indices);
 
 void GlobalIndicesInsertClause(GlobalIndices_p indices, Clause_p clause);
 void GlobalIndicesDeleteClause(GlobalIndices_p indices, Clause_p clause);

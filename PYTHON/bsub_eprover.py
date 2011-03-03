@@ -217,7 +217,7 @@ bsub_header_tmplt = \
 #BSUB -J %s
 #BSUB -o %s.out   
 #BSUB -e %s.err  
-#BSUB -W 0:10   
+#BSUB -W 10:00
 #BSUB -q small 
 #BSUB -n 1      
 #
@@ -247,7 +247,7 @@ ejob_re=re.compile("erun#[^ ]*")
 Regular expression matching E jobs.
 """
 
-ejobhead_str="### Running:"
+ejobhead_str="\n### Running:"
 
 
 def bsub_submit(job):
@@ -298,7 +298,7 @@ def find_batch_jobs(job_db):
             job = mo.group()
             assoc = job_db.find_entry(job)
             if assoc:
-                res.extend(assoc)
+                res.update(assoc)
             else:
                 res.add(job)
 
@@ -359,7 +359,6 @@ def decode_results(decoder, stratset, filename):
     if resstr:
         reslist = resstr.split(ejobhead_str)
         for i in reslist[1:]:
-            print "Processing ",i
             filename, rest = i.split("\n", 1)
             filename = filename.strip()
             sname, pname = decode_res_name(filename)
@@ -471,12 +470,16 @@ def process_strat(name, results, running, max_jobs, job_db):
     return res
 
 if __name__ == '__main__':
-    opts, args = getopt.gnu_getopt(sys.argv[1:], "hvpfb:j:",
+    opts, args = getopt.gnu_getopt(sys.argv[1:], "hvpfb:j:x",
                                    ["--pegasus",
                                     "--force",
-                                    "--batchsize="
-                                    "--jobs="])
+                                    "--batchsize=",
+                                    "--jobs="
+                                    "--ext-stats"])
     force_scheduling = False
+    stats = ["# Processed clauses",
+             "# Unification attempts",
+             "# Unification successes"]
 
     test_cfg()
     for option, optarg in opts:
@@ -493,6 +496,11 @@ if __name__ == '__main__':
             max_bsub_batch = int(optarg)
         elif option =="-j" or option =="--jobs":
             max_bsub_jobs = int(optarg)
+        elif option == "-x" or option == "--ext-stats":
+            stats.extend(["# Generated clauses",
+                          "# Paramodulations",
+                          "# Current number of processed clauses",
+                          "# Current number of unprocessed clauses"])
         else:
             sys.exit("Unknown option "+ option)
 
@@ -503,10 +511,8 @@ if __name__ == '__main__':
         pass
 
     job_db = pylib_db.key_db(db_file)
-    results = pylib_eprot.estrat_set(testrun_dir)    
-    parser = pylib_erun.e_res_parser(300, ["# Processed clauses",
-                                           "# Unification attempts",
-                                           "# Unification successes"])
+    results = pylib_eprot.estrat_set(testrun_dir)  
+    parser = pylib_erun.e_res_parser(300, stats)
 
     jobcount, scheduled = find_batch_jobs(job_db)
 

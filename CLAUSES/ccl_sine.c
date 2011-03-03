@@ -569,7 +569,7 @@ long SelectDefiningAxioms(DRelation_p drel,
 //   formulas) which contain the hypotheses (in a restricted part
 //   indicated by hyp_start), select axioms according to the
 //   D-Relation described by gen_measure and benevolence. Selected
-//   axioms are pushed tono res_clauses and res_formulas, the total
+//   axioms are pushed onto res_clauses and res_formulas, the total
 //   number of selected axioms is returned.
 //
 // Global Variables: -
@@ -582,8 +582,7 @@ long SelectAxioms(GenDistrib_p      f_distrib,
                   PStack_p          clause_sets,
                   PStack_p          formula_sets,
                   PStackPointer     hyp_start,
-                  GeneralityMeasure gen_measure,
-                  double            benevolence,
+                  AxFilter_p        ax_filter,
                   PStack_p          res_clauses, 
                   PStack_p          res_formulas)
 {
@@ -596,10 +595,14 @@ long SelectAxioms(GenDistrib_p      f_distrib,
    assert(PStackGetSP(clause_sets)==PStackGetSP(formula_sets));
 
    fprintf(GlobalOut, "# Axiom selection starts (%lld)\n", GetSecTimeMod());
-   DRelationAddClauseSets(drel, f_distrib, gen_measure, 
-                          benevolence, clause_sets);
-   DRelationAddFormulaSets(drel, f_distrib, gen_measure, 
-                           benevolence, formula_sets);
+   DRelationAddClauseSets(drel, f_distrib, 
+                          ax_filter->gen_measure, 
+                          ax_filter->benevolence, 
+                          clause_sets);
+   DRelationAddFormulaSets(drel, f_distrib, 
+                           ax_filter->gen_measure, 
+                           ax_filter->benevolence, 
+                           formula_sets);
    fprintf(GlobalOut, "# DRelation constructed (%lld)\n", GetSecTimeMod());
  
    for(i=hyp_start; i<PStackGetSP(clause_sets); i++)
@@ -620,7 +623,9 @@ long SelectAxioms(GenDistrib_p      f_distrib,
                               selq,
                               res_clauses,
                               res_formulas);
-   fprintf(GlobalOut, "# Axioms selected (%lld)\n", GetSecTimeMod());
+   PStackFormulaDelProp(res_formulas, WPIsRelevant);
+   PStackClauseDelProp(res_clauses, CPIsRelevant);
+  fprintf(GlobalOut, "# Axioms selected (%lld)\n", GetSecTimeMod());
    PQueueFree(selq);
    DRelationFree(drel);
  

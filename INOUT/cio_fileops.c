@@ -335,6 +335,46 @@ char* FileNameBaseName(char* name)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: FileNameStrip()
+//
+//   Given a path, return a copy of the core name - i.e. the basename
+//   without a possible suffix.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+char* FileNameStrip(char* name)
+{
+   char *res, *endpos = name;
+   int len = 0, i;
+   
+
+   endpos = FileFindBaseName(name);
+   for(i=0; endpos[i]; i++)
+   {
+      if(endpos[i] == '.')
+      {
+         len = i;
+      }
+   }
+   if(!len)
+   {
+      len = i;
+   }
+   res = SecureStrndup(endpos, len);   
+
+   return res;
+}
+
+
+
+
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

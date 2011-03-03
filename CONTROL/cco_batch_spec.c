@@ -52,10 +52,10 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-EPCtrl_p batch_create_runner(BatchControl_p ctrl,
+EPCtrl_p batch_create_runner(StructFOFSpec_p ctrl,
+                             char *executable,
                              long cpu_time,
-                             GeneralityMeasure gen_measure,
-                             double            benevolence)
+                             AxFilter_p ax_filter)
 {
    EPCtrl_p pctrl;
    char     *file;
@@ -65,11 +65,10 @@ EPCtrl_p batch_create_runner(BatchControl_p ctrl,
    PStack_p cspec = PStackAlloc();
    PStack_p fspec = PStackAlloc();
 
-   BatchControlGetProblem(ctrl, 
-                          gen_measure,
-                          benevolence,
-                          cspec,
-                          fspec);
+   StructFOFSpecGetProblem(ctrl, 
+                           ax_filter,
+                           cspec,
+                           fspec);
    fprintf(GlobalOut, "# Spec has %d clauses and %d formulas (%lld)\n",
            PStackGetSP(cspec), PStackGetSP(fspec), GetSecTimeMod());
    
@@ -81,11 +80,11 @@ EPCtrl_p batch_create_runner(BatchControl_p ctrl,
    
    fprintf(GlobalOut, "# Written new problem (%lld)\n", GetSecTimeMod());
 
-   sprintf(name, "SinE(%d, %f)", gen_measure, benevolence);
-   pctrl = ECtrlCreate(ctrl->executable, name, cpu_time, file);
+   sprintf(name, "SinE(%d, %f)", ax_filter->gen_measure, ax_filter->benevolence);
+   pctrl = ECtrlCreate(executable, name, cpu_time, file);
 
-   PStackFormulaDelProp(fspec, WPIsRelevant);
-   PStackClauseDelProp(cspec, CPIsRelevant);
+   //PStackFormulaDelProp(fspec, WPIsRelevant);
+   //PStackClauseDelProp(cspec, CPIsRelevant);
 
    PStackFree(cspec);
    PStackFree(fspec);
@@ -111,7 +110,7 @@ EPCtrl_p batch_create_runner(BatchControl_p ctrl,
 //
 /----------------------------------------------------------------------*/
 
-BatchSpec_p BatchSpecAlloc(void)
+BatchSpec_p BatchSpecAlloc(char* executable, IOFormat format)
 {
    BatchSpec_p handle = BatchSpecCellAlloc();
 
@@ -120,7 +119,9 @@ BatchSpec_p BatchSpecAlloc(void)
    handle->total_time    = 0;
    handle->includes      = PStackAlloc();
    handle->source_files  = PStackAlloc();
+   handle->format        = format;
    handle->dest_files    = PStackAlloc();
+   handle->executable    = SecureStrdup(executable);
 
    return handle;
 }
@@ -165,6 +166,7 @@ void BatchSpecFree(BatchSpec_p spec)
    }
    PStackFree(spec->dest_files);
 
+   FREE(spec->executable);
    BatchSpecCellFree(spec);
 }
 
@@ -226,9 +228,9 @@ void BatchSpecPrint(FILE* out, BatchSpec_p spec)
 //
 /----------------------------------------------------------------------*/
 
-BatchSpec_p BatchSpecParse(Scanner_p in)
+BatchSpec_p BatchSpecParse(Scanner_p in, char* executable, IOFormat format)
 {
-   BatchSpec_p handle = BatchSpecAlloc();
+   BatchSpec_p handle = BatchSpecAlloc(executable, format);
    char *dummy;
    
    dummy = ParseDottedId(in);
@@ -274,9 +276,9 @@ BatchSpec_p BatchSpecParse(Scanner_p in)
 
 /*-----------------------------------------------------------------------
 //
-// Function: BatchControlAlloc()
+// Function: StructFOFSpecAlloc()
 //
-//   Allocate a BatchControl data structure.
+//   Allocate a Structures problem data structure.
 //
 // Global Variables: -
 //
@@ -284,9 +286,9 @@ BatchSpec_p BatchSpecParse(Scanner_p in)
 //
 /----------------------------------------------------------------------*/
 
-BatchControl_p BatchControlAlloc(char* executable)
+StructFOFSpec_p StructFOFSpecAlloc(void)
 {
-   BatchControl_p handle = BatchControlCellAlloc();
+   StructFOFSpec_p handle = StructFOFSpecCellAlloc();
 
    handle->sig             = SigAlloc();
    SigInsertFOFCodes(handle->sig);
@@ -295,16 +297,15 @@ BatchControl_p BatchControlAlloc(char* executable)
    handle->formula_sets    = PStackAlloc();
    handle->parsed_includes = NULL;
    handle->f_distrib       = GenDistribAlloc(handle->sig);
-   handle->executable      = SecureStrdup(executable);
 
    return handle;
 }
 
 /*-----------------------------------------------------------------------
 //
-// Function: BatchControlFree()
+// Function: StructFOFSpecFree()
 //
-//   Free a BatchControl data structure.
+//   Free a StructFOFSpec data structure.
 //
 // Global Variables: -
 //
@@ -312,7 +313,7 @@ BatchControl_p BatchControlAlloc(char* executable)
 //
 /----------------------------------------------------------------------*/
 
-void BatchControlFree(BatchControl_p ctrl)
+void StructFOFSpecFree(StructFOFSpec_p ctrl)
 {
    FormulaSet_p fset;
    ClauseSet_p  cset;
@@ -337,17 +338,16 @@ void BatchControlFree(BatchControl_p ctrl)
    StrTreeFree(ctrl->parsed_includes);
    GenDistribFree(ctrl->f_distrib);
    
-   FREE(ctrl->executable);
-   BatchControlCellFree(ctrl);
+   StructFOFSpecCellFree(ctrl);
 }
 
 
 /*-----------------------------------------------------------------------
 //
-// Function: BatchControlInitSpec()
+// Function: StructFOFSpecParseAxioms()
 //
-//   Initialize a BatchControllCell by parsing all the include files
-//   in spec.
+//   Initialize a StructFOFSpeclCell by parsing all the include files
+//   in in axfiles.
 //
 // Global Variables: -
 //
@@ -355,7 +355,8 @@ void BatchControlFree(BatchControl_p ctrl)
 //
 /----------------------------------------------------------------------*/
 
-long BatchControlInitSpec(BatchSpec_p spec, BatchControl_p ctrl)
+long StructFOFSpecParseAxioms(StructFOFSpec_p ctrl, PStack_p axfiles, 
+                             IOFormat parse_format)
 {
    PStackPointer i;
    char*        iname;
@@ -365,15 +366,15 @@ long BatchControlInitSpec(BatchSpec_p spec, BatchControl_p ctrl)
    long         res = 0;
    IntOrP       dummy;
 
-   for(i=0; i<PStackGetSP(spec->includes); i++)
+   for(i=0; i<PStackGetSP(axfiles); i++)
    {
-      iname = PStackElementP(spec->includes, i);
+      iname = PStackElementP(axfiles, i);
       if(!StrTreeFind(&(ctrl->parsed_includes), iname))
       {
          in = CreateScanner(StreamTypeFile, iname, true, NULL);
-         ScannerSetFormat(in, TSTPFormat);
+         ScannerSetFormat(in, parse_format);
 
-         /* fprintf(GlobalOut, "# Parsing %s\n", iname); */
+         fprintf(GlobalOut, "# Parsing %s\n", iname);
          cset = ClauseSetAlloc();
          fset = FormulaSetAlloc();
          res += FormulaAndClauseSetParse(in, cset, fset, ctrl->terms, 
@@ -394,10 +395,10 @@ long BatchControlInitSpec(BatchSpec_p spec, BatchControl_p ctrl)
 
 /*-----------------------------------------------------------------------
 //
-// Function: BatchControlInitDistrib()
+// Function: StructFOFSpecInitDistrib()
 //
 //   Initialize the f_distrib element of an otherwise initialized
-//   batch control cell.
+//   structured problem cell.
 //
 // Global Variables: -
 //
@@ -405,7 +406,7 @@ long BatchControlInitSpec(BatchSpec_p spec, BatchControl_p ctrl)
 //
 /----------------------------------------------------------------------*/
 
-void BatchControlInitDistrib(BatchControl_p ctrl)
+void StructFOFSpecInitDistrib(StructFOFSpec_p ctrl)
 {
    GenDistribSizeAdjust(ctrl->f_distrib, ctrl->sig);
    GenDistribAddClauseSets(ctrl->f_distrib, ctrl->clause_sets);
@@ -414,9 +415,9 @@ void BatchControlInitDistrib(BatchControl_p ctrl)
 
 /*-----------------------------------------------------------------------
 //
-// Function: BatchControlInit()
+// Function: StructFOFSpecInit()
 //
-//   Initialize a BatchControlCell up to the symbol frequency.
+//   Initialize a StructFOFSpecCell up to the symbol frequency.
 //
 // Global Variables: -
 //
@@ -424,12 +425,12 @@ void BatchControlInitDistrib(BatchControl_p ctrl)
 //
 /----------------------------------------------------------------------*/
 
-long BatchControlInit(BatchSpec_p spec, BatchControl_p ctrl)
+long StructFOFSpecInit(BatchSpec_p spec, StructFOFSpec_p ctrl)
 {
    long res;
 
-   res = BatchControlInitSpec(spec, ctrl);
-   BatchControlInitDistrib(ctrl);
+   res = StructFOFSpecParseAxioms(ctrl, spec->includes, spec->format);
+   StructFOFSpecInitDistrib(ctrl);
 
    return res;
 }
@@ -437,7 +438,7 @@ long BatchControlInit(BatchSpec_p spec, BatchControl_p ctrl)
 
 /*-----------------------------------------------------------------------
 //
-// Function: BatchControlAddProblem()
+// Function: StructFOFSpecAddProblem()
 //
 //   Add a problem as one set of clauses and formulas, each. Note that
 //   this transfers the two sets into ctrl, which is responsible for
@@ -449,7 +450,7 @@ long BatchControlInit(BatchSpec_p spec, BatchControl_p ctrl)
 //
 /----------------------------------------------------------------------*/
 
-void BatchControlAddProblem(BatchControl_p ctrl, 
+void StructFOFSpecAddProblem(StructFOFSpec_p ctrl, 
                             ClauseSet_p clauses, 
                             FormulaSet_p formulas)
 {
@@ -464,7 +465,7 @@ void BatchControlAddProblem(BatchControl_p ctrl,
 
 /*-----------------------------------------------------------------------
 //
-// Function: BatchControlBacktrackToSpec()
+// Function: StructFOFSpecBacktrackToSpec()
 //
 //   Backtrack the state to the spec state, i.e. backtrack the
 //   frequency count and free the extra clause sets.
@@ -475,7 +476,7 @@ void BatchControlAddProblem(BatchControl_p ctrl,
 //
 /----------------------------------------------------------------------*/
 
-void BatchControlBacktrackToSpec(BatchControl_p ctrl)
+void StructFOFSpecBacktrackToSpec(StructFOFSpec_p ctrl)
 {
    ClauseSet_p clauses;
    FormulaSet_p formulas;
@@ -498,9 +499,9 @@ void BatchControlBacktrackToSpec(BatchControl_p ctrl)
 
 /*-----------------------------------------------------------------------
 //
-// Function: BatchControlGetProblem()
+// Function: StructFOFSpecGetProblem()
 //
-//   Given a prepared BatchControl, get the clauses and formulas
+//   Given a prepared StructFOFSpec, get the clauses and formulas
 //   describing the problem.
 //
 // Global Variables: -
@@ -509,11 +510,10 @@ void BatchControlBacktrackToSpec(BatchControl_p ctrl)
 //
 /----------------------------------------------------------------------*/
 
-long BatchControlGetProblem(BatchControl_p ctrl,
-                            GeneralityMeasure gen_measure,
-                            double            benevolence,
-                            PStack_p          res_clauses, 
-                            PStack_p          res_formulas)
+long StructFOFSpecGetProblem(StructFOFSpec_p ctrl,
+                             AxFilter_p      ax_filter,
+                             PStack_p        res_clauses, 
+                             PStack_p        res_formulas)
 {
    long res;
 
@@ -522,8 +522,7 @@ long BatchControlGetProblem(BatchControl_p ctrl,
                       ctrl->clause_sets,
                       ctrl->formula_sets,
                       ctrl->shared_ax_sp,
-                      gen_measure,
-                      benevolence,
+                      ax_filter,
                       res_clauses, 
                       res_formulas);
    return res;
@@ -534,7 +533,7 @@ long BatchControlGetProblem(BatchControl_p ctrl,
 //
 // Function: BatchProcessProblem()
 //
-//   Given an initialized BatchControlCell for Spec, parse the problem
+//   Given an initialized StructFOFSpecCell for Spec, parse the problem
 //   file and try to solve it.
 //
 // Global Variables: -
@@ -544,7 +543,7 @@ long BatchControlGetProblem(BatchControl_p ctrl,
 /----------------------------------------------------------------------*/
 
 bool BatchProcessProblem(BatchSpec_p spec, 
-                         BatchControl_p ctrl, 
+                         StructFOFSpec_p ctrl, 
                          char* source, char* dest)
 {
    bool res = false;
@@ -555,6 +554,9 @@ bool BatchProcessProblem(BatchSpec_p spec,
    EPCtrlSet_p procs = EPCtrlSetAlloc();
    FILE* fp;
    long long secs;
+   AxFilterSet_p filters = AxFilterSetCreateInternal(AxFilterDefaultSet);
+   int i;
+
 
    fprintf(GlobalOut, "\n# Processing %s -> %s\n", source, dest);
    fprintf(GlobalOut, "# SZS status Started for %s\n", source);
@@ -571,30 +573,28 @@ bool BatchProcessProblem(BatchSpec_p spec,
    DestroyScanner(in);
    
    fprintf(GlobalOut, "# Adding problem (%lld)\n", GetSecTimeMod());
-   BatchControlAddProblem(ctrl, 
+   StructFOFSpecAddProblem(ctrl, 
                           cset, 
                           fset);
    fprintf(GlobalOut, "# Added problem (%lld)\n", GetSecTimeMod());
 
 
    secs = GetSecTime();
-   handle = batch_create_runner(ctrl, spec->per_prob_time, GMTerms, 1);   
+   handle = batch_create_runner(ctrl, spec->executable, spec->per_prob_time, 
+                                AxFilterSetGetFilter(filters, 0));
    EPCtrlSetAddProc(procs, handle);
-   if((GetSecTime()-secs) < (spec->per_prob_time/2))
+   
+   i=1;
+   while(((GetSecTime()-secs) < (spec->per_prob_time/2)) && 
+         (i<AxFilterSetElements(filters)))
    {
-      handle = batch_create_runner(ctrl, spec->per_prob_time, GMFormulas, 1);
+      handle = batch_create_runner(ctrl, spec->executable, spec->per_prob_time, 
+                                   AxFilterSetGetFilter(filters, i));
       EPCtrlSetAddProc(procs, handle);
+      i++;
    }
-   if((GetSecTime()-secs) < (spec->per_prob_time/2))
-   {
-      handle = batch_create_runner(ctrl, spec->per_prob_time, GMFormulas, 1.2);
-      EPCtrlSetAddProc(procs, handle);
-   }
-   if((GetSecTime()-secs) < (spec->per_prob_time/2))
-   {
-      handle = batch_create_runner(ctrl, spec->per_prob_time, GMTerms, 1.2);
-      EPCtrlSetAddProc(procs, handle);
-   }
+   AxFilterSetFree(filters);
+
 
    handle = NULL;
    while(!EPCtrlSetEmpty(procs))
@@ -618,7 +618,7 @@ bool BatchProcessProblem(BatchSpec_p spec,
       fprintf(GlobalOut, "# SZS status GaveUp for %s\n", source);
    }
    
-   BatchControlBacktrackToSpec(ctrl);
+   StructFOFSpecBacktrackToSpec(ctrl);
    /* cset and fset are freed in Backtrack */
 
    EPCtrlSetFree(procs);
@@ -634,7 +634,7 @@ bool BatchProcessProblem(BatchSpec_p spec,
 //
 // Function: BatchProcessProblems()
 //
-//   Process all the problems in the BatchControl structure. Return
+//   Process all the problems in the StructFOFSpec structure. Return
 //   number of proofs found.
 //
 // Global Variables: -
@@ -643,7 +643,7 @@ bool BatchProcessProblem(BatchSpec_p spec,
 //
 /----------------------------------------------------------------------*/
 
-bool BatchProcessProblems(BatchSpec_p spec, BatchControl_p ctrl)
+bool BatchProcessProblems(BatchSpec_p spec, StructFOFSpec_p ctrl)
 {
    long res = 0;
    PStackPointer i;

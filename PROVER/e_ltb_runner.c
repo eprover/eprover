@@ -126,7 +126,7 @@ int main(int argc, char* argv[])
    CLState_p        state;
    Scanner_p        in;    
    BatchSpec_p      spec;
-   BatchControl_p   ctrl;
+   StructFOFSpec_p   ctrl;
    char             *prover = "eprover";
 
    assert(argv[0]);
@@ -151,17 +151,18 @@ int main(int argc, char* argv[])
    in = CreateScanner(StreamTypeFile, state->argv[0], true, NULL);
    ScannerSetFormat(in, TSTPFormat);
    
-   spec = BatchSpecParse(in);
+   spec = BatchSpecParse(in, prover, TSTPFormat);
    
-   ctrl = BatchControlAlloc(prover);
-   BatchControlInit(spec, ctrl);      
+   ctrl = StructFOFSpecAlloc();
+   StructFOFSpecInit(spec, ctrl);      
    BatchProcessProblems(spec, ctrl);
-   BatchControlFree(ctrl);
+   StructFOFSpecFree(ctrl);
    BatchSpecFree(spec);
    DestroyScanner(in); 
 
    CLStateFree(state);
 
+   OutClose(GlobalOut);
    ExitIO();
 #ifdef CLB_MEMORY_DEBUG
    MemFlushFreeList();

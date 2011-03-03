@@ -383,21 +383,47 @@ static long fp_index_rek_find_matchable(FPTree_p index, IndexFP_p key,
 
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: fp_index_leaf_prt_size()
+//
+//   Print a leaf as the path leading to it and the number of direct
+//   entries in the subterm.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void fp_index_leaf_prt_size(FILE* out, PStack_p stack, FPTree_p leaf)
+{
+   long tmp;
+   fprintf(out, "# ");
+   PStackPrintInt(out, "%4ld.", stack);
+   tmp =  PObjTreeNodes(leaf->payload);
+   fprintf(out, ":%ld terms\n", tmp);
+}
 
 
 /*-----------------------------------------------------------------------
 //
 // Function: fp_index_tree_print()
 //
-//   Print an FP index tree.
+//   Print an FP index tree. Return the number of leaves and (via
+//   *entries), the number of entries.
 //
-// Global Variables: 
+// Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    : Output
 //
 /----------------------------------------------------------------------*/
 
-long fp_index_tree_print(FILE* out, FPTree_p index, PStack_p stack, long *entries)
+static long fp_index_tree_print(FILE* out, 
+                                FPTree_p index, 
+                                PStack_p stack,  
+                                FPLeafPrintFun prtfun,
+                                long *entries)
 {
    long res = 0, tmp;
    IntMapIter_p iter;
@@ -407,11 +433,9 @@ long fp_index_tree_print(FILE* out, FPTree_p index, PStack_p stack, long *entrie
    if(index->payload)
    {
       res++;
-      fprintf(out, "# ");
-      PStackPrintInt(out, "%4ld.", stack);
       tmp =  PObjTreeNodes(index->payload);
-      fprintf(out, ":%ld terms\n", tmp);
       *entries += tmp;
+      prtfun(out, stack, index);
    }
    if(index->f_alternatives)
    {
@@ -422,6 +446,7 @@ long fp_index_tree_print(FILE* out, FPTree_p index, PStack_p stack, long *entrie
          res+= fp_index_tree_print(out, 
                                    child,
                                    stack, 
+                                   prtfun,
                                    entries);
          (void)PStackPopInt(stack);
       }
@@ -433,6 +458,7 @@ long fp_index_tree_print(FILE* out, FPTree_p index, PStack_p stack, long *entrie
       res+= fp_index_tree_print(out, 
                                 fpindex_alternative(index, BELOW_VAR), 
                                 stack, 
+                                prtfun,
                                 entries);
       (void)PStackPopInt(stack);       
    }
@@ -442,6 +468,7 @@ long fp_index_tree_print(FILE* out, FPTree_p index, PStack_p stack, long *entrie
       res+= fp_index_tree_print(out, 
                                 fpindex_alternative(index, ANY_VAR), 
                                 stack, 
+                                prtfun,
                                 entries);
       (void)PStackPopInt(stack);                    
    }
@@ -876,7 +903,8 @@ void FPIndexDistribPrint(FILE* out, FPIndex_p index)
    long leaves, entries=0;
    PStack_p path = PStackAlloc();
 
-   leaves = fp_index_tree_print(out, index->index, path, &entries);
+   leaves = fp_index_tree_print(out, index->index, path, fp_index_leaf_prt_size, 
+                                &entries);
    fprintf(out, "# %ld entries, %ld leaves, %f entries/leaf\n",
            entries, leaves, (double)entries/leaves);
    
@@ -937,6 +965,27 @@ void FPIndexDistribDataPrint(FILE* out, FPIndex_p index)
            leaves, avg, stddev);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: FPIndexPrint()
+//
+//   Print an FP-Index.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void FPIndexPrint(FILE* out, FPIndex_p index, FPLeafPrintFun prtfun)
+{
+   PStack_p stack = PStackAlloc();
+   long dummy = 0;
+
+   fp_index_tree_print(out, index->index, stack, prtfun, &dummy);
+
+   PStackFree(stack);
+}
 
 
 /*---------------------------------------------------------------------*/
