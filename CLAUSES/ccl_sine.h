@@ -131,7 +131,8 @@ long FormulaSetFindHypotheses(FormulaSet_p set, PQueue_p res);
 
 long SelectDefiningAxioms(DRelation_p drel, 
                           Sig_p sig,
-                          AxFilter_p filter,
+                          int max_recursion_depth,
+                          long max_set_size,
                           PQueue_p axioms,
                           PStack_p res_clauses, 
                           PStack_p res_formulas);

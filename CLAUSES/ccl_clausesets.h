@@ -75,6 +75,10 @@ typedef struct clausesetcell
 
 ClauseSet_p ClauseSetAlloc(void);
 void        ClauseSetFreeClauses(ClauseSet_p set);
+#define     ClauseSetCardinality(set) ((set)->members)
+#define     ClauseSetEmpty(set)\
+            ((set)->anchor->succ == (set)->anchor)
+long        ClauseSetStackCardinality(PStack_p stack);
 void        ClauseSetFree(ClauseSet_p junk);
 void        ClauseSetGCMarkTerms(ClauseSet_p set);
 void        ClauseSetInsert(ClauseSet_p set, Clause_p newclause);
@@ -83,9 +87,6 @@ void        ClauseSetPDTIndexedInsert(ClauseSet_p set, Clause_p newclause);
 void        ClauseSetIndexedInsert(ClauseSet_p set, FVPackedClause_p newclause);
 void        ClauseSetIndexedInsertClause(ClauseSet_p set, Clause_p newclause);
 Clause_p    ClauseSetExtractEntry(Clause_p clause);
-#define     ClauseSetCardinality(set) ((set)->members)
-#define     ClauseSetEmpty(set)\
-            ((set)->anchor->succ == (set)->anchor)
 Clause_p    ClauseSetExtractFirst(ClauseSet_p set);
 void        ClauseSetDeleteEntry(Clause_p clause);
 Clause_p    ClauseSetFindBest(ClauseSet_p set, int idx);

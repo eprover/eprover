@@ -397,6 +397,36 @@ void ClauseSetFree(ClauseSet_p junk)
 }
 
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetStackCardinality()
+//
+//   Assume stack is a stack of clause sets. Return the number of
+//   clauses in all the sets.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetStackCardinality(PStack_p stack)
+{
+   ClauseSet_p handle;
+   PStackPointer i;
+   long res = 0;
+   
+   for(i=0; i<PStackGetSP(stack); i++)
+   {
+      handle = PStackElementP(stack, i);
+      res += ClauseSetCardinality(handle);
+   }
+   return res;
+}
+
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: ClauseSetGCMarkTerms()

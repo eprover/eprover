@@ -79,7 +79,7 @@ AxFilter_p AxFilterAlloc()
    handle->gen_measure         = GMNoMeasure;
    handle->benevolence         = 1.0;
    handle->generosity          = LONG_MAX;
-   handle->max_recursion_depth = LONG_MAX;
+   handle->max_recursion_depth = INT_MAX;
    handle->max_set_size        = LONG_LONG_MAX;
    handle->max_set_fraction    = 1.0;
 

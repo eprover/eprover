@@ -113,6 +113,35 @@ void FormulaSetFree(FormulaSet_p set)
    FormulaSetCellFree(set);
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaSetStackCardinality()
+//
+//   Assume stack is a stack of formulasets. Return the number of
+//   formulas in all the sets.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long FormulaSetStackCardinality(PStack_p stack)
+{
+   FormulaSet_p handle;
+   PStackPointer i;
+   long res = 0;
+   
+   for(i=0; i<PStackGetSP(stack); i++)
+   {
+      handle = PStackElementP(stack, i);
+      res += FormulaSetCardinality(handle);
+   }
+   return res;
+}
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: FormulaSetGCMarkCells()

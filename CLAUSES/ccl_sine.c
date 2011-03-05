@@ -498,7 +498,8 @@ long FormulaSetFindHypotheses(FormulaSet_p set, PQueue_p res)
 
 long SelectDefiningAxioms(DRelation_p drel, 
                           Sig_p sig,
-                          AxFilter_p filter,
+                          int max_recursion_depth,
+                          long max_set_size,
                           PQueue_p axioms,
                           PStack_p res_clauses, 
                           PStack_p res_formulas)
@@ -519,9 +520,10 @@ long SelectDefiningAxioms(DRelation_p drel,
 
    while(!PQueueEmpty(axioms))
    {
-      if((res > filter->max_set_size) || 
-         (recursion_level > filter->max_recursion_depth))
+      if((res > max_set_size) || 
+         (recursion_level > max_recursion_depth))
       {
+         printf("Breaking, max_recursion_depth=%d\n", max_recursion_depth);
          break;
       }
       /* printf("Selecting %ld at %d\n", res, recursion_level); */
@@ -622,6 +624,7 @@ long SelectAxioms(GenDistrib_p      f_distrib,
    DRelation_p   drel = DRelationAlloc();
    PQueue_p      selq = PQueueAlloc();
    PStackPointer i;
+   long          ax_cardinality, max_result_size;
 
    assert(PStackGetSP(clause_sets)==PStackGetSP(formula_sets));
 
@@ -649,14 +652,26 @@ long SelectAxioms(GenDistrib_p      f_distrib,
    VERBOSE(fprintf(stderr, "# Found %ld hypotheses\n", hypos););
    if(!hypos)
    {
-      /* Use all clauses/formulas -> later */
+      /* No goals-> the empty set contains all relevant clauses */
    }
-   res = SelectDefiningAxioms(drel,
-                              f_distrib->sig,
-                              ax_filter,
-                              selq,
-                              res_clauses,
-                              res_formulas);
+   else
+   {
+      ax_cardinality = 
+         FormulaSetStackCardinality(formula_sets)+
+         ClauseSetStackCardinality(clause_sets);
+      max_result_size = ax_filter->max_set_fraction*ax_cardinality;
+      if(ax_filter->max_set_size < max_result_size)
+      {
+         max_result_size = ax_filter->max_set_size;
+      }      
+      res = SelectDefiningAxioms(drel,
+                                 f_distrib->sig,
+                                 ax_filter->max_recursion_depth,
+                                 max_result_size,
+                                 selq,
+                                 res_clauses,
+                                 res_formulas);
+   }
    PStackFormulaDelProp(res_formulas, WPIsRelevant);
    PStackClauseDelProp(res_clauses, CPIsRelevant);
    fprintf(GlobalOut, "# Axioms selected (%lld)\n", GetSecTimeMod());
