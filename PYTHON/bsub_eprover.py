@@ -359,14 +359,17 @@ def decode_results(decoder, stratset, filename):
     if resstr:
         reslist = resstr.split(ejobhead_str)
         for i in reslist[1:]:
-            filename, rest = i.split("\n", 1)
-            filename = filename.strip()
-            sname, pname = decode_res_name(filename)
-            strat = stratset.find_strat(sname)
-            maxtime = strat.spec.time_limit
-            res = pylib_eprot.eresult(pname+" "+decoder.encode_result(rest,maxtime))
-            if res:
-                strat.add_result(res)
+            try:
+                filename, rest = i.split("\n", 1)            
+                filename = filename.strip()
+                sname, pname = decode_res_name(filename)
+                strat = stratset.find_strat(sname)
+                maxtime = strat.spec.time_limit
+                res = pylib_eprot.eresult(pname+" "+decoder.encode_result(rest,maxtime))
+                if res:
+                    strat.add_result(res)
+            except ValueError:
+                pass
         return True
     else:
         return False
