@@ -177,16 +177,17 @@ static long extract_generality(FunGen_p gen,  GeneralityMeasure gentype)
 //
 /----------------------------------------------------------------------*/
 
-static void compute_d_rel(GenDistrib_p generality, 
+static void compute_d_rel(GenDistrib_p      generality, 
                           GeneralityMeasure gentype,
-                          double benevolence,
-                          PStack_p symbol_stack,
-                          PStack_p res)
+                          double            benevolence,
+                          long              generosity,
+                          PStack_p          symbol_stack,
+                          PStack_p          res)
 {
    FunCode       i;
    FunGen_p      gen;
    PStack_p      sort_stack;
-   long          least_gen, gen_limit;
+   long          least_gen, gen_limit, aux_gen_limit;
    PStackPointer sp;
 
    sort_stack = PStackAlloc();
@@ -217,7 +218,20 @@ static void compute_d_rel(GenDistrib_p generality,
       gen = PStackElementP(sort_stack, 0);
       least_gen = extract_generality(gen, gentype);
       gen_limit = least_gen*benevolence;
-      
+
+      if(generosity>=PStackGetSP(sort_stack))
+      {
+         generosity = PStackGetTopSP(sort_stack);
+      }
+      gen = PStackElementP(sort_stack, generosity);
+      aux_gen_limit = extract_generality(gen, gentype);
+      //printf("generosity = %ld, gen_limit = %ld aux_gen_limit = %ld\n", 
+      //generosity, gen_limit, aux_gen_limit);
+      if(aux_gen_limit <  gen_limit)
+      {
+         gen_limit = aux_gen_limit;
+      }
+
       for(i=0; i<PStackGetSP(sort_stack); i++)
       {
          gen = PStackElementP(sort_stack, i);
@@ -231,6 +245,8 @@ static void compute_d_rel(GenDistrib_p generality,
          }
          PStackPushInt(res, gen->f_code);
       }
+      /* printf("Selected %d symbols including %ld\n",
+         PStackGetSP(res), PStackTopInt(res)); */
    }
    PStackFree(sort_stack);
 }
@@ -604,6 +620,7 @@ int FunGenCGCmp(const FunGen_p fg1, const FunGen_p fg2)
 void ClauseComputeDRel(GenDistrib_p generality, 
                        GeneralityMeasure gentype,
                        double benevolence,
+                       long generosity,
                        Clause_p clause, 
                        PStack_p res)
 {   
@@ -616,7 +633,7 @@ void ClauseComputeDRel(GenDistrib_p generality,
    
    /* printf("Symbolstack has %d elements\n",
       PStackGetSP(symbol_stack)); */
-   compute_d_rel(generality, gentype, benevolence, symbol_stack, res);
+   compute_d_rel(generality, gentype, benevolence, generosity, symbol_stack, res);
 
    while(!PStackEmpty(symbol_stack))
    {
@@ -641,6 +658,7 @@ void ClauseComputeDRel(GenDistrib_p generality,
 void FormulaComputeDRel(GenDistrib_p generality, 
                         GeneralityMeasure gentype,
                         double benevolence,
+                        long generosity,
                         WFormula_p form, 
                         PStack_p res)
 {   
@@ -653,7 +671,7 @@ void FormulaComputeDRel(GenDistrib_p generality,
    
    /* printf("Symbolstack has %d elements\n",
       PStackGetSP(symbol_stack)); */
-   compute_d_rel(generality, gentype, benevolence, symbol_stack, res);
+   compute_d_rel(generality, gentype, benevolence, generosity, symbol_stack, res);
 
    while(!PStackEmpty(symbol_stack))
    {

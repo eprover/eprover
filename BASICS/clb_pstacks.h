@@ -62,6 +62,7 @@ static __inline__ void     PStackReset(PStack_p stack);
 static __inline__ void     PStackPushInt(PStack_p stack, long val);
 static __inline__ void     PStackPushP(PStack_p stack, void* val);
 #define  PStackGetSP(stack) ((stack)->current)
+#define  PStackGetTopSP(stack) ((stack)->current-1)
 
 static __inline__ IntOrP   PStackPop(PStack_p stack);
 #define  PStackPopInt(stack) (PStackPop(stack).i_val)

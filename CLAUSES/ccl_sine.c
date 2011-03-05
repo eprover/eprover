@@ -181,6 +181,7 @@ void DRelationAddClause(DRelation_p drel,
                         GenDistrib_p generality, 
                         GeneralityMeasure gentype,
                         double benevolence,
+                        long generosity,
                         Clause_p clause)
 {
    PStack_p symbols = PStackAlloc();
@@ -190,6 +191,7 @@ void DRelationAddClause(DRelation_p drel,
    ClauseComputeDRel(generality, 
                      gentype,
                      benevolence,
+                     generosity,
                      clause, 
                      symbols);
    while(!PStackEmpty(symbols))
@@ -219,6 +221,7 @@ void DRelationAddFormula(DRelation_p drel,
                          GenDistrib_p generality, 
                          GeneralityMeasure gentype,
                          double benevolence,
+                         long generosity,
                          WFormula_p form)
 {
    PStack_p symbols = PStackAlloc();
@@ -228,8 +231,9 @@ void DRelationAddFormula(DRelation_p drel,
    FormulaComputeDRel(generality, 
                       gentype,
                       benevolence,
+                      generosity,
                       form, 
-                     symbols);
+                      symbols);
    while(!PStackEmpty(symbols))
    {
       symbol = PStackPopInt(symbols);
@@ -256,6 +260,7 @@ void DRelationAddClauseSet(DRelation_p drel,
                            GenDistrib_p generality, 
                            GeneralityMeasure gentype,
                            double benevolence,
+                           long generosity,
                            ClauseSet_p set)
 {
    Clause_p handle;
@@ -268,6 +273,7 @@ void DRelationAddClauseSet(DRelation_p drel,
                          generality, 
                          gentype,
                          benevolence,
+                         generosity,
                          handle);
    } 
 }
@@ -289,6 +295,7 @@ void DRelationAddFormulaSet(DRelation_p drel,
                             GenDistrib_p generality, 
                             GeneralityMeasure gentype,
                             double benevolence,
+                            long generosity,
                             FormulaSet_p set)
 {
    WFormula_p handle;
@@ -298,10 +305,11 @@ void DRelationAddFormulaSet(DRelation_p drel,
        handle = handle->succ)
    {
       DRelationAddFormula(drel,
-                         generality, 
-                         gentype,
-                         benevolence,
-                         handle);
+                          generality, 
+                          gentype,
+                          benevolence,
+                          generosity,
+                          handle);
    }    
 }
 
@@ -322,6 +330,7 @@ void DRelationAddClauseSets(DRelation_p drel,
                             GenDistrib_p generality, 
                             GeneralityMeasure gentype,
                             double benevolence,
+                           long generosity,
                             PStack_p sets)
 {
    PStackPointer i;
@@ -332,6 +341,7 @@ void DRelationAddClauseSets(DRelation_p drel,
                             generality, 
                             gentype,
                             benevolence,
+                            generosity,
                             PStackElementP(sets, i));
    }
 }
@@ -352,6 +362,7 @@ void DRelationAddFormulaSets(DRelation_p drel,
                              GenDistrib_p generality, 
                              GeneralityMeasure gentype,
                              double benevolence,
+                             long generosity,
                              PStack_p sets)
 {
    PStackPointer i;
@@ -359,10 +370,11 @@ void DRelationAddFormulaSets(DRelation_p drel,
    for(i=0; i<PStackGetSP(sets); i++)
    {
       DRelationAddFormulaSet(drel,
-                            generality, 
-                            gentype,
-                            benevolence,
-                            PStackElementP(sets, i));
+                             generality, 
+                             gentype,
+                             benevolence,
+                             generosity,
+                             PStackElementP(sets, i));
    }
 }  
 
@@ -486,6 +498,7 @@ long FormulaSetFindHypotheses(FormulaSet_p set, PQueue_p res)
 
 long SelectDefiningAxioms(DRelation_p drel, 
                           Sig_p sig,
+                          AxFilter_p filter,
                           PQueue_p axioms,
                           PStack_p res_clauses, 
                           PStack_p res_formulas)
@@ -499,15 +512,31 @@ long SelectDefiningAxioms(DRelation_p drel,
    FunCode    i;
    PStackPointer sp, ssp;
    PStack_p   symbol_stack = PStackAlloc();
+   int        recursion_level = 0;
 
    memset(dist_array, 0, (sig->f_count+1)*sizeof(long));
+   PQueueStoreInt(axioms, ATNoType);
+
    while(!PQueueEmpty(axioms))
    {
-      res++;
-
+      if((res > filter->max_set_size) || 
+         (recursion_level > filter->max_recursion_depth))
+      {
+         break;
+      }
+      /* printf("Selecting %ld at %d\n", res, recursion_level); */
+ 
       type = PQueueGetNextInt(axioms);
       switch(type)
       {
+      case ATNoType:
+            recursion_level++;
+            if(!PQueueEmpty(axioms))
+            {
+               PQueueStoreInt(axioms, ATNoType);
+            }
+            continue;
+            break;
       case ATClause:
             clause = PQueueGetNextP(axioms);
             if(ClauseQueryProp(clause, CPIsRelevant))
@@ -517,6 +546,7 @@ long SelectDefiningAxioms(DRelation_p drel,
             ClauseSetProp(clause, CPIsRelevant);
             PStackPushP(res_clauses, clause);
             ClauseAddSymbolDistExist(clause, dist_array, symbol_stack);
+            res++;
             break;
       case ATFormula:
             form = PQueueGetNextP(axioms);
@@ -527,6 +557,7 @@ long SelectDefiningAxioms(DRelation_p drel,
             FormulaSetProp(form, WPIsRelevant);
             PStackPushP(res_formulas, form);
             TermAddSymbolDistExist(form->tformula, dist_array, symbol_stack);
+            res++;
             break;
       default:
             assert(false && "Unknown axiom type!");
@@ -598,10 +629,12 @@ long SelectAxioms(GenDistrib_p      f_distrib,
    DRelationAddClauseSets(drel, f_distrib, 
                           ax_filter->gen_measure, 
                           ax_filter->benevolence, 
+                          ax_filter->generosity,
                           clause_sets);
    DRelationAddFormulaSets(drel, f_distrib, 
                            ax_filter->gen_measure, 
                            ax_filter->benevolence, 
+                           ax_filter->generosity,
                            formula_sets);
    fprintf(GlobalOut, "# DRelation constructed (%lld)\n", GetSecTimeMod());
  
@@ -620,12 +653,13 @@ long SelectAxioms(GenDistrib_p      f_distrib,
    }
    res = SelectDefiningAxioms(drel,
                               f_distrib->sig,
+                              ax_filter,
                               selq,
                               res_clauses,
                               res_formulas);
    PStackFormulaDelProp(res_formulas, WPIsRelevant);
    PStackClauseDelProp(res_clauses, CPIsRelevant);
-  fprintf(GlobalOut, "# Axioms selected (%lld)\n", GetSecTimeMod());
+   fprintf(GlobalOut, "# Axioms selected (%lld)\n", GetSecTimeMod());
    PQueueFree(selq);
    DRelationFree(drel);
  

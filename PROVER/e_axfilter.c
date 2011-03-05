@@ -107,13 +107,13 @@ OptCell opts[] =
     "output."},  
 
    {OPT_FILTER, 
-    'f', "--filter",
+    'f', "filter",
     ReqArg, NULL,
     "Specify the filter definition file. If not set, the system "
     "will uses the built-in default."},
 
     {OPT_DUMP_FILTER,
-     'd', "--dump-filter",
+     'd', "dump-filter",
      NoArg, NULL,
      "Print the filter definition in force."},
 
@@ -326,7 +326,9 @@ int main(int argc, char* argv[])
    StructFOFSpecResetShared(ctrl);
 
    for(i=0; i<AxFilterSetElements(filters); i++)
-   {      
+   {
+      /* SigPrint(stdout,ctrl->sig); */
+
       filter_problem(ctrl, 
                      AxFilterSetGetFilter(filters,i),
                      parse_format,

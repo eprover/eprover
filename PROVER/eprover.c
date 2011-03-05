@@ -104,6 +104,7 @@ typedef enum
    OPT_REWEIGHT_LIMIT,
    OPT_DELETE_BAD_LIMIT,
    OPT_ASSUME_COMPLETENESS,
+   OPT_ASSUME_INCOMPLETENESS,
    OPT_DISABLE_EQ_FACTORING,
    OPT_DISABLE_NEGUNIT_PM,
    OPT_NO_GC_FORWARD_SIMPL,
@@ -656,6 +657,13 @@ OptCell opts[] =
     "of problems the selected strategy is still complete, use this "
     "option to tell the system that this is the case."},
 
+   {OPT_ASSUME_INCOMPLETENESS,
+    '\0', "assume-incompleteness",
+    NoArg, NULL,
+    "This option instructs the prover to asume incompleteness (typically"
+    " because the axiomatizationa already is incomplete because axioms"
+    " have been filtered before they are handed to the system."},
+
    {OPT_DISABLE_EQ_FACTORING,
     '\0', "disable-eq-factoring",
     NoArg, NULL,
@@ -1082,7 +1090,9 @@ bool              print_sat = false,
                   indexed_subsumption = true,
                   cnf_only = false,
                   inf_sys_complete = true,
-                  assume_inf_sys_complete = false;
+                  assume_inf_sys_complete = false,
+                  incomplete = false;
+
 IOFormat          parse_format = LOPFormat;
 long              step_limit = LONG_MAX, 
                   proc_limit = LONG_MAX,
@@ -1189,7 +1199,7 @@ int main(int argc, char* argv[])
    ClauseSetDocInital(GlobalOut, OutputLevel, proofstate->axioms);
 
    relevancy_pruned = ProofStatePreprocess(proofstate, relevance_prune_level);
-   if(relevancy_pruned)
+   if(relevancy_pruned || incomplete)
    {
       proofstate->state_is_complete = false;
    }
@@ -1786,6 +1796,9 @@ CLState_p process_options(int argc, char* argv[])
 	    break; 
       case OPT_ASSUME_COMPLETENESS:
             assume_inf_sys_complete = true;
+	    break;	    
+      case OPT_ASSUME_INCOMPLETENESS:
+            incomplete = true;
 	    break;	    
       case OPT_NO_GC_FORWARD_SIMPL:
             h_parms->enable_given_forward_simpl = false;

@@ -85,36 +85,42 @@ void DRelationAddClause(DRelation_p drel,
                         GenDistrib_p generality, 
                         GeneralityMeasure gentype,
                         double benevolence,
+                        long generosity,
                         Clause_p clause);
 
 void DRelationAddFormula(DRelation_p drel,
                          GenDistrib_p generality, 
                          GeneralityMeasure gentype,
                          double benevolence,
+                         long generosity,
                          WFormula_p form);
 
 void DRelationAddClauseSet(DRelation_p drel,
                            GenDistrib_p generality, 
                            GeneralityMeasure gentype,
                            double benevolence,
+                           long generosity,
                            ClauseSet_p set);
 
 void DRelationAddFormulaSet(DRelation_p drel,
                             GenDistrib_p generality, 
                             GeneralityMeasure gentype,
                             double benevolence,
+                            long generosity,
                             FormulaSet_p set);
 
 void DRelationAddClauseSets(DRelation_p drel,
                             GenDistrib_p generality, 
                             GeneralityMeasure gentype,
                             double benevolence,
+                            long generosity,
                             PStack_p sets);
 
 void DRelationAddFormulaSets(DRelation_p drel,
                              GenDistrib_p generality, 
                              GeneralityMeasure gentype,
                              double benevolence,
+                             long generosity,
                              PStack_p sets);
 
 void PQueueStoreClause(PQueue_p axioms, Clause_p clause);
@@ -125,8 +131,9 @@ long FormulaSetFindHypotheses(FormulaSet_p set, PQueue_p res);
 
 long SelectDefiningAxioms(DRelation_p drel, 
                           Sig_p sig,
+                          AxFilter_p filter,
                           PQueue_p axioms,
-                          PStack_p res_clause, 
+                          PStack_p res_clauses, 
                           PStack_p res_formulas);
 
 

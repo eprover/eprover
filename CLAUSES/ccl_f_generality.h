@@ -111,11 +111,13 @@ int          FunGenCGCmp(const FunGen_p fg1, const FunGen_p fg2);
 void        ClauseComputeDRel(GenDistrib_p generality, 
                               GeneralityMeasure gentype,
                               double benevolence,
+                              long generosity,
                               Clause_p clause, 
                               PStack_p res);
 void        FormulaComputeDRel(GenDistrib_p generality, 
                                GeneralityMeasure gentype,
                                double benevolence,
+                               long generosity,
                                WFormula_p form, 
                                PStack_p res);
 
