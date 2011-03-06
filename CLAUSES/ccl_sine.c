@@ -520,13 +520,17 @@ long SelectDefiningAxioms(DRelation_p drel,
 
    while(!PQueueEmpty(axioms))
    {
+      /*printf("Selecting %ld from %ld at %d\n", 
+             res, 
+             PQueueCardinality(axioms), 
+             recursion_level);*/
+
       if((res > max_set_size) || 
          (recursion_level > max_recursion_depth))
       {
          printf("Breaking, max_recursion_depth=%d\n", max_recursion_depth);
          break;
       }
-      /* printf("Selecting %ld at %d\n", res, recursion_level); */
  
       type = PQueueGetNextInt(axioms);
       switch(type)
@@ -576,7 +580,7 @@ long SelectDefiningAxioms(DRelation_p drel,
             frel->activated = true;
             for(sp=0; sp<PStackGetSP(frel->d_clauses); sp++)
             {
-               clause = PStackElementP(frel->d_formulas, sp);
+               clause = PStackElementP(frel->d_clauses, sp);
                PQueueStoreClause(axioms, clause);
             }
             for(sp=0; sp<PStackGetSP(frel->d_formulas); sp++)

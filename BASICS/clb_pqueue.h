@@ -75,6 +75,8 @@ static __inline__ IntOrP   PQueueGetLast(PQueue_p queue);
 static __inline__ IntOrP   PQueueLook(PQueue_p queue);
 #define  PQueueLookInt(Queue) (PQueueLook(Queue).i_val)
 #define  PQueueLookP(Queue)   (PQueueLook(Queue).p_val)
+long     PQueueCardinality(PQueue_p queue);
+
 
 /*---------------------------------------------------------------------*/
 /*                       Inline-Functions                              */
@@ -343,7 +345,6 @@ static __inline__ IntOrP PQueueLook(PQueue_p queue)
    
    return queue->queue[queue->tail];
 }
-
 
 #endif
 

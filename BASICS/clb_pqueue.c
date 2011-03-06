@@ -69,14 +69,44 @@ void PQueueGrow(PQueue_p queue)
       new_mem[i] = queue->queue[i];
    }
    for(i=queue->head; i<queue->size; i++)
-      {
-	 new_mem[i+queue->size] = queue->queue[i];
-      }
+   {
+      new_mem[i+queue->size] = queue->queue[i];
+   }
    queue->tail+= queue->size;
    SizeFree(queue->queue, queue->size*sizeof(IntOrP));
    queue->queue = new_mem;
    queue->size  = new_size;      
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PQueueCardinality()
+//
+//   Return the number of elements in the queue.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+/
+/----------------------------------------------------------------------*/
+
+long PQueueCardinality(PQueue_p queue)
+{
+   long res;
+   if(queue->head>=queue->tail)
+   {
+      res = queue->head-queue->tail;
+   }
+   else
+   {
+      res = queue->tail+(queue->size-queue->head);
+   }
+   /* printf("Card(%ld, %ld) =  %ld\n", queue->head, queue->tail,
+      res); */
+   return res;
+}
+
 
 
 /*---------------------------------------------------------------------*/
