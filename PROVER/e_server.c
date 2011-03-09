@@ -1,13 +1,13 @@
 /*-----------------------------------------------------------------------
 
-File  : e_axfilter.c
+File  : e_server.c
 
 Author: Stephan Schulz
 
 Contents
 
-Parse a problem specification and a filter setup, and produce output
-files corresponding to each filter.
+  Parse a problem specification and a filter setup, and offer
+  deduction in the specification as a service via a TCP port.
 
   Copyright 2011 by the author.
   This code is released under the GNU General Public Licence and
@@ -37,7 +37,7 @@ Changes
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-#define NAME         "e_axfilter"
+#define NAME         "e_server"
 
 typedef enum
 {
@@ -47,7 +47,8 @@ typedef enum
    OPT_VERBOSE,
    OPT_OUTPUT,
    OPT_FILTER,
-   OPT_DUMP_FILTER,
+   OPT_PROVER,
+   OPT_SERVICE_PORT,
    OPT_PRINT_STATISTICS,
    OPT_SILENT,
    OPT_OUTPUTLEVEL,
@@ -112,10 +113,19 @@ OptCell opts[] =
     "Specify the filter definition file. If not set, the system "
     "will uses the built-in default."},
    
-   {OPT_DUMP_FILTER,
-    'd', "dump-filter",
-    NoArg, NULL,
-     "Print the filter definition in force."},
+   {OPT_PROVER, 
+    'p', "prover",
+    ReqArg, NULL,
+    "Specify the prover binary to use. The default is 'eprover', "
+    "and initially, only E is supported. This option does accept "
+    "absolute and relative paths."},
+   
+   {OPT_SERVICE_PORT, 
+    'P', "service-port",
+    ReqArg, NULL,
+    "Specify the prover binary to use. The default is 'eprover', "
+    "and initially, only E is supported. This option does accept "
+    "absolute and relative paths."},
    
    {OPT_LOP_PARSE,
     '\0', "lop-in",
@@ -179,7 +189,8 @@ OptCell opts[] =
 IOFormat          parse_format = TSTPFormat;
 char              *outname    = NULL;
 char              *filtername = NULL;
-bool              dumpfilter  = false;
+char              *prover     = "eprover";
+
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -192,56 +203,6 @@ void print_help(FILE* out);
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
-
-/*-----------------------------------------------------------------------
-//
-// Function: filter_problem()
-//
-//   Given a structured problem data structure, an axfilter, and the
-//   core name of the output, apply the filter to the problem and
-//   write the result into a properly named file (which is determined
-//   from the core name and the filter name).
-//
-// Global Variables: -
-//
-// Side Effects    : I/O, Memory operations
-//
-/----------------------------------------------------------------------*/
-
-void filter_problem(StructFOFSpec_p ctrl, 
-                    AxFilter_p filter, 
-                    char* corename)
-{
-   DStr_p   filename = DStrAlloc();
-   PStack_p formulas, clauses;
-   FILE     *fp;
-
-   DStrAppendStr(filename, corename);
-   DStrAppendChar(filename, '_');
-   DStrAppendStr(filename, filter->name);
-   DStrAppendStr(filename, ".p");
-   
-   formulas = PStackAlloc();
-   clauses  = PStackAlloc();
-
-   StructFOFSpecGetProblem(ctrl, 
-                           filter, 
-                           clauses,
-                           formulas);
-
-   fprintf(GlobalOut, "# Filter: %s goes into file %s\n", 
-           filter->name,
-           DStrView(filename));
-
-   fp = fopen(DStrView(filename), "w");
-   PStackClausePrintTSTP(fp, clauses);
-   PStackFormulaPrintTSTP(fp, formulas);
-   fclose(fp);
-
-   PStackFree(clauses);
-   PStackFree(formulas);
-   DStrFree(filename);
-}
 
 
 /*-----------------------------------------------------------------------
@@ -264,8 +225,6 @@ int main(int argc, char* argv[])
    int              i;
    AxFilterSet_p    filters;
    Scanner_p        in;
-   DStr_p           corename;
-   char             *tname;
 
    assert(argv[0]);
    
@@ -280,7 +239,7 @@ int main(int argc, char* argv[])
 
    if(state->argc < 1)
    {
-      Error("Usage: e_axfilter <problem> [<options>]\n", USAGE_ERROR);
+      Error("Usage: e_server <domain-spec> [<options>]\n", USAGE_ERROR);
    }
       
    if(filtername)
@@ -294,34 +253,20 @@ int main(int argc, char* argv[])
    {
       filters = AxFilterSetCreateInternal(AxFilterDefaultSet);
    }
-   //AxFilterSetPrint(GlobalOut, filters);
-   
    for(i=0; state->argv[i]; i++)
    {
       PStackPushP(prob_names,  state->argv[i]);      
    }
-   /* Base name is the stripped base of the first argument */
-   tname = FileNameStrip(state->argv[0]);
-   corename = DStrAlloc();
-   DStrAppendStr(corename, tname);
-   FREE(tname);
    
    ctrl = StructFOFSpecAlloc();
    StructFOFSpecParseAxioms(ctrl, prob_names, parse_format);
    StructFOFSpecInitDistrib(ctrl);
    StructFOFSpecResetShared(ctrl);
 
-   for(i=0; i<AxFilterSetElements(filters); i++)
-   {
-      /* SigPrint(stdout,ctrl->sig); */
+   /* Do stuff */
 
-      filter_problem(ctrl, 
-                     AxFilterSetGetFilter(filters,i),
-                     DStrView(corename));
-   }
 
    StructFOFSpecFree(ctrl);
-   DStrFree(corename);
    AxFilterSetFree(filters);
    CLStateFree(state);
    PStackFree(prob_names);
@@ -386,16 +331,12 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_FILTER:
             filtername = arg;
             break;
-      case OPT_DUMP_FILTER:
-            dumpfilter = true;
+      case OPT_PROVER:
+            prover = arg;
             break;
       case OPT_LOP_PARSE:
       case OPT_LOP_FORMAT:
 	    parse_format = LOPFormat;	    
-	    break;
-      case OPT_TPTP_PARSE:
-      case OPT_TPTP_FORMAT:
-	    parse_format = TPTPFormat;	    
 	    break;
       case OPT_TSTP_PARSE:
       case OPT_TSTP_FORMAT:
@@ -416,11 +357,13 @@ E " VERSION " \"" E_NICKNAME "\"\n\
 \n\
 Usage: " NAME " [options] [files]\n\
 \n\
-Read an problem specification and a filter specification, and produce\n\
-one reduced specifiation per filter given. Note that while all input \n\
-formats (LOP, TPTP-2 and TPTP-3 are supported, output is only and\n\
-automatically supported in TPTP-3, and the default input format is\n\
-TPTP-3.\n\
+Read an problem specification and offer deduction in the the structure\n\
+described by the specification as a service.  All input formats (LOP,\n\
+TPTP-2 and TPTP-3 are supported for the original specification, \n\
+however, only TPTP-3 is used for the service. TPTP-3 is also the \n\
+default format. Important options allow specificatio of the filters\n\
+to use for proof attemtps, the dervice port, and the binary of the\n\
+prover to use.\n\
 \n");
    PrintOptions(stdout, opts, "Options:\n\n");
    fprintf(out, "\n\
