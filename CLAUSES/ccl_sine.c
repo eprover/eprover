@@ -527,8 +527,7 @@ long SelectDefiningAxioms(DRelation_p drel,
 
       if((res > max_set_size) || 
          (recursion_level > max_recursion_depth))
-      {
-         printf("Breaking, max_recursion_depth=%d\n", max_recursion_depth);
+      {         
          break;
       }
  
