@@ -27,6 +27,7 @@ Changes
 
 #define CHE_AXFILTER
 
+#include <clb_simple_stuff.h>
 #include <cio_basicparser.h>
 
 
@@ -49,7 +50,13 @@ typedef enum
    GMNoMeasure,
    GMTerms,
    GMLiterals,
-   GMFormulas
+   GMFormulas,
+   GMPosFormula,
+   GMPosLiteral,
+   GMPosTerms,
+   GMNegFormula,
+   GMNegLiteral,
+   GMNegTerms
 }GeneralityMeasure;
 
 

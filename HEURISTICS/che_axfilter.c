@@ -28,12 +28,21 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
+/* The order of this has to match the order of values in the
+ * definition of GeneralityMeasure in the header file */
+
 char* GeneralityMeasureNames[] =
 {
    "None",
    "CountTerms",
    "CountLiterals",
    "CountFormulas",
+   "CoutPosFormulas",
+   "CountPosLiterals",
+   "CountPosTerms",
+   "CoutNegFormulas",
+   "CountNegLiterals",
+   "CountNegTerms",
    NULL
 };
 
@@ -52,7 +61,29 @@ char* AxFilterDefaultSet =
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
+/*-----------------------------------------------------------------------
+//
+// Function: get_gen_measure()
+//
+//   Given a string, return the corresponding GenMeasure, or 0 on
+//   failure. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 
+GeneralityMeasure get_gen_measure(char* str)
+{
+   int res = StringIndex(str, GeneralityMeasureNames);
+
+   if(res==-1)
+   {
+      res=0;
+   }
+   return (GeneralityMeasure) res;
+}
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -141,20 +172,18 @@ AxFilter_p AxFilterParse(Scanner_p in)
    AcceptInpId(in, "GSinE");
    res->type = AFGSineE;
    AcceptInpTok(in, OpenBracket);
-   CheckInpId(in, "CountFormulas|CountLiterals|CountTerms");
-   if(TestInpId(in, "CountFormulas"))
+   
+   res->gen_measure = get_gen_measure(DStrView(AktToken(in)->literal));
+
+   if(!res->gen_measure)
    {
-      res->gen_measure=GMFormulas;
+      AktTokenError(in, "Unknown generality measure", false);      
    }
-   else if(TestInpId(in, "CountTerms"))
-   {
-      res->gen_measure=GMTerms;
-   }
-   else
+   if(res->gen_measure!=GMTerms && res->gen_measure!=GMFormulas)
    {
       AktTokenError(in, "Generality measure not yet implemented", false);      
    }
-   AcceptInpId(in, "CountFormulas|CountLiterals|CountTerms");
+   NextToken(in);
    AcceptInpTok(in, Comma);
    if(!TestInpTok(in, Comma))
    {
