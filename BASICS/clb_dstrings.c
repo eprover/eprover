@@ -138,7 +138,7 @@ char* DStrAppendStr(DStr_p strdes, char* newpart)
       strdes->mem = newmem;
       strdes->string[strdes->len] = '\0';
    }
-   strcat(strdes->string, newpart);
+   strcat(strdes->string+strdes->len, newpart);
    strdes->len += newlen;
    
    return strdes->string;

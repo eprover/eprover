@@ -215,12 +215,14 @@ void InitError(char* progname)
 //
 /----------------------------------------------------------------------*/
 
-VOLATILE void Error(char* message, ErrorCodes ret)
+VOLATILE void Error(char* message, ErrorCodes ret, ...)
 {
-   WRITE_STR(STDERR_FILENO, ProgName);
-   WRITE_STR(STDERR_FILENO, ": ");
-   WRITE_STR(STDERR_FILENO, message);
-   WRITE_STR(STDERR_FILENO, "\n");
+   va_list ap;
+   va_start(ap, ret);
+
+   fprintf(stderr, "%s: ", ProgName);
+   vfprintf(stderr, message, ap);
+   fprintf(stderr, "\n");
    exit(ret);
 }
 
@@ -239,12 +241,14 @@ VOLATILE void Error(char* message, ErrorCodes ret)
 //
 /----------------------------------------------------------------------*/
 
-VOLATILE void SysError(char* message, ErrorCodes ret)
+VOLATILE void SysError(char* message, ErrorCodes ret, ...)
 {
-   WRITE_STR(STDERR_FILENO, ProgName);
-   WRITE_STR(STDERR_FILENO, ": ");
-   WRITE_STR(STDERR_FILENO, message);
-   WRITE_STR(STDERR_FILENO, "\n");
+   va_list ap;
+   va_start(ap, ret);
+
+   fprintf(stderr, "%s: ", ProgName);
+   vfprintf(stderr, message, ap);
+   fprintf(stderr, "\n");
    errno = TmpErrno;
    perror(ProgName);
    exit(ret);
@@ -263,12 +267,14 @@ VOLATILE void SysError(char* message, ErrorCodes ret)
 //
 /----------------------------------------------------------------------*/
 
-void Warning(char* message)
+void Warning(char* message, ...)
 {
-   WRITE_STR(STDERR_FILENO, ProgName);
-   WRITE_STR(STDERR_FILENO, ": Warning: ");
-   WRITE_STR(STDERR_FILENO, message);
-   WRITE_STR(STDERR_FILENO, "\n");
+   va_list ap;
+   va_start(ap, message);
+
+   fprintf(stderr, "%s: Warning: ", ProgName);
+   vfprintf(stderr, message, ap);
+   fprintf(stderr, "\n");
 }
 
 

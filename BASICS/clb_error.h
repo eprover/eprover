@@ -30,7 +30,7 @@ Changes
 
 #include <clb_defines.h>
 #include <string.h>
-
+#include <stdarg.h>
 #include <sys/time.h>
 #include <sys/resource.h>
 
@@ -73,9 +73,9 @@ long          GetSystemPageSize(void);
 long          GetSystemPhysMemory(void);
 
 void          InitError(char* progname);
-VOLATILE void Error(char* message, ErrorCodes ret);
-VOLATILE void SysError(char* message, ErrorCodes ret);
-void          Warning(char* message);
+VOLATILE void Error(char* message, ErrorCodes ret, ...);
+VOLATILE void SysError(char* message, ErrorCodes ret, ...);
+void          Warning(char* message, ...);
 double        GetTotalCPUTime(void);
 void          PrintRusage(FILE* out);
 void          StrideMemory(char* mem, long size);
