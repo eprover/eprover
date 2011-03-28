@@ -26,6 +26,7 @@ Changes
 
 #define CIO_NETWORK
 
+#include <stdint.h>
 #include <clb_dstrings.h>
 #include <clb_pqueue.h>
 
@@ -37,46 +38,61 @@ Changes
 /*---------------------------------------------------------------------*/
 
 
+typedef enum
+{
+   NWIncomplete  = 0,
+   NWError       = 1,
+   NWConnClosed  = 2,
+   NWSuccess     = 3
+}MsgStatus;
+
+/* A single message */
+
 typedef struct tcp_msg_cell
 {
-   DStr_p content;
-   int length;
-   int transmission_count;
+   DStr_p content; /* Includes 4 bytes initial bytes of total message
+                      lengths in network byte order, and the payload. */
+   int len;     /* Including length field. */
+   int transmission_count; /* How many bytes have been sent/received? */
+   char len_buf[sizeof(uint32_t)];
 }TCPMsgCell, *TCPMsg_p;
 
-
-
-typedef struct tcp_channel_cell
-{
-   int sock;
-   PQueue_p messages;   
-}TCPChannelCell, *TCPChannel_p;
 
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-#define TCP_BACKLOG 10
 
 #define TCPMsgCellAlloc()    (TCPMsgCell*)SizeMalloc(sizeof(TCPMsgCell))
 #define TCPMsgCellFree(junk) SizeFree(junk, sizeof(TCPMsgCell))
 
+#define TCP_MSG_COMPLETE(msg) ((msg)->len == (msg)->transmission_count)
 
 TCPMsg_p  TCPMsgAlloc();
 void   TCPMsgFree(TCPMsg_p junk);
 
 
-TCPMsg_p TCPMessagePack(char* str);
-char*    TCPMessageUnpack(TCPMsg_p msg);
+TCPMsg_p TCPMsgPack(char* str);
+char*    TCPMsgUnpack(TCPMsg_p msg);
 
-int      TCPMessageSend(int sock, TCPMsg_p msg);
-int      TCPMessageRecv(int sock, TCPMsg_p msg);
+MsgStatus TCPMsgWrite(int sock, TCPMsg_p msg);
+MsgStatus TCPMsgRead(int sock, TCPMsg_p msg);
+
+MsgStatus TCPMsgSend(int sock, TCPMsg_p msg);
+TCPMsg_p  TCPMsgRecv(int sock, MsgStatus *res);
+
+MsgStatus TCPStringSend(int sock, char* str, bool err);
+char*     TCPStringRecv(int sock, MsgStatus* res, bool err);
+
+void      TCPStringSendX(int sock, char* str);
+char*     TCPStringRecvX(int sock);
+
 
 int  CreateServerSock(int port);
 void Listen(int sock);
 
-
+int  CreateClientSock(char* host, int port);
 
 #endif
 

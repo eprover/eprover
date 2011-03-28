@@ -34,7 +34,7 @@ clean:
 include ../Makefile.services
 
 IO_LIB = cio_output.o cio_fileops.o cio_streams.o  cio_initio.o \
-         cio_scanner.o cio_network.o\
+         cio_scanner.o cio_network.o cio_multiplexer.o\
          cio_basicparser.o cio_commandline.o \
          cio_filevars.o cio_tempfile.o cio_signals.o
 

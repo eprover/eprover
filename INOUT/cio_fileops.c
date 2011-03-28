@@ -136,6 +136,39 @@ void  InputClose(FILE* file)
 
 /*-----------------------------------------------------------------------
 //
+// Function: FileLoad()
+//
+//   Load the content of the named file and append it to dest. Returns
+//   number of characters read.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory, IO
+//
+/----------------------------------------------------------------------*/
+
+long  FileLoad(char* name, DStr_p dest)
+{
+   FILE* in;
+   long count=0;
+   int c;
+
+   in = InputOpen(name, true);
+      
+   while((c = getc(in))!= EOF)
+   {
+      count++;
+      DStrAppendChar(dest, c);
+   }      
+   InputClose(in);
+
+   return count;
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: ConcatFiles()
 //
 //   Concatenate all file in (NULL-terminated) array sources into
