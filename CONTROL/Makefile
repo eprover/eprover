@@ -36,7 +36,8 @@ include ../Makefile.services
 CONTROL_LIB = cco_simplification.o cco_factoring.o\
 	      cco_eqnresolving.o cco_paramodulation.o\
 	      cco_forward_contraction.o  cco_clausesplitting.o\
-              cco_proofproc.o cco_proc_ctrl.o cco_batch_spec.o
+              cco_proofproc.o cco_proc_ctrl.o cco_batch_spec.o\
+              cco_eserver.o
 
 $(LIB): $(CONTROL_LIB)
 	$(AR) $(LIB) $(CONTROL_LIB)

@@ -1,6 +1,6 @@
 /*-----------------------------------------------------------------------
 
-File  : cco_procctrl.h
+File  : cco_proc_ctrl.h
 
 Author: Stephan Schulz (schulz@eprover.org)
 
@@ -23,10 +23,11 @@ Changes
 
 -----------------------------------------------------------------------*/
 
-#ifndef CCO_PROCCTRL
+#ifndef CCO_PROC_CTRL
 
-#define CCO_PROCCTRL
+#define CCO_PROC_CTRL
 
+#include <sys/select.h>
 #include <signal.h>
 #include <clb_numtrees.h>
 #include <cio_tempfile.h>
@@ -100,6 +101,8 @@ void        EPCtrlSetAddProc(EPCtrlSet_p set, EPCtrl_p proc);
 EPCtrl_p    EPCtrlSetFindProc(EPCtrlSet_p set, int fd);
 void        EPCtrlSetDeleteProc(EPCtrlSet_p set, EPCtrl_p proc);
 #define     EPCtrlSetEmpty(set) ((set)->procs==NULL)
+
+int         EPCtrlSetUnitFDSet(EPCtrlSet_p set, fd_set *rd_fds);
 
 EPCtrl_p    EPCtrlSetGetResult(EPCtrlSet_p set);
 

@@ -21,7 +21,6 @@ Changes
 
 -----------------------------------------------------------------------*/
 
-#include <sys/select.h>
 #include "cco_proc_ctrl.h"
 
 
@@ -365,6 +364,40 @@ void EPCtrlSetDeleteProc(EPCtrlSet_p set, EPCtrl_p proc)
    }
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: EPCtrlSetUnitFDSet()
+//
+//   Set all file descriptor bits of the set in the fd_set data
+//   structure. Return the largest one.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory (only temporary)
+//
+/----------------------------------------------------------------------*/
+
+int EPCtrlSetUnitFDSet(EPCtrlSet_p set, fd_set *rd_fds)
+{
+   PStack_p trav_stack;
+   int maxfd = 0;
+   EPCtrl_p handle;
+   NumTree_p cell;
+
+   trav_stack = NumTreeTraverseInit(set->procs);
+   while((cell = NumTreeTraverseNext(trav_stack)))
+   {
+      handle = cell->val1.p_val;
+      FD_SET(handle->fileno, rd_fds);
+      maxfd = handle->fileno;
+   }
+   NumTreeTraverseExit(trav_stack);
+
+   return maxfd;
+}
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: EPCtrlSetGetResult()
@@ -381,8 +414,6 @@ EPCtrl_p EPCtrlSetGetResult(EPCtrlSet_p set)
 {
    ProverResult tmp;
    fd_set readfds, writefds, errorfds;
-   PStack_p trav_stack;
-   NumTree_p cell;
    int maxfd = 0,i;
    EPCtrl_p handle, res = NULL;
    struct timeval waittime;
@@ -393,15 +424,8 @@ EPCtrl_p EPCtrlSetGetResult(EPCtrlSet_p set)
    waittime.tv_sec  = 0;
    waittime.tv_usec = 500000;
 
-   trav_stack = NumTreeTraverseInit(set->procs);
-   while((cell = NumTreeTraverseNext(trav_stack)))
-   {
-      handle = cell->val1.p_val;
-      FD_SET(handle->fileno, &readfds);
-      maxfd = handle->fileno;
-   }
-   NumTreeTraverseExit(trav_stack);
-
+   maxfd = EPCtrlSetUnitFDSet(set, &readfds);
+      
    select(maxfd+1, &readfds, &writefds, &errorfds, &waittime);
    
    for(i=0; i<=maxfd; i++)
