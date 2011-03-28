@@ -278,6 +278,34 @@ void Warning(char* message, ...)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: SysWarning()
+//
+//   Print a user error message and a system error message to stderr
+//   and exit the program with an appropriate return code. The value
+//   of errno is restored from TmpErrno.
+//
+// Global Variables: ProgName, TmpErrno
+//
+// Side Effects    : Terminates the program.
+//
+/----------------------------------------------------------------------*/
+
+void SysWarning(char* message, ...)
+{
+   va_list ap;
+   va_start(ap, message);
+
+   fprintf(stderr, "%s: Warning: ", ProgName);
+   vfprintf(stderr, message, ap);
+   fprintf(stderr, "\n");
+   errno = TmpErrno;
+   perror(ProgName);
+}
+
+
+
 
 /*-----------------------------------------------------------------------
 //

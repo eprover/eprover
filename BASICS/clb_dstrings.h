@@ -65,6 +65,7 @@ void   DStrFree(DStr_p junk);
 
 char*   DStrAppendStr(DStr_p strdes, char* newpart);
 char*   DStrAppendChar(DStr_p strdes, char newch);
+char*   DStrAppendBuffer(DStr_p strdes, char* buf, int len);
 char*   DStrAppendInt(DStr_p strdes, long newpart);
 char*   DStrAppendStrArray(DStr_p strdes, char* array[], char*
 			   separator); 
@@ -73,6 +74,7 @@ char*   DStrAppendStrArray(DStr_p strdes, char* array[], char*
 char    DStrDeleteLastChar(DStr_p strdes);
 #define DStrLastChar(strdes) (DStrLen(strdes)?DStrView(strdes)[DStrLen(strdes)-1]:'\0')
 char*   DStrView(DStr_p strdes);
+char*   DStrAddress(DStr_p strdes, int index);
 char*   DStrCopy(DStr_p strdes);
 char*   DStrCopyCore(DStr_p strdes);
 char*   DStrSet(DStr_p strdes, char* string);

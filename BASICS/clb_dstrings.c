@@ -161,7 +161,6 @@ char* DStrAppendStr(DStr_p strdes, char* newpart)
 char* DStrAppendChar(DStr_p strdes, char newch)
 {
    assert(strdes);
-   assert(newch);
 
    if(strdes->len+1 >= strdes->mem)
    {
@@ -174,6 +173,35 @@ char* DStrAppendChar(DStr_p strdes, char newch)
 
    return strdes->string;
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: DStrAppendBuffer()
+//
+//   Append a (not necessarily 0-terminated) buffer to the end of a
+//   DStr.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+char* DStrAppendBuffer(DStr_p strdes, char* buf, int len)
+{
+   int i;
+
+   assert(strdes);
+   assert(buf);
+   
+   for(i=0; i<len; i++)
+   {
+      DStrAppendChar(strdes, buf[i]);
+   }
+
+   return strdes->string;
+}
+
 
 
 /*-----------------------------------------------------------------------
@@ -282,6 +310,30 @@ char* DStrView(DStr_p strdes)
    }
    return NullStr;
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: DStrAddress()
+//
+//   Return the address of the given character in the DStr, or 0 if
+//   the string has less than index+1 chars.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+char* DStrAddress(DStr_p strdes, int index)
+{
+   if(index>strdes->len)
+   {
+      return NULL;
+   }
+   return strdes->string+index;
+}
+
 
 
 /*-----------------------------------------------------------------------

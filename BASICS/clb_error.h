@@ -76,6 +76,7 @@ void          InitError(char* progname);
 VOLATILE void Error(char* message, ErrorCodes ret, ...);
 VOLATILE void SysError(char* message, ErrorCodes ret, ...);
 void          Warning(char* message, ...);
+void          SysWarning(char* message, ...);
 double        GetTotalCPUTime(void);
 void          PrintRusage(FILE* out);
 void          StrideMemory(char* mem, long size);

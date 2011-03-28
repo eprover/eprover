@@ -75,6 +75,9 @@ static __inline__ IntOrP   PQueueGetLast(PQueue_p queue);
 static __inline__ IntOrP   PQueueLook(PQueue_p queue);
 #define  PQueueLookInt(Queue) (PQueueLook(Queue).i_val)
 #define  PQueueLookP(Queue)   (PQueueLook(Queue).p_val)
+static __inline__ IntOrP   PQueueLookLast(PQueue_p queue);
+#define  PQueueLookLastInt(Queue) (PQueueLookLast(Queue).i_val)
+#define  PQueueLookLastP(Queue)   (PQueueLookLast(Queue).p_val)
 long     PQueueCardinality(PQueue_p queue);
 
 
@@ -345,6 +348,35 @@ static __inline__ IntOrP PQueueLook(PQueue_p queue)
    
    return queue->queue[queue->tail];
 }
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PQueueLookLast()
+//
+//   Return the last (youngest) value from the queue without modifyin
+//   the queue.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes queue.
+//
+/----------------------------------------------------------------------*/
+
+static __inline__ IntOrP PQueueLookLast(PQueue_p queue)
+{
+   IntOrP res;
+   int    index;
+
+   assert(!PQueueEmpty(queue));
+
+   index = queue->head? (queue->head-1):queue->size-1;
+   res = queue->queue[index];
+
+   return res;
+}
+
 
 #endif
 
