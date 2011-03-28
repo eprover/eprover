@@ -22,9 +22,12 @@ Changes
 
 -----------------------------------------------------------------------*/
 
+#include <sys/select.h>
+#include <netinet/in.h>
 #include <clb_defines.h>
 #include <cio_commandline.h>
 #include <cio_output.h>
+#include <cio_network.h>
 #include <ccl_relevance.h>
 #include <cio_signals.h>
 #include <ccl_formulafunc.h>
@@ -123,9 +126,7 @@ OptCell opts[] =
    {OPT_SERVICE_PORT, 
     'P', "service-port",
     ReqArg, NULL,
-    "Specify the prover binary to use. The default is 'eprover', "
-    "and initially, only E is supported. This option does accept "
-    "absolute and relative paths."},
+    "Specify the port to use for the deduction service."},
    
    {OPT_LOP_PARSE,
     '\0', "lop-in",
@@ -190,6 +191,7 @@ IOFormat          parse_format = TSTPFormat;
 char              *outname    = NULL;
 char              *filtername = NULL;
 char              *prover     = "eprover";
+int               port        = 3666;
 
 
 /*---------------------------------------------------------------------*/
@@ -265,6 +267,77 @@ int main(int argc, char* argv[])
 
    /* Do stuff */
 
+   {   
+      int sock = CreateServerSock(port);
+      int conn = -1;
+      fd_set rfds, wfds, xfds;
+      int res, tmp;
+      struct sockaddr addr;
+      socklen_t       addr_len;
+      char *msg;
+      MsgStatus msg_stat;
+
+      Listen(sock);
+      
+      while(true)
+      {
+         printf("Main loop\n");
+         FD_ZERO(&rfds);
+         FD_ZERO(&wfds);
+         FD_ZERO(&xfds);
+         FD_SET(sock, &rfds);
+         if(conn!=-1)
+         {
+            FD_SET(conn, &rfds);
+         }
+         res = select(MAX(sock, conn)+1, &rfds, &wfds, &xfds, NULL);
+         if(res != -1)
+         {
+            if((conn != -1) && FD_ISSET(conn, &rfds))
+            {
+               msg = TCPStringRecv(conn, &msg_stat, false);
+               if(!msg)
+               {
+                  if(msg_stat == NWError)
+                  {
+                     printf("Read error\n");
+                  }
+                  else
+                  {
+                     printf("Connection closed\n");
+                  }
+                  close(conn);
+                  conn = -1;
+               }
+               else
+               {
+                  printf("Received: %s\n", msg);
+                  FREE(msg);
+                  TCPStringSendX(conn, "wait");
+                  TCPStringSendX(conn, "ready");
+               }
+            }
+            if(FD_ISSET(sock, &rfds))
+            {
+               tmp = accept(sock, &addr, &addr_len);
+               if(conn==-1)
+               {
+                  printf("Accepted %d\n", tmp);
+                  conn = tmp;
+               }
+               else
+               {
+                  close(tmp);
+               }
+            }
+         }
+         else
+         {
+            perror("Something weird");
+         }            
+      }
+   }
+   /* Done */
 
    StructFOFSpecFree(ctrl);
    AxFilterSetFree(filters);
@@ -333,6 +406,18 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_PROVER:
             prover = arg;
+            break;
+      case OPT_SERVICE_PORT:
+            port  = CLStateGetIntArg(handle, arg);
+            if(port<0 || port>65535)
+            {
+               Error("Port numbers must be between 0 and 65535", USAGE_ERROR);
+            }
+            else if(port < IPPORT_RESERVED)
+            {
+               Warning("Port numbers less than %d require root level access",
+                       IPPORT_RESERVED); 
+            }
             break;
       case OPT_LOP_PARSE:
       case OPT_LOP_FORMAT:

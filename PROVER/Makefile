@@ -15,7 +15,8 @@ include ../Makefile.vars
 
 # Project specific variables
 
-PROJECT = eprover e_ltb_runner e_axfilter e_server classify_problem termprops\
+PROJECT = eprover e_ltb_runner e_axfilter e_server e_client \
+	  classify_problem termprops\
           direct_examples epclanalyse epclextract checkproof eground\
           edpll epcllemma\
           ekb_create ekb_insert ekb_ginsert ekb_delete tsm_classify
@@ -67,6 +68,14 @@ E_SERVER = e_server.o ../lib/CONTROL.a ../lib/HEURISTICS.a\
 
 e_server: $(E_SERVER)
 	$(LD) -o e_server $(E_SERVER)
+
+E_CLIENT = e_client.o ../lib/CONTROL.a ../lib/HEURISTICS.a\
+            ../lib/CLAUSES.a ../lib/ORDERINGS.a ../lib/TERMS.a\
+            ../lib/INOUT.a ../lib/BASICS.a
+
+e_client: $(E_CLIENT)
+	$(LD) -o e_client $(E_CLIENT)
+
 
 EGROUND = eground.o ../lib/HEURISTICS.a\
             ../lib/CLAUSES.a ../lib/ORDERINGS.a ../lib/TERMS.a\
