@@ -150,6 +150,21 @@ OptCell opts[] =
     NoArg, NULL,
     "Equivalent to --tstp-in and --tstp-out."},
 
+   {OPT_TSTP_PARSE,
+    '\0', "tptp3-in",
+    NoArg, NULL,
+    "Equivalent to --tstp-in."},
+   
+   {OPT_TSTP_PRINT,
+    '\0', "tptp3-out",
+    NoArg, NULL,
+    "Equivalent to --tstp-out."},
+
+   {OPT_TSTP_FORMAT,
+    '\0', "tptp3-format",
+    NoArg, NULL,
+    "Equivalent to --tstp-format."},
+
    {OPT_GEN_TPTP_HEADER,
     'H', "generate-tptp-header",
     NoArg, NULL,
