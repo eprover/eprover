@@ -1237,16 +1237,20 @@ TFormula_p TFormulaSkolemizeOutermost(TB_p terms, TFormula_p form)
 
 TFormula_p TFormulaShiftQuantors(TB_p terms, TFormula_p form)
 {
-   TFormula_p handle, narg1=NULL, narg2=NULL, newform;
+   TFormula_p narg1=NULL, narg2=NULL, newform;
    bool modified = false;
    Term_p var;
-
+   PStack_p stack;
+   
    if(TFormulaIsQuantified(terms->sig, form))
    {
+      /* This is the variable bound by the quantor */
       narg1 = form->args[0];
    }
    else if(TFormulaHasSubForm1(terms->sig, form))
    {
+      /* It's a real formula that needs to have its quantors shifted,
+         too */
       narg1 = TFormulaShiftQuantors(terms, form->args[0]);
       modified = narg1!=form->args[0];
    }
@@ -1260,6 +1264,85 @@ TFormula_p TFormulaShiftQuantors(TB_p terms, TFormula_p form)
    {
       form = TFormulaFCodeAlloc(terms, form->f_code, narg1, narg2);
    }
+   /* Now the subformulas should be in normal forrm */ 
+
+   if((form->f_code == terms->sig->and_code)||
+      (form->f_code == terms->sig->or_code))
+   {
+      stack = PStackAlloc();
+
+      narg1 = form->args[0];
+      while(narg1->f_code == terms->sig->qall_code)
+      {
+         PStackPushP(stack, narg1->args[0]);
+         narg1 = narg1->args[1];
+      }
+      narg2 = form->args[1];
+      while(narg2->f_code == terms->sig->qall_code)
+      {
+         PStackPushP(stack, narg2->args[0]);
+         narg2 = narg2->args[1];
+      }      
+      /* Now narg1 is the first "real" formula and narg2 is the
+       * second "real" formula and all quantified variables are on the
+       * stack. */
+      newform = TFormulaFCodeAlloc(terms, form->f_code, narg1, narg2);
+      while(!PStackEmpty(stack))
+      {
+         var = PStackPopP(stack);
+         newform = TFormulaQuantorAlloc(terms, 
+                                        terms->sig->qall_code, 
+                                        var, 
+                                        newform);         
+      }
+      PStackFree(stack);
+      form = newform;
+   }
+   return form;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaShiftQuantorsOld()
+//
+//   Shift all remaining all-quantors outward.
+//
+// Global Variables: -
+//
+// Side Effects    : Destroys original formula.
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p TFormulaShiftQuantorsOld(TB_p terms, TFormula_p form)
+{
+   TFormula_p handle, narg1=NULL, narg2=NULL, newform;
+   bool modified = false;
+   Term_p var;
+   
+   if(TFormulaIsQuantified(terms->sig, form))
+   {
+      /* This is the variable bound by the quantor */
+      narg1 = form->args[0];
+   }
+   else if(TFormulaHasSubForm1(terms->sig, form))
+   {
+      /* It's a real formula that needs to have its quantors shifted,
+         too */
+      narg1 = TFormulaShiftQuantors(terms, form->args[0]);
+      modified = narg1!=form->args[0];
+   }
+   if(TFormulaHasSubForm2(terms->sig, form)||
+      TFormulaIsQuantified(terms->sig, form))
+   {
+      narg2 = TFormulaShiftQuantors(terms, form->args[1]);
+      modified |= narg2!=form->args[1];
+   }   
+   if(modified)
+   {
+      form = TFormulaFCodeAlloc(terms, form->f_code, narg1, narg2);
+   }
+   /* Now the subformulas should be in normal forrm */ 
+
    if((form->f_code == terms->sig->and_code)||
       (form->f_code == terms->sig->or_code))
    {
@@ -1271,6 +1354,7 @@ TFormula_p TFormulaShiftQuantors(TB_p terms, TFormula_p form)
          assert(!TFormulaVarIsFree(terms, narg2, var));
          handle = TFormulaFCodeAlloc(terms, form->f_code, narg1, narg2);
          newform = TFormulaQuantorAlloc(terms, terms->sig->qall_code, var, handle);
+         printf("Recursion %p\n", newform);
          form = TFormulaShiftQuantors(terms, newform);
       }
       else if(form->args[1]->f_code == terms->sig->qall_code)
