@@ -4,6 +4,11 @@ the E equational theorem prover.
 Version 1.2 ->
 
 - Fixed redundant output resulting in broken proof extraction.
+- Fixed sub-optimal CNFing (slow, not incorrect)
+- Implemented e_axfilter as a stand-alone program for pre-processing
+  large problems, and adapted/extendet the corresponging libraries.
+
+
 
 Version 1.1 -> 1.2 Badamtam
 
