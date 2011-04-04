@@ -312,7 +312,7 @@
 /* CLASS_G-SF-FSLF33-S : protokoll_G-E--_107_C18_F1_PI_AE_Q4_CS_SP_PS_S4S 3    */
 /* CLASS_G-NF-FFSF11-D : protokoll_G-E--_107_C41_F1_PI_AE_Q4_CS_SP_PS_S0Y 1    */
 /* CLASS_G-SM-SSLM31-M : protokoll_G-E--_107_C41_F1_PI_AE_Q4_CS_SP_PS_S0Y 1    */
-/* CLASS_U-SM-FFMM21-D : protokoll_G-E--_024_B07_F1_PI_AE_Q4_CS_SP_S0Y 2    */
+/* CLASS_U-SM-FFMM21-D : protokoll_G-E--_024_C07_F1_AE_Q4_CS_SP_S0Y 2    */
 /* CLASS_G-NF-FFSF11-M : protokoll_G-E--_107_C41_F1_PI_AE_Q4_CS_SP_PS_S0Y 1    */
 /* CLASS_G-PS-FSLM32-S : protokoll_G-E--_107_C41_F1_PI_AE_Q4_CS_SP_PS_S0Y 0    */
 /* CLASS_G-SM-SSLM31-D : protokoll_G-E--_008_C45_F1_AE_CS_SP_PS_S0Y 6    */
@@ -966,6 +966,11 @@
 " 10*Refinedweight(PreferNonGoals,2,1,2,2,2),"
 " 1*Clauseweight(ConstPrio,1,1,1),"
 " 1*FIFOWeight(ConstPrio))\n"
+"G_E___024_C07_F1_AE_Q4_CS_SP_S0Y = \n"
+"(4*ConjectureGeneralSymbolWeight(SimulateSOS,100,100,100,50,50,50,50,1.5,1.5,1),"
+" 3*ConjectureGeneralSymbolWeight(PreferNonGoals,100,100,100,50,50,1000,100,1.5,1.5,1),"
+" 1*Clauseweight(PreferProcessed,1,1,1),"
+" 1*FIFOWeight(PreferProcessed))\n"
 "G_E___008_C18_F1_AE_Q4_CS_SP_S2S = \n"
 "(10*ConjectureRelativeSymbolWeight(ConstPrio,0.1, 100, 100, 100, 100, 1.5, 1.5, 1.5),"
 " 1*FIFOWeight(ConstPrio))\n"
@@ -3410,18 +3415,6 @@
        SpecMaxFArity3Plus(spec)&&
        SpecAvgFArity3Plus(spec)&&
        SpecMediumMaxDepth(spec))
-       ||
-      ( /* CLASS_U-SM-FFMM21-D Solved: 2 of 2 */
-       SpecAxiomsAreUnit(spec)&&
-       SpecSomeEq(spec)&&
-       SpecManyNGPosUnits(spec)&&
-       SpecFewAxioms(spec)&&
-       SpecFewLiterals(spec)&&
-       SpecMediumTerms(spec)&&
-       SpecManyGroundPos(spec)&&
-       SpecMaxFArity2(spec)&&
-       SpecAvgFArity1(spec)&&
-       SpecDeepMaxDepth(spec))
        ||
       ( /* CLASS_G-NS-FFMS00-S Solved: 3 of 6 */
        SpecAxiomsAreGeneral(spec)&&
@@ -10652,6 +10645,38 @@
       oparms.to_weight_gen=WInvFrequencyRank;
       oparms.to_prec_gen=PByInvFrequency;
       oparms.to_const_weight=1;
+
+#endif
+   }
+   else if(
+      ( /* CLASS_U-SM-FFMM21-D Solved: 2 of 2 */
+       SpecAxiomsAreUnit(spec)&&
+       SpecSomeEq(spec)&&
+       SpecManyNGPosUnits(spec)&&
+       SpecFewAxioms(spec)&&
+       SpecFewLiterals(spec)&&
+       SpecMediumTerms(spec)&&
+       SpecManyGroundPos(spec)&&
+       SpecMaxFArity2(spec)&&
+       SpecAvgFArity1(spec)&&
+       SpecDeepMaxDepth(spec)))
+   {
+#ifdef CHE_HEURISTICS_INTERNAL
+      res = "G_E___024_C07_F1_AE_Q4_CS_SP_S0Y";
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectMaxLComplexAvoidPosPred;
+      control->heuristic_parms.split_clauses=4;
+      control->heuristic_parms.split_fresh_defs=false;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
+      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+
+#endif
+#ifdef TO_ORDERING_INTERNAL
+      oparms.ordertype=KBO6;
+      oparms.to_weight_gen=WConstantWeight;
+      oparms.to_prec_gen=PByInvFrequency;
 
 #endif
    }
