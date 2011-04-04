@@ -25,6 +25,7 @@ Changes
 
 #define CCO_PROOFPROC
 
+#include <clb_os_wrapper.h>
 #include <che_heuristics.h>
 #include <che_axiomscan.h>
 #include <che_to_autoselect.h>
@@ -42,6 +43,10 @@ Changes
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
+
+PERF_CTR_DECL(ParamodTimer);
+PERF_CTR_DECL(BWRWTimer);
+
 
 /* Collect term cells from temporary clause copies if their number
    reaches this. 10000 is big enough that it nearly never happens, 500

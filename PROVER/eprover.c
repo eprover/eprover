@@ -42,6 +42,8 @@ Changes
 
 #define NAME         "eprover"
 
+PERF_CTR_DEFINE(SatTimer);
+
 typedef enum
 {
    OPT_NOOPT=0,
@@ -1251,11 +1253,14 @@ int main(int argc, char* argv[])
          ProofStateResetProcessed(proofstate, proofcontrol);
       }
    }
+   PERF_CTR_ENTRY(SatTimer);
+   
    if(!success)
-   {
+   {      
       success = Saturate(proofstate, proofcontrol, step_limit,
                          proc_limit, unproc_limit, total_limit);
    }
+   PERF_CTR_EXIT(SatTimer);
    
    out_of_clauses = ClauseSetEmpty(proofstate->unprocessed);
    if(filter_sat)
@@ -1378,15 +1383,21 @@ int main(int argc, char* argv[])
       fprintf(GlobalOut, "# Unification successes                : %ld\n",
               UnifSuccesses);
 #endif
+      PERF_CTR_PRINT(GlobalOut, MguTimer);
+      PERF_CTR_PRINT(GlobalOut, SatTimer);
+      PERF_CTR_PRINT(GlobalOut, ParamodTimer);
+      PERF_CTR_PRINT(GlobalOut, PMIndexTimer);
+      PERF_CTR_PRINT(GlobalOut, BWRWTimer);
+      PERF_CTR_PRINT(GlobalOut, BWRWIndexTimer);
       if(proofstate->gindices.bw_rw_index)
       {
-         fprintf(GlobalOut, "# Backwards rewriting index: ");
+         fprintf(GlobalOut, "# Backwards rewriting index : ");
          FPIndexDistribDataPrint(GlobalOut, proofstate->gindices.bw_rw_index);
          fprintf(GlobalOut, "\n");
       }
       if(proofstate->gindices.pm_from_index)
       {
-         fprintf(GlobalOut, "# Paramod-from index:        ");
+         fprintf(GlobalOut, "# Paramod-from index        : ");
          FPIndexDistribDataPrint(GlobalOut, proofstate->gindices.pm_from_index);
          fprintf(GlobalOut, "\n");
          /* FPIndexPrint(GlobalOut, 
@@ -1395,7 +1406,7 @@ int main(int argc, char* argv[])
       }
       if(proofstate->gindices.pm_into_index)
       {
-         fprintf(GlobalOut, "# Paramod-into index:        ");
+         fprintf(GlobalOut, "# Paramod-into index        : ");
          FPIndexDistribDataPrint(GlobalOut, proofstate->gindices.pm_into_index);
          fprintf(GlobalOut, "\n");
       }     

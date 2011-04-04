@@ -50,6 +50,9 @@ typedef struct global_indices_cell
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+PERF_CTR_DECL(PMIndexTimer);
+PERF_CTR_DECL(BWRWIndexTimer);
+
 
 void GlobalIndicesNull(GlobalIndices_p indices);
 void GlobalIndicesInit(GlobalIndices_p indices, 

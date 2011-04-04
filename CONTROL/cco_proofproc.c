@@ -29,6 +29,9 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
+PERF_CTR_DEFINE(ParamodTimer);
+PERF_CTR_DEFINE(BWRWTimer);
+
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -141,7 +144,8 @@ eliminate_backward_rewritten_clauses(ProofState_p
    long old_lit_count = state->tmp_store->literals,
       old_clause_count= state->tmp_store->members;
    bool min_rw = false;
-
+   
+   PERF_CTR_ENTRY(BWRWTimer);
    if(ClauseIsDemodulator(clause))
    {      
       SysDateInc(date);
@@ -211,6 +215,7 @@ eliminate_backward_rewritten_clauses(ProofState_p
          ClauseSetSort(state->tmp_store, ClauseCmpByStructWeight); 
       }
    }
+   PERF_CTR_EXIT(BWRWTimer);
    /*printf("# Removed %ld clauses\n",
      (state->tmp_store->members-old_clause_count)); */
    return min_rw;
@@ -447,6 +452,7 @@ static void generate_new_clauses(ProofState_p state, ProofControl_p
       ||!ClauseIsUnit(clause)
       ||!ClauseIsNegative(clause))
    { /* Sometime we want to disable paramodulation for negative units */
+      PERF_CTR_ENTRY(ParamodTimer);
       if(state->gindices.pm_into_index)
       {
          state->paramod_count+=
@@ -491,6 +497,7 @@ static void generate_new_clauses(ProofState_p state, ProofControl_p
                                     state->tmp_store, state->freshvars,
                                     control->heuristic_parms.pm_type);
       }
+      PERF_CTR_EXIT(ParamodTimer);
    }
 }
 

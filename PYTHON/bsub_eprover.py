@@ -35,7 +35,16 @@ Options:
 --jobs
    Determine maximal number of jobs to schedule.
 
+-x
+--ext-stats
+   Collect extendet statistics (including paramodulations, processed
+   clauses, ...).
 
+-X
+--ext2-stats
+   Collect extendet stats and profiling information (assumes the
+   prover is compiled with internal profiling support enabled).
+   
 Copyright 2010 Stephan Schulz, schulz@eprover.org
 
 This code is part of the support structure for the equational
@@ -173,6 +182,53 @@ def pegasus_cfg():
     """
     Where to store the job/run associations.
     """
+
+def pegasus_sine_cfg():
+    global tptp_dir, eprover_dir, testrun_dir, bsub_cmd, bjobs_cmd,\
+    bsub_rundir, old_job_dir, db_file
+
+    tptp_dir = "/nethome/sschulz/EPROVER/TPTP_4.1.0_SINE"
+    """
+    Where are the TPTP problem files?
+    """
+
+    eprover_dir = "/nethome/sschulz/bin"
+    """
+    Where is the eprover binary?
+    """
+
+    testrun_dir = "/nethome/sschulz/EPROVER/TESTRUNS_PEGASUS"
+    """
+    Where are spec- and protocol files?
+    """
+
+    bsub_cmd="bsub"
+    """
+    Name of the batch submission program (normally bsub, but we use cat
+    for testing).
+    """
+
+    bjobs_cmd="bjobs -w"
+    """
+    Command to list jobs in queue. Will be bjobs -w on the cluster.
+    """
+
+    bsub_rundir = "/nethome/sschulz/RUN"
+    """
+    Where will E run and deposit results?
+    """
+
+    old_job_dir = "/scratch/sschulz/e_jobs_done"
+    """
+    Where to move old result files (if any).
+    """
+
+    db_file = "/nethome/sschulz/RUN/bjob_db.db"
+    """
+    Where to store the job/run associations.
+    """
+
+
 
 
 max_bsub_jobs = 900
@@ -472,13 +528,34 @@ def process_strat(name, results, running, max_jobs, job_db):
     job_db.sync()
     return res
 
+
+x_stats = [
+    "# Generated clauses",
+    "# Paramodulations",
+    "# Current number of processed clauses",
+    "# Current number of unprocessed clauses"
+    ]
+x2_stats = [
+    "# PC(MguTimer)"
+    "# PC(SatTimer)"
+    "# PC(ParamodTimer)"
+    "# PC(PMIndexTimer)"
+    "# PC(BWRWTimer)"
+    "# PC(BWRWIndexTimer)"
+    "# Backwards rewriting index"
+    "# Paramod-from index"
+    "# Paramod-into index"
+]
+
 if __name__ == '__main__':
-    opts, args = getopt.gnu_getopt(sys.argv[1:], "hvpfb:j:x",
+    opts, args = getopt.gnu_getopt(sys.argv[1:], "hvpsfb:j:xX",
                                    ["--pegasus",
+                                    "--peg-sine",
                                     "--force",
                                     "--batchsize=",
                                     "--jobs="
-                                    "--ext-stats"])
+                                    "--ext-stats",
+                                    "--ext2-stats"])
     force_scheduling = False
     stats = ["# Processed clauses",
              "# Unification attempts",
@@ -493,6 +570,8 @@ if __name__ == '__main__':
             pylib_io.Verbose = 1
         elif option == "-p" or option == "--pegasus":
             pegasus_cfg()
+        elif option == "-s" or option == "--peg-sine":
+            pegasus_sine_cfg()
         elif option == "-f" or option == "--force":
             force_scheduling = True
         elif option =="-b" or option =="--batchsize":
@@ -500,10 +579,10 @@ if __name__ == '__main__':
         elif option =="-j" or option =="--jobs":
             max_bsub_jobs = int(optarg)
         elif option == "-x" or option == "--ext-stats":
-            stats.extend(["# Generated clauses",
-                          "# Paramodulations",
-                          "# Current number of processed clauses",
-                          "# Current number of unprocessed clauses"])
+            stats.extend(x_stats)
+        elif option == "-X" or option == "--ext2-stats":
+            stats.extend(x_stats)
+            stats.extend(x2_stats)
         else:
             sys.exit("Unknown option "+ option)
 

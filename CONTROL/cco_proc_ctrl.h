@@ -102,7 +102,7 @@ EPCtrl_p    EPCtrlSetFindProc(EPCtrlSet_p set, int fd);
 void        EPCtrlSetDeleteProc(EPCtrlSet_p set, EPCtrl_p proc);
 #define     EPCtrlSetEmpty(set) ((set)->procs==NULL)
 
-int         EPCtrlSetUnitFDSet(EPCtrlSet_p set, fd_set *rd_fds);
+int         EPCtrlSetFDSet(EPCtrlSet_p set, fd_set *rd_fds);
 
 EPCtrl_p    EPCtrlSetGetResult(EPCtrlSet_p set);
 

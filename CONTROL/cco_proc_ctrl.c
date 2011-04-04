@@ -367,7 +367,7 @@ void EPCtrlSetDeleteProc(EPCtrlSet_p set, EPCtrl_p proc)
 
 /*-----------------------------------------------------------------------
 //
-// Function: EPCtrlSetUnitFDSet()
+// Function: EPCtrlSetFDSet()
 //
 //   Set all file descriptor bits of the set in the fd_set data
 //   structure. Return the largest one.
@@ -378,7 +378,7 @@ void EPCtrlSetDeleteProc(EPCtrlSet_p set, EPCtrl_p proc)
 //
 /----------------------------------------------------------------------*/
 
-int EPCtrlSetUnitFDSet(EPCtrlSet_p set, fd_set *rd_fds)
+int EPCtrlSetFDSet(EPCtrlSet_p set, fd_set *rd_fds)
 {
    PStack_p trav_stack;
    int maxfd = 0;
@@ -424,7 +424,7 @@ EPCtrl_p EPCtrlSetGetResult(EPCtrlSet_p set)
    waittime.tv_sec  = 0;
    waittime.tv_usec = 500000;
 
-   maxfd = EPCtrlSetUnitFDSet(set, &readfds);
+   maxfd = EPCtrlSetFDSet(set, &readfds);
       
    select(maxfd+1, &readfds, &writefds, &errorfds, &waittime);
    

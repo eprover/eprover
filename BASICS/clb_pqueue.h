@@ -80,6 +80,12 @@ static __inline__ IntOrP   PQueueLookLast(PQueue_p queue);
 #define  PQueueLookLastP(Queue)   (PQueueLookLast(Queue).p_val)
 long     PQueueCardinality(PQueue_p queue);
 
+IntOrP   PQueueElement(PQueue_p queue, long index);
+#define  PQueueElementInt(Queue, index) (PQueueElement(Queue,index).i_val)
+#define  PQueueElementP(Queue, index) (PQueueElement(Queue,index).p_val)
+
+long     PQueueTailIndex(PQueue_p queue);
+long     PQueueIncIndex(PQueue_p queue, long index);
 
 /*---------------------------------------------------------------------*/
 /*                       Inline-Functions                              */

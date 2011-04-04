@@ -108,6 +108,70 @@ long PQueueCardinality(PQueue_p queue)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: PQueueElement()
+//
+//   Retutn the entry at absolute index index.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+IntOrP PQueueElement(PQueue_p queue, long index)
+{
+   return queue->queue[index];
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PQueueTailIndex()
+//
+//   Return the index of the tail (oldest, last) element (or -1 if the
+//   queue is empty). 
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+long PQueueTailIndex(PQueue_p queue)
+{
+   if(PQueueEmpty(queue))
+   {
+      return -1;
+   }
+   return queue->tail;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: PQueueIncIndex()
+//
+//   Given an index to a (used) element in the queue, return a similar
+//   index to to next element (or -1 if there is no next element).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long PQueueIncIndex(PQueue_p queue, long index)
+{
+   index = (index+1) % queue->size;
+   if(index == queue->head)
+   {
+      return -1;      
+   }
+   return index;
+}
+
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

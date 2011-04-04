@@ -29,6 +29,8 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
+PERF_CTR_DEFINE(PMIndexTimer);
+PERF_CTR_DEFINE(BWRWIndexTimer);
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -182,15 +184,22 @@ void GlobalIndicesInsertClause(GlobalIndices_p indices, Clause_p clause)
 
    if(indices->bw_rw_index)
    {
+      PERF_CTR_ENTRY(BWRWIndexTimer);
       SubtermIndexInsertClause(indices->bw_rw_index, clause);
+      PERF_CTR_EXIT(BWRWIndexTimer);
    }
+   
    if(indices->pm_into_index)
    {
+      PERF_CTR_ENTRY(PMIndexTimer);
       OverlapIndexInsertIntoClause(indices->pm_into_index, clause);
+      PERF_CTR_EXIT(PMIndexTimer);
    }
    if(indices->pm_from_index)
    {
+      PERF_CTR_ENTRY(PMIndexTimer);
       OverlapIndexInsertFromClause(indices->pm_from_index, clause);
+      PERF_CTR_EXIT(PMIndexTimer);
    }
 }
 
@@ -216,15 +225,22 @@ void GlobalIndicesDeleteClause(GlobalIndices_p indices, Clause_p clause)
 
    if(indices->bw_rw_index)
    {
+      PERF_CTR_ENTRY(BWRWIndexTimer);
       SubtermIndexDeleteClause(indices->bw_rw_index, clause);
+      PERF_CTR_EXIT(BWRWIndexTimer);
    }
+   
    if(indices->pm_into_index)
    {
+      PERF_CTR_ENTRY(PMIndexTimer);
       OverlapIndexDeleteIntoClause(indices->pm_into_index, clause);
+      PERF_CTR_EXIT(PMIndexTimer);
    }
    if(indices->pm_from_index)
    {
+      PERF_CTR_ENTRY(PMIndexTimer);
       OverlapIndexDeleteFromClause(indices->pm_from_index, clause);
+      PERF_CTR_EXIT(PMIndexTimer);
    }
 }
 

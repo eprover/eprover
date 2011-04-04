@@ -382,6 +382,54 @@ bool tformula_rename_test(TB_p bank, TFormula_p root, int pos,
 
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: extract_formula_core()
+//
+//   Remove all quantifiers from form and push the corresponding
+//   variables onto varstack.
+//
+// Global Variables: -
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p extract_formula_core(TB_p terms, TFormula_p form, PStack_p varstack)
+{
+   TFormula_p narg0, narg1;
+   PStackPointer sp;
+
+   while(TFormulaIsQuantified(terms->sig, form))
+   {
+      /* Skip over variables */
+      assert(form->f_code == terms->sig->qall_code);
+      PStackPushP(varstack, form->args[0]);
+      form = form->args[1];
+   }
+   if((form->f_code == terms->sig->and_code)||
+      (form->f_code == terms->sig->or_code))
+   {
+      sp = PStackGetSP(varstack);
+      narg0 = extract_formula_core(terms, form->args[0], varstack);
+      narg1 = extract_formula_core(terms, form->args[1], varstack);
+      if(PStackGetSP(varstack)!=sp)
+      {
+         form = TFormulaFCodeAlloc(terms, form->f_code, narg0, narg1);
+      }
+      else
+      {
+         /* Should be no change... */
+         assert(narg0 == form->args[0]);
+         assert(narg1 == form->args[1]);
+      }
+   }
+   /* else form already is elementary and quantor-free */  
+
+   return form;
+}
+
+
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -1227,7 +1275,12 @@ TFormula_p TFormulaSkolemizeOutermost(TB_p terms, TFormula_p form)
 //
 // Function: TFormulaShiftQuantors()
 //
-//   Shift all remaining all-quantors outward.
+//   Shift all remaining all-quantors outward. This has several
+//   premises: 
+//   - All quantified variables are disjoint from each other and from
+//     the free variables.
+//   - The formula is in negation normal form.
+//   - All quantifiers are universal.
 //
 // Global Variables: -
 //
@@ -1236,6 +1289,42 @@ TFormula_p TFormulaSkolemizeOutermost(TB_p terms, TFormula_p form)
 /----------------------------------------------------------------------*/
 
 TFormula_p TFormulaShiftQuantors(TB_p terms, TFormula_p form)
+{
+   Term_p var;
+   PStack_p stack;
+   
+   stack = PStackAlloc();
+   form = extract_formula_core(terms, form, stack);
+
+   while(!PStackEmpty(stack))
+   {
+      var = PStackPopP(stack);
+      form = TFormulaQuantorAlloc(terms, 
+                                  terms->sig->qall_code, 
+                                  var, 
+                                  form);         
+   }
+   PStackFree(stack);
+   return form;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaShiftQuantors()
+//
+//   Shift all remaining all-quantors outward. This has several
+//   premises: 
+//   - All quantified variables are disjoint from each other and from
+//     the free variables.
+//   - The formula is in negation normal form.
+//
+// Global Variables: -
+//
+// Side Effects    : Destroys original formula.
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p TFormulaShiftQuantorsOld2(TB_p terms, TFormula_p form)
 {
    TFormula_p narg1=NULL, narg2=NULL, newform;
    bool modified = false;

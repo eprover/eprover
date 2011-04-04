@@ -27,6 +27,7 @@ Changes
 
 #define CTE_MATCH_MGU_1_1
 
+#include <clb_os_wrapper.h>
 #include <cte_subst.h>
 
 /*---------------------------------------------------------------------*/
@@ -44,6 +45,9 @@ Changes
 extern long UnifAttempts;
 extern long UnifSuccesses;
 #endif
+
+PERF_CTR_DECL(MguTimer);
+
 
 bool SubstComputeMatch(Term_p matcher, Term_p to_match, Subst_p subst,
 		       TermEqualTestFun EqualTest);

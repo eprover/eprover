@@ -36,6 +36,8 @@ long UnifAttempts  = 0;
 long UnifSuccesses = 0;
 #endif
 
+PERF_CTR_DEFINE(MguTimer);
+
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -240,6 +242,7 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
 #ifdef MEASURE_UNIFICATION
    UnifAttempts++;
 #endif
+   PERF_CTR_ENTRY(MguTimer);
 
    if((TermCellQueryProp(t1, TPPredPos) && TermIsVar(t2))||
       (TermCellQueryProp(t2, TPPredPos) && TermIsVar(t1)))
@@ -312,6 +315,7 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
 #ifdef MEASURE_UNIFICATION
    UnifSuccesses++;
 #endif
+   PERF_CTR_EXIT(MguTimer);
    return true;
 }
 
