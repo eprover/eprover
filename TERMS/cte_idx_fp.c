@@ -40,6 +40,8 @@ char* FPIndexNames[] =
    "FP4D",
    "FP4W",
    "FP4M",
+   "FP5M",
+   "FP6M",
    "FP7",
    "FP4X2_2",
    "FP3DFlex",
@@ -58,6 +60,8 @@ static FPIndexFunction fp_index_funs[] =
    IndexFP4DCreate,
    IndexFP4WCreate,
    IndexFP4MCreate,
+   IndexFP5MCreate,
+   IndexFP6MCreate,
    IndexFP7Create,
    IndexFP4X2_2Create,
    IndexFP3DFlexCreate,
@@ -409,6 +413,62 @@ IndexFP_p IndexFP4MCreate(Term_p t)
    return res;
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: IndexFP5MCreate()
+//
+//   Create a fingerprint structure representing sampling at epsilon,
+//   0, 1, 2, 0.0
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+IndexFP_p IndexFP5MCreate(Term_p t)
+{
+   IndexFP_p res = SizeMalloc(sizeof(FunCode)*6);
+
+   res[0] = 6;
+   res[1] = TermFPSample(t, -1);
+   res[2] = TermFPSample(t, 0, -1);
+   res[3] = TermFPSample(t, 1, -1);
+   res[4] = TermFPSample(t, 2, -1);
+   res[5] = TermFPSample(t, 0, 0, -1);
+
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: IndexFP6MCreate()
+//
+//   Create a fingerprint structure representing sampling at epsilon,
+//   0, 1, 2, 0.0, 0.1
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+IndexFP_p IndexFP6MCreate(Term_p t)
+{
+   IndexFP_p res = SizeMalloc(sizeof(FunCode)*7);
+
+   res[0] = 7;
+   res[1] = TermFPSample(t, -1);
+   res[2] = TermFPSample(t, 0, -1);
+   res[3] = TermFPSample(t, 1, -1);
+   res[4] = TermFPSample(t, 2, -1);
+   res[5] = TermFPSample(t, 0, 0, -1);
+   res[6] = TermFPSample(t, 0, 1, -1);
+
+   return res;
+}
 
 /*-----------------------------------------------------------------------
 //

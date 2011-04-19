@@ -154,33 +154,7 @@ eliminate_backward_rewritten_clauses(ProofState_p
          min_rw = RemoveRewritableClausesIndexed(control->ocb,
                                                  state->tmp_store,
                                                  clause, *date, &(state->gindices));
-
-         /*{
-            long res; 
-            PStack_p stack = PStackAlloc();
-            Clause_p found;
-   
-            res = FindRewritableClauses(control->ocb,
-                                        state->processed_pos_rules,
-                                        stack, clause, *date);
-            res = FindRewritableClauses(control->ocb,
-                                        state->processed_pos_eqns,
-                                        stack, clause, *date);
-            res = FindRewritableClauses(control->ocb,
-                                        state->processed_neg_units,
-                                        stack, clause, *date);
-            res = FindRewritableClauses(control->ocb,
-                                        state->processed_non_units,
-                                        stack, clause, *date);
-            while(!PStackEmpty(stack))
-            {
-               found = PStackPopP(stack);
-               printf("==>"); ClausePrint(stdout, found, true);
-               printf("  =Q=  "); ClausePrint(stdout, clause, true);
-               printf("\n");
-            }
-            PStackFree(stack);
-            }*/
+         
       }
       else
       {

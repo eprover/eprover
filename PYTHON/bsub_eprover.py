@@ -536,14 +536,14 @@ x_stats = [
     "# Current number of unprocessed clauses"
     ]
 x2_stats = [
-    "# PC(MguTimer)"
-    "# PC(SatTimer)"
-    "# PC(ParamodTimer)"
-    "# PC(PMIndexTimer)"
-    "# PC(BWRWTimer)"
-    "# PC(BWRWIndexTimer)"
-    "# Backwards rewriting index"
-    "# Paramod-from index"
+    "# PC(MguTimer)",
+    "# PC(SatTimer)",
+    "# PC(ParamodTimer)",
+    "# PC(PMIndexTimer)",
+    "# PC(BWRWTimer)",
+    "# PC(BWRWIndexTimer)",
+    "# Backwards rewriting index",
+    "# Paramod-from index",
     "# Paramod-into index"
 ]
 
