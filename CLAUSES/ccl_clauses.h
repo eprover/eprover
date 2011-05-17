@@ -217,6 +217,7 @@ void     ClauseFree(Clause_p junk);
 
 #define  ClauseIsEmpty(clause) (ClauseLiteralNumber(clause)==0)
 
+bool     ClauseIsSemFalse(Clause_p clause);
 #define  ClauseIsGoal(clause) (!((clause)->pos_lit_no))
 #define  ClauseIsHorn(clause) ((clause)->pos_lit_no <= 1)
 #define  ClauseIsUnit(clause) (ClauseLiteralNumber(clause)==1)

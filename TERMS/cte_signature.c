@@ -152,29 +152,34 @@ Sig_p SigAlloc(void)
    handle->cnil_code     = 0;
    handle->orn_codes     = NULL;
 
-   handle->or_code       = 0;
-   handle->not_code      = 0;
-   handle->qex_code      = 0;
-   handle->qall_code     = 0;
-   handle->and_code      = 0;
-   handle->or_code       = 0;
-   handle->impl_code     = 0;
-   handle->equiv_code    = 0;
-   handle->nand_code     = 0;
-   handle->nor_code      = 0;
-   handle->bimpl_code    = 0;
-   handle->xor_code      = 0;
+   handle->or_code           = 0;
+   handle->not_code          = 0;
+   handle->qex_code          = 0;
+   handle->qall_code         = 0;
+   handle->and_code          = 0;
+   handle->or_code           = 0;
+   handle->impl_code         = 0;
+   handle->equiv_code        = 0;
+   handle->nand_code         = 0;
+   handle->nor_code          = 0;
+   handle->bimpl_code        = 0;
+   handle->xor_code          = 0;
+   handle->answer_code       = 0;
+   handle->multi_answer_code = 0;
 
-   handle->skolem_count  = 0;
-   handle->newpred_count = 0;
+   handle->skolem_count      = 0;
+   handle->newpred_count     = 0;
    
    handle->distinct_props = FPDistinctProp;
    return handle;
 }
 
+
+
+
 /*-----------------------------------------------------------------------
 //
-// Function: SigInitFOFCodes()
+// Function: SigInitInternalCodes()
 //
 //   Put all the FOF operators as function symbols into sig. Sig
 //   should be empty, so that sig->internal symbols can be properly
@@ -188,7 +193,7 @@ Sig_p SigAlloc(void)
 //
 /----------------------------------------------------------------------*/
 
-void SigInsertFOFCodes(Sig_p sig)
+void SigInsertInternalCodes(Sig_p sig)
 {
    assert((SigSupportLists && sig->internal_symbols == SIG_CONS_CODE) ||
           (!SigSupportLists && sig->internal_symbols == SIG_FALSE_CODE));
@@ -210,6 +215,17 @@ void SigInsertFOFCodes(Sig_p sig)
    sig->nor_code   = SigInsertFOFOp(sig, "$nor",   2);
    sig->bimpl_code = SigInsertFOFOp(sig, "$bimpl", 2);
    sig->xor_code   = SigInsertFOFOp(sig, "$xor",   2);
+
+   sig->xor_code   = SigInsertFOFOp(sig, "$xor",   2);
+
+   sig->answer_code =  SigInsertId(sig, "$answer", 1, true);
+   SigSetPredicate(sig, sig->answer_code, true);
+   SigSetFuncProp(sig, sig->answer_code, FPInterpreted|FPPseudoPred);
+
+   sig->multi_answer_code =  SigInsertId(sig, "$m_answer", 1, true);
+   SigSetPredicate(sig, sig->multi_answer_code, true);
+   SigSetFuncProp(sig, sig->multi_answer_code, FPInterpreted|FPPseudoPred);
+
    sig->internal_symbols = sig->f_count;
 }
 

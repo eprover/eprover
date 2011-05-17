@@ -673,6 +673,33 @@ void ClauseFree(Clause_p junk)
 
 /*-----------------------------------------------------------------------
 //
+// Function: ClauseIsSemFalse()
+//
+//   Return true if the clause has only PseudoLiterals.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool ClauseIsSemFalse(Clause_p clause)
+{
+   Eqn_p handle;
+
+   for(handle=clause->literals; handle; handle = handle->next)
+   {
+      if(!EqnQueryProp(handle, EPPseudoLit))
+      {
+         return false;
+      }
+   }
+   return true;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: ClauseIsRangeRestricted()
 //
 //   Return true if clause is range-restricted, i.e. if all variables

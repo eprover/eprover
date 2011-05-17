@@ -62,7 +62,7 @@ PCLProt_p PCLProtAlloc(void)
    PCLProt_p handle = PCLProtCellAlloc();
    Sig_p sig = SigAlloc();
 
-   SigInsertFOFCodes(sig);
+   SigInsertInternalCodes(sig);
    handle->terms = TBAlloc(sig);
    handle->number = 0;
    handle->steps = NULL;

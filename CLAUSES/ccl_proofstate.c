@@ -71,7 +71,7 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    ProofState_p handle = ProofStateCellAlloc();
 
    handle->signature            = SigAlloc();
-   SigInsertFOFCodes(handle->signature);
+   SigInsertInternalCodes(handle->signature);
    handle->original_symbols     = 0;
    handle->original_terms       = TBAlloc(handle->signature);
    handle->terms                = TBAlloc(handle->signature);

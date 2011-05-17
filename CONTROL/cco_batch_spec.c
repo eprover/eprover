@@ -291,7 +291,7 @@ StructFOFSpec_p StructFOFSpecAlloc(void)
    StructFOFSpec_p handle = StructFOFSpecCellAlloc();
 
    handle->sig             = SigAlloc();
-   SigInsertFOFCodes(handle->sig);
+   SigInsertInternalCodes(handle->sig);
    handle->terms           = TBAlloc(handle->sig);
    handle->clause_sets     = PStackAlloc();
    handle->formula_sets    = PStackAlloc();

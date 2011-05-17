@@ -38,8 +38,8 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* cvs tag E-1-2-015 */
-#define VERSION      "1.2-015"
+/* cvs tag E-1-2-016 */
+#define VERSION      "1.2-016"
 
 #define E_NICKNAME     "Badamtam"
 

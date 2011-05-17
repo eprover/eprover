@@ -42,7 +42,33 @@ PERF_CTR_DEFINE(BWRWTimer);
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
+/*-----------------------------------------------------------------------
+//
+// Function: document_processing()
+//
+//   Document processing of the new given clause (depending on the
+//   output level).
+//
+// Global Variables: OutputLevel, GlobalOut (read only)
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
 
+void document_processing(Clause_p clause)
+{
+   if(OutputLevel)
+   {
+      if(OutputLevel == 1)
+      {
+	 putc('\n', GlobalOut);
+	 putc('#', GlobalOut);
+	 ClausePrint(GlobalOut, clause, true);
+	 putc('\n', GlobalOut);
+      }
+      DocClauseQuoteDefault(6, clause, "new_given");
+   }
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -584,6 +610,64 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
    }
    return NULL;
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: replacing_inferences()
+//
+//   Perform the inferences that replace a clause by another:
+//   Destructive equality-resolution and/or splitting.
+//
+//   Returns NULL if clause was replaced, the empty clause if this
+//   produced an empty clause, and the original clause otherwise
+//
+// Global Variables: -
+//
+// Side Effects    : May insert new clauses into state. May destroy
+//                   pclause (in which case it gets rid of the container)
+//
+/----------------------------------------------------------------------*/
+
+Clause_p replacing_inferences(ProofState_p state, ProofControl_p
+                              control, FVPackedClause_p pclause)
+{
+   long     clause_count;
+   Clause_p res = pclause->clause;
+
+   if(control->heuristic_parms.er_varlit_destructive &&
+      (clause_count = 
+       ClauseERNormalizeVar(state->terms,
+                            pclause->clause,
+                            state->tmp_store,
+                            state->freshvars,
+                            control->heuristic_parms.er_strong_destructive)))
+   {
+      state->other_redundant_count += clause_count;
+      state->resolv_count += clause_count;
+      pclause->clause = NULL;
+   }
+   else if(ControlledClauseSplit(state->definition_store,
+                                 pclause->clause, state->tmp_store,
+				 control->heuristic_parms.split_clauses,
+				 control->heuristic_parms.split_method,
+				 control->heuristic_parms.split_fresh_defs))
+   {
+      pclause->clause = NULL;
+   }
+   
+   if(!pclause->clause) 
+   {  /* ...then it has been destroyed by one of the above methods,
+       * which may have put some clauses into tmp_store. */
+      FVUnpackClause(pclause);
+      
+      res = insert_new_clauses(state, control);
+   }
+   return res;
+}
+
+
+
 #ifdef PRINT_SHARING
 
 /*-----------------------------------------------------------------------
@@ -942,10 +1026,9 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
 
 Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
 {
-   Clause_p         clause, tmp_copy, empty;
+   Clause_p         clause, resclause, tmp_copy, empty;
    FVPackedClause_p pclause;
    SysDate          clausedate;
-   long             clause_count;
 
    clause = control->hcb->hcb_select(control->hcb,
 				     state->unprocessed);   
@@ -966,72 +1049,39 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
    ClauseRemoveEvaluations(clause);
    
    assert(!ClauseQueryProp(clause, CPIsIRVictim));
-   pclause = ForwardContractClause(state, control, clause, true, 
-				   control->heuristic_parms.forward_context_sr,
-				   FullRewrite);
-   if(!pclause)
+
+   if(!(pclause = ForwardContractClause(state, control,
+                                        clause, true, 
+                                        control->heuristic_parms.forward_context_sr,
+                                        FullRewrite)))
    {
       return NULL;
    }
-   assert(ClauseIsSubsumeOrdered(pclause->clause));
-   check_ac_status(state, control, pclause->clause);
-
-   if(OutputLevel)
+   if(ClauseIsSemFalse(pclause->clause))
    {
-      if(OutputLevel == 1)
-      {
-	 putc('\n', GlobalOut);
-	 putc('#', GlobalOut);
-	 ClausePrint(GlobalOut, pclause->clause, true);
-	 putc('\n', GlobalOut);
-      }
-      DocClauseQuoteDefault(6, pclause->clause, "new_given");
+      printf("***False***\n");
    }
-   assert(ClauseIsSubsumeOrdered(pclause->clause));
-
-   state->proc_non_trivial_count++;
-
-   if(control->heuristic_parms.er_varlit_destructive &&
-      (clause_count = 
-       ClauseERNormalizeVar(state->terms,
-                            pclause->clause,
-                            state->tmp_store,
-                            state->freshvars,
-                            control->heuristic_parms.er_strong_destructive)))
+   if(ClauseIsEmpty(pclause->clause))
    {
-      state->other_redundant_count += clause_count;
-      state->resolv_count += clause_count;
-      pclause->clause = NULL;
-   }
-   else if(ControlledClauseSplit(state->definition_store,
-                                 pclause->clause, state->tmp_store,
-				 control->heuristic_parms.split_clauses,
-				 control->heuristic_parms.split_method,
-				 control->heuristic_parms.split_fresh_defs))
-   {
-      pclause->clause = NULL;
-   }
-   
-   if(!pclause->clause) 
-   {  /* ...then it has been destroyed by one of the above methods,
-       * which may have put some clauses into tmp_store. */
-      if((empty = insert_new_clauses(state, control)))
-      {
-	 return empty;
-      }
       return FVUnpackClause(pclause);
    }
-
+   assert(ClauseIsSubsumeOrdered(pclause->clause));
+   check_ac_status(state, control, pclause->clause);
+   
+   document_processing(pclause->clause);
+   state->proc_non_trivial_count++;
+   
+   resclause = replacing_inferences(state, control, pclause);
+   if(!resclause || ClauseIsEmpty(resclause))
+   {
+      return resclause;
+   }
+   
    if(state->watchlist)
    {
       check_watchlist(&(state->gindices), state->watchlist, pclause->clause);
    }
     
-   if(ClauseIsEmpty(pclause->clause))
-   {
-      return FVUnpackClause(pclause);
-   }
-
    /* Now on to backward simplification. */   
    clausedate = ClauseSetListGetMaxDate(state->demods, FullRewrite);
 

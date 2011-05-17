@@ -62,7 +62,7 @@ PCLMiniProt_p PCLMiniProtAlloc(void)
    PCLMiniProt_p handle = PCLMiniProtCellAlloc();
    Sig_p sig = SigAlloc();
 
-   SigInsertFOFCodes(sig);
+  SigInsertInternalCodes(sig);
    handle->terms = TBAlloc(sig);
    handle->steps = PDArrayAlloc(1,500000);
    handle->max_ident = 0;

@@ -61,12 +61,15 @@ typedef enum
 				   constants */
    EPIsSelected        =  1024, /* For selective superpostion */
    EPIsPMIntoLit       =  2048, /* For inheriting selection */
-   EPLPatMinimal       =  4096, /* Eqn l=r is Pattern-Minimal */
-   EPRPatMinimal       =  8192, /* Eqn r=l is Pattern-Minimal */
-   EPIsSplitLit        = 16384, /* This literal has been introduced by
-				   splitting */
-   EPFromClauseLit     = 32768  /* This comes from the from clause in
+   EPFromClauseLit     =  4096, /* This comes from the from clause in
                                    a paramod step */
+   EPPseudoLit         =  8192, /* This is a pseudo-literal that does
+                                   not contribute to the semantic
+                                   evaluation of the clause. */
+   EPLPatMinimal       = 16384, /* Eqn l=r is Pattern-Minimal */
+   EPRPatMinimal       = 32768, /* Eqn r=l is Pattern-Minimal */
+   EPIsSplitLit        = 65636  /* This literal has been introduced by
+				   splitting */
 }EqnProperties;
 
 

@@ -530,6 +530,10 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
       printf("\n"); */
       assert(SigQueryFuncProp(bank->sig, lterm->f_code, FPPredSymbol));      
       TermCellSetProp(lterm, TPPredPos);
+      if(SigQueryFuncProp(bank->sig, lterm->f_code, FPPseudoPred))
+      {
+         EqnSetProp(handle, EPPseudoLit);      
+      }
    }
    handle->bank = bank;   
    handle->next = NULL;
@@ -1949,6 +1953,8 @@ bool EqnGreater(OCB_p ocb, Eqn_p eq1, Eqn_p eq2)
 //     ones, and selected positive and negative equations are
 //     uncomparable.
 //
+//     Finally, pseudo-literals are smaller than all other literals.
+//
 //
 // Global Variables: -
 //
@@ -1958,6 +1964,16 @@ bool EqnGreater(OCB_p ocb, Eqn_p eq1, Eqn_p eq2)
 
 CompareResult LiteralCompare(OCB_p ocb, Eqn_p eq1, Eqn_p eq2)
 {
+   if(EqnQueryProp(eq1, EPPseudoLit) && 
+      !(EqnQueryProp(eq2, EPPseudoLit)))
+   {
+      return to_lesser;
+   }   
+   if(EqnQueryProp(eq2, EPPseudoLit) && 
+      !(EqnQueryProp(eq1, EPPseudoLit)))
+   {
+      return to_greater;
+   }
    if(!EqnIsSelected(eq1))
    {
       if(EqnIsSelected(eq2))

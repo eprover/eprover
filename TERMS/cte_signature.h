@@ -56,7 +56,11 @@ typedef enum
    FPDistinctProp =  FPIsObject | FPIsInteger | FPIsRational | FPIsFloat,
    FPOpFlag       = 2048, /* Used for temporary oerations, by
                            * defintion off if not in use! */
-   FPClSplitDef   = 4096  /* Predicate is a clause split defined symbol. */
+   FPClSplitDef   = 4096, /* Predicate is a clause split defined
+                           * symbol. */
+   FPPseudoPred   = 8192  /* Pseudo-predicate used for side effects
+                           * only, does not conceptually contribute to
+                           * truth of clause */
 }FunctionProperties;
 
 
@@ -103,7 +107,7 @@ typedef struct sigcell
    FunCode   neqn_code;
    FunCode   cnil_code;
    PDArray_p orn_codes;
-   
+
    /* The following is for encoding first order formulae as terms. I
       do like to reuse the robust sharing infrastructure for
       CNFization and formula rewriting (inspired by Tommi Juntilla's
@@ -119,6 +123,10 @@ typedef struct sigcell
    FunCode   nor_code;
    FunCode   bimpl_code;
    FunCode   xor_code;
+   /* And here are codes for interpreted symbols */
+   FunCode   answer_code;       /* For answer literals */
+   FunCode   multi_answer_code; /* For multi-answer literals */
+   
    /* Counters for generating new symbols */
    long      skolem_count;
    long      newpred_count;
@@ -169,7 +177,7 @@ extern bool      SigSupportLists; /* Auto-Insert special symbols
 #define SigCellFree(junk)         SizeFree(junk, sizeof(SigCell))
 
 Sig_p   SigAlloc(void);
-void    SigInsertFOFCodes(Sig_p sig);
+void    SigInsertInternalCodes(Sig_p sig);
 void    SigFree(Sig_p junk);
 #define SigExternalSymbols(sig) \
         ((sig)->f_count-(sig)->internal_symbols)

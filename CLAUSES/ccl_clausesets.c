@@ -1269,7 +1269,7 @@ void ClauseSetSortLiterals(ClauseSet_p set, ComparisonFunctionType cmp_fun)
 //
 // Function: ClauseSetListGetMaxDate()
 //
-//   Return the oldest date of a first limit elements from set of
+//   Return the oldest date of the first limit elements from set of
 //   demodulators in the array demodulators. 
 //
 // Global Variables: -

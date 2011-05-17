@@ -67,14 +67,20 @@ void   XXXFree(XXX_p junk);
 #define ESessionCellAlloc()    (ESessionCell*)SizeMalloc(sizeof(ESessionCell))
 #define ESessionCellFree(junk) SizeFree(junk, sizeof(ESessionCell))
 
-ESession_p  ESessionAlloc();
+ESession_p  ESessionAlloc(int sock);
 void        ESessionFree(ESession_p junk);
 
-int         ESessionInitFDSet(ESession_p server, 
+int         ESessionInitFDSet(ESession_p session, 
                               fd_set *rd_fds,  
                               fd_set *wr_fds);
 
+#define     ESessionSetState(session, state) (session)->state = state
 
+void        ESessionDoIO(ESession_p session, 
+                         fd_set *rd_fds,  
+                         fd_set *wr_fds);
+
+void        ESessionProcessCmds(ESession_p session);
 
 #endif
 
