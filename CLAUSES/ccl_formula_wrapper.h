@@ -49,6 +49,7 @@ typedef enum
    WPTypeLemma      = CPTypeLemma,      /* Formula is Lemma */
    WPTypeNegConjecture = CPTypeNegConjecture, /* Formula is
                                                * NegConjecture */
+   WPTypeQuestion   = CPTypeQuestion,
    WPIsRelevant     = CPIsRelevant
 }WFormulaProperties;
 

@@ -68,6 +68,7 @@ typedef enum
    OPT_SOFTCPU_LIMIT,
    OPT_RUSAGE_INFO,
    OPT_STEP_LIMIT,
+   OPT_ANSWER_LIMIT,
    OPT_PROC_LIMIT,
    OPT_UNPROC_LIMIT,
    OPT_TOTAL_LIMIT,
@@ -350,6 +351,15 @@ OptCell opts[] =
     ReqArg, NULL,
     "Set the maximal number of clauses to process (i.e. the number"
     " of traversals of the main-loop)."},
+   
+   {OPT_ANSWER_LIMIT,
+    '\0', "answers",
+    OptArg, "2147483648",
+    "Set the maximal number of answers to print for existentially"
+    " quantified questions. Without this option, the prover terminates"
+    " after the first answer found. If the value is different from 1, "
+    "the prover is no longer guaranteed to terminate, even if there is"
+    " a finite number of answers."},
    
    {OPT_PROC_LIMIT,
     'P', "processed-set-limit",
@@ -1097,6 +1107,7 @@ bool              print_sat = false,
 
 IOFormat          parse_format = LOPFormat;
 long              step_limit = LONG_MAX, 
+                  answer_limit = 1,
                   proc_limit = LONG_MAX,
                   unproc_limit = LONG_MAX, 
                   total_limit = LONG_MAX,
@@ -1207,7 +1218,7 @@ int main(int argc, char* argv[])
    }
 
    if((neg_conjectures =
-       FormulaSetPreprocConjectures(proofstate->f_axioms)))
+       FormulaSetPreprocConjectures(proofstate->f_axioms, answer_limit>0)))
    {
       VERBOUT("Negated conjectures.\n");
    }
@@ -1245,7 +1256,7 @@ int main(int argc, char* argv[])
 
       proofcontrol->heuristic_parms.selection_strategy = SelectNoGeneration;
       success = Saturate(proofstate, proofcontrol, LONG_MAX,
-                         LONG_MAX, LONG_MAX, LONG_MAX);
+                         LONG_MAX, LONG_MAX, LONG_MAX, LONG_MAX);
       fprintf(GlobalOut, "# Presaturation interreduction done\n");
       proofcontrol->heuristic_parms.selection_strategy = sel_strat;
       if(!success)
@@ -1258,7 +1269,7 @@ int main(int argc, char* argv[])
    if(!success)
    {      
       success = Saturate(proofstate, proofcontrol, step_limit,
-                         proc_limit, unproc_limit, total_limit);
+                         proc_limit, unproc_limit, total_limit, answer_limit);
    }
    PERF_CTR_EXIT(SatTimer);
    
@@ -1274,9 +1285,12 @@ int main(int argc, char* argv[])
       }
    }
    
-   if(success)
+   if(success||proofstate->answer_count)
    {
-      DocClauseQuoteDefault(2, success, "proof");
+      if(success)
+      {
+         DocClauseQuoteDefault(2, success, "proof");
+      }      
       fprintf(GlobalOut, "\n# Proof found!\n");
       TSTPOUT(GlobalOut, neg_conjectures?"Theorem":"Unsatisfiable");
    }
@@ -1646,6 +1660,10 @@ CLState_p process_options(int argc, char* argv[])
 	    break;
       case OPT_STEP_LIMIT:
 	    step_limit = CLStateGetIntArg(handle, arg);
+	    break;
+      case OPT_ANSWER_LIMIT:
+	    answer_limit = CLStateGetIntArg(handle, arg);
+            
 	    break;
       case OPT_PROC_LIMIT:
 	    proc_limit = CLStateGetIntArg(handle, arg);

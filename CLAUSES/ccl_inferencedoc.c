@@ -63,6 +63,7 @@ char* pcl_type_str(ClauseProperties type)
    switch(type)
    {
    case CPTypeConjecture:
+   case CPTypeQuestion:
          res = "conj";
          break;
    case CPTypeNegConjecture:
@@ -544,6 +545,41 @@ static void print_minimize(FILE* out, Clause_p clause, long
 
 /*-----------------------------------------------------------------------
 //
+// Function: print_eval_answer()
+//
+//   Print a clause modification by answer-literal-elimination.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+static void print_eval_answer(FILE* out, Clause_p clause, long
+                              old_id, char* comment)
+{
+   switch(DocOutputFormat)
+   {
+   case pcl_format:
+	 pcl_print_start(out, clause);
+	 fprintf(out, PCL_EVANS"(%ld)", old_id);
+	 pcl_print_end(out, comment, clause);
+	 break;
+   case tstp_format:
+         ClauseTSTPPrint(out, clause, PCLFullTerms, false);
+         fprintf(out, 
+                 ",inference("PCL_EVANS",[status(thm)],[c_0_%ld, theory(answers)])", 
+                 old_id);
+         tstp_print_end(out, comment, clause);
+         break;
+   default:
+	 fprintf(out, "# Output format not implemented.\n");
+	 break;
+   }   
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: print_rewrite()
 //
 //   Print a series of rewrite steps.
@@ -1013,6 +1049,40 @@ static void print_distribute(FILE* out, WFormula_p form,
    }
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: print_annotate_question()
+//
+//   Print a step adding answer literals.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+static void print_annotate_question(FILE* out, WFormula_p form, 
+                                    long old_id, char *comment)
+{
+   switch(DocOutputFormat)
+   {
+   case pcl_format:
+	 pcl_formula_print_start(out, form);
+         fprintf(out, PCL_ANNOQ"(%ld)", old_id);
+	 pcl_formula_print_end(out, comment);
+	 break;
+   case tstp_format:
+	 WFormulaTSTPPrint(out, form, PCLFullTerms, false);
+         fprintf(out, ",inference("PCL_ANNOQ", [status(thm)],[c_0_%ld,theory(answers)])", old_id);
+         tstp_formula_print_end(out, comment);
+	 break;
+   default:
+	 fprintf(out, "# Output format not implemented.\n");
+	 break;
+   }
+}
+
+
 
 
 /*-----------------------------------------------------------------------
@@ -1219,7 +1289,13 @@ void DocClauseModification(FILE* out, long level, Clause_p clause, InfType
 	    clause->ident = ++ClauseIdentCounter;
 	    print_minimize(out, clause, old_id, comment);
 	    break;	    
-       /* inf_rewrite is special and handled below !*/
+      case inf_eval_answers:
+	    assert(clause);
+	    assert(!partner);
+	    clause->ident = ++ClauseIdentCounter;
+	    print_eval_answer(out, clause, old_id, comment);
+	    break;	    
+         /* inf_rewrite is special and handled below !*/
       default:
 	    fprintf(out, "# Clause modification %d not yet implemented.\n",op);
 	    break;
@@ -1440,6 +1516,9 @@ void DocFormulaModification(FILE* out, long level, WFormula_p form,
             break;
       case inf_fof_distrib:
             print_distribute(out, form, old_id, comment);
+            break;
+      case inf_annotate_question:
+            print_annotate_question(out, form, old_id, comment);
             break;
       default:
             break;

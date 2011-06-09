@@ -401,7 +401,7 @@ int main(int argc, char* argv[])
                                   fstate->f_axioms,
                                   fstate->original_terms, NULL, &
                                   skip_includes);
-         FormulaSetPreprocConjectures(fstate->f_axioms);
+         FormulaSetPreprocConjectures(fstate->f_axioms, false);
          FormulaSetCNF(fstate->f_axioms, fstate->axioms, 
                        fstate->original_terms, fstate->freshvars);
          

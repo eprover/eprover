@@ -61,6 +61,8 @@ typedef enum
    PCLOpFOFDeMorgan,
    PCLOpFOFDistributeQuantors,
    PCLOpFOFDistributeDisjunction,
+   PCLOpAnnotateQuestion,
+   PCLOpEvalAnswers,
    PCLOpFOFVarRename,
    PCLOpFOFSkolemize,
    PCLOpFOFAssumeNegation,

@@ -76,6 +76,8 @@ int     EqnListRemoveDuplicates(Eqn_p list, TermEqualTestFun
 				EqualTest);
 int     EqnListRemoveResolved(EqnRef list);
 int     EqnListRemoveACResolved(EqnRef list);
+int     EqnListRemoveSimpleAnswers(EqnRef list);
+
 Eqn_p   EqnListFindNegPureVarLit(Eqn_p list);
 
 Eqn_p   EqnListFindTrue(Eqn_p list);

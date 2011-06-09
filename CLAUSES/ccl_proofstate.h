@@ -68,6 +68,9 @@ typedef struct proofstatecell
    GlobalIndices     wlindices;
    bool              state_is_complete;
    DefStore_p        definition_store;
+
+   ulong_c           answer_count;
+
    ulong_c           processed_count;
    ulong_c           proc_trivial_count;
    ulong_c           proc_forward_subsumed_count;

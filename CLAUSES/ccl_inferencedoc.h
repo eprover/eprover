@@ -56,6 +56,8 @@ typedef enum
    inf_fof_apply_def,
    inf_shift_quantors,
    inf_fof_distrib,
+   inf_annotate_question,
+   inf_eval_answers,
    inf_var_rename,
    inf_skolemize_out,
    inf_neg_conjecture
@@ -75,7 +77,7 @@ typedef enum
 #define PCL_QUOTE NULL
 #define PCL_ER    "er"
 #define PCL_PM    "pm"
-#define PCL_SPM    "spm"
+#define PCL_SPM   "spm"
 #define PCL_EF    "ef"
 #define PCL_OF    "of"
 #define PCL_SPLIT "split"
@@ -97,6 +99,8 @@ typedef enum
 #define PCL_VR    "variable_rename"
 #define PCL_SK    "skolemize"
 #define PCL_DSTR  "distribute"
+#define PCL_ANNOQ "add_answer_literal"
+#define PCL_EVANS "eval_answer_literal"
 #define PCL_NC    "assume_negation"
 
 /*---------------------------------------------------------------------*/

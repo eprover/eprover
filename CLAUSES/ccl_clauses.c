@@ -700,6 +700,34 @@ bool ClauseIsSemFalse(Clause_p clause)
 
 /*-----------------------------------------------------------------------
 //
+// Function: ClauseIsSemEmpty()
+//
+//   Return true if the clause has only simple answer literals. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool ClauseIsSemEmpty(Clause_p clause)
+{
+   Eqn_p handle;
+
+   for(handle=clause->literals; handle; handle = handle->next)
+   {
+      if(!EqnIsSimpleAnswer(handle))
+      {
+         return false;
+      }
+   }
+   return true;
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: ClauseIsRangeRestricted()
 //
 //   Return true if clause is range-restricted, i.e. if all variables
@@ -1553,6 +1581,10 @@ ClauseProperties ClauseTypeParse(Scanner_p in, char *legal_types)
                 "axiom|definition|theorem"))
    {
       res = CPTypeAxiom;
+   }
+   else if(TestInpId(in, "question"))
+   {
+      res = CPTypeQuestion;
    }
    else if(TestInpId(in, "conjecture"))
    {

@@ -231,7 +231,7 @@ PCLExpr_p PCLExprParse(Scanner_p in, bool mini)
       CheckInpId(in, PCL_ER"|"PCL_PM"|"PCL_SPM"|"PCL_EF"|"PCL_RW"|"
 		 PCL_SR"|"PCL_CSR"|"PCL_ACRES"|"PCL_CN"|"PCL_SPLIT"|"
                  PCL_SC"|"PCL_SE"|"PCL_FS"|"PCL_NNF"|"PCL_ID"|"PCL_AD"|"PCL_SQ"|"PCL_VR"|"
-                 PCL_SK"|"PCL_DSTR"|"PCL_NC  );
+                 PCL_SK"|"PCL_DSTR"|"PCL_ANNOQ"|"PCL_EVANS"|"PCL_NC  );
 
       if(TestInpId(in, PCL_ER))
       {
@@ -333,7 +333,17 @@ PCLExpr_p PCLExprParse(Scanner_p in, bool mini)
 	 handle->op=PCLOpFOFDistributeDisjunction;
 	 arg_no=1;
       }
-      else if(TestInpId(in, PCL_NC))
+      else if(TestInpId(in, PCL_ANNOQ))
+      {
+	 handle->op=PCLOpAnnotateQuestion;
+	 arg_no=1;
+      }
+      else if(TestInpId(in, PCL_EVANS))
+      {
+	 handle->op=PCLOpEvalAnswers;
+	 arg_no=1;
+      }
+        else if(TestInpId(in, PCL_NC))
       {
 	 handle->op=PCLOpFOFAssumeNegation;
 	 arg_no=1;
@@ -499,6 +509,14 @@ void PCLExprPrint(FILE* out, PCLExpr_p expr, bool mini)
          break;
    case PCLOpFOFDistributeQuantors:
          fprintf(out, PCL_SQ);
+         assert(expr->arg_no==1);
+         break;
+   case PCLOpAnnotateQuestion:
+         fprintf(out, PCL_ANNOQ);
+         assert(expr->arg_no==1);
+         break;
+   case PCLOpEvalAnswers:
+         fprintf(out, PCL_EVANS);
          assert(expr->arg_no==1);
          break;
    case PCLOpFOFDistributeDisjunction:

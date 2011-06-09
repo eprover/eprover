@@ -190,10 +190,14 @@ WFormula_p WFormulaTPTPParse(Scanner_p in, TB_p terms)
    info->name = DStrCopy(AktToken(in)->literal);
    NextToken(in);
    AcceptInpTok(in, Comma);
-   CheckInpId(in, "axiom|hypothesis|negated_conjecture|conjecture|lemma|unknown");
+   CheckInpId(in, "axiom|hypothesis|negated_conjecture|conjecture|question|lemma|unknown");
    if(TestInpId(in, "conjecture"))
    {
       type = WPTypeConjecture;
+   }
+   else if(TestInpId(in, "question"))
+   {
+      type = WPTypeQuestion;
    }
    else if(TestInpId(in, "negated_conjecture"))
    {
@@ -252,6 +256,9 @@ void WFormulaTPTPPrint(FILE* out, WFormula_p form, bool fullterms)
    case WPTypeNegConjecture:
 	 typename = "conjecture";
 	 break;
+   case WPTypeQuestion:
+         typename = "question";
+         break;
    default:
 	 typename = "unknown";
 	 break;
@@ -313,7 +320,7 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
       clauses. */
    type = ClauseTypeParse(in, 
                           "axiom|hypothesis|definition|assumption|"
-                          "lemma|theorem|conjecture|negated_conjecture|"
+                          "lemma|theorem|conjecture|question|negated_conjecture|"
                           "plain|unknown");
    AcceptInpTok(in, Comma);
 
@@ -376,6 +383,9 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
          break;      
    case WPTypeConjecture:
          typename = "conjecture";
+         break;
+   case WPTypeQuestion:
+         typename = "question";
          break;
    case WPTypeLemma:
          typename = "lemma";

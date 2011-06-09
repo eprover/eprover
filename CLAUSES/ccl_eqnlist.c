@@ -776,6 +776,40 @@ int EqnListRemoveACResolved(EqnRef list)
 }
 
 
+
+/*-----------------------------------------------------------------------
+//
+// Function:  EqnListRemoveSimpleAnswers()
+//
+//   Remove all simple answer literals from the list
+//
+// Global Variables: -
+//
+// Side Effects    : Changes the list.
+//
+/----------------------------------------------------------------------*/
+
+int EqnListRemoveSimpleAnswers(EqnRef list)
+{
+   int removed = 0;
+
+   while(*list)
+   {
+      if(EqnIsSimpleAnswer(*list))
+      {
+	 EqnListDeleteElement(list);
+	 removed++;
+      }
+      else
+      {
+	 list = &((*list)->next);
+      }
+   }
+   return removed;
+}
+
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: EqnListFindNegPureVarLit()

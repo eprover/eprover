@@ -125,7 +125,6 @@ typedef struct sigcell
    FunCode   xor_code;
    /* And here are codes for interpreted symbols */
    FunCode   answer_code;       /* For answer literals */
-   FunCode   multi_answer_code; /* For multi-answer literals */
    
    /* Counters for generating new symbols */
    long      skolem_count;
@@ -195,7 +194,8 @@ bool    SigIsFunction(Sig_p sig, FunCode f_code);
 
 #define SigIsFunConst(sig, f_code) (SigFindArity((sig), (f_code))==0&&\
                                     SigIsPredicate((sig),(f_code)))
-
+#define SigIsSimpleAnswerPred(sig, f_code) \
+        ((f_code)==(sig)->answer_code)
 
 void    SigSetSpecial(Sig_p sig, FunCode f_code, bool value);
 void    SigSetAllSpecial(Sig_p sig, bool value);

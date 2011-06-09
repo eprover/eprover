@@ -184,6 +184,8 @@ void    EqnFree(Eqn_p junk);
         ((!EqnIsEquLit(eq))&&TBTermIsXTypeTerm((eq)->lterm))
 #define EqnIsRealXTypePred(eq)\
         ((!EqnIsEquLit(eq))&&TermIsDefTerm((eq)->lterm,1))
+#define EqnIsSimpleAnswer(eq)\
+        SigIsSimpleAnswerPred((eq)->bank->sig, (eq)->lterm->f_code)
 
 #define EqnTermSetProp(eq,prop) TermSetProp((eq)->lterm, DEREF_NEVER, (prop));\
                                 TermSetProp((eq)->rterm, DEREF_NEVER, (prop))

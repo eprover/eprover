@@ -42,10 +42,38 @@ Changes
 
 
 
-
-
-
 /*-----------------------------------------------------------------------
+//
+// Function: answer_lit_alloc()
+//
+//   Allocate a FOF literal of the form ~$answer(skn(x1, ... xn)),
+//   where the xi are the variables on varstack and skn is a new
+//   skolem symbol.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations, changes the term bank.
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p answer_lit_alloc(TB_p terms, PStack_p varstack)
+{
+   TFormula_p res;
+   Term_p handle;
+   
+   handle = TBAllocNewSkolem(terms, varstack, false);
+   res    = TermTopAlloc(terms->sig->answer_code, 1);
+   res->args[0] = handle;
+   res    = TBTermTopInsert(terms, res);
+   res    = EqnTermsTBTermEncode(terms, res, terms->true_term, false, PENormal);
+   
+   return res;
+}
+
+
+
+
+/*--------------------- --------------------------------------------------
 //
 // Function: tformula_collect_clause()
 //
@@ -218,7 +246,9 @@ static void check_all_found(Scanner_p in, StrTree_p name_selector)
 
 bool WFormulaConjectureNegate(WFormula_p wform)
 {
-   if(FormulaQueryProp(wform, WPTypeConjecture)) 
+   WFormulaProperties ftype = FormulaQueryType(wform);
+   
+   if(ftype==WPTypeConjecture) 
    {
       wform->tformula = TFormulaFCodeAlloc(wform->terms,
                                            wform->terms->sig->not_code,
@@ -230,6 +260,89 @@ bool WFormulaConjectureNegate(WFormula_p wform)
    }
    return false;
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaAnnotateQuestion()
+//
+//   Take a formula of the form ((\exists X)*.F) and convert it to 
+//   ((\exists Xi)*.(F&~$answer(skn(X1,...Xn))), i.e. add an answer
+//   literal encoding all leading existentially quantified variables.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations.
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p TFormulaAnnotateQuestion(TB_p terms,
+                                    TFormula_p form,
+                                    NumTree_p *question_assoc)
+{
+   TFormula_p res, handle, tmp;
+   PStack_p varstack = PStackAlloc();
+
+   handle = form;
+   while(handle->f_code == terms->sig->qex_code)
+   {
+      PStackPushP(varstack, handle->args[0]);
+      handle = handle->args[1];
+   }
+   if(PStackEmpty(varstack))
+   {
+      /* Not a "real" question, nothing to do */
+      res = form;
+   }
+   else
+   {
+      tmp = answer_lit_alloc(terms, varstack);
+      res = TFormulaFCodeAlloc(terms, terms->sig->and_code, handle, tmp);
+      while(!PStackEmpty(varstack))
+      {
+         handle = PStackPopP(varstack);
+         res    = TFormulaFCodeAlloc(terms, terms->sig->qex_code, handle, res);
+      }
+   }
+   PStackFree(varstack);
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: WFormulaAnnotateQuestion()
+//
+//   If formula is a question, convert it into the equivalent
+//   conjecture with answer annotation. Returns true if formula was a 
+//   question. Add the association of the new skolem symbol in the
+//   answer literal to the clause id.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes formula
+//
+/----------------------------------------------------------------------*/
+
+bool WFormulaAnnotateQuestion(WFormula_p wform, bool add_answer_lits,
+                              NumTree_p *question_assoc)
+{
+   if(FormulaQueryProp(wform, WPTypeQuestion)) 
+   {
+      if(add_answer_lits)
+      {
+         wform->tformula = TFormulaAnnotateQuestion(wform->terms,
+                                                 wform->tformula,
+                                                    question_assoc);
+      }
+      FormulaSetType(wform, WPTypeConjecture);
+      DocFormulaModificationDefault(wform, inf_annotate_question);
+      return true;
+   }
+   return false;
+}
+
+
+
 
 
 /*-----------------------------------------------------------------------
@@ -278,7 +391,7 @@ bool WFormulaSimplify(WFormula_p form, TB_p terms)
 //
 /----------------------------------------------------------------------*/
 
-long FormulaSetPreprocConjectures(FormulaSet_p set)
+long FormulaSetPreprocConjectures(FormulaSet_p set, bool add_answer_lits)
 {
    long res = 0;
    WFormula_p handle;
@@ -287,6 +400,8 @@ long FormulaSetPreprocConjectures(FormulaSet_p set)
    
    while(handle!=set->anchor)
    {
+      WFormulaAnnotateQuestion(handle, add_answer_lits, NULL);
+
       if(WFormulaConjectureNegate(handle))
       {
          res++;

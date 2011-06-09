@@ -26,13 +26,15 @@ Changes
 #define CCO_PROOFPROC
 
 #include <clb_os_wrapper.h>
+#include <cio_signals.h>
+#include <ccl_fcvindexing.h>
 #include <che_heuristics.h>
 #include <che_axiomscan.h>
 #include <che_to_autoselect.h>
 #include <cco_clausesplitting.h>
 #include <cco_forward_contraction.h>
-#include <cio_signals.h>
-#include <ccl_fcvindexing.h>
+#include <cco_interpreted.h>
+
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -65,10 +67,11 @@ void     ProofStateResetProcessedSet(ProofState_p state,
                                      ClauseSet_p set);
 void     ProofStateResetProcessed(ProofState_p state,
                                   ProofControl_p control);
-Clause_p ProcessClause(ProofState_p state, ProofControl_p control);
+Clause_p ProcessClause(ProofState_p state, ProofControl_p control, 
+                       long answer_limit);
 Clause_p Saturate(ProofState_p state, ProofControl_p control, long
 		  step_limit, long proc_limit, long unproc_limit, long
-		  total_limit);
+		  total_limit, long answer_limit);
 
 
 

@@ -75,6 +75,8 @@ typedef enum
    CPTypeNegConjecture = CPType1|CPType3, /* Clause is an negated
                                            * conjecture (used for
                                            * refutation) */
+   CPTypeQuestion      = CPType2|CPType3, /* `Clause is a question -
+                                           * only used for FOF, really. */
    CPTypeWatchClause   = CPType1|CPType2|CPType3,
                                           /* Clause is intended as a
                                            * watch list clause */
@@ -218,6 +220,7 @@ void     ClauseFree(Clause_p junk);
 #define  ClauseIsEmpty(clause) (ClauseLiteralNumber(clause)==0)
 
 bool     ClauseIsSemFalse(Clause_p clause);
+bool     ClauseIsSemEmpty(Clause_p clause);
 #define  ClauseIsGoal(clause) (!((clause)->pos_lit_no))
 #define  ClauseIsHorn(clause) ((clause)->pos_lit_no <= 1)
 #define  ClauseIsUnit(clause) (ClauseLiteralNumber(clause)==1)

@@ -43,7 +43,7 @@ Changes
 
 bool WFormulaConjectureNegate(WFormula_p wform);
 bool WFormulaSimplify(WFormula_p form, TB_p terms);
-long FormulaSetPreprocConjectures(FormulaSet_p set);
+long FormulaSetPreprocConjectures(FormulaSet_p set, bool add_answer_lits);
 
 long WFormulaCNF(WFormula_p form, ClauseSet_p set, 
                        TB_p terms, VarBank_p fresh_vars);

@@ -1024,7 +1024,8 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
 //
 /----------------------------------------------------------------------*/
 
-Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
+Clause_p ProcessClause(ProofState_p state, ProofControl_p control, 
+                       long answer_limit)
 {
    Clause_p         clause, resclause, tmp_copy, empty;
    FVPackedClause_p pclause;
@@ -1059,11 +1060,15 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
    }
    if(ClauseIsSemFalse(pclause->clause))
    {
-      printf("***False***\n");
-   }
-   if(ClauseIsEmpty(pclause->clause))
-   {
-      return FVUnpackClause(pclause);
+      state->answer_count ++;
+      ClausePrintAnswer(GlobalOut, pclause->clause, state);
+      if(ClauseIsEmpty(pclause->clause)||
+         state->answer_count>=answer_limit)
+      {
+         clause = FVUnpackClause(pclause);
+         ClauseEvaluateAnswerLits(clause);
+         return clause;
+      }
    }
    assert(ClauseIsSubsumeOrdered(pclause->clause));
    check_ac_status(state, control, pclause->clause);
@@ -1175,7 +1180,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control)
 
 Clause_p Saturate(ProofState_p state, ProofControl_p control, long
 		  step_limit, long proc_limit, long unproc_limit, long
-		  total_limit)
+		  total_limit, long answer_limit)
 {
    Clause_p unsatisfiable = NULL;
    long count = 0;
@@ -1201,7 +1206,7 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
 	 (!state->watchlist||!ClauseSetEmpty(state->watchlist)))
    {     
       count++;
-      unsatisfiable = ProcessClause(state, control);
+      unsatisfiable = ProcessClause(state, control, answer_limit);
       if(unsatisfiable)
       {
 	 break;

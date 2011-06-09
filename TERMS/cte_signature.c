@@ -165,7 +165,6 @@ Sig_p SigAlloc(void)
    handle->bimpl_code        = 0;
    handle->xor_code          = 0;
    handle->answer_code       = 0;
-   handle->multi_answer_code = 0;
 
    handle->skolem_count      = 0;
    handle->newpred_count     = 0;
@@ -221,10 +220,6 @@ void SigInsertInternalCodes(Sig_p sig)
    sig->answer_code =  SigInsertId(sig, "$answer", 1, true);
    SigSetPredicate(sig, sig->answer_code, true);
    SigSetFuncProp(sig, sig->answer_code, FPInterpreted|FPPseudoPred);
-
-   sig->multi_answer_code =  SigInsertId(sig, "$m_answer", 1, true);
-   SigSetPredicate(sig, sig->multi_answer_code, true);
-   SigSetFuncProp(sig, sig->multi_answer_code, FPInterpreted|FPPseudoPred);
 
    sig->internal_symbols = sig->f_count;
 }
