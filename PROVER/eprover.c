@@ -354,7 +354,7 @@ OptCell opts[] =
    
    {OPT_ANSWER_LIMIT,
     '\0', "answers",
-    OptArg, "2147483648",
+    OptArg, "2147483647",
     "Set the maximal number of answers to print for existentially"
     " quantified questions. Without this option, the prover terminates"
     " after the first answer found. If the value is different from 1, "
