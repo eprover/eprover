@@ -250,6 +250,7 @@ if [ "$searchtime" ]; then
 	exec 1> "$outfile"
     fi
     grep "# SZS status" $tmpfile2
+    grep "# SZS answer" $tmpfile2
     grep "# Failure"          $tmpfile2
     $EXECPATH/epclextract $format -f --competition-framing $tmpfile &
     wait %%
