@@ -1292,7 +1292,11 @@ int main(int argc, char* argv[])
          DocClauseQuoteDefault(2, success, "proof");
       }      
       fprintf(GlobalOut, "\n# Proof found!\n");
-      TSTPOUT(GlobalOut, neg_conjectures?"Theorem":"Unsatisfiable");
+      if(!proofstate->status_reported)
+      {
+         TSTPOUT(GlobalOut, neg_conjectures?"Theorem":"Unsatisfiable");
+         proofstate->status_reported = true;
+      }
    }
    else if(proofstate->watchlist && ClauseSetEmpty(proofstate->watchlist))
    {      

@@ -111,6 +111,7 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    GCRegisterClauseSet(handle->gc_terms, handle->tmp_store);
    GCRegisterClauseSet(handle->gc_terms, handle->definition_store->def_clauses);
 
+   handle->status_reported              = false;
    handle->answer_count                 = 0;
    
    handle->processed_count              = 0;

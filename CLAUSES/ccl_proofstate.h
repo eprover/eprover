@@ -69,6 +69,7 @@ typedef struct proofstatecell
    bool              state_is_complete;
    DefStore_p        definition_store;
 
+   bool              status_reported;
    ulong_c           answer_count;
 
    ulong_c           processed_count;
