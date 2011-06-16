@@ -19,7 +19,7 @@
 #
 ########################################################################
 
-EXECPATH=/Users/schulz/SOURCES/Projects/E/PROVER
+EXECPATH=/usr/local/bin
 
 VERSION=`$EXECPATH/eprover --version|cut -d' ' -f2-`
 
@@ -250,8 +250,8 @@ if [ "$searchtime" ]; then
 	exec 1> "$outfile"
     fi
     grep "# SZS status" $tmpfile2
-    grep "# SZS answer" $tmpfile2
-    grep "# Failure"          $tmpfile2
+    grep "# Failure"    $tmpfile2
+    grep "# SZS answer" $tmpfile1
     $EXECPATH/epclextract $format -f --competition-framing $tmpfile &
     wait %%
     status=$?

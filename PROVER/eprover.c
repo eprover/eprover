@@ -8,7 +8,7 @@ Contents
  
   Main program for the E equational theorem prover.
 
-  Copyright 1998-2009 by the author.
+Copyright 1998-2011 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
@@ -2196,7 +2196,7 @@ Read a set of first-order clauses and formulae and try to refute it.\n\
 \n");
    PrintOptions(stdout, opts, "Options:\n\n");
    fprintf(out, "\n\
-Copyright (C) 1998-2010 by Stephan Schulz, " STS_MAIL "\n\
+"STS_COPYRIGHT", " STS_MAIL "\n\
 \n\
 You can find the latest version of E and additional information at\n"
 E_URL

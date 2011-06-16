@@ -14,7 +14,7 @@ Contents
   followed whenever a term is treated as an individual term, but not
   when they form part of a term bank and are manipulated as such.  
 
-  Copyright 1998-2009 by the author.
+Copyright 1998-2011 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..

@@ -46,6 +46,7 @@ Changes
 #define E_URL "http://www.eprover.org"
 
 #define STS_MAIL "schulz@eprover.org"
+#define STS_COPYRIGHT "Copyright 1998-2011 by Stephan Schulz"
 #define STS_SNAIL "Stephan Schulz (I4)\nTechnische Universitaet Muenchen\nInstitut fuer Informatik\nBoltzmannstrasse 3\n85748 Garching bei Muenchen\nGermany\n"
 
 

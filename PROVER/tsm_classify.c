@@ -27,6 +27,7 @@ Changes
 #include <cio_output.h>
 #include <cio_tempfile.h>
 #include <cle_classification.h>
+#include <e_version.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -34,7 +35,6 @@ Changes
 /*---------------------------------------------------------------------*/
 
 #define NAME    "tsm_classify"
-#define VERSION "0.1dev"
 
 typedef enum
 {
@@ -327,7 +327,7 @@ results. This is an experimental programm and does not have all the\n\
 usual error checking and hand holding features as E proper!\n");
    PrintOptions(stdout, opts, "Options\n\n");
    fprintf(out, "\n\
-Copyright (C) 1998 by Stephan Schulz, schulz@informatik.tu-muenchen.de\n\
+"STS_COPYRIGHT", " STS_MAIL "\n\
 \n\
 This program is a part of the support structure for the E equational\n\
 theorem prover. You can find the latest version of the E distribution\n\

@@ -11,7 +11,7 @@ Contents
   on objects (by a user-provided comparison function) instead of pointer
   comparisons.
 
-  Copyright 1998-2010 by the author.
+Copyright 1998-2011 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..

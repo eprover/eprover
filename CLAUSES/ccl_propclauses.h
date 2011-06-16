@@ -10,7 +10,7 @@ Contents
   stored much more compactly than ordinary clauses - at the price of
   less functionality and flexibility.
 
-  Copyright 1998-2001 by the author.
+Copyright 1998-2011 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..

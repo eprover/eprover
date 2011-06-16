@@ -8,7 +8,7 @@ Contents
  
   Implementation of arrays associating FunCodes and numeric features.
 
-  Copyright 1998-2003 by the author.a
+Copyright 1998-2011 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..

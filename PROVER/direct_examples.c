@@ -27,13 +27,13 @@ Changes
 #include <ccl_clausesets.h>
 #include <pcl_analysis.h>
 #include <cio_signals.h>
+#include <e_version.h>
 
 /*---------------------------------------------------------------------*/
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
 #define NAME    "direct_examples"
-#define VERSION "0.1dev"
 
 typedef enum
 {
@@ -251,7 +251,7 @@ spread over multiple files), and generate training examples\n\
 corresponding to the selected clauses.\n"); 
    PrintOptions(stdout, opts, "Options\n\n");
    fprintf(out, "\n\
-Copyright (C) 1998 by Stephan Schulz, schulz@informatik.tu-muenchen.de\n\
+" STS_COPYRIGHT ", " STS_MAIL "\n\
 \n\
 This program is a part of the support structure for the E equational\n\
 theorem prover. You can find the latest version of the E distribution\n\

@@ -9,7 +9,7 @@ Contents
   Generate new training examples from protocols and insert them into a
   knowledge base.
 
-  Copyright 1998-2006 by the author.
+Copyright 1998-2011 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..

@@ -9,7 +9,7 @@ Contents
   Functions for collecting various amounts of statistical information
   about a PCL protocol.
 
-  Copyright 1998-2001 by the author.
+Copyright 1998-2011 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
