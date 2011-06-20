@@ -91,7 +91,8 @@ extern long FormulaDefLimit;
 
 #define  FormulaIsConjecture(form) \
    ((FormulaQueryType(form)==WPTypeNegConjecture) ||    \
-    (FormulaQueryType(form)==WPTypeConjecture))
+    (FormulaQueryType(form)==WPTypeConjecture)|| \
+    (FormulaQueryType(form)==WPTypeQuestion))
 
 #define WFormulaCellAlloc()    (WFormulaCell*)SizeMalloc(sizeof(WFormulaCell))
 #define WFormulaCellFree(junk) SizeFree(junk, sizeof(WFormulaCell))

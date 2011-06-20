@@ -7,8 +7,10 @@ Version 1.2 ->
 - Fixed sub-optimal CNFing (slow, not incorrect)
 - Implemented e_axfilter as a stand-alone program for pre-processing
   large problems, and adapted/extendet the corresponging libraries.
-
-
+- Added clause evaluation functions that allow the manipulation of the
+  weight based on the presence and frequency of invidual function
+  symbols. 
+- Added answer instantiation output.
 
 Version 1.1 -> 1.2 Badamtam
 
