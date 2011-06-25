@@ -797,7 +797,7 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
 	 {
 	    fputc('!', out);
 	 }
-         //fprintf(out, EqnIsOriented(eq)?"=>":"=");
+         /* fprintf(out, EqnIsOriented(eq)?"=>":"="); */
          fprintf(out, "=");
 	 TBPrintTerm(out, eq->bank, eq->rterm, fullterms);
       }

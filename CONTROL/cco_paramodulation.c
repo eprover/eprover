@@ -284,7 +284,7 @@ long compute_pos_into_pm_term(ParamodInfo_p pminfo,
    Term_p           max_side, rep_side;
    bool             sim_pm;
 
-   //printf("\n@i %ld\n", DebugCount);
+   /*printf("\n@i %ld\n", DebugCount); */
    if(SubstComputeMgu(olterm, into_clauses->term, subst))
    {
       /* Check from-clause ordering constraints */
@@ -504,7 +504,7 @@ long compute_pos_from_pm_term(ParamodInfo_p pminfo,
    Subst_p          subst = SubstAlloc();
    Term_p           max_side, min_side;
    
-   //printf("\n@f %ld\n", DebugCount);
+   /*printf("\n@f %ld\n", DebugCount); */
    if(SubstComputeMgu(olterm, from_clauses->term, subst))
    {
       /* Check into-clause ordering constraints */
@@ -672,7 +672,7 @@ long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
    {
       assert(TermPosIsTopPos(pos1->pos));
 
-      //printf("\n@i %ld\n", DebugCount);
+      /* printf("\n@i %ld\n", DebugCount); */
       paramod = variable_paramod(bank, ocb, pos1, pos2,
                                  freshvars, pm_type, &inf_type);
       
@@ -722,7 +722,7 @@ long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
       while(test)
       {
 	 assert(TermPosIsTopPos(pos1->pos));
-         //printf("\n@f %ld\n", DebugCount);
+         /*printf("\n@f %ld\n", DebugCount);*/
          paramod = variable_paramod(bank, ocb, pos1, pos2,
                                     freshvars, pm_type, &inf_type);
 	 if(paramod)
@@ -908,15 +908,18 @@ long ComputeFromSimParamodulants(ParamodInfo_p pminfo,
    Term_p        olterm;
    CompactPos    pos;
 
-
+   /*
    // Here: Collect terms and term positions in a double tree (or
    // tree/stack construct)
+   */
    ClauseCollectIntoTermsPos(clause, pos_stack);
    
    pminfo->into = clause; 
-
+   
+   /*
    // Here: Iterate over the terms, and inside the terms over the
    // positions. 
+   */
    while(!PStackEmpty(pos_stack))
    {
       pos    = PStackPopInt(pos_stack);

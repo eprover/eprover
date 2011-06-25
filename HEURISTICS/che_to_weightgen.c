@@ -210,7 +210,7 @@ static void generate_precrank_weights(OCB_p ocb, float ranks)
 // Function: set_maximal_0()
 //
 //   Set the weight of the first non-constant maximal symbol in OCB to
- //   0. 
+//   0. 
 //
 // Global Variables: -
 //
