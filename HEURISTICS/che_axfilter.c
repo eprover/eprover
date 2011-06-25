@@ -46,11 +46,12 @@ char* GeneralityMeasureNames[] =
    NULL
 };
 
-char* AxFilterDefaultSet =
-   "bcr1=GSinE(CountTerms,    1.0,,,,)"
-   "bcr2=GSinE(CountFormulas, 1.0,,,,)"
-   "bcr3=GSinE(CountFormulas, 1.2,,,,)"
-   "bcr4=GSinE(CountTerms,    1.2,,,,)";
+char* AxFilterDefaultSet ="\
+   gf500_gu_R04_F100_L20000=GSinE(CountFormulas,    5.0,, 4,20000,1.0)\
+   gf120_gu_RUU_F100_L00500=GSinE(CountFormulas,    1.2,,,  500,1.0)\
+   gf120_gu_R02_F100_L20000=GSinE(CountFormulas,    1.2,, 2,20000,1.0)\
+   gf150_gu_RUU_F100_L20000=GSinE(CountFormulas,    1.5,,,20000,1.0)\
+";
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */

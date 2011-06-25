@@ -371,7 +371,7 @@ CLState_p process_options(int argc, char* argv[])
 	    exit(NO_ERROR);
 	    break;
       case OPT_VERSION:
-	    fprintf(stdout, "E " VERSION " " E_NICKNAME "\n");
+	    fprintf(stdout, NAME " " VERSION " " E_NICKNAME "\n");
 	    exit(NO_ERROR);
 	    break;
       case OPT_OUTPUT:
@@ -411,20 +411,27 @@ CLState_p process_options(int argc, char* argv[])
 
 void print_help(FILE* out)
 {
-   fprintf(out, "\n\
-E " VERSION " \"" E_NICKNAME "\"\n\
+   fprintf(out, "\n"
+NAME " " VERSION " \"" E_NICKNAME "\"\n\
 \n\
 Usage: " NAME " [options] [files]\n\
 \n\
-Read an problem specification and a filter specification, and produce\n\
-one reduced specifiation per filter given. Note that while all input \n\
+This problem applies SinE-like goal-directed filters to a problem\n\
+specification to generate reduced problem specifications that are easier\n\
+to handle for the prover, but still are likely to contain the necessary\n\
+axioms for a proof (if one exists). The program reads a problem\n\
+specification and a filter specification, and produces one reduced\n\
+specifiation for each filter given. Note that while all input \n\
 formats (LOP, TPTP-2 and TPTP-3 are supported, output is only and\n\
 automatically supported in TPTP-3, and the default input format is\n\
-TPTP-3.\n\
+TPTP-3. Also note that unlike most of the other tools in the E\n\
+distribution, this program does not support pipe-based input and output,\n\
+since it uses file names generated from the input file name and filter\n\
+names to store the different result files\n\
 \n");
    PrintOptions(stdout, opts, "Options:\n\n");
    fprintf(out, "\n\
-Copyright (C) 2011 by Stephan Schulz, " STS_MAIL "\n\
+"STS_COPYRIGHT", " STS_MAIL "\n\
 \n\
 You can find the latest version of E and additional information at\n"
 E_URL

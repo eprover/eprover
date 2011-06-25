@@ -22,7 +22,7 @@
 \usepackage{url}
 
 \author{Stephan Schulz}
-\title{E 1.2\\[1.5ex]User Manual\\[1.5ex]{\normalsize --preliminary
+\title{E 1.3\\[1.5ex]User Manual\\[1.5ex]{\normalsize --preliminary
     version--}}
 
 \makeindex{}
@@ -1291,12 +1291,11 @@ are supported by E.
 Version 2\footnote{Version 1 allowed the specification of problems in
   clause normal form only. Version 2 is a conservative extension of
   version 1 and adds support for full first order formulas.} of the
-TPTP syntax was used up for TPTP releases previous to TPTP~3.0.0.
-
-The current version 3 of the TPTP syntax, described in \cite{GSCG:IJCAR-2006},
-covers both input problems and both proof and model output using one
-consistent formalism. It has been used as the native format for TPTP
-releases since TPTP~3.0.0.
+TPTP syntax was used up for TPTP releases previous to TPTP~3.0.0.  The
+current version 3 of the TPTP syntax, described in
+\cite{GSCG:IJCAR-2006}, covers both input problems and both proof and
+model output using one consistent formalism. It has been used as the
+native format for TPTP releases since TPTP~3.0.0.
 
 Parsing in TPTP format version 2 is enabled by the options
 \texttt{--tptp-in}, \texttt{tptp2-in}, \texttt{--tptp-format} and
@@ -1304,15 +1303,18 @@ Parsing in TPTP format version 2 is enabled by the options
 format for the output of normal clauses during and after
 saturation. Proof output will be in PCL2 format, however.
 
-As an alternative, E also supports TPTP-3 syntax with the options
-\texttt{--tstp-in} , \texttt{tptp3-in}, \texttt{--tstp-format} and
-\texttt{--tptp3-format}. The last two options will also enable TPTP-3
-format for proof output. Note that many of E's support tools still
-require PCL2 format. Various tools for processing TPTP-3 proof format
-are available via the TPTP web-site, \url{http://www.tptp.org}.
+TPTP syntax version 3 is the currently recommended format. It is
+supported by many provers, it is more consistent than the old TPTP
+language, and it adds a number of useful features.  E supports TPTP-3
+syntax with the options \texttt{--tstp-in} , \texttt{tptp3-in},
+\texttt{--tstp-format} and \texttt{--tptp3-format}. The last two
+options will also enable TPTP-3 format for proof output. Note that
+many of E's support tools still require PCL2 format. Various tools for
+processing TPTP-3 proof format are available via the TPTP web-site,
+\url{http://www.tptp.org}.
 
 In either TPTP format, clauses and formulas with TPTP type
-\texttt{conjecture} or \emph{negated-conjecture} (TPTP-3 only) are
+\texttt{conjecture} or \texttt{negated-conjecture} (TPTP-3 only) are
 considered goal clauses for the \texttt{--sos-uses-input-types}
 option.
 

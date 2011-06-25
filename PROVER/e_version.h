@@ -38,10 +38,10 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* cvs tag E-1-2-025 */
-#define VERSION      "1.2-025"
+/* cvs tag E-1-3 */
+#define VERSION      "1.3"
 
-#define E_NICKNAME     "Badamtam"
+#define E_NICKNAME     "Ringtong"
 
 #define E_URL "http://www.eprover.org"
 

@@ -37,18 +37,18 @@ anything fails. There should be a copy in DOC/eprover.pdf.
              ===============================
 
 
-This is the README file for version 1.2 "Badamtam" of the E equational
+This is the README file for version 1.3 "Ringtong" of the E equational
 theorem prover. This version of E is free software, see the file
 COPYING for details about the license and the fact that THERE IS NO
 WARRANTY!
 
-Release 1.2 is the culmination of a long development phase. Important
-changes vs. version 1.1 include a linear time implementation of KBO,
-and fingerprint indexing for paramodulation and backwards rewriting.
+Release 1.3 is the culmination of a long development phase. Important
+changes vs. version 1.2 include better clausification, improved
+Auto-mode, and answer generation.
 
 
-What is E? What is CLIB?
-------------------------
+What is E?
+----------
 
 E is an equational theorem prover. That means it is a program that you
 can stuff a mathematical specification (in first-order logic with
@@ -56,42 +56,13 @@ equality) and a hypothesis into, and which will then run forever,
 using up all of your machines resources. Very occasionally it will
 find a proof for the hypothesis and tell you so ;-).
 
-CLIB is a collection of library functions for building one class of
-interesting and cool programs. Interesting and cool programs read an
-input file (or multiple files), process the input, and print a result,
-or they are games. Examples for cool and interesting programs are
-DISCOUNT (a distributed theorem prover), proof (a proof transformation
-tool), DOOM (a game) and xevil (also a game). The sole exception to
-this rule is EMACS, which is interesting and cool despite being
-interactive and not a game. But it has a LISP interpreter, which is
-very much like a game....
-
-At the moment CLIB is more suited for theorem provers and similar
-programs, and less useful for games. This will probably change as soon
-as the game potential of theorem provers is recognized.
-
-CLIB is layered, with higher layers becoming more specialized. Lower
-levels take care of the scientifically uninteresting, but necessary
-services for production-quality efficient programs, e.g. error
-handling, memory management, parsing of input, etc. They should be
-useful for most programs (even for some interactive programs).
-
-Higher level modules implement shared and unshared terms, equations,
-clauses and related stuff.
-
-My aim in writing this library is to ease the development of E and a
-couple of auxiliary programs. While I try to keep new features useful
-for other purposes, this aim determines which features I myself will
-add. In fact, E and CLIB are now so intertwined that you will not find
-a pure CLIB anymore.
-
-CLIB and E have been created and are currently maintained by Stephan
-Schulz, <schulz@eprover.org>. They are developed and distributed under
-the GNU General Public License. However, you may possibly come around
-versions sold or given to you under a different license, probably by
-Safelogic A.B. in Gothenburg, Sweden. For some time, Safelogic paid
-for the right to distribute (and relicense) closed-source versions of
-E with proprietary modifications.
+E has been created and is currently maintained by Stephan Schulz,
+<schulz@eprover.org>. They are developed and distributed under the GNU
+General Public License. However, you may possibly come around versions
+sold or given to you under a different license, probably by Safelogic
+A.B. in Gothenburg, Sweden. For some time, Safelogic paid for the
+right to distribute (and relicense) closed-source versions of E with
+proprietary modifications.
 
 The E homepage can be found at http://www.eprover.org
 
@@ -127,6 +98,10 @@ EXECDIR. In the firs case, run
 otherwise
 
    ./configure --bindir=EXECDIR
+
+or, if you also want to install the man-pages into MANDIR,
+
+   ./configure --bindir=EXECDIR --man-prefix=MANDIR
 
 Then type 
 

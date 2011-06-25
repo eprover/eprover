@@ -207,7 +207,7 @@ CLState_p process_options(int argc, char* argv[])
 	    exit(NO_ERROR);
 	    break;
       case OPT_VERSION:
-	    fprintf(stdout, "E " VERSION " " E_NICKNAME "\n");
+	    fprintf(stdout, NAME " " VERSION " " E_NICKNAME "\n");
 	    exit(NO_ERROR);
 	    break;
       case OPT_OUTPUT:

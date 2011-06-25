@@ -1,7 +1,7 @@
 This history list describes the major differences between versions of
 the E equational theorem prover.
 
-Version 1.2 ->
+Version 1.2 -> 1.3 Ringtong
 
 - Fixed redundant output resulting in broken proof extraction.
 - Fixed sub-optimal CNFing (slow, not incorrect)
