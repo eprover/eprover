@@ -68,7 +68,7 @@ typedef struct subterm_index_cell
    FPTreeFreeFun   payload_free;
 }FPIndexCell, *FPIndex_p;
 
-typedef void (*FPLeafPrintFun)(FILE* stdout, PStack_p stack, FPTree_p leaf);
+typedef void (*FPLeafPrintFun)(FILE* out, PStack_p stack, FPTree_p leaf);
 
 
 /*---------------------------------------------------------------------*/
