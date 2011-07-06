@@ -146,6 +146,7 @@ static LitSelNameFunAssocCell name_fun_assoc[] =
    {"SelectNewComplexAHPExceptUniqMaxHorn",  SelectNewComplexAHPExceptUniqMaxHorn},
    {"PSelectNewComplexAHPExceptUniqMaxHorn", PSelectNewComplexAHPExceptUniqMaxHorn},
    {"SelectNewComplexAHPNS",                 SelectNewComplexAHPNS},
+   {"SelectVGNonCR",                         SelectVGNonCR},
    {NULL, (LiteralSelectionFun)0}
 };
 
@@ -5169,8 +5170,60 @@ void SelectNewComplexAHPNS(OCB_p ocb, Clause_p clause)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: SelectVGNonCR()
+//
+//   If there is a negative pure variable literal, select it.
+//   If there is a negative ground literal, select the smallest one. 
+//   Otherwise, if there is a unique positive maximal literal, don't
+//   select. 
+//   Otherwise select as SelectNewComplexAHPNS.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 
+void SelectVGNonCR(OCB_p ocb, Clause_p clause)
+{
+   Eqn_p     handle;
+   int       maxpos;
+   PDArray_p pred_dist;
 
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   handle = ClauseFindNegPureVarLit(clause);
+   
+   if(handle)
+   {
+      EqnSetProp(handle, EPIsSelected);
+      return;
+   }
+   
+   ClauseCondMarkMaximalTerms(ocb, clause);      
+   handle = find_smallest_neg_ground_lit(clause);
+   if(handle)
+   {
+      EqnSetProp(handle, EPIsSelected);
+      return;
+   }
+   maxpos = EqnListQueryPropNumber(clause->literals, 
+                                   EPIsPositive|EPIsMaximal);
+   if(maxpos == 1)
+   {
+      return;
+   }
+   pred_dist = pos_pred_dist_array_compute(clause);
+   
+   generic_uniq_selection(ocb,clause,false, true, 
+                          new_complex_notp_ahp_ns, pred_dist);   
+   pred_dist_array_free(pred_dist);
+}
 
 
 

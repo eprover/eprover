@@ -33,30 +33,16 @@ there...hmmm).
 
 Evaluate --inherit-conjecture-pm-literals.
 
-Implements Bernd's KBO.
 
 Purity. For the equational case, use non-E-unifiability as the
 criterion (approximate it with universal equality). 
 
 Condensing.
 
-Finally get rid of the ugly second termbank. Just have two variable
-banks per term bank, the Xs (normal variables) and the Ys (used when
-distinct variables are needed. Possibly better sharing, more general
-use of pointer compariasons, and ground term inserting becomes free. 
-
 Flattening of ground terms (anti-unfolding ;-), useful for termination
 in many theories, and maybe in general.
 
-Splitting with naming!
-
 Contextual rewriting
-
-Get rid of the ugly distinction between LHS top terms and other
-terms. Now that simplification is driven from the clause level, it's
-unecessary. Just annotate if a term was rewritten with a real
-instance, and if not, set the flag temporarily and search for another
-rewrite possibility. 
 
 Use plain back propagation MLP for classification (n out of m
 multiplexer, error measure: Difference from wanted result (-1 for bad,
@@ -68,19 +54,6 @@ Rippling-like annotated terms for E.
 
 Split only if clause has multiple inference literals. -> See below,
 stupid!
-
-Implement simple indexing for paramodulation. Idea: Processed clauses
-get an _into_ and a _from_ index. Both are a simple PDArray_p indexed
-by the top function symbol of the respective inference terms (or 0 for
-variables - only in _from_ case). Each entry in the index is a
-clb_objtrees, indexed by the clause, and containing all inference
-positions in that clause that start with the indexed symbol.
-- Should safe an enourmous amount of iteration - especially from
-positions are very rare indeed! Will change generation order, though
-(but not significantly). 
-
-Try copying instantiated terms (non-shared) before doing ordering
-comparisons -> we can count variable occurences in the variables!
 
 Precedences giving different weights to frequencies in positive and
 negative literals (positive more seems better).
@@ -202,11 +175,6 @@ separate these.
 Implement weight function that uses different penalties for
 unorientability of positive and negative literals -> Done, needs more
 testing 
-
-Trivial: If no equality is present, disable AC scanning in Auto
-mode. -> Done
-
-Rework KBO to be faster (see first entry)!
 
 For orientable rewrite-rules, give a higher weight to minimal sides
 than to maximal ones (prefer rules that decrease term size).

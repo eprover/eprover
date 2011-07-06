@@ -1107,3 +1107,56 @@ Stephan
 ----------------------------------------------------------------------------
 
 
+
+This is the announcement for version 1.3 of E.
+-----------------------------------------------------
+
+comp.os.linux.announce
+gnu.announce
+comp.ai
+comp.theory,de.sci.informatik.ki
+
+From: schulz@eprover.org (Stephan Schulz)
+Newsgroups: comp.ai
+Subject: E Equational Theorem Prover 1.3 "Ringtong" released
+Summary: Announcement of availability of the E theorem prover.
+Keywords: E, equational theorem proving, ATP
+Followup-To: comp.theory
+
+E 1.3 "Ringtong" is the latest version of the successful automated
+theorem prover.
+
+E is a theorem prover for full first order logic with equality. It has
+successfully competed in several CASC competitions and is generally
+considered a friendly and powerful system (as theorem provers go). E
+has won the "overall best system" special award at CASC-J5.
+
+The new version features improved performance in automatic mode, a
+more efficient clausifier, and supports the proposed TPTP
+question/answer extension that returns answer substitutions for
+existentially quantified variables in queries.
+
+E is available as a source distribution for UNIX-variants. It installs
+cleanly under all UNIX variants I could get my hands on: Various
+versions of GNU/Linux for Intel, and XScale, Solaris on SPARC, and
+MacOS-X. Users have reported successful builds on a large number of
+other systems, including Windows/Cygwin.
+
+The system is dual-licensed under the GNU General Public License and
+the GNU Lesser General Public License.
+
+You can find the source distribution and additional information at
+the new E website at 
+               http://www.eprover.org
+
+Have fun!
+
+
+Stephan
+
+-- 
+-------------------------- It can be done! ---------------------------------
+      Please email me as schulz@eprover.org (Stephan Schulz)
+----------------------------------------------------------------------------
+
+

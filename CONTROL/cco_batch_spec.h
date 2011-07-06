@@ -36,20 +36,33 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
+typedef enum
+{
+   BONone,
+   BODesired,
+   BORequired
+}BOOutputType;
+
+
 /* Describe a batch specification file as used in CASC-J5. Note that
  * that char* values are part of this data structure and are free'd
  * with it. */
 
 typedef struct batch_spec_cell
 {
-   char          *executable;
-   char* category;        /* Just a name */
-   long  per_prob_time;   /* Wall clock, in seconds */
-   long  total_time;      /* Wall clock, in seconds */
-   PStack_p includes;     /* Names of include files (char*) */
-   IOFormat format;
-   PStack_p source_files; /* Input files (char*) */
-   PStack_p dest_files;   /* Output files (char*) */
+   char         *executable;
+   char*        category;     /* Just a name */
+   long         per_prob_time;/* Wall clock, in seconds */
+   long         total_time;   /* Wall clock, in seconds */
+   PStack_p     includes;     /* Names of include files (char*) */
+   IOFormat     format;
+   BOOutputType res_assurance;
+   BOOutputType res_proof;
+   BOOutputType res_model;
+   BOOutputType res_answer;
+   BOOutputType res_list_fof;
+   PStack_p     source_files; /* Input files (char*) */
+   PStack_p     dest_files;   /* Output files (char*) */
 }BatchSpecCell, *BatchSpec_p;
 
 

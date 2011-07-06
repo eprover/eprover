@@ -151,13 +151,16 @@ int main(int argc, char* argv[])
    in = CreateScanner(StreamTypeFile, state->argv[0], true, NULL);
    ScannerSetFormat(in, TSTPFormat);
    
-   spec = BatchSpecParse(in, prover, TSTPFormat);
-   
-   ctrl = StructFOFSpecAlloc();
-   StructFOFSpecInit(spec, ctrl);      
-   BatchProcessProblems(spec, ctrl);
-   StructFOFSpecFree(ctrl);
-   BatchSpecFree(spec);
+   while(!TestInpTok(in, NoToken))
+   {
+      spec = BatchSpecParse(in, prover, TSTPFormat);   
+      BatchSpecPrint(stdout, spec);
+      ctrl = StructFOFSpecAlloc();
+      StructFOFSpecInit(spec, ctrl);      
+      BatchProcessProblems(spec, ctrl);
+      StructFOFSpecFree(ctrl);
+      BatchSpecFree(spec);
+   }
    DestroyScanner(in); 
 
    CLStateFree(state);

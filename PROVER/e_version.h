@@ -38,8 +38,8 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* cvs tag E-1-3 */
-#define VERSION      "1.3"
+/* cvs tag E-1-3-002 1 */
+#define VERSION      "1.3-002"
 
 #define E_NICKNAME     "Ringtong"
 

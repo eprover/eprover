@@ -93,6 +93,83 @@ EPCtrl_p batch_create_runner(StructFOFSpec_p ctrl,
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: parse_op_line()
+//
+//   Parse an output line into batchspec
+//
+// Global Variables: -
+//
+// Side Effects    : Reads input
+//
+/----------------------------------------------------------------------*/
+
+void parse_op_line(Scanner_p in, BatchSpec_p spec, BOOutputType state)
+{
+   while(TestInpId(in, "Assurance|Proof|Model|Answer|ListOfFOF"))
+   {
+      if(TestInpId(in, "Assurance"))
+      {
+         spec->res_assurance = state;
+      }
+      else if(TestInpId(in, "Proof"))
+      {
+         spec->res_proof = state;
+      }
+      else if(TestInpId(in, "Model"))
+      {
+         spec->res_model = state;
+      }
+      else if(TestInpId(in, "Answer"))
+      {
+         spec->res_answer = state;
+      }
+      else if(TestInpId(in, "ListOfFOF"))
+      {
+         spec->res_list_fof = state;
+      }
+      AcceptInpTok(in, Ident);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: print_op_line()
+//
+//   Print an output line in spec to out
+//
+// Global Variables: -
+//
+// Side Effects    : Reads input
+//
+/----------------------------------------------------------------------*/
+
+void print_op_line(FILE* out, BatchSpec_p spec, BOOutputType state)
+{
+   if( spec->res_assurance == state)
+   {
+      fprintf(out,  " Assurance"); 
+   }
+   if( spec->res_proof == state)
+   {
+      fprintf(out, " Proof"); 
+   }
+   if( spec->res_model == state)
+   {
+      fprintf(out, " Model"); 
+   }
+   if( spec->res_answer == state)
+   {
+      fprintf(out, " Answer"); 
+   }
+   if( spec->res_list_fof == state)
+   {
+      fprintf(out, " ListOfFOF"); 
+   }
+}
+
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
@@ -120,6 +197,12 @@ BatchSpec_p BatchSpecAlloc(char* executable, IOFormat format)
    handle->includes      = PStackAlloc();
    handle->source_files  = PStackAlloc();
    handle->format        = format;
+   handle->res_assurance = BONone;
+   handle->res_proof     = BONone;
+   handle->res_model     = BONone;
+   handle->res_answer    = BONone;
+   handle->res_list_fof  = BONone;
+
    handle->dest_files    = PStackAlloc();
    handle->executable    = SecureStrdup(executable);
 
@@ -188,20 +271,27 @@ void BatchSpecPrint(FILE* out, BatchSpec_p spec)
 {
    PStackPointer i;
 
-   fprintf(out, "# SZS start BatchConfiguration\n");
+   fprintf(out, "%% SZS start BatchConfiguration\n");
    fprintf(out, "division.category %s\n", spec->category);
+   fprintf(out, "output.required");
+   print_op_line(out, spec, BORequired);
+   fprintf(out, "\n");
+  
+   fprintf(out, "output.desired");
+   print_op_line(out, spec, BODesired);
+   fprintf(out, "\n");
+
    fprintf(out, "limit.time.problem.wc %ld\n", spec->per_prob_time);
-   fprintf(out, "limit.time.overall.wc %ld\n", spec->total_time);
-   fprintf(out, "# SZS end BatchConfiguration\n");
-   fprintf(out, "# SZS start BatchIncludes\n");
+   fprintf(out, "%% SZS end BatchConfiguration\n");
+   fprintf(out, "%% SZS start BatchIncludes\n");
 
    for(i=0; i<PStackGetSP(spec->includes); i++)
    {
       fprintf(out, "include('%s').\n", 
               (char*)PStackElementP(spec->includes, i));
    }
-   fprintf(out, "# SZS end BatchIncludes\n");
-   fprintf(out, "# SZS start BatchProblems\n");
+   fprintf(out, "%% SZS end BatchIncludes\n");
+   fprintf(out, "%% SZS start BatchProblems\n");
 
    for(i=0; i<PStackGetSP(spec->source_files); i++)
    {
@@ -209,7 +299,7 @@ void BatchSpecPrint(FILE* out, BatchSpec_p spec)
               (char*)PStackElementP(spec->source_files, i),
               (char*)PStackElementP(spec->dest_files, i));
    }
-   fprintf(out, "# SZS end BatchProblems\n");
+   fprintf(out, "%% SZS end BatchProblems\n");
 }
 
 
@@ -242,6 +332,20 @@ BatchSpec_p BatchSpecParse(Scanner_p in, char* executable, IOFormat format)
    handle->category = ParseDottedId(in);
    
    dummy = ParseDottedId(in);
+   if(strcmp(dummy, "output.required")!= 0)
+   {
+      Error("Expected \"output.required\"\n", SYNTAX_ERROR);
+   }
+   parse_op_line(in, handle, BORequired);
+
+   dummy = ParseDottedId(in);
+   if(strcmp(dummy, "output.desired")!= 0)
+   {
+      Error("Expected \"output.desired\"\n", SYNTAX_ERROR);
+   }
+   parse_op_line(in, handle, BODesired);
+
+   dummy = ParseDottedId(in);
    if(strcmp(dummy, "limit.time.problem.wc")!= 0)
    {
       Error("Expected \"limit.time.problem.wc\"\n", SYNTAX_ERROR);
@@ -249,28 +353,19 @@ BatchSpec_p BatchSpecParse(Scanner_p in, char* executable, IOFormat format)
    FREE(dummy);
    handle->per_prob_time = ParseInt(in);
 
-   dummy = ParseDottedId(in);
-   if(strcmp(dummy, "limit.time.overall.wc")!= 0)
-   {
-      Error("Expected \"limit.time.overall.wc\"\n", SYNTAX_ERROR);
-   }
-   FREE(dummy);
-   handle->total_time = ParseInt(in);
-
    while(TestInpId(in, "include"))
    {
       dummy = ParseBasicInclude(in);
       PStackPushP(handle->includes, dummy);
    }
    
-   while(!TestInpTok(in, NoToken))
+   while(TestInpTok(in, Slash))
    {
       dummy = ParseFilename(in);
       PStackPushP(handle->source_files, dummy);
       dummy = ParseFilename(in);
       PStackPushP(handle->dest_files, dummy);
-
-   }      
+   }
    return handle;
 }
 

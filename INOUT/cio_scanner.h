@@ -139,7 +139,10 @@ typedef struct scannercell
    DStr_p      default_dir; /* Directory we read from, if any */
    IOFormat    format;
    DStr_p      accu; /* Place for Multi-Token constructs or messages */
-   bool        ignore_comments; /* Comments can be skipped completely */
+   bool        ignore_comments; /* Comments can be skipped
+                                 * completely. If not set, comments
+                                 * are accumulated (but never
+                                 * delivered as tokens) */
    char*       include_key; /* An Identifier,  e.g. "include" */
    TokenCell   tok_sequence[MAXTOKENLOOKAHEAD]; /* Need help? Bozo! */
    int         current; /* Pointer to current token in tok_sequence */

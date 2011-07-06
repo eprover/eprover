@@ -1,6 +1,45 @@
 # This file contains old entries moved from the TODO file to unclutter
 # it 
 
+
+
+Trivial: If no equality is present, disable AC scanning in Auto
+mode. -> Done
+
+Try copying instantiated terms (non-shared) before doing ordering
+comparisons -> we can count variable occurences in the variables!
+-> Subsumed by Bernd's KBO algorithm
+
+Implement simple indexing for paramodulation. Idea: Processed clauses
+get an _into_ and a _from_ index. Both are a simple PDArray_p indexed
+by the top function symbol of the respective inference terms (or 0 for
+variables - only in _from_ case). Each entry in the index is a
+clb_objtrees, indexed by the clause, and containing all inference
+positions in that clause that start with the indexed symbol.
+- Should safe an enourmous amount of iteration - especially from
+positions are very rare indeed! Will change generation order, though
+(but not significantly). 
+-> Done, and better with Fingerprint Indexing
+
+Get rid of the ugly distinction between LHS top terms and other
+terms. Now that simplification is driven from the clause level, it's
+unecessary. Just annotate if a term was rewritten with a real
+instance, and if not, set the flag temporarily and search for another
+rewrite possibility. 
+-> Done, and better
+
+Splitting with naming!
+-> Done
+
+Finally get rid of the ugly second termbank. Just have two variable
+banks per term bank, the Xs (normal variables) and the Ys (used when
+distinct variables are needed. Possibly better sharing, more general
+use of pointer compariasons, and ground term inserting becomes free. 
+-> Done
+
+Implements Bernd's KBO.
+->Done
+
 Generate signature fingerprint of clauses (for each symbol: 0 if it
 does not occur, 1 if it occurs positively, 2 if negatively, 3 if
 both). Use fingerprint to pretest subsumption (fingerprint of
