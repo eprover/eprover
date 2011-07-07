@@ -5189,7 +5189,7 @@ void SelectNewComplexAHPNS(OCB_p ocb, Clause_p clause)
 void SelectVGNonCR(OCB_p ocb, Clause_p clause)
 {
    Eqn_p     handle;
-   int       maxpos;
+   int       maxlits, maxposlits;
    PDArray_p pred_dist;
 
    assert(ocb);
@@ -5212,11 +5212,16 @@ void SelectVGNonCR(OCB_p ocb, Clause_p clause)
       EqnSetProp(handle, EPIsSelected);
       return;
    }
-   maxpos = EqnListQueryPropNumber(clause->literals, 
-                                   EPIsPositive|EPIsMaximal);
-   if(maxpos == 1)
+   maxlits = EqnListQueryPropNumber(clause->literals, 
+                                    EPIsMaximal);
+   if(maxlits == 1)
    {
-      return;
+      maxposlits = EqnListQueryPropNumber(clause->literals, 
+                                          EPIsMaximal|EPIsPositive);
+      if(maxposlits == 1)
+      {
+         return;
+      }
    }
    pred_dist = pos_pred_dist_array_compute(clause);
    
