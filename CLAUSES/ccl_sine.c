@@ -590,6 +590,7 @@ long SelectDefiningAxioms(DRelation_p drel,
          }
          dist_array[i] = 0;
       }
+      PStackReset(symbol_stack);
    }
    SizeFree(dist_array, (sig->f_count+1)*sizeof(long));
    PStackFree(symbol_stack);
