@@ -14,7 +14,7 @@ Command line:
 
 For the LTB category, run
 
-    e_ltb_runner <path_to_ltb_batch_file> <path_to_eprover>
+    e_ltb_runner <path_to_ltb_batch_file> <path_to_eprover> <path_to_epclextract>
 
 
 Distinguished strings for the results:
