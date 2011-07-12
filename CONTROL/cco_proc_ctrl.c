@@ -60,11 +60,14 @@ Changes
 EPCtrl_p EPCtrlAlloc(char *name)
 {
    EPCtrl_p ctrl = EPCtrlCellAlloc();
-
+   
    ctrl->pid        = 0;
    ctrl->pipe       = NULL;
    ctrl->input_file = 0;
    ctrl->name       = SecureStrdup(name);
+   ctrl->start_time = 0;
+   ctrl->prob_time  = 0;
+   ctrl->result     = PRNoResult;
    ctrl->output     = DStrAlloc();
 
    return ctrl;
@@ -159,14 +162,15 @@ EPCtrl_p ECtrlCreate(char* prover, char* name, long cpu_limit, char* file)
 
    DStrAppendStr(cmd, prover);
    DStrAppendStr(cmd, 
-                 " --print-pid -s -xAuto -tAuto"
-                 " --memory-limit=512 --tstp-format --cpu-limit=");
+                 E_OPTIONS);
    DStrAppendInt(cmd, cpu_limit);
    DStrAppendStr(cmd, " ");
    DStrAppendStr(cmd, file);
    
+   res->prob_time  = cpu_limit;
+   res->start_time = GetSecTime();
    res->input_file = file;
-   /* printf("# Executing: %s\n", DStrView(cmd)); */
+   /* printf("# Executing: %s\n", DStrView(cmd)); */   
    res->pipe = popen(DStrView(cmd), "r");
    if(!res->pipe)
    {
@@ -175,7 +179,12 @@ EPCtrl_p ECtrlCreate(char* prover, char* name, long cpu_limit, char* file)
    }
    res->fileno = fileno(res->pipe);
    l=fgets(line, 180, res->pipe);
-   
+   if(ferror(res->pipe))
+   {
+      printf("Error\n");
+   }
+
+   //fprintf(GlobalOut, "# Line = '%s'", l);
    if(!strstr(line, "# Pid: "))
    {
       Error("Cannot get eprover PID", OTHER_ERROR);      
@@ -193,52 +202,52 @@ EPCtrl_p ECtrlCreate(char* prover, char* name, long cpu_limit, char* file)
 //
 // Function: EPCtrlGetResult()
 //
-//   Read a line from the E process and find out if it gives a
-//   result. 
+//   Try to read a line from the E process. If successful, try to
+//   extract a result state. Return true if the E process terminated
+//   (i.e. the read returns 0), false otherwise.
 //
 // Global Variables: -
 //
-// Side Effects    : Yes ;-)
+// Side Effects    : Reads input, may set result state in ctrl.
 //
 /----------------------------------------------------------------------*/
 
-ProverResult EPCtrlGetResult(EPCtrl_p ctrl, char* buffer, long buf_size)
+bool EPCtrlGetResult(EPCtrl_p ctrl, char* buffer, long buf_size)
 {
-   ProverResult res = PRNoResult;
    char* l;
 
    l=fgets(buffer, buf_size, ctrl->pipe);
    
-   if(!l)
-   {
-      res = PRFailure;
-   }
-   else
+   if(l)
    {
       DStrAppendStr(ctrl->output, l);
       
       if(strstr(buffer, SZS_THEOREM_STR))
       {
-         res = PRTheorem;
+         ctrl->result = PRTheorem;
       }
       else if(strstr(buffer, SZS_UNSAT_STR))
       {
-         res = PRUnsatisfiable;
+         ctrl->result = PRUnsatisfiable;
       }
       else if(strstr(buffer, SZS_SATSTR_STR))
       {
-         res = PRSatisfiable;
+         ctrl->result = PRSatisfiable;
       }
       else if(strstr(buffer, SZS_COUNTERSAT_STR))
       {
-         res = PRCounterSatisfiable;
+         ctrl->result = PRCounterSatisfiable;
       }
-      if(res!=PRNoResult)
-      {
-         ctrl->result = res;
-      }
+      return false;
    }
-   return res;
+   else
+   {
+      if(ctrl->result == PRNoResult)
+      {
+         ctrl->result = PRFailure;
+      }
+      return true;
+   }
 }
 
 
@@ -412,7 +421,7 @@ int EPCtrlSetFDSet(EPCtrlSet_p set, fd_set *rd_fds)
 
 EPCtrl_p EPCtrlSetGetResult(EPCtrlSet_p set)
 {
-   ProverResult tmp;
+   bool eof;
    fd_set readfds, writefds, errorfds;
    int maxfd = 0,i;
    EPCtrl_p handle, res = NULL;
@@ -433,25 +442,29 @@ EPCtrl_p EPCtrlSetGetResult(EPCtrlSet_p set)
       if(FD_ISSET(i, &readfds))
       {
          handle = EPCtrlSetFindProc(set, i);
-         tmp = EPCtrlGetResult(handle, set->buffer, EPCTRL_BUFSIZE);
-         switch(tmp)
+         eof = EPCtrlGetResult(handle, set->buffer, EPCTRL_BUFSIZE);
+         if(eof)
          {
-         case PRNoResult:
+            switch(handle->result)
+            {
+            case PRNoResult:
+                  break;
+            case PRTheorem:
+            case PRUnsatisfiable:
+                  res = handle;
                break;
-         case PRTheorem:
-         case PRUnsatisfiable:
-               res = handle;
-               break;
-         case PRSatisfiable:
-         case PRCounterSatisfiable:
-         case PRFailure:
-               /* Process terminates, but no proof found -> Remove it*/
-               fprintf(GlobalOut, "# %s terminated unsuccessfully\n", 
-                       handle->name);
-               EPCtrlSetDeleteProc(set, handle);
-               break;
-         default:
-               assert(false && "Impossible ProverResult");
+            case PRSatisfiable:
+            case PRCounterSatisfiable:
+            case PRFailure:
+                  /* Process terminates, but no proof found -> Remove it*/
+                  fprintf(GlobalOut, "# %s terminated unsuccessfully\n", 
+                          handle->name);
+                  
+                  EPCtrlSetDeleteProc(set, handle);
+                  break;
+            default:
+                  assert(false && "Impossible ProverResult");
+            }
          }
       }
    }

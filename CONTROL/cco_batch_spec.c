@@ -39,6 +39,50 @@ Changes
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
+/*-----------------------------------------------------------------------
+//
+// Function: do_proof()
+//
+//   Re-run e as eproof and return the result.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+void do_proof(DStr_p res, char *exec, char *pexec, long cpu_limit, char* file)
+{
+   DStr_p         cmd = DStrAlloc();
+   char           line[180];
+   char           *l;
+   FILE           *fp;
+   
+   DStrAppendStr(cmd, exec);
+   DStrAppendStr(cmd, 
+                 E_OPTIONS);
+   DStrAppendInt(cmd, cpu_limit);
+   DStrAppendStr(cmd, " -l4 ");
+   DStrAppendStr(cmd, file);
+   DStrAppendStr(cmd, "|");
+   DStrAppendStr(cmd, pexec);
+   DStrAppendStr(cmd, " -f --competition-framing --tstp-out ");
+   
+   /* fprintf(GlobalOut, "# Running %s\n", DStrView(cmd)); */
+   fp = popen(DStrView(cmd), "r");   
+   if(!fp)
+   {
+      TmpErrno = errno;
+      SysError("Cannot start eproof subprocess", SYS_ERROR);
+   }
+   while((l=fgets(line, 180, fp)))
+   {
+      DStrAppendStr(res, l);
+   }
+   pclose(fp);
+   DStrFree(cmd);
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -60,11 +104,14 @@ EPCtrl_p batch_create_runner(StructFOFSpec_p ctrl,
    EPCtrl_p pctrl;
    char     *file;
    FILE     *fp;
-   char     name[80];
+   char     name[320];
 
    PStack_p cspec = PStackAlloc();
    PStack_p fspec = PStackAlloc();
 
+   fprintf(GlobalOut, "# Filtering for ");
+   AxFilterPrint(GlobalOut, ax_filter);
+   fprintf(GlobalOut, " (%lld)\n", GetSecTimeMod());
    StructFOFSpecGetProblem(ctrl, 
                            ax_filter,
                            cspec,
@@ -80,11 +127,8 @@ EPCtrl_p batch_create_runner(StructFOFSpec_p ctrl,
    
    fprintf(GlobalOut, "# Written new problem (%lld)\n", GetSecTimeMod());
 
-   sprintf(name, "SinE(%d, %f)", ax_filter->gen_measure, ax_filter->benevolence);
+   AxFilterPrintBuf(name, 320, ax_filter);
    pctrl = ECtrlCreate(executable, name, cpu_time, file);
-
-   //PStackFormulaDelProp(fspec, WPIsRelevant);
-   //PStackClauseDelProp(cspec, CPIsRelevant);
 
    PStackFree(cspec);
    PStackFree(fspec);
@@ -187,7 +231,7 @@ void print_op_line(FILE* out, BatchSpec_p spec, BOOutputType state)
 //
 /----------------------------------------------------------------------*/
 
-BatchSpec_p BatchSpecAlloc(char* executable, IOFormat format)
+BatchSpec_p BatchSpecAlloc(char* executable, char* pexec, IOFormat format)
 {
    BatchSpec_p handle = BatchSpecCellAlloc();
 
@@ -205,6 +249,7 @@ BatchSpec_p BatchSpecAlloc(char* executable, IOFormat format)
 
    handle->dest_files    = PStackAlloc();
    handle->executable    = SecureStrdup(executable);
+   handle->pexec         = SecureStrdup(pexec);
 
    return handle;
 }
@@ -250,6 +295,7 @@ void BatchSpecFree(BatchSpec_p spec)
    PStackFree(spec->dest_files);
 
    FREE(spec->executable);
+   FREE(spec->pexec);
    BatchSpecCellFree(spec);
 }
 
@@ -318,9 +364,9 @@ void BatchSpecPrint(FILE* out, BatchSpec_p spec)
 //
 /----------------------------------------------------------------------*/
 
-BatchSpec_p BatchSpecParse(Scanner_p in, char* executable, IOFormat format)
+BatchSpec_p BatchSpecParse(Scanner_p in, char* executable, char* pexec, IOFormat format)
 {
-   BatchSpec_p handle = BatchSpecAlloc(executable, format);
+   BatchSpec_p handle = BatchSpecAlloc(executable, pexec, format);
    char *dummy;
    
    dummy = ParseDottedId(in);
@@ -366,6 +412,8 @@ BatchSpec_p BatchSpecParse(Scanner_p in, char* executable, IOFormat format)
       dummy = ParseFilename(in);
       PStackPushP(handle->dest_files, dummy);
    }
+   handle->total_time = handle->per_prob_time *
+      PStackGetSP(handle->source_files);
    return handle;
 }
 
@@ -648,7 +696,7 @@ bool BatchProcessProblem(BatchSpec_p spec,
    EPCtrl_p handle;
    EPCtrlSet_p procs = EPCtrlSetAlloc();
    FILE* fp;
-   long long secs;
+   long long secs, used;
    AxFilterSet_p filters = AxFilterSetCreateInternal(AxFilterDefaultSet);
    int i;
 
@@ -680,10 +728,11 @@ bool BatchProcessProblem(BatchSpec_p spec,
    EPCtrlSetAddProc(procs, handle);
    
    i=1;
-   while(((GetSecTime()-secs) < (spec->per_prob_time/2)) && 
+   while(((used = (GetSecTime()-secs)) < (spec->per_prob_time/2)) && 
          (i<AxFilterSetElements(filters)))
    {
-      handle = batch_create_runner(ctrl, spec->executable, spec->per_prob_time, 
+      handle = batch_create_runner(ctrl, spec->executable, 
+                                   spec->per_prob_time-used, 
                                    AxFilterSetGetFilter(filters, i));
       EPCtrlSetAddProc(procs, handle);
       i++;
@@ -702,11 +751,28 @@ bool BatchProcessProblem(BatchSpec_p spec,
    }
    if(handle)
    {
-      fprintf(GlobalOut, "# Proof found by %s\n", handle->name);
+      long long now  = GetSecTime();
+      long long used = now - handle->start_time; 
+      long long remaining = handle->prob_time - used;
+      fprintf(GlobalOut, 
+              "# Proof found by %s (started %lld, remaining %lld)\n",
+              handle->name, handle->start_time, remaining);
       fp = fopen(dest, "w");
-      fprintf(fp, "%s", DStrView(handle->output));
+      fprintf(fp, "%s", DStrView(handle->output));      
       fclose(fp);
       fprintf(GlobalOut, "%s", DStrView(handle->output));
+      
+      
+      if((spec->res_proof || spec->res_list_fof) && 
+         (remaining > used))
+      {
+         DStr_p res = DStrAlloc();
+         do_proof(res, spec->executable, spec->pexec, remaining, handle->input_file);
+         fp = fopen(dest, "a");
+         fprintf(fp, "%s", DStrView(res));      
+         fclose(fp);
+         DStrFree(res);
+      }
    }
    else
    {

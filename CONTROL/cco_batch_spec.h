@@ -51,6 +51,7 @@ typedef enum
 typedef struct batch_spec_cell
 {
    char         *executable;
+   char         *pexec;
    char*        category;     /* Just a name */
    long         per_prob_time;/* Wall clock, in seconds */
    long         total_time;   /* Wall clock, in seconds */
@@ -91,11 +92,11 @@ typedef struct strtuctured_FPO_spec_cell
 #define BatchSpecCellAlloc()    (BatchSpecCell*)SizeMalloc(sizeof(BatchSpecCell))
 #define BatchSpecCellFree(junk) SizeFree(junk, sizeof(BatchSpecCell))
 
-BatchSpec_p BatchSpecAlloc(char* executable, IOFormat format);
+BatchSpec_p BatchSpecAlloc(char* executable, char* pexec, IOFormat format);
 void        BatchSpecFree(BatchSpec_p spec);
 void        BatchSpecPrint(FILE* out, BatchSpec_p spec);
 
-BatchSpec_p BatchSpecParse(Scanner_p in, char* executable, IOFormat format);
+BatchSpec_p BatchSpecParse(Scanner_p in, char* executable, char* pexec, IOFormat format);
 
 #define StructFOFSpecCellAlloc()    (StructFOFSpecCell*)SizeMalloc(sizeof(StructFOFSpecCell))
 #define StructFOFSpecCellFree(junk) SizeFree(junk, sizeof(StructFOFSpecCell))

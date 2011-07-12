@@ -55,6 +55,8 @@ typedef struct e_pctrl_cell
    int          fileno;
    char*        input_file;
    char*        name;
+   long long    start_time;
+   long         prob_time;
    ProverResult result;
    DStr_p       output;
 }EPCtrlCell, *EPCtrl_p;
@@ -76,7 +78,8 @@ typedef struct e_pctrl_set_cell
 #define SZS_SATSTR_STR     "# SZS status Satisfiable"
 #define SZS_COUNTERSAT_STR "# SZS status CounterSatisfiable"
 
-
+#define E_OPTIONS " --print-pid -s -xAuto -tAuto -R --answers=1\
+ --assume-incompleteness --memory-limit=1024 --tstp-in --cpu-limit="
 
 #define EPCtrlCellAlloc()    (EPCtrlCell*)SizeMalloc(sizeof(EPCtrlCell))
 #define EPCtrlCellFree(junk) SizeFree(junk, sizeof(EPCtrlCell))
@@ -88,9 +91,9 @@ EPCtrl_p ECtrlCreate(char* prover, char* name, long cpu_limit, char* file);
 
 void     EPCtrlCleanup(EPCtrl_p ctrl);
 
-ProverResult EPCtrlGetResult(EPCtrl_p ctrl, 
-                             char* buffer, 
-                             long buf_size);
+bool EPCtrlGetResult(EPCtrl_p ctrl, 
+                     char* buffer, 
+                     long buf_size);
 
 #define EPCtrlSetCellAlloc()    (EPCtrlSetCell*)SizeMalloc(sizeof(EPCtrlSetCell))
 #define EPCtrlSetCellFree(junk) SizeFree(junk, sizeof(EPCtrlSetCell))
