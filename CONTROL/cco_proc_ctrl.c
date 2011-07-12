@@ -457,7 +457,7 @@ EPCtrl_p EPCtrlSetGetResult(EPCtrlSet_p set)
             case PRCounterSatisfiable:
             case PRFailure:
                   /* Process terminates, but no proof found -> Remove it*/
-                  fprintf(GlobalOut, "# %s terminated unsuccessfully\n", 
+                  fprintf(GlobalOut, "# No proof found by %s\n", 
                           handle->name);
                   
                   EPCtrlSetDeleteProc(set, handle);

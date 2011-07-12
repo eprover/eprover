@@ -116,7 +116,7 @@ static bool pcl_verify_eprover(ClauseSet_p problem,char *executable,
    OutClose(problemfile);
 
    DStrAppendStr(command, executable);
-   DStrAppendStr(command, " --tptp-in --no-pm-index --prefer-initial-clauses --ac-handling=None"
+   DStrAppendStr(command, " --tptp-in --prefer-initial-clauses --ac-handling=None"
 		 " --cpu-limit=");
    DStrAppendInt(command, time_limit);
    DStrAppendChar(command, ' ');

@@ -632,7 +632,8 @@ long SelectAxioms(GenDistrib_p      f_distrib,
 
    assert(PStackGetSP(clause_sets)==PStackGetSP(formula_sets));
 
-   fprintf(GlobalOut, "# Axiom selection starts (%lld)\n", GetSecTimeMod());
+   /* fprintf(GlobalOut, "# Axiom selection starts (%lld)\n",
+      GetSecTimeMod()); */
    DRelationAddClauseSets(drel, f_distrib, 
                           ax_filter->gen_measure, 
                           ax_filter->benevolence, 
@@ -643,7 +644,8 @@ long SelectAxioms(GenDistrib_p      f_distrib,
                            ax_filter->benevolence, 
                            ax_filter->generosity,
                            formula_sets);
-   fprintf(GlobalOut, "# DRelation constructed (%lld)\n", GetSecTimeMod());
+   /* fprintf(GlobalOut, "# DRelation constructed (%lld)\n",
+    * GetSecTimeMod()); */
  
    for(i=hyp_start; i<PStackGetSP(clause_sets); i++)
    {
@@ -652,7 +654,8 @@ long SelectAxioms(GenDistrib_p      f_distrib,
       hypos += FormulaSetFindHypotheses(PStackElementP(formula_sets, i),
                                         selq);
    }
-   fprintf(GlobalOut, "# Hypotheses found (%lld)\n", GetSecTimeMod());
+   /* fprintf(GlobalOut, "# Hypotheses found (%lld)\n",
+      GetSecTimeMod()); */
    VERBOSE(fprintf(stderr, "# Found %ld hypotheses\n", hypos););
    if(!hypos)
    {
@@ -678,7 +681,8 @@ long SelectAxioms(GenDistrib_p      f_distrib,
    }
    PStackFormulaDelProp(res_formulas, WPIsRelevant);
    PStackClauseDelProp(res_clauses, CPIsRelevant);
-   fprintf(GlobalOut, "# Axioms selected (%lld)\n", GetSecTimeMod());
+   /* fprintf(GlobalOut, "# Axioms selected (%lld)\n",
+      GetSecTimeMod()); */
    PQueueFree(selq);
    DRelationFree(drel);
  

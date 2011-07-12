@@ -244,6 +244,56 @@ long long GetUSecTime()
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: SecureFOpen()
+//
+//   As fopen(), but terminate with a useful error message on failure.   
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+FILE* SecureFOpen(char* name, char* mode)
+{
+   FILE* res;
+
+   res = fopen(name, mode);
+   if(!res)
+   {
+      TmpErrno = errno;
+      SysError("Cannot open file %s",FILE_ERROR,name);
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SecureFClose()
+//
+//   As fclose(), but print a warning on error.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+void SecureFClose(FILE* fp)
+{
+   if(fclose(fp))
+   {
+      TmpErrno = errno;
+      SysWarning("Problem closing file");
+   }
+}
+
+
+
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

@@ -75,6 +75,9 @@ long long  GetUSecTime();
 #define    GetSecTime() (GetUSecTime()/1000000)
 #define    GetSecTimeMod() (GetSecTime()%1000)
 
+FILE*      SecureFOpen(char* name, char* mode);
+void       SecureFClose(FILE* fp);
+
 #endif
 
 /*---------------------------------------------------------------------*/

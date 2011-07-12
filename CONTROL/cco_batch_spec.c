@@ -116,16 +116,17 @@ EPCtrl_p batch_create_runner(StructFOFSpec_p ctrl,
                            ax_filter,
                            cspec,
                            fspec);
-   fprintf(GlobalOut, "# Spec has %d clauses and %d formulas (%lld)\n",
-           PStackGetSP(cspec), PStackGetSP(fspec), GetSecTimeMod());
+   /* fprintf(GlobalOut, "# Spec has %d clauses and %d formulas (%lld)\n",
+      PStackGetSP(cspec), PStackGetSP(fspec), GetSecTimeMod()); */
    
    file = TempFileName();
-   fp   = fopen(file, "w");
+   fp   = SecureFOpen(file, "w");
    PStackClausePrintTSTP(fp, cspec);
    PStackFormulaPrintTSTP(fp, fspec);
-   fclose(fp);
+   SecureFClose(fp);
    
-   fprintf(GlobalOut, "# Written new problem (%lld)\n", GetSecTimeMod());
+   /* fprintf(GlobalOut, "# Written new problem (%lld)\n",
+    * GetSecTimeMod()); */
 
    AxFilterPrintBuf(name, 320, ax_filter);
    pctrl = ECtrlCreate(executable, name, cpu_time, file);
@@ -715,11 +716,12 @@ bool BatchProcessProblem(BatchSpec_p spec,
                             &(ctrl->parsed_includes));
    DestroyScanner(in);
    
-   fprintf(GlobalOut, "# Adding problem (%lld)\n", GetSecTimeMod());
+   /* fprintf(GlobalOut, "# Adding problem (%lld)\n",
+      GetSecTimeMod()); */
    StructFOFSpecAddProblem(ctrl, 
                           cset, 
                           fset);
-   fprintf(GlobalOut, "# Added problem (%lld)\n", GetSecTimeMod());
+   /* fprintf(GlobalOut, "# Added problem (%lld)\n", GetSecTimeMod()); */
 
 
    secs = GetSecTime();
@@ -757,21 +759,30 @@ bool BatchProcessProblem(BatchSpec_p spec,
       fprintf(GlobalOut, 
               "# Proof found by %s (started %lld, remaining %lld)\n",
               handle->name, handle->start_time, remaining);
-      fp = fopen(dest, "w");
+      fp = SecureFOpen(dest, "w");
       fprintf(fp, "%s", DStrView(handle->output));      
-      fclose(fp);
+      SecureFClose(fp);
       fprintf(GlobalOut, "%s", DStrView(handle->output));
       
       
-      if((spec->res_proof || spec->res_list_fof) && 
-         (remaining > used))
+      if(spec->res_proof || spec->res_list_fof)
       {
-         DStr_p res = DStrAlloc();
-         do_proof(res, spec->executable, spec->pexec, remaining, handle->input_file);
-         fp = fopen(dest, "a");
-         fprintf(fp, "%s", DStrView(res));      
-         fclose(fp);
-         DStrFree(res);
+         if(remaining > used)
+         {
+            DStr_p res = DStrAlloc();
+            do_proof(res, spec->executable, spec->pexec, remaining, handle->input_file);
+            fp = SecureFOpen(dest, "a");
+            fprintf(fp, "%s", DStrView(res));      
+            SecureFClose(fp);
+            DStrFree(res);
+         }
+         else
+         {
+            fp = SecureFOpen(dest, "a");
+            fprintf(fp, "# Only %lld seconds left, skipping proof reconstruction", 
+                    remaining);      
+            SecureFClose(fp);
+         }
       }
    }
    else
