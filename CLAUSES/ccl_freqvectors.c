@@ -176,6 +176,7 @@ FreqVector_p FreqVectorAlloc(long size)
 {
    FreqVector_p handle = FreqVectorCellAlloc();
 
+   /* printf("Size: %ld\n", size); */
    handle->size         = size;
    handle->array  = SizeMalloc(sizeof(long)*handle->size);
    FreqVectorInitialize(handle, 0);
