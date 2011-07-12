@@ -5,6 +5,7 @@ Version 1.3 ->
 
 - Adapted e_ltb_runner for CASC-23
 - Various minor fixes
+- New literal selection function
 - New auto-mode
 
 Version 1.2 -> 1.3 Ringtong
