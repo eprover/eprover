@@ -94,6 +94,7 @@ AxFilter_p AxFilterAlloc();
 void       AxFilterFree(AxFilter_p junk);
 AxFilter_p AxFilterParse(Scanner_p in);
 AxFilter_p AxFilterDefParse(Scanner_p in);
+bool       AxFilterPrintBuf(char* buf, size_t buflen, AxFilter_p filter);
 void       AxFilterPrint(FILE* out, AxFilter_p filter);
 void       AxFilterDefPrint(FILE* out, AxFilter_p filter);
 

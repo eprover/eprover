@@ -51,6 +51,9 @@ char* AxFilterDefaultSet ="\
    gf120_gu_RUU_F100_L00500=GSinE(CountFormulas,    1.2,,,  500,1.0)\
    gf120_gu_R02_F100_L20000=GSinE(CountFormulas,    1.2,, 2,20000,1.0)\
    gf150_gu_RUU_F100_L20000=GSinE(CountFormulas,    1.5,,,20000,1.0)\
+   gf120_gu_RUU_F100_L00100=GSinE(CountFormulas,    1.2,,,  100,1.0)\
+   gf200_gu_R03_F100_L20000=GSinE(CountFormulas,    2.0,, 3,20000,1.0)\
+   gf600_gu_R05_F100_L20000=GSinE(CountFormulas,    6.0,, 5,20000,1.0)\
 ";
 
 /*---------------------------------------------------------------------*/
@@ -263,6 +266,35 @@ AxFilter_p AxFilterDefParse(Scanner_p in)
 }
 
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: AxFilterPrintBuf()
+//
+//   Print an axiom filter specification into a buffer. Return true on
+//   success, false if the buffer is too small.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+bool AxFilterPrintBuf(char* buf, size_t buflen, AxFilter_p filter)
+{
+   int res;
+
+   res = snprintf(buf, buflen, "%s(%s, %f, %ld, %ld, %lld, %f)",
+                  "GSinE", 
+                  GeneralityMeasureNames[filter->gen_measure],
+                  filter->benevolence,
+                  filter->generosity,
+                  filter->max_recursion_depth,
+                  filter->max_set_size,
+                  filter->max_set_fraction);
+   return (res<=buflen);
+}
+
 /*-----------------------------------------------------------------------
 //
 // Function: AxFilterPrint()
@@ -277,14 +309,21 @@ AxFilter_p AxFilterDefParse(Scanner_p in)
 
 void AxFilterPrint(FILE* out, AxFilter_p filter)
 {
-   fprintf(out, "%s(%s, %f, %ld, %ld, %lld, %f)",
-           "GSinE", 
-           GeneralityMeasureNames[filter->gen_measure],
-           filter->benevolence,
-           filter->generosity,
-           filter->max_recursion_depth,
-           filter->max_set_size,
-           filter->max_set_fraction);
+   int size = 80;
+   bool success = false;
+   char* buf;
+
+   while(!success)
+   {
+      buf = SecureMalloc(size);
+      success =  AxFilterPrintBuf(buf, size, filter);
+      if(success)
+      {
+         fprintf(out, "%s", buf);
+      }
+      FREE(buf);
+      size *= 2;
+   }
 }
 
 
