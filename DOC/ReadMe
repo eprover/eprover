@@ -8,9 +8,9 @@ e_ltb_runner can find the executables.
 
 Command line:
 
-   eprover -xAuto -tAuto --tstp-in -s --memory-limit=3072 %s
+   eprover -xAuto -tAuto --tstp-in -s --memory-limit=3072 --cpu-limit=%d %s
 
-   eproof  -xAuto -tAuto --tstp-in --tstp-out --memory-limit=3072 %s
+   eproof  -xAuto -tAuto --tstp-in --tstp-out --memory-limit=3072 --cpu-limit=%d %s
 
 For the LTB category, run
 
