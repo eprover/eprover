@@ -128,6 +128,7 @@ int main(int argc, char* argv[])
    BatchSpec_p      spec;
    StructFOFSpec_p   ctrl;
    char             *prover = "eprover";
+   char             *xtract = "epclextract";
 
    assert(argv[0]);
    
@@ -139,13 +140,18 @@ int main(int argc, char* argv[])
 
    OpenGlobalOut(outname);
 
-   if((state->argc < 1) || (state->argc > 2))
+   if((state->argc < 1) || (state->argc > 3))
    {
-      Error("Usage: e_ltb_runner <spec> [<path-to-eprover>]\n", USAGE_ERROR);
+      Error("Usage: e_ltb_runner <spec> [<path-to-eprover> [<path-to-epclextract>]] \n",
+            USAGE_ERROR);
    }
-   if(state->argc == 2)
+   if(state->argc >= 2)
    {
       prover = state->argv[1];
+   }
+   if(state->argc >= 3)
+   {
+      xtract = state->argv[2];
    }
 
    in = CreateScanner(StreamTypeFile, state->argv[0], true, NULL);
@@ -153,13 +159,14 @@ int main(int argc, char* argv[])
    
    while(!TestInpTok(in, NoToken))
    {
-      spec = BatchSpecParse(in, prover, TSTPFormat);   
-      BatchSpecPrint(stdout, spec);
+      spec = BatchSpecParse(in, prover, xtract, TSTPFormat);   
+      /* BatchSpecPrint(stdout, spec); */
       ctrl = StructFOFSpecAlloc();
       StructFOFSpecInit(spec, ctrl);      
       BatchProcessProblems(spec, ctrl);
       StructFOFSpecFree(ctrl);
       BatchSpecFree(spec);
+      fprintf(GlobalOut, "\n\n# =============== Batch done ===========\n\n");
    }
    DestroyScanner(in); 
 
@@ -232,16 +239,16 @@ CLState_p process_options(int argc, char* argv[])
 
 void print_help(FILE* out)
 {
-   fprintf(out, "\n\
-E " VERSION " \"" E_NICKNAME "\"\n\
+   fprintf(out, "\n"
+NAME " " VERSION " \"" E_NICKNAME "\"\n\
 \n\
 Usage: " NAME " [options] [files]\n\
 \n\
-Read a CASC LTB batch specification file and process it.\n\
+Read a CASC 23 LTB batch specification file and process it.\n\
 \n");
    PrintOptions(stdout, opts, "Options:\n\n");
    fprintf(out, "\n\
-Copyright (C) 2010 by Stephan Schulz, " STS_MAIL "\n\
+"STS_COPYRIGHT", " STS_MAIL "\n\
 \n\
 You can find the latest version of E and additional information at\n"
 E_URL

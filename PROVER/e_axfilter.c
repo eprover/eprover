@@ -278,11 +278,6 @@ int main(int argc, char* argv[])
 
    OpenGlobalOut(outname);
 
-   if(state->argc < 1)
-   {
-      Error("Usage: e_axfilter <problem> [<options>]\n", USAGE_ERROR);
-   }
-      
    if(filtername)
    {
       filters = AxFilterSetAlloc();
@@ -294,7 +289,15 @@ int main(int argc, char* argv[])
    {
       filters = AxFilterSetCreateInternal(AxFilterDefaultSet);
    }
-   //AxFilterSetPrint(GlobalOut, filters);
+   if(dumpfilter)
+   {
+      AxFilterSetPrint(GlobalOut, filters);
+   }
+
+   if(state->argc < 1)
+   {
+      Error("Usage: e_axfilter <problem> [<options>]\n", USAGE_ERROR);
+   }    
    
    for(i=0; state->argv[i]; i++)
    {

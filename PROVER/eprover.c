@@ -2089,7 +2089,7 @@ CLState_p process_options(int argc, char* argv[])
 	    tmp = CLStateGetIntArg(handle, arg);
 	    if(tmp<=0)
 	    {
-	       Error("Argument to option --fvindex-maxdepth "
+	       Error("Argument to option --fvindex-maxfeatures "
 		     "has to be > 0", USAGE_ERROR);
 	    }
 	    fvi_parms->max_symbols = tmp;

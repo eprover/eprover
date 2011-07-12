@@ -39,9 +39,9 @@ Changes
 /*---------------------------------------------------------------------*/
 
 /* cvs tag E-1-3-004 */
-#define VERSION      "1.3-004"
+#define VERSION      "1.4pre001"
 
-#define E_NICKNAME     "Ringtong"
+#define E_NICKNAME     "Namring"
 
 #define E_URL "http://www.eprover.org"
 
