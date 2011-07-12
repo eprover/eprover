@@ -577,6 +577,7 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
 {
    long i;
    bool needs_equality = true;
+   bool needs_ans = false;
    char *status = ",[status(unknown)]", 
       *status_thm = ",[status(thm)]", 
       *status_cth = ",[status(cth)]", 
@@ -711,6 +712,20 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
 	 needs_equality = false;
          assert(expr->arg_no==1);
          break;
+   case PCLOpAnnotateQuestion:
+         fprintf(out, PCL_ANNOQ);
+         status = status_thm;
+	 needs_equality = false;
+         needs_ans      = true;
+         assert(expr->arg_no==1);
+         break;
+   case PCLOpEvalAnswers:
+         fprintf(out, PCL_EVANS);
+         status = status_thm;
+	 needs_equality = false;
+         needs_ans      = true;
+         assert(expr->arg_no==1);
+         break;         
    case PCLOpFOFDistributeDisjunction:
          fprintf(out, PCL_DSTR);
          status = status_thm;
@@ -735,6 +750,7 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
 	 needs_equality = false;
          assert(expr->arg_no==1);
          break;
+         
    default:
 	 assert(false && "Unknown PCL operator");
 	 break;
@@ -750,7 +766,11 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
    {
       fputs(",theory(equality)", out);
    }
-   fputs("])",out);	 
+   if(needs_ans)
+   {
+      fputs(",theory(answers)", out);
+   }
+    fputs("])",out);	 
 }
 
 

@@ -103,6 +103,11 @@ PCLStepProperties PCLParseExternalType(Scanner_p in)
          type = PCLTypeConjecture;
          NextToken(in);
       }
+      else if(TestInpId(in, "que"))
+      {
+         type = PCLTypeQuestion;
+         NextToken(in);
+      }
       else if(TestInpId(in, "neg"))
       {
          type = PCLTypeNegConjecture;
@@ -213,6 +218,10 @@ void PCLPrintExternalType(FILE* out, PCLStepProperties props)
          fputs(prepend, out);
          fputs("conj", out);
          break;
+   case PCLTypeQuestion:
+         fputs(prepend, out);
+         fputs("que", out);
+         break;
    default:
          break;         
    }
@@ -300,6 +309,9 @@ char * PCLPropToTSTPType(PCLStepProperties props)
    {
    case PCLTypeConjecture:
          return "conjecture";
+         break;
+   case PCLTypeQuestion:
+         return "question";
          break;
    case PCLTypeNegConjecture:
          return "negated_conjecture";
