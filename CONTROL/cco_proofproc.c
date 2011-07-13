@@ -1058,6 +1058,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    {
       return NULL;
    }
+
    if(ClauseIsSemFalse(pclause->clause))
    {
       state->answer_count ++;

@@ -309,13 +309,15 @@ long HCBAddWFCB(HCB_p hcb, WFCB_p wfcb, long steps)
 void HCBClauseEvaluate(HCB_p hcb, Clause_p clause)
 {
    long i;
+   bool empty;
    
    assert(clause->evaluations == NULL);
    ClauseAddEvalCell(clause, EvalsAlloc(hcb->wfcb_no));
    
+   empty = ClauseIsSemFalse(clause);
    for(i=0; i< hcb->wfcb_no; i++)
    {
-      ClauseAddEvaluation(PDArrayElementP(hcb->wfcb_list, i), clause, i);
+      ClauseAddEvaluation(PDArrayElementP(hcb->wfcb_list, i), clause, i, empty);
    }
 }
 

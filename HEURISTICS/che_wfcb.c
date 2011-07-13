@@ -106,11 +106,18 @@ void WFCBFree(WFCB_p junk)
 // Side Effects    : Adds evaluation, by calling wfcb->compute_eval()
 //
 /----------------------------------------------------------------------*/
-void ClauseAddEvaluation(WFCB_p wfcb, Clause_p clause, int pos)
+void ClauseAddEvaluation(WFCB_p wfcb, Clause_p clause, int pos, bool empty)
 {
    assert(clause->evaluations);
    clause->evaluations->evals[pos].heuristic = wfcb->wfcb_eval(wfcb->data, clause);
-   clause->evaluations->evals[pos].priority  = wfcb->wfcb_priority(clause);
+   if(empty)
+   {
+      clause->evaluations->evals[pos].priority = PrioBest;
+   }
+   else
+   {
+      clause->evaluations->evals[pos].priority  = wfcb->wfcb_priority(clause);
+   }
 }
 
 /*---------------------------------------------------------------------*/
