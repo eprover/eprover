@@ -45,6 +45,7 @@ typedef enum
    OPT_VERSION,
    OPT_VERBOSE,
    OPT_FAST,
+   OPT_PASS_COMMENTS,
    OPT_TSTP_PRINT,
    OPT_COMPETITION,
    OPT_NO_EXTRACT,
@@ -82,6 +83,12 @@ OptCell opts[] =
     "Do a fast extract. With this option the program understands only "
     "a subset of PCL and assumes that all \"proof\" and \"final\" "
     "steps are at the end of the protokoll."},
+   
+   {OPT_PASS_COMMENTS,
+    'C', "forward-comments",
+    NoArg, NULL,
+    "Pass comments found in the input through to the output while"
+    " reading input."},
 
    {OPT_COMPETITION,
     'c', "competition-framing",
@@ -122,7 +129,8 @@ long       time_limit  = 10;
 char       *executable = NULL;
 bool       fast_extract = false,
            comp_frame = false,
-           no_extract = false;
+           no_extract = false,
+           pass_comments = false;
 OutputFormatType output_format = pcl_format;
 
 /*---------------------------------------------------------------------*/
@@ -182,7 +190,7 @@ int main(int argc, char* argv[])
    }
    for(i=0; state->argv[i]; i++)
    {
-      in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL);
+      in = CreateScanner(StreamTypeFile, state->argv[i], !pass_comments, NULL);
       ScannerSetFormat(in, TPTPFormat);
       if(fast_extract)
       {
@@ -196,6 +204,7 @@ int main(int argc, char* argv[])
       DestroyScanner(in); 
    }
    VERBOUT2("PCL input read\n");
+   fflush(GlobalOut);
    
    if(fast_extract)
    {
@@ -323,6 +332,9 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_FAST:
 	    fast_extract = true;
 	    break;
+      case OPT_PASS_COMMENTS:
+            pass_comments = true;
+            break;
       case OPT_COMPETITION:
 	    comp_frame = true;
 	    break;

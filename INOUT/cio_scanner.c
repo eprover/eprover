@@ -588,7 +588,7 @@ static Token_p scan_real_token(Scanner_p in)
    while(TestTok(AktToken(in), SkipToken))
    {
       AktToken(in)->skipped = true;
-      if(!in->ignore_comments)
+      if(!in->ignore_comments && TestInpTok(in, Comment))
       {
 	 DStrAppendDStr(AktToken(in)->comment, AktToken(in)->literal);
       }

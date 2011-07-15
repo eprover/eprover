@@ -245,6 +245,11 @@ long PCLMiniProtParse(Scanner_p in, PCLMiniProt_p prot)
 
    while(TestInpTok(in, PosInt))
    {
+      if(!in->ignore_comments)
+      {
+         fprintf(GlobalOut, "%s", DStrView(AktToken(in)->comment));
+         DStrReset(AktToken(in)->comment);
+      }
       line = AktToken(in)->line;
       column = AktToken(in)->column;
       source_name = DStrGetRef(AktToken(in)->source);
@@ -262,6 +267,11 @@ long PCLMiniProtParse(Scanner_p in, PCLMiniProt_p prot)
       }
       DStrReleaseRef(source_name);
       res++;
+   }
+   if(!in->ignore_comments)
+   {
+      fprintf(GlobalOut, "%s", DStrView(AktToken(in)->comment));
+      DStrReset(AktToken(in)->comment);
    }
    return res;
 }

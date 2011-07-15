@@ -136,6 +136,7 @@ install: E
 	-sh -c 'development_tools/e_install PROVER/eprover $(EXECPATH) ' 
 	-sh -c 'development_tools/e_install PROVER/epclextract $(EXECPATH)'
 	-sh -c 'development_tools/e_install PROVER/eproof $(EXECPATH)'
+	-sh -c 'development_tools/e_install PROVER/eproof_ram $(EXECPATH)'
 	-sh -c 'development_tools/e_install PROVER/eground $(EXECPATH)'	
 	-sh -c 'development_tools/e_install PROVER/e_ltb_runner $(EXECPATH)'	
 	-sh -c 'development_tools/e_install PROVER/e_axfilter $(EXECPATH)'	
@@ -143,6 +144,7 @@ install: E
 	-sh -c 'development_tools/e_install DOC/man/eprover.1 $(MANPATH)'
 	-sh -c 'development_tools/e_install DOC/man/epclextract.1 $(MANPATH)'
 	-sh -c 'development_tools/e_install DOC/man/eproof.1 $(MANPATH)'
+	-sh -c 'development_tools/e_install DOC/man/eproof_ram.1 $(MANPATH)'
 	-sh -c 'development_tools/e_install DOC/man/eground.1 $(MANPATH)'
 	-sh -c 'development_tools/e_install DOC/man/e_ltb_runner.1 $(MANPATH)'
 	-sh -c 'development_tools/e_install DOC/man/e_axfilter.1 $(MANPATH)'
@@ -156,6 +158,7 @@ documentation:
 
 man: top
 	help2man -N -i DOC/bug_reporting PROVER/eproof > DOC/man/eproof.1
+	help2man -N -i DOC/bug_reporting PROVER/eproof_ram > DOC/man/eproof_ram.1
 	help2man -N -i DOC/bug_reporting PROVER/eprover > DOC/man/eprover.1
 	help2man -N -i DOC/bug_reporting PROVER/eground > DOC/man/eground.1
 	help2man -N -i DOC/bug_reporting PROVER/epclextract > DOC/man/epclextract.1
