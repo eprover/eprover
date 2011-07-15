@@ -37,22 +37,19 @@ print_help ()
 \n\
 Usage: eproof_ram [options] <file1> ...\n\
 \n\
-Eproof is a wrapper around E and epclextract. It will run E with\n\
+Eproof_ram is a wrapper around E and epclextract. It will run E with\n\
 output level 4 (full output of all potentially proof-relevant\n\
 inferences) and pipe the output through epclextract to provide a\n\
 proof derivation or a derivation of all clauses in the saturated\n\
 proof state.\n\
 \n\
-Please note that eproof_ram, unlike most E tools, does not support reading\n\
-problems from stdin. It will silently assume an empty input from stdin.\n\
+Eproof_ram will intercept the command line arguments and interpret\n\
+certain options as described below. All other options and arguments\n\
+are  passed on to eprover or epclextract, as appropriate. See those\n\
+tools help pages for the supported options.\n\
 \n\
-Eproof will intercept the command line arguments and interprete certain\n\
-options as described below. All other options and arguments are passed\n\
-on to eprover or epclextract, as appropriate. See those tools help\n\
-pages for the supported options.\n\
-\n\
-In particular, eproof will automatically do a close approximation of\n\
-'the right thing' (tm) with the options describing input- and output\n\
+In particular, eproof_ram will automatically do a close approximation\n\
+of 'the right thing' (tm) with the options describing input- and output\n\
 formats. \n\
 \n\
 Options:
