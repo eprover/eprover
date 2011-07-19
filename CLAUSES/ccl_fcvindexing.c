@@ -34,6 +34,7 @@ FVIndexParmsCell FVIDefaultParameters =
    FVIACFeatures,
    true,
    false,
+   false,
    FVINDEX_MAX_FEATURES_DEFAULT,
    FVINDEX_SYMBOL_SLACK_DEFAULT,
 };

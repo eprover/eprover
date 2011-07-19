@@ -43,6 +43,7 @@ typedef struct fvindex_parms_cell
    FVIndexType features;
    bool use_perm_vectors;
    bool eliminate_uninformative;
+   bool fold_features;
    long max_symbols;
    long symbol_slack;
 }FVIndexParmsCell, *FVIndexParms_p;

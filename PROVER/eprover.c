@@ -140,6 +140,7 @@ typedef enum
    OPT_WATCHLIST_NO_SIMPLIFY,
    OPT_NO_INDEXED_SUBSUMPTION,
    OPT_FVINDEX_STYLE,
+   OPT_FVINDEX_FOLD,
    OPT_FVINDEX_FEATURETYPES,
    OPT_FVINDEX_MAXFEATURES,
    OPT_FVINDEX_SLACK,
@@ -952,6 +953,11 @@ OptCell opts[] =
     " FV-Indexing, 'Perm' for permuted FV-Indexing and 'PermOpt' for "
     "permuted FV-Indexing with deletion of (suspected) non-informative "
     "features. Default behaviour is 'Perm'."},
+
+   {OPT_FVINDEX_FOLD,
+    '\0', "fvi-fold",
+    NoArg, NULL,
+    "Use folding feature vectors for subsumption indexing."},
    
    {OPT_FVINDEX_FEATURETYPES,
     '\0', "fvindex-featuretypes",
@@ -2062,6 +2068,9 @@ CLState_p process_options(int argc, char* argv[])
 		     "'None', 'Direct', 'Perm', or 'PermOpt'.", USAGE_ERROR);
 	    }
 	    break;
+      case OPT_FVINDEX_FOLD:
+            fvi_parms->fold_features = true;
+            break;
       case OPT_FVINDEX_FEATURETYPES:
 	    if(strcmp(arg, "None")==0)
 	    {

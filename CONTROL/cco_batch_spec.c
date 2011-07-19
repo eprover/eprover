@@ -768,16 +768,20 @@ bool BatchProcessProblem(BatchSpec_p spec,
       if(spec->res_proof || spec->res_list_fof)
       {
          if(remaining > used)
-         {
+         {            
             DStr_p res = DStrAlloc();
+            fprintf(GlobalOut, "# Proof reconstruction starting\n");
             do_proof(res, spec->executable, spec->pexec, remaining, handle->input_file);
             fp = SecureFOpen(dest, "a");
             fprintf(fp, "%s", DStrView(res));      
             SecureFClose(fp);
+            fprintf(GlobalOut, "# Proof reconstruction done\n");
             DStrFree(res);
          }
          else
          {
+            fprintf(GlobalOut, "# Only %lld seconds left, skipping proof reconstruction", 
+                    remaining);      
             fp = SecureFOpen(dest, "a");
             fprintf(fp, "# Only %lld seconds left, skipping proof reconstruction", 
                     remaining);      
@@ -788,6 +792,9 @@ bool BatchProcessProblem(BatchSpec_p spec,
    else
    {
       fprintf(GlobalOut, "# SZS status GaveUp for %s\n", source);
+      fp = SecureFOpen(dest, "w");
+      fprintf(fp, "# SZS status GaveUp for %s\n", source);
+      SecureFClose(fp);      
    }
    
    StructFOFSpecBacktrackToSpec(ctrl);
