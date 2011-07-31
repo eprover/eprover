@@ -771,7 +771,7 @@ TFormula_p TFormulaCopyDef(TB_p bank, TFormula_p form, long blocked,
 {
    TFormula_p res = NULL, arg1, arg2 = NULL;
    NumTree_p def_entry;
-   WFormula_p def;
+   long      def;
 
    if(TFormulaIsLiteral(bank->sig, form))
    {
@@ -781,11 +781,11 @@ TFormula_p TFormulaCopyDef(TB_p bank, TFormula_p form, long blocked,
    {
       def_entry = NumTreeFind(defs, form->entry_no);
       assert(def_entry);
-      def = def_entry->val1.p_val;
-      if(def->ident!=blocked)
+      def = def_entry->val1.i_val;
+      if(def!=blocked)
       {
          res = def_entry->val2.p_val;
-         PStackPushInt(defs_used, def->ident);
+         PStackPushInt(defs_used, def);
       }
    }
    if(!res)

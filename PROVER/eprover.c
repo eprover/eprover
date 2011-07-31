@@ -957,7 +957,7 @@ OptCell opts[] =
    {OPT_FVINDEX_FOLD,
     '\0', "fvi-fold",
     NoArg, NULL,
-    "Use folding feature vectors for subsumption indexing."},
+    "Use folding feature vectors for subsumption indexing (not yet implemented)."},
    
    {OPT_FVINDEX_FEATURETYPES,
     '\0', "fvindex-featuretypes",

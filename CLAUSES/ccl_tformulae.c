@@ -1042,7 +1042,7 @@ int TFormulaDecodePolarity(TB_p bank, TFormula_p form)
    {
       return -1;
    }
-   printf("No polarity\n");
+   printf("# Formula without polarity: ");
    TFormulaTPTPPrint(stdout, bank, form, true, false);            
    printf("\n");
    assert(false && "Formula without polarity !?!");

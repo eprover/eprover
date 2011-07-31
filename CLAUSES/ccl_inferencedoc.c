@@ -194,6 +194,7 @@ static void print_initial(FILE* out, Clause_p clause, char* comment)
 }
 
 
+
 /*-----------------------------------------------------------------------
 //
 // Function: print_paramod()
@@ -846,6 +847,46 @@ static void print_fof_intro_def(FILE* out, WFormula_p form, char* comment)
 }
 
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: print_fof_split_equiv()
+//
+//   Print the introduction of a formula by splitting <=> into => or
+//   <=. 
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+static void print_fof_split_equiv(FILE* out, WFormula_p form, 
+                                  WFormula_p parent, char* comment)
+{
+   assert(parent);
+   switch(DocOutputFormat)
+   {
+   case pcl_format:
+	 pcl_formula_print_start(out, form);
+         fprintf(out, PCL_SE"(%ld)",parent->ident);
+	 pcl_formula_print_end(out, comment);
+	 break;
+   case tstp_format:
+	 WFormulaTSTPPrint(out, form, PCLFullTerms, false);
+	 fprintf(out, ", ");
+         fprintf(out, "inference("PCL_SE", [status(thm)], [c_0_%ld])", 
+                 parent->ident);
+	 tstp_formula_print_end(out, comment);
+	 break;
+   default:
+	 fprintf(out, "# Output format not implemented.\n");
+	 break;
+   }
+}
+
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: print_fof_simpl()
@@ -1466,6 +1507,12 @@ void DocFormulaCreation(FILE* out, long level, WFormula_p formula,
 	    assert(!parent2);
 	    formula->ident = ++ClauseIdentCounter;
 	    print_fof_intro_def(out, formula, comment);
+	    break;            
+      case inf_fof_split_equiv:
+	    assert(parent1);
+	    assert(!parent2);
+	    formula->ident = ++ClauseIdentCounter;
+	    print_fof_split_equiv(out, formula, parent1, comment);
 	    break;            
       default:
             assert(false && "Unsupported formula creation method");

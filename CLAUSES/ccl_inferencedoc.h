@@ -51,6 +51,7 @@ typedef enum
    inf_rewrite,
    
    inf_fof_simpl,
+   inf_fof_split_equiv,
    inf_fof_nnf,
    inf_fof_intro_def,
    inf_fof_apply_def,

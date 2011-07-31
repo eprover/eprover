@@ -815,7 +815,7 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, TB_p terms)
    PStackPointer i;
    TFormula_p form, def, newdef;
    long       polarity;
-   WFormula_p w_def, formula;
+   WFormula_p w_def, c_def, formula;
 
    TFormulaSetDelTermpProp(set, TPCheckFlag|TPPosPolarity|TPNegPolarity);
    FormulaSetMarkPolarity(set);
@@ -828,14 +828,27 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, TB_p terms)
       form = PStackElementP(renamed_forms,i);
       cell = NumTreeFind(&defs, form->entry_no);
       assert(cell);
-      polarity = cell->val1.i_val;
+      polarity = TFormulaDecodePolarity(terms, form);
       def      = cell->val2.p_val;
       newdef = TFormulaCreateDef(terms, def, form, 
-                                 TFormulaDecodePolarity(terms, form));
+                                 0);
       w_def = WTFormulaAlloc(terms, newdef);
-      FormulaSetInsert(set, w_def);      
       DocFormulaCreationDefault(w_def, inf_fof_intro_def, NULL, NULL);
-      cell->val1.p_val = w_def; /* Replace polarity with definition */
+      cell->val1.i_val = w_def->ident; /* Replace polarity with
+                                        * definition id */
+      if(polarity == 0)
+      {
+         FormulaSetInsert(set, w_def);      
+      }
+      else
+      {
+         def = TFormulaCreateDef(terms, def, form, 
+                                 polarity);
+         c_def = WTFormulaAlloc(terms, def);
+         DocFormulaCreationDefault(c_def, inf_fof_split_equiv, w_def, NULL);
+         FormulaSetInsert(set, c_def);      
+         WFormulaFree(w_def);
+      }
    }
    PStackFree(renamed_forms);
 
