@@ -125,6 +125,9 @@ void ProofStatePropDocQuote(FILE* out, int level,
 			    ClauseProperties prop,
 			    ProofState_p state, char* comment);
 
+#define ProofStateAxNo(state) (ClauseSetCardinality((state)->axioms)+\
+                               FormulaSetCardinality((state)->f_axioms))
+
 #define WATCHLIST_INLINE_STRING "Use inline watchlist type"
 #define WATCHLIST_INLINE_QSTRING "'" WATCHLIST_INLINE_STRING "'"
 extern char* UseInlinedWatchList;

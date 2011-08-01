@@ -1137,13 +1137,87 @@ void print_help(FILE* out);
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: parse_spec()
+//
+//   Allocate proof state, parse input files into it, and check that
+//   requested properties are met. Factored out of main to make fore
+//   reasons of readability and length. 
+//
+// Global Variables: -
+//
+// Side Effects    : Memory, input, may terminate with error.
+//
+/----------------------------------------------------------------------*/
+
+ProofState_p parse_spec(CLState_p state, 
+                        IOFormat parse_format,
+                        bool error_on_empty,
+                        FunctionProperties free_symb_prop,
+                        long* ax_no)
+{   
+   ProofState_p proofstate;
+   Scanner_p in;
+   int i;
+   StrTree_p skip_includes = NULL;
+   long parsed_ax_no;
+
+   proofstate = ProofStateAlloc(free_symb_prop);
+   for(i=0; state->argv[i]; i++)
+   {
+      in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL);
+      ScannerSetFormat(in, parse_format);
+      
+      FormulaAndClauseSetParse(in, proofstate->axioms, 
+                               proofstate->f_axioms,
+                               proofstate->original_terms, 
+                               NULL,
+                               &skip_includes);
+      CheckInpTok(in, NoToken);
+      DestroyScanner(in); 
+   }
+   VERBOUT2("Specification read\n");
+
+   parsed_ax_no = ProofStateAxNo(proofstate);
+
+   if(error_on_empty && (parsed_ax_no == 0))
+   {
+#ifdef PRINT_SOMEERRORS_STDOUT
+      fprintf(GlobalOut, "# Error: Input file contains no clauses or formulas\n");
+      TSTPOUT(GlobalOut, "InputError");
+#endif
+      Error("Input file contains no clauses or formulas", OTHER_ERROR);
+   }
+   *ax_no = parsed_ax_no;
+   return proofstate;
+}
+
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: main()
+//
+//   Main entry point of the prover.
+//
+// Global Variables: Plenty, mostly flags shared with
+//                   process_options. See list above.
+//
+// Side Effects    : Yes ;-)
+//
+/----------------------------------------------------------------------*/
+
+
 int main(int argc, char* argv[])
 {
    CLState_p        state;
-   Scanner_p        in;    
    ProofState_p     proofstate;
    ProofControl_p   proofcontrol;
-   int              i;
    Clause_p         success = NULL, 
                     filter_success;
    bool             out_of_clauses;
@@ -1154,7 +1228,6 @@ int main(int argc, char* argv[])
                     parsed_ax_no,
                     relevancy_pruned = 0;
    double           preproc_time;
-   StrTree_p        skip_includes = NULL;
 
    assert(argv[0]);
 
@@ -1184,35 +1257,10 @@ int main(int argc, char* argv[])
       CLStateInsertArg(state, "-");
    }
 
-   proofstate = ProofStateAlloc(free_symb_prop);
+   proofstate = parse_spec(state, parse_format, 
+                           error_on_empty, free_symb_prop,
+                           &parsed_ax_no);  
    proofcontrol = ProofControlAlloc();
-   
-   for(i=0; state->argv[i]; i++)
-   {
-      in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL);
-      ScannerSetFormat(in, parse_format);
-      
-      FormulaAndClauseSetParse(in, proofstate->axioms, 
-                               proofstate->f_axioms,
-                               proofstate->original_terms, 
-                               NULL,
-                               &skip_includes);
-      CheckInpTok(in, NoToken);
-      DestroyScanner(in); 
-   }
-   VERBOUT2("Specification read\n");
-
-   parsed_ax_no = ClauseSetCardinality(proofstate->axioms)+
-      FormulaSetCardinality(proofstate->f_axioms);
-
-   if(error_on_empty && (parsed_ax_no == 0))
-   {
-#ifdef PRINT_SOMEERRORS_STDOUT
-      fprintf(GlobalOut, "# Error: Input file contains no clauses or formulas\n");
-      TSTPOUT(GlobalOut, "InputError");
-#endif
-      Error("Input file contains no clauses or formulas", OTHER_ERROR);
-   }
 
    FormulaSetDocInital(GlobalOut, OutputLevel, proofstate->f_axioms);
    ClauseSetDocInital(GlobalOut, OutputLevel, proofstate->axioms);
@@ -1246,7 +1294,8 @@ int main(int argc, char* argv[])
    ProofControlInit(proofstate, proofcontrol, h_parms, 
                     fvi_parms, wfcb_definitions, hcb_definitions);
    PCLFullTerms = pcl_full_terms; /* Preprocessing always uses full
-				     terms! */
+				     terms, so we set the flag for
+				     the main proof search only now! */
    ProofStateInit(proofstate, proofcontrol);
 
    VERBOUT2("Prover state initialized\n");   

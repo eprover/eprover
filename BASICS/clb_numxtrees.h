@@ -50,12 +50,12 @@ Changes
    part of the data stucture and will not be touched by deallocating
    trees or tree nodes. */ 
 
-typedef struct numtreecell
+typedef struct numxtreecell
 {
-   long               key;
-   IntOrP             vals[NUMXTREEVALUES];
-   struct numtreecell *lson;
-   struct numtreecell *rson;
+   long                key;
+   IntOrP              vals[NUMXTREEVALUES];
+   struct numxtreecell *lson;
+   struct numxtreecell *rson;
 }NumXTreeCell, *NumXTree_p;
 
 

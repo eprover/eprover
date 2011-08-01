@@ -733,7 +733,7 @@ void TFormulaSetDelTermpProp(FormulaSet_p set, TermProperties prop)
 //
 /----------------------------------------------------------------------*/
 
-void TFormulaSetFindDefs(FormulaSet_p set, TB_p terms, NumTree_p *defs, 
+void TFormulaSetFindDefs(FormulaSet_p set, TB_p terms, NumXTree_p *defs, 
                          PStack_p renamed_forms)
 {
    WFormula_p handle;
@@ -768,7 +768,7 @@ void TFormulaSetFindDefs(FormulaSet_p set, TB_p terms, NumTree_p *defs,
 //
 /----------------------------------------------------------------------*/
 
-long TFormulaApplyDefs(WFormula_p form, TB_p terms, NumTree_p *defs)
+long TFormulaApplyDefs(WFormula_p form, TB_p terms, NumXTree_p *defs)
 {
    TFormula_p reduced;
    long       res = 0;
@@ -801,6 +801,15 @@ long TFormulaApplyDefs(WFormula_p form, TB_p terms, NumTree_p *defs)
 //   adding the necessary definitions. Returns the number of
 //   definitions.
 //
+//    Note that NumXTree cells are used as follows:
+//    key is the term ident of the formula to be replaced
+//    vals[0].i_val starts as the polarity of that formula, but turns
+//                  into the id of the "virtual" definition used for
+//                  output 
+//    vals[1].p_val is a pointer to the defined predicate term.
+//    vals[2].i_val is the id of the real definition used to protect
+//                  the definition to be applied to itself.
+//
 // Global Variables: -
 //
 // Side Effects    : Changes set.
@@ -810,7 +819,7 @@ long TFormulaApplyDefs(WFormula_p form, TB_p terms, NumTree_p *defs)
 long TFormulaSetIntroduceDefs(FormulaSet_p set, TB_p terms)
 {
    long res = 0;
-   NumTree_p defs = NULL, cell;
+   NumXTree_p defs = NULL, cell;
    PStack_p  renamed_forms = PStackAlloc();
    PStackPointer i;
    TFormula_p form, def, newdef;
@@ -826,26 +835,32 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, TB_p terms)
    for(i=0; i<PStackGetSP(renamed_forms); i++)
    {
       form = PStackElementP(renamed_forms,i);
-      cell = NumTreeFind(&defs, form->entry_no);
+      cell = NumXTreeFind(&defs, form->entry_no);
       assert(cell);
       polarity = TFormulaDecodePolarity(terms, form);
-      def      = cell->val2.p_val;
+      def      = cell->vals[1].p_val;
       newdef = TFormulaCreateDef(terms, def, form, 
                                  0);
       w_def = WTFormulaAlloc(terms, newdef);
       DocFormulaCreationDefault(w_def, inf_fof_intro_def, NULL, NULL);
-      cell->val1.i_val = w_def->ident; /* Replace polarity with
+      cell->vals[0].i_val = w_def->ident; /* Replace polarity with
                                         * definition id */
       if(polarity == 0)
       {
+         cell->vals[2].i_val = w_def->ident; /* ..and this is the
+                                                blocking id of the
+                                                actual definition.*/
          FormulaSetInsert(set, w_def);      
       }
       else
       {
-         def = TFormulaCreateDef(terms, def, form, 
+         newdef = TFormulaCreateDef(terms, def, form, 
                                  polarity);
-         c_def = WTFormulaAlloc(terms, def);
+         c_def = WTFormulaAlloc(terms, newdef);
          DocFormulaCreationDefault(c_def, inf_fof_split_equiv, w_def, NULL);
+         cell->vals[2].i_val = c_def->ident; /* ..and this is the
+                                                blocking id of the actual
+                                                definition.*/
          FormulaSetInsert(set, c_def);      
          WFormulaFree(w_def);
       }
@@ -856,7 +871,7 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, TB_p terms)
    {
       TFormulaApplyDefs(formula, terms, &defs);
    }    
-   NumTreeFree(defs);
+   NumXTreeFree(defs);
    return res;
 }
 

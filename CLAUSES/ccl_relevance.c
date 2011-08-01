@@ -496,9 +496,9 @@ long ProofStatePreprocess(ProofState_p state, long level)
    }
    reldata = RelevanceDataCompute(state);
 
-   old_axno = state->axioms->members+state->f_axioms->members;
+   old_axno = ProofStateAxNo(state);
    proofstate_rel_prune(state, reldata, level);
-   new_axno = state->axioms->members+state->f_axioms->members;
+   new_axno = ProofStateAxNo(state);
 
    RelevanceFree(reldata);
    

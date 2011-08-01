@@ -604,19 +604,19 @@ long TFormulaEstimateClauses(TB_p bank, TFormula_p form, bool pos)
 /----------------------------------------------------------------------*/
 
 TFormula_p TFormulaDefRename(TB_p bank, TFormula_p form, int polarity, 
-                             NumTree_p *defs, PStack_p renamed_forms)
+                             NumXTree_p *defs, PStack_p renamed_forms)
 {
-   NumTree_p def = NumTreeFind(defs, form->entry_no);
+   NumXTree_p def = NumXTreeFind(defs, form->entry_no);
    
    assert((polarity<=1) && (polarity >=-1));
 
    if(def)
    {
-      if(polarity!=def->val1.i_val)
+      if(polarity!=def->vals[0].i_val)
       {
-         def->val1.i_val = 0;
+         def->vals[0].i_val = 0;
       }
-      return def->val2.p_val;
+      return def->vals[1].p_val;
    }
    else
    {
@@ -635,15 +635,15 @@ TFormula_p TFormulaDefRename(TB_p bank, TFormula_p form, int polarity,
       PStackFree(var_stack);
       PTreeFree(free_vars);
       
-      def = NumTreeCellAlloc();
+      def = NumXTreeCellAlloc();
       def->key = form->entry_no;      
-      def->val1.i_val = polarity;
-      def->val2.p_val = rename_atom;
-      NumTreeInsert(defs, def);
+      def->vals[0].i_val = polarity;
+      def->vals[1].p_val = rename_atom;
+      NumXTreeInsert(defs, def);
       TermCellSetProp(form, TPCheckFlag);
       PStackPushP(renamed_forms, form);
 
-      return def->val2.p_val;
+      return def->vals[1].p_val;
    }
 }
 
@@ -667,7 +667,7 @@ TFormula_p TFormulaDefRename(TB_p bank, TFormula_p form, int polarity,
 /----------------------------------------------------------------------*/
 
 void TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity,
-                      long def_limit, NumTree_p *defs, 
+                      long def_limit, NumXTree_p *defs, 
                       PStack_p renamed_forms)
 {
    assert((polarity<=1) && (polarity >=-1));
@@ -767,11 +767,11 @@ void TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity,
 /----------------------------------------------------------------------*/
 
 TFormula_p TFormulaCopyDef(TB_p bank, TFormula_p form, long blocked, 
-                           NumTree_p *defs, PStack_p defs_used) 
+                           NumXTree_p *defs, PStack_p defs_used) 
 {
    TFormula_p res = NULL, arg1, arg2 = NULL;
-   NumTree_p def_entry;
-   long      def;
+   NumXTree_p def_entry;
+   long      def, realdef;
 
    if(TFormulaIsLiteral(bank->sig, form))
    {
@@ -779,12 +779,13 @@ TFormula_p TFormulaCopyDef(TB_p bank, TFormula_p form, long blocked,
    }
    else if(TermCellQueryProp(form, TPCheckFlag))
    {
-      def_entry = NumTreeFind(defs, form->entry_no);
+      def_entry = NumXTreeFind(defs, form->entry_no);
       assert(def_entry);
-      def = def_entry->val1.i_val;
-      if(def!=blocked)
+      def     = def_entry->vals[0].i_val;
+      realdef = def_entry->vals[2].i_val;
+      if(realdef!=blocked)
       {
-         res = def_entry->val2.p_val;
+         res = def_entry->vals[1].p_val;
          PStackPushInt(defs_used, def);
       }
    }

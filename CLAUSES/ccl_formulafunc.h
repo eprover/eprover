@@ -61,9 +61,9 @@ long TFormulaToCNF(WFormula_p form, ClauseProperties type, ClauseSet_p set,
                    TB_p terms, VarBank_p fresh_vars);
 
 void TFormulaSetDelTermpProp(FormulaSet_p set, TermProperties prop);
-void TFormulaSetFindDefs(FormulaSet_p set, TB_p terms, NumTree_p *defs, 
+void TFormulaSetFindDefs(FormulaSet_p set, TB_p terms, NumXTree_p *defs, 
                          PStack_p renamed_forms);
-long TFormulaApplyDefs(WFormula_p form, TB_p terms, NumTree_p *defs);
+long TFormulaApplyDefs(WFormula_p form, TB_p terms, NumXTree_p *defs);
 long TFormulaSetIntroduceDefs(FormulaSet_p set, TB_p terms);
 
 
