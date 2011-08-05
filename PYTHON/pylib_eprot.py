@@ -259,6 +259,21 @@ class eprot(object):
             del(self.results[res])
         self.synced = False
 
+    def get_result(self, res):
+        """
+        Return the result for problem res (or None).
+        """
+        try:
+            return self.results[res]
+        except KeyError:
+            return None
+
+    def get_successes(self):
+        """
+        Return set of problems that have been solved in this protocol.
+        """        
+        return set([i.name() for i in self.results.values() if i.success()])
+
     def filter(self, problemlist):
         """
         Filter result list against a problemlist.
@@ -550,18 +565,21 @@ if __name__ == '__main__':
         sys.exit()
 
     # Minimal unit test
-    testprt = eprot("X----_auto_300")
-    testprt.parse("/Users/schulz/EPROVER/TESTRUNS_CASC")
+    testprt = eprot("X----_autodev_300")
+    testprt.parse("/Users/schulz/EPROVER/TESTRUNS_PEGASUS")
     #print testprt
     print testprt.evaluate()
     #print parse_espec_file("~/EPROVER/TESTRUNS_CASC/tptp_U----_043_B07_F1_PI_AE_CS_SP_S0Y")
-    testspec = espec("X----_auto_300")
-    testspec.parse("/Users/schulz/EPROVER/TESTRUNS_CASC")
+    
+    print testprt.get_successes()
+    testspec = espec("X----_autodev_300")
+    testspec.parse("/Users/schulz/EPROVER/TESTRUNS_PEGASUS")
     #print testspec
     
-    job = estrat_task("X----_auto_300")
-    job.parse("~/EPROVER/TESTRUNS_CASC/", "~/EPROVER/TESTRUNS_CASC/")
+    job = estrat_task("X----_autodev_300")
+    job.parse("~/EPROVER/TESTRUNS_PEGASUS/", "~/EPROVER/TESTRUNS_PEGASUS/")
     #print job.prot
     print job.job_complete
     jobs = [job.spec.create_job(i) for i in job.find_missing()]
     print jobs
+    

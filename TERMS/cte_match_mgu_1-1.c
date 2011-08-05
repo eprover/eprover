@@ -247,7 +247,9 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
    if((TermCellQueryProp(t1, TPPredPos) && TermIsVar(t2))||
       (TermCellQueryProp(t2, TPPredPos) && TermIsVar(t1)))
    {
+      PERF_CTR_EXIT(MguTimer);
       return false;
+
    }
    jobs = PQueueAlloc();
    backtrack = PStackGetSP(subst);
@@ -275,6 +277,7 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
 	    {
 	       SubstBacktrackToPos(subst,backtrack);
 	       PQueueFree(jobs);
+               PERF_CTR_EXIT(MguTimer);
 	       return false;
 	    }
 	    else
@@ -289,6 +292,7 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
 	 {
 	    SubstBacktrackToPos(subst,backtrack);
 	    PQueueFree(jobs);
+            PERF_CTR_EXIT(MguTimer);
 	    return false;
 	 }
 	 else
