@@ -241,6 +241,10 @@ max_bsub_batch = 100
 How many prover runs are combined in one batch.
 """
 
+cores = 4
+"""
+How many jobs to run in parallel
+"""
 
 res_complete_marker = re.compile("### Job complete ###")
 """
@@ -275,10 +279,11 @@ bsub_header_tmplt = \
 #BSUB -e %s.err  
 #BSUB -W 10:00
 #BSUB -q small 
-#BSUB -n 1      
+#BSUB -n %d      
 #
-# Run serial executable on 1 cpu of one node
+# Run prunner running multiple jobs in parallel
 cd %s
+%s/prunner.py -c %d << EOF
 """
 """
 Template for generating bsub job headers.
@@ -286,8 +291,7 @@ Template for generating bsub job headers.
 
 bsub_job_tmplt = \
 """
-echo "### Running: %s"
-env TPTP=%s %s/eprover --print-statistics --tptp3-format --resources-info %s %s
+echo "### Running: %s";env TPTP=%s %s/eprover --print-statistics --tptp3-format --resources-info %s %s
 """
 """
 Template for generating bsub job entries.
@@ -468,7 +472,7 @@ def bsub_gen_header(job):
     """
     jname = encode_job_name(job)
     return bsub_header_tmplt%\
-           (jname, jname, jname, bsub_rundir)
+           (jname, jname, jname, cores, bsub_rundir, eprover_dir, cores)
 
 
 def bsub_gen_job(job):
@@ -491,7 +495,7 @@ def bsub_gen_batch(batch):
     joblist = [bsub_gen_job(i) for i in batch]
     jobs = "\n".join(joblist)
     
-    footer = '\necho "### Job complete ###"\n'
+    footer = '\nEOF\necho "### Job complete ###"\n'
 
     return header+jobs+footer
 
@@ -548,14 +552,15 @@ x2_stats = [
 ]
 
 if __name__ == '__main__':
-    opts, args = getopt.gnu_getopt(sys.argv[1:], "hvpsfb:j:xX",
+    opts, args = getopt.gnu_getopt(sys.argv[1:], "hvpsfb:j:xXc:",
                                    ["--pegasus",
                                     "--peg-sine",
                                     "--force",
                                     "--batchsize=",
                                     "--jobs="
                                     "--ext-stats",
-                                    "--ext2-stats"])
+                                    "--ext2-stats",
+                                    "--cores="])
     force_scheduling = False
     stats = ["# Processed clauses",
              "# Unification attempts",
@@ -583,6 +588,8 @@ if __name__ == '__main__':
         elif option == "-X" or option == "--ext2-stats":
             stats.extend(x_stats)
             stats.extend(x2_stats)
+        elif option == "-c" or option == "--cores":
+            cores = int(optarg)
         else:
             sys.exit("Unknown option "+ option)
 
