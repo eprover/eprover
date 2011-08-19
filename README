@@ -24,9 +24,9 @@ Simplest installation (in-place):
 > cd PROVER
 > eprover -h | more
 
-This will only allow you to run the eproof script in place (most other
-programs, including eprover, are stand-alone binaries and should run
-from everywhere).
+This will only allow you to run the eproof and eproof_ram scripts in
+place (most other programs, including eprover, are stand-alone
+binaries and should run from everywhere).
 
 Read the rest of this file and the fine (if incomplete) manual if
 anything fails. There should be a copy in DOC/eprover.pdf.
@@ -151,13 +151,21 @@ proofs. To use this, type
 
   eprover -l4 <other-stuff> | epclextract
 
-or use the wrapper-script
+or use the wrapper-scripts
 
   eproof <any options> problem
+  eproof_ram <any options> problem
+
+The difference between the two is primarily that eproof will use
+temporary files and parse proof output for postprocessing after the
+proof search, while eproof_ram uses a pipe and parses proof during the
+search. The first needs less RAM, the second needs more ram, and can
+utilize 2 CPU cores for better wall clock performance.
 
 You can check the output of epclextract (and eproof) for correctness
 using the tool checkproof in the same directory. "checkproof -h"
-should give you all necessary information.
+should give you all necessary information. Note that checkproof cannot
+yet deal with the full first order part, and will skip it.
 
 
 
