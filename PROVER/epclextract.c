@@ -82,7 +82,7 @@ OptCell opts[] =
     NoArg, NULL,
     "Do a fast extract. With this option the program understands only "
     "a subset of PCL and assumes that all \"proof\" and \"final\" "
-    "steps are at the end of the protokoll."},
+    "steps are at the end of the protocoll."},
    
    {OPT_PASS_COMMENTS,
     'C', "forward-comments",
