@@ -528,8 +528,15 @@ void* IntMapDelKey(IntMap_p map, long key)
             map->entry_no--;
             res = handle->val1.p_val;
             if(handle->key == map->max_key)
-            {
-               map->max_key = NumTreeMaxKey(map->values.tree);               
+            {               
+               if(map->values.tree)
+               {
+                  map->max_key = NumTreeMaxKey(map->values.tree);               
+               }
+               else
+               {
+                  map->max_key = map->min_key;
+               }
                if(switch_to_array(map->min_key, map->max_key, map->max_key, map->entry_no))
                {
                   tree_to_array(map);
