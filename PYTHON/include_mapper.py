@@ -11,7 +11,7 @@ Options:
 
 -h Print this help.
 
-Copyright 2008 Stephan Schulz, schulz@eprover.org
+Copyright 2008-2011 Stephan Schulz, schulz@eprover.org
 
 This code is part of the support structure for the equational
 theorem prover E. Visit
@@ -57,7 +57,10 @@ import pylib_io
 import pylib_generic
 
 
-lower_word = re.compile("[a-z][a-z0-9_]*")
+Lower_word = re.compile("[a-z][a-z0-9_]*")
+include_re = re.compile("include\(.*\)\.")
+sq_re      = re.compile("'.*'")
+
 
 class tptp_atomic_word(object):
     """
@@ -73,25 +76,23 @@ class tptp_atomic_word(object):
         else:
             pass
             
-        
-
-
+       
 class tptp_include(object):
     """
     Represents a TPTP include statement, with filename and optional
     list of included axioms.
     """
-    def __init__(self, file, selection = None):
-        self.file = file
-        self.selection = selection
+    def __init__(self, str, refdir = None):
+        mo = sq_re.search(str)        
+        self.name = mo.group()[1:-1]
+        self.refdir = refdir
 
     def __str__(self):
-        inc1 = "include('"+self.file+"'"
-        if self.selection:
-            inc2 = "["+",".join(self.selection)+"]"
-        else:
-            inc2 = ""
-        return inc1+inc2+")."
+        inc1 = "include('"+self.name+"')."
+        return inc1
+
+    def __repr__(self):
+        return self.__str__()
         
 
 def find_tptp_file(filename, refdir=None):
@@ -99,14 +100,10 @@ def find_tptp_file(filename, refdir=None):
     Find a TPTP file and open it. Return filepointer, directory of
     file, or none of opening fails.
     """
-    print "Tring to open", filename
-    print "os.path.isabs():", os.path.isabs(filename)
 
     if os.path.isabs(filename) or filename == "-":        
-        print "Here we are"
         try:
             fp = pylib_io.flexopen(filename, "r")
-            print "Open ok"
             return (fp, pylib_io.get_directory(filename))
         except Exception, inst:
             print inst
@@ -135,13 +132,10 @@ def find_tptp_file(filename, refdir=None):
         return (fp, pylib_io.get_directory(name))
     except:
         return None
-
-    
    
 
 
-def find_includes(filename, refdir = None, maxread=20000):
-    print "Tring to open", filename
+def find_includes(filename, refdir = None, maxread=50000):
     try:
         fp,refdir = find_tptp_file(filename, refdir)
     except Exception,inst:
@@ -149,11 +143,32 @@ def find_includes(filename, refdir = None, maxread=20000):
         raise Exception("Cannot open file: "+filename)
 
     file = fp.read(maxread)
-    print file
+    
+    
     pylib_io.flexclose(fp)
-    res = []
+    res = list([])
+    start = 0
+    mo = include_re.search(file, start)
+    while mo:
+        start = mo.end()
+        inc  = mo.group()
+        tmpinc = tptp_include(inc, refdir)
+        res.append(tmpinc)
+        mo = include_re.search(file, start)
+        
     return res
 
+
+def find_all(files):
+    res = []
+    while files:
+        first = files.pop(0)
+        res.append(first)
+        rest  = files[1:]
+        new = find_includes(first[0], first[1])
+        tmp = [(i.name, i.refdir) for i in new]
+        files.extend(tmp)
+    return res
 
 
 if __name__ == '__main__':
@@ -168,5 +183,7 @@ if __name__ == '__main__':
 
     filenames = args
 
-    for i in filenames:
-        print find_includes(i)
+    files = [(i, None) for i in filenames]
+    res = find_all(files)
+    for i in res:
+        print "%-50s %s"%i

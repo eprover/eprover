@@ -69,6 +69,17 @@ def filter_common_successes(prots):
         i.filter(succs)
     return prots
 
+def filter_hard_problems(prots, selector, limit):
+    """
+    Return a list of problems with a value of least limit in 
+    """
+    hard = prots[0].get_by_limit(selector, limit)
+    for i in prots:
+        i.filter(hard)
+    return prots
+    
+
+
 def res_hash(res):
     """
     Return a hash of the result parameters such that an equal hash is
@@ -112,38 +123,57 @@ times = [
     (11, "MGU time"),
     (15, "BR  time"),
     (16, "BRI time")]   
+
+counts = [
+    (5, "Unification attempts"),
+    (6, "Unification successes"),
+    ]
+
+count_mixer = [
+    (lambda x:(float(x[1])/float(x[0])), "Unif. Succ. Rate")]
     
 
-def profile_analysis(prot, profile_selector):
+def profile_analysis(prot, profile_selector, mixers = []):
+    """
+    Return a tuple name, raw values, "mixed" values.
+    """
     res =  map(lambda x:pylib_maths.sum([float(i.values[x[0]]) \
                                          for i in prot.results.values()]),\
                profile_selector)
-    return prot.name, res
+    mix = []
+    for mixer in mixers:
+        mix.append(mixer[0](res))
+    return prot.name, res, mix
 
 def table_line(prot_data):
     res = "%-12s "%(prot_data[0][10:],)
     for i in prot_data[1]:
         res = res+"& %16.3f "%(i,)
+    for i in prot_data[2]:
+        res = res+"& %16.3f "%(i,)
     res = res+" \\\\\n"
     return res
 
-def table_header(times):
+def table_header(times, mixers):
     line1 = "\\begin{tabular}{l"
     line2 = "\\textbf{Name}"
     for i in times:
         line1=line1+"|r"
         line2=line2+"& %-16s"%("\\textbf{"+i[1]+"}",)
+    for i in mixers:
+        line1=line1+"|r"
+        line2=line2+"& %-16s"%("\\textbf{"+i[1]+"}",)
     res = line1+"}\n"+line2+"\\\\\n"
     return res
 
-def table_lines(protocols, times):
-    res = map(lambda x:table_line(profile_analysis(x, times)), protocols)
+def table_lines(protocols, times, mixers):
+    res = map(lambda x:table_line(profile_analysis(x, times, mixers)), protocols)
     return "".join(res)
 
 
-def do_table(prots, times):
-    res = table_header(times)+"\hline\n"+\
-          table_lines(prots, times)+\
+def do_table(prots, times, mixers = []):
+    res = table_header(times, mixers)+"\hline\n"+\
+          table_lines(prots, times, mixers)+\
           "\hline\n\end{tabular}"
     return res
     
@@ -176,7 +206,18 @@ if __name__ == '__main__':
     
     filter_common_successes(prots)        
     filter_common_search(prots)
+    # print prots[0].results_no()
+    # filter_hard_problems(prots, 4, 1000)
+    # print prots[0].results_no()
+
+    for res in prots[0].results.keys():
+        print prots[0].result(res).values[2], prots[11].result(res).values[2]
+        
+        
+        
+    #print do_table(prots, times)
+    #print do_table(prots, counts, count_mixer)
     
-    print do_table(prots, times)
-    
+    # print prots[0]
+    # print prots[11]
     

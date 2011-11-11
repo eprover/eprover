@@ -274,6 +274,16 @@ class eprot(object):
         """        
         return set([i.name() for i in self.results.values() if i.success()])
 
+    def get_by_limit(self, selector, limit):
+        """
+        Return a set of problems p that have a value of at least limit
+        in p.values[selector].
+        """
+        return set([i.name()\
+                    for i in self.results.values()\
+                    if (float(i.values[selector])>=limit)])
+        
+
     def filter(self, problemlist):
         """
         Filter result list against a problemlist.

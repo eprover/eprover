@@ -42,10 +42,14 @@ Options:
 
 -X
 --ext2-stats
-   Collect extendet stats and profiling information (assumes the
+   Collect extended stats and profiling information (assumes the
    prover is compiled with internal profiling support enabled).
+
+-Y
+--ext3-stats
+  Collect even more extended stats.
    
-Copyright 2010 Stephan Schulz, schulz@eprover.org
+Copyright 2010-2011 Stephan Schulz, schulz@eprover.org
 
 This code is part of the support structure for the equational
 theorem prover E. Visit
@@ -251,25 +255,6 @@ res_complete_marker = re.compile("### Job complete ###")
 Result files are considered complete if they contain this string.
 """
 
-bsub_tmplt = \
-"""
-#!/bin/bash
-#BSUB -J %s
-#BSUB -o %s.out   
-#BSUB -e %s.err  
-#BSUB -W 0:10   
-#BSUB -q small 
-#BSUB -n 1      
-#
-# Run serial executable on 1 cpu of one node
-cd %s
-env TPTP=%s %s/eprover --print-statistics --tptp3-format --resources-info %s %s
-echo "### Job complete ###"
-"""
-"""
-Template for generating bsub jobs.
-"""
-
 
 bsub_header_tmplt = \
 """
@@ -280,6 +265,7 @@ bsub_header_tmplt = \
 #BSUB -W 10:00
 #BSUB -q small 
 #BSUB -n %d      
+#BSUB -R "span[ptile=%d]"
 #
 # Run prunner running multiple jobs in parallel
 cd %s
@@ -363,15 +349,6 @@ def find_batch_jobs(job_db):
                 res.add(job)
 
     return count,res
-
-def bsub_gen(stratname, probname, args):
-    """
-    Generate a bsub specification.
-    """
-    jname = encode_res_name(stratname, probname)
-    return bsub_tmplt%\
-           (jname, jname, jname, bsub_rundir,  tptp_dir, eprover_dir,
-            args, probname)
 
 
 def read_res_file(filename):
@@ -472,7 +449,7 @@ def bsub_gen_header(job):
     """
     jname = encode_job_name(job)
     return bsub_header_tmplt%\
-           (jname, jname, jname, cores, bsub_rundir, eprover_dir, cores)
+           (jname, jname, jname, cores, cores, bsub_rundir, eprover_dir, cores)
 
 
 def bsub_gen_job(job):
@@ -551,8 +528,13 @@ x2_stats = [
     "# Paramod-into index"
 ]
 
+x3_stats = [
+    "# BW rewrite match attempts",
+    "# BW rewrite match successes"    
+]
+
 if __name__ == '__main__':
-    opts, args = getopt.gnu_getopt(sys.argv[1:], "hvpsfb:j:xXc:",
+    opts, args = getopt.gnu_getopt(sys.argv[1:], "hvpsfb:j:xXYc:",
                                    ["--pegasus",
                                     "--peg-sine",
                                     "--force",
@@ -560,6 +542,7 @@ if __name__ == '__main__':
                                     "--jobs="
                                     "--ext-stats",
                                     "--ext2-stats",
+                                    "--ext3-stats",
                                     "--cores="])
     force_scheduling = False
     stats = ["# Processed clauses",
@@ -588,6 +571,10 @@ if __name__ == '__main__':
         elif option == "-X" or option == "--ext2-stats":
             stats.extend(x_stats)
             stats.extend(x2_stats)
+        elif option == "-Y" or option == "--ext3-stats":
+            stats.extend(x_stats)
+            stats.extend(x2_stats)
+            stats.extend(x3_stats)
         elif option == "-c" or option == "--cores":
             cores = int(optarg)
         else:
