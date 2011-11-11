@@ -74,6 +74,42 @@ static void subterm_pos_free_wrapper(void *junk)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: subterm_tree_print_dot()
+//
+//   Print a subterm tree in dot notation.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+void subterm_tree_print_dot(FILE* out, SubtermTree_p root, Sig_p sig)
+{
+   SubtermOcc_p data;
+
+   if(root)
+   {
+      data = root->key;
+      fprintf(out, "     t%p [label=\"<l>|", root);
+      TermPrint(out, data->term, sig, DEREF_ALWAYS);
+      fprintf(out, "|<r>\"]\n");
+      if(root->lson)
+      {
+         subterm_tree_print_dot(out, root->lson, sig);
+         fprintf(out, "     t%p:l -- t%p\n", root, root->lson);
+      } 
+      if(root->rson)
+      {
+         subterm_tree_print_dot(out, root->rson, sig);
+         fprintf(out, "     t%p:r -- t%p\n", root, root->rson);
+      }
+   }
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
@@ -415,6 +451,51 @@ void SubtermTreePrint(FILE* out, SubtermTree_p root, Sig_p sig)
       fprintf(out, "\nlson=%p, rson=%p\n\n", root->lson, root->rson);
       SubtermTreePrint(out, root->rson, sig);
    }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: SubtermTreePrintDot()
+//
+//   Print a suberm tree as a subgraph in Dot notation.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void SubtermTreePrintDot(FILE* out, SubtermTree_p root, Sig_p sig)
+{
+   fprintf(out, 
+           "     subgraph g%p{\n"
+           "     nodesep=0.05\n"
+           "     node [shape=record,width=1.9,height=.1, penwidth=0,"
+           " style=filled, fillcolor=gray80]\n",
+           root);
+#ifdef PRT_SUBTERM_SET_AS_TREE
+   subterm_tree_print_dot(out, root, sig);
+#else
+   {
+      PStack_p terms = PStackAlloc();
+      PStackPointer i;
+      char* sep="";
+      SubtermOcc_p data;
+
+      PTreeToPStack(terms, root);
+      fprintf(out, "     t%p [label=\"{|{", root);   
+      for(i=0; i<PStackGetSP(terms); i++)
+      {
+         data = PStackElementP(terms, i);
+         fprintf(out, "%s", sep);
+         sep = "|";
+         TermPrint(out, data->term, sig, DEREF_ALWAYS);
+      }
+      fprintf(out, "}}\"]\n");
+      PStackFree(terms);
+   }
+#endif
+   fprintf(out, "     }\n");
 }
 
 

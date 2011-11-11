@@ -155,9 +155,10 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
    printf("with demod clause %ld: ", new_demod->ident);
    ClausePrint(stdout, new_demod, true);
    printf("\n");*/
-
+   BWRWMatchAttempts++;
    if(SubstComputeMatch(eqn->lterm, term, subst, TBTermEqual))
    {      
+      BWRWMatchSuccesses++;
       if((EqnIsOriented(eqn) 
 	  || instance_is_rule(ocb, eqn->bank, eqn->lterm, eqn->rterm, subst)))
       {                  
@@ -185,8 +186,10 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
       &&
       !EqnIsOriented(eqn))
    {
+      BWRWMatchAttempts++;
       if(SubstComputeMatch(eqn->rterm, term, subst, TBTermEqual))
       {
+         BWRWMatchSuccesses++;
 	 if(instance_is_rule(ocb, eqn->bank, eqn->rterm, eqn->lterm, subst))
 	    /* If instance is rule -> subst is no renaming! */
 	 {

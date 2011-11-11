@@ -552,7 +552,7 @@ void OverlapIndexDeleteFromClause(OverlapIndex_p index, Clause_p clause)
 //
 // Function: OverlapIndexClauseTreePrint()
 //
-//   
+//   Print an overlapIndex. 
 //
 // Global Variables: 
 //
@@ -613,7 +613,7 @@ void OverlapIndexSubtermTreePrint(FILE* out, SubtermTree_p root)
 
 /*-----------------------------------------------------------------------
 //
-// Function: OverlapIndexFPLeavePrint()
+// Function: OverlapIndexFPLeafPrint()
 //
 //   Print a leaf as the path leading to it and the number of direct
 //   entries in the subterm.
@@ -624,7 +624,7 @@ void OverlapIndexSubtermTreePrint(FILE* out, SubtermTree_p root)
 //
 /----------------------------------------------------------------------*/
 
-void OverlapIndexFPLeavePrint(FILE* out, PStack_p stack, FPTree_p leaf)
+void OverlapIndexFPLeafPrint(FILE* out, PStack_p stack, FPTree_p leaf)
 {
    PStack_p iter = PStackAlloc();
 
