@@ -26,11 +26,11 @@ BEGIN{
 
 function get_basename(name,     tmp)
 {
-   if(!match(name, /[^.]*/))
+   if(!match(name, /[^.]*\.p/))
    {
       print "filter_results.awk: Cannot find problem basename in '" name "'";
    }   
-   return substr(name, RSTART , RLENGTH);
+   return substr(name, RSTART , RLENGTH-2);
 }
 
 
