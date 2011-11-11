@@ -1446,9 +1446,9 @@ int main(int argc, char* argv[])
               UnitClauseClauseSubsumptionCalls);
       fprintf(GlobalOut, "# Rewrite failures with RHS unbound    : %ld\n",
               RewriteUnboundVarFails);
-      fprintf(GlobalOut, "# Indexed BW rewrite attempts          : %ld\n",
+      fprintf(GlobalOut, "# BW rewrite match attempts            : %ld\n",
               BWRWMatchAttempts);
-      fprintf(GlobalOut, "# Indexed BW rewrite successes         : %ld\n",
+      fprintf(GlobalOut, "# BW rewrite match successes           : %ld\n",
               BWRWMatchSuccesses);
 #ifdef MEASURE_UNIFICATION
       fprintf(GlobalOut, "# Unification attempts                 : %ld\n",
@@ -1476,6 +1476,10 @@ int main(int argc, char* argv[])
          /* FPIndexPrint(GlobalOut, 
                       proofstate->gindices.pm_from_index, 
                       OverlapIndexFPLeavePrint); */
+         //FPIndexPrintDot(GlobalOut, "pwfromindex", 
+         //proofstate->gindices.pm_from_index,
+         //SubtermTreePrintDot,
+         //proofstate->signature);
       }
       if(proofstate->gindices.pm_into_index)
       {
