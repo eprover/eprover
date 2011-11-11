@@ -57,24 +57,13 @@ static FPTree_p fpindex_alternative(FPTree_p index, FunCode f_code)
 {
    assert(index);
    
-   if(f_code == BELOW_VAR)
+   if(!index->f_alternatives)
    {
-      return index->below_var;
-   }            
-   else if(f_code == ANY_VAR)
-   {
-      return index->any_var;      
+      return NULL;
    }
    else
    {
-      if(!index->f_alternatives)
-      {
-         return NULL;
-      }
-      else
-      {
-         return IntMapGetVal(index->f_alternatives, f_code);
-      }
+      return IntMapGetVal(index->f_alternatives, f_code);
    }
 }
 
@@ -98,23 +87,11 @@ static FPTree_p* fpindex_alternative_ref(FPTree_p index, FunCode f_code)
 
    assert(index);
    
-
-   if(f_code == BELOW_VAR)
+   if(!index->f_alternatives)
    {
-      return &(index->below_var);
-   }            
-   else if(f_code == ANY_VAR)
-   {
-      return &(index->any_var);      
+      index->f_alternatives = IntMapAlloc();
    }
-   else
-   {
-      if(!index->f_alternatives)
-      {
-         index->f_alternatives = IntMapAlloc();
-      }
-      res = IntMapGetRef(index->f_alternatives, f_code);   
-   }
+   res = IntMapGetRef(index->f_alternatives, f_code);   
    return res;
 }
 
@@ -137,17 +114,7 @@ static FPTree_p fpindex_extract_alt(FPTree_p index, FunCode f_code)
 
    assert(index);
    
-   if(f_code == BELOW_VAR)
-   {
-      res = index->below_var;
-      index->below_var = NULL;
-   }            
-   else if(f_code == ANY_VAR)
-   {
-      res = index->any_var;      
-      index->any_var = NULL;
-   }
-   else if(index->f_alternatives)
+   if(index->f_alternatives)
    {
       res = IntMapDelKey(index->f_alternatives, f_code);
    }
@@ -167,6 +134,8 @@ static FPTree_p fpindex_extract_alt(FPTree_p index, FunCode f_code)
 //   Delete the branches leading (only) to the leaf identified to the
 //   given key, _if_ that node has no payload.
 //
+//   Return true if the current node should be deleted.
+//
 // Global Variables: -
 //
 // Side Effects    : Memory managment.
@@ -183,14 +152,18 @@ static bool fpindex_rek_delete(FPTree_p index, IndexFP_p key, int current)
    }
    if(current == key[0])
    {
-      return index->payload!=NULL;
+      return index->payload==NULL;
    }
    delete = fpindex_rek_delete(fpindex_alternative(index, key[current]), 
                                key, 
                                current+1);
    if(delete)
    {
-      FPTree_p junk = fpindex_extract_alt(index, key[current]); 
+      FPTree_p junk = fpindex_extract_alt(index, key[current]);       
+      if(junk->f_alternatives)
+      {
+         IntMapFree(junk->f_alternatives);
+      }
       FPTreeCellFree(junk);
    }   
    return index->count==0;
@@ -238,11 +211,11 @@ static long fp_index_rek_find_unif(FPTree_p index, IndexFP_p key,
                                     key, 
                                     current+1,
                                     collect);
-      res += fp_index_rek_find_unif(index->any_var, 
+      res += fp_index_rek_find_unif(fpindex_alternative(index, ANY_VAR),
                                     key, 
                                     current+1,
                                     collect);
-      res += fp_index_rek_find_unif(index->below_var, 
+      res += fp_index_rek_find_unif(fpindex_alternative(index, BELOW_VAR),
                                     key, 
                                     current+1,
                                     collect);
@@ -269,11 +242,11 @@ static long fp_index_rek_find_unif(FPTree_p index, IndexFP_p key,
          BELOW_VAR in the query term, the instantiation of X may not
          have the p. */
       
-      res += fp_index_rek_find_unif(index->any_var, 
+      res += fp_index_rek_find_unif(fpindex_alternative(index, ANY_VAR), 
                                     key, 
                                     current+1,
                                     collect);
-      res += fp_index_rek_find_unif(index->below_var, 
+      res += fp_index_rek_find_unif(fpindex_alternative(index, BELOW_VAR),
                                     key, 
                                     current+1,
                                     collect);      
@@ -357,11 +330,11 @@ static long fp_index_rek_find_matchable(FPTree_p index, IndexFP_p key,
          BELOW_VAR in the query term, the instantiation of X may not
          have the p. */
       
-      res += fp_index_rek_find_matchable(index->any_var, 
+      res += fp_index_rek_find_matchable(fpindex_alternative(index, ANY_VAR),
                                          key, 
                                          current+1,
                                          collect);
-      res += fp_index_rek_find_matchable(index->below_var, 
+      res += fp_index_rek_find_matchable(fpindex_alternative(index, BELOW_VAR),
                                          key, 
                                          current+1,
                                          collect);      
@@ -439,7 +412,7 @@ static long fp_index_tree_print(FILE* out,
    }
    if(index->f_alternatives)
    {
-      iter = IntMapIterAlloc(index->f_alternatives, 0, LONG_MAX); 
+      iter = IntMapIterAlloc(index->f_alternatives, BELOW_VAR, LONG_MAX); 
       while((child=IntMapIterNext(iter, &i)))
       {
          PStackPushInt(stack, i);
@@ -451,26 +424,6 @@ static long fp_index_tree_print(FILE* out,
          (void)PStackPopInt(stack);
       }
       IntMapIterFree(iter);
-   }
-   if(index->below_var)
-   {
-      PStackPushInt(stack, BELOW_VAR);
-      res+= fp_index_tree_print(out, 
-                                fpindex_alternative(index, BELOW_VAR), 
-                                stack, 
-                                prtfun,
-                                entries);
-      (void)PStackPopInt(stack);       
-   }
-   if(index->any_var)
-   {
-      PStackPushInt(stack, ANY_VAR);
-      res+= fp_index_tree_print(out, 
-                                fpindex_alternative(index, ANY_VAR), 
-                                stack, 
-                                prtfun,
-                                entries);
-      (void)PStackPopInt(stack);                    
    }
    return res;
 }
@@ -502,7 +455,7 @@ void fp_index_tree_collect_distrib(FPTree_p index, PStack_p stack)
    }
    if(index->f_alternatives)
    {
-      iter = IntMapIterAlloc(index->f_alternatives, 0, LONG_MAX); 
+      iter = IntMapIterAlloc(index->f_alternatives, BELOW_VAR, LONG_MAX); 
       while((child=IntMapIterNext(iter, &i)))
       {
          fp_index_tree_collect_distrib(child,
@@ -510,15 +463,169 @@ void fp_index_tree_collect_distrib(FPTree_p index, PStack_p stack)
       }
       IntMapIterFree(iter);
    }
-   if(index->below_var)
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: fp_symbol()
+//
+//   Return the symbol of a given fingerprint sample.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static char* fp_symbol(Sig_p sig, FunCode symbol)
+{
+   switch(symbol)
    {
-      fp_index_tree_collect_distrib(fpindex_alternative(index, BELOW_VAR), 
-                                    stack);
+   case BELOW_VAR:
+         return "B";
+         break;
+   case ANY_VAR:
+         return "A";
+         break;
+   case NOT_IN_TERM:
+         return "N";
+         break;
+   default:
+         return SigFindName(sig, symbol);
+         break;
    }
-   if(index->any_var)
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: fp_index_tree_print_node()
+//
+//   Print a tree node in DOT notation. See below.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void fp_index_tree_print_node(FILE* out, FPTree_p index, 
+                               PStack_p stack, Sig_p sig)
+{
+   DStr_p label = DStrAlloc();
+   PStackPointer i;
+   char* del = "";
+   FunCode symbol;
+
+   for(i=0; i<PStackGetSP(stack); i++)
    {
-      fp_index_tree_collect_distrib(fpindex_alternative(index, ANY_VAR), 
-                                    stack);
+      DStrAppendStr(label, del);
+      del = ", ";
+      symbol = PStackElementInt(stack,i);
+      DStrAppendStr(label, fp_symbol(sig, symbol));
+   }
+   fprintf(out, "   l%p [label=\"%s\"]\n", index, DStrView(label));
+
+   DStrFree(label);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: fp_index_tree_print_nodes()
+//
+//   Print all the nodes in the FP-Tree in DOT notation, using the
+//   symbols (and symbol-codings) on the stack for the label.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void fp_index_tree_print_nodes(FILE* out, FPTree_p index, 
+                               PStack_p stack, Sig_p sig)
+{
+   IntMapIter_p iter;
+   long         i = 0;
+   FPTree_p    child;
+      
+   fp_index_tree_print_node(out, index, stack, sig);  
+
+   if(index->f_alternatives)
+   {
+      iter = IntMapIterAlloc(index->f_alternatives, BELOW_VAR, LONG_MAX); 
+      while((child=IntMapIterNext(iter, &i)))
+      {
+         PStackPushInt(stack, i);
+         fp_index_tree_print_nodes(out, child, stack, sig);
+         (void)PStackPopInt(stack);
+      }
+      IntMapIterFree(iter);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: fp_index_tree_print_edges()
+//
+//   Print all the edges in the fp-tree in DOT notation.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void fp_index_tree_print_edges(FILE* out, FPTree_p index, 
+                               PStack_p stack, Sig_p sig)
+{
+   IntMapIter_p iter;
+   long         i = 0;
+   FPTree_p    child;
+      
+   if(index->f_alternatives)
+   {
+      iter = IntMapIterAlloc(index->f_alternatives, BELOW_VAR, LONG_MAX); 
+      while((child=IntMapIterNext(iter, &i)))
+      {
+         fprintf(out, "   l%p -- l%p [label=%s]\n",
+                 index, child, fp_symbol(sig, i));
+         fp_index_tree_print_edges(out, child, stack, sig);
+      }
+      IntMapIterFree(iter);
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: fp_index_collect_leaves()
+//
+//   Push all the leaves in index onto result.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void fp_index_collect_leaves(FPTree_p index, PStack_p result)
+{
+   IntMapIter_p iter;
+   long         i = 0;
+   FPTree_p    child;
+      
+   if(index->f_alternatives)
+   {
+      iter = IntMapIterAlloc(index->f_alternatives, BELOW_VAR, LONG_MAX); 
+      while((child=IntMapIterNext(iter, &i)))
+      {
+         fp_index_collect_leaves(child, result);
+      }
+      IntMapIterFree(iter);
+   }
+   else
+   {
+      PStackPushP(result, index);
    }
 }
 
@@ -545,8 +652,6 @@ FPTree_p FPTreeAlloc()
    FPTree_p handle = FPTreeCellAlloc();
    
    handle->f_alternatives = NULL;
-   handle->below_var      = NULL;
-   handle->any_var        = NULL;
    handle->count          = 0;
    handle->payload        = NULL;
 
@@ -578,7 +683,7 @@ void FPTreeFree(FPTree_p index, FPTreeFreeFun payload_free)
    }
    if(index->f_alternatives)
    {
-      iter = IntMapIterAlloc(index->f_alternatives, 0, LONG_MAX); 
+      iter = IntMapIterAlloc(index->f_alternatives, BELOW_VAR, LONG_MAX); 
       while((child=IntMapIterNext(iter, &i)))
       {
          assert(child);
@@ -587,15 +692,6 @@ void FPTreeFree(FPTree_p index, FPTreeFreeFun payload_free)
       IntMapIterFree(iter);
       IntMapFree(index->f_alternatives);
    }
-   if(index->below_var)
-   {
-      FPTreeFree(index->below_var, payload_free);
-   }
-   if(index->any_var)
-   {
-      FPTreeFree(index->any_var, payload_free);
-   }
-
    FPTreeCellFree(index);
 }
 
@@ -986,6 +1082,72 @@ void FPIndexPrint(FILE* out, FPIndex_p index, FPLeafPrintFun prtfun)
 
    PStackFree(stack);
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FPIndexCollectLeaves()
+//
+//   Push all leaves of an FPIndex onto the result stack. Return
+//   number of values pushed.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long FPIndexCollectLeaves(FPIndex_p index, PStack_p result)
+{
+   PStackPointer sp = PStackGetSP(result);
+
+   fp_index_collect_leaves(index->index, result);
+   return PStackGetSP(result)-sp;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FPIndexPrintDot()
+//
+//   Print an FP-Index as a dot graph.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void FPIndexPrintDot(FILE* out, char* name, FPIndex_p index, 
+                     FPLeafPayloadprint prt_leaf, Sig_p sig)
+{
+   PStack_p stack = PStackAlloc();
+   PStackPointer i;
+
+   fprintf(out, "graph %s{\n   rankdir=LR\n   nodesep=0.05\n", name);
+   fp_index_tree_print_nodes(out, index->index, stack, sig);
+   fp_index_tree_print_edges(out, index->index, stack, sig);
+   
+   FPIndexCollectLeaves(index, stack);
+   for(i=0; i<PStackGetSP(stack); i++)
+   {
+      FPTree_p leaf;
+
+      leaf = PStackElementP(stack, i);
+      if(leaf->payload)
+      {         
+         prt_leaf(out, leaf->payload, sig);
+         fprintf(out, "   l%p -- t%p [ranksep=0.1]\n", leaf, leaf->payload);
+      }
+   }
+   PStackReset(stack);
+
+   fprintf(out, "}\n");
+
+   PStackFree(stack);
+}
+
+
 
 
 /*---------------------------------------------------------------------*/

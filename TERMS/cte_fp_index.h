@@ -43,14 +43,15 @@ Changes
  * values BELOW_VAR, ANY_VAR and NOT_IN_TERM to describe positions not
  * in the term and not in any possible instance of the term,
  * respectively. Function symbol
- * alternatives are handled in the obvious way. The value NOT_IN_TERM
- * is encoded  in f_alternatives[0]. */
+ * alternatives are handled in the obvious way. The values BELOW_VAR,
+ * ANY_VAR, NOT_IN_TERM are now encoded  in f_alternatives[0,-1,-2]
+ * according to their value. */
 
 typedef struct fp_index_cell
 {
    IntMap_p             f_alternatives;   /* Function symbols */
-   struct fp_index_cell *below_var;
-   struct fp_index_cell *any_var;
+   //struct fp_index_cell *below_var;
+   //struct fp_index_cell *any_var;
    long                 count;
    PObjTree_p           payload;
 }FPTreeCell, *FPTree_p;
@@ -70,6 +71,8 @@ typedef struct subterm_index_cell
 
 typedef void (*FPLeafPrintFun)(FILE* out, PStack_p stack, FPTree_p leaf);
 
+typedef void (*FPLeafPayloadprint)(FILE* out, PObjTree_p payload, Sig_p sig);
+
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
@@ -82,8 +85,6 @@ typedef void (*FPLeafPrintFun)(FILE* out, PStack_p stack, FPTree_p leaf);
 
 FPTree_p FPTreeAlloc();
 void     FPTreeFree(FPTree_p index, FPTreeFreeFun payload_free);
-
-#define  FPTreeChildNo(icell) ((icell)->f_count+(icell)->v_count)
 
 FPTree_p FPTreeFind(FPTree_p root, IndexFP_p key);
 FPTree_p FPTreeInsert(FPTree_p root, IndexFP_p key);
@@ -111,6 +112,10 @@ void      FPIndexDistribPrint(FILE* out, FPIndex_p index);
 void      FPIndexDistribDataPrint(FILE* out, FPIndex_p index);
 
 void      FPIndexPrint(FILE* out, FPIndex_p index, FPLeafPrintFun prtfun);
+long      FPIndexCollectLeaves(FPIndex_p index, PStack_p result);
+void      FPIndexPrintDot(FILE* out, char* name, FPIndex_p index, 
+                          FPLeafPayloadprint prt_sig, Sig_p sig);
+
 
 #endif
 
