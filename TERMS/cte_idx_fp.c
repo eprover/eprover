@@ -517,7 +517,7 @@ IndexFP_p IndexFP7Create(Term_p t)
 
 IndexFP_p IndexFP7MCreate(Term_p t)
 {
-   IndexFP_p res = SizeMalloc(sizeof(FunCode)*7);
+   IndexFP_p res = SizeMalloc(sizeof(FunCode)*8);
 
    res[0] = 8;
    res[1] = TermFPSample(t, -1);
