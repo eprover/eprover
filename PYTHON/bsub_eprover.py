@@ -146,7 +146,7 @@ def pegasus_cfg():
     global tptp_dir, eprover_dir, testrun_dir, bsub_cmd, bjobs_cmd,\
     bsub_rundir, old_job_dir, db_file
     
-    tptp_dir = "/nethome/sschulz/EPROVER/TPTP_4.1.0_FLAT"
+    tptp_dir = "/nethome/sschulz/EPROVER/TPTP_5.2.0_FLAT"
     """
     Where are the TPTP problem files?
     """
