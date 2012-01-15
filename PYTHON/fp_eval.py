@@ -127,16 +127,19 @@ times = [
 counts = [
     (5, "Unification attempts"),
     (6, "Unification successes"),
-    ]
+    (20, "BR match attempts"),
+    (21, "BR match successes")]
 
 count_mixer = [
-    (lambda x:(float(x[1])/float(x[0])), "Unif. Succ. Rate")]
+    (lambda x:(float(x[1])/float(x[0])), "Unif. Succ. Rate"),
+    (lambda x:(float(x[3])/float(x[2])), "BR Match. Succ. Rate")]
     
 
 def profile_analysis(prot, profile_selector, mixers = []):
     """
     Return a tuple name, raw values, "mixed" values.
     """
+    # print prot.results.values()[10].values
     res =  map(lambda x:pylib_maths.sum([float(i.values[x[0]]) \
                                          for i in prot.results.values()]),\
                profile_selector)
@@ -206,17 +209,17 @@ if __name__ == '__main__':
     
     filter_common_successes(prots)        
     filter_common_search(prots)
-    # print prots[0].results_no()
+    print prots[0].results_no()
     # filter_hard_problems(prots, 4, 1000)
     # print prots[0].results_no()
 
-    for res in prots[0].results.keys():
-        print prots[0].result(res).values[2], prots[11].result(res).values[2]
+    #for res in prots[0].results.keys():
+    #    print prots[0].result(res).values[2], prots[11].result(res).values[2]
         
         
         
-    #print do_table(prots, times)
-    #print do_table(prots, counts, count_mixer)
+    print do_table(prots, times)
+    print do_table(prots, counts, count_mixer)
     
     # print prots[0]
     # print prots[11]
