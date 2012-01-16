@@ -68,7 +68,7 @@ OptCell opts[] =
     "Print a short description of program usage and options."},
 
    {OPT_VERSION,
-    '\0', "version",
+    'V', "version",
     NoArg, NULL,
     "Print the version number of the program."},
 
@@ -107,6 +107,11 @@ OptCell opts[] =
     '\0', "tstp-out",
     NoArg, NULL,
     "Print proof protocol in TSTP syntax (default is PCL)."},
+
+   {OPT_TSTP_PRINT,
+    '\0', "tptp3-out",
+    NoArg, NULL,
+    "Synonymous with --tstp-out."},
 
    {OPT_OUTPUT,
     'o', "output-file",
@@ -373,7 +378,7 @@ NAME " " VERSION "\n"
 "\n");
    PrintOptions(stdout, opts, "Options\n\n");
    fprintf(out, "\n\
-Copyright (C) 2002-2003 by Stephan Schulz, " STS_MAIL "\n\
+"STS_COPYRIGHT", " STS_MAIL "\n\
 \n\
 This program is a part of the support structure for the E equational\n\
 theorem prover. You can find the latest version of the E distribution\n\
