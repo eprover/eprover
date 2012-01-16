@@ -1244,7 +1244,7 @@ TFormula_p TFormulaVarRename(TB_p terms, TFormula_p form)
 //   Skolemize a formula in an outermost
 //   manner. Interpretes the formula as its universal closure,
 //   i.e. globally free variables in form are used as Skolem function
-//   aarguments. Also assumes that every quantor binds a new
+//   arguments. Also assumes that every quantor binds a new
 //   variable. 
 //
 // Global Variables: -
