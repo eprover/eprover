@@ -46,6 +46,7 @@ char* FPIndexNames[] =
    "FP7M",
    "FP4X2_2",
    "FP3DFlex",
+   "NPDT",
    "NoIndex",
    NULL
 };
@@ -67,6 +68,7 @@ static FPIndexFunction fp_index_funs[] =
    IndexFP7MCreate,
    IndexFP4X2_2Create,
    IndexFP3DFlexCreate,
+   IndexDTCreate,
    NULL,
    NULL
 };
@@ -82,7 +84,35 @@ static FPIndexFunction fp_index_funs[] =
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
+/*-----------------------------------------------------------------------
+//
+// Function: push_fcodes()
+//
+//   Push the f_codes of the term (in depth first, LR order) onto the
+//   stack.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
 
+static void push_fcodes(PStack_p stack, Term_p t)
+{
+   if(TermIsVar(t))
+   {
+      PStackPushInt(stack, ANY_VAR);
+   }
+   else
+   {
+      int i;
+      PStackPushInt(stack, t->f_code);
+      for(i=0; i<t->arity; i++)
+      {
+         push_fcodes(stack, t->args[i]);
+      }
+   }
+}
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -639,6 +669,44 @@ IndexFP_p IndexFP3DFlexCreate(Term_p t)
    PStackFree(pos);
    return res;
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: IndexDTCreate()
+//
+//   Create a fingerprint that samples t at all its positions (in
+//   depths-first LR order) and no others. Building an FP-Tree with
+//   these samples will not build an FP-Index, but a (non-perfect)
+//   discrimination tree. This means that retrieval will require
+//   special code, it cannot use simple FP-Index retrieval.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+IndexFP_p IndexDTCreate(Term_p t)
+{
+   PStack_p stack = PStackAlloc();
+   IndexFP_p res;
+   PStackPointer sp;
+   int i, len;
+
+   push_fcodes(stack, t);
+   
+   len = PStackGetSP(stack);
+   res = SizeMalloc(sizeof(FunCode)*(len+1));
+   res[0] = len+1;
+   for(sp = 0, i=1; sp<len; sp++, i++)
+   {
+      res[i] = PStackElementInt(stack, sp);
+   }
+   PStackFree(stack);
+   return res;
+}
+
 
 
 /*-----------------------------------------------------------------------

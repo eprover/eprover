@@ -40,6 +40,7 @@ Changes
 /*---------------------------------------------------------------------*/
 
 
+
 /*-----------------------------------------------------------------------
 //
 // Function: fpindex_alternative()
@@ -629,6 +630,248 @@ void fp_index_collect_leaves(FPTree_p index, PStack_p result)
    }
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: fp_index_find_all()
+//
+//   Push all payloads in index onto stack. Return number of payloads
+//   found. 
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+#ifdef NEVER_DEFINED
+long fp_index_find_all(FPTree_p index, PStack_p collect)
+{
+   PStack_p stack = PStackAlloc();
+   PStackPointer i;
+   long res = 0;
+
+   fp_index_collect_leaves(index, stack);
+   for(i=0; i<PStackGetSP(stack); i++)
+   {
+      FPTree_p leaf;
+
+      leaf = PStackElementP(stack, i);
+      if(leaf->payload)
+      {         
+         PStackPushP(collect, leaf->payload);
+         res++;
+      }
+   }
+   PStackFree(stack);
+   return res;
+}
+#endif
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: GET_SYMBOL_ARITY()
+//
+//   Local macro for getting the effective arity of any top-level
+//   symbol in a term (including variables).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+#define GET_SYMBOL_ARITY(sig, f_code) \
+   (((f_code) > 0)?SigFindArity((sig), (f_code)):0)
+
+/*-----------------------------------------------------------------------
+//
+// Function: dt_index_rek_find_matchable()
+//
+//   Find all leaves in index that are potentially matchable with the
+//   term that is represented by key (key is the flat term version of
+//   the query term). Push all payloads of leaves onto collect.
+//
+//   skip_term indicates how many complete (sub-)terms need to be
+//   skipped to complete a term that corresponds to a variable in the
+//   query.
+//
+//   If skip_term = 0: consume next symbol
+//   Else: Go down all alternatives, for each skip_term is modified by
+//   alternative->arity - 1
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+long dt_index_rek_find_matchable(FPTree_p index,
+                                 IndexFP_p key, 
+                                 Sig_p sig,
+                                 int current, 
+                                 int skip_term, 
+                                 PStack_p collect)
+{
+   long res = 0;
+   IntMapIter_p iter;
+   long         i = 0;
+   FPTree_p    child;
+
+   if(!index)
+   {      
+      return 0;
+   }
+   if(skip_term)
+   {
+      iter = IntMapIterAlloc(index->f_alternatives, BELOW_VAR, LONG_MAX); 
+      while((child=IntMapIterNext(iter, &i)))
+      {
+         //printf("Branch (%d) %s\n", skip_term,i>0?SigFindName(sig, i):"X");
+
+         res += dt_index_rek_find_matchable(child, 
+                                            key,
+                                            sig,
+                                            current,
+                                            skip_term-1+GET_SYMBOL_ARITY(sig,i),
+                                            collect);
+      }
+      IntMapIterFree(iter);      
+   }
+   else if(current == key[0])
+   {
+      PStackPushP(collect, index->payload);
+      return 1; 
+   }
+   else if(key[current] == ANY_VAR)
+   {
+      iter = IntMapIterAlloc(index->f_alternatives, BELOW_VAR, LONG_MAX); 
+      while((child=IntMapIterNext(iter, &i)))
+      {
+         //printf("Branch (%d) %s\n", skip_term,i>0?SigFindName(sig, i):"X");
+         res += dt_index_rek_find_matchable(child, 
+                                            key,
+                                            sig,
+                                            current+1,
+                                            GET_SYMBOL_ARITY(sig,i),
+                                            collect);
+      }
+      IntMapIterFree(iter);            
+   }
+   else
+   {
+      child = fpindex_alternative(index, key[current]);
+      //printf("Franch (%d) %s\n", skip_term, key[current]>0?SigFindName(sig,  key[current]):"X");
+      res = dt_index_rek_find_matchable(child, 
+                                        key,
+                                        sig,
+                                        current+1,
+                                        0,
+                                        collect);
+   }  
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: dt_index_rek_find_unifiable()
+//
+//   Find all leaves in index that are potentially unifiable with the
+//   term that is represented by key (key is the flat term version of
+//   the query term). Push all payloads of leaves onto collect.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+static long dt_index_rek_find_unifiable(FPTree_p index,
+                                        IndexFP_p key, 
+                                        Sig_p sig,
+                                        int current, 
+                                        int skip_term, 
+                                        int skip_key,
+                                        PStack_p collect)
+{   
+   long res = 0;
+   IntMapIter_p iter;
+   long         i = 0;
+   FPTree_p    child;
+
+   if(!index)
+   {      
+      return 0;
+   }
+   if(skip_term)
+   {
+      iter = IntMapIterAlloc(index->f_alternatives, BELOW_VAR, LONG_MAX); 
+      while((child=IntMapIterNext(iter, &i)))
+      {
+         res += dt_index_rek_find_unifiable(child, 
+                                            key,
+                                            sig,
+                                            current,
+                                            skip_term-1+GET_SYMBOL_ARITY(sig,i),
+                                            0,
+                                            collect);
+      }
+      IntMapIterFree(iter);      
+   }
+   else if(skip_key)
+   {
+      res += dt_index_rek_find_unifiable(index, 
+                                         key,
+                                         sig,
+                                         current+1,
+                                         0,
+                                         skip_key-1+GET_SYMBOL_ARITY(sig,key[current]),
+                                         collect);
+   }
+   else if(current == key[0])
+   {
+      PStackPushP(collect, index->payload);
+      return 1; 
+   }
+   else if(key[current] == ANY_VAR)
+   {
+      iter = IntMapIterAlloc(index->f_alternatives, BELOW_VAR, LONG_MAX); 
+      while((child=IntMapIterNext(iter, &i)))
+      {
+         res += dt_index_rek_find_unifiable(child, 
+                                            key,
+                                            sig,
+                                            current+1,
+                                            GET_SYMBOL_ARITY(sig,i),
+                                            0,
+                                            collect);
+      }
+      IntMapIterFree(iter);            
+   }
+   else
+   {
+      child = fpindex_alternative(index, key[current]);
+      res += dt_index_rek_find_unifiable(child, 
+                                         key,
+                                         sig,
+                                         current+1,
+                                         0,
+                                         0,
+                                         collect);
+      child = fpindex_alternative(index, ANY_VAR);
+      res += dt_index_rek_find_unifiable(child, 
+                                         key,
+                                         sig,
+                                         current+1,
+                                         0,
+                                         GET_SYMBOL_ARITY(sig, key[current]),
+                                         collect);
+      
+   }  
+   return res;
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -835,11 +1078,14 @@ long FPTreeFindMatchable(FPTree_p root, IndexFP_p key, PStack_p collect)
 //
 /----------------------------------------------------------------------*/
 
-FPIndex_p FPIndexAlloc(FPIndexFunction fp_fun, FPTreeFreeFun payload_free)
+FPIndex_p FPIndexAlloc(FPIndexFunction fp_fun, 
+                       Sig_p sig, 
+                       FPTreeFreeFun payload_free)
 {
    FPIndex_p handle = FPIndexCellAlloc();
 
    handle->fp_fun       = fp_fun;
+   handle->sig          = sig;
    handle->payload_free = payload_free;
    handle->index        = FPTreeAlloc();
 
@@ -946,9 +1192,23 @@ void FPIndexDelete(FPIndex_p index, Term_p term)
 
 long FPIndexFindUnifiable(FPIndex_p index, Term_p term, PStack_p collect)
 {
+   long res;
    IndexFP_p key = index->fp_fun(term);
-   long res = FPTreeFindUnifiable(index->index, key, collect);
-   
+
+   if(index->fp_fun == IndexDTCreate)
+   {
+      res = dt_index_rek_find_unifiable(index->index, 
+                                        key, 
+                                        index->sig, 
+                                        1, 
+                                        0, 
+                                        0,
+                                        collect);
+   }
+   else
+   {
+      res = FPTreeFindUnifiable(index->index, key, collect);      
+   }
    IndexFPFree(key);
    return res; 
 }
@@ -969,13 +1229,28 @@ long FPIndexFindUnifiable(FPIndex_p index, Term_p term, PStack_p collect)
 
 long FPIndexFindMatchable(FPIndex_p index, Term_p term, PStack_p collect)
 {
-   IndexFP_p key = index->fp_fun(term);
-   long res = FPTreeFindMatchable(index->index, key, collect);
-
-   /* IndexFPPrint(stdout, key);
-      printf("\n"); */
-   IndexFPFree(key);
+   long res;
+   IndexFP_p key = index->fp_fun(term); 
    
+   if(index->fp_fun == IndexDTCreate)
+   {
+      //printf("Query: ");
+      //TermPrint(stdout, term, index->sig, DEREF_NEVER);
+      //printf("\n");
+      res = dt_index_rek_find_matchable(index->index, 
+                                        key, 
+                                        index->sig, 
+                                        1, 
+                                        0, 
+                                        collect);
+   }
+   else
+   {
+ 
+      res = FPTreeFindMatchable(index->index, key, collect);
+      
+   }
+   IndexFPFree(key);
    return res; 
 }
 

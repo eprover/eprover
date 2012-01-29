@@ -66,6 +66,7 @@ typedef struct subterm_index_cell
 {
    FPTree_p        index;
    FPIndexFunction fp_fun;
+   Sig_p           sig;
    FPTreeFreeFun   payload_free;
 }FPIndexCell, *FPIndex_p;
 
@@ -98,7 +99,8 @@ long     FPTreeFindMatchable(FPTree_p root, IndexFP_p key, PStack_p collect);
 #define FPIndexCellFree(junk)         SizeFree(junk, sizeof(FPIndexCell))
 
 
-FPIndex_p FPIndexAlloc(FPIndexFunction fp_fun, FPTreeFreeFun payload_free);
+FPIndex_p FPIndexAlloc(FPIndexFunction fp_fun, Sig_p sig, 
+                       FPTreeFreeFun payload_free);
 void      FPIndexFree(FPIndex_p index);
 
 FPTree_p FPIndexFind(FPIndex_p index, Term_p term);

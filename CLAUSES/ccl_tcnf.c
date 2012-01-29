@@ -1292,20 +1292,20 @@ TFormula_p TFormulaSkolemizeOutermost(TB_p terms, TFormula_p form)
 TFormula_p TFormulaShiftQuantors(TB_p terms, TFormula_p form)
 {
    Term_p var;
-   PStack_p stack;
+   PStack_p varstack;
    
-   stack = PStackAlloc();
-   form = extract_formula_core(terms, form, stack);
+   varstack = PStackAlloc();
+   form = extract_formula_core(terms, form, varstack);
 
-   while(!PStackEmpty(stack))
+   while(!PStackEmpty(varstack))
    {
-      var = PStackPopP(stack);
+      var = PStackPopP(varstack);
       form = TFormulaQuantorAlloc(terms, 
                                   terms->sig->qall_code, 
                                   var, 
                                   form);         
    }
-   PStackFree(stack);
+   PStackFree(varstack);
    return form;
 }
 

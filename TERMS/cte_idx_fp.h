@@ -78,6 +78,8 @@ IndexFP_p IndexFP4X2_2Create(Term_p t);
 IndexFP_p IndexFPFlexCreate(Term_p t, PStack_p pos, int len);
 IndexFP_p IndexFP3DFlexCreate(Term_p t);
 
+IndexFP_p IndexDTCreate(Term_p t);
+
 void      IndexFPFree(IndexFP_p junk);
 
 FPIndexFunction GetFPIndexFunction(char* name);
