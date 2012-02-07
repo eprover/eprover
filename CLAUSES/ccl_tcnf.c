@@ -156,7 +156,7 @@ TFormula_p troot_nnf(TB_p terms, TFormula_p form, int polarity)
                                         arg1, arg2);
          }
          else if(form->args[0]->f_code == terms->sig->qall_code)
-         {
+          {
             arg1 = TFormulaFCodeAlloc(terms, terms->sig->not_code,
                                       form->args[0]->args[1],
                                       NULL);
@@ -1107,20 +1107,20 @@ TFormula_p TFormulaMiniScope(TB_p terms, TFormula_p form)
 
    if(TFormulaIsQuantified(terms->sig, form))
    {
-      op = form->args[0]->f_code;
+      op = form->args[1]->f_code;
       quant = form->f_code;
       
       if((op == terms->sig->and_code) || (op == terms->sig->or_code))
       {
          if(!TFormulaVarIsFree(terms, form->args[1]->args[0], 
                                form->args[0]))
-         {
+         {            
             arg2 = TFormulaQuantorAlloc(terms, quant, form->args[0],
                                         form->args[1]->args[1]);
             arg1 = form->args[1]->args[0];
             form = TFormulaFCodeAlloc(terms, op, arg1, arg2);
          }
-         if(!TFormulaVarIsFree(terms, form->args[1]->args[1], 
+         else if(!TFormulaVarIsFree(terms, form->args[1]->args[1], 
                                form->args[0]))
          {
             arg1 = TFormulaQuantorAlloc(terms, quant, form->args[0],
@@ -1155,8 +1155,8 @@ TFormula_p TFormulaMiniScope(TB_p terms, TFormula_p form)
          }
       }      
    }
-   arg1 = NULL;
-   arg2 = NULL;
+   arg1 = form->args[0];
+   arg2 = form->args[1];
    modified = false;
 
    if(TFormulaHasSubForm1(terms->sig, form))
@@ -1244,7 +1244,7 @@ TFormula_p TFormulaVarRename(TB_p terms, TFormula_p form)
 //   Skolemize a formula in an outermost
 //   manner. Interpretes the formula as its universal closure,
 //   i.e. globally free variables in form are used as Skolem function
-//   aarguments. Also assumes that every quantor binds a new
+//   arguments. Also assumes that every quantor binds a new
 //   variable. 
 //
 // Global Variables: -
@@ -1292,20 +1292,20 @@ TFormula_p TFormulaSkolemizeOutermost(TB_p terms, TFormula_p form)
 TFormula_p TFormulaShiftQuantors(TB_p terms, TFormula_p form)
 {
    Term_p var;
-   PStack_p stack;
+   PStack_p varstack;
    
-   stack = PStackAlloc();
-   form = extract_formula_core(terms, form, stack);
+   varstack = PStackAlloc();
+   form = extract_formula_core(terms, form, varstack);
 
-   while(!PStackEmpty(stack))
+   while(!PStackEmpty(varstack))
    {
-      var = PStackPopP(stack);
+      var = PStackPopP(varstack);
       form = TFormulaQuantorAlloc(terms, 
                                   terms->sig->qall_code, 
                                   var, 
                                   form);         
    }
-   PStackFree(stack);
+   PStackFree(varstack);
    return form;
 }
 
@@ -1444,7 +1444,7 @@ TFormula_p TFormulaShiftQuantorsOld(TB_p terms, TFormula_p form)
          assert(!TFormulaVarIsFree(terms, narg2, var));
          handle = TFormulaFCodeAlloc(terms, form->f_code, narg1, narg2);
          newform = TFormulaQuantorAlloc(terms, terms->sig->qall_code, var, handle);
-         printf("Recursion %p\n", newform);
+         // printf("Recursion %p\n", newform);
          form = TFormulaShiftQuantors(terms, newform);
       }
       else if(form->args[1]->f_code == terms->sig->qall_code)

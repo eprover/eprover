@@ -64,6 +64,7 @@ void GlobalIndicesNull(GlobalIndices_p indices)
 {
    indices->bw_rw_index   = NULL;
    indices->pm_into_index = NULL;
+   indices->pm_negp_index = NULL;
    indices->pm_from_index = NULL;
 }
 
@@ -107,7 +108,12 @@ void GlobalIndicesInit(GlobalIndices_p indices,
    {
       indices->pm_into_index = FPIndexAlloc(indexfun, sig, SubtermOLTreeFreeWrapper);
    }
-
+   indexfun = GetFPIndexFunction(pm_into_index_type);
+   strcpy(indices->pm_negp_index_type, pm_into_index_type);
+   if(indexfun)
+   {
+      indices->pm_negp_index = FPIndexAlloc(indexfun, sig, SubtermOLTreeFreeWrapper);
+   }
 }
 
 
@@ -130,16 +136,21 @@ void GlobalIndicesFreeIndices(GlobalIndices_p indices)
       FPIndexFree(indices->bw_rw_index);          
       indices->bw_rw_index = NULL;
    }
-   if(indices->pm_into_index)
-   {
-      FPIndexFree(indices->pm_into_index);          
-      indices->pm_into_index = NULL;
-   }
    if(indices->pm_from_index)
    {
       FPIndexFree(indices->pm_from_index);          
       indices->pm_from_index = NULL;
    }  
+   if(indices->pm_into_index)
+   {
+      FPIndexFree(indices->pm_into_index);          
+      indices->pm_into_index = NULL;
+   }
+   if(indices->pm_negp_index)
+   {
+      FPIndexFree(indices->pm_negp_index);          
+      indices->pm_negp_index = NULL;
+   }
 }
 
 
@@ -195,7 +206,10 @@ void GlobalIndicesInsertClause(GlobalIndices_p indices, Clause_p clause)
    if(indices->pm_into_index)
    {
       PERF_CTR_ENTRY(PMIndexTimer);
-      OverlapIndexInsertIntoClause(indices->pm_into_index, clause);
+      //OverlapIndexInsertIntoClause(indices->pm_into_index, clause);
+      OverlapIndexInsertIntoClause2(indices->pm_into_index,
+                                    indices->pm_negp_index,
+                                    clause);
       PERF_CTR_EXIT(PMIndexTimer);
    }
    if(indices->pm_from_index)
@@ -236,7 +250,10 @@ void GlobalIndicesDeleteClause(GlobalIndices_p indices, Clause_p clause)
    if(indices->pm_into_index)
    {
       PERF_CTR_ENTRY(PMIndexTimer);
-      OverlapIndexDeleteIntoClause(indices->pm_into_index, clause);
+      // OverlapIndexDeleteIntoClause(indices->pm_into_index, clause);
+      OverlapIndexDeleteIntoClause2(indices->pm_into_index, 
+                                    indices->pm_negp_index,
+                                    clause);
       PERF_CTR_EXIT(PMIndexTimer);
    }
    if(indices->pm_from_index)

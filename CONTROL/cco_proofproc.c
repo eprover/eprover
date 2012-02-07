@@ -462,6 +462,7 @@ static void generate_new_clauses(ProofState_p state, ProofControl_p
                                            tmp_copy,
                                            clause,
                                            state->gindices.pm_into_index,
+                                           state->gindices.pm_negp_index,
                                            state->gindices.pm_from_index,
                                            state->tmp_store, 
                                            control->heuristic_parms.pm_type);

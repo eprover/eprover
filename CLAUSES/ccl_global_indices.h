@@ -40,10 +40,12 @@ typedef struct global_indices_cell
    char              rw_bw_index_type[MAX_PM_INDEX_NAME_LEN];
    char              pm_from_index_type[MAX_PM_INDEX_NAME_LEN];
    char              pm_into_index_type[MAX_PM_INDEX_NAME_LEN];
+   char              pm_negp_index_type[MAX_PM_INDEX_NAME_LEN];
    Sig_p             sig;
    SubtermIndex_p    bw_rw_index;   
-   OverlapIndex_p    pm_into_index;
    OverlapIndex_p    pm_from_index;
+   OverlapIndex_p    pm_into_index;
+   OverlapIndex_p    pm_negp_index;
 }GlobalIndices, *GlobalIndices_p;
 
 

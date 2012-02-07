@@ -811,6 +811,7 @@ long ComputeIntoParamodulants(ParamodInfo_p pminfo,
                               ParamodulationType type,
                               Clause_p clause,
                               OverlapIndex_p into_index, 
+                              OverlapIndex_p negp_index, 
                               ClauseSet_p store)
 {
    long          res = 0;
@@ -827,7 +828,10 @@ long ComputeIntoParamodulants(ParamodInfo_p pminfo,
       olterm = PStackPopP(pos_stack);
       pminfo->from_cpos  = pos;
       pminfo->from_pos   = UnpackClausePos(pos, clause);
-      res += compute_pos_into_pm(pminfo, type, olterm, into_index, store);
+      if(!EqnIsEquLit(pminfo->from_pos->literal))
+      {
+         res += compute_pos_into_pm(pminfo, type, olterm, negp_index, store);
+      }
       ClausePosFree(pminfo->from_pos);
    }
    PStackFree(pos_stack);
@@ -961,6 +965,7 @@ long ComputeAllParamodulantsIndexed(TB_p bank, OCB_p ocb,
                                     Clause_p clause,
                                     Clause_p parent_alias, 
                                     OverlapIndex_p into_index,
+                                    OverlapIndex_p negp_index, 
                                     OverlapIndex_p from_index, 
                                     ClauseSet_p store, 
                                     ParamodulationType pm_type)
@@ -977,6 +982,7 @@ long ComputeAllParamodulantsIndexed(TB_p bank, OCB_p ocb,
                                    pm_type,
                                    clause, 
                                    into_index, 
+                                   negp_index,
                                    store);  
 
    res += ComputeFromParamodulants(&pminfo, 

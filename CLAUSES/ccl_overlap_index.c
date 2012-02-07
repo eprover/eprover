@@ -72,6 +72,36 @@ long term_collect_into_terms(Term_p t, PTree_p *terms)
 
 /*-----------------------------------------------------------------------
 //
+// Function: term_collect_into_terms2()
+//
+//   Collect all potential into-subterms into terms/natoms.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long term_collect_into_terms2(Term_p t, PTree_p *terms, PTree_p *natoms)
+{
+   long res = 0;
+   int  i;
+   
+   if(TermIsVar(t))
+   {
+      return res;
+   }
+   PTreeStore(natoms, t);
+   res++;
+   for(i=0; i<t->arity; i++)
+   {
+      res += term_collect_into_terms(t->args[i], terms);
+   }
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: eqn_collect_into_terms()
 //
 //   Collect all paramod-into terms in lit into terms.
@@ -93,6 +123,39 @@ long eqn_collect_into_terms(Eqn_p lit, PTree_p *terms)
    }
    return res;
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: eqn_collect_into_terms2()
+//
+//   Collect all paramod-into terms in lit into terms/natoms.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long eqn_collect_into_terms2(Eqn_p lit, PTree_p *terms, PTree_p *natoms)
+{
+   long res;
+
+   if(EqnIsNegative(lit) && !EqnIsEquLit(lit))
+   {
+      res = term_collect_into_terms2(lit->lterm, terms, natoms);
+   }
+   else
+   {
+      res = term_collect_into_terms(lit->lterm, terms);
+   }
+   if(!EqnIsOriented(lit))
+   {
+      res += term_collect_into_terms(lit->rterm, terms);
+   }
+   return res;
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -127,6 +190,45 @@ long term_collect_into_terms_pos(Term_p t, CompactPos pos, PStack_p terms)
    return res;
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: term_collect_into_terms_pos2()
+//
+//   Collect all potential into-subterms/pos positions of the LHS of a
+//   negative non-equational literal onto terms/natoms. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long term_collect_into_terms_pos2(Term_p t, CompactPos pos, 
+                                  PStack_p terms, PStack_p natoms)
+{
+   long res = 0;
+   int  i;
+   
+   if(TermIsVar(t))
+   {
+      return res;
+   }
+   PStackPushP(natoms, t);
+   PStackPushInt(natoms, pos);
+   res++;
+   pos += DEFAULT_FWEIGHT;
+   for(i=0; i<t->arity; i++)
+   {
+      /* It's term_collect_into_terms_pos() on purpose - subterm need
+         to be indexed in the normal index for equational inferences!
+      */ 
+      res += term_collect_into_terms_pos(t->args[i], pos, terms);
+      pos += TermStandardWeight(t->args[i]);
+   }
+   return res;
+}
+
 /*-----------------------------------------------------------------------
 //
 // Function: eqn_collect_into_terms_pos()
@@ -145,6 +247,40 @@ long eqn_collect_into_terms_pos(Eqn_p lit, CompactPos litpos,
    long res;
 
    res = term_collect_into_terms_pos(lit->lterm, litpos, terms);
+   if(!EqnIsOriented(lit))
+   {
+      litpos += TermStandardWeight(lit->lterm);
+      res += term_collect_into_terms_pos(lit->rterm, litpos, terms);
+   }
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: eqn_collect_into_terms_pos2()
+//
+//   Collect all paramod-into terms with position in lit into
+//   terms/natoms.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long eqn_collect_into_terms_pos2(Eqn_p lit, CompactPos litpos, 
+                                 PStack_p terms, PStack_p natoms)
+{
+   long res;
+
+   if(EqnIsNegative(lit) && !EqnIsEquLit(lit))
+   {
+      res = term_collect_into_terms_pos2(lit->lterm, litpos, terms, natoms);
+   }
+   else
+   {
+      res = term_collect_into_terms_pos(lit->lterm, litpos, terms);
+   }
    if(!EqnIsOriented(lit))
    {
       litpos += TermStandardWeight(lit->lterm);
@@ -456,6 +592,8 @@ void OverlapIndexInsertIntoClause(OverlapIndex_p index, Clause_p clause)
 }
 
 
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: OverlapIndexDeleteIntoClause()
@@ -634,6 +772,156 @@ void OverlapIndexFPLeafPrint(FILE* out, PStack_p stack, FPTree_p leaf)
    OverlapIndexSubtermTreePrint(out, leaf->payload);
 
    PStackFree(iter);
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseCollectIntoTerms2()
+//
+//   Collect all term for paramodulation _into_ into two trees. These
+//   are non-variable terms in maximal sides of maximal
+//   literals. Negative atom-terms go into the second tree, all others
+//   into the first. Return number of term positions affected.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+long ClauseCollectIntoTerms2(Clause_p clause, PTree_p *terms, PTree_p *natoms)
+{
+   long  res = 0;
+   Eqn_p handle;
+
+   for(handle = clause->literals; handle; handle = handle->next)
+   {
+      if(EqnIsMaximal(handle))
+      {
+         res+=eqn_collect_into_terms2(handle, terms, natoms);
+      }
+   }   
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseCollectIntoTermsPos2()
+//
+//   Collect tuples cpos, t on stack(s), so that c|cpos = t and t is a 
+//   paramod-into position. Negative non-equational predicate terms go
+//   onto natoms, the rest onto terms.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long ClauseCollectIntoTermsPos2(Clause_p clause, 
+                                PStack_p terms, 
+                                PStack_p natoms) 
+{
+   long  res = 0;
+   Eqn_p handle;
+   CompactPos pos = 0;
+
+   for(handle = clause->literals; handle; handle = handle->next)
+   {
+      if(EqnIsMaximal(handle))
+      {
+         res += eqn_collect_into_terms_pos2(handle, pos, terms, natoms);
+      }
+      pos += EqnStandardWeight(handle);
+   }   
+   return res;
+}
+ 
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: OverlapIndexInsertIntoClause2()
+//
+//   Insert a clause into two overlap-into indices.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+void OverlapIndexInsertIntoClause2(OverlapIndex_p tindex, 
+                                   OverlapIndex_p naindex, 
+                                   Clause_p clause) 
+{
+   PStack_p terms = PStackAlloc();
+   PStack_p natoms = PStackAlloc();
+   CompactPos pos;
+   Term_p     term;
+   
+   ClauseCollectIntoTermsPos2(clause, terms, natoms);
+   while(!PStackEmpty(terms))
+   {
+      pos  = PStackPopInt(terms);
+      term = PStackPopP(terms);
+      OverlapIndexInsertPos(tindex, clause, pos, term);
+   }
+   while(!PStackEmpty(natoms))
+   {
+      pos  = PStackPopInt(natoms);
+      term = PStackPopP(natoms);
+      OverlapIndexInsertPos(naindex, clause, pos, term);
+   }
+   PStackFree(natoms);
+   PStackFree(terms);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: OverlapIndexDeleteIntoClause2()
+//
+//   Delete a clause from the two overlap-into indeces.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+void OverlapIndexDeleteIntoClause2(OverlapIndex_p tindex, 
+                                   OverlapIndex_p naindex, 
+                                   Clause_p clause)
+{
+   PStack_p trans;
+   Term_p   term;
+   PTree_p  terms = NULL,
+      natoms= NULL, 
+      cell;
+
+   ClauseCollectIntoTerms2(clause, &terms, &natoms);
+   
+   trans = PTreeTraverseInit(terms);
+   while((cell = PTreeTraverseNext(trans)))
+   {      
+      term = cell->key;
+      OverlapIndexDeleteClauseOcc(tindex, clause, term);
+   }
+   PTreeTraverseExit(trans);
+   PTreeFree(terms);
+
+   trans = PTreeTraverseInit(natoms);
+   while((cell = PTreeTraverseNext(trans)))
+   {      
+      term = cell->key;
+      OverlapIndexDeleteClauseOcc(naindex, clause, term);
+   }
+   PTreeTraverseExit(trans);
+   PTreeFree(natoms);   
 }
 
 
