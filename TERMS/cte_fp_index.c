@@ -839,13 +839,16 @@ static long dt_index_rek_find_unifiable(FPTree_p index,
       iter = IntMapIterAlloc(index->f_alternatives, BELOW_VAR, LONG_MAX); 
       while((child=IntMapIterNext(iter, &i)))
       {
-         res += dt_index_rek_find_unifiable(child, 
-                                            key,
-                                            sig,
-                                            current+1,
+         if(i<=0 || !SigIsPredicate(sig,i))
+         {
+            res += dt_index_rek_find_unifiable(child, 
+                                               key,
+                                               sig,
+                                               current+1,
                                             GET_SYMBOL_ARITY(sig,i),
-                                            0,
-                                            collect);
+                                               0,
+                                               collect);
+         }
       }
       IntMapIterFree(iter);            
    }
@@ -859,7 +862,10 @@ static long dt_index_rek_find_unifiable(FPTree_p index,
                                          0,
                                          0,
                                          collect);
-      child = fpindex_alternative(index, ANY_VAR);
+      if(key[current] <= 0 || !SigIsPredicate(sig,key[current]))
+      {
+         child = fpindex_alternative(index, ANY_VAR);
+      }
       res += dt_index_rek_find_unifiable(child, 
                                          key,
                                          sig,
