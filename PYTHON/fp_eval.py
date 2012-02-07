@@ -124,6 +124,17 @@ times = [
     (15, "BR  time"),
     (16, "BRI time")]   
 
+
+times = [
+    (2 , "Run time"),
+    (12, "Sat time"),
+    (13, "PM  time"),
+    (14, "PMI time"),
+    (11, "MGU time"),
+    (15, "BR  time"),
+    (16, "BRI time")]   
+
+
 counts = [
     (5, "Unification attempts"),
     (6, "Unification successes"),
@@ -135,11 +146,16 @@ count_mixer = [
     (lambda x:(float(x[3])/float(x[2])), "BR Match. Succ. Rate")]
     
 
+def shower(val):
+    print val
+    return val
+
+
 def profile_analysis(prot, profile_selector, mixers = []):
     """
     Return a tuple name, raw values, "mixed" values.
     """
-    # print prot.results.values()[10].values
+    # print prot.results.values()[2].values    
     res =  map(lambda x:pylib_maths.sum([float(i.values[x[0]]) \
                                          for i in prot.results.values()]),\
                profile_selector)
@@ -217,10 +233,12 @@ if __name__ == '__main__':
     #    print prots[0].result(res).values[2], prots[11].result(res).values[2]
         
         
-        
-    print do_table(prots, times)
-    print do_table(prots, counts, count_mixer)
+    #print "Times"
+    #print do_table(prots, times)
+    #print "Counts"
+    #print do_table(prots, counts, count_mixer)
     
-    # print prots[0]
-    # print prots[11]
+    print prots[0]
+    #print prots[11]
+    #print prots[15]
     
