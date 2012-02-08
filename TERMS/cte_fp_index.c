@@ -436,7 +436,8 @@ static long fp_index_tree_print(FILE* out,
 //
 // Function: fp_index_tree_collect_distrib()
 //
-//   Collect distribution information for an fp-tree.
+//   Collect distribution information for an fp-tree. Return number of
+//   nodes. 
 //
 // Global Variables: -
 //
@@ -444,11 +445,12 @@ static long fp_index_tree_print(FILE* out,
 //
 /----------------------------------------------------------------------*/
 
-void fp_index_tree_collect_distrib(FPTree_p index, PStack_p stack)
+long fp_index_tree_collect_distrib(FPTree_p index, PStack_p stack)
 {
    IntMapIter_p iter;
-   long         i=0;
-   FPTree_p    child;
+   long         i = 0;
+   FPTree_p     child;
+   long         res = 1;
 
    if(index->payload)
    {
@@ -459,11 +461,12 @@ void fp_index_tree_collect_distrib(FPTree_p index, PStack_p stack)
       iter = IntMapIterAlloc(index->f_alternatives, BELOW_VAR, LONG_MAX); 
       while((child=IntMapIterNext(iter, &i)))
       {
-         fp_index_tree_collect_distrib(child,
-                                       stack);
+         res += fp_index_tree_collect_distrib(child,
+                                              stack);
       }
       IntMapIterFree(iter);
    }
+   return res;
 }
 
 /*-----------------------------------------------------------------------
@@ -728,7 +731,6 @@ long dt_index_rek_find_matchable(FPTree_p index,
       while((child=IntMapIterNext(iter, &i)))
       {
          //printf("Branch (%d) %s\n", skip_term,i>0?SigFindName(sig, i):"X");
-
          res += dt_index_rek_find_matchable(child, 
                                             key,
                                             sig,
@@ -748,20 +750,23 @@ long dt_index_rek_find_matchable(FPTree_p index,
       iter = IntMapIterAlloc(index->f_alternatives, BELOW_VAR, LONG_MAX); 
       while((child=IntMapIterNext(iter, &i)))
       {
-         //printf("Branch (%d) %s\n", skip_term,i>0?SigFindName(sig, i):"X");
-         res += dt_index_rek_find_matchable(child, 
-                                            key,
-                                            sig,
-                                            current+1,
-                                            GET_SYMBOL_ARITY(sig,i),
-                                            collect);
+         if(i<=0 || !SigIsPredicate(sig, i))
+         {
+            //printf("Branch (%d) %s\n", skip_term,i>0?SigFindName(sig, i):"X");
+            res += dt_index_rek_find_matchable(child, 
+                                               key,
+                                               sig,
+                                               current+1,
+                                               GET_SYMBOL_ARITY(sig,i),
+                                               collect);
+         }
       }
       IntMapIterFree(iter);            
    }
    else
    {
       child = fpindex_alternative(index, key[current]);
-      //printf("Franch (%d) %s\n", skip_term, key[current]>0?SigFindName(sig,  key[current]):"X");
+      //printf("Branch (%d) %s\n", skip_term, key[current]>0?SigFindName(sig,  key[current]):"X");
       res = dt_index_rek_find_matchable(child, 
                                         key,
                                         sig,
@@ -1293,8 +1298,9 @@ void FPIndexDistribPrint(FILE* out, FPIndex_p index)
 //
 // Function: FPIndexCollectDistrib()
 //
-//   Collect statistics for the leaf node term distribution. Returns
-//   number of leaves directly, average and standard deviation via OUT
+//   Collect statistics for the node number and leaf term
+//   distribution. Returns number of nodes directly, leaves and
+//   average and standard deviation of terms/leaf via OUT 
 //   parameters. 
 //
 // Global Variables: -
@@ -1303,15 +1309,15 @@ void FPIndexDistribPrint(FILE* out, FPIndex_p index)
 //
 /----------------------------------------------------------------------*/
 
-long FPIndexCollectDistrib(FPIndex_p index, double* avg, double* stddev)
+long FPIndexCollectDistrib(FPIndex_p index, long* leaves, double* avg, double* stddev)
 {
    long res;
    PStack_p dist_stack = PStackAlloc();
 
-   fp_index_tree_collect_distrib(index->index, dist_stack);
+   res = fp_index_tree_collect_distrib(index->index, dist_stack);
 
-   *avg = PStackComputeAverage(dist_stack, stddev);
-   res = PStackGetSP(dist_stack);
+   *avg    = PStackComputeAverage(dist_stack, stddev);
+   *leaves = PStackGetSP(dist_stack);
    PStackFree(dist_stack);
 
    return res;
@@ -1332,14 +1338,17 @@ long FPIndexCollectDistrib(FPIndex_p index, double* avg, double* stddev)
 
 void FPIndexDistribDataPrint(FILE* out, FPIndex_p index)
 {
-   long   leaves;
-   double avg= 0 ;
+   long   leaves = 0;
+   long   nodes  = 0;
+   double avg    = 0 ;
    double stddev = 0;
 
-   leaves = FPIndexCollectDistrib(index, &avg, &stddev);
-   
-   fprintf(out, "%5ld leaves, %6.2f+/-%4.3f terms/leaf",
-           leaves, avg, stddev);
+   if(index)
+   {
+      nodes = FPIndexCollectDistrib(index, &leaves, &avg, &stddev);
+   }
+   fprintf(out, "%5ld nodes, %5ld leaves, %6.2f+/-%4.3f terms/leaf",
+           nodes, leaves, avg, stddev);
 }
 
 /*-----------------------------------------------------------------------
