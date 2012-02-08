@@ -1462,31 +1462,27 @@ int main(int argc, char* argv[])
       PERF_CTR_PRINT(GlobalOut, PMIndexTimer);
       PERF_CTR_PRINT(GlobalOut, BWRWTimer);
       PERF_CTR_PRINT(GlobalOut, BWRWIndexTimer);
-      if(proofstate->gindices.bw_rw_index)
-      {
-         fprintf(GlobalOut, "# Backwards rewriting index : ");
-         FPIndexDistribDataPrint(GlobalOut, proofstate->gindices.bw_rw_index);
-         fprintf(GlobalOut, "\n");
-         /*FPIndexPrintDot(GlobalOut, "rw_bw_index", 
-                         proofstate->gindices.bw_rw_index,
-                         SubtermTreePrintDot,
-                         proofstate->signature);*/
-      }
-      if(proofstate->gindices.pm_from_index)
-      {
-         fprintf(GlobalOut, "# Paramod-from index        : ");
-         FPIndexDistribDataPrint(GlobalOut, proofstate->gindices.pm_from_index);
-         fprintf(GlobalOut, "\n");
-         //FPIndexPrint(GlobalOut, 
-         //proofstate->gindices.pm_from_index, 
-         //OverlapIndexFPLeavePrint); */
-      }
-      if(proofstate->gindices.pm_into_index)
-      {
-         fprintf(GlobalOut, "# Paramod-into index        : ");
-         FPIndexDistribDataPrint(GlobalOut, proofstate->gindices.pm_into_index);
-         fprintf(GlobalOut, "\n");
-      }     
+
+      fprintf(GlobalOut, "# Backwards rewriting index : ");
+      FPIndexDistribDataPrint(GlobalOut, proofstate->gindices.bw_rw_index);
+      fprintf(GlobalOut, "\n");
+      /*FPIndexPrintDot(GlobalOut, "rw_bw_index", 
+        proofstate->gindices.bw_rw_index,
+        SubtermTreePrintDot,
+        proofstate->signature);*/
+      fprintf(GlobalOut, "# Paramod-from index        : ");
+      FPIndexDistribDataPrint(GlobalOut, proofstate->gindices.pm_from_index);
+      fprintf(GlobalOut, "\n");
+      //FPIndexPrint(GlobalOut, 
+      //proofstate->gindices.pm_from_index, 
+      //OverlapIndexFPLeavePrint); */
+      fprintf(GlobalOut, "# Paramod-into index        : ");
+      FPIndexDistribDataPrint(GlobalOut, proofstate->gindices.pm_into_index);
+      fprintf(GlobalOut, "\n");
+      fprintf(GlobalOut, "# Paramod-neg-atom index    : ");
+      FPIndexDistribDataPrint(GlobalOut, proofstate->gindices.pm_negp_index);
+      fprintf(GlobalOut, "\n");
+
    }   
 #ifndef FAST_EXIT
 #ifdef FULL_MEM_STATS
