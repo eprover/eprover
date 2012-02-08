@@ -243,6 +243,25 @@ long long GetUSecTime()
    return (long long)tv.tv_sec*1000000ll+tv.tv_usec;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: GetUSecClock()
+//
+//   Return the process cpu time in microseconds.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long long GetUSecClock()
+{
+   long long res = (clock()*1000000ll)/CLOCKS_PER_SEC;
+
+   return res;
+}
+
 
 /*-----------------------------------------------------------------------
 //

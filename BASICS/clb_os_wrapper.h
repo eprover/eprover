@@ -48,12 +48,18 @@ typedef enum
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+#ifdef PROFILE_WALL_CLOCK
+#define GETTIME GetUSecTime
+#else
+#define GETTIME GetUSecClock
+#endif
+
 #ifdef INSTRUMENT_PERF_CTR
 #define PERF_CTR_DEFINE(name)  long long name = 0; long long name##_store
 #define PERF_CTR_DECL(name)    extern long long name; extern long long name##_store
 #define PERF_CTR_RESET(name)   name = 0
-#define PERF_CTR_ENTRY(name)   name##_store = GetUSecTime()
-#define PERF_CTR_EXIT(name)    name+=(GetUSecTime()-(name##_store))
+#define PERF_CTR_ENTRY(name)   name##_store = GETTIME()
+#define PERF_CTR_EXIT(name)    name+=(GETTIME()-(name##_store))
 #define PERF_CTR_PRINT(out, name) fprintf((out), "# PC%-34s : %f\n", "(" #name ")", ((float)name)/1000000.0)
 #else
 #define PERF_CTR_DEFINE(name)
@@ -70,7 +76,8 @@ void       SetSoftRlimitErr(int resource, rlim_t limit, char* desc);
 void       SetMemoryLimit(rlim_t mem_limit);
 rlim_t     GetSoftRlimit(int resource);
 void       IncreaseMaxStackSize(char *argv[], rlim_t stacksize);
-long long  GetUSecTime();
+long long  GetUSecTime(void);
+long long  GetUSecClock(void);
 #define    GetMSecTime() (GetUSecTime()/1000)
 #define    GetSecTime() (GetUSecTime()/1000000)
 #define    GetSecTimeMod() (GetSecTime()%1000)
