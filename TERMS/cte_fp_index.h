@@ -91,8 +91,14 @@ FPTree_p FPTreeFind(FPTree_p root, IndexFP_p key);
 FPTree_p FPTreeInsert(FPTree_p root, IndexFP_p key);
 void     FPTreeDelete(FPTree_p root, IndexFP_p key);
 
-long     FPTreeFindUnifiable(FPTree_p root, IndexFP_p key, PStack_p collect);
-long     FPTreeFindMatchable(FPTree_p root, IndexFP_p key, PStack_p collect);
+long     FPTreeFindUnifiable(FPTree_p root, 
+                             IndexFP_p key, 
+                             Sig_p sig, 
+                             PStack_p collect);
+long     FPTreeFindMatchable(FPTree_p root, 
+                             IndexFP_p key, 
+                             Sig_p sig, 
+                             PStack_p collect);
 
 
 #define FPIndexCellAlloc() (FPIndexCell*)SizeMalloc(sizeof(FPIndexCell))
