@@ -29,6 +29,8 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
+PERF_CTR_DEFINE(IndexUnifTimer);
+PERF_CTR_DEFINE(IndexMatchTimer);
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -1237,7 +1239,10 @@ void FPIndexDelete(FPIndex_p index, Term_p term)
 long FPIndexFindUnifiable(FPIndex_p index, Term_p term, PStack_p collect)
 {
    long res;
-   IndexFP_p key = index->fp_fun(term);
+   IndexFP_p key;
+
+   PERF_CTR_ENTRY(IndexUnifTimer);
+   key = index->fp_fun(term);
 
    if(index->fp_fun == IndexDTCreate)
    {
@@ -1254,6 +1259,7 @@ long FPIndexFindUnifiable(FPIndex_p index, Term_p term, PStack_p collect)
       res = FPTreeFindUnifiable(index->index, key, index->sig, collect);      
    }
    IndexFPFree(key);
+   PERF_CTR_EXIT(IndexUnifTimer);
    return res; 
 }
 
@@ -1274,7 +1280,10 @@ long FPIndexFindUnifiable(FPIndex_p index, Term_p term, PStack_p collect)
 long FPIndexFindMatchable(FPIndex_p index, Term_p term, PStack_p collect)
 {
    long res;
-   IndexFP_p key = index->fp_fun(term); 
+   IndexFP_p key;
+
+   PERF_CTR_ENTRY(IndexMatchTimer);
+   key = index->fp_fun(term); 
    
    if(index->fp_fun == IndexDTCreate)
    {
@@ -1295,6 +1304,7 @@ long FPIndexFindMatchable(FPIndex_p index, Term_p term, PStack_p collect)
       
    }
    IndexFPFree(key);
+   PERF_CTR_EXIT(IndexMatchTimer);
    return res; 
 }
 

@@ -79,6 +79,9 @@ typedef void (*FPLeafPayloadprint)(FILE* out, PObjTree_p payload, Sig_p sig);
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+PERF_CTR_DECL(IndexUnifTimer);
+PERF_CTR_DECL(IndexMatchTimer);
+
 
 #define FPTreeCellAlloc() (FPTreeCell*)SizeMalloc(sizeof(FPTreeCell))
 #define FPTreeCellFree(junk)         SizeFree(junk, sizeof(FPTreeCell))

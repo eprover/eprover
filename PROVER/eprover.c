@@ -1460,8 +1460,10 @@ int main(int argc, char* argv[])
       PERF_CTR_PRINT(GlobalOut, SatTimer);
       PERF_CTR_PRINT(GlobalOut, ParamodTimer);
       PERF_CTR_PRINT(GlobalOut, PMIndexTimer);
+      PERF_CTR_PRINT(GlobalOut, IndexUnifTimer);
       PERF_CTR_PRINT(GlobalOut, BWRWTimer);
       PERF_CTR_PRINT(GlobalOut, BWRWIndexTimer);
+      PERF_CTR_PRINT(GlobalOut, IndexMatchTimer);
 
       fprintf(GlobalOut, "# Backwards rewriting index : ");
       FPIndexDistribDataPrint(GlobalOut, proofstate->gindices.bw_rw_index);
