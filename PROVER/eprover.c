@@ -25,6 +25,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include <clb_defines.h>
+#include <clb_regmem.h>
 #include <cio_commandline.h>
 #include <cio_output.h>
 #include "ccl_relevance.h"
@@ -1528,6 +1529,7 @@ int main(int argc, char* argv[])
    OutClose(GlobalOut);
    ExitIO();
 #ifdef CLB_MEMORY_DEBUG
+   RegMemCleanUp();
    MemFlushFreeList();
    MemDebugPrintStats(stdout);
 #endif
