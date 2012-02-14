@@ -1267,6 +1267,7 @@ bool ClauseSubsumesClause(Clause_p subsumer, Clause_p sub_candidate)
    assert(subsumer->weight == ClauseStandardWeight(subsumer));
    res = clause_subsumes_clause(subsumer, sub_candidate);
    
+   /* Shouldn't this be inside an "if(res){}"? */
    ClauseSetProp(subsumer, ClauseQueryProp(sub_candidate,CPIsSOS));
    return res;
 }
