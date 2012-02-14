@@ -22,6 +22,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include <unistd.h>
+#include <time.h>
 
 #include "clb_os_wrapper.h"
 
