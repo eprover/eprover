@@ -118,6 +118,44 @@ void  RegMemFree(void* mem)
 
 /*-----------------------------------------------------------------------
 //
+// Function: RegMemProvide()
+//
+//   Return pointer to a memory section that is large enough to store
+//   newsize bytes, with the first *oldsize bytes being initialized to
+//   the value at *mem, and the rest being initialized to '0'. If
+//   newsize <= oldsize, this is a NOP. If new memory is allocated,
+//   oldsize will be updated to reflect the new size (which most
+//   likely is larger than newsize).
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+void* RegMemProvide(void* mem, size_t *oldsize, size_t newsize)
+{
+   size_t newlimit;
+
+   if(*oldsize >= newsize)
+   {
+      return mem;
+   }
+   newlimit = MAX(*oldsize, 1);
+   while(newlimit < newsize)
+   {
+      newlimit *= 2;
+   }
+   mem = RegMemRealloc(mem, newlimit);
+   memset(mem+*oldsize, 0, newlimit-*oldsize);   
+   *oldsize = newlimit;
+
+   return mem;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: RegMemCleanUp()
 //
 //   Free all registered memory areas.

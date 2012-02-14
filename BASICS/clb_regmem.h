@@ -48,6 +48,7 @@ Changes
 void* RegMemAlloc(size_t size);
 void* RegMemRealloc(void* mem, size_t size);
 void  RegMemFree(void* mem);
+void* RegMemProvide(void* mem, size_t *oldsize, size_t newsize);
 void  RegMemCleanUp(void);
 
 #endif
