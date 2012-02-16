@@ -807,6 +807,7 @@ long ComputeAllParamodulants(TB_p bank, OCB_p ocb, Clause_p clause,
 //
 /----------------------------------------------------------------------*/
 
+
 long ComputeIntoParamodulants(ParamodInfo_p pminfo,
                               ParamodulationType type,
                               Clause_p clause,
@@ -828,9 +829,10 @@ long ComputeIntoParamodulants(ParamodInfo_p pminfo,
       olterm = PStackPopP(pos_stack);
       pminfo->from_cpos  = pos;
       pminfo->from_pos   = UnpackClausePos(pos, clause);
-      if(!EqnIsEquLit(pminfo->from_pos->literal))
+      res += compute_pos_into_pm(pminfo, type, olterm, negp_index, store);         
+      if(EqnIsEquLit(pminfo->from_pos->literal))
       {
-         res += compute_pos_into_pm(pminfo, type, olterm, negp_index, store);
+         res += compute_pos_into_pm(pminfo, type, olterm, into_index, store);
       }
       ClausePosFree(pminfo->from_pos);
    }
