@@ -39,7 +39,7 @@ Changes
 /*---------------------------------------------------------------------*/
 
 /* cvs tag E-1-4-008 */
-#define VERSION      "1.4-0087"
+#define VERSION      "1.4-008"
 
 #define E_NICKNAME     "Namring"
 
