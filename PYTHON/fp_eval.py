@@ -225,7 +225,7 @@ if __name__ == '__main__':
     
     filter_common_successes(prots)        
     filter_common_search(prots)
-    print prots[0].results_no()
+    # print prots[0].results_no()
     # filter_hard_problems(prots, 4, 1000)
     # print prots[0].results_no()
 
@@ -233,12 +233,12 @@ if __name__ == '__main__':
     #    print prots[0].result(res).values[2], prots[11].result(res).values[2]
         
         
-    #print "Times"
-    #print do_table(prots, times)
-    #print "Counts"
-    #print do_table(prots, counts, count_mixer)
+    print "Times"
+    print do_table(prots, times)
+    print "Counts"
+    print do_table(prots, counts, count_mixer)
     
-    print prots[0]
+    # print prots[0]
     #print prots[11]
     #print prots[15]
     

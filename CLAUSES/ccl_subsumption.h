@@ -26,6 +26,7 @@ Changes
 
 #define CCL_SUBSUPTION
 
+#include <clb_os_wrapper.h>
 #include <ccl_unit_simplify.h>
 
 /*---------------------------------------------------------------------*/
@@ -38,6 +39,9 @@ Changes
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
+
+PERF_CTR_DECL(SetSubsumeTimer);
+PERF_CTR_DECL(SubsumeTimer);
 
 extern bool StrongUnitForwardSubsumption;
 extern long ClauseClauseSubsumptionCalls;

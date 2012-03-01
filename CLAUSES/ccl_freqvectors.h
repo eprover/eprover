@@ -66,6 +66,8 @@ typedef enum
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+PERF_CTR_DECL(FreqVecTimer);
+
 #define PermVectorAlloc(size) FixedDArrayAlloc(size)
 #define PermVectorFree(junk)  FixedDArrayFree(junk)
 #define PermVectorCopy(vec)   FixedDArrayCopy(vec)

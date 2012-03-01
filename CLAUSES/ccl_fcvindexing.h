@@ -35,6 +35,9 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
+
+PERF_CTR_DECL(FVIndexTimer);
+
 #define FVINDEX_MAX_FEATURES_DEFAULT 50  /* Maximal lenght of feature vector */
 #define FVINDEX_SYMBOL_SLACK_DEFAULT 30  /* Reserve symbols for splitting */
 

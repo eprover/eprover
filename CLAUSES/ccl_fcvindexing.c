@@ -29,6 +29,8 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
+PERF_CTR_DEFINE(FVIndexTimer);
+
 FVIndexParmsCell FVIDefaultParameters =
 {
    FVIACFeatures,
@@ -296,6 +298,8 @@ void FVIndexInsert(FVIAnchor_p index, FreqVector_p vec_clause)
    FVIndex_p handle, newnode = NULL;
    long i;
 
+   PERF_CTR_ENTRY(FVIndexTimer);
+
    assert(vec_clause);
    assert(vec_clause->clause);
 
@@ -321,6 +325,7 @@ void FVIndexInsert(FVIAnchor_p index, FreqVector_p vec_clause)
    handle->final = true;
    PTreeStore(&(handle->u1.clauses), vec_clause->clause);
    /* ClauseSetProp(vec_clause->clause, CPIsSIndexed); */
+   PERF_CTR_EXIT(FVIndexTimer);
 }
    
 
@@ -344,10 +349,13 @@ bool FVIndexDelete(FVIAnchor_p index, Clause_p clause)
    FreqVector_p vec;
    FVIndex_p handle;
    long i;
-
+   bool res;
+   
    vec = OptimizedVarFreqVectorCompute(clause, index->perm_vector, 
 				       index->features,
 				       index->symbol_limit);   
+   /* FreqVector-Computation is measured independently */
+   PERF_CTR_ENTRY(FVIndexTimer);
    handle = index->index;
    handle->clause_count--;
 
@@ -363,7 +371,9 @@ bool FVIndexDelete(FVIAnchor_p index, Clause_p clause)
    }
    FreqVectorFree(vec);
    /* ClauseDelProp(clause, CPIsSIndexed); */
-   return handle?PTreeDeleteEntry(&(handle->u1.clauses), clause):false;
+   res = handle?PTreeDeleteEntry(&(handle->u1.clauses), clause):false;
+   PERF_CTR_EXIT(FVIndexTimer);
+   return res;
 }
 
 /*-----------------------------------------------------------------------
