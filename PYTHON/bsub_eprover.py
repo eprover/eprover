@@ -529,12 +529,30 @@ x2_stats = [
 ]
 
 x3_stats = [
+    "# Clause-clause subsumption calls (NU)",
+    "# Rec. Clause-clause subsumption calls",
+    "# Unit Clause-clause subsumption calls",
+    "# PC(MguTimer)",
+    "# PC(SatTimer)",
+    "# PC(ParamodTimer)",
+    "# PC(PMIndexTimer)",
+    "# PC(BWRWTimer)",
+    "# PC(BWRWIndexTimer)",
+    "# PC(FreqVecTimer)",
+    "# PC(FVIndexTimer)",
+    "# PC(SubsumeTimer)",
+    "# PC(SetSubsumeTimer)"
+    
+]
+
+
+x3_stats = [
     "# BW rewrite match attempts",
     "# BW rewrite match successes"    
 ]
 
 if __name__ == '__main__':
-    opts, args = getopt.gnu_getopt(sys.argv[1:], "hvpsfb:j:xXYc:",
+    opts, args = getopt.gnu_getopt(sys.argv[1:], "hvpsfb:j:xXYZc:",
                                    ["--pegasus",
                                     "--peg-sine",
                                     "--force",
@@ -543,6 +561,7 @@ if __name__ == '__main__':
                                     "--ext-stats",
                                     "--ext2-stats",
                                     "--ext3-stats",
+                                    "--extFV-stats",
                                     "--cores="])
     force_scheduling = False
     stats = ["# Processed clauses",
@@ -574,6 +593,9 @@ if __name__ == '__main__':
         elif option == "-Y" or option == "--ext3-stats":
             stats.extend(x_stats)
             stats.extend(x2_stats)
+            stats.extend(x3_stats)
+        elif option == "-Z" or option == "--extFV-stats":
+            stats.extend(x_stats)
             stats.extend(x3_stats)
         elif option == "-c" or option == "--cores":
             cores = int(optarg)
