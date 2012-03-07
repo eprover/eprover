@@ -528,10 +528,18 @@ x2_stats = [
     "# Paramod-into index"
 ]
 
+
 x3_stats = [
+    "# BW rewrite match attempts",
+    "# BW rewrite match successes"    
+]
+
+x4_stats = [
     "# Clause-clause subsumption calls (NU)",
     "# Rec. Clause-clause subsumption calls",
     "# Unit Clause-clause subsumption calls",
+    "# # ...subsumed",
+    "# Backward-subsumed"
     "# PC(MguTimer)",
     "# PC(SatTimer)",
     "# PC(ParamodTimer)",
@@ -542,13 +550,6 @@ x3_stats = [
     "# PC(FVIndexTimer)",
     "# PC(SubsumeTimer)",
     "# PC(SetSubsumeTimer)"
-    
-]
-
-
-x3_stats = [
-    "# BW rewrite match attempts",
-    "# BW rewrite match successes"    
 ]
 
 if __name__ == '__main__':
@@ -596,7 +597,7 @@ if __name__ == '__main__':
             stats.extend(x3_stats)
         elif option == "-Z" or option == "--extFV-stats":
             stats.extend(x_stats)
-            stats.extend(x3_stats)
+            stats.extend(x4_stats)
         elif option == "-c" or option == "--cores":
             cores = int(optarg)
         else:
