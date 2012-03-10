@@ -85,6 +85,7 @@ Germany
 or via email (address above).
 """
 
+import unittest
 import sys
 import re
 import os
@@ -277,7 +278,7 @@ Template for generating bsub job headers.
 
 bsub_job_tmplt = \
 """
-echo "### Running: %s";env TPTP=%s %s/eprover --print-statistics --tptp3-format --resources-info %s %s
+echo "### Running: %s";env TPTP=%s %s/eprover --print-version --print-statistics -s --tptp3-format --resources-info %s %s
 """
 """
 Template for generating bsub job entries.
@@ -510,12 +511,20 @@ def process_strat(name, results, running, max_jobs, job_db):
     return res
 
 
+stats = [
+    "# Version",
+    "# Processed clauses"
+    ]
+
 x_stats = [
+    "# Unification attempts",
+    "# Unification successes",
     "# Generated clauses",
     "# Paramodulations",
     "# Current number of processed clauses",
     "# Current number of unprocessed clauses"
     ]
+
 x2_stats = [
     "# PC(MguTimer)",
     "# PC(SatTimer)",
@@ -526,20 +535,19 @@ x2_stats = [
     "# Backwards rewriting index",
     "# Paramod-from index",
     "# Paramod-into index"
-]
-
+    ]
 
 x3_stats = [
     "# BW rewrite match attempts",
     "# BW rewrite match successes"    
-]
+    ]
 
 x4_stats = [
     "# Clause-clause subsumption calls (NU)",
     "# Rec. Clause-clause subsumption calls",
     "# Unit Clause-clause subsumption calls",
-    "# # ...subsumed",
-    "# Backward-subsumed"
+    "# ...subsumed",
+    "# Backward-subsumed",
     "# PC(MguTimer)",
     "# PC(SatTimer)",
     "# PC(ParamodTimer)",
@@ -550,11 +558,90 @@ x4_stats = [
     "# PC(FVIndexTimer)",
     "# PC(SubsumeTimer)",
     "# PC(SetSubsumeTimer)"
-]
+    ]
+
+
+
+class TestDecoding(unittest.TestCase):
+    """
+    Test result decoding.
+    """
+    def setUp(self):
+        """        
+        """
+        self.teststr = """
+# Proof found!
+# SZS status Unsatisfiable
+# Parsed axioms                        : 11
+# Removed by relevancy pruning         : 0
+# Initial clauses                      : 11
+# Removed in clause preprocessing      : 0
+# Initial clauses in saturation        : 11
+# Processed clauses                    : 198
+# ...of these trivial                  : 44
+# ...subsumed                          : 104
+# ...remaining for further processing  : 50
+# Other redundant clauses eliminated   : 0
+# Clauses deleted for lack of memory   : 0
+# Backward-subsumed                    : 1
+# Backward-rewritten                   : 25
+# Generated clauses                    : 891
+# ...of the previous two non-trivial   : 566
+# Contextual simplify-reflections      : 0
+# Paramodulations                      : 891
+# Factorizations                       : 0
+# Equation resolutions                 : 0
+# Current number of processed clauses  : 24
+#    Positive orientable unit clauses  : 19
+#    Positive unorientable unit clauses: 5
+#    Negative unit clauses             : 0
+#    Non-unit-clauses                  : 0
+# Current number of unprocessed clauses: 164
+# ...number of literals in the above   : 164
+# Clause-clause subsumption calls (NU) : 0
+# Rec. Clause-clause subsumption calls : 0
+# Unit Clause-clause subsumption calls : 20
+# Rewrite failures with RHS unbound    : 0
+# BW rewrite match attempts            : 144
+# BW rewrite match successes           : 95
+# Unification attempts                 : 875
+# Unification successes                : 805
+# PC(MguTimer)                         : 0.000910
+# PC(SatTimer)                         : 0.011210
+# PC(ParamodTimer)                     : 0.004687
+# PC(PMIndexTimer)                     : 0.000372
+# PC(IndexUnifTimer)                   : 0.000420
+# PC(BWRWTimer)                        : 0.000749
+# PC(BWRWIndexTimer)                   : 0.000275
+# PC(IndexMatchTimer)                  : 0.000108
+# PC(FreqVecTimer)                     : 0.000263
+# PC(FVIndexTimer)                     : 0.000139
+# PC(SubsumeTimer)                     : 0.000014
+# PC(SetSubsumeTimer)                  : 0.000122
+# Backwards rewriting index :    97 nodes,    18 leaves,   2.28+/-2.076 terms/leaf
+# Paramod-from index        :    79 nodes,    15 leaves,   1.80+/-1.327 terms/leaf
+# Paramod-into index        :    86 nodes,    16 leaves,   2.19+/-1.911 terms/leaf
+# Paramod-neg-atom index    :     1 nodes,     0 leaves,   0.00+/-0.000 terms/leaf
+
+# -------------------------------------------------
+# User time                : 0.013 s
+# System time              : 0.005 s
+# Total time               : 0.019 s
+# Maximum resident set size: 2383872 pages
+"""
+        
+    def testDecode(self):
+        """
+        """
+        decoder = pylib_erun.e_res_parser(300, stats+x_stats+x4_stats)
+        tmp = decoder.translate_result(self.teststr)
+        self.assertEqual(3+len(stats+x_stats+x4_stats), len(tmp))
+        
 
 if __name__ == '__main__':
-    opts, args = getopt.gnu_getopt(sys.argv[1:], "hvpsfb:j:xXYZc:",
-                                   ["--pegasus",
+    opts, args = getopt.gnu_getopt(sys.argv[1:], "uhvpsfb:j:xXYZc:",
+                                   ["--unit-test",
+                                    "--pegasus",
                                     "--peg-sine",
                                     "--force",
                                     "--batchsize=",
@@ -565,9 +652,6 @@ if __name__ == '__main__':
                                     "--extFV-stats",
                                     "--cores="])
     force_scheduling = False
-    stats = ["# Processed clauses",
-             "# Unification attempts",
-             "# Unification successes"]
 
     test_cfg()
     for option, optarg in opts:
@@ -576,6 +660,9 @@ if __name__ == '__main__':
             sys.exit()
         elif option == "-v":
             pylib_io.Verbose = 1
+        elif option == "-u" or option == "--unit-test":
+            sys.argv = sys.argv[:1]
+            unittest.main()
         elif option == "-p" or option == "--pegasus":
             pegasus_cfg()
         elif option == "-s" or option == "--peg-sine":
