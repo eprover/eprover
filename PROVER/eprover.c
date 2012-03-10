@@ -59,6 +59,7 @@ typedef enum
    OPT_FILTER_SATURATED,
    OPT_CNF_ONLY,
    OPT_PRINT_PID,
+   OPT_PRINT_VERSION,
    OPT_REQUIRE_NONEMPTY,
    OPT_SILENT,
    OPT_OUTPUTLEVEL,
@@ -285,6 +286,13 @@ OptCell opts[] =
     NoArg, NULL,
     "Print the process id of the prover as a comment after option "
     "processing."},
+
+   {OPT_PRINT_VERSION,
+    '\0', "print-version",
+    NoArg, NULL,
+    "Print the version number of the prover as a comment after option "
+    "processing. Note that unlike -version, the prover will not "
+    "terminate, but proceed normally."},
 
    {OPT_REQUIRE_NONEMPTY,
     '\0', "error-on-empty",
@@ -1101,6 +1109,7 @@ bool              print_sat = false,
                   filter_sat = false,
                   print_rusage = false,
                   print_pid = false,
+                  print_version = false,
                   outinfo = false,
                   error_on_empty = false,
                   no_preproc = false,
@@ -1250,6 +1259,11 @@ int main(int argc, char* argv[])
    if(print_pid)
    {
       fprintf(GlobalOut, "# Pid: %d\n", (int)getpid());
+      fflush(GlobalOut);
+   }
+   if(print_version)
+   {
+      fprintf(stdout, "# Version: " VERSION "\n");
       fflush(GlobalOut);
    }
 
@@ -1668,6 +1682,9 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_PRINT_PID:
 	    print_pid = true;
+	    break;
+      case OPT_PRINT_VERSION:
+	    print_version = true;
 	    break;
       case OPT_REQUIRE_NONEMPTY:
 	    error_on_empty = true;
