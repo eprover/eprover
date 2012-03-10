@@ -2,6 +2,14 @@ This history list describes the major differences between versions of
 the E equational theorem prover.
 
 
+Version 1.4 -> 
+
+- Implemented Non-perfect discrimination tree indexing
+- Fixed indexed paramodulation (no more inefficient top-level overlaps
+  of non-equational literals)
+- Added further instrumentation for profiling
+
+
 Version 1.3 -> 1.4 Namring
 
 - Adapted e_ltb_runner for CASC-23
