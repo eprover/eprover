@@ -85,7 +85,7 @@ def res_hash(res):
     Return a hash of the result parameters such that an equal hash is
     good evidence for very similar proof search.
     """
-    return res.values[4], res.values[9]
+    return res.values[5], res.values[10]
 
 def find_common_hash(prots, hashfun):
     """

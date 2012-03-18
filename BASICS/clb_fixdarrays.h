@@ -7,8 +7,7 @@ Author: Stephan Schulz
 Contents
 
   Rather trivial datatype for arrays of long integers with a known,
-  fixed and and queryable size.
- 
+  fixed and and queryable size. 
 
   Copyright 2003 by the author.
   This code is released under the GNU General Public Licence and

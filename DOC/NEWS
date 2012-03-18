@@ -4,11 +4,12 @@ the E equational theorem prover.
 
 Version 1.4 -> 
 
-- Implemented Non-perfect discrimination tree indexing
+- Fixed bug stopping miniscoping from ever being used
+- Implemented non-perfect discrimination tree indexing (mostly for
+  comparison with FP indexing)
 - Fixed indexed paramodulation (no more inefficient top-level overlaps
   of non-equational literals)
 - Added further instrumentation for profiling
-
 
 Version 1.3 -> 1.4 Namring
 

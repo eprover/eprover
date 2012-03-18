@@ -46,6 +46,7 @@ PERF_CTR_DECL(SubsumeTimer);
 extern bool StrongUnitForwardSubsumption;
 extern long ClauseClauseSubsumptionCalls;
 extern long ClauseClauseSubsumptionCallsRec;
+extern long ClauseClauseSubsumptionSuccesses;
 extern long UnitClauseClauseSubsumptionCalls;
 
 bool     LiteralSubsumesClause(Eqn_p literal, Clause_p clause); 

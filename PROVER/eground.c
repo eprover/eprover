@@ -337,7 +337,8 @@ int main(int argc, char* argv[])
    FunCode         selected_symbol = 0;
    DefStore_p      def_store;
    PermVector_p    perm;
-   long            symbols = 100; /* Temporary fix */
+   //long            symbols = 100; /* Temporary fix */
+   FVCollect_p     cspec;
 
    assert(argv[0]);
    
@@ -371,11 +372,25 @@ int main(int argc, char* argv[])
 
    ClauseSetRemoveSuperfluousLiterals(clauses);
 
+   cspec = FVCollectAlloc(FVIACFeatures,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0);
+   cspec->max_symbols = FVINDEX_MAX_FEATURES_DEFAULT;
+   
    perm = PermVectorCompute(clauses,		    
-                            &FVIDefaultParameters,
-                            symbols);  
+                            cspec,
+                            false);  
    def_store->def_clauses->fvindex =
-      FVIAnchorAlloc(symbols, FVIDefaultParameters.features, perm);
+      FVIAnchorAlloc(cspec, perm);
 
    SpecFeaturesCompute(&features, clauses, sig);   
 

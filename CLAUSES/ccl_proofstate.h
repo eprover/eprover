@@ -61,6 +61,7 @@ typedef struct proofstatecell
    GlobalIndices     gindices;
    bool              fvi_initialized; /* Are the feature vector
                                          indices set up? */
+   FVCollect_p       fvi_cspec;
    ClauseSet_p       demods[3];       /* Synonyms for
                                          processed_pos_rules and
                                          processed_pos_eqns */

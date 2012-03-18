@@ -892,6 +892,94 @@ void ProofStateResetProcessed(ProofState_p state, ProofControl_p control)
 
 /*-----------------------------------------------------------------------
 //
+// Function: 
+//
+//   
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+void fvi_param_init(ProofState_p state, ProofControl_p control)
+{
+   long symbols;
+   PermVector_p perm;
+   FVCollect_p  cspec;
+
+   state->fvi_initialized = true;
+   state->original_symbols = state->signature->f_count;
+   
+   symbols = MIN(state->original_symbols+control->fvi_parms.symbol_slack, 
+                 control->fvi_parms.max_symbols);
+
+   switch(control->fvi_parms.cspec.features)
+   {
+   case FVIBillFeatures:
+         cspec = BillFeaturesCollectAlloc(state->signature, symbols*2+2);
+         break;
+   case FVICollectFeatures:
+         cspec = FVCollectAlloc(control->fvi_parms.cspec.features,
+                                control->fvi_parms.cspec.use_litcount,
+                                control->fvi_parms.cspec.ass_vec_len,
+                                symbols,
+                                control->fvi_parms.cspec.pos_count_offset,
+                                control->fvi_parms.cspec.pos_count_mod,
+                                control->fvi_parms.cspec.neg_count_offset,
+                                control->fvi_parms.cspec.neg_count_mod,
+                                control->fvi_parms.cspec.pos_depth_offset,
+                                control->fvi_parms.cspec.pos_depth_mod,
+                                control->fvi_parms.cspec.neg_depth_offset,
+                                control->fvi_parms.cspec.neg_depth_mod);
+
+         break;
+   default:
+         cspec = FVCollectAlloc(control->fvi_parms.cspec.features,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0);
+         cspec->max_symbols = symbols;
+         break;
+   }
+   state->fvi_cspec = cspec;
+
+   perm = PermVectorCompute(state->axioms,		    
+                            cspec,
+                            control->fvi_parms.eliminate_uninformative);  
+   if(control->fvi_parms.cspec.features != FVINoFeatures)
+   {
+         state->processed_non_units->fvindex =
+            FVIAnchorAlloc(cspec, PermVectorCopy(perm));
+         state->processed_pos_rules->fvindex =
+            FVIAnchorAlloc(cspec, PermVectorCopy(perm));
+         state->processed_pos_eqns->fvindex =
+            FVIAnchorAlloc(cspec, PermVectorCopy(perm));
+         state->processed_neg_units->fvindex =
+            FVIAnchorAlloc(cspec, PermVectorCopy(perm));
+         if(state->watchlist)
+         {
+            state->watchlist->fvindex = 
+               FVIAnchorAlloc(cspec, PermVectorCopy(perm));
+            ClauseSetNewTerms(state->watchlist, state->terms);
+         }
+   }
+   state->definition_store->def_clauses->fvindex =
+      FVIAnchorAlloc(cspec, perm);      
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: ProofStateInit()
 //
 //   Given a proof state with axioms and a heuristic parameter
@@ -975,40 +1063,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
 
    if(!state->fvi_initialized)
    {
-      long symbols;
-      PermVector_p perm;
-
-      state->fvi_initialized = true;
-      state->original_symbols = state->signature->f_count;
-      
-      symbols = MIN(state->original_symbols+control->fvi_parms.symbol_slack, 
-                    control->fvi_parms.max_symbols);     
-      perm = PermVectorCompute(state->axioms,		    
-                               (control->fvi_parms.features != FVINoFeatures)?
-                               &(control->fvi_parms):&FVIDefaultParameters,
-                               symbols);  
-      if(control->fvi_parms.features != FVINoFeatures)
-      {
-         state->processed_non_units->fvindex =
-            FVIAnchorAlloc(symbols, control->fvi_parms.features, PermVectorCopy(perm));
-         state->processed_pos_rules->fvindex =
-            FVIAnchorAlloc(symbols, control->fvi_parms.features, PermVectorCopy(perm));
-         state->processed_pos_eqns->fvindex =
-            FVIAnchorAlloc(symbols, control->fvi_parms.features, PermVectorCopy(perm));
-         state->processed_neg_units->fvindex =
-            FVIAnchorAlloc(symbols, control->fvi_parms.features,
-                           PermVectorCopy(perm));
-         if(state->watchlist)
-         {
-            state->watchlist->fvindex = 
-               FVIAnchorAlloc(symbols, control->fvi_parms.features,
-                              PermVectorCopy(perm));
-	 ClauseSetNewTerms(state->watchlist, state->terms);
-         }
-      }
-      state->definition_store->def_clauses->fvindex =
-         FVIAnchorAlloc(symbols, control->fvi_parms.features, perm);
-      
+      fvi_param_init(state, control);
    }
 }
 

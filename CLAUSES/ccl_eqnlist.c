@@ -1417,6 +1417,29 @@ void EqnListAddSymbolDistExist(Eqn_p list, long *dist_array, PStack_p exist)
 
 /*-----------------------------------------------------------------------
 //
+// Function: EqnListAddSymbolFeatures()
+//
+//   Update features in feature_array with all equation in list.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void EqnListAddSymbolFeatures(Eqn_p list, PStack_p mod_stack, long *feature_array)
+{
+   while(list)
+   {
+      EqnAddSymbolFeatures(list, mod_stack, feature_array);
+      list = list->next;
+   } 
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: EqnListComputeFunctionRanks()
 //
 //   Compute the occurance rank for all function symbols in list.

@@ -38,15 +38,12 @@ Changes
 
 PERF_CTR_DECL(FVIndexTimer);
 
-#define FVINDEX_MAX_FEATURES_DEFAULT 50  /* Maximal lenght of feature vector */
-#define FVINDEX_SYMBOL_SLACK_DEFAULT 30  /* Reserve symbols for splitting */
 
 typedef struct fvindex_parms_cell
 {
-   FVIndexType features;
+   FVCollectCell cspec; 
    bool use_perm_vectors;
    bool eliminate_uninformative;
-   bool fold_features;
    long max_symbols;
    long symbol_slack;
 }FVIndexParmsCell, *FVIndexParms_p;
@@ -66,8 +63,7 @@ typedef struct fv_index_cell
 
 typedef struct fvi_anchor_cell
 {
-   long         symbol_limit;
-   FVIndexType  features;
+   FVCollect_p  cspec;
    PermVector_p perm_vector;
    FVIndex_p    index;
    long         storage;
@@ -78,7 +74,7 @@ typedef struct fvi_anchor_cell
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-extern FVIndexParmsCell FVIDefaultParameters;
+/* extern FVIndexParmsCell FVIDefaultParameters; */
 
 #define FVIndexParmsCellAlloc() (FVIndexParmsCell*)SizeMalloc(sizeof(FVIndexParmsCell))
 #define FVIndexParmsCellFree(junk) SizeFree(junk, sizeof(FVIndexParmsCell))
@@ -96,7 +92,7 @@ void      FVIndexFree(FVIndex_p junk);
 #define FVIAnchorCellAlloc()    (FVIAnchorCell*)SizeMalloc(sizeof(FVIAnchorCell))
 #define FVIAnchorCellFree(junk) SizeFree(junk, sizeof(FVIAnchorCell))
 
-FVIAnchor_p FVIAnchorAlloc(long symbol_limit, FVIndexType features, PermVector_p perm);
+FVIAnchor_p FVIAnchorAlloc(FVCollect_p cspec, PermVector_p perm);
 void        FVIAnchorFree(FVIAnchor_p junk);
 
 #ifdef CONSTANT_MEM_ESTIMATE

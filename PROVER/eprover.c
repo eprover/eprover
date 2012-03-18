@@ -142,7 +142,6 @@ typedef enum
    OPT_WATCHLIST_NO_SIMPLIFY,
    OPT_NO_INDEXED_SUBSUMPTION,
    OPT_FVINDEX_STYLE,
-   OPT_FVINDEX_FOLD,
    OPT_FVINDEX_FEATURETYPES,
    OPT_FVINDEX_MAXFEATURES,
    OPT_FVINDEX_SLACK,
@@ -963,11 +962,6 @@ OptCell opts[] =
     "permuted FV-Indexing with deletion of (suspected) non-informative "
     "features. Default behaviour is 'Perm'."},
 
-   {OPT_FVINDEX_FOLD,
-    '\0', "fvi-fold",
-    NoArg, NULL,
-    "Use folding feature vectors for subsumption indexing (not yet implemented)."},
-   
    {OPT_FVINDEX_FEATURETYPES,
     '\0', "fvindex-featuretypes",
     ReqArg, NULL,
@@ -1248,7 +1242,7 @@ int main(int argc, char* argv[])
    ESignalSetup(SIGXCPU);
 
    h_parms = HeuristicParmsAlloc();
-   fvi_parms = FVIndexParmsAlloc();
+   fvi_parms = FVIndexParmsAlloc();   
    wfcb_definitions = PStackAlloc();
    hcb_definitions = PStackAlloc();
 
@@ -1457,6 +1451,8 @@ int main(int argc, char* argv[])
 	      ClauseClauseSubsumptionCalls);
       fprintf(GlobalOut, "# Rec. Clause-clause subsumption calls : %ld\n",
 	      ClauseClauseSubsumptionCallsRec);
+      fprintf(GlobalOut, "# Non-unit clause-clause subsumptions  : %ld\n",
+	      ClauseClauseSubsumptionSuccesses);
       fprintf(GlobalOut, "# Unit Clause-clause subsumption calls : %ld\n",
               UnitClauseClauseSubsumptionCalls);
       fprintf(GlobalOut, "# Rewrite failures with RHS unbound    : %ld\n",
@@ -2115,12 +2111,12 @@ CLState_p process_options(int argc, char* argv[])
 	    h_parms->watchlist_simplify = false;
 	    break;
       case OPT_NO_INDEXED_SUBSUMPTION:
-	    fvi_parms->features = FVINoFeatures;
+	    fvi_parms->cspec.features = FVINoFeatures;
 	    break;
       case OPT_FVINDEX_STYLE:
 	    if(strcmp(arg, "None")==0)
 	    {
-	       fvi_parms->features = FVINoFeatures;
+	       fvi_parms->cspec.features = FVINoFeatures;
 	    }
 	    else if(strcmp(arg, "Direct")==0)
 	    {
@@ -2142,25 +2138,26 @@ CLState_p process_options(int argc, char* argv[])
 		     "'None', 'Direct', 'Perm', or 'PermOpt'.", USAGE_ERROR);
 	    }
 	    break;
-      case OPT_FVINDEX_FOLD:
-            fvi_parms->fold_features = true;
-            break;
       case OPT_FVINDEX_FEATURETYPES:
 	    if(strcmp(arg, "None")==0)
 	    {
-	       fvi_parms->features = FVINoFeatures;
+	       fvi_parms->cspec.features = FVINoFeatures;
 	    }
 	    else if(strcmp(arg, "AC")==0)
 	    {
-	       fvi_parms->features = FVIACFeatures;
+	       fvi_parms->cspec.features = FVIACFeatures;
 	    }
 	    else if(strcmp(arg, "SS")==0)
 	    {
-	       fvi_parms->features = FVISSFeatures;
+	       fvi_parms->cspec.features = FVISSFeatures;
 	    }
 	    else if(strcmp(arg, "All")==0)
 	    {
-	       fvi_parms->features = FVIAllFeatures;
+	       fvi_parms->cspec.features = FVIAllFeatures;
+	    }
+	    else if(strcmp(arg, "Bill")==0)
+	    {
+	       fvi_parms->cspec.features = FVIBillFeatures;
 	    }
 	    else
 	    {

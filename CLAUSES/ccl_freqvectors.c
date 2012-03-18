@@ -85,6 +85,65 @@ int tuple3_compare_23lex(const void* tuple1, const void* tuple2)
    return 0;
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: gather_feature_vec()
+//
+//   Gather a feature from a full feature vector according to
+//   cspec. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void gather_feature_vec(FVCollect_p cspec, long* full_vec, 
+                            FreqVector_p vec, long findex)
+{
+   long resindex = -1, offset, mod = 0;
+
+   if(findex < cspec->ass_vec_len)
+   {
+      resindex = cspec->assembly_vector[findex];
+   }
+   else
+   {
+      switch(findex%4)
+      {
+      case 0:
+            offset = cspec->pos_count_offset;
+            mod    = cspec->pos_count_mod;
+            break;
+      case 1:
+            offset = cspec->pos_depth_offset;
+            mod    = cspec->pos_depth_mod;
+            break;
+      case 2:
+            offset = cspec->neg_count_offset;
+            mod    = cspec->neg_count_mod;
+            break;
+      case 3:
+            offset = cspec->neg_depth_offset;
+            mod    = cspec->neg_depth_mod;
+            break;
+      default:
+            assert(false);            
+            break;
+      }
+      if(mod)
+      {
+         resindex = offset+(findex/4)%mod;
+      }
+   }
+   if(resindex != -1)
+   {
+      vec->array[resindex]+=full_vec[findex];
+   }
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
@@ -263,7 +322,7 @@ void FreqVectorPrint(FILE* out, FreqVector_p vec)
    {
       fprintf(out, "# FV, no clause given.\n");
    }
-   fprintf(out, "# FV:");
+   fprintf(out, "# FV(len=%ld):", vec->size);
    for(i=0; i<vec->size; i++)
 
    {
@@ -379,22 +438,32 @@ void VarFreqVectorAddVals(FreqVector_p vec, long symbols, FVIndexType features,
 //
 /----------------------------------------------------------------------*/
 
-FreqVector_p VarFreqVectorCompute(Clause_p clause, long symbols, FVIndexType features)
+FreqVector_p VarFreqVectorCompute(Clause_p clause, FVCollect_p cspec)
 {
    long size;
    FreqVector_p vec;
 
    assert(clause);
-   assert((features == FVIACFeatures) || 
-	  (features == FVISSFeatures) || 
-	  (features == FVIAllFeatures));
 
-   size = FVSize(symbols, features);
+   assert((cspec->features == FVIACFeatures) || 
+	  (cspec->features == FVISSFeatures) || 
+	  (cspec->features == FVIAllFeatures) ||
+          (cspec->features == FVICollectFeatures));
 
-   vec = FreqVectorAlloc(size);
-   vec->clause = clause;
-   FreqVectorInitialize(vec, 0);
-   VarFreqVectorAddVals(vec, symbols, features, clause);
+   if(cspec->features == FVICollectFeatures)
+   {
+      vec = FVCollectFreqVectorCompute(clause, cspec);
+   }
+   else
+   {
+      size = FVSize(cspec->max_symbols, cspec->features);
+      
+      vec = FreqVectorAlloc(size);
+      vec->clause = clause;
+      FreqVectorInitialize(vec, 0);
+      VarFreqVectorAddVals(vec, cspec->max_symbols, 
+                           cspec->features, clause); 
+   }
    return vec;
 }
 
@@ -415,14 +484,21 @@ FreqVector_p VarFreqVectorCompute(Clause_p clause, long symbols, FVIndexType fea
 
 FreqVector_p OptimizedVarFreqVectorCompute(Clause_p clause, 
 					   PermVector_p perm, 
-					   FVIndexType features,
-					   long sig_symbols)
+					   FVCollect_p cspec)
 {
    FreqVector_p vec, res;
+
+   assert((cspec->features == FVIACFeatures) || 
+	  (cspec->features == FVISSFeatures) || 
+	  (cspec->features == FVIAllFeatures) ||
+          (cspec->features == FVICollectFeatures));
+   
    PERF_CTR_ENTRY(FreqVecTimer);
 
+
    /* printf("Symbols used: %ld\n", sig_symbols); */
-   vec = VarFreqVectorCompute(clause, sig_symbols, features);
+   vec = VarFreqVectorCompute(clause, cspec);
+   /* FreqVectorPrint(GlobalOut, vec); */
    if(perm)
    {
       long i;
@@ -443,6 +519,262 @@ FreqVector_p OptimizedVarFreqVectorCompute(Clause_p clause,
    return vec;
 }
 
+
+
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FVCollectInit()
+//
+//   Initialize an FVCollectCell.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+void FVCollectInit(FVCollect_p handle,
+                   FVIndexType features,
+                   bool  use_litcount,
+                   long  ass_vec_len,
+                   long  res_vec_len,
+                   long  pos_count_offset,
+                   long  pos_count_mod,
+                   long  neg_count_offset,
+                   long  neg_count_mod,
+                   long  pos_depth_offset,
+                   long  pos_depth_mod,
+                   long  neg_depth_offset,
+                   long  neg_depth_mod)
+{
+   long i;
+
+   handle->features         = features;
+   handle->use_litcount     = use_litcount;
+   handle->ass_vec_len      = ass_vec_len;
+   handle->res_vec_len      = res_vec_len;
+   handle->assembly_vector  = SizeMalloc(sizeof(long)*ass_vec_len);
+   for(i=0; i< ass_vec_len; i++)
+   {
+      handle->assembly_vector[i] = -1;
+   }
+   handle->pos_count_offset = pos_count_offset;
+   handle->pos_count_mod    = pos_count_mod;
+   handle->neg_count_offset = neg_count_offset;
+   handle->neg_count_mod    = neg_count_mod;
+   handle->pos_depth_offset = pos_depth_offset;
+   handle->pos_depth_mod    = pos_depth_mod;
+   handle->neg_depth_offset = neg_depth_offset;
+   handle->neg_depth_mod    = neg_depth_mod;
+   
+   handle->max_symbols      = FVINDEX_MAX_FEATURES_DEFAULT;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FVCollectAlloc()
+//
+//   Allocate an initialized FVCollectCell.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+FVCollect_p FVCollectAlloc(FVIndexType features,
+                           bool  use_litcount,
+                           long  ass_vec_len,
+                           long  res_vec_len,
+                           long  pos_count_offset,
+                           long  pos_count_mod,
+                           long  neg_count_offset,
+                           long  neg_count_mod,
+                           long  pos_depth_offset,
+                           long  pos_depth_mod,
+                           long  neg_depth_offset,
+                           long  neg_depth_mod)
+{
+   FVCollect_p handle = FVCollectCellAlloc();
+   
+   FVCollectInit(handle,
+                 features,
+                 use_litcount,
+                 ass_vec_len,
+                 res_vec_len,
+                 pos_count_offset,
+                 pos_count_mod,
+                 neg_count_offset,
+                 neg_count_mod,
+                 pos_depth_offset,
+                 pos_depth_mod,
+                 neg_depth_offset,
+                 neg_depth_mod);
+   return handle;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FVCollectFree()
+//
+//   Free a FVCollectCell.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+void FVCollectFree(FVCollect_p junk)
+{
+   SizeFree(junk->assembly_vector,sizeof(long)*junk->ass_vec_len);
+   FVCollectCellFree(junk);
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FVCollectFreqVectorCompute()
+//
+//   Compute a Feature Vector for the clause based on cspec.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+FreqVector_p FVCollectFreqVectorCompute(Clause_p clause, FVCollect_p cspec)
+{
+   static size_t  full_vec_len = 0;
+   static long*   full_vec     = NULL;
+
+   FreqVector_p vec = FreqVectorAlloc(cspec->res_vec_len);
+
+   vec->clause = clause;
+   FreqVectorInitialize(vec, 0);   
+
+   if(!ClauseIsEmpty(clause))
+   {
+      PStack_p mod_stack = PStackAlloc();
+      long max_fun = clause->literals->bank->sig->f_count;
+      long findex;
+
+      if(cspec->use_litcount)
+      {
+         vec->array[0] = clause->pos_lit_no;
+         vec->array[1] = clause->neg_lit_no;
+      }
+      full_vec = RegMemProvide(full_vec, &full_vec_len, sizeof(long)*(max_fun+1)*4);
+
+      ClauseAddSymbolFeatures(clause, mod_stack, full_vec);
+
+      while(!PStackEmpty(mod_stack))
+      {
+         findex = PStackPopInt(mod_stack);
+         gather_feature_vec(cspec, full_vec, vec, findex);   
+         full_vec[findex] = 0;
+         gather_feature_vec(cspec, full_vec, vec, findex+1);
+         full_vec[findex+1] = 0;
+      }
+
+      PStackFree(mod_stack);
+   }
+   return vec;
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: BillFeaturesCollectAlloc()
+//
+//   Generate a CollectSpec as follows
+//   - positive literals
+//   - negative literals
+//   foreach relation symbol
+//      positive occurrences
+//      negative occurrences
+//   foreach function symbol
+//     positive occurrences
+//     negative occurrences
+//     positive maxdepth
+//     negative maxdepth
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+FVCollect_p BillFeaturesCollectAlloc(Sig_p sig, long len)
+{
+   long p_no = SigCountSymbols(sig, true);
+   long f_no = SigCountSymbols(sig, false);
+   FunCode i, pos;
+   FVCollect_p cspec;
+
+   assert(len>2);
+
+   while((2+2*p_no+4*f_no) > len)
+   {
+      if(p_no > f_no)
+      {
+         p_no--;
+      }
+      else
+      {
+         f_no--;
+      }
+   }
+   
+   cspec = FVCollectAlloc(FVICollectFeatures,
+                          true,
+                          (sig->f_count+1)*4+2,
+                          2+2*p_no+4*f_no,
+                          0, 0, 0, 0,
+                          0, 0, 0, 0);
+   pos = 2;
+   for(i=sig->internal_symbols+1; p_no; i++)
+   {
+      /* printf("p = %ld (%s)\n", i, SigFindName(sig,i)); */
+      if(!SigIsSpecial(sig, i) && SigIsPredicate(sig, i))
+      {
+         cspec->assembly_vector[4*i] = pos;
+         pos++;
+         cspec->assembly_vector[4*i+1] = pos;
+         pos++;
+         p_no--;            
+      }
+   }
+
+   for(i=sig->internal_symbols+1; f_no; i++)
+   {
+      /* printf("f = %ld (%s)\n", i, SigFindName(sig,i)); */
+      if(!SigIsSpecial(sig, i) && SigIsFunction(sig,i))
+      {
+         cspec->assembly_vector[4*i] = pos;
+         pos++;
+         cspec->assembly_vector[4*i+1] = pos;
+         pos++;
+         cspec->assembly_vector[4*i+2] = pos;
+         pos++;
+         cspec->assembly_vector[4*i+3] = pos;
+         pos++;
+         f_no--;
+      }
+   }   
+   return cspec;
+}
+
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: FVPackClause()
@@ -458,14 +790,13 @@ FreqVector_p OptimizedVarFreqVectorCompute(Clause_p clause,
 /----------------------------------------------------------------------*/
 
 FVPackedClause_p FVPackClause(Clause_p clause, PermVector_p perm,
-			      FVIndexType features, 
-			      long symbol_limit)
+			      FVCollect_p cspec)
 {
    FVPackedClause_p res;
 
-   if(symbol_limit)
+   if(cspec && (cspec->features != FVINoFeatures))
    {
-      return OptimizedVarFreqVectorCompute(clause, perm, features, symbol_limit);
+      return OptimizedVarFreqVectorCompute(clause, perm, cspec);
    }
    res = FreqVectorCellAlloc();
    res->array = NULL;

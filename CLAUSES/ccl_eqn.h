@@ -363,9 +363,16 @@ int     LiteralCompareFun(Eqn_p lit1, Eqn_p lit2);
                                      (depth_array), (limit));\
         TermAddSymbolFeaturesLimited((eqn)->rterm, 0, (freq_array),\
                                     (depth_array), (limit))
+
+void    EqnAddSymbolFeatures(Eqn_p eq, PStack_p mod_stack, long *feature_array);
+
+
 #define EqnComputeFunctionRanks(eqn, rank_array, count)\
         TermComputeFunctionRanks((eqn)->lterm, (rank_array), (count));\
         TermComputeFunctionRanks((eqn)->rterm, (rank_array), (count))
+
+
+
 
 #define EqnCollectVariables(eqn, tree)\
         (TermCollectVariables((eqn)->lterm,(tree))+\

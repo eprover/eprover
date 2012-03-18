@@ -384,6 +384,10 @@ Clause_p ClauseNormalizeVars(Clause_p clause, VarBank_p fresh_vars);
          EqnListAddSymbolDistribution((clause)->literals, (dist_array))
 #define  ClauseAddSymbolDistExist(clause, dist_array, exists)                  \
          EqnListAddSymbolDistExist((clause)->literals, (dist_array), (exists))
+
+#define  ClauseAddSymbolFeatures(clause, mod_stack, feature_array)\
+   EqnListAddSymbolFeatures((clause)->literals, (mod_stack), (feature_array))
+
 #define  ClauseComputeFunctionRanks(clause, rank_array, count)\
          EqnListComputeFunctionRanks((clause)->literals, (rank_array), (count))
 #define  ClauseCollectVariables(clause,tree)\

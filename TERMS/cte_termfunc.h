@@ -120,6 +120,9 @@ void    TermAddSymbolFeaturesLimited(Term_p term, long depth,
 				     long *freq_array, long* depth_array,
 				     long limit);
 
+void    TermAddSymbolFeatures(Term_p term, PStack_p mod_stack, 
+                              long depth, long *feature_array, long offset);
+
 void    TermComputeFunctionRanks(Term_p term, long *rank_array, long *count);
 long    TermCollectPropVariables(Term_p term, PTree_p *tree,
 				  TermProperties prop);

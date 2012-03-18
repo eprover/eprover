@@ -33,9 +33,23 @@ PERF_CTR_DEFINE(FVIndexTimer);
 
 FVIndexParmsCell FVIDefaultParameters =
 {
-   FVIACFeatures,
+   {
+      FVIACFeatures,
+      false,
+      NULL,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+   },
    true,
-   false,
    false,
    FVINDEX_MAX_FEATURES_DEFAULT,
    FVINDEX_SYMBOL_SLACK_DEFAULT,
@@ -206,13 +220,12 @@ void FVIndexFree(FVIndex_p junk)
 //
 /----------------------------------------------------------------------*/
 
-FVIAnchor_p FVIAnchorAlloc(long symbol_limit, FVIndexType features, PermVector_p perm)
+FVIAnchor_p FVIAnchorAlloc(FVCollect_p cspec, PermVector_p perm)
 {
    FVIAnchor_p handle = FVIAnchorCellAlloc();
    
-   handle->symbol_limit = symbol_limit;
    handle->perm_vector  = perm;
-   handle->features     = features;   
+   handle->cspec        = cspec;
    handle->index        = FVIndexAlloc();
    handle->storage      = 0;
 
@@ -352,8 +365,7 @@ bool FVIndexDelete(FVIAnchor_p index, Clause_p clause)
    bool res;
    
    vec = OptimizedVarFreqVectorCompute(clause, index->perm_vector, 
-				       index->features,
-				       index->symbol_limit);   
+				       index->cspec);   
    /* FreqVector-Computation is measured independently */
    PERF_CTR_ENTRY(FVIndexTimer);
    handle = index->index;
@@ -444,11 +456,10 @@ FVPackedClause_p FVIndexPackClause(Clause_p clause, FVIAnchor_p anchor)
 {
    if(!anchor)
    {
-      return FVPackClause(clause, NULL,FVINoFeatures,0);
+      return FVPackClause(clause, NULL, NULL);
    }
    return FVPackClause(clause, anchor->perm_vector, 
-		       anchor->features,
-		       anchor->symbol_limit);
+		       anchor->cspec);
 }
 
 

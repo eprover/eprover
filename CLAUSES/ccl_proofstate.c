@@ -87,6 +87,7 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->tmp_store            = ClauseSetAlloc();
    GlobalIndicesNull(&(handle->gindices));
    handle->fvi_initialized     = false;
+   handle->fvi_cspec           = NULL;
    handle->processed_pos_rules->demod_index = PDTreeAlloc();
    handle->processed_pos_eqns->demod_index  = PDTreeAlloc();
    handle->processed_neg_units->demod_index = PDTreeAlloc();
@@ -272,6 +273,11 @@ void ProofStateFree(ProofState_p junk)
    GlobalIndicesFreeIndices(&(junk->wlindices));
 
    DefStoreFree(junk->definition_store);
+   if(junk->fvi_cspec)
+   {
+      FVCollectFree(junk->fvi_cspec);
+   }
+
    junk->original_terms->sig = NULL;
    junk->terms->sig = NULL;
    junk->tmp_terms->sig = NULL;

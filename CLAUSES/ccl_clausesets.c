@@ -1973,8 +1973,7 @@ long ClauseSetMaxVarNumber(ClauseSet_p set)
 
 long ClauseSetFindCharFreqVectors(ClauseSet_p set, FreqVector_p fsum,
 				  FreqVector_p fmax, FreqVector_p fmin, 
-				  FVIndexType features,
-				  long symbol_size) 
+				  FVCollect_p cspec) 
 {
    Clause_p handle;
    FreqVector_p current;
@@ -1989,7 +1988,7 @@ long ClauseSetFindCharFreqVectors(ClauseSet_p set, FreqVector_p fsum,
        handle!= set->anchor;
        handle = handle->succ)
    {
-      current = VarFreqVectorCompute(handle, symbol_size, features);
+      current = VarFreqVectorCompute(handle, cspec);
       FreqVectorAdd(fsum, fsum, current);
       FreqVectorMax(fmax, fmax, current);
       FreqVectorMin(fmin, fmin, current);
@@ -2013,40 +2012,43 @@ long ClauseSetFindCharFreqVectors(ClauseSet_p set, FreqVector_p fsum,
 //
 /----------------------------------------------------------------------*/
 
-PermVector_p PermVectorCompute(ClauseSet_p set, FVIndexParms_p params, 
-			       long symbols)
+PermVector_p PermVectorCompute(ClauseSet_p set, FVCollect_p cspec, 
+                               bool eliminate_uninformative)
 {
    PermVector_p res;
-   
-   if(params->features == FVINoFeatures)
+   FreqVector_p fsum, fmax, fmin;
+   long vlen;
+      
+   if(cspec->features == FVINoFeatures)
    {
       return NULL; 
    }
-   if(!params->use_perm_vectors)
+  
+   if(cspec->features == FVICollectFeatures)
    {
-      return NULL;
+      vlen = cspec->res_vec_len;
    }
-   {      
-      FreqVector_p fsum, fmax, fmin;      
-      
-      fsum = FreqVectorAlloc(FVSize(symbols, params->features));
-      fmax = FreqVectorAlloc(FVSize(symbols, params->features));
-      fmin = FreqVectorAlloc(FVSize(symbols, params->features));
-    
-      ClauseSetFindCharFreqVectors(set,
-				   fsum,
-				   fmax, 
-				   fmin, 
-				   params->features,
-				   symbols);
-      
-      res = PermVectorComputeInternal(fmax, fmin, fsum, 
-				      params->max_symbols,
-				      params->eliminate_uninformative);
-      FreqVectorFree(fsum);
-      FreqVectorFree(fmax);
-      FreqVectorFree(fmin);      
+   else
+   {
+      vlen = FVSize(cspec->max_symbols, cspec->features);
    }
+   fsum = FreqVectorAlloc(vlen);
+   fmax = FreqVectorAlloc(vlen);
+   fmin = FreqVectorAlloc(vlen);
+   
+   ClauseSetFindCharFreqVectors(set,
+                                fsum,
+                                fmax, 
+                                fmin, 
+                                cspec);
+   
+   res = PermVectorComputeInternal(fmax, fmin, fsum, 
+                                   cspec->max_symbols,
+                                   eliminate_uninformative);
+   FreqVectorFree(fsum);
+   FreqVectorFree(fmax);
+   FreqVectorFree(fmin);      
+
    return res;
 }
 

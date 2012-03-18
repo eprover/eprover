@@ -1591,6 +1591,48 @@ void TermAddSymbolFeaturesLimited(Term_p term, long depth,
       }
    }
 }
+/*-----------------------------------------------------------------------
+//
+// Function: TermAddSymbolFeatures()
+//
+//   Add function symbol frequencies and deepest depth of a function
+//   symbol to the array. offset should be 0 for positive literals, 2
+//   for negative literals. Thus, the 4 features for a given f
+//   are stored at indices follows:
+//   - 4*f_code:   |C^+|_f
+//   - 4*f_code+1: d_f(C^+)
+//   - 4*f_code+2: |C^-|_f
+//   - 4*f_code+3: d_f(C^-)
+//
+// Global Variables: -
+//
+// Side Effects    : Changes the arrays.
+//
+/----------------------------------------------------------------------*/
+
+void TermAddSymbolFeatures(Term_p term, PStack_p mod_stack, long depth, 
+                           long *feature_array, long offset) 
+{
+   if(!TermIsVar(term))
+   {
+      int i;
+      long findex = 4*term->f_code+offset;
+
+      if(feature_array[findex] == 0)
+      {
+         PStackPushInt(mod_stack, findex);
+      }
+
+      feature_array[findex]++;
+      feature_array[findex+1] = MAX(depth, feature_array[findex+1]);
+      for(i=0; i<term->arity; i++)
+      {
+	 TermAddSymbolFeatures(term->args[i], mod_stack, depth+1, 
+                               feature_array, offset);
+      }
+   }
+}
+
 
 /*-----------------------------------------------------------------------
 //

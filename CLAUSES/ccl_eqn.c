@@ -2564,6 +2564,27 @@ int LiteralCompareFun(Eqn_p lit1, Eqn_p lit2)
 
 /*-----------------------------------------------------------------------
 //
+// Function: EqnAddSymbolFeatures()
+//
+//   Add symbol features to the feature array.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void EqnAddSymbolFeatures(Eqn_p eq, PStack_p mod_stack, long *feature_array)
+{
+   long offset = EqnIsNegative(eq)?2:0;
+
+   TermAddSymbolFeatures(eq->lterm, mod_stack, 0, feature_array, offset);
+   TermAddSymbolFeatures(eq->rterm, mod_stack, 0, feature_array, offset);
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: EqnCollectSubterms()
 //
 //   Collect all subterms of eqn onto collector. Assumes that

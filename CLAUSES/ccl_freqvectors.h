@@ -28,6 +28,7 @@ Changes
 
 #include <clb_pdarrays.h>
 #include <clb_fixdarrays.h>
+#include <clb_regmem.h>
 #include <ccl_clauses.h>
 
 
@@ -44,6 +45,9 @@ typedef struct tuple3_cell
    long value;
 }Tuple3Cell;
 
+#define FVINDEX_MAX_FEATURES_DEFAULT 50  /* Maximal lenght of feature vector */
+#define FVINDEX_SYMBOL_SLACK_DEFAULT 30  /* Reserve symbols for splitting */
+
 typedef struct freq_vector_cell
 {
    long size;        /* How many fields? */
@@ -51,6 +55,8 @@ typedef struct freq_vector_cell
    Clause_p clause; /* Just an unprotected reference */
 }FreqVectorCell, *FreqVector_p, *FVPackedClause_p;
 
+/* Where do the symbol-specific features in classival FV-Vectors
+ * begin? */
 #define FV_CLAUSE_FEATURES 2
 
 typedef enum
@@ -58,8 +64,38 @@ typedef enum
    FVINoFeatures,
    FVIACFeatures,
    FVISSFeatures,
-   FVIAllFeatures
+   FVIAllFeatures,
+   FVIBillFeatures,
+   FVICollectFeatures,
 }FVIndexType;
+
+
+/* Describe how to assembe a feature vector out of a full signature
+ * feature vector. */
+
+typedef struct fv_collect_cell
+{
+   FVIndexType features;
+   bool  use_litcount;       /* Use pos_lit_no/neg_lit_no */
+   long* assembly_vector;    /* Mapping from full positions to reduced
+                                positions */
+   long  ass_vec_len;        /* Size of the assembly vector */
+   long  res_vec_len;        /* How long is the result? */
+   /* The rest describe how to handle index values that are larger
+      than  ass_vec_len. If _mod is zero, the value is discarded,
+      otherwise it is added to  _offset+(f_code%_mod) */
+   long  pos_count_offset;   
+   long  pos_count_mod;
+   long  neg_count_offset;
+   long  neg_count_mod;
+   long  pos_depth_offset;
+   long  pos_depth_mod;
+   long  neg_depth_offset;
+   long  neg_depth_mod;
+   /* Legacy parameters for classical implementation. These are not
+    * supported by the allocator and must be overwritten manually. */
+   long        max_symbols;
+}FVCollectCell, *FVCollect_p;
 
 
 /*---------------------------------------------------------------------*/
@@ -90,6 +126,12 @@ PermVector_p PermVectorComputeInternal(FreqVector_p fmax, FreqVector_p fmin,
 				(((features)==FVISSFeatures)?FVSSCompatSize(size):\
                                  FVFullSize(size)))
 
+
+#define FVCollectCellAlloc()    (FVCollectCell*)SizeMalloc(sizeof(FVCollectCell))
+#define FVCollectCellFree(junk) SizeFree(junk, sizeof(FVCollectCell))
+
+
+
 FreqVector_p FreqVectorAlloc(long size);
 
 void         FreqVectorFreeReal(FreqVector_p junk);
@@ -105,15 +147,48 @@ void         FreqVectorPrint(FILE* out, FreqVector_p vec);
 
 void VarFreqVectorAddVals(FreqVector_p vec, long symbols, FVIndexType features, 
 			  Clause_p clause);
-FreqVector_p VarFreqVectorCompute(Clause_p clause, long symbols, 
-				  FVIndexType features);
-FreqVector_p     OptimizedVarFreqVectorCompute(Clause_p clause, 
-					       PermVector_p perm, 
-					       FVIndexType features,
-					       long sig_symbols);
+FreqVector_p VarFreqVectorCompute(Clause_p clause, FVCollect_p cspec);
+FreqVector_p OptimizedVarFreqVectorCompute(Clause_p clause, 
+                                           PermVector_p perm, 
+                                           FVCollect_p cspec);
+
+void FVCollectInit(FVCollect_p handle,
+                   FVIndexType features,
+                   bool  use_litcount,
+                   long  ass_vec_len,
+                   long  res_vec_len,
+                   long  pos_count_offset,
+                   long  pos_count_mod,
+                   long  neg_count_offset,
+                   long  neg_count_mod,
+                   long  pos_depth_offset,
+                   long  pos_depth_mod,
+                   long  neg_depth_offset,
+                   long  neg_depth_mod);
+
+
+FVCollect_p FVCollectAlloc(FVIndexType features,
+                           bool  use_litcount,
+                           long  ass_vec_len,
+                           long  res_vec_len,
+                           long  pos_count_offset,
+                           long  pos_count_mod,
+                           long  neg_count_offset,
+                           long  neg_count_mod,
+                           long  pos_depth_offset,
+                           long  pos_depth_mod,
+                           long  neg_depth_offset,
+                           long  neg_depth_mod);
+
+void FVCollectFree(FVCollect_p junk);
+
+FreqVector_p FVCollectFreqVectorCompute(Clause_p clause, FVCollect_p cspec);
+
+FVCollect_p BillFeaturesCollectAlloc(Sig_p sig, long len);
+
+
 FVPackedClause_p FVPackClause(Clause_p clause, PermVector_p perm, 
-			      FVIndexType features,
-			      long symbol_limit);
+			      FVCollect_p cspec);
 Clause_p         FVUnpackClause(FVPackedClause_p pack);
 
 void             FVPackedClauseFreeReal(FVPackedClause_p pack);
@@ -130,7 +205,8 @@ void FreqVectorMulAdd(FreqVector_p dest, FreqVector_p s1, long f1,
 #define FreqVectorSub(dest, s1, s2) FreqVectorMulAdd((dest),(s1), 1, (s2), -1)
 void FreqVectorMax(FreqVector_p dest, FreqVector_p s1, FreqVector_p s2);
 void FreqVectorMin(FreqVector_p dest, FreqVector_p s1, FreqVector_p s2);
-			  
+
+
 
 
 #ifdef NEVER_DEFINED

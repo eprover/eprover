@@ -31,9 +31,10 @@ Changes
 PERF_CTR_DEFINE(SetSubsumeTimer);
 PERF_CTR_DEFINE(SubsumeTimer);
 
-bool StrongUnitForwardSubsumption = false;
-long ClauseClauseSubsumptionCalls = 0;
-long ClauseClauseSubsumptionCallsRec = 0;
+bool StrongUnitForwardSubsumption     = false;
+long ClauseClauseSubsumptionCalls     = 0;
+long ClauseClauseSubsumptionCallsRec  = 0;
+long ClauseClauseSubsumptionSuccesses = 0;
 long UnitClauseClauseSubsumptionCalls = 0;
 
 /*---------------------------------------------------------------------*/
@@ -659,37 +660,21 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
    subst = SubstAlloc();
    ClauseClauseSubsumptionCallsRec++;
 
-   /*
-   pick_list = IntArrayAlloc(ClauseLiteralNumber(sub_candidate));
-   printf("Going in (%ld)...\n", hack_count++);
-   ClausePrint(stdout, subsumer, true);
-   printf("\n");
-   ClausePrint(stdout, sub_candidate, true);
-   printf("\n==\n");
-   res = eqn_list_rec_subsume_old(subsumer->literals, 
-                                    sub_candidate->literals, subst, pick_list); 
-   printf("Old method found res=%d\n", res);
-   IntArrayFree(pick_list, ClauseLiteralNumber(sub_candidate));
-   */
    pick_list = IntArrayAlloc(ClauseLiteralNumber(sub_candidate));
    
    res = eqn_list_rec_subsume(subsumer->literals,
 			      sub_candidate->literals, subst,
 			      pick_list);
-   /* printf("...coming out\n");*/
    IntArrayFree(pick_list, ClauseLiteralNumber(sub_candidate));
-#ifndef NDEBUG
-   pick_list = IntArrayAlloc(ClauseLiteralNumber(sub_candidate));
-   assert(res == eqn_list_rec_subsume_old(subsumer->literals,
-                                          sub_candidate->literals, subst,
-                                          pick_list));   
-   IntArrayFree(pick_list, ClauseLiteralNumber(sub_candidate));  
-#endif
-
 
    SubstDelete(subst);
 
-   PERF_CTR_EXIT(SubsumeTimer);
+   PERF_CTR_EXIT(SubsumeTimer);   
+
+   if(res)
+   {
+      ClauseClauseSubsumptionSuccesses++;
+   }
    return res;
 }
 
@@ -1339,8 +1324,7 @@ Clause_p ClauseSetSubsumesClause(ClauseSet_p set, Clause_p sub_candidate)
       Clause_p res; 
       FreqVector_p vec = OptimizedVarFreqVectorCompute(sub_candidate,
 						       set->fvindex->perm_vector,
-						       set->fvindex->features,
-						       set->fvindex->symbol_limit);
+						       set->fvindex->cspec);
       res =  clause_set_subsumes_clause_indexed(set->fvindex->index, vec, 0);
       FreqVectorFree(vec);
       PERF_CTR_EXIT(SetSubsumeTimer);

@@ -983,10 +983,16 @@ int SigCountSymbols(Sig_p sig, bool predicates)
 
    for(i=sig->internal_symbols+1; i<=sig->f_count; i++)
    {
-      if(EQUIV(SigIsPredicate(sig, i), predicates)
-	 &&(!SigIsSpecial(sig,i)))
+      if(!SigIsSpecial(sig,i))
       {
-	 res++;
+         if(predicates && SigIsPredicate(sig, i))
+         {
+            res++;
+         }
+         else if(!predicates && SigIsFunction(sig, i))
+         {
+            res++;
+         }
       }
    }
    return res;
@@ -1121,6 +1127,7 @@ FunCode SigGetNewSkolemCode(Sig_p sig, int arity)
       sprintf(new_symbol,"esk%ld_%d",sig->skolem_count,arity);
    }
    res = SigInsertId(sig, new_symbol, arity, false);
+   SigSetFuncProp(sig, res, FPFuncSymbol);
    return res;
 }
 
