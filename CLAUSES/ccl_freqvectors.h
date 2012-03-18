@@ -66,6 +66,7 @@ typedef enum
    FVISSFeatures,
    FVIAllFeatures,
    FVIBillFeatures,
+   FVIBillPlusFeatures,
    FVICollectFeatures,
 }FVIndexType;
 
@@ -185,6 +186,7 @@ void FVCollectFree(FVCollect_p junk);
 FreqVector_p FVCollectFreqVectorCompute(Clause_p clause, FVCollect_p cspec);
 
 FVCollect_p BillFeaturesCollectAlloc(Sig_p sig, long len);
+FVCollect_p BillPlusFeaturesCollectAlloc(Sig_p sig, long len);
 
 
 FVPackedClause_p FVPackClause(Clause_p clause, PermVector_p perm, 

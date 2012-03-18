@@ -919,6 +919,9 @@ void fvi_param_init(ProofState_p state, ProofControl_p control)
    case FVIBillFeatures:
          cspec = BillFeaturesCollectAlloc(state->signature, symbols*2+2);
          break;
+   case FVIBillPlusFeatures:
+         cspec = BillPlusFeaturesCollectAlloc(state->signature, symbols*2+4);
+         break;
    case FVICollectFeatures:
          cspec = FVCollectAlloc(control->fvi_parms.cspec.features,
                                 control->fvi_parms.cspec.use_litcount,

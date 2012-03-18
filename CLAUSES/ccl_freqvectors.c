@@ -773,6 +773,90 @@ FVCollect_p BillFeaturesCollectAlloc(Sig_p sig, long len)
    return cspec;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: BillPlusFeaturesCollectAlloc()
+//
+//   Generate a CollectSpec as follows
+//   - positive literals
+//   - negative literals
+//   foreach relation symbol
+//      positive occurrences
+//      negative occurrences
+//   foreach function symbol
+//     positive occurrences
+//     negative occurrences
+//     positive maxdepth
+//     negative maxdepth
+//   All overflow counts
+//   All overflow depths
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+FVCollect_p BillPlusFeaturesCollectAlloc(Sig_p sig, long len)
+{
+   long p_no = SigCountSymbols(sig, true);
+   long f_no = SigCountSymbols(sig, false);
+   FunCode i, pos;
+   FVCollect_p cspec;
+
+   assert(len>2);
+
+   while((4+2*p_no+4*f_no) > len)
+   {
+      if(p_no > f_no)
+      {
+         p_no--;
+      }
+      else
+      {
+         f_no--;
+      }
+   }
+   
+   cspec = FVCollectAlloc(FVICollectFeatures,
+                          true,
+                          (sig->f_count+1)*4+2,
+                          4+2*p_no+4*f_no,
+                          len-2, 1, len-2, 1,
+                          len-1, 1, len-1, 1);
+   pos = 2;
+   for(i=sig->internal_symbols+1; p_no; i++)
+   {
+      /* printf("p = %ld (%s)\n", i, SigFindName(sig,i)); */
+      if(!SigIsSpecial(sig, i) && SigIsPredicate(sig, i))
+      {
+         cspec->assembly_vector[4*i] = pos;
+         pos++;
+         cspec->assembly_vector[4*i+1] = pos;
+         pos++;
+         p_no--;            
+      }
+   }
+
+   for(i=sig->internal_symbols+1; f_no; i++)
+   {
+      /* printf("f = %ld (%s)\n", i, SigFindName(sig,i)); */
+      if(!SigIsSpecial(sig, i) && SigIsFunction(sig,i))
+      {
+         cspec->assembly_vector[4*i] = pos;
+         pos++;
+         cspec->assembly_vector[4*i+1] = pos;
+         pos++;
+         cspec->assembly_vector[4*i+2] = pos;
+         pos++;
+         cspec->assembly_vector[4*i+3] = pos;
+         pos++;
+         f_no--;
+      }
+   }   
+   return cspec;
+}
+
 
 
 /*-----------------------------------------------------------------------
