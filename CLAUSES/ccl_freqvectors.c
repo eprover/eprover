@@ -737,7 +737,7 @@ FVCollect_p BillFeaturesCollectAlloc(Sig_p sig, long len)
    cspec = FVCollectAlloc(FVICollectFeatures,
                           true,
                           (sig->f_count+1)*4+2,
-                          2+2*p_no+4*f_no,
+                          len,
                           0, 0, 0, 0,
                           0, 0, 0, 0);
    pos = 2;
@@ -806,7 +806,7 @@ FVCollect_p BillPlusFeaturesCollectAlloc(Sig_p sig, long len)
 
    assert(len>2);
 
-   while((4+2*p_no+4*f_no) > len)
+   while((6+2*p_no+4*f_no) > len)
    {
       if(p_no > f_no)
       {
@@ -821,9 +821,9 @@ FVCollect_p BillPlusFeaturesCollectAlloc(Sig_p sig, long len)
    cspec = FVCollectAlloc(FVICollectFeatures,
                           true,
                           (sig->f_count+1)*4+2,
-                          4+2*p_no+4*f_no,
-                          len-2, 1, len-2, 1,
-                          len-1, 1, len-1, 1);
+                          len,
+                          len-4, 1, len-3, 1,
+                          len-2, 1, len-1, 1);
    pos = 2;
    for(i=sig->internal_symbols+1; p_no; i++)
    {
