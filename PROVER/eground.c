@@ -376,14 +376,10 @@ int main(int argc, char* argv[])
                           0,
                           0,
                           0,
-                          0,
-                          0,
-                          0,
-                          0,
-                          0,
-                          0,
-                          0,
-                          0);
+                          0, 0, 0, 
+                          0, 0, 0,
+                          0, 0, 0,
+                          0, 0, 0);
    cspec->max_symbols = FVINDEX_MAX_FEATURES_DEFAULT;
    
    perm = PermVectorCompute(clauses,		    

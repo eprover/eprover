@@ -922,17 +922,49 @@ void fvi_param_init(ProofState_p state, ProofControl_p control)
    case FVIBillPlusFeatures:
          cspec = BillPlusFeaturesCollectAlloc(state->signature, symbols*2+4);
          break;
+   case FVIACFold:
+         cspec = FVCollectAlloc(FVICollectFeatures,
+                                true,
+                                0,
+                                symbols*2+2,
+                                2,
+                                0,
+                                symbols,
+                                symbols+2,
+                                0,
+                                symbols,
+                                0,0,0,
+                                0,0,0);
+         break;
+    case FVIACStagger:
+         cspec = FVCollectAlloc(FVICollectFeatures,
+                                true,
+                                0,
+                                symbols*2+2,
+                                2,
+                                0,
+                                2*symbols,
+                                2,
+                                2+symbols,
+                                2*symbols,
+                                0,0,0,
+                                0,0,0);
+         break;
    case FVICollectFeatures:
          cspec = FVCollectAlloc(control->fvi_parms.cspec.features,
                                 control->fvi_parms.cspec.use_litcount,
                                 control->fvi_parms.cspec.ass_vec_len,
                                 symbols,
+                                control->fvi_parms.cspec.pos_count_base,
                                 control->fvi_parms.cspec.pos_count_offset,
                                 control->fvi_parms.cspec.pos_count_mod,
+                                control->fvi_parms.cspec.neg_count_base,
                                 control->fvi_parms.cspec.neg_count_offset,
                                 control->fvi_parms.cspec.neg_count_mod,
+                                control->fvi_parms.cspec.pos_depth_base,
                                 control->fvi_parms.cspec.pos_depth_offset,
                                 control->fvi_parms.cspec.pos_depth_mod,
+                                control->fvi_parms.cspec.neg_depth_base,
                                 control->fvi_parms.cspec.neg_depth_offset,
                                 control->fvi_parms.cspec.neg_depth_mod);
 
@@ -942,14 +974,10 @@ void fvi_param_init(ProofState_p state, ProofControl_p control)
                                 0,
                                 0,
                                 0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                0);
+                                0, 0, 0, 
+                                0, 0, 0,
+                                0, 0, 0,
+                                0, 0, 0);
          cspec->max_symbols = symbols;
          break;
    }

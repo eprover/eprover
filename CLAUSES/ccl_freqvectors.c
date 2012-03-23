@@ -102,7 +102,7 @@ int tuple3_compare_23lex(const void* tuple1, const void* tuple2)
 static void gather_feature_vec(FVCollect_p cspec, long* full_vec, 
                             FreqVector_p vec, long findex)
 {
-   long resindex = -1, offset, mod = 0;
+   long resindex = -1, base, offset, mod = 0;
 
    if(findex < cspec->ass_vec_len)
    {
@@ -113,18 +113,22 @@ static void gather_feature_vec(FVCollect_p cspec, long* full_vec,
       switch(findex%4)
       {
       case 0:
+            base   = cspec->pos_count_base;
             offset = cspec->pos_count_offset;
             mod    = cspec->pos_count_mod;
             break;
       case 1:
+            base   = cspec->pos_depth_base;
             offset = cspec->pos_depth_offset;
             mod    = cspec->pos_depth_mod;
             break;
       case 2:
+            base   = cspec->neg_count_base;
             offset = cspec->neg_count_offset;
             mod    = cspec->neg_count_mod;
             break;
       case 3:
+            base   = cspec->neg_depth_base;
             offset = cspec->neg_depth_offset;
             mod    = cspec->neg_depth_mod;
             break;
@@ -134,7 +138,7 @@ static void gather_feature_vec(FVCollect_p cspec, long* full_vec,
       }
       if(mod)
       {
-         resindex = offset+(findex/4)%mod;
+         resindex = base+(offset+(findex/4))%mod;
       }
    }
    if(resindex != -1)
@@ -520,10 +524,6 @@ FreqVector_p OptimizedVarFreqVectorCompute(Clause_p clause,
 }
 
 
-
-
-
-
 /*-----------------------------------------------------------------------
 //
 // Function: FVCollectInit()
@@ -541,12 +541,16 @@ void FVCollectInit(FVCollect_p handle,
                    bool  use_litcount,
                    long  ass_vec_len,
                    long  res_vec_len,
+                   long  pos_count_base,
                    long  pos_count_offset,
                    long  pos_count_mod,
+                   long  neg_count_base,
                    long  neg_count_offset,
                    long  neg_count_mod,
+                   long  pos_depth_base,
                    long  pos_depth_offset,
                    long  pos_depth_mod,
+                   long  neg_depth_base,
                    long  neg_depth_offset,
                    long  neg_depth_mod)
 {
@@ -561,12 +565,16 @@ void FVCollectInit(FVCollect_p handle,
    {
       handle->assembly_vector[i] = -1;
    }
+   handle->pos_count_base   = pos_count_base;
    handle->pos_count_offset = pos_count_offset;
    handle->pos_count_mod    = pos_count_mod;
+   handle->neg_count_base   = neg_count_base;
    handle->neg_count_offset = neg_count_offset;
    handle->neg_count_mod    = neg_count_mod;
+   handle->pos_depth_base   = pos_depth_base;
    handle->pos_depth_offset = pos_depth_offset;
    handle->pos_depth_mod    = pos_depth_mod;
+   handle->neg_depth_base   = neg_depth_base;
    handle->neg_depth_offset = neg_depth_offset;
    handle->neg_depth_mod    = neg_depth_mod;
    
@@ -590,12 +598,16 @@ FVCollect_p FVCollectAlloc(FVIndexType features,
                            bool  use_litcount,
                            long  ass_vec_len,
                            long  res_vec_len,
+                           long  pos_count_base,
                            long  pos_count_offset,
                            long  pos_count_mod,
+                           long  neg_count_base,
                            long  neg_count_offset,
                            long  neg_count_mod,
+                           long  pos_depth_base,
                            long  pos_depth_offset,
                            long  pos_depth_mod,
+                           long  neg_depth_base,
                            long  neg_depth_offset,
                            long  neg_depth_mod)
 {
@@ -606,12 +618,16 @@ FVCollect_p FVCollectAlloc(FVIndexType features,
                  use_litcount,
                  ass_vec_len,
                  res_vec_len,
+                 pos_count_base,
                  pos_count_offset,
                  pos_count_mod,
+                 neg_count_base,
                  neg_count_offset,
                  neg_count_mod,
+                 pos_depth_base,
                  pos_depth_offset,
                  pos_depth_mod,
+                 neg_depth_base,
                  neg_depth_offset,
                  neg_depth_mod);
    return handle;
@@ -738,8 +754,10 @@ FVCollect_p BillFeaturesCollectAlloc(Sig_p sig, long len)
                           true,
                           (sig->f_count+1)*4+2,
                           len,
-                          0, 0, 0, 0,
-                          0, 0, 0, 0);
+                          0, 0, 0, 
+                          0, 0, 0,
+                          0, 0, 0,
+                          0, 0, 0);
    pos = 2;
    for(i=sig->internal_symbols+1; p_no; i++)
    {
@@ -822,8 +840,10 @@ FVCollect_p BillPlusFeaturesCollectAlloc(Sig_p sig, long len)
                           true,
                           (sig->f_count+1)*4+2,
                           len,
-                          len-4, 1, len-3, 1,
-                          len-2, 1, len-1, 1);
+                          len-4, 0, 1, 
+                          len-3, 0, 1,
+                          len-2, 0, 1, 
+                          len-1, 0, 1);
    pos = 2;
    for(i=sig->internal_symbols+1; p_no; i++)
    {

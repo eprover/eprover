@@ -67,6 +67,8 @@ typedef enum
    FVIAllFeatures,
    FVIBillFeatures,
    FVIBillPlusFeatures,
+   FVIACFold,
+   FVIACStagger,
    FVICollectFeatures,
 }FVIndexType;
 
@@ -85,12 +87,16 @@ typedef struct fv_collect_cell
    /* The rest describe how to handle index values that are larger
       than  ass_vec_len. If _mod is zero, the value is discarded,
       otherwise it is added to  _offset+(f_code%_mod) */
+   long  pos_count_base;   
    long  pos_count_offset;   
    long  pos_count_mod;
+   long  neg_count_base;   
    long  neg_count_offset;
    long  neg_count_mod;
+   long  pos_depth_base;   
    long  pos_depth_offset;
    long  pos_depth_mod;
+   long  neg_depth_base;   
    long  neg_depth_offset;
    long  neg_depth_mod;
    /* Legacy parameters for classical implementation. These are not
@@ -158,12 +164,16 @@ void FVCollectInit(FVCollect_p handle,
                    bool  use_litcount,
                    long  ass_vec_len,
                    long  res_vec_len,
+                   long  pos_count_base,
                    long  pos_count_offset,
                    long  pos_count_mod,
+                   long  neg_count_base,
                    long  neg_count_offset,
                    long  neg_count_mod,
+                   long  pos_depth_base,
                    long  pos_depth_offset,
                    long  pos_depth_mod,
+                   long  neg_depth_base,
                    long  neg_depth_offset,
                    long  neg_depth_mod);
 
@@ -172,12 +182,16 @@ FVCollect_p FVCollectAlloc(FVIndexType features,
                            bool  use_litcount,
                            long  ass_vec_len,
                            long  res_vec_len,
+                           long  pos_count_base,
                            long  pos_count_offset,
                            long  pos_count_mod,
+                           long  neg_count_base,
                            long  neg_count_offset,
                            long  neg_count_mod,
+                           long  pos_depth_base,
                            long  pos_depth_offset,
                            long  pos_depth_mod,
+                           long  neg_depth_base,
                            long  neg_depth_offset,
                            long  neg_depth_mod);
 

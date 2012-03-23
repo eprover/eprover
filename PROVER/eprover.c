@@ -2163,6 +2163,14 @@ CLState_p process_options(int argc, char* argv[])
 	    {
 	       fvi_parms->cspec.features = FVIBillPlusFeatures;
 	    }
+	    else if(strcmp(arg, "ACFold")==0)
+	    {
+	       fvi_parms->cspec.features = FVIACFold;
+	    }
+	    else if(strcmp(arg, "ACStagger")==0)
+	    {
+	       fvi_parms->cspec.features = FVIACStagger;
+	    }
 	    else
 	    {
 	       Error("Option --fvindex-featuretypes requires "
