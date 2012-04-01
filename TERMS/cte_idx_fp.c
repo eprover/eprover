@@ -251,14 +251,29 @@ IndexFP_p IndexFP0Create(Term_p t)
 IndexFP_p IndexFPfpCreate(Term_p t)
 {
    IndexFP_p res = SizeMalloc(sizeof(FunCode)*2);
+   static FunCode f_rep = 0, p_rep = 0;
 
    res[0] = 2;
    res[1] = TermFPSample(t, -1);
    if(res[1] > 0)
    {
-      res[1]=TermCellQueryProp((t), TPPredPos)?1:2;
+      if(TermCellQueryProp((t), TPPredPos))
+      {
+         if(!p_rep)
+         {
+            p_rep = res[1];
+         }
+         res[1] = p_rep;
+      }
+      else
+      {
+         if(!f_rep)
+         {
+            f_rep = res[1];
+         }
+         res[1] = f_rep;
+      }         
    }
-
    return res;
 }
 
