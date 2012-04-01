@@ -85,7 +85,7 @@ def res_hash(res):
     Return a hash of the result parameters such that an equal hash is
     good evidence for very similar proof search.
     """
-    return res.values[5], res.values[10]
+    return res.values[4], res.values[9]
 
 def find_common_hash(prots, hashfun):
     """
@@ -124,15 +124,6 @@ times = [
     (15, "BR  time"),
     (16, "BRI time")]   
 
-
-times = [
-    (2 , "Run time"),
-    (12, "Sat time"),
-    (13, "PM  time"),
-    (14, "PMI time"),
-    (11, "MGU time"),
-    (15, "BR  time"),
-    (16, "BRI time")]   
 
 
 counts = [
@@ -225,7 +216,7 @@ if __name__ == '__main__':
     
     filter_common_successes(prots)        
     filter_common_search(prots)
-    # print prots[0].results_no()
+    print prots[0].results_no()
     # filter_hard_problems(prots, 4, 1000)
     # print prots[0].results_no()
 
