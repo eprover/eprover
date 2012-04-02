@@ -46,16 +46,18 @@ Changes
    proof_dag  = size of proof tree seen as a dag  
 
 
-   (actpm*actpm_w + 
+   (1+
+   actpm*actpm_w + 
    o_gen*o_gen_w + 
    act_simpl*act_simpl_w + 
    pas_simpl*pas_simpl_w +
    subsum*subsum_w)
    *
-   (proof_tree*proof_tree_w+
+   (1+
+   proof_tree*proof_tree_w+
    proof_dag*proof_dag_w)
    /
-   size*size_w
+   1+size*size_w
 
    Large is good! */
 

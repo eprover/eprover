@@ -451,15 +451,19 @@ float PCLStepComputeLemmaWeight(PCLProt_p prot, PCLStep_p step,
    else
    {      
       res =    
-         (params->base_weight +
+         (1+
+          params->base_weight +
           step->active_pm_refs        * params->act_pm_w + 
           step->other_generating_refs * params->o_gen_w + 
           step->active_simpl_refs     * params->act_simpl_w + 
           step->passive_simpl_refs    * params->pas_simpl_w)
          *
-         step->proof_tree_size
+         (1+
+          step->proof_tree_size
+            )
          /
-         (ClauseStandardWeight(step->logic.clause)+1);
+         (1+ClauseStandardWeight(step->logic.clause));
+      
       if(ClauseIsHorn(step->logic.clause))
       {
          res = res*params->horn_bonus;
