@@ -216,8 +216,8 @@ static long fp_index_rek_find_unif(FPTree_p index, IndexFP_p key,
                                     sig,
                                     current+1,
                                     collect);
-      if(key[current]<=0 || !SigIsPredicate(sig, key[current]))
-      {
+      if(!SigIsPredicate(sig, key[current]))
+      {  /* Predicates can never unify with variables */
          res += fp_index_rek_find_unif(fpindex_alternative(index, ANY_VAR),
                                        key, 
                                        sig,
@@ -899,14 +899,14 @@ static long dt_index_rek_find_unifiable(FPTree_p index,
       if(key[current] <= 0 || !SigIsPredicate(sig,key[current]))
       {
          child = fpindex_alternative(index, ANY_VAR);
+         res += dt_index_rek_find_unifiable(child, 
+                                            key,
+                                            sig,
+                                            current+1,
+                                            0,
+                                            GET_SYMBOL_ARITY(sig, key[current]),
+                                            collect);
       }
-      res += dt_index_rek_find_unifiable(child, 
-                                         key,
-                                         sig,
-                                         current+1,
-                                         0,
-                                         GET_SYMBOL_ARITY(sig, key[current]),
-                                         collect);
       
    }  
    return res;

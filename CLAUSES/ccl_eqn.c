@@ -739,7 +739,7 @@ Term_p EqnTBTermParse(Scanner_p in, TB_p bank)
 //
 /----------------------------------------------------------------------*/
 
-/* #define MARK_MAX_EQNS */
+/* #define MARK_MAX_EQNS  */
 
 void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
 {

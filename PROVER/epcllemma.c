@@ -158,7 +158,7 @@ OptCell opts[] =
     'i', "iterative-lemmas",
     NoArg, NULL,
     "Use a simple iterative lemma generation algorithm that will traverse the PCL"
-    " listing in a topological ordering (from axioms to leave nodes),"
+    " listing in a topological ordering (from axioms to leaf nodes),"
     " picking out lemmas that reach a "
     "certain score. Good for getting a reasonably even distribution of "
     "lemmata for proof presentation. This is the default behaviour (the "
