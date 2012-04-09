@@ -522,7 +522,7 @@ IndexFP_p IndexFP6MCreate(Term_p t)
 // Function: IndexFP7Create()
 //
 //   Create a fingerprint structure with samples at positions epsilon,
-//   0, 1, 0.0, 01, 1.0, 1.1 (using E's internal numbering). 
+//   0, 1, 0.0, 0.1, 1.0, 1.1 (using E's internal numbering). 
 //
 // Global Variables: -
 //
@@ -552,7 +552,7 @@ IndexFP_p IndexFP7Create(Term_p t)
 // Function: IndexFP7MCreate()
 //
 //   Create a fingerprint structure representing sampling at epsilon,
-//   0, 1, 2, 0.0, 0.1
+//   0, 1, 2, 3, 0.0, 0.1
 //
 // Global Variables: -
 //

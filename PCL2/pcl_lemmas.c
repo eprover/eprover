@@ -62,13 +62,14 @@ LemmaParam_p LemmaParamAlloc(void)
 {
    LemmaParam_p handle = LemmaParamCellAlloc();
 
-   handle->base_weight        = LEMMA_BASE_W;
+   handle->tree_base_weight   = LEMMA_TREE_BASE_W;
    handle->act_pm_w           = LEMMA_ACT_PM_W;
    handle->o_gen_w            = LEMMA_O_GEN_W;
    handle->act_simpl_w        = LEMMA_ACT_SIMPL_W;
    handle->pas_simpl_w        = LEMMA_PAS_SIMPL_W;
    handle->proof_tree_w       = LEMMA_PROOF_TREE_W;
    handle->proof_dag_w        = LEMMA_PROOF_DAG_W;
+   handle->size_base_weight   = LEMMA_SIZE_BASE_W;
    handle->horn_bonus         = LEMMA_HORN_BONUS_W;
 
    return handle;
@@ -451,18 +452,17 @@ float PCLStepComputeLemmaWeight(PCLProt_p prot, PCLStep_p step,
    else
    {      
       res =    
-         (1+
-          params->base_weight +
+         (params->tree_base_weight +
           step->active_pm_refs        * params->act_pm_w + 
           step->other_generating_refs * params->o_gen_w + 
           step->active_simpl_refs     * params->act_simpl_w + 
           step->passive_simpl_refs    * params->pas_simpl_w)
          *
-         (1+
+         (1.0+
           step->proof_tree_size
             )
          /
-         (1+ClauseStandardWeight(step->logic.clause));
+         (params->size_base_weight+ClauseStandardWeight(step->logic.clause));
       
       if(ClauseIsHorn(step->logic.clause))
       {

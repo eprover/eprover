@@ -85,7 +85,7 @@ def res_hash(res):
     Return a hash of the result parameters such that an equal hash is
     good evidence for very similar proof search.
     """
-    return res.values[4], res.values[9], res.values[10]
+    return res.values[4], res.values[9]
 
 def find_common_hash(prots, hashfun):
     """
@@ -217,12 +217,14 @@ if __name__ == '__main__':
     filter_common_successes(prots)        
     filter_common_search(prots)
     print prots[0].results_no()
-    # filter_hard_problems(prots, 4, 1000)
-    # print prots[0].results_no()
+    #filter_hard_problems(prots, 4, 5000)
+    #print prots[0].results_no()
 
     #for res in prots[0].results.keys():
     #    print prots[0].result(res).values[2], prots[11].result(res).values[2]
-        
+
+    #for res in prots[0].results.keys():
+    #   print prots[0].result(res)
         
     print "Times"
     print do_table(prots, times)

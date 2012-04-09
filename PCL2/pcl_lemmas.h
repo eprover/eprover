@@ -63,25 +63,27 @@ Changes
 
 typedef struct lemma_param_cell
 {
-   long   base_weight;
+   long   tree_base_weight;
    double act_pm_w;
    double o_gen_w;
    double act_simpl_w;
    double pas_simpl_w;
    double proof_tree_w;
    double proof_dag_w;
+   long   size_base_weight;
    double horn_bonus;
 }LemmaParamCell, *LemmaParam_p;
 
-#define LEMMA_BASE_W       1
-#define LEMMA_ACT_PM_W     2
-#define LEMMA_O_GEN_W      1
-#define LEMMA_ACT_SIMPL_W  2
-#define LEMMA_PAS_SIMPL_W  1
-#define LEMMA_PROOF_TREE_W 1 
-#define LEMMA_PROOF_DAG_W  0 /* Don't know how to efficiently compute
+#define LEMMA_TREE_BASE_W  1
+#define LEMMA_ACT_PM_W     2.0
+#define LEMMA_O_GEN_W      1.0
+#define LEMMA_ACT_SIMPL_W  2.0
+#define LEMMA_PAS_SIMPL_W  1.0
+#define LEMMA_PROOF_TREE_W 1.0
+#define LEMMA_PROOF_DAG_W  0.0 /* Don't know how to efficiently compute
 			      * DAG size at the moment */
-#define LEMMA_HORN_BONUS_W 2
+#define LEMMA_SIZE_BASE_W  1
+#define LEMMA_HORN_BONUS_W 2.0
 
 typedef long InferenceWeightType[PCLOpMaxOp];
 typedef InferenceWeightType *InferenceWeight_p;

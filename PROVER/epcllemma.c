@@ -57,7 +57,8 @@ typedef enum
    OPT_REL_LEMMA_LIMIT,
    OPT_ABS_LEMQUAL_LIMIT,
    OPT_REL_LEMQUAL_LIMIT,
-   OPT_LEMMA_BASE_W,
+   OPT_LEMMA_TREE_BASE_W,
+   OPT_LEMMA_SIZE_BASE_W,
    OPT_LEMMA_ACT_PM_W,
    OPT_LEMMA_O_GEN_W,
    OPT_LEMMA_ACT_SIMPL_W,
@@ -211,15 +212,21 @@ OptCell opts[] =
     "lemma score in the proof tree."
    },
    
-   {OPT_LEMMA_BASE_W,
-    'b', "lemma-base-weight",
+   {OPT_LEMMA_TREE_BASE_W,
+    'b', "lemma-tree-base-weight",
     ReqArg, NULL,
     "Set the base weight for the influence of references in the lemma "
     "quality evaluation. The larger it is in relation to the "
     "inference weights (below), the less important is the actual "
     "number of references. If you want to use only the lemma size, set this to "
-    "one and the individual reference weights to 0 (using e.g. the "
+    "1 and the individual reference weights to 0 (using e.g. the "
     "--no-reference-weights option)."},
+   {OPT_LEMMA_SIZE_BASE_W,
+    '\0', "lemma-size-base-weight",
+    ReqArg, NULL,
+    "Set the base weight for the influence of size in the lemma "
+    "quality evaluation. The larger this is, the less important the actual "
+    "size of the lemma becomes."},
    {OPT_LEMMA_ACT_PM_W,
     'a', "active-pm-weight",
     ReqArg, NULL,
@@ -546,8 +553,11 @@ CLState_p process_options(int argc, char* argv[])
 	    min_quality_rel = CLStateGetFloatArg(handle, arg);	    
 	    min_quality_rel_p = true;
 	    break;
-      case OPT_LEMMA_BASE_W:
-	    lp->base_weight = CLStateGetIntArg(handle, arg);
+      case OPT_LEMMA_TREE_BASE_W:
+	    lp->tree_base_weight = CLStateGetIntArg(handle, arg);
+	    break;
+      case OPT_LEMMA_SIZE_BASE_W:
+	    lp->size_base_weight = CLStateGetIntArg(handle, arg);
 	    break;
       case OPT_LEMMA_ACT_PM_W:
 	    lp->act_pm_w = CLStateGetFloatArg(handle, arg);	    
