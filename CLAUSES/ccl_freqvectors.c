@@ -29,7 +29,7 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
-/* PERF_CTR_DEFINE(FreqVecTimer); */
+PERF_CTR_DEFINE(FreqVecTimer);
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -497,7 +497,7 @@ FreqVector_p OptimizedVarFreqVectorCompute(Clause_p clause,
 	  (cspec->features == FVIAllFeatures) ||
           (cspec->features == FVICollectFeatures));
    
-   /*  PERF_CTR_ENTRY(FreqVecTimer); */
+   PERF_CTR_ENTRY(FreqVecTimer);
 
 
    /* printf("Symbols used: %ld\n", sig_symbols); */
@@ -516,10 +516,10 @@ FreqVector_p OptimizedVarFreqVectorCompute(Clause_p clause,
       }
       res->clause = clause;
       FreqVectorFree(vec);
-      /* PERF_CTR_EXIT(FreqVecTimer); */
+      PERF_CTR_EXIT(FreqVecTimer);
       return res;
    }
-   /*  PERF_CTR_EXIT(FreqVecTimer); */
+   PERF_CTR_EXIT(FreqVecTimer);
    return vec;
 }
 

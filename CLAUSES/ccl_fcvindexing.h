@@ -36,7 +36,7 @@ Changes
 /*---------------------------------------------------------------------*/
 
 
-/* PERF_CTR_DECL(FVIndexTimer); */
+PERF_CTR_DECL(FVIndexTimer);
 
 
 typedef struct fvindex_parms_cell

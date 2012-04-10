@@ -40,8 +40,8 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* PERF_CTR_DECL(SetSubsumeTimer); 
-   PERF_CTR_DECL(SubsumeTimer);    */
+PERF_CTR_DECL(SetSubsumeTimer);
+PERF_CTR_DECL(SubsumeTimer);
 
 extern bool StrongUnitForwardSubsumption;
 extern long ClauseClauseSubsumptionCalls;
