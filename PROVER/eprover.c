@@ -1475,10 +1475,10 @@ int main(int argc, char* argv[])
       PERF_CTR_PRINT(GlobalOut, BWRWTimer);
       PERF_CTR_PRINT(GlobalOut, BWRWIndexTimer);
       PERF_CTR_PRINT(GlobalOut, IndexMatchTimer);
-      PERF_CTR_PRINT(GlobalOut, FreqVecTimer);
-      PERF_CTR_PRINT(GlobalOut, FVIndexTimer);
-      PERF_CTR_PRINT(GlobalOut, SubsumeTimer);
-      PERF_CTR_PRINT(GlobalOut, SetSubsumeTimer);
+      /* PERF_CTR_PRINT(GlobalOut, FreqVecTimer);
+         PERF_CTR_PRINT(GlobalOut, FVIndexTimer);
+         PERF_CTR_PRINT(GlobalOut, SubsumeTimer);
+         PERF_CTR_PRINT(GlobalOut, SetSubsumeTimer); */
 
       fprintf(GlobalOut, "# Backwards rewriting index : ");
       FPIndexDistribDataPrint(GlobalOut, proofstate->gindices.bw_rw_index);

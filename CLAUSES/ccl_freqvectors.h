@@ -109,7 +109,7 @@ typedef struct fv_collect_cell
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-PERF_CTR_DECL(FreqVecTimer);
+/* PERF_CTR_DECL(FreqVecTimer); */
 
 #define PermVectorAlloc(size) FixedDArrayAlloc(size)
 #define PermVectorFree(junk)  FixedDArrayFree(junk)

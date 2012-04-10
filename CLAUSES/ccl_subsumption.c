@@ -28,8 +28,8 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
-PERF_CTR_DEFINE(SetSubsumeTimer);
-PERF_CTR_DEFINE(SubsumeTimer);
+/* PERF_CTR_DEFINE(SetSubsumeTimer);
+   PERF_CTR_DEFINE(SubsumeTimer); */
 
 bool StrongUnitForwardSubsumption     = false;
 long ClauseClauseSubsumptionCalls     = 0;
@@ -619,19 +619,19 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
    bool    res;
    long* pick_list;
       
-   PERF_CTR_ENTRY(SubsumeTimer);
+   /* PERF_CTR_ENTRY(SubsumeTimer); */
 
    assert(ClauseIsSubsumeOrdered(subsumer));
    assert(ClauseIsSubsumeOrdered(sub_candidate));
 
    if(ClauseLiteralNumber(subsumer)==0)
    {
-      PERF_CTR_EXIT(SubsumeTimer);
+      /* PERF_CTR_EXIT(SubsumeTimer); */
       return true;
    }
    if(ClauseLiteralNumber(subsumer)==1)
    {
-      PERF_CTR_EXIT(SubsumeTimer);
+      /* PERF_CTR_EXIT(SubsumeTimer); */
       return UnitClauseSubsumesClause(subsumer, sub_candidate);
    }
    assert(sub_candidate->weight == ClauseStandardWeight(sub_candidate));
@@ -642,19 +642,19 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
    if((subsumer->pos_lit_no > sub_candidate->pos_lit_no) ||
       (subsumer->neg_lit_no > sub_candidate->neg_lit_no))
    {
-      PERF_CTR_EXIT(SubsumeTimer);
+      /* PERF_CTR_EXIT(SubsumeTimer); */
       return false;
    }
    if(subsumer->weight > sub_candidate->weight)
    {
-      PERF_CTR_EXIT(SubsumeTimer);
+      /* PERF_CTR_EXIT(SubsumeTimer); */
       return false;
    }
    if(((sub_candidate->pos_lit_no >=3) ||
        (sub_candidate->neg_lit_no >=3))&&
       !check_subsumption_possibility(subsumer, sub_candidate))
    {
-      PERF_CTR_EXIT(SubsumeTimer);
+      /* PERF_CTR_EXIT(SubsumeTimer); */
       return false;
    }
    subst = SubstAlloc();
@@ -669,7 +669,7 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
 
    SubstDelete(subst);
 
-   PERF_CTR_EXIT(SubsumeTimer);   
+   /* PERF_CTR_EXIT(SubsumeTimer);    */
 
    if(res)
    {
@@ -1285,17 +1285,17 @@ bool ClauseSubsumesClause(Clause_p subsumer, Clause_p sub_candidate)
 Clause_p ClauseSetSubsumesFVPackedClause(ClauseSet_p set, 
 					 FVPackedClause_p sub_candidate)
 {
-   PERF_CTR_ENTRY(SetSubsumeTimer);
+   /* PERF_CTR_ENTRY(SetSubsumeTimer); */
    assert(sub_candidate->clause->weight == ClauseStandardWeight(sub_candidate->clause));
 
    if(set->fvindex && sub_candidate->array)
    {
       Clause_p res = clause_set_subsumes_clause_indexed(set->fvindex->index, 
                                                         sub_candidate, 0);
-      PERF_CTR_EXIT(SetSubsumeTimer);
+      /* PERF_CTR_EXIT(SetSubsumeTimer); */
       return res;						
    }
-   PERF_CTR_EXIT(SetSubsumeTimer);
+   /* PERF_CTR_EXIT(SetSubsumeTimer); */
    return clause_set_subsumes_clause(set, sub_candidate->clause);
 }
 
@@ -1317,7 +1317,7 @@ Clause_p ClauseSetSubsumesClause(ClauseSet_p set, Clause_p sub_candidate)
 {
    Clause_p res; 
 
-   PERF_CTR_ENTRY(SetSubsumeTimer);
+   /* PERF_CTR_ENTRY(SetSubsumeTimer); */
    assert(sub_candidate->weight == ClauseStandardWeight(sub_candidate));
    if(set->fvindex)
    {
@@ -1327,11 +1327,11 @@ Clause_p ClauseSetSubsumesClause(ClauseSet_p set, Clause_p sub_candidate)
 						       set->fvindex->cspec);
       res =  clause_set_subsumes_clause_indexed(set->fvindex->index, vec, 0);
       FreqVectorFree(vec);
-      PERF_CTR_EXIT(SetSubsumeTimer);
+      /* PERF_CTR_EXIT(SetSubsumeTimer); */
       return res;
    }
    res = clause_set_subsumes_clause(set, sub_candidate);
-   PERF_CTR_EXIT(SetSubsumeTimer);
+   /* PERF_CTR_EXIT(SetSubsumeTimer); */
    return res;
 }
 
@@ -1354,7 +1354,7 @@ Clause_p ClauseSetFindSubsumedClause(ClauseSet_p set, Clause_p
 				     set_position, Clause_p
 				     subsumer)
 {
-   PERF_CTR_ENTRY(SetSubsumeTimer);
+   /* PERF_CTR_ENTRY(SetSubsumeTimer); */
    assert(subsumer->weight == ClauseStandardWeight(subsumer));
 
    while(set_position != set->anchor)
@@ -1362,12 +1362,12 @@ Clause_p ClauseSetFindSubsumedClause(ClauseSet_p set, Clause_p
       assert(set_position->weight == ClauseStandardWeight(set_position));
       if(clause_subsumes_clause(subsumer, set_position))
       {
-         PERF_CTR_EXIT(SetSubsumeTimer);
+         /* PERF_CTR_EXIT(SetSubsumeTimer); */
 	 return set_position;
       }
       set_position = set_position->succ;
    }
-   PERF_CTR_EXIT(SetSubsumeTimer);
+   /* PERF_CTR_EXIT(SetSubsumeTimer); */
    return NULL;
 }
 
@@ -1391,7 +1391,7 @@ long ClauseSetFindFVSubsumedClauses(ClauseSet_p set,
 {
    long old_sp = PStackGetSP(res);
    
-   PERF_CTR_ENTRY(SetSubsumeTimer);
+   /* PERF_CTR_ENTRY(SetSubsumeTimer); */
    assert(subsumer->clause->weight == ClauseStandardWeight(subsumer->clause));
    
    if(set->fvindex)
@@ -1403,7 +1403,7 @@ long ClauseSetFindFVSubsumedClauses(ClauseSet_p set,
    {
       clauseset_find_subsumed_clauses(set, subsumer->clause, res);
    }
-   PERF_CTR_EXIT(SetSubsumeTimer);
+   /* PERF_CTR_EXIT(SetSubsumeTimer); */
    return PStackGetSP(res)-old_sp;
 }
 

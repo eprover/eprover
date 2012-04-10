@@ -38,8 +38,8 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* cvs tag E-1-4-018 */
-#define VERSION      "1.4-018"
+/* cvs tag E-1-4-019 */
+#define VERSION      "1.4-019"
 
 #define E_NICKNAME     "Namring"
 

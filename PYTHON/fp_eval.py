@@ -231,7 +231,7 @@ if __name__ == '__main__':
     print "Counts"
     print do_table(prots, counts, count_mixer)
     
-    # print prots[0]
+    print prots[0]
     #print prots[11]
     #print prots[15]
     
