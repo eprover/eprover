@@ -45,8 +45,8 @@ typedef struct tuple3_cell
    long value;
 }Tuple3Cell;
 
-#define FVINDEX_MAX_FEATURES_DEFAULT 50  /* Maximal lenght of feature vector */
-#define FVINDEX_SYMBOL_SLACK_DEFAULT 30  /* Reserve symbols for splitting */
+#define FVINDEX_MAX_FEATURES_DEFAULT 17  /* Maximal lenght of feature vector */
+#define FVINDEX_SYMBOL_SLACK_DEFAULT 0   /* Reserve symbols for splitting */
 
 typedef struct freq_vector_cell
 {
