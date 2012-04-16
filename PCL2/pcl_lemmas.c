@@ -452,7 +452,8 @@ float PCLStepComputeLemmaWeight(PCLProt_p prot, PCLStep_p step,
    else
    {      
       res =    
-         (params->tree_base_weight +
+         (1.0+
+          params->tree_base_weight +
           step->active_pm_refs        * params->act_pm_w + 
           step->other_generating_refs * params->o_gen_w + 
           step->active_simpl_refs     * params->act_simpl_w + 

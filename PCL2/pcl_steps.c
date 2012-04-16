@@ -269,6 +269,7 @@ void PCLStepPrintExtra(FILE* out, PCLStep_p step, bool data)
    }
    if(data)
    {
+      /* fprintf(out, " %ld ", step->proof_tree_size);   */
 #ifdef NEVER_DEFINED
       fprintf(out, " /* %#8X %6ld %6ld %3ld %3ld %3ld %3ld %4.3f */",
 	      step->properties,

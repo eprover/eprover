@@ -71,7 +71,7 @@ typedef enum
 
 
 #define PCL_OP_NOOP_WEIGHT            0
-#define PCL_OP_INITIAL_WEIGHT         0
+#define PCL_OP_INITIAL_WEIGHT         1
 #define PCL_OP_QUOTE_WEIGHT           0
 #define PCL_OP_PARAMOD_WEIGHT         1
 #define PCL_OP_SIM_PARAMOD_WEIGHT     1
