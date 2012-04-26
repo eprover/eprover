@@ -230,7 +230,7 @@ OptCell opts[] =
    {OPT_LEMMA_ACT_PM_W,
     'a', "active-pm-weight",
     ReqArg, NULL,
-    "Determine the weight to use for eaach use of the clause as an active"
+    "Determine the weight to use for each use of the clause as an active"
     " paramodulation partner (i.e. in a conditional rewrite step (if you "
     "follow a strictly equational paradigm (which I do)))."},
    
