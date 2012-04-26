@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.6
+#!/usr/bin/env python2.7
 
 """
 bsub_eprover 0.1
@@ -147,7 +147,7 @@ def pegasus_cfg():
     global tptp_dir, eprover_dir, testrun_dir, bsub_cmd, bjobs_cmd,\
     bsub_rundir, old_job_dir, db_file
     
-    tptp_dir = "/nethome/sschulz/EPROVER/TPTP_5.2.0_FLAT"
+    tptp_dir = "/nethome/sschulz/EPROVER/TPTP_5.3.0_FLAT"
     """
     Where are the TPTP problem files?
     """
@@ -372,7 +372,7 @@ def read_res_file(filename):
 
 def decode_result(decoder, stratset, filename):
     """
-    Parse a result file and insetr it into stratse. Return true on
+    Parse a result file and insert it into stratset. Return true on
     success, false otherwise.
     """
     resstr = read_res_file(filename)
