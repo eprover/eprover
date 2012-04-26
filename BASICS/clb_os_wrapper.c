@@ -72,7 +72,7 @@ RLimResult SetSoftRlimit(int resource, rlim_t limit)
    {
       return RLimFailed;
    }
-   if(rlim.rlim_max < resource)
+   if(rlim.rlim_max < limit)
    {
       retval   = RLimReduced;
       limit = rlim.rlim_max;
@@ -82,7 +82,6 @@ RLimResult SetSoftRlimit(int resource, rlim_t limit)
    {
       retval = RLimFailed;
    }
-
    return retval;
 }
 
