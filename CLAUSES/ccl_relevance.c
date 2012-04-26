@@ -440,10 +440,9 @@ long RelevanceDataInit(ProofState_p state, Relevance_p data)
 Relevance_p RelevanceDataCompute(ProofState_p state)
 {
    Relevance_p handle = RelevanceAlloc();
-   long goals;
    long level = 1;
    
-   goals = RelevanceDataInit(state, handle);
+   (void)RelevanceDataInit(state, handle);
 
    while(!(PListEmpty(handle->clauses_core) && 
            PListEmpty(handle->formulas_core)))

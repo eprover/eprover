@@ -642,7 +642,7 @@ long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset,
 
 /*-----------------------------------------------------------------------
 //
-// Function: TFormulaConjunctiveToCNF()
+// Function: TFormulaToCNF()
 //
 //   Convert a term-encoded formula from conjunctive normal form into
 //   a set of (variable-normalized) clauses. Return number of clauses

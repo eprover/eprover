@@ -220,13 +220,13 @@ TFormula_p troot_nnf(TB_p terms, TFormula_p form, int polarity)
 //
 // Function: tformula_rec_skolemize()
 //
-//   Recursively Skolemize form. Note that it is note quite trivial
+//   Recursively Skolemize form. Note that it is not quite trivial
 //   that it this works, as it works on a shared structure, and the
 //   same subformula may occur in different contexts. It _does_ work
 //   (I hope) because we require that every quantor binds a distinct
-//   variable, and hence terms that are equal are either invariant
-//   with respect to context or contain different variables, and hence
-//   are not shared. 
+//   variable, and hence terms that were originally equal are either
+//   invariant with respect to context (i.e. they are ground) or
+//   contain different variables, and hence are not shared. 
 //
 // Global Variables: -
 //

@@ -269,23 +269,26 @@ static void tptp_eq_pred_axiom_print(FILE* out, char* symbol, int arity,
 static void clause_set_extract_entry(Clause_p clause)
 {
    int     i;
-   Eval_p test, *root;
+#ifndef NDEBUG
+   Eval_p test;
+#endif
+   Eval_p *root;
 
    assert(clause);
    assert(clause->set);
    assert(clause->set->members);
-   /* assert(ClauseSetFind(clause->set, clause));  */
    
-   /* printf("ClauseSetExtractEntry: %d\n", (int)clause); */
-
    if(clause->evaluations)
    {
       for(i=0; i<clause->evaluations->eval_no; i++)
       {
 	 root = (void*)&PDArrayElementP(clause->set->eval_indices, i);
-         test = EvalTreeExtractEntry(root,
-                                     clause->evaluations,
-                                     i); 
+#ifndef NDEBUG
+         test = 
+#endif
+            EvalTreeExtractEntry(root,
+                                 clause->evaluations,
+                                 i); 
          assert(test);
          assert(test->object == clause);
       }
@@ -465,7 +468,10 @@ void ClauseSetGCMarkTerms(ClauseSet_p set)
 void ClauseSetInsert(ClauseSet_p set, Clause_p newclause)
 {
    int    i;
-   Eval_p test, *root;
+#ifndef NDEBUG
+   Eval_p test;
+#endif
+   Eval_p *root;
 
    assert(!newclause->set);
 
@@ -481,7 +487,10 @@ void ClauseSetInsert(ClauseSet_p set, Clause_p newclause)
       for(i=0; i<newclause->evaluations->eval_no; i++)
       {
          root = (void*)&(PDArrayElementP(newclause->set->eval_indices,i));
-         test = EvalTreeInsert(root, newclause->evaluations, i);
+#ifndef NDEBUG
+         test = 
+#endif
+            EvalTreeInsert(root, newclause->evaluations, i);
          assert(!test);
       }
       set->eval_no = MAX(newclause->evaluations->eval_no, set->eval_no);
@@ -1004,12 +1013,20 @@ long ClauseSetDeleteMarkedEntries(ClauseSet_p set)
 
 long ClauseSetDeleteCopies(ClauseSet_p set)
 {
+#ifdef NDEBUG
    long res1, res2;
+#endif
 
    assert(set);
 
-   res1 = ClauseSetMarkCopies(set);
-   res2 = ClauseSetDeleteMarkedEntries(set);
+#ifdef NDEBUG
+   res1 = 
+#endif
+      ClauseSetMarkCopies(set);
+#ifdef NDEBUG
+   res2 = 
+#endif
+      ClauseSetDeleteMarkedEntries(set);
    assert(res1==res2);
 
    return res1;

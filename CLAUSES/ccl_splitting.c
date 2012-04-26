@@ -57,7 +57,7 @@ static void initialize_lit_table(LitSplitDesc_p lit_table,Clause_p
 				 clause, SplitType how, TermProperties
 				 var_filter)
 {
-   int i, j, lit_no = ClauseLiteralNumber(clause);
+   int i, lit_no = ClauseLiteralNumber(clause);
    Eqn_p handle = clause->literals;
 
    for(i=0; i<lit_no; i++)
@@ -66,10 +66,9 @@ static void initialize_lit_table(LitSplitDesc_p lit_table,Clause_p
       lit_table[i].literal = handle;
       lit_table[i].part    = 0;
       lit_table[i].varset  = NULL;
-      j = EqnCollectPropVariables(handle, &(lit_table[i].varset),
+      (void)EqnCollectPropVariables(handle, &(lit_table[i].varset),
 				  var_filter);
-      /* j (mis)used as dummy to stiffle warnings - we are
-	 only calling EqnCollectVariables for the side
+      /* We are only calling EqnCollectVariables for the side
 	 effect here */
       if(how == SplitGroundOne || how == SplitGroundNone)
       {

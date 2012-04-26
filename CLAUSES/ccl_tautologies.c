@@ -227,14 +227,13 @@ static bool term_compute_ground_NF(TermRef ref, Eqn_p eqns)
 static bool ground_normalize_eqn(Eqn_p eqn, Eqn_p eqns)
 {
    bool res = false, tmp;
-   Term_p term, shared, store;
+   Term_p term, shared;
    
    term = TermCopy(eqn->lterm, eqn->bank->vars, false);
    tmp  = term_compute_ground_NF(&term, eqns);
    if(tmp)
    {
       shared = TBInsert(eqn->bank, term, DEREF_NEVER);
-      store = eqn->lterm;
       eqn->lterm = shared;
       res = EqnQueryProp(eqn, EPGONatural);
    }
@@ -245,7 +244,6 @@ static bool ground_normalize_eqn(Eqn_p eqn, Eqn_p eqns)
    if(tmp)
    {
       shared = TBInsert(eqn->bank, term, DEREF_NEVER);
-      store = eqn->rterm;
       eqn->rterm = shared;
       res = res || EqnQueryProp(eqn, EPGONatural);
    }
