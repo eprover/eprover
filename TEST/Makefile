@@ -42,21 +42,21 @@ TEST_PROG = cl_test.o ../lib/CONTROL.a ../lib/HEURISTICS.a\
             ../lib/INOUT.a ../lib/BASICS.a
 
 $(LIB): $(TEST_PROG)
-	$(LD) -o $(PROJECT) $(TEST_PROG)
+	$(LD) -o $(PROJECT) $(TEST_PROG) $(LIBS)
 
 
 PATTERN_TEST = patterntest.o ../lib/CLAUSES.a ../lib/ORDERINGS.a \
 	    ../lib/TERMS.a ../lib/INOUT.a ../lib/BASICS.a ../lib/LEARN.a
 
 patterntest: $(PATTERN_TEST)
-	$(LD) -o patterntest $(PATTERN_TEST)
+	$(LD) -o patterntest $(PATTERN_TEST)  $(LIBS)
 
 
 PCL_TEST = cl_pcltest.o ../lib/PCL2.a ../lib/CLAUSES.a ../lib/ORDERINGS.a \
 	../lib/TERMS.a ../lib/INOUT.a ../lib/BASICS.a
 
 cl_pcltest: $(PCL_TEST)
-	$(LD) -o cl_pcltest $(PCL_TEST)
+	$(LD) -o cl_pcltest $(PCL_TEST) $(LIBS)
 
 
 include Makefile.dependencies

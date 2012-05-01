@@ -38,12 +38,12 @@ include ../Makefile.services
 TERM2DAG = term2dag.o ../lib/TERMS.a ../lib/INOUT.a ../lib/BASICS.a
 
 term2dag: $(TERM2DAG)
-	$(LD) -o term2dag $(TERM2DAG)
+	$(LD) -o term2dag $(TERM2DAG) $(LIBS)
 
 EX_COMMANDLINE = ex_commandline.o ../lib/INOUT.a ../lib/BASICS.a
 
 ex_commandline: $(EX_COMMANDLINE)
-	$(LD) -o ex_commandline $(EX_COMMANDLINE)
+	$(LD) -o ex_commandline $(EX_COMMANDLINE) $(LIBS)
 
 include Makefile.dependencies
 

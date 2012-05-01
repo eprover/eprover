@@ -39,7 +39,7 @@ CSSCPA = CSSCPA_filter.o cex_csscpa.o \
             ../lib/INOUT.a ../lib/BASICS.a
 
 $(LIB): $(CSSCPA)
-	$(LD) -o CSSCPA_filter $(CSSCPA)
+	$(LD) -o CSSCPA_filter $(CSSCPA) $(LIBS)
 
 include Makefile.dependencies
 
