@@ -1013,17 +1013,17 @@ long ClauseSetDeleteMarkedEntries(ClauseSet_p set)
 
 long ClauseSetDeleteCopies(ClauseSet_p set)
 {
-#ifdef NDEBUG
+#ifndef NDEBUG
    long res1, res2;
 #endif
 
    assert(set);
 
-#ifdef NDEBUG
+#ifndef NDEBUG
    res1 = 
 #endif
       ClauseSetMarkCopies(set);
-#ifdef NDEBUG
+#ifndef NDEBUG
    res2 = 
 #endif
       ClauseSetDeleteMarkedEntries(set);

@@ -39,9 +39,9 @@ Changes
 /*---------------------------------------------------------------------*/
 
 /* cvs tag E-1-5pre001 */
-#define VERSION      "1.5pre001"
+#define VERSION      "1.5pre002"
 
-#define E_NICKNAME     "Namring"
+#define E_NICKNAME     "Pussimbing"
 
 #define E_URL "http://www.eprover.org"
 

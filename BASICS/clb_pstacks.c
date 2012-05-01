@@ -47,6 +47,27 @@ Changes
 
 /*-----------------------------------------------------------------------
 //
+// Function: PStackTopAddr()
+//
+//   Return address of top element on the stack.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+IntOrP* PStackTopAddr(PStack_p stack)
+{
+   assert(stack->current);
+   
+   return &(stack->stack[stack->current-1]);
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: PStackComputeAverage()
 //
 //   Given a stack of integers, compute the arithmetic mean (returned)
@@ -115,6 +136,55 @@ void PStackSort(PStack_p stack, ComparisonFunctionType cmpfun)
 {
    qsort(stack->stack, stack->current, sizeof(IntOrP), cmpfun);
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: PStackMerge()
+//
+//   Merge two sorted stacks onto a third. Discards duplicates.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+void PStackMerge(PStack_p st1, PStack_p st2, PStack_p res, 
+                     ComparisonFunctionType cmpfun)
+{
+   IntOrP tmp;
+   int cmpres;
+
+   while(!PStackEmpty(st1) || !PStackEmpty(st2))
+   {
+      if(PStackEmpty(st1))
+      {
+         tmp = PStackPop(st2);
+      }
+      else if(PStackEmpty(st2))
+      {
+         tmp = PStackPop(st1);
+      }
+      else
+      {
+         cmpres = cmpfun(PStackTopAddr(st1), PStackTopAddr(st2));
+         if(cmpres < 0)
+         {
+            tmp = PStackPop(st1);
+         }
+         else
+         {
+            tmp = PStackPop(st2);
+         }
+      }
+      if(PStackEmpty(res) || (cmpfun(PStackTopAddr(res), &tmp)!=0))
+      {
+         push(res, tmp);
+      }
+   }
+}
+
+
 
 /*-----------------------------------------------------------------------
 //

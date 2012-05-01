@@ -69,6 +69,7 @@ typedef struct proofstatecell
    GlobalIndices     wlindices;
    bool              state_is_complete;
    DefStore_p        definition_store;
+   FVCollect_p       def_store_cspec;
 
    bool              status_reported;
    ulong_c           answer_count;

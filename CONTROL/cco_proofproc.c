@@ -988,23 +988,35 @@ void fvi_param_init(ProofState_p state, ProofControl_p control)
                             control->fvi_parms.eliminate_uninformative);  
    if(control->fvi_parms.cspec.features != FVINoFeatures)
    {
-         state->processed_non_units->fvindex =
+      state->processed_non_units->fvindex =
+         FVIAnchorAlloc(cspec, PermVectorCopy(perm));
+      state->processed_pos_rules->fvindex =
+         FVIAnchorAlloc(cspec, PermVectorCopy(perm));
+      state->processed_pos_eqns->fvindex =
+         FVIAnchorAlloc(cspec, PermVectorCopy(perm));
+      state->processed_neg_units->fvindex =
+         FVIAnchorAlloc(cspec, PermVectorCopy(perm));
+      if(state->watchlist)
+      {
+         state->watchlist->fvindex = 
             FVIAnchorAlloc(cspec, PermVectorCopy(perm));
-         state->processed_pos_rules->fvindex =
-            FVIAnchorAlloc(cspec, PermVectorCopy(perm));
-         state->processed_pos_eqns->fvindex =
-            FVIAnchorAlloc(cspec, PermVectorCopy(perm));
-         state->processed_neg_units->fvindex =
-            FVIAnchorAlloc(cspec, PermVectorCopy(perm));
-         if(state->watchlist)
-         {
-            state->watchlist->fvindex = 
-               FVIAnchorAlloc(cspec, PermVectorCopy(perm));
-            ClauseSetNewTerms(state->watchlist, state->terms);
-         }
+         ClauseSetNewTerms(state->watchlist, state->terms);
+      }
    }
+   state->def_store_cspec = FVCollectAlloc(FVICollectFeatures,
+                                           true,
+                                           0,
+                                           symbols*2+2,
+                                           2,
+                                           0,
+                                           symbols,
+                                           symbols+2,
+                                           0,
+                                           symbols,
+                                           0,0,0,
+                                           0,0,0);
    state->definition_store->def_clauses->fvindex =
-      FVIAnchorAlloc(cspec, perm);      
+      FVIAnchorAlloc(state->def_store_cspec, perm);      
 }
 
 

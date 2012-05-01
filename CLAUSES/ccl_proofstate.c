@@ -99,6 +99,7 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    GlobalIndicesNull(&(handle->wlindices));
    handle->state_is_complete    = true;
    handle->definition_store     = DefStoreAlloc(handle->terms);
+   handle->def_store_cspec      = NULL;
    
    handle->gc_original_terms    = GCAdminAlloc(handle->original_terms);
    GCRegisterFormulaSet(handle->gc_original_terms, handle->f_axioms);
@@ -276,6 +277,10 @@ void ProofStateFree(ProofState_p junk)
    if(junk->fvi_cspec)
    {
       FVCollectFree(junk->fvi_cspec);
+   }
+   if(junk->def_store_cspec)
+   {
+      FVCollectFree(junk->def_store_cspec);
    }
 
    junk->original_terms->sig = NULL;

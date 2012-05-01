@@ -54,6 +54,7 @@ typedef struct pstackcell
 
 #define  PStackBaseAddress(stackarg) ((stackarg)->stack)
 static __inline__ PStack_p PStackAlloc(void);
+static __inline__ PStack_p PStackVarAlloc(long size);
 static __inline__ void     PStackFree(PStack_p junk);
 static __inline__ PStack_p PStackCopy(PStack_p stack);
 #define  PStackEmpty(stack) ((stack)->current == 0)
@@ -72,6 +73,7 @@ static __inline__ void     PStackDiscardTop(PStack_p stack);
 static __inline__ IntOrP   PStackTop(PStack_p stack);
 #define  PStackTopInt(stack) (PStackTop(stack).i_val)
 #define  PStackTopP(stack)   (PStackTop(stack).p_val)
+IntOrP*  PStackTopAddr(PStack_p stack);
 static __inline__ IntOrP   PStackBelowTop(PStack_p stack);
 #define  PStackBelowTopInt(stack) (PStackBelowTop(stack).i_val)
 #define  PStackBelowTopP(stack)   (PStackBelowTop(stack).p_val)
@@ -82,6 +84,8 @@ static __inline__ IntOrP   PStackElement(PStack_p stack, PStackPointer pos);
 #define  PStackElementP(stack,pos) (PStackElement(stack,pos).p_val)
 
 void     PStackSort(PStack_p stack, ComparisonFunctionType cmpfun);
+void     PStackMerge(PStack_p st1, PStack_p st2, PStack_p res, 
+                     ComparisonFunctionType cmpfun); 
 
 double   PStackComputeAverage(PStack_p stack, double *deviation);
 
@@ -147,6 +151,31 @@ static __inline__ PStack_p PStackAlloc(void)
    
    handle = PStackCellAlloc();
    handle->size = PSTACK_DEFAULT_SIZE;
+   handle->current = 0;
+   handle->stack = CPPCAST(IntOrP*)SizeMalloc(handle->size * sizeof(IntOrP));
+   
+   return handle;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PStackVarAlloc()
+//
+//   Allocate an empty stack with selectable initial size.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory oprations
+//
+/----------------------------------------------------------------------*/
+
+static __inline__ PStack_p PStackVarAlloc(long size)
+{
+   PStack_p handle;
+   
+   handle = PStackCellAlloc();
+   handle->size = size;
    handle->current = 0;
    handle->stack = CPPCAST(IntOrP*)SizeMalloc(handle->size * sizeof(IntOrP));
    
@@ -320,6 +349,7 @@ static __inline__ IntOrP PStackTop(PStack_p stack)
    
    return stack->stack[stack->current-1];
 }
+
 
 
 /*-----------------------------------------------------------------------

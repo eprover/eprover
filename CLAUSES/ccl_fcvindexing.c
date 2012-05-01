@@ -335,6 +335,8 @@ void FVIndexInsert(FVIAnchor_p index, FreqVector_p vec_clause)
    FVIndex_p handle, newnode = NULL;
    long i;
 
+   printf("Index: %p vc: %p\n", index, vec_clause);
+
    PERF_CTR_ENTRY(FVIndexTimer);
 
    assert(vec_clause);
