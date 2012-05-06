@@ -300,10 +300,11 @@ NAME " " VERSION "\n\
 Usage: ekb_insert [options] [names]\n\
 \n\
 Insert example files into an E knowledge base. Each non-option argument\n\
-is considered as one individual example file.\n\n"); 
+is considered as one individual example file. For most applications\n\
+this is obsolete, use ekb_ginsert instead.\n\n"); 
    PrintOptions(stdout, opts, "Options\n\n");
    fprintf(out, "\n\
-Copyright (C) 1999-2006 by Stephan Schulz, " STS_MAIL "\n\
+Copyright (C) 1999-2012 by Stephan Schulz, " STS_MAIL "\n\
 \n\
 This program is a part of the support structure for the E equational\n\
 theorem prover. You can find the latest version of the E distribution\n\

@@ -353,11 +353,11 @@ ekb_ginsert " VERSION "\n\
 \n\
 Usage: ekb_ginsert [options] [name]\n\
 \n\
-Generate a set of training examples from an E inference list and\n\
-insert it into a knowledge base.\n\n"); 
+Generate a set of training examples from an E inference list (i.e. an\n\
+EPCL trace of a proof run) and insert it into a knowledge base.\n\n"); 
    PrintOptions(stdout, opts, "Options\n\n");
    fprintf(out, "\n\
-Copyright (C) 1999-2004 by Stephan Schulz, " STS_MAIL "\n\
+Copyright (C) 1999-20012 by Stephan Schulz, " STS_MAIL "\n\
 \n\
 This program is a part of the support structure for the E equational\n\
 theorem prover. You can find the latest version of the E distribution\n\

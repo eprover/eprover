@@ -37,14 +37,14 @@ anything fails. There should be a copy in DOC/eprover.pdf.
              ===============================
 
 
-This is the README file for version 1.3 "Ringtong" of the E equational
-theorem prover. This version of E is free software, see the file
-COPYING for details about the license and the fact that THERE IS NO
-WARRANTY!
+This is the README file for version 1.5 "Pussimbing" of the E
+equational theorem prover. This version of E is free software, see the
+file COPYING for details about the license and the fact that THERE IS
+NO WARRANTY!
 
-Release 1.3 is the culmination of a long development phase. Important
-changes vs. version 1.2 include better clausification, improved
-Auto-mode, and answer generation.
+Release 1.5 is the culmination of a long development phase. Important
+changes vs. version 1.4 include better subsumption indexing, more
+efficient handling of indexed superposition, and a new Auto-mode.
 
 
 What is E?
@@ -57,7 +57,7 @@ using up all of your machines resources. Very occasionally it will
 find a proof for the hypothesis and tell you so ;-).
 
 E has been created and is currently maintained by Stephan Schulz,
-<schulz@eprover.org>. They are developed and distributed under the GNU
+<schulz@eprover.org>. It is developed and distributed under the GNU
 General Public License. However, you may possibly come around versions
 sold or given to you under a different license, probably by Safelogic
 A.B. in Gothenburg, Sweden. For some time, Safelogic paid for the
@@ -91,7 +91,7 @@ the default definition should be ok). Then change to the E directory:
 
 Determine if you want to run E from it's own build directory or wether
 you want to install the executables in some other directory
-EXECDIR. In the firs case, run
+EXECDIR. In the first case, run
 
    ./configure
 
@@ -165,7 +165,8 @@ utilize 2 CPU cores for better wall clock performance.
 You can check the output of epclextract (and eproof) for correctness
 using the tool checkproof in the same directory. "checkproof -h"
 should give you all necessary information. Note that checkproof cannot
-yet deal with the full first order part, and will skip it.
+yet deal with the full first order part, and will skip anything not
+clausal. 
 
 
 

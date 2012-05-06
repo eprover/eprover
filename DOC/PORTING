@@ -54,9 +54,9 @@ E.
     lib2 lib3 lib1 lib2 lib3 lib1 lib2 lib3)  in CLIB/PROVER/Makefile
     is reported to overcome this problem.
 
-[5] The prover is written under the assumption that long has at least
-    32 bits. It should work for smaller values, but will probably run
-    into overflows and limits fairly fast.
+[5] The prover is written under the assumption that 'long' has at
+    least 32 bits. It should work for smaller values, but will
+    probably run into overflows and limits fairly fast.
 
 [6] The function TempFileCreate() in INOUT/cio_tempfile.c uses the
     function tempname() to generate a unique filename while honoring
@@ -75,3 +75,12 @@ E.
     rarely a version compiled under MacOS X ran differently from the
     same version compiled under Solaris or Linux. I hopefully have
     eliminated all such influences now.
+
+[8] Some newer versions of gcc distributed with e.g. Ubuntu 10.4-12.4
+    seem to be picky about the place in which the -lm flag is given to
+    gcc for linking. The latest version of E should comply with this. 
+
+[9] Some newer compilers will complain about Variabes "set but not
+    used". This is harmless - the variables are used for assert checks
+    in the DEBUG version, and I see no particular value in cluttering
+    the case with #ifdef to supress these warnings.

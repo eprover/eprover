@@ -2,7 +2,7 @@ This history list describes the major differences between versions of
 the E equational theorem prover.
 
 
-Version 1.4 -> 
+Version 1.4 -> 1.5 Pussimbing
 
 - Fixed bug stopping miniscoping from ever being used
 - Implemented non-perfect discrimination tree indexing (mostly for
@@ -12,6 +12,10 @@ Version 1.4 ->
 - Added further instrumentation for profiling
 - Implemented (prototypically) folded feature vector indexing and made
   it the default
+- Fixed Makefiles to cleanly work with more modern gcc versions
+- Some more executables are now installed as part of the standard
+  installation.
+- New auto mode
 
 
 Version 1.3 -> 1.4 Namring

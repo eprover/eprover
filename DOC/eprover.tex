@@ -22,7 +22,7 @@
 \usepackage{url}
 
 \author{Stephan Schulz}
-\title{E 1.4\\[1.5ex]User Manual\\[1.5ex]{\normalsize --preliminary
+\title{E 1.5\\[1.5ex]User Manual\\[1.5ex]{\normalsize --preliminary
     version--}}
 
 \makeindex{}
@@ -32,7 +32,7 @@
 
 \begin{abstract}
   E is an equational theorem prover for full first-order logic, based
-  on superposition and rewriting. In this \emph{very preliminary}
+  on superposition and rewriting. In this perpetually very preliminary
   manual we first give a short introduction for impatient new users,
   and then cover calculus, control, options and input/output of the
   prover in some more detail.
@@ -1150,7 +1150,7 @@ heuristics.
 
 To generate constructive proofs of clauses, just place them on the
 watch list and select output level 4 or greater (see
-section~\ref{sec:output:lots}). Steps effecting the watch list will be
+section~\ref{sec:output:lots}). Steps affecting the watch list will be
 marked in the PCL2 output file. If you use the \emph{eproof} script
 for proof output or run \emph{epclextract} of your own, subproof for
 watchlist steps will be automatically extracted.
@@ -1163,7 +1163,8 @@ Options controlling the use of the watch list:\\
 \begin{tabular}{lp{5.8cm}}
   \texttt{--watchlist=<arg>} & Select a file containing the watch list
   clauses. Syntax should be the same syntax as your proof problem
-  (E-LOP, TPTP or TSTP). Just write down a list of clauses.\\
+  (E-LOP, TPTP-1/2 or TPTP-3/TSTP). Just write down a list of
+  clauses.\\
   \texttt{--no-watchlist-simplification} & By default, watch list
   clauses are simplified with respect to the current set
   \texttt{P}. Use this option to disable the feature.
@@ -1385,13 +1386,15 @@ search after termination. The following possibilities exist:
 # Faiure: User resource limit exceeded!
 \end{verbatim}
   \ldots and the user is expected to know which limit he selected.
-\item Normally, E is complete. However, if the option
-  \texttt{--delete-bad-limit} is given or if automatic mode in
-  connection with a memory limit is used, E will periodically delete
-  clauses it deems unlikely to be processed to avoid running out of
-  memory. In this case, completeness cannot be ensured any more. This
-  effect manifests itself extremely rarely. If it does, E will print
-  the following string:
+\item By default, E is \emph{complete}, i.e. it will only terminate if
+  either the empty clause is found or all clauses have been processed
+  (in which case the processed clause set is satisfiable). However, if
+  the option \texttt{--delete-bad-limit} is given or if automatic mode
+  in connection with a memory limit is used, E will periodically
+  delete clauses it deems unlikely to be processed to avoid running
+  out of memory. In this case, completeness cannot be ensured any
+  more. This effect manifests itself extremely rarely. If it does, E
+  will print the following string:
 \begin{verbatim}
   # Failure: Out of unprocessed clauses!
 \end{verbatim}
