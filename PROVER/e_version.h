@@ -38,8 +38,8 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* cvs tag E-1-5 */
-#define VERSION      "1.5"
+/* cvs tag E-1-5dev001 */
+#define VERSION      "1.5dev001"
 
 #define E_NICKNAME     "Pussimbing"
 

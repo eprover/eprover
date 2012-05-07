@@ -19,9 +19,9 @@
 #
 ########################################################################
 
-EXECPATH=/Users/schulz/SOURCES/Projects/E/PROVER
+EXECPATH=`dirname "$0"`
 
-VERSION=`$EXECPATH/eprover --version|cut -d' ' -f2-`
+VERSION=`"$EXECPATH"/eprover --version|cut -d' ' -f2-`
 
 if tail -n+2 $0 > /dev/null 2>&1; then
    TAIL="tail -n";
@@ -218,7 +218,7 @@ done
 
 print_tail=`expr $print_res + $print_stats`
 
-sh -c "$EXECPATH/eprover $newargs -l4 -R -o- --pcl-terms-compressed --pcl-compact> $tmpfile" &
+sh -c "\"$EXECPATH\"/eprover $newargs -l4 -R -o- --pcl-terms-compressed --pcl-compact> $tmpfile" &
 wait %%
 status=$?
 $TAIL -70 $tmpfile > $tmpfile2
@@ -244,7 +244,7 @@ if [ "$searchtime" ]; then
 	fi
     fi
     if [ "$limitprooftime" ]; then
-        prooflimit=`expr $timelimit - $searchtime - 1`
+        prooflimit=`expr $timelimit - $searchtime`
         ulimit -S -t $prooflimit > /dev/null
     fi
     if [ "$outfile" ]; then
@@ -253,7 +253,7 @@ if [ "$searchtime" ]; then
     grep "# SZS status" $tmpfile2
     grep "# Failure"    $tmpfile2
     grep "# SZS answer" $tmpfile
-    $EXECPATH/epclextract $format -f --competition-framing $tmpfile &
+    "$EXECPATH"/epclextract $format -f --competition-framing $tmpfile &
     wait %%
     status=$?
     $TAIL -$print_tail $tmpfile2

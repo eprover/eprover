@@ -21,9 +21,9 @@
 #
 ########################################################################
 
-EXECPATH=/Users/schulz/SOURCES/Projects/E/PROVER
+EXECPATH=`dirname "$0"`
 
-VERSION=`$EXECPATH/eprover --version|cut -d' ' -f2-`
+VERSION=`"$EXECPATH"/eprover --version|cut -d' ' -f2-`
 
 pid=$$
 host=`hostname`
@@ -148,6 +148,6 @@ for argument in  "$@"; do
     fi
 done
 
-$EXECPATH/eprover $newargs -l4 -o- --pcl-terms-compressed --pcl-compact|$EXECPATH/epclextract $format -f -C --competition-framing
+"$EXECPATH"/eprover $newargs -l4 -o- --pcl-terms-compressed --pcl-compact|"$EXECPATH"/epclextract $format -f -C --competition-framing
 
 
