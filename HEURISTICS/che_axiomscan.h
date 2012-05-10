@@ -41,19 +41,6 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-typedef enum aximotype
-{
-   AxNoaxiom,
-   AxCommutative,
-   AxAssociative,
-   AxRightIdentity,
-   AxLeftIdentyty,
-   AxRightInverse,
-   AxLeftInverse,
-   AxIdempotent1,
-   AxIdempotent2
-}AxiomType;
-
 
 FunCode DetectCommutativity(Clause_p clause);
 FunCode DetectAssociativity(Clause_p clause);
