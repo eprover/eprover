@@ -71,7 +71,7 @@ typedef struct batch_spec_cell
  * information about all the includes parsed so they are parsed at
  * most once. */
 
-typedef struct strtuctured_FPO_spec_cell
+typedef struct strtuctured_FOF_spec_cell
 {
    Sig_p         sig;
    TB_p          terms;
@@ -103,6 +103,11 @@ BatchSpec_p BatchSpecParse(Scanner_p in, char* executable, char* pexec, IOFormat
 
 StructFOFSpec_p StructFOFSpecAlloc(void);
 void           StructFOFSpecFree(StructFOFSpec_p ctrl);
+
+
+StructFOFSpec_p StructFOFSpecAlloc(void);
+
+
 long           StructFOFSpecParseAxioms(StructFOFSpec_p ctrl, 
                                        PStack_p axfiles, 
                                        IOFormat parse_format);
@@ -112,8 +117,8 @@ void           StructFOFSpecInitDistrib(StructFOFSpec_p ctrl);
 long           StructFOFSpecInit(BatchSpec_p spec, StructFOFSpec_p ctrl);
 
 void StructFOFSpecAddProblem(StructFOFSpec_p ctrl, 
-                            ClauseSet_p clauses, 
-                            FormulaSet_p formulas); 
+                             ClauseSet_p clauses, 
+                             FormulaSet_p formulas); 
 
 void StructFOFSpecBacktrackToSpec(StructFOFSpec_p ctrl);
 

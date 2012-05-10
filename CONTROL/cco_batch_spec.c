@@ -418,6 +418,36 @@ BatchSpec_p BatchSpecParse(Scanner_p in, char* executable, char* pexec, IOFormat
    return handle;
 }
 
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: StructFOFSpecCreate()
+//
+//   Create a FOF spec, given the term bank (and thus the sig).
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations.
+//
+/----------------------------------------------------------------------*/
+
+StructFOFSpec_p StructFOFSpecCreate(TB_p terms)
+{
+   StructFOFSpec_p handle = StructFOFSpecCellAlloc();
+
+   handle->sig             = terms->sig;
+   handle->terms           = terms;
+   handle->clause_sets     = PStackAlloc();
+   handle->formula_sets    = PStackAlloc();
+   handle->parsed_includes = NULL;
+   handle->f_distrib       = GenDistribAlloc(handle->sig);
+
+   return handle;   
+}
+
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: StructFOFSpecAlloc()
@@ -432,18 +462,17 @@ BatchSpec_p BatchSpecParse(Scanner_p in, char* executable, char* pexec, IOFormat
 
 StructFOFSpec_p StructFOFSpecAlloc(void)
 {
-   StructFOFSpec_p handle = StructFOFSpecCellAlloc();
+   Sig_p sig;
+   TB_p  terms;
 
-   handle->sig             = SigAlloc();
-   SigInsertInternalCodes(handle->sig);
-   handle->terms           = TBAlloc(handle->sig);
-   handle->clause_sets     = PStackAlloc();
-   handle->formula_sets    = PStackAlloc();
-   handle->parsed_includes = NULL;
-   handle->f_distrib       = GenDistribAlloc(handle->sig);
-
-   return handle;
+   sig =   SigAlloc();
+   SigInsertInternalCodes(sig);
+   terms = TBAlloc(sig);
+   return StructFOFSpecCreate(terms);
 }
+
+
+
 
 /*-----------------------------------------------------------------------
 //
