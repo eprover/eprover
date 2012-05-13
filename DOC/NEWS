@@ -2,6 +2,11 @@ This history list describes the major differences between versions of
 the E equational theorem prover.
 
 
+Version 1.5 ->
+
+- Incorporated minor improvements to the scripts suggested by Jasmin
+  Blanchette.
+
 Version 1.4 -> 1.5 Pussimbing
 
 - Fixed bug stopping miniscoping from ever being used

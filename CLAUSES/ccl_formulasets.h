@@ -60,6 +60,9 @@ void         FormulaSetInsert(FormulaSet_p set, WFormula_p newform);
 long         FormulaSetInsertSet(FormulaSet_p set, FormulaSet_p from);
 WFormula_p   FormulaSetExtractEntry(WFormula_p form);
 WFormula_p   FormulaSetExtractFirst(FormulaSet_p set);
+#define      FormulaSetMoveFormula(set, form) \
+             FormulaSetExtractEntry(form);FormulaSetInsert((set), (form))
+
 void         FormulaSetDeleteEntry(WFormula_p form);
 
 void         FormulaSetPrint(FILE* out, FormulaSet_p set, 

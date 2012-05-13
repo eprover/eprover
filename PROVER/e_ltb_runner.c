@@ -162,7 +162,7 @@ int main(int argc, char* argv[])
       spec = BatchSpecParse(in, prover, xtract, TSTPFormat);   
       /* BatchSpecPrint(stdout, spec); */
       ctrl = StructFOFSpecAlloc();
-      StructFOFSpecInit(spec, ctrl);      
+      BatchStructFOFSpecInit(spec, ctrl);      
       BatchProcessProblems(spec, ctrl);
       StructFOFSpecFree(ctrl);
       BatchSpecFree(spec);

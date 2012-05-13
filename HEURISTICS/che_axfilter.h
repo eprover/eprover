@@ -109,6 +109,8 @@ AxFilterSet_p AxFilterSetCreateInternal(char* str);
 void          AxFilterSetPrint(FILE* out, AxFilterSet_p set);
 #define       AxFilterSetElements(s) PStackGetSP((s)->set)
 #define       AxFilterSetGetFilter(s, i) ((AxFilter_p)PStackElementP((s)->set,(i)))
+#define       AxFilterSetAddFilter(s, f) PStackPushP((s)->set, (f))
+AxFilter_p    AxFilterSetFindFilter(AxFilterSet_p set, char* name);
 
 #endif
 

@@ -28,8 +28,9 @@ Changes
 #include <clb_regmem.h>
 #include <cio_commandline.h>
 #include <cio_output.h>
-#include "ccl_relevance.h"
+#include <ccl_relevance.h>
 #include <cco_proofproc.h>
+#include <cco_sine.h>
 #include <cio_signals.h>
 #include <ccl_unfold_defs.h>
 #include <ccl_formulafunc.h>
@@ -86,6 +87,7 @@ typedef enum
    OPT_EQ_UNFOLD_LIMIT,
    OPT_EQ_UNFOLD_MAXCLAUSES,
    OPT_NO_EQ_UNFOLD,
+   OPT_SINE,
    OPT_REL_PRUNE_LEVEL,
    OPT_PRESAT_SIMPLIY,
    OPT_AC_HANDLING,
@@ -493,6 +495,12 @@ OptCell opts[] =
     NoArg, NULL,
     "During preprocessing, abstain from unfolding (and removing) "
     "equational definitions."},
+
+   {OPT_SINE,
+    '\0', "sine",
+    OptArg, "Auto",
+    "Apply SinE to prune the unprocessed axioms with the specified"
+    " filter."},
 
    {OPT_REL_PRUNE_LEVEL,
     '\0', "rel-pruning-level",
@@ -1127,6 +1135,7 @@ int               eqdef_incrlimit = DEFAULT_EQDEF_INCRLIMIT;
 char              *outdesc = DEFAULT_OUTPUT_DESCRIPTOR,
                   *filterdesc = DEFAULT_FILTER_DESCRIPTOR;
 PStack_p          wfcb_definitions, hcb_definitions;
+char              *sine=NULL;
 
 FunctionProperties free_symb_prop = FPIgnoreProps;
 
@@ -1149,8 +1158,8 @@ void print_help(FILE* out);
 // Function: parse_spec()
 //
 //   Allocate proof state, parse input files into it, and check that
-//   requested properties are met. Factored out of main to make fore
-//   reasons of readability and length. 
+//   requested properties are met. Factored out of main for reasons of
+//   readability and length.
 //
 // Global Variables: -
 //
@@ -1269,12 +1278,13 @@ int main(int argc, char* argv[])
    proofstate = parse_spec(state, parse_format, 
                            error_on_empty, free_symb_prop,
                            &parsed_ax_no);  
-   proofcontrol = ProofControlAlloc();
 
    FormulaSetDocInital(GlobalOut, OutputLevel, proofstate->f_axioms);
    ClauseSetDocInital(GlobalOut, OutputLevel, proofstate->axioms);
 
-   relevancy_pruned = ProofStatePreprocess(proofstate, relevance_prune_level);
+   relevancy_pruned += ProofStateSinE(proofstate, sine);
+   relevancy_pruned += ProofStatePreprocess(proofstate, relevance_prune_level);
+
    if(relevancy_pruned || incomplete)
    {
       proofstate->state_is_complete = false;
@@ -1300,6 +1310,8 @@ int main(int argc, char* argv[])
 					    eqdef_incrlimit, 
                                             eqdef_maxclauses);
    }
+
+   proofcontrol = ProofControlAlloc();
    ProofControlInit(proofstate, proofcontrol, h_parms, 
                     fvi_parms, wfcb_definitions, hcb_definitions);
    PCLFullTerms = pcl_full_terms; /* Preprocessing always uses full
@@ -1440,7 +1452,7 @@ int main(int argc, char* argv[])
    {
       fprintf(GlobalOut, "# Parsed axioms                        : %ld\n",
               parsed_ax_no);
-      fprintf(GlobalOut, "# Removed by relevancy pruning         : %ld\n",
+      fprintf(GlobalOut, "# Removed by relevancy pruning/SinE    : %ld\n",
               relevancy_pruned);
       fprintf(GlobalOut, "# Initial clauses                      : %ld\n",
 	      raw_clause_no);
@@ -1800,6 +1812,9 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_NO_EQ_UNFOLD:
 	    eqdef_incrlimit = INT_MIN;
 	    break;
+      case OPT_SINE:
+            sine = arg;
+            break;
       case OPT_REL_PRUNE_LEVEL:
             relevance_prune_level = CLStateGetIntArg(handle, arg);
             break;

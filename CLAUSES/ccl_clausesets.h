@@ -87,6 +87,8 @@ void        ClauseSetPDTIndexedInsert(ClauseSet_p set, Clause_p newclause);
 void        ClauseSetIndexedInsert(ClauseSet_p set, FVPackedClause_p newclause);
 void        ClauseSetIndexedInsertClause(ClauseSet_p set, Clause_p newclause);
 Clause_p    ClauseSetExtractEntry(Clause_p clause);
+#define     ClauseSetMoveClause(set, clause) \
+            ClauseSetExtractEntry(clause);ClauseSetInsert((set), (clause))
 Clause_p    ClauseSetExtractFirst(ClauseSet_p set);
 void        ClauseSetDeleteEntry(Clause_p clause);
 Clause_p    ClauseSetFindBest(ClauseSet_p set, int idx);

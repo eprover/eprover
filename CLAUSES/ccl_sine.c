@@ -844,7 +844,54 @@ void PStackFormulaPrintTSTP(FILE* out, PStack_p stack)
    }
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: PStackClausesMove()
+//
+//   Move all clauses on stack from their old set to set.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 
+void PStackClausesMove(PStack_p stack, ClauseSet_p set)
+{
+   PStackPointer i;
+   Clause_p clause;
+   
+   for(i=0; i<PStackGetSP(stack); i++)
+   {
+      clause = PStackElementP(stack, i);
+      ClauseSetMoveClause(set, clause);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PStackFormulasMove()
+//
+//   Move all formulas on stack from their old set to set.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void PStackFormulasMove(PStack_p stack, FormulaSet_p set)
+{
+   PStackPointer i;
+   WFormula_p form;
+   
+   for(i=0; i<PStackGetSP(stack); i++)
+   {
+      form = PStackElementP(stack, i);
+      FormulaSetMoveFormula(set, form);
+   }
+}
 
 
 /*---------------------------------------------------------------------*/

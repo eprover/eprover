@@ -155,6 +155,10 @@ void PStackFormulaDelProp(PStack_p stack, WFormulaProperties prop);
 void PStackClausePrintTSTP(FILE* out, PStack_p stack);
 void PStackFormulaPrintTSTP(FILE* out, PStack_p stack);
 
+void PStackClausesMove(PStack_p stack, ClauseSet_p set);
+void PStackFormulasMove(PStack_p stack, FormulaSet_p set);
+
+
 
 
 #endif

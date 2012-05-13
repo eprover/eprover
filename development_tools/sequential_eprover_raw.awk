@@ -28,14 +28,15 @@ function get_hostname(   pipe, tmp)
 
 function get_pid(     tmp)
 {
-   getline tmp < "/dev/pid";
-   close("/dev/pid");
-   if(!tmp)
-   {
-      print "sequential_eprover_raw.awk: Cannot get PID ?!?" > "/dev/stderr";
-      exit 1;
-   }
-   return tmp;
+#   getline tmp < "/dev/pid";
+#   close("/dev/pid");
+#   if(!tmp)
+#  {
+#     print "sequential_eprover_raw.awk: Cannot get PID ?!?" > "/dev/stderr";
+#      exit 1;
+#   }
+#   return tmp;
+   return "abba"
 }
 
 

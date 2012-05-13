@@ -414,7 +414,7 @@ long AxFilterSetParse(Scanner_p in, AxFilterSet_p set)
    while(TestInpTok(in, Identifier))
    {
       filter = AxFilterDefParse(in);
-      PStackPushP(set->set, filter);
+      AxFilterSetAddFilter(set, filter);
       res++;
    }
    return res;
@@ -468,6 +468,34 @@ void AxFilterSetPrint(FILE* out, AxFilterSet_p set)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: AxFilterSetFindFilter()
+//
+//   Given a name, return the filter (or NULL).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+AxFilter_p AxFilterSetFindFilter(AxFilterSet_p set, char* name)
+{
+   PStackPointer i;
+   AxFilter_p    res=NULL, tmp;
+
+   for(i=0; i<PStackGetSP(set->set); i++)
+   {
+      tmp = AxFilterSetGetFilter(set, i);
+      if(strcmp(tmp->name, name)==0)
+      {
+         res = tmp;
+         break;
+      }
+   }
+   return res;
+}
 
 
 /*---------------------------------------------------------------------*/
