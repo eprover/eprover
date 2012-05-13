@@ -166,7 +166,7 @@ void GCDeregisterFormulaSet(GCAdmin_p gc, FormulaSet_p set)
 //
 /----------------------------------------------------------------------*/
 
-void GCDeregisterClauseSet(GCAdmin_p gc, FormulaSet_p set)
+void GCDeregisterClauseSet(GCAdmin_p gc, ClauseSet_p set)
 {
    assert(gc);
    assert(set);

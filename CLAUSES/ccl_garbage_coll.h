@@ -57,7 +57,7 @@ void      GCAdminFree(GCAdmin_p junk);
 void      GCRegisterFormulaSet(GCAdmin_p gc, FormulaSet_p set);
 void      GCRegisterClauseSet(GCAdmin_p gc, ClauseSet_p set);
 void      GCDeregisterFormulaSet(GCAdmin_p gc, FormulaSet_p set);
-void      GCDeRegisterClauseSet(GCAdmin_p gc, ClauseSet_p set);
+void      GCDeregisterClauseSet(GCAdmin_p gc, ClauseSet_p set);
 
 long      GCCollect(GCAdmin_p gc);
 

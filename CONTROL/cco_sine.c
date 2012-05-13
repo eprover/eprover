@@ -296,10 +296,10 @@ long ProofStateSinE(ProofState_p state, char* fname)
    axno_orig = ClauseSetCardinality(state->axioms)+
       FormulaSetCardinality(state->f_axioms);
    
-   printf("# Magic happens here %s!\n", fname);
-   printf("# Filter: ");
-   AxFilterPrint(stdout, filter);
-   printf("\n");
+   /* printf("# Magic happens here %s!\n", fname);
+      printf("# Filter: ");
+      AxFilterPrint(stdout, filter);
+      printf("\n"); */
 
    formulas = PStackAlloc();
    clauses  = PStackAlloc();
@@ -307,9 +307,15 @@ long ProofStateSinE(ProofState_p state, char* fname)
 
    /* The following moves the responsibility for the sets into the spec! */
    StructFOFSpecAddProblem(spec, state->axioms, state->f_axioms);
+   GCDeregisterFormulaSet(state->gc_original_terms, state->f_axioms);
+   GCDeregisterClauseSet(state->gc_original_terms, state->axioms);   
+
    /* ...so we need to povide fresh, empty axioms sets */
    state->axioms   = ClauseSetAlloc();
    state->f_axioms = FormulaSetAlloc();
+   GCRegisterFormulaSet(state->gc_original_terms, state->f_axioms);
+   GCRegisterClauseSet(state->gc_original_terms, state->axioms);
+  
    StructFOFSpecInitDistrib(spec);
    StructFOFSpecGetProblem(spec, 
                            filter,
