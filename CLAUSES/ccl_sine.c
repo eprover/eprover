@@ -430,7 +430,7 @@ void PQueueStoreFormula(PQueue_p axioms, WFormula_p form)
 //
 /----------------------------------------------------------------------*/
 
-long ClauseSetFindHypotheses(ClauseSet_p set, PQueue_p res)
+long ClauseSetFindHypotheses(ClauseSet_p set, PQueue_p res, bool inc_hypos)
 {
    long ret = 0;
    Clause_p handle;
@@ -440,7 +440,8 @@ long ClauseSetFindHypotheses(ClauseSet_p set, PQueue_p res)
        handle != set->anchor;
        handle = handle->succ)
    {
-      if(ClauseIsConjecture(handle))
+      if(ClauseIsConjecture(handle)||
+         (inc_hypos && ClauseIsHypothesis(handle)))
       {
          PQueueStoreClause(res, handle);
          ret++;
@@ -462,7 +463,7 @@ long ClauseSetFindHypotheses(ClauseSet_p set, PQueue_p res)
 //
 /----------------------------------------------------------------------*/
 
-long FormulaSetFindHypotheses(FormulaSet_p set, PQueue_p res)
+long FormulaSetFindHypotheses(FormulaSet_p set, PQueue_p res, bool inc_hypos)
 {
    long ret = 0;
    WFormula_p handle;
@@ -472,7 +473,8 @@ long FormulaSetFindHypotheses(FormulaSet_p set, PQueue_p res)
        handle != set->anchor;
        handle = handle->succ)
    {
-      if(FormulaIsConjecture(handle))
+      if(FormulaIsConjecture(handle)||
+         (inc_hypos && FormulaIsHypothesis(handle)))
       {
          PQueueStoreFormula(res, handle);
          ret++;
@@ -650,9 +652,11 @@ long SelectAxioms(GenDistrib_p      f_distrib,
    for(i=hyp_start; i<PStackGetSP(clause_sets); i++)
    {
       hypos += ClauseSetFindHypotheses(PStackElementP(clause_sets, i),
-                                       selq);
+                                       selq, 
+                                       ax_filter->use_hypotheses);
       hypos += FormulaSetFindHypotheses(PStackElementP(formula_sets, i),
-                                        selq);
+                                        selq, 
+                                       ax_filter->use_hypotheses);
    }
    /* fprintf(GlobalOut, "# Hypotheses found (%lld)\n",
       GetSecTimeMod()); */

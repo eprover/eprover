@@ -234,6 +234,7 @@ bool     ClauseIsSemEmpty(Clause_p clause);
 #define  ClauseIsNegative(clause) ((clause)->pos_lit_no == 0)
 #define  ClauseIsMixed(clause)\
          (!(ClauseIsPositive(clause)||ClauseIsNegative(clause)))
+#define  ClauseIsHypothesis(clause) (ClauseQueryTPTPType(clause)==CPTypeHypothesis)
 #define  ClauseIsConjecture(clause) \
          ((ClauseQueryTPTPType(clause)==CPTypeNegConjecture) ||\
           (ClauseQueryTPTPType(clause)==CPTypeConjecture))

@@ -47,13 +47,21 @@ char* GeneralityMeasureNames[] =
 };
 
 char* AxFilterDefaultSet ="\
-   gf500_gu_R04_F100_L20000=GSinE(CountFormulas,    5.0,, 4,20000,1.0)\
-   gf120_gu_RUU_F100_L00500=GSinE(CountFormulas,    1.2,,,  500,1.0)\
-   gf120_gu_R02_F100_L20000=GSinE(CountFormulas,    1.2,, 2,20000,1.0)\
-   gf150_gu_RUU_F100_L20000=GSinE(CountFormulas,    1.5,,,20000,1.0)\
-   gf120_gu_RUU_F100_L00100=GSinE(CountFormulas,    1.2,,,  100,1.0)\
-   gf200_gu_R03_F100_L20000=GSinE(CountFormulas,    2.0,, 3,20000,1.0)\
-   gf600_gu_R05_F100_L20000=GSinE(CountFormulas,    6.0,, 5,20000,1.0)\
+   gf500_gu_R04_F100_L20000=GSinE(CountFormulas, ,   5.0,, 4,20000,1.0)\
+   gf120_gu_RUU_F100_L00500=GSinE(CountFormulas, ,   1.2,,,  500,1.0)\
+   gf120_gu_R02_F100_L20000=GSinE(CountFormulas, ,   1.2,, 2,20000,1.0)\
+   gf150_gu_RUU_F100_L20000=GSinE(CountFormulas, ,   1.5,,,20000,1.0)\
+   gf120_gu_RUU_F100_L00100=GSinE(CountFormulas, ,   1.2,,,  100,1.0)\
+   gf200_gu_R03_F100_L20000=GSinE(CountFormulas, ,   2.0,, 3,20000,1.0)\
+   gf600_gu_R05_F100_L20000=GSinE(CountFormulas, ,   6.0,, 5,20000,1.0)\
+\
+   gf500_h_gu_R04_F100_L20000=GSinE(CountFormulas, hypos,   5.0,, 4,20000,1.0)\
+   gf120_h_gu_RUU_F100_L00500=GSinE(CountFormulas, hypos,   1.2,,,  500,1.0)\
+   gf120_h_gu_R02_F100_L20000=GSinE(CountFormulas, hypos,   1.2,, 2,20000,1.0)\
+   gf150_h_gu_RUU_F100_L20000=GSinE(CountFormulas, hypos,   1.5,,,20000,1.0)\
+   gf120_h_gu_RUU_F100_L00100=GSinE(CountFormulas, hypos,   1.2,,,  100,1.0)\
+   gf200_h_gu_R03_F100_L20000=GSinE(CountFormulas, hypos,   2.0,, 3,20000,1.0)\
+   gf600_h_gu_R05_F100_L20000=GSinE(CountFormulas, hypos,   6.0,, 5,20000,1.0)\
 ";
 
 /*---------------------------------------------------------------------*/
@@ -112,6 +120,7 @@ AxFilter_p AxFilterAlloc()
    handle->name                = NULL;
    handle->type                = AFNoFilter;
    handle->gen_measure         = GMNoMeasure;
+   handle->use_hypotheses      = false;
    handle->benevolence         = 1.0;
    handle->generosity          = LONG_MAX;
    handle->max_recursion_depth = INT_MAX;
@@ -188,6 +197,17 @@ AxFilter_p AxFilterParse(Scanner_p in)
       AktTokenError(in, "Generality measure not yet implemented", false);      
    }
    NextToken(in);
+   AcceptInpTok(in, Comma);
+   
+   if(!TestInpTok(in, Comma))
+   {
+      CheckInpId(in, "hypos|nohypos");
+      if(TestInpId(in, "hypos"))
+      {
+         res->use_hypotheses = true;
+      }
+      NextToken(in);         
+   }
    AcceptInpTok(in, Comma);
    if(!TestInpTok(in, Comma))
    {
@@ -284,9 +304,10 @@ bool AxFilterPrintBuf(char* buf, size_t buflen, AxFilter_p filter)
 {
    int res;
 
-   res = snprintf(buf, buflen, "%s(%s, %f, %ld, %ld, %lld, %f)",
+   res = snprintf(buf, buflen, "%s(%s, %s, %f, %ld, %ld, %lld, %f)",
                   "GSinE", 
                   GeneralityMeasureNames[filter->gen_measure],
+                  filter->use_hypotheses?"hypos":"nohypos",
                   filter->benevolence,
                   filter->generosity,
                   filter->max_recursion_depth,

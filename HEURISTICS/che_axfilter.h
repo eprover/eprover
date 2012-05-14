@@ -67,6 +67,7 @@ typedef struct
    char*             name;
    AxFilterType      type;
    GeneralityMeasure gen_measure;
+   bool              use_hypotheses;
    double            benevolence;
    long              generosity;
    long              max_recursion_depth;

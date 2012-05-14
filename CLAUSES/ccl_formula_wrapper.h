@@ -89,6 +89,7 @@ extern long FormulaDefLimit;
     FormulaSetProp((form), (type))
 #define FormulaQueryType(form) ((form)->properties&CPTypeMask)
 
+#define  FormulaIsHypothesis(form) (FormulaQueryType(form)==WPTypeHypothesis)
 #define  FormulaIsConjecture(form) \
    ((FormulaQueryType(form)==WPTypeNegConjecture) ||    \
     (FormulaQueryType(form)==WPTypeConjecture)|| \
