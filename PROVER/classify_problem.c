@@ -50,6 +50,7 @@ typedef enum
    OPT_TSTP_PARSE,
    OPT_TSTP_PRINT,
    OPT_TSTP_FORMAT,
+   OPT_RAW_CLASS,
    OPT_GEN_TPTP_HEADER,
    OPT_NO_PREPROCESSING,
    OPT_EQ_UNFOLD_LIMIT,
@@ -125,8 +126,7 @@ OptCell opts[] =
    {OPT_TPTP_PRINT,
     '\0', "tptp-out",
     NoArg, NULL,
-    "Print TPTP format instead of lop. Implies --eqn-no-infix and "
-    "will ignore --full-equational-rep."},
+    "No effect (since not clauses/formulas are printed)."},
 
    {OPT_TPTP_FORMAT,
     '\0', "tptp-format",
@@ -142,8 +142,7 @@ OptCell opts[] =
    {OPT_TSTP_PRINT,
     '\0', "tstp-out",
     NoArg, NULL,
-    "Print proof protocol in TSTP (v.0.3) syntax (default is PCL). Only "
-    "effective for output levels greater than 1."},
+    "No effect (since not clauses/formulas are printed)."},
 
    {OPT_TSTP_FORMAT,
     '\0', "tstp-format",
@@ -164,6 +163,14 @@ OptCell opts[] =
     '\0', "tptp3-format",
     NoArg, NULL,
     "Equivalent to --tstp-format."},
+
+   {OPT_RAW_CLASS,
+    'r', "raw-class",
+    NoArg, NULL,
+    "Perform a raw and rough classification on the unclausified and "
+    "unpreprocessed problem. This is a largely independent feature "
+    "put here to reduce the proliferation of partially redundant "
+    "programs. Note that many of the limits do not apply here."},
 
    {OPT_GEN_TPTP_HEADER,
     'H', "generate-tptp-header",
@@ -325,6 +332,7 @@ char     *outname = NULL,
          *mask = "aaaaa----aaaa";
 IOFormat parse_format     = LOPFormat;
 bool     tptp_header      = false,
+         raw_classify     = false,
          no_preproc       = false,
          parse_features   = false;
 long     eqdef_maxclauses = DEFAULT_EQDEF_MAXCLAUSES;
@@ -343,16 +351,240 @@ void print_help(FILE* out);
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: parse_feature_line()
+//
+//   Parse a single specification features line of the form
+//   <name> : ( <features> ) : <class>
+//   where <name> and <class> can be parsed by
+//   ParsePlainFileName(). <name> is returned, <class> is ignored, and
+//   <features> is stored in features.
+//
+// Global Variables: -
+//
+// Side Effects    : Input
+//
+/----------------------------------------------------------------------*/
+
+char* parse_feature_line(Scanner_p in, SpecFeature_p features)
+{
+   char *res;
+   
+   res = ParsePlainFilename(in);
+   AcceptInpTok(in, Colon);
+   SpecFeaturesParse(in, features);
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: process_feature_files()
+//
+//   Given a file of pre-evaluated feature-lines, read it and add a
+//   new symbolic class name based on the given class limits for the
+//   features. 
+//
+// Global Variables: -
+//
+// Side Effects    : It's all side effects...
+//
+/----------------------------------------------------------------------*/
+
+void process_feature_files(char *argv[], SpecLimits_p limits)
+{
+   char *name;
+   int  i;
+   Scanner_p in;
+   SpecFeatureCell features;
+   
+   for(i=0; argv[i]; i++)
+   {
+      in = CreateScanner(StreamTypeFile, argv[i], true, NULL);
+      while(!TestInpTok(in, NoToken))
+      {
+         name = parse_feature_line(in, &features);            
+         SpecFeaturesAddEval(&features, limits);  
+         fprintf(GlobalOut, "%s : ", name);
+         SpecFeaturesPrint(GlobalOut, &features);
+         fprintf(GlobalOut, " : ");
+         SpecTypePrint(GlobalOut, &features, mask);
+         fprintf(GlobalOut, "\n");
+         FREE(name);
+      }         
+      DestroyScanner(in);
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: print_tptp_header()
+//
+//   Generate a TPTP style header for the parsed problems. This is a
+//   service for Geoff back in the ancient times when his code could
+//   not handle real men's problems...
+//
+// Global Variables: GlobalOut
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void print_tptp_header(ProofState_p    fstate,
+                       SpecFeatureCell features)
+{  
+   int min_arity, max_arity, symbol_count;
+   long depthmax, depthsum, count;
+             
+   fprintf(GlobalOut, 
+           "%% Syntax   : Number of clauses    : %4ld "
+           "(%4ld non-Horn; %3ld unit; %3ld RR)\n",
+           features.clauses, 
+           features.clauses-features.horn,
+           features.unit,
+           ClauseSetCountTPTPRangeRestricted(fstate->axioms));
+   fprintf(GlobalOut, 
+           "%%            Number of literals   : %4ld "
+           "(%4ld equality)\n",
+           features.literals, 
+           ClauseSetCountEqnLiterals(fstate->axioms));	 
+   fprintf(GlobalOut, 
+           "%%            Maximal clause size  : %4ld ",
+           ClauseSetMaxLiteralNumber(fstate->axioms));
+   if(features.clauses)
+   {
+      fprintf(GlobalOut, "(%4ld average)\n",
+              features.literals/features.clauses);
+   }
+   else
+   {
+      fprintf(GlobalOut, "(   - average)\n");
+   }
+   
+   symbol_count = SigCountSymbols(fstate->signature, true);
+   min_arity = SigFindMinPredicateArity(fstate->signature);
+   max_arity = SigFindMaxPredicateArity(fstate->signature);	
+   
+   if(features.eq_content!=SpecNoEq)
+   {/* Correct for the fact that TPTP treats equal as a normal
+       predicate symbol */
+      symbol_count++;
+      max_arity = MAX(max_arity,2);
+      min_arity = MIN(min_arity,2);
+   }
+   fprintf(GlobalOut, 
+           "%%            Number of predicates : %4d "
+           "(%4d propositional; ",
+           symbol_count,
+           SigCountAritySymbols(fstate->signature, 0, true));
+   if(symbol_count)
+   {	    
+      fprintf(GlobalOut, "%d-%d arity)\n",
+              min_arity, max_arity);
+   }
+   else
+   {
+      fprintf(GlobalOut, "--- arity)\n");
+   }
+   
+   symbol_count = SigCountSymbols(fstate->signature, false);
+   min_arity = SigFindMinFunctionArity(fstate->signature);
+   max_arity = SigFindMaxFunctionArity(fstate->signature);	
+   
+   fprintf(GlobalOut, 
+           "%%            Number of functors   : %4d "
+                       "(%4d constant; ",
+           symbol_count,
+           SigCountAritySymbols(fstate->signature, 0, false));
+   if(symbol_count)
+   {	    
+      fprintf(GlobalOut, "%d-%d arity)\n",
+              min_arity, max_arity);
+   }
+   else
+   {
+      fprintf(GlobalOut, "--- arity)\n");
+   }
+   fprintf(GlobalOut, 
+                       "%%            Number of variables  : %4ld (%4ld singleton)\n",
+           ClauseSetCountVariables(fstate->axioms),
+           ClauseSetCountSingletons(fstate->axioms));
+   ClauseSetTPTPDepthInfoAdd(fstate->axioms, &depthmax, &depthsum,
+                             &count);
+   if(fstate->axioms->literals)
+   {
+      fprintf(GlobalOut, 
+              "%%            Maximal term depth   : %4ld (%4ld average)\n",
+              features.clause_max_depth, features.clause_avg_depth);
+   }
+   else
+   {
+      fprintf(GlobalOut, 
+                          "%%            Maximal term depth   :    - (   - average)\n");
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: do_raw_classification()
+//
+//   Perform a very high-level classification of the unprocessed
+//   problem based (preliminary) on the following 3 features:
+//
+//   Number of sentences (fof and cnf)
+//   Rough term size (ClauseStandardWeight for cnf, TermStandardWeight
+//   for fof).
+//   Number of symbols in the signature.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void do_raw_classification(char* name, ProofState_p state)
+{
+   long      sentence_no;
+   long long term_size;
+   int       sig_size;
+
+   sentence_no = ClauseSetCardinality(state->axioms)+
+      ClauseSetCardinality(state->f_axioms);
+   term_size   = ClauseSetStandardWeight(state->axioms)+
+      FormulaSetStandardWeight(state->f_axioms);
+   sig_size    = SigCountSymbols(state->terms->sig, true)+
+      SigCountSymbols(state->terms->sig,false);
+
+   fprintf(GlobalOut, "%s : (%7ld, %7lld, %6d): %s\n",
+           name, sentence_no, term_size, sig_size, "TBD");
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: main()
+//
+//   The main function and entry point of the program.
+//
+// Global Variables: Plenty, most simple flags used read-only
+//
+// Side Effects    : Does everything...
+//
+/----------------------------------------------------------------------*/
+
 int main(int argc, char* argv[])
 {
    ProofState_p    fstate;
    Scanner_p       in;    
-   int             i, min_arity, max_arity, symbol_count;
-   long            depthmax, depthsum, count;
+   int             i;
    CLState_p       state;
    SpecFeatureCell features;
-   SpecLimits_p     limits;
-   StrTree_p        skip_includes = NULL;
+   SpecLimits_p    limits;
+   StrTree_p       skip_includes = NULL;
 
    assert(argv[0]);
    
@@ -370,27 +602,10 @@ int main(int argc, char* argv[])
    
    if(parse_features)
    {
-      char *name;
-
-      for(i=0; state->argv[i]; i++)
-      {
-         in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL);
-         while(!TestInpTok(in, NoToken))
-         {
-            name = parse_feature_line(in, &features);            
-            SpecFeaturesAddEval(&features, limits);  
-            fprintf(GlobalOut, "%s : ", name);
-            SpecFeaturesPrint(GlobalOut, &features);
-            fprintf(GlobalOut, " : ");
-            SpecTypePrint(GlobalOut, &features, mask);
-            fprintf(GlobalOut, "\n");
-            FREE(name);
-         }         
-         DestroyScanner(in);
-      }
+      process_feature_files(state->argv, limits);
    }
    else
-   {
+   {      
       for(i=0; state->argv[i]; i++)
       {
          fstate = ProofStateAlloc(FPIgnoreProps);
@@ -401,121 +616,43 @@ int main(int argc, char* argv[])
                                   fstate->f_axioms,
                                   fstate->original_terms, NULL, &
                                   skip_includes);
-         FormulaSetPreprocConjectures(fstate->f_axioms, false);
-         FormulaSetCNF(fstate->f_axioms, fstate->axioms, 
-                       fstate->original_terms, fstate->freshvars);
-         
-         if(!no_preproc)
+         if(raw_classify)
          {
-            ClauseSetPreprocess(fstate->axioms,
-                                fstate->watchlist,
-                                fstate->tmp_terms,
-                                eqdef_incrlimit,
-                                eqdef_maxclauses);
-         }
-         SpecFeaturesCompute(&features, fstate->axioms, fstate->signature);
-         SpecFeaturesAddEval(&features, limits);
-         
-         
-         if(!tptp_header)
-         {
-            fprintf(GlobalOut, "%s : ", state->argv[i]);
-            SpecFeaturesPrint(GlobalOut, &features);
-            fprintf(GlobalOut, " : ");
-            SpecTypePrint(GlobalOut, &features, mask);
-            fprintf(GlobalOut, "\n");
+            do_raw_classification(state->argv[i], fstate);
          }
          else
          {
-            fprintf(GlobalOut, 
-                    "%% Syntax   : Number of clauses    : %4ld "
-                    "(%4ld non-Horn; %3ld unit; %3ld RR)\n",
-                    features.clauses, 
-                    features.clauses-features.horn,
-                    features.unit,
-                    ClauseSetCountTPTPRangeRestricted(fstate->axioms));
-            fprintf(GlobalOut, 
-                    "%%            Number of literals   : %4ld "
-                    "(%4ld equality)\n",
-                    features.literals, 
-                    ClauseSetCountEqnLiterals(fstate->axioms));	 
-            fprintf(GlobalOut, 
-                    "%%            Maximal clause size  : %4ld ",
-                    ClauseSetMaxLiteralNumber(fstate->axioms));
-            if(features.clauses)
+            FormulaSetPreprocConjectures(fstate->f_axioms, false, false);
+            FormulaSetCNF(fstate->f_axioms, fstate->axioms, 
+                          fstate->original_terms, fstate->freshvars);
+            
+            if(!no_preproc)
             {
-               fprintf(GlobalOut, "(%4ld average)\n",
-                       features.literals/features.clauses);
+               ClauseSetPreprocess(fstate->axioms,
+                                   fstate->watchlist,
+                                   fstate->tmp_terms,
+                                   eqdef_incrlimit,
+                                   eqdef_maxclauses);
+            }
+            SpecFeaturesCompute(&features, fstate->axioms, fstate->signature);
+            SpecFeaturesAddEval(&features, limits);
+            
+            
+            if(!tptp_header)
+            {
+               fprintf(GlobalOut, "%s : ", state->argv[i]);
+               SpecFeaturesPrint(GlobalOut, &features);
+               fprintf(GlobalOut, " : ");
+               SpecTypePrint(GlobalOut, &features, mask);
+               fprintf(GlobalOut, "\n");
             }
             else
             {
-               fprintf(GlobalOut, "(   - average)\n");
+               print_tptp_header(fstate, features);
             }
-            
-            symbol_count = SigCountSymbols(fstate->signature, true);
-            min_arity = SigFindMinPredicateArity(fstate->signature);
-            max_arity = SigFindMaxPredicateArity(fstate->signature);	
-            
-            if(features.eq_content!=SpecNoEq)
-            {/* Correct for the fact that TPTP treats equal as a normal
-                predicate symbol */
-               symbol_count++;
-               max_arity = MAX(max_arity,2);
-               min_arity = MIN(min_arity,2);
-            }
-            fprintf(GlobalOut, 
-                    "%%            Number of predicates : %4d "
-		 "(%4d propositional; ",
-                    symbol_count,
-                    SigCountAritySymbols(fstate->signature, 0, true));
-            if(symbol_count)
-            {	    
-               fprintf(GlobalOut, "%d-%d arity)\n",
-                       min_arity, max_arity);
-            }
-            else
-            {
-               fprintf(GlobalOut, "--- arity)\n");
-            }
-            
-            symbol_count = SigCountSymbols(fstate->signature, false);
-            min_arity = SigFindMinFunctionArity(fstate->signature);
-            max_arity = SigFindMaxFunctionArity(fstate->signature);	
-            
-            fprintf(GlobalOut, 
-                    "%%            Number of functors   : %4d "
-                    "(%4d constant; ",
-                    symbol_count,
-                    SigCountAritySymbols(fstate->signature, 0, false));
-            if(symbol_count)
-            {	    
-               fprintf(GlobalOut, "%d-%d arity)\n",
-                       min_arity, max_arity);
-            }
-            else
-            {
-               fprintf(GlobalOut, "--- arity)\n");
-            }
-            fprintf(GlobalOut, 
-                    "%%            Number of variables  : %4ld (%4ld singleton)\n",
-                    ClauseSetCountVariables(fstate->axioms),
-                    ClauseSetCountSingletons(fstate->axioms));
-            ClauseSetTPTPDepthInfoAdd(fstate->axioms, &depthmax, &depthsum,
-                                      &count);
-            if(fstate->axioms->literals)
-            {
-               fprintf(GlobalOut, 
-                       "%%            Maximal term depth   : %4ld (%4ld average)\n",
-                       features.clause_max_depth, features.clause_avg_depth);
-            }
-            else
-            {
-               fprintf(GlobalOut, 
-                       "%%            Maximal term depth   :    - (   - average)\n");
-            }
+            DestroyScanner(in);
+            ProofStateFree(fstate);
          }
-         DestroyScanner(in);
-         ProofStateFree(fstate);
       }
    }
    CLStateFree(state);
@@ -604,6 +741,9 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
 	    OutputFormat = TSTPFormat;
 	    EqnFullEquationalRep = false;
 	    break;	
+      case OPT_RAW_CLASS:
+            raw_classify = true;
+            break;
       case OPT_GEN_TPTP_HEADER:
 	    tptp_header = true;
 	    break;
@@ -684,33 +824,6 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
       }
    }
    return state;
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: parse_feature_line()
-//
-//   Parse a single specification features line of the form
-//   <name> : ( <features> ) : <class>
-//   where <name> and <class> can be parsed by
-//   ParsePlainFileName(). <name> is returned, <class> is ignored, and
-//   <features> is stored in features.
-//
-// Global Variables: -
-//
-// Side Effects    : Input
-//
-/----------------------------------------------------------------------*/
-
-char* parse_feature_line(Scanner_p in, SpecFeature_p features)
-{
-   char *res;
-   
-   res = ParsePlainFilename(in);
-   AcceptInpTok(in, Colon);
-   SpecFeaturesParse(in, features);
-   return res;
 }
 
 

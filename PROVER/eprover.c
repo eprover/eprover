@@ -72,6 +72,7 @@ typedef enum
    OPT_RUSAGE_INFO,
    OPT_STEP_LIMIT,
    OPT_ANSWER_LIMIT,
+   OPT_CONJ_ARE_QUEST,
    OPT_PROC_LIMIT,
    OPT_UNPROC_LIMIT,
    OPT_TOTAL_LIMIT,
@@ -371,6 +372,13 @@ OptCell opts[] =
     " after the first answer found. If the value is different from 1, "
     "the prover is no longer guaranteed to terminate, even if there is"
     " a finite number of answers."},
+
+   {OPT_CONJ_ARE_QUEST,
+    '\0', "conjectures-are-questions",
+    NoArg, NULL,
+    "Treat all conjectures as questions to be answered. This is a wart "
+    "necessary because CASC-J6 has categories requiring answers, but "
+    "does not yet support the 'question' type for formulas."},
    
    {OPT_PROC_LIMIT,
     'P', "processed-set-limit",
@@ -1121,11 +1129,12 @@ bool              print_sat = false,
                   cnf_only = false,
                   inf_sys_complete = true,
                   assume_inf_sys_complete = false,
-                  incomplete = false;
+                  incomplete = false,
+                  conjectures_are_questions = false;
 
 IOFormat          parse_format = LOPFormat;
 long              step_limit = LONG_MAX, 
-                  answer_limit = 1,
+                  answer_limit = 1,   
                   proc_limit = LONG_MAX,
                   unproc_limit = LONG_MAX, 
                   total_limit = LONG_MAX,
@@ -1291,7 +1300,8 @@ int main(int argc, char* argv[])
    }
 
    if((neg_conjectures =
-       FormulaSetPreprocConjectures(proofstate->f_axioms, answer_limit>0)))
+       FormulaSetPreprocConjectures(proofstate->f_axioms, answer_limit>0, 
+                                    conjectures_are_questions)))
    {
       VERBOUT("Negated conjectures.\n");
    }
@@ -1754,9 +1764,11 @@ CLState_p process_options(int argc, char* argv[])
 	    step_limit = CLStateGetIntArg(handle, arg);
 	    break;
       case OPT_ANSWER_LIMIT:
-	    answer_limit = CLStateGetIntArg(handle, arg);
-            
+	    answer_limit = CLStateGetIntArg(handle, arg);            
 	    break;
+      case OPT_CONJ_ARE_QUEST:
+            conjectures_are_questions = true;
+            break;
       case OPT_PROC_LIMIT:
 	    proc_limit = CLStateGetIntArg(handle, arg);
 	    break;
