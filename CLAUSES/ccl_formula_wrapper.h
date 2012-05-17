@@ -95,6 +95,8 @@ extern long FormulaDefLimit;
     (FormulaQueryType(form)==WPTypeConjecture)|| \
     (FormulaQueryType(form)==WPTypeQuestion))
 
+#define WFormulaStandardWeight(wform) TermStandardWeight((wform)->tformula)
+
 #define WFormulaCellAlloc()    (WFormulaCell*)SizeMalloc(sizeof(WFormulaCell))
 #define WFormulaCellFree(junk) SizeFree(junk, sizeof(WFormulaCell))
 

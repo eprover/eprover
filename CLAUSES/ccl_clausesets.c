@@ -2173,6 +2173,33 @@ long ClauseSetSplitConjectures(ClauseSet_p set,
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetStandardWeight()
+//
+//   Return the sum of the standardweight of all clauses in set.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long long ClauseSetStandardWeight(ClauseSet_p set)
+{
+   Clause_p  handle;
+   long long res = 0;
+   
+   for(handle = set->anchor->succ;
+       handle!=set->anchor;
+       handle = handle->succ)
+   {
+      res += ClauseStandardWeight(handle);
+   }
+   return res;
+
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

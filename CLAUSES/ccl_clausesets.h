@@ -175,6 +175,9 @@ long         ClauseSetNewTerms(ClauseSet_p set, TB_p terms);
 long         ClauseSetSplitConjectures(ClauseSet_p set, 
                                        PList_p conjectures, 
                                        PList_p rest);
+long long    ClauseSetStandardWeight(ClauseSet_p set);
+
+
 
 #endif
 

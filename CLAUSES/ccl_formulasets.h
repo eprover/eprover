@@ -71,6 +71,9 @@ long         FormulaSetSplitConjectures(FormulaSet_p set,
                                         PList_p conjectures, 
                                         PList_p rest);
 
+long long    FormulaSetStandardWeight(FormulaSet_p set);
+
+
 #endif
 
 /*---------------------------------------------------------------------*/

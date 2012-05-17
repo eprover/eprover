@@ -323,10 +323,12 @@ TFormula_p TFormulaAnnotateQuestion(TB_p terms,
 //
 /----------------------------------------------------------------------*/
 
-bool WFormulaAnnotateQuestion(WFormula_p wform, bool add_answer_lits,
+bool WFormulaAnnotateQuestion(WFormula_p wform, bool add_answer_lits, 
+                              bool conjectures_are_questions,
                               NumTree_p *question_assoc)
 {
-   if(FormulaQueryProp(wform, WPTypeQuestion)) 
+   if(FormulaQueryProp(wform, WPTypeQuestion)||
+      (FormulaQueryProp(wform, WPTypeConjecture)&&conjectures_are_questions))
    {
       if(add_answer_lits)
       {
@@ -341,6 +343,47 @@ bool WFormulaAnnotateQuestion(WFormula_p wform, bool add_answer_lits,
    return false;
 }
 
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaSetPreprocConjectures()
+//
+//   Negate all conjectures to make the implication to prove into an
+//   formula set that is inconsistent if the implication is true. Note
+//   that multiple conjectures are implicitely disjunctively
+//   connected! Returns number of conjectures.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes formula, may print warning if number of
+//                   conjectures is different from 1.
+//
+/----------------------------------------------------------------------*/
+
+long FormulaSetPreprocConjectures(FormulaSet_p set, bool add_answer_lits, 
+                                  bool conjectures_are_questions)
+{
+   long res = 0;
+   WFormula_p handle;
+
+   handle = set->anchor->succ;
+   
+   while(handle!=set->anchor)
+   {
+      WFormulaAnnotateQuestion(handle, add_answer_lits, 
+                               conjectures_are_questions, 
+                               NULL);
+
+      if(WFormulaConjectureNegate(handle))
+      {
+         res++;
+      }
+      handle = handle->succ;
+   }
+   return res;
+}
 
 
 
@@ -369,44 +412,6 @@ bool WFormulaSimplify(WFormula_p form, TB_p terms)
       form->tformula = simplified;
       DocFormulaModificationDefault(form, inf_fof_simpl);
       res = true;
-   }
-   return res;
-}
-
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: FormulaSetPreprocConjectures()
-//
-//   Negate all conjectures to make the implication to prove into an
-//   formula set that is inconsistent if the implication is true. Note
-//   that multiple conjectures are implicitely disjunctively
-//   connected! Returns number of conjectures.
-//
-// Global Variables: -
-//
-// Side Effects    : Changes formula, may print warning if number of
-//                   conjectures is different from 1.
-//
-/----------------------------------------------------------------------*/
-
-long FormulaSetPreprocConjectures(FormulaSet_p set, bool add_answer_lits)
-{
-   long res = 0;
-   WFormula_p handle;
-
-   handle = set->anchor->succ;
-   
-   while(handle!=set->anchor)
-   {
-      WFormulaAnnotateQuestion(handle, add_answer_lits, NULL);
-
-      if(WFormulaConjectureNegate(handle))
-      {
-         res++;
-      }
-      handle = handle->succ;
    }
    return res;
 }

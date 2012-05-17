@@ -42,8 +42,20 @@ Changes
 #define TFORMULA_GC_LIMIT 1.5
 
 bool WFormulaConjectureNegate(WFormula_p wform);
+
+TFormula_p TFormulaAnnotateQuestion(TB_p terms,
+                                    TFormula_p form,
+                                    NumTree_p *question_assoc);
+
+bool WFormulaAnnotateQuestion(WFormula_p wform, bool add_answer_lits, 
+                              bool conjectures_are_questions,
+                              NumTree_p *question_assoc);
+
+long FormulaSetPreprocConjectures(FormulaSet_p set, bool add_answer_lits, 
+                                  bool conjectures_are_questions);
+
+
 bool WFormulaSimplify(WFormula_p form, TB_p terms);
-long FormulaSetPreprocConjectures(FormulaSet_p set, bool add_answer_lits);
 
 long WFormulaCNF(WFormula_p form, ClauseSet_p set, 
                        TB_p terms, VarBank_p fresh_vars);

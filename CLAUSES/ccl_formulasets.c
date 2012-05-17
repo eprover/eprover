@@ -389,6 +389,35 @@ long FormulaSetSplitConjectures(FormulaSet_p set,
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaSetStandardWeight()
+//
+//   Return the sum of the standardweight of all clauses in set.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long long FormulaSetStandardWeight(FormulaSet_p set)
+{
+   WFormula_p  handle;
+   long long res = 0;
+   
+   for(handle = set->anchor->succ;
+       handle!=set->anchor;
+       handle = handle->succ)
+   {
+      res += WFormulaStandardWeight(handle);
+   }
+   return res;
+
+}
+
+
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
