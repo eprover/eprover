@@ -70,7 +70,8 @@ StructFOFSpec_p StructFOFSpecCreate(TB_p terms)
    handle->formula_sets    = PStackAlloc();
    handle->parsed_includes = NULL;
    handle->f_distrib       = GenDistribAlloc(handle->sig);
-
+   handle->shared_ax_sp    = 0;
+   
    return handle;   
 }
 
@@ -155,7 +156,7 @@ void StructFOFSpecFree(StructFOFSpec_p ctrl)
 // Function: StructFOFSpecParseAxioms()
 //
 //   Initialize a StructFOFSpeclCell by parsing all the include files
-//   in in axfiles.
+//   in axfiles.
 //
 // Global Variables: -
 //
@@ -224,13 +225,15 @@ void StructFOFSpecInitDistrib(StructFOFSpec_p ctrl)
 
 /*-----------------------------------------------------------------------
 //
-// Function: 
+// Function: sine_get_filter()
 //
-//   
+//   Given a filter string (a definition or a name), return the 
+//   described filter. Initialize  filters with a set of filters
+//   including the described one.
 //
-// Global Variables: 
+// Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    : Termination in error case.
 //
 /----------------------------------------------------------------------*/
 

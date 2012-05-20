@@ -92,6 +92,8 @@ SpecLimits_p SpecLimitsAlloc()
    handle->far_sum_large_limit    = FAR_SUM_LARGE_DEFAULT;
    handle->depth_medium_limit     = DEPTH_MEDIUM_DEFAULT;
    handle->depth_deep_limit       = DEPTH_DEEP_DEFAULT;
+   handle->symbols_medium_limit   = SYMBOLS_MEDIUM_DEFAULT;
+   handle->symbols_large_limit    = SYMBOLS_LARGE_DEFAULT;
 
    return handle;
 }

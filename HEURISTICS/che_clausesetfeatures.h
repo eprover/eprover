@@ -90,6 +90,8 @@ typedef struct spec_limits_cell
    long   far_sum_large_limit;
    long   depth_medium_limit;
    long   depth_deep_limit;
+   int    symbols_medium_limit;
+   int    symbols_large_limit;
 }SpecLimitsCell, *SpecLimits_p;
 
 
@@ -170,6 +172,8 @@ typedef struct spec_feature_cell
                                       to be nearly as good as 3 way on
                                       the test set */  
 #define DEPTH_DEEP_DEFAULT       6
+#define SYMBOLS_MEDIUM_DEFAULT   100
+#define SYMBOLS_LARGE_DEFAULT    1000
 
 
 #define DEFAULT_OUTPUT_DESCRIPTOR "eigEIG"

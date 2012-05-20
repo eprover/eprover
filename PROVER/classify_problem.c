@@ -546,11 +546,13 @@ void print_tptp_header(ProofState_p    fstate,
 //
 /----------------------------------------------------------------------*/
 
-void do_raw_classification(char* name, ProofState_p state)
+void do_raw_classification(char* name, ProofState_p state, 
+                           SpecLimits_p limits) 
 {
    long      sentence_no;
    long long term_size;
    int       sig_size;
+   char      sent, term, sig;
 
    sentence_no = ClauseSetCardinality(state->axioms)+
       ClauseSetCardinality(state->f_axioms);
@@ -559,8 +561,48 @@ void do_raw_classification(char* name, ProofState_p state)
    sig_size    = SigCountSymbols(state->terms->sig, true)+
       SigCountSymbols(state->terms->sig,false);
 
-   fprintf(GlobalOut, "%s : (%7ld, %7lld, %6d): %s\n",
-           name, sentence_no, term_size, sig_size, "TBD");
+   if(sentence_no < limits->ax_some_limit)
+   {
+      sent = 'S';
+   }
+   else if(sentence_no < limits->ax_many_limit)
+   {
+      sent = 'M';
+   }
+   else
+   {
+      sent = 'L';
+   }
+   
+   if(term_size < limits->term_medium_limit)
+   {
+      term = 'S';
+   }
+   else if(term_size < limits->term_large_limit)
+   {
+      term = 'M';
+   }
+   else
+   {
+      term = 'L';
+   }
+   
+   if(sig_size < limits->symbols_medium_limit)
+   {
+      sig = 'S';
+   }
+   else if(sig_size < limits->symbols_large_limit)
+   {
+      sig = 'M';
+   }
+   else
+   {
+      sig = 'L';
+   }
+
+
+   fprintf(GlobalOut, "%s : (%7ld, %7lld, %6d): %c%c%c\n",
+           name, sentence_no, term_size, sig_size, sent, term, sig);
 }
 
 
@@ -618,7 +660,7 @@ int main(int argc, char* argv[])
                                   skip_includes);
          if(raw_classify)
          {
-            do_raw_classification(state->argv[i], fstate);
+            do_raw_classification(state->argv[i], fstate, limits);
          }
          else
          {

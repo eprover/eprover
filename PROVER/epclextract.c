@@ -161,7 +161,8 @@ int main(int argc, char* argv[])
    PCLProt_p       prot = NULL;
 
    assert(argv[0]);
-
+   
+   SupportShellPCL = true;
    InitIO(NAME);
 #ifdef STACK_SIZE
    IncreaseMaxStackSize(argv, STACK_SIZE);

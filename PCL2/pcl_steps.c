@@ -29,6 +29,12 @@ Changes
 /*---------------------------------------------------------------------*/
 
 
+/* Support PCL without logical content - useful for analysing very
+ * very very large proofs, and faster for Isabelle proofs that don't
+ * need the intermediate results. This can only be set to true in
+ * tools  that work only on the proof structure, not contents. */
+bool SupportShellPCL = false;
+
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
@@ -38,6 +44,30 @@ Changes
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
+/*-----------------------------------------------------------------------
+//
+// Function: print_shell_pcl_warning()
+//
+//   Print a warning that a shell PCL step was encountered where a
+//   normal one was expected. 
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void print_shell_pcl_warning(FILE* out, PCLStep_p step)
+{
+   if(PCLStepIsShell(step))
+   {
+      Warning("Step %ld: Shell PCL step encountered where "
+              "full PCL step was required");
+      fprintf(out, "# Step ");
+      PCLIdPrint(out, step->id);
+      fprintf(out, " omitted (Shell)\n");
+   }
+}
 
 
 /*---------------------------------------------------------------------*/
@@ -62,13 +92,16 @@ void PCLStepFree(PCLStep_p junk)
    assert(junk && junk->id);
 
    PCLIdFree(junk->id);
-   if(PCLStepIsClausal(junk))
+   if(!PCLStepIsShell(junk))
    {
-      ClauseFree(junk->logic.clause);
-   }
-   else
-   {
-      /* tformula collected by garbage collector */
+      if(PCLStepIsClausal(junk))
+      {
+         ClauseFree(junk->logic.clause);
+      }
+      else
+      {
+         /* tformula collected by garbage collector */
+      }
    }
    PCLExprFree(junk->just);
    if(junk->extra)
@@ -153,9 +186,14 @@ PCLStep_p PCLStepParse(Scanner_p in, TB_p bank)
    PCLStepResetTreeData(handle, false);
    handle->id = PCLIdParse(in);
    AcceptInpTok(in, Colon);
-   handle->properties = PCLParseExternalType(in);
+   handle->properties = PCLParseExternalType(in);   
    AcceptInpTok(in, Colon);
-   if(TestInpTok(in, OpenSquare))
+   if(SupportShellPCL && TestInpTok(in, Colon))
+   {
+      handle->logic.clause = NULL;
+      PCLStepSetProp(handle, PCLIsShellStep);
+   }
+   else if(TestInpTok(in, OpenSquare))
    {
       handle->logic.clause = ClausePCLParse(in, bank);
       PCLStepDelProp(handle, PCLIsFOFStep);
@@ -248,13 +286,16 @@ void PCLStepPrintExtra(FILE* out, PCLStep_p step, bool data)
    fputs(" : ", out);
    PCLPrintExternalType(out, step->properties);
    fputs(" : ", out);   
-   if(PCLStepIsFOF(step))
+   if(!PCLStepIsShell(step))
    {
-      TFormulaTPTPPrint(out, step->bank, step->logic.formula, true, true);
-   }
-   else
-   {
-      ClausePCLPrint(out, step->logic.clause, true);
+      if(PCLStepIsFOF(step))
+      {
+         TFormulaTPTPPrint(out, step->bank, step->logic.formula, true, true);
+      }
+      else
+      {
+         ClausePCLPrint(out, step->logic.clause, true);
+      }
    }
    fputs(" : ", out);
    PCLFullExprPrint(out, step->just);
@@ -267,7 +308,9 @@ void PCLStepPrintExtra(FILE* out, PCLStep_p step, bool data)
    {
       fputs(" : 'lemma'", out);
    }
-   fprintf(out, "/* %ld -> %f */", step->proof_tree_size, step->lemma_quality);  
+#ifdef NEVER_DEFINED
+   fprintf(out, "/* %ld -> %f */", step->proof_tree_size, step->lemma_quality);   
+#endif
    if(data)
    {
 #ifdef NEVER_DEFINED
@@ -361,7 +404,13 @@ void PCLStepPrintTSTP(FILE* out, PCLStep_p step)
       fputc(',', out);
       fputs(PCLPropToTSTPType(step->properties), out);
       fputc(',', out);
-      ClauseTSTPCorePrint(out, step->logic.clause, true);
+      if(PCLStepIsShell(step))
+      {
+      }
+      else
+      {
+         ClauseTSTPCorePrint(out, step->logic.clause, true);
+      }
    }
    else
    {
@@ -370,7 +419,14 @@ void PCLStepPrintTSTP(FILE* out, PCLStep_p step)
       fputc(',', out);
       fputs(PCLPropToTSTPType(step->properties), out);
       fputc(',', out);
-      TFormulaTPTPPrint(out, step->bank, step->logic.formula, true, true);      
+      if(PCLStepIsShell(step))
+      {
+      }
+      else
+      {
+         TFormulaTPTPPrint(out, step->bank, step->logic.formula, true, true);
+      }
+
    }
    fputc(',', out);   
    PCLExprPrintTSTP(out, step->just, false);
@@ -403,19 +459,26 @@ void PCLStepPrintTPTP(FILE* out, PCLStep_p step)
 {
    assert(step);
 
-   if(PCLStepIsClausal(step))
+   if(PCLStepIsShell(step))
    {
-      ClausePrintTPTPFormat(out, step->logic.clause);
+      print_shell_pcl_warning(out, step);
    }
    else
    {
-      fprintf(out, "input_formula("); 
-      PCLIdPrintTSTP(out, step->id);
-      fputc(',', out);
-      fputs(PCLPropToTSTPType(step->properties), out);
-      fputc(',', out);
-      TFormulaTPTPPrint(out, step->bank, step->logic.formula, true, true);
-      fputc(')',out);
+      if(PCLStepIsClausal(step))
+      {
+         ClausePrintTPTPFormat(out, step->logic.clause);
+      }
+      else
+      {
+         fprintf(out, "input_formula("); 
+         PCLIdPrintTSTP(out, step->id);
+         fputc(',', out);
+         fputs(PCLPropToTSTPType(step->properties), out);
+         fputc(',', out);
+         TFormulaTPTPPrint(out, step->bank, step->logic.formula, true, true);
+         fputc(')',out);
+      }
    }
 }
 
@@ -436,13 +499,20 @@ void PCLStepPrintLOP(FILE* out, PCLStep_p step)
 {
    assert(step);
 
-   if(PCLStepIsClausal(step))
+   if(PCLStepIsShell(step))
    {
-      ClausePrintLOPFormat(out, step->logic.clause, true);
+      print_shell_pcl_warning(out, step);
    }
    else
    {
-      TFormulaTPTPPrint(out, step->bank, step->logic.formula, true, true);
+      if(PCLStepIsClausal(step))
+      {
+         ClausePrintLOPFormat(out, step->logic.clause, true);
+      }
+      else
+      {
+         TFormulaTPTPPrint(out, step->bank, step->logic.formula, true, true);
+      }
    }
 }
 
@@ -506,14 +576,22 @@ void PCLStepPrintExample(FILE* out, PCLStep_p step, long id,
                         long proof_steps, long total_steps)
 {
    assert(!PCLStepQueryProp(step,PCLIsFOFStep));
-   fprintf(out, "%4ld:(%ld, %f,%f,%f,%f):",
-           id, 
-           step->proof_distance,
-           step->contrib_simpl_refs/(float)(proof_steps+1),
-           step->useless_simpl_refs/(float)(total_steps-proof_steps+1),
-           step->contrib_gen_refs/(float)(proof_steps+1),
-           step->useless_gen_refs/(float)(total_steps-proof_steps+1));
-   ClausePrint(out, step->logic.clause, true);   
+   
+   if(PCLStepIsShell(step))
+   {
+      print_shell_pcl_warning(out, step);
+   }   
+   else
+   {
+      fprintf(out, "%4ld:(%ld, %f,%f,%f,%f):",
+              id, 
+              step->proof_distance,
+              step->contrib_simpl_refs/(float)(proof_steps+1),
+              step->useless_simpl_refs/(float)(total_steps-proof_steps+1),
+              step->contrib_gen_refs/(float)(proof_steps+1),
+              step->useless_gen_refs/(float)(total_steps-proof_steps+1));
+      ClausePrint(out, step->logic.clause, true);   
+   }
 }
 
 

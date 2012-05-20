@@ -46,7 +46,8 @@ typedef enum
    PCLIsProofStep    = 16,
    PCLIsExample      = 32, /* Selected for learning */
    PCLIsFOFStep      = 64, /* Otherwise its a clause */
-   PCLType1          = CPType1, /* 128 */
+   PCLIsShellStep    = 128,
+   PCLType1          = CPType1, /* 256 */
    PCLType2          = CPType2, 
    PCLType3          = CPType3,
    PCLTypeMask       = CPTypeMask,
@@ -101,6 +102,7 @@ typedef struct pclstepcell
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+bool SupportShellPCL;
 
 #define PCLStepCellAlloc() (PCLStepCell*)SizeMalloc(sizeof(PCLStepCell))
 #define PCLStepCellFree(junk)         SizeFree(junk, sizeof(PCLStepCell))
@@ -112,6 +114,7 @@ typedef struct pclstepcell
 #define PCLStepIsAnyPropSet(clause, prop) IsAnyPropSet((clause), (prop))
 
 #define PCLStepIsFOF(step) PCLStepQueryProp((step), PCLIsFOFStep)
+#define PCLStepIsShell(step) PCLStepQueryProp((step), PCLIsShellStep)
 #define PCLStepIsClausal(step) (!PCLStepIsFOF(step))
 
 void      PCLStepFree(PCLStep_p junk);

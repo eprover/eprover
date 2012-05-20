@@ -19,7 +19,7 @@
 #
 ########################################################################
 
-EXECPATH=`dirname "$0"`
+EXECPATH=/Users/schulz/SOURCES/Projects/E/PROVER
 
 VERSION=`"$EXECPATH"/eprover --version|cut -d' ' -f2-`
 

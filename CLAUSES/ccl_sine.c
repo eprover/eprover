@@ -648,7 +648,7 @@ long SelectAxioms(GenDistrib_p      f_distrib,
                            formula_sets);
    /* fprintf(GlobalOut, "# DRelation constructed (%lld)\n",
     * GetSecTimeMod()); */
- 
+    
    for(i=hyp_start; i<PStackGetSP(clause_sets); i++)
    {
       hypos += ClauseSetFindHypotheses(PStackElementP(clause_sets, i),
@@ -656,9 +656,9 @@ long SelectAxioms(GenDistrib_p      f_distrib,
                                        ax_filter->use_hypotheses);
       hypos += FormulaSetFindHypotheses(PStackElementP(formula_sets, i),
                                         selq, 
-                                       ax_filter->use_hypotheses);
+                                        ax_filter->use_hypotheses);
    }
-   /* fprintf(GlobalOut, "# Hypotheses found (%lld)\n",
+   /* fprintf(GlobalOut, "# Hypotheses found (%lld)\n", 
       GetSecTimeMod()); */
    VERBOSE(fprintf(stderr, "# Found %ld hypotheses\n", hypos););
    if(!hypos)
