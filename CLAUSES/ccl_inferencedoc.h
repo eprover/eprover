@@ -111,6 +111,7 @@ typedef enum
 extern OutputFormatType DocOutputFormat;
 extern bool             PCLFullTerms;
 extern bool             PCLStepCompact;
+extern int              PCLShellLevel;
 
 void DocClauseCreation(FILE* out, long level, Clause_p clause,
 			    InfType op, Clause_p parent1,

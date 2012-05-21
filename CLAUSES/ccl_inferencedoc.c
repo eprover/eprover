@@ -29,9 +29,11 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
+
 OutputFormatType DocOutputFormat   = pcl_format;
 bool             PCLFullTerms   = true;
 bool             PCLStepCompact = false;
+int              PCLShellLevel = 0;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -91,11 +93,14 @@ char* pcl_type_str(ClauseProperties type)
 //
 /----------------------------------------------------------------------*/
 
-static void pcl_print_start(FILE* out, Clause_p clause)
+static void pcl_print_start(FILE* out, Clause_p clause, bool print_clause)
 {
    fprintf(out, PCLStepCompact?"%ld:":"%6ld : ", clause->ident);
    fprintf(out, "%s:", pcl_type_str(ClauseQueryTPTPType(clause)));
-   ClausePCLPrint(out, clause, PCLFullTerms);
+   if(print_clause)
+   {
+      ClausePCLPrint(out, clause, PCLFullTerms);
+   }
    fputs(" : ", out);
 }
 
@@ -177,7 +182,7 @@ static void print_initial(FILE* out, Clause_p clause, char* comment)
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_print_start(out, clause);
+	 pcl_print_start(out, clause, PCLShellLevel<2);
          ClauseSourceInfoPrintPCL(out, clause->info);
 	 pcl_print_end(out, comment, clause);
 	 break;
@@ -214,7 +219,7 @@ static void print_paramod(FILE* out, Clause_p clause, Clause_p
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_print_start(out, clause);
+	 pcl_print_start(out, clause, PCLShellLevel<1);
 	 fprintf(out, "%s(%ld,%ld)", inf, parent1->ident,
 		 parent2->ident);
 	 pcl_print_end(out, comment, clause);
@@ -253,7 +258,7 @@ static void print_eres(FILE* out, Clause_p clause, Clause_p
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_print_start(out, clause);
+	 pcl_print_start(out, clause, PCLShellLevel<1);
 	 fprintf(out, PCL_ER"(%ld)", parent1->ident);
 	 pcl_print_end(out, comment, clause);
 	 break;
@@ -289,7 +294,7 @@ static void print_efactor(FILE* out, Clause_p clause, Clause_p
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_print_start(out, clause);
+	 pcl_print_start(out, clause, PCLShellLevel<1);
 	 fprintf(out, PCL_EF"(%ld)", parent1->ident);
 	 pcl_print_end(out, comment, clause);
 	 break;
@@ -325,7 +330,7 @@ static void print_factor(FILE* out, Clause_p clause, Clause_p
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_print_start(out, clause);
+	 pcl_print_start(out, clause, PCLShellLevel<1);
 	 fprintf(out, PCL_OF"(%ld)", parent1->ident);
 	 pcl_print_end(out, comment, clause);
 	 break;
@@ -363,7 +368,7 @@ static void print_split(FILE* out, Clause_p clause, Clause_p
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_print_start(out, clause);
+	 pcl_print_start(out, clause, PCLShellLevel<1);
 	 fprintf(out, PCL_SPLIT"(%ld)", parent1->ident);
 	 pcl_print_end(out, comment, clause);
 	 break;
@@ -401,7 +406,7 @@ static void print_simplify_reflect(FILE* out, Clause_p clause, long
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_print_start(out, clause);
+	 pcl_print_start(out, clause, PCLShellLevel<1);
 	 fprintf(out, PCL_SR"(%ld,%ld)", old_id,
 		 partner->ident);
 	 pcl_print_end(out, comment, clause);
@@ -438,7 +443,7 @@ static void print_context_simplify_reflect(FILE* out, Clause_p clause, long
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_print_start(out, clause);
+	 pcl_print_start(out, clause, PCLShellLevel<1);
 	 fprintf(out, PCL_CSR"(%ld,%ld)", old_id,
 		 partner->ident);
 	 pcl_print_end(out, comment, clause);
@@ -479,7 +484,7 @@ static void print_ac_res(FILE* out, Clause_p clause, long
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_print_start(out, clause);
+	 pcl_print_start(out, clause, PCLShellLevel<1);
 	 fprintf(out, PCL_ACRES"(%ld", old_id);
 	 assert(!PStackEmpty(sig->ac_axioms));
 	 sp = PStackGetSP(sig->ac_axioms);
@@ -530,7 +535,7 @@ static void print_minimize(FILE* out, Clause_p clause, long
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_print_start(out, clause);
+	 pcl_print_start(out, clause, PCLShellLevel<1);
 	 fprintf(out, PCL_CN"(%ld)", old_id);
 	 pcl_print_end(out, comment, clause);
 	 break;
@@ -566,7 +571,7 @@ static void print_eval_answer(FILE* out, Clause_p clause, long
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_print_start(out, clause);
+	 pcl_print_start(out, clause, PCLShellLevel<1);
 	 fprintf(out, PCL_EVANS"(%ld)", old_id);
 	 pcl_print_end(out, comment, clause);
 	 break;
@@ -614,7 +619,7 @@ static void print_rewrite(FILE* out, ClausePos_p rewritten, long
    case pcl_format:
 	 tmp = TermComputeRWSequence(rwsteps, old_term, nf);
 	 assert(tmp);
-	 pcl_print_start(out, rewritten->clause);
+	 pcl_print_start(out, rewritten->clause, PCLShellLevel<1);
 	 for(i=0; i<PStackGetSP(rwsteps); i++)
 	 {
 	    fputs(PCL_RW"(", out);
@@ -672,7 +677,7 @@ static void print_eq_unfold(FILE* out, Clause_p rewritten,
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_print_start(out, rewritten);
+	 pcl_print_start(out, rewritten, PCLShellLevel<1);
 	 for(i=0; i<PStackGetSP(demod_pos); i++)
 	 {
 	    fputs(PCL_RW"(", out);
@@ -726,13 +731,15 @@ static void print_eq_unfold(FILE* out, Clause_p rewritten,
 //
 /----------------------------------------------------------------------*/
 
-static void pcl_formula_print_start(FILE* out, WFormula_p form)
+static void pcl_formula_print_start(FILE* out, WFormula_p form, bool print_form)
 {
    fprintf(out, PCLStepCompact?"%ld:":"%6ld : ", form->ident); 
    fprintf(out, "%s:", pcl_type_str(FormulaQueryType(form)));
 
-   TFormulaTPTPPrint(out, form->terms, form->tformula, PCLFullTerms, true);
-
+   if(print_form)
+   {
+      TFormulaTPTPPrint(out, form->terms, form->tformula, PCLFullTerms, true);
+   }
    fputs(" : ", out);
 }
 
@@ -797,7 +804,7 @@ static void print_formula_initial(FILE* out, WFormula_p form, char* comment)
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_formula_print_start(out, form);
+	 pcl_formula_print_start(out, form, PCLShellLevel<2);
          ClauseSourceInfoPrintPCL(out, form->info);
 	 pcl_formula_print_end(out, comment);
 	 break;
@@ -832,7 +839,7 @@ static void print_fof_intro_def(FILE* out, WFormula_p form, char* comment)
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_formula_print_start(out, form);
+	 pcl_formula_print_start(out, form, PCLShellLevel<1);
          fprintf(out, PCL_ID);
 	 pcl_formula_print_end(out, comment);
 	 break;
@@ -870,7 +877,7 @@ static void print_fof_split_equiv(FILE* out, WFormula_p form,
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_formula_print_start(out, form);
+	 pcl_formula_print_start(out, form, PCLShellLevel<1);
          fprintf(out, PCL_SE"(%ld)",parent->ident);
 	 pcl_formula_print_end(out, comment);
 	 break;
@@ -907,7 +914,7 @@ static void print_fof_simpl(FILE* out, WFormula_p form,
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_formula_print_start(out, form);
+	 pcl_formula_print_start(out, form, PCLShellLevel<1);
          fprintf(out, PCL_FS"(%ld)", old_id);
 	 pcl_formula_print_end(out, comment);
 	 break;
@@ -941,7 +948,7 @@ static void print_neg_conj(FILE* out, WFormula_p form,
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_formula_print_start(out, form);
+	 pcl_formula_print_start(out, form, PCLShellLevel<1);
          fprintf(out, PCL_NC"(%ld)", old_id);
 	 pcl_formula_print_end(out, comment);
 	 break;
@@ -975,7 +982,7 @@ static void print_fof_nnf(FILE* out, WFormula_p form,
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_formula_print_start(out, form);
+	 pcl_formula_print_start(out, form, PCLShellLevel<1);
          fprintf(out, PCL_NNF"(%ld)", old_id);
 	 pcl_formula_print_end(out, comment);
 	 break;
@@ -1010,7 +1017,7 @@ static void print_shift_quantors(FILE* out, WFormula_p form,
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_formula_print_start(out, form);
+	 pcl_formula_print_start(out, form, PCLShellLevel<1);
          fprintf(out, PCL_SQ"(%ld)", old_id);
 	 pcl_formula_print_end(out, comment);
 	 break;
@@ -1045,7 +1052,7 @@ static void print_skolemize(FILE* out, WFormula_p form,
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_formula_print_start(out, form);
+	 pcl_formula_print_start(out, form, PCLShellLevel<1);
          fprintf(out, PCL_SK"(%ld)", old_id);
 	 pcl_formula_print_end(out, comment);
 	 break;
@@ -1079,7 +1086,7 @@ static void print_distribute(FILE* out, WFormula_p form,
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_formula_print_start(out, form);
+	 pcl_formula_print_start(out, form, PCLShellLevel<1);
          fprintf(out, PCL_DSTR"(%ld)", old_id);
 	 pcl_formula_print_end(out, comment);
 	 break;
@@ -1112,7 +1119,7 @@ static void print_annotate_question(FILE* out, WFormula_p form,
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_formula_print_start(out, form);
+	 pcl_formula_print_start(out, form, PCLShellLevel<1);
          fprintf(out, PCL_ANNOQ"(%ld)", old_id);
 	 pcl_formula_print_end(out, comment);
 	 break;
@@ -1148,7 +1155,7 @@ static void print_var_rename(FILE* out, WFormula_p form,
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_formula_print_start(out, form);
+	 pcl_formula_print_start(out, form, PCLShellLevel<1);
          fprintf(out, PCL_VR"(%ld)", old_id);
 	 pcl_formula_print_end(out, comment);
 	 break;
@@ -1263,7 +1270,7 @@ void DocClauseFromForm(FILE* out, long level, Clause_p clause,
       {
       case pcl_format:
             clause->ident = ++ClauseIdentCounter;
-            pcl_print_start(out, clause);
+            pcl_print_start(out, clause, PCLShellLevel<1);
             fprintf(out, PCL_SC "(%ld)", parent->ident);
             pcl_print_end(out, NULL, clause);
             break;
@@ -1379,7 +1386,7 @@ void DocClauseQuote(FILE* out, long level, long target_level,
       {
       case pcl_format:	    
 	    clause->ident = ++ClauseIdentCounter;
-	    pcl_print_start(out, clause);
+	    pcl_print_start(out, clause, PCLShellLevel<1);
 	    fprintf(out, "%ld", old_id);
 	    if(opt_partner)
 	    {
@@ -1604,7 +1611,7 @@ void DocFormulaIntroDefs(FILE* out, long level, WFormula_p form,
       switch(DocOutputFormat)
       {
       case pcl_format:
-            pcl_formula_print_start(out, form);
+            pcl_formula_print_start(out, form, PCLShellLevel<1);
             for(i=0; i<PStackGetSP(def_list); i++)
             {
                fputs(PCL_AD "(", out);
@@ -1706,7 +1713,7 @@ void DocIntroSplitDefRest(FILE* out, long level, Clause_p clause,
       {
       case pcl_format:
             clause->ident = ++ClauseIdentCounter;
-            pcl_print_start(out, clause);
+            pcl_print_start(out, clause, PCLShellLevel<1);
             fprintf(out, PCL_SE "(%ld)", parent->ident);
             pcl_print_end(out, NULL, clause);
             break;
@@ -1753,7 +1760,7 @@ void DocClauseApplyDefs(FILE* out, long level, Clause_p clause,
       {
       case pcl_format:
             clause->ident = ++ClauseIdentCounter;
-            pcl_print_start(out, clause);
+            pcl_print_start(out, clause, PCLShellLevel<1);
             for(i=0; i<PStackGetSP(def_ids); i++)
             {
                fputs(PCL_AD"(", out);

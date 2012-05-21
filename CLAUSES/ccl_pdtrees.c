@@ -146,12 +146,11 @@ static bool recompute_node_constraints(PDTNode_p node)
 
       iter = IntMapIterAlloc(node->f_alternatives, 0, LONG_MAX);
       while((next=IntMapIterNext(iter, &i)))
-      {
+      {         
 	 assert(next);
 
          new_age  = SysDateMaximum(new_age, next->age_constr);
          new_size = MIN(new_size, next->size_constr);
-         tmpmax = i;
       }
       IntMapIterFree(iter);
       for(i=1; i<=node->max_var; i++)
@@ -775,7 +774,7 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
       printf("-- term: ");
       TBPrintTerm(stdout, clause->literals->bank, term, true);
    }	 
-   printf("\n");*/
+   printf("\n"); */
    
    TermLRTraverseInit(tree->term_stack, term);
    node = tree->tree;
@@ -793,7 +792,7 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
    assert(node);
    
    res = delete_clause_entries(&(node->entries), clause);
-   
+
    while(node->parent)
    {
       prev = node->parent;
@@ -803,6 +802,7 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
       {
          tree->arr_storage_est -= (IntMapStorage(node->f_alternatives)+
                                    PDArrayStorage(node->v_alternatives));
+         
 	 pdtree_default_cell_free(node);
 	 tree->node_count--;
 	 *del = NULL;
