@@ -28,6 +28,7 @@ Changes
 #include <ccl_unfold_defs.h>
 #include <ccl_formulafunc.h>
 #include <che_clausesetfeatures.h>
+#include <che_rawspecfeatures.h>
 #include <e_version.h>
 
 /*---------------------------------------------------------------------*/
@@ -549,60 +550,14 @@ void print_tptp_header(ProofState_p    fstate,
 void do_raw_classification(char* name, ProofState_p state, 
                            SpecLimits_p limits) 
 {
-   long      sentence_no;
-   long long term_size;
-   int       sig_size;
-   char      sent, term, sig;
-
-   sentence_no = ClauseSetCardinality(state->axioms)+
-      ClauseSetCardinality(state->f_axioms);
-   term_size   = ClauseSetStandardWeight(state->axioms)+
-      FormulaSetStandardWeight(state->f_axioms);
-   sig_size    = SigCountSymbols(state->terms->sig, true)+
-      SigCountSymbols(state->terms->sig,false);
-
-   if(sentence_no < limits->ax_some_limit)
-   {
-      sent = 'S';
-   }
-   else if(sentence_no < limits->ax_many_limit)
-   {
-      sent = 'M';
-   }
-   else
-   {
-      sent = 'L';
-   }
+   RawSpecFeatureCell features;
    
-   if(term_size < limits->term_medium_limit)
-   {
-      term = 'S';
-   }
-   else if(term_size < limits->term_large_limit)
-   {
-      term = 'M';
-   }
-   else
-   {
-      term = 'L';
-   }
-   
-   if(sig_size < limits->symbols_medium_limit)
-   {
-      sig = 'S';
-   }
-   else if(sig_size < limits->symbols_large_limit)
-   {
-      sig = 'M';
-   }
-   else
-   {
-      sig = 'L';
-   }
+   RawSpecFeaturesCompute(&features, state);
+   RawSpecFeaturesClassify(&features, limits);
 
-
-   fprintf(GlobalOut, "%s : (%7ld, %7lld, %6d): %c%c%c\n",
-           name, sentence_no, term_size, sig_size, sent, term, sig);
+   fprintf(GlobalOut, "%s : ", name);
+   RawSPecFeaturesPrint(GlobalOut, &features);
+   fprintf(GlobalOut, "\n");
 }
 
 

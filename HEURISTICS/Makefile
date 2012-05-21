@@ -35,8 +35,11 @@ include ../Makefile.services
 
 HEURISTICS_LIB = che_wfcb.o che_wfcbadmin.o \
                  che_axiomscan.o \
-		 che_clausefeatures.o che_prio_funs.o \
-                 che_clausesetfeatures.o che_clauseweight.o \
+		 che_clausefeatures.o \
+	         che_prio_funs.o \
+                 che_clausesetfeatures.o \
+                 che_rawspecfeatures.o \
+	         che_clauseweight.o \
                  che_refinedweight.o \
 		 che_varweights.o \
 		 che_funweights.o \
