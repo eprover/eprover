@@ -242,7 +242,7 @@ static AxFilter_p sine_get_filter(char* fname, AxFilterSet_p *filters)
    AxFilter_p    filter;
    Scanner_p     in;
 
-   in = CreateScanner(StreamTypeInternalString, fname, true, NULL);
+   in = CreateScanner(StreamTypeOptionString, fname, true, NULL);
    CheckInpTok(in, Name);
    if(TestTok(LookToken(in,1), NoToken))
    {
