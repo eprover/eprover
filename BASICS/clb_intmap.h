@@ -46,7 +46,7 @@ typedef enum
 
 #define MAX_TREE_DENSITY 8
 #define MIN_TREE_DENSITY 4
-#define IM_ARRAY_SIZE MAX_TREE_DENSITY
+#define IM_ARRAY_SIZE MAX_TREE_DENSITY 
 
 /* This is the main thing - a datatype that keeps key/value pairs and
  * allows inserting, updating, deleting, and ordered iteration. I
