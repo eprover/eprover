@@ -518,7 +518,8 @@ FunCode SigInsertId(Sig_p sig, const char* name, int arity, bool special_id)
    /* Now insert the new name...ensure that there is space */
    if(sig->f_count == sig->size-1)
    {
-      sig->size+= DEFAULT_SIGNATURE_SIZE;
+      /* sig->size+= DEFAULT_SIGNATURE_SIZE; */
+      sig->size *= DEFAULT_SIGNATURE_GROW;
       sig->f_info  = SecureRealloc(sig->f_info,
 				   sizeof(FuncCell)*sig->size);
    }

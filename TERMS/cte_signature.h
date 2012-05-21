@@ -90,6 +90,7 @@ typedef struct funccell
    unused. */
 
 #define DEFAULT_SIGNATURE_SIZE 20
+#define DEFAULT_SIGNATURE_GROW 2
 
 typedef struct sigcell
 {
