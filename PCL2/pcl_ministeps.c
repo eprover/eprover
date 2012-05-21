@@ -67,7 +67,10 @@ void PCLMiniStepFree(PCLMiniStep_p junk)
    }
    else
    {
-      MiniClauseFree(junk->logic.clause);
+      if(junk->logic.clause)
+      {
+         MiniClauseFree(junk->logic.clause);
+      }
    }
    PCLMiniExprFree(junk->just);
    if(junk->extra)
@@ -109,7 +112,12 @@ PCLMiniStep_p PCLMiniStepParse(Scanner_p in, TB_p bank)
    handle->properties = PCLParseExternalType(in);
    AcceptInpTok(in, Colon);
 
-   if(TestInpTok(in, OpenSquare))
+   if(SupportShellPCL && TestInpTok(in, Colon))
+   {
+      handle->logic.clause = NULL;
+      PCLStepSetProp(handle, PCLIsShellStep);
+   }
+   else if(TestInpTok(in, OpenSquare))
    {      
       handle->logic.clause = MinifyClause(ClausePCLParse(in, bank));
       PCLStepDelProp(handle, PCLIsFOFStep);
@@ -160,13 +168,16 @@ void PCLMiniStepPrint(FILE* out, PCLMiniStep_p step, TB_p bank)
    fprintf(out, "%6ld : ", step->id); 
    PCLPrintExternalType(out, step->properties);
    fputs(" : ", out);   
-   if(PCLStepIsFOF(step))
+   if(!PCLStepIsShell(step))
    {
-      TFormulaTPTPPrint(out, step->bank, step->logic.formula, true, true);
-   }
-   else
-   {
-      MiniClausePCLPrint(out, step->logic.clause, bank);
+      if(PCLStepIsFOF(step))
+      {
+         TFormulaTPTPPrint(out, step->bank, step->logic.formula, true, true);
+      }
+      else
+      {
+         MiniClausePCLPrint(out, step->logic.clause, bank);
+      }
    }
    fputs(" : ", out);
    PCLMiniExprPrint(out, step->just);
@@ -197,13 +208,25 @@ void PCLMiniStepPrintTSTP(FILE* out, PCLMiniStep_p step, TB_p bank)
    {
       fprintf(out, "cnf(%ld,%s,",step->id,
               PCLPropToTSTPType(step->properties));
-      MiniClauseTSTPCorePrint(out, step->logic.clause, bank);
+      if(PCLStepIsShell(step))
+      {
+      }
+      else
+      {
+         MiniClauseTSTPCorePrint(out, step->logic.clause, bank);
+      }
    }
    else
    {
       fprintf(out, "fof(%ld, %s,", step->id,
               PCLPropToTSTPType(step->properties));
-      TFormulaTPTPPrint(out, step->bank, step->logic.formula, true, true);      
+      if(PCLStepIsShell(step))
+      {
+      }
+      else
+      {
+         TFormulaTPTPPrint(out, step->bank, step->logic.formula, true, true);      
+      }
    }
    fputc(',', out);   
    PCLExprPrintTSTP(out, step->just, true);

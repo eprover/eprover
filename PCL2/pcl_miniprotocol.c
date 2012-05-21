@@ -407,7 +407,9 @@ bool PCLMiniProtMarkProofClauses(PCLMiniProt_p prot, bool fast)
    while(!PStackEmpty(to_proc))
    {
       step = PStackPopP(to_proc);
-      if(PCLStepIsClausal(step) && (step->logic.clause->literal_no == 0))
+      if(!PCLStepIsShell(step) && 
+         PCLStepIsClausal(step) && 
+         (step->logic.clause->literal_no == 0))
       {
 	 res = true;
       }

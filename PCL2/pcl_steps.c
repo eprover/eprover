@@ -57,11 +57,11 @@ bool SupportShellPCL = false;
 //
 /----------------------------------------------------------------------*/
 
-void print_shell_pcl_warning(FILE* out, PCLStep_p step)
+static void print_shell_pcl_warning(FILE* out, PCLStep_p step)
 {
    if(PCLStepIsShell(step))
    {
-      Warning("Step %ld: Shell PCL step encountered where "
+      Warning("Shell PCL step encountered where "
               "full PCL step was required");
       fprintf(out, "# Step ");
       PCLIdPrint(out, step->id);

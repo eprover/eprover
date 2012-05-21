@@ -66,6 +66,7 @@ typedef enum
    OPT_OUTPUTLEVEL,
    OPT_PCL_COMPRESSED,
    OPT_PCL_COMPACT,
+   OPT_PCL_SHELL_LEVEL,
    OPT_MEM_LIMIT,
    OPT_CPU_LIMIT,
    OPT_SOFTCPU_LIMIT,
@@ -226,14 +227,22 @@ OptCell opts[] =
     "Print PCL steps without additional spaces for formatting (safes "
     "disk space for large protocols)."},
 
+   {OPT_PCL_SHELL_LEVEL,
+    '\0', "pcl-shell-level",
+    OptArg, "1",
+    "Determines level to which clauses and formulas are suppressed "
+    "in the output. Level 0 will print all, level 1 will only print "
+    "initial clauses/formulas, level 2 will print no clauses or axioms. "
+    "All levels will still print the dependency graph."},
+
    {OPT_PRINT_STATISTICS,
     '\0', "print-statistics",
     NoArg, NULL,
     "Print the inference statistics (only relevant for output level 0,"
-    "\notherwise they are printed automatically."},
+    "otherwise they are printed automatically."},
 
    {OPT_EXPENSIVE_DETAILS,
-    '\0', "print-detailed-statistics",
+    '0', "print-detailed-statistics",
     NoArg, NULL,
     "Print data about the proof state that is potentially expensive "
     "to collect. Includes number of term cells and number of "
@@ -345,7 +354,7 @@ OptCell opts[] =
     "filtering and printing of unprocessed clauses, if these options"
     " are selected. Note"
     " that for some filtering options (in particular those which "
-    "perform full subsumption), the postprocessing time may well be"
+    "perform full subsumption), the post-processing time may well be"
     " larger than the saturation time. This option is particularly "
     "useful if you want to use E as a preprocessor or lemma generator "
     "in a larger system."},  
@@ -488,7 +497,7 @@ OptCell opts[] =
     '\0', "eq-unfold-limit",
     ReqArg, NULL,
     "During preprocessing, limit unfolding (and removing) of "
-    "equational definitions to those where the expanded definiton "
+    "equational definitions to those where the expanded definition "
     "is at most the given limit bigger (in terms of standard "
     "weight) than the defined term."},
    
@@ -697,8 +706,8 @@ OptCell opts[] =
    {OPT_ASSUME_INCOMPLETENESS,
     '\0', "assume-incompleteness",
     NoArg, NULL,
-    "This option instructs the prover to asume incompleteness (typically"
-    " because the axiomatizationa already is incomplete because axioms"
+    "This option instructs the prover to assume incompleteness (typically"
+    " because the axiomatization already is incomplete because axioms"
     " have been filtered before they are handed to the system."},
 
    {OPT_DISABLE_EQ_FACTORING,
@@ -1101,7 +1110,7 @@ OptCell opts[] =
     OptArg, TFORM_RENAME_LIMIT_STR,
     "Tune the clausification algorithm to introduces definitions for "
     "subformulae to avoid exponential blow-up. The optional argument "
-    "is a fudge factor that determines whendefinitions are introduced. "
+    "is a fudge factor that determines when definitions are introduced. "
     "0 disables definitions completely. The default works well."},
    
    {OPT_NOOPT,
@@ -1288,11 +1297,11 @@ int main(int argc, char* argv[])
                            error_on_empty, free_symb_prop,
                            &parsed_ax_no);  
 
-   FormulaSetDocInital(GlobalOut, OutputLevel, proofstate->f_axioms);
-   ClauseSetDocInital(GlobalOut, OutputLevel, proofstate->axioms);
-
    relevancy_pruned += ProofStateSinE(proofstate, sine);
    relevancy_pruned += ProofStatePreprocess(proofstate, relevance_prune_level);
+
+   FormulaSetDocInital(GlobalOut, OutputLevel, proofstate->f_axioms);
+   ClauseSetDocInital(GlobalOut, OutputLevel, proofstate->axioms);
 
    if(relevancy_pruned || incomplete)
    {
@@ -1664,6 +1673,18 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_PCL_COMPACT:
 	    PCLStepCompact = true;
 	    break;
+      case OPT_PCL_SHELL_LEVEL:
+            tmp =  CLStateGetIntArg(handle, arg);
+	    if((tmp > 2) || 
+	       (tmp < 0))
+	    {
+	       Error("Option --pcl-shell-level) requires "
+		     "argument from {0..2}", USAGE_ERROR);
+	    }
+	    PCLShellLevel = tmp;
+	    break;
+ 
+            break;
       case OPT_PRINT_STATISTICS:
 	    print_statistics = true;
 	    break;
