@@ -47,36 +47,38 @@ Changes
 
 /*-----------------------------------------------------------------------
 //
-// Function: 
+// Function: RawSpecFeaturesCompute()
 //
-//   
+//   Compute the raw features of state.
 //
-// Global Variables: 
+// Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
 void RawSpecFeaturesCompute(RawSpecFeature_p features, ProofState_p state)
 {
-      features->sentence_no = ClauseSetCardinality(state->axioms)+
-         ClauseSetCardinality(state->f_axioms);
-      features->term_size   = ClauseSetStandardWeight(state->axioms)+
-         FormulaSetStandardWeight(state->f_axioms);
-      features->sig_size    = SigCountSymbols(state->terms->sig, true)+
-         SigCountSymbols(state->terms->sig,false);
+   features->sentence_no = ClauseSetCardinality(state->axioms)+
+      ClauseSetCardinality(state->f_axioms);
+   features->term_size   = ClauseSetStandardWeight(state->axioms)+
+      FormulaSetStandardWeight(state->f_axioms);
+   features->sig_size    = SigCountSymbols(state->terms->sig, true)+
+      SigCountSymbols(state->terms->sig,false);
+   features->class[0] = '\0';
 }
 
 
 /*-----------------------------------------------------------------------
 //
-// Function: 
+// Function: RawSpecFeaturesClassify()
 //
-//   
+//   Add a classifiction based on limits to the (initialized)
+//   features. 
 //
-// Global Variables: 
+// Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
@@ -123,9 +125,11 @@ void RawSpecFeaturesClassify(RawSpecFeature_p features, SpecLimits_p limits)
    features->class[3] = '\0';
 }
 
+
+
 /*-----------------------------------------------------------------------
 //
-// Function: 
+// Function: RawSpecFeaturesParse()
 //
 //   
 //
@@ -135,9 +139,43 @@ void RawSpecFeaturesClassify(RawSpecFeature_p features, SpecLimits_p limits)
 //
 /----------------------------------------------------------------------*/
 
-void RawSPecFeaturesPrint(FILE* out, RawSpecFeature_p features)
+void RawSpecFeaturesParse(Scanner_p in, RawSpecFeature_p features)
 {
-      fprintf(out, "(%7ld, %7lld, %6d): %s",
+   char *class;
+
+   AcceptInpTok(in, OpenBracket);
+   features->sentence_no = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   features->term_size   = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   features->sig_size   = ParseInt(in);
+   AcceptInpTok(in, CloseBracket);
+   AcceptInpTok(in, Colon);
+   class = ParsePlainFilename(in);
+   if(strlen(class) != 3)
+   {
+      Error("Raw class name must have 3 characters", SYNTAX_ERROR);
+   }
+   strcpy(features->class, class);
+   FREE(class);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: RawSpecFeaturesPrint()
+//
+//   Print the features.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+void RawSpecFeaturesPrint(FILE* out, RawSpecFeature_p features)
+{
+      fprintf(out, "(%7ld, %7lld, %6d) : %s",
               features->sentence_no, 
               features->term_size,
               features->sig_size, 

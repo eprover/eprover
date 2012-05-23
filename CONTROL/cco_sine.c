@@ -263,6 +263,83 @@ static AxFilter_p sine_get_filter(char* fname, AxFilterSet_p *filters)
    return filter; 
 }
 
+char* raw_class[] = 
+{
+   "LLL",
+   "LLS",
+   "MSS",
+   "SSS",
+   "MMS",
+   "LML",
+   "SMM",
+   "SSM",
+   "SLS",
+   "SMS",
+   "MLM",
+   "MML",
+   "MMM",
+   "LLM",
+   "MSM",
+   NULL
+};
+char* raw_sine[] = 
+{
+   "gf500_h_gu_R04_F100_L20000",
+   NULL,
+   "gf500_h_gu_R04_F100_L20000",
+   NULL,
+   NULL,
+   "gf500_h_gu_R04_F100_L20000",
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   "gf120_gu_RUU_F100_L00500",
+   NULL,
+   NULL
+};
+
+/*-----------------------------------------------------------------------
+//
+// Function: 
+//
+//   
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+char* find_auto_sine(ProofState_p state)
+{
+   SpecLimitsCell      limits;
+   RawSpecFeatureCell features;
+   int i;
+
+   limits.ax_some_limit        = 115;
+   limits.ax_many_limit        = 8976;
+   limits.term_medium_limit    = 4019;
+   limits.term_large_limit     = 295227;
+   limits.symbols_medium_limit = 58;
+   limits.symbols_large_limit  = 2475;
+
+   RawSpecFeaturesCompute(&features, state);
+   RawSpecFeaturesClassify(&features, &limits);
+
+   for(i=0; raw_class[i]; i++)
+   {
+      if(strcmp(raw_class[i], features.class)==0)
+      {
+         return raw_sine[i];
+      }
+   }
+   return NULL;
+}
+
 /*-----------------------------------------------------------------------
 //
 // Function: ProofStateSinE()
@@ -292,8 +369,16 @@ long ProofStateSinE(ProofState_p state, char* fname)
 
    if(strcmp(fname, "Auto")==0)
    {
-      fname = "gf500_gu_R04_F100_L20000";
+      fname = find_auto_sine(state);
    }
+
+   if(!fname)
+   {
+      printf("# No SinE strategy applied\n");
+      return 0;
+   }   
+   printf("# SinE strategy is %s\n", fname);
+   
    filter = sine_get_filter(fname, &filters);
 
    axno_orig = ClauseSetCardinality(state->axioms)+

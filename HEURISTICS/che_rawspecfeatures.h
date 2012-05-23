@@ -51,7 +51,9 @@ typedef struct raw_spec_feature_cell
 
 void RawSpecFeaturesCompute(RawSpecFeature_p features, ProofState_p state);
 void RawSpecFeaturesClassify(RawSpecFeature_p features, SpecLimits_p limits);
-void RawSPecFeaturesPrint(FILE* out, RawSpecFeature_p features);
+void RawSpecFeaturesParse(Scanner_p in, RawSpecFeature_p features);
+void RawSpecFeaturesPrint(FILE* out, RawSpecFeature_p features);
+
 
 #endif
 

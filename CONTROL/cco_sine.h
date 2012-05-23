@@ -28,7 +28,7 @@ Changes
 #include <ccl_proofstate.h>
 #include <ccl_formulafunc.h>
 #include <ccl_sine.h>
-
+#include <che_rawspecfeatures.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */

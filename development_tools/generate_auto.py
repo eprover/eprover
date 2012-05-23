@@ -380,6 +380,16 @@ def parse_control_info(line):
     return res
 
 
+match_sine = re.compile(" --sine=")
+
+def parse_sine(line):
+    m = match_sine.search(line)
+    if m:
+        arg = extract_arg(line, m)
+        return arg
+    else:
+        return None
+
 
 #
 # Regular expressions for ordering related stuff.
@@ -660,6 +670,28 @@ unproc_simpl={
     "FullSimplify"   : "FullUnitSimplify"
 }
 
+def print_raw():
+    print "/* Raw association */"
+
+    sum = 0;
+    print "char* raw_class[] = \n{"
+    for i in result.keys():
+        res = opt_res[i]
+        sum += res
+        print "   \""+i[6:]+"\",  /* %6d */"%(res,)
+    print "   NULL\n};"
+
+    print "char* raw_sine[] = \n{"
+    for i in result.keys():
+        cl  = result[i]
+        arg = parse_sine(stratdesc[cl])
+        if arg:
+            print "   \""+arg+"\","
+        else:
+            print "   NULL,"
+    print "   NULL\n};"
+    print "/* Predicted solutions: %d */"%(sum,)
+
 
 #------------------------------------------------------------------
 # Begin main
@@ -683,12 +715,16 @@ matrix     = {} # Keys: Class names. Objects: Dictionaries associating
 class_dir  = "";
 
 succ_cases = ["T", "N"]
+raw_class  = False
+
 
 for i in sys.argv[1:]:
     if i=="--proofs":
         succ_cases = ["T"]
     elif i=="--models":
         succ_cases = ["N"]
+    elif i=="--raw":
+        raw_class = True
     elif i[0:2] == "--":
         raise RuntimeError, "Unknown option (probably typo)"
 
@@ -788,61 +824,65 @@ print """
 print "/* Class dir used: "+class_dir+" */\n\n"
 print_result()
 
-print """
+if raw_class:
+    print_raw()
+else:
+
+    print """
 #ifdef CHE_PROOFCONTROL_INTERNAL
 
 /* Strategies used:                                       */
 
 """
 
-for i in by_heuristic.keys():
-    print heuristic_define(i)
+    for i in by_heuristic.keys():
+        print heuristic_define(i)
 
-if used[0] in by_heuristic.keys():
-    print "/* Global best, "+used[0]+", already defined */"
-else:
-    print "/* Global best (used as a default): */"
-    print heuristic_define(used[0])
+    if used[0] in by_heuristic.keys():
+        print "/* Global best, "+used[0]+", already defined */"
+    else:
+        print "/* Global best (used as a default): */"
+        print heuristic_define(used[0])
 
-print """#endif
+        print """#endif
 
 #if defined(CHE_HEURISTICS_INTERNAL) || defined(TO_ORDERING_INTERNAL)
 """
 
-for i in by_heuristic.keys():
-    print "   else if("
-    print translate_class_list(by_heuristic[i])+")"
-    print '''   {
+    for i in by_heuristic.keys():
+        print "   else if("
+        print translate_class_list(by_heuristic[i])+")"
+        print '''   {
 #ifdef CHE_HEURISTICS_INTERNAL
       res = "''' + trans_heuristic_name(i) +'";'
 
-    print parse_control_info(stratdesc[i])
+        print parse_control_info(stratdesc[i])
     
-    print '''#endif
+        print '''#endif
 #ifdef TO_ORDERING_INTERNAL'''
 
-    print parse_ordering_info(stratdesc[i])
-    print "#endif\n   }"
+        print parse_ordering_info(stratdesc[i])
+        print "#endif\n   }"
 
 
 
-print "   else /* Default */"
-print '''   {
+    print "   else /* Default */"
+    print '''   {
 #ifdef CHE_HEURISTICS_INTERNAL
   res = "''' + trans_heuristic_name(used[0]) +'";'
 
-print parse_control_info(stratdesc[used[0]])
+    print parse_control_info(stratdesc[used[0]])
 
-print '''#endif
+    print '''#endif
 #ifdef TO_ORDERING_INTERNAL'''
-print parse_ordering_info(stratdesc[used[0]])
-print "#endif\n   }"
+    print parse_ordering_info(stratdesc[used[0]])
+    print "#endif\n   }"
 
 
-print "#endif"
+    print "#endif"
 
-print "\n/* Total solutions on test set:", sum, "*/"
-print """/* -------------------------------------------------------*/
+    print "\n/* Total solutions on test set:", sum, "*/"
+    print """/* -------------------------------------------------------*/
 /*     End of automatically generated code.               */
 /* -------------------------------------------------------*/
 """

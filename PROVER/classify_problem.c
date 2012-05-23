@@ -79,6 +79,8 @@ typedef enum
    OPT_FAR_SUM_LARGE_LIMIT,
    OPT_MAX_DEPTH_MEDIUM_LIMIT,
    OPT_MAX_DEPTH_DEEP_LIMIT,
+   OPT_SIG_MEDIUM_LIMIT,
+   OPT_SIG_LARGE_LIMIT
 }OptionCodes;
 
 
@@ -268,13 +270,13 @@ OptCell opts[] =
    {OPT_AXIOM_SOME_LIMIT,
     '\0', "ax-some-limit",
     ReqArg, NULL,
-    "Set the mimumum number of clauses for a specification to be "
+    "Set the minimum number of clauses for a specification to be "
     "considered to be medium size with respect to this measure."},
 
    {OPT_AXIOM_MANY_LIMIT,
     '\0', "ax-many-limit",
     ReqArg, NULL,
-    "Set the mimumum number of clauses for a specification to be "
+    "Set the minimum number of clauses for a specification to be "
     "considered to be large size with respect to this measure."},
 
    {OPT_LIT_SOME_LIMIT,
@@ -286,42 +288,52 @@ OptCell opts[] =
    {OPT_LIT_MANY_LIMIT,
     '\0', "lit-many-limit",
     ReqArg, NULL,
-    "Set the mimumum number of literals for a specification to be "
+    "Set the minimum number of literals for a specification to be "
     "considered to be large size with respect to this measure."},
 
    {OPT_TERM_MEDIUM_LIMIT,
     '\0', "term-medium-limit",
     ReqArg, NULL,
-    "Set the mimumum number of subterms for a specification to be "
+    "Set the minimum number of subterms for a specification to be "
     "considered to be medium size with respect to this measure."},
 
    {OPT_TERM_LARGE_LIMIT,
     '\0', "term-large-limit",
     ReqArg, NULL,
-    "Set the mimumum number of subterms for a specification to be "
+    "Set the minimum number of subterms for a specification to be "
     "considered to be large size with respect to this measure."},
 
    {OPT_FAR_SUM_MEDIUM_LIMIT,
     '\0', "farity-medium-limit",
     ReqArg, NULL,
-    "Set the mimumum sum of function symbol arities for a specification to be "
+    "Set the minimum sum of function symbol arities for a specification to be "
     "considered to be medium size with respect to this measure."},
 
    {OPT_FAR_SUM_LARGE_LIMIT,
     '\0', "farity-large-limit",
     ReqArg, NULL,
-    "Set the mimumum sum of function symbol arities for a specification to be "
+    "Set the minimum sum of function symbol arities for a specification to be "
     "considered to be large size with respect to this measure."},
 
    {OPT_MAX_DEPTH_MEDIUM_LIMIT,
     '\0', "max-depth-medium-limit",
     ReqArg, NULL,
-    "Set the mimumum maximal clause depth for medium depth specifications."},
+    "Set the minimum maximal clause depth for medium depth specifications."},
 
    {OPT_MAX_DEPTH_DEEP_LIMIT,
     '\0', "max-depth-deep-limit",
     ReqArg, NULL,
-    "Set the mimumum maximal clause depth for deep depth specifications."},
+    "Set the minimum maximal clause depth for deep depth specifications."},
+
+   {OPT_SIG_MEDIUM_LIMIT,
+    '\0', "sig-medium-limit",
+    ReqArg, NULL,
+    "Set the minimum signature size for medium sized signatures."},
+
+   {OPT_SIG_LARGE_LIMIT,
+    '\0', "sig-large-limit",
+    ReqArg, NULL,
+    "Set the minimum signature size for large signatures."},
 
    {OPT_NOOPT,
     '\0', NULL,
@@ -356,6 +368,33 @@ void print_help(FILE* out);
 
 /*-----------------------------------------------------------------------
 //
+// Function: parse_raw_feature_line()
+//
+//   Parse a single specification features line of the form
+//   <name> : ( <features> ) : <class>
+//   where <name> and <class> can be parsed by
+//   ParsePlainFileName(). <name> is returned, <class> is ignored, and
+//   <features> is stored in features.
+//
+// Global Variables: -
+//
+// Side Effects    : Input
+//
+/----------------------------------------------------------------------*/
+
+char* parse_raw_feature_line(Scanner_p in, RawSpecFeature_p features)
+{
+   char *res;
+   
+   res = ParsePlainFilename(in);
+   AcceptInpTok(in, Colon);
+   RawSpecFeaturesParse(in, features);
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: parse_feature_line()
 //
 //   Parse a single specification features line of the form
@@ -378,6 +417,44 @@ char* parse_feature_line(Scanner_p in, SpecFeature_p features)
    AcceptInpTok(in, Colon);
    SpecFeaturesParse(in, features);
    return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: process_raw_feature_files()
+//
+//   Given a file of pre-evaluated raw feature-lines, read it and add
+//   a new symbolic class name based on the given class limits
+//   for the  features. 
+//
+// Global Variables: -
+//
+// Side Effects    : It's all side effects...
+//
+/----------------------------------------------------------------------*/
+
+void process_raw_feature_files(char *argv[], SpecLimits_p limits)
+{
+   char *name;
+   int  i;
+   Scanner_p in;
+   RawSpecFeatureCell features;
+   
+   for(i=0; argv[i]; i++)
+   {
+      in = CreateScanner(StreamTypeFile, argv[i], true, NULL);
+      while(!TestInpTok(in, NoToken))
+      {
+         name = parse_raw_feature_line(in, &features);            
+         RawSpecFeaturesClassify(&features, limits);  
+         fprintf(GlobalOut, "%s : ", name);
+         RawSpecFeaturesPrint(GlobalOut, &features);
+         fprintf(GlobalOut, "\n");
+         FREE(name);
+      }         
+      DestroyScanner(in);
+   }
 }
 
 
@@ -419,6 +496,7 @@ void process_feature_files(char *argv[], SpecLimits_p limits)
       DestroyScanner(in);
    }
 }
+
 
 /*-----------------------------------------------------------------------
 //
@@ -556,7 +634,7 @@ void do_raw_classification(char* name, ProofState_p state,
    RawSpecFeaturesClassify(&features, limits);
 
    fprintf(GlobalOut, "%s : ", name);
-   RawSPecFeaturesPrint(GlobalOut, &features);
+   RawSpecFeaturesPrint(GlobalOut, &features);
    fprintf(GlobalOut, "\n");
 }
 
@@ -599,7 +677,14 @@ int main(int argc, char* argv[])
    
    if(parse_features)
    {
-      process_feature_files(state->argv, limits);
+      if(raw_classify)
+      {
+         process_raw_feature_files(state->argv, limits);
+      }
+      else
+      {
+         process_feature_files(state->argv, limits);
+      }
    }
    else
    {      
@@ -815,6 +900,12 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
       case OPT_MAX_DEPTH_DEEP_LIMIT:
 	    limits->depth_deep_limit = CLStateGetIntArg(handle, arg);
 	    break;
+      case OPT_SIG_MEDIUM_LIMIT:
+            limits->symbols_medium_limit = CLStateGetIntArg(handle, arg);
+            break;
+      case OPT_SIG_LARGE_LIMIT:
+            limits->symbols_large_limit = CLStateGetIntArg(handle, arg);
+            break;
       default:
 	 assert(false);
 	 break;
