@@ -265,42 +265,41 @@ static AxFilter_p sine_get_filter(char* fname, AxFilterSet_p *filters)
 
 char* raw_class[] = 
 {
-   "LLL",
-   "LLS",
-   "MSS",
-   "SSS",
-   "MMS",
-   "LML",
-   "SMM",
-   "SSM",
-   "SLS",
-   "SMS",
-   "MLM",
-   "MML",
-   "MMM",
-   "LLM",
-   "MSM",
+   "LLL",  /*     82 */
+   "LSS",  /*      4 */
+   "MMM",  /*      2 */
+   "MSL",  /*    251 */
+   "MMS",  /*     35 */
+   "LMM",  /*     20 */
+   "LML",  /*     72 */
+   "SSS",  /*   9181 */
+   "SMS",  /*      4 */
+   "LMS",  /*      0 */
+   "MSS",  /*    407 */
+   "LSM",  /*     23 */
+   "LSL",  /*     19 */
+   "MSM",  /*     22 */
    NULL
 };
 char* raw_sine[] = 
 {
    "gf500_h_gu_R04_F100_L20000",
    NULL,
-   "gf500_h_gu_R04_F100_L20000",
+   "gf120_h_gu_RUU_F100_L00500",
    NULL,
    NULL,
-   "gf500_h_gu_R04_F100_L20000",
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
+   "gf120_h_gu_RUU_F100_L00500",
    "gf120_gu_RUU_F100_L00500",
+   NULL,
+   "gf120_h_gu_RUU_F100_L00500",
+   NULL,
+   NULL,
+   "gf200_gu_RUU_F100_L20000",
+   "gf500_h_gu_R04_F100_L20000",
    NULL,
    NULL
 };
+
 
 /*-----------------------------------------------------------------------
 //
@@ -320,12 +319,12 @@ char* find_auto_sine(ProofState_p state)
    RawSpecFeatureCell features;
    int i;
 
-   limits.ax_some_limit        = 115;
-   limits.ax_many_limit        = 8976;
-   limits.term_medium_limit    = 4019;
-   limits.term_large_limit     = 295227;
-   limits.symbols_medium_limit = 58;
-   limits.symbols_large_limit  = 2475;
+   limits.ax_some_limit        = 1199;
+   limits.ax_many_limit        = 10396;
+   limits.term_medium_limit    = 664277;
+   limits.term_large_limit     = 5573560;
+   limits.symbols_medium_limit = 2471;
+   limits.symbols_large_limit  = 4140;
 
    RawSpecFeaturesCompute(&features, state);
    RawSpecFeaturesClassify(&features, &limits);
