@@ -677,8 +677,9 @@ def print_raw():
     print "char* raw_class[] = \n{"
     for i in result.keys():
         res = opt_res[i]
+        cl  = result[i]
         sum += res
-        print "   \""+i[6:]+"\",  /* %6d */"%(res,)
+        print "   \""+i[6:]+"\",  /* %6d %20s */"%(res,cl)
     print "   NULL\n};"
 
     print "char* raw_sine[] = \n{"
