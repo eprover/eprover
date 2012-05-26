@@ -80,8 +80,10 @@ typedef struct spec_limits_cell
    bool   gpc_absolute;
    double gpc_few_limit;
    double gpc_many_limit;
+   long   ax_1_limit;
    long   ax_some_limit;
    long   ax_many_limit;
+   long   ax_4_limit;
    long   lit_some_limit;
    long   lit_many_limit;
    long   term_medium_limit;
@@ -90,8 +92,10 @@ typedef struct spec_limits_cell
    long   far_sum_large_limit;
    long   depth_medium_limit;
    long   depth_deep_limit;
+   int    symbols_1_limit;
    int    symbols_medium_limit;
    int    symbols_large_limit;
+   int    symbols_4_limit;
 }SpecLimitsCell, *SpecLimits_p;
 
 
@@ -160,6 +164,8 @@ typedef struct spec_feature_cell
 #define GPC_MANY_DEFAULT       0.75
 #define GPC_FEW_ABSDEFAULT        1
 #define GPC_MANY_ABSDEFAULT       3
+#define AX_1_DEFAULT             10
+#define AX_4_DEFAULT             15
 #define AX_SOME_DEFAULT          20
 #define AX_MANY_DEFAULT         100
 #define LIT_SOME_DEFAULT         15
@@ -172,9 +178,10 @@ typedef struct spec_feature_cell
                                       to be nearly as good as 3 way on
                                       the test set */  
 #define DEPTH_DEEP_DEFAULT       6
+#define SYMBOLS_1_DEFAULT        50
 #define SYMBOLS_MEDIUM_DEFAULT   100
 #define SYMBOLS_LARGE_DEFAULT    1000
-
+#define SYMBOLS_4_DEFAULT        2000
 
 #define DEFAULT_OUTPUT_DESCRIPTOR "eigEIG"
 #define DEFAULT_CLASS_MASK "aaaaaaaaaaaaa"

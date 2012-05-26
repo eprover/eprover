@@ -56,6 +56,7 @@ char*      ParseFilename(Scanner_p in);
 char*      ParsePlainFilename(Scanner_p in);
 char*      ParseBasicInclude(Scanner_p in);
 char*      ParseDottedId(Scanner_p in);
+void       AcceptDottedId(Scanner_p in, char* expected);
 
 void       ParseSkipParenthesizedExpr(Scanner_p in);
 

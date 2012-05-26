@@ -40,6 +40,137 @@ Changes
 /*---------------------------------------------------------------------*/
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: sine_get_filter()
+//
+//   Given a filter string (a definition or a name), return the 
+//   described filter. Initialize  filters with a set of filters
+//   including the described one.
+//
+// Global Variables: -
+//
+// Side Effects    : Termination in error case.
+//
+/----------------------------------------------------------------------*/
+
+static AxFilter_p sine_get_filter(char* fname, AxFilterSet_p *filters)
+{
+   AxFilter_p    filter;
+   Scanner_p     in;
+
+   in = CreateScanner(StreamTypeOptionString, fname, true, NULL);
+   CheckInpTok(in, Name);
+   if(TestTok(LookToken(in,1), NoToken))
+   {
+      *filters = AxFilterSetCreateInternal(AxFilterDefaultSet);
+      filter = AxFilterSetFindFilter(*filters, fname);
+      if(!filter)
+      {
+         Error("Unknown SinE-filter '%s' selected",USAGE_ERROR, fname);
+      }
+   }
+   else
+   {
+      *filters = AxFilterSetAlloc();
+      filter  = AxFilterDefParse(in);
+      AxFilterSetAddFilter(*filters, filter);
+   }
+   DestroyScanner(in); 
+   return filter; 
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// The following variable settings describe the association of (rough)
+// problem class and SInE-Strategy. This is automatically generated
+// from suitable test runs. Note that the named strategies must be
+// described in che_axfilter.c
+//
+/----------------------------------------------------------------------*/
+/* Raw association */
+char* raw_class[] = 
+{
+   "LLL",  /*     82 protokoll_X----_auto_sine11 */
+   "LSS",  /*      4 protokoll_X----_auto_300 */
+   "MMM",  /*      2 protokoll_X----_auto_sine12 */
+   "MSL",  /*    251 protokoll_X----_auto_300 */
+   "MMS",  /*     35 protokoll_X----_auto_300 */
+   "LMM",  /*     27 protokoll_X----_auto_sine13 */
+   "LML",  /*     72 protokoll_X----_auto_sine02 */
+   "SSS",  /*   9194 protokoll_X----_auto_300 */
+   "SMS",  /*      4 protokoll_X----_auto_sine12 */
+   "LMS",  /*      0 protokoll_X----_auto_300 */
+   "MSS",  /*    411 protokoll_X----_auto_300 */
+   "LSM",  /*     23 protokoll_X----_auto_sine18 */
+   "LSL",  /*     19 protokoll_X----_auto_sine11 */
+   "MSM",  /*     22 protokoll_X----_auto_300 */
+   NULL
+};
+char* raw_sine[] = 
+{
+   "gf500_h_gu_R04_F100_L20000",
+   NULL,
+   "gf120_h_gu_RUU_F100_L00500",
+   NULL,
+   NULL,
+   "gf120_h_gu_R02_F100_L20000",
+   "gf120_gu_RUU_F100_L00500",
+   NULL,
+   "gf120_h_gu_RUU_F100_L00500",
+   NULL,
+   NULL,
+   "gf200_h_gu_RUU_F100_L20000",
+   "gf500_h_gu_R04_F100_L20000",
+   NULL,
+   NULL
+};
+/* Predicted solutions: 10146 */
+
+/*-----------------------------------------------------------------------
+//
+// Function: find_auto_sine()
+//
+//   Given a proof state, return the name of the "best" SInE-Strategy,
+//   or NULL if SInE is not recommended.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static char* find_auto_sine(ProofState_p state)
+{
+   SpecLimitsCell      limits;
+   RawSpecFeatureCell features;
+   int i;
+
+   limits.ax_1_limit           = 900;
+   limits.ax_some_limit        = 1199;
+   limits.ax_many_limit        = 10396;
+   limits.ax_4_limit           = 100000;
+   limits.term_medium_limit    = 664277;
+   limits.term_large_limit     = 5573560;
+   limits.symbols_1_limit      = 500;
+   limits.symbols_medium_limit = 2471;
+   limits.symbols_large_limit  = 4140;
+   limits.symbols_4_limit      = 50140;
+
+   RawSpecFeaturesCompute(&features, state);
+   RawSpecFeaturesClassify(&features, &limits);
+
+   for(i=0; raw_class[i]; i++)
+   {
+      if(strcmp(raw_class[i], features.class)==0)
+      {
+         return raw_sine[i];
+      }
+   }
+   return NULL;
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -222,122 +353,6 @@ void StructFOFSpecInitDistrib(StructFOFSpec_p ctrl)
    GenDistribAddFormulaSets(ctrl->f_distrib, ctrl->formula_sets);
 }
 
-
-/*-----------------------------------------------------------------------
-//
-// Function: sine_get_filter()
-//
-//   Given a filter string (a definition or a name), return the 
-//   described filter. Initialize  filters with a set of filters
-//   including the described one.
-//
-// Global Variables: -
-//
-// Side Effects    : Termination in error case.
-//
-/----------------------------------------------------------------------*/
-
-static AxFilter_p sine_get_filter(char* fname, AxFilterSet_p *filters)
-{
-   AxFilter_p    filter;
-   Scanner_p     in;
-
-   in = CreateScanner(StreamTypeOptionString, fname, true, NULL);
-   CheckInpTok(in, Name);
-   if(TestTok(LookToken(in,1), NoToken))
-   {
-      *filters = AxFilterSetCreateInternal(AxFilterDefaultSet);
-      filter = AxFilterSetFindFilter(*filters, fname);
-      if(!filter)
-      {
-         Error("Unknown SinE-filter '%s' selected",USAGE_ERROR, fname);
-      }
-   }
-   else
-   {
-      *filters = AxFilterSetAlloc();
-      filter  = AxFilterDefParse(in);
-      AxFilterSetAddFilter(*filters, filter);
-   }
-   DestroyScanner(in); 
-   return filter; 
-}
-
-char* raw_class[] = 
-{
-   "LLL",  /*     82 */
-   "LSS",  /*      4 */
-   "MMM",  /*      2 */
-   "MSL",  /*    251 */
-   "MMS",  /*     35 */
-   "LMM",  /*     20 */
-   "LML",  /*     72 */
-   "SSS",  /*   9181 */
-   "SMS",  /*      4 */
-   "LMS",  /*      0 */
-   "MSS",  /*    407 */
-   "LSM",  /*     23 */
-   "LSL",  /*     19 */
-   "MSM",  /*     22 */
-   NULL
-};
-char* raw_sine[] = 
-{
-   "gf500_h_gu_R04_F100_L20000",
-   NULL,
-   "gf120_h_gu_RUU_F100_L00500",
-   NULL,
-   NULL,
-   "gf120_h_gu_RUU_F100_L00500",
-   "gf120_gu_RUU_F100_L00500",
-   NULL,
-   "gf120_h_gu_RUU_F100_L00500",
-   NULL,
-   NULL,
-   "gf200_gu_RUU_F100_L20000",
-   "gf500_h_gu_R04_F100_L20000",
-   NULL,
-   NULL
-};
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: 
-//
-//   
-//
-// Global Variables: 
-//
-// Side Effects    : 
-//
-/----------------------------------------------------------------------*/
-
-char* find_auto_sine(ProofState_p state)
-{
-   SpecLimitsCell      limits;
-   RawSpecFeatureCell features;
-   int i;
-
-   limits.ax_some_limit        = 1199;
-   limits.ax_many_limit        = 10396;
-   limits.term_medium_limit    = 664277;
-   limits.term_large_limit     = 5573560;
-   limits.symbols_medium_limit = 2471;
-   limits.symbols_large_limit  = 4140;
-
-   RawSpecFeaturesCompute(&features, state);
-   RawSpecFeaturesClassify(&features, &limits);
-
-   for(i=0; raw_class[i]; i++)
-   {
-      if(strcmp(raw_class[i], features.class)==0)
-      {
-         return raw_sine[i];
-      }
-   }
-   return NULL;
-}
 
 /*-----------------------------------------------------------------------
 //

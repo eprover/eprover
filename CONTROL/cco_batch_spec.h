@@ -54,8 +54,8 @@ typedef struct batch_spec_cell
    char         *executable;
    char         *pexec;
    char*        category;     /* Just a name */
+   bool         ordered;
    long         per_prob_time;/* Wall clock, in seconds */
-   long         total_time;   /* Wall clock, in seconds */
    PStack_p     includes;     /* Names of include files (char*) */
    IOFormat     format;
    BOOutputType res_assurance;
@@ -88,11 +88,13 @@ BatchSpec_p BatchSpecParse(Scanner_p in, char* executable, char* pexec, IOFormat
 
 
 bool BatchProcessProblem(BatchSpec_p spec, 
+                         long wct_limit,
                          StructFOFSpec_p ctrl, 
                          char* source, char* dest);
 
 bool BatchProcessProblems(BatchSpec_p spec, 
-                          StructFOFSpec_p ctrl);
+                          StructFOFSpec_p ctrl, 
+                          long total_wtc_limit);
 
 
 

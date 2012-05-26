@@ -38,10 +38,10 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* cvs tag E-1-5dev006 */
-#define VERSION      "1.5dev006"
+/* cvs tag E-1-6pre001c */
+#define VERSION      "1.6pre001"
 
-#define E_NICKNAME     "Pussimbing"
+#define E_NICKNAME     "Tiger Hill"
 
 #define E_URL "http://www.eprover.org"
 

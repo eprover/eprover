@@ -153,7 +153,9 @@ void EPCtrlCleanup(EPCtrl_p ctrl)
 //
 /----------------------------------------------------------------------*/
 
-EPCtrl_p ECtrlCreate(char* prover, char* name, long cpu_limit, char* file)
+EPCtrl_p ECtrlCreate(char* prover, char* name, 
+                     char* extra_options, 
+                     long cpu_limit, char* file)
 {
    DStr_p   cmd = DStrAlloc();
    EPCtrl_p res = EPCtrlAlloc(name);
@@ -161,8 +163,10 @@ EPCtrl_p ECtrlCreate(char* prover, char* name, long cpu_limit, char* file)
    char*          l;
 
    DStrAppendStr(cmd, prover);
-   DStrAppendStr(cmd, 
-                 E_OPTIONS);
+   DStrAppendStr(cmd, " ");
+   DStrAppendStr(cmd, extra_options);
+   DStrAppendStr(cmd, " ");
+   DStrAppendStr(cmd, E_OPTIONS);
    DStrAppendInt(cmd, cpu_limit);
    DStrAppendStr(cmd, " ");
    DStrAppendStr(cmd, file);

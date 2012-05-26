@@ -84,7 +84,11 @@ void RawSpecFeaturesCompute(RawSpecFeature_p features, ProofState_p state)
 
 void RawSpecFeaturesClassify(RawSpecFeature_p features, SpecLimits_p limits)
 {
-   if(features->sentence_no < limits->ax_some_limit)
+   /* if(features->sentence_no < limits->ax_1_limit)
+   {
+      features->class[0] = '1';
+   }
+   else */ if(features->sentence_no < limits->ax_some_limit)
    {
       features->class[0] = 'S';
    }
@@ -92,10 +96,14 @@ void RawSpecFeaturesClassify(RawSpecFeature_p features, SpecLimits_p limits)
    {
       features->class[0] = 'M';
    }
-   else
+   else /* if(features->sentence_no < limits->ax_4_limit) */
    {
       features->class[0] = 'L';
    }
+   /* else
+   {
+      features->class[0] = '4';
+      }*/
    
    if(features->term_size < limits->term_medium_limit)
    {
@@ -110,7 +118,11 @@ void RawSpecFeaturesClassify(RawSpecFeature_p features, SpecLimits_p limits)
       features->class[1] = 'L';
    }
    
-   if(features->sig_size < limits->symbols_medium_limit)
+   /*if(features->sig_size < limits->symbols_1_limit)
+   {
+      features->class[2] = '1';
+   }
+   else */   if(features->sig_size < limits->symbols_medium_limit)
    {
       features->class[2] = 'S';
    }
@@ -118,10 +130,14 @@ void RawSpecFeaturesClassify(RawSpecFeature_p features, SpecLimits_p limits)
    {
       features->class[2] = 'M';
    }
-   else
+   else /* if(features->sig_size < limits->symbols_4_limit) */
    {
       features->class[2] = 'L';
    }
+   /* else
+   {
+      features->class[2] = '4';
+      }*/
    features->class[3] = '\0';
 }
 

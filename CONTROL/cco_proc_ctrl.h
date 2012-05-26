@@ -78,7 +78,7 @@ typedef struct e_pctrl_set_cell
 #define SZS_SATSTR_STR     "# SZS status Satisfiable"
 #define SZS_COUNTERSAT_STR "# SZS status CounterSatisfiable"
 
-#define E_OPTIONS " --print-pid -s -xAuto -tAuto -R --answers=1\
+#define E_OPTIONS "--print-pid -s -xAuto -tAuto -R --answers=1\
  --assume-incompleteness --memory-limit=1024 --tstp-in --cpu-limit="
 
 #define EPCtrlCellAlloc()    (EPCtrlCell*)SizeMalloc(sizeof(EPCtrlCell))
@@ -87,7 +87,9 @@ typedef struct e_pctrl_set_cell
 EPCtrl_p EPCtrlAlloc(char* name);
 void     EPCtrlFree(EPCtrl_p junk);
 
-EPCtrl_p ECtrlCreate(char* prover, char* name, long cpu_limit, char* file);
+EPCtrl_p ECtrlCreate(char* prover, char* name,
+                     char* extra_options, 
+                     long cpu_limit, char* file);
 
 void     EPCtrlCleanup(EPCtrl_p ctrl);
 

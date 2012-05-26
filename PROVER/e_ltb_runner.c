@@ -6,10 +6,10 @@ Author: Stephan Schulz
 
 Contents
  
-Hack for the LTB category of CASC-2010 - parse a LTB spec file, and
+Hack for the LTB category of CASC-2012 - parse an LTB spec file, and
 run E on the various problems.
 
-  Copyright 2010 by the author.
+  Copyright 2010-2012 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
@@ -49,6 +49,7 @@ typedef enum
    OPT_PRINT_STATISTICS,
    OPT_SILENT,
    OPT_OUTPUTLEVEL,
+   OPT_GLOBAL_WTCLIMIT,
    OPT_DUMMY
 }OptionCodes;
 
@@ -102,13 +103,20 @@ OptCell opts[] =
     " also imply PCL2 or TSTP formats (which can be post-processed"
     " with suitable tools)."},
 
+   {OPT_GLOBAL_WTCLIMIT,
+    'w', "wtc-limit",
+    ReqArg, NULL,
+    "Set the global wall-clock limit for each batch (if any)."},
+
    {OPT_NOOPT,
     '\0', NULL,
     NoArg, NULL,
     NULL}
 };
 
-char              *outname = NULL;
+char              *outname        = NULL;
+long              total_wtc_limit = 0;
+
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -129,6 +137,7 @@ int main(int argc, char* argv[])
    StructFOFSpec_p   ctrl;
    char             *prover = "eprover";
    char             *xtract = "epclextract";
+   long             now, start;
 
    assert(argv[0]);
    
@@ -159,11 +168,13 @@ int main(int argc, char* argv[])
    
    while(!TestInpTok(in, NoToken))
    {
+      start = GetSecTime();
       spec = BatchSpecParse(in, prover, xtract, TSTPFormat);   
       /* BatchSpecPrint(stdout, spec); */
       ctrl = StructFOFSpecAlloc();
       BatchStructFOFSpecInit(spec, ctrl);      
-      BatchProcessProblems(spec, ctrl);
+      now = GetSecTime();
+      BatchProcessProblems(spec, ctrl, total_wtc_limit-(now-start));
       StructFOFSpecFree(ctrl);
       BatchSpecFree(spec);
       fprintf(GlobalOut, "\n\n# =============== Batch done ===========\n\n");
@@ -228,6 +239,9 @@ CLState_p process_options(int argc, char* argv[])
 	    break;
       case OPT_OUTPUTLEVEL:
 	    OutputLevel = CLStateGetIntArg(handle, arg);
+	    break;
+      case OPT_GLOBAL_WTCLIMIT:
+	    total_wtc_limit = CLStateGetIntArg(handle, arg);
 	    break;
       default:
 	    assert(false && "Unknown option");

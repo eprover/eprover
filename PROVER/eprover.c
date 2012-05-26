@@ -85,6 +85,8 @@ typedef enum
    OPT_TSTP_PARSE,
    OPT_TSTP_PRINT,
    OPT_TSTP_FORMAT,
+   OPT_AUTO,
+   OPT_SATAUTO,
    OPT_NO_PREPROCESSING,
    OPT_EQ_UNFOLD_LIMIT,
    OPT_EQ_UNFOLD_MAXCLAUSES,
@@ -483,6 +485,18 @@ OptCell opts[] =
     '\0', "tptp3-format",
     NoArg, NULL,
     "Synonymous with --tstp-format."},
+
+   {OPT_AUTO,
+    '\0', "auto", 
+    NoArg, NULL,
+    "Automatically determine settings for proof search. This is "
+    "equivalent to -xAuto -tAuto --sine=Auto."},
+
+   {OPT_SATAUTO,
+    '\0', "satauto", 
+    NoArg, NULL,
+    "Automatically determine settings for proof/saturation search. This is " 
+    "equivalent to -xAuto -tAuto."},
 
    {OPT_NO_PREPROCESSING,
     '\0', "no-preprocessing",
@@ -1833,6 +1847,15 @@ CLState_p process_options(int argc, char* argv[])
 	    OutputFormat = TSTPFormat;
 	    EqnUseInfix = true;
 	    break;
+      case OPT_AUTO:
+	    h_parms->heuristic_name = "Auto";
+            h_parms->ordertype = AUTO;
+            sine = "Auto";
+            break;
+      case OPT_SATAUTO:
+	    h_parms->heuristic_name = "Auto";
+            h_parms->ordertype = AUTO;
+            break;
       case OPT_NO_PREPROCESSING:
 	    no_preproc = true;
 	    break;

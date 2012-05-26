@@ -51,7 +51,8 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-void do_proof(DStr_p res, char *exec, char *pexec, long cpu_limit, char* file)
+void do_proof(DStr_p res, char *exec, char *pexec, 
+              char* extra_options, long cpu_limit, char* file)
 {
    DStr_p         cmd = DStrAlloc();
    char           line[180];
@@ -59,8 +60,10 @@ void do_proof(DStr_p res, char *exec, char *pexec, long cpu_limit, char* file)
    FILE           *fp;
    
    DStrAppendStr(cmd, exec);
-   DStrAppendStr(cmd, 
-                 E_OPTIONS);
+   DStrAppendStr(cmd, " ");
+   DStrAppendStr(cmd, extra_options);
+   DStrAppendStr(cmd, " ");
+   DStrAppendStr(cmd, E_OPTIONS);
    DStrAppendInt(cmd, cpu_limit);
    DStrAppendStr(cmd, " -l4 ");
    DStrAppendStr(cmd, file);
@@ -98,6 +101,7 @@ void do_proof(DStr_p res, char *exec, char *pexec, long cpu_limit, char* file)
 
 EPCtrl_p batch_create_runner(StructFOFSpec_p ctrl,
                              char *executable,
+                             char* extra_options,
                              long cpu_time,
                              AxFilter_p ax_filter)
 {
@@ -129,7 +133,7 @@ EPCtrl_p batch_create_runner(StructFOFSpec_p ctrl,
     * GetSecTimeMod()); */
 
    AxFilterPrintBuf(name, 320, ax_filter);
-   pctrl = ECtrlCreate(executable, name, cpu_time, file);
+   pctrl = ECtrlCreate(executable, name, extra_options, cpu_time, file);
 
    PStackFree(cspec);
    PStackFree(fspec);
@@ -237,8 +241,8 @@ BatchSpec_p BatchSpecAlloc(char* executable, char* pexec, IOFormat format)
    BatchSpec_p handle = BatchSpecCellAlloc();
 
    handle->category      = NULL;
+   handle->ordered       = false;
    handle->per_prob_time = 0;
-   handle->total_time    = 0;
    handle->includes      = PStackAlloc();
    handle->source_files  = PStackAlloc();
    handle->format        = format;
@@ -320,6 +324,10 @@ void BatchSpecPrint(FILE* out, BatchSpec_p spec)
 
    fprintf(out, "%% SZS start BatchConfiguration\n");
    fprintf(out, "division.category %s\n", spec->category);
+   if(spec->ordered)
+   {
+      fprintf(out, "execution.order ordered\n");
+   }
    fprintf(out, "output.required");
    print_op_line(out, spec, BORequired);
    fprintf(out, "\n");
@@ -370,34 +378,23 @@ BatchSpec_p BatchSpecParse(Scanner_p in, char* executable, char* pexec, IOFormat
    BatchSpec_p handle = BatchSpecAlloc(executable, pexec, format);
    char *dummy;
    
-   dummy = ParseDottedId(in);
-   if(strcmp(dummy, "division.category")!= 0)
-   {
-      Error("Expected \"division.category\"\n", SYNTAX_ERROR);
-   }
-   FREE(dummy);
+   AcceptDottedId(in, "division.category");
    handle->category = ParseDottedId(in);
    
-   dummy = ParseDottedId(in);
-   if(strcmp(dummy, "output.required")!= 0)
+   /* Ugly hack to remain compatible with CASC-23 files */
+   if(TestInpId(in, "execution"))
    {
-      Error("Expected \"output.required\"\n", SYNTAX_ERROR);
+      AcceptDottedId(in, "execution.order");
+      handle->ordered = TestInpId(in, "ordered");
+      AcceptInpId(in, "ordered|unordered");      
    }
+   AcceptDottedId(in, "output.required");
    parse_op_line(in, handle, BORequired);
 
-   dummy = ParseDottedId(in);
-   if(strcmp(dummy, "output.desired")!= 0)
-   {
-      Error("Expected \"output.desired\"\n", SYNTAX_ERROR);
-   }
+   AcceptDottedId(in, "output.desired");
    parse_op_line(in, handle, BODesired);
 
-   dummy = ParseDottedId(in);
-   if(strcmp(dummy, "limit.time.problem.wc")!= 0)
-   {
-      Error("Expected \"limit.time.problem.wc\"\n", SYNTAX_ERROR);
-   }
-   FREE(dummy);
+   AcceptDottedId(in, "limit.time.problem.wc");
    handle->per_prob_time = ParseInt(in);
 
    while(TestInpId(in, "include"))
@@ -413,8 +410,6 @@ BatchSpec_p BatchSpecParse(Scanner_p in, char* executable, char* pexec, IOFormat
       dummy = ParseFilename(in);
       PStackPushP(handle->dest_files, dummy);
    }
-   handle->total_time = handle->per_prob_time *
-      PStackGetSP(handle->source_files);
    return handle;
 }
 
@@ -549,7 +544,8 @@ long StructFOFSpecGetProblem(StructFOFSpec_p ctrl,
 /----------------------------------------------------------------------*/
 
 bool BatchProcessProblem(BatchSpec_p spec, 
-                         StructFOFSpec_p ctrl, 
+                         long wct_limit,
+                         StructFOFSpec_p ctrl,
                          char* source, char* dest)
 {
    bool res = false;
@@ -559,14 +555,16 @@ bool BatchProcessProblem(BatchSpec_p spec,
    EPCtrl_p handle;
    EPCtrlSet_p procs = EPCtrlSetAlloc();
    FILE* fp;
-   long long secs, used;
+   long long start, secs, used, now, remaining;
    AxFilterSet_p filters = AxFilterSetCreateInternal(AxFilterDefaultSet);
    int i;
+   char* answers = spec->res_answer==BONone?"":"--conjectures-are-questions";
 
-
+   
    fprintf(GlobalOut, "\n# Processing %s -> %s\n", source, dest);
    fprintf(GlobalOut, "# SZS status Started for %s\n", source);
    fflush(GlobalOut);
+   start = GetSecTime();
    
    in = CreateScanner(StreamTypeFile, source, true, NULL);
    ScannerSetFormat(in, TSTPFormat);
@@ -587,16 +585,19 @@ bool BatchProcessProblem(BatchSpec_p spec,
 
 
    secs = GetSecTime();
-   handle = batch_create_runner(ctrl, spec->executable, spec->per_prob_time, 
+   handle = batch_create_runner(ctrl, spec->executable,
+                                answers,
+                                wct_limit,
                                 AxFilterSetGetFilter(filters, 0));
    EPCtrlSetAddProc(procs, handle);
    
    i=1;
-   while(((used = (GetSecTime()-secs)) < (spec->per_prob_time/2)) && 
+   while(((used = (GetSecTime()-secs)) < (wct_limit/2)) && 
          (i<AxFilterSetElements(filters)))
    {
       handle = batch_create_runner(ctrl, spec->executable, 
-                                   spec->per_prob_time-used, 
+                                   answers,
+                                   wct_limit,
                                    AxFilterSetGetFilter(filters, i));
       EPCtrlSetAddProc(procs, handle);
       i++;
@@ -612,12 +613,18 @@ bool BatchProcessProblem(BatchSpec_p spec,
       {
          break;
       }
+      now = GetSecTime();
+      used = now - start; 
+      if(!(used < wct_limit))
+      {
+         break;
+      }
    }
    if(handle)
    {
-      long long now  = GetSecTime();
-      long long used = now - handle->start_time; 
-      long long remaining = handle->prob_time - used;
+      now = GetSecTime();
+      used = now - handle->start_time; 
+      remaining = handle->prob_time - used;
       fprintf(GlobalOut, 
               "# Proof found by %s (started %lld, remaining %lld)\n",
               handle->name, handle->start_time, remaining);
@@ -633,7 +640,8 @@ bool BatchProcessProblem(BatchSpec_p spec,
          {            
             DStr_p res = DStrAlloc();
             fprintf(GlobalOut, "# Proof reconstruction starting\n");
-            do_proof(res, spec->executable, spec->pexec, remaining, handle->input_file);
+            do_proof(res, spec->executable, spec->pexec, answers, 
+                     remaining, handle->input_file);
             fp = SecureFOpen(dest, "a");
             fprintf(fp, "%s", DStrView(res));      
             SecureFClose(fp);
@@ -684,14 +692,37 @@ bool BatchProcessProblem(BatchSpec_p spec,
 //
 /----------------------------------------------------------------------*/
 
-bool BatchProcessProblems(BatchSpec_p spec, StructFOFSpec_p ctrl)
+bool BatchProcessProblems(BatchSpec_p spec, StructFOFSpec_p ctrl, 
+                          long total_wtc_limit)
 {
    long res = 0;
    PStackPointer i;
+   PStackPointer sp;
+   long wct_limit, prop_time, now, used, rest;
+   long start = GetSecTime(); 
 
-   for(i=0; i<PStackGetSP(spec->source_files); i++)
+   sp = PStackGetSP(spec->source_files);
+   for(i=0; i<sp; i++)
    {
+      now       = GetSecTime();
+      used      = now - start;
+      rest      = total_wtc_limit - used;
+      prop_time = rest/(sp-i)+1; /* Bias up a bit - some problems will
+                                  * use less time anyways */
+      
+      if(spec->per_prob_time)
+      {
+         wct_limit = MIN(prop_time, spec->per_prob_time);
+      }
+      else
+      {
+         wct_limit = prop_time;
+      }
+      /* printf("######### Remaining %d probs, %ld secs, limit %ld\n",
+         sp-i, rest, wct_limit); */
+      
       if(BatchProcessProblem(spec,
+                             wct_limit,
                              ctrl, 
                              PStackElementP(spec->source_files, i),
                              PStackElementP(spec->dest_files, i)))

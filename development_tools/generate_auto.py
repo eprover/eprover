@@ -4,7 +4,7 @@ import sys
 import re
 import string
 
-pick_by_global_performance = 1
+pick_by_global_performance = True
 optimize_large_class_limit = 200
 
 white_space     = re.compile('\s+')
@@ -726,6 +726,8 @@ for i in sys.argv[1:]:
         succ_cases = ["N"]
     elif i=="--raw":
         raw_class = True
+    elif i=="--local":
+        pick_by_global_performace = False
     elif i[0:2] == "--":
         raise RuntimeError, "Unknown option (probably typo)"
 

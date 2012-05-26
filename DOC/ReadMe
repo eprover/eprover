@@ -6,15 +6,23 @@ file. Make sure to do a proper install, so that eproof and
 e_ltb_runner can find the executables.
 
 
-Command line:
 
-   eprover -xAuto -tAuto --tstp-in -s --memory-limit=3072 --cpu-limit=%d %s
+FOFT FNTT MZRT
+FOF FNT EPR LTB
 
-   eproof_ram  -xAuto -tAuto --tstp-format --memory-limit=2048 --cpu-limit=%d %s
+Command line for (primary) proof classes (FOFT, FOF, EPR):
+
+   eprover --auto --tstp-in -s --memory-limit=3072 --cpu-limit=%d %s
+   eproof_ram --auto --tstp-format --memory-limit=2048 --cpu-limit=%d %s
+
+Command line for disproof classes :
+
+   eprover --satauto --tstp-in -s --memory-limit=3072 --cpu-limit=%d %s
+   eproof_ram --satauto --tstp-format --memory-limit=2048 --cpu-limit=%d %s
 
 For the LTB category, run
 
-    e_ltb_runner <path_to_ltb_batch_file> <path_to_eprover> <path_to_epclextract>
+    e_ltb_runner -w<total wall-clock time limit> <path_to_ltb_batch_file> <path_to_eprover> <path_to_epclextract>
 
 
 Distinguished strings for the results:

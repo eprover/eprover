@@ -415,6 +415,36 @@ char* ParseDottedId(Scanner_p in)
 
 /*-----------------------------------------------------------------------
 //
+// Function: AcceptDottedId()
+//
+//   Parse a sequence id1.id2.id2..., check it against an expected
+//   value, and skip it. Print error and terminate on mismatch.
+//
+// Global Variables: -
+//
+// Side Effects    : Input, memory ops.
+//
+/----------------------------------------------------------------------*/
+
+void AcceptDottedId(Scanner_p in, char* expected)
+{
+   char* candidate;
+   char* posrep = TokenPosRep(AktToken(in));
+   
+   candidate = ParseDottedId(in);  
+   if(strcmp(candidate, expected)!=0)
+   {
+      Error("%s %s expected, but %s read", SYNTAX_ERROR, 
+            posrep, expected, candidate);
+   }
+   FREE(candidate);
+}
+
+
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: ParseSkipParenthesizedExpr()
 //
 //   Skip any expression containing balanced (), [], {}. Print error

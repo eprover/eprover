@@ -82,6 +82,8 @@ SpecLimits_p SpecLimitsAlloc()
       handle->gpc_few_limit          = GPC_FEW_DEFAULT;
       handle->gpc_many_limit         = GPC_MANY_DEFAULT;
    }      
+   handle->ax_1_limit             = AX_1_DEFAULT       ;
+   handle->ax_4_limit             = AX_4_DEFAULT       ;
    handle->ax_some_limit          = AX_SOME_DEFAULT       ;
    handle->ax_many_limit          = AX_MANY_DEFAULT       ;
    handle->lit_some_limit         = LIT_SOME_DEFAULT      ;
@@ -92,8 +94,10 @@ SpecLimits_p SpecLimitsAlloc()
    handle->far_sum_large_limit    = FAR_SUM_LARGE_DEFAULT;
    handle->depth_medium_limit     = DEPTH_MEDIUM_DEFAULT;
    handle->depth_deep_limit       = DEPTH_DEEP_DEFAULT;
+   handle->symbols_1_limit        = SYMBOLS_1_DEFAULT;
    handle->symbols_medium_limit   = SYMBOLS_MEDIUM_DEFAULT;
    handle->symbols_large_limit    = SYMBOLS_LARGE_DEFAULT;
+   handle->symbols_4_limit        = SYMBOLS_4_DEFAULT;
 
    return handle;
 }
