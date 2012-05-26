@@ -704,19 +704,26 @@ bool BatchProcessProblems(BatchSpec_p spec, StructFOFSpec_p ctrl,
    sp = PStackGetSP(spec->source_files);
    for(i=0; i<sp; i++)
    {
-      now       = GetSecTime();
-      used      = now - start;
-      rest      = total_wtc_limit - used;
-      prop_time = rest/(sp-i)+1; /* Bias up a bit - some problems will
-                                  * use less time anyways */
-      
-      if(spec->per_prob_time)
+      if(total_wtc_limit)
       {
-         wct_limit = MIN(prop_time, spec->per_prob_time);
+         now       = GetSecTime();
+         used      = now - start;
+         rest      = total_wtc_limit - used;
+         prop_time = rest/(sp-i)+1; /* Bias up a bit - some problems will
+                                     * use less time anyways */
+         
+         if(spec->per_prob_time)
+         {
+            wct_limit = MIN(prop_time, spec->per_prob_time);
+         }
+         else
+         {
+            wct_limit = prop_time;
+         }
       }
       else
       {
-         wct_limit = prop_time;
+         wct_limit = spec->per_prob_time;
       }
       /* printf("######### Remaining %d probs, %ld secs, limit %ld\n",
          sp-i, rest, wct_limit); */

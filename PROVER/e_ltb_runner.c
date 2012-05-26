@@ -174,7 +174,7 @@ int main(int argc, char* argv[])
       ctrl = StructFOFSpecAlloc();
       BatchStructFOFSpecInit(spec, ctrl);      
       now = GetSecTime();
-      BatchProcessProblems(spec, ctrl, total_wtc_limit-(now-start));
+      BatchProcessProblems(spec, ctrl, MAX(0,total_wtc_limit-(now-start)));
       StructFOFSpecFree(ctrl);
       BatchSpecFree(spec);
       fprintf(GlobalOut, "\n\n# =============== Batch done ===========\n\n");
