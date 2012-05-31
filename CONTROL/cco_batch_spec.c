@@ -516,18 +516,33 @@ long StructFOFSpecGetProblem(StructFOFSpec_p ctrl,
                              PStack_p        res_clauses, 
                              PStack_p        res_formulas)
 {
-   long res;
-
+   long res = 0;
    
-   res = SelectAxioms(ctrl->f_distrib,
-                      ctrl->clause_sets,
-                      ctrl->formula_sets,
-                      ctrl->shared_ax_sp,
-                      ax_filter,
-                      res_clauses, 
-                      res_formulas);
+   switch(ax_filter->type)
+   {
+   case AFGSinE:
+         res = SelectAxioms(ctrl->f_distrib,
+                            ctrl->clause_sets,
+                            ctrl->formula_sets,
+                            ctrl->shared_ax_sp,
+                            ax_filter,
+                            res_clauses, 
+                            res_formulas);
+         break;
+   case AFThreshold:
+         res = SelectThreshold(ctrl->clause_sets,
+                               ctrl->formula_sets,
+                               ax_filter,
+                               res_clauses, 
+                               res_formulas);
+         break;
+   default:
+         assert(false & "Unknown AxFilter type");
+         break;
+   }
    return res;
 }
+
 
 
 /*-----------------------------------------------------------------------

@@ -83,7 +83,7 @@ static AxFilter_p sine_get_filter(char* fname, AxFilterSet_p *filters)
 
 /*-----------------------------------------------------------------------
 //
-// The following variable settings describe the association of (rough)
+// The following variable settings describe the association of (raw)
 // problem class and SInE-Strategy. This is automatically generated
 // from suitable test runs. Note that the named strategies must be
 // described in che_axfilter.c
@@ -97,7 +97,7 @@ char* raw_class[] =
    "MMM",  /*      2 protokoll_X----_auto_sine12 */
    "MSL",  /*    251 protokoll_X----_auto_300 */
    "MMS",  /*     35 protokoll_X----_auto_300 */
-   "LMM",  /*     27 protokoll_X----_auto_sine13 */
+   "LMM",  /*     28 protokoll_X----_auto_sine03 */
    "LML",  /*     72 protokoll_X----_auto_sine02 */
    "SSS",  /*   9194 protokoll_X----_auto_300 */
    "SMS",  /*      4 protokoll_X----_auto_sine12 */
@@ -115,7 +115,7 @@ char* raw_sine[] =
    "gf120_h_gu_RUU_F100_L00500",
    NULL,
    NULL,
-   "gf120_h_gu_R02_F100_L20000",
+   "gf120_gu_R02_F100_L20000",
    "gf120_gu_RUU_F100_L00500",
    NULL,
    "gf120_h_gu_RUU_F100_L00500",
@@ -126,7 +126,8 @@ char* raw_sine[] =
    NULL,
    NULL
 };
-/* Predicted solutions: 10146 */
+/* Predicted solutions: 10147 */
+
 
 /*-----------------------------------------------------------------------
 //
