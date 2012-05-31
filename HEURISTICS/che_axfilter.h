@@ -38,7 +38,8 @@ Changes
 typedef enum 
 {
    AFNoFilter = 0,
-   AFGSineE
+   AFGSinE,    /* Generalized SinE */
+   AFThreshold  /* Pass all formulas if less then N */
 }AxFilterType;
 
 
@@ -72,7 +73,8 @@ typedef struct
    long              generosity;
    long              max_recursion_depth;
    long long         max_set_size;
-   double            max_set_fraction;   
+   long              threshold;
+   double            max_set_fraction; 
 }AxFilterCell, *AxFilter_p;
 
 

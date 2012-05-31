@@ -146,6 +146,13 @@ long SelectAxioms(GenDistrib_p      f_distrib,
                   PStack_p          res_clauses, 
                   PStack_p          res_formulas);
 
+long SelectThreshold(PStack_p          clause_sets,
+                     PStack_p          formula_sets,
+                     AxFilter_p        ax_filter,
+                     PStack_p          res_clauses, 
+                     PStack_p          res_formulas);
+
+
 void DRelPrintDebug(FILE* out, DRel_p rel, Sig_p sig);
 void DRelationPrintDebug(FILE* out, DRelation_p rel, Sig_p sig);
 
@@ -157,7 +164,6 @@ void PStackFormulaPrintTSTP(FILE* out, PStack_p stack);
 
 void PStackClausesMove(PStack_p stack, ClauseSet_p set);
 void PStackFormulasMove(PStack_p stack, FormulaSet_p set);
-
 
 
 

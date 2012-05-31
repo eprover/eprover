@@ -694,6 +694,63 @@ long SelectAxioms(GenDistrib_p      f_distrib,
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: SelectThreshold()
+//
+//   Dummy selector: If there are up to ax_filter->threshold
+//   clauses and formulas, pass them all. Otherwise pass none.
+//
+// Global Variables: -
+//
+// Side Effects    : Only irrelevant (appart from the output to the
+//                   result stacks).
+//
+/----------------------------------------------------------------------*/
+
+long SelectThreshold(PStack_p          clause_sets,
+                     PStack_p          formula_sets,
+                     AxFilter_p        ax_filter,
+                     PStack_p          res_clauses, 
+                     PStack_p          res_formulas)
+{
+   long ax_cardinality = 
+      FormulaSetStackCardinality(formula_sets)+
+      ClauseSetStackCardinality(clause_sets);
+
+   if(ax_cardinality <= ax_filter->threshold)
+   {
+      PStackPointer i;
+      ClauseSet_p cset;
+      FormulaSet_p fset;
+      Clause_p clause;
+      WFormula_p formula;
+      
+      for(i=0; i<PStackGetSP(clause_sets); i++)
+      {
+         cset = PStackElementP(clause_sets, i);
+         for(clause = cset->anchor->succ; 
+             clause!=cset->anchor; 
+             clause=clause->succ)
+         {
+            PStackPushP(res_clauses, clause);
+         }
+      }
+      for(i=0; i<PStackGetSP(formula_sets); i++)
+      {
+         fset = PStackElementP(formula_sets, i);
+         for(formula = fset->anchor->succ; 
+             formula!=fset->anchor; 
+             formula=formula->succ)
+         {
+            PStackPushP(res_formulas, formula);
+         }
+      }
+      
+   }
+   return PStackGetSP(res_clauses)+PStackGetSP(res_formulas);
+}
+ 
 
 /*-----------------------------------------------------------------------
 //
@@ -896,6 +953,7 @@ void PStackFormulasMove(PStack_p stack, FormulaSet_p set)
       FormulaSetMoveFormula(set, form);
    }
 }
+
 
 
 /*---------------------------------------------------------------------*/

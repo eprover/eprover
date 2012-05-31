@@ -47,6 +47,8 @@ char* GeneralityMeasureNames[] =
 };
 
 char* AxFilterDefaultSet ="\
+   threshold010000=Threshold(10000)\
+\
    gf500_gu_R04_F100_L20000=GSinE(CountFormulas, ,   5.0,, 4,20000,1.0)\
    gf120_gu_RUU_F100_L00500=GSinE(CountFormulas, ,   1.2,,,  500,1.0)\
    gf120_gu_R02_F100_L20000=GSinE(CountFormulas, ,   1.2,, 2,20000,1.0)\
@@ -158,7 +160,7 @@ void AxFilterFree(AxFilter_p junk)
 
 /*-----------------------------------------------------------------------
 //
-// Function: AxFilterParse()
+// Function: GSinEParse()
 //
 //   Parse an Axiom Filter description into a newly allocated cell.
 //
@@ -181,12 +183,12 @@ void AxFilterFree(AxFilter_p junk)
 //
 /----------------------------------------------------------------------*/
 
-AxFilter_p AxFilterParse(Scanner_p in)
+AxFilter_p GSinEParse(Scanner_p in)
 {
    AxFilter_p res = AxFilterAlloc();
 
    AcceptInpId(in, "GSinE");
-   res->type = AFGSineE;
+   res->type = AFGSinE;
    AcceptInpTok(in, OpenBracket);
    
    res->gen_measure = get_gen_measure(DStrView(AktToken(in)->literal));
@@ -244,6 +246,70 @@ AxFilter_p AxFilterParse(Scanner_p in)
 
    return res;
 }
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ThresholdParse()
+//
+//   Parse an Threshold filter
+//
+//   The preliminary syntax is:
+//
+//    Threshold(<threshold:int>)
+//
+// Global Variables: -
+//
+// Side Effects    : IO, memory operations.
+//
+/----------------------------------------------------------------------*/
+
+AxFilter_p ThresholdParse(Scanner_p in)
+{
+   AxFilter_p res = AxFilterAlloc();
+
+   AcceptInpId(in, "Threshold");
+   res->type = AFThreshold;
+   AcceptInpTok(in, OpenBracket);
+   
+   res->threshold = AktToken(in)->numval;
+   AcceptInpTok(in, PosInt);
+   AcceptInpTok(in, CloseBracket);
+
+   return res;
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: 
+//
+//   
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+AxFilter_p AxFilterParse(Scanner_p in)
+{
+   CheckInpId(in, "GSinE|Threshold");
+   
+   if(TestInpId(in, "GSinE"))
+   {
+      return GSinEParse(in);
+   }
+   if(TestInpId(in, "Threshold"))
+   {
+      return ThresholdParse(in);
+   }
+   return NULL;
+}
+
+
 
 /*-----------------------------------------------------------------------
 //
@@ -305,17 +371,29 @@ AxFilter_p AxFilterDefParse(Scanner_p in)
 
 bool AxFilterPrintBuf(char* buf, size_t buflen, AxFilter_p filter)
 {
-   int res;
+   int res = 0;
 
-   res = snprintf(buf, buflen, "%s(%s, %s, %f, %ld, %ld, %lld, %f)",
-                  "GSinE", 
-                  GeneralityMeasureNames[filter->gen_measure],
-                  filter->use_hypotheses?"hypos":"nohypos",
-                  filter->benevolence,
-                  filter->generosity,
-                  filter->max_recursion_depth,
-                  filter->max_set_size,
-                  filter->max_set_fraction);
+   switch(filter->type)
+   {
+   case AFGSinE:
+         res = snprintf(buf, buflen, "%s(%s, %s, %f, %ld, %ld, %lld, %f)",
+                        "GSinE", 
+                        GeneralityMeasureNames[filter->gen_measure],
+                        filter->use_hypotheses?"hypos":"nohypos",
+                        filter->benevolence,
+                        filter->generosity,
+                        filter->max_recursion_depth,
+                        filter->max_set_size,
+                        filter->max_set_fraction);
+         break;
+   case AFThreshold:
+         res = snprintf(buf, buflen, "Threshold(%ld)", 
+                        filter->threshold);
+         break;
+   default:
+         assert(false && "Unknown AxFilter type");
+         break;
+   }
    return (res<=buflen);
 }
 
