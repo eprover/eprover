@@ -1525,6 +1525,7 @@ int main(int argc, char* argv[])
       PERF_CTR_PRINT(GlobalOut, SubsumeTimer);
       PERF_CTR_PRINT(GlobalOut, SetSubsumeTimer);
 
+#ifdef PRINT_INDEX_STATS
       fprintf(GlobalOut, "# Backwards rewriting index : ");
       FPIndexDistribDataPrint(GlobalOut, proofstate->gindices.bw_rw_index);
       fprintf(GlobalOut, "\n");
@@ -1544,7 +1545,7 @@ int main(int argc, char* argv[])
       fprintf(GlobalOut, "# Paramod-neg-atom index    : ");
       FPIndexDistribDataPrint(GlobalOut, proofstate->gindices.pm_negp_index);
       fprintf(GlobalOut, "\n");
-
+#endif
    }   
 #ifndef FAST_EXIT
 #ifdef FULL_MEM_STATS
