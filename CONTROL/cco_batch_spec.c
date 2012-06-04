@@ -29,6 +29,24 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
+char* BatchFilters[] =
+{
+   "threshold010000",
+   "gf600_h_gu_R05_F100_L20000"  ,   /* protokoll_X----_auto_sine17 */
+   "gf120_h_gu_R02_F100_L20000"  ,   /* protokoll_X----_auto_sine13 */
+   "gf200_gu_RUU_F100_L20000"    ,   /* protokoll_X----_auto_sine08 */
+   "gf200_h_gu_R03_F100_L20000"  ,   /* protokoll_X----_auto_sine16 */
+   "gf120_h_gu_RUU_F100_L00100"  ,   /* protokoll_X----_auto_sine15 */
+   "gf500_h_gu_R04_F100_L20000"  ,   /* protokoll_X----_auto_sine11 */
+   "gf150_gu_RUU_F100_L20000"    ,   /* protokoll_X----_auto_sine04 */
+   "gf120_h_gu_RUU_F100_L00500"  ,   /* protokoll_X----_auto_sine12 */
+   "gf120_h_gu_RUU_F100_L01000"  ,   /* protokoll_X----_auto_sine31 */
+   "gf120_gu_R02_F100_L20000"    ,   /* protokoll_X----_auto_sine03 */
+   "gf500_gu_R04_F100_L20000"    ,   /* protokoll_X----_auto_sine01 */
+   "gf600_gu_R05_F100_L20000"    ,   /* protokoll_X----_auto_sine07 */
+   NULL
+};
+
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -550,7 +568,8 @@ long StructFOFSpecGetProblem(StructFOFSpec_p ctrl,
 // Function: BatchProcessProblem()
 //
 //   Given an initialized StructFOFSpecCell for Spec, parse the problem
-//   file and try to solve it.
+//   file and try to solve it. Return true if a proof has been found,
+//   false otherwise.
 //
 // Global Variables: -
 //
@@ -603,17 +622,20 @@ bool BatchProcessProblem(BatchSpec_p spec,
    handle = batch_create_runner(ctrl, spec->executable,
                                 answers,
                                 wct_limit,
-                                AxFilterSetGetFilter(filters, 0));
+                                AxFilterSetFindFilter(filters,
+                                                      BatchFilters[0]));
+
    EPCtrlSetAddProc(procs, handle);
    
    i=1;
    while(((used = (GetSecTime()-secs)) < (wct_limit/2)) && 
-         (i<AxFilterSetElements(filters)))
+         BatchFilters[i])
    {
       handle = batch_create_runner(ctrl, spec->executable, 
                                    answers,
                                    wct_limit,
-                                   AxFilterSetGetFilter(filters, i));
+                                   AxFilterSetFindFilter(filters,
+                                                         BatchFilters[i]));
       EPCtrlSetAddProc(procs, handle);
       i++;
    }
@@ -637,6 +659,7 @@ bool BatchProcessProblem(BatchSpec_p spec,
    }
    if(handle)
    {
+      res = true;
       now = GetSecTime();
       used = now - handle->start_time; 
       remaining = handle->prob_time - used;

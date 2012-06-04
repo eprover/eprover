@@ -86,6 +86,7 @@ long        BatchStructFOFSpecInit(BatchSpec_p spec, StructFOFSpec_p ctrl);
 
 BatchSpec_p BatchSpecParse(Scanner_p in, char* executable, char* pexec, IOFormat format);
 
+#define BatchSpecProblemNo(spec) PStackGetSP((spec)->source_files)
 
 bool BatchProcessProblem(BatchSpec_p spec, 
                          long wct_limit,
