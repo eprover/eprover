@@ -137,7 +137,7 @@ int main(int argc, char* argv[])
    StructFOFSpec_p   ctrl;
    char             *prover = "eprover";
    char             *xtract = "epclextract";
-   long             now, start;
+   long             now, start, res;
 
    assert(argv[0]);
    
@@ -174,10 +174,13 @@ int main(int argc, char* argv[])
       ctrl = StructFOFSpecAlloc();
       BatchStructFOFSpecInit(spec, ctrl);      
       now = GetSecTime();
-      BatchProcessProblems(spec, ctrl, MAX(0,total_wtc_limit-(now-start)));
+      res = BatchProcessProblems(spec, ctrl, MAX(0,total_wtc_limit-(now-start)));
       StructFOFSpecFree(ctrl);
+      now = GetSecTime();
+      fprintf(GlobalOut, "\n\n# == WCT: %4lds, Solved: %4ld/%4d    ==\n",
+              now-start, res, BatchSpecProblemNo(spec));
       BatchSpecFree(spec);
-      fprintf(GlobalOut, "\n\n# =============== Batch done ===========\n\n");
+      fprintf(GlobalOut, "# =============== Batch done ===========\n\n");
    }
    DestroyScanner(in); 
 
