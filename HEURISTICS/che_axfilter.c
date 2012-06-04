@@ -57,6 +57,7 @@ char* AxFilterDefaultSet ="\
    gf200_gu_R03_F100_L20000=GSinE(CountFormulas, ,   2.0,, 3,20000,1.0)\
    gf600_gu_R05_F100_L20000=GSinE(CountFormulas, ,   6.0,, 5,20000,1.0)\
    gf200_gu_RUU_F100_L20000=GSinE(CountFormulas, ,   2.0,,  ,20000,1.0)\
+   gf120_gu_RUU_F100_L01000=GSinE(CountFormulas, ,   1.2,,  , 1000,1.0)\
 \
    gf500_h_gu_R04_F100_L20000=GSinE(CountFormulas, hypos,   5.0,, 4,20000,1.0)\
    gf120_h_gu_RUU_F100_L00500=GSinE(CountFormulas, hypos,   1.2,,,  500,1.0)\
@@ -66,6 +67,7 @@ char* AxFilterDefaultSet ="\
    gf200_h_gu_R03_F100_L20000=GSinE(CountFormulas, hypos,   2.0,, 3,20000,1.0)\
    gf600_h_gu_R05_F100_L20000=GSinE(CountFormulas, hypos,   6.0,, 5,20000,1.0)\
    gf200_h_gu_RUU_F100_L20000=GSinE(CountFormulas, hypos,   2.0,,  ,20000,1.0)\
+   gf120_h_gu_RUU_F100_L01000=GSinE(CountFormulas, hypos,   1.2,,  , 1000,1.0)\
 ";
 
 /*---------------------------------------------------------------------*/
@@ -284,13 +286,13 @@ AxFilter_p ThresholdParse(Scanner_p in)
 
 /*-----------------------------------------------------------------------
 //
-// Function: 
+// Function: AxFilterParse()
 //
-//   
+//   Parse an AxFilter and return it.
 //
-// Global Variables: 
+// Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    : Reads input, memory, all via subfunctions
 //
 /----------------------------------------------------------------------*/
 

@@ -147,7 +147,7 @@ void RawSpecFeaturesClassify(RawSpecFeature_p features, SpecLimits_p limits)
 //
 // Function: RawSpecFeaturesParse()
 //
-//   
+//   Parse a rawspecfeatures line.
 //
 // Global Variables: 
 //
