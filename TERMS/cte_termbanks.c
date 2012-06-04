@@ -1301,7 +1301,8 @@ long TBGCSweep(TB_p bank)
    recovered = TermCellStoreGCSweep(&(bank->term_store),
 				    bank->garbage_state);
    VERBOSE(fprintf(stderr, "Garbage collection reclaimed %ld unused term cells.\n",recovered););
-#ifdef PRINT_SOMEERRORS_STDOUT
+/* #ifdef PRINT_SOMEERRORS_STDOUT */
+#ifdef NEVER_DEFINED
    if(OutputLevel)
    {
       fprintf(GlobalOut, 
