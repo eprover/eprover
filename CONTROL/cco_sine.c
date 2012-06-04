@@ -89,44 +89,145 @@ static AxFilter_p sine_get_filter(char* fname, AxFilterSet_p *filters)
 // described in che_axfilter.c
 //
 /----------------------------------------------------------------------*/
+
+/* -------------------------------------------------------*/
+/* The following code is generated automagically with     */
+/* generate_auto.py. Yes, it is fairly ugly ;-)           */
+/* -------------------------------------------------------*/
+
+/* Class dir used:  */
+
+
+
+/* -------------------------------------------------------*/
+/* The following code is generated automagically with     */
+/* generate_auto.py. Yes, it is fairly ugly ;-)           */
+/* -------------------------------------------------------*/
+
+/* Class dir used:  */
+
+
+/* CLASS_LMSSMLL     : protokoll_X----_auto_300       0    */
+/* CLASS_MMSSMSL     : protokoll_X----_auto_300       3    */
+/* CLASS_LMLSMSL     : protokoll_X----_auto_sine16    20   */
+/* CLASS_MMSSMSM     : protokoll_X----_auto_300       18   */
+/* CLASS_MSSMLSM     : protokoll_X----_auto_300       0    */
+/* CLASS_LMLSLLL     : protokoll_X----_auto_sine31    1    */
+/* CLASS_MMSMMSM     : protokoll_X----_auto_300       13   */
+/* CLASS_LMMSMLL     : protokoll_X----_auto_sine03    24   */
+/* CLASS_LLLLMLL     : protokoll_X----_auto_sine11    76   */
+/* CLASS_MSLMMSL     : protokoll_X----_auto_300       47   */
+/* CLASS_MSLSMSL     : protokoll_X----_auto_sine11    209  */
+/* CLASS_SSSSLSM     : protokoll_X----_auto_300       205  */
+/* CLASS_SSSSLSL     : protokoll_X----_auto_300       23   */
+/* CLASS_SSSSMSL     : protokoll_X----_auto_300       216  */
+/* CLASS_SSSSMSM     : protokoll_X----_auto_300       2302 */
+/* CLASS_SSSSMSS     : protokoll_X----_auto_300       6294 */
+/* CLASS_SMSSMSM     : protokoll_X----_auto_sine16    4    */
+/* CLASS_LSMSMSL     : protokoll_X----_auto_sine18    23   */
+/* CLASS_SSSSLSS     : protokoll_X----_auto_NIX       154  */
+/* CLASS_LLLSMSL     : protokoll_X----_auto_sine17    3    */
+/* CLASS_MSSSMML     : protokoll_X----_auto_sine13    6    */
+/* CLASS_MSSSMSS     : protokoll_X----_auto_sine17    12   */
+/* CLASS_LMLMMLL     : protokoll_X----_auto_sine12    7    */
+/* CLASS_LMLMLLL     : protokoll_X----_auto_sine13    23   */
+/* CLASS_LSLSMSL     : protokoll_X----_auto_sine11    19   */
+/* CLASS_MMSSMLL     : protokoll_X----_auto_sine31    2    */
+/* CLASS_MSSSMSL     : protokoll_X----_auto_sine17    14   */
+/* CLASS_MSSSMSM     : protokoll_X----_auto_300       348  */
+/* CLASS_LSSSMSM     : protokoll_X----_auto_300       4    */
+/* CLASS_MSMSMSL     : protokoll_X----_auto_300       22   */
+/* CLASS_LMLLMSL     : protokoll_X----_auto_300       42   */
+/* CLASS_MSSSLSM     : protokoll_X----_auto_300       26   */
+/* CLASS_SSSSMLL     : protokoll_X----_auto_300       1    */
+/* CLASS_LLLMLLL     : protokoll_X----_auto_sine31    10   */
+/* CLASS_LMMMMLL     : protokoll_X----_auto_sine16    6    */
+/* CLASS_MSSSMLL     : protokoll_X----_auto_sine12    24   */
+/* CLASS_MMMSMLL     : protokoll_X----_auto_sine12    2    */
 /* Raw association */
 char* raw_class[] = 
 {
-   "LLL",  /*     82 protokoll_X----_auto_sine11 */
-   "LSS",  /*      4 protokoll_X----_auto_300 */
-   "MMM",  /*      2 protokoll_X----_auto_sine12 */
-   "MSL",  /*    251 protokoll_X----_auto_300 */
-   "MMS",  /*     35 protokoll_X----_auto_300 */
-   "LMM",  /*     28 protokoll_X----_auto_sine03 */
-   "LML",  /*     72 protokoll_X----_auto_sine02 */
-   "SSS",  /*   9194 protokoll_X----_auto_300 */
-   "SMS",  /*      4 protokoll_X----_auto_sine12 */
-   "LMS",  /*      0 protokoll_X----_auto_300 */
-   "MSS",  /*    411 protokoll_X----_auto_300 */
-   "LSM",  /*     23 protokoll_X----_auto_sine18 */
-   "LSL",  /*     19 protokoll_X----_auto_sine11 */
-   "MSM",  /*     22 protokoll_X----_auto_300 */
+   "LMSSMLL",  /*      0 protokoll_X----_auto_300 */
+   "MMSSMSL",  /*      3 protokoll_X----_auto_300 */
+   "LMLSMSL",  /*     20 protokoll_X----_auto_sine16 */
+   "MMSSMSM",  /*     18 protokoll_X----_auto_300 */
+   "MSSMLSM",  /*      0 protokoll_X----_auto_300 */
+   "LMLSLLL",  /*      1 protokoll_X----_auto_sine31 */
+   "MMSMMSM",  /*     13 protokoll_X----_auto_300 */
+   "LMMSMLL",  /*     24 protokoll_X----_auto_sine03 */
+   "LLLLMLL",  /*     76 protokoll_X----_auto_sine11 */
+   "MSLMMSL",  /*     47 protokoll_X----_auto_300 */
+   "MSLSMSL",  /*    209 protokoll_X----_auto_sine11 */
+   "SSSSLSM",  /*    205 protokoll_X----_auto_300 */
+   "SSSSLSL",  /*     23 protokoll_X----_auto_300 */
+   "SSSSMSL",  /*    216 protokoll_X----_auto_300 */
+   "SSSSMSM",  /*   2302 protokoll_X----_auto_300 */
+   "SSSSMSS",  /*   6294 protokoll_X----_auto_300 */
+   "SMSSMSM",  /*      4 protokoll_X----_auto_sine16 */
+   "LSMSMSL",  /*     23 protokoll_X----_auto_sine18 */
+   "SSSSLSS",  /*    154 protokoll_X----_auto_NIX */
+   "LLLSMSL",  /*      3 protokoll_X----_auto_sine17 */
+   "MSSSMML",  /*      6 protokoll_X----_auto_sine13 */
+   "MSSSMSS",  /*     12 protokoll_X----_auto_sine17 */
+   "LMLMMLL",  /*      7 protokoll_X----_auto_sine12 */
+   "LMLMLLL",  /*     23 protokoll_X----_auto_sine13 */
+   "LSLSMSL",  /*     19 protokoll_X----_auto_sine11 */
+   "MMSSMLL",  /*      2 protokoll_X----_auto_sine31 */
+   "MSSSMSL",  /*     14 protokoll_X----_auto_sine17 */
+   "MSSSMSM",  /*    348 protokoll_X----_auto_300 */
+   "LSSSMSM",  /*      4 protokoll_X----_auto_300 */
+   "MSMSMSL",  /*     22 protokoll_X----_auto_300 */
+   "LMLLMSL",  /*     42 protokoll_X----_auto_300 */
+   "MSSSLSM",  /*     26 protokoll_X----_auto_300 */
+   "SSSSMLL",  /*      1 protokoll_X----_auto_300 */
+   "LLLMLLL",  /*     10 protokoll_X----_auto_sine31 */
+   "LMMMMLL",  /*      6 protokoll_X----_auto_sine16 */
+   "MSSSMLL",  /*     24 protokoll_X----_auto_sine12 */
+   "MMMSMLL",  /*      2 protokoll_X----_auto_sine12 */
    NULL
 };
 char* raw_sine[] = 
 {
-   "gf500_h_gu_R04_F100_L20000",
    NULL,
-   "gf120_h_gu_RUU_F100_L00500",
    NULL,
+   "gf200_h_gu_R03_F100_L20000",
+   NULL,
+   NULL,
+   "gf120_h_gu_RUU_F100_L01000",
    NULL,
    "gf120_gu_R02_F100_L20000",
-   "gf120_gu_RUU_F100_L00500",
-   NULL,
-   "gf120_h_gu_RUU_F100_L00500",
-   NULL,
-   NULL,
-   "gf200_h_gu_RUU_F100_L20000",
    "gf500_h_gu_R04_F100_L20000",
    NULL,
+   "gf500_h_gu_R04_F100_L20000",
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   "gf200_h_gu_R03_F100_L20000",
+   "gf200_h_gu_RUU_F100_L20000",
+   NULL,
+   "gf600_h_gu_R05_F100_L20000",
+   "gf120_h_gu_R02_F100_L20000",
+   "gf600_h_gu_R05_F100_L20000",
+   "gf120_h_gu_RUU_F100_L00500",
+   "gf120_h_gu_R02_F100_L20000",
+   "gf500_h_gu_R04_F100_L20000",
+   "gf120_h_gu_RUU_F100_L01000",
+   "gf600_h_gu_R05_F100_L20000",
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   "gf120_h_gu_RUU_F100_L01000",
+   "gf200_h_gu_R03_F100_L20000",
+   "gf120_h_gu_RUU_F100_L00500",
+   "gf120_h_gu_RUU_F100_L00500",
    NULL
 };
-/* Predicted solutions: 10147 */
+/* Predicted solutions: 10203 */
 
 
 /*-----------------------------------------------------------------------
@@ -154,10 +255,21 @@ static char* find_auto_sine(ProofState_p state)
    limits.term_large_limit     = 5573560;
    limits.symbols_medium_limit = 2471;
    limits.symbols_large_limit  = 4140;
+   
+   limits.predc_medium_limit     = 0;
+   limits.predc_large_limit      = 2;
+   limits.pred_medium_limit      = 1225;
+   limits.pred_large_limit       = 4000;
+   limits.func_medium_limit      = 8;
+   limits.func_large_limit       = 110;
+   limits.fun_medium_limit       = 360;
+   limits.fun_large_limit        = 400;
+
 
    RawSpecFeaturesCompute(&features, state);
    RawSpecFeaturesClassify(&features, &limits, "aaaaaaa");
 
+   printf("# Class: %s\n", features.class);
    for(i=0; raw_class[i]; i++)
    {
       if(strcmp(raw_class[i], features.class)==0)
@@ -165,6 +277,7 @@ static char* find_auto_sine(ProofState_p state)
          return raw_sine[i];
       }
    }
+   printf("# No matching class found!\n");
    return NULL;
 }
 

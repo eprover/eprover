@@ -40,8 +40,9 @@ char* BatchFilters[] =
    "gf500_h_gu_R04_F100_L20000"  ,   /* protokoll_X----_auto_sine11 */
    "gf150_gu_RUU_F100_L20000"    ,   /* protokoll_X----_auto_sine04 */
    "gf120_h_gu_RUU_F100_L00500"  ,   /* protokoll_X----_auto_sine12 */
-   "gf120_h_gu_RUU_F100_L01000"  ,   /* protokoll_X----_auto_sine31 */
+   "gf120_gu_RUU_F100_L01000"    ,   /* protokoll_X----_auto_sine21 */
    "gf120_gu_R02_F100_L20000"    ,   /* protokoll_X----_auto_sine03 */
+
    "gf500_gu_R04_F100_L20000"    ,   /* protokoll_X----_auto_sine01 */
    "gf600_gu_R05_F100_L20000"    ,   /* protokoll_X----_auto_sine07 */
    NULL
