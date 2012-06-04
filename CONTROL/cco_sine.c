@@ -269,7 +269,6 @@ static char* find_auto_sine(ProofState_p state)
    RawSpecFeaturesCompute(&features, state);
    RawSpecFeaturesClassify(&features, &limits, "aaaaaaa");
 
-   printf("# Class: %s\n", features.class);
    for(i=0; raw_class[i]; i++)
    {
       if(strcmp(raw_class[i], features.class)==0)
@@ -277,7 +276,6 @@ static char* find_auto_sine(ProofState_p state)
          return raw_sine[i];
       }
    }
-   printf("# No matching class found!\n");
    return NULL;
 }
 
