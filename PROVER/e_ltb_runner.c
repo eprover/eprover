@@ -169,7 +169,12 @@ int main(int argc, char* argv[])
    while(!TestInpTok(in, NoToken))
    {
       start = GetSecTime();
-      spec = BatchSpecParse(in, prover, xtract, TSTPFormat);   
+      spec = BatchSpecParse(in, prover, xtract, TSTPFormat);
+      if(spec->per_prob_time<=0 && total_wtc_limit<=0)
+      {
+         Error("Either the per-problem time limit or the global "
+               "time limit must be set to a value > 0", USAGE_ERROR);
+      }
       /* BatchSpecPrint(stdout, spec); */
       ctrl = StructFOFSpecAlloc();
       BatchStructFOFSpecInit(spec, ctrl);      

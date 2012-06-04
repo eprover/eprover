@@ -148,19 +148,15 @@ static char* find_auto_sine(ProofState_p state)
    RawSpecFeatureCell features;
    int i;
 
-   limits.ax_1_limit           = 900;
    limits.ax_some_limit        = 1199;
    limits.ax_many_limit        = 10396;
-   limits.ax_4_limit           = 100000;
    limits.term_medium_limit    = 664277;
    limits.term_large_limit     = 5573560;
-   limits.symbols_1_limit      = 500;
    limits.symbols_medium_limit = 2471;
    limits.symbols_large_limit  = 4140;
-   limits.symbols_4_limit      = 50140;
 
    RawSpecFeaturesCompute(&features, state);
-   RawSpecFeaturesClassify(&features, &limits);
+   RawSpecFeaturesClassify(&features, &limits, "aaaaaaa");
 
    for(i=0; raw_class[i]; i++)
    {

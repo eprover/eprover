@@ -38,6 +38,10 @@ typedef struct raw_spec_feature_cell
    long      sentence_no;
    long long term_size;
    int       sig_size;
+   int       pred_size;
+   int       predc_size;
+   int       fun_size;
+   int       func_size;
    char      class[4];
 }RawSpecFeatureCell, *RawSpecFeature_p;
 
@@ -50,7 +54,8 @@ typedef struct raw_spec_feature_cell
 
 
 void RawSpecFeaturesCompute(RawSpecFeature_p features, ProofState_p state);
-void RawSpecFeaturesClassify(RawSpecFeature_p features, SpecLimits_p limits);
+void RawSpecFeaturesClassify(RawSpecFeature_p features, SpecLimits_p limits, 
+                             char* pattern);
 void RawSpecFeaturesParse(Scanner_p in, RawSpecFeature_p features);
 void RawSpecFeaturesPrint(FILE* out, RawSpecFeature_p features);
 

@@ -23,6 +23,8 @@ For the LTB categories (MZRT, LTB), run
 
     e_ltb_runner -w<total wall-clock time limit> <path_to_ltb_batch_file> <path_to_eprover> <path_to_epclextract>
 
+    -w<total wall-clock time limit> is optional if a per-problem limit
+     is given in the batch specification file.
 
 Distinguished strings for the results:
 

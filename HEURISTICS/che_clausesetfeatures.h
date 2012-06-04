@@ -80,10 +80,8 @@ typedef struct spec_limits_cell
    bool   gpc_absolute;
    double gpc_few_limit;
    double gpc_many_limit;
-   long   ax_1_limit;
    long   ax_some_limit;
    long   ax_many_limit;
-   long   ax_4_limit;
    long   lit_some_limit;
    long   lit_many_limit;
    long   term_medium_limit;
@@ -92,10 +90,16 @@ typedef struct spec_limits_cell
    long   far_sum_large_limit;
    long   depth_medium_limit;
    long   depth_deep_limit;
-   int    symbols_1_limit;
    int    symbols_medium_limit;
    int    symbols_large_limit;
-   int    symbols_4_limit;
+   int    predc_medium_limit;
+   int    predc_large_limit;
+   int    pred_medium_limit;
+   int    pred_large_limit;
+   int    func_medium_limit;
+   int    func_large_limit;
+   int    fun_medium_limit;
+   int    fun_large_limit;
 }SpecLimitsCell, *SpecLimits_p;
 
 
@@ -178,10 +182,19 @@ typedef struct spec_feature_cell
                                       to be nearly as good as 3 way on
                                       the test set */  
 #define DEPTH_DEEP_DEFAULT       6
-#define SYMBOLS_1_DEFAULT        50
 #define SYMBOLS_MEDIUM_DEFAULT   100
 #define SYMBOLS_LARGE_DEFAULT    1000
-#define SYMBOLS_4_DEFAULT        2000
+
+#define PREDC_MEDIUM_DEFAULT     50
+#define PREDC_LARGE_DEFAULT      500
+#define PRED_MEDIUM_DEFAULT      50
+#define PRED_LARGE_DEFAULT       500
+#define FUNC_MEDIUM_DEFAULT     50
+#define FUNC_LARGE_DEFAULT      500
+#define FUN_MEDIUM_DEFAULT      50
+#define FUN_LARGE_DEFAULT       500
+
+
 
 #define DEFAULT_OUTPUT_DESCRIPTOR "eigEIG"
 #define DEFAULT_CLASS_MASK "aaaaaaaaaaaaa"

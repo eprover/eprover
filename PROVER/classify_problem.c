@@ -59,6 +59,7 @@ typedef enum
    OPT_NO_EQ_UNFOLD,
    OPT_DEF_CNF,
    OPT_MASK,
+   OPT_RAW_MASK,
    OPT_NGU_ABSOLUTE,
    OPT_NGU_FEW_LIMIT,
    OPT_NGU_MANY_LIMIT,
@@ -80,7 +81,15 @@ typedef enum
    OPT_MAX_DEPTH_MEDIUM_LIMIT,
    OPT_MAX_DEPTH_DEEP_LIMIT,
    OPT_SIG_MEDIUM_LIMIT,
-   OPT_SIG_LARGE_LIMIT
+   OPT_SIG_LARGE_LIMIT,
+   OPT_PREDC_MEDIUM_LIMIT,
+   OPT_PREDC_LARGE_LIMIT,
+   OPT_PRED_MEDIUM_LIMIT,
+   OPT_PRED_LARGE_LIMIT,
+   OPT_FUNC_MEDIUM_LIMIT,
+   OPT_FUNC_LARGE_LIMIT,
+   OPT_FUN_MEDIUM_LIMIT,
+   OPT_FUN_LARGE_LIMIT
 }OptionCodes;
 
 
@@ -222,7 +231,15 @@ OptCell opts[] =
    {OPT_MASK,
     'c', "class-mask",
     ReqArg, NULL,
-    "Provide a mask for the class description. A mask is a 12 letter "
+    "Provide a mask for the class description. A mask is a 13 letter "
+    "string, with positions corresponding to the class "
+    "descriptors. Any dash ('-') in the string masks out the "
+    "corresponding position in the class descriptor."},
+
+   {OPT_RAW_MASK,
+    '\0', "raw-mask",
+    ReqArg, NULL,
+    "Provide a mask for the rawclass description. A mask is a 7 letter "
     "string, with positions corresponding to the class "
     "descriptors. Any dash ('-') in the string masks out the "
     "corresponding position in the class descriptor."},
@@ -303,7 +320,7 @@ OptCell opts[] =
     "Set the minimum number of subterms for a specification to be "
     "considered to be large size with respect to this measure."},
 
-   {OPT_FAR_SUM_MEDIUM_LIMIT,
+    {OPT_FAR_SUM_MEDIUM_LIMIT,
     '\0', "farity-medium-limit",
     ReqArg, NULL,
     "Set the minimum sum of function symbol arities for a specification to be "
@@ -335,14 +352,64 @@ OptCell opts[] =
     ReqArg, NULL,
     "Set the minimum signature size for large signatures."},
 
+   {OPT_PREDC_MEDIUM_LIMIT,
+    '\0', "pred-const-medium-limit",
+    ReqArg, NULL,
+    "Set the minimum number of constant predicate symbols for medium size "
+    "by this measure."}, 
+
+   {OPT_PREDC_LARGE_LIMIT,
+    '\0', "pred-const-large-limit",
+    ReqArg, NULL,
+    "Set the minimum number of constant predicate symbols for large size "
+    "by this measure."}, 
+
+   {OPT_PRED_MEDIUM_LIMIT,
+    '\0', "pred-medium-limit",
+    ReqArg, NULL,
+    "Set the minimum number of non-constant predicate symbols for medium size "
+    "by this measure."}, 
+
+   {OPT_PRED_LARGE_LIMIT,
+    '\0', "pred-large-limit",
+    ReqArg, NULL,
+    "Set the minimum number of non-constant predicate symbols for large size "
+    "by this measure."}, 
+
+   {OPT_FUNC_MEDIUM_LIMIT,
+    '\0', "pred-const-medium-limit",
+    ReqArg, NULL,
+    "Set the minimum number of constant function symbols for medium size "
+    "by this measure."}, 
+
+   {OPT_FUNC_LARGE_LIMIT,
+    '\0', "pred-const-large-limit",
+    ReqArg, NULL,
+    "Set the minimum number of constant function symbols for large size "
+    "by this measure."}, 
+
+   {OPT_FUN_MEDIUM_LIMIT,
+    '\0', "pred-medium-limit",
+    ReqArg, NULL,
+    "Set the minimum number of non-constant function symbols for medium size "
+    "by this measure."}, 
+
+   {OPT_FUN_LARGE_LIMIT,
+    '\0', "pred-large-limit",
+    ReqArg, NULL,
+    "Set the minimum number of non-constant function symbols for large size "
+    "by this measure."}, 
+
    {OPT_NOOPT,
     '\0', NULL,
     NoArg, NULL,
     NULL}
 };
 
-char     *outname = NULL, 
-         *mask = "aaaaa----aaaa";
+char *outname = NULL, 
+     *mask = "aaaaa----aaaa",
+     *raw_mask = "aaaaaaa";
+        
 IOFormat parse_format     = LOPFormat;
 bool     tptp_header      = false,
          raw_classify     = false,
@@ -447,7 +514,7 @@ void process_raw_feature_files(char *argv[], SpecLimits_p limits)
       while(!TestInpTok(in, NoToken))
       {
          name = parse_raw_feature_line(in, &features);            
-         RawSpecFeaturesClassify(&features, limits);  
+         RawSpecFeaturesClassify(&features, limits, raw_mask);  
          fprintf(GlobalOut, "%s : ", name);
          RawSpecFeaturesPrint(GlobalOut, &features);
          fprintf(GlobalOut, "\n");
@@ -631,7 +698,7 @@ void do_raw_classification(char* name, ProofState_p state,
    RawSpecFeatureCell features;
    
    RawSpecFeaturesCompute(&features, state);
-   RawSpecFeaturesClassify(&features, limits);
+   RawSpecFeaturesClassify(&features, limits, raw_mask);
 
    fprintf(GlobalOut, "%s : ", name);
    RawSpecFeaturesPrint(GlobalOut, &features);
@@ -852,6 +919,14 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
 		     "string as an argument", USAGE_ERROR);
 	    }
 	    break;
+      case OPT_RAW_MASK:
+	    raw_mask = arg;
+	    if(strlen(raw_mask)!=7)
+	    {
+	       Error("Option -c (--class-mask) requires 7-letter "
+		     "string as an argument", USAGE_ERROR);
+	    }
+	    break;
       case OPT_NGU_ABSOLUTE:
 	    limits->ngu_absolute = CLStateGetBoolArg(handle, arg);
 	    break;
@@ -905,6 +980,30 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
             break;
       case OPT_SIG_LARGE_LIMIT:
             limits->symbols_large_limit = CLStateGetIntArg(handle, arg);
+            break;
+      case OPT_PREDC_MEDIUM_LIMIT:
+            limits->predc_medium_limit = CLStateGetIntArg(handle, arg);
+            break;
+      case OPT_PREDC_LARGE_LIMIT:
+            limits->predc_large_limit = CLStateGetIntArg(handle, arg);
+            break;
+      case OPT_PRED_MEDIUM_LIMIT:
+            limits->pred_medium_limit = CLStateGetIntArg(handle, arg);
+            break;
+      case OPT_PRED_LARGE_LIMIT:
+            limits->pred_large_limit = CLStateGetIntArg(handle, arg);
+            break;
+      case OPT_FUNC_MEDIUM_LIMIT:
+            limits->func_medium_limit = CLStateGetIntArg(handle, arg);
+            break;
+      case OPT_FUNC_LARGE_LIMIT:
+            limits->func_large_limit = CLStateGetIntArg(handle, arg);
+            break;
+      case OPT_FUN_MEDIUM_LIMIT:
+            limits->fun_medium_limit = CLStateGetIntArg(handle, arg);
+            break;
+      case OPT_FUN_LARGE_LIMIT:
+            limits->fun_large_limit = CLStateGetIntArg(handle, arg);
             break;
       default:
 	 assert(false);

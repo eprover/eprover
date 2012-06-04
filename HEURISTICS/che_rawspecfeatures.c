@@ -65,8 +65,31 @@ void RawSpecFeaturesCompute(RawSpecFeature_p features, ProofState_p state)
       FormulaSetStandardWeight(state->f_axioms);
    features->sig_size    = SigCountSymbols(state->terms->sig, true)+
       SigCountSymbols(state->terms->sig,false);
+   
+   features->predc_size = SigCountAritySymbols(state->terms->sig, 0, true);
+   features->func_size  = SigCountAritySymbols(state->terms->sig, 0, false);
+   features->pred_size = SigCountSymbols(state->terms->sig, true)-
+      SigCountAritySymbols(state->terms->sig, 0, true);
+   features->fun_size  = SigCountSymbols(state->terms->sig, false)-
+      SigCountAritySymbols(state->terms->sig, 0, false);
+   
    features->class[0] = '\0';
 }
+
+
+#define RAW_CLASSIFY(index, value, some, many)\
+   if((value) < (some))\
+   {                                            \
+      features->class[index] = 'S';             \
+   }                                            \
+   else if((value) < (many))                    \
+   {                                            \
+      features->class[index] = 'M';             \
+   }                                            \
+   else                                         \
+   {                                            \
+      features->class[index] = 'L';             \
+   }
 
 
 /*-----------------------------------------------------------------------
@@ -82,63 +105,38 @@ void RawSpecFeaturesCompute(RawSpecFeature_p features, ProofState_p state)
 //
 /----------------------------------------------------------------------*/
 
-void RawSpecFeaturesClassify(RawSpecFeature_p features, SpecLimits_p limits)
+void RawSpecFeaturesClassify(RawSpecFeature_p features, SpecLimits_p limits, 
+                             char* pattern) 
 {
-   /* if(features->sentence_no < limits->ax_1_limit)
+   RAW_CLASSIFY(0, features->sentence_no, 
+                limits->ax_some_limit, limits->ax_many_limit);
+   RAW_CLASSIFY(1, features->term_size, 
+                limits->term_medium_limit, limits->term_large_limit);
+   RAW_CLASSIFY(2, features->sig_size, 
+                limits->symbols_medium_limit, limits->symbols_large_limit);
+
+   RAW_CLASSIFY(3, features->pred_size, 
+                limits->pred_medium_limit, limits->pred_large_limit);
+   RAW_CLASSIFY(4, features->predc_size, 
+                limits->predc_medium_limit, limits->predc_large_limit);
+   RAW_CLASSIFY(5, features->fun_size, 
+                limits->fun_medium_limit, limits->fun_large_limit);
+   RAW_CLASSIFY(6, features->func_size, 
+                limits->func_medium_limit, limits->func_large_limit);
+
+   if(pattern)
    {
-      features->class[0] = '1';
+      char* handle;
+      
+      for(handle = features->class;*pattern; pattern++, handle++)
+      {
+         if(*pattern=='-')
+         {
+            *handle = '-';
+         }
+      }
    }
-   else */ if(features->sentence_no < limits->ax_some_limit)
-   {
-      features->class[0] = 'S';
-   }
-   else if(features->sentence_no < limits->ax_many_limit)
-   {
-      features->class[0] = 'M';
-   }
-   else /* if(features->sentence_no < limits->ax_4_limit) */
-   {
-      features->class[0] = 'L';
-   }
-   /* else
-   {
-      features->class[0] = '4';
-      }*/
-   
-   if(features->term_size < limits->term_medium_limit)
-   {
-      features->class[1] = 'S';
-   }
-   else if(features->term_size < limits->term_large_limit)
-   {
-      features->class[1] = 'M';
-   }
-   else
-   {
-      features->class[1] = 'L';
-   }
-   
-   /*if(features->sig_size < limits->symbols_1_limit)
-   {
-      features->class[2] = '1';
-   }
-   else */   if(features->sig_size < limits->symbols_medium_limit)
-   {
-      features->class[2] = 'S';
-   }
-   else if(features->sig_size < limits->symbols_large_limit)
-   {
-      features->class[2] = 'M';
-   }
-   else /* if(features->sig_size < limits->symbols_4_limit) */
-   {
-      features->class[2] = 'L';
-   }
-   /* else
-   {
-      features->class[2] = '4';
-      }*/
-   features->class[3] = '\0';
+   features->class[7] = '\0';
 }
 
 
@@ -165,6 +163,16 @@ void RawSpecFeaturesParse(Scanner_p in, RawSpecFeature_p features)
    features->term_size   = ParseInt(in);
    AcceptInpTok(in, Comma);
    features->sig_size   = ParseInt(in);
+
+   AcceptInpTok(in, Comma);
+   features->pred_size   = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   features->predc_size   = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   features->fun_size   = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   features->func_size   = ParseInt(in);
+
    AcceptInpTok(in, CloseBracket);
    AcceptInpTok(in, Colon);
    class = ParsePlainFilename(in);
@@ -183,18 +191,22 @@ void RawSpecFeaturesParse(Scanner_p in, RawSpecFeature_p features)
 //
 //   Print the features.
 //
-// Global Variables: 
+// Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    : Output
 //
 /----------------------------------------------------------------------*/
 
 void RawSpecFeaturesPrint(FILE* out, RawSpecFeature_p features)
 {
-      fprintf(out, "(%7ld, %7lld, %6d) : %s",
+      fprintf(out, "(%7ld, %7lld, %6d, %6d, %6d, %6d, %6d) : %s",
               features->sentence_no, 
               features->term_size,
               features->sig_size, 
+              features->pred_size,
+              features->predc_size,
+              features->fun_size,
+              features->func_size,
               features->class);
 }
 
