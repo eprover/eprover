@@ -185,14 +185,14 @@ typedef struct spec_feature_cell
 #define SYMBOLS_MEDIUM_DEFAULT   100
 #define SYMBOLS_LARGE_DEFAULT    1000
 
-#define PREDC_MEDIUM_DEFAULT     50
-#define PREDC_LARGE_DEFAULT      500
-#define PRED_MEDIUM_DEFAULT      50
-#define PRED_LARGE_DEFAULT       500
-#define FUNC_MEDIUM_DEFAULT     50
-#define FUNC_LARGE_DEFAULT      500
-#define FUN_MEDIUM_DEFAULT      50
-#define FUN_LARGE_DEFAULT       500
+#define PREDC_MEDIUM_DEFAULT     0
+#define PREDC_LARGE_DEFAULT      2
+#define PRED_MEDIUM_DEFAULT      1225
+#define PRED_LARGE_DEFAULT       4000
+#define FUNC_MEDIUM_DEFAULT      8
+#define FUNC_LARGE_DEFAULT       110
+#define FUN_MEDIUM_DEFAULT       360
+#define FUN_LARGE_DEFAULT        400
 
 
 

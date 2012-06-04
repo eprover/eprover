@@ -176,9 +176,9 @@ void RawSpecFeaturesParse(Scanner_p in, RawSpecFeature_p features)
    AcceptInpTok(in, CloseBracket);
    AcceptInpTok(in, Colon);
    class = ParsePlainFilename(in);
-   if(strlen(class) != 3)
+   if(strlen(class) != 7)
    {
-      Error("Raw class name must have 3 characters", SYNTAX_ERROR);
+      Error("Raw class name must have 7 characters", SYNTAX_ERROR);
    }
    strcpy(features->class, class);
    FREE(class);
