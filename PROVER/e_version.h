@@ -38,8 +38,8 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* cvs tag E-1-6pre002 */
-#define VERSION      "1.6pre002"
+/* cvs tag E-1-6pre003 */
+#define VERSION      "1.6pre003"
 
 #define E_NICKNAME     "Tiger Hill"
 

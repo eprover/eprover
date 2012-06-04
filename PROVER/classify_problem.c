@@ -377,25 +377,25 @@ OptCell opts[] =
     "by this measure."}, 
 
    {OPT_FUNC_MEDIUM_LIMIT,
-    '\0', "pred-const-medium-limit",
+    '\0', "fun-const-medium-limit",
     ReqArg, NULL,
     "Set the minimum number of constant function symbols for medium size "
     "by this measure."}, 
 
    {OPT_FUNC_LARGE_LIMIT,
-    '\0', "pred-const-large-limit",
+    '\0', "fun-const-large-limit",
     ReqArg, NULL,
     "Set the minimum number of constant function symbols for large size "
     "by this measure."}, 
 
    {OPT_FUN_MEDIUM_LIMIT,
-    '\0', "pred-medium-limit",
+    '\0', "fun-medium-limit",
     ReqArg, NULL,
     "Set the minimum number of non-constant function symbols for medium size "
     "by this measure."}, 
 
    {OPT_FUN_LARGE_LIMIT,
-    '\0', "pred-large-limit",
+    '\0', "fun-large-limit",
     ReqArg, NULL,
     "Set the minimum number of non-constant function symbols for large size "
     "by this measure."}, 
