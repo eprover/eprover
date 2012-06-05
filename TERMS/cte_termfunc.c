@@ -1515,7 +1515,7 @@ void TermAddSymbolDistributionLimited(Term_p term, long *dist_array, long limit)
 /----------------------------------------------------------------------*/
 
 void TermAddSymbolDistExist(Term_p term, long *dist_array, 
-                               PStack_p exists)
+                            PStack_p exists)
 {
    PStack_p stack = PStackAlloc();
    assert(term);
