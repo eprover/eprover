@@ -68,6 +68,8 @@ char* AxFilterDefaultSet ="\
    gf600_h_gu_R05_F100_L20000=GSinE(CountFormulas, hypos,   6.0,, 5,20000,1.0)\
    gf200_h_gu_RUU_F100_L20000=GSinE(CountFormulas, hypos,   2.0,,  ,20000,1.0)\
    gf120_h_gu_RUU_F100_L01000=GSinE(CountFormulas, hypos,   1.2,,  , 1000,1.0)\
+\
+   gf600_gu_R05_F100_L20000add=GSinE(CountFormulas, ,   6.0,, 5,20000,1.0,addnosymb)\
 ";
 
 /*---------------------------------------------------------------------*/
@@ -123,16 +125,17 @@ AxFilter_p AxFilterAlloc()
 {
    AxFilter_p handle = AxFilterCellAlloc();
    
-   handle->name                = NULL;
-   handle->type                = AFNoFilter;
-   handle->gen_measure         = GMNoMeasure;
-   handle->use_hypotheses      = false;
-   handle->benevolence         = 1.0;
-   handle->generosity          = LONG_MAX;
-   handle->max_recursion_depth = INT_MAX;
-   handle->max_set_size        = LONG_MAX; /* LONG LONG MAX is
+   handle->name                 = NULL;
+   handle->type                 = AFNoFilter;
+   handle->gen_measure          = GMNoMeasure;
+   handle->use_hypotheses       = false;
+   handle->benevolence          = 1.0;
+   handle->generosity           = LONG_MAX;
+   handle->max_recursion_depth  = INT_MAX;
+   handle->max_set_size         = LONG_MAX; /* LONG LONG MAX is
                                               problematic */
-   handle->max_set_fraction    = 1.0;
+   handle->max_set_fraction     = 1.0;
+   handle->add_no_symbol_axioms = false;
 
    return handle;
 }
@@ -240,10 +243,18 @@ AxFilter_p GSinEParse(Scanner_p in)
       AcceptInpTok(in, PosInt);
    }
    AcceptInpTok(in, Comma); 
-   if(!TestInpTok(in, CloseBracket))
+   if(!TestInpTok(in, CloseBracket|Comma))
    {
       res->max_set_fraction = ParseFloat(in);
    }
+   if(TestInpTok(in, Comma))
+   {
+      AcceptInpTok(in, Comma);       
+      res->add_no_symbol_axioms = TestInpId(in, "addnosymb");
+      AcceptInpId(in, "addnosymb|ignorenosymb");
+   }
+  
+
    AcceptInpTok(in, CloseBracket);
 
    return res;

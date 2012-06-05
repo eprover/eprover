@@ -75,6 +75,7 @@ typedef struct
    long long         max_set_size;
    long              threshold;
    double            max_set_fraction; 
+   bool              add_no_symbol_axioms;
 }AxFilterCell, *AxFilter_p;
 
 
