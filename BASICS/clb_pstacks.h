@@ -89,7 +89,7 @@ void     PStackMerge(PStack_p st1, PStack_p st2, PStack_p res,
 
 double   PStackComputeAverage(PStack_p stack, double *deviation);
 
-
+void     PStackPushStack(PStack_p target, PStack_p source);
 
 void     PStackPrintInt(FILE* out, char* format, PStack_p stack);
 

@@ -185,6 +185,28 @@ void PStackMerge(PStack_p st1, PStack_p st2, PStack_p res,
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: PStackPushStack()
+//
+//   Push all elements from source onto target.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void PStackPushStack(PStack_p target, PStack_p source)
+{
+   PStackPointer i;
+
+   for(i=0; i<PStackGetSP(source); i++)
+   {
+      push(target, PStackElement(source,i));
+   }
+}
+
 
 /*-----------------------------------------------------------------------
 //
