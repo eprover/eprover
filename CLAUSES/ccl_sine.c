@@ -128,7 +128,7 @@ void DRelationFree(DRelation_p rel)
 {
    long i;
 
-   for(i=1; i<rel->relation->size; i++)
+   for(i=0; i<rel->relation->size; i++)
    {
       if(PDArrayElementP(rel->relation, i))
       {
@@ -194,13 +194,20 @@ void DRelationAddClause(DRelation_p drel,
                      generosity,
                      clause, 
                      symbols);
-   while(!PStackEmpty(symbols))
+   if(PStackEmpty(symbols))
    {
-      symbol = PStackPopInt(symbols);
-      rel = DRelationGetFEntry(drel, symbol);
+      rel = DRelationGetFEntry(drel, 0);
       PStackPushP(rel->d_clauses, clause);
    }
-   
+   else
+   {
+      while(!PStackEmpty(symbols))
+      {
+         symbol = PStackPopInt(symbols);
+         rel = DRelationGetFEntry(drel, symbol);
+         PStackPushP(rel->d_clauses, clause);
+      }
+   }   
    PStackFree(symbols);
 }
 
@@ -234,11 +241,19 @@ void DRelationAddFormula(DRelation_p drel,
                       generosity,
                       form, 
                       symbols);
-   while(!PStackEmpty(symbols))
+   if(PStackEmpty(symbols))
    {
-      symbol = PStackPopInt(symbols);
-      rel = DRelationGetFEntry(drel, symbol);
+      rel = DRelationGetFEntry(drel, 0);
       PStackPushP(rel->d_formulas, form);
+   }
+   else
+   {
+      while(!PStackEmpty(symbols))
+      {
+         symbol = PStackPopInt(symbols);
+         rel = DRelationGetFEntry(drel, symbol);
+         PStackPushP(rel->d_formulas, form);
+      }
    }
    PStackFree(symbols);
 }
@@ -488,9 +503,9 @@ long FormulaSetFindHypotheses(FormulaSet_p set, PQueue_p res, bool inc_hypos)
 // Function: SelectDefiningAxioms()
 //
 //   Perform SinE-like axiom selection. All initially selected
-//   "axioms" (typically the hypothesis) have to be in axioms, in the
-//   form of (type, pointer) values. Returns the number of axioms
-//   selected. 
+//   "axioms" (typically the conjectures/hypotheses) have to be in
+//   axioms, in the form of (type, pointer) values. Returns the number
+//   of axioms selected. 
 //
 // Global Variables: -
 //
@@ -674,8 +689,18 @@ long SelectAxioms(GenDistrib_p      f_distrib,
       if(ax_filter->max_set_size < max_result_size)
       {
          max_result_size = ax_filter->max_set_size;
-      }      
-      res = SelectDefiningAxioms(drel,
+      }
+      if(true)
+      {
+         DRel_p no_symbol_axioms = PDArrayElementP(drel->relation, 0);
+         if(ax_filter->add_no_symbol_axioms)
+         {
+            PStackPushStack(res_clauses,  no_symbol_axioms->d_clauses);
+            PStackPushStack(res_formulas, no_symbol_axioms->d_formulas);
+         }
+         res = PStackGetSP(res_clauses)+PStackGetSP(res_formulas);
+      }
+      res += SelectDefiningAxioms(drel,
                                  f_distrib->sig,
                                  ax_filter->max_recursion_depth,
                                  max_result_size,

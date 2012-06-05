@@ -556,7 +556,7 @@ long StructFOFSpecGetProblem(StructFOFSpec_p ctrl,
                                res_formulas);
          break;
    default:
-         assert(false & "Unknown AxFilter type");
+         assert(false && "Unknown AxFilter type");
          break;
    }
    return res;
