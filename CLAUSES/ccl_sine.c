@@ -693,7 +693,7 @@ long SelectAxioms(GenDistrib_p      f_distrib,
       if(true)
       {
          DRel_p no_symbol_axioms = PDArrayElementP(drel->relation, 0);
-         if(ax_filter->add_no_symbol_axioms)
+         if(no_symbol_axioms && ax_filter->add_no_symbol_axioms)
          {
             PStackPushStack(res_clauses,  no_symbol_axioms->d_clauses);
             PStackPushStack(res_formulas, no_symbol_axioms->d_formulas);
