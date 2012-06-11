@@ -98,15 +98,6 @@ static AxFilter_p sine_get_filter(char* fname, AxFilterSet_p *filters)
 /* Class dir used:  */
 
 
-
-/* -------------------------------------------------------*/
-/* The following code is generated automagically with     */
-/* generate_auto.py. Yes, it is fairly ugly ;-)           */
-/* -------------------------------------------------------*/
-
-/* Class dir used:  */
-
-
 /* CLASS_LMSSMLL     : protokoll_X----_auto_300       0    */
 /* CLASS_MMSSMSL     : protokoll_X----_auto_300       3    */
 /* CLASS_LMLSMSL     : protokoll_X----_auto_sine16    20   */
