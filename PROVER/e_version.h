@@ -8,7 +8,7 @@ Contents
  
   Define global macro for version number and meta-information. 
 
-  Copyright 2009 by the author.
+  Copyright 2009-2012 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
@@ -39,7 +39,7 @@ Changes
 /*---------------------------------------------------------------------*/
 
 /* cvs tag E-1-6pre006 */
-#define VERSION      "1.6pre005"
+#define VERSION      "1.6pre006"
 
 #define E_NICKNAME     "Tiger Hill"
 
