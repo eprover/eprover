@@ -847,7 +847,7 @@ else:
         print "/* Global best (used as a default): */"
         print heuristic_define(used[0])
 
-        print """#endif
+    print """#endif
 
 #if defined(CHE_HEURISTICS_INTERNAL) || defined(TO_ORDERING_INTERNAL)
 """
