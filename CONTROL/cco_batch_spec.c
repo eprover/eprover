@@ -660,19 +660,19 @@ bool BatchProcessProblem(BatchSpec_p spec,
    }
    if(handle)
    {
+      fprintf(GlobalOut, "%s for %s\n", PRResultTable[handle->result], source);      
       res = true;
       now = GetSecTime();
       used = now - handle->start_time; 
       remaining = handle->prob_time - used;
       fprintf(GlobalOut, 
-              "# Proof found by %s (started %lld, remaining %lld)\n",
+              "# Solution found by %s (started %lld, remaining %lld)\n",
               handle->name, handle->start_time, remaining);
       fp = SecureFOpen(dest, "w");
       fprintf(fp, "%s", DStrView(handle->output));      
       SecureFClose(fp);
       fprintf(GlobalOut, "%s", DStrView(handle->output));
-      
-      
+    
       if(spec->res_proof || spec->res_list_fof)
       {
          if(remaining > used)

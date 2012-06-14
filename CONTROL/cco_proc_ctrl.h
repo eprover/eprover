@@ -44,7 +44,8 @@ typedef enum
    PRUnsatisfiable,
    PRSatisfiable,
    PRCounterSatisfiable,
-   PRFailure
+   PRFailure,
+   PRGaveUp
 }ProverResult;
 
 
@@ -77,9 +78,15 @@ typedef struct e_pctrl_set_cell
 #define SZS_UNSAT_STR      "# SZS status Unsatisfiable"
 #define SZS_SATSTR_STR     "# SZS status Satisfiable"
 #define SZS_COUNTERSAT_STR "# SZS status CounterSatisfiable"
+#define SZS_GAVEUP_STR     "# SZS status GaveUp"
+#define SZS_FAILURE_STR    "# Failure:"
+
 
 #define E_OPTIONS "--print-pid -s -xAuto -tAuto -R --answers=1\
  --assume-incompleteness --memory-limit=1024 --tstp-in --cpu-limit="
+
+
+extern char* PRResultTable[];
 
 #define EPCtrlCellAlloc()    (EPCtrlCell*)SizeMalloc(sizeof(EPCtrlCell))
 #define EPCtrlCellFree(junk) SizeFree(junk, sizeof(EPCtrlCell))

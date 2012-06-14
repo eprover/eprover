@@ -28,6 +28,17 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
+char* PRResultTable[] =
+{
+   NULL,
+   SZS_THEOREM_STR,
+   SZS_UNSAT_STR,
+   SZS_SATSTR_STR,
+   SZS_COUNTERSAT_STR,
+   SZS_FAILURE_STR,
+   SZS_GAVEUP_STR
+};
+
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
