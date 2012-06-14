@@ -498,6 +498,22 @@ void SubtermTreePrintDot(FILE* out, SubtermTree_p root, Sig_p sig)
    fprintf(out, "     }\n");
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: SubtermTreePrintDummy()
+//
+//   Print subterm trees as "..."
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void SubtermTreePrintDummy(FILE* out, SubtermTree_p root, Sig_p sig)
+{
+   fprintf(out, "     t%p [shape=box label=\"%ld terms\"]\n", root, PObjTreeNodes(root));   
+}
 
 
 /*---------------------------------------------------------------------*/

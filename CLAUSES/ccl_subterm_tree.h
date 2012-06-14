@@ -98,6 +98,8 @@ bool         SubtermTreeDeleteTermOcc(SubtermTree_p *root, Term_p term,
 void SubtermTreePrint(FILE* out, SubtermTree_p root, Sig_p sig);
 
 void SubtermTreePrintDot(FILE* out, SubtermTree_p root, Sig_p sig);
+void SubtermTreePrintDummy(FILE* out, SubtermTree_p root, Sig_p sig);
+
 
 #endif
 
