@@ -41,7 +41,7 @@ Germany
 or via email (address above).
 """
 
-
+import math
 import unittest
 
 
@@ -100,6 +100,17 @@ def median(l):
     else:
         return None
 
+
+def sampleStdDeviation(l):
+    """
+    Return the sample standard deviation of l.
+    """
+    m         = mean(l)
+    dev_vsq   = [(x-m)**2 for x in l]
+    sum_diffs = sum(dev_vsq)
+    return math.sqrt(sum_diffs/float(len(l)-1))
+
+
 class TestMath(unittest.TestCase):
     
     def testSum(self):
@@ -114,6 +125,11 @@ class TestMath(unittest.TestCase):
         self.assertAlmostEqual(mean(l1),4)
         self.assertAlmostEqual(mean(l2),4.5)
         
+    def testStdDec(self):
+        l1 = [1,3,1,3,1,3]
+
+        sigma = sampleStdDeviation(l1)
+        print l1, sigma
 
 
 if __name__ == '__main__':
