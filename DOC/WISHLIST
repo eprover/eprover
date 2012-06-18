@@ -10,25 +10,4 @@ pretty well:
 
 - Automatic generation of term orderings (very partially done, talk to
   me if you want to do something in this direction)
-- Proof checking and presentation (should be pretty easy now, by
-  reusing the algorithms from proofanalyse/generate_examples).
 
-Things that will be done at TUM soon:
-
-- Automatic selection of simple heuristics, based on problem
-  characteristics (mostly done)
-- Learning search control heuristics
-
-Things that should be done but have a low priority due to time
-constraints at TUM:
-
-- Good non-unit-subsumption
-
-- Reimplementation and improvement of term indexing
-  (CLAUSES/clb_pdtrees.[ch] (partially done now)
-  + Use term indexing for backward subsumption as well
-  + Use size/age restrictions to cut of parts of the tree when
-    matching -> DONE
-  I consider the PDTree-Code to be FUBAR now, and would be glad if
-  somebody would reimplement it. The interface is pretty small and
-  stable - it's just that the code sucks.
