@@ -1452,7 +1452,7 @@ long FPIndexCollectLeaves(FPIndex_p index, PStack_p result)
 /----------------------------------------------------------------------*/
 
 void FPIndexPrintDot(FILE* out, char* name, FPIndex_p index, 
-                     FPLeafPayloadprint prt_leaf, Sig_p sig)
+                     FPLeafPayloadPrint prt_leaf, Sig_p sig)
 {
    PStack_p stack = PStackAlloc();
    PStackPointer i;

@@ -72,7 +72,7 @@ typedef struct subterm_index_cell
 
 typedef void (*FPLeafPrintFun)(FILE* out, PStack_p stack, FPTree_p leaf);
 
-typedef void (*FPLeafPayloadprint)(FILE* out, PObjTree_p payload, Sig_p sig);
+typedef void (*FPLeafPayloadPrint)(FILE* out, PObjTree_p payload, Sig_p sig);
 
 
 /*---------------------------------------------------------------------*/
@@ -125,7 +125,7 @@ void      FPIndexDistribDataPrint(FILE* out, FPIndex_p index);
 void      FPIndexPrint(FILE* out, FPIndex_p index, FPLeafPrintFun prtfun);
 long      FPIndexCollectLeaves(FPIndex_p index, PStack_p result);
 void      FPIndexPrintDot(FILE* out, char* name, FPIndex_p index, 
-                          FPLeafPayloadprint prt_sig, Sig_p sig);
+                          FPLeafPayloadPrint prt_sig, Sig_p sig);
 
 
 #endif

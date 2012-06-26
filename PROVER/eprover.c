@@ -1529,16 +1529,17 @@ int main(int argc, char* argv[])
       fprintf(GlobalOut, "# Backwards rewriting index : ");
       FPIndexDistribDataPrint(GlobalOut, proofstate->gindices.bw_rw_index);
       fprintf(GlobalOut, "\n");
-      FPIndexPrintDot(GlobalOut, "rw_bw_index", 
-                      proofstate->gindices.bw_rw_index,
-                      SubtermTreePrintDummy,
-                      proofstate->signature);
+      /*FPIndexPrintDot(GlobalOut, "rw_bw_index", 
+        proofstate->gindices.bw_rw_index,
+        SubtermTreePrintDot,
+        proofstate->signature);*/
       fprintf(GlobalOut, "# Paramod-from index        : ");
       FPIndexDistribDataPrint(GlobalOut, proofstate->gindices.pm_from_index);
       fprintf(GlobalOut, "\n");
-      //FPIndexPrint(GlobalOut, 
-      //proofstate->gindices.pm_from_index, 
-      //OverlapIndexFPLeavePrint); */
+      FPIndexPrintDot(GlobalOut, "pm_from_index", 
+                      proofstate->gindices.pm_from_index,
+                      SubtermTreePrintDot,
+                      proofstate->signature);
       fprintf(GlobalOut, "# Paramod-into index        : ");
       FPIndexDistribDataPrint(GlobalOut, proofstate->gindices.pm_into_index);
       fprintf(GlobalOut, "\n");
