@@ -530,8 +530,8 @@ OptCell opts[] =
    {OPT_SINE,
     '\0', "sine",
     OptArg, "Auto",
-    "Apply SinE to prune the unprocessed axioms with the specified"
-    " filter."},
+    "Apply SInE to prune the unprocessed axioms with the specified"
+    " filter. 'Auto' will automatically pick a filter."},
 
    {OPT_REL_PRUNE_LEVEL,
     '\0', "rel-pruning-level",
