@@ -21,7 +21,7 @@
 #
 ########################################################################
 
-EXECPATH=/Users/schulz/SOURCES/Projects/E/PROVER
+EXECPATH=/Users/schulz/E/PROVER
 
 VERSION=`"$EXECPATH"/eprover --version|cut -d' ' -f2-`
 
