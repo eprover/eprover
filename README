@@ -1,4 +1,4 @@
-NOTE: The CASC-J7 ReadMe file is in DOC/Readme.
+NOTE: The CASC-J^ ReadMe file is in DOC/Readme.
 
 
 Short Installation Instructions for the impatient
@@ -37,14 +37,16 @@ anything fails. There should be a copy in DOC/eprover.pdf.
              ===============================
 
 
-This is the README file for version 1.5 "Pussimbing" of the E
+This is the README file for version 1.6 "Tiger Hill" of the E
 equational theorem prover. This version of E is free software, see the
 file COPYING for details about the license and the fact that THERE IS
 NO WARRANTY!
 
-Release 1.5 is the culmination of a long development phase. Important
-changes vs. version 1.4 include better subsumption indexing, more
-efficient handling of indexed superposition, and a new Auto-mode.
+Release 1.6 is the culmination of a long development phase. Important
+changes vs. version 1.5 include improved handling of very large
+problems (by removing bottlenecks and integrating SInE), a new
+Auto-mode, and a streamlining of the recommended command line
+options.
 
 
 What is E?
@@ -141,12 +143,19 @@ a list of options.
 
 For impatient people who do not want to read anything: 
 
-  eprover -tAuto -xAuto --memory-limit=<80%_of_your_main_memory> <problem-file> 
+  eprover --auto --memory-limit=<80%_of_your_main_memory> <problem-file> 
 
 should give a reasonable performance on a large class of problems
 (unless your main memory is really small).
 
-One of the newer features of E is the ability to produce semi-readable
+The new auto mode will perform a heuristic pruning of the axiom set
+which may result in incompleteness for very large problems (many
+thousands of axioms). If you need completeness, use
+
+  eprover --satauto --memory-limit=<80%_of_your_main_memory> <problem-file> 
+
+
+One of the features of E is the ability to produce semi-readable
 proofs. To use this, type
 
   eprover -l4 <other-stuff> | epclextract
@@ -166,7 +175,7 @@ You can check the output of epclextract (and eproof) for correctness
 using the tool checkproof in the same directory. "checkproof -h"
 should give you all necessary information. Note that checkproof cannot
 yet deal with the full first order part, and will skip anything not
-clausal. 
+clausal.
 
 
 
