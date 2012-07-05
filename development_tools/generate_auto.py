@@ -14,7 +14,7 @@ full_comment    = re.compile('^#')
 dash            = re.compile('-')
 slash           = re.compile('/')
 match_heuristic = re.compile("-H'\(.*\)'")
-match_class     = re.compile('CLASS_[A-Z-0-9]*$')
+match_class     = re.compile('CLASS_[a-zA-Z-0-9]*$')
 eval_f_sep      = re.compile('\),')
 problem_ext     = re.compile('\.[a-z]*$')
 
@@ -889,12 +889,5 @@ else:
 /*     End of automatically generated code.               */
 /* -------------------------------------------------------*/
 """
-
-
-
-
-
-
-
 
 
