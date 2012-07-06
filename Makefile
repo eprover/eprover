@@ -69,9 +69,10 @@ debug_config:
 
 # Build a distribution
 
-distrib: cleandist default_config
+distrib: man documentation cleandist default_config
 	@echo "Did you think about: "
 	@echo " - Changing the bibliographies to local version"
+	@echo " - increasing the dev version number and committing to git?"
 	@echo "    ??? "
 	@cp etc/PROPRIETARY etc/NO_DISTRIB
 	@cd ..; find $(PROJECT) -name "CVS" -print >> $(PROJECT)/etc/NO_DISTRIB;\
@@ -80,9 +81,9 @@ distrib: cleandist default_config
 # Include proprietary code not part of the GPL'ed version, 
 # as well as CVS subdirecctories
 
-fulldistrib: cleandist default_config
+fulldistrib: man documentation cleandist default_config
 	@echo "Warning: You are building a full archive!"
-	@echo "Did you remember to increase the dev version number and commit to CVS?"
+	@echo "Did you remember to increase the dev version number and commit to git?"
 	cd ..; $(TAR) cf - $(PROJECT)|$(GZIP) - -c > $(PROJECT)_FULL.tgz
 
 # Make all library parts
@@ -184,7 +185,7 @@ man: E
 
 # Build the single libraries
 
-E:
+E: links
 	for subdir in $(CODE); do\
 	   cd $$subdir;touch Makefile.dependencies;$(MAKE);cd ..;\
 	done;
