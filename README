@@ -125,10 +125,18 @@ Type
 
 to translate the rudimentary LaTeX documentation (this requires
 LaTeX2e, pdflatex, and the packages theorem, amssymb and epsfig, which
-are included in most current LaTeX distributions). For some operating
-systems, especially if you do not have the GNU gcc compiler installed,
-you may need to edit Makefile.vars manually to select tools and
-options. If you have any problems, look into E/DOC/PORTING.
+are included in most current LaTeX distributions). 
+
+For some operating systems, especially if you do not have the GNU gcc
+compiler installed, you may need to edit Makefile.vars manually to
+select tools and options. If you have any problems, look into
+E/DOC/PORTING.
+
+If yu get into trouble,
+
+   make rebuild
+
+will rebuild E completely to your current configuration.
 
 After installation, go to E/PROVER and type 
 
