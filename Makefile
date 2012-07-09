@@ -75,7 +75,7 @@ distrib: man documentation cleandist default_config
 	@echo " - increasing the dev version number and committing to git?"
 	@echo "    ??? "
 	@cp etc/PROPRIETARY etc/NO_DISTRIB
-	@cd ..; find $(PROJECT) -name "CVS" -print >> $(PROJECT)/etc/NO_DISTRIB;\
+	@cd ..; find $(PROJECT) -name ".git" -print >> $(PROJECT)/etc/NO_DISTRIB;\
          $(TAR) cfX - $(PROJECT)/etc/NO_DISTRIB $(PROJECT) |$(GZIP) - -c > $(PROJECT).tgz
 
 # Include proprietary code not part of the GPL'ed version, 
