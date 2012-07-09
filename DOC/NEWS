@@ -11,9 +11,10 @@ Version 1.5 -> 1.6 Tiger Hill
   results) 
 - Added SInE-axiom filtering and automatic mode for SInE. 
 - Much better heuristics and new auto mode(s)
-- Even better AutoDev-Mode (use at your own risk( ;-)
+- Even better AutoDev-Mode (use at your own risk ;-)
 - More convenient command line interface:
   "eprover --auto" will be good for most people.
+- Updated manual
 
 Version 1.4 -> 1.5 Pussimbing
 
