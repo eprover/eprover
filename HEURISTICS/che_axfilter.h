@@ -115,6 +115,7 @@ void          AxFilterSetPrint(FILE* out, AxFilterSet_p set);
 #define       AxFilterSetGetFilter(s, i) ((AxFilter_p)PStackElementP((s)->set,(i)))
 #define       AxFilterSetAddFilter(s, f) PStackPushP((s)->set, (f))
 AxFilter_p    AxFilterSetFindFilter(AxFilterSet_p set, char* name);
+void          AxFilterSetAddNames(DStr_p res, AxFilterSet_p filters);
 
 #endif
 

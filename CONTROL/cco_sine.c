@@ -67,7 +67,14 @@ static AxFilter_p sine_get_filter(char* fname, AxFilterSet_p *filters)
       filter = AxFilterSetFindFilter(*filters, fname);
       if(!filter)
       {
-         Error("Unknown SinE-filter '%s' selected",USAGE_ERROR, fname);
+         DStr_p fstring = DStrAlloc();
+         
+         AxFilterSetAddNames(fstring, *filters);
+         Error("Unknown SinE-filter '%s' selected (valid choices: %s)",
+               USAGE_ERROR, 
+               fname,
+               DStrView(fstring));
+         DStrFree(fstring);
       }
    }
    else

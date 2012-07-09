@@ -612,6 +612,35 @@ AxFilter_p AxFilterSetFindFilter(AxFilterSet_p set, char* name)
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: AxFilterSetAddNames()
+//
+//   Add the names of all filters in the set to the provided DStr.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations.
+//
+/----------------------------------------------------------------------*/
+
+void AxFilterSetAddNames(DStr_p res, AxFilterSet_p filters)
+{
+   PStackPointer i;
+   AxFilter_p    tmp;
+   char*         sep = "";
+
+   for(i=0; i<PStackGetSP(filters->set); i++)
+   {
+      tmp = AxFilterSetGetFilter(filters, i);
+
+      DStrAppendStr(res, sep);
+      DStrAppendStr(res, tmp->name);
+      sep = ", ";
+   }
+   return res;
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
