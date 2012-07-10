@@ -535,9 +535,13 @@ bool PCLProtMarkProofClauses(PCLProt_p prot)
    for(i=0; i<PStackGetSP(prot->in_order); i++)
    {
       step = PStackElementP(prot->in_order, i);
-      if(!PCLStepIsShell(step)&&
+      if((PCLStepIsShell(step)
+          &&step->extra
+          &&(strcmp(step->extra, "'proof'")==0))
+         ||
+         (!PCLStepIsShell(step)&&
          !PCLStepIsFOF(step)&&
-         ClauseIsEmpty(step->logic.clause))
+          ClauseIsEmpty(step->logic.clause)))
       {
 	 res = true;
       }

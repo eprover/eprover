@@ -407,9 +407,13 @@ bool PCLMiniProtMarkProofClauses(PCLMiniProt_p prot, bool fast)
    while(!PStackEmpty(to_proc))
    {
       step = PStackPopP(to_proc);
-      if(!PCLStepIsShell(step) && 
+      if((PCLStepIsShell(step)
+          &&step->extra
+          &&(strcmp(step->extra, "'proof'")==0))
+         ||
+         (!PCLStepIsShell(step) && 
          PCLStepIsClausal(step) && 
-         (step->logic.clause->literal_no == 0))
+          (step->logic.clause->literal_no == 0)))
       {
 	 res = true;
       }
