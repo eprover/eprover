@@ -670,7 +670,7 @@ Clause_p replacing_inferences(ProofState_p state, ProofControl_p
 
 /*-----------------------------------------------------------------------
 //
-// Function: cleanup_unprocessed()
+// Function: cleanup_unprocessed_clauses()
 //
 //   Perform maintenenance operations on state->unprocessed, depending
 //   on paramters in control:
@@ -687,7 +687,8 @@ Clause_p replacing_inferences(ProofState_p state, ProofControl_p
 //
 /----------------------------------------------------------------------*/
 
-static Clause_p cleanup_unprocessed(ProofState_p state, ProofControl_p control)
+static Clause_p cleanup_unprocessed_clauses(ProofState_p state,
+                                            ProofControl_p control)
 {
    long current_storage = 0;
    long filter_base   = ProofStateStorage(state);
@@ -1412,7 +1413,7 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
       {
 	 break;
       }
-      unsatisfiable = cleanup_unprocessed(state, control);
+      unsatisfiable = cleanup_unprocessed_clauses(state, control);
       if(unsatisfiable)
       {
 	 break;
