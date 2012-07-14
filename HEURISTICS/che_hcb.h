@@ -89,6 +89,7 @@ typedef struct heuristic_parms_cell
    bool                enable_eq_factoring; /* Default is on! */
    bool                enable_neg_unit_paramod; /* Default is on */
    bool                enable_given_forward_simpl; /* On */
+   bool                enable_condensing; /* We'll see ;-) */
 
    ParamodulationType  pm_type;  /* Default is ParamodPlain */
 

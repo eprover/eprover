@@ -668,6 +668,107 @@ Clause_p replacing_inferences(ProofState_p state, ProofControl_p
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: cleanup_unprocessed()
+//
+//   Perform maintenenance operations on state->unprocessed, depending
+//   on paramters in control:
+//   - Remove copies
+//   - Simplify all unprocessed clauses
+//   - Reweigh all unprocessed clauses
+//   - Delete "bad" clauses to avoid running out of memories.
+//   Simplification can find the empty clause, which is then
+//   returned.
+//
+// Global Variables: -
+//
+// Side Effects    : As described above.
+//
+/----------------------------------------------------------------------*/
+
+static Clause_p cleanup_unprocessed(ProofState_p state, ProofControl_p control)
+{
+   long current_storage = 0;
+   long filter_base   = ProofStateStorage(state);
+   long reweight_base = state->unprocessed->members;
+   long filter_copies_base = ProofStateStorage(state);
+   long tmp /* , storage = 0*/;
+   Clause_p unsatisfiable = NULL;
+
+   current_storage = ProofStateStorage(state);
+   filter_copies_base = MIN(filter_copies_base,current_storage); 
+   if((current_storage - filter_copies_base) >
+      control->heuristic_parms.filter_copies_limit)
+   {
+      tmp = ClauseSetDeleteCopies(state->unprocessed);
+      if(OutputLevel)
+      {
+         fprintf(GlobalOut, 
+                 "# Deleted %ld clause copies (remaining: %ld)\n",
+                 tmp, state->unprocessed->members);
+      }
+      state->other_redundant_count += tmp;
+      current_storage  = ProofStateStorage(state);
+      filter_copies_base = current_storage;
+   }
+   filter_base = MIN(filter_base,current_storage); 
+   if((current_storage - filter_base) > control->heuristic_parms.filter_limit)
+   {
+      tmp = state->unprocessed->members;
+      unsatisfiable = 
+         ForwardContractSet(state, control,
+                            state->unprocessed, false, FullRewrite,
+                            &(state->other_redundant_count), true);
+      
+      if(OutputLevel)
+      {
+         fprintf(GlobalOut, 
+                 "# Special forward-contraction deletes %ld clauses"
+                 "(remaining: %ld) \n",
+                 tmp - state->unprocessed->members,
+                 state->unprocessed->members);
+      }	 
+      current_storage  = ProofStateStorage(state);
+      filter_base = current_storage;
+      if(unsatisfiable)
+      {
+         return unsatisfiable;
+      }	 
+   } 
+   reweight_base = MIN(state->unprocessed->members, reweight_base);
+   if((state->unprocessed->members - reweight_base) 
+      > control->heuristic_parms.reweight_limit)
+   {
+      OUTPRINT(1, "# Reweighting unprocessed clauses...\n");
+      ClauseSetReweight(control->hcb,  state->unprocessed);
+      reweight_base = state->unprocessed->members;
+   }
+   tmp = LONG_MAX;
+   
+   if(current_storage > control->heuristic_parms.delete_bad_limit)
+   {	 
+      tmp = HCBClauseSetDeleteBadClauses(control->hcb,
+                                         state->unprocessed, 
+                                         state->unprocessed->members/2);
+      state->non_redundant_deleted += tmp;
+      if(OutputLevel)
+      {
+         fprintf(GlobalOut, 
+                 "# Deleted %ld bad clauses (prover may be"
+                 " incomplete now)\n", tmp);
+      }
+      state->state_is_complete = false;
+//	 ProofStateGCMarkTerms(state); 
+//	 ProofStateGCSweepTerms(state);
+      GCCollect(state->terms->gc);
+      current_storage = ProofStateStorage(state);
+      filter_base = MIN(filter_base, current_storage);
+      filter_copies_base = MIN(filter_copies_base, current_storage);
+   }
+   return unsatisfiable;
+}
+
 
 #ifdef PRINT_SHARING
 
@@ -737,6 +838,9 @@ void print_rw_state(ProofState_p state)
 }
 
 #endif
+
+
+
 
 
 /*---------------------------------------------------------------------*/
@@ -1286,11 +1390,6 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
 {
    Clause_p unsatisfiable = NULL;
    long count = 0;
-   long current_storage = 0;
-   long filter_base   = ProofStateStorage(state);
-   long reweight_base = state->unprocessed->members;
-   long filter_copies_base = ProofStateStorage(state);
-   long tmp /* , storage = 0*/;
 
    while(!TimeIsUp &&
 	 state->unprocessed->members && 
@@ -1313,123 +1412,10 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
       {
 	 break;
       }
-      /* printf("*** Total: %ld \n"
-	     "*** Proc. Rules   : %8ld,  %8ld Eqns, %8ld Bytes %ld index cells\n"
-	     "*** Proc. Eqns    : %8ld,  %8ld Eqns, %8ld Bytes %ld index cells\n"
-	     "*** Proc. NegUnits: %8ld,  %8ld Eqns, %8ld Bytes %ld PDIndex %ld index cells\n"
-	     "*** Proc. NonUnits: %8ld,  %8ld Eqns, %8ld Bytes\n"
-	     "*** Unprocessed   : %8ld,  %8ld Eqns, %8ld Bytes %ld index cells\n"
-	     "*** Term cells    : %8ld, %8ld Bytes\n",
-	     ProofStateStorage(state),
-             
-	     state->processed_pos_rules->members,
-	     state->processed_pos_rules->literals,
-	     ClauseSetStorage(state->processed_pos_rules),
-	     state->processed_pos_rules->demod_index->node_count,
-
-	     state->processed_pos_eqns->members,
-	     state->processed_pos_eqns->literals,
-	     ClauseSetStorage(state->processed_pos_eqns),
-	     state->processed_pos_eqns->demod_index->node_count,
-
-	     state->processed_neg_units->members,
-	     state->processed_neg_units->literals,
-	     ClauseSetStorage(state->processed_neg_units),
-             PDTreeStorage(state->processed_neg_units->demod_index),
-	     state->processed_neg_units->demod_index->node_count,
-
-	     state->processed_non_units->members,
-	     state->processed_non_units->literals,
-	     ClauseSetStorage(state->processed_non_units),
-
-	     state->unprocessed-> members,
-	     state->unprocessed-> literals,
-	     ClauseSetStorage(state->unprocessed),
-	     state->unprocessed->demod_index->node_count,
-
-	     
-	     TBTermNodes(state->terms),
-	     TBStorage(state->terms)); */
-      /* printf("#Stats (CPUA): %ld %ld %ld %ld\n", count, 
-             (state->processed_pos_rules->members +
-              state->processed_pos_eqns->members +
-              state->processed_neg_units->members +
-              state->processed_non_units->members),
-             state->unprocessed->members,
-             (state->processed_pos_rules->members +
-              state->processed_pos_eqns->members +
-              state->processed_neg_units->members +
-              state->processed_non_units->members+
-              state->unprocessed->members));*/
-      current_storage = ProofStateStorage(state);
-      filter_copies_base = MIN(filter_copies_base,current_storage); 
-      if((current_storage - filter_copies_base) >
-	 control->heuristic_parms.filter_copies_limit)
+      unsatisfiable = cleanup_unprocessed(state, control);
+      if(unsatisfiable)
       {
-	 tmp = ClauseSetDeleteCopies(state->unprocessed);
-	 if(OutputLevel)
-	 {
-	    fprintf(GlobalOut, 
-		    "# Deleted %ld clause copies (remaining: %ld)\n",
-		    tmp, state->unprocessed->members);
-	 }
-	 state->other_redundant_count += tmp;
-	 current_storage  = ProofStateStorage(state);
-	 filter_copies_base = current_storage;
-      }
-      filter_base = MIN(filter_base,current_storage); 
-      if((current_storage - filter_base) > control->heuristic_parms.filter_limit)
-      {
-	 tmp = state->unprocessed->members;
-	 unsatisfiable = 
-	    ForwardContractSet(state, control,
-			       state->unprocessed, false, FullRewrite,
-			       &(state->other_redundant_count), true);
-	 
-	 if(OutputLevel)
-	 {
-	    fprintf(GlobalOut, 
-		    "# Special forward-contraction deletes %ld clauses"
-		    "(remaining: %ld) \n",
-		    tmp - state->unprocessed->members,
-		    state->unprocessed->members);
-	 }	 
-	 current_storage  = ProofStateStorage(state);
-	 filter_base = current_storage;
-	 if(unsatisfiable)
-	 {
-	    break;
-	 }	 
-      } 
-      reweight_base = MIN(state->unprocessed->members, reweight_base);
-      if((state->unprocessed->members - reweight_base) 
-	 > control->heuristic_parms.reweight_limit)
-      {
-	 OUTPRINT(1, "# Reweighting unprocessed clauses...\n");
-	 ClauseSetReweight(control->hcb,  state->unprocessed);
-	 reweight_base = state->unprocessed->members;
-      }
-      tmp = LONG_MAX;
-      
-      if(current_storage > control->heuristic_parms.delete_bad_limit)
-      {	 
-	 tmp = HCBClauseSetDeleteBadClauses(control->hcb,
-					    state->unprocessed, 
-					    state->unprocessed->members/2);
-	 state->non_redundant_deleted += tmp;
-	 if(OutputLevel)
-	 {
-	    fprintf(GlobalOut, 
-		    "# Deleted %ld bad clauses (prover may be"
-		    " incomplete now)\n", tmp);
-	 }
-	 state->state_is_complete = false;
-//	 ProofStateGCMarkTerms(state); 
-//	 ProofStateGCSweepTerms(state);
-         GCCollect(state->terms->gc);
-	 current_storage = ProofStateStorage(state);
-	 filter_base = MIN(filter_base, current_storage);
-	 filter_copies_base = MIN(filter_copies_base, current_storage);
+	 break;
       }
    }
    return unsatisfiable;
