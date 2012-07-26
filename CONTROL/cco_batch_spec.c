@@ -564,6 +564,9 @@ long StructFOFSpecGetProblem(StructFOFSpec_p ctrl,
 
 
 
+
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: BatchProcessProblem()
@@ -581,35 +584,20 @@ long StructFOFSpecGetProblem(StructFOFSpec_p ctrl,
 bool BatchProcessProblem(BatchSpec_p spec, 
                          long wct_limit,
                          StructFOFSpec_p ctrl,
-                         char* source, char* dest)
+                         char* jobname,
+                         ClauseSet_p cset,
+                         FormulaSet_p fset,
+                         FILE* out)
 {
    bool res = false;
-   Scanner_p in;
-   ClauseSet_p cset;
-   FormulaSet_p fset;
    EPCtrl_p handle;
    EPCtrlSet_p procs = EPCtrlSetAlloc();
-   FILE* fp;
    long long start, secs, used, now, remaining;
    AxFilterSet_p filters = AxFilterSetCreateInternal(AxFilterDefaultSet);
    int i;
    char* answers = spec->res_answer==BONone?"":"--conjectures-are-questions";
-
    
-   fprintf(GlobalOut, "\n# Processing %s -> %s\n", source, dest);
-   fprintf(GlobalOut, "# SZS status Started for %s\n", source);
-   fflush(GlobalOut);
    start = GetSecTime();
-   
-   in = CreateScanner(StreamTypeFile, source, true, NULL);
-   ScannerSetFormat(in, TSTPFormat);
-
-   cset = ClauseSetAlloc();
-   fset = FormulaSetAlloc();
-   FormulaAndClauseSetParse(in, cset, fset, ctrl->terms, 
-                            NULL, 
-                            &(ctrl->parsed_includes));
-   DestroyScanner(in);
    
    /* fprintf(GlobalOut, "# Adding problem (%lld)\n",
       GetSecTimeMod()); */
@@ -660,7 +648,7 @@ bool BatchProcessProblem(BatchSpec_p spec,
    }
    if(handle)
    {
-      fprintf(GlobalOut, "%s for %s\n", PRResultTable[handle->result], source);      
+      fprintf(GlobalOut, "%s for %s\n", PRResultTable[handle->result], jobname);      
       res = true;
       now = GetSecTime();
       used = now - handle->start_time; 
@@ -668,9 +656,8 @@ bool BatchProcessProblem(BatchSpec_p spec,
       fprintf(GlobalOut, 
               "# Solution found by %s (started %lld, remaining %lld)\n",
               handle->name, handle->start_time, remaining);
-      fp = SecureFOpen(dest, "w");
-      fprintf(fp, "%s", DStrView(handle->output));      
-      SecureFClose(fp);
+      fprintf(out, "%s", DStrView(handle->output));      
+      fflush(out);
       fprintf(GlobalOut, "%s", DStrView(handle->output));
     
       if(spec->res_proof || spec->res_list_fof)
@@ -681,9 +668,8 @@ bool BatchProcessProblem(BatchSpec_p spec,
             fprintf(GlobalOut, "# Proof reconstruction starting\n");
             do_proof(res, spec->executable, spec->pexec, answers, 
                      remaining, handle->input_file);
-            fp = SecureFOpen(dest, "a");
-            fprintf(fp, "%s", DStrView(res));      
-            SecureFClose(fp);
+            fprintf(out, "%s", DStrView(res));      
+            fflush(out);
             fprintf(GlobalOut, "# Proof reconstruction done\n");
             DStrFree(res);
          }
@@ -691,19 +677,17 @@ bool BatchProcessProblem(BatchSpec_p spec,
          {
             fprintf(GlobalOut, "# Only %lld seconds left, skipping proof reconstruction", 
                     remaining);      
-            fp = SecureFOpen(dest, "a");
-            fprintf(fp, "# Only %lld seconds left, skipping proof reconstruction", 
+            fprintf(out, "# Only %lld seconds left, skipping proof reconstruction", 
                     remaining);      
-            SecureFClose(fp);
+            fflush(out);
          }
       }
    }
    else
    {
-      fprintf(GlobalOut, "# SZS status GaveUp for %s\n", source);
-      fp = SecureFOpen(dest, "w");
-      fprintf(fp, "# SZS status GaveUp for %s\n", source);
-      SecureFClose(fp);      
+      fprintf(GlobalOut, "# SZS status GaveUp for %s\n", jobname);
+      fprintf(out, "# SZS status GaveUp for %s\n", jobname);
+      fflush(out);
    }
    
    StructFOFSpecBacktrackToSpec(ctrl);
@@ -711,9 +695,67 @@ bool BatchProcessProblem(BatchSpec_p spec,
 
    EPCtrlSetFree(procs);
 
-   fprintf(GlobalOut, "# SZS status Ended for %s\n\n", source);
-   fflush(GlobalOut);
+   return res;
+}
 
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: BatchProcessFile()
+//
+//   Given an initialized StructFOFSpecCell for Spec, parse the problem
+//   file and try to solve it. Return true if a proof has been found,
+//   false otherwise.
+//
+// Global Variables: -
+//
+// Side Effects    : Plenty (IO, memory, time passes...)
+//
+/----------------------------------------------------------------------*/
+
+bool BatchProcessFile(BatchSpec_p spec, 
+                         long wct_limit,
+                         StructFOFSpec_p ctrl,
+                         char* source, char* dest)
+{
+   bool res = false;
+   Scanner_p in;
+   ClauseSet_p cset;
+   FormulaSet_p fset;
+   FILE* fp;
+
+   
+   fprintf(GlobalOut, "\n# Processing %s -> %s\n", source, dest);
+   fprintf(GlobalOut, "# SZS status Started for %s\n", source);
+   fflush(GlobalOut);
+   
+   in = CreateScanner(StreamTypeFile, source, true, NULL);
+   ScannerSetFormat(in, TSTPFormat);
+
+   cset = ClauseSetAlloc();
+   fset = FormulaSetAlloc();
+   FormulaAndClauseSetParse(in, cset, fset, ctrl->terms, 
+                            NULL, 
+                            &(ctrl->parsed_includes));
+   DestroyScanner(in);
+   
+   fp = SecureFOpen(dest, "w");
+   
+   // cset and fset are handed over to BatchProcessProblem and are
+   // freed there (via StructFOFSpecBacktrackToSpec()).
+   res = BatchProcessProblem(spec, 
+                             wct_limit,
+                             ctrl,
+                             dest,
+                             cset,
+                             fset,
+                             fp);   
+   SecureFClose(fp);
+   
+   fprintf(GlobalOut, "# SZS status Ended for %s\n\n", dest);
+   fflush(GlobalOut);
+   
    return res;
 }
 
@@ -767,11 +809,11 @@ bool BatchProcessProblems(BatchSpec_p spec, StructFOFSpec_p ctrl,
       /* printf("######### Remaining %d probs, %ld secs, limit %ld\n",
          sp-i, rest, wct_limit); */
       
-      if(BatchProcessProblem(spec,
-                             wct_limit,
-                             ctrl, 
-                             PStackElementP(spec->source_files, i),
-                             PStackElementP(spec->dest_files, i)))
+      if(BatchProcessFile(spec,
+                          wct_limit,
+                          ctrl, 
+                          PStackElementP(spec->source_files, i),
+                          PStackElementP(spec->dest_files, i)))
       {
          res++;
       }

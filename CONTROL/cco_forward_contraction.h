@@ -57,6 +57,7 @@ FVPackedClause_p ForwardContractClause(ProofState_p state,
 				       Clause_p clause,
 				       bool non_unit_subsumption,
 				       bool context_sr,
+                                       bool condense,
 				       RewriteLevel level);
 
 Clause_p ForwardContractSet(ProofState_p state, ProofControl_p

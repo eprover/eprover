@@ -88,10 +88,10 @@ BatchSpec_p BatchSpecParse(Scanner_p in, char* executable, char* pexec, IOFormat
 
 #define BatchSpecProblemNo(spec) PStackGetSP((spec)->source_files)
 
-bool BatchProcessProblem(BatchSpec_p spec, 
-                         long wct_limit,
-                         StructFOFSpec_p ctrl, 
-                         char* source, char* dest);
+bool BatchProcessFile(BatchSpec_p spec, 
+                      long wct_limit,
+                      StructFOFSpec_p ctrl, 
+                      char* source, char* dest);
 
 bool BatchProcessProblems(BatchSpec_p spec, 
                           StructFOFSpec_p ctrl, 

@@ -63,6 +63,7 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
 					      subsumed_count, ulong_c* trivial_count,
 					      bool non_unit_subsumption,
 					      bool context_sr,
+                                              bool condense,
 					      RewriteLevel level)
 {
    FVPackedClause_p pclause;
@@ -243,6 +244,7 @@ FVPackedClause_p ForwardContractClause(ProofState_p state,
 				       Clause_p clause, 
 				       bool non_unit_subsumption,
 				       bool context_sr,
+                                       bool condense,
 				       RewriteLevel level)
 {
    FVPackedClause_p res;
@@ -253,7 +255,7 @@ FVPackedClause_p ForwardContractClause(ProofState_p state,
    res = forward_contract_keep(state, control, clause,
 			       &(state->proc_forward_subsumed_count),
 			       &(state->proc_trivial_count),
-			       non_unit_subsumption, context_sr, 
+			       non_unit_subsumption, context_sr, condense,
 			       level);
    
    if(!res)
@@ -300,7 +302,7 @@ Clause_p ForwardContractSet(ProofState_p state, ProofControl_p
 
       if(forward_contract_keep(state, control, handle,
 			       count_eliminated, count_eliminated,
-			       non_unit_subsumption, false,level))
+			       non_unit_subsumption, false, false, level))
       {
 	 if(terminate_on_empty&&ClauseIsEmpty(handle))
 	 {

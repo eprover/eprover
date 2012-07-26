@@ -1247,9 +1247,6 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    
    state->processed_count++;
 
-   /*EvalListPrint(stdout, clause->evaluations);
-     printf(":");*/
-
    ClauseSetExtractEntry(clause);
    ClauseSetProp(clause, CPIsProcessed);
    ClauseDetachParents(clause);
@@ -1260,6 +1257,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    if(!(pclause = ForwardContractClause(state, control,
                                         clause, true, 
                                         control->heuristic_parms.forward_context_sr,
+                                        control->heuristic_parms.enable_condensing,
                                         FullRewrite)))
    {
       return NULL;
@@ -1393,7 +1391,7 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
    long count = 0;
 
    while(!TimeIsUp &&
-	 state->unprocessed->members && 
+         !ClauseSetEmpty(state->unprocessed) && 
 	 step_limit>count && 
 	 proc_limit>(state->processed_pos_rules->members +
 		     state->processed_pos_eqns->members +
