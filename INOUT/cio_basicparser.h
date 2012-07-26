@@ -60,8 +60,6 @@ void       AcceptDottedId(Scanner_p in, char* expected);
 
 void       ParseSkipParenthesizedExpr(Scanner_p in);
 
-
-
 #endif
 
 /*---------------------------------------------------------------------*/
