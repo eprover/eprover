@@ -638,7 +638,6 @@ void AxFilterSetAddNames(DStr_p res, AxFilterSet_p filters)
       DStrAppendStr(res, tmp->name);
       sep = ", ";
    }
-   return res;
 }
 
 
