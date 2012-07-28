@@ -27,6 +27,7 @@ Changes
 #define CCO_BATCH_SPEC
 
 #include <cio_tempfile.h>
+#include <cio_simplestuff.h>
 #include <ccl_formulafunc.h>
 #include <ccl_sine.h>
 #include <cco_sine.h>
@@ -88,6 +89,15 @@ BatchSpec_p BatchSpecParse(Scanner_p in, char* executable, char* pexec, IOFormat
 
 #define BatchSpecProblemNo(spec) PStackGetSP((spec)->source_files)
 
+
+bool BatchProcessProblem(BatchSpec_p spec, 
+                         long wct_limit,
+                         StructFOFSpec_p ctrl,
+                         char* jobname,
+                         ClauseSet_p cset,
+                         FormulaSet_p fset,
+                         FILE* out);
+
 bool BatchProcessFile(BatchSpec_p spec, 
                       long wct_limit,
                       StructFOFSpec_p ctrl, 
@@ -96,6 +106,10 @@ bool BatchProcessFile(BatchSpec_p spec,
 bool BatchProcessProblems(BatchSpec_p spec, 
                           StructFOFSpec_p ctrl, 
                           long total_wtc_limit);
+
+void BatchProcessInteractive(BatchSpec_p spec, 
+                             StructFOFSpec_p ctrl, 
+                             FILE* fp);
 
 
 

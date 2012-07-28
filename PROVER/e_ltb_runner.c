@@ -46,6 +46,7 @@ typedef enum
    OPT_VERSION,
    OPT_VERBOSE,
    OPT_OUTPUT,
+   OPT_INTERACTIVE,
    OPT_PRINT_STATISTICS,
    OPT_SILENT,
    OPT_OUTPUTLEVEL,
@@ -86,6 +87,14 @@ OptCell opts[] =
     ReqArg, NULL,
    "Redirect output into the named file."},
 
+   {OPT_INTERACTIVE,
+    'i', "interactive",
+    NoArg, NULL,
+    "For each batch file, enter interactive mode after processing "
+    "batch the batch problems. Interactive mode allows the processing "
+    "of additional jobs with respect to the loaded axioms set. Jobs "
+    "are entered via stdin and print to stdout."},
+
    {OPT_SILENT,
     's', "silent",
     NoArg, NULL,
@@ -116,7 +125,7 @@ OptCell opts[] =
 
 char              *outname        = NULL;
 long              total_wtc_limit = 0;
-
+bool              interactive     = false;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -180,10 +189,15 @@ int main(int argc, char* argv[])
       BatchStructFOFSpecInit(spec, ctrl);      
       now = GetSecTime();
       res = BatchProcessProblems(spec, ctrl, MAX(0,total_wtc_limit-(now-start)));
-      StructFOFSpecFree(ctrl);
       now = GetSecTime();
       fprintf(GlobalOut, "\n\n# == WCT: %4lds, Solved: %4ld/%4d    ==\n",
               now-start, res, BatchSpecProblemNo(spec));
+
+      if(interactive)
+      {
+        BatchProcessInteractive(spec, ctrl, stdout); 
+      }
+      StructFOFSpecFree(ctrl);
       BatchSpecFree(spec);
       fprintf(GlobalOut, "# =============== Batch done ===========\n\n");
    }
@@ -242,6 +256,9 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_OUTPUT:
 	    outname = arg;
 	    break;
+      case OPT_INTERACTIVE:
+            interactive = true;
+            break;
       case OPT_SILENT:
 	    OutputLevel = 0;
 	    break;

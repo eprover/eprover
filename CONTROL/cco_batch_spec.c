@@ -565,8 +565,6 @@ long StructFOFSpecGetProblem(StructFOFSpec_p ctrl,
 
 
 
-
-
 /*-----------------------------------------------------------------------
 //
 // Function: BatchProcessProblem()
@@ -599,13 +597,9 @@ bool BatchProcessProblem(BatchSpec_p spec,
    
    start = GetSecTime();
    
-   /* fprintf(GlobalOut, "# Adding problem (%lld)\n",
-      GetSecTimeMod()); */
    StructFOFSpecAddProblem(ctrl, 
                           cset, 
                           fset);
-   /* fprintf(GlobalOut, "# Added problem (%lld)\n", GetSecTimeMod()); */
-
 
    secs = GetSecTime();
    handle = batch_create_runner(ctrl, spec->executable,
@@ -656,10 +650,12 @@ bool BatchProcessProblem(BatchSpec_p spec,
       fprintf(GlobalOut, 
               "# Solution found by %s (started %lld, remaining %lld)\n",
               handle->name, handle->start_time, remaining);
-      fprintf(out, "%s", DStrView(handle->output));      
-      fflush(out);
-      fprintf(GlobalOut, "%s", DStrView(handle->output));
-    
+      if(out!=GlobalOut)
+      {
+         fprintf(out, "%s", DStrView(handle->output));      
+         fflush(out);
+         fprintf(GlobalOut, "%s", DStrView(handle->output));
+      }
       if(spec->res_proof || spec->res_list_fof)
       {
          if(remaining > used)
@@ -677,17 +673,23 @@ bool BatchProcessProblem(BatchSpec_p spec,
          {
             fprintf(GlobalOut, "# Only %lld seconds left, skipping proof reconstruction", 
                     remaining);      
-            fprintf(out, "# Only %lld seconds left, skipping proof reconstruction", 
-                    remaining);      
-            fflush(out);
+            if(out!=GlobalOut)
+            {
+               fprintf(out, "# Only %lld seconds left, skipping proof reconstruction", 
+                       remaining);      
+               fflush(out);
+            }
          }
       }
    }
    else
    {
       fprintf(GlobalOut, "# SZS status GaveUp for %s\n", jobname);
-      fprintf(out, "# SZS status GaveUp for %s\n", jobname);
-      fflush(out);
+      if(out!=GlobalOut)
+      {
+         fprintf(out, "# SZS status GaveUp for %s\n", jobname);
+         fflush(out);
+      }
    }
    
    StructFOFSpecBacktrackToSpec(ctrl);
@@ -820,8 +822,105 @@ bool BatchProcessProblems(BatchSpec_p spec, StructFOFSpec_p ctrl,
    }
    return res;
 }
-                          
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: BatchProcessInteractive()
+//
+//   Perform interactive processing of problems relating to the batch
+//   processing spec in spec and the axiom sets stored in ctrl.
+//
+// Global Variables: -
+//
+// Side Effects    : I/O, blocks on reading fp, initiates processing.
+//
+/----------------------------------------------------------------------*/
+
+void BatchProcessInteractive(BatchSpec_p spec, 
+                             StructFOFSpec_p ctrl, 
+                             FILE* fp)
+{
+   DStr_p input   = DStrAlloc();
+   DStr_p jobname = DStrAlloc();
+   bool done = false;
+   Scanner_p in;
+   ClauseSet_p cset;
+   FormulaSet_p fset;
+   long         wct_limit=30;
+   bool         res;
+
+   if(spec->per_prob_time)
+   {
+      wct_limit = spec->per_prob_time;
+   }
+
+   while(!done)
+   {
+      DStrReset(input);
+
+      fprintf(fp, "# Enter job, 'help' or 'quit', followed by 'go.' on a line of its own:\n");
+      fflush(fp);
+      ReadTextBlock(input, stdin, "go.\n");
+      
+      in = CreateScanner(StreamTypeUserString, 
+                         DStrView(input),
+                         true, 
+                         NULL);
+      ScannerSetFormat(in, TSTPFormat);
+      if(TestInpId(in, "quit"))
+      {
+         done = true;
+      }
+      else if(TestInpId(in, "help"))
+      {
+         fprintf(fp, "\
+# Enter a job, 'help' or 'quit'. Finish any action with 'go.' on a line\n\
+# of its own. A job consists of an optional job name specifier of the\n\
+# form 'job <ident>.', followed by a specification of a first-order\n\
+# problem in TPTP-3 syntax (including any combination of 'cnf', 'fof' and\n\
+# 'include' statements. The system then tries to solve the specified\n\
+# problem (including the constant background theory) and prints the\n\
+# results of this attempt.\n");
+      }
+      else
+      {
+         DStrReset(jobname);
+         if(TestInpId(in, "job"))
+         {
+            AcceptInpId(in, "job");
+            DStrAppendDStr(jobname, AktToken(in)->literal);
+            AcceptInpTok(in, Identifier);
+            AcceptInpTok(in, Fullstop);
+         }
+         else
+         {
+            DStrAppendStr(jobname, "unnamed_job");            
+         }
+         fprintf(fp, "\n# Processing started for %s\n", DStrView(jobname));
+         
+         cset = ClauseSetAlloc();
+         fset = FormulaSetAlloc();
+         FormulaAndClauseSetParse(in, cset, fset, ctrl->terms, 
+                                  NULL, 
+                                  &(ctrl->parsed_includes));
+         
+         // cset and fset are handed over to BatchProcessProblem and are
+         // freed there (via StructFOFSpecBacktrackToSpec()).
+         res = BatchProcessProblem(spec, 
+                                   wct_limit,
+                                   ctrl,
+                                   DStrView(jobname),
+                                   cset,
+                                   fset,
+                                   fp);         
+         fprintf(fp, "\n# Processing finished for %s\n\n", DStrView(jobname));
+      }
+      DestroyScanner(in);
+   }   
+   DStrFree(jobname);
+   DStrFree(input);
+}
 
 
 
