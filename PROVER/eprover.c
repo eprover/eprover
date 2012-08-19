@@ -58,6 +58,7 @@ typedef enum
    OPT_PRINT_SATURATED,
    OPT_PRINT_SAT_INFO,
    OPT_FILTER_SATURATED,
+   OPT_PRUNE_ONLY,
    OPT_CNF_ONLY,
    OPT_PRINT_PID,
    OPT_PRINT_VERSION,
@@ -284,6 +285,15 @@ OptCell opts[] =
     " full rewriting, respectively), and 'N', 'R' and 'F' (as their"
     " lower case counterparts, but with non-unit-subsumption enabled"
     " as well)."}, 
+
+   {OPT_PRUNE_ONLY,
+    '\0', "prune",
+    NoArg, NULL,
+    "Stop after relevancy pruning, SInE pruning, and output of the "
+    "initial clause- and formula set. This will automatically set "
+    "output level to 4 so that the pruned problem specification is "
+    "printed. Note that the desired pruning methods must still be "
+    "specified (e.g. '--sine=Auto'"},
    
    {OPT_CNF_ONLY,
     '\0', "cnf",
@@ -1149,6 +1159,7 @@ bool              print_sat = false,
                   no_eq_unfold = false,
                   pcl_full_terms = true,
                   indexed_subsumption = true,
+                  prune_only = false,
                   cnf_only = false,
                   inf_sys_complete = true,
                   assume_inf_sys_complete = false,
@@ -1316,6 +1327,13 @@ int main(int argc, char* argv[])
 
    FormulaSetDocInital(GlobalOut, OutputLevel, proofstate->f_axioms);
    ClauseSetDocInital(GlobalOut, OutputLevel, proofstate->axioms);
+
+   if(prune_only)
+   {
+      fprintf(GlobalOut, "\n# CNFization successful!\n");	    
+      TSTPOUT(GlobalOut, "Unknown");
+      exit(EXIT_SUCCESS);
+   }
 
    if(relevancy_pruned || incomplete)
    {
@@ -1729,6 +1747,10 @@ CLState_p process_options(int argc, char* argv[])
 	    }
 	    filter_sat = true;	    
 	    break;
+      case OPT_PRUNE_ONLY:
+            OutputLevel = 4;
+            prune_only   = true;
+            break;
       case OPT_CNF_ONLY:
             outdesc    = "eigEIG";
             print_sat  = true;
