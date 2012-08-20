@@ -1330,7 +1330,7 @@ int main(int argc, char* argv[])
 
    if(prune_only)
    {
-      fprintf(GlobalOut, "\n# CNFization successful!\n");	    
+      fprintf(GlobalOut, "\n# Pruning successful!\n");	    
       TSTPOUT(GlobalOut, "Unknown");
       exit(EXIT_SUCCESS);
    }
