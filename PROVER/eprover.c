@@ -1332,7 +1332,7 @@ int main(int argc, char* argv[])
    {
       fprintf(GlobalOut, "\n# Pruning successful!\n");	    
       TSTPOUT(GlobalOut, "Unknown");
-      exit(EXIT_SUCCESS);
+      goto cleanup1;
    }
 
    if(relevancy_pruned || incomplete)
@@ -1590,6 +1590,9 @@ int main(int argc, char* argv[])
    MemFreeListPrint(GlobalOut);
 #endif
    ProofControlFree(proofcontrol);
+#endif
+cleanup1:
+#ifndef FAST_EXIT
    ProofStateFree(proofstate);
    CLStateFree(state);
    PStackFree(hcb_definitions);
