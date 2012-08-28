@@ -654,8 +654,9 @@ bool BatchProcessProblem(BatchSpec_p spec,
       {
          fprintf(out, "%s", DStrView(handle->output));      
          fflush(out);
-         fprintf(GlobalOut, "%s", DStrView(handle->output));
       }
+      
+      fprintf(GlobalOut, "%s", DStrView(handle->output));
       if(spec->res_proof || spec->res_list_fof)
       {
          if(remaining > used)
