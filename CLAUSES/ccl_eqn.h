@@ -275,6 +275,8 @@ bool    EqnUnifyDirected(Eqn_p eq1, Eqn_p eq2, Subst_p subst);
 bool    EqnUnify(Eqn_p eq1, Eqn_p eq2, Subst_p subst);
 bool    EqnUnifyP(Eqn_p eq1, Eqn_p eq2);
 
+bool    LiteralUnifyOneWay(Eqn_p eq1, Eqn_p eq2, Subst_p subst, bool swapped);
+
 bool          EqnOrient(OCB_p ocb, Eqn_p eq);
 
 CompareResult EqnCompare(OCB_p ocb, Eqn_p eq1, Eqn_p eq2);

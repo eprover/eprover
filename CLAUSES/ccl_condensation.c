@@ -27,6 +27,8 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
+long CondensationAttempts = 0;
+long CondensationSuccesses = 0;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -46,9 +48,11 @@ Changes
 
 /*-----------------------------------------------------------------------
 //
-// Function: 
+// Function: CondenseOnce()
 //
-//   
+//   Try to condense clause. If successful, simplify the clause, and
+//   return true. If not, the clause is unchanged and false is
+//   returned. 
 //
 // Global Variables: 
 //
@@ -56,7 +60,47 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-Clause_p Condense(Clause_p clause);
+bool CondenseOnce(Clause_p clause)
+{
+   CondensationAttempts++;
+
+
+   return false;
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: Condense()
+//
+//   Condense a clause as much as possible. Return true if the clause
+//   was changed, false otherwise.
+//
+// Global Variables: 
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool Condense(Clause_p clause)
+{
+   bool res = false;
+
+   fprintf(GlobalOut, "Clause to condense: ");
+   ClausePrint(GlobalOut, clause, true);
+   fprintf(GlobalOut, "\n");
+
+   while(CondenseOnce(clause))
+   {
+      res = true;
+   }
+   fprintf(GlobalOut, "%s: ", res?"Modified":"Unchanged");
+   ClausePrint(GlobalOut, clause, true);
+   fprintf(GlobalOut, "\n");
+
+   return res;
+}
 
 
 

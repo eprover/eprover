@@ -31,6 +31,7 @@ Changes
 #include <clb_dstacks.h>
 #include <ccl_paramod.h>
 #include <ccl_splitting.h>
+#include <ccl_condensation.h>
 #include <che_to_weightgen.h>
 #include <che_to_precgen.h>
 #include <ccl_unit_simplify.h>
@@ -89,7 +90,6 @@ typedef struct heuristic_parms_cell
    bool                enable_eq_factoring; /* Default is on! */
    bool                enable_neg_unit_paramod; /* Default is on */
    bool                enable_given_forward_simpl; /* On */
-   bool                enable_condensing; /* We'll see ;-) */
 
    ParamodulationType  pm_type;  /* Default is ParamodPlain */
 
@@ -102,6 +102,9 @@ typedef struct heuristic_parms_cell
 
    RewriteLevel        forward_demod;
    bool                prefer_general;
+
+   bool                condensing;  
+   bool                condensing_aggressive; 
 
    bool                er_varlit_destructive;
    bool                er_strong_destructive;

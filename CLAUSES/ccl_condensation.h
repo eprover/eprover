@@ -36,15 +36,18 @@ Changes
 /*---------------------------------------------------------------------*/
 
 
-
+typedef bool (*CondenseFun)(Clause_p clause);
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+extern long CondensationAttempts;
+extern long CondensationSuccesses;
 
-Clause_p CondenseOnce(Clause_p clause);
-Clause_p Condense(Clause_p clause);
+
+bool CondenseOnce(Clause_p clause);
+bool Condense(Clause_p clause);
 
 
 #endif

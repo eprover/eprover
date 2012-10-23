@@ -119,6 +119,8 @@ typedef enum
    OPT_ASSUME_INCOMPLETENESS,
    OPT_DISABLE_EQ_FACTORING,
    OPT_DISABLE_NEGUNIT_PM,
+   OPT_CONDENSING,
+   OPT_CONDENSING_AGGRESSIVE,
    OPT_NO_GC_FORWARD_SIMPL,
    OPT_USE_SIM_PARAMOD,
    OPT_USE_ORIENTED_SIM_PARAMOD,
@@ -748,6 +750,20 @@ OptCell opts[] =
     "Disable paramodulation into negative unit clause. This makes the"
     " prover incomplete in the general case, but helps for some "
     "specialized classes."}, 
+
+   {OPT_CONDENSING,
+    '\0', "condensing",
+    NoArg, NULL,
+    "Enable condensing for the given clause. Condensing can turn "
+    "superposition into a decision procedure for some classes of "
+    "problems, but is unproven (and, indeed, currently "
+    "uninmplemented ;-)."}, 
+
+   {OPT_CONDENSING_AGGRESSIVE,
+    '\0', "condensing-aggressive",
+    NoArg, NULL,
+    "Enable condensing for the given and newly generated clauses."}, 
+
    {OPT_NO_GC_FORWARD_SIMPL,
     '\0', "disable-given-clause-fw-contraction",
     NoArg, NULL,
@@ -2017,6 +2033,13 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_DISABLE_NEGUNIT_PM:
             h_parms->enable_neg_unit_paramod = false;
             inf_sys_complete = false;
+            break;
+      case OPT_CONDENSING:
+            h_parms->condensing = true;
+            break;
+      case OPT_CONDENSING_AGGRESSIVE:
+            h_parms->condensing = true;
+            h_parms->condensing_aggressive = true;
             break;
       case OPT_USE_SIM_PARAMOD:
             h_parms->pm_type = ParamodAlwaysSim;

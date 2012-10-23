@@ -1729,13 +1729,14 @@ bool LiteralSubsumeP(Eqn_p subsumer, Eqn_p subsumed, TermEqualTestFun
 }
 
 
+
 /*-----------------------------------------------------------------------
 //
 // Function: EqnUnifyDirected()
 //
 //   Test wether two equations can be unified. If yes, return true
 //   and extend subst to give the substitution, otherwise just return
-//   true and let subst unmodified. Don't deal with commutativity of
+//   false and let subst unmodified. Don't deal with commutativity of
 //   equality. 
 //
 // Global Variables: -
@@ -1817,6 +1818,52 @@ bool  EqnUnifyP(Eqn_p eq1, Eqn_p eq2)
    
    return res;   
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: LiteralUnifyOneWay()
+//
+//   Test wether two equations are unifyable, taking into account sign
+//   and direction. If yes, return true and extend subst to give the
+//   substitution, otherwise just return false and let subst
+//   unmodifies. 
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+bool LiteralUnifyOneWay(Eqn_p eq1, Eqn_p eq2, Subst_p subst, bool swapped)
+{
+   PStackPointer backtrack = PStackGetSP(subst);
+   bool res = false;
+
+   if(!EQUIV(EqnIsPositive(eq1), EqnIsPositive(eq2)))
+   {
+      return res;
+   }
+   if(swapped)
+   {
+      EqnSwapSides(eq2);
+   }
+   res = SubstComputeMgu(eq1->lterm, eq2->lterm, subst);
+   if(res)
+   {
+      res = SubstComputeMgu(eq1->rterm,
+                            eq2->rterm, subst);
+   }
+   if(!res)
+   {
+      SubstBacktrackToPos(subst, backtrack);
+   }   
+   if(swapped)
+   {
+      EqnSwapSides(eq2);
+   }
+   return res;
+}
+
 
 
 /*-----------------------------------------------------------------------

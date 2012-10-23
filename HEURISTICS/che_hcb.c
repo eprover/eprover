@@ -115,7 +115,6 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->enable_eq_factoring           = true;
    handle->enable_neg_unit_paramod       = true;
    handle->enable_given_forward_simpl    = true;
-   handle->enable_condensing             = true;
    handle->pm_type                       = ParamodPlain;
 
    handle->ac_handling                   = ACDiscardAll;
@@ -131,6 +130,9 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->er_varlit_destructive         = false;
    handle->er_strong_destructive         = false;
    handle->er_aggressive                 = false;
+
+   handle->condensing                    = false;
+   handle->condensing_aggressive         = false;
 
    handle->split_clauses                 = SplitNone;
    handle->split_method                  = SplitGroundNone;
