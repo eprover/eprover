@@ -553,6 +553,43 @@ static void print_minimize(FILE* out, Clause_p clause, long
    }   
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: print_condense()
+//
+//   Print a clause modification by condensation.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+static void print_condense(FILE* out, Clause_p clause, long
+                           old_id, char* comment)
+{
+   switch(DocOutputFormat)
+   {
+   case pcl_format:
+	 pcl_print_start(out, clause, PCLShellLevel<1);
+	 fprintf(out, PCL_CONDENSE"(%ld)", old_id);
+	 pcl_print_end(out, comment, clause);
+	 break;
+   case tstp_format:
+         ClauseTSTPPrint(out, clause, PCLFullTerms, false);
+         fprintf(out, 
+                 ",inference("PCL_CONDENSE
+                 ",[status(thm)],[c_0_%ld, theory(equality,[symmetry])])", 
+                 old_id);
+         tstp_print_end(out, comment, clause);
+         break;
+   default:
+	 fprintf(out, "# Output format not implemented.\n");
+	 break;
+   }   
+}
+
 /*-----------------------------------------------------------------------
 //
 // Function: print_eval_answer()
@@ -1335,6 +1372,12 @@ void DocClauseModification(FILE* out, long level, Clause_p clause, InfType
 	    clause->ident = ++ClauseIdentCounter;
 	    print_ac_res(out, clause, old_id, sig, comment);
 	    break;
+      case inf_condense:
+	    assert(clause);
+	    assert(!partner);
+	    clause->ident = ++ClauseIdentCounter;
+	    print_condense(out, clause, old_id, comment);
+	    break;	                
       case inf_minimize:
 	    assert(clause);
 	    assert(!partner);

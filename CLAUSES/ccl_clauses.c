@@ -348,6 +348,42 @@ Clause_p ClauseAlloc(Eqn_p literals)
 
 /*-----------------------------------------------------------------------
 //
+// Function: ClauseRecomputeLitCounts()
+//
+//   Recompute the literal counts in clause.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void ClauseRecomputeLitCounts(Clause_p clause)
+{
+   Eqn_p handle;
+
+   clause->pos_lit_no = 0;
+   clause->neg_lit_no = 0;
+
+   for(handle=clause->literals;
+       handle;
+       handle=handle->next)
+   {
+      if(EqnIsPositive(handle))
+      {
+         clause->pos_lit_no++;
+      }
+      else
+      {
+         clause->neg_lit_no++;
+      }
+   }
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: ClauseHasMaxPosEqLit()
 //
 //   Return true if the clause has a maximal positive equational

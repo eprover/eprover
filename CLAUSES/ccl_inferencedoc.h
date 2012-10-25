@@ -47,6 +47,7 @@ typedef enum
    inf_simplify_reflect,
    inf_context_simplify_reflect,
    inf_ac_resolution,
+   inf_condense,
    inf_minimize,
    inf_rewrite,
    
@@ -89,6 +90,7 @@ typedef enum
 #define PCL_CSR   "csr"
 #define PCL_ACRES "ar"
 #define PCL_CN    "cn"
+#define PCL_CONDENSE "condense"
 
 #define PCL_SC    "split_conjunct"
 #define PCL_SE    "split_equiv"

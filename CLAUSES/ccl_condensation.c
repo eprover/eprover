@@ -62,9 +62,50 @@ long CondensationSuccesses = 0;
 
 bool CondenseOnce(Clause_p clause)
 {
+   Eqn_p    l1, l2, newlits;
+   Subst_p  subst = SubstAlloc();
+   Clause_p cand;
+   bool     swap;
+
+   assert(ClauseIsSubsumeOrdered(clause));
    CondensationAttempts++;
 
+   for(l1=clause->literals; l1; l1=l1->next)
+   {
+      assert(l1);
+      for(l2=l1->next; l2; l2=l2->next)
+      {
+         for(swap = false; !swap; swap = true)
+         {
+            if(LiteralUnifyOneWay(l1, l2, subst, swap))
+            {
+               newlits = EqnListCopyExcept(clause->literals,l2, l1->bank);
+               SubstBacktrack(subst);               
+               EqnListRemoveDuplicates(newlits, TBTermEqual);
+               cand = ClauseAlloc(newlits);
+               cand->weight = ClauseStandardWeight(cand);
+               ClauseSubsumeOrderSortLits(cand);
+               if(ClauseSubsumesClause(cand, clause))
+               {
+                  EqnListFree(clause->literals);
+                  clause->literals = cand->literals;
+                  ClauseRecomputeLitCounts(clause);
+                  clause->weight = ClauseStandardWeight(clause);
+                  cand->literals = NULL;
+                  ClauseFree(cand);
+                  SubstFree(subst);
 
+                  return true;
+               }
+               else
+               {
+                  ClauseFree(cand);
+               }
+            }
+         }
+      }
+   }
+   SubstFree(subst);
    return false;
 }
 
@@ -86,19 +127,20 @@ bool CondenseOnce(Clause_p clause)
 bool Condense(Clause_p clause)
 {
    bool res = false;
-
-   fprintf(GlobalOut, "Clause to condense: ");
-   ClausePrint(GlobalOut, clause, true);
-   fprintf(GlobalOut, "\n");
-
-   while(CondenseOnce(clause))
+   
+   if((clause->pos_lit_no > 1) || (clause->neg_lit_no >1))
    {
-      res = true;
+      clause->weight = ClauseStandardWeight(clause);
+      ClauseSubsumeOrderSortLits(clause);
+      while(CondenseOnce(clause))
+      {
+         res = true;
+      }
+      if(res)
+      {
+         DocClauseModificationDefault(clause, inf_condense, NULL);
+      }
    }
-   fprintf(GlobalOut, "%s: ", res?"Modified":"Unchanged");
-   ClausePrint(GlobalOut, clause, true);
-   fprintf(GlobalOut, "\n");
-
    return res;
 }
 

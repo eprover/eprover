@@ -208,6 +208,8 @@ Clause_p ClauseCellAlloc(void);
 Clause_p EmptyClauseAlloc(void);
 Clause_p ClauseAlloc(Eqn_p literals);
 void     ClauseFree(Clause_p junk);
+void     ClauseRecomputeLitCounts(Clause_p clause);
+
 
 #define  ClauseGCMarkTerms(clause) EqnListGCMarkTerms((clause)->literals)
 
