@@ -37,6 +37,8 @@ long ClauseClauseSubsumptionCallsRec  = 0;
 long ClauseClauseSubsumptionSuccesses = 0;
 long UnitClauseClauseSubsumptionCalls = 0;
 
+bool SubsumedCausesSOS = true;
+
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
@@ -1264,7 +1266,11 @@ bool ClauseSubsumesClause(Clause_p subsumer, Clause_p sub_candidate)
    res = clause_subsumes_clause(subsumer, sub_candidate);
    
    /* Shouldn't this be inside an "if(res){}"? */
-   ClauseSetProp(subsumer, ClauseQueryProp(sub_candidate,CPIsSOS));
+   /* Actually, this is WRONG (though harmless) */
+   if(SubsumedCausesSOS)
+   {
+      ClauseSetProp(subsumer, ClauseQueryProp(sub_candidate,CPIsSOS));
+   }
    return res;
 }
 

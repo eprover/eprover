@@ -178,6 +178,34 @@ void PropClausePrint(FILE* out, TB_p bank, PropClause_p clause)
    ClauseFree(handle);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: PropClauseMaxVar()
+//
+//   Return the largest variable index in clause.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long PropClauseMaxVar(PropClause_p clause)
+{
+   int i;
+   long res = 0, tmp;
+   
+   for(i=0; i<clause->lit_no; i++)
+   {
+      tmp = clause->literals[i].lit->entry_no;
+      if(tmp > res)
+      {
+         res = tmp;
+      }
+   }
+   return res;
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -307,6 +335,37 @@ void PropClauseSetPrint(FILE* out, TB_p bank, PropClauseSet_p set)
       fputc('\n', out);
       handle = handle->next;
    }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PropClauseSetMaxVar()
+//
+//   Return the largest used variable number in set.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long PropClauseSetMaxVar(PropClauseSet_p set)
+{
+   long res = 0, tmp;
+   
+   PropClause_p handle = set->list;
+
+   while(handle)
+   {
+      tmp = PropClauseMaxVar(handle);
+      if(tmp > res)
+      {
+         res = tmp;
+      }
+      handle = handle->next;
+   }
+   return res;
 }
 
 

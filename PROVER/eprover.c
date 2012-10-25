@@ -168,6 +168,7 @@ typedef enum
    OPT_FREE_OBJECTS,
    OPT_OLD_STYLE_CNF,
    OPT_DEF_CNF,
+   OPT_FIX_SUBSUMPTION_SOS,
    OPT_DUMMY
 }OptionCodes;
 
@@ -752,7 +753,7 @@ OptCell opts[] =
     "specialized classes."}, 
 
    {OPT_CONDENSING,
-    '\0', "condensing",
+    '\0', "condense",
     NoArg, NULL,
     "Enable condensing for the given clause. Condensing can turn "
     "superposition into a decision procedure for some classes of "
@@ -760,7 +761,7 @@ OptCell opts[] =
     "uninmplemented ;-)."}, 
 
    {OPT_CONDENSING_AGGRESSIVE,
-    '\0', "condensing-aggressive",
+    '\0', "condense-aggressive",
     NoArg, NULL,
     "Enable condensing for the given and newly generated clauses."}, 
 
@@ -1153,6 +1154,13 @@ OptCell opts[] =
     "is a fudge factor that determines when definitions are introduced. "
     "0 disables definitions completely. The default works well."},
    
+   {OPT_FIX_SUBSUMPTION_SOS,
+     '\0', "fix-subsumption-sos",
+     NoArg, NULL,
+    "Historically, E would transfer SOS status from a subsumed to a "
+    "subsuming clause (which is absurd, given the idea of an SOS. This "
+    "option fixes the bug (for testing)"}, 
+
    {OPT_NOOPT,
     '\0', NULL,
     NoArg, NULL,
@@ -1540,6 +1548,11 @@ int main(int argc, char* argv[])
               BWRWMatchAttempts);
       fprintf(GlobalOut, "# BW rewrite match successes           : %ld\n",
               BWRWMatchSuccesses);
+      fprintf(GlobalOut, "# Condensation attempts                : %ld\n",
+              CondensationAttempts);
+      fprintf(GlobalOut, "# Condensation successes               : %ld\n",
+              CondensationSuccesses);
+
 #ifdef MEASURE_UNIFICATION
       fprintf(GlobalOut, "# Unification attempts                 : %ld\n",
               UnifAttempts);
@@ -2368,6 +2381,9 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_DEF_CNF:
             FormulaDefLimit     = CLStateGetIntArg(handle, arg);
+            break;
+      case OPT_FIX_SUBSUMPTION_SOS:
+            SubsumedCausesSOS = false;
             break;
       default:
 	    assert(false && "Unknown option");

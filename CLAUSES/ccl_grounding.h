@@ -123,6 +123,8 @@ void        GroundSetFree(GroundSet_p junk);
 
 #define     GroundSetMembers(set) ((set)->unit_no+((set)->non_units->members))
 
+long        GroundSetMaxVar(GroundSet_p set);
+
 /* Dimacs format provers oven cannot cope with empty clauses, so we
    print them as a set of two trivially complementary clauses */
 #define     GroundSetDimacsPrintMembers(set)\

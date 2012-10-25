@@ -68,7 +68,8 @@ typedef enum
    OPT_PART_COMPLETE,
    OPT_GIVE_UP,
    OPT_CONSTRAINTS,
-   OPT_LOCAL_CONSTRAINTS
+   OPT_LOCAL_CONSTRAINTS,
+   OPT_FIX_MINISAT
 }OptionCodes;
 
 
@@ -290,6 +291,13 @@ OptCell opts[] =
     "implemented! Note to self: Split clauses need to get fresh "
     "variables if this is to work!"},   
 
+   {OPT_FIX_MINISAT,
+    'M', "fix-minisat",
+    NoArg, NULL,
+    "Fix the preamble to include only the maximum variable index, "
+    "to compensate for MiniSAT's problematic interpretation of "
+    "the DIMAC syntax."},
+
     {OPT_NOOPT,
     '\0', NULL,
     NoArg, NULL,
@@ -308,7 +316,8 @@ bool   unit_sub = true,
        local_constraints = false,
        print_statistics = false,
        print_rusage = false,
-       print_result = true;
+       print_result = true,
+       fix_minisat = false;
 long   give_up = 0,
        initial_literals = 0,
        initial_clauses = 0;
@@ -469,7 +478,14 @@ int main(int argc, char* argv[])
    {
       if(dimacs_format)
       {
-	 PrintDimacsHeader(GlobalOut, groundset->max_literal,
+         long max_lit =  groundset->max_literal;
+         
+         if(fix_minisat)
+         {
+            max_lit = GroundSetMaxVar(groundset);
+         }
+               
+	 PrintDimacsHeader(GlobalOut, max_lit,
 			   GroundSetDimacsPrintMembers(groundset));
 	 GroundSetPrintDimacs(GlobalOut, groundset);
       }
@@ -695,12 +711,15 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_CONSTRAINTS:
 	    constraints = true;
 	    break;
-       case OPT_LOCAL_CONSTRAINTS:
-	    constraints = true;
+      case OPT_LOCAL_CONSTRAINTS:
+            constraints = true;
 	    local_constraints = true;
 	    ClausesHaveDisjointVariables = true;
 	    ClausesHaveLocalVariables = false;
 	    break;
+      case OPT_FIX_MINISAT:
+            fix_minisat = true;
+            break;
       default:
 	 assert(false);
 	 break;

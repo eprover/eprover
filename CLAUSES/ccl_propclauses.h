@@ -76,6 +76,7 @@ void         PropClauseFree(PropClause_p clause);
 Clause_p     PropClauseToClause(TB_p bank, PropClause_p clause);
 void         PropClausePrint(FILE* out, TB_p bank, PropClause_p
 			     clause);
+long         PropClauseMaxVar(PropClause_p clause);
 
 
 #define PropClauseSetCellAlloc()    (PropClauseSetCell*)SizeMalloc(sizeof(PropClauseSetCell))
@@ -89,6 +90,7 @@ long            PropClauseSetInsertClause(PropClauseSet_p set,
 					  Clause_p clause);
 void            PropClauseSetPrint(FILE* out, TB_p bank,
 				   PropClauseSet_p set);
+long            PropClauseSetMaxVar(PropClauseSet_p set);
 
 #endif
 

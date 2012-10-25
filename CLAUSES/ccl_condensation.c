@@ -95,6 +95,7 @@ bool CondenseOnce(Clause_p clause)
                   ClauseFree(cand);
                   SubstFree(subst);
 
+                  CondensationSuccesses++;
                   return true;
                }
                else

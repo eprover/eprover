@@ -678,6 +678,43 @@ void GroundSetFree(GroundSet_p junk)
 
 /*-----------------------------------------------------------------------
 //
+// Function: GroundSetMaxVar()
+//
+//   Return the index of the largest variable in set.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long GroundSetMaxVar(GroundSet_p set)
+{
+   long         res=0, tmp, i;
+   GCUEncoding  status;
+   
+   for(i=set->units->size;i>0; i--)
+   {
+      status = PDArrayElementInt(set->units, i);
+      if(status)
+      {
+         res = i;
+         break;
+      }
+   }
+   tmp = PropClauseSetMaxVar(set->non_units);
+   
+   if(tmp > res)
+   {
+      res = tmp;
+   }
+   
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: GroundSetInsert()
 //
 //   Insert a (ground) clause into a GroundSet. Return false if clause

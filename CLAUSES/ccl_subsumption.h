@@ -49,6 +49,9 @@ extern long ClauseClauseSubsumptionCallsRec;
 extern long ClauseClauseSubsumptionSuccesses;
 extern long UnitClauseClauseSubsumptionCalls;
 
+extern bool SubsumedCausesSOS;
+
+
 bool     LiteralSubsumesClause(Eqn_p literal, Clause_p clause); 
 bool     UnitClauseSubsumesClause(Clause_p unit, Clause_p clause); 
 Clause_p UnitClauseSetSubsumesClause(ClauseSet_p set, Clause_p
