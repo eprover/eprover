@@ -164,7 +164,9 @@ static __inline__ void* SizeMallocReal(size_t size)
 {
    Mem_p  handle;
    long mem_index;
-   
+ 
+   assert(size>=0);
+  
    mem_index = size - sizeof(MemCell);
    
    if((mem_index>=0) && (mem_index<MEM_ARR_SIZE) && free_mem_list[mem_index])

@@ -27,7 +27,7 @@
       }
       else
       {
-	 mem_array[$2] = $5;
+	 mem_array[$2] = $5+1;
       }
    }
    else if($3=="D:")
@@ -39,9 +39,9 @@
       }
       else
       {
-	 if(mem_array[$2] != $5)
+	 if(mem_array[$2] != ($5+1))
 	 {
-	    print $0 " freed with wrong size " mem_array[$1];
+	    print $0 " freed with wrong size " mem_array[$2]-1;
 	    fail_array[count++] = $0 " WS";
 	   }
 	 delete mem_array[$2];
@@ -87,7 +87,7 @@ END{
    print "SizeMalloc errors:"
    for(i in mem_array)
    {
-      print "Remaining: " i " " mem_array[i];      
+      print "Remaining: " i " " mem_array[i]-i;      
    }
    print "Failure list:";
    for(i in fail_array)

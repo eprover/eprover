@@ -29,6 +29,7 @@ Changes
 #include <ccl_splitting.h>
 #include <ccl_grounding.h>
 #include <che_clausesetfeatures.h>
+#include <ccl_formulafunc.h>
 #include <e_version.h>
 
 
@@ -336,8 +337,10 @@ void print_help(FILE* out);
 int main(int argc, char* argv[])
 {
    TB_p            terms;
+   VarBank_p       freshvars;
    Sig_p           sig;
    ClauseSet_p     clauses;
+   FormulaSet_p    formulas;
    GroundSet_p     groundset;
    Scanner_p       in;    
    int             i;
@@ -348,6 +351,7 @@ int main(int argc, char* argv[])
    PermVector_p    perm;
    //long            symbols = 100; /* Temporary fix */
    FVCollect_p     cspec;
+   StrTree_p       skip_includes = NULL;
 
    assert(argv[0]);
    
@@ -369,15 +373,32 @@ int main(int argc, char* argv[])
    sig       = SigAlloc();
    terms     = TBAlloc(sig);
    def_store = DefStoreAlloc(terms);
-   clauses = ClauseSetAlloc();
+   clauses  = ClauseSetAlloc();
+   formulas = FormulaSetAlloc();
    for(i=0; state->argv[i]; i++)
    {
       in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL);
       ScannerSetFormat(in, parse_format);
-      ClauseSetParseList(in, clauses, terms);
+      /* ClauseSetParseList(in, clauses, terms); */
+      FormulaAndClauseSetParse(in,clauses, formulas, terms, 
+         NULL, &skip_includes);
+      CheckInpTok(in, NoToken);
       DestroyScanner(in);
    }
    CLStateFree(state);
+
+   if(FormulaSetPreprocConjectures(formulas, false, false))
+   {
+      VERBOUT("Negated conjectures.\n");
+   }
+   freshvars = VarBankAlloc();
+   if(FormulaSetCNF(formulas, clauses, terms, freshvars))
+   {
+      VERBOUT("CNFization done\n");
+   }
+   VarBankFree(freshvars);
+
+   FormulaSetFree(formulas);
 
    ClauseSetRemoveSuperfluousLiterals(clauses);
 
@@ -394,8 +415,7 @@ int main(int argc, char* argv[])
    perm = PermVectorCompute(clauses,		    
                             cspec,
                             false);  
-   def_store->def_clauses->fvindex =
-      FVIAnchorAlloc(cspec, perm);
+   def_store->def_clauses->fvindex = FVIAnchorAlloc(cspec, perm);
 
    SpecFeaturesCompute(&features, clauses, sig);   
 
@@ -532,6 +552,7 @@ int main(int argc, char* argv[])
    ClauseSetFree(clauses);
    terms->sig = NULL;
    DefStoreFree(def_store);
+   FVCollectFree(cspec);
    TBFree(terms);
    SigFree(sig);
 #endif
