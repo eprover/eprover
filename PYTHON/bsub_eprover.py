@@ -49,6 +49,13 @@ Options:
 --ext3-stats
   Collect even more extended stats.
    
+-Z
+--extFV-stats
+  Collect FV-Indexing stats.
+
+--ext5-stats
+  Collect condensation stats.
+
 Copyright 2010-2011 Stephan Schulz, schulz@eprover.org
 
 This code is part of the support structure for the equational
@@ -560,6 +567,11 @@ x4_stats = [
     "# PC(SetSubsumeTimer)"
     ]
 
+x5_stats = [
+    "# Condensation attempts",
+    "# Condensation successes"    
+    ]
+
 
 
 class TestDecoding(unittest.TestCase):
@@ -685,6 +697,9 @@ if __name__ == '__main__':
         elif option == "-Z" or option == "--extFV-stats":
             stats.extend(x_stats)
             stats.extend(x4_stats)
+        elif  option == "--ext5-stats":
+            stats.extend(x_stats)
+            stats.extend(x5_stats)
         elif option == "-c" or option == "--cores":
             cores = int(optarg)
         else:
