@@ -652,17 +652,18 @@ class TestDecoding(unittest.TestCase):
 
 if __name__ == '__main__':
     opts, args = getopt.gnu_getopt(sys.argv[1:], "uhvpsfb:j:xXYZc:",
-                                   ["--unit-test",
-                                    "--pegasus",
-                                    "--peg-sine",
-                                    "--force",
-                                    "--batchsize=",
-                                    "--jobs="
-                                    "--ext-stats",
-                                    "--ext2-stats",
-                                    "--ext3-stats",
-                                    "--extFV-stats",
-                                    "--cores="])
+                                   ["unit-test",
+                                    "pegasus",
+                                    "peg-sine",
+                                    "force",
+                                    "batchsize=",
+                                    "jobs="
+                                    "ext-stats",
+                                    "ext2-stats",
+                                    "ext3-stats",
+                                    "extFV-stats",
+                                    "ext5-stats",
+                                    "cores="])
     force_scheduling = False
 
     test_cfg()
