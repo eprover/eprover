@@ -68,7 +68,6 @@ bool CondenseOnce(Clause_p clause)
    bool     swap;
 
    assert(ClauseIsSubsumeOrdered(clause));
-   CondensationAttempts++;
 
    for(l1=clause->literals; l1; l1=l1->next)
    {
@@ -95,7 +94,6 @@ bool CondenseOnce(Clause_p clause)
                   ClauseFree(cand);
                   SubstFree(subst);
 
-                  CondensationSuccesses++;
                   return true;
                }
                else
@@ -129,6 +127,8 @@ bool Condense(Clause_p clause)
 {
    bool res = false;
    
+   CondensationAttempts++;
+
    if((clause->pos_lit_no > 1) || (clause->neg_lit_no >1))
    {
       clause->weight = ClauseStandardWeight(clause);
@@ -139,6 +139,7 @@ bool Condense(Clause_p clause)
       }
       if(res)
       {
+         CondensationSuccesses++;
          DocClauseModificationDefault(clause, inf_condense, NULL);
       }
    }
