@@ -37,7 +37,6 @@ long ClauseClauseSubsumptionCallsRec  = 0;
 long ClauseClauseSubsumptionSuccesses = 0;
 long UnitClauseClauseSubsumptionCalls = 0;
 
-bool SubsumedCausesSOS = true;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -1264,13 +1263,7 @@ bool ClauseSubsumesClause(Clause_p subsumer, Clause_p sub_candidate)
    assert(sub_candidate->weight == ClauseStandardWeight(sub_candidate));
    assert(subsumer->weight == ClauseStandardWeight(subsumer));
    res = clause_subsumes_clause(subsumer, sub_candidate);
-   
-   /* Shouldn't this be inside an "if(res){}"? */
-   /* Actually, this is WRONG (though harmless) */
-   if(SubsumedCausesSOS)
-   {
-      ClauseSetProp(subsumer, ClauseQueryProp(sub_candidate,CPIsSOS));
-   }
+
    return res;
 }
 
