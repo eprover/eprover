@@ -337,6 +337,7 @@ void print_help(FILE* out);
 int main(int argc, char* argv[])
 {
    TB_p            terms;
+   GCAdmin_p       collector;
    VarBank_p       freshvars;
    Sig_p           sig;
    ClauseSet_p     clauses;
@@ -370,11 +371,17 @@ int main(int argc, char* argv[])
       CLStateInsertArg(state, "-");
    }
    
-   sig       = SigAlloc();
+   sig       = SigAlloc(); 
+   SigInsertInternalCodes(sig);
    terms     = TBAlloc(sig);
+   collector = GCAdminAlloc(terms);
    def_store = DefStoreAlloc(terms);
-   clauses  = ClauseSetAlloc();
-   formulas = FormulaSetAlloc();
+   clauses   = ClauseSetAlloc();
+   formulas  = FormulaSetAlloc();
+   
+   GCRegisterClauseSet(collector, clauses);
+   GCRegisterFormulaSet(collector, formulas);
+
    for(i=0; state->argv[i]; i++)
    {
       in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL);
@@ -549,7 +556,9 @@ int main(int argc, char* argv[])
    }
 #ifndef FAST_EXIT
    GroundSetFree(groundset);
-   ClauseSetFree(clauses);
+   ClauseSetFree(clauses);  
+   GCAdminFree(collector);
+
    terms->sig = NULL;
    DefStoreFree(def_store);
    FVCollectFree(cspec);
