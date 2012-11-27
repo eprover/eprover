@@ -20,7 +20,7 @@
 
 .PHONY: all depend remove_links clean cleandist default_config debug_config distrib fulldistrib top links tags tools rebuild install config remake documentation E man
 
- include Makefile.vars
+include Makefile.vars
 
 # Project specific variables
 

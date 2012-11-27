@@ -8,12 +8,12 @@
 #
 # Run serial executable on 1 cpu of one node
 cd /nethome/sschulz/EPROVER/TPTP_5.4.0
-cat /dev/null > ../problem_features_5.4.0_raw
+cat /dev/null > ../problem_features_5.4.0
 
 for file in `ls|grep \.p`; do
     echo $file
     ulimit -t 500
-    classify_problem -r --tstp-in $file>> ../problem_features_5.4.0_raw
+    classify_problem --tstp-in $file>> ../problem_features_5.4.0
 
 done
 

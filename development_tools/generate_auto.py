@@ -203,6 +203,10 @@ match_simul_pm  = re.compile("--simul-paramod");
 match_osimul_pm = re.compile("--oriented-simul-paramod");
 match_presat_ir = re.compile("--presat-simplify");
 match_sos_types = re.compile("--sos-uses-input-types");
+match_condense  = re.compile("--condense");
+match_condag    = re.compile("--condense-aggressive");
+
+
 
 def parse_control_info(line):
     res = ""
@@ -368,14 +372,25 @@ def parse_control_info(line):
     if m:
         res = res+ "      control->heuristic_parms.presat_interreduction=true;\n"
 
-    return res
-
     #
     # Set of Support determination
     #
     m = match_sos_types.search(line)
     if m:
         res = res+ "      control->heuristic_parms.use_tptp_sos=true;\n"
+
+    #
+    # Condensation
+    #
+    m = match_condense.search(line)
+    if m:
+        res = res+ "      control->heuristic_parms.condensing=true;\n"
+
+    m = match_condag.search(line)
+    if m:
+        res = res+ "      control->heuristic_parms.condensing_aggressive=true;\n"
+
+
 
     return res
 
