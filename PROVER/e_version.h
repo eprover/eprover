@@ -41,7 +41,7 @@ Changes
 /* git tag E-1-7-pre01 */
 #define VERSION      "1.7-pre01"
 
-#define E_NICKNAME     "Tiger Hill"
+#define E_NICKNAME     "Jun Chiabari"
 
 #define E_URL "http://www.eprover.org"
 
