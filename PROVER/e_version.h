@@ -38,8 +38,8 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* git tag E-1-7-pre01 */
-#define VERSION      "1.7-pre01"
+/* git tag E-1-7-pre02 */
+#define VERSION      "1.7-pre02"
 
 #define E_NICKNAME     "Jun Chiabari"
 
