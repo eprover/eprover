@@ -1,7 +1,19 @@
 This history list describes the major differences between versions of
 the E equational theorem prover.
 
-Version 1.6 ->
+Version 1.6 -> 1.7 Jun Chiabari
+
+- Added prototypical condensing
+- Significantly improved auto-mode (note that AutoDev mode is, at the
+  moment, intentionally inferior to normal auto mode - use only if you
+  want to compare the effect of inferior ordering implementations!)
+- Fixed non-critical (but annoying) bug in SOS strategies
+- Updated eground to support FOF input (if it clausifies to EPR) and
+  to handle unexpected behaviour from MiniSAT
+- Added interactive batch mode to e_ltb_runner (load large spec once,
+  then keep asking for the status of different theorems via
+  stdin/stdout)
+- Various minor updates and bugfixes
 
 
 
@@ -119,7 +131,7 @@ Version 0.99 -> 0.999 Longview
 - Removed old '--interprete-numbers' option and associated dead code. 
 - Fixed (hopefully) the learning module, which had suffered from bit
   rot. It works now, although it ignores FOF axioms for similarity
-  measures. This does not affect the defauld heuristics.
+  measures. This does not affect the default heuristics.
 - Made some minor changes to SZS output to make Geoff happy.
 - Fixed some bugs in the eproof script to make Larry happy.
 
