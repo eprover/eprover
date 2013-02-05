@@ -29,9 +29,7 @@ Changes
 #include <cio_commandline.h>
 #include <cio_output.h>
 #include <cio_signals.h>
-#include <ccl_splitting.h>
-#include <ccl_grounding.h>
-#include <che_clausesetfeatures.h>
+#include <ccl_rewrite.h>
 #include <ccl_formulafunc.h>
 #include <e_version.h>
 
@@ -49,6 +47,7 @@ typedef enum
    OPT_HELP,
    OPT_VERSION,
    OPT_VERBOSE,
+   OPT_TERMSOURCE,
    OPT_OUTPUT,
    OPT_SILENT,
    OPT_OUTPUTLEVEL,
@@ -88,6 +87,12 @@ OptCell opts[] =
     OptArg, "1",
     "Verbose comments on the progress of the program by printing "
     "technical information to stderr."},
+
+   {OPT_TERMSOURCE,
+    't', "terms",
+    ReqArg, NULL,
+    "Name of the files containing terms to be normalized. If '-' "
+    "is used as the argument, terms are read from standard input."},
 
    {OPT_OUTPUT,
     'o', "output-file",
@@ -220,7 +225,8 @@ OptCell opts[] =
     NULL}
 };
 
-char   *outname = NULL;
+char   *outname = NULL,
+       *termname = NULL;
 IOFormat parse_format = LOPFormat;
 bool   print_statistics = false,
        print_rusage = false,
@@ -240,6 +246,48 @@ void print_help(FILE* out);
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
+/*-----------------------------------------------------------------------
+//
+// Function: build_rw_system()
+//
+//   Extract all positive unit clauses from spec, mark them as
+//   oriented in the natural direction (left to right), and insert
+//   them into demods. Free all other clauses and print a warning. 
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+long build_rw_system(ClauseSet_p demods, ClauseSet_p spec)
+{
+   long count;
+   Clause_p handle;
+
+   while((handle = ClauseSetExtractFirst(spec)))
+   {
+      if(ClauseIsDemodulator(handle))
+      {         
+         SysDateInc(&(demods->date));
+         handle->date = demods->date;
+         EqnSetProp(handle->literals, EPIsOriented);
+         ClauseSetPDTIndexedInsert(demods, handle);
+         count++;
+      }
+      else
+      {         
+         fprintf(stderr, "%s: Clause is not a rewrite rule: ", NAME);
+         ClausePrint(stderr, handle, true);
+         fprintf(stderr, " -- ignoring\n");
+         ClauseFree(handle);
+      }
+   }
+   return count;
+}
+
+
+
 int main(int argc, char* argv[])
 {
    TB_p            terms;
@@ -251,9 +299,10 @@ int main(int argc, char* argv[])
    Scanner_p       in;    
    int             i;
    CLState_p       state;
-   DefStore_p      def_store;
-   //long            symbols = 100; /* Temporary fix */
    StrTree_p       skip_includes = NULL;
+   ClauseSet_p     demodulators[1];
+   Term_p          t, tp;
+   OCB_p           ocb;
 
    assert(argv[0]);
    
@@ -278,7 +327,7 @@ int main(int argc, char* argv[])
    collector = GCAdminAlloc(terms);
    clauses   = ClauseSetAlloc();
    formulas  = FormulaSetAlloc();
-   
+
    GCRegisterClauseSet(collector, clauses);
    GCRegisterFormulaSet(collector, formulas);
 
@@ -305,10 +354,44 @@ int main(int argc, char* argv[])
    }
    VarBankFree(freshvars);
 
+   GCDeregisterFormulaSet(collector, formulas);
    FormulaSetFree(formulas);
 
-#ifndef FAST_EXIT
+   demodulators[0] = ClauseSetAlloc();
+   demodulators[0]->demod_index = PDTreeAlloc();
+   GCRegisterClauseSet(collector, demodulators[0]);
+
+   build_rw_system(demodulators[0], clauses);
+
+
+   GCDeregisterClauseSet(collector, clauses);
    ClauseSetFree(clauses);  
+
+   VERBOUT("# Demodulators\n");
+   VERBOSE(ClauseSetPrint(stderr, demodulators[0], true););
+   
+   if(termname)
+   {
+      ocb = OCBAlloc(EMPTY, false, terms->sig);
+      in = CreateScanner(StreamTypeFile, termname, true, NULL);
+      ScannerSetFormat(in, parse_format);
+      while(!TestInpTok(in, NoToken))
+      {
+         t  = TBTermParse(in, terms);
+         tp = TermComputeLINormalform(ocb, terms, t,
+                                      demodulators,
+                                      1, false, false);
+         TBPrintTermFull(GlobalOut, terms, t);
+         fprintf(GlobalOut, " => ");
+         TBPrintTermFull(GlobalOut, terms, tp);
+         fprintf(GlobalOut, "\n");
+      }
+      DestroyScanner(in);
+      OCBFree(ocb);
+   }
+
+#ifndef FAST_EXIT
+   ClauseSetFree(demodulators[0]);  
    GCAdminFree(collector);
 
    terms->sig = NULL;
@@ -375,6 +458,9 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_OUTPUT:
 	    outname = arg;
 	    break;
+      case OPT_TERMSOURCE:
+            termname = arg;
+            break;
       case OPT_SILENT:
 	    OutputLevel = 0;
 	    break;

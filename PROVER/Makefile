@@ -18,7 +18,7 @@ include ../Makefile.vars
 PROJECT = eprover e_ltb_runner e_axfilter e_server e_client \
 	  classify_problem termprops\
           direct_examples epclanalyse epclextract checkproof eground\
-          edpll epcllemma\
+          enormlizer edpll epcllemma\
           ekb_create ekb_insert ekb_ginsert ekb_delete tsm_classify
 LIB     = $(PROJECT)
 all: $(LIB)
@@ -83,6 +83,14 @@ EGROUND = eground.o ../lib/HEURISTICS.a\
 
 eground: $(EGROUND)
 	$(LD) -o eground $(EGROUND) $(LIBS)
+
+ENORMALIZER = enormalizer.o ../lib/HEURISTICS.a\
+            ../lib/CLAUSES.a ../lib/ORDERINGS.a ../lib/TERMS.a\
+            ../lib/INOUT.a ../lib/BASICS.a
+
+enormlizer: $(ENORMALIZER)
+	$(LD) -o enormalizer $(ENORMALIZER) $(LIBS)
+
 
 EDPLL = edpll.o ../lib/PROPOSITIONAL.a ../lib/CLAUSES.a\
         ../lib/ORDERINGS.a ../lib/TERMS.a ../lib/INOUT.a\

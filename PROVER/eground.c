@@ -405,6 +405,7 @@ int main(int argc, char* argv[])
    }
    VarBankFree(freshvars);
 
+   GCDeregisterFormulaSet(collector, formulas);
    FormulaSetFree(formulas);
 
    ClauseSetRemoveSuperfluousLiterals(clauses);

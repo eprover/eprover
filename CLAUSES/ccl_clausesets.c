@@ -311,7 +311,8 @@ static void clause_set_extract_entry(Clause_p clause)
 //
 // Function: ClauseSetAlloc()
 //
-//   Allocate an empty clause set that uses setclock for time-keeping.
+//   Allocate an empty clause set that uses SysDate for (logical)
+//   time-keeping.
 //
 // Global Variables: -
 //

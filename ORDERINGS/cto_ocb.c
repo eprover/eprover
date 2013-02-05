@@ -42,7 +42,8 @@ char* TONames[]=
    "LPOCopy",
    "LPO4",
    "LPO4Copy",
-   "RPO"
+   "RPO",
+   "Empty"
 };
 
 
@@ -186,6 +187,8 @@ OCB_p OCBAlloc(TermOrdering type, bool prec_by_weight, Sig_p sig)
 	 handle->weights    = NULL;
 	 alloc_precedence(handle, prec_by_weight);
 	 break; 
+   case EMPTY:
+         break;
    default:
 	 assert(false);
 	 break;

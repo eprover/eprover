@@ -52,7 +52,7 @@ Version 1.3 -> 1.4 Namring
 - Adapted e_ltb_runner for CASC-23
 - Various minor fixes, in particular to proof and answer output
 - New literal selection function
-- New auto-mode
+- New auto-modec
 
 Version 1.2 -> 1.3 Ringtong
 

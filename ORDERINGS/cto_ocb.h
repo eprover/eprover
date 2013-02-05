@@ -49,7 +49,8 @@ typedef enum
    LPOCopy,
    LPO4,
    LPO4Copy,
-   RPO
+   RPO,
+   EMPTY
 }TermOrdering;
 
 

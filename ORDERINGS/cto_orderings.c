@@ -195,6 +195,9 @@ CompareResult TOCompare(OCB_p ocb, Term_p s, Term_p t, DerefType deref_s,
    case KBO6:
 	 res = KBO6Compare(ocb, s, t, deref_s, deref_t);
 	 break;
+   case EMPTY:
+         res  = to_uncomparable;
+         break;
    default:
 	 assert(false);
 	 break;
