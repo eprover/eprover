@@ -48,6 +48,8 @@ typedef enum
    OPT_VERSION,
    OPT_VERBOSE,
    OPT_TERMSOURCE,
+   OPT_CLAUSESOURCE,
+   OPT_FORMULASOURCE,
    OPT_OUTPUT,
    OPT_SILENT,
    OPT_OUTPUTLEVEL,
@@ -93,6 +95,18 @@ OptCell opts[] =
     ReqArg, NULL,
     "Name of the files containing terms to be normalized. If '-' "
     "is used as the argument, terms are read from standard input."},
+
+   {OPT_CLAUSESOURCE,
+    'c', "clauses",
+    ReqArg, NULL,
+    "Name of the files containing clauses to be normalized. If '-' "
+    "is used as the argument, clauses are read from standard input."},
+   
+   {OPT_FORMULASOURCE,
+    'f', "formulas",
+    ReqArg, NULL,
+    "Name of the files containing fomulas to be normalized. If '-' "
+    "is used as the argument, formulas are read from standard input."},
 
    {OPT_OUTPUT,
     'o', "output-file",
@@ -225,8 +239,10 @@ OptCell opts[] =
     NULL}
 };
 
-char   *outname = NULL,
-       *termname = NULL;
+char *outname = NULL,
+     *termname = NULL,
+     *clausename = NULL,
+     *formulaname = NULL;
 IOFormat parse_format = LOPFormat;
 bool   print_statistics = false,
        print_rusage = false,
@@ -286,7 +302,131 @@ long build_rw_system(ClauseSet_p demods, ClauseSet_p spec)
    return count;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: process_terms()
+//
+//   Open infile, read terms, compute and print their normal forms. 
+//
+// Global Variables: parse_format, GlobalOut
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
 
+void process_terms(char* infile, TB_p terms, OCB_p ocb, ClauseSet_p *demodulators)
+{
+   Term_p t, tp;
+   Scanner_p in;
+   
+   if(infile)
+   {
+      in = CreateScanner(StreamTypeFile, infile, true, NULL);
+      ScannerSetFormat(in, parse_format);
+      while(!TestInpTok(in, NoToken))
+      {
+         t  = TBTermParse(in, terms);
+         tp = TermComputeLINormalform(ocb, terms, t,
+                                      demodulators,
+                                      1, false, false);
+         TBPrintTermFull(GlobalOut, terms, t);
+         fprintf(GlobalOut, " ==> ");
+         TBPrintTermFull(GlobalOut, terms, tp);
+         fprintf(GlobalOut, "\n");
+      }
+      DestroyScanner(in);   
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: process_clauses()
+//
+//   Open infile, read clauses, and compute and print their normal
+//   forms. 
+//
+// Global Variables: parse_format, GlobalOut
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+void process_clauses(char* infile, TB_p terms, OCB_p ocb, ClauseSet_p *demodulators)
+{
+   Clause_p clause;
+   Scanner_p in;
+   
+   if(infile)
+   {
+      in = CreateScanner(StreamTypeFile, infile, true, NULL);
+      ScannerSetFormat(in, parse_format);
+      while(!TestInpTok(in, NoToken))
+      {
+         clause  = ClauseParse(in, terms);
+         ClausePrint(GlobalOut, clause, true);
+         ClauseComputeLINormalform(ocb, terms, clause,
+                                      demodulators,
+                                      1, false);
+         fprintf(GlobalOut, " ==> ");
+         ClausePrint(GlobalOut, clause, true);
+         fprintf(GlobalOut, "\n");
+         ClauseFree(clause);
+      }
+      DestroyScanner(in);   
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: process_formulas()
+//
+//   Open infile, read formulas, and compute and print their normal
+//   forms. 
+//
+// Global Variables: parse_format, GlobalOut
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+void process_formulas(char* infile, TB_p terms, OCB_p ocb, ClauseSet_p *demodulators)
+{
+   WFormula_p form;
+   Scanner_p in;
+   
+   if(infile)
+   {
+      in = CreateScanner(StreamTypeFile, infile, true, NULL);
+      ScannerSetFormat(in, parse_format);
+      while(!TestInpTok(in, NoToken))
+      {
+         form = WFormulaParse(in, terms);
+         WFormulaPrint(GlobalOut, form, true);
+         
+         form->tformula = TermComputeLINormalform(ocb, terms, form->tformula,
+                                                  demodulators,
+                                                  1, false, false);          
+         fprintf(GlobalOut, " ==> ");
+         WFormulaPrint(GlobalOut, form, true);
+         fprintf(GlobalOut, "\n");
+         WFormulaFree(form);
+      }
+      DestroyScanner(in);   
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: main()
+//
+//   Entry point of the program and driver of the processing.
+//
+// Global Variables: All declared in this file
+//
+// Side Effects    : Yes ;-)
+//
+/----------------------------------------------------------------------*/
 
 int main(int argc, char* argv[])
 {
@@ -301,7 +441,6 @@ int main(int argc, char* argv[])
    CLState_p       state;
    StrTree_p       skip_includes = NULL;
    ClauseSet_p     demodulators[1];
-   Term_p          t, tp;
    OCB_p           ocb;
 
    assert(argv[0]);
@@ -370,25 +509,13 @@ int main(int argc, char* argv[])
    VERBOUT("# Demodulators\n");
    VERBOSE(ClauseSetPrint(stderr, demodulators[0], true););
    
-   if(termname)
-   {
-      ocb = OCBAlloc(EMPTY, false, terms->sig);
-      in = CreateScanner(StreamTypeFile, termname, true, NULL);
-      ScannerSetFormat(in, parse_format);
-      while(!TestInpTok(in, NoToken))
-      {
-         t  = TBTermParse(in, terms);
-         tp = TermComputeLINormalform(ocb, terms, t,
-                                      demodulators,
-                                      1, false, false);
-         TBPrintTermFull(GlobalOut, terms, t);
-         fprintf(GlobalOut, " => ");
-         TBPrintTermFull(GlobalOut, terms, tp);
-         fprintf(GlobalOut, "\n");
-      }
-      DestroyScanner(in);
-      OCBFree(ocb);
-   }
+   ocb = OCBAlloc(EMPTY, false, terms->sig);
+
+   process_terms(termname, terms, ocb, demodulators);
+   process_clauses(clausename, terms, ocb, demodulators);
+   process_formulas(formulaname, terms, ocb, demodulators);
+
+   OCBFree(ocb);
 
 #ifndef FAST_EXIT
    ClauseSetFree(demodulators[0]);  
@@ -460,6 +587,12 @@ CLState_p process_options(int argc, char* argv[])
 	    break;
       case OPT_TERMSOURCE:
             termname = arg;
+            break;
+      case OPT_CLAUSESOURCE:
+            clausename = arg;
+            break;
+      case OPT_FORMULASOURCE:
+            formulaname = arg;
             break;
       case OPT_SILENT:
 	    OutputLevel = 0;
