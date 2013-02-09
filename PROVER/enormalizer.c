@@ -1,17 +1,17 @@
 /*-----------------------------------------------------------------------
 
-File  : erewriter.c
+File  : enormalizer.c
 
 Author: Stephan Schulz
 
 Contents
 
-  Read a set of unit clauses (and/or formulas) and a set of terms. The
-  clauses/formulas are interpreted as rewrite rules. The terms are
-  normalized using these rewrite rules. If the rule system is not
-  confluent, the results are deterministic but unspecified. If the
-  rule system is not terminating, rewriting might get stuck into an
-  infinite loop.
+  Read a set of unit clauses (and/or formulas) and a set of
+  terms/clauses/formulas. The unit clauses/formulas are interpreted as
+  rewrite rules. The terms are normalized using these rewrite
+  rules. If the rule system is not confluent, the results are
+  deterministic but unspecified. If the rule system is not
+  terminating, rewriting might get stuck into an infinite loop.
 
   Copyright 2013 by the author.
   This code is released under the GNU General Public Licence and
