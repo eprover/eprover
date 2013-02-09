@@ -106,7 +106,9 @@ OptCell opts[] =
     'f', "formulas",
     ReqArg, NULL,
     "Name of the files containing fomulas to be normalized. If '-' "
-    "is used as the argument, formulas are read from standard input."},
+    "is used as the argument, formulas are read from standard input. "
+    "Note that formula-syntax is not supported in LOP syntax, but "
+    "requires --tptp2-format or --tptp3-format"},
 
    {OPT_OUTPUT,
     'o', "output-file",
@@ -724,17 +726,27 @@ CLState_p process_options(int argc, char* argv[])
 void print_help(FILE* out)
 {
    fprintf(out, "\n\
-\n\
 "NAME " " VERSION "\n\
 \n\
 Usage: eground [options] [files]\n\
 \n\
-Read a set of unit clauses (and/or formulas) and a set of terms. The\n\
-clauses/formulas are interpreted as rewrite rules. The terms are\n\
-normalized using these rewrite rules. If the rule system is not\n\
-confluent, the results are deterministic but unspecified. If the rule\n\
-system is not terminating, rewriting might get stuck into an infinite\n\
-loop. The normalized terms are as output.\n\
+Read a set of rewrite rules (in the form of unit clauses and/or\n\
+formulas) with a single positive literal) and sets of terms, clauses,\n\
+and formulas (the \"normalization targets\") to rewrite. Rewrite rules\n\
+are read from the left to right as specified in the input, without\n\
+regard to any term order.\n\
+\n\
+The normalization targets are ewritten using these rewrite rules until\n\
+a normal form is reached. If the rule system is not confluent, the\n\
+results are deterministic but unspecified. If the rule system is not\n\
+terminating, rewriting might get stuck into an infinite loop. \n\
+\n\
+The rewrite strategy is leftmost-innermost. The order of rewrite rules\n\
+tried at each subterm is deterministic, but unspecified and\n\
+independent of input order (it depends on the order in which rules are\n\
+returned from the perfect discrimination tree index).\n\
+\n\
+The normalized terms/clauses/formulas are printed.\n\
 \n");
    PrintOptions(stdout, opts, "Options\n\n");
    fprintf(out, "\n\
