@@ -14,7 +14,7 @@
 %     New
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\documentclass{article}
+\documentclass{report}
 
 \usepackage{makeidx}
 \usepackage{estyle}
@@ -22,7 +22,7 @@
 \usepackage{url}
 
 \author{Stephan Schulz}
-\title{E 1.6\\[1.5ex]User Manual\\[1.5ex]{\normalsize --preliminary
+\title{E 1.7\\[1.5ex]User Manual\\[1.5ex]{\normalsize --preliminary
     version--}}
 
 \makeindex{}
@@ -34,13 +34,15 @@
   E is an equational theorem prover for full first-order logic, based
   on superposition and rewriting. In this perpetually very preliminary
   manual we first give a short introduction for impatient new users,
-  and then cover calculus, control, options and input/output of the
-  prover in some more detail.
+  and then cover calculus and proof procedure. The manual covers proof
+  search control and related options, followed by input and output
+  formats. Finally, it describes some additional tools that are part
+  of the E distribution.
 \end{abstract}
 
 \tableofcontents{}
 
-\section{Introduction}
+\chapter{Introduction}
 \label{sec:intro}
 
 This is a short and currently quite sketchy documentation of the E
@@ -75,7 +77,7 @@ Waldmeister~\cite{BHF96,HJL:CADE-99} and
 Vampire\index{Vampire}~\cite{RV:AICOM-2002,RV:IJCAR-2001}.
 
 
-\section{Getting Started}
+\chapter{Getting Started}
 \label{sec:start}
 
 Installation of E should be straightforward. The file \texttt{README}
@@ -131,7 +133,7 @@ the source code included with the distribution).
 
 
 
-\section{Calculus and Proof Procedure}
+\chapter{Calculus and Proof Procedure}
 \label{sec:calculus}
 
 E is a purely equational theorem prover, based on ordered
@@ -151,7 +153,7 @@ problem is provable (if an explicit \emph{conjecture} is given) or
 itself unsatisfiable.
 
 
-\subsection{Calculus}
+\section{Calculus}
 
 \emph{Term}$(F,V)$\index{terms} denotes the set of (first order)
 \emph{terms} over a finite set of function symbols \emph{F} (with
@@ -216,10 +218,10 @@ induced by ordering constraints and the other by selection functions.
 We combine these in the notion of \emph{eligible literals}.
 
 \begin{definition}[Eligible literals]
-  \index{literals!eligible}
-  \index{eligible for paramodulation|see{literals, eligible}}
-  \index{eligible for resolution|see{literals, eligible}}
-  \index{eligible literals|see{literals, eligible}}
+  \index{literal!eligible}
+  \index{eligible for paramodulation|see{literal, eligible}}
+  \index{eligible for resolution|see{literal, eligible}}
+  \index{eligible literals|see{literal, eligible}}
  \label{def:basics:inferences:eligible}
  Let $\mathcal{C} = \mathcal{L} \vee \mathcal{R}$ be a clause, let
  $\sigma$ be a substitution and let $\mw{sel}$ be a selection
@@ -243,7 +245,7 @@ We combine these in the notion of \emph{eligible literals}.
    $\sigma(\mathcal{C})$.
  \end{itemize}
  \hfill$\blacktriangleleft$
- \index{literals!eligible}
+ \index{literal!eligible}
 \end{definition}
 
 
@@ -295,7 +297,34 @@ variables.
      $\sigma(u)\not<\sigma(v)$, $\sigma(\eqn{s}{t})$ is eligible for
      paramodulation, $\sigma(\neqn{u}{v})$ is eligible for
      resolution, and $u|_p \notin V$.}
+
    
+ \item \emph{Simultaneous superposition into negative
+     literals}\index{simultaneous superposition}
+
+    \bigskip (SSN) \GInferenz{\eqn{s}{t} \vee S \phantom{ae} \neqn{u}{v} \vee
+     R}{\sigma(\neqn{u[u_p\leftarrow t]}{v} \vee S \vee R)}{if
+     $\sigma=mgu(u|_p,s)$, $\sigma(s)\not<\sigma(t)$,
+     $\sigma(u)\not<\sigma(v)$, $\sigma(\eqn{s}{t})$ is eligible for
+     paramodulation, $\sigma(\neqn{u}{v})$ is eligible for resolution,
+     and $u|_p \notin V$.}
+   
+   This inference rule is an alternative to (SN) that performs better
+   in practice. 
+
+\item \emph{Simultaneous superposition into positive literals}
+  \index{simultaneous superposition}
+
+   \bigskip (SSP) \GInferenz{\eqn{s}{t} \vee S \phantom{ae} \eqn{u}{v} \vee
+    R}{\sigma(\eqn{u[u_p\leftarrow t]}{v} \vee S \vee R)}{if
+    $\sigma=mgu(u|_p,s)$, $\sigma(s)\not<\sigma(t)$,
+    $\sigma(u)\not<\sigma(v)$, $\sigma(\eqn{s}{t})$ is eligible for
+    paramodulation, $\sigma(\neqn{u}{v})$ is eligible for resolution,
+    and $u|_p \notin V$.}
+  
+  This inference rule is an alternative to (SP) that performs better
+  in practice. 
+
  \item \emph{Equality factoring}\index{equality factoring}:
    
    \bigskip (EF) \GInferenz{\eqn{s}{t} \vee \eqn{u}{v} \vee
@@ -406,25 +435,44 @@ variables.
    \bigskip (DE) \CInferenz{\neqn{x}{y} \vee R}{\sigma(R)}{if $x,y \in
      V, \sigma = mgu(x,y)$}
    
+ \item \emph{Contextual literal cutting}\index{contextual literal cutting}:
 
-\item \emph{Introduce definition\index{clause
-      splitting}}\footnote{This rule is always exhaustively aplied to
-  any clause, leaving n split-off clauses and one final link clause of
-all negative propositions.}
+   \bigskip (CLC) \CInferenz{\sigma(C \vee R \vee \ueqn{s}{t})
+     \hspace{2em} C \vee \overline{\ueqn{s}{t}}}{\sigma(C \vee R)
+     \hspace{5em} C \vee \overline{\ueqn{s}{t}}}
+   {where $\overline{\ueqn{s}{t}}$ is the negation of $\ueqn{s}{t}$
+     and $\sigma$ is a substitution} 
+   
+   This rule is also known as \emph{subsumption resolution} or
+   \emph{clausal simplification}.
 
-  \bigskip (ID) \CInferenz{R \vee S}{d \vee R \phantom{ae} \neg d \vee
-    S}{if $R$ and $S$ do not share any variables, $d \in D$ has not
-    been used in a previous definition and $R$ does not contain any
-    symbol from $D$}
+   
+\item \emph{Condensing}\index{condensing}:
 
-\item \emph{Apply definition\index{clause splitting}}
+   \bigskip (CON) \CInferenz{l_1 \vee l_2 \vee R}{\sigma(l_1 \vee R)}{if
+  $\sigma(l_1)\equiv\sigma(l_2)$ and $\sigma(l_1 \vee R)$ subsumes
+  $l_1 \vee l_2 \vee R$}
 
-  \bigskip (AD) \CInferenz{\sigma (d \vee R) \phantom{ae} R \vee S}
-  {\sigma(d \vee R) \phantom{ae} \neg d \vee S}{if $\sigma$ is a
-    variable renaming, $R$ and $S$ do not share
-    any variables, $d \in D$ and $R$ does not contain any symbol from
-    $D$}
 
+
+ \item \emph{Introduce definition\index{clause
+       splitting}}\footnote{This rule is always exhaustively aplied to
+     any clause, leaving n split-off clauses and one final link clause of
+     all negative propositions.}
+   
+   \bigskip (ID) \CInferenz{R \vee S}{d \vee R \phantom{ae} \neg d \vee
+     S}{if $R$ and $S$ do not share any variables, $d \in D$ has not
+     been used in a previous definition and $R$ does not contain any
+     symbol from $D$}
+   
+ \item \emph{Apply definition\index{clause splitting}}
+   
+   \bigskip (AD) \CInferenz{\sigma (d \vee R) \phantom{ae} R \vee S}
+   {\sigma(d \vee R) \phantom{ae} \neg d \vee S}{if $\sigma$ is a
+     variable renaming, $R$ and $S$ do not share
+     any variables, $d \in D$ and $R$ does not contain any symbol from
+     $D$}
+   
    
  \end{itemize}
  We write $\mathbf{SP}(N)$ to denote the set of all clauses that can
@@ -451,7 +499,7 @@ rules for non-equa\-tio\-nal literals or sort theories. Non-equational
 literals are encoded as equations and dealt with accordingly.
 
 
-\subsection{Preprocessing}
+\section{Preprocessing}
 
 \subsubsection{Axiom Filtering}
 \label{:secsine}
@@ -599,7 +647,7 @@ specifications.
 
 
 
-\subsection{Proof Procedure}
+\section{Proof Procedure}
 \label{sec:procedure}
 
 \begin{figure}[hp]
@@ -696,7 +744,7 @@ describes the user interface to this mechanism.
 
 
 
-\section{Controlling the Proof Search}
+\chapter{Controlling the Proof Search}
 \label{sec:options}
 
 This section describes some of the different options available to
@@ -710,7 +758,7 @@ points, there are a large number of additional selections of lesser,
 but not insigificant importance.
 
 
-\subsection{Search Control Heuristics}
+\section{Search Control Heuristics}
 \label{sec:options:heuristics}
 
 Search control heuristics define the order in which the prover
@@ -1028,7 +1076,7 @@ automatically choose if no other heuristic is selected with the
 \end{example}
 
 
-\subsection{Term Orderings}
+\section{Term Orderings}
 \label{sec:options:orderings}
 \index{term ordering}
 
@@ -1227,7 +1275,7 @@ symbol and the input clause set, or on the predefined
 \end{description}
 
 
-\subsection{Literal Selection Strategies}
+\section{Literal Selection Strategies}
 \label{sec:options:strategies}
 
 The superposition calculus allows the
@@ -1295,7 +1343,7 @@ information about the set of implemented functions, run
 somewhat described in \texttt{E/HEURISTICS/che\_litselection.h}.
 
 
-\subsection{The Watchlist Feature}
+\section{The Watchlist Feature}
 \label{sec:options:watchlist}
 
 Since public release 0.81, E supports a \emph{watchlist}. A watchlist
@@ -1354,7 +1402,7 @@ Options controlling the use of the watch list:\\
 \end{tabular}
 
 
-\subsection{Learning Clause Evaluation Functions}
+\section{Learning Clause Evaluation Functions}
 \label{sec:options:learning}
 
 E can use a knowledge base generated by analyzing many successful
@@ -1424,14 +1472,14 @@ of the learned knowledge).
 
 
 
-\subsection{Other Options}
+\section{Other Options}
 \label{sec:options:others}
 
 
-\section{Input Language}
+\chapter{Input Language}
 \label{sec:language}
 
-\subsection{LOP}
+\section{LOP}
 
 E natively uses E-LOP, a dialect of the LOP\index{LOP} language designed for
 SETHEO\index{SETHEO}. At the moment, your best bet is to retrieve the
@@ -1465,7 +1513,7 @@ however:
   negated literals.
 \end{itemize}
 
-\subsection{TPTP Format}
+\section{TPTP Format}
 
 The TPTP\index{TPTP}~\cite{Sutcliffe:TPTP-WWW} is a library of
 problems for automated theorem prover. Problems in the TPTP are
@@ -1504,7 +1552,7 @@ In either TPTP format, clauses and formulas with TPTP type
 
 
 
-\section{Output\ldots or how to interpret what you see}
+\chapter{Output\ldots or how to interpret what you see}
 \label{sec:output}
 
 E has several different output levels, controlled by the option
@@ -1521,7 +1569,7 @@ In Level 0 and 1, everything E prints is either a clause that is
 implied by the original axioms, or a comment (or, very often, both).
 
 
-\subsection{The Bare Essentials}
+\section{The Bare Essentials}
 \label{sec:output:essentials}
 
 In silent mode (\texttt{--output-level=0}, \texttt{-s} or
@@ -1592,7 +1640,7 @@ search after termination. The following possibilities exist:
 \end{itemize}
 
 
-\subsection{Impressing your Friends}
+\section{Impressing your Friends}
 \label{sec:output:normal}
 
 If you run E without selection an output level (or by setting it
@@ -1609,7 +1657,7 @@ information about the proof search and final clause sets. The data
 should be fairly self-explaining.
 
 
-\subsection{Detailed Reporting}
+\section{Detailed Reporting}
 \label{sec:output:lots}
 
 At output levels greater that 1, E prints certain inferences in
@@ -1624,7 +1672,7 @@ the proof with the utility \texttt{checkproof} provided with the
 distribution.
 
 
-\subsection{Requesting Specific Output}
+\section{Requesting Specific Output}
 \label{sec:output:results}
 
 There are two additional kinds of information E can provide beyond the
@@ -1704,9 +1752,314 @@ by a comment of the form \texttt{\# info(id, pd, pl, sc, cd, nl,
 \texttt{nv} & Number of different variables \\
 \end{tabular}
 
+
+\chapter{Additional utilities}
+
+The E distribution contains a number of programs beyond the main
+prover. The following sections contains a short description of the
+programs that are reasonably stable. All of the utilities support the
+option \texttt{--help} to print a description of the operation and all
+supported options.
+
+\section{Grounding: \texttt{eground}}
+\index{eground|texttt}
+
+The Bernays-Sch{\"o}nfinkel class is a decidable fragment of
+first-order logic. Problems from this class can be clausified into
+clause normal form without non-constant function symbols. This clausal
+class is \emph{effectively propositional} (EPR), since the Herbrand
+universe is finite. The program \texttt{eground} takes a problem from
+the Bernays-Sch{\"o}nfinkel class, or an EPR clause normal form
+problem, and tries to convert it into an equisatisfiable propositional
+problem. It does so by clausification and instantiation of the the
+clausal problem. The resulting propositional problem can than be
+handed to a propositional reasoner (e.g. Chaff~\cite{MMZZM:DAC-2001}
+or MiniSAT~\cite{ES:SAT-2004}). One pre-packaged system build on this
+principles is GrAnDe~\cite{SS:CADE-2002}.
+
+\texttt{Eground} uses a number of techniques to reduce the number of
+instances generated. The technical background is described
+in~\cite{Schulz:FLAIRS-2002}. The program can generate output in LOP,
+TPTP-2 and TPTP-3 format, but also directly in the DIMACS format used
+by many propositional reasoners.
+
+A typical command line for starting \texttt{eground} is:
+
+\begin{verbatim}
+  eground --tptp3-in --dimacs  --split-tries=1 
+          --constraints <infile> -o <outfile>
+\end{verbatim}
+
+
+\section{Rewriting: \texttt{enormalizer}}
+\index{enormalizer|texttt}
+
+The program \texttt{enormalizer} uses E's shared terms, cached
+rewriting, and indexing to implement an efficient normalizer. It reads
+a set of rewrite rules and computes the normal forms of a set of
+terms, clauses and formulas with respect to that set of rewrite rules.
+
+The rule set can be specified as a set of positive unit clauses and/or
+formulas that clausify into unit clauses. Literals are taken as
+rewrite rules with the orientation they are specified in the input. In
+particular, no term ordering is applies, and neither termination nor
+confluence are ensured or verified. The rewrite rules are applied
+exhaustively, but in an unspecified order. Subterms are normalized in
+strict leftmost/innermost manner. In particular, all subterms are
+normalized before a superterm is rewritten.
+
+Supported formats are LOP, TPTP-2 and TPTP-3.
+
+A typical command line for starting \texttt{enormalizer} is:
+
+\begin{verbatim}
+  enormalizer --tptp3-in <rulefile> -t<termfile> 
+\end{verbatim}
+
+
+\section{Multiple queries: \texttt{e\_ltb\_runner}}
+\index{e\_ltb\_runner|texttt}\index{batch processing}
+
+E is designed to handle individual proof problems, one at a time. For
+this case, the prover has mechanism to handle even large
+specifications. However, in cases where multiple queries or
+conjectures are posed against a large background theory, even the
+parsing of the background theory may take up significant
+time. \texttt{E\_ltb\_runner} has been developed to efficiently handle
+this situation. It can read the background theory once, and then run E
+with additional axioms and different conjectures against this
+background theory.
+
+The program was originally designed for running sets of queries
+against \emph{large theories} in \emph{batch mode}, but now also
+supports interactive queries. However, the program is in a more
+prototypical state than most of the E distribution. In particular, any
+syntax error in the input will cause the whole program to terminate.
+
+By default, it will process a batch specification file
+(see~\ref{sec:bsf}), which contains a specification of the background
+theory, some options, and (optionally) a number of individual job
+requests. If used with the option \texttt{--interactive}, it will
+enter interactive mode (\ref{sec:iq}) after all batch jobs have been
+processed.
+
+For every job, the program will use several different goal-directed
+pruning strategies to extract likely useful axioms from the background
+theory. For each of the pruned axiomatizations,
+\texttt{e\_ltb\_runner} will run E in automatic mode. If one of the
+strategies succeeds, all running strategies will be terminated and the
+result returned.
+
+The program will run up to 8 strategies in parallel. Thus, it is best
+used on a multi-core machine with sufficient amounts of memory.
+
+
+\subsection{Usage}
+
+\texttt{E\_ltb\_runner} relies on TPTP-3 include file syntax and
+semantics, and hence will only (and implicitly) work with the TPTP-3
+syntax. The main program runs both \texttt{eprover} and
+\texttt{epclextract} as sub-processes. Unless these programs are in the
+search path, their full paths should be given as optional arguments.
+
+
+A typical command line for starting \texttt{e\_ltb\_runner} is:
+
+\begin{verbatim}
+  e_ltb_runner <batchspec> [path_to_eprover path_to_epclextract]
+\end{verbatim}
+
+For interactive use, add the option \texttt{--interactive}.
+
+
+\subsection{Batch specification file}
+\label{sec:bsf}\index{batch specifications}
+
+The batch specification file format is defined for the \emph{CADE ATP
+  System Competition} LTB division, and is typically updated every
+year. E tracks this development. The E~1.7 distribution implements
+support for the LTB format used in CASC-J6 and documented at
+\url{http://www.cs.miami.edu/~tptp/CASC/J6/Design.html#Problems},
+subsection \emph{Batch Specification Files}.
+
+A batch specification file consists of a number of defined comments,
+interleaved with parameter settings and \texttt{include} statements
+for the axiom files of the background theory. This is followed by an
+optional list of job specifiers, where each job specifier consists of
+a pair of file names, with the first specified file containing the
+conjecture and possible additional hypotheses, while the second file
+name describes where the output of the proof attempt should be stored.
+
+\begin{figure}
+  \footnotesize
+  \centering
+  \begin{verbatim}
+% SZS start BatchConfiguration
+division.category LTB.SMO
+execution.order ordered
+output.required Assurance
+output.desired Proof Answer
+limit.time.problem.wc 60
+% SZS end BatchConfiguration
+% SZS start BatchIncludes
+include('Axioms/CSR003+2.ax').
+include('Axioms/CSR003+5.ax').
+% SZS end BatchIncludes
+% SZS start BatchProblems
+/Users/schulz/EPROVER/TPTP_5.4.0_FLAT/CSR083+3.p /Users/schulz/tmp/CSR083+3
+/Users/schulz/EPROVER/TPTP_5.4.0_FLAT/CSR075+3.p /Users/schulz/tmp/CSR075+3 
+/Users/schulz/EPROVER/TPTP_5.4.0_FLAT/CSR082+3.p /Users/schulz/tmp/CSR082+3
+/Users/schulz/EPROVER/TPTP_5.4.0_FLAT/CSR086+3.p /Users/schulz/tmp/CSR086+3
+/Users/schulz/EPROVER/TPTP_5.4.0_FLAT/CSR091+3.p /Users/schulz/tmp/CSR091+3
+/Users/schulz/EPROVER/TPTP_5.4.0_FLAT/CSR092+3.p /Users/schulz/tmp/CSR092+3
+% SZS end BatchProblems
+\end{verbatim}
+  \caption{Example LTB batch specification file}
+  \label{fig:ltbspec}
+\end{figure}
+
+Figure~\ref{fig:ltbspec} shows an example of an LTB batch
+specification file. \texttt{E\_ltb\_runner} ignores all comment lines
+in the batch specification file. The non-comment-lines are described
+below.
+
+\begin{itemize}
+\item \texttt{division.category \emph{division\_mnemonic}.\emph{category\_mnemonic}}
+
+  This line is expected and parsed, but has no effect.    
+\item \texttt{execution.order \emph{ordered}|\emph{unordered}} 
+
+  This line specifies if batch problems must be processed in order or
+  can be reordered.  \texttt{E\_ltb\_runner} parses the line, but
+  always tries to solve the problems in the order provided.
+\item \texttt{output.required \emph{space\_separated\_list}} 
+
+  This specifies what output is required from the system. Available
+  values are
+  \begin{itemize}
+  \item \texttt{Assurance}: A plain statement about existence of proof
+    or counter-model is sufficient.
+  \item \texttt{Proof}: An explicit proof will be provided.
+  \item \texttt{ListOfFOF}: An (implicitly small) subset of axioms
+    sufficient for a proof should be provided. \texttt{E\_ltb\_runner}
+    fulfills this by giving a full proof as for the previous option.
+  \item \texttt{Model}: If the problem is disproved,
+    \texttt{e\_ltb\_runner} will provide a saturated clause set as evidence.
+  \item \texttt{Answer}: If conjectures contain existentially
+    quantified variables, a suitable instantiation will be given.
+  \end{itemize}
+\item \texttt{output.desired \emph{space\_separated\_list}} 
+  
+   This specifies what output is required from the system. Available
+  values are as for the previous option.  \texttt{E\_ltb\_runner}
+  treats this exactly as the required output.
+\item \texttt{limit.time.problem.wc \emph{limit\_in\_seconds}}
+  The wall clock time limit allowed per problem. If this is zero, no
+  per-problem limit exists.
+\item The specification of the background theory, in the form of a
+  list of TPTP \texttt{include} statement. Note that the file names
+  will be interpreted as always: An absolute file name is an absolute
+  file name. A relative file name is relative to the current working
+  directory, or, of the file is not found, relative to the value of
+  the \texttt{TPTP} environment variable (if set).
+\item The list of individual batch jobs, in the form of pairs of
+  absolute problem file names, with the first giving the problem
+  specification, the second the location for the result for the
+  problem. In the setup for interactive queries, this will typically
+  be empty.
+\end{itemize}
+
+\subsection{Interactive queries}
+\label{sec:iq}\index{interactive queries}
+
+If \texttt{e\_ltb\_runner} is called with the option
+\texttt{--interactive}, it will not terminate after processing the
+batch jobs, but will wait for user requests entered via standard
+input, i.e.\ usually via the terminal. All requests need to be
+terminated with \texttt{go.} on a line of its own. The following three
+user requests are supported:
+
+\begin{itemize}
+\item \texttt{help}: Prints a short help text.
+\item \texttt{quit}: Terminates the program in a controlled manner.
+\item The last option specifies a theorem proving job. It optionally
+  starts with a job name specifier of the form \texttt{job <ident>.}
+  and then specified a problem in TPTP-3 CNF/FOF syntax (optionally
+  using include statements). After the concluding \texttt{go.}, the
+  specification will be parsed, combined with the background theory,
+  and passed to the proving engine.
+\end{itemize}
+
+Figure~\ref{fig:lbtsession} shows an slightly shortened example of an
+interactive session with \texttt{e\_ltb\_runner}.
+
+\begin{figure}
+  \centering
+  \footnotesize
+\begin{verbatim}
+> e_ltb_runner ../etc/LTBSampleInputI.txt --interactive
+# Parsing Axioms/CSR003+2.ax
+# Parsing Axioms/CSR003+5.ax
+
+# == WCT:    1s, Solved:    0/   0    ==
+# Enter job, 'help' or 'quit', followed by 'go.' on a line of its own:
+help
+go.
+# Enter a job, 'help' or 'quit'. Finish any action with 'go.' on a line
+# of its own. A job consists of an optional job name specifier of the
+# form 'job <ident>.', followed by a specification of a first-order
+# problem in TPTP-3 syntax (including any combination of 'cnf', 'fof' and
+# 'include' statements. The system then tries to solve the specified
+# problem (including the constant background theory) and prints the
+# results of this attempt.
+# Enter job, 'help' or 'quit', followed by 'go.' on a line of its own:
+job test_job.
+include('CSR083+3.p').
+go.
+
+# Processing started for test_job
+# Filtering for Threshold(10000) (606)
+# Filtering for GSinE(CountFormulas, hypos, 6.000000, ...
+# Filtering for GSinE(CountFormulas, hypos, 1.200000, ...
+[...]
+# Filtering for GSinE(CountFormulas, nohypos, 6.000000, ...
+# No proof found by Threshold(10000)
+# SZS status Theorem for test_job
+# Solution found by GSinE(CountFormulas, nohypos, 1.200000, ...
+# Pid: 69178
+# Preprocessing time       : 0.012 s
+# SZS status Theorem
+# SZS answers Tuple [[s__Human]|_]
+
+# Proof found!
+
+# -------------------------------------------------
+# User time                : 0.009 s
+# System time              : 0.005 s
+# Total time               : 0.013 s
+# Maximum resident set size: 2457600 pages
+# Proof reconstruction starting
+# SZS output start CNFRefutation.
+[...]
+# SZS output end CNFRefutation
+# Proof reconstruction done
+
+# Processing finished for test_job
+
+# Enter job, 'help' or 'quit', followed by 'go.' on a line of its own:
+\end{verbatim}
+  \caption{Example of an interactive\texttt{e\_ltb\_runner} session
+    (slightly shordened)}
+  \label{fig:lbtsession}
+\end{figure}
+
+\section{Axiom pruning: \texttt{e\_axfilter}}
+\index{e\_axfilter|texttt}
+
+
 \clearpage
 \begin{appendix}
-  \section{License}
+  \chapter{License}
   
   The standard distribution of E is free software. You can use, modify
   and copy it under the terms of the GNU General Public License
@@ -1722,207 +2075,7 @@ by a comment of the form \texttt{\# info(id, pd, pl, sc, cd, nl,
   licenses. 
 \end{appendix}
 
-%\bibliography{stsbib}
-\newcommand{\etalchar}[1]{$^{#1}$}
-\begin{thebibliography}{WAB{\etalchar{+}}99}
-
-\bibitem[Bac98]{Bachmair:personal-98}
-L.~Bachmair.
-\newblock {Personal communication at CADE-15, Lindau}.
-\newblock Unpublished, 1998.
-
-\bibitem[BDP89]{BDP89}
-L.~Bachmair, N.~Dershowitz, and D.A. Plaisted.
-\newblock {Completion Without Failure}.
-\newblock In H.~Ait-Kaci and M.~Nivat, editors, {\em Resolution of Equations in
-  Algebraic Structures}, volume~2, pages 1--30. Academic Press, 1989.
-
-\bibitem[BG94]{BG94}
-L.~Bachmair and H.~Ganzinger.
-\newblock {Rewrite-Based Equational Theorem Proving with Selection and
-  Simplification}.
-\newblock {\em Journal of Logic and Computation}, 3(4):217--247, 1994.
-
-\bibitem[CL73]{CL73}
-C.~Chang and R.C. Lee.
-\newblock {\em {Symbolic Logic and Mechanical Theorem Proving}}.
-\newblock Computer Science and Applied Mathematics. Academic Press, 1973.
-
-\bibitem[Der91]{Dershowitz:IJCAI-91}
-N.~Dershowitz.
-\newblock {Ordering-Based Strategies for Horn Clauses}.
-\newblock In J.~Mylopoulos, editor, {\em Proc. of the 12th IJCAI, Sydney},
-  volume~1, pages 118--124. Morgan Kaufmann, 1991.
-
-\bibitem[DKS97]{DKS97}
-J.~Denzinger, M.~Kronenburg, and S.~Schulz.
-\newblock {DISCOUNT: A Distributed and Learning Equational Prover}.
-\newblock {\em Journal of Automated Reasoning}, 18(2):189--198, 1997.
-\newblock Special Issue on the CADE 13 ATP System Competition.
-
-\bibitem[DS94a]{DS94a}
-J.~Denzinger and S.~Schulz.
-\newblock {Analysis and Representation of Equational Proofs Generated by a
-  Distributed Completion Based Proof System}.
-\newblock Seki-Report SR-94-05, Universit{\"a}t Kai\-sers\-lau\-tern, 1994.
-
-\bibitem[DS94b]{DS94b}
-J.~Denzinger and S.~Schulz.
-\newblock {Recording, Analyzing and Presenting Distributed Deduction
-  Processes}.
-\newblock In H.~Hong, editor, {\em Proc.\ 1st PASCO, Hagenberg/Linz}, volume~5
-  of {\em Lecture Notes Series in Computing}, pages 114--123, Singapore, 1994.
-  World Scientific Publishing.
-
-\bibitem[DS96]{DS96a}
-J.~Denzinger and S.~Schulz.
-\newblock {Recording and Analysing Knowledge-Based Distributed Deduction
-  Processes}.
-\newblock {\em Journal of Symbolic Computation}, 21(4/5):523--541, 1996.
-
-\bibitem[HBF96]{BHF96}
-Th. Hillenbrand, A.~Buch, and R.~Fettig.
-\newblock {On Gaining Efficiency in Completion-Based Theorem Proving}.
-\newblock In H.~Ganzinger, editor, {\em Proc.\ of the 7th RTA, New Brunswick},
-  volume 1103 of {\em LNCS}, pages 432--435. Springer, 1996.
-
-\bibitem[HJL99]{HJL:CADE-99}
-Th. Hillenbrand, A.~Jaeger, and B.~L{\"o}chner.
-\newblock {System Abstract: Waldmeister -- Improvements in Performance and Ease
-  of Use}.
-\newblock In H.~Ganzinger, editor, {\em Proc.\ of the 16th CADE, Trento},
-  volume 1632 of {\em LNAI}, pages 232--236. Springer, 1999.
-
-\bibitem[HV11]{HV:CADE-2011}
-Kry\v{s}tof Hoder and Andrei Voronkov.
-\newblock {Sine Qua Non for Large Theory Reasoning}.
-\newblock In Nikolaj Bj{\o}rner and Sofronie-Viorica Stokkermans, editors, {\em
-  Proc.\ of the 23rd CADE, Wroclav}, volume 6803 of {\em LNAI}, pages 299--314.
-  Springer, 2011.
-
-\bibitem[McC94]{Mc94}
-W.W. McCune.
-\newblock {Otter 3.0 Reference Manual and Guide}.
-\newblock Technical Report ANL-94/6, Argonne National Laboratory, 1994.
-
-\bibitem[MIL{\etalchar{+}}97]{MILSGSM:JAR-97}
-M.~Moser, O.~Ibens, R.~Letz, J.~Steinbach, C.~Goller, J.~Schumann, and K.~Mayr.
-\newblock {SETHEO and E-SETHEO -- The CADE-13 Systems}.
-\newblock {\em Journal of Automated Reasoning}, 18(2):237--246, 1997.
-\newblock Special Issue on the CADE 13 ATP System Competition.
-
-\bibitem[MW97]{MW:JAR-97}
-W.W. McCune and L.~Wos.
-\newblock {Otter: The CADE-13 Competition Incarnations}.
-\newblock {\em Journal of Automated Reasoning}, 18(2):211--220, 1997.
-\newblock Special Issue on the CADE 13 ATP System Competition.
-
-\bibitem[NN93]{NN:RTA-93}
-P.~Nivela and R.~Nieuwenhuis.
-\newblock {Saturation of First-Order (Constrained) Clauses with the Saturate
-  System}.
-\newblock In C.~Kirchner, editor, {\em Proc.\ of the 5th RTA, Montreal}, volume
-  690 of {\em LNCS}, pages 436--440. Springer, 1993.
-
-\bibitem[NW01]{NW:SmallCNF-2001}
-A.~Nonnengart and C.~Weidenbach.
-\newblock {Computing Small Clause Normal Forms}.
-\newblock In A.~Robinson and A.~Voronkov, editors, {\em Handbook of Automated
-  Reasoning}, volume~I, chapter~5, pages 335--367. Elsevier Science and MIT
-  Press, 2001.
-
-\bibitem[RV01]{RV:IJCAR-2001}
-A.~Riazanov and A.~Voronkov.
-\newblock {Vampire 1.1 (System Description)}.
-\newblock In R.~Gor{\'e}, A.~Leitsch, and T.~Nipkow, editors, {\em Proc.\ of
-  the 1st IJCAR, Siena}, volume 2083 of {\em LNAI}, pages 376--380. Springer,
-  2001.
-
-\bibitem[RV02]{RV:AICOM-2002}
-A.~Riazanov and A.~Voronkov.
-\newblock {The Design and Implementation of VAMPIRE}.
-\newblock {\em Journal of AI Communications}, 15(2/3):91--110, 2002.
-
-\bibitem[Sch00]{Schulz:Diss-2000}
-S.~Schulz.
-\newblock {\em {Learning Search Control Knowledge for Equational Deduction}}.
-\newblock Number 230 in DISKI. Akademische Verlagsgesellschaft Aka GmbH Berlin,
-  2000.
-\newblock Ph.D.~Thesis, Fakult{\"a}t f{\"u}r Informatik, Technische
-  Universit{\"a}t M{\"u}nchen.
-
-\bibitem[Sch01]{Schulz:KI-2001}
-S.~Schulz.
-\newblock {Learning Search Control Knowledge for Equational Theorem Proving}.
-\newblock In F.~Baader, G.~Brewka, and T.~Eiter, editors, {\em Proc.\ of the
-  Joint German/Austrian Conference on Artificial Intelligence (KI-2001)},
-  volume 2174 of {\em LNAI}, pages 320--334. Springer, 2001.
-
-\bibitem[Sch02]{Schulz:AICOM-2002}
-S.~Schulz.
-\newblock {E -- A Brainiac Theorem Prover}.
-\newblock {\em Journal of AI Communications}, 15(2/3):111--126, 2002.
-
-\bibitem[Sch04]{Schulz:IJCAR-2004}
-S.~Schulz.
-\newblock {System Description: E~0.81}.
-\newblock In D.~Basin and M.~Rusinowitch, editors, {\em Proc.\ of the 2nd
-  IJCAR, Cork, Ireland}, volume 3097 of {\em LNAI}, pages 223--228. Springer,
-  2004.
-
-\bibitem[Sch12]{E:WWW-04}
-S.~Schulz.
-\newblock {The E Web Site}.
-\newblock \url{http://www.eprover.org}, 2004--2012.
-
-\bibitem[SSCG06]{SSCG:IJCAR-2006}
-Geoff Sutcliffe, Stephan Schulz, Koen Claessen, and Allen~Van Gelder.
-\newblock {Using the TPTP Language for Writing Derivations and Finite
-  Interpretations }.
-\newblock In Ulrich Fuhrbach and Natarajan Shankar, editors, {\em Proc.\ of the
-  3rd IJCAR, Seattle}, volume 4130 of {\em LNAI}, pages 67--81, 4130, 2006.
-  Springer.
-
-\bibitem[Sut09]{Sutcliffe:TPTP-WWW}
-G.~Sutcliffe.
-\newblock {The TPTP Web Site}.
-\newblock \url{http://www.tptp.org}, 2004--2009.
-\newblock (acccessed 2009-09-28).
-
-\bibitem[Tam97]{Tammet:JAR-97}
-T.~Tammet.
-\newblock {Gandalf}.
-\newblock {\em Journal of Automated Reasoning}, 18(2):199--204, 1997.
-\newblock Special Issue on the CADE 13 ATP System Competition.
-
-\bibitem[WAB{\etalchar{+}}99]{WABCEKTT:CADE-99}
-C.~Weidenbach, B.~Afshordel, U.~Brahm, C.~Cohrs, T.~Engel, G.~Jung, E.~Keen,
-  C.~Theobalt, and D.~Topic.
-\newblock {System Abstract: SPASS Version 1.0.0}.
-\newblock In H.~Ganzinger, editor, {\em Proc.\ of the 16th CADE, Trento},
-  volume 1632 of {\em LNAI}, pages 378--382. Springer, 1999.
-
-\bibitem[Wei99]{Weidenbach:personal-99}
-C.~Weidenbach.
-\newblock {Personal communication at CADE-16, Trento}.
-\newblock Unpublished, 1999.
-
-\bibitem[Wei01]{Weidenbach:SPASS-2001}
-C.~Weidenbach.
-\newblock {SPASS: Combining Superposition, Sorts and Splitting}.
-\newblock In A.~Robinson and A.~Voronkov, editors, {\em Handbook of Automated
-  Reasoning}, volume~II, chapter~27, pages 1965--2013. Elsevier Science and MIT
-  Press, 2001.
-
-\bibitem[WGR96]{WGR96}
-C.~Weidenbach, B.~Gaede, and G.~Rock.
-\newblock {SPASS \& FLOTTER Version 0.42}.
-\newblock In M.A. McRobbie and J.K. Slaney, editors, {\em Proc.\ of the 13th
-  CADE, New Brunswick}, volume 1104 of {\em LNAI}, pages 141--145. Springer,
-  1996.
-
-\end{thebibliography}
-
+\bibliography{stsbib}
 
 \printindex
 
