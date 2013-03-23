@@ -153,8 +153,8 @@ OptCell opts[] =
     NoArg, NULL,
     "Parse TPTP-3 format instead of E-LOP (Note that TPTP-3 syntax "
     "is still under development, and the version in E may not be "
-    "fully conforming at all times. E works on all TPTP 4.1.0 input "
-    "files (including includes)."},
+    "fully conforming at all times. E works on all TPTP 5.4.0 FOF "
+    "and CNF input files (including includes)."},
    
    {OPT_TSTP_FORMAT,
     '\0', "tstp-format",

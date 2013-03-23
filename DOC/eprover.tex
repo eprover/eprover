@@ -569,7 +569,7 @@ conjecture, and then recursively apply this process again.
     iterations of the selection algorithm.
   \item \texttt{<set-size>} gives an absolute upper bound for the
     number of clauses and formulas selected.
-  \item \texttt{<set-fraction>} gives a relative size (which fraction
+  \item \texttt{set-fraction} gives a relative size (which fraction
     of clauses/formulas) will be at most selected.
   \end{itemize}
 \end{itemize}
@@ -2049,13 +2049,139 @@ go.
 # Enter job, 'help' or 'quit', followed by 'go.' on a line of its own:
 \end{verbatim}
   \caption{Example of an interactive\texttt{e\_ltb\_runner} session
-    (slightly shordened)}
+    (slightly shortened)}
   \label{fig:lbtsession}
 \end{figure}
 
-\section{Axiom pruning: \texttt{e\_axfilter}}
+\section{Specification pruning: \texttt{e\_axfilter}}
 \index{e\_axfilter|texttt}
 
+One of the problems of automated deduction is the handling of large
+specifications that contain a lot of axioms that are not relevant for
+the conjectures at hand. The irrelevant facts contribute to the size
+and growths of the search space, and hence make proof search much more
+difficult.
+
+E provides a mechanism to apply (pruning) filters to
+specifications. The aim of these filters is to select subsets of the
+clauses and formulas in the problem set that are likely sufficient for
+proving a conjecture, but which are much smaller than the full
+axiomatization.
+
+This functionality is also available as the stand-alone tool
+\texttt{e\_axfilter}. This tool accepts a specification and a list of
+named filters, and generates one output file for each filter,
+containing the parts of the specification that result from applying
+the corresponding filter to the original specification.
+
+A typical command line for running \texttt{e\_axfilter} is:
+
+\begin{verbatim}
+  e_axfilter --tptp3-format --filter=<filterfile> <infile>
+\end{verbatim}
+
+The output files are named by taking the input file (without the
+suffix), appending the filter name, and the suffix \texttt{.p}.
+
+If no filter definition is given, the program uses the built-in
+default, which consists of a set of reasonably orthogonal filters.
+
+
+
+\subsection{Filter algorithms}
+
+E currently implements two types of filters. The major filter type is
+a configurable variant of Kry\v{s}toff Hoder's SInE\index{SInE}
+algorithm~\cite{HV:CADE-2011} for pruning large specification. The
+basic idea of this filter is to rate function- and predicate symbols
+by their rarity - the less often a symbol occurs in the specification,
+the more important any given formula or clause that handles the symbol
+is for the definition of that symbol. The algorithm starts by
+computing the \emph{D-relation} between clauses/formulas and
+symbols. A clause/formula is in the \emph{D-relation} with the rarest
+symbols that occur in it. The exact details of "rarest" are
+configurable in a number of ways - see below.
+
+The selection algorithm starts with the conjectures (all
+clauses/formulas of TPTP type \texttt{conjecture}, and marks all
+symbols in them as active. It then proceeds to add all
+clauses/formulas that are in the D-relation with an active symbol. All
+other symbols in those new clauses are made active as well, and the
+process repeats until a fix point is reached or one of several other
+termination conditions is reached.
+
+The second kind of filter is a simple threshold filter. It will pass
+all clauses and formulas of a specification that are below a certain
+threshold size, and no clauses or formulas that are above this
+threshold. The main purpose of this filter is to allow small
+specifications to pass through the filter mechanism unchanged. This is
+in particular useful for an ensemble approach, where the problem is
+tackled using a variety of filters. Such an approach is implemented by
+\texttt{e\_ltb\_runner}. 
+
+
+\subsection{Filter specification}
+
+The specification of a single filter follows the syntax show in
+Figure~\ref{fig:axfilter}. For all optional names and values,
+reasonable defaults are provided automatically.
+
+\begin{figure}
+  \small
+\begin{verbatim}
+<axfilterdef> ::= [<name> '=' ] <sine-filter> | <threshold-filter>
+
+<sine-filter> ::=      GSinE '(' CountTerms|CountFormulas ','
+                                 [hypos|nohypos] ','
+                                 [<benvolvence>]  ','
+                                 [<generosity>]   ','
+                                 [<rec-depth>]    ','
+                                 [<set-size>]     ','
+                                 [<set-fraction>] 
+                                 [ ',' addnosymb|ignorenosymb] ')'
+<threshold-filter> ::= Theshold '(' <threshold> ')'
+\end{verbatim}
+  \caption{Specification filter specification syntax}
+  \label{fig:axfilter}
+\end{figure}
+
+The parameters have the following type and meaning:
+\begin{itemize}
+\item The first parameter defines how function and predicate symbols
+  are counted to determine relative rarity. For
+  \texttt{CountFormulas}, the measure is the number of formulas or
+  clauses in which the symbol occurs. For \texttt{CountTerms}, the
+  total number of occurrences is used, with multiple occurrences in a
+  formula being counted multiple times.
+\item The second parameter determines if only formulas and clauses of
+  the type \texttt{conjecture} and \texttt{negated\_conjecture} are
+  used as the initial seed for the SInE algorithm, or if clauses and
+  formulas of type \texttt{hypothesis} are automatically added to the
+  core for the first iteration.
+\item The \texttt{benevolence} determines the threshold used for
+  determining the rarest symbols in a clause or formula. It is a
+  floating point value. All symbols with a frequency count less than
+  the benevolence value times the count of the least frequent symbol
+  in a clause are considered for the D-relation.
+\item The \texttt{generosity} also determines how many symbols are
+  used for the D-relation. It defines an upper bound on the number of
+  symbols used.
+\item The \texttt{rec-depth} determines how many levels of
+  clause/formula selection are performed before the selection is
+  stopped. 
+\item The \texttt{set-size} adds another early termination
+  criterion. It stops the algorithm as soon as this number of axioms
+  have been selected.
+\item The \texttt{set-fraction} has the same purpose, but specifies the limit
+  as a fraction of the cardinality of the input set.
+\item Finally, the optional last argument determines if clauses or
+  formulas which do not contain any function- or predicate symbols
+  pass the filter. E does not consider equality as a (normal) symbol,
+  so clauses or formulas that only contain variables will never be
+  selected by the standard SInE algorithm. This parameter adds them
+  explicitly. This is a rare occurence, so the effect is minor in
+  either case.
+\end{itemize}
 
 \clearpage
 \begin{appendix}
