@@ -37,16 +37,16 @@ anything fails. There should be a copy in DOC/eprover.pdf.
              ===============================
 
 
-This is the README file for version 1.6 "Tiger Hill" of the E
+This is the README file for version 1.7 "Jun Chiabari" of the E
 equational theorem prover. This version of E is free software, see the
 file COPYING for details about the license and the fact that THERE IS
 NO WARRANTY!
 
-Release 1.6 is the culmination of a long development phase. Important
-changes vs. version 1.5 include improved handling of very large
-problems (by removing bottlenecks and integrating SInE), a new
-Auto-mode, and a streamlining of the recommended command line
-options.
+Release 1.7 is the culmination of a long development phase. Important
+changes vs. version 1.6 include a stronger Auto-mode and the inclusion
+or update of a number of programs, including in particular interactive
+use of e_ltb_runner for posing different questions against a large
+knowledge base.
 
 
 What is E?
