@@ -91,7 +91,7 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->processed_pos_rules->demod_index = PDTreeAlloc();
    handle->processed_pos_eqns->demod_index  = PDTreeAlloc();
    handle->processed_neg_units->demod_index = PDTreeAlloc();
-   handle->unprocessed->demod_index         = PDTreeAlloc();
+   // handle->unprocessed->demod_index         = PDTreeAlloc();
    handle->demods[0]            = handle->processed_pos_rules;
    handle->demods[1]            = handle->processed_pos_eqns;
    handle->demods[2]            = NULL;

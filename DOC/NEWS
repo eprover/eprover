@@ -1,6 +1,10 @@
 This history list describes the major differences between versions of
 the E equational theorem prover.
 
+
+Version 1.7 -> 
+
+
 Version 1.6 -> 1.7 Jun Chiabari
 
 - Added prototypical condensing
@@ -13,7 +17,7 @@ Version 1.6 -> 1.7 Jun Chiabari
 - Added interactive batch mode to e_ltb_runner (load large spec once,
   then keep asking for the status of different theorems via
   stdin/stdout)
-- Added enormalize for normalization of terms, clauses and formulas
+- Added enormalizae for normalization of terms, clauses and formulas
   with an oriented rule set without regard for orderings.
 - Various minor updates and bugfixes
 

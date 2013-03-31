@@ -544,10 +544,7 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
 			  control->heuristic_parms.forward_demod);
 
 
-      if(ClauseIsTrivial(handle)||
-	 (control->heuristic_parms.unproc_simplify&&
-	  !ClauseSimplifyWithUnitSet(handle, state->unprocessed,
-				     control->heuristic_parms.unproc_simplify)))
+      if(ClauseIsTrivial(handle))
       {
 	 assert(!handle->children);
 	 ClauseDetachParents(handle);
@@ -602,14 +599,7 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
       ClauseDelProp(handle, CPIsOriented);
       DocClauseQuoteDefault(6, handle, "eval");
       
-      if(control->heuristic_parms.unproc_simplify && ClauseIsUnit(handle))
-      {
-	 ClauseSetPDTIndexedInsert(state->unprocessed, handle);	    
-      }
-      else
-      {
-	 ClauseSetInsert(state->unprocessed, handle);
-      }
+      ClauseSetInsert(state->unprocessed, handle);
    }
    return NULL;
 }
@@ -962,16 +952,8 @@ void ProofStateResetProcessedSet(ProofState_p state,
       if(control->heuristic_parms.prefer_initial_clauses)
       {
 	 EvalListChangePriority(handle->evaluations, -PrioLargestReasonable);
-      }
- 
-      if(control->heuristic_parms.unproc_simplify && ClauseIsUnit(handle))
-      {
-	 ClauseSetPDTIndexedInsert(state->unprocessed, handle);	    
-      }
-      else
-      {
-	 ClauseSetInsert(state->unprocessed, handle);
-      }
+      }      
+      ClauseSetInsert(state->unprocessed, handle);
    }
 }
 

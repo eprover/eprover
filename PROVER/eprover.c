@@ -160,7 +160,6 @@ typedef enum
    OPT_FP_INDEX,
    OPT_DETSORT_RW,
    OPT_DETSORT_NEW,
-   OPT_UNPROC_UNIT_SIMPL,
    OPT_DEFINE_WFUN,
    OPT_DEFINE_HEURISTIC,
    OPT_HEURISTIC,
@@ -1107,16 +1106,6 @@ OptCell opts[] =
     NoArg, NULL,
     "Sort set of newly generated and backward simplified clauses using "
     "a total syntactic ordering."},
-
-   {OPT_UNPROC_UNIT_SIMPL,
-    '\0', "simplify-with-unprocessed-units",
-    OptArg, "TopSimplify",
-    "Determine whether to use unprocessed unit clauses for "
-    "simplify-reflect (unit-cutting) "
-    "and unit subsumption. Possible values are 'NoSimplify' for strict "
-    "DISCOUNT loop, 'TopSimplify' to use unprocessed units at the top "
-    "level only, or 'FullSimplify' to use positive units even within "
-    "equations."},
 
    {OPT_DEFINE_WFUN,
     'D', "define-weight-function",
@@ -2345,20 +2334,6 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_DETSORT_NEW:
             h_parms->detsort_tmpset = true;
             break;
-      case OPT_UNPROC_UNIT_SIMPL:
-	    h_parms->unproc_simplify = TransUnitSimplifyString(arg);
-	    if(h_parms->unproc_simplify==-1)
-	    {
-	       DStr_p err = DStrAlloc();
-	       DStrAppendStr(err, 
-			     "Wrong argument to option"
-			     " --simplify-with-unprocessed-units" 
-			     "Possible values: "); 
-	       DStrAppendStrArray(err, UnitSimplifyNames, ", ");
-	       Error(DStrView(err), USAGE_ERROR);
-	       DStrFree(err);
-	    }
-	    break;
       case OPT_DEFINE_WFUN:
 	    PStackPushP(wfcb_definitions, arg);
 	    break;

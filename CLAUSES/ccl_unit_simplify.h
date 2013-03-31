@@ -58,8 +58,8 @@ ClausePos_p FindSignedTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
 ClausePos_p FindSimplifyingUnit(ClauseSet_p set, Term_p t1, 
 				Term_p t2, bool positive_only);
 
-bool        ClauseSimplifyWithUnitSet(Clause_p clause, ClauseSet_p
-				      unit_set, UnitSimplifyType how);
+/*bool        ClauseSimplifyWithUnitSet(Clause_p clause, ClauseSet_p
+  unit_set, UnitSimplifyType how); */
 
 #endif
 

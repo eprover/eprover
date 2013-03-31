@@ -139,9 +139,6 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->split_aggressive              = false;
    handle->split_fresh_defs              = true;
 
-   handle->unproc_simplify               = NoUnitSimplify;
-
-   
    strcpy(handle->rw_bw_index_type, DEFAULT_RW_BW_INDEX_NAME);
    strcpy(handle->pm_from_index_type, DEFAULT_PM_FROM_INDEX_NAME);
    strcpy(handle->pm_into_index_type, DEFAULT_PM_INTO_INDEX_NAME);
