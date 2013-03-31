@@ -34,7 +34,7 @@ Changes
 #include <ccl_condensation.h>
 #include <che_to_weightgen.h>
 #include <che_to_precgen.h>
-#include <ccl_unit_simplify.h>
+#include <ccl_clausefunc.h>
 #include <che_wfcbadmin.h>
 #include <che_litselection.h>
 
