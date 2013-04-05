@@ -58,6 +58,7 @@ typedef struct proofstatecell
    ClauseSet_p       processed_non_units;
    ClauseSet_p       unprocessed;
    ClauseSet_p       tmp_store;
+   ClauseSet_p       archive;
    GlobalIndices     gindices;
    bool              fvi_initialized; /* Are the feature vector
                                          indices set up? */
@@ -119,6 +120,7 @@ void         ProofStateFree(ProofState_p junk);
     ClauseSetStorage((state)->processed_pos_eqns)+\
     ClauseSetStorage((state)->processed_neg_units)+\
     ClauseSetStorage((state)->processed_non_units)+\
+    ClauseSetStorage((state)->archive)+\
     TBStorage((state)->terms))
 
 void ProofStateStatisticsPrint(FILE* out, ProofState_p state);

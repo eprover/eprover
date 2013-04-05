@@ -85,6 +85,7 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->processed_non_units  = ClauseSetAlloc();
    handle->unprocessed          = ClauseSetAlloc();
    handle->tmp_store            = ClauseSetAlloc();
+   handle->archive              = ClauseSetAlloc();
    GlobalIndicesNull(&(handle->gindices));
    handle->fvi_initialized     = false;
    handle->fvi_cspec           = NULL;
@@ -111,6 +112,7 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    GCRegisterClauseSet(handle->gc_terms, handle->processed_non_units);
    GCRegisterClauseSet(handle->gc_terms, handle->unprocessed);
    GCRegisterClauseSet(handle->gc_terms, handle->tmp_store);
+   GCRegisterClauseSet(handle->gc_terms, handle->archive);
    GCRegisterClauseSet(handle->gc_terms, handle->definition_store->def_clauses);
 
    handle->status_reported              = false;
@@ -228,6 +230,7 @@ void ProofStateResetClauseSets(ProofState_p state, bool term_gc)
    ClauseSetFreeClauses(state->processed_non_units);
    ClauseSetFreeClauses(state->unprocessed);
    ClauseSetFreeClauses(state->tmp_store);
+   ClauseSetFreeClauses(state->archive);
    GlobalIndicesReset(&(state->gindices));
    if(state->watchlist)
    {
@@ -264,6 +267,7 @@ void ProofStateFree(ProofState_p junk)
    ClauseSetFree(junk->processed_non_units);
    ClauseSetFree(junk->unprocessed);
    ClauseSetFree(junk->tmp_store);
+   ClauseSetFree(junk->archive);
    GlobalIndicesFreeIndices(&(junk->gindices));
    GCAdminFree(junk->gc_terms);
    GCAdminFree(junk->gc_original_terms);
