@@ -65,6 +65,7 @@ typedef enum
    OPT_REQUIRE_NONEMPTY,
    OPT_SILENT,
    OPT_OUTPUTLEVEL,
+   OPT_PROOF_OBJECT,
    OPT_PCL_COMPRESSED,
    OPT_PCL_COMPACT,
    OPT_PCL_SHELL_LEVEL,
@@ -206,7 +207,7 @@ OptCell opts[] =
    {OPT_SILENT,
     's', "silent",
     NoArg, NULL,
-    "Equivalent to --output-level=0."},
+    "Equivalent to --output-level=0."},   
 
    {OPT_OUTPUTLEVEL,
     'l', "output-level",
@@ -220,6 +221,18 @@ OptCell opts[] =
     " also imply PCL2 or TSTP formats (which can be post-processed"
     " with suitable tools)."},
    
+   {OPT_PROOF_OBJECT,
+    'p', "proof-object",
+    OptArg, "1",
+    "Generate (and print, in case of success) an internal proof object. "
+    "Level 0 will not build a proof object, level 1 will build a "
+    "simple, compact proof object that only contains inference rules "
+    "and dependencies, level 2 will build a proof object where "
+    "inferences are unambigiously described by giving inference "
+    "positions, and level 3 will expand this to a proof object where "
+    "all intermediate results are ecplicit. This feature is under "
+    "development, so far only level 0 is operations ;-)."}, 
+
    {OPT_PCL_COMPRESSED,
     '\0', "pcl-terms-compressed",
     NoArg, NULL,
@@ -1714,6 +1727,15 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_OUTPUTLEVEL:
 	    OutputLevel = CLStateGetIntArg(handle, arg);
 	    break;
+      case OPT_PROOF_OBJECT:
+            BuildProofObject =  CLStateGetIntArg(handle, arg);
+	    if((BuildProofObject > 2) || 
+	       (BuildProofObject < 0))
+	    {
+	       Error("Option --proof-object) accepts "
+		     "argument from {0..3}", USAGE_ERROR);
+	    }            
+            break;
       case OPT_PCL_COMPRESSED:
 	    pcl_full_terms = false;
 	    break;
@@ -1721,16 +1743,13 @@ CLState_p process_options(int argc, char* argv[])
 	    PCLStepCompact = true;
 	    break;
       case OPT_PCL_SHELL_LEVEL:
-            tmp =  CLStateGetIntArg(handle, arg);
-	    if((tmp > 2) || 
-	       (tmp < 0))
+            PCLShellLevel =  CLStateGetIntArg(handle, arg);
+	    if((PCLShellLevel > 2) || 
+	       (PCLShellLevel < 0))
 	    {
-	       Error("Option --pcl-shell-level) requires "
+	       Error("Option --pcl-shell-level) accepts "
 		     "argument from {0..2}", USAGE_ERROR);
 	    }
-	    PCLShellLevel = tmp;
-	    break;
- 
             break;
       case OPT_PRINT_STATISTICS:
 	    print_statistics = true;

@@ -28,6 +28,7 @@ Changes
 #define CCL_CLAUSESETS
 
 #include <ccl_inferencedoc.h>
+#include <ccl_derivation.h>
 #include <ccl_fcvindexing.h>
 #include <ccl_tautologies.h>
 #include <ccl_pdtrees.h>
