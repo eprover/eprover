@@ -89,6 +89,8 @@ typedef enum
    OPT_TSTP_FORMAT,
    OPT_AUTO,
    OPT_SATAUTO,
+   OPT_AUTODEV,
+   OPT_SATAUTODEV,
    OPT_NO_PREPROCESSING,
    OPT_EQ_UNFOLD_LIMIT,
    OPT_EQ_UNFOLD_MAXCLAUSES,
@@ -521,6 +523,18 @@ OptCell opts[] =
     NoArg, NULL,
     "Automatically determine settings for proof/saturation search. This is " 
     "equivalent to -xAuto -tAuto."},
+
+   {OPT_AUTODEV,
+    '\0', "autodev", 
+    NoArg, NULL,
+    "Automatically determine settings for proof search (development "
+    "version). This is equivalent to -xAutoDev -tAutoDev --sine=Auto."},
+
+   {OPT_SATAUTODEV,
+    '\0', "satautodev", 
+    NoArg, NULL,
+    "Automatically determine settings for proof/saturation search "
+    "(development version). This is equivalent to -xAutoDev -tAutoDev."},
 
    {OPT_NO_PREPROCESSING,
     '\0', "no-preprocessing",
@@ -1911,6 +1925,15 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_SATAUTO:
 	    h_parms->heuristic_name = "Auto";
             h_parms->ordertype = AUTO;
+            break;
+      case OPT_AUTODEV:
+	    h_parms->heuristic_name = "AutoDev";
+            h_parms->ordertype = AUTODEV;
+            sine = "Auto";
+            break;
+      case OPT_SATAUTODEV:
+	    h_parms->heuristic_name = "AutoDev";
+            h_parms->ordertype = AUTODEV;
             break;
       case OPT_NO_PREPROCESSING:
 	    no_preproc = true;
