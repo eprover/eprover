@@ -270,7 +270,7 @@ void ProofStateFree(ProofState_p junk)
    ClauseSetFree(junk->unprocessed);
    ClauseSetFree(junk->tmp_store);
    ClauseSetFree(junk->archive);
-   ClauseSetFree(junk->f_archive);
+   FormulaSetFree(junk->f_archive);
    GlobalIndicesFreeIndices(&(junk->gindices));
    GCAdminFree(junk->gc_terms);
    GCAdminFree(junk->gc_original_terms);
