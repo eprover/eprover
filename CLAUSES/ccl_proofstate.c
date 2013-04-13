@@ -86,6 +86,7 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->unprocessed          = ClauseSetAlloc();
    handle->tmp_store            = ClauseSetAlloc();
    handle->archive              = ClauseSetAlloc();
+   handle->f_archive            = FormulaSetAlloc();
    GlobalIndicesNull(&(handle->gindices));
    handle->fvi_initialized     = false;
    handle->fvi_cspec           = NULL;
@@ -114,6 +115,7 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    GCRegisterClauseSet(handle->gc_terms, handle->tmp_store);
    GCRegisterClauseSet(handle->gc_terms, handle->archive);
    GCRegisterClauseSet(handle->gc_terms, handle->definition_store->def_clauses);
+   GCRegisterFormulaSet(handle->gc_original_terms, handle->f_archive);
 
    handle->status_reported              = false;
    handle->answer_count                 = 0;
@@ -268,6 +270,7 @@ void ProofStateFree(ProofState_p junk)
    ClauseSetFree(junk->unprocessed);
    ClauseSetFree(junk->tmp_store);
    ClauseSetFree(junk->archive);
+   ClauseSetFree(junk->f_archive);
    GlobalIndicesFreeIndices(&(junk->gindices));
    GCAdminFree(junk->gc_terms);
    GCAdminFree(junk->gc_original_terms);

@@ -78,8 +78,8 @@ distrib: man documentation cleandist default_config
 	@cd ..; find $(PROJECT) -name ".git" -print >> $(PROJECT)/etc/NO_DISTRIB;\
          $(TAR) cfX - $(PROJECT)/etc/NO_DISTRIB $(PROJECT) |$(GZIP) - -c > $(PROJECT).tgz
 
-# Include proprietary code not part of the GPL'ed version, 
-# as well as CVS subdirecctories
+# Include the GIT subdirecctories (and non-GPL files, of which there
+# currently are none. 
 
 fulldistrib: man documentation cleandist default_config
 	@echo "Warning: You are building a full archive!"

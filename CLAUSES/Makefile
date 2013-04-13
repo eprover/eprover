@@ -45,7 +45,7 @@ CLAUSE_LIB = ccl_neweval.o ccl_eqn.o ccl_eqnlist.o \
              ccl_grounding.o ccl_g_lithash.o ccl_axiomsorter.o \
 	     ccl_findex.o ccl_clausepos_tree.o ccl_subterm_tree.o \
              ccl_subterm_index.o ccl_overlap_index.o ccl_relevance.o\
-             ccl_inferencedoc.o ccl_derivations.o ccl_paramod.o ccl_factor.o\
+             ccl_inferencedoc.o ccl_derivation.o ccl_paramod.o ccl_factor.o\
 	     ccl_eqnresolution.o\
              ccl_rewrite.o ccl_unit_simplify.o ccl_subsumption.o \
              ccl_condensation.o ccl_context_sr.o \

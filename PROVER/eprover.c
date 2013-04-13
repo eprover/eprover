@@ -1729,7 +1729,7 @@ CLState_p process_options(int argc, char* argv[])
 	    break;
       case OPT_PROOF_OBJECT:
             BuildProofObject =  CLStateGetIntArg(handle, arg);
-	    if((BuildProofObject > 2) || 
+	    if((BuildProofObject > 3) || 
 	       (BuildProofObject < 0))
 	    {
 	       Error("Option --proof-object) accepts "
