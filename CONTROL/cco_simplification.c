@@ -61,14 +61,23 @@ Changes
 
 void ClauseMoveSimplified(GlobalIndices_p gindices, 
                           Clause_p clause, 
-                          ClauseSet_p tmp_set) 
+                          ClauseSet_p tmp_set, 
+                          ClauseSet_p archive) 
 {
    ClauseKillChildren(clause);
    ClauseSetExtractEntry(clause);
    GlobalIndicesDeleteClause(gindices, clause);
    DocClauseQuoteDefault(6, clause, "simplifiable");
-   ClauseSetInsert(tmp_set, clause);
-   
+   if(BuildProofObject)
+   {
+      Clause_p new_clause = ClauseFlatCopy(clause);      
+      ClauseSetInsert(archive, clause);
+      ClauseSetInsert(tmp_set, new_clause);
+   }
+   else
+   {
+      ClauseSetInsert(tmp_set, clause);
+   }   
 }
 
 
@@ -85,6 +94,7 @@ void ClauseMoveSimplified(GlobalIndices_p gindices,
 /----------------------------------------------------------------------*/
 
 bool RemoveRewritableClauses(OCB_p ocb, ClauseSet_p from, ClauseSet_p into, 
+                             ClauseSet_p archive,
 			     Clause_p new_demod, SysDate nf_date, 
                              GlobalIndices_p gindices)
 {
@@ -97,7 +107,7 @@ bool RemoveRewritableClauses(OCB_p ocb, ClauseSet_p from, ClauseSet_p into,
    {
       handle = PStackPopP(stack);
 
-      ClauseMoveSimplified(gindices, handle, into);
+      ClauseMoveSimplified(gindices, handle, into, archive);
    }
    PStackFree(stack);
 
@@ -119,6 +129,7 @@ bool RemoveRewritableClauses(OCB_p ocb, ClauseSet_p from, ClauseSet_p into,
 /----------------------------------------------------------------------*/
 
 bool RemoveRewritableClausesIndexed(OCB_p ocb, ClauseSet_p into, 
+                                    ClauseSet_p archive,
                                     Clause_p new_demod, SysDate nf_date, 
                                     GlobalIndices_p gindices)
 {
@@ -132,7 +143,7 @@ bool RemoveRewritableClausesIndexed(OCB_p ocb, ClauseSet_p into,
    {
       handle = PStackPopP(stack);
       ClauseDelProp(handle, CPRWDetected);
-      ClauseMoveSimplified(gindices, handle, into);
+      ClauseMoveSimplified(gindices, handle, into, archive);
    }
    PStackFree(stack);
 
@@ -155,6 +166,7 @@ bool RemoveRewritableClausesIndexed(OCB_p ocb, ClauseSet_p into,
 /----------------------------------------------------------------------*/
 
 long ClauseSetUnitSimplify(ClauseSet_p set, Clause_p simplifier,
+                           ClauseSet_p archive,
 			   ClauseSet_p tmp_set, GlobalIndices_p gindices)
 {
    Clause_p handle, move;
@@ -168,7 +180,7 @@ long ClauseSetUnitSimplify(ClauseSet_p set, Clause_p simplifier,
       {
 	 move = handle;
 	 handle = handle->succ;	
-	 ClauseMoveSimplified(gindices, move, tmp_set);
+	 ClauseMoveSimplified(gindices, move, tmp_set, archive);
 	 res++;
       }
       else
@@ -194,6 +206,7 @@ long ClauseSetUnitSimplify(ClauseSet_p set, Clause_p simplifier,
 
 long RemoveContextualSRClauses(ClauseSet_p from,
 			       ClauseSet_p into,
+                               ClauseSet_p archive,
 			       Clause_p simplifier,
                                GlobalIndices_p gindices)
 {
@@ -209,7 +222,7 @@ long RemoveContextualSRClauses(ClauseSet_p from,
       if(handle->set == from) /* Clauses may be found more than once
 				 by ClauseSetFindContextSRClauses() */
       {
-	 ClauseMoveSimplified(gindices, handle, into);
+	 ClauseMoveSimplified(gindices, handle, into, archive);
 	 res++;
       }
    }

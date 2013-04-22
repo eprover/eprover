@@ -118,7 +118,8 @@ static void check_ac_status(ProofState_p state, ProofControl_p
 
 static long remove_subsumed(GlobalIndices_p indices, 
                             FVPackedClause_p subsumer, 
-                            ClauseSet_p set)
+                            ClauseSet_p set,
+                            ClauseSet_p archive)
 {
    Clause_p handle;
    long     res;
@@ -142,7 +143,15 @@ static long remove_subsumed(GlobalIndices_p indices,
       }
       ClauseKillChildren(handle);
       GlobalIndicesDeleteClause(indices, handle);
-      ClauseSetDeleteEntry(handle);  
+      if(BuildProofObject)
+      {
+         ClauseSetExtractEntry(handle);
+         ClauseSetInsert(archive, handle);
+      }
+      else
+      {
+         ClauseSetDeleteEntry(handle);  
+      }
    }
    PStackFree(stack);
    return res;
@@ -179,6 +188,7 @@ eliminate_backward_rewritten_clauses(ProofState_p
       {
          min_rw = RemoveRewritableClausesIndexed(control->ocb,
                                                  state->tmp_store,
+                                                 state->archive,
                                                  clause, *date, &(state->gindices));
          
       }
@@ -187,21 +197,25 @@ eliminate_backward_rewritten_clauses(ProofState_p
          min_rw = RemoveRewritableClauses(control->ocb,
                                           state->processed_pos_rules,
                                           state->tmp_store,
+                                          state->archive,
                                           clause, *date, &(state->gindices))
             ||min_rw;
          min_rw = RemoveRewritableClauses(control->ocb,
                                           state->processed_pos_eqns,
                                           state->tmp_store,
+                                          state->archive,
                                           clause, *date, &(state->gindices))
             ||min_rw;
          min_rw = RemoveRewritableClauses(control->ocb, 
-				       state->processed_neg_units,
+                                          state->processed_neg_units,
                                           state->tmp_store,
+                                          state->archive,
                                           clause, *date, &(state->gindices))
             ||min_rw;
          min_rw = RemoveRewritableClauses(control->ocb, 
                                           state->processed_non_units,
                                           state->tmp_store,
+                                          state->archive,
                                           clause, *date, &(state->gindices))
             ||min_rw;
       }
@@ -250,20 +264,32 @@ static long eliminate_backward_subsumed_clauses(ProofState_p state,
             equation (else it would be unorientable itself). */               
          if(!ClauseIsRWRule(pclause->clause))            
          {
-            res += remove_subsumed(&(state->gindices), pclause, state->processed_pos_rules);
-            res += remove_subsumed(&(state->gindices), pclause, state->processed_pos_eqns);
+            res += remove_subsumed(&(state->gindices), pclause, 
+                                   state->processed_pos_rules, 
+                                   state->archive);
+            res += remove_subsumed(&(state->gindices), pclause, 
+                                   state->processed_pos_eqns, 
+                                   state->archive);
          }
-	 res += remove_subsumed(&(state->gindices), pclause, state->processed_non_units);
+	 res += remove_subsumed(&(state->gindices), pclause, 
+                                state->processed_non_units, 
+                                   state->archive);
       }
       else
       {
-	 res += remove_subsumed(&(state->gindices), pclause, state->processed_neg_units);
-	 res += remove_subsumed(&(state->gindices), pclause, state->processed_non_units);
+	 res += remove_subsumed(&(state->gindices), pclause, 
+                                state->processed_neg_units, 
+                                state->archive);
+	 res += remove_subsumed(&(state->gindices), pclause, 
+                                state->processed_non_units, 
+                                state->archive);
       }
    }
    else
    {
-      res += remove_subsumed(&(state->gindices), pclause, state->processed_non_units);
+      res += remove_subsumed(&(state->gindices), pclause, 
+                             state->processed_non_units, 
+                             state->archive);
    }
    state->backward_subsumed_count+=res;
    return res;
@@ -291,18 +317,26 @@ static void eliminate_unit_simplified_clauses(ProofState_p state,
       return;
    }
    ClauseSetUnitSimplify(state->processed_non_units, clause,
-			 state->tmp_store, &(state->gindices));
+			 state->tmp_store,
+                         state->archive,
+                         &(state->gindices));
    if(ClauseIsPositive(clause))
    {
       ClauseSetUnitSimplify(state->processed_neg_units, clause,
-			    state->tmp_store, &(state->gindices));
+			    state->tmp_store, 
+                            state->archive,
+                            &(state->gindices));
    }
    else
    {
       ClauseSetUnitSimplify(state->processed_pos_rules, clause,
-			    state->tmp_store, &(state->gindices));
+			    state->tmp_store,
+                            state->archive,
+                            &(state->gindices));
       ClauseSetUnitSimplify(state->processed_pos_eqns, clause,
-			    state->tmp_store, &(state->gindices));
+			    state->tmp_store, 
+                            state->archive,
+                            &(state->gindices));
    }
 }
 
@@ -329,7 +363,9 @@ static long eliminate_context_sr_clauses(ProofState_p state,
       return 0;
    }
    return RemoveContextualSRClauses(state->processed_non_units,
-				    state->tmp_store, clause, 
+				    state->tmp_store, 
+                                    state->archive,
+                                    clause, 
                                     &(state->gindices));
 }
 
@@ -346,13 +382,14 @@ static long eliminate_context_sr_clauses(ProofState_p state,
 //
 /----------------------------------------------------------------------*/
 
-void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist, Clause_p clause)
+void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist, 
+                     Clause_p clause, ClauseSet_p archive)
 {
    FVPackedClause_p pclause = FVIndexPackClause(clause, watchlist->fvindex);
    long removed;
    
    clause->weight = ClauseStandardWeight(clause);
-   if((removed = remove_subsumed(indices, pclause, watchlist)))
+   if((removed = remove_subsumed(indices, pclause, watchlist, archive)))
    {
       ClauseSetProp(clause, CPSubsumesWatch);
       if(OutputLevel == 1)
@@ -395,7 +432,8 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
    tmp_set = ClauseSetAlloc();
 
    RemoveRewritableClauses(control->ocb, state->watchlist,
-			   tmp_set, clause, clause->date,
+			   tmp_set, state->archive,
+                           clause, clause->date,
                            &(state->wlindices));
    while((handle = ClauseSetExtractFirst(tmp_set)))
    {
@@ -553,7 +591,8 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
       }
       if(state->watchlist)
       {
-	 check_watchlist(&(state->wlindices), state->watchlist, handle);
+	 check_watchlist(&(state->wlindices), state->watchlist, 
+                         handle, state->archive);
       }
       if(ClauseIsEmpty(handle))
       {
@@ -1273,7 +1312,8 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    
    if(state->watchlist)
    {
-      check_watchlist(&(state->gindices), state->watchlist, pclause->clause);
+      check_watchlist(&(state->gindices), state->watchlist, 
+                      pclause->clause, state->archive);
    }
     
    /* Now on to backward simplification. */   

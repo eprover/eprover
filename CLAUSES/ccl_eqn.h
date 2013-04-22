@@ -217,6 +217,7 @@ void    EqnSwapSides(Eqn_p eq);
 void    EqnRecordTermDates(Eqn_p eq);
 
 Eqn_p   EqnCopy(Eqn_p eq, TB_p bank);
+Eqn_p   EqnFlatCopy(Eqn_p eq);
 Eqn_p   EqnCopyRepl(Eqn_p eq, TB_p bank, Term_p old, Term_p repl);
 #define EqnSkolemSubst(handle, subst, sig)\
         SubstSkolemizeTerm((handle)->lterm, (subst), (sig));\

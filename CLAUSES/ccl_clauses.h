@@ -286,6 +286,7 @@ bool     ClauseIsStronglyRangeRestricted(Clause_p clause);
 EqnSide  ClauseIsEqDefinition(Clause_p clause, int min_arity);
 
 Clause_p ClauseCopy(Clause_p clause, TB_p bank);
+Clause_p ClauseFlatCopy(Clause_p clause);
 Clause_p ClauseCopyOpt(Clause_p clause);
 Clause_p ClauseCopyDisjoint(Clause_p clause);
 

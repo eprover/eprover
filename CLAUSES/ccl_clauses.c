@@ -1084,6 +1084,28 @@ Clause_p ClauseCopy(Clause_p clause, TB_p bank)
 
 /*-----------------------------------------------------------------------
 //
+// Function: ClauseFlatCopy()
+//
+// As ClauseCopy(), but use the same bank as in clause, and ignore
+// instantiations. 
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+Clause_p ClauseFlatCopy(Clause_p clause)
+{
+   Clause_p handle = clause_copy_meta(clause);
+
+   handle->literals = EqnListFlatCopy(clause->literals);
+
+   return handle;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: ClauseCopyOpt()
 //
 //   Copy a (possibly instantiated) clause using the "same term bank"

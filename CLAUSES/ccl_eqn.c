@@ -1032,6 +1032,38 @@ Eqn_p EqnCopy(Eqn_p eq, TB_p bank)
 
 /*-----------------------------------------------------------------------
 //
+// Function: EqnFlatCopy()
+//
+//   Create a flat copy of eq.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+Eqn_p EqnFlatCopy(Eqn_p eq)
+{
+   Eqn_p  handle;
+   Term_p lterm, rterm;
+
+   lterm = eq->lterm;
+   rterm = eq->rterm;
+
+   handle = EqnAlloc(lterm, rterm, eq->bank, false); /* Properties will be
+						    taken care of
+						    later! */
+   handle->properties = eq->properties;
+   if(!EqnIsOriented(handle))
+   {
+      EqnDelProp(handle, EPMaxIsUpToDate);
+   }
+   return handle;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: EqnCopyRepl()
 //
 //   As EqnCopy(), but replace occurrences of old with repl.
@@ -1096,7 +1128,7 @@ Eqn_p EqnCopyOpt(Eqn_p eq)
 //
 // Function: EqnCopyDisjoint()
 //
-//   Copy an equation into the same term bank, but with dijoint
+//   Copy an equation into the same term bank, but with disjoint
 //   (odd->even or vice versa) variable.
 //
 // Global Variables: 

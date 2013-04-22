@@ -185,6 +185,7 @@ void SelectDiversificationLiterals(OCB_p ocb, Clause_p clause);
 void SelectDiversificationPreferIntoLiterals(OCB_p ocb, Clause_p clause);
 void SelectMaxLComplexG(OCB_p ocb, Clause_p clause);
 void SelectMaxLComplexAvoidPosPred(OCB_p ocb, Clause_p clause);
+void SelectMaxLComplexAPPNoType(OCB_p ocb, Clause_p clause);
 void SelectMaxLComplexAvoidPosUPred(OCB_p ocb, Clause_p clause);
 void SelectComplexG(OCB_p ocb, Clause_p clause);
 void SelectComplexAHP(OCB_p ocb, Clause_p clause);

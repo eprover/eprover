@@ -131,6 +131,7 @@ static LitSelNameFunAssocCell name_fun_assoc[] =
    {"SelectDivPreferIntoLits",               SelectDiversificationPreferIntoLiterals},
    {"SelectMaxLComplexG",                    SelectMaxLComplexG}, 
    {"SelectMaxLComplexAvoidPosPred",         SelectMaxLComplexAvoidPosPred},
+   {"SelectMaxLComplexAPPNoType",            SelectMaxLComplexAPPNoType},
    {"SelectMaxLComplexAvoidPosUPred",        SelectMaxLComplexAvoidPosUPred},
    {"SelectComplexG",                        SelectComplexG},
    {"SelectComplexAHP",                      SelectComplexAHP},
@@ -4613,6 +4614,73 @@ void SelectMaxLComplexAvoidPosPred(OCB_p ocb, Clause_p clause)
                           maxlcomplexavoidpred_weight, pred_dist);   
    pred_dist_array_free(pred_dist);
 }
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: maxlcomplexavoidprednotype_weight()
+//
+//   As  maxlcomplexavoidpred_weigth, but never select type literals.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void maxlcomplexavoidprednotype_weight(LitEval_p lit, Clause_p clause, 
+                                        void *pred_dist)
+{
+   maxlcomplexavoidpred_weight(lit, clause, pred_dist);
+   if(EqnIsTypePred(lit->literal))
+   {
+      lit->forbidden = true;
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectMaxLComplexAPPNoType()
+//
+//   As SelectMaxLComplexAvoidPosPred, but never select type
+//   literals.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+
+void SelectMaxLComplexAPPNoType(OCB_p ocb, Clause_p clause)
+{  
+   long  lit_no;
+   PDArray_p pred_dist;
+
+   assert(ocb);
+   assert(clause);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+   
+   if(clause->neg_lit_no==0)
+   {
+      return;
+   }
+   ClauseCondMarkMaximalTerms(ocb, clause);
+   
+   lit_no = EqnListQueryPropNumber(clause->literals, EPIsMaximal);
+
+   if(lit_no <=1)
+   {
+      return;
+   }
+   pred_dist = pos_pred_dist_array_compute(clause);
+   generic_uniq_selection(ocb,clause,false, true, 
+                          maxlcomplexavoidprednotype_weight, pred_dist);   
+   pred_dist_array_free(pred_dist);
+}
+
 
 
 
