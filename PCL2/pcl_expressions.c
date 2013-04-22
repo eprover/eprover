@@ -228,7 +228,7 @@ PCLExpr_p PCLExprParse(Scanner_p in, bool mini)
    }
    else
    {
-      CheckInpId(in, PCL_ER"|"PCL_PM"|"PCL_SPM"|"PCL_EF"|"PCL_RW"|"
+      CheckInpId(in, PCL_ER"|"PCL_PM"|"PCL_SPM"|"PCL_EF"|"PCL_CONDENSE"|"PCL_RW"|"
 		 PCL_SR"|"PCL_CSR"|"PCL_ACRES"|"PCL_CN"|"PCL_SPLIT"|"
                  PCL_SC"|"PCL_SE"|"PCL_FS"|"PCL_NNF"|"PCL_ID"|"PCL_AD"|"PCL_SQ"|"PCL_VR"|"
                  PCL_SK"|"PCL_DSTR"|"PCL_ANNOQ"|"PCL_EVANS"|"PCL_NC  );
@@ -251,6 +251,11 @@ PCLExpr_p PCLExprParse(Scanner_p in, bool mini)
       else if(TestInpId(in, PCL_EF))
       {
 	 handle->op=PCLOpEFactoring;
+	 arg_no=1;
+      }
+      else if(TestInpId(in, PCL_CONDENSE))
+      {
+	 handle->op=PCLOpCondense;
 	 arg_no=1;
       }
       else if(TestInpId(in, PCL_RW))
@@ -463,6 +468,10 @@ void PCLExprPrint(FILE* out, PCLExpr_p expr, bool mini)
          fprintf(out, PCL_EF);
          assert(expr->arg_no==1);
          break;
+   case PCLOpCondense:
+	 fprintf(out, PCL_CONDENSE);
+	 assert(expr->arg_no==1);
+	 break;
    case PCLOpSimplifyReflect:
          fprintf(out, PCL_SR);
          assert(expr->arg_no==2);

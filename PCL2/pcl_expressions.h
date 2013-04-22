@@ -46,6 +46,7 @@ typedef enum
    PCLOpParamod,
    PCLOpSimParamod,
    PCLOpEResolution,
+   PCLOpCondense,
    PCLOpEFactoring,
    PCLOpSimplifyReflect,
    PCLOpContextSimplifyReflect,
@@ -76,6 +77,7 @@ typedef enum
 #define PCL_OP_PARAMOD_WEIGHT         1
 #define PCL_OP_SIM_PARAMOD_WEIGHT     1
 #define PCL_OP_ERESOLUTION_WEIGHT     1
+#define PCL_OP_CONDENSE_WEIGHT        1
 #define PCL_OP_EFACTORING_WEIGHT      1
 #define PCL_OP_SIMPLIFYREFLECT_WEIGHT 1
 #define PCL_OP_CONTEXTSIMPLIFYREFLECT_WEIGHT 1
