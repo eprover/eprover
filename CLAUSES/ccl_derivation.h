@@ -25,7 +25,7 @@ Changes
 
 #define CCL_DERIVATION
 
-
+#include <ccl_clauses.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -34,12 +34,17 @@ Changes
 
 typedef enum
 {
-   NOP,
-   RWL,
-   RWR,
-   PM,
-   SPM,
-   
+   DONop,
+   DOQuote,
+   DORewriteL,
+   DORewriteR,
+   DOContextSR,
+   DODesEqRes, 
+   DOSR,
+   DOParamod,
+   DOSimParamod,
+   DOEqFactor,
+   DOEqRes,
 }OpCodes;
 
 
@@ -47,22 +52,26 @@ typedef enum
 {
    Arg1Fof = 1<<8,
    Arg1Cnf = 1<<9,
-   Arg1Pos = 1<<10,
-   Arg2Fof = 1<<11,
-   Arg2Cnf = 1<<12,
-   Arg2Pos = 1<<13,
-   Arg3Fof = 1<<14,
-   Arg3Cnf = 1<<15,
-   Arg3Pos = 1<<16  
+   Arg2Fof = 1<<10,
+   Arg2Cnf = 1<<11,
 }ArgDesc;
 
 
 typedef enum
 {
-   DCNOP = NOP, 
-   DCRWL = RWL|Arg1Cnf,
-   DCRWR = RWR|Arg1Cnf,
-   
+   DCNop         = DONop,
+   DCCnfQuote    = DOQuote|Arg1Cnf,
+   /* For simplifying inferences, the main premise is implicit */
+   DCRewriteL    = DORewriteL|Arg1Cnf,
+   DCRewriteR    = DORewriteR|Arg1Cnf,
+   DCContextSR   = DOContextSR|Arg1Cnf,
+   DCSR          = DOSR|Arg1Cnf,
+   DCDesEqRes    = DODesEqRes, /* Doubled because its simplifying here */
+   /* Generating inferences */
+   DCParamod     = DOParamod |Arg1Cnf|Arg2Cnf,
+   DCSimParamod  = DOSimParamod|Arg1Cnf|Arg2Cnf,
+   DCEqFactor    = DOEqFactor|Arg1Cnf,
+   DCEqRes       = DOEqRes|Arg1Cnf
 }DerivationCodes;
 
 
@@ -82,6 +91,11 @@ typedef enum
 
 extern ProofObjectType BuildProofObject;
 
+#define DCOpHasCnfArg1(op) ((op)&Arg1Cnf)
+#define DCOpHasCnfArg2(op) ((op)&Arg2Cnf)
+
+void ClausePushDerivation(Clause_p clause, DerivationCodes op, 
+                          Clause_p arg1, Clause_p arg2);
 
 
 #endif

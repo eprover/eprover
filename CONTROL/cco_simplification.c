@@ -72,6 +72,7 @@ void ClauseMoveSimplified(GlobalIndices_p gindices,
    {
       Clause_p new_clause = ClauseFlatCopy(clause);      
       ClauseSetInsert(archive, clause);
+      ClausePushDerivation(new_clause, DCCnfQuote, clause, NULL);
       ClauseSetInsert(tmp_set, new_clause);
    }
    else

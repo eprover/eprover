@@ -46,6 +46,43 @@ ProofObjectType BuildProofObject = 0;
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
 
+/*-----------------------------------------------------------------------
+//
+// Function: ClausePushDerivation()
+//
+//   Push the derivation items (op-code and suitable number of
+//   arguments) onto the derivation stack.
+//
+// Global Variables: -
+//
+// Side Effects    : May allocate new derivation stack.
+//
+/----------------------------------------------------------------------*/
+
+void ClausePushDerivation(Clause_p clause, DerivationCodes op, 
+                          Clause_p arg1, Clause_p arg2)
+{
+   assert(clause);
+   assert(op);
+
+   if(!clause->derivation)
+   {
+      clause->derivation = PStackVarAlloc(3);
+   }
+   assert(DCOpHasCnfArg1(op)|!arg1);
+   assert(DCOpHasCnfArg2(op)|!arg2);
+   assert(DCOpHasCnfArg1(op)|!DCOpHasCnfArg2(op));
+
+   PStackPushInt(clause->derivation, op);
+   if(arg1)
+   {
+      PStackPushP(clause->derivation, arg1);
+      if(arg2)
+      {
+         PStackPushP(clause->derivation, arg1);
+      }
+   }
+}
 
 
 /*---------------------------------------------------------------------*/

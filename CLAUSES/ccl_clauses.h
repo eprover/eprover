@@ -136,11 +136,13 @@ typedef struct clause_cell
    long                  weight;      /* ClauseStandardWeight()
 					 precomputed at some points in
 					 the program */
-   Eval_p                evaluations; /* List of evauations */
+   Eval_p                evaluations; /* List of evaluations */
    ClauseProperties      properties;  /* Anything we want to note at
 					 the clause? */
    ClauseInfo_p          info;        /* Currently about source in
                                          input, NULL for derived clauses */
+   PStack_p              derivation;  /* Derivation of the clause for
+                                         proof reconstruction. */
    long                  create_date; /* At what iteration of the
 					 main loop has this
 					 clause been created? */

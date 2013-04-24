@@ -983,7 +983,13 @@ void ProofStateResetProcessedSet(ProofState_p state,
       }
 
       ClauseKillChildren(handle); /* Should be none, but better be safe */
-      
+
+      if(BuildProofObject)
+      {
+         Clause_p tmpclause = ClauseFlatCopy(handle);
+         ClauseSetInsert(state->archive, handle);
+         handle = tmpclause;
+      }      
       HCBClauseEvaluate(control->hcb, handle);
       ClauseDelProp(handle, CPIsOriented);
       DocClauseQuoteDefault(6, handle, "move_eval");

@@ -175,6 +175,7 @@ Clause_p clause_copy_meta(Clause_p clause)
    handle->set         = NULL;
    handle->properties  = clause->properties;
    handle->info        = NULL;
+   handle->derivation  = NULL;
    handle->create_date = clause->create_date;
    handle->date        = clause->date;
    handle->proof_depth = clause->proof_depth;
@@ -254,7 +255,7 @@ Clause_p ClauseCellAlloc(void)
 #ifdef CLAUSE_PERM_IDENT
    handle->perm_ident = clause_perm_ident_counter++;
 #endif
-
+   
 
    return handle;
 }
@@ -283,6 +284,7 @@ Clause_p EmptyClauseAlloc(void)
    handle->evaluations = NULL;
    handle->properties  = CPIgnoreProps;
    handle->info        = NULL;
+   handle->derivation  = NULL;
    handle->create_date = 0;
    handle->date        = SysDateCreationTime();
    handle->proof_depth = 0;
@@ -703,6 +705,10 @@ void ClauseFree(Clause_p junk)
    EqnListFree(junk->literals);
    PTreeFree(junk->children);
    ClauseInfoFree(junk->info);
+   if(junk->derivation)
+   {
+      PStackFree(junk->derivation);
+   }
    ClauseCellFree(junk);
 }
 
