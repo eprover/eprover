@@ -43,6 +43,7 @@ typedef enum
    DOSR,
    DOParamod,
    DOSimParamod,
+   DOOrderedFactor,
    DOEqFactor,
    DOEqRes,
 }OpCodes;
@@ -59,19 +60,20 @@ typedef enum
 
 typedef enum
 {
-   DCNop         = DONop,
-   DCCnfQuote    = DOQuote|Arg1Cnf,
+   DCNop           = DONop,
+   DCCnfQuote      = DOQuote|Arg1Cnf,
    /* For simplifying inferences, the main premise is implicit */
-   DCRewriteL    = DORewriteL|Arg1Cnf,
-   DCRewriteR    = DORewriteR|Arg1Cnf,
-   DCContextSR   = DOContextSR|Arg1Cnf,
-   DCSR          = DOSR|Arg1Cnf,
-   DCDesEqRes    = DODesEqRes, /* Doubled because its simplifying here */
+   DCRewriteL      = DORewriteL|Arg1Cnf,
+   DCRewriteR      = DORewriteR|Arg1Cnf,
+   DCContextSR     = DOContextSR|Arg1Cnf,
+   DCSR            = DOSR|Arg1Cnf,
+   DCDesEqRes      = DODesEqRes, /* Doubled because its simplifying here */
    /* Generating inferences */
-   DCParamod     = DOParamod |Arg1Cnf|Arg2Cnf,
-   DCSimParamod  = DOSimParamod|Arg1Cnf|Arg2Cnf,
-   DCEqFactor    = DOEqFactor|Arg1Cnf,
-   DCEqRes       = DOEqRes|Arg1Cnf
+   DCParamod       = DOParamod |Arg1Cnf|Arg2Cnf,
+   DCSimParamod    = DOSimParamod|Arg1Cnf|Arg2Cnf,
+   DCOrderedFactor = DOOrderedFactor|Arg1Cnf,
+   DCEqFactor      = DOEqFactor|Arg1Cnf,
+   DCEqRes         = DOEqRes|Arg1Cnf
 }DerivationCodes;
 
 

@@ -987,9 +987,10 @@ void ProofStateResetProcessedSet(ProofState_p state,
       if(BuildProofObject)
       {
          Clause_p tmpclause = ClauseFlatCopy(handle);
+         ClausePushDerivation(tmpclause, DCCnfQuote, handle, NULL);
          ClauseSetInsert(state->archive, handle);
          handle = tmpclause;
-      }      
+      }     
       HCBClauseEvaluate(control->hcb, handle);
       ClauseDelProp(handle, CPIsOriented);
       DocClauseQuoteDefault(6, handle, "move_eval");

@@ -444,8 +444,7 @@ Eqn_p EqnListFlatCopy(Eqn_p list)
 
    while(list)
    {  
-      *insert = EqnAlloc(list->lterm, list->rterm, list->bank, 
-                         EqnIsPositive(list));
+      *insert = EqnFlatCopy(list);
       insert = &((*insert)->next);
       list = list->next;
    }

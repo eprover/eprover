@@ -243,7 +243,13 @@ static long compute_into_pm_pos_clause(ParamodInfo_p pminfo,
             DocClauseCreationDefault(clause, 
                                      sim_pm?inf_sim_paramod:inf_paramod, 
                                      pminfo->into, 
-                                     pminfo->new_orig);            
+                                     pminfo->new_orig);   
+            if(BuildProofObject)
+            {
+               ClausePushDerivation(clause,  sim_pm?DCSimParamod:DCParamod,
+                                    pminfo->into, pminfo->new_orig);
+            }
+
          }
       }
       ClausePosFree(pminfo->into_pos);
@@ -461,6 +467,11 @@ static long compute_from_pm_pos_clause(ParamodInfo_p pminfo,
                                      sim_pm?inf_sim_paramod:inf_paramod, 
                                      pminfo->new_orig,
                                      pminfo->from);
+            if(BuildProofObject)
+            {
+               ClausePushDerivation(clause,  sim_pm?DCSimParamod:DCParamod,
+                                    pminfo->new_orig, pminfo->from);
+            }
          }
       }
       ClausePosFree(pminfo->from_pos);
@@ -703,6 +714,12 @@ long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
 	 }
 	 DocClauseCreationDefault(paramod, inf_type, with, 
 				  parent_alias);
+         if(BuildProofObject)
+         {
+            ClausePushDerivation(clause,  
+                                 inf_type==inf_sim_paramod?DCSimParamod:DCParamod,
+                                 with, parent_alias);
+         }
 	 ClauseSetInsert(store, paramod);
       }
       test = ClausePosNextParamodPair(pos1, pos2, false, pm_type != ParamodPlain);
@@ -749,6 +766,12 @@ long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
 	       ClauseRegisterChild(parent_alias, paramod);
 	    }
 	    DocClauseCreationDefault(paramod, inf_type, parent_alias, with);
+            if(BuildProofObject)
+            {
+               ClausePushDerivation(clause,  
+                                    inf_type==inf_sim_paramod?DCSimParamod:DCParamod,
+                                    parent_alias, with);
+            }
 	    ClauseSetInsert(store, paramod);
 	 }
 	 test = ClausePosNextParamodPair(pos1, pos2, true, pm_type != ParamodPlain);
