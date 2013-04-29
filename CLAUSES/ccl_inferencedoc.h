@@ -180,10 +180,11 @@ void    DocIntroSplitDefRest(FILE* out, long level, Clause_p clause,
         DocIntroSplitDefRest(GlobalOut, OutputLevel, (clause), (parent), NULL)
 
 void    DocClauseApplyDefs(FILE* out, long level, Clause_p clause, 
-                           Clause_p parent, PStack_p def_ids, 
+                           long parent_id, PStack_p def_ids, 
                            char* comment);
-#define DocClauseApplyDefsDefault(clause, parent, def_ids)\
-        DocClauseApplyDefs(GlobalOut, OutputLevel, (clause), (parent), (def_ids), NULL);
+#define DocClauseApplyDefsDefault(clause, parent_id, def_ids)\
+        DocClauseApplyDefs(GlobalOut, OutputLevel, (clause), \
+                           (parent_id), (def_ids), NULL)
 
 #endif
 

@@ -270,7 +270,7 @@ int clause_split_general(DefStore_p store, Clause_p clause,
                          ClauseSet_p set, SplitType how, 
                          bool fresh_defs, PStack_p split_vars)
 {
-   int              res = 0, part = 0,i,j,size, lit_no, split_var_no;
+   int              res = 0, part = 0,i,size, lit_no, split_var_no;
    LitSplitDesc_p   lit_table;
    Eqn_p            handle,tmp, join;
    FunCode          new_pred;
@@ -313,7 +313,7 @@ int clause_split_general(DefStore_p store, Clause_p clause,
       Clause_p parent2 = clause->parent2;
       PStack_p def_stack = PStackAlloc();
 
-      ClauseDetachParents(clause);      
+      /* ClauseDetachParents(clause); */
       
       /* Build split clauses from original literals */
       join = NULL;
@@ -385,8 +385,9 @@ int clause_split_general(DefStore_p store, Clause_p clause,
 	 tmp->next = join;
 	 join = tmp;
       }
-      new_clause = ClauseAlloc(join);
-      new_clause->properties = props;
+      clause->literals = join;
+      ClauseRecomputeLitCounts(clause);
+      /* new_clause->properties = props;
       if(parent1)
       {
 	 new_clause->parent1 = parent1;
@@ -396,11 +397,11 @@ int clause_split_general(DefStore_p store, Clause_p clause,
       {
 	 new_clause->parent2 = parent2;
 	 ClauseRegisterChild(parent2, new_clause);
-      }
-      ClauseSetInsert(set, new_clause);
+         } */
+      ClauseSetInsert(set, clause);
       /* DocClauseCreationDefault(new_clause, inf_split, clause, NULL); */
-      DocClauseApplyDefsDefault(new_clause, clause, def_stack);
-      ClauseFree(clause);      /* We still retain the literals in the
+      DocClauseApplyDefsDefault(clause, clause->ident, def_stack);
+      /* ClauseFree(clause); */     /* We still retain the literals in the
 				  split clauses! */
       res = part+1;
       PStackFree(def_stack);

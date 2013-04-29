@@ -1790,12 +1790,11 @@ void DocIntroSplitDefRest(FILE* out, long level, Clause_p clause,
 /----------------------------------------------------------------------*/
 
 void DocClauseApplyDefs(FILE* out, long level, Clause_p clause,
-                        Clause_p parent, PStack_p def_ids, char* comment)
+                        long parent_id, PStack_p def_ids, char* comment)
 {
    PStackPointer i;
 
    assert(clause);
-   assert(parent);
 
    if(level >= 2)
    {      
@@ -1808,7 +1807,7 @@ void DocClauseApplyDefs(FILE* out, long level, Clause_p clause,
             {
                fputs(PCL_AD"(", out);
             }
-            fprintf(out, "%ld", parent->ident);
+            fprintf(out, "%ld", parent_id);
             for(i=0; i<PStackGetSP(def_ids); i++)
             {
                fprintf(out, ",%ld)", PStackElementInt(def_ids, i));
@@ -1823,7 +1822,7 @@ void DocClauseApplyDefs(FILE* out, long level, Clause_p clause,
             {
                fprintf(out,"inference("PCL_AD", [status(thm)],[");
             }
-            fprintf(out, "c_0_%ld", parent->ident);
+            fprintf(out, "c_0_%ld", parent_id);
             for(i=0; i<PStackGetSP(def_ids); i++)
             {
                fprintf(out, ",c_0_%ld])", 

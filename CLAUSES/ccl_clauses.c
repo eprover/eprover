@@ -337,7 +337,7 @@ Clause_p ClauseAlloc(Eqn_p literals)
 	 handle->neg_lit_no++;
 	 *neg_append = literals;
 	 neg_append = &((*neg_append)->next);
-       }
+      }
       literals = next;
    }
    *pos_append = neg_lits;
