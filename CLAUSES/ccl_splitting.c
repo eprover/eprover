@@ -45,7 +45,10 @@ Changes
 //
 // Function: initialize_lit_table()
 //
-//   Initialize the literal table.
+//   Initialize the literal table. For each literal, mark them as
+//   unassigned to any art and collect the variables that are marked
+//   by var_filter. If ground literals are not split off individually,
+//   assign them to partition 1.
 //
 // Global Variables: 
 //
@@ -80,6 +83,54 @@ static void initialize_lit_table(LitSplitDesc_p lit_table,Clause_p
       handle = handle->next;
    }
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: cond_init_lit_table()
+//
+//   Initialize the literal table. For each literal, mark them as
+//   unassigned to any art and collect the variables that are marked
+//   by var_filter. If ground literals are not split off individually,
+//   assign them to partition 1.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+static int cond_init_lit_table(LitSplitDesc_p lit_table, 
+                                Clause_p clause, SplitType how, 
+                                PStack_p split_vars)
+{
+   int split_var_no;
+
+   split_var_no = PStackGetSP(split_vars);
+   
+   if(!split_var_no)
+   {
+      initialize_lit_table(lit_table, clause, how, TPIgnoreProps);
+   }
+   else
+   {
+      PStackPointer sp;
+      Term_p var;
+
+      ClauseTermSetProp(clause, TPCheckFlag);
+      for(sp=0; sp<split_var_no; sp++)
+      {
+	 var = PStackElementP(split_vars,sp);
+	 assert(TermCellQueryProp(var, TPCheckFlag));
+	 TermCellDelProp(var,TPCheckFlag);	 
+      }      
+      initialize_lit_table(lit_table, clause, how, TPCheckFlag);
+   }
+   return split_var_no;
+}
+
+
+
 
 
 /*-----------------------------------------------------------------------
@@ -157,6 +208,37 @@ static void build_part(LitSplitDesc_p lit_table, int lit_no, int
 
 /*-----------------------------------------------------------------------
 //
+// Function: assemble_part_literals()
+//
+//   Given a partition number, assemble and return all literals
+//   belonging to that partition.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Eqn_p assemble_part_literals(LitSplitDesc_p lit_table, int lit_no, int part)
+{
+   Eqn_p handle = NULL, tmp;
+   int j;
+
+   for(j=0; j<lit_no; j++)
+   {
+      if(lit_table[j].part == part)
+      {
+         tmp = lit_table[j].literal;
+         tmp->next = handle; 
+         handle = tmp;
+      }
+   }
+   return handle;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: clause_split_general()
 //
 //   Try to split clause into different clauses according to the
@@ -213,27 +295,8 @@ int clause_split_general(DefStore_p store, Clause_p clause,
    size = lit_no*sizeof(LitSplitDescCell);
    lit_table = SizeMalloc(size);
       
-   split_var_no = PStackGetSP(split_vars);
-   
-   if(!split_var_no)
-   {
-      initialize_lit_table(lit_table, clause, how, TPIgnoreProps);
-   }
-   else
-   {
-      PStackPointer sp;
-      Term_p var;
-
-      ClauseTermSetProp(clause, TPCheckFlag);
-      for(sp=0; sp<split_var_no; sp++)
-      {
-	 var = PStackElementP(split_vars,sp);
-	 assert(TermCellQueryProp(var, TPCheckFlag));
-	 TermCellDelProp(var,TPCheckFlag);	 
-      }
-      initialize_lit_table(lit_table, clause, how, TPCheckFlag);
-   }
-   
+   split_var_no = cond_init_lit_table(lit_table, clause, how, split_vars);
+      
    if((how == SplitGroundOne) && find_free_literal(lit_table, lit_no))
    {
       part++;
@@ -250,8 +313,7 @@ int clause_split_general(DefStore_p store, Clause_p clause,
       Clause_p parent2 = clause->parent2;
       PStack_p def_stack = PStackAlloc();
 
-      ClauseDetachParents(clause);
-      
+      ClauseDetachParents(clause);      
       
       /* Build split clauses from original literals */
       join = NULL;
@@ -271,15 +333,8 @@ int clause_split_general(DefStore_p store, Clause_p clause,
             handle = GenDefLit(bank, new_pred, true, split_vars);
             assert(!handle->next);
 
-            for(j=0; j<lit_no; j++)
-            {
-               if(lit_table[j].part == i)
-               {
-                  tmp = lit_table[j].literal;
-                  tmp->next = handle; 
-                  handle = tmp;
-               }
-            }
+            handle->next = assemble_part_literals(lit_table, lit_no, i);
+
             new_clause = ClauseAlloc(handle);
             assert(new_clause);
 
@@ -290,16 +345,8 @@ int clause_split_general(DefStore_p store, Clause_p clause,
          else            
          {
             /* Create definition clause (for maintaining completeness) */
-            handle = NULL;
-            for(j=0; j<lit_no; j++)
-            {
-               if(lit_table[j].part == i)
-               {
-                  tmp = lit_table[j].literal;
-                  tmp->next = handle; 
-                  handle = tmp;
-               }
-            }
+            handle = assemble_part_literals(lit_table, lit_no, i);
+
             new_clause = GetDefinition(store, handle, 
                                        &new_pred, fresh_defs, &def_id);
             assert(def_id);

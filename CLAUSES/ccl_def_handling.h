@@ -7,8 +7,8 @@ Author: Stephan Schulz (schulz@eprover.org)
 Contents
  
   Datatypes for handling clausal definitons as used (up to now
-  implicietely) in splitting, i.e. data structures associating a
-  clause with a fresh constant predicate symbol or literal.
+  implicitly) in splitting, i.e. data structures associating a clause
+  with a fresh constant predicate symbol or literal.
 
   Copyright 2006 by the author.
   This code is released under the GNU General Public Licence and
