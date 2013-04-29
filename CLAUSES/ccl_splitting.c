@@ -313,13 +313,11 @@ int clause_split_general(DefStore_p store, Clause_p clause,
       Clause_p parent2 = clause->parent2;
       PStack_p def_stack = PStackAlloc();
 
-      /* ClauseDetachParents(clause); */
-      
       /* Build split clauses from original literals */
       join = NULL;
-      clause->literals = NULL; /* Literals are recycled in new
-				  clauses, clause skeleton is
-				  deallocated below */
+      clause->literals = NULL; /* Literals are stored in lit_table and
+				  are recycled in new clauses, clause
+				  skeleton is refilled below. */
       for(i=1; i<=part; i++)
       {   
          if(split_var_no)
@@ -387,22 +385,10 @@ int clause_split_general(DefStore_p store, Clause_p clause,
       }
       clause->literals = join;
       ClauseRecomputeLitCounts(clause);
-      /* new_clause->properties = props;
-      if(parent1)
-      {
-	 new_clause->parent1 = parent1;
-	 ClauseRegisterChild(parent1, new_clause);
-      }
-      if(parent2)
-      {
-	 new_clause->parent2 = parent2;
-	 ClauseRegisterChild(parent2, new_clause);
-         } */
-      ClauseSetInsert(set, clause);
-      /* DocClauseCreationDefault(new_clause, inf_split, clause, NULL); */
-      DocClauseApplyDefsDefault(clause, clause->ident, def_stack);
-      /* ClauseFree(clause); */     /* We still retain the literals in the
-				  split clauses! */
+
+     ClauseSetInsert(set, clause);
+     DocClauseApplyDefsDefault(clause, clause->ident, def_stack);
+
       res = part+1;
       PStackFree(def_stack);
    }
