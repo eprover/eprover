@@ -68,6 +68,7 @@ DefStore_p DefStoreAlloc(TB_p terms)
    store->terms       = terms;
    store->def_clauses = ClauseSetAlloc();
    store->def_assocs  = NULL;
+   store->def_archive = FormulaSetAlloc();
 
    return store;
 }
@@ -91,6 +92,7 @@ void DefStoreFree(DefStore_p junk)
 {
    ClauseSetFree(junk->def_clauses);
    NumTreeFree(junk->def_assocs);
+   FormulaSetFree(junk->def_archive);
    DefStoreCellFree(junk);
 }
 
