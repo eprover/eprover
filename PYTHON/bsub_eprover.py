@@ -332,6 +332,7 @@ def decode_res_name(filename):
     
     tmp = filename.split("#")
     if len(tmp) != 3:
+        print "decode_res_name: Unexpected file name ", filename
         return None
     return tmp[1], tmp[2]
     
@@ -384,7 +385,10 @@ def decode_result(decoder, stratset, filename):
     """
     resstr = read_res_file(filename)
     if resstr:
-        sname, pname = decode_res_name(filename)
+        try:
+            sname, pname = decode_res_name(filename)
+        except TypeError:
+            return False
         strat = stratset.find_strat(sname)
         maxtime = strat.spec.time_limit
         res = pylib_eprot.eresult(pname+" "+decoder.encode_result(resstr,maxtime))
@@ -434,6 +438,7 @@ def process_complete_jobs(decoder, stratset, job_db, resdir = ""):
             pylib_io.verbout("Parsing "+job);
             res = decode_results(decoder, stratset, job)
             if res:
+                pylib_io.verbout("Found "+job+" complete");
                 job_db.del_entry(job)
                 joberr = job[:-4]+".err"
                 try:
@@ -480,7 +485,7 @@ def bsub_gen_batch(batch):
     joblist = [bsub_gen_job(i) for i in batch]
     jobs = "\n".join(joblist)
     
-    footer = '\nEOF\necho "### Job complete ###"\n'
+    footer = '\nEOF\necho "### Job complete ###"\n\n'
 
     return header+jobs+footer
 
