@@ -115,7 +115,8 @@ Eqn_p GenDefLit(TB_p bank, FunCode pred, bool positive,
    Term_p lside;
    Eqn_p  res;
    
-   assert(bank);assert(pred > 0);
+   assert(bank);
+   assert(pred > 0);
    assert((split_vars && 
            (SigFindArity(bank->sig, pred) == PStackGetSP(split_vars)))
           ||
@@ -149,11 +150,87 @@ Eqn_p GenDefLit(TB_p bank, FunCode pred, bool positive,
 
 /*-----------------------------------------------------------------------
 //
-// Function: GetDefinition()
+// Function: GetClauseDefinition()
 //
-//   Given a literal list, return the explicit remainder of the
-//   definition (if a new definition is necessary). Reuses or discards
-//   the literal list! Also return the predicate code (via def_pred).
+//   Given a literal list and the definition predicate, generate one
+//   of the two clauses the equivalence definition splits into (namely
+//   the one we need to add for splitting). This recycles the literal
+//   list! 
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations.
+//
+/----------------------------------------------------------------------*/
+
+Clause_p GetClauseDefinition(Eqn_p litlist, FunCode def_pred, WFormula_p parent)
+{
+   Clause_p res;
+   Eqn_p    def_lit;
+
+   assert(litlist);
+   assert(def_pred > 0);
+
+   def_lit = GenDefLit(litlist->bank, def_pred, true, NULL);
+   def_lit->next = litlist;
+   res           = ClauseAlloc(def_lit);      
+ 
+   DocIntroSplitDefRestDefault(res, parent);
+
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: GetFormulaDefinition()
+//
+//   Given a literal list and the definition predicate, generate the
+//   equivalent defintion. This one leaves the literal list alone!
+//
+// Global Variables: -
+//
+// Side Effects    : May create output, memory ops
+//
+/----------------------------------------------------------------------*/
+
+WFormula_p GetFormulaDefinition(Eqn_p litlist, FunCode def_pred)
+{
+   WFormula_p res;
+   Eqn_p      def_lit;
+   Clause_p   def_clause;
+   TFormula_p def, lit;
+
+   assert(litlist);
+   assert(def_pred > 0);
+
+   def_lit = GenDefLit(litlist->bank, def_pred, true, NULL);
+   EqnFlipProp(def_lit, EPIsPositive);
+   
+   def_clause = ClauseAlloc(EqnListFlatCopy(litlist));
+
+   lit = TFormulaLitAlloc(def_lit);
+   EqnFree(def_lit);
+
+   def = TFormulaClauseClosedEncode(litlist->bank, def_clause);
+   def = TFormulaFCodeAlloc(litlist->bank, litlist->bank->sig->equiv_code, lit, def);
+   res = WTFormulaAlloc(litlist->bank, def);
+
+   ClauseFree(def_clause);
+
+   DocIntroSplitDefDefault(res);
+   
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: GetDefinitions()
+//
+//   Given a literal list, provide (optionally) the full definition and
+//   the clause equivalent to the non-applied direction of the
+//   definition. Return defined predicate.
 //
 //   If fresh is true, always return a fresh definition and do not
 //   insert the clause/predicate association into the store. If fresh
@@ -167,34 +244,35 @@ Eqn_p GenDefLit(TB_p bank, FunCode pred, bool positive,
 //
 /----------------------------------------------------------------------*/
 
-Clause_p GetDefinition(DefStore_p store, Eqn_p litlist, 
-                       FunCode *def_pred, bool fresh, long *apply_id)
+FunCode GetDefinitions(DefStore_p store, Eqn_p litlist, 
+                       WFormula_p* res_form, Clause_p* res_clause, 
+                       bool fresh)
 {
-   Clause_p res, def_clause;
-   Eqn_p def_lit;
-
-   def_clause = ClauseAlloc(EqnListFlatCopy(litlist));
-   def_clause->weight = ClauseStandardWeight(def_clause);
-   ClauseSubsumeOrderSortLits(def_clause);
+   Clause_p   def_clause;
+   FunCode    def_pred = 0;
 
    assert(litlist);
+
+   *res_form   = NULL;
+   *res_clause = NULL;
+  
    if(fresh)
    {
-      *def_pred     = SigGetNewPredicateCode(store->terms->sig, 0);
-
-      def_lit       = GenDefLit(litlist->bank, *def_pred, true, NULL);
-      def_lit->next = litlist;
-      res           = ClauseAlloc(def_lit);      
-
-      DocIntroSplitDefDefault(def_clause, def_lit);
-      DocIntroSplitDefRestDefault(res, def_clause);
-      *apply_id       = def_clause->ident;
-
-      ClauseFree(def_clause);
+      def_pred    = SigGetNewPredicateCode(store->terms->sig, 0);
+      if(OutputLevel >= 2 || BuildProofObject)
+      {
+         *res_form = GetFormulaDefinition(litlist, def_pred);
+         FormulaSetInsert(store->def_archive, *res_form);
+      }
+      *res_clause = GetClauseDefinition(litlist, def_pred, *res_form);
    }
    else
    {
       Clause_p variant;
+      
+      def_clause = ClauseAlloc(EqnListFlatCopy(litlist));
+      def_clause->weight = ClauseStandardWeight(def_clause);
+      ClauseSubsumeOrderSortLits(def_clause);
       
       variant = ClauseSetFindVariantClause(store->def_clauses,
                                            def_clause);      
@@ -203,35 +281,38 @@ Clause_p GetDefinition(DefStore_p store, Eqn_p litlist,
          NumTree_p assoc = NumTreeFind(&(store->def_assocs), 
                                        variant->ident);
          assert(assoc);
-         res       = NULL; /* Clause already exists */
-         *def_pred = assoc->val1.i_val;
-         *apply_id = variant->ident;
+         *res_clause = NULL; /* Clause already exists */
+         if(OutputLevel >= 2 || BuildProofObject)
+         {
+            *res_form = assoc->val2.p_val;
+         }         
+         def_pred = assoc->val1.i_val;
          ClauseFree(def_clause);
          EqnListFree(litlist);
       }
       else
       {
-         IntOrP def_pred_store;
+         IntOrP def_pred_store, def_form_store;
 
-         *def_pred     = SigGetNewPredicateCode(store->terms->sig, 0);
-         def_lit       = GenDefLit(litlist->bank, *def_pred, true, NULL);
-         def_lit->next = litlist;
-         res           = ClauseAlloc(def_lit);      
-
-         DocIntroSplitDefDefault(def_clause, def_lit);
-         DocIntroSplitDefRestDefault(res, def_clause);
-         *apply_id     = def_clause->ident;
-
-         def_pred_store.i_val = *def_pred;       
+         def_pred = SigGetNewPredicateCode(store->terms->sig, 0);
+         if(OutputLevel >= 2 || BuildProofObject)
+         {
+            *res_form = GetFormulaDefinition(litlist, def_pred);
+            FormulaSetInsert(store->def_archive, *res_form);
+         }
+         *res_clause = GetClauseDefinition(litlist, def_pred, *res_form);
+        
+         def_pred_store.i_val = def_pred;
+         def_form_store.p_val = *res_form;
          NumTreeStore(&(store->def_assocs),
                       def_clause->ident, 
                       def_pred_store, 
-                      def_pred_store);
+                      def_form_store);
          ClauseSetIndexedInsertClause(store->def_clauses, 
                                       def_clause);
       }
    }
-   return res;
+   return def_pred;
 }
 
 

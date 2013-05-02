@@ -506,6 +506,8 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
 {
    Eqn_p handle = EqnCellAlloc();
 
+   /* printf("Handle = %p\n", handle); */
+
    handle->properties = EPNoProps;
    if(positive)
    {
@@ -541,6 +543,9 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
    handle->lterm = lterm;
    handle->rterm = rterm;
 
+   /* EqnPrint(stdout, handle, false, true);
+      printf("\n"); */
+   
    return handle;
 }
 

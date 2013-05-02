@@ -169,13 +169,13 @@ void    DocFormulaIntroDefs(FILE* out, long level, WFormula_p form,
         DocFormulaIntroDefs(GlobalOut, OutputLevel, (form), (def_list), NULL)
 
 
-void    DocIntroSplitDef(FILE* out, long level, Clause_p clause, 
-                         Eqn_p def_lit, char* comment);
-#define DocIntroSplitDefDefault(clause, def_lit)\
-        DocIntroSplitDef(GlobalOut, OutputLevel, (clause), (def_lit), NULL)
+void    DocIntroSplitDef(FILE* out, long level, WFormula_p form);
+
+#define DocIntroSplitDefDefault(form)\
+        DocIntroSplitDef(GlobalOut, OutputLevel, (form))
 
 void    DocIntroSplitDefRest(FILE* out, long level, Clause_p clause, 
-                             Clause_p parent, char* comment);
+                             WFormula_p parent, char* comment);
 #define DocIntroSplitDefRestDefault(clause, parent)\
         DocIntroSplitDefRest(GlobalOut, OutputLevel, (clause), (parent), NULL)
 

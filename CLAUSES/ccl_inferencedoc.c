@@ -1702,31 +1702,18 @@ void DocFormulaIntroDefs(FILE* out, long level, WFormula_p form,
 //
 /----------------------------------------------------------------------*/
 
-void DocIntroSplitDef(FILE* out, long level, Clause_p clause, 
-                      Eqn_p def_lit, char* comment)   
+void DocIntroSplitDef(FILE* out, long level, WFormula_p form)   
 {
-   assert(clause->literals);
+   assert(form);
+
    if(level >= 2)
    {
-      TFormula_p def, lit;
-      TB_p bank = def_lit->bank;
-      WFormula_p def_wrapper;
-
-      EqnFlipProp(def_lit, EPIsPositive);
-      lit = TFormulaLitAlloc(def_lit);
-      def = TFormulaClauseClosedEncode(bank, clause);
-      def = TFormulaFCodeAlloc(bank, bank->sig->equiv_code, lit, def);
-      def_wrapper = WTFormulaAlloc(bank, def);
-
       DocFormulaCreation(out, level, 
-                         def_wrapper, 
+                         form, 
                          inf_fof_intro_def,
                          NULL,
                          NULL,
                          "split");
-      clause->ident = def_wrapper->ident;      
-      WFormulaFree(def_wrapper);
-      EqnFlipProp(def_lit, EPIsPositive);
    }
 }
 
@@ -1745,13 +1732,13 @@ void DocIntroSplitDef(FILE* out, long level, Clause_p clause,
 /----------------------------------------------------------------------*/
 
 void DocIntroSplitDefRest(FILE* out, long level, Clause_p clause, 
-                          Clause_p parent, char* comment)   
+                          WFormula_p parent, char* comment)   
 {
    assert(clause);
-   assert(parent);
    assert(clause->literals);
    if(level >= 2)
    {
+      assert(parent);
       switch(DocOutputFormat)
       {
       case pcl_format:

@@ -60,8 +60,12 @@ void       DefStoreFree(DefStore_p junk);
 Eqn_p      GenDefLit(TB_p bank, FunCode pred, bool positive,
                      PStack_p split_vars);
 
-Clause_p GetDefinition(DefStore_p store, Eqn_p litlist, 
-                       FunCode *def_pred, bool fresh, long *apply_id);
+Clause_p   GetClauseDefinition(Eqn_p litlist, FunCode def_pred, WFormula_p parent);
+WFormula_p GetFormulaDefinition(Eqn_p litlist, FunCode def_pred);
+
+FunCode GetDefinitions(DefStore_p store, Eqn_p litlist, 
+                       WFormula_p* res_form, Clause_p* res_clause, 
+                       bool fresh);
 
 #endif
 

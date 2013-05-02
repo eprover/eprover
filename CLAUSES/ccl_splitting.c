@@ -342,13 +342,17 @@ int clause_split_general(DefStore_p store, Clause_p clause,
          }
          else            
          {
+            WFormula_p new_form;
             /* Create definition clause (for maintaining completeness) */
             handle = assemble_part_literals(lit_table, lit_no, i);
 
-            new_clause = GetDefinition(store, handle, 
-                                       &new_pred, fresh_defs, &def_id);
-            assert(def_id);
-            assert(new_pred);            
+            new_pred = GetDefinitions(store, handle, 
+                                      &new_form, &new_clause, fresh_defs);
+            def_id = 0;
+            if(new_form)
+            {
+               def_id = new_form->ident;
+            }
          }
          PStackPushInt(def_stack, def_id);
 
@@ -386,8 +390,8 @@ int clause_split_general(DefStore_p store, Clause_p clause,
       clause->literals = join;
       ClauseRecomputeLitCounts(clause);
 
-     ClauseSetInsert(set, clause);
-     DocClauseApplyDefsDefault(clause, clause->ident, def_stack);
+      ClauseSetInsert(set, clause);
+      DocClauseApplyDefsDefault(clause, clause->ident, def_stack);
 
       res = part+1;
       PStackFree(def_stack);

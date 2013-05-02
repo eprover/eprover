@@ -87,7 +87,7 @@ END{
    print "SizeMalloc errors:"
    for(i in mem_array)
    {
-      print "Remaining: " i " " mem_array[i]-i;      
+      print "Remaining: " i " " mem_array[i]-1;      
    }
    print "Failure list:";
    for(i in fail_array)
