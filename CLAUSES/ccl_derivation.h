@@ -38,6 +38,7 @@ typedef enum
    DOQuote,
    DORewriteL,
    DORewriteR,
+   DOApplyDef,
    DOContextSR,
    DODesEqRes, 
    DOSR,
@@ -46,6 +47,7 @@ typedef enum
    DOOrderedFactor,
    DOEqFactor,
    DOEqRes,
+   DOSplitEquiv
 }OpCodes;
 
 
@@ -65,6 +67,7 @@ typedef enum
    /* For simplifying inferences, the main premise is implicit */
    DCRewriteL      = DORewriteL|Arg1Cnf,
    DCRewriteR      = DORewriteR|Arg1Cnf,
+   DCApplyDef      = DOApplyDef|Arg1Fof,
    DCContextSR     = DOContextSR|Arg1Cnf,
    DCSR            = DOSR|Arg1Cnf,
    DCDesEqRes      = DODesEqRes, /* Doubled because its simplifying here */
@@ -73,7 +76,9 @@ typedef enum
    DCSimParamod    = DOSimParamod|Arg1Cnf|Arg2Cnf,
    DCOrderedFactor = DOOrderedFactor|Arg1Cnf,
    DCEqFactor      = DOEqFactor|Arg1Cnf,
-   DCEqRes         = DOEqRes|Arg1Cnf
+   DCEqRes         = DOEqRes|Arg1Cnf,
+   /* CNF conversion and similar */
+   DCSplitEquiv    = DOSplitEquiv|Arg1Fof
 }DerivationCodes;
 
 
@@ -97,7 +102,7 @@ extern ProofObjectType BuildProofObject;
 #define DCOpHasCnfArg2(op) ((op)&Arg2Cnf)
 
 void ClausePushDerivation(Clause_p clause, DerivationCodes op, 
-                          Clause_p arg1, Clause_p arg2);
+                          void* arg1, void* arg2);
 
 
 #endif

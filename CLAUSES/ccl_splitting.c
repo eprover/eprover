@@ -352,6 +352,10 @@ int clause_split_general(DefStore_p store, Clause_p clause,
             if(new_form)
             {
                def_id = new_form->ident;
+               if(BuildProofObject)
+               {
+                  ClausePushDerivation(clause, DCApplyDef, new_form, NULL);
+               }
             }
          }
          PStackPushInt(def_stack, def_id);

@@ -174,7 +174,12 @@ Clause_p GetClauseDefinition(Eqn_p litlist, FunCode def_pred, WFormula_p parent)
    def_lit = GenDefLit(litlist->bank, def_pred, true, NULL);
    def_lit->next = litlist;
    res           = ClauseAlloc(def_lit);      
- 
+
+   if(BuildProofObject)
+   {
+      assert(parent);
+      ClausePushDerivation(res, DCSplitEquiv, parent, NULL);
+   }
    DocIntroSplitDefRestDefault(res, parent);
 
    return res;

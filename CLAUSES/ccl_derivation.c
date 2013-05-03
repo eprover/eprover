@@ -60,7 +60,7 @@ ProofObjectType BuildProofObject = 0;
 /----------------------------------------------------------------------*/
 
 void ClausePushDerivation(Clause_p clause, DerivationCodes op, 
-                          Clause_p arg1, Clause_p arg2)
+                          void* arg1, void* arg2)
 {
    assert(clause);
    assert(op);
@@ -79,7 +79,7 @@ void ClausePushDerivation(Clause_p clause, DerivationCodes op,
       PStackPushP(clause->derivation, arg1);
       if(arg2)
       {
-         PStackPushP(clause->derivation, arg1);
+         PStackPushP(clause->derivation, arg2);
       }
    }
 }
