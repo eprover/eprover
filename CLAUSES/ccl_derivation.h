@@ -26,6 +26,7 @@ Changes
 #define CCL_DERIVATION
 
 #include <ccl_clauses.h>
+#include <ccl_formula_wrapper.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -90,19 +91,52 @@ typedef enum
    POSingleStepDerivation = 3
 }ProofObjectType;
 
+
+typedef struct derived_cell
+{
+   long       ref_count;
+   Clause_p   clause;
+   WFormula_p formula;
+}DerivedCell, *Derived_p;
+
+
+typedef struct derivation_cell
+{
+   PObjTree_p deriv;
+   PStack_p   orfdered_deriv;
+}DerivationCell, *Derivation_p;
+
+
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
-
 
 
 extern ProofObjectType BuildProofObject;
 
 #define DCOpHasCnfArg1(op) ((op)&Arg1Cnf)
 #define DCOpHasCnfArg2(op) ((op)&Arg2Cnf)
+#define DCOpHasFofArg1(op) ((op)&Arg1Fof)
+#define DCOpHasFofArg2(op) ((op)&Arg2Fof)
+
+#define DerivedCellAlloc() (DerivedCell*)SizeMalloc(sizeof(DerivedCell))
+#define DerivedCellFree(junk) SizeFree(junk, sizeof(DerivedCell))
+
+Derived_p DerivedAlloc(void);
+#define DerivedFree(junk) DerivedCellFree(junk)
+
+#define DerivationCellAlloc() (DerivationCell*)SizeMalloc(sizeof(DerivationCell))
+#define DerivationCellFree(junk) SizeFree(junk, sizeof(DerivationCell))
+
+Derivation_p DerivationAlloc(void);
+void         DerivationFree(Derivation_p junk);
 
 void ClausePushDerivation(Clause_p clause, DerivationCodes op, 
                           void* arg1, void* arg2);
+
+long DerivStackExtractParents(PStack_p derivation, 
+                              PStack_p res_clauses, 
+                              PStack_p res_formulas);
 
 
 #endif

@@ -285,7 +285,7 @@ FVPackedClause_p ForwardContractClause(ProofState_p state,
 // Function: ForwardContractSet()
 //
 //   Apply the forward-contracting inferences to all clauses in
-//   set. Delete redundant clauses. If terminate_on_empty is trur,
+//   set. Delete redundant clauses. If terminate_on_empty is true,
 //   return empty clause (if found),  
 //   NULL otherwise. The empty clause will be extracted from set,
 //   which may not be fully contracted in this case.

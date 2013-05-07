@@ -1441,11 +1441,13 @@ int main(int argc, char* argv[])
       if(filter_success)
       {
 	 success = filter_success;
+         PStackPushP(proofstate->empty_clauses, success);
       }
    }
    
    if(success||proofstate->answer_count)
    {
+      assert(!PStackEmpty(proofstate->empty_clauses));
       if(success)
       {
          DocClauseQuoteDefault(2, success, "proof");

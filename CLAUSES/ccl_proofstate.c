@@ -87,6 +87,7 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->tmp_store            = ClauseSetAlloc();
    handle->archive              = ClauseSetAlloc();
    handle->f_archive            = FormulaSetAlloc();
+   handle->empty_clauses        = PStackAlloc();
    GlobalIndicesNull(&(handle->gindices));
    handle->fvi_initialized     = false;
    handle->fvi_cspec           = NULL;
@@ -270,8 +271,9 @@ void ProofStateFree(ProofState_p junk)
    ClauseSetFree(junk->processed_non_units);
    ClauseSetFree(junk->unprocessed);
    ClauseSetFree(junk->tmp_store);
-   ClauseSetFree(junk->archive);
+   ClauseSetFree(junk->archive);   
    FormulaSetFree(junk->f_archive);
+   PStackFree(junk->empty_clauses);
    GlobalIndicesFreeIndices(&(junk->gindices));
    GCAdminFree(junk->gc_terms);
    GCAdminFree(junk->gc_original_terms);

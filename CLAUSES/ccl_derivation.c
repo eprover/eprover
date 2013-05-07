@@ -69,9 +69,9 @@ void ClausePushDerivation(Clause_p clause, DerivationCodes op,
    {
       clause->derivation = PStackVarAlloc(3);
    }
-   assert(DCOpHasCnfArg1(op)|!arg1);
-   assert(DCOpHasCnfArg2(op)|!arg2);
-   assert(DCOpHasCnfArg1(op)|!DCOpHasCnfArg2(op));
+   assert(DCOpHasCnfArg1(op)||DCOpHasFofArg1(op)||!arg1);
+   assert(DCOpHasCnfArg2(op)||DCOpHasFofArg2(op)||!arg2);
+   assert(DCOpHasCnfArg1(op)||!DCOpHasCnfArg2(op));
 
    PStackPushInt(clause->derivation, op);
    if(arg1)
@@ -82,6 +82,64 @@ void ClausePushDerivation(Clause_p clause, DerivationCodes op,
          PStackPushP(clause->derivation, arg2);
       }
    }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: DerivStackExtractParents()
+//
+//   Given a derivation stack (derivation-codes with arguments),
+//   return all the (occurances of) all the side premises referenced
+//   in the derivation (via the result stacks). Return value is the
+//   number of premises found.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+long DerivStackExtractParents(PStack_p derivation, 
+                              PStack_p res_clauses, 
+                              PStack_p res_formulas)
+{
+   PStackPointer i, sp;
+   long res = 0;
+   DerivationCodes op;
+
+   sp = PStackGetSP(derivation);
+   
+   while(i<sp)
+   {
+      op = PStackElementInt(derivation, i);
+      i++;
+      if(DCOpHasCnfArg1(op))
+      {
+         PStackPushP(res_clauses, PStackElementP(derivation, i));
+         i++;
+         res++;
+      }
+      else if(DCOpHasFofArg1(op))
+      {
+         PStackPushP(res_formulas, PStackElementP(derivation, i));
+         i++;
+         res++;
+      }
+      if(DCOpHasCnfArg2(op))
+      {
+         PStackPushP(res_clauses, PStackElementP(derivation, i));
+         i++;
+         res++;
+      }
+      else if(DCOpHasFofArg1(op))
+      {
+         PStackPushP(res_formulas, PStackElementP(derivation, i));
+         i++;
+         res++;
+      }
+   }
+   return res;
 }
 
 

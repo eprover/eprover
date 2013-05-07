@@ -1193,32 +1193,20 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
    traverse =
       EvalTreeTraverseInit(PDArrayElementP(state->axioms->eval_indices,0),0);
 
-   // printf("Before while\n");
    while((cell = EvalTreeTraverseNext(traverse, 0)))
    {
       handle = cell->object;
-      // printf("Before ClauseCopy:");
-      // ClausePrint(stdout, handle, true);
-      // printf("\n");
       new = ClauseCopy(handle, state->terms);
-      // printf("After ClauseCopy\n");
       ClauseSetProp(new, CPInitial);
-      // printf("Before HCBClauseEvaluate\n");
       HCBClauseEvaluate(control->hcb, new);
-      // printf("Before DocClauseQuoteDefault\n");
       DocClauseQuoteDefault(6, new, "eval");
-      //printf("After DocClauseQuoteDefault\n");
 
       if(control->heuristic_parms.prefer_initial_clauses)
       {
-         // printf("EvalListChangePriority\n");
 	 EvalListChangePriority(new->evaluations, -PrioLargestReasonable);
       }
-      // printf("Before ClauseSetInsert\n");
       ClauseSetInsert(state->unprocessed, new);
-      // printf("After ClauseSetInsert\n");
    }
-   // printf("Before ClauseSetMarkSOS\n");
    ClauseSetMarkSOS(state->unprocessed, control->heuristic_parms.use_tptp_sos);
    // printf("Before EvalTreeTraverseExit\n");
    EvalTreeTraverseExit(traverse);
@@ -1310,6 +1298,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    {
       state->answer_count ++;
       ClausePrintAnswer(GlobalOut, pclause->clause, state);
+      PStackPushP(state->empty_clauses, pclause->clause);
       if(ClauseIsEmpty(pclause->clause)||
          state->answer_count>=answer_limit)
       {
@@ -1407,6 +1396,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    }
    if((empty = insert_new_clauses(state, control)))
    {
+      PStackPushP(state->empty_clauses, empty);
       return empty;
    }  
    return NULL;
