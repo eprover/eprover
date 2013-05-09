@@ -245,6 +245,7 @@ void DerivationStackPCLPrint(FILE* out, PStack_p derivation)
 {
    PStack_p subexpr_stack;
    PStackPointer i, sp;
+   DerivationCodes op;
 
    if(derivation)
    {
@@ -269,7 +270,7 @@ void DerivationStackPCLPrint(FILE* out, PStack_p derivation)
       }
       while(!PStackEmpty(subexpr_stack))
       {
-         sp = PStackElementInt(
+         sp = PStackPopInt(subexpr_stack);         
       }
 
       PStackFree(subexpr_stack);      
