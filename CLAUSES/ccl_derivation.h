@@ -102,8 +102,10 @@ typedef struct derived_cell
 
 typedef struct derivation_cell
 {
+   bool       ordered;
    PObjTree_p deriv;
-   PStack_p   orfdered_deriv;
+   PStack_p   roots;
+   PStack_p   ordered_deriv;
 }DerivationCell, *Derivation_p;
 
 
@@ -119,6 +121,18 @@ extern ProofObjectType BuildProofObject;
 #define DCOpHasFofArg1(op) ((op)&Arg1Fof)
 #define DCOpHasFofArg2(op) ((op)&Arg2Fof)
 
+
+void ClausePushDerivation(Clause_p clause, DerivationCodes op, 
+                          void* arg1, void* arg2);
+void WFormulaPushDerivation(WFormula_p clause, DerivationCodes op, 
+                           void* arg1, void* arg2);
+
+long DerivStackExtractParents(PStack_p derivation, 
+                              PStack_p res_clauses, 
+                              PStack_p res_formulas);
+
+void DerivationStackPCLPrint(FILE* out, PStack_p derivation);
+
 #define DerivedCellAlloc() (DerivedCell*)SizeMalloc(sizeof(DerivedCell))
 #define DerivedCellFree(junk) SizeFree(junk, sizeof(DerivedCell))
 
@@ -131,13 +145,17 @@ Derived_p DerivedAlloc(void);
 Derivation_p DerivationAlloc(void);
 void         DerivationFree(Derivation_p junk);
 
-void ClausePushDerivation(Clause_p clause, DerivationCodes op, 
-                          void* arg1, void* arg2);
+Derived_p DerivationGetDerived(Derivation_p derivation, Clause_p clause,
+                               WFormula_p formula);
 
-long DerivStackExtractParents(PStack_p derivation, 
-                              PStack_p res_clauses, 
-                              PStack_p res_formulas);
 
+long      DerivationExtract(Derivation_p derivation, PStack_p root_clauses);
+
+long      DerivationSort(Derivation_p derivation);
+
+Derivation_p DerivationCompute(PStack_p root_clauses);
+
+void       DerivationPrint(FILE* out, Derivation_p derivation);
 
 #endif
 

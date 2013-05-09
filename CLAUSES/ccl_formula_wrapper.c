@@ -68,6 +68,7 @@ WFormula_p DefaultWFormulaAlloc()
    handle->ident      = 0;
    handle->terms      = NULL;
    handle->info       = NULL;
+   handle->derivation = NULL;
    handle->tformula   = NULL;
    handle->set        = NULL;
    handle->pred       = NULL;
@@ -122,8 +123,12 @@ void WFormulaFree(WFormula_p form)
    assert(!form->succ);
    
    /* tformula handled by Garbage Collection */
-
+   
    ClauseInfoFree(form->info);
+   if(form->derivation)
+   {
+      PStackFree(form->derivation);
+   }
    WFormulaCellFree(form);
 }
 

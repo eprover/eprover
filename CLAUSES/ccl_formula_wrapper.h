@@ -60,6 +60,7 @@ typedef struct wformula_cell
    long                  ident;
    TB_p                  terms;
    ClauseInfo_p          info;
+   PStack_p              derivation;
    TFormula_p            tformula;
    struct formula_set_cell* set;      /* Is the formula in a set? */
    struct wformula_cell* pred;        /* For fomula sets = doubly  */

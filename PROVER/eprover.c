@@ -1457,6 +1457,12 @@ int main(int argc, char* argv[])
       {
          TSTPOUT(GlobalOut, neg_conjectures?"Theorem":"Unsatisfiable");
          proofstate->status_reported = true;
+      }      
+      if(BuildProofObject)
+      {
+         Derivation_p derivation = DerivationCompute(proofstate->empty_clauses);
+         DerivationPrint(GlobalOut, derivation);
+         DerivationFree(derivation);
       }
    }
    else if(proofstate->watchlist && ClauseSetEmpty(proofstate->watchlist))
