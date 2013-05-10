@@ -310,7 +310,7 @@ bool TermComputeRWSequence(PStack_p stack, Term_p from, Term_p to)
       }
       else
       {
-	 PStackPushInt(stack, demod->ident);
+	 PStackPushP(stack, demod);
       }
       from = tmp;
       assert(from);

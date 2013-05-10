@@ -644,6 +644,7 @@ static void print_rewrite(FILE* out, ClausePos_p rewritten, long
    PStackPointer i;
    bool     tmp;
    Term_p   nf = ClausePosGetSide(rewritten);
+   Clause_p demod;
 
    /* printf("Rewrite: ");
    TBPrintTerm(stdout, rewritten->literal->bank, old_term, true);
@@ -664,7 +665,8 @@ static void print_rewrite(FILE* out, ClausePos_p rewritten, long
 	 fprintf(out, "%ld", old_id);
 	 for(i=0; i<PStackGetSP(rwsteps); i++)
 	 {
-	    fprintf(out, ",%ld)", PStackElementInt(rwsteps,i));
+            demod = PStackElementP(rwsteps,i);
+	    fprintf(out, ",%ld)", demod->ident);
 	 }
 	 pcl_print_end(out, comment, rewritten->clause);
 	 break;
@@ -680,8 +682,9 @@ static void print_rewrite(FILE* out, ClausePos_p rewritten, long
 	 fprintf(out, "c_0_%ld", old_id);
 	 for(i=0; i<PStackGetSP(rwsteps); i++)
 	 {
+            demod = PStackElementP(rwsteps,i);
 	    fprintf(out, ",c_0_%ld,theory(equality)])", 
-		    PStackElementInt(rwsteps,i));
+		    demod->ident);
 	 }
 	 tstp_print_end(out, comment, rewritten->clause);
 	 break;
