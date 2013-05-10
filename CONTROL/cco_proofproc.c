@@ -143,7 +143,7 @@ static long remove_subsumed(GlobalIndices_p indices,
       }
       ClauseKillChildren(handle);
       GlobalIndicesDeleteClause(indices, handle);
-      if(BuildProofObject)
+      if(BuildProofObject||ClauseIsDemudulator(handle))
       {
          ClauseSetExtractEntry(handle);
          ClauseSetInsert(archive, handle);
