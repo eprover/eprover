@@ -60,7 +60,7 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-void TermAddRWLink(Term_p term, Term_p replace, long demod, bool sos,
+void TermAddRWLink(Term_p term, Term_p replace, struct clause_cell *demod, bool sos,
                    RWResultType type)
 {
    assert(term);
@@ -133,54 +133,6 @@ Term_p TermFollowRWChain(Term_p term)
    return term;
 }
 
-
-/*-----------------------------------------------------------------------
-//
-// Function: TermComputeRWSequence()
-//
-//   Given two terms from and two, connected by a rewrite chain, push
-//   a sequence of clause idents onto the stack such that they
-//   represent a rewrite chain transforming to into from. Returns true
-//   if the chain has length 0.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-bool TermComputeRWSequence(PStack_p stack, Term_p from, Term_p to)
-{
-   bool   res = false;
-   long   demod_id;
-   Term_p tmp;
-
-   while(from != to)
-   {
-      assert(TermIsRewritten(from));
-      demod_id = TermRWDemod(from) ;
-      tmp = TermRWReplaceField(from);
-      if(demod_id == REWRITE_AT_SUBTERM)
-      {
-	 int i;
-	 assert(from->f_code == tmp->f_code);
-	 assert(from->arity&&from->args&&tmp->args);
-
-	 for(i=0; i<from->arity; i++)
-	 {
-	    TermComputeRWSequence(stack, from->args[i], tmp->args[i]);
-	 }
-      }
-      else
-      {
-	 PStackPushInt(stack, demod_id);
-      }
-      from = tmp;
-      assert(from);
-      res = true;
-   }
-   return res;
-}
 
 /*-----------------------------------------------------------------------
 //

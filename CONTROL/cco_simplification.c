@@ -68,7 +68,7 @@ void ClauseMoveSimplified(GlobalIndices_p gindices,
    ClauseSetExtractEntry(clause);
    GlobalIndicesDeleteClause(gindices, clause);
    DocClauseQuoteDefault(6, clause, "simplifiable");
-   if(BuildProofObject)
+   if(BuildProofObject||ClauseIsDemodulator(clause))
    {
       Clause_p new_clause = ClauseFlatCopy(clause);
       ClauseSetInsert(archive, clause);

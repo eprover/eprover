@@ -107,7 +107,8 @@ typedef struct
    struct {
       struct termcell*   replace;         /* ...otherwise, it has been
                                              rewritten to this term */
-      long               demod_id;        /* 0 means subterm! */
+      // long               demod_id;        /* 0 means subterm! */
+      struct clause_cell *demod;          /* NULL means subterm! */
    }rw_desc;
 }RewriteState;
 
@@ -203,12 +204,12 @@ typedef bool (*TermEqualTestFun)(Term_p t1, Term_p t2);
 
 /* Absolutely get the value of the replace and demod fields */
 #define TermRWReplaceField(term) ((term)->rw_data.rw_desc.replace)
-#define TermRWDemodField(term)   ((term)->rw_data.rw_desc.demod_id)
+#define TermRWDemodField(term)   ((term)->rw_data.rw_desc.demod)
 #define REWRITE_AT_SUBTERM 0
 
 /* Get the logical value of the replaced term / demodulator */
 #define TermRWReplace(term) (TermIsRewritten(term)?TermRWTargetField(term):NULL)
-#define TermRWDemod(term) (TermIsRewritten(term)?TermRWDemodField(term):REWRITE_AT_SUBTERM)
+#define TermRWDemod(term) (TermIsRewritten(term)?TermRWDemodField(term):NULL)
 
 Term_p  TermDefaultCellAlloc(void);
 Term_p  TermConstCellAlloc(FunCode symbol);

@@ -271,6 +271,57 @@ Term_p ClausePosFindNextMaximalSubterm(ClausePos_p pos)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: TermComputeRWSequence()
+//
+//   Given two terms from and two, connected by a rewrite chain, push
+//   a sequence of clause idents onto the stack such that they
+//   represent a rewrite chain transforming to into from. Returns true
+//   if the chain has length 0.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool TermComputeRWSequence(PStack_p stack, Term_p from, Term_p to)
+{
+   bool     res = false;
+   Clause_p demod;
+   Term_p   tmp;
+
+   while(from != to)
+   {
+      assert(TermIsRewritten(from));
+      demod = TermRWDemod(from);
+      tmp = TermRWReplaceField(from);
+      if(!demod)
+      {
+	 int i;
+	 assert(from->f_code == tmp->f_code);
+	 assert(from->arity&&from->args&&tmp->args);
+
+	 for(i=0; i<from->arity; i++)
+	 {
+	    TermComputeRWSequence(stack, from->args[i], tmp->args[i]);
+	 }
+      }
+      else
+      {
+	 PStackPushInt(stack, demod->ident);
+      }
+      from = tmp;
+      assert(from);
+      res = true;
+   }
+   return res;
+}
+
+
+
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

@@ -343,7 +343,11 @@ int ClauseRemoveACResolved(Clause_p clause)
    {
       ClauseDelProp(clause, CPInitial|CPLimitedRW);
       DocClauseModification(GlobalOut, OutputLevel, clause,
-			    inf_ac_resolution, NULL, sig, NULL);	 
+			    inf_ac_resolution, NULL, sig, NULL);
+      if(BuildProofObject)
+      {
+         ClausePushDerivation(clause, DOAcRes, NULL, NULL);
+      }
    }
    if(clause->set)
    {
@@ -396,6 +400,7 @@ bool ClauseUnitSimplifyTest(Clause_p clause, Clause_p simplifier)
    }
    return false;
 }
+
 
 
 /*---------------------------------------------------------------------*/

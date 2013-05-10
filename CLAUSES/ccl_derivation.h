@@ -37,17 +37,21 @@ typedef enum
 {
    DONop,
    DOQuote,
+   /* For simplifying inferences, the main premise is implicit */
    DORewriteL,
    DORewriteR,
    DOApplyDef,
    DOContextSR,
    DODesEqRes, 
    DOSR,
+   DOAcRes,
+   /* Generating inferences */
    DOParamod,
    DOSimParamod,
    DOOrderedFactor,
    DOEqFactor,
    DOEqRes,
+   /* CNF conversion and similar */
    DOSplitEquiv
 }OpCodes;
 
@@ -72,6 +76,7 @@ typedef enum
    DCContextSR     = DOContextSR|Arg1Cnf,
    DCSR            = DOSR|Arg1Cnf,
    DCDesEqRes      = DODesEqRes, /* Doubled because its simplifying here */
+   DCACRes         = DOAcRes,
    /* Generating inferences */
    DCParamod       = DOParamod |Arg1Cnf|Arg2Cnf,
    DCSimParamod    = DOSimParamod|Arg1Cnf|Arg2Cnf,
@@ -117,10 +122,14 @@ typedef struct derivation_cell
 extern ProofObjectType BuildProofObject;
 
 #define DCOpHasCnfArg1(op) ((op)&Arg1Cnf)
-#define DCOpHasCnfArg2(op) ((op)&Arg2Cnf)
 #define DCOpHasFofArg1(op) ((op)&Arg1Fof)
-#define DCOpHasFofArg2(op) ((op)&Arg2Fof)
+#define DCOpHasArg1(op) (DCOpHasCnfArg1(op)||DCOpHasFofArg1(op))
 
+#define DCOpHasCnfArg2(op) ((op)&Arg2Cnf)
+#define DCOpHasFofArg2(op) ((op)&Arg2Fof)
+#define DCOpHasArg2(op) (DCOpHasCnfArg2(op)||DCOpHasFofArg2(op))
+
+#define DPOpGetOpCode(op)  ((op)&127)
 
 void ClausePushDerivation(Clause_p clause, DerivationCodes op, 
                           void* arg1, void* arg2);
@@ -131,13 +140,15 @@ long DerivStackExtractParents(PStack_p derivation,
                               PStack_p res_clauses, 
                               PStack_p res_formulas);
 
-void DerivationStackPCLPrint(FILE* out, PStack_p derivation);
 
 #define DerivedCellAlloc() (DerivedCell*)SizeMalloc(sizeof(DerivedCell))
 #define DerivedCellFree(junk) SizeFree(junk, sizeof(DerivedCell))
 
 Derived_p DerivedAlloc(void);
 #define DerivedFree(junk) DerivedCellFree(junk)
+
+void DerivationStackPCLPrint(FILE* out, PStack_p derivation);
+void DerivedPrint(FILE* out, Derived_p derived);
 
 #define DerivationCellAlloc() (DerivationCell*)SizeMalloc(sizeof(DerivationCell))
 #define DerivationCellFree(junk) SizeFree(junk, sizeof(DerivationCell))
@@ -154,8 +165,8 @@ long      DerivationExtract(Derivation_p derivation, PStack_p root_clauses);
 long      DerivationSort(Derivation_p derivation);
 
 Derivation_p DerivationCompute(PStack_p root_clauses);
+void         DerivationPrint(FILE* out, Derivation_p derivation);
 
-void       DerivationPrint(FILE* out, Derivation_p derivation);
 
 #endif
 

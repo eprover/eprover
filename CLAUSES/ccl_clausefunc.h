@@ -49,6 +49,8 @@ void ClauseSetCanonize(ClauseSet_p set);
 int  ClauseRemoveACResolved(Clause_p clause);
 bool ClauseUnitSimplifyTest(Clause_p clause, Clause_p simplifier);
 
+
+
 #endif
 
 /*---------------------------------------------------------------------*/

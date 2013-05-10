@@ -49,13 +49,12 @@ typedef enum
 /*---------------------------------------------------------------------*/
 
 
-void   TermAddRWLink(Term_p term, Term_p replace, long demod,
+void   TermAddRWLink(Term_p term, Term_p replace, 
+                     struct clause_cell *demod,
 		     bool sos, RWResultType type);
 
 void   TermDeleteRWLink(Term_p term);
 Term_p TermFollowRWChain(Term_p term);
-
-bool   TermComputeRWSequence(PStack_p stack, Term_p from, Term_p to);
 
 Term_p TBTermPosReplace(TB_p bank, Term_p repl, TermPos_p pos,
 			DerefType deref);

@@ -176,7 +176,7 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
          if(!TermIsRewritten(term) || (res == RWAlwaysRewritable))
          {
             rterm = TBInsertInstantiated(bank, eqn->rterm);
-            TermAddRWLink(term, rterm, new_demod->ident, ClauseIsSOS(new_demod), res);
+            TermAddRWLink(term, rterm, new_demod, ClauseIsSOS(new_demod), res);
          }
       }
       SubstBacktrack(subst);
@@ -198,7 +198,7 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
 	    res = RWAlwaysRewritable;
             
             rterm = TBInsertInstantiated(bank, eqn->lterm);
-            TermAddRWLink(term, rterm, new_demod->ident, ClauseIsSOS(new_demod), res);
+            TermAddRWLink(term, rterm, new_demod, ClauseIsSOS(new_demod), res);
 	 }
       }
    }
@@ -536,7 +536,7 @@ static Term_p rewrite_with_clause_set(OCB_p ocb, TB_p bank, Term_p term,
       repl = TBInsertInstantiated(bank, repl);
       
       assert(pos->clause->ident);
-      TermAddRWLink(term, repl, pos->clause->ident, ClauseIsSOS(pos->clause), 
+      TermAddRWLink(term, repl, pos->clause, ClauseIsSOS(pos->clause), 
                     restricted_rw?RWAlwaysRewritable:RWLimitedRewritable);
       term = repl;
    }
@@ -903,7 +903,7 @@ static long term_find_rw_clauses(Clause_p demod,
          if(!TermIsRewritten(term) || (rwres == RWAlwaysRewritable))
          {
             rterm = TBInsertInstantiated(eqn->bank, rterm);
-            TermAddRWLink(term, rterm, demod->ident, ClauseIsSOS(demod), rwres);
+            TermAddRWLink(term, rterm, demod, ClauseIsSOS(demod), rwres);
             //TermDeleteRWLink(term);
          }
       }
