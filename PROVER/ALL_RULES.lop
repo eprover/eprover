@@ -23,7 +23,8 @@ g(X,Y) = g(Y,X).
 
 b=c <- X=Y, Z=U, c=d.
 
-a=b; a=c <-.
+a=b; a=c; e!=a<-.
+a=b; a=c ; e=a<-.
 
 i(X)=i(Y).
 c=d <- h(i(a))=h(i(e)).

@@ -87,9 +87,12 @@ int ClauseContextualSimplifyReflect(ClauseSet_p set, Clause_p clause)
 	 assert(clause->weight == ClauseStandardWeight(clause));
 	 DocClauseModificationDefault(clause, 
 				      inf_context_simplify_reflect,
-				      subsumer);
-	 
+				      subsumer);	 
 	 res++;
+         if(BuildProofObject)
+         {
+            ClausePushDerivation(clause, DCContextSR, subsumer, NULL);
+         }
       }
       else
       {

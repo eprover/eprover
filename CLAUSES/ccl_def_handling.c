@@ -224,8 +224,10 @@ WFormula_p GetFormulaDefinition(Eqn_p litlist, FunCode def_pred)
    ClauseFree(def_clause);
    
    DocIntroSplitDefDefault(res);
-   WFormulaPushDerivation(res, DCIntroDef, NULL, NULL);
-   
+   if(BuildProofObject)
+   {
+      WFormulaPushDerivation(res, DCIntroDef, NULL, NULL);
+   }
    return res;
 }
 
