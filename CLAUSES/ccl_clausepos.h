@@ -76,7 +76,8 @@ Term_p   ClausePosFindNextMaximalSide(ClausePos_p pos, bool positive);
 Term_p   ClausePosFindFirstMaximalSubterm(ClausePos_p pos);
 Term_p   ClausePosFindNextMaximalSubterm(ClausePos_p pos);
 
-bool     TermComputeRWSequence(PStack_p stack, Term_p from, Term_p to);
+bool     TermComputeRWSequence(PStack_p stack, Term_p from, Term_p to,
+                               int inject_op);
 
 
 /*---------------------------------------------------------------------*/

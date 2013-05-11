@@ -25,6 +25,7 @@ Changes
 
 #define CCL_DERIVATION
 
+#include <ccl_inferencedoc.h>
 #include <ccl_clauses.h>
 #include <ccl_formula_wrapper.h>
 
@@ -38,13 +39,13 @@ typedef enum
    DONop,
    DOQuote,
    /* For simplifying inferences, the main premise is implicit */
-   DORewriteL,
-   DORewriteR,
+   DORewrite,
    DOApplyDef,
    DOContextSR,
    DODesEqRes, 
    DOSR,
    DOAcRes,
+   DOCondense,
    /* Generating inferences */
    DOParamod,
    DOSimParamod,
@@ -52,7 +53,8 @@ typedef enum
    DOEqFactor,
    DOEqRes,
    /* CNF conversion and similar */
-   DOSplitEquiv
+   DOSplitEquiv,
+   DOIntroDef
 }OpCodes;
 
 
@@ -69,14 +71,15 @@ typedef enum
 {
    DCNop           = DONop,
    DCCnfQuote      = DOQuote|Arg1Cnf,
+   DCFofQuote      = DOQuote|Arg1Fof,
    /* For simplifying inferences, the main premise is implicit */
-   DCRewriteL      = DORewriteL|Arg1Cnf,
-   DCRewriteR      = DORewriteR|Arg1Cnf,
+   DCRewrite       = DORewrite|Arg1Cnf,
    DCApplyDef      = DOApplyDef|Arg1Fof,
    DCContextSR     = DOContextSR|Arg1Cnf,
    DCSR            = DOSR|Arg1Cnf,
    DCDesEqRes      = DODesEqRes, /* Doubled because its simplifying here */
    DCACRes         = DOAcRes,
+   DCCondense      = DOCondense,
    /* Generating inferences */
    DCParamod       = DOParamod |Arg1Cnf|Arg2Cnf,
    DCSimParamod    = DOSimParamod|Arg1Cnf|Arg2Cnf,
@@ -84,7 +87,8 @@ typedef enum
    DCEqFactor      = DOEqFactor|Arg1Cnf,
    DCEqRes         = DOEqRes|Arg1Cnf,
    /* CNF conversion and similar */
-   DCSplitEquiv    = DOSplitEquiv|Arg1Fof
+   DCSplitEquiv    = DOSplitEquiv|Arg1Fof,
+   DCIntroDef      = DOIntroDef
 }DerivationCodes;
 
 
@@ -133,7 +137,7 @@ extern ProofObjectType BuildProofObject;
 
 void ClausePushDerivation(Clause_p clause, DerivationCodes op, 
                           void* arg1, void* arg2);
-void WFormulaPushDerivation(WFormula_p clause, DerivationCodes op, 
+void WFormulaPushDerivation(WFormula_p form, DerivationCodes op, 
                            void* arg1, void* arg2);
 
 long DerivStackExtractParents(PStack_p derivation, 
@@ -160,12 +164,12 @@ Derived_p DerivationGetDerived(Derivation_p derivation, Clause_p clause,
                                WFormula_p formula);
 
 
-long      DerivationExtract(Derivation_p derivation, PStack_p root_clauses);
-
-long      DerivationSort(Derivation_p derivation);
+long DerivationExtract(Derivation_p derivation, PStack_p root_clauses);
+long DerivationTopoSort(Derivation_p derivation);
+void DerivationRenumber(Derivation_p derivation);
 
 Derivation_p DerivationCompute(PStack_p root_clauses);
-void         DerivationPrint(FILE* out, Derivation_p derivation);
+void DerivationPrint(FILE* out, Derivation_p derivation);
 
 
 #endif

@@ -286,7 +286,8 @@ Term_p ClausePosFindNextMaximalSubterm(ClausePos_p pos)
 //
 /----------------------------------------------------------------------*/
 
-bool TermComputeRWSequence(PStack_p stack, Term_p from, Term_p to)
+bool TermComputeRWSequence(PStack_p stack, Term_p from, Term_p to, 
+                           int inject_op)
 {
    bool     res = false;
    Clause_p demod;
@@ -305,11 +306,18 @@ bool TermComputeRWSequence(PStack_p stack, Term_p from, Term_p to)
 
 	 for(i=0; i<from->arity; i++)
 	 {
-	    TermComputeRWSequence(stack, from->args[i], tmp->args[i]);
+	    TermComputeRWSequence(stack, 
+                                  from->args[i], 
+                                  tmp->args[i], 
+                                  inject_op);
 	 }
       }
       else
       {
+         if(inject_op)
+         {
+            PStackPushInt(stack, inject_op);
+         }
 	 PStackPushP(stack, demod);
       }
       from = tmp;

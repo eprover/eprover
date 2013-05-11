@@ -405,6 +405,9 @@ Clause_p ClauseNormalizeVars(Clause_p clause, VarBank_p fresh_vars);
 long     ClauseCollectSubterms(Clause_p clause, PStack_p collector);
 long     ClauseReturnFCodes(Clause_p clause, PStack_p f_codes);
 
+#define CLAUSE_ENSURE_DERIVATION(clause) \
+        {if(!(clause)->derivation){(clause)->derivation=PStackVarAlloc(3);}}
+
 
 #endif
 

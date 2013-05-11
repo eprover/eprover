@@ -655,7 +655,7 @@ static void print_rewrite(FILE* out, ClausePos_p rewritten, long
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 tmp = TermComputeRWSequence(rwsteps, old_term, nf);
+	 tmp = TermComputeRWSequence(rwsteps, old_term, nf, 0);
 	 assert(tmp);
 	 pcl_print_start(out, rewritten->clause, PCLShellLevel<1);
 	 for(i=0; i<PStackGetSP(rwsteps); i++)
@@ -671,7 +671,7 @@ static void print_rewrite(FILE* out, ClausePos_p rewritten, long
 	 pcl_print_end(out, comment, rewritten->clause);
 	 break;
    case tstp_format:
-	 tmp = TermComputeRWSequence(rwsteps, old_term, nf);
+	 tmp = TermComputeRWSequence(rwsteps, old_term, nf, 0);
 	 assert(tmp);
 	 ClauseTSTPPrint(out, rewritten->clause, PCLFullTerms, false);
 	 fputc(',', out);
@@ -886,7 +886,7 @@ static void print_fof_intro_def(FILE* out, WFormula_p form, char* comment)
    case tstp_format:
 	 WFormulaTSTPPrint(out, form, PCLFullTerms, false);
 	 fprintf(out, ", ");
-         fprintf(out, PCL_ID"(definition)");         
+         fprintf(out, PCL_ID_DEF);         
 	 tstp_formula_print_end(out, comment);
 	 break;
    default:

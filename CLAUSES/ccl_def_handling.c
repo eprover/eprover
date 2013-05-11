@@ -222,8 +222,9 @@ WFormula_p GetFormulaDefinition(Eqn_p litlist, FunCode def_pred)
    res = WTFormulaAlloc(litlist->bank, def);
 
    ClauseFree(def_clause);
-
+   
    DocIntroSplitDefDefault(res);
+   WFormulaPushDerivation(res, DCIntroDef, NULL, NULL);
    
    return res;
 }

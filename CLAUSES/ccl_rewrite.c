@@ -745,10 +745,16 @@ EqnSide eqn_li_normalform(RWDesc_p desc, ClausePos_p pos, bool interred_rw)
    {
       EqnDelProp(eqn, EPMaxIsUpToDate);
       res = MaxSide;
+      pos->side = LeftSide;
       if(OutputLevel>=4)
       {
-	 pos->side = LeftSide;
 	 DocClauseRewriteDefault(pos, l_old);
+      }
+      if(BuildProofObject)
+      {
+         CLAUSE_ENSURE_DERIVATION(pos->clause);
+         TermComputeRWSequence(pos->clause->derivation, 
+                               l_old, ClausePosGetSide(pos), DCRewrite);
       }
    }
    eqn->rterm = term_li_normalform(desc, eqn->rterm, false);
@@ -766,10 +772,16 @@ EqnSide eqn_li_normalform(RWDesc_p desc, ClausePos_p pos, bool interred_rw)
       {
 	 EqnDelProp(eqn, EPMaxIsUpToDate);
       }
+      pos->side = RightSide;
       if(OutputLevel>=4)
       {
-	 pos->side = RightSide;
 	 DocClauseRewriteDefault(pos, r_old);
+      }
+      if(BuildProofObject)
+      {
+         CLAUSE_ENSURE_DERIVATION(pos->clause);
+         TermComputeRWSequence(pos->clause->derivation, 
+                               r_old, ClausePosGetSide(pos), DCRewrite);
       }
    }
    return res;
