@@ -120,6 +120,8 @@ long ClauseERNormalizeVar(TB_p bank, Clause_p clause, ClauseSet_p
 {
    long count = 0;
 
+   printf("ClauseERNormalizeVar()...\n");
+
    if(clause->neg_lit_no && !ClauseQueryProp(clause,CPNoGeneration))
    { 
       Eqn_p       lit;
@@ -142,25 +144,21 @@ long ClauseERNormalizeVar(TB_p bank, Clause_p clause, ClauseSet_p
 	       {
 		  found = true;
 		  count++;
-		  handle->proof_depth = clause->proof_depth+1;
-		  handle->proof_size  = clause->proof_size+1;
-		  ClauseSetTPTPType(handle, ClauseQueryTPTPType(clause));
-		  ClauseSetProp(handle, ClauseGiveProps(clause, CPIsSOS));
-		  DocClauseCreationDefault(handle, inf_eres, clause, NULL);
-		  if(clause->parent1)
-		  {
-		     handle->parent1 = clause->parent1;
-		     ClauseRegisterChild(handle->parent1, handle);
-		  }
-		  if(clause->parent2)
-		  {
-		     handle->parent2 = clause->parent2;
-		     ClauseRegisterChild(handle->parent2, handle);
-		  }
-		  ClauseDetachParents(clause);
-		  ClauseFree(clause);
+                  clause->proof_depth++;
+                  clause->proof_size++;
+                  EqnListFree(clause->literals);
+                  clause->literals = handle->literals;
+                  ClauseRecomputeLitCounts(clause);
 
-		  clause = handle;
+                  handle->literals = NULL;
+                  ClauseFree(handle);
+
+		  DocClauseModificationDefault(clause, inf_eres, clause);
+                  if(BuildProofObject)
+                  {
+                     ClausePushDerivation(clause, DCDesEqRes, NULL, NULL);
+                  }
+
 		  break;
 	       }
 	    }
@@ -172,6 +170,7 @@ long ClauseERNormalizeVar(TB_p bank, Clause_p clause, ClauseSet_p
       }
       ClausePosFree(pos);
    }
+   printf("...ClauseERNormalizeVar()=%ld\n", count);
    return count;
 }
 

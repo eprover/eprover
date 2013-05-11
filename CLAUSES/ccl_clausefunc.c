@@ -254,6 +254,10 @@ int ClauseRemoveSuperfluousLiterals(Clause_p clause)
 	 clause->set->literals-=removed;
       }
    }
+   if(BuildProofObject && removed)
+   {
+      ClausePushDerivation(clause, DCNormalize, NULL, NULL);
+   }
    return removed;
 }
 

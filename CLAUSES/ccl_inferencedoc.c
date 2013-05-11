@@ -278,6 +278,42 @@ static void print_eres(FILE* out, Clause_p clause, Clause_p
 
 /*-----------------------------------------------------------------------
 //
+// Function: print_des_eres()
+//
+//   Print a clause modification by destructive equality resolution.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+static void print_des_eres(FILE* out, Clause_p clause, long old_id, 
+                           char* comment)
+{
+   switch(DocOutputFormat)
+   {
+   case pcl_format:
+	 pcl_print_start(out, clause, PCLShellLevel<1);
+	 fprintf(out, PCL_ER"(%ld)", old_id);
+	 pcl_print_end(out, comment, clause);
+	 break;
+   case tstp_format:
+	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
+	 fprintf(out, 
+		 ",inference("PCL_ER",[status(thm)],[c_0_%ld,theory(equality)])",
+		 old_id);
+	 tstp_print_end(out, comment, clause);
+	 break;
+   default:
+	 fprintf(out, "# Output format not implemented.\n");
+	 break;
+   }   
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: print_efactor()
 //
 //   Print a clause creation by equality factoring.
@@ -1393,6 +1429,12 @@ void DocClauseModification(FILE* out, long level, Clause_p clause, InfType
 	    clause->ident = ++ClauseIdentCounter;
 	    print_eval_answer(out, clause, old_id, comment);
 	    break;	    
+      case inf_eres:
+	    assert(clause);
+	    assert(partner);
+	    clause->ident = ++ClauseIdentCounter;
+	    print_des_eres(out, clause, old_id, comment);
+	    break;
          /* inf_rewrite is special and handled below !*/
       default:
 	    fprintf(out, "# Clause modification %d not yet implemented.\n",op);

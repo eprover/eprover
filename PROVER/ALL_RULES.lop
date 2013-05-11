@@ -1,6 +1,10 @@
-# This will make E produce a proof using all inference rules but "ef"
+# This will make E produce proofs using all inference rules but "ef"
 # if called as follows:
-# ./eprover -l4 --split-clauses=3 ALL_RULES.lop 
+# ./eprover --split-clauses=3 --forward-context-sr --proof-object ALL_RULES.lop 
+# ./eprover --split-clauses=3 --forward-context-sr
+#           --strong-destructive-er --destructive-er-aggressive 
+#           --proof-objectALL_RULES.lop 
+# ./eprover --condense --proof-object ALL_RULES.lop 
 #
 # "er"     Equality resolution: x!=a v x=x ==> a=a
 # "pm"     Paramodulation
@@ -11,10 +15,12 @@
 # "rw"     Rewriting, can mean repeated application (but only of one
 #          equation in one direction
 # "sr"     Simplify-reflect: a=b and f(a)!=f(b) => empty clause
+# "csr"    Contextual simplify-reflect
 # "ar"     AC-resolution: Delete literals that are trivial modulo the
 #          AC-theory induced by the named clauses
 # "cn"     Clause normalize, delete trivial and repeated literals
 
+j(X)=h(i(X)).
 
 f(X,Y) = f(Y,X).
 f(X,f(Y,Z)) = f(f(X,Y),Z).
@@ -27,5 +33,5 @@ a=b; a=c; e!=a<-.
 a=b; a=c ; e=a<-.
 
 i(X)=i(Y).
-c=d <- h(i(a))=h(i(e)).
+c=d <- j(a)=h(i(e)).
 

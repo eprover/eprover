@@ -199,6 +199,14 @@ bool ClauseUnfoldEqDef(Clause_p clause, ClausePos_p demod)
       }
       DocClauseEqUnfold(GlobalOut, OutputLevel, clause, demod,
 			pos_stack);
+      if(BuildProofObject)
+      {
+         PStackPointer i;
+         for(i=0; i<PStackGetSP(pos_stack); i++)
+         {
+            ClausePushDerivation(clause, DCUnfold, demod->clause, NULL);
+         }
+      }
    }
    PStackFree(pos_stack);
    return res;

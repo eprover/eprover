@@ -40,12 +40,15 @@ typedef enum
    DOQuote,
    /* For simplifying inferences, the main premise is implicit */
    DORewrite,
+   DOUnfold,
    DOApplyDef,
    DOContextSR,
    DODesEqRes, 
    DOSR,
    DOAcRes,
    DOCondense,
+   DONormalize,
+   DOEvalAnswers,
    /* Generating inferences */
    DOParamod,
    DOSimParamod,
@@ -74,12 +77,15 @@ typedef enum
    DCFofQuote      = DOQuote|Arg1Fof,
    /* For simplifying inferences, the main premise is implicit */
    DCRewrite       = DORewrite|Arg1Cnf,
+   DCUnfold        = DOUnfold|Arg1Cnf,
    DCApplyDef      = DOApplyDef|Arg1Fof,
    DCContextSR     = DOContextSR|Arg1Cnf,
    DCSR            = DOSR|Arg1Cnf,
    DCDesEqRes      = DODesEqRes, /* Doubled because its simplifying here */
    DCACRes         = DOAcRes,
    DCCondense      = DOCondense,
+   DCNormalize     = DONormalize,
+   DCEvalAnswers   = DOEvalAnswers,
    /* Generating inferences */
    DCParamod       = DOParamod |Arg1Cnf|Arg2Cnf,
    DCSimParamod    = DOSimParamod|Arg1Cnf|Arg2Cnf,
