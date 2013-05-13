@@ -442,7 +442,7 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
    //fprintf(out, "<dummy %p in %p>", form->tformula, form->terms);   
    
 
-   fprintf(out, ") ");   
+   fprintf(out, ")");   
    if(complete)
    {
       fprintf(out, ").");

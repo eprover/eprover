@@ -37,7 +37,7 @@ char *opids[] =
    "QUOTE",
    /* Simplifying */
    PCL_RW,
-   "unfold",
+   PCL_RW,
    PCL_AD,
    PCL_CSR,
    PCL_ER,
@@ -66,6 +66,81 @@ char *opids[] =
    PCL_ID_DEF,
    PCL_SC
 };
+
+char *optheory [] =
+{
+   NULL,
+   NULL,
+   /* Simplifying */
+   "equality",
+   "equality",
+   "equality,[symmetry]",
+   "equality,[symmetry]",
+   "equality",
+   "equality",
+   "equality",
+   "equality,[symmetry]",
+   "equality,[symmetry]",
+   "answers",
+   /* Simplification/Modfication for FOF */
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   "answers",
+   /* Generating */
+   "equality",
+   "equality",
+   "equality,[symmetry]",
+   "equality",
+   "equality",
+   /* Others */
+   NULL,
+   NULL,
+   NULL
+};
+
+
+char *opstatus [] =
+{
+   NULL,
+   NULL,
+   /* Simplifying */
+   "thm",
+   "thm",
+   "thm",
+   "thm",
+   "thm",
+   "thm",
+   "thm",
+   "thm",
+   "thm",
+   "thm",
+   /* Simplification/Modfication for FOF */
+   "cth",
+   "thm",
+   "thm",
+   "thm",
+   "thm",
+   "esa",
+   "thm",
+   "thm",
+   /* Generating */
+   "thm",
+   "thm",
+   "thm",
+   "thm",
+   "thm",
+   /* Others */
+   "thm",
+   NULL,
+   NULL
+};
+
+
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -515,7 +590,7 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
 {
    PStack_p subexpr_stack;
    PStackPointer i, j, sp;
-   DerivationCodes op;
+   DerivationCodes op, opc;
    Clause_p        ax;
 
    if(derivation)
@@ -545,7 +620,8 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
       for(sp = PStackGetSP(subexpr_stack)-1; sp>=0; sp--)
       {
          i = PStackElementInt(subexpr_stack, sp);
-         op = PStackElementInt(derivation, i);
+         op  = PStackElementInt(derivation, i);
+         opc = DPOpGetOpCode(op);
          switch(op)
          {
          case DCCnfQuote:
@@ -555,7 +631,9 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
                fprintf(out, "%s", opids[DPOpGetOpCode(op)]);
                break;
          default:
-               fprintf(out, "%s(", opids[DPOpGetOpCode(op)]);
+               fprintf(out, "inference(%s,[status(%s)],[", 
+                       opids[opc],
+                       opstatus[opc]);
                break;
          }
       }      
@@ -564,7 +642,8 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
       for(sp = 0; sp < PStackGetSP(subexpr_stack); sp++)
       {
          i = PStackElementInt(subexpr_stack, sp);
-         op = PStackElementInt(derivation, i);
+         op  = PStackElementInt(derivation, i);
+         opc = DPOpGetOpCode(op);
          if(DCOpHasArg1(op))
          {
             if(i!=0)
@@ -592,10 +671,18 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
                   ax = PStackElementP(sig->ac_axioms, j);
                   fprintf(out, ", c_0_%ld", ax->ident);
                }
-               fprintf(out, ")");
+               if(optheory[opc])
+               {
+                  fprintf(out, ", theory(%s)]",optheory[opc]);
+               }
+               fprintf(out, "])");
                break;
          default:
-               fprintf(out, ")");
+              if(optheory[opc])
+               {
+                  fprintf(out, ", theory(%s)]",optheory[opc]);
+               }
+               fprintf(out, "])");
                break;
          }
       }      
@@ -628,7 +715,7 @@ void DerivedPrint(FILE* out, Sig_p sig, Derived_p derived)
       if(derived->clause->derivation)
       {
          fprintf(out, ", ");
-         DerivationStackPCLPrint(out, sig, derived->clause->derivation);
+         DerivationStackTSTPPrint(out, sig, derived->clause->derivation);
       }
       else
       {
@@ -659,7 +746,7 @@ void DerivedPrint(FILE* out, Sig_p sig, Derived_p derived)
       if(derived->formula->derivation)
       {
          fprintf(out, ", ");
-         DerivationStackPCLPrint(out, sig, derived->formula->derivation);
+         DerivationStackTSTPPrint(out, sig, derived->formula->derivation);
       }
       else
       {
