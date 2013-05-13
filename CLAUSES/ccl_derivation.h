@@ -130,6 +130,8 @@ typedef enum
 typedef struct derived_cell
 {
    long       ref_count;
+   bool       is_root;
+   bool       is_fresh;
    Clause_p   clause;
    WFormula_p formula;
 }DerivedCell, *Derived_p;
@@ -181,6 +183,8 @@ Derived_p DerivedAlloc(void);
 #define DerivedFree(junk) DerivedCellFree(junk)
 
 void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation);
+void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation);
+
 void DerivedPrint(FILE* out, Sig_p sig, Derived_p derived);
 
 #define DerivationCellAlloc() (DerivationCell*)SizeMalloc(sizeof(DerivationCell))

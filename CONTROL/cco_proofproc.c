@@ -1298,7 +1298,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    {
       state->answer_count ++;
       ClausePrintAnswer(GlobalOut, pclause->clause, state);
-      PStackPushP(state->empty_clauses, pclause->clause);
+      PStackPushP(state->extract_roots, pclause->clause);
       if(ClauseIsEmpty(pclause->clause)||
          state->answer_count>=answer_limit)
       {
@@ -1396,7 +1396,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    }
    if((empty = insert_new_clauses(state, control)))
    {
-      PStackPushP(state->empty_clauses, empty);
+      PStackPushP(state->extract_roots, empty);
       return empty;
    }  
    return NULL;

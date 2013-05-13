@@ -1563,14 +1563,14 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
    {
       form->tformula = handle;
       DocFormulaModificationDefault(form, inf_fof_nnf);
-   }
-
-  
+      WFormulaPushDerivation(form, DCFNNF, NULL, NULL);
+   }  
    handle = TFormulaMiniScope(terms, form->tformula);
    if(handle!=form->tformula)
    {
       form->tformula = handle;
       DocFormulaModificationDefault(form, inf_shift_quantors);
+      WFormulaPushDerivation(form, DCShiftQuantors, NULL, NULL);
    }
    max_var = TFormulaFindMaxVarCode(form->tformula);
    VarBankSetVCount(terms->vars, -max_var);
@@ -1580,6 +1580,7 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
    {
       form->tformula = handle;  
       DocFormulaModificationDefault(form, inf_var_rename);
+      WFormulaPushDerivation(form, DCVarRename, NULL, NULL);
    }
    VarBankVarsSetProp(terms->vars, TPIsFreeVar);
    handle = TFormulaSkolemizeOutermost(terms, form->tformula);
@@ -1587,12 +1588,14 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
    {
       form->tformula = handle;  
       DocFormulaModificationDefault(form, inf_skolemize_out);
+      WFormulaPushDerivation(form, DCSkolemize, NULL, NULL);
    }
    handle = TFormulaShiftQuantors(terms, form->tformula);
    if(handle!=form->tformula)
    {
       form->tformula = handle;  
       DocFormulaModificationDefault(form, inf_shift_quantors);
+      WFormulaPushDerivation(form, DCShiftQuantors, NULL, NULL);
    }   
    
    handle = TFormulaDistributeDisjunctions(terms, form->tformula);
@@ -1601,6 +1604,7 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
    {
       form->tformula = handle;  
       DocFormulaModificationDefault(form, inf_fof_distrib);
+      WFormulaPushDerivation(form, DODistDisjunctions, NULL, NULL);
    }
 }
 

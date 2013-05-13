@@ -2245,6 +2245,32 @@ void ClauseSetDerivationStackStatistics(ClauseSet_p set)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetPushClauses()
+//
+//   Push all clauses in set onto stack. Return number pushed.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetPushClauses(PStack_p stack, ClauseSet_p set)
+{
+   Clause_p handle;
+   long     res = 0;
+   
+   for(handle = set->anchor->succ; handle!=set->anchor; handle = handle->succ)
+   {
+      PStackPushP(stack, handle);
+      res++;
+   }
+   return res;
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

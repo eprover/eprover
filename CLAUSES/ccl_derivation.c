@@ -320,6 +320,8 @@ Derived_p DerivedAlloc(void)
    Derived_p handle;
 
    handle            = DerivedCellAlloc();
+   handle->is_root   = false;
+   handle->is_fresh  = true;
    handle->ref_count = 0;
    handle->clause    = NULL;
    handle->formula   = NULL;
@@ -495,6 +497,115 @@ void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation)
 
 
 
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: DerivationStackTSTPPrint()
+//
+//   Print the derivation stack as a TSTP expression.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
+{
+   PStack_p subexpr_stack;
+   PStackPointer i, j, sp;
+   DerivationCodes op;
+   Clause_p        ax;
+
+   if(derivation)
+   {
+      subexpr_stack = PStackAlloc();
+      
+      /* Find the beginnings of the subexpressions */
+      sp = PStackGetSP(derivation);      
+      i  = 0;
+      while(i<sp)
+      {
+         PStackPushInt(subexpr_stack, i);
+
+         op = PStackElementInt(derivation, i);
+         i++;
+         if(DCOpHasArg1(op))
+         {
+            i++;
+         }
+         if(DCOpHasArg2(op))
+         {
+            i++;
+         }
+      }
+      /* Print the beginning of the subexpressions */
+      
+      for(sp = PStackGetSP(subexpr_stack)-1; sp>=0; sp--)
+      {
+         i = PStackElementInt(subexpr_stack, sp);
+         op = PStackElementInt(derivation, i);
+         switch(op)
+         {
+         case DCCnfQuote:
+         case DCFofQuote:
+               break;
+         case DCIntroDef:
+               fprintf(out, "%s", opids[DPOpGetOpCode(op)]);
+               break;
+         default:
+               fprintf(out, "%s(", opids[DPOpGetOpCode(op)]);
+               break;
+         }
+      }      
+      /* And finish the expressions */
+      
+      for(sp = 0; sp < PStackGetSP(subexpr_stack); sp++)
+      {
+         i = PStackElementInt(subexpr_stack, sp);
+         op = PStackElementInt(derivation, i);
+         if(DCOpHasArg1(op))
+         {
+            if(i!=0)
+            {
+               fprintf(out, ", ");
+            }         
+            fprintf(out, "c_0_%ld", 
+                    get_clauseform_id(op, 1, PStackElementP(derivation, i+1)));
+            if(DCOpHasArg2(op))
+            {
+               fprintf(out, ", c_0_%ld", 
+                       get_clauseform_id(op, 2, PStackElementP(derivation, i+2)));
+            }
+         }
+         switch(op)
+         {
+         case DCCnfQuote:
+         case DCFofQuote:
+               break;
+         case DCIntroDef:
+               break;
+         case DCACRes:
+               for(j=0; j<PStackGetSP(sig->ac_axioms); j++)
+               {
+                  ax = PStackElementP(sig->ac_axioms, j);
+                  fprintf(out, ", c_0_%ld", ax->ident);
+               }
+               fprintf(out, ")");
+               break;
+         default:
+               fprintf(out, ")");
+               break;
+         }
+      }      
+      /* Cleanup */
+      PStackFree(subexpr_stack);      
+   }
+}
+
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: DerivedPrint()
@@ -525,6 +636,17 @@ void DerivedPrint(FILE* out, Sig_p sig, Derived_p derived)
          {
             fprintf(out, ", ");
             ClauseSourceInfoPrintTSTP(out, derived->clause->info); 
+         }
+      }
+      if(derived->is_root)
+      {
+         if(ClauseIsEmpty(derived->clause))
+         {
+            fprintf(out, ", ['proof']");      
+         }
+         else
+         {
+            fprintf(out, ", ['final']");      
          }
       }
       fprintf(out, ").");
@@ -690,8 +812,9 @@ long DerivationExtract(Derivation_p derivation, PStack_p root_clauses)
       {
          clause = PStackPopP(parent_clauses);
          newnode = DerivationGetDerived(derivation, clause, NULL);
-         if(!newnode->ref_count)
+         if(newnode->is_fresh)
          {
+            newnode->is_fresh = false;
             PStackPushP(stack, newnode);
          }
          newnode->ref_count++;
@@ -755,8 +878,10 @@ long DerivationTopoSort(Derivation_p derivation)
    for(sp=0; sp<PStackGetSP(derivation->roots); sp++)
    {
       node = PStackElementP(derivation->roots, sp);
-      
-      PQueueStoreP(work_queue, node);
+      if(node->ref_count == 0)
+      {
+         PQueueStoreP(work_queue, node);
+      }
    }    
    
    while(!PQueueEmpty(work_queue))
@@ -885,7 +1010,7 @@ Derivation_p DerivationCompute(PStack_p root_clauses, Sig_p sig)
       clause = PStackElementP(root_clauses, sp);
       
       node = DerivationGetDerived(res, clause, NULL);
-      
+      node->is_root = true;
       PStackPushP(res->roots, node);
    }       
    DerivationExtract(res, root_clauses);
@@ -914,14 +1039,14 @@ void DerivationPrint(FILE* out, Derivation_p derivation)
 
    assert(derivation->ordered);
    
-   fprintf(out, "# ------- Derivation start ----------\n");
+   fprintf(out, "# SZS output start CNFRefutation.\n");
    for(sp=PStackGetSP(derivation->ordered_deriv)-1; sp>=0; sp--)
    {
       node = PStackElementP(derivation->ordered_deriv, sp);
       DerivedPrint(out, derivation->sig, node);
       fprintf(out, "\n");
    }
-   fprintf(out, "# ------- Derivation end ----------\n");
+   fprintf(out, "# SZS output end CNFRefutation.\n");
 }
 
 

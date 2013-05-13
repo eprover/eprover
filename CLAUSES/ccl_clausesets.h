@@ -181,6 +181,7 @@ long long    ClauseSetStandardWeight(ClauseSet_p set);
 
 void         ClauseSetDerivationStackStatistics(ClauseSet_p set);
 
+long         ClauseSetPushClauses(PStack_p stack, ClauseSet_p set);
 
 #endif
 

@@ -1383,7 +1383,6 @@ int main(int argc, char* argv[])
    {
       VERBOUT("Negated conjectures.\n");
    }
-   FormulaSetPrint(stdout, proofstate->f_ax_archive, true);
    if(FormulaSetCNF(proofstate->f_axioms,
                     proofstate->f_ax_archive,
                     proofstate->axioms, 
@@ -1393,7 +1392,6 @@ int main(int argc, char* argv[])
    {
       VERBOUT("CNFization done\n");
    }
-   FormulaSetPrint(stdout, proofstate->f_ax_archive, true);
    ProofStateInitWatchlist(proofstate, watchlist_filename, parse_format);
    raw_clause_no = proofstate->axioms->members;
    if(!no_preproc)
@@ -1452,13 +1450,13 @@ int main(int argc, char* argv[])
       if(filter_success)
       {
 	 success = filter_success;
-         PStackPushP(proofstate->empty_clauses, success);
+         PStackPushP(proofstate->extract_roots, success);
       }
    }
    
    if(success||proofstate->answer_count)
    {
-      assert(!PStackEmpty(proofstate->empty_clauses));
+      assert(!PStackEmpty(proofstate->extract_roots));
       if(success)
       {
          DocClauseQuoteDefault(2, success, "proof");
@@ -1472,7 +1470,7 @@ int main(int argc, char* argv[])
       if(BuildProofObject)
       {
          Derivation_p derivation = 
-            DerivationCompute(proofstate->empty_clauses, 
+            DerivationCompute(proofstate->extract_roots, 
                               proofstate->signature);
          DerivationPrint(GlobalOut, derivation);
          DerivationFree(derivation);
@@ -1496,6 +1494,24 @@ int main(int argc, char* argv[])
       }
       ProofStatePropDocQuote(GlobalOut, OutputLevel, CPIgnoreProps,
 			     proofstate, finals_state);
+      if(BuildProofObject)
+      {
+         Derivation_p derivation;
+
+         ClauseSetPushClauses(proofstate->extract_roots, 
+                              proofstate->processed_pos_rules);
+         ClauseSetPushClauses(proofstate->extract_roots,
+                              proofstate->processed_pos_eqns);
+         ClauseSetPushClauses(proofstate->extract_roots,
+                              proofstate->processed_neg_units);
+         ClauseSetPushClauses(proofstate->extract_roots,
+                              proofstate->processed_non_units);
+         derivation = DerivationCompute(proofstate->extract_roots, 
+                                        proofstate->signature);
+         DerivationPrint(GlobalOut, derivation);
+         DerivationFree(derivation);
+      }
+     
 
       if(cnf_only)
       {

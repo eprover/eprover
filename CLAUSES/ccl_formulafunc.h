@@ -79,7 +79,9 @@ void TFormulaSetDelTermpProp(FormulaSet_p set, TermProperties prop);
 void TFormulaSetFindDefs(FormulaSet_p set, TB_p terms, NumXTree_p *defs, 
                          PStack_p renamed_forms);
 long TFormulaApplyDefs(WFormula_p form, TB_p terms, NumXTree_p *defs);
-long TFormulaSetIntroduceDefs(FormulaSet_p set, TB_p terms);
+long TFormulaSetIntroduceDefs(FormulaSet_p set, 
+                              FormulaSet_p archive, 
+                              TB_p terms);
 
 void FormulaSetArchive(FormulaSet_p set, FormulaSet_p archive);
 void FormulaSetDocInital(FILE* out, long level, FormulaSet_p set);

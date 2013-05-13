@@ -256,10 +256,7 @@ bool WFormulaConjectureNegate(WFormula_p wform)
                                            NULL);
       FormulaSetType(wform, WPTypeNegConjecture);
       DocFormulaModificationDefault(wform, inf_neg_conjecture);
-      if(BuildProofObject)
-      {
-         WFormulaPushDerivation(wform, DCNegateConjecture, NULL, NULL);
-      }
+      WFormulaPushDerivation(wform, DCNegateConjecture, NULL, NULL);
       return true;
    }
    return false;
@@ -342,10 +339,7 @@ bool WFormulaAnnotateQuestion(WFormula_p wform, bool add_answer_lits,
       }
       FormulaSetType(wform, WPTypeConjecture);
       DocFormulaModificationDefault(wform, inf_annotate_question);
-      if(BuildProofObject)
-      {
-         WFormulaPushDerivation(wform, DCAnnoQuestion, NULL, NULL);
-      }
+      WFormulaPushDerivation(wform, DCAnnoQuestion, NULL, NULL);
       return true;
    }
    return false;
@@ -421,6 +415,7 @@ bool WFormulaSimplify(WFormula_p form, TB_p terms)
    {
       form->tformula = simplified;
       DocFormulaModificationDefault(form, inf_fof_simpl);
+      WFormulaPushDerivation(form, DOFofSimplify, NULL, NULL);
       res = true;
    }
    return res;
@@ -517,7 +512,7 @@ long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive,
    long gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
 
    FormulaSetSimplify(set, terms);
-   TFormulaSetIntroduceDefs(set, terms);
+   TFormulaSetIntroduceDefs(set, archive, terms);
    
    while(!FormulaSetEmpty(set))
    {
@@ -842,7 +837,7 @@ long TFormulaApplyDefs(WFormula_p form, TB_p terms, NumXTree_p *defs)
 //
 /----------------------------------------------------------------------*/
 
-long TFormulaSetIntroduceDefs(FormulaSet_p set, TB_p terms)
+long TFormulaSetIntroduceDefs(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
 {
    long res = 0;
    NumXTree_p defs = NULL, cell;
@@ -850,7 +845,7 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, TB_p terms)
    PStackPointer i;
    TFormula_p form, def, newdef;
    long       polarity;
-   WFormula_p w_def, c_def, formula;
+   WFormula_p w_def, c_def, formula, arch_form;
 
    TFormulaSetDelTermpProp(set, TPCheckFlag|TPPosPolarity|TPNegPolarity);
    FormulaSetMarkPolarity(set);
@@ -871,12 +866,19 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, TB_p terms)
       DocFormulaCreationDefault(w_def, inf_fof_intro_def, NULL, NULL);
       cell->vals[0].i_val = w_def->ident; /* Replace polarity with
                                         * definition id */
+      if(BuildProofObject)
+      {
+         arch_form = WFormulaFlatCopy(w_def);
+         WFormulaPushDerivation(arch_form, DOIntroDef, NULL, NULL);
+         FormulaSetInsert(archive, arch_form);
+         WFormulaPushDerivation(w_def, DCFofQuote, arch_form, NULL);
+      }      
       if(polarity == 0)
       {
          cell->vals[2].i_val = w_def->ident; /* ..and this is the
                                                 blocking id of the
                                                 actual definition.*/
-         FormulaSetInsert(set, w_def);      
+         FormulaSetInsert(set, w_def);
       }
       else
       {
@@ -886,8 +888,12 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, TB_p terms)
          DocFormulaCreationDefault(c_def, inf_fof_split_equiv, w_def, NULL);
          cell->vals[2].i_val = c_def->ident; /* ..and this is the
                                                 blocking id of the actual
-                                                definition.*/
-         FormulaSetInsert(set, c_def);      
+                                                definition.*/         
+         if(BuildProofObject)
+         {
+            WFormulaPushDerivation(c_def, DCSplitEquiv, arch_form, NULL);
+         }
+         FormulaSetInsert(set, c_def);
          WFormulaFree(w_def);
       }
    }

@@ -61,7 +61,7 @@ typedef struct proofstatecell
    ClauseSet_p       tmp_store;
    ClauseSet_p       archive;
    FormulaSet_p      f_archive;
-   PStack_p          empty_clauses;
+   PStack_p          extract_roots;
    GlobalIndices     gindices;
    bool              fvi_initialized; /* Are the feature vector
                                          indices set up? */
