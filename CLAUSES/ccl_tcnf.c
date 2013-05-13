@@ -1555,6 +1555,7 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
    {
       form->tformula = handle;
       DocFormulaModificationDefault(form, inf_fof_simpl);
+      WFormulaPushDerivation(form, DCFofSimplify, NULL, NULL);
    }
 
    handle = TFormulaNNF(terms, form->tformula, 1);

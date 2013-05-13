@@ -92,7 +92,7 @@ typedef enum
 #define PCL_CN    "cn"
 #define PCL_CONDENSE "condense"
 
-#define PCL_SC    "split_conjunct"
+#define PCL_SC     "split_conjunct"
 #define PCL_SE     "split_equiv"
 #define PCL_FS     "fof_simplification"
 #define PCL_NNF    "fof_nnf"

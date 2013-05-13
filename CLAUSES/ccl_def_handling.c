@@ -175,11 +175,8 @@ Clause_p GetClauseDefinition(Eqn_p litlist, FunCode def_pred, WFormula_p parent)
    def_lit->next = litlist;
    res           = ClauseAlloc(def_lit);      
 
-   if(BuildProofObject)
-   {
-      assert(parent);
-      ClausePushDerivation(res, DCSplitEquiv, parent, NULL);
-   }
+   ClausePushDerivation(res, DCSplitEquiv, parent, NULL);
+
    DocIntroSplitDefRestDefault(res, parent);
 
    return res;
@@ -224,10 +221,8 @@ WFormula_p GetFormulaDefinition(Eqn_p litlist, FunCode def_pred)
    ClauseFree(def_clause);
    
    DocIntroSplitDefDefault(res);
-   if(BuildProofObject)
-   {
-      WFormulaPushDerivation(res, DCIntroDef, NULL, NULL);
-   }
+   WFormulaPushDerivation(res, DCIntroDef, NULL, NULL);
+
    return res;
 }
 

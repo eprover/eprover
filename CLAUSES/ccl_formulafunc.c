@@ -256,6 +256,10 @@ bool WFormulaConjectureNegate(WFormula_p wform)
                                            NULL);
       FormulaSetType(wform, WPTypeNegConjecture);
       DocFormulaModificationDefault(wform, inf_neg_conjecture);
+      if(BuildProofObject)
+      {
+         WFormulaPushDerivation(wform, DCNegateConjecture, NULL, NULL);
+      }
       return true;
    }
    return false;
@@ -333,11 +337,15 @@ bool WFormulaAnnotateQuestion(WFormula_p wform, bool add_answer_lits,
       if(add_answer_lits)
       {
          wform->tformula = TFormulaAnnotateQuestion(wform->terms,
-                                                 wform->tformula,
+                                                    wform->tformula,
                                                     question_assoc);
       }
       FormulaSetType(wform, WPTypeConjecture);
       DocFormulaModificationDefault(wform, inf_annotate_question);
+      if(BuildProofObject)
+      {
+         WFormulaPushDerivation(wform, DCAnnoQuestion, NULL, NULL);
+      }
       return true;
    }
    return false;
@@ -362,7 +370,9 @@ bool WFormulaAnnotateQuestion(WFormula_p wform, bool add_answer_lits,
 //
 /----------------------------------------------------------------------*/
 
-long FormulaSetPreprocConjectures(FormulaSet_p set, bool add_answer_lits, 
+long FormulaSetPreprocConjectures(FormulaSet_p set,
+                                  FormulaSet_p archive,
+                                  bool add_answer_lits, 
                                   bool conjectures_are_questions)
 {
    long res = 0;
@@ -499,7 +509,7 @@ long FormulaSetSimplify(FormulaSet_p set, TB_p terms)
 
 long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive, 
                    ClauseSet_p clauseset, TB_p terms, 
-                   VarBank_p fresh_vars)
+                   VarBank_p fresh_vars, GCAdmin_p gc)
 {
    WFormula_p form, handle;
    long res = 0;
@@ -528,9 +538,7 @@ long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive,
          (TBNonVarTermNodes(terms)>gc_threshold))
       {
          assert(terms == handle->terms);
-         FormulaSetGCMarkCells(set);
-         ClauseSetGCMarkTerms(clauseset);
-         TBGCSweep(handle->terms);
+         GCCollect(gc);
          old_nodes = TBNonVarTermNodes(terms);
          gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
       }
@@ -541,9 +549,7 @@ long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive,
    }
    if(TBNonVarTermNodes(terms)!=old_nodes)
    {
-      FormulaSetGCMarkCells(set);
-      ClauseSetGCMarkTerms(clauseset);
-      TBGCSweep(terms);
+      GCCollect(gc);               
    }
    return res;
 }
@@ -704,10 +710,7 @@ long TFormulaToCNF(WFormula_p form, ClauseProperties type, ClauseSet_p set,
          clause = tformula_collect_clause(handle, terms, fresh_vars);
          ClauseSetTPTPType(clause, type);
          DocClauseFromForm(GlobalOut, OutputLevel, clause, form);
-         if(BuildProofObject)
-         {
-            ClausePushDerivation(clause, DCSplitConjunct, form, NULL);
-         }
+         ClausePushDerivation(clause, DCSplitConjunct, form, NULL);
          ClauseSetInsert(set, clause);
       }
    }
@@ -896,6 +899,40 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, TB_p terms)
    }    
    NumXTreeFree(defs);
    return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaSetArchive()
+//
+//   Move each formula from set to archive, replace it by a copy that
+//   quoted the archived formula as the parent. 
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations.
+//
+/----------------------------------------------------------------------*/
+
+void FormulaSetArchive(FormulaSet_p set, FormulaSet_p archive)
+{
+   FormulaSet_p tmpset;
+   WFormula_p handle, newform;
+
+   tmpset = FormulaSetAlloc();
+
+   while((handle = FormulaSetExtractFirst(set)))
+   {
+      newform = WFormulaFlatCopy(handle);
+      WFormulaPushDerivation(newform, DCFofQuote, handle, NULL);
+      FormulaSetInsert(tmpset, newform);
+      FormulaSetInsert(archive, handle);      
+   }
+   assert(FormulaSetEmpty(set));
+
+   FormulaSetInsertSet(set, tmpset);
+   FormulaSetFree(tmpset);
 }
 
 

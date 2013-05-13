@@ -49,6 +49,15 @@ typedef enum
    DOCondense,
    DONormalize,
    DOEvalAnswers,
+   /* Simplification/Modfication for FOF */
+   DONegateConjecture,
+   DOFofSimplify,
+   DOFNNF,   
+   DOShiftQuantors,
+   DOVarRename,
+   DOSkolemize,
+   DODistDisjunctions,
+   DOAnnoQuestion,
    /* Generating inferences */
    DOParamod,
    DOSimParamod,
@@ -73,30 +82,39 @@ typedef enum
 
 typedef enum
 {
-   DCNop           = DONop,
-   DCCnfQuote      = DOQuote|Arg1Cnf,
-   DCFofQuote      = DOQuote|Arg1Fof,
+   DCNop              = DONop,
+   DCCnfQuote         = DOQuote|Arg1Cnf,
+   DCFofQuote         = DOQuote|Arg1Fof,
    /* For simplifying inferences, the main premise is implicit */
-   DCRewrite       = DORewrite|Arg1Cnf,
-   DCUnfold        = DOUnfold|Arg1Cnf,
-   DCApplyDef      = DOApplyDef|Arg1Fof,
-   DCContextSR     = DOContextSR|Arg1Cnf,
-   DCSR            = DOSR|Arg1Cnf,
-   DCDesEqRes      = DODesEqRes, /* Doubled because its simplifying here */
-   DCACRes         = DOAcRes,
-   DCCondense      = DOCondense,
-   DCNormalize     = DONormalize,
-   DCEvalAnswers   = DOEvalAnswers,
+   DCRewrite          = DORewrite|Arg1Cnf,
+   DCUnfold           = DOUnfold|Arg1Cnf,
+   DCApplyDef         = DOApplyDef|Arg1Fof,
+   DCContextSR        = DOContextSR|Arg1Cnf,
+   DCSR               = DOSR|Arg1Cnf,
+   DCDesEqRes         = DODesEqRes, /* Doubled because its simplifying here */
+   DCACRes            = DOAcRes,
+   DCCondense         = DOCondense,
+   DCNormalize        = DONormalize,
+   DCEvalAnswers      = DOEvalAnswers,
+   /* Simplification/Modfication for FOF */
+   DCNegateConjecture = DONegateConjecture,
+   DCFofSimplify      = DOFofSimplify,
+   DCFNNF             = DOFNNF,   
+   DCShiftQuantors    = DOShiftQuantors,
+   DCVarRename        = DOVarRename,
+   DCSkolemize        = DOSkolemize,
+   DCDistDisjunctions = DODistDisjunctions,
+   DCAnnoQuestion     = DOAnnoQuestion,
    /* Generating inferences */
-   DCParamod       = DOParamod |Arg1Cnf|Arg2Cnf,
-   DCSimParamod    = DOSimParamod|Arg1Cnf|Arg2Cnf,
-   DCOrderedFactor = DOOrderedFactor|Arg1Cnf,
-   DCEqFactor      = DOEqFactor|Arg1Cnf,
-   DCEqRes         = DOEqRes|Arg1Cnf,
+   DCParamod          = DOParamod |Arg1Cnf|Arg2Cnf,
+   DCSimParamod       = DOSimParamod|Arg1Cnf|Arg2Cnf,
+   DCOrderedFactor    = DOOrderedFactor|Arg1Cnf,
+   DCEqFactor         = DOEqFactor|Arg1Cnf,
+   DCEqRes            = DOEqRes|Arg1Cnf,
    /* CNF conversion and similar */
-   DCSplitEquiv    = DOSplitEquiv|Arg1Fof,
-   DCIntroDef      = DOIntroDef,
-   DCSplitConjunct = DOSplitConjunct|Arg1Fof
+   DCSplitEquiv       = DOSplitEquiv|Arg1Fof,
+   DCIntroDef         = DOIntroDef,
+   DCSplitConjunct    = DOSplitConjunct|Arg1Fof
 }DerivationCodes;
 
 
@@ -146,6 +164,7 @@ extern ProofObjectType BuildProofObject;
 
 void ClausePushDerivation(Clause_p clause, DerivationCodes op, 
                           void* arg1, void* arg2);
+
 void WFormulaPushDerivation(WFormula_p form, DerivationCodes op, 
                            void* arg1, void* arg2);
 

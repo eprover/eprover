@@ -89,10 +89,7 @@ int ClauseContextualSimplifyReflect(ClauseSet_p set, Clause_p clause)
 				      inf_context_simplify_reflect,
 				      subsumer);	 
 	 res++;
-         if(BuildProofObject)
-         {
-            ClausePushDerivation(clause, DCContextSR, subsumer, NULL);
-         }
+         ClausePushDerivation(clause, DCContextSR, subsumer, NULL);
       }
       else
       {

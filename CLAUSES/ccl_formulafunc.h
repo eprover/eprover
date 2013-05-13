@@ -51,7 +51,9 @@ bool WFormulaAnnotateQuestion(WFormula_p wform, bool add_answer_lits,
                               bool conjectures_are_questions,
                               NumTree_p *question_assoc);
 
-long FormulaSetPreprocConjectures(FormulaSet_p set, bool add_answer_lits, 
+long FormulaSetPreprocConjectures(FormulaSet_p set, 
+                                  FormulaSet_p archive,
+                                  bool add_answer_lits, 
                                   bool conjectures_are_questions);
 
 
@@ -63,7 +65,7 @@ long FormulaSetSimplify(FormulaSet_p set, TB_p terms);
 
 long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive, 
                    ClauseSet_p clauseset, TB_p terms, 
-                   VarBank_p fresh_vars);
+                   VarBank_p fresh_vars, GCAdmin_p gc);
 long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset,
                               FormulaSet_p fset, TB_p terms, 
                               StrTree_p *name_selector, 
@@ -79,7 +81,7 @@ void TFormulaSetFindDefs(FormulaSet_p set, TB_p terms, NumXTree_p *defs,
 long TFormulaApplyDefs(WFormula_p form, TB_p terms, NumXTree_p *defs);
 long TFormulaSetIntroduceDefs(FormulaSet_p set, TB_p terms);
 
-
+void FormulaSetArchive(FormulaSet_p set, FormulaSet_p archive);
 void FormulaSetDocInital(FILE* out, long level, FormulaSet_p set);
 
 

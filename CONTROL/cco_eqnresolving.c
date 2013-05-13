@@ -87,10 +87,7 @@ long ComputeAllEqnResolvents(TB_p bank, Clause_p clause, ClauseSet_p
 	    ClauseSetProp(resolvent, ClauseGiveProps(clause, CPIsSOS));
 	    ClauseRegisterChild(clause, resolvent);
 	    DocClauseCreationDefault(resolvent, inf_eres, clause, NULL);
-            if(BuildProofObject)
-            {
-               ClausePushDerivation(resolvent, DCEqRes, clause, NULL);
-            }
+            ClausePushDerivation(resolvent, DCEqRes, clause, NULL);
 	    ClauseSetInsert(store, resolvent);
 	 }
 	 test = ClausePosNextEqResLiteral(pos);
@@ -152,10 +149,7 @@ long ClauseERNormalizeVar(TB_p bank, Clause_p clause, ClauseSet_p
                   ClauseFree(handle);
 
 		  DocClauseModificationDefault(clause, inf_eres, clause);
-                  if(BuildProofObject)
-                  {
-                     ClausePushDerivation(clause, DCDesEqRes, NULL, NULL);
-                  }
+                  ClausePushDerivation(clause, DCDesEqRes, NULL, NULL);
 
 		  break;
 	       }

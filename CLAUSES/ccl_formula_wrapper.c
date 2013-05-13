@@ -438,8 +438,8 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
    fprintf(out, "fof(%c_0_%ld, %s", prefix, id, typename);
    fprintf(out, ", (");   
 
-   //TFormulaTPTPPrint(out, form->terms, form->tformula,fullterms, false);
-   fprintf(out, ", <dummy>");   
+   TFormulaTPTPPrint(out, form->terms, form->tformula,fullterms, false);
+   //fprintf(out, "<dummy %p in %p>", form->tformula, form->terms);   
    
 
    fprintf(out, ") ");   

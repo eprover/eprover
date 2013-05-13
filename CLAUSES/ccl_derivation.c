@@ -46,6 +46,15 @@ char *opids[] =
    PCL_CONDENSE,
    PCL_CN,
    PCL_EVANS,
+   /* Simplification/Modfication for FOF */
+   PCL_NC,
+   PCL_FS,
+   PCL_NNF,
+   PCL_SQ,
+   PCL_VR,
+   PCL_SK,
+   PCL_DSTR,
+   PCL_ANNOQ,
    /* Generating */
    PCL_PM,
    PCL_SPM,
@@ -150,7 +159,7 @@ PStack_p derived_get_derivation(Derived_p derived)
 //   Push the derivation items (op-code and suitable number of
 //   arguments) onto the derivation stack.
 //
-// Global Variables: -
+// Global Variables: BuildProofObject
 //
 // Side Effects    : May allocate new derivation stack.
 //
@@ -159,21 +168,24 @@ PStack_p derived_get_derivation(Derived_p derived)
 void ClausePushDerivation(Clause_p clause, DerivationCodes op, 
                           void* arg1, void* arg2)
 {
-   assert(clause);
-   assert(op);
-
-   CLAUSE_ENSURE_DERIVATION(clause);
-   assert(DCOpHasCnfArg1(op)||DCOpHasFofArg1(op)||!arg1);
-   assert(DCOpHasCnfArg2(op)||DCOpHasFofArg2(op)||!arg2);
-   assert(DCOpHasCnfArg1(op)||!DCOpHasCnfArg2(op));
-
-   PStackPushInt(clause->derivation, op);
-   if(arg1)
+   if(BuildProofObject)
    {
-      PStackPushP(clause->derivation, arg1);
-      if(arg2)
+      assert(clause);
+      assert(op);
+      
+      CLAUSE_ENSURE_DERIVATION(clause);
+      assert(DCOpHasCnfArg1(op)||DCOpHasFofArg1(op)||!arg1);
+      assert(DCOpHasCnfArg2(op)||DCOpHasFofArg2(op)||!arg2);
+      assert(DCOpHasCnfArg1(op)||!DCOpHasCnfArg2(op));
+      
+      PStackPushInt(clause->derivation, op);
+      if(arg1)
       {
-         PStackPushP(clause->derivation, arg2);
+         PStackPushP(clause->derivation, arg1);
+         if(arg2)
+         {
+            PStackPushP(clause->derivation, arg2);
+         }
       }
    }
 }
@@ -186,7 +198,7 @@ void ClausePushDerivation(Clause_p clause, DerivationCodes op,
 //   Push the derivation items (op-code and suitable number of
 //   arguments) onto the derivation stack.
 //
-// Global Variables: -
+// Global Variables: BuildProofObject
 //
 // Side Effects    : May allocate new derivation stack.
 //
@@ -195,24 +207,27 @@ void ClausePushDerivation(Clause_p clause, DerivationCodes op,
 void WFormulaPushDerivation(WFormula_p form, DerivationCodes op, 
                             void* arg1, void* arg2)
 {
-   assert(form);
-   assert(op);
-
-   if(!form->derivation)
+   if(BuildProofObject)
    {
-      form->derivation = PStackVarAlloc(3);
-   }
-   assert(DCOpHasCnfArg1(op)||DCOpHasFofArg1(op)||!arg1);
-   assert(DCOpHasCnfArg2(op)||DCOpHasFofArg2(op)||!arg2);
-   assert(DCOpHasCnfArg1(op)||!DCOpHasCnfArg2(op));
-
-   PStackPushInt(form->derivation, op);
-   if(arg1)
-   {
-      PStackPushP(form->derivation, arg1);
-      if(arg2)
+      assert(form);
+      assert(op);
+      
+      if(!form->derivation)
       {
-         PStackPushP(form->derivation, arg2);
+         form->derivation = PStackVarAlloc(3);
+      }
+      assert(DCOpHasCnfArg1(op)||DCOpHasFofArg1(op)||!arg1);
+      assert(DCOpHasCnfArg2(op)||DCOpHasFofArg2(op)||!arg2);
+      assert(DCOpHasCnfArg1(op)||!DCOpHasCnfArg2(op));
+      
+      PStackPushInt(form->derivation, op);
+      if(arg1)
+      {
+         PStackPushP(form->derivation, arg1);
+         if(arg2)
+         {
+            PStackPushP(form->derivation, arg2);
+         }
       }
    }
 }

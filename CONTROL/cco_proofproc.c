@@ -1200,10 +1200,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
       ClauseSetProp(new, CPInitial);
       HCBClauseEvaluate(control->hcb, new);
       DocClauseQuoteDefault(6, new, "eval");
-      if(BuildProofObject)
-      {
-         ClausePushDerivation(new, DCCnfQuote, handle, NULL);
-      }
+      ClausePushDerivation(new, DCCnfQuote, handle, NULL);
       if(control->heuristic_parms.prefer_initial_clauses)
       {
 	 EvalListChangePriority(new->evaluations, -PrioLargestReasonable);

@@ -254,7 +254,7 @@ int ClauseRemoveSuperfluousLiterals(Clause_p clause)
 	 clause->set->literals-=removed;
       }
    }
-   if(BuildProofObject && removed)
+   if(removed)
    {
       ClausePushDerivation(clause, DCNormalize, NULL, NULL);
    }
@@ -348,10 +348,7 @@ int ClauseRemoveACResolved(Clause_p clause)
       ClauseDelProp(clause, CPInitial|CPLimitedRW);
       DocClauseModification(GlobalOut, OutputLevel, clause,
 			    inf_ac_resolution, NULL, sig, NULL);
-      if(BuildProofObject)
-      {
-         ClausePushDerivation(clause, DOAcRes, NULL, NULL);
-      }
+      ClausePushDerivation(clause, DOAcRes, NULL, NULL);
    }
    if(clause->set)
    {

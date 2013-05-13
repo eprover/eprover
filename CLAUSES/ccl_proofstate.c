@@ -119,7 +119,7 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    GCRegisterClauseSet(handle->gc_terms, handle->archive);
    GCRegisterClauseSet(handle->gc_terms, handle->definition_store->def_clauses);
    GCRegisterFormulaSet(handle->gc_terms, handle->definition_store->def_archive);
-   GCRegisterFormulaSet(handle->gc_original_terms, handle->f_archive);
+   GCRegisterFormulaSet(handle->gc_terms, handle->f_archive);
 
    handle->status_reported              = false;
    handle->answer_count                 = 0;
@@ -248,6 +248,7 @@ void ProofStateResetClauseSets(ProofState_p state, bool term_gc)
    if(term_gc)
    {
       GCCollect(state->gc_terms);
+      GCCollect(state->gc_original_terms);
    }
 }
 

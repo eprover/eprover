@@ -1371,20 +1371,29 @@ int main(int argc, char* argv[])
    {
       proofstate->state_is_complete = false;
    }
-
+   if(BuildProofObject)
+   {
+      FormulaSetArchive(proofstate->f_axioms, proofstate->f_ax_archive);
+   }   
    if((neg_conjectures =
-       FormulaSetPreprocConjectures(proofstate->f_axioms, answer_limit>0, 
+       FormulaSetPreprocConjectures(proofstate->f_axioms, 
+                                    proofstate->f_ax_archive,
+                                    answer_limit>0, 
                                     conjectures_are_questions)))
    {
       VERBOUT("Negated conjectures.\n");
    }
+   FormulaSetPrint(stdout, proofstate->f_ax_archive, true);
    if(FormulaSetCNF(proofstate->f_axioms,
                     proofstate->f_ax_archive,
                     proofstate->axioms, 
-                    proofstate->original_terms, proofstate->freshvars))
+                    proofstate->original_terms, 
+                    proofstate->freshvars,
+                    proofstate->gc_original_terms))
    {
       VERBOUT("CNFization done\n");
    }
+   FormulaSetPrint(stdout, proofstate->f_ax_archive, true);
    ProofStateInitWatchlist(proofstate, watchlist_filename, parse_format);
    raw_clause_no = proofstate->axioms->members;
    if(!no_preproc)

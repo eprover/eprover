@@ -141,10 +141,7 @@ bool Condense(Clause_p clause)
       {
          CondensationSuccesses++;
          DocClauseModificationDefault(clause, inf_condense, NULL);
-         if(BuildProofObject)
-         {
-            ClausePushDerivation(clause, DCCondense, NULL, NULL);
-         }
+         ClausePushDerivation(clause, DCCondense, NULL, NULL);
       }
    }
    return res;

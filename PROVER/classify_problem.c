@@ -771,11 +771,14 @@ int main(int argc, char* argv[])
          }
          else
          {
-            FormulaSetPreprocConjectures(fstate->f_axioms, false, false);
+            FormulaSetPreprocConjectures(fstate->f_axioms, fstate->f_ax_archive, 
+                                         false, false);
             FormulaSetCNF(fstate->f_axioms, 
                           fstate->f_ax_archive,
                           fstate->axioms, 
-                          fstate->original_terms, fstate->freshvars);
+                          fstate->original_terms, 
+                          fstate->freshvars,
+                          fstate->gc_original_terms);
             
             if(!no_preproc)
             {

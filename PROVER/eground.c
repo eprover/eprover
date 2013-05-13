@@ -396,12 +396,12 @@ int main(int argc, char* argv[])
    }
    CLStateFree(state);
 
-   if(FormulaSetPreprocConjectures(formulas, false, false))
+   if(FormulaSetPreprocConjectures(formulas, f_ax_archive, false, false))
    {
       VERBOUT("Negated conjectures.\n");
    }
    freshvars = VarBankAlloc();
-   if(FormulaSetCNF(formulas, f_ax_archive, clauses, terms, freshvars))
+   if(FormulaSetCNF(formulas, f_ax_archive, clauses, terms, freshvars, collector))
    {
       VERBOUT("CNFization done\n");
    }
