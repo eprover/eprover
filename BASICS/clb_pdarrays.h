@@ -66,6 +66,8 @@ typedef struct pdarraycell
 PDArray_p PDArrayAlloc(long init_size, long grow);
 PDArray_p PDIntArrayAlloc(long init_size, long grow);
 void      PDArrayFree(PDArray_p junk);
+#define   PDArraySize(array) ((array)->size)
+
 PDArray_p PDArrayCopy(PDArray_p array);
 
 void      PDArrayEnlarge(PDArray_p array, long idx);

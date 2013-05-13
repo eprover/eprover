@@ -104,6 +104,8 @@ extern long FormulaDefLimit;
 WFormula_p DefaultWFormulaAlloc();
 WFormula_p WTFormulaAlloc(TB_p terms, TFormula_p formula);
 void       WFormulaFree(WFormula_p form);
+WFormula_p WFormulaFlatCopy(WFormula_p form);
+
 void       WFormulaGCMarkCells(WFormula_p form);
 void       WFormulaMarkPolarity(WFormula_p form);
 

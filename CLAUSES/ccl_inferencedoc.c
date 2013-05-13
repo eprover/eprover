@@ -516,6 +516,7 @@ static void print_ac_res(FILE* out, Clause_p clause, long
 			 old_id, Sig_p sig, char* comment)
 {
    PStackPointer i, sp;
+   Clause_p      ax;
 
    switch(DocOutputFormat)
    {
@@ -526,7 +527,8 @@ static void print_ac_res(FILE* out, Clause_p clause, long
 	 sp = PStackGetSP(sig->ac_axioms);
 	 for(i=0; i< sp; i++)
 	 {
-	    fprintf(out, ",%ld", PStackElementInt(sig->ac_axioms,i));
+            ax = PStackElementP(sig->ac_axioms,i);
+	    fprintf(out, ",%ld", ax->ident);
 	 }
 	 fputc(')', out);
 	 pcl_print_end(out, comment, clause);
@@ -540,7 +542,8 @@ static void print_ac_res(FILE* out, Clause_p clause, long
 	 sp = PStackGetSP(sig->ac_axioms);
 	 for(i=0; i< sp; i++)
 	 {
-	    fprintf(out, ",c_0_%ld", PStackElementInt(sig->ac_axioms,i));
+            ax = PStackElementP(sig->ac_axioms,i);
+	    fprintf(out, ",c_0_%ld", ax->ident);
 	 }
 	 fputs("])", out);
 	 tstp_print_end(out, comment, clause);

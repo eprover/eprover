@@ -493,26 +493,37 @@ long FormulaSetSimplify(FormulaSet_p set, TB_p terms)
 //
 // Global Variables: -
 //
-// Side Effects    : Changes formulae (yes, really) and empties the
-//                   formula set.
+// Side Effects    : Plenty of memory stuff.
 //
 /----------------------------------------------------------------------*/
 
-long FormulaSetCNF(FormulaSet_p set, ClauseSet_p clauseset,
-                   TB_p terms, VarBank_p fresh_vars)
+long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive, 
+                   ClauseSet_p clauseset, TB_p terms, 
+                   VarBank_p fresh_vars)
 {
-   WFormula_p handle;
+   WFormula_p form, handle;
    long res = 0;
    long old_nodes = TBNonVarTermNodes(terms);
    long gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
 
    FormulaSetSimplify(set, terms);
    TFormulaSetIntroduceDefs(set, terms);
-
+   
    while(!FormulaSetEmpty(set))
    {
       handle = FormulaSetExtractFirst(set);
+      if(BuildProofObject)
+      {
+         form = WFormulaFlatCopy(handle);
+         FormulaSetInsert(archive, handle);
+         WFormulaPushDerivation(form, DCFofQuote, handle, NULL);
+         handle = form;
+      }
       res += WFormulaCNF(handle,clauseset, terms, fresh_vars);
+      if(BuildProofObject)
+      {
+         FormulaSetInsert(archive, handle);
+      }
       if(handle->tformula &&  
          (TBNonVarTermNodes(terms)>gc_threshold))
       {
@@ -523,7 +534,10 @@ long FormulaSetCNF(FormulaSet_p set, ClauseSet_p clauseset,
          old_nodes = TBNonVarTermNodes(terms);
          gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
       }
-      WFormulaFree(handle);
+      if(!BuildProofObject)
+      {
+         WFormulaFree(handle);
+      }
    }
    if(TBNonVarTermNodes(terms)!=old_nodes)
    {
@@ -690,6 +704,10 @@ long TFormulaToCNF(WFormula_p form, ClauseProperties type, ClauseSet_p set,
          clause = tformula_collect_clause(handle, terms, fresh_vars);
          ClauseSetTPTPType(clause, type);
          DocClauseFromForm(GlobalOut, OutputLevel, clause, form);
+         if(BuildProofObject)
+         {
+            ClausePushDerivation(clause, DCSplitConjunct, form, NULL);
+         }
          ClauseSetInsert(set, clause);
       }
    }

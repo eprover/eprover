@@ -52,6 +52,12 @@ typedef struct pstackcell
 #define PStackCellAlloc() (PStackCell*)SizeMalloc(sizeof(PStackCell))
 #define PStackCellFree(junk)         SizeFree(junk, sizeof(PStackCell))
 
+#ifdef CONSTANT_MEM_ESTIMATE
+#define PSTACK_AVG_MEM 68
+#else
+#define PSTACK_AVG_MEM (MEMSIZE(PStackCell)+MEMSIZE(IntOrP)*6)
+#endif
+
 #define  PStackBaseAddress(stackarg) ((stackarg)->stack)
 static __inline__ PStack_p PStackAlloc(void);
 static __inline__ PStack_p PStackVarAlloc(long size);

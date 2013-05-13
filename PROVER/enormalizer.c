@@ -437,7 +437,7 @@ int main(int argc, char* argv[])
    VarBank_p       freshvars;
    Sig_p           sig;
    ClauseSet_p     clauses;
-   FormulaSet_p    formulas;
+   FormulaSet_p    formulas, f_ax_archive;
    Scanner_p       in;    
    int             i;
    CLState_p       state;
@@ -462,15 +462,17 @@ int main(int argc, char* argv[])
       CLStateInsertArg(state, "-");
    }
    
-   sig       = SigAlloc(); 
+   sig          = SigAlloc(); 
    SigInsertInternalCodes(sig);
-   terms     = TBAlloc(sig);
-   collector = GCAdminAlloc(terms);
-   clauses   = ClauseSetAlloc();
-   formulas  = FormulaSetAlloc();
+   terms        = TBAlloc(sig);
+   collector    = GCAdminAlloc(terms);
+   clauses      = ClauseSetAlloc();
+   formulas     = FormulaSetAlloc();
+   f_ax_archive = FormulaSetAlloc();
 
    GCRegisterClauseSet(collector, clauses);
    GCRegisterFormulaSet(collector, formulas);
+   GCRegisterFormulaSet(collector, f_ax_archive);
 
    for(i=0; state->argv[i]; i++)
    {
@@ -489,7 +491,7 @@ int main(int argc, char* argv[])
       VERBOUT("Negated conjectures.\n");
    }
    freshvars = VarBankAlloc();
-   if(FormulaSetCNF(formulas, clauses, terms, freshvars))
+   if(FormulaSetCNF(formulas, f_ax_archive, clauses, terms, freshvars))
    {
       VERBOUT("CNFization done\n");
    }
@@ -497,6 +499,8 @@ int main(int argc, char* argv[])
 
    GCDeregisterFormulaSet(collector, formulas);
    FormulaSetFree(formulas);
+   GCDeregisterFormulaSet(collector, f_ax_archive);
+   FormulaSetFree(f_ax_archive);
 
    demodulators[0] = ClauseSetAlloc();
    demodulators[0]->demod_index = PDTreeAlloc();

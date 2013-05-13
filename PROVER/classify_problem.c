@@ -772,7 +772,9 @@ int main(int argc, char* argv[])
          else
          {
             FormulaSetPreprocConjectures(fstate->f_axioms, false, false);
-            FormulaSetCNF(fstate->f_axioms, fstate->axioms, 
+            FormulaSetCNF(fstate->f_axioms, 
+                          fstate->f_ax_archive,
+                          fstate->axioms, 
                           fstate->original_terms, fstate->freshvars);
             
             if(!no_preproc)

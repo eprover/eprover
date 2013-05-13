@@ -35,6 +35,7 @@ char *opids[] =
 {
    "NOP",
    "QUOTE",
+   /* Simplifying */
    PCL_RW,
    "unfold",
    PCL_AD,
@@ -45,13 +46,16 @@ char *opids[] =
    PCL_CONDENSE,
    PCL_CN,
    PCL_EVANS,
+   /* Generating */
    PCL_PM,
    PCL_SPM,
    PCL_OF,
    PCL_EF,
    PCL_ER,
+   /* Others */
    PCL_SE,
-   PCL_ID_DEF
+   PCL_ID_DEF,
+   PCL_SC
 };
 
 /*---------------------------------------------------------------------*/
@@ -105,6 +109,35 @@ int derived_compare(const void* p1, const void* p2)
 
    return PCmp(key1, key2);
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: derived_get_derivation()
+//
+//   Given a derived cell, return the derivation of the clause or
+//   formula (or NULL in none).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+PStack_p derived_get_derivation(Derived_p derived)
+{
+   assert(derived);
+
+   if(derived->clause)
+   {
+      return derived->clause->derivation;
+   }
+   else
+   {
+      assert(derived->formula);
+      return derived->formula->derivation;
+   }
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -201,6 +234,7 @@ void WFormulaPushDerivation(WFormula_p form, DerivationCodes op,
 /----------------------------------------------------------------------*/
 
 long DerivStackExtractParents(PStack_p derivation, 
+                              Sig_p    sig,
                               PStack_p res_clauses, 
                               PStack_p res_formulas)
 {
@@ -243,6 +277,10 @@ long DerivStackExtractParents(PStack_p derivation,
             PStackPushP(res_formulas, PStackElementP(derivation, i));
             i++;
             res++;
+         }
+         if(op==DCACRes)
+         {
+            PStackPushStack(res_clauses, sig->ac_axioms);
          }
       }
    }
@@ -347,11 +385,12 @@ long get_clauseform_id(DerivationCodes op, int select, void* clauseform)
 //
 /----------------------------------------------------------------------*/
 
-void DerivationStackPCLPrint(FILE* out, PStack_p derivation)
+void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation)
 {
    PStack_p subexpr_stack;
-   PStackPointer i, sp;
+   PStackPointer i, j, sp;
    DerivationCodes op;
+   Clause_p        ax;
 
    if(derivation)
    {
@@ -421,6 +460,14 @@ void DerivationStackPCLPrint(FILE* out, PStack_p derivation)
                break;
          case DCIntroDef:
                break;
+         case DCACRes:
+               for(j=0; j<PStackGetSP(sig->ac_axioms); j++)
+               {
+                  ax = PStackElementP(sig->ac_axioms, j);
+                  fprintf(out, ", c_0_%ld", ax->ident);
+               }
+               fprintf(out, ")");
+               break;
          default:
                fprintf(out, ")");
                break;
@@ -446,7 +493,7 @@ void DerivationStackPCLPrint(FILE* out, PStack_p derivation)
 //
 /----------------------------------------------------------------------*/
 
-void DerivedPrint(FILE* out, Derived_p derived)
+void DerivedPrint(FILE* out, Sig_p sig, Derived_p derived)
 {
    if(derived->clause)
    {
@@ -455,7 +502,7 @@ void DerivedPrint(FILE* out, Derived_p derived)
       if(derived->clause->derivation)
       {
          fprintf(out, ", ");
-         DerivationStackPCLPrint(out, derived->clause->derivation);
+         DerivationStackPCLPrint(out, sig, derived->clause->derivation);
       }
       else
       {
@@ -475,7 +522,7 @@ void DerivedPrint(FILE* out, Derived_p derived)
       if(derived->formula->derivation)
       {
          fprintf(out, ", ");
-         DerivationStackPCLPrint(out, derived->formula->derivation);
+         DerivationStackPCLPrint(out, sig, derived->formula->derivation);
       }
       else
       {
@@ -502,10 +549,11 @@ void DerivedPrint(FILE* out, Derived_p derived)
 //
 /----------------------------------------------------------------------*/
 
-Derivation_p DerivationAlloc(void)
+Derivation_p DerivationAlloc(Sig_p sig)
 {
    Derivation_p handle = DerivationCellAlloc();
 
+   handle->sig           = sig;
    handle->ordered       = false;
    handle->deriv         = NULL;
    handle->roots         = PStackAlloc();
@@ -619,7 +667,8 @@ long DerivationExtract(Derivation_p derivation, PStack_p root_clauses)
       }
       assert(PStackEmpty(parent_clauses));
       assert(PStackEmpty(parent_formulas));
-      DerivStackExtractParents(deriv, 
+      DerivStackExtractParents(deriv,
+                               derivation->sig,
                                parent_clauses, 
                                parent_formulas);
       while(!PStackEmpty(parent_clauses))
@@ -657,7 +706,10 @@ long DerivationExtract(Derivation_p derivation, PStack_p root_clauses)
 //
 // Function: DerivationTopoSort()
 //
-//   Perform a topological sort of the derivation.
+//   Perform a topological sort of the derivation. This is slightly
+//   hacked because axioms (nodes without further parents) always come
+//   first, so that axioms are listed first (for convenience and user
+//   expectation). 
 //
 // Global Variables: -
 //
@@ -669,6 +721,7 @@ long DerivationExtract(Derivation_p derivation, PStack_p root_clauses)
 long DerivationTopoSort(Derivation_p derivation)
 {
    PQueue_p      work_queue;
+   PStack_p      ax_stack;
    PStackPointer sp;
    Clause_p      clause;
    WFormula_p    form;   
@@ -680,6 +733,7 @@ long DerivationTopoSort(Derivation_p derivation)
    PStackReset(derivation->ordered_deriv);
 
    work_queue = PQueueAlloc();
+   ax_stack   = PStackAlloc();
    parent_clauses  = PStackAlloc();
    parent_formulas = PStackAlloc();
 
@@ -705,7 +759,8 @@ long DerivationTopoSort(Derivation_p derivation)
          assert(node->formula);
          deriv = node->formula->derivation;
       }
-      parent_no = DerivStackExtractParents(deriv, 
+      parent_no = DerivStackExtractParents(deriv,
+                                           derivation->sig,
                                            parent_clauses, 
                                            parent_formulas);
       while(!PStackEmpty(parent_clauses))
@@ -715,7 +770,14 @@ long DerivationTopoSort(Derivation_p derivation)
          newnode->ref_count--;
          if(!newnode->ref_count)
          {
-            PQueueStoreP(work_queue, newnode);
+            if(derived_get_derivation(newnode))
+            {
+               PQueueStoreP(work_queue, newnode);
+            }
+            else
+            {
+               PStackPushP(ax_stack, newnode);
+            }
          }
       }
       while(!PStackEmpty(parent_formulas))
@@ -725,16 +787,26 @@ long DerivationTopoSort(Derivation_p derivation)
          newnode->ref_count--;
          if(!newnode->ref_count)
          {
-            PQueueStoreP(work_queue, newnode);
+            if(derived_get_derivation(newnode))
+            {
+               PQueueStoreP(work_queue, newnode);
+            }
+            else
+            {
+               PStackPushP(ax_stack, newnode);
+            }
          }         
       }     
    }
-   derivation->ordered = true;
+
+   PStackPushStack(derivation->ordered_deriv, ax_stack);
 
    PQueueFree(work_queue);
+   PStackFree(ax_stack);
    PStackFree(parent_clauses);
    PStackFree(parent_formulas);
 
+   derivation->ordered = true;
    return PStackGetSP(derivation->ordered_deriv);
 }
 
@@ -786,9 +858,9 @@ void DerivationRenumber(Derivation_p derivation)
 //
 /----------------------------------------------------------------------*/
 
-Derivation_p DerivationCompute(PStack_p root_clauses)
+Derivation_p DerivationCompute(PStack_p root_clauses, Sig_p sig)
 {
-   Derivation_p  res = DerivationAlloc();
+   Derivation_p  res = DerivationAlloc(sig);
    PStackPointer sp;
    Clause_p      clause;
    Derived_p     node;
@@ -831,12 +903,11 @@ void DerivationPrint(FILE* out, Derivation_p derivation)
    for(sp=PStackGetSP(derivation->ordered_deriv)-1; sp>=0; sp--)
    {
       node = PStackElementP(derivation->ordered_deriv, sp);
-      DerivedPrint(out, node);
+      DerivedPrint(out, derivation->sig, node);
       fprintf(out, "\n");
    }
    fprintf(out, "# ------- Derivation end ----------\n");
 }
-
 
 
 

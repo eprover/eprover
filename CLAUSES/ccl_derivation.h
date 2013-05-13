@@ -57,7 +57,8 @@ typedef enum
    DOEqRes,
    /* CNF conversion and similar */
    DOSplitEquiv,
-   DOIntroDef
+   DOIntroDef,
+   DOSplitConjunct
 }OpCodes;
 
 
@@ -94,7 +95,8 @@ typedef enum
    DCEqRes         = DOEqRes|Arg1Cnf,
    /* CNF conversion and similar */
    DCSplitEquiv    = DOSplitEquiv|Arg1Fof,
-   DCIntroDef      = DOIntroDef
+   DCIntroDef      = DOIntroDef,
+   DCSplitConjunct = DOSplitConjunct|Arg1Fof
 }DerivationCodes;
 
 
@@ -118,6 +120,7 @@ typedef struct derived_cell
 typedef struct derivation_cell
 {
    bool       ordered;
+   Sig_p      sig;
    PObjTree_p deriv;
    PStack_p   roots;
    PStack_p   ordered_deriv;
@@ -147,6 +150,7 @@ void WFormulaPushDerivation(WFormula_p form, DerivationCodes op,
                            void* arg1, void* arg2);
 
 long DerivStackExtractParents(PStack_p derivation, 
+                              Sig_p sig,
                               PStack_p res_clauses, 
                               PStack_p res_formulas);
 
@@ -157,13 +161,13 @@ long DerivStackExtractParents(PStack_p derivation,
 Derived_p DerivedAlloc(void);
 #define DerivedFree(junk) DerivedCellFree(junk)
 
-void DerivationStackPCLPrint(FILE* out, PStack_p derivation);
-void DerivedPrint(FILE* out, Derived_p derived);
+void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation);
+void DerivedPrint(FILE* out, Sig_p sig, Derived_p derived);
 
 #define DerivationCellAlloc() (DerivationCell*)SizeMalloc(sizeof(DerivationCell))
 #define DerivationCellFree(junk) SizeFree(junk, sizeof(DerivationCell))
 
-Derivation_p DerivationAlloc(void);
+Derivation_p DerivationAlloc(Sig_p sig);
 void         DerivationFree(Derivation_p junk);
 
 Derived_p DerivationGetDerived(Derivation_p derivation, Clause_p clause,
@@ -174,7 +178,7 @@ long DerivationExtract(Derivation_p derivation, PStack_p root_clauses);
 long DerivationTopoSort(Derivation_p derivation);
 void DerivationRenumber(Derivation_p derivation);
 
-Derivation_p DerivationCompute(PStack_p root_clauses);
+Derivation_p DerivationCompute(PStack_p root_clauses, Sig_p sig);
 void DerivationPrint(FILE* out, Derivation_p derivation);
 
 

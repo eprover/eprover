@@ -203,7 +203,7 @@ void ClauseSetTPTPType(Clause_p clause, ClauseProperties type);
 #ifdef CONSTANT_MEM_ESTIMATE
 #define CLAUSECELL_MEM 68
 #else
-#define CLAUSECELL_MEM MEMSIZE(ClauseCell)
+#define CLAUSECELL_MEM (MEMSIZE(ClauseCell)+PSTACK_AVG_MEM)
 #endif
 
 Clause_p ClauseCellAlloc(void);

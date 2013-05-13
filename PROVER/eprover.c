@@ -1378,7 +1378,9 @@ int main(int argc, char* argv[])
    {
       VERBOUT("Negated conjectures.\n");
    }
-   if(FormulaSetCNF(proofstate->f_axioms, proofstate->axioms, 
+   if(FormulaSetCNF(proofstate->f_axioms,
+                    proofstate->f_ax_archive,
+                    proofstate->axioms, 
                     proofstate->original_terms, proofstate->freshvars))
    {
       VERBOUT("CNFization done\n");
@@ -1460,7 +1462,9 @@ int main(int argc, char* argv[])
       }      
       if(BuildProofObject)
       {
-         Derivation_p derivation = DerivationCompute(proofstate->empty_clauses);
+         Derivation_p derivation = 
+            DerivationCompute(proofstate->empty_clauses, 
+                              proofstate->signature);
          DerivationPrint(GlobalOut, derivation);
          DerivationFree(derivation);
       }
@@ -1515,6 +1519,7 @@ int main(int argc, char* argv[])
 	 TSTPOUT(GlobalOut, "ResourceOut");
       }
    }
+   /* ClauseSetDerivationStackStatistics(proofstate->unprocessed); */
    if(print_sat)
    {
       if(proofstate->non_redundant_deleted)

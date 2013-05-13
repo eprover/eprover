@@ -180,7 +180,7 @@ bool ClauseScanAC(Sig_p sig, Clause_p clause)
       if(!SigQueryFuncProp(sig, f, FPCommutative))
       {
 	 SigSetFuncProp(sig, f, FPCommutative);
-	 PStackPushInt(sig->ac_axioms, clause->ident);
+	 PStackPushP(sig->ac_axioms, clause);
       }
       return true;
    }
@@ -190,7 +190,7 @@ bool ClauseScanAC(Sig_p sig, Clause_p clause)
       if(!SigQueryFuncProp(sig, f, FPAssociative))
       {
 	 SigSetFuncProp(sig, f, FPAssociative);
-	 PStackPushInt(sig->ac_axioms, clause->ident);
+	 PStackPushP(sig->ac_axioms, clause);
       }
    }   
    return false;

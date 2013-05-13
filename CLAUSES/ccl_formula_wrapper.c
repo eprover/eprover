@@ -132,6 +132,30 @@ void WFormulaFree(WFormula_p form)
    WFormulaCellFree(form);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: WFormulaFlatCopy()
+//
+//   Create a flat copy of the formula.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations.
+//
+/----------------------------------------------------------------------*/
+
+WFormula_p WFormulaFlatCopy(WFormula_p form)
+{
+   WFormula_p res = DefaultWFormulaAlloc();
+
+   res->properties = form->properties;
+   res->ident      = form->ident;
+   res->terms      = form->terms;
+   res->tformula   = form->tformula;
+
+   return res;
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -414,7 +438,9 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
    fprintf(out, "fof(%c_0_%ld, %s", prefix, id, typename);
    fprintf(out, ", (");   
 
-   TFormulaTPTPPrint(out, form->terms, form->tformula,fullterms, false);
+   //TFormulaTPTPPrint(out, form->terms, form->tformula,fullterms, false);
+   fprintf(out, ", <dummy>");   
+   
 
    fprintf(out, ") ");   
    if(complete)

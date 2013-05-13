@@ -100,7 +100,7 @@ typedef struct sigcell
    FunCode   internal_symbols; /* Largest auto-inserted internal symbol */
    Func_p    f_info;   /* The array */
    StrTree_p f_index;  /* Back-assoc: Given a symbol, get the index */
-   PStack_p  ac_axioms; /* Identifiers of all recognized AC axioms */
+   PStack_p  ac_axioms; /* All recognized AC axioms */
    /* The following are special symbols needed for pattern
       manipulation. We want very efficient access to them! Also
       resused in FOF parsing. */

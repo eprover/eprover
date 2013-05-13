@@ -120,8 +120,6 @@ long ClauseERNormalizeVar(TB_p bank, Clause_p clause, ClauseSet_p
 {
    long count = 0;
 
-   printf("ClauseERNormalizeVar()...\n");
-
    if(clause->neg_lit_no && !ClauseQueryProp(clause,CPNoGeneration))
    { 
       Eqn_p       lit;
@@ -170,7 +168,6 @@ long ClauseERNormalizeVar(TB_p bank, Clause_p clause, ClauseSet_p
       }
       ClausePosFree(pos);
    }
-   printf("...ClauseERNormalizeVar()=%ld\n", count);
    return count;
 }
 

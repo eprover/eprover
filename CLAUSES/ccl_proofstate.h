@@ -50,6 +50,7 @@ typedef struct proofstatecell
    VarBank_p         freshvars;
    GCAdmin_p         gc_original_terms; 
    GCAdmin_p         gc_terms; 
+   FormulaSet_p      f_ax_archive;
    FormulaSet_p      f_axioms;
    ClauseSet_p       axioms;
    ClauseSet_p       processed_pos_rules;

@@ -2202,6 +2202,49 @@ long long ClauseSetStandardWeight(ClauseSet_p set)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetDerivationStackStatistics()
+//
+//   Compute and print the stack depth distribution of the clauses in
+//   set. 
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+void ClauseSetDerivationStackStatistics(ClauseSet_p set)
+{
+   Clause_p handle;
+   long     i;
+   PDArray_p dist = PDArrayAlloc(8,8);
+   double    sum = 0.0;
+
+   for(handle = set->anchor->succ; handle!=set->anchor; handle = handle->succ)
+   {
+      if(handle->derivation)
+      {
+         PDArrayElementIncInt(dist, PStackGetSP(handle->derivation), 1);
+      }
+      else
+      {
+         PDArrayElementIncInt(dist, 0, 1);         
+      }
+   }
+   for(i=0; i<PDArraySize(dist); i++)
+   {
+      printf("# %5ld: %6ld\n", i, PDArrayElementInt(dist,i));
+      sum += PDArrayElementInt(dist,i)*i;         
+   }
+   printf("# Average over %ld clauses: %f\n", 
+          ClauseSetCardinality(set),
+          sum/ClauseSetCardinality(set));
+   PDArrayFree(dist);
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

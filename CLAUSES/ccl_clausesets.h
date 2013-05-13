@@ -179,6 +179,8 @@ long         ClauseSetSplitConjectures(ClauseSet_p set,
 long long    ClauseSetStandardWeight(ClauseSet_p set);
 
 
+void         ClauseSetDerivationStackStatistics(ClauseSet_p set);
+
 
 #endif
 
