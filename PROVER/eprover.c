@@ -1494,24 +1494,6 @@ int main(int argc, char* argv[])
       }
       ProofStatePropDocQuote(GlobalOut, OutputLevel, CPIgnoreProps,
 			     proofstate, finals_state);
-      if(BuildProofObject)
-      {
-         Derivation_p derivation;
-
-         ClauseSetPushClauses(proofstate->extract_roots, 
-                              proofstate->processed_pos_rules);
-         ClauseSetPushClauses(proofstate->extract_roots,
-                              proofstate->processed_pos_eqns);
-         ClauseSetPushClauses(proofstate->extract_roots,
-                              proofstate->processed_neg_units);
-         ClauseSetPushClauses(proofstate->extract_roots,
-                              proofstate->processed_non_units);
-         derivation = DerivationCompute(proofstate->extract_roots, 
-                                        proofstate->signature);
-         DerivationPrint(GlobalOut, derivation, "Saturation");
-         DerivationFree(derivation);
-      }
-     
 
       if(cnf_only)
       {
@@ -1543,6 +1525,24 @@ int main(int argc, char* argv[])
 	 fprintf(GlobalOut, "\n# Failure: User resource limit exceeded!\n");
 	 TSTPOUT(GlobalOut, "ResourceOut");
       }
+      if(BuildProofObject)
+      {
+         Derivation_p derivation;
+
+         ClauseSetPushClauses(proofstate->extract_roots, 
+                              proofstate->processed_pos_rules);
+         ClauseSetPushClauses(proofstate->extract_roots,
+                              proofstate->processed_pos_eqns);
+         ClauseSetPushClauses(proofstate->extract_roots,
+                              proofstate->processed_neg_units);
+         ClauseSetPushClauses(proofstate->extract_roots,
+                              proofstate->processed_non_units);
+         derivation = DerivationCompute(proofstate->extract_roots, 
+                                        proofstate->signature);
+         DerivationPrint(GlobalOut, derivation, "Saturation");
+         DerivationFree(derivation);
+      }
+
    }
    /* ClauseSetDerivationStackStatistics(proofstate->unprocessed); */
    if(print_sat)
