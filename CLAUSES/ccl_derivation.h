@@ -202,7 +202,7 @@ long DerivationTopoSort(Derivation_p derivation);
 void DerivationRenumber(Derivation_p derivation);
 
 Derivation_p DerivationCompute(PStack_p root_clauses, Sig_p sig);
-void DerivationPrint(FILE* out, Derivation_p derivation);
+void DerivationPrint(FILE* out, Derivation_p derivation, char* frame);
 
 
 #endif

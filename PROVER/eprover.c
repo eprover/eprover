@@ -1472,7 +1472,7 @@ int main(int argc, char* argv[])
          Derivation_p derivation = 
             DerivationCompute(proofstate->extract_roots, 
                               proofstate->signature);
-         DerivationPrint(GlobalOut, derivation);
+         DerivationPrint(GlobalOut, derivation, "CNFRefutation");
          DerivationFree(derivation);
       }
    }
@@ -1508,7 +1508,7 @@ int main(int argc, char* argv[])
                               proofstate->processed_non_units);
          derivation = DerivationCompute(proofstate->extract_roots, 
                                         proofstate->signature);
-         DerivationPrint(GlobalOut, derivation);
+         DerivationPrint(GlobalOut, derivation, "Saturation");
          DerivationFree(derivation);
       }
      

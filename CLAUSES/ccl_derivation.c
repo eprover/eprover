@@ -787,21 +787,22 @@ long DerivationExtract(Derivation_p derivation, PStack_p root_clauses)
 
    parent_clauses  = PStackAlloc();
    parent_formulas = PStackAlloc();
+   PStackPointer i;
 
    stack = PStackCopy(derivation->roots);
-   
+
+   for(i=0; i<PStackGetSP(stack); i++)
+   {
+      node = PStackElementP(stack,i);
+      node->is_fresh = false;
+   }
+
    while(!PStackEmpty(stack))
    {
       node = PStackPopP(stack);
-      if(node->clause)
-      {
-         deriv = node->clause->derivation;
-      }
-      else
-      {
-         assert(node->formula);
-         deriv = node->formula->derivation;
-      }
+
+      deriv = derived_get_derivation(node);
+
       assert(PStackEmpty(parent_clauses));
       assert(PStackEmpty(parent_formulas));
       DerivStackExtractParents(deriv,
@@ -823,8 +824,9 @@ long DerivationExtract(Derivation_p derivation, PStack_p root_clauses)
       {
          form = PStackPopP(parent_formulas);
          newnode = DerivationGetDerived(derivation, NULL, form);
-         if(!newnode->ref_count)
+         if(newnode->is_fresh)
          {
+            newnode->is_fresh = false;
             PStackPushP(stack, newnode);
          }
          newnode->ref_count++;
@@ -890,15 +892,8 @@ long DerivationTopoSort(Derivation_p derivation)
       assert(node->ref_count == 0);
       PStackPushP(derivation->ordered_deriv, node);
 
-      if(node->clause)
-      {
-         deriv = node->clause->derivation;
-      }
-      else
-      {
-         assert(node->formula);
-         deriv = node->formula->derivation;
-      }
+      deriv = derived_get_derivation(node);
+
       parent_no = DerivStackExtractParents(deriv,
                                            derivation->sig,
                                            parent_clauses, 
@@ -1032,21 +1027,21 @@ Derivation_p DerivationCompute(PStack_p root_clauses, Sig_p sig)
 //
 /----------------------------------------------------------------------*/
 
-void DerivationPrint(FILE* out, Derivation_p derivation)
+void DerivationPrint(FILE* out, Derivation_p derivation, char* frame)
 {
    PStackPointer sp;
    Derived_p     node;
 
    assert(derivation->ordered);
    
-   fprintf(out, "# SZS output start CNFRefutation.\n");
+   fprintf(out, "# SZS output start %s.\n", frame);
    for(sp=PStackGetSP(derivation->ordered_deriv)-1; sp>=0; sp--)
    {
       node = PStackElementP(derivation->ordered_deriv, sp);
       DerivedPrint(out, derivation->sig, node);
       fprintf(out, "\n");
    }
-   fprintf(out, "# SZS output end CNFRefutation.\n");
+   fprintf(out, "# SZS output end %s.\n", frame);
 }
 
 
