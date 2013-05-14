@@ -1309,8 +1309,9 @@ int main(int argc, char* argv[])
    Clause_p         success = NULL, 
                     filter_success;
    bool             out_of_clauses;
-   char*            finals_state = "exists";
-   long             raw_clause_no, 
+   char             *finals_state = "exists",
+                    *sat_status = "Derivation";
+   long             raw_clause_no,
                     preproc_removed=0, 
                     neg_conjectures,
                     parsed_ax_no,
@@ -1513,6 +1514,7 @@ int main(int argc, char* argv[])
 	 {
 	    fprintf(GlobalOut, "\n# No proof found!\n");
 	    TSTPOUT(GlobalOut, neg_conjectures?"CounterSatisfiable":"Satisfiable");
+            sat_status = "Saturation";
 	 }
 	 else
 	 {
@@ -1539,7 +1541,7 @@ int main(int argc, char* argv[])
                               proofstate->processed_non_units);
          derivation = DerivationCompute(proofstate->extract_roots, 
                                         proofstate->signature);
-         DerivationPrint(GlobalOut, derivation, "Saturation");
+         DerivationPrint(GlobalOut, derivation, sat_status);
          DerivationFree(derivation);
       }
 

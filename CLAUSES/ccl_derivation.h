@@ -185,7 +185,8 @@ Derived_p DerivedAlloc(void);
 void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation);
 void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation);
 
-void DerivedPrint(FILE* out, Sig_p sig, Derived_p derived);
+void DerivedPCLPrint(FILE* out, Sig_p sig, Derived_p derived);
+void DerivedTSTPPrint(FILE* out, Sig_p sig, Derived_p derived);
 
 #define DerivationCellAlloc() (DerivationCell*)SizeMalloc(sizeof(DerivationCell))
 #define DerivationCellFree(junk) SizeFree(junk, sizeof(DerivationCell))

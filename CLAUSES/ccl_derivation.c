@@ -537,11 +537,11 @@ void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation)
             {
                fprintf(out, ", ");
             }         
-            fprintf(out, "c_0_%ld", 
+            fprintf(out, "%ld", 
                     get_clauseform_id(op, 1, PStackElementP(derivation, i+1)));
             if(DCOpHasArg2(op))
             {
-               fprintf(out, ", c_0_%ld", 
+               fprintf(out, ", %ld", 
                        get_clauseform_id(op, 2, PStackElementP(derivation, i+2)));
             }
          }
@@ -556,7 +556,7 @@ void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation)
                for(j=0; j<PStackGetSP(sig->ac_axioms); j++)
                {
                   ax = PStackElementP(sig->ac_axioms, j);
-                  fprintf(out, ", c_0_%ld", ax->ident);
+                  fprintf(out, ", %ld", ax->ident);
                }
                fprintf(out, ")");
                break;
@@ -693,12 +693,13 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
 
 
 
+
 /*-----------------------------------------------------------------------
 //
-// Function: DerivedPrint()
+// Function: DerivedPCLPrint()
 //
 //   Print a "Derived" cell - i.e. the clause or formula, and its
-//   derivation. 
+//   derivation, in PCL format 
 //
 // Global Variables: -
 //
@@ -706,7 +707,72 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
 //
 /----------------------------------------------------------------------*/
 
-void DerivedPrint(FILE* out, Sig_p sig, Derived_p derived)
+void DerivedPCLPrint(FILE* out, Sig_p sig, Derived_p derived)
+{
+   if(derived->clause)
+   {
+      fprintf(out, "%6ld : ", derived->clause->ident);      
+      fprintf(out, "%s : ", 
+              PCLTypeStr(ClauseQueryTPTPType(derived->clause)));
+      ClausePCLPrint(out, derived->clause, PCLFullTerms);
+      fputs(" : ", out);
+      if(derived->clause->derivation)
+      {
+         DerivationStackPCLPrint(out, sig, derived->clause->derivation);
+      }
+      else if(derived->clause->info)
+      {
+         ClauseSourceInfoPrintPCL(out, derived->clause->info); 
+      }
+      if(derived->is_root)
+      {
+         if(ClauseIsEmpty(derived->clause))
+         {
+            fprintf(out, " : 'proof'");      
+         }
+         else
+         {
+            fprintf(out, " : 'final'");      
+         }
+      }
+   }
+   else
+   {
+      assert(derived->formula);
+      fprintf(out, "%6ld : ", derived->formula->ident);      
+      fprintf(out, "%s : ", 
+              PCLTypeStr(FormulaQueryType(derived->formula)));
+      TFormulaTPTPPrint(out, 
+                        derived->formula->terms, 
+                        derived->formula->tformula, 
+                        true, true);
+      fputs(" : ", out);
+      if(derived->formula->derivation)
+      {
+         DerivationStackPCLPrint(out, sig, derived->formula->derivation);
+      }
+      else if(derived->formula->info)
+      {
+         ClauseSourceInfoPrintPCL(out, derived->formula->info); 
+      }
+   }   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: DerivedTSTPPrint()
+//
+//   Print a "Derived" cell - i.e. the clause or formula, and its
+//   derivation, in TSTP format 
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void DerivedTSTPPrint(FILE* out, Sig_p sig, Derived_p derived)
 {
    if(derived->clause)
    {
@@ -1125,7 +1191,18 @@ void DerivationPrint(FILE* out, Derivation_p derivation, char* frame)
    for(sp=PStackGetSP(derivation->ordered_deriv)-1; sp>=0; sp--)
    {
       node = PStackElementP(derivation->ordered_deriv, sp);
-      DerivedPrint(out, derivation->sig, node);
+      switch(DocOutputFormat)
+      {
+      case pcl_format:
+            DerivedPCLPrint(out, derivation->sig, node);
+            break;
+      case tstp_format:
+            DerivedTSTPPrint(out, derivation->sig, node);
+            break;
+      default:
+            fprintf(out, "# Output format not implemented.");
+            break;
+      }
       fprintf(out, "\n");
    }
    fprintf(out, "# SZS output end %s.\n", frame);

@@ -46,7 +46,7 @@ int              PCLShellLevel = 0;
 
 /*-----------------------------------------------------------------------
 //
-// Function: pcl_type_str()
+// Function: PCLTypeStr()
 //
 //   Given an E-internal type of clause, return a string describing
 //   the type (default type is plain/ax and is represented by the
@@ -58,7 +58,7 @@ int              PCLShellLevel = 0;
 //
 /----------------------------------------------------------------------*/
 
-char* pcl_type_str(ClauseProperties type)
+char* PCLTypeStr(ClauseProperties type)
 {
    char *res;
 
@@ -96,7 +96,7 @@ char* pcl_type_str(ClauseProperties type)
 static void pcl_print_start(FILE* out, Clause_p clause, bool print_clause)
 {
    fprintf(out, PCLStepCompact?"%ld:":"%6ld : ", clause->ident);
-   fprintf(out, "%s:", pcl_type_str(ClauseQueryTPTPType(clause)));
+   fprintf(out, "%s:", PCLTypeStr(ClauseQueryTPTPType(clause)));
    if(print_clause)
    {
       ClausePCLPrint(out, clause, PCLFullTerms);
@@ -813,7 +813,7 @@ static void print_eq_unfold(FILE* out, Clause_p rewritten,
 static void pcl_formula_print_start(FILE* out, WFormula_p form, bool print_form)
 {
    fprintf(out, PCLStepCompact?"%ld:":"%6ld : ", form->ident); 
-   fprintf(out, "%s:", pcl_type_str(FormulaQueryType(form)));
+   fprintf(out, "%s:", PCLTypeStr(FormulaQueryType(form)));
 
    if(print_form)
    {
@@ -1359,7 +1359,6 @@ void DocClauseFromForm(FILE* out, long level, Clause_p clause,
             fprintf(out, ",inference("PCL_SC", [status(thm)],[c_0_%ld])", 
                     parent->ident);
             tstp_print_end(out, NULL, clause);
-	 break;
             break;
       default:
             fprintf(out, "# Output format not implemented.\n");

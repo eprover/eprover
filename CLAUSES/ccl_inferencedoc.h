@@ -116,9 +116,11 @@ extern bool             PCLFullTerms;
 extern bool             PCLStepCompact;
 extern int              PCLShellLevel;
 
-void DocClauseCreation(FILE* out, long level, Clause_p clause,
-			    InfType op, Clause_p parent1,
-			    Clause_p parent2, char* comment);
+char*  PCLTypeStr(ClauseProperties type);
+
+void    DocClauseCreation(FILE* out, long level, Clause_p clause,
+                          InfType op, Clause_p parent1,
+                          Clause_p parent2, char* comment);
 #define DocClauseCreationDefault(clause, op, parent1, parent2)\
         DocClauseCreation(GlobalOut, OutputLevel, (clause),\
 		       (op), (parent1), (parent2), NULL)
