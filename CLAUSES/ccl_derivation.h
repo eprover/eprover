@@ -75,8 +75,10 @@ typedef enum
 {
    Arg1Fof = 1<<8,
    Arg1Cnf = 1<<9,
-   Arg2Fof = 1<<10,
-   Arg2Cnf = 1<<11,
+   Arg1Num = 1<<10,
+   Arg2Fof = 1<<11,
+   Arg2Cnf = 1<<12,
+   Arg2Num = 1<<13,
 }ArgDesc;
 
 
@@ -156,11 +158,13 @@ extern ProofObjectType BuildProofObject;
 
 #define DCOpHasCnfArg1(op) ((op)&Arg1Cnf)
 #define DCOpHasFofArg1(op) ((op)&Arg1Fof)
-#define DCOpHasArg1(op) (DCOpHasCnfArg1(op)||DCOpHasFofArg1(op))
+#define DCOpHasNumArg1(op) ((op)&Arg1Num)
+#define DCOpHasArg1(op)    ((op)&(Arg1Cnf|Arg1Fof|Arg1Num))
 
 #define DCOpHasCnfArg2(op) ((op)&Arg2Cnf)
 #define DCOpHasFofArg2(op) ((op)&Arg2Fof)
-#define DCOpHasArg2(op) (DCOpHasCnfArg2(op)||DCOpHasFofArg2(op))
+#define DCOpHasNumArg2(op) ((op)&Arg2Num)
+#define DCOpHasArg2(op)    ((op)&(Arg2Cnf|Arg2Fof|Arg2Num))
 
 #define DPOpGetOpCode(op)  ((op)&127)
 

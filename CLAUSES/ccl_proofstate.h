@@ -53,6 +53,7 @@ typedef struct proofstatecell
    FormulaSet_p      f_ax_archive;
    FormulaSet_p      f_axioms;
    ClauseSet_p       axioms;
+   ClauseSet_p       ax_archive;
    ClauseSet_p       processed_pos_rules;
    ClauseSet_p       processed_pos_eqns;
    ClauseSet_p       processed_neg_units;

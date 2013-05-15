@@ -403,6 +403,66 @@ bool ClauseUnitSimplifyTest(Clause_p clause, Clause_p simplifier)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseArchive()
+//
+//   Create an archive copy of clause in archive. The
+//   archive copy inherits info and derivation. The original loses
+//   info, and gets a new derivation that points to the archive copy. 
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+void ClauseArchive(ClauseSet_p archive, Clause_p clause)
+{
+   Clause_p archclause;
+
+   assert(archive);
+   assert(clause);
+
+   archclause = ClauseFlatCopy(clause);   
+
+   archclause->info = clause->info;
+   archclause->derivation = clause->derivation; 
+   clause->info       = NULL;
+   clause->derivation = NULL;
+   ClausePushDerivation(clause, DCCnfQuote, archclause, NULL);
+   ClauseSetInsert(archive, archclause);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetArchive()
+//
+//   Create an archive copy of each clause in set in archive. The
+//   archive copy inherits info and derivation. The original loses
+//   info, and gets a new derivation that points to the archive copy. 
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+void ClauseSetArchive(ClauseSet_p archive, ClauseSet_p set)
+{
+   Clause_p handle;
+
+   assert(archive);
+   assert(set);
+
+   for(handle = set->anchor->succ; handle!= set->anchor;
+       handle = handle->succ)
+   {
+      ClauseArchive(archive, handle);
+   }
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

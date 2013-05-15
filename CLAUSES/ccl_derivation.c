@@ -37,7 +37,7 @@ char *opids[] =
    "QUOTE",
    /* Simplifying */
    PCL_RW,
-   PCL_RW,
+   "/*uf*/"PCL_RW,
    PCL_AD,
    PCL_CSR,
    PCL_ER,
@@ -137,7 +137,7 @@ char *opstatus [] =
    /* Others */
    "thm",
    NULL,
-   NULL
+   "thm"
 };
 
 

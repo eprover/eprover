@@ -56,9 +56,9 @@ bool     RemoveRewritableClausesIndexed(OCB_p ocb, ClauseSet_p into,
                                         Clause_p new_demod, SysDate nf_date, 
                                         GlobalIndices_p gindices);
 
-long     ClauseSetUnitSimplify(ClauseSet_p set, Clause_p simplifier,
-			       ClauseSet_p tmp_set, ClauseSet_p archive,
-                               GlobalIndices_p gindices);
+long ClauseSetUnitSimplify(ClauseSet_p set, Clause_p simplifier,                          
+			   ClauseSet_p tmp_set, ClauseSet_p archive, 
+                           GlobalIndices_p gindices);
 
 long     RemoveContextualSRClauses(ClauseSet_p from,
 				   ClauseSet_p into, 

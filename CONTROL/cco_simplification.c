@@ -69,7 +69,7 @@ void ClauseMoveSimplified(GlobalIndices_p gindices,
    GlobalIndicesDeleteClause(gindices, clause);
    DocClauseQuoteDefault(6, clause, "simplifiable");
    if(BuildProofObject||ClauseIsDemodulator(clause))
-   {
+   {      
       Clause_p new_clause = ClauseFlatCopy(clause);
       ClauseSetInsert(archive, clause);
       ClausePushDerivation(new_clause, DCCnfQuote, clause, NULL);
@@ -166,9 +166,9 @@ bool RemoveRewritableClausesIndexed(OCB_p ocb, ClauseSet_p into,
 //
 /----------------------------------------------------------------------*/
 
-long ClauseSetUnitSimplify(ClauseSet_p set, Clause_p simplifier,
-                           ClauseSet_p archive,
-			   ClauseSet_p tmp_set, GlobalIndices_p gindices)
+long ClauseSetUnitSimplify(ClauseSet_p set, Clause_p simplifier,                          
+			   ClauseSet_p tmp_set, ClauseSet_p archive, 
+                           GlobalIndices_p gindices)
 {
    Clause_p handle, move;
    long res = 0,tmp;

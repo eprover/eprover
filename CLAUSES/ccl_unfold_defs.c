@@ -183,7 +183,7 @@ bool ClauseUnfoldEqDef(Clause_p clause, ClausePos_p demod)
    bool res = false;
    PStack_p pos_stack = PStackAlloc();
    Eqn_p handle;
-   
+
    for(handle = clause->literals; handle; handle = handle->next)
    {      
       eqn_unfold_def(handle, pos_stack, demod);
@@ -192,7 +192,7 @@ bool ClauseUnfoldEqDef(Clause_p clause, ClausePos_p demod)
    if(!PStackEmpty(pos_stack))
    {
       res = true;
-
+      
       if(ClauseQueryTPTPType(demod->clause) == CPTypeConjecture)
       {
 	 ClauseSetTPTPType(clause, CPTypeConjecture);
@@ -258,6 +258,7 @@ bool ClauseSetUnfoldEqDef(ClauseSet_p set, ClausePos_p demod)
 /----------------------------------------------------------------------*/
 
 long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, ClauseSet_p passive,
+                              ClauseSet_p archive,
 			      int min_arity, int eqdef_incrlimit) 
 {
    ClausePos_p demod;
@@ -276,7 +277,14 @@ long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, ClauseSet_p passive,
          {
             ClauseSetUnfoldEqDef(passive, demod);	 
          }
-         ClauseFree(demod->clause);
+         if(BuildProofObject)
+         {
+            ClauseSetInsert(archive, demod->clause);
+         }
+         else
+         {
+            ClauseFree(demod->clause);
+         }
          res++;
       }
       ClausePosCellFree(demod);
@@ -300,9 +308,9 @@ long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, ClauseSet_p passive,
 //
 /----------------------------------------------------------------------*/
 
-long ClauseSetPreprocess(ClauseSet_p set, ClauseSet_p passive, TB_p
-			 tmp_terms, int eqdef_incrlimit, 
-                         long eqdef_maxclauses)
+long ClauseSetPreprocess(ClauseSet_p set, ClauseSet_p passive, 
+                         ClauseSet_p archive, TB_p tmp_terms, 
+                         int eqdef_incrlimit, long eqdef_maxclauses)
 {
    long res, tmp;
 
@@ -313,7 +321,7 @@ long ClauseSetPreprocess(ClauseSet_p set, ClauseSet_p passive, TB_p
    {
       return res;
    }
-   if((tmp = ClauseSetUnfoldAllEqDefs(set, passive, 1, eqdef_incrlimit)))
+   if((tmp = ClauseSetUnfoldAllEqDefs(set, passive, archive, 1, eqdef_incrlimit)))
    {	
       res += tmp;
       res += ClauseSetFilterTautologies(set, tmp_terms);

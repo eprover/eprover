@@ -79,6 +79,7 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->freshvars            = VarBankAlloc();
    handle->f_axioms             = FormulaSetAlloc();
    handle->f_ax_archive         = FormulaSetAlloc();
+   handle->ax_archive           = ClauseSetAlloc();
    handle->axioms               = ClauseSetAlloc();
    handle->processed_pos_rules  = ClauseSetAlloc();
    handle->processed_pos_eqns   = ClauseSetAlloc();
@@ -109,6 +110,7 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    GCRegisterFormulaSet(handle->gc_original_terms, handle->f_axioms);
    GCRegisterFormulaSet(handle->gc_original_terms, handle->f_ax_archive);
    GCRegisterClauseSet(handle->gc_original_terms, handle->axioms);
+   GCRegisterClauseSet(handle->gc_original_terms, handle->ax_archive);
    handle->gc_terms             = GCAdminAlloc(handle->terms);
    GCRegisterClauseSet(handle->gc_terms, handle->processed_pos_rules);
    GCRegisterClauseSet(handle->gc_terms, handle->processed_pos_eqns);
@@ -238,6 +240,7 @@ void ProofStateResetClauseSets(ProofState_p state, bool term_gc)
    ClauseSetFreeClauses(state->unprocessed);
    ClauseSetFreeClauses(state->tmp_store);
    ClauseSetFreeClauses(state->archive);
+   ClauseSetFreeClauses(state->ax_archive);
    FormulaSetFreeFormulas(state->f_ax_archive);
    GlobalIndicesReset(&(state->gindices));
    if(state->watchlist)
@@ -278,6 +281,7 @@ void ProofStateFree(ProofState_p junk)
    ClauseSetFree(junk->unprocessed);
    ClauseSetFree(junk->tmp_store);
    ClauseSetFree(junk->archive);   
+   ClauseSetFree(junk->ax_archive);   
    FormulaSetFree(junk->f_archive);
    PStackFree(junk->extract_roots);
    GlobalIndicesFreeIndices(&(junk->gindices));

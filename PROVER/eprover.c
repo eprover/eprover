@@ -1394,11 +1394,20 @@ int main(int argc, char* argv[])
       VERBOUT("CNFization done\n");
    }
    ProofStateInitWatchlist(proofstate, watchlist_filename, parse_format);
-   raw_clause_no = proofstate->axioms->members;
+   raw_clause_no = proofstate->axioms->members;   
    if(!no_preproc)
    {
+      if(BuildProofObject)
+      {
+         ClauseSetArchive(proofstate->ax_archive, proofstate->axioms);
+         if(proofstate->watchlist)
+         {
+            ClauseSetArchive(proofstate->ax_archive, proofstate->watchlist);
+         }
+      }
       preproc_removed = ClauseSetPreprocess(proofstate->axioms,
 					    proofstate->watchlist,
+                                            proofstate->archive,
 					    proofstate->tmp_terms,
 					    eqdef_incrlimit, 
                                             eqdef_maxclauses);

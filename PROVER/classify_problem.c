@@ -784,6 +784,7 @@ int main(int argc, char* argv[])
             {
                ClauseSetPreprocess(fstate->axioms,
                                    fstate->watchlist,
+                                   fstate->archive,
                                    fstate->tmp_terms,
                                    eqdef_incrlimit,
                                    eqdef_maxclauses);
