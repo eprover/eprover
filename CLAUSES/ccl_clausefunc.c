@@ -348,7 +348,7 @@ int ClauseRemoveACResolved(Clause_p clause)
       ClauseDelProp(clause, CPInitial|CPLimitedRW);
       DocClauseModification(GlobalOut, OutputLevel, clause,
 			    inf_ac_resolution, NULL, sig, NULL);
-      ClausePushDerivation(clause, DOAcRes, NULL, NULL);
+      ClausePushACResDerivation(clause, sig);
    }
    if(clause->set)
    {

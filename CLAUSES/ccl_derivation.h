@@ -94,7 +94,7 @@ typedef enum
    DCContextSR        = DOContextSR|Arg1Cnf,
    DCSR               = DOSR|Arg1Cnf,
    DCDesEqRes         = DODesEqRes, /* Doubled because its simplifying here */
-   DCACRes            = DOAcRes,
+   DCACRes            = DOAcRes|Arg1Num,
    DCCondense         = DOCondense,
    DCNormalize        = DONormalize,
    DCEvalAnswers      = DOEvalAnswers,
@@ -156,21 +156,24 @@ typedef struct derivation_cell
 
 extern ProofObjectType BuildProofObject;
 
-#define DCOpHasCnfArg1(op) ((op)&Arg1Cnf)
-#define DCOpHasFofArg1(op) ((op)&Arg1Fof)
-#define DCOpHasNumArg1(op) ((op)&Arg1Num)
+#define DCOpHasCnfArg1(op)   ((op)&Arg1Cnf)
+#define DCOpHasFofArg1(op)   ((op)&Arg1Fof)
+#define DCOpHasNumArg1(op)    ((op)&Arg1Num)
+#define DCOpHasParentArg1(op) ((op)&(Arg1Cnf|Arg1Fof))
 #define DCOpHasArg1(op)    ((op)&(Arg1Cnf|Arg1Fof|Arg1Num))
 
-#define DCOpHasCnfArg2(op) ((op)&Arg2Cnf)
-#define DCOpHasFofArg2(op) ((op)&Arg2Fof)
-#define DCOpHasNumArg2(op) ((op)&Arg2Num)
-#define DCOpHasArg2(op)    ((op)&(Arg2Cnf|Arg2Fof|Arg2Num))
+#define DCOpHasCnfArg2(op)    ((op)&Arg2Cnf)
+#define DCOpHasFofArg2(op)    ((op)&Arg2Fof)
+#define DCOpHasNumArg2(op)    ((op)&Arg2Num)
+#define DCOpHasParentArg2(op) ((op)&(Arg2Cnf|Arg2Fof))
+#define DCOpHasArg2(op)       ((op)&(Arg2Cnf|Arg2Fof|Arg2Num))
 
 #define DPOpGetOpCode(op)  ((op)&127)
 
 void ClausePushDerivation(Clause_p clause, DerivationCodes op, 
                           void* arg1, void* arg2);
 
+void ClausePushACResDerivation(Clause_p clause, Sig_p sig);
 void WFormulaPushDerivation(WFormula_p form, DerivationCodes op, 
                            void* arg1, void* arg2);
 
