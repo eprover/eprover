@@ -1691,6 +1691,7 @@ void DocFormulaIntroDefs(FILE* out, long level, WFormula_p form,
                          PStack_p def_list, char* comment)
 {
    PStackPointer i;
+   WFormula_p def;
 
    if(level >= 2)
    {
@@ -1709,7 +1710,8 @@ void DocFormulaIntroDefs(FILE* out, long level, WFormula_p form,
             fprintf(out, "%ld", old_id);
             for(i=0; i<PStackGetSP(def_list); i++)
             {
-               fprintf(out, ",%ld)", PStackElementInt(def_list, i));
+               def = PStackElementP(def_list, i);
+               fprintf(out, ",%ld)", def->ident);
             }
             pcl_formula_print_end(out, comment);
             break;
@@ -1723,7 +1725,8 @@ void DocFormulaIntroDefs(FILE* out, long level, WFormula_p form,
             fprintf(out, "c_0_%ld", old_id);
             for(i=0; i<PStackGetSP(def_list); i++)
             {
-               fprintf(out, ",c_0_%ld])", PStackElementInt(def_list, i));
+               def = PStackElementP(def_list, i);
+               fprintf(out, ",c_0_%ld])", def->ident);
             }
             tstp_formula_print_end(out, comment);
             break;

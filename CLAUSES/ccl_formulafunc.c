@@ -794,7 +794,8 @@ long TFormulaApplyDefs(WFormula_p form, TB_p terms, NumXTree_p *defs)
    TFormula_p reduced;
    long       res = 0;
    PStack_p   defs_used = PStackAlloc();
-   
+   PStackPointer i;
+
    reduced = TFormulaCopyDef(terms, form->tformula, form->ident, 
                              defs, defs_used);
    if(!PStackEmpty(defs_used))
@@ -803,6 +804,13 @@ long TFormulaApplyDefs(WFormula_p form, TB_p terms, NumXTree_p *defs)
       form->tformula = reduced; /* Old one will be picked up by gc */
       DocFormulaIntroDefsDefault(form, defs_used);
       res = PStackGetSP(defs_used);
+      for(i=0; i<res; i++)
+      {
+         WFormulaPushDerivation(form, 
+                                DCApplyDef, 
+                                PStackElementP(defs_used, i), 
+                                NULL);
+      }
    }
    else
    {
@@ -830,6 +838,8 @@ long TFormulaApplyDefs(WFormula_p form, TB_p terms, NumXTree_p *defs)
 //    vals[1].p_val is a pointer to the defined predicate term.
 //    vals[2].i_val is the id of the real definition used to protect
 //                  the definition to be applied to itself.
+//    vals[3].p_val is a pointer to the polarity 0 definition (only if
+//                  BuildProofObject is true)
 //
 // Global Variables: -
 //
@@ -866,13 +876,12 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, FormulaSet_p archive, TB_p terms
       DocFormulaCreationDefault(w_def, inf_fof_intro_def, NULL, NULL);
       cell->vals[0].i_val = w_def->ident; /* Replace polarity with
                                         * definition id */
-      if(BuildProofObject)
-      {
-         arch_form = WFormulaFlatCopy(w_def);
-         WFormulaPushDerivation(arch_form, DOIntroDef, NULL, NULL);
-         FormulaSetInsert(archive, arch_form);
-         WFormulaPushDerivation(w_def, DCFofQuote, arch_form, NULL);
-      }      
+      arch_form = WFormulaFlatCopy(w_def);
+      WFormulaPushDerivation(arch_form, DOIntroDef, NULL, NULL);
+      FormulaSetInsert(archive, arch_form);
+      WFormulaPushDerivation(w_def, DCFofQuote, arch_form, NULL);
+
+      cell->vals[3].p_val=arch_form;
       if(polarity == 0)
       {
          cell->vals[2].i_val = w_def->ident; /* ..and this is the

@@ -786,7 +786,7 @@ TFormula_p TFormulaCopyDef(TB_p bank, TFormula_p form, long blocked,
       if(realdef!=blocked)
       {
          res = def_entry->vals[1].p_val;
-         PStackPushInt(defs_used, def);
+         PStackPushP(defs_used, def_entry->vals[3].p_val);
       }
    }
    if(!res)
