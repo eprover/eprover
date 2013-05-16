@@ -559,7 +559,7 @@ void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation)
          case DCFofQuote:
                break;
          case DCIntroDef:
-               fprintf(out, "%s", opids[DPOpGetOpCode(op)]);
+               fprintf(out, "%s", "introduced");
                break;
          default:
                fprintf(out, "%s(", opids[DPOpGetOpCode(op)]);
