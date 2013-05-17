@@ -145,7 +145,6 @@ int main(int argc, char* argv[])
    BatchSpec_p      spec;
    StructFOFSpec_p   ctrl;
    char             *prover = "eprover";
-   char             *xtract = "epclextract";
    long             now, start, res;
 
    assert(argv[0]);
@@ -158,18 +157,14 @@ int main(int argc, char* argv[])
 
    OpenGlobalOut(outname);
 
-   if((state->argc < 1) || (state->argc > 3))
+   if((state->argc < 1) || (state->argc > 2))
    {
-      Error("Usage: e_ltb_runner <spec> [<path-to-eprover> [<path-to-epclextract>]] \n",
+      Error("Usage: e_ltb_runner <spec> [<path-to-eprover>] \n",
             USAGE_ERROR);
    }
    if(state->argc >= 2)
    {
       prover = state->argv[1];
-   }
-   if(state->argc >= 3)
-   {
-      xtract = state->argv[2];
    }
 
    in = CreateScanner(StreamTypeFile, state->argv[0], true, NULL);
@@ -178,8 +173,15 @@ int main(int argc, char* argv[])
    while(!TestInpTok(in, NoToken))
    {
       start = GetSecTime();
-      spec = BatchSpecParse(in, prover, xtract, TSTPFormat);
-      if(spec->per_prob_time<=0 && total_wtc_limit<=0)
+      spec = BatchSpecParse(in, prover, TSTPFormat);
+
+      /* BatchSpecPrint(GlobalOut, spec); */
+      
+      if(total_wtc_limit && !spec->total_wtc_limit)
+      {
+         spec->total_wtc_limit = total_wtc_limit;
+      }
+      if(spec->per_prob_limit<=0 && total_wtc_limit<=0)
       {
          Error("Either the per-problem time limit or the global "
                "time limit must be set to a value > 0", USAGE_ERROR);
@@ -283,7 +285,7 @@ NAME " " VERSION " \"" E_NICKNAME "\"\n\
 \n\
 Usage: " NAME " [options] [files]\n\
 \n\
-Read a CASC 23 LTB batch specification file and process it.\n\
+Read a CASC 24 LTB batch specification file and process it.\n\
 \n");
    PrintOptions(stdout, opts, "Options:\n\n");
    fprintf(out, "\n\

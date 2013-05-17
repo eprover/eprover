@@ -82,8 +82,9 @@ typedef struct e_pctrl_set_cell
 #define SZS_FAILURE_STR    "# Failure:"
 
 
-#define E_OPTIONS "--print-pid -s -xAuto -tAuto -R --answers=1\
- --assume-incompleteness --memory-limit=1024 --tstp-in --cpu-limit="
+#define E_OPTIONS "--print-pid -s -xAuto -tAuto -R --answers=1 \
+--assume-incompleteness --memory-limit=1024 --tstp-format \
+--proof-object --cpu-limit="
 
 
 extern char* PRResultTable[];

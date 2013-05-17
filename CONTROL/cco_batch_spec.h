@@ -53,17 +53,18 @@ typedef enum
 typedef struct batch_spec_cell
 {
    char         *executable;
-   char         *pexec;
-   char*        category;     /* Just a name */
-   bool         ordered;
-   long         per_prob_time;/* Wall clock, in seconds */
-   PStack_p     includes;     /* Names of include files (char*) */
    IOFormat     format;
+   char*        category;     /* Just a name */
+   char*        train_dir;
+   bool         ordered;
    BOOutputType res_assurance;
    BOOutputType res_proof;
    BOOutputType res_model;
    BOOutputType res_answer;
    BOOutputType res_list_fof;
+   long         per_prob_limit;  /* Wall clock, in seconds */
+   long         total_wtc_limit; /* Wall clock, in seconds */
+   PStack_p     includes;        /* Names of include files (char*) */
    PStack_p     source_files; /* Input files (char*) */
    PStack_p     dest_files;   /* Output files (char*) */
 }BatchSpecCell, *BatchSpec_p;
@@ -78,14 +79,14 @@ typedef struct batch_spec_cell
 #define BatchSpecCellAlloc()    (BatchSpecCell*)SizeMalloc(sizeof(BatchSpecCell))
 #define BatchSpecCellFree(junk) SizeFree(junk, sizeof(BatchSpecCell))
 
-BatchSpec_p BatchSpecAlloc(char* executable, char* pexec, IOFormat format);
+BatchSpec_p BatchSpecAlloc(char* executable, IOFormat format);
 void        BatchSpecFree(BatchSpec_p spec);
 void        BatchSpecPrint(FILE* out, BatchSpec_p spec);
 
 
 long        BatchStructFOFSpecInit(BatchSpec_p spec, StructFOFSpec_p ctrl);
 
-BatchSpec_p BatchSpecParse(Scanner_p in, char* executable, char* pexec, IOFormat format);
+BatchSpec_p BatchSpecParse(Scanner_p in, char* executable, IOFormat format);
 
 #define BatchSpecProblemNo(spec) PStackGetSP((spec)->source_files)
 

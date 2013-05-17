@@ -412,7 +412,6 @@ char* ParseDottedId(Scanner_p in)
 }
 
 
-
 /*-----------------------------------------------------------------------
 //
 // Function: AcceptDottedId()
@@ -439,6 +438,36 @@ void AcceptDottedId(Scanner_p in, char* expected)
    }
    FREE(candidate);
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ParseContinous()
+//
+//   Parse a sequence of tokens with no whitespace and return the
+//   result as a string.
+//
+// Global Variables: -
+//
+// Side Effects    : Input, memory ops.
+//
+/----------------------------------------------------------------------*/
+
+char* ParseContinous(Scanner_p in)
+{
+   DStrReset(in->accu);
+   
+   DStrAppendDStr(in->accu, AktToken(in)->literal);
+   NextToken(in);
+
+   while(TestInpNoSkip(in))
+   {
+      DStrAppendDStr(in->accu, AktToken(in)->literal);
+      NextToken(in);
+   }
+   return SecureStrdup(DStrView(in->accu));
+}
+
 
 
 

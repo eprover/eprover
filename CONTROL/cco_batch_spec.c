@@ -255,25 +255,27 @@ void print_op_line(FILE* out, BatchSpec_p spec, BOOutputType state)
 //
 /----------------------------------------------------------------------*/
 
-BatchSpec_p BatchSpecAlloc(char* executable, char* pexec, IOFormat format)
+BatchSpec_p BatchSpecAlloc(char* executable, IOFormat format)
 {
    BatchSpec_p handle = BatchSpecCellAlloc();
 
-   handle->category      = NULL;
-   handle->ordered       = false;
-   handle->per_prob_time = 0;
-   handle->includes      = PStackAlloc();
-   handle->source_files  = PStackAlloc();
-   handle->format        = format;
-   handle->res_assurance = BONone;
-   handle->res_proof     = BONone;
-   handle->res_model     = BONone;
-   handle->res_answer    = BONone;
-   handle->res_list_fof  = BONone;
+   handle->executable = SecureStrdup(executable);
+   handle->format          = format;
 
-   handle->dest_files    = PStackAlloc();
-   handle->executable    = SecureStrdup(executable);
-   handle->pexec         = SecureStrdup(pexec);
+   handle->category        = NULL;
+   handle->train_dir       = NULL;
+   handle->ordered         = false;
+   handle->res_assurance   = BONone;
+   handle->res_proof       = BONone;
+   handle->res_model       = BONone;
+   handle->res_answer      = BONone;
+   handle->res_list_fof    = BONone;
+   handle->per_prob_limit  = 0;
+   handle->total_wtc_limit = 0;
+
+   handle->includes        = PStackAlloc();
+   handle->source_files    = PStackAlloc();
+   handle->dest_files      = PStackAlloc();
 
    return handle;
 }
@@ -295,7 +297,12 @@ void BatchSpecFree(BatchSpec_p spec)
 {
    char* str;
 
+   FREE(spec->executable);
    FREE(spec->category);
+   if(spec->train_dir)
+   {
+      FREE(spec->train_dir);
+   }
    
    while(!PStackEmpty(spec->includes))
    {
@@ -318,8 +325,6 @@ void BatchSpecFree(BatchSpec_p spec)
    }
    PStackFree(spec->dest_files);
 
-   FREE(spec->executable);
-   FREE(spec->pexec);
    BatchSpecCellFree(spec);
 }
 
@@ -343,6 +348,11 @@ void BatchSpecPrint(FILE* out, BatchSpec_p spec)
 
    fprintf(out, "%% SZS start BatchConfiguration\n");
    fprintf(out, "division.category %s\n", spec->category);
+   if(spec->train_dir)
+   {
+      fprintf(out, "division.category.training_directory %s\n",
+              spec->train_dir);
+   }
    if(spec->ordered)
    {
       fprintf(out, "execution.order ordered\n");
@@ -355,7 +365,8 @@ void BatchSpecPrint(FILE* out, BatchSpec_p spec)
    print_op_line(out, spec, BODesired);
    fprintf(out, "\n");
 
-   fprintf(out, "limit.time.problem.wc %ld\n", spec->per_prob_time);
+   fprintf(out, "limit.time.problem.wc %ld\n", spec->per_prob_limit);
+   fprintf(out, "limit.time.overall.wc %ld\n", spec->total_wtc_limit);
    fprintf(out, "%% SZS end BatchConfiguration\n");
    fprintf(out, "%% SZS start BatchIncludes\n");
 
@@ -392,14 +403,19 @@ void BatchSpecPrint(FILE* out, BatchSpec_p spec)
 //
 /----------------------------------------------------------------------*/
 
-BatchSpec_p BatchSpecParse(Scanner_p in, char* executable, char* pexec, IOFormat format)
+BatchSpec_p BatchSpecParse(Scanner_p in, char* executable, IOFormat format)
 {
-   BatchSpec_p handle = BatchSpecAlloc(executable, pexec, format);
+   BatchSpec_p handle = BatchSpecAlloc(executable, format);
    char *dummy;
    
    AcceptDottedId(in, "division.category");
    handle->category = ParseDottedId(in);
    
+   if(TestInpId(in, "division"))
+   {
+      AcceptDottedId(in, "division.category.training_directory");
+      handle->train_dir = ParseContinous(in);
+   }
    /* Ugly hack to remain compatible with CASC-23 files */
    if(TestInpId(in, "execution"))
    {
@@ -410,12 +426,20 @@ BatchSpec_p BatchSpecParse(Scanner_p in, char* executable, char* pexec, IOFormat
    AcceptDottedId(in, "output.required");
    parse_op_line(in, handle, BORequired);
 
-   AcceptDottedId(in, "output.desired");
-   parse_op_line(in, handle, BODesired);
-
+   if(TestInpId(in, "output"))
+   {
+      AcceptDottedId(in, "output.desired");
+      parse_op_line(in, handle, BODesired);
+   }
    AcceptDottedId(in, "limit.time.problem.wc");
-   handle->per_prob_time = ParseInt(in);
+   handle->per_prob_limit = ParseInt(in);
 
+   if(TestInpId(in, "limit"))
+   {
+      AcceptDottedId(in, "limit.time.overall.wc");
+      handle->total_wtc_limit = ParseInt(in);
+   }
+  
    while(TestInpId(in, "include"))
    {
       dummy = ParseBasicInclude(in);
@@ -657,31 +681,6 @@ bool BatchProcessProblem(BatchSpec_p spec,
       }
       
       fprintf(GlobalOut, "%s", DStrView(handle->output));
-      if(spec->res_proof || spec->res_list_fof)
-      {
-         if(remaining > used)
-         {            
-            DStr_p res = DStrAlloc();
-            fprintf(GlobalOut, "# Proof reconstruction starting\n");
-            do_proof(res, spec->executable, spec->pexec, answers, 
-                     remaining, handle->input_file);
-            fprintf(out, "%s", DStrView(res));      
-            fflush(out);
-            fprintf(GlobalOut, "# Proof reconstruction done\n");
-            DStrFree(res);
-         }
-         else
-         {
-            fprintf(GlobalOut, "# Only %lld seconds left, skipping proof reconstruction", 
-                    remaining);      
-            if(out!=GlobalOut)
-            {
-               fprintf(out, "# Only %lld seconds left, skipping proof reconstruction", 
-                       remaining);      
-               fflush(out);
-            }
-         }
-      }
    }
    else
    {
@@ -796,9 +795,9 @@ bool BatchProcessProblems(BatchSpec_p spec, StructFOFSpec_p ctrl,
          prop_time = rest/(sp-i)+1; /* Bias up a bit - some problems will
                                      * use less time anyways */
          
-         if(spec->per_prob_time)
+         if(spec->per_prob_limit)
          {
-            wct_limit = MIN(prop_time, spec->per_prob_time);
+            wct_limit = MIN(prop_time, spec->per_prob_limit);
          }
          else
          {
@@ -807,7 +806,7 @@ bool BatchProcessProblems(BatchSpec_p spec, StructFOFSpec_p ctrl,
       }
       else
       {
-         wct_limit = spec->per_prob_time;
+         wct_limit = spec->per_prob_limit;
       }
       /* printf("######### Remaining %d probs, %ld secs, limit %ld\n",
          sp-i, rest, wct_limit); */
@@ -851,9 +850,9 @@ void BatchProcessInteractive(BatchSpec_p spec,
    long         wct_limit=30;
    bool         res;
 
-   if(spec->per_prob_time)
+   if(spec->per_prob_limit)
    {
-      wct_limit = spec->per_prob_time;
+      wct_limit = spec->per_prob_limit;
    }
 
    while(!done)

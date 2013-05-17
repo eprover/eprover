@@ -2,29 +2,24 @@ This is the required ReadMe file for the CASC competitions.
 -----------------------------------------------------------
 
 For installation, follow the instructions in the main README
-file. Make sure to do a proper install, so that eproof and
-e_ltb_runner can find the executables.
+file. Make sure to do a proper install, so that e_ltb_runner can find
+the executables.
 
 
-FOFT FNTT MZRT
-FOF FNT EPR LTB
+Command line for (primary) proof classes (FOF, EPR):
 
-Command line for (primary) proof classes (FOFT, FOF, EPR):
-
-   eprover --auto --tstp-in -s --memory-limit=3072 --cpu-limit=%d %s
-   eproof_ram --auto --tstp-format --memory-limit=2048 --cpu-limit=%d %s
+   eprover --auto --tstp-format -s --proof-object --memory-limit=3072 --cpu-limit=%d %s
 
 Command line for disproof classes (FNTT, FNT):
 
-   eprover --satauto --tstp-in -s --memory-limit=3072 --cpu-limit=%d %s
-   eproof_ram --satauto --tstp-format --memory-limit=2048 --cpu-limit=%d %s
+   eprover --satauto --tstp-format -s --proof-object --memory-limit=3072 --cpu-limit=%d %s
 
 For the LTB categories (MZRT, LTB), run
 
-    e_ltb_runner -w<total wall-clock time limit> <path_to_ltb_batch_file> <path_to_eprover> <path_to_epclextract>
+    e_ltb_runner -w<total wall-clock time limit> <path_to_ltb_batch_file> <path_to_eprover>
 
     -w<total wall-clock time limit> is optional if a per-problem limit
-     is given in the batch specification file.
+     or a global time limit is given in the batch specification file.
 
 Distinguished strings for the results:
 
