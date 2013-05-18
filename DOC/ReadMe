@@ -10,13 +10,13 @@ Command line for (primary) proof classes (FOF, EPR):
 
    eprover --auto --tstp-format -s --proof-object --memory-limit=3072 --cpu-limit=%d %s
 
-Command line for disproof classes (FNTT, FNT):
+Command line for disproof classes (FNT):
 
    eprover --satauto --tstp-format -s --proof-object --memory-limit=3072 --cpu-limit=%d %s
 
-For the LTB categories (MZRT, LTB), run
+For the LTB categories, run
 
-    e_ltb_runner -w<total wall-clock time limit> <path_to_ltb_batch_file> <path_to_eprover>
+   e_ltb_runner -w<total wall-clock time limit> <path_to_ltb_batch_file> <path_to_eprover>
 
     -w<total wall-clock time limit> is optional if a per-problem limit
      or a global time limit is given in the batch specification file.

@@ -289,7 +289,7 @@ void ClausePushACResDerivation(Clause_p clause, Sig_p sig)
 
       PStackPushInt(clause->derivation, DCACRes);
       PStackPushInt(clause->derivation, PStackGetSP(sig->ac_axioms));
-      printf("Pushed: %d\n", PStackGetSP(sig->ac_axioms));
+      /* printf("Pushed: %d\n", PStackGetSP(sig->ac_axioms)); */
    }
 }
 
