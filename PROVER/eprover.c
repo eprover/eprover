@@ -1285,6 +1285,31 @@ ProofState_p parse_spec(CLState_p state,
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: print_info()
+//
+//   Check if pid and version should be printed, if yes, do so.
+//
+// Global Variables: print_pid, print_version
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+static void print_info(void)
+{
+   if(print_pid)
+   {
+      fprintf(GlobalOut, "# Pid: %d\n", (int)getpid());
+      fflush(GlobalOut);
+   }
+   if(print_version)
+   {
+      fprintf(GlobalOut, "# Version: " VERSION "\n");
+      fflush(GlobalOut);
+   }   
+}
 
 
 /*-----------------------------------------------------------------------
@@ -1303,6 +1328,7 @@ ProofState_p parse_spec(CLState_p state,
 
 int main(int argc, char* argv[])
 {
+   int              retval = NO_ERROR;
    CLState_p        state;
    ProofState_p     proofstate;
    ProofControl_p   proofcontrol;
@@ -1332,19 +1358,9 @@ int main(int argc, char* argv[])
    hcb_definitions = PStackAlloc();
 
    state = process_options(argc, argv);
-
+   
    OpenGlobalOut(outname);
-
-   if(print_pid)
-   {
-      fprintf(GlobalOut, "# Pid: %d\n", (int)getpid());
-      fflush(GlobalOut);
-   }
-   if(print_version)
-   {
-      fprintf(stdout, "# Version: " VERSION "\n");
-      fflush(GlobalOut);
-   }
+   print_info();
 
    if(state->argc ==  0)
    {
@@ -1493,6 +1509,7 @@ int main(int argc, char* argv[])
 			     "final_subsumes_wl");
       fprintf(GlobalOut, "\n# Watchlist is empty!\n");
       TSTPOUT(GlobalOut, "ResourceOut"); 
+      retval = RESOURCE_OUT;
    }
    else
    {
@@ -1518,6 +1535,7 @@ int main(int argc, char* argv[])
 		    "\n# Clause set closed under "
 		    "restricted calculus!\n");
 	    TSTPOUT(GlobalOut, "GaveUp");
+            retval = INCOMPLETE_PROOFSTATE;
 	 }
 	 else if(proofstate->state_is_complete && inf_sys_complete)
 	 {
@@ -1529,12 +1547,14 @@ int main(int argc, char* argv[])
 	 {
 	    fprintf(GlobalOut, "\n# Failure: Out of unprocessed clauses!\n");	    
 	    TSTPOUT(GlobalOut, "GaveUp");	    
+            retval = INCOMPLETE_PROOFSTATE;
 	 }
       }
       else 
       {
 	 fprintf(GlobalOut, "\n# Failure: User resource limit exceeded!\n");
 	 TSTPOUT(GlobalOut, "ResourceOut");
+         retval = RESOURCE_OUT;
       }
       if(BuildProofObject)
       {

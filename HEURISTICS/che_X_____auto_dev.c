@@ -299,7 +299,7 @@
 /* CLASS_G-NF-FFSF31-S : protokoll_G-E--_107_C18_F1_AE_Q4_CS_SP_PS_S0Y 11   */
 /* CLASS_G-SM-FSLF33-D : protokoll_G-E--_208_C18_F1_AE_CS_SP_PS_S0Y 0    */
 /* CLASS_G-PF-FFLM22-M : protokoll_G-E--_208_C18_F1_AE_CS_SP_PS_S0Y 1    */
-/* CLASS_H-NF-FFSF22-D : protokoll_G-E--_207_C18_F1_AE_Q7_CS_SP_CO_PS_S00 4    */
+/* CLASS_H-NF-FFSF22-D : protokoll_G-E--_208_C41_F1_AE_CS_SP_PS_S00 4    */
 /* CLASS_G-SF-SMLM32-M : protokoll_G-E--_107_C41_F1_PI_AE_Q4_CS_SP_PS_S4S 61   */
 /* CLASS_G-NM-FFMF31-M : protokoll_G-E--_207_C18_F1_AE_CS_SP_PI_PS_S3S 2    */
 /* CLASS_G-SF-FMLM33-S : protokoll_G-E--_107_C41_F1_PI_AE_Q4_CS_SP_PS_S4S 3    */
@@ -542,7 +542,7 @@
 /* CLASS_G-SM-SMLM32-M : protokoll_G-E--_207_C18_F1_AE_CS_SP_PI_PS_S3S 30   */
 /* CLASS_G-NM-FFMM31-S : protokoll_G-E--_208_C18_F1_AE_CS_SP_PS_S0Y 1    */
 /* CLASS_H-SF-FFSF21-S : protokoll_G-E--_207_C18_F1_AE_CS_SP_PI_PS_S0S 21   */
-/* CLASS_H-NF-FFLM00-S : protokoll_G-E--_208_C18_F1_AE_CS_SP_PS_S0Y 0    */
+/* CLASS_H-NF-FFLM00-S : protokoll_G-E--_208_C41_F1_AE_CS_SP_PS_S00 1    */
 /* CLASS_G-SS-FFSF32-S : protokoll_G-E--_208_C18_F1_AE_CS_SP_PS_S0Y 9    */
 /* CLASS_H-SF-FFSF22-S : protokoll_G-E--_208_C18_F1_AE_CS_SP_PS_S0Y 0    */
 /* CLASS_G-SF-SMLS00-S : protokoll_G-E--_208_C18_F1_AE_CS_SP_PS_S0Y 1    */
@@ -715,7 +715,7 @@
 /* CLASS_U-PM-FFSF21-D : protokoll_H----_047_B31_F1_PI_AE_R4_CS_SP_S2S 22   */
 /* CLASS_G-SS-FFSF32-M : protokoll_G-E--_208_C18_F1_AE_CS_SP_PS_S0Y 4    */
 /* CLASS_H-NS-FFSF22-M : protokoll_G-E--_207_C18_F1_AE_CS_SP_PI_S0e 17   */
-/* CLASS_U-PM-FFSF21-M : protokoll_G-E--_208_C41_F1_AE_CS_SP_PS_S0Y 167  */
+/* CLASS_U-PM-FFSF21-M : protokoll_G-E--_208_C41_F1_AE_CS_SP_PS_S00 168  */
 /* CLASS_G-NF-FMLF33-S : protokoll_G-E--_208_C18_F1_AE_CS_SP_PS_S0Y 0    */
 /* CLASS_H-NS-FFSF22-D : protokoll_H----_011_C07_F1_PI_AE_SP_S0V 3    */
 /* CLASS_U-PM-FFSF21-S : protokoll_G-E--_208_C18_F1_AE_CS_SP_PS_S0Y 115  */
@@ -977,6 +977,12 @@
 " 1*FIFOWeight(PreferProcessed),"
 " 1*ConjectureRelativeSymbolWeight(PreferNonGoals,0.5, 100, 100, 100, 100, 1.5, 1.5, 1),"
 " 4*Refinedweight(SimulateSOS,1,1,2,1.5,2))\n"
+"G_E___208_C41_F1_AE_CS_SP_PS_S00 = \n"
+"(1*ConjectureRelativeSymbolWeight(SimulateSOS,0.5, 100, 100, 100, 100, 1.5, 1.5, 1),"
+" 4*ConjectureRelativeSymbolWeight(ConstPrio,0.1, 100, 100, 100, 100, 1.5, 1.5, 1.5),"
+" 1*FIFOWeight(PreferProcessed),"
+" 1*ConjectureRelativeSymbolWeight(PreferNonGoals,0.5, 100, 100, 100, 100, 1.5, 1.5, 1),"
+" 4*Refinedweight(SimulateSOS,3,2,2,1.5,2))\n"
 "G_E___208_C18_F1_AE_CS_SP_PS_S4S = \n"
 "(1*ConjectureRelativeSymbolWeight(SimulateSOS,0.5, 100, 100, 100, 100, 1.5, 1.5, 1),"
 " 4*ConjectureRelativeSymbolWeight(ConstPrio,0.1, 100, 100, 100, 100, 1.5, 1.5, 1.5),"
@@ -6289,18 +6295,6 @@
        SpecAvgFArity1(spec)&&
        SpecShallowMaxDepth(spec))
        ||
-      ( /* CLASS_H-NF-FFLM00-S Solved: 0 of 3 */
-       SpecAxiomsAreNonUnitHorn(spec)&&
-       SpecNoEq(spec)&&
-       SpecFewNGPosUnits(spec)&&
-       SpecFewAxioms(spec)&&
-       SpecFewLiterals(spec)&&
-       SpecLargeTerms(spec)&&
-       SpecManyGroundPos(spec)&&
-       SpecMaxFArity0(spec)&&
-       SpecAvgFArity0(spec)&&
-       SpecShallowMaxDepth(spec))
-       ||
       ( /* CLASS_G-SS-FFSF32-S Solved: 9 of 9 */
        SpecAxiomsAreGeneral(spec)&&
        SpecSomeEq(spec)&&
@@ -8968,6 +8962,62 @@
 #endif
    }
    else if(
+      ( /* CLASS_H-NF-FFSF22-D Solved: 4 of 4 */
+       SpecAxiomsAreNonUnitHorn(spec)&&
+       SpecNoEq(spec)&&
+       SpecFewNGPosUnits(spec)&&
+       SpecFewAxioms(spec)&&
+       SpecFewLiterals(spec)&&
+       SpecSmallTerms(spec)&&
+       SpecFewGroundPos(spec)&&
+       SpecMaxFArity2(spec)&&
+       SpecAvgFArity2(spec)&&
+       SpecDeepMaxDepth(spec))
+       ||
+      ( /* CLASS_H-NF-FFLM00-S Solved: 1 of 3 */
+       SpecAxiomsAreNonUnitHorn(spec)&&
+       SpecNoEq(spec)&&
+       SpecFewNGPosUnits(spec)&&
+       SpecFewAxioms(spec)&&
+       SpecFewLiterals(spec)&&
+       SpecLargeTerms(spec)&&
+       SpecManyGroundPos(spec)&&
+       SpecMaxFArity0(spec)&&
+       SpecAvgFArity0(spec)&&
+       SpecShallowMaxDepth(spec))
+       ||
+      ( /* CLASS_U-PM-FFSF21-M Solved: 168 of 235 */
+       SpecAxiomsAreUnit(spec)&&
+       SpecPureEq(spec)&&
+       SpecManyNGPosUnits(spec)&&
+       SpecFewAxioms(spec)&&
+       SpecFewLiterals(spec)&&
+       SpecSmallTerms(spec)&&
+       SpecFewGroundPos(spec)&&
+       SpecMaxFArity2(spec)&&
+       SpecAvgFArity1(spec)&&
+       SpecMediumMaxDepth(spec)))
+   {
+#ifdef CHE_HEURISTICS_INTERNAL
+      res = "G_E___208_C41_F1_AE_CS_SP_PS_S00";
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectNoLiterals;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
+      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.presat_interreduction=true;
+
+#endif
+#ifdef TO_ORDERING_INTERNAL
+      oparms.ordertype=KBO6;
+      oparms.to_weight_gen=WPrecRank20;
+      oparms.to_prec_gen=PByInvFrequency;
+      oparms.to_const_weight=1;
+
+#endif
+   }
+   else if(
       ( /* CLASS_G-SM-FSLM21-M Solved: 327 of 396 */
        SpecAxiomsAreGeneral(spec)&&
        SpecSomeEq(spec)&&
@@ -10450,18 +10500,6 @@
 #endif
    }
    else if(
-      ( /* CLASS_H-NF-FFSF22-D Solved: 4 of 4 */
-       SpecAxiomsAreNonUnitHorn(spec)&&
-       SpecNoEq(spec)&&
-       SpecFewNGPosUnits(spec)&&
-       SpecFewAxioms(spec)&&
-       SpecFewLiterals(spec)&&
-       SpecSmallTerms(spec)&&
-       SpecFewGroundPos(spec)&&
-       SpecMaxFArity2(spec)&&
-       SpecAvgFArity2(spec)&&
-       SpecDeepMaxDepth(spec))
-       ||
       ( /* CLASS_G-NF-FMLS32-S Solved: 1 of 1 */
        SpecAxiomsAreGeneral(spec)&&
        SpecNoEq(spec)&&
@@ -10891,18 +10929,6 @@
        SpecManyGroundPos(spec)&&
        SpecMaxFArity3Plus(spec)&&
        SpecAvgFArity2(spec)&&
-       SpecMediumMaxDepth(spec))
-       ||
-      ( /* CLASS_U-PM-FFSF21-M Solved: 167 of 235 */
-       SpecAxiomsAreUnit(spec)&&
-       SpecPureEq(spec)&&
-       SpecManyNGPosUnits(spec)&&
-       SpecFewAxioms(spec)&&
-       SpecFewLiterals(spec)&&
-       SpecSmallTerms(spec)&&
-       SpecFewGroundPos(spec)&&
-       SpecMaxFArity2(spec)&&
-       SpecAvgFArity1(spec)&&
        SpecMediumMaxDepth(spec)))
    {
 #ifdef CHE_HEURISTICS_INTERNAL
@@ -11896,7 +11922,7 @@
    }
 #endif
 
-/* Total solutions on test set: 10336 */
+/* Total solutions on test set: 10338 */
 /* -------------------------------------------------------*/
 /*     End of automatically generated code.               */
 /* -------------------------------------------------------*/

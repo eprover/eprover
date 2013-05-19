@@ -38,10 +38,10 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* git tag E-1-7dev007 */
-#define VERSION      "1.7dev007"
+/* git tag E-1-7dev008 */
+#define VERSION      "1.8pre001"
 
-#define E_NICKNAME     "Jun Chiabari"
+#define E_NICKNAME     "Gopaldhara"
 
 #define E_URL "http://www.eprover.org"
 
