@@ -86,7 +86,9 @@ void        BatchSpecPrint(FILE* out, BatchSpec_p spec);
 
 long        BatchStructFOFSpecInit(BatchSpec_p spec, StructFOFSpec_p ctrl);
 
-BatchSpec_p BatchSpecParse(Scanner_p in, char* executable, IOFormat format);
+BatchSpec_p BatchSpecParse(Scanner_p in, char* executable, 
+                           char* category, char* train_dir, 
+                           IOFormat format);
 
 #define BatchSpecProblemNo(spec) PStackGetSP((spec)->source_files)
 

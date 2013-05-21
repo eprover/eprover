@@ -402,18 +402,17 @@ void BatchSpecPrint(FILE* out, BatchSpec_p spec)
 //
 /----------------------------------------------------------------------*/
 
-BatchSpec_p BatchSpecParse(Scanner_p in, char* executable, IOFormat format)
+BatchSpec_p BatchSpecParse(Scanner_p in, char* executable, 
+                           char* category, char* train_dir, 
+                           IOFormat format) 
 {
    BatchSpec_p handle = BatchSpecAlloc(executable, format);
    char *dummy;
-   
-   AcceptDottedId(in, "division.category");
-   handle->category = ParseDottedId(in);
-   
-   if(TestInpId(in, "division"))
+
+   handle->category  = SecureStrdup(category);
+   if(train_dir)
    {
-      AcceptDottedId(in, "division.category.training_directory");
-      handle->train_dir = ParseContinous(in);
+      handle->train_dir = SecureStrdup(train_dir);
    }
    /* Ugly hack to remain compatible with CASC-23 files */
    if(TestInpId(in, "execution"))

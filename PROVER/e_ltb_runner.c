@@ -144,7 +144,9 @@ int main(int argc, char* argv[])
    Scanner_p        in;    
    BatchSpec_p      spec;
    StructFOFSpec_p   ctrl;
-   char             *prover = "eprover";
+   char             *prover    = "eprover";
+   char             *category  = NULL;
+   char             *train_dir = NULL;
    long             now, start, res;
 
    assert(argv[0]);
@@ -170,10 +172,19 @@ int main(int argc, char* argv[])
    in = CreateScanner(StreamTypeFile, state->argv[0], true, NULL);
    ScannerSetFormat(in, TSTPFormat);
    
+   AcceptDottedId(in, "division.category");
+   category = ParseDottedId(in);
+   
+   if(TestInpId(in, "division"))
+   {
+      AcceptDottedId(in, "division.category.training_directory");
+      train_dir = ParseContinous(in);
+   }
+
    while(!TestInpTok(in, NoToken))
    {
       start = GetSecTime();
-      spec = BatchSpecParse(in, prover, TSTPFormat);
+      spec = BatchSpecParse(in, prover, category, train_dir, TSTPFormat);
 
       /* BatchSpecPrint(GlobalOut, spec); */
       
@@ -204,6 +215,15 @@ int main(int argc, char* argv[])
       fprintf(GlobalOut, "# =============== Batch done ===========\n\n");
    }
    DestroyScanner(in); 
+
+   if(category)
+   {
+      FREE(category);
+   }
+   if(train_dir)
+   {
+      FREE(train_dir);
+   }
 
    CLStateFree(state);
 
