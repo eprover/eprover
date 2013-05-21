@@ -153,11 +153,11 @@ def print_dict_lines(dict):
     for i in dict.keys():
         print repr(i)+" : "+repr(dict[i])
 
-def print_result():
+def print_result(fp, result, opt_res):
     for i in result.keys():
         cl  = result[i]
         res = opt_res[i]
-        print "/* %(i)-17s : %(cl)-30s %(res)-4d */" % vars()
+        fp.write("/* %(i)-17s : %(cl)-30s %(res)-4d */\n" % vars())
 
 
 def print_list_lines(l):
@@ -893,7 +893,7 @@ def generate_output(fp, result, stratdesc, class_dir, raw_class, opt_res,
 
 """)
     fp.write( "/* Class dir used: "+class_dir+" */\n\n")
-    # print_result()
+    print_result(fp, result, opt_res)
 
     if raw_class:
         print_raw(fp, result, opt_res)
@@ -1046,7 +1046,6 @@ for time_limit in time_limits:
           %(itercount, time_limit)
 
     result     = {}
-    itercount += 1
     global_class.computePerf(time_limit, succ_cases)
     global_best, global_perf = global_class.getBestStrat()
 
@@ -1072,7 +1071,7 @@ for time_limit in time_limits:
 
     # And now we print the results
 
-    fp = open("che_X_auto_sched%d.c"%(itercount,))
+    fp = open("che_X_auto_sched%d.c"%(itercount,), "w")
     generate_output(fp, result, stratdesc, class_dir, raw_class, opt_res, used)
     fp.close()
     
@@ -1094,3 +1093,4 @@ for time_limit in time_limits:
                 global_class.delProblem(probname)
         except KeyError:
             pass
+    itercount += 1
