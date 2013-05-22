@@ -25,7 +25,7 @@ Changes
 
 #define CIO_SIMPLESTUFF
 
-#import <cio_output.h>
+#include <cio_output.h>
 
 
 /*---------------------------------------------------------------------*/

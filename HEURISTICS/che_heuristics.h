@@ -40,7 +40,12 @@ typedef enum
    HEU_NO_HEURISTIC = 0,
    HEU_AUTO_MODE,
    HEU_AUTO_MODE_CASC,
-   HEU_AUTO_MODE_DEV
+   HEU_AUTO_MODE_DEV,
+   HEU_AUTO_SCHED0,
+   HEU_AUTO_SCHED1,
+   HEU_AUTO_SCHED2,
+   HEU_AUTO_SCHED3,
+   HEU_AUTO_SCHED4
 }Heuristic;
 
 typedef struct heuristic_assoc_cell
@@ -58,12 +63,19 @@ typedef struct heuristic_assoc_cell
 
 extern  HeuristicAssocCell HeuristicsTable[];
 
+SpecLimits_p CreateDefaultSpecLimits(void);
+HCB_p HCBCreate(char* name, HCBARGUMENTS);
+HCB_p GetHeuristic(char* source, HCBARGUMENTS);
+
 HCB_p HCBAutoModeCreate(HCBARGUMENTS);
 HCB_p HCBCASCAutoModeCreate(HCBARGUMENTS);
 HCB_p HCBDevAutoModeCreate(HCBARGUMENTS);
 
-HCB_p HCBCreate(char* name, HCBARGUMENTS);
-HCB_p GetHeuristic(char* source, HCBARGUMENTS);
+HCB_p HCBAutoSched0Create(HCBARGUMENTS);
+HCB_p HCBAutoSched1Create(HCBARGUMENTS);
+HCB_p HCBAutoSched2Create(HCBARGUMENTS);
+HCB_p HCBAutoSched3Create(HCBARGUMENTS);
+HCB_p HCBAutoSched4Create(HCBARGUMENTS);
 
 #endif
 

@@ -354,7 +354,6 @@ FunWeightParam_p FunWeightParamAlloc(void)
 void FunWeightParamFree(FunWeightParam_p junk)
 {
    char* cjunk;
-   long  ijunk;
 
    if(junk->fweights)
    {
@@ -365,7 +364,7 @@ void FunWeightParamFree(FunWeightParam_p junk)
    {
       while(!PStackEmpty(junk->weight_stack))
       {
-         ijunk = PStackPopInt(junk->weight_stack);
+         (void)PStackPopInt(junk->weight_stack);
          assert(!PStackEmpty(junk->weight_stack));
          cjunk = PStackPopP(junk->weight_stack);
          FREE(cjunk);

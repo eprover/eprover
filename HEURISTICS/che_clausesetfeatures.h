@@ -393,6 +393,10 @@ void    ClauseSetPrintNonUnits(FILE* out, ClauseSet_p set, bool
 void    ProofStatePrintSelective(FILE* out, ProofState_p state, char*
 				 descriptor, bool printinfo);
 
+SpecLimits_p CreateDefaultSpecLimits(void);
+
+
+
 #endif
 
 /*---------------------------------------------------------------------*/

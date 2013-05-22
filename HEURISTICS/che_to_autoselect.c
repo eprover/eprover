@@ -43,6 +43,59 @@ Changes
 
 /*-----------------------------------------------------------------------
 //
+// Function: init_oparms()
+//
+//   
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+void init_oparms(OrderParms_p oparms)
+{
+   oparms->ordertype       = KBO6;
+   oparms->to_const_weight = WConstNoSpecialWeight; 
+   oparms->to_weight_gen   = WSelectMaximal;
+   oparms->to_prec_gen     = PUnaryFirst;
+   oparms->no_lit_cmp      = false;
+
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: print_oparms()
+//
+//   
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+void print_oparms(OrderParms_p oparms)
+{
+
+   if(OutputLevel)
+   {
+      fprintf(GlobalOut, "# Auto-mode selected ordering type %s\n", 
+	      TONames[oparms->ordertype]);
+      fprintf(GlobalOut, "# Auto-mode selected ordering precedence scheme <%s>\n",
+	      TOGetPrecGenName(oparms->to_prec_gen));
+      if(oparms->ordertype == KBO || oparms->ordertype == KBO6)
+      {
+	 fprintf(GlobalOut, "# Auto-mode selected weight ordering scheme <%s>\n",
+	         TOGetWeightGenName(oparms->to_weight_gen));
+      }
+      fputs("#\n", GlobalOut);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: generate_auto_ordering()
 //
 //   Generate a term ordering suitable to the problem in state.
@@ -59,47 +112,12 @@ Changes
 OCB_p generate_auto_ordering(ProofState_p state, SpecFeature_p spec)
 {
    OrderParmsCell  oparms; 
-   SpecLimits_p    limits = SpecLimitsAlloc();
+   SpecLimits_p    limits = CreateDefaultSpecLimits();
 
-   limits->ax_some_limit        = 1000;
-   limits->ax_many_limit        = 100000;
-   limits->lit_some_limit       = 400;
-   limits->lit_many_limit       = 4000;
-   limits->term_medium_limit    = 200;
-   limits->term_large_limit     = 1500;
-   limits->far_sum_medium_limit = 4;
-   limits->far_sum_large_limit  = 29;
-   limits->depth_medium_limit   = 4;
-   limits->depth_deep_limit     = 7;
-   limits->gpc_absolute         = true;
-   limits->gpc_few_limit        = 2;
-   limits->gpc_many_limit       = 5;
-   limits->ngu_absolute         = true;
-   limits->ngu_few_limit        = 1;
-   limits->ngu_many_limit       = 3;
-
-   oparms.ordertype       = KBO6;
-   oparms.to_const_weight = WConstNoSpecialWeight; 
-   oparms.to_weight_gen   = WSelectMaximal;
-   oparms.to_prec_gen     = PUnaryFirst;
-   oparms.no_lit_cmp      = false;
+   init_oparms(&oparms);
    OUTPRINT(1, "\n# Auto-Ordering is analysing problem.\n");
-
    #include "che_auto_cases.c"
-
-   if(OutputLevel)
-   {
-      fprintf(GlobalOut, "# Auto-mode selected ordering type %s\n", 
-	      TONames[oparms.ordertype]);
-      fprintf(GlobalOut, "# Auto-mode selected ordering precedence scheme <%s>\n",
-	      TOGetPrecGenName(oparms.to_prec_gen));
-      if(oparms.ordertype == KBO || oparms.ordertype == KBO6)
-      {
-	 fprintf(GlobalOut, "# Auto-mode selected weight ordering scheme <%s>\n",
-	         TOGetWeightGenName(oparms.to_weight_gen));
-      }
-      fputs("#\n", GlobalOut);
-   }
+   print_oparms(&oparms);
    SpecLimitsCellFree(limits);
    return TOCreateOrdering(state, &oparms, NULL, NULL);
 }
@@ -191,24 +209,7 @@ OCB_p generate_autocasc_ordering(ProofState_p state, SpecFeature_p spec)
 OCB_p generate_autodev_ordering(ProofState_p state, SpecFeature_p spec)
 {
    OrderParmsCell  oparms; 
-   SpecLimits_p    limits = SpecLimitsAlloc();
-   
-   limits->ax_some_limit        = 1000;
-   limits->ax_many_limit        = 100000;
-   limits->lit_some_limit       = 400;
-   limits->lit_many_limit       = 4000;
-   limits->term_medium_limit    = 200;
-   limits->term_large_limit     = 1500;
-   limits->far_sum_medium_limit = 4;
-   limits->far_sum_large_limit  = 29;
-   limits->depth_medium_limit   = 4;
-   limits->depth_deep_limit     = 7;
-   limits->gpc_absolute         = true;
-   limits->gpc_few_limit        = 2;
-   limits->gpc_many_limit       = 5;
-   limits->ngu_absolute         = true;
-   limits->ngu_few_limit        = 1;
-   limits->ngu_many_limit       = 3;
+   SpecLimits_p    limits = CreateDefaultSpecLimits();
 
    oparms.ordertype       = KBO6;
    oparms.to_const_weight = WConstNoSpecialWeight; 
@@ -235,7 +236,101 @@ OCB_p generate_autodev_ordering(ProofState_p state, SpecFeature_p spec)
    SpecLimitsCellFree(limits);
    return TOCreateOrdering(state, &oparms, NULL, NULL);
 }
-#define CHE_HEURISTICS_AUTO_DEV
+#undef CHE_HEURISTICS_AUTO_DEV
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: generate_autosched0_ordering()
+// Function: generate_autosched1_ordering()
+// Function: generate_autosched2_ordering()
+// Function: generate_autosched3_ordering()
+// Function: generate_autosched4_ordering()
+//
+//   Generate term orderings according to the selected auto-schedule
+//   mode. 
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations, may call SpecFeaturesAddEval()
+//                   and change cheap parts of specs.
+//
+/----------------------------------------------------------------------*/
+
+#define CHE_HEURISTICS_AUTO_SCHED0
+OCB_p generate_autosched0_ordering(ProofState_p state, SpecFeature_p spec)
+{
+   OrderParmsCell  oparms; 
+   SpecLimits_p    limits = CreateDefaultSpecLimits();
+
+   init_oparms(&oparms);
+   OUTPRINT(1, "\n# AutoSched0-Ordering is analysing problem.\n");
+#include "che_auto_cases.c"
+   print_oparms(&oparms);
+   SpecLimitsCellFree(limits);
+   return TOCreateOrdering(state, &oparms, NULL, NULL);
+}
+#undef CHE_HEURISTICS_AUTO_SCHED0
+
+#define CHE_HEURISTICS_AUTO_SCHED1
+OCB_p generate_autosched1_ordering(ProofState_p state, SpecFeature_p spec)
+{
+   OrderParmsCell  oparms; 
+   SpecLimits_p    limits = CreateDefaultSpecLimits();
+
+   init_oparms(&oparms);
+   OUTPRINT(1, "\n# AutoSched1-Ordering is analysing problem.\n");
+#include "che_auto_cases.c"
+   print_oparms(&oparms);
+   SpecLimitsCellFree(limits);
+   return TOCreateOrdering(state, &oparms, NULL, NULL);
+}
+#undef CHE_HEURISTICS_AUTO_SCHED1
+
+#define CHE_HEURISTICS_AUTO_SCHED2
+OCB_p generate_autosched2_ordering(ProofState_p state, SpecFeature_p spec)
+{
+   OrderParmsCell  oparms; 
+   SpecLimits_p    limits = CreateDefaultSpecLimits();
+
+   init_oparms(&oparms);
+   OUTPRINT(1, "\n# AutoSched2-Ordering is analysing problem.\n");
+#include "che_auto_cases.c"
+   print_oparms(&oparms);
+   SpecLimitsCellFree(limits);
+   return TOCreateOrdering(state, &oparms, NULL, NULL);
+}
+#undef CHE_HEURISTICS_AUTO_SCHED2
+
+#define CHE_HEURISTICS_AUTO_SCHED3
+OCB_p generate_autosched3_ordering(ProofState_p state, SpecFeature_p spec)
+{
+   OrderParmsCell  oparms; 
+   SpecLimits_p    limits = CreateDefaultSpecLimits();
+
+   init_oparms(&oparms);
+   OUTPRINT(1, "\n# AutoSched3-Ordering is analysing problem.\n");
+#include "che_auto_cases.c"
+   print_oparms(&oparms);
+   SpecLimitsCellFree(limits);
+   return TOCreateOrdering(state, &oparms, NULL, NULL);
+}
+#undef CHE_HEURISTICS_AUTO_SCHED3
+
+#define CHE_HEURISTICS_AUTO_SCHED4
+OCB_p generate_autosched4_ordering(ProofState_p state, SpecFeature_p spec)
+{
+   OrderParmsCell  oparms; 
+   SpecLimits_p    limits = CreateDefaultSpecLimits();
+
+   init_oparms(&oparms);
+   OUTPRINT(1, "\n# AutoSched4-Ordering is analysing problem.\n");
+#include "che_auto_cases.c"
+   print_oparms(&oparms);
+   SpecLimitsCellFree(limits);
+   return TOCreateOrdering(state, &oparms, NULL, NULL);
+}
+#undef CHE_HEURISTICS_AUTO_SCHED4
 
 
 /*---------------------------------------------------------------------*/
@@ -621,6 +716,26 @@ OCB_p TOSelectOrdering(ProofState_p state, HeuristicParms_p params,
    {
       result = generate_autodev_ordering(state, specs);
    }
+   else if(tmp.ordertype == AUTOSCHED0)
+   {
+      result = generate_autosched0_ordering(state, specs);
+   }
+   else if(tmp.ordertype == AUTOSCHED1)
+   {
+      result = generate_autosched1_ordering(state, specs);
+   }
+   else if(tmp.ordertype == AUTOSCHED2)
+   {
+      result = generate_autosched2_ordering(state, specs);
+   }
+   else if(tmp.ordertype == AUTOSCHED3)
+   {
+      result = generate_autosched3_ordering(state, specs);
+   }
+   else if(tmp.ordertype == AUTOSCHED4)
+   {
+      result = generate_autosched4_ordering(state, specs);
+   }
    else
    {
       if(tmp.ordertype == NoOrdering)
@@ -714,6 +829,7 @@ OCB_p  TOCreateOrdering(ProofState_p state, OrderParms_p params,
    return handle;
 }
 
+#undef TO_ORDERING_INTERNAL
 
 
 /*---------------------------------------------------------------------*/

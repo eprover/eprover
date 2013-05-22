@@ -1699,7 +1699,6 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
    ClauseProperties type = CPTypeAxiom;
    ClauseProperties input = CPInputClause;
    Clause_p handle;
-   bool     conjecture = false;
    ClauseInfo_p info;
 
    if(ClausesHaveLocalVariables)
@@ -1794,7 +1793,6 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
 			  false);
 	 }
 	 type = CPTypeNegConjecture;
-	 conjecture = true;
 	 /* printf("CPTypeConjecture\n"); */
       }
       if(TestInpTok(in, Fullstop))

@@ -315,7 +315,7 @@ MsgStatus TCPMsgRead(int sock, TCPMsg_p msg)
       {
          return 0;
       }
-      len = ntohl(*(int*)msg->len_buf);
+      len = ntohl(*(msg->len_buf));
       printf("Message expected with %d bytes\n", len);
       msg->len = len;
       DStrAppendBuffer(msg->content, msg->len_buf, sizeof(uint32_t));

@@ -1064,7 +1064,6 @@ long DerivationTopoSort(Derivation_p derivation)
    Derived_p     node, newnode;
    PStack_p      deriv;
    PStack_p      parent_clauses, parent_formulas;
-   long          parent_no;
 
    PStackReset(derivation->ordered_deriv);
 
@@ -1090,7 +1089,7 @@ long DerivationTopoSort(Derivation_p derivation)
 
       deriv = derived_get_derivation(node);
 
-      parent_no = DerivStackExtractParents(deriv,
+      (void)DerivStackExtractParents(deriv,
                                            derivation->sig,
                                            parent_clauses, 
                                            parent_formulas);

@@ -9,7 +9,7 @@ Contents
   Case distinction for auto mode, included by both auto heuristic
   selection and auto ordering selection
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2013 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
@@ -45,6 +45,21 @@ if(false)
 #include "che_X_____auto_dev.c"         
 #endif
 
+#ifdef CHE_HEURISTICS_AUTO_SCHED0
+#include "che_X_auto_sched0.c"         
+#endif
+#ifdef CHE_HEURISTICS_AUTO_SCHED1
+#include "che_X_auto_sched1.c"         
+#endif
+#ifdef CHE_HEURISTICS_AUTO_SCHED2
+#include "che_X_auto_sched2.c"         
+#endif
+#ifdef CHE_HEURISTICS_AUTO_SCHED3
+#include "che_X_auto_sched3.c"         
+#endif
+#ifdef CHE_HEURISTICS_AUTO_SCHED4
+#include "che_X_auto_sched4.c"         
+#endif
 
 
 }

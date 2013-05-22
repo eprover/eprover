@@ -402,11 +402,9 @@ void EqnCollectVarConstr(LitOccTable_p p_table, LitOccTable_p n_table,
       {
 	 if(LitPosGetConstrState(constr,lit->f_code,i))
 	 {
-	    long tmp;
-
 	    tree = PDArrayElementP(var_constr, 
 				   -(lit->args[i]->f_code));
-	    tmp = PTreeDestrIntersection(&tree,
+	    (void)PTreeDestrIntersection(&tree,
 					 LitPosGetConstraints(constr,
 							      lit->f_code,
 							      i));

@@ -91,6 +91,7 @@ typedef enum
    OPT_SATAUTO,
    OPT_AUTODEV,
    OPT_SATAUTODEV,
+   OPT_AUTO_SCHED,
    OPT_NO_PREPROCESSING,
    OPT_EQ_UNFOLD_LIMIT,
    OPT_EQ_UNFOLD_MAXCLAUSES,
@@ -233,7 +234,7 @@ OptCell opts[] =
     "inferences are unambigiously described by giving inference "
     "positions, and level 3 will expand this to a proof object where "
     "all intermediate results are ecplicit. This feature is under "
-    "development, so far only level 0 is operations ;-)."}, 
+    "development, so far only level 0 and 1 are operational."}, 
 
    {OPT_PCL_COMPRESSED,
     '\0', "pcl-terms-compressed",
@@ -535,6 +536,14 @@ OptCell opts[] =
     NoArg, NULL,
     "Automatically determine settings for proof/saturation search "
     "(development version). This is equivalent to -xAutoDev -tAutoDev."},
+
+   {OPT_AUTO_SCHED,
+    '\0', "auto-schedule",
+    NoArg, NULL,
+    "Use the (experimental) strategy scheduling. This will try several "
+    "different fully specified search strategies (aka \"Auto-Modes\"), "
+    "one after the other, until a proof or saturation is found, or the "
+    "time limit is exceeded."},
 
    {OPT_NO_PREPROCESSING,
     '\0', "no-preprocessing",
@@ -1492,6 +1501,7 @@ int main(int argc, char* argv[])
       {
          TSTPOUT(GlobalOut, neg_conjectures?"Theorem":"Unsatisfiable");
          proofstate->status_reported = true;
+         retval = PROOF_FOUND;
       }      
       if(BuildProofObject)
       {
@@ -1542,6 +1552,7 @@ int main(int argc, char* argv[])
 	    fprintf(GlobalOut, "\n# No proof found!\n");
 	    TSTPOUT(GlobalOut, neg_conjectures?"CounterSatisfiable":"Satisfiable");
             sat_status = "Saturation";
+            retval = SATISFIABLE;
 	 }
 	 else
 	 {
@@ -1722,7 +1733,7 @@ cleanup1:
    MemDebugPrintStats(stdout);
 #endif
    
-   return 0;
+   return retval;
 }
 
 
@@ -2186,6 +2197,26 @@ CLState_p process_options(int argc, char* argv[])
 	    {
 	       h_parms->ordertype = AUTODEV;
 	    }
+	    else if(strcmp(arg, "AutoSched0")==0)
+	    {
+	       h_parms->ordertype = AUTOSCHED0;
+	    }
+	    else if(strcmp(arg, "AutoSched1")==0)
+	    {
+	       h_parms->ordertype = AUTOSCHED1;
+	    }
+	    else if(strcmp(arg, "AutoSched2")==0)
+	    {
+	       h_parms->ordertype = AUTOSCHED2;
+	    }
+	    else if(strcmp(arg, "AutoSched3")==0)
+	    {
+	       h_parms->ordertype = AUTOSCHED3;
+	    }
+	    else if(strcmp(arg, "AutoSched4")==0)
+	    {
+	       h_parms->ordertype = AUTOSCHED4;
+	    }
 	    else if(strcmp(arg, "Optimize")==0)
 	    {
 	       h_parms->ordertype = OPTIMIZE_AX;
@@ -2217,8 +2248,9 @@ CLState_p process_options(int argc, char* argv[])
 	    else
 	    {
 	       Error("Option -t (--term-ordering) requires Auto, "
-		     "Auto071, AutoDev, Optimize, LPO, LPO4, or KBO as an "
-		     "argument", 
+		     "AutoCASC, AutoDev, AutoSched0, AutoSched1, "
+                     "AutoSched2, AutoSched3, AutoSched4, Optimize, "
+                     "LPO, LPO4, or KBO as an argument", 
 		     USAGE_ERROR);
 	    }
 	    break;

@@ -786,7 +786,7 @@ IndexType TSMFindOptimalIndex(TSMAdmin_p admin, FlatAnnoSet_p set,
 
 long TSMCreateSubtermSet(FlatAnnoSet_p set, FlatAnnoTerm_p list, int sel)
 {
-   Term_p         term, subterm;
+   Term_p         term;
    long           count = 0;
    FlatAnnoTerm_p new_aterm;
 
@@ -794,7 +794,6 @@ long TSMCreateSubtermSet(FlatAnnoSet_p set, FlatAnnoTerm_p list, int sel)
    {
       term = list->term;
       assert(term->arity > sel);
-      subterm = term->args[sel];
       new_aterm = FlatAnnoTermAlloc(term->args[sel], 
 				    list->eval, list->eval_weight,
 				    list->sources);

@@ -1619,6 +1619,43 @@ void ProofStatePrintSelective(FILE* out, ProofState_p state, char*
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: CreateDefaultSpecLimits()
+//
+//   Return a SpecLimits cell initialized with the default limits for
+//   Auto-Mode problem classification.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+SpecLimits_p CreateDefaultSpecLimits(void)
+{
+   SpecLimits_p limits =  SpecLimitsAlloc();
+
+   limits->ax_some_limit        = 1000;
+   limits->ax_many_limit        = 100000;
+   limits->lit_some_limit       = 400;
+   limits->lit_many_limit       = 4000;
+   limits->term_medium_limit    = 200;
+   limits->term_large_limit     = 1500;
+   limits->far_sum_medium_limit = 4;
+   limits->far_sum_large_limit  = 29;
+   limits->depth_medium_limit   = 4;
+   limits->depth_deep_limit     = 7;
+   limits->gpc_absolute         = true;
+   limits->gpc_few_limit        = 2;
+   limits->gpc_many_limit       = 5;
+   limits->ngu_absolute         = true;
+   limits->ngu_few_limit        = 1;
+   limits->ngu_many_limit       = 3;
+
+   return limits;
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

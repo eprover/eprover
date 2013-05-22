@@ -214,11 +214,10 @@ void AnnoTermPrint(FILE* out, TB_p bank, AnnoTerm_p term, bool fullterms)
 
 void AnnoTermRecToFlatEnc(TB_p bank, AnnoTerm_p term)
 {
-   Term_p store, new;
+   Term_p newrep;
 
-   new = FlatRecodeRecClauseRep(bank,term->term);
-   store = term->term;
-   term->term = new;
+   newrep = FlatRecodeRecClauseRep(bank,term->term);
+   term->term = newrep;
 }
 
 

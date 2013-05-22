@@ -280,7 +280,7 @@ void print_help(FILE* out);
 
 long build_rw_system(ClauseSet_p demods, ClauseSet_p spec)
 {
-   long count;
+   long count=0;
    Clause_p handle;
 
    while((handle = ClauseSetExtractFirst(spec)))

@@ -771,7 +771,7 @@ TFormula_p TFormulaCopyDef(TB_p bank, TFormula_p form, long blocked,
 {
    TFormula_p res = NULL, arg1, arg2 = NULL;
    NumXTree_p def_entry;
-   long      def, realdef;
+   long      realdef;
 
    if(TFormulaIsLiteral(bank->sig, form))
    {
@@ -781,7 +781,6 @@ TFormula_p TFormulaCopyDef(TB_p bank, TFormula_p form, long blocked,
    {
       def_entry = NumXTreeFind(defs, form->entry_no);
       assert(def_entry);
-      def     = def_entry->vals[0].i_val;
       realdef = def_entry->vals[2].i_val;
       if(realdef!=blocked)
       {

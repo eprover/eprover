@@ -430,7 +430,6 @@ static bool check_subsumption_possibility(Clause_p subsumer, Clause_p
 
 /* Old version !*/
 #ifndef NDEBUG
-static
 bool eqn_list_rec_subsume_old(Eqn_p subsum_list, Eqn_p sub_cand_list,
 			  Subst_p subst, long* pick_list)
 {

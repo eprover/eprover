@@ -845,7 +845,6 @@ void BatchProcessInteractive(BatchSpec_p spec,
    ClauseSet_p cset;
    FormulaSet_p fset;
    long         wct_limit=30;
-   bool         res;
 
    if(spec->per_prob_limit)
    {
@@ -904,7 +903,7 @@ void BatchProcessInteractive(BatchSpec_p spec,
          
          // cset and fset are handed over to BatchProcessProblem and are
          // freed there (via StructFOFSpecBacktrackToSpec()).
-         res = BatchProcessProblem(spec, 
+         (void)BatchProcessProblem(spec, 
                                    wct_limit,
                                    ctrl,
                                    DStrView(jobname),

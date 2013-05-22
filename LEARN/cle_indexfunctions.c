@@ -479,7 +479,6 @@ long TSMIndexInsert(TSMIndex_p index, Term_p term)
    IndexTermCell query;
    IndexTerm_p   entry;
    PTree_p       cell2;
-   IntOrP        tmp;
    Term_p        shared;
    NumTree_p     cell, old;
 
@@ -541,7 +540,6 @@ long TSMIndexInsert(TSMIndex_p index, Term_p term)
 	    entry = IndexTermAlloc(shared, index->subst,
 				   index->count);
 	    res = index->count++;
-	    tmp.p_val = entry;
 	    entry = PTreeObjStore(&(index->tree.t_index), entry,
 				  IndexTermCompareFun);
 	    assert(!entry);
@@ -564,7 +562,6 @@ long TSMIndexInsert(TSMIndex_p index, Term_p term)
 	    entry = IndexTermAlloc(shared, index->subst,
 				   index->count);
 	    res = index->count++;
-	    tmp.p_val = entry;
 	    entry = PTreeObjStore(&(index->tree.t_index), entry,
 				  IndexTermCompareFun);
 	    assert(!entry);
