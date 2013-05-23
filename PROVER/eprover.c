@@ -35,6 +35,7 @@ Changes
 #include <ccl_unfold_defs.h>
 #include <ccl_formulafunc.h>
 #include <cte_simplesorts.h>
+#include <cco_scheduling.h>
 #include <e_version.h>
 
 
@@ -1205,7 +1206,8 @@ bool              print_sat = false,
                   inf_sys_complete = true,
                   assume_inf_sys_complete = false,
                   incomplete = false,
-                  conjectures_are_questions = false;
+                  conjectures_are_questions = false,
+                  strategy_scheduling = false;
 
 IOFormat          parse_format = LOPFormat;
 long              step_limit = LONG_MAX, 
@@ -1337,7 +1339,7 @@ static void print_info(void)
 
 int main(int argc, char* argv[])
 {
-   int              retval = NO_ERROR;
+   int              retval = NO_ERROR, i;
    CLState_p        state;
    ProofState_p     proofstate;
    ProofControl_p   proofcontrol;
@@ -1351,7 +1353,9 @@ int main(int argc, char* argv[])
                     neg_conjectures,
                     parsed_ax_no,
                     relevancy_pruned = 0;
-   double           preproc_time;
+   double           preproc_time, run_time;
+   pid_t            pid = 1, respid;
+
 
    assert(argv[0]);
 
@@ -1371,6 +1375,7 @@ int main(int argc, char* argv[])
    OpenGlobalOut(outname);
    print_info();
 
+
    if(state->argc ==  0)
    {
       CLStateInsertArg(state, "-");
@@ -1380,9 +1385,77 @@ int main(int argc, char* argv[])
                            error_on_empty, free_symb_prop,
                            &parsed_ax_no);  
 
+
    relevancy_pruned += ProofStateSinE(proofstate, sine);
    relevancy_pruned += ProofStatePreprocess(proofstate, relevance_prune_level);
 
+   if(strategy_scheduling)
+   {
+      int raw_status, status;
+
+      run_time = GetTotalCPUTime();
+      ScheduleTimesInit(StratSchedule, run_time);
+
+      for(i=0; StratSchedule[i+1].heu_name; i++)
+      {
+         pid = fork();
+         if(pid == 0)
+         {
+            /* Child */
+            SilentTimeOut = true;
+            h_parms->heuristic_name = StratSchedule[i].heu_name;
+            h_parms->ordertype      = StratSchedule[i].ordering;
+            fprintf(GlobalOut, "# Trying %s for %ld seconds\n",
+                    StratSchedule[i].heu_name, 
+                    (long)StratSchedule[i].time_absolute);
+            if(StratSchedule[i].time_absolute!=RLIM_INFINITY)
+            {
+               SetSoftRlimit(RLIMIT_CPU, StratSchedule[i].time_absolute);
+            }
+            break;
+         }
+         else
+         {
+            respid = -1;
+            while(respid == -1)
+            {
+               respid = waitpid(pid, &raw_status, 0);
+            }
+            if(WIFEXITED(raw_status))
+            {
+               status = WEXITSTATUS(raw_status);
+               if((status == SATISFIABLE) || (status == PROOF_FOUND))
+               {
+                  exit(status);
+               }
+               else
+               {
+                  fprintf(GlobalOut, "# No success with %s\n",
+                          StratSchedule[i].heu_name);
+               }
+            }
+            else
+            {
+               fprintf(GlobalOut, "# Abnormal termination for %s\n",
+                       StratSchedule[i].heu_name);
+            }
+         }
+      }
+      if(pid)
+      {
+         /* Last strategy runs in the parent */
+         h_parms->heuristic_name = StratSchedule[i].heu_name;
+         h_parms->ordertype      = StratSchedule[i].ordering;
+         fprintf(GlobalOut, "# Trying %s for %ld seconds\n",
+                 StratSchedule[i].heu_name, 
+                 (long)StratSchedule[i].time_absolute);
+         if(StratSchedule[i].time_absolute!=RLIM_INFINITY)
+         {
+            SetSoftRlimit(RLIMIT_CPU, StratSchedule[i].time_absolute);
+         }      
+      }
+   }
+   
    FormulaSetDocInital(GlobalOut, OutputLevel, proofstate->f_axioms);
    ClauseSetDocInital(GlobalOut, OutputLevel, proofstate->axioms);
 
@@ -1724,6 +1797,10 @@ cleanup1:
    {
       PrintRusage(GlobalOut);
    }
+   if(!pid)
+   {
+      return retval;
+   }
    fflush(GlobalOut);
    OutClose(GlobalOut);
    ExitIO();
@@ -1732,7 +1809,6 @@ cleanup1:
    MemFlushFreeList();
    MemDebugPrintStats(stdout);
 #endif
-   
    return retval;
 }
 
@@ -1926,6 +2002,7 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_CPU_LIMIT:
 	    HardTimeLimit = CLStateGetIntArg(handle, arg);
+            ScheduleTimeLimit = HardTimeLimit;
 	    if((SoftTimeLimit != RLIM_INFINITY) &&
                (HardTimeLimit<=SoftTimeLimit))
             {
@@ -1935,6 +2012,8 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_SOFTCPU_LIMIT:
 	    SoftTimeLimit = CLStateGetIntArg(handle, arg);
+            ScheduleTimeLimit = SoftTimeLimit;
+
 	    if((HardTimeLimit != RLIM_INFINITY) &&
 	       (HardTimeLimit<=SoftTimeLimit))
             {
@@ -2014,6 +2093,9 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_SATAUTODEV:
 	    h_parms->heuristic_name = "AutoDev";
             h_parms->ordertype = AUTODEV;
+            break;
+      case OPT_AUTO_SCHED:
+            strategy_scheduling = true;
             break;
       case OPT_NO_PREPROCESSING:
 	    no_preproc = true;

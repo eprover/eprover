@@ -30,12 +30,14 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
-rlim_t                SystemTimeLimit = RLIM_INFINITY;
-rlim_t                SoftTimeLimit   = RLIM_INFINITY;
-rlim_t                HardTimeLimit   = RLIM_INFINITY;
-VOLATILE sig_atomic_t TimeIsUp        = 0;
-VOLATILE sig_atomic_t TimeLimitIsSoft = 0;
+rlim_t                ScheduleTimeLimit = 0;
+rlim_t                SystemTimeLimit   = RLIM_INFINITY;
+rlim_t                SoftTimeLimit     = RLIM_INFINITY;
+rlim_t                HardTimeLimit     = RLIM_INFINITY;
+VOLATILE sig_atomic_t TimeIsUp          = 0;
+VOLATILE sig_atomic_t TimeLimitIsSoft   = 0;
 static VOLATILE sig_atomic_t fatal_error_in_progress = 0;
+bool                  SilentTimeOut     = false;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -119,9 +121,16 @@ void ESignalHandler(int mysignal)
 	    ESignalSetup(SIGXCPU); /* Reenable signal handler */
 	    return;
 	 }	 
-	 WRITE_STR(GlobalOutFD, "\n# Failure: Resource limit exceeded (time)\n");	 
-	 TSTPOUTFD(GlobalOutFD, "ResourceOut");
-	 Error("CPU time limit exceeded, terminating", CPU_LIMIT_ERROR);
+         if(SilentTimeOut)
+         {
+            exit(CPU_LIMIT_ERROR);
+         }
+         else
+         {
+            WRITE_STR(GlobalOutFD, "\n# Failure: Resource limit exceeded (time)\n");	 
+            TSTPOUTFD(GlobalOutFD, "ResourceOut");
+            Error("CPU time limit exceeded, terminating", CPU_LIMIT_ERROR);
+         }
 	 break;
    case SIGTERM:
    case SIGINT:

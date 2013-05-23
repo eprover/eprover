@@ -72,7 +72,7 @@ void finalize_auto_parms(char* modename, char* hname,
 {
 
 
-   if(OutputLevel)
+   if(OutputLevel+1)
    {
       fprintf(GlobalOut, 
 	      "# %s selected heuristic %s\n"
