@@ -2103,6 +2103,7 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_AUTO_SCHED:
             strategy_scheduling = true;
+            sine = "Auto";                        
             break;
       case OPT_NO_PREPROCESSING:
 	    no_preproc = true;
