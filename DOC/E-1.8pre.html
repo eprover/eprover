@@ -45,11 +45,11 @@ slices. For each time slice, the problem is classified into one of
 several classes, based on a number of simple features (number of
 clauses, maximal symbol arity, presence of equality, presence of
 non-unit and non-Horn clauses,...). For each class, a schedule of
-strategies is constructed from experimental data as follows: The first
-strategy assigned to a schedule is the the one that solves the most
-problems from this class in the first time slice. Each subsequent
-strategy is selected based on the number of solutions on problems not
-already solved by a preceding strategy.
+strategies is greedily constructed from experimental data as follows:
+The first strategy assigned to a schedule is the the one that solves
+the most problems from this class in the first time slice. Each
+subsequent strategy is selected based on the number of solutions on
+problems not already solved by a preceding strategy.
 <p>
 About 170 different strategies have been evaluated on all untyped
 first-order problems from TPTP 5.4.0, and about 140 of these
