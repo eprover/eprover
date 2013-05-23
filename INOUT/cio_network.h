@@ -26,6 +26,7 @@ Changes
 
 #define CIO_NETWORK
 
+#include <sys/socket.h>
 #include <stdint.h>
 #include <clb_dstrings.h>
 #include <clb_pqueue.h>
