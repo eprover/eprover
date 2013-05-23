@@ -5,16 +5,11 @@ For installation, follow the instructions in the main README
 file. Make sure to do a proper install, so that e_ltb_runner can find
 the executables.
 
+Command line for single-problem categories:
 
-Command line for (primary) proof classes (FOF, EPR):
+   eprover --auto-schedule --tstp-format -s --proof-object --memory-limit=3072 --cpu-limit=%d %s
 
-   eprover --auto --tstp-format -s --proof-object --memory-limit=3072 --cpu-limit=%d %s
-
-Command line for disproof classes (FNT):
-
-   eprover --satauto --tstp-format -s --proof-object --memory-limit=3072 --cpu-limit=%d %s
-
-For the LTB categories, run
+For the LTB categories, run:
 
    e_ltb_runner -w<total wall-clock time limit> <path_to_ltb_batch_file> <path_to_eprover>
 
