@@ -349,7 +349,7 @@ double GetTotalCPUTime(void)
 
 void PrintRusage(FILE* out)
 {
-   struct rusage usage;
+   struct rusage usage, cusage;
    
    if(getrusage(RUSAGE_SELF, &usage))
    {
@@ -357,6 +357,17 @@ void PrintRusage(FILE* out)
       SysError("Unable to get resource usage information",
 	       SYS_ERROR);
    }
+   if(getrusage(RUSAGE_CHILDREN, &cusage))
+   {
+      TmpErrno = errno;
+      SysError("Unable to get resource usage information",
+	       SYS_ERROR);
+   }
+   usage.ru_utime.tv_sec  += cusage.ru_utime.tv_sec;
+   usage.ru_utime.tv_usec += cusage.ru_utime.tv_usec; 
+   usage.ru_stime.tv_sec  += cusage.ru_stime.tv_sec;
+   usage.ru_stime.tv_usec += cusage.ru_stime.tv_usec;
+   
    fprintf(out, 
 	   "\n# -------------------------------------------------\n");
    fprintf(out, 

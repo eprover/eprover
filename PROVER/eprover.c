@@ -1426,6 +1426,10 @@ int main(int argc, char* argv[])
                status = WEXITSTATUS(raw_status);
                if((status == SATISFIABLE) || (status == PROOF_FOUND))
                {
+                  if(print_rusage)
+                  {
+                     PrintRusage(GlobalOut);
+                  }
                   exit(status);
                }
                else
@@ -1793,7 +1797,7 @@ cleanup1:
    MemFreeListPrint(GlobalOut);
 #endif
 #endif
-   if(print_rusage)
+   if(print_rusage && pid)
    {
       PrintRusage(GlobalOut);
    }
