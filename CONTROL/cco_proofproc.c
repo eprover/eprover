@@ -724,14 +724,13 @@ Clause_p replacing_inferences(ProofState_p state, ProofControl_p
 static Clause_p cleanup_unprocessed_clauses(ProofState_p state,
                                             ProofControl_p control)
 {
-   long current_storage = 0;
-   long filter_base   = ProofStateStorage(state);
-   long reweight_base = state->unprocessed->members;
-   long filter_copies_base = ProofStateStorage(state);
-   long tmp /* , storage = 0*/;
+   long long current_storage    = ProofStateStorage(state);
+   long long filter_base        = current_storage;
+   long long filter_copies_base = current_storage;
+   long long reweight_base      = state->unprocessed->members;
+   long tmp;
    Clause_p unsatisfiable = NULL;
 
-   current_storage = ProofStateStorage(state);
    filter_copies_base = MIN(filter_copies_base,current_storage); 
    if((current_storage - filter_copies_base) >
       control->heuristic_parms.filter_copies_limit)

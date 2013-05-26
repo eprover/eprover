@@ -37,7 +37,7 @@ class StratPerf(object):
         try:
             del self.problems[prob]
         except KeyError:
-            print "Warning: Tried to remove unknown problem"
+            print "Warning: Tried to remove unknown problem "+prob+" from "+self.strat_name
 
     def getName(self):
         return self.strat_name
@@ -860,9 +860,17 @@ def print_raw(fp, result, opt_res):
     fp.write("/* Predicted solutions: %d */\n"%(sum,))
 
 
+def print_strat_once(fp, strat, defined_strats):
+    """
+    If strat is not in defined_strats, print it and add it to
+    defined_strats.
+    """
+    if not strat in defined_strats:
+        fp.write(heuristic_define(strat)+"\n")
+        defined_strats.add(strat)
 
 def generate_output(fp, result, stratdesc, class_dir, raw_class, opt_res,
-                    used):
+                    used, defined_strats):
     """
     Generate the actual C code. Parameters:
     result associates each class name with a strategy name.
@@ -881,7 +889,7 @@ def generate_output(fp, result, stratdesc, class_dir, raw_class, opt_res,
     
     for i in result.keys():
         by_heuristic[result[i]]=[]
-    
+        
     for i in result.keys():
         by_heuristic[result[i]].append(i)
 
@@ -905,13 +913,13 @@ def generate_output(fp, result, stratdesc, class_dir, raw_class, opt_res,
 
 """)
         for i in by_heuristic.keys():
-            fp.write(heuristic_define(i)+"\n")
+            print_strat_once(fp, i, defined_strats)
 
         if global_best in by_heuristic.keys():
             fp.write("/* Global best, "+global_best+", already defined */\n")
         else:
             fp.write( "/* Global best (used as a default): */\n")
-            fp.write( heuristic_define(global_best)+"\n")
+            print_strat_once(fp, i, defined_strats)
 
         fp.write( """#endif
 
@@ -1041,6 +1049,8 @@ time_limits = [152, 74, 37, 18, 18]
 
 itercount = 0;
 
+defined_strats = set()
+
 for time_limit in time_limits:
     print "# Auto-Schedule iteration %d with time limit %d"\
           %(itercount, time_limit)
@@ -1072,7 +1082,8 @@ for time_limit in time_limits:
     # And now we print the results
 
     fp = open("che_X_auto_sched%d.c"%(itercount,), "w")
-    generate_output(fp, result, stratdesc, class_dir, raw_class, opt_res, used)
+    generate_output(fp, result, stratdesc, class_dir, raw_class,
+                    opt_res, used, defined_strats)
     fp.close()
     
     # Now for the cleanup: For each class, we remove the best

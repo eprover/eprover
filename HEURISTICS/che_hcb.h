@@ -124,7 +124,7 @@ typedef struct heuristic_parms_cell
    long                filter_limit;
    long                filter_copies_limit;
    long                reweight_limit;
-   long                delete_bad_limit;
+   long long           delete_bad_limit;
    rlim_t              mem_limit;
    bool                watchlist_simplify;
    bool                use_tptp_sos;

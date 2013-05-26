@@ -2,7 +2,11 @@ This history list describes the major differences between versions of
 the E equational theorem prover.
 
 
-Version 1.7 -> 
+Version 1.7 -> 1.8pre Gopaldhara
+
+- Added support for internal proof objects (and option --proof-object)
+- Added experimental support for strategy scheduling (--auto-schedule)
+
 
 
 Version 1.6 -> 1.7 Jun Chiabari
@@ -20,8 +24,6 @@ Version 1.6 -> 1.7 Jun Chiabari
 - Added enormalizae for normalization of terms, clauses and formulas
   with an oriented rule set without regard for orderings.
 - Various minor updates and bugfixes
-
-
 
 Version 1.5 -> 1.6 Tiger Hill
 

@@ -59,6 +59,9 @@ cleandist: clean
 	rm *~ */*~
 
 
+dev_config:
+	sed -e 's/CC         = gcc$$/CC         = gcc-4/' Makefile.vars > __tmpmake__;mv __tmpmake__ Makefile.vars
+
 default_config:
 	sed -e 's/CC         = gcc-4/CC         = gcc/' Makefile.vars| \
 	awk '/^NODEBUG/{print "NODEBUG    = -DNDEBUG -DFAST_EXIT";next}/^MEMDEBUG/{print "MEMDEBUG   = # -DCLB_MEMORY_DEBUG # -DCLB_MEMORY_DEBUG2";next}/^DEBUGGER/{print "DEBUGGER   = # -g -ggdb";next}/^PROFFLAGS/{print "PROFFLAGS  = # -pg # -DNEED_MATH_EMULATION";next}{print}' > __tmpmake__;mv __tmpmake__ Makefile.vars
@@ -79,7 +82,7 @@ distrib: man documentation cleandist default_config
          $(TAR) cfX - $(PROJECT)/etc/NO_DISTRIB $(PROJECT) |$(GZIP) - -c > $(PROJECT).tgz
 
 # Include the GIT subdirecctories (and non-GPL files, of which there
-# currently are none. 
+# currently are none). 
 
 fulldistrib: man documentation cleandist default_config
 	@echo "Warning: You are building a full archive!"

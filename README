@@ -1,4 +1,4 @@
-NOTE: The CASC-J6 ReadMe file is in DOC/Readme.
+NOTE: The CASC-24 ReadMe file is in DOC/Readme.
 
 
 Short Installation Instructions for the impatient
@@ -37,16 +37,16 @@ anything fails. There should be a copy in DOC/eprover.pdf.
              ===============================
 
 
-This is the README file for version 1.7 "Jun Chiabari" of the E
+This is the README file for version 1.8 "Gopaldhara" of the E
 equational theorem prover. This version of E is free software, see the
 file COPYING for details about the license and the fact that THERE IS
 NO WARRANTY!
 
-Release 1.7 is the culmination of a long development phase. Important
-changes vs. version 1.6 include a stronger Auto-mode and the inclusion
-or update of a number of programs, including in particular interactive
-use of e_ltb_runner for posing different questions against a large
-knowledge base.
+Release 1.8 contains a number of significant improvements. In
+particular, it now supports the internal generation of proof objects,
+with little overhead in time and space. Search behaviour was improved
+with changes to the automatic mode. Finally, the prover implements a
+simpler version of strategy-scheduling as an experimental feature.
 
 
 What is E?
@@ -166,24 +166,20 @@ thousands of axioms). If you need completeness, use
 One of the features of E is the ability to produce semi-readable
 proofs. To use this, type
 
-  eprover -l4 <other-stuff> | epclextract
+  eprover --proof-object <other-stuff> 
 
-or use the wrapper-scripts
+By default, E will read LOP and write proof objects in PCL2. However,
+for current usage, TPTP-3 syntax is usually preferred, and strongly
+recommended. To use TPTP-3 syntax, use option --tptp3-in (for input
+only) or --tptp3-format (for input and proof object output).
 
-  eproof <any options> problem
-  eproof_ram <any options> problem
 
-The difference between the two is primarily that eproof will use
-temporary files and parse proof output for postprocessing after the
-proof search, while eproof_ram uses a pipe and parses proof during the
-search. The first needs less RAM, the second needs more ram, and can
-utilize 2 CPU cores for better wall clock performance.
-
-You can check the output of epclextract (and eproof) for correctness
-using the tool checkproof in the same directory. "checkproof -h"
-should give you all necessary information. Note that checkproof cannot
-yet deal with the full first order part, and will skip anything not
-clausal.
+You can check the proof objects in PCL format for correctness using
+the tool checkproof in the same directory. "checkproof -h" should give
+you all necessary information. Note that checkproof cannot yet deal
+with the full first order part, and will skip anything not
+clausal. Also, support for independent provers in checkproof can be
+subject to bit-rot, as other systems and interfaces change.
 
 
 
@@ -192,13 +188,11 @@ Directory overview:
 
 DOC:
 
-
   - Documentation, including a very preliminary LaTeX manual for (at
     the moment) parts of the library and the prover. You should be
     looking there instead of reading this file ;-)
 
-    Also has the project HISTORY file and some short notes on
-    porting.
+    Also has the project NEWS file and some short notes on porting.
 
 include:
 
