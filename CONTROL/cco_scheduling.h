@@ -26,8 +26,7 @@ Changes
 #define CCO_SCHEDULING
 
 #include <cio_signals.h>
-#include <cto_ocb.h>
-
+#include <che_hcb.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -52,6 +51,9 @@ typedef struct schedule_cell
 extern ScheduleCell StratSchedule[];
 
 void ScheduleTimesInit(ScheduleCell sched[], double time_used);
+pid_t ExecuteSchedule(ScheduleCell strats[],
+                      HeuristicParms_p  h_parms, 
+                      bool print_rusage);
 
 
 #endif

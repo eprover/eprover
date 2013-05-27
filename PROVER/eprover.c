@@ -1342,7 +1342,7 @@ static void print_info(void)
 
 int main(int argc, char* argv[])
 {
-   int              retval = NO_ERROR, i;
+   int              retval = NO_ERROR;
    CLState_p        state;
    ProofState_p     proofstate;
    ProofControl_p   proofcontrol;
@@ -1356,8 +1356,8 @@ int main(int argc, char* argv[])
                     neg_conjectures,
                     parsed_ax_no,
                     relevancy_pruned = 0;
-   double           preproc_time, run_time;
-   pid_t            pid = 1, respid;
+   double           preproc_time;
+   pid_t            pid = 1;
 
 
    assert(argv[0]);
@@ -1394,73 +1394,7 @@ int main(int argc, char* argv[])
 
    if(strategy_scheduling)
    {
-      int raw_status, status;
-
-      run_time = GetTotalCPUTime();
-      ScheduleTimesInit(StratSchedule, run_time);
-
-      for(i=0; StratSchedule[i+1].heu_name; i++)
-      {
-         pid = fork();
-         if(pid == 0)
-         {
-            /* Child */
-            SilentTimeOut = true;
-            h_parms->heuristic_name = StratSchedule[i].heu_name;
-            h_parms->ordertype      = StratSchedule[i].ordering;
-            fprintf(GlobalOut, "# Trying %s for %ld seconds\n",
-                    StratSchedule[i].heu_name, 
-                    (long)StratSchedule[i].time_absolute);
-            if(StratSchedule[i].time_absolute!=RLIM_INFINITY)
-            {
-               SetSoftRlimit(RLIMIT_CPU, StratSchedule[i].time_absolute);
-            }
-            break;
-         }
-         else
-         {
-            respid = -1;
-            while(respid == -1)
-            {
-               respid = waitpid(pid, &raw_status, 0);
-            }
-            if(WIFEXITED(raw_status))
-            {
-               status = WEXITSTATUS(raw_status);
-               if((status == SATISFIABLE) || (status == PROOF_FOUND))
-               {
-                  if(print_rusage)
-                  {
-                     PrintRusage(GlobalOut);
-                  }
-                  exit(status);
-               }
-               else
-               {
-                  fprintf(GlobalOut, "# No success with %s\n",
-                          StratSchedule[i].heu_name);
-               }
-            }
-            else
-            {
-               fprintf(GlobalOut, "# Abnormal termination for %s\n",
-                       StratSchedule[i].heu_name);
-            }
-         }
-      }
-      if(pid)
-      {
-         /* Last strategy runs in the parent */
-         h_parms->heuristic_name = StratSchedule[i].heu_name;
-         h_parms->ordertype      = StratSchedule[i].ordering;
-         fprintf(GlobalOut, "# Trying %s for %ld seconds\n",
-                 StratSchedule[i].heu_name, 
-                 (long)StratSchedule[i].time_absolute);
-         if(StratSchedule[i].time_absolute!=RLIM_INFINITY)
-         {
-            SetSoftRlimit(RLIMIT_CPU, StratSchedule[i].time_absolute);
-         }      
-      }
+      ExecuteSchedule(StratSchedule, h_parms, print_rusage);
    }
    
    FormulaSetDocInital(GlobalOut, OutputLevel, proofstate->f_axioms);

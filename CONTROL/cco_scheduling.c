@@ -101,6 +101,94 @@ void ScheduleTimesInit(ScheduleCell sched[], double time_used)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function:  ExecuteSchedule()
+//
+//   Execute the hard-coded 
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+pid_t ExecuteSchedule(ScheduleCell strats[],
+                      HeuristicParms_p  h_parms, 
+                      bool print_rusage)
+{
+   int raw_status, status, i;
+   pid_t pid       = 0, respid;   
+   double run_time = GetTotalCPUTime();
+
+   ScheduleTimesInit(strats, run_time);
+   
+   for(i=0; strats[i+1].heu_name; i++)
+   {
+      pid = fork();
+      if(pid == 0)
+      {
+         /* Child */
+         SilentTimeOut = true;
+         h_parms->heuristic_name = strats[i].heu_name;
+         h_parms->ordertype      = strats[i].ordering;
+         fprintf(GlobalOut, "# Trying %s for %ld seconds\n",
+                 strats[i].heu_name, 
+                 (long)strats[i].time_absolute);
+         if(strats[i].time_absolute!=RLIM_INFINITY)
+         {
+            SetSoftRlimit(RLIMIT_CPU, strats[i].time_absolute);
+         }
+         break;
+      }
+      else
+      {
+         respid = -1;
+         while(respid == -1)
+         {
+            respid = waitpid(pid, &raw_status, 0);
+         }
+         if(WIFEXITED(raw_status))
+         {
+            status = WEXITSTATUS(raw_status);
+            if((status == SATISFIABLE) || (status == PROOF_FOUND))
+            {
+               if(print_rusage)
+               {
+                  PrintRusage(GlobalOut);
+               }
+                  exit(status);
+            }
+            else
+            {
+               fprintf(GlobalOut, "# No success with %s\n",
+                       strats[i].heu_name);
+            }
+         }
+         else
+         {
+            fprintf(GlobalOut, "# Abnormal termination for %s\n",
+                    strats[i].heu_name);
+         }
+      }
+   }
+   if(pid)
+   {
+      /* Last strategy runs in the parent */
+      h_parms->heuristic_name = strats[i].heu_name;
+      h_parms->ordertype      = strats[i].ordering;
+      fprintf(GlobalOut, "# Trying %s for %ld seconds\n",
+              strats[i].heu_name, 
+              (long)strats[i].time_absolute);
+      if(strats[i].time_absolute!=RLIM_INFINITY)
+      {
+         SetSoftRlimit(RLIMIT_CPU, strats[i].time_absolute);
+      }      
+   }
+   return pid;
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
