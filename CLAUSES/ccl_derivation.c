@@ -37,7 +37,7 @@ char *opids[] =
    "QUOTE",
    /* Simplifying */
    PCL_RW,
-   "/*uf*/"PCL_RW,
+   PCL_RW,
    PCL_AD,
    PCL_CSR,
    PCL_ER,
@@ -716,14 +716,14 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
                }
                if(optheory[opc])
                {
-                  fprintf(out, ", theory(%s)]",optheory[opc]);
+                  fprintf(out, ", theory(%s)",optheory[opc]);
                }
                fprintf(out, "])");
                break;
          default:
               if(optheory[opc])
                {
-                  fprintf(out, ", theory(%s)]",optheory[opc]);
+                  fprintf(out, ", theory(%s)",optheory[opc]);
                }
                fprintf(out, "])");
                break;
