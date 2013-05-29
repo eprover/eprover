@@ -25,6 +25,8 @@ Changes
 
 #define CCO_SCHEDULING
 
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <cio_signals.h>
 #include <che_hcb.h>
 

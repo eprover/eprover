@@ -24,8 +24,6 @@ Changes
 
 -----------------------------------------------------------------------*/
 
-#include <sys/types.h>
-#include <sys/wait.h>
 
 #include <clb_defines.h>
 #include <clb_regmem.h>

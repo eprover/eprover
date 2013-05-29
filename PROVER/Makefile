@@ -18,7 +18,7 @@ include ../Makefile.vars
 PROJECT = eprover e_ltb_runner e_axfilter e_server e_client \
 	  classify_problem termprops\
           direct_examples epclanalyse epclextract checkproof eground\
-          enormlizer edpll epcllemma\
+          enormalizer edpll epcllemma\
           ekb_create ekb_insert ekb_ginsert ekb_delete tsm_classify
 LIB     = $(PROJECT)
 all: $(LIB)
@@ -88,7 +88,7 @@ ENORMALIZER = enormalizer.o ../lib/HEURISTICS.a\
             ../lib/CLAUSES.a ../lib/ORDERINGS.a ../lib/TERMS.a\
             ../lib/INOUT.a ../lib/BASICS.a
 
-enormlizer: $(ENORMALIZER)
+enormalizer: $(ENORMALIZER)
 	$(LD) -o enormalizer $(ENORMALIZER) $(LIBS)
 
 

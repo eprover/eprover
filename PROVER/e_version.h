@@ -38,8 +38,8 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* git tag E-1-8pre009 */
-#define VERSION      "1.8pre009"
+/* git tag E-1-8pre010 */
+#define VERSION      "1.8pre010"
 
 #define E_NICKNAME     "Gopaldhara"
 
