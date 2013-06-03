@@ -1478,6 +1478,10 @@ int main(int argc, char* argv[])
       {
          ProofStateResetProcessed(proofstate, proofcontrol);
       }
+      else
+      {
+         PStackPushP(proofstate->extract_roots, success); 
+      }
    }
    PERF_CTR_ENTRY(SatTimer);
    

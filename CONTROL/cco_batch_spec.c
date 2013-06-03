@@ -746,13 +746,13 @@ bool BatchProcessFile(BatchSpec_p spec,
    res = BatchProcessProblem(spec, 
                              wct_limit,
                              ctrl,
-                             dest,
+                             source,
                              cset,
                              fset,
                              fp);   
    SecureFClose(fp);
    
-   fprintf(GlobalOut, "# SZS status Ended for %s\n\n", dest);
+   fprintf(GlobalOut, "# SZS status Ended for %s\n\n", source);
    fflush(GlobalOut);
    
    return res;
