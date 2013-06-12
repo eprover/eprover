@@ -1250,7 +1250,6 @@ long TermDepth(Term_p term)
    return maxdepth+1;
 }
 
-
 /*-----------------------------------------------------------------------
 //
 // Function: TermIsDefTerm()
