@@ -494,7 +494,7 @@ long ProofStateSinE(ProofState_p state, char* fname)
 
    if(!fname)
    {
-      printf("# No SinE strategy applied\n");
+      printf("# No SInE strategy applied\n");
       return 0;
    }   
    printf("# SinE strategy is %s\n", fname);

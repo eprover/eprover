@@ -105,11 +105,12 @@ void ScheduleTimesInit(ScheduleCell sched[], double time_used)
 //
 // Function:  ExecuteSchedule()
 //
-//   Execute the hard-coded 
+//   Execute the hard-coded strategy schedule.
 //
-// Global Variables: 
+// Global Variables: SilentTimeOut
 //
-// Side Effects    : 
+// Side Effects    : Forks, the child runs the proof search, re-sets
+//                   time limits, sets heuristic parameters
 //
 /----------------------------------------------------------------------*/
 
@@ -123,22 +124,23 @@ pid_t ExecuteSchedule(ScheduleCell strats[],
 
    ScheduleTimesInit(strats, run_time);
    
-   for(i=0; strats[i+1].heu_name; i++)
+   for(i=0; strats[i].heu_name; i++)
    {
+      h_parms->heuristic_name = strats[i].heu_name;
+      h_parms->ordertype      = strats[i].ordering;
+      fprintf(GlobalOut, "# Trying %s for %ld seconds\n",
+              strats[i].heu_name, 
+              (long)strats[i].time_absolute);
+      fflush(GlobalOut);
       pid = fork();
       if(pid == 0)
       {
          /* Child */
-         SilentTimeOut = true;
-         h_parms->heuristic_name = strats[i].heu_name;
-         h_parms->ordertype      = strats[i].ordering;
-         fprintf(GlobalOut, "# Trying %s for %ld seconds\n",
-                 strats[i].heu_name, 
-                 (long)strats[i].time_absolute);
          if(strats[i].time_absolute!=RLIM_INFINITY)
          {
             SetSoftRlimit(RLIMIT_CPU, strats[i].time_absolute);
          }
+         SilentTimeOut = true;
          break;
       }
       else
@@ -173,13 +175,7 @@ pid_t ExecuteSchedule(ScheduleCell strats[],
       }
    }
    if(pid)
-   {
-      /* Last strategy runs in the parent */
-      h_parms->heuristic_name = strats[i].heu_name;
-      h_parms->ordertype      = strats[i].ordering;
-      fprintf(GlobalOut, "# Trying %s for %ld seconds\n",
-              strats[i].heu_name, 
-              (long)strats[i].time_absolute);
+   {      
       if(strats[i].time_absolute!=RLIM_INFINITY)
       {
          SetSoftRlimit(RLIMIT_CPU, strats[i].time_absolute);
