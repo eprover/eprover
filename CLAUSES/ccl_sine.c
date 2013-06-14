@@ -691,6 +691,7 @@ long SelectAxioms(GenDistrib_p      f_distrib,
          max_result_size = ax_filter->max_set_size;
       }
       if(true)
+         /* "true" may be exported as an option eventually */
       {
          DRel_p no_symbol_axioms = PDArrayElementP(drel->relation, 0);
          if(no_symbol_axioms && ax_filter->add_no_symbol_axioms)
