@@ -1308,15 +1308,15 @@ EqnSide EqnIsDefinition(Eqn_p eq, int min_arity)
    {
       return NoSide;
    }
-   if(!SigQueryFuncProp(eq->bank->sig, eq->lterm->f_code, FPPseudoPred)&&
-      TermIsDefTerm(eq->lterm, min_arity) && 
+   if(TermIsDefTerm(eq->lterm, min_arity) && 
+      !SigQueryFuncProp(eq->bank->sig, eq->lterm->f_code, FPPseudoPred)&&
       !TermHasFCode(eq->rterm, eq->lterm->f_code) &&
       !EqnHasUnboundVars(eq, LeftSide))
    {
       return LeftSide;
    }
-   if(!SigQueryFuncProp(eq->bank->sig, eq->rterm->f_code, FPPseudoPred)&&
-      TermIsDefTerm(eq->rterm, min_arity) && 
+   if(TermIsDefTerm(eq->rterm, min_arity) && 
+      !SigQueryFuncProp(eq->bank->sig, eq->rterm->f_code, FPPseudoPred)&&
       !TermHasFCode(eq->lterm, eq->rterm->f_code) &&
       !EqnHasUnboundVars(eq, RightSide))
    {

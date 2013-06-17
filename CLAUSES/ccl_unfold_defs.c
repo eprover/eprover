@@ -325,7 +325,6 @@ long ClauseSetPreprocess(ClauseSet_p set, ClauseSet_p passive,
    {	
       res += tmp;
       res += ClauseSetFilterTautologies(set, tmp_terms);
-      ClauseSetCanonize(set);
    }
    ClauseSetCanonize(set);
    return res;
