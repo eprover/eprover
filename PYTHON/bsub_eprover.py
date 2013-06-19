@@ -106,7 +106,7 @@ import pylib_erun
 
 def test_cfg():
     global tptp_dir, eprover_dir, testrun_dir, bsub_cmd, bjobs_cmd,\
-    bsub_rundir, old_job_dir, db_file
+    bsub_rundir, old_job_dir, db_file, getcpu
     
     tptp_dir = "/Users/schulz/EPROVER/TPTP_4.1.0_FLAT"
     """
@@ -156,7 +156,7 @@ def test_cfg():
 
 def pegasus_cfg():
     global tptp_dir, eprover_dir, testrun_dir, bsub_cmd, bjobs_cmd,\
-    bsub_rundir, old_job_dir, db_file
+    bsub_rundir, old_job_dir, db_file, getcpu
     
     tptp_dir = "/nethome/sschulz/EPROVER/TPTP_5.4.0_FLAT"
     """
@@ -206,7 +206,7 @@ def pegasus_cfg():
 
 def pegasus_sine_cfg():
     global tptp_dir, eprover_dir, testrun_dir, bsub_cmd, bjobs_cmd,\
-    bsub_rundir, old_job_dir, db_file
+    bsub_rundir, old_job_dir, db_file, getcpu
 
     tptp_dir = "/nethome/sschulz/EPROVER/TPTP_4.1.0_SINE"
     """
@@ -476,7 +476,7 @@ def bsub_gen_header(job):
     """
     jname = encode_job_name(job)
     return bsub_header_tmplt%\
-           (jname, jname, jname, cores, cores, bsub_rundir, eprover_dir, cores)
+           (jname, jname, jname, cores, cores, bsub_rundir, eprover_dir, getcpu, cores)
 
 
 def bsub_gen_job(job):
