@@ -1,0 +1,7 @@
+lib
+include
+tags
+*.o
+*.a
+.*.swp
+*.dependencies
