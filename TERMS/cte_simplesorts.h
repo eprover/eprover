@@ -42,6 +42,7 @@ typedef enum
    STBool,           /* Boolean sort, will replace/extend the
                         predicate bit */
    STIndividuals,    /* Default sort, "individuums" */
+   STKind,           /* The "sort of sorts", $tType in TFF */
    STInteger,        /* Integer numbers */
    STReal            /* Reals */
 }SortType;
@@ -70,15 +71,15 @@ typedef struct sort_table
 
 #define SortTableCellAlloc()    (SortTableCell*)SizeMalloc(sizeof(SortTableCell))
 #define SortTableCellFree(junk) SizeFree(junk, sizeof(SortTableCell))
+#define SortIsUserDefined(sort) (sort > STReal)
 
 SortTable_p SortTableAlloc(void);
 void        SortTableFree(SortTable_p junk);
 SortType    SortTableInsert(SortTable_p table, char* sort_name);
 SortTable_p DefaultSortTableAlloc(void);
 char*       SortTableGetRep(SortTable_p table, SortType sort);
+void        SortPrintTSTP(FILE *out, SortTable_p table, SortType sort);
 void        SortTablePrint(FILE* out, SortTable_p table);
-
-
 
 
 #endif

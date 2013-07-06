@@ -56,10 +56,12 @@ void default_sort_table_init(SortTable_p table)
 
    res = SortTableInsert(table, "$no_type");
    assert(res == STNoSort);
-   res = SortTableInsert(table, "$oType");
+   res = SortTableInsert(table, "$o");
    assert(res == STBool);
-   res = SortTableInsert(table, "$iType");
+   res = SortTableInsert(table, "$i");
    assert(res == STIndividuals);
+   res = SortTableInsert(table, "$tType");
+   assert(res == STKind);
    res = SortTableInsert(table, "$int");
    assert(res == STInteger);
    res = SortTableInsert(table, "$real");   
@@ -182,6 +184,24 @@ char* SortTableGetRep(SortTable_p table, SortType sort)
    return PStackElementP(table->back_index, sort);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: SortPrintTSTP()
+//
+//   Print a sort in the TSTP format
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+void SortPrintTSTP(FILE *out, SortTable_p table, SortType sort)
+{
+    char *name;
+
+    name = SortTableGetRep(table, sort);
+    fputs(name, out);
+}
 
 /*-----------------------------------------------------------------------
 //
