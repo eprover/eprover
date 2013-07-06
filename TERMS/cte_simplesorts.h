@@ -81,6 +81,15 @@ char*       SortTableGetRep(SortTable_p table, SortType sort);
 void        SortPrintTSTP(FILE *out, SortTable_p table, SortType sort);
 void        SortTablePrint(FILE* out, SortTable_p table);
 
+/*---------------------------------------------------------------------*/
+/*                   Inline Functions                                  */
+/*---------------------------------------------------------------------*/
+
+/* Total order on sorts */
+static __inline__ int SortCompare(SortType s1, SortType s2)
+{
+    return ((int)s1) - ((int)s2);
+}
 
 #endif
 
