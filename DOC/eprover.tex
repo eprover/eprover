@@ -22,7 +22,7 @@
 \usepackage{url}
 
 \author{Stephan Schulz}
-\title{E 1.7\\[1.5ex]User Manual\\[1.5ex]{\normalsize --preliminary
+\title{E 1.8\\[1.5ex]User Manual\\[1.5ex]{\normalsize --preliminary
     version--}}
 
 \makeindex{}
@@ -32,12 +32,12 @@
 
 \begin{abstract}
   E is an equational theorem prover for full first-order logic, based
-  on superposition and rewriting. In this perpetually very preliminary
-  manual we first give a short introduction for impatient new users,
-  and then cover calculus and proof procedure. The manual covers proof
-  search control and related options, followed by input and output
-  formats. Finally, it describes some additional tools that are part
-  of the E distribution.
+  on superposition and rewriting. In this preliminary manual we first
+  give a short introduction for impatient new users, and then cover
+  calculus and proof procedure. The manual covers proof search control
+  and related options, followed by input and output formats. Finally,
+  it describes some additional tools that are part of the E
+  distribution.
 \end{abstract}
 
 \tableofcontents{}
@@ -45,15 +45,15 @@
 \chapter{Introduction}
 \label{sec:intro}
 
-This is a short and currently quite sketchy documentation of the E
-equational theorem prover. E is an purely equational theorem prover
-for first-order logic with equality. It is based on paramodulation and
-rewriting. This means that E reads a set of formulas and/or clauses
-and saturates it by systematically applying a number of inference
-rules until either all possible (non-redundant) inferences have been
-performed or until the empty clause has been derived, i.e. the clause
-set has been found to be unsatisfiable and thus the conjecture has
-been proved.
+This is a short and currently quite sketchy documentation of the
+equational theorem prover E. E is an purely equational theorem prover
+for full first-order logic with equality. It is based on
+paramodulation and rewriting. This means that E reads a set of
+formulas and/or clauses and saturates it by systematically applying a
+number of inference rules until either all possible (non-redundant)
+inferences have been performed or until the empty clause has been
+derived, i.e.\ the clause set has been found to be unsatisfiable and
+thus the conjecture has been proved.
 
 E is still a moving target, but most recent releases have been quite
 stable, and the prover is being used productively by several
