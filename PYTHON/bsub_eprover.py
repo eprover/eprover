@@ -291,7 +291,7 @@ bsub_header_tmplt = \
 #
 # Run prunner running multiple jobs in parallel
 cd %s
-%s/prunner.py -c %s %d << EOF
+%s/prunner.py %s -c %d << EOF
 """
 """
 Template for generating bsub job headers.
