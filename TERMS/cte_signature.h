@@ -188,17 +188,15 @@ void    SigFree(Sig_p junk);
 #define SigExternalSymbols(sig) \
         ((sig)->f_count-(sig)->internal_symbols)
 
-#define SigDefaultSort(sig)  ((sig)->sort_table->default_type)
-
 #define SigInterpreteNumbers(sig) ((sig)->null_code)
 
 FunCode SigFindFCode(Sig_p sig, const char* name);
 static __inline__ int     SigFindArity(Sig_p sig, FunCode f_code);
 
 static __inline__ char*   SigFindName(Sig_p sig, FunCode f_code);
-void    SigSetPredicate(Sig_p sig, FunCode f_code, bool value);
+void    SigSetPredicate(Sig_p sig, FunCode f_code, bool value); // TODO remove
 bool    SigIsPredicate(Sig_p sig, FunCode f_code);
-void    SigSetFunction(Sig_p sig, FunCode f_code, bool value);
+void    SigSetFunction(Sig_p sig, FunCode f_code, bool value);  // TODO remove
 bool    SigIsFunction(Sig_p sig, FunCode f_code);
 
 #define SigIsFunConst(sig, f_code) (SigFindArity((sig), (f_code))==0&&\
@@ -239,6 +237,15 @@ static __inline__ FunCode SigGetCNilCode(Sig_p sig);
 FunCode SigGetOrNCode(Sig_p sig, int arity);
 FunCode SigGetNewSkolemCode(Sig_p sig, int arity);
 FunCode SigGetNewPredicateCode(Sig_p sig, int arity);
+
+/* Types */
+#define SigDefaultSort(sig)  ((sig)->sort_table->default_type)
+#define SigGetType(sig, f)   ((sig)->f_info[(f)].type)
+void    SigDeclareType(Sig_p sig, FunCode f, Type_p type);
+void    SigDeclareIsFunction(Sig_p sig, FunCode f);
+void    SigDeclareIsPredicate(Sig_p sig, FunCode f);
+Type_p  SigGetTypeOrDefault(Sig_p sig, FunCode f);
+void    SigPrintTypes(FILE* out, Sig_p sig);
 
 
 /*---------------------------------------------------------------------*/
