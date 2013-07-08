@@ -76,6 +76,7 @@
 
 EXECPATH=`pwd`/PROVER
 MANPATH=`pwd`/DOC/man
+CC=gcc-4
 
 for argument in  "$@"; do
     if [ "$argument" = "-h" -o "$argument" = "--help" ] ; then
