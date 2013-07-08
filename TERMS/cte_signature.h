@@ -30,6 +30,7 @@ Changes
 #include <clb_pdarrays.h>
 #include <clb_properties.h>
 #include <cte_functypes.h>
+#include <cte_simpletypes.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -71,10 +72,11 @@ typedef enum
 typedef struct funccell
 {
    /* f_code is implicit by position in the array */
-   char* name;
-   int   arity;
-   int   alpha_rank; /* We sometimes need an arbitrary but stable
+   char*  name;
+   int    arity;
+   int    alpha_rank; /* We sometimes need an arbitrary but stable
 			order on symbols and use alphabetic. */
+   Type_p type;       /* Simple type of the symbol */
    FunctionProperties properties;
 }FuncCell, *Func_p;
 
@@ -126,6 +128,10 @@ typedef struct sigcell
    FunCode   xor_code;
    /* And here are codes for interpreted symbols */
    FunCode   answer_code;       /* For answer literals */
+
+   /* Sort and type banks (type => sort, but a shortcut is useful) */
+   SortTable_p sort_table;
+   TypeTable_p type_table;
    
    /* Counters for generating new symbols */
    long      skolem_count;
@@ -176,11 +182,13 @@ extern bool      SigSupportLists; /* Auto-Insert special symbols
 #define SigCellAlloc() (SigCell*)SizeMalloc(sizeof(SigCell))
 #define SigCellFree(junk)         SizeFree(junk, sizeof(SigCell))
 
-Sig_p   SigAlloc(void);
+Sig_p   SigAlloc(SortTable_p sort_table);
 void    SigInsertInternalCodes(Sig_p sig);
 void    SigFree(Sig_p junk);
 #define SigExternalSymbols(sig) \
         ((sig)->f_count-(sig)->internal_symbols)
+
+#define SigDefaultSort(sig)  ((sig)->sort_table->default_type)
 
 #define SigInterpreteNumbers(sig) ((sig)->null_code)
 

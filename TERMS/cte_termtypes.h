@@ -34,6 +34,7 @@ Changes
 #include <clb_sysdate.h>
 #include <clb_ptrees.h>
 #include <clb_properties.h>
+#include <cte_simplesorts.h>
 
 
 
@@ -133,6 +134,7 @@ typedef struct termcell
    long             weight;        /* Weight of the term, if term is
                                       in term bank */
    RewriteState     rw_data;       /* See above */
+   SortType         sort;          /* Sort of the term */
    struct termcell* lson;          /* For storing shared term nodes in */
    struct termcell* rson;          /* a splay tree - see
                                       cte_termcellstore.[ch] */
@@ -210,6 +212,9 @@ typedef bool (*TermEqualTestFun)(Term_p t1, Term_p t2);
 /* Get the logical value of the replaced term / demodulator */
 #define TermRWReplace(term) (TermIsRewritten(term)?TermRWTargetField(term):NULL)
 #define TermRWDemod(term) (TermIsRewritten(term)?TermRWDemodField(term):NULL)
+
+/* Get the sort of this term */
+#define TermGetSort(term) (term->sort)
 
 Term_p  TermDefaultCellAlloc(void);
 Term_p  TermConstCellAlloc(FunCode symbol);
@@ -353,6 +358,7 @@ static __inline__ Term_p TermTopCopy(Term_p source)
    TermCellDelProp(handle, TPOutputFlag); /* As it gets a new id below */
    handle->f_code = source->f_code;
    handle->arity  = source->arity;
+   handle->sort   = source->sort;
    handle->binding = NULL;
    handle->args = TermArgListCopy(source);
    handle->lson = NULL;

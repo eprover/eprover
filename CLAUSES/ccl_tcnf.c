@@ -1203,7 +1203,7 @@ TFormula_p TFormulaVarRename(TB_p terms, TFormula_p form)
    if(TFormulaIsQuantified(terms->sig, form))
    {
       old_var = form->args[0]->binding;
-      new_var = VarBankGetFreshVar(terms->vars);
+      new_var = VarBankGetFreshVar(terms->vars, old_var->sort);
       assert(new_var != form->args[0]);
       form->args[0]->binding = new_var;
    }
@@ -1572,7 +1572,7 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
       WFormulaPushDerivation(form, DCShiftQuantors, NULL, NULL);
    }
    max_var = TFormulaFindMaxVarCode(form->tformula);
-   VarBankSetVCount(terms->vars, -max_var);
+   VarBankSetAllVCount(terms->vars, -max_var);
    handle = TFormulaVarRename(terms, form->tformula);
    
    if(handle!=form->tformula)

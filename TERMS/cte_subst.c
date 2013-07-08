@@ -163,9 +163,9 @@ int SubstBacktrack(Subst_p subst)
 // Function: SubstNormTerm()
 //
 //   Instatiate all variables in term with fresh variables from the
-//   VarBank. Return old value of vars->v_count, so VarBankSetVCount()
-//   and SubstBacktrackToPos() can be used to backtrack the
-//   instatiations term by term. New variables are marked by
+//   VarBank. Return the current position of the substitution stack, so that
+//   SubstBacktrackToPos() can be used to backtrack the
+//   instantiations term by term. New variables are marked by
 //   TPSpecialFlag, if other variables are marked thus the effect is
 //   unpredictable.
 //
@@ -181,15 +181,15 @@ int SubstBacktrack(Subst_p subst)
 //
 /----------------------------------------------------------------------*/
 
-FunCode SubstNormTerm(Term_p term, Subst_p subst, VarBank_p vars)
+PStackPointer SubstNormTerm(Term_p term, Subst_p subst, VarBank_p vars)
 {
-   FunCode   ret;
+   PStackPointer ret;
    int       i;
    Term_p    newvar;
    PStack_p  stack = PStackAlloc();
    DerefType deref = DEREF_ALWAYS;
    
-   ret = vars->v_count;
+   ret = PStackGetSP(subst);
    PStackPushP(stack, term);
 
    while(!PStackEmpty(stack))
@@ -199,7 +199,7 @@ FunCode SubstNormTerm(Term_p term, Subst_p subst, VarBank_p vars)
       {
 	 if(!TermCellQueryProp(term, TPSpecialFlag))
 	 {
-	    newvar = VarBankGetFreshVar(vars);
+	    newvar = VarBankGetFreshVar(vars, term->sort);
             TermCellSetProp(newvar, TPSpecialFlag);
             SubstAddBinding(subst, term, newvar);
 	 }

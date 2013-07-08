@@ -285,7 +285,7 @@ bool          EqnGreater(OCB_p ocb, Eqn_p eq1, Eqn_p eq2);
 CompareResult LiteralCompare(OCB_p ocb, Eqn_p eq1, Eqn_p eq2);
 bool          LiteralGreater(OCB_p ocb, Eqn_p eq1, Eqn_p eq2);
 
-FunCode SubstNormEqn(Eqn_p eq, Subst_p subst, VarBank_p vars);
+PStackPointer SubstNormEqn(Eqn_p eq, Subst_p subst, VarBank_p vars);
 
 double  EqnWeight(Eqn_p eq, double max_multiplier, long vweight, long
 		  fweight);

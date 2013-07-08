@@ -378,7 +378,7 @@ TB_p TBAlloc(Sig_p sig)
    handle->ext_index = PDIntArrayAlloc(1,100000);
    handle->garbage_state = TPIgnoreProps;
    handle->sig = sig;
-   handle->vars = VarBankAlloc();
+   handle->vars = VarBankAlloc(sig->sort_table);
    TermCellStoreInit(&(handle->term_store)); 
 
    term = TermDefaultCellAlloc();
@@ -441,8 +441,7 @@ long TBTermNodes(TB_p bank)
 {
    assert(TermCellStoreNodes(&(bank->term_store))==
 	  TermCellStoreCountNodes(&(bank->term_store)));
-   return TermCellStoreNodes(&(bank->term_store))+
-      PDArrayMembers(bank->vars->f_code_index);
+   return TermCellStoreNodes(&(bank->term_store))+VarBankCardinal(bank->vars);
 }
 
 /*-----------------------------------------------------------------------
@@ -727,7 +726,7 @@ Term_p  TBInsertDisjoint(TB_p bank, Term_p term)
 
    if(TermIsVar(term))
    {
-      t = VarBankFCodeAssertAlloc(bank->vars, term->f_code+1);
+      t = VarBankFCodeAssertAlloc(bank->vars, term->f_code+1, term->sort);
    }
    else
    {
@@ -808,7 +807,7 @@ Term_p TBFind(TB_p bank, Term_p term)
 {
    if(TermIsVar(term))
    {
-      return VarBankFCodeFind(bank->vars, term->f_code);
+      return VarBankFCodeFind(bank->vars, term->f_code, term->sort);
    }
    return TermCellStoreFind(&(bank->term_store), term);
 }
@@ -1068,7 +1067,8 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
 	 
 	 if((id_type=TermParseOperator(in, id))==FSIdentVar)
 	 {
-	    handle = VarBankExtNameAssertAlloc(bank->vars, DStrView(id));
+	    handle = VarBankExtNameAssertAlloc(bank->vars, DStrView(id),
+                                               TBSortTable(bank)->default_type);
 	 }
 	 else
 	 {

@@ -101,6 +101,7 @@ int main(int argc, char* argv[])
    AnnoSet_p       clause_examples;
    TB_p            annoterms;
    Scanner_p       in;
+   SortTable_p     sort_table;
    Sig_p           sig;
 
    assert(argv[0]);
@@ -128,7 +129,8 @@ int main(int argc, char* argv[])
    ExampleSetParse(in, proof_examples);
    DestroyScanner(in);
    
-   sig = SigAlloc();
+   sort_table = DefaultSortTableAlloc();
+   sig = SigAlloc(sort_table);
    annoterms = TBAlloc(sig);
    in = CreateScanner(StreamTypeFile, 
 		      KBFileName(name, kb_name, "clausepatterns"),
@@ -183,6 +185,7 @@ int main(int argc, char* argv[])
    SigFree(sig);
    ExampleSetFree(proof_examples);
    CLStateFree(state);
+   SortTableFree(sort_table);
    ExitIO();
 #ifdef CLB_MEMORY_DEBUG
    MemFlushFreeList();

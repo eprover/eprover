@@ -108,6 +108,7 @@ static Term_p parse_cons_list(Scanner_p in, Sig_p sig, VarBank_p vars)
 
       current->f_code = SIG_CONS_CODE;
       current->arity = 2;
+      current->sort = SigDefaultSort(sig);
       current->args = TermArgArrayAlloc(2);
       current->args[0] = TermParse(in, sig, vars); 
       current->args[1] = TermDefaultCellAlloc();
@@ -118,6 +119,7 @@ static Term_p parse_cons_list(Scanner_p in, Sig_p sig, VarBank_p vars)
          NextToken(in);
          current->f_code = SIG_CONS_CODE;             
          current->arity = 2;                          
+         current->sort = SigDefaultSort(sig);
          current->args = TermArgArrayAlloc(2);
          current->args[0] = TermParse(in, sig, vars); 
          TermCellDelProp(current->args[0], TPTopPos);
@@ -389,6 +391,7 @@ FunCode TermSigInsert(Sig_p sig, const char* name, int arity, bool
 //
 /----------------------------------------------------------------------*/
 
+// TODO: parse typed variables (and other TFF goodies)
 Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
 {
    Term_p        handle;
@@ -412,7 +415,8 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
 
       if((id_type = TermParseOperator(in, id))==FSIdentVar)
       {
-         handle = VarBankExtNameAssertAlloc(vars, DStrView(id));
+         handle = VarBankExtNameAssertAlloc(vars, DStrView(id),
+                                            sig->sort_table->default_type);
       }      
       else 
       {
@@ -624,7 +628,7 @@ Term_p TermEquivCellAlloc(Term_p source, VarBank_p vars)
    
    if(TermIsVar(source))
    {
-      handle = VarBankFCodeAssertAlloc(vars, source->f_code);
+      handle = VarBankFCodeAssertAlloc(vars, source->f_code, source->sort);
    }
    else
    {
@@ -659,6 +663,10 @@ bool TermStructEqual(Term_p t1, Term_p t2)
    if(t1==t2)
    {
       return true;
+   }
+   if(!SortEqual(t1->sort, t2->sort))
+   {
+      return false;
    }
    if(t1->f_code != t2->f_code)
    {
@@ -698,6 +706,10 @@ bool TermStructEqualNoDeref(Term_p t1, Term_p t2)
    {
       return true;
    }
+   if(!SortEqual(t1->sort, t2->sort))
+   {
+      return false;
+   }
    if(t1->f_code != t2->f_code)
    {
       return false;
@@ -733,6 +745,10 @@ bool TermStructEqualNoDerefHardVars(Term_p t1, Term_p t2)
    if(t1==t2)
    {
       return true;
+   }
+   if(!SortEqual(t1->sort, t2->sort))
+   {
+      return false;
    }
    if(TermIsVar(t1)) /* Variables are only equal if the pointers are */
    {
@@ -779,6 +795,10 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1,
    {
       return true;
    }
+   if(!SortEqual(t1->sort, t2->sort))
+   {
+      return false;
+   }
    if(t1->f_code != t2->f_code)
    {
       return false;
@@ -819,6 +839,10 @@ bool TermStructEqualDerefHardVars(Term_p t1, Term_p t2, DerefType deref_1,
    if((t1==t2) && (deref_1==deref_2))
    {
       return true;
+   }
+   if(!SortEqual(t1->sort, t2->sort))
+   {
+      return false;
    }
    if(t1->f_code != t2->f_code || TermIsVar(t1))
    {
@@ -884,7 +908,7 @@ int TermStructWeightCompare(Term_p t1, Term_p t2)
    if(TermIsVar(t1))
    { /* Then t2 also is a variable due to equal weights! */
       assert(TermIsVar(t2));
-      return 0;
+      return SortCompare(t1->sort, t2->sort);
    }
    res = t1->arity - t2->arity;
    if(res)
@@ -934,7 +958,7 @@ int TermLexCompare(Term_p t1, Term_p t2)
 	 return res;
       }
    }   
-   return 0;
+   return SortCompare(t1->sort, t2->sort);
 }
 
 
@@ -1421,34 +1445,44 @@ FunCode TermFindMaxVarCode(Term_p term)
 FunCode VarBankCheckBindings(FILE* out, VarBank_p bank, Sig_p sig)
 {
    Term_p    term;
+   VarBankStack_p stack;
    long      res = 0;
-   int       i;
+   int       i,j;
 
    fprintf(out, "#  VarBankCheckBindings() started...\n");
-   for(i=0; i<bank->f_code_index->size; i++)
+   for(i=0; i<PDArraySize(bank->stacks); ++i)
    {
-      term = PDArrayElementP(bank->f_code_index, i);      
-      if(term)
+      stack = (VarBankStack_p) PDArrayElementP(bank->stacks, i);
+      if (!stack)
       {
-	 assert(TermIsVar(term));
-	 if(term->binding)
-	 {
-	    res++;
-	    if(sig)
-	    {
-	       fprintf(out, "# %ld: ", term->f_code);
-	       TermPrint(out, term, sig, DEREF_NEVER);
-	       fprintf(out, " <--- ");
-	       TermPrint(out, term, sig, DEREF_ONCE);
-	       fprintf(out, "\n");
-	    }
-	    else
-	    {
-	       fprintf(out, "# Var%ld <---- %p\n", 
-		       term->f_code,
-		       (void*)term->binding);
-	    }
-	 }
+         continue;
+      }
+
+      for(j=0; j<stack->f_code_index->size; j++)
+      {
+         term = PDArrayElementP(stack->f_code_index, j);
+         if(term)
+         {
+            assert(TermIsVar(term));
+            if(term->binding)
+            {
+               res++;
+               if(sig)
+               {
+                  fprintf(out, "# %ld: ", term->f_code);
+                  TermPrint(out, term, sig, DEREF_NEVER);
+                  fprintf(out, " <--- ");
+                  TermPrint(out, term, sig, DEREF_ONCE);
+                  fprintf(out, "\n");
+               }
+               else
+               {
+                  fprintf(out, "# Var%ld <---- %p\n", 
+                          term->f_code,
+                          (void*)term->binding);
+               }
+            }
+         }
       }
    }
    fprintf(out, "#  ...VarBankCheckBindings() completed\n");

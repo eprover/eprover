@@ -60,7 +60,8 @@ Changes
 PCLProt_p PCLProtAlloc(void)
 {
    PCLProt_p handle = PCLProtCellAlloc();
-   Sig_p sig = SigAlloc();
+   SortTable_p sort_table = DefaultSortTableAlloc();
+   Sig_p sig = SigAlloc(sort_table);
 
    SigInsertInternalCodes(sig);
    handle->terms = TBAlloc(sig);
@@ -89,6 +90,7 @@ void PCLProtFree(PCLProt_p junk)
 {
    PStack_p stack;
    PTree_p  cell;
+   SortTable_p sort_table = junk->terms->sig->sort_table;
 
    assert(junk && junk->terms);
 
@@ -101,6 +103,7 @@ void PCLProtFree(PCLProt_p junk)
    PTreeFree(junk->steps);
    SigFree(junk->terms->sig);
    junk->terms->sig = NULL;
+   SortTableFree(sort_table);
    TBFree(junk->terms);
    PStackFree(junk->in_order);
    PCLProtCellFree(junk);

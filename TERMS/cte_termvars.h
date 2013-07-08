@@ -27,6 +27,7 @@ Changes
 
 #include <clb_pdarrays.h>
 #include <cte_termtypes.h>
+#include <cte_simplesorts.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -41,14 +42,18 @@ Changes
    should be complete (i.e. all variable cells have an entry in the
    array). */
 
+typedef struct varbankstack {
+   FunCode   v_count;      /* FunCode counter for new variables */
+   PDArray_p f_code_index; /* Associate FunCodes and cells */   
+}VarBankStackCell, *VarBankStack_p; 
+
 typedef struct varbankcell
 {
-   FunCode   v_count;      /* FunCode counter for new variables */
-   FunCode   max_var;      /* Largest variable ever created */
-   StrTree_p ext_index;    /* Associate names and cells */
-   PDArray_p f_code_index; /* Associate FunCodes and cells */   
+   SortTable_p sort_table; /* Sorts that are used for variables */
+   FunCode     max_var;    /* Largest variable ever created */
+   PDArray_p   stacks;     /* Maps each sort to a bank of variables */
+   StrTree_p   ext_index;  /* Associate names and cells */
 }VarBankCell, *VarBank_p;
-
 
 
 
@@ -56,6 +61,7 @@ typedef struct varbankcell
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+#define INITIAL_SORT_STACK_SIZE  10
 #define DEFAULT_VARBANK_SIZE   30
 
 /* Variables greater than this are reserved for fresh variables. At
@@ -63,53 +69,77 @@ typedef struct varbankcell
    top computing in the learning modules */
 #define FRESH_VAR_LIMIT      1024 
 
+#define VarBankStackCellAlloc() (VarBankStackCell*)SizeMalloc(sizeof(VarBankStackCell))
+#define VarBankStackCellFree(junk)    SizeFree(junk, sizeof(VarBankStackCell))
 #define VarBankCellAlloc() (VarBankCell*)SizeMalloc(sizeof(VarBankCell))
 #define VarBankCellFree(junk)         SizeFree(junk, sizeof(VarBankCell))
 
-VarBank_p  VarBankAlloc(void);
+/* Access the stack corresponding to this sort */
+static __inline__ VarBankStack_p  VarBankGetStack(VarBank_p bank, SortType sort);
+
+VarBank_p  VarBankAlloc(SortTable_p sort_table);
 void       VarBankFree(VarBank_p junk);
 void       VarBankClearExtNames(VarBank_p bank);
 void       VarBankClearExtNamesNoReset(VarBank_p bank);
 void       VarBankVarsSetProp(VarBank_p bank, TermProperties prop);
 void       VarBankVarsDelProp(VarBank_p bank, TermProperties prop);
 
-Term_p VarBankFCodeFind(VarBank_p bank, FunCode f_code);
+VarBankStack_p  VarBankCreateStack(VarBank_p bank, SortType sort);
+Term_p VarBankFCodeFind(VarBank_p bank, FunCode f_code, SortType sort);
 Term_p VarBankExtNameFind(VarBank_p bank, char* name);
-Term_p VarBankFCodeAssertAlloc(VarBank_p bank, FunCode f_code);
-Term_p VarBankGetFreshVar(VarBank_p bank);
-Term_p VarBankExtNameAssertAlloc(VarBank_p bank, char* name);
-#define VarBankGetVCount(bank) ((bank)->v_count)
-#define VarBankSetVCount(bank,count) ((bank)->v_count = (count))
-#define VarBankResetVCount(bank) ((bank)->v_count = 0)
+Term_p VarBankFCodeAssertAlloc(VarBank_p bank, FunCode f_code, SortType sort);
+Term_p VarBankGetFreshVar(VarBank_p bank, SortType sort);
+Term_p VarBankExtNameAssertAlloc(VarBank_p bank, char* name, SortType sort);
+void   VarBankSetAllVCount(VarBank_p bank, FunCode n);
+void   VarBankResetAllVCount(VarBank_p bank);
+long   VarBankCardinal(VarBank_p bank);    /* Number of existing variables */
+long   VarBankCollectVars(VarBank_p bank, PStack_p stack);
+#define VarBankGetVCount(bank, sort) (VarBankGetStack(bank, sort)->v_count)
+#define VarBankSetVCount(bank, sort, count) (VarBankGetStack(bank, sort)->v_count = (count))
+#define VarBankResetVCount(bank, sort) (VarBankGetStack(bank, sort)->v_count = 0)
 #define VarIsFreshVar(var) ((var)->f_code <= -FRESH_VAR_LIMIT)
 #define VarFCodeIsFresh(f_code) ((f_code) <= -FRESH_VAR_LIMIT)
+
+
+/*---------------------------------------------------------------------*/
+/*                         Inline Functions                            */
+/*---------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------------------
+//
+// Function: VarBankGetStack
+// Obtain a pointer to the stack that stores variables of a given sort.
+//   
+//
+// Global Variables: -
+//
+// Side Effects    : May modify the varbank, Memory operations
+//
+/----------------------------------------------------------------------*/
+static __inline__ VarBankStack_p  VarBankGetStack(VarBank_p bank, SortType sort)
+{
+   VarBankStack_p res;
+
+   if (sort >= PDArraySize(bank->stacks))
+   {
+      res = VarBankCreateStack(bank, sort);
+   }
+   else
+   {
+      res = (VarBankStack_p) PDArrayElementP(bank->stacks, sort);
+      if (!res)
+      {
+         res = VarBankCreateStack(bank, sort);
+      }
+   }
+
+   return res;
+}
+
 
 #endif
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

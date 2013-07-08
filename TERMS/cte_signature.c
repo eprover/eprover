@@ -107,7 +107,7 @@ static void sig_compute_alpha_ranks(Sig_p sig)
 //
 // Function: SigAlloc()
 //
-//   Allocate a initialized signature cell.
+//   Allocate a initialized signature cell. Also initializes a type table.
 //
 // Global Variables: -
 //
@@ -115,7 +115,7 @@ static void sig_compute_alpha_ranks(Sig_p sig)
 //
 /----------------------------------------------------------------------*/
 
-Sig_p SigAlloc(void)
+Sig_p SigAlloc(SortTable_p sort_table)
 {
    Sig_p handle;
 
@@ -128,6 +128,9 @@ Sig_p SigAlloc(void)
       SecureMalloc(sizeof(FuncCell)*DEFAULT_SIGNATURE_SIZE); 
    handle->f_index = NULL;
    handle->ac_axioms = PStackAlloc();
+
+   handle->sort_table = sort_table;
+   handle->type_table = TypeTableAlloc(sort_table);
 
    SigInsertId(handle, "$true", 0, true);
    assert(SigFindFCode(handle, "$true")==SIG_TRUE_CODE);  
@@ -252,6 +255,8 @@ void SigFree(Sig_p junk)
    {
       PDArrayFree(junk->orn_codes);
    }
+   TypeTableFree(junk->type_table);
+
    SigCellFree(junk);
 }
 

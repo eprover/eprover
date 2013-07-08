@@ -124,7 +124,7 @@ Clause_p tformula_collect_clause(TFormula_p form, TB_p terms,
    }
    PStackFree(lit_stack);
 
-   VarBankResetVCount(fresh_vars);
+   VarBankResetAllVCount(fresh_vars);
    NormSubstEqnList(lit_list, normsubst, fresh_vars);   
    tmp_list = EqnListCopy(lit_list, terms);
    res = ClauseAlloc(tmp_list);
