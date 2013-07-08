@@ -52,6 +52,7 @@ typedef struct
     SortTable_p  sort_table;             /* sorts */
     unsigned int size;                   /* number of types */
     Type_p       root;                   /* root of the tree of types */
+    Type_p       no_type;                /* type still unknown */
 }TypeTableCell, *TypeTable_p;
 
 /*---------------------------------------------------------------------*/

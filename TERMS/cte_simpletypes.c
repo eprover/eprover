@@ -318,6 +318,7 @@ TypeTable_p TypeTableAlloc(SortTable_p sort_table)
     res->sort_table = sort_table;
     res->size = 0;
     res->root = NULL;
+    res->no_type = NULL;
 
     return res;
 }
@@ -349,6 +350,70 @@ void TypeTableFree(TypeTable_p junk)
     TypeTableCellFree(junk);
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: TypeNewConstant
+//  Build a new constant type
+//   
+//
+// Global Variables: -
+//
+// Side Effects    :  Modifies the type table
+//
+/----------------------------------------------------------------------*/
+Type_p TypeNewConstant(TypeTable_p table, SortType sort)
+{
+   Type_p type, res;
+   
+   type = TypeAlloc(sort, 0);
+   res = TypeTreeInsert(&(table->root), type);
+   if(!res)
+   {
+      return type;
+   }
+   else
+   {
+      TypeFree(type);
+      return res;
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TypeNewFunction
+//  Build a new function type
+//   
+//
+// Global Variables: -
+//
+// Side Effects    :  Modifies the type table
+//
+/----------------------------------------------------------------------*/
+Type_p TypeNewFunction(TypeTable_p table, SortType sort,
+                       unsigned int arity, SortType *args)
+{
+   Type_p type, res;
+   int i;
+   
+   type = TypeAlloc(sort, arity);
+   for(i=0; i < arity; ++i)
+   {
+      type->arguments[i] = args[i];
+   }
+
+   res = TypeTreeInsert(&(table->root), type);
+   if(!res)
+   {
+      return type;
+   }
+   else
+   {
+      TypeFree(type);
+      return res;
+   }
+}
 
 /*-----------------------------------------------------------------------
 //

@@ -99,6 +99,44 @@ static void sig_compute_alpha_ranks(Sig_p sig)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: build_default_type
+// Build a function type with arguments of default sort, and domain
+// as given.
+//   
+//
+// Global Variables: -
+//
+// Side Effects    : Allocates a type in the type table
+//
+/----------------------------------------------------------------------*/
+static Type_p build_default_type(Sig_p sig, SortType return_type, int arity)
+{
+   Type_p type;
+   SortType* args;
+   int i;
+
+   /* build the type for the function */
+   if (arity)
+   {
+      args = TypeArgumentAlloc(arity);
+      for (i=0; i < arity; ++i)
+      {
+         args[i] = SigDefaultSort(sig);
+      }
+      type = TypeNewFunction(sig->type_table, return_type, arity, args);
+      TypeArgumentFree(args, arity);
+   }
+   else
+   {
+      type = TypeNewConstant(sig->type_table, return_type);
+   }
+
+   return type;
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
@@ -535,6 +573,7 @@ FunCode SigInsertId(Sig_p sig, const char* name, int arity, bool special_id)
       = SecureStrdup(name); 
    sig->f_info[sig->f_count].arity = arity;
    sig->f_info[sig->f_count].properties = FPIgnoreProps;
+   sig->f_info[sig->f_count].type = sig->type_table->no_type;
    new = StrTreeCellAllocEmpty();
    new->key = sig->f_info[sig->f_count].name;
    new->val1.i_val = sig->f_count;
@@ -1170,7 +1209,142 @@ FunCode SigGetNewPredicateCode(Sig_p sig, int arity)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: SigDeclareType
+// Declare the type of the given function. Will fail (and crash) if the
+// type is already declared.
+//
+// Global Variables: -
+//
+// Side Effects    : Modifies the signature
+//
+/----------------------------------------------------------------------*/
+void SigDeclareType(Sig_p sig, FunCode f, Type_p type)
+{
+   Func_p fun;
 
+   fun = &sig->f_info[f];
+   assert(fun->type == sig->type_table->no_type);
+   
+   fun->type = type;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SigDeclareIsFunction
+// Assert that the given symbol is a function (with default argument types)
+//   
+//
+// Global Variables: -
+//
+// Side Effects    : Modifies the signature
+//
+/----------------------------------------------------------------------*/
+void SigDeclareIsFunction(Sig_p sig, FunCode f)
+{
+   Func_p fun;
+   Type_p type;
+
+   fun = &sig->f_info[f];
+   assert(fun->type == sig->type_table->no_type);
+
+   type = build_default_type(sig, SigDefaultSort(sig), fun->arity);
+   SigDeclareType(sig, f, type);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SigDeclareIsPredicate
+// Assert that the given symbol is a predicate (with default argument types)
+//   
+//
+// Global Variables: -
+//
+// Side Effects    : Modifies the signature
+//
+/----------------------------------------------------------------------*/
+void SigDeclareIsPredicate(Sig_p sig, FunCode f)
+{
+   Func_p fun;
+   Type_p type;
+
+   fun = &sig->f_info[f];
+   assert(fun->type == sig->type_table->no_type);
+
+   type = build_default_type(sig, STBool, fun->arity);
+   SigDeclareType(sig, f, type);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SigGetTypeOrInfer
+//  If this function has a known type, return it; otherwise just use
+//  the default type for its arity
+//   
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+Type_p  SigGetTypeOrInfer(Sig_p sig, FunCode f)
+{
+   Func_p fun;
+   Type_p type;
+
+   fun = &sig->f_info[f];
+   if(fun->type == sig->type_table->no_type)
+   {
+      type = build_default_type(sig, SigDefaultSort(sig), fun->arity);
+   }
+   else
+   {
+      type = fun->type;
+   }
+
+   return type;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SigPrintTypes
+// Prints symbols with their type to the given file descriptor
+//   
+//
+// Global Variables: -
+//
+// Side Effects    : IO on the gile descriptor
+//
+/----------------------------------------------------------------------*/
+void SigPrintTypes(FILE* out, Sig_p sig)
+{
+   FunCode i;
+   Func_p fun;
+
+   for(i=1; i <= sig->f_count; ++i)
+   {
+      if (i > 1)
+      {
+         fputs(", ", out);
+      }
+
+      fun = &sig->f_info[i];
+      fprintf(out, "%s:", fun->name);
+      if (fun->type == sig->type_table->no_type)
+      {
+         fputs("<no type>", out);
+      }
+      else
+      {
+         TypePrintTSTP(out, sig->type_table, fun->type);
+      }
+   }
+}
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
