@@ -91,6 +91,7 @@ SortTable_p SortTableAlloc(void)
 
    table->sort_index   = NULL;
    table->back_index   = PStackAlloc();
+   table->default_type = STIndividuals;
 
    return table;
 }
@@ -112,7 +113,10 @@ void SortTableFree(SortTable_p junk)
    assert(junk);
 
    PStackFree(junk->back_index);
-   StrTreeFree(junk->sort_index);
+   if (junk->sort_index)
+   {
+      StrTreeFree(junk->sort_index);
+   }
    SortTableCellFree(junk);
 }
 

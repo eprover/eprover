@@ -144,11 +144,11 @@ static Term_p rek_term_top(Term_p term, int depth, VarBank_p freshvars)
    
    if(depth==0)
    {
-      handle = VarBankGetFreshVar(freshvars);
+      handle = VarBankGetFreshVar(freshvars, TermGetSort(term));
    }
    else if(TermIsVar(term))
    {
-      handle = VarBankFCodeAssertAlloc(freshvars, term->f_code);
+      handle = VarBankFCodeAssertAlloc(freshvars, term->f_code, term->sort);
    }
    else
    {
@@ -192,7 +192,7 @@ static Term_p alt_rek_term_top(Term_p term, int depth, VarBank_p
    {
       if(!term->binding)
       {
-	 handle = VarBankGetFreshVar(freshvars);
+	 handle = VarBankGetFreshVar(freshvars, TermGetSort(term));
 	 term->binding = handle;
 	 PStackPushP(bindings, term);	 
       }
@@ -203,7 +203,7 @@ static Term_p alt_rek_term_top(Term_p term, int depth, VarBank_p
    }
    else if(TermIsVar(term))
    {
-      handle = VarBankFCodeAssertAlloc(freshvars, term->f_code);
+      handle = VarBankFCodeAssertAlloc(freshvars, term->f_code, term->sort);
    }
    else
    {
@@ -246,7 +246,7 @@ Term_p term_top_marked(Term_p term, VarBank_p freshvars, PStack_p
    {
       if(!term->binding)
       {
-	 handle = VarBankGetFreshVar(freshvars);
+	 handle = VarBankGetFreshVar(freshvars, TermGetSort(term));
 	 term->binding = handle;
 	 PStackPushP(bindings, term);	 
       }
@@ -257,7 +257,7 @@ Term_p term_top_marked(Term_p term, VarBank_p freshvars, PStack_p
    }
    else if(TermIsVar(term))
    {
-      handle = VarBankFCodeAssertAlloc(freshvars, term->f_code);
+      handle = VarBankFCodeAssertAlloc(freshvars, term->f_code, term->sort);
    }
    else
    {
@@ -299,7 +299,7 @@ Term_p term_top_marked(Term_p term, VarBank_p freshvars, PStack_p
 Term_p TermTop(Term_p term, int depth, VarBank_p freshvars)
 {
    assert(TermIsShared(term));
-   VarBankSetVCount(freshvars, FRESH_VAR_LIMIT);
+   VarBankSetAllVCount(freshvars, FRESH_VAR_LIMIT);
 
    return rek_term_top(term, depth, freshvars);
 }
@@ -324,7 +324,7 @@ Term_p AltTermTop(Term_p term, int depth, VarBank_p freshvars)
    Term_p   handle, res;
 
    assert(TermIsShared(term));
-   VarBankSetVCount(freshvars, FRESH_VAR_LIMIT);
+   VarBankSetAllVCount(freshvars, FRESH_VAR_LIMIT);
 
    res = alt_rek_term_top(term, depth, freshvars, bindings);
 
@@ -356,7 +356,7 @@ Term_p CSTermTop(Term_p term, int depth, VarBank_p freshvars)
    Term_p   handle, res;
 
    assert(TermIsShared(term));
-   VarBankSetVCount(freshvars, FRESH_VAR_LIMIT);
+   VarBankSetAllVCount(freshvars, FRESH_VAR_LIMIT);
 
    term_del_prop_level(term, depth, TPOpFlag);
    term_set_prop_at_level(term, depth, TPOpFlag);
@@ -392,7 +392,7 @@ Term_p ESTermTop(Term_p term, int depth, VarBank_p freshvars)
    Term_p   handle, res;
 
    assert(TermIsShared(term));
-   VarBankSetVCount(freshvars, FRESH_VAR_LIMIT);
+   VarBankSetAllVCount(freshvars, FRESH_VAR_LIMIT);
 
    term_set_prop_at_level(term, depth, TPOpFlag);
    term_del_prop_level(term, depth-1, TPOpFlag);

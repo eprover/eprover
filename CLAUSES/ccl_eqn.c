@@ -2140,9 +2140,9 @@ bool LiteralGreater(OCB_p ocb, Eqn_p eq1, Eqn_p eq2)
 //
 /----------------------------------------------------------------------*/
 
-FunCode SubstNormEqn(Eqn_p eq, Subst_p subst, VarBank_p vars)
+PStackPointer SubstNormEqn(Eqn_p eq, Subst_p subst, VarBank_p vars)
 {
-  FunCode res;
+   PStackPointer res;
 
    res = SubstNormTerm(eq->lterm, subst, vars);
    SubstNormTerm(eq->rterm, subst, vars);

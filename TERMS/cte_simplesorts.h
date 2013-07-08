@@ -72,6 +72,7 @@ typedef struct sort_table
 #define SortTableCellAlloc()    (SortTableCell*)SizeMalloc(sizeof(SortTableCell))
 #define SortTableCellFree(junk) SizeFree(junk, sizeof(SortTableCell))
 #define SortIsUserDefined(sort) (sort > STReal)
+#define SortEqual(s1, s2) ((s1)==(s2))
 
 SortTable_p SortTableAlloc(void);
 void        SortTableFree(SortTable_p junk);

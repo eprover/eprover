@@ -98,6 +98,8 @@ extern bool TBPrintDetails;
 #define TBCellAlloc() (TBCell*)SizeMalloc(sizeof(TBCell))
 #define TBCellFree(junk)         SizeFree(junk, sizeof(TBCell))
 
+#define TBSortTable(tb) (tb->vars->sort_table)
+
 TB_p    TBAlloc(Sig_p sig);
 void    TBFree(TB_p junk);
 

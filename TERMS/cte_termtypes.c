@@ -69,6 +69,7 @@ Term_p TermDefaultCellAlloc(void)
 
    handle->properties = TPIgnoreProps;
    handle->arity = 0;
+   handle->sort = STNoSort;
    handle->binding = NULL;
    handle->args = NULL;
    handle->weight = DEFAULT_VWEIGHT; /* If no variable, will be

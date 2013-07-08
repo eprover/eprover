@@ -339,6 +339,7 @@ int main(int argc, char* argv[])
    TB_p            terms;
    GCAdmin_p       collector;
    VarBank_p       freshvars;
+   SortTable_p     sort_table;
    Sig_p           sig;
    ClauseSet_p     clauses;
    FormulaSet_p    formulas, f_ax_archive;
@@ -371,7 +372,8 @@ int main(int argc, char* argv[])
       CLStateInsertArg(state, "-");
    }
    
-   sig          = SigAlloc(); 
+   sort_table   = DefaultSortTableAlloc();
+   sig          = SigAlloc(sort_table); 
    SigInsertInternalCodes(sig);
    terms        = TBAlloc(sig);
    collector    = GCAdminAlloc(terms);
@@ -400,7 +402,7 @@ int main(int argc, char* argv[])
    {
       VERBOUT("Negated conjectures.\n");
    }
-   freshvars = VarBankAlloc();
+   freshvars = VarBankAlloc(sort_table);
    if(FormulaSetCNF(formulas, f_ax_archive, clauses, terms, freshvars, collector))
    {
       VERBOUT("CNFization done\n");
@@ -569,6 +571,7 @@ int main(int argc, char* argv[])
    FVCollectFree(cspec);
    TBFree(terms);
    SigFree(sig);
+   SortTableFree(sort_table);
 #endif
    if(print_rusage)
    {
