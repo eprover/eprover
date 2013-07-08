@@ -176,7 +176,7 @@ LD         = $(CC) $(LDFLAGS)
 # default. 
 #
 # MAKEDEPEND = echo "" > Makefile.dependencies; makedepend -- $(CFLAGS) -- -f Makefile.dependencies *.c
-MAKEDEPEND = $(GCC) -M $(CFLAGS) *.c > Makefile.dependencies
+MAKEDEPEND = $(CC) -M $(CFLAGS) *.c > Makefile.dependencies
 
 
 

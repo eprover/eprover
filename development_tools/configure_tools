@@ -36,12 +36,13 @@ else
     exit 0;
 fi
 
-for file in *.awk ; do
+for file in "$(dirname $0)"/template/*.awk.in ; do
     # cp $file $file.bak
     echo "#!$AWK -f" > tmpfile
     $TAIL +2 $file >> tmpfile
-    mv tmpfile $file
-    chmod ugo+x $file
+    TARGET="$(basename $file .in)"
+    mv tmpfile "$TARGET"
+    chmod ugo+x "$TARGET"
 done
 
 

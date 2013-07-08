@@ -4,7 +4,7 @@
 #
 # Author: Stephan Schulz
 #
-# Top level make file. Check Makefile.vars for system-dependend tool
+# Top level make file. Check Makefile.vars.in for system-dependend tool
 # selection and compilation options. 
 #
 # Changes
@@ -62,16 +62,16 @@ cleandist: clean
 dev_config:
 	sed -e 's/CC         = gcc$$/CC         = gcc-4/' \
             -e 's/WFLAGS     = $$/WFLAGS     = -Wno-unused-but-set-variable -Wno-char-subscripts/' \
-            Makefile.vars > __tmpmake__;mv __tmpmake__ Makefile.vars
+            Makefile.vars.in > __tmpmake__;mv __tmpmake__ Makefile.vars
 
 default_config:
 	sed -e 's/CC         = gcc-4/CC         = gcc/' \
             -e 's/WFLAGS     = -Wno-unused-but-set-variable -Wno-char-subscripts/WFLAGS     = /' \
-            Makefile.vars| \
+            Makefile.vars.in| \
 	awk '/^NODEBUG/{print "NODEBUG    = -DNDEBUG -DFAST_EXIT";next}/^MEMDEBUG/{print "MEMDEBUG   = # -DCLB_MEMORY_DEBUG # -DCLB_MEMORY_DEBUG2";next}/^DEBUGGER/{print "DEBUGGER   = # -g -ggdb";next}/^PROFFLAGS/{print "PROFFLAGS  = # -pg # -DNEED_MATH_EMULATION";next}{print}' > __tmpmake__;mv __tmpmake__ Makefile.vars
 
 debug_config:
-	cat Makefile.vars| \
+	cat Makefile.vars.in| \
 	awk '/^NODEBUG/{print "NODEBUG    = # -DNDEBUG -DFAST_EXIT";next}/^MEMDEBUG/{print "MEMDEBUG   = -DCLB_MEMORY_DEBUG # -DCLB_MEMORY_DEBUG2";next}{print}' > __tmpmake__;mv __tmpmake__ Makefile.vars
 
 # Build a distribution

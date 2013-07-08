@@ -5,3 +5,6 @@ tags
 *.a
 .*.swp
 *.dependencies
+development_tools/*.awk
+.session
+Makefile.vars

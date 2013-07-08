@@ -92,6 +92,8 @@ for argument in  "$@"; do
         echo "  Specify directory for the man pages."
         echo "--prefix=<path>"
         echo "  Equivalent to --bindir=<path>/bin --mandir=<path>/man".
+        echo "--cc=<program>"
+        echo "  Sets which C compiler to use"
         exit 0
     else
         opt=`echo "$argument"|cut -d= -f1`
@@ -105,6 +107,8 @@ for argument in  "$@"; do
         elif [ "$opt" = "--prefix" ] ; then
            EXECPATH=$arg/bin
            MANPATH=$arg/man
+        elif [ "$opt" = "--cc" ] ; then
+           CC=$arg
         else
            echo "Unknown option " $argument
            exit 1
@@ -115,7 +119,7 @@ done
 echo "Configuring with executable path "$EXECPATH
 
 echo $MANPATH
-sed -e "/^EXECPATH =.*/s|.*|EXECPATH = $EXECPATH|" -e "/^MANPATH =.*/s|.*|MANPATH = $MANPATH|"  Makefile.vars > tmpfile
+sed -e "/^EXECPATH =.*/s|.*|EXECPATH = $EXECPATH|" -e "/^MANPATH =.*/s|.*|MANPATH = $MANPATH|" -e "/^CC *= .*/s|.*|CC = $CC|"  Makefile.vars.in > tmpfile
 mv tmpfile Makefile.vars
 
 sed -e "/^EXECPATH=.*/s|.*|EXECPATH=$EXECPATH|" PROVER/eproof > tmpfile
