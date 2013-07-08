@@ -8,3 +8,6 @@ tags
 development_tools/*.awk
 .session
 Makefile.vars
+PROVER/eproof
+PROVER/eproof_ram
+SIMPLE_APPS/ex_commandline
