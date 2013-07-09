@@ -564,7 +564,7 @@ void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms, bo
       {
          fputs("![", out);
       }      
-      TermPrint(out, form->args[0], NULL, DEREF_NEVER);
+      TermPrint(out, form->args[0], bank->sig, DEREF_NEVER);
       fputs("]:", out);
       TFormulaTPTPPrint(out, bank, form->args[1], fullterms, pcl);
    }
