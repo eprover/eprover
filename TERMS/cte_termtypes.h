@@ -213,9 +213,6 @@ typedef bool (*TermEqualTestFun)(Term_p t1, Term_p t2);
 #define TermRWReplace(term) (TermIsRewritten(term)?TermRWTargetField(term):NULL)
 #define TermRWDemod(term) (TermIsRewritten(term)?TermRWDemodField(term):NULL)
 
-/* Get the sort of this term */
-#define TermGetSort(term) (term->sort)
-
 Term_p  TermDefaultCellAlloc(void);
 Term_p  TermConstCellAlloc(FunCode symbol);
 Term_p  TermTopAlloc(FunCode f_code, int arity); 
@@ -236,6 +233,9 @@ static __inline__ Term_p* TermArgListCopy(Term_p source);
 #ifndef __cplusplus
 static __inline__ Term_p  TermTopCopy(Term_p source);
 #endif
+
+static __inline__ SortType TermGetSort(Term_p term);
+static __inline__ bool     TermSameSort(Term_p t1, Term_p t2);
 
 void    TermStackSetProps(PStack_p stack, TermProperties prop);
 void    TermStackDelProps(PStack_p stack, TermProperties prop);
@@ -368,6 +368,53 @@ static __inline__ Term_p TermTopCopy(Term_p source)
 }
 
 #endif
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermGetSort
+//  Obtain the sort of the term. If the term has no sort, report
+//  an error and exit program.
+//   
+//
+// Global Variables: -
+//
+// Side Effects    : -  (Unless error occurs)
+//
+/----------------------------------------------------------------------*/
+static __inline__ SortType TermGetSort(Term_p term)
+{
+   SortType sort;
+
+   sort = term->sort;
+   if (sort == STNoSort)
+   {
+      Error("term has no sort", OTHER_ERROR);
+   }
+   return sort;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermSameSort
+//  Checks that the two terms have a sort, and that it's the same.
+//  If some term has no sort, reports an error.
+//   
+//
+// Global Variables: -
+//
+// Side Effects    : - (terminates program on error)
+//
+/----------------------------------------------------------------------*/
+static __inline__ bool TermSameSort(Term_p t1, Term_p t2)
+{
+   if (SortEqual(t1->sort, STNoSort) || SortEqual(t2->sort, STNoSort))
+   {
+      Error("term has no sort", OTHER_ERROR);
+   }
+   return SortEqual(t1->sort, t2->sort);
+}
 
 #endif
 

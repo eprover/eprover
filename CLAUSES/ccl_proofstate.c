@@ -475,6 +475,31 @@ void ProofStatePropDocQuote(FILE* out, int level,
 			 state->unprocessed, comment);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: ProofStateAnnotateTypes
+//  Annotate types in all clauses of the proof state
+//   
+//
+// Global Variables: -
+//
+// Side Effects    : modifies clauses
+//
+/----------------------------------------------------------------------*/
+void ProofStateAnnotateTypes(ProofState_p state)
+{
+   Sig_p sig = state->signature;
+   ClauseSetAnnotateTypes(sig, state->axioms);
+   ClauseSetAnnotateTypes(sig, state->ax_archive);
+   ClauseSetAnnotateTypes(sig, state->processed_pos_rules);
+   ClauseSetAnnotateTypes(sig, state->processed_pos_eqns);
+   ClauseSetAnnotateTypes(sig, state->processed_neg_units);
+   ClauseSetAnnotateTypes(sig, state->processed_non_units);
+   ClauseSetAnnotateTypes(sig, state->unprocessed);
+   ClauseSetAnnotateTypes(sig, state->tmp_store);
+   ClauseSetAnnotateTypes(sig, state->archive);
+}
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

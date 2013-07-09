@@ -2271,6 +2271,27 @@ long ClauseSetPushClauses(PStack_p stack, ClauseSet_p set)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetAnnotateTypes
+//  Annotate types in all clauses of the set
+//   
+//
+// Global Variables: -
+//
+// Side Effects    : modifies clauses
+//
+/----------------------------------------------------------------------*/
+void ClauseSetAnnotateTypes(Sig_p sig, ClauseSet_p set)
+{
+   Clause_p handle;
+
+   for(handle = set->anchor->succ; handle!=set->anchor; handle = handle->succ)
+   {
+      ClauseAnnotateTypes(sig, handle);      
+   }
+}
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

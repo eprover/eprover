@@ -160,7 +160,7 @@ bool SubstComputeMatch(Term_p matcher, Term_p to_match, Subst_p subst,
 	 
 	 if(TermIsVar(matcher))
 	 {
-            if(!SortEqual(matcher->sort, to_match->sort))
+            if(!TermSameSort(matcher, to_match))
             {
                res = false;
                break;
@@ -276,7 +276,7 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
 	 {
 	    /* Sort check, then Occur-Check - remember,
              * variables are elementary and shared! */
-	    if(!SortEqual(t1->sort, t2->sort) || occur_check(t2, t1))
+	    if(!TermSameSort(t1, t2) || occur_check(t2, t1))
 	    {
 	       SubstBacktrackToPos(subst,backtrack);
 	       PQueueFree(jobs);

@@ -173,6 +173,7 @@ typedef enum
    OPT_FREE_OBJECTS,
    OPT_OLD_STYLE_CNF,
    OPT_DEF_CNF,
+   OPT_PRINT_TYPES,
    OPT_DUMMY
 }OptionCodes;
 
@@ -1180,6 +1181,11 @@ OptCell opts[] =
     "is a fudge factor that determines when definitions are introduced. "
     "0 disables definitions completely. The default works well."},
 
+   {OPT_PRINT_TYPES,
+    '\0', "print-types",
+    NoArg, NULL,
+    "Print the type of every term. Useful for debugging purpose."},
+
    {OPT_NOOPT,
     '\0', NULL,
     NoArg, NULL,
@@ -1293,6 +1299,8 @@ ProofState_p parse_spec(CLState_p state,
       Error("Input file contains no clauses or formulas", OTHER_ERROR);
    }
    *ax_no = parsed_ax_no;
+
+   ProofStateAnnotateTypes(proofstate);
    return proofstate;
 }
 
@@ -2517,6 +2525,9 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_DEF_CNF:
             FormulaDefLimit     = CLStateGetIntArg(handle, arg);
+            break;
+      case OPT_PRINT_TYPES:
+            TermPrintTypes = true;
             break;
       default:
 	    assert(false && "Unknown option");
