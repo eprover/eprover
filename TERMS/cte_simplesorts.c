@@ -22,8 +22,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "cte_simplesorts.h"
-
-
+#include "cte_functypes.c"
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -205,6 +204,38 @@ void SortPrintTSTP(FILE *out, SortTable_p table, SortType sort)
 
     name = SortTableGetRep(table, sort);
     fputs(name, out);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: SortParseTSTP
+//  parse a sort in the TSTP format
+//   
+//
+// Global Variables: -
+//
+// Side Effects    : Reads from scanner, modifies sort table
+//
+/----------------------------------------------------------------------*/
+SortType SortParseTSTP(Scanner_p in, SortTable_p table)
+{
+   DStr_p id;
+   FuncSymbType functype;
+   SortType sort = STNoSort;
+
+   id = DStrAlloc();
+   functype = FuncSymbParse(in, id);
+   if(functype == FSIdentFreeFun || functype == FSIdentInterpreted)
+   {
+      sort = SortTableInsert(table, DStrView(id));
+   }
+   else
+   {
+      AktTokenError(in, "Expected TSTP sort", false);
+   }
+
+   DStrFree(id);
+   return sort;
 }
 
 /*-----------------------------------------------------------------------

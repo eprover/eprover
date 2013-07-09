@@ -1223,11 +1223,32 @@ FunCode SigGetNewPredicateCode(Sig_p sig, int arity)
 void SigDeclareType(Sig_p sig, FunCode f, Type_p type)
 {
    Func_p fun;
+   bool is_pred;
 
    fun = &sig->f_info[f];
-   assert(fun->type == sig->type_table->no_type);
-   
-   fun->type = type;
+   if(fun->type != sig->type_table->no_type)
+   {
+      /* type already declared, check it's the same */
+      if(!TypeEqual(fun->type, type))
+      {
+         Error("type error", INPUT_SEMANTIC_ERROR);
+      }
+   }
+   else
+   {
+      if(Verbose >= 2)
+      {
+         fprintf(stderr, "# type declaration %s: ", SigFindName(sig, f));
+         TypePrintTSTP(stderr, sig->type_table, type);
+         fprintf(stderr, "\n");
+      }
+
+      fun->type = type;
+
+      /* keep predicate bit consistent */
+      is_pred = SortEqual(type->domain_sort, STBool);
+      SigSetPredicate(sig, f, is_pred);
+   }
 }
 
 
@@ -1345,6 +1366,63 @@ void SigPrintTypes(FILE* out, Sig_p sig)
       }
    }
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SigParseTFFTypeDeclaration
+//  Parses a type declaration, and update the signature if it's a
+//  symbol declaration (ignores type declarations)
+//
+// Global Variables: -
+//
+// Side Effects    : Reads from scanner, may raise an error
+//
+/----------------------------------------------------------------------*/
+void SigParseTFFTypeDeclaration(Scanner_p in, Sig_p sig)
+{
+   DStr_p id;
+   FuncSymbType symbtype;
+   FunCode f;
+   Type_p type;
+   int arity;
+   bool within_paren = false;
+
+   id = DStrAlloc();
+
+   if(TestInpTok(in, OpenBracket))
+   {
+      NextToken(in);
+      within_paren = true;
+   }
+
+   /* parse symbol */
+   symbtype = FuncSymbParse(in, id);
+   if(symbtype == FSIdentVar || symbtype == FSNone)
+   {
+      Error("expected symbol in type declaration", OTHER_ERROR);
+   }
+
+   /* parse type */
+   AcceptInpTok(in, Colon);
+   type = TypeParseTSTP(in, sig->type_table);
+
+   if(within_paren)
+   {
+      AcceptInpTok(in, CloseBracket);
+   }
+
+   /* we only keep declarations of symbols, not declaration of types */
+   if(type->domain_sort != STKind)
+   {
+      arity = TypeArity(type);
+      f = SigInsertId(sig, DStrView(id), arity, false);
+      SigDeclareType(sig, f, type);
+   }
+
+   DStrFree(id);
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

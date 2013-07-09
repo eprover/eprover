@@ -333,7 +333,7 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
                           AktToken(in)->line, 
                           AktToken(in)->column); 
       
-   AcceptInpId(in, "fof");
+   AcceptInpId(in, "fof|tff");
    AcceptInpTok(in, OpenBracket);
    CheckInpTok(in, Name|PosInt|SQString);
    info->name = DStrCopy(AktToken(in)->literal);
@@ -346,15 +346,33 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
       actually initial (the CPInitialProperty is actually set in
       all clauses in the initial unprocessed clause set. So we
       ignore the "derived" modifier, and use CPTypeAxiom for plain
-      clauses. */
-   type = ClauseTypeParse(in, 
-                          "axiom|hypothesis|definition|assumption|"
-                          "lemma|theorem|conjecture|question|negated_conjecture|"
-                          "plain|unknown");
-   AcceptInpTok(in, Comma);
+      clauses.
+      With typing, it gets more complex, as a type declaration is
+      not a proper clause. However, the simplest thing to do is
+      to parse "$true" and modify the signature.
+      */
+   if(TestInpId(in, "type"))
+   {
+      NextToken(in);
+      AcceptInpTok(in, Comma);
 
-   tform = TFormulaTSTPParse(in, terms);
-   handle = WTFormulaAlloc(terms, tform);
+      /* Parse declaration, modifies signature */
+      SigParseTFFTypeDeclaration(in, terms->sig);
+
+      tform = TFormulaPropConstantAlloc(terms, true);
+      handle = WTFormulaAlloc(terms, tform);
+   }
+   else
+   {
+      type = ClauseTypeParse(in, 
+                             "axiom|hypothesis|definition|assumption|"
+                             "lemma|theorem|conjecture|question|negated_conjecture|"
+                             "plain|unknown");
+      AcceptInpTok(in, Comma);
+
+      tform = TFormulaTSTPParse(in, terms);
+      handle = WTFormulaAlloc(terms, tform);
+   }
 
    if(TestInpTok(in, Comma))
    {

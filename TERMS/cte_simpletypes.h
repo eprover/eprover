@@ -69,6 +69,7 @@ typedef struct
 #define TypeIsConstant(ty) (ty->arity == 0)
 #define TypeIsFunction(ty) (ty->arity > 0)
 #define TypeGetArg(ty, i)  (ty->arguments[i])
+#define TypeArity(ty)  ((ty)->arity)
 
 TypeTable_p     TypeTableAlloc(SortTable_p sort_table);
 void            TypeTableFree(TypeTable_p junk);

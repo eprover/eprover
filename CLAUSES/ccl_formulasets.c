@@ -417,7 +417,27 @@ long long FormulaSetStandardWeight(FormulaSet_p set)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaSetAnnotateTypes
+//  annotates types in formulas/terms
+//   
+//
+// Global Variables: -
+//
+// Side Effects    : modifies terms
+//
+/----------------------------------------------------------------------*/
+void FormulaSetAnnotateTypes(Sig_p sig, FormulaSet_p set)
+{
+   WFormula_p handle;
 
+   assert(set->anchor);
+   for(handle = set->anchor->succ; handle!=set->anchor; handle=handle->succ)
+   {
+      WFormulaAnnotateTypes(sig, handle);
+   }
+}
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

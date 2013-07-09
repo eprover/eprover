@@ -247,6 +247,7 @@ void    SigDeclareIsPredicate(Sig_p sig, FunCode f);
 Type_p  SigGetTypeOrDefault(Sig_p sig, FunCode f);
 void    SigPrintTypes(FILE* out, Sig_p sig);
 
+void    SigParseTFFTypeDeclaration(Scanner_p in, Sig_p sig);
 
 /*---------------------------------------------------------------------*/
 /*                        Inline functions                             */

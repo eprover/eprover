@@ -90,7 +90,8 @@ int        TFormulaDecodePolarity(TB_p bank, TFormula_p form);
 TFormula_p TFormulaClauseEncode(TB_p bank, Clause_p clause);
 TFormula_p TFormulaClauseClosedEncode(TB_p bank, Clause_p clause);
 
-
+/* FIXME: how to deal with ad-hoc polymorphic symbols (connectives)? */
+#define    TFormulaAnnotateTypes(sig, f) (TermAnnotateType((sig),(f)))
 
 #endif
 

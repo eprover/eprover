@@ -293,6 +293,53 @@ Type_p TypeTreeExtract(Type_p *root, Type_p key)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: parse_sort_list
+//   Parses a list of sorts, separated by "*" into the given array.
+//   Will also consume the opening and trailing parenthesis.
+//
+//   It returns the number of parsed sorts.
+//
+// Global Variables: -
+//
+// Side Effects    : Modifies scanner, args and len
+//
+/----------------------------------------------------------------------*/
+int parse_sort_list(Scanner_p in, SortTable_p sort_table, SortType **args, int *len)
+{
+   SortType sort;
+   int arity;
+
+   *len = 5;
+   *args = SizeMalloc((*len) * sizeof(SortType));
+
+   AcceptInpTok(in, OpenBracket);
+
+   sort = SortParseTSTP(in, sort_table);
+   (*args)[0] = sort;
+   arity = 1;
+
+   while(TestInpTok(in, Mult))
+   {
+      AcceptInpTok(in, Mult);
+      sort = SortParseTSTP(in, sort_table);
+
+      /* may have to resize args */
+      if(arity == *len)
+      {
+         *len += 5;
+         *args = SecureRealloc(*args, (*len) * sizeof(SortType));
+      }
+      (*args)[arity]= sort;
+      arity++;
+   }
+   AcceptInpTok(in, CloseBracket);
+
+   return arity;
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                    Exported Functions                               */
 /*---------------------------------------------------------------------*/
@@ -508,8 +555,44 @@ void TypePrintTSTP(FILE *out, TypeTable_p table, Type_p type)
 /----------------------------------------------------------------------*/
 Type_p TypeParseTSTP(Scanner_p in, TypeTable_p table)
 {
-    assert(false);
-    return NULL;  /* TODO */
+   SortType left, right, *args = NULL;
+   int arity, len;
+   Type_p res;
+
+   left = right = STNoSort;
+
+   if (TestInpTok(in, OpenBracket))
+   {
+      /* Function type */
+      arity = parse_sort_list(in, table->sort_table, &args, &len);
+      AcceptInpTok(in, GreaterSign);
+      right = SortParseTSTP(in, table->sort_table);
+
+      res = TypeNewFunction(table, right, arity, args);
+      SizeFree(args, len * sizeof(SortType));
+   }
+   else
+   {
+      left = SortParseTSTP(in, table->sort_table);
+      if (TestInpTok(in, GreaterSign))
+      {
+         /* Unary function type */
+         AcceptInpTok(in, GreaterSign);
+         right = SortParseTSTP(in, table->sort_table);
+         args = SizeMalloc(sizeof(SortType));
+         args[0] = left;
+         res = TypeNewFunction(table, right, 1, args);
+         SizeFree(args, sizeof(SortType));
+      }
+      else
+      {
+         /* constant type */
+         res = TypeNewConstant(table, left);
+      }
+   }
+
+   return res;
 }
+
 
 AVL_TRAVERSE_DEFINITION(Type, Type_p)
