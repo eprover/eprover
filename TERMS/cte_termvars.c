@@ -392,6 +392,7 @@ Term_p VarBankFCodeAssertAlloc(VarBank_p bank, FunCode f_code, SortType sort)
       var = TermDefaultCellAlloc();
       var->entry_no = f_code;
       var->f_code = f_code;
+      var->sort = sort;
       TermCellSetProp(var, TPIsShared);
       PDArrayAssignP(stack->f_code_index, -f_code, var);
       bank->max_var = MAX(-f_code, bank->max_var);

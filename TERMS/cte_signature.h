@@ -194,9 +194,9 @@ FunCode SigFindFCode(Sig_p sig, const char* name);
 static __inline__ int     SigFindArity(Sig_p sig, FunCode f_code);
 
 static __inline__ char*   SigFindName(Sig_p sig, FunCode f_code);
-void    SigSetPredicate(Sig_p sig, FunCode f_code, bool value); // TODO remove
+void    SigSetPredicate(Sig_p sig, FunCode f_code, bool value);
 bool    SigIsPredicate(Sig_p sig, FunCode f_code);
-void    SigSetFunction(Sig_p sig, FunCode f_code, bool value);  // TODO remove
+void    SigSetFunction(Sig_p sig, FunCode f_code, bool value);
 bool    SigIsFunction(Sig_p sig, FunCode f_code);
 
 #define SigIsFunConst(sig, f_code) (SigFindArity((sig), (f_code))==0&&\

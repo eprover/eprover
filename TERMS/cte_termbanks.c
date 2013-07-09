@@ -383,11 +383,13 @@ TB_p TBAlloc(Sig_p sig)
 
    term = TermDefaultCellAlloc();
    term->f_code = SIG_TRUE_CODE;
+   term->sort = STBool;
    TermCellSetProp(term, TPPredPos);
    handle->true_term = TBInsert(handle, term, DEREF_NEVER);
    TermFree(term);
    term = TermDefaultCellAlloc();
    term->f_code = SIG_FALSE_CODE;
+   term->sort = STBool;
    TermCellSetProp(term, TPPredPos);
    handle->false_term = TBInsert(handle, term, DEREF_NEVER);
    TermFree(term);

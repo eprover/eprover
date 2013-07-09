@@ -183,6 +183,8 @@ void         ClauseSetDerivationStackStatistics(ClauseSet_p set);
 
 long         ClauseSetPushClauses(PStack_p stack, ClauseSet_p set);
 
+void         ClauseSetAnnotateTypes(Sig_p sig, ClauseSet_p set);
+
 #endif
 
 /*---------------------------------------------------------------------*/

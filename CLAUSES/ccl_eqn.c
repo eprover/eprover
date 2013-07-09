@@ -2697,6 +2697,23 @@ long EqnCollectSubterms(Eqn_p eqn, PStack_p collector)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: EqnAnnotateTypes
+//   Annotates terms of the equation with their type
+//   
+//
+// Global Variables: -
+//
+// Side Effects    : Modifies subterms
+//
+/----------------------------------------------------------------------*/
+void EqnAnnotateTypes(Sig_p sig, Eqn_p eqn)
+{
+   TermAnnotateType(sig, eqn->lterm);
+   TermAnnotateType(sig, eqn->rterm);
+}
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

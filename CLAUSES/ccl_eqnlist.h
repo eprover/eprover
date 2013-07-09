@@ -118,6 +118,8 @@ long    EqnListTermDelProp(Eqn_p list, TermProperties props);
 
 long    EqnListCollectSubterms(Eqn_p list, PStack_p collector);
 
+void    EqnListAnnotateTypes(Sig_p sig, Eqn_p list);
+
 #endif
 
 /*---------------------------------------------------------------------*/

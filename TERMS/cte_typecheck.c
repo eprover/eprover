@@ -97,18 +97,32 @@ bool TypeCheckConsistent(Sig_p sig, Term_p term)
 SortType TypeInfer(Sig_p sig, Term_p term)
 {
    Type_p type;
-   Func_p fun;
 
    if (TermIsVar(term))
    {
-      return term->sort;
+      if (term->sort == STNoSort)
+      {
+         return SigDefaultSort(sig);
+      }
+      else
+      {
+         return term->sort;
+      }
    }
    else
    {
       type = SigGetType(sig, term->f_code); 
       if (type == sig->type_table->no_type)
       {
-         return SigDefaultSort(sig);
+         /* Take the predicate flag into account */
+         if (SigIsPredicate(sig, term->f_code))
+         {
+            return STBool;
+         }
+         else
+         {
+            return SigDefaultSort(sig);
+         }
       }
       else
       {

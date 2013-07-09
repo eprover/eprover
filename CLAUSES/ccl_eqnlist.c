@@ -1615,6 +1615,26 @@ long EqnListCollectSubterms(Eqn_p list, PStack_p collector)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: EqnListAnnotateTypes
+//  Annotates types of all terms in the list
+//   
+//
+// Global Variables: -
+//
+// Side Effects    : Modifies terms
+//
+/----------------------------------------------------------------------*/
+void EqnListAnnotateTypes(Sig_p sig, Eqn_p list)
+{
+   while(list)
+   {
+      EqnAnnotateTypes(sig, list);
+      list = list->next;
+   }
+}
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
