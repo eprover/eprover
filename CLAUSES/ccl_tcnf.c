@@ -1203,7 +1203,7 @@ TFormula_p TFormulaVarRename(TB_p terms, TFormula_p form)
    if(TFormulaIsQuantified(terms->sig, form))
    {
       old_var = form->args[0]->binding;
-      new_var = VarBankGetFreshVar(terms->vars, old_var->sort);
+      new_var = VarBankGetFreshVar(terms->vars, form->args[0]->sort);
       assert(new_var != form->args[0]);
       form->args[0]->binding = new_var;
    }
