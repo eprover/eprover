@@ -488,7 +488,14 @@ void ProofStatePropDocQuote(FILE* out, int level,
 /----------------------------------------------------------------------*/
 void ProofStateAnnotateTypes(ProofState_p state)
 {
+   if(Verbose>=5)
+   {
+      fprintf(stderr, "annotating types in proof state %p...\n", state);
+   }
+
    Sig_p sig = state->signature;
+   FormulaSetAnnotateTypes(sig, state->f_ax_archive);
+   FormulaSetAnnotateTypes(sig, state->f_axioms);
    ClauseSetAnnotateTypes(sig, state->axioms);
    ClauseSetAnnotateTypes(sig, state->ax_archive);
    ClauseSetAnnotateTypes(sig, state->processed_pos_rules);
@@ -498,6 +505,16 @@ void ProofStateAnnotateTypes(ProofState_p state)
    ClauseSetAnnotateTypes(sig, state->unprocessed);
    ClauseSetAnnotateTypes(sig, state->tmp_store);
    ClauseSetAnnotateTypes(sig, state->archive);
+   if(state->watchlist)
+   {
+      ClauseSetAnnotateTypes(sig, state->watchlist);
+   }
+   FormulaSetAnnotateTypes(sig, state->f_archive);
+
+   if(Verbose>=5)
+   {
+      fprintf(stderr, "done annotating types\n");
+   }
 }
 
 /*---------------------------------------------------------------------*/

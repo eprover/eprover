@@ -400,13 +400,13 @@ FunCode TermSigInsert(Sig_p sig, const char* name, int arity, bool
 //
 /----------------------------------------------------------------------*/
 
-// TODO: parse typed variables (and other TFF goodies)
 Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
 {
    Term_p        handle;
    DStr_p        id;
    FuncSymbType id_type;
    DStr_p        source_name, errpos;
+   SortType      sort;
    long          line, column;
    StreamType    type;
 
@@ -424,8 +424,17 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
 
       if((id_type = TermParseOperator(in, id))==FSIdentVar)
       {
-         handle = VarBankExtNameAssertAlloc(vars, DStrView(id),
-                                            sig->sort_table->default_type);
+         /* A variable may be annotated with a sort */
+         if(TestInpTok(in, Colon))
+         {
+            AcceptInpTok(in, Colon);
+            sort = SortParseTSTP(in, sig->sort_table);
+         }
+         else
+         {
+            sort = SigDefaultSort(sig);
+         }
+         handle = VarBankExtNameAssertAlloc(vars, DStrView(id), sort);
       }      
       else 
       {
@@ -1882,14 +1891,7 @@ void TermAnnotateType(Sig_p sig, Term_p term)
       /* Does the term need to have its sort computed? */
       if (term->sort == STNoSort)
       {
-         if (TermIsVar(term))
-         {
-            term->sort = SigDefaultSort(sig);
-         }
-         else
-         {
-            term->sort = TypeInfer(sig, term);
-         }
+         term->sort = TypeInfer(sig, term);
       }
 
       /* May have to explore subterms */

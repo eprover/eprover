@@ -27,6 +27,7 @@ Changes
 #define CTE_SIMPLESORTS
 
 #include <clb_stringtrees.h>
+#include <cio_scanner.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -79,6 +80,7 @@ void        SortTableFree(SortTable_p junk);
 SortType    SortTableInsert(SortTable_p table, char* sort_name);
 SortTable_p DefaultSortTableAlloc(void);
 char*       SortTableGetRep(SortTable_p table, SortType sort);
+SortType    SortParseTSTP(Scanner_p in, SortTable_p table);
 void        SortPrintTSTP(FILE *out, SortTable_p table, SortType sort);
 void        SortTablePrint(FILE* out, SortTable_p table);
 

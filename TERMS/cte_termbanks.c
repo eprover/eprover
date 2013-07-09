@@ -992,6 +992,7 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
    DStr_p        id;
    FuncSymbType id_type;
    DStr_p        source_name, errpos;
+   SortType      sort;
    long          line, column;
    StreamType    type;
 
@@ -1069,8 +1070,17 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
 	 
 	 if((id_type=TermParseOperator(in, id))==FSIdentVar)
 	 {
-	    handle = VarBankExtNameAssertAlloc(bank->vars, DStrView(id),
-                                               TBSortTable(bank)->default_type);
+            /* A variable may be annotated with a sort */
+            if(TestInpTok(in, Colon))
+            {
+               AcceptInpTok(in, Colon);
+               sort = SortParseTSTP(in, bank->sig->sort_table);
+            }
+            else
+            {
+               sort = SigDefaultSort(bank->sig);
+            }
+	    handle = VarBankExtNameAssertAlloc(bank->vars, DStrView(id), sort);
 	 }
 	 else
 	 {
