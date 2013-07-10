@@ -98,7 +98,10 @@ void clear_env_stack(VarBank_p bank)
    while(!PStackEmpty(bank->env))
    {
       named = PStackPopP(bank->env);
-      var_named_free(named);
+      if(named)
+      {
+         var_named_free(named);
+      }
    }
 }
 

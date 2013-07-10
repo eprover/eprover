@@ -201,10 +201,13 @@ int TermTopCompare(Term_p t1, Term_p t2)
       return res;
    }
 
-   res = SortCompare(t1->sort, t2->sort);
-   if(res)
+   if(!SortEqual(t1->sort, STNoSort) && !SortEqual(t2->sort, STNoSort))
    {
-      return res;
+      res = SortCompare(t1->sort, t2->sort);
+      if(res)
+      {
+         return res;
+      }
    }
 
    assert(t1->arity == t2->arity);
