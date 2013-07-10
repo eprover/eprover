@@ -193,7 +193,7 @@ Clause_p ClausePlainParamodConstruct(ParamodInfo_p ol_desc)
    assert(PStackEmpty(ol_desc->from_pos->pos));
 
 
-   VarBankResetAllVCount(ol_desc->freshvars);
+   VarBankResetVCount(ol_desc->freshvars);
    NormSubstEqnList(ol_desc->into->literals, 
                     subst, ol_desc->freshvars);
    NormSubstEqnList(ol_desc->from->literals, 
@@ -273,7 +273,7 @@ Clause_p ClauseSimParamodConstruct(ParamodInfo_p ol_desc)
                                DEREF_ALWAYS,
                                DEREF_ALWAYS));
 
-   VarBankResetAllVCount(ol_desc->freshvars);
+   VarBankResetVCount(ol_desc->freshvars);
    into_term = ClausePosGetSubterm(ol_desc->into_pos);
 
    /* All the checks are assumed to have been done and succeeded, we
@@ -537,7 +537,7 @@ Clause_p ClauseOrderedParamod(TB_p bank, OCB_p ocb, ClausePos_p from,
       }*/
 
    subst = SubstAlloc();
-   VarBankResetAllVCount(freshvars);
+   VarBankResetVCount(freshvars);
    new_literals = EqnOrderedParamod(bank, ocb, from, into, subst,
 				    freshvars);
    if(new_literals)
@@ -628,7 +628,7 @@ Clause_p ClauseOrderedSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
    }
    from_term = ClausePosGetSide(from);
    subst = SubstAlloc();
-   VarBankResetAllVCount(freshvars);
+   VarBankResetVCount(freshvars);
    unify_success = SubstComputeMgu(from_term, into_term, subst);
    if(!unify_success ||
       (!EqnIsOriented(from->literal) && 

@@ -1075,12 +1075,13 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
             {
                AcceptInpTok(in, Colon);
                sort = SortParseTSTP(in, bank->sig->sort_table);
+               handle = VarBankExtNameAssertAllocSort(bank->vars,
+                                                      DStrView(id), sort);
             }
             else
             {
-               sort = SigDefaultSort(bank->sig);
+               handle = VarBankExtNameAssertAlloc(bank->vars, DStrView(id));
             }
-	    handle = VarBankExtNameAssertAlloc(bank->vars, DStrView(id), sort);
 	 }
 	 else
 	 {

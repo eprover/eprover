@@ -1572,7 +1572,7 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
       WFormulaPushDerivation(form, DCShiftQuantors, NULL, NULL);
    }
    max_var = TFormulaFindMaxVarCode(form->tformula);
-   VarBankSetAllVCount(terms->vars, -max_var);
+   VarBankSetVCount(terms->vars, -max_var);
    handle = TFormulaVarRename(terms, form->tformula);
    
    if(handle!=form->tformula)
