@@ -4,6 +4,7 @@ tags
 *.o
 *.a
 .*.swp
+.*.swo
 *.dependencies
 development_tools/*.awk
 .session
