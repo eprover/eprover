@@ -139,6 +139,7 @@ Eqn_p GenDefLit(TB_p bank, FunCode pred, bool positive,
 	 lside->args[i] = PStackElementP(split_vars, i);
       }
    }   
+   lside->sort = STBool;
    lside = TBTermTopInsert(bank, lside);
    res = EqnAlloc(lside, bank->true_term, bank, positive);
    EqnSetProp(res, EPIsSplitLit);

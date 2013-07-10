@@ -134,7 +134,7 @@ Term_p  TBInsertDisjoint(TB_p bank, Term_p term);
 
 Term_p  TBTermTopInsert(TB_p bank, Term_p t);
 
-Term_p  TBAllocNewSkolem(TB_p bank, PStack_p variables, bool atom);
+Term_p  TBAllocNewSkolem(TB_p bank, PStack_p variables, SortType sort);
 
 Term_p  TBFind(TB_p bank, Term_p term);
 

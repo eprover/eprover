@@ -210,12 +210,12 @@ void TermFree(Term_p junk)
 //
 /----------------------------------------------------------------------*/
 
-Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, bool atom)
+Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, SortType sort)
 {
    Term_p handle = TermDefaultCellAlloc();
    PStackPointer arity = PStackGetSP(variables), i;
 
-   if(!atom)
+   if(!SortEqual(sort, STBool))
    {
       handle->f_code = SigGetNewSkolemCode(sig, arity);
    }
@@ -223,6 +223,9 @@ Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, bool atom)
    {
       handle->f_code = SigGetNewPredicateCode(sig, arity);
    }
+   /* TODO: require argument types, declare type of new symbol */
+   handle->sort = sort;
+
    if(arity)
    {
       handle->arity = arity;

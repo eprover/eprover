@@ -781,11 +781,11 @@ Term_p TBTermTopInsert(TB_p bank, Term_p t)
 //
 /----------------------------------------------------------------------*/
 
-Term_p TBAllocNewSkolem(TB_p bank, PStack_p variables, bool atom)
+Term_p TBAllocNewSkolem(TB_p bank, PStack_p variables, SortType sort)
 {
    Term_p handle, res;
 
-   handle = TermAllocNewSkolem(bank->sig, variables, atom);
+   handle = TermAllocNewSkolem(bank->sig, variables, sort);
    res = TBInsert(bank, handle, DEREF_NEVER);
    TermFree(handle);
 
