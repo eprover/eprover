@@ -1438,6 +1438,9 @@ int main(int argc, char* argv[])
    {
       VERBOUT("CNFization done\n");
    }
+
+   ProofStateAnnotateTypes(proofstate);
+
    ProofStateInitWatchlist(proofstate, watchlist_filename, parse_format);
    raw_clause_no = proofstate->axioms->members;   
    if(!no_preproc)

@@ -629,7 +629,7 @@ TFormula_p TFormulaDefRename(TB_p bank, TFormula_p form, int polarity,
       PTreeToPStack(var_stack, free_vars);
       /* printf("# Found %d free variables\n", PStackGetSP(var_stack)); */
 
-      rename_atom = TBAllocNewSkolem(bank, var_stack, true);
+      rename_atom = TBAllocNewSkolem(bank, var_stack, STBool);
       rename_atom = EqnTermsTBTermEncode(bank, rename_atom, 
                                          bank->true_term, true, PENormal); 
       PStackFree(var_stack);
