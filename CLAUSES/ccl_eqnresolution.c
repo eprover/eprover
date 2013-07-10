@@ -68,7 +68,7 @@ Clause_p ComputeEqRes(TB_p bank, ClausePos_p pos, VarBank_p freshvars)
 
    assert(!EqnIsPositive(pos->literal));
    subst = SubstAlloc();
-   VarBankResetAllVCount(freshvars);
+   VarBankResetVCount(freshvars);
    
    unifies = SubstComputeMgu(pos->literal->lterm, pos->literal->rterm,
 			     subst);

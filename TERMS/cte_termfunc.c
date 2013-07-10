@@ -428,13 +428,14 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
          if(TestInpTok(in, Colon))
          {
             AcceptInpTok(in, Colon);
-            sort = SortParseTSTP(in, sig->sort_table);
+            sort = SortParseTSTP(in, vars->sort_table);
+            handle = VarBankExtNameAssertAllocSort(vars,
+                                                   DStrView(id), sort);
          }
          else
          {
-            sort = SigDefaultSort(sig);
+            handle = VarBankExtNameAssertAlloc(vars, DStrView(id));
          }
-         handle = VarBankExtNameAssertAlloc(vars, DStrView(id), sort);
       }      
       else 
       {
@@ -1476,9 +1477,9 @@ FunCode VarBankCheckBindings(FILE* out, VarBank_p bank, Sig_p sig)
          continue;
       }
 
-      for(j=0; j<stack->f_code_index->size; j++)
+      for(j=0; j < PDArraySize(stack); j++)
       {
-         term = PDArrayElementP(stack->f_code_index, j);
+         term = PDArrayElementP(stack, j);
          if(term)
          {
             assert(TermIsVar(term));

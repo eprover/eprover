@@ -135,7 +135,7 @@ Clause_p ComputeOrderedFactor(TB_p bank, OCB_p ocb, ClausePos_p pos1,
    assert(pos1->side == LeftSide);
 
    subst = SubstAlloc();
-   VarBankResetAllVCount(freshvars);
+   VarBankResetVCount(freshvars);
       
    if(pos2->side == RightSide)
    {

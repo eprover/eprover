@@ -2504,7 +2504,7 @@ Clause_p ClauseNormalizeVars(Clause_p clause, VarBank_p fresh_vars)
    if(!ClauseIsEmpty(clause))
    {            
       subst = SubstAlloc();
-      VarBankResetAllVCount(fresh_vars);
+      VarBankResetVCount(fresh_vars);
 
       NormSubstClause(clause, subst, fresh_vars);
 
