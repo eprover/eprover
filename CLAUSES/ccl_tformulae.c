@@ -190,6 +190,7 @@ static TFormula_p quantified_tform_tptp_parse(Scanner_p in,
       Error(DStrView(errpos), SYNTAX_ERROR);
       DStrFree(errpos);
    }
+   assert(!SortEqual(var->sort, STNoSort));
    DStrReleaseRef(source_name);
    if(TestInpTok(in, Comma))
    {
