@@ -1309,7 +1309,11 @@ ProofState_p parse_spec(CLState_p state,
 
    if(check_types)
    {
-      ProofStateInferTypes(proofstate);
+      if(!ProofStateInferTypes(proofstate))
+      {
+         TSTPOUT(GlobalOut, "InputError");
+         Error("#Type error", INPUT_SEMANTIC_ERROR);
+      }
    }
    ProofStateAnnotateTypes(proofstate);
    return proofstate;
