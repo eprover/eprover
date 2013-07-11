@@ -531,33 +531,36 @@ void ProofStateAnnotateTypes(ProofState_p state)
 /----------------------------------------------------------------------*/
 bool ProofStateInferTypes(ProofState_p state)
 {
+   bool res = true;
+
    if(Verbose>=5)
    {
       fprintf(stderr, "infer types in proof state %p...\n", state);
    }
 
    Sig_p sig = state->signature;
-   FormulaSetInferTypes(sig, state->f_ax_archive);
-   FormulaSetInferTypes(sig, state->f_axioms);
-   ClauseSetInferTypes(sig, state->axioms);
-   ClauseSetInferTypes(sig, state->ax_archive);
-   ClauseSetInferTypes(sig, state->processed_pos_rules);
-   ClauseSetInferTypes(sig, state->processed_pos_eqns);
-   ClauseSetInferTypes(sig, state->processed_neg_units);
-   ClauseSetInferTypes(sig, state->processed_non_units);
-   ClauseSetInferTypes(sig, state->unprocessed);
-   ClauseSetInferTypes(sig, state->tmp_store);
-   ClauseSetInferTypes(sig, state->archive);
+   res = res && FormulaSetInferTypes(sig, state->f_ax_archive);
+   res = res && FormulaSetInferTypes(sig, state->f_axioms);
+   res = res && ClauseSetInferTypes(sig, state->axioms);
+   res = res && ClauseSetInferTypes(sig, state->ax_archive);
+   res = res && ClauseSetInferTypes(sig, state->processed_pos_rules);
+   res = res && ClauseSetInferTypes(sig, state->processed_pos_eqns);
+   res = res && ClauseSetInferTypes(sig, state->processed_neg_units);
+   res = res && ClauseSetInferTypes(sig, state->processed_non_units);
+   res = res && ClauseSetInferTypes(sig, state->unprocessed);
+   res = res && ClauseSetInferTypes(sig, state->tmp_store);
+   res = res && ClauseSetInferTypes(sig, state->archive);
    if(state->watchlist)
    {
-      ClauseSetInferTypes(sig, state->watchlist);
+      res = res && ClauseSetInferTypes(sig, state->watchlist);
    }
-   FormulaSetInferTypes(sig, state->f_archive);
+   res = res && FormulaSetInferTypes(sig, state->f_archive);
 
    if(Verbose>=5)
    {
       fprintf(stderr, "done inferring types\n");
    }
+   return res;
 }
 
 

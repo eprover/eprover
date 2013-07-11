@@ -166,7 +166,7 @@ bool TypeInfer(Sig_p sig, Term_p term)
             args = TypeArgumentAlloc(term->arity);
             for(i=0; i < term->arity; ++i)
             {
-                args[i] = TermGetSort(term->args[i]);
+                args[i] = term->args[i]->sort;
             }
 
             type = TypeNewFunction(sig->type_table, sort, term->arity, args);
