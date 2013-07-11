@@ -74,6 +74,7 @@ long         FormulaSetSplitConjectures(FormulaSet_p set,
 long long    FormulaSetStandardWeight(FormulaSet_p set);
 
 void         FormulaSetAnnotateTypes(Sig_p sig, FormulaSet_p set);
+bool         FormulaSetInferTypes(Sig_p sig, FormulaSet_p set);
 
 
 #endif

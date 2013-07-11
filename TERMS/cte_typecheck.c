@@ -85,7 +85,7 @@ bool TypeCheckConsistent(Sig_p sig, Term_p term)
 
 /*-----------------------------------------------------------------------
 //
-// Function: TypeInfer
+// Function: TypeInferReturnSort
 //  Infers the sort of this term from the signature. If a function symbol
 //  is not declared, a default type will be used ($i everywhere).
 //
@@ -94,7 +94,7 @@ bool TypeCheckConsistent(Sig_p sig, Term_p term)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-SortType TypeInfer(Sig_p sig, Term_p term)
+SortType TypeInferReturnSort(Sig_p sig, Term_p term)
 {
    Type_p type;
 
@@ -131,6 +131,109 @@ SortType TypeInfer(Sig_p sig, Term_p term)
    }
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: TypeInfer
+//  infer the type of this term's function symbol (if it is not a
+//  variable), and declare it in the signature if needed.
+//  If the type is already known, checks the type and return true iff
+//  the type is consistent with the signature.
+//   
+//
+// Global Variables: -
+//
+// Side Effects    : updates signature if the type is inferred
+//
+/----------------------------------------------------------------------*/
+bool TypeInfer(Sig_p sig, Term_p term)
+{
+   Type_p type;
+   SortType sort, *args;
+   int i;
+
+   if(!TermIsVar(term))
+   {
+      type = SigGetType(sig, term->f_code);
+
+      if(!type)
+      {
+         /* must infer the type */
+         sort = TypeInferReturnSort(sig, term);
+
+         if(term->arity)
+         {
+            args = TypeArgumentAlloc(term->arity);
+            for(i=0; i < term->arity; ++i)
+            {
+                args[i] = TermGetSort(term->args[i]);
+            }
+
+            type = TypeNewFunction(sig->type_table, sort, term->arity, args);
+            TypeArgumentFree(args, term->arity);
+         }
+         else
+         {
+            type = TypeNewConstant(sig->type_table, sort);
+         }
+
+         SigDeclareType(sig, term->f_code, type);
+         return true;
+      }
+      else
+      {
+         /* Check the type */
+         if(!SortEqual(term->sort, type->domain_sort)
+            || type->arity != term->arity)
+         {
+            return false;
+         }
+
+         for(i=0; i < term->arity; ++i)
+         {
+            if(!SortEqual(term->args[i]->sort, type->arguments[i]))
+            {
+               return false;
+            }
+         }
+      }
+   }
+   return true;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: TypeInferRec
+//  infer the type of this term and its subterms, or checks types
+//  if the type is already known, recursively. Returns true
+//  if the types are correct or have been inferred.
+//   
+//
+// Global Variables: -
+//
+// Side Effects    : same as TypeInfer
+//
+/----------------------------------------------------------------------*/
+bool TypeInferRec(Sig_p sig, Term_p term)
+{
+   int i;
+   bool res = true;
+
+   if(!TermIsVar(term))
+   {
+      for(i=0; res && i < term->arity; ++i)
+      {
+         res = TypeInferRec(sig, term->args[i]);
+      }
+
+      if(res)
+      {
+         res = TypeInfer(sig, term);
+      }
+   }
+
+   return res;
+}
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

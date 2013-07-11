@@ -439,6 +439,31 @@ void FormulaSetAnnotateTypes(Sig_p sig, FormulaSet_p set)
    }
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaSetInferTypes
+//  check/infer types in formula
+//   
+//
+// Global Variables: -
+//
+// Side Effects    : modifies signature
+//
+/----------------------------------------------------------------------*/
+bool FormulaSetInferTypes(Sig_p sig, FormulaSet_p set)
+{
+   WFormula_p handle;
+   bool res = true;
+
+   for(handle = set->anchor->succ; res && handle != set->anchor;
+       handle=handle->succ)
+   {
+      res = WFormulaInferTypes(sig, handle);
+   }
+   return res;
+}
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

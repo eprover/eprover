@@ -135,6 +135,7 @@ void ProofStatePropDocQuote(FILE* out, int level,
 			    ProofState_p state, char* comment);
 
 void ProofStateAnnotateTypes(ProofState_p state);
+bool ProofStateInferTypes(ProofState_p state);
 
 #define ProofStateAxNo(state) (ClauseSetCardinality((state)->axioms)+\
                                FormulaSetCardinality((state)->f_axioms))

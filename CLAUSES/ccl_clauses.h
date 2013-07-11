@@ -410,6 +410,8 @@ long     ClauseReturnFCodes(Clause_p clause, PStack_p f_codes);
 
 #define ClauseAnnotateTypes(sig, clause)\
          (EqnListAnnotateTypes((sig), (clause)->literals))
+#define ClauseInferTypes(sig, clause)\
+         (EqnListInferTypes((sig), (clause)->literals))
 
 #endif
 

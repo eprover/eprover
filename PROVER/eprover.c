@@ -174,6 +174,7 @@ typedef enum
    OPT_OLD_STYLE_CNF,
    OPT_DEF_CNF,
    OPT_PRINT_TYPES,
+   OPT_CHECK_TYPES,
    OPT_DUMMY
 }OptionCodes;
 
@@ -1186,6 +1187,11 @@ OptCell opts[] =
     NoArg, NULL,
     "Print the type of every term. Useful for debugging purpose."},
 
+   {OPT_CHECK_TYPES,
+    '\0', "check-types",
+    NoArg, NULL,
+    "Infer or check types."},
+
    {OPT_NOOPT,
     '\0', NULL,
     NoArg, NULL,
@@ -1214,7 +1220,8 @@ bool              print_sat = false,
                   assume_inf_sys_complete = false,
                   incomplete = false,
                   conjectures_are_questions = false,
-                  strategy_scheduling = false;
+                  strategy_scheduling = false,
+                  check_types = false;
 
 IOFormat          parse_format = LOPFormat;
 long              step_limit = LONG_MAX, 
@@ -1300,6 +1307,10 @@ ProofState_p parse_spec(CLState_p state,
    }
    *ax_no = parsed_ax_no;
 
+   if(check_types)
+   {
+      ProofStateInferTypes(proofstate);
+   }
    ProofStateAnnotateTypes(proofstate);
    return proofstate;
 }
@@ -2531,6 +2542,9 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_PRINT_TYPES:
             TermPrintTypes = true;
+            break;
+      case OPT_CHECK_TYPES:
+            check_types = true;
             break;
       default:
 	    assert(false && "Unknown option");

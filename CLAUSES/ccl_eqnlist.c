@@ -23,6 +23,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "ccl_eqnlist.h"
+#include "cte_typecheck.h"
 
 
 
@@ -1633,6 +1634,30 @@ void EqnListAnnotateTypes(Sig_p sig, Eqn_p list)
       EqnAnnotateTypes(sig, list);
       list = list->next;
    }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: EqnListInferTypes
+//  check/infer types
+//   
+//
+// Global Variables: -
+//
+// Side Effects    : Modify signature
+//
+/----------------------------------------------------------------------*/
+bool EqnListInferTypes(Sig_p sig, Eqn_p list)
+{
+   bool res = true;
+
+   while(res && list)
+   {
+      res = EqnTypeInfer(sig, list);
+      list = list->next;
+   }
+   return res;
 }
 
 /*---------------------------------------------------------------------*/
