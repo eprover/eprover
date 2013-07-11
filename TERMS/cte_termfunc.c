@@ -217,8 +217,6 @@ void VarPrint(FILE* out, FunCode var)
 //
 /----------------------------------------------------------------------*/
 
-// TODO print types if option is set
-
 void TermPrint(FILE* out, Term_p term, Sig_p sig, DerefType deref)
 {
    assert(term);
