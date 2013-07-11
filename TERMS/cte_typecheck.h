@@ -38,7 +38,9 @@ Changes
 /*---------------------------------------------------------------------*/
 
 bool     TypeCheckConsistent(Sig_p sig, Term_p term);
-SortType TypeInfer(Sig_p sig, Term_p term);
+SortType TypeInferReturnSort(Sig_p sig, Term_p term);
+bool     TypeInfer(Sig_p sig, Term_p term);
+bool     TypeInferRec(Sig_p sig, Term_p term);
 
 #endif
 

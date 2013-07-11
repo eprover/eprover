@@ -517,6 +517,50 @@ void ProofStateAnnotateTypes(ProofState_p state)
    }
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: ProofStateInferTypes
+//  Infer and checks types in the proof state
+//   
+//
+// Global Variables: -
+//
+// Side Effects    : Modifies the signature
+//
+/----------------------------------------------------------------------*/
+bool ProofStateInferTypes(ProofState_p state)
+{
+   if(Verbose>=5)
+   {
+      fprintf(stderr, "infer types in proof state %p...\n", state);
+   }
+
+   Sig_p sig = state->signature;
+   FormulaSetInferTypes(sig, state->f_ax_archive);
+   FormulaSetInferTypes(sig, state->f_axioms);
+   ClauseSetInferTypes(sig, state->axioms);
+   ClauseSetInferTypes(sig, state->ax_archive);
+   ClauseSetInferTypes(sig, state->processed_pos_rules);
+   ClauseSetInferTypes(sig, state->processed_pos_eqns);
+   ClauseSetInferTypes(sig, state->processed_neg_units);
+   ClauseSetInferTypes(sig, state->processed_non_units);
+   ClauseSetInferTypes(sig, state->unprocessed);
+   ClauseSetInferTypes(sig, state->tmp_store);
+   ClauseSetInferTypes(sig, state->archive);
+   if(state->watchlist)
+   {
+      ClauseSetInferTypes(sig, state->watchlist);
+   }
+   FormulaSetInferTypes(sig, state->f_archive);
+
+   if(Verbose>=5)
+   {
+      fprintf(stderr, "done inferring types\n");
+   }
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

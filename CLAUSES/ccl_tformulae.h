@@ -27,6 +27,7 @@ Changes
 #define CCL_TFORMULAE
 
 #include <ccl_clauses.h>
+#include <cte_typecheck.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -92,6 +93,7 @@ TFormula_p TFormulaClauseClosedEncode(TB_p bank, Clause_p clause);
 
 /* FIXME: how to deal with ad-hoc polymorphic symbols (connectives)? */
 #define    TFormulaAnnotateTypes(sig, f) (TermAnnotateType((sig),(f)))
+#define    TFormulaInferTypes(sig, f) (TypeInferRec((sig),(f)))
 
 #endif
 

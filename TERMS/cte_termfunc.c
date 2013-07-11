@@ -1890,7 +1890,7 @@ void TermAnnotateType(Sig_p sig, Term_p term)
       /* Does the term need to have its sort computed? */
       if (term->sort == STNoSort)
       {
-         term->sort = TypeInfer(sig, term);
+         term->sort = TypeInferReturnSort(sig, term);
       }
 
       /* May have to explore subterms */
