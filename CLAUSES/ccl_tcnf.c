@@ -255,7 +255,7 @@ TFormula_p tformula_rek_skolemize(TB_p terms, TFormula_p form,
       var = form->args[0];
       assert(TermIsVar(var));
       assert(!var->binding);
-      sk_term = TBAllocNewSkolem(terms,free_vars, false);
+      sk_term = TBAllocNewSkolem(terms, free_vars, var->sort);
       var->binding = sk_term;
       form = tformula_rek_skolemize(terms, form->args[1],
                                     free_vars);               

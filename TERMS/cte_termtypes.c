@@ -214,6 +214,13 @@ Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, SortType sort)
 {
    Term_p handle = TermDefaultCellAlloc();
    PStackPointer arity = PStackGetSP(variables), i;
+   Type_p type;
+   SortType *type_args;
+
+   if(SortEqual(sort, STNoSort))
+   {
+      sort = SigDefaultSort(sig);
+   }
 
    if(!SortEqual(sort, STBool))
    {
@@ -223,18 +230,28 @@ Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, SortType sort)
    {
       handle->f_code = SigGetNewPredicateCode(sig, arity);
    }
-   /* TODO: require argument types, declare type of new symbol */
-   handle->sort = sort;
 
    if(arity)
    {
       handle->arity = arity;
       handle->args = TermArgArrayAlloc(arity);
+      type_args = TypeArgumentAlloc(arity);
       for(i=0; i<arity; i++)
       {
          handle->args[i] = PStackElementP(variables, i);
+         type_args[i] = handle->args[i]->sort;
+         assert(!SortEqual(type_args[i], STNoSort));
       }
+      type = TypeNewFunction(sig->type_table, sort, arity, type_args);
+      TypeArgumentFree(type_args, arity);
    }
+   else
+   {
+      type = TypeNewConstant(sig->type_table, sort);
+   }
+   SigDeclareType(sig, handle->f_code, type);
+   handle->sort = sort;
+
    return handle;
 }
 
