@@ -45,6 +45,7 @@ typedef enum
    STIndividuals,    /* Default sort, "individuums" */
    STKind,           /* The "sort of sorts", $tType in TFF */
    STInteger,        /* Integer numbers */
+   STRational,       /* Rational numbers */
    STReal            /* Reals */
 }SortType;
 

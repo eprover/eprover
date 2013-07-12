@@ -119,6 +119,18 @@ SortType TypeInferReturnSort(Sig_p sig, Term_p term)
          {
             return STBool;
          }
+         else if (SigQueryProp(sig, term->f_code, FPIsInteger))
+         {
+            return STInteger;
+         }
+         else if (SigQueryProp(sig, term->f_code, FPIsRational))
+         {
+            return STRational;
+         }
+         else if (SigQueryProp(sig, term->f_code, FPIsFloat))
+         {
+            return STReal;
+         }
          else
          {
             return SigDefaultSort(sig);
@@ -146,6 +158,9 @@ SortType TypeInferReturnSort(Sig_p sig, Term_p term)
 // Side Effects    : updates signature if the type is inferred
 //
 /----------------------------------------------------------------------*/
+
+// TODO: in case of equality, use the other side if it has a type
+
 bool TypeInfer(Sig_p sig, Term_p term)
 {
    Type_p type;
