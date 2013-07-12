@@ -63,6 +63,8 @@ void default_sort_table_init(SortTable_p table)
    assert(res == STKind);
    res = SortTableInsert(table, "$int");
    assert(res == STInteger);
+   res = SortTableInsert(table, "$rat");
+   assert(res == STRational);
    res = SortTableInsert(table, "$real");   
    assert(res == STReal);
 }

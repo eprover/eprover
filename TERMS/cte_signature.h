@@ -198,6 +198,7 @@ void    SigSetPredicate(Sig_p sig, FunCode f_code, bool value);
 bool    SigIsPredicate(Sig_p sig, FunCode f_code);
 void    SigSetFunction(Sig_p sig, FunCode f_code, bool value);
 bool    SigIsFunction(Sig_p sig, FunCode f_code);
+bool    SigQueryProp(Sig_p sig, FunCode f, FunctionProperties prop);
 
 #define SigIsFunConst(sig, f_code) (SigFindArity((sig), (f_code))==0&&\
                                     SigIsPredicate((sig),(f_code)))

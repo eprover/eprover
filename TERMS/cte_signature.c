@@ -423,6 +423,24 @@ bool SigIsFunction(Sig_p sig, FunCode f_code)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: SigQueryProp
+//  Checks whether a symbol has all the given properties
+//   
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+bool SigQueryProp(Sig_p sig, FunCode f_code, FunctionProperties prop)
+{
+   assert(f_code > 0);
+   assert(f_code <= sig->f_count);
+
+   return FuncQueryProp(&(sig->f_info[f_code]), prop);
+}
 
 /*-----------------------------------------------------------------------
 //
