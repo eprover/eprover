@@ -97,9 +97,11 @@ line options:
   \texttt{--autosat} & Choose a literal selection strategy, a clause
   evaluation heuristic, and a term ordering automagically\index{xyzzy} (based on
   problem features).\\
-  \texttt{--auto}    & As \texttt{--auto}, but add heuristic
+  \texttt{--auto}    & As \texttt{--autosat}, but add heuristic
   specification pruning using one of several instantiation of the SInE
   algorithm~\cite{HV:CADE-2011} for large specifications.\\
+  \texttt{--auto-schedule} & As \texttt{--auto}, but try not one, but
+  up to 5 different strategies. \\
   \texttt{--memory-limit=xx} & Tell the prover how much memory
   (measured in MB) to use at most. In automatic mode E will optimize
   its behaviour for this amount (32~MB will work, 128~MB is
@@ -125,7 +127,7 @@ eprover --auto --memory-limit=48 PUZ031-1+rm_eq_rstfp.lop
 If you use problems in the current version of the TPTP
 language\index{TPTP!language}, you
 should also add the option \texttt{--tptp3-format} (or only
-\texttt{--tptp3-in} if you like the traditional output more).
+\texttt{--tptp3-in} if you like the traditional output better).
 
 This documentation will probably lag behind the development of the
 latest version of the prover for quite some time. To find out more
@@ -148,10 +150,10 @@ However, before proof search in clause normal form (CNF) begins,
 various transformations can be applied to the input problem. In
 particular, E processes not only clausal problems, but can read full
 first order format, including a rich set of formula roles, logical
-operators and quantors. This format is reduced to clause normal form
-in a way that the CNF is unsatisfiable if and only if the original
-problem is provable (if an explicit \emph{conjecture} is given) or
-itself unsatisfiable.
+operators and quantifiers. This format is reduced to clause normal
+form in a way that the CNF is unsatisfiable if and only if the
+original problem is provable (if an explicit \emph{conjecture} is
+given) or itself unsatisfiable.
 
 
 \section{Calculus}
@@ -166,7 +168,7 @@ equation\index{equations} \eqn{s}{t} is an (implicitly symmetrical)
 pair of terms. A positive literal\index{literal} is an equation
 \eqn{s}{t}, a negative literal is a negated equation \neqn{s}{t}.  We
 write \ueqn{s}{t} to denote an arbitrary
-literal\footnote{Non-equational literals are encoded as equations or
+literal.\footnote{Non-equational literals are encoded as equations or
   disequations \ueqn{P(t_1, \ldots, t_n)}{\top}. In this case, we
   treat predicate symbols as special function symbols that can only
   occur at the top-most positions and demand that atoms (terms formed
@@ -181,7 +183,7 @@ of terms, with \eqn{s}{t} represented as $\{\{s\},\{t\}\}$ and
   ordering}\index{ordering}\index{reduction ordering} $>$ is a
 Noetherian partial ordering that is stable w.r.t. the term structure
 and substitutions and total on ground terms. $>$ can be extended to an
-ordering $>_l$ on literals by comparing the multi-set representation
+ordering $>_L$ on literals by comparing the multi-set representation
 of literals with $>\!\!> >\!\!>$ (the multi-set-multi-set extension of
 $>$).
 
@@ -189,9 +191,18 @@ Clauses are multi-sets of literals. They are usually represented as
 disjunctions of literals, $\ueqn{s_1}{t_1} \vee \ueqn{s_2}{t_2} \ldots
 \vee \ueqn{s_n}{t_n}$. We write \mw{Clauses(F,P,V)} to denote the set
 of all clauses with function symbols $F$, predicate symbols $P$ and
-variable $V$. If $\mathcal{C}$ is a clause, we denote the (multi-)set
+variables $V$. If $\mathcal{C}$ is a clause, we denote the (multi-)set
 of positive literals in $\mathcal{C}$ by $\mathcal{C^+}$ and the
 (multi-)set of negative literals in $\mathcal{C}$ by $\mathcal{C^-}$
+We extend $>_L$ to clauses by defining $>_C = >_L>_L$, i.e.\ we
+compare clauses as multi-sets of literals.
+
+
+We write $s[t\leftarrow t']$ to denote the term $s$ in which every
+occurance of the subterm $t$ has been replaced by $t'$. We extend this
+notion to literals and clauses (i.e.\ $C[t\leftarrow t']$ is the
+clause $C$ in which all occurrences of $t$ have been replaced by
+$t'$).
 
 The introduction of an extended notion of \emph{literal selection} has
 improved the performance of E significantly. The necessary concepts
@@ -231,17 +242,17 @@ We combine these in the notion of \emph{eligible literals}.
  \item We say $\sigma(\mathcal{L})$ is \emph{eligible for
      resolution} if either
    \begin{itemize}
-   \item $\mw{sel}(C) = \emptyset$ and $\sigma(\mathcal{L})$ is
-     $>_L$-maximal in $\sigma(\mathcal{C})$ or
-   \item $\mw{sel}(C) \not= \emptyset$ and $\sigma(\mathcal{L})$ is
-     $>_L$-maximal in $\sigma(\mw{sel}\mathcal{C})\cap \mathcal{C^-})$
-     or
-   \item $\mw{sel}(C) \not= \emptyset$ and $\sigma(\mathcal{L})$ is
-     $>_L$-maximal in $\sigma(\mw{sel}(\mathcal{C})\cap
-     \mathcal{C^+}))$.
+   \item $\mw{sel}(\mathcal{C}) = \emptyset$ and $\sigma(\mathcal{L})$
+     is $>_L$-maximal in $\sigma(\mathcal{C})$ or
+   \item $\mw{sel}(\mathcal{C}) \not= \emptyset$ and
+     $\sigma(\mathcal{L})$ is $>_L$-maximal in
+     $\sigma(\mw{sel}(\mathcal{C})\cap \mathcal{C^-})$ or
+   \item $\mw{sel}(\mathcal{C}) \not= \emptyset$ and
+     $\sigma(\mathcal{L})$ is $>_L$-maximal in
+     $\sigma(\mw{sel}(\mathcal{C})\cap \mathcal{C^+})$.
    \end{itemize} 
  \item $\sigma(\mathcal{L})$ is \emph{eligible for paramodulation} if
-   $\mathcal{L}$ is positive, $\mw{sel}(C) = \emptyset$ and
+   $\mathcal{L}$ is positive, $\mw{sel}(\mathcal{C}) = \emptyset$ and
    $\sigma(\mathcal{L})$ is strictly $>_L$-maximal in
    $\sigma(\mathcal{C})$.
  \end{itemize}
@@ -296,7 +307,7 @@ variables.
      \eqn{u}{v} \vee R}{\sigma(\eqn{u[p\leftarrow t]}{v} \vee S \vee
      R)}{if $\sigma=mgu(u|_p,s)$, $\sigma(s)\not<\sigma(t)$,
      $\sigma(u)\not<\sigma(v)$, $\sigma(\eqn{s}{t})$ is eligible for
-     paramodulation, $\sigma(\neqn{u}{v})$ is eligible for
+     paramodulation, $\sigma(\eqn{u}{v})$ is eligible for
      resolution, and $u|_p \notin V$.}
 
    
@@ -304,7 +315,7 @@ variables.
      literals}\index{simultaneous superposition}
 
     \bigskip (SSN) \GInferenz{\eqn{s}{t} \vee S \phantom{ae} \neqn{u}{v} \vee
-     R}{\sigma(\neqn{u[u_p\leftarrow t]}{v} \vee S \vee R)}{if
+     R}{\sigma(S \vee (\neqn{u}{v} \vee R)[u|_p\leftarrow{}t])}{if
      $\sigma=mgu(u|_p,s)$, $\sigma(s)\not<\sigma(t)$,
      $\sigma(u)\not<\sigma(v)$, $\sigma(\eqn{s}{t})$ is eligible for
      paramodulation, $\sigma(\neqn{u}{v})$ is eligible for resolution,
@@ -316,9 +327,9 @@ variables.
 \item \emph{Simultaneous superposition into positive literals}
   \index{simultaneous superposition}
 
-   \bigskip (SSP) \GInferenz{\eqn{s}{t} \vee S \phantom{ae} \eqn{u}{v} \vee
-    R}{\sigma(\eqn{u[u_p\leftarrow t]}{v} \vee S \vee R)}{if
-    $\sigma=mgu(u|_p,s)$, $\sigma(s)\not<\sigma(t)$,
+  \bigskip (SSP) \GInferenz{\eqn{s}{t} \vee S \phantom{ae} \eqn{u}{v}
+    \vee R}{\sigma(S \vee (\eqn{u}{v} \vee R)[u|_p\leftarrow
+    t])}{if $\sigma=mgu(u|_p,s)$, $\sigma(s)\not<\sigma(t)$,
     $\sigma(u)\not<\sigma(v)$, $\sigma(\eqn{s}{t})$ is eligible for
     paramodulation, $\sigma(\neqn{u}{v})$ is eligible for resolution,
     and $u|_p \notin V$.}
@@ -330,7 +341,7 @@ variables.
    
    \bigskip (EF) \GInferenz{\eqn{s}{t} \vee \eqn{u}{v} \vee
      R}{\sigma(\neqn{t}{v} \vee \eqn{u}{v} \vee R)}{if
-     $\sigma=mgu(s,u)$, $\sigma(s) \not> \sigma(t)$ and
+     $\sigma=mgu(s,u)$, $\sigma(t) \not> \sigma(s)$ and
      $\sigma(\eqn{s}{t})$ eligible for paramodulation.}
    
    
@@ -399,16 +410,16 @@ variables.
  \item \emph{Negative simplify-reflect\index{simplify-reflect}}
    
    \bigskip (NS) \CInferenz{\neqn{s}{t} \phantom{ae}
-     \eqn{\sigma(s)}{\sigma(t)\vee R}}{\eqn{s}{t} \phantom{aee} R}{}
+     \neqn{\sigma(s)}{\sigma(t)\vee R}}{\eqn{s}{t} \phantom{aee} R}{}
    
- \item \emph{Contextual (top level) simplify-reflect\index{contextual
-       simplify-reflect}}
-   
-   \bigskip (CSR) \CInferenz{\sigma(C \vee R \vee \doteqn{s}{t})
-     \hspace{2em} C \vee \overline{\doteqn{s}{t}}}{\sigma(C \vee R)
-     \hspace{5em} C \vee \overline{\doteqn{s}{t}}}
-   {where $\overline{\doteqn{s}{t}}$ is the negation of $\doteqn{s}{t}$
-     and $\sigma$ is a substitution} 
+% \item \emph{Contextual (top level) simplify-reflect\index{contextual
+%       simplify-reflect}}
+%   
+%   \bigskip (CSR) \CInferenz{\sigma(C \vee R \vee \doteqn{s}{t})
+%     \hspace{2em} C \vee \overline{\doteqn{s}{t}}}{\sigma(C \vee R)
+%     \hspace{5em} C \vee \overline{\doteqn{s}{t}}}
+%   {where $\overline{\doteqn{s}{t}}$ is the negation of $\doteqn{s}{t}$
+%     and $\sigma$ is a substitution} 
      
   
  \item \emph{Tautology deletion}\index{tautology deletion}:
@@ -436,13 +447,12 @@ variables.
    \bigskip (DE) \CInferenz{\neqn{x}{y} \vee R}{\sigma(R)}{if $x,y \in
      V, \sigma = mgu(x,y)$}
    
- \item \emph{Contextual literal cutting}\index{contextual literal cutting}:
-
-   \bigskip (CLC) \CInferenz{\sigma(C \vee R \vee \ueqn{s}{t})
-     \hspace{2em} C \vee \overline{\ueqn{s}{t}}}{\sigma(C \vee R)
-     \hspace{5em} C \vee \overline{\ueqn{s}{t}}}
-   {where $\overline{\ueqn{s}{t}}$ is the negation of $\ueqn{s}{t}$
-     and $\sigma$ is a substitution} 
+ \item \emph{Contextual literal cutting}\index{contextual literal
+     cutting}: \bigskip (CLC) \CInferenz{\sigma(C \vee R \vee
+     \ueqn{s}{t}) \hspace{2em} C \vee \overline{\ueqn{s}{t}}}{\sigma(C
+     \vee R) \hspace{5em} C \vee \overline{\ueqn{s}{t}}} {where
+     $\overline{\ueqn{s}{t}}$ is the negation of $\ueqn{s}{t}$ and
+     $\sigma$ is a substitution}
    
    This rule is also known as \emph{subsumption resolution} or
    \emph{clausal simplification}.
@@ -457,7 +467,7 @@ variables.
 
 
  \item \emph{Introduce definition\index{clause
-       splitting}}\footnote{This rule is always exhaustively aplied to
+       splitting}}\footnote{This rule is always exhaustively applied to
      any clause, leaving n split-off clauses and one final link clause of
      all negative propositions.}
    
@@ -477,10 +487,10 @@ variables.
    
  \end{itemize}
  We write $\mathbf{SP}(N)$ to denote the set of all clauses that can
- be generated with one generating inference from $I$ on a set of
- clauses $N$, $\mathcal{D}_{SP}$ to denote the set of all
+ be generated with one generating inference from $\mathbf{SP}$ on a
+ set of clauses $N$, $\mathcal{D}_{SP}$ to denote the set of all
  \textbf{SP}-derivations, and $\mathcal{D}_{\overline{SP}}$ to denote
-  the set of all finite \textbf{SP}-derivations.
+ the set of all finite \textbf{SP}-derivations.
   
   \hfill$\blacktriangleleft$
 \end{definition}
@@ -519,13 +529,13 @@ conjecture, and then recursively apply this process again.
 \begin{itemize}
 \item Classical \emph{relevancy pruning}\index{relevancy pruning}
   starts with the function and predicate symbols in the goal. Every
-  axioms that shares such a symbol is considered relevant. Symbols in
-  selected axioms become relevant, and so become all their function
-  symbols. The process is then repeated for a selected number of
-  iterations. The option \texttt{--rel-pruning-level} determines how
-  many iterations are performed.    Relevance pruning is complete in the
-  non-equational case if allowed to reach a fixed point. It only
-  provides a relatively coarse measure, however.
+  axiom that shares such a symbol is considered relevant. Symbols in
+  relevant axioms become relevant themselves. The process is then
+  repeated for a selected number of iterations. The option
+  \texttt{--rel-pruning-level} determines how many iterations are
+  performed.  Relevance pruning is complete in the non-equational case
+  if allowed to reach a fixed point. It only provides a relatively
+  coarse measure, however.
 \item More fine-grained control is offered by the SInE\index{SInE}
   method~\cite{HV:CADE-2011}. SInE does not consider \emph{all}
   symbols in already selected clauses and formulas to be relevant, but
@@ -551,12 +561,15 @@ conjecture, and then recursively apply this process again.
                         <generosity>,
                         <rec-depth>,
                         <set-size>, 
-                        <set-fraction [, 
+                        <set-fraction> [, 
                         addnosymb|ignorenosymb])
 \end{verbatim}
   \begin{itemize}
   \item \texttt{<g-measure>} is the generality measure. Currently,
-    \texttt{CountFormulas} and \texttt{CountTerms} are supported.
+    \texttt{CountFormulas} and \texttt{CountTerms} are supported. The
+    first considers a symbol more general than another if it occurse
+    in more formulas. The second counts the number of subterms which
+    contain the symbol as the top symbol.
   \item \texttt{hypos} or \texttt{nohypos} determines if clauses and
     formulas of type \texttt{hypothesis} are used as additional seeds
     for the analysis.
@@ -666,7 +679,7 @@ specifications.
         c := select(U)\\
         U := U $\backslash$ \{c\}\\
 
-        \# Apply (RN), (RP), (NS), (PS), (CSR), (DR), (DD), (DE)\\
+        \# Apply (RN), (RP), (NS), (PS), (CLC), (DR), (DD), (DE)\\
         simplify(c,P)\\
         \# Apply (CS), (ES), (TD)\\
         if c is trivial or subsumed by P then\+\\
@@ -677,7 +690,7 @@ specifications.
         else\+\\
           T := $\emptyset{}$ \# Temporary clause set\\
           foreach p $\in$ P do\+\\
-            if c simplifies p \+\\
+            if p can be simplified with c \+\\
               P := P $\backslash$ \{p\}\\
               U := U $\backslash$ \{d|d \mbox{ is direct descendant of } p\}\\ 
 
@@ -690,7 +703,7 @@ specifications.
           T := T $\cup$ paramodulants(c,P) \# (SN), (SP)\\
           foreach p $\in$ T do\+\\
             \# Apply efficiently implemented subset of (RN),\\
-            \# (RP), (NS), (PS), (CSR), (DR), (DD), (DE)\\
+            \# (RP), (NS), (PS), (CLC), (DR), (DD), (DE)\\
             p := cheap\_simplify(p, P)\\
             \# Apply (TD) or efficient approximation of it\\
             if p is trivial\+\\
@@ -874,7 +887,7 @@ The priority functions are interpreted as follows:
   but did not quite work out.
 \item[\texttt{DeferNonUnitMaxEq}:] Prefer everything except for
   non-unit clauses with a maximal equational literal (``Don't
-  paramodulate if its to expensive''). See above, same result.
+  paramodulate if it is to expensive''). See above, same result.
 \item[\texttt{ByCreationDate}:] Return the creation date of the clause
   as priority. This imposes a FIFO equivalence class on
   clauses. Clauses generated from the same given clause are grouped
@@ -1063,7 +1076,7 @@ As above, a single identifier is only a valid heuristic if it has been
 defined in \texttt{<heuristic-def>} previously. A
 \texttt{<heuristic-def>} which degenerates to a simple heuristic
 defines a heuristic with name \texttt{Default} (which the prover will
-automatically choose if no other heuristic is selected with the
+automatically choose if no other heuristic is selected with
 \texttt{-x} (\texttt{--expert-heuristic}).
 
 \begin{example}
@@ -1096,11 +1109,11 @@ weight to all function symbols, and a precedence on those symbols.
 The LPO is based on a lexicographic comparison of symbols and
 subterms, and is fully specified by giving just a precedence.
 
-Currently it is possible to explicitly specify an arbitrary
-(including incomplete or empty) precedence, or to use one of several
-precedence generating schemes. Similarly, there is a number of
-predefined weight function and the ability to assign arbitrary weights
-to function and predicate symbols.
+Currently it is possible to explicitly specify an arbitrary (including
+incomplete or empty) precedence, or to use one of several precedence
+generating schemes. Similarly, there is a number of predefined weight
+functions and the ability to assign arbitrary weights to function and
+predicate symbols.
 
 The simplest way to get a reasonable term ordering is to specify
 \emph{automatic} ordering selection using the \texttt{-tAuto} option. 
@@ -1113,8 +1126,8 @@ Options controlling the choice of term ordering:\\[1ex]
   selection). Supported arguments are at least \texttt{LPO},
   \texttt{LPO4} (for a much faster new implementation of LPO),
   \texttt{KBO}, and \texttt{Auto}. If \texttt{Auto} is selected, all
-  aspects of the term ordering are fixed, additional
-  options will be (or at least should be) silently ignored.\\[1ex]
+  aspects of the term ordering are fixed, and additional
+  options about the ordering will be (or at least should be) silently ignored.\\[1ex]
 
   \multicolumn{2}{l}{\texttt{\texttt{--order-precedence-generation=<arg>}}}\\
   \texttt{-G <arg>} & Select a precedence generation scheme (see
@@ -1245,7 +1258,7 @@ symbol and the input clause set, or on the predefined
   except that the first maximal symbol is given weight 0.
 \item[\texttt{precedence}:] Let $<$ be the (pre-determined) precedence
   on function symbols $F$ in the problem. Then the weight of $f$ is
-  given by $|{g|g<f}|+1$ (the number of symbols smaller than $f$ in
+  given by $|\{g|g<f\}|+1$ (the number of symbols smaller than $f$ in
   the precedence increased by one).
 \item[\texttt{invprecedence}:] Let $<$ be the (pre-determined)
   precedence on function symbols $F$ in the problem. Then the weight
@@ -1388,7 +1401,7 @@ To generate constructive proofs of clauses, just place them on the
 watch list and select output level 4 or greater (see
 section~\ref{sec:output:lots}). Steps affecting the watch list will be
 marked in the PCL2 output file. If you use the \emph{eproof} script
-for proof output or run \emph{epclextract} of your own, subproof for
+for proof output or run \emph{epclextract} on your own, subproofs for
 watchlist steps will be automatically extracted.
 
 Note that this forward reasoning is not complete, i.e.\ the prover may
@@ -1438,11 +1451,11 @@ configuration. However, the defaults are usually quite sufficient.
 The knowledge base contains information gained from clausal PCL2
 protocols of E. In a first step, information from the protocol is
 abstracted into a more compact form. A number of clauses is selected
-as training examples, and annotations about there role are computed.
+as training examples, and annotations about their role are computed.
 The result is a list of annotated clauses and a list of the axioms
 (initial clauses) of the problem. This step can be performed using the
 program \texttt{direct\_examples}\footnote{The name is an historical
-  accident and has no significance anymore}. 
+  accident and has no significance anymore}.
 
 In a second step, the collected information is integrated into the
 knowledge base. For this purpose, the program \texttt{ekb\_insert}
@@ -1506,7 +1519,7 @@ however:
   symbol is used inconsistently.
 \item E allows the use of \texttt{=} as an infix symbol for
   equality. \texttt{a=b} is equivalent to \texttt{equal(a,b)} for E.
-\item E does not support constraints or SETHEO\index{SETHEO} build-in
+\item E does not support constraints or SETHEO\index{SETHEO} built-in
   symbols. This should not usually affect pure theorem proving tasks.
 \item E normally treats procedural clauses exactly as it treats
   declarative clauses. Query clauses (clauses with an empty head and
@@ -1601,12 +1614,12 @@ search after termination. The following possibilities exist:
     memory (see below), the user selects an unfair strategy (in which
     case the prover may never terminate), or some strange and
     unexpected things happen.} but my belief in the former is stronger
-  than my belief in the later\ldots...
+  than my belief in the latter\ldots...
 \item A (hard) resource limit was hit. For memory this can be either
   due to a per process limit (set with \texttt{limit} or the prover
   option \texttt{--memory-limit}), or due to running out of virtual
   memory. For CPU time, this case is triggered if the per process CPU
-  time limit is reached and signaled to the prover via a
+  time limit is reached and signalled to the prover via a
   \texttt{SIGXCPU} signal. This limit can be set with \texttt{limit}
   or, more reliable, with the option \texttt{--cpu-limit}. The output
   string is one of the following two, depending on the exact reason
@@ -1617,10 +1630,10 @@ search after termination. The following possibilities exist:
 \end{verbatim}
 \item A user-defined limit was reached during saturation, and the
   saturation process was stopped gracefully. Limits include number of
-  processed clauses, number of total clauses, and cpu time (as set
+  processed clauses, number of total clauses, and CPU time (as set
   with \texttt{--soft-cpu-limit}). The output string is
 \begin{verbatim}
-# Faiure: User resource limit exceeded!
+# Failure: User resource limit exceeded!
 \end{verbatim}
   \ldots and the user is expected to know which limit he selected.
 \item By default, E is \emph{complete}, i.e. it will only terminate if
@@ -1649,7 +1662,7 @@ search after termination. The following possibilities exist:
 \section{Impressing your Friends}
 \label{sec:output:normal}
 
-If you run E without selection an output level (or by setting it
+If you run E without selecting an output level (or by setting it
 explicitly to 1), E will print each non-tautological, non-subsumed
 clause it processes as a comment. It will also print a hash
 ('\verb+#+') for each clause it tries to process but can prove to be
@@ -1688,8 +1701,8 @@ clause sets (with additional information).
 First, E can give you some technical information about the conditions
 it runs under. 
 
-The option \texttt{--print-pid} will make E printing its process id as
-a comment, in the format \texttt{\# Pid: XXX}, where \texttt{XXX} is an
+The option \texttt{--print-pid} will make E print its process id as a
+comment, in the format \texttt{\# Pid: XXX}, where \texttt{XXX} is an
 integer number. This is useful if you want to send signals to the
 prover (in particular, if you want to terminate the prover) to control
 it from the outside.
@@ -1711,7 +1724,7 @@ time information is required by most standards and should be useful
 for all tested operating systems.
 
 E can be used not only as a prover, but as a normalizer for formulae
-or as a lemma generator. In this cases, you will not only want to know
+or as a lemma generator. In these cases, you will not only want to know
 if E found a proof, but also need some or all of the derived clauses,
 possibly with statistical information for filtering. This is supported
 with the \texttt{--print-saturated} and \texttt{--print-sat-info}
