@@ -130,7 +130,7 @@ void MemFreeListPrint(FILE* out);
 
 #ifdef CLB_MEMORY_DEBUG2
 #undef FREE
-#define FREE(junk) assert(junk); printf("\nBlock %p F:\n", junk);\
+#define FREE(junk) assert(junk); clb_free_count++; printf("\nBlock %p F:\n", junk);\
                    free(junk); junk=NULL
 #endif
 
