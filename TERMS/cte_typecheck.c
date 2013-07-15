@@ -39,32 +39,6 @@ Changes
 /*---------------------------------------------------------------------*/
 
 
-
-/*-----------------------------------------------------------------------
-//
-// Function: make_quantifier_type
-//  builds the "type" of a quantifier
-//   
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-Type_p make_quantifier_type(TypeTable_p table)
-{
-   SortType ret, args[2];
-   Type_p res;
-
-   ret = STBool;
-   args[0] = table->sort_table->default_type;
-   args[1] = STBool;
-
-   res = TypeNewFunction(table, ret, 2, args);
-   return res;
-}
-
-
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
@@ -100,18 +74,27 @@ bool TypeCheckConsistent(Sig_p sig, Term_p term)
 
       if (!TermIsVar(term))
       {
-         sort = term->sort;
-         type = SigGetType(sig, term->f_code);
-
          /* check: same arity, same return sort, sort of arguments (pairwise)*/
-         res = res && (term->arity == type->arity);
-         res = res && SortEqual(sort, type->domain_sort);
-         for (i=0; res && i < type->arity; ++i)
+         if(!SigIsPolymorphic(sig, term->f_code))
+         {
+            sort = term->sort;
+            type = SigGetType(sig, term->f_code);
+
+            assert(type);
+
+            res = res && (term->arity == type->arity);
+            res = res && SortEqual(sort, type->domain_sort);
+            for (i=0; res && i < type->arity; ++i)
+            {
+               subterm = term->args[i];
+               res = res && SortEqual(subterm->sort, type->arguments[i]);
+            }
+         }
+
+         /* Check subterms recursively */
+         for (i=0; res && i < term->arity; ++i)
          {
             subterm = term->args[i];
-            res = res && SortEqual(subterm->sort, type->arguments[i]);
-            
-            /* Check subterms themselves */
             PStackPushP(stack, subterm);
          }
       }
@@ -122,204 +105,77 @@ bool TypeCheckConsistent(Sig_p sig, Term_p term)
 }
 
 
-/*-----------------------------------------------------------------------
-//
-// Function: TypeInferReturnSort
-//  Infers the sort of this term from the signature. If a function symbol
-//  is not declared, a default type will be used ($i everywhere).
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-SortType TypeInferReturnSort(Sig_p sig, Term_p term)
-{
-   Type_p type;
-
-   if (TermIsVar(term))
-   {
-      if (term->sort == STNoSort)
-      {
-         return SigDefaultSort(sig);
-      }
-      else
-      {
-         return term->sort;
-      }
-   }
-   else
-   {
-      type = SigGetType(sig, term->f_code); 
-      if (type == sig->type_table->no_type)
-      {
-         /* Take the predicate flag into account */
-         if (SigIsPredicate(sig, term->f_code)
-             || SigQueryProp(sig, term->f_code, FPFOFOp))
-         {
-            return STBool;
-         }
-         else if (SigQueryProp(sig, term->f_code, FPIsInteger))
-         {
-            return STInteger;
-         }
-         else if (SigQueryProp(sig, term->f_code, FPIsRational))
-         {
-            return STRational;
-         }
-         else if (SigQueryProp(sig, term->f_code, FPIsFloat))
-         {
-            return STReal;
-         }
-         else
-         {
-            return SigDefaultSort(sig);
-         }
-      }
-      else
-      {
-         return type->domain_sort;
-      }
-   }
-}
-
 
 /*-----------------------------------------------------------------------
 //
-// Function: TypeInfer
-//  infer the type of this term's function symbol (if it is not a
-//  variable), and declare it in the signature if needed.
-//  If the type is already known, checks the type and return true iff
-//  the type is consistent with the signature.
-//   
+// Function: TypeInferSort
+//
+//   Infer the sort of this term. It can either use the type of the
+//   function symbol, if already known, or guess a type and add it
+//   to the signature otherwise.
+//
+//   The "top" argument is used to know whether the term is a subterm
+//   of another term, or a "top term". This impacts which sort is
+//   guessed if no type is present.
 //
 // Global Variables: -
 //
-// Side Effects    : Updates signature if the type is inferred, modifies the
-//                   term's sort
+// Side Effects    : Modifies term and signature. May exit on type error.
 //
 /----------------------------------------------------------------------*/
-
-// TODO: in case of equality, use the other side if it has a type
-
-bool TypeInfer(Sig_p sig, Term_p term)
+void TypeInferSort(Sig_p sig, Term_p term, bool top)
 {
    Type_p type;
    SortType sort, *args;
    int i;
-   bool res = true;
-
-   if(!TermIsVar(term))
+   
+   if(TermIsVar(term))
    {
-      /* Ad-hoc polymorphism for equality: check that both sides have
-       * the same type */
-      if(term->f_code == SigGetEqnCode(sig, true))
+      if(SortEqual(term->sort, STNoSort))
       {
-         res = SortEqual(term->args[0]->sort, term->args[1]->sort);
-         term->sort = STBool;
+         term->sort = SigDefaultSort(sig);
       }
-      /* Type inference for quantifiers */
-      else if (term->f_code == sig->qex_code || term->f_code == sig->qall_code)
+   }
+   else
+   {
+      type = SigGetType(sig, term->f_code);
+
+      /* Use type */
+      if(type)
       {
-         res = SortEqual(term->args[1]->sort, STBool);
-         term->sort = STBool;
-      }
-      else if (SigQueryProp(sig, term->f_code, FPFOFOp))
-      {
-         for(i=0; res && i < term->arity; ++i)
+         if(term->arity != type->arity)
          {
-            res = res && SortEqual(term->args[i]->sort, STBool);
+            if(Verbose)
+            {
+               fprintf(stderr, "# arity mismatch for ");
+               TermPrint(stderr, term, sig, DEREF_NEVER);
+               fprintf(stderr, " and type ");
+               TypePrintTSTP(stderr, sig->type_table, type);
+               fprintf(stderr, "\n");
+            }
+            Error("Arity mismatch", SYNTAX_ERROR);
          }
-         term->sort = STBool;
+
+         term->sort = type->domain_sort;
       }
       else
       {
-         /* Regular type inference */
-         type = SigGetType(sig, term->f_code);
-
-         if(!type)
+         /* Infer type */
+         sort = top ? STBool : SigDefaultSort(sig);
+         args = TypeArgumentAlloc(term->arity);
+         for(i=0; i < term->arity; ++i)
          {
-            /* must infer the type */
-            sort = TypeInferReturnSort(sig, term);
-            term->sort = sort;
-
-            if(term->arity)
-            {
-               args = TypeArgumentAlloc(term->arity);
-               for(i=0; i < term->arity; ++i)
-               {
-                   args[i] = term->args[i]->sort;
-               }
-
-               type = TypeNewFunction(sig->type_table, sort, term->arity, args);
-               TypeArgumentFree(args, term->arity);
-            }
-            else
-            {
-               type = TypeNewConstant(sig->type_table, sort);
-            }
-
-            SigDeclareType(sig, term->f_code, type);
+            args[i] = term->args[i]->sort;
          }
-         else
-         {
-            term->sort = type->domain_sort;
 
-            res = res && (type->arity == term->arity);
+         type = TypeNewFunction(sig->type_table, sort, term->arity, args);
+         TypeArgumentFree(args, term->arity);
 
-            for(i=0; res && i < term->arity; ++i)
-            {
-               if(!SortEqual(term->args[i]->sort, type->arguments[i]))
-               {
-                  res = false;
-               }
-            }
-         }
+         /* Declare the inferred type */
+         SigDeclareType(sig, term->f_code, type);
+         term->sort = sort;
       }
    }
-
-   if(!res && Verbose>=3)
-   {
-      fprintf(stderr, "type error in ");
-      TermPrint(stderr, term, sig, DEREF_NEVER);
-      fprintf(stderr, "\n");
-   }
-
-   return res;
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function: TypeInferRec
-//  infer the type of this term and its subterms, or checks types
-//  if the type is already known, recursively. Returns true
-//  if the types are correct or have been inferred.
-//   
-//
-// Global Variables: -
-//
-// Side Effects    : same as TypeInfer
-//
-/----------------------------------------------------------------------*/
-bool TypeInferRec(Sig_p sig, Term_p term)
-{
-   int i;
-   bool res = true;
-
-   if(!TermIsVar(term))
-   {
-      for(i=0; res && i < term->arity; ++i)
-      {
-         res = TypeInferRec(sig, term->args[i]);
-      }
-
-      if(res)
-      {
-         res = TypeInfer(sig, term);
-      }
-   }
-
-   return res;
 }
 
 /*---------------------------------------------------------------------*/

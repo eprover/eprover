@@ -365,7 +365,6 @@ TypeTable_p TypeTableAlloc(SortTable_p sort_table)
     res->sort_table = sort_table;
     res->size = 0;
     res->root = NULL;
-    res->no_type = NULL;
 
     return res;
 }
@@ -500,6 +499,27 @@ int TypeCompare(Type_p t1, Type_p t2)
 }
 
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: TypeCopyWithReturn
+//
+//   Return a copy of this term, but with the given domain_sort
+//
+// Global Variables: -
+//
+// Side Effects    : insert a type in the table
+//
+/----------------------------------------------------------------------*/
+Type_p TypeCopyWithReturn(TypeTable_p table, Type_p source,
+                          SortType new_domain)
+{
+   Type_p res;
+   
+   res = TypeNewFunction(table, new_domain, source->arity, source->arguments);
+   return res;
+}
+
 /*-----------------------------------------------------------------------
 //
 // Function: TypePrintTSTP
@@ -592,6 +612,45 @@ Type_p TypeParseTSTP(Scanner_p in, TypeTable_p table)
    }
 
    return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TypeGetIndividual 
+//
+//   Individual type for atoms, $i
+//
+// Global Variables: -
+//
+// Side Effects    : Allocates a type in the table
+//
+/----------------------------------------------------------------------*/
+Type_p TypeGetIndividual(TypeTable_p table)
+{
+   SortType sort = STIndividuals;
+   Type_p type = TypeNewConstant(table, sort);
+
+   return type;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: TypeGetBool
+//
+//   Individual type for boolean atoms, $o
+//
+// Global Variables: -
+//
+// Side Effects    : Allocates a type in the table
+//
+/----------------------------------------------------------------------*/
+Type_p TypeGetBool(TypeTable_p table)
+{
+   SortType sort = STBool;
+   Type_p type = TypeNewConstant(table, sort);
+
+   return type;
 }
 
 
