@@ -289,37 +289,28 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
          rterm = TBTermParse(in, bank);
          if(!TermIsVar(rterm))
          {
-            if(SigIsPredicate(bank->sig, rterm->f_code))
-            {
-               AktTokenError(in, "Predicate symbol used as "
-                             "function symbol in preceding atom", SYNTAX_ERROR);
-            }
-            SigSetFunction(bank->sig, rterm->f_code, true);
+            SigDeclareIsFunction(bank->sig, rterm->f_code);
          }
       }
       else if(TestInpTok(in, NegEqualSign|EqualSign))
       { /* Now both sides must be terms */
-         SigSetFunction(bank->sig, lterm->f_code, true);
+         SigDeclareIsFunction(bank->sig, lterm->f_code);
          if(TestInpTok(in, NegEqualSign))
          {
             positive = !positive;
          }
          AcceptInpTok(in, NegEqualSign|EqualSign);	 
          rterm = TBTermParse(in, bank);
+         SigDeclareIsFunction(bank->sig, lterm->f_code);
          if(!TermIsVar(rterm))
          {
-            if(SigIsPredicate(bank->sig, rterm->f_code))
-            {
-               AktTokenError(in, "Predicate symbol used as "
-                             "function symbol in preceding atom", SYNTAX_ERROR);
-            }
-            SigSetFunction(bank->sig, rterm->f_code, true);
+            SigDeclareIsFunction(bank->sig, rterm->f_code);
          }
       }
       else
       { /* It's a predicate */
          rterm = bank->true_term; /* Non-Equational literal */
-         SigSetPredicate(bank->sig, lterm->f_code, true);
+         SigDeclareIsPredicate(bank->sig, lterm->f_code);
       }
    }
    *lref = lterm;
@@ -378,7 +369,7 @@ static bool eqn_parse_prefix(Scanner_p in, TB_p bank, Term_p *lref,
 		       "used at predicate position", false); 
 	 
       }
-      SigSetPredicate(bank->sig, lterm->f_code, true);
+      SigDeclareIsPredicate(bank->sig, lterm->f_code);
    }
    *lref = lterm;
    *rref = rterm;
@@ -533,7 +524,7 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
       printf("===");
       TermPrint(stdout, rterm, bank->sig, DEREF_NEVER);
       printf("\n"); */
-      assert(SigQueryFuncProp(bank->sig, lterm->f_code, FPPredSymbol));      
+      SigDeclareIsPredicate(bank->sig, lterm->f_code);
       TermCellSetProp(lterm, TPPredPos);
       if(SigQueryFuncProp(bank->sig, lterm->f_code, FPPseudoPred))
       {
@@ -2699,23 +2690,6 @@ long EqnCollectSubterms(Eqn_p eqn, PStack_p collector)
    return res;
 }
 
-
-/*-----------------------------------------------------------------------
-//
-// Function: EqnAnnotateTypes
-//   Annotates terms of the equation with their type
-//   
-//
-// Global Variables: -
-//
-// Side Effects    : Modifies subterms
-//
-/----------------------------------------------------------------------*/
-void EqnAnnotateTypes(Sig_p sig, Eqn_p eqn)
-{
-   TermAnnotateType(sig, eqn->lterm);
-   TermAnnotateType(sig, eqn->rterm);
-}
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

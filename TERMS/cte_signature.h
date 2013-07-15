@@ -40,9 +40,8 @@ Changes
 typedef enum
 {
    FPIgnoreProps  =    0, /* No properties, mask everything out */
-   FPPredSymbol   =    1, /* Symbol is a transformed predicate symbol */
-   FPFuncSymbol   =    2, /* Symbol is a real function symbol */
-                          /* If neither is set, we don't know it yet */
+   FPTypeFixed    =    1, /* We are sure about the type of the symbol */
+   FPTypePoly     =    2, /* Ad-hoc polymorphic predicate type */
    FPFOFOp        =    4, /* Symbol is encoded first order operator */
    FPSpecial      =    8, /* Symbol is a special symbol introduced internally */
    FPAssociative  =   16, /* Function symbol is binary and associative */
@@ -194,10 +193,12 @@ FunCode SigFindFCode(Sig_p sig, const char* name);
 static __inline__ int     SigFindArity(Sig_p sig, FunCode f_code);
 
 static __inline__ char*   SigFindName(Sig_p sig, FunCode f_code);
-void    SigSetPredicate(Sig_p sig, FunCode f_code, bool value);
 bool    SigIsPredicate(Sig_p sig, FunCode f_code);
-void    SigSetFunction(Sig_p sig, FunCode f_code, bool value);
 bool    SigIsFunction(Sig_p sig, FunCode f_code);
+bool    SigIsFixedType(Sig_p sig, FunCode f_code);
+void    SigFixType(Sig_p sig, FunCode f_code);
+bool    SigIsPolymorphic(Sig_p sig, FunCode f_code);
+void    SigSetPolymorphic(Sig_p sig, FunCode f_code, bool value);
 bool    SigQueryProp(Sig_p sig, FunCode f, FunctionProperties prop);
 
 #define SigIsFunConst(sig, f_code) (SigFindArity((sig), (f_code))==0&&\
@@ -243,11 +244,10 @@ FunCode SigGetNewPredicateCode(Sig_p sig, int arity);
 #define SigDefaultSort(sig)  ((sig)->sort_table->default_type)
 #define SigGetType(sig, f)   ((sig)->f_info[(f)].type)
 void    SigDeclareType(Sig_p sig, FunCode f, Type_p type);
+void    SigDeclareFinalType(Sig_p sig, FunCode f, Type_p type);
 void    SigDeclareIsFunction(Sig_p sig, FunCode f);
 void    SigDeclareIsPredicate(Sig_p sig, FunCode f);
-Type_p  SigGetTypeOrDefault(Sig_p sig, FunCode f);
 void    SigPrintTypes(FILE* out, Sig_p sig);
-
 void    SigParseTFFTypeDeclaration(Scanner_p in, Sig_p sig);
 
 /*---------------------------------------------------------------------*/
@@ -324,7 +324,7 @@ static __inline__ FunCode SigGetEqnCode(Sig_p sig, bool positive)
       }
       sig->eqn_code = SigInsertId(sig, "$eq", 2, true);
       assert(sig->eqn_code);
-      SigSetPredicate(sig, sig->eqn_code, true);
+      SigSetFuncProp(sig, sig->eqn_code, FPFOFOp | FPTypePoly);
       return sig->eqn_code;      
    }
    else
@@ -335,7 +335,7 @@ static __inline__ FunCode SigGetEqnCode(Sig_p sig, bool positive)
       }
       sig->neqn_code = SigInsertId(sig, "$neq", 2, true);
       assert(sig->neqn_code);
-      SigSetPredicate(sig, sig->neqn_code, true);
+      SigSetFuncProp(sig, sig->eqn_code, FPFOFOp | FPTypePoly);
       return sig->neqn_code;      
    }
 }

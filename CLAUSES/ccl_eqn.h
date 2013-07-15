@@ -392,11 +392,6 @@ void    EqnAddSymbolFeatures(Eqn_p eq, PStack_p mod_stack, long *feature_array);
 
 long    EqnCollectSubterms(Eqn_p eqn, PStack_p collector);
 
-void    EqnAnnotateTypes(Sig_p sig, Eqn_p eqn);
-#define EqnTypeInfer(sig, eqn) \
-         ((TypeInferRec((sig), (eqn)->lterm)) && \
-          (TypeInferRec((sig), (eqn)->rterm)))
-
 
 /*---------------------------------------------------------------------*/
 /*                        Inline Functions                             */

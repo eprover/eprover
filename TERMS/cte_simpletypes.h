@@ -52,7 +52,6 @@ typedef struct
     SortTable_p  sort_table;             /* sorts */
     unsigned int size;                   /* number of types */
     Type_p       root;                   /* root of the tree of types */
-    Type_p       no_type;                /* type still unknown */
 }TypeTableCell, *TypeTable_p;
 
 /*---------------------------------------------------------------------*/
@@ -77,8 +76,13 @@ int             TypeCompare(Type_p t1, Type_p t2);
 Type_p          TypeNewConstant(TypeTable_p table, SortType sort);
 Type_p          TypeNewFunction(TypeTable_p table, SortType sort,
                                 unsigned int arity, SortType *args);
+Type_p          TypeCopyWithReturn(TypeTable_p table, Type_p source,
+                                   SortType new_domain);
 void            TypePrintTSTP(FILE *out, TypeTable_p table, Type_p type);
 Type_p          TypeParseTSTP(Scanner_p in, TypeTable_p table);
+
+Type_p          TypeGetIndividual(TypeTable_p table);
+Type_p          TypeGetBool(TypeTable_p table);
 
 AVL_TRAVERSE_DECLARATION(Type, Type_p)
 #define TypeTraverseExit(stack) PStackFree(stack)

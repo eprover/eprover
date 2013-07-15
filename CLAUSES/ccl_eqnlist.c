@@ -1616,50 +1616,6 @@ long EqnListCollectSubterms(Eqn_p list, PStack_p collector)
 }
 
 
-/*-----------------------------------------------------------------------
-//
-// Function: EqnListAnnotateTypes
-//  Annotates types of all terms in the list
-//   
-//
-// Global Variables: -
-//
-// Side Effects    : Modifies terms
-//
-/----------------------------------------------------------------------*/
-void EqnListAnnotateTypes(Sig_p sig, Eqn_p list)
-{
-   while(list)
-   {
-      EqnAnnotateTypes(sig, list);
-      list = list->next;
-   }
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: EqnListInferTypes
-//  check/infer types
-//   
-//
-// Global Variables: -
-//
-// Side Effects    : Modify signature
-//
-/----------------------------------------------------------------------*/
-bool EqnListInferTypes(Sig_p sig, Eqn_p list)
-{
-   bool res = true;
-
-   while(res && list)
-   {
-      res = EqnTypeInfer(sig, list);
-      list = list->next;
-   }
-   return res;
-}
-
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

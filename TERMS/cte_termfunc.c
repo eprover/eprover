@@ -1898,49 +1898,6 @@ bool TermAssertSameSort(Sig_p sig, Term_p t1, Term_p t2)
    return res;
 }
 
-/*-----------------------------------------------------------------------
-//
-// Function: TermAnnotateType
-//  Annotates the term and its subterms with their sort, which is
-//  found using the signature
-//   
-//
-// Global Variables: -
-//
-// Side Effects    : Modifies sort of subterms
-//
-/----------------------------------------------------------------------*/
-void TermAnnotateType(Sig_p sig, Term_p term)
-{
-   PStack_p stack;
-   int i;
-
-   stack = PStackAlloc();
-   PStackPushP(stack, term);
-
-   while(!PStackEmpty(stack))
-   {
-      term = PStackPopP(stack);
-
-      /* Does the term need to have its sort computed? */
-      if (term->sort == STNoSort)
-      {
-         term->sort = TypeInferReturnSort(sig, term);
-      }
-
-      /* May have to explore subterms */
-      if(!TermIsVar(term))
-      {
-         for(i=0; i < term->arity; ++i)
-         {
-            PStackPushP(stack, term->args[i]);
-         }
-      }
-   }
-
-   PStackFree(stack);
-}
-
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
