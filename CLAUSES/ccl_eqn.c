@@ -509,7 +509,7 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
    /* printf("Handle = %p\n", handle); */
 
    assert(SortEqual(lterm->sort, STNoSort) || SortEqual(rterm->sort, STNoSort)
-          || SortEqual(lterm->sort, rterm->sort));
+          || TermAssertSameSort(bank->sig, lterm, rterm));
 
    handle->properties = EPNoProps;
    if(positive)
