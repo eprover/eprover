@@ -1869,6 +1869,35 @@ Term_p TermCheckConsistency(Term_p term, DerefType deref)
    return res;
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermAssertSameSort
+//  checks whether the two terms have the same sort. Prints a (verbose)
+//  message if it's not the case.
+//   
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+bool TermAssertSameSort(Sig_p sig, Term_p t1, Term_p t2)
+{
+   bool res = SortEqual(t1->sort, t2->sort);
+
+   if(!res && Verbose>=3)
+   {
+      fprintf(stderr, "terms ");
+      TermPrint(stderr, t1, sig, DEREF_NEVER);
+      fprintf(stderr, " and ");
+      TermPrint(stderr, t2, sig, DEREF_NEVER);
+      fprintf(stderr, " should have same sort\n");
+   }
+
+   return res;
+}
+
 /*-----------------------------------------------------------------------
 //
 // Function: TermAnnotateType

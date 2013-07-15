@@ -22,7 +22,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "cte_typecheck.h"
-
+#include "cte_termfunc.h"
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -39,10 +39,49 @@ Changes
 /*---------------------------------------------------------------------*/
 
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: make_quantifier_type
+//  builds the "type" of a quantifier
+//   
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+Type_p make_quantifier_type(TypeTable_p table)
+{
+   SortType ret, args[2];
+   Type_p res;
+
+   ret = STBool;
+   args[0] = table->sort_table->default_type;
+   args[1] = STBool;
+
+   res = TypeNewFunction(table, ret, 2, args);
+   return res;
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: TypeCheckConsistent
+//  recursively checks that the subterms of this term have a sort
+//  that is consistent with the given signature.
+//   
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 bool TypeCheckConsistent(Sig_p sig, Term_p term)
 {
    bool res = true;
@@ -115,7 +154,8 @@ SortType TypeInferReturnSort(Sig_p sig, Term_p term)
       if (type == sig->type_table->no_type)
       {
          /* Take the predicate flag into account */
-         if (SigIsPredicate(sig, term->f_code))
+         if (SigIsPredicate(sig, term->f_code)
+             || SigQueryProp(sig, term->f_code, FPFOFOp))
          {
             return STBool;
          }
@@ -155,7 +195,8 @@ SortType TypeInferReturnSort(Sig_p sig, Term_p term)
 //
 // Global Variables: -
 //
-// Side Effects    : updates signature if the type is inferred
+// Side Effects    : Updates signature if the type is inferred, modifies the
+//                   term's sort
 //
 /----------------------------------------------------------------------*/
 
@@ -166,54 +207,85 @@ bool TypeInfer(Sig_p sig, Term_p term)
    Type_p type;
    SortType sort, *args;
    int i;
+   bool res = true;
 
    if(!TermIsVar(term))
    {
-      type = SigGetType(sig, term->f_code);
-
-      if(!type)
+      /* Ad-hoc polymorphism for equality: check that both sides have
+       * the same type */
+      if(term->f_code == SigGetEqnCode(sig, true))
       {
-         /* must infer the type */
-         sort = TypeInferReturnSort(sig, term);
-
-         if(term->arity)
+         res = SortEqual(term->args[0]->sort, term->args[1]->sort);
+         term->sort = STBool;
+      }
+      /* Type inference for quantifiers */
+      else if (term->f_code == sig->qex_code || term->f_code == sig->qall_code)
+      {
+         res = SortEqual(term->args[1]->sort, STBool);
+         term->sort = STBool;
+      }
+      else if (SigQueryProp(sig, term->f_code, FPFOFOp))
+      {
+         for(i=0; res && i < term->arity; ++i)
          {
-            args = TypeArgumentAlloc(term->arity);
-            for(i=0; i < term->arity; ++i)
-            {
-                args[i] = term->args[i]->sort;
-            }
-
-            type = TypeNewFunction(sig->type_table, sort, term->arity, args);
-            TypeArgumentFree(args, term->arity);
+            res = res && SortEqual(term->args[i]->sort, STBool);
          }
-         else
-         {
-            type = TypeNewConstant(sig->type_table, sort);
-         }
-
-         SigDeclareType(sig, term->f_code, type);
-         return true;
+         term->sort = STBool;
       }
       else
       {
-         /* Check the type */
-         if(!SortEqual(term->sort, type->domain_sort)
-            || type->arity != term->arity)
-         {
-            return false;
-         }
+         /* Regular type inference */
+         type = SigGetType(sig, term->f_code);
 
-         for(i=0; i < term->arity; ++i)
+         if(!type)
          {
-            if(!SortEqual(term->args[i]->sort, type->arguments[i]))
+            /* must infer the type */
+            sort = TypeInferReturnSort(sig, term);
+            term->sort = sort;
+
+            if(term->arity)
             {
-               return false;
+               args = TypeArgumentAlloc(term->arity);
+               for(i=0; i < term->arity; ++i)
+               {
+                   args[i] = term->args[i]->sort;
+               }
+
+               type = TypeNewFunction(sig->type_table, sort, term->arity, args);
+               TypeArgumentFree(args, term->arity);
+            }
+            else
+            {
+               type = TypeNewConstant(sig->type_table, sort);
+            }
+
+            SigDeclareType(sig, term->f_code, type);
+         }
+         else
+         {
+            term->sort = type->domain_sort;
+
+            res = res && (type->arity == term->arity);
+
+            for(i=0; res && i < term->arity; ++i)
+            {
+               if(!SortEqual(term->args[i]->sort, type->arguments[i]))
+               {
+                  res = false;
+               }
             }
          }
       }
    }
-   return true;
+
+   if(!res && Verbose>=3)
+   {
+      fprintf(stderr, "type error in ");
+      TermPrint(stderr, term, sig, DEREF_NEVER);
+      fprintf(stderr, "\n");
+   }
+
+   return res;
 }
 
 /*-----------------------------------------------------------------------

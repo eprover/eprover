@@ -531,7 +531,7 @@ void TypePrintTSTP(FILE *out, TypeTable_p table, Type_p type)
             SortPrintTSTP(out, table->sort_table, TypeGetArg(type, 0));
             for (i = 1; i < type->arity; ++i)
             {
-                fputs("* ", out);
+                fputs("*", out);
                 SortPrintTSTP(out, table->sort_table, TypeGetArg(type, i));
             }
             fputc(')', out);
