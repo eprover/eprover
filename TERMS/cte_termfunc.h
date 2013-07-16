@@ -135,7 +135,7 @@ long    TermLinearize(PStack_p stack, Term_p term);
 
 
 Term_p  TermCheckConsistency(Term_p term, DerefType deref);
-bool    TermAssertSameSort(Sig_p sig, Term_p t1, Term_p t2);
+void    TermAssertSameSort(Sig_p sig, Term_p t1, Term_p t2);
 
 
 #endif
