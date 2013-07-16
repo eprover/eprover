@@ -39,6 +39,45 @@ Changes
 /*---------------------------------------------------------------------*/
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: infer_return_sort
+//
+//   infer the return sort of the given function symbol, given the signature.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+SortType infer_return_sort(Sig_p sig, FunCode f_code)
+{
+   SortType res;
+
+   if(SigQueryProp(sig, f_code, FPIsInteger) &&
+      (sig->distinct_props & FPIsInteger))
+   {
+      res = STInteger;
+   }
+   else if (SigQueryProp(sig, f_code, FPIsRational) &&
+            (sig->distinct_props & FPIsRational))
+   {
+      res = STRational;
+   }
+   else if (SigQueryProp(sig, f_code, FPIsFloat) &&
+            (sig->distinct_props & FPIsFloat))
+   {
+      res = STReal;
+   }
+   else
+   {
+      res = SigDefaultSort(sig);
+   }
+
+   return res;
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
@@ -112,18 +151,15 @@ bool TypeCheckConsistent(Sig_p sig, Term_p term)
 //
 //   Infer the sort of this term. It can either use the type of the
 //   function symbol, if already known, or guess a type and add it
-//   to the signature otherwise.
-//
-//   The "top" argument is used to know whether the term is a subterm
-//   of another term, or a "top term". This impacts which sort is
-//   guessed if no type is present.
+//   to the signature otherwise. By default terms are supposed not to
+//   be atoms, unless the parser decides that they must be boolean.
 //
 // Global Variables: -
 //
 // Side Effects    : Modifies term and signature. May exit on type error.
 //
 /----------------------------------------------------------------------*/
-void TypeInferSort(Sig_p sig, Term_p term, bool top)
+void TypeInferSort(Sig_p sig, Term_p term)
 {
    Type_p type;
    SortType sort, *args;
@@ -178,7 +214,7 @@ void TypeInferSort(Sig_p sig, Term_p term, bool top)
       else
       {
          /* Infer type */
-         sort = top ? STBool : SigDefaultSort(sig);
+         sort = infer_return_sort(sig, term->f_code);
          args = TypeArgumentAlloc(term->arity);
          for(i=0; i < term->arity; ++i)
          {
@@ -232,8 +268,8 @@ void TypeDeclareIsNotPredicate(Sig_p sig, Term_p term)
 {
    if(!TermIsVar(term))
    {
+      TypeInferSort(sig, term);
       SigDeclareIsFunction(sig, term->f_code);
-      TypeInferSort(sig, term, false);
    }
 }
 
