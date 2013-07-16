@@ -25,7 +25,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "ccl_eqn.h"
-
+#include "cte_typecheck.h"
 
 
 /*---------------------------------------------------------------------*/
@@ -273,7 +273,8 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
    lterm = TBTermParse(in, bank);
    BOOL_TERM_NORMALIZE(lterm);
    
-   if(!TermIsVar(lterm) && SigIsPredicate(bank->sig,lterm->f_code))
+   if(!TermIsVar(lterm) && SigIsPredicate(bank->sig,lterm->f_code) &&
+      SigIsFixedType(bank->sig, lterm->f_code))
    {
       rterm = bank->true_term; /* Non-Equational literal */
    }
@@ -289,28 +290,28 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
          rterm = TBTermParse(in, bank);
          if(!TermIsVar(rterm))
          {
-            SigDeclareIsFunction(bank->sig, rterm->f_code);
+            TypeDeclareIsNotPredicate(bank->sig, rterm);
          }
       }
       else if(TestInpTok(in, NegEqualSign|EqualSign))
       { /* Now both sides must be terms */
-         SigDeclareIsFunction(bank->sig, lterm->f_code);
+         TypeDeclareIsNotPredicate(bank->sig, lterm);
          if(TestInpTok(in, NegEqualSign))
          {
             positive = !positive;
          }
          AcceptInpTok(in, NegEqualSign|EqualSign);	 
          rterm = TBTermParse(in, bank);
-         SigDeclareIsFunction(bank->sig, lterm->f_code);
+         TypeDeclareIsNotPredicate(bank->sig, lterm);
          if(!TermIsVar(rterm))
          {
-            SigDeclareIsFunction(bank->sig, rterm->f_code);
+            TypeDeclareIsNotPredicate(bank->sig, rterm);
          }
       }
       else
       { /* It's a predicate */
          rterm = bank->true_term; /* Non-Equational literal */
-         SigDeclareIsPredicate(bank->sig, lterm->f_code);
+         TypeDeclareIsPredicate(bank->sig, lterm);
       }
    }
    *lref = lterm;
