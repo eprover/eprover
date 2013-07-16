@@ -195,6 +195,48 @@ void TypeInferSort(Sig_p sig, Term_p term, bool top)
    }
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: TypeDeclareIsPredicate
+//
+//   declare that the term has a role of predicate (occurs as a boolean atom)
+//
+// Global Variables: -
+//
+// Side Effects    : Modifies sig, modifies term's sort
+//
+/----------------------------------------------------------------------*/
+void TypeDeclareIsPredicate(Sig_p sig, Term_p term)
+{
+   assert(!TermIsVar(term));
+
+   SigDeclareIsPredicate(sig, term->f_code);
+   term->sort = STBool;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TypeDeclareIsNotPredicate
+//
+//   Declare that this term is not a boolean atom, because it ocurs in
+//   an equation or is a subterm of another term.
+//
+// Global Variables: -
+//
+// Side Effects    : Modifies signature, update term's sort
+//
+/----------------------------------------------------------------------*/
+void TypeDeclareIsNotPredicate(Sig_p sig, Term_p term)
+{
+   if(!TermIsVar(term))
+   {
+      SigDeclareIsFunction(sig, term->f_code);
+      TypeInferSort(sig, term, false);
+   }
+}
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

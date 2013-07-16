@@ -1886,7 +1886,7 @@ bool TermAssertSameSort(Sig_p sig, Term_p t1, Term_p t2)
 {
    bool res = SortEqual(t1->sort, t2->sort);
 
-   if(!res && Verbose>=3)
+   if(!res && Verbose)
    {
       fprintf(stderr, "terms ");
       TermPrint(stderr, t1, sig, DEREF_NEVER);
