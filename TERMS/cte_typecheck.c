@@ -156,6 +156,23 @@ void TypeInferSort(Sig_p sig, Term_p term, bool top)
             Error("Arity mismatch", SYNTAX_ERROR);
          }
 
+         assert(term->arity == type->arity);
+         for(i=0; SigIsFixedType(sig, term->f_code) && i < term->arity; ++i)
+         {
+            if(!SortEqual(term->args[i]->sort, type->arguments[i]))
+            {
+               if(Verbose)
+               {
+                  fprintf(stderr, "# Type mismatch in %d-th argument: expected ", i);
+                  SortPrintTSTP(stderr, sig->sort_table, type->arguments[i]);
+                  fprintf(stderr, " but got ");
+                  SortPrintTSTP(stderr, sig->sort_table, term->args[i]->sort);
+                  fprintf(stderr, "\n");
+               }
+               Error("Type error", SYNTAX_ERROR);
+            }
+         }
+
          term->sort = type->domain_sort;
       }
       else
