@@ -1890,10 +1890,14 @@ void TermAssertSameSort(Sig_p sig, Term_p t1, Term_p t2)
    {
       fprintf(stderr, "# Error: terms ");
       TermPrint(stderr, t1, sig, DEREF_NEVER);
+      fprintf(stderr, ": ");
+      SortPrintTSTP(stderr, sig->sort_table, t1->sort);
       fprintf(stderr, " and ");
       TermPrint(stderr, t2, sig, DEREF_NEVER);
+      fprintf(stderr, ": ");
+      SortPrintTSTP(stderr, sig->sort_table, t2->sort);
       fprintf(stderr, " should have same sort\n");
-      Error("type mismatch", SYNTAX_ERROR);
+      Error("Type error", SYNTAX_ERROR);
    }
 }
 
