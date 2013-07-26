@@ -1707,10 +1707,10 @@ When the empty clause has been derived and hence a proof concluded,
 the proof tree is extracted by tracing the dependencies. Steps are
 topologically sorted, ensuring that all dependencies of a step are
 listed before it. The linearised proof can then be printed, either in
-TPTP-3 syntax, or in PCL2 suntax. The syntax is identical to the
+TPTP-3 syntax, or in PCL2 syntax. The syntax is identical to the
 detailed proof output described in the previous section, and proof
-objects can typically be processed wit hthe same tools as full
-inference protocols. 
+objects can typically be processed with the same tools as full
+inference protocols.
 
 Proof-object generation and output are activated by the option
 \texttt{--proof-object}. 
@@ -1772,7 +1772,7 @@ The \texttt{--answers=<x>} option controls the number of answers
 generated. By default, the prover terminates after the first
 successful proof, and thus only provides one answer. Using the option
 without an argument will make the prover search for \texttt{LONG\_MAX}
-anwers, i.e.\ a practically unlimited number. Using a positive integer
+answers, i.e.\ a practically unlimited number. Using a positive integer
 argument limits the number of answers to the limit given.
 
 The option \texttt{--conjectures-are-questions} will make the prover
