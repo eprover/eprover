@@ -1659,7 +1659,7 @@ search after termination. The following possibilities exist:
 \end{itemize}
 
 
-\section{Impressing your Friends}
+\section{Observing Saturation}
 \label{sec:output:normal}
 
 If you run E without selecting an output level (or by setting it
@@ -1676,7 +1676,7 @@ information about the proof search and final clause sets. The data
 should be fairly self-explaining.
 
 
-\section{Detailed Reporting}
+\section{Inference Protocols}
 \label{sec:output:lots}
 
 At output levels greater that 1, E prints certain inferences in
@@ -1684,11 +1684,102 @@ PCL2\index{PCL} format\footnote{PCL2 is a proof output designed as a
   successor to PCL~\cite{DS94a,DS94b,DS96a}.} or TPTP-3 output
 format\index{TPTP!language}.  At level 2, it only prints generating
 inferences. At level 4, it prints all generating and modifying
-inferences, and at level 6 it also prints PCL steps giving a lot of
-insight into the internal operation of the inference engine.  This
-protocol is fairly readable and, from level 4 on can be used to check
-the proof with the utility \texttt{checkproof} provided with the
-distribution.
+inferences, and at level 6 it also prints PCL/TPTP-3 steps that don't
+correspond to inferences, but give some insight into the internal
+operation of the inference engine.  This protocol is fairly readable
+and, from level 4 on can be used to check the proof with the utility
+\texttt{checkproof} provided with the distribution.
+
+\section{Proofs Objects}
+
+E~1.8 can internally record all necessary information for proof
+output. It makes use of the DISCOUNT loop property that only processed
+clauses (usually a small subset of all clauses in the search state)
+can ever participate in generating inferences or be used to simplify
+other clauses. For each clause, the system stores its origin (usually
+a generating inference and the parents), and a history of
+simplifications (inference rule and side premises). Only if a
+processed clause can be backward-simplified by a new clause, the
+original is archived and replaced by a simplified copy in the search
+state (which points to the original as its parent).
+
+When the empty clause has been derived and hence a proof concluded,
+the proof tree is extracted by tracing the dependencies. Steps are
+topologically sorted, ensuring that all dependencies of a step are
+listed before it. The linearised proof can then be printed, either in
+TPTP-3 syntax, or in PCL2 suntax. The syntax is identical to the
+detailed proof output described in the previous section, and proof
+objects can typically be processed wit hthe same tools as full
+inference protocols. 
+
+Proof-object generation and output are activated by the option
+\texttt{--proof-object}. 
+
+
+\section{Answers} 
+
+E supports the proposed TPTP standard for
+answers~\cite{SSSU:TPTP-ANS}. An \emph{answer} is an instantiation for
+an existential conjecture (or \emph{query}) that makes the conjecture
+true. In practice, E will supply bindings for the outermost
+existentially quantified variables in a TPTP formula with type
+\texttt{question}.
+
+The implementation is straightforward. The query is extended by adding
+the atomic formula \verb|~$answer(new_fun(<varlist>))|, where
+\verb|<varlist>| is the list of outermost existentially quantified
+variables. This atom is carried through clausification and ends up as
+a positive literal in the CNF. The literal ordering is automatically
+chosen so that the answer literal never participates in
+inferences. Semantically, the \verb|$answer| predicate always
+evaluates to false. It is only evaluated in clauses where all literals
+are answer literals. Answers are extracted and printed in tuple form
+at the time of the evaluation. Figure~\ref{fig:answers} shows an
+example.
+
+\begin{figure}
+  \centering
+\begin{tabular}{p{0.96\textwidth}}
+  \hline
+  \textbf{Specification}\\
+  \hline
+  \verb+fof(greeks, axiom, (philosopher(socrates)|philosopher(plato))).+\\
+  \verb|fof(scot, axiom, (philosopher(hume))).|\\
+  \verb|fof(phils_wise, axiom, (![X]:(philosopher(X) => wise(X)))).|\\
+  \verb|fof(is_there_wisdom, question, (?[X]:wise(X))).|\\
+  \hline
+  \textbf{Answers} (\texttt{eprover --tptp3-format -s --answers})\\
+  \hline
+  \verb|# SZS status Theorem|\\
+  \verb+# SZS answers Tuple [[hume]|_]+\\
+  \verb+# SZS answers Tuple [([socrates]|[plato])|_]+\\
+  \verb|# Proof found!|\\
+  \hline
+\end{tabular}\\
+  
+  \caption{Answer generation}
+  \label{fig:answers}
+\end{figure}
+
+The system correctly handles disjunctive answers (at least one of
+\texttt{socrates} or \texttt{plato} is a philosopher and hence wise,
+but the theory does not allow us to decide who is). While the example
+has been kept intentionally simple, the system also supports complex
+terms and variables as parts of answers, in that case representing the
+set of all instances.
+
+The \texttt{--answers=<x>} option controls the number of answers
+generated. By default, the prover terminates after the first
+successful proof, and thus only provides one answer. Using the option
+without an argument will make the prover search for \texttt{LONG\_MAX}
+anwers, i.e.\ a practically unlimited number. Using a positive integer
+argument limits the number of answers to the limit given.
+
+The option \texttt{--conjectures-are-questions} will make the prover
+treat any formula of type \texttt{conjecture} as a question, not just
+formulas with explicit type \texttt{question}.
+
+
 
 
 \section{Requesting Specific Output}
