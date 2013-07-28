@@ -33,12 +33,12 @@ Read the rest of this file and the fine (if incomplete) manual if
 anything fails. There should be a copy of the manual in
 DOC/eprover.pdf.
 
-The recommended command for runnin E on a "modern" TPTP-3 file is
+The recommended command for running E on a "modern" TPTP-3 file is
 
   eprover --auto --tptp3-in --proof-object problem.p
 
-If you want to try the experimental (andu sually stronger) strategy
-scheduling mode, use 
+If you want to try the experimental (and usually stronger) strategy
+scheduling mode, use
 
   eprover --auto-schedule --tptp3-in --proof-object problem.p
 
@@ -148,7 +148,7 @@ compiler installed, you may need to edit Makefile.vars manually to
 select tools and options. If you have any problems, look into
 E/DOC/PORTING.
 
-If yu get into trouble,
+If you get into trouble,
 
    make rebuild
 
