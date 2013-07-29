@@ -553,8 +553,8 @@ OptCell opts[] =
     "Do not perform preprocessing on the initial clause set. "
     "Preprocessing currently removes tautologies and orders terms, "
     "literals and clauses in a certain (\"canonical\") way before "
-    "anything else happens. Unless the next option is set, it will "
-    "also unfold equational definitions."},
+    "anything else happens. Unless limited by one of the following "
+    "options, it will also unfold equational definitions."},
 
    {OPT_EQ_UNFOLD_LIMIT,
     '\0', "eq-unfold-limit",
@@ -1475,10 +1475,6 @@ int main(int argc, char* argv[])
       if(!success)
       {
          ProofStateResetProcessed(proofstate, proofcontrol);
-      }
-      else
-      {
-         PStackPushP(proofstate->extract_roots, success); 
       }
    }
    PERF_CTR_ENTRY(SatTimer);
