@@ -1378,10 +1378,12 @@ The system is dual-licensed under the GNU General Public License and
 the GNU Lesser General Public License.
 
 
-Note: Unless there is copious protest from existing users, the next
-version of E will swith from "#" to "%" as the standard comment
-character, for improved compliance with the TPTP-3 standard.
-
+Notes
+* Unless there is copious protest from existing users, the next
+  version of E will switch from "#" to "%" as the standard comment 
+  character, for improved compliance with the TPTP-3 standard.
+* Special thanks to Nik Sultana, who read the whole manual and found
+  several embarrassing and some painful errors!
 
 You can find the source distribution and additional information at
 the E website at 
