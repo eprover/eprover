@@ -231,6 +231,7 @@ Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, SortType sort)
       handle->f_code = SigGetNewPredicateCode(sig, arity);
    }
 
+   // declare type
    if(arity)
    {
       handle->arity = arity;
