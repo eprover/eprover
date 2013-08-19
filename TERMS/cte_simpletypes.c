@@ -312,7 +312,7 @@ int parse_sort_list(Scanner_p in, SortTable_p sort_table, SortType **args, int *
    int arity;
 
    *len = 5;
-   *args = SizeMalloc((*len) * sizeof(SortType));
+   *args = SecureRealloc(NULL, (*len) * sizeof(SortType));
 
    AcceptInpTok(in, OpenBracket);
 
@@ -589,7 +589,7 @@ Type_p TypeParseTSTP(Scanner_p in, TypeTable_p table)
       right = SortParseTSTP(in, table->sort_table);
 
       res = TypeNewFunction(table, right, arity, args);
-      SizeFree(args, len * sizeof(SortType));
+      FREE(args);
    }
    else
    {

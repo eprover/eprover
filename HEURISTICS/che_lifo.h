@@ -23,7 +23,7 @@ Changes
 
 #ifndef CHE_LIFO
 
-#define CHE_LFIFO
+#define CHE_LIFO
 
 #include <che_wfcb.h>
 
