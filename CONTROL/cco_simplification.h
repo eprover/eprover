@@ -23,7 +23,7 @@ Changes
 
 #ifndef CCO_SIMPLIFICATION
 
-#define CCI_SIMPIFICATION
+#define CCI_SIMPLIFICATION
 
 
 #include <che_proofcontrol.h>
