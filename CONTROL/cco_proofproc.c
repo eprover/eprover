@@ -754,7 +754,10 @@ static Clause_p cleanup_unprocessed_clauses(ProofState_p state,
          ForwardContractSet(state, control,
                             state->unprocessed, false, FullRewrite,
                             &(state->other_redundant_count), true);
-      
+      if(unsatisfiable)
+      {
+         PStackPushP(state->extract_roots, unsatisfiable);
+      }
       if(OutputLevel)
       {
          fprintf(GlobalOut, 
@@ -1318,6 +1321,10 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    resclause = replacing_inferences(state, control, pclause);
    if(!resclause || ClauseIsEmpty(resclause))
    {
+      if(resclause)
+      {
+         PStackPushP(state->extract_roots, resclause);
+      }
       return resclause;
    }
    
