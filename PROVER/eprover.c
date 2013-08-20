@@ -234,9 +234,9 @@ OptCell opts[] =
     "Level 0 will not build a proof object, level 1 will build a "
     "simple, compact proof object that only contains inference rules "
     "and dependencies, level 2 will build a proof object where "
-    "inferences are unambigiously described by giving inference "
+    "inferences are unambiguously described by giving inference "
     "positions, and level 3 will expand this to a proof object where "
-    "all intermediate results are ecplicit. This feature is under "
+    "all intermediate results are explicit. This feature is under "
     "development, so far only level 0 and 1 are operational."}, 
 
    {OPT_PCL_COMPRESSED,
@@ -359,7 +359,7 @@ OptCell opts[] =
     "of no portable way to figure out the physical memory in a machine. "
     "Both the option and the 'Auto' version do work under all tested "
     "versions of Solaris and GNU/Linux. Due to problems with limit "
-    "datatypes, it is currently impossible to set a limit of more than "
+    "data types, it is currently impossible to set a limit of more than "
     "2 GB (2048 MB)."},
 
    {OPT_CPU_LIMIT,
@@ -554,8 +554,8 @@ OptCell opts[] =
     "Do not perform preprocessing on the initial clause set. "
     "Preprocessing currently removes tautologies and orders terms, "
     "literals and clauses in a certain (\"canonical\") way before "
-    "anything else happens. Unless the next option is set, it will "
-    "also unfold equational definitions."},
+    "anything else happens. Unless limited by one of the following "
+    "options, it will also unfold equational definitions."},
 
    {OPT_EQ_UNFOLD_LIMIT,
     '\0', "eq-unfold-limit",
@@ -792,10 +792,8 @@ OptCell opts[] =
    {OPT_CONDENSING,
     '\0', "condense",
     NoArg, NULL,
-    "Enable condensing for the given clause. Condensing can turn "
-    "superposition into a decision procedure for some classes of "
-    "problems, but is unproven (and, indeed, currently "
-    "uninmplemented ;-)."}, 
+    "Enable condensing for the given clause. Condensing replaces a clause "
+    "by a more general factor (if such a factor exists)."}, 
 
    {OPT_CONDENSING_AGGRESSIVE,
     '\0', "condense-aggressive",
@@ -1485,10 +1483,6 @@ int main(int argc, char* argv[])
       if(!success)
       {
          ProofStateResetProcessed(proofstate, proofcontrol);
-      }
-      else
-      {
-         PStackPushP(proofstate->extract_roots, success); 
       }
    }
    PERF_CTR_ENTRY(SatTimer);

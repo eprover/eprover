@@ -106,7 +106,7 @@ import pylib_erun
 
 def test_cfg():
     global tptp_dir, eprover_dir, testrun_dir, bsub_cmd, bjobs_cmd,\
-    bsub_rundir, old_job_dir, db_file
+    bsub_rundir, old_job_dir, db_file, getcpu
     
     tptp_dir = "/Users/schulz/EPROVER/TPTP_4.1.0_FLAT"
     """
@@ -149,10 +149,14 @@ def test_cfg():
     Where to store the job/run associations.
     """
 
+    getcpu = ""
+    """
+    Try to extract CPU information.
+    """
 
 def pegasus_cfg():
     global tptp_dir, eprover_dir, testrun_dir, bsub_cmd, bjobs_cmd,\
-    bsub_rundir, old_job_dir, db_file
+    bsub_rundir, old_job_dir, db_file, getcpu
     
     tptp_dir = "/nethome/sschulz/EPROVER/TPTP_5.4.0_FLAT"
     """
@@ -195,9 +199,14 @@ def pegasus_cfg():
     Where to store the job/run associations.
     """
 
+    getcpu = "-C"
+    """
+    Try to extract CPU information.
+    """
+
 def pegasus_sine_cfg():
     global tptp_dir, eprover_dir, testrun_dir, bsub_cmd, bjobs_cmd,\
-    bsub_rundir, old_job_dir, db_file
+    bsub_rundir, old_job_dir, db_file, getcpu
 
     tptp_dir = "/nethome/sschulz/EPROVER/TPTP_4.1.0_SINE"
     """
@@ -239,6 +248,11 @@ def pegasus_sine_cfg():
     """
     Where to store the job/run associations.
     """
+    
+    getcpu = "-C"
+    """
+    Try to extract CPU information.
+    """
 
 
 
@@ -277,7 +291,7 @@ bsub_header_tmplt = \
 #
 # Run prunner running multiple jobs in parallel
 cd %s
-%s/prunner.py -c %d << EOF
+%s/prunner.py %s -c %d << EOF
 """
 """
 Template for generating bsub job headers.
@@ -462,7 +476,7 @@ def bsub_gen_header(job):
     """
     jname = encode_job_name(job)
     return bsub_header_tmplt%\
-           (jname, jname, jname, cores, cores, bsub_rundir, eprover_dir, cores)
+           (jname, jname, jname, cores, cores, bsub_rundir, eprover_dir, getcpu, cores)
 
 
 def bsub_gen_job(job):
@@ -577,6 +591,10 @@ x5_stats = [
     "# Condensation successes"    
     ]
 
+x6_stats = [
+    "# cpu MHz",
+    "# bogomips"
+    ]
 
 
 class TestDecoding(unittest.TestCase):
@@ -656,7 +674,7 @@ class TestDecoding(unittest.TestCase):
         
 
 if __name__ == '__main__':
-    opts, args = getopt.gnu_getopt(sys.argv[1:], "uhvpsfb:j:xXYZc:",
+    opts, args = getopt.gnu_getopt(sys.argv[1:], "uhvpsfb:j:xXYZCc:",
                                    ["unit-test",
                                     "pegasus",
                                     "peg-sine",
@@ -668,6 +686,7 @@ if __name__ == '__main__':
                                     "ext3-stats",
                                     "extFV-stats",
                                     "ext5-stats",
+                                    "cpu-stats",
                                     "cores="])
     force_scheduling = False
 
@@ -706,6 +725,8 @@ if __name__ == '__main__':
         elif  option == "--ext5-stats":
             stats.extend(x_stats)
             stats.extend(x5_stats)
+        elif  option == "-C" or option == "--cpu-stats":
+            stats.extend(x6_stats)
         elif option == "-c" or option == "--cores":
             cores = int(optarg)
         else:
