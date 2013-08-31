@@ -133,7 +133,6 @@ VarBank_p VarBankAlloc(SortTable_p sort_table)
    handle->stacks = PDArrayAlloc(INITIAL_SORT_STACK_SIZE, 5);
    handle->ext_index = NULL;
    handle->env = PStackAlloc();
-
    return handle;
 }
 
@@ -176,6 +175,7 @@ void VarBankFree(VarBank_p junk)
       }
       PDArrayFree(stack);
    }
+   PDArrayFree(junk->stacks);
 
    VarBankCellFree(junk);
 }
