@@ -76,7 +76,7 @@
 
 EXECPATH=`pwd`/PROVER
 MANPATH=`pwd`/DOC/man
-CC=gcc-4
+CC=gcc
 
 for argument in  "$@"; do
     if [ "$argument" = "-h" -o "$argument" = "--help" ] ; then
@@ -120,16 +120,12 @@ done
 echo "Configuring with executable path "$EXECPATH
 
 echo $MANPATH
-sed -e "/^EXECPATH =.*/s|.*|EXECPATH = $EXECPATH|" -e "/^MANPATH =.*/s|.*|MANPATH = $MANPATH|" -e "/^CC *= .*/s|.*|CC = $CC|"  Makefile.vars.in > tmpfile
-mv tmpfile Makefile.vars
+sed -e "/^EXECPATH =.*/s|.*|EXECPATH = $EXECPATH|" -e "/^MANPATH =.*/s|.*|MANPATH = $MANPATH|" -e "/^CC *= .*/s|.*|CC = $CC|"  Makefile.vars.in > Makefile.vars
 
-sed -e "/^EXECPATH=.*/s|.*|EXECPATH=$EXECPATH|" PROVER/eproof.in > tmpfile
-mv tmpfile PROVER/eproof
+sed -e "/^EXECPATH=.*/s|.*|EXECPATH=$EXECPATH|" PROVER/eproof.in > PROVER/eproof
 chmod ugo+x PROVER/eproof
 
-sed -e "/^EXECPATH=.*/s|.*|EXECPATH=$EXECPATH|" PROVER/eproof_ram.in > tmpfile
-mv tmpfile PROVER/eproof_ram
+sed -e "/^EXECPATH=.*/s|.*|EXECPATH=$EXECPATH|" PROVER/eproof_ram.in > PROVER/eproof_ram
 chmod ugo+x PROVER/eproof_ram
-
 
 make config
