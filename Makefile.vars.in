@@ -133,7 +133,7 @@ ARCHFLAGS  =  # -mdynamic-no-pic # Helps a tiny bit on Mac
 #             -pedantic -I../include $(DEBUGFLAGS) \
 #             $(BUILDFLAGS) $(ARCHFLAGS)
 
-WFLAGS     = -Wno-unused-but-set-variable -Wno-char-subscripts
+WFLAGS     = -Wno-char-subscripts
 CFLAGS     = -O6 -fomit-frame-pointer -Wall -std=gnu99\
              $(WFLAGS) \
              -I../include $(DEBUGFLAGS) $(BUILDFLAGS) $(ARCHFLAGS)
