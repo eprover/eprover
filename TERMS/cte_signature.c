@@ -1418,7 +1418,8 @@ void SigPrintTypes(FILE* out, Sig_p sig)
 
 /*-----------------------------------------------------------------------
 //
-// Function: SigParseTFFTypeDeclaration
+// Function: SigParseTFFTypeDeclaration()
+//
 //  Parses a type declaration, and update the signature if it's a
 //  symbol declaration (ignores type declarations)
 //
