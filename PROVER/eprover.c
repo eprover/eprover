@@ -260,7 +260,7 @@ OptCell opts[] =
    {OPT_PRINT_STATISTICS,
     '\0', "print-statistics",
     NoArg, NULL,
-    "Print the inference statistics (only relevant for output level 0,"
+    "Print the inference statistics (only relevant for output level 0, "
     "otherwise they are printed automatically."},
 
    {OPT_EXPENSIVE_DETAILS,
