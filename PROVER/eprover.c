@@ -597,9 +597,10 @@ OptCell opts[] =
    {OPT_AC_HANDLING,
     '\0', "ac-handling",
     OptArg, "KeepUnits",
-    "Select AC handling mode. Preselected is 'DiscardAll', other "
-    "options are 'None' to disable AC handling, 'KeepUnits', and "
-    "'KeepOrientable'."}, 
+    "Select AC handling mode, i.e. determine what to do with "
+    "redundant AC tautologies. The default is equivalent to "
+    "'DiscardAll', the other possible values are 'None' (to disable "
+    "AC handling), 'KeepUnits', and 'KeepOrientable'."}, 
 
    {OPT_AC_ON_PROC,
     '\0', "ac-non-aggressive",
@@ -1102,7 +1103,7 @@ OptCell opts[] =
     OptArg, "FP7",
     "Select fingerprint function for backwards rewrite index. "
     "\"NoIndex\" will disable paramodulation indexing. For a list "
-    "of the other values run '" NAME " --pm-index=none'. FPX functions"
+    "of the other values run '" NAME " --pm-index=none'. FPX functions "
     "will use a fingerprint of X positions, the letters disambiguate "
     "between different fingerprints with the same sample size."},
 
