@@ -164,6 +164,9 @@ typedef enum
    OPT_PM_FROM_INDEX,
    OPT_PM_INTO_INDEX,
    OPT_FP_INDEX,
+   OPT_FP_NO_SIZECONSTR,
+   OPT_PDT_NO_SIZECONSTR,
+   OPT_PDT_NO_AGECONSTR,
    OPT_DETSORT_RW,
    OPT_DETSORT_NEW,
    OPT_DEFINE_WFUN,
@@ -1132,6 +1135,24 @@ OptCell opts[] =
     OptArg, "FP7",
     "Select fingerprint function for all fingerprint indices. See above."},  
 
+   {OPT_FP_NO_SIZECONSTR,
+    '\0', "fp-no-size-constr",
+    NoArg, NULL,
+    "Disable usage of size constraints for matching with fingerprint "
+    "indexing."},
+
+   {OPT_PDT_NO_SIZECONSTR,
+    '\0', "pdt-no-size-constr",
+    NoArg, NULL,
+    "Disable usage of size constraints for matching with perfect "
+    "discrimination trees indexing."}, 
+
+   {OPT_PDT_NO_AGECONSTR,
+    '\0', "pdt-no-age-constr",
+    NoArg, NULL,
+    "Disable usage of age constraints for matching with perfect "
+    "discrimination trees indexing."}, 
+
    {OPT_DETSORT_RW,
     '\0', "detsort-rw",
     NoArg, NULL,
@@ -1658,6 +1679,10 @@ int main(int argc, char* argv[])
       fprintf(GlobalOut, "# Unification successes                : %ld\n",
               UnifSuccesses);
 #endif
+#ifdef PDT_COUNT_NODES
+      fprintf(GlobalOut, "# PDT nodes visited                    : %ld\n",
+              PDTNodeCounter);
+#endif
       PERF_CTR_PRINT(GlobalOut, MguTimer);
       PERF_CTR_PRINT(GlobalOut, SatTimer);
       PERF_CTR_PRINT(GlobalOut, ParamodTimer);
@@ -1693,7 +1718,8 @@ int main(int argc, char* argv[])
       FPIndexDistribDataPrint(GlobalOut, proofstate->gindices.pm_negp_index);
       fprintf(GlobalOut, "\n");
 #endif
-   }   
+      // PDTreePrint(GlobalOut, proofstate->processed_pos_rules->demod_index);
+   }
 #ifndef FAST_EXIT
 #ifdef FULL_MEM_STATS
    fprintf(GlobalOut,
@@ -2491,6 +2517,12 @@ CLState_p process_options(int argc, char* argv[])
             strcpy(h_parms->rw_bw_index_type, arg);
             strcpy(h_parms->pm_from_index_type, arg);
             strcpy(h_parms->pm_into_index_type, arg);
+            break;
+      case OPT_PDT_NO_SIZECONSTR:
+            PDTreeUseSizeConstraints = false;
+            break;
+      case OPT_PDT_NO_AGECONSTR:
+            PDTreeUseAgeConstraints = false;
             break;
       case OPT_DETSORT_RW:
             h_parms->detsort_bw_rw = true;

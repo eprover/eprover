@@ -1,6 +1,11 @@
 This history list describes the major differences between versions of
 the E equational theorem prover.
 
+Version 1.8 -> 
+
+- Fixed bug that caused proof output to fail in rare cases when the
+  proof was found in preprocessing.
+
 
 Version 1.7 -> 1.8 Gopaldhara
 
