@@ -229,6 +229,51 @@ static long pdt_get_size_constraint(PDTNode_p node)
    return node->size_constr;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: pdt_verify_size_constraint()
+//
+//   Verify the size constraint at node, and return the optimal
+//   value (or -1 if the tree is inconsistent)
+//
+// Global Variables: -
+//
+// Side Effects    : Sets the updated size constraint, possibly in all
+//                   children. 
+//
+/----------------------------------------------------------------------*/
+
+static long pdt_verify_size_constraint(PDTNode_p node)
+{
+   long actual_constr = LONG_MAX;
+
+   if(node->entries)
+   {
+      actual_constr = pos_tree_compute_size_constraint(node->entries);
+   }
+   else
+   {
+      PStackPointer i;
+      PStack_p  iter_stack = pdt_node_succ_stack_create(node);
+      long      tmpsize;
+      PDTNode_p next_node;
+      
+      for(i = 0; i< PStackGetSP(iter_stack); i++)
+      {
+         next_node = PStackElementP(iter_stack, i);
+         assert(next_node);
+         tmpsize = pdt_verify_size_constraint(next_node);
+         actual_constr = MIN(actual_constr, tmpsize);
+      }
+      PStackFree(iter_stack);
+   }
+   if(node->size_constr == -1 || (node->size_constr == actual_constr))
+   {
+      return actual_constr;
+   }
+   return -1;
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -310,6 +355,52 @@ static SysDate pdt_get_age_constraint(PDTNode_p node)
    return node->age_constr;
 }
 
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: pdt_verify_age_constraint()
+//
+//   Verify the age constraint at node, and return the optimal
+//   value (or -1 if the tree is inconsistent)
+//
+// Global Variables: -
+//
+// Side Effects    : Sets the updated size constraint, possibly in all
+//                   children. 
+//
+/----------------------------------------------------------------------*/
+
+static SysDate pdt_verify_age_constraint(PDTNode_p node)
+{
+   SysDate actual_constr = SysDateCreationTime();
+
+   if(node->entries)
+   {
+      actual_constr = pos_tree_compute_age_constraint(node->entries);
+   }
+   else
+   {
+      PStackPointer i;
+      PStack_p      iter_stack = pdt_node_succ_stack_create(node);
+      PDTNode_p     next_node;
+      SysDate       tmpdate;
+
+      for(i = 0; i< PStackGetSP(iter_stack); i++)
+      {
+         next_node = PStackElementP(iter_stack, i);
+         assert(next_node);
+         tmpdate = pdt_verify_age_constraint(next_node);
+         actual_constr = SysDateMaximum(actual_constr, tmpdate);
+      }
+      PStackFree(iter_stack);
+   }
+   if(SysDateIsInvalid(node->age_constr) || (node->age_constr == actual_constr))
+   {
+      return actual_constr;
+   }
+   return -1;
+}   
 
 
 /*-----------------------------------------------------------------------
@@ -881,7 +972,9 @@ void PDTreeInsert(PDTree_p tree, ClausePos_p demod_side)
    assert(node);
    res = PTreeStore(&(node->entries), demod_side);
    tree->clause_count++;
-   assert(res);   
+   assert(res);
+   //printf("ISizeConstr %p: %ld\n", tree, pdt_verify_size_constraint(tree->tree));
+   //printf("IDateConstr %p: %ld\n", tree, pdt_verify_age_constraint(tree->tree));
 }
 
 
@@ -974,6 +1067,8 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
    tree->clause_count-=res;
    /* printf("...removed\n"); */
    
+   // printf("DSizeConstr %p: %ld\n", tree, pdt_verify_size_constraint(tree->tree));
+   // printf("DDateConstr %p: %ld\n", tree, pdt_verify_age_constraint(tree->tree));
    return res;
 }
 
