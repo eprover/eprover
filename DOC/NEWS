@@ -25,7 +25,7 @@ Version 1.6 -> 1.7 Jun Chiabari
 - Added interactive batch mode to e_ltb_runner (load large spec once,
   then keep asking for the status of different theorems via
   stdin/stdout)
-- Added enormalizae for normalization of terms, clauses and formulas
+- Added enormalize for normalization of terms, clauses and formulas
   with an oriented rule set without regard for orderings.
 - Various minor updates and bugfixes
 

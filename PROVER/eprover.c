@@ -2297,7 +2297,7 @@ CLState_p process_options(int argc, char* argv[])
 	       Error("Option -t (--term-ordering) requires Auto, "
 		     "AutoCASC, AutoDev, AutoSched0, AutoSched1, "
                      "AutoSched2, AutoSched3, AutoSched4, Optimize, "
-                     "LPO, LPO4, or KBO as an argument", 
+                     "LPO, LPO4, KBO or KBO6 as an argument", 
 		     USAGE_ERROR);
 	    }
 	    break;
