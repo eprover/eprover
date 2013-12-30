@@ -1988,28 +1988,28 @@ A typical command line for starting \texttt{enormalizer} is:
 \section{Multiple queries: \texttt{e\_ltb\_runner}}
 \index{e\_ltb\_runner|texttt}\index{batch processing}
 
-E is designed to handle individual proof problems, one at a time. For
-this case, the prover has mechanism to handle even large
-specifications. However, in cases where multiple queries or
-conjectures are posed against a large background theory, even the
-parsing of the background theory may take up significant
-time. \texttt{E\_ltb\_runner} has been developed to efficiently handle
-this situation. It can read the background theory once, and then run E
-with additional axioms and different conjectures against this
-background theory.
+E is designed to handle individual proof problems, one at a time. The
+prover has mechanism to handle even large specifications. However, in
+cases where multiple queries or conjectures are posed against a large
+background theory, even the parsing of the background theory may take
+up significant time. \texttt{E\_ltb\_runner} has been developed to
+efficiently handle this situation. It can read the background theory
+once, and then run E with additional axioms and different conjectures
+against this background theory without re-parsing of the full theory.
 
 The program was originally designed for running sets of queries
 against \emph{large theories} in \emph{batch mode}, but now also
-supports interactive queries. However, the program is in a more
-prototypical state than most of the E distribution. In particular, any
-syntax error in the input will cause the whole program to terminate.
+supports interactive queries. However, \texttt{e\_ltb\_runner} is in a
+more prototypical state than most of the E distribution. In
+particular, any syntax error in the input will cause the whole program
+to terminate.
 
-By default, it will process a batch specification file
-(see~\ref{sec:bsf}), which contains a specification of the background
-theory, some options, and (optionally) a number of individual job
-requests. If used with the option \texttt{--interactive}, it will
-enter interactive mode (\ref{sec:iq}) after all batch jobs have been
-processed.
+By default, \texttt{e\_ltb\_runner} will process a batch specification
+file (see~\ref{sec:bsf}), which contains a specification of the
+background theory, some options, and (optionally) a number of
+individual job requests. If used with the option
+\texttt{--interactive}, it will enter interactive mode (\ref{sec:iq})
+after all batch jobs have been processed.
 
 For every job, the program will use several different goal-directed
 pruning strategies to extract likely useful axioms from the background
@@ -2026,9 +2026,10 @@ used on a multi-core machine with sufficient amounts of memory.
 
 \texttt{E\_ltb\_runner} relies on TPTP-3 include file syntax and
 semantics, and hence will only (and implicitly) work with the TPTP-3
-syntax. The main program runs both \texttt{eprover} and
-\texttt{epclextract} as sub-processes. Unless these programs are in the
-search path, their full paths should be given as optional arguments.
+syntax. The main program runs several instances of \texttt{eprover} as
+sub-processes. Unless the executable is in the search path, the full
+path should be given as as the optional second argument to the
+program.
 
 
 A typical command line for starting \texttt{e\_ltb\_runner} is:
