@@ -10,14 +10,14 @@
 # Usage: 
 #
 # Change directory to the top level directory of the E distribution
-# (where this file is located. The run
+# (where this file is located). Then run
 #
 # ./configure
 # 
-# This will install E in place, i.e. it will compile the system in
-# place and configure programs and scripts to find the execuable in 
-# the directory E/PROVER. Installation in this way will not affect any
-# files outside the E distribution directory.
+# This will prepare E for compilation in place, i.e. it will compile
+# the system in place and configure programs and scripts to find the
+# execuable in the directory E/PROVER. Installation in this way will
+# not affect any files outside the E distribution directory.
 #
 # If you want to install E in a special place in the file system, run 
 #
@@ -27,8 +27,8 @@
 #
 # make
 #
-# to compile E and build all the executables. To install E somewhere
-# outside its build directory, type
+# to compile E and build all the executables. To actually install E
+# somewhere outside its build directory, type
 #
 # make install
 #
