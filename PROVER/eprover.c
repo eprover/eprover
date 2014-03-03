@@ -8,7 +8,7 @@ Contents
  
   Main program for the E equational theorem prover.
 
-Copyright 1998-2011 by the author.
+Copyright 1998-2014 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
@@ -1378,7 +1378,7 @@ static void print_info(void)
 //                   (possibly) SubsumeTimer); 
 //                   (possibly) SetSubsumeTimer
 //
-// Side Effects    : 
+// Side Effects    : Output of collected statistics.
 //
 /----------------------------------------------------------------------*/
 

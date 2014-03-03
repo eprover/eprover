@@ -1140,6 +1140,11 @@ long DerivationTopoSort(Derivation_p derivation)
    return PStackGetSP(derivation->ordered_deriv);
 }
 
+
+
+
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: DerivationRenumber()
@@ -1173,6 +1178,7 @@ void DerivationRenumber(Derivation_p derivation)
       }
    }
 }
+
 
 
 /*-----------------------------------------------------------------------
