@@ -54,7 +54,9 @@ typedef enum
 /*---------------------------------------------------------------------*/
 
 #define      SysDateCreationTime() 0L
-#define      SysDateArmageddonTime() ULONG_MAX
+#define      SysDateArmageddonTime() LONG_MAX
+#define      SysDateInvalidTime() -1L
+#define      SysDateIsInvalid(time) ((time)==SysDateInvalidTime())
 #define      SysDateInc(sd) ((*(sd))++);assert(*(sd));
 static __inline__ DateRelation SysDateCompare(SysDate date1, SysDate date2);
 void         SysDatePrint(FILE* out, SysDate date);

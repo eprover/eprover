@@ -8,7 +8,7 @@ Contents
  
   Define global macro for version number and meta-information. 
 
-  Copyright 2009-2012 by the author.
+  Copyright 2009-2013 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
@@ -38,8 +38,8 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* git tag E-1-8-003-tff */
-#define VERSION      "1.8-003-tff"
+/* git tag E-1-8-006-tff */
+#define VERSION      "1.8-006-tff"
 
 #define E_NICKNAME     "Gopaldhara"
 

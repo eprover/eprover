@@ -585,7 +585,6 @@ void PCLExprPrint(FILE* out, PCLExpr_p expr, bool mini)
 void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
 {
    long i;
-   bool needs_equality = true;
    bool needs_ans = false;
    char *status = ",[status(unknown)]", 
       *status_thm = ",[status(thm)]", 
@@ -660,7 +659,6 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
 	 break;
    case PCLOpContextSimplifyReflect:
 	 fprintf(out, PCL_CSR);
-	 needs_equality = false;
 	 status = status_thm;
 	 assert(expr->arg_no==2);
 	 break;
@@ -689,19 +687,16 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
                  ",["TSTP_SPLIT_BASE"("
                  TSTP_SPLIT_REFINED",[])]");
 	 status = "";
-	 needs_equality = false;
 	 assert(expr->arg_no==1);
 	 break;
    case PCLOpFOFSplitConjunct:
          fprintf(out, PCL_SC);
          status = status_thm;
-	 needs_equality = false;
          assert(expr->arg_no==1);
          break;
    case PCLOpSplitEquiv:
          fprintf(out, PCL_SE);
          status = status_thm;
-	 needs_equality = false;
          assert(expr->arg_no==1);
          break;
    case PCLOpFOFSimplify:
@@ -712,51 +707,43 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
    case PCLOpFOFDeMorgan:
          fprintf(out, PCL_NNF);
          status = status_thm;
-	 needs_equality = false;
          assert(expr->arg_no==1);
          break;
    case PCLOpFOFDistributeQuantors:
          fprintf(out, PCL_SQ);
          status = status_thm;
-	 needs_equality = false;
          assert(expr->arg_no==1);
          break;
    case PCLOpAnnotateQuestion:
          fprintf(out, PCL_ANNOQ);
          status = status_thm;
-	 needs_equality = false;
          needs_ans      = true;
          assert(expr->arg_no==1);
          break;
    case PCLOpEvalAnswers:
          fprintf(out, PCL_EVANS);
          status = status_thm;
-	 needs_equality = false;
          needs_ans      = true;
          assert(expr->arg_no==1);
          break;         
    case PCLOpFOFDistributeDisjunction:
          fprintf(out, PCL_DSTR);
          status = status_thm;
-	 needs_equality = false;
          assert(expr->arg_no==1);
          break;
    case PCLOpFOFVarRename:
          fprintf(out, PCL_VR);
          status = status_thm;
-	 needs_equality = false;
          assert(expr->arg_no==1);
          break;
    case PCLOpFOFSkolemize:
          fprintf(out, PCL_SK);
          status = status_esa;
-	 needs_equality = false;
          assert(expr->arg_no==1);
          break;
    case PCLOpFOFAssumeNegation:
          fprintf(out, PCL_NC);
          status = status_cth;
-	 needs_equality = false;
          assert(expr->arg_no==1);
          break;
          
@@ -770,10 +757,6 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
    {
       fputc(',',out);
       PCLExprPrintTSTP(out, PCLExprArg(expr,i), mini);
-   }
-   if(needs_equality)
-   {
-      fputs(",theory(equality)", out);
    }
    if(needs_ans)
    {
