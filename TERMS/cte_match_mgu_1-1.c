@@ -300,6 +300,7 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
 	 }
 	 else
 	 {
+	    assert(SortEqual(t1->sort, t2->sort));
 	    for(i=t1->arity-1; i>=0; i--)
 	    {	
 	       /* Delay variable bindings */
