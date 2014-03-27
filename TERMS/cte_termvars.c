@@ -378,7 +378,7 @@ Term_p VarBankExtNameFind(VarBank_p bank, char* name)
 //
 // Function: VarBankFCodeAssertAlloc()
 //
-//   Return a pointer to the variable with the given f_code in the
+//   Return a pointer to the variable with the given f_code and sort in the
 //   variable bank. Create the variable if it does not exist.
 //
 // Global Variables: -
@@ -404,6 +404,10 @@ Term_p VarBankFCodeAssertAlloc(VarBank_p bank, FunCode f_code, SortType sort)
       TermCellSetProp(var, TPIsShared);
       PDArrayAssignP(stack, -f_code, var);
       bank->max_var = MAX(-f_code, bank->max_var);
+   }
+   else
+   {
+      assert(SortEqual(var->sort, sort));
    }
    assert(!TermCellQueryProp(var, TPIsGround));
    return var;

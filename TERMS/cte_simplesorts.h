@@ -34,8 +34,10 @@ Changes
 /*---------------------------------------------------------------------*/
 
 /* Build-in sorts for the many-sorted logic E is being moved to. Note
- * that the system relys on the fact that the system-defined sorts are
- * inserted in a specific order. */
+ * that the system relies on the fact that the system-defined sorts are
+ * inserted in a specific order.
+ *
+ * User sorts are integers bigger than the last element of this num. */
 
 typedef enum 
 {
