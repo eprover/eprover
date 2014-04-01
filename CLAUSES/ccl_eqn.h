@@ -421,6 +421,23 @@ static __inline__ long EqnDepth(Eqn_p eqn)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: EqnIsUntyped
+//
+//   Return true iff the equation is untyped, ie belongs to untyped logic
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+static __inline__ bool EqnIsUntyped(Eqn_p eqn)
+{
+    return TermIsUntyped(eqn->lterm) && TermIsUntyped(eqn->rterm);
+}
+
+
 #endif
 
 /*---------------------------------------------------------------------*/

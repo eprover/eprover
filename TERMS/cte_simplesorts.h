@@ -97,6 +97,13 @@ static __inline__ int SortCompare(SortType s1, SortType s2)
     return ((int)s1) - ((int)s2);
 }
 
+/* Is the sort either individual, either bool? In other words,
+   is it a pure FOF/CNF type? */
+static __inline__ bool SortIsDefaultOrBool(SortType s)
+{
+    return SortEqual(s, STIndividuals) || SortEqual(s, STBool);
+}
+
 #endif
 
 /*---------------------------------------------------------------------*/

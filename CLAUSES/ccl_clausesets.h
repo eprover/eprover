@@ -183,6 +183,8 @@ void         ClauseSetDerivationStackStatistics(ClauseSet_p set);
 
 long         ClauseSetPushClauses(PStack_p stack, ClauseSet_p set);
 
+bool	     ClauseSetIsUntyped(ClauseSet_p set);
+
 #endif
 
 /*---------------------------------------------------------------------*/

@@ -27,7 +27,7 @@ Changes
 
 
 #include "ccl_clauses.h"
-
+#include "ccl_tformulae.h"
 
 
 /*---------------------------------------------------------------------*/
@@ -1546,7 +1546,15 @@ void ClauseTSTPCorePrint(FILE* out, Clause_p clause, bool fullterms)
 void ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms, bool complete)
 {
    int source;
-   char *typename = "plain";
+   char *typename = "plain", *kind = "cnf";
+   bool is_untyped = ClauseIsUntyped(clause);
+   TFormula_p form = NULL;
+
+   // quantify and print as TFF formula
+   if(!is_untyped)
+   {
+		kind = "tff";
+   }
 
    switch(ClauseQueryTPTPType(clause))
    {
@@ -1574,18 +1582,35 @@ void ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms, bool complete)
    source = ClauseQueryCSSCPASource(clause);
    if(clause->ident >= 0)
    {
-      fprintf(out, "cnf(c_%d_%ld,", 
+      fprintf(out, "%s(c_%d_%ld,", 
+		   kind,
 	      source, 
 	      clause->ident);
    }
    else
    {
-      fprintf(out, "cnf(i_%d_%ld,",
+      fprintf(out, "%s(i_%d_%ld,",
+		   kind,
 	      source,
 	      clause->ident-LONG_MIN);
    }
    fprintf(out, "%s,", typename);   
-   ClauseTSTPCorePrint(out, clause, fullterms);
+
+	if (is_untyped)
+	{
+		ClauseTSTPCorePrint(out, clause, fullterms);
+	}
+	else
+	{
+		// Print as universally quantified formula
+		assert(clause->literals);
+		form = TFormulaClauseEncode(clause->literals->bank, clause);
+		form = TFormulaClosure(clause->literals->bank, form, true);
+
+		TFormulaTPTPPrint(out, clause->literals->bank, form, fullterms, false);
+		// handled by GC, no need to free
+	}
+
    if(complete)
    {
       fprintf(out, ").");
@@ -2614,6 +2639,34 @@ long ClauseReturnFCodes(Clause_p clause, PStack_p f_codes)
    return res;
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseIsUntyped
+//
+//   return true iff the clause belongs to the FOF/CNF fragment, ie
+//   all its literals are untyped
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+bool ClauseIsUntyped(Clause_p clause)
+{
+   Eqn_p lits = clause->literals;
+
+   while (lits)
+   {
+      if (!EqnIsUntyped(lits))
+      {
+	 return false;
+      }
+
+      lits = lits->next;
+   }
+   return true;
+}
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

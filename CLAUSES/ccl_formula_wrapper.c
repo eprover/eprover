@@ -413,9 +413,15 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
 void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
 		       bool complete)
 {
-   char *typename = "plain";
+   char *typename = "plain", *formula_kind = "fof";
    char prefix;
    long id;
+   bool is_untyped = TFormulaIsUntyped(form->tformula);
+
+   if(!is_untyped)
+   {
+      formula_kind = "tff";
+   }
 
    switch(FormulaQueryType(form))
    {
@@ -453,7 +459,7 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
       id = form->ident;
       prefix = 'c';
    }
-   fprintf(out, "fof(%c_0_%ld, %s", prefix, id, typename);
+   fprintf(out, "%s(%c_0_%ld, %s", formula_kind, prefix, id, typename);
    fprintf(out, ", (");   
 
    TFormulaTPTPPrint(out, form->terms, form->tformula,fullterms, false);
@@ -597,6 +603,31 @@ long WFormulaReturnFCodes(WFormula_p form, PStack_p f_codes)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: WFormulaOfClause
+//
+//   universally quantifies the disjunction of the literals of
+//   the clause, and return it as a fresh formula.
+//
+//   Allocate a formula.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+WFormula_p WFormulaOfClause(Clause_p clause, TB_p bank)
+{
+   TFormula_p form = NULL;
+   WFormula_p res = NULL;
+
+   form = TFormulaClauseEncode(bank, clause);
+   form = TFormulaClosure(bank, form, true);
+
+   res = WTFormulaAlloc(bank, form);
+   return res;
+}
 
 
 /*---------------------------------------------------------------------*/
