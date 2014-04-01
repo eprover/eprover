@@ -1901,6 +1901,53 @@ void TermAssertSameSort(Sig_p sig, Term_p t1, Term_p t2)
    }
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermIsUntyped
+//
+//   check whether all sorts occurring in the term are either
+//   individual, either boolean. In other words, whether the term
+//   belongs to regular untyped logic.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+bool TermIsUntyped(Term_p term)
+{
+   bool res = true;
+   PStack_p stack = PStackAlloc();
+   int i;
+
+   PStackPushP(stack,term);
+
+   while(!PStackEmpty(stack))
+   {
+      term = PStackPopP(stack);
+
+      res = res && SortIsDefaultOrBool(term->sort);
+      if (!res)
+      {
+          break;
+      }
+
+      // explore subterms
+      if(!TermIsVar(term))
+      {
+	 for(i=0; i<term->arity; i++)
+	 {
+	    PStackPushP(stack,term->args[i]);
+	 }
+      }
+   }
+   PStackFree(stack);
+
+   return res;
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

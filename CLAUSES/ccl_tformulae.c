@@ -577,6 +577,12 @@ void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms, bo
          fputs("![", out);
       }      
       TermPrint(out, form->args[0], bank->sig, DEREF_NEVER);
+      if(!SortEqual(form->args[0]->sort, STIndividuals))
+      {
+         fputs(":", out);
+         SortPrintTSTP(out, bank->sig->sort_table, form->args[0]->sort);
+      }
+
       fputs("]:", out);
       TFormulaTPTPPrint(out, bank, form->args[1], fullterms, pcl);
    }
@@ -1084,6 +1090,21 @@ TFormula_p TFormulaClauseClosedEncode(TB_p bank, Clause_p clause)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaIsUntyped
+//
+//   returns true if the formula only contains basic types (individual/prop)
+//
+// Global Variables: -
+//
+// Side Effects    : memory operations
+//
+/----------------------------------------------------------------------*/
+bool TFormulaIsUntyped(TFormula_p form)
+{
+    return TermIsUntyped(form);
+}
 
 
 /*---------------------------------------------------------------------*/

@@ -92,6 +92,8 @@ int        TFormulaDecodePolarity(TB_p bank, TFormula_p form);
 TFormula_p TFormulaClauseEncode(TB_p bank, Clause_p clause);
 TFormula_p TFormulaClauseClosedEncode(TB_p bank, Clause_p clause);
 
+bool       TFormulaIsUntyped(TFormula_p form);
+
 #endif
 
 /*---------------------------------------------------------------------*/
