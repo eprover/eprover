@@ -106,6 +106,14 @@ typedef struct pd_tree_cell
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+#ifdef PDT_COUNT_NODES
+#define PDT_COUNT_INC(x) ((x)++)
+extern unsigned long PDTNodeCounter;
+#else
+#define PDT_COUNT_INC(x) 
+#endif
+
+
 #define PDNODE_FUN_INIT_ALT 8
 #define PDNODE_FUN_GROW_ALT 6
 #define PDNODE_VAR_INIT_ALT 4
@@ -144,6 +152,8 @@ void      PDTreeFree(PDTree_p tree);
           :\
            0)
 
+extern bool PDTreeUseAgeConstraints;
+extern bool PDTreeUseSizeConstraints;
 
 #define   PDTNodeCellAlloc()    (PDTNodeCell*)SizeMalloc(sizeof(PDTNodeCell))
 #define   PDTNodeCellFree(junk) SizeFree(junk, sizeof(PDTNodeCell))

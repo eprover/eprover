@@ -23,6 +23,10 @@ Options:
 --pegasus
    Switch to Pegasus config.
 
+-P
+--pegasus6
+    Switch to Pegasus config with TPTP 6.0.0.
+
 -f
 --force
    Force scheduling even of jobs already running.
@@ -203,6 +207,58 @@ def pegasus_cfg():
     """
     Try to extract CPU information.
     """
+
+
+def pegasus6_cfg():
+    global tptp_dir, eprover_dir, testrun_dir, bsub_cmd, bjobs_cmd,\
+    bsub_rundir, old_job_dir, db_file, getcpu
+    
+    tptp_dir = "/nethome/sschulz/EPROVER/TPTP_6.0.0_FLAT"
+    """
+    Where are the TPTP problem files?
+    """
+
+    eprover_dir = "/nethome/sschulz/bin"
+    """
+    Where is the eprover binary?
+    """
+
+    testrun_dir = "/nethome/sschulz/EPROVER/TESTRUNS_PEGASUS"
+    """
+    Where are spec- and protocol files?
+    """
+
+    bsub_cmd="bsub"
+    """
+    Name of the batch submission program (normally bsub, but we use cat
+    for testing).
+    """
+
+    bjobs_cmd="bjobs -w"
+    """
+    Command to list jobs in queue. Will be bjobs -w on the cluster.
+    """
+
+    bsub_rundir = "/nethome/sschulz/RUN"
+    """
+    Where will E run and deposit results?
+    """
+
+    old_job_dir = "/scratch/sschulz/e_jobs_done"
+    """
+    Where to move old result files (if any).
+    """
+
+    db_file = "/nethome/sschulz/RUN/bjob_db.db"
+    """
+    Where to store the job/run associations.
+    """
+
+    getcpu = "-C"
+    """
+    Try to extract CPU information.
+    """
+
 
 def pegasus_sine_cfg():
     global tptp_dir, eprover_dir, testrun_dir, bsub_cmd, bjobs_cmd,\
@@ -674,9 +730,10 @@ class TestDecoding(unittest.TestCase):
         
 
 if __name__ == '__main__':
-    opts, args = getopt.gnu_getopt(sys.argv[1:], "uhvpsfb:j:xXYZCc:",
+    opts, args = getopt.gnu_getopt(sys.argv[1:], "uhvpPsfb:j:xXYZCc:",
                                    ["unit-test",
                                     "pegasus",
+                                    "pegasus6",
                                     "peg-sine",
                                     "force",
                                     "batchsize=",
@@ -702,6 +759,8 @@ if __name__ == '__main__':
             unittest.main()
         elif option == "-p" or option == "--pegasus":
             pegasus_cfg()
+        elif option == "-P" or option == "--pegasus6":
+            pegasus6_cfg()
         elif option == "-s" or option == "--peg-sine":
             pegasus_sine_cfg()
         elif option == "-f" or option == "--force":

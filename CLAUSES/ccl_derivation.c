@@ -72,15 +72,15 @@ char *optheory [] =
    NULL,
    NULL,
    /* Simplifying */
-   "equality",
-   "equality",
-   "equality,[symmetry]",
-   "equality,[symmetry]",
-   "equality",
-   "equality",
-   "equality",
-   "equality,[symmetry]",
-   "equality,[symmetry]",
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
    "answers",
    /* Simplification/Modfication for FOF */
    NULL,
@@ -92,11 +92,11 @@ char *optheory [] =
    NULL,
    "answers",
    /* Generating */
-   "equality",
-   "equality",
-   "equality,[symmetry]",
-   "equality",
-   "equality",
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
    /* Others */
    NULL,
    NULL,
@@ -337,6 +337,76 @@ void WFormulaPushDerivation(WFormula_p form, DerivationCodes op,
 
 /*-----------------------------------------------------------------------
 //
+// Function: ClauseDerivFindFirst()
+//
+//   Given a clause, check if it's part of a reference cascade (i.e. has
+//   just on parent and is justified by a simple reference to the
+//   parent (via OpCode DCCnfQuote)). If yes, track back the reference
+//   cascade and return the first (original) occurrence of the clause.  
+//   Otherwise return the clause.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Clause_p ClauseDerivFindFirst(Clause_p clause)
+{
+   Clause_p parent = clause;
+
+   if(clause->derivation)
+   {
+      if((PStackGetSP(clause->derivation)==2) && 
+         (PStackElementInt(clause->derivation, 0)==DCCnfQuote))
+      {
+         parent = PStackElementP(clause->derivation, 1);
+         parent = ClauseDerivFindFirst(parent);
+      }         
+   }
+   return parent;
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: WFormulaDerivFindFirst()
+//
+//   Given a formula, check if it's part of a reference cascade (i.e. has
+//   just on parent and is justified by a simple reference to the
+//   parent (via OpCode DCFofQuote)). If yes, track back the reference
+//   cascade and return the first (original) occurrence of the formula.  
+//   Otherwise return the clause.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+WFormula_p WFormulaDerivFindFirst(WFormula_p form)
+{
+   WFormula_p parent = form;
+
+   if(form->derivation)
+   {
+      if((PStackGetSP(form->derivation)==2) && 
+         (PStackElementInt(form->derivation, 0)==DCFofQuote))
+      {
+         parent = PStackElementP(form->derivation, 1);
+         parent = WFormulaDerivFindFirst(parent);
+      }         
+   }
+   return parent;
+}
+
+
+
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: DerivStackExtractParents()
 //
 //   Given a derivation stack (derivation-codes with arguments),
@@ -417,6 +487,105 @@ long DerivStackExtractParents(PStack_p derivation,
    }
    return res;
 }
+
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: DerivStackExtractOptParents()
+//
+//   Given a derivation stack (derivation-codes with arguments),
+//   return all the (occurances of) all the original instances of the
+//   side premises referenced in the derivation (via the result
+//   stacks). Return value is the number of premises found. Modify the
+//   derivation to replace references to a parent with references to
+//   the original instance of that parent.
+//
+// Global Variables: -
+//
+// Side Effects    : (via PStackPushP())
+//
+/----------------------------------------------------------------------*/
+
+long DerivStackExtractOptParents(PStack_p derivation, 
+                                 Sig_p    sig,
+                                 PStack_p res_clauses, 
+                                 PStack_p res_formulas)
+{
+   PStackPointer i, sp;
+   long res = 0;
+   long numarg1 = 0;
+   DerivationCodes op;
+   Clause_p   cparent;
+   WFormula_p fparent;
+
+   assert(res_clauses);
+   assert(res_formulas);
+
+   if(derivation)
+   {
+      sp = PStackGetSP(derivation);
+      i  = 0;
+
+      while(i<sp)
+      {
+         op = PStackElementInt(derivation, i);
+         i++;
+         if(DCOpHasCnfArg1(op))
+         {
+            cparent = ClauseDerivFindFirst(PStackElementP(derivation, i));
+            PStackAssignP(derivation, i, cparent);
+            PStackPushP(res_clauses, cparent);
+            i++;
+            res++;
+         }
+         else if(DCOpHasFofArg1(op))
+         {
+            fparent = WFormulaDerivFindFirst(PStackElementP(derivation, i));
+            PStackAssignP(derivation, i, fparent);
+            PStackPushP(res_formulas, fparent);
+            i++;
+            res++;
+         }
+         else if(DCOpHasNumArg1(op))
+         {
+            numarg1 = PStackElementInt(derivation, i);
+            i++;
+         }
+         if(DCOpHasCnfArg2(op))
+         {
+            cparent = ClauseDerivFindFirst(PStackElementP(derivation, i));
+            PStackAssignP(derivation, i, cparent);
+            PStackPushP(res_clauses, cparent);
+            i++;
+            res++;
+         }
+         else if(DCOpHasFofArg2(op))
+         {
+            fparent = WFormulaDerivFindFirst(PStackElementP(derivation, i));
+            PStackAssignP(derivation, i, fparent);
+            PStackPushP(res_formulas, fparent);
+            i++;
+            res++;
+         }
+         else if(DCOpHasNumArg2(op))
+         {
+            i++;
+         }
+         if(op==DCACRes)
+         {
+            int sp;
+            for(sp = 0; sp<numarg1; sp++)
+            {
+               PStackPushP(res_clauses, PStackElementP(sig->ac_axioms,sp));
+            }
+         }
+      }
+   }
+   return res;
+}
+
 
 
 /*-----------------------------------------------------------------------
@@ -1001,7 +1170,7 @@ long DerivationExtract(Derivation_p derivation, PStack_p root_clauses)
 
       assert(PStackEmpty(parent_clauses));
       assert(PStackEmpty(parent_formulas));
-      DerivStackExtractParents(deriv,
+      DerivStackExtractOptParents(deriv,
                                derivation->sig,
                                parent_clauses, 
                                parent_formulas);
@@ -1140,6 +1309,9 @@ long DerivationTopoSort(Derivation_p derivation)
    return PStackGetSP(derivation->ordered_deriv);
 }
 
+
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: DerivationRenumber()
@@ -1173,6 +1345,7 @@ void DerivationRenumber(Derivation_p derivation)
       }
    }
 }
+
 
 
 /*-----------------------------------------------------------------------

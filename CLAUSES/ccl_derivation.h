@@ -181,6 +181,10 @@ long DerivStackExtractParents(PStack_p derivation,
                               Sig_p sig,
                               PStack_p res_clauses, 
                               PStack_p res_formulas);
+long DerivStackExtractOptParents(PStack_p derivation, 
+                                 Sig_p sig,
+                                 PStack_p res_clauses, 
+                                 PStack_p res_formulas);
 
 
 #define DerivedCellAlloc() (DerivedCell*)SizeMalloc(sizeof(DerivedCell))

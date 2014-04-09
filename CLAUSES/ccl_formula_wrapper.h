@@ -121,6 +121,8 @@ void       WFormulaPrint(FILE* out, WFormula_p form, bool fullterms);
 
 long       WFormulaReturnFCodes(WFormula_p form, PStack_p f_codes);
 
+WFormula_p WFormulaOfClause(Clause_p clause, TB_p terms);
+
 #endif
 
 /*---------------------------------------------------------------------*/

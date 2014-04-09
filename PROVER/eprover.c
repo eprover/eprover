@@ -8,7 +8,7 @@ Contents
  
   Main program for the E equational theorem prover.
 
-Copyright 1998-2011 by the author.
+Copyright 1998-2014 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
@@ -164,6 +164,9 @@ typedef enum
    OPT_PM_FROM_INDEX,
    OPT_PM_INTO_INDEX,
    OPT_FP_INDEX,
+   OPT_FP_NO_SIZECONSTR,
+   OPT_PDT_NO_SIZECONSTR,
+   OPT_PDT_NO_AGECONSTR,
    OPT_DETSORT_RW,
    OPT_DETSORT_NEW,
    OPT_DEFINE_WFUN,
@@ -261,7 +264,7 @@ OptCell opts[] =
    {OPT_PRINT_STATISTICS,
     '\0', "print-statistics",
     NoArg, NULL,
-    "Print the inference statistics (only relevant for output level 0,"
+    "Print the inference statistics (only relevant for output level 0, "
     "otherwise they are printed automatically."},
 
    {OPT_EXPENSIVE_DETAILS,
@@ -598,9 +601,10 @@ OptCell opts[] =
    {OPT_AC_HANDLING,
     '\0', "ac-handling",
     OptArg, "KeepUnits",
-    "Select AC handling mode. Preselected is 'DiscardAll', other "
-    "options are 'None' to disable AC handling, 'KeepUnits', and "
-    "'KeepOrientable'."}, 
+    "Select AC handling mode, i.e. determine what to do with "
+    "redundant AC tautologies. The default is equivalent to "
+    "'DiscardAll', the other possible values are 'None' (to disable "
+    "AC handling), 'KeepUnits', and 'KeepOrientable'."}, 
 
    {OPT_AC_ON_PROC,
     '\0', "ac-non-aggressive",
@@ -1103,7 +1107,7 @@ OptCell opts[] =
     OptArg, "FP7",
     "Select fingerprint function for backwards rewrite index. "
     "\"NoIndex\" will disable paramodulation indexing. For a list "
-    "of the other values run '" NAME " --pm-index=none'. FPX functions"
+    "of the other values run '" NAME " --pm-index=none'. FPX functions "
     "will use a fingerprint of X positions, the letters disambiguate "
     "between different fingerprints with the same sample size."},
 
@@ -1131,6 +1135,24 @@ OptCell opts[] =
     '\0', "fp-index",
     OptArg, "FP7",
     "Select fingerprint function for all fingerprint indices. See above."},  
+
+   {OPT_FP_NO_SIZECONSTR,
+    '\0', "fp-no-size-constr",
+    NoArg, NULL,
+    "Disable usage of size constraints for matching with fingerprint "
+    "indexing."},
+
+   {OPT_PDT_NO_SIZECONSTR,
+    '\0', "pdt-no-size-constr",
+    NoArg, NULL,
+    "Disable usage of size constraints for matching with perfect "
+    "discrimination trees indexing."}, 
+
+   {OPT_PDT_NO_AGECONSTR,
+    '\0', "pdt-no-age-constr",
+    NoArg, NULL,
+    "Disable usage of age constraints for matching with perfect "
+    "discrimination trees indexing."}, 
 
    {OPT_DETSORT_RW,
     '\0', "detsort-rw",
@@ -1326,6 +1348,131 @@ static void print_info(void)
       fprintf(GlobalOut, "# Version: " VERSION "\n");
       fflush(GlobalOut);
    }   
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: print_proof_stats()
+//
+//   Print some statistics about the proof search. This is a pure
+//   service function to make main() smaller.
+//
+// Global Variables: OutputLevel,
+//                   print_statistics
+//                   GlobalOut, 
+//                   ClauseClauseSubsumptionCalls,
+//                   ClauseClauseSubsumptionCallsRec,
+//                   ClauseClauseSubsumptionSuccesses,
+//                   UnitClauseClauseSubsumptionCalls, 
+//                   RewriteUnboundVarFails,
+//                   BWRWMatchAttempts,
+//                   BWRWMatchSuccesses,
+//                   CondensationAttempts,
+//                   CondensationSuccesses,
+//                   (possibly) UnifAttempts,
+//                   (possibly) UnifSuccesses,
+//                   (possibly) PDTNodeCounter
+//                   (possibly) MguTimer);     
+//                   (possibly) SatTimer);     
+//                   (possibly) ParamodTimer); 
+//                   (possibly) PMIndexTimer); 
+//                   (possibly) IndexUnifTimer)
+//                   (possibly) BWRWTimer);    
+//                   (possibly) BWRWIndexTimer)
+//                   (possibly) IndexMatchTimer
+//                   (possibly) FreqVecTimer); 
+//                   (possibly) FVIndexTimer); 
+//                   (possibly) SubsumeTimer); 
+//                   (possibly) SetSubsumeTimer
+//
+// Side Effects    : Output of collected statistics.
+//
+/----------------------------------------------------------------------*/
+
+static void print_proof_stats(ProofState_p proofstate,
+                              long parsed_ax_no, 
+                              long relevancy_pruned, 
+                              long raw_clause_no, 
+                              long preproc_removed)
+                           
+{
+   if(OutputLevel||print_statistics)
+   {
+      fprintf(GlobalOut, "# Parsed axioms                        : %ld\n",
+              parsed_ax_no);
+      fprintf(GlobalOut, "# Removed by relevancy pruning/SinE    : %ld\n",
+              relevancy_pruned);
+      fprintf(GlobalOut, "# Initial clauses                      : %ld\n",
+	      raw_clause_no);
+      fprintf(GlobalOut, "# Removed in clause preprocessing      : %ld\n",
+	      preproc_removed);
+      ProofStateStatisticsPrint(GlobalOut, proofstate);
+      fprintf(GlobalOut, "# Clause-clause subsumption calls (NU) : %ld\n",
+	      ClauseClauseSubsumptionCalls);
+      fprintf(GlobalOut, "# Rec. Clause-clause subsumption calls : %ld\n",
+	      ClauseClauseSubsumptionCallsRec);
+      fprintf(GlobalOut, "# Non-unit clause-clause subsumptions  : %ld\n",
+	      ClauseClauseSubsumptionSuccesses);
+      fprintf(GlobalOut, "# Unit Clause-clause subsumption calls : %ld\n",
+              UnitClauseClauseSubsumptionCalls);
+      fprintf(GlobalOut, "# Rewrite failures with RHS unbound    : %ld\n",
+              RewriteUnboundVarFails);
+      fprintf(GlobalOut, "# BW rewrite match attempts            : %ld\n",
+              BWRWMatchAttempts);
+      fprintf(GlobalOut, "# BW rewrite match successes           : %ld\n",
+              BWRWMatchSuccesses);
+      fprintf(GlobalOut, "# Condensation attempts                : %ld\n",
+              CondensationAttempts);
+      fprintf(GlobalOut, "# Condensation successes               : %ld\n",
+              CondensationSuccesses);
+
+#ifdef MEASURE_UNIFICATION
+      fprintf(GlobalOut, "# Unification attempts                 : %ld\n",
+              UnifAttempts);
+      fprintf(GlobalOut, "# Unification successes                : %ld\n",
+              UnifSuccesses);
+#endif
+#ifdef PDT_COUNT_NODES
+      fprintf(GlobalOut, "# PDT nodes visited                    : %ld\n",
+              PDTNodeCounter);
+#endif
+      PERF_CTR_PRINT(GlobalOut, MguTimer);
+      PERF_CTR_PRINT(GlobalOut, SatTimer);
+      PERF_CTR_PRINT(GlobalOut, ParamodTimer);
+      PERF_CTR_PRINT(GlobalOut, PMIndexTimer);
+      PERF_CTR_PRINT(GlobalOut, IndexUnifTimer);
+      PERF_CTR_PRINT(GlobalOut, BWRWTimer);
+      PERF_CTR_PRINT(GlobalOut, BWRWIndexTimer);
+      PERF_CTR_PRINT(GlobalOut, IndexMatchTimer);
+      PERF_CTR_PRINT(GlobalOut, FreqVecTimer);
+      PERF_CTR_PRINT(GlobalOut, FVIndexTimer);
+      PERF_CTR_PRINT(GlobalOut, SubsumeTimer);
+      PERF_CTR_PRINT(GlobalOut, SetSubsumeTimer);
+
+#ifdef PRINT_INDEX_STATS
+      fprintf(GlobalOut, "# Backwards rewriting index : ");
+      FPIndexDistribDataPrint(GlobalOut, proofstate->gindices.bw_rw_index);
+      fprintf(GlobalOut, "\n");
+      /*FPIndexPrintDot(GlobalOut, "rw_bw_index", 
+        proofstate->gindices.bw_rw_index,
+        SubtermTreePrintDot,
+        proofstate->signature);*/
+      fprintf(GlobalOut, "# Paramod-from index        : ");
+      FPIndexDistribDataPrint(GlobalOut, proofstate->gindices.pm_from_index);
+      fprintf(GlobalOut, "\n");
+      FPIndexPrintDot(GlobalOut, "pm_from_index", 
+                      proofstate->gindices.pm_from_index,
+                      SubtermTreePrintDot,
+                      proofstate->signature);
+      fprintf(GlobalOut, "# Paramod-into index        : ");
+      FPIndexDistribDataPrint(GlobalOut, proofstate->gindices.pm_into_index);
+      fprintf(GlobalOut, "\n");
+      fprintf(GlobalOut, "# Paramod-neg-atom index    : ");
+      FPIndexDistribDataPrint(GlobalOut, proofstate->gindices.pm_negp_index);
+      fprintf(GlobalOut, "\n");
+#endif
+      // PDTreePrint(GlobalOut, proofstate->processed_pos_rules->demod_index);
+   }
 }
 
 
@@ -1628,79 +1775,12 @@ int main(int argc, char* argv[])
       ClauseFree(success);
    }
    fflush(GlobalOut);
-   
-   if(OutputLevel||print_statistics)
-   {
-      fprintf(GlobalOut, "# Parsed axioms                        : %ld\n",
-              parsed_ax_no);
-      fprintf(GlobalOut, "# Removed by relevancy pruning/SinE    : %ld\n",
-              relevancy_pruned);
-      fprintf(GlobalOut, "# Initial clauses                      : %ld\n",
-	      raw_clause_no);
-      fprintf(GlobalOut, "# Removed in clause preprocessing      : %ld\n",
-	      preproc_removed);
-      ProofStateStatisticsPrint(GlobalOut, proofstate);
-      fprintf(GlobalOut, "# Clause-clause subsumption calls (NU) : %ld\n",
-	      ClauseClauseSubsumptionCalls);
-      fprintf(GlobalOut, "# Rec. Clause-clause subsumption calls : %ld\n",
-	      ClauseClauseSubsumptionCallsRec);
-      fprintf(GlobalOut, "# Non-unit clause-clause subsumptions  : %ld\n",
-	      ClauseClauseSubsumptionSuccesses);
-      fprintf(GlobalOut, "# Unit Clause-clause subsumption calls : %ld\n",
-              UnitClauseClauseSubsumptionCalls);
-      fprintf(GlobalOut, "# Rewrite failures with RHS unbound    : %ld\n",
-              RewriteUnboundVarFails);
-      fprintf(GlobalOut, "# BW rewrite match attempts            : %ld\n",
-              BWRWMatchAttempts);
-      fprintf(GlobalOut, "# BW rewrite match successes           : %ld\n",
-              BWRWMatchSuccesses);
-      fprintf(GlobalOut, "# Condensation attempts                : %ld\n",
-              CondensationAttempts);
-      fprintf(GlobalOut, "# Condensation successes               : %ld\n",
-              CondensationSuccesses);
 
-#ifdef MEASURE_UNIFICATION
-      fprintf(GlobalOut, "# Unification attempts                 : %ld\n",
-              UnifAttempts);
-      fprintf(GlobalOut, "# Unification successes                : %ld\n",
-              UnifSuccesses);
-#endif
-      PERF_CTR_PRINT(GlobalOut, MguTimer);
-      PERF_CTR_PRINT(GlobalOut, SatTimer);
-      PERF_CTR_PRINT(GlobalOut, ParamodTimer);
-      PERF_CTR_PRINT(GlobalOut, PMIndexTimer);
-      PERF_CTR_PRINT(GlobalOut, IndexUnifTimer);
-      PERF_CTR_PRINT(GlobalOut, BWRWTimer);
-      PERF_CTR_PRINT(GlobalOut, BWRWIndexTimer);
-      PERF_CTR_PRINT(GlobalOut, IndexMatchTimer);
-      PERF_CTR_PRINT(GlobalOut, FreqVecTimer);
-      PERF_CTR_PRINT(GlobalOut, FVIndexTimer);
-      PERF_CTR_PRINT(GlobalOut, SubsumeTimer);
-      PERF_CTR_PRINT(GlobalOut, SetSubsumeTimer);
-
-#ifdef PRINT_INDEX_STATS
-      fprintf(GlobalOut, "# Backwards rewriting index : ");
-      FPIndexDistribDataPrint(GlobalOut, proofstate->gindices.bw_rw_index);
-      fprintf(GlobalOut, "\n");
-      /*FPIndexPrintDot(GlobalOut, "rw_bw_index", 
-        proofstate->gindices.bw_rw_index,
-        SubtermTreePrintDot,
-        proofstate->signature);*/
-      fprintf(GlobalOut, "# Paramod-from index        : ");
-      FPIndexDistribDataPrint(GlobalOut, proofstate->gindices.pm_from_index);
-      fprintf(GlobalOut, "\n");
-      FPIndexPrintDot(GlobalOut, "pm_from_index", 
-                      proofstate->gindices.pm_from_index,
-                      SubtermTreePrintDot,
-                      proofstate->signature);
-      fprintf(GlobalOut, "# Paramod-into index        : ");
-      FPIndexDistribDataPrint(GlobalOut, proofstate->gindices.pm_into_index);
-      fprintf(GlobalOut, "\n");
-      fprintf(GlobalOut, "# Paramod-neg-atom index    : ");
-      FPIndexDistribDataPrint(GlobalOut, proofstate->gindices.pm_negp_index);
-      fprintf(GlobalOut, "\n");
-#endif
-   }   
+   print_proof_stats(proofstate,
+                     parsed_ax_no, 
+                     relevancy_pruned, 
+                     raw_clause_no, 
+                     preproc_removed);
 #ifndef FAST_EXIT
 #ifdef FULL_MEM_STATS
    fprintf(GlobalOut,
@@ -2278,7 +2358,7 @@ CLState_p process_options(int argc, char* argv[])
 	       Error("Option -t (--term-ordering) requires Auto, "
 		     "AutoCASC, AutoDev, AutoSched0, AutoSched1, "
                      "AutoSched2, AutoSched3, AutoSched4, Optimize, "
-                     "LPO, LPO4, or KBO as an argument", 
+                     "LPO, LPO4, KBO or KBO6 as an argument", 
 		     USAGE_ERROR);
 	    }
 	    break;
@@ -2498,6 +2578,12 @@ CLState_p process_options(int argc, char* argv[])
             strcpy(h_parms->rw_bw_index_type, arg);
             strcpy(h_parms->pm_from_index_type, arg);
             strcpy(h_parms->pm_into_index_type, arg);
+            break;
+      case OPT_PDT_NO_SIZECONSTR:
+            PDTreeUseSizeConstraints = false;
+            break;
+      case OPT_PDT_NO_AGECONSTR:
+            PDTreeUseAgeConstraints = false;
             break;
       case OPT_DETSORT_RW:
             h_parms->detsort_bw_rw = true;
