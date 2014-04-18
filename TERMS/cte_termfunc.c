@@ -251,6 +251,8 @@ void TermPrint(FILE* out, Term_p term, Sig_p sig, DerefType deref)
    {
       if(TermIsVar(term))
       {
+         /* fprintf(stdout, "(%p,%i,%ld)", term,term->sort,
+            term->entry_no); */
 	 VarPrint(out, term->f_code);
       }
       else

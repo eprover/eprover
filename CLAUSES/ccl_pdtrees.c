@@ -229,6 +229,7 @@ static long pdt_get_size_constraint(PDTNode_p node)
    return node->size_constr;
 }
 
+#ifdef NEVER_DEFINED
 /*-----------------------------------------------------------------------
 //
 // Function: pdt_verify_size_constraint()
@@ -273,7 +274,7 @@ static long pdt_verify_size_constraint(PDTNode_p node)
    }
    return -1;
 }
-
+#endif
 
 /*-----------------------------------------------------------------------
 //
@@ -356,7 +357,7 @@ static SysDate pdt_get_age_constraint(PDTNode_p node)
 }
 
 
-
+#ifdef NEVER_DEFINED
 /*-----------------------------------------------------------------------
 //
 // Function: pdt_verify_age_constraint()
@@ -401,7 +402,7 @@ static SysDate pdt_verify_age_constraint(PDTNode_p node)
    }
    return -1;
 }   
-
+#endif
 
 /*-----------------------------------------------------------------------
 //

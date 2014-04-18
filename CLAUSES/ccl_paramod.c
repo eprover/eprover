@@ -268,6 +268,32 @@ Clause_p ClauseSimParamodConstruct(ParamodInfo_p ol_desc)
    Eqn_p     into_copy, from_copy;
    Subst_p   subst = SubstAlloc();
 
+   /* printf("sigma(from): ");
+   TermPrint(stdout, 
+             ClausePosGetSubterm(ol_desc->from_pos), 
+             ol_desc->into->literals->bank->sig, 
+             DEREF_ALWAYS);  
+   printf("\n");
+   printf("from       : " );
+   TermPrint(stdout, 
+             ClausePosGetSubterm(ol_desc->from_pos), 
+             ol_desc->into->literals->bank->sig, 
+             DEREF_NEVER);  
+   printf("\n");
+   printf("sigma(into): ");
+   TermPrint(stdout, 
+             ClausePosGetSubterm(ol_desc->into_pos), 
+             ol_desc->into->literals->bank->sig, 
+             DEREF_ALWAYS);  
+   printf("\n");
+   printf("into       : ");
+   TermPrint(stdout, 
+             ClausePosGetSubterm(ol_desc->into_pos), 
+             ol_desc->into->literals->bank->sig, 
+             DEREF_NEVER);  
+             printf("\n");*/
+
+
    assert(TermStructEqualDeref(ClausePosGetSubterm(ol_desc->from_pos),
                                ClausePosGetSubterm(ol_desc->into_pos),
                                DEREF_ALWAYS,

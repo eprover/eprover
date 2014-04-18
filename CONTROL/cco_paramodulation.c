@@ -538,6 +538,9 @@ long compute_pos_from_pm_term(ParamodInfo_p pminfo,
          iterstack = PTreeTraverseInit(from_clauses->pl.pos.clauses);
          while ((cell = PTreeTraverseNext(iterstack)))
          {
+            /* printf("# Mgu iterating:\n");
+            SubstPrint(stdout, subst, pminfo->bank->sig, DEREF_ALWAYS);
+            printf("\n"); */
             res += compute_from_pm_pos_clause(pminfo, type, cell->key, store);
          }
          PTreeTraverseExit(iterstack);
