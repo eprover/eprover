@@ -217,6 +217,10 @@ class eresult(object):
             reslist.append("%10s"%(i,))
         return " ".join(reslist)
 
+    def __repr__(self):
+        return self.__str__()
+
+
 class eprot(object):
     """
     Class representing an E protocol.
@@ -283,7 +287,35 @@ class eprot(object):
                     for i in self.results.values()\
                     if (float(i.values[selector])>=limit)])
         
+    def get_results(self):
+        return list(self.results.values())
 
+    def get_timesorted_results(self):
+        p = self.get_results()
+        p.sort(key=eresult.cputime)
+        return p
+
+    def get_performance_plot(self, step=1.0, limit=300):
+        """
+        Return a list of solutions found for the time limits 0, step,
+        2*step, ..., 300.
+        """
+        tlim = 0.0
+        succ = 0
+        count = 0
+        res = []
+        soln = self.get_timesorted_results()
+        soln = [r for r in soln if r.success()]
+
+        while tlim <=limit:
+            while soln and soln[0].cputime() <= tlim:
+                soln.pop(0)
+                succ = succ+1
+            res.append((tlim, succ))
+            count = count+1
+            tlim = count*step
+        return res
+            
     def filter(self, problemlist):
         """
         Filter result list against a problemlist.
