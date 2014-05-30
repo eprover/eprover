@@ -715,7 +715,7 @@ void TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity,
                            defs, renamed_forms);         
       }
    }
-   else if((form->f_code == bank->sig->equiv_code))
+   else if(form->f_code == bank->sig->equiv_code)
    {
       TFormulaFindDefs(bank, form->args[0], 0, def_limit, 
                        defs, renamed_forms);
@@ -739,7 +739,7 @@ void TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity,
          TFormulaDefRename(bank, form->args[1], polarity, defs, renamed_forms);         
       }
    }
-   else if((form->f_code == bank->sig->equiv_code))
+   else if(form->f_code == bank->sig->equiv_code)
    {
       TFormulaFindDefs(bank, form->args[1], 0, def_limit, 
                        defs, renamed_forms);
@@ -996,7 +996,7 @@ TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form)
          newform =  TFormulaSimplify(terms, newform);
       }
       else if((form->f_code == terms->sig->qex_code)||
-              (form->f_code == terms->sig->qex_code))
+              (form->f_code == terms->sig->qall_code))
       {
          if(!TFormulaVarIsFree(terms, form->args[1], form->args[0]))
          {
@@ -1603,7 +1603,7 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
    {
       form->tformula = handle;  
       DocFormulaModificationDefault(form, inf_fof_distrib);
-      WFormulaPushDerivation(form, DODistDisjunctions, NULL, NULL);
+      WFormulaPushDerivation(form, DCDistDisjunctions, NULL, NULL);
    }
 }
 
