@@ -246,6 +246,9 @@ OCB_p generate_autodev_ordering(ProofState_p state, SpecFeature_p spec)
 // Function: generate_autosched2_ordering()
 // Function: generate_autosched3_ordering()
 // Function: generate_autosched4_ordering()
+// Function: generate_autosched5_ordering()
+// Function: generate_autosched6_ordering()
+// Function: generate_autosched7_ordering()
 //
 //   Generate term orderings according to the selected auto-schedule
 //   mode. 
@@ -331,6 +334,53 @@ OCB_p generate_autosched4_ordering(ProofState_p state, SpecFeature_p spec)
    return TOCreateOrdering(state, &oparms, NULL, NULL);
 }
 #undef CHE_HEURISTICS_AUTO_SCHED4
+
+#define CHE_HEURISTICS_AUTO_SCHED5
+OCB_p generate_autosched5_ordering(ProofState_p state, SpecFeature_p spec)
+{
+   OrderParmsCell  oparms; 
+   SpecLimits_p    limits = CreateDefaultSpecLimits();
+
+   init_oparms(&oparms);
+   OUTPRINT(1, "\n# AutoSched5-Ordering is analysing problem.\n");
+#include "che_auto_cases.c"
+   print_oparms(&oparms);
+   SpecLimitsCellFree(limits);
+   return TOCreateOrdering(state, &oparms, NULL, NULL);
+}
+#undef CHE_HEURISTICS_AUTO_SCHED5
+
+#define CHE_HEURISTICS_AUTO_SCHED6
+OCB_p generate_autosched6_ordering(ProofState_p state, SpecFeature_p spec)
+{
+   OrderParmsCell  oparms; 
+   SpecLimits_p    limits = CreateDefaultSpecLimits();
+
+   init_oparms(&oparms);
+   OUTPRINT(1, "\n# AutoSched6-Ordering is analysing problem.\n");
+#include "che_auto_cases.c"
+   print_oparms(&oparms);
+   SpecLimitsCellFree(limits);
+   return TOCreateOrdering(state, &oparms, NULL, NULL);
+}
+#undef CHE_HEURISTICS_AUTO_SCHED6
+
+#define CHE_HEURISTICS_AUTO_SCHED7
+OCB_p generate_autosched7_ordering(ProofState_p state, SpecFeature_p spec)
+{
+   OrderParmsCell  oparms; 
+   SpecLimits_p    limits = CreateDefaultSpecLimits();
+
+   init_oparms(&oparms);
+   OUTPRINT(1, "\n# AutoSched7-Ordering is analysing problem.\n");
+#include "che_auto_cases.c"
+   print_oparms(&oparms);
+   SpecLimitsCellFree(limits);
+   return TOCreateOrdering(state, &oparms, NULL, NULL);
+}
+#undef CHE_HEURISTICS_AUTO_SCHED67
+
+
 
 
 /*---------------------------------------------------------------------*/
@@ -736,6 +786,18 @@ OCB_p TOSelectOrdering(ProofState_p state, HeuristicParms_p params,
    {
       result = generate_autosched4_ordering(state, specs);
    }
+   else if(tmp.ordertype == AUTOSCHED5)
+   {
+      result = generate_autosched5_ordering(state, specs);
+   }
+   else if(tmp.ordertype == AUTOSCHED6)
+   {
+      result = generate_autosched6_ordering(state, specs);
+   }
+   else if(tmp.ordertype == AUTOSCHED7)
+   {
+      result = generate_autosched7_ordering(state, specs);
+   }
    else
    {
       if(tmp.ordertype == NoOrdering)
@@ -821,6 +883,7 @@ OCB_p  TOCreateOrdering(ProofState_p state, OrderParms_p params,
 	 handle = NULL;
 	 break;
    default:
+         printf("What? %d\n",params->ordertype);
 	 assert(false&&"Incompletely specified OrderParamsCell");
 	 handle = NULL;
 	 break;

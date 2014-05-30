@@ -2317,6 +2317,18 @@ CLState_p process_options(int argc, char* argv[])
 	    {
 	       h_parms->ordertype = AUTOSCHED4;
 	    }
+	    else if(strcmp(arg, "AutoSched5")==0)
+	    {
+	       h_parms->ordertype = AUTOSCHED5;
+	    }
+	    else if(strcmp(arg, "AutoSched6")==0)
+	    {
+	       h_parms->ordertype = AUTOSCHED6;
+	    }
+	    else if(strcmp(arg, "AutoSched7")==0)
+	    {
+	       h_parms->ordertype = AUTOSCHED7;
+	    }
 	    else if(strcmp(arg, "Optimize")==0)
 	    {
 	       h_parms->ordertype = OPTIMIZE_AX;
@@ -2349,7 +2361,8 @@ CLState_p process_options(int argc, char* argv[])
 	    {
 	       Error("Option -t (--term-ordering) requires Auto, "
 		     "AutoCASC, AutoDev, AutoSched0, AutoSched1, "
-                     "AutoSched2, AutoSched3, AutoSched4, Optimize, "
+                     "AutoSched2, AutoSched3, AutoSched4, AutoSched5,"
+                     "AutoSched6, AutoSched7, Optimize, "
                      "LPO, LPO4, KBO or KBO6 as an argument", 
 		     USAGE_ERROR);
 	    }

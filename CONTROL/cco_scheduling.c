@@ -29,12 +29,15 @@ Changes
 
 ScheduleCell StratSchedule[] =
 {
-   {"AutoSched4", AUTOSCHED4, "Auto", 0.0625 , 0},
-   {"AutoSched3", AUTOSCHED3, "Auto", 0.0625 , 0},
-   {"AutoSched2", AUTOSCHED2, "Auto", 0.125,   0},
-   {"AutoSched1", AUTOSCHED1, "Auto", 0.25 ,   0},
-   {"AutoSched0", AUTOSCHED0, "Auto", 0.5  ,   0},
-   {NULL        , NoOrdering, NULL  , 0.0  ,   0}
+   {"AutoSched0", AUTOSCHED0, "Auto", 0.5066, 0},
+   {"AutoSched1", AUTOSCHED1, "Auto", 0.2466, 0},
+   {"AutoSched2", AUTOSCHED2, "Auto", 0.08  , 0},
+   {"AutoSched3", AUTOSCHED3, "Auto", 0.06  , 0},
+   {"AutoSched4", AUTOSCHED4, "Auto", 0.0433, 0},
+   {"AutoSched5", AUTOSCHED5, "Auto", 0.03  , 0},
+   {"AutoSched6", AUTOSCHED6, "Auto", 0.0166, 0},
+   {"AutoSched7", AUTOSCHED7, "Auto", 0.0166, 0},
+   {NULL        , NoOrdering, NULL  , 0.0   , 0}
 };
 
 

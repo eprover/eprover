@@ -41,6 +41,9 @@ HeuristicAssocCell HeuristicsTable[]=
    {HEU_AUTO_SCHED2,    "AutoSched2", HCBAutoSched2Create},
    {HEU_AUTO_SCHED3,    "AutoSched3", HCBAutoSched3Create},
    {HEU_AUTO_SCHED4,    "AutoSched4", HCBAutoSched4Create},
+   {HEU_AUTO_SCHED5,    "AutoSched5", HCBAutoSched5Create},
+   {HEU_AUTO_SCHED6,    "AutoSched6", HCBAutoSched6Create},
+   {HEU_AUTO_SCHED7,    "AutoSched7", HCBAutoSched7Create},
    {HEU_NO_HEURISTIC, NULL,           (HCBCreateFun)NULL}
 };
 
@@ -407,6 +410,66 @@ HCB_p HCBAutoSched4Create(HCBARGUMENTS)
    return GetHeuristic(res, state, control, parms);
 }
 #undef CHE_HEURISTICS_AUTO_SCHED4
+
+
+#define CHE_HEURISTICS_AUTO_SCHED5
+HCB_p HCBAutoSched5Create(HCBARGUMENTS)
+{
+   char *res = "Default";
+   SpecFeature_p spec = &(control->problem_specs);
+   SpecLimits_p limits = CreateDefaultSpecLimits();
+
+   control->heuristic_parms.selection_strategy = SelectNoLiterals;
+   OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
+#include "che_auto_cases.c"
+   SpecLimitsCellFree(limits);
+
+   finalize_auto_parms("AutoSched5-Mode", res, control, parms, spec);
+
+   return GetHeuristic(res, state, control, parms);
+}
+#undef CHE_HEURISTICS_AUTO_SCHED5
+
+
+#define CHE_HEURISTICS_AUTO_SCHED6
+HCB_p HCBAutoSched6Create(HCBARGUMENTS)
+{
+   char *res = "Default";
+   SpecFeature_p spec = &(control->problem_specs);
+   SpecLimits_p limits = CreateDefaultSpecLimits();
+
+   control->heuristic_parms.selection_strategy = SelectNoLiterals;
+   OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
+#include "che_auto_cases.c"
+   SpecLimitsCellFree(limits);
+
+   finalize_auto_parms("AutoSched6-Mode", res, control, parms, spec);
+
+   return GetHeuristic(res, state, control, parms);
+}
+#undef CHE_HEURISTICS_AUTO_SCHED6
+
+
+#define CHE_HEURISTICS_AUTO_SCHED7
+HCB_p HCBAutoSched7Create(HCBARGUMENTS)
+{
+   char *res = "Default";
+   SpecFeature_p spec = &(control->problem_specs);
+   SpecLimits_p limits = CreateDefaultSpecLimits();
+
+   control->heuristic_parms.selection_strategy = SelectNoLiterals;
+   OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
+#include "che_auto_cases.c"
+   SpecLimitsCellFree(limits);
+
+   finalize_auto_parms("AutoSched7-Mode", res, control, parms, spec);
+
+   return GetHeuristic(res, state, control, parms);
+}
+#undef CHE_HEURISTICS_AUTO_SCHED7
+
+
+
 
 #undef CHE_HEURISTICS_INTERNAL
 

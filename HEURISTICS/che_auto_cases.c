@@ -60,6 +60,16 @@ if(false)
 #ifdef CHE_HEURISTICS_AUTO_SCHED4
 #include "che_X_auto_sched4.c"         
 #endif
+#ifdef CHE_HEURISTICS_AUTO_SCHED5
+#include "che_X_auto_sched5.c"         
+#endif
+#ifdef CHE_HEURISTICS_AUTO_SCHED6
+#include "che_X_auto_sched6.c"         
+#endif
+#ifdef CHE_HEURISTICS_AUTO_SCHED7
+#include "che_X_auto_sched7.c"         
+#endif
+
 
 
 }
