@@ -415,7 +415,7 @@ bool WFormulaSimplify(WFormula_p form, TB_p terms)
    {
       form->tformula = simplified;
       DocFormulaModificationDefault(form, inf_fof_simpl);
-      WFormulaPushDerivation(form, DOFofSimplify, NULL, NULL);
+      WFormulaPushDerivation(form, DCFofSimplify, NULL, NULL);
       res = true;
    }
    return res;
@@ -877,7 +877,7 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, FormulaSet_p archive, TB_p terms
       cell->vals[0].i_val = w_def->ident; /* Replace polarity with
                                         * definition id */
       arch_form = WFormulaFlatCopy(w_def);
-      WFormulaPushDerivation(arch_form, DOIntroDef, NULL, NULL);
+      WFormulaPushDerivation(arch_form, DCIntroDef, NULL, NULL);
       FormulaSetInsert(archive, arch_form);
       WFormulaPushDerivation(w_def, DCFofQuote, arch_form, NULL);
 

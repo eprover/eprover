@@ -70,17 +70,20 @@ void ScheduleTimesInit(ScheduleCell sched[], double time_used)
    int i;
    rlim_t sum = 0, tmp, limit;
    
+   limit = 0;
    if(ScheduleTimeLimit)
    {
-      limit = ScheduleTimeLimit-time_used;
+      if(ScheduleTimeLimit>time_used)
+      {
+         limit = ScheduleTimeLimit-time_used;
+      }
    }
-   else
+   else 
    {
-      limit = DEFAULT_SCHED_TIME_LIMIT-time_used;
-   }
-   if(limit<0)
-   {
-      limit = 0;
+      if(DEFAULT_SCHED_TIME_LIMIT > time_used)
+      {
+         limit = DEFAULT_SCHED_TIME_LIMIT-time_used;
+      }
    }
 
    for(i=0; sched[i+1].heu_name; i++)

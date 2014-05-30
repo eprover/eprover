@@ -714,7 +714,7 @@ static void generate_arrayopt_precedence(OCB_p ocb, ClauseSet_p axioms)
 TOPrecGenMethod TOTranslatePrecGenMethod(char* name)
 {
    TOPrecGenMethod method;
-   
+
    method = StringIndex(name, TOPrecGenNames);
 
    if(method == -1)

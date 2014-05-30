@@ -713,7 +713,7 @@ bool TFormulaVarIsFree(TB_p bank, TFormula_p form, Term_p var)
 
    if(TFormulaIsLiteral(bank->sig, form))
    {
-      res = TermIsSubterm(form, var, DEREF_NEVER, TBTermEqual);
+      res = TBTermIsSubterm(form, var);
    }
    else if((form->f_code == bank->sig->qex_code) ||
            (form->f_code == bank->sig->qall_code))
@@ -996,7 +996,7 @@ void TFormulaMarkPolarity(TB_p bank, TFormula_p form, int polarity)
    {
       TFormulaMarkPolarity(bank, form->args[0], -polarity);
    }
-   else if((form->f_code == bank->sig->equiv_code))
+   else if(form->f_code == bank->sig->equiv_code)
    {
       TFormulaMarkPolarity(bank, form->args[0], 0);
    }
@@ -1009,7 +1009,7 @@ void TFormulaMarkPolarity(TB_p bank, TFormula_p form, int polarity)
    {
       TFormulaMarkPolarity(bank, form->args[1], polarity);
    }
-   else if((form->f_code == bank->sig->equiv_code))
+   else if(form->f_code == bank->sig->equiv_code)
    {
       TFormulaMarkPolarity(bank, form->args[1], 0);
    }

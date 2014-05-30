@@ -236,8 +236,11 @@ def parse_prot_new(filename, stratname, prob_assoc, global_class, classdata):
             prob   = compute_problem_stem(tuple[0]);
             time   = float(tuple[2])
             status = tuple[1]
-            classdata[prob_assoc[prob]].addProblem(stratname, prob, status, time)
-            global_class.addProblem(stratname, prob, status, time)
+            try:
+                classdata[prob_assoc[prob]].addProblem(stratname, prob, status, time)
+                global_class.addProblem(stratname, prob, status, time)
+            except KeyError:
+                print "Unclassified problem ", prob
     p.close()
     return desc
 
@@ -1045,7 +1048,7 @@ for i in stratset.keys():
 
 sys.stderr.write("Parsing done, running optimizer\n")
 
-time_limits = [152, 74, 37, 18, 18]
+time_limits = [152, 74, 24, 18, 13, 9, 5, 5]
 
 itercount = 0;
 

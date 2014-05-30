@@ -347,10 +347,11 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
       all clauses in the initial unprocessed clause set. So we
       ignore the "derived" modifier, and use CPTypeAxiom for plain
       clauses. */
-   type = ClauseTypeParse(in, 
-                          "axiom|hypothesis|definition|assumption|"
-                          "lemma|theorem|conjecture|question|negated_conjecture|"
-                          "plain|unknown");
+   type = (WFormulaProperties)
+      ClauseTypeParse(in, 
+                      "axiom|hypothesis|definition|assumption|"
+                      "lemma|theorem|conjecture|question|negated_conjecture|"
+                      "plain|unknown");
    AcceptInpTok(in, Comma);
 
    tform = TFormulaTSTPParse(in, terms);

@@ -292,7 +292,7 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
             if(SigIsPredicate(bank->sig, rterm->f_code))
             {
                AktTokenError(in, "Predicate symbol used as "
-                             "function symbol in preceding atom", SYNTAX_ERROR);
+                             "function symbol in preceding atom", false);
             }
             SigSetFunction(bank->sig, rterm->f_code, true);
          }
@@ -311,7 +311,7 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
             if(SigIsPredicate(bank->sig, rterm->f_code))
             {
                AktTokenError(in, "Predicate symbol used as "
-                             "function symbol in preceding atom", SYNTAX_ERROR);
+                             "function symbol in preceding atom", false);
             }
             SigSetFunction(bank->sig, rterm->f_code, true);
          }

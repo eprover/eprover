@@ -33,6 +33,7 @@ Changes
 
 typedef enum
 {
+   PInvalidEntry = -1,
    PNoMethod = 0,       /* Nothing */
    PUnaryFirst,         /* My hack ;-) */
    PUnaryFirstFreq,     /* My new hack ;-) */

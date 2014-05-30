@@ -270,7 +270,7 @@ static Term_p tb_subterm_parse(Scanner_p in, TB_p bank)
       {
          AktTokenError(in, 
                        "Predicate used as function symbol in preceeding term",
-                       SYNTAX_ERROR);
+                       false);
       }        
       SigSetFunction(bank->sig, res->f_code, true);
    }

@@ -130,7 +130,7 @@ AVL_TRAVERSE_DECLARATION(PTree, PTree_p)
 //
 /----------------------------------------------------------------------*/
 
-static int PCmpFun(void* p1, void*p2)
+static __inline__ int PCmpFun(void* p1, void*p2)
 {
    if(p1 > p2)
    {

@@ -434,7 +434,7 @@ static long compute_from_pm_pos_clause(ParamodInfo_p pminfo,
    {
       clause = NULL;
       pminfo->from_cpos = cell->key;
-      if((pminfo->new_orig == pminfo->from))
+      if(pminfo->new_orig == pminfo->from)
       {
          /* Optimization for the case that from and into are the same
           * - these are already handled in the "into" case */

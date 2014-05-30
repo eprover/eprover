@@ -122,6 +122,7 @@ typedef enum
 
 typedef enum
 {
+   POInvalidObject = -1,
    PONoObject = 0,
    POSimpleDeriviation = 1,
    PODetailedDerivation = 2,
