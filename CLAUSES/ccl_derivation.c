@@ -629,7 +629,7 @@ Derived_p DerivedAlloc(void)
 
 long get_clauseform_id(DerivationCodes op, int select, void* clauseform)
 {
-   long id;
+   long id = -1;
    Clause_p   clause;
    WFormula_p form;
 

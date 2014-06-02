@@ -671,6 +671,7 @@ void TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity,
                       PStack_p renamed_forms)
 {
    assert((polarity<=1) && (polarity >=-1));
+   //printf("TFormulaFindDefs(%ld)...\n",TermDepth(form));
 
    if(TFormulaIsLiteral(bank->sig, form))
    {

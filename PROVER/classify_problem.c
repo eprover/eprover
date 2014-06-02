@@ -771,14 +771,17 @@ int main(int argc, char* argv[])
          }
          else
          {
+            // printf("Else\n");
             FormulaSetPreprocConjectures(fstate->f_axioms, fstate->f_ax_archive, 
                                          false, false);
+            // printf("PreprocConj done\n");
             FormulaSetCNF(fstate->f_axioms, 
                           fstate->f_ax_archive,
                           fstate->axioms, 
                           fstate->original_terms, 
                           fstate->freshvars,
                           fstate->gc_original_terms);
+            printf("CNF done\n");
             
             if(!no_preproc)
             {

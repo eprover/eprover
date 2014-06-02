@@ -38,10 +38,10 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* git tag E-1-8-006 */
-#define VERSION      "1.8-006"
+/* git tag E-1-9-pre001 */
+#define VERSION      "1.9-pre001"
 
-#define E_NICKNAME     "Gopaldhara"
+#define E_NICKNAME     "Sourenee"
 
 #define E_URL "http://www.eprover.org"
 
