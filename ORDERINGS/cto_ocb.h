@@ -67,13 +67,15 @@ typedef struct ocb_cell
    TermOrdering  type;
    Sig_p         sig;          /* Slightly hacked...this is only an
 				   unsupervised reference (but will
-				   stay) ! */
+				   stay)! Always free the OCB before
+				   the signature and the signature
+				   independently after the OCB. */
    FunCode       min_constant;
    int           sig_size;
    long          *weights;     /* Array of weights */
    long          var_weight;   /* Variable Weight */
    long          *prec_weights;/* Precedence defined by weight - only
-				  for total precedenced */
+				  for total precedences */
    CompareResult *precedence;  /* The most general case, interpreted
 				  as two-dimensional array, indexed by
 				  two symbols */

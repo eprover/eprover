@@ -148,6 +148,12 @@ static LitSelNameFunAssocCell name_fun_assoc[] =
    {"PSelectNewComplexAHPExceptUniqMaxHorn", PSelectNewComplexAHPExceptUniqMaxHorn},
    {"SelectNewComplexAHPNS",                 SelectNewComplexAHPNS},
    {"SelectVGNonCR",                         SelectVGNonCR},
+
+   {"SelectCQArEqLast",                      SelectCQArEqLast},
+   {"SelectCQArEqFirst",                     SelectCQArEqFirst},
+   {"SelectCQIArEqLast",                     SelectCQIArEqLast},
+   {"SelectCQIArEqFirst",                    SelectCQIArEqFirst},
+
    {NULL, (LiteralSelectionFun)0}
 };
 
@@ -5297,6 +5303,202 @@ void SelectVGNonCR(OCB_p ocb, Clause_p clause)
                           new_complex_notp_ahp_ns, pred_dist);   
    pred_dist_array_free(pred_dist);
 }
+
+
+/*-----------------------------------------------------------------------
+// 
+// Function: select_cq_ar_eql_weight()
+// Function: select_cq_ar_eqf_weight()
+// Function: select_cq_iar_eql_weight()
+// Function: select_cq_iar_eqf_weight()
+//
+//   Set weights to select by arity, by alpha-rank between predicate
+//   symbols of the same arity, and by standard weight difference as
+//   the tie-breaker.
+//   (1) Bigger arity first, eq last
+//   (2) Bigger arity first, eq first 
+//   (3) Bigger arity last,  eq last 
+//   (4) Bigger arity last,  eq first
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+static void select_cq_ar_eql_weight(LitEval_p lit, Clause_p clause, 
+                                    void* dummy) 
+{   
+   Eqn_p l = lit->literal;
+
+   if(EqnIsEquLit(l))
+   {
+      lit->w1 = 1000000;
+      lit->w2 = 0;
+   }
+   else
+   {
+      lit->w1 = -SigFindArity(l->bank->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
+
+static void select_cq_ar_eqf_weight(LitEval_p lit, Clause_p clause, 
+                                    void* dummy) 
+{   
+   Eqn_p l = lit->literal;
+
+   if(EqnIsEquLit(l))
+   {
+      lit->w1 = -100000;
+      lit->w2 = 0;
+   }
+   else
+   {
+      lit->w1 = -SigFindArity(l->bank->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
+
+static void select_cq_iar_eql_weight(LitEval_p lit, Clause_p clause, 
+                                    void* dummy) 
+{   
+   Eqn_p l = lit->literal;
+
+   if(EqnIsEquLit(l))
+   {
+      lit->w1 = 100000;
+      lit->w2 = 0;
+   }
+   else
+   {
+      lit->w1 = SigFindArity(l->bank->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
+
+static void select_cq_iar_eqf_weight(LitEval_p lit, Clause_p clause, 
+                                    void* dummy) 
+{   
+   Eqn_p l = lit->literal;
+
+   if(EqnIsEquLit(l))
+   {
+      lit->w1 = -100000;
+      lit->w2 = 0;
+   }
+   else
+   {
+      lit->w1 = SigFindArity(l->bank->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectCQArEqLast()
+//
+//   Select based on a total ordering on predicate symbols. Preferable
+//   select symbols with high arity. Equality is always selected last.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void SelectCQArEqLast(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_ar_eql_weight, NULL);   
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectCQArEqFirst()
+//
+//   Select based on a total ordering on predicate symbols. Preferable
+//   select symbols with high arity. Equality is always selected
+//   first.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void SelectCQArEqFirst(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_ar_eqf_weight, NULL);   
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectCQIArEqLast()
+//
+//   Select based on a total ordering on predicate symbols. Preferable
+//   select symbols with high arity. Equality is always selected
+//   first.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+void SelectCQIArEqLast(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_iar_eql_weight, NULL);   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectCQIArEqFirst()
+//
+//   Select based on a total ordering on predicate symbols. Preferable
+//   select symbols with high arity. Equality is always selected
+//   first.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+void SelectCQIArEqFirst(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_iar_eqf_weight, NULL);   
+}
+
 
 
 

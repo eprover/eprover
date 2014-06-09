@@ -205,6 +205,12 @@ void PSelectNewComplexAHPExceptUniqMaxHorn(OCB_p ocb, Clause_p clause);
 void SelectNewComplexAHPNS(OCB_p ocb, Clause_p clause);
 void SelectVGNonCR(OCB_p ocb, Clause_p clause);
 
+void SelectCQArEqLast(OCB_p ocb, Clause_p clause);
+void SelectCQArEqFirst(OCB_p ocb, Clause_p clause);
+void SelectCQIArEqLast(OCB_p ocb, Clause_p clause);
+void SelectCQIArEqFirst(OCB_p ocb, Clause_p clause);
+
+
 #endif
 
 /*---------------------------------------------------------------------*/
