@@ -614,6 +614,11 @@ selstrat={
 
    "SelectNewComplexAHPNS"              : "SelectNewComplexAHPNS",
    "SelectVGNonCR"                      : "SelectVGNonCR",
+
+   "SelectCQArEqLast"                   : "SelectCQArEqLast",
+   "SelectCQArEqFirst"                  : "SelectCQArEqFirst",
+   "SelectCQIArEqLast"                  : "SelectCQIArEqLast",
+   "SelectCQIArEqFirst"                 : "SelectCQIArEqFirst",
 }
 
 
