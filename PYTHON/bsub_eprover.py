@@ -340,7 +340,7 @@ bsub_header_tmplt = \
 #BSUB -J %s
 #BSUB -o %s.out   
 #BSUB -e %s.err  
-#BSUB -W 10:00
+#BSUB -W 15:00
 #BSUB -q small 
 #BSUB -n %d      
 #BSUB -R "span[ptile=%d]"

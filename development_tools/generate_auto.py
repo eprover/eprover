@@ -623,6 +623,8 @@ selstrat={
    "SelectCQIAr"                        : "SelectCQIAr",
    "SelectCQArNpEqFirst"                : "SelectCQArNpEqFirst",
    "SelectCQIArNpEqFirst"               : "SelectCQIArNpEqFirst",
+   "SelectGrCQArEqFirst"                : "SelectGrCQArEqFirst",
+   "SelectCQGrArEqFirst"                : "SelectCQGrArEqFirst",
 }
 
 

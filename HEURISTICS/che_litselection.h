@@ -214,9 +214,13 @@ void SelectCQIAr(OCB_p ocb, Clause_p clause);
 void SelectCQArNpEqFirst(OCB_p ocb, Clause_p clause);
 void SelectCQIArNpEqFirst(OCB_p ocb, Clause_p clause);
 
+void SelectGrCQArEqFirst(OCB_p ocb, Clause_p clause);
+void SelectCQGrArEqFirst(OCB_p ocb, Clause_p clause);
 
 
 #endif
+
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

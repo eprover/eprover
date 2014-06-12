@@ -158,6 +158,9 @@ static LitSelNameFunAssocCell name_fun_assoc[] =
    {"SelectCQArNpEqFirst",                   SelectCQArNpEqFirst},
    {"SelectCQIArNpEqFirst",                  SelectCQIArNpEqFirst},
 
+   {"SelectGrCQArEqFirst",                   SelectGrCQArEqFirst},
+   {"SelectCQGrArEqFirst",                   SelectCQGrArEqFirst},
+
    {NULL, (LiteralSelectionFun)0}
 };
 
@@ -5479,7 +5482,7 @@ static void select_cq_iarnp_eqf_weight(LitEval_p lit, Clause_p clause,
 
    if(EqnIsEquLit(l))
    {
-      lit->w1 = -100000;
+      lit->w1 = -1000000;
       lit->w2 = 0;
    }
    else
@@ -5488,11 +5491,55 @@ static void select_cq_iarnp_eqf_weight(LitEval_p lit, Clause_p clause,
       lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
       if(lit->w1 == 0)
       {
-         lit->w1 = 100000;
+         lit->w1 = 1000000;
          lit->forbidden = true;
       }
    }
    lit->w3 =lit_sel_diff_weight(l);
+}
+
+static void select_grcq_ar_eqf_weight(LitEval_p lit, Clause_p clause, 
+                                      void* dummy) 
+{   
+   Eqn_p l = lit->literal;
+
+   if(EqnIsEquLit(l))
+   {
+      lit->w1 = -1000000;
+      lit->w2 = 0;
+   }
+   else
+   {
+      lit->w1 = SigFindArity(l->bank->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+   if(EqnIsGround(l))
+   {
+      lit->w1 -= 2000000;
+   }
+}
+
+static void select_cqgr_ar_eqf_weight(LitEval_p lit, Clause_p clause, 
+                                      void* dummy) 
+{   
+   Eqn_p l = lit->literal;
+
+   if(EqnIsEquLit(l))
+   {
+      lit->w1 = -1000000;
+      lit->w2 = 0;
+   }
+   else
+   {
+      lit->w1 = SigFindArity(l->bank->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+   if(EqnIsGround(l))
+   {
+      lit->w2 -= 2000000;
+   }
 }
 
 
@@ -5705,6 +5752,56 @@ void SelectCQIArNpEqFirst(OCB_p ocb, Clause_p clause)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: SelectGrCQArEqFirst()
+//
+//   Select ground literals first, then others. Among
+//   ground/nonground, select symbols with high arity. Equality is
+//   always selected first.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+void SelectGrCQArEqFirst(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_grcq_ar_eqf_weight, NULL);   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectCQGrArEqFirst()
+//
+//   Select based on a total ordering on predicate symbols. Preferably
+//   select symbols with low arity. Equality is always selected
+//   first. Among literals with the same symbol, prefer ground.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+void SelectCQGrArEqFirst(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cqgr_ar_eqf_weight, NULL);   
+}
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

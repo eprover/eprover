@@ -38,16 +38,16 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* git tag E-1-9-pre003 */
-#define VERSION      "1.9-pre003"
+/* git tag E-1-9-pre004 */
+#define VERSION      "1.9-pre004"
 
 #define E_NICKNAME     "Sourenee"
 
 #define E_URL "http://www.eprover.org"
 
 #define STS_MAIL "schulz@eprover.org"
-#define STS_COPYRIGHT "Copyright 1998-2013 by Stephan Schulz"
-#define STS_SNAIL "Stephan Schulz (I4)\nTechnische Universitaet Muenchen\nInstitut fuer Informatik\nBoltzmannstrasse 3\n85748 Garching bei Muenchen\nGermany\n"
+#define STS_COPYRIGHT "Copyright 1998-2014 by Stephan Schulz"
+#define STS_SNAIL "Stephan Schulz\nDHBW Stuttgart\nFakultaet Technik\nInformatik\nRotebuehlplatz 41\n70178 Stuttgart\nGermany\n"
 
 
 #endif
