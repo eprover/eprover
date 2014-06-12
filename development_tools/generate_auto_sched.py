@@ -780,6 +780,10 @@ selstrat={
    "SelectCQArEqFirst"                  : "SelectCQArEqFirst",
    "SelectCQIArEqLast"                  : "SelectCQIArEqLast",
    "SelectCQIArEqFirst"                 : "SelectCQIArEqFirst",
+   "SelectCQAr"                         : "SelectCQAr",
+   "SelectCQIAr"                        : "SelectCQIAr",
+   "SelectCQArNpEqFirst"                : "SelectCQArNpEqFirst",
+   "SelectCQIArNpEqFirst"               : "SelectCQIArNpEqFirst",
 }
 
 

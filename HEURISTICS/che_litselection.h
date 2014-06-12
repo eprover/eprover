@@ -211,6 +211,9 @@ void SelectCQIArEqLast(OCB_p ocb, Clause_p clause);
 void SelectCQIArEqFirst(OCB_p ocb, Clause_p clause);
 void SelectCQAr(OCB_p ocb, Clause_p clause);
 void SelectCQIAr(OCB_p ocb, Clause_p clause);
+void SelectCQArNpEqFirst(OCB_p ocb, Clause_p clause);
+void SelectCQIArNpEqFirst(OCB_p ocb, Clause_p clause);
+
 
 
 #endif

@@ -155,6 +155,8 @@ static LitSelNameFunAssocCell name_fun_assoc[] =
    {"SelectCQIArEqFirst",                    SelectCQIArEqFirst},
    {"SelectCQAr",                            SelectCQAr},
    {"SelectCQIAr",                           SelectCQIAr},
+   {"SelectCQArNpEqFirst",                   SelectCQArNpEqFirst},
+   {"SelectCQIArNpEqFirst",                  SelectCQIArNpEqFirst},
 
    {NULL, (LiteralSelectionFun)0}
 };
@@ -5405,7 +5407,7 @@ static void select_cq_iar_eqf_weight(LitEval_p lit, Clause_p clause,
 }
 
 
-static void select_cq_ar(LitEval_p lit, Clause_p clause, 
+static void select_cq_ar_weight(LitEval_p lit, Clause_p clause, 
                          void* dummy) 
 {   
    Eqn_p l = lit->literal;
@@ -5425,7 +5427,7 @@ static void select_cq_ar(LitEval_p lit, Clause_p clause,
    lit->w3 =lit_sel_diff_weight(l);
 }
 
-static void select_cq_iar(LitEval_p lit, Clause_p clause, 
+static void select_cq_iar_weight(LitEval_p lit, Clause_p clause, 
                                     void* dummy) 
 {   
    Eqn_p l = lit->literal;
@@ -5444,6 +5446,55 @@ static void select_cq_iar(LitEval_p lit, Clause_p clause,
    }
    lit->w3 =lit_sel_diff_weight(l);
 }
+
+
+static void select_cq_arnp_eqf_weight(LitEval_p lit, Clause_p clause, 
+                                    void* dummy) 
+{   
+   Eqn_p l = lit->literal;
+
+   if(EqnIsEquLit(l))
+   {
+      lit->w1 = -100000;
+      lit->w2 = 0;
+   }
+   else
+   {
+      lit->w1 = -SigFindArity(l->bank->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      if(lit->w1 == 0)
+      {
+         lit->w1 = 100000;
+         lit->forbidden = true;
+      }
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
+
+
+static void select_cq_iarnp_eqf_weight(LitEval_p lit, Clause_p clause, 
+                                    void* dummy) 
+{   
+   Eqn_p l = lit->literal;
+
+   if(EqnIsEquLit(l))
+   {
+      lit->w1 = -100000;
+      lit->w2 = 0;
+   }
+   else
+   {
+      lit->w1 = SigFindArity(l->bank->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      if(lit->w1 == 0)
+      {
+         lit->w1 = 100000;
+         lit->forbidden = true;
+      }
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
+
 
 
 /*-----------------------------------------------------------------------
@@ -5570,7 +5621,7 @@ void SelectCQAr(OCB_p ocb, Clause_p clause)
    assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
 
    generic_uniq_selection(ocb,clause,false, true, 
-                          select_cq_ar, NULL);   
+                          select_cq_ar_weight, NULL);   
 }
 
 
@@ -5597,7 +5648,60 @@ void SelectCQIAr(OCB_p ocb, Clause_p clause)
    assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
 
    generic_uniq_selection(ocb,clause,false, true, 
-                          select_cq_iar, NULL);   
+                          select_cq_iar_weight, NULL);   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectCQArNpEqFirst()
+//
+//   Select based on a total ordering on predicate symbols. Preferably
+//   select symbols with high arity. Equaliy comes
+//   first. Propositional symbols are never selected.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+   
+void SelectCQArNpEqFirst(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_arnp_eqf_weight, NULL);   
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectCQIArNpEqFirst()
+//
+//   Select based on a total ordering on predicate symbols. Preferably
+//   select symbols with low arity. Equaliy comes
+//   first. Propositional symbols are never selected.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+   
+void SelectCQIArNpEqFirst(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_iarnp_eqf_weight, NULL);   
 }
 
 

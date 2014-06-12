@@ -103,3 +103,5 @@ T1 PSelectNewComplex
 2d SelectCQIArEqFirst
 2e SelectCQAr
 2f SelectCQIAr
+2g SelectCQArNpEqFirst
+2h SelectCQIArNpEqFirst
