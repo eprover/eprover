@@ -243,7 +243,7 @@ static long pdt_get_size_constraint(PDTNode_p node)
 //
 /----------------------------------------------------------------------*/
 
-static long pdt_verify_size_constraint(PDTNode_p node)
+long pdt_verify_size_constraint(PDTNode_p node)
 {
    long actual_constr = LONG_MAX;
 
@@ -371,7 +371,7 @@ static SysDate pdt_get_age_constraint(PDTNode_p node)
 //
 /----------------------------------------------------------------------*/
 
-static SysDate pdt_verify_age_constraint(PDTNode_p node)
+SysDate pdt_verify_age_constraint(PDTNode_p node)
 {
    SysDate actual_constr = SysDateCreationTime();
 
@@ -593,14 +593,14 @@ static void pdtree_backtrack(PDTree_p tree, Subst_p subst)
       if(handle->bound)
       {
 	 succ = SubstBacktrackSingle(subst);
-	 assert(succ);
+	 (void)succ; assert(succ);
       }
    }
    else if(handle->parent)
    {
       Term_p t = PStackPopP(tree->term_proc);
       
-      assert(t);
+      (void)t; assert(t);
       TermLRTraversePrev(tree->term_stack,t);
 			 
    }
@@ -893,7 +893,7 @@ Term_p TermLRTraversePrev(PStack_p stack, Term_p term)
    for(i=0; i<term->arity; i++)
    {
       tmp = PStackPopP(stack);
-      assert(tmp == term->args[i]);
+      (void)tmp; assert(tmp == term->args[i]);
    }
    PStackPushP(stack, term);
 
@@ -972,7 +972,7 @@ void PDTreeInsert(PDTree_p tree, ClausePos_p demod_side)
    assert(node);
    res = PTreeStore(&(node->entries), demod_side);
    tree->clause_count++;
-   assert(res);
+   (void)res; assert(res);
    //printf("ISizeConstr %p: %ld\n", tree, pdt_verify_size_constraint(tree->tree));
    //printf("IDateConstr %p: %ld\n", tree, pdt_verify_age_constraint(tree->tree));
 }

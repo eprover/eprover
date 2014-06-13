@@ -190,6 +190,7 @@ int main(int argc, char* argv[])
    dpllstate = DPLLStateAlloc(form);
    
    CLStateFree(state);
+   (void)dpllstate; /* Stiffle warning for now */
 #ifndef FAST_EXIT
    DPLLStateFree(dpllstate);
    SigFree(sig);

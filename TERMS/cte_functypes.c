@@ -221,7 +221,7 @@ static void normalize_float_rep(DStr_p float_rep)
    {
       res = snprintf(buff, 128, "%f", value);
    }
-   assert(res < 128);
+   (void)res; assert(res < 128);
    
    DStrSet(float_rep, buff);
 }

@@ -519,7 +519,7 @@ long AnnoSetRemoveExceptIdentList(AnnoSet_p set, PStack_p set_idents)
 	 if(anno)
 	 {
 	    check = NumTreeInsert(&tmptree, anno);
-	    assert(!check);
+	    (void)check; assert(!check);
 	 }
       }
       AnnotationTreeFree(current->annotation);

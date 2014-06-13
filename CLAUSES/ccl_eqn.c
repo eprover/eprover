@@ -718,8 +718,8 @@ Eqn_p EqnTBTermDecode(TB_p terms, Term_p eqn)
 
 Term_p EqnTBTermParse(Scanner_p in, TB_p bank)
 {
-   Term_p  lterm;
-   Term_p  rterm;
+   Term_p  lterm = NULL;
+   Term_p  rterm = NULL;
    bool    positive;
 
    positive = eqn_parse_real(in, bank, &lterm, &rterm, false);
