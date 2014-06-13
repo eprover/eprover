@@ -160,6 +160,10 @@ static LitSelNameFunAssocCell name_fun_assoc[] =
 
    {"SelectGrCQArEqFirst",                   SelectGrCQArEqFirst},
    {"SelectCQGrArEqFirst",                   SelectCQGrArEqFirst},
+   {"SelectCQArNTEqFirst",                   SelectCQArNTEqFirst},
+
+   {"SelectCQArNpEqFirstUnlessPDom",         SelectCQArNpEqFirstUnlessPDom},
+   {"SelectCQArNTEqFirstUnlessPDom",         SelectCQArNTEqFirstUnlessPDom},
 
    {NULL, (LiteralSelectionFun)0}
 };
@@ -5510,7 +5514,7 @@ static void select_grcq_ar_eqf_weight(LitEval_p lit, Clause_p clause,
    }
    else
    {
-      lit->w1 = SigFindArity(l->bank->sig, l->lterm->f_code);
+      lit->w1 = -SigFindArity(l->bank->sig, l->lterm->f_code);
       lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
    }
    lit->w3 =lit_sel_diff_weight(l);
@@ -5532,7 +5536,7 @@ static void select_cqgr_ar_eqf_weight(LitEval_p lit, Clause_p clause,
    }
    else
    {
-      lit->w1 = SigFindArity(l->bank->sig, l->lterm->f_code);
+      lit->w1 = -SigFindArity(l->bank->sig, l->lterm->f_code);
       lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
    }
    lit->w3 =lit_sel_diff_weight(l);
@@ -5540,6 +5544,29 @@ static void select_cqgr_ar_eqf_weight(LitEval_p lit, Clause_p clause,
    {
       lit->w2 -= 2000000;
    }
+}
+
+static void select_cq_arnt_eqf_weight(LitEval_p lit, Clause_p clause, 
+                                    void* dummy) 
+{   
+   Eqn_p l = lit->literal;
+
+   if(EqnIsEquLit(l))
+   {
+      lit->w1 = -100000;
+      lit->w2 = 0;
+   }
+   else
+   {
+      lit->w1 = -SigFindArity(l->bank->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      if(EqnIsTypePred(l))
+      {
+         lit->w1 = 100000;
+         lit->forbidden = true;
+      }
+   }
+   lit->w3 =lit_sel_diff_weight(l);
 }
 
 
@@ -5786,9 +5813,9 @@ void SelectGrCQArEqFirst(OCB_p ocb, Clause_p clause)
 //   select symbols with low arity. Equality is always selected
 //   first. Among literals with the same symbol, prefer ground.
 //
-// Global Variables: 
+// Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
@@ -5802,6 +5829,151 @@ void SelectCQGrArEqFirst(OCB_p ocb, Clause_p clause)
    generic_uniq_selection(ocb,clause,false, true, 
                           select_cqgr_ar_eqf_weight, NULL);   
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectCQArNTEqFirst()
+//
+//   Select based on a total ordering on predicate symbols. Preferably
+//   select symbols with low arity. Equality comes
+//   first. Type literals p(X) are never selected.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+   
+void SelectCQArNTEqFirst(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_arnt_eqf_weight, NULL);   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: select_unless_pdom()
+//
+//   If there is a maximal positive literal with the same predicate
+//   symbol as a negative literal, don't select. Otherwise use
+//   the provided function.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void select_unless_pdom(OCB_p ocb, Clause_p clause, LiteralSelectionFun selfun)
+{
+   PStack_p neg_lits = PStackAlloc();
+   bool     *dom_array;
+   Eqn_p lit;
+   bool dom = false;
+   int i;
+   long sig_size;
+
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(clause->neg_literals);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   sig_size = clause->literals->bank->sig->size;
+   dom_array = SizeMalloc(sizeof(bool)*sig_size);
+   for(i=0; i<sig_size; i++)
+   {
+      dom_array[i] = false;
+   }
+   
+   ClauseCondMarkMaximalTerms(ocb, clause);
+   //printf("Selection: ");
+   //ClausePrint(stdout, clause, true);
+   //printf("\n");
+
+   for(lit = clause->literals; lit; lit = lit->next)
+   {
+      if(EqnIsPositive(lit)&&EqnIsMaximal(lit))
+      {
+         //    printf("Posmax: %ld\n", EqnGetPredCode(lit));
+         dom_array[EqnGetPredCode(lit)] = true;
+      }
+      else if(EqnIsNegative(lit))
+      {
+         PStackPushP(neg_lits, lit);
+      }
+   }
+   while(!PStackEmpty(neg_lits))
+   {
+      lit = PStackPopP(neg_lits);
+      //printf("%p - %ld\n", lit, EqnGetPredCode(lit));
+      if(dom_array[EqnGetPredCode(lit)])
+      {
+         dom = true;
+         break;
+      }
+   }
+
+   PStackFree(neg_lits);
+   SizeFree(dom_array, sizeof(bool)*sig_size);
+   if(dom)
+   {
+      //printf("nixda\n");
+   }
+   else
+   {
+      //printf("Select\n");
+      selfun(ocb, clause);   
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectCQArNpEqFirstUnlessPDom()
+//
+//   If there is a maximal positive literal with the same predicate
+//   symbol as a negative literal, don't select. Otherwise use
+//   SelectCQArNpEqFirst. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void SelectCQArNpEqFirstUnlessPDom(OCB_p ocb, Clause_p clause)
+{
+   select_unless_pdom(ocb, clause, SelectCQArNpEqFirst);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SSelectCQArNTEqFirst()
+//
+//   If there is a maximal positive literal with the same predicate
+//   symbol as a negative literal, don't select. Otherwise use
+//   SelectCQArNpEqFirst. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void SelectCQArNTEqFirstUnlessPDom(OCB_p ocb, Clause_p clause)
+{
+   select_unless_pdom(ocb, clause, SelectCQArNTEqFirst);
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

@@ -107,4 +107,7 @@ T1 PSelectNewComplex
 2h SelectCQIArNpEqFirst
 2i SelectGrCQArEqFirst
 2j SelectCQGrArEqFirst
+2k SelectCQArNTEqFirst
 
+3a SelectCQArNpEqFirstUnlessPDom
+3b SelectCQArNTEqFirstUnlessPDom

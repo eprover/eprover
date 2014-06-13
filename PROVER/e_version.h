@@ -38,8 +38,8 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* git tag E-1-9-pre004 */
-#define VERSION      "1.9-pre004"
+/* git tag E-1-9-pre005 */
+#define VERSION      "1.9-pre005"
 
 #define E_NICKNAME     "Sourenee"
 
