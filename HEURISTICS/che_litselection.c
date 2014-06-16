@@ -161,7 +161,9 @@ static LitSelNameFunAssocCell name_fun_assoc[] =
    {"SelectGrCQArEqFirst",                   SelectGrCQArEqFirst},
    {"SelectCQGrArEqFirst",                   SelectCQGrArEqFirst},
    {"SelectCQArNTEqFirst",                   SelectCQArNTEqFirst},
+   {"SelectCQIArNTEqFirst",                  SelectCQIArNTEqFirst},
    {"SelectCQArNTNpEqFirst",                 SelectCQArNTNpEqFirst},
+   {"SelectCQIArNTNpEqFirst",                SelectCQIArNTNpEqFirst},
 
    {"SelectCQArNpEqFirstUnlessPDom",         SelectCQArNpEqFirstUnlessPDom},
    {"SelectCQArNTEqFirstUnlessPDom",         SelectCQArNTEqFirstUnlessPDom},
@@ -5325,17 +5327,35 @@ void SelectVGNonCR(OCB_p ocb, Clause_p clause)
 // Function: select_cq_iar_eqf_weight()
 // Function: select_cq_ar()
 // Function: select_cq_iar()
+// Function: select_cq_arnp_eqf_weight()
+// Function: select_cq_iarnp_eqf_weight()
+// Function: select_grcq_ar_eqf_weight()
+// Function: select_cqgr_ar_eqf_weight()
+// Function: select_cq_arnt_eqf_weight()
+// Function: select_cq_iarnt_eqf_weight()
+// Function: select_cq_arntnp_eqf_weight()
+// Function: select_cq_iarntnp_eqf_weight()
 //
 //   Set weights to select by arity, by alpha-rank between predicate
 //   symbols of the same arity, and by standard weight difference as
 //   the tie-breaker.
-//   (1) Bigger arity first, eq last
-//   (2) Bigger arity first, eq first 
-//   (3) Bigger arity last,  eq last 
-//   (4) Bigger arity last,  eq first
-//   (5) Bigger arity first, eq inline
-//   (6) Bigger arity last, eq inline
-/
+//    (1) Bigger arity first, eq last
+//    (2) Bigger arity first, eq first 
+//    (3) Bigger arity last,  eq last 
+//    (4) Bigger arity last,  eq first
+//    (5) Bigger arity first, eq inline
+//    (6) Bigger arity last, eq inline
+//    (7) Bigger arity first, eq first, no propositional literals
+//    (8) Bigger arity last, eq first, no propositional literals
+//    (9) Ground first, then non-ground. As (3) within each of those
+//        two classes
+//   (10) As (3), but prefer ground over non-ground if both have the
+//        same predicate symbol
+//   (11) 
+//   (12) 
+//   (13) 
+//   (14) 
+//
 // Global Variables: 
 //
 // Side Effects    : 
@@ -5570,6 +5590,30 @@ static void select_cq_arnt_eqf_weight(LitEval_p lit, Clause_p clause,
    lit->w3 =lit_sel_diff_weight(l);
 }
 
+static void select_cq_iarnt_eqf_weight(LitEval_p lit, Clause_p clause, 
+                                    void* dummy) 
+{   
+   Eqn_p l = lit->literal;
+
+   if(EqnIsEquLit(l))
+   {
+      lit->w1 = -100000;
+      lit->w2 = 0;
+   }
+   else
+   {
+      lit->w1 = SigFindArity(l->bank->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      if(EqnIsTypePred(l))
+      {
+         lit->w1 = 100000;
+         lit->forbidden = true;
+      }
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
+
+
 static void select_cq_arntnp_eqf_weight(LitEval_p lit, Clause_p clause, 
                                         void* dummy) 
 {   
@@ -5593,6 +5637,29 @@ static void select_cq_arntnp_eqf_weight(LitEval_p lit, Clause_p clause,
    lit->w3 =lit_sel_diff_weight(l);
 }
 
+
+static void select_cq_iarntnp_eqf_weight(LitEval_p lit, Clause_p clause, 
+                                        void* dummy) 
+{   
+   Eqn_p l = lit->literal;
+
+   if(EqnIsEquLit(l))
+   {
+      lit->w1 = -100000;
+      lit->w2 = 0;
+   }
+   else
+   {
+      lit->w1 = SigFindArity(l->bank->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      if(EqnIsTypePred(l)||EqnIsPropositional(l))
+      {
+         lit->w1 = 100000;
+         lit->forbidden = true;
+      }
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -5882,6 +5949,32 @@ void SelectCQArNTEqFirst(OCB_p ocb, Clause_p clause)
 
 /*-----------------------------------------------------------------------
 //
+// Function: SelectCQIArNTEqFirst()
+//
+//   Select based on a total ordering on predicate symbols. Preferably
+//   select symbols with low arity. Equality comes
+//   first. Type literals p(X) are never selected.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+   
+void SelectCQIArNTEqFirst(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_iarnt_eqf_weight, NULL);   
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: SelectCQArNTNpEqFirst()
 //
 //   Select based on a total ordering on predicate symbols. Preferably
@@ -5904,6 +5997,33 @@ void SelectCQArNTNpEqFirst(OCB_p ocb, Clause_p clause)
 
    generic_uniq_selection(ocb,clause,false, true, 
                           select_cq_arntnp_eqf_weight, NULL);   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectCQIArNTNpEqFirst()
+//
+//   Select based on a total ordering on predicate symbols. Preferably
+//   select symbols with low arity. Equality comes
+//   first. Type literals p(X) and propositional lierals are never
+//   selected.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+   
+void SelectCQIArNTNpEqFirst(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_iarntnp_eqf_weight, NULL);   
 }
 
 /*-----------------------------------------------------------------------
