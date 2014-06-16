@@ -161,6 +161,7 @@ static LitSelNameFunAssocCell name_fun_assoc[] =
    {"SelectGrCQArEqFirst",                   SelectGrCQArEqFirst},
    {"SelectCQGrArEqFirst",                   SelectCQGrArEqFirst},
    {"SelectCQArNTEqFirst",                   SelectCQArNTEqFirst},
+   {"SelectCQArNTNpEqFirst",                 SelectCQArNTNpEqFirst},
 
    {"SelectCQArNpEqFirstUnlessPDom",         SelectCQArNpEqFirstUnlessPDom},
    {"SelectCQArNTEqFirstUnlessPDom",         SelectCQArNTEqFirstUnlessPDom},
@@ -5569,6 +5570,28 @@ static void select_cq_arnt_eqf_weight(LitEval_p lit, Clause_p clause,
    lit->w3 =lit_sel_diff_weight(l);
 }
 
+static void select_cq_arntnp_eqf_weight(LitEval_p lit, Clause_p clause, 
+                                        void* dummy) 
+{   
+   Eqn_p l = lit->literal;
+
+   if(EqnIsEquLit(l))
+   {
+      lit->w1 = -100000;
+      lit->w2 = 0;
+   }
+   else
+   {
+      lit->w1 = -SigFindArity(l->bank->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      if(EqnIsTypePred(l)||EqnIsPropositional(l))
+      {
+         lit->w1 = 100000;
+         lit->forbidden = true;
+      }
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
 
 
 /*-----------------------------------------------------------------------
@@ -5856,6 +5879,32 @@ void SelectCQArNTEqFirst(OCB_p ocb, Clause_p clause)
                           select_cq_arnt_eqf_weight, NULL);   
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectCQArNTNpEqFirst()
+//
+//   Select based on a total ordering on predicate symbols. Preferably
+//   select symbols with low arity. Equality comes
+//   first. Type literals p(X) and propositional lierals are never
+//   selected.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+   
+void SelectCQArNTNpEqFirst(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_arntnp_eqf_weight, NULL);   
+}
 
 /*-----------------------------------------------------------------------
 //
