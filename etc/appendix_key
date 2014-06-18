@@ -111,6 +111,11 @@ T1 PSelectNewComplex
 2l SelectCQIArNTEqFirst
 2m SelectCQArNTNpEqFirst
 2n SelectCQIArNTNpEqFirst
+2o SelectCQArNXTEqFirst
+2p SelectCQIArNXTEqFirst
+
+PureVarLit vorziehen, Eq inlinen
+
 
 3a SelectCQArNpEqFirstUnlessPDom
 3b SelectCQArNTEqFirstUnlessPDom

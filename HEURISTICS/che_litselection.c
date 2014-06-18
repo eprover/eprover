@@ -164,6 +164,8 @@ static LitSelNameFunAssocCell name_fun_assoc[] =
    {"SelectCQIArNTEqFirst",                  SelectCQIArNTEqFirst},
    {"SelectCQArNTNpEqFirst",                 SelectCQArNTNpEqFirst},
    {"SelectCQIArNTNpEqFirst",                SelectCQIArNTNpEqFirst},
+   {"SelectCQArNXTEqFirst" ,                 SelectCQArNXTEqFirst},
+   {"SelectCQIArNXTEqFirst" ,                SelectCQIArNXTEqFirst},
 
    {"SelectCQArNpEqFirstUnlessPDom",         SelectCQArNpEqFirstUnlessPDom},
    {"SelectCQArNTEqFirstUnlessPDom",         SelectCQArNTEqFirstUnlessPDom},
@@ -5661,6 +5663,52 @@ static void select_cq_iarntnp_eqf_weight(LitEval_p lit, Clause_p clause,
    lit->w3 =lit_sel_diff_weight(l);
 }
 
+static void select_cq_arnxt_eqf_weight(LitEval_p lit, Clause_p clause, 
+                                    void* dummy) 
+{   
+   Eqn_p l = lit->literal;
+
+   if(EqnIsEquLit(l))
+   {
+      lit->w1 = -100000;
+      lit->w2 = 0;
+   }
+   else
+   {
+      lit->w1 = -SigFindArity(l->bank->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      if(EqnIsXTypePred(l))
+      {
+         lit->w1 = 100000;
+         lit->forbidden = true;
+      }
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
+
+static void select_cq_iarnxt_eqf_weight(LitEval_p lit, Clause_p clause, 
+                                    void* dummy) 
+{   
+   Eqn_p l = lit->literal;
+
+   if(EqnIsEquLit(l))
+   {
+      lit->w1 = -100000;
+      lit->w2 = 0;
+   }
+   else
+   {
+      lit->w1 = SigFindArity(l->bank->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      if(EqnIsXTypePred(l))
+      {
+         lit->w1 = 100000;
+         lit->forbidden = true;
+      }
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
+
 /*-----------------------------------------------------------------------
 //
 // Function: SelectCQArEqLast()
@@ -6025,6 +6073,62 @@ void SelectCQIArNTNpEqFirst(OCB_p ocb, Clause_p clause)
    generic_uniq_selection(ocb,clause,false, true, 
                           select_cq_iarntnp_eqf_weight, NULL);   
 }
+
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectCQArNXTEqFirst()
+//
+//   Select based on a total ordering on predicate symbols. Preferably
+//   select symbols with low arity. Equality comes
+//   first. XType literals p(X,Y,...) are never selected.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+   
+void SelectCQArNXTEqFirst(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_arnxt_eqf_weight, NULL);   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectCQIArNXTEqFirst()
+//
+//   Select based on a total ordering on predicate symbols. Preferably
+//   select symbols with low arity. Equality comes
+//   first. XType literals p(X, Y,...) are never selected.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+   
+void SelectCQIArNXTEqFirst(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_iarnxt_eqf_weight, NULL);   
+}
+
+
 
 /*-----------------------------------------------------------------------
 //

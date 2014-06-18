@@ -221,6 +221,8 @@ void SelectCQArNTEqFirst(OCB_p ocb, Clause_p clause);
 void SelectCQIArNTEqFirst(OCB_p ocb, Clause_p clause);
 void SelectCQArNTNpEqFirst(OCB_p ocb, Clause_p clause);
 void SelectCQIArNTNpEqFirst(OCB_p ocb, Clause_p clause);
+void SelectCQArNXTEqFirst(OCB_p ocb, Clause_p clause);
+void SelectCQIArNXTEqFirst(OCB_p ocb, Clause_p clause);
 
 void SelectCQArNpEqFirstUnlessPDom(OCB_p ocb, Clause_p clause);
 void SelectCQArNTEqFirstUnlessPDom(OCB_p ocb, Clause_p clause);
