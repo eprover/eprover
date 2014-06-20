@@ -5367,7 +5367,7 @@ void SelectCQArEqLast(OCB_p ocb, Clause_p clause)
 
 /*-----------------------------------------------------------------------
 // 
-// Function: ()
+// Function: select_cq_ar_eqf_weight()
 // Function: SelectCQArEqFirst()
 //
 //   Select based on a total ordering on predicate symbols. Preferably
@@ -5411,7 +5411,7 @@ void SelectCQArEqFirst(OCB_p ocb, Clause_p clause)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ()
+// Function: select_cq_iar_eql_weight()
 // Function: SelectCQIArEqLast()
 //
 //   Select based on a total ordering on predicate symbols. Preferably
@@ -5456,7 +5456,7 @@ void SelectCQIArEqLast(OCB_p ocb, Clause_p clause)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ()
+// Function: select_cq_iar_eqf_weight()
 // Function: SelectCQIArEqFirst()
 //
 //   Select based on a total ordering on predicate symbols. Preferable
@@ -5502,7 +5502,7 @@ void SelectCQIArEqFirst(OCB_p ocb, Clause_p clause)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ()
+// Function: select_cq_ar_weight()
 // Function: SelectCQAr()
 //
 //   Select based on a total ordering on predicate symbols. Preferably
@@ -5524,9 +5524,9 @@ static void select_cq_ar_weight(LitEval_p lit, Clause_p clause,
    if(EqnIsEquLit(l))
    {
       lit->w1 = -2;
-      lit->w2 = 
-         SigGetAlphaRank(l->bank->sig, l->lterm->f_code)+
-         SigGetAlphaRank(l->bank->sig, l->rterm->f_code);
+      lit->w2 = l->lterm->f_code > 0 
+         ? SigGetAlphaRank(l->bank->sig, l->lterm->f_code)
+         : 0;
    }
    else
    {
@@ -5551,7 +5551,7 @@ void SelectCQAr(OCB_p ocb, Clause_p clause)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ()
+// Function: select_cq_iar_weight()
 // Function: SelectCQIAr()
 //
 //   Select based on a total ordering on predicate symbols. Preferably
@@ -5572,9 +5572,9 @@ static void select_cq_iar_weight(LitEval_p lit, Clause_p clause,
    if(EqnIsEquLit(l))
    {
      lit->w1 = 2;
-     lit->w2 = 
-        SigGetAlphaRank(l->bank->sig, l->lterm->f_code)+
-        SigGetAlphaRank(l->bank->sig, l->rterm->f_code);
+      lit->w2 = l->lterm->f_code > 0 
+         ? SigGetAlphaRank(l->bank->sig, l->lterm->f_code)
+         : 0;
    }
    else
    {
@@ -5599,7 +5599,7 @@ void SelectCQIAr(OCB_p ocb, Clause_p clause)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ()
+// Function: select_cq_arnp_eqf_weight()
 // Function: SelectCQArNpEqFirst()
 //
 //   Select based on a total ordering on predicate symbols. Preferably
@@ -5651,7 +5651,7 @@ void SelectCQArNpEqFirst(OCB_p ocb, Clause_p clause)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ()
+// Function: select_cq_iarnp_eqf_weight()
 // Function: SelectCQIArNpEqFirst()
 //
 //   Select based on a total ordering on predicate symbols. Preferably
@@ -5701,7 +5701,7 @@ void SelectCQIArNpEqFirst(OCB_p ocb, Clause_p clause)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ()
+// Function: select_grcq_ar_eqf_weight()
 // Function: SelectGrCQArEqFirst()
 //
 //   Select ground literals first, then others. Among
@@ -5751,7 +5751,7 @@ void SelectGrCQArEqFirst(OCB_p ocb, Clause_p clause)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ()
+// Function: select_cqgr_ar_eqf_weight()
 // Function: SelectCQGrArEqFirst()
 //
 //   Select based on a total ordering on predicate symbols. Preferably
@@ -5800,7 +5800,7 @@ void SelectCQGrArEqFirst(OCB_p ocb, Clause_p clause)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ()
+// Function: select_cq_arnt_eqf_weight()
 // Function: SelectCQArNTEqFirst()
 //
 //   Select based on a total ordering on predicate symbols. Preferably
@@ -5850,7 +5850,7 @@ void SelectCQArNTEqFirst(OCB_p ocb, Clause_p clause)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ()
+// Function: select_cq_iarnt_eqf_weight()
 // Function: SelectCQIArNTEqFirst()
 //
 //   Select based on a total ordering on predicate symbols. Preferably
@@ -5900,7 +5900,7 @@ void SelectCQIArNTEqFirst(OCB_p ocb, Clause_p clause)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ()
+// Function: select_cq_arntnp_eqf_weight()
 // Function: SelectCQArNTNpEqFirst()
 //
 //   Select based on a total ordering on predicate symbols. Preferably
@@ -5951,7 +5951,7 @@ void SelectCQArNTNpEqFirst(OCB_p ocb, Clause_p clause)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ()
+// Function: select_cq_iarntnp_eqf_weight()
 // Function: SelectCQIArNTNpEqFirst()
 //
 //   Select based on a total ordering on predicate symbols. Preferably
@@ -6002,7 +6002,7 @@ void SelectCQIArNTNpEqFirst(OCB_p ocb, Clause_p clause)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ()
+// Function: select_cq_arnxt_eqf_weight()
 // Function: SelectCQArNXTEqFirst()
 //
 //   Select based on a total ordering on predicate symbols. Preferably
@@ -6052,7 +6052,7 @@ void SelectCQArNXTEqFirst(OCB_p ocb, Clause_p clause)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ()
+// Function: select_cq_iarnxt_eqf_weight()
 // Function: SelectCQIArNXTEqFirst()
 //
 //   Select based on a total ordering on predicate symbols. Preferably
@@ -6104,7 +6104,6 @@ void SelectCQIArNXTEqFirst(OCB_p ocb, Clause_p clause)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ()
 // Function: select_unless_pdom()
 //
 //   If there is a maximal positive literal with the same predicate
@@ -6129,7 +6128,7 @@ void select_unless_pdom(OCB_p ocb, Clause_p clause, LiteralSelectionFun selfun)
    assert(ocb);
    assert(clause);
    assert(clause->neg_lit_no);
-   assert(clause->neg_literals);
+   assert(clause->literals);
    assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
 
    sig_size = clause->literals->bank->sig->size;
