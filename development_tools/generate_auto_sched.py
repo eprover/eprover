@@ -793,6 +793,13 @@ selstrat={
    "SelectCQArNXTEqFirst"               : "SelectCQArNXTEqFirst",
    "SelectCQIArNXTEqFirst"              : "SelectCQIArNXTEqFirst",
 
+   "SelectCQArNTNp"                     :  "SelectCQArNTNp",
+   "SelectCQIArNTNp"                    :  "SelectCQIArNTNp",
+   "SelectCQArNT"                       :  "SelectCQArNT",
+   "SelectCQIArNT"                      :  "SelectCQIArNT",
+   "SelectCQArNp"                       :  "SelectCQArNp",
+   "SelectCQIArNp"                      :  "SelectCQIArNp",
+
    "SelectCQArNpEqFirstUnlessPDom"      : "SelectCQArNpEqFirstUnlessPDom",
    "SelectCQArNTEqFirstUnlessPDom"      : "SelectCQArNTEqFirstUnlessPDom"
 }
