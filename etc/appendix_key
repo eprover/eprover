@@ -121,7 +121,16 @@ T1 PSelectNewComplex
 2u SelectCQArNp
 2v SelectCQIArNp
 
+
+
 PureVarLit vorziehen
+Use ordering weight (if there)
+Arity ohne CQ ausprobieren!
 
 3a SelectCQArNpEqFirstUnlessPDom
 3b SelectCQArNTEqFirstUnlessPDom
+
+4a SelectCQPrecW
+4b SelectCQIPrecW
+4c SelectCQPrecWNTNp
+4d SelectCQIPrecWNTnp

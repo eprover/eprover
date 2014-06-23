@@ -234,6 +234,11 @@ void SelectCQIArNp(OCB_p ocb, Clause_p clause);
 void SelectCQArNpEqFirstUnlessPDom(OCB_p ocb, Clause_p clause);
 void SelectCQArNTEqFirstUnlessPDom(OCB_p ocb, Clause_p clause);
 
+void SelectCQPrecW(OCB_p ocb, Clause_p clause);
+void SelectCQIPrecW(OCB_p ocb, Clause_p clause);
+void SelectCQPrecWNTNp(OCB_p ocb, Clause_p clause);
+void SelectCQIPrecWNTNp(OCB_p ocb, Clause_p clause);
+
 
 
 #endif

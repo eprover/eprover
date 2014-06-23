@@ -177,7 +177,12 @@ static LitSelNameFunAssocCell name_fun_assoc[] =
    {"SelectCQArNpEqFirstUnlessPDom",         SelectCQArNpEqFirstUnlessPDom},
    {"SelectCQArNTEqFirstUnlessPDom",         SelectCQArNTEqFirstUnlessPDom},
 
-   {NULL, (LiteralSelectionFun)0}
+   {"SelectCQPrecW",                         SelectCQPrecW},
+   {"SelectCQIPrecW",                        SelectCQIPrecW},
+   {"SelectCQPrecWNTNp",                     SelectCQPrecWNTNp},
+   {"SelectCQIPrecWNTNp",                    SelectCQIPrecWNTNp},
+
+   {NULL, (LiteralSelectionFun)NULL}
 };
 
 
@@ -6325,7 +6330,7 @@ void SelectCQIArNT(OCB_p ocb, Clause_p clause)
 /----------------------------------------------------------------------*/
 
 static void select_cq_arnp_weight(LitEval_p lit, Clause_p clause, 
-                         void* dummy) 
+                                  void* dummy) 
 {   
    Eqn_p l = lit->literal;
 
@@ -6514,7 +6519,7 @@ void SelectCQArNpEqFirstUnlessPDom(OCB_p ocb, Clause_p clause)
 
 /*-----------------------------------------------------------------------
 //
-// Function: SSelectCQArNTEqFirst()
+// Function: SelectCQArNTEqFirst()
 //
 //   If there is a maximal positive literal with the same predicate
 //   symbol as a negative literal, don't select. Otherwise use
@@ -6530,6 +6535,211 @@ void SelectCQArNTEqFirstUnlessPDom(OCB_p ocb, Clause_p clause)
 {
    select_unless_pdom(ocb, clause, SelectCQArNTEqFirst);
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectCQPrecW()
+//
+//   Select literals based on the predicate, with the order of the
+//   predicates defined by the prec_weights (i.e. the preoder on the
+//   function symbols). Prefer larger (?) symbols.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void select_cq_precw_weight(LitEval_p lit, Clause_p clause, 
+                                   void* vocb) 
+{   
+   OCB_p ocb = (OCB_p)vocb;
+   Eqn_p l   = lit->literal;
+
+   if(TermIsVar(l->lterm))
+   {
+      lit->w1 = 0;
+      lit->w2 = 0;
+   }
+   else
+   {
+      lit->w1 = OCBFunPrecWeight(ocb, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);      
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
+
+void SelectCQPrecW(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_precw_weight, ocb);   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectCQIPrecW()
+//
+//   Select literals based on the predicate, with the order of the
+//   predicates defined by the prec_weights (i.e. the preoder on the
+//   function symbols). Prefere smaller (?) symbols.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+
+static void select_cq_iprecw_weight(LitEval_p lit, Clause_p clause, 
+                                    void* vocb) 
+{   
+   OCB_p ocb = (OCB_p)vocb;
+   Eqn_p l   = lit->literal;
+
+   if(TermIsVar(l->lterm))
+   {
+      lit->w1 = 0;
+      lit->w2 = 0;
+   }
+   else
+   {
+      lit->w1 = -OCBFunPrecWeight(ocb, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);      
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
+
+void SelectCQIPrecW(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_iprecw_weight, ocb);   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectCQPrecWNTNp()
+//
+//   Select literals based on the predicate, with the order of the
+//   predicates defined by the prec_weights (i.e. the preoder on the
+//   function symbols). Prefere larger symbols. Never select
+//   propostional or type predicates.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+
+static void select_cq_precwntnp_weight(LitEval_p lit, Clause_p clause, 
+                                   void* vocb) 
+{   
+   OCB_p ocb = (OCB_p)vocb;
+   Eqn_p l   = lit->literal;
+
+   if(TermIsVar(l->lterm))
+   {
+      lit->w1 = 0;
+      lit->w2 = 0;
+   }
+   else
+   {
+      if(EqnIsTypePred(l)||EqnIsPropositional(l))
+      {
+         lit->w1 = 100000;
+         lit->forbidden = true;
+      }
+      else
+      {
+         lit->w1 = OCBFunPrecWeight(ocb, l->lterm->f_code);
+         lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);      
+      }
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
+
+void SelectCQPrecWNTNp(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_precwntnp_weight, ocb);   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectCQPrecWNTNp()
+//
+//   Select literals based on the predicate, with the order of the
+//   predicates defined by the prec_weights (i.e. the preoder on the
+//   function symbols). Prefere larger symbols. Never select
+//   propostional or type predicates.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+
+static void select_cq_iprecwntnp_weight(LitEval_p lit, Clause_p clause, 
+                                   void* vocb) 
+{   
+   OCB_p ocb = (OCB_p)vocb;
+   Eqn_p l   = lit->literal;
+
+   if(TermIsVar(l->lterm))
+   {
+      lit->w1 = 0;
+      lit->w2 = 0;
+   }
+   else
+   {
+      if(EqnIsTypePred(l)||EqnIsPropositional(l))
+      {
+         lit->w1 = 100000;
+         lit->forbidden = true;
+      }
+      else
+      {
+         lit->w1 = -OCBFunPrecWeight(ocb, l->lterm->f_code);
+         lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);      
+      }
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
+
+void SelectCQIPrecWNTNp(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_iprecwntnp_weight, ocb);   
+}
+
+
+
+
 
 
 /*---------------------------------------------------------------------*/
