@@ -345,10 +345,8 @@ class eprot(object):
         filename = os.path.join(directory, self.protname())
         self.filename = filename
         try:
-            print "Filename:", filename
             fp = pylib_io.flexopen(filename, "r")
         except IOError,err:
-            print "File not found!"
             return False
         prot = fp.read().split("\n")
         for i in prot:            

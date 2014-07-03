@@ -94,6 +94,7 @@ typedef enum
    OPT_AUTODEV,
    OPT_SATAUTODEV,
    OPT_AUTO_SCHED,
+   OPT_SATAUTO_SCHED,
    OPT_NO_PREPROCESSING,
    OPT_EQ_UNFOLD_LIMIT,
    OPT_EQ_UNFOLD_MAXCLAUSES,
@@ -549,6 +550,12 @@ OptCell opts[] =
     "different fully specified search strategies (aka \"Auto-Modes\"), "
     "one after the other, until a proof or saturation is found, or the "
     "time limit is exceeded."},
+
+   {OPT_SATAUTO_SCHED,
+    '\0', "satauto-schedule",
+    NoArg, NULL,
+    "Use the (experimental) strategy scheduling without SInE, thus "
+    "maintaining completeness."},
 
    {OPT_NO_PREPROCESSING,
     '\0', "no-preprocessing",
@@ -2114,6 +2121,9 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_AUTO_SCHED:
             strategy_scheduling = true;
             sine = "Auto";                        
+            break;
+      case OPT_SATAUTO_SCHED:
+            strategy_scheduling = true;
             break;
       case OPT_NO_PREPROCESSING:
 	    no_preproc = true;
