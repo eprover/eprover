@@ -131,6 +131,7 @@ static LitSelNameFunAssocCell name_fun_assoc[] =
    {"SelectDivPreferIntoLits",               SelectDiversificationPreferIntoLiterals},
    {"SelectMaxLComplexG",                    SelectMaxLComplexG}, 
    {"SelectMaxLComplexAvoidPosPred",         SelectMaxLComplexAvoidPosPred},
+   {"SelectMaxLComplexAPPNTNp",              SelectMaxLComplexAPPNTNp},
    {"SelectMaxLComplexAPPNoType",            SelectMaxLComplexAPPNoType},
    {"SelectMaxLComplexAvoidPosUPred",        SelectMaxLComplexAvoidPosUPred},
    {"SelectComplexG",                        SelectComplexG},
@@ -4648,6 +4649,107 @@ void SelectMaxLComplexAvoidPosPred(OCB_p ocb, Clause_p clause)
                           maxlcomplexavoidpred_weight, pred_dist);   
    pred_dist_array_free(pred_dist);
 }
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: maxlcomplexappNTNpweight()
+//
+//   Initialize weights to mimic SelectMaxLComplexWeight(), but defer
+//   literals with which occur often in pred_dist. Never select type-
+//   and propositional literals.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void maxlcomplexappNTNp_weight(LitEval_p lit, Clause_p clause, 
+                                      void *pred_dist)
+{
+   PDArray_p pd = pred_dist;
+   
+   if(EqnIsNegative(lit->literal))
+   {
+      if(EqnIsTypePred(lit->literal)||EqnIsPropositional(lit->literal))
+      {
+         lit->w1 = 100000;
+         lit->forbidden = true;
+      }
+      else 
+      {
+         if(EqnIsMaximal(lit->literal))
+         {
+            lit->w1=0;
+         }
+         else
+         {
+            lit->w1=100;
+         }
+      }
+      if(!EqnIsPureVar(lit->literal))
+      {
+         lit->w1+=10;
+      }
+      if(!EqnIsGround(lit->literal))
+      {
+         lit->w1+=1;
+      }
+      lit->w2 = -lit_sel_diff_weight(lit->literal);
+      if(EqnIsEquLit(lit->literal))
+      {
+         lit->w3 = PDArrayElementInt(pd, 0);
+      }
+      else
+      {
+         lit->w3 = PDArrayElementInt(pd, lit->literal->lterm->f_code);
+      }
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectMaxLComplexAPPNTNp()
+//
+//   As SelectMaxLComplexAvoidPosPred, but also avoid propositional
+//   and type literals.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+
+void SelectMaxLComplexAPPNTNp(OCB_p ocb, Clause_p clause)
+{  
+   long  lit_no;
+   PDArray_p pred_dist;
+
+   assert(ocb);
+   assert(clause);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+   
+   if(clause->neg_lit_no==0)
+   {
+      return;
+   }
+   ClauseCondMarkMaximalTerms(ocb, clause);
+   
+   lit_no = EqnListQueryPropNumber(clause->literals, EPIsMaximal);
+
+   if(lit_no <=1)
+   {
+      return;
+   }
+   pred_dist = pos_pred_dist_array_compute(clause);
+   generic_uniq_selection(ocb,clause,false, true, 
+                          maxlcomplexappNTNp_weight, pred_dist);   
+   pred_dist_array_free(pred_dist);
+}
+
 
 
 

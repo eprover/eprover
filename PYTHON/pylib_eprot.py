@@ -135,12 +135,13 @@ def e_strip_name(name):
     Given an E job name, either in raw, in spec or in prot form,
     return the raw name.
     """
+    name = os.path.basename(name)
     if name.startswith(espec_name):
         return name[len(espec_name):]
     if name.startswith(eprot_name):
         return name[len(eprot_name):]
     return name
-    
+
 
 class ejob(object):
     """
@@ -344,8 +345,10 @@ class eprot(object):
         filename = os.path.join(directory, self.protname())
         self.filename = filename
         try:
+            print "Filename:", filename
             fp = pylib_io.flexopen(filename, "r")
         except IOError,err:
+            print "File not found!"
             return False
         prot = fp.read().split("\n")
         for i in prot:            

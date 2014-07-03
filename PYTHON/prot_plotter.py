@@ -88,8 +88,8 @@ if __name__ == '__main__':
 
     for prot in args:
         print prot
-        p = pylib_eprot.eprot(prot)
-        p.parse()
+        p = pylib_eprot.eprot(prot)        
+        p.parse(os.path.dirname(prot))
         res.append(p.get_performance_plot(step, limit))
 
     print "# Column 1: Time step"
