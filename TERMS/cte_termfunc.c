@@ -1716,8 +1716,9 @@ long TermCollectPropVariables(Term_p term, PTree_p *tree,
 //
 // Function: TermAddFunOcc()
 //
-//   Insert all variables with properties prop in term into
-//   tree. Return number of new variables. 
+//  Add all new occurences of function symbol to res_stack and mark
+//  them as no-longer-new in f_occur. Return number of new function
+//  symbols added.
 //
 // Global Variables: -
 //
