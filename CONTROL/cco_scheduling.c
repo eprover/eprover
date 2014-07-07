@@ -142,11 +142,11 @@ pid_t ExecuteSchedule(ScheduleCell strats[],
       if(pid == 0)
       {
          /* Child */
+         SilentTimeOut = true;
          if(strats[i].time_absolute!=RLIM_INFINITY)
          {
             SetSoftRlimit(RLIMIT_CPU, strats[i].time_absolute);
          }
-         SilentTimeOut = true;
          break;
       }
       else
@@ -165,7 +165,7 @@ pid_t ExecuteSchedule(ScheduleCell strats[],
                {
                   PrintRusage(GlobalOut);
                }
-                  exit(status);
+               exit(status);
             }
             else
             {
@@ -180,13 +180,13 @@ pid_t ExecuteSchedule(ScheduleCell strats[],
          }
       }
    }
-   if(pid)
-   {      
-      if(strats[i].time_absolute!=RLIM_INFINITY)
-      {
-         SetSoftRlimit(RLIMIT_CPU, strats[i].time_absolute);
-      }      
-   }
+   //if(pid)
+   //{      
+   //if(strats[i].time_absolute!=RLIM_INFINITY)
+   //{
+   //SetSoftRlimit(RLIMIT_CPU, strats[i].time_absolute);
+   //}      
+   //}
    return pid;
 }
 

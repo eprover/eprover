@@ -1509,7 +1509,6 @@ int main(int argc, char* argv[])
    double           preproc_time;
    pid_t            pid = 1;
 
-
    assert(argv[0]);
 
    InitIO(NAME);
@@ -1546,7 +1545,7 @@ int main(int argc, char* argv[])
    {
       ExecuteSchedule(StratSchedule, h_parms, print_rusage);
    }
-   
+
    FormulaSetDocInital(GlobalOut, OutputLevel, proofstate->f_axioms);
    ClauseSetDocInital(GlobalOut, OutputLevel, proofstate->axioms);
 
@@ -1708,7 +1707,10 @@ int main(int argc, char* argv[])
 	    fprintf(GlobalOut, 
 		    "\n# Clause set closed under "
 		    "restricted calculus!\n");
-	    TSTPOUT(GlobalOut, "GaveUp");
+            if(!SilentTimeOut)
+            {
+               TSTPOUT(GlobalOut, "GaveUp");
+            }
             retval = INCOMPLETE_PROOFSTATE;
 	 }
 	 else if(proofstate->state_is_complete && inf_sys_complete)
@@ -1721,17 +1723,25 @@ int main(int argc, char* argv[])
 	 else
 	 {
 	    fprintf(GlobalOut, "\n# Failure: Out of unprocessed clauses!\n");	    
-	    TSTPOUT(GlobalOut, "GaveUp");	    
+            if(!SilentTimeOut)
+            {           
+               TSTPOUT(GlobalOut, "GaveUp");	    
+            }
             retval = INCOMPLETE_PROOFSTATE;
 	 }
       }
       else 
       {
 	 fprintf(GlobalOut, "\n# Failure: User resource limit exceeded!\n");
-	 TSTPOUT(GlobalOut, "ResourceOut");
+         if(!SilentTimeOut)
+         {
+            TSTPOUT(GlobalOut, "ResourceOut");
+         }
          retval = RESOURCE_OUT;
       }
-      if(BuildProofObject)
+      if(BuildProofObject && 
+         (retval!=INCOMPLETE_PROOFSTATE)&&
+         (retval!=RESOURCE_OUT))
       {
          Derivation_p derivation;
 
