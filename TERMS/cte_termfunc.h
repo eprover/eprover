@@ -132,7 +132,6 @@ long    TermAddFunOcc(Term_p term, PDArray_p f_occur, PStack_p res_stack);
 
 long    TermLinearize(PStack_p stack, Term_p term);
 
-
 Term_p  TermCheckConsistency(Term_p term, DerefType deref);
 
 
