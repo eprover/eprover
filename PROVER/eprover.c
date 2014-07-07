@@ -1507,7 +1507,7 @@ int main(int argc, char* argv[])
                     parsed_ax_no,
                     relevancy_pruned = 0;
    double           preproc_time;
-   pid_t            pid = 1;
+   pid_t            pid = 0;
 
    assert(argv[0]);
 
@@ -1543,7 +1543,7 @@ int main(int argc, char* argv[])
 
    if(strategy_scheduling)
    {
-      ExecuteSchedule(StratSchedule, h_parms, print_rusage);
+      pid = ExecuteSchedule(StratSchedule, h_parms, print_rusage);
    }
 
    FormulaSetDocInital(GlobalOut, OutputLevel, proofstate->f_axioms);

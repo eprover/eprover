@@ -124,7 +124,7 @@ pid_t ExecuteSchedule(ScheduleCell strats[],
                       HeuristicParms_p  h_parms, 
                       bool print_rusage)
 {
-   int raw_status, status, i;
+   int raw_status, status = OTHER_ERROR, i;
    pid_t pid       = 0, respid;   
    double run_time = GetTotalCPUTime();
 
@@ -151,6 +151,7 @@ pid_t ExecuteSchedule(ScheduleCell strats[],
       }
       else
       {
+         /* Parent */
          respid = -1;
          while(respid == -1)
          {
@@ -180,13 +181,14 @@ pid_t ExecuteSchedule(ScheduleCell strats[],
          }
       }
    }
-   //if(pid)
-   //{      
-   //if(strats[i].time_absolute!=RLIM_INFINITY)
-   //{
-   //SetSoftRlimit(RLIMIT_CPU, strats[i].time_absolute);
-   //}      
-   //}
+   if(pid)
+   {      
+      if(strats[i].time_absolute!=RLIM_INFINITY)
+      {
+         SetSoftRlimit(RLIMIT_CPU, strats[i].time_absolute);
+         exit(status);
+      }      
+   }
    return pid;
 }
 
