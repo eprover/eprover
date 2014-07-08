@@ -1827,7 +1827,7 @@ cleanup1:
    MemFreeListPrint(GlobalOut);
 #endif
 #endif
-   if(print_rusage && pid)
+   if(print_rusage && !SilentTimeOut)
    {
       PrintRusage(GlobalOut);
    }

@@ -147,7 +147,7 @@ pid_t ExecuteSchedule(ScheduleCell strats[],
          {
             SetSoftRlimit(RLIMIT_CPU, strats[i].time_absolute);
          }
-         break;
+         return pid;
       }
       else
       {
@@ -181,14 +181,62 @@ pid_t ExecuteSchedule(ScheduleCell strats[],
          }
       }
    }
-   if(pid)
-   {      
-      if(strats[i].time_absolute!=RLIM_INFINITY)
-      {
-         SetSoftRlimit(RLIMIT_CPU, strats[i].time_absolute);
-         exit(status);
-      }      
+   if(print_rusage)
+   {
+      PrintRusage(GlobalOut);
    }
+   /* The following is ugly: Because the individual strategies can
+      fail, but the whole schedule can succeed, we cannot let the
+      strategies report failure to dtandard out (that might confuse
+      badly-written meta-tools (and there are such ;-)). Hence, the
+      TSPT status in the failure case is suppressed and needs to be
+      added here. This is ony partially possible - we take the exit
+      status of the last strategy of the schedule. */
+   switch(status)
+   {
+   case PROOF_FOUND:
+   case SATISFIABLE:
+         /* Nothing to do, success reported by the child */
+         break;
+   case OUT_OF_MEMORY:
+	 TSTPOUT(stdout, "ResourceOut");
+         break;
+   case SYNTAX_ERROR:
+         /* Should never be possible here */
+         TSTPOUT(stdout, "SyntaxError");
+         break;
+   case USAGE_ERROR:
+         /* Should never be possible here */
+         TSTPOUT(stdout, "UsageError");
+         break;
+   case FILE_ERROR:
+         /* Should never be possible here */
+         TSTPOUT(stdout, "OSError");
+         break;                  
+   case SYS_ERROR:
+         TSTPOUT(stdout, "OSError");
+         break;
+   case CPU_LIMIT_ERROR:
+         WRITE_STR(GlobalOutFD, "\n# Failure: Resource limit exceeded (time)\n");	 
+         TSTPOUTFD(GlobalOutFD, "ResourceOut");
+         Error("CPU time limit exceeded, terminating", CPU_LIMIT_ERROR);
+         break;
+   case RESOURCE_OUT:
+	 TSTPOUT(stdout, "ResourceOut");
+         break;
+   case INCOMPLETE_PROOFSTATE:
+         TSTPOUT(GlobalOut, "GaveUp");
+         break;
+   case OTHER_ERROR:
+         TSTPOUT(stdout, "Error");
+         break;
+   case INPUT_SEMANTIC_ERROR:
+         TSTPOUT(stdout, "SemanticError");
+         break;
+   default:
+         break;
+   }
+   exit(status);
    return pid;
 }
 
