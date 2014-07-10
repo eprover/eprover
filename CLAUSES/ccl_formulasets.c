@@ -416,6 +416,40 @@ long long FormulaSetStandardWeight(FormulaSet_p set)
 
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaSetCountConjectures()
+//
+//   Count and return number of conjectures (and negated_conjectures)
+//   in set. Also find number of hypotheses,  and add it to *hypos.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long FormulaSetCountConjectures(FormulaSet_p set, long* hypos)
+{
+   long ret = 0;
+   WFormula_p handle;
+   
+   for(handle = set->anchor->succ; 
+       handle != set->anchor;
+       handle = handle->succ)
+   {
+      if(FormulaIsConjecture(handle))
+      {
+         ret++;
+      }
+      if(FormulaIsHypothesis(handle))
+      {
+         (*hypos)++;
+      }
+   } 
+   return ret;
+}
+
 
 
 

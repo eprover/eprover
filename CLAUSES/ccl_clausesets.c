@@ -2270,6 +2270,41 @@ long ClauseSetPushClauses(PStack_p stack, ClauseSet_p set)
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetCountConjectures()
+//
+//   Count and return number of conjectures (and negated_conjectures)
+//   in set. Also find number of hypotheses,  and add it to *hypos.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetCountConjectures(ClauseSet_p set, long* hypos)
+{
+   long ret = 0;
+   Clause_p handle;
+   
+   
+   for(handle = set->anchor->succ; 
+       handle != set->anchor;
+       handle = handle->succ)
+   {
+      if(ClauseIsConjecture(handle))
+      {
+         ret++;
+      }
+      if(ClauseIsHypothesis(handle))
+      {
+         (*hypos)++;
+      }
+   } 
+   return ret;
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

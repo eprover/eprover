@@ -72,6 +72,7 @@ long         FormulaSetSplitConjectures(FormulaSet_p set,
                                         PList_p rest);
 
 long long    FormulaSetStandardWeight(FormulaSet_p set);
+long         FormulaSetCountConjectures(FormulaSet_p set, long* hypos);
 
 
 #endif

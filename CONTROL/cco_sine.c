@@ -267,6 +267,13 @@ static char* find_auto_sine(ProofState_p state)
    RawSpecFeaturesCompute(&features, state);
    RawSpecFeaturesClassify(&features, &limits, "aaaaaaa");
 
+   /* Hard-coded exception - no conjecture & no hypotheses == no
+      useful SInE! */
+   if(!(features.conjecture_count+features.hypothesis_count))
+   {
+      return NULL;
+   }
+
    for(i=0; raw_class[i]; i++)
    {
       if(strcmp(raw_class[i], features.class)==0)
