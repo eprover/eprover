@@ -1041,6 +1041,94 @@ void DerivedTSTPPrint(FILE* out, Sig_p sig, Derived_p derived)
 
 /*-----------------------------------------------------------------------
 //
+// Function: DerivedDotPrint()
+//
+//   Print a "Derived" cell - i.e. the clause or formula, and its
+//   derivation, in GraphViz DOT format 
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived, bool full)
+{
+   PStack_p parent_clauses = PStackAlloc();
+   PStack_p parent_formulas = PStackAlloc();
+   PStack_p deriv;
+   long id;
+   Clause_p   cparent;
+   WFormula_p fparent;
+   long       parent_count;
+   ClauseInfo_p info;
+   
+   if(derived->clause)
+   {
+      id = derived->clause->ident;
+      deriv = derived->clause->derivation;
+      info  = derived->clause->info;
+   }
+   else
+   {
+      assert(derived->formula);
+      id = derived->formula->ident;
+      deriv = derived->formula->derivation;
+      info  = derived->formula->info;
+   }
+   if(deriv)
+   {
+         DerivStackExtractOptParents(deriv,
+                                     sig,
+                                     parent_clauses, 
+                                     parent_formulas);
+   }
+   
+   parent_count = PStackGetSP(parent_clauses)+ 
+      PStackGetSP(parent_formulas);
+
+   fprintf(out, "  %ld [shape=box,label=\"", id);
+   if(derived->clause)
+   {
+      ClauseTSTPPrint(out, derived->clause, true, false);
+   }
+   else
+   {
+      assert(derived->formula);
+      WFormulaTSTPPrint(out, derived->formula, true, false);
+   }
+   if(full)
+   {
+      if(deriv)
+      {
+         fprintf(out, ",\\n");   
+         DerivationStackTSTPPrint(out, sig, deriv);
+      }
+      else if(info)
+      {
+         fprintf(out, ",\\n");   
+         ClauseSourceInfoPrintTSTP(out, info); 
+      }
+   }   
+   fprintf(out, ").\"]\n");
+
+   while(!PStackEmpty(parent_clauses))
+   {
+      cparent = PStackPopP(parent_clauses);
+      fprintf(out, "    %ld -> %ld\n", cparent->ident, id);
+   }
+   while(!PStackEmpty(parent_formulas))
+   {
+      fparent = PStackPopP(parent_formulas);
+      fprintf(out, "    %ld -> %ld\n", fparent->ident, id);
+   }
+   PStackFree(parent_clauses);
+   PStackFree(parent_formulas);
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: DerivationAlloc()
 //
 //   Allocate an empty derivation.
@@ -1422,6 +1510,49 @@ void DerivationPrint(FILE* out, Derivation_p derivation, char* frame)
    }
    fprintf(out, "# SZS output end %s.\n", frame);
 }
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: DerivationDotPrint()
+//
+//   Print a derivation as a DOT graph.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void DerivationDotPrint(FILE* out, Derivation_p derivation, bool full)
+{
+   PStackPointer sp;
+   Derived_p     node;
+   bool          axiom_open = true;
+
+   assert(derivation->ordered);
+   
+   fprintf(out, 
+           "digraph proof{\n"
+           "  rankdir=TB\n"
+           "  subgraph ax{\n"
+           "  rank=\"same\";\n"
+      );
+   
+   for(sp=PStackGetSP(derivation->ordered_deriv)-1; sp>=0; sp--)
+   {
+      node = PStackElementP(derivation->ordered_deriv, sp);
+      if(axiom_open && DerivedGetDerivstack(node))
+      {
+         fprintf(out, "   }\n");
+         axiom_open = false;
+      }
+      DerivedDotPrint(out, derivation->sig, node, full);
+   }
+   fprintf(out, "}\n");
+}
+
 
 
 

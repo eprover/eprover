@@ -193,12 +193,16 @@ long DerivStackExtractOptParents(PStack_p derivation,
 
 Derived_p DerivedAlloc(void);
 #define DerivedFree(junk) DerivedCellFree(junk)
+#define DerivedGetDerivstack(d) \
+   ((d)->clause?(d)->clause->derivation:(d)->formula->derivation)
 
 void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation);
 void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation);
 
 void DerivedPCLPrint(FILE* out, Sig_p sig, Derived_p derived);
 void DerivedTSTPPrint(FILE* out, Sig_p sig, Derived_p derived);
+void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived, bool full);
+
 
 #define DerivationCellAlloc() (DerivationCell*)SizeMalloc(sizeof(DerivationCell))
 #define DerivationCellFree(junk) SizeFree(junk, sizeof(DerivationCell))
@@ -216,6 +220,7 @@ void DerivationRenumber(Derivation_p derivation);
 
 Derivation_p DerivationCompute(PStack_p root_clauses, Sig_p sig);
 void DerivationPrint(FILE* out, Derivation_p derivation, char* frame);
+void DerivationDotPrint(FILE* out, Derivation_p derivation, bool full);
 
 
 #endif

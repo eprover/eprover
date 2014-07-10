@@ -68,6 +68,7 @@ typedef enum
    OPT_SILENT,
    OPT_OUTPUTLEVEL,
    OPT_PROOF_OBJECT,
+   OPT_PROOF_GRAPH,
    OPT_PCL_COMPRESSED,
    OPT_PCL_COMPACT,
    OPT_PCL_SHELL_LEVEL,
@@ -241,6 +242,12 @@ OptCell opts[] =
     "positions, and level 3 will expand this to a proof object where "
     "all intermediate results are explicit. This feature is under "
     "development, so far only level 0 and 1 are operational."}, 
+
+   {OPT_PROOF_GRAPH,
+    '\0', "proof-graph",
+    OptArg, "2",
+    "Generate (and print, in case of success) an internal proof object "
+    "in the form of a GraphViz dot graph."}, 
 
    {OPT_PCL_COMPRESSED,
     '\0', "pcl-terms-compressed",
@@ -1245,7 +1252,8 @@ long              step_limit = LONG_MAX,
                   total_limit = LONG_MAX,
                   eqdef_maxclauses = DEFAULT_EQDEF_MAXCLAUSES,
                   relevance_prune_level = 0;
-int               eqdef_incrlimit = DEFAULT_EQDEF_INCRLIMIT;
+int               eqdef_incrlimit = DEFAULT_EQDEF_INCRLIMIT,
+                  proof_graph = 0;
 char              *outdesc = DEFAULT_OUTPUT_DESCRIPTOR,
                   *filterdesc = DEFAULT_FILTER_DESCRIPTOR;
 PStack_p          wfcb_definitions, hcb_definitions;
@@ -1671,7 +1679,14 @@ int main(int argc, char* argv[])
          Derivation_p derivation = 
             DerivationCompute(proofstate->extract_roots, 
                               proofstate->signature);
-         DerivationPrint(GlobalOut, derivation, "CNFRefutation");
+         if(proof_graph)
+         {
+            DerivationDotPrint(GlobalOut, derivation, proof_graph==2);
+         }
+         else
+         {
+            DerivationPrint(GlobalOut, derivation, "CNFRefutation");
+         }
          DerivationFree(derivation);
       }
    }
@@ -1939,6 +1954,10 @@ CLState_p process_options(int argc, char* argv[])
 	       Error("Option --proof-object) accepts "
 		     "argument from {0..3}", USAGE_ERROR);
 	    }            
+            break;
+      case OPT_PROOF_GRAPH:
+            BuildProofObject = 1;
+            proof_graph = CLStateGetIntArg(handle, arg);;
             break;
       case OPT_PCL_COMPRESSED:
 	    pcl_full_terms = false;
