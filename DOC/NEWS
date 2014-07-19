@@ -1,14 +1,17 @@
 This history list describes the major differences between versions of
 the E equational theorem prover.
 
-Version 1.8 -> 
+Version 1.8 -> 1.9pre
 
 - Fixed bug that caused proof output to fail in rare cases when the
   proof was found in preprocessing.
 - Took out "theory(equality)" from TSTP-output, since FOL-EQ is now
   assumed the default logic.
 - Improved proof objects (taking out empty "quote" steps).
-
+- Added plenty of new literal selection functions.
+- Updated auto-modes
+- Fixed Auto-SInE to never SInE if there is no seed to SInE on
+- Added output of proof graphs in GraphViz/dot format.
 
 
 Version 1.7 -> 1.8 Gopaldhara

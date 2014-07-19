@@ -1574,17 +1574,17 @@ void ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms, bool complete)
    source = ClauseQueryCSSCPASource(clause);
    if(clause->ident >= 0)
    {
-      fprintf(out, "cnf(c_%d_%ld,", 
+      fprintf(out, "cnf(c_%d_%ld, ", 
 	      source, 
 	      clause->ident);
    }
    else
    {
-      fprintf(out, "cnf(i_%d_%ld,",
+      fprintf(out, "cnf(i_%d_%ld, ",
 	      source,
 	      clause->ident-LONG_MIN);
    }
-   fprintf(out, "%s,", typename);   
+   fprintf(out, "%s, ", typename);   
    ClauseTSTPCorePrint(out, clause, fullterms);
    if(complete)
    {
