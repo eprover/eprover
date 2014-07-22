@@ -1060,14 +1060,24 @@ void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived, bool full)
    long id;
    Clause_p   cparent;
    WFormula_p fparent;
-   long       parent_count;
+   // long       parent_count;
    ClauseInfo_p info;
+   char *colour = ",fillcolor=ivory1";
    
    if(derived->clause)
    {
       id = derived->clause->ident;
       deriv = derived->clause->derivation;
       info  = derived->clause->info;
+      switch(ClauseQueryTPTPType(derived->clause))
+      {
+      case CPTypeConjecture:
+      case CPTypeNegConjecture:
+            colour = ",fillcolor=lightskyblue1";
+            break;
+      default:
+            break;
+      }
    }
    else
    {
@@ -1075,6 +1085,18 @@ void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived, bool full)
       id = derived->formula->ident;
       deriv = derived->formula->derivation;
       info  = derived->formula->info;
+      switch(FormulaQueryType(derived->formula))
+      {
+      case CPTypeConjecture:
+            colour = ",fillcolor=lightpink1";
+            break;
+      case CPTypeNegConjecture:
+            colour = ",fillcolor=lightskyblue1";
+            break;
+      default:
+            break;
+      }
+
    }
    if(deriv)
    {
@@ -1084,10 +1106,10 @@ void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived, bool full)
                                      parent_formulas);
    }
    
-   parent_count = PStackGetSP(parent_clauses)+ 
-      PStackGetSP(parent_formulas);
+   //parent_count = PStackGetSP(parent_clauses)+ 
+   //PStackGetSP(parent_formulas);
 
-   fprintf(out, "  %ld [shape=box,label=\"", id);
+   fprintf(out, "  %ld [shape=box%s,style=filled,label=\"", id, colour);
    if(derived->clause)
    {
       ClauseTSTPPrint(out, derived->clause, true, false);

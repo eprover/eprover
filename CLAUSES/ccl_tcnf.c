@@ -997,7 +997,7 @@ TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form)
          newform =  TFormulaSimplify(terms, newform);
       }
       if((form->f_code == terms->sig->qex_code)||
-              (form->f_code == terms->sig->qall_code))
+         (form->f_code == terms->sig->qall_code))
       {
          if(!TFormulaVarIsFree(terms, form->args[1], form->args[0]))
          {
