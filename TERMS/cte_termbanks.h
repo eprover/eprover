@@ -39,6 +39,7 @@ Changes
 
 #include <clb_numtrees.h>
 #include <cio_basicparser.h>
+#include <cte_varsets.h>
 #include <cte_termcellstore.h>
 
 /*---------------------------------------------------------------------*/
@@ -83,6 +84,10 @@ typedef struct tbcell
                                   * here. This is only a convenience
                                   * link, memory needs to be managed
                                   * elsewhere. */
+   VarSetStore_p freevarset;     /* Associates a term (or Tformula)
+                                  * with the set of its free
+                                  * variables. Only set for specific
+                                  * operations and then freed again */ 
 }TBCell, *TB_p;
    
 

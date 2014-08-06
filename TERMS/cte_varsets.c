@@ -230,6 +230,7 @@ bool VarSetContains(VarSet_p set, Term_p var)
 
 void VarSetCollectVars(VarSet_p set)
 {
+   assert(set->t);
    VarSetReset(set);
    TermCollectVariables(set->t, &set->vars);
 }

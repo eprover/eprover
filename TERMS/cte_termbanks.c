@@ -391,8 +391,8 @@ TB_p TBAlloc(Sig_p sig)
    TermCellSetProp(term, TPPredPos);
    handle->false_term = TBInsert(handle, term, DEREF_NEVER);
    TermFree(term);
-   handle->min_term = 0;
-
+   handle->min_term   = NULL;
+   handle->freevarset = NULL;
    return handle;
 }
 
@@ -420,6 +420,7 @@ void TBFree(TB_p junk)
    PDArrayFree(junk->ext_index);
    VarBankFree(junk->vars);
    
+   assert(!junk->freevarset);
    TBCellFree(junk);
 }
 

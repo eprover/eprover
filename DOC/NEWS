@@ -1,7 +1,13 @@
 This history list describes the major differences between versions of
 the E equational theorem prover.
 
-Version 1.8 -> 1.9pre
+Version 1.9pre016 -> 1.9 Sourenee
+
+- Fixed Auto-SInE to never SInE if there is no seed to SInE on
+- Added output of proof graphs in GraphViz/dot format (coloured, too!)
+
+
+Version 1.8 -> 1.9pre016
 
 - Fixed bug that caused proof output to fail in rare cases when the
   proof was found in preprocessing.
@@ -10,8 +16,6 @@ Version 1.8 -> 1.9pre
 - Improved proof objects (taking out empty "quote" steps).
 - Added plenty of new literal selection functions.
 - Updated auto-modes
-- Fixed Auto-SInE to never SInE if there is no seed to SInE on
-- Added output of proof graphs in GraphViz/dot format.
 
 
 Version 1.7 -> 1.8 Gopaldhara
