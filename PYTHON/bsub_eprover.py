@@ -213,7 +213,7 @@ def pegasus6_cfg():
     global tptp_dir, eprover_dir, testrun_dir, bsub_cmd, bjobs_cmd,\
     bsub_rundir, old_job_dir, db_file, getcpu
     
-    tptp_dir = "/nethome/sschulz/EPROVER/TPTP_6.0.0_FLAT"
+    tptp_dir = "/nethome/sschulz/EPROVER/TPTP_6.1.0_FLAT"
     """
     Where are the TPTP problem files?
     """
@@ -323,7 +323,7 @@ max_bsub_batch = 100
 How many prover runs are combined in one batch.
 """
 
-cores = 4
+cores = 16
 """
 How many jobs to run in parallel
 """

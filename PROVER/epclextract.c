@@ -216,7 +216,7 @@ int main(int argc, char* argv[])
    {
       if(no_extract)
       {
-	 PCLMiniProtSetClauseProp(mprot, CPIsProofClause);
+	 PCLMiniProtSetClauseProp(mprot, PCLIsProofStep);
       }
       else
       {

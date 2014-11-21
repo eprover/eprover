@@ -190,7 +190,7 @@ rlim_t GetSoftRlimit(int resource)
 //
 // Function: IncreaseMaxStackSize()
 //
-//   Try to increase the maximum stack size, then re0exec the process
+//   Try to increase the maximum stack size, then reexec the process
 //   to work under the new limit. At least on some UNIXES, maximum
 //   stack size cannot increase after the process has started).
 //

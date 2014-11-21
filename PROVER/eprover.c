@@ -366,7 +366,7 @@ int main(int argc, char* argv[])
    hcb_definitions = PStackAlloc();
 
    state = process_options(argc, argv);
-   
+  
    OpenGlobalOut(outname);
    print_info();
 

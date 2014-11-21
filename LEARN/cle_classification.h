@@ -21,7 +21,7 @@ Changes
 
 -----------------------------------------------------------------------*/
 
-#ifndef CLE_CLASSSIFICATION
+#ifndef CLE_CLASSIFICATION
 
 #define CLE_CLASSIFICATION
 

@@ -359,7 +359,7 @@ void PCLMiniExprCollectPreconds(PCLMiniProt_p prot, PCLExpr_p expr, PTree_p *tre
 //
 // Function: PCLMiniProtMarkProofClauses()
 //
-//   Mark all proof steps in protokoll with CPIsProofClause. Return
+//   Mark all proof steps in protokoll with PCLIsProofStep. Return
 //   true if empty clause was encountered.
 //
 // Global Variables: -

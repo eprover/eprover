@@ -25,7 +25,7 @@ Changes
 
 -----------------------------------------------------------------------*/
 
-#ifndef CLB_AVLGENRIC
+#ifndef CLB_AVLGENERIC
 
 #define CLB_AVLGENERIC
 

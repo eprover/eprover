@@ -21,7 +21,7 @@ Changes
 
 -----------------------------------------------------------------------*/
 
-#ifndef CLE_TERMOPS
+#ifndef CLE_TERMTOPS
 
 #define CLE_TERMTOPS
 

@@ -511,7 +511,7 @@ PCLStep_p PCLExprGetQuotedArg(PCLProt_p prot, PCLExpr_p expr, int arg)
 //
 // Function: PCLProtMarkProofClauses()
 //
-//   Mark all proof steps in protocol with CPIsProofClause. Return
+//   Mark all proof steps in protocol with PCLIsProofStep. Return
 //   true if protocol describes a proof (i.e. contains the empty
 //   clause). 
 //   otherwise. 

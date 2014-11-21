@@ -26,7 +26,7 @@ Changes
 
 #ifndef CTE_VARSETS
 
-#define CTE_VASETS
+#define CTE_VARSETS
 
 
 #include <clb_objtrees.h>
