@@ -65,6 +65,7 @@ bool VarSetDeleteVar(VarSet_p set, Term_p var);
 bool VarSetContains(VarSet_p set, Term_p var);
 void VarSetCollectVars(VarSet_p set);
 void VarSetUnion(VarSet_p set, VarSet_p set1, VarSet_p set2);
+void VarSetMerge(VarSet_p set, VarSet_p set1);
 
 void     VarSetStoreFree(VarSetStore_p store);
 VarSet_p VarSetStoreFindVarSet(VarSetStore_p *store, Term_p key);

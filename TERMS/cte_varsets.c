@@ -259,6 +259,26 @@ void VarSetUnion(VarSet_p set, VarSet_p set1, VarSet_p set2)
 
 /*-----------------------------------------------------------------------
 //
+// Function: VarSetMerge()
+//
+//   Merge the second varset into the first, destroying the former.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void VarSetMerge(VarSet_p set, VarSet_p set1)
+{
+   PTreeMerge(&(set->vars), set1->vars);
+   VarSetFree(set1);
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: VarSetStoreFree()
 //
 //   Free a VarSetStore.
@@ -278,7 +298,7 @@ void VarSetStoreFree(VarSetStore_p store)
 //
 // Function: VarSetStoreFindVarSet()
 //
-//   Find and the varset associated with key and return it. Return
+//   Find the varset associated with key and return it. Return
 //   NULL if it does not exist.
 //
 // Global Variables: -

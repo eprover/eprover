@@ -733,7 +733,7 @@ void print_help(FILE* out)
    fprintf(out, "\n\
 "NAME " " VERSION "\n\
 \n\
-Usage: eground [options] [files]\n\
+Usage: enormalizer [options] [files]\n\
 \n\
 Read a set of rewrite rules (in the form of unit clauses and/or\n\
 formulas) with a single positive literal) and sets of terms, clauses,\n\

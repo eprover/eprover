@@ -84,10 +84,11 @@ typedef struct tbcell
                                   * here. This is only a convenience
                                   * link, memory needs to be managed
                                   * elsewhere. */
-   VarSetStore_p freevarset;     /* Associates a term (or Tformula)
+   VarSetStore_p freevarsets;    /* Associates a term (or Tformula)
                                   * with the set of its free
-                                  * variables. Only set for specific
-                                  * operations and then freed again */ 
+                                  * variables. Only initalized for
+                                  * specific operations and then reset
+                                  * again */
 }TBCell, *TB_p;
    
 
@@ -105,6 +106,8 @@ extern bool TBPrintDetails;
 
 TB_p    TBAlloc(Sig_p sig);
 void    TBFree(TB_p junk);
+
+void    TBVarSetStoreFree(TB_p bank);
 
 long    TBTermNodes(TB_p bank);
 #define TBNonVarTermNodes(bank) TermCellStoreNodes(&(bank)->term_store)

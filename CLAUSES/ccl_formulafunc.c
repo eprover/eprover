@@ -73,7 +73,7 @@ TFormula_p answer_lit_alloc(TB_p terms, PStack_p varstack)
 
 
 
-/*--------------------- --------------------------------------------------
+/*-----------------------------------------------------------------------
 //
 // Function: tformula_collect_clause()
 //
@@ -410,7 +410,10 @@ bool WFormulaSimplify(WFormula_p form, TB_p terms)
    TFormula_p simplified;
    bool res = false;
 
+   assert(!terms->freevarsets);
    simplified = TFormulaSimplify(terms, form->tformula);
+   // TBVarSetStoreFree(terms);
+   
    if(simplified!=form->tformula)
    {
       form->tformula = simplified;

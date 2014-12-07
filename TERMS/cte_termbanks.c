@@ -391,8 +391,8 @@ TB_p TBAlloc(Sig_p sig)
    TermCellSetProp(term, TPPredPos);
    handle->false_term = TBInsert(handle, term, DEREF_NEVER);
    TermFree(term);
-   handle->min_term   = NULL;
-   handle->freevarset = NULL;
+   handle->min_term    = NULL;
+   handle->freevarsets = NULL;
    return handle;
 }
 
@@ -420,8 +420,26 @@ void TBFree(TB_p junk)
    PDArrayFree(junk->ext_index);
    VarBankFree(junk->vars);
    
-   assert(!junk->freevarset);
+   assert(!junk->freevarsets);
    TBCellFree(junk);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: TBVarSetStoreFree()
+//
+//   Free and reset the VarSetStore in bank.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void TBVarSetStoreFree(TB_p bank)
+{
+   VarSetStoreFree(bank->freevarsets);
+   bank->freevarsets = NULL;
 }
 
 
