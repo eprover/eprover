@@ -39,7 +39,7 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-bool ReadTextBlock(DStr_p result, FILE* fp, char* terminator);
+bool ReadTextBlock(DStr_p result, int fd, char* terminator);
 
 
 #endif

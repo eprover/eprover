@@ -57,6 +57,13 @@ char* BatchFilters[] =
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
+
+void SocketError(char *msg)
+{
+    perror(msg);
+    exit(1);
+}
+
 /*-----------------------------------------------------------------------
 //
 // Function: do_proof()
@@ -851,14 +858,42 @@ void BatchProcessInteractive(BatchSpec_p spec,
       wct_limit = spec->per_prob_limit;
    }
 
+
+   int sockfd, newsockfd, portno, clilen;
+   struct sockaddr_in serv_addr, cli_addr;
+   char* message;
+
+   sockfd = socket(AF_INET, SOCK_STREAM, 0);
+   if (sockfd < 0)
+   {
+     SocketError("ERROR opening socket");
+   }
+   bzero((char *) &serv_addr, sizeof(serv_addr));
+   portno = 5010;
+   serv_addr.sin_family = AF_INET;
+   serv_addr.sin_addr.s_addr = INADDR_ANY;
+   serv_addr.sin_port = htons(portno);
+   if (bind(sockfd, (struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0)
+   {
+     SocketError("ERROR on binding");
+   }
+   listen(sockfd,5);
+   clilen = sizeof(cli_addr);
+   newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
+   if (newsockfd < 0)
+   {
+     SocketError("ERROR on accept");
+   }
+
    while(!done)
    {
       DStrReset(input);
 
-      fprintf(fp, "# Enter job, 'help' or 'quit', followed by 'go.' on a line of its own:\n");
-      fflush(fp);
-      ReadTextBlock(input, stdin, "go.\n");
-      
+      message = "# Enter job, 'help' or 'quit', followed by 'go.' on a line of its own:\n";
+      write( newsockfd, message, strlen(message));
+
+      ReadTextBlock(input, newsockfd, "go.\n");
+
       in = CreateScanner(StreamTypeUserString, 
                          DStrView(input),
                          true, 
@@ -870,14 +905,15 @@ void BatchProcessInteractive(BatchSpec_p spec,
       }
       else if(TestInpId(in, "help"))
       {
-         fprintf(fp, "\
+        message = "\
 # Enter a job, 'help' or 'quit'. Finish any action with 'go.' on a line\n\
 # of its own. A job consists of an optional job name specifier of the\n\
 # form 'job <ident>.', followed by a specification of a first-order\n\
 # problem in TPTP-3 syntax (including any combination of 'cnf', 'fof' and\n\
 # 'include' statements. The system then tries to solve the specified\n\
 # problem (including the constant background theory) and prints the\n\
-# results of this attempt.\n");
+# results of this attempt.\n";
+        write(newsockfd, message, strlen(message));
       }
       else
       {

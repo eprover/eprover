@@ -32,6 +32,9 @@ Changes
 #include <ccl_sine.h>
 #include <cco_sine.h>
 #include <cco_proc_ctrl.h>
+#include <sys/types.h> 
+#include <sys/socket.h>
+#include <netinet/in.h>
 
 
 /*---------------------------------------------------------------------*/

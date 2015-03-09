@@ -61,15 +61,16 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-bool ReadTextBlock(DStr_p result, FILE* fp, char* terminator)
+bool ReadTextBlock(DStr_p result, int fd, char* terminator)
 {
    char buf[256];
-   char* res;
+   int res;
 
    while(true)
    {
-      res = fgets(buf, 256, fp);
-      if(!res)
+      bzero(buf,255);
+      res = read(fd, buf, 255);
+      if(res < 0)
       {
          return false;
       }
