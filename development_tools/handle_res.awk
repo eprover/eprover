@@ -1,4 +1,4 @@
-#!/sw/bin/gawk -f
+#!/usr/bin/gawk -f
 
 # Usage: handle_res.awk <user> <machine> <time>
 #

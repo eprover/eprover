@@ -19,7 +19,7 @@
 #
 ########################################################################
 
-EXECPATH=/Users/schulz/SOURCES/Projects/E/PROVER
+EXECPATH=/home/mohamedbassem/repos/E/PROVER
 
 VERSION=`"$EXECPATH"/eprover --version|cut -d' ' -f2-`
 

@@ -1,4 +1,4 @@
-#!/sw/bin/gawk -f
+#!/usr/bin/gawk -f
 
 # Usage: create_plot.awk max [<file>...<file>]
 #

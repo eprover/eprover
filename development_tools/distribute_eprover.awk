@@ -1,4 +1,4 @@
-#!/sw/bin/gawk -f
+#!/usr/bin/gawk -f
 
 # Usage: distribute_eprover.awk <spec_file> [<lower> [<upper>]]
 #
