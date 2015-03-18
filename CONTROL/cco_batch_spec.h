@@ -100,7 +100,8 @@ bool BatchProcessProblem(BatchSpec_p spec,
                          char* jobname,
                          ClauseSet_p cset,
                          FormulaSet_p fset,
-                         FILE* out);
+                         FILE* out,
+                         int sock_fd);
 
 bool BatchProcessFile(BatchSpec_p spec, 
                       long wct_limit,

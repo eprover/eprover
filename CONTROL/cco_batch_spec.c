@@ -58,12 +58,6 @@ char* BatchFilters[] =
 /*---------------------------------------------------------------------*/
 
 
-void SocketError(char *msg)
-{
-    perror(msg);
-    exit(1);
-}
-
 /*-----------------------------------------------------------------------
 //
 // Function: do_proof()
@@ -614,7 +608,8 @@ bool BatchProcessProblem(BatchSpec_p spec,
                          char* jobname,
                          ClauseSet_p cset,
                          FormulaSet_p fset,
-                         FILE* out)
+                         FILE* out,
+                         int sock_fd)
 {
    bool res = false;
    EPCtrl_p handle;
@@ -671,7 +666,7 @@ bool BatchProcessProblem(BatchSpec_p spec,
    }
    if(handle)
    {
-      fprintf(GlobalOut, "%s for %s\n", PRResultTable[handle->result], jobname);      
+      fprintf(GlobalOut, "%s for %s\n", PRResultTable[handle->result], jobname);
       res = true;
       now = GetSecTime();
       used = now - handle->start_time; 
@@ -681,8 +676,16 @@ bool BatchProcessProblem(BatchSpec_p spec,
               handle->name, handle->start_time, remaining);
       if(out!=GlobalOut)
       {
-         fprintf(out, "%s", DStrView(handle->output));      
-         fflush(out);
+         if(sock_fd != -1)
+         {
+           TCPStringSendX(sock_fd, DStrView(handle->output));
+         }
+         else
+         {
+           fprintf(out, "%s", DStrView(handle->output));
+           fflush(out);
+         }
+
       }
       fprintf(GlobalOut, "%s", DStrView(handle->output));
    }
@@ -691,8 +694,18 @@ bool BatchProcessProblem(BatchSpec_p spec,
       fprintf(GlobalOut, "# SZS status GaveUp for %s\n", jobname);
       if(out!=GlobalOut)
       {
-         fprintf(out, "# SZS status GaveUp for %s\n", jobname);
-         fflush(out);
+
+        char buffer[256];
+        sprintf(buffer, "# SZS status GaveUp for %s\n", jobname);
+        if(sock_fd != -1)
+        {
+          TCPStringSendX(sock_fd, buffer);
+        }
+        else
+        {
+          fprintf(out, "%s", buffer);
+          fflush(out);
+        }
       }
    }
    
@@ -756,7 +769,8 @@ bool BatchProcessFile(BatchSpec_p spec,
                              source,
                              cset,
                              fset,
-                             fp);   
+                             fp,
+                             -1);   
    SecureFClose(fp);
    
    fprintf(GlobalOut, "# SZS status Ended for %s\n\n", source);
@@ -843,7 +857,8 @@ bool BatchProcessProblems(BatchSpec_p spec, StructFOFSpec_p ctrl,
 
 void BatchProcessInteractive(BatchSpec_p spec, 
                              StructFOFSpec_p ctrl, 
-                             FILE* fp)
+                             FILE* fp, 
+                             int port)
 {
    DStr_p input   = DStrAlloc();
    DStr_p jobname = DStrAlloc();
@@ -859,40 +874,40 @@ void BatchProcessInteractive(BatchSpec_p spec,
    }
 
 
-   int sockfd, newsockfd, portno, clilen;
-   struct sockaddr_in serv_addr, cli_addr;
-   char* message;
+   int sock_fd;
 
-   sockfd = socket(AF_INET, SOCK_STREAM, 0);
-   if (sockfd < 0)
+   if(port != -1)
    {
-     SocketError("ERROR opening socket");
+     int _sockfd;
+     struct sockaddr cli_addr;
+     socklen_t       cli_len;
+     _sockfd = CreateServerSock(port);
+     Listen(_sockfd);
+     sock_fd = accept(_sockfd, &cli_addr, &cli_len);
+     if (sock_fd < 0)
+     {
+       SysError("Error on accepting connection", SYS_ERROR);
+     }
    }
-   bzero((char *) &serv_addr, sizeof(serv_addr));
-   portno = 5010;
-   serv_addr.sin_family = AF_INET;
-   serv_addr.sin_addr.s_addr = INADDR_ANY;
-   serv_addr.sin_port = htons(portno);
-   if (bind(sockfd, (struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0)
-   {
-     SocketError("ERROR on binding");
-   }
-   listen(sockfd,5);
-   clilen = sizeof(cli_addr);
-   newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
-   if (newsockfd < 0)
-   {
-     SocketError("ERROR on accept");
-   }
+
+   char* message;
+   char buffer[256];
 
    while(!done)
    {
       DStrReset(input);
-
       message = "# Enter job, 'help' or 'quit', followed by 'go.' on a line of its own:\n";
-      write( newsockfd, message, strlen(message));
-
-      ReadTextBlock(input, newsockfd, "go.\n");
+      if(port != -1)
+      {
+        TCPStringSendX(sock_fd, message);
+        TCPReadTextBlock(input, sock_fd, "go.\n");
+      }
+      else
+      {
+        fprintf(fp, "%s", message);
+        fflush(fp);
+        ReadTextBlock(input, stdin, "go.\n");
+      }
 
       in = CreateScanner(StreamTypeUserString, 
                          DStrView(input),
@@ -913,7 +928,16 @@ void BatchProcessInteractive(BatchSpec_p spec,
 # 'include' statements. The system then tries to solve the specified\n\
 # problem (including the constant background theory) and prints the\n\
 # results of this attempt.\n";
-        write(newsockfd, message, strlen(message));
+
+         if(port != -1)
+         {
+           TCPStringSendX(sock_fd, message);
+         }
+         else
+         {
+           fprintf(fp, "%s", message);
+           fflush(fp);
+         }
       }
       else
       {
@@ -929,29 +953,72 @@ void BatchProcessInteractive(BatchSpec_p spec,
          {
             DStrAppendStr(jobname, "unnamed_job");            
          }
-         fprintf(fp, "\n# Processing started for %s\n", DStrView(jobname));
-         
+
+         fprintf(stdout, "%s", DStrView(jobname));
+         fflush(stdout);
+
+         sprintf(buffer, "\n# Processing started for %s\n", DStrView(jobname));
+         message = buffer;
+
+         if(port != -1)
+         {
+           TCPStringSendX(sock_fd, message);
+         }
+         else
+         {
+           fprintf(fp, "%s", message);
+           fflush(fp);
+         }
+
+
          cset = ClauseSetAlloc();
          fset = FormulaSetAlloc();
          FormulaAndClauseSetParse(in, cset, fset, ctrl->terms, 
                                   NULL, 
                                   &(ctrl->parsed_includes));
-         
+
          // cset and fset are handed over to BatchProcessProblem and are
          // freed there (via StructFOFSpecBacktrackToSpec()).
-         (void)BatchProcessProblem(spec, 
-                                   wct_limit,
-                                   ctrl,
-                                   DStrView(jobname),
-                                   cset,
-                                   fset,
-                                   fp);         
-         fprintf(fp, "\n# Processing finished for %s\n\n", DStrView(jobname));
+         if(port != -1)
+         {
+           (void)BatchProcessProblem(spec, 
+                                     wct_limit,
+                                     ctrl,
+                                     DStrView(jobname),
+                                     cset,
+                                     fset,
+                                     NULL,
+                                     sock_fd);
+         }
+         else
+         {
+           (void)BatchProcessProblem(spec, 
+                                     wct_limit,
+                                     ctrl,
+                                     DStrView(jobname),
+                                     cset,
+                                     fset,
+                                     fp,
+                                     -1);
+         }
+         sprintf(buffer, "\n# Processing finished for %s\n\n", DStrView(jobname));
+         message = buffer;
+
+         if(port != -1)
+         {
+           TCPStringSendX(sock_fd, message);
+         }
+         else
+         {
+           fprintf(fp, "%s", message);
+           fflush(fp);
+         }
       }
       DestroyScanner(in);
-   }   
+   }
    DStrFree(jobname);
    DStrFree(input);
+   close(sock_fd);
 }
 
 
