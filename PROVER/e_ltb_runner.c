@@ -134,7 +134,7 @@ OptCell opts[] =
 char              *outname        = NULL;
 long              total_wtc_limit = 0;
 bool              interactive     = false;
-int               port            = NULL;
+int               port            = -1;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -212,7 +212,7 @@ int main(int argc, char* argv[])
 
       if(interactive)
       {
-        if(port)
+        if(port != -1)
         {
           BatchProcessInteractive(spec, ctrl, NULL, port);
         }
