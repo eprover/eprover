@@ -32,9 +32,7 @@ Changes
 #include <ccl_sine.h>
 #include <cco_sine.h>
 #include <cco_proc_ctrl.h>
-#include <sys/types.h> 
-#include <sys/socket.h>
-#include <netinet/in.h>
+#include <cio_network.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -115,7 +113,8 @@ bool BatchProcessProblems(BatchSpec_p spec,
 
 void BatchProcessInteractive(BatchSpec_p spec, 
                              StructFOFSpec_p ctrl, 
-                             FILE* fp);
+                             FILE* fp,
+                             int port);
 
 
 

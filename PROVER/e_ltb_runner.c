@@ -47,6 +47,7 @@ typedef enum
    OPT_VERBOSE,
    OPT_OUTPUT,
    OPT_INTERACTIVE,
+   OPT_PORT,
    OPT_PRINT_STATISTICS,
    OPT_SILENT,
    OPT_OUTPUTLEVEL,
@@ -95,6 +96,13 @@ OptCell opts[] =
     "of additional jobs with respect to the loaded axioms set. Jobs "
     "are entered via stdin and print to stdout."},
 
+
+   {OPT_PORT,
+    'p', "port",
+    ReqArg, NULL,
+    "The port on which the server will receive connections. Only effective "
+    "when interactive mode is on. If not given stdin/stdout will be used."},
+
    {OPT_SILENT,
     's', "silent",
     NoArg, NULL,
@@ -126,6 +134,7 @@ OptCell opts[] =
 char              *outname        = NULL;
 long              total_wtc_limit = 0;
 bool              interactive     = false;
+int               port            = NULL;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -203,8 +212,17 @@ int main(int argc, char* argv[])
 
       if(interactive)
       {
-        BatchProcessInteractive(spec, ctrl, stdout);
-      }else{
+        if(port)
+        {
+          BatchProcessInteractive(spec, ctrl, NULL, port);
+        }
+        else
+        {
+          BatchProcessInteractive(spec, ctrl, stdout, -1);
+        }
+      }
+      else
+      {
         now = GetSecTime();
         res = BatchProcessProblems(spec, ctrl, MAX(0,total_wtc_limit-(now-start)));
         now = GetSecTime();
@@ -281,6 +299,9 @@ CLState_p process_options(int argc, char* argv[])
 	    break;
       case OPT_INTERACTIVE:
             interactive = true;
+            break;
+      case OPT_PORT:
+            port = CLStateGetIntArg(handle, arg);
             break;
       case OPT_SILENT:
 	    OutputLevel = 0;
