@@ -874,16 +874,15 @@ void BatchProcessInteractive(BatchSpec_p spec,
    }
 
 
-   int sock_fd;
+   int oldsock,sock_fd;
 
    if(port != -1)
    {
-     int _sockfd;
      struct sockaddr cli_addr;
      socklen_t       cli_len;
-     _sockfd = CreateServerSock(port);
-     Listen(_sockfd);
-     sock_fd = accept(_sockfd, &cli_addr, &cli_len);
+     oldsock = CreateServerSock(port);
+     Listen(oldsock);
+     sock_fd = accept(oldsock, &cli_addr, &cli_len);
      if (sock_fd < 0)
      {
        SysError("Error on accepting connection", SYS_ERROR);
@@ -1018,7 +1017,13 @@ void BatchProcessInteractive(BatchSpec_p spec,
    }
    DStrFree(jobname);
    DStrFree(input);
-   close(sock_fd);
+   if( port != -1 )
+   {
+     shutdown(sock_fd,SHUT_RDWR);
+     shutdown(oldsock,SHUT_RDWR);
+     close(sock_fd);
+     close(oldsock);
+   }
 }
 
 

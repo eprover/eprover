@@ -4,13 +4,9 @@ import socket,struct,sys,time,threading
 
 class MySocket:
 
-    def __init__(self, sock=None):
+    def __init__(self):
         self.buf = ""
-        if sock is None:
-            self.sock = socket.socket()
-            self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        else:
-            self.sock = sock
+        self.sock = socket.socket()
 
     def send(self, data):
         self.sock.sendall(struct.pack('>I', len(data)+4)+data)
@@ -59,7 +55,6 @@ class MySocket:
     def close(self):
         self.sock.close()
 
-
 _socket = MySocket()
 
 def send_data():
@@ -69,16 +64,21 @@ def send_data():
 
 def read_data():
     while True:
-        sys.stdout.write(_socket.recv())
-        sys.stdout.flush()
+        data = _socket.recv()
+        if data == "":
+            break
+        else:
+            sys.stdout.write(data)
+            sys.stdout.flush()
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
         print "Usage : ./enetcat host port"
         exit(1)
     _socket.connect(sys.argv[1], int(sys.argv[2]))
-    listener = threading.Thread(target=read_data)
+    listener = threading.Thread(target=send_data)
     listener.daemon = True
     listener.start()
 
-    send_data()
+    read_data()
+    _socket.close()
