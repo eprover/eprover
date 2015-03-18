@@ -199,20 +199,21 @@ int main(int argc, char* argv[])
       }
       /* BatchSpecPrint(stdout, spec); */
       ctrl = StructFOFSpecAlloc();
-      BatchStructFOFSpecInit(spec, ctrl);      
-      now = GetSecTime();
-      res = BatchProcessProblems(spec, ctrl, MAX(0,total_wtc_limit-(now-start)));
-      now = GetSecTime();
-      fprintf(GlobalOut, "\n\n# == WCT: %4lds, Solved: %4ld/%4d    ==\n",
-              now-start, res, BatchSpecProblemNo(spec));
+      BatchStructFOFSpecInit(spec, ctrl);
 
       if(interactive)
       {
-        BatchProcessInteractive(spec, ctrl, stdout); 
+        BatchProcessInteractive(spec, ctrl, stdout);
+      }else{
+        now = GetSecTime();
+        res = BatchProcessProblems(spec, ctrl, MAX(0,total_wtc_limit-(now-start)));
+        now = GetSecTime();
+        fprintf(GlobalOut, "\n\n# == WCT: %4lds, Solved: %4ld/%4d    ==\n",
+            now-start, res, BatchSpecProblemNo(spec));
+        fprintf(GlobalOut, "# =============== Batch done ===========\n\n");
       }
       StructFOFSpecFree(ctrl);
       BatchSpecFree(spec);
-      fprintf(GlobalOut, "# =============== Batch done ===========\n\n");
    }
    DestroyScanner(in); 
 
