@@ -61,16 +61,15 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-bool ReadTextBlock(DStr_p result, int fd, char* terminator)
+bool ReadTextBlock(DStr_p result, FILE* fp, char* terminator)
 {
    char buf[256];
-   int res;
+   char* res;
 
    while(true)
    {
-      bzero(buf,255);
-      res = read(fd, buf, 255);
-      if(res < 0)
+      res = fgets(buf, 256, fp);
+      if(!res)
       {
          return false;
       }
@@ -79,6 +78,22 @@ bool ReadTextBlock(DStr_p result, int fd, char* terminator)
          break;
       }
       DStrAppendStr(result, buf);
+   }
+   return true;
+}
+
+
+bool TCPReadTextBlock(DStr_p result, int fd, char* terminator)
+{
+   char* res;
+   while(true)
+   {
+      res = TCPStringRecvX(fd);
+      if(strcmp(res, terminator) == 0)
+      {
+         break;
+      }
+      DStrAppendStr(result, res);
    }
    return true;
 }
