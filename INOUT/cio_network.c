@@ -202,7 +202,7 @@ TCPMsg_p TCPMsgPack(char* str)
 {
    uint32_t len;
    TCPMsg_p handle = TCPMsgAlloc();
-      
+
    len = strlen(str)+sizeof(len);
    DStrAppendStr(handle->content, "0000");
    *((uint32_t*)DStrAddress(handle->content, 0)) =  htonl(len);
@@ -315,7 +315,7 @@ MsgStatus TCPMsgRead(int sock, TCPMsg_p msg)
       {
          return 0;
       }
-      len = ntohl(*(msg->len_buf));
+      len = ntohl(*((uint32_t*)(msg->len_buf)));
       printf("Message expected with %d bytes\n", len);
       msg->len = len;
       DStrAppendBuffer(msg->content, msg->len_buf, sizeof(uint32_t));
@@ -460,7 +460,7 @@ char* TCPStringRecv(int sock, MsgStatus* res, bool err)
    {
       if(err)
       {
-         SysError("Could not send string message", SYS_ERROR);
+         SysError("Could not receive string message", SYS_ERROR);
       }
       TCPMsgFree(msg);
       return NULL;
