@@ -35,6 +35,22 @@ char* help_message = "\
 # results of this attempt.\n";
 
 
+// Defining commands used
+#define STAGE_COMMAND "STAGE"
+#define UNSTAGE_COMMAND "UNSTAGE"
+#define REMOVE_COMMAND "REMOVE"
+#define DOWNLOAD_COMMAND "DOWNLOAD"
+#define ADD_COMMAND "ADD"
+#define RUN_COMMAND "RUN"
+#define LIST_COMMAND "LIST"
+#define HELP_COMMAND "HELP"
+#define QUIT_COMMAND "QUIT"
+#define END_OF_BLOCK_TOCKEN "GO"
+
+// Defining Success messages
+
+// Defining Failure messages
+
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
@@ -107,6 +123,9 @@ void BatchProcessInteractive(BatchSpec_p spec,
       DStrReset(input);
       message = "# Enter job, 'help' or 'quit', followed by 'go.' on a line of its own:\n";
       print_to_outstream(message, fp, sock_fd);
+
+
+      // TODO : Refactor this to read one command at a time
       if(sock_fd != -1)
       {
         TCPReadTextBlock(input, sock_fd, "go.\n");
@@ -115,19 +134,42 @@ void BatchProcessInteractive(BatchSpec_p spec,
       {
         ReadTextBlock(input, stdin, "go.\n");
       }
+      // END TODO
 
       in = CreateScanner(StreamTypeUserString, 
                          DStrView(input),
                          true, 
                          NULL);
       ScannerSetFormat(in, TSTPFormat);
-      if(TestInpId(in, "quit"))
+
+      if(TestInpId(in, STAGE_COMMAND))
       {
-         done = true;
       }
-      else if(TestInpId(in, "help"))
+      else if(TestInpId(in, UNSTAGE_COMMAND))
+      {
+      }
+      else if(TestInpId(in, REMOVE_COMMAND))
+      {
+      }
+      else if(TestInpId(in, DOWNLOAD_COMMAND))
+      {
+      }
+      else if(TestInpId(in, ADD_COMMAND))
+      {
+      }
+      else if(TestInpId(in, RUN_COMMAND))
+      {
+      }
+      else if(TestInpId(in, LIST_COMMAND))
+      {
+      }
+      else if(TestInpId(in, HELP_COMMAND))
       {
         print_to_outstream(help_message, fp, sock_fd);
+      }
+      else if(TestInpId(in, QUIT_COMMAND))
+      {
+         done = true;
       }
       else
       {
@@ -185,6 +227,7 @@ void BatchProcessInteractive(BatchSpec_p spec,
      close(oldsock);
    }
 }
+
 
 void print_to_outstream(char* message, FILE* fp, int sock_fd){
   if(sock_fd != -1)
