@@ -25,6 +25,15 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
+char* help_message = "\
+# Enter a job, 'help' or 'quit'. Finish any action with 'go.' on a line\n\
+# of its own. A job consists of an optional job name specifier of the\n\
+# form 'job <ident>.', followed by a specification of a first-order\n\
+# problem in TPTP-3 syntax (including any combination of 'cnf', 'fof' and\n\
+# 'include' statements. The system then tries to solve the specified\n\
+# problem (including the constant background theory) and prints the\n\
+# results of this attempt.\n";
+
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -117,15 +126,7 @@ void BatchProcessInteractive(BatchSpec_p spec,
       }
       else if(TestInpId(in, "help"))
       {
-        message = "\
-# Enter a job, 'help' or 'quit'. Finish any action with 'go.' on a line\n\
-# of its own. A job consists of an optional job name specifier of the\n\
-# form 'job <ident>.', followed by a specification of a first-order\n\
-# problem in TPTP-3 syntax (including any combination of 'cnf', 'fof' and\n\
-# 'include' statements. The system then tries to solve the specified\n\
-# problem (including the constant background theory) and prints the\n\
-# results of this attempt.\n";
-        print_to_output_stream(message, fp, sock_fd);
+        print_to_output_stream(help_message, fp, sock_fd);
       }
       else
       {
