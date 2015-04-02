@@ -39,7 +39,7 @@ char* help_message = "\
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
 
-void print_to_output_stream(char* message, FILE* fp, int sock_fd);
+void print_to_outstream(char* message, FILE* fp, int sock_fd);
 
 
 /*---------------------------------------------------------------------*/
@@ -74,13 +74,17 @@ void BatchProcessInteractive(BatchSpec_p spec,
    FormulaSet_p fset;
    long         wct_limit=30;
 
+   int oldsock,sock_fd;
+
+   char* message;
+   char* input_command;
+   char buffer[256];
+
    if(spec->per_prob_limit)
    {
       wct_limit = spec->per_prob_limit;
    }
 
-
-   int oldsock,sock_fd;
 
    if(port != -1)
    {
@@ -98,14 +102,11 @@ void BatchProcessInteractive(BatchSpec_p spec,
       sock_fd = -1;
    }
 
-   char* message;
-   char buffer[256];
-
    while(!done)
    {
       DStrReset(input);
       message = "# Enter job, 'help' or 'quit', followed by 'go.' on a line of its own:\n";
-      print_to_output_stream(message, fp, sock_fd);
+      print_to_outstream(message, fp, sock_fd);
       if(sock_fd != -1)
       {
         TCPReadTextBlock(input, sock_fd, "go.\n");
@@ -126,7 +127,7 @@ void BatchProcessInteractive(BatchSpec_p spec,
       }
       else if(TestInpId(in, "help"))
       {
-        print_to_output_stream(help_message, fp, sock_fd);
+        print_to_outstream(help_message, fp, sock_fd);
       }
       else
       {
@@ -149,7 +150,7 @@ void BatchProcessInteractive(BatchSpec_p spec,
          sprintf(buffer, "\n# Processing started for %s\n", DStrView(jobname));
          message = buffer;
 
-         print_to_output_stream(message, fp, sock_fd);
+         print_to_outstream(message, fp, sock_fd);
 
 
          cset = ClauseSetAlloc();
@@ -170,7 +171,7 @@ void BatchProcessInteractive(BatchSpec_p spec,
                                    sock_fd);
          sprintf(buffer, "\n# Processing finished for %s\n\n", DStrView(jobname));
          message = buffer;
-         print_to_output_stream(message, fp, sock_fd);
+         print_to_outstream(message, fp, sock_fd);
       }
       DestroyScanner(in);
    }
@@ -185,7 +186,7 @@ void BatchProcessInteractive(BatchSpec_p spec,
    }
 }
 
-void print_to_output_stream(char* message, FILE* fp, int sock_fd){
+void print_to_outstream(char* message, FILE* fp, int sock_fd){
   if(sock_fd != -1)
   {
     TCPStringSendX(sock_fd, message);
