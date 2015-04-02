@@ -21,7 +21,6 @@ Changes
 #include "cco_einteractive_mode.h"
 
 
-
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
@@ -30,6 +29,8 @@ Changes
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
+
+void print_to_output_stream(char* message, FILE* fp, int sock_fd);
 
 
 /*---------------------------------------------------------------------*/
@@ -83,6 +84,9 @@ void BatchProcessInteractive(BatchSpec_p spec,
      {
        SysError("Error on accepting connection", SYS_ERROR);
      }
+     fp = NULL;
+   }else{
+      sock_fd = -1;
    }
 
    char* message;
@@ -92,15 +96,13 @@ void BatchProcessInteractive(BatchSpec_p spec,
    {
       DStrReset(input);
       message = "# Enter job, 'help' or 'quit', followed by 'go.' on a line of its own:\n";
-      if(port != -1)
+      print_to_output_stream(message, fp, sock_fd);
+      if(sock_fd != -1)
       {
-        TCPStringSendX(sock_fd, message);
         TCPReadTextBlock(input, sock_fd, "go.\n");
       }
       else
       {
-        fprintf(fp, "%s", message);
-        fflush(fp);
         ReadTextBlock(input, stdin, "go.\n");
       }
 
@@ -123,16 +125,7 @@ void BatchProcessInteractive(BatchSpec_p spec,
 # 'include' statements. The system then tries to solve the specified\n\
 # problem (including the constant background theory) and prints the\n\
 # results of this attempt.\n";
-
-         if(port != -1)
-         {
-           TCPStringSendX(sock_fd, message);
-         }
-         else
-         {
-           fprintf(fp, "%s", message);
-           fflush(fp);
-         }
+        print_to_output_stream(message, fp, sock_fd);
       }
       else
       {
@@ -155,15 +148,7 @@ void BatchProcessInteractive(BatchSpec_p spec,
          sprintf(buffer, "\n# Processing started for %s\n", DStrView(jobname));
          message = buffer;
 
-         if(port != -1)
-         {
-           TCPStringSendX(sock_fd, message);
-         }
-         else
-         {
-           fprintf(fp, "%s", message);
-           fflush(fp);
-         }
+         print_to_output_stream(message, fp, sock_fd);
 
 
          cset = ClauseSetAlloc();
@@ -174,52 +159,41 @@ void BatchProcessInteractive(BatchSpec_p spec,
 
          // cset and fset are handed over to BatchProcessProblem and are
          // freed there (via StructFOFSpecBacktrackToSpec()).
-         if(port != -1)
-         {
-           (void)BatchProcessProblem(spec, 
-                                     wct_limit,
-                                     ctrl,
-                                     DStrView(jobname),
-                                     cset,
-                                     fset,
-                                     NULL,
-                                     sock_fd);
-         }
-         else
-         {
-           (void)BatchProcessProblem(spec, 
-                                     wct_limit,
-                                     ctrl,
-                                     DStrView(jobname),
-                                     cset,
-                                     fset,
-                                     fp,
-                                     -1);
-         }
+         (void)BatchProcessProblem(spec, 
+                                   wct_limit,
+                                   ctrl,
+                                   DStrView(jobname),
+                                   cset,
+                                   fset,
+                                   fp,
+                                   sock_fd);
          sprintf(buffer, "\n# Processing finished for %s\n\n", DStrView(jobname));
          message = buffer;
-
-         if(port != -1)
-         {
-           TCPStringSendX(sock_fd, message);
-         }
-         else
-         {
-           fprintf(fp, "%s", message);
-           fflush(fp);
-         }
+         print_to_output_stream(message, fp, sock_fd);
       }
       DestroyScanner(in);
    }
    DStrFree(jobname);
    DStrFree(input);
-   if( port != -1 )
+   if( sock_fd != -1 )
    {
      shutdown(sock_fd,SHUT_RDWR);
      shutdown(oldsock,SHUT_RDWR);
      close(sock_fd);
      close(oldsock);
    }
+}
+
+void print_to_output_stream(char* message, FILE* fp, int sock_fd){
+  if(sock_fd != -1)
+  {
+    TCPStringSendX(sock_fd, message);
+  }
+  else
+  {
+    fprintf(fp, "%s", message);
+    fflush(fp);
+  }
 }
 
 
