@@ -45,11 +45,13 @@ char* help_message = "\
 #define LIST_COMMAND "LIST"
 #define HELP_COMMAND "HELP"
 #define QUIT_COMMAND "QUIT"
-#define END_OF_BLOCK_TOCKEN "GO"
+#define END_OF_BLOCK_TOKEN "GO\n"
 
 // Defining Success messages
+#define OK_SUCCESS_MESSAGE "XXX ok\n"
 
 // Defining Failure messages
+#define ERR_ERROR_MESSAGE "XXX Err\n"
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -93,7 +95,8 @@ void BatchProcessInteractive(BatchSpec_p spec,
    int oldsock,sock_fd;
 
    char* message;
-   char* input_command;
+   char* dummy;
+   DStr_p input_command = DStrAlloc();
    char buffer[256];
 
    if(spec->per_prob_limit)
@@ -121,19 +124,21 @@ void BatchProcessInteractive(BatchSpec_p spec,
    while(!done)
    {
       DStrReset(input);
-      message = "# Enter job, 'help' or 'quit', followed by 'go.' on a line of its own:\n";
-      print_to_outstream(message, fp, sock_fd);
-
-
-      // TODO : Refactor this to read one command at a time
-      if(sock_fd != -1)
+      DStrReset(input_command);
+      /*message = "";*/
+      /*print_to_outstream(message, fp, sock_fd);*/
+      if( sock_fd != -1)
       {
-        TCPReadTextBlock(input, sock_fd, "go.\n");
+        dummy = TCPStringRecvX(sock_fd);
+        DStrAppendBuffer(input, dummy, strlen(dummy));
       }
       else
       {
-        ReadTextBlock(input, stdin, "go.\n");
+        print_to_outstream("Not implemented yet for stdout", fp, sock_fd);
+        break;
       }
+
+      // TODO : Refactor this to read one command at a time
       // END TODO
 
       in = CreateScanner(StreamTypeUserString, 
@@ -144,35 +149,117 @@ void BatchProcessInteractive(BatchSpec_p spec,
 
       if(TestInpId(in, STAGE_COMMAND))
       {
+        AcceptInpId(in, STAGE_COMMAND);
+        dummy = "Should stage : ";
+        DStrAppendBuffer(input_command, dummy, strlen(dummy));
+        DStrAppendDStr(input_command, AktToken(in)->literal);
+        dummy = "\n";
+        DStrAppendBuffer(input_command, dummy, strlen(dummy));
+        print_to_outstream(DStrView(input_command), fp, sock_fd);
+        AcceptInpTok(in, Identifier);
+        print_to_outstream(OK_SUCCESS_MESSAGE, fp, sock_fd);
       }
       else if(TestInpId(in, UNSTAGE_COMMAND))
       {
+        AcceptInpId(in, UNSTAGE_COMMAND);
+        dummy = "Should unstage : ";
+        DStrAppendBuffer(input_command, dummy, strlen(dummy));
+        DStrAppendDStr(input_command, AktToken(in)->literal);
+        dummy = "\n";
+        DStrAppendBuffer(input_command, dummy, strlen(dummy));
+        print_to_outstream(DStrView(input_command), fp, sock_fd);
+        AcceptInpTok(in, Identifier);
+        print_to_outstream(OK_SUCCESS_MESSAGE, fp, sock_fd);
       }
       else if(TestInpId(in, REMOVE_COMMAND))
       {
+        AcceptInpId(in, REMOVE_COMMAND);
+        dummy = "Should remove : ";
+        DStrAppendBuffer(input_command, dummy, strlen(dummy));
+        DStrAppendDStr(input_command, AktToken(in)->literal);
+        dummy = "\n";
+        DStrAppendBuffer(input_command, dummy, strlen(dummy));
+        print_to_outstream(DStrView(input_command), fp, sock_fd);
+        AcceptInpTok(in, Identifier);
+        print_to_outstream(OK_SUCCESS_MESSAGE, fp, sock_fd);
       }
       else if(TestInpId(in, DOWNLOAD_COMMAND))
       {
+        AcceptInpId(in, DOWNLOAD_COMMAND);
+        dummy = "Should download : ";
+        DStrAppendBuffer(input_command, dummy, strlen(dummy));
+        DStrAppendDStr(input_command, AktToken(in)->literal);
+        dummy = "\n";
+        DStrAppendBuffer(input_command, dummy, strlen(dummy));
+        print_to_outstream(DStrView(input_command), fp, sock_fd);
+        AcceptInpTok(in, Identifier);
+        print_to_outstream(OK_SUCCESS_MESSAGE, fp, sock_fd);
       }
       else if(TestInpId(in, ADD_COMMAND))
       {
+        AcceptInpId(in, ADD_COMMAND);
+        dummy = "Should add axiom set : ";
+        DStrAppendBuffer(input_command, dummy, strlen(dummy));
+        DStrAppendDStr(input_command, AktToken(in)->literal);
+        dummy = "\n";
+        DStrAppendBuffer(input_command, dummy, strlen(dummy));
+        AcceptInpTok(in, Identifier);
+        DStrReset(input);
+        if(sock_fd != -1)
+        {
+          TCPReadTextBlock(input, sock_fd, END_OF_BLOCK_TOKEN);
+        }
+        else
+        {
+          ReadTextBlock(input, stdin, END_OF_BLOCK_TOKEN);
+        }
+        print_to_outstream(DStrView(input_command), fp, sock_fd);
+        print_to_outstream(OK_SUCCESS_MESSAGE, fp, sock_fd);
       }
       else if(TestInpId(in, RUN_COMMAND))
       {
+        AcceptInpId(in, RUN_COMMAND);
+        dummy = "Should running job : ";
+        DStrAppendBuffer(input_command, dummy, strlen(dummy));
+        DStrAppendDStr(input_command, AktToken(in)->literal);
+        dummy = "\n";
+        DStrAppendBuffer(input_command, dummy, strlen(dummy));
+        AcceptInpTok(in, Identifier);
+        DStrReset(input);
+        if(sock_fd != -1)
+        {
+          TCPReadTextBlock(input, sock_fd, END_OF_BLOCK_TOKEN);
+        }
+        else
+        {
+          ReadTextBlock(input, stdin, END_OF_BLOCK_TOKEN);
+        }
+        print_to_outstream(DStrView(input_command), fp, sock_fd);
+        print_to_outstream(OK_SUCCESS_MESSAGE, fp, sock_fd);
       }
       else if(TestInpId(in, LIST_COMMAND))
       {
+        AcceptInpId(in, LIST_COMMAND);
+        dummy = "Should list axiom set status\n";
+        DStrAppendBuffer(input_command, dummy, strlen(dummy));
+        print_to_outstream(DStrView(input_command), fp, sock_fd);
+        print_to_outstream(OK_SUCCESS_MESSAGE, fp, sock_fd);
       }
       else if(TestInpId(in, HELP_COMMAND))
       {
+        AcceptInpId(in, HELP_COMMAND);
         print_to_outstream(help_message, fp, sock_fd);
+        print_to_outstream(OK_SUCCESS_MESSAGE, fp, sock_fd);
       }
       else if(TestInpId(in, QUIT_COMMAND))
       {
-         done = true;
+        AcceptInpId(in, QUIT_COMMAND);
+        done = true;
       }
       else
       {
+        print_to_outstream(ERR_ERROR_MESSAGE, fp, sock_fd);
+        /*
          DStrReset(jobname);
          if(TestInpId(in, "job"))
          {
@@ -214,11 +301,13 @@ void BatchProcessInteractive(BatchSpec_p spec,
          sprintf(buffer, "\n# Processing finished for %s\n\n", DStrView(jobname));
          message = buffer;
          print_to_outstream(message, fp, sock_fd);
+         */
       }
       DestroyScanner(in);
    }
    DStrFree(jobname);
    DStrFree(input);
+   DStrFree(input_command);
    if( sock_fd != -1 )
    {
      shutdown(sock_fd,SHUT_RDWR);
