@@ -112,13 +112,6 @@ bool BatchProcessProblems(BatchSpec_p spec,
                           StructFOFSpec_p ctrl, 
                           long total_wtc_limit);
 
-void BatchProcessInteractive(BatchSpec_p spec, 
-                             StructFOFSpec_p ctrl, 
-                             FILE* fp,
-                             int port);
-
-
-
 #endif
 
 /*---------------------------------------------------------------------*/

@@ -31,6 +31,7 @@ Changes
 #include <cco_batch_spec.h>
 #include <ccl_sine.h>
 #include <e_version.h>
+#include <cco_einteractive_mode.h>
 
 
 /*---------------------------------------------------------------------*/
