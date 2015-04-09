@@ -65,6 +65,60 @@ void print_to_outstream(char* message, FILE* fp, int sock_fd);
 /*---------------------------------------------------------------------*/
 
 
+void run_command(InteractiveSpec_p interactive,
+                 DStr_p jobname,
+                  DStr_p input_axioms)
+{
+
+  Scanner_p job_scanner;
+  ClauseSet_p cset;
+  FormulaSet_p fset;
+  char* message;
+  char buffer[256];
+  long         wct_limit=30;
+
+  if(interactive->spec->per_prob_limit)
+  {
+    wct_limit = interactive->spec->per_prob_limit;
+  }
+
+
+  fprintf(stdout, "%s", DStrView(jobname));
+  fflush(stdout);
+
+  sprintf(buffer, "\n# Processing started for %s\n", DStrView(jobname));
+  message = buffer;
+
+  print_to_outstream(message, interactive->fp, interactive->sock_fd);
+
+  job_scanner = CreateScanner(StreamTypeUserString, 
+      DStrView(input_axioms),
+      true, 
+      NULL);
+  ScannerSetFormat(job_scanner, TSTPFormat);
+  cset = ClauseSetAlloc();
+  fset = FormulaSetAlloc();
+  FormulaAndClauseSetParse(job_scanner, cset, fset, interactive->ctrl->terms, 
+      NULL, 
+      &(interactive->ctrl->parsed_includes));
+
+  // cset and fset are handed over to BatchProcessProblem and are
+  // freed there (via StructFOFSpecBacktrackToSpec()).
+  (void)BatchProcessProblem(interactive->spec, 
+      wct_limit,
+      interactive->ctrl,
+      DStrView(jobname),
+      cset,
+      fset,
+      interactive->fp,
+      interactive->sock_fd);
+  sprintf(buffer, "\n# Processing finished for %s\n\n", DStrView(jobname));
+  message = buffer;
+  print_to_outstream(message, interactive->fp, interactive->sock_fd);
+
+  DestroyScanner(job_scanner);
+
+}
 
 
 
@@ -140,24 +194,14 @@ void BatchProcessInteractive(BatchSpec_p spec,
 {
    DStr_p input   = DStrAlloc();
    DStr_p jobname = DStrAlloc();
+   InteractiveSpec_p interactive;
    bool done = false;
    Scanner_p in;
-   ClauseSet_p cset;
-   FormulaSet_p fset;
-   long         wct_limit=30;
 
    int oldsock,sock_fd;
 
-   char* message;
    char* dummy;
    DStr_p input_command = DStrAlloc();
-   char buffer[256];
-
-   if(spec->per_prob_limit)
-   {
-      wct_limit = spec->per_prob_limit;
-   }
-
 
    if(port != -1)
    {
@@ -173,7 +217,10 @@ void BatchProcessInteractive(BatchSpec_p spec,
      fp = NULL;
    }else{
       sock_fd = -1;
+      oldsock = -1;
    }
+
+  interactive = InteractiveSpecAlloc(spec, ctrl, fp, sock_fd);
 
    while(!done)
    {
@@ -273,11 +320,8 @@ void BatchProcessInteractive(BatchSpec_p spec,
       else if(TestInpId(in, RUN_COMMAND))
       {
         AcceptInpId(in, RUN_COMMAND);
-        dummy = "Should running job : ";
-        DStrAppendBuffer(input_command, dummy, strlen(dummy));
-        DStrAppendDStr(input_command, AktToken(in)->literal);
-        dummy = "\n";
-        DStrAppendBuffer(input_command, dummy, strlen(dummy));
+        DStrReset(jobname);
+        DStrAppendDStr(jobname, AktToken(in)->literal);
         AcceptInpTok(in, Identifier);
         DStrReset(input);
         if(sock_fd != -1)
@@ -288,7 +332,9 @@ void BatchProcessInteractive(BatchSpec_p spec,
         {
           ReadTextBlock(input, stdin, END_OF_BLOCK_TOKEN);
         }
-        print_to_outstream(DStrView(input_command), fp, sock_fd);
+
+        run_command(interactive, jobname, input);
+
         print_to_outstream(OK_SUCCESS_MESSAGE, fp, sock_fd);
       }
       else if(TestInpId(in, LIST_COMMAND))
@@ -313,49 +359,6 @@ void BatchProcessInteractive(BatchSpec_p spec,
       else
       {
         print_to_outstream(ERR_ERROR_MESSAGE, fp, sock_fd);
-        /*
-         DStrReset(jobname);
-         if(TestInpId(in, "job"))
-         {
-            AcceptInpId(in, "job");
-            DStrAppendDStr(jobname, AktToken(in)->literal);
-            AcceptInpTok(in, Identifier);
-            AcceptInpTok(in, Fullstop);
-         }
-         else
-         {
-            DStrAppendStr(jobname, "unnamed_job");            
-         }
-
-         fprintf(stdout, "%s", DStrView(jobname));
-         fflush(stdout);
-
-         sprintf(buffer, "\n# Processing started for %s\n", DStrView(jobname));
-         message = buffer;
-
-         print_to_outstream(message, fp, sock_fd);
-
-
-         cset = ClauseSetAlloc();
-         fset = FormulaSetAlloc();
-         FormulaAndClauseSetParse(in, cset, fset, ctrl->terms, 
-                                  NULL, 
-                                  &(ctrl->parsed_includes));
-
-         // cset and fset are handed over to BatchProcessProblem and are
-         // freed there (via StructFOFSpecBacktrackToSpec()).
-         (void)BatchProcessProblem(spec, 
-                                   wct_limit,
-                                   ctrl,
-                                   DStrView(jobname),
-                                   cset,
-                                   fset,
-                                   fp,
-                                   sock_fd);
-         sprintf(buffer, "\n# Processing finished for %s\n\n", DStrView(jobname));
-         message = buffer;
-         print_to_outstream(message, fp, sock_fd);
-         */
       }
       DestroyScanner(in);
    }
