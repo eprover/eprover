@@ -365,6 +365,7 @@ void BatchProcessInteractive(BatchSpec_p spec,
    DStrFree(jobname);
    DStrFree(input);
    DStrFree(input_command);
+   InteractiveSpecFree(interactive);
    if( sock_fd != -1 )
    {
      shutdown(sock_fd,SHUT_RDWR);

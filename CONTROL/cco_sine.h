@@ -50,9 +50,6 @@ typedef struct strtuctured_FOF_spec_cell
 }StructFOFSpecCell, *StructFOFSpec_p;
 
 
-
-
-
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
