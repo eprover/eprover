@@ -53,7 +53,8 @@ InteractiveSpec_p InteractiveSpecAlloc(BatchSpec_p spec,
                                        StructFOFSpec_p ctrl,
                                        FILE* fp,
                                        int sock_fd);
-void        InteractiveSpecFree(InteractiveSpec_p spec);
+
+void InteractiveSpecFree(InteractiveSpec_p spec);
 
 void BatchProcessInteractive(BatchSpec_p spec, 
                              StructFOFSpec_p ctrl, 
