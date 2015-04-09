@@ -66,6 +66,60 @@ void print_to_outstream(char* message, FILE* fp, int sock_fd);
 
 
 
+
+
+
+/*---------------------------------------------------------------------*/
+/*                         Exported Functions                          */
+/*---------------------------------------------------------------------*/
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: InteractiveSpecAlloc()
+//
+//   Allocate an initialized interactive spec structure.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+InteractiveSpec_p InteractiveSpecAlloc(BatchSpec_p spec,
+                                       StructFOFSpec_p ctrl,
+                                       FILE* fp,
+                                       int sock_fd)
+{
+   InteractiveSpec_p handle = InteractiveSpecCellAlloc();
+   handle->spec = spec;
+   handle->ctrl = ctrl;
+   handle->fp = fp;
+   handle->sock_fd = sock_fd;
+   return handle;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: InteractiveSpecFree()
+//
+//   Free an interactive spec structure. The BatchSpec struct and StructFOFSpec are not freed.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory management
+//
+/----------------------------------------------------------------------*/
+
+void InteractiveSpecFree(InteractiveSpec_p spec)
+{
+   InteractiveSpecCellFree(spec);
+}
+
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: BatchProcessInteractive()

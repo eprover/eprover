@@ -33,11 +33,27 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
+typedef struct interactive_spec_cell
+{
+  BatchSpec_p spec;
+  StructFOFSpec_p ctrl;
+  FILE* fp;
+  int sock_fd;
+} InteractiveSpecCell, *InteractiveSpec_p;
 
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
+
+#define InteractiveSpecCellAlloc()    (InteractiveSpecCell*)SizeMalloc(sizeof(InteractiveSpecCell))
+#define InteractiveSpecCellFree(junk) SizeFree(junk, sizeof(InteractiveSpecCell))
+
+InteractiveSpec_p InteractiveSpecAlloc(BatchSpec_p spec,
+                                       StructFOFSpec_p ctrl,
+                                       FILE* fp,
+                                       int sock_fd);
+void        InteractiveSpecFree(InteractiveSpec_p spec);
 
 void BatchProcessInteractive(BatchSpec_p spec, 
                              StructFOFSpec_p ctrl, 
