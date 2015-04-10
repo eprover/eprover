@@ -33,12 +33,20 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
+typedef struct axiom_set_cell
+{
+  ClauseSet_p cset;
+  FormulaSet_p fset;
+  int staged;
+} AxiomSetCell, *AxiomSet_p;
+
 typedef struct interactive_spec_cell
 {
   BatchSpec_p spec;
   StructFOFSpec_p ctrl;
   FILE* fp;
   int sock_fd;
+  PStack_p axiom_sets;
 } InteractiveSpecCell, *InteractiveSpec_p;
 
 
@@ -55,6 +63,16 @@ InteractiveSpec_p InteractiveSpecAlloc(BatchSpec_p spec,
                                        int sock_fd);
 
 void InteractiveSpecFree(InteractiveSpec_p spec);
+
+
+#define AxiomSetCellAlloc()    (AxiomSetCell*)SizeMalloc(sizeof(AxiomSetCell))
+#define AxiomSetCellFree(junk) SizeFree(junk, sizeof(AxiomSetCell))
+
+AxiomSet_p AxiomSetAlloc(ClauseSet_p cset,
+                         FormulaSet_p fset,
+                         int staged);
+
+void AxiomSetFree(AxiomSet_p axiomset);
 
 void BatchProcessInteractive(BatchSpec_p spec, 
                              StructFOFSpec_p ctrl, 

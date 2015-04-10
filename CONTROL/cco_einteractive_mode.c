@@ -151,6 +151,7 @@ InteractiveSpec_p InteractiveSpecAlloc(BatchSpec_p spec,
    handle->ctrl = ctrl;
    handle->fp = fp;
    handle->sock_fd = sock_fd;
+   handle->axiom_sets = PStackAlloc();
    return handle;
 }
 
@@ -169,9 +170,61 @@ InteractiveSpec_p InteractiveSpecAlloc(BatchSpec_p spec,
 
 void InteractiveSpecFree(InteractiveSpec_p spec)
 {
-   InteractiveSpecCellFree(spec);
+  PStackPointer i;
+  AxiomSet_p   handle;
+
+  for(i=0; i<PStackGetSP(spec->axiom_sets); i++)
+  {
+    handle = PStackElementP(spec->axiom_sets, i);
+    AxiomSetFree(handle);
+  }
+  PStackFree(spec->axiom_sets);
+  InteractiveSpecCellFree(spec);
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: AxiomSetAlloc()
+//
+//   Allocate an initialized axiom set structure.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+AxiomSet_p AxiomSetAlloc(ClauseSet_p cset,
+                         FormulaSet_p fset,
+                         int staged)
+{
+   AxiomSet_p handle = AxiomSetCellAlloc();
+   handle->cset = cset;
+   handle->fset = fset;
+   handle->staged = 0;
+   return handle;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: AxiomSetFree()
+//
+//   Free an interactive spec structure. The BatchSpec struct and StructFOFSpec are not freed.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory management
+//
+/----------------------------------------------------------------------*/
+
+void AxiomSetFree(AxiomSet_p axiomset)
+{
+  ClauseSetFree(axiomset->cset);
+  FormulaSetFree(axiomset->fset);
+  AxiomSetCellFree(axiomset);
+}
 
 
 /*-----------------------------------------------------------------------
@@ -238,9 +291,6 @@ void BatchProcessInteractive(BatchSpec_p spec,
         print_to_outstream("Not implemented yet for stdout", fp, sock_fd);
         break;
       }
-
-      // TODO : Refactor this to read one command at a time
-      // END TODO
 
       in = CreateScanner(StreamTypeUserString, 
                          DStrView(input),

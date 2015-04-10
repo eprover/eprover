@@ -55,6 +55,7 @@ typedef struct clausesetcell
    FVIAnchor_p fvindex; /* Used for non-unit subsumption */
    PDArray_p eval_indices;
    long      eval_no;
+   DStr_p     identifier;
 }ClauseSetCell, *ClauseSet_p;
 
 

@@ -66,6 +66,7 @@ FormulaSet_p FormulaSetAlloc()
    set->anchor  = WFormulaCellAlloc();
    set->anchor->succ = set->anchor;
    set->anchor->pred = set->anchor;
+   set->identifier = DStrAlloc();
    
    return set;
 }
@@ -110,6 +111,7 @@ void FormulaSetFree(FormulaSet_p set)
 
    FormulaSetFreeFormulas(set);   
    WFormulaCellFree(set->anchor);
+   DStrFree(set->identifier);
    FormulaSetCellFree(set);
 }
 

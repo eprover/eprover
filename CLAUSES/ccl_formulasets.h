@@ -36,6 +36,7 @@ typedef struct formula_set_cell
 {
    WFormula_p anchor;
    long       members;
+   DStr_p     identifier;
 }FormulaSetCell, *FormulaSet_p;
 
 
