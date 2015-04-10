@@ -130,6 +130,8 @@ char* add_command(InteractiveSpec_p interactive,
   ClauseSet_p cset;
   FormulaSet_p fset;
   AxiomSet_p axiom_set;
+  PStackPointer i;
+  AxiomSet_p    handle;
 
   axioms_scanner = CreateScanner(StreamTypeUserString, 
       DStrView(input_axioms),
@@ -141,14 +143,35 @@ char* add_command(InteractiveSpec_p interactive,
   FormulaAndClauseSetParse(axioms_scanner, cset, fset, interactive->ctrl->terms, 
       NULL, 
       &(interactive->ctrl->parsed_includes));
+  DestroyScanner(axioms_scanner);
   DStrAppendDStr(cset->identifier, axiomsname);
   DStrAppendDStr(fset->identifier, axiomsname);
 
   axiom_set = AxiomSetAlloc(cset, fset, 0);
-  PStackPushP(interactive->axiom_sets, axiom_set);
 
+  int name_taken = 0;
+  for(i=0; i<PStackGetSP(interactive->axiom_sets); i++)
+  {
+    handle = PStackElementP(interactive->axiom_sets, i);
+    if(strcmp( DStrView(axiomsname), DStrView(handle->cset->identifier)) == 0 )
+    {
+      name_taken = 1;
+      break;
+    }
+  }
   DestroyScanner(axioms_scanner);
-  return OK_SUCCESS_MESSAGE;
+  if(!name_taken)
+  {
+    PStackPushP(interactive->axiom_sets, axiom_set);
+    return OK_SUCCESS_MESSAGE;
+  }
+  else
+  {
+    AxiomSetFree(axiom_set);
+    ClauseSetFree(cset);
+    FormulaSetFree(fset);
+    return ERR_ERROR_MESSAGE;
+  }
 }
 
 char* stage_command(InteractiveSpec_p interactive, DStr_p axiom_set)
