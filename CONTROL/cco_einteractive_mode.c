@@ -203,6 +203,58 @@ char* stage_command(InteractiveSpec_p interactive, DStr_p axiom_set)
 }
 
 
+char* list_command(InteractiveSpec_p interactive)
+{
+  PStackPointer i;
+  AxiomSet_p    handle;
+  PStack_p staged, unstaged;
+  char buffer[256];
+
+  staged = PStackAlloc();
+  unstaged = PStackAlloc();
+
+  for(i=0; i<PStackGetSP(interactive->axiom_sets); i++)
+  {
+    handle = PStackElementP(interactive->axiom_sets, i);
+    if(handle->staged)
+    {
+      PStackPushP(staged, handle);
+    }
+    else
+    {
+      PStackPushP(unstaged, handle);
+    }
+  }
+  
+  if( PStackGetSP(staged) > 0 )
+  {
+    print_to_outstream("Staged :\n", interactive->fp, interactive->sock_fd);
+    for(i=0; i<PStackGetSP(staged); i++){
+      handle = PStackElementP(interactive->axiom_sets, i);
+      sprintf(buffer, "  %s\n", DStrView(handle->cset->identifier));
+      print_to_outstream(buffer, interactive->fp, interactive->sock_fd);
+    }
+  }
+
+  if( PStackGetSP(unstaged) > 0 )
+  {
+    print_to_outstream("Unstaged :\n", interactive->fp, interactive->sock_fd);
+    for(i=0; i<PStackGetSP(unstaged); i++){
+      handle = PStackElementP(interactive->axiom_sets, i);
+      sprintf(buffer, "  %s\n", DStrView(handle->cset->identifier));
+      print_to_outstream(buffer, interactive->fp, interactive->sock_fd);
+    }
+  }
+
+  if( PStackGetSP(staged) == 0 && PStackGetSP(unstaged) == 0 )
+  {
+    print_to_outstream("No Axiom Sets currently in memory.\n", interactive->fp, interactive->sock_fd);
+  }
+
+  return OK_SUCCESS_MESSAGE;
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
@@ -460,10 +512,7 @@ void BatchProcessInteractive(BatchSpec_p spec,
       else if(TestInpId(in, LIST_COMMAND))
       {
         AcceptInpId(in, LIST_COMMAND);
-        dummy = "Should list axiom set status\n";
-        DStrAppendBuffer(input_command, dummy, strlen(dummy));
-        print_to_outstream(DStrView(input_command), fp, sock_fd);
-        print_to_outstream(OK_SUCCESS_MESSAGE, fp, sock_fd);
+        print_to_outstream(list_command(interactive), fp, sock_fd);
       }
       else if(TestInpId(in, HELP_COMMAND))
       {
