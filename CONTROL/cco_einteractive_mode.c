@@ -151,6 +151,35 @@ char* add_command(InteractiveSpec_p interactive,
   return OK_SUCCESS_MESSAGE;
 }
 
+char* stage_command(InteractiveSpec_p interactive, DStr_p axiom_set)
+{
+  PStackPointer i;
+  AxiomSet_p    handle;
+
+  for(i=0; i<PStackGetSP(interactive->axiom_sets); i++)
+  {
+    handle = PStackElementP(interactive->axiom_sets, i);
+    if(strcmp( DStrView(axiom_set), DStrView(handle->cset->identifier)) == 0 )
+    {
+      if( handle->staged )
+      {
+        return ERR_ERROR_MESSAGE;
+      }
+      else
+      {
+        PStackPushP(interactive->axiom_sets, axiom_set);
+        PStackPushP(interactive->ctrl->clause_sets, handle->cset);
+        PStackPushP(interactive->ctrl->formula_sets, handle->fset);
+        StructFOFSpecAddProblem(interactive->ctrl, handle->cset, handle->fset);
+        handle->staged = 1;
+        interactive->ctrl->shared_ax_sp = PStackGetSP(interactive->ctrl->clause_sets);
+        return OK_SUCCESS_MESSAGE;
+      }
+    }
+  }
+  return ERR_ERROR_MESSAGE;
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -330,14 +359,10 @@ void BatchProcessInteractive(BatchSpec_p spec,
       if(TestInpId(in, STAGE_COMMAND))
       {
         AcceptInpId(in, STAGE_COMMAND);
-        dummy = "Should stage : ";
-        DStrAppendBuffer(input_command, dummy, strlen(dummy));
-        DStrAppendDStr(input_command, AktToken(in)->literal);
-        dummy = "\n";
-        DStrAppendBuffer(input_command, dummy, strlen(dummy));
-        print_to_outstream(DStrView(input_command), fp, sock_fd);
+        DStrReset(dummyStr);
+        DStrAppendDStr(dummyStr, AktToken(in)->literal);
         AcceptInpTok(in, Identifier);
-        print_to_outstream(OK_SUCCESS_MESSAGE, fp, sock_fd);
+        print_to_outstream(stage_command(interactive, dummyStr), fp, sock_fd);
       }
       else if(TestInpId(in, UNSTAGE_COMMAND))
       {
@@ -396,8 +421,8 @@ void BatchProcessInteractive(BatchSpec_p spec,
       else if(TestInpId(in, RUN_COMMAND))
       {
         AcceptInpId(in, RUN_COMMAND);
-        DStrReset(jobname);
-        DStrAppendDStr(jobname, AktToken(in)->literal);
+        DStrReset(dummyStr);
+        DStrAppendDStr(dummyStr, AktToken(in)->literal);
         AcceptInpTok(in, Identifier);
         DStrReset(input);
         if(sock_fd != -1)
@@ -409,7 +434,7 @@ void BatchProcessInteractive(BatchSpec_p spec,
           ReadTextBlock(input, stdin, END_OF_BLOCK_TOKEN);
         }
 
-        run_command(interactive, jobname, input);
+        run_command(interactive, dummyStr, input);
 
         print_to_outstream(OK_SUCCESS_MESSAGE, fp, sock_fd);
       }
