@@ -65,7 +65,7 @@ void print_to_outstream(char* message, FILE* fp, int sock_fd);
 /*---------------------------------------------------------------------*/
 
 
-void run_command(InteractiveSpec_p interactive,
+char* run_command(InteractiveSpec_p interactive,
                  DStr_p jobname,
                   DStr_p input_axioms)
 {
@@ -117,7 +117,7 @@ void run_command(InteractiveSpec_p interactive,
   print_to_outstream(message, interactive->fp, interactive->sock_fd);
 
   DestroyScanner(job_scanner);
-
+  return OK_SUCCESS_MESSAGE;
 }
 
 
@@ -432,10 +432,7 @@ void BatchProcessInteractive(BatchSpec_p spec,
         {
           ReadTextBlock(input, stdin, END_OF_BLOCK_TOKEN);
         }
-
-        run_command(interactive, dummyStr, input);
-
-        print_to_outstream(OK_SUCCESS_MESSAGE, fp, sock_fd);
+        print_to_outstream(run_command(interactive, dummyStr, input), fp, sock_fd);
       }
       else if(TestInpId(in, LIST_COMMAND))
       {
