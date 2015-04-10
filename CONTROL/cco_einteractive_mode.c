@@ -121,6 +121,35 @@ void run_command(InteractiveSpec_p interactive,
 }
 
 
+char* add_command(InteractiveSpec_p interactive,
+                 DStr_p axiomsname,
+                  DStr_p input_axioms)
+{
+
+  Scanner_p axioms_scanner;
+  ClauseSet_p cset;
+  FormulaSet_p fset;
+  AxiomSet_p axiom_set;
+
+  axioms_scanner = CreateScanner(StreamTypeUserString, 
+      DStrView(input_axioms),
+      true, 
+      NULL);
+  ScannerSetFormat(axioms_scanner, TSTPFormat);
+  cset = ClauseSetAlloc();
+  fset = FormulaSetAlloc();
+  FormulaAndClauseSetParse(axioms_scanner, cset, fset, interactive->ctrl->terms, 
+      NULL, 
+      &(interactive->ctrl->parsed_includes));
+  DStrAppendDStr(cset->identifier, axiomsname);
+  DStrAppendDStr(fset->identifier, axiomsname);
+
+  axiom_set = AxiomSetAlloc(cset, fset, 0);
+  PStackPushP(interactive->axiom_sets, axiom_set);
+
+  DestroyScanner(axioms_scanner);
+  return OK_SUCCESS_MESSAGE;
+}
 
 
 /*---------------------------------------------------------------------*/
@@ -246,7 +275,7 @@ void BatchProcessInteractive(BatchSpec_p spec,
                              int port)
 {
    DStr_p input   = DStrAlloc();
-   DStr_p jobname = DStrAlloc();
+   DStr_p dummyStr = DStrAlloc();
    InteractiveSpec_p interactive;
    bool done = false;
    Scanner_p in;
@@ -349,11 +378,8 @@ void BatchProcessInteractive(BatchSpec_p spec,
       else if(TestInpId(in, ADD_COMMAND))
       {
         AcceptInpId(in, ADD_COMMAND);
-        dummy = "Should add axiom set : ";
-        DStrAppendBuffer(input_command, dummy, strlen(dummy));
-        DStrAppendDStr(input_command, AktToken(in)->literal);
-        dummy = "\n";
-        DStrAppendBuffer(input_command, dummy, strlen(dummy));
+        DStrReset(dummyStr);
+        DStrAppendDStr(dummyStr, AktToken(in)->literal);
         AcceptInpTok(in, Identifier);
         DStrReset(input);
         if(sock_fd != -1)
@@ -364,8 +390,8 @@ void BatchProcessInteractive(BatchSpec_p spec,
         {
           ReadTextBlock(input, stdin, END_OF_BLOCK_TOKEN);
         }
-        print_to_outstream(DStrView(input_command), fp, sock_fd);
-        print_to_outstream(OK_SUCCESS_MESSAGE, fp, sock_fd);
+
+        print_to_outstream(add_command(interactive, dummyStr, input), fp, sock_fd);
       }
       else if(TestInpId(in, RUN_COMMAND))
       {
@@ -412,7 +438,7 @@ void BatchProcessInteractive(BatchSpec_p spec,
       }
       DestroyScanner(in);
    }
-   DStrFree(jobname);
+   DStrFree(dummyStr);
    DStrFree(input);
    DStrFree(input_command);
    InteractiveSpecFree(interactive);
