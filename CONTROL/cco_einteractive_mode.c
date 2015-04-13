@@ -253,6 +253,48 @@ char* list_command(InteractiveSpec_p interactive)
   return OK_SUCCESS_MESSAGE;
 }
 
+char* remove_commad(InteractiveSpec_p interactive, DStr_p axiom_set)
+{
+  PStackPointer i;
+  AxiomSet_p    handle;
+  PStack_p spare_stack;
+  spare_stack = PStackAlloc();
+  handle = NULL;
+
+  for(i=PStackGetSP(interactive->axiom_sets)-1; i>=0; i--)
+  {
+    handle = PStackElementP(interactive->axiom_sets, i);
+    if(strcmp( DStrView(axiom_set), DStrView(handle->cset->identifier)) == 0 )
+    {
+      if( handle->staged )
+      {
+        return ERR_ERROR_MESSAGE;
+      }
+      else
+      {
+        PStackDiscardTop(interactive->axiom_sets);
+        break;
+      }
+    }
+    else
+    {
+      PStackPushP(spare_stack, handle);
+    }
+  }
+  // Axiom Set Not Found
+  if( i == -1 )
+  {
+    return ERR_ERROR_MESSAGE;
+  }
+  AxiomSetFree(handle);
+  while(!PStackEmpty(spare_stack))
+  {
+    handle = PStackPopP(spare_stack);
+    PStackPushP(interactive->axiom_sets, handle);
+  }
+  return OK_SUCCESS_MESSAGE;
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -452,14 +494,10 @@ void BatchProcessInteractive(BatchSpec_p spec,
       else if(TestInpId(in, REMOVE_COMMAND))
       {
         AcceptInpId(in, REMOVE_COMMAND);
-        dummy = "Should remove : ";
-        DStrAppendBuffer(input_command, dummy, strlen(dummy));
-        DStrAppendDStr(input_command, AktToken(in)->literal);
-        dummy = "\n";
-        DStrAppendBuffer(input_command, dummy, strlen(dummy));
-        print_to_outstream(DStrView(input_command), fp, sock_fd);
+        DStrReset(dummyStr);
+        DStrAppendDStr(dummyStr, AktToken(in)->literal);
         AcceptInpTok(in, Identifier);
-        print_to_outstream(OK_SUCCESS_MESSAGE, fp, sock_fd);
+        print_to_outstream(remove_commad(interactive, dummyStr), fp, sock_fd);
       }
       else if(TestInpId(in, DOWNLOAD_COMMAND))
       {
