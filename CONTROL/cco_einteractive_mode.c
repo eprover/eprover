@@ -159,7 +159,6 @@ char* add_command(InteractiveSpec_p interactive,
       break;
     }
   }
-  DestroyScanner(axioms_scanner);
   if(!name_taken)
   {
     PStackPushP(interactive->axiom_sets, axiom_set);
