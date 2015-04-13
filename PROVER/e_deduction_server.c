@@ -162,11 +162,11 @@ int main(int argc, char* argv[])
    BatchStructFOFSpecInit(spec, ctrl);
    if(port != -1)
    {
-     BatchProcessInteractive(spec, ctrl, NULL, port);
+     StartDeductionServer(spec, ctrl, NULL, port);
    }
    else
    {
-     BatchProcessInteractive(spec, ctrl, stdout, -1);
+     StartDeductionServer(spec, ctrl, stdout, -1);
    }
    StructFOFSpecFree(ctrl);
    BatchSpecFree(spec);

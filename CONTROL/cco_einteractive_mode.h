@@ -79,10 +79,10 @@ AxiomSet_p AxiomSetAlloc(ClauseSet_p cset,
 
 void AxiomSetFree(AxiomSet_p axiomset);
 
-void BatchProcessInteractive(BatchSpec_p spec, 
-                             StructFOFSpec_p ctrl, 
-                             FILE* fp,
-                             int port);
+void StartDeductionServer(BatchSpec_p spec, 
+                          StructFOFSpec_p ctrl, 
+                          FILE* fp,
+                          int port);
 
 #endif
 

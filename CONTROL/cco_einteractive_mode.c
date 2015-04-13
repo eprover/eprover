@@ -527,10 +527,10 @@ void AxiomSetFree(AxiomSet_p axiom_set)
 //
 /----------------------------------------------------------------------*/
 
-void BatchProcessInteractive(BatchSpec_p spec, 
-                             StructFOFSpec_p ctrl, 
-                             FILE* fp, 
-                             int port)
+void StartDeductionServer(BatchSpec_p spec, 
+                          StructFOFSpec_p ctrl, 
+                          FILE* fp, 
+                          int port)
 {
    DStr_p input   = DStrAlloc();
    DStr_p dummyStr = DStrAlloc();
