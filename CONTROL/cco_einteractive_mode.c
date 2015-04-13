@@ -313,6 +313,82 @@ char* download_command(InteractiveSpec_p interactive, DStr_p axiom_set)
   return ERR_ERROR_MESSAGE;
 }
 
+char* unstage_command(InteractiveSpec_p interactive, DStr_p axiom_set)
+{
+  PStackPointer i;
+  AxiomSet_p    axiom_set_handle;
+  PStack_p cspare_stack, fspare_stack;
+  fspare_stack = PStackAlloc();
+  cspare_stack = PStackAlloc();
+  FormulaSet_p fhandle;
+  ClauseSet_p chandle;
+  int found = 0;
+
+  for(i=0; i < PStackGetSP(interactive->axiom_sets); i++)
+  {
+    axiom_set_handle = PStackElementP(interactive->axiom_sets, i);
+    if(strcmp( DStrView(axiom_set), DStrView(axiom_set_handle->cset->identifier)) == 0 )
+    {
+      if( !axiom_set_handle->staged )
+      {
+        return ERR_ERROR_MESSAGE;
+      }
+      else
+      {
+        axiom_set_handle->staged = 0;
+        found = 1;
+      }
+    }
+  }
+
+  if( !found )
+  {
+    return ERR_ERROR_MESSAGE;
+  }
+
+  assert( PStackGetSP(interactive->ctrl->clause_sets) == PStackGetSP(interactive->ctrl->formula_sets) );
+
+  for(i=PStackGetSP(interactive->ctrl->clause_sets)-1; i>=0; i--)
+  {
+    chandle = PStackElementP(interactive->ctrl->clause_sets, i);
+    fhandle = PStackElementP(interactive->ctrl->formula_sets, i);
+    assert( strcmp( DStrView(chandle->identifier), DStrView(fhandle->identifier)) == 0 );
+
+    if(strcmp( DStrView(axiom_set), DStrView(chandle->identifier)) == 0 )
+    {
+      GenDistribAddFormulaSet(interactive->ctrl->f_distrib, fhandle, -1);
+      GenDistribAddClauseSet(interactive->ctrl->f_distrib, chandle, -1);
+      PStackDiscardTop(interactive->ctrl->clause_sets);
+      PStackDiscardTop(interactive->ctrl->formula_sets);
+
+      break;
+    }
+    else
+    {
+      PStackPushP(cspare_stack, chandle);
+      PStackPushP(fspare_stack, fhandle);
+    }
+  }
+
+  // Axiom Set Not Found
+  if( i == -1 )
+  {
+    return ERR_ERROR_MESSAGE;
+  }
+
+  while(!PStackEmpty(fspare_stack))
+  {
+    fhandle = PStackPopP(fspare_stack);
+    chandle = PStackPopP(cspare_stack);
+    PStackPushP(interactive->ctrl->formula_sets, fhandle);
+    PStackPushP(interactive->ctrl->clause_sets, chandle);
+  }
+  interactive->ctrl->shared_ax_sp = PStackGetSP(interactive->ctrl->clause_sets);
+  PStackFree(fspare_stack);
+  PStackFree(cspare_stack);
+  return OK_SUCCESS_MESSAGE;
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -504,14 +580,10 @@ void BatchProcessInteractive(BatchSpec_p spec,
       else if(TestInpId(in, UNSTAGE_COMMAND))
       {
         AcceptInpId(in, UNSTAGE_COMMAND);
-        dummy = "Should unstage : ";
-        DStrAppendBuffer(input_command, dummy, strlen(dummy));
-        DStrAppendDStr(input_command, AktToken(in)->literal);
-        dummy = "\n";
-        DStrAppendBuffer(input_command, dummy, strlen(dummy));
-        print_to_outstream(DStrView(input_command), fp, sock_fd);
+        DStrReset(dummyStr);
+        DStrAppendDStr(dummyStr, AktToken(in)->literal);
         AcceptInpTok(in, Identifier);
-        print_to_outstream(OK_SUCCESS_MESSAGE, fp, sock_fd);
+        print_to_outstream(unstage_command(interactive, dummyStr), fp, sock_fd);
       }
       else if(TestInpId(in, REMOVE_COMMAND))
       {
