@@ -26,6 +26,9 @@ Changes
 #include <ccl_formulafunc.h>
 #include <cco_proc_ctrl.h>
 #include <cio_network.h>
+#include <clb_dstrings.h>
+#include <clb_pstacks.h>
+#include <cio_scanner.h>
 #include <cco_batch_spec.h>
 
 
