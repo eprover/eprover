@@ -350,11 +350,11 @@ AxiomSet_p AxiomSetAlloc(ClauseSet_p cset,
 //
 /----------------------------------------------------------------------*/
 
-void AxiomSetFree(AxiomSet_p axiomset)
+void AxiomSetFree(AxiomSet_p axiom_set)
 {
-  ClauseSetFree(axiomset->cset);
-  FormulaSetFree(axiomset->fset);
-  AxiomSetCellFree(axiomset);
+  ClauseSetFree(axiom_set->cset);
+  FormulaSetFree(axiom_set->fset);
+  AxiomSetCellFree(axiom_set);
 }
 
 
