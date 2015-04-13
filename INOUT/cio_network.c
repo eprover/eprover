@@ -70,10 +70,17 @@ int create_server_sock_nofail(int port)
    if(sock == -1)
    {
       return -1;
-   }   
+   }
+
    addr.sin_family = AF_INET;
    addr.sin_port = htons(port);
    addr.sin_addr.s_addr = INADDR_ANY;
+
+   int yes = 1;
+   if(setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
+   {
+     return -1;
+   }
 
    res = bind(sock, (struct sockaddr *)&addr, sizeof(addr));
 
