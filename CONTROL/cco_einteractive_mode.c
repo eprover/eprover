@@ -147,7 +147,7 @@ char* add_command(InteractiveSpec_p interactive,
   DStrAppendDStr(cset->identifier, axiomsname);
   DStrAppendDStr(fset->identifier, axiomsname);
 
-  axiom_set = AxiomSetAlloc(cset, fset, 0);
+  axiom_set = AxiomSetAlloc(cset, fset, input_axioms, 0);
 
   int name_taken = 0;
   for(i=0; i<PStackGetSP(interactive->axiom_sets); i++)
@@ -295,6 +295,25 @@ char* remove_commad(InteractiveSpec_p interactive, DStr_p axiom_set)
   return OK_SUCCESS_MESSAGE;
 }
 
+char* download_command(InteractiveSpec_p interactive, DStr_p axiom_set)
+{
+  PStackPointer i;
+  AxiomSet_p    handle;
+
+  for(i=0; i < PStackGetSP(interactive->axiom_sets); i++)
+  {
+    handle = PStackElementP(interactive->axiom_sets, i);
+    if(strcmp( DStrView(axiom_set), DStrView(handle->cset->identifier)) == 0 )
+    {
+      print_to_outstream(DStrView(handle->raw_data), interactive->fp, interactive->sock_fd);
+      return OK_SUCCESS_MESSAGE;
+    }
+  }
+
+  // Axiom Set Not Found
+  return ERR_ERROR_MESSAGE;
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -370,12 +389,15 @@ void InteractiveSpecFree(InteractiveSpec_p spec)
 
 AxiomSet_p AxiomSetAlloc(ClauseSet_p cset,
                          FormulaSet_p fset,
+                         DStr_p raw_data,
                          int staged)
 {
    AxiomSet_p handle = AxiomSetCellAlloc();
    handle->cset = cset;
    handle->fset = fset;
    handle->staged = 0;
+   handle->raw_data = DStrAlloc();
+   DStrAppendDStr(handle->raw_data, raw_data);
    return handle;
 }
 
@@ -396,6 +418,7 @@ void AxiomSetFree(AxiomSet_p axiom_set)
 {
   ClauseSetFree(axiom_set->cset);
   FormulaSetFree(axiom_set->fset);
+  DStrFree(axiom_set->raw_data);
   AxiomSetCellFree(axiom_set);
 }
 
@@ -502,14 +525,10 @@ void BatchProcessInteractive(BatchSpec_p spec,
       else if(TestInpId(in, DOWNLOAD_COMMAND))
       {
         AcceptInpId(in, DOWNLOAD_COMMAND);
-        dummy = "Should download : ";
-        DStrAppendBuffer(input_command, dummy, strlen(dummy));
-        DStrAppendDStr(input_command, AktToken(in)->literal);
-        dummy = "\n";
-        DStrAppendBuffer(input_command, dummy, strlen(dummy));
-        print_to_outstream(DStrView(input_command), fp, sock_fd);
+        DStrReset(dummyStr);
+        DStrAppendDStr(dummyStr, AktToken(in)->literal);
         AcceptInpTok(in, Identifier);
-        print_to_outstream(OK_SUCCESS_MESSAGE, fp, sock_fd);
+        print_to_outstream(download_command(interactive, dummyStr), fp, sock_fd);
       }
       else if(TestInpId(in, ADD_COMMAND))
       {

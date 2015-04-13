@@ -38,6 +38,7 @@ typedef struct axiom_set_cell
   ClauseSet_p cset;
   FormulaSet_p fset;
   int staged;
+  DStr_p raw_data;
 } AxiomSetCell, *AxiomSet_p;
 
 typedef struct interactive_spec_cell
@@ -70,6 +71,7 @@ void InteractiveSpecFree(InteractiveSpec_p spec);
 
 AxiomSet_p AxiomSetAlloc(ClauseSet_p cset,
                          FormulaSet_p fset,
+                         DStr_p raw_data,
                          int staged);
 
 void AxiomSetFree(AxiomSet_p axiomset);
