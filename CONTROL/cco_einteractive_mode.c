@@ -229,7 +229,7 @@ char* list_command(InteractiveSpec_p interactive)
   {
     print_to_outstream("Staged :\n", interactive->fp, interactive->sock_fd);
     for(i=0; i<PStackGetSP(staged); i++){
-      handle = PStackElementP(interactive->axiom_sets, i);
+      handle = PStackElementP(staged, i);
       sprintf(buffer, "  %s\n", DStrView(handle->cset->identifier));
       print_to_outstream(buffer, interactive->fp, interactive->sock_fd);
     }
@@ -239,7 +239,7 @@ char* list_command(InteractiveSpec_p interactive)
   {
     print_to_outstream("Unstaged :\n", interactive->fp, interactive->sock_fd);
     for(i=0; i<PStackGetSP(unstaged); i++){
-      handle = PStackElementP(interactive->axiom_sets, i);
+      handle = PStackElementP(unstaged, i);
       sprintf(buffer, "  %s\n", DStrView(handle->cset->identifier));
       print_to_outstream(buffer, interactive->fp, interactive->sock_fd);
     }
@@ -292,6 +292,7 @@ char* remove_commad(InteractiveSpec_p interactive, DStr_p axiom_set)
     handle = PStackPopP(spare_stack);
     PStackPushP(interactive->axiom_sets, handle);
   }
+  PStackFree(spare_stack);
   return OK_SUCCESS_MESSAGE;
 }
 
