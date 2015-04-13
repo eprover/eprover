@@ -189,8 +189,6 @@ char* stage_command(InteractiveSpec_p interactive, DStr_p axiom_set)
       }
       else
       {
-        PStackPushP(interactive->ctrl->clause_sets, handle->cset);
-        PStackPushP(interactive->ctrl->formula_sets, handle->fset);
         StructFOFSpecAddProblem(interactive->ctrl, handle->cset, handle->fset);
         handle->staged = 1;
         interactive->ctrl->shared_ax_sp = PStackGetSP(interactive->ctrl->clause_sets);
