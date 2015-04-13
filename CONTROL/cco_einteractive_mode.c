@@ -48,10 +48,22 @@ char* help_message = "\
 #define END_OF_BLOCK_TOKEN "GO\n"
 
 // Defining Success messages
-#define OK_SUCCESS_MESSAGE "XXX ok\n"
+#define OK_SUCCESS_MESSAGE "200 ok : success\n"
+#define OK_STAGED_MESSAGE "201 ok : staged\n" 
+#define OK_UNSTAGED_MESSAGE "202 ok : unstaged\n" 
+#define OK_REMOVED_MESSAGE "203 ok : removed\n"
+#define OK_DOWNLOADED_MESSAGE "204 ok : downloaded\n"
+#define OK_ADDED_MESSAGE "205 ok : added\n"
 
 // Defining Failure messages
-#define ERR_ERROR_MESSAGE "XXX Err\n"
+/*#define ERR_ERROR_MESSAGE "XXX Err\n"*/
+#define ERR_AXIOM_SET_NAME_TAKEN_MESSAGE "401 Err : axiom set name is taken\n"
+#define ERR_SYNTAX_ERROR_MESSAGE "402 Err : syntax error\n"
+#define ERR_AXIOM_SET_IS_STAGED_MESSAGE "403 Err : axiom set is staged, please unstage it first\n"
+#define ERR_UNKNOWN_AXIOM_SET_MESSAGE "404 Err : unknown axiom set\n"
+#define ERR_AXIOM_SET_IS_ALREADY_STAGED_MESSAGE "405 Err : axiom set is already staged\n"
+#define ERR_AXIOM_SET_IS_ALREADY_UNSTAGED_MESSAGE "406 Err : axiom set is already unstaged\n"
+#define ERR_UNKNOWN_COMMAND_MESSAGE "407 Err : unknown command\n"
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -162,14 +174,14 @@ char* add_command(InteractiveSpec_p interactive,
   if(!name_taken)
   {
     PStackPushP(interactive->axiom_sets, axiom_set);
-    return OK_SUCCESS_MESSAGE;
+    return OK_ADDED_MESSAGE;
   }
   else
   {
     AxiomSetFree(axiom_set);
     ClauseSetFree(cset);
     FormulaSetFree(fset);
-    return ERR_ERROR_MESSAGE;
+    return ERR_AXIOM_SET_NAME_TAKEN_MESSAGE;
   }
 }
 
@@ -185,18 +197,18 @@ char* stage_command(InteractiveSpec_p interactive, DStr_p axiom_set)
     {
       if( handle->staged )
       {
-        return ERR_ERROR_MESSAGE;
+        return ERR_AXIOM_SET_IS_ALREADY_STAGED_MESSAGE;
       }
       else
       {
         StructFOFSpecAddProblem(interactive->ctrl, handle->cset, handle->fset);
         handle->staged = 1;
         interactive->ctrl->shared_ax_sp = PStackGetSP(interactive->ctrl->clause_sets);
-        return OK_SUCCESS_MESSAGE;
+        return OK_STAGED_MESSAGE;
       }
     }
   }
-  return ERR_ERROR_MESSAGE;
+  return ERR_UNKNOWN_AXIOM_SET_MESSAGE;
 }
 
 
@@ -266,7 +278,7 @@ char* remove_commad(InteractiveSpec_p interactive, DStr_p axiom_set)
     {
       if( handle->staged )
       {
-        return ERR_ERROR_MESSAGE;
+        return ERR_AXIOM_SET_IS_STAGED_MESSAGE;
       }
       else
       {
@@ -282,7 +294,7 @@ char* remove_commad(InteractiveSpec_p interactive, DStr_p axiom_set)
   // Axiom Set Not Found
   if( i == -1 )
   {
-    return ERR_ERROR_MESSAGE;
+    return ERR_UNKNOWN_AXIOM_SET_MESSAGE;
   }
   AxiomSetFree(handle);
   while(!PStackEmpty(spare_stack))
@@ -291,7 +303,7 @@ char* remove_commad(InteractiveSpec_p interactive, DStr_p axiom_set)
     PStackPushP(interactive->axiom_sets, handle);
   }
   PStackFree(spare_stack);
-  return OK_SUCCESS_MESSAGE;
+  return OK_REMOVED_MESSAGE;
 }
 
 char* download_command(InteractiveSpec_p interactive, DStr_p axiom_set)
@@ -305,12 +317,12 @@ char* download_command(InteractiveSpec_p interactive, DStr_p axiom_set)
     if(strcmp( DStrView(axiom_set), DStrView(handle->cset->identifier)) == 0 )
     {
       print_to_outstream(DStrView(handle->raw_data), interactive->fp, interactive->sock_fd);
-      return OK_SUCCESS_MESSAGE;
+      return OK_DOWNLOADED_MESSAGE;
     }
   }
 
   // Axiom Set Not Found
-  return ERR_ERROR_MESSAGE;
+  return ERR_UNKNOWN_AXIOM_SET_MESSAGE;
 }
 
 char* unstage_command(InteractiveSpec_p interactive, DStr_p axiom_set)
@@ -331,7 +343,7 @@ char* unstage_command(InteractiveSpec_p interactive, DStr_p axiom_set)
     {
       if( !axiom_set_handle->staged )
       {
-        return ERR_ERROR_MESSAGE;
+        return ERR_AXIOM_SET_IS_ALREADY_UNSTAGED_MESSAGE;
       }
       else
       {
@@ -343,7 +355,7 @@ char* unstage_command(InteractiveSpec_p interactive, DStr_p axiom_set)
 
   if( !found )
   {
-    return ERR_ERROR_MESSAGE;
+    return ERR_UNKNOWN_AXIOM_SET_MESSAGE;
   }
 
   assert( PStackGetSP(interactive->ctrl->clause_sets) == PStackGetSP(interactive->ctrl->formula_sets) );
@@ -373,7 +385,7 @@ char* unstage_command(InteractiveSpec_p interactive, DStr_p axiom_set)
   // Axiom Set Not Found
   if( i == -1 )
   {
-    return ERR_ERROR_MESSAGE;
+    return ERR_UNKNOWN_AXIOM_SET_MESSAGE;
   }
 
   while(!PStackEmpty(fspare_stack))
@@ -386,7 +398,7 @@ char* unstage_command(InteractiveSpec_p interactive, DStr_p axiom_set)
   interactive->ctrl->shared_ax_sp = PStackGetSP(interactive->ctrl->clause_sets);
   PStackFree(fspare_stack);
   PStackFree(cspare_stack);
-  return OK_SUCCESS_MESSAGE;
+  return OK_UNSTAGED_MESSAGE;
 }
 
 
@@ -654,7 +666,7 @@ void BatchProcessInteractive(BatchSpec_p spec,
       }
       else
       {
-        print_to_outstream(ERR_ERROR_MESSAGE, fp, sock_fd);
+        print_to_outstream(ERR_UNKNOWN_COMMAND_MESSAGE, fp, sock_fd);
       }
       DestroyScanner(in);
    }
