@@ -1,24 +1,19 @@
 /*-----------------------------------------------------------------------
 
-File  : e_ltb_runner.c
+File  : e_deduction_server.c
 
 Author: Stephan Schulz
 
 Contents
  
-Hack for the LTB category of CASC-2012 - parse an LTB spec file, and
-run E on the various problems.
-
-  Copyright 2010-2012 by the author.
+Implementation for the deduction server executable which starts the server with the params given.
+  Copyright 2015 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
 Changes
-
-<1> Mon Jun 28 02:15:05 CEST 2010
-    New
 
 -----------------------------------------------------------------------*/
 
