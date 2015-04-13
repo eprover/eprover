@@ -259,21 +259,22 @@ char* list_command(InteractiveSpec_p interactive)
   {
     print_to_outstream("No Axiom Sets currently in memory.\n", interactive->fp, interactive->sock_fd);
   }
-
+  PStackFree(staged);
+  PStackFree(unstaged);
   return OK_SUCCESS_MESSAGE;
 }
 
 char* remove_commad(InteractiveSpec_p interactive, DStr_p axiom_set)
 {
-  PStackPointer i;
   AxiomSet_p    handle;
   PStack_p spare_stack;
   spare_stack = PStackAlloc();
   handle = NULL;
+  int found = 0;
 
-  for(i=PStackGetSP(interactive->axiom_sets)-1; i>=0; i--)
+  while(!PStackEmpty(interactive->axiom_sets))
   {
-    handle = PStackElementP(interactive->axiom_sets, i);
+    handle = PStackPopP(interactive->axiom_sets);
     if(strcmp( DStrView(axiom_set), DStrView(handle->cset->identifier)) == 0 )
     {
       if( handle->staged )
@@ -282,7 +283,8 @@ char* remove_commad(InteractiveSpec_p interactive, DStr_p axiom_set)
       }
       else
       {
-        PStackDiscardTop(interactive->axiom_sets);
+        found = 1;
+        AxiomSetFree(handle);
         break;
       }
     }
@@ -291,19 +293,20 @@ char* remove_commad(InteractiveSpec_p interactive, DStr_p axiom_set)
       PStackPushP(spare_stack, handle);
     }
   }
-  // Axiom Set Not Found
-  if( i == -1 )
-  {
-    return ERR_UNKNOWN_AXIOM_SET_MESSAGE;
-  }
-  AxiomSetFree(handle);
   while(!PStackEmpty(spare_stack))
   {
     handle = PStackPopP(spare_stack);
     PStackPushP(interactive->axiom_sets, handle);
   }
   PStackFree(spare_stack);
-  return OK_REMOVED_MESSAGE;
+  if( !found )
+  {
+    return ERR_UNKNOWN_AXIOM_SET_MESSAGE;
+  }
+  else
+  {
+    return OK_REMOVED_MESSAGE;
+  }
 }
 
 char* download_command(InteractiveSpec_p interactive, DStr_p axiom_set)
@@ -359,20 +362,19 @@ char* unstage_command(InteractiveSpec_p interactive, DStr_p axiom_set)
   }
 
   assert( PStackGetSP(interactive->ctrl->clause_sets) == PStackGetSP(interactive->ctrl->formula_sets) );
+  found = 0;
 
-  for(i=PStackGetSP(interactive->ctrl->clause_sets)-1; i>=0; i--)
+  while(!PStackEmpty(interactive->ctrl->clause_sets))
   {
-    chandle = PStackElementP(interactive->ctrl->clause_sets, i);
-    fhandle = PStackElementP(interactive->ctrl->formula_sets, i);
+    chandle = PStackPopP(interactive->ctrl->clause_sets);
+    fhandle = PStackPopP(interactive->ctrl->formula_sets);
     assert( strcmp( DStrView(chandle->identifier), DStrView(fhandle->identifier)) == 0 );
 
     if(strcmp( DStrView(axiom_set), DStrView(chandle->identifier)) == 0 )
     {
       GenDistribAddFormulaSet(interactive->ctrl->f_distrib, fhandle, -1);
       GenDistribAddClauseSet(interactive->ctrl->f_distrib, chandle, -1);
-      PStackDiscardTop(interactive->ctrl->clause_sets);
-      PStackDiscardTop(interactive->ctrl->formula_sets);
-
+      found = 1;
       break;
     }
     else
@@ -380,12 +382,6 @@ char* unstage_command(InteractiveSpec_p interactive, DStr_p axiom_set)
       PStackPushP(cspare_stack, chandle);
       PStackPushP(fspare_stack, fhandle);
     }
-  }
-
-  // Axiom Set Not Found
-  if( i == -1 )
-  {
-    return ERR_UNKNOWN_AXIOM_SET_MESSAGE;
   }
 
   while(!PStackEmpty(fspare_stack))
@@ -398,7 +394,15 @@ char* unstage_command(InteractiveSpec_p interactive, DStr_p axiom_set)
   interactive->ctrl->shared_ax_sp = PStackGetSP(interactive->ctrl->clause_sets);
   PStackFree(fspare_stack);
   PStackFree(cspare_stack);
-  return OK_UNSTAGED_MESSAGE;
+
+  if( !found )
+  {
+    return ERR_UNKNOWN_AXIOM_SET_MESSAGE;
+  }
+  else
+  {
+    return OK_UNSTAGED_MESSAGE;
+  }
 }
 
 
