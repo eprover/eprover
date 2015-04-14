@@ -82,7 +82,7 @@ void AxiomSetFree(AxiomSet_p axiomset);
 void StartDeductionServer(BatchSpec_p spec, 
                           StructFOFSpec_p ctrl, 
                           FILE* fp,
-                          int port);
+                          int sock_fd);
 
 #endif
 

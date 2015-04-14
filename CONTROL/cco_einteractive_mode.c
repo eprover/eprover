@@ -530,7 +530,7 @@ void AxiomSetFree(AxiomSet_p axiom_set)
 void StartDeductionServer(BatchSpec_p spec, 
                           StructFOFSpec_p ctrl, 
                           FILE* fp, 
-                          int port)
+                          int sock_fd)
 {
    DStr_p input   = DStrAlloc();
    DStr_p dummyStr = DStrAlloc();
@@ -538,27 +538,8 @@ void StartDeductionServer(BatchSpec_p spec,
    bool done = false;
    Scanner_p in;
 
-   int oldsock,sock_fd;
-
    char* dummy;
    DStr_p input_command = DStrAlloc();
-
-   if(port != -1)
-   {
-     struct sockaddr cli_addr;
-     socklen_t       cli_len;
-     oldsock = CreateServerSock(port);
-     Listen(oldsock);
-     sock_fd = accept(oldsock, &cli_addr, &cli_len);
-     if (sock_fd < 0)
-     {
-       SysError("Error on accepting connection", SYS_ERROR);
-     }
-     fp = NULL;
-   }else{
-      sock_fd = -1;
-      oldsock = -1;
-   }
 
   interactive = InteractiveSpecAlloc(spec, ctrl, fp, sock_fd);
 
@@ -678,13 +659,6 @@ void StartDeductionServer(BatchSpec_p spec,
    DStrFree(input);
    DStrFree(input_command);
    InteractiveSpecFree(interactive);
-   if( sock_fd != -1 )
-   {
-     shutdown(sock_fd,SHUT_RDWR);
-     shutdown(oldsock,SHUT_RDWR);
-     close(sock_fd);
-     close(oldsock);
-   }
 }
 
 

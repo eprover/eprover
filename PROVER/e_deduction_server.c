@@ -132,6 +132,7 @@ int main(int argc, char* argv[])
    BatchSpec_p      spec;
    StructFOFSpec_p   ctrl;
    char             *prover    = "eprover";
+   int oldsock,sock_fd,pid;
   
    assert(argv[0]);
 
@@ -160,14 +161,40 @@ int main(int argc, char* argv[])
 
    ctrl = StructFOFSpecAlloc();
    BatchStructFOFSpecInit(spec, ctrl);
+
+   //Creating Socket Server
    if(port != -1)
    {
-     StartDeductionServer(spec, ctrl, NULL, port);
+     struct sockaddr cli_addr;
+     socklen_t       cli_len;
+     oldsock = CreateServerSock(port);
+     Listen(oldsock);
+     while(1)
+     {
+       sock_fd = accept(oldsock, &cli_addr, &cli_len);
+       if ((pid = fork()) == -1)
+       {
+         close(sock_fd);
+         continue;
+       }
+       else if(pid > 0)
+       {
+         close(sock_fd);
+         fprintf(stdout, "Client connected ..\n");
+         fflush(stdout);
+         continue;
+       }
+       else if(pid == 0)
+       {
+         StartDeductionServer(spec, ctrl, NULL, sock_fd);
+         close(sock_fd);
+         break;
+       }
+     }
+   }else{
+      StartDeductionServer(spec, ctrl, stdout, -1);
    }
-   else
-   {
-     StartDeductionServer(spec, ctrl, stdout, -1);
-   }
+
    StructFOFSpecFree(ctrl);
    BatchSpecFree(spec);
 
