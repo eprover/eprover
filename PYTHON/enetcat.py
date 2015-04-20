@@ -1,6 +1,8 @@
 #!/usr/bin/env python2.7
 
-import socket,struct,sys,time,threading
+import socket,struct,sys,time,threading,signal,readline
+
+EXIT_COMMAND = "QUIT"
 
 class MySocket:
 
@@ -60,7 +62,10 @@ _socket = MySocket()
 def send_data():
     while True:
         line = raw_input() + "\n"
-        _socket.send(line)
+        if line.strip() != EXIT_COMMAND:
+            _socket.send(line)
+        else:
+            break
 
 def read_data():
     while True:
@@ -71,14 +76,20 @@ def read_data():
             sys.stdout.write(data)
             sys.stdout.flush()
 
+def exit_handler(signal, frame):
+    _socket.send(EXIT_COMMAND)
+    _socket.close()
+    print "Bye."
+    exit(0)
+
 if __name__ == "__main__":
     if len(sys.argv) < 3:
         print "Usage : ./enetcat host port"
         exit(1)
     _socket.connect(sys.argv[1], int(sys.argv[2]))
-    listener = threading.Thread(target=send_data)
+    listener = threading.Thread(target=read_data)
     listener.daemon = True
     listener.start()
-
-    read_data()
-    _socket.close()
+    signal.signal(signal.SIGINT, exit_handler)
+    send_data()
+    exit_handler(None,None)
