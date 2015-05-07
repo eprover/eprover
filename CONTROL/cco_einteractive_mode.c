@@ -528,7 +528,7 @@ PStack_p get_directory_listings(DStr_p dirname){
   {
     while ((de = readdir(dir)) != NULL)
     {
-      if( strcmp(de->d_name,".") == 0 || strcmp(de->d_name,"..") == 0 )
+      if( strcmp(de->d_name,".") == 0 || strcmp(de->d_name,"..") == 0 || de->d_type != DT_REG )
       {
         continue;
       }
