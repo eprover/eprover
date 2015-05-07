@@ -64,12 +64,18 @@ char* help_message = "\
 #define ERR_AXIOM_SET_IS_ALREADY_STAGED_MESSAGE "405 Err : axiom set is already staged\n"
 #define ERR_AXIOM_SET_IS_ALREADY_UNSTAGED_MESSAGE "406 Err : axiom set is already unstaged\n"
 #define ERR_UNKNOWN_COMMAND_MESSAGE "407 Err : unknown command\n"
+#define ERR_NO_AXIOM_LIBRARY_ON_SERVER_MESSAGE "408 Err : no axioms library on server\n"
+#define ERR_CANNOT_READ_SERVER_LIBRARY_MESSAGE "409 Err : cannot read server library\n"
+
+#define AXIOM_SET_NAME_TOKENS String|Name|PosInt|Fullstop|Plus|Hyphen
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
 
 void print_to_outstream(char* message, FILE* fp, int sock_fd);
+PStack_p get_directory_listings(DStr_p dir);
+void AcceptAxiomSetName(Scanner_p in, DStr_p dest);
 
 
 /*---------------------------------------------------------------------*/
@@ -434,6 +440,115 @@ char* unstage_command(InteractiveSpec_p interactive, DStr_p axiom_set)
   }
 }
 
+char* load_command(InteractiveSpec_p interactive, DStr_p filename)
+{
+  PStack_p files;
+  DStr_p handle, file_content;
+  char *ret;
+  int found;
+
+  if(DStrLen(interactive->server_lib))
+  {
+    found = 0;
+    files = get_directory_listings(interactive->server_lib);
+    if(files == NULL)
+    {
+      return ERR_CANNOT_READ_SERVER_LIBRARY_MESSAGE;
+    }
+    else
+    {
+      while(!PStackEmpty(files))
+      {
+        handle = PStackPopP(files);
+        if(strcmp(DStrView(handle), DStrView(filename)) == 0)
+        {
+          found = 1;
+        }
+        DStrFree(handle);
+      }
+      PStackFree(files);
+      if(found)
+      {
+        handle = DStrAlloc();
+        file_content = DStrAlloc();
+        DStrAppendDStr(handle, interactive->server_lib);
+        DStrAppendStr(handle, "/");
+        DStrAppendDStr(handle, filename);
+        FileLoad(DStrView(handle), file_content);
+        DStrFree(handle);
+        ret = add_command(interactive, filename, file_content);
+        if( strcmp(ret, OK_ADDED_MESSAGE) == 0 )
+        {
+          ret = OK_LOADED_MESSAGE;
+        }
+        DStrFree(file_content);
+        return ret;
+      }
+      else
+      {
+        return ERR_UNKNOWN_AXIOM_SET_MESSAGE;
+      }
+    }
+
+  }
+  else
+  {
+    return ERR_NO_AXIOM_LIBRARY_ON_SERVER_MESSAGE;
+  }
+
+}
+
+
+void print_to_outstream(char* message, FILE* fp, int sock_fd){
+  if(sock_fd != -1)
+  {
+    TCPStringSendX(sock_fd, message);
+  }
+  else
+  {
+    fprintf(fp, "%s", message);
+    fflush(fp);
+  }
+}
+
+PStack_p get_directory_listings(DStr_p dirname){
+  PStack_p files;
+  struct dirent *de;
+  DStr_p file_name;
+  DIR *dir;
+
+  files = PStackAlloc();
+
+  dir = opendir(DStrView(dirname));
+  if (dir == NULL)
+  {
+    return NULL;
+  }
+  else
+  {
+    while ((de = readdir(dir)) != NULL)
+    {
+      if( strcmp(de->d_name,".") == 0 || strcmp(de->d_name,"..") == 0 )
+      {
+        continue;
+      }
+      file_name = DStrAlloc();
+      DStrAppendStr(file_name, de->d_name);
+      PStackPushP(files, file_name);
+    }
+    closedir(dir);
+  }
+  return files;
+}
+
+void AcceptAxiomSetName(Scanner_p in, DStr_p dest){
+  while(TestInpTok(in, AXIOM_SET_NAME_TOKENS))
+  {
+    DStrAppendDStr(dest, AktToken(in)->literal);
+    NextToken(in);
+  }
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -606,40 +721,35 @@ void StartDeductionServer(BatchSpec_p spec,
       {
         AcceptInpId(in, STAGE_COMMAND);
         DStrReset(dummyStr);
-        DStrAppendDStr(dummyStr, AktToken(in)->literal);
-        AcceptInpTok(in, Identifier);
+        AcceptAxiomSetName(in, dummyStr);
         print_to_outstream(stage_command(interactive, dummyStr), fp, sock_fd);
       }
       else if(TestInpId(in, UNSTAGE_COMMAND))
       {
         AcceptInpId(in, UNSTAGE_COMMAND);
         DStrReset(dummyStr);
-        DStrAppendDStr(dummyStr, AktToken(in)->literal);
-        AcceptInpTok(in, Identifier);
+        AcceptAxiomSetName(in, dummyStr);
         print_to_outstream(unstage_command(interactive, dummyStr), fp, sock_fd);
       }
       else if(TestInpId(in, REMOVE_COMMAND))
       {
         AcceptInpId(in, REMOVE_COMMAND);
         DStrReset(dummyStr);
-        DStrAppendDStr(dummyStr, AktToken(in)->literal);
-        AcceptInpTok(in, Identifier);
+        AcceptAxiomSetName(in, dummyStr);
         print_to_outstream(remove_commad(interactive, dummyStr), fp, sock_fd);
       }
       else if(TestInpId(in, DOWNLOAD_COMMAND))
       {
         AcceptInpId(in, DOWNLOAD_COMMAND);
         DStrReset(dummyStr);
-        DStrAppendDStr(dummyStr, AktToken(in)->literal);
-        AcceptInpTok(in, Identifier);
+        AcceptAxiomSetName(in, dummyStr);
         print_to_outstream(download_command(interactive, dummyStr), fp, sock_fd);
       }
       else if(TestInpId(in, ADD_COMMAND))
       {
         AcceptInpId(in, ADD_COMMAND);
         DStrReset(dummyStr);
-        DStrAppendDStr(dummyStr, AktToken(in)->literal);
-        AcceptInpTok(in, Identifier);
+        AcceptAxiomSetName(in, dummyStr);
         DStrReset(input);
         if(sock_fd != -1)
         {
@@ -696,20 +806,6 @@ void StartDeductionServer(BatchSpec_p spec,
    DStrFree(input_command);
    InteractiveSpecFree(interactive);
 }
-
-
-void print_to_outstream(char* message, FILE* fp, int sock_fd){
-  if(sock_fd != -1)
-  {
-    TCPStringSendX(sock_fd, message);
-  }
-  else
-  {
-    fprintf(fp, "%s", message);
-    fflush(fp);
-  }
-}
-
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
