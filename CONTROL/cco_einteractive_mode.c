@@ -41,6 +41,7 @@ char* help_message = "\
 #define REMOVE_COMMAND "REMOVE"
 #define DOWNLOAD_COMMAND "DOWNLOAD"
 #define ADD_COMMAND "ADD"
+#define LOAD_COMMAND "LOAD"
 #define RUN_COMMAND "RUN"
 #define LIST_COMMAND "LIST"
 #define HELP_COMMAND "HELP"
@@ -54,6 +55,7 @@ char* help_message = "\
 #define OK_REMOVED_MESSAGE "203 ok : removed\n"
 #define OK_DOWNLOADED_MESSAGE "204 ok : downloaded\n"
 #define OK_ADDED_MESSAGE "205 ok : added\n"
+#define OK_LOADED_MESSAGE "206 ok : loaded\n"
 
 // Defining Failure messages
 /*#define ERR_ERROR_MESSAGE "XXX Err\n"*/
@@ -224,8 +226,8 @@ char* list_command(InteractiveSpec_p interactive)
   AxiomSet_p    handle;
   PStack_p staged, unstaged;
   char buffer[256];
-  struct dirent *de;
-  DIR *dir;
+  PStack_p files;
+  DStr_p dummy;
 
   staged = PStackAlloc();
   unstaged = PStackAlloc();
@@ -273,23 +275,21 @@ char* list_command(InteractiveSpec_p interactive)
   print_to_outstream("On Disk :\n", interactive->fp, interactive->sock_fd);
   if(DStrLen(interactive->server_lib))
   {
-    dir = opendir(DStrView(interactive->server_lib));
-    if (dir == NULL)
+    files = get_directory_listings(interactive->server_lib);
+    if (files == NULL)
     {
       print_to_outstream("\tCould not open current directory.\n", interactive->fp, interactive->sock_fd);
     }
     else
     {
-      while ((de = readdir(dir)) != NULL)
+      while(!PStackEmpty(files))
       {
-        if( strcmp(de->d_name,".") == 0 || strcmp(de->d_name,"..") == 0 )
-        {
-          continue;
-        }
-        sprintf(buffer, "\t%s\n", de->d_name);
+        dummy = PStackPopP(files);
+        sprintf(buffer, "\t%s\n", DStrView(dummy));
         print_to_outstream(buffer, interactive->fp, interactive->sock_fd);
+        DStrFree(dummy);
       }
-      closedir(dir);
+      PStackFree(files);
     }
   }
   else
@@ -744,6 +744,13 @@ void StartDeductionServer(BatchSpec_p spec,
         DStrReset(dummyStr);
         AcceptAxiomSetName(in, dummyStr);
         print_to_outstream(download_command(interactive, dummyStr), fp, sock_fd);
+      }
+      else if(TestInpId(in, LOAD_COMMAND))
+      {
+        AcceptInpId(in, LOAD_COMMAND);
+        DStrReset(dummyStr);
+        AcceptAxiomSetName(in, dummyStr);
+        print_to_outstream(load_command(interactive, dummyStr), fp, sock_fd);
       }
       else if(TestInpId(in, ADD_COMMAND))
       {
