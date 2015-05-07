@@ -218,6 +218,8 @@ char* list_command(InteractiveSpec_p interactive)
   AxiomSet_p    handle;
   PStack_p staged, unstaged;
   char buffer[256];
+  struct dirent *de;
+  DIR *dir;
 
   staged = PStackAlloc();
   unstaged = PStackAlloc();
@@ -261,6 +263,33 @@ char* list_command(InteractiveSpec_p interactive)
   }
   PStackFree(staged);
   PStackFree(unstaged);
+
+  print_to_outstream("On Disk :\n", interactive->fp, interactive->sock_fd);
+  if(DStrLen(interactive->server_lib))
+  {
+    dir = opendir(DStrView(interactive->server_lib));
+    if (dir == NULL)
+    {
+      print_to_outstream("\tCould not open current directory.\n", interactive->fp, interactive->sock_fd);
+    }
+    else
+    {
+      while ((de = readdir(dir)) != NULL)
+      {
+        if( strcmp(de->d_name,".") == 0 || strcmp(de->d_name,"..") == 0 )
+        {
+          continue;
+        }
+        sprintf(buffer, "\t%s\n", de->d_name);
+        print_to_outstream(buffer, interactive->fp, interactive->sock_fd);
+      }
+      closedir(dir);
+    }
+  }
+  else
+  {
+    print_to_outstream("\tNo axioms directory was specified on server startup.\n", interactive->fp, interactive->sock_fd);
+  }
   return OK_SUCCESS_MESSAGE;
 }
 
@@ -435,6 +464,7 @@ InteractiveSpec_p InteractiveSpecAlloc(BatchSpec_p spec,
    handle->fp = fp;
    handle->sock_fd = sock_fd;
    handle->axiom_sets = PStackAlloc();
+   handle->server_lib = DStrAlloc();
    return handle;
 }
 
@@ -462,6 +492,7 @@ void InteractiveSpecFree(InteractiveSpec_p spec)
     AxiomSetFree(handle);
   }
   PStackFree(spec->axiom_sets);
+  DStrFree(spec->server_lib);
   InteractiveSpecCellFree(spec);
 }
 
@@ -527,9 +558,10 @@ void AxiomSetFree(AxiomSet_p axiom_set)
 //
 /----------------------------------------------------------------------*/
 
-void StartDeductionServer(BatchSpec_p spec, 
-                          StructFOFSpec_p ctrl, 
-                          FILE* fp, 
+void StartDeductionServer(BatchSpec_p spec,
+                          StructFOFSpec_p ctrl,
+                          char* server_lib,
+                          FILE* fp,
                           int sock_fd)
 {
    DStr_p input   = DStrAlloc();
@@ -541,7 +573,11 @@ void StartDeductionServer(BatchSpec_p spec,
    char* dummy;
    DStr_p input_command = DStrAlloc();
 
-  interactive = InteractiveSpecAlloc(spec, ctrl, fp, sock_fd);
+   interactive = InteractiveSpecAlloc(spec, ctrl, fp, sock_fd);
+   if(server_lib)
+   {
+     DStrAppendStr(interactive->server_lib,server_lib);
+   }
 
    while(!done)
    {

@@ -46,6 +46,7 @@ typedef enum
    OPT_SILENT,
    OPT_OUTPUTLEVEL,
    OPT_GLOBAL_WTCLIMIT,
+   OPT_SERVER_LIB,
    OPT_DUMMY
 }OptionCodes;
 
@@ -105,6 +106,11 @@ OptCell opts[] =
     ReqArg, NULL,
     "Set the global wall-clock limit for each batch (if any)."},
 
+   {OPT_SERVER_LIB,
+    'L', "lib",
+    ReqArg, NULL,
+    "Set the axioms library directory of the server."},
+
    {OPT_NOOPT,
     '\0', NULL,
     NoArg, NULL,
@@ -112,6 +118,7 @@ OptCell opts[] =
 };
 
 char              *outname        = NULL;
+char              *server_lib     = NULL;
 long              total_wtc_limit = 0;
 int               port            = -1;
 
@@ -186,13 +193,13 @@ int main(int argc, char* argv[])
        }
        else if(pid == 0)
        {
-         StartDeductionServer(spec, ctrl, NULL, sock_fd);
+         StartDeductionServer(spec, ctrl, server_lib, NULL, sock_fd);
          close(sock_fd);
          break;
        }
      }
    }else{
-      StartDeductionServer(spec, ctrl, stdout, -1);
+      StartDeductionServer(spec, ctrl, server_lib, stdout, -1);
    }
 
    StructFOFSpecFree(ctrl);
@@ -259,6 +266,9 @@ CLState_p process_options(int argc, char* argv[])
 	    break;
       case OPT_GLOBAL_WTCLIMIT:
 	    total_wtc_limit = CLStateGetIntArg(handle, arg);
+	    break;
+      case OPT_SERVER_LIB:
+	    server_lib = arg;
 	    break;
       default:
 	    assert(false && "Unknown option");

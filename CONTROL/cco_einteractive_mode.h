@@ -30,6 +30,7 @@ Changes
 #include <clb_pstacks.h>
 #include <cio_scanner.h>
 #include <cco_batch_spec.h>
+#include <dirent.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -51,6 +52,7 @@ typedef struct interactive_spec_cell
   FILE* fp;
   int sock_fd;
   PStack_p axiom_sets;
+  DStr_p server_lib;
 } InteractiveSpecCell, *InteractiveSpec_p;
 
 
@@ -81,6 +83,7 @@ void AxiomSetFree(AxiomSet_p axiomset);
 
 void StartDeductionServer(BatchSpec_p spec, 
                           StructFOFSpec_p ctrl, 
+                          char* server_lib,
                           FILE* fp,
                           int sock_fd);
 
