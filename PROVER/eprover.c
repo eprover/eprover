@@ -93,6 +93,7 @@ char              *outdesc = DEFAULT_OUTPUT_DESCRIPTOR,
                   *filterdesc = DEFAULT_FILTER_DESCRIPTOR;
 PStack_p          wfcb_definitions, hcb_definitions;
 char              *sine=NULL;
+pid_t              pid = 0;
 
 FunctionProperties free_symb_prop = FPIgnoreProps;
 
@@ -183,7 +184,7 @@ static void print_info(void)
 {
    if(print_pid)
    {
-      fprintf(GlobalOut, "# Pid: %d\n", (int)getpid());
+      fprintf(GlobalOut, "# Pid: %lld\n", (long long)pid);
       fflush(GlobalOut);
    }
    if(print_version)
@@ -350,10 +351,10 @@ int main(int argc, char* argv[])
                     parsed_ax_no,
                     relevancy_pruned = 0;
    double           preproc_time;
-   pid_t            pid = 0;
 
    assert(argv[0]);
 
+   pid = getpid();
    InitIO(NAME);
 #ifdef STACK_SIZE
    IncreaseMaxStackSize(argv, STACK_SIZE);
@@ -386,7 +387,7 @@ int main(int argc, char* argv[])
 
    if(strategy_scheduling)
    {
-      pid = ExecuteSchedule(StratSchedule, h_parms, print_rusage);
+      ExecuteSchedule(StratSchedule, h_parms, print_rusage);
    }
 
    FormulaSetDocInital(GlobalOut, OutputLevel, proofstate->f_axioms);
@@ -681,18 +682,12 @@ cleanup1:
    {
       PrintRusage(GlobalOut);
    }
-   if(!pid)
-   {
-      return retval;
-   }
-   fflush(GlobalOut);
-   OutClose(GlobalOut);
-   ExitIO();
 #ifdef CLB_MEMORY_DEBUG
    RegMemCleanUp();
    MemFlushFreeList();
    MemDebugPrintStats(stdout);
 #endif
+   OutClose(GlobalOut);
    return retval;
 }
 
