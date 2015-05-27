@@ -68,11 +68,12 @@ def send_data():
             if line == None:
                 print "Error: One of the include files cannot be read!"
                 exit_handler(None, None, 1)
-        if line[-1] != "\n":
+        if line == "" or line[-1] != "\n":
             line += "\n"
         if line.strip() != EXIT_COMMAND:
             _socket.send(line)
         else:
+            _socket.send(EXIT_COMMAND)
             break
 
 def read_data():
@@ -100,4 +101,10 @@ if __name__ == "__main__":
     listener.start()
     signal.signal(signal.SIGINT, exit_handler)
     send_data()
-    exit_handler(None,None)
+    listener.join()
+    try:
+        _socket.close()
+    except socket.error:
+        pass
+    print "Bye."
+    exit(0)
