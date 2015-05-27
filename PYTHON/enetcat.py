@@ -1,6 +1,7 @@
 #!/usr/bin/env python2.7
 
-import socket,struct,sys,time,threading,signal,readline
+import socket,struct,sys,time,threading,signal,readline,os
+from e_tptp_expander import TPTPExpander
 
 EXIT_COMMAND = "QUIT"
 
@@ -61,7 +62,14 @@ _socket = MySocket()
 
 def send_data():
     while True:
-        line = raw_input() + "\n"
+        line = raw_input()
+        if TPTPExpander.is_include(line):
+            line = TPTPExpander.expand_from_string(line, os.getcwd(), True)
+            if line == None:
+                print "Error: One of the include files cannot be read!"
+                exit_handler(None, None, 1)
+        if line[-1] != "\n":
+            line += "\n"
         if line.strip() != EXIT_COMMAND:
             _socket.send(line)
         else:
@@ -76,11 +84,11 @@ def read_data():
             sys.stdout.write(data)
             sys.stdout.flush()
 
-def exit_handler(signal, frame):
+def exit_handler(signal, frame, exit_code=0):
     _socket.send(EXIT_COMMAND)
     _socket.close()
     print "Bye."
-    exit(0)
+    exit(exit_code)
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
