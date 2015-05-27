@@ -64,7 +64,7 @@ class TPTPExpander:
 
     @staticmethod
     def expand_from_string(string, base_dir, is_to_string):
-        return TPTPExpander.expand_from_string(string.split("\n"), base_dir, is_to_string)
+        return TPTPExpander.expand_from_array(string.split("\n"), base_dir, is_to_string)
 
     @staticmethod
     def expand_from_file(filename, is_to_string):
