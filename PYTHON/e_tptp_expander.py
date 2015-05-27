@@ -78,7 +78,7 @@ if __name__ == "__main__":
         exit(1)
     res = TPTPExpander.expand_from_file(sys.argv[1], True)
     if res == None:
-        print "Error Reading one or more files"
+        print "Error: Failed reading one or more files"
         exit(1)
     else:
         print res
