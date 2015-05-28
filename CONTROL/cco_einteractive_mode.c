@@ -187,8 +187,6 @@ char* add_command(InteractiveSpec_p interactive,
   else
   {
     AxiomSetFree(axiom_set);
-    ClauseSetFree(cset);
-    FormulaSetFree(fset);
     return ERR_AXIOM_SET_NAME_TAKEN_MESSAGE;
   }
 }
