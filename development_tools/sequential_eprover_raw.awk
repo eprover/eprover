@@ -265,10 +265,16 @@ function job_is_not_processed(job    ,tmp)
 
 BEGIN{
    print "Initializing...";
+   print ARGV[1];
    soft_cpu_limit = 0;
    time_limit = 10; # Default, may be overridden 
-   auto_args = "-s --print-pid --resources-info --print-statistics";
+   auto_args = "-s --print-pid --resources-info --print-statistics --tptp3-in";
    first_job = 1;
+   executable="~/bin/eprover"
+   tmpname=ARGV[1]
+   sub(/tptp_/, "protokoll_", tmpname);
+   logfile = tmpname
+   problemdir="~/EPROVER/TPTP_5.4.0_FLAT"
    cwd = ENVIRON["PWD"];
    print "Working directory is " cwd "."; 
    procid = get_pid();
@@ -332,7 +338,7 @@ BEGIN{
    job = $0;
    check_and_initialize();  
    if(job_is_not_processed(job))
-   {
+   {      
       cpu_opt = host_cpu_limit_opt(time_limit);
       outfile = cwd "/__prvout__" procid "_" global_hostname "__";
       command = executable " " auto_args " " cpu_opt " " args " " problemdir "/" job " > " outfile;
