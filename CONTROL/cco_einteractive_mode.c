@@ -78,7 +78,19 @@ char* help_message = "\
 void print_to_outstream(char* message, FILE* fp, int sock_fd);
 PStack_p get_directory_listings(DStr_p dir);
 void AcceptAxiomSetName(Scanner_p in, DStr_p dest);
-
+char* run_command(InteractiveSpec_p interactive,
+                 DStr_p jobname,
+                  DStr_p input_axioms);
+char* add_command(InteractiveSpec_p interactive,
+                 DStr_p axiomsname,
+                  DStr_p input_axioms);
+char* stage_command(InteractiveSpec_p interactive, DStr_p axiom_set);
+char* list_command(InteractiveSpec_p interactive);
+void  quit_command(InteractiveSpec_p interactive);
+char* remove_commad(InteractiveSpec_p interactive, DStr_p axiom_set);
+char* download_command(InteractiveSpec_p interactive, DStr_p axiom_set);
+char* unstage_command(InteractiveSpec_p interactive, DStr_p axiom_set);
+char* load_command(InteractiveSpec_p interactive, DStr_p filename);
 
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
@@ -295,6 +307,31 @@ char* list_command(InteractiveSpec_p interactive)
     print_to_outstream("\tNo axioms directory was specified on server startup.\n", interactive->fp, interactive->sock_fd);
   }
   return OK_SUCCESS_MESSAGE;
+}
+
+void quit_command(InteractiveSpec_p interactive)
+{
+  PStack_p spare_stack;
+  AxiomSet_p    axiom_set_handle;
+  PStackPointer i;
+  DStr_p dummy;
+
+  spare_stack = PStackAlloc();
+  for(i=0; i < PStackGetSP(interactive->axiom_sets); i++)
+  {
+    axiom_set_handle = PStackElementP(interactive->axiom_sets, i);
+    if( axiom_set_handle->staged )
+    {
+      PStackPushP(spare_stack, axiom_set_handle->cset->identifier);
+    }
+  }
+
+  while(!PStackEmpty(spare_stack))
+  {
+    dummy = PStackPopP(spare_stack);
+    unstage_command(interactive, dummy);
+  }
+  PStackFree(spare_stack);
 }
 
 char* remove_commad(InteractiveSpec_p interactive, DStr_p axiom_set)
@@ -702,6 +739,7 @@ void StartDeductionServer(BatchSpec_p spec,
       {
         dummy = TCPStringRecvX(sock_fd);
         DStrAppendBuffer(input, dummy, strlen(dummy));
+        FREE(dummy);
       }
       else
       {
@@ -798,6 +836,7 @@ void StartDeductionServer(BatchSpec_p spec,
       else if(TestInpId(in, QUIT_COMMAND))
       {
         AcceptInpId(in, QUIT_COMMAND);
+        quit_command(interactive);
         done = true;
       }
       else

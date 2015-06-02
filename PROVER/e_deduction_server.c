@@ -205,7 +205,7 @@ int main(int argc, char* argv[])
    StructFOFSpecFree(ctrl);
    BatchSpecFree(spec);
 
-   /*CLStateFree(state);*/
+   CLStateFree(state);
 
    OutClose(GlobalOut);
    ExitIO();
