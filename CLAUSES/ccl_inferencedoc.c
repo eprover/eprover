@@ -582,7 +582,7 @@ static void print_minimize(FILE* out, Clause_p clause, long
          ClauseTSTPPrint(out, clause, PCLFullTerms, false);
          fprintf(out, 
                  ",inference("PCL_CN
-                 ",[status(thm)],[c_0_%ld)])", 
+                 ",[status(thm)],[c_0_%ld])", 
                  old_id);
          tstp_print_end(out, comment, clause);
          break;
