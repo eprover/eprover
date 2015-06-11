@@ -58,7 +58,7 @@ char* help_message = "\
 #define OK_LOADED_MESSAGE "206 ok : loaded\n"
 
 // Defining Failure messages
-/*#define ERR_ERROR_MESSAGE "XXX Err\n"*/
+#define ERR_ERROR_MESSAGE "499 Err : Something went wrong\n"
 #define ERR_AXIOM_SET_NAME_TAKEN_MESSAGE "401 Err : axiom set name is taken\n"
 #define ERR_SYNTAX_ERROR_MESSAGE "402 Err : syntax error\n"
 #define ERR_AXIOM_SET_IS_STAGED_MESSAGE "403 Err : axiom set is staged, please unstage it first\n"
@@ -107,48 +107,61 @@ char* run_command(InteractiveSpec_p interactive,
   FormulaSet_p fset;
   char* message;
   char buffer[256];
-  long         wct_limit=30;
+  long wct_limit=30;
+  int pid;
 
-  if(interactive->spec->per_prob_limit)
+  if ((pid = fork()) == -1)
   {
-    wct_limit = interactive->spec->per_prob_limit;
+    return ERR_ERROR_MESSAGE;
   }
+  else if(pid > 0)
+  {
+    wait(NULL);
+  }
+  else if(pid == 0)
+  {
+    if(interactive->spec->per_prob_limit)
+    {
+      wct_limit = interactive->spec->per_prob_limit;
+    }
 
 
-  fprintf(stdout, "%s", DStrView(jobname));
-  fflush(stdout);
+    fprintf(stdout, "%s", DStrView(jobname));
+    fflush(stdout);
 
-  sprintf(buffer, "\n# Processing started for %s\n", DStrView(jobname));
-  message = buffer;
+    sprintf(buffer, "\n# Processing started for %s\n", DStrView(jobname));
+    message = buffer;
 
-  print_to_outstream(message, interactive->fp, interactive->sock_fd);
+    print_to_outstream(message, interactive->fp, interactive->sock_fd);
 
-  job_scanner = CreateScanner(StreamTypeUserString, 
-      DStrView(input_axioms),
-      true, 
-      NULL);
-  ScannerSetFormat(job_scanner, TSTPFormat);
-  cset = ClauseSetAlloc();
-  fset = FormulaSetAlloc();
-  FormulaAndClauseSetParse(job_scanner, cset, fset, interactive->ctrl->terms, 
-      NULL, 
-      &(interactive->ctrl->parsed_includes));
+    job_scanner = CreateScanner(StreamTypeUserString, 
+        DStrView(input_axioms),
+        true, 
+        NULL);
+    ScannerSetFormat(job_scanner, TSTPFormat);
+    cset = ClauseSetAlloc();
+    fset = FormulaSetAlloc();
+    FormulaAndClauseSetParse(job_scanner, cset, fset, interactive->ctrl->terms, 
+        NULL, 
+        &(interactive->ctrl->parsed_includes));
 
-  // cset and fset are handed over to BatchProcessProblem and are
-  // freed there (via StructFOFSpecBacktrackToSpec()).
-  (void)BatchProcessProblem(interactive->spec, 
-      wct_limit,
-      interactive->ctrl,
-      DStrView(jobname),
-      cset,
-      fset,
-      interactive->fp,
-      interactive->sock_fd);
-  sprintf(buffer, "\n# Processing finished for %s\n\n", DStrView(jobname));
-  message = buffer;
-  print_to_outstream(message, interactive->fp, interactive->sock_fd);
+    // cset and fset are handed over to BatchProcessProblem and are
+    // freed there (via StructFOFSpecBacktrackToSpec()).
+    (void)BatchProcessProblem(interactive->spec, 
+        wct_limit,
+        interactive->ctrl,
+        DStrView(jobname),
+        cset,
+        fset,
+        interactive->fp,
+        interactive->sock_fd);
+    sprintf(buffer, "\n# Processing finished for %s\n\n", DStrView(jobname));
+    message = buffer;
+    print_to_outstream(message, interactive->fp, interactive->sock_fd);
 
-  DestroyScanner(job_scanner);
+    DestroyScanner(job_scanner);
+    exit(0);
+  }
   return OK_SUCCESS_MESSAGE;
 }
 

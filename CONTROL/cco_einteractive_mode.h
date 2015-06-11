@@ -31,6 +31,7 @@ Changes
 #include <cio_scanner.h>
 #include <cco_batch_spec.h>
 #include <dirent.h>
+#include <sys/wait.h>
 
 
 /*---------------------------------------------------------------------*/
