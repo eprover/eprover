@@ -10,9 +10,15 @@ class TPTPExpander:
     @staticmethod
     def is_include(line):
         # If not commented ( Starts with zero or more whitespaces and then a percentage sign )
-        if re.match(TPTPExpander.COMMENTED_REGEX, line) == None:
+        if not TPTPExpander.is_commented(line):
             if re.match(TPTPExpander.INCLUDE_REGEX, line):
                 return True
+        return False
+
+    @staticmethod
+    def is_commented(line):
+        if re.match(TPTPExpander.COMMENTED_REGEX, line) != None:
+            return True
         return False
 
     @staticmethod

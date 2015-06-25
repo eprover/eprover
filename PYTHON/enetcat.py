@@ -64,17 +64,23 @@ def send_data():
     while True:
         line = raw_input()
         if TPTPExpander.is_include(line):
-            line = TPTPExpander.expand_from_string(line, os.getcwd(), True)
-            if line == None:
+            lines = TPTPExpander.expand_from_string(line, os.getcwd(), True)
+            if lines == None:
                 print "Error: One of the include files cannot be read!"
                 exit_handler(None, None, 1)
-        if line == "" or line[-1] != "\n":
-            line += "\n"
-        if line.strip() != EXIT_COMMAND:
-            _socket.send(line)
+            lines = lines.split("\n")
+            for line in lines:
+                if line == "" or line[-1] != "\n":
+                    line += "\n"
+                _socket.send(line)
         else:
-            _socket.send(EXIT_COMMAND)
-            break
+            if line == "" or line[-1] != "\n":
+                line += "\n"
+            if line.strip() != EXIT_COMMAND:
+                _socket.send(line)
+            else:
+                _socket.send(EXIT_COMMAND)
+                break
 
 def read_data():
     while True:
