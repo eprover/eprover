@@ -177,10 +177,17 @@ char* add_command(InteractiveSpec_p interactive,
   AxiomSet_p axiom_set;
   PStackPointer i;
   AxiomSet_p    handle;
+  char *file;
+  FILE *fp;
 
-  axioms_scanner = CreateScanner(StreamTypeUserString, 
-      DStrView(input_axioms),
-      true, 
+  file = TempFileName();
+  fp   = SecureFOpen(file, "w");
+  fprintf(fp, "%s", DStrView(input_axioms));
+  SecureFClose(fp);
+
+  axioms_scanner = CreateScanner(StreamTypeFile,
+      file,
+      true,
       NULL);
   ScannerSetFormat(axioms_scanner, TSTPFormat);
   cset = ClauseSetAlloc();
