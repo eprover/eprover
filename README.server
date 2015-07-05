@@ -92,3 +92,21 @@ fof(query75,conjecture,
 GO
 
 QUIT
+
+
+Available Commands
+------------------
+Note : Block commands that are in the form of "COMMAND <NAME> ... GO" should have the
+"COMMAND <NAME>" and GO each on a seperate line on their own and the block should be
+in between. Check the above examples.
+
+- ADD <NAME> ... GO : Uploads a new axiom set with the name <NAME>.
+- LOAD <NAME>       : Loads a server-side axiom set with the name <NAME>. 
+- STAGE <NAME>      : Stages the axiom set <NAME>.
+- UNSTAGE <NAME>    : Unstages the axiom set <NAME>.
+- REMOVE <NAME>     : Removes the axiom set <NAME> from the memory.
+- DOWNLOAD <NAME>   : Prints the axiom set <NAME>.
+- RUN <NAME> ... GO : Runs a job with the name <NAME>.
+- LIST              : Prints the status of the axiom sets.
+- HELP              : Prints the help message.
+- QUIT              : Closes the connection with the server.
