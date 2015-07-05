@@ -1,0 +1,64 @@
+Short Installation
+------------------
+
+This assumes that you have GNU tar, sh and gawk in your search path! 
+
+Simplest installation:
+
+> tar -xzf E.tgz 
+> cd E
+> ./configure
+> make
+
+
+Starting The Server
+-------------------
+From the root directory of E
+
+> ./PROVER/e_deduction_server ./PROVER/eprover -p <port> -L <server_library>
+
+- Replace the <port> with the port you want the server to start listening to.
+- Replace the <server_library> with a directry that contains the server-side libraries that you want to be availabe to clients. This argument is optional.
+
+
+Starting The Client
+-------------------
+From the root directory of E
+
+> ./PYTHON/enetcat.py localhost <port>
+
+- Replace the <port> with the port you started your server with.
+
+
+Example Commands
+---------------
+
+ADD axiom_set1
+fof(inp1,axiom,(subclass(a,b))).
+fof(inp2,axiom,(subclass(b,c))).
+GO
+
+ADD axiom_set2
+fof(inp3,axiom,((subclass(X,Y) & subclass(Y,Z)) => subclass(X,Z))).
+GO
+
+STAGE axiom_set1
+
+LIST
+
+STAGE axiom_set2
+
+RUN job1
+fof(inp4,conjecture,(subclass(a,c))).
+GO
+
+UNSTAGE axiom_set2
+
+REMOVE axiom_set2
+
+DOWNLOAD axiom_set1
+
+RUN job2
+fof(inp4,conjecture,(subclass(a,c))).
+GO
+
