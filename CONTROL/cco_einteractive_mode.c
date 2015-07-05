@@ -26,12 +26,20 @@ Changes
 /*---------------------------------------------------------------------*/
 
 char* help_message = "\
-# Enter a job, 'help' or 'quit'. Finish any action with 'go.' on a line\n\
-# of its own. A job consists of an optional job name specifier of the\n\
-# form 'job <ident>.', followed by a specification of a first-order\n\
-# problem in TPTP-3 syntax (including any combination of 'cnf', 'fof' and\n\
-# 'include' statements. The system then tries to solve the specified\n\
-# problem (including the constant background theory) and prints the\n\
+# Note : Block commands that are in the form of \"COMMAND <NAME> ... GO\" should have the\n\
+# \"COMMAND <NAME>\" and GO each on a seperate line on their own and the block should be\n\
+# in between.\n\
+#\n\
+#- ADD <NAME> ... GO : Uploads a new axiom set with the name <NAME>.\n\
+#- LOAD <NAME>       : Loads a server-side axiom set with the name <NAME>. \n\
+#- STAGE <NAME>      : Stages the axiom set <NAME>.\n\
+#- UNSTAGE <NAME>    : Unstages the axiom set <NAME>.\n\
+#- REMOVE <NAME>     : Removes the axiom set <NAME> from the memory.\n\
+#- DOWNLOAD <NAME>   : Prints the axiom set <NAME>.\n\
+#- RUN <NAME> ... GO : Runs a job with the name <NAME>.\n\
+#- LIST              : Prints the status of the axiom sets.\n\
+#- HELP              : Prints the help message.\n\
+#- QUIT              : Closes the connection with the server.\n\
 # results of this attempt.\n";
 
 
