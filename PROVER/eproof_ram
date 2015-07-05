@@ -21,7 +21,7 @@
 #
 ########################################################################
 
-EXECPATH=/home/mohamedbassem/repos/E/PROVER
+EXECPATH=/Users/schulz/tmp/E/PROVER
 
 VERSION=`"$EXECPATH"/eprover --version|cut -d' ' -f2-`
 

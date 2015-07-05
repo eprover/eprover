@@ -1,4 +1,4 @@
-#!/usr/bin/gawk -f
+#!/sw/bin/gawk -f
 
 function get_MHz(host,   pipe, tmp, res, i)
 {

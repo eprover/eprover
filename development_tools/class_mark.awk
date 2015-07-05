@@ -1,4 +1,4 @@
-#!/usr/bin/gawk -f
+#!/sw/bin/gawk -f
 
 # Usage: class_mark.awk [file]
 #

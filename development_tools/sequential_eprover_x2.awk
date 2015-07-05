@@ -1,4 +1,4 @@
-#!/usr/bin/gawk -f
+#!/sw/bin/gawk -f
 
 # Usage: sequential_eprover_x2.awk <spec_file>
 #

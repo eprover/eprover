@@ -17,8 +17,17 @@ From the root directory of E
 
 > ./PROVER/e_deduction_server ./PROVER/eprover -p <port> -L <server_library>
 
-- Replace the <port> with the port you want the server to start listening to.
-- Replace the <server_library> with a directry that contains the server-side libraries that you want to be availabe to clients. This argument is optional.
+- Replace the <port> with the port you want the server to start
+  listening to.  The port should be an unused port, typically in the
+  non-reserved "registered port" section. If in doubt, try 2705.
+- Replace the <server_library> with a directory that contains the
+  server-side libraries that you want to be availabe to clients. This
+  argument is optional. If you want to test this feature, we have
+  added some axioms sets. Use './EXAMPLES/AXIOMS'.
+
+The conrete example with the recommended values would be
+
+> ./PROVER/e_deduction_server ./PROVER/eprover -p 2705 -L ./EXAMPLES/AXIOMS
 
 
 Starting The Client
@@ -32,6 +41,11 @@ From the root directory of E
 
 Example Commands
 ---------------
+
+(Note: Capitalization is significant)
+
+
+LIST
 
 ADD axiom_set1
 fof(inp1,axiom,(subclass(a,b))).
@@ -62,3 +76,19 @@ RUN job2
 fof(inp4,conjecture,(subclass(a,c))).
 GO
 
+Example session with server-side axioms:
+-----------------------------------------
+
+LIST
+
+LOAD CSR002+2.ax
+
+STAGE   CSR002+2.ax
+
+RUN job3
+fof(query75,conjecture,
+    ( mtvisible(c_patterndetectormt)
+   => genls(c_tptpcol_16_130933,c_tptpcol_15_130931) )).
+GO
+
+QUIT
