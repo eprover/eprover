@@ -5,6 +5,8 @@ Version 1.9pre016 -> 1.9 Sourenee
 
 - Fixed Auto-SInE to never SInE if there is no seed to SInE on
 - Added output of proof graphs in GraphViz/dot format (coloured, too!)
+- Added derivation output for CNFization
+- Fiexed minor bug in proof output
 
 
 Version 1.8 -> 1.9pre016
