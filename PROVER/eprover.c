@@ -512,18 +512,10 @@ int main(int argc, char* argv[])
       }      
       if(BuildProofObject)
       {
-         Derivation_p derivation = 
-            DerivationCompute(proofstate->extract_roots, 
-                              proofstate->signature);
-         if(proof_graph)
-         {
-            DerivationDotPrint(GlobalOut, derivation, proof_graph==2);
-         }
-         else
-         {
-            DerivationPrint(GlobalOut, derivation, "CNFRefutation");
-         }
-         DerivationFree(derivation);
+         DerivationComputeAndPrint(GlobalOut,
+                                   proofstate->extract_roots,
+                                   proofstate->signature,
+                                   proof_graph);
       }
    }
    else if(proofstate->watchlist && ClauseSetEmpty(proofstate->watchlist))
@@ -594,8 +586,6 @@ int main(int argc, char* argv[])
          (retval!=INCOMPLETE_PROOFSTATE)&&
          (retval!=RESOURCE_OUT))
       {
-         Derivation_p derivation;
-
          ClauseSetPushClauses(proofstate->extract_roots, 
                               proofstate->processed_pos_rules);
          ClauseSetPushClauses(proofstate->extract_roots,
@@ -604,10 +594,16 @@ int main(int argc, char* argv[])
                               proofstate->processed_neg_units);
          ClauseSetPushClauses(proofstate->extract_roots,
                               proofstate->processed_non_units);
-         derivation = DerivationCompute(proofstate->extract_roots, 
-                                        proofstate->signature);
-         DerivationPrint(GlobalOut, derivation, sat_status);
-         DerivationFree(derivation);
+         if(cnf_only)
+         {
+            ClauseSetPushClauses(proofstate->extract_roots, 
+                                 proofstate->unprocessed);
+            print_sat = false;
+         }
+         DerivationComputeAndPrint(GlobalOut,
+                                   proofstate->extract_roots,
+                                   proofstate->signature,
+                                   proof_graph);
       }
 
    }

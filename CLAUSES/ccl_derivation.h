@@ -222,6 +222,10 @@ Derivation_p DerivationCompute(PStack_p root_clauses, Sig_p sig);
 void DerivationPrint(FILE* out, Derivation_p derivation, char* frame);
 void DerivationDotPrint(FILE* out, Derivation_p derivation, bool full);
 
+void DerivationComputeAndPrint(FILE* out, PStack_p root_clauses, 
+                               Sig_p sig, int proof_graph);
+
+
 
 #endif
 

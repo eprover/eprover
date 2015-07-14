@@ -1576,6 +1576,34 @@ void DerivationDotPrint(FILE* out, Derivation_p derivation, bool full)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: DerivationComputeAndPrint()
+//
+//   Compute, print, and discard a derivation.
+//
+// Global Variables: -
+//
+// Side Effects    : Output, memory operations
+//
+/----------------------------------------------------------------------*/
+
+void DerivationComputeAndPrint(FILE* out, PStack_p root_clauses, 
+                               Sig_p sig, int proof_graph)
+{
+   Derivation_p derivation = DerivationCompute(root_clauses, sig);
+
+   if(proof_graph)
+   {
+      DerivationDotPrint(GlobalOut, derivation, proof_graph==2);
+   }
+   else
+   {
+      DerivationPrint(GlobalOut, derivation, "CNFRefutation");
+   }
+   DerivationFree(derivation);
+}
+
 
 
 /*---------------------------------------------------------------------*/

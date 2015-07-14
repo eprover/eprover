@@ -2245,7 +2245,7 @@ bool ClauseNotGreaterEqual(OCB_p ocb,
 			   Clause_p clause1, Clause_p clause2)
 {
    Eqn_p cl1lits = clause1->literals;
-   Eqn_p cl2lits = clause2->literals, cl2litseqs;
+   Eqn_p cl2lits = clause2->literals,cl2litseqs;
    bool foundeq, foundeqlater, foundgtr;
 
    EqnListDelProp(cl1lits, EPHasEquiv | EPDominates);
