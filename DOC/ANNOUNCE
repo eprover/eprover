@@ -1435,6 +1435,8 @@ Notes
 * Unless there is copious protest from existing users, the next
   version of E will switch from "#" to "%" as the standard comment 
   character, for improved compliance with the TPTP-3 standard.
+* I will also release an experimental version of E with support for
+  TFF shortly. Thanks to Simon Cruanes for making that possible.
 
 You can find the source distribution and additional information at
 the E website at 
