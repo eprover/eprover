@@ -137,6 +137,7 @@ if __name__ == '__main__':
     cores  = 2
     getcpu = False
     opts, args = getopt.gnu_getopt(sys.argv[1:], "hCc:")
+    cpu = "Generic CPU"
 
     for option, optarg in opts:
         if option == "-h":

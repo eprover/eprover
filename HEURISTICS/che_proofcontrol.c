@@ -83,6 +83,9 @@ char* DefaultHeuristics=
 #include "che_X_auto_sched2.c" 
 #include "che_X_auto_sched3.c" 
 #include "che_X_auto_sched4.c" 
+#include "che_X_auto_sched5.c" 
+#include "che_X_auto_sched6.c" 
+#include "che_X_auto_sched7.c" 
 
 ;
 

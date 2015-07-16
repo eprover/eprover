@@ -1082,7 +1082,11 @@ for i in stratset.keys():
 
 sys.stderr.write("Parsing done, running optimizer\n")
 
+# -> 10815
 time_limits = [152, 74, 24, 18, 13, 9, 5, 5]
+
+# -> 10809
+# time_limits = [120, 74, 32, 24, 18, 13, 9, 5, 5]
 
 itercount = 0;
 

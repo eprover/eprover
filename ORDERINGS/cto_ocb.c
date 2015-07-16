@@ -315,7 +315,14 @@ void OCBDebugPrint(FILE* out, OCB_p ocb)
 	 {
 	    fprintf(out, "\n# ");
 	 }
-	 fprintf(out, " (%ld = %ld) ", i, OCBFunWeight(ocb, i));
+         if(ocb->sig)
+         {
+            fprintf(out, " (%s = %ld) ", SigFindName(ocb->sig,i), OCBFunWeight(ocb, i));
+         }
+         else
+         {
+            fprintf(out, " (%ld = %ld) ", i, OCBFunWeight(ocb, i));
+         }
       }
       fprintf(out, "\n\n");
    }

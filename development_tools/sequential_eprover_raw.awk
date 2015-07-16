@@ -279,7 +279,7 @@ BEGIN{
    print "Working directory is " cwd "."; 
    procid = get_pid();
    global_hostname = get_hostname();
-
+   jobs = ""
    print "PID is " procid " on host " global_hostname ".";
 }
 

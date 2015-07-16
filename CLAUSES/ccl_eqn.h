@@ -155,7 +155,7 @@ void    EqnFree(Eqn_p junk);
 #define EqnIsEquLit(eq)   EqnQueryProp((eq), EPIsEquLiteral)
 #define EqnIsMaximal(eq)  EqnQueryProp((eq), EPIsMaximal)
 #define EqnIsStrictlyMaximal(eq)\
-                          EqnQueryProp((eq), EPIsStrictlyMax)
+                          EqnQueryProp((eq), EPIsStrictlyMaximal)
 
 #define EqnGetPredCode(eq) (EqnIsEquLit(eq)?0:(eq)->lterm->f_code)
 #define EqnIsSplitLit(eq) \

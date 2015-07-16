@@ -733,7 +733,7 @@ Clause_p ClauseSetFindBest(ClauseSet_p set, int idx)
 
    /* printf("I: %d", idx); */
    evaluation =
-      EvalTreeFindSmallestWrap(PDArrayElementP(set->eval_indices, idx), idx);
+      EvalTreeFindSmallest(PDArrayElementP(set->eval_indices, idx), idx);
    
    if(!evaluation)
    {
