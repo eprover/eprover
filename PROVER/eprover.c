@@ -513,6 +513,7 @@ int main(int argc, char* argv[])
       if(BuildProofObject)
       {
          DerivationComputeAndPrint(GlobalOut,
+                                   "CNFRefutation",
                                    proofstate->extract_roots,
                                    proofstate->signature,
                                    proof_graph);
@@ -601,6 +602,7 @@ int main(int argc, char* argv[])
             print_sat = false;
          }
          DerivationComputeAndPrint(GlobalOut,
+                                   sat_status,
                                    proofstate->extract_roots,
                                    proofstate->signature,
                                    proof_graph);
