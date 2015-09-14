@@ -227,6 +227,79 @@ PStack_p derived_get_derivation(Derived_p derived)
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: DerivedInProof()
+//
+//   Return true if the derived cell is known to be in proof. This is
+//   the case if it is the empty clause, or if it marked as being in a
+//   proof (presumably because one of its transitive descendants is
+//   the empty clause).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool DerivedInProof(Derived_p derived)
+{
+   if(derived->clause)
+   {
+      if(ClauseIsEmpty(derived->clause))
+      {
+         return true;
+      }
+      if(ClauseQueryProp(derived->clause,CPIsProofClause))
+      {
+         return true;
+      }
+      return false;
+   }
+   return FormulaQueryProp(derived->formula,WPIsProofClause);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: DerivedMarkProof()
+//
+//   Mark a derived cell as a proof cell.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void DerivedSetInProof(Derived_p derived, bool in_proof)
+{
+   if(in_proof)
+   {
+      if(derived->clause)
+      {
+         ClauseSetProp(derived->clause,CPIsProofClause);
+      }
+      else
+      {
+         FormulaSetProp(derived->formula, WPIsProofClause);
+      }
+   }
+   else
+   {
+      if(derived->clause)
+      {
+         ClauseDelProp(derived->clause,CPIsProofClause);
+      }
+      else
+      {
+         FormulaDelProp(derived->formula, WPIsProofClause);
+      }      
+   }
+}
+
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: ClausePushDerivation()
@@ -496,7 +569,7 @@ long DerivStackExtractParents(PStack_p derivation,
 // Function: DerivStackExtractOptParents()
 //
 //   Given a derivation stack (derivation-codes with arguments),
-//   return all the (occurances of) all the original instances of the
+//   return all the (occurrences of) all the original instances of the
 //   side premises referenced in the derivation (via the result
 //   stacks). Return value is the number of premises found. Modify the
 //   derivation to replace references to a parent with references to
@@ -1052,7 +1125,7 @@ void DerivedTSTPPrint(FILE* out, Sig_p sig, Derived_p derived)
 //
 /----------------------------------------------------------------------*/
 
-void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived, bool full)
+void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived, int proof_graph)
 {
    PStack_p parent_clauses = PStackAlloc();
    PStack_p parent_formulas = PStackAlloc();
@@ -1062,7 +1135,9 @@ void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived, bool full)
    WFormula_p fparent;
    // long       parent_count;
    ClauseInfo_p info;
-   char *colour = ",fillcolor=ivory1";
+   char *colour = ",color=green,fillcolor=palegreen";
+   char *linkcol = "";
+   char *deflinkcol = ",color=gray, fillcolor=gray";
    
    if(derived->clause)
    {
@@ -1073,7 +1148,7 @@ void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived, bool full)
       {
       case CPTypeConjecture:
       case CPTypeNegConjecture:
-            colour = ",fillcolor=lightskyblue1";
+            colour = ",color=blue,fillcolor=lightskyblue1";
             break;
       default:
             break;
@@ -1088,16 +1163,21 @@ void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived, bool full)
       switch(FormulaQueryType(derived->formula))
       {
       case CPTypeConjecture:
-            colour = ",fillcolor=lightpink1";
+            colour = ",color=red,fillcolor=lightpink1";
             break;
       case CPTypeNegConjecture:
-            colour = ",fillcolor=lightskyblue1";
+            colour = ",color=blue,fillcolor=lightskyblue1";
             break;
       default:
             break;
       }
 
    }
+   if(!DerivedInProof(derived))
+   {
+      colour = deflinkcol;
+   }
+   linkcol = colour;
    if(deriv)
    {
          DerivStackExtractOptParents(deriv,
@@ -1110,16 +1190,31 @@ void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived, bool full)
    //PStackGetSP(parent_formulas);
 
    fprintf(out, "  %ld [shape=box%s,style=filled,label=\"", id, colour);
+   
    if(derived->clause)
    {
-      ClauseTSTPPrint(out, derived->clause, true, false);
+      if(proof_graph > 1)
+      {
+         ClauseTSTPPrint(out, derived->clause, true, false);
+      }
+      else
+      {
+         fprintf(out, "c%ld", derived->clause->ident);
+      }
    }
    else
    {
       assert(derived->formula);
-      WFormulaTSTPPrint(out, derived->formula, true, false);
+      if(proof_graph > 1)
+      {
+         WFormulaTSTPPrint(out, derived->formula, true, false);
+      }
+      else
+      {
+         fprintf(out, "c%ld", derived->formula->ident);
+      }
    }
-   if(full)
+   if(proof_graph>2)
    {
       if(deriv)
       {
@@ -1131,18 +1226,32 @@ void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived, bool full)
          fprintf(out, ",\\n");   
          ClauseSourceInfoPrintTSTP(out, info); 
       }
-   }   
-   fprintf(out, ").\"]\n");
+   }
+   if(proof_graph >1)
+   {
+      fprintf(out, ").\n");
+   }
+   fprintf(out, "\"]\n");
 
    while(!PStackEmpty(parent_clauses))
    {
+      linkcol = colour;
       cparent = PStackPopP(parent_clauses);
-      fprintf(out, "    %ld -> %ld\n", cparent->ident, id);
+      if(!ClauseQueryProp(cparent, CPIsProofClause))
+      {
+         linkcol=deflinkcol;
+      }
+      fprintf(out, "    %ld -> %ld [style=\"bold\"%s]\n", cparent->ident, id, linkcol);
    }
    while(!PStackEmpty(parent_formulas))
    {
+      linkcol = colour;
       fparent = PStackPopP(parent_formulas);
-      fprintf(out, "    %ld -> %ld\n", fparent->ident, id);
+      if(!FormulaQueryProp(fparent, WPIsProofClause))
+      {
+         linkcol=deflinkcol;
+      }
+      fprintf(out, "    %ld -> %ld [style=\"bold\"%s]\n", fparent->ident, id, linkcol);
    }
    PStackFree(parent_clauses);
    PStackFree(parent_formulas);
@@ -1270,6 +1379,7 @@ long DerivationExtract(Derivation_p derivation, PStack_p root_clauses)
    {
       node = PStackElementP(stack,i);
       node->is_fresh = false;
+      DerivedSetInProof(node,DerivedInProof(node));
    }
 
    while(!PStackEmpty(stack))
@@ -1281,9 +1391,9 @@ long DerivationExtract(Derivation_p derivation, PStack_p root_clauses)
       assert(PStackEmpty(parent_clauses));
       assert(PStackEmpty(parent_formulas));
       DerivStackExtractOptParents(deriv,
-                               derivation->sig,
-                               parent_clauses, 
-                               parent_formulas);
+                                  derivation->sig,
+                                  parent_clauses, 
+                                  parent_formulas);
       while(!PStackEmpty(parent_clauses))
       {
          clause = PStackPopP(parent_clauses);
@@ -1315,6 +1425,88 @@ long DerivationExtract(Derivation_p derivation, PStack_p root_clauses)
 
    return PStackGetSP(derivation->roots);
 }
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: DerivationMarkProofSteps()
+//
+//   Go through the derivation, marking all proof steps. Assumes that
+//   derivation->roots provides (direct or indirect) access to all
+//   proof steps.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+long DerivationMarkProofSteps(Derivation_p derivation)
+{
+   long          proof_steps = 0;
+   Clause_p      clause;
+   WFormula_p    form;   
+   Derived_p     node, newnode;
+   PStack_p      deriv;
+   PStack_p      stack, parent_clauses, parent_formulas;
+
+   parent_clauses  = PStackAlloc();
+   parent_formulas = PStackAlloc();
+   PStackPointer i;
+
+   stack = PStackCopy(derivation->roots);
+
+   for(i=0; i<PStackGetSP(stack); i++)
+   {
+      node = PStackElementP(stack,i);
+      DerivedSetInProof(node, DerivedInProof(node));
+   }
+
+   while(!PStackEmpty(stack))
+   {
+      node = PStackPopP(stack);
+
+      deriv = derived_get_derivation(node);
+      if(DerivedInProof(node))
+      {
+         proof_steps++;
+         assert(PStackEmpty(parent_clauses));
+         assert(PStackEmpty(parent_formulas));
+         DerivStackExtractOptParents(deriv,
+                                     derivation->sig,
+                                     parent_clauses, 
+                                     parent_formulas);
+         while(!PStackEmpty(parent_clauses))
+         {
+            clause = PStackPopP(parent_clauses);
+            newnode = DerivationGetDerived(derivation, clause, NULL);
+            if(!DerivedInProof(newnode))
+            {
+               DerivedSetInProof(newnode,true);
+               PStackPushP(stack, newnode);
+            }
+         }
+         while(!PStackEmpty(parent_formulas))
+         {
+            form = PStackPopP(parent_formulas);
+            newnode = DerivationGetDerived(derivation, NULL, form);
+            if(!DerivedInProof(newnode))
+            {
+               DerivedSetInProof(newnode,true);
+               PStackPushP(stack, newnode);
+            }
+         }     
+      }
+   }
+   PStackFree(parent_clauses);
+   PStackFree(parent_formulas);
+   PStackFree(stack);
+
+   return proof_steps;
+}
+
+
 
 
 /*-----------------------------------------------------------------------
@@ -1369,9 +1561,9 @@ long DerivationTopoSort(Derivation_p derivation)
       deriv = derived_get_derivation(node);
 
       (void)DerivStackExtractParents(deriv,
-                                           derivation->sig,
-                                           parent_clauses, 
-                                           parent_formulas);
+                                     derivation->sig,
+                                     parent_clauses, 
+                                     parent_formulas);
       while(!PStackEmpty(parent_clauses))
       {
          clause = PStackPopP(parent_clauses);
@@ -1487,6 +1679,7 @@ Derivation_p DerivationCompute(PStack_p root_clauses, Sig_p sig)
       PStackPushP(res->roots, node);
    }       
    DerivationExtract(res, root_clauses);
+   DerivationMarkProofSteps(res);
    DerivationTopoSort(res);
    DerivationRenumber(res);
    
@@ -1547,7 +1740,7 @@ void DerivationPrint(FILE* out, Derivation_p derivation, char* frame)
 //
 /----------------------------------------------------------------------*/
 
-void DerivationDotPrint(FILE* out, Derivation_p derivation, bool full)
+void DerivationDotPrint(FILE* out, Derivation_p derivation, int proof_graph)
 {
    PStackPointer sp;
    Derived_p     node;
@@ -1570,7 +1763,7 @@ void DerivationDotPrint(FILE* out, Derivation_p derivation, bool full)
          fprintf(out, "   }\n");
          axiom_open = false;
       }
-      DerivedDotPrint(out, derivation->sig, node, full);
+      DerivedDotPrint(out, derivation->sig, node, proof_graph);
    }
    fprintf(out, "}\n");
 }
@@ -1595,7 +1788,7 @@ void DerivationComputeAndPrint(FILE* out, char* status, PStack_p root_clauses,
 
    if(proof_graph)
    {
-      DerivationDotPrint(GlobalOut, derivation, proof_graph==2);
+      DerivationDotPrint(GlobalOut, derivation, proof_graph);
    }
    else
    {

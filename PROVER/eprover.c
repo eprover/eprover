@@ -60,8 +60,9 @@ char              *watchlist_filename = NULL;
 HeuristicParms_p  h_parms;
 FVIndexParms_p    fvi_parms;
 bool              print_sat = false,
+                  print_full_deriv = false,
                   print_statistics = false,
-                  filter_sat = false,
+                  filter_sat = false,   
                   print_rusage = false,
                   print_pid = false,
                   print_version = false,
@@ -512,6 +513,19 @@ int main(int argc, char* argv[])
       }      
       if(BuildProofObject)
       {
+         if(print_full_deriv)
+         {
+            ClauseSetPushClauses(proofstate->extract_roots, 
+                                 proofstate->processed_pos_rules);
+            ClauseSetPushClauses(proofstate->extract_roots,
+                                 proofstate->processed_pos_eqns);
+            ClauseSetPushClauses(proofstate->extract_roots,
+                                 proofstate->processed_neg_units);
+            ClauseSetPushClauses(proofstate->extract_roots,
+                                 proofstate->processed_non_units);
+            ClauseSetPushClauses(proofstate->extract_roots, 
+                                 proofstate->unprocessed);
+         }         
          DerivationComputeAndPrint(GlobalOut,
                                    "CNFRefutation",
                                    proofstate->extract_roots,
@@ -785,7 +799,10 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_PROOF_GRAPH:
             BuildProofObject = 1;
-            proof_graph = CLStateGetIntArg(handle, arg);;
+            proof_graph = CLStateGetIntArg(handle, arg);
+            break;
+      case OPT_FULL_DERIV:
+            print_full_deriv = true;
             break;
       case OPT_PCL_COMPRESSED:
 	    pcl_full_terms = false;

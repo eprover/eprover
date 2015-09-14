@@ -196,12 +196,15 @@ Derived_p DerivedAlloc(void);
 #define DerivedGetDerivstack(d) \
    ((d)->clause?(d)->clause->derivation:(d)->formula->derivation)
 
+bool DerivedInProof(Derived_p derived);
+void DerivedSetInProof(Derived_p derived, bool in_proof);
+
 void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation);
 void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation);
 
 void DerivedPCLPrint(FILE* out, Sig_p sig, Derived_p derived);
 void DerivedTSTPPrint(FILE* out, Sig_p sig, Derived_p derived);
-void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived, bool full);
+void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived, int fullness);
 
 
 #define DerivationCellAlloc() (DerivationCell*)SizeMalloc(sizeof(DerivationCell))
@@ -215,12 +218,13 @@ Derived_p DerivationGetDerived(Derivation_p derivation, Clause_p clause,
 
 
 long DerivationExtract(Derivation_p derivation, PStack_p root_clauses);
+long DerivationMarkProofSteps(Derivation_p derivation);
 long DerivationTopoSort(Derivation_p derivation);
 void DerivationRenumber(Derivation_p derivation);
 
 Derivation_p DerivationCompute(PStack_p root_clauses, Sig_p sig);
 void DerivationPrint(FILE* out, Derivation_p derivation, char* frame);
-void DerivationDotPrint(FILE* out, Derivation_p derivation, bool full);
+void DerivationDotPrint(FILE* out, Derivation_p derivation, int proof_graph);
 
 void DerivationComputeAndPrint(FILE* out, char* status, PStack_p root_clauses, 
                                Sig_p sig, int proof_graph);

@@ -52,6 +52,7 @@ typedef enum
    OPT_OUTPUTLEVEL,
    OPT_PROOF_OBJECT,
    OPT_PROOF_GRAPH,
+   OPT_FULL_DERIV,
    OPT_PCL_COMPRESSED,
    OPT_PCL_COMPACT,
    OPT_PCL_SHELL_LEVEL,
@@ -228,12 +229,19 @@ OptCell opts[] =
 
    {OPT_PROOF_GRAPH,
     '\0', "proof-graph",
-    OptArg, "2",
+    OptArg, "3",
     "Generate (and print, in case of success) an internal proof object "
-    "in the form of a GraphViz dot graph. The optional argument can be 1"
-    "(nodes are labelled with just the TPTP clause/formula) or 2 (nodes"
+    "in the form of a GraphViz dot graph. The optional argument can be 1 "
+    "(nodes are labelled with just name of the clause), 2 (nodes are "
+    "labelled with just the TPTP clause/formula) or 3  (nodes "   
     "also labelled with source/inference record."}, 
 
+   {OPT_FULL_DERIV,
+    'd', "full-deriv",
+    NoArg, NULL,
+    "Include all derived formuas/clauses in the proof graph/proof "
+    "object, not just the ones contributing to the actual proof."}, 
+   
    {OPT_PCL_COMPRESSED,
     '\0', "pcl-terms-compressed",
     NoArg, NULL,

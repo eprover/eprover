@@ -50,6 +50,7 @@ typedef enum
    WPTypeNegConjecture = CPTypeNegConjecture, /* Formula is
                                                * NegConjecture */
    WPTypeQuestion   = CPTypeQuestion,
+   WPIsProofClause  = CPIsProofClause,
    WPIsRelevant     = CPIsRelevant
 }WFormulaProperties;
 

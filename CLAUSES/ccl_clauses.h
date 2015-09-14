@@ -115,7 +115,7 @@ typedef enum
                                            * ways. */
    CPIsRelevant     = 2*CPLimitedRW       /* Clause is selected as
                                            * relevant for a proof
-                                           * attempt. */
+                                           * attempt (used by SInE). */
 }ClauseProperties;
 
 
