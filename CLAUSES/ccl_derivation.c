@@ -141,6 +141,13 @@ char *opstatus [] =
 };
 
 
+static char *node_gray = ",color=gray, fillcolor=gray",
+   *node_green = ",color=green,fillcolor=palegreen",
+   *node_red   = ",color=red,fillcolor=lightpink1",
+   *node_blue  = ",color=blue,fillcolor=lightskyblue1";
+
+
+
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -1114,6 +1121,113 @@ void DerivedTSTPPrint(FILE* out, Sig_p sig, Derived_p derived)
 
 /*-----------------------------------------------------------------------
 //
+// Function: DerivedDotNodeColour()
+//
+//   Return a string description of the colour to use for a given node
+//   in a derivation.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+char* DerivedDotNodeColour(Derived_p derived)
+{
+   if(!DerivedInProof(derived))
+   {
+      return node_gray;
+   }
+   if(derived->clause)
+   {
+      switch(ClauseQueryTPTPType(derived->clause))
+      {
+      case CPTypeConjecture:
+      case CPTypeNegConjecture:
+            return node_blue;
+            break;
+      default:
+            return node_green;
+            break;
+      }
+   }
+   else
+   {
+      switch(FormulaQueryType(derived->formula))
+      {
+      case CPTypeConjecture:
+            return node_red;
+            break;
+      case CPTypeNegConjecture:
+            return node_blue;
+            break;
+      default:
+            return node_green;
+            break;
+      }
+   }  
+   assert(false);
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: DerivedDotClauseLinkColour()
+//
+//   Return a string description of the colour to use for a given link
+//   in a derivation.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+char* DerivedDotClauseLinkColour(Derived_p child, Clause_p parent)
+{
+   if(!ClauseQueryProp(parent, CPIsProofClause))
+   {
+      return node_gray;
+   }
+   if(!DerivedInProof(child))
+   {
+      return node_gray;
+   }
+   return DerivedDotNodeColour(child);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: DerivedDotFormulaLinkColour()
+//
+//   Return a string description of the colour to use for a given link
+//   in a derivation.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+char* DerivedDotFormulaLinkColour(Derived_p child, WFormula_p parent)
+{
+   if(!FormulaQueryProp(parent, CPIsProofClause))
+   {
+      return node_gray;
+   }
+   if(!DerivedInProof(child))
+   {
+      return node_gray;
+   }
+   return DerivedDotNodeColour(child);
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: DerivedDotPrint()
 //
 //   Print a "Derived" cell - i.e. the clause or formula, and its
@@ -1135,24 +1249,12 @@ void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived, int proof_graph)
    WFormula_p fparent;
    // long       parent_count;
    ClauseInfo_p info;
-   char *colour = ",color=green,fillcolor=palegreen";
-   char *linkcol = "";
-   char *deflinkcol = ",color=gray, fillcolor=gray";
    
    if(derived->clause)
    {
       id = derived->clause->ident;
       deriv = derived->clause->derivation;
       info  = derived->clause->info;
-      switch(ClauseQueryTPTPType(derived->clause))
-      {
-      case CPTypeConjecture:
-      case CPTypeNegConjecture:
-            colour = ",color=blue,fillcolor=lightskyblue1";
-            break;
-      default:
-            break;
-      }
    }
    else
    {
@@ -1160,24 +1262,7 @@ void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived, int proof_graph)
       id = derived->formula->ident;
       deriv = derived->formula->derivation;
       info  = derived->formula->info;
-      switch(FormulaQueryType(derived->formula))
-      {
-      case CPTypeConjecture:
-            colour = ",color=red,fillcolor=lightpink1";
-            break;
-      case CPTypeNegConjecture:
-            colour = ",color=blue,fillcolor=lightskyblue1";
-            break;
-      default:
-            break;
-      }
-
    }
-   if(!DerivedInProof(derived))
-   {
-      colour = deflinkcol;
-   }
-   linkcol = colour;
    if(deriv)
    {
          DerivStackExtractOptParents(deriv,
@@ -1189,7 +1274,8 @@ void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived, int proof_graph)
    //parent_count = PStackGetSP(parent_clauses)+ 
    //PStackGetSP(parent_formulas);
 
-   fprintf(out, "  %ld [shape=box%s,style=filled,label=\"", id, colour);
+   fprintf(out, "  %ld [shape=box%s,style=filled,label=\"", id, 
+           DerivedDotNodeColour(derived)); 
    
    if(derived->clause)
    {
@@ -1235,23 +1321,15 @@ void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived, int proof_graph)
 
    while(!PStackEmpty(parent_clauses))
    {
-      linkcol = colour;
       cparent = PStackPopP(parent_clauses);
-      if(!ClauseQueryProp(cparent, CPIsProofClause))
-      {
-         linkcol=deflinkcol;
-      }
-      fprintf(out, "    %ld -> %ld [style=\"bold\"%s]\n", cparent->ident, id, linkcol);
+      fprintf(out, "    %ld -> %ld [style=\"bold\"%s]\n", cparent->ident, id, 
+              DerivedDotClauseLinkColour(derived, cparent));
    }
    while(!PStackEmpty(parent_formulas))
    {
-      linkcol = colour;
       fparent = PStackPopP(parent_formulas);
-      if(!FormulaQueryProp(fparent, WPIsProofClause))
-      {
-         linkcol=deflinkcol;
-      }
-      fprintf(out, "    %ld -> %ld [style=\"bold\"%s]\n", fparent->ident, id, linkcol);
+      fprintf(out, "    %ld -> %ld [style=\"bold\"%s]\n", fparent->ident, id, 
+              DerivedDotFormulaLinkColour(derived, fparent));
    }
    PStackFree(parent_clauses);
    PStackFree(parent_formulas);
@@ -1751,6 +1829,7 @@ void DerivationDotPrint(FILE* out, Derivation_p derivation, int proof_graph)
    fprintf(out, 
            "digraph proof{\n"
            "  rankdir=TB\n"
+           "  graph [splines=true overlap=false];\n"
            "  subgraph ax{\n"
            "  rank=\"same\";\n"
       );
@@ -1759,7 +1838,7 @@ void DerivationDotPrint(FILE* out, Derivation_p derivation, int proof_graph)
    {
       node = PStackElementP(derivation->ordered_deriv, sp);
       if(axiom_open && DerivedGetDerivstack(node))
-      {
+      { /* Axioms come first, and this is not one anymore */
          fprintf(out, "   }\n");
          axiom_open = false;
       }
