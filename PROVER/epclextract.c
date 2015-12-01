@@ -162,11 +162,11 @@ int main(int argc, char* argv[])
 
    assert(argv[0]);
    
+#ifdef STACK_SIZE
+   INCREASE_STACK_SIZE;
+#endif
    SupportShellPCL = true;
    InitIO(NAME);
-#ifdef STACK_SIZE
-   IncreaseMaxStackSize(argv, STACK_SIZE);
-#endif
    atexit(TempFileCleanup);
 
    ESignalSetup(SIGTERM);

@@ -451,7 +451,7 @@ long WFormulaCNF(WFormula_p form, ClauseSet_p set,
 // Function: FormulaSetSimplify()
 //
 //   Apply standard FOF simplification rules to all formulae in the
-//   set. Returns numer of changed formulas.
+//   set. Returns number of changed formulas.
 //
 // Global Variables: -
 //

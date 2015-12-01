@@ -355,11 +355,11 @@ int main(int argc, char* argv[])
    StrTree_p       skip_includes = NULL;
 
    assert(argv[0]);
-   
-   InitIO(NAME);
+
 #ifdef STACK_SIZE
-   IncreaseMaxStackSize(argv, STACK_SIZE);
-#endif   
+   INCREASE_STACK_SIZE;
+#endif
+   InitIO(NAME);
    ESignalSetup(SIGXCPU);
 
    state = process_options(argc, argv);

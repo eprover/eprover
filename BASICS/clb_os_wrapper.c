@@ -200,26 +200,51 @@ rlim_t GetSoftRlimit(int resource)
 //
 /----------------------------------------------------------------------*/
 
-void IncreaseMaxStackSize(char *argv[], rlim_t stacksize)
-{
-   if(GetSoftRlimit(RLIMIT_STACK)>=stacksize*KILO)
-   {
-      return;
-   }  
-   if(SetSoftRlimit(RLIMIT_STACK, stacksize*KILO)!=RLimSuccess)
-   {
-      TmpErrno = errno;
-      Warning("Cannot set stack limit:");
-      Warning(strerror(TmpErrno));
-      Warning("Continuing with default stack limit");
-      return;
-   }
-   if(execvp(argv[0], argv))
-   {
-      TmpErrno = errno;
-      SysError("Cannot exec", SYS_ERROR);
-   }
-}
+/* void IncreaseMaxStackSize(char *argv[], rlim_t stacksize) */
+/* { */
+/*    int   i, argc; */
+/*    char* opt="Dummy"; */
+/*    printf("Hallo\n"); */
+
+/*    char **argv2; */
+/*    for(i=1; argv[i]; i++) */
+/*    { */
+/*       printf("Hallo %s\n", argv[i]); */
+/*       if(strcmp(argv[i], opt)==0) */
+/*       { */
+/*          return; */
+/*       } */
+/*    } */
+/*    argc = i; */
+
+/*    if(GetSoftRlimit(RLIMIT_STACK)>=stacksize*KILO) */
+/*    { */
+/*       return; */
+/*    }   */
+/*    if(SetSoftRlimit(RLIMIT_STACK, stacksize*KILO)!=RLimSuccess) */
+/*    { */
+/*       TmpErrno = errno; */
+/*       Warning("Cannot set stack limit:"); */
+/*       Warning(strerror(TmpErrno)); */
+/*       Warning("Continuing with default stack limit"); */
+/*       return; */
+/*    } */
+
+/*    argv2 = malloc(sizeof(char*) * (argc+2)); */
+/*    for(i=0; argv[i]; i++) */
+/*    { */
+/*       argv2[i] = argv[i]; */
+/*    } */
+/*    argv2[i] = opt; */
+/*    argv2[i+1] = NULL; */
+   
+/*    if(execvp(argv2[0], argv2)) */
+/*    { */
+/*       TmpErrno = errno; */
+/*       SysError("Cannot exec", SYS_ERROR); */
+/*    } */
+/*    free(argv2); */
+/* } */
 
 
 /*-----------------------------------------------------------------------

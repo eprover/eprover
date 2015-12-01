@@ -380,6 +380,12 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
    fprintf(out, 
 	   "# ...number of literals in the above   : %ld\n",
 	   state->unprocessed->literals);
+   fprintf(out, 
+	   "# Current number of archived formulas  : %ld\n",
+	   state->f_archive->members);
+   fprintf(out, 
+	   "# Current number of archived clauses   : %ld\n",
+	   state->archive->members);
    if(TBPrintDetails)
    {
       fprintf(out, 

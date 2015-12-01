@@ -54,6 +54,32 @@ typedef enum
 #define GETTIME GetUSecClock
 #endif
 
+#define INCREASE_STACK_SIZE \
+   {\
+      struct rlimit rlim;\
+      int res;\
+      rlim.rlim_cur = 0;\
+      rlim.rlim_max = 0;\
+      \
+      if(getrlimit(RLIMIT_STACK, &rlim)==-1)\
+      {\
+         TmpErrno = errno;\
+         fprintf(stderr, "%s: Warning: Cannot get stack limit", argv[0]);\
+      }\
+      else\
+      {\
+         rlim.rlim_cur=rlim.rlim_max;\
+         res = setrlimit(RLIMIT_STACK, &rlim);\
+         if(res ==-1)\
+         {\
+            fprintf(stderr, "%s: Warning: Cannot set stack limit", argv[0]);\
+            fprintf(stderr, "%s: Warning: Continuing with default stack size", argv[0]);\
+         }\
+      }\
+   }
+
+
+
 #ifdef INSTRUMENT_PERF_CTR
 #define PERF_CTR_DEFINE(name)  long long name = 0; long long name##_store
 #define PERF_CTR_DECL(name)    extern long long name; extern long long name##_store
@@ -70,12 +96,11 @@ typedef enum
 #define PERF_CTR_PRINT(out, name)
 #endif
 
-
 RLimResult SetSoftRlimit(int resource, rlim_t limit);
 void       SetSoftRlimitErr(int resource, rlim_t limit, char* desc);
 void       SetMemoryLimit(rlim_t mem_limit);
 rlim_t     GetSoftRlimit(int resource);
-void       IncreaseMaxStackSize(char *argv[], rlim_t stacksize);
+// void       IncreaseMaxStackSize(char *argv[], rlim_t stacksize);
 long long  GetUSecTime(void);
 long long  GetUSecClock(void);
 #define    GetMSecTime() (GetUSecTime()/1000)

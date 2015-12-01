@@ -355,11 +355,13 @@ int main(int argc, char* argv[])
 
    assert(argv[0]);
 
+#ifdef STACK_SIZE
+   INCREASE_STACK_SIZE;
+#endif
+
    pid = getpid();
    InitIO(NAME);
-#ifdef STACK_SIZE
-   IncreaseMaxStackSize(argv, STACK_SIZE);
-#endif
+
    ESignalSetup(SIGXCPU);
 
    h_parms = HeuristicParmsAlloc();

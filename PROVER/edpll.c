@@ -161,11 +161,10 @@ int main(int argc, char* argv[])
    DPLLState_p     dpllstate;
    
    assert(argv[0]);
-   
-   InitIO("edpll");
 #ifdef STACK_SIZE
-   IncreaseMaxStackSize(argv, STACK_SIZE);
+   INCREASE_STACK_SIZE;
 #endif
+   InitIO("edpll");
    ESignalSetup(SIGXCPU);
    
    state = process_options(argc, argv);

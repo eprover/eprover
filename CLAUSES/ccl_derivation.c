@@ -142,9 +142,14 @@ char *opstatus [] =
 
 
 static char *node_gray = ",color=gray, fillcolor=gray",
-   *node_green = ",color=green,fillcolor=palegreen",
-   *node_red   = ",color=red,fillcolor=lightpink1",
-   *node_blue  = ",color=blue,fillcolor=lightskyblue1";
+   *node_axgray  = ",color=gray, fillcolor=gray66",
+   *node_green   = ",color=green,fillcolor=palegreen",
+   *node_axgreen = ",color=green,fillcolor=forestgreen",
+   *node_red     = ",color=red,fillcolor=lightpink1",
+   *node_axred   = ",color=red,fillcolor=firebrick1",
+   *node_purple  = ",color=blue,fillcolor=darkorchid1",
+   *node_blue    = ",color=blue,fillcolor=lightskyblue1",
+   *node_axblue  = ",color=blue,fillcolor=dodgerblue";
 
 
 
@@ -417,6 +422,33 @@ void WFormulaPushDerivation(WFormula_p form, DerivationCodes op,
 
 /*-----------------------------------------------------------------------
 //
+// Function: ClauseIsDummyQuote()
+//
+//   Return true if the clause is just generated as a quote of its
+//   single parent.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool ClauseIsDummyQuote(Clause_p clause)
+{
+   if(clause->derivation)
+   {
+      if((PStackGetSP(clause->derivation)==2) && 
+         (PStackElementInt(clause->derivation, 0)==DCCnfQuote))
+      {
+         return true;
+      }         
+   }
+   return false;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: ClauseDerivFindFirst()
 //
 //   Given a clause, check if it's part of a reference cascade (i.e. has
@@ -435,14 +467,10 @@ Clause_p ClauseDerivFindFirst(Clause_p clause)
 {
    Clause_p parent = clause;
 
-   if(clause->derivation)
+   if(ClauseIsDummyQuote(clause))
    {
-      if((PStackGetSP(clause->derivation)==2) && 
-         (PStackElementInt(clause->derivation, 0)==DCCnfQuote))
-      {
-         parent = PStackElementP(clause->derivation, 1);
-         parent = ClauseDerivFindFirst(parent);
-      }         
+      parent = PStackElementP(clause->derivation, 1);
+      parent = ClauseDerivFindFirst(parent);
    }
    return parent;
 }
@@ -1136,19 +1164,26 @@ char* DerivedDotNodeColour(Derived_p derived)
 {
    if(!DerivedInProof(derived))
    {
-      return node_gray;
+      return DerivedGetDerivstack(derived)?node_gray:node_axgray;
    }
    if(derived->clause)
    {
-      switch(ClauseQueryTPTPType(derived->clause))
+      if(ClauseIsEmpty(derived->clause))
       {
-      case CPTypeConjecture:
-      case CPTypeNegConjecture:
-            return node_blue;
-            break;
-      default:
-            return node_green;
-            break;
+         return node_purple;
+      }
+      else
+      {
+         switch(ClauseQueryTPTPType(derived->clause))
+         {
+         case CPTypeConjecture:
+         case CPTypeNegConjecture:
+            return DerivedGetDerivstack(derived)?node_blue:node_axblue;
+               break;
+         default:
+               return DerivedGetDerivstack(derived)?node_green:node_axgreen;
+               break;
+         }
       }
    }
    else
@@ -1156,13 +1191,13 @@ char* DerivedDotNodeColour(Derived_p derived)
       switch(FormulaQueryType(derived->formula))
       {
       case CPTypeConjecture:
-            return node_red;
+            return DerivedGetDerivstack(derived)?node_red:node_axred;
             break;
       case CPTypeNegConjecture:
-            return node_blue;
+            return DerivedGetDerivstack(derived)?node_blue:node_axblue;
             break;
       default:
-            return node_green;
+            return DerivedGetDerivstack(derived)?node_green:node_axgreen;
             break;
       }
    }  
@@ -1752,9 +1787,12 @@ Derivation_p DerivationCompute(PStack_p root_clauses, Sig_p sig)
    {
       clause = PStackElementP(root_clauses, sp);
       
-      node = DerivationGetDerived(res, clause, NULL);
-      node->is_root = true;
-      PStackPushP(res->roots, node);
+      if(!ClauseIsDummyQuote(clause))
+      {
+         node = DerivationGetDerived(res, clause, NULL);
+         node->is_root = true;
+         PStackPushP(res->roots, node);
+      }
    }       
    DerivationExtract(res, root_clauses);
    DerivationMarkProofSteps(res);

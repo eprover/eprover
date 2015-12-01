@@ -119,11 +119,11 @@ int main(int argc, char* argv[])
    long            proof_steps, neg_steps;
 
    assert(argv[0]);
-
-   InitIO("ekb_ginsert");
 #ifdef STACK_SIZE
-   IncreaseMaxStackSize(argv, STACK_SIZE);
+   INCREASE_STACK_SIZE;
 #endif
+
+   InitIO(argv[0]);
    atexit(TempFileCleanup);
    ESignalSetup(SIGTERM);
    ESignalSetup(SIGINT);

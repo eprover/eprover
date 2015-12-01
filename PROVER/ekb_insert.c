@@ -117,12 +117,11 @@ int main(int argc, char* argv[])
    int             i;
 
    assert(argv[0]);
-
-   InitIO(NAME);
 #ifdef STACK_SIZE
-   IncreaseMaxStackSize(argv, STACK_SIZE);
+   INCREASE_STACK_SIZE;
 #endif
-   
+   InitIO(NAME);
+  
    state = process_options(argc, argv);
 
    name = DStrAlloc();
