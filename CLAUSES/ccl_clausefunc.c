@@ -409,7 +409,8 @@ bool ClauseUnitSimplifyTest(Clause_p clause, Clause_p simplifier)
 //
 //   Create an archive copy of clause in archive. The
 //   archive copy inherits info and derivation. The original loses
-//   info, and gets a new derivation that points to the archive copy. 
+//   info, and gets a new derivation that points to the archive
+//   copy. Returns pointer to the archived copy.
 //
 // Global Variables: -
 //
@@ -417,7 +418,7 @@ bool ClauseUnitSimplifyTest(Clause_p clause, Clause_p simplifier)
 //
 /----------------------------------------------------------------------*/
 
-void ClauseArchive(ClauseSet_p archive, Clause_p clause)
+Clause_p ClauseArchive(ClauseSet_p archive, Clause_p clause)
 {
    Clause_p archclause;
 
@@ -432,6 +433,8 @@ void ClauseArchive(ClauseSet_p archive, Clause_p clause)
    clause->derivation = NULL;
    ClausePushDerivation(clause, DCCnfQuote, archclause, NULL);
    ClauseSetInsert(archive, archclause);
+
+   return archclause;
 }
 
 

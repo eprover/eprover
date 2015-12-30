@@ -30,12 +30,14 @@ Changes
 /*---------------------------------------------------------------------*/
 
 ProofObjectType BuildProofObject = 0; 
+bool            ProofObjectRecordsEval = false;
 
 char *opids[] =
 {
    "NOP",
    "QUOTE",
    /* Simplifying */
+   PCL_EVAL,
    PCL_RW,
    PCL_RW,
    PCL_AD,
@@ -81,6 +83,7 @@ char *optheory [] =
    NULL,
    NULL,
    NULL,
+   NULL,
    "answers",
    /* Simplification/Modfication for FOF */
    NULL,
@@ -109,6 +112,7 @@ char *opstatus [] =
    NULL,
    NULL,
    /* Simplifying */
+   "thm",
    "thm",
    "thm",
    "thm",

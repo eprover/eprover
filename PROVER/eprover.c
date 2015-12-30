@@ -791,7 +791,7 @@ CLState_p process_options(int argc, char* argv[])
 	    OutputLevel = CLStateGetIntArg(handle, arg);
 	    break;
       case OPT_PROOF_OBJECT:
-            BuildProofObject =  CLStateGetIntArg(handle, arg);
+            BuildProofObject = MAX(CLStateGetIntArg(handle, arg), BuildProofObject);
 	    if((BuildProofObject > 3) || 
 	       (BuildProofObject < 0))
 	    {
@@ -800,11 +800,15 @@ CLState_p process_options(int argc, char* argv[])
 	    }            
             break;
       case OPT_PROOF_GRAPH:
-            BuildProofObject = 1;
+            BuildProofObject = MAX(1, BuildProofObject);
             proof_graph = CLStateGetIntArg(handle, arg);
             break;
       case OPT_FULL_DERIV:
             print_full_deriv = true;
+            break;
+      case OPT_RECORD_EVALS:
+            BuildProofObject = MAX(1, BuildProofObject);
+            ProofObjectRecordsEval = true;
             break;
       case OPT_PCL_COMPRESSED:
 	    pcl_full_terms = false;

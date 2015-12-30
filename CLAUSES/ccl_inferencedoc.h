@@ -38,6 +38,7 @@ typedef enum
    inf_noinf,
    inf_initial,
    inf_quote,
+   inf_eval,
    inf_paramod,
    inf_sim_paramod,
    inf_efactor,
@@ -77,6 +78,7 @@ typedef enum
  
 
 #define PCL_QUOTE NULL
+#define PCL_EVAL  "eval"
 #define PCL_ER    "er"
 #define PCL_PM    "pm"
 #define PCL_SPM   "spm"

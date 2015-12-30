@@ -637,6 +637,10 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
 	 EqnListDelProp(handle->literals, EPIsSelected);
       }
       handle->create_date = state->proc_non_trivial_count;
+      if(ProofObjectRecordsEval)
+      {
+         ClausePushDerivation(handle, DCCnfEval, NULL, NULL);
+      }
       HCBClauseEvaluate(control->hcb, handle);
       ClauseDelProp(handle, CPIsOriented);
       DocClauseQuoteDefault(6, handle, "eval");
@@ -1269,7 +1273,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
 Clause_p ProcessClause(ProofState_p state, ProofControl_p control, 
                        long answer_limit)
 {
-   Clause_p         clause, resclause, tmp_copy, empty;
+   Clause_p         clause, resclause, tmp_copy, empty, arch_copy = NULL;
    FVPackedClause_p pclause;
    SysDate          clausedate;
 
@@ -1289,6 +1293,11 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    ClauseRemoveEvaluations(clause);
    
    assert(!ClauseQueryProp(clause, CPIsIRVictim));
+   
+   if(ProofObjectRecordsEval)
+   {
+      arch_copy = ClauseArchive(state->archive, clause);
+   }
 
    if(!(pclause = ForwardContractClause(state, control,
                                         clause, true, 
@@ -1296,6 +1305,10 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
                                         control->heuristic_parms.condensing,
                                         FullRewrite)))
    {
+      if(arch_copy)
+      {
+         ClauseSetDeleteEntry(arch_copy);
+      }
       return NULL;
    }
 

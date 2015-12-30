@@ -38,6 +38,7 @@ typedef enum
 {
    DONop,
    DOQuote,
+   DOEval,
    /* For simplifying inferences, the main premise is implicit */
    DORewrite,
    DOUnfold,
@@ -88,6 +89,7 @@ typedef enum
    DCCnfQuote         = DOQuote|Arg1Cnf,
    DCFofQuote         = DOQuote|Arg1Fof,
    /* For simplifying inferences, the main premise is implicit */
+   DCCnfEval          = DOEval,
    DCRewrite          = DORewrite|Arg1Cnf,
    DCUnfold           = DOUnfold|Arg1Cnf,
    DCApplyDef         = DOApplyDef|Arg1Fof,
@@ -156,6 +158,8 @@ typedef struct derivation_cell
 
 
 extern ProofObjectType BuildProofObject;
+extern bool            ProofObjectRecordsEval;
+
 
 #define DCOpHasCnfArg1(op)   ((op)&Arg1Cnf)
 #define DCOpHasFofArg1(op)   ((op)&Arg1Fof)
