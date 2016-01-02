@@ -639,7 +639,7 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
       handle->create_date = state->proc_non_trivial_count;
       if(ProofObjectRecordsEval)
       {
-         ClausePushDerivation(handle, DCCnfEval, NULL, NULL);
+         ClausePushDerivation(handle, DCCnfEvalGC, NULL, NULL);
       }
       HCBClauseEvaluate(control->hcb, handle);
       ClauseDelProp(handle, CPIsOriented);

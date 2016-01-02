@@ -79,6 +79,7 @@ bool              print_sat = false,
                   incomplete = false,
                   conjectures_are_questions = false,
                   strategy_scheduling = false;
+ProofOutput       print_derivation = PONone;
 
 IOFormat          parse_format = LOPFormat;
 long              step_limit = LONG_MAX, 
@@ -88,8 +89,7 @@ long              step_limit = LONG_MAX,
                   total_limit = LONG_MAX,
                   eqdef_maxclauses = DEFAULT_EQDEF_MAXCLAUSES,
                   relevance_prune_level = 0;
-int               eqdef_incrlimit = DEFAULT_EQDEF_INCRLIMIT,
-                  proof_graph = 0;
+int               eqdef_incrlimit = DEFAULT_EQDEF_INCRLIMIT;
 char              *outdesc = DEFAULT_OUTPUT_DESCRIPTOR,
                   *filterdesc = DEFAULT_FILTER_DESCRIPTOR;
 PStack_p          wfcb_definitions, hcb_definitions;
@@ -532,7 +532,7 @@ int main(int argc, char* argv[])
                                    "CNFRefutation",
                                    proofstate->extract_roots,
                                    proofstate->signature,
-                                   proof_graph);
+                                   print_derivation);
       }
    }
    else if(proofstate->watchlist && ClauseSetEmpty(proofstate->watchlist))
@@ -621,7 +621,7 @@ int main(int argc, char* argv[])
                                    sat_status,
                                    proofstate->extract_roots,
                                    proofstate->signature,
-                                   proof_graph);
+                                   print_derivation);
       }
 
    }
@@ -798,10 +798,11 @@ CLState_p process_options(int argc, char* argv[])
 	       Error("Option --proof-object) accepts "
 		     "argument from {0..3}", USAGE_ERROR);
 	    }            
+            print_derivation = POList;
             break;
       case OPT_PROOF_GRAPH:
             BuildProofObject = MAX(1, BuildProofObject);
-            proof_graph = CLStateGetIntArg(handle, arg);
+            print_derivation = CLStateGetIntArg(handle, arg)+1;
             break;
       case OPT_FULL_DERIV:
             print_full_deriv = true;

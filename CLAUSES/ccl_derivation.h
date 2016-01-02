@@ -33,12 +33,21 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
+typedef enum
+{
+   PONone,
+   POList,
+   POGraph1,
+   POGraph2,
+   POGraph3,
+}ProofOutput;
+
 
 typedef enum
 {
    DONop,
    DOQuote,
-   DOEval,
+   DOEvalGC,
    /* For simplifying inferences, the main premise is implicit */
    DORewrite,
    DOUnfold,
@@ -89,7 +98,7 @@ typedef enum
    DCCnfQuote         = DOQuote|Arg1Cnf,
    DCFofQuote         = DOQuote|Arg1Fof,
    /* For simplifying inferences, the main premise is implicit */
-   DCCnfEval          = DOEval,
+   DCCnfEvalGC          = DOEvalGC,
    DCRewrite          = DORewrite|Arg1Cnf,
    DCUnfold           = DOUnfold|Arg1Cnf,
    DCApplyDef         = DOApplyDef|Arg1Fof,
@@ -208,7 +217,8 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation);
 
 void DerivedPCLPrint(FILE* out, Sig_p sig, Derived_p derived);
 void DerivedTSTPPrint(FILE* out, Sig_p sig, Derived_p derived);
-void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived, int fullness);
+void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived, 
+                     ProofOutput print_derivation);
 
 
 #define DerivationCellAlloc() (DerivationCell*)SizeMalloc(sizeof(DerivationCell))
@@ -228,11 +238,11 @@ void DerivationRenumber(Derivation_p derivation);
 
 Derivation_p DerivationCompute(PStack_p root_clauses, Sig_p sig);
 void DerivationPrint(FILE* out, Derivation_p derivation, char* frame);
-void DerivationDotPrint(FILE* out, Derivation_p derivation, int proof_graph);
+void DerivationDotPrint(FILE* out, Derivation_p derivation, 
+                        ProofOutput print_derivation);
 
 void DerivationComputeAndPrint(FILE* out, char* status, PStack_p root_clauses, 
-                               Sig_p sig, int proof_graph);
-
+                               Sig_p sig, ProofOutput print_derivation);
 
 
 #endif

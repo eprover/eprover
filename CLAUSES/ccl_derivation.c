@@ -37,7 +37,7 @@ char *opids[] =
    "NOP",
    "QUOTE",
    /* Simplifying */
-   PCL_EVAL,
+   PCL_EVALGC,
    PCL_RW,
    PCL_RW,
    PCL_AD,
@@ -1278,7 +1278,8 @@ char* DerivedDotFormulaLinkColour(Derived_p child, WFormula_p parent)
 //
 /----------------------------------------------------------------------*/
 
-void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived, int proof_graph)
+void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived, 
+                     ProofOutput print_derivation)
 {
    PStack_p parent_clauses = PStackAlloc();
    PStack_p parent_formulas = PStackAlloc();
@@ -1318,7 +1319,7 @@ void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived, int proof_graph)
    
    if(derived->clause)
    {
-      if(proof_graph > 1)
+      if(print_derivation >= POGraph1)
       {
          ClauseTSTPPrint(out, derived->clause, true, false);
       }
@@ -1330,7 +1331,7 @@ void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived, int proof_graph)
    else
    {
       assert(derived->formula);
-      if(proof_graph > 1)
+      if(print_derivation >= POGraph1)
       {
          WFormulaTSTPPrint(out, derived->formula, true, false);
       }
@@ -1339,7 +1340,7 @@ void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived, int proof_graph)
          fprintf(out, "c%ld", derived->formula->ident);
       }
    }
-   if(proof_graph>2)
+   if(print_derivation >= POGraph2)
    {
       if(deriv)
       {
@@ -1352,7 +1353,7 @@ void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived, int proof_graph)
          ClauseSourceInfoPrintTSTP(out, info); 
       }
    }
-   if(proof_graph >1)
+   if(print_derivation >= POGraph1)
    {
       fprintf(out, ").\n");
    }
@@ -1860,7 +1861,8 @@ void DerivationPrint(FILE* out, Derivation_p derivation, char* frame)
 //
 /----------------------------------------------------------------------*/
 
-void DerivationDotPrint(FILE* out, Derivation_p derivation, int proof_graph)
+void DerivationDotPrint(FILE* out, Derivation_p derivation, 
+                        ProofOutput print_derivation)
 {
    PStackPointer sp;
    Derived_p     node;
@@ -1884,7 +1886,7 @@ void DerivationDotPrint(FILE* out, Derivation_p derivation, int proof_graph)
          fprintf(out, "   }\n");
          axiom_open = false;
       }
-      DerivedDotPrint(out, derivation->sig, node, proof_graph);
+      DerivedDotPrint(out, derivation->sig, node, print_derivation);
    }
    fprintf(out, "}\n");
 }
@@ -1903,17 +1905,17 @@ void DerivationDotPrint(FILE* out, Derivation_p derivation, int proof_graph)
 /----------------------------------------------------------------------*/
 
 void DerivationComputeAndPrint(FILE* out, char* status, PStack_p root_clauses,  
-                               Sig_p sig, int proof_graph)
+                               Sig_p sig, ProofOutput print_derivation)
 {
    Derivation_p derivation = DerivationCompute(root_clauses, sig);
 
-   if(proof_graph)
-   {
-      DerivationDotPrint(GlobalOut, derivation, proof_graph);
-   }
-   else
+   if(print_derivation == POList)
    {
       DerivationPrint(GlobalOut, derivation, status);
+   }
+   else if(print_derivation >= POGraph1)
+   {
+      DerivationDotPrint(GlobalOut, derivation, print_derivation);
    }
    DerivationFree(derivation);
 }
