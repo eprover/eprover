@@ -228,12 +228,18 @@ PCLExpr_p PCLExprParse(Scanner_p in, bool mini)
    }
    else
    {
-      CheckInpId(in, PCL_ER"|"PCL_PM"|"PCL_SPM"|"PCL_EF"|"PCL_CONDENSE"|"PCL_RW"|"
-		 PCL_SR"|"PCL_CSR"|"PCL_ACRES"|"PCL_CN"|"PCL_SPLIT"|"
-                 PCL_SC"|"PCL_SE"|"PCL_FS"|"PCL_NNF"|"PCL_ID"|"PCL_AD"|"PCL_SQ"|"PCL_VR"|"
+      CheckInpId(in, PCL_EVALGC"|"PCL_ER"|"PCL_PM"|"PCL_SPM"|"PCL_EF"|"
+                 PCL_CONDENSE"|"PCL_RW"|"PCL_SR"|"PCL_CSR"|"PCL_ACRES"|"
+                 PCL_CN"|"PCL_SPLIT"|"PCL_SC"|"PCL_SE"|"PCL_FS"|"
+                 PCL_NNF"|"PCL_ID"|"PCL_AD"|"PCL_SQ"|"PCL_VR"|"
                  PCL_SK"|"PCL_DSTR"|"PCL_ANNOQ"|"PCL_EVANS"|"PCL_NC  );
 
-      if(TestInpId(in, PCL_ER))
+      if(TestInpId(in, PCL_EVALGC))
+      {
+	 handle->op=PCLOpEvalGC;
+	 arg_no=1;
+      }
+      else if(TestInpId(in, PCL_ER))
       {
 	 handle->op=PCLOpEResolution;
 	 arg_no=1;
@@ -464,6 +470,10 @@ void PCLExprPrint(FILE* out, PCLExpr_p expr, bool mini)
          fprintf(out, PCL_ER);
          assert(expr->arg_no==1);
          break;
+   case PCLOpEvalGC:
+         fprintf(out, PCL_EVALGC);
+         assert(expr->arg_no==1);
+         break;
    case PCLOpEFactoring:
          fprintf(out, PCL_EF);
          assert(expr->arg_no==1);
@@ -641,6 +651,11 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
 	 fprintf(out, PCL_SPM);
 	 status = status_thm;
 	 assert(expr->arg_no==2);
+	 break;
+   case PCLOpEvalGC:
+	 fprintf(out, PCL_EVALGC);
+	 status = status_thm;
+	 assert(expr->arg_no==1);
 	 break;
    case PCLOpEResolution:
 	 fprintf(out, PCL_ER);
