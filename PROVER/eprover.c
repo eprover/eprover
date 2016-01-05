@@ -533,6 +533,7 @@ int main(int argc, char* argv[])
                                    proofstate->extract_roots,
                                    proofstate->signature,
                                    print_derivation);
+         ProofStateAnalyseGC(proofstate);
       }
    }
    else if(proofstate->watchlist && ClauseSetEmpty(proofstate->watchlist))

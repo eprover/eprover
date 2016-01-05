@@ -98,7 +98,7 @@ typedef enum
    DCCnfQuote         = DOQuote|Arg1Cnf,
    DCFofQuote         = DOQuote|Arg1Fof,
    /* For simplifying inferences, the main premise is implicit */
-   DCCnfEvalGC          = DOEvalGC,
+   DCCnfEvalGC        = DOEvalGC,
    DCRewrite          = DORewrite|Arg1Cnf,
    DCUnfold           = DOUnfold|Arg1Cnf,
    DCApplyDef         = DOApplyDef|Arg1Fof,
@@ -188,8 +188,17 @@ void ClausePushDerivation(Clause_p clause, DerivationCodes op,
                           void* arg1, void* arg2);
 
 void ClausePushACResDerivation(Clause_p clause, Sig_p sig);
+
+
 void WFormulaPushDerivation(WFormula_p form, DerivationCodes op, 
                            void* arg1, void* arg2);
+
+bool ClauseIsEvalGC(Clause_p clause);
+
+bool ClauseIsDummyQuote(Clause_p clause);
+Clause_p ClauseDerivFindFirst(Clause_p clause);
+WFormula_p WFormulaDerivFindFirst(WFormula_p form);
+
 
 long DerivStackExtractParents(PStack_p derivation, 
                               Sig_p sig,
@@ -220,6 +229,7 @@ void DerivedTSTPPrint(FILE* out, Sig_p sig, Derived_p derived);
 void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived, 
                      ProofOutput print_derivation);
 
+bool DerivedIsEvalGC(Derived_p derived);
 
 #define DerivationCellAlloc() (DerivationCell*)SizeMalloc(sizeof(DerivationCell))
 #define DerivationCellFree(junk) SizeFree(junk, sizeof(DerivationCell))

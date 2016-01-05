@@ -142,6 +142,8 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->paramod_count      = 0;
    handle->factor_count       = 0;
    handle->resolv_count       = 0;
+   handle->gc_count           = 0;
+   handle->gc_used_count      = 0;
 
    handle->signature->distinct_props = 
       handle->signature->distinct_props&(~free_symb_prop);
@@ -318,6 +320,75 @@ void ProofStateFree(ProofState_p junk)
 
 /*-----------------------------------------------------------------------
 //
+// Function: clause_set_analyse_gc()
+//
+//   Count number of clauses, given clauses, and used given clauses. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void clause_set_analyse_gc(ClauseSet_p set, ulong_c *clause_count, 
+                           ulong_c *gc_count, ulong_c *gc_used_count) 
+{
+   Clause_p handle;
+   ulong_c clause_c = 0, gc_c = 0, gc_used_c = 0;
+   
+   for(handle = set->anchor->succ; handle != set->anchor; handle = handle->succ)
+   {
+      clause_c++;
+      if(ClauseIsEvalGC(handle))
+      {
+         gc_c++;
+         if(ClauseQueryProp(handle, CPIsProofClause))
+         {
+            gc_used_c++;
+         }
+      }
+   }   
+   *clause_count  += clause_c;
+   *gc_count      += gc_c;
+   *gc_used_count += gc_used_c;
+
+   /* printf("# Set %p: Clauses: %7lu GCs: %7lu GCus: %7lu\n",
+      set, clause_c, gc_c, gc_used_c); */
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ProofStateAnalyseGC()
+//
+//   Run an analysis of the use of given clauses in the proof search:
+//   How many were used (i.e. useful) and how many were unused
+//   (i.e. useless). 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void ProofStateAnalyseGC(ProofState_p state)
+{
+   ulong_c clause_c = 0;
+
+   clause_set_analyse_gc(state->processed_pos_rules, &clause_c, 
+                         &(state->gc_count), &(state->gc_used_count));  
+   clause_set_analyse_gc(state->processed_pos_eqns, &clause_c, 
+                         &(state->gc_count), &(state->gc_used_count));  
+   clause_set_analyse_gc(state->processed_neg_units, &clause_c, 
+                         &(state->gc_count), &(state->gc_used_count));  
+   clause_set_analyse_gc(state->processed_non_units, &clause_c, 
+                         &(state->gc_count), &(state->gc_used_count));  
+   clause_set_analyse_gc(state->archive, &clause_c, 
+                         &(state->gc_count), &(state->gc_used_count));  
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: ProofStateStatisticsPrint()
 //
 //   Print the statistics of the proof state.
@@ -386,6 +457,16 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
    fprintf(out, 
 	   "# Current number of archived clauses   : %ld\n",
 	   state->archive->members);
+   if(ProofObjectRecordsEval)
+   {
+      fprintf(out, 
+              "# Given clauses                        : %ld\n",
+              state->gc_count);
+      fprintf(out, 
+              "# Given clauses in proof object        : %ld\n",
+              state->gc_used_count);
+   }
+
    if(TBPrintDetails)
    {
       fprintf(out, 
@@ -409,7 +490,7 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
 	      "# Match attempts with oriented units   : %lu\n"
 	      "# Match attempts with unoriented units : %lu\n",
 	      state->processed_pos_rules->demod_index->match_count,
-	      state->processed_pos_eqns->demod_index->match_count);	      
+	      state->processed_pos_eqns->demod_index->match_count);	            
 #ifdef MEASURE_EXPENSIVE
       fprintf(out,
 	      "# Oriented PDT nodes visited           : %lu\n"

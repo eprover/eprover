@@ -426,6 +426,32 @@ void WFormulaPushDerivation(WFormula_p form, DerivationCodes op,
 
 /*-----------------------------------------------------------------------
 //
+// Function: ClauseIsEvalGC()
+//
+//   Return true if the clause is the form of the given clause that
+//   was evaluation and then selected for processing. This assumes
+//   that the DCCnfEvalGC opcode is on top of the derivation stack of
+//   such clauses.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool ClauseIsEvalGC(Clause_p clause)
+{
+   if(clause->derivation)
+   {
+      return PStackTopInt(clause->derivation)==DCCnfEvalGC;
+   }
+   return false;
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: ClauseIsDummyQuote()
 //
 //   Return true if the clause is just generated as a quote of its
@@ -1376,6 +1402,31 @@ void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived,
 }
 
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: DerivedIsEvalGC()
+//
+//   Return true if the step corresponds to the evaluated and selected
+//   form of a given clause.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool DerivedIsEvalGC(Derived_p derived)
+{
+   if(derived->clause)
+   {
+      return ClauseIsEvalGC(derived->clause);
+   }
+   return false;
+}
+
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: DerivationAlloc()
@@ -1806,6 +1857,7 @@ Derivation_p DerivationCompute(PStack_p root_clauses, Sig_p sig)
    
    return res;
 }
+
 
 /*-----------------------------------------------------------------------
 //

@@ -95,7 +95,12 @@ typedef struct proofstatecell
    ulong_c           context_sr_count;
    ulong_c           paramod_count;
    ulong_c           factor_count;
-   ulong_c           resolv_count;   
+   ulong_c           resolv_count;
+   
+   /* The following are only set by ProofStateAnalyse() after
+      DerivationCompute() at the end of the proof search. */
+   ulong_c           gc_count;
+   ulong_c           gc_used_count;
 }ProofStateCell, *ProofState_p;
 
 
@@ -127,6 +132,8 @@ void         ProofStateFree(ProofState_p junk);
     ClauseSetStorage((state)->archive)+\
     TBStorage((state)->terms))
 
+
+void ProofStateAnalyseGC(ProofState_p state);
 void ProofStateStatisticsPrint(FILE* out, ProofState_p state);
 void ProofStatePrint(FILE* out, ProofState_p state);
 void ProofStatePropDocQuote(FILE* out, int level, 
