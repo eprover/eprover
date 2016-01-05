@@ -993,6 +993,10 @@ void ProofStateResetProcessedSet(ProofState_p state,
 
       ClauseKillChildren(handle); /* Should be none, but better be safe */
 
+      if(ProofObjectRecordsEval)
+      {
+         ClausePushDerivation(handle, DCCnfEvalGC, NULL, NULL);
+      }
       if(BuildProofObject)
       {
          Clause_p tmpclause = ClauseFlatCopy(handle);
@@ -1207,6 +1211,10 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
       handle = cell->object;
       new = ClauseCopy(handle, state->terms);
       ClauseSetProp(new, CPInitial);
+      if(ProofObjectRecordsEval)
+      {
+         ClausePushDerivation(new, DCCnfEvalGC, NULL, NULL);
+      }
       HCBClauseEvaluate(control->hcb, new);
       DocClauseQuoteDefault(6, new, "eval");
       ClausePushDerivation(new, DCCnfQuote, handle, NULL);
