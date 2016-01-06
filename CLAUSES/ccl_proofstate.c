@@ -457,7 +457,7 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
    fprintf(out, 
 	   "# Current number of archived clauses   : %ld\n",
 	   state->archive->members);
-   if(ProofObjectRecordsEval)
+   if(ProofObjectRecordsGCSelection)
    {
       fprintf(out, 
               "# Given clauses                        : %ld\n",

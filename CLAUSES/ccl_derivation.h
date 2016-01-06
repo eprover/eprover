@@ -167,7 +167,7 @@ typedef struct derivation_cell
 
 
 extern ProofObjectType BuildProofObject;
-extern bool            ProofObjectRecordsEval;
+extern bool            ProofObjectRecordsGCSelection;
 
 
 #define DCOpHasCnfArg1(op)   ((op)&Arg1Cnf)

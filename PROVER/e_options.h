@@ -53,7 +53,7 @@ typedef enum
    OPT_PROOF_OBJECT,
    OPT_PROOF_GRAPH,
    OPT_FULL_DERIV,
-   OPT_RECORD_EVALS,
+   OPT_RECORD_GIVEN_CLAUSES,
    OPT_PCL_COMPRESSED,
    OPT_PCL_COMPACT,
    OPT_PCL_SHELL_LEVEL,
@@ -243,12 +243,13 @@ OptCell opts[] =
     "Include all derived formuas/clauses in the proof graph/proof "
     "object, not just the ones contributing to the actual proof."}, 
    
-   {OPT_RECORD_EVALS,
-    '\0', "record-evals",
+   {OPT_RECORD_GIVEN_CLAUSES,
+    '\0', "record-gcs",
     NoArg, NULL,
-    "Record given-clause evaluations as separate (pseudo-)inferences"
-    " and preserve the evaluated form via archiving for analysis and "
-    "possibly machine learning. Implies --proof-object."},
+    "Record given-clause selection as separate (pseudo-)inferences"
+    " and preserve the form of given clauses evaluated and selected"
+    " via archiving for analysis and " 
+    "possibly machine learning."},
 
    {OPT_PCL_COMPRESSED,
     '\0', "pcl-terms-compressed",

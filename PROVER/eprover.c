@@ -808,9 +808,9 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_FULL_DERIV:
             print_full_deriv = true;
             break;
-      case OPT_RECORD_EVALS:
+      case OPT_RECORD_GIVEN_CLAUSES:
             BuildProofObject = MAX(1, BuildProofObject);
-            ProofObjectRecordsEval = true;
+            ProofObjectRecordsGCSelection = true;
             break;
       case OPT_PCL_COMPRESSED:
 	    pcl_full_terms = false;

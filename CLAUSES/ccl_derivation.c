@@ -30,7 +30,7 @@ Changes
 /*---------------------------------------------------------------------*/
 
 ProofObjectType BuildProofObject = 0; 
-bool            ProofObjectRecordsEval = false;
+bool            ProofObjectRecordsGCSelection = false;
 
 char *opids[] =
 {

@@ -637,7 +637,7 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
 	 EqnListDelProp(handle->literals, EPIsSelected);
       }
       handle->create_date = state->proc_non_trivial_count;
-      if(ProofObjectRecordsEval)
+      if(ProofObjectRecordsGCSelection)
       {
          ClausePushDerivation(handle, DCCnfEvalGC, NULL, NULL);
       }
@@ -993,7 +993,7 @@ void ProofStateResetProcessedSet(ProofState_p state,
 
       ClauseKillChildren(handle); /* Should be none, but better be safe */
 
-      if(ProofObjectRecordsEval)
+      if(ProofObjectRecordsGCSelection)
       {
          ClausePushDerivation(handle, DCCnfEvalGC, NULL, NULL);
       }
@@ -1211,7 +1211,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
       handle = cell->object;
       new = ClauseCopy(handle, state->terms);
       ClauseSetProp(new, CPInitial);
-      if(ProofObjectRecordsEval)
+      if(ProofObjectRecordsGCSelection)
       {
          ClausePushDerivation(new, DCCnfEvalGC, NULL, NULL);
       }
@@ -1302,7 +1302,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    
    assert(!ClauseQueryProp(clause, CPIsIRVictim));
    
-   if(ProofObjectRecordsEval)
+   if(ProofObjectRecordsGCSelection)
    {
       arch_copy = ClauseArchive(state->archive, clause);
    }
