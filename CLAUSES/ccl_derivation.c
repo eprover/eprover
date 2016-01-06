@@ -1842,13 +1842,10 @@ Derivation_p DerivationCompute(PStack_p root_clauses, Sig_p sig)
    for(sp=0; sp<PStackGetSP(root_clauses); sp++)
    {
       clause = PStackElementP(root_clauses, sp);
-      
-      if(!ClauseIsDummyQuote(clause))
-      {
-         node = DerivationGetDerived(res, clause, NULL);
-         node->is_root = true;
-         PStackPushP(res->roots, node);
-      }
+      clause = ClauseDerivFindFirst(clause);
+      node = DerivationGetDerived(res, clause, NULL);
+      node->is_root = true;
+      PStackPushP(res->roots, node);
    }       
    DerivationExtract(res, root_clauses);
    DerivationMarkProofSteps(res);

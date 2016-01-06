@@ -335,12 +335,13 @@ void clause_set_analyse_gc(ClauseSet_p set, ulong_c *clause_count,
 {
    Clause_p handle;
    ulong_c clause_c = 0, gc_c = 0, gc_used_c = 0;
-   
+
    for(handle = set->anchor->succ; handle != set->anchor; handle = handle->succ)
    {
       clause_c++;
       if(ClauseIsEvalGC(handle))
       {
+         //printf("Clause found (%p): ",set);ClausePrint(stdout, handle, true);printf("\n");
          gc_c++;
          if(ClauseQueryProp(handle, CPIsProofClause))
          {
@@ -374,6 +375,8 @@ void ProofStateAnalyseGC(ProofState_p state)
 {
    ulong_c clause_c = 0;
 
+   clause_set_analyse_gc(state->ax_archive, &clause_c, 
+                         &(state->gc_count), &(state->gc_used_count));  
    clause_set_analyse_gc(state->processed_pos_rules, &clause_c, 
                          &(state->gc_count), &(state->gc_used_count));  
    clause_set_analyse_gc(state->processed_pos_eqns, &clause_c, 

@@ -1193,7 +1193,6 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
 
    OUTPRINT(1, "# Initializing proof state\n");
    
-   
    assert(ClauseSetEmpty(state->processed_pos_rules));
    assert(ClauseSetEmpty(state->processed_pos_eqns));
    assert(ClauseSetEmpty(state->processed_neg_units));
@@ -1211,13 +1210,13 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
       handle = cell->object;
       new = ClauseCopy(handle, state->terms);
       ClauseSetProp(new, CPInitial);
+      HCBClauseEvaluate(control->hcb, new);
+      DocClauseQuoteDefault(6, new, "eval");
+      ClausePushDerivation(new, DCCnfQuote, handle, NULL);
       if(ProofObjectRecordsGCSelection)
       {
          ClausePushDerivation(new, DCCnfEvalGC, NULL, NULL);
       }
-      HCBClauseEvaluate(control->hcb, new);
-      DocClauseQuoteDefault(6, new, "eval");
-      ClausePushDerivation(new, DCCnfQuote, handle, NULL);
       if(control->heuristic_parms.prefer_initial_clauses)
       {
 	 EvalListChangePriority(new->evaluations, -PrioLargestReasonable);
