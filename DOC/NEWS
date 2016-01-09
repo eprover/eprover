@@ -1,6 +1,14 @@
 This history list describes the major differences between versions of
 the E equational theorem prover.
 
+Version 1.9 -> 1.9.1 Sungma
+
+- Improved proof object output
+- Added optional recording of selected given clauses in the proof
+  object
+- New auto modes (including one bred heuristic)
+
+
 Version 1.9pre016 -> 1.9 Sourenee
 
 - Fixed Auto-SInE to never SInE if there is no seed to SInE on
