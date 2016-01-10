@@ -464,10 +464,10 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
    {
       fprintf(out, 
               "# Proof object given clauses           : %ld\n",
-              state->gc_count);
+              state->gc_used_count);
       fprintf(out, 
               "# Proof search given clauses           : %ld\n",
-              state->gc_used_count);
+              state->gc_count);
    }
    if(TBPrintDetails)
    {
