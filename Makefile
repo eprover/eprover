@@ -81,7 +81,7 @@ distrib: man documentation cleandist default_config
 	@echo " - Changing the bibliographies to local version"
 	@echo " - increasing the dev version number and committing to git?"
 	@echo "    ??? "
-	@cp etc/PROPRIETARY etc/NO_DISTRIB
+	@echo "" > etc/NO_DISTRIB
 	@cd ..; find $(PROJECT) -name ".git" -print >> $(PROJECT)/etc/NO_DISTRIB;\
          $(TAR) cfX - $(PROJECT)/etc/NO_DISTRIB $(PROJECT) |$(GZIP) - -c > $(PROJECT).tgz
 
