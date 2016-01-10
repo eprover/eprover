@@ -532,7 +532,8 @@ int main(int argc, char* argv[])
                                    "CNFRefutation",
                                    proofstate->extract_roots,
                                    proofstate->signature,
-                                   print_derivation);
+                                   print_derivation,
+                                   OutputLevel||print_statistics);
          ProofStateAnalyseGC(proofstate);
       }
    }
@@ -622,7 +623,8 @@ int main(int argc, char* argv[])
                                    sat_status,
                                    proofstate->extract_roots,
                                    proofstate->signature,
-                                   print_derivation);
+                                   print_derivation,
+                                   OutputLevel||print_statistics);
       }
 
    }

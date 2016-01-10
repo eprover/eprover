@@ -463,13 +463,12 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
    if(ProofObjectRecordsGCSelection)
    {
       fprintf(out, 
-              "# Given clauses                        : %ld\n",
+              "# Proof object given clauses           : %ld\n",
               state->gc_count);
       fprintf(out, 
-              "# Given clauses in proof object        : %ld\n",
+              "# Proof search given clauses           : %ld\n",
               state->gc_used_count);
    }
-
    if(TBPrintDetails)
    {
       fprintf(out, 

@@ -55,7 +55,7 @@ typedef enum
    DOContextSR,
    DODesEqRes, 
    DOSR,
-   DOAcRes,
+   DOACRes,
    DOCondense,
    DONormalize,
    DOEvalAnswers,
@@ -105,7 +105,7 @@ typedef enum
    DCContextSR        = DOContextSR|Arg1Cnf,
    DCSR               = DOSR|Arg1Cnf,
    DCDesEqRes         = DODesEqRes, /* Doubled because its simplifying here */
-   DCACRes            = DOAcRes|Arg1Num,
+   DCACRes            = DOACRes|Arg1Num,
    DCCondense         = DOCondense,
    DCNormalize        = DONormalize,
    DCEvalAnswers      = DOEvalAnswers,
@@ -151,6 +151,7 @@ typedef struct derived_cell
 }DerivedCell, *Derived_p;
 
 
+
 typedef struct derivation_cell
 {
    bool       ordered;
@@ -158,7 +159,17 @@ typedef struct derivation_cell
    PObjTree_p deriv;
    PStack_p   roots;
    PStack_p   ordered_deriv;
+   ulong_c clause_step_count;
+   ulong_c formula_step_count;
+   ulong_c initial_clause_count;
+   ulong_c initial_formula_count;
+   ulong_c clause_conjecture_count;
+   ulong_c formula_conjecture_count;
+   ulong_c generating_inf_count;
+   ulong_c simplifying_inf_count;
 }DerivationCell, *Derivation_p;
+
+
 
 
 /*---------------------------------------------------------------------*/
@@ -210,6 +221,10 @@ long DerivStackExtractOptParents(PStack_p derivation,
                                  PStack_p res_formulas);
 
 
+void DerivStackCountSearchInferences(PStack_p derivation, 
+                                     ulong_c *generating_count,
+                                     ulong_c *simplifying_count);
+
 #define DerivedCellAlloc() (DerivedCell*)SizeMalloc(sizeof(DerivedCell))
 #define DerivedCellFree(junk) SizeFree(junk, sizeof(DerivedCell))
 
@@ -247,12 +262,16 @@ long DerivationTopoSort(Derivation_p derivation);
 void DerivationRenumber(Derivation_p derivation);
 
 Derivation_p DerivationCompute(PStack_p root_clauses, Sig_p sig);
+
+void DerivationAnalyse(Derivation_p derivationt);
+
 void DerivationPrint(FILE* out, Derivation_p derivation, char* frame);
 void DerivationDotPrint(FILE* out, Derivation_p derivation, 
                         ProofOutput print_derivation);
 
 void DerivationComputeAndPrint(FILE* out, char* status, PStack_p root_clauses, 
-                               Sig_p sig, ProofOutput print_derivation);
+                               Sig_p sig, ProofOutput print_derivation,
+                               bool print_analysis);
 
 
 #endif
