@@ -205,7 +205,10 @@ class eresult(object):
         return self.values[1]
 
     def cputime(self):
-        return float(self.values[2])
+        try:
+            return float(self.values[2])
+        except ValueError:
+            return 1000000.0
 
     def reason(self):
         return self.values[3]
