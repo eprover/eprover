@@ -23,6 +23,7 @@ Options:
 --delimiter  delimiter between values
 --default    default value for fields in cvs
 --metadata   add metadata from directory structure - filename and heuristic name
+--strip      strip alignment whitespace
 
 Copyright 2015 Martin Möhrmann, moehrmann@eprover.org
 
@@ -158,7 +159,7 @@ def process_file(data, path, fileopener, info):
 		entry = make_entry(fileopener(info).readlines())
 		entry.update({"Heuristic":heuristicname.rjust(12),"Filename":filename.rjust(12)})
 		#fix output error in e version 1.9.1pre005
-		if entry.get("Proof object given clauses",0) > entry.get("Proof search given clauses",0):
+		if int(entry.get("Proof object given clauses",0)) > int(entry.get("Proof search given clauses",0)):
 			swap(entry,"Proof object given clauses","Proof search given clauses")
 		if entry["Failure"] == failuremap["exec failed"]:
 			entry["Problem"] = problemname.ljust(12)
@@ -171,7 +172,6 @@ def process_file(data, path, fileopener, info):
 def swap(d,key1,key2):
 	d[key1],d[key2] = d[key2],d[key1]
 
-
 def parse_args():
 	parser = argparse.ArgumentParser(description="Parse Starexec Cluster Job Output")
 	parser.add_argument("infile", nargs="*",  help="input tar or zip files or directory structure")
@@ -179,6 +179,7 @@ def parse_args():
 	parser.add_argument("--default", help="default value", default="-")
 	parser.add_argument("--delimiter", help="csv delimiter", default=",")
 	parser.add_argument("--metadata", help="add information parsed from file paths", action="store_true")
+	parser.add_argument("--strip", help="strip all value", action="store_true")
 	return parser.parse_args()
 
 if __name__ == "__main__":
@@ -215,5 +216,8 @@ if __name__ == "__main__":
 				report.write("#")
 			report.write(args.delimiter.join(fieldnames)+"\n")
 			for entrykey in sorted(problems.keys()):
-				values = [problems[entrykey].get(key, args.default).rjust(adjustmap.get(key, adjust)) for key in fieldnames]
+				if args.strip:
+					values = [problems[entrykey].get(key, args.default).strip() for key in fieldnames]
+				else:
+					values = [problems[entrykey].get(key, args.default).rjust(adjustmap.get(key, adjust)) for key in fieldnames]
 				report.write(args.delimiter.join(values)+"\n")
