@@ -1,0 +1,26 @@
+#!/bin/tcsh
+echo -n "% Problem    : " ; head -2 $1 | tail -1 | sed -e "s/.*  : //"
+set ProblemSPC=`grep " SPC " $1 | sed -e "s/.* : //"`
+set defaultargs="--definitional-cnf=24 -s --print-statistics -R --print-version --tstp-format -s  --record-gcs"
+set flags=" --simul-paramod --forward-context-sr --strong-destructive-er --destructive-er-aggressive --destructive-er -tKBO6 -winvfreqrank -c1 -Ginvfreq -F1 -WSelectMaxLComplexAvoidPosPred"
+set heuristic="-H(2.Clauseweight(ConstPrio,1,1,1),1.FIFOWeight(ConstPrio))"
+set final="--cpu-limit="$STAREXEC_CPU_LIMIT" "$1
+set ecmd="./eprover ""$defaultargs $flags $heuristic $final"
+
+if ( `expr "$ProblemSPC" : "FOF.*"` || `expr "$ProblemSPC" : "CNF.*"` ) then
+	echo "% Command    : " $ecmd
+	/home/starexec/bin/GetComputerInfo -p THIS Model CPUModel RAMPerCPU OS | \
+        sed -e "s/Computer     /% Computer   /" \
+            -e "s/Model        /% Model      /" \
+            -e "s/CPUModel     /% CPU        /" \
+            -e "s/RAMPerCPU    /% Memory     /" \
+            -e "s/OS           /% OS         /"						
+	echo -n "% CPULimit   : " ; echo "$STAREXEC_CPU_LIMIT"
+	echo -n "% DateTime   : " ; date
+	echo "% CPUTime    : "
+	$ecmd
+else
+    echo "% SZS status Inappropriate"
+endif
+
+
