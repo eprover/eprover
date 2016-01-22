@@ -197,9 +197,9 @@ def read_features(path):
 			name, _, ptype = line.split(":")
 			name = name.strip()
 			ptype = ptype.strip()
-			if  ptype[0] == "H" or ptype[0:1] == "UH":
+			if  ptype[0] == "H" or ptype[:2] == "UH":
 				features[name]["Type"] = "horn"
-			elif ptype[0:1] == "UU":
+			elif ptype[:2] == "UU":
 				features[name]["Type"] = "unit"
 			else:
 				features[name]["Type"] = "general"
