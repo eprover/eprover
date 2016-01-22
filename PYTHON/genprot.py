@@ -23,7 +23,9 @@ Options:
 --delimiter  delimiter between values
 --default    default value for fields in cvs
 --metadata   add metadata from directory structure - filename and heuristic name
---strip      strip alignment whitespace
+--compact    do not add alignment whitespace
+--features   add feature columns with features of the problem taken from supplied feature file
+
 
 Copyright 2015 Martin Möhrmann, moehrmann@eprover.org
 
@@ -71,15 +73,15 @@ from collections import defaultdict
 
 protfile = (lambda name: "protocol_G----_" + name + ".csv")
 
-firstkeys  = ["Problem", "Status", "User time", "Failure", "Version", "Preprocessing time"]
-metakeys   = ["Filename", "Heuristic"]
-removekeys = ["eprover","Command", "Computer", "Model", "CPU", "Memory", "OS", "CPULimit", "DateTime", "CPUTime"]
+firstkeys   = ["Problem", "Status", "User time", "Failure", "Version", "Preprocessing time"]
+metakeys    = ["Filename", "Heuristic"]
+removekeys  = ["eprover","Command", "Computer", "Model", "CPU", "Memory", "OS", "CPULimit", "DateTime", "CPUTime"]
+featurekeys = ["Type","Equational"]
 
-
-failuremap = {"User resource limit exceeded"    :"maxres      ",
-              "Out of unprocessed clauses!"     :"incomplete  ",
-              "Resource limit exceeded (memory)":"maxmem      ",
-              "Resource limit exceeded (time)"  :"maxtime     ",
+failuremap = {"User resource limit exceeded"    :"maxres",
+              "Out of unprocessed clauses!"     :"incomplete",
+              "Resource limit exceeded (memory)":"maxmem",
+              "Resource limit exceeded (time)"  :"maxtime",
               "exec failed"                     :"starexecfail"}
 
 
@@ -91,12 +93,18 @@ statusmap = {"exec failed"                  :"F",
 			 "SZS status Theorem"           :"T",
 			 "SZS status Unsatisfiable"     :"T"}
 
-adjust = 12
+def rjust(amount): return lambda s: s.rjust(amount)
+def ljust(amount): return lambda s: s.ljust(amount)
 
-adjustmap     = {"User time"         :8,
-                 "Preprocessing time":8,
-                 "Status"            :1,
-                 "Failure"           :10}
+adjustmap         = defaultdict(lambda:rjust(12))
+adjustmap.update({"User time"         :rjust( 8),
+                  "Preprocessing time":rjust( 8),
+                  "Status"            :rjust( 1),
+                  "Failure"           :rjust(10),
+                  "Type"              :rjust( 8),
+                  "Heuristic"         :rjust(12),
+                  "Filename"          :ljust(12),
+                  "Problem"           :ljust( 8)})
 
 def clean_value(value):
 	value = value.strip()
@@ -128,7 +136,7 @@ def remove_timestamp(line):
 				return ""
 
 def make_entry(lines):
-	entry = {"Failure":"success   "}
+	entry = {"Failure":"success"}
 	for line in lines:
 		line = line.decode()
 		line = remove_timestamp(line)
@@ -141,14 +149,14 @@ def make_entry(lines):
 			entry["Status"] = statusmap["exec failed"]
 			entry["Failure"] = failuremap["exec failed"]
 		elif key == "Problem":
-			entry[key] = (value.split(":", 1)[0].strip() + ".p").ljust(12)
+			entry[key] = (value.split(":", 1)[0].strip() + ".p")
 		elif key == "Failure":
 			entry[key] = failuremap[value]
 		elif value != "":
 			entry[key] = value
 	return entry
 
-def process_file(data, path, fileopener, info):
+def process_file(data, features, path, fileopener, info):
 	problemname   = basename(dirname(path))
 	heuristicname = "_".join(basename(dirname(dirname(path))).split("_")[-2:])
 	eversion      = basename(dirname(dirname(path))).split("_",1)[0][2:]
@@ -157,17 +165,16 @@ def process_file(data, path, fileopener, info):
 	if problemname and heuristicname and fileextension == ".txt" and (("+" in problemname) or ("-" in problemname)):
 		#print(infile+" : "+path)
 		entry = make_entry(fileopener(info).readlines())
-		entry.update({"Heuristic":heuristicname.rjust(12),"Filename":filename.rjust(12)})
+		entry.update({"Heuristic":heuristicname,"Filename":filename})
 		#fix output error in e version 1.9.1pre005
 		if int(entry.get("Proof object given clauses",0)) > int(entry.get("Proof search given clauses",0)):
 			swap(entry,"Proof object given clauses","Proof search given clauses")
 		if entry["Failure"] == failuremap["exec failed"]:
-			entry["Problem"] = problemname.ljust(12)
+			entry["Problem"] = problemname
 			entry["Version"] = eversion
-		if not entry.get("Problem","").strip() == problemname:
-			print("Error problem directory does not match problemname in file %s" % (filename))
-		else:
-			data[heuristicname][problemname] = entry
+		if entry["Problem"] in features:
+			entry.update(features[entry["Problem"]])
+		data[heuristicname][problemname] = entry
 
 def swap(d,key1,key2):
 	d[key1],d[key2] = d[key2],d[key1]
@@ -179,35 +186,64 @@ def parse_args():
 	parser.add_argument("--default", help="default value", default="-")
 	parser.add_argument("--delimiter", help="csv delimiter", default=",")
 	parser.add_argument("--metadata", help="add information parsed from file paths", action="store_true")
-	parser.add_argument("--strip", help="strip all value", action="store_true")
+	parser.add_argument("--compact", help="do not add alignment whitespace", action="store_true")
+	parser.add_argument("--features", help="add feature columns with features of the problem")
 	return parser.parse_args()
+
+def read_features(path):
+	features = defaultdict(dict)
+	with open(args.features,"r") as featurefile:
+		for line in featurefile.readlines():
+			name, _, ptype = line.split(":")
+			name = name.strip()
+			ptype = ptype.strip()
+			if  ptype[0] == "H" or ptype[0:1] == "UH":
+				features[name]["Type"] = "horn"
+			elif ptype[0:1] == "UU":
+				features[name]["Type"] = "unit"
+			else:
+				features[name]["Type"] = "general"
+			if ptype[2] == "S" or ptype[2] == "P":
+				features[name]["Equational"] = "equational"
+			else:
+				features[name]["Equational"] = "non-equational"
+	return features
 
 if __name__ == "__main__":
 
 	data = defaultdict(dict)
 	args = parse_args()
 
+	if args.features:
+		if isfile(args.features):
+			features = read_features(args.features)
+		else:
+			print("Could not open feature file %s." % args.features)
+			os.exit(1)
+
 	for infile in args.infile:
 		print("processing %s" % infile)
 		if tarfile.is_tarfile(infile):
 			with tarfile.open(infile) as tfile:
 				for tinfo in tfile:
-					process_file(data, tinfo.name, tfile.extractfile, tinfo)
+					process_file(data, features, tinfo.name, tfile.extractfile, tinfo)
 		elif zipfile.is_zipfile(infile):
 			with zipfile.ZipFile(infile) as zfile:
 				for zinfo in zfile.infolist():
-					process_file(data, zinfo.filename, zfile.open, zinfo)
+					process_file(data, features, zinfo.filename, zfile.open, zinfo)
 		elif isdir(path):
 			for _, _, files in os.walk(path):
 				for path in files:
-					process_file(data, path, open, path)
+					process_file(data, features, path, open, path)
 		else:
 			print("Dont know how to open %s." % infile)
 
 	keys       = set(chain.from_iterable(entry.keys() for problems in data.values() for entry in problems.values()))
-	fieldnames = firstkeys + sorted(keys.difference(set(firstkeys + removekeys + metakeys)))
+	fieldnames = firstkeys + sorted(keys.difference(set(firstkeys + removekeys + metakeys + featurekeys)))
 	if args.metadata:
 		fieldnames += metakeys
+	if args.features:
+		fieldnames += featurekeys
 	for heuristic, problems in data.items():
 		with open(protfile(heuristic), "w", newline="") as report:
 			report.write("#" + next(iter(problems.values()))["Command"] + "\n")
@@ -216,8 +252,8 @@ if __name__ == "__main__":
 				report.write("#")
 			report.write(args.delimiter.join(fieldnames)+"\n")
 			for entrykey in sorted(problems.keys()):
-				if args.strip:
-					values = [problems[entrykey].get(key, args.default).strip() for key in fieldnames]
+				if args.compact:
+					values = [problems[entrykey].get(key, args.default) for key in fieldnames]
 				else:
-					values = [problems[entrykey].get(key, args.default).rjust(adjustmap.get(key, adjust)) for key in fieldnames]
+					values = [adjustmap[key](problems[entrykey].get(key, args.default)) for key in fieldnames]
 				report.write(args.delimiter.join(values)+"\n")
