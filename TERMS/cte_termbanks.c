@@ -1102,6 +1102,13 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
                                 "Number cannot have argument list (consider --free-numbers)", 
                                 false);
                }
+               if((id_type == FSIdentFloat)
+                  &&(bank->sig->distinct_props & FPIsFloat))
+               {
+                  AktTokenError(in, 
+                                "Floating point number cannot have argument list (consider --free-numbers)", 
+                                false);
+               }
                if((id_type == FSIdentObject)
                   &&(bank->sig->distinct_props & FPIsObject))
                {

@@ -362,6 +362,9 @@ FunCode TermSigInsert(Sig_p sig, const char* name, int arity, bool
    case FSIdentInt:
          SigSetFuncProp(sig, res, FPIsInteger);
          break;
+   case FSIdentFloat:
+         SigSetFuncProp(sig, res, FPIsFloat);
+         break;
    case FSIdentObject:
          SigSetFuncProp(sig, res, FPIsObject);
          break;
