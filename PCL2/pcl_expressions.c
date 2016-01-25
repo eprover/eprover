@@ -786,8 +786,8 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
 // Function: PCLStepExtract()
 //
 //   Given a PCL step "extra" string, return true if this should be
-//   the root of a proof tree for extraction. Here, because it's uses
-//   by both steps and ministeps.
+//   the root of a proof tree for extraction. Implemented here,
+//   because it is used by both steps and ministeps.
 //
 // Global Variables: -
 //

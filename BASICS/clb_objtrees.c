@@ -411,7 +411,7 @@ void* PTreeObjExtractRootObject(PObjTree_p *root, ComparisonFunctionType
 //
 // Function: PTreeObjMerge()
 //
-//   Merge the two trees, i.e. destroy the second one and add it's
+//   Merge the two trees, i.e. destroy the second one and add its
 //   element to the first one.
 //
 // Global Variables: -

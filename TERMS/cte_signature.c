@@ -660,7 +660,7 @@ void SigPrintACStatus(FILE* out, Sig_p sig)
 //
 // Function: SigParseKnownOperator()
 //
-//   Parse an operator, return it's FunCode. Error, if operator is not
+//   Parse an operator, return its FunCode. Error, if operator is not
 //   in sig.
 //
 // Global Variables: -

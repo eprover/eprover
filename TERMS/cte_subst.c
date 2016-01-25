@@ -329,7 +329,7 @@ bool SubstIsRenaming(Subst_p subst)
    }
    
    /* For each unchecked variable, check wether another variable was
-      already mapped to it's instantiation */
+      already mapped to its instantiation */
 
    for(i=0; i< size; i++)
    {

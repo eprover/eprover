@@ -244,7 +244,7 @@ WFCB_p LMaxWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
 // Function: LMaxWeightCompute()
 //
 //   Compute an LMax evaluation for a clause. Each literal is weigthed
-//   with the weight of it's heaviest term.
+//   with the weight of its heaviest term.
 //
 // Global Variables: -
 //

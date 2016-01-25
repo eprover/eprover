@@ -228,7 +228,7 @@ NAME " " VERSION "\n"
 "Usage: " NAME " [options] [files]\n\
 \n\
 Read an PCL2 protocol and print a number of statistics about the\n\
-protocol and it's clauses.\n\
+protocol and its clauses.\n\
 \n");
    PrintOptions(stdout, opts, "Options\n\n");
    fprintf(out, "\n\

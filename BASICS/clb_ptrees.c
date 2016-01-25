@@ -465,7 +465,7 @@ bool PTreeDeleteEntry(PTree_p *root, void* key)
 //
 // Function: PTreeMerge()
 //
-//   Merge the two trees, i.e. destroy the second one and add it's
+//   Merge the two trees, i.e. destroy the second one and add its
 //   elements to the first one. Return true if *root gains a new
 //   element. 
 //

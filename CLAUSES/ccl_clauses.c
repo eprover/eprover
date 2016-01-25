@@ -1939,7 +1939,7 @@ bool ClauseParentsAreSubset(Clause_p clause1, Clause_p clause2)
 //
 // Function: ClauseDetachParents()
 //
-//   Discouple a clause from it's parents, i.e. make the parents
+//   Discouple a clause from its parents, i.e. make the parents
 //   forget the clause and vice versa.
 //
 // Global Variables: -
