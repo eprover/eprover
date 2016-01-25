@@ -1099,21 +1099,32 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
                   &&(bank->sig->distinct_props & FPIsInteger))
                {
                   AktTokenError(in, 
-                                "Number cannot have argument list (consider --free-numbers)", 
+                                "Number cannot have argument list "
+                                "(consider --free-numbers)", 
                                 false);
                }
                if((id_type == FSIdentFloat)
                   &&(bank->sig->distinct_props & FPIsFloat))
                {
                   AktTokenError(in, 
-                                "Floating point number cannot have argument list (consider --free-numbers)", 
+                                "Floating point number cannot have argument list "
+                                "(consider --free-numbers)", 
+                                false);
+               }
+               if((id_type == FSIdentRational)
+                  &&(bank->sig->distinct_props & FPIsRational))
+               {
+                  AktTokenError(in, 
+                                "Rational number cannot have argument list "
+                                "(consider --free-numbers)", 
                                 false);
                }
                if((id_type == FSIdentObject)
                   &&(bank->sig->distinct_props & FPIsObject))
                {
                   AktTokenError(in, 
-                                "Object cannot have argument list (consider --free-objects)", 
+                                "Object cannot have argument list "
+                                "(consider --free-objects)", 
                                 false);
                }
                
