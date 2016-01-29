@@ -22,7 +22,7 @@ Options:
 --header     add cvs header with column names
 --delimiter  delimiter between values
 --default    default value for fields in cvs
---metadata   add metadata from directory structure - filename and heuristic and jobarchive name
+--metadata   add metadata from directory structure - file and config and jobarchive name
 --compact    do not add alignment whitespace
 --features   add feature columns with features of the problem taken from supplied feature file
 
@@ -74,7 +74,7 @@ from collections import defaultdict
 protfile = (lambda name: "protocol_G----_" + name + ".csv")
 
 firstkeys   = ["Problem", "Status", "User time", "Failure", "Version", "Preprocessing time"]
-metakeys    = ["Filename", "Heuristic", "Archivename"]
+metakeys    = ["Filename", "Configname", "Archivename"]
 removekeys  = ["eprover", "Command", "Computer", "Model", "CPU", "Memory", "OS", "CPULimit", "DateTime", "CPUTime"]
 featurekeys = ["Type", "Equational"]
 
@@ -103,7 +103,7 @@ adjustmap.update({"User time"         :rjust( 8),
                   "Status"            :rjust( 1),
                   "Failure"           :rjust(10),
                   "Type"              :rjust( 8),
-                  "Heuristic"         :rjust(12),
+                  "Config"            :rjust(12),
                   "Filename"          :ljust(12),
                   "Problem"           :ljust( 8)})
 
@@ -162,17 +162,17 @@ def make_entry(lines):
 
 def process_file(data, features, jobarchivepath, path, fileopener, info):
 	problemname   = basename(dirname(path))
-	heuristicname = "_".join(basename(dirname(dirname(path))).split("_")[-2:])
-	eversion      = basename(dirname(dirname(path))).split("_",1)[0][2:]
+	configname    = "_".join(basename(dirname(dirname(path))).split("_")[-2:])
+	eversion      = basename(dirname(dirname(path))).split("_", 1)[0][2:]
 	fileextension = splitext(path)[-1]
 	filename      = basename(path)
 	archivename   = basename(jobarchivepath)
-	if problemname and heuristicname and fileextension == ".txt" and (("+" in problemname) or ("-" in problemname)):
+	if problemname and configname and fileextension == ".txt" and (("+" in problemname) or ("-" in problemname)):
 		entry = make_entry(fileopener(info).readlines())
-		entry.update({"Heuristic":heuristicname, "Filename":filename, "Archivename":archivename})
-		#fix output error in e version 1.9.1pre005
-		if int(entry.get("Proof object given clauses",0)) > int(entry.get("Proof search given clauses",0)):
-			swap(entry,"Proof object given clauses","Proof search given clauses")
+		entry.update({"Configname":configname, "Filename":filename, "Archivename":archivename})
+		if int(entry.get("Proof object given clauses", 0)) > int(entry.get("Proof search given clauses", 0)):
+			#fix output error in e version 1.9.1pre005
+			swap(entry, "Proof object given clauses", "Proof search given clauses")
 		if "Status" not in entry:
 			entry["Status"] = statusmap["unknown"]
 			if "Failure" not in entry:
@@ -184,7 +184,7 @@ def process_file(data, features, jobarchivepath, path, fileopener, info):
 			entry["Version"] = eversion
 		if entry["Problem"] in features:
 			entry.update(features[entry["Problem"]])
-		data[heuristicname][problemname] = entry
+		data[configname][problemname] = entry
 
 def swap(d,key1,key2):
 	d[key1],d[key2] = d[key2],d[key1]
@@ -246,7 +246,7 @@ if __name__ == "__main__":
 				for path in files:
 					process_file(data, features, infile, path, open, path)
 		else:
-			print("Do not know how to open %s." % infile)
+			print("Do not know how to open {}.".format(infile))
 
 	keys       = set(chain.from_iterable(entry.keys() for problems in data.values() for entry in problems.values()))
 	fieldnames = firstkeys + sorted(keys.difference(set(firstkeys + removekeys + metakeys + featurekeys)))
@@ -254,10 +254,10 @@ if __name__ == "__main__":
 		fieldnames += metakeys
 	if args.features:
 		fieldnames += featurekeys
-	for heuristic, problems in data.items():
-		with open(protfile(heuristic), "w") as report:
+	for configname, problems in data.items():
+		with open(protfile(configname), "w") as report:
 			report.write("# {0[Command]} \n".format(firstvalue(problems)))
-			report.writelines("# {} {} \n".format(*pair) for pair in enumerate(fieldnames, 1) )
+			report.writelines("# {} {} \n".format(*pair) for pair in enumerate(fieldnames, 1))
 			if not args.header:
 				report.write("#")
 			report.write(args.delimiter.join(fieldnames)+"\n")
