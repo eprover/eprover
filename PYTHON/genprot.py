@@ -66,8 +66,9 @@ or via email (address above).
 import argparse
 import tarfile
 import zipfile
+import sys
 
-from itertools import chain, islice
+from itertools import chain
 from os.path import dirname, splitext, basename, isdir, isfile
 from collections import defaultdict
 
@@ -202,21 +203,25 @@ def parse_args():
 
 def read_features(path):
 	features = defaultdict(dict)
-	with open(args.features,"r") as featurefile:
-		for line in featurefile.readlines():
-			name, _, ptype = line.split(":")
-			name = name.strip()
-			ptype = ptype.strip()
-			if  ptype[0] == "H" or ptype[:2] == "UH":
-				features[name]["Type"] = "horn"
-			elif ptype[:2] == "UU":
-				features[name]["Type"] = "unit"
-			else:
-				features[name]["Type"] = "general"
-			if ptype[2] == "S" or ptype[2] == "P":
-				features[name]["Equational"] = "equational"
-			else:
-				features[name]["Equational"] = "non-equational"
+	if isfile(args.features):
+		with open(args.features,"r") as featurefile:
+			for line in featurefile.readlines():
+				name, _, ptype = line.split(":")
+				name = name.strip()
+				ptype = ptype.strip()
+				if  ptype[0] == "H" or ptype[:2] == "UH":
+					features[name]["Type"] = "horn"
+				elif ptype[:2] == "UU":
+					features[name]["Type"] = "unit"
+				else:
+					features[name]["Type"] = "general"
+				if ptype[2] == "S" or ptype[2] == "P":
+					features[name]["Equational"] = "equational"
+				else:
+					features[name]["Equational"] = "non-equational"
+	else:
+		print("Could not open feature file {}".format(args.features))
+		sys.exit(1)
 	return features
 
 if __name__ == "__main__":
@@ -224,12 +229,7 @@ if __name__ == "__main__":
 	data = defaultdict(dict)
 	args = parse_args()
 
-	if args.features:
-		if isfile(args.features):
-			features = read_features(args.features)
-		else:
-			print("Could not open feature file %s." % args.features)
-			os.exit(1)
+	features = read_features(args.features) if args.features else defaultdict(dict)
 
 	for infile in args.infile:
 		print("processing %s" % infile)
