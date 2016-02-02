@@ -67,6 +67,7 @@ import argparse
 import tarfile
 import zipfile
 import sys
+import os
 
 from itertools import chain
 from os.path import dirname, splitext, basename, isdir, isfile
@@ -161,13 +162,12 @@ def make_entry(lines):
 			entry[key] = value
 	return entry
 
-def process_file(data, features, jobarchivepath, path, fileopener, info):
+def process_file(data, features, archivename, path, fileopener, info):
 	problemname   = basename(dirname(path))
 	configname    = "_".join(basename(dirname(dirname(path))).split("_")[-2:])
 	eversion      = basename(dirname(dirname(path))).split("_", 1)[0][2:]
 	fileextension = splitext(path)[-1]
 	filename      = basename(path)
-	archivename   = basename(jobarchivepath)
 	if problemname and configname and fileextension == ".txt" and (("+" in problemname) or ("-" in problemname)):
 		entry = make_entry(fileopener(info).readlines())
 		entry.update({"Configname":configname, "Filename":filename, "Archivename":archivename})
@@ -233,18 +233,19 @@ if __name__ == "__main__":
 
 	for infile in args.infile:
 		print("processing %s" % infile)
-		if tarfile.is_tarfile(infile):
+		if isdir(infile):
+			for root, _, files in os.walk(infile):
+				for filename in files:
+					path = os.path.join(root, filename)
+					process_file(data, features, basename(dirname(infile)), path, lambda p: open(p, mode="rb"), path)
+		elif tarfile.is_tarfile(infile):
 			with tarfile.open(infile) as tfile:
 				for tinfo in tfile:
-					process_file(data, features, infile, tinfo.name, tfile.extractfile, tinfo)
+					process_file(data, features, basename(infile), tinfo.name, tfile.extractfile, tinfo)
 		elif zipfile.is_zipfile(infile):
 			with zipfile.ZipFile(infile) as zfile:
 				for zinfo in zfile.infolist():
-					process_file(data, features, infile, zinfo.filename, zfile.open, zinfo)
-		elif isdir(infile):
-			for _, _, files in os.walk(path):
-				for path in files:
-					process_file(data, features, infile, path, open, path)
+					process_file(data, features, basename(infile), zinfo.filename, zfile.open, zinfo)
 		else:
 			print("Do not know how to open {}.".format(infile))
 
