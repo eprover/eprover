@@ -22,7 +22,7 @@ Options:
 --header     add cvs header with column names
 --delimiter  delimiter between values
 --default    default value for fields in cvs
---metadata   add metadata from directory structure - filename and heuristic name
+--metadata   add metadata from directory structure - file and config and jobarchive name
 --compact    do not add alignment whitespace
 --features   add feature columns with features of the problem taken from supplied feature file
 
@@ -66,6 +66,8 @@ or via email (address above).
 import argparse
 import tarfile
 import zipfile
+import sys
+import os
 
 from itertools import chain
 from os.path import dirname, splitext, basename, isdir, isfile
@@ -74,24 +76,25 @@ from collections import defaultdict
 protfile = (lambda name: "protocol_G----_" + name + ".csv")
 
 firstkeys   = ["Problem", "Status", "User time", "Failure", "Version", "Preprocessing time"]
-metakeys    = ["Filename", "Heuristic"]
-removekeys  = ["eprover","Command", "Computer", "Model", "CPU", "Memory", "OS", "CPULimit", "DateTime", "CPUTime"]
-featurekeys = ["Type","Equational"]
+metakeys    = ["Filename", "Configname", "Archivename"]
+removekeys  = ["eprover", "Command", "Computer", "Model", "CPU", "Memory", "OS", "CPULimit", "DateTime", "CPUTime"]
+featurekeys = ["Type", "Equational"]
 
 failuremap = {"User resource limit exceeded"    :"maxres",
               "Out of unprocessed clauses!"     :"incomplete",
               "Resource limit exceeded (memory)":"maxmem",
               "Resource limit exceeded (time)"  :"maxtime",
-              "exec failed"                     :"starexecfail"}
+              "exec failed"                     :"starexec",
+              "unknown"                         :"unknown"}
 
-
-statusmap = {"exec failed"                  :"F",
-	         "SZS status GaveUp"            :"F",
-			 "SZS status ResourceOut"       :"F",
-			 "SZS status Satisfiable"       :"N",
-			 "SZS status CounterSatisfiable":"N",
-			 "SZS status Theorem"           :"T",
-			 "SZS status Unsatisfiable"     :"T"}
+statusmap = {"unknown"                      :"F",
+             "exec failed"                  :"F",
+             "SZS status GaveUp"            :"F",
+             "SZS status ResourceOut"       :"F",
+             "SZS status Satisfiable"       :"N",
+             "SZS status CounterSatisfiable":"N",
+             "SZS status Theorem"           :"T",
+             "SZS status Unsatisfiable"     :"T"}
 
 def rjust(amount): return lambda s: s.rjust(amount)
 def ljust(amount): return lambda s: s.ljust(amount)
@@ -102,9 +105,12 @@ adjustmap.update({"User time"         :rjust( 8),
                   "Status"            :rjust( 1),
                   "Failure"           :rjust(10),
                   "Type"              :rjust( 8),
-                  "Heuristic"         :rjust(12),
+                  "Config"            :rjust(12),
                   "Filename"          :ljust(12),
                   "Problem"           :ljust( 8)})
+
+def firstvalue(dictionary):
+	return next(iter(dictionary.values()))
 
 def clean_value(value):
 	value = value.strip()
@@ -136,7 +142,7 @@ def remove_timestamp(line):
 				return ""
 
 def make_entry(lines):
-	entry = {"Failure":"success"}
+	entry = dict()
 	for line in lines:
 		line = line.decode()
 		line = remove_timestamp(line)
@@ -156,25 +162,30 @@ def make_entry(lines):
 			entry[key] = value
 	return entry
 
-def process_file(data, features, path, fileopener, info):
+def process_file(data, features, archivename, path, fileopener, info):
 	problemname   = basename(dirname(path))
-	heuristicname = "_".join(basename(dirname(dirname(path))).split("_")[-2:])
-	eversion      = basename(dirname(dirname(path))).split("_",1)[0][2:]
+	configname    = "_".join(basename(dirname(dirname(path))).split("_")[-2:])
+	eversion      = basename(dirname(dirname(path))).split("_", 1)[0][2:]
 	fileextension = splitext(path)[-1]
 	filename      = basename(path)
-	if problemname and heuristicname and fileextension == ".txt" and (("+" in problemname) or ("-" in problemname)):
-		#print(infile+" : "+path)
+	if problemname and configname and fileextension == ".txt" and (("+" in problemname) or ("-" in problemname)):
 		entry = make_entry(fileopener(info).readlines())
-		entry.update({"Heuristic":heuristicname,"Filename":filename})
-		#fix output error in e version 1.9.1pre005
-		if int(entry.get("Proof object given clauses",0)) > int(entry.get("Proof search given clauses",0)):
-			swap(entry,"Proof object given clauses","Proof search given clauses")
+		entry.update({"Configname":configname, "Filename":filename, "Archivename":archivename})
+		if int(entry.get("Proof object given clauses", 0)) > int(entry.get("Proof search given clauses", 0)):
+			#fix output error in e version 1.9.1pre005
+			swap(entry, "Proof object given clauses", "Proof search given clauses")
+		if "Status" not in entry:
+			entry["Status"] = statusmap["unknown"]
+			if "Failure" not in entry:
+				entry["Failure"] = failuremap["unknown"]
+		if "Failure" not in entry:
+			entry["Failure"] = "success"
 		if entry["Failure"] == failuremap["exec failed"]:
 			entry["Problem"] = problemname
 			entry["Version"] = eversion
 		if entry["Problem"] in features:
 			entry.update(features[entry["Problem"]])
-		data[heuristicname][problemname] = entry
+		data[configname][problemname] = entry
 
 def swap(d,key1,key2):
 	d[key1],d[key2] = d[key2],d[key1]
@@ -192,21 +203,25 @@ def parse_args():
 
 def read_features(path):
 	features = defaultdict(dict)
-	with open(args.features,"r") as featurefile:
-		for line in featurefile.readlines():
-			name, _, ptype = line.split(":")
-			name = name.strip()
-			ptype = ptype.strip()
-			if  ptype[0] == "H" or ptype[:2] == "UH":
-				features[name]["Type"] = "horn"
-			elif ptype[:2] == "UU":
-				features[name]["Type"] = "unit"
-			else:
-				features[name]["Type"] = "general"
-			if ptype[2] == "S" or ptype[2] == "P":
-				features[name]["Equational"] = "equational"
-			else:
-				features[name]["Equational"] = "non-equational"
+	if isfile(args.features):
+		with open(args.features,"r") as featurefile:
+			for line in featurefile.readlines():
+				name, _, ptype = line.split(":")
+				name = name.strip()
+				ptype = ptype.strip()
+				if  ptype[0] == "H" or ptype[:2] == "UH":
+					features[name]["Type"] = "horn"
+				elif ptype[:2] == "UU":
+					features[name]["Type"] = "unit"
+				else:
+					features[name]["Type"] = "general"
+				if ptype[2] == "S" or ptype[2] == "P":
+					features[name]["Equational"] = "equational"
+				else:
+					features[name]["Equational"] = "non-equational"
+	else:
+		print("Could not open feature file {}".format(args.features))
+		sys.exit(1)
 	return features
 
 if __name__ == "__main__":
@@ -214,29 +229,25 @@ if __name__ == "__main__":
 	data = defaultdict(dict)
 	args = parse_args()
 
-	if args.features:
-		if isfile(args.features):
-			features = read_features(args.features)
-		else:
-			print("Could not open feature file %s." % args.features)
-			os.exit(1)
+	features = read_features(args.features) if args.features else defaultdict(dict)
 
 	for infile in args.infile:
 		print("processing %s" % infile)
-		if tarfile.is_tarfile(infile):
+		if isdir(infile):
+			for root, _, files in os.walk(infile):
+				for filename in files:
+					path = os.path.join(root, filename)
+					process_file(data, features, basename(dirname(infile)), path, lambda p: open(p, mode="rb"), path)
+		elif tarfile.is_tarfile(infile):
 			with tarfile.open(infile) as tfile:
 				for tinfo in tfile:
-					process_file(data, features, tinfo.name, tfile.extractfile, tinfo)
+					process_file(data, features, basename(infile), tinfo.name, tfile.extractfile, tinfo)
 		elif zipfile.is_zipfile(infile):
 			with zipfile.ZipFile(infile) as zfile:
 				for zinfo in zfile.infolist():
-					process_file(data, features, zinfo.filename, zfile.open, zinfo)
-		elif isdir(path):
-			for _, _, files in os.walk(path):
-				for path in files:
-					process_file(data, features, path, open, path)
+					process_file(data, features, basename(infile), zinfo.filename, zfile.open, zinfo)
 		else:
-			print("Dont know how to open %s." % infile)
+			print("Do not know how to open {}.".format(infile))
 
 	keys       = set(chain.from_iterable(entry.keys() for problems in data.values() for entry in problems.values()))
 	fieldnames = firstkeys + sorted(keys.difference(set(firstkeys + removekeys + metakeys + featurekeys)))
@@ -244,10 +255,10 @@ if __name__ == "__main__":
 		fieldnames += metakeys
 	if args.features:
 		fieldnames += featurekeys
-	for heuristic, problems in data.items():
-		with open(protfile(heuristic), "w", newline="") as report:
-			report.write("#" + next(iter(problems.values()))["Command"] + "\n")
-			report.writelines(("#" + str(number) + " " + name + "\n" for number, name in enumerate(fieldnames, 1)))
+	for configname, problems in data.items():
+		with open(protfile(configname), "w") as report:
+			report.write("# {0[Command]} \n".format(firstvalue(problems)))
+			report.writelines("# {} {} \n".format(*pair) for pair in enumerate(fieldnames, 1))
 			if not args.header:
 				report.write("#")
 			report.write(args.delimiter.join(fieldnames)+"\n")
