@@ -52,8 +52,8 @@ typedef enum
 typedef struct e_pctrl_cell
 {
    pid_t        pid;
-   FILE*        pipe;
    int          fileno;
+   FILE*        pipe;
    char*        input_file;
    char*        name;
    long long    start_time;

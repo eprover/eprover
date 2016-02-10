@@ -40,12 +40,12 @@ Changes
 
 typedef struct kbo_lin_cell
 {
+   CompareResult res;
    int           wb;
    PDArray_p     vb;
    FunCode       max_var;
    int           pos_bal;
    int           neg_bal;   
-   CompareResult res;
 }KBOLinCell, *KBOLin_p;
 
 

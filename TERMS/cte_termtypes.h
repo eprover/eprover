@@ -115,15 +115,15 @@ typedef struct
 
 typedef struct termcell
 {
-   TermProperties   properties;    /* Like basic, lhs, top */
    FunCode          f_code;        /* Top symbol of term */
+   TermProperties   properties;    /* Like basic, lhs, top */
    int              arity;         /* Redundant, but saves handing
                                       around the signature all the
                                       time */
    struct termcell* *args;         /* Pointer to array of arguments */
    struct termcell* binding;       /* For variable bindings,
                                       potentially for temporary
-                                      rewrites - it might be possible
+                           a           rewrites - it might be possible
                                       to combine the previous two in a
                                       union. */
    unsigned long    entry_no;      /* Counter for terms in a given

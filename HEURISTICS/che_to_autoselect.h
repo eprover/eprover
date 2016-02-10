@@ -43,8 +43,8 @@ typedef struct order_parms_cell
    TermOrdering      ordertype;
    TOWeightGenMethod to_weight_gen;
    TOPrecGenMethod   to_prec_gen;
-   long              to_const_weight;
    bool              no_lit_cmp;
+   long              to_const_weight;
 }OrderParmsCell, *OrderParms_p;
 
 typedef double (*OrderEvaluationFun)(OCB_p ocb, ProofState_p state,
