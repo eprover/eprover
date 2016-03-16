@@ -781,7 +781,6 @@ int main(int argc, char* argv[])
                           fstate->original_terms, 
                           fstate->freshvars,
                           fstate->gc_original_terms);
-            printf("CNF done\n");
             
             if(!no_preproc)
             {
