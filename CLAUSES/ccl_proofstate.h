@@ -134,6 +134,9 @@ void         ProofStateFree(ProofState_p junk);
 
 
 void ProofStateAnalyseGC(ProofState_p state);
+void ProofStatePickTrainingExamples(ProofState_p state, 
+                                    PStack_p pos_examples, 
+                                    PStack_p neg_examples);
 void ProofStateStatisticsPrint(FILE* out, ProofState_p state);
 void ProofStatePrint(FILE* out, ProofState_p state);
 void ProofStatePropDocQuote(FILE* out, int level, 

@@ -42,6 +42,84 @@ char* UseInlinedWatchList = WATCHLIST_INLINE_STRING;
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
+/*-----------------------------------------------------------------------
+//
+// Function: clause_set_analyse_gc()
+//
+//   Count number of clauses, given clauses, and used given clauses. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void clause_set_analyse_gc(ClauseSet_p set, ulong_c *clause_count, 
+                           ulong_c *gc_count, ulong_c *gc_used_count) 
+{
+   Clause_p handle;
+   ulong_c clause_c = 0, gc_c = 0, gc_used_c = 0;
+
+   for(handle = set->anchor->succ; handle != set->anchor; handle = handle->succ)
+   {
+      clause_c++;
+      if(ClauseIsEvalGC(handle))
+      {
+         //printf("Clause found (%p): ",set);ClausePrint(stdout, handle, true);printf("\n");
+         gc_c++;
+         if(ClauseQueryProp(handle, CPIsProofClause))
+         {
+            gc_used_c++;
+         }
+      }
+   }   
+   *clause_count  += clause_c;
+   *gc_count      += gc_c;
+   *gc_used_count += gc_used_c;
+
+   /* printf("# Set %p: Clauses: %7lu GCs: %7lu GCus: %7lu\n",
+      set, clause_c, gc_c, gc_used_c); */
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: clause_set_pick_training_examples()
+//
+//   Find given clauses and classify them as positive (used in the
+//   proof) and negative (not used) examples. Return the two sets via
+//   the result-stacks provided.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void clause_set_pick_training_examples(ClauseSet_p set, 
+                                             PStack_p pos_examples, 
+                                             PStack_p neg_examples)  
+{
+   Clause_p handle;
+ 
+   for(handle = set->anchor->succ; handle != set->anchor; handle = handle->succ)
+   {
+      if(ClauseIsEvalGC(handle))
+      {
+         if(ClauseQueryProp(handle, CPIsProofClause))
+         {
+            PStackPushP(pos_examples, handle);
+         }
+         else
+         {
+            PStackPushP(neg_examples, handle);
+         }
+      }
+   }   
+}
+
+
+
 
 
 /*---------------------------------------------------------------------*/
@@ -318,44 +396,6 @@ void ProofStateFree(ProofState_p junk)
 }
 
 
-/*-----------------------------------------------------------------------
-//
-// Function: clause_set_analyse_gc()
-//
-//   Count number of clauses, given clauses, and used given clauses. 
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-void clause_set_analyse_gc(ClauseSet_p set, ulong_c *clause_count, 
-                           ulong_c *gc_count, ulong_c *gc_used_count) 
-{
-   Clause_p handle;
-   ulong_c clause_c = 0, gc_c = 0, gc_used_c = 0;
-
-   for(handle = set->anchor->succ; handle != set->anchor; handle = handle->succ)
-   {
-      clause_c++;
-      if(ClauseIsEvalGC(handle))
-      {
-         //printf("Clause found (%p): ",set);ClausePrint(stdout, handle, true);printf("\n");
-         gc_c++;
-         if(ClauseQueryProp(handle, CPIsProofClause))
-         {
-            gc_used_c++;
-         }
-      }
-   }   
-   *clause_count  += clause_c;
-   *gc_count      += gc_c;
-   *gc_used_count += gc_used_c;
-
-   /* printf("# Set %p: Clauses: %7lu GCs: %7lu GCus: %7lu\n",
-      set, clause_c, gc_c, gc_used_c); */
-}
 
 /*-----------------------------------------------------------------------
 //
@@ -388,6 +428,40 @@ void ProofStateAnalyseGC(ProofState_p state)
    clause_set_analyse_gc(state->archive, &clause_c, 
                          &(state->gc_count), &(state->gc_used_count));  
 }
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ProofStatePickTrainingExamples()
+//
+//   Find positive and negative training examples in the proof state.  
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void ProofStatePickTrainingExamples(ProofState_p state, 
+                                    PStack_p pos_examples, 
+                                    PStack_p neg_examples)
+{   
+   clause_set_pick_training_examples(state->ax_archive, pos_examples,
+                                     neg_examples); 
+   clause_set_pick_training_examples(state->processed_pos_rules,
+                                     pos_examples, neg_examples); 
+   clause_set_pick_training_examples(state->processed_pos_eqns,
+                                     pos_examples, neg_examples); 
+   clause_set_pick_training_examples(state->processed_neg_units,
+                                     pos_examples, neg_examples); 
+   clause_set_pick_training_examples(state->processed_non_units,
+                                     pos_examples, neg_examples); 
+   clause_set_pick_training_examples(state->archive, 
+                                     pos_examples, neg_examples); 
+}
+
+
 
 
 /*-----------------------------------------------------------------------
