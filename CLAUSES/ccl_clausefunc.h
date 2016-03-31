@@ -52,6 +52,8 @@ bool ClauseUnitSimplifyTest(Clause_p clause, Clause_p simplifier);
 Clause_p ClauseArchive(ClauseSet_p archive, Clause_p clause);
 void     ClauseSetArchive(ClauseSet_p archive, ClauseSet_p set);
 
+void PStackClausePrint(FILE* out, PStack_p stack, char* extra);
+
 
 #endif
 

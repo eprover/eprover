@@ -467,6 +467,38 @@ void ClauseSetArchive(ClauseSet_p archive, ClauseSet_p set)
 }
 
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: PStackClausePrint()
+//
+//   Print the clauses on the stack.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void PStackClausePrint(FILE* out, PStack_p stack, char* extra)
+{
+   PStackPointer i;
+   Clause_p clause;
+   
+   for(i=0; i<PStackGetSP(stack); i++)
+   {
+      clause = PStackElementP(stack, i);
+      ClausePrint(out, clause, true);
+      if(extra)
+      {
+         fprintf(out, "%s", extra);
+      }
+      fputc('\n', out);
+   }
+}
+
+
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
