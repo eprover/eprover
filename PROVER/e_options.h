@@ -54,6 +54,7 @@ typedef enum
    OPT_PROOF_GRAPH,
    OPT_FULL_DERIV,
    OPT_RECORD_GIVEN_CLAUSES,
+   OPT_TRAINING,
    OPT_PCL_COMPRESSED,
    OPT_PCL_COMPACT,
    OPT_PCL_SHELL_LEVEL,
@@ -250,6 +251,14 @@ OptCell opts[] =
     " and preserve the form of given clauses evaluated and selected"
     " via archiving for analysis and " 
     "possibly machine learning."},
+
+   {OPT_TRAINING,
+    '\0', "training-examples",
+    OptArg, "1",
+    "Generate and process traning examples from the proof search object."
+    "Implies --record-gcs. The argument is a binary or of the desired "
+    "processig. Bit zero prints positive exampls. Bir 1 prints negative "
+    "examples. Additional selectors will be added later."},
 
    {OPT_PCL_COMPRESSED,
     '\0', "pcl-terms-compressed",

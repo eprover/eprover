@@ -80,6 +80,7 @@ bool              print_sat = false,
                   conjectures_are_questions = false,
                   strategy_scheduling = false;
 ProofOutput       print_derivation = PONone;
+long              proc_training_data;
 
 IOFormat          parse_format = LOPFormat;
 long              step_limit = LONG_MAX, 
@@ -535,7 +536,8 @@ int main(int argc, char* argv[])
                                    print_derivation,
                                    OutputLevel||print_statistics);
          ProofStateAnalyseGC(proofstate);
-         ProofStateTrain(proofstate, true, false);
+         ProofStateTrain(proofstate, proc_training_data&TSPrintPos, 
+                         proc_training_data&TSPrintNeg);
       }
    }
    else if(proofstate->watchlist && ClauseSetEmpty(proofstate->watchlist))
@@ -814,6 +816,11 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_RECORD_GIVEN_CLAUSES:
             BuildProofObject = MAX(1, BuildProofObject);
             ProofObjectRecordsGCSelection = true;
+            break;
+      case OPT_TRAINING:
+            BuildProofObject = MAX(1, BuildProofObject);
+            ProofObjectRecordsGCSelection = true;
+            proc_training_data = CLStateGetIntArg(handle, arg);
             break;
       case OPT_PCL_COMPRESSED:
 	    pcl_full_terms = false;

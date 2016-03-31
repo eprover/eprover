@@ -103,6 +103,13 @@ typedef struct proofstatecell
    ulong_c           gc_used_count;
 }ProofStateCell, *ProofState_p;
 
+typedef enum 
+{
+   TSPrintPos = 1,
+   TSPrintNeg = 2,
+   TSAverageData = 4
+}TrainingSelector;
+
 
 
 /*---------------------------------------------------------------------*/
