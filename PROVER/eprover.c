@@ -535,6 +535,7 @@ int main(int argc, char* argv[])
                                    print_derivation,
                                    OutputLevel||print_statistics);
          ProofStateAnalyseGC(proofstate);
+         ProofStateTrain(proofstate, true, false);
       }
    }
    else if(proofstate->watchlist && ClauseSetEmpty(proofstate->watchlist))

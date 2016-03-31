@@ -462,6 +462,47 @@ void ProofStatePickTrainingExamples(ProofState_p state,
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: ProofStateTrain()
+//
+//   Perform some (yet to be specified ;-) training on the proof
+//   state. 
+//
+// Global Variables: -
+//
+// Side Effects    : Outpur
+//
+/----------------------------------------------------------------------*/
+
+void ProofStateTrain(ProofState_p state, bool print_pos, bool print_neg)
+{
+   PStack_p 
+      pos_examples = PStackAlloc(),
+      neg_examples = PStackAlloc();
+
+   ProofStatePickTrainingExamples(state, pos_examples, neg_examples);
+   
+   fprintf(GlobalOut, "# Training examples: %d positive, %d negative\n", 
+           PStackGetSP(pos_examples), PStackGetSP(neg_examples)); 
+   if(print_pos)
+   {
+      fprintf(GlobalOut, "# Training: Positive examples begin\n");
+      PStackClausePrint(GlobalOut, pos_examples, "# trainpos");
+      fprintf(GlobalOut, "# Training: Positive examples end\n");
+   }
+   if(print_neg)
+   {
+      fprintf(GlobalOut, "# Training: Negative examples begin\n");
+      PStackClausePrint(GlobalOut, neg_examples, "#trainneg");
+      fprintf(GlobalOut, "# Training: Negative examples end\n");
+   }
+
+   PStackFree(pos_examples);
+   PStackFree(neg_examples);
+}
+
+
 
 
 /*-----------------------------------------------------------------------
