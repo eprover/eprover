@@ -648,7 +648,7 @@ static void generate_arrayopt_precedence(OCB_p ocb, ClauseSet_p axioms)
       {
          array->array[i].key1 = 25;
       }
-      else if(strcmp(id, "sk") == 28)
+      else if(strcmp(id, "sk") == 0)
       {
          array->array[i].key1 = 20;
       }
