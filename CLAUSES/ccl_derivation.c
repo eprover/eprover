@@ -1379,12 +1379,18 @@ void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived,
    WFormula_p fparent;
    // long       parent_count;
    ClauseInfo_p info;
-   
+   char* shape="box";
+
    if(derived->clause)
    {
       id = derived->clause->ident;
       deriv = derived->clause->derivation;
       info  = derived->clause->info;
+      if(ClauseIsEvalGC(derived->clause) && 
+         ClauseQueryProp(derived->clause,CPIsProcessed))
+      {
+         shape="ellipse";
+      }
    }
    else
    {
@@ -1404,12 +1410,12 @@ void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived,
    //parent_count = PStackGetSP(parent_clauses)+ 
    //PStackGetSP(parent_formulas);
 
-   fprintf(out, "  %ld [shape=box%s,style=filled,label=\"", id, 
-           DerivedDotNodeColour(derived)); 
+   fprintf(out, "  %ld [shape=%s%s,style=filled,label=\"",  
+           id, shape, DerivedDotNodeColour(derived)); 
    
    if(derived->clause)
    {
-      if(print_derivation >= POGraph1)
+      if(print_derivation > POGraph1)
       {
          ClauseTSTPPrint(out, derived->clause, true, false);
       }
@@ -1421,7 +1427,7 @@ void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived,
    else
    {
       assert(derived->formula);
-      if(print_derivation >= POGraph1)
+      if(print_derivation > POGraph1)
       {
          WFormulaTSTPPrint(out, derived->formula, true, false);
       }

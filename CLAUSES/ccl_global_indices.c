@@ -88,6 +88,8 @@ void GlobalIndicesInit(GlobalIndices_p indices,
                        char* pm_into_index_type)
 {
    FPIndexFunction indexfun;
+
+   // fprintf(GlobalOut, "# GlobalIndicesInit(%p, <>, %s, %s, %s)\n", indices, rw_bw_index_type, pm_from_index_type, pm_into_index_type); 
    
    indices->sig = sig;
    indexfun = GetFPIndexFunction(rw_bw_index_type);
@@ -193,8 +195,10 @@ void GlobalIndicesReset(GlobalIndices_p indices)
 void GlobalIndicesInsertClause(GlobalIndices_p indices, Clause_p clause)
 {
    assert(!ClauseQueryProp(clause, CPIsGlobalIndexed));
-
+   
    ClauseSetProp(clause, CPIsGlobalIndexed);
+
+   // printf("Inserting clause: ");ClausePrint(stdout, clause, true); printf("\n");
 
    if(indices->bw_rw_index)
    {
@@ -236,6 +240,8 @@ void GlobalIndicesInsertClause(GlobalIndices_p indices, Clause_p clause)
 
 void GlobalIndicesDeleteClause(GlobalIndices_p indices, Clause_p clause)
 {
+   // printf("# XXX: ");ClausePrint(GlobalOut, clause, true);printf("\n");
+   
    assert(ClauseQueryProp(clause, CPIsGlobalIndexed));
 
    ClauseDelProp(clause, CPIsGlobalIndexed);
@@ -281,6 +287,8 @@ void GlobalIndicesInsertClauseSet(GlobalIndices_p indices,
                                   ClauseSet_p set)
 {
    Clause_p handle;
+
+   // fprintf(GlobalOut, "GlobalIndicesInsertClauseSet(%p, %p)\n", indices, set);
 
    if(!indices->bw_rw_index)
    {

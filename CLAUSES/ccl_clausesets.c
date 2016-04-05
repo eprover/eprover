@@ -2272,6 +2272,29 @@ long ClauseSetPushClauses(PStack_p stack, ClauseSet_p set)
 
 /*-----------------------------------------------------------------------
 //
+// Function: ClauseSetDefaultWeighClauses()
+//
+//   Set the (standard) weight in all clauses in set.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void ClauseSetDefaultWeighClauses(ClauseSet_p set)
+{
+   Clause_p handle;
+   
+   for(handle = set->anchor->succ; handle!=set->anchor; handle = handle->succ)
+   {
+      handle->weight = ClauseStandardWeight(handle);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: ClauseSetCountConjectures()
 //
 //   Count and return number of conjectures (and negated_conjectures)

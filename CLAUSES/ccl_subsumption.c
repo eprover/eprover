@@ -634,6 +634,10 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
       PERF_CTR_EXIT(SubsumeTimer);
       return UnitClauseSubsumesClause(subsumer, sub_candidate);
    }
+   //printf("# sub_candidate %p: ", sub_candidate->set);ClausePrint(stdout, sub_candidate, true);
+   //printf("\n# subsumer     %p: ", subsumer->set);ClausePrint(stdout, subsumer, true);
+   //printf("\n");
+
    assert(sub_candidate->weight == ClauseStandardWeight(sub_candidate));
    assert(subsumer->weight == ClauseStandardWeight(subsumer));
 

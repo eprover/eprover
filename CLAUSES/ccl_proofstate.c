@@ -252,14 +252,14 @@ void ProofStateInitWatchlist(ProofState_p state, char* watchlist_filename,
    if(watchlist_filename)
    {
       state->watchlist = ClauseSetAlloc();
-      GCRegisterClauseSet(state->gc_original_terms, state->watchlist);
+      GCRegisterClauseSet(state->gc_terms, state->watchlist);
 
       if(watchlist_filename != UseInlinedWatchList)
       {
          in = CreateScanner(StreamTypeFile, watchlist_filename, true, NULL);
          ScannerSetFormat(in, parse_format);
          ClauseSetParseList(in, state->watchlist,
-                            state->original_terms);
+                            state->terms);
          CheckInpTok(in, NoToken);
          DestroyScanner(in);
       }
@@ -284,12 +284,14 @@ void ProofStateInitWatchlist(ProofState_p state, char* watchlist_filename,
             ClauseSetInsert(state->watchlist, handle);
          }        
          PStackFree(stack);
-      }       
+      } 
       ClauseSetSetProp(state->watchlist, CPWatchOnly);
       GlobalIndicesInsertClauseSet(&(state->wlindices),state->watchlist);
       ClauseSetDocInital(GlobalOut, OutputLevel, state->watchlist);
       ClauseSetSortLiterals(state->watchlist, EqnSubsumeInverseCompareRef);
+      ClauseSetDefaultWeighClauses(state->watchlist);
    } 
+   // printf("# watchlist: %p\n", state->watchlist);
 }
 
 

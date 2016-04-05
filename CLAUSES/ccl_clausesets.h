@@ -183,6 +183,8 @@ void         ClauseSetDerivationStackStatistics(ClauseSet_p set);
 
 long         ClauseSetPushClauses(PStack_p stack, ClauseSet_p set);
 
+void         ClauseSetDefaultWeighClauses(ClauseSet_p set);
+
 long         ClauseSetCountConjectures(ClauseSet_p set, long* hypos);
 
 #endif

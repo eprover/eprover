@@ -388,6 +388,9 @@ void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
    FVPackedClause_p pclause = FVIndexPackClause(clause, watchlist->fvindex);
    long removed;
    
+   ClauseSubsumeOrderSortLits(clause);
+   // assert(ClauseIsSubsumeOrdered(clause));
+ 
    clause->weight = ClauseStandardWeight(clause);
    if((removed = remove_subsumed(indices, pclause, watchlist, archive)))
    {
@@ -452,7 +455,7 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
       {
 	 ClauseRemoveACResolved(handle);
       }
-      ClauseSubsumeOrderSortLits(handle);
+      handle->weight = ClauseStandardWeight(handle);
       ClauseSetIndexedInsertClause(state->watchlist, handle);
       GlobalIndicesInsertClause(&(state->wlindices), handle);
    }   
@@ -583,8 +586,8 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
 			   ClauseQueryProp(handle,CPIsProcessed)),
                           control->heuristic_parms.condensing_aggressive,
 			  control->heuristic_parms.forward_demod);
-
-
+      
+      
       if(ClauseIsTrivial(handle))
       {
 	 assert(!handle->children);

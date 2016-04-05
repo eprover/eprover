@@ -429,7 +429,6 @@ int main(int argc, char* argv[])
    {
       VERBOUT("CNFization done\n");
    }
-   ProofStateInitWatchlist(proofstate, watchlist_filename, parse_format);
    raw_clause_no = proofstate->axioms->members;   
    if(!no_preproc)
    {
@@ -456,6 +455,7 @@ int main(int argc, char* argv[])
 				     terms, so we set the flag for
 				     the main proof search only now! */
    ProofStateInit(proofstate, proofcontrol);
+   ProofStateInitWatchlist(proofstate, watchlist_filename, parse_format);
 
    VERBOUT2("Prover state initialized\n");   
    preproc_time = GetTotalCPUTime();
