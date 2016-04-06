@@ -26,7 +26,8 @@ depend: *.c
 # Remove all automatically generated files
 
 clean:
-	@touch does_exist.o does_exist.a $(PROJECT); rm *.o  *.a $(PROJECT)
+	@touch does_exist.o does_exist.dSYM does_exist.a $(PROJECT)
+	@rm -r *.o $(PROJECT) *.dSYM *.a
 	@echo Removed compiled files
 
 # Services (provided by the master Makefile)
