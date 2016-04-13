@@ -256,8 +256,8 @@ OptCell opts[] =
     '\0', "training-examples",
     OptArg, "1",
     "Generate and process traning examples from the proof search object."
-    "Implies --record-gcs. The argument is a binary or of the desired "
-    "processig. Bit zero prints positive exampls. Bit 1 prints negative "
+    " Implies --record-gcs. The argument is a binary or of the desired "
+    "processig. Bit zero prints positive exampels. Bit 1 prints negative "
     "examples. Additional selectors will be added later."},
 
    {OPT_PCL_COMPRESSED,
