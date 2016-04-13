@@ -102,7 +102,7 @@ void TCPChannelFree(TCPChannel_p junk)
    {
       close(junk->sock);
    }
-   TCPChannelFree(junk);
+   TCPChannelCellFree(junk);
 }
 
 /*-----------------------------------------------------------------------

@@ -680,9 +680,9 @@ OptCell opts[] =
     " select as dictated by the selection strategy."}, 
 
    {OPT_INHERIT_CONJ_PM_LIT,
-    'j', "inherit-conjecture-pm-literals",
+    '\0', "inherit-conjecture-pm-literals",
     NoArg, NULL,
-    "In a conjecture-derived clause), always select the negative "
+    "In a conjecture-derived clause, always select the negative "
     "literals a previous inference paramodulated into (if possible). "
     "If no such literal exists, select as dictated by the selection "
     "strategy."},
@@ -844,7 +844,7 @@ OptCell opts[] =
     '\0', "simul-paramod",
     NoArg, NULL,
     "Use simultaneous paramodulation to implement superposition. Default"
-    " is to use plain paramodulation. This is an experimental feature."},
+    " is to use plain paramodulation."},
 
    {OPT_USE_ORIENTED_SIM_PARAMOD,
     '\0', "oriented-simul-paramod",
@@ -898,8 +898,8 @@ OptCell opts[] =
     ReqArg, NULL,
     "Select an ordering type (currently Auto, LPO, LPO4, KBO or "
     "KBO6). -tAuto is suggested, in particular with -xAuto. KBO and"
-    " KBO1 are different implementations of the same ordering, KBO is"
-    " usually faster and has had more testing. Similarly, LPO4 is an "
+    " KBO6 are different implementations of the same ordering, KBO6 is"
+    " usually faster and has had more testing. Similarly, LPO4 is a "
     "new, equivalent but superior implementation of LPO."},
 
    {OPT_TO_WEIGHTGEN,

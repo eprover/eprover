@@ -417,7 +417,8 @@ long StructFOFSpecParseAxioms(StructFOFSpec_p ctrl, PStack_p axfiles,
    ClauseSet_p  cset;
    Scanner_p    in;
    long         res = 0;
-   IntOrP       dummy;
+   static IntOrP dummy = {};
+
 
    for(i=0; i<PStackGetSP(axfiles); i++)
    {
