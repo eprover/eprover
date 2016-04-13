@@ -204,8 +204,14 @@ HCB_p GetHeuristic(char* source, HCBARGUMENTS)
 /----------------------------------------------------------------------*/
 
 #define CHE_HEURISTICS_AUTO
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 HCB_p HCBAutoModeCreate(HCBARGUMENTS)
 {
+#pragma GCC diagnostic pop
    char *res = "Default";
    SpecFeature_p spec = &(control->problem_specs);
    SpecLimits_p limits = CreateDefaultSpecLimits();
@@ -236,8 +242,14 @@ HCB_p HCBAutoModeCreate(HCBARGUMENTS)
 /----------------------------------------------------------------------*/
 
 #define CHE_HEURISTICS_AUTO_CASC
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 HCB_p HCBCASCAutoModeCreate(HCBARGUMENTS)
 {
+#pragma GCC diagnostic pop
    char *res = "Default";
    SpecFeature_p spec = &(control->problem_specs);
    SpecLimits_p limits =  SpecLimitsAlloc();
@@ -286,8 +298,14 @@ HCB_p HCBCASCAutoModeCreate(HCBARGUMENTS)
 
 
 #define CHE_HEURISTICS_AUTO_DEV
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 HCB_p HCBDevAutoModeCreate(HCBARGUMENTS)
 {
+#pragma GCC diagnostic pop
    char *res = "Default";
    SpecFeature_p spec = &(control->problem_specs);
    SpecLimits_p limits = CreateDefaultSpecLimits();
@@ -321,8 +339,14 @@ HCB_p HCBDevAutoModeCreate(HCBARGUMENTS)
 /----------------------------------------------------------------------*/
 
 #define CHE_HEURISTICS_AUTO_SCHED0
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 HCB_p HCBAutoSched0Create(HCBARGUMENTS)
 {
+#pragma GCC diagnostic pop
    char *res = "Default";
    SpecFeature_p spec = &(control->problem_specs);
    SpecLimits_p limits = CreateDefaultSpecLimits();
@@ -339,8 +363,14 @@ HCB_p HCBAutoSched0Create(HCBARGUMENTS)
 #undef CHE_HEURISTICS_AUTO_SCHED0
 
 #define CHE_HEURISTICS_AUTO_SCHED1
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 HCB_p HCBAutoSched1Create(HCBARGUMENTS)
 {
+#pragma GCC diagnostic pop
    char *res = "Default";
    SpecFeature_p spec = &(control->problem_specs);
    SpecLimits_p limits = CreateDefaultSpecLimits();
@@ -357,8 +387,14 @@ HCB_p HCBAutoSched1Create(HCBARGUMENTS)
 #undef CHE_HEURISTICS_AUTO_SCHED1
 
 #define CHE_HEURISTICS_AUTO_SCHED2
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 HCB_p HCBAutoSched2Create(HCBARGUMENTS)
 {
+#pragma GCC diagnostic pop
    char *res = "Default";
    SpecFeature_p spec = &(control->problem_specs);
    SpecLimits_p limits = CreateDefaultSpecLimits();
@@ -375,8 +411,14 @@ HCB_p HCBAutoSched2Create(HCBARGUMENTS)
 #undef CHE_HEURISTICS_AUTO_SCHED2
 
 #define CHE_HEURISTICS_AUTO_SCHED3
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 HCB_p HCBAutoSched3Create(HCBARGUMENTS)
 {
+#pragma GCC diagnostic pop
    char *res = "Default";
    SpecFeature_p spec = &(control->problem_specs);
    SpecLimits_p limits = CreateDefaultSpecLimits();
@@ -394,8 +436,14 @@ HCB_p HCBAutoSched3Create(HCBARGUMENTS)
 
 
 #define CHE_HEURISTICS_AUTO_SCHED4
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 HCB_p HCBAutoSched4Create(HCBARGUMENTS)
 {
+#pragma GCC diagnostic pop
    char *res = "Default";
    SpecFeature_p spec = &(control->problem_specs);
    SpecLimits_p limits = CreateDefaultSpecLimits();
@@ -413,8 +461,14 @@ HCB_p HCBAutoSched4Create(HCBARGUMENTS)
 
 
 #define CHE_HEURISTICS_AUTO_SCHED5
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 HCB_p HCBAutoSched5Create(HCBARGUMENTS)
 {
+#pragma GCC diagnostic pop
    char *res = "Default";
    SpecFeature_p spec = &(control->problem_specs);
    SpecLimits_p limits = CreateDefaultSpecLimits();
@@ -432,8 +486,14 @@ HCB_p HCBAutoSched5Create(HCBARGUMENTS)
 
 
 #define CHE_HEURISTICS_AUTO_SCHED6
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 HCB_p HCBAutoSched6Create(HCBARGUMENTS)
 {
+#pragma GCC diagnostic pop
    char *res = "Default";
    SpecFeature_p spec = &(control->problem_specs);
    SpecLimits_p limits = CreateDefaultSpecLimits();
@@ -451,8 +511,14 @@ HCB_p HCBAutoSched6Create(HCBARGUMENTS)
 
 
 #define CHE_HEURISTICS_AUTO_SCHED7
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 HCB_p HCBAutoSched7Create(HCBARGUMENTS)
 {
+#pragma GCC diagnostic pop
    char *res = "Default";
    SpecFeature_p spec = &(control->problem_specs);
    SpecLimits_p limits = CreateDefaultSpecLimits();
