@@ -861,11 +861,9 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
       case OPT_HELP: 
 	    print_help(stdout);
 	    exit(NO_ERROR);
-	    break;
       case OPT_VERSION:
 	    printf(NAME" " VERSION "\n");
 	    exit(NO_ERROR);
-	    break;
       case OPT_PARSE_FEATURES:
             parse_features = true;
             break;

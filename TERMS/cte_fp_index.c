@@ -516,16 +516,12 @@ static char* fp_symbol(Sig_p sig, FunCode symbol)
    {
    case BELOW_VAR:
          return "B";
-         break;
    case ANY_VAR:
          return "A";
-         break;
    case NOT_IN_TERM:
          return "N";
-         break;
    default:
          return SigFindName(sig, symbol);
-         break;
    }
 }
 

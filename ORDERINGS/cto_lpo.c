@@ -662,7 +662,6 @@ CompareResult LPOCompare(OCB_p ocb, Term_p s, Term_p t,
    case to_equal:
    case to_uncomparable:
 	 return res;
-	 break;
    case to_notleeq:
    case to_unknown:
 	 assert(false);
@@ -675,7 +674,6 @@ CompareResult LPOCompare(OCB_p ocb, Term_p s, Term_p t,
    {
    case to_greater:
 	 return to_lesser;
-	 break;
    case to_uncomparable:
    case to_notgteq:
 	 break;

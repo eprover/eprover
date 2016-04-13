@@ -1803,7 +1803,6 @@ void DocIntroSplitDefRest(FILE* out, long level, Clause_p clause,
             fprintf(out, ",inference("PCL_SE", [status(thm)],[c_0_%ld])", 
                     parent->ident);
             tstp_print_end(out, NULL, clause);
-	 break;
             break;
       default:
             fprintf(out, "# Output format not implemented.\n");

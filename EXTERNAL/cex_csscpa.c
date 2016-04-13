@@ -56,22 +56,16 @@ char* ClauseStatusString(ClauseStatusType clause_status)
    {      
    case contradicts:   
 	 return "contradicts";
-	 break;
    case rejected:   
 	 return "rejected";
-	 break;
    case improved:
 	 return "improved";
-	 break;
    case forced:
 	 return "forced";
-	 break;
    case requested:
 	 return "requested";
-	 break;
    default:
 	 return "unknown";
-	 break;
    }
 
 }

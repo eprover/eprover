@@ -618,7 +618,6 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
             fprintf(out, "unknown()");
          }
          return;
-         break;
    case PCLOpQuote:
          assert(expr->arg_no==1);
          if(mini)
@@ -634,7 +633,6 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
    case PCLOpIntroDef:
          fprintf(out, PCL_ID"(definition)");         
          return;
-         break;
    default:
          break;
    }

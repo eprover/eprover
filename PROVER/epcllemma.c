@@ -503,11 +503,9 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_HELP: 
 	    print_help(stdout);
 	    exit(NO_ERROR);
-	    break;
       case OPT_VERSION:
 	    printf(NAME " " VERSION "\n");
 	    exit(NO_ERROR);
-	    break;
       case OPT_OUTPUT:
 	    outname = arg;
 	    break;

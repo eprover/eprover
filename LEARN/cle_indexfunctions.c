@@ -148,34 +148,24 @@ char* GetIndexName(IndexType type)
    {
    case IndexNoIndex:
 	 return IndexFunNames[0];
-	 break;
    case IndexArity: 
 	 return IndexFunNames[2];
-	 break;
    case IndexSymbol:
 	 return IndexFunNames[3];
-	 break;
    case IndexTop:
 	 return IndexFunNames[4];
-	 break;
    case IndexAltTop:
 	 return IndexFunNames[5];
-	 break;
    case IndexCSTop:   
 	 return IndexFunNames[6];
-	 break;
    case IndexESTop:
 	 return IndexFunNames[7];
-	 break;
    case IndexIdentity:
 	 return IndexFunNames[8];
-	 break;
    case IndexEmpty:
 	 return IndexFunNames[9];
-	 break;
    default:	 
 	 return IndexFunNames[1];
-	 break;
    }
 }
 

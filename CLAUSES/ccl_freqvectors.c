@@ -393,7 +393,6 @@ void VarFreqVectorAddVals(FreqVector_p vec, long symbols, FVIndexType features,
 	 assert(features == FVINoFeatures);
 	 assert(false);
 	 return; /* Cheapest way to fix compiler warning */
-	 break;
    }
    if(unused) 
    { /* Stiffle insure warnings - we don't use unused (duh!), but

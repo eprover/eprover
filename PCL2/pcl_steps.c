@@ -353,13 +353,10 @@ char * PCLPropToTSTPType(PCLStepProperties props)
    {
    case PCLTypeConjecture:
          return "conjecture";
-         break;
    case PCLTypeQuestion:
          return "question";
-         break;
    case PCLTypeNegConjecture:
          return "negated_conjecture";
-         break;
    default:
          if(props&PCLIsLemma)
          {
@@ -376,7 +373,6 @@ char * PCLPropToTSTPType(PCLStepProperties props)
                return "plain";
             }
          }
-         break;
    }
 }
 

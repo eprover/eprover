@@ -558,7 +558,6 @@ long SelectDefiningAxioms(DRelation_p drel,
                PQueueStoreInt(axioms, ATNoType);
             }
             continue;
-            break;
       case ATClause:
             clause = PQueueGetNextP(axioms);
             if(ClauseQueryProp(clause, CPIsRelevant))

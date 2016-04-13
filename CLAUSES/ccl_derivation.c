@@ -1273,10 +1273,8 @@ char* DerivedDotNodeColour(Derived_p derived)
          case CPTypeConjecture:
          case CPTypeNegConjecture:
             return DerivedGetDerivstack(derived)?node_blue:node_axblue;
-               break;
          default:
-               return DerivedGetDerivstack(derived)?node_green:node_axgreen;
-               break;
+            return DerivedGetDerivstack(derived)?node_green:node_axgreen;
          }
       }
    }
@@ -1286,13 +1284,10 @@ char* DerivedDotNodeColour(Derived_p derived)
       {
       case CPTypeConjecture:
             return DerivedGetDerivstack(derived)?node_red:node_axred;
-            break;
       case CPTypeNegConjecture:
             return DerivedGetDerivstack(derived)?node_blue:node_axblue;
-            break;
       default:
             return DerivedGetDerivstack(derived)?node_green:node_axgreen;
-            break;
       }
    }  
    assert(false);

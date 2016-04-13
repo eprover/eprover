@@ -280,10 +280,8 @@ static bool term_is_rewritable(TB_p bank, OCB_p ocb, Term_p term, Clause_p
    {
    case RWLimitedRewritable:
          return !restricted_rw;
-         break;
    case RWAlwaysRewritable:
          return true;
-         break;
    default:
          /* Nothing to do, see below. */
          break;
