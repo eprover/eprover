@@ -274,7 +274,7 @@ int main(int argc, char* argv[])
    }
 #ifdef FAST_EXIT
    exit(0);
-#endif
+#else
    if(fast_extract)
    {	 
       PCLMiniProtFree(mprot);
@@ -295,6 +295,7 @@ int main(int argc, char* argv[])
 #endif
    
    return 0;
+#endif
 }
 
 
