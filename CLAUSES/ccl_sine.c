@@ -491,6 +491,7 @@ long FormulaSetFindHypotheses(FormulaSet_p set, PQueue_p res, bool inc_hypos)
       if(FormulaIsConjecture(handle)||
          (inc_hypos && FormulaIsHypothesis(handle)))
       {
+         printf("Found and added: "); WFormulaPrint(GlobalOut, handle, true); printf("\n");
          PQueueStoreFormula(res, handle);
          ret++;
       }
@@ -537,11 +538,11 @@ long SelectDefiningAxioms(DRelation_p drel,
 
    while(!PQueueEmpty(axioms))
    {
-      /*printf("Selecting %ld from %ld at %d\n", 
-             res, 
-             PQueueCardinality(axioms), 
-             recursion_level);*/
-
+      /* printf("Selecting %ld from %ld at %d\n", 
+         res, 
+         PQueueCardinality(axioms), 
+         recursion_level); */
+         
       if((res > max_set_size) || 
          (recursion_level > max_recursion_depth))
       {         
