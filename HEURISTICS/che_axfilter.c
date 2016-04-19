@@ -407,7 +407,7 @@ bool AxFilterPrintBuf(char* buf, size_t buflen, AxFilter_p filter)
          assert(false && "Unknown AxFilter type");
          break;
    }
-   return (res<=buflen);
+   return (res<buflen);
 }
 
 /*-----------------------------------------------------------------------
