@@ -102,7 +102,7 @@ typedef struct pclstepcell
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-bool SupportShellPCL;
+extern bool SupportShellPCL;
 
 #define PCLStepCellAlloc() (PCLStepCell*)SizeMalloc(sizeof(PCLStepCell))
 #define PCLStepCellFree(junk)         SizeFree(junk, sizeof(PCLStepCell))
