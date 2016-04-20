@@ -836,7 +836,7 @@ TFormula_p TFormulaNegAlloc(TB_p terms, TFormula_p form)
 {
    if(form->f_code == terms->sig->not_code)
    {
-      return form;
+      return form->args[0];
    }
    return TFormulaFCodeAlloc(terms, terms->sig->not_code, 
                              form, NULL);
