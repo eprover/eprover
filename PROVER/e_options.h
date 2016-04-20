@@ -334,7 +334,7 @@ OptCell opts[] =
     "initial clause- and formula set. This will automatically set "
     "output level to 4 so that the pruned problem specification is "
     "printed. Note that the desired pruning methods must still be "
-    "specified (e.g. '--sine=Auto'"},
+    "specified (e.g. '--sine=Auto')."},
    
    {OPT_CNF_ONLY,
     '\0', "cnf",
