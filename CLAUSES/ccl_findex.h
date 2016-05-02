@@ -50,7 +50,7 @@ typedef struct findex_cell
 #define FIndexCellAlloc()    (FIndexCell*)SizeMalloc(sizeof(FIndexCell))
 #define FIndexCellFree(junk) SizeFree(junk, sizeof(FIndexCell))
 
-FIndex_p FIndexAlloc();
+FIndex_p FIndexAlloc(void);
 void     FIndexFree(FIndex_p junk);
 
 void FIndexAddClause(FIndex_p index, Clause_p clause);

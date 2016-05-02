@@ -60,7 +60,7 @@ extern char NullStr[];
 #define DStrCellAlloc() (DStrCell*)SizeMalloc(sizeof(DStrCell))
 #define DStrCellFree(junk)         SizeFree(junk, sizeof(DStrCell))
 
-DStr_p DStrAlloc();
+DStr_p DStrAlloc(void);
 void   DStrFree(DStr_p junk);
 
 char*   DStrAppendStr(DStr_p strdes, char* newpart);

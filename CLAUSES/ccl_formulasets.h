@@ -47,7 +47,7 @@ typedef struct formula_set_cell
 #define FormulaSetCellAlloc()    (FormulaSetCell*)SizeMalloc(sizeof(FormulaSetCell))
 #define FormulaSetCellFree(junk) SizeFree(junk, sizeof(FormulaSetCell))
 
-FormulaSet_p FormulaSetAlloc();
+FormulaSet_p FormulaSetAlloc(void);
 void         FormulaSetFreeFormulas(FormulaSet_p set);
 void         FormulaSetFree(FormulaSet_p set);
 #define      FormulaSetCardinality(set) ((set)->members)

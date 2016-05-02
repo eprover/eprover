@@ -204,7 +204,7 @@ typedef struct spec_feature_cell
         (SpecLimitsCell*)SizeMalloc(sizeof(SpecLimitsCell)) 
 #define SpecLimitsCellFree(junk) \
         SizeFree(junk, sizeof(SpecLimitsCell))
-SpecLimits_p SpecLimitsAlloc();
+SpecLimits_p SpecLimitsAlloc(void);
 
 #define SpecFeatureCellAlloc() \
         (SpecFeatureCell*)SizeMalloc(sizeof(SpecFeatureCell)) 

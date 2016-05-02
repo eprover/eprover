@@ -111,7 +111,7 @@ typedef struct pclexprcell
 #define PCLExprArgInt(expr,i)  PDArrayElementInt((expr)->args,2*(i))
 #define PCLExprArgPos(expr,i)  PDArrayElementP((expr)->args,2*(i)+1)
 
-PCLExpr_p PCLExprAlloc();
+PCLExpr_p PCLExprAlloc(void);
 void      PCLExprFree(PCLExpr_p junk);
 
 /* MiniExprs are the same basic data type. However, MiniPCL-Ids are

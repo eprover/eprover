@@ -87,7 +87,7 @@ PERF_CTR_DECL(IndexMatchTimer);
 #define FPTreeCellFree(junk)         SizeFree(junk, sizeof(FPTreeCell))
 
 
-FPTree_p FPTreeAlloc();
+FPTree_p FPTreeAlloc(void);
 void     FPTreeFree(FPTree_p index, FPTreeFreeFun payload_free);
 
 FPTree_p FPTreeFind(FPTree_p root, IndexFP_p key);

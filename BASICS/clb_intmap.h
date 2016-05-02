@@ -102,7 +102,7 @@ typedef long (*IntMapFreeFunc)(void *junk_node);
 #define IntMapCellAlloc() (IntMapCell*)SizeMalloc(sizeof(IntMapCell))
 #define IntMapCellFree(junk) SizeFree(junk, sizeof(IntMapCell))
 
-IntMap_p IntMapAlloc();
+IntMap_p IntMapAlloc(void);
 void     IntMapFree(IntMap_p map);
 
 void*    IntMapGetVal(IntMap_p map, long key);

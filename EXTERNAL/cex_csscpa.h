@@ -66,7 +66,7 @@ ClauseStatusType;
 #define CSSCPAStateCellAlloc()    (CSSCPAStateCell*)SizeMalloc(sizeof(CSSCPAStateCell))
 #define CSSCPAStateCellFree(junk) SizeFree(junk, sizeof(CSSCPAStateCell))
 
-CSSCPAState_p CSSCPAStateAlloc();
+CSSCPAState_p CSSCPAStateAlloc(void);
 void          CSSCPAStateFree(CSSCPAState_p junk);
 
 bool CSSCPAProcessClause(CSSCPAState_p state, Clause_p clause, 

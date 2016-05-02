@@ -82,7 +82,7 @@ long         PropClauseMaxVar(PropClause_p clause);
 #define PropClauseSetCellAlloc()    (PropClauseSetCell*)SizeMalloc(sizeof(PropClauseSetCell))
 #define PropClauseSetCellFree(junk) SizeFree(junk, sizeof(PropClauseSetCell))
 
-PropClauseSet_p PropClauseSetAlloc();
+PropClauseSet_p PropClauseSetAlloc(void);
 void            PropClauseSetFree(PropClauseSet_p set);
 long            PropClauseSetInsertPropClause(PropClauseSet_p set,
 					      PropClause_p clause);

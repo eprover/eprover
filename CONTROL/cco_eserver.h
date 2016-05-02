@@ -56,7 +56,7 @@ void   XXXFree(XXX_p junk);
 #define EServerCellAlloc()    (EServerCell*)SizeMalloc(sizeof(EServerCell))
 #define EServerCellFree(junk) SizeFree(junk, sizeof(EServerCell))
 
-EServer_p  EServerAlloc();
+EServer_p  EServerAlloc(void);
 void       EServerFree(EServer_p junk);
 
 void       EServerReset(EServer_p server);

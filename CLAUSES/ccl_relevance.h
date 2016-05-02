@@ -66,7 +66,7 @@ typedef struct relevance_cell
 #define RelevanceCellFree(junk) SizeFree(junk, sizeof(RelevanceCell))
 
 
-Relevance_p RelevanceAlloc();
+Relevance_p RelevanceAlloc(void);
 void        RelevanceFree(Relevance_p junk);
 
 void ClausePListPrint(FILE* out, PList_p list);

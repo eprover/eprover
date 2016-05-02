@@ -44,7 +44,7 @@ extern char* TPTP_dir;
 
 void InitIO(char* progname);
 
-void ExitIO();
+void ExitIO(void);
 
 #endif
 

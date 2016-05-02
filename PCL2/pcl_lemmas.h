@@ -104,7 +104,7 @@ LemmaParam_p LemmaParamAlloc(void);
         (InferenceWeight_p)SizeMalloc(sizeof(InferenceWeightType))
 #define InferenceWeightCellFree(junk) \
         SizeFree(junk, sizeof(InferenceWeightType))
-InferenceWeight_p InferenceWeightsAlloc();
+InferenceWeight_p InferenceWeightsAlloc(void);
 #define InferenceWeightsFree(junk) InferenceWeightCellFree(junk)
 
 void PCLExprUpdateRefs(PCLProt_p prot, PCLExpr_p expr);
