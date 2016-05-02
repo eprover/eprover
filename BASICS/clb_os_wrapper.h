@@ -81,15 +81,15 @@ typedef enum
 
 
 #ifdef INSTRUMENT_PERF_CTR
-#define PERF_CTR_DEFINE(name)  long long name = 0; long long name##_store
+#define PERF_CTR_DEFINE(name)  long long name = 0; long long name##_store = 0
 #define PERF_CTR_DECL(name)    extern long long name; extern long long name##_store
 #define PERF_CTR_RESET(name)   name = 0
 #define PERF_CTR_ENTRY(name)   name##_store = GETTIME()
 #define PERF_CTR_EXIT(name)    name+=(GETTIME()-(name##_store))
 #define PERF_CTR_PRINT(out, name) fprintf((out), "# PC%-34s : %f\n", "(" #name ")", ((float)name)/1000000.0)
 #else
-#define PERF_CTR_DEFINE(name)
-#define PERF_CTR_DECL(name)
+#define PERF_CTR_DEFINE(name)  enum { name##_store } // Used to silence compiler warnings
+#define PERF_CTR_DECL(name)    enum { name }         // about extra semicolons.
 #define PERF_CTR_RESET(name)
 #define PERF_CTR_ENTRY(name)
 #define PERF_CTR_EXIT(name)
