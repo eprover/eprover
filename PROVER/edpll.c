@@ -164,7 +164,7 @@ int main(int argc, char* argv[])
 #ifdef STACK_SIZE
    INCREASE_STACK_SIZE;
 #endif
-   InitIO("edpll");
+   InitIO(NAME);
    ESignalSetup(SIGXCPU);
    
    state = process_options(argc, argv);
@@ -352,9 +352,9 @@ void print_help(FILE* out)
 {
    fprintf(out, "\n\
 \n\
-edpll " VERSION "\n\
+"NAME " " VERSION "\n\
 \n\
-Usage: edpll [options] [files]\n\
+Usage: " NAME " [options] [files]\n\
 \n\
 Read a set of ground clauses and try to refute (or satisfy) it.\n\
 Not completed yet!\n\
