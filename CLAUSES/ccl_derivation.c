@@ -674,8 +674,6 @@ long DerivStackExtractParents(PStack_p derivation,
          }
          if(op==DCACRes)
          {
-            int sp;
-
             for(sp = 0; sp<numarg1; sp++)
             {
                PStackPushP(res_clauses, PStackElementP(sig->ac_axioms,sp));
@@ -771,7 +769,6 @@ long DerivStackExtractOptParents(PStack_p derivation,
          }
          if(op==DCACRes)
          {
-            int sp;
             for(sp = 0; sp<numarg1; sp++)
             {
                PStackPushP(res_clauses, PStackElementP(sig->ac_axioms,sp));

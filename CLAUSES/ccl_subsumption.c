@@ -1325,7 +1325,6 @@ Clause_p ClauseSetSubsumesClause(ClauseSet_p set, Clause_p sub_candidate)
    assert(sub_candidate->weight == ClauseStandardWeight(sub_candidate));
    if(set->fvindex)
    {
-      Clause_p res; 
       FreqVector_p vec = OptimizedVarFreqVectorCompute(sub_candidate,
 						       set->fvindex->perm_vector,
 						       set->fvindex->cspec);

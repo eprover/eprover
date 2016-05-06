@@ -128,9 +128,9 @@ void print_help(FILE* out);
 /----------------------------------------------------------------------*/
 
 ProofState_p parse_spec(CLState_p state, 
-                        IOFormat parse_format,
-                        bool error_on_empty,
-                        FunctionProperties free_symb_prop,
+                        IOFormat parse_format_local,
+                        bool error_on_empty_local,
+                        FunctionProperties free_symb_prop_local,
                         long* ax_no)
 {   
    ProofState_p proofstate;
@@ -139,11 +139,11 @@ ProofState_p parse_spec(CLState_p state,
    StrTree_p skip_includes = NULL;
    long parsed_ax_no;
 
-   proofstate = ProofStateAlloc(free_symb_prop);
+   proofstate = ProofStateAlloc(free_symb_prop_local);
    for(i=0; state->argv[i]; i++)
    {
       in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL);
-      ScannerSetFormat(in, parse_format);
+      ScannerSetFormat(in, parse_format_local);
       
       FormulaAndClauseSetParse(in, proofstate->axioms, 
                                proofstate->f_axioms,
@@ -157,7 +157,7 @@ ProofState_p parse_spec(CLState_p state,
 
    parsed_ax_no = ProofStateAxNo(proofstate);
 
-   if(error_on_empty && (parsed_ax_no == 0))
+   if(error_on_empty_local && (parsed_ax_no == 0))
    {
 #ifdef PRINT_SOMEERRORS_STDOUT
       fprintf(GlobalOut, "# Error: Input file contains no clauses or formulas\n");

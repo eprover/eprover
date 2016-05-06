@@ -640,7 +640,7 @@ CLState_p process_options(int argc, char* argv[])
             if(strcmp(arg, "Auto")==0)
             {              
                long tmpmem =  GetSystemPhysMemory();
-               long mem_limit = 0.8*tmpmem;
+               mem_limit = 0.8*tmpmem;
                
                if(tmpmem==-1)
                {
@@ -650,7 +650,7 @@ CLState_p process_options(int argc, char* argv[])
                mem_limit = MEGA*mem_limit;
                VERBOSE(fprintf(stderr, 
                                "Physical memory determined as %ld MB\n"
-                               "Memory limit set to %ld MB\n", 
+                               "Memory limit set to %lld MB\n", 
                                tmpmem, 
                                mem_limit););
             }
