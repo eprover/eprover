@@ -491,7 +491,7 @@ long FormulaSetFindHypotheses(FormulaSet_p set, PQueue_p res, bool inc_hypos)
       if(FormulaIsConjecture(handle)||
          (inc_hypos && FormulaIsHypothesis(handle)))
       {
-         printf("Found and added: "); WFormulaPrint(GlobalOut, handle, true); printf("\n");
+         // printf("Found and added: "); WFormulaPrint(GlobalOut, handle, true); printf("\n");
          PQueueStoreFormula(res, handle);
          ret++;
       }

@@ -44,6 +44,33 @@ Changes
 /* Most things are now defined as inline stuff.... */
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: PStackDiscardElement()
+//
+//   Remove element number i from the stack. If it is not the top
+//   element, the top element gets swapped in.
+//0
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+void PStackDiscardElement(PStack_p stack, PStackPointer i)
+{
+   assert(stack);
+   assert(i < PStackGetSP(stack));
+   assert(i >= 0);
+   
+   stack->current--;
+   if(stack->current != i)
+   {
+      stack->stack[i] = stack->stack[stack->current];
+   }
+}
+
+
 
 /*-----------------------------------------------------------------------
 //

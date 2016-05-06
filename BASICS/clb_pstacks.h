@@ -97,7 +97,7 @@ static __inline__ IntOrP *PStackElementRef(PStack_p stack, PStackPointer pos);
 #define   PStackAssignInt(stack, pos, value) \
           PStackElementRef((stack), (pos))->i_val = (value)
 
-
+void     PStackDiscardElement(PStack_p stack, PStackPointer i);
 
 void     PStackSort(PStack_p stack, ComparisonFunctionType cmpfun);
 void     PStackMerge(PStack_p st1, PStack_p st2, PStack_p res, 

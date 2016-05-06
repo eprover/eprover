@@ -207,6 +207,55 @@ static void generate_precrank_weights(OCB_p ocb, float ranks)
 
 /*-----------------------------------------------------------------------
 //
+// Function: find_max_symbols()
+//
+//   Find all maximal (in the precedence) symbols in ocb->sig and
+//   return a stack containing them.
+//
+// Global Variables: -
+//
+// Side Effects    : Allocation of the stack
+//
+/----------------------------------------------------------------------*/
+
+static PStack_p find_max_symbols(OCB_p ocb)
+{
+   PStack_p res = PStackAlloc();
+   PStackPointer j;
+   FunCode i;
+   CompareResult cmpres;
+   bool max;
+
+   assert(ocb&&(ocb->precedence||ocb->prec_weights));
+
+   for(i=SIG_TRUE_CODE+1; i<=ocb->sig_size; i++)
+   {
+      max = true;
+      for(j = PStackGetSP(res); j; j--)
+      {
+         cmpres = OCBFunCompare(ocb, i, PStackElementInt(res,j-1));
+         
+         if(cmpres == to_lesser)
+         {  /* New candidate is dominated */
+            max = false;
+            break;
+         }
+         else if(cmpres == to_greater)
+         {  /* New candidate dominates */
+            PStackDiscardElement(res, j);
+         }         
+      }
+      if(max)
+      {
+         PStackPushInt(res, i);
+      }
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: set_maximal_0()
 //
 //   Set the weight of the first non-constant maximal symbol in OCB to
@@ -220,28 +269,23 @@ static void generate_precrank_weights(OCB_p ocb, float ranks)
 
 static void set_maximal_0(OCB_p ocb)
 {
-   FunCode i,j;
-   bool    max;
    assert(ocb->precedence||ocb->prec_weights);
-   
-   for(i=SIG_TRUE_CODE+1; i<=ocb->sig_size; i++)
+
+   PStack_p maxsymbs = find_max_symbols(ocb);
+   if(!PStackEmpty(maxsymbs))
    {
-      max = true;
-      
-      for(j=1; j<=ocb->sig_size; j++)
+      FunCode first = PStackElementInt(maxsymbs, 0);
+      PStackPointer i;
+      for(i=1; i<PStackGetSP(maxsymbs); i++)
       {
-	 if(OCBFunCompare(ocb, i, j) == to_lesser)
-	 {
-	    max = false;
-	    break;
-	 }	 
-      }   
-      if(max && (SigFindArity(ocb->sig, i)>0))
-      {
-	 *OCBFunWeightPos(ocb, i) = 0;
-	 break;
+         if(PStackElementInt(maxsymbs, i)<first)
+         {
+            first = PStackElementInt(maxsymbs, i);
+         }
       }
+      *OCBFunWeightPos(ocb, first) = 0;      
    }
+   PStackFree(maxsymbs);
 }
 
 /*-----------------------------------------------------------------------
@@ -259,31 +303,26 @@ static void set_maximal_0(OCB_p ocb)
 
 static void set_maximal_unary_0(OCB_p ocb)
 {
-   FunCode i,j;
-   bool    max;
    assert(ocb->precedence||ocb->prec_weights);
    
-   for(i=SIG_TRUE_CODE+1; i<=ocb->sig_size; i++)
+   PStack_p maxsymbs = find_max_symbols(ocb);
+   if(!PStackEmpty(maxsymbs))
    {
-      if(SigFindArity(ocb->sig, i) == 1)
+      FunCode first = PStackElementInt(maxsymbs, 0);
+      PStackPointer i;
+      for(i=1; i<PStackGetSP(maxsymbs); i++)
       {
-	 max = true;
-      
-	 for(j=1; j<=ocb->sig_size; j++)
-	 {
-	    if(OCBFunCompare(ocb, i, j) == to_lesser)
-	    {
-	       max = false;
-	       break;
-	    }	 
-	 }   
-	 if(max)
-	 {
-	    *OCBFunWeightPos(ocb, i) = 0;
-	    break;
-	 }
+         if(PStackElementInt(maxsymbs, i)<first)
+         {
+            first = PStackElementInt(maxsymbs, i);
+         }
+      }
+      if(SigFindArity(ocb->sig, first) == 1)
+      {
+         *OCBFunWeightPos(ocb, first) = 0;      
       }
    }
+   PStackFree(maxsymbs);
 }
 
 
