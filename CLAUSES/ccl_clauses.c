@@ -1910,9 +1910,9 @@ bool ClauseParentsAreSubset(Clause_p clause1, Clause_p clause2)
    if(clause1->parent1)
    {
       if((clause1->parent1==clause2->parent1)||
-	 (clause1->parent1==clause2->parent1))
+	      (clause1->parent1==clause2->parent2))
       {
-	 sub1=true;
+         sub1=true;
       }
    }
    else
@@ -1922,9 +1922,9 @@ bool ClauseParentsAreSubset(Clause_p clause1, Clause_p clause2)
    if(clause1->parent2)
    {
       if((clause1->parent2==clause2->parent1)||
-	 (clause1->parent2==clause2->parent1))
+	      (clause1->parent2==clause2->parent2))
       {
-	 sub2=true;
+         sub2=true;
       }
    }
    else
