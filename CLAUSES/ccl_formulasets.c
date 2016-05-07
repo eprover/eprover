@@ -58,7 +58,7 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-FormulaSet_p FormulaSetAlloc()
+FormulaSet_p FormulaSetAlloc(void)
 {
    FormulaSet_p set = FormulaSetCellAlloc();
 

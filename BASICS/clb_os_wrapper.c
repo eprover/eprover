@@ -259,7 +259,7 @@ rlim_t GetSoftRlimit(int resource)
 //
 /----------------------------------------------------------------------*/
 
-long long GetUSecTime()
+long long GetUSecTime(void)
 {
    struct timeval tv;
 
@@ -280,7 +280,7 @@ long long GetUSecTime()
 //
 /----------------------------------------------------------------------*/
 
-long long GetUSecClock()
+long long GetUSecClock(void)
 {
    long long res = (clock()*1000000ll)/CLOCKS_PER_SEC;
 

@@ -926,7 +926,7 @@ static long dt_index_rek_find_unifiable(FPTree_p index,
 //
 /----------------------------------------------------------------------*/
 
-FPTree_p FPTreeAlloc()
+FPTree_p FPTreeAlloc(void)
 {
    FPTree_p handle = FPTreeCellAlloc();
    

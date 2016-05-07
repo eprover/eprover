@@ -56,7 +56,7 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-EServer_p EServerAlloc()
+EServer_p EServerAlloc(void)
 {
    EServer_p handle = EServerCellAlloc();
 

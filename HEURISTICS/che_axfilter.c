@@ -121,7 +121,7 @@ GeneralityMeasure get_gen_measure(char* str)
 //
 /----------------------------------------------------------------------*/
 
-AxFilter_p AxFilterAlloc()
+AxFilter_p AxFilterAlloc(void)
 {
    AxFilter_p handle = AxFilterCellAlloc();
    
@@ -473,7 +473,7 @@ void AxFilterDefPrint(FILE* out, AxFilter_p filter)
 //
 /----------------------------------------------------------------------*/
 
-AxFilterSet_p AxFilterSetAlloc()
+AxFilterSet_p AxFilterSetAlloc(void)
 {   
    AxFilterSet_p set = AxFilterSetCellAlloc();
    

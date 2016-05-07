@@ -59,7 +59,7 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-KBOLin_p KBOLinAlloc()
+KBOLin_p KBOLinAlloc(void)
 {
    KBOLin_p handle = KBOLinCellAlloc();
 

@@ -156,7 +156,7 @@ int create_client_sock_nofail(char* host, int port)
 //
 /----------------------------------------------------------------------*/
 
-TCPMsg_p  TCPMsgAlloc()
+TCPMsg_p  TCPMsgAlloc(void)
 {
    TCPMsg_p res = TCPMsgCellAlloc();
 

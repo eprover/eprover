@@ -89,7 +89,7 @@ LemmaParam_p LemmaParamAlloc(void)
 //
 /----------------------------------------------------------------------*/
 
-InferenceWeight_p InferenceWeightsAlloc()
+InferenceWeight_p InferenceWeightsAlloc(void)
 {
    InferenceWeight_p handle = InferenceWeightCellAlloc();
       

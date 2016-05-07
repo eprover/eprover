@@ -56,7 +56,7 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-SpecLimits_p SpecLimitsAlloc()
+SpecLimits_p SpecLimitsAlloc(void)
 {
    SpecLimits_p handle = SpecLimitsCellAlloc();
 

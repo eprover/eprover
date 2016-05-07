@@ -57,7 +57,7 @@ char NullStr[] = "";
 //
 /----------------------------------------------------------------------*/
 
-DStr_p DStrAlloc()
+DStr_p DStrAlloc(void)
 {
    DStr_p handle = DStrCellAlloc();
 

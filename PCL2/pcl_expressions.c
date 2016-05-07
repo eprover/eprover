@@ -57,7 +57,7 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-PCLExpr_p PCLExprAlloc()
+PCLExpr_p PCLExprAlloc(void)
 {
    PCLExpr_p handle = PCLExprCellAlloc();
    

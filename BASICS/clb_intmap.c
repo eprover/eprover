@@ -229,7 +229,7 @@ static void tree_to_array(IntMap_p map)
 //
 /----------------------------------------------------------------------*/
 
-IntMap_p IntMapAlloc()
+IntMap_p IntMapAlloc(void)
 {
    IntMap_p handle = IntMapCellAlloc();
 

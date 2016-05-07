@@ -206,7 +206,7 @@ static Clause_p find_unit_contradiction(Clause_p clause,CSSCPAState_p state)
 //
 /----------------------------------------------------------------------*/
 
-CSSCPAState_p CSSCPAStateAlloc()
+CSSCPAState_p CSSCPAStateAlloc(void)
 {
    CSSCPAState_p handle = CSSCPAStateCellAlloc();
 

@@ -60,7 +60,7 @@ long FormulaDefLimit        = TFORM_RENAME_LIMIT;
 //
 /----------------------------------------------------------------------*/
 
-WFormula_p DefaultWFormulaAlloc()
+WFormula_p DefaultWFormulaAlloc(void)
 {
    WFormula_p handle = WFormulaCellAlloc();
    
