@@ -927,7 +927,7 @@ void ClauseSetDelProp(ClauseSet_p set, ClauseProperties prop)
 // Global Variables: -
 //
 // Side Effects    : Sets property, memory operations, deletes parents
-//                   of unmarked copyes.
+//                   of unmarked copies.
 //
 /----------------------------------------------------------------------*/
 
