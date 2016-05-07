@@ -211,7 +211,6 @@ __attribute__((optnone))
 __attribute__((optimize(0)))
 HCB_p HCBAutoModeCreate(HCBARGUMENTS)
 {
-#pragma GCC diagnostic pop
    char *res = "Default";
    SpecFeature_p spec = &(control->problem_specs);
    SpecLimits_p limits = CreateDefaultSpecLimits();
@@ -225,6 +224,7 @@ HCB_p HCBAutoModeCreate(HCBARGUMENTS)
 
    return GetHeuristic(res, state, control, parms);
 }
+#pragma GCC diagnostic pop
 #undef CHE_HEURISTICS_AUTO
 
 
@@ -249,7 +249,6 @@ __attribute__((optnone))
 __attribute__((optimize(0)))
 HCB_p HCBCASCAutoModeCreate(HCBARGUMENTS)
 {
-#pragma GCC diagnostic pop
    char *res = "Default";
    SpecFeature_p spec = &(control->problem_specs);
    SpecLimits_p limits =  SpecLimitsAlloc();
@@ -280,6 +279,7 @@ HCB_p HCBCASCAutoModeCreate(HCBARGUMENTS)
 
    return GetHeuristic(res, state, control, parms);
 }
+#pragma GCC diagnostic pop
 #undef CHE_HEURISTICS_AUTO_CASC
 
 
@@ -305,7 +305,6 @@ __attribute__((optnone))
 __attribute__((optimize(0)))
 HCB_p HCBDevAutoModeCreate(HCBARGUMENTS)
 {
-#pragma GCC diagnostic pop
    char *res = "Default";
    SpecFeature_p spec = &(control->problem_specs);
    SpecLimits_p limits = CreateDefaultSpecLimits();
@@ -319,6 +318,7 @@ HCB_p HCBDevAutoModeCreate(HCBARGUMENTS)
 
    return GetHeuristic(res, state, control, parms);
 }
+#pragma GCC diagnostic pop
 #undef CHE_HEURISTICS_AUTO_DEV
 
 
@@ -346,7 +346,6 @@ __attribute__((optnone))
 __attribute__((optimize(0)))
 HCB_p HCBAutoSched0Create(HCBARGUMENTS)
 {
-#pragma GCC diagnostic pop
    char *res = "Default";
    SpecFeature_p spec = &(control->problem_specs);
    SpecLimits_p limits = CreateDefaultSpecLimits();
@@ -360,6 +359,7 @@ HCB_p HCBAutoSched0Create(HCBARGUMENTS)
 
    return GetHeuristic(res, state, control, parms);
 }
+#pragma GCC diagnostic pop
 #undef CHE_HEURISTICS_AUTO_SCHED0
 
 #define CHE_HEURISTICS_AUTO_SCHED1
@@ -370,7 +370,6 @@ __attribute__((optnone))
 __attribute__((optimize(0)))
 HCB_p HCBAutoSched1Create(HCBARGUMENTS)
 {
-#pragma GCC diagnostic pop
    char *res = "Default";
    SpecFeature_p spec = &(control->problem_specs);
    SpecLimits_p limits = CreateDefaultSpecLimits();
@@ -384,6 +383,7 @@ HCB_p HCBAutoSched1Create(HCBARGUMENTS)
 
    return GetHeuristic(res, state, control, parms);
 }
+#pragma GCC diagnostic pop
 #undef CHE_HEURISTICS_AUTO_SCHED1
 
 #define CHE_HEURISTICS_AUTO_SCHED2
@@ -394,7 +394,6 @@ __attribute__((optnone))
 __attribute__((optimize(0)))
 HCB_p HCBAutoSched2Create(HCBARGUMENTS)
 {
-#pragma GCC diagnostic pop
    char *res = "Default";
    SpecFeature_p spec = &(control->problem_specs);
    SpecLimits_p limits = CreateDefaultSpecLimits();
@@ -408,6 +407,7 @@ HCB_p HCBAutoSched2Create(HCBARGUMENTS)
 
    return GetHeuristic(res, state, control, parms);
 }
+#pragma GCC diagnostic pop
 #undef CHE_HEURISTICS_AUTO_SCHED2
 
 #define CHE_HEURISTICS_AUTO_SCHED3
@@ -418,7 +418,6 @@ __attribute__((optnone))
 __attribute__((optimize(0)))
 HCB_p HCBAutoSched3Create(HCBARGUMENTS)
 {
-#pragma GCC diagnostic pop
    char *res = "Default";
    SpecFeature_p spec = &(control->problem_specs);
    SpecLimits_p limits = CreateDefaultSpecLimits();
@@ -432,6 +431,7 @@ HCB_p HCBAutoSched3Create(HCBARGUMENTS)
 
    return GetHeuristic(res, state, control, parms);
 }
+#pragma GCC diagnostic pop
 #undef CHE_HEURISTICS_AUTO_SCHED3
 
 
@@ -443,7 +443,6 @@ __attribute__((optnone))
 __attribute__((optimize(0)))
 HCB_p HCBAutoSched4Create(HCBARGUMENTS)
 {
-#pragma GCC diagnostic pop
    char *res = "Default";
    SpecFeature_p spec = &(control->problem_specs);
    SpecLimits_p limits = CreateDefaultSpecLimits();
@@ -457,6 +456,7 @@ HCB_p HCBAutoSched4Create(HCBARGUMENTS)
 
    return GetHeuristic(res, state, control, parms);
 }
+#pragma GCC diagnostic pop
 #undef CHE_HEURISTICS_AUTO_SCHED4
 
 
@@ -468,7 +468,6 @@ __attribute__((optnone))
 __attribute__((optimize(0)))
 HCB_p HCBAutoSched5Create(HCBARGUMENTS)
 {
-#pragma GCC diagnostic pop
    char *res = "Default";
    SpecFeature_p spec = &(control->problem_specs);
    SpecLimits_p limits = CreateDefaultSpecLimits();
@@ -482,6 +481,7 @@ HCB_p HCBAutoSched5Create(HCBARGUMENTS)
 
    return GetHeuristic(res, state, control, parms);
 }
+#pragma GCC diagnostic pop
 #undef CHE_HEURISTICS_AUTO_SCHED5
 
 
@@ -493,7 +493,6 @@ __attribute__((optnone))
 __attribute__((optimize(0)))
 HCB_p HCBAutoSched6Create(HCBARGUMENTS)
 {
-#pragma GCC diagnostic pop
    char *res = "Default";
    SpecFeature_p spec = &(control->problem_specs);
    SpecLimits_p limits = CreateDefaultSpecLimits();
@@ -507,6 +506,7 @@ HCB_p HCBAutoSched6Create(HCBARGUMENTS)
 
    return GetHeuristic(res, state, control, parms);
 }
+#pragma GCC diagnostic pop
 #undef CHE_HEURISTICS_AUTO_SCHED6
 
 
@@ -518,7 +518,6 @@ __attribute__((optnone))
 __attribute__((optimize(0)))
 HCB_p HCBAutoSched7Create(HCBARGUMENTS)
 {
-#pragma GCC diagnostic pop
    char *res = "Default";
    SpecFeature_p spec = &(control->problem_specs);
    SpecLimits_p limits = CreateDefaultSpecLimits();
@@ -532,6 +531,7 @@ HCB_p HCBAutoSched7Create(HCBARGUMENTS)
 
    return GetHeuristic(res, state, control, parms);
 }
+#pragma GCC diagnostic pop
 #undef CHE_HEURISTICS_AUTO_SCHED7
 
 
