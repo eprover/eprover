@@ -57,18 +57,18 @@ typedef enum
 typedef struct intmap_cell
 {
    IntMapType type;
-   long entry_no;        /* How many key/value pairs? May be slightly
-                          * larger than the real value, as keys
-                          * associated to NULL are indistinguishable
-                          * from unassociated keys. */
-   long min_key;         /* Smallest key (may be only key). Again, this
-                          * may be an overestimate, as we do not
-                          * always correct this if a key is deleted
-                          * from an array. */
-   long max_key;         /* Largest key (may be only key). Again, this
-                          * may be an overestimate, as we do not
-                          * always correct this if a key is deleted
-                          * from an array. */
+   unsigned long entry_no; /* How many key/value pairs? May be slightly
+                            * larger than the real value, as keys
+                            * associated to NULL are indistinguishable
+                            * from unassociated keys. */
+   long min_key;           /* Smallest key (may be only key). Again, this
+                            * may be an overestimate, as we do not
+                            * always correct this if a key is deleted
+                            * from an array. */
+   long max_key;           /* Largest key (may be only key). Again, this
+                            * may be an overestimate, as we do not
+                            * always correct this if a key is deleted
+                            * from an array. */
    union 
    {
       void*        value;   /* For IMSingle */

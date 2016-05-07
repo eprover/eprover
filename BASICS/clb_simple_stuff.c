@@ -235,7 +235,7 @@ double pow(double x, double y)
 char* IndentStr(unsigned level)
 {
    static char spaces[MAXINDENTSPACES+1];
-   int i;
+   unsigned int i;
 
    for(i=0; i<MIN(MAXINDENTSPACES, level); i++)
    {

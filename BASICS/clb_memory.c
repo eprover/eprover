@@ -284,7 +284,7 @@ char* SecureStrdup(const char* source)
 char* SecureStrndup(const char* source, size_t n)
 {
    char* handle;
-   int len;
+   size_t len;
 
    assert(source);
    assert(n>=0);

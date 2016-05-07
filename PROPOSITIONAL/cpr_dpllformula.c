@@ -243,7 +243,7 @@ void DPLLRegisterClauseLiteral(DPLLFormula_p form,
 
 void DPLLFormulaInsertClause(DPLLFormula_p form, DPLLClause_p clause)
 {
-   int i;
+   unsigned int i;
 
    PStackPushP(form->clauses, clause);
    for(i=0; i<clause->lit_no; i++)
