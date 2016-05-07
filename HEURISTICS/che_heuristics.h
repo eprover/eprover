@@ -66,7 +66,6 @@ typedef struct heuristic_assoc_cell
 
 extern  HeuristicAssocCell HeuristicsTable[];
 
-SpecLimits_p CreateDefaultSpecLimits(void);
 HCB_p HCBCreate(char* name, HCBARGUMENTS);
 HCB_p GetHeuristic(char* source, HCBARGUMENTS);
 

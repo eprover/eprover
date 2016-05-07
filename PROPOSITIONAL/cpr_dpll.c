@@ -190,13 +190,6 @@ bool DPLLAssignVar(DPLLState_p state, PLiteralCode assignment)
    return res;
 }
 
-
-
-void      DPLLRetractLastAss(DPLLState_p state);
-
-
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

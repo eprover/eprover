@@ -123,9 +123,6 @@ void PCLProtComputeProofSize(PCLProt_p prot, InferenceWeight_p iw,
 
 float PCLStepComputeLemmaWeight(PCLProt_p prot, PCLStep_p step, 
 				LemmaParam_p params);
-
-float PCLStepComputeLemmaWeight(PCLProt_p prot, PCLStep_p step, 
-				LemmaParam_p params);
 PCLStep_p PCLProtComputeLemmaWeights(PCLProt_p prot, LemmaParam_p params);
 
 long PCLProtSeqFindLemmas(PCLProt_p prot, LemmaParam_p params, 
