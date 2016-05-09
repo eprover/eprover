@@ -72,17 +72,7 @@ typedef struct ptreecell
 #define PTREE_CELL_MEM MEMSIZE(PTreeCell)
 #endif
 
-/* As I found out now, _if_ ptr_int is large enough
-   for this conversion, this is guaranteed to work! - actually it's
-   does not if the pointers are great enough to overflow. "Slow"
-   inlined is fast enough and seems to work fine. */
-
-#define SLOW_PTR_CMP
-#ifdef SLOW_PTR_CMP
 #define PCmp(p1, p2) PCmpFun(p1, p2) 
-#else
-#define PCmp(p1, p2) ((ptr_int)(p1)-(ptr_int)(p2))
-#endif
 
 static  __inline__ int PCmpFun(void* p1, void*p2);
 PTree_p PTreeCellAllocEmpty(void);

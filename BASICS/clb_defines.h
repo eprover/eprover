@@ -66,15 +66,6 @@ typedef void (*GenericExitFun)(void* data);
 
 typedef int (*ComparisonFunctionType)(const void*, const void*);
 
-/* E occasionally casts pointers to an integer type to induce an
-   efficiently computable total ordering on pointers, or to compute a
-   hash value for an arbitray pointer type. ptrdiff_t is a signed
-   integer type and should be the right size on all reasonable
-   platforms. Change this definition if your platform is not
-   reasonable ;-).  */
-
-typedef ptrdiff_t ptr_int;
-
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
