@@ -59,8 +59,8 @@ Changes
 /----------------------------------------------------------------------*/
 
 static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
-					      control, Clause_p clause, ulong_c*
-					      subsumed_count, ulong_c* trivial_count,
+					      control, Clause_p clause, unsigned long*
+					      subsumed_count, unsigned long* trivial_count,
 					      bool non_unit_subsumption,
 					      bool context_sr,
                                               bool condense,
@@ -299,7 +299,7 @@ FVPackedClause_p ForwardContractClause(ProofState_p state,
 Clause_p ForwardContractSet(ProofState_p state, ProofControl_p
 			    control, ClauseSet_p set, bool
 			    non_unit_subsumption, RewriteLevel level,
-			    ulong_c* count_eliminated, bool
+			    unsigned long* count_eliminated, bool
 			    terminate_on_empty)
 {
    Clause_p handle, next;
@@ -396,7 +396,7 @@ void ClauseSetReweight(HCB_p heuristic, ClauseSet_p set)
 Clause_p ForwardContractSetReweight(ProofState_p state, ProofControl_p
 				    control, ClauseSet_p set, bool
 				    non_unit_subsumption, RewriteLevel
-				    level, ulong_c* count_eliminated)
+				    level, unsigned long* count_eliminated)
 {
    Clause_p    handle;
    
@@ -432,7 +432,7 @@ Clause_p ForwardContractSetReweight(ProofState_p state, ProofControl_p
 
 void ClauseSetFilterReweigth(ProofControl_p
 			     control, ClauseSet_p set,
-			     ulong_c* count_eliminated)
+			     unsigned long* count_eliminated)
 {
    *count_eliminated += ClauseSetFilterTrivial(set);
    ClauseSetReweight(control->hcb, set);

@@ -159,14 +159,14 @@ typedef struct derivation_cell
    PObjTree_p deriv;
    PStack_p   roots;
    PStack_p   ordered_deriv;
-   ulong_c clause_step_count;
-   ulong_c formula_step_count;
-   ulong_c initial_clause_count;
-   ulong_c initial_formula_count;
-   ulong_c clause_conjecture_count;
-   ulong_c formula_conjecture_count;
-   ulong_c generating_inf_count;
-   ulong_c simplifying_inf_count;
+   unsigned long clause_step_count;
+   unsigned long formula_step_count;
+   unsigned long initial_clause_count;
+   unsigned long initial_formula_count;
+   unsigned long clause_conjecture_count;
+   unsigned long formula_conjecture_count;
+   unsigned long generating_inf_count;
+   unsigned long simplifying_inf_count;
 }DerivationCell, *Derivation_p;
 
 
@@ -222,8 +222,8 @@ long DerivStackExtractOptParents(PStack_p derivation,
 
 
 void DerivStackCountSearchInferences(PStack_p derivation, 
-                                     ulong_c *generating_count,
-                                     ulong_c *simplifying_count);
+                                     unsigned long *generating_count,
+                                     unsigned long *simplifying_count);
 
 #define DerivedCellAlloc() (DerivedCell*)SizeMalloc(sizeof(DerivedCell))
 #define DerivedCellFree(junk) SizeFree(junk, sizeof(DerivedCell))

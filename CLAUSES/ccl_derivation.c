@@ -794,8 +794,8 @@ long DerivStackExtractOptParents(PStack_p derivation,
 /----------------------------------------------------------------------*/
 
 void DerivStackCountSearchInferences(PStack_p derivation, 
-                                     ulong_c *generating_count,
-                                     ulong_c *simplifying_count)
+                                     unsigned long *generating_count,
+                                     unsigned long *simplifying_count)
 {
    PStackPointer i, sp;
    DerivationCodes op;

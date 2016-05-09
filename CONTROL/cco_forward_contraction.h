@@ -67,7 +67,7 @@ FVPackedClause_p ForwardContractClause(ProofState_p state,
 Clause_p ForwardContractSet(ProofState_p state, ProofControl_p
 			    control, ClauseSet_p set, bool
 			    non_unit_subsumption, RewriteLevel level,
-			    ulong_c* count_eliminated, bool
+			    unsigned long* count_eliminated, bool
 			    terminate_on_empty);
 
 void     ClauseSetReweight(HCB_p heuristic, ClauseSet_p set);
@@ -75,10 +75,10 @@ void     ClauseSetReweight(HCB_p heuristic, ClauseSet_p set);
 Clause_p ForwardContractSetReweight(ProofState_p state, ProofControl_p
 				    control, ClauseSet_p set, bool
 				    non_unit_subsumption, RewriteLevel
-				    level, ulong_c* count_eliminated);
+				    level, unsigned long* count_eliminated);
 
 void     ClauseSetFilterReweigth(ProofControl_p control, ClauseSet_p
-				 set, ulong_c* count_eliminated);
+				 set, unsigned long* count_eliminated);
 
 Clause_p ProofStateFilterUnprocessed(ProofState_p state,
 				     ProofControl_p control, char*

@@ -77,30 +77,30 @@ typedef struct proofstatecell
    FVCollect_p       def_store_cspec;
 
    bool              status_reported;
-   ulong_c           answer_count;
+   unsigned long           answer_count;
 
-   ulong_c           processed_count;
-   ulong_c           proc_trivial_count;
-   ulong_c           proc_forward_subsumed_count;
-   ulong_c           proc_non_trivial_count;
-   ulong_c           other_redundant_count;       /* Intermediate
+   unsigned long           processed_count;
+   unsigned long           proc_trivial_count;
+   unsigned long           proc_forward_subsumed_count;
+   unsigned long           proc_non_trivial_count;
+   unsigned long           other_redundant_count;       /* Intermediate
     		            		             filtering */
-   ulong_c           non_redundant_deleted;
-   ulong_c           backward_subsumed_count;
-   ulong_c           backward_rewritten_count;
-   ulong_c           backward_rewritten_lit_count;
-   ulong_c           generated_count;
-   ulong_c           generated_lit_count;
-   ulong_c           non_trivial_generated_count;
-   ulong_c           context_sr_count;
-   ulong_c           paramod_count;
-   ulong_c           factor_count;
-   ulong_c           resolv_count;
+   unsigned long           non_redundant_deleted;
+   unsigned long           backward_subsumed_count;
+   unsigned long           backward_rewritten_count;
+   unsigned long           backward_rewritten_lit_count;
+   unsigned long           generated_count;
+   unsigned long           generated_lit_count;
+   unsigned long           non_trivial_generated_count;
+   unsigned long           context_sr_count;
+   unsigned long           paramod_count;
+   unsigned long           factor_count;
+   unsigned long           resolv_count;
    
    /* The following are only set by ProofStateAnalyse() after
       DerivationCompute() at the end of the proof search. */
-   ulong_c           gc_count;
-   ulong_c           gc_used_count;
+   unsigned long           gc_count;
+   unsigned long           gc_used_count;
 }ProofStateCell, *ProofState_p;
 
 typedef enum 

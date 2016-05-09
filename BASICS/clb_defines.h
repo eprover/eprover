@@ -109,8 +109,6 @@ typedef void (*GenericExitFun)(void* data);
 
 typedef int (*ComparisonFunctionType)(const void*, const void*);
 
-typedef unsigned long ulong_c;
-
 /* E occasionally casts pointers to an integer type to induce an
    efficiently computable total ordering on pointers, or to compute a
    hash value for an arbitray pointer type. ptrdiff_t is a signed

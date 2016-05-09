@@ -54,11 +54,11 @@ char* UseInlinedWatchList = WATCHLIST_INLINE_STRING;
 //
 /----------------------------------------------------------------------*/
 
-static void clause_set_analyse_gc(ClauseSet_p set, ulong_c *clause_count, 
-                           ulong_c *gc_count, ulong_c *gc_used_count) 
+static void clause_set_analyse_gc(ClauseSet_p set, unsigned long *clause_count, 
+                           unsigned long *gc_count, unsigned long *gc_used_count) 
 {
    Clause_p handle;
-   ulong_c clause_c = 0, gc_c = 0, gc_used_c = 0;
+   unsigned long clause_c = 0, gc_c = 0, gc_used_c = 0;
 
    for(handle = set->anchor->succ; handle != set->anchor; handle = handle->succ)
    {
@@ -415,7 +415,7 @@ void ProofStateFree(ProofState_p junk)
 
 void ProofStateAnalyseGC(ProofState_p state)
 {
-   ulong_c clause_c = 0;
+   unsigned long clause_c = 0;
 
    clause_set_analyse_gc(state->ax_archive, &clause_c, 
                          &(state->gc_count), &(state->gc_used_count));  
