@@ -216,7 +216,7 @@ void InitError(char* progname)
 /----------------------------------------------------------------------*/
 
 __attribute__((noreturn))
-VOLATILE void Error(char* message, ErrorCodes ret, ...)
+void Error(char* message, ErrorCodes ret, ...)
 {
    va_list ap;
    va_start(ap, ret);
@@ -243,7 +243,7 @@ VOLATILE void Error(char* message, ErrorCodes ret, ...)
 /----------------------------------------------------------------------*/
 
 __attribute__((noreturn))
-VOLATILE void SysError(char* message, ErrorCodes ret, ...)
+void SysError(char* message, ErrorCodes ret, ...)
 {
    va_list ap;
    va_start(ap, ret);

@@ -203,7 +203,7 @@ bool TestIdnum(Token_p akt, char* ids);
 #define TestInpTokNoSkip(in, toks) \
         (TestInpNoSkip(in) && TestInpTok(in, toks))
 
-VOLATILE void AktTokenError(Scanner_p in, char* msg, bool syserr);
+void AktTokenError(Scanner_p in, char* msg, bool syserr);
 
 void CheckInpTok(Scanner_p in, TokenType toks);
 void CheckInpTokNoSkip(Scanner_p in, TokenType toks);

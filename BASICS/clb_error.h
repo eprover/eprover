@@ -77,8 +77,8 @@ long          GetSystemPageSize(void);
 long          GetSystemPhysMemory(void);
 
 void          InitError(char* progname);
-VOLATILE void Error(char* message, ErrorCodes ret, ...);
-VOLATILE void SysError(char* message, ErrorCodes ret, ...);
+void Error(char* message, ErrorCodes ret, ...);
+void SysError(char* message, ErrorCodes ret, ...);
 void          Warning(char* message, ...);
 void          SysWarning(char* message, ...);
 double        GetTotalCPUTime(void);

@@ -68,17 +68,6 @@ typedef union int_or_p
 #endif
 #endif
 
-/* Allow for volatile functions if the compiler supports them - 
-   gcc version egcs-2.90.23 980102 (egcs-1.0.1 release)
-   apparently defines __GNUC__  but does not *sigh* */
-
-#ifdef NEVER_DEFINED
-#define VOLATILE volatile
-#else
-#define VOLATILE
-#endif
-
-
 /* Generic cleanup function for pseudo-objects - the function has to
    know how to get rid of the passed data. */
 

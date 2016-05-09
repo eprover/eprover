@@ -1011,7 +1011,7 @@ bool TestIdnum(Token_p akt, char* ids)
 //
 /----------------------------------------------------------------------*/
 
-VOLATILE void AktTokenError(Scanner_p in, char* msg, bool syserr)
+void AktTokenError(Scanner_p in, char* msg, bool syserr)
 {
    DStr_p err = DStrAlloc();
 
