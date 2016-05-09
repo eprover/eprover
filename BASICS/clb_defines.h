@@ -34,6 +34,7 @@ Changes
 #include <stddef.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stdbool.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -42,22 +43,10 @@ Changes
 
 
 #ifndef  __cplusplus
-
-/* Booleans (if we don't already have them */
-
-typedef enum
-{
-   false = 0,
-   true = 1
-}bool;
-
 #define CPPCAST(type) /* Nothing */
-
 #else
-
 /* C++ casts */
 #define CPPCAST(type) (type)
-
 #endif
 
 
