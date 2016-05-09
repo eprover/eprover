@@ -139,7 +139,7 @@ static __inline__ void push(PStack_p stack, IntOrP val)
       /* Emulate Realloc-Functionality for use of SizeMalloc() */
       old_size = stack->size;
       stack->size = stack->size*2;
-      tmp = CPPCAST(IntOrP*)SizeMalloc(stack->size * sizeof(IntOrP));
+      tmp = SizeMalloc(stack->size * sizeof(IntOrP));
       memcpy(tmp, stack->stack, old_size*sizeof(IntOrP));
       SizeFree(stack->stack, old_size * sizeof(IntOrP));
       stack->stack = tmp;
@@ -168,7 +168,7 @@ static __inline__ PStack_p PStackAlloc(void)
    handle = PStackCellAlloc();
    handle->size = PSTACK_DEFAULT_SIZE;
    handle->current = 0;
-   handle->stack = CPPCAST(IntOrP*)SizeMalloc(handle->size * sizeof(IntOrP));
+   handle->stack = SizeMalloc(handle->size * sizeof(IntOrP));
    
    return handle;
 }
@@ -193,7 +193,7 @@ static __inline__ PStack_p PStackVarAlloc(long size)
    handle = PStackCellAlloc();
    handle->size = size;
    handle->current = 0;
-   handle->stack = CPPCAST(IntOrP*)SizeMalloc(handle->size * sizeof(IntOrP));
+   handle->stack = SizeMalloc(handle->size * sizeof(IntOrP));
    
    return handle;
 }

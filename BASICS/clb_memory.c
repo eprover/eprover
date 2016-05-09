@@ -261,7 +261,7 @@ char* SecureStrdup(const char* source)
 {
    char* handle;
 
-   handle = CPPCAST(char*)SecureMalloc(strlen(source)+1);
+   handle = SecureMalloc(strlen(source)+1);
    strcpy(handle,source);
 
    return handle;
@@ -293,7 +293,7 @@ char* SecureStrndup(const char* source, size_t n)
    
    if(len > n)
    {
-      handle = CPPCAST(char*)SecureMalloc(n+1);
+      handle = SecureMalloc(n+1);
       strncpy(handle,source, n);
       handle[n]='\0';
    }

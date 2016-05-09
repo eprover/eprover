@@ -344,12 +344,11 @@ static __inline__ Term_p TermTopCopy(Term_p source)
    Term_p handle;
    
    handle = TermDefaultCellAlloc();
-   handle->properties  = CPPCAST(TermProperties)
-      (CPPCAST(int)source->properties&CPPCAST(int)TPPredPos); /* All other
-                                                               properties
-                                                               are tied to
-                                                               the specific
-                                                               term! */
+   handle->properties = (source->properties&TPPredPos); /* All other
+                                                           properties
+                                                           are tied to
+                                                           the specific
+                                                           term! */
    TermCellDelProp(handle, TPOutputFlag); /* As it gets a new id below */
    handle->f_code = source->f_code;
    handle->arity  = source->arity;

@@ -40,16 +40,6 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-
-
-#ifndef  __cplusplus
-#define CPPCAST(type) /* Nothing */
-#else
-/* C++ casts */
-#define CPPCAST(type) (type)
-#endif
-
-
 /* Trick the stupid type concept for polymorphic indices (hashes,
    trees) with int/pointer type. */
 

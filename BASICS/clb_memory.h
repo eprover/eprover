@@ -178,7 +178,7 @@ static __inline__ void* SizeMallocReal(size_t size)
    } 
    else
    {
-      handle = CPPCAST(Mem_p)SecureMalloc(size);
+      handle = SecureMalloc(size);
 #ifndef NDEBUG
       if((mem_index>=0) && (mem_index<MEM_ARR_SIZE))
       {
