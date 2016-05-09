@@ -57,17 +57,6 @@ typedef union int_or_p
 #define LONG_MEM sizeof(long)
 #endif
 
-
-/* The NULL pointer */
-
-#ifndef NULL
-#ifndef  __cplusplus
-#define NULL ((void*)0)
-#else
-#define NULL 0
-#endif
-#endif
-
 /* Generic cleanup function for pseudo-objects - the function has to
    know how to get rid of the passed data. */
 
