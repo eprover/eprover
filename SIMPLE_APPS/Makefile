@@ -28,7 +28,6 @@ depend: *.c
 clean:
 	@touch does_exist.o does_exist.dSYM does_exist.a $(PROJECT)
 	@rm -r *.o $(PROJECT) *.dSYM *.a
-	@echo Removed compiled files
 
 # Services (provided by the master Makefile)
 

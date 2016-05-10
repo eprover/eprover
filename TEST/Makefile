@@ -28,8 +28,7 @@ REMOVE = cl_test patterntest
 
 clean:
 	@touch does_exist.a does_exist.o does_exist.dSYM $(REMOVE)
-	rm -r *.o  *.a *.dSYM $(REMOVE)
-	@echo Removed compiled files
+	@rm -r *.o  *.a *.dSYM $(REMOVE)
 
 # Services (provided by the master Makefile)
 

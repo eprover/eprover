@@ -38,19 +38,19 @@ all: E
 # Generate dependencies
 
 depend: 
-	for subdir in $(CODE); do\
+	@for subdir in $(CODE); do\
 	   cd $$subdir; touch Makefile.dependencies; $(MAKE) depend; cd ..;\
 	done;
 
 # Remove all automatically generated files
 
 remove_links:
-	cd include; touch does_exist.h; rm *.h
-	cd lib; touch does_exist.a; rm *.a
+	@cd include; touch does_exist.h; rm *.h
+	@cd lib; touch does_exist.a; rm *.a
 
 
 clean: remove_links
-	for subdir in $(PARTS); do\
+	@for subdir in $(PARTS); do\
 	   cd $$subdir; touch Makefile.dependencies;$(MAKE) clean; cd ..;\
 	done;
 
@@ -100,13 +100,13 @@ top: E
 # Create symbolic links
 
 links: remove_links
-	cd include;\
+	@cd include;\
 	for subdir in $(HEADERS); do\
 	   for file in ../$$subdir/*.h; do\
 	     $(LN) $$file .;\
 	   done;\
 	done;
-	cd lib;\
+	@cd lib;\
 	for subdir in $(LIBS); do\
            $(LN) ../$$subdir/$$subdir.a .;\
 	done;
@@ -193,7 +193,7 @@ man: E
 # Build the single libraries
 
 E: links
-	for subdir in $(CODE); do\
+	@for subdir in $(CODE); do\
 	   cd $$subdir;touch Makefile.dependencies;$(MAKE);cd ..;\
 	done;
 
