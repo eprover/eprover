@@ -2555,7 +2555,7 @@ double  LiteralNonLinearWeight(Eqn_p eq, double max_term_multiplier,
    res = count_eq_encoding?
       EqnNonLinearWeight(eq, max_term_multiplier, vlweight, vweight,
 			 fweight): 
-      EqnCorrectedNonLinearWeight(eq, max_term_multiplier, vweight,
+      EqnCorrectedNonLinearWeight(eq, max_term_multiplier, vlweight,
 				  vweight, fweight); 
    
    
