@@ -74,6 +74,7 @@ int create_server_sock_nofail(int port)
    addr.sin_family = AF_INET;
    addr.sin_port = htons(port);
    addr.sin_addr.s_addr = INADDR_ANY;
+   memset(&addr.sin_zero, 0, sizeof(addr.sin_zero));
 
    res = bind(sock, (struct sockaddr *)&addr, sizeof(addr));
 
