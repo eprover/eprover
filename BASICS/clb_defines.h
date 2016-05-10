@@ -73,33 +73,27 @@ typedef int (*ComparisonFunctionType)(const void*, const void*);
 
 /* Maximum and minimum, absolute values, exclusive or functions */
 
-#ifdef MAX
 #undef MAX
-#endif
-#define MAX(x,y) ((x)>(y)?(x):(y))
+#define MAX(x,y) ({ __typeof__ (x) _x = (x);\
+                    __typeof__ (y) _y = (y);\
+                    _x > _y ? _x : _y; })
 
-#ifdef MIN
 #undef MIN
-#endif
-#define MIN(x,y) ((x)<(y)?(x):(y))
+#define MIN(x,y) ({ __typeof__ (x) _x = (x);\
+                    __typeof__ (y) _y = (y);\
+                    _x < _y ? _x : _y; })
 
-#ifdef ABS
 #undef ABS
-#endif
-#define ABS(x)   ((x)>0? (x):-1*(x))
+#define ABS(x)   ((x)>0? (x):-(x))
 
-#ifdef XOR
 #undef XOR
-#endif
-#define XOR(x,y) (((!(x))&&(y))||((x)&&(!(y))))
+#define XOR(x,y) (!(x)!=!(y))
 
-#ifdef EQUIV
 #undef EQUIV
-#endif
-#define EQUIV(x,y) ((((x))&&(y))||(!(x)&&(!(y))))
+#define EQUIV(x,y) (!(x)==!(y))
 
-#define SWAP(type, x,y) {type tmp =(x); (x)=(y); (y)=(tmp);}
-
+#undef SWAP
+#define SWAP(type, x,y) do{type tmp =(x); (x)=(y); (y)=(tmp);}while(0)
 
 /* I cannot keep things in my mind ;-) */
 
