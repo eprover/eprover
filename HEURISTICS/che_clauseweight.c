@@ -260,7 +260,7 @@ double LMaxWeightCompute(void* data, Clause_p clause)
    
    for(handle = clause->literals; handle; handle = handle->next)
    {
-      tmp = EqnMaxWeight(handle, local->fweight, local->vweight);
+      tmp = EqnMaxWeight(handle, local->vweight, local->fweight);
       if(EqnIsPositive(handle))
       {
 	 tmp = tmp*local->pos_multiplier;
@@ -351,7 +351,7 @@ double CMaxWeightCompute(void* data, Clause_p clause)
    
    for(handle = clause->literals; handle; handle = handle->next)
    {
-      tmp = EqnMaxWeight(handle, local->fweight, local->vweight);
+      tmp = EqnMaxWeight(handle, local->vweight, local->fweight);
       res = MAX(res,tmp);
    }
    return clause->pos_lit_no*res*local->pos_multiplier +
