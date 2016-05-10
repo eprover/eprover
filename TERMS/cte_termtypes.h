@@ -228,9 +228,7 @@ void    TermVarDelProp(Term_p term, DerefType deref, TermProperties prop);
 static __inline__ Term_p  TermDeref(Term_p term, DerefType_p deref);
 
 static __inline__ Term_p* TermArgListCopy(Term_p source);
-#ifndef __cplusplus
 static __inline__ Term_p  TermTopCopy(Term_p source);
-#endif
 
 void    TermStackSetProps(PStack_p stack, TermProperties prop);
 void    TermStackDelProps(PStack_p stack, TermProperties prop);
@@ -314,13 +312,6 @@ static __inline__ Term_p* TermArgListCopy(Term_p source)
    return handle;
 }
 
-#ifndef __cplusplus
-
-/* This function is only needed in the core E libraries (but in many
- * of those), and not in the C++ code of (some) programs that link to
- * E. It contains C++-unfriendly code, so it's just ignored in this
- * case. */
-
 /*-----------------------------------------------------------------------
 //
 // Function: TermTopCopy()
@@ -359,8 +350,6 @@ static __inline__ Term_p TermTopCopy(Term_p source)
    
    return handle;
 }
-
-#endif
 
 #endif
 
