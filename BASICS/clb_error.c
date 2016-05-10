@@ -224,6 +224,8 @@ void Error(char* message, ErrorCodes ret, ...)
    fprintf(stderr, "%s: ", ProgName);
    vfprintf(stderr, message, ap);
    fprintf(stderr, "\n");
+   va_end(ap);
+
    exit(ret);
 }
 
@@ -253,6 +255,8 @@ void SysError(char* message, ErrorCodes ret, ...)
    fprintf(stderr, "\n");
    errno = TmpErrno;
    perror(ProgName);
+   va_end(ap);
+
    exit(ret);
 }
 
@@ -277,6 +281,8 @@ void Warning(char* message, ...)
    fprintf(stderr, "%s: Warning: ", ProgName);
    vfprintf(stderr, message, ap);
    fprintf(stderr, "\n");
+
+   va_end(ap);
 }
 
 
@@ -304,6 +310,8 @@ void SysWarning(char* message, ...)
    fprintf(stderr, "\n");
    errno = TmpErrno;
    perror(ProgName);
+
+   va_end(ap);
 }
 
 
