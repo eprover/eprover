@@ -205,7 +205,7 @@ HCB_p GetHeuristic(char* source, HCBARGUMENTS)
 
 #define CHE_HEURISTICS_AUTO
 
-#pragma GCC diagnostic push
+GCC_DIAGNOSTIC_PUSH
 #pragma GCC diagnostic ignored "-Wattributes"
 __attribute__((optnone))
 __attribute__((optimize(0)))
@@ -224,7 +224,7 @@ HCB_p HCBAutoModeCreate(HCBARGUMENTS)
 
    return GetHeuristic(res, state, control, parms);
 }
-#pragma GCC diagnostic pop
+GCC_DIAGNOSTIC_POP
 #undef CHE_HEURISTICS_AUTO
 
 
@@ -243,7 +243,7 @@ HCB_p HCBAutoModeCreate(HCBARGUMENTS)
 
 #define CHE_HEURISTICS_AUTO_CASC
 
-#pragma GCC diagnostic push
+GCC_DIAGNOSTIC_PUSH
 #pragma GCC diagnostic ignored "-Wattributes"
 __attribute__((optnone))
 __attribute__((optimize(0)))
@@ -279,7 +279,7 @@ HCB_p HCBCASCAutoModeCreate(HCBARGUMENTS)
 
    return GetHeuristic(res, state, control, parms);
 }
-#pragma GCC diagnostic pop
+GCC_DIAGNOSTIC_POP
 #undef CHE_HEURISTICS_AUTO_CASC
 
 
@@ -299,7 +299,7 @@ HCB_p HCBCASCAutoModeCreate(HCBARGUMENTS)
 
 #define CHE_HEURISTICS_AUTO_DEV
 
-#pragma GCC diagnostic push
+GCC_DIAGNOSTIC_PUSH
 #pragma GCC diagnostic ignored "-Wattributes"
 __attribute__((optnone))
 __attribute__((optimize(0)))
@@ -318,7 +318,7 @@ HCB_p HCBDevAutoModeCreate(HCBARGUMENTS)
 
    return GetHeuristic(res, state, control, parms);
 }
-#pragma GCC diagnostic pop
+GCC_DIAGNOSTIC_POP
 #undef CHE_HEURISTICS_AUTO_DEV
 
 
@@ -340,7 +340,7 @@ HCB_p HCBDevAutoModeCreate(HCBARGUMENTS)
 
 #define CHE_HEURISTICS_AUTO_SCHED0
 
-#pragma GCC diagnostic push
+GCC_DIAGNOSTIC_PUSH
 #pragma GCC diagnostic ignored "-Wattributes"
 __attribute__((optnone))
 __attribute__((optimize(0)))
@@ -359,12 +359,12 @@ HCB_p HCBAutoSched0Create(HCBARGUMENTS)
 
    return GetHeuristic(res, state, control, parms);
 }
-#pragma GCC diagnostic pop
+GCC_DIAGNOSTIC_POP
 #undef CHE_HEURISTICS_AUTO_SCHED0
 
 #define CHE_HEURISTICS_AUTO_SCHED1
 
-#pragma GCC diagnostic push
+GCC_DIAGNOSTIC_PUSH
 #pragma GCC diagnostic ignored "-Wattributes"
 __attribute__((optnone))
 __attribute__((optimize(0)))
@@ -383,12 +383,12 @@ HCB_p HCBAutoSched1Create(HCBARGUMENTS)
 
    return GetHeuristic(res, state, control, parms);
 }
-#pragma GCC diagnostic pop
+GCC_DIAGNOSTIC_POP
 #undef CHE_HEURISTICS_AUTO_SCHED1
 
 #define CHE_HEURISTICS_AUTO_SCHED2
 
-#pragma GCC diagnostic push
+GCC_DIAGNOSTIC_PUSH
 #pragma GCC diagnostic ignored "-Wattributes"
 __attribute__((optnone))
 __attribute__((optimize(0)))
@@ -407,12 +407,12 @@ HCB_p HCBAutoSched2Create(HCBARGUMENTS)
 
    return GetHeuristic(res, state, control, parms);
 }
-#pragma GCC diagnostic pop
+GCC_DIAGNOSTIC_POP
 #undef CHE_HEURISTICS_AUTO_SCHED2
 
 #define CHE_HEURISTICS_AUTO_SCHED3
 
-#pragma GCC diagnostic push
+GCC_DIAGNOSTIC_PUSH
 #pragma GCC diagnostic ignored "-Wattributes"
 __attribute__((optnone))
 __attribute__((optimize(0)))
@@ -431,13 +431,13 @@ HCB_p HCBAutoSched3Create(HCBARGUMENTS)
 
    return GetHeuristic(res, state, control, parms);
 }
-#pragma GCC diagnostic pop
+GCC_DIAGNOSTIC_POP
 #undef CHE_HEURISTICS_AUTO_SCHED3
 
 
 #define CHE_HEURISTICS_AUTO_SCHED4
 
-#pragma GCC diagnostic push
+GCC_DIAGNOSTIC_PUSH
 #pragma GCC diagnostic ignored "-Wattributes"
 __attribute__((optnone))
 __attribute__((optimize(0)))
@@ -456,13 +456,13 @@ HCB_p HCBAutoSched4Create(HCBARGUMENTS)
 
    return GetHeuristic(res, state, control, parms);
 }
-#pragma GCC diagnostic pop
+GCC_DIAGNOSTIC_POP
 #undef CHE_HEURISTICS_AUTO_SCHED4
 
 
 #define CHE_HEURISTICS_AUTO_SCHED5
 
-#pragma GCC diagnostic push
+GCC_DIAGNOSTIC_PUSH
 #pragma GCC diagnostic ignored "-Wattributes"
 __attribute__((optnone))
 __attribute__((optimize(0)))
@@ -481,13 +481,13 @@ HCB_p HCBAutoSched5Create(HCBARGUMENTS)
 
    return GetHeuristic(res, state, control, parms);
 }
-#pragma GCC diagnostic pop
+GCC_DIAGNOSTIC_POP
 #undef CHE_HEURISTICS_AUTO_SCHED5
 
 
 #define CHE_HEURISTICS_AUTO_SCHED6
 
-#pragma GCC diagnostic push
+GCC_DIAGNOSTIC_PUSH
 #pragma GCC diagnostic ignored "-Wattributes"
 __attribute__((optnone))
 __attribute__((optimize(0)))
@@ -506,13 +506,13 @@ HCB_p HCBAutoSched6Create(HCBARGUMENTS)
 
    return GetHeuristic(res, state, control, parms);
 }
-#pragma GCC diagnostic pop
+GCC_DIAGNOSTIC_POP
 #undef CHE_HEURISTICS_AUTO_SCHED6
 
 
 #define CHE_HEURISTICS_AUTO_SCHED7
 
-#pragma GCC diagnostic push
+GCC_DIAGNOSTIC_PUSH
 #pragma GCC diagnostic ignored "-Wattributes"
 __attribute__((optnone))
 __attribute__((optimize(0)))
@@ -531,7 +531,7 @@ HCB_p HCBAutoSched7Create(HCBARGUMENTS)
 
    return GetHeuristic(res, state, control, parms);
 }
-#pragma GCC diagnostic pop
+GCC_DIAGNOSTIC_POP
 #undef CHE_HEURISTICS_AUTO_SCHED7
 
 

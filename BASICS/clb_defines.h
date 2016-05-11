@@ -115,6 +115,14 @@ typedef int (*ComparisonFunctionType)(const void*, const void*);
 #define TSTPOUTFD(fd,msg)
 #endif
 
+#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
+#define GCC_DIAGNOSTIC_POP  _Pragma("GCC diagnostic pop")
+#define GCC_DIAGNOSTIC_PUSH _Pragma("GCC diagnostic push")
+#else
+#define GCC_DIAGNOSTIC_POP
+#define GCC_DIAGNOSTIC_PUSH
+#endif
+
 #endif
 
 /*---------------------------------------------------------------------*/
