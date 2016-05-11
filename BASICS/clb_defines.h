@@ -70,9 +70,6 @@ typedef int (*ComparisonFunctionType)(const void*, const void*);
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-
-/* Maximum and minimum, absolute values, exclusive or functions */
-
 #undef MAX
 #define MAX(x,y) ({ __typeof__ (x) _x = (x);\
                     __typeof__ (y) _y = (y);\
@@ -84,7 +81,7 @@ typedef int (*ComparisonFunctionType)(const void*, const void*);
                     _x < _y ? _x : _y; })
 
 #undef ABS
-#define ABS(x)   ((x)>0? (x):-(x))
+#define ABS(x) ((x)>0?(x):-(x))
 
 #undef XOR
 #define XOR(x,y) (!(x)!=!(y))
@@ -95,10 +92,9 @@ typedef int (*ComparisonFunctionType)(const void*, const void*);
 #undef SWAP
 #define SWAP(type, x,y) do{type tmp =(x); (x)=(y); (y)=(tmp);}while(0)
 
-/* I cannot keep things in my mind ;-) */
 
 #define KILO 1024
-#define MEGA (KILO*KILO)
+#define MEGA 1024*1024
 
 
 /* Convenience function */
@@ -107,13 +103,16 @@ typedef int (*ComparisonFunctionType)(const void*, const void*);
 
 #ifdef PRINT_TSTP_STATUS
 #define TSTPOUT(file,msg) fprintf(file, "# SZS status %s\n", msg)
-#define TSTPOUTFD(fd,msg) \
-        WRITE_STR(fd, "# SZS status ");WRITE_STR(fd, msg);WRITE_STR(fd, "\n")
-
+#define TSTPOUTFD(fd,msg) do{\
+                             WRITE_STR(fd, "# SZS status ");\
+                             WRITE_STR(fd, msg);\
+                             WRITE_STR(fd, "\n");\
+                          }while(0)
 #else
-#define TSTPOUT(file, msg)
+#define TSTPOUT(file,msg)
 #define TSTPOUTFD(fd,msg)
 #endif
+
 
 #if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
 #define GCC_DIAGNOSTIC_POP  _Pragma("GCC diagnostic pop")
