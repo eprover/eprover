@@ -63,15 +63,6 @@ char* EmptyString = "";
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
 
-/* Handle various versions of sysconf() pagesize (usually from
- * unistd.h) */
-
-#ifdef _SC_PAGESIZE
-#define E_SC_PAGE_SIZE _SC_PAGESIZE
-#elif defined(_SC_PAGE_SIZE)
-#define E_SC_PAGE_SIZE _SC_PAGE_SIZE
-#endif
-
 /*-----------------------------------------------------------------------
 //
 // Function: GetSystemPageSize()
@@ -89,16 +80,14 @@ long GetSystemPageSize(void)
 {
    long res = -1;
 
-#ifdef E_SC_PAGE_SIZE
    errno = 0;
-   res = sysconf(E_SC_PAGE_SIZE);
+   res = sysconf(_SC_PAGESIZE);
    if(errno)
    {
       assert(res==-1);
       Warning("sysconf() call to get page size failed!\n");
       res = -1;
    }
-#endif
    return res;
 }
 
@@ -122,19 +111,15 @@ long GetSystemPhysMemory(void)
 {
    long res = -1;
 
-#if defined(E_SC_PAGE_SIZE) && defined(_SC_PHYS_PAGES)
-   {
-      long long tmpres = 0, pages, pagesize;
+   long long tmpres = 0, pages, pagesize;
 
-      pagesize = GetSystemPageSize();
-      pages = sysconf(_SC_PHYS_PAGES);
-      if((pagesize !=-1) && (pages != -1))
-      {
-         tmpres = pagesize * pages;
-         res = tmpres / MEGA;
-      }
+   pagesize = GetSystemPageSize();
+   pages = sysconf(_SC_PHYS_PAGES);
+   if((pagesize !=-1) && (pages != -1))
+   {
+      tmpres = pagesize * pages;
+      res = tmpres / MEGA;
    }
-#endif
    if(res==-1)
    {
       FILE* pipe;
