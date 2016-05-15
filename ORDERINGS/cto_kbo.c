@@ -264,6 +264,7 @@ static CompareResult kbogtrnew(OCB_p ocb, Term_p s, Term_p t,
 	    case to_uncomparable:
 		  return to_uncomparable;
 	    case to_equal:
+         break;
 	    default:
 		  assert(false);
 		  break;
