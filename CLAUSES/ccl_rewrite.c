@@ -256,8 +256,7 @@ static bool term_is_rewritable(TB_p bank, OCB_p ocb, Term_p term, Clause_p
 
    /* assert(!TermIsRewritten(term));*/
 
-   if(SysDateCompare(term->rw_data.nf_date[RewriteAdr(FullRewrite)], nf_date)
-      == DateEqual)
+   if(SysDateEqual(term->rw_data.nf_date[RewriteAdr(FullRewrite)], nf_date))
    {
       return false;
    }
@@ -447,14 +446,8 @@ static ClausePos_p indexed_find_demodulator(OCB_p ocb, Term_p term,
    {      
       eqn = pos->literal;
 
-      if((EqnIsOriented(eqn)&&
-	  SysDateCompare(TermNFDate(term,RewriteAdr(FullRewrite)),
-			 pos->clause->date)!=DateEarlier)
-	 ||
-	 (!EqnIsOriented(eqn)&&
-	  SysDateCompare(TermNFDate(term,RewriteAdr(FullRewrite)),
-			 pos->clause->date)!=DateEarlier))
-      {
+      if(!SysDateIsEarlier(TermNFDate(term,RewriteAdr(FullRewrite)),pos->clause->date))
+	   {
 	 continue;
       }      
       switch(pos->side)
@@ -575,8 +568,7 @@ static Term_p rewrite_with_clause_setlist(OCB_p ocb, TB_p bank, Term_p term,
    {
       assert(demodulators[i]);      
 
-      if(SysDateCompare(TermNFDate(term,level-1), demodulators[i]->date) ==
-	 DateEarlier)
+      if(SysDateIsEarlier(TermNFDate(term,level-1), demodulators[i]->date))
       {
 	 res = rewrite_with_clause_set(ocb, bank, term,
 				       TermNFDate(term,level-1),
@@ -663,8 +655,7 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
    assert(!TermIsTopRewritten(term)||restricted_rw);
    
    if(!TermIsRewritten(term)&&
-      SysDateCompare(term->rw_data.nf_date[desc->level-1],
-		     desc->demod_date)!=DateEarlier)
+      !SysDateIsEarlier(term->rw_data.nf_date[desc->level-1],desc->demod_date))
    {
       return term;
    }      

@@ -477,8 +477,7 @@ static bool pdtree_verify_node_constr(PDTree_p tree)
       query terms normal form date ? */
 
    if(PDTreeUseAgeConstraints &&
-      (SysDateCompare(tree->term_date,
-                      pdt_get_age_constraint(tree->tree_pos)) != DateEarlier))
+      !SysDateIsEarlier(tree->term_date,pdt_get_age_constraint(tree->tree_pos)))
    {
       return false;
    }
@@ -1033,7 +1032,7 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
    {
       node->size_constr = -1;
    }
-   if(SysDateCompare(node->age_constr, clause->date)==DateEqual)
+   if(SysDateEqual(node->age_constr, clause->date))
    {
       node->age_constr = SysDateInvalidTime();
    }
@@ -1058,7 +1057,7 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
       {
          node->size_constr = -1;
       }
-      if(SysDateCompare(node->age_constr, clause->date)==DateEqual)
+      if(SysDateEqual(node->age_constr, clause->date))
       {
          node->age_constr = SysDateInvalidTime();
       }
