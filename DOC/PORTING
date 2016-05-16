@@ -1,75 +1,20 @@
-This file contains notes on potential porting problems for CLIB and
-E. 
+This file contains notes on potential porting problems for E.
 
-[1] Compilation with other compilers
+* Compilation with other compilers
     
-    Note: There is a variety of known bugs in the optimizer stage of
-    gcc 2.95.1. At least on SPARC, E seens to trigger one of these
-    bugs. Compile without optimization or get a different compiler
-    version. Moreover, gcc 2.96 and gcc 2.97 are not official
-    releases, and are known to be buggy. Again, these bugs seem to be
-    triggered by E on the x86 architecture, leading to unexplainable
-    segmentation faults. Unfortunately, Red Hat seems to ship some of
-    the buggy versions -- complain to your dealer (and get a new
-    compiler)!
+  E is tested during development with gcc and clang on Linux and
+  Mac OS X. If you do not have access to gcc, but have a proprietary
+  C99 compiler, you need to adjust the build process as follows:
 
-    I am using the GNU gcc compiler to develop E under Solaris 2.X,
-    Linux, and, recently, MacOS-X. Support for other environments is
-    much less tested, I only have access to a few different
-    OS/Compiler combinations. Compilation with gcc has up to now
-    worked on all systems I have access to. gcc is excellent and free
-    software, I suggest that you install it on your system. If you do
-    not have access to gcc, but have a proprietary ANSI C compiler,
-    you have to modify CLIB/Makefile.vars as follows:
+   - set these variables in Makefile.vars:
+    - CC to your C compiler (usually cc)
+    - CFLAGS to the proper options for your compiler
+    - MAKEDEPEND to use makedepend instead of the compiler
+   - execute ./configure
+   - execute ./make
 
-    - Set the variable CC to you C compiler (usually cc)
-    - Set the variable CFLAGS to the proper options for your compiler 
-      (an example for the SunPro compiler is included in the file)    
-    - Set the variable MAKEDEPEND to use makedepend instead of gcc (an
-      example line is included in the Makefile)
-    - Type "make" and hope ;-)
-
-    The basic E code has now been tested under a lot of very different
-    environments, and seems to work fine everywhere.
-
-[3] Some versions of ar truncate file names or function names to 8
-    characters. The first case seems to be uncritical up to now. If
-    you have an ar (or a compiler) braindead enough to get you into
-    trouble through this, get a new one... 
-    The GNU versions are excellent. 
-
-[4] The linker on some older FreeBSD systems seems to barf on the
-    final linking stage. Repeating each library 3 times (as in lib1
-    lib2 lib3 lib1 lib2 lib3 lib1 lib2 lib3)  in CLIB/PROVER/Makefile
-    is reported to overcome this problem.
-
-[5] The prover is written under the assumption that 'long' has at
-    least 32 bits. It should work for smaller values, but will
-    probably run into overflows and limits fairly fast.
-
-[6] The function TempFileCreate() in INOUT/cio_tempfile.c uses the
-    function tempname() to generate a unique filename while honoring
-    $(TMPDIR). It exists on all UNIX systems I have used and is
-    required by both in BSD 4.3 and SVID. However, it is neither ANSI
-    nor POSIX-blessed (unless I am mistaken). You should be able to
-    replace it with tmpnam(SecureMalloc(L_tmpnam)) if the original
-    form causes you trouble (but you will loose the $(TMPDIR)
-    functionality (which is not used in the main prover anyways).
-
-[7] Since some of the conceptual set- and bag operations are indeed
-    implemented as set and bag-operations, the order in which some
-    operations are performed may depend on the addresses your C
-    library hands out for malloc()ed blocks. This used to effect the
-    exact behaviour of the prover. In particular, I found that very
-    rarely a version compiled under MacOS X ran differently from the
-    same version compiled under Solaris or Linux. I hopefully have
-    eliminated all such influences now.
-
-[8] Some newer versions of gcc distributed with e.g. Ubuntu 10.4-12.4
-    seem to be picky about the place in which the -lm flag is given to
-    gcc for linking. The latest version of E should comply with this. 
-
-[9] Some newer compilers will complain about Variabes "set but not
-    used". This is harmless - the variables are used for assert checks
-    in the DEBUG version, and I see no particular value in cluttering
-    the case with #ifdef to supress these warnings.
+* Since some of the conceptual set and bag operations are indeed
+  implemented as set and bag operations, the order in which some
+  operations are performed may depend on the addresses your C
+  library hands out for malloc()ed blocks. This will effect the
+  exact behaviour of the prover on a per run basis.
