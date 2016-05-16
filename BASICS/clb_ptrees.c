@@ -24,7 +24,6 @@ Changes
 #include "clb_ptrees.h"
 
 
-
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
@@ -55,7 +54,6 @@ static PTree_p splay_ptree(PTree_p tree, void* key)
 {
    PTree_p   left, right, tmp;
    PTreeCell newnode;
-   int       cmpres;
 
    if (!tree) 
    {
@@ -69,14 +67,14 @@ static PTree_p splay_ptree(PTree_p tree, void* key)
    
    for (;;) 
    {
-      cmpres = PCmp(key, tree->key);
+      ptrdiff_t cmpres = PDiff(key, tree->key);
       if (cmpres < 0) 
       {
 	 if(!tree->lson)
 	 {
 	    break;
 	 }
-	 if(PCmp(key, tree->lson->key) < 0)
+	 if(PDiff(key, tree->lson->key) < 0)
 	 {
 	    tmp = tree->lson;
 	    tree->lson = tmp->rson;
@@ -97,7 +95,7 @@ static PTree_p splay_ptree(PTree_p tree, void* key)
 	 {
 	    break;
 	 }
-	 if(PCmp(key, tree->rson->key) > 0) 
+	 if(PDiff(key, tree->rson->key) > 0)
 	 {
 	    tmp = tree->rson;
 	    tree->rson = tmp->lson;
@@ -213,7 +211,6 @@ void PTreeFree(PTree_p junk)
 
 PTree_p PTreeInsert(PTree_p *root, PTree_p newnode)
 {
-   int cmpres;
    if (!*root) 
    {
       newnode->lson = newnode->rson = NULL;
@@ -222,7 +219,7 @@ PTree_p PTreeInsert(PTree_p *root, PTree_p newnode)
    }
    *root = splay_ptree(*root, newnode->key);
 
-   cmpres = PCmp(newnode->key, (*root)->key);
+   ptrdiff_t cmpres = PDiff(newnode->key, (*root)->key);
    
    if (cmpres < 0) 
    {
@@ -294,9 +291,9 @@ PTree_p PTreeFind(PTree_p *root, void* key)
    if(*root)
    {
       *root = splay_ptree(*root, key);  
-      if(PCmp((*root)->key, key)==0)
+      if(PDiff((*root)->key, key)==0)
       {
-	 return *root;
+         return *root;
       }
    }
    return NULL;
@@ -318,11 +315,9 @@ PTree_p PTreeFind(PTree_p *root, void* key)
 
 PTree_p PTreeFindBinary(PTree_p root, void* key)
 {
-   int cmpres;
-
    while(root)
    {
-      cmpres = PCmp(key, root->key);
+      ptrdiff_t cmpres = PDiff(key, root->key);
       if(cmpres < 0)
       {
 	 root = root->lson;
@@ -365,7 +360,7 @@ PTree_p PTreeExtractEntry(PTree_p *root, void* key)
       return NULL;
    }
    *root = splay_ptree(*root, key);
-   if(PCmp(key, (*root)->key)==0)
+   if(PDiff(key, (*root)->key)==0)
    {
       if (!(*root)->lson)
       {

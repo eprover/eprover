@@ -32,17 +32,6 @@ E.
     The basic E code has now been tested under a lot of very different
     environments, and seems to work fine everywhere.
 
-[2] The PCmp() macro from BASICS/clb_ptrees.h uses potentially
-    non-portable casts and pointer arithmetic to get a fast total
-    ordering on pointers. It works on any system I know, and should
-    work on any system based on current computer architecture, but is
-    not entirely ANSI-blessed. If this causes problems, you can
-    probably solve this by changing the definition as follows:
-
-    #define PCmp(p1, p2) PCmpFun((p1), (p2))
-
-    This probably has some (small) impact on performance.
-
 [3] Some versions of ar truncate file names or function names to 8
     characters. The first case seems to be uncritical up to now. If
     you have an ar (or a compiler) braindead enough to get you into

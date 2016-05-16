@@ -72,7 +72,8 @@ typedef struct ptreecell
 #define PTREE_CELL_MEM MEMSIZE(PTreeCell)
 #endif
 
-#define PCmp(p1, p2) PCmpFun(p1, p2) 
+#define PCmp(p1, p2) PCmpFun(p1, p2)
+#define PDiff(p1, p2) (ptrdiff_t)((intptr_t)(void*)p1-(intptr_t)(void*)p2)
 
 static  __inline__ int PCmpFun(void* p1, void*p2);
 PTree_p PTreeCellAllocEmpty(void);
@@ -106,13 +107,7 @@ AVL_TRAVERSE_DECLARATION(PTree, PTree_p)
 // Function: PCmpFun()
 //
 //   Compare two pointers, return 1 if the first one is bigger, 0 if
-//   both are equal, and -1 if the second one is bigger. Might be
-//   machine dependend and of limited portability (comparing two
-//   arbitrary pointers is not ANSI kosher, but the compiler has no
-//   way to detect this, as pointers to the same array can be compared
-//   under ANSI), but should be easy to hack on any
-//   machine. Subtracting pointers and casting the result to int is
-//   probably more efficient, but even more dangerous.
+//   both are equal, and -1 if the second one is bigger.
 //
 // Global Variables: -
 //
@@ -122,18 +117,9 @@ AVL_TRAVERSE_DECLARATION(PTree, PTree_p)
 
 static __inline__ int PCmpFun(void* p1, void*p2)
 {
-   if(p1 > p2)
-   {
-      return 1;
-   }
-   else if(p1 < p2)
-   {
-      return -1;
-   }
-   assert(p1 == p2);
-   return 0;
+   ptrdiff_t d = PDiff(p1,p2);
+   return (d > 0) - (d < 0);
 }
-      
 
 
 #endif
