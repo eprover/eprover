@@ -231,9 +231,9 @@ static PStack_p find_max_symbols(OCB_p ocb)
    for(i=SIG_TRUE_CODE+1; i<=ocb->sig_size; i++)
    {
       max = true;
-      for(j = PStackGetSP(res); j; j--)
+      for(j = PStackGetSP(res); j--; )
       {
-         cmpres = OCBFunCompare(ocb, i, PStackElementInt(res,j-1));
+         cmpres = OCBFunCompare(ocb, i, PStackElementInt(res,j));
          
          if(cmpres == to_lesser)
          {  /* New candidate is dominated */
@@ -242,7 +242,7 @@ static PStack_p find_max_symbols(OCB_p ocb)
          }
          else if(cmpres == to_greater)
          {  /* New candidate dominates */
-            PStackDiscardElement(res, j);
+            PStackDiscardElement(res,j);
          }         
       }
       if(max)
