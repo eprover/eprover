@@ -76,6 +76,7 @@ static __inline__ IntOrP*   PDArrayElementRef(PDArray_p array, long idx);
 void      PDArrayElementDeleteP(PDArray_p array, long idx);
 void      PDArrayElementDeleteInt(PDArray_p array, long idx);
 
+#define   PDArrayElementClear(arr, idx) ((arr)->array[(idx)].p_val = NULL)
 #define   PDArrayAssign(array, idx, value) \
           *PDArrayElementRef((array), (idx)) = (value)
 #define   PDArrayAssignP(array, idx, value) \

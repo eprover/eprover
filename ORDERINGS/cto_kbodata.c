@@ -110,7 +110,7 @@ void KBOLinReset(KBOLin_p kbobal)
 
    for(i=1; i<=kbobal->max_var; i++)
    {
-      PDArrayAssignInt(kbobal->vb, i, 0);
+      PDArrayElementClear(kbobal->vb, i);
    }   
    kbobal->wb = 0;
    kbobal->max_var = 0;
