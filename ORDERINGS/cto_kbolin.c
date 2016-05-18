@@ -407,7 +407,6 @@ CompareResult KBO6Compare(OCB_p ocb, Term_p s, Term_p t,
 			 DerefType deref_s, DerefType deref_t)
 { 
    KBOLinReset(ocb->kbobalance);
-   
    return  kbo6cmp(ocb, s, t, deref_s, deref_t);
 }
 
@@ -438,11 +437,7 @@ bool KBO6Greater(OCB_p ocb, Term_p s, Term_p t,
 		DerefType deref_s, DerefType deref_t)
 {
    KBOLinReset(ocb->kbobalance);
-   if(kbo6cmp(ocb, s, t, deref_s, deref_t) == to_greater)
-   {
-      return true;
-   }
-   return false;
+   return (kbo6cmp(ocb, s, t, deref_s, deref_t) == to_greater);
 }
 
 

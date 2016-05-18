@@ -63,12 +63,12 @@ KBOLin_p KBOLinAlloc(void)
 {
    KBOLin_p handle = KBOLinCellAlloc();
 
-   handle->wb = 0;
-   handle->vb = PDIntArrayAlloc(20,50);
-   handle->max_var = 0;
+   handle->res     = to_equal;
+   handle->wb      = 0;
    handle->pos_bal = 0;
    handle->neg_bal = 0;
-   handle->res     = to_equal;
+   handle->max_var = 0;
+   handle->vb      = PDIntArrayAlloc(20,50);
    return handle;
 }
 
@@ -90,35 +90,6 @@ void KBOLinFree(KBOLin_p junk)
    PDArrayFree(junk->vb);
    KBOLinCellFree(junk);
 }
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: 
-//
-//   
-//
-// Global Variables: 
-//
-// Side Effects    : 
-//
-/----------------------------------------------------------------------*/
-
-void KBOLinReset(KBOLin_p kbobal)
-{
-   FunCode i;
-
-   for(i=1; i<=kbobal->max_var; i++)
-   {
-      PDArrayElementClear(kbobal->vb, i);
-   }   
-   kbobal->wb = 0;
-   kbobal->max_var = 0;
-   kbobal->pos_bal = 0;
-   kbobal->neg_bal = 0;
-   kbobal->res     = to_equal;
-}
-
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
