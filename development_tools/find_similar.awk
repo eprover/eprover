@@ -1,4 +1,4 @@
-#!/sw/bin/gawk -f
+#!/usr/bin/env gawk -f
 
 # Usage: find_similar.awk <prot1> <prot2> <col> [<diff>]
 #

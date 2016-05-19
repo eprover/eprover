@@ -1,4 +1,4 @@
-#!/sw/bin/gawk -f
+#!/usr/bin/env gawk -f
 
 # Usage: distribute_exgen.awk <spec_file>
 #

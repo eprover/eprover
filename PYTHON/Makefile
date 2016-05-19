@@ -11,7 +11,7 @@
 #
 #------------------------------------------------------------------------
 
-.PHONY: tags tools all
+.PHONY: tags all
 
 include ../Makefile.vars
 
@@ -25,8 +25,3 @@ include ../Makefile.services
 
 ptags:
 	etags *.py
-
-tools:
-	@echo "Configuring tools"
-	../development_tools/configure_tools
-

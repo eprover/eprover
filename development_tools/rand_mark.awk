@@ -1,4 +1,4 @@
-#!/sw/bin/gawk -f
+#!/usr/bin/env gawk -f
 
 # Usage: rand_mark.awk [file]
 #
