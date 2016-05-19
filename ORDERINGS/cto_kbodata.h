@@ -40,11 +40,10 @@ Changes
 
 typedef struct kbo_lin_cell
 {
-   CompareResult   res;
-   int             wb;
-   int             pos_bal;
-   int             neg_bal;
-   unsigned long   max_var;
+   long            wb;
+   long            pos_bal;
+   long            neg_bal;
+   long            max_var;
    PDArray_p       vb;
 }KBOLinCell, *KBOLin_p;
 
@@ -68,7 +67,6 @@ static void __inline__ KBOLinReset(KBOLin_p kbobal)
    {
       PDArrayElementClear(kbobal->vb, i);
    }
-   kbobal->res     = to_equal;
    kbobal->wb      = 0;
    kbobal->pos_bal = 0;
    kbobal->neg_bal = 0;

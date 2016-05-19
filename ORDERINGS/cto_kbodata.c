@@ -63,7 +63,6 @@ KBOLin_p KBOLinAlloc(void)
 {
    KBOLin_p handle = KBOLinCellAlloc();
 
-   handle->res     = to_equal;
    handle->wb      = 0;
    handle->pos_bal = 0;
    handle->neg_bal = 0;
