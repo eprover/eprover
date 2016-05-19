@@ -118,13 +118,4 @@ echo $MANPATH
 sed -e "/^EXECPATH =.*/s|.*|EXECPATH = $EXECPATH|" -e "/^MANPATH =.*/s|.*|MANPATH = $MANPATH|"  Makefile.vars > tmpfile
 mv tmpfile Makefile.vars
 
-sed -e "/^EXECPATH=.*/s|.*|EXECPATH=$EXECPATH|" PROVER/eproof > tmpfile
-mv tmpfile PROVER/eproof
-chmod ugo+x PROVER/eproof
-
-sed -e "/^EXECPATH=.*/s|.*|EXECPATH=$EXECPATH|" PROVER/eproof_ram > tmpfile
-mv tmpfile PROVER/eproof_ram
-chmod ugo+x PROVER/eproof_ram
-
-
 make config

@@ -127,7 +127,7 @@ rebuild:
 # Configure the whole package
 
 config: 
-	echo 'Configuring build system and tools'
+	echo 'Configuring build system'
 	$(MAKE) links
 	$(MAKE) depend
 

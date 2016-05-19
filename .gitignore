@@ -1,5 +1,4 @@
 Makefile.vars
-Makefile.vars.debug
 Makefile.dependencies
 EXTERNAL/CSSCPA_filter
 PROVER/checkproof
