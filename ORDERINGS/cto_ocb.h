@@ -217,8 +217,7 @@ static __inline__ long OCBFunPrecWeight(OCB_p ocb, FunCode f)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ CompareResult OCBFunCompare(OCB_p ocb, FunCode f1,
-					      FunCode f2)
+static __inline__ CompareResult OCBFunCompare(OCB_p ocb, FunCode f1, FunCode f2)
 {   
    long tmp;
 
@@ -237,7 +236,7 @@ static __inline__ CompareResult OCBFunCompare(OCB_p ocb, FunCode f1,
       return to_greater;
    }
    tmp = (long)SigIsAnyFuncPropSet(ocb->sig, f2, ocb->sig->distinct_props)-
-      (long)SigIsAnyFuncPropSet(ocb->sig, f1, ocb->sig->distinct_props);   
+         (long)SigIsAnyFuncPropSet(ocb->sig, f1, ocb->sig->distinct_props);
    if(tmp)
    {
       /* printf("f1 = %ld, f2 = %ld, res = %ld\n", f1, f2, tmp); */
@@ -246,24 +245,8 @@ static __inline__ CompareResult OCBFunCompare(OCB_p ocb, FunCode f1,
 
    if(ocb->prec_weights)
    {
-      long w1,w2;
-      
-      if(f1<=ocb->sig_size)
-      {
-	 w1 = ocb->prec_weights[f1];
-      }
-      else 
-      {
-	 w1 = -f1;
-      }
-      if(f2<=ocb->sig_size)
-      {
-	 w2 = ocb->prec_weights[f2];
-      }
-      else 
-      {
-	 w2 = -f2;
-      }
+      long w1 = (f1<=ocb->sig_size) ? ocb->prec_weights[f1] : -f1;
+      long w2 = (f2<=ocb->sig_size) ? ocb->prec_weights[f2] : -f2;
       return Q_TO_PART(w1-w2);
    }
    return OCBFunCompareMatrix(ocb, f1, f2);
