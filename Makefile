@@ -24,7 +24,7 @@ include Makefile.vars
 
 # Project specific variables
 
-PROJECT = E
+PROJECT  = E
 
 LIBS     = BASICS INOUT TERMS ORDERINGS CLAUSES PROPOSITIONAL LEARN \
            ANALYSIS PCL2 HEURISTICS CONTROL
@@ -39,7 +39,7 @@ all: E
 
 depend: 
 	@for subdir in $(CODE); do\
-	   cd $$subdir; touch Makefile.dependencies; $(MAKE) depend; cd ..;\
+		cd $$subdir; touch Makefile.dependencies; $(MAKE) depend; cd ..;\
 	done;
 
 # Remove all automatically generated files
@@ -47,7 +47,6 @@ depend:
 remove_links:
 	@cd include; touch does_exist.h; rm *.h
 	@cd lib; touch does_exist.a; rm *.a
-
 
 clean: remove_links
 	@for subdir in $(PARTS); do\
@@ -58,24 +57,16 @@ cleandist: clean
 	@touch dummy~ PROVER/dummy~
 	rm *~ */*~
 
-
-dev_config:
-	sed -e 's/CC         = gcc$$/CC         = gcc-4/' \
-            -e 's/WFLAGS     = $$/WFLAGS     = -Wno-unused-but-set-variable -Wno-char-subscripts/' \
-            Makefile.vars > __tmpmake__;mv __tmpmake__ Makefile.vars
-
 default_config:
-	sed -e 's/CC         = gcc-4/CC         = gcc/' \
-            -e 's/WFLAGS     = -Wno-unused-but-set-variable -Wno-char-subscripts/WFLAGS     = /' \
-            Makefile.vars| \
-	awk '/^NODEBUG/{print "NODEBUG    = -DNDEBUG -DFAST_EXIT";next}/^MEMDEBUG/{print "MEMDEBUG   = # -DCLB_MEMORY_DEBUG # -DCLB_MEMORY_DEBUG2";next}/^DEBUGGER/{print "DEBUGGER   = # -g -ggdb";next}/^PROFFLAGS/{print "PROFFLAGS  = # -pg # -DNEED_MATH_EMULATION";next}{print}' > __tmpmake__;mv __tmpmake__ Makefile.vars
+	@cat Makefile.vars| \
+	gawk '/^NODEBUG/{print "NODEBUG    = -DNDEBUG -DFAST_EXIT";next}/^MEMDEBUG/{print "MEMDEBUG   = # -DCLB_MEMORY_DEBUG # -DCLB_MEMORY_DEBUG2";next}/^DEBUGGER/{print "DEBUGGER   = # -g -ggdb";next}/^PROFFLAGS/{print "PROFFLAGS  = # -pg";next}{print}' > __tmpmake__;mv __tmpmake__ Makefile.vars
+
 
 debug_config:
-	cat Makefile.vars| \
-	awk '/^NODEBUG/{print "NODEBUG    = # -DNDEBUG -DFAST_EXIT";next}/^MEMDEBUG/{print "MEMDEBUG   = -DCLB_MEMORY_DEBUG # -DCLB_MEMORY_DEBUG2";next}{print}' > __tmpmake__;mv __tmpmake__ Makefile.vars
+	@cat Makefile.vars| \
+	gawk '/^NODEBUG/{print "NODEBUG    = # -DNDEBUG -DFAST_EXIT";next}/^MEMDEBUG/{print "MEMDEBUG   = -DCLB_MEMORY_DEBUG # -DCLB_MEMORY_DEBUG2";next}{print}' > __tmpmake__;mv __tmpmake__ Makefile.vars
 
 # Build a distribution
-
 distrib: man documentation cleandist default_config
 	@echo "Did you think about: "
 	@echo " - Changing the bibliographies to local version"
@@ -83,7 +74,7 @@ distrib: man documentation cleandist default_config
 	@echo "    ??? "
 	@echo "" > etc/NO_DISTRIB
 	@cd ..; find $(PROJECT) -name ".git" -print >> $(PROJECT)/etc/NO_DISTRIB;\
-         $(TAR) cfX - $(PROJECT)/etc/NO_DISTRIB $(PROJECT) |$(GZIP) - -c > $(PROJECT).tgz
+		$(TAR) cfX - $(PROJECT)/etc/NO_DISTRIB $(PROJECT) |$(GZIP) - -c > $(PROJECT).tgz
 
 # Include the GIT subdirecctories (and non-GPL files, of which there
 # currently are none). 
@@ -102,13 +93,13 @@ top: E
 links: remove_links
 	@cd include;\
 	for subdir in $(HEADERS); do\
-	   for file in ../$$subdir/*.h; do\
-	     $(LN) $$file .;\
-	   done;\
+		for file in ../$$subdir/*.h; do\
+			$(LN) $$file .;\
+		done;\
 	done;
 	@cd lib;\
 	for subdir in $(LIBS); do\
-           $(LN) ../$$subdir/$$subdir.a .;\
+		$(LN) ../$$subdir/$$subdir.a .;\
 	done;
 
 tags: 
@@ -191,4 +182,3 @@ E: links
 	@for subdir in $(CODE); do\
 	   cd $$subdir;touch Makefile.dependencies;$(MAKE);cd ..;\
 	done;
-
