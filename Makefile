@@ -18,7 +18,7 @@
 #
 #------------------------------------------------------------------------
 
-.PHONY: all depend remove_links clean cleandist default_config debug_config distrib fulldistrib top links tags tools rebuild install config remake documentation E man
+.PHONY: all depend remove_links clean cleandist default_config debug_config distrib fulldistrib top links tags rebuild install config remake documentation E man
 
 include Makefile.vars
 
@@ -115,10 +115,6 @@ tags:
 	etags */*.c */*.h
 	cd PYTHON; make ptags
 
-tools:
-	cd development_tools;$(MAKE) tools
-	cd PYTHON; $(MAKE) tools
-
 # Rebuilding from scratch
 
 rebuild:
@@ -133,7 +129,6 @@ rebuild:
 config: 
 	echo 'Configuring build system and tools'
 	$(MAKE) links
-	$(MAKE) tools
 	$(MAKE) depend
 
 
