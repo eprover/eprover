@@ -155,6 +155,9 @@ void      PDTreeFree(PDTree_p tree);
 extern bool PDTreeUseAgeConstraints;
 extern bool PDTreeUseSizeConstraints;
 
+#define PDTNodeGetSizeConstraint(node) ((node)->size_constr != -1 ? (node)->size_constr : pdt_compute_size_constraint((node)))
+#define PDTNodeGetAgeConstraint(node) (!SysDateIsInvalid((node)->age_constr))? (node)->age_constr: pdt_compute_age_constraint((node))
+
 #define   PDTNodeCellAlloc()    (PDTNodeCell*)SizeMalloc(sizeof(PDTNodeCell))
 #define   PDTNodeCellFree(junk) SizeFree(junk, sizeof(PDTNodeCell))
 PDTNode_p PDTNodeAlloc(void);
