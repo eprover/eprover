@@ -47,42 +47,6 @@ Changes
 
 /*-----------------------------------------------------------------------
 //
-// Function: SubstAddBinding()
-//
-//   Perform a new binding and store it in the subst. Return the old
-//   stackpointer (i.e. the value that you'll have to backtrack to to
-//   get rid of this binding).
-//   
-//
-// Global Variables: -
-//
-// Side Effects    : Changes bindings, adds to the substitution.
-//
-/----------------------------------------------------------------------*/
-
-PStackPointer SubstAddBinding(Subst_p subst, Term_p var, Term_p bind)
-{
-   PStackPointer ret = PStackGetSP(subst);
-   
-   assert(subst);
-   assert(var);
-   assert(bind);
-   assert(TermIsVar(var));
-   assert(!(var->binding));
-   assert(!TermCellQueryProp(bind, TPPredPos));
-   assert(SortEqual(var->sort, STNoSort) || SortEqual(bind->sort, STNoSort)
-         || SortEqual(var->sort, bind->sort));
-
-   /* printf("# %ld <- %ld \n", var->f_code, bind->f_code); */
-   var->binding = bind;
-   PStackPushP(subst, var);
-   
-   return ret;
-}
-
-
-/*-----------------------------------------------------------------------
-//
 // Function:  SubstBacktrackSingle()
 //
 //   Backtrack a single binding and remove it from the substitution

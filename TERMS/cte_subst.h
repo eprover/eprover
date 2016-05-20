@@ -50,22 +50,57 @@ typedef PStack_p   Subst_p;
 #define SubstDeleteSkolem(junk) SubstBacktrackSkolem(junk);SubstFree(junk)
 #define SubstIsEmpty(subst) PStackEmpty(subst)
 
-PStackPointer SubstAddBinding(Subst_p subst, Term_p var, Term_p bind);
+static __inline__ PStackPointer SubstAddBinding(Subst_p subst, Term_p var, Term_p bind);
 bool          SubstBacktrackSingle(Subst_p subst);
 int           SubstBacktrackToPos(Subst_p subst, PStackPointer pos);
 int           SubstBacktrack(Subst_p subst);
+
 PStackPointer SubstNormTerm(Term_p term, Subst_p subst, VarBank_p vars);
 
-bool          SubstBindingPrint(FILE* out, Term_p var, Sig_p sig,
-				DerefType deref);
-long          SubstPrint(FILE* out, Subst_p subst, Sig_p sig,
-			 DerefType deref);
+bool          SubstBindingPrint(FILE* out, Term_p var, Sig_p sig, DerefType deref);
+long          SubstPrint(FILE* out, Subst_p subst, Sig_p sig, DerefType deref);
 bool          SubstIsRenaming(Subst_p subt);
 
 void          SubstBacktrackSkolem(Subst_p subst);
 void          SubstSkolemizeTerm(Term_p term, Subst_p subst, Sig_p sig);
 void          SubstCompleteInstance(Subst_p subst, Term_p term,
                                     Term_p default_binding);
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SubstAddBinding()
+//
+//   Perform a new binding and store it in the subst. Return the old
+//   stackpointer (i.e. the value that you'll have to backtrack to to
+//   get rid of this binding).
+//   
+//
+// Global Variables: -
+//
+// Side Effects    : Changes bindings, adds to the substitution.
+//
+/----------------------------------------------------------------------*/
+
+PStackPointer SubstAddBinding(Subst_p subst, Term_p var, Term_p bind)
+{
+   PStackPointer ret = PStackGetSP(subst);
+
+   assert(subst);
+   assert(var);
+   assert(bind);
+   assert(TermIsVar(var));
+   assert(!(var->binding));
+   assert(!TermCellQueryProp(bind, TPPredPos));
+   assert(SortEqual(var->sort, STNoSort) || SortEqual(bind->sort, STNoSort)
+         || SortEqual(var->sort, bind->sort));
+
+   /* printf("# %ld <- %ld \n", var->f_code, bind->f_code); */
+   var->binding = bind;
+   PStackPushP(subst, var);
+
+   return ret;
+}
 
 #endif
 
