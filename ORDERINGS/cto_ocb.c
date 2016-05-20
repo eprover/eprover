@@ -176,7 +176,18 @@ OCB_p OCBAlloc(TermOrdering type, bool prec_by_weight, Sig_p sig)
    handle->sig_size = sig->f_count;
    handle->statestack = PStackAlloc();
    handle->var_weight = 1;
-   handle->no_lit_cmp = false;   
+   handle->no_lit_cmp = false;
+   handle->wb      = 0;
+   handle->pos_bal = 0;
+   handle->neg_bal = 0;
+   handle->max_var = 0;
+   handle->vb_size = 64;
+   handle->vb      = SizeMalloc(handle->vb_size*sizeof(int));
+   for(size_t i=0; i<handle->vb_size; i++)
+   {
+      handle->vb[i] = 0;
+   }
+
    switch(type)
    {
    case KBO:
@@ -220,7 +231,6 @@ OCB_p OCBAlloc(TermOrdering type, bool prec_by_weight, Sig_p sig)
 	 }
       }
    }
-   handle->kbobalance = KBOLinAlloc();
    return handle;
 }
 
@@ -275,8 +285,11 @@ void OCBFree(OCB_p junk)
       SizeFree(junk->prec_weights, sizeof(long)*(junk->sig_size+1));
       junk->prec_weights = NULL;
    }
+   assert(junk);
+   assert(junk->vb_size > 0);
+   assert(junk->vb);
+   SizeFree(junk->vb, junk->vb_size*sizeof(int));
    PStackFree(junk->statestack);
-   KBOLinFree(junk->kbobalance);
    OCBCellFree(junk);
 }
 

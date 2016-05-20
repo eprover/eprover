@@ -32,8 +32,7 @@ clean:
 
 include ../Makefile.services
 
-ORDER_LIB = cto_kbodata.o cto_ocb.o cto_cmpcache.o cto_lpo.o \
-            cto_kbo.o cto_kbolin.o cto_orderings.o 
+ORDER_LIB = cto_ocb.o cto_cmpcache.o cto_lpo.o cto_kbo.o cto_kbolin.o cto_orderings.o
 
 $(LIB): $(ORDER_LIB)
 	$(AR) $(LIB) $(ORDER_LIB)

@@ -27,8 +27,6 @@ Changes
 #define CTO_OCB
 
 #include <cte_termbanks.h>
-#include <cto_kbodata.h>
-
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -83,7 +81,12 @@ typedef struct ocb_cell
 				  uncomparable (useful for SOS
 				  strategy) */
    PStack_p       statestack;  /* Contains backtrack information */
-   KBOLin_p       kbobalance; 
+   long            wb;
+   long            pos_bal;
+   long            neg_bal;
+   long            max_var;
+   long            vb_size;
+   int             *vb;
 }OCBCell, *OCB_p;
 
 #define OCB_FUN_DEFAULT_WEIGHT 1
