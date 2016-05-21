@@ -67,14 +67,13 @@ static PTree_p splay_ptree(PTree_p tree, void* key)
    
    for (;;) 
    {
-      int cmpres = PCmp(key, tree->key);
-      if (cmpres < 0) 
+      if(PLesser(key, tree->key))
       {
 	 if(!tree->lson)
 	 {
 	    break;
 	 }
-	 if(PCmp(key, tree->lson->key) < 0)
+	 if(PLesser(key, tree->lson->key))
 	 {
 	    tmp = tree->lson;
 	    tree->lson = tmp->rson;
@@ -89,13 +88,13 @@ static PTree_p splay_ptree(PTree_p tree, void* key)
 	 right = tree;
 	 tree = tree->lson;
       } 
-      else if(cmpres > 0)
+      else if(PGreater(key, tree->key))
       {
 	 if (!tree->rson)
 	 {
 	    break;
 	 }
-	 if(PCmp(key, tree->rson->key) > 0)
+	 if(PGreater(key, tree->rson->key))
 	 {
 	    tmp = tree->rson;
 	    tree->rson = tmp->lson;
@@ -219,9 +218,7 @@ PTree_p PTreeInsert(PTree_p *root, PTree_p newnode)
    }
    *root = splay_ptree(*root, newnode->key);
 
-   int cmpres = PCmp(newnode->key, (*root)->key);
-   
-   if (cmpres < 0) 
+   if(PLesser(newnode->key, (*root)->key))
    {
       newnode->lson = (*root)->lson;
       newnode->rson = *root;
@@ -229,7 +226,7 @@ PTree_p PTreeInsert(PTree_p *root, PTree_p newnode)
       *root = newnode;
       return NULL;
    } 
-   else if(cmpres > 0) 
+   else if(PGreater(newnode->key, (*root)->key))
    {
       newnode->rson = (*root)->rson;
       newnode->lson = *root;
@@ -291,7 +288,7 @@ PTree_p PTreeFind(PTree_p *root, void* key)
    if(*root)
    {
       *root = splay_ptree(*root, key);  
-      if(PCmp((*root)->key, key)==0)
+      if(PEqual((*root)->key, key))
       {
          return *root;
       }
@@ -317,12 +314,11 @@ PTree_p PTreeFindBinary(PTree_p root, void* key)
 {
    while(root)
    {
-      ptrdiff_t cmpres = PCmp(key, root->key);
-      if(cmpres < 0)
+      if(PLesser(key, root->key))
       {
 	 root = root->lson;
       }
-      else if(cmpres > 0)
+      else if(PGreater(key, root->key))
       {
 	 root = root->rson;
       }
@@ -360,7 +356,7 @@ PTree_p PTreeExtractEntry(PTree_p *root, void* key)
       return NULL;
    }
    *root = splay_ptree(*root, key);
-   if(PCmp(key, (*root)->key)==0)
+   if(PEqual(key, (*root)->key))
    {
       if (!(*root)->lson)
       {

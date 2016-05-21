@@ -73,7 +73,10 @@ typedef struct ptreecell
 #define PTREE_CELL_MEM MEMSIZE(PTreeCell)
 #endif
 
-#define PCmp(p1, p2) PCmpFun(p1, p2)
+#define PCmp(p1, p2)    PCmpFun(p1, p2)
+#define PEqual(p1,p2)   ((uintptr_t)(p1))==((uintptr_t)(p2))
+#define PGreater(p1,p2) ((uintptr_t)(p1))> ((uintptr_t)(p2))
+#define PLesser(p1,p2)  ((uintptr_t)(p1))< ((uintptr_t)(p2))
 
 static  __inline__ int PCmpFun(void* p1, void*p2);
 PTree_p PTreeCellAllocEmpty(void);
