@@ -32,6 +32,7 @@ Changes
 
 #define CLB_PTREES
 
+#include <stdint.h>
 #include <clb_pstacks.h>
 #include <clb_avlgeneric.h>
 
@@ -73,7 +74,6 @@ typedef struct ptreecell
 #endif
 
 #define PCmp(p1, p2) PCmpFun(p1, p2)
-#define PDiff(p1, p2) (ptrdiff_t)((intptr_t)(void*)p1-(intptr_t)(void*)p2)
 
 static  __inline__ int PCmpFun(void* p1, void*p2);
 PTree_p PTreeCellAllocEmpty(void);
@@ -117,8 +117,7 @@ AVL_TRAVERSE_DECLARATION(PTree, PTree_p)
 
 static __inline__ int PCmpFun(void* p1, void*p2)
 {
-   ptrdiff_t d = PDiff(p1,p2);
-   return (d > 0) - (d < 0);
+   return ((uintptr_t)p1 > (uintptr_t)p2) - ((uintptr_t)p1 < (uintptr_t)p2);
 }
 
 

@@ -67,14 +67,14 @@ static PTree_p splay_ptree(PTree_p tree, void* key)
    
    for (;;) 
    {
-      ptrdiff_t cmpres = PDiff(key, tree->key);
+      int cmpres = PCmp(key, tree->key);
       if (cmpres < 0) 
       {
 	 if(!tree->lson)
 	 {
 	    break;
 	 }
-	 if(PDiff(key, tree->lson->key) < 0)
+	 if(PCmp(key, tree->lson->key) < 0)
 	 {
 	    tmp = tree->lson;
 	    tree->lson = tmp->rson;
@@ -95,7 +95,7 @@ static PTree_p splay_ptree(PTree_p tree, void* key)
 	 {
 	    break;
 	 }
-	 if(PDiff(key, tree->rson->key) > 0)
+	 if(PCmp(key, tree->rson->key) > 0)
 	 {
 	    tmp = tree->rson;
 	    tree->rson = tmp->lson;
@@ -219,7 +219,7 @@ PTree_p PTreeInsert(PTree_p *root, PTree_p newnode)
    }
    *root = splay_ptree(*root, newnode->key);
 
-   ptrdiff_t cmpres = PDiff(newnode->key, (*root)->key);
+   int cmpres = PCmp(newnode->key, (*root)->key);
    
    if (cmpres < 0) 
    {
@@ -291,7 +291,7 @@ PTree_p PTreeFind(PTree_p *root, void* key)
    if(*root)
    {
       *root = splay_ptree(*root, key);  
-      if(PDiff((*root)->key, key)==0)
+      if(PCmp((*root)->key, key)==0)
       {
          return *root;
       }
@@ -317,7 +317,7 @@ PTree_p PTreeFindBinary(PTree_p root, void* key)
 {
    while(root)
    {
-      ptrdiff_t cmpres = PDiff(key, root->key);
+      ptrdiff_t cmpres = PCmp(key, root->key);
       if(cmpres < 0)
       {
 	 root = root->lson;
@@ -360,7 +360,7 @@ PTree_p PTreeExtractEntry(PTree_p *root, void* key)
       return NULL;
    }
    *root = splay_ptree(*root, key);
-   if(PDiff(key, (*root)->key)==0)
+   if(PCmp(key, (*root)->key)==0)
    {
       if (!(*root)->lson)
       {
