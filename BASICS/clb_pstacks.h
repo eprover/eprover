@@ -109,6 +109,8 @@ void     PStackPushStack(PStack_p target, PStack_p source);
 
 void     PStackPrintInt(FILE* out, char* format, PStack_p stack);
 
+void     PStackGrow(PStack_p stack);
+
 /*---------------------------------------------------------------------*/
 /*                  Implementations as inline functions                */
 /*---------------------------------------------------------------------*/
@@ -117,11 +119,8 @@ void     PStackPrintInt(FILE* out, char* format, PStack_p stack);
 //
 // Function: push()
 //
-//   Implement push operation for pstacks. If the stack area needs to
-//   grow, Realloc is emulated in terms of
-//   SizeMalloc()/SizeFree(). This is because stacks are allocated and
-//   deallocated a lot, and usually in the same sizes, so it pays off
-//   to optimize this behaviour.
+//   Implements push operation for pstacks and
+//   checks and ensures there is enought space on the steck.
 //
 // Global Variables: -
 //
@@ -131,23 +130,13 @@ void     PStackPrintInt(FILE* out, char* format, PStack_p stack);
 
 static __inline__ void push(PStack_p stack, IntOrP val)
 {
-   if(stack->current == stack->size)
+   if(UNLIKELY(stack->current == stack->size))
    {
-      IntOrP *tmp;
-      int    old_size;
-
-      /* Emulate Realloc-Functionality for use of SizeMalloc() */
-      old_size = stack->size;
-      stack->size = stack->size*2;
-      tmp = SizeMalloc(stack->size * sizeof(IntOrP));
-      memcpy(tmp, stack->stack, old_size*sizeof(IntOrP));
-      SizeFree(stack->stack, old_size * sizeof(IntOrP));
-      stack->stack = tmp;
+      PStackGrow(stack);
    }
    stack->stack[stack->current] = val;
    stack->current++;
 }
-
 
 /*-----------------------------------------------------------------------
 //
