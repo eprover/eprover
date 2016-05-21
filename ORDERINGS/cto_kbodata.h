@@ -59,10 +59,10 @@ typedef struct kbo_lin_cell
 
 KBOLin_p KBOLinAlloc(void);
 void     KBOLinFree(KBOLin_p junk);
-void     __inline__ KBOLinReset(KBOLin_p kbobal);
+static void __inline__ KBOLinReset(KBOLin_p kbobal);
 
 
-void __inline__ KBOLinReset(KBOLin_p kbobal)
+static void __inline__ KBOLinReset(KBOLin_p kbobal)
 {
    for(size_t i=0; i<=kbobal->max_var; i++)
    {
