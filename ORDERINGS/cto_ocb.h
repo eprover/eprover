@@ -124,14 +124,14 @@ bool          OCBPrecedenceBacktrack(OCB_p ocb, PStackPointer state);
 
 /*
 #define OCBFunWeightPos(ocb, f) \
-              (assert((f)>0), assert((f)<=(ocb)->sig_size), &((ocb)->weights[(f)-1]))
+              (assert((f)>0), assert((f)<=(ocb)->sig_size), &((ocb)->weights[(f)]))
 #define OCBFunComparePos(ocb, f1, f2) \
               (assert((f1)>0), assert((f2)>0), assert((f1)<=(ocb)->sig_size),\
 	       assert((f2)<=(ocb)->sig_size),\
               (&((ocb)->precedence[((f2)-1)*(ocb)->sig_size+((f1)-1)])))
 */
 
-#define OCBFunWeightPos(ocb, f) &((ocb)->weights[(f)-1])
+#define OCBFunWeightPos(ocb, f) &((ocb)->weights[(f)])
 #define OCBFunComparePos(ocb, f1, f2) (&((ocb)->precedence[((f2)-1)*(ocb)->sig_size+((f1)-1)]))
 
 

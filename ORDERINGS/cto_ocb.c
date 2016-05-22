@@ -173,6 +173,7 @@ OCB_p OCBAlloc(TermOrdering type, bool prec_by_weight, Sig_p sig)
    handle->type  = type;
    handle->sig   = sig;
    handle->min_constant  = 0;
+   handle->weights    = NULL;
    handle->sig_size = sig->f_count;
    handle->statestack = PStackAlloc();
    handle->var_weight = 1;
@@ -192,18 +193,16 @@ OCB_p OCBAlloc(TermOrdering type, bool prec_by_weight, Sig_p sig)
    {
    case KBO:
    case KBO6:
-	 handle->weights    = SizeMalloc(sizeof(long)*(handle->sig_size+1));
+	 handle->weights = SizeMalloc(sizeof(long)*(handle->sig_size+1));
 	 alloc_precedence(handle, prec_by_weight);
 	 break;
    case LPO:
    case LPOCopy:
    case LPO4:
    case LPO4Copy:
-	 handle->weights    = NULL;
 	 alloc_precedence(handle, prec_by_weight);
 	 break;
    case RPO:
-	 handle->weights    = NULL;
 	 alloc_precedence(handle, prec_by_weight);
 	 break; 
    case EMPTY:
@@ -215,11 +214,12 @@ OCB_p OCBAlloc(TermOrdering type, bool prec_by_weight, Sig_p sig)
 
    if(handle->weights)
    {
-      for(i=1; i<=handle->sig_size; i++)
+      for(size_t i=0; i<=handle->sig_size; i++)
       {
-	 *OCBFunWeightPos(handle,i) = 1;
+         *OCBFunWeightPos(handle,i) = 1;
       }
    }
+
    if(handle->precedence)
    {
       for(i=1; i<=handle->sig_size; i++)
@@ -231,6 +231,7 @@ OCB_p OCBAlloc(TermOrdering type, bool prec_by_weight, Sig_p sig)
 	 }
       }
    }
+
    return handle;
 }
 
