@@ -11,6 +11,9 @@ Version 1.9 -> 1.9.1 Sungma
 - Added given clause recording and taining example generation
 - Various cleanups and additional compile time warnings
 - More detailed proof graphs
+- Automatic determination of input format if no format is specified
+  (you still need to set the output format if you don't want the
+  LOP/PCL format)
 
 
 Version 1.9pre016 -> 1.9 Sourenee

@@ -446,9 +446,15 @@ static ClausePos_p indexed_find_demodulator(OCB_p ocb, Term_p term,
    {      
       eqn = pos->literal;
 
-      if(!SysDateIsEarlier(TermNFDate(term,RewriteAdr(FullRewrite)),pos->clause->date))
-	   {
-	 continue;
+      if((EqnIsOriented(eqn)&&
+          !SysDateIsEarlier(TermNFDate(term,RewriteAdr(RuleRewrite)),
+                            pos->clause->date))
+         ||
+         (!EqnIsOriented(eqn)&&
+          !SysDateIsEarlier(TermNFDate(term,RewriteAdr(FullRewrite)),
+                            pos->clause->date)))
+      {
+         continue;
       }      
       switch(pos->side)
       {

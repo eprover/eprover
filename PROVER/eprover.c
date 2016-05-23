@@ -82,7 +82,7 @@ bool              print_sat = false,
 ProofOutput       print_derivation = PONone;
 long              proc_training_data;
 
-IOFormat          parse_format = LOPFormat;
+IOFormat          parse_format = AutoFormat;
 long              step_limit = LONG_MAX, 
                   answer_limit = 1,   
                   proc_limit = LONG_MAX,
@@ -143,6 +143,21 @@ ProofState_p parse_spec(CLState_p state,
    for(i=0; state->argv[i]; i++)
    {
       in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL);
+      if(parse_format_local == AutoFormat)
+      {
+         if(TestInpId(in, "fof|cnf|tff|include"))
+         {
+            parse_format_local = TSTPFormat;
+         }
+         else if(TestInpId(in, "input_clause|input_formula"))
+         {
+            parse_format_local = TPTPFormat;
+         }
+         else
+         {
+            parse_format_local = LOPFormat;
+         }
+      }
       ScannerSetFormat(in, parse_format_local);
       
       FormulaAndClauseSetParse(in, proofstate->axioms, 

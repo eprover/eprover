@@ -106,7 +106,8 @@ typedef enum
 {
    LOPFormat,
    TPTPFormat,
-   TSTPFormat
+   TSTPFormat,
+   AutoFormat
 }IOFormat;
 
 
