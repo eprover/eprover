@@ -70,6 +70,7 @@ typedef enum
    OPT_TOTAL_LIMIT,
    OPT_NO_INFIX,
    OPT_FULL_EQ_REP,
+   OPT_LOP_PARSE,
    OPT_TPTP_PARSE,
    OPT_TPTP_PRINT,
    OPT_TPTP_FORMAT,
@@ -471,11 +472,21 @@ OptCell opts[] =
     NoArg, NULL,
     "In LOP. print all literals as equations, even non-equational ones."},
 
+   {OPT_LOP_PARSE,
+    '\0', "lop-in",
+    NoArg, NULL,
+    "Set E-LOP as the input format. If no input format is "
+    "selected by this or one of the following options, E will "
+    "guess the input format based on the first token. It will "
+    "almost always correctly recognize TPTP-3, but it may "
+    "misidentify E-LOP files that use TPTP meta-identifiers as "
+    "logical symbols."},
+
    {OPT_TPTP_PARSE,
     '\0', "tptp-in",
     NoArg, NULL,
-    "Parse TPTP-2 format instead of E-LOP (but note that includes are "
-    "handled according to TPTP-3 semantics)."},
+    "Set TPTP-2 as the input format (but note that includes are "
+    "still handled according to TPTP-3 semantics)."},
 
    {OPT_TPTP_PRINT,
     '\0', "tptp-out",
@@ -506,16 +517,16 @@ OptCell opts[] =
    {OPT_TSTP_PARSE,
     '\0', "tstp-in",
     NoArg, NULL,
-    "Parse TPTP-3 format instead of E-LOP (Note that TPTP-3 syntax "
+    "Set TPTP-3 as the input format (Note that TPTP-3 syntax "
     "is still under development, and the version in E may not be "
-    "fully conforming at all times. E works on all TPTP 3.0.1 input "
-    "files (including includes)."},
+    "fully conforming at all times. E works on all TPTP 6.3.0 FOF "
+    "and CNF files (including includes)."},
    
    {OPT_TSTP_PRINT,
     '\0', "tstp-out",
     NoArg, NULL,
     "Print output clauses in TPTP-3 syntax. In particular, for output "
-    "levels >=2, write derivations as TPTP-3 derivations (default is PCL)."},
+    "levels >=2, write derivations as TPTP-3 derivations."},
 
    {OPT_TSTP_FORMAT,
     '\0', "tstp-format",

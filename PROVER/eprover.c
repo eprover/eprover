@@ -148,6 +148,8 @@ ProofState_p parse_spec(CLState_p state,
          if(TestInpId(in, "fof|cnf|tff|include"))
          {
             parse_format_local = TSTPFormat;
+            OutputFormat = TSTPFormat;
+            DocOutputFormat = tstp_format;
          }
          else if(TestInpId(in, "input_clause|input_formula"))
          {
@@ -975,6 +977,9 @@ CLState_p process_options(int argc, char* argv[])
 	    break;
       case OPT_FULL_EQ_REP:
 	    EqnFullEquationalRep = true;
+	    break;
+      case OPT_LOP_PARSE:
+	    parse_format = LOPFormat;
 	    break;
       case OPT_TPTP_PARSE:
 	    parse_format = TPTPFormat;
