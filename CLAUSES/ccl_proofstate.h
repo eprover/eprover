@@ -77,7 +77,7 @@ typedef struct proofstatecell
    FVCollect_p       def_store_cspec;
 
    bool              status_reported;
-   unsigned long           answer_count;
+   long              answer_count;
 
    unsigned long           processed_count;
    unsigned long           proc_trivial_count;

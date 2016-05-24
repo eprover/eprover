@@ -36,7 +36,7 @@ Changes
 typedef struct pclministepcell
 {
    TB_p             bank;
-   unsigned long id;
+   long id;
    union
    {
       MiniClause_p  clause;

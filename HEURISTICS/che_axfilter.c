@@ -382,7 +382,7 @@ AxFilter_p AxFilterDefParse(Scanner_p in)
 //
 /----------------------------------------------------------------------*/
 
-bool AxFilterPrintBuf(char* buf, size_t buflen, AxFilter_p filter)
+bool AxFilterPrintBuf(char* buf, int buflen, AxFilter_p filter)
 {
    int res = 0;
 

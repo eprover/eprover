@@ -619,7 +619,7 @@ static void pdtree_backtrack(PDTree_p tree, Subst_p subst)
 //
 /----------------------------------------------------------------------*/
 
-void pdt_node_print(FILE* out, PDTNode_p node, unsigned level)
+void pdt_node_print(FILE* out, PDTNode_p node, int level)
 {
    if(node->entries)
    {

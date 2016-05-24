@@ -297,7 +297,7 @@ MsgStatus TCPMsgRead(int sock, TCPMsg_p msg)
    int      res;
 
    /* Handle header */
-   if(msg->transmission_count < sizeof(uint32_t))
+   if(msg->transmission_count < (int)sizeof(uint32_t))
    {
       res = read(sock, 
                  msg->len_buf+msg->transmission_count, 
@@ -312,7 +312,7 @@ MsgStatus TCPMsgRead(int sock, TCPMsg_p msg)
          return NWConnClosed;
       }
       msg->transmission_count += res;
-      if(msg->transmission_count < sizeof(uint32_t))
+      if(msg->transmission_count < (int)sizeof(uint32_t))
       {
          return 0;
       }

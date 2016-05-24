@@ -126,7 +126,7 @@ typedef struct termcell
                            a           rewrites - it might be possible
                                       to combine the previous two in a
                                       union. */
-   unsigned long    entry_no;      /* Counter for terms in a given
+   long             entry_no;      /* Counter for terms in a given
                                       termbank - needed for
                                       administration and external
                                       representation */

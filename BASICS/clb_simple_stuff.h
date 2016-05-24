@@ -61,7 +61,7 @@ int     WeightedObjectCompareFun(WeightedObject_p o1, WeightedObject_p
 
 int    StringIndex(char* key, char* list[]);
 
-char*  IndentStr(unsigned level); 
+char*  IndentStr(int level);
 
 #endif
 

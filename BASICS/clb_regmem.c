@@ -141,7 +141,7 @@ void* RegMemProvide(void* mem, size_t *oldsize, size_t newsize)
    {
       return mem;
    }
-   newlimit = MAX(*oldsize, 1);
+   newlimit = MAX(*oldsize, (size_t)1);
    while(newlimit < newsize)
    {
       newlimit *= 2;

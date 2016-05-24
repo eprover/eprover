@@ -113,10 +113,10 @@ int StringIndex(char* key, char* list[])
 //
 /----------------------------------------------------------------------*/
 
-char* IndentStr(unsigned level)
+char* IndentStr(int level)
 {
    static char spaces[MAXINDENTSPACES+1];
-   unsigned int i;
+   int i;
 
    for(i=0; i<MIN(MAXINDENTSPACES, level); i++)
    {
