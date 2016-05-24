@@ -44,7 +44,7 @@ typedef struct kbo_lin_cell
    int             wb;
    int             pos_bal;
    int             neg_bal;
-   FunCode         max_var;
+   unsigned long   max_var;
    PDArray_p       vb;
 }KBOLinCell, *KBOLin_p;
 
