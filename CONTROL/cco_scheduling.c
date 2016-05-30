@@ -217,7 +217,7 @@ pid_t ExecuteSchedule(ScheduleCell strats[],
          TSTPOUT(stdout, "OSError");
          break;
    case CPU_LIMIT_ERROR:
-         WRITE_STR(GlobalOutFD, "\n# Failure: Resource limit exceeded (time)\n");	 
+         WriteStr(GlobalOutFD, "\n# Failure: Resource limit exceeded (time)\n");
          TSTPOUTFD(GlobalOutFD, "ResourceOut");
          Error("CPU time limit exceeded, terminating", CPU_LIMIT_ERROR);
          break;

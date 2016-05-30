@@ -106,7 +106,7 @@ void ESignalHandler(int mysignal)
 	    TmpErrno = errno;
 	    SysError("Unable to reset cpu time limit", SYS_ERROR);
 	 }
-         VERBOSE(WRITE_STR(GlobalOutFD, "SIGXCPU caught.\n"));
+         VERBOSE(WriteStr(GlobalOutFD, "SIGXCPU caught.\n"););
 	 if(TimeLimitIsSoft)
 	 {	  	    
 	    TimeIsUp = 1;
@@ -127,14 +127,14 @@ void ESignalHandler(int mysignal)
          }
          else
          {
-            WRITE_STR(GlobalOutFD, "\n# Failure: Resource limit exceeded (time)\n");	 
+            WriteStr(GlobalOutFD, "\n# Failure: Resource limit exceeded (time)\n");
             TSTPOUTFD(GlobalOutFD, "ResourceOut");
             Error("CPU time limit exceeded, terminating", CPU_LIMIT_ERROR);
          }
 	 break;
    case SIGTERM:
    case SIGINT:
-	 VERBOSE(WRITE_STR(GlobalOutFD, "SIGTERM/SIGINT caught.\n"));
+	 VERBOSE(WriteStr(GlobalOutFD, "SIGTERM/SIGINT caught.\n"););
 	 if(fatal_error_in_progress)
 	 {
 	    signal(mysignal, SIG_DFL);
@@ -145,8 +145,8 @@ void ESignalHandler(int mysignal)
 	 raise(mysignal); 
 	 break;
    default:
-         WRITE_STR(STDERR_FILENO, "Warning: ");
-	 WRITE_STR(STDERR_FILENO, "Unexpected signal caught, continuing");
+      WriteStr(STDERR_FILENO, "Warning: ");
+      WriteStr(STDERR_FILENO, "Unexpected signal caught, continuing");
 	 break;
    }
 }

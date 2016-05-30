@@ -98,15 +98,15 @@ typedef int (*ComparisonFunctionType)(const void*, const void*);
 
 
 /* Convenience function */
-#define WRITE_STR(fd,msg) write(fd,msg,strlen(msg));
+static __inline__ size_t WriteStr(int fd, const char* msg);
 
 
 #ifdef PRINT_TSTP_STATUS
 #define TSTPOUT(file,msg) fprintf(file, "# SZS status %s\n", msg)
 #define TSTPOUTFD(fd,msg) do{\
-                             WRITE_STR(fd, "# SZS status ");\
-                             WRITE_STR(fd, msg);\
-                             WRITE_STR(fd, "\n");\
+                             WriteStr(fd, "# SZS status ");\
+                             WriteStr(fd, msg);\
+                             WriteStr(fd, "\n");\
                           }while(0)
 #else
 #define TSTPOUT(file,msg)
@@ -121,6 +121,29 @@ typedef int (*ComparisonFunctionType)(const void*, const void*);
 #define GCC_DIAGNOSTIC_POP
 #define GCC_DIAGNOSTIC_PUSH
 #endif
+
+/*-----------------------------------------------------------------------
+//
+// Function: WriteStr()
+//
+//   Computes the length of msg and writes msg to the file descriptor.
+//   WriteStr is used for output instead of the print functions in low
+//   memory situations since the later may try to allocate memory which
+//   is likely to fail. WriteStr is defined as a function instead of a
+//   macro to silence warnings in case the return value of write is
+//   unused. The function write may be defined with warn_unused_result
+//   in the system header files.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+static __inline__ size_t WriteStr(int fd, const char* msg){
+   return write(fd, msg, strlen(msg));
+}
+
 
 #endif
 
