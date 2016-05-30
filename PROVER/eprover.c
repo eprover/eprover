@@ -784,7 +784,7 @@ CLState_p process_options(int argc, char* argv[])
    CLState_p state;
    char*  arg;
    long   tmp;
-   long   mem_limit;
+   rlim_t mem_limit;
 
    state = CLStateAlloc(argc,argv);
    
@@ -926,8 +926,8 @@ CLState_p process_options(int argc, char* argv[])
                mem_limit = CLStateGetIntArg(handle, arg);
             }
             VERBOSE(fprintf(stderr, 
-                            "Memory limit set to %ld MB\n", 
-                            mem_limit););
+                            "Memory limit set to %lld MB\n",
+                            (long long)mem_limit););
             h_parms->mem_limit = MEGA*mem_limit;
             break;
       case OPT_CPU_LIMIT:

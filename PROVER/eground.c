@@ -706,7 +706,7 @@ CLState_p process_options(int argc, char* argv[])
                                "Physical memory determined as %ld MB\n"
                                "Memory limit set to %lld MB\n", 
                                tmpmem, 
-                               mem_limit););
+                               (long long)mem_limit););
             }
             else
             {
