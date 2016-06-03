@@ -69,7 +69,6 @@ Term_p TermDefaultCellAlloc(void)
 
    handle->properties = TPIgnoreProps;
    handle->arity = 0;
-   handle->sort = STNoSort;
    handle->binding = NULL;
    handle->args = NULL;
    handle->weight = DEFAULT_VWEIGHT; /* If no variable, will be
@@ -210,19 +209,12 @@ void TermFree(Term_p junk)
 //
 /----------------------------------------------------------------------*/
 
-Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, SortType sort)
+Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, bool atom)
 {
    Term_p handle = TermDefaultCellAlloc();
    PStackPointer arity = PStackGetSP(variables), i;
-   Type_p type;
-   SortType *type_args;
 
-   if(SortEqual(sort, STNoSort))
-   {
-      sort = SigDefaultSort(sig);
-   }
-
-   if(!SortEqual(sort, STBool))
+   if(!atom)
    {
       handle->f_code = SigGetNewSkolemCode(sig, arity);
    }
@@ -230,29 +222,15 @@ Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, SortType sort)
    {
       handle->f_code = SigGetNewPredicateCode(sig, arity);
    }
-
-   // declare type
    if(arity)
    {
       handle->arity = arity;
       handle->args = TermArgArrayAlloc(arity);
-      type_args = TypeArgumentAlloc(arity);
       for(i=0; i<arity; i++)
       {
          handle->args[i] = PStackElementP(variables, i);
-         type_args[i] = handle->args[i]->sort;
-         assert(!SortEqual(type_args[i], STNoSort));
       }
-      type = TypeNewFunction(sig->type_table, sort, arity, type_args);
-      TypeArgumentFree(type_args, arity);
    }
-   else
-   {
-      type = TypeNewConstant(sig->type_table, sort);
-   }
-   SigDeclareType(sig, handle->f_code, type);
-   handle->sort = sort;
-
    return handle;
 }
 
@@ -542,6 +520,8 @@ void TermStackDelProps(PStack_p stack, TermProperties prop)
       TermCellDelProp(term, prop);
    }
 }
+
+
 
 
 

@@ -42,7 +42,6 @@ Changes
 
 typedef struct proofstatecell
 {
-   SortTable_p       sort_table;
    Sig_p             signature;
    long              original_symbols;
    TB_p              original_terms;

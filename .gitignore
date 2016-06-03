@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 Makefile.vars
 Makefile.dependencies
 EXTERNAL/CSSCPA_filter
@@ -42,19 +41,3 @@ include/
 .Trashes
 ehthumbs.db
 Thumbs.db
-=======
-lib
-include
-tags
-*.o
-*.a
-.*.swp
-.*.swo
-*.dependencies
-development_tools/*.awk
-.session
-Makefile.vars
-PROVER/eproof
-PROVER/eproof_ram
-SIMPLE_APPS/ex_commandline
->>>>>>> d9251903a6ba06420f1d8c26da3ef8e747433cfb

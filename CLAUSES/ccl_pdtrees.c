@@ -229,7 +229,6 @@ static long pdt_get_size_constraint(PDTNode_p node)
    return node->size_constr;
 }
 
-#ifdef NEVER_DEFINED
 /*-----------------------------------------------------------------------
 //
 // Function: pdt_verify_size_constraint()
@@ -274,7 +273,7 @@ long pdt_verify_size_constraint(PDTNode_p node)
    }
    return -1;
 }
-#endif
+
 
 /*-----------------------------------------------------------------------
 //
@@ -357,7 +356,7 @@ static SysDate pdt_get_age_constraint(PDTNode_p node)
 }
 
 
-#ifdef NEVER_DEFINED
+
 /*-----------------------------------------------------------------------
 //
 // Function: pdt_verify_age_constraint()
@@ -402,7 +401,7 @@ SysDate pdt_verify_age_constraint(PDTNode_p node)
    }
    return -1;
 }   
-#endif
+
 
 /*-----------------------------------------------------------------------
 //
@@ -534,8 +533,7 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
 	 if(next)
 	 {
 	    assert(next->variable);
-	    if((!next->variable->binding)&&(!TermCellQueryProp(term,TPPredPos))
-               && SortEqual(next->variable->sort, term->sort))
+	    if((!next->variable->binding)&&(!TermCellQueryProp(term,TPPredPos)))
 	    {
 	       PStackDiscardTop(tree->term_stack);
 	       SubstAddBinding(subst, next->variable, term);

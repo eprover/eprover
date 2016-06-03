@@ -11,10 +11,10 @@
 #   Extends luusk 6 to the case x^4
 #
 
-j (e,X)       = X.                   # e ist a left identity for sum
-j (X,e)       = X.                   # e ist a right identity for sum
-j (g (X),X)   = e.                   # there exists a left inverse for sum
-j (X,g (X))   = e.                   # there exists a right inverse for sum
+j (0,X)       = X.                   # 0 ist a left identity for sum
+j (X,0)       = X.                   # 0 ist a right identity for sum
+j (g (X),X)   = 0.                   # there exists a left inverse for sum
+j (X,g (X))   = 0.                   # there exists a right inverse for sum
 j (j (X,Y),Z) = j (X,j (Y,Z)).       # associativity of addition
 j (X,Y)       = j(Y,X).              # commutativity of addition
 f (f (X,Y),Z) = f (X,f (Y,Z)).       # associativity of multiplication

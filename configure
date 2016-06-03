@@ -76,7 +76,6 @@
 
 EXECPATH=`pwd`/PROVER
 MANPATH=`pwd`/DOC/man
-CC=gcc
 
 for argument in  "$@"; do
     if [ "$argument" = "-h" -o "$argument" = "--help" ] ; then
@@ -93,8 +92,6 @@ for argument in  "$@"; do
         echo "  Specify directory for the man pages."
         echo "--prefix=<path>"
         echo "  Equivalent to --bindir=<path>/bin --mandir=<path>/man".
-        echo "--cc=<program>"
-        echo "  Sets which C compiler to use"
         exit 0
     else
         opt=`echo "$argument"|cut -d= -f1`
@@ -108,8 +105,6 @@ for argument in  "$@"; do
         elif [ "$opt" = "--prefix" ] ; then
            EXECPATH=$arg/bin
            MANPATH=$arg/man
-        elif [ "$opt" = "--cc" ] ; then
-           CC=$arg
         else
            echo "Unknown option " $argument
            exit 1
@@ -120,15 +115,7 @@ done
 echo "Configuring with executable path "$EXECPATH
 
 echo $MANPATH
-sed -e "/^EXECPATH =.*/s|.*|EXECPATH = $EXECPATH|" -e "/^MANPATH =.*/s|.*|MANPATH = $MANPATH|" -e "/^CC *= .*/s|.*|CC = $CC|"  Makefile.vars.in > Makefile.vars
+sed -e "/^EXECPATH =.*/s|.*|EXECPATH = $EXECPATH|" -e "/^MANPATH =.*/s|.*|MANPATH = $MANPATH|"  Makefile.vars > tmpfile
+mv tmpfile Makefile.vars
 
-<<<<<<< HEAD
-=======
-sed -e "/^EXECPATH=.*/s|.*|EXECPATH=$EXECPATH|" PROVER/eproof.in > PROVER/eproof
-chmod ugo+x PROVER/eproof
-
-sed -e "/^EXECPATH=.*/s|.*|EXECPATH=$EXECPATH|" PROVER/eproof_ram.in > PROVER/eproof_ram
-chmod ugo+x PROVER/eproof_ram
-
->>>>>>> d9251903a6ba06420f1d8c26da3ef8e747433cfb
 make config

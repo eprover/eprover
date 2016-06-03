@@ -160,11 +160,6 @@ bool SubstComputeMatch(Term_p matcher, Term_p to_match, Subst_p subst,
 	 
 	 if(TermIsVar(matcher))
 	 {
-            if(!TermSameSort(matcher, to_match))
-            {
-               res = false;
-               break;
-            }
 	    if(matcher->binding)
 	    {
 	       if(!EqualTest(matcher->binding,to_match))
@@ -274,9 +269,9 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
       {
 	 if(!TBTermEqual(t1,t2))
 	 {
-	    /* Sort check, then Occur-Check - remember,
-             * variables are elementary and shared! */
-	    if(!TermSameSort(t1, t2) || occur_check(t2, t1))
+	    /* Occur-Check - remember, variables are elementary and
+	       shared! */
+	    if(occur_check(t2, t1))
 	    {
 	       SubstBacktrackToPos(subst,backtrack);
 	       PQueueFree(jobs);
@@ -300,7 +295,6 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
 	 }
 	 else
 	 {
-	    assert(SortEqual(t1->sort, t2->sort));
 	    for(i=t1->arity-1; i>=0; i--)
 	    {	
 	       /* Delay variable bindings */

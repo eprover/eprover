@@ -337,10 +337,8 @@ StructFOFSpec_p StructFOFSpecAlloc(void)
 {
    Sig_p sig;
    TB_p  terms;
-   SortTable_p sort_table;
 
-   sort_table = DefaultSortTableAlloc();
-   sig =   SigAlloc(sort_table);
+   sig =   SigAlloc();
    SigInsertInternalCodes(sig);
    terms = TBAlloc(sig);
    return StructFOFSpecCreate(terms);
@@ -382,11 +380,6 @@ void StructFOFSpecFree(StructFOFSpec_p ctrl)
 
    if(ctrl->sig)
    {
-      if(ctrl->sig->sort_table)
-      {
-         SortTableFree(ctrl->sig->sort_table);
-         ctrl->sig->sort_table = NULL;
-      }
       SigFree(ctrl->sig);
       ctrl->terms->sig = NULL;
    }

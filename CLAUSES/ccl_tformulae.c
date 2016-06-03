@@ -177,9 +177,6 @@ static TFormula_p quantified_tform_tptp_parse(Scanner_p in,
    source_name = DStrGetRef(AktToken(in)->source);
    type = AktToken(in)->stream_type;
 
-   /* Enter a new scope for variables (exit scope before exiting function) */
-   VarBankPushEnv(terms->vars);
-
    var = TBTermParse(in, terms);
    if(!TermIsVar(var))
    {
@@ -190,7 +187,6 @@ static TFormula_p quantified_tform_tptp_parse(Scanner_p in,
       Error(DStrView(errpos), SYNTAX_ERROR);
       DStrFree(errpos);
    }
-   assert(!SortEqual(var->sort, STNoSort));
    DStrReleaseRef(source_name);
    if(TestInpTok(in, Comma))
    {
@@ -204,8 +200,6 @@ static TFormula_p quantified_tform_tptp_parse(Scanner_p in,
       rest = elem_tform_tptp_parse(in, terms);
    }
    res = TFormulaFCodeAlloc(terms, quantor, var, rest);
-
-   VarBankPopEnv(terms->vars);
    return res;
 }
 
@@ -284,9 +278,6 @@ static TFormula_p quantified_tform_tstp_parse(Scanner_p in,
    source_name = DStrGetRef(AktToken(in)->source);
    type = AktToken(in)->stream_type;
 
-   /* Enter a new scope for variables (exit scope before exiting function) */
-   VarBankPushEnv(terms->vars);
-
    var = TBTermParse(in, terms);
    if(!TermIsVar(var))
    {
@@ -310,8 +301,6 @@ static TFormula_p quantified_tform_tstp_parse(Scanner_p in,
       rest = literal_tform_tstp_parse(in, terms);
    }
    res = TFormulaFCodeAlloc(terms, quantor, var, rest);
-
-   VarBankPopEnv(terms->vars);
    return res;
 }
 
@@ -496,7 +485,6 @@ TFormula_p TFormulaFCodeAlloc(TB_p bank, FunCode op, TFormula_p arg1, TFormula_p
    assert(EQUIV((arity==2), arg2));
    
    res = TermTopAlloc(op,arity);
-   res->sort = STBool;
    if(SigIsPredicate(bank->sig, op))
    {
       TermCellSetProp(res, TPPredPos);
@@ -625,13 +613,7 @@ void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms, bo
       {
          fputs("![", out);
       }      
-      TermPrint(out, form->args[0], bank->sig, DEREF_NEVER);
-      if(!SortEqual(form->args[0]->sort, STIndividuals))
-      {
-         fputs(":", out);
-         SortPrintTSTP(out, bank->sig->sort_table, form->args[0]->sort);
-      }
-
+      TermPrint(out, form->args[0], NULL, DEREF_NEVER);
       fputs("]:", out);
       TFormulaTPTPPrint(out, bank, form->args[1], fullterms, pcl);
    }
@@ -1168,21 +1150,6 @@ TFormula_p TFormulaClauseClosedEncode(TB_p bank, Clause_p clause)
 }
 
 
-/*-----------------------------------------------------------------------
-//
-// Function: TFormulaIsUntyped
-//
-//   returns true if the formula only contains basic types (individual/prop)
-//
-// Global Variables: -
-//
-// Side Effects    : memory operations
-//
-/----------------------------------------------------------------------*/
-bool TFormulaIsUntyped(TFormula_p form)
-{
-    return TermIsUntyped(form);
-}
 
 
 /*---------------------------------------------------------------------*/

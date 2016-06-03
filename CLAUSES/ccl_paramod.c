@@ -268,32 +268,6 @@ Clause_p ClauseSimParamodConstruct(ParamodInfo_p ol_desc)
    Eqn_p     into_copy, from_copy;
    Subst_p   subst = SubstAlloc();
 
-   /* printf("sigma(from): ");
-   TermPrint(stdout, 
-             ClausePosGetSubterm(ol_desc->from_pos), 
-             ol_desc->into->literals->bank->sig, 
-             DEREF_ALWAYS);  
-   printf("\n");
-   printf("from       : " );
-   TermPrint(stdout, 
-             ClausePosGetSubterm(ol_desc->from_pos), 
-             ol_desc->into->literals->bank->sig, 
-             DEREF_NEVER);  
-   printf("\n");
-   printf("sigma(into): ");
-   TermPrint(stdout, 
-             ClausePosGetSubterm(ol_desc->into_pos), 
-             ol_desc->into->literals->bank->sig, 
-             DEREF_ALWAYS);  
-   printf("\n");
-   printf("into       : ");
-   TermPrint(stdout, 
-             ClausePosGetSubterm(ol_desc->into_pos), 
-             ol_desc->into->literals->bank->sig, 
-             DEREF_NEVER);  
-             printf("\n");*/
-
-
    assert(TermStructEqualDeref(ClausePosGetSubterm(ol_desc->from_pos),
                                ClausePosGetSubterm(ol_desc->into_pos),
                                DEREF_ALWAYS,
@@ -309,9 +283,6 @@ Clause_p ClauseSimParamodConstruct(ParamodInfo_p ol_desc)
                           subst, ol_desc->freshvars);
    NormSubstEqnListExcept(ol_desc->from->literals, NULL, 
                           subst, ol_desc->freshvars);
-   assert(SortEqual(ClausePosGetSide(ol_desc->from_pos)->sort,
-                    ClausePosGetOtherSide(ol_desc->from_pos)->sort));
-
    rhs_instance = TBInsertNoProps(ol_desc->bank,
                                   ClausePosGetOtherSide(ol_desc->from_pos),
                                   DEREF_ALWAYS);

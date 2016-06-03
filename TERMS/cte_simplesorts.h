@@ -27,17 +27,14 @@ Changes
 #define CTE_SIMPLESORTS
 
 #include <clb_stringtrees.h>
-#include <cio_scanner.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
 /* Build-in sorts for the many-sorted logic E is being moved to. Note
- * that the system relies on the fact that the system-defined sorts are
- * inserted in a specific order.
- *
- * User sorts are integers bigger than the last element of this num. */
+ * that the system relys on the fact that the system-defined sorts are
+ * inserted in a specific order. */
 
 typedef enum 
 {
@@ -45,9 +42,7 @@ typedef enum
    STBool,           /* Boolean sort, will replace/extend the
                         predicate bit */
    STIndividuals,    /* Default sort, "individuums" */
-   STKind,           /* The "sort of sorts", $tType in TFF */
    STInteger,        /* Integer numbers */
-   STRational,       /* Rational numbers */
    STReal            /* Reals */
 }SortType;
 
@@ -75,34 +70,16 @@ typedef struct sort_table
 
 #define SortTableCellAlloc()    (SortTableCell*)SizeMalloc(sizeof(SortTableCell))
 #define SortTableCellFree(junk) SizeFree(junk, sizeof(SortTableCell))
-#define SortIsUserDefined(sort) (sort > STReal)
-#define SortEqual(s1, s2) ((s1)==(s2))
 
 SortTable_p SortTableAlloc(void);
 void        SortTableFree(SortTable_p junk);
 SortType    SortTableInsert(SortTable_p table, char* sort_name);
 SortTable_p DefaultSortTableAlloc(void);
 char*       SortTableGetRep(SortTable_p table, SortType sort);
-SortType    SortParseTSTP(Scanner_p in, SortTable_p table);
-void        SortPrintTSTP(FILE *out, SortTable_p table, SortType sort);
 void        SortTablePrint(FILE* out, SortTable_p table);
 
-/*---------------------------------------------------------------------*/
-/*                   Inline Functions                                  */
-/*---------------------------------------------------------------------*/
 
-/* Total order on sorts */
-static __inline__ int SortCompare(SortType s1, SortType s2)
-{
-    return ((int)s1) - ((int)s2);
-}
 
-/* Is the sort either individual, either bool? In other words,
-   is it a pure FOF/CNF type? */
-static __inline__ bool SortIsDefaultOrBool(SortType s)
-{
-    return SortEqual(s, STIndividuals) || SortEqual(s, STBool);
-}
 
 #endif
 

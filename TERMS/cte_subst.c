@@ -70,8 +70,6 @@ PStackPointer SubstAddBinding(Subst_p subst, Term_p var, Term_p bind)
    assert(TermIsVar(var));
    assert(!(var->binding));
    assert(!TermCellQueryProp(bind, TPPredPos));
-   assert(SortEqual(var->sort, STNoSort) || SortEqual(bind->sort, STNoSort)
-         || SortEqual(var->sort, bind->sort));
 
    /* printf("# %ld <- %ld \n", var->f_code, bind->f_code); */
    var->binding = bind;
@@ -165,9 +163,9 @@ int SubstBacktrack(Subst_p subst)
 // Function: SubstNormTerm()
 //
 //   Instatiate all variables in term with fresh variables from the
-//   VarBank. Return the current position of the substitution stack, so that
-//   SubstBacktrackToPos() can be used to backtrack the
-//   instantiations term by term. New variables are marked by
+//   VarBank. Return old value of vars->v_count, so VarBankSetVCount()
+//   and SubstBacktrackToPos() can be used to backtrack the
+//   instatiations term by term. New variables are marked by
 //   TPSpecialFlag, if other variables are marked thus the effect is
 //   unpredictable.
 //
@@ -183,15 +181,15 @@ int SubstBacktrack(Subst_p subst)
 //
 /----------------------------------------------------------------------*/
 
-PStackPointer SubstNormTerm(Term_p term, Subst_p subst, VarBank_p vars)
+FunCode SubstNormTerm(Term_p term, Subst_p subst, VarBank_p vars)
 {
-   PStackPointer ret;
+   FunCode   ret;
    int       i;
    Term_p    newvar;
    PStack_p  stack = PStackAlloc();
    DerefType deref = DEREF_ALWAYS;
    
-   ret = PStackGetSP(subst);
+   ret = vars->v_count;
    PStackPushP(stack, term);
 
    while(!PStackEmpty(stack))
@@ -201,7 +199,7 @@ PStackPointer SubstNormTerm(Term_p term, Subst_p subst, VarBank_p vars)
       {
 	 if(!TermCellQueryProp(term, TPSpecialFlag))
 	 {
-	    newvar = VarBankGetFreshVar(vars, TermGetSort(term));
+	    newvar = VarBankGetFreshVar(vars);
             TermCellSetProp(newvar, TPSpecialFlag);
             SubstAddBinding(subst, term, newvar);
 	 }

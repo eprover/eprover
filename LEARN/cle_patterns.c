@@ -1411,7 +1411,7 @@ Term_p PatternTranslateSig(Term_p term, PatternSubst_p subst, Sig_p
 	 {
 	    t->binding = 
 	       VarBankFCodeAssertAlloc(new_vars,
-				       f_code-NORM_VAR_INIT, t->sort);
+				       f_code-NORM_VAR_INIT);
 	 }
       }
       else

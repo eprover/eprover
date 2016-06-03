@@ -27,7 +27,6 @@ Changes
 #define CCL_TFORMULAE
 
 #include <ccl_clauses.h>
-#include <cte_typecheck.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -53,8 +52,7 @@ typedef Term_p TFormula_p;
 #define   TFormulaIsUnary(form)      ((form)->arity==1)
 #define   TFormulaIsQuantified(sig,form)\
           ((form)->f_code == sig->qex_code || (form)->f_code == sig->qall_code )
-#define   TFormulaIsLiteral(sig,form)  \
-          ((form)->f_code == (sig)->eqn_code || (form)->f_code == (sig)->neqn_code)
+#define   TFormulaIsLiteral(sig,form)    (SigIsPredicate((sig), (form)->f_code))
 
 
 bool TFormulaIsPropConst(Sig_p sig, TFormula_p form, bool positive);
@@ -93,7 +91,7 @@ int        TFormulaDecodePolarity(TB_p bank, TFormula_p form);
 TFormula_p TFormulaClauseEncode(TB_p bank, Clause_p clause);
 TFormula_p TFormulaClauseClosedEncode(TB_p bank, Clause_p clause);
 
-bool       TFormulaIsUntyped(TFormula_p form);
+
 
 #endif
 

@@ -34,7 +34,6 @@ Changes
 #include <clb_sysdate.h>
 #include <clb_ptrees.h>
 #include <clb_properties.h>
-#include <cte_simplesorts.h>
 
 
 
@@ -134,7 +133,6 @@ typedef struct termcell
    long             weight;        /* Weight of the term, if term is
                                       in term bank */
    RewriteState     rw_data;       /* See above */
-   SortType         sort;          /* Sort of the term */
    struct termcell* lson;          /* For storing shared term nodes in */
    struct termcell* rson;          /* a splay tree - see
                                       cte_termcellstore.[ch] */
@@ -218,7 +216,7 @@ Term_p  TermConstCellAlloc(FunCode symbol);
 Term_p  TermTopAlloc(FunCode f_code, int arity); 
 void    TermTopFree(Term_p junk); 
 void    TermFree(Term_p junk);
-Term_p  TermAllocNewSkolem(Sig_p sig, PStack_p variables, SortType sort);
+Term_p  TermAllocNewSkolem(Sig_p sig, PStack_p variables, bool atom);
 
 void    TermSetProp(Term_p term, DerefType deref, TermProperties prop);
 bool    TermSearchProp(Term_p term, DerefType deref, TermProperties prop);
@@ -231,9 +229,6 @@ static __inline__ Term_p  TermDeref(Term_p term, DerefType_p deref);
 
 static __inline__ Term_p* TermArgListCopy(Term_p source);
 static __inline__ Term_p  TermTopCopy(Term_p source);
-
-static __inline__ SortType TermGetSort(Term_p term);
-static __inline__ bool     TermSameSort(Term_p t1, Term_p t2);
 
 void    TermStackSetProps(PStack_p stack, TermProperties prop);
 void    TermStackDelProps(PStack_p stack, TermProperties prop);
@@ -348,7 +343,6 @@ static __inline__ Term_p TermTopCopy(Term_p source)
    TermCellDelProp(handle, TPOutputFlag); /* As it gets a new id below */
    handle->f_code = source->f_code;
    handle->arity  = source->arity;
-   handle->sort   = source->sort;
    handle->binding = NULL;
    handle->args = TermArgListCopy(source);
    handle->lson = NULL;
@@ -357,56 +351,7 @@ static __inline__ Term_p TermTopCopy(Term_p source)
    return handle;
 }
 
-
-/*-----------------------------------------------------------------------
-//
-// Function: TermGetSort
-//  Obtain the sort of the term. If the term has no sort, report
-//  an error and exit program.
-//   
-//
-// Global Variables: -
-//
-// Side Effects    : -  (Unless error occurs)
-//
-/----------------------------------------------------------------------*/
-static __inline__ SortType TermGetSort(Term_p term)
-{
-   SortType sort;
-
-   sort = term->sort;
-   if (sort == STNoSort)
-   {
-      Error("term has no sort", OTHER_ERROR);
-   }
-   return sort;
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: TermSameSort
-//  Checks that the two terms have a sort, and that it's the same.
-//  If some term has no sort, reports an error.
-//   
-//
-// Global Variables: -
-//
-// Side Effects    : - (terminates program on error)
-//
-/----------------------------------------------------------------------*/
-static __inline__ bool TermSameSort(Term_p t1, Term_p t2)
-{
-   if (SortEqual(t1->sort, STNoSort) || SortEqual(t2->sort, STNoSort))
-   {
-      Error("term has no sort", OTHER_ERROR);
-   }
-   return SortEqual(t1->sort, t2->sort);
-}
-
 #endif
-
-
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

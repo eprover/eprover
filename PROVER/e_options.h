@@ -165,7 +165,6 @@ typedef enum
    OPT_FREE_OBJECTS,
    OPT_OLD_STYLE_CNF,
    OPT_DEF_CNF,
-   OPT_PRINT_TYPES,
    OPT_DUMMY
 }OptionCodes;
 
@@ -1236,11 +1235,6 @@ OptCell opts[] =
     "subformulae to avoid exponential blow-up. The optional argument "
     "is a fudge factor that determines when definitions are introduced. "
     "0 disables definitions completely. The default works well."},
-
-   {OPT_PRINT_TYPES,
-    '\0', "print-types",
-    NoArg, NULL,
-    "Print the type of every term. Useful for debugging purpose."},
 
    {OPT_NOOPT,
     '\0', NULL,

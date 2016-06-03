@@ -2329,32 +2329,6 @@ long ClauseSetCountConjectures(ClauseSet_p set, long* hypos)
 }
 
 
-/*-----------------------------------------------------------------------
-//
-// Function: ClauseSetIsUntyped
-//
-//   Returns true iff all clauses of the set are untyped
-//
-// Global Variables: -
-//
-// Side Effects    : Memory operations
-//
-/----------------------------------------------------------------------*/
-bool ClauseSetIsUntyped(ClauseSet_p set)
-{
-   Clause_p handle;
-
-   for(handle = set->anchor->succ; handle!=set->anchor; handle = handle->succ)
-   {
-      if (!ClauseIsUntyped(handle))
-      {
-	 return false;
-      }
-   }
-   return true;
-}
-
-
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

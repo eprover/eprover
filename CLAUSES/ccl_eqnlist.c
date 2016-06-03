@@ -23,7 +23,6 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "ccl_eqnlist.h"
-#include "cte_typecheck.h"
 
 
 
@@ -1310,8 +1309,9 @@ Eqn_p EqnListParse(Scanner_p in, TB_p bank, TokenType sep)
 // Function: NormSubstEqnListExcept()
 //
 //   Instantiate all variables in eqnlist (except for terms from
-//   except)  with fresh variables from vars. Returns the current
-//   position in subst. 
+//   except)  with fresh variables from vars. Returns the old value
+//   for vars->v_count, i.e. the number of the first
+//   fresh variable used.
 //
 // Global Variables: -
 //
@@ -1323,7 +1323,7 @@ FunCode NormSubstEqnListExcept(Eqn_p list, Eqn_p except, Subst_p
 			       subst, VarBank_p vars)
 {
    Eqn_p   handle;
-   PStackPointer res = PStackGetSP(subst);
+   FunCode res = VarBankGetVCount(vars);
 
    for(handle = list; handle; handle = handle->next)
    {

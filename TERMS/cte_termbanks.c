@@ -39,7 +39,6 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "cte_termbanks.h"
-#include "cte_typecheck.h"
 
 
 
@@ -143,13 +142,6 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
    
    assert(t);
    assert(!TermIsVar(t));
-
-   /* Infer the sort of this term (may be temporary) */
-   if(SortEqual(t->sort, STNoSort))
-   {
-      TypeInferSort(bank->sig, t);
-      assert(!SortEqual(t->sort, STNoSort));
-   }
 
    new = TermCellStoreInsert(&(bank->term_store), t);
    
@@ -276,19 +268,11 @@ static Term_p tb_subterm_parse(Scanner_p in, TB_p bank)
    {
       if(SigIsPredicate(bank->sig, res->f_code))
       {
-         if(SigIsFixedType(bank->sig, res->f_code))
-         {
-            AktTokenError(in, 
-                          "Predicate used as function symbol in preceeding term",
-                          SYNTAX_ERROR);
-         }
-         else
-         {
-            SigDeclareIsFunction(bank->sig, res->f_code);
-            res->sort = STNoSort;
-            TypeInferSort(bank->sig, res);
-         }
+         AktTokenError(in, 
+                       "Predicate used as function symbol in preceeding term",
+                       false);
       }        
+      SigSetFunction(bank->sig, res->f_code, true);
    }
    return res;
 }
@@ -394,18 +378,16 @@ TB_p TBAlloc(Sig_p sig)
    handle->ext_index = PDIntArrayAlloc(1,100000);
    handle->garbage_state = TPIgnoreProps;
    handle->sig = sig;
-   handle->vars = VarBankAlloc(sig->sort_table);
+   handle->vars = VarBankAlloc();
    TermCellStoreInit(&(handle->term_store)); 
 
    term = TermDefaultCellAlloc();
    term->f_code = SIG_TRUE_CODE;
-   term->sort = STBool;
    TermCellSetProp(term, TPPredPos);
    handle->true_term = TBInsert(handle, term, DEREF_NEVER);
    TermFree(term);
    term = TermDefaultCellAlloc();
    term->f_code = SIG_FALSE_CODE;
-   term->sort = STBool;
    TermCellSetProp(term, TPPredPos);
    handle->false_term = TBInsert(handle, term, DEREF_NEVER);
    TermFree(term);
@@ -478,7 +460,8 @@ long TBTermNodes(TB_p bank)
 {
    assert(TermCellStoreNodes(&(bank->term_store))==
 	  TermCellStoreCountNodes(&(bank->term_store)));
-   return TermCellStoreNodes(&(bank->term_store))+VarBankCardinal(bank->vars);
+   return TermCellStoreNodes(&(bank->term_store))+
+      PDArrayMembers(bank->vars->f_code_index);
 }
 
 /*-----------------------------------------------------------------------
@@ -763,7 +746,7 @@ Term_p  TBInsertDisjoint(TB_p bank, Term_p term)
 
    if(TermIsVar(term))
    {
-      t = VarBankFCodeAssertAlloc(bank->vars, term->f_code+1, term->sort);
+      t = VarBankFCodeAssertAlloc(bank->vars, term->f_code+1);
    }
    else
    {
@@ -816,11 +799,11 @@ Term_p TBTermTopInsert(TB_p bank, Term_p t)
 //
 /----------------------------------------------------------------------*/
 
-Term_p TBAllocNewSkolem(TB_p bank, PStack_p variables, SortType sort)
+Term_p TBAllocNewSkolem(TB_p bank, PStack_p variables, bool atom)
 {
    Term_p handle, res;
 
-   handle = TermAllocNewSkolem(bank->sig, variables, sort);
+   handle = TermAllocNewSkolem(bank->sig, variables, atom);
    res = TBInsert(bank, handle, DEREF_NEVER);
    TermFree(handle);
 
@@ -844,7 +827,7 @@ Term_p TBFind(TB_p bank, Term_p term)
 {
    if(TermIsVar(term))
    {
-      return VarBankFCodeFind(bank->vars, term->f_code, term->sort);
+      return VarBankFCodeFind(bank->vars, term->f_code);
    }
    return TermCellStoreFind(&(bank->term_store), term);
 }
@@ -1027,7 +1010,6 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
    DStr_p        id;
    FuncSymbType id_type;
    DStr_p        source_name, errpos;
-   SortType      sort;
    long          line, column;
    StreamType    type;
 
@@ -1105,18 +1087,7 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
 	 
 	 if((id_type=TermParseOperator(in, id))==FSIdentVar)
 	 {
-            /* A variable may be annotated with a sort */
-            if(TestInpTok(in, Colon))
-            {
-               AcceptInpTok(in, Colon);
-               sort = SortParseTSTP(in, bank->sig->sort_table);
-               handle = VarBankExtNameAssertAllocSort(bank->vars,
-                                                      DStrView(id), sort);
-            }
-            else
-            {
-               handle = VarBankExtNameAssertAlloc(bank->vars, DStrView(id));
-            }
+	    handle = VarBankExtNameAssertAlloc(bank->vars, DStrView(id));
 	 }
 	 else
 	 {
@@ -1180,7 +1151,7 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
 	       Error(DStrView(errpos), SYNTAX_ERROR);
 	       DStrFree(errpos);
 	    }
-	    handle = tb_termtop_insert(bank, handle); 
+	    handle = tb_termtop_insert(bank, handle);		 
 	 }
 	 DStrFree(id);
       }

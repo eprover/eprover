@@ -112,7 +112,7 @@ int main(int argc, char* argv[])
    {
       CLStateInsertArg(state, "-");
    }
-   bank = TBAlloc(SigAlloc(DefaultSortTableAlloc()));
+   bank = TBAlloc(SigAlloc());
    
    in = CreateScanner(StreamTypeFile, state->argv[0], true, NULL);
    
@@ -153,7 +153,6 @@ int main(int argc, char* argv[])
    }
    DestroyScanner(in);
 
-   SortTableFree(bank->sig->sort_table);
    SigFree(bank->sig);
    bank->sig = NULL;
    TBFree(bank);

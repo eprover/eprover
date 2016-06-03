@@ -185,9 +185,8 @@ void KBParseExampleFile(Scanner_p in, char* name, ExampleSet_p set,
    ClauseSet_p axioms = ClauseSetAlloc();
    long        ident;
    AnnoTerm_p  handle;
-   SortTable_p sort_table = DefaultSortTableAlloc();
    
-   terms = TBAlloc(SigAlloc(sort_table));
+   terms = TBAlloc(SigAlloc());
    ClauseSetParseList(in, axioms, terms);
    
    ident = KBAxiomsInsert(set, axioms, terms->sig, name);
@@ -210,7 +209,6 @@ void KBParseExampleFile(Scanner_p in, char* name, ExampleSet_p set,
    }
    terms->sig = NULL;
    TBFree(terms); 
-   SortTableFree(sort_table);
 }
 
 

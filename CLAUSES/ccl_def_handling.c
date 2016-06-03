@@ -139,7 +139,6 @@ Eqn_p GenDefLit(TB_p bank, FunCode pred, bool positive,
 	 lside->args[i] = PStackElementP(split_vars, i);
       }
    }   
-   lside->sort = STBool;
    lside = TBTermTopInsert(bank, lside);
    res = EqnAlloc(lside, bank->true_term, bank, positive);
    EqnSetProp(res, EPIsSplitLit);
@@ -263,9 +262,6 @@ FunCode GetDefinitions(DefStore_p store, Eqn_p litlist,
    if(fresh)
    {
       def_pred    = SigGetNewPredicateCode(store->terms->sig, 0);
-      SigDeclareType(store->terms->sig, def_pred,
-                     TypeGetBool(store->terms->sig->type_table));
-
       if(OutputLevel >= 2 || BuildProofObject)
       {
          *res_form = GetFormulaDefinition(litlist, def_pred);
@@ -302,8 +298,6 @@ FunCode GetDefinitions(DefStore_p store, Eqn_p litlist,
          IntOrP def_pred_store, def_form_store;
 
          def_pred = SigGetNewPredicateCode(store->terms->sig, 0);
-         SigDeclareType(store->terms->sig, def_pred,
-                        TypeGetBool(store->terms->sig->type_table));
          if(OutputLevel >= 2 || BuildProofObject)
          {
             *res_form = GetFormulaDefinition(litlist, def_pred);

@@ -345,8 +345,7 @@ long SigCollectConstantTerms(TB_p bank, PStack_p stack, FunCode uniq)
    {
       for(i=bank->sig->internal_symbols+1; i<=bank->sig->f_count; i++)
       {
-	 if(!SigIsPredicate(bank->sig, i) &&
-            !SigQueryProp(bank->sig, i, FPSpecial) &&
+	 if(!SigIsAnyFuncPropSet(bank->sig, i, FPSpecial|FPPredSymbol) &&
 	    SigFindArity(bank->sig,i)==0)
 	 {
 	    tmp = TermConstCellAlloc(i);

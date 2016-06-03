@@ -20,9 +20,6 @@ Changes
 
 -----------------------------------------------------------------------*/
 
-#include <stdlib.h>   /* drand48 */
-#include <stdint.h>   /* intptr_t */
-
 #include <clb_pdrangearrays.h>
 #include <clb_intmap.h>
 #include <cio_commandline.h>

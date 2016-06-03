@@ -4,8 +4,8 @@
 #
 # Author: Stephan Schulz
 #
-# Top level make file. Check Makefile.vars.in for system-dependend
-# tool selection and compilation options.
+# Top level make file. Check Makefile.vars for system-dependend tool
+# selection and compilation options. 
 #
 # Changes
 #

@@ -107,7 +107,7 @@ static void sig_compute_alpha_ranks(Sig_p sig)
 //
 // Function: SigAlloc()
 //
-//   Allocate a initialized signature cell. Also initializes a type table.
+//   Allocate a initialized signature cell.
 //
 // Global Variables: -
 //
@@ -115,7 +115,7 @@ static void sig_compute_alpha_ranks(Sig_p sig)
 //
 /----------------------------------------------------------------------*/
 
-Sig_p SigAlloc(SortTable_p sort_table)
+Sig_p SigAlloc(void)
 {
    Sig_p handle;
 
@@ -129,17 +129,12 @@ Sig_p SigAlloc(SortTable_p sort_table)
    handle->f_index = NULL;
    handle->ac_axioms = PStackAlloc();
 
-   handle->sort_table = sort_table;
-   handle->type_table = TypeTableAlloc(sort_table);
-
    SigInsertId(handle, "$true", 0, true);
    assert(SigFindFCode(handle, "$true")==SIG_TRUE_CODE);  
-   SigSetFuncProp(handle, SIG_TRUE_CODE, FPInterpreted);
-   SigDeclareType(handle, SIG_TRUE_CODE, TypeGetBool(handle->type_table));
+   SigSetFuncProp(handle, SIG_TRUE_CODE, FPPredSymbol|FPInterpreted);
    SigInsertId(handle, "$false", 0, true);
    assert(SigFindFCode(handle, "$false")==SIG_FALSE_CODE);  
-   SigSetFuncProp(handle, SIG_FALSE_CODE, FPInterpreted);
-   SigDeclareType(handle, SIG_FALSE_CODE, TypeGetBool(handle->type_table));
+   SigSetFuncProp(handle, SIG_FALSE_CODE, FPPredSymbol|FPInterpreted);
    
    if(SigSupportLists)
    {
@@ -203,14 +198,12 @@ void SigInsertInternalCodes(Sig_p sig)
           (!SigSupportLists && sig->internal_symbols == SIG_FALSE_CODE));
    
    sig->eqn_code    = SigInsertId(sig, "$eq",   2, true);
-   SigSetPolymorphic(sig, sig->eqn_code, true);
+   SigSetPredicate(sig, sig->eqn_code, true);
    sig->neqn_code   = SigInsertId(sig, "$neq",   2, true);
-   SigSetPolymorphic(sig, sig->eqn_code, true);
+   SigSetPredicate(sig, sig->neqn_code, true);
 
    sig->qex_code   = SigInsertId(sig, "$qex",   2, true);
    sig->qall_code  = SigInsertId(sig, "$qall",  2, true);
-   SigSetPolymorphic(sig, sig->qex_code, true);
-   SigSetPolymorphic(sig, sig->qall_code, true);
 
    sig->not_code   = SigInsertFOFOp(sig, "$not",   1);
    sig->and_code   = SigInsertFOFOp(sig, "$and",   2);
@@ -225,6 +218,7 @@ void SigInsertInternalCodes(Sig_p sig)
    sig->xor_code   = SigInsertFOFOp(sig, "$xor",   2);
 
    sig->answer_code =  SigInsertId(sig, "$answer", 1, true);
+   SigSetPredicate(sig, sig->answer_code, true);
    SigSetFuncProp(sig, sig->answer_code, FPInterpreted|FPPseudoPred);
 
    sig->internal_symbols = sig->f_count;
@@ -258,8 +252,6 @@ void SigFree(Sig_p junk)
    {
       PDArrayFree(junk->orn_codes);
    }
-   TypeTableFree(junk->type_table);
-
    SigCellFree(junk);
 }
 
@@ -291,11 +283,39 @@ FunCode SigFindFCode(Sig_p sig, const char* name)
 }
 
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: SigSetPredicate()
+//
+//   Set the value of the predicate field for a function symbol.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void SigSetPredicate(Sig_p sig, FunCode f_code, bool value)
+{
+   assert(f_code > 0);
+   assert(f_code <= sig->f_count);
+
+   if(value)
+   {
+      FuncSetProp(&(sig->f_info[f_code]),FPPredSymbol);
+   }
+   else
+   {
+      FuncDelProp(&(sig->f_info[f_code]),FPPredSymbol);
+   }
+}
+
 /*-----------------------------------------------------------------------
 //
 // Function: SigIsPredicate()
 //
-//  Returns true if the symbol is known to be a predicate
+//   Return the value of the predicate field for a function symbol.
 //
 // Global Variables: -
 //
@@ -305,20 +325,39 @@ FunCode SigFindFCode(Sig_p sig, const char* name)
 
 bool SigIsPredicate(Sig_p sig, FunCode f_code)
 {
-   Type_p type;
-
    assert(f_code > 0);
    assert(f_code <= sig->f_count);
 
-   if(FuncQueryProp(&(sig->f_info[f_code]), FPTypePoly))
-   {
-      return true;
-   }
-
-   type = SigGetType(sig, f_code);
-   return type && SortEqual(type->domain_sort, STBool);
+   return FuncQueryProp(&(sig->f_info[f_code]), FPPredSymbol);
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: SigSetFunction()
+//
+//   Set the value of the function field for a function symbol.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void SigSetFunction(Sig_p sig, FunCode f_code, bool value)
+{
+   assert(f_code > 0);
+   assert(f_code <= sig->f_count);
+
+   if(value)
+   {
+      FuncSetProp(&(sig->f_info[f_code]),FPFuncSymbol);
+   }
+   else
+   {
+      FuncDelProp(&(sig->f_info[f_code]),FPFuncSymbol);
+   }
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -334,118 +373,13 @@ bool SigIsPredicate(Sig_p sig, FunCode f_code)
 
 bool SigIsFunction(Sig_p sig, FunCode f_code)
 {
-   Type_p type;
-
    assert(f_code > 0);
    assert(f_code <= sig->f_count);
 
-   if(!FuncQueryProp(&(sig->f_info[f_code]), FPTypeFixed))
-   {
-      return false;
-   }
-
-   type = SigGetType(sig, f_code);
-   return type && !SortEqual(type->domain_sort, STBool);
+   return FuncQueryProp(&(sig->f_info[f_code]), FPFuncSymbol);
 }
 
 
-/*-----------------------------------------------------------------------
-//
-// Function: SigIsFixedType
-//
-//   check whether we are sure of the type of this function
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-bool SigIsFixedType(Sig_p sig, FunCode f_code)
-{
-   assert(f_code > 0);
-   assert(f_code <= sig->f_count);
-   
-   return FuncQueryProp(&(sig->f_info[f_code]), FPTypeFixed);
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: SigFixType
-//
-//   Fix the type of the function, because we are sure the type is the
-//   right one (no ambiguity).
-//
-// Global Variables: -
-//
-// Side Effects    : Modifiy signature
-//
-/----------------------------------------------------------------------*/
-void SigFixType(Sig_p sig, FunCode f_code)
-{
-   assert(f_code > 0);
-   assert(f_code <= sig->f_count);
-   
-   FuncSetProp(&(sig->f_info[f_code]), FPTypeFixed);
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function: SigIsPolymorphic
-//
-//   Checks whether the symbol is Ad-hoc polymorphic
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-bool SigIsPolymorphic(Sig_p sig, FunCode f_code)
-{
-   assert(f_code > 0);
-   assert(f_code <= sig->f_count);
-   
-   return FuncQueryProp(&(sig->f_info[f_code]), FPTypePoly);
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function: SigSetPolymorphic
-//
-//   Declare that this symbol is polymorphic
-//
-// Global Variables: -
-//
-// Side Effects    : modifies the signature
-//
-/----------------------------------------------------------------------*/
-void SigSetPolymorphic(Sig_p sig, FunCode f_code, bool value)
-{
-   assert(f_code > 0);
-   assert(f_code <= sig->f_count);
-   
-   FuncSetProp(&(sig->f_info[f_code]), FPTypePoly);
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: SigQueryProp
-//  Checks whether a symbol has all the given properties
-//   
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-bool SigQueryProp(Sig_p sig, FunCode f_code, FunctionProperties prop)
-{
-   assert(f_code > 0);
-   assert(f_code <= sig->f_count);
-
-   return FuncQueryProp(&(sig->f_info[f_code]), prop);
-}
 
 /*-----------------------------------------------------------------------
 //
@@ -596,7 +530,6 @@ FunCode SigInsertId(Sig_p sig, const char* name, int arity, bool special_id)
       = SecureStrdup(name); 
    sig->f_info[sig->f_count].arity = arity;
    sig->f_info[sig->f_count].properties = FPIgnoreProps;
-   sig->f_info[sig->f_count].type = NULL;
    new = StrTreeCellAllocEmpty();
    new->key = sig->f_info[sig->f_count].name;
    new->val1.i_val = sig->f_count;
@@ -895,7 +828,7 @@ int SigFindMaxPredicateArity(Sig_p sig)
 
    for(i=sig->internal_symbols+1; i<=sig->f_count; i++)
    {
-      if(SigIsPredicate(sig, i) &&
+      if(SigQueryFuncProp(sig, i, FPPredSymbol) &&
 	 !SigQueryFuncProp(sig, i, FPSpecial))
       {
 	 arity = SigFindArity(sig,i);
@@ -926,7 +859,7 @@ int SigFindMinPredicateArity(Sig_p sig)
 
    for(i=sig->internal_symbols+1; i<=sig->f_count; i++)
    {
-      if(SigIsPredicate(sig, i) &&
+      if(SigQueryFuncProp(sig, i, FPPredSymbol) &&
 	 !SigQueryFuncProp(sig, i, FPSpecial))
       {
 	 arity = SigFindArity(sig,i);
@@ -957,7 +890,7 @@ int SigFindMaxFunctionArity(Sig_p sig)
 
    for(i=sig->internal_symbols+1; i<=sig->f_count; i++)
    {
-      if(!SigIsPredicate(sig, i) && !SigQueryFuncProp(sig, i, FPSpecial))
+      if(!SigIsAnyFuncPropSet(sig, i, FPPredSymbol|FPSpecial))
       {
 	 arity = SigFindArity(sig,i);
 	 res = MAX(res,arity);
@@ -987,7 +920,7 @@ int SigFindMinFunctionArity(Sig_p sig)
 
    for(i=sig->internal_symbols+1; i<=sig->f_count; i++)
    {
-      if(!SigIsPredicate(sig, i) && !SigQueryFuncProp(sig, i, FPSpecial))
+      if(!SigIsAnyFuncPropSet(sig, i, FPPredSymbol|FPSpecial))
       {
 	 arity = SigFindArity(sig,i);
 	 res = MIN(res,arity);
@@ -1195,6 +1128,7 @@ FunCode SigGetNewSkolemCode(Sig_p sig, int arity)
       sprintf(new_symbol,"esk%ld_%d",sig->skolem_count,arity);
    }
    res = SigInsertId(sig, new_symbol, arity, false);
+   SigSetFuncProp(sig, res, FPFuncSymbol);
    return res;
 }
 
@@ -1225,253 +1159,12 @@ FunCode SigGetNewPredicateCode(Sig_p sig, int arity)
       sprintf(new_symbol,"epred%ld_%d",sig->newpred_count,arity);
    }
    res = SigInsertId(sig, new_symbol, arity, false);
+   SigSetFuncProp(sig, res, FPPredSymbol);
    
    return res;
 }
 
 
-/*-----------------------------------------------------------------------
-//
-// Function: SigDeclareType
-// Declare the type of the given function. Will fail (and crash) if the
-// type is already declared and is fixed.
-//
-// Global Variables: -
-//
-// Side Effects    : Modifies the signature
-//
-/----------------------------------------------------------------------*/
-void SigDeclareType(Sig_p sig, FunCode f, Type_p type)
-{
-   Func_p fun;
-
-   fun = &sig->f_info[f];
-   if(fun->type)
-   {
-      /* type already declared, check it's the same */
-      if(!TypeEqual(fun->type, type))
-      {
-         if(SigIsFixedType(sig, f))
-         {
-            if(Verbose>=3)
-            {
-               fprintf(stderr, "# Type conflict for %s between ",
-                       SigFindName(sig, f));
-               TypePrintTSTP(stderr, sig->type_table, fun->type);
-               fprintf(stderr, " and ");
-               TypePrintTSTP(stderr, sig->type_table, type);
-               fprintf(stderr, "\n");
-            }
-            Error("type error", INPUT_SEMANTIC_ERROR);
-         }
-         else
-         {
-            if(Verbose >= 2)
-            {
-               fprintf(stderr, "# type re-declaration %s: ", SigFindName(sig, f));
-               TypePrintTSTP(stderr, sig->type_table, type);
-               fprintf(stderr, "\n");
-            }
-            fun->type = type;
-         }
-      }
-   }
-   else
-   {
-      if(Verbose >= 2)
-      {
-         fprintf(stderr, "# type declaration %s: ", SigFindName(sig, f));
-         TypePrintTSTP(stderr, sig->type_table, type);
-         fprintf(stderr, "\n");
-      }
-
-      fun->type = type;
-   }
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: SigDeclareFinalType
-//
-//   Declare the type of the symbol, and fix it (cannot be changed)
-//
-// Global Variables: -
-//
-// Side Effects    : Modifies the type table
-//
-/----------------------------------------------------------------------*/
-void SigDeclareFinalType(Sig_p sig, FunCode f_code, Type_p type)
-{
-   SigDeclareType(sig, f_code, type);
-   SigFixType(sig, f_code);
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function: SigDeclareIsFunction
-//
-//  This symbol occurs in a function position (in an equation, as
-//  a subterm...).
-//
-// Global Variables: -
-//
-// Side Effects    : Modifies signature (may change the type)
-//
-/----------------------------------------------------------------------*/
-void SigDeclareIsFunction(Sig_p sig, FunCode f_code)
-{
-   Type_p type, new_type;
-
-   if(SigIsPolymorphic(sig, f_code))
-   {
-      return;
-   }
-
-   type = SigGetType(sig, f_code);
-   assert(!SortEqual(type->domain_sort, STNoSort));
-
-   /* must update type */
-   if(SortEqual(type->domain_sort, STBool))
-   {
-      new_type = TypeCopyWithReturn(sig->type_table, type, SigDefaultSort(sig));
-      SigDeclareFinalType(sig, f_code, new_type);
-   }
-   else
-   {
-      SigFixType(sig, f_code);
-   }
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: SigDeclareIsPredicate
-//
-//   This symbol occurs as a predicate, without ambiguity.
-//
-// Global Variables: -
-//
-// Side Effects    : Modifies signature
-//
-/----------------------------------------------------------------------*/
-void SigDeclareIsPredicate(Sig_p sig, FunCode f_code)
-{
-   Type_p type, new_type;
-
-   if(SigIsPolymorphic(sig, f_code))
-   {
-      return;
-   }
-
-   type = SigGetType(sig, f_code);
-   assert(!SortEqual(type->domain_sort, STNoSort));
-
-   /* must update type */
-   if(!SortEqual(type->domain_sort, STBool))
-   {
-      new_type = TypeCopyWithReturn(sig->type_table, type, STBool);
-      SigDeclareFinalType(sig, f_code, new_type);
-   }
-   else
-   {
-      SigFixType(sig, f_code);
-   }
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function: SigPrintTypes
-// Prints symbols with their type to the given file descriptor
-//   
-//
-// Global Variables: -
-//
-// Side Effects    : IO on the file descriptor
-//
-/----------------------------------------------------------------------*/
-void SigPrintTypes(FILE* out, Sig_p sig)
-{
-   FunCode i;
-   Func_p fun;
-
-   for(i=1; i <= sig->f_count; ++i)
-   {
-      if (i > 1)
-      {
-         fputs(", ", out);
-      }
-
-      fun = &sig->f_info[i];
-      fprintf(out, "%s:", fun->name);
-      if (!fun->type)
-      {
-         fputs("<no type>", out);
-      }
-      else
-      {
-         TypePrintTSTP(out, sig->type_table, fun->type);
-      }
-   }
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: SigParseTFFTypeDeclaration()
-//
-//  Parses a type declaration, and update the signature if it's a
-//  symbol declaration (ignores type declarations)
-//
-// Global Variables: -
-//
-// Side Effects    : Reads from scanner, may raise an error
-//
-/----------------------------------------------------------------------*/
-void SigParseTFFTypeDeclaration(Scanner_p in, Sig_p sig)
-{
-   DStr_p id;
-   FuncSymbType symbtype;
-   FunCode f;
-   Type_p type;
-   int arity;
-   bool within_paren = false;
-
-   id = DStrAlloc();
-
-   if(TestInpTok(in, OpenBracket))
-   {
-      NextToken(in);
-      within_paren = true;
-   }
-
-   /* parse symbol */
-   symbtype = FuncSymbParse(in, id);
-   if(symbtype == FSIdentVar || symbtype == FSNone)
-   {
-      Error("expected symbol in type declaration", OTHER_ERROR);
-   }
-
-   /* parse type */
-   AcceptInpTok(in, Colon);
-   type = TypeParseTSTP(in, sig->type_table);
-
-   if(within_paren)
-   {
-      AcceptInpTok(in, CloseBracket);
-   }
-
-   /* we only keep declarations of symbols, not declaration of types */
-   if(type->domain_sort != STKind)
-   {
-      arity = TypeArity(type);
-      f = SigInsertId(sig, DStrView(id), arity, false);
-      SigDeclareType(sig, f, type);
-      SigFixType(sig, f);
-   }
-
-   DStrFree(id);
-}
 
 
 /*---------------------------------------------------------------------*/

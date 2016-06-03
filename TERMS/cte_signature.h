@@ -30,7 +30,6 @@ Changes
 #include <clb_pdarrays.h>
 #include <clb_properties.h>
 #include <cte_functypes.h>
-#include <cte_simpletypes.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -40,8 +39,9 @@ Changes
 typedef enum
 {
    FPIgnoreProps  =    0, /* No properties, mask everything out */
-   FPTypeFixed    =    1, /* We are sure about the type of the symbol */
-   FPTypePoly     =    2, /* Ad-hoc polymorphic predicate type */
+   FPPredSymbol   =    1, /* Symbol is a transformed predicate symbol */
+   FPFuncSymbol   =    2, /* Symbol is a real function symbol */
+                          /* If neither is set, we don't know it yet */
    FPFOFOp        =    4, /* Symbol is encoded first order operator */
    FPSpecial      =    8, /* Symbol is a special symbol introduced internally */
    FPAssociative  =   16, /* Function symbol is binary and associative */
@@ -71,11 +71,10 @@ typedef enum
 typedef struct funccell
 {
    /* f_code is implicit by position in the array */
-   char*  name;
-   int    arity;
-   int    alpha_rank; /* We sometimes need an arbitrary but stable
+   char* name;
+   int   arity;
+   int   alpha_rank; /* We sometimes need an arbitrary but stable
 			order on symbols and use alphabetic. */
-   Type_p type;       /* Simple type of the symbol */
    FunctionProperties properties;
 }FuncCell, *Func_p;
 
@@ -127,10 +126,6 @@ typedef struct sigcell
    FunCode   xor_code;
    /* And here are codes for interpreted symbols */
    FunCode   answer_code;       /* For answer literals */
-
-   /* Sort and type banks (type => sort, but a shortcut is useful) */
-   SortTable_p sort_table;
-   TypeTable_p type_table;
    
    /* Counters for generating new symbols */
    long      skolem_count;
@@ -181,7 +176,7 @@ extern bool      SigSupportLists; /* Auto-Insert special symbols
 #define SigCellAlloc() (SigCell*)SizeMalloc(sizeof(SigCell))
 #define SigCellFree(junk)         SizeFree(junk, sizeof(SigCell))
 
-Sig_p   SigAlloc(SortTable_p sort_table);
+Sig_p   SigAlloc(void);
 void    SigInsertInternalCodes(Sig_p sig);
 void    SigFree(Sig_p junk);
 #define SigExternalSymbols(sig) \
@@ -193,13 +188,10 @@ FunCode SigFindFCode(Sig_p sig, const char* name);
 static __inline__ int     SigFindArity(Sig_p sig, FunCode f_code);
 
 static __inline__ char*   SigFindName(Sig_p sig, FunCode f_code);
+void    SigSetPredicate(Sig_p sig, FunCode f_code, bool value);
 bool    SigIsPredicate(Sig_p sig, FunCode f_code);
+void    SigSetFunction(Sig_p sig, FunCode f_code, bool value);
 bool    SigIsFunction(Sig_p sig, FunCode f_code);
-bool    SigIsFixedType(Sig_p sig, FunCode f_code);
-void    SigFixType(Sig_p sig, FunCode f_code);
-bool    SigIsPolymorphic(Sig_p sig, FunCode f_code);
-void    SigSetPolymorphic(Sig_p sig, FunCode f_code, bool value);
-bool    SigQueryProp(Sig_p sig, FunCode f, FunctionProperties prop);
 
 #define SigIsFunConst(sig, f_code) (SigFindArity((sig), (f_code))==0&&\
                                     SigIsPredicate((sig),(f_code)))
@@ -240,15 +232,6 @@ FunCode SigGetOrNCode(Sig_p sig, int arity);
 FunCode SigGetNewSkolemCode(Sig_p sig, int arity);
 FunCode SigGetNewPredicateCode(Sig_p sig, int arity);
 
-/* Types */
-#define SigDefaultSort(sig)  ((sig)->sort_table->default_type)
-#define SigGetType(sig, f)   ((sig)->f_info[(f)].type)
-void    SigDeclareType(Sig_p sig, FunCode f, Type_p type);
-void    SigDeclareFinalType(Sig_p sig, FunCode f, Type_p type);
-void    SigDeclareIsFunction(Sig_p sig, FunCode f);
-void    SigDeclareIsPredicate(Sig_p sig, FunCode f);
-void    SigPrintTypes(FILE* out, Sig_p sig);
-void    SigParseTFFTypeDeclaration(Scanner_p in, Sig_p sig);
 
 /*---------------------------------------------------------------------*/
 /*                        Inline functions                             */
@@ -324,7 +307,7 @@ static __inline__ FunCode SigGetEqnCode(Sig_p sig, bool positive)
       }
       sig->eqn_code = SigInsertId(sig, "$eq", 2, true);
       assert(sig->eqn_code);
-      SigSetFuncProp(sig, sig->eqn_code, FPFOFOp | FPTypePoly);
+      SigSetPredicate(sig, sig->eqn_code, true);
       return sig->eqn_code;      
    }
    else
@@ -335,7 +318,7 @@ static __inline__ FunCode SigGetEqnCode(Sig_p sig, bool positive)
       }
       sig->neqn_code = SigInsertId(sig, "$neq", 2, true);
       assert(sig->neqn_code);
-      SigSetFuncProp(sig, sig->eqn_code, FPFOFOp | FPTypePoly);
+      SigSetPredicate(sig, sig->neqn_code, true);
       return sig->neqn_code;      
    }
 }
