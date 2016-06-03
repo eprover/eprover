@@ -210,7 +210,7 @@ CSSCPAState_p CSSCPAStateAlloc(void)
 {
    CSSCPAState_p handle = CSSCPAStateCellAlloc();
 
-   handle->sig       = SigAlloc();
+   handle->sig       = SigAlloc(DefaultSortTableAlloc());
    handle->terms     = TBAlloc(handle->sig);
    handle->tmp_terms = TBAlloc(handle->sig);
    handle->pos_units = ClauseSetAlloc();
@@ -247,6 +247,7 @@ void CSSCPAStateFree(CSSCPAState_p junk)
    TBFree(junk->terms);
    junk->tmp_terms->sig = NULL;
    TBFree(junk->tmp_terms);
+   SortTableFree(junk->sig->sort_table);
    SigFree(junk->sig);
    CSSCPAStateCellFree(junk);
 }

@@ -408,6 +408,7 @@ long     ClauseReturnFCodes(Clause_p clause, PStack_p f_codes);
 #define CLAUSE_ENSURE_DERIVATION(clause) \
         {if(!(clause)->derivation){(clause)->derivation=PStackVarAlloc(3);}}
 
+bool    ClauseIsUntyped(Clause_p clause);
 
 #endif
 

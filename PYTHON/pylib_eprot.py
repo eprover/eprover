@@ -319,7 +319,6 @@ class eprot(object):
             count = count+1
             tlim = count*step
         return res
-
             
     def filter(self, problemlist):
         """

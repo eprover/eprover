@@ -119,7 +119,8 @@ static void compute_precedence_from_array(OCB_p ocb, FCodeFeatureArray_p
       for(i = SIG_TRUE_CODE+1; i<=ocb->sig_size; i++)
       {
          if((SigFindArity(ocb->sig, i)==0) && 
-            !SigIsAnyFuncPropSet(ocb->sig, i, FPPredSymbol|FPSpecial) &&
+            !SigIsPredicate(ocb->sig, i) &&
+            !SigQueryFuncProp(ocb->sig, i, FPSpecial) &&
             !ocb->min_constant)
          {
             ocb->min_constant = i;

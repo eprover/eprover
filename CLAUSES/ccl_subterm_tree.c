@@ -183,6 +183,10 @@ void SubtermPosFree(SubtermOcc_p soc)
 //
 // Function: CmpSubtermCells()
 //
+//   Compare two SubtermOccurance cells via their term pointers.
+//   
+//   Original version (below) broke with TFF
+//   =======================================
 //   Compare two SubtermOccurance cells via their term entry_no. This
 //   is a synthetic but machine-independent measure useful primarily
 //   for indexing.
@@ -198,11 +202,19 @@ int CmpSubtermCells(const void *soc1, const void *soc2)
    const SubtermOcc_p s1 = (const SubtermOcc_p) soc1;
    const SubtermOcc_p s2 = (const SubtermOcc_p) soc2;
 
-   if(s1->term->entry_no > s2->term->entry_no)
+   /* if(s1->term->entry_no > s2->term->entry_no) */
+   /* { */
+   /*    return 1; */
+   /* } */
+   /* if(s1->term->entry_no < s2->term->entry_no) */
+   /* { */
+   /*    return -1; */
+   /* } */
+   if(s1->term > s2->term)
    {
       return 1;
    }
-   if(s1->term->entry_no < s2->term->entry_no)
+   if(s1->term < s2->term)
    {
       return -1;
    }

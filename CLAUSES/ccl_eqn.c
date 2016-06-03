@@ -25,7 +25,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "ccl_eqn.h"
-
+#include "cte_typecheck.h"
 
 
 /*---------------------------------------------------------------------*/
@@ -273,7 +273,8 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
    lterm = TBTermParse(in, bank);
    BOOL_TERM_NORMALIZE(lterm);
    
-   if(!TermIsVar(lterm) && SigIsPredicate(bank->sig,lterm->f_code))
+   if(!TermIsVar(lterm) && SigIsPredicate(bank->sig,lterm->f_code) &&
+      SigIsFixedType(bank->sig, lterm->f_code))
    {
       rterm = bank->true_term; /* Non-Equational literal */
    }
@@ -289,37 +290,28 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
          rterm = TBTermParse(in, bank);
          if(!TermIsVar(rterm))
          {
-            if(SigIsPredicate(bank->sig, rterm->f_code))
-            {
-               AktTokenError(in, "Predicate symbol used as "
-                             "function symbol in preceding atom", false);
-            }
-            SigSetFunction(bank->sig, rterm->f_code, true);
+            TypeDeclareIsNotPredicate(bank->sig, rterm);
          }
       }
       else if(TestInpTok(in, NegEqualSign|EqualSign))
       { /* Now both sides must be terms */
-         SigSetFunction(bank->sig, lterm->f_code, true);
+         TypeDeclareIsNotPredicate(bank->sig, lterm);
          if(TestInpTok(in, NegEqualSign))
          {
             positive = !positive;
          }
          AcceptInpTok(in, NegEqualSign|EqualSign);	 
          rterm = TBTermParse(in, bank);
+         TypeDeclareIsNotPredicate(bank->sig, lterm);
          if(!TermIsVar(rterm))
          {
-            if(SigIsPredicate(bank->sig, rterm->f_code))
-            {
-               AktTokenError(in, "Predicate symbol used as "
-                             "function symbol in preceding atom", false);
-            }
-            SigSetFunction(bank->sig, rterm->f_code, true);
+            TypeDeclareIsNotPredicate(bank->sig, rterm);
          }
       }
       else
       { /* It's a predicate */
          rterm = bank->true_term; /* Non-Equational literal */
-         SigSetPredicate(bank->sig, lterm->f_code, true);
+         TypeDeclareIsPredicate(bank->sig, lterm);
       }
    }
    *lref = lterm;
@@ -378,7 +370,7 @@ static bool eqn_parse_prefix(Scanner_p in, TB_p bank, Term_p *lref,
 		       "used at predicate position", false); 
 	 
       }
-      SigSetPredicate(bank->sig, lterm->f_code, true);
+      SigDeclareIsPredicate(bank->sig, lterm->f_code);
    }
    *lref = lterm;
    *rref = rterm;
@@ -508,6 +500,11 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
 
    /* printf("Handle = %p\n", handle); */
 
+   if(!SortEqual(lterm->sort, STNoSort) && !SortEqual(rterm->sort, STNoSort))
+   {
+      TermAssertSameSort(bank->sig, lterm, rterm);
+   }
+
    handle->properties = EPNoProps;
    if(positive)
    {
@@ -530,7 +527,7 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
       printf("===");
       TermPrint(stdout, rterm, bank->sig, DEREF_NEVER);
       printf("\n"); */
-      assert(SigQueryFuncProp(bank->sig, lterm->f_code, FPPredSymbol));      
+      SigDeclareIsPredicate(bank->sig, lterm->f_code);
       TermCellSetProp(lterm, TPPredPos);
       if(SigQueryFuncProp(bank->sig, lterm->f_code, FPPseudoPred))
       {
@@ -2140,9 +2137,9 @@ bool LiteralGreater(OCB_p ocb, Eqn_p eq1, Eqn_p eq2)
 //
 /----------------------------------------------------------------------*/
 
-FunCode SubstNormEqn(Eqn_p eq, Subst_p subst, VarBank_p vars)
+PStackPointer SubstNormEqn(Eqn_p eq, Subst_p subst, VarBank_p vars)
 {
-  FunCode res;
+   PStackPointer res;
 
    res = SubstNormTerm(eq->lterm, subst, vars);
    SubstNormTerm(eq->rterm, subst, vars);

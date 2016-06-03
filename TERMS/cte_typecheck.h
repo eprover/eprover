@@ -1,54 +1,46 @@
 /*-----------------------------------------------------------------------
 
-File  : e_version.h
+File  : cte_typecheck.h
 
-Author: Stephan Schulz (schulz@eprover.org)
+Author: Simon Cruanes
 
 Contents
- 
-  Define global macro for version number and meta-information. 
 
-  Copyright 2009-2016 by the author.
-  This code is released under the GNU General Public Licence and
-  the GNU Lesser General Public License.
-  See the file COPYING in the main E directory for details..
+  Type checking and inference for Simple types
+ 
+
+  Copyright 2011 by the author.
+  This code is released under the GNU General Public Licence.
+  See the file COPYING in the main CLIB directory for details.
   Run "eprover -h" for contact information.
 
 Changes
 
-<1> Tue Feb 24 00:26:41 CET 2009
-    New
+<1>   Mon Jul  8 17:15:05 CEST 2013
+      New
 
 -----------------------------------------------------------------------*/
 
-#ifndef E_VERSION
+#ifndef CTE_TYPECHECK
 
-#define E_VERSION
+#define CTE_TYPECHECK
 
-
+#include <cte_signature.h>
+#include <cte_termtypes.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
 
-
-
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* git tag E-2.0pre001 */
-#define VERSION      "2.0pre001"
-
-#define E_NICKNAME     "Turzun"
-
-#define E_URL "http://www.eprover.org"
-
-#define STS_MAIL "schulz@eprover.org"
-#define STS_COPYRIGHT "Copyright 1998-2016 by Stephan Schulz"
-#define STS_SNAIL "Stephan Schulz\nDHBW Stuttgart\nFakultaet Technik\nInformatik\nRotebuehlplatz 41\n70178 Stuttgart\nGermany\n"
-
+bool     TypeCheckConsistent(Sig_p sig, Term_p term);
+void     TypeInferSort(Sig_p sig, Term_p term);
+void     TypeDeclareIsPredicate(Sig_p sig, Term_p term);
+void     TypeDeclareIsNotPredicate(Sig_p sig, Term_p term);
 
 #endif
 

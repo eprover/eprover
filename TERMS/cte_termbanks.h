@@ -104,6 +104,8 @@ extern bool TBPrintDetails;
 #define TBCellAlloc() (TBCell*)SizeMalloc(sizeof(TBCell))
 #define TBCellFree(junk)         SizeFree(junk, sizeof(TBCell))
 
+#define TBSortTable(tb) (tb->vars->sort_table)
+
 TB_p    TBAlloc(Sig_p sig);
 void    TBFree(TB_p junk);
 
@@ -140,7 +142,7 @@ Term_p  TBInsertDisjoint(TB_p bank, Term_p term);
 
 Term_p  TBTermTopInsert(TB_p bank, Term_p t);
 
-Term_p  TBAllocNewSkolem(TB_p bank, PStack_p variables, bool atom);
+Term_p  TBAllocNewSkolem(TB_p bank, PStack_p variables, SortType sort);
 
 Term_p  TBFind(TB_p bank, Term_p term);
 

@@ -333,7 +333,7 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
                           AktToken(in)->line, 
                           AktToken(in)->column); 
       
-   AcceptInpId(in, "fof");
+   AcceptInpId(in, "fof|tff");
    AcceptInpTok(in, OpenBracket);
    CheckInpTok(in, Name|PosInt|SQString);
    info->name = DStrCopy(AktToken(in)->literal);
@@ -346,16 +346,33 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
       actually initial (the CPInitialProperty is actually set in
       all clauses in the initial unprocessed clause set. So we
       ignore the "derived" modifier, and use CPTypeAxiom for plain
-      clauses. */
-   type = (WFormulaProperties)
-      ClauseTypeParse(in, 
-                      "axiom|hypothesis|definition|assumption|"
-                      "lemma|theorem|conjecture|question|negated_conjecture|"
-                      "plain|unknown");
-   AcceptInpTok(in, Comma);
+      clauses.
+      With typing, it gets more complex, as a type declaration is
+      not a proper clause. However, the simplest thing to do is
+      to parse "$true" and modify the signature.
+      */
+   if(TestInpId(in, "type"))
+   {
+      NextToken(in);
+      AcceptInpTok(in, Comma);
 
-   tform = TFormulaTSTPParse(in, terms);
-   handle = WTFormulaAlloc(terms, tform);
+      /* Parse declaration, modifies signature */
+      SigParseTFFTypeDeclaration(in, terms->sig);
+
+      tform = TFormulaPropConstantAlloc(terms, true);
+      handle = WTFormulaAlloc(terms, tform);
+   }
+   else
+   {
+      type = ClauseTypeParse(in, 
+                             "axiom|hypothesis|definition|assumption|"
+                             "lemma|theorem|conjecture|question|negated_conjecture|"
+                             "plain|unknown");
+      AcceptInpTok(in, Comma);
+
+      tform = TFormulaTSTPParse(in, terms);
+      handle = WTFormulaAlloc(terms, tform);
+   }
 
    if(TestInpTok(in, Comma))
    {
@@ -396,9 +413,15 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
 void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
 		       bool complete)
 {
-   char *typename = "plain";
+   char *typename = "plain", *formula_kind = "fof";
    char prefix;
    long id;
+   bool is_untyped = TFormulaIsUntyped(form->tformula);
+
+   if(!is_untyped)
+   {
+      formula_kind = "tff";
+   }
 
    switch(FormulaQueryType(form))
    {
@@ -436,7 +459,7 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
       id = form->ident;
       prefix = 'c';
    }
-   fprintf(out, "fof(%c_0_%ld, %s", prefix, id, typename);
+   fprintf(out, "%s(%c_0_%ld, %s", formula_kind, prefix, id, typename);
    fprintf(out, ", (");   
 
    TFormulaTPTPPrint(out, form->terms, form->tformula,fullterms, false);
@@ -580,6 +603,31 @@ long WFormulaReturnFCodes(WFormula_p form, PStack_p f_codes)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: WFormulaOfClause
+//
+//   universally quantifies the disjunction of the literals of
+//   the clause, and return it as a fresh formula.
+//
+//   Allocate a formula.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+WFormula_p WFormulaOfClause(Clause_p clause, TB_p bank)
+{
+   TFormula_p form = NULL;
+   WFormula_p res = NULL;
+
+   form = TFormulaClauseEncode(bank, clause);
+   form = TFormulaClosure(bank, form, true);
+
+   res = WTFormulaAlloc(bank, form);
+   return res;
+}
 
 
 /*---------------------------------------------------------------------*/

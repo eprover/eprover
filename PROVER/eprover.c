@@ -183,6 +183,7 @@ ProofState_p parse_spec(CLState_p state,
       Error("Input file contains no clauses or formulas", OTHER_ERROR);
    }
    *ax_no = parsed_ax_no;
+
    return proofstate;
 }
 
@@ -1529,6 +1530,9 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_DEF_CNF:
             FormulaDefLimit     = CLStateGetIntArg(handle, arg);
+            break;
+      case OPT_PRINT_TYPES:
+            TermPrintTypes = true;
             break;
       default:
 	    assert(false && "Unknown option");

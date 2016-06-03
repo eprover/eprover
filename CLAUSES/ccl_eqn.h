@@ -285,7 +285,7 @@ bool          EqnGreater(OCB_p ocb, Eqn_p eq1, Eqn_p eq2);
 CompareResult LiteralCompare(OCB_p ocb, Eqn_p eq1, Eqn_p eq2);
 bool          LiteralGreater(OCB_p ocb, Eqn_p eq1, Eqn_p eq2);
 
-FunCode SubstNormEqn(Eqn_p eq, Subst_p subst, VarBank_p vars);
+PStackPointer SubstNormEqn(Eqn_p eq, Subst_p subst, VarBank_p vars);
 
 double  EqnWeight(Eqn_p eq, double max_multiplier, long vweight, long
 		  fweight);
@@ -418,6 +418,23 @@ static __inline__ long EqnDepth(Eqn_p eqn)
    rdepth = TermDepth(eqn->rterm);
 
    return MAX(ldepth, rdepth);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: EqnIsUntyped
+//
+//   Return true iff the equation is untyped, ie belongs to untyped logic
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+static __inline__ bool EqnIsUntyped(Eqn_p eqn)
+{
+    return TermIsUntyped(eqn->lterm) && TermIsUntyped(eqn->rterm);
 }
 
 

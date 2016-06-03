@@ -42,6 +42,7 @@ Changes
 
 
 extern bool      TermPrintLists; /* Using [...] notation */
+extern bool      TermPrintTypes;
 
 #define TermStartToken (SigSupportLists?\
                        (FuncSymbStartToken|OpenSquare|Mult):\
@@ -132,6 +133,8 @@ long    TermAddFunOcc(Term_p term, PDArray_p f_occur, PStack_p res_stack);
 long    TermLinearize(PStack_p stack, Term_p term);
 
 Term_p  TermCheckConsistency(Term_p term, DerefType deref);
+void    TermAssertSameSort(Sig_p sig, Term_p t1, Term_p t2);
+bool    TermIsUntyped(Term_p t);
 
 
 #endif

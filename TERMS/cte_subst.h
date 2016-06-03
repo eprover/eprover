@@ -54,8 +54,7 @@ PStackPointer SubstAddBinding(Subst_p subst, Term_p var, Term_p bind);
 bool          SubstBacktrackSingle(Subst_p subst);
 int           SubstBacktrackToPos(Subst_p subst, PStackPointer pos);
 int           SubstBacktrack(Subst_p subst);
-FunCode       SubstNormTerm(Term_p term, Subst_p subst, VarBank_p
-			    vars);
+PStackPointer SubstNormTerm(Term_p term, Subst_p subst, VarBank_p vars);
 
 bool          SubstBindingPrint(FILE* out, Term_p var, Sig_p sig,
 				DerefType deref);
