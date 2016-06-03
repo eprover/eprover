@@ -45,17 +45,21 @@ depend:
 # Remove all automatically generated files
 
 remove_links:
-	@cd include; touch does_exist.h; rm *.h
-	@cd lib; touch does_exist.a; rm *.a
+	@if [ -d include ]; then\
+		cd include; touch does_exist.h; rm *.h;\
+	fi;
+	@if [ -d lib ]; then\
+		cd lib;     touch does_exist.a; rm *.a;\
+	fi;
 
 clean: remove_links
 	@for subdir in $(PARTS); do\
-	   cd $$subdir; touch Makefile.dependencies;$(MAKE) clean; cd ..;\
+		cd $$subdir; touch Makefile.dependencies;$(MAKE) clean; cd ..;\
 	done;
 
 cleandist: clean
 	@touch dummy~ PROVER/dummy~
-	rm *~ */*~
+	@rm *~ */*~
 
 default_config:
 	@cat Makefile.vars| \
@@ -76,27 +80,25 @@ distrib: man documentation cleandist default_config
 	@cd ..; find $(PROJECT) -name ".git" -print >> $(PROJECT)/etc/NO_DISTRIB;\
 		$(TAR) cfX - $(PROJECT)/etc/NO_DISTRIB $(PROJECT) |$(GZIP) - -c > $(PROJECT).tgz
 
-# Include the GIT subdirecctories (and non-GPL files, of which there
-# currently are none). 
-
+# Include the GIT subdirecctories (and non-GPL files, of which there currently are none).
 fulldistrib: man documentation cleandist default_config
 	@echo "Warning: You are building a full archive!"
 	@echo "Did you remember to increase the dev version number and commit to git?"
-	cd ..; $(TAR) cf - $(PROJECT)|$(GZIP) - -c > $(PROJECT)_FULL.tgz
+	@cd ..; $(TAR) cf - $(PROJECT)|$(GZIP) - -c > $(PROJECT)_FULL.tgz
 
 # Make all library parts
-
 top: E
 
 # Create symbolic links
-
 links: remove_links
+	@mkdir -p include;
 	@cd include;\
 	for subdir in $(HEADERS); do\
 		for file in ../$$subdir/*.h; do\
 			$(LN) $$file .;\
 		done;\
 	done;
+	@mkdir -p lib;
 	@cd lib;\
 	for subdir in $(LIBS); do\
 		$(LN) ../$$subdir/$$subdir.a .;\
@@ -107,36 +109,32 @@ tags:
 	cd PYTHON; make ptags
 
 # Rebuilding from scratch
-
 rebuild:
-	echo 'Rebuilding with debug options $(DEBUGFLAGS)'	
+	echo 'Rebuilding with debug options $(DEBUGFLAGS)'
 	$(MAKE) clean
 	$(MAKE) config
-	$(MAKE) depend
 	$(MAKE)
 
 # Configure the whole package
-
-config: 
+config:
 	echo 'Configuring build system'
 	$(MAKE) links
 	$(MAKE) depend
 
 
 # Configure and copy executables to the installation directory
-
 install: top
 	-sh -c 'mkdir -p $(EXECPATH)'
 	-sh -c 'development_tools/e_install PROVER/eprover      $(EXECPATH)' 
 	-sh -c 'development_tools/e_install PROVER/epclextract  $(EXECPATH)'
 	-sh -c 'development_tools/e_install PROVER/eproof       $(EXECPATH)'
 	-sh -c 'development_tools/e_install PROVER/eproof_ram   $(EXECPATH)'
-	-sh -c 'development_tools/e_install PROVER/eground      $(EXECPATH)'	
-	-sh -c 'development_tools/e_install PROVER/e_ltb_runner $(EXECPATH)'	
+	-sh -c 'development_tools/e_install PROVER/eground      $(EXECPATH)'
+	-sh -c 'development_tools/e_install PROVER/e_ltb_runner $(EXECPATH)'
 	-sh -c 'development_tools/e_install PROVER/e_axfilter   $(EXECPATH)'
 	-sh -c 'development_tools/e_install PROVER/checkproof   $(EXECPATH)'
-	-sh -c 'development_tools/e_install PROVER/ekb_create   $(EXECPATH)'	
-	-sh -c 'development_tools/e_install PROVER/ekb_delete   $(EXECPATH)'	
+	-sh -c 'development_tools/e_install PROVER/ekb_create   $(EXECPATH)'
+	-sh -c 'development_tools/e_install PROVER/ekb_delete   $(EXECPATH)'
 	-sh -c 'development_tools/e_install PROVER/ekb_ginsert  $(EXECPATH)'
 	-sh -c 'development_tools/e_install PROVER/ekb_insert   $(EXECPATH)'
 	-sh -c 'mkdir -p $(MANPATH)'
@@ -155,7 +153,6 @@ install: top
 
 
 # Also remake documentation
-
 remake: config rebuild documentation
 
 documentation:
@@ -177,8 +174,7 @@ man: E
 	help2man -N -i DOC/bug_reporting PROVER/ekb_insert   > DOC/man/ekb_insert.1
 
 # Build the single libraries
-
 E: links
 	@for subdir in $(CODE); do\
-	   cd $$subdir;touch Makefile.dependencies;$(MAKE);cd ..;\
+		cd $$subdir; touch Makefile.dependencies; $(MAKE); cd ..;\
 	done;
