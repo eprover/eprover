@@ -227,6 +227,7 @@ void    TermVarSetProp(Term_p term, DerefType deref, TermProperties prop);
 bool    TermVarSearchProp(Term_p term, DerefType deref, TermProperties prop);
 void    TermVarDelProp(Term_p term, DerefType deref, TermProperties prop);
 
+static __inline__ Term_p  TermDerefAlways(Term_p term);
 static __inline__ Term_p  TermDeref(Term_p term, DerefType_p deref);
 
 static __inline__ Term_p* TermArgListCopy(Term_p source);
@@ -244,6 +245,29 @@ void    TermStackDelProps(PStack_p stack, TermProperties prop);
 /*                  Inline functions                                   */
 /*---------------------------------------------------------------------*/
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermDerefAlways()
+//
+//   Dereference a term as many times as possible.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static __inline__ Term_p TermDerefAlways(Term_p term)
+{
+   assert(TermIsVar(term)||!(term->binding));
+
+   while(term->binding)
+   {
+      term = term->binding;
+   }
+   return term;
+}
 
 /*-----------------------------------------------------------------------
 //
