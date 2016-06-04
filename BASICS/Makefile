@@ -44,7 +44,8 @@ BASIC_LIB = clb_error.o clb_memory.o clb_os_wrapper.o \
             clb_plist.o clb_pdarrays.o clb_pdrangearrays.o \
             clb_ddarrays.o clb_sysdate.o \
             clb_intmap.o \
-            clb_simple_stuff.o clb_partial_orderings.o
+            clb_simple_stuff.o clb_partial_orderings.o \
+            clb_plocalstacks.o
 
 $(LIB): $(BASIC_LIB)
 	$(AR) $(LIB) $(BASIC_LIB)
