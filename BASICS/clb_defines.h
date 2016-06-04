@@ -93,6 +93,10 @@ typedef int (*ComparisonFunctionType)(const void*, const void*);
 #define SWAP(type, x,y) do{type tmp =(x); (x)=(y); (y)=(tmp);}while(0)
 
 
+#define LIKELY(x) __builtin_expect(!!(x), 1)
+#define UNLIKELY(x) __builtin_expect(!!(x), 0)
+
+
 #define KILO 1024
 #define MEGA 1024*1024
 
