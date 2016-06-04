@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python
 
 import sys
 import re
@@ -37,7 +37,8 @@ class StratPerf(object):
         try:
             del self.problems[prob]
         except KeyError:
-            print "Warning: Tried to remove unknown problem "+prob+" from "+self.strat_name
+            pass
+            #print "Warning: Tried to remove unknown problem "+prob+" from "+self.strat_name
 
     def getName(self):
         return self.strat_name
@@ -136,7 +137,7 @@ class ClassPerf(object):
 
     def getBestStrat(self):
         solutions = 0
-        soln_time = 0
+        soln_time = 1
         res = None
         for i in self.strats.values():
             newsol, newtime = i.getPerf()
@@ -236,8 +237,11 @@ def parse_prot_new(filename, stratname, prob_assoc, global_class, classdata):
             prob   = compute_problem_stem(tuple[0]);
             time   = float(tuple[2])
             status = tuple[1]
-            classdata[prob_assoc[prob]].addProblem(stratname, prob, status, time)
-            global_class.addProblem(stratname, prob, status, time)
+            try:
+                classdata[prob_assoc[prob]].addProblem(stratname, prob, status, time)
+                global_class.addProblem(stratname, prob, status, time)
+            except KeyError:
+                print "Unclassified problem ", prob
     p.close()
     return desc
 
@@ -752,6 +756,7 @@ selstrat={
    "SelectMaxLComplexG"                 : "SelectMaxLComplexG", 
 
    "SelectMaxLComplexAvoidPosPred"      : "SelectMaxLComplexAvoidPosPred",
+   "SelectMaxLComplexAPPNTNp"           : "SelectMaxLComplexAPPNTNp",
    "SelectMaxLComplexAvoidPosUPred"     : "SelectMaxLComplexAvoidPosUPred",
    "SelectComplexG"                     : "SelectComplexG",
 
@@ -772,6 +777,38 @@ selstrat={
 
    "SelectNewComplexAHPNS"              : "SelectNewComplexAHPNS",
    "SelectVGNonCR"                      : "SelectVGNonCR",
+
+   "SelectCQArEqLast"                   : "SelectCQArEqLast",
+   "SelectCQArEqFirst"                  : "SelectCQArEqFirst",
+   "SelectCQIArEqLast"                  : "SelectCQIArEqLast",
+   "SelectCQIArEqFirst"                 : "SelectCQIArEqFirst",
+   "SelectCQAr"                         : "SelectCQAr",
+   "SelectCQIAr"                        : "SelectCQIAr",
+   "SelectCQArNpEqFirst"                : "SelectCQArNpEqFirst",
+   "SelectCQIArNpEqFirst"               : "SelectCQIArNpEqFirst",
+   "SelectGrCQArEqFirst"                : "SelectGrCQArEqFirst",
+   "SelectCQGrArEqFirst"                : "SelectCQGrArEqFirst",
+   "SelectCQArNTEqFirst"                : "SelectCQArNTEqFirst",
+   "SelectCQIArNTEqFirst"               : "SelectCQIArNTEqFirst",
+   "SelectCQArNTNpEqFirst"              : "SelectCQArNTNpEqFirst",
+   "SelectCQIArNTNpEqFirst"             : "SelectCQIArNTNpEqFirst",
+   "SelectCQArNXTEqFirst"               : "SelectCQArNXTEqFirst",
+   "SelectCQIArNXTEqFirst"              : "SelectCQIArNXTEqFirst",
+
+   "SelectCQArNTNp"                     :  "SelectCQArNTNp",
+   "SelectCQIArNTNp"                    :  "SelectCQIArNTNp",
+   "SelectCQArNT"                       :  "SelectCQArNT",
+   "SelectCQIArNT"                      :  "SelectCQIArNT",
+   "SelectCQArNp"                       :  "SelectCQArNp",
+   "SelectCQIArNp"                      :  "SelectCQIArNp",
+
+   "SelectCQArNpEqFirstUnlessPDom"      : "SelectCQArNpEqFirstUnlessPDom",
+   "SelectCQArNTEqFirstUnlessPDom"      : "SelectCQArNTEqFirstUnlessPDom",
+
+   "SelectCQPrecW"                      : "SelectCQPrecW",
+   "SelectCQIPrecW"                     : "SelectCQIPrecW",
+   "SelectCQPrecWNTNp"                  : "SelectCQPrecWNTNp",
+   "SelectCQIPrecWNTNp"                 : "SelectCQIPrecWNTNp"
 }
 
 
@@ -879,7 +916,7 @@ def generate_output(fp, result, stratdesc, class_dir, raw_class, opt_res,
                     the form a string of command line options).
     class_dir is the name of the directory of classes (only for
                     generating the useful comment)
-    raw_class is a boolean value sswitching to a very reduced output
+    raw_class is a boolean value switching to a very reduced output
                     not usable to control E
     opt_res associates each class name with the expected performance
                     of it.
@@ -1045,7 +1082,7 @@ for i in stratset.keys():
 
 sys.stderr.write("Parsing done, running optimizer\n")
 
-time_limits = [152, 74, 37, 18, 18]
+time_limits = [152, 74, 24, 18, 13, 9, 5, 5]
 
 itercount = 0;
 
@@ -1095,13 +1132,15 @@ for time_limit in time_limits:
         if solns == 0:        
             best = global_best
         try:
+            # print "Best: ", best
             beststrat = perf.getStrat(best)
+            # print "found: ", best
             solved = beststrat.getSuccesses(time_limit, succ_cases)
-            perf.delStrat(best)
             for prob in solved:
                 probname = prob[0]
                 perf.delProblem(probname)
                 global_class.delProblem(probname)
+            perf.delStrat(best)
         except KeyError:
             pass
     itercount += 1

@@ -43,6 +43,7 @@ typedef enum
    PCLOpInitial,
    PCLOpIntroDef,
    PCLOpQuote,
+   PCLOpEvalGC,
    PCLOpParamod,
    PCLOpSimParamod,
    PCLOpEResolution,
@@ -74,6 +75,7 @@ typedef enum
 #define PCL_OP_NOOP_WEIGHT            0
 #define PCL_OP_INITIAL_WEIGHT         1
 #define PCL_OP_QUOTE_WEIGHT           0
+#define PCL_OP_EVALGC_WEIGHT          0
 #define PCL_OP_PARAMOD_WEIGHT         1
 #define PCL_OP_SIM_PARAMOD_WEIGHT     1
 #define PCL_OP_ERESOLUTION_WEIGHT     1
@@ -109,7 +111,7 @@ typedef struct pclexprcell
 #define PCLExprArgInt(expr,i)  PDArrayElementInt((expr)->args,2*(i))
 #define PCLExprArgPos(expr,i)  PDArrayElementP((expr)->args,2*(i)+1)
 
-PCLExpr_p PCLExprAlloc();
+PCLExpr_p PCLExprAlloc(void);
 void      PCLExprFree(PCLExpr_p junk);
 
 /* MiniExprs are the same basic data type. However, MiniPCL-Ids are

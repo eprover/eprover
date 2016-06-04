@@ -1935,9 +1935,9 @@ bool ClauseParentsAreSubset(Clause_p clause1, Clause_p clause2)
    if(clause1->parent1)
    {
       if((clause1->parent1==clause2->parent1)||
-	 (clause1->parent1==clause2->parent1))
+         (clause1->parent1==clause2->parent2))
       {
-	 sub1=true;
+         sub1=true;
       }
    }
    else
@@ -1947,9 +1947,9 @@ bool ClauseParentsAreSubset(Clause_p clause1, Clause_p clause2)
    if(clause1->parent2)
    {
       if((clause1->parent2==clause2->parent1)||
-	 (clause1->parent2==clause2->parent1))
+         (clause1->parent2==clause2->parent2))
       {
-	 sub2=true;
+         sub2=true;
       }
    }
    else
@@ -1964,7 +1964,7 @@ bool ClauseParentsAreSubset(Clause_p clause1, Clause_p clause2)
 //
 // Function: ClauseDetachParents()
 //
-//   Discouple a clause from it's parents, i.e. make the parents
+//   Discouple a clause from its parents, i.e. make the parents
 //   forget the clause and vice versa.
 //
 // Global Variables: -
@@ -1980,13 +1980,13 @@ void ClauseDetachParents(Clause_p clause)
    if(clause->parent1)
    {
       result = PTreeDeleteEntry(&(clause->parent1->children), clause);
-      assert(result);
+      (void)result; assert(result);
       clause->parent1 = NULL;
    }
    if(clause->parent2)
    {
       result = PTreeDeleteEntry(&(clause->parent2->children), clause);
-      assert(result);
+      (void)result; assert(result);
       clause->parent2 = NULL;
    }   
 }
@@ -2270,7 +2270,7 @@ bool ClauseNotGreaterEqual(OCB_p ocb,
 			   Clause_p clause1, Clause_p clause2)
 {
    Eqn_p cl1lits = clause1->literals;
-   Eqn_p cl2lits = clause2->literals, cl2litseqs;
+   Eqn_p cl2lits = clause2->literals,cl2litseqs;
    bool foundeq, foundeqlater, foundgtr;
 
    EqnListDelProp(cl1lits, EPHasEquiv | EPDominates);

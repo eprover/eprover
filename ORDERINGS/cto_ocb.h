@@ -47,6 +47,9 @@ typedef enum
    AUTOSCHED2,
    AUTOSCHED3,
    AUTOSCHED4,
+   AUTOSCHED5,
+   AUTOSCHED6,
+   AUTOSCHED7,
    OPTIMIZE_AX,
    KBO,
    KBO6,
@@ -62,15 +65,17 @@ typedef enum
 typedef struct ocb_cell
 {
    TermOrdering  type;
+   int           sig_size;
    Sig_p         sig;          /* Slightly hacked...this is only an
 				   unsupervised reference (but will
-				   stay) ! */
+				   stay)! Always free the OCB before
+				   the signature and the signature
+				   independently after the OCB. */
    FunCode       min_constant;
-   int           sig_size;
    long          *weights;     /* Array of weights */
    long          var_weight;   /* Variable Weight */
    long          *prec_weights;/* Precedence defined by weight - only
-				  for total precedenced */
+				  for total precedences */
    CompareResult *precedence;  /* The most general case, interpreted
 				  as two-dimensional array, indexed by
 				  two symbols */
@@ -138,7 +143,8 @@ FunCode OCBFindMinConst(OCB_p ocb);
 
 /* Functions for Querying the OCB */
 
-static __inline__ long          OCBFunWeight(OCB_p ocb, FunCode f);
+static __inline__ long OCBFunWeight(OCB_p ocb, FunCode f);
+static __inline__ long OCBFunPrecWeight(OCB_p ocb, FunCode f);
 static __inline__ CompareResult OCBFunCompare(OCB_p ocb, FunCode f1, FunCode f2);
 
 CompareResult OCBFunCompareMatrix(OCB_p ocb, FunCode f1, FunCode f2);
@@ -170,6 +176,30 @@ static __inline__ long OCBFunWeight(OCB_p ocb, FunCode f)
       return *(OCBFunWeightPos(ocb, (f)));
    }
    return OCB_FUN_DEFAULT_WEIGHT;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: OCBFunPrecWeight()
+//
+//   If f has a weight in  ocb->prec_weights, return it. Otherwise
+//   return a unique negative ficticious weight smaller than all
+//   normal weights. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static __inline__ long OCBFunPrecWeight(OCB_p ocb, FunCode f)
+{
+   if(ocb->prec_weights && f<=ocb->sig_size)
+   {
+      return ocb->prec_weights[f];
+   }
+   return -f;
 }
 
 

@@ -267,6 +267,13 @@ static char* find_auto_sine(ProofState_p state)
    RawSpecFeaturesCompute(&features, state);
    RawSpecFeaturesClassify(&features, &limits, "aaaaaaa");
 
+   /* Hard-coded exception - no conjecture & no hypotheses == no
+      useful SInE! */
+   if(!(features.conjecture_count+features.hypothesis_count))
+   {
+      return NULL;
+   }
+
    for(i=0; raw_class[i]; i++)
    {
       if(strcmp(raw_class[i], features.class)==0)
@@ -417,7 +424,8 @@ long StructFOFSpecParseAxioms(StructFOFSpec_p ctrl, PStack_p axfiles,
    ClauseSet_p  cset;
    Scanner_p    in;
    long         res = 0;
-   IntOrP       dummy;
+   static IntOrP dummy = {0};
+
 
    for(i=0; i<PStackGetSP(axfiles); i++)
    {

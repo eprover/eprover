@@ -50,6 +50,7 @@ typedef enum
    WPTypeNegConjecture = CPTypeNegConjecture, /* Formula is
                                                * NegConjecture */
    WPTypeQuestion   = CPTypeQuestion,
+   WPIsProofClause  = CPIsProofClause,
    WPIsRelevant     = CPIsRelevant
 }WFormulaProperties;
 
@@ -101,7 +102,7 @@ extern long FormulaDefLimit;
 #define WFormulaCellAlloc()    (WFormulaCell*)SizeMalloc(sizeof(WFormulaCell))
 #define WFormulaCellFree(junk) SizeFree(junk, sizeof(WFormulaCell))
 
-WFormula_p DefaultWFormulaAlloc();
+WFormula_p DefaultWFormulaAlloc(void);
 WFormula_p WTFormulaAlloc(TB_p terms, TFormula_p formula);
 void       WFormulaFree(WFormula_p form);
 WFormula_p WFormulaFlatCopy(WFormula_p form);

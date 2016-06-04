@@ -63,15 +63,6 @@ char* EmptyString = "";
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
 
-/* Handle various versions of sysconf() pagesize (usually from
- * unistd.h) */
-
-#ifdef _SC_PAGESIZE
-#define E_SC_PAGE_SIZE _SC_PAGESIZE
-#elif defined(_SC_PAGE_SIZE)
-#define E_SC_PAGE_SIZE _SC_PAGE_SIZE
-#endif
-
 /*-----------------------------------------------------------------------
 //
 // Function: GetSystemPageSize()
@@ -89,16 +80,14 @@ long GetSystemPageSize(void)
 {
    long res = -1;
 
-#ifdef E_SC_PAGE_SIZE
    errno = 0;
-   res = sysconf(E_SC_PAGE_SIZE);
+   res = sysconf(_SC_PAGESIZE);
    if(errno)
    {
       assert(res==-1);
       Warning("sysconf() call to get page size failed!\n");
       res = -1;
    }
-#endif
    return res;
 }
 
@@ -122,19 +111,15 @@ long GetSystemPhysMemory(void)
 {
    long res = -1;
 
-#if defined(E_SC_PAGE_SIZE) && defined(_SC_PHYS_PAGES)
-   {
-      long long tmpres = 0, pages, pagesize;
+   long long tmpres = 0, pages, pagesize;
 
-      pagesize = GetSystemPageSize();
-      pages = sysconf(_SC_PHYS_PAGES);
-      if((pagesize !=-1) && (pages != -1))
-      {
-         tmpres = pagesize * pages;
-         res = tmpres / MEGA;
-      }
+   pagesize = GetSystemPageSize();
+   pages = sysconf(_SC_PHYS_PAGES);
+   if((pagesize !=-1) && (pages != -1))
+   {
+      tmpres = pagesize * pages;
+      res = tmpres / MEGA;
    }
-#endif
    if(res==-1)
    {
       FILE* pipe;
@@ -215,7 +200,8 @@ void InitError(char* progname)
 //
 /----------------------------------------------------------------------*/
 
-VOLATILE void Error(char* message, ErrorCodes ret, ...)
+__attribute__((noreturn))
+void Error(char* message, ErrorCodes ret, ...)
 {
    va_list ap;
    va_start(ap, ret);
@@ -223,6 +209,8 @@ VOLATILE void Error(char* message, ErrorCodes ret, ...)
    fprintf(stderr, "%s: ", ProgName);
    vfprintf(stderr, message, ap);
    fprintf(stderr, "\n");
+   va_end(ap);
+
    exit(ret);
 }
 
@@ -241,7 +229,8 @@ VOLATILE void Error(char* message, ErrorCodes ret, ...)
 //
 /----------------------------------------------------------------------*/
 
-VOLATILE void SysError(char* message, ErrorCodes ret, ...)
+__attribute__((noreturn))
+void SysError(char* message, ErrorCodes ret, ...)
 {
    va_list ap;
    va_start(ap, ret);
@@ -251,6 +240,8 @@ VOLATILE void SysError(char* message, ErrorCodes ret, ...)
    fprintf(stderr, "\n");
    errno = TmpErrno;
    perror(ProgName);
+   va_end(ap);
+
    exit(ret);
 }
 
@@ -275,6 +266,8 @@ void Warning(char* message, ...)
    fprintf(stderr, "%s: Warning: ", ProgName);
    vfprintf(stderr, message, ap);
    fprintf(stderr, "\n");
+
+   va_end(ap);
 }
 
 
@@ -302,6 +295,8 @@ void SysWarning(char* message, ...)
    fprintf(stderr, "\n");
    errno = TmpErrno;
    perror(ProgName);
+
+   va_end(ap);
 }
 
 

@@ -29,9 +29,8 @@ depend: *.c
 # Remove all automatically generated files
 
 clean:
-	@touch does_exist.o $(PROJECT)
-	@rm *.o $(PROJECT)
-	@echo Removed compiled files
+	@touch does_exist.o does_exist.dSYM $(PROJECT)
+	@rm -r *.o $(PROJECT) *.dSYM
 
 # Services (provided by the master Makefile)
 
@@ -192,7 +191,4 @@ tsm_classify: $(TSM_CLASSIFY)
 
 
 include Makefile.dependencies
-
-
-
 

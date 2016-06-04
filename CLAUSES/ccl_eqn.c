@@ -715,8 +715,8 @@ Eqn_p EqnTBTermDecode(TB_p terms, Term_p eqn)
 
 Term_p EqnTBTermParse(Scanner_p in, TB_p bank)
 {
-   Term_p  lterm;
-   Term_p  rterm;
+   Term_p  lterm = NULL;
+   Term_p  rterm = NULL;
    bool    positive;
 
    positive = eqn_parse_real(in, bank, &lterm, &rterm, false);
@@ -748,7 +748,7 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
    bool positive = XOR(EqnIsPositive(eq), negated);
 
    /* TermPrintAllCPos(out, eq->bank, eq->lterm);*/
-#ifdef MARK_MAX_EQNS
+#ifdef MARK_MAX_EQNS 
    if(EqnIsMaximal(eq))
    {
       fprintf(out, "{");
@@ -2552,7 +2552,7 @@ double  LiteralNonLinearWeight(Eqn_p eq, double max_term_multiplier,
    res = count_eq_encoding?
       EqnNonLinearWeight(eq, max_term_multiplier, vlweight, vweight,
 			 fweight): 
-      EqnCorrectedNonLinearWeight(eq, max_term_multiplier, vweight,
+      EqnCorrectedNonLinearWeight(eq, max_term_multiplier, vlweight,
 				  vweight, fweight); 
    
    

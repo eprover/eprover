@@ -74,6 +74,7 @@ int create_server_sock_nofail(int port)
    addr.sin_family = AF_INET;
    addr.sin_port = htons(port);
    addr.sin_addr.s_addr = INADDR_ANY;
+   memset(&addr.sin_zero, 0, sizeof(addr.sin_zero));
 
    res = bind(sock, (struct sockaddr *)&addr, sizeof(addr));
 
@@ -156,7 +157,7 @@ int create_client_sock_nofail(char* host, int port)
 //
 /----------------------------------------------------------------------*/
 
-TCPMsg_p  TCPMsgAlloc()
+TCPMsg_p  TCPMsgAlloc(void)
 {
    TCPMsg_p res = TCPMsgCellAlloc();
 
@@ -296,7 +297,7 @@ MsgStatus TCPMsgRead(int sock, TCPMsg_p msg)
    int      res;
 
    /* Handle header */
-   if(msg->transmission_count < sizeof(uint32_t))
+   if(msg->transmission_count < (int)sizeof(uint32_t))
    {
       res = read(sock, 
                  msg->len_buf+msg->transmission_count, 
@@ -311,7 +312,7 @@ MsgStatus TCPMsgRead(int sock, TCPMsg_p msg)
          return NWConnClosed;
       }
       msg->transmission_count += res;
-      if(msg->transmission_count < sizeof(uint32_t))
+      if(msg->transmission_count < (int)sizeof(uint32_t))
       {
          return 0;
       }

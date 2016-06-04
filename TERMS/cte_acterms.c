@@ -91,7 +91,7 @@ static void ac_collect_args(PTree_p* root, Sig_p sig, FunCode f,
       ACTerm_p tmp = ACTermNormalize(sig, term);
 
       res = PTreeObjStore(root, tmp, acterm_uniq_compare);
-      assert(!res);
+      (void)res; assert(!res);
    }
    else
    {

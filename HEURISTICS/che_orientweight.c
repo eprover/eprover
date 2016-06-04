@@ -237,7 +237,7 @@ double OrientLMaxWeightCompute(void* data, Clause_p clause)
    ClauseCondMarkMaximalTerms(local->ocb, clause);
    for(handle = clause->literals; handle; handle = handle->next)
    {
-      tmp = EqnMaxWeight(handle, local->fweight, local->vweight);
+      tmp = EqnMaxWeight(handle, local->vweight, local->fweight);
       if(EqnIsPositive(handle))
       {
 	 tmp = tmp*local->pos_multiplier;

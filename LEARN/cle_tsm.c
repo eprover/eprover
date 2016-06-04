@@ -94,7 +94,7 @@ static double dist_combi_entropy(PDArray_p distribution, long
       if(cache[i])
       {
 	 relfreq = (double)cache[i]/(double)sum;
-	 res -= relfreq*Log2(relfreq);
+	 res -= relfreq*log2(relfreq);
       }
    }      
    SizeFree(cache, 2*(maxindex+1)*sizeof(long));
@@ -140,7 +140,7 @@ static double distribution_entropy(PDArray_p distribution, long
       if(cache[i])
       {
 	 relfreq = (double)cache[i]/(double)sum;
-	 res -= relfreq*Log2(relfreq);
+	 res -= relfreq*log2(relfreq);
       }
    }      
    SizeFree(cache, (maxindex+1)*sizeof(long));
@@ -328,9 +328,9 @@ static double compute_list_entropy(FlatAnnoTerm_p list, long *count,
    else
    {     
       freq = (double)pos/(double)(pos + neg);
-      res = freq*-Log2(freq);
+      res = freq*-log2(freq);
       freq = (double)neg/(double)(pos + neg);
-      res -= freq*Log2(freq);      
+      res -= freq*log2(freq);
    }
    return res;   
 }
@@ -588,9 +588,9 @@ double TSMFlatAnnoSetEntropy(FlatAnnoSet_p set, double limit)
    else
    {     
       freq = (double)pos/(double)(pos + neg);
-      res = freq*-Log2(freq);
+      res = freq*-log2(freq);
       freq = (double)neg/(double)(pos + neg);
-      res += freq*-Log2(freq);      
+      res += freq*-log2(freq);
    }
    return res;   
 }

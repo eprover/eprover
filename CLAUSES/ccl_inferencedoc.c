@@ -227,7 +227,7 @@ static void print_paramod(FILE* out, Clause_p clause, Clause_p
    case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
-		 ",inference(%s,[status(thm)],[c_0_%ld,c_0_%ld,theory(equality)])",
+		 ",inference(%s,[status(thm)],[c_0_%ld,c_0_%ld])",
                  inf,
 		 parent1->ident,
 		 parent2->ident);
@@ -265,7 +265,7 @@ static void print_eres(FILE* out, Clause_p clause, Clause_p
    case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
-		 ",inference("PCL_ER",[status(thm)],[c_0_%ld,theory(equality)])",
+		 ",inference("PCL_ER",[status(thm)],[c_0_%ld])",
 		 parent1->ident);
 	 tstp_print_end(out, comment, clause);
 	 break;
@@ -301,7 +301,7 @@ static void print_des_eres(FILE* out, Clause_p clause, long old_id,
    case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
-		 ",inference("PCL_ER",[status(thm)],[c_0_%ld,theory(equality)])",
+		 ",inference("PCL_ER",[status(thm)],[c_0_%ld])",
 		 old_id);
 	 tstp_print_end(out, comment, clause);
 	 break;
@@ -337,7 +337,7 @@ static void print_efactor(FILE* out, Clause_p clause, Clause_p
    case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
-		 ",inference("PCL_EF",[status(thm)],[c_0_%ld,theory(equality)])",
+		 ",inference("PCL_EF",[status(thm)],[c_0_%ld])",
 		 parent1->ident);
 	 tstp_print_end(out, comment, clause);
 	 break;
@@ -374,7 +374,7 @@ static void print_factor(FILE* out, Clause_p clause, Clause_p
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
 		 ",inference("PCL_OF
-                 ",[status(thm)],[c_0_%ld,theory(equality,[symmetry])])",
+                 ",[status(thm)],[c_0_%ld])",
 		 parent1->ident);
 	 tstp_print_end(out, comment, clause);
 	 break;
@@ -450,7 +450,7 @@ static void print_simplify_reflect(FILE* out, Clause_p clause, long
   case tstp_format:
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
-		 ",inference("PCL_SR",[status(thm)],[c_0_%ld,c_0_%ld,theory(equality)])",
+		 ",inference("PCL_SR",[status(thm)],[c_0_%ld,c_0_%ld])",
 		 old_id,
 		 partner->ident);
 	 tstp_print_end(out, comment, clause);
@@ -488,7 +488,7 @@ static void print_context_simplify_reflect(FILE* out, Clause_p clause, long
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
 		 ",inference("PCL_CSR
-                 ",[status(thm)],[c_0_%ld,c_0_%ld,theory(equality,[symmetry])])",
+                 ",[status(thm)],[c_0_%ld,c_0_%ld])",
 		 old_id,
 		 partner->ident);
 	 tstp_print_end(out, comment, clause);
@@ -537,7 +537,7 @@ static void print_ac_res(FILE* out, Clause_p clause, long
 	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
 	 fprintf(out, 
 		 ",inference("PCL_ACRES
-                 ",[status(thm)],[c_0_%ld,theory(equality)", old_id);
+                 ",[status(thm)],[c_0_%ld", old_id);
 	 assert(!PStackEmpty(sig->ac_axioms));
 	 sp = PStackGetSP(sig->ac_axioms);
 	 for(i=0; i< sp; i++)
@@ -582,7 +582,7 @@ static void print_minimize(FILE* out, Clause_p clause, long
          ClauseTSTPPrint(out, clause, PCLFullTerms, false);
          fprintf(out, 
                  ",inference("PCL_CN
-                 ",[status(thm)],[c_0_%ld, theory(equality,[symmetry])])", 
+                 ",[status(thm)],[c_0_%ld])", 
                  old_id);
          tstp_print_end(out, comment, clause);
          break;
@@ -619,7 +619,7 @@ static void print_condense(FILE* out, Clause_p clause, long
          ClauseTSTPPrint(out, clause, PCLFullTerms, false);
          fprintf(out, 
                  ",inference("PCL_CONDENSE
-                 ",[status(thm)],[c_0_%ld, theory(equality,[symmetry])])", 
+                 ",[status(thm)],[c_0_%ld])", 
                  old_id);
          tstp_print_end(out, comment, clause);
          break;
@@ -695,7 +695,7 @@ static void print_rewrite(FILE* out, ClausePos_p rewritten, long
    {
    case pcl_format:
 	 tmp = TermComputeRWSequence(rwsteps, old_term, nf, 0);
-	 assert(tmp);
+	 (void)tmp; assert(tmp);
 	 pcl_print_start(out, rewritten->clause, PCLShellLevel<1);
 	 for(i=0; i<PStackGetSP(rwsteps); i++)
 	 {
@@ -711,7 +711,7 @@ static void print_rewrite(FILE* out, ClausePos_p rewritten, long
 	 break;
    case tstp_format:
 	 tmp = TermComputeRWSequence(rwsteps, old_term, nf, 0);
-	 assert(tmp);
+	 (void)tmp; assert(tmp);
 	 ClauseTSTPPrint(out, rewritten->clause, PCLFullTerms, false);
 	 fputc(',', out);
 	 for(i=0; i<PStackGetSP(rwsteps); i++)
@@ -722,7 +722,7 @@ static void print_rewrite(FILE* out, ClausePos_p rewritten, long
 	 for(i=0; i<PStackGetSP(rwsteps); i++)
 	 {
             demod = PStackElementP(rwsteps,i);
-	    fprintf(out, ",c_0_%ld,theory(equality)])", 
+	    fprintf(out, ",c_0_%ld])", 
 		    demod->ident);
 	 }
 	 tstp_print_end(out, comment, rewritten->clause);
@@ -778,7 +778,7 @@ static void print_eq_unfold(FILE* out, Clause_p rewritten,
 	 fprintf(out, "c_0_%ld", old_id);
 	 for(i=0; i<PStackGetSP(demod_pos); i++)
 	 {
-	    fprintf(out, ",c_0_%ld,theory(equality)])", 
+	    fprintf(out, ",c_0_%ld])", 
 		    demod->clause->ident);
 	 }
 	 tstp_print_end(out, "Unfolding", rewritten);
@@ -1803,7 +1803,6 @@ void DocIntroSplitDefRest(FILE* out, long level, Clause_p clause,
             fprintf(out, ",inference("PCL_SE", [status(thm)],[c_0_%ld])", 
                     parent->ident);
             tstp_print_end(out, NULL, clause);
-	 break;
             break;
       default:
             fprintf(out, "# Output format not implemented.\n");

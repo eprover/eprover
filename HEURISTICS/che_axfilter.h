@@ -94,11 +94,11 @@ extern char* AxFilterDefaultSet;
 #define AxFilterCellAlloc()    (AxFilterCell*)SizeMalloc(sizeof(AxFilterCell))
 #define AxFilterCellFree(junk) SizeFree(junk, sizeof(AxFilterCell))
 
-AxFilter_p AxFilterAlloc();
+AxFilter_p AxFilterAlloc(void);
 void       AxFilterFree(AxFilter_p junk);
 AxFilter_p AxFilterParse(Scanner_p in);
 AxFilter_p AxFilterDefParse(Scanner_p in);
-bool       AxFilterPrintBuf(char* buf, size_t buflen, AxFilter_p filter);
+bool       AxFilterPrintBuf(char* buf, int buflen, AxFilter_p filter);
 void       AxFilterPrint(FILE* out, AxFilter_p filter);
 void       AxFilterDefPrint(FILE* out, AxFilter_p filter);
 
@@ -106,7 +106,7 @@ void       AxFilterDefPrint(FILE* out, AxFilter_p filter);
 #define AxFilterSetCellAlloc()    (AxFilterSetCell*)SizeMalloc(sizeof(AxFilterSetCell))
 #define AxFilterSetCellFree(junk) SizeFree(junk, sizeof(AxFilterSetCell))
 
-AxFilterSet_p AxFilterSetAlloc();
+AxFilterSet_p AxFilterSetAlloc(void);
 void          AxFilterSetFree(AxFilterSet_p junk);
 long          AxFilterSetParse(Scanner_p in, AxFilterSet_p set);
 AxFilterSet_p AxFilterSetCreateInternal(char* str);

@@ -29,12 +29,15 @@ Changes
 
 ScheduleCell StratSchedule[] =
 {
-   {"AutoSched4", AUTOSCHED4, "Auto", 0.0625 , 0},
-   {"AutoSched3", AUTOSCHED3, "Auto", 0.0625 , 0},
-   {"AutoSched2", AUTOSCHED2, "Auto", 0.125,   0},
-   {"AutoSched1", AUTOSCHED1, "Auto", 0.25 ,   0},
-   {"AutoSched0", AUTOSCHED0, "Auto", 0.5  ,   0},
-   {NULL        , NoOrdering, NULL  , 0.0  ,   0}
+   {"AutoSched0", AUTOSCHED0, "Auto", 0.5066, 0},
+   {"AutoSched1", AUTOSCHED1, "Auto", 0.2466, 0},
+   {"AutoSched2", AUTOSCHED2, "Auto", 0.08  , 0},
+   {"AutoSched3", AUTOSCHED3, "Auto", 0.06  , 0},
+   {"AutoSched4", AUTOSCHED4, "Auto", 0.0433, 0},
+   {"AutoSched5", AUTOSCHED5, "Auto", 0.03  , 0},
+   {"AutoSched6", AUTOSCHED6, "Auto", 0.0166, 0},
+   {"AutoSched7", AUTOSCHED7, "Auto", 0.0166, 0},
+   {NULL        , NoOrdering, NULL  , 0.0   , 0}
 };
 
 
@@ -70,17 +73,20 @@ void ScheduleTimesInit(ScheduleCell sched[], double time_used)
    int i;
    rlim_t sum = 0, tmp, limit;
    
+   limit = 0;
    if(ScheduleTimeLimit)
    {
-      limit = ScheduleTimeLimit-time_used;
+      if(ScheduleTimeLimit>time_used)
+      {
+         limit = ScheduleTimeLimit-time_used;
+      }
    }
-   else
+   else 
    {
-      limit = DEFAULT_SCHED_TIME_LIMIT-time_used;
-   }
-   if(limit<0)
-   {
-      limit = 0;
+      if(DEFAULT_SCHED_TIME_LIMIT > time_used)
+      {
+         limit = DEFAULT_SCHED_TIME_LIMIT-time_used;
+      }
    }
 
    for(i=0; sched[i+1].heu_name; i++)
@@ -118,7 +124,7 @@ pid_t ExecuteSchedule(ScheduleCell strats[],
                       HeuristicParms_p  h_parms, 
                       bool print_rusage)
 {
-   int raw_status, status, i;
+   int raw_status, status = OTHER_ERROR, i;
    pid_t pid       = 0, respid;   
    double run_time = GetTotalCPUTime();
 
@@ -136,15 +142,16 @@ pid_t ExecuteSchedule(ScheduleCell strats[],
       if(pid == 0)
       {
          /* Child */
+         SilentTimeOut = true;
          if(strats[i].time_absolute!=RLIM_INFINITY)
          {
             SetSoftRlimit(RLIMIT_CPU, strats[i].time_absolute);
          }
-         SilentTimeOut = true;
-         break;
+         return pid;
       }
       else
       {
+         /* Parent */
          respid = -1;
          while(respid == -1)
          {
@@ -159,7 +166,7 @@ pid_t ExecuteSchedule(ScheduleCell strats[],
                {
                   PrintRusage(GlobalOut);
                }
-                  exit(status);
+               exit(status);
             }
             else
             {
@@ -174,13 +181,62 @@ pid_t ExecuteSchedule(ScheduleCell strats[],
          }
       }
    }
-   if(pid)
-   {      
-      if(strats[i].time_absolute!=RLIM_INFINITY)
-      {
-         SetSoftRlimit(RLIMIT_CPU, strats[i].time_absolute);
-      }      
+   if(print_rusage)
+   {
+      PrintRusage(GlobalOut);
    }
+   /* The following is ugly: Because the individual strategies can
+      fail, but the whole schedule can succeed, we cannot let the
+      strategies report failure to dtandard out (that might confuse
+      badly-written meta-tools (and there are such ;-)). Hence, the
+      TSPT status in the failure case is suppressed and needs to be
+      added here. This is ony partially possible - we take the exit
+      status of the last strategy of the schedule. */
+   switch(status)
+   {
+   case PROOF_FOUND:
+   case SATISFIABLE:
+         /* Nothing to do, success reported by the child */
+         break;
+   case OUT_OF_MEMORY:
+	 TSTPOUT(stdout, "ResourceOut");
+         break;
+   case SYNTAX_ERROR:
+         /* Should never be possible here */
+         TSTPOUT(stdout, "SyntaxError");
+         break;
+   case USAGE_ERROR:
+         /* Should never be possible here */
+         TSTPOUT(stdout, "UsageError");
+         break;
+   case FILE_ERROR:
+         /* Should never be possible here */
+         TSTPOUT(stdout, "OSError");
+         break;                  
+   case SYS_ERROR:
+         TSTPOUT(stdout, "OSError");
+         break;
+   case CPU_LIMIT_ERROR:
+         WriteStr(GlobalOutFD, "\n# Failure: Resource limit exceeded (time)\n");
+         TSTPOUTFD(GlobalOutFD, "ResourceOut");
+         Error("CPU time limit exceeded, terminating", CPU_LIMIT_ERROR);
+         break;
+   case RESOURCE_OUT:
+	 TSTPOUT(stdout, "ResourceOut");
+         break;
+   case INCOMPLETE_PROOFSTATE:
+         TSTPOUT(GlobalOut, "GaveUp");
+         break;
+   case OTHER_ERROR:
+         TSTPOUT(stdout, "Error");
+         break;
+   case INPUT_SEMANTIC_ERROR:
+         TSTPOUT(stdout, "SemanticError");
+         break;
+   default:
+         break;
+   }
+   exit(status);
    return pid;
 }
 

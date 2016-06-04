@@ -371,11 +371,11 @@ FunCode TermSigInsert(Sig_p sig, const char* name, int arity, bool
    case FSIdentInt:
          SigSetFuncProp(sig, res, FPIsInteger);
          break;
-   case FSIdentRational:
-         SigSetFuncProp(sig, res, FPIsRational);
-         break;
    case FSIdentFloat:
          SigSetFuncProp(sig, res, FPIsFloat);
+         break;
+   case FSIdentRational:
+         SigSetFuncProp(sig, res, FPIsRational);
          break;
    case FSIdentObject:
          SigSetFuncProp(sig, res, FPIsObject);
@@ -1375,13 +1375,12 @@ bool TermHasFCode(Term_p term, FunCode f)
    return false;
 }
 
-
 /*-----------------------------------------------------------------------
 //
-// Function: TermHasVariables()
+// Function: TermHasUnboundVariables()
 //
-//   Return true if the term contains (unbound) variables, false
-//   otherwise. Does not follow bindings! 
+//   Return if the term contains unbound variables.
+//   Does not follow bindings.
 //
 // Global Variables: -
 //
@@ -1389,31 +1388,67 @@ bool TermHasFCode(Term_p term, FunCode f)
 //
 /----------------------------------------------------------------------*/
 
-bool TermHasVariables(Term_p term, bool unbound_only)
+bool TermHasUnboundVariables(Term_p term)
 {
    PStack_p stack = PStackAlloc();
-   bool     res = false;
-   int      i;
 
    PStackPushP(stack,term);
-
-   while(!PStackEmpty(stack) && !res)
+   while(!PStackEmpty(stack))
    {
       term = PStackPopP(stack);
       if(TermIsVar(term))
       {
-	 res = unbound_only ? (!term->binding):true;
+         if(!term->binding)
+         {
+            PStackFree(stack);
+            return true;
+         }
       }
       else
       {
-	 for(i=0; i<term->arity; i++)
-	 {
-	    PStackPushP(stack,term->args[i]);
-	 }
+         for(int i=0; i<term->arity; i++)
+         {
+            PStackPushP(stack,term->args[i]);
+         }
       }
    }
    PStackFree(stack);
-   return res;
+   return false;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermIsGround()
+//
+//   Return if the term contains no variables.
+//   Does not follow bindings.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool TermIsGround(Term_p term)
+{
+   PStack_p stack = PStackAlloc();
+
+   PStackPushP(stack,term);
+   while(!PStackEmpty(stack))
+   {
+      term = PStackPopP(stack);
+      if(TermIsVar(term))
+      {
+         PStackFree(stack);
+         return false;
+      }
+      for(int i=0; i<term->arity; i++)
+      {
+         PStackPushP(stack,term->args[i]);
+      }
+   }
+   PStackFree(stack);
+   return true;
 }
 
 /*-----------------------------------------------------------------------
@@ -1773,8 +1808,9 @@ long TermCollectPropVariables(Term_p term, PTree_p *tree,
 //
 // Function: TermAddFunOcc()
 //
-//   Insert all variables with properties prop in term into
-//   tree. Return number of new variables. 
+//  Add all new occurences of function symbol to res_stack and mark
+//  them as no-longer-new in f_occur. Return number of new function
+//  symbols added.
 //
 // Global Variables: -
 //

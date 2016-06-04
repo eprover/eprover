@@ -70,7 +70,7 @@ typedef struct tcp_msg_cell
 
 #define TCP_MSG_COMPLETE(msg) ((msg)->len == (msg)->transmission_count)
 
-TCPMsg_p  TCPMsgAlloc();
+TCPMsg_p  TCPMsgAlloc(void);
 void   TCPMsgFree(TCPMsg_p junk);
 
 

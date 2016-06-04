@@ -80,9 +80,9 @@ typedef enum
 typedef struct eqncell
 {
    EqnProperties  properties;/* Positive, maximal, equational */      
+   int            pos;
    Term_p         lterm;
    Term_p         rterm;
-   int            pos;
    TB_p           bank;      /* Terms are from this bank */
    struct eqncell *next;     /* For lists of equations */
 }EqnCell, *Eqn_p, **EqnRef;
@@ -155,7 +155,7 @@ void    EqnFree(Eqn_p junk);
 #define EqnIsEquLit(eq)   EqnQueryProp((eq), EPIsEquLiteral)
 #define EqnIsMaximal(eq)  EqnQueryProp((eq), EPIsMaximal)
 #define EqnIsStrictlyMaximal(eq)\
-                          EqnQueryProp((eq), EPIsStrictlyMax)
+                          EqnQueryProp((eq), EPIsStrictlyMaximal)
 
 #define EqnGetPredCode(eq) (EqnIsEquLit(eq)?0:(eq)->lterm->f_code)
 #define EqnIsSplitLit(eq) \

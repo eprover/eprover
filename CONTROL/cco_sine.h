@@ -63,10 +63,6 @@ typedef struct strtuctured_FOF_spec_cell
 StructFOFSpec_p StructFOFSpecAlloc(void);
 void           StructFOFSpecFree(StructFOFSpec_p ctrl);
 
-
-StructFOFSpec_p StructFOFSpecAlloc(void);
-
-
 long           StructFOFSpecParseAxioms(StructFOFSpec_p ctrl, 
                                        PStack_p axfiles, 
                                        IOFormat parse_format);

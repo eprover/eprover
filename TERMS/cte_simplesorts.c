@@ -54,19 +54,19 @@ void default_sort_table_init(SortTable_p table)
    SortType res;
 
    res = SortTableInsert(table, "$no_type");
-   assert(res == STNoSort);
+   (void)res; assert(res == STNoSort);
    res = SortTableInsert(table, "$o");
-   assert(res == STBool);
+   (void)res; assert(res == STBool);
    res = SortTableInsert(table, "$i");
-   assert(res == STIndividuals);
+   (void)res; assert(res == STIndividuals);
    res = SortTableInsert(table, "$tType");
-   assert(res == STKind);
+   (void)res; assert(res == STKind);
    res = SortTableInsert(table, "$int");
-   assert(res == STInteger);
+   (void)res; assert(res == STInteger);
    res = SortTableInsert(table, "$rat");
-   assert(res == STRational);
+   (void)res; assert(res == STRational);
    res = SortTableInsert(table, "$real");   
-   assert(res == STReal);
+   (void)res; assert(res == STReal);
 }
 
 

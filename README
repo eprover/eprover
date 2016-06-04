@@ -25,11 +25,26 @@ Simplest installation (in-place):
 > eprover -h | more
 
 This will only allow you to run the eproof and eproof_ram scripts in
-place (most other programs, including eprover, are stand-alone
-binaries and should run from everywhere).
+place. Most other programs, including eprover, are stand-alone
+binaries and should run from everywhere. The eproof scripts are now
+semi-obsolete, since E 1.9 can generate proof objects internally.
 
 Read the rest of this file and the fine (if incomplete) manual if
-anything fails. There should be a copy in DOC/eprover.pdf.
+anything fails. There should be a copy of the manual in
+DOC/eprover.pdf.
+
+The recommended command for running E on a "modern" TPTP-3 file is
+
+  eprover --auto --tptp3-in --proof-object problem.p
+
+If you want to try the usually stronger strategy scheduling mode, use
+
+  eprover --auto-schedule --tptp3-in --proof-object problem.p
+
+You can add a time limit of 300 seconds with the option
+--cpu-limit=300 and a memory limit of 2 GB with --memory-limit=2048
+for all "automatic" modes. You can reduce output with -s (or
+--silent). 
 
 
 
@@ -37,16 +52,16 @@ anything fails. There should be a copy in DOC/eprover.pdf.
              ===============================
 
 
-This is the README file for version 1.8 "Gopaldhara" of the E
-equational theorem prover. This version of E is free software, see the
-file COPYING for details about the license and the fact that THERE IS
-NO WARRANTY!
+This is the README file for version 1.9 "Sourenee" of the E equational
+theorem prover. This version of E is free software, see the file
+COPYING for details about the license and the fact that THERE IS NO
+WARRANTY!
 
-Release 1.8 contains a number of significant improvements. In
-particular, it now supports the internal generation of proof objects,
-with little overhead in time and space. Search behaviour was improved
-with changes to the automatic mode. Finally, the prover implements a
-simpler version of strategy-scheduling as an experimental feature.
+Release 1.9 contains mostly minor improvements. In particular, proof
+objects are slightly more compacat and more universally available
+Search behaviour was improved with changes to the automatic
+mode, and strategy-scheduling has moved from experimental to
+(hopefully) stable.
 
 
 What is E?
@@ -132,7 +147,7 @@ compiler installed, you may need to edit Makefile.vars manually to
 select tools and options. If you have any problems, look into
 E/DOC/PORTING.
 
-If yu get into trouble,
+If you get into trouble,
 
    make rebuild
 

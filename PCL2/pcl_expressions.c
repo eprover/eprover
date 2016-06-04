@@ -57,7 +57,7 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-PCLExpr_p PCLExprAlloc()
+PCLExpr_p PCLExprAlloc(void)
 {
    PCLExpr_p handle = PCLExprCellAlloc();
    
@@ -228,12 +228,18 @@ PCLExpr_p PCLExprParse(Scanner_p in, bool mini)
    }
    else
    {
-      CheckInpId(in, PCL_ER"|"PCL_PM"|"PCL_SPM"|"PCL_EF"|"PCL_CONDENSE"|"PCL_RW"|"
-		 PCL_SR"|"PCL_CSR"|"PCL_ACRES"|"PCL_CN"|"PCL_SPLIT"|"
-                 PCL_SC"|"PCL_SE"|"PCL_FS"|"PCL_NNF"|"PCL_ID"|"PCL_AD"|"PCL_SQ"|"PCL_VR"|"
+      CheckInpId(in, PCL_EVALGC"|"PCL_ER"|"PCL_PM"|"PCL_SPM"|"PCL_EF"|"
+                 PCL_CONDENSE"|"PCL_RW"|"PCL_SR"|"PCL_CSR"|"PCL_ACRES"|"
+                 PCL_CN"|"PCL_SPLIT"|"PCL_SC"|"PCL_SE"|"PCL_FS"|"
+                 PCL_NNF"|"PCL_ID"|"PCL_AD"|"PCL_SQ"|"PCL_VR"|"
                  PCL_SK"|"PCL_DSTR"|"PCL_ANNOQ"|"PCL_EVANS"|"PCL_NC  );
 
-      if(TestInpId(in, PCL_ER))
+      if(TestInpId(in, PCL_EVALGC))
+      {
+	 handle->op=PCLOpEvalGC;
+	 arg_no=1;
+      }
+      else if(TestInpId(in, PCL_ER))
       {
 	 handle->op=PCLOpEResolution;
 	 arg_no=1;
@@ -464,6 +470,10 @@ void PCLExprPrint(FILE* out, PCLExpr_p expr, bool mini)
          fprintf(out, PCL_ER);
          assert(expr->arg_no==1);
          break;
+   case PCLOpEvalGC:
+         fprintf(out, PCL_EVALGC);
+         assert(expr->arg_no==1);
+         break;
    case PCLOpEFactoring:
          fprintf(out, PCL_EF);
          assert(expr->arg_no==1);
@@ -585,7 +595,6 @@ void PCLExprPrint(FILE* out, PCLExpr_p expr, bool mini)
 void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
 {
    long i;
-   bool needs_equality = true;
    bool needs_ans = false;
    char *status = ",[status(unknown)]", 
       *status_thm = ",[status(thm)]", 
@@ -609,7 +618,6 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
             fprintf(out, "unknown()");
          }
          return;
-         break;
    case PCLOpQuote:
          assert(expr->arg_no==1);
          if(mini)
@@ -625,7 +633,6 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
    case PCLOpIntroDef:
          fprintf(out, PCL_ID"(definition)");         
          return;
-         break;
    default:
          break;
    }
@@ -642,6 +649,11 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
 	 fprintf(out, PCL_SPM);
 	 status = status_thm;
 	 assert(expr->arg_no==2);
+	 break;
+   case PCLOpEvalGC:
+	 fprintf(out, PCL_EVALGC);
+	 status = status_thm;
+	 assert(expr->arg_no==1);
 	 break;
    case PCLOpEResolution:
 	 fprintf(out, PCL_ER);
@@ -660,7 +672,6 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
 	 break;
    case PCLOpContextSimplifyReflect:
 	 fprintf(out, PCL_CSR);
-	 needs_equality = false;
 	 status = status_thm;
 	 assert(expr->arg_no==2);
 	 break;
@@ -689,19 +700,16 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
                  ",["TSTP_SPLIT_BASE"("
                  TSTP_SPLIT_REFINED",[])]");
 	 status = "";
-	 needs_equality = false;
 	 assert(expr->arg_no==1);
 	 break;
    case PCLOpFOFSplitConjunct:
          fprintf(out, PCL_SC);
          status = status_thm;
-	 needs_equality = false;
          assert(expr->arg_no==1);
          break;
    case PCLOpSplitEquiv:
          fprintf(out, PCL_SE);
          status = status_thm;
-	 needs_equality = false;
          assert(expr->arg_no==1);
          break;
    case PCLOpFOFSimplify:
@@ -712,51 +720,43 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
    case PCLOpFOFDeMorgan:
          fprintf(out, PCL_NNF);
          status = status_thm;
-	 needs_equality = false;
          assert(expr->arg_no==1);
          break;
    case PCLOpFOFDistributeQuantors:
          fprintf(out, PCL_SQ);
          status = status_thm;
-	 needs_equality = false;
          assert(expr->arg_no==1);
          break;
    case PCLOpAnnotateQuestion:
          fprintf(out, PCL_ANNOQ);
          status = status_thm;
-	 needs_equality = false;
          needs_ans      = true;
          assert(expr->arg_no==1);
          break;
    case PCLOpEvalAnswers:
          fprintf(out, PCL_EVANS);
          status = status_thm;
-	 needs_equality = false;
          needs_ans      = true;
          assert(expr->arg_no==1);
          break;         
    case PCLOpFOFDistributeDisjunction:
          fprintf(out, PCL_DSTR);
          status = status_thm;
-	 needs_equality = false;
          assert(expr->arg_no==1);
          break;
    case PCLOpFOFVarRename:
          fprintf(out, PCL_VR);
          status = status_thm;
-	 needs_equality = false;
          assert(expr->arg_no==1);
          break;
    case PCLOpFOFSkolemize:
          fprintf(out, PCL_SK);
          status = status_esa;
-	 needs_equality = false;
          assert(expr->arg_no==1);
          break;
    case PCLOpFOFAssumeNegation:
          fprintf(out, PCL_NC);
          status = status_cth;
-	 needs_equality = false;
          assert(expr->arg_no==1);
          break;
          
@@ -771,10 +771,6 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
       fputc(',',out);
       PCLExprPrintTSTP(out, PCLExprArg(expr,i), mini);
    }
-   if(needs_equality)
-   {
-      fputs(",theory(equality)", out);
-   }
    if(needs_ans)
    {
       fputs(",theory(answers)", out);
@@ -788,8 +784,8 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
 // Function: PCLStepExtract()
 //
 //   Given a PCL step "extra" string, return true if this should be
-//   the root of a proof tree for extraction. Here, because it's uses
-//   by both steps and ministeps.
+//   the root of a proof tree for extraction. Implemented here,
+//   because it is used by both steps and ministeps.
 //
 // Global Variables: -
 //

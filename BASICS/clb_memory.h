@@ -130,7 +130,7 @@ void MemFreeListPrint(FILE* out);
 
 #ifdef CLB_MEMORY_DEBUG2
 #undef FREE
-#define FREE(junk) assert(junk); printf("\nBlock %p F:\n", junk);\
+#define FREE(junk) assert(junk); clb_free_count++; printf("\nBlock %p F:\n", junk);\
                    free(junk); junk=NULL
 #endif
 
@@ -178,7 +178,7 @@ static __inline__ void* SizeMallocReal(size_t size)
    } 
    else
    {
-      handle = CPPCAST(Mem_p)SecureMalloc(size);
+      handle = SecureMalloc(size);
 #ifndef NDEBUG
       if((mem_index>=0) && (mem_index<MEM_ARR_SIZE))
       {

@@ -69,9 +69,9 @@ typedef struct eval_cell
 /*        Macros for a common interface with old evaluations           */
 /*---------------------------------------------------------------------*/
 
-#define EvalsFree(eval) EvalsFree(eval) 
-#define EvalTreeFindSmallestWrap(root, pos) EvalTreeFindSmallest((root), (pos))
-#define EvalTreePrintInOrderWrap(file, root, pos) EvalTreePrintInOrder(file, root, pos)
+//#define EvalsFree(eval) EvalsFree(eval) 
+//#define EvalTreeFindSmallestWrap(root, pos) EvalTreeFindSmallest((root), (pos))
+//#define EvalTreePrintInOrderWrap(file, root, pos) EvalTreePrintInOrder(file, root, pos)
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */

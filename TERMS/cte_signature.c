@@ -602,7 +602,7 @@ FunCode SigInsertId(Sig_p sig, const char* name, int arity, bool special_id)
    new->val1.i_val = sig->f_count;
 
    test = StrTreeInsert(&(sig->f_index), new);
-   assert(test == NULL);   
+   (void)test; assert(test == NULL);   
    SigSetSpecial(sig,sig->f_count,special_id);
    sig->alpha_ranks_valid = false;
 
@@ -727,7 +727,7 @@ void SigPrintACStatus(FILE* out, Sig_p sig)
 //
 // Function: SigParseKnownOperator()
 //
-//   Parse an operator, return it's FunCode. Error, if operator is not
+//   Parse an operator, return its FunCode. Error, if operator is not
 //   in sig.
 //
 // Global Variables: -

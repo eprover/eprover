@@ -1,4 +1,4 @@
-#!/sw/bin/gawk -f
+#!/usr/bin/env gawk -f
 
 # Usage: find_missing_results.awk <filter_file> [<from_file>]
 #

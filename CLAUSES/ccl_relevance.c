@@ -279,7 +279,7 @@ static void proofstate_rel_prune(ProofState_p state,
 //
 /----------------------------------------------------------------------*/
 
-Relevance_p RelevanceAlloc()
+Relevance_p RelevanceAlloc(void)
 {
    Relevance_p handle = RelevanceCellAlloc();
 

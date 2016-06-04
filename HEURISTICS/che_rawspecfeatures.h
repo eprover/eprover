@@ -42,7 +42,9 @@ typedef struct raw_spec_feature_cell
    int       predc_size;
    int       fun_size;
    int       func_size;
-   char      class[7];
+   long      conjecture_count;
+   long      hypothesis_count;
+   char      class[8];
 }RawSpecFeatureCell, *RawSpecFeature_p;
 
 

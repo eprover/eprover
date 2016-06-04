@@ -83,10 +83,6 @@ Term_p TermCPosGetSubterm(Term_p term, TermCPos pos)
    return term_cpos_get_subterm(term, &pos);
 }
 
-TermCPos TermCPosFromTermPos(TermPos_p termpos);
-bool     TermPosFromTermCPos(Term_p term, TermCPos pos);
-
-
 /*-----------------------------------------------------------------------
 //
 // Function: TermPrintAllCPos()

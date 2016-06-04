@@ -219,7 +219,7 @@ long PropClauseMaxVar(PropClause_p clause)
 //
 /----------------------------------------------------------------------*/
 
-PropClauseSet_p PropClauseSetAlloc()
+PropClauseSet_p PropClauseSetAlloc(void)
 {
    PropClauseSet_p set = PropClauseSetCellAlloc();
 

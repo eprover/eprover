@@ -27,7 +27,6 @@ depend: *.c *.h
 
 clean:
 	@touch does_exist.o does_exist.a; rm *.o  *.a
-	@echo Removed compiled files
 
 # Services (provided by the master Makefile)
 

@@ -114,10 +114,10 @@ int main(int argc, char* argv[])
 
    assert(argv[0]);
 
-   InitIO(NAME);
 #ifdef STACK_SIZE
-   IncreaseMaxStackSize(argv, STACK_SIZE);
+   INCREASE_STACK_SIZE;
 #endif
+   InitIO(NAME);
    atexit(TempFileCleanup);
 
    ESignalSetup(SIGTERM);
@@ -199,11 +199,9 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_HELP: 
 	    print_help(stdout);
 	    exit(NO_ERROR);
-	    break;
       case OPT_VERSION:
 	    printf(NAME " " VERSION "\n");
 	    exit(NO_ERROR);
-	    break;
       case OPT_OUTPUT:
 	    outname = arg;
 	    break;
@@ -228,7 +226,7 @@ NAME " " VERSION "\n"
 "Usage: " NAME " [options] [files]\n\
 \n\
 Read an PCL2 protocol and print a number of statistics about the\n\
-protocol and it's clauses.\n\
+protocol and its clauses.\n\
 \n");
    PrintOptions(stdout, opts, "Options\n\n");
    fprintf(out, "\n\

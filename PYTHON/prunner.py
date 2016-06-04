@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python
 
 """
 prunner 0.1
@@ -59,6 +59,7 @@ import subprocess
 import select
 import string
 import getopt
+import pylib_io
 
 
 
@@ -99,12 +100,13 @@ class prunner(object):
     """
     Class handling a set of jobs.
     """
-    def __init__(self, jobs):
+    def __init__(self, jobs, cpu):
         """
         Initialize object. jobs is a list of command strings to run.
         """
         self.jobs    = jobs
         self.running = []
+        self.cpu     = cpu
 
     def run(self, cores):
         processed = 0
@@ -122,6 +124,7 @@ class prunner(object):
                 tmp = i.poll_res()
                 if tmp!=None:
                     print tmp
+                    print self.cpu
                     self.running.remove(i)
                     processed = processed+1
         return processed
@@ -131,8 +134,10 @@ class prunner(object):
 
 
 if __name__ == '__main__':
-    cores = 2
-    opts, args = getopt.gnu_getopt(sys.argv[1:], "hc:")
+    cores  = 2
+    getcpu = False
+    opts, args = getopt.gnu_getopt(sys.argv[1:], "hCc:")
+    cpu = "Generic CPU"
 
     for option, optarg in opts:
         if option == "-h":
@@ -140,11 +145,18 @@ if __name__ == '__main__':
             sys.exit()
         elif option == "-c":
             cores = int(optarg)
+        elif option == "-C":
+            getcpu = True
         else:
             sys.exit("Unknown option "+ option)
 
+    if getcpu:
+        cpu = pylib_io.run_shell_command(
+            'cat /proc/cpuinfo | grep "cpu MHz\|bogomips"|head -2')
+        cpu = "".join(["# "+i for i in cpu])
+        
     jobs = sys.stdin.readlines()
 
-    control = prunner(jobs)
+    control = prunner(jobs, cpu)
 
     control.run(cores)

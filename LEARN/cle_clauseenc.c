@@ -162,7 +162,7 @@ Term_p TermEncodeEqnList(TB_p bank, Eqn_p list, bool flat)
    while(list)
    {
       PStackPushP(stack, list);
-      PStackPushP(stack, PENormal);
+      PStackPushInt(stack, PENormal);
       list = list->next;
    }
    res = flat?
@@ -218,7 +218,7 @@ Term_p FlatRecodeRecClauseRep(TB_p bank,Term_p clauserep)
 		     clauserep->args[0]->args[1],
 		     bank, positive);
       PStackPushP(stack, eqn);
-      PStackPushP(stack, PENormal);
+      PStackPushInt(stack, PENormal);
       clauserep = clauserep->args[1];
    }
    if(clauserep->f_code != bank->sig->cnil_code)

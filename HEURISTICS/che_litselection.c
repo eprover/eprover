@@ -131,6 +131,7 @@ static LitSelNameFunAssocCell name_fun_assoc[] =
    {"SelectDivPreferIntoLits",               SelectDiversificationPreferIntoLiterals},
    {"SelectMaxLComplexG",                    SelectMaxLComplexG}, 
    {"SelectMaxLComplexAvoidPosPred",         SelectMaxLComplexAvoidPosPred},
+   {"SelectMaxLComplexAPPNTNp",              SelectMaxLComplexAPPNTNp},
    {"SelectMaxLComplexAPPNoType",            SelectMaxLComplexAPPNoType},
    {"SelectMaxLComplexAvoidPosUPred",        SelectMaxLComplexAvoidPosUPred},
    {"SelectComplexG",                        SelectComplexG},
@@ -148,7 +149,41 @@ static LitSelNameFunAssocCell name_fun_assoc[] =
    {"PSelectNewComplexAHPExceptUniqMaxHorn", PSelectNewComplexAHPExceptUniqMaxHorn},
    {"SelectNewComplexAHPNS",                 SelectNewComplexAHPNS},
    {"SelectVGNonCR",                         SelectVGNonCR},
-   {NULL, (LiteralSelectionFun)0}
+
+   {"SelectCQArEqLast",                      SelectCQArEqLast},
+   {"SelectCQArEqFirst",                     SelectCQArEqFirst},
+   {"SelectCQIArEqLast",                     SelectCQIArEqLast},
+   {"SelectCQIArEqFirst",                    SelectCQIArEqFirst},
+   {"SelectCQAr",                            SelectCQAr},
+   {"SelectCQIAr",                           SelectCQIAr},
+   {"SelectCQArNpEqFirst",                   SelectCQArNpEqFirst},
+   {"SelectCQIArNpEqFirst",                  SelectCQIArNpEqFirst},
+
+   {"SelectGrCQArEqFirst",                   SelectGrCQArEqFirst},
+   {"SelectCQGrArEqFirst",                   SelectCQGrArEqFirst},
+   {"SelectCQArNTEqFirst",                   SelectCQArNTEqFirst},
+   {"SelectCQIArNTEqFirst",                  SelectCQIArNTEqFirst},
+   {"SelectCQArNTNpEqFirst",                 SelectCQArNTNpEqFirst},
+   {"SelectCQIArNTNpEqFirst",                SelectCQIArNTNpEqFirst},
+   {"SelectCQArNXTEqFirst" ,                 SelectCQArNXTEqFirst},
+   {"SelectCQIArNXTEqFirst" ,                SelectCQIArNXTEqFirst},
+
+   {"SelectCQArNTNp",                        SelectCQArNTNp},
+   {"SelectCQIArNTNp",                       SelectCQIArNTNp},
+   {"SelectCQArNT",                          SelectCQArNT},
+   {"SelectCQIArNT",                         SelectCQIArNT},
+   {"SelectCQArNp",                          SelectCQArNp},
+   {"SelectCQIArNp",                         SelectCQIArNp},
+
+   {"SelectCQArNpEqFirstUnlessPDom",         SelectCQArNpEqFirstUnlessPDom},
+   {"SelectCQArNTEqFirstUnlessPDom",         SelectCQArNTEqFirstUnlessPDom},
+
+   {"SelectCQPrecW",                         SelectCQPrecW},
+   {"SelectCQIPrecW",                        SelectCQIPrecW},
+   {"SelectCQPrecWNTNp",                     SelectCQPrecWNTNp},
+   {"SelectCQIPrecWNTNp",                    SelectCQIPrecWNTNp},
+
+   {NULL, (LiteralSelectionFun)NULL}
 };
 
 
@@ -4619,6 +4654,107 @@ void SelectMaxLComplexAvoidPosPred(OCB_p ocb, Clause_p clause)
 
 /*-----------------------------------------------------------------------
 //
+// Function: maxlcomplexappNTNpweight()
+//
+//   Initialize weights to mimic SelectMaxLComplexWeight(), but defer
+//   literals with which occur often in pred_dist. Never select type-
+//   and propositional literals.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void maxlcomplexappNTNp_weight(LitEval_p lit, Clause_p clause, 
+                                      void *pred_dist)
+{
+   PDArray_p pd = pred_dist;
+   
+   if(EqnIsNegative(lit->literal))
+   {
+      if(EqnIsTypePred(lit->literal)||EqnIsPropositional(lit->literal))
+      {
+         lit->w1 = 100000;
+         lit->forbidden = true;
+      }
+      else 
+      {
+         if(EqnIsMaximal(lit->literal))
+         {
+            lit->w1=0;
+         }
+         else
+         {
+            lit->w1=100;
+         }
+      }
+      if(!EqnIsPureVar(lit->literal))
+      {
+         lit->w1+=10;
+      }
+      if(!EqnIsGround(lit->literal))
+      {
+         lit->w1+=1;
+      }
+      lit->w2 = -lit_sel_diff_weight(lit->literal);
+      if(EqnIsEquLit(lit->literal))
+      {
+         lit->w3 = PDArrayElementInt(pd, 0);
+      }
+      else
+      {
+         lit->w3 = PDArrayElementInt(pd, lit->literal->lterm->f_code);
+      }
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectMaxLComplexAPPNTNp()
+//
+//   As SelectMaxLComplexAvoidPosPred, but also avoid propositional
+//   and type literals.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+
+void SelectMaxLComplexAPPNTNp(OCB_p ocb, Clause_p clause)
+{  
+   long  lit_no;
+   PDArray_p pred_dist;
+
+   assert(ocb);
+   assert(clause);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+   
+   if(clause->neg_lit_no==0)
+   {
+      return;
+   }
+   ClauseCondMarkMaximalTerms(ocb, clause);
+   
+   lit_no = EqnListQueryPropNumber(clause->literals, EPIsMaximal);
+
+   if(lit_no <=1)
+   {
+      return;
+   }
+   pred_dist = pos_pred_dist_array_compute(clause);
+   generic_uniq_selection(ocb,clause,false, true, 
+                          maxlcomplexappNTNp_weight, pred_dist);   
+   pred_dist_array_free(pred_dist);
+}
+
+
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: maxlcomplexavoidprednotype_weight()
 //
 //   As  maxlcomplexavoidpred_weigth, but never select type literals.
@@ -5297,6 +5433,1414 @@ void SelectVGNonCR(OCB_p ocb, Clause_p clause)
                           new_complex_notp_ahp_ns, pred_dist);   
    pred_dist_array_free(pred_dist);
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: select_cq_ar_eql_weight()
+// Function: SelectCQArEqLast()
+//
+//   Select based on a total ordering on predicate symbols. Preferably
+//   select symbols with high arity. Equality is always selected last.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void select_cq_ar_eql_weight(LitEval_p lit, Clause_p clause, 
+                                    void* dummy) 
+{   
+   Eqn_p l = lit->literal;
+
+   if(EqnIsEquLit(l))
+   {
+      lit->w1 = 1000000;
+      lit->w2 = 0;
+   }
+   else
+   {
+      lit->w1 = -SigFindArity(l->bank->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
+
+void SelectCQArEqLast(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_ar_eql_weight, NULL);   
+}
+
+
+/*-----------------------------------------------------------------------
+// 
+// Function: select_cq_ar_eqf_weight()
+// Function: SelectCQArEqFirst()
+//
+//   Select based on a total ordering on predicate symbols. Preferably
+//   select symbols with high arity. Equality is always selected
+//   first.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void select_cq_ar_eqf_weight(LitEval_p lit, Clause_p clause, 
+                                    void* dummy) 
+{   
+   Eqn_p l = lit->literal;
+
+   if(EqnIsEquLit(l))
+   {
+      lit->w1 = -100000;
+      lit->w2 = 0;
+   }
+   else
+   {
+      lit->w1 = -SigFindArity(l->bank->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
+
+void SelectCQArEqFirst(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_ar_eqf_weight, NULL);   
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: select_cq_iar_eql_weight()
+// Function: SelectCQIArEqLast()
+//
+//   Select based on a total ordering on predicate symbols. Preferably
+//   select symbols with low arity. Equality is always selected
+//   last.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void select_cq_iar_eql_weight(LitEval_p lit, Clause_p clause, 
+                                    void* dummy) 
+{   
+   Eqn_p l = lit->literal;
+
+   if(EqnIsEquLit(l))
+   {
+      lit->w1 = 100000;
+      lit->w2 = 0;
+   }
+   else
+   {
+      lit->w1 = SigFindArity(l->bank->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
+
+void SelectCQIArEqLast(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_iar_eql_weight, NULL);   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: select_cq_iar_eqf_weight()
+// Function: SelectCQIArEqFirst()
+//
+//   Select based on a total ordering on predicate symbols. Preferable
+//   select symbols with low arity. Equality is always selected
+//   first.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void select_cq_iar_eqf_weight(LitEval_p lit, Clause_p clause, 
+                                    void* dummy) 
+{   
+   Eqn_p l = lit->literal;
+
+   if(EqnIsEquLit(l))
+   {
+      lit->w1 = -100000;
+      lit->w2 = 0;
+   }
+   else
+   {
+      lit->w1 = SigFindArity(l->bank->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
+
+void SelectCQIArEqFirst(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_iar_eqf_weight, NULL);   
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: select_cq_ar_weight()
+// Function: SelectCQAr()
+//
+//   Select based on a total ordering on predicate symbols. Preferably
+//   select symbols with high arity. Equality is treated as a normal
+//   predicate symbol (nearly).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+
+static void select_cq_ar_weight(LitEval_p lit, Clause_p clause, 
+                         void* dummy) 
+{   
+   Eqn_p l = lit->literal;
+
+   if(EqnIsEquLit(l))
+   {
+      lit->w1 = -2;
+      lit->w2 = l->lterm->f_code > 0 
+         ? SigGetAlphaRank(l->bank->sig, l->lterm->f_code)
+         : 0;
+   }
+   else
+   {
+      lit->w1 = -SigFindArity(l->bank->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
+
+void SelectCQAr(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_ar_weight, NULL);   
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: select_cq_iar_weight()
+// Function: SelectCQIAr()
+//
+//   Select based on a total ordering on predicate symbols. Preferably
+//   select symbols with low arity. Equality is treated as a normal
+//   predicate symbol (nearly).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void select_cq_iar_weight(LitEval_p lit, Clause_p clause, 
+                                    void* dummy) 
+{   
+   Eqn_p l = lit->literal;
+
+   if(EqnIsEquLit(l))
+   {
+     lit->w1 = 2;
+      lit->w2 = l->lterm->f_code > 0 
+         ? SigGetAlphaRank(l->bank->sig, l->lterm->f_code)
+         : 0;
+   }
+   else
+   {
+      lit->w1 = SigFindArity(l->bank->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
+
+
+void SelectCQIAr(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_iar_weight, NULL);   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: select_cq_arnp_eqf_weight()
+// Function: SelectCQArNpEqFirst()
+//
+//   Select based on a total ordering on predicate symbols. Preferably
+//   select symbols with high arity. Equaliy comes
+//   first. Propositional symbols are never selected.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void select_cq_arnp_eqf_weight(LitEval_p lit, Clause_p clause, 
+                                    void* dummy) 
+{   
+   Eqn_p l = lit->literal;
+
+   if(EqnIsEquLit(l))
+   {
+      lit->w1 = -100000;
+      lit->w2 = 0;
+   }
+   else
+   {
+      lit->w1 = -SigFindArity(l->bank->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      if(lit->w1 == 0)
+      {
+         lit->w1 = 100000;
+         lit->forbidden = true;
+      }
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
+
+   
+void SelectCQArNpEqFirst(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_arnp_eqf_weight, NULL);   
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: select_cq_iarnp_eqf_weight()
+// Function: SelectCQIArNpEqFirst()
+//
+//   Select based on a total ordering on predicate symbols. Preferably
+//   select symbols with low arity. Equaliy comes
+//   first. Propositional symbols are never selected.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void select_cq_iarnp_eqf_weight(LitEval_p lit, Clause_p clause, 
+                                    void* dummy) 
+{   
+   Eqn_p l = lit->literal;
+
+   if(EqnIsEquLit(l))
+   {
+      lit->w1 = -1000000;
+      lit->w2 = 0;
+   }
+   else
+   {
+      lit->w1 = SigFindArity(l->bank->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      if(lit->w1 == 0)
+      {
+         lit->w1 = 1000000;
+         lit->forbidden = true;
+      }
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
+
+void SelectCQIArNpEqFirst(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_iarnp_eqf_weight, NULL);   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: select_grcq_ar_eqf_weight()
+// Function: SelectGrCQArEqFirst()
+//
+//   Select ground literals first, then others. Among
+//   ground/nonground, select symbols with high arity. Equality is
+//   always selected first.
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+static void select_grcq_ar_eqf_weight(LitEval_p lit, Clause_p clause, 
+                                      void* dummy) 
+{   
+   Eqn_p l = lit->literal;
+
+   if(EqnIsEquLit(l))
+   {
+      lit->w1 = -1000000;
+      lit->w2 = 0;
+   }
+   else
+   {
+      lit->w1 = -SigFindArity(l->bank->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+   if(EqnIsGround(l))
+   {
+      lit->w1 -= 2000000;
+   }
+}   
+
+
+void SelectGrCQArEqFirst(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_grcq_ar_eqf_weight, NULL);   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: select_cqgr_ar_eqf_weight()
+// Function: SelectCQGrArEqFirst()
+//
+//   Select based on a total ordering on predicate symbols. Preferably
+//   select symbols with low arity. Equality is always selected
+//   first. Among literals with the same symbol, prefer ground.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void select_cqgr_ar_eqf_weight(LitEval_p lit, Clause_p clause, 
+                                      void* dummy) 
+{   
+   Eqn_p l = lit->literal;
+
+   if(EqnIsEquLit(l))
+   {
+      lit->w1 = -1000000;
+      lit->w2 = 0;
+   }
+   else
+   {
+      lit->w1 = -SigFindArity(l->bank->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+   if(EqnIsGround(l))
+   {
+      lit->w2 -= 2000000;
+   }
+}
+
+void SelectCQGrArEqFirst(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cqgr_ar_eqf_weight, NULL);   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: select_cq_arnt_eqf_weight()
+// Function: SelectCQArNTEqFirst()
+//
+//   Select based on a total ordering on predicate symbols. Preferably
+//   select symbols with low arity. Equality comes
+//   first. Type literals p(X) are never selected.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void select_cq_arnt_eqf_weight(LitEval_p lit, Clause_p clause, 
+                                    void* dummy) 
+{   
+   Eqn_p l = lit->literal;
+
+   if(EqnIsEquLit(l))
+   {
+      lit->w1 = -100000;
+      lit->w2 = 0;
+   }
+   else
+   {
+      lit->w1 = -SigFindArity(l->bank->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      if(EqnIsTypePred(l))
+      {
+         lit->w1 = 100000;
+         lit->forbidden = true;
+      }
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
+
+void SelectCQArNTEqFirst(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_arnt_eqf_weight, NULL);   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: select_cq_iarnt_eqf_weight()
+// Function: SelectCQIArNTEqFirst()
+//
+//   Select based on a total ordering on predicate symbols. Preferably
+//   select symbols with low arity. Equality comes
+//   first. Type literals p(X) are never selected.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+   
+static void select_cq_iarnt_eqf_weight(LitEval_p lit, Clause_p clause, 
+                                    void* dummy) 
+{   
+   Eqn_p l = lit->literal;
+
+   if(EqnIsEquLit(l))
+   {
+      lit->w1 = -100000;
+      lit->w2 = 0;
+   }
+   else
+   {
+      lit->w1 = SigFindArity(l->bank->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      if(EqnIsTypePred(l))
+      {
+         lit->w1 = 100000;
+         lit->forbidden = true;
+      }
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
+
+void SelectCQIArNTEqFirst(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_iarnt_eqf_weight, NULL);   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: select_cq_arntnp_eqf_weight()
+// Function: SelectCQArNTNpEqFirst()
+//
+//   Select based on a total ordering on predicate symbols. Preferably
+//   select symbols with low arity. Equality comes
+//   first. Type literals p(X) and propositional lierals are never
+//   selected.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void select_cq_arntnp_eqf_weight(LitEval_p lit, Clause_p clause, 
+                                        void* dummy) 
+{   
+   Eqn_p l = lit->literal;
+
+   if(EqnIsEquLit(l))
+   {
+      lit->w1 = -100000;
+      lit->w2 = 0;
+   }
+   else
+   {
+      lit->w1 = -SigFindArity(l->bank->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      if(EqnIsTypePred(l)||EqnIsPropositional(l))
+      {
+         lit->w1 = 100000;
+         lit->forbidden = true;
+      }
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
+
+void SelectCQArNTNpEqFirst(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_arntnp_eqf_weight, NULL);   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: select_cq_iarntnp_eqf_weight()
+// Function: SelectCQIArNTNpEqFirst()
+//
+//   Select based on a total ordering on predicate symbols. Preferably
+//   select symbols with low arity. Equality comes
+//   first. Type literals p(X) and propositional lierals are never
+//   selected.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+   
+static void select_cq_iarntnp_eqf_weight(LitEval_p lit, Clause_p clause, 
+                                        void* dummy) 
+{   
+   Eqn_p l = lit->literal;
+
+   if(EqnIsEquLit(l))
+   {
+      lit->w1 = -100000;
+      lit->w2 = 0;
+   }
+   else
+   {
+      lit->w1 = SigFindArity(l->bank->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      if(EqnIsTypePred(l)||EqnIsPropositional(l))
+      {
+         lit->w1 = 100000;
+         lit->forbidden = true;
+      }
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
+
+void SelectCQIArNTNpEqFirst(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_iarntnp_eqf_weight, NULL);   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: select_cq_arnxt_eqf_weight()
+// Function: SelectCQArNXTEqFirst()
+//
+//   Select based on a total ordering on predicate symbols. Preferably
+//   select symbols with low arity. Equality comes
+//   first. XType literals p(X,Y,...) are never selected.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/  
+
+static void select_cq_arnxt_eqf_weight(LitEval_p lit, Clause_p clause, 
+                                    void* dummy) 
+{   
+   Eqn_p l = lit->literal;
+
+   if(EqnIsEquLit(l))
+   {
+      lit->w1 = -100000;
+      lit->w2 = 0;
+   }
+   else
+   {
+      lit->w1 = -SigFindArity(l->bank->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      if(EqnIsXTypePred(l))
+      {
+         lit->w1 = 100000;
+         lit->forbidden = true;
+      }
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
+
+void SelectCQArNXTEqFirst(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_arnxt_eqf_weight, NULL);   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: select_cq_iarnxt_eqf_weight()
+// Function: SelectCQIArNXTEqFirst()
+//
+//   Select based on a total ordering on predicate symbols. Preferably
+//   select symbols with low arity. Equality comes
+//   first. XType literals p(X, Y,...) are never selected.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+  
+
+static void select_cq_iarnxt_eqf_weight(LitEval_p lit, Clause_p clause, 
+                                    void* dummy) 
+{   
+   Eqn_p l = lit->literal;
+
+   if(EqnIsEquLit(l))
+   {
+      lit->w1 = -100000;
+      lit->w2 = 0;
+   }
+   else
+   {
+      lit->w1 = SigFindArity(l->bank->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      if(EqnIsXTypePred(l))
+      {
+         lit->w1 = 100000;
+         lit->forbidden = true;
+      }
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
+
+void SelectCQIArNXTEqFirst(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_iarnxt_eqf_weight, NULL);   
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectCQArNTNp()
+//
+//   Select based on a total ordering on predicate symbols. Preferably
+//   select symbols with high arity. Never select propositional and
+//   type predicates.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void select_cq_arntnp_weight(LitEval_p lit, Clause_p clause, 
+                         void* dummy) 
+{   
+   Eqn_p l = lit->literal;
+
+   if(EqnIsEquLit(l))
+   {
+      lit->w1 = -2;
+      lit->w2 = l->lterm->f_code > 0 
+         ? SigGetAlphaRank(l->bank->sig, l->lterm->f_code)
+         : 0;
+   }
+   else
+   {
+      lit->w1 = -SigFindArity(l->bank->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      if(EqnIsTypePred(l)||EqnIsPropositional(l))
+      {
+         lit->w1 = 100000;
+         lit->forbidden = true;
+      }      
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
+
+void SelectCQArNTNp(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_arntnp_weight, NULL);   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectCQIArNTNp()
+//
+//   Select based on a total ordering on predicate symbols. Preferably
+//   select symbols with low arity. Never select propositional and
+//   type predicates.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void select_cq_iarntnp_weight(LitEval_p lit, Clause_p clause, 
+                         void* dummy) 
+{   
+   Eqn_p l = lit->literal;
+
+   if(EqnIsEquLit(l))
+   {
+      lit->w1 = 2;
+      lit->w2 = l->lterm->f_code > 0 
+         ? SigGetAlphaRank(l->bank->sig, l->lterm->f_code)
+         : 0;
+   }
+   else
+   {
+      lit->w1 = SigFindArity(l->bank->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      if(EqnIsTypePred(l)||EqnIsPropositional(l))
+      {
+         lit->w1 = 100000;
+         lit->forbidden = true;
+      }      
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
+
+void SelectCQIArNTNp(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_iarntnp_weight, NULL);   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectCQArNT()
+//
+//   Select based on a total ordering on predicate symbols. Preferably
+//   select symbols with high arity. Never select type predicates.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void select_cq_arnt_weight(LitEval_p lit, Clause_p clause, 
+                         void* dummy) 
+{   
+   Eqn_p l = lit->literal;
+
+   if(EqnIsEquLit(l))
+   {
+      lit->w1 = -2;
+      lit->w2 = l->lterm->f_code > 0 
+         ? SigGetAlphaRank(l->bank->sig, l->lterm->f_code)
+         : 0;
+   }
+   else
+   {
+      lit->w1 = -SigFindArity(l->bank->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      if(EqnIsTypePred(l))
+      {
+         lit->w1 = 100000;
+         lit->forbidden = true;
+      }      
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
+
+void SelectCQArNT(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_arnt_weight, NULL);   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectCQIArNT()
+//
+//   Select based on a total ordering on predicate symbols. Preferably
+//   select symbols with low arity. Never select type predicates.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void select_cq_iarnt_weight(LitEval_p lit, Clause_p clause, 
+                         void* dummy) 
+{   
+   Eqn_p l = lit->literal;
+
+   if(EqnIsEquLit(l))
+   {
+      lit->w1 = 2;
+      lit->w2 = l->lterm->f_code > 0 
+         ? SigGetAlphaRank(l->bank->sig, l->lterm->f_code)
+         : 0;
+   }
+   else
+   {
+      lit->w1 = SigFindArity(l->bank->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      if(EqnIsTypePred(l))
+      {
+         lit->w1 = 100000;
+         lit->forbidden = true;
+      }      
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
+
+void SelectCQIArNT(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_iarnt_weight, NULL);   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectCQArNp()
+//
+//   Select based on a total ordering on predicate symbols. Preferably
+//   select symbols with high arity. Never select propositional predicates. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void select_cq_arnp_weight(LitEval_p lit, Clause_p clause, 
+                                  void* dummy) 
+{   
+   Eqn_p l = lit->literal;
+
+   if(EqnIsEquLit(l))
+   {
+      lit->w1 = -2;
+      lit->w2 = l->lterm->f_code > 0 
+         ? SigGetAlphaRank(l->bank->sig, l->lterm->f_code)
+         : 0;
+   }
+   else
+   {
+      lit->w1 = -SigFindArity(l->bank->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      if(EqnIsPropositional(l))
+      {
+         lit->w1 = 100000;
+         lit->forbidden = true;
+      }      
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
+
+void SelectCQArNp(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_arnp_weight, NULL);   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectCQIArNp()
+//
+//   Select based on a total ordering on predicate symbols. Preferably
+//   select symbols with low arity. Never select propositional
+//   predicates. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void select_cq_iarnp_weight(LitEval_p lit, Clause_p clause, 
+                         void* dummy) 
+{   
+   Eqn_p l = lit->literal;
+
+   if(EqnIsEquLit(l))
+   {
+      lit->w1 = 2;
+      lit->w2 = l->lterm->f_code > 0 
+         ? SigGetAlphaRank(l->bank->sig, l->lterm->f_code)
+         : 0;
+   }
+   else
+   {
+      lit->w1 = SigFindArity(l->bank->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      if(EqnIsPropositional(l))
+      {
+         lit->w1 = 100000;
+         lit->forbidden = true;
+      }      
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
+
+void SelectCQIArNp(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_iarnp_weight, NULL);   
+}
+
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: select_unless_pdom()
+//
+//   If there is a maximal positive literal with the same predicate
+//   symbol as a negative literal, don't select. Otherwise use
+//   the provided function.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void select_unless_pdom(OCB_p ocb, Clause_p clause, LiteralSelectionFun selfun)
+{
+   PStack_p neg_lits = PStackAlloc();
+   bool     *dom_array;
+   Eqn_p lit;
+   bool dom = false;
+   int i;
+   long sig_size;
+
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(clause->literals);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   sig_size = clause->literals->bank->sig->size;
+   dom_array = SizeMalloc(sizeof(bool)*sig_size);
+   for(i=0; i<sig_size; i++)
+   {
+      dom_array[i] = false;
+   }
+   
+   ClauseCondMarkMaximalTerms(ocb, clause);
+   //printf("Selection: ");
+   //ClausePrint(stdout, clause, true);
+   //printf("\n");
+
+   for(lit = clause->literals; lit; lit = lit->next)
+   {
+      if(EqnIsPositive(lit)&&EqnIsMaximal(lit))
+      {
+         //    printf("Posmax: %ld\n", EqnGetPredCode(lit));
+         dom_array[EqnGetPredCode(lit)] = true;
+      }
+      else if(EqnIsNegative(lit))
+      {
+         PStackPushP(neg_lits, lit);
+      }
+   }
+   while(!PStackEmpty(neg_lits))
+   {
+      lit = PStackPopP(neg_lits);
+      //printf("%p - %ld\n", lit, EqnGetPredCode(lit));
+      if(dom_array[EqnGetPredCode(lit)])
+      {
+         dom = true;
+         break;
+      }
+   }
+
+   PStackFree(neg_lits);
+   SizeFree(dom_array, sizeof(bool)*sig_size);
+   if(dom)
+   {
+      //printf("nixda\n");
+   }
+   else
+   {
+      //printf("Select\n");
+      selfun(ocb, clause);   
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectCQArNpEqFirstUnlessPDom()
+//
+//   If there is a maximal positive literal with the same predicate
+//   symbol as a negative literal, don't select. Otherwise use
+//   SelectCQArNpEqFirst. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void SelectCQArNpEqFirstUnlessPDom(OCB_p ocb, Clause_p clause)
+{
+   select_unless_pdom(ocb, clause, SelectCQArNpEqFirst);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectCQArNTEqFirst()
+//
+//   If there is a maximal positive literal with the same predicate
+//   symbol as a negative literal, don't select. Otherwise use
+//   SelectCQArNpEqFirst. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void SelectCQArNTEqFirstUnlessPDom(OCB_p ocb, Clause_p clause)
+{
+   select_unless_pdom(ocb, clause, SelectCQArNTEqFirst);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectCQPrecW()
+//
+//   Select literals based on the predicate, with the order of the
+//   predicates defined by the prec_weights (i.e. the preoder on the
+//   function symbols). Prefer larger (?) symbols.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void select_cq_precw_weight(LitEval_p lit, Clause_p clause, 
+                                   void* vocb) 
+{   
+   OCB_p ocb = (OCB_p)vocb;
+   Eqn_p l   = lit->literal;
+
+   if(TermIsVar(l->lterm))
+   {
+      lit->w1 = 0;
+      lit->w2 = 0;
+   }
+   else
+   {
+      lit->w1 = OCBFunPrecWeight(ocb, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);      
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
+
+void SelectCQPrecW(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_precw_weight, ocb);   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectCQIPrecW()
+//
+//   Select literals based on the predicate, with the order of the
+//   predicates defined by the prec_weights (i.e. the preoder on the
+//   function symbols). Prefere smaller (?) symbols.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+
+static void select_cq_iprecw_weight(LitEval_p lit, Clause_p clause, 
+                                    void* vocb) 
+{   
+   OCB_p ocb = (OCB_p)vocb;
+   Eqn_p l   = lit->literal;
+
+   if(TermIsVar(l->lterm))
+   {
+      lit->w1 = 0;
+      lit->w2 = 0;
+   }
+   else
+   {
+      lit->w1 = -OCBFunPrecWeight(ocb, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);      
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
+
+void SelectCQIPrecW(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_iprecw_weight, ocb);   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectCQPrecWNTNp()
+//
+//   Select literals based on the predicate, with the order of the
+//   predicates defined by the prec_weights (i.e. the preoder on the
+//   function symbols). Prefere larger symbols. Never select
+//   propostional or type predicates.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+
+static void select_cq_precwntnp_weight(LitEval_p lit, Clause_p clause, 
+                                   void* vocb) 
+{   
+   OCB_p ocb = (OCB_p)vocb;
+   Eqn_p l   = lit->literal;
+
+   if(TermIsVar(l->lterm))
+   {
+      lit->w1 = 0;
+      lit->w2 = 0;
+   }
+   else
+   {
+      if(EqnIsTypePred(l)||EqnIsPropositional(l))
+      {
+         lit->w1 = 100000;
+         lit->forbidden = true;
+      }
+      else
+      {
+         lit->w1 = OCBFunPrecWeight(ocb, l->lterm->f_code);
+         lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);      
+      }
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
+
+void SelectCQPrecWNTNp(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_precwntnp_weight, ocb);   
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectCQPrecWNTNp()
+//
+//   Select literals based on the predicate, with the order of the
+//   predicates defined by the prec_weights (i.e. the preoder on the
+//   function symbols). Prefere larger symbols. Never select
+//   propostional or type predicates.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+
+static void select_cq_iprecwntnp_weight(LitEval_p lit, Clause_p clause, 
+                                   void* vocb) 
+{   
+   OCB_p ocb = (OCB_p)vocb;
+   Eqn_p l   = lit->literal;
+
+   if(TermIsVar(l->lterm))
+   {
+      lit->w1 = 0;
+      lit->w2 = 0;
+   }
+   else
+   {
+      if(EqnIsTypePred(l)||EqnIsPropositional(l))
+      {
+         lit->w1 = 100000;
+         lit->forbidden = true;
+      }
+      else
+      {
+         lit->w1 = -OCBFunPrecWeight(ocb, l->lterm->f_code);
+         lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);      
+      }
+   }
+   lit->w3 =lit_sel_diff_weight(l);
+}
+
+void SelectCQIPrecWNTNp(OCB_p ocb, Clause_p clause)
+{
+   assert(ocb);
+   assert(clause);
+   assert(clause->neg_lit_no);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   generic_uniq_selection(ocb,clause,false, true, 
+                          select_cq_iprecwntnp_weight, ocb);   
+}
+
+
+
 
 
 

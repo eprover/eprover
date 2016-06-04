@@ -45,7 +45,10 @@ typedef enum
    HEU_AUTO_SCHED1,
    HEU_AUTO_SCHED2,
    HEU_AUTO_SCHED3,
-   HEU_AUTO_SCHED4
+   HEU_AUTO_SCHED4,
+   HEU_AUTO_SCHED5,
+   HEU_AUTO_SCHED6,
+   HEU_AUTO_SCHED7
 }Heuristic;
 
 typedef struct heuristic_assoc_cell
@@ -63,7 +66,6 @@ typedef struct heuristic_assoc_cell
 
 extern  HeuristicAssocCell HeuristicsTable[];
 
-SpecLimits_p CreateDefaultSpecLimits(void);
 HCB_p HCBCreate(char* name, HCBARGUMENTS);
 HCB_p GetHeuristic(char* source, HCBARGUMENTS);
 
@@ -76,6 +78,9 @@ HCB_p HCBAutoSched1Create(HCBARGUMENTS);
 HCB_p HCBAutoSched2Create(HCBARGUMENTS);
 HCB_p HCBAutoSched3Create(HCBARGUMENTS);
 HCB_p HCBAutoSched4Create(HCBARGUMENTS);
+HCB_p HCBAutoSched5Create(HCBARGUMENTS);
+HCB_p HCBAutoSched6Create(HCBARGUMENTS);
+HCB_p HCBAutoSched7Create(HCBARGUMENTS);
 
 #endif
 

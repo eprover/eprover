@@ -32,6 +32,7 @@ Changes
 
 #define CLB_PTREES
 
+#include <stdint.h>
 #include <clb_pstacks.h>
 #include <clb_avlgeneric.h>
 
@@ -72,17 +73,10 @@ typedef struct ptreecell
 #define PTREE_CELL_MEM MEMSIZE(PTreeCell)
 #endif
 
-/* As I found out now, _if_ ptr_int is large enough
-   for this conversion, this is guaranteed to work! - actually it's
-   does not if the pointers are great enough to overflow. "Slow"
-   inlined is fast enough and seems to work fine. */
-
-#define SLOW_PTR_CMP
-#ifdef SLOW_PTR_CMP
-#define PCmp(p1, p2) PCmpFun(p1, p2) 
-#else
-#define PCmp(p1, p2) ((ptr_int)(p1)-(ptr_int)(p2))
-#endif
+#define PCmp(p1, p2)    PCmpFun(p1, p2)
+#define PEqual(p1,p2)   ((uintptr_t)(p1))==((uintptr_t)(p2))
+#define PGreater(p1,p2) ((uintptr_t)(p1))> ((uintptr_t)(p2))
+#define PLesser(p1,p2)  ((uintptr_t)(p1))< ((uintptr_t)(p2))
 
 static  __inline__ int PCmpFun(void* p1, void*p2);
 PTree_p PTreeCellAllocEmpty(void);
@@ -116,13 +110,7 @@ AVL_TRAVERSE_DECLARATION(PTree, PTree_p)
 // Function: PCmpFun()
 //
 //   Compare two pointers, return 1 if the first one is bigger, 0 if
-//   both are equal, and -1 if the second one is bigger. Might be
-//   machine dependend and of limited portability (comparing two
-//   arbitrary pointers is not ANSI kosher, but the compiler has no
-//   way to detect this, as pointers to the same array can be compared
-//   under ANSI), but should be easy to hack on any
-//   machine. Subtracting pointers and casting the result to int is
-//   probably more efficient, but even more dangerous.
+//   both are equal, and -1 if the second one is bigger.
 //
 // Global Variables: -
 //
@@ -130,20 +118,10 @@ AVL_TRAVERSE_DECLARATION(PTree, PTree_p)
 //
 /----------------------------------------------------------------------*/
 
-static int PCmpFun(void* p1, void*p2)
+static __inline__ int PCmpFun(void* p1, void*p2)
 {
-   if(p1 > p2)
-   {
-      return 1;
-   }
-   else if(p1 < p2)
-   {
-      return -1;
-   }
-   assert(p1 == p2);
-   return 0;
+   return ((uintptr_t)p1 > (uintptr_t)p2) - ((uintptr_t)p1 < (uintptr_t)p2);
 }
-      
 
 
 #endif

@@ -171,6 +171,7 @@ EPCtrl_p ECtrlCreate(char* prover, char* name,
    DStr_p   cmd = DStrAlloc();
    EPCtrl_p res = EPCtrlAlloc(name);
    char           line[180];
+   char*          ret;
 
    DStrAppendStr(cmd, prover);
    DStrAppendStr(cmd, " ");
@@ -192,8 +193,8 @@ EPCtrl_p ECtrlCreate(char* prover, char* name,
       SysError("Cannot start eprover subprocess", SYS_ERROR);
    }
    res->fileno = fileno(res->pipe);
-   (void)fgets(line, 180, res->pipe);
-   if(ferror(res->pipe))
+   ret = fgets(line, 180, res->pipe);
+   if(!ret || ferror(res->pipe))
    {
       printf("Error\n");
    }

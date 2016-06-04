@@ -288,7 +288,7 @@ static Term_p tb_subterm_parse(Scanner_p in, TB_p bank)
             res->sort = STNoSort;
             TypeInferSort(bank->sig, res);
          }
-      }        
+      }
    }
    return res;
 }
@@ -409,8 +409,8 @@ TB_p TBAlloc(Sig_p sig)
    TermCellSetProp(term, TPPredPos);
    handle->false_term = TBInsert(handle, term, DEREF_NEVER);
    TermFree(term);
-   handle->min_term = 0;
-
+   handle->min_term    = NULL;
+   handle->freevarsets = NULL;
    return handle;
 }
 
@@ -438,7 +438,26 @@ void TBFree(TB_p junk)
    PDArrayFree(junk->ext_index);
    VarBankFree(junk->vars);
    
+   assert(!junk->freevarsets);
    TBCellFree(junk);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: TBVarSetStoreFree()
+//
+//   Free and reset the VarSetStore in bank.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void TBVarSetStoreFree(TB_p bank)
+{
+   VarSetStoreFree(bank->freevarsets);
+   bank->freevarsets = NULL;
 }
 
 
@@ -1109,14 +1128,32 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
                   &&(bank->sig->distinct_props & FPIsInteger))
                {
                   AktTokenError(in, 
-                                "Number cannot have argument list (consider --free-numbers)", 
+                                "Number cannot have argument list "
+                                "(consider --free-numbers)", 
+                                false);
+               }
+               if((id_type == FSIdentFloat)
+                  &&(bank->sig->distinct_props & FPIsFloat))
+               {
+                  AktTokenError(in, 
+                                "Floating point number cannot have argument list "
+                                "(consider --free-numbers)", 
+                                false);
+               }
+               if((id_type == FSIdentRational)
+                  &&(bank->sig->distinct_props & FPIsRational))
+               {
+                  AktTokenError(in, 
+                                "Rational number cannot have argument list "
+                                "(consider --free-numbers)", 
                                 false);
                }
                if((id_type == FSIdentObject)
                   &&(bank->sig->distinct_props & FPIsObject))
                {
                   AktTokenError(in, 
-                                "Object cannot have argument list (consider --free-objects)", 
+                                "Object cannot have argument list "
+                                "(consider --free-objects)", 
                                 false);
                }
                

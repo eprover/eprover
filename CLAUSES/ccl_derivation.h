@@ -33,11 +33,21 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
+typedef enum
+{
+   PONone,
+   POList,
+   POGraph1,
+   POGraph2,
+   POGraph3,
+}ProofOutput;
+
 
 typedef enum
 {
    DONop,
    DOQuote,
+   DOEvalGC,
    /* For simplifying inferences, the main premise is implicit */
    DORewrite,
    DOUnfold,
@@ -45,7 +55,7 @@ typedef enum
    DOContextSR,
    DODesEqRes, 
    DOSR,
-   DOAcRes,
+   DOACRes,
    DOCondense,
    DONormalize,
    DOEvalAnswers,
@@ -88,13 +98,14 @@ typedef enum
    DCCnfQuote         = DOQuote|Arg1Cnf,
    DCFofQuote         = DOQuote|Arg1Fof,
    /* For simplifying inferences, the main premise is implicit */
+   DCCnfEvalGC        = DOEvalGC,
    DCRewrite          = DORewrite|Arg1Cnf,
    DCUnfold           = DOUnfold|Arg1Cnf,
    DCApplyDef         = DOApplyDef|Arg1Fof,
    DCContextSR        = DOContextSR|Arg1Cnf,
    DCSR               = DOSR|Arg1Cnf,
    DCDesEqRes         = DODesEqRes, /* Doubled because its simplifying here */
-   DCACRes            = DOAcRes|Arg1Num,
+   DCACRes            = DOACRes|Arg1Num,
    DCCondense         = DOCondense,
    DCNormalize        = DONormalize,
    DCEvalAnswers      = DOEvalAnswers,
@@ -122,6 +133,7 @@ typedef enum
 
 typedef enum
 {
+   POInvalidObject = -1,
    PONoObject = 0,
    POSimpleDeriviation = 1,
    PODetailedDerivation = 2,
@@ -139,6 +151,7 @@ typedef struct derived_cell
 }DerivedCell, *Derived_p;
 
 
+
 typedef struct derivation_cell
 {
    bool       ordered;
@@ -146,7 +159,17 @@ typedef struct derivation_cell
    PObjTree_p deriv;
    PStack_p   roots;
    PStack_p   ordered_deriv;
+   unsigned long clause_step_count;
+   unsigned long formula_step_count;
+   unsigned long initial_clause_count;
+   unsigned long initial_formula_count;
+   unsigned long clause_conjecture_count;
+   unsigned long formula_conjecture_count;
+   unsigned long generating_inf_count;
+   unsigned long simplifying_inf_count;
 }DerivationCell, *Derivation_p;
+
+
 
 
 /*---------------------------------------------------------------------*/
@@ -155,6 +178,8 @@ typedef struct derivation_cell
 
 
 extern ProofObjectType BuildProofObject;
+extern bool            ProofObjectRecordsGCSelection;
+
 
 #define DCOpHasCnfArg1(op)   ((op)&Arg1Cnf)
 #define DCOpHasFofArg1(op)   ((op)&Arg1Fof)
@@ -174,26 +199,52 @@ void ClausePushDerivation(Clause_p clause, DerivationCodes op,
                           void* arg1, void* arg2);
 
 void ClausePushACResDerivation(Clause_p clause, Sig_p sig);
+
+
 void WFormulaPushDerivation(WFormula_p form, DerivationCodes op, 
                            void* arg1, void* arg2);
+
+bool ClauseIsEvalGC(Clause_p clause);
+
+bool ClauseIsDummyQuote(Clause_p clause);
+Clause_p ClauseDerivFindFirst(Clause_p clause);
+WFormula_p WFormulaDerivFindFirst(WFormula_p form);
+
 
 long DerivStackExtractParents(PStack_p derivation, 
                               Sig_p sig,
                               PStack_p res_clauses, 
                               PStack_p res_formulas);
+long DerivStackExtractOptParents(PStack_p derivation, 
+                                 Sig_p sig,
+                                 PStack_p res_clauses, 
+                                 PStack_p res_formulas);
 
+
+void DerivStackCountSearchInferences(PStack_p derivation, 
+                                     unsigned long *generating_count,
+                                     unsigned long *simplifying_count);
 
 #define DerivedCellAlloc() (DerivedCell*)SizeMalloc(sizeof(DerivedCell))
 #define DerivedCellFree(junk) SizeFree(junk, sizeof(DerivedCell))
 
 Derived_p DerivedAlloc(void);
 #define DerivedFree(junk) DerivedCellFree(junk)
+#define DerivedGetDerivstack(d) \
+   ((d)->clause?(d)->clause->derivation:(d)->formula->derivation)
+
+bool DerivedInProof(Derived_p derived);
+void DerivedSetInProof(Derived_p derived, bool in_proof);
 
 void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation);
 void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation);
 
 void DerivedPCLPrint(FILE* out, Sig_p sig, Derived_p derived);
 void DerivedTSTPPrint(FILE* out, Sig_p sig, Derived_p derived);
+void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived, 
+                     ProofOutput print_derivation);
+
+bool DerivedIsEvalGC(Derived_p derived);
 
 #define DerivationCellAlloc() (DerivationCell*)SizeMalloc(sizeof(DerivationCell))
 #define DerivationCellFree(junk) SizeFree(junk, sizeof(DerivationCell))
@@ -206,11 +257,21 @@ Derived_p DerivationGetDerived(Derivation_p derivation, Clause_p clause,
 
 
 long DerivationExtract(Derivation_p derivation, PStack_p root_clauses);
+long DerivationMarkProofSteps(Derivation_p derivation);
 long DerivationTopoSort(Derivation_p derivation);
 void DerivationRenumber(Derivation_p derivation);
 
 Derivation_p DerivationCompute(PStack_p root_clauses, Sig_p sig);
+
+void DerivationAnalyse(Derivation_p derivationt);
+
 void DerivationPrint(FILE* out, Derivation_p derivation, char* frame);
+void DerivationDotPrint(FILE* out, Derivation_p derivation, 
+                        ProofOutput print_derivation);
+
+void DerivationComputeAndPrint(FILE* out, char* status, PStack_p root_clauses, 
+                               Sig_p sig, ProofOutput print_derivation,
+                               bool print_analysis);
 
 
 #endif

@@ -8,7 +8,7 @@ Contents
  
   Functions realizing the proof procedure.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998--2016 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
@@ -388,6 +388,9 @@ void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
    FVPackedClause_p pclause = FVIndexPackClause(clause, watchlist->fvindex);
    long removed;
    
+   ClauseSubsumeOrderSortLits(clause);
+   // assert(ClauseIsSubsumeOrdered(clause));
+ 
    clause->weight = ClauseStandardWeight(clause);
    if((removed = remove_subsumed(indices, pclause, watchlist, archive)))
    {
@@ -452,7 +455,7 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
       {
 	 ClauseRemoveACResolved(handle);
       }
-      ClauseSubsumeOrderSortLits(handle);
+      handle->weight = ClauseStandardWeight(handle);
       ClauseSetIndexedInsertClause(state->watchlist, handle);
       GlobalIndicesInsertClause(&(state->wlindices), handle);
    }   
@@ -583,8 +586,8 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
 			   ClauseQueryProp(handle,CPIsProcessed)),
                           control->heuristic_parms.condensing_aggressive,
 			  control->heuristic_parms.forward_demod);
-
-
+      
+      
       if(ClauseIsTrivial(handle))
       {
 	 assert(!handle->children);
@@ -637,6 +640,10 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
 	 EqnListDelProp(handle->literals, EPIsSelected);
       }
       handle->create_date = state->proc_non_trivial_count;
+      if(ProofObjectRecordsGCSelection)
+      {
+         ClausePushDerivation(handle, DCCnfEvalGC, NULL, NULL);
+      }
       HCBClauseEvaluate(control->hcb, handle);
       ClauseDelProp(handle, CPIsOriented);
       DocClauseQuoteDefault(6, handle, "eval");
@@ -754,7 +761,10 @@ static Clause_p cleanup_unprocessed_clauses(ProofState_p state,
          ForwardContractSet(state, control,
                             state->unprocessed, false, FullRewrite,
                             &(state->other_redundant_count), true);
-      
+      if(unsatisfiable)
+      {
+         PStackPushP(state->extract_roots, unsatisfiable);
+      }
       if(OutputLevel)
       {
          fprintf(GlobalOut, 
@@ -986,6 +996,10 @@ void ProofStateResetProcessedSet(ProofState_p state,
 
       ClauseKillChildren(handle); /* Should be none, but better be safe */
 
+      if(ProofObjectRecordsGCSelection)
+      {
+         ClausePushDerivation(handle, DCCnfEvalGC, NULL, NULL);
+      }
       if(BuildProofObject)
       {
          Clause_p tmpclause = ClauseFlatCopy(handle);
@@ -1182,7 +1196,6 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
 
    OUTPRINT(1, "# Initializing proof state\n");
    
-   
    assert(ClauseSetEmpty(state->processed_pos_rules));
    assert(ClauseSetEmpty(state->processed_pos_eqns));
    assert(ClauseSetEmpty(state->processed_neg_units));
@@ -1203,6 +1216,10 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
       HCBClauseEvaluate(control->hcb, new);
       DocClauseQuoteDefault(6, new, "eval");
       ClausePushDerivation(new, DCCnfQuote, handle, NULL);
+      if(ProofObjectRecordsGCSelection)
+      {
+         ClausePushDerivation(new, DCCnfEvalGC, NULL, NULL);
+      }
       if(control->heuristic_parms.prefer_initial_clauses)
       {
 	 EvalListChangePriority(new->evaluations, -PrioLargestReasonable);
@@ -1266,7 +1283,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
 Clause_p ProcessClause(ProofState_p state, ProofControl_p control, 
                        long answer_limit)
 {
-   Clause_p         clause, resclause, tmp_copy, empty;
+   Clause_p         clause, resclause, tmp_copy, empty, arch_copy = NULL;
    FVPackedClause_p pclause;
    SysDate          clausedate;
 
@@ -1286,6 +1303,11 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    ClauseRemoveEvaluations(clause);
    
    assert(!ClauseQueryProp(clause, CPIsIRVictim));
+   
+   if(ProofObjectRecordsGCSelection)
+   {
+      arch_copy = ClauseArchive(state->archive, clause);
+   }
 
    if(!(pclause = ForwardContractClause(state, control,
                                         clause, true, 
@@ -1293,6 +1315,10 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
                                         control->heuristic_parms.condensing,
                                         FullRewrite)))
    {
+      if(arch_copy)
+      {
+         ClauseSetDeleteEntry(arch_copy);
+      }
       return NULL;
    }
 
@@ -1318,6 +1344,10 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    resclause = replacing_inferences(state, control, pclause);
    if(!resclause || ClauseIsEmpty(resclause))
    {
+      if(resclause)
+      {
+         PStackPushP(state->extract_roots, resclause);
+      }
       return resclause;
    }
    

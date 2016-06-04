@@ -96,7 +96,7 @@ typedef struct funccell
 typedef struct sigcell
 {
    bool      alpha_ranks_valid; /* The alpha-ranks are up to date */
-   long      size;     /* Size of the array */
+   long      size;     /* Size the array */
    FunCode   f_count;  /* Largest used f_code */
    FunCode   internal_symbols; /* Largest auto-inserted internal symbol */
    Func_p    f_info;   /* The array */

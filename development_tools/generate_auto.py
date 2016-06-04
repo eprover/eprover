@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python
 
 import sys
 import re
@@ -594,6 +594,7 @@ selstrat={
    "SelectMaxLComplexG"                 : "SelectMaxLComplexG", 
 
    "SelectMaxLComplexAvoidPosPred"      : "SelectMaxLComplexAvoidPosPred",
+   "SelectMaxLComplexAPPNTNp"           : "SelectMaxLComplexAPPNTNp",
    "SelectMaxLComplexAvoidPosUPred"     : "SelectMaxLComplexAvoidPosUPred",
    "SelectComplexG"                     : "SelectComplexG",
 
@@ -614,6 +615,38 @@ selstrat={
 
    "SelectNewComplexAHPNS"              : "SelectNewComplexAHPNS",
    "SelectVGNonCR"                      : "SelectVGNonCR",
+
+   "SelectCQArEqLast"                   : "SelectCQArEqLast",
+   "SelectCQArEqFirst"                  : "SelectCQArEqFirst",
+   "SelectCQIArEqLast"                  : "SelectCQIArEqLast",
+   "SelectCQIArEqFirst"                 : "SelectCQIArEqFirst",
+   "SelectCQAr"                         : "SelectCQAr",
+   "SelectCQIAr"                        : "SelectCQIAr",
+   "SelectCQArNpEqFirst"                : "SelectCQArNpEqFirst",
+   "SelectCQIArNpEqFirst"               : "SelectCQIArNpEqFirst",
+   "SelectGrCQArEqFirst"                : "SelectGrCQArEqFirst",
+   "SelectCQGrArEqFirst"                : "SelectCQGrArEqFirst",
+   "SelectCQArNTEqFirst"                : "SelectCQArNTEqFirst",
+   "SelectCQIArNTEqFirst"               : "SelectCQIArNTEqFirst",
+   "SelectCQArNTNpEqFirst"              : "SelectCQArNTNpEqFirst",
+   "SelectCQIArNTNpEqFirst"             : "SelectCQIArNTNpEqFirst",
+   "SelectCQArNXTEqFirst"               : "SelectCQArNXTEqFirst",
+   "SelectCQIArNXTEqFirst"              : "SelectCQIArNXTEqFirst",
+
+   "SelectCQArNTNp"                     :  "SelectCQArNTNp",
+   "SelectCQIArNTNp"                    :  "SelectCQIArNTNp",
+   "SelectCQArNT"                       :  "SelectCQArNT",
+   "SelectCQIArNT"                      :  "SelectCQIArNT",
+   "SelectCQArNp"                       :  "SelectCQArNp",
+   "SelectCQIArNp"                      :  "SelectCQIArNp",
+
+   "SelectCQArNpEqFirstUnlessPDom"      : "SelectCQArNpEqFirstUnlessPDom",
+   "SelectCQArNTEqFirstUnlessPDom"      : "SelectCQArNTEqFirstUnlessPDom",
+
+   "SelectCQPrecW"                      : "SelectCQPrecW",
+   "SelectCQIPrecW"                     : "SelectCQIPrecW",
+   "SelectCQPrecWNTNp"                  : "SelectCQPrecWNTNp",
+   "SelectCQIPrecWNTNp"                 : "SelectCQIPrecWNTNp"
 }
 
 

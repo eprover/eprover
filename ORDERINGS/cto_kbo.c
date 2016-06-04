@@ -243,7 +243,6 @@ static CompareResult kbogtrnew(OCB_p ocb, Term_p s, Term_p t,
 	    return to_greater;
 	 }
 	 return to_uncomparable;
-	 break;
    case to_equal:
 	 for (i=0; i<MAX(s->arity,t->arity); i++) {
 	    if (t->arity <= i) {
@@ -262,23 +261,19 @@ static CompareResult kbogtrnew(OCB_p ocb, Term_p s, Term_p t,
 		     return to_greater;
 		  }
 		  return to_uncomparable;		  
-		  break;
 	    case to_uncomparable:
 		  return to_uncomparable;
-		  break;
 	    case to_equal:
-		  break;
+         break;
 	    default:
 		  assert(false);
 		  break;
 	    }
 	 }
 	 return to_equal;
-	 break;
    case to_uncomparable:
    case to_lesser:
-	 return to_uncomparable;
-	 break;
+     return to_uncomparable;
    default:
 	 assert(false);
 	 break;
@@ -341,15 +336,12 @@ CompareResult KBOCompare(OCB_p ocb, Term_p s, Term_p t,
       case to_greater: 
       case to_equal:
 	    return to_greater;
-	    break;
       case to_uncomparable: 
       case to_lesser:
 	    return to_uncomparable;
-	    break;
       default:
 	    assert(false);
 	    return to_uncomparable;
-	    break;
       }
    }
 
@@ -360,15 +352,12 @@ CompareResult KBOCompare(OCB_p ocb, Term_p s, Term_p t,
       case to_lesser:
       case to_equal:
 	    return to_lesser;
-	    break;
       case to_uncomparable:
       case to_greater:
 	    return to_uncomparable;
-	    break;
       default:
 	    assert(false);
 	    return to_uncomparable;
-	    break;
       }
    }
 
@@ -380,41 +369,32 @@ CompareResult KBOCompare(OCB_p ocb, Term_p s, Term_p t,
    {
    case to_uncomparable:
 	 return to_uncomparable;
-	 break;
    case to_greater:
 	 switch (KBOVarCompare(s, t, deref_s, deref_t)) 
 	 {
 	 case to_greater:
 	 case to_equal:
 	       return to_greater;
-	       break;
 	 case to_uncomparable: 
 	 case to_lesser:
 	       return to_uncomparable;
-	       break;
 	 default:
 	       assert(false);
 	       return to_uncomparable;
-	       break;
 	 }
-	 break;
    case to_lesser:
 	 switch (KBOVarCompare(s, t, deref_s, deref_t)) 
 	 {
 	 case to_lesser: 
 	 case to_equal:
 	       return to_lesser;
-	       break;
 	 case to_uncomparable:
 	 case to_greater:
 	       return to_uncomparable;
-	       break;
 	 default:
 	       assert(false);
 	       return to_uncomparable;
-	       break;
 	 }
-	 break;	    
    case to_equal:
 	 for (i=0; i<MAX(s->arity,t->arity); i++) 
 	 {
@@ -425,15 +405,12 @@ CompareResult KBOCompare(OCB_p ocb, Term_p s, Term_p t,
 	       case to_greater:
 	       case to_equal:
 		     return to_greater;
-		     break;
 	       case to_uncomparable: 
 	       case to_lesser:
 		     return to_uncomparable;
-		     break;
 	       default:
 		     assert(false);
 		     return to_uncomparable;
-		     break;
 	       }
 	    }
 	    if (s->arity <= i) 
@@ -443,15 +420,12 @@ CompareResult KBOCompare(OCB_p ocb, Term_p s, Term_p t,
 	       case to_lesser:
 	       case to_equal:
 		     return to_lesser;
-		     break;
 	       case to_uncomparable:
 	       case to_greater:
 		     return to_uncomparable;
-		     break;
 	       default:
 		     assert(false);
 		     return to_uncomparable;
-		     break;
 	       }
 	    }
 	    if ((res = KBOCompare(ocb, s->args[i], t->args[i],
@@ -462,15 +436,12 @@ CompareResult KBOCompare(OCB_p ocb, Term_p s, Term_p t,
 	       case to_greater:
 	       case to_equal:
 		     return to_greater;
-		     break;
 	       case to_uncomparable: 
 	       case to_lesser:
 		     return to_uncomparable;
-		     break;
 	       default:
 		     assert(false);
 		     return to_uncomparable;
-		     break;
 	       }
 	    }
 	    if (res == to_lesser)
@@ -480,15 +451,12 @@ CompareResult KBOCompare(OCB_p ocb, Term_p s, Term_p t,
 	       case to_lesser:
 	       case to_equal:
 		     return to_lesser;
-		     break;
 	       case to_uncomparable:
 	       case to_greater:
 		     return to_uncomparable;
-		     break;
 	       default:
 		     assert(false);
 		     return to_uncomparable;
-		     break;
 	       }
 	    }
 	    if (res == to_uncomparable)
@@ -497,11 +465,9 @@ CompareResult KBOCompare(OCB_p ocb, Term_p s, Term_p t,
 	    }
 	 }
 	return to_equal;
-	break;
    default:
 	 assert(false);
 	 return to_uncomparable;
-	 break;
    }
 }
 

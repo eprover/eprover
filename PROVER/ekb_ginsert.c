@@ -120,11 +120,11 @@ int main(int argc, char* argv[])
    long            proof_steps, neg_steps;
 
    assert(argv[0]);
-
-   InitIO("ekb_ginsert");
 #ifdef STACK_SIZE
-   IncreaseMaxStackSize(argv, STACK_SIZE);
+   INCREASE_STACK_SIZE;
 #endif
+
+   InitIO(argv[0]);
    atexit(TempFileCleanup);
    ESignalSetup(SIGTERM);
    ESignalSetup(SIGINT);
@@ -330,11 +330,9 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_HELP: 
 	    print_help(stdout);
 	    exit(NO_ERROR);
-	    break;
       case OPT_VERSION:
 	    printf("ekb_ginsert " VERSION "\n");
 	    exit(NO_ERROR);
-	    break;	    
       case OPT_KB:
 	    kb_name = arg;
 	    break;

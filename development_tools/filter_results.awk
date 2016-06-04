@@ -1,11 +1,12 @@
-#!/sw/bin/gawk -f
+#!/usr/bin/env gawk -f
 
 # Usage: filter_results.awk <filter_file> [<from_file>]
 #
-# Copyright 1998 Stephan Schulz, schulz@informatik.tu-muenchen.de
+# Copyright 1998, 2016 Stephan Schulz, schulz@eprover.org
 #
 # Read file of TPTP problem names and a second file, return all lines
-# from the second file in which a name from the first file occurs.
+# from the second file in which a name from the first file
+# occurs. Also pass through comments.
 #
 
 BEGIN{
@@ -34,7 +35,11 @@ function get_basename(name,     tmp)
 # Skipping comments
 
 /^#/{
-  next;
+   if(ARGIND==2)
+   {
+      print
+   }
+   next;
 }
 
 # Process all non-empty lines
@@ -42,11 +47,11 @@ function get_basename(name,     tmp)
 /[A-Za-z0-9]+/{
    if(ARGIND == 1)
    {
-      names[get_basename($0)] = 1;
+      names[$1] = 1;
    }
    else
    {
-      if(names[get_basename($0)])
+      if(names[$1])
       {
 	 print;
 	 # delete names[get_basename($0)];

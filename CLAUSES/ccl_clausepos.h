@@ -158,7 +158,7 @@ static __inline__ Term_p ClausePosGetSide(ClausePos_p pos)
 // Function: ClausePosGetOtherSide()
 //
 //   Given a clause position, return the _not_ designated side of the
-//   literal - don't ask, this has it's use!
+//   literal - don't ask, this has its use!
 //
 // Global Variables: -
 //

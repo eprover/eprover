@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python
 # ----------------------------------
 #
 # Usage: wo.py <s1> <s2>

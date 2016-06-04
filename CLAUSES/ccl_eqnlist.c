@@ -823,7 +823,7 @@ int EqnListRemoveSimpleAnswers(EqnRef list)
 //
 /----------------------------------------------------------------------*/
 
-Eqn_p EqnListFindNegPureVarLit(Eqn_p list)
+ Eqn_p EqnListFindNegPureVarLit(Eqn_p list)
 {
    while(list)
    {

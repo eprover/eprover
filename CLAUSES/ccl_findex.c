@@ -100,7 +100,7 @@ static void findex_remove_instance(FIndex_p index, FunCode i, void* inst)
 //
 /----------------------------------------------------------------------*/
 
-FIndex_p FIndexAlloc()
+FIndex_p FIndexAlloc(void)
 {
    FIndex_p handle = FIndexCellAlloc();
 

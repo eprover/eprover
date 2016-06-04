@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python
 
 """
 pylib_eprot 0.1
@@ -135,12 +135,13 @@ def e_strip_name(name):
     Given an E job name, either in raw, in spec or in prot form,
     return the raw name.
     """
+    name = os.path.basename(name)
     if name.startswith(espec_name):
         return name[len(espec_name):]
     if name.startswith(eprot_name):
         return name[len(eprot_name):]
     return name
-    
+
 
 class ejob(object):
     """
@@ -204,7 +205,10 @@ class eresult(object):
         return self.values[1]
 
     def cputime(self):
-        return float(self.values[2])
+        try:
+            return float(self.values[2])
+        except ValueError:
+            return 1000000.0
 
     def reason(self):
         return self.values[3]
@@ -216,6 +220,10 @@ class eresult(object):
         for i in self.values[4:]:
             reslist.append("%10s"%(i,))
         return " ".join(reslist)
+
+    def __repr__(self):
+        return self.__str__()
+
 
 class eprot(object):
     """
@@ -283,7 +291,36 @@ class eprot(object):
                     for i in self.results.values()\
                     if (float(i.values[selector])>=limit)])
         
+    def get_results(self):
+        return list(self.results.values())
 
+    def get_timesorted_results(self):
+        p = self.get_results()
+        p.sort(key=eresult.cputime)
+        return p
+
+    def get_performance_plot(self, step=1.0, limit=300):
+        """
+        Return a list of solutions found for the time limits 0, step,
+        2*step, ..., 300.
+        """
+        tlim = 0.0
+        succ = 0
+        count = 0
+        res = []
+        soln = self.get_timesorted_results()
+        soln = [r for r in soln if r.success()]
+
+        while tlim <=limit:
+            while soln and soln[0].cputime() <= tlim:
+                soln.pop(0)
+                succ = succ+1
+            res.append((tlim, succ))
+            count = count+1
+            tlim = count*step
+        return res
+
+            
     def filter(self, problemlist):
         """
         Filter result list against a problemlist.

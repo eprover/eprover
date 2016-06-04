@@ -40,6 +40,9 @@ char* TONames[]=
    "AutoSched2",
    "AutoSched3",
    "AutoSched4",
+   "AutoSched5",
+   "AutoSched6",
+   "AutoSched7",
    "Optimize",
    "KBO",
    "KBO6",
@@ -315,7 +318,14 @@ void OCBDebugPrint(FILE* out, OCB_p ocb)
 	 {
 	    fprintf(out, "\n# ");
 	 }
-	 fprintf(out, " (%ld = %ld) ", i, OCBFunWeight(ocb, i));
+         if(ocb->sig)
+         {
+            fprintf(out, " (%s = %ld) ", SigFindName(ocb->sig,i), OCBFunWeight(ocb, i));
+         }
+         else
+         {
+            fprintf(out, " (%ld = %ld) ", i, OCBFunWeight(ocb, i));
+         }
       }
       fprintf(out, "\n\n");
    }

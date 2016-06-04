@@ -185,6 +185,7 @@ void SelectDiversificationLiterals(OCB_p ocb, Clause_p clause);
 void SelectDiversificationPreferIntoLiterals(OCB_p ocb, Clause_p clause);
 void SelectMaxLComplexG(OCB_p ocb, Clause_p clause);
 void SelectMaxLComplexAvoidPosPred(OCB_p ocb, Clause_p clause);
+void SelectMaxLComplexAPPNTNp(OCB_p ocb, Clause_p clause);
 void SelectMaxLComplexAPPNoType(OCB_p ocb, Clause_p clause);
 void SelectMaxLComplexAvoidPosUPred(OCB_p ocb, Clause_p clause);
 void SelectComplexG(OCB_p ocb, Clause_p clause);
@@ -205,7 +206,45 @@ void PSelectNewComplexAHPExceptUniqMaxHorn(OCB_p ocb, Clause_p clause);
 void SelectNewComplexAHPNS(OCB_p ocb, Clause_p clause);
 void SelectVGNonCR(OCB_p ocb, Clause_p clause);
 
+void SelectCQArEqLast(OCB_p ocb, Clause_p clause);
+void SelectCQArEqFirst(OCB_p ocb, Clause_p clause);
+void SelectCQIArEqLast(OCB_p ocb, Clause_p clause);
+void SelectCQIArEqFirst(OCB_p ocb, Clause_p clause);
+void SelectCQAr(OCB_p ocb, Clause_p clause);
+void SelectCQIAr(OCB_p ocb, Clause_p clause);
+void SelectCQArNpEqFirst(OCB_p ocb, Clause_p clause);
+void SelectCQIArNpEqFirst(OCB_p ocb, Clause_p clause);
+
+void SelectGrCQArEqFirst(OCB_p ocb, Clause_p clause);
+void SelectCQGrArEqFirst(OCB_p ocb, Clause_p clause);
+
+void SelectCQArNTEqFirst(OCB_p ocb, Clause_p clause);
+void SelectCQIArNTEqFirst(OCB_p ocb, Clause_p clause);
+void SelectCQArNTNpEqFirst(OCB_p ocb, Clause_p clause);
+void SelectCQIArNTNpEqFirst(OCB_p ocb, Clause_p clause);
+void SelectCQArNXTEqFirst(OCB_p ocb, Clause_p clause);
+void SelectCQIArNXTEqFirst(OCB_p ocb, Clause_p clause);
+
+void SelectCQArNTNp(OCB_p ocb, Clause_p clause);
+void SelectCQIArNTNp(OCB_p ocb, Clause_p clause);
+void SelectCQArNT(OCB_p ocb, Clause_p clause);
+void SelectCQIArNT(OCB_p ocb, Clause_p clause);
+void SelectCQArNp(OCB_p ocb, Clause_p clause);
+void SelectCQIArNp(OCB_p ocb, Clause_p clause);
+
+void SelectCQArNpEqFirstUnlessPDom(OCB_p ocb, Clause_p clause);
+void SelectCQArNTEqFirstUnlessPDom(OCB_p ocb, Clause_p clause);
+
+void SelectCQPrecW(OCB_p ocb, Clause_p clause);
+void SelectCQIPrecW(OCB_p ocb, Clause_p clause);
+void SelectCQPrecWNTNp(OCB_p ocb, Clause_p clause);
+void SelectCQIPrecWNTNp(OCB_p ocb, Clause_p clause);
+
+
+
 #endif
+
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

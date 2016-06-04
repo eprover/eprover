@@ -21,8 +21,3 @@ all: $(LIB)
 
 include ../Makefile.services
 
-tools:
-	@echo "Configuring tools"
-	./configure_tools
-	./configure_bash_scripts
-

@@ -255,7 +255,7 @@ long FlatAnnoSetTranslate(FlatAnnoSet_p flatset, AnnoSet_p set, double
 			       AnnotationCount(old->annotation));
       
       check = FlatAnnoSetAddTerm(flatset, term);
-      assert(check);
+      (void)check; assert(check);
       res++;      
    }
    NumTreeTraverseExit(stack);

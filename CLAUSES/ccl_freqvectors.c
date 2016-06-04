@@ -102,7 +102,7 @@ int tuple3_compare_23lex(const void* tuple1, const void* tuple2)
 static void gather_feature_vec(FVCollect_p cspec, long* full_vec, 
                             FreqVector_p vec, long findex)
 {
-   long resindex = -1, base, offset, mod = 0;
+   long resindex = -1, base = 0, offset = 0, mod = 0;
 
    if(findex < cspec->ass_vec_len)
    {
@@ -133,7 +133,7 @@ static void gather_feature_vec(FVCollect_p cspec, long* full_vec,
             mod    = cspec->neg_depth_mod;
             break;
       default:
-            assert(false);            
+            assert(false);
             break;
       }
       if(mod)
@@ -393,7 +393,6 @@ void VarFreqVectorAddVals(FreqVector_p vec, long symbols, FVIndexType features,
 	 assert(features == FVINoFeatures);
 	 assert(false);
 	 return; /* Cheapest way to fix compiler warning */
-	 break;
    }
    if(unused) 
    { /* Stiffle insure warnings - we don't use unused (duh!), but

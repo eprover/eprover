@@ -66,11 +66,11 @@ static char* print_start_of_str(FILE* out, char* str, int len)
    while(*search && i<len) /* Search last blank before
 			      EOString/newline or len characters. */
    {
-      if((*search == ' '))
+      if(*search == ' ')
       {
 	 blank = search;
       }
-      else if((*search == '\n'))
+      else if(*search == '\n')
       {
 	 blank = search;
 	 i=len;

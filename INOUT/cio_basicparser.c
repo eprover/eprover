@@ -166,7 +166,7 @@ double ParseFloat(Scanner_p in)
 //
 //   Parse a (possibly signed) number (Integer, Rational, or Float)
 //   and return the most specific type compatible with it. The number
-//   is not evaluated, but it's ASCII representation is stored in
+//   is not evaluated, but its ASCII representation is stored in
 //   in->accu.
 //
 // Global Variables: -

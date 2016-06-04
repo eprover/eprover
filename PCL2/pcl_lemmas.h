@@ -104,7 +104,7 @@ LemmaParam_p LemmaParamAlloc(void);
         (InferenceWeight_p)SizeMalloc(sizeof(InferenceWeightType))
 #define InferenceWeightCellFree(junk) \
         SizeFree(junk, sizeof(InferenceWeightType))
-InferenceWeight_p InferenceWeightsAlloc();
+InferenceWeight_p InferenceWeightsAlloc(void);
 #define InferenceWeightsFree(junk) InferenceWeightCellFree(junk)
 
 void PCLExprUpdateRefs(PCLProt_p prot, PCLExpr_p expr);
@@ -120,9 +120,6 @@ long PCLStepProofSize(PCLProt_p prot, PCLStep_p step, InferenceWeight_p iw,
 		      bool use_lemmas);
 void PCLProtComputeProofSize(PCLProt_p prot, InferenceWeight_p iw, 
 			     bool use_lemmas);
-
-float PCLStepComputeLemmaWeight(PCLProt_p prot, PCLStep_p step, 
-				LemmaParam_p params);
 
 float PCLStepComputeLemmaWeight(PCLProt_p prot, PCLStep_p step, 
 				LemmaParam_p params);

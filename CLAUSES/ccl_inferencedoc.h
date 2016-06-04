@@ -38,6 +38,7 @@ typedef enum
    inf_noinf,
    inf_initial,
    inf_quote,
+   inf_evalgc,
    inf_paramod,
    inf_sim_paramod,
    inf_efactor,
@@ -76,20 +77,21 @@ typedef enum
 }OutputFormatType;
  
 
-#define PCL_QUOTE NULL
-#define PCL_ER    "er"
-#define PCL_PM    "pm"
-#define PCL_SPM   "spm"
-#define PCL_EF    "ef"
-#define PCL_OF    "of"
-#define PCL_SPLIT "split"
+#define PCL_QUOTE  NULL
+#define PCL_EVALGC "evalgc"
+#define PCL_ER     "er"
+#define PCL_PM     "pm"
+#define PCL_SPM    "spm"
+#define PCL_EF     "ef"
+#define PCL_OF     "of"
+#define PCL_SPLIT  "split"
 #define TSTP_SPLIT_REFINED "esplit"
 #define TSTP_SPLIT_BASE    "split"
-#define PCL_RW    "rw"
-#define PCL_SR    "sr"
-#define PCL_CSR   "csr"
-#define PCL_ACRES "ar"
-#define PCL_CN    "cn"
+#define PCL_RW     "rw"
+#define PCL_SR     "sr"
+#define PCL_CSR    "csr"
+#define PCL_ACRES  "ar"
+#define PCL_CN     "cn"
 #define PCL_CONDENSE "condense"
 
 #define PCL_SC     "split_conjunct"

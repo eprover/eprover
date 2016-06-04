@@ -91,7 +91,7 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->heuristic_name                = HCB_DEFAULT_HEURISTIC;
    handle->prefer_initial_clauses        = false;
 
-   handle->ordertype                     = KBO;
+   handle->ordertype                     = KBO6;
    handle->to_weight_gen                 = WNoMethod;
    handle->to_prec_gen                   = PNoMethod;
    handle->to_pre_prec                   = NULL;

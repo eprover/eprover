@@ -10,7 +10,7 @@ Contents
   information relevant to the calculus, but not information describing
   control).
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2016 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
@@ -78,26 +78,38 @@ typedef struct proofstatecell
    FVCollect_p       def_store_cspec;
 
    bool              status_reported;
-   ulong_c           answer_count;
+   long              answer_count;
 
-   ulong_c           processed_count;
-   ulong_c           proc_trivial_count;
-   ulong_c           proc_forward_subsumed_count;
-   ulong_c           proc_non_trivial_count;
-   ulong_c           other_redundant_count;       /* Intermediate
+   unsigned long           processed_count;
+   unsigned long           proc_trivial_count;
+   unsigned long           proc_forward_subsumed_count;
+   unsigned long           proc_non_trivial_count;
+   unsigned long           other_redundant_count;       /* Intermediate
     		            		             filtering */
-   ulong_c           non_redundant_deleted;
-   ulong_c           backward_subsumed_count;
-   ulong_c           backward_rewritten_count;
-   ulong_c           backward_rewritten_lit_count;
-   ulong_c           generated_count;
-   ulong_c           generated_lit_count;
-   ulong_c           non_trivial_generated_count;
-   ulong_c           context_sr_count;
-   ulong_c           paramod_count;
-   ulong_c           factor_count;
-   ulong_c           resolv_count;   
+   unsigned long           non_redundant_deleted;
+   unsigned long           backward_subsumed_count;
+   unsigned long           backward_rewritten_count;
+   unsigned long           backward_rewritten_lit_count;
+   unsigned long           generated_count;
+   unsigned long           generated_lit_count;
+   unsigned long           non_trivial_generated_count;
+   unsigned long           context_sr_count;
+   unsigned long           paramod_count;
+   unsigned long           factor_count;
+   unsigned long           resolv_count;
+   
+   /* The following are only set by ProofStateAnalyse() after
+      DerivationCompute() at the end of the proof search. */
+   unsigned long           gc_count;
+   unsigned long           gc_used_count;
 }ProofStateCell, *ProofState_p;
+
+typedef enum 
+{
+   TSPrintPos = 1,
+   TSPrintNeg = 2,
+   TSAverageData = 4
+}TrainingSelector;
 
 
 
@@ -128,6 +140,12 @@ void         ProofStateFree(ProofState_p junk);
     ClauseSetStorage((state)->archive)+\
     TBStorage((state)->terms))
 
+
+void ProofStateAnalyseGC(ProofState_p state);
+void ProofStatePickTrainingExamples(ProofState_p state, 
+                                    PStack_p pos_examples, 
+                                    PStack_p neg_examples);
+void ProofStateTrain(ProofState_p state, bool print_pos, bool print_neg);
 void ProofStateStatisticsPrint(FILE* out, ProofState_p state);
 void ProofStatePrint(FILE* out, ProofState_p state);
 void ProofStatePropDocQuote(FILE* out, int level, 

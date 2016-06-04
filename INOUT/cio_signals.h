@@ -56,8 +56,8 @@ extern rlim_t                SystemTimeLimit; /* Returned by the
 extern rlim_t                SoftTimeLimit;   /* Try to exit
 						 gracefully */
 extern rlim_t                HardTimeLimit;   /* Exit now! */
-extern VOLATILE sig_atomic_t TimeIsUp;
-extern VOLATILE sig_atomic_t TimeLimitIsSoft; /* Have we hit hard or
+extern sig_atomic_t TimeIsUp;
+extern sig_atomic_t TimeLimitIsSoft; /* Have we hit hard or
 						 soft? */
 extern bool                  SilentTimeOut;
 

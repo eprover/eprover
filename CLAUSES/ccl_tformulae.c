@@ -394,6 +394,55 @@ static TFormula_p assoc_tform_tstp_parse(Scanner_p in, TB_p terms, TFormula_p he
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: tform_compute_freevars()
+//
+//   Return the set of free variables in form. If necessary, compute
+//   it and update bank->freevars.
+//
+// Global Variables: -
+//
+// Side Effects    : Updates bank->freevars.
+//
+/----------------------------------------------------------------------*/
+
+VarSet_p tform_compute_freevars(TB_p bank, TFormula_p form)
+{   
+   VarSet_p free_vars = VarSetStoreGetVarSet(&(bank->freevarsets), form);
+   VarSet_p arg_vars;
+
+   if(!free_vars->valid)
+   {
+      // printf("Computing for %p - ", form);
+      if(TFormulaIsLiteral(bank->sig, form))
+      {
+         // printf("literal\n");
+         VarSetCollectVars(free_vars);
+      }     
+      else if((form->f_code == bank->sig->qex_code) ||
+              (form->f_code == bank->sig->qall_code))
+      {
+         // printf("quantified\n");
+         arg_vars = tform_compute_freevars(bank, form->args[1]);
+         VarSetInsertVarSet(free_vars, arg_vars);
+         VarSetDeleteVar(free_vars, form->args[0]);
+      }
+      else
+      {
+         int i; 
+
+         // printf("composite\n");
+         for(i=0;  i<form->arity; i++)
+         {
+            arg_vars = tform_compute_freevars(bank, form->args[i]);
+            VarSetInsertVarSet(free_vars, arg_vars);
+         }
+      }
+      free_vars->valid = true;
+   }
+   return free_vars;
+}
 
 
 /*---------------------------------------------------------------------*/
@@ -731,7 +780,7 @@ bool TFormulaVarIsFree(TB_p bank, TFormula_p form, Term_p var)
 
    if(TFormulaIsLiteral(bank->sig, form))
    {
-      res = TermIsSubterm(form, var, DEREF_NEVER, TBTermEqual);
+      res = TBTermIsSubterm(form, var);
    }
    else if((form->f_code == bank->sig->qex_code) ||
            (form->f_code == bank->sig->qall_code))
@@ -759,6 +808,35 @@ bool TFormulaVarIsFree(TB_p bank, TFormula_p form, Term_p var)
    return res;
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaVarIsFreeCached()
+//
+//   Return true iff var is a free variable in form. Also cache the
+//   local variable set in bank->freevarset.
+//
+//   Not really an improvement in the original use case, kept as a
+//   historical recode...
+// 
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool TFormulaVarIsFreeCached(TB_p bank, TFormula_p form, Term_p var)
+{
+   VarSet_p free_vars = tform_compute_freevars(bank, form);
+   bool res;
+   
+   assert(free_vars->valid);
+
+   res = VarSetContains(free_vars, var);
+   assert(res == TFormulaVarIsFree(bank, form, var));
+
+   return res;
+}
 
 
 /*-----------------------------------------------------------------------
@@ -1014,7 +1092,7 @@ void TFormulaMarkPolarity(TB_p bank, TFormula_p form, int polarity)
    {
       TFormulaMarkPolarity(bank, form->args[0], -polarity);
    }
-   else if((form->f_code == bank->sig->equiv_code))
+   else if(form->f_code == bank->sig->equiv_code)
    {
       TFormulaMarkPolarity(bank, form->args[0], 0);
    }
@@ -1027,7 +1105,7 @@ void TFormulaMarkPolarity(TB_p bank, TFormula_p form, int polarity)
    {
       TFormulaMarkPolarity(bank, form->args[1], polarity);
    }
-   else if((form->f_code == bank->sig->equiv_code))
+   else if(form->f_code == bank->sig->equiv_code)
    {
       TFormulaMarkPolarity(bank, form->args[1], 0);
    }
@@ -1060,9 +1138,9 @@ int TFormulaDecodePolarity(TB_p bank, TFormula_p form)
    {
       return -1;
    }
-   printf("# Formula without polarity: ");
-   TFormulaTPTPPrint(stdout, bank, form, true, false);            
-   printf("\n");
+   //printf("# Formula without polarity: ");
+   //TFormulaTPTPPrint(stdout, bank, form, true, false);            
+   //printf("\n");
    assert(false && "Formula without polarity !?!");
    return 0;
 }

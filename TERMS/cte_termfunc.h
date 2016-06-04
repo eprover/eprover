@@ -103,9 +103,8 @@ bool    TermIsDefTerm(Term_p term, int min_arity);
 
 bool    TermHasFCode(Term_p term, FunCode f);
 
-bool    TermHasVariables(Term_p term, bool unbound_only);
-#define TermIsGround(term) (!TermHasVariables((term), false))
-#define TermHasUnboundVariables(term) TermHasVariables((term), true)
+bool    TermHasUnboundVariables(Term_p term);
+bool    TermIsGround(Term_p term);
 
 FunCode TermFindMaxVarCode(Term_p term);
 
@@ -132,7 +131,6 @@ long    TermCollectPropVariables(Term_p term, PTree_p *tree,
 long    TermAddFunOcc(Term_p term, PDArray_p f_occur, PStack_p res_stack);
 
 long    TermLinearize(PStack_p stack, Term_p term);
-
 
 Term_p  TermCheckConsistency(Term_p term, DerefType deref);
 void    TermAssertSameSort(Sig_p sig, Term_p t1, Term_p t2);

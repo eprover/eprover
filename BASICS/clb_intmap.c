@@ -115,7 +115,7 @@ static NumTree_p add_new_tree_node(IntMap_p map, long key, void* val)
    handle->key = key;
    handle->val1.p_val = val;
    check = NumTreeInsert(&(map->values.tree), handle);
-   assert(!check);
+   (void)check; assert(!check);
    map->entry_no++;
 
    return handle;
@@ -229,7 +229,7 @@ static void tree_to_array(IntMap_p map)
 //
 /----------------------------------------------------------------------*/
 
-IntMap_p IntMapAlloc()
+IntMap_p IntMapAlloc(void)
 {
    IntMap_p handle = IntMapCellAlloc();
 

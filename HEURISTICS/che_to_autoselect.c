@@ -109,6 +109,10 @@ void print_oparms(OrderParms_p oparms)
 
 #define CHE_HEURISTICS_AUTO
 
+GCC_DIAGNOSTIC_PUSH
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 OCB_p generate_auto_ordering(ProofState_p state, SpecFeature_p spec)
 {
    OrderParmsCell  oparms; 
@@ -121,6 +125,7 @@ OCB_p generate_auto_ordering(ProofState_p state, SpecFeature_p spec)
    SpecLimitsCellFree(limits);
    return TOCreateOrdering(state, &oparms, NULL, NULL);
 }
+GCC_DIAGNOSTIC_POP
 #undef CHE_HEURISTICS_AUTO
 
 
@@ -140,6 +145,10 @@ OCB_p generate_auto_ordering(ProofState_p state, SpecFeature_p spec)
 
 #define CHE_HEURISTICS_AUTO_CASC
 
+GCC_DIAGNOSTIC_PUSH
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 OCB_p generate_autocasc_ordering(ProofState_p state, SpecFeature_p spec)
 {
    OrderParmsCell  oparms; 
@@ -187,6 +196,7 @@ OCB_p generate_autocasc_ordering(ProofState_p state, SpecFeature_p spec)
    SpecLimitsCellFree(limits);
    return TOCreateOrdering(state, &oparms, NULL, NULL);
 }
+GCC_DIAGNOSTIC_POP
 #undef CHE_HEURISTICS_AUTO_CASC
 
 
@@ -206,6 +216,10 @@ OCB_p generate_autocasc_ordering(ProofState_p state, SpecFeature_p spec)
 
 #define CHE_HEURISTICS_AUTO_DEV
 
+GCC_DIAGNOSTIC_PUSH
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 OCB_p generate_autodev_ordering(ProofState_p state, SpecFeature_p spec)
 {
    OrderParmsCell  oparms; 
@@ -236,6 +250,7 @@ OCB_p generate_autodev_ordering(ProofState_p state, SpecFeature_p spec)
    SpecLimitsCellFree(limits);
    return TOCreateOrdering(state, &oparms, NULL, NULL);
 }
+GCC_DIAGNOSTIC_POP
 #undef CHE_HEURISTICS_AUTO_DEV
 
 
@@ -246,6 +261,9 @@ OCB_p generate_autodev_ordering(ProofState_p state, SpecFeature_p spec)
 // Function: generate_autosched2_ordering()
 // Function: generate_autosched3_ordering()
 // Function: generate_autosched4_ordering()
+// Function: generate_autosched5_ordering()
+// Function: generate_autosched6_ordering()
+// Function: generate_autosched7_ordering()
 //
 //   Generate term orderings according to the selected auto-schedule
 //   mode. 
@@ -258,6 +276,11 @@ OCB_p generate_autodev_ordering(ProofState_p state, SpecFeature_p spec)
 /----------------------------------------------------------------------*/
 
 #define CHE_HEURISTICS_AUTO_SCHED0
+
+GCC_DIAGNOSTIC_PUSH
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 OCB_p generate_autosched0_ordering(ProofState_p state, SpecFeature_p spec)
 {
    OrderParmsCell  oparms; 
@@ -270,9 +293,15 @@ OCB_p generate_autosched0_ordering(ProofState_p state, SpecFeature_p spec)
    SpecLimitsCellFree(limits);
    return TOCreateOrdering(state, &oparms, NULL, NULL);
 }
+GCC_DIAGNOSTIC_POP
 #undef CHE_HEURISTICS_AUTO_SCHED0
 
 #define CHE_HEURISTICS_AUTO_SCHED1
+
+GCC_DIAGNOSTIC_PUSH
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 OCB_p generate_autosched1_ordering(ProofState_p state, SpecFeature_p spec)
 {
    OrderParmsCell  oparms; 
@@ -285,9 +314,15 @@ OCB_p generate_autosched1_ordering(ProofState_p state, SpecFeature_p spec)
    SpecLimitsCellFree(limits);
    return TOCreateOrdering(state, &oparms, NULL, NULL);
 }
+GCC_DIAGNOSTIC_POP
 #undef CHE_HEURISTICS_AUTO_SCHED1
 
 #define CHE_HEURISTICS_AUTO_SCHED2
+
+GCC_DIAGNOSTIC_PUSH
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 OCB_p generate_autosched2_ordering(ProofState_p state, SpecFeature_p spec)
 {
    OrderParmsCell  oparms; 
@@ -300,9 +335,15 @@ OCB_p generate_autosched2_ordering(ProofState_p state, SpecFeature_p spec)
    SpecLimitsCellFree(limits);
    return TOCreateOrdering(state, &oparms, NULL, NULL);
 }
+GCC_DIAGNOSTIC_POP
 #undef CHE_HEURISTICS_AUTO_SCHED2
 
 #define CHE_HEURISTICS_AUTO_SCHED3
+
+GCC_DIAGNOSTIC_PUSH
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 OCB_p generate_autosched3_ordering(ProofState_p state, SpecFeature_p spec)
 {
    OrderParmsCell  oparms; 
@@ -315,9 +356,15 @@ OCB_p generate_autosched3_ordering(ProofState_p state, SpecFeature_p spec)
    SpecLimitsCellFree(limits);
    return TOCreateOrdering(state, &oparms, NULL, NULL);
 }
+GCC_DIAGNOSTIC_POP
 #undef CHE_HEURISTICS_AUTO_SCHED3
 
 #define CHE_HEURISTICS_AUTO_SCHED4
+
+GCC_DIAGNOSTIC_PUSH
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 OCB_p generate_autosched4_ordering(ProofState_p state, SpecFeature_p spec)
 {
    OrderParmsCell  oparms; 
@@ -330,7 +377,73 @@ OCB_p generate_autosched4_ordering(ProofState_p state, SpecFeature_p spec)
    SpecLimitsCellFree(limits);
    return TOCreateOrdering(state, &oparms, NULL, NULL);
 }
+GCC_DIAGNOSTIC_POP
 #undef CHE_HEURISTICS_AUTO_SCHED4
+
+#define CHE_HEURISTICS_AUTO_SCHED5
+
+GCC_DIAGNOSTIC_PUSH
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
+OCB_p generate_autosched5_ordering(ProofState_p state, SpecFeature_p spec)
+{
+   OrderParmsCell  oparms; 
+   SpecLimits_p    limits = CreateDefaultSpecLimits();
+
+   init_oparms(&oparms);
+   OUTPRINT(1, "\n# AutoSched5-Ordering is analysing problem.\n");
+#include "che_auto_cases.c"
+   print_oparms(&oparms);
+   SpecLimitsCellFree(limits);
+   return TOCreateOrdering(state, &oparms, NULL, NULL);
+}
+GCC_DIAGNOSTIC_POP
+#undef CHE_HEURISTICS_AUTO_SCHED5
+
+#define CHE_HEURISTICS_AUTO_SCHED6
+
+GCC_DIAGNOSTIC_PUSH
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
+OCB_p generate_autosched6_ordering(ProofState_p state, SpecFeature_p spec)
+{
+   OrderParmsCell  oparms; 
+   SpecLimits_p    limits = CreateDefaultSpecLimits();
+
+   init_oparms(&oparms);
+   OUTPRINT(1, "\n# AutoSched6-Ordering is analysing problem.\n");
+#include "che_auto_cases.c"
+   print_oparms(&oparms);
+   SpecLimitsCellFree(limits);
+   return TOCreateOrdering(state, &oparms, NULL, NULL);
+}
+GCC_DIAGNOSTIC_POP
+#undef CHE_HEURISTICS_AUTO_SCHED6
+
+#define CHE_HEURISTICS_AUTO_SCHED7
+
+GCC_DIAGNOSTIC_PUSH
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
+OCB_p generate_autosched7_ordering(ProofState_p state, SpecFeature_p spec)
+{
+   OrderParmsCell  oparms; 
+   SpecLimits_p    limits = CreateDefaultSpecLimits();
+
+   init_oparms(&oparms);
+   OUTPRINT(1, "\n# AutoSched7-Ordering is analysing problem.\n");
+#include "che_auto_cases.c"
+   print_oparms(&oparms);
+   SpecLimitsCellFree(limits);
+   return TOCreateOrdering(state, &oparms, NULL, NULL);
+}
+GCC_DIAGNOSTIC_POP
+#undef CHE_HEURISTICS_AUTO_SCHED67
+
+
 
 
 /*---------------------------------------------------------------------*/
@@ -736,6 +849,18 @@ OCB_p TOSelectOrdering(ProofState_p state, HeuristicParms_p params,
    {
       result = generate_autosched4_ordering(state, specs);
    }
+   else if(tmp.ordertype == AUTOSCHED5)
+   {
+      result = generate_autosched5_ordering(state, specs);
+   }
+   else if(tmp.ordertype == AUTOSCHED6)
+   {
+      result = generate_autosched6_ordering(state, specs);
+   }
+   else if(tmp.ordertype == AUTOSCHED7)
+   {
+      result = generate_autosched7_ordering(state, specs);
+   }
    else
    {
       if(tmp.ordertype == NoOrdering)
@@ -821,6 +946,7 @@ OCB_p  TOCreateOrdering(ProofState_p state, OrderParms_p params,
 	 handle = NULL;
 	 break;
    default:
+         printf("What? %d\n",params->ordertype);
 	 assert(false&&"Incompletely specified OrderParamsCell");
 	 handle = NULL;
 	 break;

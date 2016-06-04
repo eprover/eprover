@@ -1,13 +1,45 @@
 This history list describes the major differences between versions of
 the E equational theorem prover.
 
+Version 1.9 -> 1.9.1 Sungma
 
-Version 1.7 -> 1.8pre Gopaldhara
+- Improved proof object output
+- Added optional recording of selected given clauses in the proof
+  object
+- New auto modes (including one bred heuristic)
+- Fixed bug in formula simplification involving P=>/<=>$false
+- Added given clause recording and taining example generation
+- Various cleanups and additional compile time warnings
+- More detailed proof graphs
+- Automatic determination of input format if no format is
+  specified. If input format is determined as TPTP-3, output format is
+  automatically set to TPTP-3/TSTP, too. 
+
+
+Version 1.9pre016 -> 1.9 Sourenee
+
+- Fixed Auto-SInE to never SInE if there is no seed to SInE on
+- Added output of proof graphs in GraphViz/dot format (coloured, too!)
+- Added derivation output for CNFization
+- Fiexed minor bug in proof output
+
+
+Version 1.8 -> 1.9pre016
+
+- Fixed bug that caused proof output to fail in rare cases when the
+  proof was found in preprocessing.
+- Took out "theory(equality)" from TSTP-output, since FOL-EQ is now
+  assumed the default logic.
+- Improved proof objects (taking out empty "quote" steps).
+- Added plenty of new literal selection functions.
+- Updated auto-modes
+
+
+Version 1.7 -> 1.8 Gopaldhara
 
 - Added support for internal proof objects (and option --proof-object)
 - Added experimental support for strategy scheduling (--auto-schedule)
-
-
+- Minor cleanup and improved auto-mode(s)
 
 Version 1.6 -> 1.7 Jun Chiabari
 
@@ -21,7 +53,7 @@ Version 1.6 -> 1.7 Jun Chiabari
 - Added interactive batch mode to e_ltb_runner (load large spec once,
   then keep asking for the status of different theorems via
   stdin/stdout)
-- Added enormalizae for normalization of terms, clauses and formulas
+- Added enormalize for normalization of terms, clauses and formulas
   with an oriented rule set without regard for orderings.
 - Various minor updates and bugfixes
 
@@ -69,7 +101,7 @@ Version 1.2 -> 1.3 Ringtong
 - Implemented e_axfilter as a stand-alone program for pre-processing
   large problems, and adapted/extended the corresponging libraries.
 - Added clause evaluation functions that allow the manipulation of the
-  weight based on the presence and frequency of invidual function
+  weight based on the pre-sence and frequency of invidual function
   symbols. 
 - Added answer instantiation output.
 

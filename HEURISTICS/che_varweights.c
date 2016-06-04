@@ -392,8 +392,8 @@ double ProofWeightCompute(void* data, Clause_p clause)
 		      local->vweight,
 		      local->fweight, 
 		      false);
-   res *= (1+local->proof_depth_multiplier*(1/(clause->proof_depth+1)));
-   res *= (1+local->proof_size_multiplier*(1/(clause->proof_size+1)));
+   res *= (1+local->proof_depth_multiplier*(1/(double)(clause->proof_depth+1)));
+   res *= (1+local->proof_size_multiplier*(1/(double)(clause->proof_size+1)));
    return res;
 }
 

@@ -48,37 +48,16 @@ FVIndexParmsCell FVIDefaultParameters =
       0,
       0,
       0,
+      0,
+      0,
+      0,
+      0,
    },
    false,   /* use_perm_vectors */
    false,  /* eliminate_uninformative */
    FVINDEX_MAX_FEATURES_DEFAULT,
    FVINDEX_SYMBOL_SLACK_DEFAULT,
 };
-
-/*
-{
-   {
-      FVIACFeatures,
-      false,
-      NULL,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-   },
-   true,
-   false,
-   FVINDEX_MAX_FEATURES_DEFAULT,
-   FVINDEX_SYMBOL_SLACK_DEFAULT,
-};
-*/
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */

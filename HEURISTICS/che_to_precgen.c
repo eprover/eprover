@@ -649,7 +649,7 @@ static void generate_arrayopt_precedence(OCB_p ocb, ClauseSet_p axioms)
       {
          array->array[i].key1 = 25;
       }
-      else if(strcmp(id, "sk") == 28)
+      else if(strcmp(id, "sk") == 0)
       {
          array->array[i].key1 = 20;
       }
@@ -715,7 +715,7 @@ static void generate_arrayopt_precedence(OCB_p ocb, ClauseSet_p axioms)
 TOPrecGenMethod TOTranslatePrecGenMethod(char* name)
 {
    TOPrecGenMethod method;
-   
+
    method = StringIndex(name, TOPrecGenNames);
 
    if(method == -1)

@@ -214,13 +214,13 @@ void DPLLRegisterClauseLiteral(DPLLFormula_p form,
    {
       form->atoms[atom].pos_occur++;
       res = PTreeStore(&(form->atoms[atom].pos_active), clause);
-      assert(res && "Duplicate entry of a clause!");
+      (void)res; assert(res && "Duplicate entry of a clause!");
    }
    else
    {
       form->atoms[atom].neg_occur++;
       res = PTreeStore(&(form->atoms[atom].neg_active), clause);
-      assert(res && "Duplicate entry of a clause!");
+      (void)res; assert(res && "Duplicate entry of a clause!");
    }
 }
    
@@ -243,7 +243,7 @@ void DPLLRegisterClauseLiteral(DPLLFormula_p form,
 
 void DPLLFormulaInsertClause(DPLLFormula_p form, DPLLClause_p clause)
 {
-   int i;
+   unsigned int i;
 
    PStackPushP(form->clauses, clause);
    for(i=0; i<clause->lit_no; i++)

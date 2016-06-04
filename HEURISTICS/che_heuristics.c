@@ -41,6 +41,9 @@ HeuristicAssocCell HeuristicsTable[]=
    {HEU_AUTO_SCHED2,    "AutoSched2", HCBAutoSched2Create},
    {HEU_AUTO_SCHED3,    "AutoSched3", HCBAutoSched3Create},
    {HEU_AUTO_SCHED4,    "AutoSched4", HCBAutoSched4Create},
+   {HEU_AUTO_SCHED5,    "AutoSched5", HCBAutoSched5Create},
+   {HEU_AUTO_SCHED6,    "AutoSched6", HCBAutoSched6Create},
+   {HEU_AUTO_SCHED7,    "AutoSched7", HCBAutoSched7Create},
    {HEU_NO_HEURISTIC, NULL,           (HCBCreateFun)NULL}
 };
 
@@ -201,6 +204,11 @@ HCB_p GetHeuristic(char* source, HCBARGUMENTS)
 /----------------------------------------------------------------------*/
 
 #define CHE_HEURISTICS_AUTO
+
+GCC_DIAGNOSTIC_PUSH
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 HCB_p HCBAutoModeCreate(HCBARGUMENTS)
 {
    char *res = "Default";
@@ -216,6 +224,7 @@ HCB_p HCBAutoModeCreate(HCBARGUMENTS)
 
    return GetHeuristic(res, state, control, parms);
 }
+GCC_DIAGNOSTIC_POP
 #undef CHE_HEURISTICS_AUTO
 
 
@@ -233,6 +242,11 @@ HCB_p HCBAutoModeCreate(HCBARGUMENTS)
 /----------------------------------------------------------------------*/
 
 #define CHE_HEURISTICS_AUTO_CASC
+
+GCC_DIAGNOSTIC_PUSH
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 HCB_p HCBCASCAutoModeCreate(HCBARGUMENTS)
 {
    char *res = "Default";
@@ -265,6 +279,7 @@ HCB_p HCBCASCAutoModeCreate(HCBARGUMENTS)
 
    return GetHeuristic(res, state, control, parms);
 }
+GCC_DIAGNOSTIC_POP
 #undef CHE_HEURISTICS_AUTO_CASC
 
 
@@ -283,6 +298,11 @@ HCB_p HCBCASCAutoModeCreate(HCBARGUMENTS)
 
 
 #define CHE_HEURISTICS_AUTO_DEV
+
+GCC_DIAGNOSTIC_PUSH
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 HCB_p HCBDevAutoModeCreate(HCBARGUMENTS)
 {
    char *res = "Default";
@@ -298,6 +318,7 @@ HCB_p HCBDevAutoModeCreate(HCBARGUMENTS)
 
    return GetHeuristic(res, state, control, parms);
 }
+GCC_DIAGNOSTIC_POP
 #undef CHE_HEURISTICS_AUTO_DEV
 
 
@@ -318,6 +339,11 @@ HCB_p HCBDevAutoModeCreate(HCBARGUMENTS)
 /----------------------------------------------------------------------*/
 
 #define CHE_HEURISTICS_AUTO_SCHED0
+
+GCC_DIAGNOSTIC_PUSH
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 HCB_p HCBAutoSched0Create(HCBARGUMENTS)
 {
    char *res = "Default";
@@ -333,9 +359,15 @@ HCB_p HCBAutoSched0Create(HCBARGUMENTS)
 
    return GetHeuristic(res, state, control, parms);
 }
+GCC_DIAGNOSTIC_POP
 #undef CHE_HEURISTICS_AUTO_SCHED0
 
 #define CHE_HEURISTICS_AUTO_SCHED1
+
+GCC_DIAGNOSTIC_PUSH
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 HCB_p HCBAutoSched1Create(HCBARGUMENTS)
 {
    char *res = "Default";
@@ -351,9 +383,15 @@ HCB_p HCBAutoSched1Create(HCBARGUMENTS)
 
    return GetHeuristic(res, state, control, parms);
 }
+GCC_DIAGNOSTIC_POP
 #undef CHE_HEURISTICS_AUTO_SCHED1
 
 #define CHE_HEURISTICS_AUTO_SCHED2
+
+GCC_DIAGNOSTIC_PUSH
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 HCB_p HCBAutoSched2Create(HCBARGUMENTS)
 {
    char *res = "Default";
@@ -369,9 +407,15 @@ HCB_p HCBAutoSched2Create(HCBARGUMENTS)
 
    return GetHeuristic(res, state, control, parms);
 }
+GCC_DIAGNOSTIC_POP
 #undef CHE_HEURISTICS_AUTO_SCHED2
 
 #define CHE_HEURISTICS_AUTO_SCHED3
+
+GCC_DIAGNOSTIC_PUSH
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 HCB_p HCBAutoSched3Create(HCBARGUMENTS)
 {
    char *res = "Default";
@@ -387,10 +431,16 @@ HCB_p HCBAutoSched3Create(HCBARGUMENTS)
 
    return GetHeuristic(res, state, control, parms);
 }
+GCC_DIAGNOSTIC_POP
 #undef CHE_HEURISTICS_AUTO_SCHED3
 
 
 #define CHE_HEURISTICS_AUTO_SCHED4
+
+GCC_DIAGNOSTIC_PUSH
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 HCB_p HCBAutoSched4Create(HCBARGUMENTS)
 {
    char *res = "Default";
@@ -406,7 +456,86 @@ HCB_p HCBAutoSched4Create(HCBARGUMENTS)
 
    return GetHeuristic(res, state, control, parms);
 }
+GCC_DIAGNOSTIC_POP
 #undef CHE_HEURISTICS_AUTO_SCHED4
+
+
+#define CHE_HEURISTICS_AUTO_SCHED5
+
+GCC_DIAGNOSTIC_PUSH
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
+HCB_p HCBAutoSched5Create(HCBARGUMENTS)
+{
+   char *res = "Default";
+   SpecFeature_p spec = &(control->problem_specs);
+   SpecLimits_p limits = CreateDefaultSpecLimits();
+
+   control->heuristic_parms.selection_strategy = SelectNoLiterals;
+   OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
+#include "che_auto_cases.c"
+   SpecLimitsCellFree(limits);
+
+   finalize_auto_parms("AutoSched5-Mode", res, control, parms, spec);
+
+   return GetHeuristic(res, state, control, parms);
+}
+GCC_DIAGNOSTIC_POP
+#undef CHE_HEURISTICS_AUTO_SCHED5
+
+
+#define CHE_HEURISTICS_AUTO_SCHED6
+
+GCC_DIAGNOSTIC_PUSH
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
+HCB_p HCBAutoSched6Create(HCBARGUMENTS)
+{
+   char *res = "Default";
+   SpecFeature_p spec = &(control->problem_specs);
+   SpecLimits_p limits = CreateDefaultSpecLimits();
+
+   control->heuristic_parms.selection_strategy = SelectNoLiterals;
+   OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
+#include "che_auto_cases.c"
+   SpecLimitsCellFree(limits);
+
+   finalize_auto_parms("AutoSched6-Mode", res, control, parms, spec);
+
+   return GetHeuristic(res, state, control, parms);
+}
+GCC_DIAGNOSTIC_POP
+#undef CHE_HEURISTICS_AUTO_SCHED6
+
+
+#define CHE_HEURISTICS_AUTO_SCHED7
+
+GCC_DIAGNOSTIC_PUSH
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
+HCB_p HCBAutoSched7Create(HCBARGUMENTS)
+{
+   char *res = "Default";
+   SpecFeature_p spec = &(control->problem_specs);
+   SpecLimits_p limits = CreateDefaultSpecLimits();
+
+   control->heuristic_parms.selection_strategy = SelectNoLiterals;
+   OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
+#include "che_auto_cases.c"
+   SpecLimitsCellFree(limits);
+
+   finalize_auto_parms("AutoSched7-Mode", res, control, parms, spec);
+
+   return GetHeuristic(res, state, control, parms);
+}
+GCC_DIAGNOSTIC_POP
+#undef CHE_HEURISTICS_AUTO_SCHED7
+
+
+
 
 #undef CHE_HEURISTICS_INTERNAL
 

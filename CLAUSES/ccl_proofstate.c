@@ -8,7 +8,7 @@ Contents
  
   Basic functions for proof state objects.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2016 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
@@ -41,6 +41,84 @@ char* UseInlinedWatchList = WATCHLIST_INLINE_STRING;
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------------------
+//
+// Function: clause_set_analyse_gc()
+//
+//   Count number of clauses, given clauses, and used given clauses. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void clause_set_analyse_gc(ClauseSet_p set, unsigned long *clause_count, 
+                           unsigned long *gc_count, unsigned long *gc_used_count) 
+{
+   Clause_p handle;
+   unsigned long clause_c = 0, gc_c = 0, gc_used_c = 0;
+
+   for(handle = set->anchor->succ; handle != set->anchor; handle = handle->succ)
+   {
+      clause_c++;
+      if(ClauseIsEvalGC(handle))
+      {
+         //printf("Clause found (%p): ",set);ClausePrint(stdout, handle, true);printf("\n");
+         gc_c++;
+         if(ClauseQueryProp(handle, CPIsProofClause))
+         {
+            gc_used_c++;
+         }
+      }
+   }   
+   *clause_count  += clause_c;
+   *gc_count      += gc_c;
+   *gc_used_count += gc_used_c;
+
+   /* printf("# Set %p: Clauses: %7lu GCs: %7lu GCus: %7lu\n",
+      set, clause_c, gc_c, gc_used_c); */
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: clause_set_pick_training_examples()
+//
+//   Find given clauses and classify them as positive (used in the
+//   proof) and negative (not used) examples. Return the two sets via
+//   the result-stacks provided.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void clause_set_pick_training_examples(ClauseSet_p set, 
+                                             PStack_p pos_examples, 
+                                             PStack_p neg_examples)  
+{
+   Clause_p handle;
+ 
+   for(handle = set->anchor->succ; handle != set->anchor; handle = handle->succ)
+   {
+      if(ClauseIsEvalGC(handle))
+      {
+         if(ClauseQueryProp(handle, CPIsProofClause))
+         {
+            PStackPushP(pos_examples, handle);
+         }
+         else
+         {
+            PStackPushP(neg_examples, handle);
+         }
+      }
+   }   
+}
+
+
 
 
 
@@ -143,6 +221,8 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->paramod_count      = 0;
    handle->factor_count       = 0;
    handle->resolv_count       = 0;
+   handle->gc_count           = 0;
+   handle->gc_used_count      = 0;
 
    handle->signature->distinct_props = 
       handle->signature->distinct_props&(~free_symb_prop);
@@ -173,14 +253,14 @@ void ProofStateInitWatchlist(ProofState_p state, char* watchlist_filename,
    if(watchlist_filename)
    {
       state->watchlist = ClauseSetAlloc();
-      GCRegisterClauseSet(state->gc_original_terms, state->watchlist);
+      GCRegisterClauseSet(state->gc_terms, state->watchlist);
 
       if(watchlist_filename != UseInlinedWatchList)
       {
          in = CreateScanner(StreamTypeFile, watchlist_filename, true, NULL);
          ScannerSetFormat(in, parse_format);
          ClauseSetParseList(in, state->watchlist,
-                            state->original_terms);
+                            state->terms);
          CheckInpTok(in, NoToken);
          DestroyScanner(in);
       }
@@ -205,12 +285,14 @@ void ProofStateInitWatchlist(ProofState_p state, char* watchlist_filename,
             ClauseSetInsert(state->watchlist, handle);
          }        
          PStackFree(stack);
-      }       
+      } 
       ClauseSetSetProp(state->watchlist, CPWatchOnly);
       GlobalIndicesInsertClauseSet(&(state->wlindices),state->watchlist);
       ClauseSetDocInital(GlobalOut, OutputLevel, state->watchlist);
       ClauseSetSortLiterals(state->watchlist, EqnSubsumeInverseCompareRef);
+      ClauseSetDefaultWeighClauses(state->watchlist);
    } 
+   // printf("# watchlist: %p\n", state->watchlist);
 }
 
 
@@ -318,6 +400,115 @@ void ProofStateFree(ProofState_p junk)
 }
 
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: ProofStateAnalyseGC()
+//
+//   Run an analysis of the use of given clauses in the proof search:
+//   How many were used (i.e. useful) and how many were unused
+//   (i.e. useless). 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void ProofStateAnalyseGC(ProofState_p state)
+{
+   unsigned long clause_c = 0;
+
+   clause_set_analyse_gc(state->ax_archive, &clause_c, 
+                         &(state->gc_count), &(state->gc_used_count));  
+   clause_set_analyse_gc(state->processed_pos_rules, &clause_c, 
+                         &(state->gc_count), &(state->gc_used_count));  
+   clause_set_analyse_gc(state->processed_pos_eqns, &clause_c, 
+                         &(state->gc_count), &(state->gc_used_count));  
+   clause_set_analyse_gc(state->processed_neg_units, &clause_c, 
+                         &(state->gc_count), &(state->gc_used_count));  
+   clause_set_analyse_gc(state->processed_non_units, &clause_c, 
+                         &(state->gc_count), &(state->gc_used_count));  
+   clause_set_analyse_gc(state->archive, &clause_c, 
+                         &(state->gc_count), &(state->gc_used_count));  
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ProofStatePickTrainingExamples()
+//
+//   Find positive and negative training examples in the proof state.  
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void ProofStatePickTrainingExamples(ProofState_p state, 
+                                    PStack_p pos_examples, 
+                                    PStack_p neg_examples)
+{   
+   clause_set_pick_training_examples(state->ax_archive, pos_examples,
+                                     neg_examples); 
+   clause_set_pick_training_examples(state->processed_pos_rules,
+                                     pos_examples, neg_examples); 
+   clause_set_pick_training_examples(state->processed_pos_eqns,
+                                     pos_examples, neg_examples); 
+   clause_set_pick_training_examples(state->processed_neg_units,
+                                     pos_examples, neg_examples); 
+   clause_set_pick_training_examples(state->processed_non_units,
+                                     pos_examples, neg_examples); 
+   clause_set_pick_training_examples(state->archive, 
+                                     pos_examples, neg_examples); 
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ProofStateTrain()
+//
+//   Perform some (yet to be specified ;-) training on the proof
+//   state. 
+//
+// Global Variables: -
+//
+// Side Effects    : Outpur
+//
+/----------------------------------------------------------------------*/
+
+void ProofStateTrain(ProofState_p state, bool print_pos, bool print_neg)
+{
+   PStack_p 
+      pos_examples = PStackAlloc(),
+      neg_examples = PStackAlloc();
+
+   ProofStatePickTrainingExamples(state, pos_examples, neg_examples);
+   
+   fprintf(GlobalOut, "# Training examples: %d positive, %d negative\n", 
+           PStackGetSP(pos_examples), PStackGetSP(neg_examples)); 
+   if(print_pos)
+   {
+      fprintf(GlobalOut, "# Training: Positive examples begin\n");
+      PStackClausePrint(GlobalOut, pos_examples, "# trainpos");
+      fprintf(GlobalOut, "# Training: Positive examples end\n");
+   }
+   if(print_neg)
+   {
+      fprintf(GlobalOut, "# Training: Negative examples begin\n");
+      PStackClausePrint(GlobalOut, neg_examples, "#trainneg");
+      fprintf(GlobalOut, "# Training: Negative examples end\n");
+   }
+
+   PStackFree(pos_examples);
+   PStackFree(neg_examples);
+}
+
+
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: ProofStateStatisticsPrint()
@@ -382,6 +573,21 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
    fprintf(out, 
 	   "# ...number of literals in the above   : %ld\n",
 	   state->unprocessed->literals);
+   fprintf(out, 
+	   "# Current number of archived formulas  : %ld\n",
+	   state->f_archive->members);
+   fprintf(out, 
+	   "# Current number of archived clauses   : %ld\n",
+	   state->archive->members);
+   if(ProofObjectRecordsGCSelection)
+   {
+      fprintf(out, 
+              "# Proof object given clauses           : %ld\n",
+              state->gc_used_count);
+      fprintf(out, 
+              "# Proof search given clauses           : %ld\n",
+              state->gc_count);
+   }
    if(TBPrintDetails)
    {
       fprintf(out, 
@@ -405,7 +611,7 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
 	      "# Match attempts with oriented units   : %lu\n"
 	      "# Match attempts with unoriented units : %lu\n",
 	      state->processed_pos_rules->demod_index->match_count,
-	      state->processed_pos_eqns->demod_index->match_count);	      
+	      state->processed_pos_eqns->demod_index->match_count);	            
 #ifdef MEASURE_EXPENSIVE
       fprintf(out,
 	      "# Oriented PDT nodes visited           : %lu\n"

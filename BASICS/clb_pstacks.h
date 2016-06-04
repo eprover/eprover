@@ -80,6 +80,7 @@ static __inline__ IntOrP   PStackTop(PStack_p stack);
 #define  PStackTopInt(stack) (PStackTop(stack).i_val)
 #define  PStackTopP(stack)   (PStackTop(stack).p_val)
 IntOrP*  PStackTopAddr(PStack_p stack);
+
 static __inline__ IntOrP   PStackBelowTop(PStack_p stack);
 #define  PStackBelowTopInt(stack) (PStackBelowTop(stack).i_val)
 #define  PStackBelowTopP(stack)   (PStackBelowTop(stack).p_val)
@@ -88,6 +89,15 @@ static __inline__ IntOrP   PStackBelowTop(PStack_p stack);
 static __inline__ IntOrP   PStackElement(PStack_p stack, PStackPointer pos);
 #define  PStackElementInt(stack,pos) (PStackElement(stack,pos).i_val)
 #define  PStackElementP(stack,pos) (PStackElement(stack,pos).p_val)
+
+static __inline__ IntOrP *PStackElementRef(PStack_p stack, PStackPointer pos);
+
+#define   PStackAssignP(stack, pos, value) \
+          PStackElementRef((stack), (pos))->p_val = (value)
+#define   PStackAssignInt(stack, pos, value) \
+          PStackElementRef((stack), (pos))->i_val = (value)
+
+void     PStackDiscardElement(PStack_p stack, PStackPointer i);
 
 void     PStackSort(PStack_p stack, ComparisonFunctionType cmpfun);
 void     PStackMerge(PStack_p st1, PStack_p st2, PStack_p res, 
@@ -129,7 +139,7 @@ static __inline__ void push(PStack_p stack, IntOrP val)
       /* Emulate Realloc-Functionality for use of SizeMalloc() */
       old_size = stack->size;
       stack->size = stack->size*2;
-      tmp = CPPCAST(IntOrP*)SizeMalloc(stack->size * sizeof(IntOrP));
+      tmp = SizeMalloc(stack->size * sizeof(IntOrP));
       memcpy(tmp, stack->stack, old_size*sizeof(IntOrP));
       SizeFree(stack->stack, old_size * sizeof(IntOrP));
       stack->stack = tmp;
@@ -158,7 +168,7 @@ static __inline__ PStack_p PStackAlloc(void)
    handle = PStackCellAlloc();
    handle->size = PSTACK_DEFAULT_SIZE;
    handle->current = 0;
-   handle->stack = CPPCAST(IntOrP*)SizeMalloc(handle->size * sizeof(IntOrP));
+   handle->stack = SizeMalloc(handle->size * sizeof(IntOrP));
    
    return handle;
 }
@@ -183,7 +193,7 @@ static __inline__ PStack_p PStackVarAlloc(long size)
    handle = PStackCellAlloc();
    handle->size = size;
    handle->current = 0;
-   handle->stack = CPPCAST(IntOrP*)SizeMalloc(handle->size * sizeof(IntOrP));
+   handle->stack = SizeMalloc(handle->size * sizeof(IntOrP));
    
    return handle;
 }
@@ -398,6 +408,28 @@ static __inline__ IntOrP PStackElement(PStack_p stack, PStackPointer pos)
 
    return stack->stack[pos];
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PStackElementRef()
+//
+//   Return reference to element at position pos.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static __inline__ IntOrP *PStackElementRef(PStack_p stack, PStackPointer pos)
+{
+   assert(pos<stack->current);
+   assert(pos>=0);
+
+   return &(stack->stack[pos]);
+}
+
 
 #endif
 

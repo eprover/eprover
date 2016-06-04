@@ -33,6 +33,7 @@ Changes
 
 typedef enum
 {
+   PInvalidEntry = -1,
    PNoMethod = 0,       /* Nothing */
    PUnaryFirst,         /* My hack ;-) */
    PUnaryFirstFreq,     /* My new hack ;-) */
@@ -78,8 +79,8 @@ extern char* TOPrecGenNames[];
 
 TOPrecGenMethod TOTranslatePrecGenMethod(char* name);
 
-#define TOGenerateDefaultPrecedence(ocb) \
-        TOGeneratePrecedence((ocb), NULL, PUnaryFirst)
+#define TOGenerateDefaultPrecedence(ocb,axioms)               \
+        TOGeneratePrecedence((ocb), (axioms),NULL, PUnaryFirst)
 
 void TOGeneratePrecedence(OCB_p ocb, ClauseSet_p axioms,
 			  char* predefined, TOPrecGenMethod method);

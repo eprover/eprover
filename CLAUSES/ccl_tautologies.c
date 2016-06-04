@@ -317,7 +317,7 @@ static void ground_complete_neg_eqns(EqnRef list)
 	 continue;
       }
       cmp = ground_orient_eqn(handle);
-      assert(cmp);
+      (void)cmp; assert(cmp);
       ground_backward_contract(&proc, handle, &unproc);
       EqnListInsertFirst(&proc, handle);
    } 

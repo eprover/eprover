@@ -377,11 +377,10 @@ int main(int argc, char* argv[])
    int             i;
 
    assert(argv[0]);
-
-   InitIO(NAME);
 #ifdef STACK_SIZE
-   IncreaseMaxStackSize(argv, STACK_SIZE);
+   INCREASE_STACK_SIZE;
 #endif
+   InitIO(NAME);
    
    /* TPTPFormatPrint = true; */
    /* We need consistent name->var mappings here because we
@@ -504,11 +503,9 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_HELP: 
 	    print_help(stdout);
 	    exit(NO_ERROR);
-	    break;
       case OPT_VERSION:
 	    printf(NAME " " VERSION "\n");
 	    exit(NO_ERROR);
-	    break;
       case OPT_OUTPUT:
 	    outname = arg;
 	    break;

@@ -70,7 +70,7 @@ int LitDescCompare(const void* lit1, const void* lit2);
 #define LitHashCellFree(junk) SizeFree(junk, sizeof(LitHashCell))
 
 LitHash_p LitHashAlloc(Sig_p sig);
-void      LitHashFree();
+void      LitHashFree(LitHash_p junk);
 
 void      LitHashInsertEqn(LitHash_p hash, Eqn_p eqn, Clause_p clause);
 void      LitHashInsertClause(LitHash_p hash, Clause_p clause);

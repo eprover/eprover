@@ -214,7 +214,7 @@ double DDArraySelectPart(DDArray_p array, double part, long size)
    start   = 0;
    end     = size-1;
 
-   printf("Rank1,2: %ld, %ld\n", rank1, rank2);
+   /* printf("# Rank1,2: %ld, %ld\n", rank1, rank2); */
 
    assert(array->size >= size);	 
    arr  = array->array;
@@ -232,11 +232,11 @@ double DDArraySelectPart(DDArray_p array, double part, long size)
       while(i != j)
       {
 	 /* printf("%ld, %ld\n", i, j); */
-	 while((arr[i] <= pivot) && (i<j))
+	 while((i<j) && (arr[i] <= pivot))
 	 {
 	    i++;
 	 }
-	 while((arr[j] > pivot) && (j>i))
+	 while((j>i) && (arr[j] > pivot))
 	 {
 	    j--;
 	 }

@@ -733,7 +733,7 @@ Clause_p ClauseSetFindBest(ClauseSet_p set, int idx)
 
    /* printf("I: %d", idx); */
    evaluation =
-      EvalTreeFindSmallestWrap(PDArrayElementP(set->eval_indices, idx), idx);
+      EvalTreeFindSmallest(PDArrayElementP(set->eval_indices, idx), idx);
    
    if(!evaluation)
    {
@@ -927,7 +927,7 @@ void ClauseSetDelProp(ClauseSet_p set, ClauseProperties prop)
 // Global Variables: -
 //
 // Side Effects    : Sets property, memory operations, deletes parents
-//                   of unmarked copyes.
+//                   of unmarked copies.
 //
 /----------------------------------------------------------------------*/
 
@@ -1022,7 +1022,7 @@ long ClauseSetDeleteCopies(ClauseSet_p set)
       ClauseSetMarkCopies(set);
    res2 = 
       ClauseSetDeleteMarkedEntries(set);
-   assert(res1==res2);
+   (void)res1; (void)res2; assert(res1==res2);
 
    return res1;
 }
@@ -2268,6 +2268,64 @@ long ClauseSetPushClauses(PStack_p stack, ClauseSet_p set)
       res++;
    }
    return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetDefaultWeighClauses()
+//
+//   Set the (standard) weight in all clauses in set.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void ClauseSetDefaultWeighClauses(ClauseSet_p set)
+{
+   Clause_p handle;
+   
+   for(handle = set->anchor->succ; handle!=set->anchor; handle = handle->succ)
+   {
+      handle->weight = ClauseStandardWeight(handle);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetCountConjectures()
+//
+//   Count and return number of conjectures (and negated_conjectures)
+//   in set. Also find number of hypotheses,  and add it to *hypos.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetCountConjectures(ClauseSet_p set, long* hypos)
+{
+   long ret = 0;
+   Clause_p handle;
+   
+   
+   for(handle = set->anchor->succ; 
+       handle != set->anchor;
+       handle = handle->succ)
+   {
+      if(ClauseIsConjecture(handle))
+      {
+         ret++;
+      }
+      if(ClauseIsHypothesis(handle))
+      {
+         (*hypos)++;
+      }
+   } 
+   return ret;
 }
 
 

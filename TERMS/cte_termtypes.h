@@ -116,18 +116,18 @@ typedef struct
 
 typedef struct termcell
 {
-   TermProperties   properties;    /* Like basic, lhs, top */
    FunCode          f_code;        /* Top symbol of term */
+   TermProperties   properties;    /* Like basic, lhs, top */
    int              arity;         /* Redundant, but saves handing
                                       around the signature all the
                                       time */
    struct termcell* *args;         /* Pointer to array of arguments */
    struct termcell* binding;       /* For variable bindings,
                                       potentially for temporary
-                                      rewrites - it might be possible
+                           a           rewrites - it might be possible
                                       to combine the previous two in a
                                       union. */
-   unsigned long    entry_no;      /* Counter for terms in a given
+   long             entry_no;      /* Counter for terms in a given
                                       termbank - needed for
                                       administration and external
                                       representation */
@@ -230,9 +230,7 @@ void    TermVarDelProp(Term_p term, DerefType deref, TermProperties prop);
 static __inline__ Term_p  TermDeref(Term_p term, DerefType_p deref);
 
 static __inline__ Term_p* TermArgListCopy(Term_p source);
-#ifndef __cplusplus
 static __inline__ Term_p  TermTopCopy(Term_p source);
-#endif
 
 static __inline__ SortType TermGetSort(Term_p term);
 static __inline__ bool     TermSameSort(Term_p t1, Term_p t2);
@@ -319,13 +317,6 @@ static __inline__ Term_p* TermArgListCopy(Term_p source)
    return handle;
 }
 
-#ifndef __cplusplus
-
-/* This function is only needed in the core E libraries (but in many
- * of those), and not in the C++ code of (some) programs that link to
- * E. It contains C++-unfriendly code, so it's just ignored in this
- * case. */
-
 /*-----------------------------------------------------------------------
 //
 // Function: TermTopCopy()
@@ -349,12 +340,11 @@ static __inline__ Term_p TermTopCopy(Term_p source)
    Term_p handle;
    
    handle = TermDefaultCellAlloc();
-   handle->properties  = CPPCAST(TermProperties)
-      (CPPCAST(int)source->properties&CPPCAST(int)TPPredPos); /* All other
-                                                               properties
-                                                               are tied to
-                                                               the specific
-                                                               term! */
+   handle->properties = (source->properties&TPPredPos); /* All other
+                                                           properties
+                                                           are tied to
+                                                           the specific
+                                                           term! */
    TermCellDelProp(handle, TPOutputFlag); /* As it gets a new id below */
    handle->f_code = source->f_code;
    handle->arity  = source->arity;
@@ -366,8 +356,6 @@ static __inline__ Term_p TermTopCopy(Term_p source)
    
    return handle;
 }
-
-#endif
 
 
 /*-----------------------------------------------------------------------
@@ -417,6 +405,7 @@ static __inline__ bool TermSameSort(Term_p t1, Term_p t2)
 }
 
 #endif
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

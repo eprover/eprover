@@ -140,7 +140,7 @@ long FileVarsParse(Scanner_p in, FileVars_p vars)
 	 cell->key = name;
 	 cell->val2.p_val = PStackTopP(vars->names);
 	 test = StrTreeInsert(&(vars->vars), cell);
-	 assert(test == NULL);
+	 (void)test; assert(test == NULL);
       }
       NextToken(in);
       AcceptInpTok(in, EqualSign);

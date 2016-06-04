@@ -36,6 +36,7 @@ Changes
 
 typedef enum
 {
+   WInvalidEntry = -1,
    WNoMethod = 0,         /* Nothing */
    WSelectMaximal,        /* First maximal symbol in precedence gets
                              weight 0 */ 

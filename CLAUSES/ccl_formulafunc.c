@@ -73,7 +73,7 @@ TFormula_p answer_lit_alloc(TB_p terms, PStack_p varstack)
 
 
 
-/*--------------------- --------------------------------------------------
+/*-----------------------------------------------------------------------
 //
 // Function: tformula_collect_clause()
 //
@@ -410,12 +410,15 @@ bool WFormulaSimplify(WFormula_p form, TB_p terms)
    TFormula_p simplified;
    bool res = false;
 
+   assert(!terms->freevarsets);
    simplified = TFormulaSimplify(terms, form->tformula);
+   // TBVarSetStoreFree(terms);
+   
    if(simplified!=form->tformula)
    {
       form->tformula = simplified;
       DocFormulaModificationDefault(form, inf_fof_simpl);
-      WFormulaPushDerivation(form, DOFofSimplify, NULL, NULL);
+      WFormulaPushDerivation(form, DCFofSimplify, NULL, NULL);
       res = true;
    }
    return res;
@@ -448,7 +451,7 @@ long WFormulaCNF(WFormula_p form, ClauseSet_p set,
 // Function: FormulaSetSimplify()
 //
 //   Apply standard FOF simplification rules to all formulae in the
-//   set. Returns numer of changed formulas.
+//   set. Returns number of changed formulas.
 //
 // Global Variables: -
 //
@@ -467,7 +470,13 @@ long FormulaSetSimplify(FormulaSet_p set, TB_p terms)
    handle = set->anchor->succ;   
    while(handle!=set->anchor)
    {
+      // printf("Simplifying: \n");
+      // WFormulaPrint(stdout, handle, true);
+      // printf("\n");
       changed =  WFormulaSimplify(handle, terms);
+      // printf("Simplified %d\n", changed);
+      // WFormulaPrint(stdout, handle, true);
+      // printf("\n");
       if(changed)
       {
          res++;
@@ -481,10 +490,12 @@ long FormulaSetSimplify(FormulaSet_p set, TB_p terms)
       }
       handle = handle->succ;
    }
+   // printf("All simplified\n");
    if(TBNonVarTermNodes(terms)!=old_nodes)
    {
       GCCollect(terms->gc);
    }
+   // printf("Garbage collected\n");
    return res;
    
 }
@@ -512,11 +523,15 @@ long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive,
    long gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
 
    FormulaSetSimplify(set, terms);
+   // printf("FormulaSetSimplify done\n");
    TFormulaSetIntroduceDefs(set, archive, terms);
+   // printf("Definitions introduced\n");
    
    while(!FormulaSetEmpty(set))
    {
       handle = FormulaSetExtractFirst(set);
+      // WFormulaPrint(stdout, handle, true);
+      // fprintf(stdout, "\n");
       if(BuildProofObject)
       {
          form = WFormulaFlatCopy(handle);
@@ -619,6 +634,9 @@ long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset,
                if(TestInpId(in, "input_formula|fof|tff"))
                {
                   form = WFormulaParse(in, terms);
+                  // fprintf(stdout, "Parsed: ");
+                  // WFormulaPrint(stdout, form, true);
+                  // fprintf(stdout, "\n");
                   FormulaSetInsert(fset, form);
                }
                else
@@ -759,6 +777,7 @@ void TFormulaSetFindDefs(FormulaSet_p set, TB_p terms, NumXTree_p *defs,
 {
    WFormula_p handle;
 
+   // printf("TFormulaSetFindDefs()...\n");
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
           handle->succ)
    {
@@ -857,12 +876,18 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, FormulaSet_p archive, TB_p terms
    long       polarity;
    WFormula_p w_def, c_def, formula, arch_form;
 
+   // printf("TFormulaSetIntroduceDefs()...\n");
    TFormulaSetDelTermpProp(set, TPCheckFlag|TPPosPolarity|TPNegPolarity);
+   // printf("Deleted properties\n");
    FormulaSetMarkPolarity(set);
+   // printf("Marked polarites\n");
 
+   // printf("About to find defs\n");
    TFormulaSetFindDefs(set, terms, &defs, renamed_forms);
    
    res = PStackGetSP(renamed_forms);
+   // printf("About to Create defs\n");
+   
    for(i=0; i<PStackGetSP(renamed_forms); i++)
    {
       form = PStackElementP(renamed_forms,i);
@@ -877,7 +902,7 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, FormulaSet_p archive, TB_p terms
       cell->vals[0].i_val = w_def->ident; /* Replace polarity with
                                         * definition id */
       arch_form = WFormulaFlatCopy(w_def);
-      WFormulaPushDerivation(arch_form, DOIntroDef, NULL, NULL);
+      WFormulaPushDerivation(arch_form, DCIntroDef, NULL, NULL);
       FormulaSetInsert(archive, arch_form);
       WFormulaPushDerivation(w_def, DCFofQuote, arch_form, NULL);
 
@@ -908,6 +933,7 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, FormulaSet_p archive, TB_p terms
    }
    PStackFree(renamed_forms);
 
+   // printf("About to apply defs\n");
    for(formula = set->anchor->succ; formula!=set->anchor; formula=formula->succ)
    {
       TFormulaApplyDefs(formula, terms, &defs);

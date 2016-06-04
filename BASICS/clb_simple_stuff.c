@@ -102,125 +102,6 @@ int StringIndex(char* key, char* list[])
 
 /*-----------------------------------------------------------------------
 //
-// Function: Log2()
-//
-//   Return the logarithm dualis of value.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-#define LOG_2 0.693147180559945286226763983
-
-double Log2(double value)
-{
-   return log(value)/LOG_2;
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function: Log2Ceil()
-//
-//   Return the ceiling of the logarithm dualis of value.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-long Log2Ceil(long value)
-{
-   long i = -1;
-
-   if(!value)
-   {
-      return -1;
-   }
-   value--;
-   while(value)
-   {
-      value>>=1;
-      i++;
-   }
-   return i+1;
-}
-
-
-#ifdef NEED_MATH_EMULATION
-
-/*-----------------------------------------------------------------------
-//
-// Function: sqrt()
-//
-//   Simple hack implementing the square root function, which seems
-//   to be missing from (some version of) Solaris libm with profiling
-//   support. Don't ask me... This is slow and inexact....
-//
-// Global Variables: -
-//
-// Side Effects    : Slow
-//
-/----------------------------------------------------------------------*/
-
-double sqrt(double value)
-{
-   double lower, upper, guess, diff;
-
-   assert(value>=0);
-   
-   lower = 0; 
-   upper = value;
-   guess = (lower+upper)/2;
-   diff = (guess*guess)-value;
-
-   while(ABS(diff)>0.00001)
-   {
-      if(diff>0)
-      {
-	 upper = guess;
-      }
-      else
-      {
-	 lower = guess;
-      }
-      guess = (lower+upper)/2;
-      diff = (guess*guess)-value;      
-   }
-   return guess;
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function: pow()
-//
-//   Compute x**y. See above. Result is _very_ inexact!
-//
-// Global Variables: -
-//
-// Side Effects    : Slow
-//
-/----------------------------------------------------------------------*/
-
-double pow(double x, double y)
-{   
-   int i;
-   double old = 1;
-   
-   for(i=0; i<=y; i++)
-   {
-      old = old*x;
-   }
-   return old;
-}
-
-
-#endif
-
-/*-----------------------------------------------------------------------
-//
 // Function: IndentStr()
 //
 //   Return a pointer to a string of level spaces, or MAXINDENTSPACES
@@ -232,7 +113,7 @@ double pow(double x, double y)
 //
 /----------------------------------------------------------------------*/
 
-char* IndentStr(unsigned level)
+char* IndentStr(int level)
 {
    static char spaces[MAXINDENTSPACES+1];
    int i;

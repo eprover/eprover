@@ -34,32 +34,11 @@ Changes
 #include <stddef.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stdbool.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
-
-
-
-#ifndef  __cplusplus
-
-/* Booleans (if we don't already have them */
-
-typedef enum
-{
-   false = 0,
-   true = 1
-}bool;
-
-#define CPPCAST(type) /* Nothing */
-
-#else
-
-/* C++ casts */
-#define CPPCAST(type) (type)
-
-#endif
-
 
 /* Trick the stupid type concept for polymorphic indices (hashes,
    trees) with int/pointer type. */
@@ -78,28 +57,6 @@ typedef union int_or_p
 #define LONG_MEM sizeof(long)
 #endif
 
-
-/* The NULL pointer */
-
-#ifndef NULL
-#ifndef  __cplusplus
-#define NULL ((void*)0)
-#else
-#define NULL 0
-#endif
-#endif
-
-/* Allow for volatile functions if the compiler supports them - 
-   gcc version egcs-2.90.23 980102 (egcs-1.0.1 release)
-   apparently defines __GNUC__  but does not *sigh* */
-
-#ifdef NEVER_DEFINED
-#define VOLATILE volatile
-#else
-#define VOLATILE
-#endif
-
-
 /* Generic cleanup function for pseudo-objects - the function has to
    know how to get rid of the passed data. */
 
@@ -109,71 +66,84 @@ typedef void (*GenericExitFun)(void* data);
 
 typedef int (*ComparisonFunctionType)(const void*, const void*);
 
-typedef unsigned long ulong_c;
-
-/* E occasionally casts pointers to an integer type to induce an
-   efficiently computable total ordering on pointers, or to compute a
-   hash value for an arbitray pointer type. ptrdiff_t is a signed
-   integer type and should be the right size on all reasonable
-   platforms. Change this definition if your platform is not
-   reasonable ;-).  */
-
-typedef ptrdiff_t ptr_int;
-
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-
-/* Maximum and minimum, absolute values, exclusive or functions */
-
-#ifdef MAX
 #undef MAX
-#endif
-#define MAX(x,y) ((x)>(y)?(x):(y))
+#define MAX(x,y) ({ __typeof__ (x) _x = (x);\
+                    __typeof__ (y) _y = (y);\
+                    _x > _y ? _x : _y; })
 
-#ifdef MIN
 #undef MIN
-#endif
-#define MIN(x,y) ((x)<(y)?(x):(y))
+#define MIN(x,y) ({ __typeof__ (x) _x = (x);\
+                    __typeof__ (y) _y = (y);\
+                    _x < _y ? _x : _y; })
 
-#ifdef ABS
 #undef ABS
-#endif
-#define ABS(x)   ((x)>0? (x):-1*(x))
+#define ABS(x) ((x)>0?(x):-(x))
 
-#ifdef XOR
 #undef XOR
-#endif
-#define XOR(x,y) (((!(x))&&(y))||((x)&&(!(y))))
+#define XOR(x,y) (!(x)!=!(y))
 
-#ifdef EQUIV
 #undef EQUIV
-#endif
-#define EQUIV(x,y) ((((x))&&(y))||(!(x)&&(!(y))))
+#define EQUIV(x,y) (!(x)==!(y))
 
-#define SWAP(type, x,y) {type tmp =(x); (x)=(y); (y)=(tmp);}
+#undef SWAP
+#define SWAP(type, x,y) do{type tmp =(x); (x)=(y); (y)=(tmp);}while(0)
 
-
-/* I cannot keep things in my mind ;-) */
 
 #define KILO 1024
-#define MEGA (KILO*KILO)
+#define MEGA 1024*1024
 
 
 /* Convenience function */
-#define WRITE_STR(fd,msg) write(fd,msg,strlen(msg));
+static __inline__ size_t WriteStr(int fd, const char* msg);
 
 
 #ifdef PRINT_TSTP_STATUS
 #define TSTPOUT(file,msg) fprintf(file, "# SZS status %s\n", msg)
-#define TSTPOUTFD(fd,msg) \
-        WRITE_STR(fd, "# SZS status ");WRITE_STR(fd, msg);WRITE_STR(fd, "\n")
-
+#define TSTPOUTFD(fd,msg) do{\
+                             WriteStr(fd, "# SZS status ");\
+                             WriteStr(fd, msg);\
+                             WriteStr(fd, "\n");\
+                          }while(0)
 #else
-#define TSTPOUT(file, msg)
+#define TSTPOUT(file,msg)
 #define TSTPOUTFD(fd,msg)
 #endif
+
+
+#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
+#define GCC_DIAGNOSTIC_POP  _Pragma("GCC diagnostic pop")
+#define GCC_DIAGNOSTIC_PUSH _Pragma("GCC diagnostic push")
+#else
+#define GCC_DIAGNOSTIC_POP
+#define GCC_DIAGNOSTIC_PUSH
+#endif
+
+/*-----------------------------------------------------------------------
+//
+// Function: WriteStr()
+//
+//   Computes the length of msg and writes msg to the file descriptor.
+//   WriteStr is used for output instead of the print functions in low
+//   memory situations since the later may try to allocate memory which
+//   is likely to fail. WriteStr is defined as a function instead of a
+//   macro to silence warnings in case the return value of write is
+//   unused. The function write may be defined with warn_unused_result
+//   in the system header files.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+static __inline__ size_t WriteStr(int fd, const char* msg){
+   return write(fd, msg, strlen(msg));
+}
+
 
 #endif
 

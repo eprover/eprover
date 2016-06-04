@@ -300,7 +300,7 @@ FloatTree_p FloatTreeFind(FloatTree_p *root, double key)
    if(*root)
    {
       *root = splay_tree(*root, key);  
-      if(((*root)->key-key)==0)
+      if((*root)->key==key)
       {
          return *root;
       }
@@ -333,7 +333,7 @@ FloatTree_p FloatTreeExtractEntry(FloatTree_p *root, double key)
       return NULL;
    }
    *root = splay_tree(*root, key);
-   if((key-(*root)->key)==0)
+   if(key==(*root)->key)
    {
       if (!(*root)->lson)
       {

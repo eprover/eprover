@@ -40,58 +40,20 @@ Changes
    "dates". */
 
 typedef long SysDate;
-   
-
-typedef enum 
-{
-   DateEarlier = -1,
-   DateEqual = 0,
-   DateLater = 1
-}DateRelation;
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-#define      SysDateCreationTime() 0L
-#define      SysDateArmageddonTime() ULONG_MAX
-#define      SysDateInc(sd) ((*(sd))++);assert(*(sd));
-static __inline__ DateRelation SysDateCompare(SysDate date1, SysDate date2);
-void         SysDatePrint(FILE* out, SysDate date);
-#define      SysDateMaximum(date1, date2) \
-             (SysDateCompare((date1), (date2))==DateEarlier?\
-             (date2):(date1))
-#define      SysDateIsCreationDate(date)\
-             (SysDateCompare((date),SysDateCreationTime())==DateEqual)
-
-
-
-/*-----------------------------------------------------------------------
-//
-// Function:  SysDateCompare()
-//
-//   Compare two times, return DateEqual, DateEarlier, DateLater,
-//   if the first date is equal to, smaller or bigger than the second
-//   one. 
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-static __inline__ DateRelation SysDateCompare(SysDate date1, SysDate date2)
-{
-   if(date1 > date2)
-   {
-      return DateLater;
-   }
-   else if(date1 < date2)
-   {
-      return DateEarlier;
-   }
-   return DateEqual;
-}
+#define SysDateCreationTime() ((SysDate)0)
+#define SysDateInvalidTime() ((SysDate)-1)
+#define SysDateIsInvalid(date) ((date) == SysDateInvalidTime())
+#define SysDateInc(sd) ((*(sd))++);assert(*(sd));
+#define SysDateIsEarlier(date1, date2) ((date1)<(date2))
+#define SysDateEqual(date1, date2) ((date1)==(date2))
+void    SysDatePrint(FILE* out, SysDate date);
+#define SysDateMaximum(date1, date2) MAX(date1, date2)
+#define SysDateIsCreationDate(date) ((date) == SysDateCreationTime())
 
 #endif
 

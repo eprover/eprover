@@ -890,7 +890,7 @@ bool PatternSubstBacktrack(PatternSubst_p subst, PStackPointer
 	 count = PatternIdGetIdent(rep_symbol);
 	 
 	 tmp = PDArrayElementRef(subst->used_idents, arity);
-	 assert(tmp->i_val == count);	 
+	 (void)count; assert(tmp->i_val == count);	 
 	 tmp->i_val--;
 	 PDArrayAssignInt(subst->fun_subst, symbol, 0);
       }

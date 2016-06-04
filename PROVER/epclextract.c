@@ -162,11 +162,11 @@ int main(int argc, char* argv[])
 
    assert(argv[0]);
    
+#ifdef STACK_SIZE
+   INCREASE_STACK_SIZE;
+#endif
    SupportShellPCL = true;
    InitIO(NAME);
-#ifdef STACK_SIZE
-   IncreaseMaxStackSize(argv, STACK_SIZE);
-#endif
    atexit(TempFileCleanup);
 
    ESignalSetup(SIGTERM);
@@ -216,7 +216,7 @@ int main(int argc, char* argv[])
    {
       if(no_extract)
       {
-	 PCLMiniProtSetClauseProp(mprot, CPIsProofClause);
+	 PCLMiniProtSetClauseProp(mprot, PCLIsProofStep);
       }
       else
       {
@@ -274,7 +274,7 @@ int main(int argc, char* argv[])
    }
 #ifdef FAST_EXIT
    exit(0);
-#endif
+#else
    if(fast_extract)
    {	 
       PCLMiniProtFree(mprot);
@@ -295,6 +295,7 @@ int main(int argc, char* argv[])
 #endif
    
    return 0;
+#endif
 }
 
 
@@ -330,11 +331,9 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_HELP: 
 	    print_help(stdout);
 	    exit(NO_ERROR);
-	    break;
       case OPT_VERSION:
 	    printf(NAME " " VERSION "\n");
 	    exit(NO_ERROR);
-	    break;
       case OPT_FAST:
 	    fast_extract = true;
 	    break;

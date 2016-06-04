@@ -411,7 +411,7 @@ void* PTreeObjExtractRootObject(PObjTree_p *root, ComparisonFunctionType
 //
 // Function: PTreeObjMerge()
 //
-//   Merge the two trees, i.e. destroy the second one and add it's
+//   Merge the two trees, i.e. destroy the second one and add its
 //   element to the first one.
 //
 // Global Variables: -
@@ -436,8 +436,8 @@ void PTreeObjMerge(PObjTree_p *root, PObjTree_p add, ComparisonFunctionType
 	 PStackPushP(stack, add->lson);
 	 PStackPushP(stack, add->rson);
 	 res = PTreeObjInsert(root, add, cmpfun);
-	 assert(!res); /* Pointers should never be in two trees at
-			  once for my intended application */
+	 (void)res; assert(!res); /* Pointers should never be in two trees at
+                                     once for my intended application */
       }
    } 
    PStackFree(stack);

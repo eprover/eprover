@@ -89,7 +89,7 @@ LemmaParam_p LemmaParamAlloc(void)
 //
 /----------------------------------------------------------------------*/
 
-InferenceWeight_p InferenceWeightsAlloc()
+InferenceWeight_p InferenceWeightsAlloc(void)
 {
    InferenceWeight_p handle = InferenceWeightCellAlloc();
       
@@ -98,6 +98,7 @@ InferenceWeight_p InferenceWeightsAlloc()
    (*handle)[PCLOpQuote]           = PCL_OP_QUOTE_WEIGHT;
    (*handle)[PCLOpParamod]         = PCL_OP_PARAMOD_WEIGHT;
    (*handle)[PCLOpSimParamod]      = PCL_OP_SIM_PARAMOD_WEIGHT;
+   (*handle)[PCLOpEvalGC]          = PCL_OP_EVALGC_WEIGHT;
    (*handle)[PCLOpEResolution]     = PCL_OP_ERESOLUTION_WEIGHT;
    (*handle)[PCLOpEFactoring]      = PCL_OP_EFACTORING_WEIGHT;
    (*handle)[PCLOpSimplifyReflect] = PCL_OP_SIMPLIFYREFLECT_WEIGHT;

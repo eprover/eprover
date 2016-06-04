@@ -176,7 +176,7 @@ DPLLClause_p DPLLClauseFromClause(PropSig_p psig, Clause_p clause)
 
 bool DPLLClauseNormalize(DPLLClause_p clause)
 {
-   long to,from;
+   unsigned long to,from;
    bool tautology = false;
 
    if(clause->lit_no <= 1)
@@ -221,7 +221,7 @@ bool DPLLClauseNormalize(DPLLClause_p clause)
 void DPLLClausePrintLOP(FILE* out, PropSig_p psig, DPLLClause_p clause)
 {
    char* sep ="";
-   int i;
+   unsigned int i;
 
    for(i=0; i<clause->lit_no;i++)
    {
@@ -266,7 +266,7 @@ void DPLLClausePrintLOP(FILE* out, PropSig_p psig, DPLLClause_p clause)
 
 void DPLLClausePrintDimacs(FILE* out,DPLLClause_p clause)
 {
-   int i;
+   unsigned int i;
    for(i=0; i<clause->lit_no;i++)
    {
       fprintf(out,"%ld ", clause->literals[i]);

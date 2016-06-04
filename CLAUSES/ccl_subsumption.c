@@ -634,6 +634,10 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
       PERF_CTR_EXIT(SubsumeTimer);
       return UnitClauseSubsumesClause(subsumer, sub_candidate);
    }
+   //printf("# sub_candidate %p: ", sub_candidate->set);ClausePrint(stdout, sub_candidate, true);
+   //printf("\n# subsumer     %p: ", subsumer->set);ClausePrint(stdout, subsumer, true);
+   //printf("\n");
+
    assert(sub_candidate->weight == ClauseStandardWeight(sub_candidate));
    assert(subsumer->weight == ClauseStandardWeight(subsumer));
 
@@ -1321,7 +1325,6 @@ Clause_p ClauseSetSubsumesClause(ClauseSet_p set, Clause_p sub_candidate)
    assert(sub_candidate->weight == ClauseStandardWeight(sub_candidate));
    if(set->fvindex)
    {
-      Clause_p res; 
       FreqVector_p vec = OptimizedVarFreqVectorCompute(sub_candidate,
 						       set->fvindex->perm_vector,
 						       set->fvindex->cspec);

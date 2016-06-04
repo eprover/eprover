@@ -8,7 +8,7 @@ Contents
  
   Define global macro for version number and meta-information. 
 
-  Copyright 2009-2012 by the author.
+  Copyright 2009-2016 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
@@ -38,16 +38,16 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* git tag E-1-8pre013 */
-#define VERSION      "1.8pre013"
+/* git tag E-1-9-1pre013 */
+#define VERSION      "1.9.1pre013"
 
-#define E_NICKNAME     "Gopaldhara"
+#define E_NICKNAME     "Sungma"
 
 #define E_URL "http://www.eprover.org"
 
 #define STS_MAIL "schulz@eprover.org"
-#define STS_COPYRIGHT "Copyright 1998-2013 by Stephan Schulz"
-#define STS_SNAIL "Stephan Schulz (I4)\nTechnische Universitaet Muenchen\nInstitut fuer Informatik\nBoltzmannstrasse 3\n85748 Garching bei Muenchen\nGermany\n"
+#define STS_COPYRIGHT "Copyright 1998-2016 by Stephan Schulz"
+#define STS_SNAIL "Stephan Schulz\nDHBW Stuttgart\nFakultaet Technik\nInformatik\nRotebuehlplatz 41\n70178 Stuttgart\nGermany\n"
 
 
 #endif

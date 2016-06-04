@@ -356,11 +356,11 @@ int main(int argc, char* argv[])
    StrTree_p       skip_includes = NULL;
 
    assert(argv[0]);
-   
-   InitIO(NAME);
+
 #ifdef STACK_SIZE
-   IncreaseMaxStackSize(argv, STACK_SIZE);
-#endif   
+   INCREASE_STACK_SIZE;
+#endif
+   InitIO(NAME);
    ESignalSetup(SIGXCPU);
 
    state = process_options(argc, argv);
@@ -625,11 +625,9 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_HELP: 
 	    print_help(stdout);
 	    exit(NO_ERROR);
-	    break;
       case OPT_VERSION:
 	    printf(NAME" " VERSION "\n");
 	    exit(NO_ERROR);
-	    break;
       case OPT_OUTPUT:
 	    outname = arg;
 	    break;
@@ -699,7 +697,7 @@ CLState_p process_options(int argc, char* argv[])
             if(strcmp(arg, "Auto")==0)
             {              
                long tmpmem =  GetSystemPhysMemory();
-               long mem_limit = 0.8*tmpmem;
+               mem_limit = 0.8*tmpmem;
                
                if(tmpmem==-1)
                {
@@ -709,9 +707,9 @@ CLState_p process_options(int argc, char* argv[])
                mem_limit = MEGA*mem_limit;
                VERBOSE(fprintf(stderr, 
                                "Physical memory determined as %ld MB\n"
-                               "Memory limit set to %ld MB\n", 
+                               "Memory limit set to %lld MB\n", 
                                tmpmem, 
-                               mem_limit););
+                               (long long)mem_limit););
             }
             else
             {

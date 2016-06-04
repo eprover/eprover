@@ -409,7 +409,8 @@ bool ClauseUnitSimplifyTest(Clause_p clause, Clause_p simplifier)
 //
 //   Create an archive copy of clause in archive. The
 //   archive copy inherits info and derivation. The original loses
-//   info, and gets a new derivation that points to the archive copy. 
+//   info, and gets a new derivation that points to the archive
+//   copy. Returns pointer to the archived copy.
 //
 // Global Variables: -
 //
@@ -417,7 +418,7 @@ bool ClauseUnitSimplifyTest(Clause_p clause, Clause_p simplifier)
 //
 /----------------------------------------------------------------------*/
 
-void ClauseArchive(ClauseSet_p archive, Clause_p clause)
+Clause_p ClauseArchive(ClauseSet_p archive, Clause_p clause)
 {
    Clause_p archclause;
 
@@ -432,6 +433,8 @@ void ClauseArchive(ClauseSet_p archive, Clause_p clause)
    clause->derivation = NULL;
    ClausePushDerivation(clause, DCCnfQuote, archclause, NULL);
    ClauseSetInsert(archive, archclause);
+
+   return archclause;
 }
 
 
@@ -462,6 +465,38 @@ void ClauseSetArchive(ClauseSet_p archive, ClauseSet_p set)
       ClauseArchive(archive, handle);
    }
 }
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PStackClausePrint()
+//
+//   Print the clauses on the stack.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void PStackClausePrint(FILE* out, PStack_p stack, char* extra)
+{
+   PStackPointer i;
+   Clause_p clause;
+   
+   for(i=0; i<PStackGetSP(stack); i++)
+   {
+      clause = PStackElementP(stack, i);
+      ClausePrint(out, clause, true);
+      if(extra)
+      {
+         fprintf(out, "%s", extra);
+      }
+      fputc('\n', out);
+   }
+}
+
 
 
 /*---------------------------------------------------------------------*/

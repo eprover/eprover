@@ -222,7 +222,7 @@ extern char  ErrStr[]
 \end{quote}
 
 \begin{verbatim}
-VOLATILE void Error(char* message, ErrorCodes ret)
+void Error(char* message, ErrorCodes ret)
 \end{verbatim}
 \begin{quote}
   Print an error message (including the program name and the given
@@ -251,7 +251,7 @@ variable\footnote{Using global variables for communication between
 
 \begin{verbatim}
 extern   int  TmpErrno
-VOLATILE void SysError(char* message, ErrorCodes ret)
+void SysError(char* message, ErrorCodes ret)
 \end{verbatim}
 \begin{quote}
   \texttt{SysError()} will print an error message, including the

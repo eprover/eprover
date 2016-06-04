@@ -63,6 +63,15 @@ void RawSpecFeaturesCompute(RawSpecFeature_p features, ProofState_p state)
       ClauseSetCardinality(state->f_axioms);
    features->term_size   = ClauseSetStandardWeight(state->axioms)+
       FormulaSetStandardWeight(state->f_axioms);
+   features->hypothesis_count = 0;
+   features->conjecture_count = 0;
+   features->conjecture_count +=
+      ClauseSetCountConjectures(state->axioms, 
+                                &(features->hypothesis_count));
+   features->conjecture_count +=
+      FormulaSetCountConjectures(state->f_axioms, 
+                                 &(features->hypothesis_count));
+
    features->sig_size    = SigCountSymbols(state->terms->sig, true)+
       SigCountSymbols(state->terms->sig,false);
    
@@ -72,10 +81,10 @@ void RawSpecFeaturesCompute(RawSpecFeature_p features, ProofState_p state)
       SigCountAritySymbols(state->terms->sig, 0, true);
    features->fun_size  = SigCountSymbols(state->terms->sig, false)-
       SigCountAritySymbols(state->terms->sig, 0, false);
+
    
    features->class[0] = '\0';
 }
-
 
 #define RAW_CLASSIFY(index, value, some, many)\
    if((value) < (some))\

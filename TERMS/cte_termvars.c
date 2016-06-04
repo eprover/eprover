@@ -481,7 +481,7 @@ Term_p VarBankExtNameAssertAlloc(VarBank_p bank, char* name)
       handle->val1.p_val = var;
       handle->val2.i_val = var->f_code;
       test = StrTreeInsert(&(bank->ext_index), handle);
-      assert(test == NULL);
+      (void)test; assert(test == NULL);
    }
 
    return var;

@@ -23,7 +23,6 @@ all: $(LIB)
 clean:
 	@touch does_exist.aux does_exist.log does_exist.dvi does_exist.ps;
 	@rm *.aux *.log *.dvi *.ps;
-	@echo Removed compiled files
 
 depend:
 	echo "No dependencies for LaTeX documentation"
