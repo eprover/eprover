@@ -24,6 +24,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "cte_match_mgu_1-1.h"
+#include "clb_plocalstacks.h"
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -60,37 +61,24 @@ PERF_CTR_DEFINE(MguTimer);
 //
 /----------------------------------------------------------------------*/
 
-static bool occur_check(Term_p super, Term_p var)
+static bool occur_check(restrict Term_p term, restrict Term_p var)
 {
-   PStack_p stack = PStackAlloc();
-   int i;
-   bool occ = false;
-   DerefType deref = DEREF_ALWAYS;
+   term = TermDerefAlways(term);
 
-   PStackPushP(stack, super);
-   
-   while(!PStackEmpty(stack))
+   if(UNLIKELY(term == var))
    {
-      super = PStackPopP(stack);
+      return true;
+   }
 
-      super = TermDeref(super, &deref);
-
-      if(super == var)
+   for(int i=0; i < term->arity; i++)
+   {
+      if(occur_check(term->args[i], var))
       {
-         occ = true;
-         break;
-      }
-      else
-      {
-         for(i=0; i<super->arity; i++)
-         {
-            PStackPushP(stack, super->args[i]);
-         }
+         return true;
       }
    }
-   PStackFree(stack);
 
-   return occ;
+   return false;
 }
 
 
