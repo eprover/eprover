@@ -22,6 +22,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "cte_subst.h"
+#include "clb_plocalstacks.h"
 
 
 
@@ -149,36 +150,29 @@ int SubstBacktrack(Subst_p subst)
 
 PStackPointer SubstNormTerm(Term_p term, Subst_p subst, VarBank_p vars)
 {
-   PStackPointer ret;
-   int       i;
-   Term_p    newvar;
-   PStack_p  stack = PStackAlloc();
-   DerefType deref = DEREF_ALWAYS;
-   
-   ret = PStackGetSP(subst);
-   PStackPushP(stack, term);
+   PStackPointer ret = PStackGetSP(subst);
+   PLocalStackInit(stack);
+   PLocalStackPush(stack, term);
 
-   while(!PStackEmpty(stack))
+   while(!PLocalStackEmpty(stack))
    {
-      term = TermDeref(PStackPopP(stack), &deref);
+      term = TermDerefAlways(PLocalStackPop(stack));
       if(TermIsVar(term))
       {
          if(!TermCellQueryProp(term, TPSpecialFlag))
          {
-            newvar = VarBankGetFreshVar(vars, term->sort);
+            Term_p newvar = VarBankGetFreshVar(vars, term->sort);
             TermCellSetProp(newvar, TPSpecialFlag);
             SubstAddBinding(subst, term, newvar);
          }
       }
       else
       {
-	 for(i=term->arity-1; i>=0; i--)
-	 {
-	    PStackPushP(stack, term->args[i]);
-	 }
+         PLocalStackPushTermArgsReversed(stack, term);
       }
    }
-   PStackFree(stack);
+
+   PLocalStackFree(stack);
    return ret;
 }
 
