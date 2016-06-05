@@ -972,34 +972,20 @@ bool TermIsSubtermDeref(Term_p super, Term_p test, DerefType
 
 long TermWeight(Term_p term, long vweight, long fweight)
 {
-   long     res = 0;
-   PStack_p stack = PStackAlloc();
-   Term_p   handle;
-
-   assert(term);
+   long res = 0;
    
-   PStackPushP(stack, term);
-   
-   while(!PStackEmpty(stack))
+   if(TermIsVar(term))
    {
-      handle = PStackPopP(stack);
-      if(TermIsVar(handle))
+      res += vweight;
+   }
+   else
+   {
+      res += fweight;
+      for(int i=0; i<term->arity; i++)
       {
-	 res += vweight;
-      }
-      else
-      {
-	 int i;
-
-	 res += fweight;
-
-	 for(i=0; i<handle->arity; i++)
-	 {
-	    PStackPushP(stack, handle->args[i]);
-	 }
+         res += TermWeight(term->args[i], vweight, fweight);
       }
    }
-   PStackFree(stack);
 
    return res;
 }
