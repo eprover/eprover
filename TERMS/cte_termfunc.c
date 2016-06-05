@@ -1279,30 +1279,28 @@ bool TermHasFCode(Term_p term, FunCode f)
 
 bool TermHasUnboundVariables(Term_p term)
 {
-   PStack_p stack = PStackAlloc();
+   bool res = false;
 
-   PStackPushP(stack,term);
-   while(!PStackEmpty(stack))
+   if(TermIsVar(term))
    {
-      term = PStackPopP(stack);
-      if(TermIsVar(term))
+      if(!term->binding)
       {
-         if(!term->binding)
-         {
-            PStackFree(stack);
-            return true;
-         }
+         res = true;
       }
-      else
+   }
+   else
+   {
+      for(int i=0; i < term->arity; i++)
       {
-         for(int i=0; i<term->arity; i++)
+         if(TermHasUnboundVariables(term->args[i]))
          {
-            PStackPushP(stack,term->args[i]);
+            res = true;
+            break;
          }
       }
    }
-   PStackFree(stack);
-   return false;
+
+   return res;
 }
 
 /*-----------------------------------------------------------------------
@@ -1320,24 +1318,25 @@ bool TermHasUnboundVariables(Term_p term)
 
 bool TermIsGround(Term_p term)
 {
-   PStack_p stack = PStackAlloc();
-
-   PStackPushP(stack,term);
-   while(!PStackEmpty(stack))
+   bool res = true;
+   
+   if(TermIsVar(term))
    {
-      term = PStackPopP(stack);
-      if(TermIsVar(term))
+      res = false;
+   }
+   else
+   {
+      for(int i=0; i < term->arity; i++)
       {
-         PStackFree(stack);
-         return false;
-      }
-      for(int i=0; i<term->arity; i++)
-      {
-         PStackPushP(stack,term->args[i]);
+         if(!TermIsGround(term->args[i]))
+         {
+            res = false;
+            break;
+         }
       }
    }
-   PStackFree(stack);
-   return true;
+
+   return res;
 }
 
 /*-----------------------------------------------------------------------
