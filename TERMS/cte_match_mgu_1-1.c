@@ -109,39 +109,31 @@ static bool occur_check(restrict Term_p term, restrict Term_p var)
 
 bool SubstComputeMatch(Term_p matcher, Term_p to_match, Subst_p subst)
 {
-   long matcher_weight = TermStandardWeight(matcher),
-      to_match_weight = TermStandardWeight(to_match);
-   bool res = true;
+   long matcher_weight  = TermStandardWeight(matcher);
+   long to_match_weight = TermStandardWeight(to_match);
 
-   assert(TermStandardWeight(matcher)  == 
-	  TermWeight(matcher,DEFAULT_VWEIGHT,DEFAULT_FWEIGHT));
-   assert(TermStandardWeight(to_match) == 
-	  TermWeight(to_match,DEFAULT_VWEIGHT,DEFAULT_FWEIGHT));
+   assert(TermStandardWeight(matcher)  == TermWeight(matcher, DEFAULT_VWEIGHT, DEFAULT_FWEIGHT));
+   assert(TermStandardWeight(to_match) == TermWeight(to_match, DEFAULT_VWEIGHT, DEFAULT_FWEIGHT));
 
-   if(matcher_weight > to_match_weight)
-   {
-      return false;
-   }	
-   if(TermCellQueryProp(to_match, TPPredPos) && TermIsVar(matcher))
+   if((matcher_weight > to_match_weight) || (TermCellQueryProp(to_match, TPPredPos) && TermIsVar(matcher)))
    {
       return false;
    }
-   /* New block to get fresh local variables */
+
+   bool res = true;
+   PStackPointer backtrack = PStackGetSP(subst); /* For backtracking */
+   PLocalStackInit(jobs);
+
+   PLocalStackPush(jobs, matcher);
+   PLocalStackPush(jobs, to_match);
+
+   while(!PLocalStackEmpty(jobs))
    {
-      PStack_p jobs = PStackAlloc();
-      PStackPointer backtrack = PStackGetSP(subst); /* For backtracking */
-      int i;
-      
-      PStackPushP(jobs, matcher);
-      PStackPushP(jobs, to_match);
-      
-      while(!PStackEmpty(jobs))
+      to_match =  PLocalStackPop(jobs);
+      matcher  =  PLocalStackPop(jobs);
+
+      if(TermIsVar(matcher))
       {
-	 to_match =  PStackPopP(jobs);
-	 matcher  =  PStackPopP(jobs);
-	 
-	 if(TermIsVar(matcher))
-	 {
          assert(matcher->sort != STNoSort);
          assert(to_match->sort != STNoSort);
          if(matcher->sort != to_match->sort)
@@ -149,51 +141,52 @@ bool SubstComputeMatch(Term_p matcher, Term_p to_match, Subst_p subst)
             res = false;
             break;
          }
-	    if(matcher->binding)
-	    {
-	       if(matcher->binding != to_match)
-	       {
-		  res = false;
-		  break;
-	       }
-	    }
-	    else 
-	    {
-	       SubstAddBinding(subst, matcher, to_match);
-	       
-	    }
-	    matcher_weight +=
-	       (TermStandardWeight(to_match)-DEFAULT_VWEIGHT);
-	    if(matcher_weight > to_match_weight)
-	    {
-	       res = false;
-	       break;
-	    }	
-	 }
-	 else
-	 {
-	    if(matcher->f_code != to_match->f_code)
-	    {
-	       res = false;
-	       break;
-	    }
-	    else
-	    {
-	       for(i=matcher->arity-1; i>=0; i--)
-	       {
-		  PStackPushP(jobs, matcher->args[i]);
-		  PStackPushP(jobs, to_match->args[i]);
-	       }
-	    }
-	 }
-      }      
-      PStackFree(jobs);
-      if(!res)
-      {
-	 SubstBacktrackToPos(subst,backtrack);
+         if(matcher->binding)
+         {
+            if(matcher->binding != to_match)
+            {
+               res = false;
+               break;
+            }
+         }
+         else
+         {
+            SubstAddBinding(subst, matcher, to_match);
+         }
+
+         matcher_weight += TermStandardWeight(to_match) - DEFAULT_VWEIGHT;
+
+         if(matcher_weight > to_match_weight)
+         {
+            res = false;
+            break;
+         }
       }
-      return res;
+      else
+      {
+         if(matcher->f_code != to_match->f_code)
+         {
+            res = false;
+            break;
+         }
+         else
+         {
+            PLocalStackEnsureSpace(jobs, 2*matcher->arity);
+            for(int i=matcher->arity-1; i>=0; i--)
+            {
+               PLocalStackPush(jobs, matcher->args[i]);
+               PLocalStackPush(jobs, to_match->args[i]);
+            }
+         }
+      }
    }
+
+   PLocalStackFree(jobs);
+   if(!res)
+   {
+      SubstBacktrackToPos(subst,backtrack);
+   }
+   return res;
 }
 
 
