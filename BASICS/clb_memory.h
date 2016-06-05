@@ -53,6 +53,7 @@ typedef struct memcell
 /*---------------------------------------------------------------------*/
 
 #define MEM_ARR_SIZE 8192
+#define MEM_ARR_MIN_INDEX sizeof(MemCell)
 #define MEM_FREE_PATTERN 0xFAFBFAFA
 #define MEM_RSET_PATTERN 0x00000000
 
@@ -162,37 +163,32 @@ void MemFreeListPrint(FILE* out);
 
 static __inline__ void* SizeMallocReal(size_t size)
 {
-   Mem_p  handle;
-   long mem_index;
- 
-   assert(size>=0);
-  
-   mem_index = size - sizeof(MemCell);
-   
-   if((mem_index>=0) && (mem_index<MEM_ARR_SIZE) && free_mem_list[mem_index])
+   Mem_p handle;
+
+   if(size>=MEM_ARR_MIN_INDEX && size<MEM_ARR_SIZE && free_mem_list[size])
    {
-      assert(free_mem_list[mem_index]->test == MEM_FREE_PATTERN);
-      assert((free_mem_list[mem_index]->test = MEM_RSET_PATTERN, true));
-      handle = free_mem_list[mem_index];
-      free_mem_list[mem_index] = free_mem_list[mem_index]->next;
-   } 
+      assert(free_mem_list[size]->test == MEM_FREE_PATTERN);
+      assert((free_mem_list[size]->test = MEM_RSET_PATTERN, true));
+      handle = free_mem_list[size];
+      free_mem_list[size] = free_mem_list[size]->next;
+   }
    else
    {
       handle = SecureMalloc(size);
-#ifndef NDEBUG
-      if((mem_index>=0) && (mem_index<MEM_ARR_SIZE))
-      {
-	 assert((handle->test = MEM_RSET_PATTERN, true));
-      }
-#endif
+      #ifndef NDEBUG
+         if(size>=MEM_ARR_MIN_INDEX && size<MEM_ARR_SIZE)
+         {
+            assert((handle->test = MEM_RSET_PATTERN, true));
+         }
+      #endif
    }
-   #ifdef CLB_MEMORY_DEBUG 
-   size_malloc_mem+=size;
-   size_malloc_count++;
+   #ifdef CLB_MEMORY_DEBUG
+      size_malloc_mem+=size;
+      size_malloc_count++;
    #endif
-#ifdef CLB_MEMORY_DEBUG2
-   printf("\nBlock %p A: size %zd\n", handle, size);
-#endif
+   #ifdef CLB_MEMORY_DEBUG2
+      printf("\nBlock %p A: size %zd\n", handle, size);
+   #endif
    return handle;
 }   
 
@@ -215,32 +211,29 @@ static __inline__ void* SizeMallocReal(size_t size)
 
 static __inline__ void SizeFreeReal(void* junk, size_t size)
 {
-   long mem_index;
-   
    assert(junk!=NULL);
 
-#ifdef CLB_MEMORY_DEBUG2
-   printf("\nBlock %p D: size %zd\n", junk, size);
-#endif
+   #ifdef CLB_MEMORY_DEBUG2
+      printf("\nBlock %p D: size %zd\n", junk, size);
+   #endif
 
-   mem_index = size - sizeof(MemCell);
-
-   if(mem_index>=0 && mem_index<MEM_ARR_SIZE)
+   if(size>=MEM_ARR_MIN_INDEX && size<MEM_ARR_SIZE)
    {
-      ((Mem_p)junk)->next = free_mem_list[mem_index];
-      free_mem_list[mem_index] = (Mem_p)junk;
-      assert(free_mem_list[mem_index]->test != MEM_FREE_PATTERN); 
-      assert(free_mem_list[mem_index]->test = MEM_FREE_PATTERN);
+      ((Mem_p)junk)->next = free_mem_list[size];
+      free_mem_list[size] = (Mem_p)junk;
+      assert(free_mem_list[size]->test != MEM_FREE_PATTERN);
+      assert(free_mem_list[size]->test = MEM_FREE_PATTERN);
    } 
    else
    {
       FREE(junk);
    }
-#ifdef CLB_MEMORY_DEBUG 
-   size_free_mem+=size;
-   size_free_count++;
-#endif
-} 
+
+   #ifdef CLB_MEMORY_DEBUG
+      size_free_mem+=size;
+      size_free_count++;
+   #endif
+}
 
 #endif
 #endif

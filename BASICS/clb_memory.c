@@ -405,8 +405,8 @@ void MemFreeListPrint(FILE* out)
       tmp = free_list_size(free_mem_list[i]);
       if(tmp)
       {
-	 fprintf(out, "# %4ld: %ld\n", i+sizeof(MemCell), tmp);
-	 sum += tmp*(i+sizeof(MemCell));
+	 fprintf(out, "# %4ld: %ld\n", i, tmp);
+	 sum += tmp*(i);
 	 count += tmp;
       }
    }
