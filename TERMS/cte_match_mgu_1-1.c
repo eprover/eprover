@@ -212,16 +212,11 @@ bool SubstComputeMatch(Term_p matcher, Term_p to_match, Subst_p subst)
 
 bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
 {
-   PQueue_p jobs;
-   PStackPointer backtrack; /* For backtracking */
-   int i;
-   DerefType deref = DEREF_ALWAYS;
-
-
    //printf("Unify %lu %lu\n", t1->entry_no, t2->entry_no);
-#ifdef MEASURE_UNIFICATION
-   UnifAttempts++;
-#endif
+   #ifdef MEASURE_UNIFICATION
+      UnifAttempts++;
+   #endif
+
    PERF_CTR_ENTRY(MguTimer);
 
    if((TermCellQueryProp(t1, TPPredPos) && TermIsVar(t2))||
@@ -231,16 +226,18 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
       return false;
 
    }
-   jobs = PQueueAlloc();
-   backtrack = PStackGetSP(subst);
+   PStackPointer backtrack = PStackGetSP(subst); /* For backtracking */
    
+   bool res = true;
+   PQueue_p jobs = PQueueAlloc();
+
    PQueueStoreP(jobs, t1);
    PQueueStoreP(jobs, t2);
    
    while(!PQueueEmpty(jobs))
    {
-      t2 =  TermDeref(PQueueGetLastP(jobs), &deref);
-      t1 =  TermDeref(PQueueGetLastP(jobs), &deref);	    
+      t2 =  TermDerefAlways(PQueueGetLastP(jobs));
+      t1 =  TermDerefAlways(PQueueGetLastP(jobs));
       
       if(TermIsVar(t2))
       {
@@ -249,63 +246,66 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
 
       if(TermIsVar(t1))
       {
-	 if(t1 != t2)
-	 {
-         assert(t1->sort != STNoSort);
-         assert(t2->sort != STNoSort);
-	    /* Sort check, then Occur-Check - remember,
-             * variables are elementary and shared! */
-	    if((t1->sort != t2->sort) || occur_check(t2, t1))
-	    {
-	       SubstBacktrackToPos(subst,backtrack);
-	       PQueueFree(jobs);
-               PERF_CTR_EXIT(MguTimer);
-	       return false;
-	    }
-	    else
-	    {
-	       SubstAddBinding(subst, t1, t2);
-	    }
-	 }
+         if(t1 != t2)
+         {
+            assert(t1->sort != STNoSort);
+            assert(t2->sort != STNoSort);
+            /* Sort check and occur check - remember, variables are elementary and shared! */
+            if((t1->sort != t2->sort) || occur_check(t2, t1))
+            {
+               res = false;
+               break;
+            }
+            else
+            {
+               SubstAddBinding(subst, t1, t2);
+            }
+         }
       }
       else
       {
-	 if(t1->f_code != t2->f_code)
-	 {
-	    SubstBacktrackToPos(subst,backtrack);
-	    PQueueFree(jobs);
-            PERF_CTR_EXIT(MguTimer);
-	    return false;
-	 }
-	 else
-	 {
-      assert(t1->sort != STNoSort);
-      assert(t2->sort != STNoSort);
-      assert(t1->sort == t2->sort);
-	    for(i=t1->arity-1; i>=0; i--)
-	    {	
-	       /* Delay variable bindings */
-	       if(TermIsVar(t1->args[i])||TermIsVar(t2->args[i]))
-	       {
-		  PQueueBuryP(jobs, t2->args[i]);		  
-		  PQueueBuryP(jobs, t1->args[i]);				  
-	       }
-	       else
-	       {
-		  PQueueStoreP(jobs, t1->args[i]);
-		  PQueueStoreP(jobs, t2->args[i]);		  
-	       }
-	    }
-	 }
+         if(t1->f_code != t2->f_code)
+         {
+            res = false;
+            break;
+         }
+         else
+         {
+            assert(t1->sort != STNoSort);
+            assert(t2->sort != STNoSort);
+            assert(t1->sort == t2->sort);
+            for(int i=t1->arity-1; i>=0; i--)
+            {
+               /* Delay variable bindings */
+               if(TermIsVar(t1->args[i]) || TermIsVar(t2->args[i]))
+               {
+                  PQueueBuryP(jobs, t2->args[i]);
+                  PQueueBuryP(jobs, t1->args[i]);
+               }
+               else
+               {
+                  PQueueStoreP(jobs, t1->args[i]);
+                  PQueueStoreP(jobs, t2->args[i]);
+               }
+            }
+         }
       }
    }
    PQueueFree(jobs);
 
-#ifdef MEASURE_UNIFICATION
-   UnifSuccesses++;
-#endif
+   if(!res)
+   {
+      SubstBacktrackToPos(subst,backtrack);
+   }
+   else
+   {
+      #ifdef MEASURE_UNIFICATION
+         UnifSuccesses++;
+      #endif
+   }
+
    PERF_CTR_EXIT(MguTimer);
-   return true;
+   return res;
 }
 
 
