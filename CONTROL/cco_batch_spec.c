@@ -57,6 +57,7 @@ char* BatchFilters[] =
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
+
 /*-----------------------------------------------------------------------
 //
 // Function: do_proof()
@@ -607,7 +608,8 @@ bool BatchProcessProblem(BatchSpec_p spec,
                          char* jobname,
                          ClauseSet_p cset,
                          FormulaSet_p fset,
-                         FILE* out)
+                         FILE* out,
+                         int sock_fd)
 {
    bool res = false;
    EPCtrl_p handle;
@@ -664,7 +666,7 @@ bool BatchProcessProblem(BatchSpec_p spec,
    }
    if(handle)
    {
-      fprintf(GlobalOut, "%s for %s\n", PRResultTable[handle->result], jobname);      
+      fprintf(GlobalOut, "%s for %s\n", PRResultTable[handle->result], jobname);
       res = true;
       now = GetSecTime();
       used = now - handle->start_time; 
@@ -674,8 +676,16 @@ bool BatchProcessProblem(BatchSpec_p spec,
               handle->name, handle->start_time, remaining);
       if(out!=GlobalOut)
       {
-         fprintf(out, "%s", DStrView(handle->output));      
-         fflush(out);
+         if(sock_fd != -1)
+         {
+           TCPStringSendX(sock_fd, DStrView(handle->output));
+         }
+         else
+         {
+           fprintf(out, "%s", DStrView(handle->output));
+           fflush(out);
+         }
+
       }
       fprintf(GlobalOut, "%s", DStrView(handle->output));
    }
@@ -684,8 +694,18 @@ bool BatchProcessProblem(BatchSpec_p spec,
       fprintf(GlobalOut, "# SZS status GaveUp for %s\n", jobname);
       if(out!=GlobalOut)
       {
-         fprintf(out, "# SZS status GaveUp for %s\n", jobname);
-         fflush(out);
+
+        char buffer[256];
+        sprintf(buffer, "# SZS status GaveUp for %s\n", jobname);
+        if(sock_fd != -1)
+        {
+          TCPStringSendX(sock_fd, buffer);
+        }
+        else
+        {
+          fprintf(out, "%s", buffer);
+          fflush(out);
+        }
       }
    }
    
@@ -749,7 +769,8 @@ bool BatchProcessFile(BatchSpec_p spec,
                              source,
                              cset,
                              fset,
-                             fp);   
+                             fp,
+                             -1);   
    SecureFClose(fp);
    
    fprintf(GlobalOut, "# SZS status Ended for %s\n\n", source);
@@ -819,106 +840,6 @@ bool BatchProcessProblems(BatchSpec_p spec, StructFOFSpec_p ctrl,
    }
    return res;
 }
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: BatchProcessInteractive()
-//
-//   Perform interactive processing of problems relating to the batch
-//   processing spec in spec and the axiom sets stored in ctrl.
-//
-// Global Variables: -
-//
-// Side Effects    : I/O, blocks on reading fp, initiates processing.
-//
-/----------------------------------------------------------------------*/
-
-void BatchProcessInteractive(BatchSpec_p spec, 
-                             StructFOFSpec_p ctrl, 
-                             FILE* fp)
-{
-   DStr_p input   = DStrAlloc();
-   DStr_p jobname = DStrAlloc();
-   bool done = false;
-   Scanner_p in;
-   ClauseSet_p cset;
-   FormulaSet_p fset;
-   long         wct_limit=30;
-
-   if(spec->per_prob_limit)
-   {
-      wct_limit = spec->per_prob_limit;
-   }
-
-   while(!done)
-   {
-      DStrReset(input);
-
-      fprintf(fp, "# Enter job, 'help' or 'quit', followed by 'go.' on a line of its own:\n");
-      fflush(fp);
-      ReadTextBlock(input, stdin, "go.\n");
-      
-      in = CreateScanner(StreamTypeUserString, 
-                         DStrView(input),
-                         true, 
-                         NULL);
-      ScannerSetFormat(in, TSTPFormat);
-      if(TestInpId(in, "quit"))
-      {
-         done = true;
-      }
-      else if(TestInpId(in, "help"))
-      {
-         fprintf(fp, "\
-# Enter a job, 'help' or 'quit'. Finish any action with 'go.' on a line\n\
-# of its own. A job consists of an optional job name specifier of the\n\
-# form 'job <ident>.', followed by a specification of a first-order\n\
-# problem in TPTP-3 syntax (including any combination of 'cnf', 'fof' and\n\
-# 'include' statements. The system then tries to solve the specified\n\
-# problem (including the constant background theory) and prints the\n\
-# results of this attempt.\n");
-      }
-      else
-      {
-         DStrReset(jobname);
-         if(TestInpId(in, "job"))
-         {
-            AcceptInpId(in, "job");
-            DStrAppendDStr(jobname, AktToken(in)->literal);
-            AcceptInpTok(in, Identifier);
-            AcceptInpTok(in, Fullstop);
-         }
-         else
-         {
-            DStrAppendStr(jobname, "unnamed_job");            
-         }
-         fprintf(fp, "\n# Processing started for %s\n", DStrView(jobname));
-         
-         cset = ClauseSetAlloc();
-         fset = FormulaSetAlloc();
-         FormulaAndClauseSetParse(in, cset, fset, ctrl->terms, 
-                                  NULL, 
-                                  &(ctrl->parsed_includes));
-         
-         // cset and fset are handed over to BatchProcessProblem and are
-         // freed there (via StructFOFSpecBacktrackToSpec()).
-         (void)BatchProcessProblem(spec, 
-                                   wct_limit,
-                                   ctrl,
-                                   DStrView(jobname),
-                                   cset,
-                                   fset,
-                                   fp);         
-         fprintf(fp, "\n# Processing finished for %s\n\n", DStrView(jobname));
-      }
-      DestroyScanner(in);
-   }   
-   DStrFree(jobname);
-   DStrFree(input);
-}
-
-
 
 
 /*---------------------------------------------------------------------*/

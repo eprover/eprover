@@ -1,24 +1,19 @@
 /*-----------------------------------------------------------------------
 
-File  : e_ltb_runner.c
+File  : e_deduction_server.c
 
 Author: Stephan Schulz
 
 Contents
  
-Hack for the LTB category of CASC-2012 - parse an LTB spec file, and
-run E on the various problems.
-
-  Copyright 2010-2012 by the author.
+Implementation for the deduction server executable which starts the server with the params given.
+  Copyright 2015 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
 Changes
-
-<1> Mon Jun 28 02:15:05 CEST 2010
-    New
 
 -----------------------------------------------------------------------*/
 
@@ -31,13 +26,14 @@ Changes
 #include <cco_batch_spec.h>
 #include <ccl_sine.h>
 #include <e_version.h>
+#include <cco_einteractive_mode.h>
 
 
 /*---------------------------------------------------------------------*/
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-#define NAME         "e_ltb_runner"
+#define NAME         "e_deduction_server"
 
 typedef enum
 {
@@ -45,11 +41,12 @@ typedef enum
    OPT_HELP,
    OPT_VERSION,
    OPT_VERBOSE,
-   OPT_OUTPUT,
+   OPT_PORT,
    OPT_PRINT_STATISTICS,
    OPT_SILENT,
    OPT_OUTPUTLEVEL,
    OPT_GLOBAL_WTCLIMIT,
+   OPT_SERVER_LIB,
    OPT_DUMMY
 }OptionCodes;
 
@@ -81,10 +78,11 @@ OptCell opts[] =
     "printed to stderr, while the output level determines which "
     "logical manipulations of the clauses are printed to stdout."},
 
-   {OPT_OUTPUT,
-    'o', "output-file",
+   {OPT_PORT,
+    'p', "port",
     ReqArg, NULL,
-   "Redirect output into the named file."},
+    "The port on which the server will receive connections. Only effective "
+    "when interactive mode is on. If not given stdin/stdout will be used."},
 
    {OPT_SILENT,
     's', "silent",
@@ -108,6 +106,11 @@ OptCell opts[] =
     ReqArg, NULL,
     "Set the global wall-clock limit for each batch (if any)."},
 
+   {OPT_SERVER_LIB,
+    'L', "lib",
+    ReqArg, NULL,
+    "Set the axioms library directory of the server."},
+
    {OPT_NOOPT,
     '\0', NULL,
     NoArg, NULL,
@@ -115,7 +118,9 @@ OptCell opts[] =
 };
 
 char              *outname        = NULL;
+char              *server_lib     = NULL;
 long              total_wtc_limit = 0;
+int               port            = -1;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -131,16 +136,18 @@ void print_help(FILE* out);
 int main(int argc, char* argv[])
 {
    CLState_p        state;
-   Scanner_p        in;    
    BatchSpec_p      spec;
    StructFOFSpec_p   ctrl;
    char             *prover    = "eprover";
-   char             *category  = NULL;
-   char             *train_dir = NULL;
-   long             now, start, res;
-
+   int oldsock,sock_fd,pid;
+  
    assert(argv[0]);
-   
+
+
+   // TODO Set a default problem time limit
+   if( !total_wtc_limit )
+     total_wtc_limit = 30;
+
    InitIO(NAME);
    DocOutputFormat = tstp_format;
    OutputFormat = TSTPFormat;
@@ -149,66 +156,54 @@ int main(int argc, char* argv[])
 
    OpenGlobalOut(outname);
 
-   if((state->argc < 1) || (state->argc > 2))
+   if(state->argc >= 1)
    {
-      Error("Usage: e_ltb_runner <spec> [<path-to-eprover>] \n",
-            USAGE_ERROR);
-   }
-   if(state->argc >= 2)
-   {
-      prover = state->argv[1];
+      prover = state->argv[0];
    }
 
-   in = CreateScanner(StreamTypeFile, state->argv[0], true, NULL);
-   ScannerSetFormat(in, TSTPFormat);
-   
-   AcceptDottedId(in, "division.category");
-   category = ParseDottedId(in);
-   
-   if(TestInpId(in, "division"))
+   spec = BatchSpecAlloc(prover, TSTPFormat);
+   spec->category = SecureStrdup("dummy");
+   spec->total_wtc_limit = total_wtc_limit;
+   spec->res_proof = BODesired;
+
+   ctrl = StructFOFSpecAlloc();
+   BatchStructFOFSpecInit(spec, ctrl);
+
+   //Creating Socket Server
+   if(port != -1)
    {
-      AcceptDottedId(in, "division.category.training_directory");
-      train_dir = ParseContinous(in);
+     struct sockaddr cli_addr;
+     socklen_t       cli_len;
+     oldsock = CreateServerSock(port);
+     Listen(oldsock);
+     while(1)
+     {
+       sock_fd = accept(oldsock, &cli_addr, &cli_len);
+       if ((pid = fork()) == -1)
+       {
+         close(sock_fd);
+         continue;
+       }
+       else if(pid > 0)
+       {
+         close(sock_fd);
+         fprintf(stdout, "Client connected ..\n");
+         fflush(stdout);
+         continue;
+       }
+       else if(pid == 0)
+       {
+         StartDeductionServer(spec, ctrl, server_lib, NULL, sock_fd);
+         close(sock_fd);
+         break;
+       }
+     }
+   }else{
+      StartDeductionServer(spec, ctrl, server_lib, stdout, -1);
    }
 
-   while(!TestInpTok(in, NoToken))
-   {
-      start = GetSecTime();
-      spec = BatchSpecParse(in, prover, category, train_dir, TSTPFormat);
-
-      /* BatchSpecPrint(GlobalOut, spec); */
-      
-      if(total_wtc_limit && !spec->total_wtc_limit)
-      {
-         spec->total_wtc_limit = total_wtc_limit;
-      }
-      if(spec->per_prob_limit<=0 && total_wtc_limit<=0)
-      {
-         Error("Either the per-problem time limit or the global "
-               "time limit must be set to a value > 0", USAGE_ERROR);
-      }
-      /* BatchSpecPrint(stdout, spec); */
-      ctrl = StructFOFSpecAlloc();
-      BatchStructFOFSpecInit(spec, ctrl);
-      now = GetSecTime();
-      res = BatchProcessProblems(spec, ctrl, MAX(0,total_wtc_limit-(now-start)));
-      now = GetSecTime();
-      fprintf(GlobalOut, "\n\n# == WCT: %4lds, Solved: %4ld/%4d    ==\n",
-          now-start, res, BatchSpecProblemNo(spec));
-      fprintf(GlobalOut, "# =============== Batch done ===========\n\n");
-      StructFOFSpecFree(ctrl);
-      BatchSpecFree(spec);
-   }
-   DestroyScanner(in); 
-
-   if(category)
-   {
-      FREE(category);
-   }
-   if(train_dir)
-   {
-      FREE(train_dir);
-   }
+   StructFOFSpecFree(ctrl);
+   BatchSpecFree(spec);
 
    CLStateFree(state);
 
@@ -255,12 +250,14 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_HELP: 
 	    print_help(stdout);
 	    exit(NO_ERROR);
+	    break;
       case OPT_VERSION:
 	    fprintf(stdout, NAME " " VERSION " " E_NICKNAME "\n");
 	    exit(NO_ERROR);
-      case OPT_OUTPUT:
-	    outname = arg;
 	    break;
+      case OPT_PORT:
+            port = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_SILENT:
 	    OutputLevel = 0;
 	    break;
@@ -269,6 +266,9 @@ CLState_p process_options(int argc, char* argv[])
 	    break;
       case OPT_GLOBAL_WTCLIMIT:
 	    total_wtc_limit = CLStateGetIntArg(handle, arg);
+	    break;
+      case OPT_SERVER_LIB:
+	    server_lib = arg;
 	    break;
       default:
 	    assert(false && "Unknown option");

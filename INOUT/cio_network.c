@@ -70,11 +70,18 @@ int create_server_sock_nofail(int port)
    if(sock == -1)
    {
       return -1;
-   }   
+   }
+
    addr.sin_family = AF_INET;
    addr.sin_port = htons(port);
    addr.sin_addr.s_addr = INADDR_ANY;
    memset(&addr.sin_zero, 0, sizeof(addr.sin_zero));
+
+   int yes = 1;
+   if(setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
+   {
+     return -1;
+   }
 
    res = bind(sock, (struct sockaddr *)&addr, sizeof(addr));
 
@@ -203,7 +210,7 @@ TCPMsg_p TCPMsgPack(char* str)
 {
    uint32_t len;
    TCPMsg_p handle = TCPMsgAlloc();
-      
+
    len = strlen(str)+sizeof(len);
    DStrAppendStr(handle->content, "0000");
    *((uint32_t*)DStrAddress(handle->content, 0)) =  htonl(len);
@@ -316,7 +323,7 @@ MsgStatus TCPMsgRead(int sock, TCPMsg_p msg)
       {
          return 0;
       }
-      len = ntohl(*(msg->len_buf));
+      len = ntohl(*((uint32_t*)(msg->len_buf)));
       printf("Message expected with %d bytes\n", len);
       msg->len = len;
       DStrAppendBuffer(msg->content, msg->len_buf, sizeof(uint32_t));
@@ -461,7 +468,7 @@ char* TCPStringRecv(int sock, MsgStatus* res, bool err)
    {
       if(err)
       {
-         SysError("Could not send string message", SYS_ERROR);
+         SysError("Could not receive string message", SYS_ERROR);
       }
       TCPMsgFree(msg);
       return NULL;

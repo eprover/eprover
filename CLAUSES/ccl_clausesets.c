@@ -339,6 +339,8 @@ ClauseSet_p ClauseSetAlloc(void)
    handle->eval_indices = PDArrayAlloc(4,4);
    handle->eval_no = 0;
 
+   handle->identifier = DStrAlloc();
+
    return handle;
 }
 
@@ -397,6 +399,7 @@ void ClauseSetFree(ClauseSet_p junk)
    }
    PDArrayFree(junk->eval_indices);
    ClauseCellFree(junk->anchor);
+   DStrFree(junk->identifier);
    ClauseSetCellFree(junk);
 }
 

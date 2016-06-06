@@ -32,6 +32,7 @@ Changes
 #include <ccl_sine.h>
 #include <cco_sine.h>
 #include <cco_proc_ctrl.h>
+#include <cio_network.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -99,7 +100,8 @@ bool BatchProcessProblem(BatchSpec_p spec,
                          char* jobname,
                          ClauseSet_p cset,
                          FormulaSet_p fset,
-                         FILE* out);
+                         FILE* out,
+                         int sock_fd);
 
 bool BatchProcessFile(BatchSpec_p spec, 
                       long wct_limit,
@@ -109,12 +111,6 @@ bool BatchProcessFile(BatchSpec_p spec,
 bool BatchProcessProblems(BatchSpec_p spec, 
                           StructFOFSpec_p ctrl, 
                           long total_wtc_limit);
-
-void BatchProcessInteractive(BatchSpec_p spec, 
-                             StructFOFSpec_p ctrl, 
-                             FILE* fp);
-
-
 
 #endif
 
