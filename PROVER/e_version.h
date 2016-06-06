@@ -39,7 +39,7 @@ Changes
 /*---------------------------------------------------------------------*/
 
 /* git tag E-2.0pre001 */
-#define VERSION      "2.0pre001"
+#define VERSION      "2.0pre002"
 
 #define E_NICKNAME     "Turzun"
 
