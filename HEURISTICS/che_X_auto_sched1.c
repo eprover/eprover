@@ -459,7 +459,7 @@
 /* CLASS_U-PS-FFSF22-M : protokoll_G-E--_200_B02_F1_SE_CS_SP_PI_S0S 0    */
 /* CLASS_G-SM-FFMF22-M : protokoll_G-E--_200_B02_F1_SE_CS_SP_PI_S0S 0    */
 /* CLASS_G-SF-FFMM31-M : protokoll_G-E--_200_B02_F1_SE_CS_SP_PI_S0S 0    */
-/* CLASS_U-PS-FFSF22-D : protokoll_G-E--_300_C18_F1_SE_CS_SP_PS_S0Y 4    */
+/* CLASS_U-PS-FFSF22-D : protokoll_G-E--_107_B42_F1_PI_AE_Q4_CS_SP_PS_S0Y 1    */
 /* CLASS_G-NF-FMLF31-S : protokoll_G-E--_200_B02_F1_SE_CS_SP_PI_S0S 0    */
 /* CLASS_U-NF-FFSF32-S : protokoll_G-E--_200_B02_F1_SE_CS_SP_PI_S0S 0    */
 /* CLASS_G-SF-FFMM31-D : protokoll_G-E--_200_B02_F1_SE_CS_SP_PI_S0S 0    */
@@ -10497,19 +10497,7 @@
        SpecManyGroundPos(spec)&&
        SpecMaxFArity3Plus(spec)&&
        SpecAvgFArity2(spec)&&
-       SpecMediumMaxDepth(spec))
-       ||
-      ( /* CLASS_U-PS-FFSF22-D Solved: 4 of 55 */
-       SpecAxiomsAreUnit(spec)&&
-       SpecPureEq(spec)&&
-       SpecSomeNGPosUnits(spec)&&
-       SpecFewAxioms(spec)&&
-       SpecFewLiterals(spec)&&
-       SpecSmallTerms(spec)&&
-       SpecFewGroundPos(spec)&&
-       SpecMaxFArity2(spec)&&
-       SpecAvgFArity2(spec)&&
-       SpecDeepMaxDepth(spec)))
+       SpecMediumMaxDepth(spec)))
    {
 #ifdef CHE_HEURISTICS_INTERNAL
             res = "G_E___300_C18_F1_SE_CS_SP_PS_S0Y";
@@ -11136,7 +11124,19 @@
        SpecSomeGroundPos(spec)&&
        SpecMaxFArity3Plus(spec)&&
        SpecAvgFArity3Plus(spec)&&
-       SpecShallowMaxDepth(spec)))
+       SpecShallowMaxDepth(spec))
+       ||
+      ( /* CLASS_U-PS-FFSF22-D Solved: 1 of 55 */
+       SpecAxiomsAreUnit(spec)&&
+       SpecPureEq(spec)&&
+       SpecSomeNGPosUnits(spec)&&
+       SpecFewAxioms(spec)&&
+       SpecFewLiterals(spec)&&
+       SpecSmallTerms(spec)&&
+       SpecFewGroundPos(spec)&&
+       SpecMaxFArity2(spec)&&
+       SpecAvgFArity2(spec)&&
+       SpecDeepMaxDepth(spec)))
    {
 #ifdef CHE_HEURISTICS_INTERNAL
             res = "G_E___107_B42_F1_PI_AE_Q4_CS_SP_PS_S0Y";
@@ -11599,7 +11599,7 @@
    }
 #endif
 
-/* Total solutions on test set: 340 */
+/* Total solutions on test set: 337 */
 /* -------------------------------------------------------*/
 /*     End of automatically generated code.               */
 /* -------------------------------------------------------*/
