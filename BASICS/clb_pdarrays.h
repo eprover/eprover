@@ -126,7 +126,7 @@ static __inline__ IntOrP* PDArrayElementRef(PDArray_p array, long idx)
    assert(array);
    assert(idx >= 0);
    
-   if(!(idx < array->size))
+   if(UNLIKELY(idx >= array->size))
    {
       PDArrayEnlarge(array, idx);
    }
