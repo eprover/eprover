@@ -771,7 +771,7 @@ void StartDeductionServer(BatchSpec_p spec,
       }
       else
       {
-        print_to_outstream("Not implemented yet for stdout", fp, sock_fd);
+        print_to_outstream("e_deduction_server: Server mode not implemented yet for stdout\n", fp, sock_fd);
         break;
       }
 
