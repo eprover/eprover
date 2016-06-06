@@ -107,7 +107,11 @@ long     PQueueIncIndex(PQueue_p queue, long index);
 static __inline__ void pqueue_store(PQueue_p queue, IntOrP val)
 {
    queue->queue[queue->head] = val;
-   queue->head = (queue->head+1)%queue->size;
+   queue->head++;
+   if(queue->head == queue->size)
+   {
+      queue->head = 0;
+   }
 
    if(queue->head == queue->tail)
    {   
@@ -303,7 +307,11 @@ static __inline__ IntOrP PQueueGetNext(PQueue_p queue)
    assert(!PQueueEmpty(queue));
    
    res = queue->queue[queue->tail];
-   queue->tail = (queue->tail+1)%queue->size;
+   queue->tail++;
+   if(queue->tail == queue->size)
+   {
+      queue->tail = 0;
+   }
 
    return res;
 }

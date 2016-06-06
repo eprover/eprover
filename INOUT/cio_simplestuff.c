@@ -83,6 +83,40 @@ bool ReadTextBlock(DStr_p result, FILE* fp, char* terminator)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: TCPReadTextBlock()
+//
+//   Read lines from network socket until terminator is encountered (on a line by
+//   itself). Note that termiantor has to end in \n for this to ever
+//   work. The read text, up to, but not including, terminator, is
+//   appended to result (which is not cleared!). Returns
+//   success/failure. 
+//
+// Global Variables: -
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+bool TCPReadTextBlock(DStr_p result, int fd, char* terminator)
+{
+   char* res;
+   while(true)
+   {
+      res = TCPStringRecvX(fd);
+      if(strcmp(res, terminator) == 0)
+      {
+        FREE(res);
+        break;
+      }
+      DStrAppendStr(result, res);
+      FREE(res);
+   }
+   return true;
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

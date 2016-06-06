@@ -26,6 +26,7 @@ Changes
 #define CIO_SIMPLESTUFF
 
 #include <cio_output.h>
+#include <cio_network.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -40,6 +41,7 @@ Changes
 /*---------------------------------------------------------------------*/
 
 bool ReadTextBlock(DStr_p result, FILE* fp, char* terminator);
+bool TCPReadTextBlock(DStr_p result, int fd, char* terminator);
 
 
 #endif

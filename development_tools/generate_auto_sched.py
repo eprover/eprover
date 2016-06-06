@@ -235,7 +235,10 @@ def parse_prot_new(filename, stratname, prob_assoc, global_class, classdata):
             clean  = re.sub(trail_space,'',l)                         
             tuple  = re.split(white_space,clean)
             prob   = compute_problem_stem(tuple[0]);
-            time   = float(tuple[2])
+            try:
+                time   = float(tuple[2])
+            except ValueError:
+                time = 10000
             status = tuple[1]
             try:
                 classdata[prob_assoc[prob]].addProblem(stratname, prob, status, time)
