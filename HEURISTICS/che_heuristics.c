@@ -206,9 +206,11 @@ HCB_p GetHeuristic(char* source, HCBARGUMENTS)
 #define CHE_HEURISTICS_AUTO
 
 GCC_DIAGNOSTIC_PUSH
-#pragma GCC diagnostic ignored "-Wattributes"
-__attribute__((optnone))
-__attribute__((optimize(0)))
+#ifndef COMPILE_HEURISTICS_OPTIMIZED
+   #pragma GCC diagnostic ignored "-Wattributes"
+   __attribute__((optnone))
+   __attribute__((optimize(0)))
+#endif
 HCB_p HCBAutoModeCreate(HCBARGUMENTS)
 {
    char *res = "Default";
@@ -244,9 +246,11 @@ GCC_DIAGNOSTIC_POP
 #define CHE_HEURISTICS_AUTO_CASC
 
 GCC_DIAGNOSTIC_PUSH
-#pragma GCC diagnostic ignored "-Wattributes"
-__attribute__((optnone))
-__attribute__((optimize(0)))
+#ifndef COMPILE_HEURISTICS_OPTIMIZED
+   #pragma GCC diagnostic ignored "-Wattributes"
+   __attribute__((optnone))
+   __attribute__((optimize(0)))
+#endif
 HCB_p HCBCASCAutoModeCreate(HCBARGUMENTS)
 {
    char *res = "Default";
@@ -300,9 +304,11 @@ GCC_DIAGNOSTIC_POP
 #define CHE_HEURISTICS_AUTO_DEV
 
 GCC_DIAGNOSTIC_PUSH
-#pragma GCC diagnostic ignored "-Wattributes"
-__attribute__((optnone))
-__attribute__((optimize(0)))
+#ifndef COMPILE_HEURISTICS_OPTIMIZED
+   #pragma GCC diagnostic ignored "-Wattributes"
+   __attribute__((optnone))
+   __attribute__((optimize(0)))
+#endif
 HCB_p HCBDevAutoModeCreate(HCBARGUMENTS)
 {
    char *res = "Default";
@@ -341,9 +347,11 @@ GCC_DIAGNOSTIC_POP
 #define CHE_HEURISTICS_AUTO_SCHED0
 
 GCC_DIAGNOSTIC_PUSH
-#pragma GCC diagnostic ignored "-Wattributes"
-__attribute__((optnone))
-__attribute__((optimize(0)))
+#ifndef COMPILE_HEURISTICS_OPTIMIZED
+   #pragma GCC diagnostic ignored "-Wattributes"
+   __attribute__((optnone))
+   __attribute__((optimize(0)))
+#endif
 HCB_p HCBAutoSched0Create(HCBARGUMENTS)
 {
    char *res = "Default";
@@ -365,9 +373,11 @@ GCC_DIAGNOSTIC_POP
 #define CHE_HEURISTICS_AUTO_SCHED1
 
 GCC_DIAGNOSTIC_PUSH
-#pragma GCC diagnostic ignored "-Wattributes"
-__attribute__((optnone))
-__attribute__((optimize(0)))
+#ifndef COMPILE_HEURISTICS_OPTIMIZED
+   #pragma GCC diagnostic ignored "-Wattributes"
+   __attribute__((optnone))
+   __attribute__((optimize(0)))
+#endif
 HCB_p HCBAutoSched1Create(HCBARGUMENTS)
 {
    char *res = "Default";
@@ -389,9 +399,11 @@ GCC_DIAGNOSTIC_POP
 #define CHE_HEURISTICS_AUTO_SCHED2
 
 GCC_DIAGNOSTIC_PUSH
-#pragma GCC diagnostic ignored "-Wattributes"
-__attribute__((optnone))
-__attribute__((optimize(0)))
+#ifndef COMPILE_HEURISTICS_OPTIMIZED
+   #pragma GCC diagnostic ignored "-Wattributes"
+   __attribute__((optnone))
+   __attribute__((optimize(0)))
+#endif
 HCB_p HCBAutoSched2Create(HCBARGUMENTS)
 {
    char *res = "Default";
@@ -413,9 +425,11 @@ GCC_DIAGNOSTIC_POP
 #define CHE_HEURISTICS_AUTO_SCHED3
 
 GCC_DIAGNOSTIC_PUSH
-#pragma GCC diagnostic ignored "-Wattributes"
-__attribute__((optnone))
-__attribute__((optimize(0)))
+#ifndef COMPILE_HEURISTICS_OPTIMIZED
+   #pragma GCC diagnostic ignored "-Wattributes"
+   __attribute__((optnone))
+   __attribute__((optimize(0)))
+#endif
 HCB_p HCBAutoSched3Create(HCBARGUMENTS)
 {
    char *res = "Default";
@@ -438,9 +452,11 @@ GCC_DIAGNOSTIC_POP
 #define CHE_HEURISTICS_AUTO_SCHED4
 
 GCC_DIAGNOSTIC_PUSH
-#pragma GCC diagnostic ignored "-Wattributes"
-__attribute__((optnone))
-__attribute__((optimize(0)))
+#ifndef COMPILE_HEURISTICS_OPTIMIZED
+   #pragma GCC diagnostic ignored "-Wattributes"
+   __attribute__((optnone))
+   __attribute__((optimize(0)))
+#endif
 HCB_p HCBAutoSched4Create(HCBARGUMENTS)
 {
    char *res = "Default";
@@ -463,9 +479,11 @@ GCC_DIAGNOSTIC_POP
 #define CHE_HEURISTICS_AUTO_SCHED5
 
 GCC_DIAGNOSTIC_PUSH
-#pragma GCC diagnostic ignored "-Wattributes"
-__attribute__((optnone))
-__attribute__((optimize(0)))
+#ifndef COMPILE_HEURISTICS_OPTIMIZED
+   #pragma GCC diagnostic ignored "-Wattributes"
+   __attribute__((optnone))
+   __attribute__((optimize(0)))
+#endif
 HCB_p HCBAutoSched5Create(HCBARGUMENTS)
 {
    char *res = "Default";
@@ -488,9 +506,11 @@ GCC_DIAGNOSTIC_POP
 #define CHE_HEURISTICS_AUTO_SCHED6
 
 GCC_DIAGNOSTIC_PUSH
-#pragma GCC diagnostic ignored "-Wattributes"
-__attribute__((optnone))
-__attribute__((optimize(0)))
+#ifndef COMPILE_HEURISTICS_OPTIMIZED
+   #pragma GCC diagnostic ignored "-Wattributes"
+   __attribute__((optnone))
+   __attribute__((optimize(0)))
+#endif
 HCB_p HCBAutoSched6Create(HCBARGUMENTS)
 {
    char *res = "Default";
@@ -513,9 +533,11 @@ GCC_DIAGNOSTIC_POP
 #define CHE_HEURISTICS_AUTO_SCHED7
 
 GCC_DIAGNOSTIC_PUSH
-#pragma GCC diagnostic ignored "-Wattributes"
-__attribute__((optnone))
-__attribute__((optimize(0)))
+#ifndef COMPILE_HEURISTICS_OPTIMIZED
+   #pragma GCC diagnostic ignored "-Wattributes"
+   __attribute__((optnone))
+   __attribute__((optimize(0)))
+#endif
 HCB_p HCBAutoSched7Create(HCBARGUMENTS)
 {
    char *res = "Default";
