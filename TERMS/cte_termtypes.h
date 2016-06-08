@@ -141,12 +141,11 @@ typedef struct termcell
 }TermCell, *Term_p, **TermRef;
 
 
-typedef long DerefType, *DerefType_p;
+typedef uintptr_t DerefType, *DerefType_p;
 
-#define DEREF_ALWAYS -1
 #define DEREF_NEVER   0
 #define DEREF_ONCE    1
-
+#define DEREF_ALWAYS  2
 
 /* The following is an estimate for the memory taken up by a term cell
    with arguments (the argument array is not counted separately). */
