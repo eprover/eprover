@@ -90,7 +90,7 @@ typedef int (*ComparisonFunctionType)(const void*, const void*);
 #define EQUIV(x,y) (!(x)==!(y))
 
 #undef SWAP
-#define SWAP(type, x,y) do{type tmp =(x); (x)=(y); (y)=(tmp);}while(0)
+#define SWAP(x,y) do{ __typeof__ (x) tmp =(x); (x)=(y); (y)=(tmp);}while(0)
 
 
 #define LIKELY(x) __builtin_expect(!!(x), 1)

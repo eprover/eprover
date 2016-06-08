@@ -267,7 +267,7 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
       
       if(TermIsVar(t2))
       {
-         SWAP(Term_p, t1, t2);
+         SWAP(t1, t2);
       }
 
       if(TermIsVar(t1))
