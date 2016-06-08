@@ -79,7 +79,7 @@ Clause_p ComputeEqRes(TB_p bank, ClausePos_p pos, VarBank_p freshvars)
       new_literals = EqnListCopyOptExcept(pos->clause->literals,
                                           pos->literal);
       EqnListRemoveResolved(&new_literals);
-      EqnListRemoveDuplicates(new_literals, TBTermEqual);
+      EqnListRemoveDuplicates(new_literals);
       new_clause = ClauseAlloc(new_literals);
    }
    SubstDelete(subst);

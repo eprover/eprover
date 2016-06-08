@@ -70,14 +70,10 @@ int    TermStructWeightCompare(Term_p t1, Term_p t2);
 
 int    TermLexCompare(Term_p t1, Term_p t2);
 
-bool   TermIsSubterm(Term_p super, Term_p test, DerefType deref,
-                      TermEqualTestFun EqualTest);
+bool   TermIsSubterm(Term_p super, Term_p test, DerefType deref);
 
 bool    TermIsSubtermDeref(Term_p super, Term_p test, DerefType
 			   deref_super, DerefType deref_test);
-
-#define TermIsStructSubterm(super, term) \
-        TermIsSubterm((super),(term),DEREF_ALWAYS,TermStructEqual)
 
 long    TermWeight(Term_p term, long vweight, long fweight);
 #define TermStandardWeight(term) \

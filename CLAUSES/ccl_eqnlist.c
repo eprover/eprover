@@ -686,7 +686,7 @@ Eqn_p EqnListNegateEqns(Eqn_p list)
 //
 /----------------------------------------------------------------------*/
 
-int EqnListRemoveDuplicates(Eqn_p list, TermEqualTestFun EqualTest)
+int EqnListRemoveDuplicates(Eqn_p list)
 {
    EqnRef handle;
    int    removed = 0;
@@ -696,7 +696,7 @@ int EqnListRemoveDuplicates(Eqn_p list, TermEqualTestFun EqualTest)
       handle = &(list->next);
       while(*handle)  
       {
-	 if(LiteralEqual(*handle, list, EqualTest))
+	 if(LiteralEqual(*handle, list))
 	 {
 	    EqnListDeleteElement(handle);
 	    removed++;
@@ -891,7 +891,7 @@ bool EqnListIsTrivial(Eqn_p list)
       {
 	 if(!PropsAreEquiv(handle, list, EPIsPositive))
 	 {
-	    if(EqnEqual(handle, list, TBTermEqual))
+	    if(EqnEqual(handle, list))
 	    {
 	       return true;
 	    }

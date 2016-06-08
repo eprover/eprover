@@ -897,8 +897,7 @@ int TermLexCompare(Term_p t1, Term_p t2)
 //
 // Function: TermIsSubterm()
 //
-//   Return true if test is a subterm to super. Parameterized by the
-//   Equal-Funktion for terms.
+//   Return true if test is a subterm to super.
 //
 // Global Variables: -
 //
@@ -906,20 +905,19 @@ int TermLexCompare(Term_p t1, Term_p t2)
 //
 /----------------------------------------------------------------------*/
 
-bool TermIsSubterm(Term_p super, Term_p test, DerefType deref,
-                   TermEqualTestFun EqualTest)
+bool TermIsSubterm(Term_p super, Term_p test, DerefType deref)
 {
    int i;
 
    super = TermDeref(super, &deref);
 
-   if(EqualTest(super, test))
+   if(super == test)
    {
       return true;
    }
    for(i=0; i<super->arity; i++)
    {
-      if(TermIsSubterm(super->args[i], test, deref, EqualTest))
+      if(TermIsSubterm(super->args[i], test, deref))
       {
          return true;
       }

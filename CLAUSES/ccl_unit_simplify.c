@@ -83,8 +83,7 @@ ClausePos_p FindTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
 
    while((pos = PDTreeFindNextDemodulator(units->demod_index, subst)))
    {
-      if(SubstComputeMatch(ClausePosGetOtherSide(pos), 
-			   t2, subst, TBTermEqual))
+      if(SubstComputeMatch(ClausePosGetOtherSide(pos), t2, subst))
       {
 	 res = pos;
 	 assert(res->clause->set == units);
@@ -127,8 +126,7 @@ ClausePos_p FindSignedTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
    {
       if(EQUIV(EqnIsPositive(pos->literal), sign)
 	 &&
-	 SubstComputeMatch(ClausePosGetOtherSide(pos), 
-			   t2, subst, TBTermEqual))
+	 SubstComputeMatch(ClausePosGetOtherSide(pos), t2, subst))
       {
 	 res = pos;
 	 assert(res->clause->set == units);
@@ -182,7 +180,7 @@ ClausePos_p FindSimplifyingUnit(ClauseSet_p set, Term_p t1, Term_p t2,
       assert(t1!=t2);
       for(i=0; i<t1->arity; i++)
       {
-	 if(!TBTermEqual(t1->args[i], t2->args[i]))
+	 if(t1->args[i] != t2->args[i])
 	 {
 	    if(tmp1)
 	    {

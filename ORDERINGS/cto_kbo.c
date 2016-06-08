@@ -155,13 +155,13 @@ static CompareResult kbocomparevars(Term_p s, Term_p t, DerefType
 
    if (TermIsVar(t)) 
    {
-      if (TBTermEqual(s,t)) 
+      if(s == t)
       {
 	 return to_equal;
       }
       else
       {
-	 if (TermIsSubterm(s, t, deref_s, TBTermEqual)) 
+	 if (TermIsSubterm(s, t, deref_s))
 	 {
 	    return to_greater;
 	 }
@@ -170,7 +170,7 @@ static CompareResult kbocomparevars(Term_p s, Term_p t, DerefType
    else 
    {               /* Note that in this case, s is a variable. */
       assert(TermIsVar(s));
-      if (TermIsSubterm(t, s, deref_t, TBTermEqual)) 
+      if (TermIsSubterm(t, s, deref_t))
       {
 	 return to_lesser;
       }
@@ -206,7 +206,7 @@ static CompareResult kbogtrnew(OCB_p ocb, Term_p s, Term_p t,
    
    if (TermIsVar(s)) 
    {
-      if (TBTermEqual(s,t)) 
+      if(s == t)
       {
 	 return to_equal;
       }
@@ -214,7 +214,7 @@ static CompareResult kbogtrnew(OCB_p ocb, Term_p s, Term_p t,
    }
    if(TermIsVar(t))
    {
-      if(TermIsSubterm(s, t, deref_s, TBTermEqual))
+      if(TermIsSubterm(s, t, deref_s))
       {
 	 return to_greater;
       }

@@ -170,8 +170,6 @@ typedef uintptr_t DerefType, *DerefType_p;
 /* Functions which take two terms and return a boolean, i.e. test for
    equality */
 
-typedef bool (*TermEqualTestFun)(Term_p t1, Term_p t2);
-
 #define TERMS_INITIAL_ARGS 10
 
 #define RewriteAdr(level) (assert(level),(level)-1)

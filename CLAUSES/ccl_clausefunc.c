@@ -227,7 +227,7 @@ int ClauseRemoveSuperfluousLiterals(Clause_p clause)
    assert(!ClauseIsAnyPropSet(clause, CPIsDIndexed|CPIsSIndexed));
 
    removed += EqnListRemoveResolved(&(clause->literals));
-   removed += EqnListRemoveDuplicates(clause->literals, TBTermEqual);
+   removed += EqnListRemoveDuplicates(clause->literals);
    
    if(removed)
    {
@@ -393,7 +393,7 @@ bool ClauseUnitSimplifyTest(Clause_p clause, Clause_p simplifier)
    while(*handle)
    {
       tmp = EqnIsPositive(*handle);
-      if(XOR(positive,tmp)&&EqnSubsumeP(simpl,*handle,TBTermEqual))
+      if(XOR(positive,tmp)&&EqnSubsumeP(simpl,*handle))
       {
 	 return true;
       }

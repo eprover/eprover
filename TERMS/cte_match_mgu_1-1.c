@@ -107,11 +107,6 @@ static bool occur_check(Term_p super, Term_p var)
 //   changed and needs to be backtracked by the caller), false
 //   otherwise (subst is unchanged). Both terms are assumed to contain
 //   no bindings except those stored in subst.
-// 
-//   For shared terms, calling the function with TBTermEqual() as the
-//   last argument (the function used to test terms for equality)
-//   results in more efficient execution (otherwise call the function
-//   with TermBasicStructEqual()). 
 //
 //   The routine will work and compute a valid match if the two terms
 //   share variables. However, this will lead to temporary incorrect
@@ -124,8 +119,7 @@ static bool occur_check(Term_p super, Term_p var)
 //
 /----------------------------------------------------------------------*/
 
-bool SubstComputeMatch(Term_p matcher, Term_p to_match, Subst_p subst,
-		       TermEqualTestFun EqualTest)
+bool SubstComputeMatch(Term_p matcher, Term_p to_match, Subst_p subst)
 {
    long matcher_weight = TermStandardWeight(matcher),
       to_match_weight = TermStandardWeight(to_match);
@@ -167,7 +161,7 @@ bool SubstComputeMatch(Term_p matcher, Term_p to_match, Subst_p subst,
             }
 	    if(matcher->binding)
 	    {
-	       if(!EqualTest(matcher->binding,to_match))
+	       if(matcher->binding != to_match)
 	       {
 		  res = false;
 		  break;
@@ -272,7 +266,7 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
 
       if(TermIsVar(t1))
       {
-	 if(!TBTermEqual(t1,t2))
+	 if(t1 != t2)
 	 {
 	    /* Sort check, then Occur-Check - remember,
              * variables are elementary and shared! */

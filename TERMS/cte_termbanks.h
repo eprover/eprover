@@ -122,9 +122,7 @@ long    TBTermNodes(TB_p bank);
 Term_p  DefaultSharedTermCellAlloc(void);
 #define TermIsTrueTerm(term) ((term)->f_code==SIG_TRUE_CODE)
 
-static __inline__ bool TBTermEqual(Term_p t1, Term_p t2);
-#define TBTermIsSubterm(super, term)\
-        TermIsSubterm((super),(term),DEREF_NEVER,TBTermEqual)
+#define TBTermIsSubterm(super, term) TermIsSubterm((super),(term),DEREF_NEVER)
 
 #define TBTermIsTypeTerm(term)\
         ((term)->weight==(DEFAULT_VWEIGHT+DEFAULT_FWEIGHT))
@@ -174,26 +172,6 @@ long    TBTermCollectSubterms(Term_p term, PStack_p collector);
 /*---------------------------------------------------------------------*/
 /*                Inline Functions                                     */
 /*---------------------------------------------------------------------*/
-
-
-/*-----------------------------------------------------------------------
-//
-// Function:  TBTermEqual()
-//
-//   Test wether two shared terms in the same termbank are the
-//   same. This is a simple pointer comparison, this function only
-//   exists so that it can be passed as a function pointer.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-static __inline__ bool TBTermEqual(Term_p t1, Term_p t2)
-{
-   return (t1==t2);
-}
 
 
 #endif

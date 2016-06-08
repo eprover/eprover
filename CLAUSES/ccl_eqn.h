@@ -225,8 +225,7 @@ Eqn_p   EqnCopyRepl(Eqn_p eq, TB_p bank, Term_p old, Term_p repl);
 Eqn_p   EqnCopyOpt(Eqn_p eq);
 Eqn_p   EqnCopyDisjoint(Eqn_p eq);
 
-#define EqnIsTrivial(eq, EqualTest) \
-        EqualTest((eq)->lterm, (eq)->rterm)
+#define EqnIsTrivial(eq) ((eq)->lterm == (eq)->rterm)
 
 bool    EqnIsACTrivial(Eqn_p eq);
 
@@ -248,29 +247,19 @@ Eqn_p   EqnCanonize(Eqn_p eq);
 int     EqnStructWeightCompare(Eqn_p l1, Eqn_p l2);
 int     EqnCanonCompare(const void* lit1, const void* l2);
 int     EqnStructWeightLexCompare(Eqn_p l1, Eqn_p lit2);
-bool    EqnEqualDirected(Eqn_p eq1,  Eqn_p eq2, TermEqualTestFun EqualTest);
-bool    EqnEqual(Eqn_p eq1,  Eqn_p eq2, TermEqualTestFun EqualTest);
-#define LiteralEqual(eq1, eq2, EqualTest) \
-        (PropsAreEquiv((eq1),(eq2),EPIsPositive) &&\
-	 EqnEqual((eq1),(eq2),(EqualTest)))
+#define EqnEqualDirected(eq1, eq2) (((eq1)->lterm == (eq2)->lterm) && ((eq1)->rterm == (eq2)->rterm))
+bool    EqnEqual(Eqn_p eq1,  Eqn_p eq2);
+#define LiteralEqual(eq1, eq2) (PropsAreEquiv((eq1),(eq2),EPIsPositive) && EqnEqual((eq1),(eq2)))
 
-bool    EqnSubsumeDirected(Eqn_p subsumer, Eqn_p subsumed, Subst_p
-			   subst, TermEqualTestFun EqualTest);
-bool    EqnSubsume(Eqn_p subsumer, Eqn_p subsumed, Subst_p subst,
-		   TermEqualTestFun EqualTest);
-bool    EqnSubsumeP(Eqn_p subsumer, Eqn_p subsumed, 
-		    TermEqualTestFun EqualTest);
+bool    EqnSubsumeDirected(Eqn_p subsumer, Eqn_p subsumed, Subst_p subst);
+bool    EqnSubsume(Eqn_p subsumer, Eqn_p subsumed, Subst_p subst);
+bool    EqnSubsumeP(Eqn_p subsumer, Eqn_p subsumed);
 
-bool    LiteralSubsumeP(Eqn_p subsumer, Eqn_p subsumed, 
-			TermEqualTestFun EqualTest);
+bool    LiteralSubsumeP(Eqn_p subsumer, Eqn_p subsumed);
 
-#define EqnEquiv(eq1, eq2, EqualTest) \
-           (EqnSubsumeP((eq1),(eq2),(EqualTest)) \
-	 &&(EqnSubsumeP((eq2),(eq1),(EqualTest))))
+#define EqnEquiv(eq1, eq2) (EqnSubsumeP((eq1),(eq2))&&(EqnSubsumeP((eq2),(eq1)))
 
-#define LiteralEquiv(eq1, eq2, EqualTest) \
-        (((eq1)->positive == (eq2)->positive) \
-	 && EqnEquiv((eq1),(eq2),(EqualTest)))
+#define LiteralEquiv(eq1, eq2) (((eq1)->positive == (eq2)->positive) && EqnEquiv((eq1),(eq2))
 
 bool    EqnUnifyDirected(Eqn_p eq1, Eqn_p eq2, Subst_p subst);
 bool    EqnUnify(Eqn_p eq1, Eqn_p eq2, Subst_p subst);

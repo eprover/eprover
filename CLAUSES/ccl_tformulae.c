@@ -785,7 +785,7 @@ bool TFormulaVarIsFree(TB_p bank, TFormula_p form, Term_p var)
    else if((form->f_code == bank->sig->qex_code) ||
            (form->f_code == bank->sig->qall_code))
    {
-      if(TBTermEqual(form->args[0], var))
+      if(form->args[0] == var)
       {
          res = false;
       }

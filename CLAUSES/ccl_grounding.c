@@ -953,7 +953,7 @@ bool ClauseCreateGroundInstances(TB_p bank, Clause_p clause,
    {
       varsetinstapply(inst);
       handle = EqnListCopy(clause->literals, bank);
-      EqnListRemoveDuplicates(handle, TBTermEqual);
+      EqnListRemoveDuplicates(handle);
       if(taut_check && EqnListIsTrivial(handle))
       {
 	 EqnListFree(handle);

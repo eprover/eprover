@@ -85,9 +85,8 @@ FunCode DetectCommutativity(Clause_p clause)
    assert(TermIsVar(lit->rterm->args[0]));
    assert(TermIsVar(lit->rterm->args[1]));
    
-   FAIL_ON(TBTermEqual(lit->lterm->args[0],lit->lterm->args[1]));
-   FAIL_ON(!TBTermEqual(lit->lterm->args[0],lit->rterm->args[1])||
-	   !TBTermEqual(lit->lterm->args[1],lit->rterm->args[0]));
+   FAIL_ON(lit->lterm->args[0] == lit->lterm->args[1]);
+   FAIL_ON((lit->lterm->args[0] != lit->rterm->args[1])||(lit->lterm->args[1] != lit->rterm->args[0]));
 
    return lit->lterm->f_code;
 }

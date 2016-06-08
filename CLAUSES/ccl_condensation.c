@@ -80,7 +80,7 @@ bool CondenseOnce(Clause_p clause)
             {
                newlits = EqnListCopyExcept(clause->literals,l2, l1->bank);
                SubstBacktrack(subst);               
-               EqnListRemoveDuplicates(newlits, TBTermEqual);
+               EqnListRemoveDuplicates(newlits);
                cand = ClauseAlloc(newlits);
                cand->weight = ClauseStandardWeight(cand);
                ClauseSubsumeOrderSortLits(cand);

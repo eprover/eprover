@@ -540,7 +540,7 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
 #endif 
 	       break;
 	    }
-	    else if(TBTermEqual(next->variable->binding,term))
+	    else if(next->variable->binding == term)
 	    {
 	       PStackDiscardTop(tree->term_stack);
 	       next->trav_count   = PDT_NODE_INIT_VAL(tree);

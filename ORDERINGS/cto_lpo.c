@@ -223,7 +223,7 @@ static CompareResult lpo_greater(OCB_p ocb, Term_p s, Term_p t,
    
    if(TermIsVar(s))
    {
-      if(TBTermEqual(s,t))
+      if(s == t)
       {
 	 res = to_equal;
       }
@@ -234,7 +234,7 @@ static CompareResult lpo_greater(OCB_p ocb, Term_p s, Term_p t,
    }
    else if(TermIsVar(t))
    {
-      if(TermIsSubterm(s, t, deref_s, TBTermEqual))
+      if(TermIsSubterm(s, t, deref_s))
       {
 	 res = to_greater;
       }
@@ -443,7 +443,7 @@ static bool lpo4_greater(OCB_p ocb, Term_p s, Term_p t,
    }
    else if(TermIsVar(t))
    {
-      res = TermIsSubterm(s, t, deref_s, TBTermEqual);
+      res = TermIsSubterm(s, t, deref_s);
    }
    else
    {
