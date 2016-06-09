@@ -38,8 +38,8 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* git tag E-2.0pre001 */
-#define VERSION      "2.0pre002"
+/* git tag E-2.0pre003 */
+#define VERSION      "2.0pre003"
 
 #define E_NICKNAME     "Turzun"
 
