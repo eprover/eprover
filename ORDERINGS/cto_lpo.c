@@ -332,7 +332,7 @@ static bool lpo4_alpha(OCB_p ocb, Term_p s, int pos, Term_p t,
 {
    for(/*Nothing*/;pos < s->arity;pos++)
    {
-      if(TermStructEqualDerefHardVars(s->args[pos], t, deref_s, deref_t)
+      if(TermStructEqualDeref(s->args[pos], t, deref_s, deref_t)
           ||
           lpo4_greater(ocb, s->args[pos], t, deref_s, deref_t))
       {
@@ -394,7 +394,7 @@ static bool lpo4_lex_ma(OCB_p ocb, Term_p s, Term_p t, int pos,
       {
          return true;
       }
-      if(TermStructEqualDerefHardVars(s->args[pos], t->args[pos], deref_s, deref_t))
+      if(TermStructEqualDeref(s->args[pos], t->args[pos], deref_s, deref_t))
       {
          /* Next argument */
          continue;         
@@ -501,7 +501,7 @@ static bool lpo4_copy_alpha(OCB_p ocb, Term_p s, int pos, Term_p t)
    {
       return false;
    }
-   return TermStructEqualNoDerefHardVars(s->args[pos], t) 
+   return TermStructEqualNoDeref(s->args[pos], t)
       ||
       lpo4_copy_greater(ocb, s->args[pos], t)
       ||
@@ -555,7 +555,7 @@ static bool lpo4_copy_lex_ma(OCB_p ocb, Term_p s, Term_p t, int pos)
    {
       return false;
    }
-   if(TermStructEqualNoDerefHardVars(s->args[pos], t->args[pos]))
+   if(TermStructEqualNoDeref(s->args[pos], t->args[pos]))
    {
       return lpo4_copy_lex_ma(ocb, s, t, pos+1);
    }
@@ -849,7 +849,7 @@ CompareResult LPO4CompareCopy(OCB_p ocb, Term_p s, Term_p t,
    {
       t1 = TermCopyKeepVars(t, deref_t);
    }
-   if(TermStructEqualNoDerefHardVars(s1,t1))
+   if(TermStructEqualNoDeref(s1,t1))
    {
       res = to_equal;
    }

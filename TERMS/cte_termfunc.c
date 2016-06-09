@@ -677,25 +677,25 @@ Term_p TermEquivCellAlloc(Term_p source, VarBank_p vars)
 
 bool TermStructEqual(Term_p t1, Term_p t2)
 {
-   int i;
-   DerefType deref = DEREF_ALWAYS;
-
-   t1 = TermDeref(t1, &deref);
-   t2 = TermDeref(t2, &deref);
+   t1 = TermDerefAlways(t1);
+   t2 = TermDerefAlways(t2);
    
    if(t1==t2)
    {
       return true;
    }
+
    if(!SortEqual(t1->sort, t2->sort))
    {
       return false;
    }
+
    if(t1->f_code != t2->f_code)
    {
       return false;
    }
-   for(i=0; i<t1->arity; i++)
+
+   for(int i=0; i<t1->arity; i++)
    {
       if(!TermStructEqual(t1->args[i], t2->args[i]))
       {
@@ -723,21 +723,22 @@ bool TermStructEqual(Term_p t1, Term_p t2)
 
 bool TermStructEqualNoDeref(Term_p t1, Term_p t2)
 {
-   int i;
-   
    if(t1==t2)
    {
       return true;
    }
+
    if(!SortEqual(t1->sort, t2->sort))
    {
       return false;
    }
+
    if(t1->f_code != t2->f_code)
    {
       return false;
    }
-   for(i=0; i<t1->arity; i++)
+
+   for(int i=0; i<t1->arity; i++)
    {
       if(!TermStructEqualNoDeref(t1->args[i], t2->args[i]))
       {
@@ -746,51 +747,6 @@ bool TermStructEqualNoDeref(Term_p t1, Term_p t2)
    }
    return true;
 }
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: TermStructEqualNoDerefHardVars()
-//
-//   Return true if the two terms have the same structures. Compares
-//   variables by pointer, everything else by structure.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-bool TermStructEqualNoDerefHardVars(Term_p t1, Term_p t2)
-{
-   int i;
-   
-   if(t1==t2)
-   {
-      return true;
-   }
-   if(!SortEqual(t1->sort, t2->sort))
-   {
-      return false;
-   }
-   if(TermIsVar(t1)) /* Variables are only equal if the pointers are */
-   {
-      return false;
-   }
-   if(t1->f_code != t2->f_code)
-   {
-      return false;
-   }
-   for(i=0; i<t1->arity; i++)
-   {
-      if(!TermStructEqualNoDerefHardVars(t1->args[i], t2->args[i]))
-      {
-         return false;
-      }
-   }
-   return true;
-}
-
 
 /*-----------------------------------------------------------------------
 //
@@ -806,27 +762,28 @@ bool TermStructEqualNoDerefHardVars(Term_p t1, Term_p t2)
 //
 /----------------------------------------------------------------------*/
 
-bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1,
-			  DerefType deref_2) 
+bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType deref_2)
 {
-   int i;
 
    t1 = TermDeref(t1, &deref_1);
    t2 = TermDeref(t2, &deref_2);
-   
+
    if((t1==t2) && (deref_1==deref_2))
    {
       return true;
    }
+
    if(!SortEqual(t1->sort, t2->sort))
    {
       return false;
    }
+
    if(t1->f_code != t2->f_code)
    {
       return false;
    }
-   for(i=0; i<t1->arity; i++)
+
+   for(int i=0; i<t1->arity; i++)
    {
       if(!TermStructEqualDeref(t1->args[i], t2->args[i], deref_1, deref_2))
       {
@@ -835,55 +792,6 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1,
    }
    return true;
 }
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: TermStructEqualDerefHardVars()
-//
-//   Return true if the two terms have the same
-//   structures. Dereference both terms as designated by deref_1,
-//   deref_2. Variables are compared by pointer, not by f_code.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-bool TermStructEqualDerefHardVars(Term_p t1, Term_p t2, DerefType deref_1,
-                                  DerefType deref_2) 
-{
-   int i;
-
-   t1 = TermDeref(t1, &deref_1);
-   t2 = TermDeref(t2, &deref_2);
-   
-   if((t1==t2) && (deref_1==deref_2))
-   {
-      return true;
-   }
-   if(!SortEqual(t1->sort, t2->sort))
-   {
-      return false;
-   }
-   if(t1->f_code != t2->f_code || TermIsVar(t1))
-   {
-      return false;
-   }
-   for(i=0; i<t1->arity; i++)
-   {
-      if(!TermStructEqualDerefHardVars(t1->args[i], t2->args[i], deref_1, deref_2))
-      {
-         return false;
-      }
-   }
-   return true;
-}
-
-
-
-
 
 /*-----------------------------------------------------------------------
 //
