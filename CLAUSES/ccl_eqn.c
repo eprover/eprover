@@ -2164,21 +2164,15 @@ double EqnFunWeight(Eqn_p eq, double max_multiplier, long vweight,
 {
    double res;
    
-   if(EqnIsOriented(eq))
+   res = (double)TermFsumWeight(eq->rterm, vweight, flimit, fweights, default_fweight);
+
+   if(!EqnIsOriented(eq))
    {
-      res = (double)TermFsumWeight(eq->rterm, vweight, flimit, 
-                                   fweights, default_fweight);
+      res *= max_multiplier;
    }
-   else
-   {
-      res = (double)TermFsumWeight(eq->rterm, vweight, flimit, 
-                                   fweights, default_fweight) *
-	 max_multiplier;
-   }
-   res += ((double)TermFsumWeight(eq->lterm, vweight, flimit, 
-                                  fweights, default_fweight) * 
-           max_multiplier);
-   
+
+   res += (double)TermFsumWeight(eq->lterm, vweight, flimit, fweights, default_fweight) * max_multiplier;
+
    return res;
 }
 
