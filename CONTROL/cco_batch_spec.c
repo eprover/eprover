@@ -794,7 +794,7 @@ bool BatchProcessFile(BatchSpec_p spec,
 //
 /----------------------------------------------------------------------*/
 
-bool BatchProcessProblems(BatchSpec_p spec, StructFOFSpec_p ctrl, 
+long BatchProcessProblems(BatchSpec_p spec, StructFOFSpec_p ctrl, 
                           long total_wtc_limit, char* dest_dir)
 {
    long res = 0;
@@ -840,7 +840,7 @@ bool BatchProcessProblems(BatchSpec_p spec, StructFOFSpec_p ctrl,
                           ctrl, 
                           PStackElementP(spec->source_files, i),
                           DStrView(dest_name)))
-      {
+      {         
          res++;
       }
    }
