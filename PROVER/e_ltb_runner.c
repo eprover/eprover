@@ -88,7 +88,7 @@ OptCell opts[] =
    "Redirect output into the named file."},
 
    {OPT_OUTDIR,
-    'd', "output-directory",
+    'd', "output-dir",
     ReqArg, NULL,
    "Directory for individual problem output files. Default is the current"
     " working directory."},
