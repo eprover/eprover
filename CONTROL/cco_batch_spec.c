@@ -444,8 +444,9 @@ BatchSpec_p BatchSpecParse(Scanner_p in, char* executable,
       dummy = ParseBasicInclude(in);
       PStackPushP(handle->includes, dummy);
    }
-   
-   while(TestInpTok(in, Slash))
+
+   /* This is ugly! Fix the LTB format! */
+   while(TestInpTok(in, Slash) || TestInpId(in, "Problem"))
    {
       dummy = ParseFilename(in);
       PStackPushP(handle->source_files, dummy);
@@ -794,14 +795,15 @@ bool BatchProcessFile(BatchSpec_p spec,
 /----------------------------------------------------------------------*/
 
 bool BatchProcessProblems(BatchSpec_p spec, StructFOFSpec_p ctrl, 
-                          long total_wtc_limit)
+                          long total_wtc_limit, char* dest_dir)
 {
    long res = 0;
    PStackPointer i;
    PStackPointer sp;
    long wct_limit, prop_time, now, used, rest;
    long start = GetSecTime(); 
-
+   DStr_p dest_name = DStrAlloc();
+   
    sp = PStackGetSP(spec->source_files);
    for(i=0; i<sp; i++)
    {
@@ -828,16 +830,21 @@ bool BatchProcessProblems(BatchSpec_p spec, StructFOFSpec_p ctrl,
       }
       /* printf("######### Remaining %d probs, %ld secs, limit %ld\n",
          sp-i, rest, wct_limit); */
+
+      DStrSet(dest_name, dest_dir);
+      DStrAppendChar(dest_name, '/');
+      DStrAppendStr(dest_name, PStackElementP(spec->dest_files, i));    
       
       if(BatchProcessFile(spec,
                           wct_limit,
                           ctrl, 
                           PStackElementP(spec->source_files, i),
-                          PStackElementP(spec->dest_files, i)))
+                          DStrView(dest_name)))
       {
          res++;
       }
    }
+   DStrFree(dest_name);
    return res;
 }
 
