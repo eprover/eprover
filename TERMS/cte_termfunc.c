@@ -1007,35 +1007,28 @@ long TermWeight(Term_p term, long vweight, long fweight)
 long TermFsumWeight(Term_p term, long vweight, long flimit, 
                     long *fweights, long default_fweight)
 {
-   long     res = 0;
-   PStack_p stack = PStackAlloc();
-   Term_p   handle;
-   
-   assert(term);
-   
-   PStackPushP(stack, term);
-   
-   while(!PStackEmpty(stack))
+   long res = 0;
+
+   if(TermIsVar(term))
    {
-      handle = PStackPopP(stack);
-      if(TermIsVar(handle))
+      res += vweight;
+   }
+   else
+   {
+      if(term->f_code < flimit)
       {
-	 res += vweight;
+         res += fweights[term->f_code];
       }
       else
       {
-	 int i;
-         
-	 res += (handle->f_code < flimit)? 
-            fweights[handle->f_code]:default_fweight;
+         res += default_fweight;
+      }
 
-	 for(i=0; i<handle->arity; i++)
-	 {
-	    PStackPushP(stack, handle->args[i]);
-	 }
+      for(int i = 0; i < term->arity; i++)
+      {
+         res += TermFsumWeight(term->args[i], vweight, flimit, fweights, default_fweight);
       }
    }
-   PStackFree(stack);
 
    return res;
 
