@@ -161,27 +161,36 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
    }
    else
    {
-      int i;
-      
       t->entry_no     = ++(bank->in_count);
       TermCellAssignProp(t,TPGarbageFlag, bank->garbage_state);      
-      TermCellSetProp(t, TPIsShared|TPIsGround); /* Groundness may
-                                                  * change below */
-
+      TermCellSetProp(t, TPIsShared); /* Groundness may change below */
+      t->v_count = 0;
+      t->f_count = 1;
       t->weight = DEFAULT_FWEIGHT;
-      for(i=0; i<t->arity; i++)
+      for(int i=0; i<t->arity; i++)
       {
-	 assert(TermIsShared(t->args[i])||TermIsVar(t->args[i]));
-	 t->weight+=t->args[i]->weight;
-         if(!TermCellQueryProp(t->args[i], TPIsGround))
+         assert(TermIsShared(t->args[i])||TermIsVar(t->args[i]));
+         if(TermIsVar(t->args[i]))
          {
-            TermCellDelProp(t,TPIsGround); 
+            t->v_count += 1;
+            t->weight  += DEFAULT_VWEIGHT;
+         }
+         else
+         {
+            t->v_count +=t->args[i]->v_count;
+            t->f_count +=t->args[i]->f_count;
+            t->weight  +=t->args[i]->weight;
          }
       }
-      assert(TermStandardWeight(t) == 
-	     TermWeight(t, DEFAULT_VWEIGHT, 
-			DEFAULT_FWEIGHT));
-      assert((TermIsGround(t)==0) == (TBTermIsGround(t)==0));
+
+      if(t->v_count == 0)
+      {
+         TermCellSetProp(t, TPIsGround);
+      }
+
+      assert(TermWeight(t, DEFAULT_VWEIGHT, DEFAULT_FWEIGHT) == TermWeightCompute(t, DEFAULT_VWEIGHT, DEFAULT_FWEIGHT));
+      assert((t->v_count == 0) == TermIsGround(t));
+      assert(TermIsGround(t) == TermIsGroundCompute(t));
    }
    return t;
 }
@@ -210,7 +219,7 @@ static Term_p tb_parse_cons_list(Scanner_p in, TB_p bank, bool check_symb_prop)
    stack = PStackAlloc();
    AcceptInpTok(in, OpenSquare);
 
-   handle = DefaultSharedTermCellAlloc();
+   handle = TermDefaultCellAlloc();
    current = handle;
    
    if(!TestInpTok(in, CloseSquare))
@@ -220,7 +229,7 @@ static Term_p tb_parse_cons_list(Scanner_p in, TB_p bank, bool check_symb_prop)
       current->arity = 2;
       current->args = TermArgArrayAlloc(2);
       current->args[0] = TBTermParseReal(in, bank, check_symb_prop); 
-      current->args[1] = DefaultSharedTermCellAlloc();
+      current->args[1] = TermDefaultCellAlloc();
       current = current->args[1];
       PStackPushP(stack, current);
       
@@ -241,7 +250,7 @@ static Term_p tb_parse_cons_list(Scanner_p in, TB_p bank, bool check_symb_prop)
    current->f_code = SIG_NIL_CODE;             
    
    /* Now insert the list into the bank */
-   handle = tb_termtop_insert(bank, current);
+   handle = TBInsert(bank, current, DEREF_NEVER);
 
    while(!PStackEmpty(stack))
    {
@@ -481,28 +490,6 @@ long TBTermNodes(TB_p bank)
    return TermCellStoreNodes(&(bank->term_store))+VarBankCardinal(bank->vars);
 }
 
-/*-----------------------------------------------------------------------
-//
-// Function: DefaultSharedTermCellAlloc()
-//
-//   Return a reasonably initialized term cell for shared terms.
-//
-// Global Variables: -
-//
-// Side Effects    : Memory Operations
-//
-/----------------------------------------------------------------------*/
-
-Term_p DefaultSharedTermCellAlloc(void)
-{
-   Term_p handle;
-
-   handle = TermDefaultCellAlloc();
-   TermCellSetProp(handle, TPIsShared);
-   
-   return handle;
-}
-
 
 /*-----------------------------------------------------------------------
 //
@@ -657,7 +644,7 @@ Term_p TBInsertInstantiated(TB_p bank, Term_p term)
 
    assert(term);
 
-   if(TBTermIsGround(term))
+   if(TermIsGround(term))
    {
       assert(TBFind(bank, term));
       return term;
@@ -1120,7 +1107,7 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
 	 }
 	 else
 	 {
-	    handle = DefaultSharedTermCellAlloc();
+	    handle = TermDefaultCellAlloc();
 	 
 	    if(TestInpTok(in, OpenBracket))
 	    { 

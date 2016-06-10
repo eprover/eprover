@@ -649,7 +649,7 @@ Term_p EqnTermsTBTermEncode(TB_p bank, Term_p lterm, Term_p rterm, bool
    assert(TBFind(bank, lterm));
    assert(TBFind(bank, rterm));
    
-   handle = DefaultSharedTermCellAlloc();
+   handle = TermDefaultCellAlloc();
    handle->arity = 2;   
    handle->f_code = SigGetEqnCode(bank->sig, positive);
    assert(handle->f_code);

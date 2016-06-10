@@ -75,19 +75,24 @@ bool   TermIsSubterm(Term_p super, Term_p test, DerefType deref);
 bool    TermIsSubtermDeref(Term_p super, Term_p test, DerefType
 			   deref_super, DerefType deref_test);
 
-long    TermWeight(Term_p term, long vweight, long fweight);
+long    TermWeightCompute(Term_p term, long vweight, long fweight);
+#define TermWeight(term, vweight, fweight) \
+        (TermIsShared(term)? \
+         (assert(((term)->v_count*vweight + (term)->f_count*fweight) == TermWeightCompute((term),(vweight),(fweight))), \
+          ((term)->v_count*vweight + (term)->f_count*fweight)) : \
+         TermWeightCompute((term),(vweight),(fweight)))
+
+#define TermDefaultWeight(term) TermWeightCompute((term), DEFAULT_VWEIGHT, DEFAULT_FWEIGHT)
 #define TermStandardWeight(term) \
         (TermIsShared(term)? \
-	 (term)->weight:\
-	 TermWeight((term),DEFAULT_VWEIGHT,DEFAULT_FWEIGHT))
+         (assert((term)->weight == TermDefaultWeight((term))),(term)->weight) : \
+         TermDefaultWeight((term)))
 
 long    TermFsumWeight(Term_p term, long vweight, long flimit, 
                        long *fweights, long default_fweight);
 
-long    TermNonLinearWeight(Term_p term, long vlweight, long vweight,
-			    long fweight);
-long    TermSymTypeWeight(Term_p term, long vweight, long fweight,
-			  long cweight, long pweight);
+long    TermNonLinearWeight(Term_p term, long vlweight, long vweight, long fweight);
+long    TermSymTypeWeight(Term_p term, long vweight, long fweight, long cweight, long pweight);
 long    TermDepth(Term_p term);
 
 bool    TermIsDefTerm(Term_p term, int min_arity);
@@ -95,7 +100,11 @@ bool    TermIsDefTerm(Term_p term, int min_arity);
 bool    TermHasFCode(Term_p term, FunCode f);
 
 bool    TermHasUnboundVariables(Term_p term);
-bool    TermIsGround(Term_p term);
+bool    TermIsGroundCompute(Term_p term);
+#define TermIsGround(term) \
+        (TermIsShared(term)? \
+         (assert((TBTermIsGround((term))) == TermIsGroundCompute((term))),TBTermIsGround((term))): \
+         TermIsGroundCompute((term)))
 
 FunCode TermFindMaxVarCode(Term_p term);
 

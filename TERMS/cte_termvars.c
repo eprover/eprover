@@ -398,6 +398,9 @@ Term_p VarBankFCodeAssertAlloc(VarBank_p bank, FunCode f_code, SortType sort)
    if(!var)
    {
       var = TermDefaultCellAlloc();
+      var->weight = DEFAULT_VWEIGHT;
+      var->v_count = 1;
+      var->f_count = 0;
       var->entry_no = f_code;
       var->f_code = f_code;
       var->sort = sort;
@@ -405,10 +408,10 @@ Term_p VarBankFCodeAssertAlloc(VarBank_p bank, FunCode f_code, SortType sort)
       PDArrayAssignP(stack, -f_code, var);
       bank->max_var = MAX(-f_code, bank->max_var);
    }
-   
+
    assert(var->sort == sort);
    assert(var->sort != STNoSort);
-   assert(!TermCellQueryProp(var, TPIsGround));
+   assert(var->v_count==1);
 
    return var;
 }

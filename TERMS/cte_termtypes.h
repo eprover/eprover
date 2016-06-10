@@ -131,8 +131,9 @@ typedef struct termcell
                                       termbank - needed for
                                       administration and external
                                       representation */
-   long             weight;        /* Weight of the term, if term is
-                                      in term bank */
+   long             weight;        /* Weight of the term, if term is in term bank */
+   unsigned int     v_count;       /* Number of variables, if term is in term bank */
+   unsigned int     f_count;       /* Number of function symbols, if term is in term bank */
    RewriteState     rw_data;       /* See above */
    SortType         sort;          /* Sort of the term */
    struct termcell* lson;          /* For storing shared term nodes in */
@@ -356,11 +357,10 @@ static __inline__ Term_p TermTopCopy(Term_p source)
    Term_p handle;
    
    handle = TermDefaultCellAlloc();
-   handle->properties = (source->properties&TPPredPos); /* All other
-                                                           properties
-                                                           are tied to
-                                                           the specific
-                                                           term! */
+
+   /* All other properties are tied to the specific term! */
+   handle->properties = (source->properties&TPPredPos);
+
    TermCellDelProp(handle, TPOutputFlag); /* As it gets a new id below */
    handle->f_code = source->f_code;
    handle->arity  = source->arity;

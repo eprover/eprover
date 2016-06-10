@@ -63,21 +63,16 @@ Changes
 
 Term_p TermDefaultCellAlloc(void)
 {
-   Term_p handle;
-   
-   handle = TermCellAlloc();
+   Term_p handle = TermCellAlloc();
 
    handle->properties = TPIgnoreProps;
-   handle->arity = 0;
-   handle->sort = STNoSort;
-   handle->binding = NULL;
-   handle->args = NULL;
-   handle->weight = DEFAULT_VWEIGHT; /* If no variable, will be
-					changed automagically later
-					on */
-   handle->rw_data.nf_date[0] = SysDateCreationTime(); 
-   handle->rw_data.nf_date[1] = SysDateCreationTime(); 
-   
+   handle->arity      = 0;
+   handle->sort       = STNoSort;
+   handle->binding    = NULL;
+   handle->args       = NULL;
+   handle->rw_data.nf_date[0] = SysDateCreationTime();
+   handle->rw_data.nf_date[1] = SysDateCreationTime();
+
    return handle;
 }
 
@@ -97,8 +92,6 @@ Term_p TermDefaultCellAlloc(void)
 Term_p TermConstCellAlloc(FunCode symbol)
 {
    Term_p handle = TermDefaultCellAlloc();
-   
-   handle->weight = DEFAULT_FWEIGHT;
    handle->f_code = symbol;
 
    return handle;

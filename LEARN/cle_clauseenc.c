@@ -68,7 +68,7 @@ Term_p FlatEncodeClauseListRep(TB_p bank, PStack_p list)
 
    arity = PStackGetSP(list)/2;
    
-   handle = DefaultSharedTermCellAlloc();
+   handle = TermDefaultCellAlloc();
    handle->arity = arity;   
    handle->f_code = SigGetOrNCode(bank->sig, arity);
    assert(handle->f_code);
@@ -113,7 +113,7 @@ Term_p   RecEncodeClauseListRep(TB_p bank, PStack_p list)
    
    arity = PStackGetSP(list)/2;
    
-   rest = DefaultSharedTermCellAlloc();
+   rest = TermDefaultCellAlloc();
    rest->arity = 0;      
    rest->f_code = SigGetCNilCode(bank->sig);
    assert(rest->f_code);
@@ -125,7 +125,7 @@ Term_p   RecEncodeClauseListRep(TB_p bank, PStack_p list)
       i = 2* arity;
       current = PStackElementP(list, i);
       dir     = PStackElementInt(list, i+1);
-      handle = DefaultSharedTermCellAlloc();
+      handle = TermDefaultCellAlloc();
       handle->arity = 2;   
       handle->f_code = SigGetOrCode(bank->sig);
       handle->args = TermArgArrayAlloc(2);

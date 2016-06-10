@@ -242,7 +242,7 @@ TFormula_p tformula_rek_skolemize(TB_p terms, TFormula_p form,
    TFormula_p handle, handle2=NULL;
    bool modified = false;
    
-   if(TBTermIsGround(form))
+   if(TermIsGround(form))
    {
       /* All is well */
    }

@@ -119,7 +119,6 @@ long    TBTermNodes(TB_p bank);
 
 #define TBCellIdent(term) (TermIsVar(term)?(term)->f_code:term->entry_no)
 
-Term_p  DefaultSharedTermCellAlloc(void);
 #define TermIsTrueTerm(term) ((term)->f_code==SIG_TRUE_CODE)
 
 #define TBTermIsSubterm(super, term) TermIsSubterm((super),(term),DEREF_NEVER)

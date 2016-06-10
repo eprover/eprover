@@ -959,7 +959,7 @@ bool TermIsSubtermDeref(Term_p super, Term_p test, DerefType
 
 /*-----------------------------------------------------------------------
 //
-// Function: TermWeight()
+// Function: TermWeightCompute()
 //
 //   Compute the weight of a term, counting variables as vweight and
 //   function symbols as fweight.
@@ -970,7 +970,7 @@ bool TermIsSubtermDeref(Term_p super, Term_p test, DerefType
 //
 /----------------------------------------------------------------------*/
 
-long TermWeight(Term_p term, long vweight, long fweight)
+long TermWeightCompute(Term_p term, long vweight, long fweight)
 {
    long res = 0;
    
@@ -1298,7 +1298,7 @@ bool TermHasUnboundVariables(Term_p term)
 
 /*-----------------------------------------------------------------------
 //
-// Function: TermIsGround()
+// Function: TermIsGroundCompute()
 //
 //   Return if the term contains no variables.
 //   Does not follow bindings.
@@ -1309,7 +1309,7 @@ bool TermHasUnboundVariables(Term_p term)
 //
 /----------------------------------------------------------------------*/
 
-bool TermIsGround(Term_p term)
+bool TermIsGroundCompute(Term_p term)
 {
    bool res = true;
    
@@ -1321,7 +1321,7 @@ bool TermIsGround(Term_p term)
    {
       for(int i=0; i < term->arity; i++)
       {
-         if(!TermIsGround(term->args[i]))
+         if(!TermIsGroundCompute(term->args[i]))
          {
             res = false;
             break;
