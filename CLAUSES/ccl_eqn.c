@@ -500,11 +500,6 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
 
    /* printf("Handle = %p\n", handle); */
 
-   if(!SortEqual(lterm->sort, STNoSort) && !SortEqual(rterm->sort, STNoSort))
-   {
-      TermAssertSameSort(bank->sig, lterm, rterm);
-   }
-
    handle->properties = EPNoProps;
    if(positive)
    {
@@ -534,6 +529,12 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
          EqnSetProp(handle, EPPseudoLit);      
       }
    }
+
+   if(!SortEqual(lterm->sort, rterm->sort))
+   {
+      TermAssertSameSort(bank->sig, lterm, rterm);
+   }
+
    handle->bank = bank;   
    handle->next = NULL;
 
