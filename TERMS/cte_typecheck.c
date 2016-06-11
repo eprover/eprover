@@ -126,7 +126,7 @@ bool TypeCheckConsistent(Sig_p sig, Term_p term)
             for (i=0; res && i < type->arity; ++i)
             {
                subterm = term->args[i];
-               res = res && SortEqual(subterm->sort, type->arguments[i]);
+               res = res && SortEqual(subterm->sort, type->args[i]);
             }
          }
 
@@ -192,12 +192,12 @@ void TypeInferSort(Sig_p sig, Term_p term)
          assert(term->arity == type->arity);
          for(i=0; SigIsFixedType(sig, term->f_code) && i < term->arity; ++i)
          {
-            if(!SortEqual(term->args[i]->sort, type->arguments[i]))
+            if(!SortEqual(term->args[i]->sort, type->args[i]))
             {
                fprintf(stderr, "# Type mismatch in argument #%d of ", i+1);
                TermPrint(stderr, term, sig, DEREF_NEVER); 
                fprintf(stderr, ": expected ");
-               SortPrintTSTP(stderr, sig->sort_table, type->arguments[i]);
+               SortPrintTSTP(stderr, sig->sort_table, type->args[i]);
                fprintf(stderr, " but got ");
                SortPrintTSTP(stderr, sig->sort_table, term->args[i]->sort);
                fprintf(stderr, "\n");

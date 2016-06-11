@@ -37,12 +37,11 @@ Changes
  * (no argument can be a function). */
 typedef struct typecell
 {
-    SortType            domain_sort;    /* domain sort, ie the sort
-                                           returned by a function */
-    unsigned int        arity;          /* arity of the function type */
-    SortType*           arguments;      /* type of the function's arguments */
+    SortType            domain_sort; /* domain sort, ie the sort returned by a function */
+    int                 arity;       /* arity of the function type */
+    SortType*           args;        /* type of the function's arguments */
 
-    struct typecell*    lson;           /* for sharing types */
+    struct typecell*    lson;        /* for sharing types */
     struct typecell*    rson;
 }TypeCell, *Type_p;
 
@@ -67,15 +66,13 @@ typedef struct
 
 #define TypeIsConstant(ty) (ty->arity == 0)
 #define TypeIsFunction(ty) (ty->arity > 0)
-#define TypeGetArg(ty, i)  (ty->arguments[i])
-#define TypeArity(ty)  ((ty)->arity)
 
 TypeTable_p     TypeTableAlloc(SortTable_p sort_table);
 void            TypeTableFree(TypeTable_p junk);
 int             TypeCompare(Type_p t1, Type_p t2);
 Type_p          TypeNewConstant(TypeTable_p table, SortType sort);
 Type_p          TypeNewFunction(TypeTable_p table, SortType sort,
-                                unsigned int arity, SortType *args);
+                                int arity, SortType *args);
 Type_p          TypeCopyWithReturn(TypeTable_p table, Type_p source,
                                    SortType new_domain);
 void            TypePrintTSTP(FILE *out, TypeTable_p table, Type_p type);

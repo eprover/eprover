@@ -49,7 +49,7 @@ Changes
 // Side Effects    : Memory operations
 //
 /----------------------------------------------------------------------*/
-Type_p TypeAlloc(SortType domain, unsigned int arity)
+Type_p TypeAlloc(SortType domain, int arity)
 {
     Type_p res;
 
@@ -57,14 +57,12 @@ Type_p TypeAlloc(SortType domain, unsigned int arity)
     res->domain_sort = domain;
     res->lson = NULL;
     res->rson = NULL;
+    res->args = NULL;
+
     res->arity = arity;
     if (arity)
     {
-        res->arguments = TypeArgumentAlloc(arity);
-    }
-    else
-    {
-        res->arguments = NULL;
+        res->args = TypeArgumentAlloc(arity);
     }
 
     return res;
@@ -88,7 +86,7 @@ void TypeFree(Type_p junk)
 
     if (junk->arity)
     {
-        TypeArgumentFree(junk->arguments, junk->arity);
+        TypeArgumentFree(junk->args, junk->arity);
     }
 
     TypeCellFree(junk);
@@ -437,8 +435,8 @@ Type_p TypeNewConstant(TypeTable_p table, SortType sort)
 // Side Effects    :  Modifies the type table
 //
 /----------------------------------------------------------------------*/
-Type_p TypeNewFunction(TypeTable_p table, SortType sort,
-                       unsigned int arity, SortType *args)
+Type_p TypeNewFunction(TypeTable_p table, SortType sort, 
+                       int arity, SortType *args)
 {
    Type_p type, res;
    int i;
@@ -446,7 +444,7 @@ Type_p TypeNewFunction(TypeTable_p table, SortType sort,
    type = TypeAlloc(sort, arity);
    for(i=0; i < arity; ++i)
    {
-      type->arguments[i] = args[i];
+      type->args[i] = args[i];
    }
 
    res = TypeTreeInsert(&(table->root), type);
@@ -480,7 +478,7 @@ int TypeCompare(Type_p t1, Type_p t2)
 
     if (!res)
     {
-        res = ((int)t1->arity) - ((int)t2->arity);
+        res = (t1->arity - t2->arity);
     }
 
     // same domain and arity, lexicographic comparison of arguments
@@ -491,7 +489,7 @@ int TypeCompare(Type_p t1, Type_p t2)
 
         for (i = 0; !res && i < t1->arity; ++i)
         {
-            res = SortCompare(TypeGetArg(t1, i), TypeGetArg(t2, i));
+            res = SortCompare(t1->args[i], t2->args[i]);
         }
     }
 
@@ -516,7 +514,7 @@ Type_p TypeCopyWithReturn(TypeTable_p table, Type_p source,
 {
    Type_p res;
    
-   res = TypeNewFunction(table, new_domain, source->arity, source->arguments);
+   res = TypeNewFunction(table, new_domain, source->arity, source->args);
    return res;
 }
 
@@ -543,16 +541,16 @@ void TypePrintTSTP(FILE *out, TypeTable_p table, Type_p type)
     {
         if (type->arity == 1)
         {
-            SortPrintTSTP(out, table->sort_table, TypeGetArg(type, 0));
+            SortPrintTSTP(out, table->sort_table, type->args[0]);
         }
         else
         {
             fputc('(', out);
-            SortPrintTSTP(out, table->sort_table, TypeGetArg(type, 0));
+            SortPrintTSTP(out, table->sort_table, type->args[0]);
             for (i = 1; i < type->arity; ++i)
             {
                 fputs("*", out);
-                SortPrintTSTP(out, table->sort_table, TypeGetArg(type, i));
+                SortPrintTSTP(out, table->sort_table, type->args[i]);
             }
             fputc(')', out);
         }

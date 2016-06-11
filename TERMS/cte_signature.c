@@ -1434,7 +1434,6 @@ void SigParseTFFTypeDeclaration(Scanner_p in, Sig_p sig)
    FuncSymbType symbtype;
    FunCode f;
    Type_p type;
-   int arity;
    bool within_paren = false;
 
    id = DStrAlloc();
@@ -1464,8 +1463,7 @@ void SigParseTFFTypeDeclaration(Scanner_p in, Sig_p sig)
    /* we only keep declarations of symbols, not declaration of types */
    if(type->domain_sort != STKind)
    {
-      arity = TypeArity(type);
-      f = SigInsertId(sig, DStrView(id), arity, false);
+      f = SigInsertId(sig, DStrView(id), type->arity, false);
       SigDeclareType(sig, f, type);
       SigFixType(sig, f);
    }
