@@ -203,7 +203,7 @@ int main(int argc, char* argv[])
                                  MAX(0,total_wtc_limit-(now-start)),
                                  outdir);
       now = GetSecTime();
-      fprintf(GlobalOut, "\n\n# == WCT: %4lds, Solved: %4ld/%4d    ==\n",
+      fprintf(GlobalOut, "\n\n# == WCT: %4lds, Solved: %4ld/%4ld    ==\n",
           now-start, res, BatchSpecProblemNo(spec));
       fprintf(GlobalOut, "# =============== Batch done ===========\n\n");
       StructFOFSpecFree(ctrl);

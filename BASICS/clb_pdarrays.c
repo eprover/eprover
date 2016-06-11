@@ -61,7 +61,7 @@ Changes
 PDArray_p PDArrayAlloc(long init_size, long grow)
 {
    PDArray_p handle = PDArrayCellAlloc();
-   int i;
+   long i;
    
    assert(init_size > 0);
    assert(grow >= 0);
@@ -93,7 +93,7 @@ PDArray_p PDArrayAlloc(long init_size, long grow)
 PDArray_p PDIntArrayAlloc(long init_size, long grow)
 {
    PDArray_p handle = PDArrayCellAlloc();
-   int i;
+   long i;
    
    assert(init_size > 0);
    assert(grow >= 0);

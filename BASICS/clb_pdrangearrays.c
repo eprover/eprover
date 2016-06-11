@@ -185,7 +185,7 @@ static void range_arr_expand_up(PDRangeArr_p array, long idx)
 PDRangeArr_p PDRangeArrAlloc(long idx, long grow)
 {
    PDRangeArr_p handle = PDRangeArrCellAlloc();
-   int i;
+   long i;
    
    assert(grow >= 0);
 
@@ -218,7 +218,7 @@ PDRangeArr_p PDRangeArrAlloc(long idx, long grow)
 PDRangeArr_p PDIntRangeArrAlloc(long idx, long grow)
 {
    PDRangeArr_p handle = PDRangeArrCellAlloc();
-   int i;
+   long i;
    
    assert(grow >= 0);
 

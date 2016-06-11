@@ -793,7 +793,7 @@ long SelectThreshold(PStack_p          clause_sets,
 
 void DRelPrintDebug(FILE* out, DRel_p rel, Sig_p sig)
 {
-   fprintf(out, "# %6ld %-15s: %6d clauses, %6d formulas\n",
+   fprintf(out, "# %6ld %-15s: %6ld clauses, %6ld formulas\n",
            rel->f_code,
            SigFindName(sig, rel->f_code),
            PStackGetSP(rel->d_clauses),

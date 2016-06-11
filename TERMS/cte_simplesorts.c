@@ -261,7 +261,7 @@ void SortTablePrint(FILE* out, SortTable_p table)
    fprintf(out, "=====================================\n");
    for(i=0; i<PStackGetSP(table->back_index); i++)
    {
-      fprintf(out, "Type %4u: %s\n", i, SortTableGetRep(table, i));
+      fprintf(out, "Type %4ld: %s\n", i, SortTableGetRep(table, i));
    }
    fprintf(out, "\nSort table in alphabetic order:\n");
    fprintf(out, "=====================================\n");

@@ -38,7 +38,7 @@ Changes
 
 typedef struct pqueuecell
 {
-   int    size;   /* Of allocateted memory */
+   long   size;   /* Of allocateted memory */
    long   head;   /* Where the next element will be put */
    long   tail;   /* Where the next element will come from */
    IntOrP *queue; /* Memory */
@@ -381,7 +381,7 @@ static __inline__ IntOrP PQueueLook(PQueue_p queue)
 static __inline__ IntOrP PQueueLookLast(PQueue_p queue)
 {
    IntOrP res;
-   int    index;
+   long   index;
 
    assert(!PQueueEmpty(queue));
 

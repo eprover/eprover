@@ -34,11 +34,11 @@ Changes
 
 /* Generic stack data type, can take (long) integers or pointers */
 
-typedef int PStackPointer;
+typedef long   PStackPointer;
 
 typedef struct pstackcell
 {
-   int           size;    /* ...of allocated memory */
+   long          size;    /* ...of allocated memory */
    PStackPointer current; /* First unused address, 0 for empty stack */  
    IntOrP        *stack;  /* Stack area */
 }PStackCell, *PStack_p;

@@ -61,7 +61,7 @@ Changes
 void __attribute__ ((noinline)) PStackGrow(PStack_p stack)
 {
       IntOrP *tmp;
-      int    old_size;
+      long   old_size;
 
       /* Emulate Realloc-Functionality for use of SizeMalloc() */
       old_size = stack->size;

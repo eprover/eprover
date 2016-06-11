@@ -487,7 +487,7 @@ void ProofStateTrain(ProofState_p state, bool print_pos, bool print_neg)
 
    ProofStatePickTrainingExamples(state, pos_examples, neg_examples);
    
-   fprintf(GlobalOut, "# Training examples: %d positive, %d negative\n", 
+   fprintf(GlobalOut, "# Training examples: %ld positive, %ld negative\n", 
            PStackGetSP(pos_examples), PStackGetSP(neg_examples)); 
    if(print_pos)
    {

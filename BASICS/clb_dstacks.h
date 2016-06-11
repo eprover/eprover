@@ -34,11 +34,11 @@ Changes
 
 /* Double stack data type */
 
-typedef int DStackPointer;
+typedef long DStackPointer;
 
 typedef struct dstackcell
 {
-   int           size;    /* ...of allocated memory */
+   long          size;    /* ...of allocated memory */
    DStackPointer current; /* First unused address, 0 for empty stack */  
    double        *stack;  /* Stack area */
 }DStackCell, *DStack_p;
