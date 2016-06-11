@@ -194,7 +194,7 @@ Type_p TypeTreeFind(Type_p *root, Type_p key)
    if(*root)
    {
       *root = splay_type(*root, key);
-      if(TypeCompare(*root, key)==0)
+      if(TypeEqual(*root, key))
       {
          return *root;
       }
@@ -271,7 +271,7 @@ Type_p TypeTreeExtract(Type_p *root, Type_p key)
       return NULL;
    }
    *root = splay_type(*root, key);
-   if(TypeCompare(key, (*root))==0)
+   if(TypeEqual(key, (*root)))
    {
       if (!(*root)->lson)
       {

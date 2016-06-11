@@ -66,6 +66,7 @@ typedef struct
 
 #define TypeIsConstant(ty) (ty->arity == 0)
 #define TypeIsFunction(ty) (ty->arity > 0)
+#define TypeEqual(type1, type2) (TypeCompare((type1), (type2)) == 0)
 
 TypeTable_p     TypeTableAlloc(SortTable_p sort_table);
 void            TypeTableFree(TypeTable_p junk);
@@ -83,15 +84,5 @@ Type_p          TypeGetBool(TypeTable_p table);
 
 AVL_TRAVERSE_DECLARATION(Type, Type_p)
 #define TypeTraverseExit(stack) PStackFree(stack)
-
-
-/*---------------------------------------------------------------------*/
-/*                  Inline functions                                   */
-/*---------------------------------------------------------------------*/
-
-static __inline__ bool TypeEqual(Type_p t1, Type_p t2)
-{
-    return TypeCompare(t1, t2) == 0;
-}
 
 #endif
