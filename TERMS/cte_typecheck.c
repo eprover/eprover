@@ -98,16 +98,12 @@ SortType infer_return_sort(Sig_p sig, FunCode f_code)
 bool TypeCheckConsistent(Sig_p sig, Term_p term)
 {
    bool res = true;
-   PStack_p stack;
-   Term_p subterm;
-   int i;
-   SortType sort;
    Type_p type;
 
-   stack = PStackAlloc();
+   PStack_p stack = PStackAlloc();
    PStackPushP(stack, term);
 
-   while (res && !PStackEmpty(stack))
+   while (!PStackEmpty(stack))
    {
       term = PStackPopP(stack);
 
@@ -116,30 +112,33 @@ bool TypeCheckConsistent(Sig_p sig, Term_p term)
          /* check: same arity, same return sort, sort of arguments (pairwise)*/
          if(!SigIsPolymorphic(sig, term->f_code))
          {
-            sort = term->sort;
             type = SigGetType(sig, term->f_code);
 
             assert(type);
 
-            res = res && (term->arity == type->arity);
-            res = res && SortEqual(sort, type->domain_sort);
-            for (i=0; res && i < type->arity; ++i)
+            if((term->arity != type->arity)
+               || !SortEqual(term->sort, type->domain_sort))
             {
-               subterm = term->args[i];
-               res = res && SortEqual(subterm->sort, type->args[i]);
+               res = false;
+               break;
             }
-         }
 
-         /* Check subterms recursively */
-         for (i=0; res && i < term->arity; ++i)
-         {
-            subterm = term->args[i];
-            PStackPushP(stack, subterm);
+            /* Check subterms recursively */
+            for (int i=0; i < type->arity; ++i)
+            {
+               PStackPushP(stack, term->args[i]);
+               if(!SortEqual(term->args[i]->sort, type->args[i]))
+               {
+                  res = false;
+                  break;
+               }
+            }
          }
       }
    }
 
    PStackFree(stack);
+
    return res;
 }
 
