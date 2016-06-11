@@ -37,20 +37,18 @@ Changes
  * that the system relies on the fact that the system-defined sorts are
  * inserted in a specific order.
  *
- * User sorts are integers bigger than the last element of this num. */
+ * User sorts are integers bigger than STPredefined. */
 
-typedef enum 
-{
-   STNoSort = 0,      
-   STBool,           /* Boolean sort, will replace/extend the
-                        predicate bit */
-   STIndividuals,    /* Default sort, "individuums" */
-   STKind,           /* The "sort of sorts", $tType in TFF */
-   STInteger,        /* Integer numbers */
-   STRational,       /* Rational numbers */
-   STReal            /* Reals */
-}SortType;
+typedef int SortType;
 
+#define STNoSort      0
+#define STBool        1     /* Boolean sort, will replace/extend the predicate bit */
+#define STIndividuals 2     /* Default sort, "individuums" */
+#define STKind        3     /* The "sort of sorts", $tType in TFF */
+#define STInteger     4     /* Integer numbers */
+#define STRational    5     /* Rational numbers */
+#define STReal        6     /* Reals */
+#define STPredefined  STReal
 
 /* Datatype for representing the sort system. Currenlty associates
  * sort types with encodings and tracks the default sort. */
@@ -75,8 +73,9 @@ typedef struct sort_table
 
 #define SortTableCellAlloc()    (SortTableCell*)SizeMalloc(sizeof(SortTableCell))
 #define SortTableCellFree(junk) SizeFree(junk, sizeof(SortTableCell))
-#define SortIsUserDefined(sort) (sort > STReal)
-#define SortEqual(s1, s2) ((s1)==(s2))
+#define SortIsUserDefined(sort) (sort > STPredefined)
+
+#define SortEqual(s1, s2)       ((s1) == (s2))
 
 SortTable_p SortTableAlloc(void);
 void        SortTableFree(SortTable_p junk);
