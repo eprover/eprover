@@ -230,7 +230,6 @@ static __inline__ Term_p  TermDeref(Term_p term, DerefType_p deref);
 static __inline__ Term_p* TermArgListCopy(Term_p source);
 static __inline__ Term_p  TermTopCopy(Term_p source);
 
-static __inline__ SortType TermGetSort(Term_p term);
 static __inline__ bool     TermSameSort(Term_p t1, Term_p t2);
 
 void    TermStackSetProps(PStack_p stack, TermProperties prop);
@@ -376,31 +375,6 @@ static __inline__ Term_p TermTopCopy(Term_p source)
    handle->rson = NULL;
    
    return handle;
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: TermGetSort
-//  Obtain the sort of the term. If the term has no sort, report
-//  an error and exit program.
-//   
-//
-// Global Variables: -
-//
-// Side Effects    : -  (Unless error occurs)
-//
-/----------------------------------------------------------------------*/
-static __inline__ SortType TermGetSort(Term_p term)
-{
-   SortType sort;
-
-   sort = term->sort;
-   if (sort == STNoSort)
-   {
-      Error("term has no sort", OTHER_ERROR);
-   }
-   return sort;
 }
 
 

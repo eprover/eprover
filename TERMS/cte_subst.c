@@ -163,12 +163,12 @@ PStackPointer SubstNormTerm(Term_p term, Subst_p subst, VarBank_p vars)
       term = TermDeref(PStackPopP(stack), &deref);
       if(TermIsVar(term))
       {
-	 if(!TermCellQueryProp(term, TPSpecialFlag))
-	 {
-	    newvar = VarBankGetFreshVar(vars, TermGetSort(term));
+         if(!TermCellQueryProp(term, TPSpecialFlag))
+         {
+            newvar = VarBankGetFreshVar(vars, term->sort);
             TermCellSetProp(newvar, TPSpecialFlag);
             SubstAddBinding(subst, term, newvar);
-	 }
+         }
       }
       else
       {

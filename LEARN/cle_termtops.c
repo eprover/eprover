@@ -144,7 +144,7 @@ static Term_p rek_term_top(Term_p term, int depth, VarBank_p freshvars)
    
    if(depth==0)
    {
-      handle = VarBankGetFreshVar(freshvars, TermGetSort(term));
+      handle = VarBankGetFreshVar(freshvars, term->sort);
    }
    else if(TermIsVar(term))
    {
@@ -192,7 +192,7 @@ static Term_p alt_rek_term_top(Term_p term, int depth, VarBank_p
    {
       if(!term->binding)
       {
-	 handle = VarBankGetFreshVar(freshvars, TermGetSort(term));
+	 handle = VarBankGetFreshVar(freshvars, term->sort);
 	 term->binding = handle;
 	 PStackPushP(bindings, term);	 
       }
@@ -246,7 +246,7 @@ Term_p term_top_marked(Term_p term, VarBank_p freshvars, PStack_p
    {
       if(!term->binding)
       {
-	 handle = VarBankGetFreshVar(freshvars, TermGetSort(term));
+	 handle = VarBankGetFreshVar(freshvars, term->sort);
 	 term->binding = handle;
 	 PStackPushP(bindings, term);	 
       }
