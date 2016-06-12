@@ -581,13 +581,20 @@ Term_p TermCopy(Term_p source, VarBank_p vars, DerefType deref)
 
    source = TermDeref(source, &deref);
    
-   handle = TermEquivCellAlloc(source, vars);
-   
-   for(i=0; i<handle->arity; i++) /* Hack: Loop will not be entered if
-				     arity = 0 */
+   if(TermIsVar(source))
    {
-      handle->args[i] = TermCopy(handle->args[i], vars, deref);
+      handle = VarBankVarAssertAlloc(vars, source->f_code, source->sort);
    }
+   else
+   {
+      handle = TermTopCopy(source);
+
+      for(i=0; i<handle->arity; i++)
+      {
+         handle->args[i] = TermCopy(handle->args[i], vars, deref);
+      }
+   }
+
    return handle;
 }
 
@@ -621,42 +628,13 @@ Term_p TermCopyKeepVars(Term_p source, DerefType deref)
    {
       return source;
    }
-   handle = TermEquivCellAlloc(source, NULL);
+
+   handle = TermTopCopy(source);
    
    for(i=0; i<handle->arity; i++) /* Hack: Loop will not be entered if
 				     arity = 0 */
    {
       handle->args[i] = TermCopyKeepVars(handle->args[i], deref);
-   }
-   return handle;
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: TermEquivCellAlloc()
-//
-//   Return a pointer to a unshared termcell equivalent to source. If
-//   source is a variable, get the cell from the varbank, otherwise
-//   copy the cell via TermTopCopy().
-//
-// Global Variables: -
-//
-// Side Effects    : Memory operations
-//
-/----------------------------------------------------------------------*/
-
-Term_p TermEquivCellAlloc(Term_p source, VarBank_p vars)
-{
-   Term_p handle;
-   
-   if(TermIsVar(source))
-   {
-      handle = VarBankFCodeAssertAlloc(vars, source->f_code, source->sort);
-   }
-   else
-   {
-      handle = TermTopCopy(source);
    }
    return handle;
 }

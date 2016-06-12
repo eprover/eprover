@@ -96,7 +96,8 @@ void       VarBankVarsDelProp(VarBank_p bank, TermProperties prop);
 VarBankStack_p  VarBankCreateStack(VarBank_p bank, SortType sort);
 Term_p VarBankFCodeFind(VarBank_p bank, FunCode f_code, SortType sort);
 Term_p VarBankExtNameFind(VarBank_p bank, char* name);
-Term_p VarBankFCodeAssertAlloc(VarBank_p bank, FunCode f_code, SortType sort);
+static __inline__ Term_p VarBankVarAssertAlloc(VarBank_p bank, FunCode f_code, SortType sort);
+Term_p VarBankVarAlloc(VarBank_p bank, FunCode f_code, SortType sort);
 Term_p VarBankGetFreshVar(VarBank_p bank, SortType sort);
 Term_p VarBankExtNameAssertAlloc(VarBank_p bank, char* name);
 Term_p VarBankExtNameAssertAllocSort(VarBank_p bank, char* name, SortType sort);
@@ -144,6 +145,38 @@ static __inline__ VarBankStack_p  VarBankGetStack(VarBank_p bank, SortType sort)
    }
 
    return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: VarBankVarAssertAlloc()
+//
+//   Return a pointer to the variable with the given f_code and sort in the
+//   variable bank. Create the variable if it does not exist.
+//
+// Global Variables: -
+//
+// Side Effects    : May change variable bank
+//
+/----------------------------------------------------------------------*/
+
+static __inline__ Term_p VarBankVarAssertAlloc(VarBank_p bank, FunCode f_code, SortType sort)
+{
+   Term_p var;
+
+   assert(f_code < 0);
+
+   var = PDArrayElementP(VarBankGetStack(bank, sort), -f_code);
+   if(UNLIKELY(!var))
+   {
+      var = VarBankVarAlloc(bank, f_code, sort);
+   }
+
+   assert(var->v_count==1);
+   assert(var->sort != STNoSort);
+   assert(var->sort == sort);
+
+   return var;
 }
 
 

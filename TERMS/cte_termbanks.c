@@ -406,14 +406,12 @@ TB_p TBAlloc(Sig_p sig)
    handle->vars = VarBankAlloc(sig->sort_table);
    TermCellStoreInit(&(handle->term_store)); 
 
-   term = TermDefaultCellAlloc();
-   term->f_code = SIG_TRUE_CODE;
+   term = TermConstCellAlloc(SIG_TRUE_CODE);
    term->sort = STBool;
    TermCellSetProp(term, TPPredPos);
    handle->true_term = TBInsert(handle, term, DEREF_NEVER);
    TermFree(term);
-   term = TermDefaultCellAlloc();
-   term->f_code = SIG_FALSE_CODE;
+   term = TermConstCellAlloc(SIG_FALSE_CODE);
    term->sort = STBool;
    TermCellSetProp(term, TPPredPos);
    handle->false_term = TBInsert(handle, term, DEREF_NEVER);
@@ -516,11 +514,14 @@ Term_p TBInsert(TB_p bank, Term_p term, DerefType deref)
 
    term = TermDeref(term, &deref);
 
-   t = TermEquivCellAlloc(term, bank->vars); /* This is an unshared
-						term cell at the
-						moment, */
-   if(!TermIsVar(t))
+   if(TermIsVar(term))
    {
+      t = VarBankVarAssertAlloc(bank->vars, term->f_code, term->sort);
+   }
+   else
+   {
+      t = TermTopCopy(term); /* This is an unshared term cell at the moment */
+
       assert(SysDateIsCreationDate(t->rw_data.nf_date[0]));
       assert(SysDateIsCreationDate(t->rw_data.nf_date[1]));
       
@@ -555,12 +556,15 @@ Term_p TBInsertNoProps(TB_p bank, Term_p term, DerefType deref)
 
    term = TermDeref(term, &deref);
 
-   t = TermEquivCellAlloc(term, bank->vars); /* This is an unshared
-						term cell at the
-						moment */
-   if(!TermIsVar(t))
+   if(TermIsVar(term))
    {
-      t->properties    = TPIgnoreProps;
+      t = VarBankVarAssertAlloc(bank->vars, term->f_code, term->sort);
+   }
+   else
+   {
+      t = TermTopCopy(term); /* This is an unshared term cell at the moment */
+      t->properties = TPIgnoreProps;
+
       assert(SysDateIsCreationDate(t->rw_data.nf_date[0]));
       assert(SysDateIsCreationDate(t->rw_data.nf_date[1]));
       
@@ -600,12 +604,17 @@ Term_p  TBInsertRepl(TB_p bank, Term_p term, DerefType deref, Term_p old, Term_p
       assert(TBFind(bank, repl));
       return repl;
    }
+
    term = TermDeref(term, &deref);
-   t = TermEquivCellAlloc(term, bank->vars); /* This is an unshared
-						term cell at the
-						moment */
-   if(!TermIsVar(t))
+
+   if(TermIsVar(term))
    {
+      t = VarBankVarAssertAlloc(bank->vars, term->f_code, term->sort);
+   }
+   else
+   {
+      t = TermTopCopy(term); /* This is an unshared term cell at the moment */
+
       t->properties    = TPIgnoreProps;
       assert(SysDateIsCreationDate(t->rw_data.nf_date[0]));
       assert(SysDateIsCreationDate(t->rw_data.nf_date[1]));
@@ -649,17 +658,21 @@ Term_p TBInsertInstantiated(TB_p bank, Term_p term)
       assert(TBFind(bank, term));
       return term;
    }
+
    if(term->binding)
    {
       assert(TBFind(bank, term->binding));
       return term->binding;
    }
    
-   t = TermEquivCellAlloc(term, bank->vars); /* This is an unshared
-						term cell at the
-						moment */
-   if(!TermIsVar(t))
+   if(TermIsVar(term))
    {
+      t = VarBankVarAssertAlloc(bank->vars, term->f_code, term->sort);
+   }
+   else
+   {
+      t = TermTopCopy(term); /* This is an unshared term cell at the moment */
+
       t->properties    = TPIgnoreProps;
       assert(SysDateIsCreationDate(t->rw_data.nf_date[0]));
       assert(SysDateIsCreationDate(t->rw_data.nf_date[1]));
@@ -703,11 +716,14 @@ Term_p TBInsertOpt(TB_p bank, Term_p term, DerefType deref)
       return term;
    }
    
-   t = TermEquivCellAlloc(term, bank->vars); /* This is an unshared
-						term cell at the
-						moment, */
-   if(!TermIsVar(t))
+   if(TermIsVar(term))
    {
+      t = VarBankVarAssertAlloc(bank->vars, term->f_code, term->sort);
+   }
+   else
+   {
+      t = TermTopCopy(term); /* This is an unshared term cell at the moment */
+
       assert(SysDateIsCreationDate(t->rw_data.nf_date[0]));
       assert(SysDateIsCreationDate(t->rw_data.nf_date[1]));
       
@@ -750,13 +766,11 @@ Term_p  TBInsertDisjoint(TB_p bank, Term_p term)
 
    if(TermIsVar(term))
    {
-      t = VarBankFCodeAssertAlloc(bank->vars, term->f_code+1, term->sort);
+      t = VarBankVarAssertAlloc(bank->vars, term->f_code+1, term->sort);
    }
    else
    {
-      t = TermEquivCellAlloc(term, bank->vars); /* This is an unshared
-                                                   term cell at the
-                                                   moment, */
+      t = TermTopCopy(term); /* This is an unshared term cell at the moment */
       assert(SysDateIsCreationDate(t->rw_data.nf_date[0]));
       assert(SysDateIsCreationDate(t->rw_data.nf_date[1]));
       

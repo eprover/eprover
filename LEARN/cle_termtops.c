@@ -148,7 +148,7 @@ static Term_p rek_term_top(Term_p term, int depth, VarBank_p freshvars)
    }
    else if(TermIsVar(term))
    {
-      handle = VarBankFCodeAssertAlloc(freshvars, term->f_code, term->sort);
+      handle = VarBankVarAssertAlloc(freshvars, term->f_code, term->sort);
    }
    else
    {
@@ -203,7 +203,7 @@ static Term_p alt_rek_term_top(Term_p term, int depth, VarBank_p
    }
    else if(TermIsVar(term))
    {
-      handle = VarBankFCodeAssertAlloc(freshvars, term->f_code, term->sort);
+      handle = VarBankVarAssertAlloc(freshvars, term->f_code, term->sort);
    }
    else
    {
@@ -257,7 +257,7 @@ Term_p term_top_marked(Term_p term, VarBank_p freshvars, PStack_p
    }
    else if(TermIsVar(term))
    {
-      handle = VarBankFCodeAssertAlloc(freshvars, term->f_code, term->sort);
+      handle = VarBankVarAssertAlloc(freshvars, term->f_code, term->sort);
    }
    else
    {

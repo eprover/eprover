@@ -376,10 +376,10 @@ Term_p VarBankExtNameFind(VarBank_p bank, char* name)
 
 /*-----------------------------------------------------------------------
 //
-// Function: VarBankFCodeAssertAlloc()
+// Function: VarBankVarAlloc()
 //
-//   Return a pointer to the variable with the given f_code and sort in the
-//   variable bank. Create the variable if it does not exist.
+//   Return a pointer to the newly created variable
+//   with the given f_code and sort in the variable bank.
 //
 // Global Variables: -
 //
@@ -387,36 +387,27 @@ Term_p VarBankExtNameFind(VarBank_p bank, char* name)
 //
 /----------------------------------------------------------------------*/
 
-Term_p VarBankFCodeAssertAlloc(VarBank_p bank, FunCode f_code, SortType sort)
+Term_p VarBankVarAlloc(VarBank_p bank, FunCode f_code, SortType sort)
 {
-   VarBankStack_p stack;
-   Term_p    var;
-   
-   assert(f_code < 0);
-   stack = VarBankGetStack(bank, sort);
-   var = PDArrayElementP(stack, -f_code);
-   if(!var)
-   {
-      var = TermDefaultCellAlloc();
-      var->weight = DEFAULT_VWEIGHT;
-      var->v_count = 1;
-      var->f_count = 0;
-      var->entry_no = f_code;
-      var->f_code = f_code;
-      var->sort = sort;
-      TermCellSetProp(var, TPIsShared);
-      PDArrayAssignP(stack, -f_code, var);
-      bank->max_var = MAX(-f_code, bank->max_var);
-   }
+   Term_p var;
 
-   assert(var->sort == sort);
+   var = TermDefaultCellAlloc();
+   TermCellSetProp(var, TPIsShared);
+
+   var->weight = DEFAULT_VWEIGHT;
+   var->v_count = 1;
+   var->f_count = 0;
+   var->entry_no = f_code;
+   var->f_code = f_code;
+   var->sort = sort;
+
+   PDArrayAssignP(VarBankGetStack(bank, sort), -f_code, var);
+   bank->max_var = MAX(-f_code, bank->max_var);
+
    assert(var->sort != STNoSort);
-   assert(var->v_count==1);
 
    return var;
 }
-
-
 
 /*-----------------------------------------------------------------------
 //
@@ -425,7 +416,7 @@ Term_p VarBankFCodeAssertAlloc(VarBank_p bank, FunCode f_code, SortType sort)
 //   Return a pointer to the next "fresh" variable. Freshness is
 //   controlled by the v_count entry in the variable bank, which is
 //   increased by this function. The variable is only guaranteed to be
-//   fresh if VarBankFCodeAssertAlloc() calls are not mixed with
+//   fresh if VarBankVarAssertAlloc() calls are not mixed with
 //   VarBankGetFreshVar() calls.
 //
 //   As of 2010-02-10 this will only return even numbered variables -
@@ -440,13 +431,9 @@ Term_p VarBankFCodeAssertAlloc(VarBank_p bank, FunCode f_code, SortType sort)
 
 Term_p  VarBankGetFreshVar(VarBank_p bank, SortType sort)
 {
-   Term_p var;
-
    bank->v_count+=2;
-   
-   var = VarBankFCodeAssertAlloc(bank, - bank->v_count, sort);   
-   assert(var);
-   return var;
+
+   return VarBankVarAssertAlloc(bank, -(bank->v_count), sort);
 }
 
 

@@ -211,9 +211,11 @@ typedef uintptr_t DerefType, *DerefType_p;
 #define TermRWReplace(term) (TermIsRewritten(term)?TermRWTargetField(term):NULL)
 #define TermRWDemod(term) (TermIsRewritten(term)?TermRWDemodField(term):NULL)
 
-Term_p  TermDefaultCellAlloc(void);
-Term_p  TermConstCellAlloc(FunCode symbol);
-Term_p  TermTopAlloc(FunCode f_code, int arity); 
+static __inline__ Term_p TermDefaultCellAlloc(void);
+static __inline__ Term_p TermConstCellAlloc(FunCode symbol);
+static __inline__ Term_p TermTopAlloc(FunCode f_code, int arity);
+static __inline__ Term_p TermTopCopy(Term_p source);
+
 void    TermTopFree(Term_p junk); 
 void    TermFree(Term_p junk);
 Term_p  TermAllocNewSkolem(Sig_p sig, PStack_p variables, SortType sort);
@@ -304,38 +306,6 @@ static __inline__ Term_p TermDeref(Term_p term, DerefType_p deref)
 
 /*-----------------------------------------------------------------------
 //
-// Function: TermArgListCopy()
-//
-//   Return a copy of the argument array of source.
-//
-// Global Variables: -
-//
-// Side Effects    : Memory operations
-//
-/----------------------------------------------------------------------*/
-
-static __inline__ Term_p* TermArgListCopy(Term_p source)
-{
-   Term_p *handle;
-   int i;
-   
-   if(source->arity)
-   {
-      handle = TermArgArrayAlloc(source->arity);
-      for(i=0; i<source->arity; i++)
-      {
-         handle[i] = source->args[i];
-      }
-   }
-   else
-   {
-      handle = NULL;
-   }
-   return handle;
-}
-
-/*-----------------------------------------------------------------------
-//
 // Function: TermTopCopy()
 //
 //   Return a copy of the term node (and potential argument
@@ -343,7 +313,7 @@ static __inline__ Term_p* TermArgListCopy(Term_p source)
 //   arguments are shared between source and copy. As this function
 //   operates on nodes, it does not follow bindings! Administrative
 //   stuff (refs etc. will, of course, not be copied but initialized
-//   to rational values for an unshared 
+//   to rational values for an unshared
 //   term).
 //
 // Global Variables: -
@@ -352,27 +322,107 @@ static __inline__ Term_p* TermArgListCopy(Term_p source)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ Term_p TermTopCopy(Term_p source)
+static __inline__ Term_p TermTopCopy(restrict Term_p source)
 {
-   Term_p handle;
-   
-   handle = TermDefaultCellAlloc();
+   Term_p handle = TermDefaultCellAlloc();
 
    /* All other properties are tied to the specific term! */
    handle->properties = (source->properties&TPPredPos);
-
    TermCellDelProp(handle, TPOutputFlag); /* As it gets a new id below */
+
    handle->f_code = source->f_code;
-   handle->arity  = source->arity;
    handle->sort   = source->sort;
-   handle->binding = NULL;
-   handle->args = TermArgListCopy(source);
-   handle->lson = NULL;
-   handle->rson = NULL;
-   
+
+    if(source->arity)
+    {
+      handle->arity = source->arity;
+      handle->args  = TermArgArrayAlloc(source->arity);
+      
+      for(int i=0; i<source->arity; i++)
+      {
+         handle->args[i] = source->args[i];
+      }
+   }
+
    return handle;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TermDefaultCellAlloc()
+//
+//   Allocate a term cell with default values.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static __inline__ Term_p TermDefaultCellAlloc(void)
+{
+   Term_p handle = TermCellAlloc();
+
+   handle->properties = TPIgnoreProps;
+   handle->arity      = 0;
+   handle->sort       = STNoSort;
+   handle->binding    = NULL;
+   handle->args       = NULL;
+   handle->rw_data.nf_date[0] = SysDateCreationTime();
+   handle->rw_data.nf_date[1] = SysDateCreationTime();
+   handle->lson = NULL;
+   handle->rson = NULL;
+
+   return handle;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermConstCellAlloc()
+//
+//   Allocate a term cell for the constant term with symbol symbol.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static __inline__ Term_p TermConstCellAlloc(FunCode symbol)
+{
+   Term_p handle = TermDefaultCellAlloc();
+   handle->f_code = symbol;
+
+   return handle;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermTopAlloc()
+//
+//   Allocate a term top with given f_code and (uninitialized)
+//   argument array.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static __inline__ Term_p TermTopAlloc(FunCode f_code, int arity)
+{
+   Term_p handle = TermDefaultCellAlloc();
+
+   handle->f_code = f_code;
+   handle->arity  = arity;
+   if(arity)
+   {
+      handle->args = TermArgArrayAlloc(arity);
+   }
+
+   return handle;
+}
 
 #endif
 

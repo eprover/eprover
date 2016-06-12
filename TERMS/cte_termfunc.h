@@ -60,7 +60,7 @@ int    TermParseArgList(Scanner_p in, Term_p** arg_anchor, Sig_p sig,
                          VarBank_p vars);
 Term_p TermCopy(Term_p source, VarBank_p vars, DerefType deref);
 Term_p TermCopyKeepVars(Term_p source, DerefType deref);
-Term_p TermEquivCellAlloc(Term_p source, VarBank_p vars);
+static __inline__ Term_p TermEquivCellAlloc(Term_p source, VarBank_p vars);
 
 bool   TermStructEqual(Term_p t1, Term_p t2);
 bool   TermStructEqualNoDeref(Term_p t1, Term_p t2);
@@ -135,6 +135,33 @@ long    TermLinearize(PStack_p stack, Term_p term);
 Term_p  TermCheckConsistency(Term_p term, DerefType deref);
 void    TermAssertSameSort(Sig_p sig, Term_p t1, Term_p t2);
 bool    TermIsUntyped(Term_p t);
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermEquivCellAlloc()
+//
+//   Return a pointer to a unshared termcell equivalent to source. If
+//   source is a variable, get the cell from the varbank, otherwise
+//   copy the cell via TermTopCopy().
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static __inline__ Term_p TermEquivCellAlloc(Term_p source, VarBank_p vars)
+{
+   if(TermIsVar(source))
+   {
+      return VarBankVarAssertAlloc(vars, source->f_code, source->sort);
+   }
+   else
+   {
+      return TermTopCopy(source);
+   }
+}
 
 
 #endif
