@@ -479,7 +479,7 @@ Clause_p ClauseCanonize(Clause_p clause)
       EqnCanonize(handle);
       handle = handle->next;
    }
-   ClauseSortLiterals(clause, EqnCanonCompare);
+   ClauseSortLiterals(clause, EqnCanonCompareRef);
    
    return clause;
 }
@@ -525,27 +525,6 @@ bool ClauseIsSorted(Clause_p clause, ComparisonFunctionType cmp_fun)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ClauseStructWeightCompareWrapper()
-//
-//   A ComparisonFunctionType wrapper for ClauseStructWeightCompare in
-//   IntOrPs. 
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-int ClauseStructWeightCompareWrapper(const void *c1, const void* c2)
-{
-   const IntOrP* clause1 = (const IntOrP*) c1;
-   const IntOrP* clause2 = (const IntOrP*) c2;
-   
-   return ClauseStructWeightCompare(clause1->p_val,clause2->p_val);
-}
-
-/*-----------------------------------------------------------------------
-//
 // Function: ClauseStructWeightCompare()
 //
 //   Compare two clauses based on structure. Clauses are assumed to be
@@ -563,9 +542,9 @@ int ClauseStructWeightCompareWrapper(const void *c1, const void* c2)
 //
 /----------------------------------------------------------------------*/
 
-int ClauseStructWeightCompare(Clause_p c1, Clause_p c2)
+long ClauseStructWeightCompare(Clause_p c1, Clause_p c2)
 {
-   int tmp1 = 1, tmp2 = 1, res;
+   long tmp1 = 1, tmp2 = 1, res;
    Eqn_p handle1, handle2;
 
    assert(c1->weight == ClauseStandardWeight(c1));
@@ -628,15 +607,15 @@ int ClauseStructWeightCompare(Clause_p c1, Clause_p c2)
 //
 //   Compare two clauses based on structure, break ties by lexical
 //   comparison, then by clause id.
-// 
+//
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
-int ClauseStructWeightLexCompare(Clause_p c1, Clause_p c2)
+long ClauseStructWeightLexCompare(Clause_p c1, Clause_p c2)
 {
    Eqn_p handle1, handle2;
-   int res = ClauseStructWeightCompare(c1, c2);
+   long res = ClauseStructWeightCompare(c1, c2);
 
    if(res)
    {
@@ -654,7 +633,7 @@ int ClauseStructWeightLexCompare(Clause_p c1, Clause_p c2)
 	 return res;
       }          
    }   
-   return c1->ident-c2->ident;
+   return c1->ident - c2->ident;
 }
  
 /*-----------------------------------------------------------------------
@@ -2482,7 +2461,7 @@ int ClauseCmpByStructWeight(const void* clause1, const void* clause2)
    const Clause_p *c1 = (const Clause_p*) clause1;
    const Clause_p *c2 = (const Clause_p*) clause2;
    
-   return ClauseStructWeightLexCompare(*c1, *c2);
+   return CMP(ClauseStructWeightLexCompare(*c1, *c2), 0);
 }
 
 /*-----------------------------------------------------------------------

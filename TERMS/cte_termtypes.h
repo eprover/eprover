@@ -235,8 +235,6 @@ static __inline__ bool     TermSameSort(Term_p t1, Term_p t2);
 void    TermStackSetProps(PStack_p stack, TermProperties prop);
 void    TermStackDelProps(PStack_p stack, TermProperties prop);
 
-
-
 /*---------------------------------------------------------------------*/
 /*                  Inline functions                                   */
 /*---------------------------------------------------------------------*/

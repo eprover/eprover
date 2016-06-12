@@ -39,12 +39,13 @@ Changes
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
+
 /*-----------------------------------------------------------------------
 //
-// Function: clause_canon_compare()
+// Function: ClauseCanonCompareRef()
 //
-//   Compare two indirectly pointed to clauses with
-//   ClauseStructWeightCompare().
+///  Compare two indirectly pointed to clauses with
+//   ClauseStructWeightLexCompare().
 //
 // Global Variables: -
 //
@@ -52,32 +53,12 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-static int clause_canon_compare(Clause_p c1, Clause_p c2)
+int ClauseCanonCompareRef(const void *clause1ref, const void* clause2ref)
 {
-   return ClauseStructWeightLexCompare(c1, c2);
-}
-
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: clause_canon_compare_wrapper()
-//
-//   A ComparisonFunctionType wrapper for clause_canon_compare in
-//   IntOrPs. 
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-static int clause_canon_compare_wrapper(const void *c1, const void* c2)
-{
-   const IntOrP* clause1 = (const IntOrP*) c1;
-   const IntOrP* clause2 = (const IntOrP*) c2;
+   const Clause_p* c1 = clause1ref;
+   const Clause_p* c2 = clause2ref;
    
-   return clause_canon_compare(clause1->p_val,clause2->p_val);
+   return CMP(ClauseStructWeightLexCompare(*c1, *c2),0);
 }
 
 
@@ -295,7 +276,7 @@ long ClauseSetRemoveSuperfluousLiterals(ClauseSet_p set)
 //
 //   Canonize a clause set by canonizing all
 //   clauses, and sorting them in the order defined by
-//   ClauseStructWeightCompare(). 
+//   ClauseStructWeightLexCompare().
 //
 // Global Variables: -
 //
@@ -313,7 +294,7 @@ void ClauseSetCanonize(ClauseSet_p set)
       ClauseRemoveSuperfluousLiterals(handle);
       ClauseCanonize(handle);
    }
-   ClauseSetSort(set, clause_canon_compare_wrapper);
+   ClauseSetSort(set, ClauseCanonCompareRef);
    
    /* printf("Canonized: \n");
       ClauseSetPrint(stdout, set, true); */

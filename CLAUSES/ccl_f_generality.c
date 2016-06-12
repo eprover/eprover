@@ -556,18 +556,23 @@ void GenDistPrint(FILE* out, GenDistrib_p dist)
 
 int FunGenTGCmp(const FunGen_p fg1, const FunGen_p fg2)
 {
-   long res;
+   int res;
 
-   res = fg1->term_freq - fg2->term_freq;
-   if(!res)
+   res = CMP(fg1->term_freq, fg2->term_freq);
+   if(res)
    {
-      res = fg1->fc_freq - fg2->fc_freq;
+      return res;
    }
-   if(!res)
+
+   res = CMP(fg1->fc_freq, fg2->fc_freq);
+   if(res)
    {
-      res = fg1->f_code - fg2->f_code;
+      return res;
    }
-   return res;   
+
+   res = CMP(fg1->f_code, fg2->f_code);
+
+   return res;
 }
 
 
@@ -588,18 +593,23 @@ int FunGenTGCmp(const FunGen_p fg1, const FunGen_p fg2)
 
 int FunGenCGCmp(const FunGen_p fg1, const FunGen_p fg2)
 {
-   long res;
+   int res;
 
-   res = fg1->fc_freq - fg2->fc_freq;
-   if(!res)
+   res = CMP(fg1->fc_freq, fg2->fc_freq);
+   if(res)
    {
-      res = fg1->term_freq - fg2->term_freq;
+      return res;
    }
-   if(!res)
+
+   res = CMP(fg1->term_freq, fg2->term_freq);
+   if(res)
    {
-      res = fg1->f_code - fg2->f_code;
+      return res;
    }
-   return res;   
+
+   res = CMP(fg1->f_code, fg2->f_code);
+
+   return res;
 }
 
 

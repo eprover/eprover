@@ -254,8 +254,8 @@ void ground_set_print_unit(FILE* out, GroundSet_p set, long unit, bool
 
 int  ClauseCmpByLen(const void* clause1, const void* clause2)
 {
-   const Clause_p *c1 = (const Clause_p*) clause1;
-   const Clause_p *c2 = (const Clause_p*) clause2;
+   const Clause_p *c1 = clause1;
+   const Clause_p *c2 = clause2;
    int res;
    
    res = ClauseLiteralNumber(*c1) - ClauseLiteralNumber(*c2);

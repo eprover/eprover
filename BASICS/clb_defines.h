@@ -80,6 +80,10 @@ typedef int (*ComparisonFunctionType)(const void*, const void*);
                     __typeof__ (y) _y = (y);\
                     _x < _y ? _x : _y; })
 
+#define CMP(x,y) ({ __typeof__ (x) _x = (x);\
+                    __typeof__ (y) _y = (y);\
+                    (_x > _y) - (_x < _y); })
+
 #undef ABS
 #define ABS(x) ((x)>0?(x):-(x))
 

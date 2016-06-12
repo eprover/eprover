@@ -808,12 +808,8 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
 //
 /----------------------------------------------------------------------*/
 
-int TermStructWeightCompare(Term_p t1, Term_p t2)
+long TermStructWeightCompare(Term_p t1, Term_p t2)
 {
-   long res;
-   short i;
-   CompareResult subres;
-   
    assert(t1);
    assert(t2);
 
@@ -822,39 +818,45 @@ int TermStructWeightCompare(Term_p t1, Term_p t2)
       assert(t1->arity == 0);
       if(t2->f_code == SIG_TRUE_CODE)
       {
-	 assert(t2->arity == 0);
-	 return 0;
+         assert(t2->arity == 0);
+         return 0;
       }
       return -1;
-   }   
+   }
+
    if(t2->f_code == SIG_TRUE_CODE)
    {
       assert(t2->arity == 0);
       return 1;
    }
-   res = TermStandardWeight(t1) - TermStandardWeight(t2);
+
+   long res = TermStandardWeight(t1) - TermStandardWeight(t2);
    if(res)
    {
       return res;
    }
+
    if(TermIsVar(t1))
    { /* Then t2 also is a variable due to equal weights! */
       assert(TermIsVar(t2));
       return SortCompare(t1->sort, t2->sort);
    }
+
    res = t1->arity - t2->arity;
    if(res)
    {
       return res;
    }
-   for(i=0; i<t1->arity; i++)
+
+   for(int i=0; i<t1->arity; i++)
    {
-      subres = TermStructWeightCompare(t1->args[i], t2->args[i]);
-      if(subres)
+      res = TermStructWeightCompare(t1->args[i], t2->args[i]);
+      if(res)
       {
-	 return subres;
+         return res;
       }
    }
+
    return 0;
 }
 
@@ -871,12 +873,11 @@ int TermStructWeightCompare(Term_p t1, Term_p t2)
 //
 /----------------------------------------------------------------------*/
 
-int TermLexCompare(Term_p t1, Term_p t2)
+long TermLexCompare(Term_p t1, Term_p t2)
 {
-   long res;
    int i;
 
-   res = t1->f_code - t2->f_code;
+   long res = t1->f_code - t2->f_code;
    if(res)
    {
       return res;

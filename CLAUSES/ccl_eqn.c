@@ -1355,7 +1355,7 @@ int EqnSubsumeQOrderCompare(const void* lit1, const void* lit2)
    }
    if(!EqnIsEquLit(l1))
    {
-      res = (l1)->lterm->f_code - (l2)->lterm->f_code;
+      res = CMP(l1->lterm->f_code, l2->lterm->f_code);
    }
    return res;
 }
@@ -1376,12 +1376,14 @@ int EqnSubsumeQOrderCompare(const void* lit1, const void* lit2)
 
 int EqnSubsumeInverseCompareRef(const void* lit1ref, const void* lit2ref)
 {
-   const Eqn_p *l1 = lit1ref, *l2 = lit2ref;
+   const Eqn_p *l1 = lit1ref;
+   const Eqn_p *l2 = lit2ref;
+
    int res = EqnSubsumeQOrderCompare(*l2, *l1);
 
    if(!res)
    {
-      res = EqnWeightCompare(*l2, *l1);
+      res = CMP(EqnStandardWeight(*l2), EqnStandardWeight(*l1));
    }
    return res;
 }
@@ -1401,7 +1403,8 @@ int EqnSubsumeInverseCompareRef(const void* lit1ref, const void* lit2ref)
 
 int EqnSubsumeInverseRefinedCompareRef(const void* lit1ref, const void* lit2ref)
 {
-   const Eqn_p *l1 = lit1ref, *l2 = lit2ref;
+   const Eqn_p *l1 = lit1ref;
+   const Eqn_p *l2 = lit2ref;
    int res = EqnSubsumeInverseCompareRef(lit1ref, lit2ref);
 
    /*
@@ -1468,13 +1471,8 @@ int EqnSubsumeCompare(Eqn_p l1, Eqn_p l2)
 
 Eqn_p EqnCanonize(Eqn_p eq)
 {
-   int res = TermStructWeightCompare(eq->lterm, eq->rterm);
-   
-   if(!res)
-   {
-      res = TermLexCompare(eq->lterm, eq->rterm);
-   }
-   if(res < 0)
+   if(!TermStructWeightCompare(eq->lterm, eq->rterm)
+      && TermLexCompare(eq->lterm, eq->rterm) < 0)
    {
       EqnSwapSides(eq);
    }
@@ -1500,9 +1498,9 @@ Eqn_p EqnCanonize(Eqn_p eq)
 //
 /----------------------------------------------------------------------*/
 
-int EqnStructWeightCompare(Eqn_p l1, Eqn_p l2)
+long EqnStructWeightCompare(Eqn_p l1, Eqn_p l2)
 {
-   int res;
+   long res;
 
    if(EqnIsPositive(l1) && !EqnIsPositive(l2))
    {
@@ -1537,10 +1535,9 @@ int EqnStructWeightCompare(Eqn_p l1, Eqn_p l2)
 
 /*-----------------------------------------------------------------------
 //
-// Function: EqnCanonCompare()
+// Function: EqnCanonCompareRef()
 //
-//   Compare two indirectly pointed to equations with
-//   EqnStructWeightCompare().
+//   Compare two pointed to equations with EqnStructWeightLexCompare().
 //
 // Global Variables: -
 //
@@ -1548,10 +1545,12 @@ int EqnStructWeightCompare(Eqn_p l1, Eqn_p l2)
 //
 /----------------------------------------------------------------------*/
 
-int EqnCanonCompare(const void* lit1, const void* lit2)
+int EqnCanonCompareRef(const void* lit1ref, const void* lit2ref)
 {
-   const Eqn_p *l1=lit1, *l2=lit2;
-   return EqnStructWeightLexCompare(*l1, *l2);
+   const Eqn_p *l1 = lit1ref;
+   const Eqn_p *l2 = lit2ref;
+
+   return CMP(EqnStructWeightLexCompare(*l1, *l2), 0);
 }
 
 
@@ -1569,9 +1568,9 @@ int EqnCanonCompare(const void* lit1, const void* lit2)
 //
 /----------------------------------------------------------------------*/
 
-int EqnStructWeightLexCompare(Eqn_p l1, Eqn_p l2)
+long EqnStructWeightLexCompare(Eqn_p l1, Eqn_p l2)
 {
-   int res = EqnStructWeightCompare(l1, l2);
+   long res = EqnStructWeightCompare(l1, l2);
 
    if(res)
    {

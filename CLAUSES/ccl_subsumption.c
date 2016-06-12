@@ -320,8 +320,7 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
       {
          continue;
       }      
-      cmpres = EqnWeightCompare(lit, list);
-      if(cmpres >  0)
+      if(EqnStandardWeight(lit) > EqnStandardWeight(list))
       {
          list = NULL;
          break;
@@ -533,8 +532,8 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
       {
          continue;
       }      
-      cmpres = EqnWeightCompare(eqn,subsum_list);
-      if(cmpres <  0)
+
+      if(EqnStandardWeight(eqn) < EqnStandardWeight(subsum_list))
       {
          return false;
       } 

@@ -237,16 +237,15 @@ bool    EqnHasUnboundVars(Eqn_p eq, EqnSide dom_side);
 
 EqnSide EqnIsDefinition(Eqn_p eq, int min_arity);
 
-#define EqnWeightCompare(l1, l2) (EqnStandardWeight(l1)-EqnStandardWeight(l2))
 int     EqnSubsumeQOrderCompare(const void* lit1, const void* lit2);
 int     EqnSubsumeInverseCompareRef(const void* lit1ref, const void* lit2ref);
 int     EqnSubsumeInverseRefinedCompareRef(const void* lit1ref, const void* lit2ref);
 int     EqnSubsumeCompare(Eqn_p l1, Eqn_p l2);
 
 Eqn_p   EqnCanonize(Eqn_p eq);
-int     EqnStructWeightCompare(Eqn_p l1, Eqn_p l2);
-int     EqnCanonCompare(const void* lit1, const void* l2);
-int     EqnStructWeightLexCompare(Eqn_p l1, Eqn_p lit2);
+long    EqnStructWeightCompare(Eqn_p l1, Eqn_p l2);
+int     EqnCanonCompareRef(const void* lit1ref, const void* l2ref);
+long    EqnStructWeightLexCompare(Eqn_p l1, Eqn_p lit2);
 #define EqnEqualDirected(eq1, eq2) (((eq1)->lterm == (eq2)->lterm) && ((eq1)->rterm == (eq2)->rterm))
 bool    EqnEqual(Eqn_p eq1,  Eqn_p eq2);
 #define LiteralEqual(eq1, eq2) (PropsAreEquiv((eq1),(eq2),EPIsPositive) && EqnEqual((eq1),(eq2)))
