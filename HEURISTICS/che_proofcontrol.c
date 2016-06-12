@@ -181,6 +181,7 @@ ProofControl_p ProofControlAlloc(void)
    handle->wfcbs                         = WFCBAdminAlloc();
    handle->hcbs                          = HCBAdminAlloc();
    handle->hcb                           = NULL;
+   handle->ac_handling_active            = false;
    HeuristicParmsInitialize(&handle->heuristic_parms);
 
    return handle;
