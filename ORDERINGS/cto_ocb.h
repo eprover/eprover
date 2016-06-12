@@ -65,7 +65,7 @@ typedef enum
 typedef struct ocb_cell
 {
    TermOrdering  type;
-   int           sig_size;
+   long          sig_size;
    Sig_p         sig;          /* Slightly hacked...this is only an
 				   unsupervised reference (but will
 				   stay)! Always free the OCB before
