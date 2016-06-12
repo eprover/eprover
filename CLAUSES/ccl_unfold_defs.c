@@ -99,7 +99,7 @@ static Term_p term_unfold_def(TB_p bank, Term_p term, PStack_p
    int i;
    bool changed = false;
 
-   res = TermTopCopy(term);
+   res = TermTopCopyWithoutArgs(term);
    
    for(i=0; i<res->arity; i++)
    {

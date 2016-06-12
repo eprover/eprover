@@ -608,7 +608,7 @@ static Term_p rewrite_with_clause_setlist(OCB_p ocb, TB_p bank, Term_p term,
 static bool term_subterm_rewrite(RWDesc_p desc, Term_p *term)
 { 
    bool modified = false;
-   Term_p new_term = TermTopCopy(*term);
+   Term_p new_term = TermTopCopyWithoutArgs(*term);
    int  i;
    
    for(i=0; i<(*term)->arity; i++)

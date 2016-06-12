@@ -215,6 +215,7 @@ static __inline__ Term_p TermDefaultCellAlloc(void);
 static __inline__ Term_p TermConstCellAlloc(FunCode symbol);
 static __inline__ Term_p TermTopAlloc(FunCode f_code, int arity);
 static __inline__ Term_p TermTopCopy(Term_p source);
+static __inline__ Term_p TermTopCopyWithoutArgs(Term_p source);
 
 void    TermTopFree(Term_p junk); 
 void    TermFree(Term_p junk);
@@ -306,6 +307,41 @@ static __inline__ Term_p TermDeref(Term_p term, DerefType_p deref)
 
 /*-----------------------------------------------------------------------
 //
+// Function: TermTopCopyWithoutArgs()
+//
+//   Return a copy of the term node.
+//   Only the top node is duplicated.
+//   Arguments are not initialized.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static __inline__ Term_p TermTopCopyWithoutArgs(restrict Term_p source)
+{
+   Term_p handle = TermDefaultCellAlloc();
+
+   /* All other properties are tied to the specific term! */
+   handle->properties = (source->properties&TPPredPos);
+   TermCellDelProp(handle, TPOutputFlag); /* As it gets a new id below */
+
+   handle->f_code = source->f_code;
+   handle->sort   = source->sort;
+
+   if(source->arity)
+   {
+      handle->arity = source->arity;
+      handle->args  = TermArgArrayAlloc(source->arity);
+   }
+
+   return handle;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: TermTopCopy()
 //
 //   Return a copy of the term node (and potential argument
@@ -324,24 +360,11 @@ static __inline__ Term_p TermDeref(Term_p term, DerefType_p deref)
 
 static __inline__ Term_p TermTopCopy(restrict Term_p source)
 {
-   Term_p handle = TermDefaultCellAlloc();
+   Term_p handle = TermTopCopyWithoutArgs(source);
 
-   /* All other properties are tied to the specific term! */
-   handle->properties = (source->properties&TPPredPos);
-   TermCellDelProp(handle, TPOutputFlag); /* As it gets a new id below */
-
-   handle->f_code = source->f_code;
-   handle->sort   = source->sort;
-
-    if(source->arity)
-    {
-      handle->arity = source->arity;
-      handle->args  = TermArgArrayAlloc(source->arity);
-      
-      for(int i=0; i<source->arity; i++)
-      {
-         handle->args[i] = source->args[i];
-      }
+   for(int i=0; i<source->arity; i++)
+   {
+      handle->args[i] = source->args[i];
    }
 
    return handle;

@@ -520,14 +520,14 @@ Term_p TBInsert(TB_p bank, Term_p term, DerefType deref)
    }
    else
    {
-      t = TermTopCopy(term); /* This is an unshared term cell at the moment */
+      t = TermTopCopyWithoutArgs(term); /* This is an unshared term cell at the moment */
 
       assert(SysDateIsCreationDate(t->rw_data.nf_date[0]));
       assert(SysDateIsCreationDate(t->rw_data.nf_date[1]));
       
       for(i=0; i<t->arity; i++)
       {
-	 t->args[i] = TBInsert(bank, t->args[i], deref);
+         t->args[i] = TBInsert(bank, term->args[i], deref);
       }
       t = tb_termtop_insert(bank, t);
    }
@@ -562,7 +562,7 @@ Term_p TBInsertNoProps(TB_p bank, Term_p term, DerefType deref)
    }
    else
    {
-      t = TermTopCopy(term); /* This is an unshared term cell at the moment */
+      t = TermTopCopyWithoutArgs(term); /* This is an unshared term cell at the moment */
       t->properties = TPIgnoreProps;
 
       assert(SysDateIsCreationDate(t->rw_data.nf_date[0]));
@@ -570,7 +570,7 @@ Term_p TBInsertNoProps(TB_p bank, Term_p term, DerefType deref)
       
       for(i=0; i<t->arity; i++)
       {
-	 t->args[i] = TBInsertNoProps(bank, t->args[i], deref);
+         t->args[i] = TBInsertNoProps(bank, term->args[i], deref);
       }
       t = tb_termtop_insert(bank, t);
    }
@@ -613,15 +613,15 @@ Term_p  TBInsertRepl(TB_p bank, Term_p term, DerefType deref, Term_p old, Term_p
    }
    else
    {
-      t = TermTopCopy(term); /* This is an unshared term cell at the moment */
+      t = TermTopCopyWithoutArgs(term); /* This is an unshared term cell at the moment */
+      t->properties = TPIgnoreProps;
 
-      t->properties    = TPIgnoreProps;
       assert(SysDateIsCreationDate(t->rw_data.nf_date[0]));
       assert(SysDateIsCreationDate(t->rw_data.nf_date[1]));
       
       for(i=0; i<t->arity; i++)
       {
-	 t->args[i] = TBInsertRepl(bank, t->args[i], deref, old, repl);
+         t->args[i] = TBInsertRepl(bank, term->args[i], deref, old, repl);
       }
       t = tb_termtop_insert(bank, t);
    }
@@ -671,15 +671,15 @@ Term_p TBInsertInstantiated(TB_p bank, Term_p term)
    }
    else
    {
-      t = TermTopCopy(term); /* This is an unshared term cell at the moment */
-
+      t = TermTopCopyWithoutArgs(term); /* This is an unshared term cell at the moment */
       t->properties    = TPIgnoreProps;
+
       assert(SysDateIsCreationDate(t->rw_data.nf_date[0]));
       assert(SysDateIsCreationDate(t->rw_data.nf_date[1]));
       
       for(i=0; i<t->arity; i++)
       {
-	 t->args[i] = TBInsertInstantiated(bank, t->args[i]);
+         t->args[i] = TBInsertInstantiated(bank, term->args[i]);
       }
       t = tb_termtop_insert(bank, t);
    }
@@ -722,14 +722,14 @@ Term_p TBInsertOpt(TB_p bank, Term_p term, DerefType deref)
    }
    else
    {
-      t = TermTopCopy(term); /* This is an unshared term cell at the moment */
+      t = TermTopCopyWithoutArgs(term); /* This is an unshared term cell at the moment */
 
       assert(SysDateIsCreationDate(t->rw_data.nf_date[0]));
       assert(SysDateIsCreationDate(t->rw_data.nf_date[1]));
       
       for(i=0; i<t->arity; i++)
       {
-	 t->args[i] = TBInsertOpt(bank, t->args[i], deref);
+         t->args[i] = TBInsertOpt(bank, term->args[i], deref);
       }
       t = tb_termtop_insert(bank, t);
    }
@@ -770,13 +770,14 @@ Term_p  TBInsertDisjoint(TB_p bank, Term_p term)
    }
    else
    {
-      t = TermTopCopy(term); /* This is an unshared term cell at the moment */
+      t = TermTopCopyWithoutArgs(term); /* This is an unshared term cell at the moment */
+
       assert(SysDateIsCreationDate(t->rw_data.nf_date[0]));
       assert(SysDateIsCreationDate(t->rw_data.nf_date[1]));
       
       for(i=0; i<t->arity; i++)
       {
-	 t->args[i] = TBInsertDisjoint(bank, t->args[i]);
+         t->args[i] = TBInsertDisjoint(bank, term->args[i]);
       }
       t = tb_termtop_insert(bank, t);
    }

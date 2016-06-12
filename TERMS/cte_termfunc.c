@@ -587,11 +587,11 @@ Term_p TermCopy(Term_p source, VarBank_p vars, DerefType deref)
    }
    else
    {
-      handle = TermTopCopy(source);
+      handle = TermTopCopyWithoutArgs(source);
 
       for(i=0; i<handle->arity; i++)
       {
-         handle->args[i] = TermCopy(handle->args[i], vars, deref);
+         handle->args[i] = TermCopy(source->args[i], vars, deref);
       }
    }
 
