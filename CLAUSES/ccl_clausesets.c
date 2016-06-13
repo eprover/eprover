@@ -1021,11 +1021,9 @@ long ClauseSetDeleteCopies(ClauseSet_p set)
 
    assert(set);
 
-   res1 = 
-      ClauseSetMarkCopies(set);
-   res2 = 
-      ClauseSetDeleteMarkedEntries(set);
-   (void)res1; (void)res2; assert(res1==res2);
+   res1 = ClauseSetMarkCopies(set);
+   res2 = ClauseSetDeleteMarkedEntries(set);
+   UNUSED(res1); UNUSED(res2); assert(res1==res2);
 
    return res1;
 }

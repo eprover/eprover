@@ -214,13 +214,13 @@ void DPLLRegisterClauseLiteral(DPLLFormula_p form,
    {
       form->atoms[atom].pos_occur++;
       res = PTreeStore(&(form->atoms[atom].pos_active), clause);
-      (void)res; assert(res && "Duplicate entry of a clause!");
+      UNUSED(res); assert(res && "Duplicate entry of a clause!");
    }
    else
    {
       form->atoms[atom].neg_occur++;
       res = PTreeStore(&(form->atoms[atom].neg_active), clause);
-      (void)res; assert(res && "Duplicate entry of a clause!");
+      UNUSED(res); assert(res && "Duplicate entry of a clause!");
    }
 }
    

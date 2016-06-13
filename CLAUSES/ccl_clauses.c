@@ -1959,13 +1959,13 @@ void ClauseDetachParents(Clause_p clause)
    if(clause->parent1)
    {
       result = PTreeDeleteEntry(&(clause->parent1->children), clause);
-      (void)result; assert(result);
+      UNUSED(result); assert(result);
       clause->parent1 = NULL;
    }
    if(clause->parent2)
    {
       result = PTreeDeleteEntry(&(clause->parent2->children), clause);
-      (void)result; assert(result);
+      UNUSED(result); assert(result);
       clause->parent2 = NULL;
    }   
 }

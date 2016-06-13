@@ -100,6 +100,7 @@ typedef int (*ComparisonFunctionType)(const void*, const void*);
 #define LIKELY(x) __builtin_expect(!!(x), 1)
 #define UNLIKELY(x) __builtin_expect(!!(x), 0)
 
+#define UNUSED(x) (void)(x)
 
 #define KILO 1024
 #define MEGA 1024*1024

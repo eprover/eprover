@@ -436,7 +436,7 @@ void PTreeObjMerge(PObjTree_p *root, PObjTree_p add, ComparisonFunctionType
 	 PStackPushP(stack, add->lson);
 	 PStackPushP(stack, add->rson);
 	 res = PTreeObjInsert(root, add, cmpfun);
-	 (void)res; assert(!res); /* Pointers should never be in two trees at
+	 UNUSED(res); assert(!res); /* Pointers should never be in two trees at
                                      once for my intended application */
       }
    } 

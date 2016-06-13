@@ -584,15 +584,15 @@ static void pdtree_backtrack(PDTree_p tree, Subst_p subst)
       PStackPushP(tree->term_stack, handle->variable->binding);
       if(handle->bound)
       {
-	 succ = SubstBacktrackSingle(subst);
-	 (void)succ; assert(succ);
+         succ = SubstBacktrackSingle(subst);
+         UNUSED(succ); assert(succ);
       }
    }
    else if(handle->parent)
    {
       Term_p t = PStackPopP(tree->term_proc);
       
-      (void)t; assert(t);
+      UNUSED(t); assert(t);
       TermLRTraversePrev(tree->term_stack,t);
 			 
    }
@@ -885,7 +885,7 @@ Term_p TermLRTraversePrev(PStack_p stack, Term_p term)
    for(i=0; i<term->arity; i++)
    {
       tmp = PStackPopP(stack);
-      (void)tmp; assert(tmp == term->args[i]);
+      UNUSED(tmp); assert(tmp == term->args[i]);
    }
    PStackPushP(stack, term);
 
@@ -964,7 +964,7 @@ void PDTreeInsert(PDTree_p tree, ClausePos_p demod_side)
    assert(node);
    res = PTreeStore(&(node->entries), demod_side);
    tree->clause_count++;
-   (void)res; assert(res);
+   UNUSED(res); assert(res);
    //printf("ISizeConstr %p: %ld\n", tree, pdt_verify_size_constraint(tree->tree));
    //printf("IDateConstr %p: %ld\n", tree, pdt_verify_age_constraint(tree->tree));
 }

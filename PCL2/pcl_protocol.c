@@ -405,7 +405,7 @@ long PCLProtStripFOF(PCLProt_p prot)
 
       step = PStackPopP(fof_steps);
       check = PCLProtDeleteStep(prot, step);
-      (void)check; assert(check);
+      UNUSED(check); assert(check);
    }
    PStackFree(fof_steps);
    return res;
