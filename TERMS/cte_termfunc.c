@@ -1416,7 +1416,7 @@ FunCode VarBankCheckBindings(FILE* out, VarBank_p bank, Sig_p sig)
    int       i,j;
 
    fprintf(out, "#  VarBankCheckBindings() started...\n");
-   for(i=0; i<PDArraySize(bank->stacks); ++i)
+   for(i=0; i<PDArraySize(bank->stacks); i++)
    {
       stack = (VarBankStack_p) PDArrayElementP(bank->stacks, i);
       if (!stack)

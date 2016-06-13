@@ -124,7 +124,7 @@ bool TypeCheckConsistent(Sig_p sig, Term_p term)
             }
 
             /* Check subterms recursively */
-            for (int i=0; i < type->arity; ++i)
+            for (int i=0; i < type->arity; i++)
             {
                PStackPushP(stack, term->args[i]);
                if(!SortEqual(term->args[i]->sort, type->args[i]))
@@ -189,7 +189,7 @@ void TypeInferSort(Sig_p sig, Term_p term)
          }
 
          assert(term->arity == type->arity);
-         for(i=0; SigIsFixedType(sig, term->f_code) && i < term->arity; ++i)
+         for(i=0; SigIsFixedType(sig, term->f_code) && i < term->arity; i++)
          {
             if(!SortEqual(term->args[i]->sort, type->args[i]))
             {
@@ -211,7 +211,7 @@ void TypeInferSort(Sig_p sig, Term_p term)
          /* Infer type */
          sort = infer_return_sort(sig, term->f_code);
          args = TypeArgumentAlloc(term->arity);
-         for(i=0; i < term->arity; ++i)
+         for(i=0; i < term->arity; i++)
          {
             args[i] = term->args[i]->sort;
          }

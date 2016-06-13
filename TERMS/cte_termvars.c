@@ -157,7 +157,7 @@ void VarBankFree(VarBank_p junk)
    StrTreeFree(junk->ext_index);
    PStackFree(junk->env);
 
-   for(i=0; i<PDArraySize(junk->stacks); ++i)
+   for(i=0; i<PDArraySize(junk->stacks); i++)
    {
       stack = (VarBankStack_p) PDArrayElementP(junk->stacks, i);
       if (! stack)
@@ -166,7 +166,7 @@ void VarBankFree(VarBank_p junk)
       }
    
       // free stack
-      for(j=0; j<PDArraySize(stack); ++j)
+      for(j=0; j<PDArraySize(stack); j++)
       {
          if(PDArrayElementP(stack, j))
          {
@@ -266,7 +266,7 @@ void VarBankVarsSetProp(VarBank_p bank, TermProperties prop)
    Term_p handle;
    int i, j;
 
-   for(i=0; i<PDArraySize(bank->stacks); ++i)
+   for(i=0; i<PDArraySize(bank->stacks); i++)
    {
       stack = PDArrayElementP(bank->stacks, i);
       if (!stack)
@@ -304,7 +304,7 @@ void VarBankVarsDelProp(VarBank_p bank, TermProperties prop)
    Term_p handle;
    int i, j;
 
-   for(i=0; i<PDArraySize(bank->stacks); ++i)
+   for(i=0; i<PDArraySize(bank->stacks); i++)
    {
       stack = PDArrayElementP(bank->stacks, i);
       if (!stack)
@@ -613,7 +613,7 @@ long VarBankCardinal(VarBank_p bank)
    long res = 0;
    int i;
 
-   for (i=0; i < PDArraySize(bank->stacks); ++i)
+   for (i=0; i < PDArraySize(bank->stacks); i++)
    {
       stack = PDArrayElementP(bank->stacks, i);
       if (stack)
@@ -646,12 +646,12 @@ long VarBankCollectVars(VarBank_p bank, PStack_p into)
    FunCode j;
    Term_p current_term;
 
-   for (i=0; i < PDArraySize(bank->stacks); ++i)
+   for (i=0; i < PDArraySize(bank->stacks); i++)
    {
       stack = PDArrayElementP(bank->stacks, i);
       if (stack)
       {
-         for(j=0; j<PDArraySize(stack); ++j)
+         for(j=0; j<PDArraySize(stack); j++)
          {
             current_term = PDArrayElementP(stack, j);
             PStackPushP(into, current_term);

@@ -442,7 +442,7 @@ Type_p TypeNewFunction(TypeTable_p table, SortType sort,
    int i;
    
    type = TypeAlloc(sort, arity);
-   for(i=0; i < arity; ++i)
+   for(i=0; i < arity; i++)
    {
       type->args[i] = args[i];
    }
@@ -487,7 +487,7 @@ int TypeCompare(Type_p t1, Type_p t2)
         int i;
         assert (t1->arity == t2->arity);
 
-        for (i = 0; !res && i < t1->arity; ++i)
+        for (i = 0; !res && i < t1->arity; i++)
         {
             res = SortCompare(t1->args[i], t2->args[i]);
         }
@@ -547,7 +547,7 @@ void TypePrintTSTP(FILE *out, TypeTable_p table, Type_p type)
         {
             fputc('(', out);
             SortPrintTSTP(out, table->sort_table, type->args[0]);
-            for (i = 1; i < type->arity; ++i)
+            for (i = 1; i < type->arity; i++)
             {
                 fputs("*", out);
                 SortPrintTSTP(out, table->sort_table, type->args[i]);

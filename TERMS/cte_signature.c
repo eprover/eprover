@@ -1395,7 +1395,7 @@ void SigPrintTypes(FILE* out, Sig_p sig)
    FunCode i;
    Func_p fun;
 
-   for(i=1; i <= sig->f_count; ++i)
+   for(i=1; i <= sig->f_count; i++)
    {
       if (i > 1)
       {
