@@ -282,8 +282,7 @@ Clause_p ClauseSimParamodConstruct(ParamodInfo_p ol_desc)
                           subst, ol_desc->freshvars);
    NormSubstEqnListExcept(ol_desc->from->literals, NULL, 
                           subst, ol_desc->freshvars);
-   assert(SortEqual(ClausePosGetSide(ol_desc->from_pos)->sort,
-                    ClausePosGetOtherSide(ol_desc->from_pos)->sort));
+   assert(ClausePosGetSide(ol_desc->from_pos)->sort == ClausePosGetOtherSide(ol_desc->from_pos)->sort);
 
    rhs_instance = TBInsertNoProps(ol_desc->bank,
                                   ClausePosGetOtherSide(ol_desc->from_pos),

@@ -526,7 +526,7 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
 	 {
 	    assert(next->variable);
 	    if((!next->variable->binding)&&(!TermCellQueryProp(term,TPPredPos))
-               && SortEqual(next->variable->sort, term->sort))
+               && next->variable->sort == term->sort)
 	    {
 	       PStackDiscardTop(tree->term_stack);
 	       SubstAddBinding(subst, next->variable, term);

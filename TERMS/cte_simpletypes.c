@@ -474,7 +474,7 @@ int TypeCompare(Type_p t1, Type_p t2)
 {
     int res;
 
-    res = SortCompare(t1->domain_sort, t2->domain_sort);
+    res = t1->domain_sort - t2->domain_sort;
 
     if (!res)
     {
@@ -489,7 +489,7 @@ int TypeCompare(Type_p t1, Type_p t2)
 
         for (i = 0; !res && i < t1->arity; i++)
         {
-            res = SortCompare(t1->args[i], t2->args[i]);
+            res = t1->args[i] - t2->args[i];
         }
     }
 
@@ -585,6 +585,7 @@ Type_p TypeParseTSTP(Scanner_p in, TypeTable_p table)
       arity = parse_sort_list(in, table->sort_table, &args, &len);
       AcceptInpTok(in, GreaterSign);
       right = SortParseTSTP(in, table->sort_table);
+      assert(right!=STNoSort);
 
       res = TypeNewFunction(table, right, arity, args);
       FREE(args);
@@ -592,6 +593,7 @@ Type_p TypeParseTSTP(Scanner_p in, TypeTable_p table)
    else
    {
       left = SortParseTSTP(in, table->sort_table);
+      assert(left!=STNoSort);
       if (TestInpTok(in, GreaterSign))
       {
          /* Unary function type */

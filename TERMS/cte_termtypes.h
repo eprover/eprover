@@ -230,8 +230,6 @@ static __inline__ Term_p  TermDeref(Term_p term, DerefType_p deref);
 static __inline__ Term_p* TermArgListCopy(Term_p source);
 static __inline__ Term_p  TermTopCopy(Term_p source);
 
-static __inline__ bool     TermSameSort(Term_p t1, Term_p t2);
-
 void    TermStackSetProps(PStack_p stack, TermProperties prop);
 void    TermStackDelProps(PStack_p stack, TermProperties prop);
 
@@ -375,27 +373,6 @@ static __inline__ Term_p TermTopCopy(Term_p source)
    return handle;
 }
 
-
-/*-----------------------------------------------------------------------
-//
-// Function: TermSameSort
-//  Checks that the two terms have a sort, and that it's the same.
-//  If some term has no sort, reports an error.
-//   
-//
-// Global Variables: -
-//
-// Side Effects    : - (terminates program on error)
-//
-/----------------------------------------------------------------------*/
-static __inline__ bool TermSameSort(Term_p t1, Term_p t2)
-{
-   if (SortEqual(t1->sort, STNoSort) || SortEqual(t2->sort, STNoSort))
-   {
-      Error("term has no sort", OTHER_ERROR);
-   }
-   return SortEqual(t1->sort, t2->sort);
-}
 
 #endif
 

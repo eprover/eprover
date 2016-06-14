@@ -117,7 +117,7 @@ bool TypeCheckConsistent(Sig_p sig, Term_p term)
             assert(type);
 
             if((term->arity != type->arity)
-               || !SortEqual(term->sort, type->domain_sort))
+               || term->sort != type->domain_sort)
             {
                res = false;
                break;
@@ -127,7 +127,7 @@ bool TypeCheckConsistent(Sig_p sig, Term_p term)
             for (int i=0; i < type->arity; i++)
             {
                PStackPushP(stack, term->args[i]);
-               if(!SortEqual(term->args[i]->sort, type->args[i]))
+               if(term->args[i]->sort != type->args[i])
                {
                   res = false;
                   break;
@@ -166,7 +166,7 @@ void TypeInferSort(Sig_p sig, Term_p term)
    
    if(TermIsVar(term))
    {
-      if(SortEqual(term->sort, STNoSort))
+      if(term->sort == STNoSort)
       {
          term->sort = SigDefaultSort(sig);
       }
@@ -191,7 +191,7 @@ void TypeInferSort(Sig_p sig, Term_p term)
          assert(term->arity == type->arity);
          for(i=0; SigIsFixedType(sig, term->f_code) && i < term->arity; i++)
          {
-            if(!SortEqual(term->args[i]->sort, type->args[i]))
+            if(term->args[i]->sort != type->args[i])
             {
                fprintf(stderr, "# Type mismatch in argument #%d of ", i+1);
                TermPrint(stderr, term, sig, DEREF_NEVER); 

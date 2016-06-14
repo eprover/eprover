@@ -217,12 +217,12 @@ Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, SortType sort)
    Type_p type;
    SortType *type_args;
 
-   if(SortEqual(sort, STNoSort))
+   if(sort == STNoSort)
    {
       sort = SigDefaultSort(sig);
    }
 
-   if(!SortEqual(sort, STBool))
+   if(sort != STBool)
    {
       handle->f_code = SigGetNewSkolemCode(sig, arity);
    }
@@ -241,7 +241,7 @@ Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, SortType sort)
       {
          handle->args[i] = PStackElementP(variables, i);
          type_args[i] = handle->args[i]->sort;
-         assert(!SortEqual(type_args[i], STNoSort));
+         assert(type_args[i] != STNoSort);
       }
       type = TypeNewFunction(sig->type_table, sort, arity, type_args);
       TypeArgumentFree(type_args, arity);

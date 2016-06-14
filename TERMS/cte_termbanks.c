@@ -145,10 +145,10 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
    assert(!TermIsVar(t));
 
    /* Infer the sort of this term (may be temporary) */
-   if(SortEqual(t->sort, STNoSort))
+   if(t->sort == STNoSort)
    {
       TypeInferSort(bank->sig, t);
-      assert(!SortEqual(t->sort, STNoSort));
+      assert(t->sort != STNoSort);
    }
 
    new = TermCellStoreInsert(&(bank->term_store), t);
@@ -285,8 +285,8 @@ static Term_p tb_subterm_parse(Scanner_p in, TB_p bank)
          else
          {
             SigDeclareIsFunction(bank->sig, res->f_code);
-            res->sort = STNoSort;
             TypeInferSort(bank->sig, res);
+            assert(res->sort != STNoSort);
          }
       }
    }

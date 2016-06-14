@@ -190,7 +190,7 @@ static TFormula_p quantified_tform_tptp_parse(Scanner_p in,
       Error(DStrView(errpos), SYNTAX_ERROR);
       DStrFree(errpos);
    }
-   assert(!SortEqual(var->sort, STNoSort));
+   assert(var->sort != STNoSort);
    DStrReleaseRef(source_name);
    if(TestInpTok(in, Comma))
    {
@@ -626,7 +626,7 @@ void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms, bo
          fputs("![", out);
       }      
       TermPrint(out, form->args[0], bank->sig, DEREF_NEVER);
-      if(!SortEqual(form->args[0]->sort, STIndividuals))
+      if(form->args[0]->sort != STIndividuals)
       {
          fputs(":", out);
          SortPrintTSTP(out, bank->sig->sort_table, form->args[0]->sort);

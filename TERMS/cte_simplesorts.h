@@ -75,8 +75,6 @@ typedef struct sort_table
 #define SortTableCellFree(junk) SizeFree(junk, sizeof(SortTableCell))
 #define SortIsUserDefined(sort) (sort > STPredefined)
 
-#define SortEqual(s1, s2)       ((s1) == (s2))
-
 SortTable_p SortTableAlloc(void);
 void        SortTableFree(SortTable_p junk);
 SortType    SortTableInsert(SortTable_p table, char* sort_name);
@@ -86,15 +84,6 @@ SortType    SortParseTSTP(Scanner_p in, SortTable_p table);
 void        SortPrintTSTP(FILE *out, SortTable_p table, SortType sort);
 void        SortTablePrint(FILE* out, SortTable_p table);
 
-/*---------------------------------------------------------------------*/
-/*                   Inline Functions                                  */
-/*---------------------------------------------------------------------*/
-
-/* Total order on sorts */
-static __inline__ int SortCompare(SortType s1, SortType s2)
-{
-    return ((int)s1) - ((int)s2);
-}
 
 #endif
 

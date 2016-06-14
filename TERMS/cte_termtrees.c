@@ -200,14 +200,9 @@ long TermTopCompare(Term_p t1, Term_p t2)
       return res;
    }
 
-   if(!SortEqual(t1->sort, STNoSort) && !SortEqual(t2->sort, STNoSort))
-   {
-      res = SortCompare(t1->sort, t2->sort);
-      if(res)
-      {
-         return res;
-      }
-   }
+   assert(t1->sort != STNoSort);
+   assert(t2->sort != STNoSort);
+   assert(t1->sort == t2->sort);
 
    assert(t1->arity == t2->arity);
    for(i=0; i<t1->arity; i++)

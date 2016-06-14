@@ -316,7 +316,7 @@ bool SigIsPredicate(Sig_p sig, FunCode f_code)
    }
 
    type = SigGetType(sig, f_code);
-   return type && SortEqual(type->domain_sort, STBool);
+   return type && type->domain_sort == STBool;
 }
 
 
@@ -345,7 +345,7 @@ bool SigIsFunction(Sig_p sig, FunCode f_code)
    }
 
    type = SigGetType(sig, f_code);
-   return type && !SortEqual(type->domain_sort, STBool);
+   return type && type->domain_sort != STBool;
 }
 
 
@@ -1329,10 +1329,10 @@ void SigDeclareIsFunction(Sig_p sig, FunCode f_code)
    }
 
    type = SigGetType(sig, f_code);
-   assert(!SortEqual(type->domain_sort, STNoSort));
+   assert(type->domain_sort != STNoSort);
 
    /* must update type */
-   if(SortEqual(type->domain_sort, STBool))
+   if(type->domain_sort == STBool)
    {
       new_type = TypeCopyWithReturn(sig->type_table, type, SigDefaultSort(sig));
       SigDeclareFinalType(sig, f_code, new_type);
@@ -1365,10 +1365,10 @@ void SigDeclareIsPredicate(Sig_p sig, FunCode f_code)
    }
 
    type = SigGetType(sig, f_code);
-   assert(!SortEqual(type->domain_sort, STNoSort));
+   assert(type->domain_sort != STNoSort);
 
    /* must update type */
-   if(!SortEqual(type->domain_sort, STBool))
+   if(type->domain_sort != STBool)
    {
       new_type = TypeCopyWithReturn(sig->type_table, type, STBool);
       SigDeclareFinalType(sig, f_code, new_type);

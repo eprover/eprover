@@ -530,7 +530,7 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
       }
    }
 
-   if(!SortEqual(lterm->sort, rterm->sort))
+   if(lterm->sort != rterm->sort)
    {
       TermAssertSameSort(bank->sig, lterm, rterm);
    }

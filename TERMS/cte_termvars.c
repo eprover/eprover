@@ -405,11 +405,11 @@ Term_p VarBankFCodeAssertAlloc(VarBank_p bank, FunCode f_code, SortType sort)
       PDArrayAssignP(stack, -f_code, var);
       bank->max_var = MAX(-f_code, bank->max_var);
    }
-   else
-   {
-      assert(SortEqual(var->sort, sort));
-   }
+   
+   assert(var->sort == sort);
+   assert(var->sort != STNoSort);
    assert(!TermCellQueryProp(var, TPIsGround));
+
    return var;
 }
 
@@ -528,7 +528,7 @@ Term_p VarBankExtNameAssertAllocSort(VarBank_p bank, char* name, SortType sort)
    else
    {
       var = handle->val1.p_val;
-      if(!SortEqual(var->sort, sort))
+      if(var->sort != sort)
       {
          /* save old var name */
          named = var_named_new(var, name);

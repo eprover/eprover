@@ -686,16 +686,13 @@ bool TermStructEqual(Term_p t1, Term_p t2)
       return true;
    }
 
-   if(!SortEqual(t1->sort, t2->sort))
-   {
-      return false;
-   }
-
    if(t1->f_code != t2->f_code)
    {
       return false;
    }
 
+   assert(t1->sort == t2->sort);
+   assert(t1->arity == t2->arity);
    for(int i=0; i<t1->arity; i++)
    {
       if(!TermStructEqual(t1->args[i], t2->args[i]))
@@ -729,16 +726,13 @@ bool TermStructEqualNoDeref(Term_p t1, Term_p t2)
       return true;
    }
 
-   if(!SortEqual(t1->sort, t2->sort))
-   {
-      return false;
-   }
-
    if(t1->f_code != t2->f_code)
    {
       return false;
    }
 
+   assert(t1->sort == t2->sort);
+   assert(t1->arity == t2->arity);
    for(int i=0; i<t1->arity; i++)
    {
       if(!TermStructEqualNoDeref(t1->args[i], t2->args[i]))
@@ -774,16 +768,13 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
       return true;
    }
 
-   if(!SortEqual(t1->sort, t2->sort))
-   {
-      return false;
-   }
-
    if(t1->f_code != t2->f_code)
    {
       return false;
    }
 
+   assert(t1->sort == t2->sort);
+   assert(t1->arity == t2->arity);
    for(int i=0; i<t1->arity; i++)
    {
       if(!TermStructEqualDeref(t1->args[i], t2->args[i], deref_1, deref_2))
@@ -839,7 +830,7 @@ long TermStructWeightCompare(Term_p t1, Term_p t2)
    if(TermIsVar(t1))
    { /* Then t2 also is a variable due to equal weights! */
       assert(TermIsVar(t2));
-      return SortCompare(t1->sort, t2->sort);
+      return t1->sort - t2->sort;
    }
 
    res = t1->arity - t2->arity;
@@ -848,6 +839,8 @@ long TermStructWeightCompare(Term_p t1, Term_p t2)
       return res;
    }
 
+   assert(t1->sort == t2->sort);
+   assert(t1->arity == t2->arity);
    for(int i=0; i<t1->arity; i++)
    {
       res = TermStructWeightCompare(t1->args[i], t2->args[i]);
@@ -882,6 +875,8 @@ long TermLexCompare(Term_p t1, Term_p t2)
    {
       return res;
    }
+
+   assert(t1->sort == t2->sort);
    assert(t1->arity == t2->arity);
    for(i=0; i<t1->arity; i++)
    {
@@ -891,7 +886,7 @@ long TermLexCompare(Term_p t1, Term_p t2)
 	 return res;
       }
    }   
-   return SortCompare(t1->sort, t2->sort);
+   return res;
 }
 
 
@@ -1828,9 +1823,7 @@ Term_p TermCheckConsistency(Term_p term, DerefType deref)
 /----------------------------------------------------------------------*/
 void TermAssertSameSort(Sig_p sig, Term_p t1, Term_p t2)
 {
-   bool res = SortEqual(t1->sort, t2->sort);
-
-   if(!res)
+   if(t1->sort != t2->sort)
    {
       fprintf(stderr, "# Error: terms ");
       TermPrint(stderr, t1, sig, DEREF_NEVER);
@@ -1871,7 +1864,7 @@ bool TermIsUntyped(Term_p term)
    {
       term = PLocalStackPop(stack);
 
-      if(SortEqual(term->sort, STIndividuals) || SortEqual(term->sort, STBool))
+      if(term->sort == STIndividuals || term->sort == STBool)
       {
          PLocalStackPushTermArgs(stack, term);
       }
