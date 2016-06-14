@@ -135,11 +135,11 @@ Sig_p SigAlloc(SortTable_p sort_table)
    SigInsertId(handle, "$true", 0, true);
    assert(SigFindFCode(handle, "$true")==SIG_TRUE_CODE);  
    SigSetFuncProp(handle, SIG_TRUE_CODE, FPInterpreted);
-   SigDeclareType(handle, SIG_TRUE_CODE, TypeGetBool(handle->type_table));
+   SigDeclareType(handle, SIG_TRUE_CODE, TypeNewConstant(handle->type_table, STBool));
    SigInsertId(handle, "$false", 0, true);
    assert(SigFindFCode(handle, "$false")==SIG_FALSE_CODE);  
    SigSetFuncProp(handle, SIG_FALSE_CODE, FPInterpreted);
-   SigDeclareType(handle, SIG_FALSE_CODE, TypeGetBool(handle->type_table));
+   SigDeclareType(handle, SIG_FALSE_CODE, TypeNewConstant(handle->type_table, STBool));
    
    if(SigSupportLists)
    {

@@ -310,7 +310,7 @@ int parse_sort_list(Scanner_p in, SortTable_p sort_table, SortType **args, int *
    int arity;
 
    *len = 5;
-   *args = SecureRealloc(NULL, (*len) * sizeof(SortType));
+   *args = SecureMalloc((*len) * sizeof(SortType));
 
    AcceptInpTok(in, OpenBracket);
 
@@ -416,11 +416,9 @@ Type_p TypeNewConstant(TypeTable_p table, SortType sort)
    {
       return type;
    }
-   else
-   {
-      TypeFree(type);
-      return res;
-   }
+
+   TypeFree(type);
+   return res;
 }
 
 
@@ -439,10 +437,9 @@ Type_p TypeNewFunction(TypeTable_p table, SortType sort,
                        int arity, SortType *args)
 {
    Type_p type, res;
-   int i;
    
    type = TypeAlloc(sort, arity);
-   for(i=0; i < arity; i++)
+   for(int i=0; i < arity; i++)
    {
       type->args[i] = args[i];
    }
@@ -452,11 +449,9 @@ Type_p TypeNewFunction(TypeTable_p table, SortType sort,
    {
       return type;
    }
-   else
-   {
-      TypeFree(type);
-      return res;
-   }
+
+   TypeFree(type);
+   return res;
 }
 
 /*-----------------------------------------------------------------------
@@ -475,22 +470,26 @@ int TypeCompare(Type_p t1, Type_p t2)
     int res;
 
     res = t1->domain_sort - t2->domain_sort;
-
-    if (!res)
+    if(res)
     {
-        res = (t1->arity - t2->arity);
+      return res;
+    }
+
+    res = t1->arity - t2->arity;
+    if(res)
+    {
+      return res;
     }
 
     // same domain and arity, lexicographic comparison of arguments
-    if (!res)
+    assert (t1->arity == t2->arity);
+    for(int i = 0; !res && i < t1->arity; i++)
     {
-        int i;
-        assert (t1->arity == t2->arity);
-
-        for (i = 0; !res && i < t1->arity; i++)
-        {
-            res = t1->args[i] - t2->args[i];
-        }
+      res = t1->args[i] - t2->args[i];
+      if(res)
+      {
+        return res;
+      }
     }
 
     return res;
@@ -512,10 +511,7 @@ int TypeCompare(Type_p t1, Type_p t2)
 Type_p TypeCopyWithReturn(TypeTable_p table, Type_p source,
                           SortType new_domain)
 {
-   Type_p res;
-   
-   res = TypeNewFunction(table, new_domain, source->arity, source->args);
-   return res;
+   return TypeNewFunction(table, new_domain, source->arity, source->args);
 }
 
 /*-----------------------------------------------------------------------
@@ -612,45 +608,6 @@ Type_p TypeParseTSTP(Scanner_p in, TypeTable_p table)
    }
 
    return res;
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: TypeGetIndividual 
-//
-//   Individual type for atoms, $i
-//
-// Global Variables: -
-//
-// Side Effects    : Allocates a type in the table
-//
-/----------------------------------------------------------------------*/
-Type_p TypeGetIndividual(TypeTable_p table)
-{
-   SortType sort = STIndividuals;
-   Type_p type = TypeNewConstant(table, sort);
-
-   return type;
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function: TypeGetBool
-//
-//   Individual type for boolean atoms, $o
-//
-// Global Variables: -
-//
-// Side Effects    : Allocates a type in the table
-//
-/----------------------------------------------------------------------*/
-Type_p TypeGetBool(TypeTable_p table)
-{
-   SortType sort = STBool;
-   Type_p type = TypeNewConstant(table, sort);
-
-   return type;
 }
 
 

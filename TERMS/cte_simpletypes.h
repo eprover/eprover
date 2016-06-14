@@ -79,9 +79,6 @@ Type_p          TypeCopyWithReturn(TypeTable_p table, Type_p source,
 void            TypePrintTSTP(FILE *out, TypeTable_p table, Type_p type);
 Type_p          TypeParseTSTP(Scanner_p in, TypeTable_p table);
 
-Type_p          TypeGetIndividual(TypeTable_p table);
-Type_p          TypeGetBool(TypeTable_p table);
-
 AVL_TRAVERSE_DECLARATION(Type, Type_p)
 #define TypeTraverseExit(stack) PStackFree(stack)
 
