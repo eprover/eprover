@@ -446,7 +446,7 @@ BatchSpec_p BatchSpecParse(Scanner_p in, char* executable,
    }
 
    /* This is ugly! Fix the LTB format! */
-   while(TestInpTok(in, Slash) || TestInpId(in, "Problem"))
+   while(TestInpTok(in, Slash) || TestInpId(in, "Problem|Problems"))
    {
       dummy = ParseFilename(in);
       PStackPushP(handle->source_files, dummy);
