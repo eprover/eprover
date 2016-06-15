@@ -1,5 +1,5 @@
 #!/bin/tcsh
-set ecmd="./e_ltb_runner "$1" --output-dir="$2"
+set ecmd="./e_ltb_runner "$1" ./eprover --output-dir="$2"
 
 echo "% Command    : " $ecmd
 /home/starexec/bin/GetComputerInfo -p THIS Model CPUModel RAMPerCPU OS | \
