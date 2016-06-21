@@ -151,7 +151,7 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->signature            = SigAlloc();
    SigInsertInternalCodes(handle->signature);
    handle->original_symbols     = 0;
-   handle->original_terms       = TBAlloc(handle->signature);
+   //handle->original_terms       = TBAlloc(handle->signature);
    handle->terms                = TBAlloc(handle->signature);
    handle->tmp_terms            = TBAlloc(handle->signature);
    handle->freshvars            = VarBankAlloc();
@@ -184,12 +184,12 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->definition_store     = DefStoreAlloc(handle->terms);
    handle->def_store_cspec      = NULL;
    
-   handle->gc_original_terms    = GCAdminAlloc(handle->original_terms);
-   GCRegisterFormulaSet(handle->gc_original_terms, handle->f_axioms);
-   GCRegisterFormulaSet(handle->gc_original_terms, handle->f_ax_archive);
-   GCRegisterClauseSet(handle->gc_original_terms, handle->axioms);
-   GCRegisterClauseSet(handle->gc_original_terms, handle->ax_archive);
+   // handle->gc_original_terms    = GCAdminAlloc(handle->original_terms);
    handle->gc_terms             = GCAdminAlloc(handle->terms);
+   GCRegisterFormulaSet(handle->gc_terms, handle->f_axioms);
+   GCRegisterFormulaSet(handle->gc_terms, handle->f_ax_archive);
+   GCRegisterClauseSet(handle->gc_terms, handle->axioms);
+   GCRegisterClauseSet(handle->gc_terms, handle->ax_archive);
    GCRegisterClauseSet(handle->gc_terms, handle->processed_pos_rules);
    GCRegisterClauseSet(handle->gc_terms, handle->processed_pos_eqns);
    GCRegisterClauseSet(handle->gc_terms, handle->processed_neg_units);
@@ -274,6 +274,7 @@ void ProofStateInitWatchlist(ProofState_p state, char* watchlist_filename,
          {
             if(ClauseQueryTPTPType(handle)==CPTypeWatchClause)
             {
+               //printf("WL detected: ");ClausePrint(stdout, handle, true); printf("\n");
                PStackPushP(stack, handle);
             }
          }
@@ -286,10 +287,10 @@ void ProofStateInitWatchlist(ProofState_p state, char* watchlist_filename,
          PStackFree(stack);
       } 
       ClauseSetSetProp(state->watchlist, CPWatchOnly);
+      ClauseSetDefaultWeighClauses(state->watchlist);
+      ClauseSetSortLiterals(state->watchlist, EqnSubsumeInverseCompareRef);
       GlobalIndicesInsertClauseSet(&(state->wlindices),state->watchlist);
       ClauseSetDocInital(GlobalOut, OutputLevel, state->watchlist);
-      ClauseSetSortLiterals(state->watchlist, EqnSubsumeInverseCompareRef);
-      ClauseSetDefaultWeighClauses(state->watchlist);
    } 
    // printf("# watchlist: %p\n", state->watchlist);
 }
@@ -333,7 +334,7 @@ void ProofStateResetClauseSets(ProofState_p state, bool term_gc)
    if(term_gc)
    {
       GCCollect(state->gc_terms);
-      GCCollect(state->gc_original_terms);
+      //GCCollect(state->gc_original_terms);
    }
 }
 
@@ -368,7 +369,7 @@ void ProofStateFree(ProofState_p junk)
    PStackFree(junk->extract_roots);
    GlobalIndicesFreeIndices(&(junk->gindices));
    GCAdminFree(junk->gc_terms);
-   GCAdminFree(junk->gc_original_terms);
+   //GCAdminFree(junk->gc_original_terms);
    if(junk->watchlist)
    {
       ClauseSetFree(junk->watchlist);
@@ -385,11 +386,11 @@ void ProofStateFree(ProofState_p junk)
       FVCollectFree(junk->def_store_cspec);
    }
 
-   junk->original_terms->sig = NULL;
+   // junk->original_terms->sig = NULL;
    junk->terms->sig = NULL;
    junk->tmp_terms->sig = NULL;
    SigFree(junk->signature);   
-   TBFree(junk->original_terms);
+   // TBFree(junk->original_terms);
    TBFree(junk->terms);
    TBFree(junk->tmp_terms);
    VarBankFree(junk->freshvars);

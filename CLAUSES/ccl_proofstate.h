@@ -44,11 +44,11 @@ typedef struct proofstatecell
 {
    Sig_p             signature;
    long              original_symbols;
-   TB_p              original_terms;
+   //TB_p              original_terms;
    TB_p              terms;
    TB_p              tmp_terms;
    VarBank_p         freshvars;
-   GCAdmin_p         gc_original_terms; 
+   //GCAdmin_p         gc_original_terms; 
    GCAdmin_p         gc_terms; 
    FormulaSet_p      f_ax_archive;
    FormulaSet_p      f_axioms;

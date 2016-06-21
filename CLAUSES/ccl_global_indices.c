@@ -240,9 +240,9 @@ void GlobalIndicesInsertClause(GlobalIndices_p indices, Clause_p clause)
 
 void GlobalIndicesDeleteClause(GlobalIndices_p indices, Clause_p clause)
 {
-   // printf("# XXX: ");ClausePrint(GlobalOut, clause, true);printf("\n");
+   //printf("# XXX: ");ClausePrint(GlobalOut, clause, true);printf("\n");
    
-   assert(ClauseQueryProp(clause, CPIsGlobalIndexed));
+   //assert(ClauseQueryProp(clause, CPIsGlobalIndexed));
 
    ClauseDelProp(clause, CPIsGlobalIndexed);
 

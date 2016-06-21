@@ -434,10 +434,20 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
    }
    tmp_set = ClauseSetAlloc();
 
-   RemoveRewritableClauses(control->ocb, state->watchlist,
-			   tmp_set, state->archive,
-                           clause, clause->date,
-                           &(state->wlindices));
+   if(state->wlindices.bw_rw_index)
+   {
+      RemoveRewritableClausesIndexed(control->ocb,
+                                     tmp_set, state->archive,
+                                     clause, clause->date, 
+                                     &(state->wlindices));
+   }
+   else
+   {
+      RemoveRewritableClauses(control->ocb, state->watchlist,
+                              tmp_set, state->archive,
+                              clause, clause->date,
+                              &(state->wlindices));
+   }
    while((handle = ClauseSetExtractFirst(tmp_set)))
    {
       ClauseComputeLINormalform(control->ocb,
@@ -1151,7 +1161,7 @@ void fvi_param_init(ProofState_p state, ProofControl_p control)
       {
          state->watchlist->fvindex = 
             FVIAnchorAlloc(cspec, PermVectorCopy(perm));
-         ClauseSetNewTerms(state->watchlist, state->terms);
+         //ClauseSetNewTerms(state->watchlist, state->terms);
       }
    }
    state->def_store_cspec = FVCollectAlloc(FVICollectFeatures,

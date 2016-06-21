@@ -1565,6 +1565,9 @@ void ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms, bool complete)
    case CPTypeLemma:
          typename = "lemma";
          break; 
+   case CPTypeWatchClause:
+         typename = "watchlist";
+         break;
    case CPTypeNegConjecture:
          typename = "negated_conjecture";
          break;

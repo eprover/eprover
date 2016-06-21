@@ -311,6 +311,7 @@ FunCode GetDefinitions(DefStore_p store, Eqn_p litlist,
                       def_clause->ident, 
                       def_pred_store, 
                       def_form_store);
+         assert(def_clause->weight == ClauseStandardWeight(def_clause));
          ClauseSetIndexedInsertClause(store->def_clauses, 
                                       def_clause);
       }

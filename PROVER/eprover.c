@@ -164,7 +164,7 @@ ProofState_p parse_spec(CLState_p state,
       
       FormulaAndClauseSetParse(in, proofstate->axioms, 
                                proofstate->f_axioms,
-                               proofstate->original_terms, 
+                               proofstate->/* original_*/terms, 
                                NULL,
                                &skip_includes);
       CheckInpTok(in, NoToken);
@@ -439,9 +439,9 @@ int main(int argc, char* argv[])
    if(FormulaSetCNF(proofstate->f_axioms,
                     proofstate->f_ax_archive,
                     proofstate->axioms, 
-                    proofstate->original_terms, 
+                    proofstate->/* original_*/terms, 
                     proofstate->freshvars,
-                    proofstate->gc_original_terms))
+                    proofstate->gc_terms))
    {
       VERBOUT("CNFization done\n");
    }
@@ -470,8 +470,8 @@ int main(int argc, char* argv[])
    PCLFullTerms = pcl_full_terms; /* Preprocessing always uses full
 				     terms, so we set the flag for
 				     the main proof search only now! */
-   ProofStateInit(proofstate, proofcontrol);
    ProofStateInitWatchlist(proofstate, watchlist_filename, parse_format);
+   ProofStateInit(proofstate, proofcontrol);
 
    VERBOUT2("Prover state initialized\n");   
    preproc_time = GetTotalCPUTime();

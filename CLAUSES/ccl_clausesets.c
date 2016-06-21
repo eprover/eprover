@@ -617,6 +617,7 @@ void ClauseSetIndexedInsert(ClauseSet_p set, FVPackedClause_p newclause)
 void ClauseSetIndexedInsertClause(ClauseSet_p set, Clause_p newclause)
 {
    FVPackedClause_p pclause = FVIndexPackClause(newclause, set->fvindex);
+   assert(newclause->weight == ClauseStandardWeight(newclause));
    ClauseSetIndexedInsert(set, pclause);
    FVUnpackClause(pclause);
 }
@@ -2096,6 +2097,7 @@ long ClauseSetFVIndexify(ClauseSet_p set)
    while(!PStackEmpty(stack))
    {
       clause = PStackPopP(stack);
+      assert(clause->weight == ClauseStandardWeight(clause));
       ClauseSetIndexedInsertClause(set, clause);
    }
    PStackFree(stack);
@@ -2107,7 +2109,7 @@ long ClauseSetFVIndexify(ClauseSet_p set)
 //
 // Function: ClauseSetNewTerms()
 //
-//   Substitute all clause in set withj otherwise identical copies
+//   Substitute all clause in set with otherwise identical copies
 //   taking terms from the new termbank.
 //
 // Global Variables: -
@@ -2131,6 +2133,7 @@ long ClauseSetNewTerms(ClauseSet_p set, TB_p terms)
    {
       clause = PStackPopP(stack);
       copy = ClauseCopy(clause, terms);
+      assert(copy->weight == ClauseStandardWeight(copy));
       ClauseSetIndexedInsertClause(set, copy);
       ClauseFree(clause);
    }

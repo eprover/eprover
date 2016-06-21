@@ -763,7 +763,7 @@ int main(int argc, char* argv[])
          
          FormulaAndClauseSetParse(in, fstate->axioms, 
                                   fstate->f_axioms,
-                                  fstate->original_terms, NULL, &
+                                  fstate->/* original_*/terms, NULL, &
                                   skip_includes);
          if(raw_classify)
          {
@@ -778,9 +778,9 @@ int main(int argc, char* argv[])
             FormulaSetCNF(fstate->f_axioms, 
                           fstate->f_ax_archive,
                           fstate->axioms, 
-                          fstate->original_terms, 
+                          fstate->/* original_*/terms, 
                           fstate->freshvars,
-                          fstate->gc_original_terms);
+                          fstate->gc_terms);
             
             if(!no_preproc)
             {
