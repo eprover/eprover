@@ -27,6 +27,8 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "cto_kbolin.h"
+#include "clb_plocalstacks.h"
+
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -36,6 +38,9 @@ Changes
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
+
+static CompareResult kbolincmp(OCB_p ocb, Term_p s, Term_p t,
+                      DerefType deref_s, DerefType deref_t);
 
 static CompareResult kbo6cmp(OCB_p ocb, Term_p s, Term_p t,
                       DerefType deref_s, DerefType deref_t);
@@ -104,14 +109,15 @@ static void inc_vb(OCB_p ocb, Term_p var)
       ocb->max_var = index;
       ocb->vb[index] = 1;
       ocb->pos_bal++;
+      ocb->wb += ocb->var_weight;
    }
    else
    {
       const long tmpbal = ocb->vb[index]++;
       ocb->pos_bal += (tmpbal ==  0);
       ocb->neg_bal -= (tmpbal == -1);
+      ocb->wb += ocb->var_weight;
    }
-   ocb->wb += ocb->var_weight;
 }
 
 
@@ -138,17 +144,18 @@ static void dec_vb(OCB_p ocb, Term_p var)
       {
          resize_vb(ocb, index);
       }
-   ocb->max_var = index;
-   ocb->vb[index] = -1;
-   ocb->neg_bal++;
+      ocb->max_var = index;
+      ocb->vb[index] = -1;
+      ocb->neg_bal++;
+      ocb->wb -= ocb->var_weight;
    }
    else
    {
       const long tmpbal = ocb->vb[index]--;
       ocb->neg_bal += (tmpbal == 0);
       ocb->pos_bal -= (tmpbal == 1);
+      ocb->wb -= ocb->var_weight;
    }
-   ocb->wb -= ocb->var_weight;
 }
 
 
@@ -389,6 +396,194 @@ static CompareResult kbo6cmp(OCB_p ocb, Term_p s, Term_p t,
    return res;
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: mfyvwblhs()
+//
+//   Update ocb according to term on the LHS of a comparison.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void mfyvwblhs(OCB_p ocb, Term_p term, DerefType deref_t)
+{
+   PLocalTaggedStackInit(stack);
+
+   PLocalTaggedStackPush(stack, term, deref_t);
+
+   while(!PLocalTaggedStackEmpty(stack))
+   {
+      PLocalTaggedStackPop(stack, term, deref_t);
+      term = TermDeref(term, &deref_t);
+
+      if(TermIsVar(term))
+      {
+         inc_vb(ocb, term);
+      }
+      else
+      {
+         ocb->wb += OCBFunWeight(ocb, term->f_code);
+         PLocalTaggedStackPushTermArgs(stack, term, deref_t);
+      }
+   }
+
+   PLocalTaggedStackFree(stack);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: mfyvwbrhs()
+//
+//   Update ocb according to term on the RHS of a comparison.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void mfyvwbrhs(OCB_p ocb, Term_p term, DerefType deref_t)
+{
+   PLocalTaggedStackInit(stack);
+
+   PLocalTaggedStackPush(stack, term, deref_t);
+
+   while(!PLocalTaggedStackEmpty(stack))
+   {
+      PLocalTaggedStackPop(stack, term, deref_t);
+      term = TermDeref(term, &deref_t);
+
+      if(TermIsVar(term))
+      {
+         dec_vb(ocb, term);
+      }
+      else
+      {
+         ocb->wb -= OCBFunWeight(ocb, term->f_code);
+         PLocalTaggedStackPushTermArgs(stack, term, deref_t);
+      }
+   }
+
+   PLocalTaggedStackFree(stack);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: kbolincmp()
+//
+//   Perform a KBO comparison between s and t.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+
+static CompareResult kbolincmp(OCB_p ocb, Term_p s, Term_p t,
+                             DerefType deref_s, DerefType deref_t)
+{
+   CompareResult res = to_equal;
+
+   s = TermDeref(s, &deref_s);
+   t = TermDeref(t, &deref_t);
+
+   if(s->f_code == t->f_code)
+   {
+      for(int i=0; i<s->arity; i++)
+      {
+         res = kbolincmp(ocb, s->args[i], t->args[i], deref_s, deref_t);
+         if(res!=to_equal)
+         {
+            i++;
+            if(i < s->arity)
+            {
+               for(;i<s->arity; i++)
+               {
+                  mfyvwblhs(ocb, s->args[i], deref_s);
+                  mfyvwbrhs(ocb, t->args[i], deref_t);
+               }
+
+               CompareResult g_or_n = ocb->neg_bal?to_uncomparable:to_greater;
+               CompareResult l_or_n = ocb->pos_bal?to_uncomparable:to_lesser;
+
+               if(ocb->wb>0)
+               {
+                  res = g_or_n;
+               }
+               else if(ocb->wb<0)
+               {
+                  res = l_or_n;
+               }
+               else if(res == to_greater)
+               {
+                  res = g_or_n;
+               }
+               else if(res == to_lesser)
+               {
+                  res = l_or_n;
+               }
+            }
+         }
+      }
+   }
+   else if(TermIsVar(s))
+   {
+      if(TermIsVar(t))
+      {  /* X, Y */
+         inc_vb(ocb, s);
+         dec_vb(ocb, t);
+         res = to_uncomparable;
+      }
+      else
+      { /* X, t */
+         inc_vb(ocb, s);
+         mfyvwbrhs(ocb, t, deref_t);
+         res = ocb->pos_bal?to_uncomparable:to_lesser;
+      }
+   }
+   else if(TermIsVar(t))
+   { /* s, Y */
+      dec_vb(ocb, t);
+      mfyvwblhs(ocb, s, deref_s);
+      res = ocb->neg_bal?to_uncomparable:to_greater;
+   }
+   else
+   { /* s, t */
+      mfyvwblhs(ocb, s, deref_s);
+      mfyvwbrhs(ocb, t, deref_t);
+      CompareResult g_or_n = ocb->neg_bal?to_uncomparable:to_greater;
+      CompareResult l_or_n = ocb->pos_bal?to_uncomparable:to_lesser;
+      if(ocb->wb>0)
+      {
+         res = g_or_n;
+      }
+      else if(ocb->wb<0)
+      {
+         res = l_or_n;
+      }
+      else
+      {
+         CompareResult tmp = OCBFunCompare(ocb, s->f_code, t->f_code);
+         if(tmp == to_greater)
+         {
+            res = g_or_n;
+         }
+         else if(tmp == to_lesser)
+         {
+            res = l_or_n;
+         }
+      }
+   }
+   return res;
+}
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: kbo6reset()
@@ -441,9 +636,13 @@ static void __inline__ kbo6reset(OCB_p ocb)
 
 CompareResult KBO6Compare(OCB_p ocb, Term_p s, Term_p t,
 			 DerefType deref_s, DerefType deref_t)
-{ 
+{
+   CompareResult res;
+
    kbo6reset(ocb);
-   return  kbo6cmp(ocb, s, t, deref_s, deref_t);
+   res = kbolincmp(ocb, s, t, deref_s, deref_t);
+   assert((kbo6reset(ocb), res == kbo6cmp(ocb, s, t, deref_s, deref_t)));
+   return res;
 }
 
 
@@ -472,8 +671,12 @@ CompareResult KBO6Compare(OCB_p ocb, Term_p s, Term_p t,
 bool KBO6Greater(OCB_p ocb, Term_p s, Term_p t,
 		DerefType deref_s, DerefType deref_t)
 {
+   CompareResult res;
+
    kbo6reset(ocb);
-   return (kbo6cmp(ocb, s, t, deref_s, deref_t) == to_greater);
+   res = kbolincmp(ocb, s, t, deref_s, deref_t);
+   assert((kbo6reset(ocb), res == kbo6cmp(ocb, s, t, deref_s, deref_t)));
+   return res == to_greater;
 }
 
 /*---------------------------------------------------------------------*/
