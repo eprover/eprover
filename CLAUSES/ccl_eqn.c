@@ -112,36 +112,70 @@ IOFormat OutputFormat =LOPFormat;
 
 static CompareResult compare_pos_eqns(OCB_p ocb, Eqn_p eq1, Eqn_p eq2)
 {
-   CompareResult l1l2, l1r2, r1l2, r1r2;   
-
    assert(PropsAreEquiv(eq1, eq2, EPIsPositive));
 
-   l1l2 = TOCompare(ocb, eq1->lterm, eq2->lterm, DEREF_ALWAYS, DEREF_ALWAYS);
-   l1r2 = TOCompare(ocb, eq1->lterm, eq2->rterm, DEREF_ALWAYS, DEREF_ALWAYS);
-   r1l2 = TOCompare(ocb, eq1->rterm, eq2->lterm, DEREF_ALWAYS, DEREF_ALWAYS);
-   r1r2 = TOCompare(ocb, eq1->rterm, eq2->rterm, DEREF_ALWAYS, DEREF_ALWAYS);
+   CompareResult l1l2 = TOCompare(ocb, eq1->lterm, eq2->lterm, DEREF_ALWAYS, DEREF_ALWAYS);
+   CompareResult r1r2 = TOCompare(ocb, eq1->rterm, eq2->rterm, DEREF_ALWAYS, DEREF_ALWAYS);
 
-   if (((l1l2 == to_equal) && (r1r2 == to_equal)) ||
-       ((l1r2 == to_equal) && (r1l2 == to_equal))) {
-      return to_equal;                                  /* Case (1) */
+   if((l1l2 == to_equal) && (r1r2 == to_equal))
+   {
+      return to_equal; /* Case (1) */
    }
 
-   if (((l1l2 == to_greater) && (l1r2 == to_greater)) ||
-       (((l1l2 == to_greater) || (l1l2 == to_equal)) &&
-	((r1r2 == to_greater) || (r1r2 == to_equal))) ||
-       (((r1l2 == to_greater) || (r1l2 == to_equal)) &&
-	((l1r2 == to_greater) || (l1r2 == to_equal))) ||
-       ((r1l2 == to_greater) && (r1r2 == to_greater))) {
-      return to_greater;                                /* Case (2) */
+   if(    ((l1l2 == to_greater) || (l1l2 == to_equal))
+       && ((r1r2 == to_greater) || (r1r2 == to_equal)))
+   {
+      return to_greater; /* Case (2) */
    }
 
-   if (((l1l2 == to_lesser) && (r1l2 == to_lesser)) ||
-       (((l1l2 == to_lesser) || (l1l2 == to_equal)) &&
-	((r1r2 == to_lesser) || (r1r2 == to_equal))) ||
-       (((r1l2 == to_lesser) || (r1l2 == to_equal)) &&
-	((l1r2 == to_lesser) || (l1r2 == to_equal))) ||
-       ((l1r2 == to_lesser) && (r1r2 == to_lesser))) {
-      return to_lesser;                                 /* Case (3) */
+   if(    ((l1l2 == to_lesser) || (l1l2 == to_equal))
+       && ((r1r2 == to_lesser) || (r1r2 == to_equal)))
+   {
+      return to_lesser; /* Case (3) */
+   }
+
+
+   CompareResult l1r2 = TOCompare(ocb, eq1->lterm, eq2->rterm, DEREF_ALWAYS, DEREF_ALWAYS);
+
+   if((l1l2 == to_greater) && (l1r2 == to_greater))
+   {
+      return to_greater; /* Case (2) */
+   }
+
+   if((l1r2 == to_lesser) && (r1r2 == to_lesser))
+   {
+      return to_lesser; /* Case (3) */
+   }
+
+
+   CompareResult r1l2 = TOCompare(ocb, eq1->rterm, eq2->lterm, DEREF_ALWAYS, DEREF_ALWAYS);
+
+   if((l1r2 == to_equal) && (r1l2 == to_equal))
+   {
+      return to_equal; /* Case (1) */
+   }
+
+   if(    ((r1l2 == to_greater) || (r1l2 == to_equal))
+       && ((l1r2 == to_greater) || (l1r2 == to_equal)))
+   {
+      return to_greater; /* Case (2) */
+   }
+
+
+   if((r1l2 == to_greater) && (r1r2 == to_greater))
+   {
+      return to_greater; /* Case (2) */
+   }
+
+   if((l1l2 == to_lesser) && (r1l2 == to_lesser))
+   {
+      return to_lesser; /* Case (3) */
+   }
+
+   if(    ((r1l2 == to_lesser) || (r1l2 == to_equal))
+       && ((l1r2 == to_lesser) || (l1r2 == to_equal)))
+   {
+      return to_lesser; /* Case (3) */
    }
 
    return to_uncomparable;
@@ -177,53 +211,58 @@ static CompareResult compare_pos_eqns(OCB_p ocb, Eqn_p eq1, Eqn_p eq2)
 //
 /----------------------------------------------------------------------*/
 
-static CompareResult compare_poseqn_negeqn(OCB_p ocb,
-					   Eqn_p eq1, Eqn_p eq2)
+static CompareResult compare_poseqn_negeqn(OCB_p ocb, Eqn_p eq1, Eqn_p eq2)
 {
-   CompareResult l1l2, l1r2, r1l2, r1r2;
-
    assert(EqnIsPositive(eq1));
    assert(!EqnIsPositive(eq2));
 
-   l1l2 = TOCompare(ocb, eq1->lterm, eq2->lterm, DEREF_ALWAYS, DEREF_ALWAYS);
-   if ((EqnIsOriented(eq1)) &&
-       ((l1l2 == to_lesser) || (l1l2 ==to_equal))) 
+   CompareResult l1l2 = TOCompare(ocb, eq1->lterm, eq2->lterm, DEREF_ALWAYS, DEREF_ALWAYS);
+
+   if(EqnIsOriented(eq1))
    {
-      return to_lesser;                                 /* Case (6) */
+      if((l1l2 == to_lesser) || (l1l2 == to_equal))
+      {
+         return to_lesser; /* Case (6) */
+      }
+
+      CompareResult l1r2 = TOCompare(ocb, eq1->lterm, eq2->rterm, DEREF_ALWAYS, DEREF_ALWAYS);
+
+      if((l1r2 == to_lesser) || (l1r2 == to_equal))
+      {
+         return to_lesser; /* Case (6) */
+      }
+
+      if((l1l2 == to_greater) && (l1r2 == to_greater))
+      {
+         return to_greater; /* Case (5) */
+      }
+   }
+   else
+   {
+      assert(!EqnIsOriented(eq1));
+
+      CompareResult l1r2 = TOCompare(ocb, eq1->lterm, eq2->rterm, DEREF_ALWAYS, DEREF_ALWAYS);
+
+      if((l1l2 == to_greater) && (l1r2 == to_greater))
+      {
+         return to_greater; /* Case (2) */
+      }
+
+      CompareResult r1l2 = TOCompare(ocb, eq1->rterm, eq2->lterm, DEREF_ALWAYS, DEREF_ALWAYS);
+      CompareResult r1r2 = TOCompare(ocb, eq1->rterm, eq2->rterm, DEREF_ALWAYS, DEREF_ALWAYS);
+
+      if((r1l2 == to_greater) && (r1r2 == to_greater))
+      {
+         return to_greater; /* Case (2) */
+      }
+
+      if(    ((l1l2 == to_lesser) || (l1l2 == to_equal) || (l1r2 == to_lesser) || (l1r2 == to_equal))
+          && ((r1l2 == to_lesser) || (r1l2 == to_equal) || (r1r2 == to_lesser) || (r1r2 == to_equal)))
+      {
+         return to_lesser; /* Case (3) Buggy, changed by StS */
+      }
    }
 
-   l1r2 = TOCompare(ocb, eq1->lterm, eq2->rterm, DEREF_ALWAYS, DEREF_ALWAYS);
-   if (EqnIsOriented(eq1))
-   {
-      if ((l1r2 == to_lesser) || (l1r2 == to_equal)) 
-      {
-	 return to_lesser;                              /* Case (6) */
-      }
-      if ((l1l2 == to_greater) && (l1r2 == to_greater)) 
-      {
-	 return to_greater;                             /* Case (5) */
-      }
-      return to_uncomparable;
-   }
-   
-   assert(!EqnIsOriented(eq1));
-
-   r1l2 = TOCompare(ocb, eq1->rterm, eq2->lterm, DEREF_ALWAYS, DEREF_ALWAYS);
-   r1r2 = TOCompare(ocb, eq1->rterm, eq2->rterm, DEREF_ALWAYS, DEREF_ALWAYS);
-   if (((l1l2 == to_greater) && (l1r2 == to_greater)) ||
-       ((r1l2 == to_greater) && (r1r2 == to_greater))) 
-   {
-      return to_greater;                                /* Case (2) */
-   }
-   if ((((l1l2 == to_lesser) || (l1l2 == to_equal)) ||
-	((l1r2 == to_lesser) || (l1r2 == to_equal))) &&
-       (((r1l2 == to_lesser) || (r1l2 == to_equal)) ||
-	((r1r2 == to_lesser) || (r1r2 == to_equal)))) 
-   {
-      return to_lesser;                                /* Case (3)
-							  Buggy,
-							  changed by StS */
-   }
    return to_uncomparable;
    /* Note that the `equal'-case is impossible */
 }
@@ -1908,8 +1947,7 @@ bool EqnOrient(OCB_p ocb, Eqn_p eq)
       printf(" # ");
       TermPrint(stdout, eq->rterm, eq->bank->sig, DEREF_ALWAYS);      
       printf("\n");*/
-      relation = TOCompare(ocb, eq->lterm, eq->rterm, DEREF_ALWAYS,
-			   DEREF_ALWAYS);
+      relation = TOCompare(ocb, eq->lterm, eq->rterm, DEREF_ALWAYS, DEREF_ALWAYS);
    }
    switch(relation)
    {
