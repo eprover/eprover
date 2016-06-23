@@ -14,6 +14,7 @@ Version 1.9 -> 1.9.1 Sungma
 - Automatic determination of input format if no format is
   specified. If input format is determined as TPTP-3, output format is
   automatically set to TPTP-3/TSTP, too. 
+- Various fixes to watchlist code.
 
 
 Version 1.9pre016 -> 1.9 Sourenee
