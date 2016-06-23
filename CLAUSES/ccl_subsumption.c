@@ -1289,18 +1289,20 @@ bool ClauseSubsumesClause(Clause_p subsumer, Clause_p sub_candidate)
 Clause_p ClauseSetSubsumesFVPackedClause(ClauseSet_p set, 
 					 FVPackedClause_p sub_candidate)
 {
+   Clause_p res;
    PERF_CTR_ENTRY(SetSubsumeTimer);
    assert(sub_candidate->clause->weight == ClauseStandardWeight(sub_candidate->clause));
 
    if(set->fvindex && sub_candidate->array)
    {
-      Clause_p res = clause_set_subsumes_clause_indexed(set->fvindex->index, 
+      res = clause_set_subsumes_clause_indexed(set->fvindex->index, 
                                                         sub_candidate, 0);
       PERF_CTR_EXIT(SetSubsumeTimer);
       return res;						
    }
+   res = clause_set_subsumes_clause(set, sub_candidate->clause);
    PERF_CTR_EXIT(SetSubsumeTimer);
-   return clause_set_subsumes_clause(set, sub_candidate->clause);
+   return res;
 }
 
 

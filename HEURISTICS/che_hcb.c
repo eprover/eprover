@@ -29,6 +29,8 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
+PERF_CTR_DEFINE(ClauseEvalTimer);
+
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -309,7 +311,8 @@ void HCBClauseEvaluate(HCB_p hcb, Clause_p clause)
 {
    long i;
    bool empty;
-   
+
+   PERF_CTR_ENTRY(ClauseEvalTimer);
    assert(clause->evaluations == NULL);
    ClauseAddEvalCell(clause, EvalsAlloc(hcb->wfcb_no));
    
@@ -318,6 +321,7 @@ void HCBClauseEvaluate(HCB_p hcb, Clause_p clause)
    {
       ClauseAddEvaluation(PDArrayElementP(hcb->wfcb_list, i), clause, i, empty);
    }
+   PERF_CTR_EXIT(ClauseEvalTimer);
 }
 
 

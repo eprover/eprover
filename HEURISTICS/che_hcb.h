@@ -191,6 +191,8 @@ typedef Clause_p (*ClauseSelectFun)(HCB_p hcb, ClauseSet_p set);
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+PERF_CTR_DECL(ClauseEvalTimer);
+
 #define HeuristicParmsCellAlloc() \
    (HeuristicParmsCell*)SizeMalloc(sizeof(HeuristicParmsCell))
 #define HeuristicParmsCellFree(junk) \

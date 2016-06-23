@@ -311,6 +311,7 @@ static void print_proof_stats(ProofState_p proofstate,
       PERF_CTR_PRINT(GlobalOut, FVIndexTimer);
       PERF_CTR_PRINT(GlobalOut, SubsumeTimer);
       PERF_CTR_PRINT(GlobalOut, SetSubsumeTimer);
+      PERF_CTR_PRINT(GlobalOut, ClauseEvalTimer);
 
 #ifdef PRINT_INDEX_STATS
       fprintf(GlobalOut, "# Backwards rewriting index : ");
