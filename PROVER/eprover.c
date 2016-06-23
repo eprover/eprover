@@ -470,7 +470,8 @@ int main(int argc, char* argv[])
    PCLFullTerms = pcl_full_terms; /* Preprocessing always uses full
 				     terms, so we set the flag for
 				     the main proof search only now! */
-   ProofStateInitWatchlist(proofstate, watchlist_filename, parse_format);
+   ProofStateInitWatchlist(proofstate, proofcontrol->ocb,
+                           watchlist_filename, parse_format);
    ProofStateInit(proofstate, proofcontrol);
 
    VERBOUT2("Prover state initialized\n");   

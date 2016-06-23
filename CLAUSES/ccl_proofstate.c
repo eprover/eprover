@@ -244,7 +244,8 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
 //
 /----------------------------------------------------------------------*/
 
-void ProofStateInitWatchlist(ProofState_p state, char* watchlist_filename,
+void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb,
+                             char* watchlist_filename,
                              IOFormat parse_format)
 {
    Scanner_p in;
@@ -288,6 +289,7 @@ void ProofStateInitWatchlist(ProofState_p state, char* watchlist_filename,
       } 
       ClauseSetSetProp(state->watchlist, CPWatchOnly);
       ClauseSetDefaultWeighClauses(state->watchlist);
+      ClauseSetMarkMaximalTerms(ocb, state->watchlist);
       ClauseSetSortLiterals(state->watchlist, EqnSubsumeInverseCompareRef);
       GlobalIndicesInsertClauseSet(&(state->wlindices),state->watchlist);
       ClauseSetDocInital(GlobalOut, OutputLevel, state->watchlist);

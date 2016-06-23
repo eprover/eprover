@@ -466,6 +466,7 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
 	 ClauseRemoveACResolved(handle);
       }
       handle->weight = ClauseStandardWeight(handle);
+      ClauseMarkMaximalTerms(control->ocb, handle);
       ClauseSetIndexedInsertClause(state->watchlist, handle);
       GlobalIndicesInsertClause(&(state->wlindices), handle);
    }   
