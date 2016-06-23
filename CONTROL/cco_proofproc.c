@@ -400,6 +400,7 @@ void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
 	 fprintf(GlobalOut,"# Watchlist reduced by %ld clause%s\n",
 		 removed,removed==1?"":"s");
       }
+      // ClausePrint(GlobalOut, clause, true); printf("\n");
       DocClauseQuote(GlobalOut, OutputLevel, 6, clause,
 		     "extract_subsumes_watched", NULL);   }
    FVUnpackClause(pclause);   
@@ -1223,7 +1224,13 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
    {
       handle = cell->object;
       new = ClauseCopy(handle, state->terms);
+      
       ClauseSetProp(new, CPInitial);
+      if(state->watchlist)
+      {
+         check_watchlist(&(state->gindices), state->watchlist, 
+                         new, state->archive);
+      }
       HCBClauseEvaluate(control->hcb, new);
       DocClauseQuoteDefault(6, new, "eval");
       ClausePushDerivation(new, DCCnfQuote, handle, NULL);
@@ -1260,11 +1267,6 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
    }
 
    GlobalIndicesInit(&(state->gindices), 
-                     state->signature,
-                     control->heuristic_parms.rw_bw_index_type,
-                     control->heuristic_parms.pm_from_index_type,
-                     control->heuristic_parms.pm_into_index_type);
-   GlobalIndicesInit(&(state->wlindices),
                      state->signature,
                      control->heuristic_parms.rw_bw_index_type,
                      control->heuristic_parms.pm_from_index_type,

@@ -471,6 +471,11 @@ int main(int argc, char* argv[])
    PCLFullTerms = pcl_full_terms; /* Preprocessing always uses full
 				     terms, so we set the flag for
 				     the main proof search only now! */
+   GlobalIndicesInit(&(proofstate->wlindices),
+                     proofstate->signature,
+                     proofcontrol->heuristic_parms.rw_bw_index_type,
+                     proofcontrol->heuristic_parms.pm_from_index_type,
+                     proofcontrol->heuristic_parms.pm_into_index_type);   
    ProofStateInitWatchlist(proofstate, proofcontrol->ocb,
                            watchlist_filename, parse_format);
    ProofStateInit(proofstate, proofcontrol);
