@@ -45,22 +45,21 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-typedef enum
-{
-   NO_ERROR = EXIT_SUCCESS,
-   PROOF_FOUND = EXIT_SUCCESS,
-   SATISFIABLE,
-   OUT_OF_MEMORY,
-   SYNTAX_ERROR,
-   USAGE_ERROR,
-   FILE_ERROR,
-   SYS_ERROR,
-   CPU_LIMIT_ERROR,
-   RESOURCE_OUT,
-   INCOMPLETE_PROOFSTATE,
-   OTHER_ERROR,
-   INPUT_SEMANTIC_ERROR
-}ErrorCodes;
+typedef int ErrorCodes;
+
+#define NO_ERROR              0
+#define PROOF_FOUND           0
+#define SATISFIABLE           1
+#define OUT_OF_MEMORY         2
+#define SYNTAX_ERROR          3
+#define USAGE_ERROR           4
+#define FILE_ERROR            5
+#define SYS_ERROR             6
+#define CPU_LIMIT_ERROR       7
+#define RESOURCE_OUT          8
+#define INCOMPLETE_PROOFSTATE 9
+#define OTHER_ERROR           10
+#define INPUT_SEMANTIC_ERROR  11
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
