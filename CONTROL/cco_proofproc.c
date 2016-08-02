@@ -130,6 +130,7 @@ static long remove_subsumed(GlobalIndices_p indices,
    while(!PStackEmpty(stack))
    {
       handle = PStackPopP(stack);
+      // printf("# XXX Removing (remove_subumed()) %p from %p = %p\n", handle, set, handle->set);
       if(ClauseQueryProp(handle, CPWatchOnly))
       {
 	 DocClauseQuote(GlobalOut, OutputLevel, 6, handle,
@@ -388,6 +389,7 @@ void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
    FVPackedClause_p pclause = FVIndexPackClause(clause, watchlist->fvindex);
    long removed;
    
+   // printf("# check_watchlist(%p)...\n", indices);
    ClauseSubsumeOrderSortLits(clause);
    // assert(ClauseIsSubsumeOrdered(clause));
  
@@ -402,8 +404,9 @@ void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
       }
       // ClausePrint(GlobalOut, clause, true); printf("\n");
       DocClauseQuote(GlobalOut, OutputLevel, 6, clause,
-		     "extract_subsumes_watched", NULL);   }
+		     "extract_subsumed_watched", NULL);   }
    FVUnpackClause(pclause);   
+   // printf("# ...check_watchlist()\n");
 }
 
 
@@ -433,14 +436,17 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
    {
       return;
    }
+   // printf("# simplify_watchlist()...\n");
    tmp_set = ClauseSetAlloc();
 
    if(state->wlindices.bw_rw_index)
    {
+      // printf("# Simpclause: "); ClausePrint(stdout, clause, true); printf("\n");
       RemoveRewritableClausesIndexed(control->ocb,
                                      tmp_set, state->archive,
                                      clause, clause->date, 
                                      &(state->wlindices));
+      // printf("# Simpclause done\n");
    }
    else
    {
@@ -451,6 +457,8 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
    }
    while((handle = ClauseSetExtractFirst(tmp_set)))
    {
+      // printf("# WL simplify: "); ClausePrint(stdout, handle, true);
+      // printf("\n");
       ClauseComputeLINormalform(control->ocb,
 				state->terms, 
 				handle,
@@ -468,10 +476,12 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
       }
       handle->weight = ClauseStandardWeight(handle);
       ClauseMarkMaximalTerms(control->ocb, handle);
-      ClauseSetIndexedInsertClause(state->watchlist, handle);
+      ClauseSetIndexedInsertClause(state->watchlist, handle);      
+      // printf("# WL Inserting: "); ClausePrint(stdout, handle, true); printf("\n");
       GlobalIndicesInsertClause(&(state->wlindices), handle);
    }   
    ClauseSetFree(tmp_set);
+   // printf("# ...simplify_watchlist()\n");
 }
 
 
@@ -1228,7 +1238,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
       ClauseSetProp(new, CPInitial);
       if(state->watchlist)
       {
-         check_watchlist(&(state->gindices), state->watchlist, 
+         check_watchlist(&(state->wlindices), state->watchlist, 
                          new, state->archive);
       }
       HCBClauseEvaluate(control->hcb, new);
@@ -1302,6 +1312,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
 
    clause = control->hcb->hcb_select(control->hcb,
 				     state->unprocessed);   
+   //EvalListPrintComment(GlobalOut, clause->evaluations); printf("\n");
    if(OutputLevel==1)
    {
       putc('#', GlobalOut);
@@ -1366,7 +1377,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    
    if(state->watchlist)
    {
-      check_watchlist(&(state->gindices), state->watchlist, 
+      check_watchlist(&(state->wlindices), state->watchlist, 
                       pclause->clause, state->archive);
    }
     

@@ -168,7 +168,6 @@ typedef struct scannercell
 #define  CurrColumn(scanner)     StreamCurrColumn((scanner)->source)
 #define  NextChar(scanner)       StreamNextChar((scanner)->source)
 
-#define  ScannerSetFormat(scanner, fmt) ((scanner)->format = (fmt))
 #define  ScannerGetFormat(scanner)        ((scanner)->format)
 
 #define  ScannerGetDefaultDir(scanner) DStrView((scanner)->default_dir)
@@ -186,6 +185,9 @@ void      PrintToken(FILE* out, Token_p token);
 Scanner_p CreateScanner(StreamType type, char *name, bool
 			ignore_comments, char *default_dir);
 void      DestroyScanner(Scanner_p  junk);
+
+void      ScannerSetFormat(Scanner_p scanner, IOFormat fmt);
+
 
 #define TOKENREALPOS(pos) ((pos) % MAXTOKENLOOKAHEAD)
 #define AktToken(in) (&((in)->tok_sequence[(in)->current]))

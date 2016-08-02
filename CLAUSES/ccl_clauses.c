@@ -1363,6 +1363,9 @@ void ClausePrintTPTPFormat(FILE* out, Clause_p clause)
    case CPTypeLemma:
          typename = "lemma";
          break;
+   case CPTypeWatchClause:
+         typename = "watchlist";
+         break;
    default:
 	 typename = "unknown";
 	 break;

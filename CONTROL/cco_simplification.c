@@ -64,6 +64,7 @@ void ClauseMoveSimplified(GlobalIndices_p gindices,
                           ClauseSet_p tmp_set, 
                           ClauseSet_p archive) 
 {
+   // printf("# Removing %p from %p: ", clause, clause->set);ClausePrint(stdout, clause, true);printf("\n");
    ClauseKillChildren(clause);
    ClauseSetExtractEntry(clause);
    GlobalIndicesDeleteClause(gindices, clause);
@@ -143,6 +144,7 @@ bool RemoveRewritableClausesIndexed(OCB_p ocb, ClauseSet_p into,
    while(!PStackEmpty(stack))
    {
       handle = PStackPopP(stack);
+      // printf("# XXX RWRemoving %p from %p with index %p (flag %d): ", handle, handle->set, gindices, ClauseQueryProp(handle, CPIsGlobalIndexed)); ClausePrint(stdout, handle, true); printf("\n");
       ClauseDelProp(handle, CPRWDetected);
       ClauseMoveSimplified(gindices, handle, into, archive);
    }

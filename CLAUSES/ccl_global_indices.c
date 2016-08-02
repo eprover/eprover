@@ -198,7 +198,7 @@ void GlobalIndicesInsertClause(GlobalIndices_p indices, Clause_p clause)
    
    ClauseSetProp(clause, CPIsGlobalIndexed);
 
-   // printf("Inserting clause: ");ClausePrint(stdout, clause, true); printf("\n");
+   // printf("# Inserting clause %p in index %p: ", clause, indices);ClausePrint(stdout, clause, true); printf("\n");
 
    if(indices->bw_rw_index)
    {
@@ -240,12 +240,12 @@ void GlobalIndicesInsertClause(GlobalIndices_p indices, Clause_p clause)
 
 void GlobalIndicesDeleteClause(GlobalIndices_p indices, Clause_p clause)
 {
-   //printf("# XXX: ");ClausePrint(GlobalOut, clause, true);printf("\n");
+   // printf("# XXX GlobalIndicesDeleteClause()... (set=%p): ", clause->set);ClausePrint(GlobalOut, clause, true);printf("\n");
    
-   //assert(ClauseQueryProp(clause, CPIsGlobalIndexed));
+   assert(ClauseQueryProp(clause, CPIsGlobalIndexed));
 
    ClauseDelProp(clause, CPIsGlobalIndexed);
-
+   
    if(indices->bw_rw_index)
    {
       PERF_CTR_ENTRY(BWRWIndexTimer);
@@ -268,6 +268,7 @@ void GlobalIndicesDeleteClause(GlobalIndices_p indices, Clause_p clause)
       OverlapIndexDeleteFromClause(indices->pm_from_index, clause);
       PERF_CTR_EXIT(PMIndexTimer);
    }
+   // printf("# ...GlobalIndicesDeleteClause()\n");
 }
 
 

@@ -102,6 +102,7 @@ void        ClauseSetSort(ClauseSet_p set, ComparisonFunctionType cmp_fun);
 
 void        ClauseSetSetProp(ClauseSet_p set, ClauseProperties prop);
 void        ClauseSetDelProp(ClauseSet_p set, ClauseProperties prop);
+void        ClauseSetSetTPTPType(ClauseSet_p set, ClauseProperties type);
 
 long        ClauseSetMarkCopies(ClauseSet_p set);
 long        ClauseSetDeleteMarkedEntries(ClauseSet_p set);

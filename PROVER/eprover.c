@@ -143,24 +143,12 @@ ProofState_p parse_spec(CLState_p state,
    for(i=0; state->argv[i]; i++)
    {
       in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL);
-      if(parse_format_local == AutoFormat)
-      {
-         if(TestInpId(in, "fof|cnf|tff|include"))
-         {
-            parse_format_local = TSTPFormat;
-            OutputFormat = TSTPFormat;
-            DocOutputFormat = tstp_format;
-         }
-         else if(TestInpId(in, "input_clause|input_formula"))
-         {
-            parse_format_local = TPTPFormat;
-         }
-         else
-         {
-            parse_format_local = LOPFormat;
-         }
-      }
       ScannerSetFormat(in, parse_format_local);
+      if(parse_format_local == AutoFormat && in->format == TSTPFormat)
+      {
+         OutputFormat = TSTPFormat;
+         DocOutputFormat = tstp_format;
+      }
       
       FormulaAndClauseSetParse(in, proofstate->axioms, 
                                proofstate->f_axioms,
@@ -474,8 +462,8 @@ int main(int argc, char* argv[])
    GlobalIndicesInit(&(proofstate->wlindices),
                      proofstate->signature,
                      proofcontrol->heuristic_parms.rw_bw_index_type,
-                     proofcontrol->heuristic_parms.pm_from_index_type,
-                     proofcontrol->heuristic_parms.pm_into_index_type);   
+                     "NoIndex",
+                     "NoIndex");   
    ProofStateInitWatchlist(proofstate, proofcontrol->ocb,
                            watchlist_filename, parse_format);
    ProofStateInit(proofstate, proofcontrol);

@@ -914,6 +914,40 @@ void DestroyScanner(Scanner_p  junk)
    ScannerCellFree(junk);
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: ScannerSetFormat()
+//
+//   Set the format of the scanner (in particular, guess a format if 
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+void ScannerSetFormat(Scanner_p scanner, IOFormat fmt)
+{
+   if(fmt == AutoFormat)
+   {
+      if(TestInpId(scanner, "fof|cnf|tff|include"))
+      {
+         fmt = TSTPFormat;
+      }
+      else if(TestInpId(scanner, "input_clause|input_formula"))
+      {
+         fmt = TPTPFormat;
+      }
+      else
+      {
+         fmt = LOPFormat;
+      }
+   }
+   scanner->format = fmt;   
+}
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: TestTok()

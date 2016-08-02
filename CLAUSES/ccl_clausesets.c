@@ -922,6 +922,32 @@ void ClauseSetDelProp(ClauseSet_p set, ClauseProperties prop)
 
 /*-----------------------------------------------------------------------
 //
+// Function: ClauseSetSetTPTPType()
+//
+//   Set TPTP type in all clauses in set.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void ClauseSetSetTPTPType(ClauseSet_p set, ClauseProperties type)
+{
+   Clause_p handle;
+
+   for(handle = set->anchor->succ; handle!=set->anchor; handle =
+	  handle->succ)
+   {
+      ClauseSetTPTPType(handle, type);
+   }
+}
+
+
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: ClauseSetMarkCopies()
 //
 //   Mark clauses that are equivalent (modulo ClauseCompareFun) to

@@ -905,6 +905,9 @@ EvalPriority PrioFunPreferWatchlist(Clause_p clause)
 
    if(ClauseQueryProp(clause, CPSubsumesWatch))
    {
+      // printf("# Found: ");
+      // ClausePrint(stdout, clause, true);
+      // printf("\n");
       return PrioPrefer;
    }
    return PrioNormal;

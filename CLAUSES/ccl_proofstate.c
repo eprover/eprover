@@ -180,6 +180,7 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->demods[2]            = NULL;
    handle->watchlist            = NULL;
    GlobalIndicesNull(&(handle->wlindices));
+   // printf("# &wlindices = %p\n", &(handle->wlindices));
    handle->state_is_complete    = true;
    handle->definition_store     = DefStoreAlloc(handle->terms);
    handle->def_store_cspec      = NULL;
@@ -260,9 +261,10 @@ void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb,
          in = CreateScanner(StreamTypeFile, watchlist_filename, true, NULL);
          ScannerSetFormat(in, parse_format);
          ClauseSetParseList(in, state->watchlist,
-                            state->terms);
+                            state->terms);         
          CheckInpTok(in, NoToken);
          DestroyScanner(in);
+         ClauseSetSetTPTPType(state->watchlist, CPTypeWatchClause);
       }
       else
       {
@@ -293,8 +295,9 @@ void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb,
       ClauseSetSortLiterals(state->watchlist, EqnSubsumeInverseCompareRef);
       GlobalIndicesInsertClauseSet(&(state->wlindices),state->watchlist);
       ClauseSetDocInital(GlobalOut, OutputLevel, state->watchlist);
-   } 
-   // printf("# watchlist: %p\n", state->watchlist);
+      // ClauseSetPrint(stdout, state->watchlist, true);
+   }    
+   //printf("# watchlist: %p\n", state->watchlist);
 }
 
 
