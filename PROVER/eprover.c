@@ -464,9 +464,9 @@ int main(int argc, char* argv[])
                      proofcontrol->heuristic_parms.rw_bw_index_type,
                      "NoIndex",
                      "NoIndex");   
+   ProofStateInit(proofstate, proofcontrol);
    ProofStateInitWatchlist(proofstate, proofcontrol->ocb,
                            watchlist_filename, parse_format);
-   ProofStateInit(proofstate, proofcontrol);
 
    VERBOUT2("Prover state initialized\n");   
    preproc_time = GetTotalCPUTime();

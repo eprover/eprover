@@ -625,6 +625,31 @@ void ClauseSetIndexedInsertClause(ClauseSet_p set, Clause_p newclause)
 
 /*-----------------------------------------------------------------------
 //
+// Function: 
+//
+//   
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+void ClauseSetIndexedInsertClauseSet(ClauseSet_p set, ClauseSet_p source)
+{
+   Clause_p handle;
+   
+   while(!ClauseSetEmpty(source))
+   {
+      handle = ClauseSetExtractFirst(source);
+      handle->weight = ClauseStandardWeight(handle);
+      ClauseSetIndexedInsertClause(set, handle);
+   }  
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: ClauseSetExtractEntry()
 //
 //   Remove a (possibly indexed) clause from a clause set.

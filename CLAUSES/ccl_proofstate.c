@@ -250,6 +250,7 @@ void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb,
                              IOFormat parse_format)
 {
    Scanner_p in;
+   ClauseSet_p tmpset;
    
    if(watchlist_filename)
    {
@@ -258,13 +259,16 @@ void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb,
 
       if(watchlist_filename != UseInlinedWatchList)
       {
+         tmpset = ClauseSetAlloc();
          in = CreateScanner(StreamTypeFile, watchlist_filename, true, NULL);
          ScannerSetFormat(in, parse_format);
-         ClauseSetParseList(in, state->watchlist,
+         ClauseSetParseList(in, tmpset,
                             state->terms);         
          CheckInpTok(in, NoToken);
          DestroyScanner(in);
+         ClauseSetIndexedInsertClauseSet(state->watchlist, tmpset);
          ClauseSetSetTPTPType(state->watchlist, CPTypeWatchClause);
+         ClauseSetFree(tmpset);
       }
       else
       {
@@ -285,7 +289,7 @@ void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb,
          {
             handle = PStackPopP(stack);
             ClauseSetExtractEntry(handle);
-            ClauseSetInsert(state->watchlist, handle);
+            ClauseSetIndexedInsertClause(state->watchlist, handle);
          }        
          PStackFree(stack);
       } 
