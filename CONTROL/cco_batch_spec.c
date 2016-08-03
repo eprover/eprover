@@ -842,6 +842,110 @@ bool BatchProcessProblems(BatchSpec_p spec, StructFOFSpec_p ctrl,
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: BatchProcessInteractive()
+//
+//   Perform interactive processing of problems relating to the batch
+//   processing spec in spec and the axiom sets stored in ctrl.
+//
+// Global Variables: -
+//
+// Side Effects    : I/O, blocks on reading fp, initiates processing.
+//
+/----------------------------------------------------------------------*/
+
+void BatchProcessInteractive(BatchSpec_p spec, 
+                             StructFOFSpec_p ctrl, 
+                             FILE* fp)
+{
+   DStr_p input   = DStrAlloc();
+   DStr_p jobname = DStrAlloc();
+   bool done = false;
+   Scanner_p in;
+   ClauseSet_p cset;
+   FormulaSet_p fset;
+   long         wct_limit=30;
+
+   if(spec->per_prob_limit)
+   {
+      wct_limit = spec->per_prob_limit;
+   }
+
+   while(!done)
+   {
+      DStrReset(input);
+
+      fprintf(fp, "# Enter job, 'help' or 'quit', followed by 'go.' on a line of its own:\n");
+      fflush(fp);
+      if(!ReadTextBlock(input, stdin, "go.\n"))
+      {
+         fprintf(fp, "# Error: Read failed (probably EOF)\n");
+         break;
+      }
+      
+      in = CreateScanner(StreamTypeUserString, 
+                         DStrView(input),
+                         true, 
+                         NULL);
+      ScannerSetFormat(in, TSTPFormat);
+      if(TestInpId(in, "quit"))
+      {
+         done = true;
+      }
+      else if(TestInpId(in, "help"))
+      {
+         fprintf(fp, "\
+# Enter a job, 'help' or 'quit'. Finish any action with 'go.' on a line\n\
+# of its own. A job consists of an optional job name specifier of the\n\
+# form 'job <ident>.', followed by a specification of a first-order\n\
+# problem in TPTP-3 syntax (including any combination of 'cnf', 'fof' and\n\
+# 'include' statements. The system then tries to solve the specified\n\
+# problem (including the constant background theory) and prints the\n\
+# results of this attempt.\n");
+      }
+      else
+      {
+         DStrReset(jobname);
+         if(TestInpId(in, "job"))
+         {
+            AcceptInpId(in, "job");
+            DStrAppendDStr(jobname, AktToken(in)->literal);
+            AcceptInpTok(in, Identifier);
+            AcceptInpTok(in, Fullstop);
+         }
+         else
+         {
+            DStrAppendStr(jobname, "unnamed_job");            
+         }
+         fprintf(fp, "\n# Processing started for %s\n", DStrView(jobname));
+         
+         cset = ClauseSetAlloc();
+         fset = FormulaSetAlloc();
+         FormulaAndClauseSetParse(in, cset, fset, ctrl->terms, 
+                                  NULL, 
+                                  &(ctrl->parsed_includes));
+         
+         // cset and fset are handed over to BatchProcessProblem and are
+         // freed there (via StructFOFSpecBacktrackToSpec()).
+         (void)BatchProcessProblem(spec, 
+                                   wct_limit,
+                                   ctrl,
+                                   DStrView(jobname),
+                                   cset,
+                                   fset,
+                                   fp,
+                                   -1);         
+         fprintf(fp, "\n# Processing finished for %s\n\n", DStrView(jobname));
+      }
+      DestroyScanner(in);
+   }   
+   DStrFree(jobname);
+   DStrFree(input);
+}
+
+
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
