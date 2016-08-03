@@ -116,12 +116,12 @@ void SetSoftRlimitErr(int resource, rlim_t limit, char* desc)
    switch(res)
    {
    case RLimFailed:
-         sprintf(message, "Could not set limit %s", ldesc);
+         sprintf(message, "Could not set limit '%s'", ldesc);
          TmpErrno = errno;
          SysError(message, SYS_ERROR);
          break;
    case RLimReduced:
-         sprintf(message, "Had to reduce limit %s", ldesc);
+         sprintf(message, "Had to reduce limit '%s'", ldesc);
          Warning(message);
          break;
    case RLimSuccess:

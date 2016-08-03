@@ -71,6 +71,11 @@ bool                  SilentTimeOut     = false;
 
 void ESignalSetup(int mysignal)
 {
+   struct rlimit limit;
+
+   getrlimit(RLIMIT_CPU, &limit);
+   SystemTimeLimit = limit.rlim_max;
+   
    if(signal(mysignal, ESignalHandler) == SIG_ERR)
    {
       TmpErrno = errno;
@@ -111,7 +116,7 @@ void ESignalHandler(int mysignal)
 	 {	  	    
 	    TimeIsUp = 1;
 	    TimeLimitIsSoft = false;
-	    limit.rlim_cur = HardTimeLimit;
+	    limit.rlim_cur = MIN(HardTimeLimit, SystemTimeLimit);
 	    if(setrlimit(RLIMIT_CPU, &limit))
 	    {
 	       TmpErrno = errno;
