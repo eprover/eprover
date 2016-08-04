@@ -1534,12 +1534,12 @@ CLState_p process_options(int argc, char* argv[])
    {
       if(SoftTimeLimit!=RLIM_INFINITY)
       {
-         SetSoftRlimitErr(RLIMIT_CPU, SoftTimeLimit, "soft cputime");
+         SetSoftRlimitErr(RLIMIT_CPU, SoftTimeLimit, "RLIMIT_CPU (E-Soft)");
 	 TimeLimitIsSoft = true;
       }
       else
       {
-         SetSoftRlimitErr(RLIMIT_CPU, HardTimeLimit, "hard cputime");
+         SetSoftRlimitErr(RLIMIT_CPU, HardTimeLimit, "RLIMIT_CPU (E-Hard)");
 	 TimeLimitIsSoft = false;
       }
 

@@ -58,7 +58,7 @@ typedef enum
    SpecArity0,
    SpecArity1,
    SpecArity2,
-     SpecArity3Plus,
+   SpecArity3Plus,
    SpecAritySumSmall,
    SpecAritySumMedium,
    SpecAritySumLarge,

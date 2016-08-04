@@ -70,6 +70,7 @@ RLimResult SetSoftRlimit(int resource, rlim_t limit)
 
    if(getrlimit(resource, &rlim)==-1)
    {
+      TmpErrno = errno;
       return RLimFailed;
    }
    if(rlim.rlim_max < limit)
@@ -80,6 +81,7 @@ RLimResult SetSoftRlimit(int resource, rlim_t limit)
    rlim.rlim_cur = limit;
    if(setrlimit(resource, &rlim)==-1)
    {
+      TmpErrno = errno;
       retval = RLimFailed;
    }
    return retval;
@@ -103,12 +105,11 @@ RLimResult SetSoftRlimit(int resource, rlim_t limit)
 void SetSoftRlimitErr(int resource, rlim_t limit, char* desc)
 {
    char* ldesc ="";
-   char message[200];
+   static char message[300];
    RLimResult res;
 
    if(desc)
    {
-      assert(strlen(desc)<=100);
       ldesc = desc;
    }
    res = SetSoftRlimit(resource, limit);
@@ -116,12 +117,12 @@ void SetSoftRlimitErr(int resource, rlim_t limit, char* desc)
    switch(res)
    {
    case RLimFailed:
-         sprintf(message, "Could not set limit '%s'", ldesc);
-         TmpErrno = errno;
-         SysError(message, SYS_ERROR);
+         snprintf(message, 300, "Could not set limit %s to %lld (%s)",
+                  ldesc, (long long)limit, strerror(TmpErrno));
+         Warning(message);
          break;
    case RLimReduced:
-         sprintf(message, "Had to reduce limit '%s'", ldesc);
+         snprintf(message, 300, "Had to reduce limit %s", ldesc);
          Warning(message);
          break;
    case RLimSuccess:

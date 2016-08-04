@@ -15,7 +15,7 @@ include ../Makefile.vars
 
 # Project specific variables
 
-PROJECT = eprover e_ltb_runner e_deduction_server e_axfilter e_server e_client \
+PROJECT = eprover e_ltb_runner e_deduction_server e_axfilter \
 	  classify_problem termprops\
           direct_examples epclanalyse epclextract checkproof eground\
           enormalizer edpll epcllemma\
