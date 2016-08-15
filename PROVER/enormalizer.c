@@ -55,6 +55,7 @@ typedef enum
    OPT_OUTPUTLEVEL,
    OPT_PRINT_STATISTICS,
    OPT_RUSAGE_INFO,
+   OPT_LOP_PARSE,
    OPT_TPTP_PARSE,
    OPT_TPTP_PRINT,
    OPT_TPTP_FORMAT,
@@ -143,6 +144,16 @@ OptCell opts[] =
     "more information with the rusage() system call, you will also "
     "get information about memory consumption."},
 
+   {OPT_LOP_PARSE,
+    '\0', "lop-in",
+    NoArg, NULL,
+    "Set E-LOP as the input format. If no input format is "
+    "selected by this or one of the following options, E will "
+    "guess the input format based on the first token. It will "
+    "almost always correctly recognize TPTP-3, but it may "
+    "misidentify E-LOP files that use TPTP meta-identifiers as "
+    "logical symbols."},
+   
    {OPT_TPTP_PARSE,
     '\0', "tptp-in",
     NoArg, NULL,
@@ -245,7 +256,7 @@ char *outname = NULL,
      *termname = NULL,
      *clausename = NULL,
      *formulaname = NULL;
-IOFormat parse_format = LOPFormat;
+IOFormat parse_format = AutoFormat;
 bool   print_statistics = false,
        print_rusage = false,
        print_result = true;
@@ -609,6 +620,9 @@ CLState_p process_options(int argc, char* argv[])
 	    break;
       case OPT_RUSAGE_INFO:
 	    print_rusage = true;
+	    break;
+      case OPT_LOP_PARSE:
+	    parse_format = LOPFormat;	    
 	    break;
       case OPT_TPTP_PARSE:
 	    parse_format = TPTPFormat;

@@ -52,6 +52,7 @@ typedef enum
    OPT_PRINT_STATISTICS,
    OPT_RUSAGE_INFO,
    OPT_SUPRESS_RESULT,
+   OPT_LOP_PARSE,
    OPT_TPTP_PARSE,
    OPT_TPTP_PRINT,
    OPT_TPTP_FORMAT,
@@ -135,6 +136,16 @@ OptCell opts[] =
     NoArg, NULL,
     "Supress actual printing of the result, just give a short message "
     "about success. Useful mainly for test runs."},
+
+   {OPT_LOP_PARSE,
+    '\0', "lop-in",
+    NoArg, NULL,
+    "Set E-LOP as the input format. If no input format is "
+    "selected by this or one of the following options, E will "
+    "guess the input format based on the first token. It will "
+    "almost always correctly recognize TPTP-3, but it may "
+    "misidentify E-LOP files that use TPTP meta-identifiers as "
+    "logical symbols."},
 
    {OPT_TPTP_PARSE,
     '\0', "tptp-in",
@@ -306,7 +317,7 @@ OptCell opts[] =
 };
 
 char   *outname = NULL;
-IOFormat parse_format = LOPFormat;
+IOFormat parse_format = AutoFormat;
 bool   dimacs_format = false;
 int    split_tries = 0;
 bool   unit_sub = true, 
@@ -642,6 +653,9 @@ CLState_p process_options(int argc, char* argv[])
 	    break;
       case OPT_SUPRESS_RESULT:
 	    print_result = false;
+	    break;
+      case OPT_LOP_PARSE:
+	    parse_format = LOPFormat;	    
 	    break;
       case OPT_TPTP_PARSE:
 	    parse_format = TPTPFormat;

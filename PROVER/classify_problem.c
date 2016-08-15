@@ -45,6 +45,7 @@ typedef enum
    OPT_VERBOSE,
    OPT_OUTPUT,
    OPT_PARSE_FEATURES,
+   OPT_LOP_PARSE,
    OPT_TPTP_PARSE,
    OPT_TPTP_PRINT,
    OPT_TPTP_FORMAT,
@@ -129,6 +130,17 @@ OptCell opts[] =
     "Parse precomputed feature lines, not real formulae. This "
     "conflicts with the '--generate-tptp-header' option, as not "
     "all information needed for this is stored in feature lines."},
+
+   {OPT_LOP_PARSE,
+    '\0', "lop-in",
+    NoArg, NULL,
+    "Set E-LOP as the input format. If no input format is "
+    "selected by this or one of the following options, E will "
+    "guess the input format based on the first token. It will "
+    "almost always correctly recognize TPTP-3, but it may "
+    "misidentify E-LOP files that use TPTP meta-identifiers as "
+    "logical symbols."},
+
    {OPT_TPTP_PARSE,
     '\0', "tptp-in",
     NoArg, NULL,
@@ -410,7 +422,7 @@ char *outname = NULL,
      *mask = "aaaaa----aaaa",
      *raw_mask = "aaaaaaa";
         
-IOFormat parse_format     = LOPFormat;
+IOFormat parse_format     = AutoFormat;
 bool     tptp_header      = false,
          raw_classify     = false,
          no_preproc       = false,
@@ -869,6 +881,9 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
             break;
       case OPT_OUTPUT:
 	    outname = arg;
+	    break;
+      case OPT_LOP_PARSE:
+	    parse_format = LOPFormat;
 	    break;
       case OPT_TPTP_PARSE:
 	    parse_format = TPTPFormat;

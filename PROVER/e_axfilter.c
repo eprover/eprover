@@ -120,7 +120,12 @@ OptCell opts[] =
    {OPT_LOP_PARSE,
     '\0', "lop-in",
     NoArg, NULL,
-    "Parse input in E-LOP, not the default TPTP-3 format."},
+    "Set E-LOP as the input format. If no input format is "
+    "selected by this or one of the following options, E will "
+    "guess the input format based on the first token. It will "
+    "almost always correctly recognize TPTP-3, but it may "
+    "misidentify E-LOP files that use TPTP meta-identifiers as "
+    "logical symbols."},
 
    {OPT_LOP_FORMAT,
     '\0', "lop-format",
@@ -153,7 +158,7 @@ OptCell opts[] =
     NoArg, NULL,
     "Parse TPTP-3 format instead of E-LOP (Note that TPTP-3 syntax "
     "is still under development, and the version in E may not be "
-    "fully conforming at all times. E works on all TPTP 5.4.0 FOF "
+    "fully conforming at all times. E works on all TPTP 6.3.0 FOF "
     "and CNF input files (including includes)."},
    
    {OPT_TSTP_FORMAT,
@@ -176,7 +181,7 @@ OptCell opts[] =
     NoArg, NULL,
     NULL}
 };
-IOFormat          parse_format = TSTPFormat;
+IOFormat          parse_format = AutoFormat;
 char              *outname    = NULL;
 char              *filtername = NULL;
 bool              dumpfilter  = false;
