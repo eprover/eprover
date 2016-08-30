@@ -7,8 +7,8 @@ Version 1.9 -> 1.9.1 Sungma
 - Added optional recording of selected given clauses in the proof
   object
 - New auto modes (including one bred heuristic)
-- Fixed bug in formula simplification involving P=>/<=>$false
-- Added given clause recording and taining example generation
+- Fixed bug in formula simplification involving P=><=>$false
+- Added given clause recording and training example generation
 - Various cleanups and additional compile time warnings
 - More detailed proof graphs
 - Automatic determination of input format if no format is

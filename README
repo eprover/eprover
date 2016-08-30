@@ -27,15 +27,16 @@ Simplest installation (in-place):
 This will only allow you to run the eproof and eproof_ram scripts in
 place. Most other programs, including eprover, are stand-alone
 binaries and should run from everywhere. The eproof scripts are now
-semi-obsolete, since E 1.9 can generate proof objects internally.
+semi-obsolete and deprecated, since E 1.9 and later can generate proof
+objects internally.
 
 Read the rest of this file and the fine (if incomplete) manual if
 anything fails. There should be a copy of the manual in
 DOC/eprover.pdf.
 
-The recommended command for running E on a "modern" TPTP-3 file is
+The recommended command for running E on the file problem.p is
 
-  eprover --auto --tptp3-in --proof-object problem.p
+  eprover --auto --proof-object problem.p
 
 If you want to try the usually stronger strategy scheduling mode, use
 
@@ -44,7 +45,9 @@ If you want to try the usually stronger strategy scheduling mode, use
 You can add a time limit of 300 seconds with the option
 --cpu-limit=300 and a memory limit of 2 GB with --memory-limit=2048
 for all "automatic" modes. You can reduce output with -s (or
---silent). 
+--silent). As of version 1.9.1, E will try to auto-detect the input
+format and adjust the output format accordingly. You can still force
+input and output formats via commandline options.
 
 
 
@@ -52,16 +55,16 @@ for all "automatic" modes. You can reduce output with -s (or
              ===============================
 
 
-This is the README file for version 1.9 "Sourenee" of the E equational
+This is the README file for version 1.9.1 "Sungma" of the E equational
 theorem prover. This version of E is free software, see the file
 COPYING for details about the license and the fact that THERE IS NO
 WARRANTY!
 
-Release 1.9 contains mostly minor improvements. In particular, proof
-objects are slightly more compacat and more universally available
-Search behaviour was improved with changes to the automatic
-mode, and strategy-scheduling has moved from experimental to
-(hopefully) stable.
+Release 1.9.1 contains several minor improvements and a bug fix in
+clausifications. In particular, the input format ist now by default
+automatically recognized. Search behaviour was improved with changes
+to the automatic mode, and strategy-scheduling has moved from
+experimental to (hopefully) stable.
 
 
 What is E?
@@ -124,7 +127,6 @@ Then type
 
    make
 
-
 to compile the library and all included programs under the E
 directory. If you want to install E in a particular EXECDIR, type
 
@@ -183,11 +185,9 @@ proofs. To use this, type
 
   eprover --proof-object <other-stuff> 
 
-By default, E will read LOP and write proof objects in PCL2. However,
-for current usage, TPTP-3 syntax is usually preferred, and strongly
-recommended. To use TPTP-3 syntax, use option --tptp3-in (for input
-only) or --tptp3-format (for input and proof object output).
-
+By default, E will now automatically detect the input format (LOP,
+TPTP-2 or TPTP-3), and will select the matching output format (PCL2
+for LOP and TPTP-2 inputs, TPTP-3 for TPTP-3 inputs).
 
 You can check the proof objects in PCL format for correctness using
 the tool checkproof in the same directory. "checkproof -h" should give
@@ -195,7 +195,6 @@ you all necessary information. Note that checkproof cannot yet deal
 with the full first order part, and will skip anything not
 clausal. Also, support for independent provers in checkproof can be
 subject to bit-rot, as other systems and interfaces change.
-
 
 
 Directory overview:
