@@ -399,6 +399,11 @@ int main(int argc, char* argv[])
    {
       in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL);
       ScannerSetFormat(in, parse_format);
+      if(parse_format == AutoFormat && in->format == TSTPFormat)
+      {
+         OutputFormat = TSTPFormat;
+      }
+
       /* ClauseSetParseList(in, clauses, terms); */
       FormulaAndClauseSetParse(in,clauses, formulas, terms, 
          NULL, &skip_includes);
