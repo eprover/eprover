@@ -38,8 +38,8 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* git tag E-1-9-1pre018 */
-#define VERSION      "1.9.1pre018"
+/* git tag E-1-9-1rc01 */
+#define VERSION      "1.9.1rc01"
 
 #define E_NICKNAME     "Sungma"
 
