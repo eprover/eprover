@@ -1452,3 +1452,61 @@ Stephan
       Please email me as schulz@eprover.org (Stephan Schulz)
 ----------------------------------------------------------------------------
 
+
+This is the announcement for version 1.9 of E.
+-----------------------------------------------------
+
+
+From: schulz@eprover.org (Stephan Schulz)
+Subject: E Equational Theorem Prover 1.9.1 "Sungma" Released
+
+
+E 1.9.1 "Sungma" is the latest version of the successful automated
+theorem prover.
+
+E is a theorem prover for full first order logic with equality. It has
+successfully competed in several CASC competitions and is generally
+considered a friendly and powerful system (as theorem provers go). E
+has won the "overall best system" special award at CASC-J5 and the CNF
+category at CASC-23. It scored good placements at CASC-25 and CASC-J7
+and is used a component in several other systems.
+
+Major user-visible improvements of E 1.9.1 are improved automatic
+modes, automatic detection of input format, major fixes to the
+watchlist mechanism (especially with respect to using it to provide
+hints for proof search) and a bug-fix for a rarely triggered, but
+nasty bug in clausification. We recommend all users of older versions
+to upgrade to E 1.9.1.
+
+E is available as a source distribution for UNIX-variants. It
+installed cleanly under all UNIX variants I could get my hands on:
+Various versions of GNU/Linux for Intel, and XScale, Solaris on SPARC,
+and MacOS-X (with both GNU gcc and LLVM). Users have reported
+successful builds on a large number of other operating systems,
+including Windows/Cygwin.
+
+The system is dual-licensed under the GNU General Public License and
+the GNU Lesser General Public License.
+
+We expect this to be the last full release of E that does not support
+many-sorted logic. We will release a preliminary experimental version
+from the E 2.0 development branch with support for TPTP-3 TFF
+shortly. Thanks to Simon Cruanes for making that possible. Note that
+the official and stable release for E 2.0 is a while off - if you do
+not need support for TFF or future experimental features, we recommend
+that you stick with E 1.9.1 for the moment.
+
+You can find the source distribution and additional information at
+the E website at 
+               http://www.eprover.org
+
+Have fun!
+
+
+Stephan
+
+-- 
+-------------------------- It can be done! ---------------------------------
+      Please email me as schulz@eprover.org (Stephan Schulz)
+----------------------------------------------------------------------------
+
