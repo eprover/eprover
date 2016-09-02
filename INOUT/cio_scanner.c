@@ -188,7 +188,11 @@ static void scan_int(Scanner_p in)
 
    if(errno)
    {
-      AktToken(in)->tok = Ident;
+      static char buff[10];
+      char* term=strncpy(buff, DStrView(AktToken(in)->literal), 9);
+      *term = '\0';
+      strtol(buff, NULL, 10);
+      Warning("Number truncated while reading %s. If this happens on 32 bit systems while parsing internal strings, it is harmless an can be ignored",  DStrView(AktToken(in)->literal));
    }
 }
 
