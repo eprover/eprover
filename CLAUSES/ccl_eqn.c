@@ -25,7 +25,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "ccl_eqn.h"
-
+#include "cte_typecheck.h"
 
 
 /*---------------------------------------------------------------------*/
@@ -273,7 +273,8 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
    lterm = TBTermParse(in, bank);
    BOOL_TERM_NORMALIZE(lterm);
    
-   if(!TermIsVar(lterm) && SigIsPredicate(bank->sig,lterm->f_code))
+   if(!TermIsVar(lterm) && SigIsPredicate(bank->sig,lterm->f_code) &&
+      SigIsFixedType(bank->sig, lterm->f_code))
    {
       rterm = bank->true_term; /* Non-Equational literal */
    }
@@ -289,37 +290,28 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
          rterm = TBTermParse(in, bank);
          if(!TermIsVar(rterm))
          {
-            if(SigIsPredicate(bank->sig, rterm->f_code))
-            {
-               AktTokenError(in, "Predicate symbol used as "
-                             "function symbol in preceding atom", false);
-            }
-            SigSetFunction(bank->sig, rterm->f_code, true);
+            TypeDeclareIsNotPredicate(bank->sig, rterm);
          }
       }
       else if(TestInpTok(in, NegEqualSign|EqualSign))
       { /* Now both sides must be terms */
-         SigSetFunction(bank->sig, lterm->f_code, true);
+         TypeDeclareIsNotPredicate(bank->sig, lterm);
          if(TestInpTok(in, NegEqualSign))
          {
             positive = !positive;
          }
          AcceptInpTok(in, NegEqualSign|EqualSign);	 
          rterm = TBTermParse(in, bank);
+         TypeDeclareIsNotPredicate(bank->sig, lterm);
          if(!TermIsVar(rterm))
          {
-            if(SigIsPredicate(bank->sig, rterm->f_code))
-            {
-               AktTokenError(in, "Predicate symbol used as "
-                             "function symbol in preceding atom", false);
-            }
-            SigSetFunction(bank->sig, rterm->f_code, true);
+            TypeDeclareIsNotPredicate(bank->sig, rterm);
          }
       }
       else
       { /* It's a predicate */
          rterm = bank->true_term; /* Non-Equational literal */
-         SigSetPredicate(bank->sig, lterm->f_code, true);
+         TypeDeclareIsPredicate(bank->sig, lterm);
       }
    }
    *lref = lterm;
@@ -378,7 +370,7 @@ static bool eqn_parse_prefix(Scanner_p in, TB_p bank, Term_p *lref,
 		       "used at predicate position", false); 
 	 
       }
-      SigSetPredicate(bank->sig, lterm->f_code, true);
+      SigDeclareIsPredicate(bank->sig, lterm->f_code);
    }
    *lref = lterm;
    *rref = rterm;
@@ -513,7 +505,7 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
    {
       EqnSetProp(handle, EPIsPositive);
    }
-   if(!TBTermEqual(rterm, bank->true_term))
+   if(rterm != bank->true_term)
    {
       assert(rterm->f_code!=SIG_TRUE_CODE);
       EqnSetProp(handle, EPIsEquLiteral);      
@@ -530,13 +522,19 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
       printf("===");
       TermPrint(stdout, rterm, bank->sig, DEREF_NEVER);
       printf("\n"); */
-      assert(SigQueryFuncProp(bank->sig, lterm->f_code, FPPredSymbol));      
+      SigDeclareIsPredicate(bank->sig, lterm->f_code);
       TermCellSetProp(lterm, TPPredPos);
       if(SigQueryFuncProp(bank->sig, lterm->f_code, FPPseudoPred))
       {
          EqnSetProp(handle, EPPseudoLit);      
       }
    }
+
+   if(lterm->sort != rterm->sort)
+   {
+      TermAssertSameSort(bank->sig, lterm, rterm);
+   }
+
    handle->bank = bank;   
    handle->next = NULL;
 
@@ -1225,7 +1223,7 @@ bool EqnIsTrue(Eqn_p eq)
 {
    if(EqnIsPositive(eq))
    {
-      return EqnIsTrivial(eq, TBTermEqual);
+      return EqnIsTrivial(eq);
    }
    return EqnTermsAreDistinct(eq);
 }
@@ -1247,7 +1245,7 @@ bool EqnIsFalse(Eqn_p eq)
 {
    if(EqnIsNegative(eq))
    {
-      return EqnIsTrivial(eq, TBTermEqual);
+      return EqnIsTrivial(eq);
    }
    return EqnTermsAreDistinct(eq);
 }
@@ -1357,7 +1355,7 @@ int EqnSubsumeQOrderCompare(const void* lit1, const void* lit2)
    }
    if(!EqnIsEquLit(l1))
    {
-      res = (l1)->lterm->f_code - (l2)->lterm->f_code;
+      res = CMP(l1->lterm->f_code, l2->lterm->f_code);
    }
    return res;
 }
@@ -1378,12 +1376,14 @@ int EqnSubsumeQOrderCompare(const void* lit1, const void* lit2)
 
 int EqnSubsumeInverseCompareRef(const void* lit1ref, const void* lit2ref)
 {
-   const Eqn_p *l1 = lit1ref, *l2 = lit2ref;
+   const Eqn_p *l1 = lit1ref;
+   const Eqn_p *l2 = lit2ref;
+
    int res = EqnSubsumeQOrderCompare(*l2, *l1);
 
    if(!res)
    {
-      res = EqnWeightCompare(*l2, *l1);
+      res = CMP(EqnStandardWeight(*l2), EqnStandardWeight(*l1));
    }
    return res;
 }
@@ -1403,7 +1403,8 @@ int EqnSubsumeInverseCompareRef(const void* lit1ref, const void* lit2ref)
 
 int EqnSubsumeInverseRefinedCompareRef(const void* lit1ref, const void* lit2ref)
 {
-   const Eqn_p *l1 = lit1ref, *l2 = lit2ref;
+   const Eqn_p *l1 = lit1ref;
+   const Eqn_p *l2 = lit2ref;
    int res = EqnSubsumeInverseCompareRef(lit1ref, lit2ref);
 
    /*
@@ -1470,13 +1471,8 @@ int EqnSubsumeCompare(Eqn_p l1, Eqn_p l2)
 
 Eqn_p EqnCanonize(Eqn_p eq)
 {
-   int res = TermStructWeightCompare(eq->lterm, eq->rterm);
-   
-   if(!res)
-   {
-      res = TermLexCompare(eq->lterm, eq->rterm);
-   }
-   if(res < 0)
+   if(!TermStructWeightCompare(eq->lterm, eq->rterm)
+      && TermLexCompare(eq->lterm, eq->rterm) < 0)
    {
       EqnSwapSides(eq);
    }
@@ -1502,9 +1498,9 @@ Eqn_p EqnCanonize(Eqn_p eq)
 //
 /----------------------------------------------------------------------*/
 
-int EqnStructWeightCompare(Eqn_p l1, Eqn_p l2)
+long EqnStructWeightCompare(Eqn_p l1, Eqn_p l2)
 {
-   int res;
+   long res;
 
    if(EqnIsPositive(l1) && !EqnIsPositive(l2))
    {
@@ -1539,10 +1535,9 @@ int EqnStructWeightCompare(Eqn_p l1, Eqn_p l2)
 
 /*-----------------------------------------------------------------------
 //
-// Function: EqnCanonCompare()
+// Function: EqnCanonCompareRef()
 //
-//   Compare two indirectly pointed to equations with
-//   EqnStructWeightCompare().
+//   Compare two pointed to equations with EqnStructWeightLexCompare().
 //
 // Global Variables: -
 //
@@ -1550,10 +1545,12 @@ int EqnStructWeightCompare(Eqn_p l1, Eqn_p l2)
 //
 /----------------------------------------------------------------------*/
 
-int EqnCanonCompare(const void* lit1, const void* lit2)
+int EqnCanonCompareRef(const void* lit1ref, const void* lit2ref)
 {
-   const Eqn_p *l1=lit1, *l2=lit2;
-   return EqnStructWeightLexCompare(*l1, *l2);
+   const Eqn_p *l1 = lit1ref;
+   const Eqn_p *l2 = lit2ref;
+
+   return CMP(EqnStructWeightLexCompare(*l1, *l2), 0);
 }
 
 
@@ -1571,9 +1568,9 @@ int EqnCanonCompare(const void* lit1, const void* lit2)
 //
 /----------------------------------------------------------------------*/
 
-int EqnStructWeightLexCompare(Eqn_p l1, Eqn_p l2)
+long EqnStructWeightLexCompare(Eqn_p l1, Eqn_p l2)
 {
-   int res = EqnStructWeightCompare(l1, l2);
+   long res = EqnStructWeightCompare(l1, l2);
 
    if(res)
    {
@@ -1588,40 +1585,12 @@ int EqnStructWeightLexCompare(Eqn_p l1, Eqn_p l2)
    return res;
 }
 
-
-/*-----------------------------------------------------------------------
-//
-// Function: EqnEqualDirected()
-//
-//   Test wether two equations are identical (modulo EqualTest). Does
-//   not check for positive/negative, evaluates only terms
-//   (i.e. treats equations as unsigned term pairs).
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-bool EqnEqualDirected(Eqn_p eq1,  Eqn_p eq2, TermEqualTestFun EqualTest)
-{
-   bool res = EqualTest(eq1->lterm, eq2->lterm);
-   
-   if(!res)
-   {
-      return res;
-   }
-   res = EqualTest(eq1->rterm, eq2->rterm);
-   
-   return res;
-}
-
 /*-----------------------------------------------------------------------
 //
 // Function: EqnEqual()
 //
-//   Test wether two equations are equivalent (modulo EqualTest and
-//   commutativity). Treats equations as _unsigned_ term sets.
+//   Test wether two equations are equivalent (modulo commutativity).
+//   Treats equations as _unsigned_ term sets.
 //
 // Global Variables: -
 //
@@ -1629,18 +1598,18 @@ bool EqnEqualDirected(Eqn_p eq1,  Eqn_p eq2, TermEqualTestFun EqualTest)
 //
 /----------------------------------------------------------------------*/
 
-bool EqnEqual(Eqn_p eq1,  Eqn_p eq2, TermEqualTestFun EqualTest)
+bool EqnEqual(Eqn_p eq1,  Eqn_p eq2)
 {
    bool res;
 
-   res = EqnEqualDirected(eq1, eq2, EqualTest);
+   res = EqnEqualDirected(eq1, eq2);
    
    if(res || (EqnIsOriented(eq1) && EqnIsOriented(eq2)))
    {
       return res;
    }
    EqnSwapSidesSimple(eq2);
-   res = EqnEqualDirected(eq1, eq2, EqualTest);
+   res = EqnEqualDirected(eq1, eq2);
    EqnSwapSidesSimple(eq2);
    return res;
 }
@@ -1660,19 +1629,15 @@ bool EqnEqual(Eqn_p eq1,  Eqn_p eq2, TermEqualTestFun EqualTest)
 //
 //----------------------------------------------------------------------*/
 
-bool EqnSubsumeDirected(Eqn_p subsumer, Eqn_p subsumed, Subst_p
-			 subst, TermEqualTestFun EqualTest)
+bool EqnSubsumeDirected(Eqn_p subsumer, Eqn_p subsumed, Subst_p subst)
 {
    PStackPointer backtrack = PStackGetSP(subst);
    bool res;
 
-   res = SubstComputeMatch(subsumer->lterm, subsumed->lterm, subst,
-			   EqualTest);
+   res = SubstComputeMatch(subsumer->lterm, subsumed->lterm, subst);
    if(res)
    {
-      res = SubstComputeMatch(subsumer->rterm,
-			      subsumed->rterm, subst,
-			      EqualTest);
+      res = SubstComputeMatch(subsumer->rterm, subsumed->rterm, subst);
    }
    if(!res)
    {
@@ -1698,8 +1663,7 @@ bool EqnSubsumeDirected(Eqn_p subsumer, Eqn_p subsumed, Subst_p
 //
 /----------------------------------------------------------------------*/
 
-bool EqnSubsume(Eqn_p subsumer, Eqn_p subsumed, Subst_p subst,
-		TermEqualTestFun EqualTest)
+bool EqnSubsume(Eqn_p subsumer, Eqn_p subsumed, Subst_p subst)
 {
    bool res;
    
@@ -1707,14 +1671,14 @@ bool EqnSubsume(Eqn_p subsumer, Eqn_p subsumed, Subst_p subst,
    {
       return false;
    }            
-   res = EqnSubsumeDirected(subsumer, subsumed, subst, EqualTest);
+   res = EqnSubsumeDirected(subsumer, subsumed, subst);
    
    if(res || EqnIsOriented(subsumer))
    {
       return res;
    }
    EqnSwapSidesSimple(subsumer);
-   res = EqnSubsumeDirected(subsumer, subsumed, subst, EqualTest);
+   res = EqnSubsumeDirected(subsumer, subsumed, subst);
    EqnSwapSidesSimple(subsumer);
    return res;
 }
@@ -1732,11 +1696,10 @@ bool EqnSubsume(Eqn_p subsumer, Eqn_p subsumed, Subst_p subst,
 //
 /----------------------------------------------------------------------*/
 
-bool EqnSubsumeP(Eqn_p subsumer, Eqn_p subsumed, TermEqualTestFun
-		 EqualTest) 
+bool EqnSubsumeP(Eqn_p subsumer, Eqn_p subsumed)
 {
    Subst_p subst = SubstAlloc();
-   bool    res = EqnSubsume(subsumer, subsumed, subst, EqualTest);
+   bool    res = EqnSubsume(subsumer, subsumed, subst);
 
    SubstDelete(subst);
    
@@ -1757,12 +1720,11 @@ bool EqnSubsumeP(Eqn_p subsumer, Eqn_p subsumed, TermEqualTestFun
 //
 /----------------------------------------------------------------------*/
 
-bool LiteralSubsumeP(Eqn_p subsumer, Eqn_p subsumed, TermEqualTestFun
-		     EqualTest) 
+bool LiteralSubsumeP(Eqn_p subsumer, Eqn_p subsumed)
 {
    if(PropsAreEquiv(subsumer, subsumed, EPIsPositive))
    {
-      return EqnSubsumeP(subsumer, subsumed, EqualTest);
+      return EqnSubsumeP(subsumer, subsumed);
    }
    return false;
 }
@@ -1927,15 +1889,15 @@ bool EqnOrient(OCB_p ocb, Eqn_p eq)
    {
       return false;
    }
-   if(TBTermEqual(eq->lterm, eq->rterm))
+   if(eq->lterm == eq->rterm)
    {
       relation = to_equal;
    }
-   else if(TBTermEqual(eq->lterm, eq->bank->true_term))
+   else if(eq->lterm == eq->bank->true_term)
    {
       relation = to_lesser;
    }
-   else if(TBTermEqual(eq->rterm, eq->bank->true_term))
+   else if(eq->rterm == eq->bank->true_term)
    {
       relation = to_greater;
    }
@@ -2140,9 +2102,9 @@ bool LiteralGreater(OCB_p ocb, Eqn_p eq1, Eqn_p eq2)
 //
 /----------------------------------------------------------------------*/
 
-FunCode SubstNormEqn(Eqn_p eq, Subst_p subst, VarBank_p vars)
+PStackPointer SubstNormEqn(Eqn_p eq, Subst_p subst, VarBank_p vars)
 {
-  FunCode res;
+   PStackPointer res;
 
    res = SubstNormTerm(eq->lterm, subst, vars);
    SubstNormTerm(eq->rterm, subst, vars);

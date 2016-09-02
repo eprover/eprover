@@ -91,7 +91,7 @@ static void ac_collect_args(PTree_p* root, Sig_p sig, FunCode f,
       ACTerm_p tmp = ACTermNormalize(sig, term);
 
       res = PTreeObjStore(root, tmp, acterm_uniq_compare);
-      (void)res; assert(!res);
+      UNUSED(res); assert(!res);
    }
    else
    {
@@ -186,13 +186,11 @@ void ACTermFree(ACTerm_p term)
 
 int ACTermCompare(ACTerm_p t1, ACTerm_p t2)
 {
-   int res=0;
-
    assert(t1 && t2);
 
-   res = t1->f_code -t2->f_code;
-   
-   if((!res)&&t1->f_code > 0)
+   int res = CMP(t1->f_code, t2->f_code);
+
+   if(res == 0 && t1->f_code > 0)
    {
       int i;
       ACTerm_p arg1,arg2;

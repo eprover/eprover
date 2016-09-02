@@ -82,8 +82,8 @@ typedef struct e_pctrl_set_cell
 #define SZS_FAILURE_STR    "# Failure:"
 
 
-#define E_OPTIONS "--print-pid -s -xAuto -tAuto -R --answers=1 \
---assume-incompleteness --memory-limit=1024 --tstp-format \
+#define E_OPTIONS "--print-pid -s -xAuto -tAuto --free-numbers -R --answers=1 \
+--assume-incompleteness --memory-limit=1024 \
 --proof-object --cpu-limit="
 
 

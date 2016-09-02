@@ -108,9 +108,10 @@ bool BatchProcessFile(BatchSpec_p spec,
                       StructFOFSpec_p ctrl, 
                       char* source, char* dest);
 
-bool BatchProcessProblems(BatchSpec_p spec, 
+long BatchProcessProblems(BatchSpec_p spec, 
                           StructFOFSpec_p ctrl, 
-                          long total_wtc_limit);
+                          long total_wtc_limit,
+                          char* dest_dir);
 
 void BatchProcessInteractive(BatchSpec_p spec, 
                              StructFOFSpec_p ctrl, 

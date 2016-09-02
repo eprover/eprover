@@ -92,7 +92,7 @@ void TempFileRegister(char *name)
 
    tmp.p_val = NULL;     
    res = StrTreeStore(&temp_file_store, name, tmp, tmp);
-   (void)res; assert(res);
+   UNUSED(res); assert(res);
 }
 
 
@@ -194,7 +194,7 @@ void TempFileRemove(char* name)
       SysError("Could not remove temporary file", SYS_ERROR);
    }
    res = StrTreeDeleteEntry(&temp_file_store, name);
-   (void)res; assert(res);
+   UNUSED(res); assert(res);
 }
 
 

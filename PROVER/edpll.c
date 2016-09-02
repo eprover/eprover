@@ -153,6 +153,7 @@ void print_help(FILE* out);
 
 int main(int argc, char* argv[])
 {
+   SortTable_p     sort_table;
    Sig_p           sig;
    Scanner_p       in;    
    int             i;
@@ -176,7 +177,8 @@ int main(int argc, char* argv[])
       CLStateInsertArg(state, "-");
    }
    
-   sig     = SigAlloc();
+   sort_table = DefaultSortTableAlloc();
+   sig     = SigAlloc(sort_table);
    form    = DPLLFormulaAlloc();
    for(i=0; state->argv[i]; i++)
    {
@@ -189,10 +191,11 @@ int main(int argc, char* argv[])
    dpllstate = DPLLStateAlloc(form);
    
    CLStateFree(state);
-   (void)dpllstate; /* Stiffle warning for now */
+   UNUSED(dpllstate); /* Stiffle warning for now */
 #ifndef FAST_EXIT
    DPLLStateFree(dpllstate);
    SigFree(sig);
+   SortTableFree(sort_table);
 #endif
    fflush(GlobalOut);
    OutClose(GlobalOut);   

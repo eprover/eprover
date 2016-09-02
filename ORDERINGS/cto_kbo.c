@@ -55,9 +55,9 @@ Changes
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
 
-static __inline__ int getweight(OCB_p, FunCode);
+static __inline__ long getweight(OCB_p, FunCode);
 
-static int gettermweight(OCB_p, Term_p, DerefType);
+static long gettermweight(OCB_p, Term_p, DerefType);
 
 static CompareResult kbocomparevars(Term_p, Term_p,
 				    DerefType, DerefType);
@@ -83,7 +83,7 @@ static CompareResult kbogtrnew(OCB_p, Term_p, Term_p,
 //
 -----------------------------------------------------------------------*/
 
-static __inline__ int getweight(OCB_p ocb, FunCode symb)
+static __inline__ long getweight(OCB_p ocb, FunCode symb)
 {
    assert(ocb);
    assert(symb);
@@ -110,9 +110,10 @@ static __inline__ int getweight(OCB_p ocb, FunCode symb)
 //
 -----------------------------------------------------------------------*/
 
-static int gettermweight(OCB_p ocb, Term_p t, DerefType deref)
+static long gettermweight(OCB_p ocb, Term_p t, DerefType deref)
 {
-   int i, weight;
+   int i;
+   long weight;
 
    t = TermDeref(t, &deref);
 
@@ -155,13 +156,13 @@ static CompareResult kbocomparevars(Term_p s, Term_p t, DerefType
 
    if (TermIsVar(t)) 
    {
-      if (TBTermEqual(s,t)) 
+      if(s == t)
       {
 	 return to_equal;
       }
       else
       {
-	 if (TermIsSubterm(s, t, deref_s, TBTermEqual)) 
+	 if (TermIsSubterm(s, t, deref_s))
 	 {
 	    return to_greater;
 	 }
@@ -170,7 +171,7 @@ static CompareResult kbocomparevars(Term_p s, Term_p t, DerefType
    else 
    {               /* Note that in this case, s is a variable. */
       assert(TermIsVar(s));
-      if (TermIsSubterm(t, s, deref_t, TBTermEqual)) 
+      if (TermIsSubterm(t, s, deref_t))
       {
 	 return to_lesser;
       }
@@ -199,14 +200,15 @@ static CompareResult kbocomparevars(Term_p s, Term_p t, DerefType
 static CompareResult kbogtrnew(OCB_p ocb, Term_p s, Term_p t,
 			    DerefType deref_s, DerefType deref_t)
 {
-   int sweight, tweight, i;
+   int i;
+   long sweight, tweight;
 
    s = TermDeref(s, &deref_s); 
    t = TermDeref(t, &deref_t);
    
    if (TermIsVar(s)) 
    {
-      if (TBTermEqual(s,t)) 
+      if(s == t)
       {
 	 return to_equal;
       }
@@ -214,7 +216,7 @@ static CompareResult kbogtrnew(OCB_p ocb, Term_p s, Term_p t,
    }
    if(TermIsVar(t))
    {
-      if(TermIsSubterm(s, t, deref_s, TBTermEqual))
+      if(TermIsSubterm(s, t, deref_s))
       {
 	 return to_greater;
       }
@@ -314,7 +316,8 @@ CompareResult KBOCompare(OCB_p ocb, Term_p s, Term_p t,
 			 DerefType deref_s, DerefType deref_t)
 { 
    CompareResult topsymb_comp, res;
-   int sweight, tweight, i;
+   int i;
+   long sweight, tweight;
 
    s = TermDeref(s, &deref_s); 
    t = TermDeref(t, &deref_t);

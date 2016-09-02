@@ -209,8 +209,7 @@ Clause_p ClausePlainParamodConstruct(ParamodInfo_p ol_desc)
                          into_rhs,
                          DEREF_ALWAYS);
 
-   if(!EqnIsPositive(ol_desc->into_pos->literal)||
-      !TBTermEqual(new_lhs, new_rhs))
+   if(!EqnIsPositive(ol_desc->into_pos->literal)||(new_lhs != new_rhs))
    {
       into_copy = EqnListCopyOptExcept(ol_desc->into->literals,
                                        ol_desc->into_pos->literal);
@@ -236,7 +235,7 @@ Clause_p ClausePlainParamodConstruct(ParamodInfo_p ol_desc)
                               EqnIsPositive(ol_desc->into_pos->literal));
             pm_lit =  EqnListAppend(&pm_lit, into_copy);         
             EqnListRemoveResolved(&pm_lit);
-            EqnListRemoveDuplicates(pm_lit, TBTermEqual);
+            EqnListRemoveDuplicates(pm_lit);
             res = ClauseAlloc(pm_lit);
          }
       }
@@ -283,6 +282,8 @@ Clause_p ClauseSimParamodConstruct(ParamodInfo_p ol_desc)
                           subst, ol_desc->freshvars);
    NormSubstEqnListExcept(ol_desc->from->literals, NULL, 
                           subst, ol_desc->freshvars);
+   assert(ClausePosGetSide(ol_desc->from_pos)->sort == ClausePosGetOtherSide(ol_desc->from_pos)->sort);
+
    rhs_instance = TBInsertNoProps(ol_desc->bank,
                                   ClausePosGetOtherSide(ol_desc->from_pos),
                                   DEREF_ALWAYS);
@@ -309,7 +310,7 @@ Clause_p ClauseSimParamodConstruct(ParamodInfo_p ol_desc)
          into_copy = EqnListAppend(&into_copy, from_copy);
             
          EqnListRemoveResolved(&into_copy);
-         EqnListRemoveDuplicates(into_copy, TBTermEqual);
+         EqnListRemoveDuplicates(into_copy);
          res = ClauseAlloc(into_copy);
       }
    }      
@@ -473,8 +474,7 @@ Eqn_p  EqnOrderedParamod(TB_p bank, OCB_p ocb, ClausePos_p from,
 	 new_rside = TBInsert(bank, rside, DEREF_ALWAYS);
 
 	 /* Optimize away trivial paramods... */
-	 if(!EqnIsPositive(into->literal) || 
-	    !TBTermEqual(new_lside, new_rside))
+	 if(!EqnIsPositive(into->literal) || (new_lside != new_rside))
 	 {
 	    new_cp = EqnAlloc(new_lside, new_rside, bank,
 			      EqnIsPositive(into->literal));
@@ -578,7 +578,7 @@ Clause_p ClauseOrderedParamod(TB_p bank, OCB_p ocb, ClausePos_p from,
 	 new_literals =  EqnListAppend(&new_literals, into_copy);
 
 	 EqnListRemoveResolved(&new_literals);
-	 EqnListRemoveDuplicates(new_literals, TBTermEqual);
+	 EqnListRemoveDuplicates(new_literals);
 	 new_clause = ClauseAlloc(new_literals);
       }
       else
@@ -705,7 +705,7 @@ Clause_p ClauseOrderedSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
             into_copy = EqnListAppend(&into_copy, from_copy);
 
             EqnListRemoveResolved(&into_copy);
-            EqnListRemoveDuplicates(into_copy, TBTermEqual);
+            EqnListRemoveDuplicates(into_copy);
             new_clause = ClauseAlloc(into_copy);
          }
       }      

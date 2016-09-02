@@ -1073,11 +1073,9 @@ long ClauseSetDeleteCopies(ClauseSet_p set)
 
    assert(set);
 
-   res1 = 
-      ClauseSetMarkCopies(set);
-   res2 = 
-      ClauseSetDeleteMarkedEntries(set);
-   (void)res1; (void)res2; assert(res1==res2);
+   res1 = ClauseSetMarkCopies(set);
+   res2 = ClauseSetDeleteMarkedEntries(set);
+   UNUSED(res1); UNUSED(res2); assert(res1==res2);
 
    return res1;
 }
@@ -2383,6 +2381,32 @@ long ClauseSetCountConjectures(ClauseSet_p set, long* hypos)
       }
    } 
    return ret;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetIsUntyped
+//
+//   Returns true iff all clauses of the set are untyped
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+bool ClauseSetIsUntyped(ClauseSet_p set)
+{
+   Clause_p handle;
+
+   for(handle = set->anchor->succ; handle!=set->anchor; handle = handle->succ)
+   {
+      if (!ClauseIsUntyped(handle))
+      {
+	 return false;
+      }
+   }
+   return true;
 }
 
 

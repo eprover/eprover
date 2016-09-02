@@ -67,8 +67,8 @@ static Term_p term_top_unfold_def(TB_p bank, Term_p term, ClausePos_p demod)
       return term;
    }
    subst = SubstAlloc();
-   tmp = SubstComputeMatch(lside, term, subst, TBTermEqual);
-   (void)tmp; assert(tmp); /* Match must exist because demod is demod! */
+   tmp = SubstComputeMatch(lside, term, subst);
+   UNUSED(tmp); assert(tmp); /* Match must exist because demod is demod! */
    rside = ClausePosGetOtherSide(demod); 
    res = TBInsertInstantiated(bank, rside);
    SubstDelete(subst);

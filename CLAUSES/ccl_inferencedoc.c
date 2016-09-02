@@ -695,7 +695,7 @@ static void print_rewrite(FILE* out, ClausePos_p rewritten, long
    {
    case pcl_format:
 	 tmp = TermComputeRWSequence(rwsteps, old_term, nf, 0);
-	 (void)tmp; assert(tmp);
+	 UNUSED(tmp); assert(tmp);
 	 pcl_print_start(out, rewritten->clause, PCLShellLevel<1);
 	 for(i=0; i<PStackGetSP(rwsteps); i++)
 	 {
@@ -711,7 +711,7 @@ static void print_rewrite(FILE* out, ClausePos_p rewritten, long
 	 break;
    case tstp_format:
 	 tmp = TermComputeRWSequence(rwsteps, old_term, nf, 0);
-	 (void)tmp; assert(tmp);
+	 UNUSED(tmp); assert(tmp);
 	 ClauseTSTPPrint(out, rewritten->clause, PCLFullTerms, false);
 	 fputc(',', out);
 	 for(i=0; i<PStackGetSP(rwsteps); i++)

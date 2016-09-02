@@ -49,7 +49,7 @@ Changes
 /*---------------------------------------------------------------------*/
 
 void   TermTreeFree(Term_p junk);
-int    TermTopCompare(Term_p t1, Term_p t2);
+long   TermTopCompare(Term_p t1, Term_p t2);
 Term_p TermTreeFind(Term_p *root, Term_p term);
 Term_p TermTreeInsert(Term_p *root, Term_p term);
 Term_p TermTreeExtract(Term_p *root, Term_p term);

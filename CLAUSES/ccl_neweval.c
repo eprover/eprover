@@ -76,9 +76,9 @@ static Eval_p evals_alloc_raw(int eval_no)
 
 static Eval_p splay_tree(Eval_p tree, Eval_p splay, int pos) 
 {
-   Eval_p   left, right, tmp, newnode;
-   long     cmpres;
-   
+   Eval_p left, right, tmp, newnode;
+   long   cmpres;
+
    if (!tree) 
    {
       return tree;
@@ -387,28 +387,27 @@ bool EvalGreater(Eval_p ev1, Eval_p ev2, int pos)
 
 long EvalCompare(Eval_p ev1, Eval_p ev2, int pos)
 {
-   long   res;
-   
+   long res;
+
    res = ev1->evals[pos].priority - ev2->evals[pos].priority;
    if(res)
    {
       return res;
    }
-   if(ev1->eval_count==ev2->eval_count)
+
+   res = ev1->eval_count - ev2->eval_count;
+   if(res == 0)
    {
-      return 0;
+      return res;
    }
-   if(ev1->evals[pos].heuristic<ev2->evals[pos].heuristic)
+
+   long res_heuristic = CMP(ev1->evals[pos].heuristic, ev2->evals[pos].heuristic);
+   if(res_heuristic)
    {
-      assert(ev1->eval_count!=ev2->eval_count);
-      return -1;
+      return res_heuristic;
    }
-   if(ev1->evals[pos].heuristic>ev2->evals[pos].heuristic)
-   {
-      assert(ev1->eval_count!=ev2->eval_count);
-      return 1;
-   }
-   return ev1->eval_count - ev2->eval_count;
+
+   return res;
 }
 
 

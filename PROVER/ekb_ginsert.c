@@ -110,6 +110,7 @@ int main(int argc, char* argv[])
    ExampleSet_p    proof_examples;
    AnnoSet_p       clause_examples;
    TB_p            annoterms;
+   SortTable_p     sort_table;
    Sig_p           reserved_symbols;
    Scanner_p       in;
    KBDesc_p        kb_desc;
@@ -127,6 +128,8 @@ int main(int argc, char* argv[])
    atexit(TempFileCleanup);
    ESignalSetup(SIGTERM);
    ESignalSetup(SIGINT);
+
+   sort_table = DefaultSortTableAlloc();
 
    OutputLevel = 0;
    state = process_options(argc, argv);
@@ -234,7 +237,7 @@ int main(int argc, char* argv[])
 
    VERBOUT("Parsing data files\n");
 
-   reserved_symbols = SigAlloc();
+   reserved_symbols = SigAlloc(sort_table);
    
    in = CreateScanner(StreamTypeFile, 
                       KBFileName(name, kb_name, "signature"),
@@ -284,6 +287,7 @@ int main(int argc, char* argv[])
    SigFree(reserved_symbols);
    ExampleSetFree(proof_examples);
    CLStateFree(state);
+   SortTableFree(sort_table);
    ExitIO();
 #ifdef CLB_MEMORY_DEBUG
    MemFlushFreeList();

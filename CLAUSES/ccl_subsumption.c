@@ -88,7 +88,7 @@ ClausePos_p unit_clause_set_strongsubsumes_termpair(ClauseSet_p set,
 	 }
 	  for(i=0; i<t1->arity; i++)
 	  {
-	     if(!TBTermEqual(t1->args[i], t2->args[i]))
+	     if(t1->args[i] != t2->args[i])
 	     {
 		PStackPushP(stack, t1->args[i]);
 		PStackPushP(stack, t2->args[i]);
@@ -171,17 +171,16 @@ static bool eqn_topsubsumes_termpair(Eqn_p eqn, Term_p t1, Term_p t2)
    assert(t1);
    assert(t2);
 
-   if(SubstComputeMatch(eqn->lterm, t1, subst, TBTermEqual))
+   if(SubstComputeMatch(eqn->lterm, t1, subst))
    {
-      if(SubstComputeMatch(eqn->rterm,
-			   t2, subst, TBTermEqual))
+      if(SubstComputeMatch(eqn->rterm, t2, subst))
       {
 	 res = true;
       }
    }
-   else if(SubstComputeMatch(eqn->lterm, t2, subst, TBTermEqual))
+   else if(SubstComputeMatch(eqn->lterm, t2, subst))
    {
-      if(SubstComputeMatch(eqn->rterm, t1, subst, TBTermEqual))
+      if(SubstComputeMatch(eqn->rterm, t1, subst))
       {
 	 res = true;
 	 
@@ -228,7 +227,7 @@ static bool eqn_subsumes_termpair(Eqn_p eqn, Term_p t1, Term_p t2)
       
       for(i=0; i<t1->arity; i++)
       {
-	 if(!TBTermEqual(t1->args[i], t2->args[i]))
+	 if(t1->args[i] != t2->args[i])
 	 {
 	    if(tmp1)
 	    {
@@ -278,10 +277,8 @@ static Eqn_p find_spec_literal_old(Eqn_p lit, Eqn_p list)
       {
          continue;
       }
-      if(SubstComputeMatch(lit->lterm, list->lterm, subst,
-                           TBTermEqual)&&
-         SubstComputeMatch(lit->rterm, list->rterm, subst,
-                           TBTermEqual)) 
+      if(SubstComputeMatch(lit->lterm, list->lterm, subst)&&
+         SubstComputeMatch(lit->rterm, list->rterm, subst))
       {  
          break;
       }
@@ -290,10 +287,8 @@ static Eqn_p find_spec_literal_old(Eqn_p lit, Eqn_p list)
       {
          continue;
       }
-      if(SubstComputeMatch(lit->lterm, list->rterm, subst,
-                           TBTermEqual)&&
-         SubstComputeMatch(lit->rterm, list->lterm, subst,
-                           TBTermEqual))
+      if(SubstComputeMatch(lit->lterm, list->rterm, subst)&&
+         SubstComputeMatch(lit->rterm, list->lterm, subst))
       {
          break;
       }
@@ -325,8 +320,7 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
       {
          continue;
       }      
-      cmpres = EqnWeightCompare(lit, list);
-      if(cmpres >  0)
+      if(EqnStandardWeight(lit) > EqnStandardWeight(list))
       {
          list = NULL;
          break;
@@ -336,10 +330,8 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
       {
 	 continue;
       }
-      if(SubstComputeMatch(lit->lterm, list->lterm, subst,
-			   TBTermEqual)&&
-	 SubstComputeMatch(lit->rterm, list->rterm, subst,
-			   TBTermEqual)) 
+      if(SubstComputeMatch(lit->lterm, list->lterm, subst)&&
+         SubstComputeMatch(lit->rterm, list->rterm, subst))
       {	 
 	 break;
       }
@@ -348,10 +340,8 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
       {
 	 continue;
       }
-      if(SubstComputeMatch(lit->lterm, list->rterm, subst,
-			   TBTermEqual)&&
-	 SubstComputeMatch(lit->rterm, list->lterm, subst,
-			   TBTermEqual))
+      if(SubstComputeMatch(lit->lterm, list->rterm, subst)&&
+         SubstComputeMatch(lit->rterm, list->lterm, subst))
       {
 	 break;
       }
@@ -478,10 +468,8 @@ bool eqn_list_rec_subsume_old(Eqn_p subsum_list, Eqn_p sub_cand_list,
       pick_list[lcount]++;
       state = PStackGetSP(subst);
       
-      if(SubstComputeMatch(subsum_list->lterm, eqn->lterm, subst,
-			   TBTermEqual)&&
-	 SubstComputeMatch(subsum_list->rterm, eqn->rterm,
-			   subst, TBTermEqual))
+      if(SubstComputeMatch(subsum_list->lterm, eqn->lterm, subst)&&
+         SubstComputeMatch(subsum_list->rterm, eqn->rterm, subst))
       {	 
 	 if(eqn_list_rec_subsume_old(subsum_list->next, sub_cand_list,
 				    subst, pick_list))
@@ -496,10 +484,8 @@ bool eqn_list_rec_subsume_old(Eqn_p subsum_list, Eqn_p sub_cand_list,
 	 pick_list[lcount]--;
 	 continue;
       }
-      if(SubstComputeMatch(subsum_list->lterm, eqn->rterm, subst,
-			   TBTermEqual)&&
-	 SubstComputeMatch(subsum_list->rterm, eqn->lterm,
-			   subst, TBTermEqual))
+      if(SubstComputeMatch(subsum_list->lterm, eqn->rterm, subst)&&
+         SubstComputeMatch(subsum_list->rterm, eqn->lterm, subst))
       {
 	 if(eqn_list_rec_subsume_old(subsum_list->next, sub_cand_list,
 				 subst, pick_list))
@@ -546,8 +532,8 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
       {
          continue;
       }      
-      cmpres = EqnWeightCompare(eqn,subsum_list);
-      if(cmpres <  0)
+
+      if(EqnStandardWeight(eqn) < EqnStandardWeight(subsum_list))
       {
          return false;
       } 
@@ -563,10 +549,8 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
       pick_list[lcount]++;
       state = PStackGetSP(subst);
       
-      if(SubstComputeMatch(subsum_list->lterm, eqn->lterm, subst,
-			   TBTermEqual)&&
-	 SubstComputeMatch(subsum_list->rterm, eqn->rterm,
-			   subst, TBTermEqual))
+      if(SubstComputeMatch(subsum_list->lterm, eqn->lterm, subst)&&
+         SubstComputeMatch(subsum_list->rterm, eqn->rterm, subst))
       {	 
 	 if(eqn_list_rec_subsume(subsum_list->next, sub_cand_list,
 				    subst, pick_list))
@@ -581,10 +565,8 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
 	 pick_list[lcount]--;
 	 continue;
       }
-      if(SubstComputeMatch(subsum_list->lterm, eqn->rterm, subst,
-			   TBTermEqual)&&
-	 SubstComputeMatch(subsum_list->rterm, eqn->lterm,
-			   subst, TBTermEqual))
+      if(SubstComputeMatch(subsum_list->lterm, eqn->rterm, subst)&&
+         SubstComputeMatch(subsum_list->rterm, eqn->lterm, subst))
       {
 	 if(eqn_list_rec_subsume(subsum_list->next, sub_cand_list,
 				 subst, pick_list))

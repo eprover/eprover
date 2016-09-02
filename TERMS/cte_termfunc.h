@@ -42,6 +42,7 @@ Changes
 
 
 extern bool      TermPrintLists; /* Using [...] notation */
+extern bool      TermPrintTypes;
 
 #define TermStartToken (SigSupportLists?\
                        (FuncSymbStartToken|OpenSquare|Mult):\
@@ -63,25 +64,16 @@ Term_p TermEquivCellAlloc(Term_p source, VarBank_p vars);
 
 bool   TermStructEqual(Term_p t1, Term_p t2);
 bool   TermStructEqualNoDeref(Term_p t1, Term_p t2);
-bool   TermStructEqualNoDerefHardVars(Term_p t1, Term_p t2);
+bool   TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType deref_2);
 
-bool   TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1,
-	  		    DerefType deref_2);
-bool   TermStructEqualDerefHardVars(Term_p t1, Term_p t2, DerefType deref_1,
-                                    DerefType deref_2);
+long   TermStructWeightCompare(Term_p t1, Term_p t2);
 
-int    TermStructWeightCompare(Term_p t1, Term_p t2);
+long   TermLexCompare(Term_p t1, Term_p t2);
 
-int    TermLexCompare(Term_p t1, Term_p t2);
-
-bool   TermIsSubterm(Term_p super, Term_p test, DerefType deref,
-                      TermEqualTestFun EqualTest);
+bool   TermIsSubterm(Term_p super, Term_p test, DerefType deref);
 
 bool    TermIsSubtermDeref(Term_p super, Term_p test, DerefType
 			   deref_super, DerefType deref_test);
-
-#define TermIsStructSubterm(super, term) \
-        TermIsSubterm((super),(term),DEREF_ALWAYS,TermStructEqual)
 
 long    TermWeight(Term_p term, long vweight, long fweight);
 #define TermStandardWeight(term) \
@@ -132,6 +124,8 @@ long    TermAddFunOcc(Term_p term, PDArray_p f_occur, PStack_p res_stack);
 long    TermLinearize(PStack_p stack, Term_p term);
 
 Term_p  TermCheckConsistency(Term_p term, DerefType deref);
+void    TermAssertSameSort(Sig_p sig, Term_p t1, Term_p t2);
+bool    TermIsUntyped(Term_p t);
 
 
 #endif

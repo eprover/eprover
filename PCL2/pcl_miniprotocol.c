@@ -60,7 +60,8 @@ Changes
 PCLMiniProt_p PCLMiniProtAlloc(void)
 {
    PCLMiniProt_p handle = PCLMiniProtCellAlloc();
-   Sig_p sig = SigAlloc();
+   SortTable_p sort_table = DefaultSortTableAlloc();
+   Sig_p sig = SigAlloc(sort_table);
 
   SigInsertInternalCodes(sig);
    handle->terms = TBAlloc(sig);
@@ -99,6 +100,7 @@ void PCLMiniProtFree(PCLMiniProt_p junk)
 	 PDArrayAssignP(junk->steps, i, NULL);
       }
    }
+   SortTableFree(junk->terms->sig->sort_table);
    SigFree(junk->terms->sig);
    junk->terms->sig = NULL;
    TBFree(junk->terms);

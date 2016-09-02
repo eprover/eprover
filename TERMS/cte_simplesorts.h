@@ -27,25 +27,28 @@ Changes
 #define CTE_SIMPLESORTS
 
 #include <clb_stringtrees.h>
+#include <cio_scanner.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
 /* Build-in sorts for the many-sorted logic E is being moved to. Note
- * that the system relys on the fact that the system-defined sorts are
- * inserted in a specific order. */
+ * that the system relies on the fact that the system-defined sorts are
+ * inserted in a specific order.
+ *
+ * User sorts are integers bigger than STPredefined. */
 
-typedef enum 
-{
-   STNoSort = 0,      
-   STBool,           /* Boolean sort, will replace/extend the
-                        predicate bit */
-   STIndividuals,    /* Default sort, "individuums" */
-   STInteger,        /* Integer numbers */
-   STReal            /* Reals */
-}SortType;
+typedef int SortType;
 
+#define STNoSort      0
+#define STBool        1     /* Boolean sort, will replace/extend the predicate bit */
+#define STIndividuals 2     /* Default sort, "individuums" */
+#define STKind        3     /* The "sort of sorts", $tType in TFF */
+#define STInteger     4     /* Integer numbers */
+#define STRational    5     /* Rational numbers */
+#define STReal        6     /* Reals */
+#define STPredefined  STReal
 
 /* Datatype for representing the sort system. Currenlty associates
  * sort types with encodings and tracks the default sort. */
@@ -70,15 +73,16 @@ typedef struct sort_table
 
 #define SortTableCellAlloc()    (SortTableCell*)SizeMalloc(sizeof(SortTableCell))
 #define SortTableCellFree(junk) SizeFree(junk, sizeof(SortTableCell))
+#define SortIsUserDefined(sort) (sort > STPredefined)
 
 SortTable_p SortTableAlloc(void);
 void        SortTableFree(SortTable_p junk);
 SortType    SortTableInsert(SortTable_p table, char* sort_name);
 SortTable_p DefaultSortTableAlloc(void);
 char*       SortTableGetRep(SortTable_p table, SortType sort);
+SortType    SortParseTSTP(Scanner_p in, SortTable_p table);
+void        SortPrintTSTP(FILE *out, SortTable_p table, SortType sort);
 void        SortTablePrint(FILE* out, SortTable_p table);
-
-
 
 
 #endif

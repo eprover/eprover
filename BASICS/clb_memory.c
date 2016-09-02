@@ -156,7 +156,7 @@ void* SecureMalloc(size_t size)
 
    handle = (void*)malloc(size);
 
-   if(!handle)
+   if(UNLIKELY(!handle))
    {    /* malloc has no memory left  */
       MemIsLow = true;
       MemFlushFreeList(); /* Return own freelist */
@@ -214,7 +214,7 @@ void* SecureRealloc(void *ptr, size_t size)
    /* SunOS realloc() is broken, so here is a stupid workaround...*/
 
    handle = ptr?realloc(ptr,size):malloc(size);
-   if(!handle && size!=0)
+   if(UNLIKELY(!handle && size!=0))
    {
       MemIsLow = true;
       MemFlushFreeList();
@@ -405,8 +405,8 @@ void MemFreeListPrint(FILE* out)
       tmp = free_list_size(free_mem_list[i]);
       if(tmp)
       {
-	 fprintf(out, "# %4ld: %ld\n", i+sizeof(MemCell), tmp);
-	 sum += tmp*(i+sizeof(MemCell));
+	 fprintf(out, "# %4ld: %ld\n", i, tmp);
+	 sum += tmp*(i);
 	 count += tmp;
       }
    }

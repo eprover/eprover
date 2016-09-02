@@ -336,7 +336,7 @@ static CompareResult lpogtrcompvars(OCB_p ocb, Term_p s, Term_p t,
 
    if (TermIsVar(s))
    {
-      if (TBTermEqual(s, t))
+      if(s == t)
       {
 	 return to_equal;
       }
@@ -348,7 +348,7 @@ static CompareResult lpogtrcompvars(OCB_p ocb, Term_p s, Term_p t,
    else
    {
       assert(TermIsVar(t));     
-      if (TermIsSubterm(s, t, deref_s, TBTermEqual))
+      if(TermIsSubterm(s, t, deref_s))
       {
 	 return to_greater;
       }
@@ -590,13 +590,13 @@ CompareResult D_LPOCompareVars(Term_p s, Term_p t,
 
    if (TermIsVar(s))
    {
-      if (TBTermEqual(s, t))
+      if(s == t)
       {
 	 return to_equal;
       }
       else
       {
-	 if (TermIsSubterm(t, s, deref_t, TBTermEqual))
+	 if(TermIsSubterm(t, s, deref_t))
 	 {
 	    return to_lesser;
 	 }
@@ -604,7 +604,7 @@ CompareResult D_LPOCompareVars(Term_p s, Term_p t,
    }
    else
    {                  /* Note that in this case, t is a variable. */
-      if (TermIsSubterm(s, t, deref_s, TBTermEqual))
+      if(TermIsSubterm(s, t, deref_s))
       {
 	 return to_greater;
       }

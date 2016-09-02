@@ -107,11 +107,6 @@ static bool occur_check(Term_p super, Term_p var)
 //   changed and needs to be backtracked by the caller), false
 //   otherwise (subst is unchanged). Both terms are assumed to contain
 //   no bindings except those stored in subst.
-// 
-//   For shared terms, calling the function with TBTermEqual() as the
-//   last argument (the function used to test terms for equality)
-//   results in more efficient execution (otherwise call the function
-//   with TermBasicStructEqual()). 
 //
 //   The routine will work and compute a valid match if the two terms
 //   share variables. However, this will lead to temporary incorrect
@@ -124,8 +119,7 @@ static bool occur_check(Term_p super, Term_p var)
 //
 /----------------------------------------------------------------------*/
 
-bool SubstComputeMatch(Term_p matcher, Term_p to_match, Subst_p subst,
-		       TermEqualTestFun EqualTest)
+bool SubstComputeMatch(Term_p matcher, Term_p to_match, Subst_p subst)
 {
    long matcher_weight = TermStandardWeight(matcher),
       to_match_weight = TermStandardWeight(to_match);
@@ -160,9 +154,16 @@ bool SubstComputeMatch(Term_p matcher, Term_p to_match, Subst_p subst,
 	 
 	 if(TermIsVar(matcher))
 	 {
+         assert(matcher->sort != STNoSort);
+         assert(to_match->sort != STNoSort);
+         if(matcher->sort != to_match->sort)
+         {
+            res = false;
+            break;
+         }
 	    if(matcher->binding)
 	    {
-	       if(!EqualTest(matcher->binding,to_match))
+	       if(matcher->binding != to_match)
 	       {
 		  res = false;
 		  break;
@@ -262,16 +263,18 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
       
       if(TermIsVar(t2))
       {
-         SWAP(Term_p, t1, t2);
+         SWAP(t1, t2);
       }
 
       if(TermIsVar(t1))
       {
-	 if(!TBTermEqual(t1,t2))
+	 if(t1 != t2)
 	 {
-	    /* Occur-Check - remember, variables are elementary and
-	       shared! */
-	    if(occur_check(t2, t1))
+         assert(t1->sort != STNoSort);
+         assert(t2->sort != STNoSort);
+	    /* Sort check, then Occur-Check - remember,
+             * variables are elementary and shared! */
+	    if((t1->sort != t2->sort) || occur_check(t2, t1))
 	    {
 	       SubstBacktrackToPos(subst,backtrack);
 	       PQueueFree(jobs);
@@ -295,6 +298,9 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
 	 }
 	 else
 	 {
+      assert(t1->sort != STNoSort);
+      assert(t2->sort != STNoSort);
+      assert(t1->sort == t2->sort);
 	    for(i=t1->arity-1; i>=0; i--)
 	    {	
 	       /* Delay variable bindings */

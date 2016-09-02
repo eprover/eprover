@@ -890,7 +890,7 @@ bool PatternSubstBacktrack(PatternSubst_p subst, PStackPointer
 	 count = PatternIdGetIdent(rep_symbol);
 	 
 	 tmp = PDArrayElementRef(subst->used_idents, arity);
-	 (void)count; assert(tmp->i_val == count);	 
+	 UNUSED(count); assert(tmp->i_val == count);
 	 tmp->i_val--;
 	 PDArrayAssignInt(subst->fun_subst, symbol, 0);
       }
@@ -1411,7 +1411,7 @@ Term_p PatternTranslateSig(Term_p term, PatternSubst_p subst, Sig_p
 	 {
 	    t->binding = 
 	       VarBankFCodeAssertAlloc(new_vars,
-				       f_code-NORM_VAR_INIT);
+				       f_code-NORM_VAR_INIT, t->sort);
 	 }
       }
       else

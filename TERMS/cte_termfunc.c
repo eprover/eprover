@@ -23,7 +23,8 @@ Changes
 
 
 #include "cte_termfunc.h"
-
+#include "cte_typecheck.h"
+#include "clb_plocalstacks.h"
 
 
 /*---------------------------------------------------------------------*/
@@ -31,6 +32,7 @@ Changes
 /*---------------------------------------------------------------------*/
 
 bool      TermPrintLists = true;
+bool      TermPrintTypes = false;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -108,6 +110,7 @@ static Term_p parse_cons_list(Scanner_p in, Sig_p sig, VarBank_p vars)
 
       current->f_code = SIG_CONS_CODE;
       current->arity = 2;
+      current->sort = SigDefaultSort(sig);
       current->args = TermArgArrayAlloc(2);
       current->args[0] = TermParse(in, sig, vars); 
       current->args[1] = TermDefaultCellAlloc();
@@ -118,6 +121,7 @@ static Term_p parse_cons_list(Scanner_p in, Sig_p sig, VarBank_p vars)
          NextToken(in);
          current->f_code = SIG_CONS_CODE;             
          current->arity = 2;                          
+         current->sort = SigDefaultSort(sig);
          current->args = TermArgArrayAlloc(2);
          current->args[0] = TermParse(in, sig, vars); 
          TermCellDelProp(current->args[0], TPTopPos);
@@ -260,6 +264,12 @@ void TermPrint(FILE* out, Term_p term, Sig_p sig, DerefType deref)
          }
       }
    }
+
+   if(TermPrintTypes)
+   {
+      fputc(':', out);
+      SortPrintTSTP(out, sig->sort_table, term->sort);
+   }
 }
 
 
@@ -401,6 +411,7 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
    DStr_p        id;
    FuncSymbType id_type;
    DStr_p        source_name, errpos;
+   SortType      sort;
    long          line, column;
    StreamType    type;
 
@@ -418,7 +429,18 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
 
       if((id_type = TermParseOperator(in, id))==FSIdentVar)
       {
-         handle = VarBankExtNameAssertAlloc(vars, DStrView(id));
+         /* A variable may be annotated with a sort */
+         if(TestInpTok(in, Colon))
+         {
+            AcceptInpTok(in, Colon);
+            sort = SortParseTSTP(in, vars->sort_table);
+            handle = VarBankExtNameAssertAllocSort(vars,
+                                                   DStrView(id), sort);
+         }
+         else
+         {
+            handle = VarBankExtNameAssertAlloc(vars, DStrView(id));
+         }
       }      
       else 
       {
@@ -630,7 +652,7 @@ Term_p TermEquivCellAlloc(Term_p source, VarBank_p vars)
    
    if(TermIsVar(source))
    {
-      handle = VarBankFCodeAssertAlloc(vars, source->f_code);
+      handle = VarBankFCodeAssertAlloc(vars, source->f_code, source->sort);
    }
    else
    {
@@ -656,21 +678,22 @@ Term_p TermEquivCellAlloc(Term_p source, VarBank_p vars)
 
 bool TermStructEqual(Term_p t1, Term_p t2)
 {
-   int i;
-   DerefType deref = DEREF_ALWAYS;
-
-   t1 = TermDeref(t1, &deref);
-   t2 = TermDeref(t2, &deref);
+   t1 = TermDerefAlways(t1);
+   t2 = TermDerefAlways(t2);
    
    if(t1==t2)
    {
       return true;
    }
+
    if(t1->f_code != t2->f_code)
    {
       return false;
    }
-   for(i=0; i<t1->arity; i++)
+
+   assert(t1->sort == t2->sort);
+   assert(t1->arity == t2->arity);
+   for(int i=0; i<t1->arity; i++)
    {
       if(!TermStructEqual(t1->args[i], t2->args[i]))
       {
@@ -698,17 +721,19 @@ bool TermStructEqual(Term_p t1, Term_p t2)
 
 bool TermStructEqualNoDeref(Term_p t1, Term_p t2)
 {
-   int i;
-   
    if(t1==t2)
    {
       return true;
    }
+
    if(t1->f_code != t2->f_code)
    {
       return false;
    }
-   for(i=0; i<t1->arity; i++)
+
+   assert(t1->sort == t2->sort);
+   assert(t1->arity == t2->arity);
+   for(int i=0; i<t1->arity; i++)
    {
       if(!TermStructEqualNoDeref(t1->args[i], t2->args[i]))
       {
@@ -717,47 +742,6 @@ bool TermStructEqualNoDeref(Term_p t1, Term_p t2)
    }
    return true;
 }
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: TermStructEqualNoDerefHardVars()
-//
-//   Return true if the two terms have the same structures. Compares
-//   variables by pointer, everything else by structure.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-bool TermStructEqualNoDerefHardVars(Term_p t1, Term_p t2)
-{
-   int i;
-   
-   if(t1==t2)
-   {
-      return true;
-   }
-   if(TermIsVar(t1)) /* Variables are only equal if the pointers are */
-   {
-      return false;
-   }
-   if(t1->f_code != t2->f_code)
-   {
-      return false;
-   }
-   for(i=0; i<t1->arity; i++)
-   {
-      if(!TermStructEqualNoDerefHardVars(t1->args[i], t2->args[i]))
-      {
-         return false;
-      }
-   }
-   return true;
-}
-
 
 /*-----------------------------------------------------------------------
 //
@@ -773,23 +757,25 @@ bool TermStructEqualNoDerefHardVars(Term_p t1, Term_p t2)
 //
 /----------------------------------------------------------------------*/
 
-bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1,
-			  DerefType deref_2) 
+bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType deref_2)
 {
-   int i;
 
    t1 = TermDeref(t1, &deref_1);
    t2 = TermDeref(t2, &deref_2);
-   
+
    if((t1==t2) && (deref_1==deref_2))
    {
       return true;
    }
+
    if(t1->f_code != t2->f_code)
    {
       return false;
    }
-   for(i=0; i<t1->arity; i++)
+
+   assert(t1->sort == t2->sort);
+   assert(t1->arity == t2->arity);
+   for(int i=0; i<t1->arity; i++)
    {
       if(!TermStructEqualDeref(t1->args[i], t2->args[i], deref_1, deref_2))
       {
@@ -798,51 +784,6 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1,
    }
    return true;
 }
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: TermStructEqualDerefHardVars()
-//
-//   Return true if the two terms have the same
-//   structures. Dereference both terms as designated by deref_1,
-//   deref_2. Variables are compared by pointer, not by f_code.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-bool TermStructEqualDerefHardVars(Term_p t1, Term_p t2, DerefType deref_1,
-                                  DerefType deref_2) 
-{
-   int i;
-
-   t1 = TermDeref(t1, &deref_1);
-   t2 = TermDeref(t2, &deref_2);
-   
-   if((t1==t2) && (deref_1==deref_2))
-   {
-      return true;
-   }
-   if(t1->f_code != t2->f_code || TermIsVar(t1))
-   {
-      return false;
-   }
-   for(i=0; i<t1->arity; i++)
-   {
-      if(!TermStructEqualDerefHardVars(t1->args[i], t2->args[i], deref_1, deref_2))
-      {
-         return false;
-      }
-   }
-   return true;
-}
-
-
-
-
 
 /*-----------------------------------------------------------------------
 //
@@ -858,12 +799,8 @@ bool TermStructEqualDerefHardVars(Term_p t1, Term_p t2, DerefType deref_1,
 //
 /----------------------------------------------------------------------*/
 
-int TermStructWeightCompare(Term_p t1, Term_p t2)
+long TermStructWeightCompare(Term_p t1, Term_p t2)
 {
-   long res;
-   short i;
-   CompareResult subres;
-   
    assert(t1);
    assert(t2);
 
@@ -872,39 +809,47 @@ int TermStructWeightCompare(Term_p t1, Term_p t2)
       assert(t1->arity == 0);
       if(t2->f_code == SIG_TRUE_CODE)
       {
-	 assert(t2->arity == 0);
-	 return 0;
+         assert(t2->arity == 0);
+         return 0;
       }
       return -1;
-   }   
+   }
+
    if(t2->f_code == SIG_TRUE_CODE)
    {
       assert(t2->arity == 0);
       return 1;
    }
-   res = TermStandardWeight(t1) - TermStandardWeight(t2);
+
+   long res = TermStandardWeight(t1) - TermStandardWeight(t2);
    if(res)
    {
       return res;
    }
+
    if(TermIsVar(t1))
    { /* Then t2 also is a variable due to equal weights! */
       assert(TermIsVar(t2));
-      return 0;
+      return t1->sort - t2->sort;
    }
+
    res = t1->arity - t2->arity;
    if(res)
    {
       return res;
    }
-   for(i=0; i<t1->arity; i++)
+
+   assert(t1->sort == t2->sort);
+   assert(t1->arity == t2->arity);
+   for(int i=0; i<t1->arity; i++)
    {
-      subres = TermStructWeightCompare(t1->args[i], t2->args[i]);
-      if(subres)
+      res = TermStructWeightCompare(t1->args[i], t2->args[i]);
+      if(res)
       {
-	 return subres;
+         return res;
       }
    }
+
    return 0;
 }
 
@@ -921,16 +866,17 @@ int TermStructWeightCompare(Term_p t1, Term_p t2)
 //
 /----------------------------------------------------------------------*/
 
-int TermLexCompare(Term_p t1, Term_p t2)
+long TermLexCompare(Term_p t1, Term_p t2)
 {
-   long res;
    int i;
 
-   res = t1->f_code - t2->f_code;
+   long res = t1->f_code - t2->f_code;
    if(res)
    {
       return res;
    }
+
+   assert(t1->sort == t2->sort);
    assert(t1->arity == t2->arity);
    for(i=0; i<t1->arity; i++)
    {
@@ -940,7 +886,7 @@ int TermLexCompare(Term_p t1, Term_p t2)
 	 return res;
       }
    }   
-   return 0;
+   return res;
 }
 
 
@@ -948,8 +894,7 @@ int TermLexCompare(Term_p t1, Term_p t2)
 //
 // Function: TermIsSubterm()
 //
-//   Return true if test is a subterm to super. Parameterized by the
-//   Equal-Funktion for terms.
+//   Return true if test is a subterm to super.
 //
 // Global Variables: -
 //
@@ -957,20 +902,19 @@ int TermLexCompare(Term_p t1, Term_p t2)
 //
 /----------------------------------------------------------------------*/
 
-bool TermIsSubterm(Term_p super, Term_p test, DerefType deref,
-                   TermEqualTestFun EqualTest)
+bool TermIsSubterm(Term_p super, Term_p test, DerefType deref)
 {
    int i;
 
    super = TermDeref(super, &deref);
 
-   if(EqualTest(super, test))
+   if(super == test)
    {
       return true;
    }
    for(i=0; i<super->arity; i++)
    {
-      if(TermIsSubterm(super->args[i], test, deref, EqualTest))
+      if(TermIsSubterm(super->args[i], test, deref))
       {
          return true;
       }
@@ -1462,34 +1406,44 @@ FunCode TermFindMaxVarCode(Term_p term)
 FunCode VarBankCheckBindings(FILE* out, VarBank_p bank, Sig_p sig)
 {
    Term_p    term;
+   VarBankStack_p stack;
    long      res = 0;
-   int       i;
+   int       i,j;
 
    fprintf(out, "#  VarBankCheckBindings() started...\n");
-   for(i=0; i<bank->f_code_index->size; i++)
+   for(i=0; i<PDArraySize(bank->stacks); i++)
    {
-      term = PDArrayElementP(bank->f_code_index, i);      
-      if(term)
+      stack = (VarBankStack_p) PDArrayElementP(bank->stacks, i);
+      if (!stack)
       {
-	 assert(TermIsVar(term));
-	 if(term->binding)
-	 {
-	    res++;
-	    if(sig)
-	    {
-	       fprintf(out, "# %ld: ", term->f_code);
-	       TermPrint(out, term, sig, DEREF_NEVER);
-	       fprintf(out, " <--- ");
-	       TermPrint(out, term, sig, DEREF_ONCE);
-	       fprintf(out, "\n");
-	    }
-	    else
-	    {
-	       fprintf(out, "# Var%ld <---- %p\n", 
-		       term->f_code,
-		       (void*)term->binding);
-	    }
-	 }
+         continue;
+      }
+
+      for(j=0; j < PDArraySize(stack); j++)
+      {
+         term = PDArrayElementP(stack, j);
+         if(term)
+         {
+            assert(TermIsVar(term));
+            if(term->binding)
+            {
+               res++;
+               if(sig)
+               {
+                  fprintf(out, "# %ld: ", term->f_code);
+                  TermPrint(out, term, sig, DEREF_NEVER);
+                  fprintf(out, " <--- ");
+                  TermPrint(out, term, sig, DEREF_ONCE);
+                  fprintf(out, "\n");
+               }
+               else
+               {
+                  fprintf(out, "# Var%ld <---- %p\n", 
+                          term->f_code,
+                          (void*)term->binding);
+               }
+            }
+         }
       }
    }
    fprintf(out, "#  ...VarBankCheckBindings() completed\n");
@@ -1853,6 +1807,79 @@ Term_p TermCheckConsistency(Term_p term, DerefType deref)
    printf("...TermCheckConsistency\n");
    return res;
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermAssertSameSort
+//
+//  checks whether the two terms have the same sort. Prints a (verbose)
+//  message if it's not the case and exit.
+//
+// Global Variables: -
+//
+// Side Effects    : May exit
+//
+/----------------------------------------------------------------------*/
+void TermAssertSameSort(Sig_p sig, Term_p t1, Term_p t2)
+{
+   if(t1->sort != t2->sort)
+   {
+      fprintf(stderr, "# Error: terms ");
+      TermPrint(stderr, t1, sig, DEREF_NEVER);
+      fprintf(stderr, ": ");
+      SortPrintTSTP(stderr, sig->sort_table, t1->sort);
+      fprintf(stderr, " and ");
+      TermPrint(stderr, t2, sig, DEREF_NEVER);
+      fprintf(stderr, ": ");
+      SortPrintTSTP(stderr, sig->sort_table, t2->sort);
+      fprintf(stderr, " should have same sort\n");
+      Error("Type error", SYNTAX_ERROR);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermIsUntyped
+//
+//   check whether all sorts occurring in the term are either
+//   individual or boolean. In other words, whether the term
+//   belongs to regular untyped logic.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+bool TermIsUntyped(Term_p term)
+{
+   bool res = true;
+
+   PLocalStackInit(stack);
+
+   PLocalStackPush(stack, term);
+
+   while(!PLocalStackEmpty(stack))
+   {
+      term = PLocalStackPop(stack);
+
+      if(term->sort == STIndividuals || term->sort == STBool)
+      {
+         PLocalStackPushTermArgs(stack, term);
+      }
+      else
+      {
+         res = false;
+         break;
+      }
+   }
+
+   PLocalStackFree(stack);
+
+   return res;
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

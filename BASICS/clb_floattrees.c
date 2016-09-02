@@ -58,7 +58,6 @@ static FloatTree_p splay_tree(FloatTree_p tree, double key)
 {
    FloatTree_p   left, right, tmp;
    FloatTreeCell new;
-   int       cmpres;
 
    if (!tree) 
    {
@@ -72,7 +71,7 @@ static FloatTree_p splay_tree(FloatTree_p tree, double key)
    
    for (;;) 
    {
-      cmpres = key-tree->key;
+      double cmpres = key-tree->key;
       if (cmpres < 0) 
       {
          if(!tree->lson)
@@ -216,7 +215,6 @@ void FloatTreeFree(FloatTree_p junk)
 
 FloatTree_p FloatTreeInsert(FloatTree_p *root, FloatTree_p new)
 {
-   int cmpres;
    if (!*root) 
    {
       new->lson = new->rson = NULL;
@@ -225,7 +223,7 @@ FloatTree_p FloatTreeInsert(FloatTree_p *root, FloatTree_p new)
    }
    *root = splay_tree(*root, new->key);
    
-   cmpres = new->key-(*root)->key;
+   double cmpres = new->key-(*root)->key;
    
    if (cmpres < 0) 
    {

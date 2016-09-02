@@ -22,8 +22,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "cte_simplesorts.h"
-
-
+#include "cte_functypes.c"
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -55,15 +54,19 @@ void default_sort_table_init(SortTable_p table)
    SortType res;
 
    res = SortTableInsert(table, "$no_type");
-   (void)res; assert(res == STNoSort);
-   res = SortTableInsert(table, "$oType");
-   (void)res; assert(res == STBool);
-   res = SortTableInsert(table, "$iType");
-   (void)res; assert(res == STIndividuals);
+   UNUSED(res); assert(res == STNoSort);
+   res = SortTableInsert(table, "$o");
+   UNUSED(res); assert(res == STBool);
+   res = SortTableInsert(table, "$i");
+   UNUSED(res); assert(res == STIndividuals);
+   res = SortTableInsert(table, "$tType");
+   UNUSED(res); assert(res == STKind);
    res = SortTableInsert(table, "$int");
-   (void)res; assert(res == STInteger);
+   UNUSED(res); assert(res == STInteger);
+   res = SortTableInsert(table, "$rat");
+   UNUSED(res); assert(res == STRational);
    res = SortTableInsert(table, "$real");   
-   (void)res; assert(res == STReal);
+   UNUSED(res); assert(res == STReal);
 }
 
 
@@ -89,6 +92,7 @@ SortTable_p SortTableAlloc(void)
 
    table->sort_index   = NULL;
    table->back_index   = PStackAlloc();
+   table->default_type = STIndividuals;
 
    return table;
 }
@@ -110,7 +114,10 @@ void SortTableFree(SortTable_p junk)
    assert(junk);
 
    PStackFree(junk->back_index);
-   StrTreeFree(junk->sort_index);
+   if (junk->sort_index)
+   {
+      StrTreeFree(junk->sort_index);
+   }
    SortTableCellFree(junk);
 }
 
@@ -182,6 +189,56 @@ char* SortTableGetRep(SortTable_p table, SortType sort)
    return PStackElementP(table->back_index, sort);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: SortPrintTSTP()
+//
+//   Print a sort in the TSTP format
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+void SortPrintTSTP(FILE *out, SortTable_p table, SortType sort)
+{
+    char *name;
+
+    name = SortTableGetRep(table, sort);
+    fputs(name, out);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: SortParseTSTP
+//  parse a sort in the TSTP format
+//   
+//
+// Global Variables: -
+//
+// Side Effects    : Reads from scanner, modifies sort table
+//
+/----------------------------------------------------------------------*/
+SortType SortParseTSTP(Scanner_p in, SortTable_p table)
+{
+   DStr_p id;
+   FuncSymbType functype;
+   SortType sort = STNoSort;
+
+   id = DStrAlloc();
+   functype = FuncSymbParse(in, id);
+   if(functype == FSIdentFreeFun || functype == FSIdentInterpreted)
+   {
+      sort = SortTableInsert(table, DStrView(id));
+   }
+   else
+   {
+      AktTokenError(in, "Expected TSTP sort", false);
+   }
+
+   DStrFree(id);
+   return sort;
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -204,7 +261,7 @@ void SortTablePrint(FILE* out, SortTable_p table)
    fprintf(out, "=====================================\n");
    for(i=0; i<PStackGetSP(table->back_index); i++)
    {
-      fprintf(out, "Type %4u: %s\n", i, SortTableGetRep(table, i));
+      fprintf(out, "Type %4ld: %s\n", i, SortTableGetRep(table, i));
    }
    fprintf(out, "\nSort table in alphabetic order:\n");
    fprintf(out, "=====================================\n");

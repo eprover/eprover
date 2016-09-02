@@ -225,8 +225,7 @@ Eqn_p   EqnCopyRepl(Eqn_p eq, TB_p bank, Term_p old, Term_p repl);
 Eqn_p   EqnCopyOpt(Eqn_p eq);
 Eqn_p   EqnCopyDisjoint(Eqn_p eq);
 
-#define EqnIsTrivial(eq, EqualTest) \
-        EqualTest((eq)->lterm, (eq)->rterm)
+#define EqnIsTrivial(eq) ((eq)->lterm == (eq)->rterm)
 
 bool    EqnIsACTrivial(Eqn_p eq);
 
@@ -238,39 +237,28 @@ bool    EqnHasUnboundVars(Eqn_p eq, EqnSide dom_side);
 
 EqnSide EqnIsDefinition(Eqn_p eq, int min_arity);
 
-#define EqnWeightCompare(l1, l2) (EqnStandardWeight(l1)-EqnStandardWeight(l2))
 int     EqnSubsumeQOrderCompare(const void* lit1, const void* lit2);
 int     EqnSubsumeInverseCompareRef(const void* lit1ref, const void* lit2ref);
 int     EqnSubsumeInverseRefinedCompareRef(const void* lit1ref, const void* lit2ref);
 int     EqnSubsumeCompare(Eqn_p l1, Eqn_p l2);
 
 Eqn_p   EqnCanonize(Eqn_p eq);
-int     EqnStructWeightCompare(Eqn_p l1, Eqn_p l2);
-int     EqnCanonCompare(const void* lit1, const void* l2);
-int     EqnStructWeightLexCompare(Eqn_p l1, Eqn_p lit2);
-bool    EqnEqualDirected(Eqn_p eq1,  Eqn_p eq2, TermEqualTestFun EqualTest);
-bool    EqnEqual(Eqn_p eq1,  Eqn_p eq2, TermEqualTestFun EqualTest);
-#define LiteralEqual(eq1, eq2, EqualTest) \
-        (PropsAreEquiv((eq1),(eq2),EPIsPositive) &&\
-	 EqnEqual((eq1),(eq2),(EqualTest)))
+long    EqnStructWeightCompare(Eqn_p l1, Eqn_p l2);
+int     EqnCanonCompareRef(const void* lit1ref, const void* l2ref);
+long    EqnStructWeightLexCompare(Eqn_p l1, Eqn_p lit2);
+#define EqnEqualDirected(eq1, eq2) (((eq1)->lterm == (eq2)->lterm) && ((eq1)->rterm == (eq2)->rterm))
+bool    EqnEqual(Eqn_p eq1,  Eqn_p eq2);
+#define LiteralEqual(eq1, eq2) (PropsAreEquiv((eq1),(eq2),EPIsPositive) && EqnEqual((eq1),(eq2)))
 
-bool    EqnSubsumeDirected(Eqn_p subsumer, Eqn_p subsumed, Subst_p
-			   subst, TermEqualTestFun EqualTest);
-bool    EqnSubsume(Eqn_p subsumer, Eqn_p subsumed, Subst_p subst,
-		   TermEqualTestFun EqualTest);
-bool    EqnSubsumeP(Eqn_p subsumer, Eqn_p subsumed, 
-		    TermEqualTestFun EqualTest);
+bool    EqnSubsumeDirected(Eqn_p subsumer, Eqn_p subsumed, Subst_p subst);
+bool    EqnSubsume(Eqn_p subsumer, Eqn_p subsumed, Subst_p subst);
+bool    EqnSubsumeP(Eqn_p subsumer, Eqn_p subsumed);
 
-bool    LiteralSubsumeP(Eqn_p subsumer, Eqn_p subsumed, 
-			TermEqualTestFun EqualTest);
+bool    LiteralSubsumeP(Eqn_p subsumer, Eqn_p subsumed);
 
-#define EqnEquiv(eq1, eq2, EqualTest) \
-           (EqnSubsumeP((eq1),(eq2),(EqualTest)) \
-	 &&(EqnSubsumeP((eq2),(eq1),(EqualTest))))
+#define EqnEquiv(eq1, eq2) (EqnSubsumeP((eq1),(eq2))&&(EqnSubsumeP((eq2),(eq1)))
 
-#define LiteralEquiv(eq1, eq2, EqualTest) \
-        (((eq1)->positive == (eq2)->positive) \
-	 && EqnEquiv((eq1),(eq2),(EqualTest)))
+#define LiteralEquiv(eq1, eq2) (((eq1)->positive == (eq2)->positive) && EqnEquiv((eq1),(eq2))
 
 bool    EqnUnifyDirected(Eqn_p eq1, Eqn_p eq2, Subst_p subst);
 bool    EqnUnify(Eqn_p eq1, Eqn_p eq2, Subst_p subst);
@@ -285,7 +273,7 @@ bool          EqnGreater(OCB_p ocb, Eqn_p eq1, Eqn_p eq2);
 CompareResult LiteralCompare(OCB_p ocb, Eqn_p eq1, Eqn_p eq2);
 bool          LiteralGreater(OCB_p ocb, Eqn_p eq1, Eqn_p eq2);
 
-FunCode SubstNormEqn(Eqn_p eq, Subst_p subst, VarBank_p vars);
+PStackPointer SubstNormEqn(Eqn_p eq, Subst_p subst, VarBank_p vars);
 
 double  EqnWeight(Eqn_p eq, double max_multiplier, long vweight, long
 		  fweight);
@@ -418,6 +406,23 @@ static __inline__ long EqnDepth(Eqn_p eqn)
    rdepth = TermDepth(eqn->rterm);
 
    return MAX(ldepth, rdepth);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: EqnIsUntyped
+//
+//   Return true iff the equation is untyped, ie belongs to untyped logic
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+static __inline__ bool EqnIsUntyped(Eqn_p eqn)
+{
+    return TermIsUntyped(eqn->lterm) && TermIsUntyped(eqn->rterm);
 }
 
 

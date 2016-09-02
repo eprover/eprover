@@ -106,7 +106,7 @@ int main(int argc, char* argv[])
 
    TBPrintInternalInfo = true;
    out = OutOpen(outname);
-   bank = TBAlloc(SigAlloc());
+   bank = TBAlloc(SigAlloc(DefaultSortTableAlloc()));
 
    for(i=0; state->argv[i]; i++)
    {
@@ -120,6 +120,7 @@ int main(int argc, char* argv[])
    }
    SigPrint(out, bank->sig);
    TBPrintBankInOrder(out, bank);   
+   SortTableFree(bank->sig->sort_table);
    SigFree(bank->sig);
    bank->sig = NULL;
    TBFree(bank);  

@@ -57,7 +57,7 @@ Changes
 static void push(DStack_p stack, double val)
 {
    double *tmp;
-   int    old_size;
+   long   old_size;
 
    if(stack->current == stack->size)
    {

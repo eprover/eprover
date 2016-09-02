@@ -337,9 +337,16 @@ StructFOFSpec_p StructFOFSpecAlloc(void)
 {
    Sig_p sig;
    TB_p  terms;
+   SortTable_p sort_table;
 
-   sig =   SigAlloc();
+   sort_table = DefaultSortTableAlloc();
+   sig =   SigAlloc(sort_table);
    SigInsertInternalCodes(sig);
+   /* We assume free numers for LTB to avoid problems with the
+      TFF-enabled parser */
+   sig->distinct_props = sig->distinct_props&~
+      (FPIsInteger|FPIsRational|FPIsFloat);
+
    terms = TBAlloc(sig);
    return StructFOFSpecCreate(terms);
 }
@@ -380,6 +387,11 @@ void StructFOFSpecFree(StructFOFSpec_p ctrl)
 
    if(ctrl->sig)
    {
+      if(ctrl->sig->sort_table)
+      {
+         SortTableFree(ctrl->sig->sort_table);
+         ctrl->sig->sort_table = NULL;
+      }
       SigFree(ctrl->sig);
       ctrl->terms->sig = NULL;
    }

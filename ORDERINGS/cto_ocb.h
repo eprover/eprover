@@ -27,8 +27,6 @@ Changes
 #define CTO_OCB
 
 #include <cte_termbanks.h>
-#include <cto_kbodata.h>
-
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -65,7 +63,7 @@ typedef enum
 typedef struct ocb_cell
 {
    TermOrdering  type;
-   int           sig_size;
+   long          sig_size;
    Sig_p         sig;          /* Slightly hacked...this is only an
 				   unsupervised reference (but will
 				   stay)! Always free the OCB before
@@ -83,7 +81,12 @@ typedef struct ocb_cell
 				  uncomparable (useful for SOS
 				  strategy) */
    PStack_p       statestack;  /* Contains backtrack information */
-   KBOLin_p       kbobalance; 
+   long            wb;
+   long            pos_bal;
+   long            neg_bal;
+   long            max_var;
+   long            vb_size;
+   int             *vb;
 }OCBCell, *OCB_p;
 
 #define OCB_FUN_DEFAULT_WEIGHT 1
@@ -121,14 +124,14 @@ bool          OCBPrecedenceBacktrack(OCB_p ocb, PStackPointer state);
 
 /*
 #define OCBFunWeightPos(ocb, f) \
-              (assert((f)>0), assert((f)<=(ocb)->sig_size), &((ocb)->weights[(f)-1]))
+              (assert((f)>0), assert((f)<=(ocb)->sig_size), &((ocb)->weights[(f)]))
 #define OCBFunComparePos(ocb, f1, f2) \
               (assert((f1)>0), assert((f2)>0), assert((f1)<=(ocb)->sig_size),\
 	       assert((f2)<=(ocb)->sig_size),\
               (&((ocb)->precedence[((f2)-1)*(ocb)->sig_size+((f1)-1)])))
 */
 
-#define OCBFunWeightPos(ocb, f) &((ocb)->weights[(f)-1])
+#define OCBFunWeightPos(ocb, f) &((ocb)->weights[(f)])
 #define OCBFunComparePos(ocb, f1, f2) (&((ocb)->precedence[((f2)-1)*(ocb)->sig_size+((f1)-1)]))
 
 
@@ -217,8 +220,7 @@ static __inline__ long OCBFunPrecWeight(OCB_p ocb, FunCode f)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ CompareResult OCBFunCompare(OCB_p ocb, FunCode f1,
-					      FunCode f2)
+static __inline__ CompareResult OCBFunCompare(OCB_p ocb, FunCode f1, FunCode f2)
 {   
    long tmp;
 
@@ -237,7 +239,7 @@ static __inline__ CompareResult OCBFunCompare(OCB_p ocb, FunCode f1,
       return to_greater;
    }
    tmp = (long)SigIsAnyFuncPropSet(ocb->sig, f2, ocb->sig->distinct_props)-
-      (long)SigIsAnyFuncPropSet(ocb->sig, f1, ocb->sig->distinct_props);   
+         (long)SigIsAnyFuncPropSet(ocb->sig, f1, ocb->sig->distinct_props);
    if(tmp)
    {
       /* printf("f1 = %ld, f2 = %ld, res = %ld\n", f1, f2, tmp); */
@@ -246,24 +248,8 @@ static __inline__ CompareResult OCBFunCompare(OCB_p ocb, FunCode f1,
 
    if(ocb->prec_weights)
    {
-      long w1,w2;
-      
-      if(f1<=ocb->sig_size)
-      {
-	 w1 = ocb->prec_weights[f1];
-      }
-      else 
-      {
-	 w1 = -f1;
-      }
-      if(f2<=ocb->sig_size)
-      {
-	 w2 = ocb->prec_weights[f2];
-      }
-      else 
-      {
-	 w2 = -f2;
-      }
+      long w1 = (f1<=ocb->sig_size) ? ocb->prec_weights[f1] : -f1;
+      long w2 = (f2<=ocb->sig_size) ? ocb->prec_weights[f2] : -f2;
       return Q_TO_PART(w1-w2);
    }
    return OCBFunCompareMatrix(ocb, f1, f2);

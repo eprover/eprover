@@ -128,6 +128,7 @@ int main(int argc, char* argv[])
    CLState_p      state;
    Scanner_p      in;    
    char*          infile;      
+   SortTable_p    sort_table;
    Sig_p          sig;
    TB_p           bank;
    AnnoSet_p      training_set, test_set;
@@ -155,7 +156,8 @@ int main(int argc, char* argv[])
    
    in = CreateScanner(StreamTypeFile, infile, true, NULL);
    
-   sig = SigAlloc();
+   sort_table = DefaultSortTableAlloc();
+   sig = SigAlloc(sort_table);
    bank = TBAlloc(sig);
    AcceptInpId(in, "Training");
    AcceptInpTok(in, Colon);   
@@ -210,6 +212,7 @@ int main(int argc, char* argv[])
    bank->sig = 0;
    TBFree(bank);
    SigFree(sig);
+   SortTableFree(sort_table);
 
    CLStateFree(state);
    fflush(GlobalOut);

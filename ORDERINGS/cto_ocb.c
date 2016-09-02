@@ -173,26 +173,36 @@ OCB_p OCBAlloc(TermOrdering type, bool prec_by_weight, Sig_p sig)
    handle->type  = type;
    handle->sig   = sig;
    handle->min_constant  = 0;
+   handle->weights    = NULL;
    handle->sig_size = sig->f_count;
    handle->statestack = PStackAlloc();
    handle->var_weight = 1;
-   handle->no_lit_cmp = false;   
+   handle->no_lit_cmp = false;
+   handle->wb      = 0;
+   handle->pos_bal = 0;
+   handle->neg_bal = 0;
+   handle->max_var = 0;
+   handle->vb_size = 64;
+   handle->vb      = SizeMalloc(handle->vb_size*sizeof(int));
+   for(size_t i=0; i<handle->vb_size; i++)
+   {
+      handle->vb[i] = 0;
+   }
+
    switch(type)
    {
    case KBO:
    case KBO6:
-	 handle->weights    = SizeMalloc(sizeof(long)*(handle->sig_size+1));
+	 handle->weights = SizeMalloc(sizeof(long)*(handle->sig_size+1));
 	 alloc_precedence(handle, prec_by_weight);
 	 break;
    case LPO:
    case LPOCopy:
    case LPO4:
    case LPO4Copy:
-	 handle->weights    = NULL;
 	 alloc_precedence(handle, prec_by_weight);
 	 break;
    case RPO:
-	 handle->weights    = NULL;
 	 alloc_precedence(handle, prec_by_weight);
 	 break; 
    case EMPTY:
@@ -204,11 +214,12 @@ OCB_p OCBAlloc(TermOrdering type, bool prec_by_weight, Sig_p sig)
 
    if(handle->weights)
    {
-      for(i=1; i<=handle->sig_size; i++)
+      for(size_t i=0; i<=handle->sig_size; i++)
       {
-	 *OCBFunWeightPos(handle,i) = 1;
+         *OCBFunWeightPos(handle,i) = 1;
       }
    }
+
    if(handle->precedence)
    {
       for(i=1; i<=handle->sig_size; i++)
@@ -220,7 +231,7 @@ OCB_p OCBAlloc(TermOrdering type, bool prec_by_weight, Sig_p sig)
 	 }
       }
    }
-   handle->kbobalance = KBOLinAlloc();
+
    return handle;
 }
 
@@ -275,8 +286,11 @@ void OCBFree(OCB_p junk)
       SizeFree(junk->prec_weights, sizeof(long)*(junk->sig_size+1));
       junk->prec_weights = NULL;
    }
+   assert(junk);
+   assert(junk->vb_size > 0);
+   assert(junk->vb);
+   SizeFree(junk->vb, junk->vb_size*sizeof(int));
    PStackFree(junk->statestack);
-   KBOLinFree(junk->kbobalance);
    OCBCellFree(junk);
 }
 

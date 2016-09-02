@@ -48,6 +48,7 @@ long ClauseSetRemoveSuperfluousLiterals(ClauseSet_p set);
 void ClauseSetCanonize(ClauseSet_p set);
 int  ClauseRemoveACResolved(Clause_p clause);
 bool ClauseUnitSimplifyTest(Clause_p clause, Clause_p simplifier);
+int  ClauseCanonCompareRef(const void *clause1ref, const void* clause2ref);
 
 Clause_p ClauseArchive(ClauseSet_p archive, Clause_p clause);
 void     ClauseSetArchive(ClauseSet_p archive, ClauseSet_p set);

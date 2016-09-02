@@ -57,7 +57,6 @@ static Term_p splay_term_tree(Term_p tree, Term_p splay)
 {
    Term_p   left, right, tmp;
    TermCell new;
-   int       cmpres;
    
    if (!tree) 
    {
@@ -71,7 +70,7 @@ static Term_p splay_term_tree(Term_p tree, Term_p splay)
    
    for (;;) 
    {
-      cmpres = TermTopCompare(splay, tree);
+      long cmpres = TermTopCompare(splay, tree);
       if (cmpres < 0) 
       {
          if(!tree->lson)
@@ -191,15 +190,19 @@ void TermTreeFree(Term_p junk)
 //
 /----------------------------------------------------------------------*/
 
-int TermTopCompare(Term_p t1, Term_p t2)
+long TermTopCompare(Term_p t1, Term_p t2)
 {
-   int i, res;
+   int i;
    
-   res = t1->f_code - t2->f_code;   
+   long res = t1->f_code - t2->f_code;
    if(res)
    {
       return res;
    }
+
+   assert(t1->sort != STNoSort);
+   assert(t2->sort != STNoSort);
+   assert(t1->sort == t2->sort);
 
    assert(t1->arity == t2->arity);
    for(i=0; i<t1->arity; i++)
@@ -259,8 +262,6 @@ Term_p TermTreeFind(Term_p *root, Term_p key)
 
 Term_p TermTreeInsert(Term_p *root, Term_p new)
 {
-   int cmpres;
-
    if (!*root) 
    {
       new->lson = new->rson = NULL;
@@ -269,7 +270,7 @@ Term_p TermTreeInsert(Term_p *root, Term_p new)
    }
    *root = splay_term_tree(*root, new);
 
-   cmpres = TermTopCompare(new, *root);
+   long cmpres = TermTopCompare(new, *root);
    
    if (cmpres < 0) 
    {

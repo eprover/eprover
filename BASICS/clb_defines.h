@@ -80,6 +80,10 @@ typedef int (*ComparisonFunctionType)(const void*, const void*);
                     __typeof__ (y) _y = (y);\
                     _x < _y ? _x : _y; })
 
+#define CMP(x,y) ({ __typeof__ (x) _x = (x);\
+                    __typeof__ (y) _y = (y);\
+                    (_x > _y) - (_x < _y); })
+
 #undef ABS
 #define ABS(x) ((x)>0?(x):-(x))
 
@@ -90,8 +94,13 @@ typedef int (*ComparisonFunctionType)(const void*, const void*);
 #define EQUIV(x,y) (!(x)==!(y))
 
 #undef SWAP
-#define SWAP(type, x,y) do{type tmp =(x); (x)=(y); (y)=(tmp);}while(0)
+#define SWAP(x,y) do{ __typeof__ (x) tmp =(x); (x)=(y); (y)=(tmp);}while(0)
 
+
+#define LIKELY(x) __builtin_expect(!!(x), 1)
+#define UNLIKELY(x) __builtin_expect(!!(x), 0)
+
+#define UNUSED(x) (void)(x)
 
 #define KILO 1024
 #define MEGA 1024*1024

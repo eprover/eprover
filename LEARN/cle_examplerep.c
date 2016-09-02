@@ -265,7 +265,7 @@ ExampleRep_p ExampleSetExtract(ExampleSet_p set, ExampleRep_p rep)
    handle = cell->val1.p_val;
    NumTreeCellFree(cell);
    res = StrTreeDeleteEntry(&(set->name_index), rep->name);
-   (void)res; assert(res);
+   UNUSED(res); assert(res);
 
    return handle;
 }

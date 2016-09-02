@@ -156,7 +156,7 @@ Clause_p ComputeOrderedFactor(TB_p bank, OCB_p ocb, ClausePos_p pos1,
 	 new_literals = EqnListCopyOptExcept(pos1->clause->literals,
                                              pos2->literal);
 	 EqnListRemoveResolved(&new_literals);
-	 EqnListRemoveDuplicates(new_literals, TBTermEqual);
+	 EqnListRemoveDuplicates(new_literals);
 	 new_clause = ClauseAlloc(new_literals);	 
       }
    }
@@ -303,7 +303,7 @@ Clause_p ComputeEqualityFactor(TB_p bank, OCB_p ocb, ClausePos_p pos1,
 					  pos1->literal);
 	 EqnListInsertFirst(&new_literals, new_condition);
 	 EqnListRemoveResolved(&new_literals);
-	 EqnListRemoveDuplicates(new_literals, TBTermEqual);
+	 EqnListRemoveDuplicates(new_literals);
 	 new_clause = ClauseAlloc(new_literals);
       }
    }

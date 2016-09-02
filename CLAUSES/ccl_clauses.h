@@ -261,8 +261,8 @@ bool     ClauseIsSorted(Clause_p clause, ComparisonFunctionType cmp_fun);
          ClauseIsSorted((clause), \
          (ComparisonFunctionType)EqnSubsumeInverseCompareRef)
 
-int      ClauseStructWeightCompare(Clause_p c1, Clause_p c2);
-int      ClauseStructWeightLexCompare(Clause_p c1, Clause_p c2);
+long     ClauseStructWeightCompare(Clause_p c1, Clause_p c2);
+long     ClauseStructWeightLexCompare(Clause_p c1, Clause_p c2);
 #define  ClauseToStack(clause) EqnListToStack((clause)->literals)
 
 bool     ClauseIsACRedundant(Clause_p clause);
@@ -408,6 +408,7 @@ long     ClauseReturnFCodes(Clause_p clause, PStack_p f_codes);
 #define CLAUSE_ENSURE_DERIVATION(clause) \
         {if(!(clause)->derivation){(clause)->derivation=PStackVarAlloc(3);}}
 
+bool    ClauseIsUntyped(Clause_p clause);
 
 #endif
 

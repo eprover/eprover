@@ -27,7 +27,6 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "cto_kbolin.h"
-#include "cto_kbodata.h"
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -44,19 +43,46 @@ static CompareResult kbo6cmp(OCB_p ocb, Term_p s, Term_p t,
 static CompareResult kbo6cmplex(OCB_p ocb, Term_p s, Term_p t,
                          DerefType deref_s, DerefType deref_t);
 
-static void mfyvwb(OCB_p ocb, Term_p t, DerefType deref_t, bool lhs);
-
-
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------------------
+//
+// Function: resize_vb()
+//
+//   Enlarge ocb->vb array enough to accomodate index.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void __attribute__ ((noinline)) resize_vb(OCB_p ocb, size_t index)
+{
+   unsigned long old_size = ocb->vb_size;
+   int *tmp               = ocb->vb;
+
+   while(ocb->vb_size <= index)
+   {
+      ocb->vb_size *= 2;
+   }
+   ocb->vb = SizeMalloc(ocb->vb_size * sizeof(int));
+   memcpy(ocb->vb, tmp, old_size * sizeof(int));
+   SizeFree(tmp, old_size * sizeof(int));
+   for(size_t i = old_size; i<ocb->vb_size; i++)
+   {
+      ocb->vb[i] = 0;
+   }
+}
 
 
 /*-----------------------------------------------------------------------
 //
 // Function: inc_vb()
 //
-//   Update all values in ocb->kbobalance when processing var on the
+//   Update all values in ocb when processing var on the
 //   LHS of a comparison.
 //
 // Global Variables: -
@@ -67,26 +93,25 @@ static void mfyvwb(OCB_p ocb, Term_p t, DerefType deref_t, bool lhs);
 
 static void inc_vb(OCB_p ocb, Term_p var)
 {
-   long tmpbal;
-   long index = -var->f_code;
+   const size_t index = -var->f_code;
 
-   if(index>ocb->kbobalance->max_var)
+   if(UNLIKELY(index > ocb->max_var))
    {
-      ocb->kbobalance->max_var = index;
+      if(UNLIKELY(index >= ocb->vb_size))
+      {
+         resize_vb(ocb, index);
+      }
+      ocb->max_var = index;
+      ocb->vb[index] = 1;
+      ocb->pos_bal++;
    }
-   ocb->kbobalance->wb += ocb->var_weight;
-   
-   tmpbal = PDArrayElementInt(ocb->kbobalance->vb, index);
-   if(tmpbal == 0)
+   else
    {
-      ocb->kbobalance->pos_bal++;
+      const long tmpbal = ocb->vb[index]++;
+      ocb->pos_bal += (tmpbal ==  0);
+      ocb->neg_bal -= (tmpbal == -1);
    }
-   else if(tmpbal == -1)
-   {
-      ocb->kbobalance->neg_bal--;
-   }
-   tmpbal ++;
-   PDArrayAssignInt(ocb->kbobalance->vb, index, tmpbal);
+   ocb->wb += ocb->var_weight;
 }
 
 
@@ -94,7 +119,7 @@ static void inc_vb(OCB_p ocb, Term_p var)
 //
 // Function: dec_vb()
 //
-//   Update all values in ocb->kbobalance when processing var on the
+//   Update all values in ocb when processing var on the
 //   RHS of a comparison.
 //
 // Global Variables: -
@@ -105,26 +130,25 @@ static void inc_vb(OCB_p ocb, Term_p var)
 
 static void dec_vb(OCB_p ocb, Term_p var)
 {
-   long tmpbal;
-   long index = -var->f_code;
+   const size_t index = -var->f_code;
 
-   if(index>ocb->kbobalance->max_var)
+   if(UNLIKELY(index > ocb->max_var))
    {
-      ocb->kbobalance->max_var = index;
+      if(UNLIKELY(index >= ocb->vb_size))
+      {
+         resize_vb(ocb, index);
+      }
+   ocb->max_var = index;
+   ocb->vb[index] = -1;
+   ocb->neg_bal++;
    }
-   ocb->kbobalance->wb -= ocb->var_weight;
-   
-   tmpbal = PDArrayElementInt(ocb->kbobalance->vb, index);
-   if(tmpbal == 0)
+   else
    {
-      ocb->kbobalance->neg_bal++;
+      const long tmpbal = ocb->vb[index]--;
+      ocb->neg_bal += (tmpbal == 0);
+      ocb->pos_bal -= (tmpbal == 1);
    }
-   else if(tmpbal == 1)
-   {
-      ocb->kbobalance->pos_bal--;
-   }
-   tmpbal --;
-   PDArrayAssignInt(ocb->kbobalance->vb, index, tmpbal);
+   ocb->wb -= ocb->var_weight;
 }
 
 
@@ -132,8 +156,7 @@ static void dec_vb(OCB_p ocb, Term_p var)
 //
 // Function: local_vb_update()
 //
-//   Perform a local update of ocb->kbodata according to t (which is
-//   not derefed).
+//   Perform a local update of ocb according to t (which is not derefed).
 //
 // Global Variables: -
 //
@@ -151,7 +174,7 @@ static void local_vb_update(OCB_p ocb, Term_p t, bool lhs)
       }
       else
       {
-         ocb->kbobalance->wb += OCBFunWeight(ocb, t->f_code);
+         ocb->wb += OCBFunWeight(ocb, t->f_code);
       }
    }
    else
@@ -162,7 +185,7 @@ static void local_vb_update(OCB_p ocb, Term_p t, bool lhs)
       }
       else
       {
-         ocb->kbobalance->wb -= OCBFunWeight(ocb, t->f_code);
+         ocb->wb -= OCBFunWeight(ocb, t->f_code);
       }
    }
 }
@@ -173,8 +196,7 @@ static void local_vb_update(OCB_p ocb, Term_p t, bool lhs)
 //
 // Function: mfyvwbc()
 //
-//   Update ocb->kbodata according to t and lhs while checking if var
-//   occurs in t.
+//   Update ocb according to t and lhs while checking if var occurs in t.
 //
 // Global Variables: -
 //
@@ -205,7 +227,7 @@ static bool mfyvwbc(OCB_p ocb, Term_p t, DerefType deref_t, Term_p var, bool lhs
 //
 // Function: mfyvwb()
 //
-//   Update ocb->kbodata according to t and lhs.
+//   Update ocb according to t and lhs.
 //
 // Global Variables: -
 //
@@ -271,7 +293,7 @@ static CompareResult kbo6cmplex(OCB_p ocb, Term_p s, Term_p t,
 //
 // Global Variables: -
 //
-// Side Effects    : (only in ocb->kbodata)
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
@@ -325,13 +347,13 @@ static CompareResult kbo6cmp(OCB_p ocb, Term_p s, Term_p t,
          mfyvwb(ocb, s, deref_s, true);
          mfyvwb(ocb, t, deref_t, false);
       }
-      CompareResult g_or_n = ocb->kbobalance->neg_bal?to_uncomparable:to_greater;
-      CompareResult l_or_n = ocb->kbobalance->pos_bal?to_uncomparable:to_lesser;
-      if(ocb->kbobalance->wb>0)
+      CompareResult g_or_n = ocb->neg_bal?to_uncomparable:to_greater;
+      CompareResult l_or_n = ocb->pos_bal?to_uncomparable:to_lesser;
+      if(ocb->wb>0)
       {
          res = g_or_n;
       }
-      else if(ocb->kbobalance->wb<0)
+      else if(ocb->wb<0)
       {
          res = l_or_n;
       }
@@ -367,7 +389,29 @@ static CompareResult kbo6cmp(OCB_p ocb, Term_p s, Term_p t,
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: kbo6reset()
+//
+//  Reset data in ocb changed when determining KBO6 comparison of terms.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 
+static void __inline__ kbo6reset(OCB_p ocb)
+{
+   for(size_t i=0; i<=ocb->max_var; i++)
+   {
+      ocb->vb[i] = 0;
+   }
+   ocb->wb      = 0;
+   ocb->pos_bal = 0;
+   ocb->neg_bal = 0;
+   ocb->max_var = 0;
+}
 
 
 /*---------------------------------------------------------------------*/
@@ -398,7 +442,7 @@ static CompareResult kbo6cmp(OCB_p ocb, Term_p s, Term_p t,
 CompareResult KBO6Compare(OCB_p ocb, Term_p s, Term_p t,
 			 DerefType deref_s, DerefType deref_t)
 { 
-   KBOLinReset(ocb->kbobalance);
+   kbo6reset(ocb);
    return  kbo6cmp(ocb, s, t, deref_s, deref_t);
 }
 
@@ -428,10 +472,9 @@ CompareResult KBO6Compare(OCB_p ocb, Term_p s, Term_p t,
 bool KBO6Greater(OCB_p ocb, Term_p s, Term_p t,
 		DerefType deref_s, DerefType deref_t)
 {
-   KBOLinReset(ocb->kbobalance);
+   kbo6reset(ocb);
    return (kbo6cmp(ocb, s, t, deref_s, deref_t) == to_greater);
 }
-
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

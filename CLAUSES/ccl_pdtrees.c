@@ -41,6 +41,7 @@ unsigned long PDTNodeCounter = 0;
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
 
+static long pdt_compute_size_constraint(PDTNode_p node);
 
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
@@ -185,11 +186,10 @@ static long pos_tree_compute_size_constraint(PTree_p tree)
 
 /*-----------------------------------------------------------------------
 //
-// Function: pdt_get_size_constraint()
+// Function: pdt_compute_size_constraint()
 //
-//   Return the size constraint of the current node in the PDT
-//   tree. If the stored value is invalid (i.e. -1), recompute it from
-//   the children.
+//   Compute and set the size constraint of the current node in the PDT
+//   tree.
 //
 // Global Variables: -
 //
@@ -198,33 +198,30 @@ static long pos_tree_compute_size_constraint(PTree_p tree)
 //
 /----------------------------------------------------------------------*/
 
-static long pdt_get_size_constraint(PDTNode_p node)
+static long pdt_compute_size_constraint(PDTNode_p node)
 {
-   if(node->size_constr == -1)
+   if(node->entries)
    {
-      if(node->entries)
-      {
-         node->size_constr = pos_tree_compute_size_constraint(node->entries);
-      }
-      else
-      {
-         PStack_p iter_stack = pdt_node_succ_stack_create(node);
-         PStackPointer i;
-         long 
-            newsize = LONG_MAX,
-            tmpsize;
+      node->size_constr = pos_tree_compute_size_constraint(node->entries);
+   }
+   else
+   {
+      PStack_p iter_stack = pdt_node_succ_stack_create(node);
+      PStackPointer i;
+      long 
+         newsize = LONG_MAX,
+         tmpsize;
          PDTNode_p next_node;
 
-         for(i = 0; i< PStackGetSP(iter_stack); i++)
-         {
-            next_node = PStackElementP(iter_stack, i);
-            assert(next_node);
-            tmpsize = pdt_get_size_constraint(next_node);
-            newsize = MIN(newsize, tmpsize);
-         }
-         PStackFree(iter_stack);
-         node->size_constr = newsize;
+      for(i = 0; i< PStackGetSP(iter_stack); i++)
+      {
+         next_node = PStackElementP(iter_stack, i);
+         assert(next_node);
+         tmpsize = PDTNodeGetSizeConstraint(next_node);
+         newsize = MIN(newsize, tmpsize);
       }
+      PStackFree(iter_stack);
+      node->size_constr = newsize;
    }
    return node->size_constr;
 }
@@ -310,12 +307,10 @@ static SysDate pos_tree_compute_age_constraint(PTree_p tree)
 
 /*-----------------------------------------------------------------------
 //
-// Function: pdt_get_age_constraint()
+// Function: pdt_compute_age_constraint()
 //
-//   Return the age constraint (i.e. date stamp of the youngest clause
-//   in the subtree) of the current node in the PDT
-//   tree. If the stored value is invalid, recompute it from the
-//   children. 
+//   Compute and set the age constraint (i.e. date stamp of the youngest clause
+//   in the subtree) of the current node in the PDT tree.
 //
 // Global Variables: -
 //
@@ -324,33 +319,30 @@ static SysDate pos_tree_compute_age_constraint(PTree_p tree)
 //
 /----------------------------------------------------------------------*/
 
-static SysDate pdt_get_age_constraint(PDTNode_p node)
+static SysDate pdt_compute_age_constraint(PDTNode_p node)
 {
-   if(SysDateIsInvalid(node->age_constr))
+   if(node->entries)
    {
-      if(node->entries)
-      {
-         node->age_constr = pos_tree_compute_age_constraint(node->entries);
-      }
-      else
-      {
-         PStack_p iter_stack = pdt_node_succ_stack_create(node);
-         PStackPointer i;
-         SysDate 
-            newdate = SysDateCreationTime(),
-            tmpdate;
-         PDTNode_p next_node;
+      node->age_constr = pos_tree_compute_age_constraint(node->entries);
+   }
+   else
+   {
+      PStack_p iter_stack = pdt_node_succ_stack_create(node);
+      PStackPointer i;
+      SysDate 
+         newdate = SysDateCreationTime(),
+         tmpdate;
+      PDTNode_p next_node;
 
-         for(i = 0; i< PStackGetSP(iter_stack); i++)
-         {
-            next_node = PStackElementP(iter_stack, i);
-            assert(next_node);
-            tmpdate = pdt_get_age_constraint(next_node);
-            newdate = SysDateMaximum(newdate, tmpdate);
-         }
-         PStackFree(iter_stack);
-         node->age_constr = newdate;
+      for(i = 0; i< PStackGetSP(iter_stack); i++)
+      {
+         next_node = PStackElementP(iter_stack, i);
+         assert(next_node);
+         tmpdate = PDTNodeGetAgeConstraint(next_node);
+         newdate = SysDateMaximum(newdate, tmpdate);
       }
+      PStackFree(iter_stack);
+      node->age_constr = newdate;
    }
    return node->age_constr;
 }
@@ -468,7 +460,7 @@ static bool pdtree_verify_node_constr(PDTree_p tree)
    /* Is largest term at or beyond node greater than the query term? */ 
    
    if(PDTreeUseSizeConstraints &&
-      (tree->term_weight < pdt_get_size_constraint(tree->tree_pos)))
+      (tree->term_weight < PDTNodeGetSizeConstraint(tree->tree_pos)))
    {
       return false;
    } 
@@ -477,7 +469,7 @@ static bool pdtree_verify_node_constr(PDTree_p tree)
       query terms normal form date ? */
 
    if(PDTreeUseAgeConstraints &&
-      !SysDateIsEarlier(tree->term_date,pdt_get_age_constraint(tree->tree_pos)))
+      !SysDateIsEarlier(tree->term_date,PDTNodeGetAgeConstraint(tree->tree_pos)))
    {
       return false;
    }
@@ -533,7 +525,8 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
 	 if(next)
 	 {
 	    assert(next->variable);
-	    if((!next->variable->binding)&&(!TermCellQueryProp(term,TPPredPos)))
+	    if((!next->variable->binding)&&(!TermCellQueryProp(term,TPPredPos))
+               && next->variable->sort == term->sort)
 	    {
 	       PStackDiscardTop(tree->term_stack);
 	       SubstAddBinding(subst, next->variable, term);
@@ -547,7 +540,7 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
 #endif 
 	       break;
 	    }
-	    else if(TBTermEqual(next->variable->binding,term))
+	    else if(next->variable->binding == term)
 	    {
 	       PStackDiscardTop(tree->term_stack);
 	       next->trav_count   = PDT_NODE_INIT_VAL(tree);
@@ -591,15 +584,15 @@ static void pdtree_backtrack(PDTree_p tree, Subst_p subst)
       PStackPushP(tree->term_stack, handle->variable->binding);
       if(handle->bound)
       {
-	 succ = SubstBacktrackSingle(subst);
-	 (void)succ; assert(succ);
+         succ = SubstBacktrackSingle(subst);
+         UNUSED(succ); assert(succ);
       }
    }
    else if(handle->parent)
    {
       Term_p t = PStackPopP(tree->term_proc);
       
-      (void)t; assert(t);
+      UNUSED(t); assert(t);
       TermLRTraversePrev(tree->term_stack,t);
 			 
    }
@@ -892,7 +885,7 @@ Term_p TermLRTraversePrev(PStack_p stack, Term_p term)
    for(i=0; i<term->arity; i++)
    {
       tmp = PStackPopP(stack);
-      (void)tmp; assert(tmp == term->args[i]);
+      UNUSED(tmp); assert(tmp == term->args[i]);
    }
    PStackPushP(stack, term);
 
@@ -971,7 +964,7 @@ void PDTreeInsert(PDTree_p tree, ClausePos_p demod_side)
    assert(node);
    res = PTreeStore(&(node->entries), demod_side);
    tree->clause_count++;
-   (void)res; assert(res);
+   UNUSED(res); assert(res);
    //printf("ISizeConstr %p: %ld\n", tree, pdt_verify_size_constraint(tree->tree));
    //printf("IDateConstr %p: %ld\n", tree, pdt_verify_age_constraint(tree->tree));
 }

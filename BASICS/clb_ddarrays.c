@@ -61,7 +61,7 @@ Changes
 DDArray_p DDArrayAlloc(long init_size, long grow)
 {
    DDArray_p handle = DDArrayCellAlloc();
-   int i;
+   long i;
    
    assert(init_size > 0);
    assert(grow > 0);
@@ -113,7 +113,7 @@ void DDArrayFree(DDArray_p junk)
 void DDArayEnlarge(DDArray_p array, long idx)
 {
    double *tmp;
-   int    old_size, i;
+   long   old_size, i;
    
    old_size = array->size;
    tmp      = array->array;

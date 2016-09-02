@@ -156,7 +156,7 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
    ClausePrint(stdout, new_demod, true);
    printf("\n");*/
    BWRWMatchAttempts++;
-   if(SubstComputeMatch(eqn->lterm, term, subst, TBTermEqual))
+   if(SubstComputeMatch(eqn->lterm, term, subst))
    {      
       BWRWMatchSuccesses++;
       if((EqnIsOriented(eqn) 
@@ -187,7 +187,7 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
       !EqnIsOriented(eqn))
    {
       BWRWMatchAttempts++;
-      if(SubstComputeMatch(eqn->rterm, term, subst, TBTermEqual))
+      if(SubstComputeMatch(eqn->rterm, term, subst))
       {
          BWRWMatchSuccesses++;
 	 if(instance_is_rule(ocb, eqn->bank, eqn->rterm, eqn->lterm, subst))
@@ -887,7 +887,7 @@ static long term_find_rw_clauses(Clause_p demod,
    assert(!TermIsVar(term));
    
    BWRWMatchAttempts++;
-   if(SubstComputeMatch(lterm, term, subst, TBTermEqual))
+   if(SubstComputeMatch(lterm, term, subst))
    {      
       BWRWMatchSuccesses++;
       if(oriented

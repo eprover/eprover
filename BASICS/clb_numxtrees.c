@@ -56,7 +56,6 @@ static NumXTree_p splay_tree(NumXTree_p tree, long key)
 {
    NumXTree_p   left, right, tmp;
    NumXTreeCell newnode;
-   int       cmpres;
 
    if (!tree) 
    {
@@ -70,7 +69,7 @@ static NumXTree_p splay_tree(NumXTree_p tree, long key)
    
    for (;;) 
    {
-      cmpres = key-tree->key;
+      long cmpres = key-tree->key;
       if (cmpres < 0) 
       {
          if(!tree->lson)
@@ -218,7 +217,6 @@ void NumXTreeFree(NumXTree_p junk)
 
 NumXTree_p NumXTreeInsert(NumXTree_p *root, NumXTree_p newnode)
 {
-   int cmpres;
    if (!*root) 
    {
       newnode->lson = newnode->rson = NULL;
@@ -227,7 +225,7 @@ NumXTree_p NumXTreeInsert(NumXTree_p *root, NumXTree_p newnode)
    }
    *root = splay_tree(*root, newnode->key);
    
-   cmpres = newnode->key-(*root)->key;
+   long cmpres = newnode->key-(*root)->key;
    
    if (cmpres < 0) 
    {

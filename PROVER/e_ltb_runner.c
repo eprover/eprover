@@ -46,6 +46,7 @@ typedef enum
    OPT_VERSION,
    OPT_VERBOSE,
    OPT_OUTPUT,
+   OPT_OUTDIR,
    OPT_INTERACTIVE,
    OPT_PRINT_STATISTICS,
    OPT_SILENT,
@@ -87,6 +88,12 @@ OptCell opts[] =
     ReqArg, NULL,
    "Redirect output into the named file."},
 
+   {OPT_OUTDIR,
+    'd', "output-dir",
+    ReqArg, NULL,
+   "Directory for individual problem output files. Default is the current"
+    " working directory."},
+
    {OPT_INTERACTIVE,
     'i', "interactive",
     NoArg, NULL,
@@ -124,6 +131,7 @@ OptCell opts[] =
 };
 
 char              *outname        = NULL;
+char              *outdir         = ".";
 long              total_wtc_limit = 0;
 bool              interactive     = false;
 
@@ -201,9 +209,11 @@ int main(int argc, char* argv[])
       ctrl = StructFOFSpecAlloc();
       BatchStructFOFSpecInit(spec, ctrl);
       now = GetSecTime();
-      res = BatchProcessProblems(spec, ctrl, MAX(0,total_wtc_limit-(now-start)));
+      res = BatchProcessProblems(spec, ctrl,
+                                 MAX(0,total_wtc_limit-(now-start)),
+                                 outdir);
       now = GetSecTime();
-      fprintf(GlobalOut, "\n\n# == WCT: %4lds, Solved: %4ld/%4d    ==\n",
+      fprintf(GlobalOut, "\n\n# == WCT: %4lds, Solved: %4ld/%4ld    ==\n",
           now-start, res, BatchSpecProblemNo(spec));
       fprintf(GlobalOut, "# =============== Batch done ===========\n\n");
       if(interactive)
@@ -275,6 +285,9 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_OUTPUT:
 	    outname = arg;
 	    break;
+      case OPT_OUTDIR:
+            outdir = arg;
+            break;
       case OPT_INTERACTIVE:
             interactive = true;
             break;

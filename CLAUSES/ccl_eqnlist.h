@@ -72,8 +72,7 @@ Eqn_p   EqnListCopyOptExcept(Eqn_p list, Eqn_p except);
 Eqn_p   EqnListCopyDisjoint(Eqn_p list);
 Eqn_p   EqnListCopyRepl(Eqn_p list, TB_p bank, Term_p old, Term_p repl);
 Eqn_p   EqnListNegateEqns(Eqn_p list);
-int     EqnListRemoveDuplicates(Eqn_p list, TermEqualTestFun
-				EqualTest);
+int     EqnListRemoveDuplicates(Eqn_p list);
 int     EqnListRemoveResolved(EqnRef list);
 int     EqnListRemoveACResolved(EqnRef list);
 int     EqnListRemoveSimpleAnswers(EqnRef list);

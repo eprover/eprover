@@ -34,6 +34,7 @@ Changes
 #include <clb_sysdate.h>
 #include <clb_ptrees.h>
 #include <clb_properties.h>
+#include <cte_simplesorts.h>
 
 
 
@@ -133,18 +134,18 @@ typedef struct termcell
    long             weight;        /* Weight of the term, if term is
                                       in term bank */
    RewriteState     rw_data;       /* See above */
+   SortType         sort;          /* Sort of the term */
    struct termcell* lson;          /* For storing shared term nodes in */
    struct termcell* rson;          /* a splay tree - see
                                       cte_termcellstore.[ch] */
 }TermCell, *Term_p, **TermRef;
 
 
-typedef long DerefType, *DerefType_p;
+typedef uintptr_t DerefType, *DerefType_p;
 
-#define DEREF_ALWAYS -1
 #define DEREF_NEVER   0
 #define DEREF_ONCE    1
-
+#define DEREF_ALWAYS  2
 
 /* The following is an estimate for the memory taken up by a term cell
    with arguments (the argument array is not counted separately). */
@@ -168,8 +169,6 @@ typedef long DerefType, *DerefType_p;
 
 /* Functions which take two terms and return a boolean, i.e. test for
    equality */
-
-typedef bool (*TermEqualTestFun)(Term_p t1, Term_p t2);
 
 #define TERMS_INITIAL_ARGS 10
 
@@ -216,7 +215,7 @@ Term_p  TermConstCellAlloc(FunCode symbol);
 Term_p  TermTopAlloc(FunCode f_code, int arity); 
 void    TermTopFree(Term_p junk); 
 void    TermFree(Term_p junk);
-Term_p  TermAllocNewSkolem(Sig_p sig, PStack_p variables, bool atom);
+Term_p  TermAllocNewSkolem(Sig_p sig, PStack_p variables, SortType sort);
 
 void    TermSetProp(Term_p term, DerefType deref, TermProperties prop);
 bool    TermSearchProp(Term_p term, DerefType deref, TermProperties prop);
@@ -225,6 +224,7 @@ void    TermVarSetProp(Term_p term, DerefType deref, TermProperties prop);
 bool    TermVarSearchProp(Term_p term, DerefType deref, TermProperties prop);
 void    TermVarDelProp(Term_p term, DerefType deref, TermProperties prop);
 
+static __inline__ Term_p  TermDerefAlways(Term_p term);
 static __inline__ Term_p  TermDeref(Term_p term, DerefType_p deref);
 
 static __inline__ Term_p* TermArgListCopy(Term_p source);
@@ -233,12 +233,33 @@ static __inline__ Term_p  TermTopCopy(Term_p source);
 void    TermStackSetProps(PStack_p stack, TermProperties prop);
 void    TermStackDelProps(PStack_p stack, TermProperties prop);
 
-
-
 /*---------------------------------------------------------------------*/
 /*                  Inline functions                                   */
 /*---------------------------------------------------------------------*/
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermDerefAlways()
+//
+//   Dereference a term as many times as possible.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static __inline__ Term_p TermDerefAlways(Term_p term)
+{
+   assert(TermIsVar(term)||!(term->binding));
+
+   while(term->binding)
+   {
+      term = term->binding;
+   }
+   return term;
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -343,6 +364,7 @@ static __inline__ Term_p TermTopCopy(Term_p source)
    TermCellDelProp(handle, TPOutputFlag); /* As it gets a new id below */
    handle->f_code = source->f_code;
    handle->arity  = source->arity;
+   handle->sort   = source->sort;
    handle->binding = NULL;
    handle->args = TermArgListCopy(source);
    handle->lson = NULL;
@@ -351,7 +373,9 @@ static __inline__ Term_p TermTopCopy(Term_p source)
    return handle;
 }
 
+
 #endif
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

@@ -81,6 +81,7 @@ int main(int argc, char* argv[])
 {
    CLState_p   state;
    Scanner_p   in; 
+   SortTable_p sort_table;
    Sig_p       sig;
    long        count, size, depth, size_sum, depth_sum, size_max,
                depth_max;
@@ -100,7 +101,8 @@ int main(int argc, char* argv[])
    }
    OpenGlobalOut(outname);
 
-   sig = SigAlloc();
+   sort_table = DefaultSortTableAlloc();
+   sig = SigAlloc(sort_table);
    bank = TBAlloc(sig);
    size_sum = depth_sum = size_max = depth_max = count = 0;
 
@@ -148,6 +150,7 @@ int main(int argc, char* argv[])
    bank->sig = NULL;
    TBFree(bank);
    SigFree(sig);
+   SortTableFree(sort_table);
    
    CLStateFree(state);
 

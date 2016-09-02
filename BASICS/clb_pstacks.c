@@ -43,6 +43,35 @@ Changes
 
 /* Most things are now defined as inline stuff.... */
 
+/*-----------------------------------------------------------------------
+//
+// Function: PStackGrow()
+//
+//   Grow the stack area. Realloc is emulated in terms of
+//   SizeMalloc()/SizeFree(). This is because stacks are allocated and
+//   deallocated a lot, and usually in the same sizes, so it pays off
+//   to optimize this behaviour.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+void __attribute__ ((noinline)) PStackGrow(PStack_p stack)
+{
+      IntOrP *tmp;
+      long   old_size;
+
+      /* Emulate Realloc-Functionality for use of SizeMalloc() */
+      old_size = stack->size;
+      stack->size = stack->size*2;
+      tmp = SizeMalloc(stack->size * sizeof(IntOrP));
+      memcpy(tmp, stack->stack, old_size*sizeof(IntOrP));
+      SizeFree(stack->stack, old_size * sizeof(IntOrP));
+      stack->stack = tmp;
+}
+
 
 /*-----------------------------------------------------------------------
 //
