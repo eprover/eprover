@@ -73,7 +73,7 @@ typedef enum
 }FVIndexType;
 
 
-/* Describe how to assembe a feature vector out of a full signature
+/* Describe how to assemble a feature vector out of a full signature
  * feature vector. */
 
 typedef struct fv_collect_cell
