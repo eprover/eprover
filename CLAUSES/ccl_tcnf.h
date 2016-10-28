@@ -51,7 +51,7 @@ void TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity,
                       PStack_p renamed_forms);
 TFormula_p TFormulaCopyDef(TB_p bank, TFormula_p form, long blocked, 
                            NumXTree_p *defs, PStack_p defs_used);
-TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form);
+TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form, bool full_simpl);
 
 TFormula_p TFormulaNNF(TB_p terms, TFormula_p form, int polarity);
 
@@ -64,6 +64,7 @@ TFormula_p TFormulaSkolemizeOutermost(TB_p terms, TFormula_p form);
 TFormula_p TFormulaDistributeDisjunctions(TB_p terms, TFormula_p form);
 
 void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms);
+void WTFormulaConjunctiveNF2(WFormula_p form, TB_p terms);
 
 
 

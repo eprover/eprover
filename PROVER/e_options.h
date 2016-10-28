@@ -163,8 +163,8 @@ typedef enum
    OPT_HEURISTIC,
    OPT_FREE_NUMBERS,
    OPT_FREE_OBJECTS,
-   OPT_OLD_STYLE_CNF,
    OPT_DEF_CNF,
+   OPT_DEF_CNF_NEW,
    OPT_PRINT_TYPES,
    OPT_DUMMY
 }OptionCodes;
@@ -1237,6 +1237,14 @@ OptCell opts[] =
     "is a fudge factor that determines when definitions are introduced. "
     "0 disables definitions completely. The default works well."},
 
+   {OPT_DEF_CNF_NEW,
+    '\0', "new-cnf",
+    OptArg, TFORM_RENAME_LIMIT_STR,
+    "Use the new clausification algorithm that tries to avoid some "
+    "algorithmic pitfalls and hence works better on some exotic formulae. "
+    "It may produce a slightly different (but equisatisfiable) clause "
+    "normal form than the default algorithm."},
+   
    {OPT_PRINT_TYPES,
     '\0', "print-types",
     NoArg, NULL,

@@ -411,7 +411,7 @@ bool WFormulaSimplify(WFormula_p form, TB_p terms)
    bool res = false;
 
    assert(!terms->freevarsets);
-   simplified = TFormulaSimplify(terms, form->tformula);
+   simplified = TFormulaSimplify(terms, form->tformula, true);
    // TBVarSetStoreFree(terms);
    
    if(simplified!=form->tformula)
@@ -444,6 +444,29 @@ long WFormulaCNF(WFormula_p form, ClauseSet_p set,
    return TFormulaToCNF(form, FormulaQueryType(form), 
                         set, terms, fresh_vars);
 }
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: WFormulaCNF2()
+//
+//   Transform the formula of a wrapped formula into CNF.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes formula, memory operations
+//
+/----------------------------------------------------------------------*/
+
+long WFormulaCNF2(WFormula_p form, ClauseSet_p set, 
+                 TB_p terms, VarBank_p fresh_vars)
+{
+   WTFormulaConjunctiveNF2(form, terms);     
+   return TFormulaToCNF(form, FormulaQueryType(form), 
+                        set, terms, fresh_vars);
+}
+
 
 
 /*-----------------------------------------------------------------------
@@ -563,6 +586,72 @@ long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive,
    }
    return res;
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaSetCNF2()
+//
+//   Transform all formulae in set into CNF. Return number of clauses
+//   generated. 
+//
+// Global Variables: -
+//
+// Side Effects    : Plenty of memory stuff.
+//
+/----------------------------------------------------------------------*/
+
+long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive, 
+                    ClauseSet_p clauseset, TB_p terms, 
+                    VarBank_p fresh_vars, GCAdmin_p gc)
+{
+   WFormula_p form, handle;
+   long res = 0;
+   long old_nodes = TBNonVarTermNodes(terms);
+   long gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
+
+   TFormulaSetIntroduceDefs(set, archive, terms);
+   printf("# Definitions introduced\n");
+   
+   while(!FormulaSetEmpty(set))
+   {
+      handle = FormulaSetExtractFirst(set);
+      // WFormulaPrint(stdout, handle, true);
+      // fprintf(stdout, "\n");
+      if(BuildProofObject)
+      {
+         form = WFormulaFlatCopy(handle);
+         FormulaSetInsert(archive, handle);
+         WFormulaPushDerivation(form, DCFofQuote, handle, NULL);
+         handle = form;
+      }
+      res += WFormulaCNF2(handle,clauseset, terms, fresh_vars);
+      if(BuildProofObject)
+      {
+         FormulaSetInsert(archive, handle);
+      }
+      if(handle->tformula &&  
+         (TBNonVarTermNodes(terms)>gc_threshold))
+      {
+         assert(terms == handle->terms);
+         GCCollect(gc);
+         old_nodes = TBNonVarTermNodes(terms);
+         gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
+      }
+      if(!BuildProofObject)
+      {
+         WFormulaFree(handle);
+      }
+   }
+   if(TBNonVarTermNodes(terms)!=old_nodes)
+   {
+      GCCollect(gc);               
+   }
+   return res;
+}
+
+
+
 
 /*-----------------------------------------------------------------------
 //

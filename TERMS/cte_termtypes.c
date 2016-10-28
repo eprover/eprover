@@ -288,6 +288,39 @@ void TermDelProp(Term_p term, DerefType deref, TermProperties prop)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: TermDelPropOpt()
+//
+//   Delete the properties in all term cells belonging to term.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes properties (even in shared terms! Beware!)
+//
+/----------------------------------------------------------------------*/
+
+void TermDelPropOpt(Term_p term, TermProperties prop)
+{
+   PStack_p stack = PStackAlloc();
+   int i;
+
+   PStackPushP(stack, term);
+   
+   while(!PStackEmpty(stack))
+   {
+      term  = PStackPopP(stack);
+      TermCellDelProp(term, prop);
+      for(i=0; i<term->arity; i++)
+      {
+	 PStackPushP(stack, term->args[i]);
+      }
+   }
+   PStackFree(stack);
+}
+
+
+
 
 /*-----------------------------------------------------------------------
 //

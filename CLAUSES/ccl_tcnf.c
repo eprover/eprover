@@ -118,7 +118,7 @@ TFormula_p troot_nnf(TB_p terms, TFormula_p form, int polarity)
    while(handle)
    {
       handle = NULL;
-      
+
       if(form->f_code == terms->sig->not_code)
       {
          if(TFormulaIsLiteral(terms->sig, form->args[0]))
@@ -386,8 +386,8 @@ bool tformula_rename_test(TB_p bank, TFormula_p root, int pos,
 //
 // Function: extract_formula_core()
 //
-//   Remove all quantifiers from form and push the corresponding
-//   variables onto varstack.
+//   Remove all (universal) quantifiers from Skolemized form in NNF
+//   and push the corresponding variables onto varstack.
 //
 // Global Variables: -
 //
@@ -428,6 +428,216 @@ TFormula_p extract_formula_core(TB_p terms, TFormula_p form, PStack_p varstack)
 
    return form;
 }
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: extract_formula_core2()
+//
+//   Remove all quantifiers from form in NNF and push the
+//   corresponding quantifier/variable pairs onto varstack.
+//
+// Global Variables: -
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p extract_formula_core2(TB_p terms, TFormula_p form, PStack_p varstack)
+{
+   TFormula_p narg0, narg1;
+   PStackPointer sp;
+
+   while(TFormulaIsQuantified(terms->sig, form))
+   {
+      /* Skip over variables */
+      PStackPushInt(varstack, form->f_code);
+      PStackPushP(varstack, form->args[0]);
+      form = form->args[1];
+   }
+   if((form->f_code == terms->sig->and_code)||
+      (form->f_code == terms->sig->or_code))
+   {
+      sp = PStackGetSP(varstack);
+      narg0 = extract_formula_core2(terms, form->args[0], varstack);
+      narg1 = extract_formula_core2(terms, form->args[1], varstack);
+      if(PStackGetSP(varstack)!=sp)
+      {
+         form = TFormulaFCodeAlloc(terms, form->f_code, narg0, narg1);
+      }
+      else
+      {
+         /* Should be no change... */
+         assert(narg0 == form->args[0]);
+         assert(narg1 == form->args[1]);
+      }
+   }
+   /* else form already is elementary and quantor-free */  
+   
+   return form;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: tform_mark_varocc()
+//
+//   Mark all subforms/subterms in form in which var occurs.
+//
+// Global Variables: -
+//
+// Side Effects    : Sets TPOpFlag, TPCheckFlag
+//
+/----------------------------------------------------------------------*/
+
+static bool tform_mark_varocc(TFormula_p form, Term_p var)
+{
+   bool res = false;
+   
+   if(!TermCellQueryProp(form, TPOpFlag))
+   {
+      TermCellSetProp(form, TPOpFlag);
+      if(form == var)
+      {
+         TermCellSetProp(form, TPCheckFlag);
+         res = true;
+      }
+      else
+      {
+         int i;
+
+         for(i=0; i<form->arity; i++)
+         {
+            if(tform_mark_varocc(form->args[i], var))
+            {
+               TermCellSetProp(form, TPCheckFlag);
+               res =  true;
+            }
+         }         
+      }
+   }
+   else
+   {
+      res = TermCellQueryProp(form, TPCheckFlag);
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: miniscope_qex()
+//
+//   Assume var is existentially quantified in var and move the
+//   quantifier inward as far as possible. Assumes that form is in NNF
+//   and that TPCheckFlag is set in all subformulas of form in which
+//   var occurs.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static TFormula_p miniscope_qex(TB_p terms, TFormula_p form, Term_p var)
+{
+   TFormula_p arg1, arg2;
+
+   if(TermCellQueryProp(form, TPCheckFlag))
+   {
+      if(form->f_code == terms->sig->and_code)
+      {
+         if(!TermCellQueryProp(form->args[0], TPCheckFlag))
+         {
+            arg1 = form->args[0];
+            arg2 = miniscope_qex(terms, form->args[1], var);
+            form = TFormulaFCodeAlloc(terms, form->f_code, arg1, arg2);
+         }
+         else if(!TermCellQueryProp(form->args[1], TPCheckFlag))
+         {
+            arg1 = miniscope_qex(terms, form->args[0], var);
+            arg2 = form->args[1];
+            form = TFormulaFCodeAlloc(terms, form->f_code, arg1, arg2);
+         }
+         else
+         {
+            form = TFormulaQuantorAlloc(terms, terms->sig->qex_code, var, form);
+         }
+      }
+      else if(form->f_code == terms->sig->or_code)
+      {
+         arg1 = miniscope_qex(terms, form->args[0], var);
+         arg2 = miniscope_qex(terms, form->args[1], var);
+         form = TFormulaFCodeAlloc(terms, form->f_code, arg1, arg2);         
+      }
+      else
+      {
+         form = TFormulaQuantorAlloc(terms, terms->sig->qex_code, var, form);         
+      }
+   }
+   /* Else we don't need a quantifier */
+   
+   return form;
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: miniscope_qall()
+//
+//   Assume var is universally quantified in var and move the
+//   quantifier inward as far as possible. Assumes that form is in NNF
+//   and that TPCheckFlag is set in all subformulas of form in which
+//   var occurs.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static TFormula_p miniscope_qall(TB_p terms, TFormula_p form, Term_p var)
+{
+   TFormula_p arg1, arg2;
+
+   if(TermCellQueryProp(form, TPCheckFlag))
+   {
+      if(form->f_code == terms->sig->or_code)
+      {
+         if(!TermCellQueryProp(form->args[0], TPCheckFlag))
+         {
+            arg1 = form->args[0];
+            arg2 = miniscope_qall(terms, form->args[1], var);
+            form = TFormulaFCodeAlloc(terms, form->f_code, arg1, arg2);
+         }
+         else if(!TermCellQueryProp(form->args[1], TPCheckFlag))
+         {
+            arg1 = miniscope_qall(terms, form->args[0], var);
+            arg2 = form->args[1];
+            form = TFormulaFCodeAlloc(terms, form->f_code, arg1, arg2);
+         }
+         else
+         {
+            form = TFormulaQuantorAlloc(terms, terms->sig->qall_code, var, form);
+         }
+      }
+      else if(form->f_code == terms->sig->and_code)
+      {
+         arg1 = miniscope_qall(terms, form->args[0], var);
+         arg2 = miniscope_qall(terms, form->args[1], var);
+         form = TFormulaFCodeAlloc(terms, form->f_code, arg1, arg2);         
+      }
+      else
+      {
+         form = TFormulaQuantorAlloc(terms, terms->sig->qall_code, var, form);         
+      }
+   }
+   /* Else we don't need a quantifier */
+   
+   return form;
+}
+
 
 
 
@@ -483,7 +693,7 @@ long TFormulaEstimateClauses(TB_p bank, TFormula_p form, bool pos)
          posres1 = TFormulaEstimateClauses(bank, form->args[0], true);
          RETURN_IF_LARGE(posres1);
          posres2 = TFormulaEstimateClauses(bank, form->args[1], true);
-         RETURN_IF_LARGE(posres2);
+          RETURN_IF_LARGE(posres2);
          res = posres1 * posres2;
       }
       else if(form->f_code == bank->sig->impl_code)
@@ -865,21 +1075,23 @@ TFormula_p TFormulaNegAlloc(TB_p terms, TFormula_p form)
 //
 /----------------------------------------------------------------------*/
 
-TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form)
+TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form, bool full_simpl)
 {
    TFormula_p handle, arg1=NULL, arg2=NULL, newform;
    FunCode f_code;
    bool modified=false;
 
    assert(terms);
-   
+
+   // printf("Simplify %p %ld: ", form, form->weight);/* TFormulaTPTPPrint(stdout, terms, form, true, false)*/;printf("\n");
+         
    if(TFormulaIsLiteral(terms->sig, form))      
    {
       return form;
    }
    if(TFormulaHasSubForm1(terms->sig,form))
    {
-      arg1 = TFormulaSimplify(terms, form->args[0]);
+      arg1 = TFormulaSimplify(terms, form->args[0], full_simpl);
       modified = arg1!=form->args[0];
    }
    else if(TFormulaIsQuantified(terms->sig, form))
@@ -890,7 +1102,7 @@ TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form)
    if(TFormulaHasSubForm2(terms->sig, form)||
       TFormulaIsQuantified(terms->sig, form))
    {
-      arg2 = TFormulaSimplify(terms, form->args[1]);
+      arg2 = TFormulaSimplify(terms, form->args[1], full_simpl);
       modified |= arg2!=form->args[1];      
    }
    if(modified)
@@ -901,6 +1113,7 @@ TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form)
    modified = true;
    while(modified)
    {
+      // printf("Loop %p %ld: ", form, form->weight);/*TFormulaTPTPPrint(stdout, terms, form, true, false);*/printf("\n");
       modified = false;
       newform = form; /* Inelegant, fix when awake! */
       if(form->f_code == terms->sig->not_code)
@@ -1000,13 +1213,13 @@ TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form)
                                      form->args[0], form->args[1]);         
          newform = TFormulaFCodeAlloc(terms, terms->sig->not_code, 
                                       handle, NULL);
-         newform =  TFormulaSimplify(terms, newform);
+         newform =  TFormulaSimplify(terms, newform, full_simpl);
       }
       else if(form->f_code == terms->sig->bimpl_code)
       {
          newform = TFormulaFCodeAlloc(terms, terms->sig->impl_code, 
                                       form->args[1], form->args[0]);
-         newform = TFormulaSimplify(terms, newform);
+         newform = TFormulaSimplify(terms, newform, full_simpl);
       }
       else if(form->f_code == terms->sig->nor_code)
       {
@@ -1014,7 +1227,7 @@ TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form)
                                      form->args[0], form->args[1]);
          newform = TFormulaFCodeAlloc(terms, terms->sig->not_code, 
                                       handle, NULL);
-         newform =  TFormulaSimplify(terms, newform);
+         newform =  TFormulaSimplify(terms, newform, full_simpl);
       }
       else if(form->f_code == terms->sig->nand_code)
       {
@@ -1022,14 +1235,18 @@ TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form)
                                      form->args[0], form->args[1]);
          newform = TFormulaFCodeAlloc(terms, terms->sig->not_code, 
                                       handle, NULL);
-         newform =  TFormulaSimplify(terms, newform);
+         newform =  TFormulaSimplify(terms, newform, full_simpl);
       }
-      if((form->f_code == terms->sig->qex_code)||
-         (form->f_code == terms->sig->qall_code))
+      if(full_simpl)
       {
-         if(!TFormulaVarIsFree(terms, form->args[1], form->args[0]))
+         // printf("Bad\n");
+         if((form->f_code == terms->sig->qex_code)||
+            (form->f_code == terms->sig->qall_code))
          {
-            newform = form->args[1];
+            if(!TFormulaVarIsFree(terms, form->args[1], form->args[0]))
+            {
+               newform = form->args[1];
+            }
          }
       }
       if(newform!=form)
@@ -1040,238 +1257,12 @@ TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form)
    }
    return newform;
 }
-
-#ifdef NEVER_DEFINED
-
-/*-----------------------------------------------------------------------
-//
-// Function: TFormulaSimplifyOpt()
-//
-//   Maximally simplify a formula using (primarily)
-//   the simplification rules (from [NW:SmallCNF-2001]). 
-//
-//   P | P => P    P | T => T     P | F => P
-//   P & P => F    P & T => P     P & F -> F
-//   ~T = F        ~F = T
-//   P <-> P => T  P <-> F => ~P  P <-> T => P
-//   P <~> P => ~(P<->P)
-//   P -> P => T   P -> T => T    P -> F => ~P
-//   ...
-//
-//   Also make free_vars contain the free variables in form.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-TFormula_p TFormulaSimplifyOpt(TB_p terms, TFormula_p form, VarSet_p free_vars)
-{
-   TFormula_p handle, arg1=NULL, arg2=NULL, newform;
-   FunCode f_code;
-   bool modified=false;
-   VarSet_p vars1 = free_vars, vars2;
-
-   assert(terms);
-   
-   if(TFormulaIsLiteral(terms->sig, form))      
-   {
-      TermCollectVariables(form, &free_vars->vars);
-      return form;
-   }
-   if(TFormulaHasSubForm1(terms->sig,form))
-   {
-      arg1 = TFormulaSimplifyOpt(terms, form->args[0], vars1);
-      modified = arg1!=form->args[0];
-   }
-   else if(TFormulaIsQuantified(terms->sig, form))
-   {
-      arg1 = form->args[0];
-   }
-
-   vars2 = VarSetAlloc(NULL);
-   if(TFormulaHasSubForm2(terms->sig, form)||
-      TFormulaIsQuantified(terms->sig, form))
-   {
-      arg2 = TFormulaSimplifyOpt(terms, form->args[1], vars2);
-      modified |= arg2!=form->args[1];      
-   }
-
-   if(modified)
-   {
-      assert(terms);
-      form = TFormulaFCodeAlloc(terms, form->f_code, arg1, arg2);
-   }
-   modified = true;
-   /* Here, var1 (=free_vars) has the free variables of the first
-      argument, and var2 has the free variables of the second argument
-   */ 
-   while(modified)
-   {
-      modified = false;
-      newform = form; /* Inelegant, fix when awake! */
-      if(form->f_code == terms->sig->not_code)
-      {
-         if(TFormulaIsLiteral(terms->sig, form->args[0]))
-         {
-            f_code = SigGetOtherEqnCode(terms->sig, form->args[0]->f_code);
-            newform = TFormulaFCodeAlloc(terms, f_code, 
-                                         form->args[0]->args[0],
-                                         form->args[0]->args[1]);
-         }
-      }
-      else if(form->f_code == terms->sig->or_code)
-      {
-         if((handle = tprop_arg_return_other(terms->sig, form->args[0], 
-                                             form->args[1], false)))
-         {
-            /* p | false -> p  case, no change to variables */
-            newform = handle;
-         }
-         else if((handle = tprop_arg_return(terms->sig, form->args[0],
-                                            form->args[1], true)))
-         {
-            /* p | true -> true case, clear variable sets */
-            newform = handle;
-            VarSetReset(vars1);
-            VarSetReset(vars2);
-         }
-         else if(TFormulaEqual(form->args[0], form->args[1]))
-         {
-            /* p | p -> p case, we drop one set to safe on merge */
-            newform = form->args[0];
-            VarSetReset(vars2);
-         }
-      }
-      else if(form->f_code == terms->sig->and_code)
-      {
-         if((handle = tprop_arg_return_other(terms->sig, form->args[0], 
-                                             form->args[1], true)))
-         {
-            /* p & true -> p: No change to variables */
-            newform = handle;
-         }
-         else if((handle = tprop_arg_return(terms->sig, form->args[0],
-                                            form->args[1], false)))
-         {
-            /* p & false -> false: clear variable sets */
-            newform = handle;
-            VarSetReset(vars1);
-            VarSetReset(vars2);
-         }
-         else if(TFormulaEqual(form->args[0], form->args[1]))
-         {
-            /* p & p -> p case, we drop one set to safe on merge */
-            newform = form->args[0];
-            VarSetReset(vars2);
-         }
-      }
-      else if(form->f_code == terms->sig->equiv_code)
-      {
-         if((handle = tprop_arg_return_other(terms->sig, form->args[0],
-                                             form->args[1], true)))
-         {
-            /* p <=> true -> p: No change in variables*/
-            newform = handle;
-         }
-         else if((handle = tprop_arg_return_other(terms->sig, form->args[0], 
-                                                  form->args[1], false)))
-         {
-            /* p <=> false -> ~p: No change in variables */
-            TFormulaNegAlloc(terms, handle);
-         }
-         else if(TFormulaEqual(form->args[0], form->args[1]))
-         {
-            /* p <=> p -> true: Clear variable sets */
-            newform = TFormulaPropConstantAlloc(terms, true);
-            VarSetReset(vars1);
-            VarSetReset(vars2);
-         }
-      }
-      else if(form->f_code == terms->sig->impl_code)
-      {
-         if(TFormulaIsPropTrue(terms->sig, form->args[0]))
-         {
-            /* T => p -> p: No change */
-            newform = form->args[1];
-         }
-         else if(TFormulaIsPropFalse(terms->sig, form->args[0]))
-         {
-            /* F => p -> p: Clear variables */
-            newform = TFormulaPropConstantAlloc(terms, true);
-            VarSetReset(vars1);
-            VarSetReset(vars2);
-         }
-         else if(TFormulaIsPropFalse(terms->sig, form->args[1]))
-         {
-            newform = TFormulaFCodeAlloc(terms, terms->sig->not_code, 
-                                         form->args[0], NULL);
-            newform = TFormulaSimplify(terms, newform);
-         }
-         else if(TFormulaIsPropTrue(terms->sig, form->args[1]))
-         {
-            newform = TFormulaPropConstantAlloc(terms, true);
-         }
-         else if(TFormulaEqual(form->args[0], form->args[1]))
-         {
-            newform = TFormulaPropConstantAlloc(terms, true);
-         }
-      }
-      else if(form->f_code == terms->sig->xor_code)
-      {
-         handle = TFormulaFCodeAlloc(terms, terms->sig->equiv_code, 
-                                     form->args[0], form->args[1]);
-         newform = TFormulaFCodeAlloc(terms, terms->sig->not_code, 
-                                      handle, NULL);
-         newform =  TFormulaSimplify(terms, newform);
-      }
-      else if(form->f_code == terms->sig->bimpl_code)
-      {
-         newform = TFormulaFCodeAlloc(terms, terms->sig->impl_code, 
-                                      form->args[1], form->args[0]);
-         newform = TFormulaSimplify(terms, newform);
-      }
-      else if(form->f_code == terms->sig->nor_code)
-      {
-         handle = TFormulaFCodeAlloc(terms, terms->sig->or_code, 
-                                     form->args[0], form->args[1]);
-         newform = TFormulaFCodeAlloc(terms, terms->sig->not_code, 
-                                      handle, NULL);
-         newform =  TFormulaSimplify(terms, newform);
-      }
-      else if(form->f_code == terms->sig->nand_code)
-      {
-         handle = TFormulaFCodeAlloc(terms, terms->sig->and_code, 
-                                     form->args[0], form->args[1]);
-         newform = TFormulaFCodeAlloc(terms, terms->sig->not_code, 
-                                      handle, NULL);
-         newform =  TFormulaSimplify(terms, newform);
-      }
-      if((form->f_code == terms->sig->qex_code)||
-         (form->f_code == terms->sig->qall_code))
-      {
-         if(!TFormulaVarIsFree(terms, form->args[1], form->args[0]))
-         {
-            newform = form->args[1];
-         }
-      }
-      if(newform!=form)
-      {
-         modified = true;
-         form = newform;
-      }
-   }
-   return newform;
-}
-
-#endif
 
 /*-----------------------------------------------------------------------
 //
 // Function: TFormulaNNF()
 //
-//   Destructively transform a (simpified) formula into NNF.
+//   Destructively transform a (simplified) formula into NNF.
 //
 // Global Variables: -
 //
@@ -1431,6 +1422,58 @@ TFormula_p TFormulaMiniScope(TB_p terms, TFormula_p form)
    return form;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaMiniScope2()
+//
+//   Perform mini-scoping, i.e. move quantors inward as far as
+//   possible. Assumes that variables for each quantor are unique, and
+//   that the formula is in CNF.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p TFormulaMiniScope2(TB_p terms, TFormula_p form)
+{
+   Term_p var;
+   FunCode quantor, qex, qall;   
+   PStack_p prenex = PStackAlloc();
+   
+   
+   form = extract_formula_core2(terms, form, prenex);
+   qall = terms->sig->qall_code;
+   qex  = terms->sig->qex_code;
+   
+   while(!PStackEmpty(prenex))
+   {
+      var = PStackPopP(prenex);
+      printf("# MiniScope ");TermPrint(stdout, var, terms->sig, DEREF_NEVER);printf("\n");
+      quantor = PStackPopInt(prenex);
+
+      TermDelPropOpt(form, TPOpFlag|TPCheckFlag);
+      tform_mark_varocc(form, var);
+      
+      if(quantor == qex)
+      {
+         form = miniscope_qex(terms, form, var);
+      }
+      else if(quantor == qall)
+      {
+         form = miniscope_qall(terms, form, var);
+      }
+      else
+      {
+         assert(false && "Only univeral or existential quantor allowed");
+      }
+   }   
+   PStackFree(prenex);
+   return form;
+}
+
+
 
 
 /*-----------------------------------------------------------------------
@@ -1562,11 +1605,13 @@ TFormula_p TFormulaShiftQuantors(TB_p terms, TFormula_p form)
    return form;
 }
 
+
+
 /*-----------------------------------------------------------------------
 //
-// Function: TFormulaShiftQuantors()
+// Function: TFormulaShiftQuantors2()
 //
-//   Shift all remaining all-quantors outward. This has several
+//   Shift all all-quantors outward. This has several
 //   premises: 
 //   - All quantified variables are disjoint from each other and from
 //     the free variables.
@@ -1578,141 +1623,29 @@ TFormula_p TFormulaShiftQuantors(TB_p terms, TFormula_p form)
 //
 /----------------------------------------------------------------------*/
 
-TFormula_p TFormulaShiftQuantorsOld2(TB_p terms, TFormula_p form)
+TFormula_p TFormulaShiftQuantors2(TB_p terms, TFormula_p form)
 {
-   TFormula_p narg1=NULL, narg2=NULL, newform;
-   bool modified = false;
    Term_p var;
-   PStack_p stack;
+   FunCode quantor;
+   PStack_p varstack;
    
-   if(TFormulaIsQuantified(terms->sig, form))
-   {
-      /* This is the variable bound by the quantor */
-      narg1 = form->args[0];
-   }
-   else if(TFormulaHasSubForm1(terms->sig, form))
-   {
-      /* It's a real formula that needs to have its quantors shifted,
-         too */
-      narg1 = TFormulaShiftQuantors(terms, form->args[0]);
-      modified = narg1!=form->args[0];
-   }
-   if(TFormulaHasSubForm2(terms->sig, form)||
-      TFormulaIsQuantified(terms->sig, form))
-   {
-      narg2 = TFormulaShiftQuantors(terms, form->args[1]);
-      modified |= narg2!=form->args[1];
-   }   
-   if(modified)
-   {
-      form = TFormulaFCodeAlloc(terms, form->f_code, narg1, narg2);
-   }
-   /* Now the subformulas should be in normal forrm */ 
+   varstack = PStackAlloc();
+   form = extract_formula_core2(terms, form, varstack);
 
-   if((form->f_code == terms->sig->and_code)||
-      (form->f_code == terms->sig->or_code))
+   while(!PStackEmpty(varstack))
    {
-      stack = PStackAlloc();
-
-      narg1 = form->args[0];
-      while(narg1->f_code == terms->sig->qall_code)
-      {
-         PStackPushP(stack, narg1->args[0]);
-         narg1 = narg1->args[1];
-      }
-      narg2 = form->args[1];
-      while(narg2->f_code == terms->sig->qall_code)
-      {
-         PStackPushP(stack, narg2->args[0]);
-         narg2 = narg2->args[1];
-      }      
-      /* Now narg1 is the first "real" formula and narg2 is the
-       * second "real" formula and all quantified variables are on the
-       * stack. */
-      newform = TFormulaFCodeAlloc(terms, form->f_code, narg1, narg2);
-      while(!PStackEmpty(stack))
-      {
-         var = PStackPopP(stack);
-         newform = TFormulaQuantorAlloc(terms, 
-                                        terms->sig->qall_code, 
-                                        var, 
-                                        newform);         
-      }
-      PStackFree(stack);
-      form = newform;
+      var = PStackPopP(varstack);
+      quantor = PStackPopInt(varstack);
+      form = TFormulaQuantorAlloc(terms, 
+                                  quantor,
+                                  var, 
+                                  form);         
    }
+   PStackFree(varstack);
    return form;
 }
 
-/*-----------------------------------------------------------------------
-//
-// Function: TFormulaShiftQuantorsOld()
-//
-//   Shift all remaining all-quantors outward.
-//
-// Global Variables: -
-//
-// Side Effects    : Destroys original formula.
-//
-/----------------------------------------------------------------------*/
 
-TFormula_p TFormulaShiftQuantorsOld(TB_p terms, TFormula_p form)
-{
-   TFormula_p handle, narg1=NULL, narg2=NULL, newform;
-   bool modified = false;
-   Term_p var;
-   
-   if(TFormulaIsQuantified(terms->sig, form))
-   {
-      /* This is the variable bound by the quantor */
-      narg1 = form->args[0];
-   }
-   else if(TFormulaHasSubForm1(terms->sig, form))
-   {
-      /* It's a real formula that needs to have its quantors shifted,
-         too */
-      narg1 = TFormulaShiftQuantors(terms, form->args[0]);
-      modified = narg1!=form->args[0];
-   }
-   if(TFormulaHasSubForm2(terms->sig, form)||
-      TFormulaIsQuantified(terms->sig, form))
-   {
-      narg2 = TFormulaShiftQuantors(terms, form->args[1]);
-      modified |= narg2!=form->args[1];
-   }   
-   if(modified)
-   {
-      form = TFormulaFCodeAlloc(terms, form->f_code, narg1, narg2);
-   }
-   /* Now the subformulas should be in normal forrm */ 
-
-   if((form->f_code == terms->sig->and_code)||
-      (form->f_code == terms->sig->or_code))
-   {
-      if(form->args[0]->f_code == terms->sig->qall_code)
-      {
-         narg1  = form->args[0]->args[1];
-         narg2  = form->args[1];
-         var    = form->args[0]->args[0];
-         assert(!TFormulaVarIsFree(terms, narg2, var));
-         handle = TFormulaFCodeAlloc(terms, form->f_code, narg1, narg2);
-         newform = TFormulaQuantorAlloc(terms, terms->sig->qall_code, var, handle);
-         // printf("Recursion %p\n", newform);
-         form = TFormulaShiftQuantors(terms, newform);
-      }
-      else if(form->args[1]->f_code == terms->sig->qall_code)
-      {
-         narg1  = form->args[1]->args[1];
-         narg2  = form->args[0];
-         var    = form->args[1]->args[0];
-         assert(!TFormulaVarIsFree(terms, narg2, var));
-         handle = TFormulaFCodeAlloc(terms, form->f_code, narg1, narg2);
-         newform = TFormulaQuantorAlloc(terms, terms->sig->qall_code, var, handle);
-         form = TFormulaShiftQuantors(terms, newform);
-      }
-   }
-   return form;
-}
 
 
 /*-----------------------------------------------------------------------
@@ -1802,7 +1735,7 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
    WFormulaPrint(GlobalOut, form, true);
    printf("\n");*/
 
-   handle = TFormulaSimplify(terms, form->tformula);
+   handle = TFormulaSimplify(terms, form->tformula, true);
    
    if(handle!=form->tformula)
    {
@@ -1835,6 +1768,122 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
       DocFormulaModificationDefault(form, inf_var_rename);
       WFormulaPushDerivation(form, DCVarRename, NULL, NULL);
    }
+   VarBankVarsSetProp(terms->vars, TPIsFreeVar);
+   handle = TFormulaSkolemizeOutermost(terms, form->tformula);
+   if(handle!=form->tformula)
+   {
+      form->tformula = handle;  
+      DocFormulaModificationDefault(form, inf_skolemize_out);
+      WFormulaPushDerivation(form, DCSkolemize, NULL, NULL);
+   }
+   handle = TFormulaShiftQuantors(terms, form->tformula);
+   if(handle!=form->tformula)
+   {
+      form->tformula = handle;  
+      DocFormulaModificationDefault(form, inf_shift_quantors);
+      WFormulaPushDerivation(form, DCShiftQuantors, NULL, NULL);
+   }   
+   
+   handle = TFormulaDistributeDisjunctions(terms, form->tformula);
+
+   if(handle!=form->tformula)
+   {
+      form->tformula = handle;  
+      DocFormulaModificationDefault(form, inf_fof_distrib);
+      WFormulaPushDerivation(form, DCDistDisjunctions, NULL, NULL);
+   }
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: WTFormulaConjunctiveNF2()
+//
+//   Transform a formula into Conjunctive Normal Form.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void WTFormulaConjunctiveNF2(WFormula_p form, TB_p terms)
+{
+   TFormula_p handle;
+   FunCode   max_var;
+
+   // printf("# Start: "); WFormulaPrint(GlobalOut, form, true); printf("\n");
+
+   handle = TFormulaSimplify(terms, form->tformula, false);
+  
+   if(handle!=form->tformula)
+   {
+      form->tformula = handle;
+      DocFormulaModificationDefault(form, inf_fof_simpl);
+      WFormulaPushDerivation(form, DCFofSimplify, NULL, NULL);
+   }
+   printf("# Simplified\n");
+
+   handle = TFormulaNNF(terms, form->tformula, 1);
+   if(handle!=form->tformula)
+   {
+      form->tformula = handle;
+      DocFormulaModificationDefault(form, inf_fof_nnf);
+      WFormulaPushDerivation(form, DCFNNF, NULL, NULL);
+   }  
+   printf("# NNFed\n");
+   /* handle = TFormulaMiniScope(terms, form->tformula); 
+   printf("# Miniscoped\n");
+   if(handle!=form->tformula)
+   {
+      form->tformula = handle;
+      DocFormulaModificationDefault(form, inf_shift_quantors);
+      WFormulaPushDerivation(form, DCShiftQuantors, NULL, NULL);
+      }*/
+
+   max_var = TFormulaFindMaxVarCode(form->tformula);
+   VarBankSetVCount(terms->vars, -max_var);
+   handle = TFormulaVarRename(terms, form->tformula);  
+   
+   if(handle!=form->tformula)
+   {
+      form->tformula = handle;  
+      DocFormulaModificationDefault(form, inf_var_rename);
+      WFormulaPushDerivation(form, DCVarRename, NULL, NULL);
+   }
+   printf("# Renamed\n");
+   
+   handle = TFormulaShiftQuantors2(terms, form->tformula);
+   if(handle!=form->tformula)
+   {
+      form->tformula = handle;  
+      DocFormulaModificationDefault(form, inf_shift_quantors);
+      WFormulaPushDerivation(form, DCShiftQuantors, NULL, NULL);
+   }   
+
+   printf("# Prenexed\n");
+
+   handle = TFormulaSimplify(terms, form->tformula, false);
+  
+   if(handle!=form->tformula)
+   {
+      form->tformula = handle;
+      DocFormulaModificationDefault(form, inf_fof_simpl);
+      WFormulaPushDerivation(form, DCFofSimplify, NULL, NULL);
+   }
+   printf("# Resimplified\n");
+
+   // Here efficient miniscoping
+   handle = TFormulaMiniScope2(terms, form->tformula);
+   
+   if(handle!=form->tformula)
+   {
+      form->tformula = handle;  
+      DocFormulaModificationDefault(form, inf_shift_quantors);
+      WFormulaPushDerivation(form, DCShiftQuantors, NULL, NULL);
+   }   
+
    VarBankVarsSetProp(terms->vars, TPIsFreeVar);
    handle = TFormulaSkolemizeOutermost(terms, form->tformula);
    if(handle!=form->tformula)

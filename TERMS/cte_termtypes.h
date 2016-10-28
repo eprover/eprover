@@ -124,7 +124,7 @@ typedef struct termcell
    struct termcell* *args;         /* Pointer to array of arguments */
    struct termcell* binding;       /* For variable bindings,
                                       potentially for temporary
-                           a           rewrites - it might be possible
+                                      rewrites - it might be possible
                                       to combine the previous two in a
                                       union. */
    long             entry_no;      /* Counter for terms in a given
@@ -224,6 +224,7 @@ Term_p  TermAllocNewSkolem(Sig_p sig, PStack_p variables, SortType sort);
 void    TermSetProp(Term_p term, DerefType deref, TermProperties prop);
 bool    TermSearchProp(Term_p term, DerefType deref, TermProperties prop);
 void    TermDelProp(Term_p term, DerefType deref, TermProperties prop);
+void    TermDelPropOpt(Term_p term, TermProperties prop);
 void    TermVarSetProp(Term_p term, DerefType deref, TermProperties prop);
 bool    TermVarSearchProp(Term_p term, DerefType deref, TermProperties prop);
 void    TermVarDelProp(Term_p term, DerefType deref, TermProperties prop);

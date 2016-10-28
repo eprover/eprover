@@ -73,6 +73,7 @@ bool              print_sat = false,
                   pcl_full_terms = true,
                   indexed_subsumption = true,
                   prune_only = false,
+                  new_cnf = false,
                   cnf_only = false,
                   inf_sys_complete = true,
                   assume_inf_sys_complete = false,
@@ -354,7 +355,8 @@ int main(int argc, char* argv[])
    bool             out_of_clauses;
    char             *finals_state = "exists",
                     *sat_status = "Derivation";
-   long             raw_clause_no,
+   long             cnf_size = 0,
+                    raw_clause_no,
                     preproc_removed=0, 
                     neg_conjectures,
                     parsed_ax_no,
@@ -426,12 +428,28 @@ int main(int argc, char* argv[])
    {
       VERBOUT("Negated conjectures.\n");
    }
-   if(FormulaSetCNF(proofstate->f_axioms,
-                    proofstate->f_ax_archive,
-                    proofstate->axioms, 
-                    proofstate->/* original_*/terms, 
-                    proofstate->freshvars,
-                    proofstate->gc_terms))
+
+   if(new_cnf)
+   {
+      cnf_size = FormulaSetCNF2(proofstate->f_axioms,
+                                proofstate->f_ax_archive,
+                                proofstate->axioms, 
+                                proofstate->terms, 
+                                proofstate->freshvars,
+                                proofstate->gc_terms);
+   }
+   else
+   {
+      cnf_size = FormulaSetCNF(proofstate->f_axioms,
+                               proofstate->f_ax_archive,
+                               proofstate->axioms, 
+                               proofstate->terms, 
+                               proofstate->freshvars,
+                               proofstate->gc_terms);
+   }
+      
+   
+   if(cnf_size)
    {
       VERBOUT("CNFization done\n");
    }
@@ -1524,6 +1542,8 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_FREE_OBJECTS:
             free_symb_prop = free_symb_prop|FPIsObject;
             break;
+      case OPT_DEF_CNF_NEW:
+            new_cnf = true;
       case OPT_DEF_CNF:
             FormulaDefLimit     = CLStateGetIntArg(handle, arg);
             break;
