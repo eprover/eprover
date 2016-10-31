@@ -232,7 +232,6 @@ void    TermVarDelProp(Term_p term, DerefType deref, TermProperties prop);
 static __inline__ Term_p  TermDerefAlways(Term_p term);
 static __inline__ Term_p  TermDeref(Term_p term, DerefType_p deref);
 
-static __inline__ Term_p* TermArgListCopy(Term_p source);
 static __inline__ Term_p  TermTopCopy(Term_p source);
 
 void    TermStackSetProps(PStack_p stack, TermProperties prop);
