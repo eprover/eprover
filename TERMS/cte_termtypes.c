@@ -252,6 +252,51 @@ bool TermSearchProp(Term_p term, DerefType deref, TermProperties prop)
    return res;
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermVerifyProp()
+//
+//   If prop has the expected value in all subterms of term, return
+//   true. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool TermVerifyProp(Term_p term, DerefType deref, TermProperties prop,
+                    TermProperties expected) 
+{
+   PStack_p stack = PStackAlloc();
+   int i;
+   bool res = true;
+
+   PStackPushP(stack, term);
+   PStackPushInt(stack, deref);
+   
+   while(!PStackEmpty(stack))
+   {
+      deref = PStackPopInt(stack);
+      term  = PStackPopP(stack);
+      term  = TermDeref(term, &deref);
+      if(TermCellGiveProps(term, prop)!=expected)
+      {
+	 res = false;
+	 break;
+      }
+      for(i=0; i<term->arity; i++)
+      {
+	 PStackPushP(stack, term->args[i]);
+	 PStackPushInt(stack, deref);
+      }
+   }
+   PStackFree(stack);
+   return res;
+}
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: TermDelProp()

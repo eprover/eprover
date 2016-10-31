@@ -101,9 +101,13 @@ bool    TermHasFCode(Term_p term, FunCode f);
 
 bool    TermHasUnboundVariables(Term_p term);
 bool    TermIsGroundCompute(Term_p term);
+/* #define TermIsGround(term)                                          \
+//        (TermIsShared(term)?                                          \
+//         (assert((TBTermIsGround((term))) == TermIsGroundCompute((term))),TBTermIsGround((term))): \
+//         TermIsGroundCompute((term))) */
 #define TermIsGround(term) \
         (TermIsShared(term)? \
-         (assert((TBTermIsGround((term))) == TermIsGroundCompute((term))),TBTermIsGround((term))): \
+         TBTermIsGround((term)): \
          TermIsGroundCompute((term)))
 
 FunCode TermFindMaxVarCode(Term_p term);

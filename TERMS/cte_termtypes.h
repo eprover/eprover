@@ -223,6 +223,8 @@ Term_p  TermAllocNewSkolem(Sig_p sig, PStack_p variables, SortType sort);
 
 void    TermSetProp(Term_p term, DerefType deref, TermProperties prop);
 bool    TermSearchProp(Term_p term, DerefType deref, TermProperties prop);
+bool    TermVerifyProp(Term_p term, DerefType deref, TermProperties prop,
+                       TermProperties expected);
 void    TermDelProp(Term_p term, DerefType deref, TermProperties prop);
 void    TermDelPropOpt(Term_p term, TermProperties prop);
 void    TermVarSetProp(Term_p term, DerefType deref, TermProperties prop);

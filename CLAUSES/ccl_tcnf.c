@@ -490,17 +490,17 @@ TFormula_p extract_formula_core2(TB_p terms, TFormula_p form, PStack_p varstack)
 //
 /----------------------------------------------------------------------*/
 
-static bool tform_mark_varocc(TFormula_p form, Term_p var)
+/* __attribute__((noinline)) */
+static bool tform_mark_varocc(TFormula_p form, Term_p var, TermProperties proc)
 {
    bool res = false;
    
-   if(!TermCellQueryProp(form, TPOpFlag))
+   if(TermCellGiveProps(form, TPOpFlag)!=proc)
    {
-      TermCellSetProp(form, TPOpFlag);
+      TermProperties found = TPIgnoreProps;
       if(form == var)
       {
-         TermCellSetProp(form, TPCheckFlag);
-         res = true;
+         found = TPCheckFlag;
       }
       else
       {
@@ -508,18 +508,20 @@ static bool tform_mark_varocc(TFormula_p form, Term_p var)
 
          for(i=0; i<form->arity; i++)
          {
-            if(tform_mark_varocc(form->args[i], var))
+            if(tform_mark_varocc(form->args[i], var, proc))
             {
-               TermCellSetProp(form, TPCheckFlag);
-               res =  true;
+               found = TPCheckFlag;
             }
          }         
       }
-   }
-   else
-   {
-      res = TermCellQueryProp(form, TPCheckFlag);
-   }
+      TermCellAssignProp(form, TPOpFlag|TPCheckFlag, proc|found);
+   }   
+   res = TermCellQueryProp(form, TPCheckFlag);
+   
+   //printf("# FCode: %ld VCode: %ld, Mark: %d  Real: %d\n",
+   //       form->f_code, var->f_code,
+   //       res, TBTermIsSubterm(form, var));
+   assert(res == TBTermIsSubterm(form,var));
    return res;
 }
 
@@ -539,7 +541,8 @@ static bool tform_mark_varocc(TFormula_p form, Term_p var)
 //
 /----------------------------------------------------------------------*/
 
-static TFormula_p miniscope_qex(TB_p terms, TFormula_p form, Term_p var)
+static TFormula_p miniscope_qex(TB_p terms, TFormula_p form, Term_p var,
+                                TermProperties proc)
 {
    TFormula_p arg1, arg2;
 
@@ -550,12 +553,13 @@ static TFormula_p miniscope_qex(TB_p terms, TFormula_p form, Term_p var)
          if(!TermCellQueryProp(form->args[0], TPCheckFlag))
          {
             arg1 = form->args[0];
-            arg2 = miniscope_qex(terms, form->args[1], var);
+            arg2 = miniscope_qex(terms, form->args[1], var, proc);
             form = TFormulaFCodeAlloc(terms, form->f_code, arg1, arg2);
+            
          }
          else if(!TermCellQueryProp(form->args[1], TPCheckFlag))
          {
-            arg1 = miniscope_qex(terms, form->args[0], var);
+            arg1 = miniscope_qex(terms, form->args[0], var, proc);
             arg2 = form->args[1];
             form = TFormulaFCodeAlloc(terms, form->f_code, arg1, arg2);
          }
@@ -566,17 +570,18 @@ static TFormula_p miniscope_qex(TB_p terms, TFormula_p form, Term_p var)
       }
       else if(form->f_code == terms->sig->or_code)
       {
-         arg1 = miniscope_qex(terms, form->args[0], var);
-         arg2 = miniscope_qex(terms, form->args[1], var);
+         arg1 = miniscope_qex(terms, form->args[0], var, proc);
+         arg2 = miniscope_qex(terms, form->args[1], var, proc);
          form = TFormulaFCodeAlloc(terms, form->f_code, arg1, arg2);         
       }
       else
       {
          form = TFormulaQuantorAlloc(terms, terms->sig->qex_code, var, form);         
       }
+      TermCellAssignProp(form, TPOpFlag, proc);
    }
    /* Else we don't need a quantifier */
-   
+
    return form;
 }
 
@@ -597,7 +602,8 @@ static TFormula_p miniscope_qex(TB_p terms, TFormula_p form, Term_p var)
 //
 /----------------------------------------------------------------------*/
 
-static TFormula_p miniscope_qall(TB_p terms, TFormula_p form, Term_p var)
+static TFormula_p miniscope_qall(TB_p terms, TFormula_p form, Term_p var,
+                                TermProperties proc)
 {
    TFormula_p arg1, arg2;
 
@@ -608,12 +614,12 @@ static TFormula_p miniscope_qall(TB_p terms, TFormula_p form, Term_p var)
          if(!TermCellQueryProp(form->args[0], TPCheckFlag))
          {
             arg1 = form->args[0];
-            arg2 = miniscope_qall(terms, form->args[1], var);
+            arg2 = miniscope_qall(terms, form->args[1], var, proc);
             form = TFormulaFCodeAlloc(terms, form->f_code, arg1, arg2);
          }
          else if(!TermCellQueryProp(form->args[1], TPCheckFlag))
          {
-            arg1 = miniscope_qall(terms, form->args[0], var);
+            arg1 = miniscope_qall(terms, form->args[0], var, proc);
             arg2 = form->args[1];
             form = TFormulaFCodeAlloc(terms, form->f_code, arg1, arg2);
          }
@@ -624,14 +630,15 @@ static TFormula_p miniscope_qall(TB_p terms, TFormula_p form, Term_p var)
       }
       else if(form->f_code == terms->sig->and_code)
       {
-         arg1 = miniscope_qall(terms, form->args[0], var);
-         arg2 = miniscope_qall(terms, form->args[1], var);
+         arg1 = miniscope_qall(terms, form->args[0], var, proc);
+         arg2 = miniscope_qall(terms, form->args[1], var, proc);
          form = TFormulaFCodeAlloc(terms, form->f_code, arg1, arg2);         
       }
       else
       {
          form = TFormulaQuantorAlloc(terms, terms->sig->qall_code, var, form);         
       }
+      TermCellAssignProp(form, TPOpFlag, proc);
    }
    /* Else we don't need a quantifier */
    
@@ -1441,33 +1448,36 @@ TFormula_p TFormulaMiniScope2(TB_p terms, TFormula_p form)
    Term_p var;
    FunCode quantor, qex, qall;   
    PStack_p prenex = PStackAlloc();
-   
+   TermProperties proc = TPOpFlag;
    
    form = extract_formula_core2(terms, form, prenex);
    qall = terms->sig->qall_code;
    qex  = terms->sig->qex_code;
    
+   TermDelPropOpt(form, TPOpFlag|TPCheckFlag);
    while(!PStackEmpty(prenex))
    {
       var = PStackPopP(prenex);
-      printf("# MiniScope ");TermPrint(stdout, var, terms->sig, DEREF_NEVER);printf("\n");
+      //printf("# MiniScope ");TermPrint(stdout, var, terms->sig, DEREF_NEVER);printf("\n");
       quantor = PStackPopInt(prenex);
 
-      TermDelPropOpt(form, TPOpFlag|TPCheckFlag);
-      tform_mark_varocc(form, var);
+      assert(TermVerifyProp(form, DEREF_NEVER, TPOpFlag, proc?TPIgnoreProps:TPOpFlag));
+      tform_mark_varocc(form, var, proc);
+      assert(TermVerifyProp(form, DEREF_NEVER, TPOpFlag, proc));
       
       if(quantor == qex)
       {
-         form = miniscope_qex(terms, form, var);
+         form = miniscope_qex(terms, form, var, proc);
       }
       else if(quantor == qall)
       {
-         form = miniscope_qall(terms, form, var);
+         form = miniscope_qall(terms, form, var, proc);
       }
       else
       {
-         assert(false && "Only univeral or existential quantor allowed");
+         assert(false && "Only universal or existential quantifier allowed");
       }
+      proc = proc?TPIgnoreProps:TPOpFlag;
    }   
    PStackFree(prenex);
    return form;
@@ -1823,7 +1833,7 @@ void WTFormulaConjunctiveNF2(WFormula_p form, TB_p terms)
       DocFormulaModificationDefault(form, inf_fof_simpl);
       WFormulaPushDerivation(form, DCFofSimplify, NULL, NULL);
    }
-   printf("# Simplified\n");
+   // printf("# Simplified\n");
 
    handle = TFormulaNNF(terms, form->tformula, 1);
    if(handle!=form->tformula)
@@ -1832,16 +1842,8 @@ void WTFormulaConjunctiveNF2(WFormula_p form, TB_p terms)
       DocFormulaModificationDefault(form, inf_fof_nnf);
       WFormulaPushDerivation(form, DCFNNF, NULL, NULL);
    }  
-   printf("# NNFed\n");
-   /* handle = TFormulaMiniScope(terms, form->tformula); 
-   printf("# Miniscoped\n");
-   if(handle!=form->tformula)
-   {
-      form->tformula = handle;
-      DocFormulaModificationDefault(form, inf_shift_quantors);
-      WFormulaPushDerivation(form, DCShiftQuantors, NULL, NULL);
-      }*/
-
+   //printf("# NNFed\n");
+   
    max_var = TFormulaFindMaxVarCode(form->tformula);
    VarBankSetVCount(terms->vars, -max_var);
    handle = TFormulaVarRename(terms, form->tformula);  
@@ -1852,7 +1854,7 @@ void WTFormulaConjunctiveNF2(WFormula_p form, TB_p terms)
       DocFormulaModificationDefault(form, inf_var_rename);
       WFormulaPushDerivation(form, DCVarRename, NULL, NULL);
    }
-   printf("# Renamed\n");
+   //printf("# Renamed\n");
    
    handle = TFormulaShiftQuantors2(terms, form->tformula);
    if(handle!=form->tformula)
@@ -1862,7 +1864,7 @@ void WTFormulaConjunctiveNF2(WFormula_p form, TB_p terms)
       WFormulaPushDerivation(form, DCShiftQuantors, NULL, NULL);
    }   
 
-   printf("# Prenexed\n");
+   //printf("# Prenexed\n");
 
    handle = TFormulaSimplify(terms, form->tformula, false);
   
@@ -1872,7 +1874,7 @@ void WTFormulaConjunctiveNF2(WFormula_p form, TB_p terms)
       DocFormulaModificationDefault(form, inf_fof_simpl);
       WFormulaPushDerivation(form, DCFofSimplify, NULL, NULL);
    }
-   printf("# Resimplified\n");
+   //printf("# Resimplified\n");
 
    // Here efficient miniscoping
    handle = TFormulaMiniScope2(terms, form->tformula);
