@@ -611,7 +611,7 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    long gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
 
    TFormulaSetIntroduceDefs(set, archive, terms);
-   printf("# Definitions introduced\n");
+   // printf("# Definitions introduced\n");
    
    while(!FormulaSetEmpty(set))
    {
