@@ -7,7 +7,7 @@ Author: Stephan Schulz (schulz@eprover.org)
 Contents
 
   Datatypes and definitions for compact representation of derivations
-  of a clause. 
+  of a clause.
 
   Copyright 2013 by the author.
   This code is released under the GNU General Public Licence.
@@ -53,7 +53,7 @@ typedef enum
    DOUnfold,
    DOApplyDef,
    DOContextSR,
-   DODesEqRes, 
+   DODesEqRes,
    DOSR,
    DOACRes,
    DOCondense,
@@ -62,7 +62,7 @@ typedef enum
    /* Simplification/Modfication for FOF */
    DONegateConjecture,
    DOFofSimplify,
-   DOFNNF,   
+   DOFNNF,
    DOShiftQuantors,
    DOVarRename,
    DOSkolemize,
@@ -112,7 +112,7 @@ typedef enum
    /* Simplification/Modfication for FOF */
    DCNegateConjecture = DONegateConjecture,
    DCFofSimplify      = DOFofSimplify,
-   DCFNNF             = DOFNNF,   
+   DCFNNF             = DOFNNF,
    DCShiftQuantors    = DOShiftQuantors,
    DCVarRename        = DOVarRename,
    DCSkolemize        = DOSkolemize,
@@ -195,13 +195,13 @@ extern bool            ProofObjectRecordsGCSelection;
 
 #define DPOpGetOpCode(op)  ((op)&127)
 
-void ClausePushDerivation(Clause_p clause, DerivationCodes op, 
+void ClausePushDerivation(Clause_p clause, DerivationCodes op,
                           void* arg1, void* arg2);
 
 void ClausePushACResDerivation(Clause_p clause, Sig_p sig);
 
 
-void WFormulaPushDerivation(WFormula_p form, DerivationCodes op, 
+void WFormulaPushDerivation(WFormula_p form, DerivationCodes op,
                            void* arg1, void* arg2);
 
 bool ClauseIsEvalGC(Clause_p clause);
@@ -211,17 +211,17 @@ Clause_p ClauseDerivFindFirst(Clause_p clause);
 WFormula_p WFormulaDerivFindFirst(WFormula_p form);
 
 
-long DerivStackExtractParents(PStack_p derivation, 
+long DerivStackExtractParents(PStack_p derivation,
                               Sig_p sig,
-                              PStack_p res_clauses, 
+                              PStack_p res_clauses,
                               PStack_p res_formulas);
-long DerivStackExtractOptParents(PStack_p derivation, 
+long DerivStackExtractOptParents(PStack_p derivation,
                                  Sig_p sig,
-                                 PStack_p res_clauses, 
+                                 PStack_p res_clauses,
                                  PStack_p res_formulas);
 
 
-void DerivStackCountSearchInferences(PStack_p derivation, 
+void DerivStackCountSearchInferences(PStack_p derivation,
                                      unsigned long *generating_count,
                                      unsigned long *simplifying_count);
 
@@ -241,7 +241,7 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation);
 
 void DerivedPCLPrint(FILE* out, Sig_p sig, Derived_p derived);
 void DerivedTSTPPrint(FILE* out, Sig_p sig, Derived_p derived);
-void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived, 
+void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived,
                      ProofOutput print_derivation);
 
 bool DerivedIsEvalGC(Derived_p derived);
@@ -266,10 +266,10 @@ Derivation_p DerivationCompute(PStack_p root_clauses, Sig_p sig);
 void DerivationAnalyse(Derivation_p derivationt);
 
 void DerivationPrint(FILE* out, Derivation_p derivation, char* frame);
-void DerivationDotPrint(FILE* out, Derivation_p derivation, 
+void DerivationDotPrint(FILE* out, Derivation_p derivation,
                         ProofOutput print_derivation);
 
-void DerivationComputeAndPrint(FILE* out, char* status, PStack_p root_clauses, 
+void DerivationComputeAndPrint(FILE* out, char* status, PStack_p root_clauses,
                                Sig_p sig, ProofOutput print_derivation,
                                bool print_analysis);
 

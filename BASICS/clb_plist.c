@@ -5,7 +5,7 @@ File  : clb_plist.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Doubly linked lists of pointers
 
   Copyright 1998, 1999 by the author.
@@ -103,7 +103,7 @@ void PListFree(PList_p junk)
 
 void PListInsert(PList_p where, PList_p cell)
 {
-   cell->pred = where; 
+   cell->pred = where;
    cell->succ = where->succ;
    where->succ->pred = cell;
    where->succ = cell;

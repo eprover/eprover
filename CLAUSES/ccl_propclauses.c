@@ -5,7 +5,7 @@ File  : ccl_propclauses.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for handling propositional clauses.
 
 Copyright 1998-2011 by the author.
@@ -51,7 +51,7 @@ Changes
 //
 //   Allocate a propositional clause representing the same clause as
 //   the normal one. Does some sanity checking, but only in
-//   assertions. 
+//   assertions.
 //
 // Global Variables: -
 //
@@ -84,8 +84,8 @@ PropClause_p PropClauseAlloc(Clause_p clause)
    for(i=0; i<handle->lit_no; i++)
    {
       assert(lit);
-      assert(lit->rterm->f_code == SIG_TRUE_CODE); 
-      
+      assert(lit->rterm->f_code == SIG_TRUE_CODE);
+
       handle->literals[i].properties = lit->properties;
       handle->literals[i].lit = lit->lterm;
       lit = lit->next;
@@ -102,16 +102,16 @@ PropClause_p PropClauseAlloc(Clause_p clause)
 //   Free the memory taken up by a correctly build propositional
 //   clause. Does not touch the terms/atoms!
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
 void PropClauseFree(PropClause_p clause)
 {
    assert(clause);
-   
+
    if(clause->lit_no)
    {
       assert(clause->literals);
@@ -142,18 +142,18 @@ Clause_p PropClauseToClause(TB_p bank, PropClause_p clause)
    Eqn_p    list=NULL, *eqn;
    Clause_p handle;
    int i;
-   
+
    eqn = &list;
    for(i=0; i<clause->lit_no; i++)
    {
-      *eqn = EqnAlloc(clause->literals[i].lit, 
+      *eqn = EqnAlloc(clause->literals[i].lit,
                       bank->true_term,
                       bank, false);
       (*eqn)->properties = clause->literals[i].properties;
       eqn = &((*eqn)->next);
    }
    handle = ClauseAlloc(list);
-   return handle; 
+   return handle;
 }
 
 
@@ -194,7 +194,7 @@ long PropClauseMaxVar(PropClause_p clause)
 {
    int i;
    long res = 0, tmp;
-   
+
    for(i=0; i<clause->lit_no; i++)
    {
       tmp = clause->literals[i].lit->entry_no;
@@ -212,7 +212,7 @@ long PropClauseMaxVar(PropClause_p clause)
 // Function: PropClauseSetAlloc()
 //
 //   Allocate an empty propositional clause set.
-// 
+//
 // Global Variables: -
 //
 // Side Effects    : Memory operations
@@ -265,7 +265,7 @@ void PropClauseSetFree(PropClauseSet_p set)
 // Function: PropClauseSetInsertPropClause()
 //
 //   Insert a propositional clause into the set. Return new number of
-//   elements. 
+//   elements.
 //
 // Global Variables: -
 //
@@ -277,7 +277,7 @@ long PropClauseSetInsertPropClause(PropClauseSet_p set, PropClause_p
 				   clause)
 {
    assert(set && clause && set->inspos);
-   
+
    clause->next = NULL;
    *(set->inspos) = clause;
    set->inspos = &(clause->next);
@@ -286,7 +286,7 @@ long PropClauseSetInsertPropClause(PropClauseSet_p set, PropClause_p
    if(clause->lit_no==0)
    {
       set->empty_clauses++;
-   }   
+   }
    return set->members;
 }
 
@@ -295,7 +295,7 @@ long PropClauseSetInsertPropClause(PropClauseSet_p set, PropClause_p
 //
 // Function: PropClauseSetInsertClause()
 //
-//   Insert the (normal) clause into set as a propositional clause. 
+//   Insert the (normal) clause into set as a propositional clause.
 //
 // Global Variables: -
 //
@@ -306,7 +306,7 @@ long PropClauseSetInsertPropClause(PropClauseSet_p set, PropClause_p
 long PropClauseSetInsertClause(PropClauseSet_p set, Clause_p clause)
 {
    PropClause_p handle = PropClauseAlloc(clause);
-   
+
    ClauseFree(clause);
 
    return PropClauseSetInsertPropClause(set, handle);
@@ -331,7 +331,7 @@ void PropClauseSetPrint(FILE* out, TB_p bank, PropClauseSet_p set)
 
    while(handle)
    {
-      PropClausePrint(out, bank, handle);      
+      PropClausePrint(out, bank, handle);
       fputc('\n', out);
       handle = handle->next;
    }
@@ -353,7 +353,7 @@ void PropClauseSetPrint(FILE* out, TB_p bank, PropClauseSet_p set)
 long PropClauseSetMaxVar(PropClauseSet_p set)
 {
    long res = 0, tmp;
-   
+
    PropClause_p handle = set->list;
 
    while(handle)

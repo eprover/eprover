@@ -6,7 +6,7 @@ Author: Stephan Schulz
 
 Contents
 
-  Simple data type to store information about clauses. 
+  Simple data type to store information about clauses.
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
@@ -41,7 +41,7 @@ typedef struct clausestatscell
    long simplify_used;
    long simplify_unused;
    long generate_used;
-   long generate_unused;   
+   long generate_unused;
    long subsumed;
 }ClauseStatsCell, *ClauseStats_p;
 

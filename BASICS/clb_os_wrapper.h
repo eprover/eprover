@@ -5,8 +5,8 @@ File  : clb_os_wrapper.h
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
-  Functions wrapping some OS functions in a convenient manner. 
+
+  Functions wrapping some OS functions in a convenient manner.
 
   Copyright 2007 by the author.
   This code is released under the GNU General Public Licence and

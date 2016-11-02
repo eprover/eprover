@@ -5,7 +5,7 @@ File  : ccl_proofstate.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Basic functions for proof state objects.
 
   Copyright 1998-2016 by the author.
@@ -46,7 +46,7 @@ char* UseInlinedWatchList = WATCHLIST_INLINE_STRING;
 //
 // Function: clause_set_analyse_gc()
 //
-//   Count number of clauses, given clauses, and used given clauses. 
+//   Count number of clauses, given clauses, and used given clauses.
 //
 // Global Variables: -
 //
@@ -54,8 +54,8 @@ char* UseInlinedWatchList = WATCHLIST_INLINE_STRING;
 //
 /----------------------------------------------------------------------*/
 
-static void clause_set_analyse_gc(ClauseSet_p set, unsigned long *clause_count, 
-                           unsigned long *gc_count, unsigned long *gc_used_count) 
+static void clause_set_analyse_gc(ClauseSet_p set, unsigned long *clause_count,
+                           unsigned long *gc_count, unsigned long *gc_used_count)
 {
    Clause_p handle;
    unsigned long clause_c = 0, gc_c = 0, gc_used_c = 0;
@@ -72,7 +72,7 @@ static void clause_set_analyse_gc(ClauseSet_p set, unsigned long *clause_count,
             gc_used_c++;
          }
       }
-   }   
+   }
    *clause_count  += clause_c;
    *gc_count      += gc_c;
    *gc_used_count += gc_used_c;
@@ -96,12 +96,12 @@ static void clause_set_analyse_gc(ClauseSet_p set, unsigned long *clause_count,
 //
 /----------------------------------------------------------------------*/
 
-static void clause_set_pick_training_examples(ClauseSet_p set, 
-                                             PStack_p pos_examples, 
-                                             PStack_p neg_examples)  
+static void clause_set_pick_training_examples(ClauseSet_p set,
+                                             PStack_p pos_examples,
+                                             PStack_p neg_examples)
 {
    Clause_p handle;
- 
+
    for(handle = set->anchor->succ; handle != set->anchor; handle = handle->succ)
    {
       if(ClauseIsEvalGC(handle))
@@ -115,7 +115,7 @@ static void clause_set_pick_training_examples(ClauseSet_p set,
             PStackPushP(neg_examples, handle);
          }
       }
-   }   
+   }
 }
 
 
@@ -132,7 +132,7 @@ static void clause_set_pick_training_examples(ClauseSet_p set,
 //
 //   Return an empty, initialized proof state. The argument is:
 //   free_symb_prop: Which sub-properties of FPDistinctProp should be
-//                   ignored (i.e. which classes with distinct object 
+//                   ignored (i.e. which classes with distinct object
 //                   syntax  should be treated as plain free
 //                   symbols). Use FPIgnoreProps for default
 //                   behaviour, FPDistinctProp for fully free
@@ -185,7 +185,7 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->state_is_complete    = true;
    handle->definition_store     = DefStoreAlloc(handle->terms);
    handle->def_store_cspec      = NULL;
-   
+
    // handle->gc_original_terms    = GCAdminAlloc(handle->original_terms);
    handle->gc_terms             = GCAdminAlloc(handle->terms);
    GCRegisterFormulaSet(handle->gc_terms, handle->f_axioms);
@@ -205,10 +205,10 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
 
    handle->status_reported              = false;
    handle->answer_count                 = 0;
-   
+
    handle->processed_count              = 0;
-   handle->proc_trivial_count           = 0; 
-   handle->proc_forward_subsumed_count  = 0; 
+   handle->proc_trivial_count           = 0;
+   handle->proc_forward_subsumed_count  = 0;
    handle->proc_non_trivial_count       = 0;
    handle->other_redundant_count        = 0;
    handle->non_redundant_deleted        = 0;
@@ -218,16 +218,16 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->generated_count              = 0;
    handle->generated_lit_count          = 0;
    handle->non_trivial_generated_count  = 0;
-   handle->context_sr_count   = 0; 
+   handle->context_sr_count   = 0;
    handle->paramod_count      = 0;
    handle->factor_count       = 0;
    handle->resolv_count       = 0;
    handle->gc_count           = 0;
    handle->gc_used_count      = 0;
 
-   handle->signature->distinct_props = 
+   handle->signature->distinct_props =
       handle->signature->distinct_props&(~free_symb_prop);
-   
+
    return handle;
 }
 
@@ -238,7 +238,7 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
 //
 //   Initialize the watchlist, either by parsing it from the provided
 //   file, or by collecting all clauses of type CPTypeWatchClause from
-//   state->axioms. 
+//   state->axioms.
 //
 // Global Variables: -
 //
@@ -252,7 +252,7 @@ void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb,
 {
    Scanner_p in;
    ClauseSet_p tmpset;
-   
+
    if(watchlist_filename)
    {
       state->watchlist = ClauseSetAlloc();
@@ -264,7 +264,7 @@ void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb,
          in = CreateScanner(StreamTypeFile, watchlist_filename, true, NULL);
          ScannerSetFormat(in, parse_format);
          ClauseSetParseList(in, tmpset,
-                            state->terms);         
+                            state->terms);
          CheckInpTok(in, NoToken);
          DestroyScanner(in);
          ClauseSetIndexedInsertClauseSet(state->watchlist, tmpset);
@@ -275,8 +275,8 @@ void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb,
       {
          PStack_p stack = PStackAlloc();
          Clause_p handle;
-         
-         for(handle =  state->axioms->anchor->succ; 
+
+         for(handle =  state->axioms->anchor->succ;
              handle!= state->axioms->anchor;
              handle = handle->succ)
          {
@@ -291,9 +291,9 @@ void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb,
             handle = PStackPopP(stack);
             ClauseSetExtractEntry(handle);
             ClauseSetIndexedInsertClause(state->watchlist, handle);
-         }        
+         }
          PStackFree(stack);
-      } 
+      }
       ClauseSetSetProp(state->watchlist, CPWatchOnly);
       ClauseSetDefaultWeighClauses(state->watchlist);
       ClauseSetMarkMaximalTerms(ocb, state->watchlist);
@@ -301,7 +301,7 @@ void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb,
       GlobalIndicesInsertClauseSet(&(state->wlindices),state->watchlist);
       ClauseSetDocInital(GlobalOut, OutputLevel, state->watchlist);
       // ClauseSetPrint(stdout, state->watchlist, true);
-   }    
+   }
    //printf("# watchlist: %p\n", state->watchlist);
 }
 
@@ -313,7 +313,7 @@ void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb,
 //
 //   Empty _all_ clause and formula sets in proof state. Keep the
 //   signature and term bank. If term_gc is true, perform a garbage
-//   collection of term cells. 
+//   collection of term cells.
 //
 // Global Variables: -
 //
@@ -373,8 +373,8 @@ void ProofStateFree(ProofState_p junk)
    ClauseSetFree(junk->processed_non_units);
    ClauseSetFree(junk->unprocessed);
    ClauseSetFree(junk->tmp_store);
-   ClauseSetFree(junk->archive);   
-   ClauseSetFree(junk->ax_archive);   
+   ClauseSetFree(junk->archive);
+   ClauseSetFree(junk->ax_archive);
    FormulaSetFree(junk->f_archive);
    PStackFree(junk->extract_roots);
    GlobalIndicesFreeIndices(&(junk->gindices));
@@ -399,7 +399,7 @@ void ProofStateFree(ProofState_p junk)
    // junk->original_terms->sig = NULL;
    junk->terms->sig = NULL;
    junk->tmp_terms->sig = NULL;
-   SigFree(junk->signature);   
+   SigFree(junk->signature);
    // TBFree(junk->original_terms);
    TBFree(junk->terms);
    TBFree(junk->tmp_terms);
@@ -417,7 +417,7 @@ void ProofStateFree(ProofState_p junk)
 //
 //   Run an analysis of the use of given clauses in the proof search:
 //   How many were used (i.e. useful) and how many were unused
-//   (i.e. useless). 
+//   (i.e. useless).
 //
 // Global Variables: -
 //
@@ -429,18 +429,18 @@ void ProofStateAnalyseGC(ProofState_p state)
 {
    unsigned long clause_c = 0;
 
-   clause_set_analyse_gc(state->ax_archive, &clause_c, 
-                         &(state->gc_count), &(state->gc_used_count));  
-   clause_set_analyse_gc(state->processed_pos_rules, &clause_c, 
-                         &(state->gc_count), &(state->gc_used_count));  
-   clause_set_analyse_gc(state->processed_pos_eqns, &clause_c, 
-                         &(state->gc_count), &(state->gc_used_count));  
-   clause_set_analyse_gc(state->processed_neg_units, &clause_c, 
-                         &(state->gc_count), &(state->gc_used_count));  
-   clause_set_analyse_gc(state->processed_non_units, &clause_c, 
-                         &(state->gc_count), &(state->gc_used_count));  
-   clause_set_analyse_gc(state->archive, &clause_c, 
-                         &(state->gc_count), &(state->gc_used_count));  
+   clause_set_analyse_gc(state->ax_archive, &clause_c,
+                         &(state->gc_count), &(state->gc_used_count));
+   clause_set_analyse_gc(state->processed_pos_rules, &clause_c,
+                         &(state->gc_count), &(state->gc_used_count));
+   clause_set_analyse_gc(state->processed_pos_eqns, &clause_c,
+                         &(state->gc_count), &(state->gc_used_count));
+   clause_set_analyse_gc(state->processed_neg_units, &clause_c,
+                         &(state->gc_count), &(state->gc_used_count));
+   clause_set_analyse_gc(state->processed_non_units, &clause_c,
+                         &(state->gc_count), &(state->gc_used_count));
+   clause_set_analyse_gc(state->archive, &clause_c,
+                         &(state->gc_count), &(state->gc_used_count));
 }
 
 
@@ -449,7 +449,7 @@ void ProofStateAnalyseGC(ProofState_p state)
 //
 // Function: ProofStatePickTrainingExamples()
 //
-//   Find positive and negative training examples in the proof state.  
+//   Find positive and negative training examples in the proof state.
 //
 // Global Variables: -
 //
@@ -457,22 +457,22 @@ void ProofStateAnalyseGC(ProofState_p state)
 //
 /----------------------------------------------------------------------*/
 
-void ProofStatePickTrainingExamples(ProofState_p state, 
-                                    PStack_p pos_examples, 
+void ProofStatePickTrainingExamples(ProofState_p state,
+                                    PStack_p pos_examples,
                                     PStack_p neg_examples)
-{   
+{
    clause_set_pick_training_examples(state->ax_archive, pos_examples,
-                                     neg_examples); 
+                                     neg_examples);
    clause_set_pick_training_examples(state->processed_pos_rules,
-                                     pos_examples, neg_examples); 
+                                     pos_examples, neg_examples);
    clause_set_pick_training_examples(state->processed_pos_eqns,
-                                     pos_examples, neg_examples); 
+                                     pos_examples, neg_examples);
    clause_set_pick_training_examples(state->processed_neg_units,
-                                     pos_examples, neg_examples); 
+                                     pos_examples, neg_examples);
    clause_set_pick_training_examples(state->processed_non_units,
-                                     pos_examples, neg_examples); 
-   clause_set_pick_training_examples(state->archive, 
-                                     pos_examples, neg_examples); 
+                                     pos_examples, neg_examples);
+   clause_set_pick_training_examples(state->archive,
+                                     pos_examples, neg_examples);
 }
 
 
@@ -481,7 +481,7 @@ void ProofStatePickTrainingExamples(ProofState_p state,
 // Function: ProofStateTrain()
 //
 //   Perform some (yet to be specified ;-) training on the proof
-//   state. 
+//   state.
 //
 // Global Variables: -
 //
@@ -491,14 +491,14 @@ void ProofStatePickTrainingExamples(ProofState_p state,
 
 void ProofStateTrain(ProofState_p state, bool print_pos, bool print_neg)
 {
-   PStack_p 
+   PStack_p
       pos_examples = PStackAlloc(),
       neg_examples = PStackAlloc();
 
    ProofStatePickTrainingExamples(state, pos_examples, neg_examples);
-   
-   fprintf(GlobalOut, "# Training examples: %ld positive, %ld negative\n", 
-           PStackGetSP(pos_examples), PStackGetSP(neg_examples)); 
+
+   fprintf(GlobalOut, "# Training examples: %ld positive, %ld negative\n",
+           PStackGetSP(pos_examples), PStackGetSP(neg_examples));
    if(print_pos)
    {
       fprintf(GlobalOut, "# Training: Positive examples begin\n");
@@ -534,7 +534,7 @@ void ProofStateTrain(ProofState_p state, bool print_pos, bool print_neg)
 void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
 {
    fprintf(out, "# Initial clauses in saturation        : %ld\n",
-	   state->axioms->members);    
+	   state->axioms->members);
    fprintf(out, "# Processed clauses                    : %ld\n",
 	   state->processed_count);
    fprintf(out, "# ...of these trivial                  : %ld\n",
@@ -552,18 +552,18 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
    fprintf(out, "# Backward-rewritten                   : %ld\n",
 	   state->backward_rewritten_count);
    fprintf(out, "# Generated clauses                    : %ld\n",
-	   state->generated_count - state->backward_rewritten_count);   
+	   state->generated_count - state->backward_rewritten_count);
    fprintf(out, "# ...of the previous two non-trivial   : %ld\n",
-	   state->non_trivial_generated_count);   
+	   state->non_trivial_generated_count);
    fprintf(out, "# Contextual simplify-reflections      : %ld\n",
 	   state->context_sr_count);
    fprintf(out, "# Paramodulations                      : %ld\n",
-	   state->paramod_count);   
+	   state->paramod_count);
    fprintf(out, "# Factorizations                       : %ld\n",
-	   state->factor_count);    
+	   state->factor_count);
    fprintf(out, "# Equation resolutions                 : %ld\n",
 	   state->resolv_count);
-   fprintf(out, 
+   fprintf(out,
 	   "# Current number of processed clauses  : %ld\n"
 	   "#    Positive orientable unit clauses  : %ld\n"
 	   "#    Positive unorientable unit clauses: %ld\n"
@@ -577,33 +577,33 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
 	   state->processed_pos_eqns->members,
 	   state->processed_neg_units->members,
 	   state->processed_non_units->members);
-   fprintf(out, 
+   fprintf(out,
 	   "# Current number of unprocessed clauses: %ld\n",
 	   state->unprocessed->members);
-   fprintf(out, 
+   fprintf(out,
 	   "# ...number of literals in the above   : %ld\n",
 	   state->unprocessed->literals);
-   fprintf(out, 
+   fprintf(out,
 	   "# Current number of archived formulas  : %ld\n",
 	   state->f_archive->members);
-   fprintf(out, 
+   fprintf(out,
 	   "# Current number of archived clauses   : %ld\n",
 	   state->archive->members);
    if(ProofObjectRecordsGCSelection)
    {
-      fprintf(out, 
+      fprintf(out,
               "# Proof object given clauses           : %ld\n",
               state->gc_used_count);
-      fprintf(out, 
+      fprintf(out,
               "# Proof search given clauses           : %ld\n",
               state->gc_count);
    }
    if(TBPrintDetails)
    {
-      fprintf(out, 
+      fprintf(out,
 	      "# Total literals in generated clauses  : %ld\n",
 	      state->generated_lit_count -
-	      state->backward_rewritten_lit_count);      
+	      state->backward_rewritten_lit_count);
       fprintf(out,
 	      "# Shared term nodes                    : %ld\n"
 	      "# ...corresponding unshared nodes      : %ld\n",
@@ -621,18 +621,18 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
 	      "# Match attempts with oriented units   : %lu\n"
 	      "# Match attempts with unoriented units : %lu\n",
 	      state->processed_pos_rules->demod_index->match_count,
-	      state->processed_pos_eqns->demod_index->match_count);	            
+	      state->processed_pos_eqns->demod_index->match_count);
 #ifdef MEASURE_EXPENSIVE
       fprintf(out,
 	      "# Oriented PDT nodes visited           : %lu\n"
 	      "# Unoriented PDT nodes visited         : %lu\n",
 	      state->processed_pos_rules->demod_index->visited_count,
-	      state->processed_pos_eqns->demod_index->visited_count);	      
+	      state->processed_pos_eqns->demod_index->visited_count);
 #endif
    }
    /* TermCellStorePrintDistrib(out, &(state->terms->term_store)); */
    /* TBPrintTermsFlat=false;
-      TBPrintInternalInfo=true;				
+      TBPrintInternalInfo=true;
       TBPrintBankInOrder(stdout,state->terms);*/
 }
 
@@ -675,7 +675,7 @@ void ProofStatePrint(FILE* out, ProofState_p state)
 //
 /----------------------------------------------------------------------*/
 
-void ProofStatePropDocQuote(FILE* out, int level, 
+void ProofStatePropDocQuote(FILE* out, int level,
 			    ClauseProperties prop,
 			    ProofState_p state, char* comment)
 {

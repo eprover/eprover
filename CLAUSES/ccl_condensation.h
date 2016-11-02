@@ -5,7 +5,7 @@ File  : ccl_condensation.h
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Implementation of the condensation rule:
 
   C

@@ -5,7 +5,7 @@ File  : can_treeanalyze.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for analysing and marking dependency trees for clauses.
 
   Copyright 1998, 1999 by the author.

@@ -5,9 +5,9 @@ File  : cco_signals.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Signal handler for limit signals...not really necessary, but may
-  work around some Solaris bugs. Also some support infrastructure... 
+  work around some Solaris bugs. Also some support infrastructure...
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and

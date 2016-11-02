@@ -5,7 +5,7 @@ File  : che_to_precgen.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions implementing several precedence generation schemes for
   term orderings.
 
@@ -80,7 +80,7 @@ void print_prec_array(FILE* out, Sig_p sig, FCodeFeatureArray_p array)
 {
    FunCode i;
    char *del = "";
-   
+
    fprintf(out, "# Ordering precedence: ");
    for(i = sig->f_count; i > 0; i--)
    {
@@ -112,13 +112,13 @@ static void compute_precedence_from_array(OCB_p ocb, FCodeFeatureArray_p
 					  array)
 {
    FunCode i, last;
-   
+
    assert(ocb->sig_size == array->size-1);
    if(ocb->prec_weights)
    {
       for(i = SIG_TRUE_CODE+1; i<=ocb->sig_size; i++)
       {
-         if((SigFindArity(ocb->sig, i)==0) && 
+         if((SigFindArity(ocb->sig, i)==0) &&
             !SigIsPredicate(ocb->sig, i) &&
             !SigQueryFuncProp(ocb->sig, i, FPSpecial) &&
             !ocb->min_constant)
@@ -179,7 +179,7 @@ static void generate_unary_first_precedence(OCB_p ocb, ClauseSet_p axioms)
    }
    FCodeFeatureArraySort(array);
    compute_precedence_from_array(ocb, array);
-      
+
    FCodeFeatureArrayFree(array);
 }
 
@@ -188,9 +188,9 @@ static void generate_unary_first_precedence(OCB_p ocb, ClauseSet_p axioms)
 //
 // Function: generate_unary_first_freq_precedence()
 //
-//   Generate a precence in which rarer symbols are 
+//   Generate a precence in which rarer symbols are
 //   larger, but unary symbols are larger still (and constants are
-//   minimal). 
+//   minimal).
 //
 // Global Variables: -
 //
@@ -219,11 +219,11 @@ static void generate_unary_first_freq_precedence(OCB_p ocb, ClauseSet_p axioms)
       {
 	 array->array[i].key1 = 1;
       }
-      array->array[i].key2 = array->array[i].freq; 
+      array->array[i].key2 = array->array[i].freq;
    }
    FCodeFeatureArraySort(array);
    compute_precedence_from_array(ocb, array);
-      
+
    FCodeFeatureArrayFree(array);
 }
 
@@ -234,7 +234,7 @@ static void generate_unary_first_freq_precedence(OCB_p ocb, ClauseSet_p axioms)
 //
 //   Generate a precende in which symbols with higher arity are
 //   larger. Order of occurence in the signature is used as a
-//   tie-breaker.  
+//   tie-breaker.
 //
 // Global Variables: -
 //
@@ -246,14 +246,14 @@ static void generate_arity_precedence(OCB_p ocb, ClauseSet_p axioms)
 {
    FCodeFeatureArray_p array = FCodeFeatureArrayAlloc(ocb->sig, axioms);
    FunCode i;
-   
+
    for(i=1; i<= ocb->sig->f_count; i++)
    {
       array->array[i].key1 = SigFindArity(ocb->sig, i);
    }
    FCodeFeatureArraySort(array);
    compute_precedence_from_array(ocb, array);
-      
+
    FCodeFeatureArrayFree(array);
 }
 
@@ -264,7 +264,7 @@ static void generate_arity_precedence(OCB_p ocb, ClauseSet_p axioms)
 //
 //   Generate a precende in which symbols with higher arity are
 //   smaller. Order of occurence in the signature is used as a
-//   tie-breaker.  
+//   tie-breaker.
 //
 // Global Variables: -
 //
@@ -276,14 +276,14 @@ static void generate_invarity_precedence(OCB_p ocb, ClauseSet_p axioms)
 {
    FCodeFeatureArray_p array = FCodeFeatureArrayAlloc(ocb->sig, axioms);
    FunCode i;
-   
+
    for(i=1; i<= ocb->sig->f_count; i++)
    {
       array->array[i].key1 = -SigFindArity(ocb->sig, i);
    }
    FCodeFeatureArraySort(array);
    compute_precedence_from_array(ocb, array);
-      
+
    FCodeFeatureArrayFree(array);
 }
 
@@ -294,7 +294,7 @@ static void generate_invarity_precedence(OCB_p ocb, ClauseSet_p axioms)
 //
 //   Generate a precedence in which symbols with higher arity are
 //   larger, but constants are the largest symbols. Order of occurence
-//   in the signature is used as a tie-breaker.  
+//   in the signature is used as a tie-breaker.
 //
 // Global Variables: -
 //
@@ -317,7 +317,7 @@ static void generate_const_max_precedence(OCB_p ocb, ClauseSet_p axioms)
    }
    FCodeFeatureArraySort(array);
    compute_precedence_from_array(ocb, array);
-      
+
    FCodeFeatureArrayFree(array);
 }
 
@@ -328,7 +328,7 @@ static void generate_const_max_precedence(OCB_p ocb, ClauseSet_p axioms)
 //
 //   Generate a precedence in which symbols with higher arity are
 //   smaller, but constants are the smallest symbols. Order of
-//   occurence in the signature is used as a tie-breaker.  
+//   occurence in the signature is used as a tie-breaker.
 //
 // Global Variables: -
 //
@@ -351,7 +351,7 @@ static void generate_const_min_precedence(OCB_p ocb, ClauseSet_p axioms)
    }
    FCodeFeatureArraySort(array);
    compute_precedence_from_array(ocb, array);
-      
+
    FCodeFeatureArrayFree(array);
 }
 
@@ -363,7 +363,7 @@ static void generate_const_min_precedence(OCB_p ocb, ClauseSet_p axioms)
 //
 //   Generate a precedence in which symbols which occur more often in
 //   the specification are bigger. Arity is used as a tie-breaker,
-//   then order of occurence in the signature. 
+//   then order of occurence in the signature.
 //
 // Global Variables: -
 //
@@ -383,7 +383,7 @@ static void generate_freq_precedence(OCB_p ocb, ClauseSet_p axioms)
    }
    FCodeFeatureArraySort(array);
    compute_precedence_from_array(ocb, array);
-      
+
    FCodeFeatureArrayFree(array);
 }
 
@@ -394,7 +394,7 @@ static void generate_freq_precedence(OCB_p ocb, ClauseSet_p axioms)
 //
 //   Generate a precedence in which symbols which occur more often in
 //   the specification are smaller. Arity is used as a tie-breaker,
-//   then order of occurence in the signature. .  
+//   then order of occurence in the signature. .
 //
 // Global Variables: -
 //
@@ -412,9 +412,9 @@ static void generate_invfreq_precedence(OCB_p ocb, ClauseSet_p axioms)
       array->array[i].key1 = -array->array[i].freq;
       array->array[i].key2 = SigFindArity(ocb->sig, i);
    }
-   FCodeFeatureArraySort(array); 
+   FCodeFeatureArraySort(array);
    compute_precedence_from_array(ocb, array);
-      
+
    FCodeFeatureArrayFree(array);
 }
 
@@ -426,7 +426,7 @@ static void generate_invfreq_precedence(OCB_p ocb, ClauseSet_p axioms)
 //   Generate a precedence in which symbols which occur in conjectures
 //   are larger, ordered by inverse frequency in conjectures. Ties are
 //   broken by inverse overall frequency. Arity is used as a
-//   tie-breaker, then order of occurence in the signature. .  
+//   tie-breaker, then order of occurence in the signature. .
 //
 // Global Variables: -
 //
@@ -446,9 +446,9 @@ static void generate_invconjfreq_precedence(OCB_p ocb, ClauseSet_p axioms)
       array->array[i].key2 = -array->array[i].freq;
       array->array[i].key3 = SigFindArity(ocb->sig, i);
    }
-   FCodeFeatureArraySort(array); 
+   FCodeFeatureArraySort(array);
    compute_precedence_from_array(ocb, array);
-      
+
    FCodeFeatureArrayFree(array);
 }
 
@@ -479,9 +479,9 @@ static void generate_invfreq_conjmax_precedence(OCB_p ocb, ClauseSet_p axioms)
       array->array[i].key2 = -array->array[i].freq;
       array->array[i].key3 = SigFindArity(ocb->sig, i);
    }
-   FCodeFeatureArraySort(array); 
+   FCodeFeatureArraySort(array);
    compute_precedence_from_array(ocb, array);
-      
+
    FCodeFeatureArrayFree(array);
 }
 
@@ -511,9 +511,9 @@ static void generate_invfreq_conjmin_precedence(OCB_p ocb, ClauseSet_p axioms)
       array->array[i].key2 = -array->array[i].freq;
       array->array[i].key3 = SigFindArity(ocb->sig, i);
    }
-   FCodeFeatureArraySort(array); 
+   FCodeFeatureArraySort(array);
    compute_precedence_from_array(ocb, array);
-      
+
    FCodeFeatureArrayFree(array);
 }
 
@@ -555,7 +555,7 @@ static void generate_invfreq_constmin_precedence(OCB_p ocb, ClauseSet_p axioms)
    }
    FCodeFeatureArraySort(array);
    compute_precedence_from_array(ocb, array);
-      
+
    FCodeFeatureArrayFree(array);
 }
 
@@ -601,7 +601,7 @@ static void generate_invfreq_hack_precedence(OCB_p ocb, ClauseSet_p axioms)
       else if((arity == 1) && (array->array[i].freq == max_freq))
       {
 	 array->array[i].key1 = FREQ_SEMI_INFTY;
-	 array->array[i].key2 = 0; 
+	 array->array[i].key2 = 0;
       }
       else
       {
@@ -611,7 +611,7 @@ static void generate_invfreq_hack_precedence(OCB_p ocb, ClauseSet_p axioms)
    }
    FCodeFeatureArraySort(array);
    compute_precedence_from_array(ocb, array);
-      
+
    FCodeFeatureArrayFree(array);
 }
 
@@ -680,12 +680,12 @@ static void generate_arrayopt_precedence(OCB_p ocb, ClauseSet_p axioms)
       else
       {
          array->array[i].key1 = 5;
-      }            
+      }
       array->array[i].key2 = -array->array[i].freq;
    }
-   FCodeFeatureArraySort(array); 
+   FCodeFeatureArraySort(array);
    compute_precedence_from_array(ocb, array);
-      
+
    FCodeFeatureArrayFree(array);
 }
 
@@ -704,7 +704,7 @@ static void generate_arrayopt_precedence(OCB_p ocb, ClauseSet_p axioms)
 // Function: TOTranslatePrecGenMethod()
 //
 //   Given a string, return the corresponding TOPrecGenMethod
-//   token. 
+//   token.
 //
 // Global Variables: -
 //
@@ -741,7 +741,7 @@ TOPrecGenMethod TOTranslatePrecGenMethod(char* name)
 
 void TOGeneratePrecedence(OCB_p ocb, ClauseSet_p axioms,
 			  char* predefined, TOPrecGenMethod method)
-{  
+{
    assert(ocb);
    assert(ocb->precedence||ocb->prec_weights);
    assert(ocb->sig);
@@ -752,10 +752,10 @@ void TOGeneratePrecedence(OCB_p ocb, ClauseSet_p axioms,
 				   true, NULL);
 
       TOPrecedenceParse(in, ocb);
-      
+
       DestroyScanner(in);
    }
-   
+
    VERBOUTARG("Generating ordering precedence with ",
 	      TOPrecGenNames[method]);
    switch(method)
@@ -763,7 +763,7 @@ void TOGeneratePrecedence(OCB_p ocb, ClauseSet_p axioms,
    case POrientAxioms:
 	 Error("Not yet implemented", OTHER_ERROR);
 	 break;
-   case PNoMethod:	 
+   case PNoMethod:
 	 if(predefined) /* User should know what he does now! */
 	 {
 	    break;
@@ -798,10 +798,10 @@ void TOGeneratePrecedence(OCB_p ocb, ClauseSet_p axioms,
 	 break;
    case PByInvFreqConjMax:
 	 generate_invfreq_conjmax_precedence(ocb, axioms);
-	 break;         
+	 break;
    case PByInvFreqConjMin:
 	 generate_invfreq_conjmin_precedence(ocb, axioms);
-	 break;         
+	 break;
    case PByInvFreqConstMin:
 	 generate_invfreq_constmin_precedence(ocb, axioms);
 	 break;
@@ -814,7 +814,7 @@ void TOGeneratePrecedence(OCB_p ocb, ClauseSet_p axioms,
    default:
 	 assert(false && "Precedence generation method unimplemented");
 	 break;
-   }  
+   }
 }
 
 

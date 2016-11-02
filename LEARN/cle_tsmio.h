@@ -5,7 +5,7 @@ File  : cle_tsmio.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for building TSMs from a knowledge base.
 
   Copyright 1998, 1999 by the author.

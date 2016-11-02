@@ -5,9 +5,9 @@ File  : cio_basicparser.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Parsing routines for useful C build-in Datatypes not covered by the
-  scanner. 
+  scanner.
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
@@ -64,7 +64,7 @@ Changes
 long ParseInt(Scanner_p in)
 {
    long value;
-   
+
    if(TestInpTok(in, Hyphen))
    {
       NextToken(in);
@@ -113,7 +113,7 @@ double ParseFloat(Scanner_p in)
    double value;
 
    DStrReset(in->accu);
-   
+
    if(TestInpTok(in, Hyphen|Plus))
    {
       DStrAppendDStr(in->accu, AktToken(in)->literal);
@@ -142,7 +142,7 @@ double ParseFloat(Scanner_p in)
    if(TestInpNoSkip(in)&&TestInpId(in, "e|E"))
    {
       DStrAppendDStr(in->accu,  AktToken(in)->literal);
-      NextToken(in); /* Skip E */      
+      NextToken(in); /* Skip E */
       DStrAppendDStr(in->accu,  AktToken(in)->literal);
       AcceptInpTokNoSkip(in, Hyphen|Plus); /* Eat - */
       DStrAppendDStr(in->accu,  AktToken(in)->literal);
@@ -150,10 +150,10 @@ double ParseFloat(Scanner_p in)
    }
    errno = 0;
    value = strtod(DStrView(in->accu), NULL);
-   
+
    if(errno)
    {
-      TmpErrno = errno;      
+      TmpErrno = errno;
       AktTokenError(in, "Cannot translate double", true);
    }
    return value;
@@ -172,7 +172,7 @@ double ParseFloat(Scanner_p in)
 // Global Variables: -
 //
 // Side Effects    : Reads input, DStr handling may cause memory
-//                   operations. 
+//                   operations.
 //
 /----------------------------------------------------------------------*/
 
@@ -213,7 +213,7 @@ StrNumType ParseNumString(Scanner_p in)
    }
    else
    {
-      if(TestInpTokNoSkip(in, DECIMAL_DOT) && 
+      if(TestInpTokNoSkip(in, DECIMAL_DOT) &&
          TestTok(LookToken(in,1), PosInt) &&
          !(LookToken(in,1)->skipped))
       {
@@ -228,17 +228,17 @@ StrNumType ParseNumString(Scanner_p in)
          if(TestInpId(in, "e|E"))
          {
             DStrAppendStr(accumulator,  "e");
-            NextToken(in); /* Skip E */      
+            NextToken(in); /* Skip E */
             DStrAppendDStr(accumulator,  AktToken(in)->literal);
             AcceptInpTokNoSkip(in, Hyphen|Plus); /* Eat - */
             DStrAppendDStr(accumulator,  AktToken(in)->literal);
             AcceptInpTokNoSkip(in, PosInt);
             res = SNFloat;
-         } 
+         }
          else if(TestInpIdnum(in, "e|E"))
          {
             DStrAppendDStr(accumulator,  AktToken(in)->literal);
-            AcceptInpTokNoSkip(in, Idnum); 
+            AcceptInpTokNoSkip(in, Idnum);
             res = SNFloat;
          }
       }
@@ -274,11 +274,11 @@ long DDArrayParse(Scanner_p in, DDArray_p array, bool brackets)
    {
       DDArrayAssign(array, i, ParseFloat(in));
       i++;
-      
+
       while(TestInpTok(in, Comma))
       {
 	 NextToken(in); /* We know it's a comma */
-	 DDArrayAssign(array, i, ParseFloat(in)); 
+	 DDArrayAssign(array, i, ParseFloat(in));
 	 i++;
       }
    }
@@ -294,10 +294,10 @@ long DDArrayParse(Scanner_p in, DDArray_p array, bool brackets)
 //
 // Function: ParseFilename()
 //
-//   Parse a filename and return 
+//   Parse a filename and return
 //   it. Note that we only allow reasonably "normal" filenames or
 //   strings, i.e. not spaces, non-printables, most meta-charachters,
-//   or quotes. 
+//   or quotes.
 //
 // Global Variables: -
 //
@@ -313,8 +313,8 @@ char* ParseFilename(Scanner_p in)
    bool first_tok = true;
 
    DStrReset(in->accu);
-   
-   while((first_tok || TestInpNoSkip(in)) && 
+
+   while((first_tok || TestInpNoSkip(in)) &&
 	 TestInpTok(in, PLAIN_FILE_TOKENS|Slash))
    {
       DStrAppendDStr(in->accu, AktToken(in)->literal);
@@ -334,7 +334,7 @@ char* ParseFilename(Scanner_p in)
 //
 // Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -343,7 +343,7 @@ char* ParsePlainFilename(Scanner_p in)
    bool first_tok = true;
    DStrReset(in->accu);
 
-   while((first_tok || TestInpNoSkip(in)) && 
+   while((first_tok || TestInpNoSkip(in)) &&
 	 TestInpTok(in, PLAIN_FILE_TOKENS|Slash))
    {
       DStrAppendDStr(in->accu, AktToken(in)->literal);
@@ -376,8 +376,8 @@ char* ParseBasicInclude(Scanner_p in)
    res = DStrCopyCore(AktToken(in)->literal);
    NextToken(in);
    AcceptInpTok(in, CloseBracket);
-   AcceptInpTok(in, Fullstop);   
-   
+   AcceptInpTok(in, Fullstop);
+
    return res;
 }
 
@@ -397,7 +397,7 @@ char* ParseBasicInclude(Scanner_p in)
 char* ParseDottedId(Scanner_p in)
 {
    DStrReset(in->accu);
-   
+
    DStrAppendDStr(in->accu, AktToken(in)->literal);
    AcceptInpTok(in, Identifier|PosInt);
 
@@ -429,11 +429,11 @@ void AcceptDottedId(Scanner_p in, char* expected)
 {
    char* candidate;
    char* posrep = TokenPosRep(AktToken(in));
-   
-   candidate = ParseDottedId(in);  
+
+   candidate = ParseDottedId(in);
    if(strcmp(candidate, expected)!=0)
    {
-      Error("%s %s expected, but %s read", SYNTAX_ERROR, 
+      Error("%s %s expected, but %s read", SYNTAX_ERROR,
             posrep, expected, candidate);
    }
    FREE(candidate);
@@ -456,7 +456,7 @@ void AcceptDottedId(Scanner_p in, char* expected)
 char* ParseContinous(Scanner_p in)
 {
    DStrReset(in->accu);
-   
+
    DStrAppendDStr(in->accu, AktToken(in)->literal);
    NextToken(in);
 
@@ -498,7 +498,7 @@ void ParseSkipParenthesizedExpr(Scanner_p in)
    {
       if(TestInpTok(in, OpenBracket|OpenCurly|OpenSquare))
       {
-         PStackPushInt(paren_stack, AktTokenType(in));         
+         PStackPushInt(paren_stack, AktTokenType(in));
          NextToken(in);
       }
       else if(TestInpTok(in, CloseBracket|CloseCurly|CloseSquare))

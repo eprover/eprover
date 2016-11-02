@@ -5,7 +5,7 @@ File  : ccl_clausesets.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Implementation of clause sets based on AVL trees.
 
   Copyright 1998, 1999 by the author.
@@ -58,7 +58,7 @@ static void print_var_pattern(FILE* out, char* symbol, int arity, char*
    char* prefix = "";
 
    fprintf(out, "%s(", symbol);
-   
+
    for(i=1; i<= arity; i++)
    {
       fputs(prefix, out);
@@ -93,7 +93,7 @@ static void eq_func_axiom_print(FILE* out, char* symbol, int arity,
 {
    int i;
    char *prefix = "";
-   
+
    if(single_subst)
    {
       for(i=1; i<=arity; i++)
@@ -101,7 +101,7 @@ static void eq_func_axiom_print(FILE* out, char* symbol, int arity,
 	 fprintf(out, "equal(");
 	 print_var_pattern(out, symbol, arity, "X", "Y", i);
 	 fprintf(out, ",");
-	 print_var_pattern(out, symbol, arity, "X", "Z", i);	 
+	 print_var_pattern(out, symbol, arity, "X", "Z", i);
 	 fprintf(out, ") <- ");
 	 fprintf(out, "equal(Y,Z).\n");
       }
@@ -138,7 +138,7 @@ static void eq_pred_axiom_print(FILE* out, char* symbol, int arity,
 				bool single_subst)
 {
    int i;
-   
+
    if(single_subst)
    {
       for(i=1; i<=arity; i++)
@@ -179,16 +179,16 @@ static void tptp_eq_func_axiom_print(FILE* out, char* symbol, int arity,
 				     bool single_subst)
 {
    int i;
-   
+
    if(single_subst)
    {
       for(i=1; i<=arity; i++)
-      {	 
+      {
 	 fprintf(out, "input_clause(eq_subst_%s%d, axiom, [++equal(",
 		 symbol, i);
 	 print_var_pattern(out, symbol, arity, "X", "Y", i);
 	 fprintf(out, ",");
-	 print_var_pattern(out, symbol, arity, "X", "Z", i);	 
+	 print_var_pattern(out, symbol, arity, "X", "Z", i);
 	 fprintf(out, "),");
 	 fprintf(out, "--equal(Y,Z)]).\n");
       }
@@ -225,7 +225,7 @@ static void tptp_eq_pred_axiom_print(FILE* out, char* symbol, int arity,
 				     bool single_subst)
 {
    int i;
-   
+
    if(single_subst)
    {
       for(i=1; i<=arity; i++)
@@ -234,7 +234,7 @@ static void tptp_eq_pred_axiom_print(FILE* out, char* symbol, int arity,
 		 symbol, i);
 	 print_var_pattern(out, symbol, arity, "X", "Y", i);
 	 fprintf(out, ",--");
-	 print_var_pattern(out, symbol, arity, "X", "Z", i);	 
+	 print_var_pattern(out, symbol, arity, "X", "Z", i);
 	 fprintf(out, ",--equal(Y,Z)]).\n");
       }
    }
@@ -277,18 +277,18 @@ static void clause_set_extract_entry(Clause_p clause)
    assert(clause);
    assert(clause->set);
    assert(clause->set->members);
-   
+
    if(clause->evaluations)
    {
       for(i=0; i<clause->evaluations->eval_no; i++)
       {
 	 root = (void*)&PDArrayElementP(clause->set->eval_indices, i);
 #ifndef NDEBUG
-         test = 
+         test =
 #endif
             EvalTreeExtractEntry(root,
                                  clause->evaluations,
-                                 i); 
+                                 i);
          assert(test);
          assert(test->object == clause);
       }
@@ -325,7 +325,7 @@ ClauseSet_p ClauseSetAlloc(void)
    ClauseSet_p handle;
 
    handle = ClauseSetCellAlloc();
-   
+
    handle->members = 0;
    handle->literals = 0;
    handle->anchor = ClauseCellAlloc();
@@ -335,7 +335,7 @@ ClauseSet_p ClauseSetAlloc(void)
    SysDateInc(&handle->date);
    handle->demod_index = NULL;
    handle->fvindex = NULL;
-   
+
    handle->eval_indices = PDArrayAlloc(4,4);
    handle->eval_no = 0;
 
@@ -360,14 +360,14 @@ ClauseSet_p ClauseSetAlloc(void)
 void ClauseSetFreeClauses(ClauseSet_p set)
 {
    Clause_p handle;
-   
+
    assert(set);
 
    while(!ClauseSetEmpty(set))
    {
       handle = ClauseSetExtractFirst(set);
       ClauseFree(handle);
-   }  
+   }
 }
 
 
@@ -386,7 +386,7 @@ void ClauseSetFreeClauses(ClauseSet_p set)
 void ClauseSetFree(ClauseSet_p junk)
 {
    assert(junk);
-   
+
    ClauseSetFreeClauses(junk);
 
    if(junk->demod_index)
@@ -423,7 +423,7 @@ long ClauseSetStackCardinality(PStack_p stack)
    ClauseSet_p handle;
    PStackPointer i;
    long res = 0;
-   
+
    for(i=0; i<PStackGetSP(stack); i++)
    {
       handle = PStackElementP(stack, i);
@@ -440,16 +440,16 @@ long ClauseSetStackCardinality(PStack_p stack)
 //
 //   Mark all terms in the clause set for the garbage collection.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
 void ClauseSetGCMarkTerms(ClauseSet_p set)
 {
    Clause_p handle;
-   
+
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
 	  handle->succ)
    {
@@ -459,7 +459,7 @@ void ClauseSetGCMarkTerms(ClauseSet_p set)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ClauseSetInsert() 
+// Function: ClauseSetInsert()
 //
 //   Insert a clause as the last clause into the clauseset.
 //
@@ -492,7 +492,7 @@ void ClauseSetInsert(ClauseSet_p set, Clause_p newclause)
       {
          root = (void*)&(PDArrayElementP(newclause->set->eval_indices,i));
 #ifndef NDEBUG
-         test = 
+         test =
 #endif
             EvalTreeInsert(root, newclause->evaluations, i);
          assert(!test);
@@ -507,7 +507,7 @@ void ClauseSetInsert(ClauseSet_p set, Clause_p newclause)
 // Function: ClauseSetInsertSet()
 //
 //   Move all clauses from from into set (leaving from empty, but not
-//   deleted). 
+//   deleted).
 //
 // Global Variables: -
 //
@@ -519,7 +519,7 @@ long ClauseSetInsertSet(ClauseSet_p set, ClauseSet_p from)
 {
    Clause_p handle;
    long res = 0;
-   
+
    while(!ClauseSetEmpty(from))
    {
       handle = ClauseSetExtractFirst(from);
@@ -548,7 +548,7 @@ void ClauseSetPDTIndexedInsert(ClauseSet_p set, Clause_p newclause)
 
    assert(set->demod_index);
    assert(ClauseIsUnit(newclause));
-   
+
    ClauseSetInsert(set, newclause);
    pos          = ClausePosCellAlloc();
    pos->clause  = newclause;
@@ -625,26 +625,26 @@ void ClauseSetIndexedInsertClause(ClauseSet_p set, Clause_p newclause)
 
 /*-----------------------------------------------------------------------
 //
-// Function: 
+// Function:
 //
-//   
 //
-// Global Variables: 
 //
-// Side Effects    : 
+// Global Variables:
+//
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
 void ClauseSetIndexedInsertClauseSet(ClauseSet_p set, ClauseSet_p source)
 {
    Clause_p handle;
-   
+
    while(!ClauseSetEmpty(source))
    {
       handle = ClauseSetExtractFirst(source);
       handle->weight = ClauseStandardWeight(handle);
       ClauseSetIndexedInsertClause(set, handle);
-   }  
+   }
 }
 
 
@@ -672,9 +672,9 @@ Clause_p ClauseSetExtractEntry(Clause_p clause)
       assert(clause->set->demod_index);
       if(clause->set->demod_index)
       {
-	 assert(ClauseIsUnit(clause));	 
+	 assert(ClauseIsUnit(clause));
 	 PDTreeDelete(clause->set->demod_index, clause->literals->lterm,
-		      clause); 
+		      clause);
 	 if(!EqnIsOriented(clause->literals))
 	 {
 	    PDTreeDelete(clause->set->demod_index,
@@ -686,11 +686,11 @@ Clause_p ClauseSetExtractEntry(Clause_p clause)
    if(ClauseQueryProp(clause, CPIsSIndexed))
    {
       FVIndexDelete(clause->set->fvindex, clause);
-      ClauseDelProp(clause, CPIsSIndexed);   
+      ClauseDelProp(clause, CPIsSIndexed);
    }
    clause_set_extract_entry(clause);
    return clause;
-}  
+}
 
 
 /*-----------------------------------------------------------------------
@@ -717,7 +717,7 @@ Clause_p ClauseSetExtractFirst(ClauseSet_p set)
    handle = set->anchor->succ;
    assert(handle->set == set);
    ClauseSetExtractEntry(handle);
-   
+
    return handle;
 }
 
@@ -726,7 +726,7 @@ Clause_p ClauseSetExtractFirst(ClauseSet_p set)
 //
 // Function: ClauseSetDeleteEntry()
 //
-//   Delete a clause from the clause set. 
+//   Delete a clause from the clause set.
 //
 // Global Variables: -
 //
@@ -736,7 +736,7 @@ Clause_p ClauseSetExtractFirst(ClauseSet_p set)
 
 void ClauseSetDeleteEntry(Clause_p clause)
 {
-   assert(clause);   
+   assert(clause);
    ClauseSetExtractEntry(clause);
    ClauseFree(clause);
 }
@@ -763,7 +763,7 @@ Clause_p ClauseSetFindBest(ClauseSet_p set, int idx)
    /* printf("I: %d", idx); */
    evaluation =
       EvalTreeFindSmallest(PDArrayElementP(set->eval_indices, idx), idx);
-   
+
    if(!evaluation)
    {
       assert(set->anchor->succ == set->anchor);
@@ -977,7 +977,7 @@ void ClauseSetSetTPTPType(ClauseSet_p set, ClauseProperties type)
 //
 //   Mark clauses that are equivalent (modulo ClauseCompareFun) to
 //   clauses that occur earlier in set. Returns number of marked
-//   clauses. 
+//   clauses.
 //
 // Global Variables: -
 //
@@ -1009,7 +1009,7 @@ long ClauseSetMarkCopies(ClauseSet_p set)
       }
    }
    PTreeFree(store);
-   
+
    return res;
 }
 
@@ -1032,11 +1032,11 @@ long ClauseSetDeleteMarkedEntries(ClauseSet_p set)
 {
    long deleted = 0;
    Clause_p clause, handle;
-   
+
    assert(set);
 
    handle = set->anchor->succ;
-   
+
    while(handle != set->anchor)
    {
       clause = handle;
@@ -1086,7 +1086,7 @@ long ClauseSetDeleteCopies(ClauseSet_p set)
 // Function: ClauseSetDeleteNonUnits()
 //
 //   Remove all non-empty-non-unit-clauses from set, return number of
-//   clauses eliminated. 
+//   clauses eliminated.
 //
 // Global Variables: -
 //
@@ -1100,17 +1100,17 @@ long ClauseSetDeleteNonUnits(ClauseSet_p set)
 
    assert(set);
    assert(!set->demod_index);
-   
+
    handle = set->anchor->succ;
    while(handle != set->anchor)
-   {      
+   {
       if(ClauseLiteralNumber(handle)>1)
       {
 	 ClauseSetProp(handle,CPDeleteClause);
       }
       else
       {
-	 ClauseDelProp(handle,CPDeleteClause);	 
+	 ClauseDelProp(handle,CPDeleteClause);
       }
       handle = handle->succ;
    }
@@ -1135,7 +1135,7 @@ long ClauseSetGetTermNodes(ClauseSet_p set)
 {
    long     res = 0;
    Clause_p handle;
-   
+
    for(handle = set->anchor->succ; handle != set->anchor; handle =
 	  handle->succ)
    {
@@ -1149,7 +1149,7 @@ long ClauseSetGetTermNodes(ClauseSet_p set)
 // Function: ClauseSetMarkSOS()
 //
 //   Mark Set-of-Support clauses in set with CPIsSOS. Return size of
-//   SOS. 
+//   SOS.
 //
 // Global Variables: -
 //
@@ -1161,7 +1161,7 @@ long ClauseSetMarkSOS(ClauseSet_p set, bool tptp_types)
 {
    long     res = 0;
    Clause_p handle;
-   
+
    for(handle = set->anchor->succ; handle != set->anchor; handle =
 	  handle->succ)
    {
@@ -1169,7 +1169,7 @@ long ClauseSetMarkSOS(ClauseSet_p set, bool tptp_types)
 	 (!tptp_types && (ClauseIsGoal(handle))))
       {
 	 ClauseSetProp(handle, CPIsSOS);
-	 res++;	    
+	 res++;
       }
       else
       {
@@ -1195,7 +1195,7 @@ long ClauseSetMarkSOS(ClauseSet_p set, bool tptp_types)
 void ClauseSetTermSetProp(ClauseSet_p set, TermProperties prop)
 {
    Clause_p handle;
-   
+
    for(handle = set->anchor->succ; handle != set->anchor; handle =
 	  handle->succ)
    {
@@ -1216,18 +1216,18 @@ void ClauseSetTermSetProp(ClauseSet_p set, TermProperties prop)
 /----------------------------------------------------------------------*/
 
 long ClauseSetTBTermPropDelCount(ClauseSet_p set, TermProperties prop)
-{ 
+{
    Clause_p handle;
    long res = 0;
-   
+
    for(handle = set->anchor->succ; handle != set->anchor; handle =
 	  handle->succ)
    {
       res += ClauseTBTermDelPropCount(handle, prop);
    }
    return res;
-}  
-   
+}
+
 /*-----------------------------------------------------------------------
 //
 // Function: ClauseSetGetSharedTermNodes()
@@ -1269,7 +1269,7 @@ long ClauseSetParseList(Scanner_p in, ClauseSet_p set, TB_p bank)
 {
    long     count = 0;
    Clause_p clause;
-   
+
    while(ClauseStartsMaybe(in))
    {
       clause = ClauseParse(in, bank);
@@ -1312,9 +1312,9 @@ void ClauseSetMarkMaximalTerms(OCB_p ocb, ClauseSet_p set)
 //
 //   Sort literals in all clauses by cmp_fun.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -1335,7 +1335,7 @@ void ClauseSetSortLiterals(ClauseSet_p set, ComparisonFunctionType cmp_fun)
 // Function: ClauseSetListGetMaxDate()
 //
 //   Return the oldest date of the first limit elements from set of
-//   demodulators in the array demodulators. 
+//   demodulators in the array demodulators.
 //
 // Global Variables: -
 //
@@ -1347,7 +1347,7 @@ SysDate ClauseSetListGetMaxDate(ClauseSet_p *demodulators, int limit)
 {
    int i;
    SysDate res = SysDateCreationTime();
-   
+
    for(i=0; i<limit; i++)
    {
       assert(demodulators[i]);
@@ -1367,14 +1367,14 @@ SysDate ClauseSetListGetMaxDate(ClauseSet_p *demodulators, int limit)
 //
 // Global Variables: -
 //
-// Side Effects    : - 
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
 Clause_p ClauseSetFind(ClauseSet_p set, Clause_p clause)
 {
    Clause_p handle, res = NULL;
-   
+
    assert(set);
    assert(clause);
 
@@ -1397,18 +1397,18 @@ Clause_p ClauseSetFind(ClauseSet_p set, Clause_p clause)
 // Function: ClauseSetFindById()
 //
 //   Given a clause ident and a clause set, try to find the clause in
-//   the set. 
+//   the set.
 //
 // Global Variables: -
 //
-// Side Effects    : - 
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
 Clause_p ClauseSetFindById(ClauseSet_p set, long ident)
 {
    Clause_p handle, res = NULL;
-   
+
    assert(set);
 
    for(handle = set->anchor->succ; handle!=set->anchor;
@@ -1474,17 +1474,17 @@ long ClauseSetFilterTrivial(ClauseSet_p set)
 
    assert(set);
    assert(!set->demod_index);
-   
+
    handle = set->anchor->succ;
    while(handle != set->anchor)
-   {      
+   {
       next = handle->succ;
-      
+
       assert(handle);
 
       if(ClauseIsTrivial(handle))
       {
-	 ClauseDetachParents(handle);	 
+	 ClauseDetachParents(handle);
 	 ClauseSetDeleteEntry(handle);
 	 count++;
       }
@@ -1514,17 +1514,17 @@ long ClauseSetFilterTautologies(ClauseSet_p set, TB_p work_bank)
 
    assert(set);
    assert(!set->demod_index);
-   
+
    handle = set->anchor->succ;
    while(handle != set->anchor)
-   {      
+   {
       next = handle->succ;
-      
+
       assert(handle);
 
       if(ClauseIsTautology(work_bank, handle))
       {
-	 ClauseDetachParents(handle);	 
+	 ClauseDetachParents(handle);
 	 ClauseSetDeleteEntry(handle);
 	 count++;
       }
@@ -1550,12 +1550,12 @@ Clause_p ClauseSetFindMaxStandardWeight(ClauseSet_p set)
 {
    long max_weight = 0, weight;
    Clause_p handle, res = NULL;
-   
+
    assert(set);
-   
+
    handle = set->anchor->succ;
    while(handle != set->anchor)
-   {  
+   {
       weight = ClauseStandardWeight(handle);
       if(weight > max_weight)
       {
@@ -1574,7 +1574,7 @@ Clause_p ClauseSetFindMaxStandardWeight(ClauseSet_p set)
 //
 //   If set contains an equality definition at or after start, return
 //   the potential matching side (as a reduced clause position),
-//   otherwise NULL. 
+//   otherwise NULL.
 //
 // Global Variables: -
 //
@@ -1582,7 +1582,7 @@ Clause_p ClauseSetFindMaxStandardWeight(ClauseSet_p set)
 //
 /----------------------------------------------------------------------*/
 
-ClausePos_p ClauseSetFindEqDefinition(ClauseSet_p set, int min_arity, 
+ClausePos_p ClauseSetFindEqDefinition(ClauseSet_p set, int min_arity,
                                       Clause_p start)
 {
    Clause_p handle;
@@ -1633,17 +1633,17 @@ ClausePos_p ClauseSetFindEqDefinition(ClauseSet_p set, int min_arity,
 void ClauseSetDocInital(FILE* out, long level, ClauseSet_p set)
 {
    Clause_p handle;
-   
+
    if(level>=2)
    {
       for(handle = set->anchor->succ; handle!=set->anchor; handle =
 	     handle->succ)
       {
-	 DocClauseCreation(out, OutputLevel, handle, 
+	 DocClauseCreation(out, OutputLevel, handle,
 			   inf_initial, NULL, NULL,
 			   NULL);
       }
-   }   
+   }
 }
 
 
@@ -1663,7 +1663,7 @@ void ClauseSetPropDocQuote(FILE* out, long level, ClauseProperties prop,
 			   ClauseSet_p set, char* comment)
 {
    Clause_p handle;
-   
+
    if(level>=2)
    {
       for(handle = set->anchor->succ; handle!=set->anchor; handle =
@@ -1674,7 +1674,7 @@ void ClauseSetPropDocQuote(FILE* out, long level, ClauseProperties prop,
 	    DocClauseQuote(out, level, 2, handle, comment , NULL);
 	 }
       }
-   }      
+   }
 }
 
 #ifndef NDBUG
@@ -1710,7 +1710,7 @@ bool ClauseSetVerifyDemod(ClauseSet_p demods, ClausePos_p pos)
    {
       return false;
    }
-   return true;      
+   return true;
 }
 
 
@@ -1734,14 +1734,14 @@ bool PDTreeVerifyIndex(PDTree_p tree, ClauseSet_p demods)
    IntMapIter_p     iter;
    ClausePos_p      pos;
    PTree_p          entry;
-   bool             res = true;   
-      
+   bool             res = true;
+
    PStackPushP(stack, tree->tree);
-   
+
    while(!PStackEmpty(stack))
    {
       handle = PStackPopP(stack);
-      
+
       if(!handle->entries)
       {
          iter = IntMapIterAlloc(handle->f_alternatives, 0, LONG_MAX);
@@ -1813,9 +1813,9 @@ void EqAxiomsPrint(FILE* out, Sig_p sig, bool single_subst)
    FunCode i;
    int arity;
 
-   if(OutputFormat == TPTPFormat)      
+   if(OutputFormat == TPTPFormat)
    {
-      fprintf(out, 
+      fprintf(out,
 	      "input_clause(eq_reflexive, axiom, [++equal(X,X)]).\n"
 	      "input_clause(eq_symmetric, axiom,"
 	      " [++equal(X,Y),--equal(Y,X)]).\n"
@@ -1836,16 +1836,16 @@ void EqAxiomsPrint(FILE* out, Sig_p sig, bool single_subst)
 					arity, single_subst);
 	    }
 	 }
-      }      
+      }
    }
-   else if(OutputFormat == TSTPFormat)      
+   else if(OutputFormat == TSTPFormat)
    {
-      Error("Adding of equality axioms not (yet) supported for TSTP/TPTP-3 format.", 
+      Error("Adding of equality axioms not (yet) supported for TSTP/TPTP-3 format.",
             OTHER_ERROR);
    }
    else
    {
-      fprintf(out, 
+      fprintf(out,
 	      "equal(X,X) <- .\n"
 	      "equal(X,Y) <- equal(Y,X).\n"
 	      "equal(X,Z) <- equal(X,Y), equal(Y,Z).\n");
@@ -1885,7 +1885,7 @@ void EqAxiomsPrint(FILE* out, Sig_p sig, bool single_subst)
 void ClauseSetAddSymbolDistribution(ClauseSet_p set, long *dist_array)
 {
    Clause_p handle;
-   
+
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
 	  handle->succ)
    {
@@ -1909,7 +1909,7 @@ void ClauseSetAddSymbolDistribution(ClauseSet_p set, long *dist_array)
 void ClauseSetAddConjSymbolDistribution(ClauseSet_p set, long *dist_array)
 {
    Clause_p handle;
-   
+
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
 	  handle->succ)
    {
@@ -1934,11 +1934,11 @@ void ClauseSetAddConjSymbolDistribution(ClauseSet_p set, long *dist_array)
 //
 /----------------------------------------------------------------------*/
 
-void ClauseSetComputeFunctionRanks(ClauseSet_p set, long *rank_array, 
+void ClauseSetComputeFunctionRanks(ClauseSet_p set, long *rank_array,
 				    long* count)
 {
    Clause_p handle;
-   
+
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
 	  handle->succ)
    {
@@ -1954,7 +1954,7 @@ void ClauseSetComputeFunctionRanks(ClauseSet_p set, long *rank_array,
 //   Find the most/least frequent non-special, non-predicate symbol of the
 //   given arity in the clause set.
 //
-// Global Variables: - 
+// Global Variables: -
 //
 // Side Effects    : Memory Operations
 //
@@ -1965,15 +1965,15 @@ FunCode ClauseSetFindFreqSymbol(ClauseSet_p set, Sig_p sig, int arity,
 {
    FunCode       i, selected=0;
    long          *dist_array,freq=least?LONG_MAX:0;
-   
+
    dist_array = SizeMalloc((sig->f_count+1) * sizeof(long));
 
    for(i=0; i<=sig->f_count; i++)
    {
       dist_array[i] = 0;
-   }      
+   }
    ClauseSetAddSymbolDistribution(set, dist_array);
-   
+
    for(i=sig->internal_symbols+1; i<= sig->f_count; i++)
    {
       if((SigFindArity(sig,i)==arity) && !SigIsPredicate(sig,i) &&
@@ -1987,7 +1987,7 @@ FunCode ClauseSetFindFreqSymbol(ClauseSet_p set, Sig_p sig, int arity,
 	 }
       }
    }
-   SizeFree(dist_array, (sig->f_count+1)*sizeof(long));      
+   SizeFree(dist_array, (sig->f_count+1)*sizeof(long));
 
    return selected;
 }
@@ -2019,7 +2019,7 @@ long ClauseSetMaxVarNumber(ClauseSet_p set)
       PTreeFree(tree);
       res = MAX(res, tmp);
    }
-   return res;   
+   return res;
 }
 
 
@@ -2037,18 +2037,18 @@ long ClauseSetMaxVarNumber(ClauseSet_p set)
 /----------------------------------------------------------------------*/
 
 long ClauseSetFindCharFreqVectors(ClauseSet_p set, FreqVector_p fsum,
-				  FreqVector_p fmax, FreqVector_p fmin, 
-				  FVCollect_p cspec) 
+				  FreqVector_p fmax, FreqVector_p fmin,
+				  FVCollect_p cspec)
 {
    Clause_p handle;
    FreqVector_p current;
 
    assert(set && fsum && fmax && fmin);
- 
+
    FreqVectorInitialize(fsum, 0);
    FreqVectorInitialize(fmax, 0);
    FreqVectorInitialize(fmin, LONG_MAX);
-   
+
    for(handle = set->anchor->succ;
        handle!= set->anchor;
        handle = handle->succ)
@@ -2058,7 +2058,7 @@ long ClauseSetFindCharFreqVectors(ClauseSet_p set, FreqVector_p fsum,
       FreqVectorMax(fmax, fmax, current);
       FreqVectorMin(fmin, fmin, current);
       FreqVectorFree(current);
-   }   
+   }
    return set->members;
 }
 
@@ -2077,18 +2077,18 @@ long ClauseSetFindCharFreqVectors(ClauseSet_p set, FreqVector_p fsum,
 //
 /----------------------------------------------------------------------*/
 
-PermVector_p PermVectorCompute(ClauseSet_p set, FVCollect_p cspec, 
+PermVector_p PermVectorCompute(ClauseSet_p set, FVCollect_p cspec,
                                bool eliminate_uninformative)
 {
    PermVector_p res;
    FreqVector_p fsum, fmax, fmin;
    long vlen;
-      
+
    if(cspec->features == FVINoFeatures)
    {
-      return NULL; 
+      return NULL;
    }
-  
+
    if(cspec->features == FVICollectFeatures)
    {
       vlen = cspec->res_vec_len;
@@ -2100,19 +2100,19 @@ PermVector_p PermVectorCompute(ClauseSet_p set, FVCollect_p cspec,
    fsum = FreqVectorAlloc(vlen);
    fmax = FreqVectorAlloc(vlen);
    fmin = FreqVectorAlloc(vlen);
-   
+
    ClauseSetFindCharFreqVectors(set,
                                 fsum,
-                                fmax, 
-                                fmin, 
+                                fmax,
+                                fmin,
                                 cspec);
-   
-   res = PermVectorComputeInternal(fmax, fmin, fsum, 
+
+   res = PermVectorComputeInternal(fmax, fmin, fsum,
                                    cspec->max_symbols,
                                    eliminate_uninformative);
    FreqVectorFree(fsum);
    FreqVectorFree(fmax);
-   FreqVectorFree(fmin);      
+   FreqVectorFree(fmin);
 
    return res;
 }
@@ -2138,7 +2138,7 @@ long ClauseSetFVIndexify(ClauseSet_p set)
 
    assert(set);
    assert(set->fvindex);
-   
+
    while((clause = ClauseSetExtractFirst(set)))
    {
       PStackPushP(stack, clause);
@@ -2173,7 +2173,7 @@ long ClauseSetNewTerms(ClauseSet_p set, TB_p terms)
    Clause_p clause, copy;
 
    assert(set);
-   
+
    while((clause = ClauseSetExtractFirst(set)))
    {
       PStackPushP(stack, clause);
@@ -2206,7 +2206,7 @@ long ClauseSetNewTerms(ClauseSet_p set, TB_p terms)
 //
 /----------------------------------------------------------------------*/
 
-long ClauseSetSplitConjectures(ClauseSet_p set, 
+long ClauseSetSplitConjectures(ClauseSet_p set,
                                PList_p conjectures, PList_p rest)
 {
    Clause_p handle;
@@ -2223,7 +2223,7 @@ long ClauseSetSplitConjectures(ClauseSet_p set,
       }
       else
       {
-         PListStoreP(rest, handle);                  
+         PListStoreP(rest, handle);
       }
    }
    return res;
@@ -2245,7 +2245,7 @@ long long ClauseSetStandardWeight(ClauseSet_p set)
 {
    Clause_p  handle;
    long long res = 0;
-   
+
    for(handle = set->anchor->succ;
        handle!=set->anchor;
        handle = handle->succ)
@@ -2262,11 +2262,11 @@ long long ClauseSetStandardWeight(ClauseSet_p set)
 // Function: ClauseSetDerivationStackStatistics()
 //
 //   Compute and print the stack depth distribution of the clauses in
-//   set. 
+//   set.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -2285,15 +2285,15 @@ void ClauseSetDerivationStackStatistics(ClauseSet_p set)
       }
       else
       {
-         PDArrayElementIncInt(dist, 0, 1);         
+         PDArrayElementIncInt(dist, 0, 1);
       }
    }
    for(i=0; i<PDArraySize(dist); i++)
    {
       printf("# %5ld: %6ld\n", i, PDArrayElementInt(dist,i));
-      sum += PDArrayElementInt(dist,i)*i;         
+      sum += PDArrayElementInt(dist,i)*i;
    }
-   printf("# Average over %ld clauses: %f\n", 
+   printf("# Average over %ld clauses: %f\n",
           ClauseSetCardinality(set),
           sum/ClauseSetCardinality(set));
    PDArrayFree(dist);
@@ -2316,7 +2316,7 @@ long ClauseSetPushClauses(PStack_p stack, ClauseSet_p set)
 {
    Clause_p handle;
    long     res = 0;
-   
+
    for(handle = set->anchor->succ; handle!=set->anchor; handle = handle->succ)
    {
       PStackPushP(stack, handle);
@@ -2340,7 +2340,7 @@ long ClauseSetPushClauses(PStack_p stack, ClauseSet_p set)
 void ClauseSetDefaultWeighClauses(ClauseSet_p set)
 {
    Clause_p handle;
-   
+
    for(handle = set->anchor->succ; handle!=set->anchor; handle = handle->succ)
    {
       handle->weight = ClauseStandardWeight(handle);
@@ -2365,9 +2365,9 @@ long ClauseSetCountConjectures(ClauseSet_p set, long* hypos)
 {
    long ret = 0;
    Clause_p handle;
-   
-   
-   for(handle = set->anchor->succ; 
+
+
+   for(handle = set->anchor->succ;
        handle != set->anchor;
        handle = handle->succ)
    {
@@ -2379,7 +2379,7 @@ long ClauseSetCountConjectures(ClauseSet_p set, long* hypos)
       {
          (*hypos)++;
       }
-   } 
+   }
    return ret;
 }
 

@@ -5,7 +5,7 @@ File  : ccl_neweval.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Data type for representing evaluations of clauses.
 
   Copyright 2006 by the author.
@@ -45,9 +45,9 @@ long EvaluationCounter = 0;
 //
 //   Allocate an evaluation cell with proper eval_no and eval_count 0.
 //
-// Global ariables: 
+// Global ariables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -57,14 +57,14 @@ static Eval_p evals_alloc_raw(int eval_no)
 
    eval->eval_no    = eval_no;
    eval->eval_count = 0;
-   
+
    return eval;
 }
 
 
 /*-----------------------------------------------------------------------
 //
-// Function: splay_tree() 
+// Function: splay_tree()
 //
 //   Perform the splay operation on tree at node with key.
 //
@@ -74,26 +74,26 @@ static Eval_p evals_alloc_raw(int eval_no)
 //
 /----------------------------------------------------------------------*/
 
-static Eval_p splay_tree(Eval_p tree, Eval_p splay, int pos) 
+static Eval_p splay_tree(Eval_p tree, Eval_p splay, int pos)
 {
    Eval_p left, right, tmp, newnode;
    long   cmpres;
 
-   if (!tree) 
+   if (!tree)
    {
       return tree;
    }
-   
+
    newnode = evals_alloc_raw(splay->eval_no);
    newnode->evals[pos].lson = NULL;
    newnode->evals[pos].rson = NULL;
    left = newnode;
    right = newnode;
-   
-   for (;;) 
+
+   for (;;)
    {
       cmpres = EvalCompare(splay, tree, pos);
-      if (cmpres < 0) 
+      if (cmpres < 0)
       {
          if(!tree->evals[pos].lson)
          {
@@ -113,20 +113,20 @@ static Eval_p splay_tree(Eval_p tree, Eval_p splay, int pos)
          right->evals[pos].lson = tree;
          right = tree;
          tree = tree->evals[pos].lson;
-      } 
+      }
       else if(cmpres > 0)
       {
          if (!tree->evals[pos].rson)
          {
             break;
          }
-         if(EvalCompare(splay, tree->evals[pos].rson, pos) > 0) 
+         if(EvalCompare(splay, tree->evals[pos].rson, pos) > 0)
          {
             tmp = tree->evals[pos].rson;
             tree->evals[pos].rson = tmp->evals[pos].lson;
             tmp->evals[pos].lson = tree;
             tree = tmp;
-            if (!tree->evals[pos].rson) 
+            if (!tree->evals[pos].rson)
             {
                break;
             }
@@ -135,7 +135,7 @@ static Eval_p splay_tree(Eval_p tree, Eval_p splay, int pos)
          left = tree;
          tree = tree->evals[pos].rson;
       }
-      else 
+      else
       {
          break;
       }
@@ -144,7 +144,7 @@ static Eval_p splay_tree(Eval_p tree, Eval_p splay, int pos)
    right->evals[pos].lson = tree->evals[pos].rson;
    tree->evals[pos].lson = newnode->evals[pos].rson;
    tree->evals[pos].rson = newnode->evals[pos].lson;
-   
+
    EvalsFree(newnode);
    return tree;
 }
@@ -163,9 +163,9 @@ static Eval_p splay_tree(Eval_p tree, Eval_p splay, int pos)
 //
 //   Allocate an evaluation cell with proper eval_count;
 //
-// Global ariables: 
+// Global ariables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -174,7 +174,7 @@ Eval_p EvalsAlloc(int eval_no)
    Eval_p eval = evals_alloc_raw(eval_no);
 
    eval->eval_count = EvaluationCounter++;
-   
+
    return eval;
 }
 
@@ -184,7 +184,7 @@ Eval_p EvalsAlloc(int eval_no)
 // Function: EvalsFree()
 //
 //   Free a list of evaluations. Does _not_ check for tree
-//   dependencies. 
+//   dependencies.
 //
 // Global Variables: -
 //
@@ -197,7 +197,7 @@ void EvalsFree(Eval_p junk)
    if(junk)
    {
       /* printf("Evalno: %d\n", junk->eval_no); */
-      EvalCellFree(junk, junk->eval_no); 
+      EvalCellFree(junk, junk->eval_no);
    }
 }
 
@@ -257,7 +257,7 @@ void EvalPrintComment(FILE* out, Eval_p eval, int pos)
 void EvalListPrint(FILE* out, Eval_p list)
 {
    int i;
-   
+
    for(i=0; i<list->eval_no; i++)
    {
       EvalPrint(out, list, i);
@@ -278,7 +278,7 @@ void EvalListPrint(FILE* out, Eval_p list)
 /----------------------------------------------------------------------*/
 
 void EvalListPrintComment(FILE* out, Eval_p list)
-{   
+{
    fprintf(out, "/*");
    EvalListPrint(out, list);
    fprintf(out, "*/");
@@ -322,7 +322,7 @@ void EvalListSetPriority(Eval_p list, EvalPriority priority)
 void EvalListChangePriority(Eval_p list, EvalPriority diff)
 {
    int i;
-   
+
    for(i=0; i<list->eval_no; i++)
    {
       list->evals[i].priority += diff;
@@ -336,7 +336,7 @@ void EvalListChangePriority(Eval_p list, EvalPriority diff)
 // Function: EvalGreater()
 //
 //   Compare two evaluations, return true if the first one is
-//   greater. 
+//   greater.
 //
 // Global Variables: -
 //
@@ -366,7 +366,7 @@ bool EvalGreater(Eval_p ev1, Eval_p ev2, int pos)
 	 if(ev1->eval_count > ev2->eval_count)
 	 {
 	    return true;
-	 }      
+	 }
       }
    }
    return false;
@@ -419,7 +419,7 @@ long EvalCompare(Eval_p ev1, Eval_p ev2, int pos)
 //
 //   If an entry with newnode exists in the tree return a
 //   pointer to it. Otherwise insert newnode in the tree and return
-//   NULL. 
+//   NULL.
 //
 // Global Variables: -
 //
@@ -430,7 +430,7 @@ long EvalCompare(Eval_p ev1, Eval_p ev2, int pos)
 Eval_p EvalTreeInsert(Eval_p *root, Eval_p newnode, int pos)
 {
    long cmpres;
-   if (!*root) 
+   if (!*root)
    {
       newnode->evals[pos].lson = newnode->evals[pos].rson = NULL;
       *root = newnode;
@@ -439,16 +439,16 @@ Eval_p EvalTreeInsert(Eval_p *root, Eval_p newnode, int pos)
    *root = splay_tree(*root, newnode, pos);
 
    cmpres = EvalCompare(newnode, *root, pos);
-   
-   if (cmpres < 0) 
+
+   if (cmpres < 0)
    {
       newnode->evals[pos].lson = (*root)->evals[pos].lson;
       newnode->evals[pos].rson = *root;
       (*root)->evals[pos].lson = NULL;
       *root = newnode;
       return NULL;
-   } 
-   else if(cmpres > 0) 
+   }
+   else if(cmpres > 0)
    {
       newnode->evals[pos].rson = (*root)->evals[pos].rson;
       newnode->evals[pos].lson = *root;
@@ -477,7 +477,7 @@ Eval_p EvalTreeFind(Eval_p *root, Eval_p key, int pos)
 {
    if(*root)
    {
-      *root = splay_tree(*root, key, pos);  
+      *root = splay_tree(*root, key, pos);
       if(EvalCompare(*root, key, pos)==0)
       {
          return *root;
@@ -504,7 +504,7 @@ Eval_p EvalTreeFind(Eval_p *root, Eval_p key, int pos)
 Eval_p EvalTreeExtractEntry(Eval_p *root, Eval_p key, int pos)
 {
    Eval_p x, cell;
-   
+
    if (!(*root))
    {
       return NULL;
@@ -515,7 +515,7 @@ Eval_p EvalTreeExtractEntry(Eval_p *root, Eval_p key, int pos)
       if (!(*root)->evals[pos].lson)
       {
          x = (*root)->evals[pos].rson;
-      } 
+      }
       else
       {
          x = splay_tree((*root)->evals[pos].lson, key, pos);
@@ -534,7 +534,7 @@ Eval_p EvalTreeExtractEntry(Eval_p *root, Eval_p key, int pos)
 //
 // Function: EvalTreeDeleteEntry()
 //
-//   Delete the entry with key key from the tree. 
+//   Delete the entry with key key from the tree.
 //
 // Global Variables: -
 //
@@ -545,7 +545,7 @@ Eval_p EvalTreeExtractEntry(Eval_p *root, Eval_p key, int pos)
 bool EvalTreeDeleteEntry(Eval_p *root, Eval_p key, int pos)
 {
    Eval_p cell;
-   
+
    cell = EvalTreeExtractEntry(root, key, pos);
    if(cell)
    {
@@ -578,7 +578,7 @@ Eval_p EvalTreeFindSmallest(Eval_p root, int pos)
    {
       root = root->evals[pos].lson;
    }
-   
+
    return root;
 }
 
@@ -659,7 +659,7 @@ void EvalTreePrintInOrder(FILE* out, Eval_p tree, int pos)
    Eval_p   handle;
 
    state = EvalTreeTraverseInit(tree, pos);
-   
+
    while((handle = EvalTreeTraverseNext(state, pos)))
    {
       EvalListPrintComment(out, handle);

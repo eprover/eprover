@@ -7,7 +7,7 @@ Author: Stephan Schulz
 Contents
 
   Cache structure for the local caching of ordering results for LPO
-  (and potentially RPO and other mainly recursive orderings). 
+  (and potentially RPO and other mainly recursive orderings).
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and

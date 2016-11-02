@@ -5,9 +5,9 @@ File  : ccl_subterm_tree.h
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   A simple  mapping from terms to clauses in which this term
-  appears as priviledged (rewriting rstricted) or unpriviledged term. 
+  appears as priviledged (rewriting rstricted) or unpriviledged term.
 
   Copyright 2010 by the author.
   This code is released under the GNU General Public Licence and
@@ -40,7 +40,7 @@ typedef struct bw_rw_payload
 {
    PTree_p rw_rest; /* Of clauses in which the subterm appears in a
                        privileged position with restricted rewriting
-                       */ 
+                       */
    PTree_p rw_full; /* Of clauses in which it appeats unrestricted */
 }BWRWPayload;
 
@@ -58,7 +58,7 @@ typedef struct overlap_payload
 typedef struct subterm_occ_cell
 {
    Term_p       term;
-   union 
+   union
    {
       BWRWPayload    occs;
       OverlapPayload pos;
@@ -90,9 +90,9 @@ SubtermOcc_p SubtermTreeInsertTerm(SubtermTree_p *root, Term_p term);
 SubtermOcc_p SubtermTreeFindTerm(SubtermTree_p *root, Term_p term);
 void         SubtermTreeDeleteTerm(SubtermTree_p *root, Term_p term);
 
-bool         SubtermTreeInsertTermOcc(SubtermTree_p *root, Term_p term, 
-                                      Clause_p clause, bool restricted);  
-bool         SubtermTreeDeleteTermOcc(SubtermTree_p *root, Term_p term, 
+bool         SubtermTreeInsertTermOcc(SubtermTree_p *root, Term_p term,
+                                      Clause_p clause, bool restricted);
+bool         SubtermTreeDeleteTermOcc(SubtermTree_p *root, Term_p term,
                                       Clause_p clause, bool restricted);
 
 void SubtermTreePrint(FILE* out, SubtermTree_p root, Sig_p sig);

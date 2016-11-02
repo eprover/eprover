@@ -5,7 +5,7 @@ File  : cle_annoterms.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for dealing with annotated terms.
 
   Copyright 1998, 1999 by the author.
@@ -144,7 +144,7 @@ AnnoTerm_p AnnoTermAlloc(Term_p term, Annotation_p annos)
 void AnnoTermFree(TB_p bank, AnnoTerm_p junk)
 {
    assert(junk->term);
-   
+
    AnnotationTreeFree(junk->annotation);
    AnnoTermCellFree(junk);
 }
@@ -171,7 +171,7 @@ AnnoTerm_p AnnoTermParse(Scanner_p in, TB_p bank, long expected)
    term = TBRawTermParse(in, bank);
    AcceptInpTok(in, Colon);
    AnnotationListParse(in, &annos, expected);
-   AcceptInpTok(in, Fullstop);   
+   AcceptInpTok(in, Fullstop);
    handle = AnnoTermAlloc(term, annos);
 
    return handle;
@@ -242,9 +242,9 @@ AnnoSet_p AnnoSetAlloc(TB_p bank)
    SigGetEqnCode(handle->terms->sig, false);
    SigGetOrCode(handle->terms->sig);
    SigGetCNilCode(handle->terms->sig);
-      
+
    handle->set   = NULL;
-   handle->subst = NULL; 
+   handle->subst = NULL;
 
    return handle;
 }
@@ -276,7 +276,7 @@ void AnnoSetFree(AnnoSet_p junk)
    NumTreeTraverseExit(stack);
 
    NumTreeFree(junk->set);
-   /* Keep in mind that bank is external! */ 
+   /* Keep in mind that bank is external! */
    assert(junk->subst == NULL);
    AnnoSetCellFree(junk);
 }
@@ -318,7 +318,7 @@ bool AnnoSetAddTerm(AnnoSet_p set, AnnoTerm_p term)
 	 {
 	    AnnotationCombine(conflict, handle);
 	    AnnotationFree(handle);
-	 } 
+	 }
       }
       AnnoTermFree(set->terms, term);
    }
@@ -347,7 +347,7 @@ AnnoSet_p AnnoSetParse(Scanner_p in, TB_p bank, long expected)
 {
    AnnoSet_p  set = AnnoSetAlloc(bank);
    AnnoTerm_p handle;
-   
+
    while(TestInpTok(in, TermStartToken))
    {
       handle = AnnoTermParse(in, set->terms, expected);
@@ -374,9 +374,9 @@ void AnnoSetPrint(FILE* out, AnnoSet_p set)
 {
    PStack_p stack;
    NumTree_p handle;
-   
+
    fprintf(out, "\n# Annotated terms:\n");
-   
+
    stack = NumTreeTraverseInit(set->set);
    while((handle = NumTreeTraverseNext(stack)))
    {
@@ -393,9 +393,9 @@ void AnnoSetPrint(FILE* out, AnnoSet_p set)
 //   Compute a pattern subst for all terms in set. Return true if
 //   subst has been modified.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -407,7 +407,7 @@ bool AnnoSetComputePatternSubst(PatternSubst_p subst, AnnoSet_p set)
    bool           res = false, tmp;
 
    assert(set);
-   
+
    stack = NumTreeTraverseInit(set->set);
    while((handle = NumTreeTraverseNext(stack)))
    {
@@ -443,7 +443,7 @@ long AnnoSetRemoveByIdent(AnnoSet_p set, long set_ident)
    NumTree_p     handle;
 
    assert(set);
-   
+
    stack = NumTreeTraverseInit(set->set);
    while((handle = NumTreeTraverseNext(stack)))
    {
@@ -459,11 +459,11 @@ long AnnoSetRemoveByIdent(AnnoSet_p set, long set_ident)
       }
    }
    NumTreeTraverseExit(stack);
-   
+
    while(!PStackEmpty(to_delete))
    {
       handle = NumTreeExtractEntry(&(set->set),
-				   PStackPopInt(to_delete)); 
+				   PStackPopInt(to_delete));
       assert(handle);
       AnnoTermFree(set->terms, handle->val1.p_val);
       NumTreeCellFree(handle);
@@ -499,7 +499,7 @@ long AnnoSetRemoveExceptIdentList(AnnoSet_p set, PStack_p set_idents)
    PStackPointer i;
 
    assert(set);
-   
+
    if(set_idents == ANNOTATIONS_MERGE_ALL)
    {
       return 0;
@@ -510,7 +510,7 @@ long AnnoSetRemoveExceptIdentList(AnnoSet_p set, PStack_p set_idents)
    stack = NumTreeTraverseInit(set->set);
    while((handle = NumTreeTraverseNext(stack)))
    {
-      tmptree = NULL;      
+      tmptree = NULL;
       current = handle->val1.p_val;
       for(i=0; i<PStackGetSP(stack); i++)
       {
@@ -530,11 +530,11 @@ long AnnoSetRemoveExceptIdentList(AnnoSet_p set, PStack_p set_idents)
       }
    }
    NumTreeTraverseExit(stack);
-   
+
    while(!PStackEmpty(to_delete))
    {
       handle = NumTreeExtractEntry(&(set->set),
-				   PStackPopInt(to_delete)); 
+				   PStackPopInt(to_delete));
       assert(handle);
       AnnoTermFree(set->terms, handle->val1.p_val);
       NumTreeCellFree(handle);
@@ -559,7 +559,7 @@ long AnnoSetRemoveExceptIdentList(AnnoSet_p set, PStack_p set_idents)
 // Side Effects    : Changes set
 //
 /----------------------------------------------------------------------*/
- 
+
 long AnnoSetFlatten(AnnoSet_p set, PStack_p set_idents)
 {
    long          count = 0, annos_found;
@@ -569,7 +569,7 @@ long AnnoSetFlatten(AnnoSet_p set, PStack_p set_idents)
    NumTree_p     handle;
 
    assert(set);
-   
+
    stack = NumTreeTraverseInit(set->set);
    while((handle = NumTreeTraverseNext(stack)))
    {
@@ -589,21 +589,21 @@ long AnnoSetFlatten(AnnoSet_p set, PStack_p set_idents)
       else
       {
 	 AnnotationFree(anno);
-	 PStackPushInt(to_delete, handle->key); 
+	 PStackPushInt(to_delete, handle->key);
       }
    }
    NumTreeTraverseExit(stack);
-   
+
    while(!PStackEmpty(to_delete))
    {
       handle = NumTreeExtractEntry(&(set->set),
-				   PStackPopInt(to_delete)); 
+				   PStackPopInt(to_delete));
       assert(handle);
       AnnoTermFree(set->terms, handle->val1.p_val);
       NumTreeCellFree(handle);
    }
    PStackFree(to_delete);
-  
+
    return count;
 }
 
@@ -630,11 +630,11 @@ void AnnoSetNormalizeFlatAnnos(AnnoSet_p set)
 					 ANNOTATION_DEFAULT_SIZE);
 
    assert(set);
-   
+
    stack = NumTreeTraverseInit(set->set);
    while((cell = NumTreeTraverseNext(stack)))
    {
-      current = cell->val1.p_val;      
+      current = cell->val1.p_val;
       assert(current);
       annotation_collect_max(max_values, current->annotation);
    }
@@ -643,7 +643,7 @@ void AnnoSetNormalizeFlatAnnos(AnnoSet_p set)
    stack = NumTreeTraverseInit(set->set);
    while((cell = NumTreeTraverseNext(stack)))
    {
-      current = cell->val1.p_val;      
+      current = cell->val1.p_val;
       assert(current);
       annotation_normalize(current->annotation, max_values);
    }
@@ -672,14 +672,14 @@ long AnnoSetRecToFlatEnc(TB_p bank, AnnoSet_p set)
    PStack_p  stack;
    NumTree_p cell;
    AnnoTerm_p    current;
-   
+
    assert(set);
    assert(bank);
-   
+
    stack = NumTreeTraverseInit(set->set);
    while((cell = NumTreeTraverseNext(stack)))
    {
-      current = cell->val1.p_val;      
+      current = cell->val1.p_val;
       assert(current);
       AnnoTermRecToFlatEnc(bank, current);
       res++;

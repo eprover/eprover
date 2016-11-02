@@ -5,7 +5,7 @@ File  : cco_scheduling.c
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Stuff for scheduling.
 
   Copyright 2013 by the author.
@@ -60,11 +60,11 @@ ScheduleCell StratSchedule[] =
 //
 // Function: ScheduleTimesInit()
 //
-//   
 //
-// Global Variables: 
 //
-// Side Effects    : 
+// Global Variables:
+//
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -72,7 +72,7 @@ void ScheduleTimesInit(ScheduleCell sched[], double time_used)
 {
    int i;
    rlim_t sum = 0, tmp, limit;
-   
+
    limit = 0;
    if(ScheduleTimeLimit)
    {
@@ -81,7 +81,7 @@ void ScheduleTimesInit(ScheduleCell sched[], double time_used)
          limit = ScheduleTimeLimit-time_used;
       }
    }
-   else 
+   else
    {
       if(DEFAULT_SCHED_TIME_LIMIT > time_used)
       {
@@ -97,7 +97,7 @@ void ScheduleTimesInit(ScheduleCell sched[], double time_used)
    }
    if(ScheduleTimeLimit)
    {
-      tmp = limit - sum;   
+      tmp = limit - sum;
       sched[i].time_absolute = tmp;
    }
    else
@@ -121,21 +121,21 @@ void ScheduleTimesInit(ScheduleCell sched[], double time_used)
 /----------------------------------------------------------------------*/
 
 pid_t ExecuteSchedule(ScheduleCell strats[],
-                      HeuristicParms_p  h_parms, 
+                      HeuristicParms_p  h_parms,
                       bool print_rusage)
 {
    int raw_status, status = OTHER_ERROR, i;
-   pid_t pid       = 0, respid;   
+   pid_t pid       = 0, respid;
    double run_time = GetTotalCPUTime();
 
    ScheduleTimesInit(strats, run_time);
-   
+
    for(i=0; strats[i].heu_name; i++)
    {
       h_parms->heuristic_name = strats[i].heu_name;
       h_parms->ordertype      = strats[i].ordering;
       fprintf(GlobalOut, "# Trying %s for %ld seconds\n",
-              strats[i].heu_name, 
+              strats[i].heu_name,
               (long)strats[i].time_absolute);
       fflush(GlobalOut);
       pid = fork();
@@ -212,7 +212,7 @@ pid_t ExecuteSchedule(ScheduleCell strats[],
    case FILE_ERROR:
          /* Should never be possible here */
          TSTPOUT(stdout, "OSError");
-         break;                  
+         break;
    case SYS_ERROR:
          TSTPOUT(stdout, "OSError");
          break;

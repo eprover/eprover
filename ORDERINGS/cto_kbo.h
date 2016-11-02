@@ -5,7 +5,7 @@ File  : cto_kbo.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Definitions for implementing a Knuth-Bendix ordering.
 
   Copyright 1998, 1999 by the author.

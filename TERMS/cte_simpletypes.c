@@ -399,7 +399,7 @@ void TypeTableFree(TypeTable_p junk)
 //
 // Function: TypeNewConstant
 //  Build a new constant type
-//   
+//
 //
 // Global Variables: -
 //
@@ -409,7 +409,7 @@ void TypeTableFree(TypeTable_p junk)
 Type_p TypeNewConstant(TypeTable_p table, SortType sort)
 {
    Type_p type, res;
-   
+
    type = TypeAlloc(sort, 0);
    res = TypeTreeInsert(&(table->root), type);
    if(!res)
@@ -426,18 +426,18 @@ Type_p TypeNewConstant(TypeTable_p table, SortType sort)
 //
 // Function: TypeNewFunction
 //  Build a new function type
-//   
+//
 //
 // Global Variables: -
 //
 // Side Effects    :  Modifies the type table
 //
 /----------------------------------------------------------------------*/
-Type_p TypeNewFunction(TypeTable_p table, SortType sort, 
+Type_p TypeNewFunction(TypeTable_p table, SortType sort,
                        int arity, SortType *args)
 {
    Type_p type, res;
-   
+
    type = TypeAlloc(sort, arity);
    for(int i=0; i < arity; i++)
    {

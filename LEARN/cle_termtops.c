@@ -5,7 +5,7 @@ File  : cle_termtops.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for computing various kinds of top terms.
 
   Copyright 1998, 1999 by the author.
@@ -119,7 +119,7 @@ static void term_set_prop_at_level(Term_p term, int depth,
       }
       else
       {
-	 TermCellSetProp(term, prop);	 
+	 TermCellSetProp(term, prop);
       }
    }
    PStackFree(stack);
@@ -141,7 +141,7 @@ static void term_set_prop_at_level(Term_p term, int depth,
 static Term_p rek_term_top(Term_p term, int depth, VarBank_p freshvars)
 {
    Term_p handle;
-   
+
    if(depth==0)
    {
       handle = VarBankGetFreshVar(freshvars, term->sort);
@@ -158,13 +158,13 @@ static Term_p rek_term_top(Term_p term, int depth, VarBank_p freshvars)
       if(handle->arity > 0)
       {
 	 int i;
-	 
+
 	 handle->args = TermArgArrayAlloc(handle->arity);
 	 for(i=0; i<handle->arity; i++)
 	 {
 	    handle->args[i] = rek_term_top(term->args[i], depth-1,
 					   freshvars);
-	 }	 
+	 }
       }
    }
    return handle;
@@ -187,14 +187,14 @@ static Term_p alt_rek_term_top(Term_p term, int depth, VarBank_p
 			   freshvars, PStack_p bindings)
 {
    Term_p handle;
-   
+
    if(depth==0)
    {
       if(!term->binding)
       {
 	 handle = VarBankGetFreshVar(freshvars, term->sort);
 	 term->binding = handle;
-	 PStackPushP(bindings, term);	 
+	 PStackPushP(bindings, term);
       }
       else
       {
@@ -219,7 +219,7 @@ static Term_p alt_rek_term_top(Term_p term, int depth, VarBank_p
 	 {
 	    handle->args[i] = alt_rek_term_top(term->args[i], depth-1,
 					       freshvars, bindings);
-	 }	 
+	 }
       }
    }
    return handle;
@@ -241,14 +241,14 @@ Term_p term_top_marked(Term_p term, VarBank_p freshvars, PStack_p
 		       bindings)
 {
    Term_p handle;
-   
+
    if(TermCellQueryProp(term, TPOpFlag))
    {
       if(!term->binding)
       {
 	 handle = VarBankGetFreshVar(freshvars, term->sort);
 	 term->binding = handle;
-	 PStackPushP(bindings, term);	 
+	 PStackPushP(bindings, term);
       }
       else
       {
@@ -273,7 +273,7 @@ Term_p term_top_marked(Term_p term, VarBank_p freshvars, PStack_p
 	 {
 	    handle->args[i] = term_top_marked(term->args[i],
 					      freshvars, bindings);
-	 }	 
+	 }
       }
    }
    return handle;
@@ -288,7 +288,7 @@ Term_p term_top_marked(Term_p term, VarBank_p freshvars, PStack_p
 //
 // Function: TermTop()
 //
-//   Compute top(term, depth). 
+//   Compute top(term, depth).
 //
 // Global Variables: -
 //

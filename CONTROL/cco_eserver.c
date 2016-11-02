@@ -5,7 +5,7 @@ File  : cco_eserver.c
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Control code for realising the E server.
 
   Copyright 2011 by the author.
@@ -48,7 +48,7 @@ Changes
 //
 // Function: EServerAlloc()
 //
-//   Allocate an initialized EServer cell. This is not yet listening. 
+//   Allocate an initialized EServer cell. This is not yet listening.
 //
 // Global Variables: -
 //
@@ -117,21 +117,21 @@ void EServerReset(EServer_p server)
 bool EServerListen(EServer_p server, int port)
 {
    assert(server->listening == -1);
-   
+
    server->listening = CreateServerSock(port);
    if(server->listening == -1)
    {
       return false;
    }
    Listen(server->listening);
-   
+
    return true;
 }
 
 
 /*-----------------------------------------------------------------------
 //
-// Function: EServerAccept() 
+// Function: EServerAccept()
 //
 //   Accept a new connection on the listening port and queue it in the
 //   connection queue. This assumes that there is a pending connection
@@ -153,7 +153,7 @@ bool EServerAccept(EServer_p server)
    assert(server->listening != -1);
 
    sock = accept(server->listening, &addr, &addr_len);
-   
+
    if(sock == -1)
    {
       TmpErrno = errno;
@@ -180,15 +180,15 @@ bool EServerAccept(EServer_p server)
 //
 /----------------------------------------------------------------------*/
 
-int EServerInitFDSet(EServer_p server, 
-                     fd_set *rd_fds,  
+int EServerInitFDSet(EServer_p server,
+                     fd_set *rd_fds,
                      fd_set *wr_fds)
 {
    long index;
    int tmp, max_fd = 0;
-   ESession_p handle;         
+   ESession_p handle;
 
-   for(index = PQueueTailIndex(server->sessions); 
+   for(index = PQueueTailIndex(server->sessions);
        index != -1;
        index =  PQueueIncIndex(server->sessions, index))
    {
@@ -198,7 +198,7 @@ int EServerInitFDSet(EServer_p server,
    }
    max_fd = MAX(max_fd, server->listening);
    FD_SET(server->listening, rd_fds);
-   
+
    return max_fd;
 }
 

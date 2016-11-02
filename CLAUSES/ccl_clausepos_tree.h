@@ -60,11 +60,11 @@ int CmpClauseTPosCells(const void *soc1, const void *soc2);
 
 void ClauseTPosTreeTreeFreeWrapper(void *junk);
 
-void ClauseTPosTreeInsertPos(ClauseTPosTree_p *tree , Clause_p clause, 
-                             CompactPos pos); 
-void ClauseTPosTreeDeletePos(ClauseTPosTree_p *tree , Clause_p clause, 
-                             CompactPos pos); 
-void ClauseTPosTreeDeleteClause(ClauseTPosTree_p *tree, Clause_p clause); 
+void ClauseTPosTreeInsertPos(ClauseTPosTree_p *tree , Clause_p clause,
+                             CompactPos pos);
+void ClauseTPosTreeDeletePos(ClauseTPosTree_p *tree , Clause_p clause,
+                             CompactPos pos);
+void ClauseTPosTreeDeleteClause(ClauseTPosTree_p *tree, Clause_p clause);
 
 void ClauseTPosTreePrint(FILE* out, ClauseTPos_p tree);
 

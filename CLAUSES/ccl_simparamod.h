@@ -5,7 +5,7 @@ File  : ccl_simparamod.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Code for implementing simulataneous paramodulation. Also contains
   some stuff to make standard paramodulation cleaner.
 
@@ -43,7 +43,7 @@ Changes
 bool ClausePosCheckPMFromConstraint(ClausePos_p from_pos);
 bool ClausePosCheckPMIntoConstraint(ClausePos_p into_pos);
 
-Clause_p ClauseSimParamod(TB_p bank, ClausePos_p from_pos, 
+Clause_p ClauseSimParamod(TB_p bank, ClausePos_p from_pos,
                           Clause_pos_p into);
 
 #endif

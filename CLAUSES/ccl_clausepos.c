@@ -5,7 +5,7 @@ File  : ccl_clausepos.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Funktions for dealing with positions in clauses.
 
   Copyright 1998, 1999 by the author.
@@ -63,14 +63,14 @@ void ClausePosPrint(FILE* out, ClausePos_p pos)
 {
    long i = 0;
    Eqn_p handle;
-   
-   for(handle=pos->clause->literals; 
-       handle!=pos->literal; 
+
+   for(handle=pos->clause->literals;
+       handle!=pos->literal;
        handle=handle->next)
    {
       i++;
    }
-   fprintf(out, "%ld.%ld.%c.", pos->clause->ident, i, 
+   fprintf(out, "%ld.%ld.%c.", pos->clause->ident, i,
            pos->side==RightSide?'R':'L');
    TermPosPrint(out, pos->pos);
 }
@@ -187,7 +187,7 @@ Term_p ClausePosFindNextMaximalSide(ClausePos_p pos, bool positive)
    if(pos->literal)
    {
       PStackReset(pos->pos);
-      if(pos->side == LeftSide 
+      if(pos->side == LeftSide
          && !EqnIsOriented(pos->literal))
       {
          pos->side = RightSide;
@@ -224,9 +224,9 @@ Term_p ClausePosFindNextMaximalSide(ClausePos_p pos, bool positive)
 Term_p ClausePosFindFirstMaximalSubterm(ClausePos_p pos)
 {
    Term_p res;
-   
+
    res = ClausePosFindFirstMaximalSide(pos, false);
-   
+
    if(res)
    {
       res = TermPosFirstLIPosition(res, pos->pos);
@@ -244,7 +244,7 @@ Term_p ClausePosFindFirstMaximalSubterm(ClausePos_p pos)
 // Function: ClausePosFindNextMaximalSubterm()
 //
 //   Given a position in a clause, find the next maximal subterm in
-//   it.  
+//   it.
 //
 // Global Variables: -
 //
@@ -255,7 +255,7 @@ Term_p ClausePosFindFirstMaximalSubterm(ClausePos_p pos)
 Term_p ClausePosFindNextMaximalSubterm(ClausePos_p pos)
 {
    Term_p res, side;
-    
+
    side = ClausePosGetSide(pos);
    res = TermPosNextLIPosition(pos->pos);
 
@@ -286,7 +286,7 @@ Term_p ClausePosFindNextMaximalSubterm(ClausePos_p pos)
 //
 /----------------------------------------------------------------------*/
 
-bool TermComputeRWSequence(PStack_p stack, Term_p from, Term_p to, 
+bool TermComputeRWSequence(PStack_p stack, Term_p from, Term_p to,
                            int inject_op)
 {
    bool     res = false;
@@ -306,9 +306,9 @@ bool TermComputeRWSequence(PStack_p stack, Term_p from, Term_p to,
 
 	 for(i=0; i<from->arity; i++)
 	 {
-	    TermComputeRWSequence(stack, 
-                                  from->args[i], 
-                                  tmp->args[i], 
+	    TermComputeRWSequence(stack,
+                                  from->args[i],
+                                  tmp->args[i],
                                   inject_op);
 	 }
       }

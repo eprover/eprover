@@ -16,8 +16,8 @@ Author: Stephan Schulz
   strings - functions for obtaining counted reference, releasing it,
   and delayed destruction of a still referenced object are
   provided. The use of these functions is optional and requires user
-  discipline! 
- 
+  discipline!
+
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
@@ -68,7 +68,7 @@ char*   DStrAppendChar(DStr_p strdes, char newch);
 char*   DStrAppendBuffer(DStr_p strdes, char* buf, int len);
 char*   DStrAppendInt(DStr_p strdes, long newpart);
 char*   DStrAppendStrArray(DStr_p strdes, char* array[], char*
-			   separator); 
+			   separator);
 #define DStrAppendDStr(strdes, str) \
         DStrAppendStr((strdes), DStrView(str))
 char    DStrDeleteLastChar(DStr_p strdes);

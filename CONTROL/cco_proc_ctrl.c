@@ -5,7 +5,7 @@ File  : cco_proc_ctrl.c
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Code for process control.
 
   Copyright 2010 by the author.
@@ -71,7 +71,7 @@ char* PRResultTable[] =
 EPCtrl_p EPCtrlAlloc(char *name)
 {
    EPCtrl_p ctrl = EPCtrlCellAlloc();
-   
+
    ctrl->pid        = 0;
    ctrl->pipe       = NULL;
    ctrl->input_file = 0;
@@ -119,11 +119,11 @@ void EPCtrlFree(EPCtrl_p junk)
 //
 // Function: EPCtrlCleanup()
 //
-//   Clean up: Kill process, close pipe, 
+//   Clean up: Kill process, close pipe,
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -164,8 +164,8 @@ void EPCtrlCleanup(EPCtrl_p ctrl)
 //
 /----------------------------------------------------------------------*/
 
-EPCtrl_p ECtrlCreate(char* prover, char* name, 
-                     char* extra_options, 
+EPCtrl_p ECtrlCreate(char* prover, char* name,
+                     char* extra_options,
                      long cpu_limit, char* file)
 {
    DStr_p   cmd = DStrAlloc();
@@ -181,11 +181,11 @@ EPCtrl_p ECtrlCreate(char* prover, char* name,
    DStrAppendInt(cmd, cpu_limit);
    DStrAppendStr(cmd, " ");
    DStrAppendStr(cmd, file);
-   
+
    res->prob_time  = cpu_limit;
    res->start_time = GetSecTime();
    res->input_file = file;
-   /* printf("# Executing: %s\n", DStrView(cmd)); */   
+   /* printf("# Executing: %s\n", DStrView(cmd)); */
    res->pipe = popen(DStrView(cmd), "r");
    if(!res->pipe)
    {
@@ -202,7 +202,7 @@ EPCtrl_p ECtrlCreate(char* prover, char* name,
    //fprintf(GlobalOut, "# Line = '%s'", l);
    if(!strstr(line, "# Pid: "))
    {
-      Error("Cannot get eprover PID", OTHER_ERROR);      
+      Error("Cannot get eprover PID", OTHER_ERROR);
    }
    res->pid = atoi(line+7);
    DStrAppendStr(res->output, line);
@@ -232,11 +232,11 @@ bool EPCtrlGetResult(EPCtrl_p ctrl, char* buffer, long buf_size)
    char* l;
 
    l=fgets(buffer, buf_size, ctrl->pipe);
-   
+
    if(l)
    {
       DStrAppendStr(ctrl->output, l);
-      
+
       if(strstr(buffer, SZS_THEOREM_STR))
       {
          ctrl->result = PRTheorem;
@@ -272,14 +272,14 @@ bool EPCtrlGetResult(EPCtrl_p ctrl, char* buffer, long buf_size)
 //
 //   Allocate an empty EPCtrlCell.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
 EPCtrlSet_p EPCtrlSetAlloc(void)
-{   
+{
    EPCtrlSet_p handle = EPCtrlSetCellAlloc();
 
    handle->procs     = NULL;
@@ -293,7 +293,7 @@ EPCtrlSet_p EPCtrlSetAlloc(void)
 // Function: EPCtrlSetFree()
 //
 //   Free an EPCtrlSet(), including the payload.Will clean up the
-//   processes. 
+//   processes.
 //
 // Global Variables: -
 //
@@ -354,7 +354,7 @@ EPCtrl_p EPCtrlSetFindProc(EPCtrlSet_p set, int fd)
    NumTree_p cell;
 
    cell = NumTreeFind(&(set->procs), fd);
-   
+
    if(cell)
    {
       return cell->val1.p_val;
@@ -378,13 +378,13 @@ EPCtrl_p EPCtrlSetFindProc(EPCtrlSet_p set, int fd)
 void EPCtrlSetDeleteProc(EPCtrlSet_p set, EPCtrl_p proc)
 {
    NumTree_p cell;
-   
+
    cell = NumTreeExtractEntry(&(set->procs), proc->fileno);
    if(cell)
    {
       EPCtrlCleanup(cell->val1.p_val);
       EPCtrlFree(cell->val1.p_val);
-      NumTreeCellFree(cell);      
+      NumTreeCellFree(cell);
    }
 }
 
@@ -426,11 +426,11 @@ int EPCtrlSetFDSet(EPCtrlSet_p set, fd_set *rd_fds)
 //
 // Function: EPCtrlSetGetResult()
 //
-//   
 //
-// Global Variables: 
 //
-// Side Effects    : 
+// Global Variables:
+//
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -443,15 +443,15 @@ EPCtrl_p EPCtrlSetGetResult(EPCtrlSet_p set)
    struct timeval waittime;
 
    FD_ZERO(&readfds);
-   FD_ZERO(&writefds); 
+   FD_ZERO(&writefds);
    FD_ZERO(&errorfds);
    waittime.tv_sec  = 0;
    waittime.tv_usec = 500000;
 
    maxfd = EPCtrlSetFDSet(set, &readfds);
-      
+
    select(maxfd+1, &readfds, &writefds, &errorfds, &waittime);
-   
+
    for(i=0; i<=maxfd; i++)
    {
       if(FD_ISSET(i, &readfds))
@@ -472,9 +472,9 @@ EPCtrl_p EPCtrlSetGetResult(EPCtrlSet_p set)
             case PRCounterSatisfiable:
             case PRFailure:
                   /* Process terminates, but no proof found -> Remove it*/
-                  fprintf(GlobalOut, "# No proof found by %s\n", 
+                  fprintf(GlobalOut, "# No proof found by %s\n",
                           handle->name);
-                  
+
                   EPCtrlSetDeleteProc(set, handle);
                   break;
             default:

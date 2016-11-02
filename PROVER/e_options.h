@@ -5,7 +5,7 @@ File  : e_options.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Options definitions and documentation. Moved here to reduce the size
   of the main eprover file.
 
@@ -39,7 +39,7 @@ typedef enum
    OPT_VERBOSE,
    OPT_OUTPUT,
    OPT_PRINT_STATISTICS,
-   OPT_EXPENSIVE_DETAILS,   
+   OPT_EXPENSIVE_DETAILS,
    OPT_PRINT_SATURATED,
    OPT_PRINT_SAT_INFO,
    OPT_FILTER_SATURATED,
@@ -178,8 +178,8 @@ typedef enum
 
 OptCell opts[] =
 {
-   {OPT_HELP, 
-    'h', "help", 
+   {OPT_HELP,
+    'h', "help",
     NoArg, NULL,
     "Print a short description of program usage and options."},
 
@@ -189,8 +189,8 @@ OptCell opts[] =
     "Print the version number of the prover. Please include this"
     " with all bug reports (if any)."},
 
-   {OPT_VERBOSE, 
-    'v', "verbose", 
+   {OPT_VERBOSE,
+    'v', "verbose",
     OptArg, "1",
     "Verbose comments on the progress of the program. This differs "
     "from the output level (below) in that technical information is "
@@ -205,7 +205,7 @@ OptCell opts[] =
    {OPT_SILENT,
     's', "silent",
     NoArg, NULL,
-    "Equivalent to --output-level=0."},   
+    "Equivalent to --output-level=0."},
 
    {OPT_OUTPUTLEVEL,
     'l', "output-level",
@@ -218,7 +218,7 @@ OptCell opts[] =
     "level 4 will include some internal clause renamings. Levels >= 2"
     " also imply PCL2 or TSTP formats (which can be post-processed"
     " with suitable tools)."},
-   
+
    {OPT_PROOF_OBJECT,
     'p', "proof-object",
     OptArg, "1",
@@ -229,7 +229,7 @@ OptCell opts[] =
     "inferences are unambiguously described by giving inference "
     "positions, and level 3 will expand this to a proof object where "
     "all intermediate results are explicit. This feature is under "
-    "development, so far only level 0 and 1 are operational."}, 
+    "development, so far only level 0 and 1 are operational."},
 
    {OPT_PROOF_GRAPH,
     '\0', "proof-graph",
@@ -237,21 +237,21 @@ OptCell opts[] =
     "Generate (and print, in case of success) an internal proof object "
     "in the form of a GraphViz dot graph. The optional argument can be 1 "
     "(nodes are labelled with just name of the clause), 2 (nodes are "
-    "labelled with just the TPTP clause/formula) or 3  (nodes "   
-    "also labelled with source/inference record."}, 
+    "labelled with just the TPTP clause/formula) or 3  (nodes "
+    "also labelled with source/inference record."},
 
    {OPT_FULL_DERIV,
     'd', "full-deriv",
     NoArg, NULL,
     "Include all derived formuas/clauses in the proof graph/proof "
-    "object, not just the ones contributing to the actual proof."}, 
-   
+    "object, not just the ones contributing to the actual proof."},
+
    {OPT_RECORD_GIVEN_CLAUSES,
     '\0', "record-gcs",
     NoArg, NULL,
     "Record given-clause selection as separate (pseudo-)inferences"
     " and preserve the form of given clauses evaluated and selected"
-    " via archiving for analysis and " 
+    " via archiving for analysis and "
     "possibly machine learning."},
 
    {OPT_TRAINING,
@@ -292,7 +292,7 @@ OptCell opts[] =
     NoArg, NULL,
     "Print data about the proof state that is potentially expensive "
     "to collect. Includes number of term cells and number of "
-    "rewrite steps."}, 
+    "rewrite steps."},
 
    {OPT_PRINT_SATURATED,
     'S', "print-saturated",
@@ -305,10 +305,10 @@ OptCell opts[] =
     "negative units, unprocessed non-units, and two types of "
     "additional equality axioms, respectively. Equality axioms will "
     "only be printed if the original specification contained real "
-    "equality. In this case, 'a' requests axioms in which a separate" 
+    "equality. In this case, 'a' requests axioms in which a separate"
     " substitutivity axiom is given for each argument position of a"
     " function or predicate symbol, while 'A' requests a single "
-    "substitutivity axiom (covering all positions) for each symbol."},  
+    "substitutivity axiom (covering all positions) for each symbol."},
 
    {OPT_PRINT_SAT_INFO,
     '\0', "print-sat-info",
@@ -327,7 +327,7 @@ OptCell opts[] =
     "unit-subsumption only, no rewriting, rewriting with rules only,"
     " full rewriting, respectively), and 'N', 'R' and 'F' (as their"
     " lower case counterparts, but with non-unit-subsumption enabled"
-    " as well)."}, 
+    " as well)."},
 
    {OPT_PRUNE_ONLY,
     '\0', "prune",
@@ -337,7 +337,7 @@ OptCell opts[] =
     "output level to 4 so that the pruned problem specification is "
     "printed. Note that the desired pruning methods must still be "
     "specified (e.g. '--sine=Auto')."},
-   
+
    {OPT_CNF_ONLY,
     '\0', "cnf",
     NoArg, NULL,
@@ -391,28 +391,28 @@ OptCell opts[] =
     "Limit the cpu time the prover should run. The optional argument "
     "is the CPU time in seconds. The prover will terminate immediately"
     " after reaching the time limit, regardless of internal state. This"
-    " option may not work " 
+    " option may not work "
     "everywhere, due to broken and/or strange behaviour of setrlimit() "
     "in some UNIX implementations. It does work under all tested "
     "versions of Solaris, HP-UX, MacOS-X, and GNU/Linux. As a side "
     "effect, this "
     "option will inhibit core file writing. Please note that if you"
     " use both --cpu-limit and --soft-cpu-limit, the soft limit has to"
-    " be smaller than the hard limit to have any effect. "}, 
+    " be smaller than the hard limit to have any effect. "},
 
    {OPT_SOFTCPU_LIMIT,
     '\0', "soft-cpu-limit",
     OptArg, "290",
     "Limit the cpu time the prover should spend in the main saturation"
     " phase. The prover will then terminate gracefully, i.e. it will "
-    "perform post-processing, " 
+    "perform post-processing, "
     "filtering and printing of unprocessed clauses, if these options"
     " are selected. Note"
     " that for some filtering options (in particular those which "
     "perform full subsumption), the post-processing time may well be"
     " larger than the saturation time. This option is particularly "
     "useful if you want to use E as a preprocessor or lemma generator "
-    "in a larger system."},  
+    "in a larger system."},
 
    {OPT_RUSAGE_INFO,
     'R', "resources-info",
@@ -427,7 +427,7 @@ OptCell opts[] =
     ReqArg, NULL,
     "Set the maximal number of clauses to process (i.e. the number"
     " of traversals of the main-loop)."},
-   
+
    {OPT_ANSWER_LIMIT,
     '\0', "answers",
     OptArg, "2147483647",
@@ -443,7 +443,7 @@ OptCell opts[] =
     "Treat all conjectures as questions to be answered. This is a wart "
     "necessary because CASC-J6 has categories requiring answers, but "
     "does not yet support the 'question' type for formulas."},
-   
+
    {OPT_PROC_LIMIT,
     'P', "processed-set-limit",
     ReqArg, NULL,
@@ -457,7 +457,7 @@ OptCell opts[] =
     "Set the maximal size of the set of unprocessed clauses. This is a "
     "termination condition, not something to use to control the deletion"
     " of bad clauses. Compare --delete-bad-limit."},
-   
+
    {OPT_TOTAL_LIMIT,
     'T', "total-clause-set-limit",
     ReqArg, NULL,
@@ -522,7 +522,7 @@ OptCell opts[] =
     "is still under development, and the version in E may not be "
     "fully conforming at all times. E works on all TPTP 6.3.0 FOF "
     "and CNF files (including includes)."},
-   
+
    {OPT_TSTP_PRINT,
     '\0', "tstp-out",
     NoArg, NULL,
@@ -550,25 +550,25 @@ OptCell opts[] =
     "Synonymous with --tstp-format."},
 
    {OPT_AUTO,
-    '\0', "auto", 
+    '\0', "auto",
     NoArg, NULL,
     "Automatically determine settings for proof search. This is "
     "equivalent to -xAuto -tAuto --sine=Auto."},
 
    {OPT_SATAUTO,
-    '\0', "satauto", 
+    '\0', "satauto",
     NoArg, NULL,
-    "Automatically determine settings for proof/saturation search. This is " 
+    "Automatically determine settings for proof/saturation search. This is "
     "equivalent to -xAuto -tAuto."},
 
    {OPT_AUTODEV,
-    '\0', "autodev", 
+    '\0', "autodev",
     NoArg, NULL,
     "Automatically determine settings for proof search (development "
     "version). This is equivalent to -xAutoDev -tAutoDev --sine=Auto."},
 
    {OPT_SATAUTODEV,
-    '\0', "satautodev", 
+    '\0', "satautodev",
     NoArg, NULL,
     "Automatically determine settings for proof/saturation search "
     "(development version). This is equivalent to -xAutoDev -tAutoDev."},
@@ -603,7 +603,7 @@ OptCell opts[] =
     "equational definitions to those where the expanded definition "
     "is at most the given limit bigger (in terms of standard "
     "weight) than the defined term."},
-   
+
    {OPT_EQ_UNFOLD_MAXCLAUSES,
     '\0', "eq-unfold-maxclauses",
     ReqArg, NULL,
@@ -640,7 +640,7 @@ OptCell opts[] =
     "Select AC handling mode, i.e. determine what to do with "
     "redundant AC tautologies. The default is equivalent to "
     "'DiscardAll', the other possible values are 'None' (to disable "
-    "AC handling), 'KeepUnits', and 'KeepOrientable'."}, 
+    "AC handling), 'KeepUnits', and 'KeepOrientable'."},
 
    {OPT_AC_ON_PROC,
     '\0', "ac-non-aggressive",
@@ -660,7 +660,7 @@ OptCell opts[] =
     "'" NAME " -W none'. There are two variants of each strategy. The "
     "one prefixed with 'P' will allow paramodulation into maximal "
     "positive literals in addition to paramodulation into maximal "
-    "selected negative literals."},	
+    "selected negative literals."},
 
    {OPT_NO_GENERATION,
     '\0', "no-generation",
@@ -681,15 +681,15 @@ OptCell opts[] =
     NoArg, NULL,
     "Always select the negative literals a previous inference "
     "paramodulated into (if possible). If no such literal exists,"
-    " select as dictated by the selection strategy."}, 
+    " select as dictated by the selection strategy."},
 
    {OPT_INHERIT_GOAL_PM_LIT,
     'j', "inherit-goal-pm-literals",
     NoArg, NULL,
     "In a goal (all negative clause), always select the negative "
-    "literals a previous inference " 
+    "literals a previous inference "
     "paramodulated into (if possible). If no such literal exists,"
-    " select as dictated by the selection strategy."}, 
+    " select as dictated by the selection strategy."},
 
    {OPT_INHERIT_CONJ_PM_LIT,
     '\0', "inherit-conjecture-pm-literals",
@@ -757,7 +757,7 @@ OptCell opts[] =
     " to find a proof. It is special in that it will also set some "
     "additional options. To have optimal "
     "performance, you also should specify -tAuto to select a good "
-    "term ordering. LIFO is unfair and will " 
+    "term ordering. LIFO is unfair and will "
     "make the prover incomplete. Uniq is used internally and is not "
     "very useful in most cases. You can define more heuristics using"
     " the option -H (see below)."},
@@ -794,7 +794,7 @@ OptCell opts[] =
     " significantly higher than --filter-limit or"
     " --filter-copies-limit. If you select -xAuto and set a"
     " memory limit, the prover will determine a good value"
-    " automatically."}, 
+    " automatically."},
 
    {OPT_ASSUME_COMPLETENESS,
     '\0', "assume-completeness",
@@ -820,32 +820,32 @@ OptCell opts[] =
     "Disable equality factoring. This makes the prover incomplete for "
     "general non-Horn problems, but helps for some specialized classes."
     " It is not necessary to disable equality factoring for Horn problems"
-    ", as Horn clauses are not factored anyways."}, 
-   
+    ", as Horn clauses are not factored anyways."},
+
    {OPT_DISABLE_NEGUNIT_PM,
     '\0', "disable-paramod-into-neg-units",
     NoArg, NULL,
     "Disable paramodulation into negative unit clause. This makes the"
     " prover incomplete in the general case, but helps for some "
-    "specialized classes."}, 
+    "specialized classes."},
 
    {OPT_CONDENSING,
     '\0', "condense",
     NoArg, NULL,
     "Enable condensing for the given clause. Condensing replaces a clause "
-    "by a more general factor (if such a factor exists)."}, 
+    "by a more general factor (if such a factor exists)."},
 
    {OPT_CONDENSING_AGGRESSIVE,
     '\0', "condense-aggressive",
     NoArg, NULL,
-    "Enable condensing for the given and newly generated clauses."}, 
+    "Enable condensing for the given and newly generated clauses."},
 
    {OPT_NO_GC_FORWARD_SIMPL,
     '\0', "disable-given-clause-fw-contraction",
     NoArg, NULL,
     "Disable simplification and subsumption of the newly selected "
     "given clause (clauses are still simplified when they are "
-    "generated). In general," 
+    "generated). In general,"
     " this breaks some basic assumptions of the DISCOUNT loop proof search"
     " procedure. However, there are some problem classes in which "
     " this simplifications empirically never occurs. In such cases, we "
@@ -862,7 +862,7 @@ OptCell opts[] =
     '\0', "oriented-simul-paramod",
     NoArg, NULL,
     "Use simultaneous paramodulation for oriented from-literals. This "
-    "is an experimental feature."}, 
+    "is an experimental feature."},
 
    {OPT_SPLIT_TYPES,
     '\0', "split-clauses",
@@ -886,7 +886,7 @@ OptCell opts[] =
     " that all ground literals should form a single new clause, or '2',"
     " in which case ground literals are treated as usual and are all"
     " split off into individual clauses."},
-   
+
    {OPT_SPLIT_AGGRESSIVE,
     '\0', "split-aggressive",
     NoArg, NULL,
@@ -938,10 +938,10 @@ OptCell opts[] =
     ReqArg, NULL,
     "Select a method for the generation of a precedence for use with "
     "the term ordering. Run '" NAME " -G none' for a list of "
-    "options."}, 
+    "options."},
 
    {OPT_TO_CONSTWEIGHT,
-    'c', "order-constant-weight", 
+    'c', "order-constant-weight",
     ReqArg, NULL,
     "Set a special weight > 0 for constants in the term ordering. "
     "By default, constants are treated like other function symbols."
@@ -991,7 +991,7 @@ OptCell opts[] =
     "If input is TPTP format, use TPTP conjectures for initializing "
     "the Set of Support. If not in TPTP format, use E-LOP queries "
     "(clauses of the form ?-l(X),...,m(Y)). Normally, all negative "
-    "clauses are used. Please note that " 
+    "clauses are used. Please note that "
     "most E heuristics do not use this information at all, it is currently "
     "only useful for certain parameter settings (including the SimulateSOS "
     "priority function)."},
@@ -1001,17 +1001,17 @@ OptCell opts[] =
     NoArg, NULL,
     "Allow destructive equality resolution inferences on pure-variable "
     "literals of the form X!=Y, i.e. replace the original clause with the "
-    "result of an equality resolution inference on this literal."}, 
+    "result of an equality resolution inference on this literal."},
 
    {OPT_ER_STRONG_DESTRUCTIVE,
      '\0', "strong-destructive-er",
     NoArg, NULL,
     "Allow destructive equality resolution inferences on "
     "literals of the form X!=t (where X does not occur in t), i.e. "
-    "replace the original clause with the " 
+    "replace the original clause with the "
     "result of an equality resolution inference on this literal. Unless I "
     "am brain-dead, this maintains completeness, although the proof is"
-    " rather tricky."}, 
+    " rather tricky."},
 
    {OPT_ER_AGGRESSIVE,
     '\0', "destructive-er-aggressive",
@@ -1030,7 +1030,7 @@ OptCell opts[] =
     NoArg, NULL,
     "Apply contextual simplify-reflect with processed clauses "
     "to new clauses. Implies --forward-context-sr."},
-   
+
    {OPT_BACKWARD_CSR,
     '\0', "backward-context-sr",
     NoArg, NULL,
@@ -1042,8 +1042,8 @@ OptCell opts[] =
     NoArg, NULL,
     "Prefer general demodulators. By default, E prefers specialized"
     " demodulators. This affects in which order the rewrite "
-    " index is traversed."}, 
-   
+    " index is traversed."},
+
    {OPT_FORWARD_DEMOD,
     'F', "forward_demod_level",
     ReqArg, NULL,
@@ -1064,7 +1064,7 @@ OptCell opts[] =
     "Try multiple positions and unit-equations to try to "
     "equationally subsume a "
     "single new clause. Default is to search for a single position."},
-   
+
    {OPT_WATCHLIST,
     '\0', "watchlist",
     OptArg, WATCHLIST_INLINE_QSTRING,
@@ -1080,15 +1080,15 @@ OptCell opts[] =
     " Use the argument " WATCHLIST_INLINE_QSTRING " (or no argument)"
     " and the special clause type "
     "'watchlist' if you want to put watchlist clauses into the normal input"
-    " stream. This is only supported for TPTP input formats."}, 
-   
+    " stream. This is only supported for TPTP input formats."},
+
    {OPT_WATCHLIST_NO_SIMPLIFY,
     '\0', "no-watchlist-simplification",
     NoArg, NULL,
     "Normally, that watchlist is brought into normal form with respect "
     "to the current processed clause set and certain simplifications."
     " This option disables this behaviour."},
-   
+
    {OPT_NO_INDEXED_SUBSUMPTION,
     '\0', "conventional-subsumption",
     NoArg, NULL,
@@ -1170,7 +1170,7 @@ OptCell opts[] =
    {OPT_FP_INDEX,
     '\0', "fp-index",
     OptArg, "FP7",
-    "Select fingerprint function for all fingerprint indices. See above."},  
+    "Select fingerprint function for all fingerprint indices. See above."},
 
    {OPT_FP_NO_SIZECONSTR,
     '\0', "fp-no-size-constr",
@@ -1182,20 +1182,20 @@ OptCell opts[] =
     '\0', "pdt-no-size-constr",
     NoArg, NULL,
     "Disable usage of size constraints for matching with perfect "
-    "discrimination trees indexing."}, 
+    "discrimination trees indexing."},
 
    {OPT_PDT_NO_AGECONSTR,
     '\0', "pdt-no-age-constr",
     NoArg, NULL,
     "Disable usage of age constraints for matching with perfect "
-    "discrimination trees indexing."}, 
+    "discrimination trees indexing."},
 
    {OPT_DETSORT_RW,
     '\0', "detsort-rw",
     NoArg, NULL,
     "Sort set of clauses eliminated by backward rewriting using a total "
     "syntactic ordering."},
- 
+
    {OPT_DETSORT_NEW,
     '\0', "detsort-new",
     NoArg, NULL,
@@ -1206,28 +1206,28 @@ OptCell opts[] =
     'D', "define-weight-function",
     ReqArg, NULL,
     "Define  a weight function (see manual for details). Later"
-    " definitions override previous definitions."}, 
+    " definitions override previous definitions."},
 
    {OPT_DEFINE_HEURISTIC,
     'H', "define-heuristic",
     ReqArg, NULL,
     "Define a clause selection heuristic (see manual for"
-    " details). Later definitions override previous definitions."}, 
+    " details). Later definitions override previous definitions."},
 
    {OPT_FREE_NUMBERS,
     '\0', "free-numbers",
      NoArg, NULL,
      "Treat numbers (strings of decimal digits) as normal free function "
     "symbols in the input. By default, number now are supposed to denote"
-    " domain constants and to be implicitly different from each other."}, 
-   
+    " domain constants and to be implicitly different from each other."},
+
    {OPT_FREE_OBJECTS,
     '\0', "free-objects",
      NoArg, NULL,
      "Treat object identifiers (strings in double quotes) as normal "
     "free function symbols in the input. By default, object identifiers "
     "now represent domain objects and are implicitly different from "
-    "each other (and from numbers, unless those are declared to be free)."}, 
+    "each other (and from numbers, unless those are declared to be free)."},
 
    {OPT_DEF_CNF,
     '\0', "definitional-cnf",
@@ -1244,7 +1244,7 @@ OptCell opts[] =
     "algorithmic pitfalls and hence works better on some exotic formulae. "
     "It may produce a slightly different (but equisatisfiable) clause "
     "normal form than the default algorithm."},
-   
+
    {OPT_PRINT_TYPES,
     '\0', "print-types",
     NoArg, NULL,

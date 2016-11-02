@@ -5,7 +5,7 @@ File  : cle_kbdesc.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Data types and functions for representing the knowledge base.
 
   Copyright 1998, 1999 by the author.
@@ -48,7 +48,7 @@ typedef struct kbdesccell
 /*---------------------------------------------------------------------*/
 
 
-#define KBDescCellAlloc() (KBDescCell*)SizeMalloc(sizeof(KBDescCell)) 
+#define KBDescCellAlloc() (KBDescCell*)SizeMalloc(sizeof(KBDescCell))
 #define KBDescCellFree(junk) SizeFree(junk, sizeof(KBDescCell))
 
 KBDesc_p KBDescAlloc(char* version, double neg_prop, long

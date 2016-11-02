@@ -5,7 +5,7 @@ File  : clb_plist.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Doubly linked lists of pointers and integers.
 
   Copyright 1998, 1999 by the author.

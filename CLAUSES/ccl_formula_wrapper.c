@@ -63,8 +63,8 @@ long FormulaDefLimit        = TFORM_RENAME_LIMIT;
 WFormula_p DefaultWFormulaAlloc(void)
 {
    WFormula_p handle = WFormulaCellAlloc();
-   
-   handle->properties = WPIgnoreProps; 
+
+   handle->properties = WPIgnoreProps;
    handle->ident      = 0;
    handle->terms      = NULL;
    handle->info       = NULL;
@@ -93,11 +93,11 @@ WFormula_p DefaultWFormulaAlloc(void)
 WFormula_p WTFormulaAlloc(TB_p terms, TFormula_p formula)
 {
    WFormula_p handle = DefaultWFormulaAlloc();
-   
+
    handle->terms   = terms;
    handle->tformula = formula;
-   handle->ident   = ++global_formula_counter;   
-   
+   handle->ident   = ++global_formula_counter;
+
    return handle;
 }
 
@@ -121,9 +121,9 @@ void WFormulaFree(WFormula_p form)
    assert(!form->set);
    assert(!form->pred);
    assert(!form->succ);
-   
+
    /* tformula handled by Garbage Collection */
-   
+
    ClauseInfoFree(form->info);
    if(form->derivation)
    {
@@ -210,11 +210,11 @@ WFormula_p WFormulaTPTPParse(Scanner_p in, TB_p terms)
    WFormula_p         handle;
    ClauseInfo_p       info;
 
-   info = ClauseInfoAlloc(NULL, DStrView(AktToken(in)->source), 
-                          AktToken(in)->line, 
-                          AktToken(in)->column); 
+   info = ClauseInfoAlloc(NULL, DStrView(AktToken(in)->source),
+                          AktToken(in)->line,
+                          AktToken(in)->column);
    AcceptInpId(in, "input_formula");
-   AcceptInpTok(in, OpenBracket);  
+   AcceptInpTok(in, OpenBracket);
    CheckInpTok(in, Name|PosInt);
    info->name = DStrCopy(AktToken(in)->literal);
    NextToken(in);
@@ -263,7 +263,7 @@ WFormula_p WFormulaTPTPParse(Scanner_p in, TB_p terms)
 //
 // Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -280,7 +280,7 @@ void WFormulaTPTPPrint(FILE* out, WFormula_p form, bool fullterms)
 	 break;
    case WPTypeHypothesis:
 	 typename = "hypothesis";
-	 break;       
+	 break;
    case WPTypeConjecture:
    case WPTypeNegConjecture:
 	 typename = "conjecture";
@@ -291,7 +291,7 @@ void WFormulaTPTPPrint(FILE* out, WFormula_p form, bool fullterms)
    default:
 	 typename = "unknown";
 	 break;
-   }   
+   }
    if(form->ident < 0)
    {
       id = form->ident - LONG_MIN;
@@ -305,7 +305,7 @@ void WFormulaTPTPPrint(FILE* out, WFormula_p form, bool fullterms)
    fprintf(out, "input_formula(f%c_%ld,%s,", prefix, id, typename);
 
    TFormulaTPTPPrint(out, form->terms, form->tformula,fullterms, false);
-   fprintf(out,").");   
+   fprintf(out,").");
 }
 
 
@@ -323,23 +323,23 @@ void WFormulaTPTPPrint(FILE* out, WFormula_p form, bool fullterms)
 
 WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
 {
-   TFormula_p         tform; 
+   TFormula_p         tform;
    WFormulaProperties type = WPTypeAxiom;
    WFormulaProperties initial = WPInputFormula;
    WFormula_p         handle;
    ClauseInfo_p       info;
 
-   info = ClauseInfoAlloc(NULL, DStrView(AktToken(in)->source), 
-                          AktToken(in)->line, 
-                          AktToken(in)->column); 
-      
+   info = ClauseInfoAlloc(NULL, DStrView(AktToken(in)->source),
+                          AktToken(in)->line,
+                          AktToken(in)->column);
+
    AcceptInpId(in, "fof|tff");
    AcceptInpTok(in, OpenBracket);
    CheckInpTok(in, Name|PosInt|SQString);
    info->name = DStrCopy(AktToken(in)->literal);
    NextToken(in);
    AcceptInpTok(in, Comma);
-   
+
    /* This is hairy! E's internal types do not map very well to
       TSTP types, and E uses the "initial" properties in ways that
       make it highly desirable that anything in the input is
@@ -433,7 +433,7 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
          break;
    case WPTypeHypothesis:
          typename = "hypothesis";
-         break;      
+         break;
    case WPTypeConjecture:
          typename = "conjecture";
          break;
@@ -442,13 +442,13 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
          break;
    case WPTypeLemma:
          typename = "lemma";
-         break; 
+         break;
    case WPTypeNegConjecture:
          typename = "negated_conjecture";
          break;
    default:
 	 break;
-   }   
+   }
    if(form->ident < 0)
    {
       id = form->ident - LONG_MIN;
@@ -460,13 +460,13 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
       prefix = 'c';
    }
    fprintf(out, "%s(%c_0_%ld, %s", formula_kind, prefix, id, typename);
-   fprintf(out, ", (");   
+   fprintf(out, ", (");
 
    TFormulaTPTPPrint(out, form->terms, form->tformula,fullterms, false);
-   //fprintf(out, "<dummy %p in %p>", form->tformula, form->terms);   
-   
+   //fprintf(out, "<dummy %p in %p>", form->tformula, form->terms);
 
-   fprintf(out, ")");   
+
+   fprintf(out, ")");
    if(complete)
    {
       fprintf(out, ").");
@@ -493,7 +493,7 @@ WFormula_p WFormulaParse(Scanner_p in, TB_p terms)
    if(ClausesHaveDisjointVariables)
    {
       VarBankClearExtNamesNoReset(terms->vars);
-   }   
+   }
    switch(ScannerGetFormat(in))
    {
    case LOPFormat:
@@ -597,7 +597,7 @@ long WFormulaReturnFCodes(WFormula_p form, PStack_p f_codes)
    for(i=start; i<PStackGetSP(f_codes);i++)
    {
       f =  PStackElementInt(f_codes, i);
-      SigDelFuncProp(sig, f, FPOpFlag);      
+      SigDelFuncProp(sig, f, FPOpFlag);
    }
    return res;
 }

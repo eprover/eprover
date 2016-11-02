@@ -5,7 +5,7 @@ File  : clb_ptrees.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Data structures for the efficient management of pointer
   sets. I substituted this SPLAY tree version as it consumes less
   memory and may even be faster in the average case. As pointers are
@@ -49,7 +49,7 @@ Changes
    temporary variable when it thinks it can reuse the original
    position. In this case, it is wrong (exhibited in
    PTreeExtractKey()). Moving key to the back works around it (the
-   memory management module will overwrite just the first word...) */ 
+   memory management module will overwrite just the first word...) */
 
 typedef struct ptreecell
 {

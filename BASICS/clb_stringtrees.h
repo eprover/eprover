@@ -5,7 +5,7 @@ File  : clb_stringtrees.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Definitions for AVL trees with string keys and up to two int or
   pointer values. Part of the implementation is based on public domain
   code by D.D. Sleator.

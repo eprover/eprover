@@ -5,7 +5,7 @@ File  : ccl_condensation.c
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Implementation of the condensation rule.
 
   Copyright 2012 by the author.
@@ -52,11 +52,11 @@ long CondensationSuccesses = 0;
 //
 //   Try to condense clause. If successful, simplify the clause, and
 //   return true. If not, the clause is unchanged and false is
-//   returned. 
+//   returned.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -79,7 +79,7 @@ bool CondenseOnce(Clause_p clause)
             if(LiteralUnifyOneWay(l1, l2, subst, swap))
             {
                newlits = EqnListCopyExcept(clause->literals,l2, l1->bank);
-               SubstBacktrack(subst);               
+               SubstBacktrack(subst);
                EqnListRemoveDuplicates(newlits);
                cand = ClauseAlloc(newlits);
                cand->weight = ClauseStandardWeight(cand);
@@ -117,7 +117,7 @@ bool CondenseOnce(Clause_p clause)
 //   Condense a clause as much as possible. Return true if the clause
 //   was changed, false otherwise.
 //
-// Global Variables: 
+// Global Variables:
 //
 // Side Effects    : -
 //
@@ -126,7 +126,7 @@ bool CondenseOnce(Clause_p clause)
 bool Condense(Clause_p clause)
 {
    bool res = false;
-   
+
    CondensationAttempts++;
 
    if((clause->pos_lit_no > 1) || (clause->neg_lit_no >1))

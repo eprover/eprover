@@ -5,7 +5,7 @@ File  : che_heuristics.c
 Author: Stephan Schulz
 
 Contents
- 
+
   High-Level interface functions to the heuristics module.
 
 
@@ -60,29 +60,29 @@ HeuristicAssocCell HeuristicsTable[]=
 //
 // Function: finalize_auto_parms()
 //
-//   
 //
-// Global Variables: 
 //
-// Side Effects    : 
+// Global Variables:
+//
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
 void finalize_auto_parms(char* modename, char* hname,
                          ProofControl_p control,
-                         HeuristicParms_p parms, 
+                         HeuristicParms_p parms,
                          SpecFeature_p spec)
 {
 
 
    if(OutputLevel+1)
    {
-      fprintf(GlobalOut, 
+      fprintf(GlobalOut,
 	      "# %s selected heuristic %s\n"
-	      "# and selection function %s.\n#\n", 
-              modename, 
-              hname, 
-	      GetLitSelName(control->heuristic_parms.selection_strategy)); 
+	      "# and selection function %s.\n#\n",
+              modename,
+              hname,
+	      GetLitSelName(control->heuristic_parms.selection_strategy));
    }
    if(parms->mem_limit>2 && (parms->delete_bad_limit ==
 			     DEFAULT_DELETE_BAD_LIMIT))
@@ -105,7 +105,7 @@ void finalize_auto_parms(char* modename, char* hname,
 
 /*-----------------------------------------------------------------------
 //
-// Function: HCBCreate() 
+// Function: HCBCreate()
 //
 //   Given a name and the necessary parameters, return a HCB. HCB's
 //   must be registered in control->hcbs!
@@ -136,7 +136,7 @@ HCB_p HCBCreate(char* name, HCBARGUMENTS)
    DStrAppendStr(err, "\" unknown");
    Error(DStrView(err), USAGE_ERROR);
    DStrFree(err);
-   
+
    return NULL;
 }
 
@@ -171,7 +171,7 @@ HCB_p GetHeuristic(char* source, HCBARGUMENTS)
       name = SecureStrdup("Default");
    }
    else
-   {      
+   {
       name = SecureStrdup(DStrView(AktToken(in)->literal));
       AcceptInpTok(in, Identifier);
    }
@@ -195,7 +195,7 @@ HCB_p GetHeuristic(char* source, HCBARGUMENTS)
 // Function: HCBAutoModeCreate()
 //
 //   Analyse the proof problem and return an hopefully suitable
-//   heuristic. 
+//   heuristic.
 //
 // Global Variables: -
 //
@@ -218,7 +218,7 @@ HCB_p HCBAutoModeCreate(HCBARGUMENTS)
    SpecLimits_p limits = CreateDefaultSpecLimits();
 
    control->heuristic_parms.selection_strategy = SelectNoLiterals;
-   OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");   
+   OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
 #include "che_auto_cases.c"
    SpecLimitsCellFree(limits);
 
@@ -275,7 +275,7 @@ HCB_p HCBCASCAutoModeCreate(HCBARGUMENTS)
    limits->ngu_many_limit       = 3;
 
    control->heuristic_parms.selection_strategy = SelectNoLiterals;
-   OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");   
+   OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
 #include "che_auto_cases.c"
    SpecLimitsCellFree(limits);
 

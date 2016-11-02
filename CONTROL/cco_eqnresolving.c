@@ -5,7 +5,7 @@ File  : cco_eqnresolving.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions controlling equality resolution.
 
   Copyright 1998, 1999 by the author.
@@ -71,9 +71,9 @@ long ComputeAllEqnResolvents(TB_p bank, Clause_p clause, ClauseSet_p
    if(clause->neg_lit_no && !ClauseQueryProp(clause,CPNoGeneration))
    {
       pos = ClausePosAlloc();
-      
+
       test = ClausePosFirstEqResLiteral(clause, pos);
-      
+
       while(test)
       {
 	 resolvent = ComputeEqRes(bank, pos, freshvars);
@@ -93,7 +93,7 @@ long ComputeAllEqnResolvents(TB_p bank, Clause_p clause, ClauseSet_p
 	 test = ClausePosNextEqResLiteral(pos);
       }
       ClausePosFree(pos);
-   }  
+   }
    return resolv_count;
 }
 
@@ -104,7 +104,7 @@ long ComputeAllEqnResolvents(TB_p bank, Clause_p clause, ClauseSet_p
 //   Perform destructive equality resolution inferences on negative
 //   pure variable literals (or, if strong, on negative literals with
 //   at least one variable side), insert the final result into
-//   store. Return the number of inferences. 
+//   store. Return the number of inferences.
 //
 // Global Variables: -
 //
@@ -118,7 +118,7 @@ long ClauseERNormalizeVar(TB_p bank, Clause_p clause, ClauseSet_p
    long count = 0;
 
    if(clause->neg_lit_no && !ClauseQueryProp(clause,CPNoGeneration))
-   { 
+   {
       Eqn_p       lit;
       Clause_p    handle;
       ClausePos_p pos = ClausePosAlloc();
@@ -131,7 +131,7 @@ long ClauseERNormalizeVar(TB_p bank, Clause_p clause, ClauseSet_p
 	 {
 	    if(EqnIsNegative(lit)&&
 	       (EqnIsPureVar(lit) || (strong&&EqnIsPartVar(lit))))
-	    {	          
+	    {
 	       pos->clause  = clause;
 	       pos->literal = lit;
 	       handle = ComputeEqRes(bank, pos, freshvars);

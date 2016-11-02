@@ -5,7 +5,7 @@ File  : ccl_clausepos_tree.c
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   A tree-based mapping mapping clauses to sets of compact positions.
 
   Copyright 2010 by the author.
@@ -90,7 +90,7 @@ ClauseTPos_p ClauseTPosAlloc(Clause_p clause)
 // Function: ClauseTPosFree()
 //
 //   Free a ClauseTPosCell, including the position tree, but not the
-//   clause. 
+//   clause.
 //
 // Global Variables: -
 //
@@ -141,7 +141,7 @@ int CmpClauseTPosCells(const void *soc1, const void *soc2)
    const ClauseTPos_p c1 = (const ClauseTPos_p) soc1;
    const ClauseTPos_p c2 = (const ClauseTPos_p) soc2;
 
-   return PCmp(c1->clause, c2->clause);  
+   return PCmp(c1->clause, c2->clause);
 }
 
 
@@ -166,7 +166,7 @@ void ClauseTPosTreeFreeWrapper(void *junk)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ClauseTPosTreeInsertPos() 
+// Function: ClauseTPosTreeInsertPos()
 //
 //   Add a clause->pos association to the tree.
 //
@@ -176,12 +176,12 @@ void ClauseTPosTreeFreeWrapper(void *junk)
 //
 /----------------------------------------------------------------------*/
 
-void ClauseTPosTreeInsertPos(ClauseTPosTree_p *tree, Clause_p clause, 
+void ClauseTPosTreeInsertPos(ClauseTPosTree_p *tree, Clause_p clause,
                              CompactPos pos)
 {
    ClauseTPos_p old, newnode = ClauseTPosAlloc(clause);
    IntOrP dummy;
-   
+
    dummy.i_val = 0;
    old = PTreeObjStore(tree, newnode, CmpClauseTPosCells);
 
@@ -207,7 +207,7 @@ void ClauseTPosTreeInsertPos(ClauseTPosTree_p *tree, Clause_p clause,
 //
 /----------------------------------------------------------------------*/
 
-void ClauseTPosTreeDeletePos(ClauseTPosTree_p *tree , Clause_p clause, 
+void ClauseTPosTreeDeletePos(ClauseTPosTree_p *tree , Clause_p clause,
                              CompactPos pos)
 {
    ClauseTPos_p found, key = ClauseTPosAlloc(clause);
@@ -222,7 +222,7 @@ void ClauseTPosTreeDeletePos(ClauseTPosTree_p *tree , Clause_p clause,
       NumTreeDeleteEntry(&(found->pos), pos);
       if(!found->pos)
       {
-         found = PTreeObjExtractObject(tree, found, 
+         found = PTreeObjExtractObject(tree, found,
                                        CmpClauseTPosCells);
          ClauseTPosFree(found);
       }
@@ -233,7 +233,7 @@ void ClauseTPosTreeDeletePos(ClauseTPosTree_p *tree , Clause_p clause,
 //
 // Function: ClauseTPosTreeDeleteClause()
 //
-//   Delete all associations clause->pos for any pos from the tree. 
+//   Delete all associations clause->pos for any pos from the tree.
 //
 // Global Variables: -
 //
@@ -244,7 +244,7 @@ void ClauseTPosTreeDeletePos(ClauseTPosTree_p *tree , Clause_p clause,
 void ClauseTPosTreeDeleteClause(ClauseTPosTree_p *tree, Clause_p clause)
 {
    ClauseTPos_p found, key = ClauseTPosAlloc(clause);
-   
+
    found = PTreeObjExtractObject(tree, key, CmpClauseTPosCells);
    ClauseTPosFree(key);
 

@@ -5,7 +5,7 @@ File  : cex_csscpa.c
 Author: Stephan Schulz, Geoff Sutcliffe
 
 Contents
- 
+
   Functions realizing the CSSCPA control component.
 
   Copyright 1998, 1999 by the author.
@@ -53,10 +53,10 @@ Changes
 char* ClauseStatusString(ClauseStatusType clause_status)
 {
    switch(clause_status)
-   {      
-   case contradicts:   
+   {
+   case contradicts:
 	 return "contradicts";
-   case rejected:   
+   case rejected:
 	 return "rejected";
    case improved:
 	 return "improved";
@@ -162,7 +162,7 @@ static Clause_p find_unit_contradiction(Clause_p clause,CSSCPAState_p state)
    Clause_p    handle;
    Eqn_p       lit;
    ClauseSet_p set;
-   
+
    assert(clause && ClauseIsUnit(clause));
 
    lit = clause->literals;
@@ -257,7 +257,7 @@ void CSSCPAStateFree(CSSCPAState_p junk)
 //
 // Function: CSSCPAProcessClause()
 //
-//   Process a clause for CSSCPA: 
+//   Process a clause for CSSCPA:
 //   - If it is subsumed or tautological, delete it.
 //   - If accept is true or clause subsumes clauses with a higher
 //     combined weight than clause, remove all clauses subsume by
@@ -271,7 +271,7 @@ void CSSCPAStateFree(CSSCPAState_p junk)
 //
 /----------------------------------------------------------------------*/
 
-bool CSSCPAProcessClause(CSSCPAState_p state, Clause_p clause, 
+bool CSSCPAProcessClause(CSSCPAState_p state, Clause_p clause,
 			bool accept, float weight_delta, float average_delta)
 {
    PStack_p subsumed;
@@ -283,7 +283,7 @@ bool CSSCPAProcessClause(CSSCPAState_p state, Clause_p clause,
    {
       clause_status = forced;
    }
-   
+
    if(ClauseIsTautology(state->tmp_terms,clause))
    {
       clause_status = rejected;
@@ -297,8 +297,8 @@ bool CSSCPAProcessClause(CSSCPAState_p state, Clause_p clause,
    if(clause_status != rejected)
    {
       clause->weight = ClauseStandardWeight(clause);
-      
-      if((clause->pos_lit_no && 
+
+      if((clause->pos_lit_no &&
           (handle=UnitClauseSetSubsumesClause(state->pos_units,
 				      clause))) ||
          (clause->neg_lit_no &&
@@ -316,12 +316,12 @@ bool CSSCPAProcessClause(CSSCPAState_p state, Clause_p clause,
          ClauseFree(clause);
       }
    }
-   
+
    if(clause_status != rejected)
    {
       subsumed = PStackAlloc();
       sub_weight = 0;
-      
+
       if(ClauseIsUnit(clause)&&ClauseIsPositive(clause))
       {
          sub_weight+=collect_subsumed(clause,state->pos_units,subsumed);
@@ -335,10 +335,10 @@ bool CSSCPAProcessClause(CSSCPAState_p state, Clause_p clause,
       {
          clause_status = improved;
       }
-      else if(state->clauses && 
+      else if(state->clauses &&
 	      (((state->weight + clause->weight)/
-		(state->clauses + 1.0)) 
-	       < 
+		(state->clauses + 1.0))
+	       <
 	       ((1.0-average_delta)*state->weight/state->clauses)))
       {
 	 clause_status = improved;
@@ -352,10 +352,10 @@ bool CSSCPAProcessClause(CSSCPAState_p state, Clause_p clause,
 /*----Added by Geoff */
 	       clause_status = contradicts;
 	       OUTPRINT(1, "# Unit contradiction found!\n");
-	    }	       
+	    }
 	 }
       }
-      
+
 /*----Added by Geoff */
       if(clause_status == contradicts || clause_status == forced || clause_status == improved)
       {
@@ -367,16 +367,16 @@ bool CSSCPAProcessClause(CSSCPAState_p state, Clause_p clause,
 	    state->weight   -= handle->weight;
             if(OutputLevel)
             {
-	       fprintf(GlobalOut, 
-	  	       "# Clause %ld removed from list (subsumed by %ld)\n", 
+	       fprintf(GlobalOut,
+	  	       "# Clause %ld removed from list (subsumed by %ld)\n",
 		       handle->ident, clause->ident);
-            } 
+            }
 	    ClauseSetDeleteEntry(handle);
          }
          state->clauses++;
          state->literals += ClauseLiteralNumber(clause);
          state->weight   += clause->weight;
-	 
+
          if(ClauseIsUnit(clause)&&ClauseIsPositive(clause))
          {
 	    ClauseSetIndexedInsertClause(state->pos_units,clause);
@@ -391,8 +391,8 @@ bool CSSCPAProcessClause(CSSCPAState_p state, Clause_p clause,
 	 }
          if(OutputLevel)
          {
-	    fprintf(GlobalOut, 
-		    "# Clause %ld accepted from %d (%s)\n", 
+	    fprintf(GlobalOut,
+		    "# Clause %ld accepted from %d (%s)\n",
 		    clause->ident, ClauseQueryCSSCPASource(clause),
             ClauseStatusString(clause_status));
          }
@@ -401,14 +401,14 @@ bool CSSCPAProcessClause(CSSCPAState_p state, Clause_p clause,
       {
          if(OutputLevel)
          {
-	    fprintf(GlobalOut, "# Clause %ld rejected (weighty)\n", 
-		    clause->ident);	
+	    fprintf(GlobalOut, "# Clause %ld rejected (weighty)\n",
+		    clause->ident);
          }
          clause_status = rejected;
-      }      
+      }
       PStackFree(subsumed);
    }
-   
+
 /*----Added by Geoff */
    if (clause_status == contradicts || clause_status == improved)
    {
@@ -417,7 +417,7 @@ bool CSSCPAProcessClause(CSSCPAState_p state, Clause_p clause,
          print_csscpa_state(state,clause_status, clause);
       }
    }
-   
+
 /*----Added by Geoff */
    fflush(GlobalOut);
    return (clause_status == contradicts) || (clause_status == improved) || (clause_status == forced);
@@ -475,7 +475,7 @@ void CSSCPALoop(Scanner_p in, CSSCPAState_p state)
 	 AcceptInpTok(in, Comma);
 	 AcceptInpId(in, "I");
 	 AcceptInpId(in, "beg");
-	 AcceptInpId(in, "you");  
+	 AcceptInpId(in, "you");
 	 AcceptInpTok(in, Comma);
 	 AcceptInpId(in, "great");
 	 AcceptInpId(in, "shining");
@@ -494,14 +494,14 @@ void CSSCPALoop(Scanner_p in, CSSCPAState_p state)
 	 AcceptInpTok(in, Fullstop);
 	 continue;
       }
-      
+
       CheckInpId(in, "accept|check");
       accept = false;
       if(TestInpId(in, "accept"))
       {
 	 accept = true;
       }
-      NextToken(in); 
+      NextToken(in);
       source = CP_CSSCPA_Unkown;
       if(TestInpId(in, "from"))
       {
@@ -522,12 +522,12 @@ void CSSCPALoop(Scanner_p in, CSSCPAState_p state)
       /* Here is my suggestion: In order to stay compatible, I require
 	 an extra keyword here, otherwise the deltas are 0.0 (or
 	 whatever you like). Compare with >=, so that the default is
-	 to accept! 
+	 to accept!
 
          Format: "improve(weight_delta, average_delta) */
 
       if(TestInpId(in, "improve"))
-      {	 
+      {
 	 NextToken(in);
 	 AcceptInpTok(in, OpenBracket);
 	 weight_delta = ParseFloat(in);
@@ -542,8 +542,8 @@ void CSSCPALoop(Scanner_p in, CSSCPAState_p state)
       }
       AcceptInpTok(in, Colon);
       handle = ClauseParse(in, state->terms);
-      ClauseSetCSSCPASource(handle,source); 
-      CSSCPAProcessClause(state, handle, accept, weight_delta, average_delta);     
+      ClauseSetCSSCPASource(handle,source);
+      CSSCPAProcessClause(state, handle, accept, weight_delta, average_delta);
    }
 }
 

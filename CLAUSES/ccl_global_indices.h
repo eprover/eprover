@@ -5,8 +5,8 @@ File  : ccl_global_indices.h
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
-  Code abstracting several (optional) indices into one structure. 
+
+  Code abstracting several (optional) indices into one structure.
 
   Copyright 2010 by the author.
   This code is released under the GNU General Public Licence and
@@ -42,7 +42,7 @@ typedef struct global_indices_cell
    char              pm_into_index_type[MAX_PM_INDEX_NAME_LEN];
    char              pm_negp_index_type[MAX_PM_INDEX_NAME_LEN];
    Sig_p             sig;
-   SubtermIndex_p    bw_rw_index;   
+   SubtermIndex_p    bw_rw_index;
    OverlapIndex_p    pm_from_index;
    OverlapIndex_p    pm_into_index;
    OverlapIndex_p    pm_negp_index;
@@ -58,7 +58,7 @@ PERF_CTR_DECL(BWRWIndexTimer);
 
 
 void GlobalIndicesNull(GlobalIndices_p indices);
-void GlobalIndicesInit(GlobalIndices_p indices, 
+void GlobalIndicesInit(GlobalIndices_p indices,
                        Sig_p sig,
                        char* rw_bw_index_type,
                        char* pm_from_index_type,

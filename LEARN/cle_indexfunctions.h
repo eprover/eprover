@@ -60,7 +60,7 @@ typedef struct indextermcell
 
 /* Operations on index:
 
-   - insert(term, patternsubst) -> value >=0, 
+   - insert(term, patternsubst) -> value >=0,
    - find(term, patternsubst) -> value or -1
 
    All values should populate 0...max{values} somewhat densely
@@ -80,7 +80,7 @@ typedef struct tsmindexcell
    {
       PTree_p     t_index;    /* Map IndexTerms onto index number */
       NumTree_p   n_index;    /* Map f_codes onto number */
-   }              tree;   
+   }              tree;
 }TSMIndexCell, *TSMIndex_p;
 
 #define IndexDynamicDepth 0
@@ -106,7 +106,7 @@ int          IndexTermCompareFun(const void* term1, const void* term2);
 #define TSMIndexCellAlloc()    (TSMIndexCell*)SizeMalloc(sizeof(TSMIndexCell))
 #define TSMIndexCellFree(junk) SizeFree(junk, sizeof(TSMIndexCell))
 
-TSMIndex_p TSMIndexAlloc(IndexType type, int depth, TB_p bank, 
+TSMIndex_p TSMIndexAlloc(IndexType type, int depth, TB_p bank,
 		      PatternSubst_p subst);
 void       TSMIndexFree(TSMIndex_p junk);
 

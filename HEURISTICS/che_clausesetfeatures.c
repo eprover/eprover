@@ -5,7 +5,7 @@ File  : che_clausesetfeatures.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for calculating certain features of clause sets.
 
   Copyright 1998, 1999 by the author.
@@ -70,7 +70,7 @@ SpecLimits_p SpecLimitsAlloc(void)
    {
       handle->ngu_few_limit          = NGU_FEW_DEFAULT;
       handle->ngu_many_limit         = NGU_MANY_DEFAULT;
-   }  
+   }
    handle->gpc_absolute           = GPC_ABSOLUTE;
    if(GPC_ABSOLUTE)
    {
@@ -81,7 +81,7 @@ SpecLimits_p SpecLimitsAlloc(void)
    {
       handle->gpc_few_limit          = GPC_FEW_DEFAULT;
       handle->gpc_many_limit         = GPC_MANY_DEFAULT;
-   }      
+   }
    handle->ax_some_limit          = AX_SOME_DEFAULT       ;
    handle->ax_many_limit          = AX_MANY_DEFAULT       ;
    handle->lit_some_limit         = LIT_SOME_DEFAULT      ;
@@ -123,7 +123,7 @@ long ClauseSetCountGoals(ClauseSet_p set)
 {
    long     res = 0;
    Clause_p handle;
-   
+
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
 	  handle->succ)
    {
@@ -151,7 +151,7 @@ long ClauseSetCountUnit(ClauseSet_p set)
 {
    long     res = 0;
    Clause_p handle;
-   
+
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
 	  handle->succ)
    {
@@ -180,7 +180,7 @@ long ClauseSetCountUnitGoals(ClauseSet_p set)
 {
    long     res = 0;
    Clause_p handle;
-   
+
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
 	  handle->succ)
    {
@@ -209,7 +209,7 @@ long ClauseSetCountHorn(ClauseSet_p set)
 {
    long     res = 0;
    Clause_p handle;
-   
+
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
 	  handle->succ)
    {
@@ -237,7 +237,7 @@ long ClauseSetCountHornGoals(ClauseSet_p set)
 {
    long     res = 0;
    Clause_p handle;
-   
+
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
 	  handle->succ)
    {
@@ -266,7 +266,7 @@ long ClauseSetCountEquational(ClauseSet_p set)
 {
    long     res = 0;
    Clause_p handle;
-   
+
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
 	  handle->succ)
    {
@@ -294,7 +294,7 @@ long ClauseSetCountPureEquational(ClauseSet_p set)
 {
    long     res = 0;
    Clause_p handle;
-   
+
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
 	  handle->succ)
    {
@@ -323,7 +323,7 @@ long ClauseSetCountPosUnits(ClauseSet_p set)
 {
    long     res = 0;
    Clause_p handle;
-   
+
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
 	  handle->succ)
    {
@@ -352,7 +352,7 @@ long ClauseSetCountGroundGoals(ClauseSet_p set)
 {
    long     res = 0;
    Clause_p handle;
-   
+
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
 	  handle->succ)
    {
@@ -381,7 +381,7 @@ long ClauseSetCountGround(ClauseSet_p set)
 {
    long     res = 0;
    Clause_p handle;
-   
+
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
 	  handle->succ)
    {
@@ -410,7 +410,7 @@ long ClauseSetCountGroundUnitAxioms(ClauseSet_p set)
 {
    long     res = 0;
    Clause_p handle;
-   
+
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
 	  handle->succ)
    {
@@ -439,7 +439,7 @@ long ClauseSetCountGroundPositiveAxioms(ClauseSet_p set)
 {
    long     res = 0;
    Clause_p handle;
-   
+
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
 	  handle->succ)
    {
@@ -468,7 +468,7 @@ long ClauseSetCountPositiveAxioms(ClauseSet_p set)
 {
    long     res = 0;
    Clause_p handle;
-   
+
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
 	  handle->succ)
    {
@@ -497,7 +497,7 @@ long ClauseSetCountTPTPRangeRestricted(ClauseSet_p set)
 {
    long     res = 0;
    Clause_p handle;
-   
+
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
 	  handle->succ)
    {
@@ -577,7 +577,7 @@ long ClauseSetCollectArityInformation(ClauseSet_p set, Sig_p sig,
       dist_array[i] = 0;
    }
    ClauseSetAddSymbolDistribution(set, dist_array);
-   
+
    for(i=1; i<= sig->f_count; i++)
    {
       if(!SigIsSpecial(sig, i)&&dist_array[i])
@@ -599,7 +599,7 @@ long ClauseSetCollectArityInformation(ClauseSet_p set, Sig_p sig,
 	    {
 	       max_f_arity = MAX(arity, max_f_arity);
 	       sum_f_arity += arity;
-	       f_count++;	       
+	       f_count++;
 	    }
 	    else
 	    {
@@ -609,7 +609,7 @@ long ClauseSetCollectArityInformation(ClauseSet_p set, Sig_p sig,
       }
    }
    SizeFree(dist_array, array_size);
-   
+
    *max_fun_arity   = max_f_arity;
    *avg_fun_arity   = f_count?sum_f_arity/f_count:0;
    *sum_fun_arity   = sum_f_arity;
@@ -692,7 +692,7 @@ long ClauseSetCountVariables(ClauseSet_p set)
 {
    Clause_p handle;
    long     res = 0;
-   
+
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
 	  handle->succ)
    {
@@ -719,7 +719,7 @@ long ClauseSetCountSingletons(ClauseSet_p set)
 {
    Clause_p handle;
    long     res = 0;
-   
+
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
 	  handle->succ)
    {
@@ -736,9 +736,9 @@ long ClauseSetCountSingletons(ClauseSet_p set)
 //   Add the depth information in TPTP interpretation to the
 //   variables. See che_clausefeatures.c for more.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -746,7 +746,7 @@ long ClauseSetTPTPDepthInfoAdd(ClauseSet_p set, long* depthmax, long*
 			       depthsum, long* count)
 {
    Clause_p handle;
-   
+
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
 	  handle->succ)
    {
@@ -909,10 +909,10 @@ void SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p set,
    features->literals         = set->literals;
    features->term_cells       = ClauseSetTermCells(set);
 
-   tmp = 0; 
+   tmp = 0;
    count = 0;
    features->clause_max_depth = 0;
-   ClauseSetTPTPDepthInfoAdd(set, 
+   ClauseSetTPTPDepthInfoAdd(set,
                              &(features->clause_max_depth),
                              &tmp,
                              &count);
@@ -929,10 +929,10 @@ void SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p set,
    features->eq_clauses       = ClauseSetCountEquational(set);
    features->peq_clauses      = ClauseSetCountPureEquational(set);
    features->groundunitaxioms = ClauseSetCountGroundUnitAxioms(set);
-   features->groundgoals      = ClauseSetCountGroundGoals(set);   
+   features->groundgoals      = ClauseSetCountGroundGoals(set);
    features->positiveaxioms   = ClauseSetCountPositiveAxioms(set);
    features->groundpositiveaxioms = ClauseSetCountGroundPositiveAxioms(set);
-   features->fun_const_count   = 
+   features->fun_const_count   =
       ClauseSetCollectArityInformation(set, sig,
 				       &(features->max_fun_arity),
 				       &(features->avg_fun_arity),
@@ -945,16 +945,16 @@ void SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p set,
 
    features->goals_are_ground = (features->groundgoals ==
 				 features->goals);
-   
+
    if(features->unitaxioms == features->axioms)
    {
       features->axiomtypes = SpecUnit;
    }
    else if(features->hornaxioms == features->axioms)
-   {     
+   {
       features->axiomtypes = SpecHorn;
    }
-   else 
+   else
    {
       features->axiomtypes = SpecGeneral;
    }
@@ -964,27 +964,27 @@ void SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p set,
       features->goaltypes = SpecUnit;
    }
    else if(features->horngoals == features->goals)
-   {     
+   {
       features->goaltypes = SpecHorn;
    }
-   else 
+   else
    {
       features->goaltypes = SpecGeneral;
    }
-   
+
    if(features->peq_clauses == features->clauses)
    {
       features->eq_content = SpecPureEq;
    }
    else if(features->eq_clauses)
-   {     
+   {
       features->eq_content = SpecSomeEq;
    }
-   else 
+   else
    {
       features->eq_content = SpecNoEq;
    }
-   
+
    switch(features->max_fun_arity)
    {
    case 0:
@@ -1024,8 +1024,8 @@ void SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p set,
       ((double)(features->groundpositiveaxioms)/
        (double)(features->positiveaxioms))
       :0.0;
-   
-   
+
+
 }
 
 
@@ -1046,7 +1046,7 @@ void SpecFeaturesAddEval(SpecFeature_p features, SpecLimits_p limits)
 
    features->goals_are_ground = (features->groundgoals ==
 				 features->goals);
-   
+
    if(limits->ngu_absolute)
    {
       features->ng_unit_content = SpecFewPosNonGroundUnits;
@@ -1130,7 +1130,7 @@ void SpecFeaturesAddEval(SpecFeature_p features, SpecLimits_p limits)
    {
       features->set_literal_size = SpecManyLiterals;
    }
-    
+
    if(features->term_cells < limits->term_medium_limit)
    {
       features->set_termcell_size = SpecSmallTerms;
@@ -1142,8 +1142,8 @@ void SpecFeaturesAddEval(SpecFeature_p features, SpecLimits_p limits)
    else
    {
       features->set_termcell_size = SpecLargeTerms;
-   }    
-   
+   }
+
    switch(features->max_fun_arity)
    {
    case 0:
@@ -1194,7 +1194,7 @@ void SpecFeaturesAddEval(SpecFeature_p features, SpecLimits_p limits)
    else
    {
       features->sum_fun_ar_class = SpecAritySumLarge;
-   }    
+   }
 
    if(features->clause_max_depth < limits->depth_medium_limit)
    {
@@ -1210,7 +1210,7 @@ void SpecFeaturesAddEval(SpecFeature_p features, SpecLimits_p limits)
    {
       features->max_depth_class = SpecDepthDeep;
       /* printf("Deep %ld %ld\n", features->clause_max_depth, limits->depth_medium_limit);*/
-   }            
+   }
 }
 
 
@@ -1232,7 +1232,7 @@ void SpecFeaturesPrint(FILE* out, SpecFeature_p features)
 {
    assert(features);
 
-   fprintf(out, 
+   fprintf(out,
 	   "( %3ld, %3ld, %3ld, %3ld, %3ld, %3ld, %3ld, %3ld, %3ld,"
 	   " %3ld, %3ld, %3ld, %3ld, %3ld, %3ld, %8.6f, %8.6f,"
            " %3d, %3d, %3d, %3ld, %3ld )",
@@ -1397,7 +1397,7 @@ void SpecFeaturesParse(Scanner_p in, SpecFeature_p features)
 //
 // Function: SpecTypePrint()
 //
-//   Print the type of the problem as a n-letter code. 
+//   Print the type of the problem as a n-letter code.
 //   1) Axioms are [U]nit, [H]orn, [General]
 //   2) Goals  are [U]nit, [H]orn, [General]
 //   3) [N]o equality, [S]ome equality, [P]ure equality
@@ -1420,7 +1420,7 @@ void SpecTypePrint(FILE* out, SpecFeature_p features, char* mask)
    assert(mask && (strlen(mask)==13));
    limit = strlen(mask);
 
-   sprintf(result, "%c%c%c%c%c%c%c%c%c%c%c%c%c", 
+   sprintf(result, "%c%c%c%c%c%c%c%c%c%c%c%c%c",
 	   encoding[features->axiomtypes],
 	   encoding[features->goaltypes],
 	   encoding[features->eq_content],
@@ -1532,7 +1532,7 @@ void ClauseSetPrintNonUnits(FILE* out, ClauseSet_p set, bool
 // Function: ProofStatePrintSelective()
 //
 //   Print parts of the proof state to the given stream. Descriptor
-//   controls which parts. 
+//   controls which parts.
 //
 // Global Variables: -
 //
@@ -1586,36 +1586,36 @@ void ProofStatePrintSelective(FILE* out, ProofState_p state, char*
 	    ClauseSetPrintNonUnits(out, state->unprocessed,
 				   printinfo);
 	    fputc('\n', out);
-	    break;	    
+	    break;
       case 'a':
 	    if(ClauseSetIsEquational(state->axioms))
 	    {
-	       fprintf(out, "# Equality axioms:\n");	    
+	       fprintf(out, "# Equality axioms:\n");
 	       EqAxiomsPrint(out, state->signature, true);
 	    }
 	    else
 	    {
-	       fprintf(out, "# No equality axioms required.\n");	       
+	       fprintf(out, "# No equality axioms required.\n");
 	    }
-	       
+
 	    break;
       case 'A':
 	    if(ClauseSetIsEquational(state->axioms))
 	    {
-	       fprintf(out, "# Equality axioms:\n");	    
+	       fprintf(out, "# Equality axioms:\n");
 	       EqAxiomsPrint(out, state->signature, false);
 	    }
 	    else
 	    {
-	       fprintf(out, "# No equality axioms required.\n");	       
-	    }	    
+	       fprintf(out, "# No equality axioms required.\n");
+	    }
 	    break;
-      default: 
+      default:
 	    assert(false && "Illegal character in descriptor string");
 	    break;
       }
       current++;
-   }   
+   }
 }
 
 
@@ -1626,9 +1626,9 @@ void ProofStatePrintSelective(FILE* out, ProofState_p state, char*
 //   Return a SpecLimits cell initialized with the default limits for
 //   Auto-Mode problem classification.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 SpecLimits_p CreateDefaultSpecLimits(void)

@@ -7,7 +7,7 @@ Author: Stephan Schulz
 Contents
 
   Data types and algorithms to realize proof checking for PCL2
-  protocols. 
+  protocols.
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
@@ -47,9 +47,9 @@ Changes
 //   Execute command and scan the output for success. If found, return
 //   true, else return false;
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -121,7 +121,7 @@ static bool pcl_verify_eprover(ClauseSet_p problem,char *executable,
    DStrAppendInt(command, time_limit);
    DStrAppendChar(command, ' ');
    DStrAppendStr(command, name);
-   
+
    res = pcl_run_prover(DStrView(command),"# Proof found!");
 
    if(!res)
@@ -130,7 +130,7 @@ static bool pcl_verify_eprover(ClauseSet_p problem,char *executable,
       FilePrint(GlobalOut, name);
       fprintf(GlobalOut, "# ------------Problem end----------------\n");
    }
-   
+
    TempFileRemove(name);
    FREE(name);
    DStrFree(command);
@@ -162,7 +162,7 @@ static void eqn_print_otter(FILE* out, Eqn_p eqn)
       }
       else
       {
-	 fputc('-', out);	
+	 fputc('-', out);
 	 EqnPrint(out, eqn, true, true);
       }
    }
@@ -177,7 +177,7 @@ static void eqn_print_otter(FILE* out, Eqn_p eqn)
 	    fputs("$T", out);
 	 }
 	 else
-	 {	    
+	 {
 	    fputs("$F", out);
 	 }
       }
@@ -186,11 +186,11 @@ static void eqn_print_otter(FILE* out, Eqn_p eqn)
 	 /* Nonequational literal */
 	 if(EqnIsNegative(eqn))
 	 {
-	    fputc('-', out);	    
+	    fputc('-', out);
 	 }
 	 else
 	 {
-	    fputc(' ', out);	    	    
+	    fputc(' ', out);
 	 }
 	 TBPrintTerm(out, eqn->bank, eqn->lterm, true);
       }
@@ -296,7 +296,7 @@ static bool pcl_verify_otter(ClauseSet_p problem,char *executable,
 	   "assign(max_seconds, %ld).\n\n"
 	   "assign(max_mem, 100000).\n\n"
 	   "list(usable).\n\n"
-	   "equal(X,X).\n",time_limit); 
+	   "equal(X,X).\n",time_limit);
    clause_set_print_otter(problemfile, problem);
    fprintf(problemfile,
 	   "end_of_list.\n");
@@ -306,16 +306,16 @@ static bool pcl_verify_otter(ClauseSet_p problem,char *executable,
    DStrAppendStr(command, " < ");
    DStrAppendStr(command, name);
    DStrAppendStr(command, " 2> /dev/null");
-   
+
    res = pcl_run_prover(DStrView(command), "-------- PROOF --------");
-   
+
    if(!res)
    {
       fprintf(GlobalOut, "# ------------Problem begin--------------\n");
       FilePrint(GlobalOut, name);
       fprintf(GlobalOut, "# ------------Problem end----------------\n");
    }
-   
+
    TempFileRemove(name);
    FREE(name);
    DStrFree(command);
@@ -327,7 +327,7 @@ static bool pcl_verify_otter(ClauseSet_p problem,char *executable,
 //
 // Function: sig_print_dfg()
 //
-//   Collect function symbols from set and print them in DFG syntax. 
+//   Collect function symbols from set and print them in DFG syntax.
 //
 // Global Variables: -
 //
@@ -346,13 +346,13 @@ static void sig_print_dfg(FILE* out, ClauseSet_p set, Sig_p sig)
       symbol_distrib[i] = 0;
    }
    ClauseSetAddSymbolDistribution(set, symbol_distrib);
-   
+
    fprintf(out,"list_of_symbols.\nfunctions[(spass_hack,0)");
    for(i=sig->internal_symbols+1; i<sig->size; i++)
    {
       if(symbol_distrib[i]&&!SigIsPredicate(sig,i))
       {
-	 fprintf(out, ",(%s,%d)", 
+	 fprintf(out, ",(%s,%d)",
 		 SigFindName(sig, i),
 		 SigFindArity(sig, i));
       }
@@ -362,11 +362,11 @@ static void sig_print_dfg(FILE* out, ClauseSet_p set, Sig_p sig)
    {
       if(symbol_distrib[i]&&SigIsPredicate(sig,i))
       {
-	 fprintf(out, ",(%s,%d)", 
+	 fprintf(out, ",(%s,%d)",
 		 SigFindName(sig, i),
 		 SigFindArity(sig, i));
       }
-   }  
+   }
    fprintf(out,"].\nend_of_list.\n");
 }
 
@@ -405,7 +405,7 @@ static void eqn_print_dfg(FILE* out, Eqn_p eqn)
    if(EqnIsNegative(eqn))
    {
       fputc(')', out);
-   }   
+   }
 }
 
 
@@ -526,9 +526,9 @@ static bool pcl_verify_spass(ClauseSet_p problem,char *executable,
    problemfile = OutOpen(name);
    fprintf(problemfile,
 	   "begin_problem(Unknown).\n");
-   
+
    sig_print_dfg(problemfile, problem, sig);
-   
+
    fprintf(problemfile, "list_of_clauses(axioms,cnf).\n");
    clause_set_print_dfg(problemfile, problem);
    fprintf(problemfile, "end_of_list.\n"
@@ -541,7 +541,7 @@ static bool pcl_verify_spass(ClauseSet_p problem,char *executable,
    DStrAppendStr(command, executable);
    DStrAppendStr(command, " ");
    DStrAppendStr(command, name);
-   
+
    res = pcl_run_prover(DStrView(command), "Proof found.");
    if(!res)
    {
@@ -549,7 +549,7 @@ static bool pcl_verify_spass(ClauseSet_p problem,char *executable,
       FilePrint(GlobalOut, name);
       fprintf(GlobalOut, "# ------------Problem end----------------\n");
    }
-   
+
    TempFileRemove(name);
    FREE(name);
    DStrFree(command);
@@ -581,9 +581,9 @@ long PCLCollectPreconds(PCLProt_p prot, PCLStep_p step, ClauseSet_p
    PCLStep_p handle;
    Clause_p  clause;
    long      res = 0;
-   
+
    assert(prot && step && set);
-   
+
    PCLExprCollectPreconds(prot, step->just, &tree);
    while(tree)
    {
@@ -627,7 +627,7 @@ long PCLNegSkolemizeClause(PCLProt_p prot, PCLStep_p step, ClauseSet_p
    if(PCLStepIsClausal(step))
    {
       clause = ClauseSkolemize(step->logic.clause, prot->terms);
-      
+
       for(handle=clause->literals; handle; handle=handle->next)
       {
          copy = EqnCopy(handle,prot->terms);
@@ -664,16 +664,16 @@ long PCLNegSkolemizeClause(PCLProt_p prot, PCLStep_p step, ClauseSet_p
 ClauseSet_p PCLGenerateCheck(PCLProt_p prot, PCLStep_p step)
 {
    ClauseSet_p set = ClauseSetAlloc();
-   
+
    if(PCLCollectPreconds(prot, step, set))
    {
-      PCLNegSkolemizeClause(prot, step, set); 
+      PCLNegSkolemizeClause(prot, step, set);
    }
    else
    {
       ClauseSetFree(set);
       set = NULL;
-   }   
+   }
    return set;
 }
 
@@ -684,7 +684,7 @@ ClauseSet_p PCLGenerateCheck(PCLProt_p prot, PCLStep_p step)
 //
 //   Check the validity of a single PCL step. Return true if it checks
 //   ok, false otherwise. At the moment, just print the generated
-//   problem. 
+//   problem.
 //
 // Global Variables: -
 //
@@ -697,7 +697,7 @@ PCLCheckType PCLStepCheck(PCLProt_p prot, PCLStep_p step, ProverType
 {
    ClauseSet_p problem;
    PCLCheckType res=CheckFail;
-   
+
    if(step->just->op==PCLOpSplitClause)
    {
       return CheckNotImplemented;
@@ -734,7 +734,7 @@ PCLCheckType PCLStepCheck(PCLProt_p prot, PCLStep_p step, ProverType
 	    break;
       }
       ClauseSetFree(problem);
-   }   
+   }
    return res;
 }
 
@@ -744,7 +744,7 @@ PCLCheckType PCLStepCheck(PCLProt_p prot, PCLStep_p step, ProverType
 // Function: PCLProtCheck()
 //
 //   Check all steps in a PCL listing. Return number of successful
-//   steps. 
+//   steps.
 //
 // Global Variables: -
 //
@@ -764,10 +764,10 @@ long PCLProtCheck(PCLProt_p prot, ProverType prover, char* executable,
 
    *unchecked = 0;
    trav_stack = PTreeTraverseInit(prot->steps);
-   while((cell=PTreeTraverseNext(trav_stack)))      
-   {      
+   while((cell=PTreeTraverseNext(trav_stack)))
+   {
       step=cell->key;
-      PStackPushP(stack, step);      
+      PStackPushP(stack, step);
    }
    PTreeTraverseExit(trav_stack);
 
@@ -777,7 +777,7 @@ long PCLProtCheck(PCLProt_p prot, ProverType prover, char* executable,
       if(OutputLevel)
       {
 	 fprintf(GlobalOut, "# Checking ");
-	 PCLStepPrint(GlobalOut, step);	 
+	 PCLStepPrint(GlobalOut, step);
 	 fputc('\n', GlobalOut);
       }
       check = PCLStepCheck(prot, step, prover, executable,
@@ -791,7 +791,7 @@ long PCLProtCheck(PCLProt_p prot, ProverType prover, char* executable,
       case CheckOk:
 	    OUTPRINT(1,"# Checked (by prover)\n\n");
 	    res++;
-	    break;	    
+	    break;
       case CheckFail:
 	    OUTPRINT(1,"# FAILED\n\n");
 	    break;
@@ -801,7 +801,7 @@ long PCLProtCheck(PCLProt_p prot, ProverType prover, char* executable,
 	    break;
       default:
 	    assert(false);
-	    break;	    
+	    break;
       }
    }
    PStackFree(stack);

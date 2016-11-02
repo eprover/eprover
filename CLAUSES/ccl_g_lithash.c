@@ -5,7 +5,7 @@ File  : ccl_g_lithash.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Algorithms and data structures implementing a simple literal
   indexing structure for implementing local unification constraints
   for the grounding procedure.
@@ -45,7 +45,7 @@ Changes
 //
 // Function: lit_tree_free()
 //
-//   Free the memory taken up by a PObjTree containing LitDescCells. 
+//   Free the memory taken up by a PObjTree containing LitDescCells.
 //
 // Global Variables: -
 //
@@ -123,10 +123,10 @@ LitHash_p LitHashAlloc(Sig_p sig)
 
    LitHash_p handle = LitHashCellAlloc();
 
-   handle->sig_size = sig->f_count+1; 
+   handle->sig_size = sig->f_count+1;
    handle->pos_lits = SizeMalloc(handle->sig_size*sizeof(PTree_p));
    handle->neg_lits = SizeMalloc(handle->sig_size*sizeof(PTree_p));
-   
+
    for(i=0; i<handle->sig_size; i++)
    {
       handle->pos_lits[i] = NULL;
@@ -142,9 +142,9 @@ LitHash_p LitHashAlloc(Sig_p sig)
 //
 //   Free the memory occupied by a lithashtable.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -178,7 +178,7 @@ void LitHashFree(LitHash_p junk)
 
 void LitHashInsertEqn(LitHash_p hash, Eqn_p eqn, Clause_p clause)
 {
-   LitDesc_p handle = LitDescCellAlloc(), old;   
+   LitDesc_p handle = LitDescCellAlloc(), old;
    PTree_p *root;
 
    assert(hash);
@@ -189,7 +189,7 @@ void LitHashInsertEqn(LitHash_p hash, Eqn_p eqn, Clause_p clause)
 
    handle->lit = eqn->lterm;
    handle->clause = clause;
-   
+
    if(EqnIsPositive(eqn))
    {
       root = &(hash->pos_lits[eqn->lterm->f_code]);
@@ -245,12 +245,12 @@ void LitHashInsertClause(LitHash_p hash, Clause_p clause)
 void LitHashInsertClauseSet(LitHash_p hash, ClauseSet_p set)
 {
    Clause_p handle;
-   
+
    for(handle = set->anchor->succ; handle!= set->anchor; handle =
 	  handle->succ)
    {
-      LitHashInsertClause(hash, handle);      
-   }   
+      LitHashInsertClause(hash, handle);
+   }
 }
 
 

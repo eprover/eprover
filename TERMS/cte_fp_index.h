@@ -5,7 +5,7 @@ File  : cte_fp_index.h
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Fingerprint based indexing of terms. A fingerprint is a extor of
   samples of symbols at different positions. The index is a try build
   over these vectors.
@@ -94,13 +94,13 @@ FPTree_p FPTreeFind(FPTree_p root, IndexFP_p key);
 FPTree_p FPTreeInsert(FPTree_p root, IndexFP_p key);
 void     FPTreeDelete(FPTree_p root, IndexFP_p key);
 
-long     FPTreeFindUnifiable(FPTree_p root, 
-                             IndexFP_p key, 
-                             Sig_p sig, 
+long     FPTreeFindUnifiable(FPTree_p root,
+                             IndexFP_p key,
+                             Sig_p sig,
                              PStack_p collect);
-long     FPTreeFindMatchable(FPTree_p root, 
-                             IndexFP_p key, 
-                             Sig_p sig, 
+long     FPTreeFindMatchable(FPTree_p root,
+                             IndexFP_p key,
+                             Sig_p sig,
                              PStack_p collect);
 
 
@@ -108,7 +108,7 @@ long     FPTreeFindMatchable(FPTree_p root,
 #define FPIndexCellFree(junk)         SizeFree(junk, sizeof(FPIndexCell))
 
 
-FPIndex_p FPIndexAlloc(FPIndexFunction fp_fun, Sig_p sig, 
+FPIndex_p FPIndexAlloc(FPIndexFunction fp_fun, Sig_p sig,
                        FPTreeFreeFun payload_free);
 void      FPIndexFree(FPIndex_p index);
 
@@ -124,7 +124,7 @@ void      FPIndexDistribDataPrint(FILE* out, FPIndex_p index);
 
 void      FPIndexPrint(FILE* out, FPIndex_p index, FPLeafPrintFun prtfun);
 long      FPIndexCollectLeaves(FPIndex_p index, PStack_p result);
-void      FPIndexPrintDot(FILE* out, char* name, FPIndex_p index, 
+void      FPIndexPrintDot(FILE* out, char* name, FPIndex_p index,
                           FPLeafPayloadPrint prt_sig, Sig_p sig);
 
 

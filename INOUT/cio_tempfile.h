@@ -6,7 +6,7 @@ Author: Stephan Schulz
 
 Contents
 
-  Functions dealing with temporary files. 
+  Functions dealing with temporary files.
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and

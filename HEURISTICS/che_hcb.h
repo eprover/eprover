@@ -5,7 +5,7 @@ File  : che_hcb.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Heuristic control blocks, describing heuristics for clause
   selection.
 
@@ -71,15 +71,15 @@ typedef struct heuristic_parms_cell
    char*               to_pre_weights;
    long                to_const_weight;
    bool                no_lit_cmp;
-   
+
    /* Elements controling literal selection */
    LiteralSelectionFun selection_strategy;
-   long                pos_lit_sel_min; 
-   long                pos_lit_sel_max; 
-   long                neg_lit_sel_min; 
-   long                neg_lit_sel_max; 
-   long                all_lit_sel_min; 
-   long                all_lit_sel_max; 
+   long                pos_lit_sel_min;
+   long                pos_lit_sel_max;
+   long                neg_lit_sel_min;
+   long                neg_lit_sel_max;
+   long                all_lit_sel_min;
+   long                all_lit_sel_max;
    long                weight_sel_min;
    bool                select_on_proc_only;
    bool                inherit_paramod_lit;
@@ -103,8 +103,8 @@ typedef struct heuristic_parms_cell
    RewriteLevel        forward_demod;
    bool                prefer_general;
 
-   bool                condensing;  
-   bool                condensing_aggressive; 
+   bool                condensing;
+   bool                condensing_aggressive;
 
    bool                er_varlit_destructive;
    bool                er_strong_destructive;
@@ -119,7 +119,7 @@ typedef struct heuristic_parms_cell
    char                rw_bw_index_type[MAX_PM_INDEX_NAME_LEN];
    char                pm_from_index_type[MAX_PM_INDEX_NAME_LEN];
    char                pm_into_index_type[MAX_PM_INDEX_NAME_LEN];
-   
+
    /* Various things */
    long                filter_limit;
    long                filter_copies_limit;
@@ -160,12 +160,12 @@ typedef struct hcb_cell
       current_eval is increased modulo wfcb_no. */
    PDArray_p       select_switch;
    long            select_count;
-   
+
    /* Selection function, this function is called to select an
       unprocessed clause from the set */
    Clause_p        (*hcb_select)(struct hcb_cell* hcb, ClauseSet_p
 				 set);
-   
+
    /* Some HCB selection or evaluation functions may need data of
       their own. If yes, their creation function can allocate data,
       and needs to register a cleanup-function here. This function is

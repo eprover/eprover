@@ -5,7 +5,7 @@ File  : ccl_def_handling.h
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Datatypes for handling clausal definitons as used (up to now
   implicitly) in splitting, i.e. data structures associating a clause
   with a fresh constant predicate symbol or literal.
@@ -38,7 +38,7 @@ Changes
 typedef struct def_store_cell
 {
    TB_p         terms;       /* Where to build new literals. */
-   ClauseSet_p  def_clauses; /* The clauses we have definitions for. */ 
+   ClauseSet_p  def_clauses; /* The clauses we have definitions for. */
    NumTree_p    def_assocs;  /* Association of clause id and new symbol. */
    FormulaSet_p def_archive;
 }DefStoreCell, *DefStore_p;
@@ -63,8 +63,8 @@ Eqn_p      GenDefLit(TB_p bank, FunCode pred, bool positive,
 Clause_p   GetClauseDefinition(Eqn_p litlist, FunCode def_pred, WFormula_p parent);
 WFormula_p GetFormulaDefinition(Eqn_p litlist, FunCode def_pred);
 
-FunCode GetDefinitions(DefStore_p store, Eqn_p litlist, 
-                       WFormula_p* res_form, Clause_p* res_clause, 
+FunCode GetDefinitions(DefStore_p store, Eqn_p litlist,
+                       WFormula_p* res_form, Clause_p* res_clause,
                        bool fresh);
 
 #endif

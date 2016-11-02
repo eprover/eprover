@@ -5,7 +5,7 @@ File  :  cco_clausesplitting.h
 Author: Stephan Schulz
 
 Contents
- 
+
   The interface functions for controlled clause splitting.
 
   Copyright 1998, 1999 by the author.
@@ -37,8 +37,8 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-int  ControlledClauseSplit(DefStore_p store, Clause_p clause, 
-                           ClauseSet_p set, SplitClassType which, 
+int  ControlledClauseSplit(DefStore_p store, Clause_p clause,
+                           ClauseSet_p set, SplitClassType which,
                            SplitType how, bool fresh_defs);
 
 

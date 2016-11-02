@@ -5,9 +5,9 @@ File  : cco_sine.h
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Data types and definitions for supporting SinE-like specification
-  filtering. 
+  filtering.
 
   Copyright 2012 by the author.
   This code is released under the GNU General Public Licence.
@@ -60,23 +60,23 @@ typedef struct strtuctured_FOF_spec_cell
 StructFOFSpec_p StructFOFSpecAlloc(void);
 void           StructFOFSpecFree(StructFOFSpec_p ctrl);
 
-long           StructFOFSpecParseAxioms(StructFOFSpec_p ctrl, 
-                                       PStack_p axfiles, 
+long           StructFOFSpecParseAxioms(StructFOFSpec_p ctrl,
+                                       PStack_p axfiles,
                                        IOFormat parse_format);
 #define       StructFOFSpecResetShared(ctrl) (ctrl)->shared_ax_sp = 0
 
 void           StructFOFSpecInitDistrib(StructFOFSpec_p ctrl);
 
-void StructFOFSpecAddProblem(StructFOFSpec_p ctrl, 
-                             ClauseSet_p clauses, 
-                             FormulaSet_p formulas); 
+void StructFOFSpecAddProblem(StructFOFSpec_p ctrl,
+                             ClauseSet_p clauses,
+                             FormulaSet_p formulas);
 
 void StructFOFSpecBacktrackToSpec(StructFOFSpec_p ctrl);
 
 
 long StructFOFSpecGetProblem(StructFOFSpec_p ctrl,
                              AxFilter_p filter,
-                             PStack_p res_clauses, 
+                             PStack_p res_clauses,
                              PStack_p res_formulas);
 
 

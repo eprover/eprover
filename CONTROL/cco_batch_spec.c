@@ -5,7 +5,7 @@ File  : cco_batch_spec.c
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   CASC-J5 batch specification file.
 
   Copyright 2010 by the author.
@@ -64,20 +64,20 @@ char* BatchFilters[] =
 //
 //   Re-run e as eproof and return the result.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
-void do_proof(DStr_p res, char *exec, char *pexec, 
+void do_proof(DStr_p res, char *exec, char *pexec,
               char* extra_options, long cpu_limit, char* file)
 {
    DStr_p         cmd = DStrAlloc();
    char           line[180];
    char           *l;
    FILE           *fp;
-   
+
    DStrAppendStr(cmd, exec);
    DStrAppendStr(cmd, " ");
    DStrAppendStr(cmd, extra_options);
@@ -89,9 +89,9 @@ void do_proof(DStr_p res, char *exec, char *pexec,
    DStrAppendStr(cmd, "|");
    DStrAppendStr(cmd, pexec);
    DStrAppendStr(cmd, " -f --competition-framing --tstp-out ");
-   
+
    /* fprintf(GlobalOut, "# Running %s\n", DStrView(cmd)); */
-   fp = popen(DStrView(cmd), "r");   
+   fp = popen(DStrView(cmd), "r");
    if(!fp)
    {
       TmpErrno = errno;
@@ -112,9 +112,9 @@ void do_proof(DStr_p res, char *exec, char *pexec,
 //
 //   Create a EPCtrl block associated with a running instance of E.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -135,19 +135,19 @@ EPCtrl_p batch_create_runner(StructFOFSpec_p ctrl,
    fprintf(GlobalOut, "# Filtering for ");
    AxFilterPrint(GlobalOut, ax_filter);
    fprintf(GlobalOut, " (%lld)\n", GetSecTimeMod());
-   StructFOFSpecGetProblem(ctrl, 
+   StructFOFSpecGetProblem(ctrl,
                            ax_filter,
                            cspec,
                            fspec);
    /* fprintf(GlobalOut, "# Spec has %d clauses and %d formulas (%lld)\n",
       PStackGetSP(cspec), PStackGetSP(fspec), GetSecTimeMod()); */
-   
+
    file = TempFileName();
    fp   = SecureFOpen(file, "w");
    PStackClausePrintTSTP(fp, cspec);
    PStackFormulaPrintTSTP(fp, fspec);
    SecureFClose(fp);
-   
+
    /* fprintf(GlobalOut, "# Written new problem (%lld)\n",
     * GetSecTimeMod()); */
 
@@ -156,7 +156,7 @@ EPCtrl_p batch_create_runner(StructFOFSpec_p ctrl,
 
    PStackFree(cspec);
    PStackFree(fspec);
-   
+
    return pctrl;
 }
 
@@ -218,23 +218,23 @@ void print_op_line(FILE* out, BatchSpec_p spec, BOOutputType state)
 {
    if( spec->res_assurance == state)
    {
-      fprintf(out,  " Assurance"); 
+      fprintf(out,  " Assurance");
    }
    if( spec->res_proof == state)
    {
-      fprintf(out, " Proof"); 
+      fprintf(out, " Proof");
    }
    if( spec->res_model == state)
    {
-      fprintf(out, " Model"); 
+      fprintf(out, " Model");
    }
    if( spec->res_answer == state)
    {
-      fprintf(out, " Answer"); 
+      fprintf(out, " Answer");
    }
    if( spec->res_list_fof == state)
    {
-      fprintf(out, " ListOfFOF"); 
+      fprintf(out, " ListOfFOF");
    }
 }
 
@@ -303,7 +303,7 @@ void BatchSpecFree(BatchSpec_p spec)
    {
       FREE(spec->train_dir);
    }
-   
+
    while(!PStackEmpty(spec->includes))
    {
       str = PStackPopP(spec->includes);
@@ -360,7 +360,7 @@ void BatchSpecPrint(FILE* out, BatchSpec_p spec)
    fprintf(out, "output.required");
    print_op_line(out, spec, BORequired);
    fprintf(out, "\n");
-  
+
    fprintf(out, "output.desired");
    print_op_line(out, spec, BODesired);
    fprintf(out, "\n");
@@ -372,7 +372,7 @@ void BatchSpecPrint(FILE* out, BatchSpec_p spec)
 
    for(i=0; i<PStackGetSP(spec->includes); i++)
    {
-      fprintf(out, "include('%s').\n", 
+      fprintf(out, "include('%s').\n",
               (char*)PStackElementP(spec->includes, i));
    }
    fprintf(out, "%% SZS end BatchIncludes\n");
@@ -380,7 +380,7 @@ void BatchSpecPrint(FILE* out, BatchSpec_p spec)
 
    for(i=0; i<PStackGetSP(spec->source_files); i++)
    {
-      fprintf(out, "%s %s\n", 
+      fprintf(out, "%s %s\n",
               (char*)PStackElementP(spec->source_files, i),
               (char*)PStackElementP(spec->dest_files, i));
    }
@@ -403,9 +403,9 @@ void BatchSpecPrint(FILE* out, BatchSpec_p spec)
 //
 /----------------------------------------------------------------------*/
 
-BatchSpec_p BatchSpecParse(Scanner_p in, char* executable, 
-                           char* category, char* train_dir, 
-                           IOFormat format) 
+BatchSpec_p BatchSpecParse(Scanner_p in, char* executable,
+                           char* category, char* train_dir,
+                           IOFormat format)
 {
    BatchSpec_p handle = BatchSpecAlloc(executable, format);
    char *dummy;
@@ -420,7 +420,7 @@ BatchSpec_p BatchSpecParse(Scanner_p in, char* executable,
    {
       AcceptDottedId(in, "execution.order");
       handle->ordered = TestInpId(in, "ordered");
-      AcceptInpId(in, "ordered|unordered");      
+      AcceptInpId(in, "ordered|unordered");
    }
    AcceptDottedId(in, "output.required");
    parse_op_line(in, handle, BORequired);
@@ -438,7 +438,7 @@ BatchSpec_p BatchSpecParse(Scanner_p in, char* executable,
       AcceptDottedId(in, "limit.time.overall.wc");
       handle->total_wtc_limit = ParseInt(in);
    }
-  
+
    while(TestInpId(in, "include"))
    {
       dummy = ParseBasicInclude(in);
@@ -486,7 +486,7 @@ long BatchStructFOFSpecInit(BatchSpec_p spec, StructFOFSpec_p ctrl)
 //
 //   Add a problem as one set of clauses and formulas, each. Note that
 //   this transfers the two sets into ctrl, which is responsible for
-//   freeing. 
+//   freeing.
 //
 // Global Variables: -
 //
@@ -494,16 +494,16 @@ long BatchStructFOFSpecInit(BatchSpec_p spec, StructFOFSpec_p ctrl)
 //
 /----------------------------------------------------------------------*/
 
-void StructFOFSpecAddProblem(StructFOFSpec_p ctrl, 
-                            ClauseSet_p clauses, 
+void StructFOFSpecAddProblem(StructFOFSpec_p ctrl,
+                            ClauseSet_p clauses,
                             FormulaSet_p formulas)
 {
    GenDistribSizeAdjust(ctrl->f_distrib, ctrl->sig);
    PStackPushP(ctrl->clause_sets, clauses);
    PStackPushP(ctrl->formula_sets, formulas);
-      
+
    GenDistribAddClauseSet(ctrl->f_distrib, clauses, 1);
-   GenDistribAddFormulaSet(ctrl->f_distrib, formulas, 1);   
+   GenDistribAddFormulaSet(ctrl->f_distrib, formulas, 1);
 }
 
 
@@ -525,10 +525,10 @@ void StructFOFSpecBacktrackToSpec(StructFOFSpec_p ctrl)
    ClauseSet_p clauses;
    FormulaSet_p formulas;
 
-   GenDistribBacktrackClauseSets(ctrl->f_distrib, 
+   GenDistribBacktrackClauseSets(ctrl->f_distrib,
                                  ctrl->clause_sets,
                                  ctrl->shared_ax_sp);
-   GenDistribBacktrackFormulaSets(ctrl->f_distrib, 
+   GenDistribBacktrackFormulaSets(ctrl->f_distrib,
                                   ctrl->formula_sets,
                                   ctrl->shared_ax_sp);
     while(PStackGetSP(ctrl->clause_sets)>ctrl->shared_ax_sp)
@@ -537,7 +537,7 @@ void StructFOFSpecBacktrackToSpec(StructFOFSpec_p ctrl)
        ClauseSetFree(clauses);
        formulas = PStackPopP(ctrl->formula_sets);
        FormulaSetFree(formulas);
-    }    
+    }
 }
 
 
@@ -556,11 +556,11 @@ void StructFOFSpecBacktrackToSpec(StructFOFSpec_p ctrl)
 
 long StructFOFSpecGetProblem(StructFOFSpec_p ctrl,
                              AxFilter_p      ax_filter,
-                             PStack_p        res_clauses, 
+                             PStack_p        res_clauses,
                              PStack_p        res_formulas)
 {
    long res = 0;
-   
+
    switch(ax_filter->type)
    {
    case AFGSinE:
@@ -569,14 +569,14 @@ long StructFOFSpecGetProblem(StructFOFSpec_p ctrl,
                             ctrl->formula_sets,
                             ctrl->shared_ax_sp,
                             ax_filter,
-                            res_clauses, 
+                            res_clauses,
                             res_formulas);
          break;
    case AFThreshold:
          res = SelectThreshold(ctrl->clause_sets,
                                ctrl->formula_sets,
                                ax_filter,
-                               res_clauses, 
+                               res_clauses,
                                res_formulas);
          break;
    default:
@@ -603,7 +603,7 @@ long StructFOFSpecGetProblem(StructFOFSpec_p ctrl,
 //
 /----------------------------------------------------------------------*/
 
-bool BatchProcessProblem(BatchSpec_p spec, 
+bool BatchProcessProblem(BatchSpec_p spec,
                          long wct_limit,
                          StructFOFSpec_p ctrl,
                          char* jobname,
@@ -619,11 +619,11 @@ bool BatchProcessProblem(BatchSpec_p spec,
    AxFilterSet_p filters = AxFilterSetCreateInternal(AxFilterDefaultSet);
    int i;
    char* answers = spec->res_answer==BONone?"":"--conjectures-are-questions";
-   
+
    start = GetSecTime();
-   
-   StructFOFSpecAddProblem(ctrl, 
-                          cset, 
+
+   StructFOFSpecAddProblem(ctrl,
+                          cset,
                           fset);
 
    secs = GetSecTime();
@@ -634,12 +634,12 @@ bool BatchProcessProblem(BatchSpec_p spec,
                                                       BatchFilters[0]));
 
    EPCtrlSetAddProc(procs, handle);
-   
+
    i=1;
-   while(((used = (GetSecTime()-secs)) < (wct_limit/2)) && 
+   while(((used = (GetSecTime()-secs)) < (wct_limit/2)) &&
          BatchFilters[i])
    {
-      handle = batch_create_runner(ctrl, spec->executable, 
+      handle = batch_create_runner(ctrl, spec->executable,
                                    answers,
                                    wct_limit,
                                    AxFilterSetFindFilter(filters,
@@ -659,7 +659,7 @@ bool BatchProcessProblem(BatchSpec_p spec,
          break;
       }
       now = GetSecTime();
-      used = now - start; 
+      used = now - start;
       if(!(used < wct_limit))
       {
          break;
@@ -670,9 +670,9 @@ bool BatchProcessProblem(BatchSpec_p spec,
       fprintf(GlobalOut, "%s for %s\n", PRResultTable[handle->result], jobname);
       res = true;
       now = GetSecTime();
-      used = now - handle->start_time; 
+      used = now - handle->start_time;
       remaining = handle->prob_time - used;
-      fprintf(GlobalOut, 
+      fprintf(GlobalOut,
               "# Solution found by %s (started %lld, remaining %lld)\n",
               handle->name, handle->start_time, remaining);
       if(out!=GlobalOut)
@@ -709,7 +709,7 @@ bool BatchProcessProblem(BatchSpec_p spec,
         }
       }
    }
-   
+
    StructFOFSpecBacktrackToSpec(ctrl);
    /* cset and fset are freed in Backtrack */
 
@@ -734,7 +734,7 @@ bool BatchProcessProblem(BatchSpec_p spec,
 //
 /----------------------------------------------------------------------*/
 
-bool BatchProcessFile(BatchSpec_p spec, 
+bool BatchProcessFile(BatchSpec_p spec,
                          long wct_limit,
                          StructFOFSpec_p ctrl,
                          char* source, char* dest)
@@ -745,38 +745,38 @@ bool BatchProcessFile(BatchSpec_p spec,
    FormulaSet_p fset;
    FILE* fp;
 
-   
+
    fprintf(GlobalOut, "\n# Processing %s -> %s\n", source, dest);
    fprintf(GlobalOut, "# SZS status Started for %s\n", source);
    fflush(GlobalOut);
-   
+
    in = CreateScanner(StreamTypeFile, source, true, NULL);
    ScannerSetFormat(in, TSTPFormat);
 
    cset = ClauseSetAlloc();
    fset = FormulaSetAlloc();
-   FormulaAndClauseSetParse(in, cset, fset, ctrl->terms, 
-                            NULL, 
+   FormulaAndClauseSetParse(in, cset, fset, ctrl->terms,
+                            NULL,
                             &(ctrl->parsed_includes));
    DestroyScanner(in);
-   
+
    fp = SecureFOpen(dest, "w");
-   
+
    // cset and fset are handed over to BatchProcessProblem and are
    // freed there (via StructFOFSpecBacktrackToSpec()).
-   res = BatchProcessProblem(spec, 
+   res = BatchProcessProblem(spec,
                              wct_limit,
                              ctrl,
                              source,
                              cset,
                              fset,
                              fp,
-                             -1);   
+                             -1);
    SecureFClose(fp);
-   
+
    fprintf(GlobalOut, "# SZS status Ended for %s\n\n", source);
    fflush(GlobalOut);
-   
+
    return res;
 }
 
@@ -794,16 +794,16 @@ bool BatchProcessFile(BatchSpec_p spec,
 //
 /----------------------------------------------------------------------*/
 
-long BatchProcessProblems(BatchSpec_p spec, StructFOFSpec_p ctrl, 
+long BatchProcessProblems(BatchSpec_p spec, StructFOFSpec_p ctrl,
                           long total_wtc_limit, char* dest_dir)
 {
    long res = 0;
    PStackPointer i;
    PStackPointer sp;
    long wct_limit, prop_time, now, used, rest;
-   long start = GetSecTime(); 
+   long start = GetSecTime();
    DStr_p dest_name = DStrAlloc();
-   
+
    sp = PStackGetSP(spec->source_files);
    for(i=0; i<sp; i++)
    {
@@ -814,7 +814,7 @@ long BatchProcessProblems(BatchSpec_p spec, StructFOFSpec_p ctrl,
          rest      = total_wtc_limit - used;
          prop_time = rest/(sp-i)+1; /* Bias up a bit - some problems will
                                      * use less time anyways */
-         
+
          if(spec->per_prob_limit)
          {
             wct_limit = MIN(prop_time, spec->per_prob_limit);
@@ -833,14 +833,14 @@ long BatchProcessProblems(BatchSpec_p spec, StructFOFSpec_p ctrl,
 
       DStrSet(dest_name, dest_dir);
       DStrAppendChar(dest_name, '/');
-      DStrAppendStr(dest_name, PStackElementP(spec->dest_files, i));    
-      
+      DStrAppendStr(dest_name, PStackElementP(spec->dest_files, i));
+
       if(BatchProcessFile(spec,
                           wct_limit,
-                          ctrl, 
+                          ctrl,
                           PStackElementP(spec->source_files, i),
                           DStrView(dest_name)))
-      {         
+      {
          res++;
       }
    }
@@ -862,8 +862,8 @@ long BatchProcessProblems(BatchSpec_p spec, StructFOFSpec_p ctrl,
 //
 /----------------------------------------------------------------------*/
 
-void BatchProcessInteractive(BatchSpec_p spec, 
-                             StructFOFSpec_p ctrl, 
+void BatchProcessInteractive(BatchSpec_p spec,
+                             StructFOFSpec_p ctrl,
                              FILE* fp)
 {
    DStr_p input   = DStrAlloc();
@@ -890,10 +890,10 @@ void BatchProcessInteractive(BatchSpec_p spec,
          fprintf(fp, "# Error: Read failed (probably EOF)\n");
          break;
       }
-      
-      in = CreateScanner(StreamTypeUserString, 
+
+      in = CreateScanner(StreamTypeUserString,
                          DStrView(input),
-                         true, 
+                         true,
                          NULL);
       ScannerSetFormat(in, TSTPFormat);
       if(TestInpId(in, "quit"))
@@ -923,30 +923,30 @@ void BatchProcessInteractive(BatchSpec_p spec,
          }
          else
          {
-            DStrAppendStr(jobname, "unnamed_job");            
+            DStrAppendStr(jobname, "unnamed_job");
          }
          fprintf(fp, "\n# Processing started for %s\n", DStrView(jobname));
-         
+
          cset = ClauseSetAlloc();
          fset = FormulaSetAlloc();
-         FormulaAndClauseSetParse(in, cset, fset, ctrl->terms, 
-                                  NULL, 
+         FormulaAndClauseSetParse(in, cset, fset, ctrl->terms,
+                                  NULL,
                                   &(ctrl->parsed_includes));
-         
+
          // cset and fset are handed over to BatchProcessProblem and are
          // freed there (via StructFOFSpecBacktrackToSpec()).
-         (void)BatchProcessProblem(spec, 
+         (void)BatchProcessProblem(spec,
                                    wct_limit,
                                    ctrl,
                                    DStrView(jobname),
                                    cset,
                                    fset,
                                    fp,
-                                   -1);         
+                                   -1);
          fprintf(fp, "\n# Processing finished for %s\n\n", DStrView(jobname));
       }
       DestroyScanner(in);
-   }   
+   }
    DStrFree(jobname);
    DStrFree(input);
 }

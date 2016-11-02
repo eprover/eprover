@@ -5,7 +5,7 @@ File  : cio_simplestuff.c
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Simple I/O functions needing a home.
 
   Copyright 2012 by the author.
@@ -53,11 +53,11 @@ Changes
 //   itself). Note that termiantor has to end in \n for this to ever
 //   work. The read text, up to, but not including, terminator, is
 //   appended to result (which is not cleared!). Returns
-//   success/failure. 
+//   success/failure.
 //
 // Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -91,11 +91,11 @@ bool ReadTextBlock(DStr_p result, FILE* fp, char* terminator)
 //   itself). Note that termiantor has to end in \n for this to ever
 //   work. The read text, up to, but not including, terminator, is
 //   appended to result (which is not cleared!). Returns
-//   success/failure. 
+//   success/failure.
 //
 // Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 

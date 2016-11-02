@@ -5,7 +5,7 @@ File  : che_rawspecfeatures.c
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Code and datatypes for handling rough classification of raw problem
   specs.
 
@@ -66,15 +66,15 @@ void RawSpecFeaturesCompute(RawSpecFeature_p features, ProofState_p state)
    features->hypothesis_count = 0;
    features->conjecture_count = 0;
    features->conjecture_count +=
-      ClauseSetCountConjectures(state->axioms, 
+      ClauseSetCountConjectures(state->axioms,
                                 &(features->hypothesis_count));
    features->conjecture_count +=
-      FormulaSetCountConjectures(state->f_axioms, 
+      FormulaSetCountConjectures(state->f_axioms,
                                  &(features->hypothesis_count));
 
    features->sig_size    = SigCountSymbols(state->terms->sig, true)+
       SigCountSymbols(state->terms->sig,false);
-   
+
    features->predc_size = SigCountAritySymbols(state->terms->sig, 0, true);
    features->func_size  = SigCountAritySymbols(state->terms->sig, 0, false);
    features->pred_size = SigCountSymbols(state->terms->sig, true)-
@@ -82,7 +82,7 @@ void RawSpecFeaturesCompute(RawSpecFeature_p features, ProofState_p state)
    features->fun_size  = SigCountSymbols(state->terms->sig, false)-
       SigCountAritySymbols(state->terms->sig, 0, false);
 
-   
+
    features->class[0] = '\0';
 }
 
@@ -106,7 +106,7 @@ void RawSpecFeaturesCompute(RawSpecFeature_p features, ProofState_p state)
 // Function: RawSpecFeaturesClassify()
 //
 //   Add a classifiction based on limits to the (initialized)
-//   features. 
+//   features.
 //
 // Global Variables: -
 //
@@ -114,29 +114,29 @@ void RawSpecFeaturesCompute(RawSpecFeature_p features, ProofState_p state)
 //
 /----------------------------------------------------------------------*/
 
-void RawSpecFeaturesClassify(RawSpecFeature_p features, SpecLimits_p limits, 
-                             char* pattern) 
+void RawSpecFeaturesClassify(RawSpecFeature_p features, SpecLimits_p limits,
+                             char* pattern)
 {
-   RAW_CLASSIFY(0, features->sentence_no, 
+   RAW_CLASSIFY(0, features->sentence_no,
                 limits->ax_some_limit, limits->ax_many_limit);
-   RAW_CLASSIFY(1, features->term_size, 
+   RAW_CLASSIFY(1, features->term_size,
                 limits->term_medium_limit, limits->term_large_limit);
-   RAW_CLASSIFY(2, features->sig_size, 
+   RAW_CLASSIFY(2, features->sig_size,
                 limits->symbols_medium_limit, limits->symbols_large_limit);
 
-   RAW_CLASSIFY(3, features->pred_size, 
+   RAW_CLASSIFY(3, features->pred_size,
                 limits->pred_medium_limit, limits->pred_large_limit);
-   RAW_CLASSIFY(4, features->predc_size, 
+   RAW_CLASSIFY(4, features->predc_size,
                 limits->predc_medium_limit, limits->predc_large_limit);
-   RAW_CLASSIFY(5, features->fun_size, 
+   RAW_CLASSIFY(5, features->fun_size,
                 limits->fun_medium_limit, limits->fun_large_limit);
-   RAW_CLASSIFY(6, features->func_size, 
+   RAW_CLASSIFY(6, features->func_size,
                 limits->func_medium_limit, limits->func_large_limit);
 
    if(pattern)
    {
       char* handle;
-      
+
       for(handle = features->class;*pattern; pattern++, handle++)
       {
          if(*pattern=='-')
@@ -156,9 +156,9 @@ void RawSpecFeaturesClassify(RawSpecFeature_p features, SpecLimits_p limits,
 //
 //   Parse a rawspecfeatures line.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -209,9 +209,9 @@ void RawSpecFeaturesParse(Scanner_p in, RawSpecFeature_p features)
 void RawSpecFeaturesPrint(FILE* out, RawSpecFeature_p features)
 {
       fprintf(out, "(%7ld, %7lld, %6d, %6d, %6d, %6d, %6d) : %s",
-              features->sentence_no, 
+              features->sentence_no,
               features->term_size,
-              features->sig_size, 
+              features->sig_size,
               features->pred_size,
               features->predc_size,
               features->fun_size,

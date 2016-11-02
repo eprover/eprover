@@ -5,7 +5,7 @@ File  : che_orientweight.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Evaluation of a clause by orientable clause weight, using penalties
   for unorientable and maximal literals.
 

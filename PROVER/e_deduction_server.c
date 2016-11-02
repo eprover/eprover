@@ -5,7 +5,7 @@ File  : e_deduction_server.c
 Author: Stephan Schulz
 
 Contents
- 
+
 Implementation for the deduction server executable which starts the server with the params given.
   Copyright 2015 by the author.
   This code is released under the GNU General Public Licence and
@@ -59,8 +59,8 @@ typedef enum
 
 OptCell opts[] =
 {
-   {OPT_HELP, 
-    'h', "help", 
+   {OPT_HELP,
+    'h', "help",
     NoArg, NULL,
     "Print a short description of program usage and options."},
 
@@ -70,8 +70,8 @@ OptCell opts[] =
     "Print the version number of the prover. Please include this"
     " with all bug reports (if any)."},
 
-   {OPT_VERBOSE, 
-    'v', "verbose", 
+   {OPT_VERBOSE,
+    'v', "verbose",
     OptArg, "1",
     "Verbose comments on the progress of the program. This differs "
     "from the output level (below) in that technical information is "
@@ -140,7 +140,7 @@ int main(int argc, char* argv[])
    StructFOFSpec_p   ctrl;
    char             *prover    = "eprover";
    int oldsock,sock_fd,pid;
-  
+
    assert(argv[0]);
 
 
@@ -213,7 +213,7 @@ int main(int argc, char* argv[])
    MemFlushFreeList();
    MemDebugPrintStats(stdout);
 #endif
-  
+
    return 0;
 }
 
@@ -225,7 +225,7 @@ int main(int argc, char* argv[])
 //   Read and process the command line option, return (the pointer to)
 //   a CLState object containing the remaining arguments.
 //
-// Global Variables: opts, Verbose, TBPrintInternalInfo 
+// Global Variables: opts, Verbose, TBPrintInternalInfo
 //
 // Side Effects    : Sets variables, may terminate with program
 //                   description if option -h or --help was present
@@ -239,7 +239,7 @@ CLState_p process_options(int argc, char* argv[])
    char*  arg;
 
    state = CLStateAlloc(argc,argv);
-   
+
    while((handle = CLStateGetOpt(state, &arg, opts)))
    {
       switch(handle->option_code)
@@ -247,7 +247,7 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_VERBOSE:
 	    Verbose = CLStateGetIntArg(handle, arg);
 	    break;
-      case OPT_HELP: 
+      case OPT_HELP:
 	    print_help(stdout);
 	    exit(NO_ERROR);
 	    break;

@@ -5,7 +5,7 @@ File  : can_clausestore.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Data type for compact storing of clauses, indexed by identifier, for
   analysis purposes.
 

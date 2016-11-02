@@ -5,7 +5,7 @@ File  : che_refinedweight.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions realising clause evaluation with orient clause weights.
 
   Copyright 1998, 1999 by the author.
@@ -47,13 +47,13 @@ Changes
 
 /*-----------------------------------------------------------------------
 //
-// Function: ClauseOrientWeightInit() 
+// Function: ClauseOrientWeightInit()
 //
 //   Return an initialized WFCB for ClauseOrientWeight evaluation.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -64,7 +64,7 @@ WFCB_p ClauseOrientWeightInit(ClausePrioFun prio_fun, int fweight,
 			       pos_multiplier)
 {
    OrientWeightParam_p data = OrientWeightParamCellAlloc();
-   
+
    data->fweight                = fweight;
    data->vweight                = vweight;
    data->pos_multiplier         = pos_multiplier;
@@ -83,9 +83,9 @@ WFCB_p ClauseOrientWeightInit(ClausePrioFun prio_fun, int fweight,
 //
 //   Parse a orient clauseweight-definition.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -110,7 +110,7 @@ WFCB_p ClauseOrientWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
    AcceptInpTok(in, Comma);
    pos_multiplier = ParseFloat(in);
    AcceptInpTok(in, CloseBracket);
-   
+
    return ClauseOrientWeightInit(prio_fun, fweight, vweight, ocb,
 				 unorientable_literal_multiplier,
 				 max_literal_multiplier,
@@ -134,25 +134,25 @@ double ClauseOrientWeightCompute(void* data, Clause_p clause)
    OrientWeightParam_p local = data;
 
    ClauseCondMarkMaximalTerms(local->ocb, clause);
-   return ClauseOrientWeight(clause, 
+   return ClauseOrientWeight(clause,
 			     local->unorientable_literal_multiplier,
 			     local->max_literal_multiplier,
 			     local->pos_multiplier,
 			     local->vweight,
-			     local->fweight, 
+			     local->fweight,
 			     false);
 }
 
 
 /*-----------------------------------------------------------------------
 //
-// Function: OrientLMaxWeightInit() 
+// Function: OrientLMaxWeightInit()
 //
 //   Return an initialized WFCB for OrientLMaxWeight evaluation.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -163,7 +163,7 @@ WFCB_p OrientLMaxWeightInit(ClausePrioFun prio_fun, int fweight,
 			       pos_multiplier)
 {
    OrientWeightParam_p data = OrientWeightParamCellAlloc();
-   
+
    data->fweight                = fweight;
    data->vweight                = vweight;
    data->pos_multiplier         = pos_multiplier;
@@ -182,9 +182,9 @@ WFCB_p OrientLMaxWeightInit(ClausePrioFun prio_fun, int fweight,
 //
 //   Parse a orient clauseweight-definition.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -195,7 +195,7 @@ WFCB_p OrientLMaxWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
    int fweight, vweight;
    double pos_multiplier, max_literal_multiplier,
       unorientable_literal_multiplier;
-   
+
    AcceptInpTok(in, OpenBracket);
    prio_fun = ParsePrioFun(in);
    AcceptInpTok(in, Comma);
@@ -209,7 +209,7 @@ WFCB_p OrientLMaxWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
    AcceptInpTok(in, Comma);
    pos_multiplier = ParseFloat(in);
    AcceptInpTok(in, CloseBracket);
-   
+
    return OrientLMaxWeightInit(prio_fun, fweight, vweight, ocb,
 			       unorientable_literal_multiplier,
 			       max_literal_multiplier,

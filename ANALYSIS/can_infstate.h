@@ -5,8 +5,8 @@ File  : can_infstate.h
 Author: Stephan Schulz
 
 Contents
- 
-  Data structures for representing the state of an inference process. 
+
+  Data structures for representing the state of an inference process.
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and

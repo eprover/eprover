@@ -5,7 +5,7 @@ File  : che_prio_funs.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions dealing with priorities for clauses.
 
   Copyright 1998, 1999 by the author.

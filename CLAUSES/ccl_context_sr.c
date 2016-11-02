@@ -6,7 +6,7 @@ Author: Stephan Schulz
 
 Contents
 
-  Implementation of contextual (top level) simplify-reflect. 
+  Implementation of contextual (top level) simplify-reflect.
 
   Copyright 2003 by the author.
   This code is released under the GNU General Public Licence and
@@ -64,7 +64,7 @@ int ClauseContextualSimplifyReflect(ClauseSet_p set, Clause_p clause)
    int res = 0;
    Clause_p subsumer;
    PStack_p lit_stack = ClauseToStack(clause);
-   
+
    clause->weight = ClauseStandardWeight(clause);
 
    while(!PStackEmpty(lit_stack))
@@ -73,7 +73,7 @@ int ClauseContextualSimplifyReflect(ClauseSet_p set, Clause_p clause)
 
       ClauseFlipLiteralSign(clause, handle);
       ClauseSubsumeOrderSortLits(clause);
-      
+
       subsumer = ClauseSetSubsumesClause(set, clause);
 
       if(subsumer)
@@ -85,9 +85,9 @@ int ClauseContextualSimplifyReflect(ClauseSet_p set, Clause_p clause)
          ClauseDelProp(clause, CPInitial|CPLimitedRW);
 	 ClauseRemoveLiteral(clause, handle);
 	 assert(clause->weight == ClauseStandardWeight(clause));
-	 DocClauseModificationDefault(clause, 
+	 DocClauseModificationDefault(clause,
 				      inf_context_simplify_reflect,
-				      subsumer);	 
+				      subsumer);
 	 res++;
          ClausePushDerivation(clause, DCContextSR, subsumer, NULL);
       }
@@ -115,8 +115,8 @@ int ClauseContextualSimplifyReflect(ClauseSet_p set, Clause_p clause)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
- 
-long ClauseSetFindContextSRClauses(ClauseSet_p set, Clause_p clause, 
+
+long ClauseSetFindContextSRClauses(ClauseSet_p set, Clause_p clause,
 				   PStack_p res)
 {
    Eqn_p handle;
@@ -124,7 +124,7 @@ long ClauseSetFindContextSRClauses(ClauseSet_p set, Clause_p clause,
    PStack_p lit_stack = ClauseToStack(clause);
 
    assert(clause->weight == ClauseStandardWeight(clause));
-   
+
 
    while(!PStackEmpty(lit_stack))
    {

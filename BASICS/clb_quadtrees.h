@@ -5,7 +5,7 @@ File  : clb_quadtrees.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Trees indexed by 4 words (two pointers and two integers). See
   clb_ptrees.h (and below) for details.
 

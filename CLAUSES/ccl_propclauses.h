@@ -5,7 +5,7 @@ File  : ccl_propclauses.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Definitions for propositional clauses (for eground) which can be
   stored much more compactly than ordinary clauses - at the price of
   less functionality and flexibility.

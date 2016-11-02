@@ -5,7 +5,7 @@ File  : can_treeanalyze.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Analyzing the proof state.
 
   Copyright 1998, 1999 by the author.
@@ -56,17 +56,17 @@ Changes
 static long select_examples_from_proof(InfState_p state, long
 				       target_number)
 {
-   long res, 
-        max_distance, 
+   long res,
+        max_distance,
         rest = 0,
         oracle,
-        distance = PROOF_DIST_INFINITY, 
+        distance = PROOF_DIST_INFINITY,
         i;
    PDArray_p dist = PDIntArrayAlloc(10,5);
    CompClause_p clause;
 
    max_distance  = ProofDistanceDistrib(state, CPIsSelected, dist);
-   
+
    res = 0;
    for(i=0; i<=max_distance; i++)
    {
@@ -79,7 +79,7 @@ static long select_examples_from_proof(InfState_p state, long
       }
       res = oracle;
    }
-   
+
    res = 0;
    for(i=0; i<state->clause_store->size; i++)
    {
@@ -97,8 +97,8 @@ static long select_examples_from_proof(InfState_p state, long
 	    rest--;
 	    res++;
 	 }
-      }   
-   }   
+      }
+   }
    PDArrayFree(dist);
    return res;
 }
@@ -121,13 +121,13 @@ static long select_examples_from_non_proof(InfState_p state, long
 					   target_number)
 {
    long res = 0, i;
-   CompClause_p clause;   
+   CompClause_p clause;
 
    for(i=0; i<state->clause_store->size; i++)
    {
       clause = PDArrayElementP(state->clause_store,i);
       if(clause&&ClauseQueryProp(clause, CPIsSelected))
-      {	 
+      {
 	 if(res == target_number)
 	 {
 	    break;
@@ -135,8 +135,8 @@ static long select_examples_from_non_proof(InfState_p state, long
 	 res++;
 	 clause->stats.proof_distance = PROOF_DIST_DEFAULT;
 	 ClauseSetProp(clause, CPOpFlag);
-      }      
-   }   
+      }
+   }
    return res;
 }
 
@@ -151,7 +151,7 @@ static long select_examples_from_non_proof(InfState_p state, long
 // Function: ProofMarkProofClauses()
 //
 //   Mark all clauses used for finding a proof (or other final
-//   clauses). 
+//   clauses).
 //
 // Global Variables: -
 //
@@ -176,7 +176,7 @@ long ProofMarkProofClauses(InfState_p proof)
 	 {
 	    PStackPushP(jobs, clause);
 	 }
-      }      
+      }
    }
    while(!PStackEmpty(jobs))
    {
@@ -200,7 +200,7 @@ long ProofMarkProofClauses(InfState_p proof)
       {
 	 PStackPushP(jobs, node->key);
       }
-      PTreeTraverseExit(traverse);      
+      PTreeTraverseExit(traverse);
    }
    PStackFree(jobs);
    return proof_nodes;
@@ -226,7 +226,7 @@ void ProofSetClauseStatistics(InfState_p proof, long s_used, long
 {
    long i;
    CompClause_p clause;
-   
+
    for(i=0; i<proof->clause_store->size; i++)
    {
       clause = PDArrayElementP(proof->clause_store,i);
@@ -237,8 +237,8 @@ void ProofSetClauseStatistics(InfState_p proof, long s_used, long
 	 clause->stats.generate_used   = g_used;
 	 clause->stats.generate_unused = g_unused;
 	 clause->stats.proof_distance  = proof_distance;
-      }      
-   }  
+      }
+   }
 }
 
 /*-----------------------------------------------------------------------
@@ -260,7 +260,7 @@ void ProofComputeParentNumbers(InfState_p proof)
    CompClause_p clause, parent;
    PStack_p traverse;
    PTree_p node;
-   
+
    for(i=0; i<proof->clause_store->size; i++)
    {
       clause = PDArrayElementP(proof->clause_store,i);
@@ -281,7 +281,7 @@ void ProofComputeParentNumbers(InfState_p proof)
 	       parent = node->key;
 	       parent->stats.simplify_used++;
 	    }
-	    PTreeTraverseExit(traverse);	 
+	    PTreeTraverseExit(traverse);
 	 }
 	 else
 	 {
@@ -298,7 +298,7 @@ void ProofComputeParentNumbers(InfState_p proof)
 	       parent = node->key;
 	       parent->stats.simplify_unused++;
 	    }
-	    PTreeTraverseExit(traverse);	 
+	    PTreeTraverseExit(traverse);
 	 }
       }
    }
@@ -327,8 +327,8 @@ void ProofComputeDistance(InfState_p state)
    long         i, distance;
    CompClause_p clause, parent;
    PStack_p     traverse;
-   PTree_p      cell;   
-   
+   PTree_p      cell;
+
    for(i=0; i<state->clause_store->size; i++)
    {
       clause = PDArrayElementP(state->clause_store,i);
@@ -350,8 +350,8 @@ void ProofComputeDistance(InfState_p state)
 	    PTreeTraverseExit(traverse);
 	    clause->stats.proof_distance = distance+1;
 	 }
-      }      
-   }  
+      }
+   }
 }
 
 
@@ -363,8 +363,8 @@ void ProofComputeDistance(InfState_p state)
 //   clauses with all properties in filter set. Return longest
 //   value. Assumes that distrib is empty (i.e. freshly allocated or
 //   reinitialized to NULL), and that proof distances are
-//   precomputed. 
-// 
+//   precomputed.
+//
 // Global Variables: -
 //
 // Side Effects    : -
@@ -373,10 +373,10 @@ void ProofComputeDistance(InfState_p state)
 
 long ProofDistanceDistrib(InfState_p state, ClauseProperties filter,
 			  PDArray_p distrib)
-{   
+{
    long         i, old_val, res = 0;
    CompClause_p clause;
-   
+
    for(i=0; i<state->clause_store->size; i++)
    {
       clause = PDArrayElementP(state->clause_store,i);
@@ -391,8 +391,8 @@ long ProofDistanceDistrib(InfState_p state, ClauseProperties filter,
 				    old_val);
 	    res = MAX(res, clause->stats.proof_distance);
 	 }
-      }      
-   }  
+      }
+   }
    return res;
 }
 
@@ -422,7 +422,7 @@ long InfStateSelectExamples(InfState_p state, double neg_proportion, long
    InfStateClausesDelProp(state, CPOpFlag);
    proof_clauses = ProofMarkProofClauses(state);
    ProofComputeParentNumbers(state);
-   
+
    if(proof_clauses)
    {
       ProofComputeDistance(state);

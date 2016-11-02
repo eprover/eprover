@@ -140,7 +140,7 @@ void MemFreeListPrint(FILE* out);
   datatype just copy the following templates to your .h-file and fill
   them in... The allocated structures will not be initialized - you
   need to write a function built on top of the macros if you want more
-  functionality in you Allocator. 
+  functionality in you Allocator.
 
 #define DataCellAlloc() (DataCell*)SizeMalloc(sizeof(DataCell))
 #define DataCellFree(junk)         SizeFree(junk, sizeof(DataCell))
@@ -153,9 +153,9 @@ void MemFreeListPrint(FILE* out);
 //
 //   Returns a block of memory sized size using the internal
 //   free-list. This block is freeable with free(), and in all
-//   respects behaves like a normal malloc'ed block. 
+//   respects behaves like a normal malloc'ed block.
 //
-// Global Variables: free_mem_list[] 
+// Global Variables: free_mem_list[]
 //
 // Side Effects    : Memory operations
 //
@@ -190,7 +190,7 @@ static __inline__ void* SizeMallocReal(size_t size)
       printf("\nBlock %p A: size %zd\n", handle, size);
    #endif
    return handle;
-}   
+}
 
 
 /*-----------------------------------------------------------------------
@@ -223,7 +223,7 @@ static __inline__ void SizeFreeReal(void* junk, size_t size)
       free_mem_list[size] = (Mem_p)junk;
       assert(free_mem_list[size]->test != MEM_FREE_PATTERN);
       assert(free_mem_list[size]->test = MEM_FREE_PATTERN);
-   } 
+   }
    else
    {
       FREE(junk);

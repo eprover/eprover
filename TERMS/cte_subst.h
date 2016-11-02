@@ -5,7 +5,7 @@ File  : cte_subst.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Definitions for substitutions. Substitutions are really represented
   by term cells with bindings. The substitution type is only a
   disguised stack keeping track of the bound variables for
@@ -74,7 +74,7 @@ void          SubstCompleteInstance(Subst_p subst, Term_p term,
 //   Perform a new binding and store it in the subst. Return the old
 //   stackpointer (i.e. the value that you'll have to backtrack to to
 //   get rid of this binding).
-//   
+//
 //
 // Global Variables: -
 //

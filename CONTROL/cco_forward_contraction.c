@@ -5,10 +5,10 @@ File  : cco_forward_contraction.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions that apply the processed clause sets to simplify or
   eliminate a potential new clause. Extracted from
-  cco_proofproc.[ch]. 
+  cco_proofproc.[ch].
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
@@ -72,22 +72,22 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
 
    assert(clause);
    assert(state);
-   
+
    if(control->heuristic_parms.enable_given_forward_simpl)
    {
-      trivial = ForwardModifyClause(state, control, clause, 
+      trivial = ForwardModifyClause(state, control, clause,
                                     context_sr, condense, level);
       if(trivial)
       {
          (*trivial_count)++;
          return NULL;
       }
-      
+
       if(ClauseIsEmpty(clause))
       {
          return FVIndexPackClause(clause, NULL);
       }
-      
+
       if(control->ac_handling_active && ClauseIsACRedundant(clause))
       {
          if(!ClauseIsUnit(clause)||
@@ -107,10 +107,10 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
          return NULL;
       }
       assert(!ClauseIsTrivial(clause));
-      
+
       clause->weight = ClauseStandardWeight(clause);
       pclause = FVIndexPackClause(clause, state->processed_non_units->fvindex);
-      
+
       if(clause->pos_lit_no)
       {
          subsumer = UnitClauseSetSubsumesClause(state->processed_pos_eqns, clause);
@@ -127,7 +127,7 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
       }
       if(subsumer)
       {
-         DocClauseQuote(GlobalOut, OutputLevel, 6, pclause->clause, 
+         DocClauseQuote(GlobalOut, OutputLevel, 6, pclause->clause,
                         "subsumed", subsumer);
          (*subsumed_count)++;
          FVUnpackClause(pclause);
@@ -143,8 +143,8 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
          return FVIndexPackClause(clause, NULL);
       }
       clause->weight = ClauseStandardWeight(clause);
-      pclause = FVIndexPackClause(clause, state->processed_non_units->fvindex);      
-   }         
+      pclause = FVIndexPackClause(clause, state->processed_non_units->fvindex);
+   }
    ClauseDelProp(clause, CPIsOriented);
    DoLiteralSelection(control, clause);
    ClauseCondMarkMaximalTerms(control->ocb, clause);
@@ -170,10 +170,10 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
 //
 /----------------------------------------------------------------------*/
 
-bool ForwardModifyClause(ProofState_p state, 
+bool ForwardModifyClause(ProofState_p state,
                          ProofControl_p control,
 			 Clause_p clause,
-                         bool context_sr,         
+                         bool context_sr,
                          bool condense,
                          RewriteLevel level)
 {
@@ -190,7 +190,7 @@ bool ForwardModifyClause(ProofState_p state,
                                 control->heuristic_parms.prefer_general);
 
       limited_rw = ClauseQueryProp(clause, CPLimitedRW);
-      removed_lits = ClauseRemoveSuperfluousLiterals(clause);      
+      removed_lits = ClauseRemoveSuperfluousLiterals(clause);
       if(removed_lits)
       {
          DocClauseModificationDefault(clause, inf_minimize, NULL);
@@ -211,15 +211,15 @@ bool ForwardModifyClause(ProofState_p state,
          {
             ClauseOrientLiterals(control->ocb, clause);
          }
-      }      
+      }
 
-      
+
       if(ClauseIsTrivial(clause))
       {
          return true;
       }
-      
-      /* Still forward simplification... */   
+
+      /* Still forward simplification... */
       if(clause->neg_lit_no)
       {
          ClausePositiveSimplifyReflect(state->processed_pos_eqns, clause);
@@ -230,8 +230,8 @@ bool ForwardModifyClause(ProofState_p state,
       }
       if(context_sr && ClauseLiteralNumber(clause) > 1)
       {
-         state->context_sr_count += 
-            ClauseContextualSimplifyReflect(state->processed_non_units, 
+         state->context_sr_count +=
+            ClauseContextualSimplifyReflect(state->processed_non_units,
                                             clause);
       }
       done = ClauseQueryProp(clause, CPLimitedRW)==limited_rw;
@@ -246,7 +246,7 @@ bool ForwardModifyClause(ProofState_p state,
 //
 //   Apply all forward-contracting inferences to clause. Return NULL
 //   and delete the clause if it becomes trivial, return
-//   FVPackedClause otherwise. 
+//   FVPackedClause otherwise.
 //
 // Global Variables: -
 //
@@ -254,9 +254,9 @@ bool ForwardModifyClause(ProofState_p state,
 //
 /----------------------------------------------------------------------*/
 
-FVPackedClause_p ForwardContractClause(ProofState_p state, 
+FVPackedClause_p ForwardContractClause(ProofState_p state,
 				       ProofControl_p control,
-				       Clause_p clause, 
+				       Clause_p clause,
 				       bool non_unit_subsumption,
 				       bool context_sr,
                                        bool condense,
@@ -266,13 +266,13 @@ FVPackedClause_p ForwardContractClause(ProofState_p state,
 
    assert(clause);
    assert(state);
-   
+
    res = forward_contract_keep(state, control, clause,
 			       &(state->proc_forward_subsumed_count),
 			       &(state->proc_trivial_count),
 			       non_unit_subsumption, context_sr, condense,
 			       level);
-   
+
    if(!res)
    {
       ClauseFree(clause);
@@ -286,7 +286,7 @@ FVPackedClause_p ForwardContractClause(ProofState_p state,
 //
 //   Apply the forward-contracting inferences to all clauses in
 //   set. Delete redundant clauses. If terminate_on_empty is true,
-//   return empty clause (if found),  
+//   return empty clause (if found),
 //   NULL otherwise. The empty clause will be extracted from set,
 //   which may not be fully contracted in this case.
 //
@@ -307,12 +307,12 @@ Clause_p ForwardContractSet(ProofState_p state, ProofControl_p
    assert(state);
    assert(set);
    assert(!set->demod_index);
-   
+
    handle = set->anchor->succ;
    while(handle != set->anchor)
-   {      
+   {
       next = handle->succ;
-      
+
       assert(handle);
 
       if(forward_contract_keep(state, control, handle,
@@ -356,11 +356,11 @@ void ClauseSetReweight(HCB_p heuristic, ClauseSet_p set)
    assert(heuristic);
    assert(set);
    assert(!set->demod_index);
-   
+
 
    ClauseSetRemoveEvaluations(set);
    tmp_set = ClauseSetAlloc();
-   
+
    while(!ClauseSetEmpty(set))
    {
       ClauseSetInsert(tmp_set, ClauseSetExtractFirst(set));
@@ -370,7 +370,7 @@ void ClauseSetReweight(HCB_p heuristic, ClauseSet_p set)
    {
       handle = ClauseSetExtractFirst(tmp_set);
       HCBClauseEvaluate(heuristic, handle);
-      ClauseSetInsert(set, handle); 
+      ClauseSetInsert(set, handle);
    }
    ClauseSetFree(tmp_set);
 }
@@ -385,7 +385,7 @@ void ClauseSetReweight(HCB_p heuristic, ClauseSet_p set)
 //   Apply contracting inferences to all claues in set, then
 //   reevaluate them. Return empty clause (if found), NULL
 //   otherwise. The empty clause will be extracted from set, which may
-//   not be fully contracted in this case. 
+//   not be fully contracted in this case.
 //
 // Global Variables: -
 //
@@ -399,15 +399,15 @@ Clause_p ForwardContractSetReweight(ProofState_p state, ProofControl_p
 				    level, unsigned long* count_eliminated)
 {
    Clause_p    handle;
-   
+
    assert(state);
    assert(set);
    assert(!set->demod_index);
-   
+
    handle = ForwardContractSet(state, control, set,
 			       non_unit_subsumption, level,
 			       count_eliminated, true);
-   
+
    if(handle)
    {
       return handle;
@@ -446,7 +446,7 @@ void ClauseSetFilterReweigth(ProofControl_p
 //
 //   Apply various filter operations (guided by *desc) to the
 //   set of unprocessed clauses in state. Return the empty clause (and
-//   stop filtering) if it was found, otherwise return NULL. 
+//   stop filtering) if it was found, otherwise return NULL.
 //
 // Global Variables: -
 //
@@ -473,42 +473,42 @@ Clause_p ProofStateFilterUnprocessed(ProofState_p state,
 	       ClauseSetDeleteCopies(state->unprocessed);
 	    break;
       case 'n':
-	    handle = 
+	    handle =
 	       ForwardContractSet(state, control,
 				  state->unprocessed,
 				  false, NoRewrite,
 				  &(state->proc_trivial_count), true);
 	    break;
       case 'N':
-	    handle = 
+	    handle =
 	       ForwardContractSet(state, control,
 				  state->unprocessed,
 				  true, NoRewrite,
 				  &(state->proc_trivial_count), true);
 	    break;
       case 'r':
-	    handle = 
+	    handle =
 	       ForwardContractSet(state, control,
 				  state->unprocessed,
 				  false, RuleRewrite,
 				  &(state->proc_trivial_count), true);
 	    break;
       case 'R':
-	    handle = 
+	    handle =
 	       ForwardContractSet(state, control,
 				  state->unprocessed,
 				  true, RuleRewrite,
 				  &(state->proc_trivial_count), true);
 	    break;
       case 'f':
-	    handle = 
+	    handle =
 	       ForwardContractSet(state, control,
 				  state->unprocessed,
 				  false, FullRewrite,
 				  &(state->proc_trivial_count), true);
 	    break;
       case 'F':
-	    handle = 
+	    handle =
 	       ForwardContractSet(state, control,
 				  state->unprocessed,
 				  true, FullRewrite,

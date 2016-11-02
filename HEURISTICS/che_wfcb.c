@@ -5,7 +5,7 @@ File  : che_wfcb.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for evaluation function control blocks.
 
   Copyright 1998, 1999 by the author.
@@ -86,7 +86,7 @@ WFCB_p WFCBAlloc(ClauseEvalFun wfcb_eval, ClausePrioFun prio_fun,
 void WFCBFree(WFCB_p junk)
 {
    assert(junk);
-   
+
    if(junk->data)
    {
       junk->wfcb_exit(junk->data);

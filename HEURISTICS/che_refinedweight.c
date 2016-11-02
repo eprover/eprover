@@ -5,7 +5,7 @@ File  : che_refinedweight.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions realising clause evaluation with refined clause weights.
 
   Copyright 1998, 1999 by the author.
@@ -47,13 +47,13 @@ Changes
 
 /*-----------------------------------------------------------------------
 //
-// Function: ClauseRefinedWeightInit() 
+// Function: ClauseRefinedWeightInit()
 //
 //   Return an initialized WFCB for ClauseRefinedWeight evaluation.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -64,7 +64,7 @@ WFCB_p ClauseRefinedWeightInit(ClausePrioFun prio_fun, int fweight,
 			       pos_multiplier)
 {
    RefinedWeightParam_p data = RefinedWeightParamCellAlloc();
-   
+
    data->fweight                = fweight;
    data->vweight                = vweight;
    data->pos_multiplier         = pos_multiplier;
@@ -83,9 +83,9 @@ WFCB_p ClauseRefinedWeightInit(ClausePrioFun prio_fun, int fweight,
 //
 //   Parse a refined clauseweight-definition.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -109,7 +109,7 @@ WFCB_p ClauseRefinedWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
    AcceptInpTok(in, Comma);
    pos_multiplier = ParseFloat(in);
    AcceptInpTok(in, CloseBracket);
-   
+
    return ClauseRefinedWeightInit(prio_fun, fweight, vweight, ocb,
 				  max_term_multiplier,
 				  max_literal_multiplier,
@@ -132,14 +132,14 @@ double ClauseRefinedWeightCompute(void* data, Clause_p clause)
 {
    RefinedWeightParam_p local = data;
    double res;
-   
+
    ClauseCondMarkMaximalTerms(local->ocb, clause);
-   res =  ClauseWeight(clause, 
+   res =  ClauseWeight(clause,
 		       local->max_term_multiplier,
 		       local->max_literal_multiplier,
 		       local->pos_multiplier,
 		       local->vweight,
-		       local->fweight, 
+		       local->fweight,
 		       false);
    return res;
 }
@@ -164,7 +164,7 @@ WFCB_p ClauseRefinedWeight2Parse(Scanner_p in, OCB_p ocb, ProofState_p
 
    tmp = ClauseRefinedWeightParse(in, ocb, state);
    tmp->wfcb_eval = ClauseRefinedWeight2Compute;
-   
+
    return tmp;
 }
 
@@ -183,14 +183,14 @@ WFCB_p ClauseRefinedWeight2Parse(Scanner_p in, OCB_p ocb, ProofState_p
 double ClauseRefinedWeight2Compute(void* data, Clause_p clause)
 {
    RefinedWeightParam_p local = data;
-   
+
    ClauseCondMarkMaximalTerms(local->ocb, clause);
-   return ClauseWeight(clause, 
+   return ClauseWeight(clause,
 		       local->max_term_multiplier,
 		       local->max_literal_multiplier,
 		       local->pos_multiplier,
 		       local->vweight,
-		       local->fweight, 
+		       local->fweight,
 		       true);
 }
 

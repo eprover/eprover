@@ -5,7 +5,7 @@ File  : cle_patterns.c
 Author: Stephan Schulz
 
 Contents
- 
+
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
@@ -55,11 +55,11 @@ static FunCode get_new_fun_symbol(PatternSubst_p subst, int arity)
 {
    long    base;
    IntOrP* where;
-   
+
    where = PDArrayElementRef(subst->used_idents, arity);
    where->i_val++;
    base = where->i_val;
-   
+
    assert(base<=NORM_SYMBOL_LIMIT && "Too many function symbols ???");
 
    return PatternNormCode(base, arity);
@@ -81,16 +81,16 @@ static FunCode get_new_fun_symbol(PatternSubst_p subst, int arity)
 FunCode pat_symb_comp_val(PatternSubst_p subst, FunCode f_code)
 {
    assert(f_code);
-   
+
    if(f_code > 0)
    {
       FunCode res = PDArrayElementInt(subst->fun_subst, f_code);
-      
+
       if(res == f_code)
       {
 	 assert(res<=subst->sig->f_count);
 	 res = SigGetAlphaRank(subst->sig,f_code);
-      }      
+      }
       return res;
    }
    else if(VarFCodeIsFresh(f_code))
@@ -112,7 +112,7 @@ FunCode pat_symb_comp_val(PatternSubst_p subst, FunCode f_code)
 //   If either symbol is unbound but should be bound, return
 //   to_uncomparable. Otherwise, compare symbols
 //   numerically (if truly bound) or by their alpha-ranks (if bound to
-//   themselves). Fresh variables are not expected to be bound. 
+//   themselves). Fresh variables are not expected to be bound.
 //
 //   However: During pattern generation, an unbound symbol can only be
 //   bound to a larger symbol, as new pattern symbols are given out in
@@ -135,13 +135,13 @@ static CompareResult pat_symbol_compare(PatternSubst_p subst1, FunCode
    {
       FunCode cmp = pat_symb_comp_val(subst1, f1) -
 	 pat_symb_comp_val(subst2, f2);
-      
+
       return Q_TO_PART(cmp);
    }
    else if(PatSymbolIsBound(subst1, f1))
    {
       return to_lesser;
-   }   
+   }
    else if(PatSymbolIsBound(subst1, f2))
    {
       return to_greater;
@@ -166,7 +166,7 @@ static void generate_print_rep(FunCode f, char *id)
 {
    assert(PatIdIsNormId(f));
    assert(id);
-   
+
    sprintf(id, "f%ld_%ld",
 	   PatternIdGetArity(f),
 	   PatternIdGetIdent(f));
@@ -184,7 +184,7 @@ static void generate_print_rep(FunCode f, char *id)
 //   comparison and is independend of actual function symbols. Note
 //   that terms with more function symbols are smaller in this
 //   ordering! Special case: $true is always larger than any other
-//   term! 
+//   term!
 //
 // Global Variables: -
 //
@@ -200,7 +200,7 @@ static CompareResult pat_term_size_compare(Term_p t1, Term_p t2)
    CompareResult res   = to_equal;
    long          cmp;
    int           i;
-   
+
    if((t1->f_code == SIG_TRUE_CODE)&&(t2->f_code == SIG_TRUE_CODE))
    {
       return to_equal;
@@ -213,12 +213,12 @@ static CompareResult pat_term_size_compare(Term_p t1, Term_p t2)
    {
       return to_lesser;
    }
-   
+
    stack  = PStackAlloc();
-   
+
    PStackPushP(stack, t1);
    PStackPushP(stack, t2);
-   
+
    while(!PStackEmpty(stack))
    {
       t2 = PStackPopP(stack);
@@ -231,7 +231,7 @@ static CompareResult pat_term_size_compare(Term_p t1, Term_p t2)
       assert(TermStandardWeight(t1) == TermWeight(t1,DEFAULT_VWEIGHT,DEFAULT_FWEIGHT));
       assert(TermStandardWeight(t2) == TermWeight(t2,DEFAULT_VWEIGHT,DEFAULT_FWEIGHT));
       cmp = TermStandardWeight(t1) - TermStandardWeight(t2);
-      
+
       if(cmp < 0)
       {
 	 res = to_greater;
@@ -247,7 +247,7 @@ static CompareResult pat_term_size_compare(Term_p t1, Term_p t2)
       /* Now either t1 and t2 are variables or neither is! */
 
       cmp = t1->arity - t2->arity;
-      
+
       if(cmp < 0)
       {
 	 res = to_greater;
@@ -307,7 +307,7 @@ static void initialize_lit_list(PatternSubst_p subst, Eqn_p list)
 	       break;
 	 case to_uncomparable:
 	       EqnSetProp(handle,EPLPatMinimal|EPRPatMinimal);
-	       break;	       
+	       break;
 	 case to_unknown:
 	 default:
 	       assert(false);
@@ -372,7 +372,7 @@ static void mark_minimal_literals(PatternSubst_p subst, Eqn_p list)
 	       default:
 		     assert(cmpres!=to_unknown);
 		     break;
-	       }	       
+	       }
 	    }
 	    if(EqnQueryProp(compare, EPRPatMinimal))
 	    {
@@ -417,7 +417,7 @@ static void mark_minimal_literals(PatternSubst_p subst, Eqn_p list)
                default:
 		     assert(cmpres!=to_unknown);
                      break;
-               }               
+               }
             }
 	    if(EqnQueryProp(compare, EPRPatMinimal))
             {
@@ -520,24 +520,24 @@ static bool complete_state(PatternSubst_p subst, Eqn_p list,
    int      choice_nr;
    Eqn_p    picked;
    PatEqnDirection dir;
-   
+
    choice_nr = collect_choices(subst, list, choices);
-   
+
    while(choice_nr && (choice_nr <= PATTERN_SEARCH_BRANCHLIMIT))
    {
       assert(PStackGetSP(choices) >= 2);
       dir    = PStackPopInt(choices);
       picked = PStackPopP(choices);
-      
+
       PStackPushInt(state, PStackGetSP(subst->backtrack));
       PStackPushP(state, choices);
       EqnSetProp(picked, EPIsUsed);
       PatternTermPairCompute(subst, picked, dir);
       PStackPushP(order, picked);
       PStackPushInt(order, dir);
-      
+
       choices = PStackAlloc();
-      choice_nr = collect_choices(subst, list, choices);      
+      choice_nr = collect_choices(subst, list, choices);
    }
    PStackFree(choices);
 
@@ -570,13 +570,13 @@ static long lit_list_rep_pattern(Eqn_p list, PatternSubst_p* subst,
    PStackPointer   old_sp;
    long            count = 1;
    bool            affordable;
-   
-   EqnListDelProp(list, EPIsUsed); 
+
+   EqnListDelProp(list, EPIsUsed);
 
    affordable = complete_state(*subst, list, *order, state);
    best_subst = PatternSubstCopy(*subst);
    best_order = PStackCopy(*order);
-   
+
    while((!PStackEmpty(state)) && affordable)
    {
       assert(PStackGetSP(state) >= 2);
@@ -738,7 +738,7 @@ bool PatSubstExtend(PatternSubst_p subst, FunCode symbol, int arity)
 {
    long res;
    bool result = false;
-   
+
    if(symbol > 0)
    {
       res = PDArrayElementInt(subst->fun_subst, symbol);
@@ -748,7 +748,7 @@ bool PatSubstExtend(PatternSubst_p subst, FunCode symbol, int arity)
 	 PDArrayAssignInt(subst->fun_subst, symbol, res);
 	 PStackPushInt(subst->backtrack, symbol);
 	 result = true;
-      }      
+      }
    }
    else
    {
@@ -785,16 +785,16 @@ bool PatSubstExtend(PatternSubst_p subst, FunCode symbol, int arity)
 PatternSubst_p PatternSubstCopy(PatternSubst_p subst)
 {
    PatternSubst_p handle = PatternSubstCellAlloc();
-   
+
    handle->used_idents = PDArrayCopy(subst->used_idents);
    handle->fun_subst   = PDArrayCopy(subst->fun_subst);
    handle->used_vars   = subst->used_vars;
    handle->var_subst   = PDArrayCopy(subst->var_subst);
    handle->backtrack   = PStackCopy(subst->backtrack);
    handle->sig         = subst->sig;
-   
+
    return handle;
-   
+
 }
 
 /*-----------------------------------------------------------------------
@@ -803,16 +803,16 @@ PatternSubst_p PatternSubstCopy(PatternSubst_p subst)
 //
 //   Return the norm id assigned to f_code.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
 FunCode PatSymbValue(PatternSubst_p subst, FunCode f_code)
 {
    assert(f_code);
-   
+
    if(f_code > 0)
    {
       if(SigIsSpecial(subst->sig, f_code))
@@ -868,7 +868,7 @@ bool PatternSubstBacktrack(PatternSubst_p subst, PStackPointer
 
    assert(subst);
    assert(old_state <= PStackGetSP(subst->backtrack));
-   
+
    while(PStackGetSP(subst->backtrack) > old_state)
    {
       symbol = PStackPopInt(subst->backtrack);
@@ -884,11 +884,11 @@ bool PatternSubstBacktrack(PatternSubst_p subst, PStackPointer
       {
 	 int arity, count;
 	 IntOrP *tmp;
-	 
+
 	 rep_symbol = PDArrayElementInt(subst->fun_subst, symbol);
 	 arity = PatternIdGetArity(rep_symbol);
 	 count = PatternIdGetIdent(rep_symbol);
-	 
+
 	 tmp = PDArrayElementRef(subst->used_idents, arity);
 	 UNUSED(count); assert(tmp->i_val == count);
 	 tmp->i_val--;
@@ -908,9 +908,9 @@ bool PatternSubstBacktrack(PatternSubst_p subst, PStackPointer
 //   Extend subst to make term into a pattern. Return true if a new
 //   renaming has been added.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -918,12 +918,12 @@ bool PatternTermCompute(PatternSubst_p subst, Term_p term)
 {
    int i;
    bool res, tmp;
-   
+
    assert(term);
    assert(subst);
 
    res = PatSubstExtend(subst, term->f_code, term->arity);
-   
+
    for(i=0; i< term->arity; i++)
    {
       assert(!TermIsVar(term));
@@ -954,7 +954,7 @@ CompareResult PatternTermCompare(PatternSubst_p subst1, Term_p t1,
 
    res = pat_term_size_compare(t1, t2);
    assert((res!=to_uncomparable)&&(res!=to_unknown));
-   
+
    if(res != to_equal)
    {
       return res;
@@ -963,17 +963,17 @@ CompareResult PatternTermCompare(PatternSubst_p subst1, Term_p t1,
    {
       PStack_p stack = PStackAlloc();
       int i;
-      
+
       PStackPushP(stack, t1);
       PStackPushP(stack, t2);
-      
+
       while(!PStackEmpty(stack))
       {
 	 t2 = PStackPopP(stack);
 	 t1 = PStackPopP(stack);
-	 
+
 	 assert(t1->arity == t2->arity);
-	 
+
 	 res = pat_symbol_compare(subst1, t1->f_code, subst2,
 				  t2->f_code);
 	 if(res != to_equal)
@@ -987,7 +987,7 @@ CompareResult PatternTermCompare(PatternSubst_p subst1, Term_p t1,
 	 }
       }
       PStackFree(stack);
-      return res;     
+      return res;
    }
 }
 
@@ -1007,7 +1007,7 @@ bool PatternTermPairCompute(PatternSubst_p subst, Eqn_p eqn,
 			    PatEqnDirection direction)
 {
    bool res, tmp;
-   
+
    if(!direction)
    {
       res = PatternTermCompute(subst, eqn->lterm);
@@ -1029,11 +1029,11 @@ bool PatternTermPairCompute(PatternSubst_p subst, Eqn_p eqn,
 // Function: PatternTermPairCompare()
 v//
 //   Compare two equation patterns (described by pattern-subst, eqn,
-//   direction). 
+//   direction).
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -1090,7 +1090,7 @@ CompareResult PatternTermPairCompare(PatternSubst_p subst1, Eqn_p
       return res;
    }
    res = PatternTermCompare(subst1, r1, subst2, r2);
-   
+
    return res;
 }
 
@@ -1100,7 +1100,7 @@ CompareResult PatternTermPairCompare(PatternSubst_p subst1, Eqn_p
 // Function: PatternLitListCompute()
 //
 //   Compute a pattern-subst for the list (well, stack) of oriented
-//   literals. 
+//   literals.
 //
 // Global Variables: -
 //
@@ -1138,9 +1138,9 @@ bool PatternLitListCompute(PatternSubst_p subst, PStack_p listrep)
 //   (while being easier and more efficient in the general case, where
 //   it does not matter).
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -1166,7 +1166,7 @@ CompareResult PatternLitListCompare(PatternSubst_p subst1, PStack_p
       dir1 = PStackElementInt(listrep1, i+1);
       eqn2 = PStackElementP(listrep2, i);
       dir2 = PStackElementInt(listrep2, i+1);
-      
+
       res = PatternTermPairCompare(subst1, eqn1, dir1, subst2, eqn2,
 				   dir2);
       if(res != to_equal)
@@ -1184,7 +1184,7 @@ CompareResult PatternLitListCompare(PatternSubst_p subst1, PStack_p
 //   Compute the representative pattern for a clause and return it
 //   (via the reference variables). Returns number of substitutions
 //   tried, or 0 if the internal resource estimator canceled the
-//   computation. 
+//   computation.
 //
 // Global Variables: -
 //
@@ -1193,12 +1193,12 @@ CompareResult PatternLitListCompare(PatternSubst_p subst1, PStack_p
 /----------------------------------------------------------------------*/
 
 long PatternClauseCompute(Clause_p clause, PatternSubst_p* subst,
-			  PStack_p *listrep) 
+			  PStack_p *listrep)
 {
    long res;
 
    res = lit_list_rep_pattern(clause->literals, subst, listrep);
-   
+
    /* printf("# %d literals, %ld tries\n", ClauseLiteralNumber(clause),
 	  res);
    if(res > 500)
@@ -1225,14 +1225,14 @@ long PatternClauseCompute(Clause_p clause, PatternSubst_p* subst,
 
 void PatternTermPrint(FILE* out, PatternSubst_p subst, Term_p term,
 		      Sig_p sig)
-{   
+{
    FunCode id;
    int  i;
    char new_id[27];
 
    id = PatSymbValue(subst, term->f_code);
    if(TermIsVar(term))
-   {      
+   {
       if(!id)
       {
 	 fprintf(out, "X%ld", -term->f_code);
@@ -1247,7 +1247,7 @@ void PatternTermPrint(FILE* out, PatternSubst_p subst, Term_p term,
       if(id >= NORM_SYMBOL_LIMIT)
       {
 	 generate_print_rep(id, new_id);
-	 fputs(new_id, out);	 
+	 fputs(new_id, out);
       }
       else
       {
@@ -1263,7 +1263,7 @@ void PatternTermPrint(FILE* out, PatternSubst_p subst, Term_p term,
 	    fprintf(out, ",");
 	    PatternTermPrint(out, subst, term->args[i], sig);
 	 }
-	 fprintf(out, ")");	 
+	 fprintf(out, ")");
       }
    }
 }
@@ -1275,9 +1275,9 @@ void PatternTermPrint(FILE* out, PatternSubst_p subst, Term_p term,
 //
 //   Print a pattern equation in the most reasonable form.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -1326,7 +1326,7 @@ void PatternEqnPrint(FILE* out, PatternSubst_p subst, Eqn_p eqn,
 /----------------------------------------------------------------------*/
 
 void PatternClausePrint(FILE* out, PatternSubst_p subst, PStack_p
-			listrep) 
+			listrep)
 {
    Eqn_p eqn;
    PatEqnDirection dir;
@@ -1367,7 +1367,7 @@ PStack_p DebugPatternClauseToStack(Clause_p clause)
    for(handle = clause->literals; handle; handle = handle->next)
    {
       PStackPushP(res, handle);
-      PStackPushInt(res, PENormal);    
+      PStackPushInt(res, PENormal);
    }
    return res;
 }
@@ -1378,14 +1378,14 @@ PStack_p DebugPatternClauseToStack(Clause_p clause)
 // Function: PatternTranslateSig()
 //
 //   Create a copy of (uninstantiated) term in new_sig and new_vars,
-//   inserting all 
+//   inserting all
 //   necessary idents and print-representations of norm-idents into
 //   new_sig. Norm-substituted variables are mapped to their unnormed
 //   counterparts.
 //
 // Global Variables: -
 //
-// Side Effects    : Changes new_sig,  changes 
+// Side Effects    : Changes new_sig,  changes
 //
 /----------------------------------------------------------------------*/
 
@@ -1398,7 +1398,7 @@ Term_p PatternTranslateSig(Term_p term, PatternSubst_p subst, Sig_p
    Term_p   t, new;
    FunCode  f_code;
    int      i;
-   
+
    /* Deal with variables...this is messy ;-) */
    PStackPushP(stack, term);
    while(!PStackEmpty(stack))
@@ -1418,7 +1418,7 @@ Term_p PatternTranslateSig(Term_p term, PatternSubst_p subst, Sig_p
 	 {
 	    PStackPushP(stack, t->args[i]);
 	 }
-      }      
+      }
    }
 
    new = TermCopy(term, new_vars, DEREF_ONCE);
@@ -1439,7 +1439,7 @@ Term_p PatternTranslateSig(Term_p term, PatternSubst_p subst, Sig_p
 	 }
       }
    }
-   
+
    PStackPushP(stack, new);
 
    while(!PStackEmpty(stack))
@@ -1457,7 +1457,7 @@ Term_p PatternTranslateSig(Term_p term, PatternSubst_p subst, Sig_p
 	 assert(t->f_code);
       }
       else
-      {	 
+      {
 	 id = SigFindName(old_sig, t->f_code);
 	 assert(id);
 	 t->f_code = SigInsertId(new_sig, id, t->arity, false);
@@ -1485,7 +1485,7 @@ Term_p PatternTranslateSig(Term_p term, PatternSubst_p subst, Sig_p
 //
 /----------------------------------------------------------------------*/
 
-FunCode PatternSubstGetOriginalSymbol(PatternSubst_p subst, FunCode f)   
+FunCode PatternSubstGetOriginalSymbol(PatternSubst_p subst, FunCode f)
 {
    long i;
 
@@ -1515,7 +1515,7 @@ FunCode PatternSubstGetOriginalSymbol(PatternSubst_p subst, FunCode f)
 	       return i;
 	    }
 	 }
-	 return 0; 
+	 return 0;
       }
    }
 }

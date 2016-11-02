@@ -7,7 +7,7 @@ Author: Simon Cruanes
 Contents
 
   Type checking and inference for Simple types
- 
+
 
   Copyright 2011 by the author.
   This code is released under the GNU General Public Licence.
@@ -88,7 +88,7 @@ SortType infer_return_sort(Sig_p sig, FunCode f_code)
 // Function: TypeCheckConsistent
 //  recursively checks that the subterms of this term have a sort
 //  that is consistent with the given signature.
-//   
+//
 //
 // Global Variables: -
 //
@@ -163,7 +163,7 @@ void TypeInferSort(Sig_p sig, Term_p term)
    Type_p type;
    SortType sort, *args;
    int i;
-   
+
    if(TermIsVar(term))
    {
       if(term->sort == STNoSort)
@@ -194,7 +194,7 @@ void TypeInferSort(Sig_p sig, Term_p term)
             if(term->args[i]->sort != type->args[i])
             {
                fprintf(stderr, "# Type mismatch in argument #%d of ", i+1);
-               TermPrint(stderr, term, sig, DEREF_NEVER); 
+               TermPrint(stderr, term, sig, DEREF_NEVER);
                fprintf(stderr, ": expected ");
                SortPrintTSTP(stderr, sig->sort_table, type->args[i]);
                fprintf(stderr, " but got ");

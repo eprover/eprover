@@ -5,7 +5,7 @@ File  : ccl_unit_simplify.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for doing unit cut-off and unit-subsumption with indexed
   mixed clause sets.
 
@@ -88,8 +88,8 @@ ClausePos_p FindTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
 	 res = pos;
 	 assert(res->clause->set == units);
 	 break;
-      }   
-   }      
+      }
+   }
    PDTreeSearchExit(units->demod_index);
    SubstDelete(subst);
    return res;
@@ -131,8 +131,8 @@ ClausePos_p FindSignedTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
 	 res = pos;
 	 assert(res->clause->set == units);
 	 break;
-      }   
-   }      
+      }
+   }
    PDTreeSearchExit(units->demod_index);
    SubstDelete(subst);
    return res;
@@ -158,7 +158,7 @@ ClausePos_p FindSimplifyingUnit(ClauseSet_p set, Term_p t1, Term_p t2,
    Term_p   tmp1, tmp2 = NULL;
    int      i;
    ClausePos_p res = NULL;
-   
+
    if(positive_only)
    {
       res = FindSignedTopSimplifyingUnit(set, t1, t2, true);
@@ -230,9 +230,9 @@ bool ClauseSimplifyWithUnitSet(Clause_p clause, ClauseSet_p unit_set,
 
    assert(clause);
    assert(unit_set && unit_set->demod_index);
-   assert(how);   
-   
-   handle = &(clause->literals); 
+   assert(how);
+
+   handle = &(clause->literals);
    while(*handle)
    {
       if(how == TopLevelUnitSimplify)
@@ -259,7 +259,7 @@ bool ClauseSimplifyWithUnitSet(Clause_p clause, ClauseSet_p unit_set,
 	    if(!ClauseIsUnit(clause)&&
 	       ClauseStandardWeight(clause)==ClauseStandardWeight(res->clause))
 	    {
-	       ClauseSetProp(res->clause, CPIsProtected);	       
+	       ClauseSetProp(res->clause, CPIsProtected);
 	    }
 	    ClauseSetProp(res->clause, ClauseQueryProp(clause, CPIsSOS));
 	    return false;
@@ -268,7 +268,7 @@ bool ClauseSimplifyWithUnitSet(Clause_p clause, ClauseSet_p unit_set,
 	 ClauseRemoveLiteralRef(clause, handle);
 	 DocClauseModification(GlobalOut, OutputLevel, clause,
 			       inf_simplify_reflect, res->clause,
-			       NULL, "cut with unprocessed unit"); 
+			       NULL, "cut with unprocessed unit");
       }
       else
       {

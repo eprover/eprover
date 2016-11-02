@@ -6,7 +6,7 @@ Author: Stephan Schulz
 
 Contents
 
-  Functions for handling fixed size arrays. 
+  Functions for handling fixed size arrays.
 
 Copyright 1998-2011 by the author.
   This code is released under the GNU General Public Licence and
@@ -63,7 +63,7 @@ FixedDArray_p FixedDArrayAlloc(long size)
 
    handle->size = size;
    handle->array = SizeMalloc(sizeof(long)*size);
-   
+
    return handle;
 }
 
@@ -112,7 +112,7 @@ FixedDArray_p FixedDArrayCopy(FixedDArray_p array)
    {
       FixedDArray_p handle = FixedDArrayAlloc(array->size);
       long i;
-      
+
       for(i=0; i<array->size; i++)
       {
 	 handle->array[i] = array->array[i];

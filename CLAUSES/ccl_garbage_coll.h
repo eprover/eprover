@@ -5,7 +5,7 @@ File  : ccl_garbage_coll.h
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   High-level support for the term cell garbage collection. This
   integrates a term bank and all clause- and formulasets which use
   terms from this bank.

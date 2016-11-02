@@ -5,7 +5,7 @@ File  : ccl_clausecpos.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Positions of subterms in clauses (and in equations) using compact
   (i.e. single integer) positions.
 
@@ -45,7 +45,7 @@ CompactPos  PackTermPos(TermPos_p pos);
 CompactPos  PackClausePos(ClausePos_p pos);
 
 void        UnpackTermPos(TermPos_p pos, Term_p t, CompactPos cpos);
-void        UnpackClausePosInto(CompactPos cpos, Clause_p clause, 
+void        UnpackClausePosInto(CompactPos cpos, Clause_p clause,
                           ClausePos_p pos);
 ClausePos_p UnpackClausePos(CompactPos cpos, Clause_p clause);
 

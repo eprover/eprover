@@ -5,7 +5,7 @@ File  : cte_match_mgu_1-1.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Implementation of simple, non-indexed 1-1 match and unification
   routines on shared terms (and unshared terms with shared
   variables).
@@ -204,9 +204,9 @@ bool SubstComputeMatch(Term_p matcher, Term_p to_match, Subst_p subst)
 //   Solution with stacks is more efficient than unsorted queues,
 //   sorted queues (variables last) are significantly better again!
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -227,18 +227,18 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
 
    }
    PStackPointer backtrack = PStackGetSP(subst); /* For backtracking */
-   
+
    bool res = true;
    PQueue_p jobs = PQueueAlloc();
 
    PQueueStoreP(jobs, t1);
    PQueueStoreP(jobs, t2);
-   
+
    while(!PQueueEmpty(jobs))
    {
       t2 =  TermDerefAlways(PQueueGetLastP(jobs));
       t1 =  TermDerefAlways(PQueueGetLastP(jobs));
-      
+
       if(TermIsVar(t2))
       {
          SWAP(t1, t2);

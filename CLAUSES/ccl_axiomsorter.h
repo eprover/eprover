@@ -5,7 +5,7 @@ File  : ccl_axiomsorter.h
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Datatypes an code for implementing generic evaluation and sorting of
   axiomsets (clauses and formulas).
 

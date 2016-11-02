@@ -5,7 +5,7 @@ File  : clb_sysdate.c
 Author: Stephan Schulz
 
 Contents
- 
+
   See clb_sysdate.h...this is extremely simple ;-)
 
   Copyright 1998, 1999 by the author.

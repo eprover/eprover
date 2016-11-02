@@ -5,7 +5,7 @@ File  : ccl_splitting.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Implements functions for destructive splitting of clauses with at
   least two non-propositional variable disjoint subsets of literals.
 
@@ -29,7 +29,7 @@ Changes
 #include <ccl_def_handling.h>
 
 
-typedef enum 
+typedef enum
 {
    SplitGroundNone = 0, /* Combine ground literals with first
 			   subclause */
@@ -44,7 +44,7 @@ typedef enum
    CONTROL/cco_clausesplitting.c, but we need the data type for the
    control block later on. */
 
-typedef enum 
+typedef enum
 {
    SplitNone        = 0,
    SplitHorn        = 1,
@@ -80,15 +80,15 @@ typedef struct lit_split_desc
 /*---------------------------------------------------------------------*/
 
 bool ClauseHasSplitLiteral(Clause_p clause);
-int  ClauseSplit(DefStore_p store, Clause_p clause, ClauseSet_p set, 
+int  ClauseSplit(DefStore_p store, Clause_p clause, ClauseSet_p set,
                  SplitType how, bool fresh_defs);
 
 long ClauseSetSplitClauses(DefStore_p store, ClauseSet_p from_set,
-                           ClauseSet_p to_set, SplitType how, 
+                           ClauseSet_p to_set, SplitType how,
                            bool fresh_defs);
 
 long ClauseSetSplitClausesGeneral(DefStore_p store, bool fresh_defs,
-                                  ClauseSet_p from_set, 
+                                  ClauseSet_p from_set,
                                   ClauseSet_p to_set, long tries);
 
 

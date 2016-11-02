@@ -7,7 +7,7 @@ Author: Stephan Schulz
 Contents
 
   Functions and datatype for dealing with and administrating
-  annotations.  
+  annotations.
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and

@@ -5,7 +5,7 @@ File  : ccl_eqnlist.c
 Author: Stephan Schulz
 
 Contents
- 
+
    Functions for dealing with (singly linked) lists of equations as
    used in clauses
 
@@ -59,7 +59,7 @@ EqnRef eqn_list_find_last(EqnRef list)
    {
       list = &((*list)->next);
    }
-   return list;   
+   return list;
 }
 
 
@@ -98,9 +98,9 @@ void EqnListFree(Eqn_p list)
 //
 //   Mark all terms in the eqnlist for the Garbage Collection.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -264,7 +264,7 @@ Eqn_p EqnListFromArray(Eqn_p* array, int lenght)
 {
    int i;
    Eqn_p *handle, res;
-   
+
    handle = &(res);
    for(i=0; i<lenght; i++)
    {
@@ -272,7 +272,7 @@ Eqn_p EqnListFromArray(Eqn_p* array, int lenght)
       handle = &((*handle)->next);
    }
    *handle = NULL;
-   
+
    return res;
 }
 
@@ -284,9 +284,9 @@ Eqn_p EqnListFromArray(Eqn_p* array, int lenght)
 //   Push the literals onto a newly created stack and return it. Does
 //   not copy anything! The caller has to free the stack.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -344,7 +344,7 @@ Eqn_p EqnListExtractByProps(EqnRef list, EqnProperties props, bool
 			    negate)
 {
    Eqn_p res = NULL, tmp;
-   
+
    while(*list)
    {
       if(XOR(EqnQueryProp(*list, props),negate))
@@ -416,7 +416,7 @@ void EqnListInsertElement(EqnRef pos, Eqn_p element)
 Eqn_p EqnListAppend(EqnRef list, Eqn_p newpart)
 {
    EqnRef result = list;
-   
+
    list = eqn_list_find_last(list);
    assert(!(*list));
    *list = newpart;
@@ -444,13 +444,13 @@ Eqn_p EqnListFlatCopy(Eqn_p list)
    EqnRef insert = &newlist;
 
    while(list)
-   {  
+   {
       *insert = EqnFlatCopy(list);
       insert = &((*insert)->next);
       list = list->next;
    }
    *insert = NULL;
-   
+
    return newlist;
 }
 
@@ -480,7 +480,7 @@ Eqn_p EqnListCopy(Eqn_p list, TB_p bank)
       list = list->next;
    }
    *insert = NULL;
-   
+
    return newlist;
 }
 
@@ -491,7 +491,7 @@ Eqn_p EqnListCopy(Eqn_p list, TB_p bank)
 //
 //   Return a copy of the given list, except for the equation given in
 //   except, with new terms from the term bank. Instantiated terms are
-//   copied as instantiations. 
+//   copied as instantiations.
 //
 // Global Variables: -
 //
@@ -499,7 +499,7 @@ Eqn_p EqnListCopy(Eqn_p list, TB_p bank)
 //
 /----------------------------------------------------------------------*/
 
-Eqn_p EqnListCopyExcept(Eqn_p list, Eqn_p except, TB_p bank)  
+Eqn_p EqnListCopyExcept(Eqn_p list, Eqn_p except, TB_p bank)
 {
    Eqn_p  newlist = NULL;
    EqnRef insert = &newlist;
@@ -514,7 +514,7 @@ Eqn_p EqnListCopyExcept(Eqn_p list, Eqn_p except, TB_p bank)
       list = list->next;
    }
    *insert = NULL;
-   
+
    return newlist;
 }
 
@@ -544,7 +544,7 @@ Eqn_p EqnListCopyOpt(Eqn_p list)
       list = list->next;
    }
    *insert = NULL;
-   
+
    return newlist;
 }
 
@@ -555,7 +555,7 @@ Eqn_p EqnListCopyOpt(Eqn_p list)
 //
 //   Copy an Eqnlist with one exception using the optimizations
 //   possible if all terms (source and target) are from the same term
-//   bank. 
+//   bank.
 //
 // Global Variables: -
 //
@@ -578,7 +578,7 @@ Eqn_p EqnListCopyOptExcept(Eqn_p list, Eqn_p except)
       list = list->next;
    }
    *insert = NULL;
-   
+
    return newlist;
 }
 
@@ -588,7 +588,7 @@ Eqn_p EqnListCopyOptExcept(Eqn_p list, Eqn_p except)
 // Function: EqnListCopyDisjoint()
 //
 //   Create a copy of list with disjoint variables (using the even/odd
-//   convention). 
+//   convention).
 //
 // Global Variables: -
 //
@@ -608,7 +608,7 @@ Eqn_p EqnListCopyDisjoint(Eqn_p list)
       list = list->next;
    }
    *insert = NULL;
-   
+
    return newlist;
 }
 
@@ -640,7 +640,7 @@ Eqn_p EqnListCopyRepl(Eqn_p list, TB_p bank, Term_p old, Term_p repl)
       list = list->next;
    }
    *insert = NULL;
-   
+
    return newlist;
 }
 
@@ -694,7 +694,7 @@ int EqnListRemoveDuplicates(Eqn_p list)
    while(list)
    {
       handle = &(list->next);
-      while(*handle)  
+      while(*handle)
       {
 	 if(LiteralEqual(*handle, list))
 	 {
@@ -842,11 +842,11 @@ int EqnListRemoveSimpleAnswers(EqnRef list)
 // Function: EqnListFindTrue()
 //
 //   Return the first "always true" literal, if any. Return false
-//   otherwise. 
+//   otherwise.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -871,7 +871,7 @@ Eqn_p EqnListFindTrue(Eqn_p list)
 //   Return true if the list contains two equal literals with
 //   opposing signs or a literal that always evaluates to true.
 //
-// Global Variables: - 
+// Global Variables: -
 //
 // Side Effects    : -
 //
@@ -880,13 +880,13 @@ Eqn_p EqnListFindTrue(Eqn_p list)
 bool EqnListIsTrivial(Eqn_p list)
 {
    Eqn_p handle;
-   
+
    while(list)
    {
       if(EqnIsTrue(list))
       {
 	 return true;
-      }	    
+      }
       for(handle = list->next; handle; handle = handle->next)
       {
 	 if(!PropsAreEquiv(handle, list, EPIsPositive))
@@ -910,7 +910,7 @@ bool EqnListIsTrivial(Eqn_p list)
 //   Return true if the list contains a positive AC-trivial
 //   equation.
 //
-// Global Variables: - 
+// Global Variables: -
 //
 // Side Effects    : -
 //
@@ -945,7 +945,7 @@ bool EqnListIsACTrivial(Eqn_p list)
 bool EqnListIsGround(Eqn_p list)
 {
    bool res = true;
-   
+
    while(list)
    {
       if(!EqnIsGround(list))
@@ -1016,7 +1016,7 @@ bool EqnListIsPureEquational(Eqn_p list)
 // Function: EqnListOrient()
 //
 //   Orient all the equations in list. Equations already oriented are
-//   not reoriented! Return number of swapped equations. 
+//   not reoriented! Return number of swapped equations.
 //
 // Global Variables: -
 //
@@ -1035,7 +1035,7 @@ int EqnListOrient(OCB_p ocb, Eqn_p list)
       {
 	 res++;
       }
-      
+
    }
    return res;
 }
@@ -1047,7 +1047,7 @@ int EqnListOrient(OCB_p ocb, Eqn_p list)
 //
 //   Determine for each literal wether it is maximal or not. Returns
 //   number of maximal literals. Also determines strictly maximal
-//   literals. 
+//   literals.
 //
 // Global Variables: -
 //
@@ -1071,12 +1071,12 @@ int EqnListMaximalLiterals(OCB_p ocb, Eqn_p list)
 	    cmp = LiteralCompare(ocb, handle, stepper);
 	    switch(cmp)
 	    {
-	    case to_greater:		  
+	    case to_greater:
 		  EqnDelProp(stepper, EPIsMaximal);
 		  EqnDelProp(stepper, EPIsStrictlyMaximal);
 		  res--;
 		  break;
-	    case to_lesser:		  
+	    case to_lesser:
 		  EqnDelProp(handle, EPIsMaximal);
 		  EqnDelProp(handle, EPIsStrictlyMaximal);
 		  res--;
@@ -1114,13 +1114,13 @@ bool EqnListEqnIsMaximal(OCB_p ocb, Eqn_p list, Eqn_p eqn)
    Eqn_p handle;
    bool res = true;
    CompareResult cmp;
-   
+
    for(handle=list; handle; handle = handle->next)
    {
       if(handle!=eqn && EqnIsMaximal(handle))
       {
 	 cmp = LiteralCompare(ocb, handle, eqn);
-	 
+
 	 if(cmp == to_greater)
 	 {
 	    res = false;
@@ -1143,7 +1143,7 @@ bool EqnListEqnIsMaximal(OCB_p ocb, Eqn_p list, Eqn_p eqn)
 //   Return true if eqn is strictly maximal with respect to list
 //   (i.e. if there are no equations that dominate it), false
 //   otherwise. As above, details of this may need change if the
-//   calculus changes. 
+//   calculus changes.
 //
 // Global Variables: -
 //
@@ -1155,7 +1155,7 @@ bool EqnListEqnIsStrictlyMaximal(OCB_p ocb, Eqn_p list, Eqn_p eqn)
 {
    Eqn_p handle;
    bool res = true;
-   
+
    for(handle=list; handle&&res; handle = handle->next)
    {
       if(handle!=eqn && EqnIsMaximal(handle))
@@ -1184,7 +1184,7 @@ bool EqnListEqnIsStrictlyMaximal(OCB_p ocb, Eqn_p list, Eqn_p eqn)
 // Function: EqnListDeleteTermProperties()
 //
 //   Delete the given properties for all term occurences in the
-//   eqnlist. 
+//   eqnlist.
 //
 // Global Variables: -
 //
@@ -1210,7 +1210,7 @@ void EqnListDeleteTermProperties(Eqn_p list, TermProperties props)
 //   Print the list. Separate elements with the given separator
 //   (usually "," oder ";"). If negated is true, negate equations
 //   before printing (to allow for easy printing of clauses in
-//   implicational form). 
+//   implicational form).
 //
 // Global Variables: -
 //
@@ -1218,7 +1218,7 @@ void EqnListDeleteTermProperties(Eqn_p list, TermProperties props)
 //
 /----------------------------------------------------------------------*/
 
-void EqnListPrint(FILE* out, Eqn_p list, char* sep, 
+void EqnListPrint(FILE* out, Eqn_p list, char* sep,
 		  bool negated, bool fullterms)
 {
    Eqn_p handle = list;
@@ -1226,7 +1226,7 @@ void EqnListPrint(FILE* out, Eqn_p list, char* sep,
    if(handle)
    {
       EqnPrint(out, handle, negated, fullterms);
-   
+
       while(handle->next)
       {
 	 handle = handle->next;
@@ -1251,11 +1251,11 @@ void EqnListPrint(FILE* out, Eqn_p list, char* sep,
 void EqnListTSTPPrint(FILE* out, Eqn_p list, char* sep, bool fullterms)
 {
    Eqn_p handle = list;
-   
+
    if(handle)
    {
       EqnTSTPPrint(out, handle, fullterms);
-   
+
       while(handle->next)
       {
 	 handle = handle->next;
@@ -1280,16 +1280,16 @@ void EqnListTSTPPrint(FILE* out, Eqn_p list, char* sep, bool fullterms)
 
 Eqn_p EqnListParse(Scanner_p in, TB_p bank, TokenType sep)
 {
-   Eqn_p handle = NULL, 
+   Eqn_p handle = NULL,
          list = NULL;
 
-   if(((ScannerGetFormat(in) == TPTPFormat) && 
-       TestInpTok(in, Plus|Hyphen)) 
+   if(((ScannerGetFormat(in) == TPTPFormat) &&
+       TestInpTok(in, Plus|Hyphen))
       ||
-      ((ScannerGetFormat(in) == LOPFormat) && 
+      ((ScannerGetFormat(in) == LOPFormat) &&
        TestInpTok(in, TermStartToken|TildeSign))
       ||
-      ((ScannerGetFormat(in) == TSTPFormat) && 
+      ((ScannerGetFormat(in) == TSTPFormat) &&
        TestInpTok(in, TermStartToken|TildeSign)))
    {
       list = EqnParse(in, bank);
@@ -1311,7 +1311,7 @@ Eqn_p EqnListParse(Scanner_p in, TB_p bank, TokenType sep)
 //
 //   Instantiate all variables in eqnlist (except for terms from
 //   except)  with fresh variables from vars. Returns the current
-//   position in subst. 
+//   position in subst.
 //
 // Global Variables: -
 //
@@ -1341,7 +1341,7 @@ FunCode NormSubstEqnListExcept(Eqn_p list, Eqn_p except, Subst_p
 // Function: EqnListDepth()
 //
 //   Return the depth of an eqn-list (i.e. the maximal depth of a
-//   term). 
+//   term).
 //
 // Global Variables: -
 //
@@ -1371,7 +1371,7 @@ long EqnListDepth(Eqn_p list)
 //   Count the number of occurences of function symbols in list and
 //   add them to dist_array, which has to be a pointer to an array of
 //   long that is sufficiently long (and preferably adequatly
-//   initialized). 
+//   initialized).
 //
 // Global Variables: -
 //
@@ -1432,7 +1432,7 @@ void EqnListAddSymbolFeatures(Eqn_p list, PStack_p mod_stack, long *feature_arra
    {
       EqnAddSymbolFeatures(list, mod_stack, feature_array);
       list = list->next;
-   } 
+   }
 }
 
 
@@ -1443,13 +1443,13 @@ void EqnListAddSymbolFeatures(Eqn_p list, PStack_p mod_stack, long *feature_arra
 //
 //   Compute the occurance rank for all function symbols in list.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
-void EqnListComputeFunctionRanks(Eqn_p list, long *rank_array, 
+void EqnListComputeFunctionRanks(Eqn_p list, long *rank_array,
 				 long* count)
 {
    while(list)
@@ -1464,7 +1464,7 @@ void EqnListComputeFunctionRanks(Eqn_p list, long *rank_array,
 // Function: EqnListCollectVariables()
 //
 //   Add all variables in list to tree. Return number of distinct
-//   variables. 
+//   variables.
 //
 // Global Variables: -
 //
@@ -1493,14 +1493,14 @@ long EqnListCollectVariables(Eqn_p list, PTree_p *tree)
 //   f_occur, push it onto res_stack and mark its entry. Return
 //   number of symbols found.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
 long EqnListAddFunOccs(Eqn_p list,
-                       PDArray_p f_occur, 
+                       PDArray_p f_occur,
                        PStack_p res_stack)
 {
    long res = 0;
@@ -1510,7 +1510,7 @@ long EqnListAddFunOccs(Eqn_p list,
       res+=EqnAddFunOccs(list, f_occur, res_stack);
       list = list->next;
    }
-   return res;   
+   return res;
 }
 
 
@@ -1606,7 +1606,7 @@ long EqnListTermDelProp(Eqn_p list, TermProperties props)
 long EqnListCollectSubterms(Eqn_p list, PStack_p collector)
 {
    long res = 0;
-   
+
    while(list)
    {
       res+= EqnCollectSubterms(list, collector);

@@ -5,7 +5,7 @@ File  : cio_network.h
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Helper code for TCP connections and "message" based communication
   over TCP (each message corresponds to a transaction request and is
   packages as a message to allow parsing in whole).

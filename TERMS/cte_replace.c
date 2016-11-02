@@ -5,7 +5,7 @@ File  : cte_replace.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for replacing and rewriting of terms.
 
   Copyright 1998, 1999 by the author.
@@ -66,14 +66,14 @@ void TermAddRWLink(Term_p term, Term_p replace, struct clause_cell *demod, bool 
    assert(term);
    assert(replace);
    assert(term!=replace);
-   
-   TermCellSetProp(term, TPIsRewritten);   
+
+   TermCellSetProp(term, TPIsRewritten);
 
    if(type==RWAlwaysRewritable)
    {
       TermCellSetProp(term, TPIsRRewritten);
    }
-   
+
    TermRWReplaceField(term) = replace;
    TermRWDemodField(term)   = demod;
 
@@ -88,7 +88,7 @@ void TermAddRWLink(Term_p term, Term_p replace, struct clause_cell *demod, bool 
 //
 // Function: TermDeleteRWLink()
 //
-//   Delete rewrite link from term. 
+//   Delete rewrite link from term.
 //
 // Global Variables: -
 //
@@ -99,9 +99,9 @@ void TermAddRWLink(Term_p term, Term_p replace, struct clause_cell *demod, bool 
 void TermDeleteRWLink(Term_p term)
 {
    assert(term);
-   
-   TermCellDelProp(term, TPIsRewritten|TPIsRRewritten|TPIsSOSRewritten);   
-   
+
+   TermCellDelProp(term, TPIsRewritten|TPIsRRewritten|TPIsSOSRewritten);
+
    TermRWReplaceField(term) = NULL;
    TermRWDemodField(term)   = 0;
 }
@@ -168,10 +168,10 @@ Term_p TBTermPosReplace(TB_p bank, Term_p repl, TermPos_p pos,
    assert(bank);
    assert(repl);
    assert(pos);
-   
+
    i = PStackGetSP(pos);
-   
-   
+
+
    /* Note that we start inside-out here - the first term handled is
       the actual subterm replaced, at the end repl is the complete
       term generated.*/
@@ -181,7 +181,7 @@ Term_p TBTermPosReplace(TB_p bank, Term_p repl, TermPos_p pos,
       subscript = PStackElementInt(pos, i);
       assert(i);
       i--;
-      
+
       old = PStackElementP(pos, i);
       handle = TermTopCopy(old);
       assert(handle->arity > subscript);

@@ -5,7 +5,7 @@ File  : che_learning.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Evaluation of a clause by tsm-based learning algorithms
 
   Copyright 1998, 1999 by the author.
@@ -48,14 +48,14 @@ typedef struct tsmparamcell
    double         max_term_multiplier;    /* For TSWRWeight only */
    double         max_literal_multiplier; /* For TSWRWeight only */
    double         pos_multiplier;         /* For TSWRWeight only */
-   bool           flat_clauses;   
+   bool           flat_clauses;
    double         learnweight;
    char*          kb;
    ProofState_p   state;
    long           sel_no;
    double         set_part;
    double         dist_part;
-   IndexType      indextype; 
+   IndexType      indextype;
    TSMType        tsmtype;
    long           depth;
    double         e_weights[ANNOTATION_DEFAULT_SIZE-1];
@@ -75,8 +75,8 @@ typedef struct tsmparamcell
    SizeMalloc(sizeof(TSMParamCell))
 #define TSMParamCellFree(junk) \
    SizeFree(junk, sizeof(TSMParamCell))
-   
-   
+
+
 WFCB_p TSMWeightInit(ClausePrioFun prio_fun, int fweight,
 		     int vweight, bool flat_clauses, double
 		     learnweight, char* kb, ProofState_p state, long
@@ -92,7 +92,7 @@ double TSMWeightCompute(void* data, Clause_p clause);
 WFCB_p TSMRWeightInit(ClausePrioFun prio_fun, int fweight,
 		      int vweight, double max_term_multiplier, double
 		      max_literal_multiplier, double pos_multiplier,
-		      bool flat_clauses, double 
+		      bool flat_clauses, double
 		     learnweight, char* kb, ProofState_p state, long
 		     sel_no, double set_part, double dist_part,
 		     IndexType indextype, TSMType tsmtype, long depth,

@@ -5,13 +5,13 @@ File  : clb_pdarrays.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Dynamic arrays of pointers and long integers. You can define the
   growth behaviour by specifying a value. If it is GROW_EXPONENTIAL,
   arrays will always grow by a factor that is the lowest power of two
   that will make the array big enough. Otherwise it will grow by the
   smallest multiple of the value specified that creates the requested
-  position. 
+  position.
 
   Copyright 1998, 1999, 2004 by the author.
   This code is released under the GNU General Public Licence and
@@ -41,11 +41,11 @@ Changes
 
 typedef struct pdarraycell
 {
-   bool   integer; 
+   bool   integer;
    long   size;
    long   grow;
    IntOrP *array;
-}PDArrayCell, *PDArray_p; 
+}PDArrayCell, *PDArray_p;
 
 #define GROW_EXPONENTIAL 0
 
@@ -104,7 +104,7 @@ long      PDArrayElementIncInt(PDArray_p array, long idx, long value);
 /*                     Inline functions                                */
 /*---------------------------------------------------------------------*/
 
-	  
+
 /*-----------------------------------------------------------------------
 //
 // Function: PDArrayElementRef()
@@ -113,7 +113,7 @@ long      PDArrayElementIncInt(PDArray_p array, long idx, long value);
 //   reference is only good until the next call to this function! User
 //   programs are expected to use this function only extremely rarely
 //   and with special care. Use PDArrayElement()/PDArrayAssign()
-//   instead. 
+//   instead.
 //
 // Global Variables: -
 //
@@ -125,7 +125,7 @@ static __inline__ IntOrP* PDArrayElementRef(PDArray_p array, long idx)
 {
    assert(array);
    assert(idx >= 0);
-   
+
    if(UNLIKELY(idx >= array->size))
    {
       PDArrayEnlarge(array, idx);

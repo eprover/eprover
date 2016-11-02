@@ -5,7 +5,7 @@ File  : ccl_clausefunc.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Clause functions that need to know about sets.
 
   Copyright 1998, 1999 by the author.
@@ -57,7 +57,7 @@ int ClauseCanonCompareRef(const void *clause1ref, const void* clause2ref)
 {
    const Clause_p* c1 = clause1ref;
    const Clause_p* c2 = clause2ref;
-   
+
    return CMP(ClauseStructWeightLexCompare(*c1, *c2),0);
 }
 
@@ -97,7 +97,7 @@ void ClauseRemoveLiteralRef(Clause_p clause, Eqn_p *lit)
       clause->set->literals--;
    }
    clause->weight -= EqnStandardWeight(handle);
-   EqnListDeleteElement(lit);   
+   EqnListDeleteElement(lit);
 }
 
 
@@ -209,11 +209,11 @@ int ClauseRemoveSuperfluousLiterals(Clause_p clause)
 
    removed += EqnListRemoveResolved(&(clause->literals));
    removed += EqnListRemoveDuplicates(clause->literals);
-   
+
    if(removed)
    {
       clause->neg_lit_no = 0;
-      clause->pos_lit_no = 0;   
+      clause->pos_lit_no = 0;
       handle = clause->literals;
       ClauseDelProp(clause, CPInitial|CPLimitedRW);
 
@@ -229,7 +229,7 @@ int ClauseRemoveSuperfluousLiterals(Clause_p clause)
 	 }
 	 handle = handle->next;
       }
-      
+
       if(clause->set)
       {
 	 clause->set->literals-=removed;
@@ -283,7 +283,7 @@ long ClauseSetRemoveSuperfluousLiterals(ClauseSet_p set)
 // Side Effects    : Memory usage.
 //
 /----------------------------------------------------------------------*/
- 
+
 void ClauseSetCanonize(ClauseSet_p set)
 {
    Clause_p handle;
@@ -295,7 +295,7 @@ void ClauseSetCanonize(ClauseSet_p set)
       ClauseCanonize(handle);
    }
    ClauseSetSort(set, ClauseCanonCompareRef);
-   
+
    /* printf("Canonized: \n");
       ClauseSetPrint(stdout, set, true); */
 }
@@ -357,13 +357,13 @@ bool ClauseUnitSimplifyTest(Clause_p clause, Clause_p simplifier)
    bool positive,tmp;
    EqnRef handle;
    Eqn_p  simpl;
-   
+
    assert(ClauseIsUnit(simplifier));
    simpl = simplifier->literals;
    assert(EqnIsNegative(simpl)||!EqnIsOriented(simpl));
-   
+
    positive = EqnIsPositive(simpl);
-   
+
    if(EQUIV(positive, ClauseIsPositive(clause)))
    {
       return 0;
@@ -406,10 +406,10 @@ Clause_p ClauseArchive(ClauseSet_p archive, Clause_p clause)
    assert(archive);
    assert(clause);
 
-   archclause = ClauseFlatCopy(clause);   
+   archclause = ClauseFlatCopy(clause);
 
    archclause->info = clause->info;
-   archclause->derivation = clause->derivation; 
+   archclause->derivation = clause->derivation;
    clause->info       = NULL;
    clause->derivation = NULL;
    ClausePushDerivation(clause, DCCnfQuote, archclause, NULL);
@@ -425,7 +425,7 @@ Clause_p ClauseArchive(ClauseSet_p archive, Clause_p clause)
 //
 //   Create an archive copy of each clause in set in archive. The
 //   archive copy inherits info and derivation. The original loses
-//   info, and gets a new derivation that points to the archive copy. 
+//   info, and gets a new derivation that points to the archive copy.
 //
 // Global Variables: -
 //
@@ -465,7 +465,7 @@ void PStackClausePrint(FILE* out, PStack_p stack, char* extra)
 {
    PStackPointer i;
    Clause_p clause;
-   
+
    for(i=0; i<PStackGetSP(stack); i++)
    {
       clause = PStackElementP(stack, i);

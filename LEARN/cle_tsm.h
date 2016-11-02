@@ -5,7 +5,7 @@ File  : cle_tsm.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Finally, the term space map!
 
   Copyright 1998, 1999 by the author.
@@ -23,7 +23,7 @@ Changes
 
 #ifndef CLE_TSM
 
-#define CLE_TSM 
+#define CLE_TSM
 
 #include <cle_indexfunctions.h>
 #include <cle_flatannoterms.h>
@@ -62,7 +62,7 @@ typedef struct tsmadmincell
 
 
 typedef struct tsmcell
-{  
+{
    TSMAdmin_p admin;
    TSMIndex_p index;
    long       maxindex;
@@ -95,7 +95,7 @@ double        TSMRemainderEntropy(PDArray_p partition, long *parts,
 				  double limit, long max_index);
 double        TSMFlatAnnoSetEntropy(FlatAnnoSet_p set, double limit);
 long          TSMPartitionSet(PDArray_p partition, TSMIndex_p index,
-			      FlatAnnoSet_p set, PDArray_p cache); 
+			      FlatAnnoSet_p set, PDArray_p cache);
 
 IndexType     TSMFindOptimalIndex(TSMAdmin_p admin, FlatAnnoSet_p set,
 				  long *depth, IndexType indextype,
@@ -105,13 +105,13 @@ long          TSMCreateSubtermSet(FlatAnnoSet_p set, FlatAnnoTerm_p
 				  list, int sel);
 double        TSMFindPartLimit(FlatAnnoSet_p set, double part);
 
-#define TSMAdminCellAlloc() (TSMAdminCell*)SizeMalloc(sizeof(TSMAdminCell)) 
+#define TSMAdminCellAlloc() (TSMAdminCell*)SizeMalloc(sizeof(TSMAdminCell))
 #define TSMAdminCellFree(junk) SizeFree(junk, sizeof(TSMAdminCell))
 
 TSMAdmin_p TSMAdminAlloc(Sig_p sig, TSMType type);
 void       TSMAdminFree(TSMAdmin_p junk);
 
-#define TSMCellAlloc() (TSMCell*)SizeMalloc(sizeof(TSMCell)) 
+#define TSMCellAlloc() (TSMCell*)SizeMalloc(sizeof(TSMCell))
 #define TSMCellFree(junk) SizeFree(junk, sizeof(TSMCell))
 
 void TSMAdminBuildTSM(TSMAdmin_p admin, FlatAnnoSet_p set, IndexType
@@ -119,7 +119,7 @@ void TSMAdminBuildTSM(TSMAdmin_p admin, FlatAnnoSet_p set, IndexType
 TSM_p   TSMCreate(TSMAdmin_p admin, FlatAnnoSet_p set);
 void    TSMFree(TSM_p tsm);
 
-#define TSACellAlloc() (TSACell*)SizeMalloc(sizeof(TSACell)) 
+#define TSACellAlloc() (TSACell*)SizeMalloc(sizeof(TSACell))
 #define TSACellFree(junk) SizeFree(junk, sizeof(TSACell))
 
 TSA_p   TSACreate(TSMAdmin_p admin, FlatAnnoTerm_p list);

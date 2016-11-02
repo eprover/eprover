@@ -5,10 +5,10 @@ File  : cco_forward_contraction.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions that apply the processed clause sets to simplify or
   eliminate a potential new clause. Extracted from
-  cco_proofproc.[ch]. 
+  cco_proofproc.[ch].
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
@@ -48,15 +48,15 @@ Changes
 
 #define DEFAULT_FILTER_DESCRIPTOR "Fc"
 
-bool ForwardModifyClause(ProofState_p state, 
+bool ForwardModifyClause(ProofState_p state,
                          ProofControl_p control,
-			 Clause_p clause, 
-                         bool context_sr, 
-                         bool condense, 
+			 Clause_p clause,
+                         bool context_sr,
+                         bool condense,
                          RewriteLevel level);
-                         
 
-FVPackedClause_p ForwardContractClause(ProofState_p state, 
+
+FVPackedClause_p ForwardContractClause(ProofState_p state,
 				       ProofControl_p control,
 				       Clause_p clause,
 				       bool non_unit_subsumption,

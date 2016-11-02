@@ -5,7 +5,7 @@ File  : clb_simple_stuff.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Useful routines, usually pretty trivial.
 
   Copyright 1998, 1999 by the author.

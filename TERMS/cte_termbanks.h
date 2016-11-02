@@ -5,7 +5,7 @@ File  : cte_termbanks.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Definitions for term banks - i.e. shared representations of terms as
   defined in cte_terms.h. Uses the same struct, but adds
   administrative stuff and functionality for sharing.
@@ -90,7 +90,7 @@ typedef struct tbcell
 				    references and do replacing! */
    TermCellStoreCell term_store; /* Here are the terms */
 }TBCell, *TB_p;
-   
+
 
 
 /*---------------------------------------------------------------------*/

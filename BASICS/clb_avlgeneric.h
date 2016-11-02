@@ -5,7 +5,7 @@ File  : clb_avlgeneric.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Macros for the creation of generic binary tree functions. Currently
   used for traversal functions only. Please note that the name is
   obsolete (used for convenience only). The functions currently
@@ -120,7 +120,7 @@ type name##TraverseNext(PStack_p state)\
    }\
    return res;\
 }
-      
+
 
 
 #endif

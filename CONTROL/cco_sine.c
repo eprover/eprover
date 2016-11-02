@@ -6,7 +6,7 @@ Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
 
-  SinE-like specification filtering. 
+  SinE-like specification filtering.
 
   Copyright 2012 by the author.
   This code is released under the GNU General Public Licence.
@@ -44,7 +44,7 @@ Changes
 //
 // Function: sine_get_filter()
 //
-//   Given a filter string (a definition or a name), return the 
+//   Given a filter string (a definition or a name), return the
 //   described filter. Initialize  filters with a set of filters
 //   including the described one.
 //
@@ -68,10 +68,10 @@ static AxFilter_p sine_get_filter(char* fname, AxFilterSet_p *filters)
       if(!filter)
       {
          DStr_p fstring = DStrAlloc();
-         
+
          AxFilterSetAddNames(fstring, *filters);
          Error("Unknown SinE-filter '%s' selected (valid choices: %s)",
-               USAGE_ERROR, 
+               USAGE_ERROR,
                fname,
                DStrView(fstring));
          DStrFree(fstring);
@@ -83,8 +83,8 @@ static AxFilter_p sine_get_filter(char* fname, AxFilterSet_p *filters)
       filter  = AxFilterDefParse(in);
       AxFilterSetAddFilter(*filters, filter);
    }
-   DestroyScanner(in); 
-   return filter; 
+   DestroyScanner(in);
+   return filter;
 }
 
 
@@ -143,7 +143,7 @@ static AxFilter_p sine_get_filter(char* fname, AxFilterSet_p *filters)
 /* CLASS_MSSSMLL     : protokoll_X----_auto_sine12    24   */
 /* CLASS_MMMSMLL     : protokoll_X----_auto_sine12    2    */
 /* Raw association */
-char* raw_class[] = 
+char* raw_class[] =
 {
    "LMSSMLL",  /*      0 protokoll_X----_auto_300 */
    "MMSSMSL",  /*      3 protokoll_X----_auto_300 */
@@ -184,7 +184,7 @@ char* raw_class[] =
    "MMMSMLL",  /*      2 protokoll_X----_auto_sine12 */
    NULL
 };
-char* raw_sine[] = 
+char* raw_sine[] =
 {
    NULL,
    NULL,
@@ -253,7 +253,7 @@ static char* find_auto_sine(ProofState_p state)
    limits.term_large_limit     = 5573560;
    limits.symbols_medium_limit = 2471;
    limits.symbols_large_limit  = 4140;
-   
+
    limits.predc_medium_limit     = 0;
    limits.predc_large_limit      = 2;
    limits.pred_medium_limit      = 1225;
@@ -315,8 +315,8 @@ StructFOFSpec_p StructFOFSpecCreate(TB_p terms)
    handle->parsed_includes = NULL;
    handle->f_distrib       = GenDistribAlloc(handle->sig);
    handle->shared_ax_sp    = 0;
-   
-   return handle;   
+
+   return handle;
 }
 
 
@@ -382,7 +382,7 @@ void StructFOFSpecFree(StructFOFSpec_p ctrl)
    {
       fset = PStackPopP(ctrl->formula_sets);
       FormulaSetFree(fset);
-   }   
+   }
    PStackFree(ctrl->formula_sets);
 
    if(ctrl->sig)
@@ -399,10 +399,10 @@ void StructFOFSpecFree(StructFOFSpec_p ctrl)
    {
       TBFree(ctrl->terms);
       ctrl->terms = NULL;
-   }  
+   }
    StrTreeFree(ctrl->parsed_includes);
    GenDistribFree(ctrl->f_distrib);
-   
+
    StructFOFSpecCellFree(ctrl);
 }
 
@@ -420,7 +420,7 @@ void StructFOFSpecFree(StructFOFSpec_p ctrl)
 //
 /----------------------------------------------------------------------*/
 
-long StructFOFSpecParseAxioms(StructFOFSpec_p ctrl, PStack_p axfiles, 
+long StructFOFSpecParseAxioms(StructFOFSpec_p ctrl, PStack_p axfiles,
                              IOFormat parse_format)
 {
    PStackPointer i;
@@ -443,13 +443,13 @@ long StructFOFSpecParseAxioms(StructFOFSpec_p ctrl, PStack_p axfiles,
          fprintf(GlobalOut, "# Parsing %s\n", iname);
          cset = ClauseSetAlloc();
          fset = FormulaSetAlloc();
-         res += FormulaAndClauseSetParse(in, cset, fset, ctrl->terms, 
-                                         NULL, 
+         res += FormulaAndClauseSetParse(in, cset, fset, ctrl->terms,
+                                         NULL,
                                          &(ctrl->parsed_includes));
          PStackPushP(ctrl->clause_sets, cset);
          PStackPushP(ctrl->formula_sets, fset);
          StrTreeStore(&(ctrl->parsed_includes), iname, dummy, dummy);
-         
+
          DestroyScanner(in);
       }
    }
@@ -516,14 +516,14 @@ long ProofStateSinE(ProofState_p state, char* fname)
    {
       printf("# No SInE strategy applied\n");
       return 0;
-   }   
+   }
    printf("# SinE strategy is %s\n", fname);
-   
+
    filter = sine_get_filter(fname, &filters);
 
    axno_orig = ClauseSetCardinality(state->axioms)+
       FormulaSetCardinality(state->f_axioms);
-   
+
    /* printf("# Magic happens here %s!\n", fname);
       printf("# Filter: ");
       AxFilterPrint(stdout, filter);
@@ -536,20 +536,20 @@ long ProofStateSinE(ProofState_p state, char* fname)
    /* The following moves the responsibility for the sets into the spec! */
    StructFOFSpecAddProblem(spec, state->axioms, state->f_axioms);
    GCDeregisterFormulaSet(state->gc_terms, state->f_axioms);
-   GCDeregisterClauseSet(state->gc_terms, state->axioms);   
+   GCDeregisterClauseSet(state->gc_terms, state->axioms);
 
    /* ...so we need to povide fresh, empty axioms sets */
    state->axioms   = ClauseSetAlloc();
    state->f_axioms = FormulaSetAlloc();
    GCRegisterFormulaSet(state->gc_terms, state->f_axioms);
    GCRegisterClauseSet(state->gc_terms, state->axioms);
-  
+
    StructFOFSpecInitDistrib(spec);
-   StructFOFSpecGetProblem(spec, 
+   StructFOFSpecGetProblem(spec,
                            filter,
                            clauses,
                            formulas);
-   
+
    PStackClausesMove(clauses, state->axioms);
    PStackFormulasMove(formulas, state->f_axioms);
    PStackFree(formulas);

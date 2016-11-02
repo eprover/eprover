@@ -5,7 +5,7 @@ File  : ccl_findex.h
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Implementation of function symbol indexing into clauses/formulas.
 
   Copyright 2009 by the author.

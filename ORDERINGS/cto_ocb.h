@@ -5,7 +5,7 @@ File  : cto_ocb.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Global definitions for orderings: Comparison results, precedences,
   order control blocks.
 
@@ -34,7 +34,7 @@ Changes
 
 
 
-typedef enum 
+typedef enum
 {
    NoOrdering,
    AUTO,
@@ -188,7 +188,7 @@ static __inline__ long OCBFunWeight(OCB_p ocb, FunCode f)
 //
 //   If f has a weight in  ocb->prec_weights, return it. Otherwise
 //   return a unique negative ficticious weight smaller than all
-//   normal weights. 
+//   normal weights.
 //
 // Global Variables: -
 //
@@ -221,7 +221,7 @@ static __inline__ long OCBFunPrecWeight(OCB_p ocb, FunCode f)
 /----------------------------------------------------------------------*/
 
 static __inline__ CompareResult OCBFunCompare(OCB_p ocb, FunCode f1, FunCode f2)
-{   
+{
    long tmp;
 
    assert((f1>0)&&(f2>0));

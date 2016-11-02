@@ -5,7 +5,7 @@ File  : che_fifo.c
 Author: Stephan Schulz
 
 Contents
- 
+
   FIFO-Clause evaluation
 
   Copyright 1998, 1999 by the author.
@@ -46,7 +46,7 @@ Changes
 /*---------------------------------------------------------------------*/
 
 
-   
+
 
 /*-----------------------------------------------------------------------
 //
@@ -86,11 +86,11 @@ WFCB_p FIFOEvalInit(ClausePrioFun prio_fun)
 WFCB_p FIFOEvalParse(Scanner_p in, OCB_p ocb, ProofState_p state)
 {
    ClausePrioFun prio_fun;
- 
+
    AcceptInpTok(in, OpenBracket);
    prio_fun = ParsePrioFun(in);
    AcceptInpTok(in, CloseBracket);
-   
+
    return FIFOEvalInit(prio_fun);
 }
 

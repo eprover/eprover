@@ -5,9 +5,9 @@ File  : cio_basicparser.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Parsing routines for useful C build-in ans some general CLIB
-  datatypes not covered by the scanner. 
+  datatypes not covered by the scanner.
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and

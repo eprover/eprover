@@ -5,7 +5,7 @@ File  : che_varweights.c
 Author: Stephan Schulz
 
 Contents
- 
+
   New weight functions.
 
   Copyright 1998, 1999 by the author.
@@ -67,7 +67,7 @@ WFCB_p TPTPTypeWeightInit(ClausePrioFun prio_fun, int fweight,
 			  hypothesis_multiplier)
 {
    VarWeightParam_p data = VarWeightParamCellAlloc();
-   
+
    data->fweight                = fweight;
    data->vweight                = vweight;
    data->pos_multiplier         = pos_multiplier;
@@ -102,7 +102,7 @@ WFCB_p TPTPTypeWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
    double        max_term_multiplier, max_literal_multiplier,
                  pos_multiplier, conjecture_multiplier,
                  hypothesis_multiplier;
-   
+
    AcceptInpTok(in, OpenBracket);
    prio_fun = ParsePrioFun(in);
    AcceptInpTok(in, Comma);
@@ -119,7 +119,7 @@ WFCB_p TPTPTypeWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
    conjecture_multiplier = ParseFloat(in);
    AcceptInpTok(in, Comma);
    hypothesis_multiplier = ParseFloat(in);
-   AcceptInpTok(in, CloseBracket);   
+   AcceptInpTok(in, CloseBracket);
 
    return TPTPTypeWeightInit(prio_fun, fweight, vweight, ocb,
 			     max_term_multiplier,
@@ -146,12 +146,12 @@ double TPTPTypeWeightCompute(void* data, Clause_p clause)
    double           res;
 
    ClauseCondMarkMaximalTerms(local->ocb, clause);
-   res = ClauseWeight(clause, 
+   res = ClauseWeight(clause,
 			      local->max_term_multiplier,
 			      local->max_literal_multiplier,
 			      local->pos_multiplier,
 			      local->vweight,
-			      local->fweight, 
+			      local->fweight,
 			      false);
    switch(ClauseQueryTPTPType(clause))
    {
@@ -190,7 +190,7 @@ WFCB_p SigWeightInit(ClausePrioFun prio_fun, int fweight,
 			  pos_multiplier, double sig_size_multiplier)
 {
    VarWeightParam_p data = VarWeightParamCellAlloc();
-   
+
    data->fweight                = fweight;
    data->vweight                = vweight;
    data->pos_multiplier         = pos_multiplier;
@@ -223,7 +223,7 @@ WFCB_p SigWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
    int           fweight, vweight;
    double        max_term_multiplier, max_literal_multiplier,
                  pos_multiplier, sig_size_multiplier;
-   
+
    AcceptInpTok(in, OpenBracket);
    prio_fun = ParsePrioFun(in);
    AcceptInpTok(in, Comma);
@@ -238,7 +238,7 @@ WFCB_p SigWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
    pos_multiplier = ParseFloat(in);
    AcceptInpTok(in, Comma);
    sig_size_multiplier = ParseFloat(in);
-   AcceptInpTok(in, CloseBracket);   
+   AcceptInpTok(in, CloseBracket);
 
    return SigWeightInit(prio_fun, fweight, vweight, ocb,
 			max_term_multiplier, max_literal_multiplier,
@@ -265,12 +265,12 @@ double SigWeightCompute(void* data, Clause_p clause)
    long             sig_size;
 
    ClauseCondMarkMaximalTerms(local->ocb, clause);
-   res = ClauseWeight(clause, 
+   res = ClauseWeight(clause,
 		      local->max_term_multiplier,
 		      local->max_literal_multiplier,
 		      local->pos_multiplier,
 		      local->vweight,
-		      local->fweight, 
+		      local->fweight,
 		      false);
    sig_size = ClauseCountExtSymbols(clause, local->ocb->sig, 0);
    modify = (sig_size*local->sig_size_multiplier/
@@ -306,7 +306,7 @@ WFCB_p ProofWeightInit(ClausePrioFun prio_fun, int fweight,
 			  proof_depth_multiplier)
 {
    VarWeightParam_p data = VarWeightParamCellAlloc();
-   
+
    data->fweight                = fweight;
    data->vweight                = vweight;
    data->pos_multiplier         = pos_multiplier;
@@ -341,7 +341,7 @@ WFCB_p ProofWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
    double        max_term_multiplier, max_literal_multiplier,
                  pos_multiplier, proof_size_multiplier,
                  proof_depth_multiplier;
-   
+
    AcceptInpTok(in, OpenBracket);
    prio_fun = ParsePrioFun(in);
    AcceptInpTok(in, Comma);
@@ -358,7 +358,7 @@ WFCB_p ProofWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
    proof_size_multiplier = ParseFloat(in);
    AcceptInpTok(in, Comma);
    proof_depth_multiplier = ParseFloat(in);
-   AcceptInpTok(in, CloseBracket);   
+   AcceptInpTok(in, CloseBracket);
 
    return ProofWeightInit(prio_fun, fweight, vweight, ocb,
 			     max_term_multiplier,
@@ -385,12 +385,12 @@ double ProofWeightCompute(void* data, Clause_p clause)
    double           res;
 
    ClauseCondMarkMaximalTerms(local->ocb, clause);
-   res = ClauseWeight(clause, 
+   res = ClauseWeight(clause,
 		      local->max_term_multiplier,
 		      local->max_literal_multiplier,
 		      local->pos_multiplier,
 		      local->vweight,
-		      local->fweight, 
+		      local->fweight,
 		      false);
    res *= (1+local->proof_depth_multiplier*(1/(double)(clause->proof_depth+1)));
    res *= (1+local->proof_size_multiplier*(1/(double)(clause->proof_size+1)));
@@ -420,7 +420,7 @@ WFCB_p DepthWeightInit(ClausePrioFun prio_fun, int fweight,
 		       term_weight_multiplier)
 {
    VarWeightParam_p data = VarWeightParamCellAlloc();
-   
+
    data->fweight                = fweight;
    data->vweight                = vweight;
    data->pos_multiplier         = pos_multiplier;
@@ -453,7 +453,7 @@ WFCB_p DepthWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
    int           fweight, vweight;
    double        max_term_multiplier, max_literal_multiplier,
                  pos_multiplier, term_weight_multiplier;
-   
+
    AcceptInpTok(in, OpenBracket);
    prio_fun = ParsePrioFun(in);
    AcceptInpTok(in, Comma);
@@ -468,7 +468,7 @@ WFCB_p DepthWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
    pos_multiplier = ParseFloat(in);
    AcceptInpTok(in, Comma);
    term_weight_multiplier = ParseFloat(in);
-   AcceptInpTok(in, CloseBracket);   
+   AcceptInpTok(in, CloseBracket);
 
    return DepthWeightInit(prio_fun, fweight, vweight, ocb,
 			  max_term_multiplier, max_literal_multiplier,
@@ -544,7 +544,7 @@ WFCB_p WeightLessDepthInit(ClausePrioFun prio_fun, int fweight,
 		       pos_multiplier, double term_depth_multiplier)
 {
    VarWeightParam_p data = VarWeightParamCellAlloc();
-   
+
    data->fweight                = fweight;
    data->vweight                = vweight;
    data->pos_multiplier         = pos_multiplier;
@@ -552,7 +552,7 @@ WFCB_p WeightLessDepthInit(ClausePrioFun prio_fun, int fweight,
    data->max_literal_multiplier = max_literal_multiplier;
    data->term_depth_multiplier  = term_depth_multiplier;
    data->ocb                    = ocb;
-   
+
    return WFCBAlloc(WeightLessDepthCompute, prio_fun,
                     VarWeightExit, data);
 
@@ -577,7 +577,7 @@ WFCB_p WeightLessDepthParse(Scanner_p in, OCB_p ocb, ProofState_p
    int           fweight, vweight;
    double        max_term_multiplier, max_literal_multiplier,
                  pos_multiplier, term_depth_multiplier;
-   
+
    AcceptInpTok(in, OpenBracket);
    prio_fun = ParsePrioFun(in);
    AcceptInpTok(in, Comma);
@@ -592,8 +592,8 @@ WFCB_p WeightLessDepthParse(Scanner_p in, OCB_p ocb, ProofState_p
    pos_multiplier = ParseFloat(in);
    AcceptInpTok(in, Comma);
    term_depth_multiplier = ParseFloat(in);
-   AcceptInpTok(in, CloseBracket);   
-   
+   AcceptInpTok(in, CloseBracket);
+
    return WeightLessDepthInit(prio_fun, fweight, vweight, ocb,
 			      max_term_multiplier, max_literal_multiplier,
 			      pos_multiplier, term_depth_multiplier);
@@ -616,23 +616,23 @@ double WeightLessDepthCompute(void* data, Clause_p clause)
    VarWeightParam_p local = data;
    double           res = 0, lweight, rweight, weight;
    Eqn_p            handle;
-   
+
    ClauseCondMarkMaximalTerms(local->ocb, clause);
    for(handle = clause->literals; handle; handle = handle->next)
    {
       lweight = TermWeight(handle->lterm, local->vweight, local->fweight)
 	 - local->term_depth_multiplier*TermDepth(handle->lterm);
       lweight = lweight*local->max_term_multiplier;
-      
+
       rweight = TermWeight(handle->rterm, local->vweight, local->fweight)
 	 - local->term_depth_multiplier*TermDepth(handle->rterm);
-      
+
       if(!EqnIsOriented(handle))
       {
 	 rweight = rweight*local->max_term_multiplier;
       }
       weight = lweight+rweight;
-      
+
       if(EqnIsPositive(handle))
       {
 	 weight = weight*local->pos_multiplier;
@@ -669,7 +669,7 @@ WFCB_p NLWeightInit(ClausePrioFun prio_fun, int fweight,
 		    pos_multiplier)
 {
    VarWeightParam_p data = VarWeightParamCellAlloc();
-   
+
    data->fweight                = fweight;
    data->vlweight               = vlweight;
    data->vweight                = vweight;
@@ -701,7 +701,7 @@ WFCB_p NLWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
    int           fweight, vweight,vlweight;
    double        max_term_multiplier, max_literal_multiplier,
                  pos_multiplier;
-   
+
    AcceptInpTok(in, OpenBracket);
    prio_fun = ParsePrioFun(in);
    AcceptInpTok(in, Comma);
@@ -716,7 +716,7 @@ WFCB_p NLWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
    max_literal_multiplier = ParseFloat(in);
    AcceptInpTok(in, Comma);
    pos_multiplier = ParseFloat(in);
-   AcceptInpTok(in, CloseBracket);   
+   AcceptInpTok(in, CloseBracket);
 
    return NLWeightInit(prio_fun, fweight, vlweight, vweight, ocb,
 		       max_term_multiplier, max_literal_multiplier,
@@ -743,13 +743,13 @@ double NLWeightCompute(void* data, Clause_p clause)
    double           res;
 
    ClauseCondMarkMaximalTerms(local->ocb, clause);
-   res = ClauseNonLinearWeight(clause, 
+   res = ClauseNonLinearWeight(clause,
 		      local->max_term_multiplier,
 		      local->max_literal_multiplier,
 		      local->pos_multiplier,
 		      local->vlweight,
 		      local->vweight,
-		      local->fweight, 
+		      local->fweight,
 		      false);
    return res;
 }
@@ -757,13 +757,13 @@ double NLWeightCompute(void* data, Clause_p clause)
 
 /*-----------------------------------------------------------------------
 //
-// Function: PNRefinedWeightInit() 
+// Function: PNRefinedWeightInit()
 //
 //   Return an initialized WFCB for PNRefinedWeight evaluation.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -774,7 +774,7 @@ WFCB_p PNRefinedWeightInit(ClausePrioFun prio_fun, int fweight,
 			   pos_multiplier)
 {
    VarWeightParam_p data = VarWeightParamCellAlloc();
-   
+
    data->fweight                = fweight;
    data->vweight                = vweight;
    data->nfweight               = nfweight;
@@ -783,7 +783,7 @@ WFCB_p PNRefinedWeightInit(ClausePrioFun prio_fun, int fweight,
    data->max_term_multiplier    = max_term_multiplier;
    data->max_literal_multiplier = max_literal_multiplier;
    data->ocb                    = ocb;
-   
+
    return WFCBAlloc(PNRefinedWeightCompute, prio_fun,
                     VarWeightExit, data);
 }
@@ -825,7 +825,7 @@ WFCB_p PNRefinedWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
    AcceptInpTok(in, Comma);
    pos_multiplier = ParseFloat(in);
    AcceptInpTok(in, CloseBracket);
-   
+
    return PNRefinedWeightInit(prio_fun, fweight, vweight, nfweight,
 			      nvweight, ocb, max_term_multiplier,
 			      max_literal_multiplier, pos_multiplier);
@@ -837,7 +837,7 @@ WFCB_p PNRefinedWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
 // Function: PNRefinedWeightCompute()
 //
 //   Compute an evaluation for a clause as in ClauseRefinedWeight, but
-//   use different weights for function symbols/variables in 
+//   use different weights for function symbols/variables in
 //
 // Global Variables: -
 //
@@ -851,13 +851,13 @@ double PNRefinedWeightCompute(void* data, Clause_p clause)
    Eqn_p  handle;
    double res = 0;
    VarWeightParam_p local = data;
-   
+
    ClauseCondMarkMaximalTerms(local->ocb, clause);
    for(handle = clause->literals; handle; handle = handle->next)
    {
       if(EqnIsPositive(handle))
       {
-	 res += LiteralWeight(handle, local->max_term_multiplier, 
+	 res += LiteralWeight(handle, local->max_term_multiplier,
 			      local->max_literal_multiplier,
 			      local->pos_multiplier,
 			      local->vweight, local->fweight,
@@ -865,7 +865,7 @@ double PNRefinedWeightCompute(void* data, Clause_p clause)
       }
       else
       {
-	 res += LiteralWeight(handle, local->max_term_multiplier, 
+	 res += LiteralWeight(handle, local->max_term_multiplier,
 			      local->max_literal_multiplier,
 			      local->pos_multiplier,
 			      local->nvweight, local->nfweight,
@@ -874,7 +874,7 @@ double PNRefinedWeightCompute(void* data, Clause_p clause)
    }
    return res;
 }
- 
+
 
 /*-----------------------------------------------------------------------
 //
@@ -897,7 +897,7 @@ WFCB_p SymTypeWeightInit(ClausePrioFun prio_fun, int fweight,
 			 pos_multiplier)
 {
    VarWeightParam_p data = VarWeightParamCellAlloc();
-   
+
    data->fweight                = fweight;
    data->vweight                = vweight;
    data->cweight                = cweight;
@@ -917,9 +917,9 @@ WFCB_p SymTypeWeightInit(ClausePrioFun prio_fun, int fweight,
 //
 //   Parse a SymTypeWeight declaration, return a suitable WFCB.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -946,7 +946,7 @@ WFCB_p SymTypeWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
    max_literal_multiplier = ParseFloat(in);
    AcceptInpTok(in, Comma);
    pos_multiplier = ParseFloat(in);
-   AcceptInpTok(in, CloseBracket);   
+   AcceptInpTok(in, CloseBracket);
 
    return SymTypeWeightInit(prio_fun, fweight, vweight, cweight,
 			    pweight, ocb, max_term_multiplier,
@@ -970,23 +970,23 @@ double SymTypeWeightCompute(void* data, Clause_p clause)
 {
    VarWeightParam_p local = data;
    double           res;
-   
+
    ClauseCondMarkMaximalTerms(local->ocb, clause);
-   res = ClauseSymTypeWeight(clause, 
+   res = ClauseSymTypeWeight(clause,
 			     local->max_term_multiplier,
 			     local->max_literal_multiplier,
 			     local->pos_multiplier,
 			     local->vweight,
 			     local->fweight,
-			     local->cweight, 
+			     local->cweight,
 			     local->pweight);
-   return res;   
+   return res;
 }
 
 
 /*-----------------------------------------------------------------------
 //
-// Function: ClauseWeightAgeInit() 
+// Function: ClauseWeightAgeInit()
 //
 //   Return an initialized WFCB for ClauseWeightAge evaluation.
 //
@@ -997,7 +997,7 @@ double SymTypeWeightCompute(void* data, Clause_p clause)
 /----------------------------------------------------------------------*/
 
 WFCB_p ClauseWeightAgeInit(ClausePrioFun prio_fun, int fweight, int
-			   vweight, double pos_multiplier, 
+			   vweight, double pos_multiplier,
 			   double weight_multiplier)
 {
    VarWeightParam_p data = VarWeightParamCellAlloc();
@@ -1006,7 +1006,7 @@ WFCB_p ClauseWeightAgeInit(ClausePrioFun prio_fun, int fweight, int
    data->vweight                = vweight;
    data->pos_multiplier         = pos_multiplier;
    data->weight_multiplier      = weight_multiplier;
-   
+
    return WFCBAlloc(ClauseWeightAgeCompute, prio_fun,
 		    VarWeightExit, data);
 }
@@ -1029,7 +1029,7 @@ WFCB_p ClauseWeightAgeParse(Scanner_p in, OCB_p ocb, ProofState_p state)
    ClausePrioFun prio_fun;
    int fweight, vweight;
    double pos_multiplier, weight_multiplier;
-   
+
    AcceptInpTok(in, OpenBracket);
    prio_fun = ParsePrioFun(in);
    AcceptInpTok(in, Comma);
@@ -1041,11 +1041,11 @@ WFCB_p ClauseWeightAgeParse(Scanner_p in, OCB_p ocb, ProofState_p state)
    AcceptInpTok(in, Comma);
    weight_multiplier = ParseFloat(in);
    AcceptInpTok(in, CloseBracket);
-   
+
    return ClauseWeightAgeInit(prio_fun, fweight, vweight,
-			      pos_multiplier, weight_multiplier); 
+			      pos_multiplier, weight_multiplier);
 }
- 
+
 
 /*-----------------------------------------------------------------------
 //
@@ -1062,12 +1062,12 @@ WFCB_p ClauseWeightAgeParse(Scanner_p in, OCB_p ocb, ProofState_p state)
 double ClauseWeightAgeCompute(void* data, Clause_p clause)
 {
    VarWeightParam_p local = data;
-   return (local->weight_multiplier 
-	   * 
-	   ClauseWeight(clause, 1, 1,      
+   return (local->weight_multiplier
+	   *
+	   ClauseWeight(clause, 1, 1,
 			local->pos_multiplier,
 			local->vweight,
-			local->fweight, 
+			local->fweight,
 			false))
       +clause->create_date;
 }
@@ -1090,7 +1090,7 @@ double ClauseWeightAgeCompute(void* data, Clause_p clause)
 //
 /----------------------------------------------------------------------*/
 
-WFCB_p StaggeredWeightInit(ClausePrioFun prio_fun, 
+WFCB_p StaggeredWeightInit(ClausePrioFun prio_fun,
 			   double stagger_factor, ClauseSet_p axioms)
 {
    VarWeightParam_p data = VarWeightParamCellAlloc();
@@ -1109,7 +1109,7 @@ WFCB_p StaggeredWeightInit(ClausePrioFun prio_fun,
 //
 // Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -1119,13 +1119,13 @@ WFCB_p StaggeredWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
 {
    ClausePrioFun prio_fun;
    double stagger_factor;
-   
+
    AcceptInpTok(in, OpenBracket);
    prio_fun = ParsePrioFun(in);
    AcceptInpTok(in, Comma);
-   stagger_factor = ParseFloat(in);   
+   stagger_factor = ParseFloat(in);
    AcceptInpTok(in, CloseBracket);
-      
+
    return StaggeredWeightInit(prio_fun, stagger_factor, state->axioms);
 }
 
@@ -1146,7 +1146,7 @@ double StaggeredWeightCompute(void* data, Clause_p clause)
 {
    long res, weight;
    VarWeightParam_p local = data;
-   
+
    weight = ClauseStandardWeight(clause);
    res = weight/local->stagger_limit;
    return (double)res;
@@ -1166,11 +1166,11 @@ double StaggeredWeightCompute(void* data, Clause_p clause)
 // Side Effects    : Memory operations
 //
 /----------------------------------------------------------------------*/
- 
+
 void VarWeightExit(void* data)
 {
    VarWeightParam_p junk = data;
-   
+
    VarWeightParamCellFree(junk);
 }
 

@@ -5,7 +5,7 @@ File  : cco_scheduling.h
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Some simple data types and code to implement quick-and-dirty
   strategy scheduling for E.
 
@@ -54,7 +54,7 @@ extern ScheduleCell StratSchedule[];
 
 void ScheduleTimesInit(ScheduleCell sched[], double time_used);
 pid_t ExecuteSchedule(ScheduleCell strats[],
-                      HeuristicParms_p  h_parms, 
+                      HeuristicParms_p  h_parms,
                       bool print_rusage);
 
 

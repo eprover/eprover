@@ -5,7 +5,7 @@ File  : cto_ocb.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for describing orderings, precedences and so on.
 
   Copyright 1998, 1999 by the author.
@@ -70,7 +70,7 @@ char* TONames[]=
 //
 //   Given the relations between f1 and f2, and f2 and f3, compute the
 //   relation between f1 and f3. Return true, if it can be set, false
-//   otherwise. 
+//   otherwise.
 //
 // Global Variables: -
 //
@@ -137,7 +137,7 @@ static void alloc_precedence(OCB_p handle, bool prec_by_weight)
 	 SizeMalloc(sizeof(long)*(handle->sig_size+1));
    }
    else
-   {	    
+   {
       handle->precedence = SizeMalloc(sizeof(CompareResult)
 				      *handle->sig_size
 				      *handle->sig_size);
@@ -204,7 +204,7 @@ OCB_p OCBAlloc(TermOrdering type, bool prec_by_weight, Sig_p sig)
 	 break;
    case RPO:
 	 alloc_precedence(handle, prec_by_weight);
-	 break; 
+	 break;
    case EMPTY:
          break;
    default:
@@ -226,7 +226,7 @@ OCB_p OCBAlloc(TermOrdering type, bool prec_by_weight, Sig_p sig)
       {
 	 for(j=1; j<=handle->sig_size; j++)
 	 {
-	    *OCBFunComparePos(handle, i,j) = 
+	    *OCBFunComparePos(handle, i,j) =
 	       ((i==j) ? to_equal : to_uncomparable);
 	 }
       }
@@ -262,26 +262,26 @@ void OCBFree(OCB_p junk)
    if(junk->precedence)
    {
       assert(!junk->prec_weights);
-      assert(junk->type == KBO || 
-             junk->type == KBO6 || 
-             junk->type == LPO || 
-             junk->type == LPOCopy || 
-             junk->type == LPO4 || 
-             junk->type == LPO4Copy || 
+      assert(junk->type == KBO ||
+             junk->type == KBO6 ||
+             junk->type == LPO ||
+             junk->type == LPOCopy ||
+             junk->type == LPO4 ||
+             junk->type == LPO4Copy ||
              junk->type == RPO);
-      SizeFree(junk->precedence, sizeof(CompareResult) 
+      SizeFree(junk->precedence, sizeof(CompareResult)
 	       * junk->sig_size * junk->sig_size);
       junk->precedence = NULL;
    }
    if(junk->prec_weights)
    {
       assert(!junk->precedence);
-      assert(junk->type == KBO || 
-             junk->type == KBO6 || 
+      assert(junk->type == KBO ||
+             junk->type == KBO6 ||
              junk->type == LPO ||
              junk->type == LPOCopy ||
              junk->type == LPO4 ||
-             junk->type == LPO4Copy || 
+             junk->type == LPO4Copy ||
              junk->type == RPO);
       SizeFree(junk->prec_weights, sizeof(long)*(junk->sig_size+1));
       junk->prec_weights = NULL;
@@ -321,7 +321,7 @@ void OCBDebugPrint(FILE* out, OCB_p ocb)
    else
    {
       fprintf(out, "# No sig!\n");
-   } 
+   }
    fprintf(out, "# -----------------------------------------------\n");
    if(ocb->weights)
    {
@@ -346,7 +346,7 @@ void OCBDebugPrint(FILE* out, OCB_p ocb)
    else
    {
       fprintf(out, "# No weights!\n");
-   } 
+   }
    fprintf(out, "# -----------------------------------------------\n");
    if(ocb->precedence)
    {
@@ -374,7 +374,7 @@ void OCBDebugPrint(FILE* out, OCB_p ocb)
    else
    {
       fprintf(out, "# No precedence!\n");
-   } 
+   }
    fprintf(out, "# ===============================================\n");
 }
 
@@ -389,9 +389,9 @@ void OCBDebugPrint(FILE* out, OCB_p ocb)
 //   the new stackpointer if everything went fine, undo all changes
 //   and return 0 otherwise.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -464,7 +464,7 @@ PStackPointer OCBPrecedenceAddTuple(OCB_p ocb, FunCode f1, FunCode f2,
 bool OCBPrecedenceBacktrack(OCB_p ocb, PStackPointer state)
 {
    FunCode f1,f2;
-   
+
    while(state!=PStackGetSP(ocb->statestack))
    {
       assert(!PStackEmpty(ocb->statestack));
@@ -487,11 +487,11 @@ bool OCBPrecedenceBacktrack(OCB_p ocb, PStackPointer state)
 //
 //   Find a minimal (by precedence) function symbol constant in
 //   ocb->sig. Store it in ocb->min_constant. If no constant
-//   exists, create one. 
+//   exists, create one.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -504,7 +504,7 @@ FunCode OCBFindMinConst(OCB_p ocb)
    {
       for(i=ocb->sig->internal_symbols+1; i<=ocb->sig->f_count; i++)
       {
-         if(SigIsFunConst(ocb->sig, i) && 
+         if(SigIsFunConst(ocb->sig, i) &&
             !SigIsSpecial(ocb->sig, i) &&
             (!cand || (OCBFunCompare(ocb, i, cand)==to_greater)))
          {
@@ -545,7 +545,7 @@ FunCode OCBTermMaxFunCode(OCB_p ocb, Term_p term)
    assert(ocb->precedence||ocb->prec_weights);
 
    term = TermDeref(term, &deref);
-   
+
    if(TermIsVar(term))
    {
       return res;

@@ -5,7 +5,7 @@ File  : che_fcode_featurearrays.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Implementation of arrays associating FunCodes and numeric features.
 
 Copyright 1998-2011 by the author.
@@ -44,7 +44,7 @@ Changes
 // Function: feature_compare_function()
 //
 //   Compare two featuresortcells and return <0, =0, >0 as for
-//   strcmp(). 
+//   strcmp().
 //
 // Global Variables: -
 //
@@ -67,11 +67,11 @@ static int feature_compare_function(const void* e1,
    if((res = entry1->key2-entry2->key2))
    {
       return res;
-   }      
+   }
    if((res = entry1->key3-entry2->key3))
    {
       return res;
-   }      
+   }
    /* if((res = entry1->freq-entry2->freq))
    {
       return res;
@@ -171,7 +171,7 @@ void FCodeFeatureArrayFree(FCodeFeatureArray_p junk)
 
 void FCodeFeatureArraySort(FCodeFeatureArray_p array)
 {
-   qsort(&(array->array[SIG_TRUE_CODE+1]), 
+   qsort(&(array->array[SIG_TRUE_CODE+1]),
 	 array->size-(SIG_TRUE_CODE+1),
 	 sizeof(FCodeFeatureSortCell),
 	 feature_compare_function);

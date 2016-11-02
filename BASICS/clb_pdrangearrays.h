@@ -5,15 +5,15 @@ File  : clb_pdrangearrays.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Dynamic arrays of pointers and long integers with an index range
   defined by upper and lower bound.
-  
+
   You can define the growth behaviour by specifying a value. If it is
   GROW_EXPONENTIAL, arrays will always grow by a factor that is the
   lowest power of two that will make the array big enough. Otherwise
   it will grow by the smallest multiple of the value specified that
-  creates the requested position. 
+  creates the requested position.
 
   Copyright 2010 by the author.
   This code is released under the GNU General Public Licence and
@@ -41,13 +41,13 @@ Changes
 
 typedef struct pdrangearrcell
 {
-   bool   integer; 
+   bool   integer;
    long   offset; /* Indices go from offset (inclusive) to offset+size
                      (exclusive) */
    long   size;
    long   grow;
    IntOrP *array;
-}PDRangeArrCell, *PDRangeArr_p; 
+}PDRangeArrCell, *PDRangeArr_p;
 
 
 /*---------------------------------------------------------------------*/
@@ -101,7 +101,7 @@ long      PDRangeArrElementIncInt(PDRangeArr_p array, long idx, long value);
 /*                     Inline functions                                */
 /*---------------------------------------------------------------------*/
 
-	  
+
 /*-----------------------------------------------------------------------
 //
 // Function: PDRangeArrElementRef()
@@ -110,7 +110,7 @@ long      PDRangeArrElementIncInt(PDRangeArr_p array, long idx, long value);
 //   reference is only good until the next call to this function! User
 //   programs are expected to use this function only extremely rarely
 //   and with special care. Use PDRangeArrElement()/PDRangeArrAssign()
-//   instead. 
+//   instead.
 //
 // Global Variables: -
 //
@@ -121,7 +121,7 @@ long      PDRangeArrElementIncInt(PDRangeArr_p array, long idx, long value);
 static __inline__ IntOrP* PDRangeArrElementRef(PDRangeArr_p array, long idx)
 {
    assert(array);
-   
+
    if(!PDRangeArrIndexIsCovered(array, idx))
    {
       PDRangeArrEnlarge(array, idx);

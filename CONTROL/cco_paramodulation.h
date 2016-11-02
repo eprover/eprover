@@ -5,7 +5,7 @@ File  : cco_paramodulation.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for controling paramodulation inferences.
 
   Copyright 1998, 1999 by the author.
@@ -58,30 +58,30 @@ long ComputeAllParamodulants(TB_p bank, OCB_p ocb, Clause_p clause,
 long ComputeIntoParamodulants(ParamodInfo_p pminfo,
                               ParamodulationType type,
                               Clause_p clause,
-                              OverlapIndex_p into_index, 
-                              OverlapIndex_p negp_index, 
+                              OverlapIndex_p into_index,
+                              OverlapIndex_p negp_index,
                               ClauseSet_p store);
 
 long ComputeFromParamodulants(ParamodInfo_p pminfo,
                               ParamodulationType type,
                               Clause_p clause,
-                              OverlapIndex_p from_index, 
-                              ClauseSet_p store);     
+                              OverlapIndex_p from_index,
+                              ClauseSet_p store);
 
 long ComputeFromSimParamodulants(ParamodInfo_p pminfo,
                                  ParamodulationType type,
                                  Clause_p clause,
-                                 OverlapIndex_p from_index, 
-                                 ClauseSet_p store);     
+                                 OverlapIndex_p from_index,
+                                 ClauseSet_p store);
 
-long ComputeAllParamodulantsIndexed(TB_p bank, OCB_p ocb, 
+long ComputeAllParamodulantsIndexed(TB_p bank, OCB_p ocb,
                                     VarBank_p freshvars,
                                     Clause_p clause,
-                                    Clause_p parent_alias, 
+                                    Clause_p parent_alias,
                                     OverlapIndex_p into_index,
                                     OverlapIndex_p negp_index,
-                                    OverlapIndex_p from_index, 
-                                    ClauseSet_p store, 
+                                    OverlapIndex_p from_index,
+                                    ClauseSet_p store,
                                     ParamodulationType pm_type);
 
 #endif

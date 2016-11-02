@@ -5,9 +5,9 @@ File  : ccl_eqn.c
 Author: Stephan Schulz
 
 Contents
- 
+
   The termpair datatype: Rules, Equations, positive and negative
-  literals. 
+  literals.
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
@@ -308,10 +308,10 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
    Term_p  lterm;
    Term_p  rterm;
    bool    positive = true;
-   
+
    lterm = TBTermParse(in, bank);
    BOOL_TERM_NORMALIZE(lterm);
-   
+
    if(!TermIsVar(lterm) && SigIsPredicate(bank->sig,lterm->f_code) &&
       SigIsFixedType(bank->sig, lterm->f_code))
    {
@@ -325,7 +325,7 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
          {
             positive = !positive;
          }
-         AcceptInpTok(in, NegEqualSign|EqualSign);	 
+         AcceptInpTok(in, NegEqualSign|EqualSign);
          rterm = TBTermParse(in, bank);
          if(!TermIsVar(rterm))
          {
@@ -339,7 +339,7 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
          {
             positive = !positive;
          }
-         AcceptInpTok(in, NegEqualSign|EqualSign);	 
+         AcceptInpTok(in, NegEqualSign|EqualSign);
          rterm = TBTermParse(in, bank);
          TypeDeclareIsNotPredicate(bank->sig, lterm);
          if(!TermIsVar(rterm))
@@ -355,8 +355,8 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
    }
    *lref = lterm;
    *rref = rterm;
-   
-   return positive;   
+
+   return positive;
 }
 
 
@@ -382,18 +382,18 @@ static bool eqn_parse_prefix(Scanner_p in, TB_p bank, Term_p *lref,
    Term_p  rterm;
    bool    positive = true;
 
-   
+
 
    if(TestInpId(in, EQUAL_PREDICATE))
    {
       NextToken(in);
-      AcceptInpTok(in, OpenBracket);	       
+      AcceptInpTok(in, OpenBracket);
       lterm = TBTermParse(in, bank);
       BOOL_TERM_NORMALIZE(lterm);
-      AcceptInpTok(in, Comma);	 
+      AcceptInpTok(in, Comma);
       rterm = TBTermParse(in, bank);
       BOOL_TERM_NORMALIZE(rterm);
-      AcceptInpTok(in, CloseBracket);	       
+      AcceptInpTok(in, CloseBracket);
    }
    else
    {
@@ -406,15 +406,15 @@ static bool eqn_parse_prefix(Scanner_p in, TB_p bank, Term_p *lref,
       if(TermIsVar(lterm))
       {
 	 AktTokenError(in, "Individual variable "
-		       "used at predicate position", false); 
-	 
+		       "used at predicate position", false);
+
       }
       SigDeclareIsPredicate(bank->sig, lterm->f_code);
    }
    *lref = lterm;
    *rref = rterm;
-   
-   return positive;   
+
+   return positive;
 }
 
 
@@ -460,7 +460,7 @@ bool eqn_parse_real(Scanner_p in, TB_p bank, Term_p *lref,
 {
    bool    positive = true;
    bool    negate = false;
-   
+
    switch(ScannerGetFormat(in))
    {
    case LOPFormat:
@@ -469,7 +469,7 @@ bool eqn_parse_real(Scanner_p in, TB_p bank, Term_p *lref,
             negate = true;
             NextToken(in);
          }
-         positive = eqn_parse_mixfix(in, bank, lref, rref);            
+         positive = eqn_parse_mixfix(in, bank, lref, rref);
          break;
    case TPTPFormat:
          if(fof)
@@ -491,19 +491,19 @@ bool eqn_parse_real(Scanner_p in, TB_p bank, Term_p *lref,
             }
             else
             {
-               NextToken(in);	       
+               NextToken(in);
                AcceptInpTokNoSkip(in, Plus);
             }
          }
-         positive = eqn_parse_prefix(in, bank,  lref, rref);            
-         break;   
+         positive = eqn_parse_prefix(in, bank,  lref, rref);
+         break;
    case TSTPFormat:
          if(TestInpTok(in, TildeSign))
          {
             negate = true;
             NextToken(in);
          }
-         positive = eqn_parse_infix(in, bank,  lref, rref);            
+         positive = eqn_parse_infix(in, bank,  lref, rref);
          break;
    default:
          assert(false && "Format not supported");
@@ -547,10 +547,10 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
    if(rterm != bank->true_term)
    {
       assert(rterm->f_code!=SIG_TRUE_CODE);
-      EqnSetProp(handle, EPIsEquLiteral);      
+      EqnSetProp(handle, EPIsEquLiteral);
    }
    else
-   {      
+   {
       assert(TermCellQueryProp(rterm,TPPredPos));
       /*printf("# lterm->f_code: %ld <%s>\n", lterm->f_code,
 	SigFindName(bank->sig,lterm->f_code));
@@ -565,7 +565,7 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
       TermCellSetProp(lterm, TPPredPos);
       if(SigQueryFuncProp(bank->sig, lterm->f_code, FPPseudoPred))
       {
-         EqnSetProp(handle, EPPseudoLit);      
+         EqnSetProp(handle, EPPseudoLit);
       }
    }
 
@@ -574,7 +574,7 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
       TermAssertSameSort(bank->sig, lterm, rterm);
    }
 
-   handle->bank = bank;   
+   handle->bank = bank;
    handle->next = NULL;
 
    handle->lterm = lterm;
@@ -582,7 +582,7 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
 
    /* EqnPrint(stdout, handle, false, true);
       printf("\n"); */
-   
+
    return handle;
 }
 
@@ -671,7 +671,7 @@ Eqn_p EqnFOFParse(Scanner_p in, TB_p bank)
 //
 //   Take two terms (from bank) and a positive value and return a
 //   pointer to a TermBank-Term corresponding to the term encoding of
-//   the equation. 
+//   the equation.
 //
 // Global Variables: -
 //
@@ -687,9 +687,9 @@ Term_p EqnTermsTBTermEncode(TB_p bank, Term_p lterm, Term_p rterm, bool
    assert(bank);
    assert(TBFind(bank, lterm));
    assert(TBFind(bank, rterm));
-   
+
    handle = TermDefaultCellAlloc();
-   handle->arity = 2;   
+   handle->arity = 2;
    handle->f_code = SigGetEqnCode(bank->sig, positive);
    assert(handle->f_code);
    handle->args = TermArgArrayAlloc(2);
@@ -704,7 +704,7 @@ Term_p EqnTermsTBTermEncode(TB_p bank, Term_p lterm, Term_p rterm, bool
       handle->args[1] = lterm;
    }
 
-   handle = TBTermTopInsert(bank, handle);		 
+   handle = TBTermTopInsert(bank, handle);
 
    return handle;
 }
@@ -715,7 +715,7 @@ Term_p EqnTermsTBTermEncode(TB_p bank, Term_p lterm, Term_p rterm, bool
 //
 //   Given a term encoding of an equation, create and return a
 //   suitable Equation.
-//   
+//
 //
 // Global Variables: -
 //
@@ -736,7 +736,7 @@ Eqn_p EqnTBTermDecode(TB_p terms, Term_p eqn)
    }
    res = EqnAlloc(eqn->args[0], eqn->args[1], terms, positive);
 
-   return res;  
+   return res;
 }
 
 
@@ -775,7 +775,7 @@ Term_p EqnTBTermParse(Scanner_p in, TB_p bank)
 //   equation. If TPTPFormatPrint is true, print TPTPFormat.
 //
 // Global Variables: EqnUseInfix, EqnFullEquationalRep,
-//                   TPTPFormatPrint 
+//                   TPTPFormatPrint
 //
 // Side Effects    : Output
 //
@@ -788,11 +788,11 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
    bool positive = XOR(EqnIsPositive(eq), negated);
 
    /* TermPrintAllCPos(out, eq->bank, eq->lterm);*/
-#ifdef MARK_MAX_EQNS 
+#ifdef MARK_MAX_EQNS
    if(EqnIsMaximal(eq))
    {
       fprintf(out, "{");
-      } 
+      }
 #endif
    /* if(EqnIsSelected(eq))
    {
@@ -827,14 +827,14 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
    }
    else
    {
-      if(EqnUseInfix && 
-	 (EqnFullEquationalRep || 
+      if(EqnUseInfix &&
+	 (EqnFullEquationalRep ||
 	  eq->rterm!=eq->bank->true_term
           /* || eq->lterm==eq->bank->true_term*/
             ))
       {
 	 TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
-	 
+
 	 if(!positive)
 	 {
 	    fputc('!', out);
@@ -892,7 +892,7 @@ void EqnFOFPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms, bool pcl)
    bool positive = XOR(EqnIsPositive(eq), negated);
    bool infix = false;
 
-   
+
    switch(OutputFormat)
    {
    case TPTPFormat:
@@ -908,7 +908,7 @@ void EqnFOFPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms, bool pcl)
          break;
    }
    if(infix)
-   {      
+   {
       if(EqnIsEquLit(eq))
       {
          TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
@@ -918,7 +918,7 @@ void EqnFOFPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms, bool pcl)
          }
          fputc('=', out);
          TBPrintTerm(out, eq->bank, eq->rterm, fullterms);
-      }         
+      }
       else
       {
          if(!positive)
@@ -969,10 +969,10 @@ void EqnTSTPPrint(FILE* out, Eqn_p eq, bool fullterms)
    {
       fputs("$false", out);
    }
-   else 
+   else
    {
       if(EqnIsEquLit(eq))
-      {         
+      {
          TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
          fprintf(out, "%s", EqnIsNegative(eq)?"!=":"=");
          TBPrintTerm(out, eq->bank, eq->rterm, fullterms);
@@ -1019,7 +1019,7 @@ void EqnSwapSidesSimple(Eqn_p eq)
 // Function: EqnSwapSides()
 //
 //   Exchange the two sides of an equation. Will update type and
-//   references.  
+//   references.
 //
 // Global Variables: -
 //
@@ -1173,9 +1173,9 @@ Eqn_p EqnCopyOpt(Eqn_p eq)
 //   Copy an equation into the same term bank, but with disjoint
 //   (odd->even or vice versa) variable.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -1235,8 +1235,8 @@ bool EqnTermsAreDistinct(Eqn_p eq)
    if(TermIsConst(eq->lterm)  &&
       TermIsConst(eq->rterm)  &&
       SigIsAnyFuncPropSet(eq->bank->sig, eq->lterm->f_code,
-                          eq->bank->sig->distinct_props)   &&  
-      SigIsAnyFuncPropSet(eq->bank->sig, eq->rterm->f_code, 
+                          eq->bank->sig->distinct_props)   &&
+      SigIsAnyFuncPropSet(eq->bank->sig, eq->rterm->f_code,
                           eq->bank->sig->distinct_props)   &&
       (eq->lterm->f_code!=eq->rterm->f_code))
    {
@@ -1299,9 +1299,9 @@ bool EqnIsFalse(Eqn_p eq)
 //   Return false if Vars(dom_side) is a superset of var(other_side),
 //   true otherwise.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -1345,14 +1345,14 @@ EqnSide EqnIsDefinition(Eqn_p eq, int min_arity)
    {
       return NoSide;
    }
-   if(TermIsDefTerm(eq->lterm, min_arity) && 
+   if(TermIsDefTerm(eq->lterm, min_arity) &&
       !SigQueryFuncProp(eq->bank->sig, eq->lterm->f_code, FPPseudoPred)&&
       !TermHasFCode(eq->rterm, eq->lterm->f_code) &&
       !EqnHasUnboundVars(eq, LeftSide))
    {
       return LeftSide;
    }
-   if(TermIsDefTerm(eq->rterm, min_arity) && 
+   if(TermIsDefTerm(eq->rterm, min_arity) &&
       !SigQueryFuncProp(eq->bank->sig, eq->rterm->f_code, FPPseudoPred)&&
       !TermHasFCode(eq->lterm, eq->rterm->f_code) &&
       !EqnHasUnboundVars(eq, RightSide))
@@ -1368,7 +1368,7 @@ EqnSide EqnIsDefinition(Eqn_p eq, int min_arity)
 // Function: EqnSubsumeQOrderCompare()
 //
 //   Compare two equations with a quasi-ordering that
-//   ensures that only equivalent equations can subsume each other. 
+//   ensures that only equivalent equations can subsume each other.
 //
 // Global Variables: -
 //
@@ -1477,7 +1477,7 @@ int EqnSubsumeInverseRefinedCompareRef(const void* lit1ref, const void* lit2ref)
 // Function: EqnSubsumeCompare()
 //
 //   Compute the inverse of the previous order, taking pointers as
-//   arguments. 
+//   arguments.
 //
 // Global Variables: -
 //
@@ -1500,7 +1500,7 @@ int EqnSubsumeCompare(Eqn_p l1, Eqn_p l2)
 //   $true-term, RHS is a true term. Otherwise, the bigger term (by
 //   standard weight) is the LHS. If they are equal, the one with the
 //   smaller top symbol arity is LHS. Otherwise, compare
-//   lexicographically. 
+//   lexicographically.
 //
 // Global Variables: -
 //
@@ -1531,9 +1531,9 @@ Eqn_p EqnCanonize(Eqn_p eq)
 //   structure. Assumes that the literals are in canonical form (see
 //   above).
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -1567,7 +1567,7 @@ long EqnStructWeightCompare(Eqn_p l1, Eqn_p l2)
    {
       return res;
    }
-   res = TermStructWeightCompare(l1->rterm, l2->rterm);   
+   res = TermStructWeightCompare(l1->rterm, l2->rterm);
    return res;
 }
 
@@ -1599,7 +1599,7 @@ int EqnCanonCompareRef(const void* lit1ref, const void* lit2ref)
 //
 // Function: EqnStructWeightLexCompare()
 //
-//   Compare equations first by structure, then by lexical f_codes. 
+//   Compare equations first by structure, then by lexical f_codes.
 //
 // Global Variables: -
 //
@@ -1620,7 +1620,7 @@ long EqnStructWeightLexCompare(Eqn_p l1, Eqn_p l2)
    {
       return res;
    }
-   res = TermLexCompare(l1->rterm, l2->rterm);   
+   res = TermLexCompare(l1->rterm, l2->rterm);
    return res;
 }
 
@@ -1642,7 +1642,7 @@ bool EqnEqual(Eqn_p eq1,  Eqn_p eq2)
    bool res;
 
    res = EqnEqualDirected(eq1, eq2);
-   
+
    if(res || (EqnIsOriented(eq1) && EqnIsOriented(eq2)))
    {
       return res;
@@ -1660,7 +1660,7 @@ bool EqnEqual(Eqn_p eq1,  Eqn_p eq2)
 //   Test wether an equation subsumes another one. If yes, return true
 //   and extend subst to give the substitution, otherwise just return
 //   false and let subst unmodified. Don't deal with commutativity of
-//   equality. 
+//   equality.
 //
 // Global Variables: -
 //
@@ -1705,13 +1705,13 @@ bool EqnSubsumeDirected(Eqn_p subsumer, Eqn_p subsumed, Subst_p subst)
 bool EqnSubsume(Eqn_p subsumer, Eqn_p subsumed, Subst_p subst)
 {
    bool res;
-   
+
    if(EqnIsOriented(subsumer) && !EqnIsOriented(subsumed))
    {
       return false;
-   }            
+   }
    res = EqnSubsumeDirected(subsumer, subsumed, subst);
-   
+
    if(res || EqnIsOriented(subsumer))
    {
       return res;
@@ -1741,8 +1741,8 @@ bool EqnSubsumeP(Eqn_p subsumer, Eqn_p subsumed)
    bool    res = EqnSubsume(subsumer, subsumed, subst);
 
    SubstDelete(subst);
-   
-   return res;   
+
+   return res;
 }
 
 
@@ -1777,7 +1777,7 @@ bool LiteralSubsumeP(Eqn_p subsumer, Eqn_p subsumed)
 //   Test wether two equations can be unified. If yes, return true
 //   and extend subst to give the substitution, otherwise just return
 //   false and let subst unmodified. Don't deal with commutativity of
-//   equality. 
+//   equality.
 //
 // Global Variables: -
 //
@@ -1824,7 +1824,7 @@ bool EqnUnifyDirected(Eqn_p eq1, Eqn_p eq2, Subst_p subst)
 bool EqnUnify(Eqn_p eq1, Eqn_p eq2, Subst_p subst)
 {
    bool   res = EqnUnifyDirected(eq1, eq2, subst);
-   
+
    if(res || (EqnIsOriented(eq1) && EqnIsOriented(eq2)))
    {
       return res;
@@ -1855,8 +1855,8 @@ bool  EqnUnifyP(Eqn_p eq1, Eqn_p eq2)
    bool    res = EqnUnify(eq1, eq2, subst);
 
    SubstDelete(subst);
-   
-   return res;   
+
+   return res;
 }
 
 /*-----------------------------------------------------------------------
@@ -1866,11 +1866,11 @@ bool  EqnUnifyP(Eqn_p eq1, Eqn_p eq2)
 //   Test wether two equations are unifyable, taking into account sign
 //   and direction. If yes, return true and extend subst to give the
 //   substitution, otherwise just return false and let subst
-//   unmodifies. 
+//   unmodifies.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -1896,7 +1896,7 @@ bool LiteralUnifyOneWay(Eqn_p eq1, Eqn_p eq2, Subst_p subst, bool swapped)
    if(!res)
    {
       SubstBacktrackToPos(subst, backtrack);
-   }   
+   }
    if(swapped)
    {
       EqnSwapSides(eq2);
@@ -1911,7 +1911,7 @@ bool LiteralUnifyOneWay(Eqn_p eq1, Eqn_p eq2, Subst_p subst, bool swapped)
 // Function: EqnOrient()
 //
 //   Orient an equation. Return true, if sides are exchanged, false
-//   otherwise. 
+//   otherwise.
 //
 // Global Variables: -
 //
@@ -1945,7 +1945,7 @@ bool EqnOrient(OCB_p ocb, Eqn_p eq)
       /* printf("EqnOrient: ");
       TermPrint(stdout, eq->lterm, eq->bank->sig, DEREF_ALWAYS);
       printf(" # ");
-      TermPrint(stdout, eq->rterm, eq->bank->sig, DEREF_ALWAYS);      
+      TermPrint(stdout, eq->rterm, eq->bank->sig, DEREF_ALWAYS);
       printf("\n");*/
       relation = TOCompare(ocb, eq->lterm, eq->rterm, DEREF_ALWAYS, DEREF_ALWAYS);
    }
@@ -1990,7 +1990,7 @@ CompareResult EqnCompare(OCB_p ocb, Eqn_p eq1, Eqn_p eq2)
    CompareResult res;
 
    res = compare_pos_eqns(ocb, eq1, eq2);
-   
+
   return res;
 }
 
@@ -2050,12 +2050,12 @@ bool EqnGreater(OCB_p ocb, Eqn_p eq1, Eqn_p eq2)
 
 CompareResult LiteralCompare(OCB_p ocb, Eqn_p eq1, Eqn_p eq2)
 {
-   if(EqnQueryProp(eq1, EPPseudoLit) && 
+   if(EqnQueryProp(eq1, EPPseudoLit) &&
       !(EqnQueryProp(eq2, EPPseudoLit)))
    {
       return to_lesser;
-   }   
-   if(EqnQueryProp(eq2, EPPseudoLit) && 
+   }
+   if(EqnQueryProp(eq2, EPPseudoLit) &&
       !(EqnQueryProp(eq1, EPPseudoLit)))
    {
       return to_greater;
@@ -2089,10 +2089,10 @@ CompareResult LiteralCompare(OCB_p ocb, Eqn_p eq1, Eqn_p eq2)
    if(PropsAreEquiv(eq1, eq2, EPIsPositive))
    {
       return compare_pos_eqns(ocb, eq1, eq2);
-   }  
+   }
    else if(EqnIsPositive(eq1))
    {   /* Exactly one of the equations is negative */
-      return compare_poseqn_negeqn(ocb, eq1, eq2); 
+      return compare_poseqn_negeqn(ocb, eq1, eq2);
    }
    else
    {
@@ -2120,10 +2120,10 @@ CompareResult LiteralCompare(OCB_p ocb, Eqn_p eq1, Eqn_p eq2)
 bool LiteralGreater(OCB_p ocb, Eqn_p eq1, Eqn_p eq2)
 {
    bool res;
-   
+
    res = LiteralCompare(ocb, eq1, eq2) == to_greater;
-   
-   return res;   
+
+   return res;
 }
 
 /*-----------------------------------------------------------------------
@@ -2146,7 +2146,7 @@ PStackPointer SubstNormEqn(Eqn_p eq, Subst_p subst, VarBank_p vars)
 
    res = SubstNormTerm(eq->lterm, subst, vars);
    SubstNormTerm(eq->rterm, subst, vars);
-   
+
    return res;
 }
 
@@ -2179,7 +2179,7 @@ double EqnWeight(Eqn_p eq, double max_multiplier, long vweight, long
 	 max_multiplier;
    }
    res += ((double)TermWeight(eq->lterm, vweight, fweight) * max_multiplier);
-   
+
    return res;
 }
 
@@ -2191,17 +2191,17 @@ double EqnWeight(Eqn_p eq, double max_multiplier, long vweight, long
 //   As EqnWeight(), but use weighted FSum instead of plain term
 //   weight.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
-double EqnFunWeight(Eqn_p eq, double max_multiplier, long vweight, 
+double EqnFunWeight(Eqn_p eq, double max_multiplier, long vweight,
                      long flimit, long *fweights, long default_fweight)
 {
    double res;
-   
+
    res = (double)TermFsumWeight(eq->rterm, vweight, flimit, fweights, default_fweight);
 
    if(!EqnIsOriented(eq))
@@ -2243,8 +2243,8 @@ double EqnNonLinearWeight(Eqn_p eq, double max_multiplier, long
 					fweight) * max_multiplier;
    }
    res += ((double)TermNonLinearWeight(eq->lterm, vlweight, vweight,
-				       fweight) * max_multiplier); 
-   
+				       fweight) * max_multiplier);
+
    return res;
 }
 
@@ -2266,7 +2266,7 @@ double  EqnSymTypeWeight(Eqn_p eq, double max_multiplier, long
 			 pweight)
 {
    double res;
-   
+
    if(EqnIsOriented(eq))
    {
       res = (double)TermSymTypeWeight(eq->rterm, vweight, fweight,
@@ -2279,7 +2279,7 @@ double  EqnSymTypeWeight(Eqn_p eq, double max_multiplier, long
    }
    res += ((double)TermSymTypeWeight(eq->lterm, vweight, fweight,
 				     cweight, pweight) * max_multiplier);
-   
+
    return res;
 }
 
@@ -2299,7 +2299,7 @@ double EqnMaxWeight(Eqn_p eq, long vweight, long fweight)
 {
    double lweight = TermWeight(eq->lterm, vweight, fweight);
    double rweight = TermWeight(eq->rterm, vweight, fweight);
-   
+
    return MAX(lweight, rweight);
 }
 
@@ -2362,7 +2362,7 @@ double EqnCorrectedWeight(Eqn_p eq, double max_multiplier, long
 
 double EqnCorrectedNonLinearWeight(Eqn_p eq, double max_multiplier,
 				   long vlweight, long vweight, long
-				   fweight) 
+				   fweight)
 {
    double res;
 
@@ -2371,12 +2371,12 @@ double EqnCorrectedNonLinearWeight(Eqn_p eq, double max_multiplier,
       if(EqnIsOriented(eq))
       {
 	 res = (double)TermNonLinearWeight(eq->rterm, vlweight,
-					   vweight, fweight); 
+					   vweight, fweight);
       }
       else
       {
 	 res = (double)TermNonLinearWeight(eq->rterm, vlweight,
-					   vweight, fweight) * 
+					   vweight, fweight) *
 	    max_multiplier;
       }
       res += fweight; /* Count the equal-predicate */
@@ -2423,16 +2423,16 @@ long EqnMaxTermPositions(Eqn_p eqn)
 //   Return the number of potential inference positions in maximal
 //   terms of eqn. Variables are not inference positions.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
 long EqnInferencePositions(Eqn_p eqn)
 {
    long res = TermWeight(eqn->lterm, 0, 1);
-      
+
    if(EqnIsOriented(eqn))
    {
       res += TermWeight(eqn->rterm, 0, 1);
@@ -2467,8 +2467,8 @@ double  LiteralWeight(Eqn_p eq, double max_term_multiplier, double
    res = count_eq_encoding?
       EqnWeight(eq, max_term_multiplier, vweight, fweight):
       EqnCorrectedWeight(eq, max_term_multiplier, vweight, fweight);
-   
-   
+
+
    if(EqnIsMaximal(eq))
    {
       res = res*max_literal_multiplier;
@@ -2495,18 +2495,18 @@ double  LiteralWeight(Eqn_p eq, double max_term_multiplier, double
 //
 /----------------------------------------------------------------------*/
 
-double  LiteralFunWeight(Eqn_p eq, 
-                         double max_term_multiplier, 
-                         double max_literal_multiplier, 
+double  LiteralFunWeight(Eqn_p eq,
+                         double max_term_multiplier,
+                         double max_literal_multiplier,
                          double pos_multiplier,
-                         long vweight, 
+                         long vweight,
                          long flimit,
-                         long *fweights, 
+                         long *fweights,
                          long default_fweight)
 {
    double res;
 
-   res = EqnFunWeight(eq, max_term_multiplier, vweight, flimit, 
+   res = EqnFunWeight(eq, max_term_multiplier, vweight, flimit,
                       fweights, default_fweight);
 
    if(EqnIsMaximal(eq))
@@ -2548,11 +2548,11 @@ double  LiteralNonLinearWeight(Eqn_p eq, double max_term_multiplier,
 
    res = count_eq_encoding?
       EqnNonLinearWeight(eq, max_term_multiplier, vlweight, vweight,
-			 fweight): 
+			 fweight):
       EqnCorrectedNonLinearWeight(eq, max_term_multiplier, vlweight,
-				  vweight, fweight); 
-   
-   
+				  vweight, fweight);
+
+
    if(EqnIsMaximal(eq))
    {
       res = res*max_literal_multiplier;
@@ -2561,7 +2561,7 @@ double  LiteralNonLinearWeight(Eqn_p eq, double max_term_multiplier,
    {
       res = res*pos_multiplier;
    }
-   
+
    return res;
 }
 
@@ -2587,11 +2587,11 @@ double LiteralSymTypeWeight(Eqn_p eq, double max_term_multiplier,
 			    fweight, long cweight, long pweight)
 {
    double res;
-   
+
    res = EqnSymTypeWeight(eq, max_term_multiplier, vweight, fweight,
 			  cweight, pweight);
-   
-   
+
+
    if(EqnIsMaximal(eq))
    {
       res = res*max_literal_multiplier;
@@ -2600,7 +2600,7 @@ double LiteralSymTypeWeight(Eqn_p eq, double max_term_multiplier,
    {
       res = res*pos_multiplier;
    }
-   
+
    return res;
 }
 
@@ -2610,7 +2610,7 @@ double LiteralSymTypeWeight(Eqn_p eq, double max_term_multiplier,
 //
 // Function: LiteralCompareFun()
 //
-//   Comparison function for technical stuff, i.e. trees and so on. 
+//   Comparison function for technical stuff, i.e. trees and so on.
 //
 // Global Variables: -
 //
@@ -2630,14 +2630,14 @@ int LiteralCompareFun(Eqn_p lit1, Eqn_p lit2)
    {
       return -1;
    }
-   cmpres = PCmp(MAX(lit1->lterm, lit1->rterm), 
+   cmpres = PCmp(MAX(lit1->lterm, lit1->rterm),
 		 MAX(lit2->lterm, lit2->rterm));
-   
+
    if(cmpres)
    {
       return cmpres;
    }
-   return PCmp(MIN(lit1->lterm, lit1->rterm), 
+   return PCmp(MIN(lit1->lterm, lit1->rterm),
 	       MIN(lit2->lterm, lit2->rterm));
 }
 
@@ -2686,7 +2686,7 @@ long EqnCollectSubterms(Eqn_p eqn, PStack_p collector)
 
    res += TBTermCollectSubterms(eqn->lterm, collector);
    res += TBTermCollectSubterms(eqn->rterm, collector);
-   
+
    return res;
 }
 

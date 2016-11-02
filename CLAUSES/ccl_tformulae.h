@@ -5,7 +5,7 @@ File  : ccl_tformulae.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Declarations and definitions for full first-order formulae encoded
   as terms.
 
@@ -80,10 +80,10 @@ void       TFormulaCollectFreeVars(TB_p bank, TFormula_p form, PTree_p *vars);
 
 TFormula_p TFormulaAddQuantor(TB_p bank, TFormula_p form, bool universal, Term_p var);
 TFormula_p TFormulaAddQuantors(TB_p bank, TFormula_p form, bool universal,
-                               PTree_p vars); 
+                               PTree_p vars);
 TFormula_p TFormulaClosure(TB_p bank, TFormula_p form, bool universal);
 TFormula_p TFormulaCreateDef(TB_p bank, TFormula_p def_atom, TFormula_p defined,
-                             int polarity); 
+                             int polarity);
 
 #define   TFormulaFindMaxVarCode(form) TermFindMaxVarCode(form)
 

@@ -5,7 +5,7 @@ File  : che_to_autoselect.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions dealing with the automatic selection of a (suitable?) term
   ordering.
 
@@ -48,7 +48,7 @@ typedef struct order_parms_cell
 }OrderParmsCell, *OrderParms_p;
 
 typedef double (*OrderEvaluationFun)(OCB_p ocb, ProofState_p state,
-				     HeuristicParms_p parms); 
+				     HeuristicParms_p parms);
 
 
 /*---------------------------------------------------------------------*/
@@ -73,7 +73,7 @@ double OrderEvaluate(OCB_p ocb, ProofState_p state, HeuristicParms_p
 bool   OrderNextType(OrderParms_p ordering);
 bool   OrderNextWeightGen(OrderParms_p ordering);
 bool   OrderNextPrecGen(OrderParms_p ordering);
-bool   OrderNextConstWeight(OrderParms_p ordering); 
+bool   OrderNextConstWeight(OrderParms_p ordering);
 
 bool   OrderNextOrdering(OrderParms_p ordering, OrderParms_p mask);
 

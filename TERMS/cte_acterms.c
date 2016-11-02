@@ -5,7 +5,7 @@ File  : cte_acterms.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Funktions for dealing with AC-normalized terms
 
   Copyright 1998, 1999 by the author.
@@ -45,7 +45,7 @@ Changes
 //
 //   Compare two AC-Terms first lexicographically and then by
 //   top-level-pointer. Two copies of the same term compare as
-//   different here. 
+//   different here.
 //
 // Global Variables: -
 //
@@ -81,7 +81,7 @@ static int acterm_uniq_compare(const void* term1, const void* term2)
 /----------------------------------------------------------------------*/
 
 static void ac_collect_args(PTree_p* root, Sig_p sig, FunCode f,
-			    Term_p term) 
+			    Term_p term)
 {
 
    if(term->f_code != f)
@@ -96,7 +96,7 @@ static void ac_collect_args(PTree_p* root, Sig_p sig, FunCode f,
    else
    {
       int i;
-      
+
       for(i=0; i < term->arity; i++)
       {
 	 ac_collect_args(root, sig, f, term->args[i]);
@@ -158,7 +158,7 @@ void ACTermFree(ACTerm_p term)
    {
       int i;
       ACTerm_p t;
-      
+
       for(i=0; (t=PDArrayElementP(term->args, i)); i++)
       {
 	 ACTermFree(t);
@@ -246,13 +246,13 @@ ACTerm_p ACTermNormalize(Sig_p sig, Term_p term)
       {
 	 PTree_p args = NULL, cell;
 	 PStack_p stack;
-	 
+
 	 ac_collect_args(&args, sig, term->f_code, term);
 
 	 i=0;
 	 stack = PTreeTraverseInit(args);
 	 while((cell = PTreeTraverseNext(stack)))
-	 {	    
+	 {
 	    PDArrayAssignP(handle->args,i++, cell->key);
 	 }
 	 PTreeTraverseExit(stack);
@@ -264,10 +264,10 @@ ACTerm_p ACTermNormalize(Sig_p sig, Term_p term)
 
 	 t1 = ACTermNormalize(sig,term->args[0]);
 	 t2 = ACTermNormalize(sig,term->args[1]);
-	 
+
 	 if(ACTermCompare(t1, t2) > 0)
 	 {
-	    tmp = t1; 
+	    tmp = t1;
 	    t1 = t2;
 	    t2 = tmp;
 	 }
@@ -293,9 +293,9 @@ ACTerm_p ACTermNormalize(Sig_p sig, Term_p term)
 //
 //   Print an AC-Normalized term in flat form.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -313,7 +313,7 @@ void ACTermPrint(FILE* out, ACTerm_p term, Sig_p sig)
       assert(term->args);
       fputs(SigFindName(sig, term->f_code),out);
       arg = PDArrayElementP(term->args, 0);
-      
+
       if(arg)
       {
 	 putc('(', out);
@@ -321,11 +321,11 @@ void ACTermPrint(FILE* out, ACTerm_p term, Sig_p sig)
 	 for(i=1; (arg = PDArrayElementP(term->args, i)); i++)
 	 {
 	    putc(',', out);
-	    ACTermPrint(out, arg, sig);	 
+	    ACTermPrint(out, arg, sig);
 	 }
 	 putc(')', out);
       }
-   }      
+   }
 }
 
 
@@ -353,10 +353,10 @@ bool TermACEqual(Sig_p sig, Term_p t1, Term_p t2)
    else
    {
       ACTerm_p nt1, nt2;
-      
+
       nt1 = ACTermNormalize(sig, t1);
       nt2 = ACTermNormalize(sig, t2);
-      
+
       /* printf("\n# T-1: ");
 	 TermPrint(stdout, t1, sig, DEREF_NEVER);
 	 printf("\n# T-2: ");

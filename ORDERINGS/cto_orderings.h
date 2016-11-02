@@ -5,7 +5,7 @@ File  : cto_orderings.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Generic Interface to the term comparison routines.
 
   Copyright 1998, 1999 by the author.
@@ -45,7 +45,7 @@ Changes
 
 
 bool          TOGreater(OCB_p ocb, Term_p s, Term_p t, DerefType
-			deref_s, DerefType deref_t); 
+			deref_s, DerefType deref_t);
 CompareResult TOCompare(OCB_p ocb, Term_p s, Term_p t, DerefType
 			deref_s, DerefType deref_t);
 

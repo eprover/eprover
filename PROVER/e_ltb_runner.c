@@ -5,7 +5,7 @@ File  : e_ltb_runner.c
 Author: Stephan Schulz
 
 Contents
- 
+
 Hack for the LTB category of CASC-2012 - parse an LTB spec file, and
 run E on the various problems.
 
@@ -64,8 +64,8 @@ typedef enum
 
 OptCell opts[] =
 {
-   {OPT_HELP, 
-    'h', "help", 
+   {OPT_HELP,
+    'h', "help",
     NoArg, NULL,
     "Print a short description of program usage and options."},
 
@@ -75,8 +75,8 @@ OptCell opts[] =
     "Print the version number of the prover. Please include this"
     " with all bug reports (if any)."},
 
-   {OPT_VERBOSE, 
-    'v', "verbose", 
+   {OPT_VERBOSE,
+    'v', "verbose",
     OptArg, "1",
     "Verbose comments on the progress of the program. This differs "
     "from the output level (below) in that technical information is "
@@ -149,7 +149,7 @@ void print_help(FILE* out);
 int main(int argc, char* argv[])
 {
    CLState_p        state;
-   Scanner_p        in;    
+   Scanner_p        in;
    BatchSpec_p      spec;
    StructFOFSpec_p   ctrl;
    char             *prover    = "eprover";
@@ -158,7 +158,7 @@ int main(int argc, char* argv[])
    long             now, start, res;
 
    assert(argv[0]);
-   
+
    InitIO(NAME);
    DocOutputFormat = tstp_format;
    OutputFormat = TSTPFormat;
@@ -179,10 +179,10 @@ int main(int argc, char* argv[])
 
    in = CreateScanner(StreamTypeFile, state->argv[0], true, NULL);
    ScannerSetFormat(in, TSTPFormat);
-   
+
    AcceptDottedId(in, "division.category");
    category = ParseDottedId(in);
-   
+
    if(TestInpId(in, "division"))
    {
       AcceptDottedId(in, "division.category.training_directory");
@@ -195,7 +195,7 @@ int main(int argc, char* argv[])
       spec = BatchSpecParse(in, prover, category, train_dir, TSTPFormat);
 
       /* BatchSpecPrint(GlobalOut, spec); */
-      
+
       if(total_wtc_limit && !spec->total_wtc_limit)
       {
          spec->total_wtc_limit = total_wtc_limit;
@@ -218,12 +218,12 @@ int main(int argc, char* argv[])
       fprintf(GlobalOut, "# =============== Batch done ===========\n\n");
       if(interactive)
       {
-        BatchProcessInteractive(spec, ctrl, stdout); 
+        BatchProcessInteractive(spec, ctrl, stdout);
       }
       StructFOFSpecFree(ctrl);
       BatchSpecFree(spec);
    }
-   DestroyScanner(in); 
+   DestroyScanner(in);
 
    if(category)
    {
@@ -242,7 +242,7 @@ int main(int argc, char* argv[])
    MemFlushFreeList();
    MemDebugPrintStats(stdout);
 #endif
-  
+
    return 0;
 }
 
@@ -254,7 +254,7 @@ int main(int argc, char* argv[])
 //   Read and process the command line option, return (the pointer to)
 //   a CLState object containing the remaining arguments.
 //
-// Global Variables: opts, Verbose, TBPrintInternalInfo 
+// Global Variables: opts, Verbose, TBPrintInternalInfo
 //
 // Side Effects    : Sets variables, may terminate with program
 //                   description if option -h or --help was present
@@ -268,7 +268,7 @@ CLState_p process_options(int argc, char* argv[])
    char*  arg;
 
    state = CLStateAlloc(argc,argv);
-   
+
    while((handle = CLStateGetOpt(state, &arg, opts)))
    {
       switch(handle->option_code)
@@ -276,7 +276,7 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_VERBOSE:
 	    Verbose = CLStateGetIntArg(handle, arg);
 	    break;
-      case OPT_HELP: 
+      case OPT_HELP:
 	    print_help(stdout);
 	    exit(NO_ERROR);
       case OPT_VERSION:

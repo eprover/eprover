@@ -5,7 +5,7 @@ File  : cte_termfunc.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Most of the user-level functionality for unshared terms.
 
   Copyright 1998, 1999 by the author.
@@ -88,7 +88,7 @@ long    TermWeightCompute(Term_p term, long vweight, long fweight);
          (assert((term)->weight == TermDefaultWeight((term))),(term)->weight) : \
          TermDefaultWeight((term)))
 
-long    TermFsumWeight(Term_p term, long vweight, long flimit, 
+long    TermFsumWeight(Term_p term, long vweight, long flimit,
                        long *fweights, long default_fweight);
 
 long    TermNonLinearWeight(Term_p term, long vlweight, long vweight, long fweight);
@@ -116,15 +116,15 @@ long    VarBankCheckBindings(FILE* out, VarBank_p bank, Sig_p sig);
 
 #define TermAddSymbolDistribution(term, dist_array)\
         TermAddSymbolDistributionLimited((term),(dist_array), LONG_MAX)
-void    TermAddSymbolDistributionLimited(Term_p term, long *dist_array, 
+void    TermAddSymbolDistributionLimited(Term_p term, long *dist_array,
 					 long limit);
-void    TermAddSymbolDistExist(Term_p term, long *dist_array, 
+void    TermAddSymbolDistExist(Term_p term, long *dist_array,
                                PStack_p exists);
 void    TermAddSymbolFeaturesLimited(Term_p term, long depth,
 				     long *freq_array, long* depth_array,
 				     long limit);
 
-void    TermAddSymbolFeatures(Term_p term, PStack_p mod_stack, 
+void    TermAddSymbolFeatures(Term_p term, PStack_p mod_stack,
                               long depth, long *feature_array, long offset);
 
 void    TermComputeFunctionRanks(Term_p term, long *rank_array, long *count);

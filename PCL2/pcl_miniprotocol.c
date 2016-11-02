@@ -6,7 +6,7 @@ Author: Stephan Schulz
 
 Contents
 
-  Protocols (=arrays) of PCL steps, all inclusive ;-) 
+  Protocols (=arrays) of PCL steps, all inclusive ;-)
 
   Copyright 1998, 1999, 2002 by the author.
   This code is released under the GNU General Public Licence and
@@ -88,9 +88,9 @@ void PCLMiniProtFree(PCLMiniProt_p junk)
 {
    long i;
    PCLMiniStep_p step;
-   
+
    assert(junk && junk->terms);
-   
+
    for(i=0; i<=junk->max_ident; i++)
    {
       step = PDArrayElementP(junk->steps, i);
@@ -168,9 +168,9 @@ PCLMiniStep_p PCLMiniProtFindStep(PCLMiniProt_p prot, unsigned long id)
 //
 //   Extract the step from the protokol and return it.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -178,9 +178,9 @@ PCLMiniStep_p PCLMiniProtExtractStep(PCLMiniProt_p prot, PCLMiniStep_p
 				     step)
 {
    PCLMiniStep_p local_step;
-   
+
    assert(prot&&step);
-   
+
    local_step = PDArrayElementP(prot->steps, step->id);
    if(local_step)
    {
@@ -261,7 +261,7 @@ long PCLMiniProtParse(Scanner_p in, PCLMiniProt_p prot)
       if(!PCLMiniProtInsertStep(prot, step))
       {
 	 errpos = DStrAlloc();
-	 
+
 	 DStrAppendStr(errpos, PosRep(type, source_name, line, column));
 	 DStrAppendStr(errpos, " duplicate PCL identifier");
 	 Error(DStrView(errpos), SYNTAX_ERROR);
@@ -296,9 +296,9 @@ void PCLMiniProtPrint(FILE* out, PCLMiniProt_p prot,
 {
    long i;
    PCLMiniStep_p step;
-   
+
    assert(prot && prot->terms);
-   
+
    for(i=0; i<=prot->max_ident; i++)
    {
       step = PDArrayElementP(prot->steps, i);
@@ -323,7 +323,7 @@ void PCLMiniProtPrint(FILE* out, PCLMiniProt_p prot,
 /----------------------------------------------------------------------*/
 
 void PCLMiniExprCollectPreconds(PCLMiniProt_p prot, PCLExpr_p expr, PTree_p *tree)
-{   
+{
    PCLMiniStep_p step;
    int       i;
    long    id;
@@ -377,7 +377,7 @@ bool PCLMiniProtMarkProofClauses(PCLMiniProt_p prot, bool fast)
    PStack_p to_proc = PStackAlloc();
    PCLMiniStep_p step;
    PTree_p root = NULL;
-   
+
    if(fast)
    {
       i = prot->max_ident;
@@ -390,14 +390,14 @@ bool PCLMiniProtMarkProofClauses(PCLMiniProt_p prot, bool fast)
 	 {
 	    step = PCLMiniProtFindStep(prot, i);
 	 }
-      }					      
+      }
    }
    else
    {
       for(i=0; i<=prot->max_ident;i++)
       {
 	 step = PCLMiniProtFindStep(prot, i);
-	 
+
 	 if(step && PCLStepExtract(step->extra))
 	 {
 	    {
@@ -413,8 +413,8 @@ bool PCLMiniProtMarkProofClauses(PCLMiniProt_p prot, bool fast)
           &&step->extra
           &&(strcmp(step->extra, "'proof'")==0))
          ||
-         (!PCLStepIsShell(step) && 
-         PCLStepIsClausal(step) && 
+         (!PCLStepIsShell(step) &&
+         PCLStepIsClausal(step) &&
           (step->logic.clause->literal_no == 0)))
       {
 	 res = true;
@@ -422,7 +422,7 @@ bool PCLMiniProtMarkProofClauses(PCLMiniProt_p prot, bool fast)
       if(!PCLStepQueryProp(step,PCLIsProofStep))
       {
 	 PCLStepSetProp(step, PCLIsProofStep);
-	 PCLMiniExprCollectPreconds(prot, step->just, &root);	 
+	 PCLMiniExprCollectPreconds(prot, step->just, &root);
 	 while(root)
 	 {
 	    step = PTreeExtractRootKey(&root);
@@ -450,7 +450,7 @@ void PCLMiniProtSetClauseProp(PCLMiniProt_p prot, PCLStepProperties props)
 {
    long i;
    PCLMiniStep_p step;
-   
+
    for(i=0; i<=prot->max_ident; i++)
    {
       step = PDArrayElementP(prot->steps, i);
@@ -477,10 +477,10 @@ void PCLMiniProtDelClauseProp(PCLMiniProt_p prot, PCLStepProperties props)
 {
    long i;
    PCLMiniStep_p step;
-   
+
    for(i=0; i<=prot->max_ident; i++)
    {
-      step = PDArrayElementP(prot->steps, i);      
+      step = PDArrayElementP(prot->steps, i);
       if(step)
       {
 	 PCLStepDelProp(step,props);
@@ -508,9 +508,9 @@ void PCLMiniProtPrintProofClauses(FILE* out, PCLMiniProt_p prot,
 {
    long i;
    PCLMiniStep_p step;
-   
+
    assert(prot && prot->terms);
-   
+
    for(i=0; i<=prot->max_ident; i++)
    {
       step = PDArrayElementP(prot->steps, i);

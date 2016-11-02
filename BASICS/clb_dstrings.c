@@ -4,7 +4,7 @@ File  : clb_dstrings.c
 
 Author: Stephan Schulz
 
-  Implementation of the Dynamic String functions.  
+  Implementation of the Dynamic String functions.
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
@@ -74,7 +74,7 @@ DStr_p DStrAlloc(void)
 // Function: DStrFree()
 //
 //   Decrease the reference counter. If it is equal to 0, free both
-//   the DStr-Cell and the contained string. 
+//   the DStr-Cell and the contained string.
 //
 // Global Variables: -
 //
@@ -115,13 +115,13 @@ char* DStrAppendStr(DStr_p strdes, char* newpart)
 {
    long newlen,
         newmem;
-   
+
    assert(strdes);
    assert(newpart);
 
    newlen = strlen(newpart);
-   newmem = strdes->mem; 
-   
+   newmem = strdes->mem;
+
    while(strdes->len+newlen >= newmem) /* I expect this loop to be
 					   computed at most once in
 					   the average case, so it
@@ -140,7 +140,7 @@ char* DStrAppendStr(DStr_p strdes, char* newpart)
    }
    strcat(strdes->string+strdes->len, newpart);
    strdes->len += newlen;
-   
+
    return strdes->string;
 }
 
@@ -193,7 +193,7 @@ char* DStrAppendBuffer(DStr_p strdes, char* buf, int len)
 
    assert(strdes);
    assert(buf);
-   
+
    for(i=0; i<len; i++)
    {
       DStrAppendChar(strdes, buf[i]);
@@ -303,7 +303,7 @@ char DStrDeleteLastChar(DStr_p strdes)
 char* DStrView(DStr_p strdes)
 {
    assert(strdes);
-   
+
    if(strdes->string)
    {
       return strdes->string;
@@ -354,12 +354,12 @@ char* DStrCopy(DStr_p strdes)
    char* handle;
 
    assert(strdes);
-   
+
    if(strdes->string)
    {
       /* As we know the length, this should be more efficient than
 	 using SecureStrdup() */
-      
+
       handle = SecureMalloc(strdes->len+1);
       strcpy(handle,strdes->string);
       return handle;
@@ -418,7 +418,7 @@ char* DStrSet(DStr_p strdes, char* string)
 
    DStrReset(strdes);
    DStrAppendStr(strdes,string);
-   
+
    return strdes->string;
 }
 
@@ -448,7 +448,7 @@ long  DStrLen(DStr_p strdes)
 // Function: DStrReset()
 //
 //   Set the string to "" efficiently (does _not_ change internal
-//   memory - call this to e.g. reinitialize a string in a loop) 
+//   memory - call this to e.g. reinitialize a string in a loop)
 //
 // Global Variables: -
 //
@@ -472,7 +472,7 @@ void  DStrReset(DStr_p strdes)
 //
 // Function: DStrMinimize()
 //
-//  Minimize the space used to store the string in strdes. 
+//  Minimize the space used to store the string in strdes.
 //
 // Global Variables: -
 //

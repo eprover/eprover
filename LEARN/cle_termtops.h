@@ -5,7 +5,7 @@ File  : cle_termtops.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Compute the various term tops for given (shared!) terms.
 
   Copyright 1998, 1999 by the author.

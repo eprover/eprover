@@ -95,7 +95,7 @@ CompareResult CmpCacheFind(CmpCache_p *cache, Term_p t1, DerefType d1,
    QuadTree_p handle;
    CompareResult res = to_unknown;
    bool nat_order;
-   
+
    if(TermIsVar(t1)||TermIsVar(t2))
    {
       return to_unknown;

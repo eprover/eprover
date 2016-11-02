@@ -5,7 +5,7 @@ File  : clb_pdarrays.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Funktions realising the dynamic array type.
 
   Copyright 1998, 1999 by the author.
@@ -62,7 +62,7 @@ PDArray_p PDArrayAlloc(long init_size, long grow)
 {
    PDArray_p handle = PDArrayCellAlloc();
    long i;
-   
+
    assert(init_size > 0);
    assert(grow >= 0);
 
@@ -94,7 +94,7 @@ PDArray_p PDIntArrayAlloc(long init_size, long grow)
 {
    PDArray_p handle = PDArrayCellAlloc();
    long i;
-   
+
    assert(init_size > 0);
    assert(grow >= 0);
 
@@ -138,9 +138,9 @@ void PDArrayFree(PDArray_p junk)
 //
 //   Enlarge array enough to accomodate index.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -148,7 +148,7 @@ void PDArrayEnlarge(PDArray_p array, long idx)
 {
    IntOrP *tmp;
    long   old_size, i;
-   
+
    old_size = array->size;
    tmp      = array->array;
    if(array->grow)
@@ -263,7 +263,7 @@ void PDArrayElementDeleteInt(PDArray_p array, long idx)
 long PDArrayMembers(PDArray_p array)
 {
    long i, res =0;
-   
+
    assert(array);
 
    for(i=0; i<array->size; i++)
@@ -293,7 +293,7 @@ long PDArrayMembers(PDArray_p array)
 long PDArrayFirstUnused(PDArray_p array)
 {
    long i;
-   
+
    assert(array);
 
    for(i=array->size; i; i--)
@@ -324,13 +324,13 @@ long PDArrayFirstUnused(PDArray_p array)
 long PDArrayStore(PDArray_p array, IntOrP value)
 {
    long idx;
-   
+
    assert(array);
 
    idx = PDArrayFirstUnused(array);
    PDArrayAssign(array, idx, value);
 
-   return idx;   
+   return idx;
 }
 
 /*-----------------------------------------------------------------------
@@ -349,7 +349,7 @@ long PDArrayStore(PDArray_p array, IntOrP value)
 long PDArrayStoreP(PDArray_p array, void* value)
 {
    IntOrP tmp;
-   
+
    tmp.p_val = value;
 
    return PDArrayStore(array, tmp);
@@ -372,7 +372,7 @@ long PDArrayStoreP(PDArray_p array, void* value)
 long PDArrayStoreInt(PDArray_p array, long value)
 {
    IntOrP tmp;
-   
+
    tmp.i_val = value;
 
    return PDArrayStore(array, tmp);
@@ -395,7 +395,7 @@ long PDArrayStoreInt(PDArray_p array, long value)
 void PDArrayAdd(PDArray_p collect, PDArray_p data, long limit)
 {
    long i, old, new;
-   
+
    for(i=0; i<limit; i++)
    {
       old = PDArrayElementInt(collect, i);
@@ -411,12 +411,12 @@ void PDArrayAdd(PDArray_p collect, PDArray_p data, long limit)
 //
 //   Increment entry indexed in array by value. Return new value.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
- 
+
 long PDArrayElementIncInt(PDArray_p array, long idx, long value)
 {
    IntOrP *ref = PDArrayElementRef(array, idx);

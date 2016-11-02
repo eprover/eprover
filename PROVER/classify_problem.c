@@ -5,7 +5,7 @@ File  : classify_problem.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Read a specification and print classification and feature vector.
 
 Copyright 1998-2011 by the author.
@@ -101,8 +101,8 @@ typedef enum
 
 OptCell opts[] =
 {
-   {OPT_HELP, 
-    'h', "help", 
+   {OPT_HELP,
+    'h', "help",
     NoArg, NULL,
     "Print a short description of program usage and options."},
 
@@ -111,8 +111,8 @@ OptCell opts[] =
     NoArg, NULL,
     "Print the version number of the program."},
 
-   {OPT_VERBOSE, 
-    'v', "verbose", 
+   {OPT_VERBOSE,
+    'v', "verbose",
     OptArg, "1",
     "Verbose comments on the progress of the program. This differs "
     "from the output level (below) in that technical information is "
@@ -162,7 +162,7 @@ OptCell opts[] =
     NoArg, NULL,
     "Parse TSTP format instead of E-LOP (not all all optional "
     "extensions are currently supported)."},
-   
+
    {OPT_TSTP_PRINT,
     '\0', "tstp-out",
     NoArg, NULL,
@@ -177,7 +177,7 @@ OptCell opts[] =
     '\0', "tptp3-in",
     NoArg, NULL,
     "Equivalent to --tstp-in."},
-   
+
    {OPT_TSTP_PRINT,
     '\0', "tptp3-out",
     NoArg, NULL,
@@ -239,7 +239,7 @@ OptCell opts[] =
     " The optional argument is a fudge factor that determines when a "
     "definition is introduced. 0 disables definitions, the default works"
     " well."},
-  
+
    {OPT_MASK,
     'c', "class-mask",
     ReqArg, NULL,
@@ -268,7 +268,7 @@ OptCell opts[] =
     "Set the limit (either an absolute integer value or a fraction "
     "between 0 and 1) for the size of the set of non-ground units "
     "to consist of 'few' clauses."},
-   
+
    {OPT_NGU_MANY_LIMIT,
     'm', "ngu-many-limit",
     ReqArg, NULL,
@@ -288,7 +288,7 @@ OptCell opts[] =
     "Set the limit (either an absolute integer value or a fraction "
     "between 0 and 1) for the size of the set of ground positive clauses "
     "to consist of 'few' clauses."},
-   
+
    {OPT_GPC_MANY_LIMIT,
     '\0', "gpc-many-limit",
     ReqArg, NULL,
@@ -368,49 +368,49 @@ OptCell opts[] =
     '\0', "pred-const-medium-limit",
     ReqArg, NULL,
     "Set the minimum number of constant predicate symbols for medium size "
-    "by this measure."}, 
+    "by this measure."},
 
    {OPT_PREDC_LARGE_LIMIT,
     '\0', "pred-const-large-limit",
     ReqArg, NULL,
     "Set the minimum number of constant predicate symbols for large size "
-    "by this measure."}, 
+    "by this measure."},
 
    {OPT_PRED_MEDIUM_LIMIT,
     '\0', "pred-medium-limit",
     ReqArg, NULL,
     "Set the minimum number of non-constant predicate symbols for medium size "
-    "by this measure."}, 
+    "by this measure."},
 
    {OPT_PRED_LARGE_LIMIT,
     '\0', "pred-large-limit",
     ReqArg, NULL,
     "Set the minimum number of non-constant predicate symbols for large size "
-    "by this measure."}, 
+    "by this measure."},
 
    {OPT_FUNC_MEDIUM_LIMIT,
     '\0', "fun-const-medium-limit",
     ReqArg, NULL,
     "Set the minimum number of constant function symbols for medium size "
-    "by this measure."}, 
+    "by this measure."},
 
    {OPT_FUNC_LARGE_LIMIT,
     '\0', "fun-const-large-limit",
     ReqArg, NULL,
     "Set the minimum number of constant function symbols for large size "
-    "by this measure."}, 
+    "by this measure."},
 
    {OPT_FUN_MEDIUM_LIMIT,
     '\0', "fun-medium-limit",
     ReqArg, NULL,
     "Set the minimum number of non-constant function symbols for medium size "
-    "by this measure."}, 
+    "by this measure."},
 
    {OPT_FUN_LARGE_LIMIT,
     '\0', "fun-large-limit",
     ReqArg, NULL,
     "Set the minimum number of non-constant function symbols for large size "
-    "by this measure."}, 
+    "by this measure."},
 
    {OPT_NOOPT,
     '\0', NULL,
@@ -418,10 +418,10 @@ OptCell opts[] =
     NULL}
 };
 
-char *outname = NULL, 
+char *outname = NULL,
      *mask = "aaaaa----aaaa",
      *raw_mask = "aaaaaaa";
-        
+
 IOFormat parse_format     = AutoFormat;
 bool     tptp_header      = false,
          raw_classify     = false,
@@ -464,7 +464,7 @@ void print_help(FILE* out);
 char* parse_raw_feature_line(Scanner_p in, RawSpecFeature_p features)
 {
    char *res;
-   
+
    res = ParsePlainFilename(in);
    AcceptInpTok(in, Colon);
    RawSpecFeaturesParse(in, features);
@@ -491,7 +491,7 @@ char* parse_raw_feature_line(Scanner_p in, RawSpecFeature_p features)
 char* parse_feature_line(Scanner_p in, SpecFeature_p features)
 {
    char *res;
-   
+
    res = ParsePlainFilename(in);
    AcceptInpTok(in, Colon);
    SpecFeaturesParse(in, features);
@@ -505,7 +505,7 @@ char* parse_feature_line(Scanner_p in, SpecFeature_p features)
 //
 //   Given a file of pre-evaluated raw feature-lines, read it and add
 //   a new symbolic class name based on the given class limits
-//   for the  features. 
+//   for the  features.
 //
 // Global Variables: -
 //
@@ -519,19 +519,19 @@ void process_raw_feature_files(char *argv[], SpecLimits_p limits)
    int  i;
    Scanner_p in;
    RawSpecFeatureCell features;
-   
+
    for(i=0; argv[i]; i++)
    {
       in = CreateScanner(StreamTypeFile, argv[i], true, NULL);
       while(!TestInpTok(in, NoToken))
       {
-         name = parse_raw_feature_line(in, &features);            
-         RawSpecFeaturesClassify(&features, limits, raw_mask);  
+         name = parse_raw_feature_line(in, &features);
+         RawSpecFeaturesClassify(&features, limits, raw_mask);
          fprintf(GlobalOut, "%s : ", name);
          RawSpecFeaturesPrint(GlobalOut, &features);
          fprintf(GlobalOut, "\n");
          FREE(name);
-      }         
+      }
       DestroyScanner(in);
    }
 }
@@ -543,7 +543,7 @@ void process_raw_feature_files(char *argv[], SpecLimits_p limits)
 //
 //   Given a file of pre-evaluated feature-lines, read it and add a
 //   new symbolic class name based on the given class limits for the
-//   features. 
+//   features.
 //
 // Global Variables: -
 //
@@ -557,21 +557,21 @@ void process_feature_files(char *argv[], SpecLimits_p limits)
    int  i;
    Scanner_p in;
    SpecFeatureCell features;
-   
+
    for(i=0; argv[i]; i++)
    {
       in = CreateScanner(StreamTypeFile, argv[i], true, NULL);
       while(!TestInpTok(in, NoToken))
       {
-         name = parse_feature_line(in, &features);            
-         SpecFeaturesAddEval(&features, limits);  
+         name = parse_feature_line(in, &features);
+         SpecFeaturesAddEval(&features, limits);
          fprintf(GlobalOut, "%s : ", name);
          SpecFeaturesPrint(GlobalOut, &features);
          fprintf(GlobalOut, " : ");
          SpecTypePrint(GlobalOut, &features, mask);
          fprintf(GlobalOut, "\n");
          FREE(name);
-      }         
+      }
       DestroyScanner(in);
    }
 }
@@ -593,23 +593,23 @@ void process_feature_files(char *argv[], SpecLimits_p limits)
 
 void print_tptp_header(ProofState_p    fstate,
                        SpecFeatureCell features)
-{  
+{
    int min_arity, max_arity, symbol_count;
    long depthmax, depthsum, count;
-             
-   fprintf(GlobalOut, 
+
+   fprintf(GlobalOut,
            "%% Syntax   : Number of clauses    : %4ld "
            "(%4ld non-Horn; %3ld unit; %3ld RR)\n",
-           features.clauses, 
+           features.clauses,
            features.clauses-features.horn,
            features.unit,
            ClauseSetCountTPTPRangeRestricted(fstate->axioms));
-   fprintf(GlobalOut, 
+   fprintf(GlobalOut,
            "%%            Number of literals   : %4ld "
            "(%4ld equality)\n",
-           features.literals, 
-           ClauseSetCountEqnLiterals(fstate->axioms));	 
-   fprintf(GlobalOut, 
+           features.literals,
+           ClauseSetCountEqnLiterals(fstate->axioms));
+   fprintf(GlobalOut,
            "%%            Maximal clause size  : %4ld ",
            ClauseSetMaxLiteralNumber(fstate->axioms));
    if(features.clauses)
@@ -621,11 +621,11 @@ void print_tptp_header(ProofState_p    fstate,
    {
       fprintf(GlobalOut, "(   - average)\n");
    }
-   
+
    symbol_count = SigCountSymbols(fstate->signature, true);
    min_arity = SigFindMinPredicateArity(fstate->signature);
-   max_arity = SigFindMaxPredicateArity(fstate->signature);	
-   
+   max_arity = SigFindMaxPredicateArity(fstate->signature);
+
    if(features.eq_content!=SpecNoEq)
    {/* Correct for the fact that TPTP treats equal as a normal
        predicate symbol */
@@ -633,13 +633,13 @@ void print_tptp_header(ProofState_p    fstate,
       max_arity = MAX(max_arity,2);
       min_arity = MIN(min_arity,2);
    }
-   fprintf(GlobalOut, 
+   fprintf(GlobalOut,
            "%%            Number of predicates : %4d "
            "(%4d propositional; ",
            symbol_count,
            SigCountAritySymbols(fstate->signature, 0, true));
    if(symbol_count)
-   {	    
+   {
       fprintf(GlobalOut, "%d-%d arity)\n",
               min_arity, max_arity);
    }
@@ -647,18 +647,18 @@ void print_tptp_header(ProofState_p    fstate,
    {
       fprintf(GlobalOut, "--- arity)\n");
    }
-   
+
    symbol_count = SigCountSymbols(fstate->signature, false);
    min_arity = SigFindMinFunctionArity(fstate->signature);
-   max_arity = SigFindMaxFunctionArity(fstate->signature);	
-   
-   fprintf(GlobalOut, 
+   max_arity = SigFindMaxFunctionArity(fstate->signature);
+
+   fprintf(GlobalOut,
            "%%            Number of functors   : %4d "
                        "(%4d constant; ",
            symbol_count,
            SigCountAritySymbols(fstate->signature, 0, false));
    if(symbol_count)
-   {	    
+   {
       fprintf(GlobalOut, "%d-%d arity)\n",
               min_arity, max_arity);
    }
@@ -666,7 +666,7 @@ void print_tptp_header(ProofState_p    fstate,
    {
       fprintf(GlobalOut, "--- arity)\n");
    }
-   fprintf(GlobalOut, 
+   fprintf(GlobalOut,
                        "%%            Number of variables  : %4ld (%4ld singleton)\n",
            ClauseSetCountVariables(fstate->axioms),
            ClauseSetCountSingletons(fstate->axioms));
@@ -674,13 +674,13 @@ void print_tptp_header(ProofState_p    fstate,
                              &count);
    if(fstate->axioms->literals)
    {
-      fprintf(GlobalOut, 
+      fprintf(GlobalOut,
               "%%            Maximal term depth   : %4ld (%4ld average)\n",
               features.clause_max_depth, features.clause_avg_depth);
    }
    else
    {
-      fprintf(GlobalOut, 
+      fprintf(GlobalOut,
                           "%%            Maximal term depth   :    - (   - average)\n");
    }
 }
@@ -704,11 +704,11 @@ void print_tptp_header(ProofState_p    fstate,
 //
 /----------------------------------------------------------------------*/
 
-void do_raw_classification(char* name, ProofState_p state, 
-                           SpecLimits_p limits) 
+void do_raw_classification(char* name, ProofState_p state,
+                           SpecLimits_p limits)
 {
    RawSpecFeatureCell features;
-   
+
    RawSpecFeaturesCompute(&features, state);
    RawSpecFeaturesClassify(&features, limits, raw_mask);
 
@@ -733,7 +733,7 @@ void do_raw_classification(char* name, ProofState_p state,
 int main(int argc, char* argv[])
 {
    ProofState_p    fstate;
-   Scanner_p       in;    
+   Scanner_p       in;
    int             i;
    CLState_p       state;
    SpecFeatureCell features;
@@ -741,19 +741,19 @@ int main(int argc, char* argv[])
    StrTree_p       skip_includes = NULL;
 
    assert(argv[0]);
-   
+
    InitIO(NAME);
 
    limits = SpecLimitsAlloc();
    state = process_options(argc, argv, limits);
-    
+
    OpenGlobalOut(outname);
 
    if(state->argc ==  0)
    {
       CLStateInsertArg(state, "-");
    }
-   
+
    if(parse_features)
    {
       if(raw_classify)
@@ -766,14 +766,14 @@ int main(int argc, char* argv[])
       }
    }
    else
-   {      
+   {
       for(i=0; state->argv[i]; i++)
       {
          fstate = ProofStateAlloc(FPIgnoreProps);
          in    = CreateScanner(StreamTypeFile, state->argv[i], true, NULL);
          ScannerSetFormat(in, parse_format);
-         
-         FormulaAndClauseSetParse(in, fstate->axioms, 
+
+         FormulaAndClauseSetParse(in, fstate->axioms,
                                   fstate->f_axioms,
                                   fstate->/* original_*/terms, NULL, &
                                   skip_includes);
@@ -784,16 +784,16 @@ int main(int argc, char* argv[])
          else
          {
             // printf("Else\n");
-            FormulaSetPreprocConjectures(fstate->f_axioms, fstate->f_ax_archive, 
+            FormulaSetPreprocConjectures(fstate->f_axioms, fstate->f_ax_archive,
                                          false, false);
             // printf("PreprocConj done\n");
-            FormulaSetCNF(fstate->f_axioms, 
+            FormulaSetCNF(fstate->f_axioms,
                           fstate->f_ax_archive,
-                          fstate->axioms, 
-                          fstate->/* original_*/terms, 
+                          fstate->axioms,
+                          fstate->/* original_*/terms,
                           fstate->freshvars,
                           fstate->gc_terms);
-            
+
             if(!no_preproc)
             {
                ClauseSetPreprocess(fstate->axioms,
@@ -805,8 +805,8 @@ int main(int argc, char* argv[])
             }
             SpecFeaturesCompute(&features, fstate->axioms, fstate->signature);
             SpecFeaturesAddEval(&features, limits);
-            
-            
+
+
             if(!tptp_header)
             {
                fprintf(GlobalOut, "%s : ", state->argv[i]);
@@ -826,7 +826,7 @@ int main(int argc, char* argv[])
    }
    CLStateFree(state);
    SpecLimitsCellFree(limits);
-   
+
    fflush(GlobalOut);
    OutClose(GlobalOut);
    ExitIO();
@@ -835,7 +835,7 @@ int main(int argc, char* argv[])
    MemFlushFreeList();
    MemDebugPrintStats(stdout);
 #endif
-   
+
    return 0;
 }
 
@@ -851,7 +851,7 @@ int main(int argc, char* argv[])
 //
 // Side Effects    : Sets variables in limits, may terminate with
 //                   program description if option -h or --help was
-//                   present 
+//                   present
 //
 /----------------------------------------------------------------------*/
 
@@ -860,9 +860,9 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
    Opt_p handle;
    CLState_p state;
    char*  arg;
-   
+
    state = CLStateAlloc(argc,argv);
-   
+
    while((handle = CLStateGetOpt(state, &arg, opts)))
    {
       switch(handle->option_code)
@@ -870,7 +870,7 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
       case OPT_VERBOSE:
 	    Verbose = CLStateGetIntArg(handle, arg);
 	    break;
-      case OPT_HELP: 
+      case OPT_HELP:
 	    print_help(stdout);
 	    exit(NO_ERROR);
       case OPT_VERSION:
@@ -894,10 +894,10 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
 	    EqnUseInfix = false;
 	    break;
       case OPT_TPTP_FORMAT:
-	    parse_format = TPTPFormat;	    
+	    parse_format = TPTPFormat;
 	    OutputFormat = TPTPFormat;
 	    EqnFullEquationalRep = false;
-	    break;	
+	    break;
       case OPT_TSTP_PARSE:
 	    parse_format = TSTPFormat;
 	    break;
@@ -907,10 +907,10 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
 	    EqnUseInfix = false;
 	    break;
       case OPT_TSTP_FORMAT:
-	    parse_format = TSTPFormat;	    
+	    parse_format = TSTPFormat;
 	    OutputFormat = TSTPFormat;
 	    EqnFullEquationalRep = false;
-	    break;	
+	    break;
       case OPT_RAW_CLASS:
             raw_classify = true;
             break;

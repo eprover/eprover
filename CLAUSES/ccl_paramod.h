@@ -5,7 +5,7 @@ File  : ccl_paramod.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Interface for paramodulating termpairs into termpairs and clauses
   into clauses.
 
@@ -34,7 +34,7 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-typedef enum 
+typedef enum
 {
    ParamodPlain,                /* Use standard paramodulation */
    ParamodAlwaysSim,            /* Always use simultaneous paramod */
@@ -45,9 +45,9 @@ typedef enum
                                    orientable */
    ParamodSizeDecreasingSim     /* Use sim if instantiated RHS is
                                    smaller */
-}ParamodulationType;   
+}ParamodulationType;
 
-typedef struct 
+typedef struct
 {
    TB_p        bank;
    OCB_p       ocb;
@@ -80,7 +80,7 @@ Term_p ComputeOverlap(TB_p bank, OCB_p ocb, ClausePos_p from, Term_p
 
 Eqn_p  EqnOrderedParamod(TB_p bank, OCB_p ocb, ClausePos_p from,
 			 ClausePos_p into, Subst_p subst, VarBank_p
-			 freshvars); 
+			 freshvars);
 
 Clause_p ClauseOrderedParamod(TB_p bank, OCB_p ocb, ClausePos_p
 			      from,ClausePos_p into, VarBank_p
@@ -91,7 +91,7 @@ Clause_p ClauseOrderedSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
                                  freshvars);
 
 Term_p   ClausePosFirstParamodInto(Clause_p clause, ClausePos_p pos,
-				   ClausePos_p from_pos, bool no_top, 
+				   ClausePos_p from_pos, bool no_top,
                                    bool simu_paramod);
 Term_p   ClausePosNextParamodInto(ClausePos_p pos, ClausePos_p
 				  from_pos, bool no_top);
@@ -99,7 +99,7 @@ Term_p   ClausePosNextParamodInto(ClausePos_p pos, ClausePos_p
 Term_p   ClausePosFirstParamodFromSide(Clause_p from, ClausePos_p
 				       from_pos);
 Term_p   ClausePosNextParamodFromSide(ClausePos_p from_pos);
-   
+
 Term_p   ClausePosFirstParamodPair(Clause_p from, ClausePos_p
 				   from_pos, Clause_p into,
 				   ClausePos_p into_pos, bool no_top,

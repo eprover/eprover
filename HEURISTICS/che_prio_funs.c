@@ -5,7 +5,7 @@ File  : che_prio_funs.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for computing priorities. To add a new one, add the
   external name to PrioFunNames and the name of the function to
   prio_fun_array.
@@ -31,7 +31,7 @@ Changes
 /*---------------------------------------------------------------------*/
 
 char* PrioFunNames[]=
-{ 
+{
    "PreferGroundGoals",
    "PreferUnitGroundGoals",
    "PreferGround",
@@ -137,7 +137,7 @@ ClausePrioFun GetPrioFun(char* name)
    assert(name);
 
    index = StringIndex(name, PrioFunNames);
-   
+
    if(index>=0)
    {
       return prio_fun_array[index];
@@ -150,7 +150,7 @@ ClausePrioFun GetPrioFun(char* name)
 //
 // Function: ParsePrioFun()
 //
-//   Parse a priority function and return it. 
+//   Parse a priority function and return it.
 //
 // Global Variables: -
 //
@@ -165,7 +165,7 @@ ClausePrioFun ParsePrioFun(Scanner_p in)
    CheckInpTok(in, Name);
 
    prio_fun = GetPrioFun(DStrView(AktToken(in)->literal));
-   
+
    if(!prio_fun)
    {
       AktTokenError(in, "Not a valid priority-function", false);
@@ -181,7 +181,7 @@ ClausePrioFun ParsePrioFun(Scanner_p in)
 // Function: PrioFunPreferGroundGoals()
 //
 //   Return PrioPrefer for ground goals, PrioNormal for all other
-//   clauses. 
+//   clauses.
 //
 // Global Variables: -
 //
@@ -206,7 +206,7 @@ EvalPriority PrioFunPreferGroundGoals(Clause_p clause)
 // Function: PrioFunPreferUnitGroundGoals()
 //
 //   Return PrioPrefer for unit ground goals, PrioNormal for all other
-//   clauses. 
+//   clauses.
 //
 // Global Variables: -
 //
@@ -231,7 +231,7 @@ EvalPriority PrioFunPreferUnitGroundGoals(Clause_p clause)
 // Function: PrioFunPreferGround()
 //
 //   Return PrioPrefer for ground clauses, PrioNormal for all other
-//   clauses. 
+//   clauses.
 //
 // Global Variables: -
 //
@@ -256,7 +256,7 @@ EvalPriority PrioFunPreferGround(Clause_p clause)
 // Function: PrioFunPreferNonGround()
 //
 //   Return PrioPrefer for non-ground clauses, PrioNormal for all
-//   other clauses. 
+//   other clauses.
 //
 // Global Variables: -
 //
@@ -331,7 +331,7 @@ EvalPriority PrioFunPreferNew(Clause_p clause)
 // Function: PrioFunPreferGoals()
 //
 //   Return PrioPrefer for goals, PrioNormal for all other
-//   clauses. 
+//   clauses.
 //
 // Global Variables: -
 //
@@ -357,7 +357,7 @@ EvalPriority PrioFunPreferGoals(Clause_p clause)
 // Function: PrioFunPreferNonGoals()
 //
 //   Return PrioPrefer for non-goals, PrioNormal for all other
-//   clauses. 
+//   clauses.
 //
 // Global Variables: -
 //
@@ -382,7 +382,7 @@ EvalPriority PrioFunPreferNonGoals(Clause_p clause)
 // Function: PrioFunPreferMixed()
 //
 //   Return PrioPrefer for clauses that have both positive and
-//   negative literals (or neither), PrioNormal for all other clauses. 
+//   negative literals (or neither), PrioNormal for all other clauses.
 //
 // Global Variables: -
 //
@@ -467,7 +467,7 @@ EvalPriority PrioFunPreferNegative(Clause_p clause)
 // Function: PrioFunPreferUnits()
 //
 //   Return PrioPrefer for unit-clauses, PrioNormal for all other
-//   clauses. 
+//   clauses.
 //
 // Global Variables: -
 //
@@ -491,7 +491,7 @@ EvalPriority PrioFunPreferUnits(Clause_p clause)
 // Function: PrioFunPreferNonEqUnits()
 //
 //   Return PrioPrefer for non-equational unit-clauses, PrioNormal for
-//   all other clauses. 
+//   all other clauses.
 //
 // Global Variables: -
 //
@@ -516,7 +516,7 @@ EvalPriority PrioFunPreferNonEqUnits(Clause_p clause)
 // Function: PrioFunPreferDemods()
 //
 //   Return PrioPrefer for positive equational unit-clauses,
-//   PrioNormal for all other clauses. 
+//   PrioNormal for all other clauses.
 //
 // Global Variables: -
 //
@@ -543,7 +543,7 @@ EvalPriority PrioFunPreferDemods(Clause_p clause)
 // Function: PrioFunPreferNonUnits()
 //
 //   Return PrioPrefer for non-unit-clauses, PrioNormal for all other
-//   clauses. 
+//   clauses.
 //
 // Global Variables: -
 //
@@ -568,7 +568,7 @@ EvalPriority PrioFunPreferNonUnits(Clause_p clause)
 //
 // Function: PrioFunConstPrio()
 //
-//   Return PrioNormal. 
+//   Return PrioNormal.
 //
 // Global Variables: -
 //
@@ -645,11 +645,11 @@ EvalPriority PrioFunByDerivationSize(Clause_p clause)
 //   Give a priority based on the number of negative (ground)
 //   literals: A negative-non-ground literal adds 3, a negative ground
 //   literal adds 1. Clauses with non-negative literals get a fixed
-//   priority. 
+//   priority.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -681,9 +681,9 @@ EvalPriority PrioFunByNegLitDist(Clause_p clause)
 //   Give a priorty based on how simple a goal seems to be:
 //   Unit-Ground, Unit, Ground, General
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -720,9 +720,9 @@ EvalPriority PrioFunGoalDifficulty(Clause_p clause)
 //   initial clauses, and PrioDefer otherwise. Note that CPInitial is
 //   intentional and correkt ;-)
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -742,9 +742,9 @@ EvalPriority PrioFunSimulateSOS(Clause_p clause)
 //
 //   Give priority to non-SOS and non-initial clauses.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -764,7 +764,7 @@ EvalPriority PrioFunDeferSOS(Clause_p clause)
 // Function: PrioFunPreferHorn()
 //
 //   Return PrioPrefer for Horn clauses, PrioNormal for all other
-//   clauses. 
+//   clauses.
 //
 // Global Variables: -
 //
@@ -789,7 +789,7 @@ EvalPriority PrioFunPreferHorn(Clause_p clause)
 // Function: PrioFunPreferNonHorn()
 //
 //   Return PrioPrefer for Non-Horn clauses, PrioNormal for all other
-//   clauses. 
+//   clauses.
 //
 // Global Variables: -
 //
@@ -854,7 +854,7 @@ EvalPriority PrioFunPreferUnitAndNonEq(Clause_p clause)
 EvalPriority PrioFunDeferNonUnitMaxPosEq(Clause_p clause)
 {
    assert(clause);
-   
+
    if(ClauseIsUnit(clause))
    {
       return PrioPrefer;
@@ -883,7 +883,7 @@ EvalPriority PrioFunDeferNonUnitMaxPosEq(Clause_p clause)
 EvalPriority PrioFunByCreationDate(Clause_p clause)
 {
    assert(clause);
-   
+
    return clause->create_date;
 }
 

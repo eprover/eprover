@@ -5,7 +5,7 @@ File  : cio_network.c
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Helper code for TCP connections and "message" based communication
   over TCP (each message corresponds to a transaction request and is
   packaged as a message to allow parsing in whole).
@@ -101,7 +101,7 @@ int create_server_sock_nofail(int port)
 //   Try to create a client socket connected to the provided
 //   host. Return negative value on failure, the socket identifier on
 //   success.  The error return is -1 for errno-errors, -2-error for
-//   gai_error-errors. 
+//   gai_error-errors.
 //
 // Global Variables: -
 //
@@ -111,11 +111,11 @@ int create_server_sock_nofail(int port)
 
 int create_client_sock_nofail(char* host, int port)
 {
-   int sock = -1;     
+   int sock = -1;
    int res;
    struct addrinfo hints, *addr, *iter;
    char portstr[16];
-   
+
    sprintf(portstr, "%d", port);
    memset(&hints, 0, sizeof(hints));
    hints.ai_family = PF_UNSPEC;
@@ -129,16 +129,16 @@ int create_client_sock_nofail(char* host, int port)
    {
       sock = socket(iter->ai_family, iter->ai_socktype,
                     iter->ai_protocol);
-      if (sock < 0) 
+      if (sock < 0)
       {
          continue;
-      }      
-      if (connect(sock, iter->ai_addr, iter->ai_addrlen) < 0) 
+      }
+      if (connect(sock, iter->ai_addr, iter->ai_addrlen) < 0)
       {
          close(sock);
          sock = -1;
          continue;
-      }      
+      }
    }
    return sock;
 }
@@ -198,7 +198,7 @@ void TCPMsgFree(TCPMsg_p junk)
 //
 // Function: TCPMsgPack()
 //
-//   Take a string and convert it into a newly allocated TCP Msg. 
+//   Take a string and convert it into a newly allocated TCP Msg.
 //
 // Global Variables: -
 //
@@ -261,10 +261,10 @@ char* TCPMsgUnpack(TCPMsg_p msg)
 MsgStatus TCPMsgWrite(int sock, TCPMsg_p msg)
 {
    int remaining, res;
-   
+
    remaining = msg->len-msg->transmission_count;
 
-   res = write(sock, 
+   res = write(sock,
               DStrAddress(msg->content, msg->transmission_count),
               remaining);
    if(res < 0 )
@@ -289,7 +289,7 @@ MsgStatus TCPMsgWrite(int sock, TCPMsg_p msg)
 //   complete or a failure. Return NWConnClosed if the connection was
 //   closed. This assumes that the message
 //   itself is plain ASCII string (i.e. no '\0' in the message),
-//   although it probably works otherwise. 
+//   although it probably works otherwise.
 //
 // Global Variables: -
 //
@@ -306,8 +306,8 @@ MsgStatus TCPMsgRead(int sock, TCPMsg_p msg)
    /* Handle header */
    if(msg->transmission_count < (int)sizeof(uint32_t))
    {
-      res = read(sock, 
-                 msg->len_buf+msg->transmission_count, 
+      res = read(sock,
+                 msg->len_buf+msg->transmission_count,
                  sizeof(uint32_t)-msg->transmission_count);
       printf("read(Size)=%d\n", res);
       if(res < 0)
@@ -344,7 +344,7 @@ MsgStatus TCPMsgRead(int sock, TCPMsg_p msg)
    buffer[len] = '\0';
    DStrAppendStr(msg->content, buffer);
    msg->transmission_count += res;
-  
+
    if(!TCP_MSG_COMPLETE(msg))
    {
       return NWIncomplete;
@@ -371,7 +371,7 @@ MsgStatus TCPMsgRead(int sock, TCPMsg_p msg)
 MsgStatus TCPMsgSend(int sock, TCPMsg_p msg)
 {
    int res = 0;
-   
+
    while(res != NWSuccess)
    {
       res = TCPMsgWrite(sock, msg);
@@ -402,9 +402,9 @@ MsgStatus TCPMsgSend(int sock, TCPMsg_p msg)
 TCPMsg_p TCPMsgRecv(int sock, MsgStatus *res)
 {
    TCPMsg_p msg = TCPMsgAlloc();
-   
+
    *res = 0;
-   
+
    while(*res != NWSuccess)
    {
       *res = TCPMsgRead(sock, msg);
@@ -443,7 +443,7 @@ MsgStatus TCPStringSend(int sock, char* str, bool err)
       SysError("Could not send string message", SYS_ERROR);
    }
    TCPMsgFree(msg);
-   
+
    return res;
 }
 
@@ -521,7 +521,7 @@ char* TCPStringRecvX(int sock)
 // Function: CreateServerSock()
 //
 //   Create a server socket bound to the given port and return
-//   it. Fail with error message if the port cannot be creates. 
+//   it. Fail with error message if the port cannot be creates.
 //
 // Global Variables: -
 //
@@ -562,8 +562,8 @@ void Listen(int sock)
    if(res == -1)
    {
       TmpErrno = errno;
-      SysError("Failed to switch socket %d to listening", 
-               SYS_ERROR, socket);      
+      SysError("Failed to switch socket %d to listening",
+               SYS_ERROR, socket);
    }
 }
 
@@ -575,20 +575,20 @@ void Listen(int sock)
 //   Create a socket connected to the given host and port. Return sock
 //   or terminate with error on fail.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
 int CreateClientSock(char* host, int port)
 {
    int sock = create_client_sock_nofail(host, port);
-   
+
    if(sock == -1)
    {
       TmpErrno = errno;
-      SysError("Could not create connected socket", SYS_ERROR);      
+      SysError("Could not create connected socket", SYS_ERROR);
    }
    if(sock <= -2)
    {

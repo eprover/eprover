@@ -5,8 +5,8 @@ File  : cpr_varset.c
 Author: Stephan Schulz
 
 Contents
- 
-  Implementation of the propositional atom multiset datatype.  
+
+  Implementation of the propositional atom multiset datatype.
 
   Copyright 2003 by the author.
   This code is released under the GNU General Public Licence and
@@ -73,7 +73,7 @@ AtomSet_p AtomSetAlloc(void)
 // Function: AtomSetFree()
 //
 //   Free an atom set. Not extremely efficient (but I doubt it has to
-//   be). 
+//   be).
 //
 // Global Variables: -
 //

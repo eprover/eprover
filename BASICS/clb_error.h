@@ -5,7 +5,7 @@ File  : clb_error.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions and datatypes for handling and reporting errors, warnings,
   and dealing with simple system stuff.
 

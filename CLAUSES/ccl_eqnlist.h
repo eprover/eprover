@@ -5,9 +5,9 @@ File  : ccl_eqnlist.h
 Author: Stephan Schulz
 
 Contents
- 
+
    Functions for dealing with (singly linked) lists of equations as
-   used in clauses.  
+   used in clauses.
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
@@ -92,7 +92,7 @@ bool    EqnListEqnIsMaximal(OCB_p ocb, Eqn_p list, Eqn_p eqn);
 bool    EqnListEqnIsStrictlyMaximal(OCB_p ocb, Eqn_p list, Eqn_p eqn);
 void    EqnListDeleteTermProperties(Eqn_p list, TermProperties props);
 
-void    EqnListPrint(FILE* out, Eqn_p list, char* sep, 
+void    EqnListPrint(FILE* out, Eqn_p list, char* sep,
 		     bool negated,  bool fullterms);
 void    EqnListTSTPPrint(FILE* out, Eqn_p list, char* sep, bool fullterms);
 Eqn_p   EqnListParse(Scanner_p in, TB_p bank, TokenType sep);

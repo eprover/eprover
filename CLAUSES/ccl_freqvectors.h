@@ -7,7 +7,7 @@ Author: Stephan Schulz
 Contents
 
   Functions for handling frequency count vectors and permutation
-  vectors. 
+  vectors.
 
   2003 by the author.
   This code is released under the GNU General Public Licence and
@@ -17,7 +17,7 @@ Contents
 
 Changes
 
-<1> Tue Jul  8 21:48:35 CEST 2003  
+<1> Tue Jul  8 21:48:35 CEST 2003
     New (separated FreqVector from fcvindexing.*)
 
 -----------------------------------------------------------------------*/
@@ -87,16 +87,16 @@ typedef struct fv_collect_cell
    /* The rest describe how to handle index values that are larger
       than  ass_vec_len. If _mod is zero, the value is discarded,
       otherwise it is added to  _offset+(f_code%_mod) */
-   long  pos_count_base;   
-   long  pos_count_offset;   
+   long  pos_count_base;
+   long  pos_count_offset;
    long  pos_count_mod;
-   long  neg_count_base;   
+   long  neg_count_base;
    long  neg_count_offset;
    long  neg_count_mod;
-   long  pos_depth_base;   
+   long  pos_depth_base;
    long  pos_depth_offset;
    long  pos_depth_mod;
-   long  neg_depth_base;   
+   long  neg_depth_base;
    long  neg_depth_offset;
    long  neg_depth_mod;
    /* Legacy parameters for classical implementation. These are not
@@ -116,9 +116,9 @@ PERF_CTR_DECL(FreqVecTimer);
 #define PermVectorCopy(vec)   FixedDArrayCopy(vec)
 #define PermVectorPrint(out,vec) FixedDArrayPrint((out),(vec))
 
-PermVector_p PermVectorComputeInternal(FreqVector_p fmax, FreqVector_p fmin, 
-				       FreqVector_p sums, 
-				       long max_len, 
+PermVector_p PermVectorComputeInternal(FreqVector_p fmax, FreqVector_p fmin,
+				       FreqVector_p sums,
+				       long max_len,
 				       bool eliminate_uninformative);
 
 
@@ -152,11 +152,11 @@ void         FreqVectorInitialize(FreqVector_p vec, long value);
 
 void         FreqVectorPrint(FILE* out, FreqVector_p vec);
 
-void VarFreqVectorAddVals(FreqVector_p vec, long symbols, FVIndexType features, 
+void VarFreqVectorAddVals(FreqVector_p vec, long symbols, FVIndexType features,
 			  Clause_p clause);
 FreqVector_p VarFreqVectorCompute(Clause_p clause, FVCollect_p cspec);
-FreqVector_p OptimizedVarFreqVectorCompute(Clause_p clause, 
-                                           PermVector_p perm, 
+FreqVector_p OptimizedVarFreqVectorCompute(Clause_p clause,
+                                           PermVector_p perm,
                                            FVCollect_p cspec);
 
 void FVCollectInit(FVCollect_p handle,
@@ -203,7 +203,7 @@ FVCollect_p BillFeaturesCollectAlloc(Sig_p sig, long len);
 FVCollect_p BillPlusFeaturesCollectAlloc(Sig_p sig, long len);
 
 
-FVPackedClause_p FVPackClause(Clause_p clause, PermVector_p perm, 
+FVPackedClause_p FVPackClause(Clause_p clause, PermVector_p perm,
 			      FVCollect_p cspec);
 Clause_p         FVUnpackClause(FVPackedClause_p pack);
 
@@ -216,7 +216,7 @@ void             FVPackedClauseFreeReal(FVPackedClause_p pack);
 
 
 void FreqVectorAdd(FreqVector_p dest, FreqVector_p s1, FreqVector_p s2);
-void FreqVectorMulAdd(FreqVector_p dest, FreqVector_p s1, long f1, 
+void FreqVectorMulAdd(FreqVector_p dest, FreqVector_p s1, long f1,
 		      FreqVector_p s2, long f2);
 #define FreqVectorSub(dest, s1, s2) FreqVectorMulAdd((dest),(s1), 1, (s2), -1)
 void FreqVectorMax(FreqVector_p dest, FreqVector_p s1, FreqVector_p s2);
@@ -226,11 +226,11 @@ void FreqVectorMin(FreqVector_p dest, FreqVector_p s1, FreqVector_p s2);
 
 
 #ifdef NEVER_DEFINED
-void             StandardFreqVectorAddVals(FreqVector_p vec, long sig_symbols, 
+void             StandardFreqVectorAddVals(FreqVector_p vec, long sig_symbols,
 					   Clause_p clause);
 FreqVector_p     StandardFreqVectorCompute(Clause_p clause, long sig_symbols);
-FreqVector_p     OptimizedFreqVectorCompute(Clause_p clause, 
-					    PermVector_p perm, 
+FreqVector_p     OptimizedFreqVectorCompute(Clause_p clause,
+					    PermVector_p perm,
 					    long sig_symbols);
 #endif
 

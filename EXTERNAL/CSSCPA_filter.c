@@ -5,7 +5,7 @@ File  : CSSCPA_filter.c
 Author: Stephan Schulz, Geoff Sutcliffe
 
 Contents
- 
+
   Do CSSCPA stuff (read clauses, accept them into the state if they
   are necessary or improve it, reject them otherwise).
 
@@ -53,8 +53,8 @@ typedef enum
 
 OptCell opts[] =
 {
-   {OPT_HELP, 
-    'h', "help", 
+   {OPT_HELP,
+    'h', "help",
     NoArg, NULL,
     "Print a short description of program usage and options."},
 
@@ -63,8 +63,8 @@ OptCell opts[] =
     NoArg, NULL,
     "Print the version number of the program."},
 
-   {OPT_VERBOSE, 
-    'v', "verbose", 
+   {OPT_VERBOSE,
+    'v', "verbose",
     OptArg, "1",
     "Verbose comments on the progress of the program."},
 
@@ -72,7 +72,7 @@ OptCell opts[] =
     'o', "output-file",
     ReqArg, NULL,
    "Redirect output into the named file."},
-    
+
     {OPT_SILENT,
     's', "silent",
     NoArg, NULL,
@@ -84,7 +84,7 @@ OptCell opts[] =
     "Select an output level, greater values imply more verbose"
     " output. At the moment, level 0 only prints the result of each"
     " statement, and level 1 also prints what happens to each"
-    " clause."}, 
+    " clause."},
 
     {OPT_RANT,
     'r', "rant-about-input-buffering",
@@ -92,7 +92,7 @@ OptCell opts[] =
     "Tell the program how much you hate to include the "
      "'Please'-sequence in the input. The optional argument is the "
      " rant-intensity."},
-     
+
    {OPT_NOOPT,
     '\0', NULL,
     NoArg, NULL,
@@ -115,7 +115,7 @@ void print_help(FILE* out);
 
 int main(int argc, char* argv[])
 {
-   Scanner_p     in;    
+   Scanner_p     in;
    CLState_p     state;
    CSSCPAState_p procstate;
    int           i;
@@ -129,12 +129,12 @@ int main(int argc, char* argv[])
    OpenGlobalOut(outname);
 
    OutputFormat = TPTPFormat;
-   
+
    if(state->argc ==  0)
    {
       CLStateInsertArg(state, "-");
    }
-   
+
    procstate = CSSCPAStateAlloc();
 
    for(i=0; state->argv[i]; i++)
@@ -143,7 +143,7 @@ int main(int argc, char* argv[])
       ScannerSetFormat(in, TSTPFormat);
       CSSCPALoop(in, procstate);
       DestroyScanner(in);
-   }      
+   }
    fprintf(GlobalOut, "\n# Resulting clause set:\n");
    ClauseSetTSTPPrint(GlobalOut, procstate->pos_units, true);
    ClauseSetTSTPPrint(GlobalOut, procstate->neg_units, true);
@@ -155,12 +155,12 @@ int main(int argc, char* argv[])
    fflush(GlobalOut);
    OutClose(GlobalOut);
    ExitIO();
-      
+
 #ifdef CLB_MEMORY_DEBUG
    MemFlushFreeList();
    MemDebugPrintStats(stdout);
 #endif
-   
+
    return 0;
 }
 
@@ -172,7 +172,7 @@ int main(int argc, char* argv[])
 //   Read and process the command line option, return (the pointer to)
 //   a CLState object containing the remaining arguments.
 //
-// Global Variables: 
+// Global Variables:
 //
 // Side Effects    : Sets variables, may terminate with program
 //                   description if option -h or --help was present
@@ -184,9 +184,9 @@ CLState_p process_options(int argc, char* argv[])
    Opt_p handle;
    CLState_p state;
    char*  arg;
-      
+
    state = CLStateAlloc(argc,argv);
-   
+
    while((handle = CLStateGetOpt(state, &arg, opts)))
    {
       switch(handle->option_code)
@@ -194,7 +194,7 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_VERBOSE:
 	    Verbose = CLStateGetIntArg(handle, arg);
 	    break;
-      case OPT_HELP: 
+      case OPT_HELP:
 	    print_help(stdout);
 	    exit(NO_ERROR);
       case OPT_VERSION:
@@ -219,7 +219,7 @@ CLState_p process_options(int argc, char* argv[])
 	    if(CLStateGetIntArg(handle, arg)!=0)
 	    {
 	       fprintf(stderr, "Improve it yourself, mate. The code is"
-		       " free.\n"); 
+		       " free.\n");
 	    }
 	    else
 	    {
@@ -261,7 +261,7 @@ wonder of the world, most beautiful program ever written.\n\
 \n\
 to overcome CLIB's input buffering.\n\
 \n\
-\n");  
+\n");
    PrintOptions(stdout, opts, "Options\n\n");
    fprintf(out, "\n\
 Copyright (C) 1998-2003 by Stephan Schulz, " STS_MAIL "\n\

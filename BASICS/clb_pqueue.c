@@ -5,7 +5,7 @@ File  : clb_pqueues.c
 Author: Stephan Schulz
 
 Contents
- 
+
   LIFO-Lists of pointers and (long) integers.
 
   Copyright 1998, 1999 by the author.
@@ -60,10 +60,10 @@ void PQueueGrow(PQueue_p queue)
 {
    long   new_size, i;
    IntOrP *new_mem;
-   
+
    new_size = queue->size*2;
    new_mem  = SizeMalloc(new_size*sizeof(IntOrP));
-      
+
    for(i=0; i<queue->head; i++)
    {
       new_mem[i] = queue->queue[i];
@@ -75,7 +75,7 @@ void PQueueGrow(PQueue_p queue)
    queue->tail+= queue->size;
    SizeFree(queue->queue, queue->size*sizeof(IntOrP));
    queue->queue = new_mem;
-   queue->size  = new_size;      
+   queue->size  = new_size;
 }
 
 
@@ -131,11 +131,11 @@ IntOrP PQueueElement(PQueue_p queue, long index)
 // Function: PQueueTailIndex()
 //
 //   Return the index of the tail (oldest, last) element (or -1 if the
-//   queue is empty). 
+//   queue is empty).
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -166,7 +166,7 @@ long PQueueIncIndex(PQueue_p queue, long index)
    index = (index+1) % queue->size;
    if(index == queue->head)
    {
-      return -1;      
+      return -1;
    }
    return index;
 }

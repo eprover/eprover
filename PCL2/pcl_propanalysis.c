@@ -5,7 +5,7 @@ File  : pcl_propanalysis.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for collecting various amounts of statistical information
   about a PCL protocol.
 
@@ -53,7 +53,7 @@ Changes
 /----------------------------------------------------------------------*/
 
 static int pcl_weight_compare(PCLStep_p step1, PCLStep_p step2)
-{ 
+{
    double w1, w2;
 
    if(PCLStepIsFOF(step1) && PCLStepIsFOF(step2))
@@ -98,7 +98,7 @@ static int pcl_weight_compare(PCLStep_p step1, PCLStep_p step2)
 /----------------------------------------------------------------------*/
 
 static int pcl_sc_compare(PCLStep_p step1, PCLStep_p step2)
-{ 
+{
    double w1, w2;
 
    if(PCLStepIsFOF(step1) && PCLStepIsFOF(step2))
@@ -142,7 +142,7 @@ static int pcl_sc_compare(PCLStep_p step1, PCLStep_p step2)
 /----------------------------------------------------------------------*/
 
 static int pcl_litno_compare(PCLStep_p step1, PCLStep_p step2)
-{ 
+{
    int w1, w2;
 
    if(PCLStepIsFOF(step1) && PCLStepIsFOF(step2))
@@ -184,7 +184,7 @@ static int pcl_litno_compare(PCLStep_p step1, PCLStep_p step2)
 /----------------------------------------------------------------------*/
 
 static int pcl_depth_compare(PCLStep_p step1, PCLStep_p step2)
-{ 
+{
    int w1, w2;
 
    if(PCLStepIsFOF(step1) && PCLStepIsFOF(step2))
@@ -231,7 +231,7 @@ static void pcl_prot_global_count(PCLProt_p prot, PCLPropData_p data)
    PCLStep_p tmp;
    Clause_p  clause;
    PStackPointer i;
-   
+
    assert(prot && data);
 
    data->fof_formulae        = 0;
@@ -246,7 +246,7 @@ static void pcl_prot_global_count(PCLProt_p prot, PCLPropData_p data)
    data->const_count         = 0;
    data->func_count          = 0;
    data->pred_count          = 0;
-   data->var_count           = 0;         
+   data->var_count           = 0;
 
    PCLProtSerialize(prot);
 
@@ -255,12 +255,12 @@ static void pcl_prot_global_count(PCLProt_p prot, PCLPropData_p data)
       tmp = PStackElementP(prot->in_order, i);
       if(PCLStepIsFOF(tmp))
       {
-         data->fof_formulae++;         
+         data->fof_formulae++;
       }
       else
       {
          clause = tmp->logic.clause;
-         
+
          if(!ClauseIsEmpty(clause))
          {
             if(ClauseIsPositive(clause))
@@ -318,7 +318,7 @@ PCLStep_p PCLProtFindMaxStep(PCLProt_p prot, PCLCmpFunType cmp)
    PCLStep_p res = NULL, tmp;
    PStack_p stack;
    PTree_p  cell;
-   
+
    assert(prot && cmp);
    if(!prot->steps)
    {
@@ -337,9 +337,9 @@ PCLStep_p PCLProtFindMaxStep(PCLProt_p prot, PCLCmpFunType cmp)
       }
    }
    PStackFree(stack);
-   
+
    return res;
-} 
+}
 
 
 
@@ -347,24 +347,24 @@ PCLStep_p PCLProtFindMaxStep(PCLProt_p prot, PCLCmpFunType cmp)
 //
 // Function: PCLProtPropAnalyse()
 //
-//   Analyse the PCL protocol and put the relevant information into 
+//   Analyse the PCL protocol and put the relevant information into
 //   data.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
 void PCLProtPropAnalyse(PCLProt_p prot, PCLPropData_p data)
 {
-   data->max_standard_weight_clause = 
+   data->max_standard_weight_clause =
       PCLProtFindMaxStep(prot, pcl_weight_compare);
-   data->longest_clause = 
+   data->longest_clause =
       PCLProtFindMaxStep(prot, pcl_litno_compare);
-   data->max_symbol_clause = 
+   data->max_symbol_clause =
       PCLProtFindMaxStep(prot, pcl_sc_compare);
-   data->max_depth_clause = 
+   data->max_depth_clause =
       PCLProtFindMaxStep(prot, pcl_depth_compare);
 
    pcl_prot_global_count(prot, data);
@@ -375,7 +375,7 @@ void PCLProtPropAnalyse(PCLProt_p prot, PCLPropData_p data)
 // Function: PCLProtPropDataPrint()
 //
 //   Print the result of the property analysis in reasonably readable
-//   form. 
+//   form.
 //
 // Global Variables: -
 //
@@ -386,9 +386,9 @@ void PCLProtPropAnalyse(PCLProt_p prot, PCLPropData_p data)
 void PCLProtPropDataPrint(FILE* out, PCLPropData_p data)
 {
    long clauses =
-      data->pos_clauses+data->neg_clauses+data->mix_clauses; 
+      data->pos_clauses+data->neg_clauses+data->mix_clauses;
 
-   fprintf(out, 
+   fprintf(out,
 	   "# Protocol properties\n"
 	   "# ===================\n"
 	   "# Number of clauses                  : %6ld\n"
@@ -427,7 +427,7 @@ void PCLProtPropDataPrint(FILE* out, PCLPropData_p data)
    ClausePropInfoPrint(out, data->max_standard_weight_clause->logic.clause);
    PCLStepPrint(out, data->max_standard_weight_clause);
    fprintf(out, "\n# Deepest Clause (if any): \n");
-   PCLStepPrint(out, data->max_depth_clause); 
+   PCLStepPrint(out, data->max_depth_clause);
    fprintf(out, "\n");
 }
 

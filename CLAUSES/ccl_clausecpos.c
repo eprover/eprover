@@ -66,7 +66,7 @@ CompactPos PackTermPos(TermPos_p pos)
    int    p,i;
 
    assert(pos);
-   
+
    for(sp = 0; sp< PStackGetSP(pos); sp+=2)
    {
       t = PStackElementP(pos, sp);
@@ -76,7 +76,7 @@ CompactPos PackTermPos(TermPos_p pos)
       assert(p < t->arity);
 
       res += DEFAULT_FWEIGHT;
-      
+
       for(i=0; i<p; i++)
       {
          res += TermStandardWeight(t->args[i]);
@@ -102,7 +102,7 @@ CompactPos PackClausePos(ClausePos_p pos)
 {
    CompactPos res = 0;
    Eqn_p handle;
-   
+
    handle = pos->clause->literals;
 
    assert(pos->literal);
@@ -118,7 +118,7 @@ CompactPos PackClausePos(ClausePos_p pos)
       res += TermStandardWeight(handle->lterm);
    }
    res += PackTermPos(pos->pos);
-   
+
    return res;
 }
 
@@ -128,7 +128,7 @@ CompactPos PackClausePos(ClausePos_p pos)
 // Function: UnpackTermPos()
 //
 //   Given a compact term position in t, encode it into the given full
-//   postion. 
+//   postion.
 //
 // Global Variables: -
 //
@@ -141,13 +141,13 @@ void UnpackTermPos(TermPos_p pos, Term_p t, CompactPos cpos)
    int i;
 
    PStackReset(pos);
-   
+
    while(cpos > 0)
    {
       assert(!TermIsVar(t));
       cpos -= DEFAULT_FWEIGHT;
       assert(cpos>=0);
-      
+
       PStackPushP(pos, t);
       for(i=0; i< t->arity; i++)
       {
@@ -156,10 +156,10 @@ void UnpackTermPos(TermPos_p pos, Term_p t, CompactPos cpos)
             PStackPushInt(pos, i);
             t = t->args[i];
             break;
-         }         
+         }
          cpos -= TermStandardWeight(t->args[i]);
          assert(cpos>=0);
-      }      
+      }
    }
 }
 
@@ -182,14 +182,14 @@ void UnpackClausePosInto(CompactPos cpos, Clause_p clause,
 {
    Eqn_p handle;
    Term_p t;
-   
+
    assert(clause);
 
    pos->clause = clause;
 
    handle = clause->literals;
    assert(handle);
-   
+
    while(EqnStandardWeight(handle) <= cpos)
    {
       cpos -= EqnStandardWeight(handle);

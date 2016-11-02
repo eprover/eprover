@@ -5,7 +5,7 @@ File  : cle_classification.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for classifying with TSM's
 
   Copyright 1998, 1999 by the author.
@@ -50,7 +50,7 @@ Changes
 // Function: TSMTermClassify()
 //
 //   Classify a term with a TSM, i.e. return -1 if the evaluation is
-//   lower than limit, +1 otherwise 
+//   lower than limit, +1 otherwise
 //
 // Global Variables: -
 //
@@ -63,7 +63,7 @@ double TSMTermClassify(TSMAdmin_p admin, Term_p term, PatternSubst_p
 {
    double eval = TSMEvalTerm(admin, term, subst);
 
-   printf("Evaluation: %7.4f ", eval);   
+   printf("Evaluation: %7.4f ", eval);
    return TSMEvalNormalize(eval, admin->eval_limit);
 }
 
@@ -94,7 +94,7 @@ bool TSMClassifiedTermCheck(TSMAdmin_p admin, FlatAnnoTerm_p term)
 // Function: TSMClassifySet()
 //
 //   Classify all terms in set with the TSM, return number of
-//   successes. 
+//   successes.
 //
 // Global Variables: -
 //
@@ -110,14 +110,14 @@ long TSMClassifySet(TSMAdmin_p admin, FlatAnnoSet_p set)
    long           res = 0;
 
    stack = NumTreeTraverseInit(set->set);
-   
+
    while((handle = NumTreeTraverseNext(stack)))
    {
       term = handle->val1.p_val;
-      if(TSMClassifiedTermCheck(admin, term))	 
+      if(TSMClassifiedTermCheck(admin, term))
       {
 	 printf("OKOK ");
-	 res+=term->sources;      
+	 res+=term->sources;
       }
       else
       {

@@ -5,7 +5,7 @@ File  : cte_termcellstore.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Implementation of term cell stores (except for all intersting parts,
   which are realized as macros...
 
@@ -60,7 +60,7 @@ static void collect_unmarked_termcells(PStack_p res_stack, Term_p tree,
    PStack_p stack = PStackAlloc();
 
    PStackPushP(stack, tree);
-   
+
    while(!PStackEmpty(stack))
    {
       tree = PStackPopP(stack);
@@ -96,13 +96,13 @@ static void collect_unmarked_termcells(PStack_p res_stack, Term_p tree,
 void TermCellStoreInit(TermCellStore_p store)
 {
    int i;
-   
+
    store->entries = 0;
    store->arg_count = 0;
    for(i=0; i<TERM_STORE_HASH_SIZE; i++)
    {
       store->store[i] = NULL;
-   }   
+   }
 }
 
 /*-----------------------------------------------------------------------
@@ -120,7 +120,7 @@ void TermCellStoreInit(TermCellStore_p store)
 void TermCellStoreExit(TermCellStore_p store)
 {
    int i;
-   
+
    for(i=0; i<TERM_STORE_HASH_SIZE; i++)
    {
       TermTreeFree(store->store[i]);
@@ -152,7 +152,7 @@ Term_p  TermCellStoreFind(TermCellStore_p store, Term_p term)
 //
 // Function: TermCellStoreInsert()
 //
-//   Insert a term cell into the store. 
+//   Insert a term cell into the store.
 //
 // Global Variables: -
 //
@@ -191,7 +191,7 @@ Term_p  TermCellStoreExtract(TermCellStore_p store, Term_p term)
    ret = TermTreeExtract(&(store->store[TermCellHash(term)]), term);
    if(ret)
    {
-      store->entries--;      
+      store->entries--;
       store->arg_count-=term->arity;
    }
    assert(store->entries>=0);
@@ -216,10 +216,10 @@ bool TermCellStoreDelete(TermCellStore_p store, Term_p term)
    bool ret;
 
    ret = TermTreeDelete(&(store->store[TermCellHash(term)]), term);
-   
+
    if(ret)
    {
-      store->entries--;      
+      store->entries--;
       store->arg_count-=term->arity;
    }
    assert(store->entries>=0);
@@ -239,14 +239,14 @@ bool TermCellStoreDelete(TermCellStore_p store, Term_p term)
 //
 /----------------------------------------------------------------------*/
 
-void TermCellStoreSetProp(TermCellStore_p store, TermProperties props) 
+void TermCellStoreSetProp(TermCellStore_p store, TermProperties props)
 {
    int i;
-   
+
    for(i=0; i<TERM_STORE_HASH_SIZE; i++)
    {
       TermTreeSetProp(store->store[i], props);
-   }   
+   }
 }
 
 /*-----------------------------------------------------------------------
@@ -261,14 +261,14 @@ void TermCellStoreSetProp(TermCellStore_p store, TermProperties props)
 //
 /----------------------------------------------------------------------*/
 
-void TermCellStoreDelProp(TermCellStore_p store, TermProperties props) 
+void TermCellStoreDelProp(TermCellStore_p store, TermProperties props)
 {
    int i;
-   
+
    for(i=0; i<TERM_STORE_HASH_SIZE; i++)
    {
       TermTreeDelProp(store->store[i], props);
-   }   
+   }
 }
 
 
@@ -288,11 +288,11 @@ long TermCellStoreCountNodes(TermCellStore_p store)
 {
    long res = 0;
    int i;
-   
+
    for(i=0; i<TERM_STORE_HASH_SIZE; i++)
    {
       res+=TermTreeNodes(store->store[i]);
-   }   
+   }
    return res;
 }
 
@@ -305,7 +305,7 @@ long TermCellStoreCountNodes(TermCellStore_p store)
 //   of cells recovered. Note that we separate the collection of
 //   unmarked terms from the actual deletion, since walking the trees
 //   while they may be reorganized is somewhere between messy and
-//   impossible. 
+//   impossible.
 //
 // Global Variables: -
 //
@@ -319,17 +319,17 @@ long TermCellStoreGCSweep(TermCellStore_p store, TermProperties gc_state)
    int i;
    PStack_p del_stack = PStackAlloc();
    Term_p cell;
-   
+
    for(i=0; i<TERM_STORE_HASH_SIZE; i++)
-   {       
+   {
       collect_unmarked_termcells(del_stack, store->store[i], gc_state);
       while(!PStackEmpty(del_stack))
       {
 	 cell = PStackPopP(del_stack);
-	 TermCellStoreDelete(store, cell); 
+	 TermCellStoreDelete(store, cell);
 	 recovered++;
       }
-   }   
+   }
    PStackFree(del_stack);
    return recovered;
 }
@@ -351,7 +351,7 @@ long TermCellStoreGCSweep(TermCellStore_p store, TermProperties gc_state)
 void TermCellStorePrintDistrib(FILE* out, TermCellStore_p store)
 {
    int i;
-   
+
    for(i=0; i<TERM_STORE_HASH_SIZE; i++)
    {
       fprintf(out, "# Hash %4d: %6ld\n", i, TermTreeNodes(store->store[i]));

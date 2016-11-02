@@ -5,7 +5,7 @@ File  : che_wfcbadmin.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for administrating sets of predefined WFCBs.
 
   Copyright 1998, 1999 by the author.
@@ -160,7 +160,7 @@ void WFCBAdminFree(WFCBAdmin_p junk)
    assert(junk);
    assert(junk->names);
    assert(junk->wfcb_set);
-   
+
    while(!PStackEmpty(junk->names))
    {
       name = PStackPopP(junk->names);
@@ -225,12 +225,12 @@ WFCB_p WFCBAdminFindWFCB(WFCBAdmin_p set, char* name)
 {
    PStackPointer i;
    WFCB_p res = NULL;
-   
+
    assert(set);
    assert(set->names);
    assert(set->wfcb_set);
    assert(name);
-   
+
 
    for(i = PStackGetSP(set->names)-1; i>=0; i--)
    {
@@ -264,7 +264,7 @@ WeightFunParseFun GetWeightFunParseFun(char* name)
    assert(name);
 
    index = StringIndex(name, WeightFunParseFunNames);
-   
+
    if(index>=0)
    {
       return parse_fun_array[index];
@@ -288,7 +288,7 @@ WeightFunParseFun GetWeightFunParseFun(char* name)
 WFCB_p WeightFunParse(Scanner_p in, OCB_p ocb, ProofState_p state)
 {
    WeightFunParseFun parse_fun;
-   
+
    CheckInpTok(in, Identifier);
    parse_fun = GetWeightFunParseFun(DStrView(AktToken(in)->literal));
 
@@ -299,7 +299,7 @@ WFCB_p WeightFunParse(Scanner_p in, OCB_p ocb, ProofState_p state)
    }
    NextToken(in);
    assert(parse_fun);
-   return parse_fun(in, ocb, state);   
+   return parse_fun(in, ocb, state);
 }
 
 
@@ -323,14 +323,14 @@ char* WeightFunDefParse(WFCBAdmin_p set, Scanner_p in, OCB_p ocb,
    WFCB_p wfcb;
    long   res;
    char   anon_name[14];
-   
+
    if(TestTok(LookToken(in,1), EqualSign))
    {
       CheckInpTok(in, Identifier);
-      name = SecureStrdup(DStrView(AktToken(in)->literal)); 
+      name = SecureStrdup(DStrView(AktToken(in)->literal));
       /* All this strdup'ing is inefficient, but uncritical */
       NextToken(in);
-      AcceptInpTok(in, EqualSign);      
+      AcceptInpTok(in, EqualSign);
    }
    else
    {

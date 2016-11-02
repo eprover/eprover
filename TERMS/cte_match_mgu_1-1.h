@@ -5,7 +5,7 @@ File  : cte_match_mgu_1-1.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Interface to simple, non-indexed 1-1 match and unification
   routines on shared terms (and unshared terms with shared
   variables).

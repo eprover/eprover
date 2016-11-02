@@ -5,9 +5,9 @@ File  : cte_signature.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Definitions for dealing with signatures, i.e. data structures
-  storing information about function symbols and their properties. 
+  storing information about function symbols and their properties.
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
@@ -83,7 +83,7 @@ typedef struct funccell
 /* A signature contains information about function symbols with
    direct access by internal code (f_info is organized as a array,
    with f_info[f_code] being the information associated with f_code)
-   and efficient access by external name (via the f_index array). 
+   and efficient access by external name (via the f_index array).
 
    Function codes are integers starting at 1, while variables are
    encoded by negative integers. 0 is unused and can thus express
@@ -113,7 +113,7 @@ typedef struct sigcell
    /* The following is for encoding first order formulae as terms. I
       do like to reuse the robust sharing infrastructure for
       CNFization and formula rewriting (inspired by Tommi Juntilla's
-      reuse of the same in MathSAT). */      
+      reuse of the same in MathSAT). */
    FunCode   not_code;
    FunCode   qex_code;
    FunCode   qall_code;
@@ -131,7 +131,7 @@ typedef struct sigcell
    /* Sort and type banks (type => sort, but a shortcut is useful) */
    SortTable_p sort_table;
    TypeTable_p type_table;
-   
+
    /* Counters for generating new symbols */
    long      skolem_count;
    long      newpred_count;
@@ -283,7 +283,7 @@ static __inline__ int SigFindArity(Sig_p sig, FunCode f_code)
 //
 //   Given  signature and a function symbol code, return a pointer to
 //   the name. This pointer is only valid as long as the signature
-//   exists! 
+//   exists!
 //
 // Global Variables: -
 //
@@ -325,7 +325,7 @@ static __inline__ FunCode SigGetEqnCode(Sig_p sig, bool positive)
       sig->eqn_code = SigInsertId(sig, "$eq", 2, true);
       assert(sig->eqn_code);
       SigSetFuncProp(sig, sig->eqn_code, FPFOFOp | FPTypePoly);
-      return sig->eqn_code;      
+      return sig->eqn_code;
    }
    else
    {
@@ -336,7 +336,7 @@ static __inline__ FunCode SigGetEqnCode(Sig_p sig, bool positive)
       sig->neqn_code = SigInsertId(sig, "$neq", 2, true);
       assert(sig->neqn_code);
       SigSetFuncProp(sig, sig->eqn_code, FPFOFOp | FPTypePoly);
-      return sig->neqn_code;      
+      return sig->neqn_code;
    }
 }
 

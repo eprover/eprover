@@ -5,7 +5,7 @@ File  : cte_termtypes.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Declarations for the basic term type and primitive functions, mainly
   on single term cells. This module mostly provides only
   infrastructure for higher level modules.
@@ -97,7 +97,7 @@ void TermFree(Term_p junk)
       if(junk->arity)
       {
 	 int i;
-	 
+
 	 assert(junk->args);
 	 for(i=0; i<junk->arity; i++)
 	 {
@@ -123,7 +123,7 @@ void TermFree(Term_p junk)
 // Global Variables: -
 //
 // Side Effects    : Memory operations, creates new Skolem function in
-//                   sig. 
+//                   sig.
 //
 /----------------------------------------------------------------------*/
 
@@ -193,7 +193,7 @@ void TermSetProp(Term_p term, DerefType deref, TermProperties prop)
 
    PStackPushP(stack, term);
    PStackPushInt(stack, deref);
-   
+
    while(!PStackEmpty(stack))
    {
       deref = PStackPopInt(stack);
@@ -215,7 +215,7 @@ void TermSetProp(Term_p term, DerefType deref, TermProperties prop)
 // Function: TermSearchProp()
 //
 //   If prop is set in any subterm of term, return true, otherwise
-//   false. 
+//   false.
 //
 // Global Variables: -
 //
@@ -231,7 +231,7 @@ bool TermSearchProp(Term_p term, DerefType deref, TermProperties prop)
 
    PStackPushP(stack, term);
    PStackPushInt(stack, deref);
-   
+
    while(!PStackEmpty(stack))
    {
       deref = PStackPopInt(stack);
@@ -258,7 +258,7 @@ bool TermSearchProp(Term_p term, DerefType deref, TermProperties prop)
 // Function: TermVerifyProp()
 //
 //   If prop has the expected value in all subterms of term, return
-//   true. 
+//   true.
 //
 // Global Variables: -
 //
@@ -267,7 +267,7 @@ bool TermSearchProp(Term_p term, DerefType deref, TermProperties prop)
 /----------------------------------------------------------------------*/
 
 bool TermVerifyProp(Term_p term, DerefType deref, TermProperties prop,
-                    TermProperties expected) 
+                    TermProperties expected)
 {
    PStack_p stack = PStackAlloc();
    int i;
@@ -275,7 +275,7 @@ bool TermVerifyProp(Term_p term, DerefType deref, TermProperties prop,
 
    PStackPushP(stack, term);
    PStackPushInt(stack, deref);
-   
+
    while(!PStackEmpty(stack))
    {
       deref = PStackPopInt(stack);
@@ -316,7 +316,7 @@ void TermDelProp(Term_p term, DerefType deref, TermProperties prop)
 
    PStackPushP(stack, term);
    PStackPushInt(stack, deref);
-   
+
    while(!PStackEmpty(stack))
    {
       deref = PStackPopInt(stack);
@@ -351,7 +351,7 @@ void TermDelPropOpt(Term_p term, TermProperties prop)
    int i;
 
    PStackPushP(stack, term);
-   
+
    while(!PStackEmpty(stack))
    {
       term  = PStackPopP(stack);
@@ -386,7 +386,7 @@ void TermVarSetProp(Term_p term, DerefType deref, TermProperties prop)
 
    PStackPushP(stack, term);
    PStackPushInt(stack, deref);
-   
+
    while(!PStackEmpty(stack))
    {
       deref = PStackPopInt(stack);
@@ -412,7 +412,7 @@ void TermVarSetProp(Term_p term, DerefType deref, TermProperties prop)
 // Function: TermVarSearchProp()
 //
 //   If prop is set in any variable cell in term, return true, otherwise
-//   false. 
+//   false.
 //
 // Global Variables: -
 //
@@ -428,7 +428,7 @@ bool TermVarSearchProp(Term_p term, DerefType deref, TermProperties prop)
 
    PStackPushP(stack, term);
    PStackPushInt(stack, deref);
-   
+
    while(!PStackEmpty(stack))
    {
       deref = PStackPopInt(stack);
@@ -469,7 +469,7 @@ void TermVarDelProp(Term_p term, DerefType deref, TermProperties prop)
 
    PStackPushP(stack, term);
    PStackPushInt(stack, deref);
-   
+
    while(!PStackEmpty(stack))
    {
       deref = PStackPopInt(stack);

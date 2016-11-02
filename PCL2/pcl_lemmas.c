@@ -7,7 +7,7 @@ Author: Stephan Schulz
 Contents
 
   Data structures and functions for the detection of lemmas in PCL2
-  protocol. 
+  protocol.
 
   Copyright 2003 by the author.
   This code is released under the GNU General Public Licence and
@@ -50,7 +50,7 @@ Changes
 // Function: LemmaParamAlloc()
 //
 //   Allocate an initialized parameter block for the lemma detection
-//   algorithm. 
+//   algorithm.
 //
 // Global Variables: -
 //
@@ -92,7 +92,7 @@ LemmaParam_p LemmaParamAlloc(void)
 InferenceWeight_p InferenceWeightsAlloc(void)
 {
    InferenceWeight_p handle = InferenceWeightCellAlloc();
-      
+
    (*handle)[PCLOpNoOp]            = PCL_OP_NOOP_WEIGHT;
    (*handle)[PCLOpInitial]         = PCL_OP_INITIAL_WEIGHT;
    (*handle)[PCLOpQuote]           = PCL_OP_QUOTE_WEIGHT;
@@ -102,13 +102,13 @@ InferenceWeight_p InferenceWeightsAlloc(void)
    (*handle)[PCLOpEResolution]     = PCL_OP_ERESOLUTION_WEIGHT;
    (*handle)[PCLOpEFactoring]      = PCL_OP_EFACTORING_WEIGHT;
    (*handle)[PCLOpSimplifyReflect] = PCL_OP_SIMPLIFYREFLECT_WEIGHT;
-   (*handle)[PCLOpContextSimplifyReflect] = PCL_OP_CONTEXTSIMPLIFYREFLECT_WEIGHT;  
+   (*handle)[PCLOpContextSimplifyReflect] = PCL_OP_CONTEXTSIMPLIFYREFLECT_WEIGHT;
    (*handle)[PCLOpACResolution]    = PCL_OP_ACRESOLUTION_WEIGHT;
    (*handle)[PCLOpRewrite]         = PCL_OP_REWRITE_WEIGHT;
    (*handle)[PCLOpURewrite]        = PCL_OP_UREWRITE_WEIGHT;
    (*handle)[PCLOpClauseNormalize] = PCL_OP_CLAUSENORMALIZE_WEIGHT;
    (*handle)[PCLOpSplitClause]     = PCL_OP_SPLITCLAUSE_WEIGHT;
-      
+
   return handle;
 }
 
@@ -140,7 +140,7 @@ void PCLExprUpdateRefs(PCLProt_p prot, PCLExpr_p expr)
    case PCLOpInitial:
    case PCLOpQuote:
 	 /* Do nothing */
-	 break; 
+	 break;
    case PCLOpParamod:
    case PCLOpSimParamod:
 	 assert(expr->arg_no == 2);
@@ -154,7 +154,7 @@ void PCLExprUpdateRefs(PCLProt_p prot, PCLExpr_p expr)
          }
 	 if((handle = PCLExprGetQuotedArg(prot,expr,1)))
 	 {
-	    handle->active_pm_refs++;	    
+	    handle->active_pm_refs++;
 	 }
          else
          {
@@ -182,7 +182,7 @@ void PCLExprUpdateRefs(PCLProt_p prot, PCLExpr_p expr)
 	 if((handle = PCLExprGetQuotedArg(prot,expr,0)))
 	 {
 	    handle->passive_simpl_refs++;
-	 } 
+	 }
          else
          {
             PCLExprUpdateRefs(prot, PCLExprArg(expr,0));
@@ -192,13 +192,13 @@ void PCLExprUpdateRefs(PCLProt_p prot, PCLExpr_p expr)
 	    if((handle = PCLExprGetQuotedArg(prot,expr,i)))
 	    {
 	       handle->active_simpl_refs++;
-	    } 
+	    }
             else
             {
                PCLExprUpdateRefs(prot, PCLExprArg(expr,i));
-            }	    
+            }
 	 }
-	 break;	 
+	 break;
    default:
          /* Nothing happens for the FOF inference types */
 	 /* assert(false); */
@@ -224,7 +224,7 @@ void PCLStepUpdateRefs(PCLProt_p prot, PCLStep_p step)
    if(step->just->op == PCLOpQuote)
    {
       PCLStep_p handle = PCLProtFindStep(prot, PCLExprArg(step->just,0));
-      handle->pure_quote_refs++;	 
+      handle->pure_quote_refs++;
    }
    PCLExprUpdateRefs(prot, step->just);
 }
@@ -247,9 +247,9 @@ void PCLProtUpdateRefs(PCLProt_p prot)
 {
    PCLStep_p step;
    PStackPointer i;
-   
+
    PCLProtSerialize(prot);
-   
+
    for(i=0; i<PStackGetSP(prot->in_order); i++)
    {
       step = PStackElementP(prot->in_order, i);
@@ -317,7 +317,7 @@ int PCLStepLemmaCmp(PCLStep_p step1, PCLStep_p step2)
 //
 //   Compute the proof size of the expression (including proofs for
 //   children). Assumes that all previous steps already have correct
-//   weight. 
+//   weight.
 //
 // Global Variables: -
 //
@@ -325,7 +325,7 @@ int PCLStepLemmaCmp(PCLStep_p step1, PCLStep_p step2)
 //
 /----------------------------------------------------------------------*/
 
-long PCLExprProofSize(PCLProt_p prot, PCLExpr_p expr, InferenceWeight_p iw, 
+long PCLExprProofSize(PCLProt_p prot, PCLExpr_p expr, InferenceWeight_p iw,
 		      bool use_lemmas)
 {
    long res = 0,i;
@@ -411,12 +411,12 @@ long PCLStepProofSize(PCLProt_p prot, PCLStep_p step, InferenceWeight_p iw,
 //
 /----------------------------------------------------------------------*/
 
-void PCLProtComputeProofSize(PCLProt_p prot, InferenceWeight_p iw, 
+void PCLProtComputeProofSize(PCLProt_p prot, InferenceWeight_p iw,
 			     bool use_lemmas)
 {
    PCLStep_p step;
    PStackPointer i;
-   
+
    PCLProtSerialize(prot);
 
    for(i=0; i<PStackGetSP(prot->in_order); i++)
@@ -441,7 +441,7 @@ void PCLProtComputeProofSize(PCLProt_p prot, InferenceWeight_p iw,
 //
 /----------------------------------------------------------------------*/
 
-float PCLStepComputeLemmaWeight(PCLProt_p prot, PCLStep_p step, 
+float PCLStepComputeLemmaWeight(PCLProt_p prot, PCLStep_p step,
 				LemmaParam_p params)
 {
    float res;
@@ -451,13 +451,13 @@ float PCLStepComputeLemmaWeight(PCLProt_p prot, PCLStep_p step,
       res = 0;
    }
    else
-   {      
-      res =    
+   {
+      res =
          (1.0+
           params->tree_base_weight +
-          step->active_pm_refs        * params->act_pm_w + 
-          step->other_generating_refs * params->o_gen_w + 
-          step->active_simpl_refs     * params->act_simpl_w + 
+          step->active_pm_refs        * params->act_pm_w +
+          step->other_generating_refs * params->o_gen_w +
+          step->active_simpl_refs     * params->act_simpl_w +
           step->passive_simpl_refs    * params->pas_simpl_w)
          *
          (1.0+
@@ -465,14 +465,14 @@ float PCLStepComputeLemmaWeight(PCLProt_p prot, PCLStep_p step,
             )
          /
          (params->size_base_weight+ClauseStandardWeight(step->logic.clause));
-      
+
       if(ClauseIsHorn(step->logic.clause))
       {
          res = res*params->horn_bonus;
-      }   
-      
+      }
+
       if((step->passive_simpl_refs || step->pure_quote_refs)
-         && 
+         &&
          !(step->active_pm_refs+step->other_generating_refs+step->active_simpl_refs) )
       {
          res = 0;
@@ -485,9 +485,9 @@ float PCLStepComputeLemmaWeight(PCLProt_p prot, PCLStep_p step,
          }
       }
    }
-   step->lemma_quality = res;        
+   step->lemma_quality = res;
    return res;
-}   
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -507,9 +507,9 @@ PCLStep_p PCLProtComputeLemmaWeights(PCLProt_p prot, LemmaParam_p params)
    PCLStep_p step, res=NULL;
    float best_rating = -1, current_rating;
    PStackPointer i;
-   
+
    PCLProtSerialize(prot);
-   
+
    for(i=0; i<PStackGetSP(prot->in_order); i++)
    {
       step = PStackElementP(prot->in_order, i);
@@ -541,18 +541,18 @@ PCLStep_p PCLProtComputeLemmaWeights(PCLProt_p prot, LemmaParam_p params)
 /----------------------------------------------------------------------*/
 
 
-long PCLProtSeqFindLemmas(PCLProt_p prot, LemmaParam_p params, 
-			  InferenceWeight_p iw, long max_number, 
+long PCLProtSeqFindLemmas(PCLProt_p prot, LemmaParam_p params,
+			  InferenceWeight_p iw, long max_number,
 			  float quality_limit)
 {
    PStackPointer i;
    PCLStep_p step;
    long res = 0;
-      
+
    PCLProtSerialize(prot);
    PCLProtResetTreeData(prot, false);
    PCLProtUpdateRefs(prot);
-   
+
    for(i=0; i<PStackGetSP(prot->in_order); i++)
    {
       step = PStackElementP(prot->in_order, i);
@@ -586,8 +586,8 @@ long PCLProtSeqFindLemmas(PCLProt_p prot, LemmaParam_p params,
 //
 /----------------------------------------------------------------------*/
 
-long PCLProtRecFindLemmas(PCLProt_p prot, LemmaParam_p params, 
-			    InferenceWeight_p iw, long max_number, 
+long PCLProtRecFindLemmas(PCLProt_p prot, LemmaParam_p params,
+			    InferenceWeight_p iw, long max_number,
 			    float quality_limit)
 {
    long i;
@@ -624,13 +624,13 @@ long PCLProtRecFindLemmas(PCLProt_p prot, LemmaParam_p params,
 //
 /----------------------------------------------------------------------*/
 
-long PCLProtFlatFindLemmas(PCLProt_p prot, LemmaParam_p params, 
-			   InferenceWeight_p iw, long max_number, 
+long PCLProtFlatFindLemmas(PCLProt_p prot, LemmaParam_p params,
+			   InferenceWeight_p iw, long max_number,
 			   float quality_limit)
 {
    long i;
    PCLStep_p step = NULL;
-   
+
    PCLProtResetTreeData(prot, false);
    PCLProtUpdateRefs(prot);
    PCLProtComputeProofSize(prot, iw, true);
@@ -638,7 +638,7 @@ long PCLProtFlatFindLemmas(PCLProt_p prot, LemmaParam_p params,
    PCLProtSerialize(prot);
    prot->is_ordered = false;
    PStackSort(prot->in_order, PCLStepLemmaCmpWrapper);
-   
+
    max_number = MIN(max_number, PStackGetSP(prot->in_order));
    for(i=0; i<max_number; i++)
    {

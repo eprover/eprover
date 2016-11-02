@@ -5,7 +5,7 @@ File  : cte_termcellstore.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Abstract interface for storing term cells, implemented by a
   combination of a hashed array and term cell trees. Use
   (term->f_code^term->args[1])&TERM_STORE_HASH_MASK  as
@@ -72,9 +72,9 @@ Term_p  TermCellStoreExtract(TermCellStore_p store, Term_p term);
 bool    TermCellStoreDelete(TermCellStore_p store, Term_p term);
 
 void    TermCellStoreSetProp(TermCellStore_p store, TermProperties
-			     props); 
+			     props);
 void    TermCellStoreDelProp(TermCellStore_p store, TermProperties
-			     props); 
+			     props);
 
 #define TermCellStoreNodes(store) ((store)->entries)
 long    TermCellStoreCountNodes(TermCellStore_p store);

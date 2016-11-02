@@ -5,9 +5,9 @@ File  : pcl_analysis.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for performing some analysis on PCL files (primarily for
-  reenabling the old learning code with the new output format). 
+  reenabling the old learning code with the new output format).
 
   Copyright 2004 by the author.
   This code is released under the GNU General Public Licence and
@@ -49,9 +49,9 @@ Changes
 //   smaller than all non-proof steps. Non-proof steps are compared by
 //   gen_ref/(sim_ref+1).
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -64,7 +64,7 @@ int pcl_example_cmp(const void* ex1, const void* ex2)
 
    s1 = e1->p_val;
    s2 = e2->p_val;
-   
+
    if(PCLStepQueryProp(s1, PCLIsProofStep))
    {
       if(PCLStepQueryProp(s2, PCLIsProofStep))
@@ -139,7 +139,7 @@ long PCLExprProofDistance(PCLProt_p prot, PCLExpr_p expr)
 	 }
          if(res!=PCL_PROOF_DIST_INFINITY)
          {
-            res++;                      
+            res++;
          }
 	 break;
    }
@@ -153,7 +153,7 @@ long PCLExprProofDistance(PCLProt_p prot, PCLExpr_p expr)
 //
 //   Find the longest inference chain from the nearest proof clause
 //   referenced in the steps expression (or 0 if step is proof
-//   step). If no proof clause is among its 
+//   step). If no proof clause is among its
 //   ancestors, return LONG_MAX. Assumes that proof clauses are
 //   marked! Non-proof initial clauses get PCL_PROOF_DIST_DEFAULT.
 //
@@ -167,10 +167,10 @@ long PCLExprProofDistance(PCLProt_p prot, PCLExpr_p expr)
 long PCLStepProofDistance(PCLProt_p prot, PCLStep_p step)
 {
    if(step->proof_distance == PCL_PROOF_DIST_UNKNOWN)
-   {   
+   {
       if(PCLStepQueryProp(step,PCLIsProofStep))
       {
-         step->proof_distance = 0;      
+         step->proof_distance = 0;
       }
       else
       {
@@ -199,7 +199,7 @@ void PCLProtProofDistance(PCLProt_p prot)
 {
    PCLStep_p step;
    PStackPointer i;
-   
+
    PCLProtSerialize(prot);
 
    for(i=0; i<PStackGetSP(prot->in_order); i++)
@@ -238,7 +238,7 @@ void PCLExprUpdateGRefs(PCLProt_p prot, PCLExpr_p expr, bool proofstep)
    case PCLOpSimParamod:
    case PCLOpEResolution:
    case PCLOpEFactoring:
-   case PCLOpSplitClause: 
+   case PCLOpSplitClause:
          for(i=0; i<expr->arg_no; i++)
 	 {
             parent = PCLExprGetQuotedArg(prot,expr, i);
@@ -311,9 +311,9 @@ void PCLProtUpdateGRefs(PCLProt_p prot)
 {
    PCLStep_p step;
    PStackPointer i;
-   
+
    PCLProtSerialize(prot);
-   
+
    for(i=0; i<PStackGetSP(prot->in_order); i++)
    {
       step = PStackElementP(prot->in_order, i);
@@ -324,7 +324,7 @@ void PCLProtUpdateGRefs(PCLProt_p prot)
 
 /*-----------------------------------------------------------------------
 //
-// Function: PCLProtSelectExamples() 
+// Function: PCLProtSelectExamples()
 //
 //   Select examples for pattern-based learning. Selects all proof
 //   clauses and up to neg_examples negative examples. Negative
@@ -343,13 +343,13 @@ long PCLProtSelectExamples(PCLProt_p prot, long neg_examples)
 {
    PCLStep_p step;
    PStackPointer i;
-   
+
    PCLProtSerialize(prot); /* Ensure its all on the stack */
    prot->is_ordered = false;
-   qsort(prot->in_order->stack, 
-         PStackGetSP(prot->in_order), 
-         sizeof(IntOrP), 
-         pcl_example_cmp);  
+   qsort(prot->in_order->stack,
+         PStackGetSP(prot->in_order),
+         sizeof(IntOrP),
+         pcl_example_cmp);
    for(i=0; (i<PStackGetSP(prot->in_order))&&(neg_examples>0); i++)
    {
       step = PStackElementP(prot->in_order, i);
@@ -362,7 +362,7 @@ long PCLProtSelectExamples(PCLProt_p prot, long neg_examples)
       {
          neg_examples--;
       }
-   }   
+   }
    return i;
 }
 

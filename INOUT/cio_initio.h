@@ -5,7 +5,7 @@ File  : cio_initio.h
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Rather trivial code for initializing all I/O related stuff once and
   in one go.
 

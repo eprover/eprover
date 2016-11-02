@@ -5,7 +5,7 @@ File  : ccl_garbage_coll.c
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Code for simplifying term cell garbage collection.
 
   Copyright 2010 by the author.
@@ -67,7 +67,7 @@ GCAdmin_p GCAdminAlloc(TB_p bank)
    handle->clause_sets  = NULL;
    handle->formula_sets = NULL;
    bank->gc             = handle;
-   
+
    return handle;
 }
 
@@ -131,7 +131,7 @@ void GCRegisterClauseSet(GCAdmin_p gc, ClauseSet_p set)
 {
    assert(gc);
    assert(set);
-   PTreeStore(&(gc->clause_sets), set);  
+   PTreeStore(&(gc->clause_sets), set);
 }
 
 
@@ -199,7 +199,7 @@ long GCCollect(GCAdmin_p gc)
       ClauseSetGCMarkTerms(entry->key);
    }
    PTreeTraverseExit(trav);
- 
+
    trav = PTreeTraverseInit(gc->formula_sets);
    while((entry = PTreeTraverseNext(trav)))
    {

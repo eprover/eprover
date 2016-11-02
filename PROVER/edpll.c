@@ -5,7 +5,7 @@ File  : edpll.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Read a ground problem and try to refute (or satisfy) it.
 
   Copyright 2003 by the author.
@@ -57,8 +57,8 @@ typedef enum
 
 OptCell opts[] =
 {
-   {OPT_HELP, 
-    'h', "help", 
+   {OPT_HELP,
+    'h', "help",
     NoArg, NULL,
     "Print a short description of program usage and options."},
 
@@ -67,8 +67,8 @@ OptCell opts[] =
     NoArg, NULL,
     "Print the version number of the program."},
 
-   {OPT_VERBOSE, 
-    'v', "verbose", 
+   {OPT_VERBOSE,
+    'v', "verbose",
     OptArg, "1",
     "Verbose comments on the progress of the program by printing "
     "technical information to stderr."},
@@ -90,7 +90,7 @@ OptCell opts[] =
     "output. Level 0 produces "
     "nearly no output, level 1 produces minimal additional output."
     "Higher levels are without meaning in edpll (I think)."},
- 
+
    {OPT_TPTP_PARSE,
     '\0', "tptp-in",
     NoArg, NULL,
@@ -110,7 +110,7 @@ OptCell opts[] =
     "the allowed amount of memory in MB. This option may not work "
     "everywhere, due to broken and/or strange behaviour of setrlimit() "
     "in some UNIX implementations. It does work under all tested "
-    "versions of Solaris and GNU/Linux."},   
+    "versions of Solaris and GNU/Linux."},
 
    {OPT_CPU_LIMIT,
     '\0', "cpu-limit",
@@ -118,17 +118,17 @@ OptCell opts[] =
     "Limit the cpu time the program should run. The optional argument "
     "is the CPU time in seconds. The program will terminate immediately"
     " after reaching the time limit, regardless of internal state. This"
-    " option may not work " 
+    " option may not work "
     "everywhere, due to broken and/or strange behaviour of setrlimit() "
     "in some UNIX implementations. It does work under all tested "
     "versions of Solaris, HP-UX and GNU/Linux. As a side effect, this "
-    "option will inhibit core file writing."}, 
+    "option will inhibit core file writing."},
 
    {OPT_SOFTCPU_LIMIT,
     '\0', "soft-cpu-limit",
     OptArg, "310",
     "Limit the cpu time spend in grounding. After the time expires,"
-    " the prover will print an partial system."},  
+    " the prover will print an partial system."},
 
     {OPT_NOOPT,
     '\0', NULL,
@@ -155,28 +155,28 @@ int main(int argc, char* argv[])
 {
    SortTable_p     sort_table;
    Sig_p           sig;
-   Scanner_p       in;    
+   Scanner_p       in;
    int             i;
    CLState_p       state;
    DPLLFormula_p   form;
    DPLLState_p     dpllstate;
-   
+
    assert(argv[0]);
 #ifdef STACK_SIZE
    INCREASE_STACK_SIZE;
 #endif
    InitIO(NAME);
    ESignalSetup(SIGXCPU);
-   
+
    state = process_options(argc, argv);
-   
+
    OpenGlobalOut(outname);
-   
+
    if(state->argc ==  0)
    {
       CLStateInsertArg(state, "-");
    }
-   
+
    sort_table = DefaultSortTableAlloc();
    sig     = SigAlloc(sort_table);
    form    = DPLLFormulaAlloc();
@@ -184,12 +184,12 @@ int main(int argc, char* argv[])
    {
       in = CreateScanner(StreamTypeFile, state->argv[i] , true, NULL);
       ScannerSetFormat(in, parse_format);
-      
+
       DPLLFormulaParseLOP(in, sig, form);
       DestroyScanner(in);
    }
    dpllstate = DPLLStateAlloc(form);
-   
+
    CLStateFree(state);
    UNUSED(dpllstate); /* Stiffle warning for now */
 #ifndef FAST_EXIT
@@ -198,13 +198,13 @@ int main(int argc, char* argv[])
    SortTableFree(sort_table);
 #endif
    fflush(GlobalOut);
-   OutClose(GlobalOut);   
+   OutClose(GlobalOut);
    ExitIO();
 #ifdef CLB_MEMORY_DEBUG
    MemFlushFreeList();
    MemDebugPrintStats(stdout);
 #endif
-   
+
    return 0;
 }
 
@@ -230,9 +230,9 @@ CLState_p process_options(int argc, char* argv[])
    char*  arg;
    struct rlimit limit = {RLIM_INFINITY, RLIM_INFINITY};
    rlim_t mem_limit = 0;
-   
+
    state = CLStateAlloc(argc,argv);
-   
+
    while((handle = CLStateGetOpt(state, &arg, opts)))
    {
       switch(handle->option_code)
@@ -240,7 +240,7 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_VERBOSE:
 	    Verbose = CLStateGetIntArg(handle, arg);
 	    break;
-      case OPT_HELP: 
+      case OPT_HELP:
 	    print_help(stdout);
 	    exit(NO_ERROR);
       case OPT_VERSION:
@@ -263,20 +263,20 @@ CLState_p process_options(int argc, char* argv[])
 	    break;
       case OPT_MEM_LIMIT:
             if(strcmp(arg, "Auto")==0)
-            {              
+            {
                long tmpmem =  GetSystemPhysMemory();
                mem_limit = 0.8*tmpmem;
-               
+
                if(tmpmem==-1)
                {
                   Error("Cannot find physical memory automatically. "
                         "Give explicit value to --memory-limit", OTHER_ERROR);
-               }               
+               }
                mem_limit = MEGA*mem_limit;
-               VERBOSE(fprintf(stderr, 
+               VERBOSE(fprintf(stderr,
                                "Physical memory determined as %ld MB\n"
-                               "Memory limit set to %lld MB\n", 
-                               tmpmem, 
+                               "Memory limit set to %lld MB\n",
+                               tmpmem,
                                (long long)mem_limit););
             }
             else
@@ -304,7 +304,7 @@ CLState_p process_options(int argc, char* argv[])
 		  Error("Soft time limit has to be smaller than hard"
 			"time limit", USAGE_ERROR);
 	       }
-	    }	    
+	    }
 	    break;
       default:
 	 assert(false);
@@ -338,7 +338,7 @@ CLState_p process_options(int argc, char* argv[])
       }
       limit.rlim_max = RLIM_INFINITY;
       limit.rlim_cur = 0;
-      
+
       if(setrlimit(RLIMIT_CORE, &limit))
       {
 	 TmpErrno = errno;

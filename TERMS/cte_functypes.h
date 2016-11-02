@@ -5,9 +5,9 @@ File  : cte_functypes.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Simple, widely used functions for dealing with function symbols and
-  operators. 
+  operators.
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
@@ -36,16 +36,16 @@ Changes
 /* Data type repesenting the various types of encodings for function
  * symols (including constants) and predicates. */
 
-typedef enum 
+typedef enum
 {
-   FSNone,             
-   FSIdentVar,         /* Ident, starts with capital letter or _ */            
-   FSIdentFreeFun,     /* Ident, starts with Lower case letter or SQString */  
+   FSNone,
+   FSIdentVar,         /* Ident, starts with capital letter or _ */
+   FSIdentFreeFun,     /* Ident, starts with Lower case letter or SQString */
    FSIdentInt,         /* Integer */
    FSIdentFloat,       /* Floating point number */
    FSIdentRational,    /* Rational number */
-   FSIdentInterpreted, /* SemIdent */                                          
-   FSIdentObject       /* String "in double quotes" */                         
+   FSIdentInterpreted, /* SemIdent */
+   FSIdentObject       /* String "in double quotes" */
 }FuncSymbType;
 
 /*---------------------------------------------------------------------*/

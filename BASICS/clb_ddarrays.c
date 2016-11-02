@@ -5,7 +5,7 @@ File  : clb_ddarrays.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Funktions realising the dynamic array type for doubles.
 
   Copyright 1998, 1999 by the author.
@@ -62,7 +62,7 @@ DDArray_p DDArrayAlloc(long init_size, long grow)
 {
    DDArray_p handle = DDArrayCellAlloc();
    long i;
-   
+
    assert(init_size > 0);
    assert(grow > 0);
 
@@ -104,9 +104,9 @@ void DDArrayFree(DDArray_p junk)
 //
 //   Enlarge array enough to accomodate idx.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -114,7 +114,7 @@ void DDArayEnlarge(DDArray_p array, long idx)
 {
    double *tmp;
    long   old_size, i;
-   
+
    old_size = array->size;
    tmp      = array->array;
    array->size = ((idx/array->grow)+1)*array->grow;
@@ -133,9 +133,9 @@ void DDArayEnlarge(DDArray_p array, long idx)
 //
 //   Print the array, only for debugging.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -172,7 +172,7 @@ void DDArrayAdd(DDArray_p collect, DDArray_p data, long limit)
 {
    long i;
    double old, new;
-   
+
    assert(collect);
    assert(data);
 
@@ -202,29 +202,29 @@ double DDArraySelectPart(DDArray_p array, double part, long size)
 {
    double pivot, tmp, *arr;
    long i,j, start, end, rank1, rank2;
-   
+
    assert((0 <= part) && (part <= 1));
    assert(size>0);
 
    tmp = (size-1)*part; /* -1 due to C's indexing */
-   
+
    rank1 = ((long)tmp);
-   rank2 = ((long)(tmp+0.5));   
-   
+   rank2 = ((long)(tmp+0.5));
+
    start   = 0;
    end     = size-1;
 
    /* printf("# Rank1,2: %ld, %ld\n", rank1, rank2); */
 
-   assert(array->size >= size);	 
+   assert(array->size >= size);
    arr  = array->array;
    while(start!=end)
    {
       /* Pick a good pseudo-pivot to make worst case-behaviour less
 	 likely */
-      
+
       pivot = (arr[start]+arr[(start+end)/2]+arr[end])/3.0;
-      
+
       /* printf("Pivot: %f\n", pivot); */
       i=start;
       j=end;
@@ -255,7 +255,7 @@ double DDArraySelectPart(DDArray_p array, double part, long size)
 	 start = i;
       }
    }
-   
+
    if(rank2!=rank1)
    {
       /* Now find the second value. We know that all values with index

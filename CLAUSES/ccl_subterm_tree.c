@@ -5,7 +5,7 @@ File  : ccl_subterm_tree.c
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   A tree-based mapping mapping subterms to occurances in clauses.
 
   Copyright 2010 by the author.
@@ -80,9 +80,9 @@ static void subterm_pos_free_wrapper(void *junk)
 //
 //   Print a subterm tree in dot notation.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -100,7 +100,7 @@ void subterm_tree_print_dot(FILE* out, SubtermTree_p root, Sig_p sig)
       {
          subterm_tree_print_dot(out, root->lson, sig);
          fprintf(out, "     t%p:l -- t%p\n", root, root->lson);
-      } 
+      }
       if(root->rson)
       {
          subterm_tree_print_dot(out, root->rson, sig);
@@ -132,7 +132,7 @@ SubtermOcc_p SubtermOccAlloc(Term_p term)
 
    handle->term    = term;
    handle->pl.occs.rw_rest = NULL;
-   handle->pl.occs.rw_full = NULL;  
+   handle->pl.occs.rw_full = NULL;
    handle->pl.pos.clauses  = NULL;
    return handle;
 }
@@ -318,8 +318,8 @@ SubtermOcc_p SubtermTreeInsertTerm(SubtermTree_p *root, Term_p term)
 SubtermOcc_p SubtermTreeFindTerm(SubtermTree_p *root, Term_p term)
 {
    SubtermOcc_p found, key = SubtermOccAlloc(term);
-   
-   found = PTreeObjFindObj(root, key, 
+
+   found = PTreeObjFindObj(root, key,
                            CmpSubtermCells);
    SubtermOccFree(key);
    return found;
@@ -351,10 +351,10 @@ void SubtermTreeDeleteTerm(SubtermTree_p *root, Term_p term)
 
 /*-----------------------------------------------------------------------
 //
-// Function: SubtermTreeInsertTermOcc() 
+// Function: SubtermTreeInsertTermOcc()
 //
 //   Insert a term occurance into the Subterm tree. Return false if an
-//   entry already exists, true otherwise. 
+//   entry already exists, true otherwise.
 //
 // Global Variables: -
 //
@@ -362,8 +362,8 @@ void SubtermTreeDeleteTerm(SubtermTree_p *root, Term_p term)
 //
 /----------------------------------------------------------------------*/
 
-bool SubtermTreeInsertTermOcc(SubtermTree_p *root, Term_p term, 
-                              Clause_p clause, bool restricted)   
+bool SubtermTreeInsertTermOcc(SubtermTree_p *root, Term_p term,
+                              Clause_p clause, bool restricted)
 {
    SubtermOcc_p handle = SubtermTreeInsertTerm(root, term);
 
@@ -382,13 +382,13 @@ bool SubtermTreeInsertTermOcc(SubtermTree_p *root, Term_p term,
 //
 //   Delete an indexing of clause via term.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
-bool SubtermTreeDeleteTermOcc(SubtermTree_p *root, Term_p term, 
+bool SubtermTreeDeleteTermOcc(SubtermTree_p *root, Term_p term,
                               Clause_p clause, bool restricted)
 {
    SubtermOcc_p old, knode = SubtermOccAlloc(term);
@@ -412,7 +412,7 @@ bool SubtermTreeDeleteTermOcc(SubtermTree_p *root, Term_p term,
          SubtermTreeDeleteTerm(root, term);
       }
    }
-   SubtermOccFree(knode);   
+   SubtermOccFree(knode);
 
    return res;
 }
@@ -459,7 +459,7 @@ void SubtermTreePrint(FILE* out, SubtermTree_p root, Sig_p sig)
 
 void SubtermTreePrintDot(FILE* out, SubtermTree_p root, Sig_p sig)
 {
-   fprintf(out, 
+   fprintf(out,
            "     subgraph g%p{\n"
            "     nodesep=0.05\n"
            "     node [shape=record,width=1.9,height=.1, penwidth=0,"
@@ -475,7 +475,7 @@ void SubtermTreePrintDot(FILE* out, SubtermTree_p root, Sig_p sig)
       SubtermOcc_p data;
 
       PTreeToPStack(terms, root);
-      fprintf(out, "     t%p [label=\"{|{", root);   
+      fprintf(out, "     t%p [label=\"{|{", root);
       for(i=0; i<PStackGetSP(terms); i++)
       {
          data = PStackElementP(terms, i);
@@ -504,7 +504,7 @@ void SubtermTreePrintDot(FILE* out, SubtermTree_p root, Sig_p sig)
 
 void SubtermTreePrintDummy(FILE* out, SubtermTree_p root, Sig_p sig)
 {
-   fprintf(out, "     t%p [shape=box label=\"%ld terms\"]\n", root, PObjTreeNodes(root));   
+   fprintf(out, "     t%p [shape=box label=\"%ld terms\"]\n", root, PObjTreeNodes(root));
 }
 
 

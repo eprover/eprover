@@ -5,7 +5,7 @@ File  : cto_lpo.h
 Author: Joachim Steinbach
 
 Contents
- 
+
   Definitions for implementing a lexicographic path ordering.
 
   Copyright 1998, 1999 by the author.

@@ -5,7 +5,7 @@ File  : cte_termpos.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Positions in terms
 
   Copyright 1998, 1999 by the author.
@@ -51,7 +51,7 @@ Changes
 //
 //   Given an (implicit) term and a position, compute the next
 //   position (in leftmost-innermost order) and return the
-//   corresponding term. 
+//   corresponding term.
 //
 // Global Variables: -
 //
@@ -81,7 +81,7 @@ Term_p TermPosNextLIPosition(TermPos_p pos)
 	 idx = 0;
       }
    }
-   return super;	 
+   return super;
 }
 
 
@@ -109,14 +109,14 @@ void TermPosPrint(FILE* out, TermPos_p pos)
    for(i=2; i<PStackGetSP(pos); i+=2)
    {
       fprintf(out, ".%ld\n", PStackElementInt(pos, i+1));
-   }                    
+   }
 }
 
 
 
 /*-----------------------------------------------------------------------
 //
-// Function: TermPosDebugPrint() 
+// Function: TermPosDebugPrint()
 //
 //   Print a position in a term. If sig!=NULL, print terms, otherwise
 //   print adddresses

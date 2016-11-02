@@ -5,7 +5,7 @@ File  : ccl_tautologies.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for detecting tautologies using the algorithm suggested by
   Roberto Nieuwenhuis: Do ground completion on negative literals, see
   if they imply the positive ones
@@ -61,7 +61,7 @@ CompareResult TO_ground_compare(Term_p t1, Term_p t2)
    CompareResult res = to_equal;
    int           i;
    PStack_p      stack = PStackAlloc();
-   
+
    PStackPushP(stack, t1);
    PStackPushP(stack, t2);
 
@@ -72,7 +72,7 @@ CompareResult TO_ground_compare(Term_p t1, Term_p t2)
 
       w1 = TermStandardWeight(t1);
       w2 = TermStandardWeight(t2);
-      
+
       if(w1<w2)
       {
 	 res = to_lesser;
@@ -97,7 +97,7 @@ CompareResult TO_ground_compare(Term_p t1, Term_p t2)
       for(i = 0; i<t1->arity; i++)
       {
 	 PStackPushP(stack, t1->args[i]);
-	 PStackPushP(stack, t2->args[i]); 
+	 PStackPushP(stack, t2->args[i]);
       }
    }
    PStackFree(stack);
@@ -121,7 +121,7 @@ CompareResult TO_ground_compare(Term_p t1, Term_p t2)
 static bool ground_orient_eqn(Eqn_p eqn)
 {
    CompareResult cmp;
-   
+
    cmp = TO_ground_compare(eqn->lterm, eqn->rterm);
    assert(cmp != to_uncomparable);
 
@@ -164,7 +164,7 @@ static bool term_compute_top_nf(TermRef ref, Eqn_p eqns)
       else
       {
 	 lside = handle->rterm;
-	 rside = handle->lterm; 
+	 rside = handle->lterm;
       }
       if(TermStructEqualNoDeref(lside, *ref))
       {
@@ -183,14 +183,14 @@ static bool term_compute_top_nf(TermRef ref, Eqn_p eqns)
 //
 //   Compute a ground normal form of *ref with respect to eqns. *ref
 //   should be unshared, eqns should be interreduced. Return true if
-//   term changed. This is probably 
+//   term changed. This is probably
 //   not an optimal implementation, but *ref and eqns should be pretty
 //   small and not worth any of the overhead of the more sophisticated
-//   algorithms. 
+//   algorithms.
 //
 // Global Variables: -
 //
-// Side Effects    : Memory management, changes *ref 
+// Side Effects    : Memory management, changes *ref
 //
 /----------------------------------------------------------------------*/
 
@@ -228,7 +228,7 @@ static bool ground_normalize_eqn(Eqn_p eqn, Eqn_p eqns)
 {
    bool res = false, tmp;
    Term_p term, shared;
-   
+
    term = TermCopy(eqn->lterm, eqn->bank->vars, false);
    tmp  = term_compute_ground_NF(&term, eqns);
    if(tmp)
@@ -248,7 +248,7 @@ static bool ground_normalize_eqn(Eqn_p eqn, Eqn_p eqns)
       res = res || EqnQueryProp(eqn, EPGONatural);
    }
    TermFree(term);
-   
+
    return res;
 }
 
@@ -259,9 +259,9 @@ static bool ground_normalize_eqn(Eqn_p eqn, Eqn_p eqns)
 //   Normalize all eqations in from with respect to eqns. Put those
 //   whose maximal side has changed into to.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -276,7 +276,7 @@ static void ground_backward_contract(EqnRef from, Eqn_p eqns, EqnRef to)
       if(res)
       {
 	 handle = EqnListExtractFirst(from);
-	 EqnListInsertFirst(to, handle);	 
+	 EqnListInsertFirst(to, handle);
       }
       else
       {
@@ -320,7 +320,7 @@ static void ground_complete_neg_eqns(EqnRef list)
       UNUSED(cmp); assert(cmp);
       ground_backward_contract(&proc, handle, &unproc);
       EqnListInsertFirst(&proc, handle);
-   } 
+   }
    *list = proc;
 }
 
@@ -347,10 +347,10 @@ bool ClauseIsTautology(TB_p work_bank, Clause_p clause)
 {
    Eqn_p    rw_system, handle;
    Clause_p work_copy;
-   bool     res = false;         
+   bool     res = false;
 
    for(handle = clause->literals; handle; handle = handle->next)
-   {	 
+   {
       if(EqnIsTrue(handle))
       {
          return true;
@@ -360,7 +360,7 @@ bool ClauseIsTautology(TB_p work_bank, Clause_p clause)
    {
       return false;
    }
-   
+
    work_copy = ClauseCopy(clause, work_bank);
    rw_system = EqnListExtractByProps(&(work_copy->literals),
                                      EPIsPositive, true);
@@ -373,21 +373,21 @@ bool ClauseIsTautology(TB_p work_bank, Clause_p clause)
    {
       ground_orient_eqn(rw_system);
    }
-   
+
    for(handle = work_copy->literals; handle; handle = handle->next)
    {
       assert(EqnIsPositive(handle));
-      
+
       ground_normalize_eqn(handle, rw_system);
       if(handle->lterm == handle->rterm)
       {
          res = true;
          break;
-      }	 
+      }
    }
    EqnListFree(rw_system);
    ClauseFree(work_copy);
-   
+
    return res;
    }
 

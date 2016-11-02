@@ -36,7 +36,7 @@ Changes
 typedef struct flatannotermcell
 {
    Term_p                  term;       /* Usually shared, but no
-					  reference */ 
+					  reference */
    double                  eval;
    double                  eval_weight;  /* How much is this annotation
 				       worth at each subterm node?

@@ -5,7 +5,7 @@ File  : ccl_grounding.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for implementing grounding of near-propositional clause
   sets. Note that all functons here require a fairly static term bank
   - don't do any freeing or rewriting intermingeled with grounding, it
@@ -84,7 +84,7 @@ void varsetinstapply(VarSetInst_p varinst)
 {
    long   i;
    Term_p t;
-   
+
    for(i=0; i< varinst->size; i++)
    {
       t = PStackElementP(varinst->cells[i].alternatives,
@@ -112,11 +112,11 @@ void varsetinstapply(VarSetInst_p varinst)
 void varsetinstclear(VarSetInst_p varinst)
 {
    long i;
-   
+
    for(i=0; i< varinst->size; i++)
    {
       varinst->cells[i].variable->binding = NULL;
-   } 
+   }
 }
 
 
@@ -157,9 +157,9 @@ bool varsetinstinitialize(VarSetInst_p varinst)
 //
 //   Return the number of clauses induced by inst.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -193,9 +193,9 @@ double varinstestimate(VarSetInst_p inst)
 bool varsetinstnext(VarSetInst_p varinst)
 {
    long i;
-   
+
    for(i=0; i< varinst->size; i++)
-   {      
+   {
       if(varinst->cells[i].position)
       {
 	 varinst->cells[i].position--;
@@ -203,7 +203,7 @@ bool varsetinstnext(VarSetInst_p varinst)
       }
       varinst->cells[i].position =
 	 PStackGetSP(varinst->cells[i].alternatives)-1;
-   } 
+   }
    return false;
 }
 
@@ -226,9 +226,9 @@ void ground_set_print_unit(FILE* out, GroundSet_p set, long unit, bool
    Eqn_p eqn = EqnAlloc(PDArrayElementP(set->unit_terms, unit),
 			set->lit_bank->true_term, set->lit_bank, pos);
    Clause_p clause = ClauseAlloc(eqn);
-   
+
    ClausePrint(out, clause, true);
-   ClauseFree(clause);      
+   ClauseFree(clause);
 }
 
 
@@ -257,7 +257,7 @@ int  ClauseCmpByLen(const void* clause1, const void* clause2)
    const Clause_p *c1 = clause1;
    const Clause_p *c2 = clause2;
    int res;
-   
+
    res = ClauseLiteralNumber(*c1) - ClauseLiteralNumber(*c2);
    if(res)
    {
@@ -284,7 +284,7 @@ bool EqnEqlitRecode(Eqn_p lit)
    if(EqnIsEquLit(lit))
    {
       Term_p t = TermDefaultCellAlloc();
-      
+
       t->f_code = SigGetEqnCode(lit->bank->sig, true);
       t->args = TermArgArrayAlloc(2);
       t->arity = 2;
@@ -358,7 +358,7 @@ long ClauseSetEqlitRecode(ClauseSet_p set)
 
 /*-----------------------------------------------------------------------
 //
-// Function: VarSetInstAlloc() 
+// Function: VarSetInstAlloc()
 //
 //   Create a VarSetInst for all variables occurring in clause. Does
 //   not allocate the PStacks needed!
@@ -375,16 +375,16 @@ VarSetInst_p VarSetInstAlloc(Clause_p clause)
    VarSetInst_p handle = VarSetInstCellAlloc();
    long         i;
    Term_p       var;
-   
+
    handle->size = ClauseCollectVariables(clause, &tree);
    if(handle->size)
    {
       handle->cells = SizeMalloc(handle->size*sizeof(VarInstCell));
-      
+
       for(i=0; i<handle->size; i++)
       {
 	 assert(tree);
-	 
+
 	 var = PTreeExtractRootKey(&tree);
 	 assert(var);
 	 handle->cells[i].variable = var;
@@ -405,9 +405,9 @@ VarSetInst_p VarSetInstAlloc(Clause_p clause)
 //
 //   Free a VarSetInst. Does not free the PStacks()!
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -418,12 +418,12 @@ void VarSetInstFree(VarSetInst_p junk)
    if(junk->size)
    {
       assert(junk->cells);
-      SizeFree(junk->cells, junk->size*sizeof(VarInstCell));      
+      SizeFree(junk->cells, junk->size*sizeof(VarInstCell));
    }
    else
    {
       assert(!junk->cells);
-   }   
+   }
    VarSetInstCellFree(junk);
 }
 
@@ -432,7 +432,7 @@ void VarSetInstFree(VarSetInst_p junk)
 
 /*-----------------------------------------------------------------------
 //
-// Function: VarSetConstrInstAlloc() 
+// Function: VarSetConstrInstAlloc()
 //
 //   Create a VarSetInst for all variables occurring in clause,
 //   constrained as much as possible. Does allocate the PStacks
@@ -460,14 +460,14 @@ VarSetInst_p VarSetConstrInstAlloc(LitOccTable_p p_table,
       handle->cells = SizeMalloc(handle->size*sizeof(VarInstCell));
       var_constr = PDArrayAlloc(DEFAULT_VARBANK_SIZE,
 				DEFAULT_VARBANK_SIZE);
-      
+
 
 
       for(i=0; i<handle->size; i++)
       {
 	 assert(tree);
 
-	 var = PTreeExtractRootKey(&tree);   
+	 var = PTreeExtractRootKey(&tree);
 	 assert(var);
 	 assert(TermIsVar(var));
 	 tmp = PTreeCopy(ground_terms);
@@ -477,7 +477,7 @@ VarSetInst_p VarSetConstrInstAlloc(LitOccTable_p p_table,
 	 handle->cells[i].alternatives = PStackAlloc();
       }
       assert(!tree);
-      
+
       ClauseCollectVarConstr(p_table, n_table, clause, ground_terms,
 			     var_constr);
       for(i=0; i<handle->size; i++)
@@ -504,9 +504,9 @@ VarSetInst_p VarSetConstrInstAlloc(LitOccTable_p p_table,
 //   Free a VarSetInst. Does free the PStacks() (and expects them to
 //   be there).
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -524,12 +524,12 @@ void VarSetConstrInstFree(VarSetInst_p junk)
    if(junk->size)
    {
       assert(junk->cells);
-      SizeFree(junk->cells, junk->size*sizeof(VarInstCell));      
+      SizeFree(junk->cells, junk->size*sizeof(VarInstCell));
    }
    else
    {
       assert(!junk->cells);
-   }   
+   }
    VarSetInstCellFree(junk);
 }
 
@@ -635,7 +635,7 @@ void ClauseSetPrintDimacs(FILE* out, ClauseSet_p set)
 GroundSet_p GroundSetAlloc(TB_p bank)
 {
    GroundSet_p set = GroundSetCellAlloc();
-   
+
    assert(bank);
 
    set->lit_bank   = bank;
@@ -645,7 +645,7 @@ GroundSet_p GroundSetAlloc(TB_p bank)
    set->units      = PDIntArrayAlloc(DEFAULT_LIT_NO, DEFAULT_LIT_GROW);
    set->unit_terms = PDArrayAlloc(DEFAULT_LIT_NO, DEFAULT_LIT_GROW);
    set->non_units  = PropClauseSetAlloc();
-   
+
    return set;
 }
 
@@ -692,7 +692,7 @@ long GroundSetMaxVar(GroundSet_p set)
 {
    long         res=0, tmp, i;
    GCUEncoding  status;
-   
+
    for(i=set->units->size;i>0; i--)
    {
       status = PDArrayElementInt(set->units, i);
@@ -703,12 +703,12 @@ long GroundSetMaxVar(GroundSet_p set)
       }
    }
    tmp = PropClauseSetMaxVar(set->non_units);
-   
+
    if(tmp > res)
    {
       res = tmp;
    }
-   
+
    return res;
 }
 
@@ -729,14 +729,14 @@ long GroundSetMaxVar(GroundSet_p set)
 bool GroundSetInsert(GroundSet_p set, Clause_p clause)
 {
    bool res;
-   
+
    assert(set);
    assert(clause);
 
    /* printf("Inserting: ");
    ClausePrint(stdout, clause, true);
    printf("\n"); */
-   
+
    if(!ClauseIsUnit(clause))
    {
       long tmp = clause_get_max_lit(clause);
@@ -755,7 +755,7 @@ bool GroundSetInsert(GroundSet_p set, Clause_p clause)
       lit_no = EqnLitCode(clause->literals);
       sign   = EqnIsPositive(clause->literals)?GCUPos:GCUNeg;
       status = PDArrayElementInt(set->units, lit_no);
-      
+
       if(status & sign)
       {
 	 res = false;
@@ -767,7 +767,7 @@ bool GroundSetInsert(GroundSet_p set, Clause_p clause)
 	 PDArrayAssignP(set->unit_terms, lit_no, clause->literals->lterm);
 	 set->unit_no++;
 	 res = true;
-      }   
+      }
       ClauseFree(clause);
       return res;
    }
@@ -820,13 +820,13 @@ void GroundSetPrint(FILE* out, GroundSet_p set)
 //
 /----------------------------------------------------------------------*/
 
-void GroundSetPrintDimacs(FILE* out, GroundSet_p set) 
+void GroundSetPrintDimacs(FILE* out, GroundSet_p set)
 {
    PropClause_p handle;
    Clause_p     tmp;
    long         i;
    GCUEncoding  status;
-   
+
    for(i=0; i<set->units->size; i++)
    {
       status = PDArrayElementInt(set->units, i);
@@ -867,12 +867,12 @@ bool GroundSetUnitSimplifyClause(GroundSet_p set, Clause_p clause,
    EqnRef      list = &(clause->literals);
    long        lit_enc;
    GCUEncoding status;
- 
+
    while(*list)
    {
       lit_enc = EqnLitCode(*list);
       status  = PDArrayElementInt(set->units, lit_enc);
-      
+
       if(EqnIsPositive(*list))
       {
 	 if(subsume&&(status&GCUPos))
@@ -884,7 +884,7 @@ bool GroundSetUnitSimplifyClause(GroundSet_p set, Clause_p clause,
 	    EqnListDeleteElement(list);
 	    clause->pos_lit_no--;
 	 }
-	 else	 
+	 else
 	 {
 	    list = &((*list)->next);
 	 }
@@ -900,12 +900,12 @@ bool GroundSetUnitSimplifyClause(GroundSet_p set, Clause_p clause,
 	    EqnListDeleteElement(list);
 	    clause->neg_lit_no--;
 	 }
-	 else	 
+	 else
 	 {
 	    list = &((*list)->next);
 	 }
       }
-      
+
    }
    return false;
 }
@@ -917,7 +917,7 @@ bool GroundSetUnitSimplifyClause(GroundSet_p set, Clause_p clause,
 //
 //   Create all non-tautological ground instances of clause described
 //   by inst. Return false if the empty clause has been created, true
-//   otherwise. 
+//   otherwise.
 //
 // Global Variables: -
 //
@@ -943,7 +943,7 @@ bool ClauseCreateGroundInstances(TB_p bank, Clause_p clause,
    {
       fputs("# ", GlobalOut);
       ClausePrint(GlobalOut, clause, true);
-      fputc('\n', GlobalOut);    
+      fputc('\n', GlobalOut);
    }
    if(!varsetinstinitialize(inst))
    {
@@ -960,7 +960,7 @@ bool ClauseCreateGroundInstances(TB_p bank, Clause_p clause,
       }
       else
       {
-	 new = ClauseAlloc(handle);	 
+	 new = ClauseAlloc(handle);
 	 if(!GroundSetUnitSimplifyClause(groundset, new, subsume,
 					 resolve))
 	 {
@@ -1012,7 +1012,7 @@ bool ClauseSetCreateGroundInstances(TB_p bank, ClauseSet_p set,
    VarSetInst_p inst;
    long         i;
    bool         res = true, tmp;
-   
+
    SigCollectConstantTerms(bank, default_terms, 0);
 
    if(give_up)
@@ -1040,7 +1040,7 @@ bool ClauseSetCreateGroundInstances(TB_p bank, ClauseSet_p set,
       for(i=0; i<inst->size; i++)
       {
 	 inst->cells[i].alternatives = default_terms;
-      }      
+      }
       tmp = ClauseCreateGroundInstances(bank, handle, inst, groundset,
 					subsume, resolve, taut_check);
       VarSetInstFree(inst);
@@ -1098,9 +1098,9 @@ bool ClauseSetCreateConstrGroundInstances(TB_p bank, ClauseSet_p set,
    LitOccTable_p p_table, n_table;
    bool         res = true, tmp;
    double       clause_estimate;
-   
+
    if(just_one_instance)
-   {      
+   {
       SigCollectConstantTerms(bank, default_terms, just_one_instance);
    }
    else
@@ -1111,14 +1111,14 @@ bool ClauseSetCreateConstrGroundInstances(TB_p bank, ClauseSet_p set,
    p_table = LitOccTableAlloc(bank->sig);
    n_table = LitOccTableAlloc(bank->sig);
    LitOccAddClauseSetAlt(p_table, n_table, set);
-      
-   for(handle = set->anchor->succ; 
+
+   for(handle = set->anchor->succ;
        handle!= set->anchor && !TimeIsUp && !MemIsLow;
-       handle = handle->succ) 
+       handle = handle->succ)
    {
       inst = VarSetConstrInstAlloc(p_table, n_table, handle,
 				   default_term_tree);
-      
+
       if(give_up)
       {
 	 clause_estimate = varinstestimate(inst);
@@ -1129,7 +1129,7 @@ bool ClauseSetCreateConstrGroundInstances(TB_p bank, ClauseSet_p set,
 	    exit(NO_ERROR);
 	 }
       }
-      
+
       tmp = ClauseCreateGroundInstances(bank, handle, inst, groundset,
 					subsume, resolve, taut_check);
       VarSetConstrInstFree(inst);
@@ -1155,9 +1155,9 @@ bool ClauseSetCreateConstrGroundInstances(TB_p bank, ClauseSet_p set,
    LitOccTableFree(n_table);
    PStackFree(default_terms);
    PTreeFree(default_term_tree);
-   
+
    return res;
-}   
+}
 
 
 

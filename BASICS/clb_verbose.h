@@ -5,7 +5,7 @@ File  : clb_verbose.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Declarations for the Verbose variable and macros for verbose
   reporting on certain operations.
 

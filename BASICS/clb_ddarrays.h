@@ -5,7 +5,7 @@ File  : clb_ddarrays.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Dynamic arrays of large data types - at the moment doubles only.
 
   Copyright 1998, 1999 by the author.
@@ -37,7 +37,7 @@ typedef struct ddarraycell
    long   size;
    long   grow;
    double *array;
-}DDArrayCell, *DDArray_p; 
+}DDArrayCell, *DDArray_p;
 
 
 /*---------------------------------------------------------------------*/
@@ -69,7 +69,7 @@ double    DDArraySelectPart(DDArray_p array, double part, long size);
 /*                     Inline functions                                */
 /*---------------------------------------------------------------------*/
 
-	  
+
 /*-----------------------------------------------------------------------
 //
 // Function: DDArrayElementRef()
@@ -78,7 +78,7 @@ double    DDArraySelectPart(DDArray_p array, double part, long size);
 //   reference is only good until the next call to this function! User
 //   programs are expected to use this function only extremely rarely
 //   and with special care. Use DDArrayElement()/DDArrayAssign()
-//   instead. 
+//   instead.
 //
 // Global Variables: -
 //
@@ -90,7 +90,7 @@ static __inline__ double* DDArrayElementRef(DDArray_p array, long idx)
 {
    assert(array);
    assert(idx >= 0);
-   
+
    if(!(idx < array->size))
    {
       DDArayEnlarge(array, idx);

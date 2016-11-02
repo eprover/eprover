@@ -5,7 +5,7 @@ File  : cio_initio.c
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Trivial initialization code.
 
   Copyright 2005 by the author.
@@ -52,7 +52,7 @@ char* TPTP_dir = NULL;
 // Function: InitIO()
 //
 //   Initialize I/O. Bundles a number of other initializations in one
-//   call. 
+//   call.
 //
 // Global Variables: TPTP_dir
 //
@@ -66,7 +66,7 @@ void InitIO(char* progname)
 
    InitOutput();
    InitError(progname);
-         
+
    tmp = getenv("TPTP");
    if(tmp)
    {
@@ -78,7 +78,7 @@ void InitIO(char* progname)
          DStrAppendChar(tmpstr, '/');
       }
       TPTP_dir = DStrCopy(tmpstr);
-      
+
       DStrFree(tmpstr);
    }
 }

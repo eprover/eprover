@@ -5,9 +5,9 @@ File  : pcl_proofcheck.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Data types and algorithms to realize proof checking for PCL2
-  protocols. 
+  protocols.
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
@@ -33,7 +33,7 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-typedef enum 
+typedef enum
 {
    CheckFail,
    CheckOk,
@@ -59,7 +59,7 @@ typedef enum
 #define OTTER_EXEC_DEFAULT "otter"
 #define SPASS_EXEC_DEFAULT "SPASS-0.55"
 
-long PCLCollectPreconds(PCLProt_p prot, PCLStep_p step, ClauseSet_p set); 
+long PCLCollectPreconds(PCLProt_p prot, PCLStep_p step, ClauseSet_p set);
 long PCLNegSkolemizeClause(PCLProt_p prot, PCLStep_p step,
 			   ClauseSet_p set);
 ClauseSet_p PCLGenerateCheck(PCLProt_p prot, PCLStep_p step);

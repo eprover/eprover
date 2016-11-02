@@ -5,7 +5,7 @@ File  : cio_output.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Simple functions for secure opening of output files with -
   convention and error checking. Much simpler than the input, because
   much less can go wrong with output...
@@ -94,7 +94,7 @@ FILE* OutOpen(char* name)
    if(name && strcmp(name,"-")!= 0)
    {
       VERBOUTARG("Output file is ", name);
-      
+
       if(! (out = fopen(name,"w")))
       {
 	 TmpErrno = errno; /* Save error number, the following call to
@@ -109,7 +109,7 @@ FILE* OutOpen(char* name)
       VERBOUT("Output is going to <stdout>\n");
       out = stdout;
    }
-   clearerr(out); 
+   clearerr(out);
    return out;
 }
 
@@ -134,10 +134,10 @@ void OutClose(FILE* file)
    if(ferror(file))
    {
       Error("Output stream to be closed reports error (probably "
-            "broken pipe, file system full or quota exceeded)", 
+            "broken pipe, file system full or quota exceeded)",
             FILE_ERROR);
    }
-   
+
    VERBOUT("Closing output\n");
    if(file != stdout)
    {
@@ -167,7 +167,7 @@ void OutClose(FILE* file)
 void PrintDashedStatuses(FILE* out, char* stat1, char* stat2, char* fallback)
 {
    assert(fallback);
-   
+
    if(stat1 && stat2)
    {
       fprintf(out, "%s-%s", stat1, stat2);

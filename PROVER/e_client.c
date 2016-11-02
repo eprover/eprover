@@ -64,8 +64,8 @@ typedef enum
 
 OptCell opts[] =
 {
-   {OPT_HELP, 
-    'h', "help", 
+   {OPT_HELP,
+    'h', "help",
     NoArg, NULL,
     "Print a short description of program usage and options."},
 
@@ -75,14 +75,14 @@ OptCell opts[] =
     "Print the version number of the prover. Please include this"
     " with all bug reports (if any)."},
 
-   {OPT_VERBOSE, 
-    'v', "verbose", 
+   {OPT_VERBOSE,
+    'v', "verbose",
     OptArg, "1",
     "Verbose comments on the progress of the program. This differs "
     "from the output level (below) in that technical information is "
     "printed to stderr, while the output level determines which "
     "logical manipulations of the clauses are printed to stdout."},
-   
+
    {OPT_OUTPUT,
     'o', "output-file",
     ReqArg, NULL,
@@ -95,17 +95,17 @@ OptCell opts[] =
     ReqArg, NULL,
     "Specify the address of the server. The default is 'localhost'."},
 
-   {OPT_PORT, 
+   {OPT_PORT,
     'P', "service-port",
     ReqArg, NULL,
     "Specify the port to use for the deduction service. The default"
     " is to use 3666"},
 
-   {OPT_PORT, 
+   {OPT_PORT,
     'P', "port",
     ReqArg, NULL,
     "Specify the port to use for the deduction service."},
-  
+
 
    {OPT_NOOPT,
     '\0', NULL,
@@ -190,7 +190,7 @@ int main(int argc, char* argv[])
    int              sock;
 
    assert(argv[0]);
-   
+
    InitIO(NAME);
    DocOutputFormat = tstp_format;
    OutputFormat = TSTPFormat;
@@ -203,7 +203,7 @@ int main(int argc, char* argv[])
    {
       CLStateInsertArg(state, "-");
    }
-   
+
    problem = DStrAlloc();
    cmd     = DStrAlloc();
    for(i=0; state->argv[i]; i++)
@@ -220,10 +220,10 @@ int main(int argc, char* argv[])
    TCPStringSendX(sock, DStrView(problem));
    TCPStringSendX(sock, "prove");
    tcp_msg_wait(sock, "result");
-   
+
 
    /* Backtracking is automatic on termination of the connection */
-   
+
 
    close(sock);
    DStrFree(cmd);
@@ -236,7 +236,7 @@ int main(int argc, char* argv[])
    MemFlushFreeList();
    MemDebugPrintStats(stdout);
 #endif
-  
+
    return 0;
 }
 
@@ -248,7 +248,7 @@ int main(int argc, char* argv[])
 //   Read and process the command line option, return (the pointer to)
 //   a CLState object containing the remaining arguments.
 //
-// Global Variables: opts, Verbose, TBPrintInternalInfo 
+// Global Variables: opts, Verbose, TBPrintInternalInfo
 //
 // Side Effects    : Sets variables, may terminate with program
 //                   description if option -h or --help was present
@@ -262,7 +262,7 @@ CLState_p process_options(int argc, char* argv[])
    char*  arg;
 
    state = CLStateAlloc(argc,argv);
-   
+
    while((handle = CLStateGetOpt(state, &arg, opts)))
    {
       switch(handle->option_code)
@@ -270,7 +270,7 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_VERBOSE:
 	    Verbose = CLStateGetIntArg(handle, arg);
 	    break;
-      case OPT_HELP: 
+      case OPT_HELP:
 	    print_help(stdout);
 	    exit(NO_ERROR);
       case OPT_VERSION:
@@ -291,7 +291,7 @@ CLState_p process_options(int argc, char* argv[])
             else if(port < IPPORT_RESERVED)
             {
                Warning("Port numbers less than %d require root level access",
-                       IPPORT_RESERVED); 
+                       IPPORT_RESERVED);
             }
             break;
       default:

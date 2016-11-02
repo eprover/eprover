@@ -5,7 +5,7 @@ File  : pcl_steps.h
 Author: Stephan Schulz
 
 Contents
- 
+
   PCL steps.
 
   Copyright 1998, 1999 by the author.
@@ -36,7 +36,7 @@ Changes
 #define PCL_PROOF_DIST_UNKNOWN  -1 /* Not yet computed */
 
 
-typedef enum 
+typedef enum
 {
    PCLNoProp         =  0,
    PCLIsLemma        =  1,
@@ -48,7 +48,7 @@ typedef enum
    PCLIsFOFStep      = 64, /* Otherwise its a clause */
    PCLIsShellStep    = 128,
    PCLType1          = CPType1, /* 256 */
-   PCLType2          = CPType2, 
+   PCLType2          = CPType2,
    PCLType3          = CPType3,
    PCLTypeMask       = CPTypeMask,
    PCLTypeUnknown    = 0,                /* Also used as wildcard */
@@ -128,9 +128,9 @@ char *    PCLPropToTSTPType(PCLStepProperties props);
 void      PCLStepPrintTSTP(FILE* out, PCLStep_p step);
 void      PCLStepPrintTPTP(FILE* out, PCLStep_p step);
 void      PCLStepPrintLOP(FILE* out, PCLStep_p step);
-void      PCLStepPrintFormat(FILE* out, PCLStep_p step, bool data, 
+void      PCLStepPrintFormat(FILE* out, PCLStep_p step, bool data,
 			     OutputFormatType format);
-void      PCLStepPrintExample(FILE* out, PCLStep_p step, long id, 
+void      PCLStepPrintExample(FILE* out, PCLStep_p step, long id,
                               long proof_steps, long total_steps);
 int       PCLStepIdCompare(const void* s1, const void* s2);
 void      PCLStepResetTreeData(PCLStep_p step, bool just_weights);

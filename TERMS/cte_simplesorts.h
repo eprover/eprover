@@ -5,7 +5,7 @@ File  : cte_simplesorts.h
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Data structure and function interfaces for managing simple, disjoint
   sorts.
 
@@ -57,7 +57,7 @@ typedef struct sort_table
 {
    SortType  default_type;  /* Sort of undeclared function
                              * symbols. STIndividuals by default, but
-                             * can be changed */ 
+                             * can be changed */
    StrTree_p sort_index;    /* Associates a sort name with the type */
    PStack_p  back_index;    /* Back-Association from type to
                                string. Position i on the stack

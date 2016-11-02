@@ -5,7 +5,7 @@ File  : ccl_clausesetfilters.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for filtering clause sets for redundant and/or badly
   evaluated clauses.
 

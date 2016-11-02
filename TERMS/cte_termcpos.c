@@ -5,8 +5,8 @@ File  : cte_termcpos.c
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
-  See cte_termcpos.h file 
+
+  See cte_termcpos.h file
 
   Copyright 2006 by the author.
   This code is released under the GNU General Public Licence and
@@ -68,13 +68,13 @@ Term_p term_cpos_get_subterm(Term_p term, TermCPos* pos)
 
 /*-----------------------------------------------------------------------
 //
-// Function: 
+// Function:
 //
-//   
 //
-// Global Variables: 
 //
-// Side Effects    : 
+// Global Variables:
+//
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -90,14 +90,14 @@ Term_p TermCPosGetSubterm(Term_p term, TermCPos pos)
 //   Print all compact positions in a term, with the associated
 //   subterm. Probably only for testing and debugging.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
 void TermPrintAllCPos(FILE* out, TB_p bank, Term_p term)
-{   
+{
    TermCPos i;
    Term_p t;
    PStack_p stack = PStackAlloc();

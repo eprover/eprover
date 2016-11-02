@@ -5,7 +5,7 @@ File  : pcl_miniclauses.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions dealing with minimal (compact clause representations.
 
   Copyright 1998, 1999, 2002 by the author.
@@ -50,7 +50,7 @@ Changes
 //
 // Function: MiniClauseFree()
 //
-//   Release the memory taken by a compact clause. 
+//   Release the memory taken by a compact clause.
 //
 // Global Variables: -
 //
@@ -98,7 +98,7 @@ void MiniClauseAddTerms(MiniClause_p clause, Clause_p term_clause)
 	  literal->next)
    {
       assert(i<clause->literal_no);
-      
+
       clause->sign[i] = EqnIsPositive(literal);
       clause->lit_terms[(2*i)]   = literal->lterm;
       clause->lit_terms[(2*i)+1] = literal->rterm;
@@ -127,7 +127,7 @@ MiniClause_p ClauseToMiniClause(Clause_p clause)
 
    /* handle->properties = CPIgnoreProps; */
    handle->lit_terms  = NULL;
-   handle->sign       = NULL;   
+   handle->sign       = NULL;
    handle->literal_no = ClauseLiteralNumber(clause);
 
    if(handle->literal_no)
@@ -165,10 +165,10 @@ Clause_p MiniClauseToClause(MiniClause_p clause, TB_p bank)
    Eqn_p    list=NULL, *eqn = &list;
    Clause_p handle;
    int i;
-   
+
    for(i=0; i<clause->literal_no; i++)
    {
-      *eqn = EqnAlloc(clause->lit_terms[(2*i)], 
+      *eqn = EqnAlloc(clause->lit_terms[(2*i)],
 		      clause->lit_terms[(2*i)+1],
 		      bank, clause->sign[i]);
       eqn = &((*eqn)->next);
@@ -192,9 +192,9 @@ Clause_p MiniClauseToClause(MiniClause_p clause, TB_p bank)
 MiniClause_p MinifyClause(Clause_p clause)
 {
    MiniClause_p handle = ClauseToMiniClause(clause);
-   
+
    ClauseFree(clause);
-   
+
    return handle;
 }
 
@@ -213,9 +213,9 @@ MiniClause_p MinifyClause(Clause_p clause)
 Clause_p UnMinifyClause(MiniClause_p clause, TB_p bank)
 {
    Clause_p handle = MiniClauseToClause(clause, bank);
-   
+
    MiniClauseFree(clause);
-   
+
    return handle;
 }
 
@@ -257,7 +257,7 @@ void MiniClausePrint(FILE* out, MiniClause_p compact, TB_p bank, bool
 void MiniClausePCLPrint(FILE* out, MiniClause_p compact, TB_p bank)
 {
    Clause_p clause;
-   
+
    clause = MiniClauseToClause(compact, bank);
    ClausePCLPrint(out, clause, true);
    ClauseFree(clause);
@@ -279,7 +279,7 @@ void MiniClausePCLPrint(FILE* out, MiniClause_p compact, TB_p bank)
 void MiniClauseTSTPCorePrint(FILE* out, MiniClause_p compact, TB_p bank)
 {
    Clause_p clause;
-   
+
    clause = MiniClauseToClause(compact, bank);
    ClauseTSTPCorePrint(out, clause, true);
    ClauseFree(clause);

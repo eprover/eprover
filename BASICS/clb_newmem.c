@@ -41,7 +41,7 @@ bool MemIsLow = false;
 
 Mem_p free_mem_list[MEM_ARR_SIZE] = {NULL};
 
-#ifdef CLB_MEMORY_DEBUG 
+#ifdef CLB_MEMORY_DEBUG
 long size_malloc_mem = 0;
 long size_malloc_count = 0;
 long size_free_mem = 0;
@@ -58,7 +58,7 @@ long secure_realloc_f_count = 0;
 /*                  Exportierte Funktionen                               */
 /*-----------------------------------------------------------------------*/
 
-  
+
 
 /*-----------------------------------------------------------------------
 //
@@ -67,9 +67,9 @@ long secure_realloc_f_count = 0;
 //   Returns all memory kept in free_mem_list[] to the operation
 //   system. This is useful if a very different memory access pattern
 //   is expected (SizeFree() never reorganizes the memory
-//   automatically). 
+//   automatically).
 //
-// Global Variables: free_mem_list[] 
+// Global Variables: free_mem_list[]
 //
 // Side Effects    : Memory operations
 //
@@ -99,7 +99,7 @@ void* SecureMalloc(int size)
 {
    void* handle;
 
-   #ifdef CLB_MEMORY_DEBUG 
+   #ifdef CLB_MEMORY_DEBUG
    secure_malloc_count++;
    secure_malloc_mem += size;
    #endif
@@ -110,9 +110,9 @@ void* SecureMalloc(int size)
    {    /* malloc has no memory left  */
       MemIsLow = true;
       MemFlushFreeList(); /* Return own freelist */
-      
+
       handle = (void*)malloc(size);
-      
+
       if(!handle)
       {   /*  Still nothing...*/
 #ifdef PRINT_SOMEERRORS_STDOUT
@@ -131,7 +131,7 @@ void* SecureMalloc(int size)
 //
 //   Imitates realloc, but reorganizes free_mem_list to get new memory
 //   if the block has to be moved and no memory is available. Will
-//   terminate with OUT_OF_MEMORY if no memory is found. 
+//   terminate with OUT_OF_MEMORY if no memory is found.
 //
 // Global Variables: -
 //
@@ -142,8 +142,8 @@ void* SecureMalloc(int size)
 void* SecureRealloc(void *ptr, int size)
 {
    void* handle;
-   
-#ifdef CLB_MEMORY_DEBUG 
+
+#ifdef CLB_MEMORY_DEBUG
    secure_realloc_count++;
    if(ptr && !size)
    {
@@ -179,9 +179,9 @@ void* SecureRealloc(void *ptr, int size)
 //
 //   Returns a block of memory sized size using the internal
 //   free-list. This block is not freeable with free(), but otherwise
-//   should behave like a normal malloc'ed block.  
+//   should behave like a normal malloc'ed block.
 //
-// Global Variables: free_mem_list[] 
+// Global Variables: free_mem_list[]
 //
 // Side Effects    : Memory operations
 //
@@ -195,7 +195,7 @@ void* SizeMallocReal(int size)
    size = MAX(size, sizeof(MemCell));
 
    mem_index = (size+MEM_ALIGN-1)/MEM_ALIGN;
-   
+
    assert(mem_index > 0);
 
    if(mem_index<MEM_ARR_SIZE)
@@ -218,12 +218,12 @@ void* SizeMallocReal(int size)
       handle = (void*)(free_mem_list[mem_index]);
       assert(handle);
       free_mem_list[mem_index] = free_mem_list[mem_index]->next;
-   } 
+   }
    else
    {
       handle = SecureMalloc(size);
    }
-   #ifdef CLB_MEMORY_DEBUG 
+   #ifdef CLB_MEMORY_DEBUG
    size_malloc_mem+=size;
    size_malloc_count++;
    #endif
@@ -231,7 +231,7 @@ void* SizeMallocReal(int size)
    printf("\nBlock %p A: size %d\n", handle, size);
    #endif
    return handle;
-}   
+}
 
 
 /*-----------------------------------------------------------------------
@@ -253,7 +253,7 @@ void* SizeMallocReal(int size)
 void SizeFreeReal(void* junk, int size)
 {
    int    mem_index;
-   
+
    assert(junk!=NULL);
    #ifdef CLB_MEMORY_DEBUG2
    printf("\nBlock %p D: size %d\n", junk, size);
@@ -266,18 +266,18 @@ void SizeFreeReal(void* junk, int size)
    {
       ((Mem_p)junk)->next = free_mem_list[mem_index];
       free_mem_list[mem_index] = (Mem_p)junk;
-      assert(free_mem_list[mem_index]->test != MEM_FREE_PATTERN); 
+      assert(free_mem_list[mem_index]->test != MEM_FREE_PATTERN);
       assert(free_mem_list[mem_index]->test = MEM_FREE_PATTERN);
-   } 
+   }
    else
    {
       FREE(junk);
    }
-   #ifdef CLB_MEMORY_DEBUG 
+   #ifdef CLB_MEMORY_DEBUG
    size_free_mem+=size;
    size_free_count++;
    #endif
-} 
+}
 
 
 /*-----------------------------------------------------------------------
@@ -296,7 +296,7 @@ void SizeFreeReal(void* junk, int size)
 /----------------------------------------------------------------------*/
 
 void MemAddNewChunk(int mem_index)
-{   
+{
    Mem_p handle, old;
    char* block;
    int   i, size;
@@ -313,7 +313,7 @@ void MemAddNewChunk(int mem_index)
       block        += size;
       handle->next  = (Mem_p)block;
    }
-   handle->next = old;   
+   handle->next = old;
 }
 
 /*-----------------------------------------------------------------------
@@ -321,7 +321,7 @@ void MemAddNewChunk(int mem_index)
 // Function: SecureStrdup()
 //
 //   Implements the functionality of strdup, but uses SecureMalloc()
-/    for the memory handling. 
+/    for the memory handling.
 //
 // Global Variables: -
 //
@@ -344,7 +344,7 @@ char* SecureStrdup(char* source)
 // Function: IntArrayAlloc()
 //
 //   Return a pointer to  a freshly allocated, 0-initialized block of
-//   longs. 
+//   longs.
 //
 // Global Variables: -
 //
@@ -386,7 +386,7 @@ long* IntArrayAlloc(int size)
 
 void MemDebugPrintStats(FILE* out)
 {
-   fprintf(out, 
+   fprintf(out,
 	   "\n# -------------------------------------------------\n");
    fprintf(out,
 	   "# Total SizeMalloc()ed memory: %ld Bytes (%ld requests)\n",
@@ -394,13 +394,13 @@ void MemDebugPrintStats(FILE* out)
    fprintf(out,
 	   "# Total SizeFree()ed   memory: %ld Bytes (%ld requests)\n",
 	   size_free_mem, size_free_count);
-   fprintf(out, 
+   fprintf(out,
 	   "# New requests: %6ld (%6ld by SecureMalloc(), %6ld by SecureRealloc())\n",
 	   secure_malloc_count+secure_realloc_m_count,
 	   secure_malloc_count, secure_realloc_m_count);
-   fprintf(out, 
+   fprintf(out,
 	   "# Total SecureMalloc()ed memory: %ld Bytes\n", secure_malloc_mem);
-   fprintf(out,  
+   fprintf(out,
 	   "# Returned:    %6ld (%6ld by FREE(),         %6ld by SecureRealloc())\n",
 	   clb_free_count+secure_realloc_f_count,
 	   clb_free_count , secure_realloc_f_count);
@@ -408,7 +408,7 @@ void MemDebugPrintStats(FILE* out)
 	   "# SecureRealloc(ptr): %6ld (%6ld Allocs, %6ld Frees, %6ld Reallocs)\n",
 	   secure_realloc_count, secure_realloc_m_count,
 	   secure_realloc_f_count,
-	   secure_realloc_count-(secure_realloc_m_count+secure_realloc_f_count)); 
+	   secure_realloc_count-(secure_realloc_m_count+secure_realloc_f_count));
    fprintf(out,
 	   "# -------------------------------------------------\n\n");
 }

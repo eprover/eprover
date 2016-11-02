@@ -5,7 +5,7 @@ File  : epclextract.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Read a PCL protocol and print all steps that are needed to print
   "proof", "final", or "extract" steps.
 
@@ -62,8 +62,8 @@ typedef enum
 
 OptCell opts[] =
 {
-   {OPT_HELP, 
-    'h', "help", 
+   {OPT_HELP,
+    'h', "help",
     NoArg, NULL,
     "Print a short description of program usage and options."},
 
@@ -72,8 +72,8 @@ OptCell opts[] =
     NoArg, NULL,
     "Print the version number of the program."},
 
-   {OPT_VERBOSE, 
-    'v', "verbose", 
+   {OPT_VERBOSE,
+    'v', "verbose",
     OptArg, "1",
     "Verbose comments on the progress of the program."},
 
@@ -83,7 +83,7 @@ OptCell opts[] =
     "Do a fast extract. With this option the program understands only "
     "a subset of PCL and assumes that all \"proof\" and \"final\" "
     "steps are at the end of the protocoll."},
-   
+
    {OPT_PASS_COMMENTS,
     'C', "forward-comments",
     NoArg, NULL,
@@ -117,7 +117,7 @@ OptCell opts[] =
     'o', "output-file",
     ReqArg, NULL,
    "Redirect output into the named file."},
-    
+
    {OPT_SILENT,
     's', "silent",
     NoArg, NULL,
@@ -153,7 +153,7 @@ void print_help(FILE* out);
 int main(int argc, char* argv[])
 {
    CLState_p       state;
-   Scanner_p       in; 
+   Scanner_p       in;
    long            steps;
    int             i;
    bool            empty_clause = false;
@@ -161,7 +161,7 @@ int main(int argc, char* argv[])
    PCLProt_p       prot = NULL;
 
    assert(argv[0]);
-   
+
 #ifdef STACK_SIZE
    INCREASE_STACK_SIZE;
 #endif
@@ -171,7 +171,7 @@ int main(int argc, char* argv[])
 
    ESignalSetup(SIGTERM);
    ESignalSetup(SIGINT);
-   
+
    /* We need consistent name->var mappings here because we
       potentially read the compressed input format. */
    ClausesHaveLocalVariables = false;
@@ -179,13 +179,13 @@ int main(int argc, char* argv[])
    state = process_options(argc, argv);
 
    OpenGlobalOut(outname);
-   
+
    if(state->argc ==  0)
    {
       CLStateInsertArg(state, "-");
    }
    steps = 0;
-   
+
    if(fast_extract)
    {
       mprot = PCLMiniProtAlloc();
@@ -207,11 +207,11 @@ int main(int argc, char* argv[])
 	 steps+=PCLProtParse(in, prot);
       }
       CheckInpTok(in, NoToken);
-      DestroyScanner(in); 
+      DestroyScanner(in);
    }
    VERBOUT2("PCL input read\n");
    fflush(GlobalOut);
-   
+
    if(fast_extract)
    {
       if(no_extract)
@@ -247,7 +247,7 @@ int main(int argc, char* argv[])
       else
       {
 	 fprintf(GlobalOut, "# SZS output start Saturation.\n");
-      }      
+      }
    }
    if(fast_extract)
    {
@@ -270,13 +270,13 @@ int main(int argc, char* argv[])
       else
       {
 	 fprintf(GlobalOut, "# SZS output end Saturation.\n");
-      }	    
+      }
    }
 #ifdef FAST_EXIT
    exit(0);
 #else
    if(fast_extract)
-   {	 
+   {
       PCLMiniProtFree(mprot);
    }
    else
@@ -284,16 +284,16 @@ int main(int argc, char* argv[])
       PCLProtFree(prot);
    }
    CLStateFree(state);
-   
+
    fflush(GlobalOut);
    OutClose(GlobalOut);
    ExitIO();
-   
+
 #ifdef CLB_MEMORY_DEBUG
    MemFlushFreeList();
    MemDebugPrintStats(stdout);
 #endif
-   
+
    return 0;
 #endif
 }
@@ -306,7 +306,7 @@ int main(int argc, char* argv[])
 //   Read and process the command line option, return (the pointer to)
 //   a CLState object containing the remaining arguments.
 //
-// Global Variables: 
+// Global Variables:
 //
 // Side Effects    : Sets variables, may terminate with program
 //                   description if option -h or --help was present
@@ -318,7 +318,7 @@ CLState_p process_options(int argc, char* argv[])
    Opt_p handle;
    CLState_p state;
    char*  arg;
-   
+
    state = CLStateAlloc(argc,argv);
 
    while((handle = CLStateGetOpt(state, &arg, opts)))
@@ -328,7 +328,7 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_VERBOSE:
 	    Verbose = CLStateGetIntArg(handle, arg);
 	    break;
-      case OPT_HELP: 
+      case OPT_HELP:
 	    print_help(stdout);
 	    exit(NO_ERROR);
       case OPT_VERSION:
@@ -366,7 +366,7 @@ CLState_p process_options(int argc, char* argv[])
 
 void print_help(FILE* out)
 {
-   fprintf(out, 
+   fprintf(out,
 	   "\n"
 	   "\n"
 NAME " " VERSION "\n"

@@ -5,7 +5,7 @@ File  : clb_numtrees.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Definitions for SPLAY trees with long integer keys and up to two
   long or pointer values. Copied from clb_stringtrees.h
 
@@ -47,7 +47,7 @@ Changes
    pointers can be used (and need to be casted carefully by the
    wrapper functions). Objects pointed to by the value fields are not
    part of the data stucture and will not be touched by deallocating
-   trees or tree nodes. */ 
+   trees or tree nodes. */
 
 typedef struct numtreecell
 {
@@ -72,7 +72,7 @@ NumTree_p NumTreeCellAllocEmpty(void);
 void      NumTreeFree(NumTree_p junk);
 NumTree_p NumTreeInsert(NumTree_p *root, NumTree_p newnode);
 bool      NumTreeStore(NumTree_p *root, long key, IntOrP val1, IntOrP val2);
-long      NumTreeDebugPrint(FILE* out, NumTree_p tree, 
+long      NumTreeDebugPrint(FILE* out, NumTree_p tree,
 			    bool keys_only);
 NumTree_p NumTreeFind(NumTree_p *root, long key);
 NumTree_p NumTreeExtractEntry(NumTree_p *root, long key);

@@ -5,7 +5,7 @@ File  : ccl_rewrite.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for rewriting terms and clauses with clause sets.
 
 Copyright 1998-2011 by the author.
@@ -35,7 +35,7 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-/* Collect all necessary information for rewriting into one structure */ 
+/* Collect all necessary information for rewriting into one structure */
 
 typedef struct rw_desc_cell
 {
@@ -70,7 +70,7 @@ extern long BWRWMatchSuccesses;
 
 Term_p TermComputeLINormalform(OCB_p ocb, TB_p bank, Term_p term,
 			       ClauseSet_p *demodulators,
-			       RewriteLevel level, 
+			       RewriteLevel level,
                                bool prefer_general,
                                bool restricted_rw);
 
@@ -88,8 +88,8 @@ bool FindRewritableClauses(OCB_p ocb, ClauseSet_p set,
 			   PStack_p results, Clause_p
 			   new_demod, SysDate nf_date);
 
-long FindRewritableClausesIndexed(OCB_p ocb, SubtermIndex_p index, 
-                                  PStack_p stack, Clause_p new_demod, 
+long FindRewritableClausesIndexed(OCB_p ocb, SubtermIndex_p index,
+                                  PStack_p stack, Clause_p new_demod,
                                   SysDate nf_date);
 
 #endif

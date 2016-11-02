@@ -5,7 +5,7 @@ File  : cpr_propsig.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Definitions for dealing with signatures for propositional variables
   - essentially juat associating a name with an internal number and
   vice versa.
@@ -37,7 +37,7 @@ Changes
 
 typedef struct propsigcell
 {
-   PStack_p  enc_to_name; 
+   PStack_p  enc_to_name;
    StrTree_p name_to_enc;
 }PropSigCell, *PropSig_p;
 

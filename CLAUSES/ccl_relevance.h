@@ -5,7 +5,7 @@ File  : ccl_relevance.h
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Code implementing some limited relevance analysis for function
   symbols and clauses/formulas.
 
@@ -43,13 +43,13 @@ typedef struct relevance_cell
 
    PList_p   clauses_core;
    PList_p   formulas_core;
-   
+
    PList_p   clauses_rest;
    PList_p   formulas_rest;
 
    FIndex_p  clauses_index;
    FIndex_p  formulas_index;
-   
+
    long      max_level;
    PDArray_p fcode_relevance;
    PStack_p  new_codes;

@@ -5,7 +5,7 @@ File  : cte_termvars.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for the management of shared variables.
 
   Copyright 1998, 1999 by the author.
@@ -34,7 +34,7 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-/* Associate FunCodes and cells */   
+/* Associate FunCodes and cells */
 typedef PDArray_p VarBankStack_p;
 
 /* Variable banks store information about variables. They contain two
@@ -75,7 +75,7 @@ typedef struct varbanknamedcell
 /* Variables greater than this are reserved for fresh variables. At
    the moment this is only used for term pattern generation and term
    top computing in the learning modules */
-#define FRESH_VAR_LIMIT      1024 
+#define FRESH_VAR_LIMIT      1024
 
 #define VarBankCellAlloc() (VarBankCell*)SizeMalloc(sizeof(VarBankCell))
 #define VarBankCellFree(junk)    SizeFree(junk, sizeof(VarBankCell))
@@ -120,7 +120,7 @@ long   VarBankCollectVars(VarBank_p bank, PStack_p stack);
 //
 // Function: VarBankGetStack
 // Obtain a pointer to the stack that stores variables of a given sort.
-//   
+//
 //
 // Global Variables: -
 //

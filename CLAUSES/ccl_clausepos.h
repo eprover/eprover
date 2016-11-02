@@ -5,7 +5,7 @@ File  : ccl_clausepos.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Positions of subterms in clauses (and in equations).
 
   Copyright 1998, 1999 by the author.
@@ -67,7 +67,7 @@ static __inline__ Term_p   ClausePosGetOtherSide(ClausePos_p pos);
 static __inline__ Term_p   ClausePosGetSubterm(ClausePos_p pos);
 #define ClausePosIsTop(position) ((PStackEmpty((position)->pos)))
 
-      
+
 void     ClausePosPrint(FILE* out, ClausePos_p pos);
 Eqn_p    ClausePosFindPosLiteral(ClausePos_p pos, bool maximal);
 Eqn_p    ClausePosFindMaxLiteral(ClausePos_p pos, bool positive);
@@ -100,7 +100,7 @@ bool     TermComputeRWSequence(PStack_p stack, Term_p from, Term_p to,
 static __inline__ ClausePos_p ClausePosAlloc(void)
 {
    ClausePos_p handle = ClausePosCellAlloc();
-   
+
    handle->literal = NULL;
    handle->side    = LeftSide;
    handle->pos     = TermPosAlloc();
@@ -135,7 +135,7 @@ static __inline__ void ClausePosFree(ClausePos_p junk)
 // Function: ClausePosGetSide()
 //
 //   Given a clause position, return the designated side of the
-//   literal. 
+//   literal.
 //
 // Global Variables: -
 //
@@ -182,7 +182,7 @@ static __inline__ Term_p ClausePosGetOtherSide(ClausePos_p pos)
 // Function: ClausePosGetSubterm()
 //
 //   Given a clause position, return the designated subterm of the
-//   literal. 
+//   literal.
 //
 // Global Variables: -
 //

@@ -75,8 +75,8 @@ typedef enum
 
 OptCell opts[] =
 {
-   {OPT_HELP, 
-    'h', "help", 
+   {OPT_HELP,
+    'h', "help",
     NoArg, NULL,
     "Print a short description of program usage and options."},
 
@@ -85,8 +85,8 @@ OptCell opts[] =
     NoArg, NULL,
     "Print the version number of the program."},
 
-   {OPT_VERBOSE, 
-    'v', "verbose", 
+   {OPT_VERBOSE,
+    'v', "verbose",
     OptArg, "1",
     "Verbose comments on the progress of the program by printing "
     "technical information to stderr."},
@@ -102,7 +102,7 @@ OptCell opts[] =
     ReqArg, NULL,
     "Name of the files containing clauses to be normalized. If '-' "
     "is used as the argument, clauses are read from standard input."},
-   
+
    {OPT_FORMULASOURCE,
     'f', "formulas",
     ReqArg, NULL,
@@ -129,7 +129,7 @@ OptCell opts[] =
     "nearly no output except for the final clauses, level 1 produces"
     " minimal additional output. Higher levels are without meaning in"
     " " NAME " (I think)."},
- 
+
    {OPT_PRINT_STATISTICS,
     '\0', "print-statistics",
     NoArg, NULL,
@@ -153,7 +153,7 @@ OptCell opts[] =
     "almost always correctly recognize TPTP-3, but it may "
     "misidentify E-LOP files that use TPTP meta-identifiers as "
     "logical symbols."},
-   
+
    {OPT_TPTP_PARSE,
     '\0', "tptp-in",
     NoArg, NULL,
@@ -193,7 +193,7 @@ OptCell opts[] =
     "is still under development, and the version implemented may not be "
     "fully conformant at all times. It works on all TPTP 3.0.1 input "
     "files (including includes)."},
-   
+
    {OPT_TSTP_PRINT,
     '\0', "tstp-out",
     NoArg, NULL,
@@ -226,7 +226,7 @@ OptCell opts[] =
     "the allowed amount of memory in MB. This option may not work "
     "everywhere, due to broken and/or strange behaviour of setrlimit() "
     "in some UNIX implementations. It does work under all tested "
-    "versions of Solaris and GNU/Linux."},   
+    "versions of Solaris and GNU/Linux."},
 
    {OPT_CPU_LIMIT,
     '\0', "cpu-limit",
@@ -234,17 +234,17 @@ OptCell opts[] =
     "Limit the cpu time the program should run. The optional argument "
     "is the CPU time in seconds. The program will terminate immediately"
     " after reaching the time limit, regardless of internal state. This"
-    " option may not work " 
+    " option may not work "
     "everywhere, due to broken and/or strange behaviour of setrlimit() "
     "in some UNIX implementations. It does work under all tested "
     "versions of Solaris, HP-UX and GNU/Linux. As a side effect, this "
-    "option will inhibit core file writing."}, 
+    "option will inhibit core file writing."},
 
    {OPT_SOFTCPU_LIMIT,
     '\0', "soft-cpu-limit",
     OptArg, "310",
     "Limit the cpu time spend in grounding. After the time expires,"
-    " the prover will print an partial system."},  
+    " the prover will print an partial system."},
 
     {OPT_NOOPT,
     '\0', NULL,
@@ -281,11 +281,11 @@ void print_help(FILE* out);
 //
 //   Extract all positive unit clauses from spec, mark them as
 //   oriented in the natural direction (left to right), and insert
-//   them into demods. Free all other clauses and print a warning. 
+//   them into demods. Free all other clauses and print a warning.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -297,7 +297,7 @@ long build_rw_system(ClauseSet_p demods, ClauseSet_p spec)
    while((handle = ClauseSetExtractFirst(spec)))
    {
       if(ClauseIsDemodulator(handle))
-      {         
+      {
          SysDateInc(&(demods->date));
          handle->date = demods->date;
          EqnSetProp(handle->literals, EPIsOriented);
@@ -305,7 +305,7 @@ long build_rw_system(ClauseSet_p demods, ClauseSet_p spec)
          count++;
       }
       else
-      {         
+      {
          fprintf(stderr, "%s: Clause is not a rewrite rule: ", NAME);
          ClausePrint(stderr, handle, true);
          fprintf(stderr, " -- ignoring\n");
@@ -319,11 +319,11 @@ long build_rw_system(ClauseSet_p demods, ClauseSet_p spec)
 //
 // Function: process_terms()
 //
-//   Open infile, read terms, compute and print their normal forms. 
+//   Open infile, read terms, compute and print their normal forms.
 //
 // Global Variables: parse_format, GlobalOut
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -331,7 +331,7 @@ void process_terms(char* infile, TB_p terms, OCB_p ocb, ClauseSet_p *demodulator
 {
    Term_p t, tp;
    Scanner_p in;
-   
+
    if(infile)
    {
       in = CreateScanner(StreamTypeFile, infile, true, NULL);
@@ -347,7 +347,7 @@ void process_terms(char* infile, TB_p terms, OCB_p ocb, ClauseSet_p *demodulator
          TBPrintTermFull(GlobalOut, terms, tp);
          fprintf(GlobalOut, "\n");
       }
-      DestroyScanner(in);   
+      DestroyScanner(in);
    }
 }
 
@@ -356,11 +356,11 @@ void process_terms(char* infile, TB_p terms, OCB_p ocb, ClauseSet_p *demodulator
 // Function: process_clauses()
 //
 //   Open infile, read clauses, and compute and print their normal
-//   forms. 
+//   forms.
 //
 // Global Variables: parse_format, GlobalOut
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -368,7 +368,7 @@ void process_clauses(char* infile, TB_p terms, OCB_p ocb, ClauseSet_p *demodulat
 {
    Clause_p clause;
    Scanner_p in;
-   
+
    if(infile)
    {
       in = CreateScanner(StreamTypeFile, infile, true, NULL);
@@ -385,7 +385,7 @@ void process_clauses(char* infile, TB_p terms, OCB_p ocb, ClauseSet_p *demodulat
          fprintf(GlobalOut, "\n");
          ClauseFree(clause);
       }
-      DestroyScanner(in);   
+      DestroyScanner(in);
    }
 }
 
@@ -394,11 +394,11 @@ void process_clauses(char* infile, TB_p terms, OCB_p ocb, ClauseSet_p *demodulat
 // Function: process_formulas()
 //
 //   Open infile, read formulas, and compute and print their normal
-//   forms. 
+//   forms.
 //
 // Global Variables: parse_format, GlobalOut
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -406,7 +406,7 @@ void process_formulas(char* infile, TB_p terms, OCB_p ocb, ClauseSet_p *demodula
 {
    WFormula_p form;
    Scanner_p in;
-   
+
    if(infile)
    {
       in = CreateScanner(StreamTypeFile, infile, true, NULL);
@@ -415,16 +415,16 @@ void process_formulas(char* infile, TB_p terms, OCB_p ocb, ClauseSet_p *demodula
       {
          form = WFormulaParse(in, terms);
          WFormulaPrint(GlobalOut, form, true);
-         
+
          form->tformula = TermComputeLINormalform(ocb, terms, form->tformula,
                                                   demodulators,
-                                                  1, false, false);          
+                                                  1, false, false);
          fprintf(GlobalOut, " ==> ");
          WFormulaPrint(GlobalOut, form, true);
          fprintf(GlobalOut, "\n");
          WFormulaFree(form);
       }
-      DestroyScanner(in);   
+      DestroyScanner(in);
    }
 }
 
@@ -450,7 +450,7 @@ int main(int argc, char* argv[])
    Sig_p           sig;
    ClauseSet_p     clauses;
    FormulaSet_p    formulas, f_ax_archive;
-   Scanner_p       in;    
+   Scanner_p       in;
    int             i;
    CLState_p       state;
    StrTree_p       skip_includes = NULL;
@@ -465,16 +465,16 @@ int main(int argc, char* argv[])
    ESignalSetup(SIGXCPU);
 
    state = process_options(argc, argv);
-   
+
    OpenGlobalOut(outname);
-   
+
    if(state->argc ==  0)
    {
       CLStateInsertArg(state, "-");
    }
-   
+
    sort_table   = DefaultSortTableAlloc();
-   sig          = SigAlloc(sort_table); 
+   sig          = SigAlloc(sort_table);
    SigInsertInternalCodes(sig);
    terms        = TBAlloc(sig);
    collector    = GCAdminAlloc(terms);
@@ -491,7 +491,7 @@ int main(int argc, char* argv[])
       in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL);
       ScannerSetFormat(in, parse_format);
       /* ClauseSetParseList(in, clauses, terms); */
-      FormulaAndClauseSetParse(in,clauses, formulas, terms, 
+      FormulaAndClauseSetParse(in,clauses, formulas, terms,
          NULL, &skip_includes);
       CheckInpTok(in, NoToken);
       DestroyScanner(in);
@@ -503,7 +503,7 @@ int main(int argc, char* argv[])
       VERBOUT("Negated conjectures.\n");
    }
    freshvars = VarBankAlloc(sort_table);
-   if(FormulaSetCNF(formulas, f_ax_archive, 
+   if(FormulaSetCNF(formulas, f_ax_archive,
                     clauses, terms, freshvars, collector))
    {
       VERBOUT("CNFization done\n");
@@ -523,11 +523,11 @@ int main(int argc, char* argv[])
 
 
    GCDeregisterClauseSet(collector, clauses);
-   ClauseSetFree(clauses);  
+   ClauseSetFree(clauses);
 
    VERBOUT("# Demodulators\n");
    VERBOSE(ClauseSetPrint(stderr, demodulators[0], true););
-   
+
    ocb = OCBAlloc(EMPTY, false, terms->sig);
 
    process_terms(termname, terms, ocb, demodulators);
@@ -537,7 +537,7 @@ int main(int argc, char* argv[])
    OCBFree(ocb);
 
 #ifndef FAST_EXIT
-   ClauseSetFree(demodulators[0]);  
+   ClauseSetFree(demodulators[0]);
    GCAdminFree(collector);
 
    terms->sig = NULL;
@@ -553,12 +553,12 @@ int main(int argc, char* argv[])
    fflush(GlobalOut);
    OutClose(GlobalOut);
    ExitIO();
-   
+
 #ifdef CLB_MEMORY_DEBUG
    MemFlushFreeList();
    MemDebugPrintStats(stdout);
 #endif
-   
+
    return 0;
 }
 
@@ -584,9 +584,9 @@ CLState_p process_options(int argc, char* argv[])
    char*  arg;
    struct rlimit limit = {RLIM_INFINITY, RLIM_INFINITY};
    rlim_t mem_limit = 0;
-   
+
    state = CLStateAlloc(argc,argv);
-   
+
    while((handle = CLStateGetOpt(state, &arg, opts)))
    {
       switch(handle->option_code)
@@ -594,7 +594,7 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_VERBOSE:
 	    Verbose = CLStateGetIntArg(handle, arg);
 	    break;
-      case OPT_HELP: 
+      case OPT_HELP:
 	    print_help(stdout);
 	    exit(NO_ERROR);
       case OPT_VERSION:
@@ -625,7 +625,7 @@ CLState_p process_options(int argc, char* argv[])
 	    print_rusage = true;
 	    break;
       case OPT_LOP_PARSE:
-	    parse_format = LOPFormat;	    
+	    parse_format = LOPFormat;
 	    break;
       case OPT_TPTP_PARSE:
 	    parse_format = TPTPFormat;
@@ -636,7 +636,7 @@ CLState_p process_options(int argc, char* argv[])
 	    EqnUseInfix = false;
 	    break;
       case OPT_TPTP_FORMAT:
-	    parse_format = TPTPFormat;	    
+	    parse_format = TPTPFormat;
 	    OutputFormat = TPTPFormat;
 	    EqnFullEquationalRep = false;
 	    EqnUseInfix = false;
@@ -655,20 +655,20 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_MEM_LIMIT:
             if(strcmp(arg, "Auto")==0)
-            {              
+            {
                long tmpmem =  GetSystemPhysMemory();
                mem_limit = 0.8*tmpmem;
-               
+
                if(tmpmem==-1)
                {
                   Error("Cannot find physical memory automatically. "
                         "Give explicit value to --memory-limit", OTHER_ERROR);
-               }               
+               }
                mem_limit = MEGA*mem_limit;
-               VERBOSE(fprintf(stderr, 
+               VERBOSE(fprintf(stderr,
                                "Physical memory determined as %ld MB\n"
-                               "Memory limit set to %lld MB\n", 
-                               tmpmem, 
+                               "Memory limit set to %lld MB\n",
+                               tmpmem,
                                (long long)mem_limit););
             }
             else
@@ -696,7 +696,7 @@ CLState_p process_options(int argc, char* argv[])
 		  Error("Soft time limit has to be smaller than hard"
 			"time limit", USAGE_ERROR);
 	       }
-	    }	    
+	    }
 	    break;
       default:
 	 assert(false);
@@ -730,13 +730,13 @@ CLState_p process_options(int argc, char* argv[])
       }
       limit.rlim_max = RLIM_INFINITY;
       limit.rlim_cur = 0;
-      
+
       if(setrlimit(RLIMIT_CORE, &limit))
       {
 	 TmpErrno = errno;
 	 SysError("Unable to prevent core dumps", SYS_ERROR);
       }
-   }   
+   }
    SetMemoryLimit(mem_limit);
    return state;
 }

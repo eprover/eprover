@@ -5,7 +5,7 @@ File  : ccl_inferencedoc.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions and constants for reporting on the proof process.
 
   Copyright 1998, 1999 by the author.
@@ -33,7 +33,7 @@ Changes
 /*---------------------------------------------------------------------*/
 
 
-typedef enum 
+typedef enum
 {
    inf_noinf,
    inf_initial,
@@ -51,7 +51,7 @@ typedef enum
    inf_condense,
    inf_minimize,
    inf_rewrite,
-   
+
    inf_fof_simpl,
    inf_fof_split_equiv,
    inf_fof_nnf,
@@ -65,7 +65,7 @@ typedef enum
    inf_skolemize_out,
    inf_neg_conjecture
 }InfType;
-   
+
 typedef enum
 {
    no_format,
@@ -75,7 +75,7 @@ typedef enum
    tptp_format,
    xml_format
 }OutputFormatType;
- 
+
 
 #define PCL_QUOTE  NULL
 #define PCL_EVALGC "evalgc"
@@ -127,7 +127,7 @@ void    DocClauseCreation(FILE* out, long level, Clause_p clause,
         DocClauseCreation(GlobalOut, OutputLevel, (clause),\
 		       (op), (parent1), (parent2), NULL)
 
-void    DocClauseFromForm(FILE* out, long level, Clause_p clause, 
+void    DocClauseFromForm(FILE* out, long level, Clause_p clause,
                           WFormula_p parent);
 
 void    DocClauseModification(FILE* out, long level, Clause_p clause, InfType
@@ -153,22 +153,22 @@ void    DocClauseRewrite(FILE* out, long level, ClausePos_p rewritten,
 void    DocClauseEqUnfold(FILE* out, long level, Clause_p rewritten,
 			  ClausePos_p demod, PStack_p demod_pos);
 
- 
-void    DocFormulaCreation(FILE* out, long level, WFormula_p formula, 
+
+void    DocFormulaCreation(FILE* out, long level, WFormula_p formula,
                            InfType op, WFormula_p parent1,
                            WFormula_p parent2, char* comment);
 
 #define DocFormulaCreationDefault(formula, op, parent1, parent2)\
         DocFormulaCreation(GlobalOut, OutputLevel, (formula),\
-        (op), (parent1), (parent2), NULL) 
+        (op), (parent1), (parent2), NULL)
 
-void    DocFormulaModification(FILE* out, long level, WFormula_p form, 
+void    DocFormulaModification(FILE* out, long level, WFormula_p form,
                                 InfType op, char* comment);
 
 #define DocFormulaModificationDefault(form, op)\
         DocFormulaModification(GlobalOut, OutputLevel, (form), (op), NULL)
 
-void    DocFormulaIntroDefs(FILE* out, long level, WFormula_p form, 
+void    DocFormulaIntroDefs(FILE* out, long level, WFormula_p form,
                             PStack_p def_list, char* comment);
 #define DocFormulaIntroDefsDefault(form, def_list)\
         DocFormulaIntroDefs(GlobalOut, OutputLevel, (form), (def_list), NULL)
@@ -179,13 +179,13 @@ void    DocIntroSplitDef(FILE* out, long level, WFormula_p form);
 #define DocIntroSplitDefDefault(form)\
         DocIntroSplitDef(GlobalOut, OutputLevel, (form))
 
-void    DocIntroSplitDefRest(FILE* out, long level, Clause_p clause, 
+void    DocIntroSplitDefRest(FILE* out, long level, Clause_p clause,
                              WFormula_p parent, char* comment);
 #define DocIntroSplitDefRestDefault(clause, parent)\
         DocIntroSplitDefRest(GlobalOut, OutputLevel, (clause), (parent), NULL)
 
-void    DocClauseApplyDefs(FILE* out, long level, Clause_p clause, 
-                           long parent_id, PStack_p def_ids, 
+void    DocClauseApplyDefs(FILE* out, long level, Clause_p clause,
+                           long parent_id, PStack_p def_ids,
                            char* comment);
 #define DocClauseApplyDefsDefault(clause, parent_id, def_ids)\
         DocClauseApplyDefs(GlobalOut, OutputLevel, (clause), \

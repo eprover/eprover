@@ -7,7 +7,7 @@ Author: Stephan Schulz
 Contents
 
   Positions in PCL2 clauses.
- 
+
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
@@ -41,7 +41,7 @@ typedef struct pcl2poscell
    long      literal;
    EqnSide   side;
    long      termposlen; /* Might take a stack here, but stacks will */
-   PDArray_p termpos;    /* be, on average, much to large */   
+   PDArray_p termpos;    /* be, on average, much to large */
 }PCL2PosCell, *PCL2Pos_p;
 
 

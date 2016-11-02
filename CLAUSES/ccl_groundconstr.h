@@ -7,7 +7,7 @@ Author: Stephan Schulz
 Contents
 
   Computing constraints on the possible instances of groundable
-  clauses. 
+  clauses.
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
@@ -86,7 +86,7 @@ long    SigCollectConstantTerms(TB_p bank, PStack_p stack, FunCode uniq);
 
 void      EqnCollectVarConstr(LitOccTable_p p_table, LitOccTable_p
 			      n_table, PDArray_p var_constr, Eqn_p
-			      eqn); 
+			      eqn);
 void ClauseCollectVarConstr(LitOccTable_p p_table, LitOccTable_p
 			    n_table, Clause_p clause, PTree_p
 			    ground_terms, PDArray_p var_constr);

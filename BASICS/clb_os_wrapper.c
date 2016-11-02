@@ -6,7 +6,7 @@ Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
 
-  Wrapper functions for certain OS functionality. 
+  Wrapper functions for certain OS functionality.
 
   Copyright 2007 by the author.
   This code is released under the GNU General Public Licence and
@@ -96,7 +96,7 @@ RLimResult SetSoftRlimit(int resource, rlim_t limit)
 //   has to be reduced, terminate with a proper system error if it
 //   fails. If desc is provided, use it for messages.
 //
-// Global Variables: 
+// Global Variables:
 //
 // Side Effects    : As described...
 //
@@ -131,7 +131,7 @@ void SetSoftRlimitErr(int resource, rlim_t limit, char* desc)
    default:
          assert(false && "Out of bounds return from SetSoftRlimit()");
          break;
-   }   
+   }
 }
 
 
@@ -153,7 +153,7 @@ void SetMemoryLimit(rlim_t mem_limit)
    if(!mem_limit)
    {
       return;
-   }  
+   }
    SetSoftRlimitErr(RLIMIT_DATA, mem_limit, "RLIMIT_DATA");
 #ifdef RLIMIT_AS
    SetSoftRlimitErr(RLIMIT_DATA, mem_limit, "RLIMIT_AS");
@@ -176,10 +176,10 @@ void SetMemoryLimit(rlim_t mem_limit)
 rlim_t GetSoftRlimit(int resource)
 {
    struct rlimit rlim;
- 
+
    if(getrlimit(resource, &rlim)==-1)
    {
-      return 0;      
+      return 0;
    }
    return rlim.rlim_cur;
 }
@@ -238,7 +238,7 @@ rlim_t GetSoftRlimit(int resource)
 /*    } */
 /*    argv2[i] = opt; */
 /*    argv2[i+1] = NULL; */
-   
+
 /*    if(execvp(argv2[0], argv2)) */
 /*    { */
 /*       TmpErrno = errno; */
@@ -293,11 +293,11 @@ long long GetUSecClock(void)
 //
 // Function: SecureFOpen()
 //
-//   As fopen(), but terminate with a useful error message on failure.   
+//   As fopen(), but terminate with a useful error message on failure.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -321,9 +321,9 @@ FILE* SecureFOpen(char* name, char* mode)
 //
 //   As fclose(), but print a warning on error.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 

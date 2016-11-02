@@ -5,9 +5,9 @@ File  : cco_einteractive_mode.h
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
-  
+
   Code for parsing and handling the server's interactive mode.
-  
+
   Copyright 2015 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
@@ -82,8 +82,8 @@ AxiomSet_p AxiomSetAlloc(ClauseSet_p cset,
 
 void AxiomSetFree(AxiomSet_p axiomset);
 
-void StartDeductionServer(BatchSpec_p spec, 
-                          StructFOFSpec_p ctrl, 
+void StartDeductionServer(BatchSpec_p spec,
+                          StructFOFSpec_p ctrl,
                           char* server_lib,
                           FILE* fp,
                           int sock_fd);

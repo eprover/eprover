@@ -5,7 +5,7 @@ File  : clb_defines.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Basic definition useful (very nearly) everywhere.
 
   Copyright 1998, 1999 by the author.
@@ -26,8 +26,8 @@ Changes
 #define CLB_DEFINES
 
 #include <assert.h>
-#include <stdio.h> 
-#include <string.h> 
+#include <stdio.h>
+#include <string.h>
 #include <errno.h>
 #include <sys/param.h>
 #include <unistd.h>

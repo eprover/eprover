@@ -5,7 +5,7 @@ File  : che_axfilter.h
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Definitions dealing with the description of axiom set filters based
   on relevancy/SinE principles. This only deals with their parameters
   and specifications. The real code is (for now) in CONTROL and knows
@@ -35,7 +35,7 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-typedef enum 
+typedef enum
 {
    AFNoFilter = 0,
    AFGSinE,    /* Generalized SinE */
@@ -63,7 +63,7 @@ typedef enum
 
 /* Parameters for a single Axiom filter */
 
-typedef struct 
+typedef struct
 {
    char*             name;
    AxFilterType      type;
@@ -74,7 +74,7 @@ typedef struct
    long              max_recursion_depth;
    long long         max_set_size;
    long              threshold;
-   double            max_set_fraction; 
+   double            max_set_fraction;
    bool              add_no_symbol_axioms;
 }AxFilterCell, *AxFilter_p;
 

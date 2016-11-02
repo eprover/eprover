@@ -5,7 +5,7 @@ File  : cle_kbinsert.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for implementing the kb-insert operation.
 
   Copyright 1998, 1999 by the author.

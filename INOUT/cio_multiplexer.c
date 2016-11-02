@@ -5,7 +5,7 @@ File  : cio_multiplexer.c
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Code for convenient multiplexing of many channels.
 
   Copyright 2011 by the author.
@@ -64,7 +64,7 @@ TCPChannel_p  TCPChannelAlloc(int sock)
    handle->sock  = sock;
    handle->in    = PQueueAlloc();
    handle->out   = PQueueAlloc();
-   
+
    return handle;
 }
 
@@ -91,7 +91,7 @@ void TCPChannelFree(TCPChannel_p junk)
       TCPMsgFree(handle);
    }
    PQueueFree(junk->in);
-   
+
    while(!PQueueEmpty(junk->out))
    {
       handle = PQueueGetNextP(junk->out);
@@ -233,7 +233,7 @@ MsgStatus TCPChannelRead(TCPChannel_p channel)
 //
 //   Write the current message (if any) as far as possible without
 //   blocking (i.e. try a single "write()"). If the message is
-//   complete, remove it from the queue. 
+//   complete, remove it from the queue.
 //
 // Global Variables: -
 //
@@ -242,10 +242,10 @@ MsgStatus TCPChannelRead(TCPChannel_p channel)
 /----------------------------------------------------------------------*/
 
 MsgStatus TCPChannelWrite(TCPChannel_p channel)
-{  
+{
    TCPMsg_p current;
    MsgStatus res;
- 
+
    if(PQueueEmpty(channel->in))
    {
       return NWSuccess;

@@ -5,20 +5,20 @@ File  : che_wfcb.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Weigth-function-Control blocks, functions computing weights for
-  clauses. 
+  clauses.
 
   The interface to an evaluation function requires 3 or 4 functions:
-  
-  WFCB_p <eval>Init(PrioFun prio, &rest) 
+
+  WFCB_p <eval>Init(PrioFun prio, &rest)
 
      This function takes a prority function and optional arguments,
      and return a WFCB. In particular, it is responsible for creating
      the data block of the WFCB. Resonable additional arguments are
      the OCB, the signature, or the set of axioms.
 
-  WFCB_p <eval>Parse(Scanner_p in, OCB_p ocb, ProofState_p state) 
+  WFCB_p <eval>Parse(Scanner_p in, OCB_p ocb, ProofState_p state)
 
      Extracts the arguments from an input stream and passes then on to
      the init-function. ocb contains an initialized OCB, state is a
@@ -30,7 +30,7 @@ Contents
      double <eval>Compute(void *data, Clause_p clause)
 
      Given a clause and a data block, return an evaluation for the
-     clause. 
+     clause.
 
   void <Eval>Exit(void* data)
 

@@ -5,7 +5,7 @@ File  : ccl_factor.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for ordered and equality factorisation.
 
   Copyright 1998, 1999 by the author.
@@ -50,9 +50,9 @@ Changes
 //   literal (at or including pos2->literal) distinct from
 //   pos1->literal.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -87,14 +87,14 @@ Eqn_p find_next_potential_eq_factor_partner(ClausePos_p pos1,
 Eqn_p find_first_eq_factor_partner(ClausePos_p pos1, ClausePos_p pos2)
 {
    Eqn_p lit;
-   
+
    assert(pos1);
    assert(pos2);
    assert(pos1->clause);
    assert(pos1->literal);
    assert(EqnIsPositive(pos1->literal));
    assert(EqnIsMaximal(pos1->literal));
-   
+
    pos2->clause = pos1->clause;
    pos2->literal = pos1->clause->literals;
    pos2->side = LeftSide;
@@ -118,7 +118,7 @@ Eqn_p find_first_eq_factor_partner(ClausePos_p pos1, ClausePos_p pos2)
 // Global Variables: -
 //
 // Side Effects    : Creates clause, temporary bindings (will be
-//                   backtracked). 
+//                   backtracked).
 //
 /----------------------------------------------------------------------*/
 
@@ -136,7 +136,7 @@ Clause_p ComputeOrderedFactor(TB_p bank, OCB_p ocb, ClausePos_p pos1,
 
    subst = SubstAlloc();
    VarBankResetVCount(freshvars);
-      
+
    if(pos2->side == RightSide)
    {
       EqnSwapSidesSimple(pos2->literal);
@@ -157,7 +157,7 @@ Clause_p ComputeOrderedFactor(TB_p bank, OCB_p ocb, ClausePos_p pos1,
                                              pos2->literal);
 	 EqnListRemoveResolved(&new_literals);
 	 EqnListRemoveDuplicates(new_literals);
-	 new_clause = ClauseAlloc(new_literals);	 
+	 new_clause = ClauseAlloc(new_literals);
       }
    }
    SubstDelete(subst);
@@ -213,7 +213,7 @@ Eqn_p ClausePosFirstOrderedFactorLiterals(Clause_p clause, ClausePos_p
 //   inference. Return the second literal, or NULL if no position pair
 //   exists. pos2->side is used to indicate wether the unification
 //   should take place as is or with one equation swapped.
-//   
+//
 //
 // Global Variables: -
 //
@@ -222,11 +222,11 @@ Eqn_p ClausePosFirstOrderedFactorLiterals(Clause_p clause, ClausePos_p
 /----------------------------------------------------------------------*/
 
 Eqn_p ClausePosNextOrderedFactorLiterals(ClausePos_p pos1, ClausePos_p
-					 pos2) 
+					 pos2)
 {
    Eqn_p lit;
 
-   if(pos2->side == LeftSide && 
+   if(pos2->side == LeftSide &&
       (!EqnIsOriented(pos2->literal) ||
        !EqnIsOriented(pos1->literal)))
    {
@@ -236,7 +236,7 @@ Eqn_p ClausePosNextOrderedFactorLiterals(ClausePos_p pos1, ClausePos_p
    pos2->side = LeftSide;
    pos2->literal = pos2->literal->next;
    lit = ClausePosFindMaxLiteral(pos2, true);
-   
+
    while(!lit)
    {
       pos1->literal = pos1->literal->next;
@@ -262,7 +262,7 @@ Eqn_p ClausePosNextOrderedFactorLiterals(ClausePos_p pos1, ClausePos_p
 // Global Variables: -
 //
 // Side Effects    : Creates clause, temporary bindings (will be
-//                   backtracked). 
+//                   backtracked).
 //
 /----------------------------------------------------------------------*/
 
@@ -273,7 +273,7 @@ Clause_p ComputeEqualityFactor(TB_p bank, OCB_p ocb, ClausePos_p pos1,
    Eqn_p   new_condition, new_literals;
    Subst_p subst = SubstAlloc();
    Clause_p new_clause = NULL;
-   
+
    assert(EqnIsPositive(pos1->literal));
    assert(EqnIsMaximal(pos1->literal));
    assert(EqnIsPositive(pos2->literal));
@@ -281,7 +281,7 @@ Clause_p ComputeEqualityFactor(TB_p bank, OCB_p ocb, ClausePos_p pos1,
 
    max_term  = ClausePosGetSide(pos1);
    with_term = ClausePosGetSide(pos2);
-   
+
    if((!TermIsVar(max_term)||EqnIsEquLit(pos2->literal))&&
       (!TermIsVar(with_term)||EqnIsEquLit(pos1->literal))&&
       SubstComputeMgu(max_term, with_term, subst))
@@ -294,7 +294,7 @@ Clause_p ComputeEqualityFactor(TB_p bank, OCB_p ocb, ClausePos_p pos1,
       {
 	 NormSubstEqnListExcept(pos1->clause->literals, pos2->literal,
 				subst, freshvars);
-      	 new_lside = TBInsertNoProps(bank, min_term, DEREF_ALWAYS);	 
+      	 new_lside = TBInsertNoProps(bank, min_term, DEREF_ALWAYS);
 	 new_rside = TBInsertNoProps(bank,
 				     ClausePosGetOtherSide(pos2),
 				     DEREF_ALWAYS);
@@ -319,7 +319,7 @@ Clause_p ComputeEqualityFactor(TB_p bank, OCB_p ocb, ClausePos_p pos1,
 //   Given a clause and two uninialized positions, set the positions
 //   to the first potiental pair of sides for an equality factoring
 //   inference. Return the second literal, or NULL if no legal pair
-//   exists. 
+//   exists.
 //
 // Global Variables: -
 //
@@ -332,7 +332,7 @@ Eqn_p ClausePosFirstEqualityFactorSides(Clause_p clause, ClausePos_p
 {
    Term_p side;
    Eqn_p  lit = NULL;
-   
+
    assert(clause);
    assert(pos1);
    assert(pos2);
@@ -340,7 +340,7 @@ Eqn_p ClausePosFirstEqualityFactorSides(Clause_p clause, ClausePos_p
    pos1->clause = clause;
    pos1->literal = clause->literals;
    side = ClausePosFindFirstMaximalSide(pos1, true);
-   
+
    if(side)
    {
       lit = find_first_eq_factor_partner(pos1, pos2);

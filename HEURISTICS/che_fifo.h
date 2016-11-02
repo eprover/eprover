@@ -5,7 +5,7 @@ File  : che_fifo.h
 Author: Stephan Schulz
 
 Contents
- 
+
   FIFO-Evaluation of a clause/
 
   Copyright 1998, 1999 by the author.

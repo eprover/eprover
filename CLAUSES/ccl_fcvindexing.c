@@ -5,7 +5,7 @@ File  : ccl_fcvindexing.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Algorithms for frequency count vector indexing.
 
 Copyright 1998-2011 by the author.
@@ -190,7 +190,7 @@ void FVIndexFree(FVIndex_p junk)
    long         i;
    FVIndex_p    succ;
 
-   if(junk)      
+   if(junk)
    {
       if(junk->final)
       {
@@ -226,7 +226,7 @@ void FVIndexFree(FVIndex_p junk)
 FVIAnchor_p FVIAnchorAlloc(FVCollect_p cspec, PermVector_p perm)
 {
    FVIAnchor_p handle = FVIAnchorCellAlloc();
-   
+
    handle->perm_vector  = perm;
    handle->cspec        = cspec;
    handle->index        = FVIndexAlloc();
@@ -253,7 +253,7 @@ void FVIAnchorFree(FVIAnchor_p junk)
 {
    assert(junk);
 
-   fprintf(GlobalOut, 
+   fprintf(GlobalOut,
 	   "# Freeing FVIndex. %ld leaves, %ld empty. Total nodes: %ld. Mem: %ld\n",
 	   FVIndexCountNodes(junk->index, true, false),
 	   FVIndexCountNodes(junk->index, true, true),
@@ -284,9 +284,9 @@ void FVIAnchorFree(FVIAnchor_p junk)
 FVIndex_p FVIndexGetNextNonEmptyNode(FVIndex_p node, long key)
 {
    FVIndex_p handle;
-   
+
    assert(!node->final);
-   
+
    handle = IntMapGetVal(node->u1.successors, key);
    if(handle&&handle->clause_count)
    {
@@ -331,10 +331,10 @@ void FVIndexInsert(FVIAnchor_p index, FreqVector_p vec_clause)
       newnode = IntMapGetVal(handle->u1.successors, vec_clause->array[i]);
       if(!newnode)
       {
-	 newnode = insert_empty_node(handle, 
+	 newnode = insert_empty_node(handle,
 				     index,
 				     vec_clause->array[i]);
-      }      
+      }
       handle = newnode;
       handle->clause_count++;
    }
@@ -343,7 +343,7 @@ void FVIndexInsert(FVIAnchor_p index, FreqVector_p vec_clause)
    /* ClauseSetProp(vec_clause->clause, CPIsSIndexed); */
    PERF_CTR_EXIT(FVIndexTimer);
 }
-   
+
 
 /*-----------------------------------------------------------------------
 //
@@ -366,9 +366,9 @@ bool FVIndexDelete(FVIAnchor_p index, Clause_p clause)
    FVIndex_p handle;
    long i;
    bool res;
-   
-   vec = OptimizedVarFreqVectorCompute(clause, index->perm_vector, 
-				       index->cspec);   
+
+   vec = OptimizedVarFreqVectorCompute(clause, index->perm_vector,
+				       index->cspec);
    /* FreqVector-Computation is measured independently */
    PERF_CTR_ENTRY(FVIndexTimer);
    handle = index->index;
@@ -420,7 +420,7 @@ long FVIndexCountNodes(FVIndex_p index, bool leaves, bool empty)
 	 }
 	 assert(EQUIV(index->clause_count,index->u1.clauses));
       }
-      else 
+      else
       {
 	 if(!(empty||leaves))
 	 {
@@ -447,7 +447,7 @@ long FVIndexCountNodes(FVIndex_p index, bool leaves, bool empty)
 // Function: FVIndexPackClause()
 //
 //   Pack a clause into an apropriate FVPackedClauseStructure for the
-//   index. 
+//   index.
 //
 // Global Variables: -
 //
@@ -461,7 +461,7 @@ FVPackedClause_p FVIndexPackClause(Clause_p clause, FVIAnchor_p anchor)
    {
       return FVPackClause(clause, NULL, NULL);
    }
-   return FVPackClause(clause, anchor->perm_vector, 
+   return FVPackClause(clause, anchor->perm_vector,
 		       anchor->cspec);
 }
 

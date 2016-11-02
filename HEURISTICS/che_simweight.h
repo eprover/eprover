@@ -5,7 +5,7 @@ File  : che_simweight.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Evaluation of a clause by similarity of terms (equations with
   similar terms have low weight).
 
@@ -51,7 +51,7 @@ typedef struct simparamcell
         SizeMalloc(sizeof(SimParamCell))
 #define SimParamCellFree(junk) \
         SizeFree(junk, sizeof(SimParamCell))
-   
+
 WFCB_p SimWeightInit(ClausePrioFun prio_fun, double equal_weight,
 		     double var_var_clash, double var_term_clash,
 		     double term_term_clash);

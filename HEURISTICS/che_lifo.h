@@ -5,7 +5,7 @@ File  : che_lifo.h
 Author: Stephan Schulz
 
 Contents
- 
+
   LIFO-Evaluation of a clause (unfair!)
 
   Copyright 1998, 1999 by the author.
@@ -37,7 +37,7 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-   
+
 WFCB_p LIFOEvalInit(ClausePrioFun prio_fun);
 
 WFCB_p LIFOEvalParse(Scanner_p in, OCB_p ocb, ProofState_p state);

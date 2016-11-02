@@ -5,7 +5,7 @@ File  : cle_kbdesc.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Dealing with kb-descriptions.
 
   Copyright 1998, 1999 by the author.
@@ -102,7 +102,7 @@ void KBDescFree(KBDesc_p desc)
 
 void KBDescPrint(FILE* out, KBDesc_p desc)
 {
-   fprintf(out, 
+   fprintf(out,
 	   "# E theorem prover knowledge base description\n"
 	   "Version     : \"%s\"\n"
 	   "NegProp     : %8f  # "
@@ -129,12 +129,12 @@ void KBDescPrint(FILE* out, KBDesc_p desc)
 KBDesc_p KBDescParse(Scanner_p in)
 {
    KBDesc_p handle = KBDescCellAlloc();
-   
+
    AcceptInpId(in, "Version");
    AcceptInpTok(in, Colon);
    CheckInpTok(in, String);
    handle->version = DStrCopy(AktToken(in)->literal);
-   
+
    if(strcmp(handle->version, KB_VERSION) > 0)
    {
       Error("Knowledge base is younger than your tool set. Please"
@@ -159,9 +159,9 @@ KBDesc_p KBDescParse(Scanner_p in)
 //
 //   Build a kb-file name in name and return a pointer to it.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -171,7 +171,7 @@ char* KBFileName(DStr_p name, char *basename, char* file)
    DStrAppendStr(name, basename);
    DStrAppendStr(name, "/");
    DStrAppendStr(name, file);
-   
+
    return DStrView(name);
 }
 

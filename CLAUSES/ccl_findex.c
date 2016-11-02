@@ -5,7 +5,7 @@ File  : ccl_findex.c
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Implementation of function symbol indexing.
 
   Copyright 2009 by the author.
@@ -116,7 +116,7 @@ FIndex_p FIndexAlloc(void)
 //
 //   Free an FIndex.
 //
-// Global Variables: - 
+// Global Variables: -
 //
 // Side Effects    : Memory operations
 //
@@ -128,7 +128,7 @@ void FIndexFree(FIndex_p junk)
    PTree_p tmp;
 
    for(i = 0; i<junk->index->size; i++)
-   {    
+   {
       tmp = PDArrayElementP(junk->index, i);
       PTreeFree(tmp);
    }
@@ -156,7 +156,7 @@ void FIndexAddClause(FIndex_p index, Clause_p clause)
    FunCode f;
 
    ClauseReturnFCodes(clause, f_codes);
-   
+
    for(i=0; i<PStackGetSP(f_codes); i++)
    {
       f = PStackElementInt(f_codes, i);
@@ -182,9 +182,9 @@ void FIndexRemoveClause(FIndex_p index, Clause_p clause)
    PStack_p f_codes = PStackAlloc();
    long i;
    FunCode f;
-   
+
    ClauseReturnFCodes(clause, f_codes);
-   
+
    for(i=0; i<PStackGetSP(f_codes); i++)
    {
       f = PStackElementInt(f_codes, i);
@@ -237,9 +237,9 @@ void FIndexAddPLClause(FIndex_p index, PList_p lclause)
    PStack_p f_codes = PStackAlloc();
    long i;
    FunCode f;
-   
+
    ClauseReturnFCodes(lclause->key.p_val, f_codes);
-   
+
    for(i=0; i<PStackGetSP(f_codes); i++)
    {
       f = PStackElementInt(f_codes, i);
@@ -268,9 +268,9 @@ void FIndexRemovePLClause(FIndex_p index,  PList_p lclause)
    PStack_p f_codes = PStackAlloc();
    long i;
    FunCode f;
-   
+
    ClauseReturnFCodes(lclause->key.p_val, f_codes);
-   
+
    for(i=0; i<PStackGetSP(f_codes); i++)
    {
       f = PStackElementInt(f_codes, i);
@@ -325,9 +325,9 @@ void FIndexAddPLFormula(FIndex_p index, PList_p lformula)
    PStack_p f_codes = PStackAlloc();
    long i;
    FunCode f;
-   
+
    WFormulaReturnFCodes(lformula->key.p_val, f_codes);
-   
+
    for(i=0; i<PStackGetSP(f_codes); i++)
    {
       f = PStackElementInt(f_codes, i);

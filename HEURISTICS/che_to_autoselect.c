@@ -5,7 +5,7 @@ File  : che_to_autoselect.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for creating term orderings.
 
   Copyright 1998, 1999 by the author.
@@ -45,18 +45,18 @@ Changes
 //
 // Function: init_oparms()
 //
-//   
 //
-// Global Variables: 
 //
-// Side Effects    : 
+// Global Variables:
+//
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
 void init_oparms(OrderParms_p oparms)
 {
    oparms->ordertype       = KBO6;
-   oparms->to_const_weight = WConstNoSpecialWeight; 
+   oparms->to_const_weight = WConstNoSpecialWeight;
    oparms->to_weight_gen   = WSelectMaximal;
    oparms->to_prec_gen     = PUnaryFirst;
    oparms->no_lit_cmp      = false;
@@ -67,11 +67,11 @@ void init_oparms(OrderParms_p oparms)
 //
 // Function: print_oparms()
 //
-//   
 //
-// Global Variables: 
 //
-// Side Effects    : 
+// Global Variables:
+//
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -80,7 +80,7 @@ void print_oparms(OrderParms_p oparms)
 
    if(OutputLevel)
    {
-      fprintf(GlobalOut, "# Auto-mode selected ordering type %s\n", 
+      fprintf(GlobalOut, "# Auto-mode selected ordering type %s\n",
 	      TONames[oparms->ordertype]);
       fprintf(GlobalOut, "# Auto-mode selected ordering precedence scheme <%s>\n",
 	      TOGetPrecGenName(oparms->to_prec_gen));
@@ -117,7 +117,7 @@ GCC_DIAGNOSTIC_PUSH
 #endif
 OCB_p generate_auto_ordering(ProofState_p state, SpecFeature_p spec)
 {
-   OrderParmsCell  oparms; 
+   OrderParmsCell  oparms;
    SpecLimits_p    limits = CreateDefaultSpecLimits();
 
    init_oparms(&oparms);
@@ -155,7 +155,7 @@ GCC_DIAGNOSTIC_PUSH
 #endif
 OCB_p generate_autocasc_ordering(ProofState_p state, SpecFeature_p spec)
 {
-   OrderParmsCell  oparms; 
+   OrderParmsCell  oparms;
    SpecLimits_p    limits = SpecLimitsAlloc();
 
    limits->ax_some_limit        = 46;
@@ -176,7 +176,7 @@ OCB_p generate_autocasc_ordering(ProofState_p state, SpecFeature_p spec)
    limits->ngu_many_limit       = 3;
 
    oparms.ordertype       = KBO6;
-   oparms.to_const_weight = WConstNoSpecialWeight; 
+   oparms.to_const_weight = WConstNoSpecialWeight;
    oparms.to_weight_gen   = WSelectMaximal;
    oparms.to_prec_gen     = PUnaryFirst;
    oparms.no_lit_cmp      = false;
@@ -186,7 +186,7 @@ OCB_p generate_autocasc_ordering(ProofState_p state, SpecFeature_p spec)
 
    if(OutputLevel)
    {
-      fprintf(GlobalOut, "# Auto-mode selected ordering type %s\n", 
+      fprintf(GlobalOut, "# Auto-mode selected ordering type %s\n",
 	      TONames[oparms.ordertype]);
       fprintf(GlobalOut, "# Auto-mode selected ordering precedence scheme <%s>\n",
 	      TOGetPrecGenName(oparms.to_prec_gen));
@@ -228,11 +228,11 @@ GCC_DIAGNOSTIC_PUSH
 #endif
 OCB_p generate_autodev_ordering(ProofState_p state, SpecFeature_p spec)
 {
-   OrderParmsCell  oparms; 
+   OrderParmsCell  oparms;
    SpecLimits_p    limits = CreateDefaultSpecLimits();
 
    oparms.ordertype       = KBO6;
-   oparms.to_const_weight = WConstNoSpecialWeight; 
+   oparms.to_const_weight = WConstNoSpecialWeight;
    oparms.to_weight_gen   = WSelectMaximal;
    oparms.to_prec_gen     = PUnaryFirst;
    oparms.no_lit_cmp      = false;
@@ -242,7 +242,7 @@ OCB_p generate_autodev_ordering(ProofState_p state, SpecFeature_p spec)
 
    if(OutputLevel)
    {
-      fprintf(GlobalOut, "# Auto-mode (Dev) selected ordering type %s\n", 
+      fprintf(GlobalOut, "# Auto-mode (Dev) selected ordering type %s\n",
 	      TONames[oparms.ordertype]);
       fprintf(GlobalOut, "# Auto-mode (Dev) selected ordering precedence scheme <%s>\n",
 	      TOGetPrecGenName(oparms.to_prec_gen));
@@ -272,7 +272,7 @@ GCC_DIAGNOSTIC_POP
 // Function: generate_autosched7_ordering()
 //
 //   Generate term orderings according to the selected auto-schedule
-//   mode. 
+//   mode.
 //
 // Global Variables: -
 //
@@ -291,7 +291,7 @@ GCC_DIAGNOSTIC_PUSH
 #endif
 OCB_p generate_autosched0_ordering(ProofState_p state, SpecFeature_p spec)
 {
-   OrderParmsCell  oparms; 
+   OrderParmsCell  oparms;
    SpecLimits_p    limits = CreateDefaultSpecLimits();
 
    init_oparms(&oparms);
@@ -314,7 +314,7 @@ GCC_DIAGNOSTIC_PUSH
 #endif
 OCB_p generate_autosched1_ordering(ProofState_p state, SpecFeature_p spec)
 {
-   OrderParmsCell  oparms; 
+   OrderParmsCell  oparms;
    SpecLimits_p    limits = CreateDefaultSpecLimits();
 
    init_oparms(&oparms);
@@ -337,7 +337,7 @@ GCC_DIAGNOSTIC_PUSH
 #endif
 OCB_p generate_autosched2_ordering(ProofState_p state, SpecFeature_p spec)
 {
-   OrderParmsCell  oparms; 
+   OrderParmsCell  oparms;
    SpecLimits_p    limits = CreateDefaultSpecLimits();
 
    init_oparms(&oparms);
@@ -360,7 +360,7 @@ GCC_DIAGNOSTIC_PUSH
 #endif
 OCB_p generate_autosched3_ordering(ProofState_p state, SpecFeature_p spec)
 {
-   OrderParmsCell  oparms; 
+   OrderParmsCell  oparms;
    SpecLimits_p    limits = CreateDefaultSpecLimits();
 
    init_oparms(&oparms);
@@ -383,7 +383,7 @@ GCC_DIAGNOSTIC_PUSH
 #endif
 OCB_p generate_autosched4_ordering(ProofState_p state, SpecFeature_p spec)
 {
-   OrderParmsCell  oparms; 
+   OrderParmsCell  oparms;
    SpecLimits_p    limits = CreateDefaultSpecLimits();
 
    init_oparms(&oparms);
@@ -406,7 +406,7 @@ GCC_DIAGNOSTIC_PUSH
 #endif
 OCB_p generate_autosched5_ordering(ProofState_p state, SpecFeature_p spec)
 {
-   OrderParmsCell  oparms; 
+   OrderParmsCell  oparms;
    SpecLimits_p    limits = CreateDefaultSpecLimits();
 
    init_oparms(&oparms);
@@ -429,7 +429,7 @@ GCC_DIAGNOSTIC_PUSH
 #endif
 OCB_p generate_autosched6_ordering(ProofState_p state, SpecFeature_p spec)
 {
-   OrderParmsCell  oparms; 
+   OrderParmsCell  oparms;
    SpecLimits_p    limits = CreateDefaultSpecLimits();
 
    init_oparms(&oparms);
@@ -452,7 +452,7 @@ GCC_DIAGNOSTIC_PUSH
 #endif
 OCB_p generate_autosched7_ordering(ProofState_p state, SpecFeature_p spec)
 {
-   OrderParmsCell  oparms; 
+   OrderParmsCell  oparms;
    SpecLimits_p    limits = CreateDefaultSpecLimits();
 
    init_oparms(&oparms);
@@ -490,7 +490,7 @@ void OrderParmsInitialize(HeuristicParms_p master, OrderParms_p slave)
 {
    slave->ordertype       = master->ordertype;
    slave->to_weight_gen   = master->to_weight_gen;
-   slave->to_prec_gen     = master->to_prec_gen; 
+   slave->to_prec_gen     = master->to_prec_gen;
    slave->to_const_weight = master->to_const_weight;
    slave->no_lit_cmp      = master->no_lit_cmp;
 }
@@ -513,7 +513,7 @@ void HeuristicParmsUpdate(OrderParms_p master, HeuristicParms_p slave)
 {
    slave->ordertype       = master->ordertype;
    slave->to_weight_gen   = master->to_weight_gen;
-   slave->to_prec_gen     = master->to_prec_gen; 
+   slave->to_prec_gen     = master->to_prec_gen;
    slave->to_const_weight = master->to_const_weight;
 }
 
@@ -537,7 +537,7 @@ void HeuristicParmsUpdate(OrderParms_p master, HeuristicParms_p slave)
 #define UNORIENT_LITERAL_PENALTY 1
 
 double OrderEvaluate(OCB_p ocb, ProofState_p state, HeuristicParms_p
-		     parms) 
+		     parms)
 {
    double res = 0;
 
@@ -554,7 +554,7 @@ double OrderEvaluate(OCB_p ocb, ProofState_p state, HeuristicParms_p
    }
    /* printf("OrderEvaluate()=%f\n", res); */
    return res;
-}   
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -573,9 +573,9 @@ double OrderEvaluate(OCB_p ocb, ProofState_p state, HeuristicParms_p
 bool OrderNextType(OrderParms_p ordering)
 {
    bool res = true;
-   
+
    assert(ordering);
-   
+
    switch(ordering->ordertype)
    {
    case NoOrdering:
@@ -603,7 +603,7 @@ bool OrderNextType(OrderParms_p ordering)
 //
 //   Set ordering->to_weight_gen to the next value if it exists, to
 //   WNoMethod if not. Return true if next value existed, false
-//   otherwise. 
+//   otherwise.
 //
 // Global Variables: -
 //
@@ -632,7 +632,7 @@ bool OrderNextWeightGen(OrderParms_p ordering)
 //
 //   Set ordering->to_prec_gen to the next value if it exists, to
 //   PNoMethod if not. Return true if next value existed, false
-//   otherwise. 
+//   otherwise.
 //
 // Global Variables: -
 //
@@ -644,7 +644,7 @@ bool OrderNextPrecGen(OrderParms_p ordering)
 {
    assert(ordering);
    assert(ordering->to_prec_gen <= PMaxMethod);
-   
+
    if(ordering->to_prec_gen == PMaxMethod)
    {
       ordering->to_prec_gen = PNoMethod;
@@ -678,7 +678,7 @@ bool OrderNextConstWeight(OrderParms_p ordering)
    assert((ordering->to_const_weight == WConstNoSpecialWeight)||
 	  (ordering->to_const_weight == WConstNoWeight)||
 	  (ordering->to_const_weight > 0));
-   
+
    if(ordering->to_const_weight == WConstNoSpecialWeight)
    {
       ordering->to_const_weight = WConstNoWeight;
@@ -704,7 +704,7 @@ bool OrderNextConstWeight(OrderParms_p ordering)
 //   successful, false otherwise (in which case ordering will have
 //   cycled to the first possible combination, but don't count on
 //   this, it is an artifact of this particular implementations).
-// 
+//
 // Global Variables: -
 //
 // Side Effects    : -
@@ -770,9 +770,9 @@ OCB_p OrderFindOptimal(OrderParms_p mask, OrderEvaluationFun eval_fun,
    OrderParmsCell local, store;
    OCB_p          best_ocb, tmp_ocb;
    double         best_eval, tmp_eval;
-   
+
    VERBOUT("Starting search for optimal term ordering.\n");
-   local.ordertype = 
+   local.ordertype =
       (mask->ordertype==NoOrdering)?KBO:mask->ordertype;
    local.to_weight_gen =
       (mask->to_weight_gen==WNoMethod)?WMinMethod:mask->to_weight_gen;
@@ -780,15 +780,15 @@ OCB_p OrderFindOptimal(OrderParms_p mask, OrderEvaluationFun eval_fun,
       (mask->to_prec_gen==PNoMethod)?PMinMethod:mask->to_prec_gen;
    local.to_const_weight =
       (mask->to_const_weight==WConstNoWeight)?1:mask->to_const_weight;
-   
+
    store = local;
    best_ocb  = TOCreateOrdering(state, &local,NULL, NULL);
    best_eval = eval_fun(best_ocb, state, parms);
-   
+
    while(OrderNextOrdering(&local, mask))
    {
       tmp_ocb  = TOCreateOrdering(state, &local, NULL, NULL);
-      tmp_eval = eval_fun(tmp_ocb, state, parms);    
+      tmp_eval = eval_fun(tmp_ocb, state, parms);
       if(tmp_eval < best_eval)
       {
 	 OCBFree(best_ocb);
@@ -799,7 +799,7 @@ OCB_p OrderFindOptimal(OrderParms_p mask, OrderEvaluationFun eval_fun,
       else
       {
 	 OCBFree(tmp_ocb);
-      }       
+      }
    }
    VERBOSE(fprintf(stderr, "%s: Term Ordering found: (%s, %s, %s, %ld)\n",
 		   ProgName,
@@ -826,7 +826,7 @@ OCB_p OrderFindOptimal(OrderParms_p mask, OrderEvaluationFun eval_fun,
 /----------------------------------------------------------------------*/
 
 OCB_p TOSelectOrdering(ProofState_p state, HeuristicParms_p params,
-		       SpecFeature_p specs) 
+		       SpecFeature_p specs)
 {
    OrderParmsCell tmp;
    OCB_p          result;
@@ -836,7 +836,7 @@ OCB_p TOSelectOrdering(ProofState_p state, HeuristicParms_p params,
    {
       OrderParmsCell local;
       OrderParmsInitialize(params, &local);
- 
+
       result = OrderFindOptimal(&local, OrderEvaluate, state, params);
    }
    else if(tmp.ordertype == AUTO)
@@ -893,8 +893,8 @@ OCB_p TOSelectOrdering(ProofState_p state, HeuristicParms_p params,
       {
 	 tmp.to_const_weight = WConstNoSpecialWeight;
       }
-      result = TOCreateOrdering(state, &tmp, params->to_pre_prec, 
-                                params->to_pre_weights); 
+      result = TOCreateOrdering(state, &tmp, params->to_pre_prec,
+                                params->to_pre_weights);
    }
    return result;
 }
@@ -913,7 +913,7 @@ OCB_p TOSelectOrdering(ProofState_p state, HeuristicParms_p params,
 //
 /----------------------------------------------------------------------*/
 
-OCB_p  TOCreateOrdering(ProofState_p state, OrderParms_p params, 
+OCB_p  TOCreateOrdering(ProofState_p state, OrderParms_p params,
                         char* pre_precedence, char* pre_weights)
 {
    OCB_p handle;
@@ -924,7 +924,7 @@ OCB_p  TOCreateOrdering(ProofState_p state, OrderParms_p params,
 	  params->to_const_weight); */
 
    switch(params->ordertype)
-   {      
+   {
    case LPO:
 	 handle = OCBAlloc(LPO, prec_by_weight, state->signature);
 	 TOGeneratePrecedence(handle, state->axioms, pre_precedence,
@@ -948,7 +948,7 @@ OCB_p  TOCreateOrdering(ProofState_p state, OrderParms_p params,
    case KBO:
 	 handle = OCBAlloc(KBO, prec_by_weight, state->signature);
 	 TOGeneratePrecedence(handle, state->axioms, pre_precedence,
-			      params->to_prec_gen); 
+			      params->to_prec_gen);
 	 TOGenerateWeights(handle, state->axioms,
                            pre_weights,
 			   params->to_weight_gen,
@@ -957,7 +957,7 @@ OCB_p  TOCreateOrdering(ProofState_p state, OrderParms_p params,
    case KBO6:
 	 handle = OCBAlloc(KBO6, prec_by_weight, state->signature);
 	 TOGeneratePrecedence(handle, state->axioms, pre_precedence,
-			      params->to_prec_gen); 
+			      params->to_prec_gen);
 	 TOGenerateWeights(handle, state->axioms,
                            pre_weights,
 			   params->to_weight_gen,

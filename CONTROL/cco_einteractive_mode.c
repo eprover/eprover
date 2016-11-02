@@ -5,7 +5,7 @@ File  : cco_einteractive_mode.c
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Code for parsing and handling the server's interactive mode.
 
   Copyright 2015 by the author.
@@ -58,8 +58,8 @@ char* help_message = "\
 
 // Defining Success messages
 #define OK_SUCCESS_MESSAGE "200 ok : success\n"
-#define OK_STAGED_MESSAGE "201 ok : staged\n" 
-#define OK_UNSTAGED_MESSAGE "202 ok : unstaged\n" 
+#define OK_STAGED_MESSAGE "201 ok : staged\n"
+#define OK_UNSTAGED_MESSAGE "202 ok : unstaged\n"
 #define OK_REMOVED_MESSAGE "203 ok : removed\n"
 #define OK_DOWNLOADED_MESSAGE "204 ok : downloaded\n"
 #define OK_ADDED_MESSAGE "205 ok : added\n"
@@ -107,13 +107,13 @@ char* load_command(InteractiveSpec_p interactive, DStr_p filename);
 
 /*-----------------------------------------------------------------------
 //
-// Function: 
+// Function:
 //
-//   
 //
-// Global Variables: 
 //
-// Side Effects    : 
+// Global Variables:
+//
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -154,20 +154,20 @@ char* run_command(InteractiveSpec_p interactive,
 
     print_to_outstream(message, interactive->fp, interactive->sock_fd);
 
-    job_scanner = CreateScanner(StreamTypeUserString, 
+    job_scanner = CreateScanner(StreamTypeUserString,
         DStrView(input_axioms),
-        true, 
+        true,
         NULL);
     ScannerSetFormat(job_scanner, TSTPFormat);
     cset = ClauseSetAlloc();
     fset = FormulaSetAlloc();
-    FormulaAndClauseSetParse(job_scanner, cset, fset, interactive->ctrl->terms, 
-        NULL, 
+    FormulaAndClauseSetParse(job_scanner, cset, fset, interactive->ctrl->terms,
+        NULL,
         &(interactive->ctrl->parsed_includes));
 
     // cset and fset are handed over to BatchProcessProblem and are
     // freed there (via StructFOFSpecBacktrackToSpec()).
-    (void)BatchProcessProblem(interactive->spec, 
+    (void)BatchProcessProblem(interactive->spec,
         wct_limit,
         interactive->ctrl,
         DStrView(jobname),
@@ -187,13 +187,13 @@ char* run_command(InteractiveSpec_p interactive,
 
 /*-----------------------------------------------------------------------
 //
-// Function: 
+// Function:
 //
-//   
 //
-// Global Variables: 
 //
-// Side Effects    : 
+// Global Variables:
+//
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -223,8 +223,8 @@ char* add_command(InteractiveSpec_p interactive,
   ScannerSetFormat(axioms_scanner, TSTPFormat);
   cset = ClauseSetAlloc();
   fset = FormulaSetAlloc();
-  FormulaAndClauseSetParse(axioms_scanner, cset, fset, interactive->ctrl->terms, 
-      NULL, 
+  FormulaAndClauseSetParse(axioms_scanner, cset, fset, interactive->ctrl->terms,
+      NULL,
       &(interactive->ctrl->parsed_includes));
   DestroyScanner(axioms_scanner);
   DStrAppendDStr(cset->identifier, axiomsname);
@@ -256,13 +256,13 @@ char* add_command(InteractiveSpec_p interactive,
 
 /*-----------------------------------------------------------------------
 //
-// Function: 
+// Function:
 //
-//   
 //
-// Global Variables: 
 //
-// Side Effects    : 
+// Global Variables:
+//
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -295,13 +295,13 @@ char* stage_command(InteractiveSpec_p interactive, DStr_p axiom_set)
 
 /*-----------------------------------------------------------------------
 //
-// Function: 
+// Function:
 //
-//   
 //
-// Global Variables: 
 //
-// Side Effects    : 
+// Global Variables:
+//
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -313,10 +313,10 @@ char* list_command(InteractiveSpec_p interactive)
    char buffer[256];
    PStack_p files;
    DStr_p dummy;
-   
+
    staged = PStackAlloc();
    unstaged = PStackAlloc();
-   
+
    for(i=0; i<PStackGetSP(interactive->axiom_sets); i++)
    {
       handle = PStackElementP(interactive->axiom_sets, i);
@@ -329,7 +329,7 @@ char* list_command(InteractiveSpec_p interactive)
          PStackPushP(unstaged, handle);
       }
    }
-   
+
    if( PStackGetSP(staged) > 0 )
    {
       print_to_outstream("Staged :\n", interactive->fp, interactive->sock_fd);
@@ -339,7 +339,7 @@ char* list_command(InteractiveSpec_p interactive)
          print_to_outstream(buffer, interactive->fp, interactive->sock_fd);
       }
    }
-   
+
    if( PStackGetSP(unstaged) > 0 )
    {
       print_to_outstream("Unstaged :\n", interactive->fp, interactive->sock_fd);
@@ -349,7 +349,7 @@ char* list_command(InteractiveSpec_p interactive)
          print_to_outstream(buffer, interactive->fp, interactive->sock_fd);
       }
    }
-   
+
    if( PStackGetSP(staged) == 0 && PStackGetSP(unstaged) == 0 )
    {
       print_to_outstream("No Axiom Sets currently in memory.\n",
@@ -357,7 +357,7 @@ char* list_command(InteractiveSpec_p interactive)
    }
    PStackFree(staged);
    PStackFree(unstaged);
-   
+
    print_to_outstream("On Disk :\n", interactive->fp, interactive->sock_fd);
    if(DStrLen(interactive->server_lib))
    {
@@ -389,13 +389,13 @@ char* list_command(InteractiveSpec_p interactive)
 
 /*-----------------------------------------------------------------------
 //
-// Function: 
+// Function:
 //
-//   
 //
-// Global Variables: 
 //
-// Side Effects    : 
+// Global Variables:
+//
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -405,7 +405,7 @@ void quit_command(InteractiveSpec_p interactive)
    AxiomSet_p    axiom_set_handle;
    PStackPointer i;
    DStr_p dummy;
-   
+
    spare_stack = PStackAlloc();
    for(i=0; i < PStackGetSP(interactive->axiom_sets); i++)
    {
@@ -415,7 +415,7 @@ void quit_command(InteractiveSpec_p interactive)
          PStackPushP(spare_stack, axiom_set_handle->cset->identifier);
       }
    }
-   
+
    while(!PStackEmpty(spare_stack))
    {
       dummy = PStackPopP(spare_stack);
@@ -426,13 +426,13 @@ void quit_command(InteractiveSpec_p interactive)
 
 /*-----------------------------------------------------------------------
 //
-// Function: 
+// Function:
 //
-//   
 //
-// Global Variables: 
 //
-// Side Effects    : 
+// Global Variables:
+//
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -443,7 +443,7 @@ char* remove_commad(InteractiveSpec_p interactive, DStr_p axiom_set)
    spare_stack = PStackAlloc();
    handle = NULL;
    int found = 0;
-   
+
    while(!PStackEmpty(interactive->axiom_sets))
    {
       handle = PStackPopP(interactive->axiom_sets);
@@ -484,13 +484,13 @@ char* remove_commad(InteractiveSpec_p interactive, DStr_p axiom_set)
 
 /*-----------------------------------------------------------------------
 //
-// Function: 
+// Function:
 //
-//   
 //
-// Global Variables: 
 //
-// Side Effects    : 
+// Global Variables:
+//
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -498,7 +498,7 @@ char* download_command(InteractiveSpec_p interactive, DStr_p axiom_set)
 {
    PStackPointer i;
    AxiomSet_p    handle;
-   
+
    for(i=0; i < PStackGetSP(interactive->axiom_sets); i++)
    {
       handle = PStackElementP(interactive->axiom_sets, i);
@@ -509,20 +509,20 @@ char* download_command(InteractiveSpec_p interactive, DStr_p axiom_set)
          return OK_DOWNLOADED_MESSAGE;
       }
    }
-   
+
    // Axiom Set Not Found
    return ERR_UNKNOWN_AXIOM_SET_MESSAGE;
 }
 
 /*-----------------------------------------------------------------------
 //
-// Function: 
+// Function:
 //
-//   
 //
-// Global Variables: 
 //
-// Side Effects    : 
+// Global Variables:
+//
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -536,7 +536,7 @@ char* unstage_command(InteractiveSpec_p interactive, DStr_p axiom_set)
    FormulaSet_p fhandle;
    ClauseSet_p chandle;
    int found = 0;
-   
+
    for(i=0; i < PStackGetSP(interactive->axiom_sets); i++)
    {
       axiom_set_handle = PStackElementP(interactive->axiom_sets, i);
@@ -553,22 +553,22 @@ char* unstage_command(InteractiveSpec_p interactive, DStr_p axiom_set)
          }
       }
    }
-   
+
    if( !found )
    {
       return ERR_UNKNOWN_AXIOM_SET_MESSAGE;
    }
-   
+
    assert( PStackGetSP(interactive->ctrl->clause_sets) ==
            PStackGetSP(interactive->ctrl->formula_sets) );
    found = 0;
-   
+
    while(!PStackEmpty(interactive->ctrl->clause_sets))
    {
       chandle = PStackPopP(interactive->ctrl->clause_sets);
       fhandle = PStackPopP(interactive->ctrl->formula_sets);
       assert( strcmp( DStrView(chandle->identifier), DStrView(fhandle->identifier)) == 0 );
-      
+
       if(strcmp( DStrView(axiom_set), DStrView(chandle->identifier)) == 0 )
       {
          GenDistribAddFormulaSet(interactive->ctrl->f_distrib, fhandle, -1);
@@ -582,7 +582,7 @@ char* unstage_command(InteractiveSpec_p interactive, DStr_p axiom_set)
          PStackPushP(fspare_stack, fhandle);
       }
    }
-   
+
    while(!PStackEmpty(fspare_stack))
    {
       fhandle = PStackPopP(fspare_stack);
@@ -593,7 +593,7 @@ char* unstage_command(InteractiveSpec_p interactive, DStr_p axiom_set)
    interactive->ctrl->shared_ax_sp = PStackGetSP(interactive->ctrl->clause_sets);
    PStackFree(fspare_stack);
    PStackFree(cspare_stack);
-   
+
    if( !found )
    {
       return ERR_UNKNOWN_AXIOM_SET_MESSAGE;
@@ -606,13 +606,13 @@ char* unstage_command(InteractiveSpec_p interactive, DStr_p axiom_set)
 
 /*-----------------------------------------------------------------------
 //
-// Function: 
+// Function:
 //
-//   
 //
-// Global Variables: 
 //
-// Side Effects    : 
+// Global Variables:
+//
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -622,7 +622,7 @@ char* load_command(InteractiveSpec_p interactive, DStr_p filename)
    DStr_p handle, file_content;
    char *ret;
    int found;
-   
+
    if(DStrLen(interactive->server_lib))
    {
       found = 0;
@@ -670,19 +670,19 @@ char* load_command(InteractiveSpec_p interactive, DStr_p filename)
    else
    {
       return ERR_NO_AXIOM_LIBRARY_ON_SERVER_MESSAGE;
-   }   
+   }
 }
 
 
 /*-----------------------------------------------------------------------
 //
-// Function: 
+// Function:
 //
-//   
 //
-// Global Variables: 
 //
-// Side Effects    : 
+// Global Variables:
+//
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -701,13 +701,13 @@ void print_to_outstream(char* message, FILE* fp, int sock_fd)
 
 /*-----------------------------------------------------------------------
 //
-// Function: 
+// Function:
 //
-//   
 //
-// Global Variables: 
 //
-// Side Effects    : 
+// Global Variables:
+//
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -717,9 +717,9 @@ PStack_p get_directory_listings(DStr_p dirname){
    struct dirent *de;
    DStr_p file_name;
    DIR *dir;
-   
+
    files = PStackAlloc();
-   
+
    dir = opendir(DStrView(dirname));
    if (dir == NULL)
    {
@@ -751,13 +751,13 @@ PStack_p get_directory_listings(DStr_p dirname){
 
 /*-----------------------------------------------------------------------
 //
-// Function: 
+// Function:
 //
-//   
 //
-// Global Variables: 
 //
-// Side Effects    : 
+// Global Variables:
+//
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -898,16 +898,16 @@ void StartDeductionServer(BatchSpec_p spec,
    InteractiveSpec_p interactive;
    bool done = false;
    Scanner_p in;
-   
+
    char* dummy;
    DStr_p input_command = DStrAlloc();
-   
+
    interactive = InteractiveSpecAlloc(spec, ctrl, fp, sock_fd);
    if(server_lib)
    {
       DStrAppendStr(interactive->server_lib,server_lib);
    }
-   
+
    while(!done)
    {
       DStrReset(input);
@@ -927,15 +927,15 @@ void StartDeductionServer(BatchSpec_p spec,
          break;
          //char line[256];
          //fgets(line, 254, stdin);
-         //DStrAppendBuffer(input, line, strlen(line)-1);         
+         //DStrAppendBuffer(input, line, strlen(line)-1);
       }
-      
-      in = CreateScanner(StreamTypeUserString, 
+
+      in = CreateScanner(StreamTypeUserString,
                          DStrView(input),
-                         true, 
+                         true,
                          NULL);
       ScannerSetFormat(in, TSTPFormat);
-      
+
       if(TestInpId(in, STAGE_COMMAND))
       {
         AcceptInpId(in, STAGE_COMMAND);
@@ -985,7 +985,7 @@ void StartDeductionServer(BatchSpec_p spec,
          {
             ReadTextBlock(input, stdin, END_OF_BLOCK_TOKEN);
          }
-         
+
          print_to_outstream(add_command(interactive, dummyStr, input), fp, sock_fd);
       }
       else if(TestInpId(in, RUN_COMMAND))

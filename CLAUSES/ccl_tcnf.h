@@ -7,7 +7,7 @@ Author: Stephan Schulz
 Contents
 
   Functions implementing (eventually) the CNF conversion of first
-  order formulae encoded as terms. 
+  order formulae encoded as terms.
 
   Copyright 2003,2005 by the author.
   This code is released under the GNU General Public Licence and
@@ -44,12 +44,12 @@ Changes
 
 long       TFormulaEstimateClauses(TB_p bank, TFormula_p form, bool pos);
 
-TFormula_p TFormulaDefRename(TB_p bank, TFormula_p form, int polarity, 
+TFormula_p TFormulaDefRename(TB_p bank, TFormula_p form, int polarity,
                              NumXTree_p *defs, PStack_p renamed_forms);
 void TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity,
-                      long def_limit, NumXTree_p *defs, 
+                      long def_limit, NumXTree_p *defs,
                       PStack_p renamed_forms);
-TFormula_p TFormulaCopyDef(TB_p bank, TFormula_p form, long blocked, 
+TFormula_p TFormulaCopyDef(TB_p bank, TFormula_p form, long blocked,
                            NumXTree_p *defs, PStack_p defs_used);
 TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form, bool full_simpl);
 

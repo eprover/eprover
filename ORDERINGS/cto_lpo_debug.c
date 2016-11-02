@@ -67,7 +67,7 @@ static CompareResult lpogtrfuneq(OCB_p, Term_p, Term_p,
 				 DerefType, DerefType);
 
 static CompareResult lpogtrcheckarg(OCB_p, Term_p, Term_p,
-				    DerefType, DerefType); 
+				    DerefType, DerefType);
 
 
 /*-----------------------------------------------------------------------
@@ -143,7 +143,7 @@ static CompareResult lpofuneq(OCB_p ocb, Term_p s, Term_p t,
 {
    CompareResult res = to_equal, res_help, comp_res;
    int i, j;
-   
+
    for (i=0; i<MAX(s->arity,t->arity); i++)
    {
       if (t->arity <= i)
@@ -163,7 +163,7 @@ static CompareResult lpofuneq(OCB_p ocb, Term_p s, Term_p t,
       {
 	 res_help = res;
 	 comp_res = (res == to_greater) ? to_lesser : to_greater;
-	 
+
 	 j = i+1;
 	 while ((j<MAX(s->arity, t->arity)) && (res_help == res))
 	 {
@@ -215,7 +215,7 @@ static CompareResult lpocheckarg(OCB_p ocb, Term_p s, Term_p t,
 {
    CompareResult res;
    int i;
-   
+
    for (i=0; i<s->arity; i++)
    {
       res = D_LPOCompare(ocb, s->args[i], t, deref_s, deref_t);
@@ -246,9 +246,9 @@ static CompareResult lpogtr(OCB_p ocb, Term_p s, Term_p t,
 {
    CompareResult res, res_funs;
    int i;
-   
+
    s = TermDeref(s, &deref_s);  t = TermDeref(t, &deref_t);
-   
+
    /* The cases s=x v t=x are checked separately. */
    if(TermIsVar(s) || TermIsVar(t))
    {
@@ -257,7 +257,7 @@ static CompareResult lpogtr(OCB_p ocb, Term_p s, Term_p t,
    }
 
    /* Depending on the comparison of the leading operators wrt. the
-      precedence, different conditions must be tested. */ 
+      precedence, different conditions must be tested. */
 
    switch((res_funs = OCBFunCompare(ocb, s->f_code, t->f_code)))
    {
@@ -347,7 +347,7 @@ static CompareResult lpogtrcompvars(OCB_p ocb, Term_p s, Term_p t,
    }
    else
    {
-      assert(TermIsVar(t));     
+      assert(TermIsVar(t));
       if(TermIsSubterm(s, t, deref_s))
       {
 	 return to_greater;
@@ -391,7 +391,7 @@ static CompareResult lpogtrfuneq(OCB_p ocb, Term_p s, Term_p t,
       {
 	 return to_uncomparable;
       }
-      
+
       res = lpogtr(ocb, s->args[i], t->args[i], deref_s, deref_t);
       if (res == to_uncomparable)
       {
@@ -486,7 +486,7 @@ CompareResult D_LPOCompare(OCB_p ocb, Term_p s, Term_p t,
       res = D_LPOCompareVars(s, t, deref_s, deref_t);
       return res;
    }
-   
+
    /* Depending on the comparison of the leading operators wrt. the
       precedence, different conditions must be tested.           */
    switch ((res_funs = OCBFunCompare(ocb, s->f_code, t->f_code)))

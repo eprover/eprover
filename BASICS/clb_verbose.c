@@ -5,7 +5,7 @@ File  : clb_verbose.c
 Author: Stephan Schulz
 
 Contents
- 
+
   The Verbose variable (not very impressive, I know...)
 
   Copyright 1998, 1999 by the author.

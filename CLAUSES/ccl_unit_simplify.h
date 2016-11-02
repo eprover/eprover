@@ -5,10 +5,10 @@ File  : ccl_unit_simplify.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions and datatypes for performing unit-cuts and
   unit-simplifications with a mixed clause set where units are
-  indexed. 
+  indexed.
 
 Copyright 1998-2011 by the author.
   This code is released under the GNU General Public Licence and
@@ -55,11 +55,11 @@ ClausePos_p FindTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
 				   Term_p t2);
 ClausePos_p FindSignedTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
 					 Term_p t2, bool sign);
-ClausePos_p FindSimplifyingUnit(ClauseSet_p set, Term_p t1, 
+ClausePos_p FindSimplifyingUnit(ClauseSet_p set, Term_p t1,
 				Term_p t2, bool positive_only);
 
 bool        ClauseSimplifyWithUnitSet(Clause_p clause, ClauseSet_p
-                                      unit_set, UnitSimplifyType how); 
+                                      unit_set, UnitSimplifyType how);
 
 #endif
 

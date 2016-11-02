@@ -5,9 +5,9 @@ File  : ccl_subterm_index.h
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   A simple (hashed) index from terms to clauses in which this term
-  appears as priviledged (rewriting restricted) or unpriviledged term. 
+  appears as priviledged (rewriting restricted) or unpriviledged term.
 
   Copyright 2010 by the author.
   This code is released under the GNU General Public Licence and
@@ -41,14 +41,14 @@ typedef FPIndex_p SubtermIndex_p;
 /*---------------------------------------------------------------------*/
 
 
-bool SubtermIndexInsertOcc(SubtermIndex_p index, Clause_p clause, 
+bool SubtermIndexInsertOcc(SubtermIndex_p index, Clause_p clause,
                            Term_p term, bool restricted);
-bool SubtermIndexDeleteOcc(SubtermIndex_p index, Clause_p clause, 
+bool SubtermIndexDeleteOcc(SubtermIndex_p index, Clause_p clause,
                            Term_p term, bool restricted);
 
 
-long ClauseCollectIdxSubterms(Clause_p clause, 
-                              PTree_p *rest, 
+long ClauseCollectIdxSubterms(Clause_p clause,
+                              PTree_p *rest,
                               PTree_p *full);
 
 void SubtermIndexInsertClause(SubtermIndex_p index, Clause_p clause);

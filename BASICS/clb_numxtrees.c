@@ -5,7 +5,7 @@ File  : clb_numxtrees.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for long-indexed splay trees with fixed-sized array of
   values.
 
@@ -17,7 +17,7 @@ Copyright 1998-2011 by the author.
 
 Changes (vastly incomplete, see CVS log)
 
-<1> Mon Aug  1 11:03:32 CEST 2011  
+<1> Mon Aug  1 11:03:32 CEST 2011
     New from clb_numtree.h
 
 -----------------------------------------------------------------------*/
@@ -42,7 +42,7 @@ Changes (vastly incomplete, see CVS log)
 
 /*-----------------------------------------------------------------------
 //
-// Function: splay_tree() 
+// Function: splay_tree()
 //
 //   Perform the splay operation on tree at node with key.
 //
@@ -52,25 +52,25 @@ Changes (vastly incomplete, see CVS log)
 //
 /----------------------------------------------------------------------*/
 
-static NumXTree_p splay_tree(NumXTree_p tree, long key) 
+static NumXTree_p splay_tree(NumXTree_p tree, long key)
 {
    NumXTree_p   left, right, tmp;
    NumXTreeCell newnode;
 
-   if (!tree) 
+   if (!tree)
    {
       return tree;
    }
-   
+
    newnode.lson = NULL;
    newnode.rson = NULL;
    left = &newnode;
    right = &newnode;
-   
-   for (;;) 
+
+   for (;;)
    {
       long cmpres = key-tree->key;
-      if (cmpres < 0) 
+      if (cmpres < 0)
       {
          if(!tree->lson)
          {
@@ -90,20 +90,20 @@ static NumXTree_p splay_tree(NumXTree_p tree, long key)
          right->lson = tree;
          right = tree;
          tree = tree->lson;
-      } 
+      }
       else if(cmpres > 0)
       {
          if (!tree->rson)
          {
             break;
          }
-         if((key-tree->rson->key) > 0) 
+         if((key-tree->rson->key) > 0)
          {
             tmp = tree->rson;
             tree->rson = tmp->lson;
             tmp->lson = tree;
             tree = tmp;
-            if (!tree->rson) 
+            if (!tree->rson)
             {
                break;
             }
@@ -112,7 +112,7 @@ static NumXTree_p splay_tree(NumXTree_p tree, long key)
          left = tree;
          tree = tree->rson;
       }
-      else 
+      else
       {
          break;
       }
@@ -121,7 +121,7 @@ static NumXTree_p splay_tree(NumXTree_p tree, long key)
    right->lson = tree->rson;
    tree->lson = newnode.rson;
    tree->rson = newnode.lson;
-   
+
    return tree;
 }
 
@@ -180,9 +180,9 @@ void NumXTreeFree(NumXTree_p junk)
    if(junk)
    {
       PStack_p stack = PStackAlloc();
-      
+
       PStackPushP(stack, junk);
-      
+
       while(!PStackEmpty(stack))
       {
          junk = PStackPopP(stack);
@@ -191,10 +191,10 @@ void NumXTreeFree(NumXTree_p junk)
             PStackPushP(stack, junk->lson);
          }
          if(junk->rson)
-         { 
+         {
             PStackPushP(stack, junk->rson);
          }
-         NumXTreeCellFree(junk);            
+         NumXTreeCellFree(junk);
       }
       PStackFree(stack);
    }
@@ -207,7 +207,7 @@ void NumXTreeFree(NumXTree_p junk)
 //
 //   If an entry with key *newnode->key exists in the tree return a
 //   pointer to it. Otherwise insert *newnode in the tree and return
-//   NULL. 
+//   NULL.
 //
 // Global Variables: -
 //
@@ -217,25 +217,25 @@ void NumXTreeFree(NumXTree_p junk)
 
 NumXTree_p NumXTreeInsert(NumXTree_p *root, NumXTree_p newnode)
 {
-   if (!*root) 
+   if (!*root)
    {
       newnode->lson = newnode->rson = NULL;
       *root = newnode;
       return NULL;
    }
    *root = splay_tree(*root, newnode->key);
-   
+
    long cmpres = newnode->key-(*root)->key;
-   
-   if (cmpres < 0) 
+
+   if (cmpres < 0)
    {
       newnode->lson = (*root)->lson;
       newnode->rson = *root;
       (*root)->lson = NULL;
       *root = newnode;
       return NULL;
-   } 
-   else if(cmpres > 0) 
+   }
+   else if(cmpres > 0)
    {
       newnode->rson = (*root)->rson;
       newnode->lson = *root;
@@ -269,7 +269,7 @@ bool NumXTreeStore(NumXTree_p *root, long key, IntOrP val1, IntOrP val2)
    handle->key = key;
    handle->vals[0] = val1;
    handle->vals[1] = val2;
-   
+
    newnode = NumXTreeInsert(root, handle);
 
    if(newnode)
@@ -298,7 +298,7 @@ NumXTree_p NumXTreeFind(NumXTree_p *root, long key)
 {
    if(*root)
    {
-      *root = splay_tree(*root, key);  
+      *root = splay_tree(*root, key);
       if(((*root)->key-key)==0)
       {
          return *root;
@@ -337,7 +337,7 @@ NumXTree_p NumXTreeExtractEntry(NumXTree_p *root, long key)
       if (!(*root)->lson)
       {
          x = (*root)->rson;
-      } 
+      }
       else
       {
          x = splay_tree((*root)->lson, key);
@@ -359,9 +359,9 @@ NumXTree_p NumXTreeExtractEntry(NumXTree_p *root, long key)
 //   Extract the NumXTreeCell at the root of the tree and return it (or
 //   NULL if the tree is empty).
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -379,7 +379,7 @@ NumXTree_p NumXTreeExtractRoot(NumXTree_p *root)
 //
 // Function: NumXTreeDeleteEntry()
 //
-//   Delete the entry with key key from the tree. 
+//   Delete the entry with key key from the tree.
 //
 // Global Variables: -
 //
@@ -390,7 +390,7 @@ NumXTree_p NumXTreeExtractRoot(NumXTree_p *root)
 bool NumXTreeDeleteEntry(NumXTree_p *root, long key)
 {
    NumXTree_p cell;
-   
+
    cell = NumXTreeExtractEntry(root, key);
    if(cell)
    {
@@ -419,7 +419,7 @@ long NumXTreeNodes(NumXTree_p root)
    long     res   = 0;
 
    PStackPushP(stack, root);
-   
+
    while(!PStackEmpty(stack))
    {
       root = PStackPopP(stack);
@@ -432,7 +432,7 @@ long NumXTreeNodes(NumXTree_p root)
    }
    PStackFree(stack);
 
-   return res;   
+   return res;
 }
 
 
@@ -441,7 +441,7 @@ long NumXTreeNodes(NumXTree_p root)
 // Function: NumXTreeMaxNode()
 //
 //   Return the node with the largest key in the tree (or NULL if tree
-//   is empty). Non-destructive/non-reorganizing. 
+//   is empty). Non-destructive/non-reorganizing.
 //
 // Global Variables: -
 //
@@ -485,7 +485,7 @@ PStack_p NumXTreeLimitedTraverseInit(NumXTree_p root, long limit)
       {
          root = root->rson;
       }
-      else 
+      else
       {
          PStackPushP(stack, root);
          if(root->key == limit)

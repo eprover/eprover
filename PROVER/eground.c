@@ -5,7 +5,7 @@ File  : eground.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Read a problem specification and test wether the problem has a
   finite Herbrand universe. If yes, create at least all ground
   instances of clauses necessary for a ground refutation.
@@ -82,8 +82,8 @@ typedef enum
 
 OptCell opts[] =
 {
-   {OPT_HELP, 
-    'h', "help", 
+   {OPT_HELP,
+    'h', "help",
     NoArg, NULL,
     "Print a short description of program usage and options."},
 
@@ -92,8 +92,8 @@ OptCell opts[] =
     NoArg, NULL,
     "Print the version number of the program."},
 
-   {OPT_VERBOSE, 
-    'v', "verbose", 
+   {OPT_VERBOSE,
+    'v', "verbose",
     OptArg, "1",
     "Verbose comments on the progress of the program by printing "
     "technical information to stderr."},
@@ -116,7 +116,7 @@ OptCell opts[] =
     "nearly no output except for the final clauses, level 1 produces"
     " minimal additional output. Higher levels are without meaning in"
     " " NAME " (I think)."},
- 
+
    {OPT_PRINT_STATISTICS,
     '\0', "print-statistics",
     NoArg, NULL,
@@ -186,7 +186,7 @@ OptCell opts[] =
     "is still under development, and the version implemented may not be "
     "fully conformant at all times. It works on all TPTP 3.0.1 input "
     "files (including includes)."},
-   
+
    {OPT_TSTP_PRINT,
     '\0', "tstp-out",
     NoArg, NULL,
@@ -231,7 +231,7 @@ OptCell opts[] =
     NoArg, NULL,
     "Do not check if clauses are subsumed by previously encountered "
     "unit clauses."},
-   
+
    {OPT_DISABLE_UNIT_RESOLUTION,
     'r' , "no-unit-resolution",
     NoArg, NULL,
@@ -249,7 +249,7 @@ OptCell opts[] =
     "the allowed amount of memory in MB. This option may not work "
     "everywhere, due to broken and/or strange behaviour of setrlimit() "
     "in some UNIX implementations. It does work under all tested "
-    "versions of Solaris and GNU/Linux."},   
+    "versions of Solaris and GNU/Linux."},
 
    {OPT_CPU_LIMIT,
     '\0', "cpu-limit",
@@ -257,17 +257,17 @@ OptCell opts[] =
     "Limit the cpu time the program should run. The optional argument "
     "is the CPU time in seconds. The program will terminate immediately"
     " after reaching the time limit, regardless of internal state. This"
-    " option may not work " 
+    " option may not work "
     "everywhere, due to broken and/or strange behaviour of setrlimit() "
     "in some UNIX implementations. It does work under all tested "
     "versions of Solaris, HP-UX and GNU/Linux. As a side effect, this "
-    "option will inhibit core file writing."}, 
+    "option will inhibit core file writing."},
 
    {OPT_SOFTCPU_LIMIT,
     '\0', "soft-cpu-limit",
     OptArg, "310",
     "Limit the cpu time spend in grounding. After the time expires,"
-    " the prover will print an partial system."},  
+    " the prover will print an partial system."},
 
    {OPT_PART_COMPLETE,
     'i', "add-one-instance",
@@ -287,13 +287,13 @@ OptCell opts[] =
     " the program keeps a running count and will terminate if the"
     " estimated total"
     " number of clauses would exceed this value . A value of 0 will"
-    " leave this test disabled."},    
+    " leave this test disabled."},
 
    {OPT_CONSTRAINTS,
     'c', "constraints",
     NoArg, NULL,
     "Use global purity constraints to restrict the number of "
-    "instantiations done."},   
+    "instantiations done."},
 
    {OPT_LOCAL_CONSTRAINTS,
     'C', "local-constraints",
@@ -301,7 +301,7 @@ OptCell opts[] =
     "Use local purity constraints to further restrict the number of "
     "instantiations done. Implies the previous option. Not yet "
     "implemented! Note to self: Split clauses need to get fresh "
-    "variables if this is to work!"},   
+    "variables if this is to work!"},
 
    {OPT_FIX_MINISAT,
     'M', "fix-minisat",
@@ -320,8 +320,8 @@ char   *outname = NULL;
 IOFormat parse_format = AutoFormat;
 bool   dimacs_format = false;
 int    split_tries = 0;
-bool   unit_sub = true, 
-       unit_res = true, 
+bool   unit_sub = true,
+       unit_res = true,
        taut_check = true,
        add_single_instance = false,
        constraints = false,
@@ -355,7 +355,7 @@ int main(int argc, char* argv[])
    ClauseSet_p     clauses;
    FormulaSet_p    formulas, f_ax_archive;
    GroundSet_p     groundset;
-   Scanner_p       in;    
+   Scanner_p       in;
    int             i;
    CLState_p       state;
    SpecFeatureCell features;
@@ -375,16 +375,16 @@ int main(int argc, char* argv[])
    ESignalSetup(SIGXCPU);
 
    state = process_options(argc, argv);
-   
+
    OpenGlobalOut(outname);
-   
+
    if(state->argc ==  0)
    {
       CLStateInsertArg(state, "-");
    }
-   
+
    sort_table   = DefaultSortTableAlloc();
-   sig          = SigAlloc(sort_table); 
+   sig          = SigAlloc(sort_table);
    SigInsertInternalCodes(sig);
    terms        = TBAlloc(sig);
    collector    = GCAdminAlloc(terms);
@@ -392,7 +392,7 @@ int main(int argc, char* argv[])
    clauses      = ClauseSetAlloc();
    formulas     = FormulaSetAlloc();
    f_ax_archive = FormulaSetAlloc();
-   
+
    GCRegisterClauseSet(collector, clauses);
    GCRegisterFormulaSet(collector, formulas);
    GCRegisterFormulaSet(collector, f_ax_archive);
@@ -407,7 +407,7 @@ int main(int argc, char* argv[])
       }
 
       /* ClauseSetParseList(in, clauses, terms); */
-      FormulaAndClauseSetParse(in,clauses, formulas, terms, 
+      FormulaAndClauseSetParse(in,clauses, formulas, terms,
          NULL, &skip_includes);
       CheckInpTok(in, NoToken);
       DestroyScanner(in);
@@ -436,18 +436,18 @@ int main(int argc, char* argv[])
                           0,
                           0,
                           0,
-                          0, 0, 0, 
+                          0, 0, 0,
                           0, 0, 0,
                           0, 0, 0,
                           0, 0, 0);
    cspec->max_symbols = FVINDEX_MAX_FEATURES_DEFAULT;
-   
-   perm = PermVectorCompute(clauses,		    
+
+   perm = PermVectorCompute(clauses,
                             cspec,
-                            false);  
+                            false);
    def_store->def_clauses->fvindex = FVIAnchorAlloc(cspec, perm);
 
-   SpecFeaturesCompute(&features, clauses, sig);   
+   SpecFeaturesCompute(&features, clauses, sig);
 
    if(!SpecNoEq(&features))
    {
@@ -460,9 +460,9 @@ int main(int argc, char* argv[])
       Error("Grounding not possible: Specification is "
 	    "not near-propositional. There is an infinite Herbrand "
 	    "universe and there are non-ground clauses in the "
-	    "specification!", INPUT_SEMANTIC_ERROR); 
+	    "specification!", INPUT_SEMANTIC_ERROR);
    }
-   
+
    if(add_single_instance)
    {
       selected_symbol = ClauseSetFindFreqSymbol(clauses, terms->sig,
@@ -475,13 +475,13 @@ int main(int argc, char* argv[])
    if(split_tries)
    {
       ClauseSet_p tmpset = ClauseSetAlloc();
-    
+
       ClauseSetSplitClausesGeneral(def_store, true, clauses, tmpset, split_tries-1);
-      
+
       ClauseSetFree(clauses);
       clauses = tmpset;
    }
-   
+
    ClauseSetSort(clauses, ClauseCmpByLen);
 
    groundset = GroundSetAlloc(terms);
@@ -506,7 +506,7 @@ int main(int argc, char* argv[])
 				     give_up);
    }
    if((groundset->complete!=cpl_complete) && add_single_instance)
-   {      
+   {
       GroundSetState gss_cache = groundset->complete;
       MemIsLow = false; /* Kind of optimistic, but otherwise
 			   ClauseSetCreateConstrGroundInstances() will
@@ -518,7 +518,7 @@ int main(int argc, char* argv[])
 					   taut_check,
 					   give_up,
 					   selected_symbol);
-      groundset->complete = gss_cache;      
+      groundset->complete = gss_cache;
    }
    if(OutputLevel == 1)
    {
@@ -529,12 +529,12 @@ int main(int argc, char* argv[])
       if(dimacs_format)
       {
          long max_lit =  groundset->max_literal;
-         
+
          if(fix_minisat)
          {
             max_lit = GroundSetMaxVar(groundset);
          }
-               
+
 	 PrintDimacsHeader(GlobalOut, max_lit,
 			   GroundSetDimacsPrintMembers(groundset));
 	 GroundSetPrintDimacs(GlobalOut, groundset);
@@ -550,12 +550,12 @@ int main(int argc, char* argv[])
 		    "# Full and complete proof state written!\n");
 	    break;
       case cpl_lowmem:
-	    fprintf(GlobalOut, 
-		 "# Out of memory: Proof state incomplete!\n");	
+	    fprintf(GlobalOut,
+		 "# Out of memory: Proof state incomplete!\n");
 	    break;
       case cpl_timeout:
-	    fprintf(GlobalOut, 
-		 "# Timeout: Proof state incomplete!\n");	
+	    fprintf(GlobalOut,
+		 "# Timeout: Proof state incomplete!\n");
 	    break;
       default:
 	    assert(false && "Unknown incompleteness?!?");
@@ -567,7 +567,7 @@ int main(int argc, char* argv[])
    }
    if(print_statistics)
    {
-      fprintf(GlobalOut, 
+      fprintf(GlobalOut,
 	      "\n"
 	      "# Initial clauses                      : %ld\n"
 	      "# Initial literals                     : %ld\n"
@@ -579,7 +579,7 @@ int main(int argc, char* argv[])
    }
 #ifndef FAST_EXIT
    GroundSetFree(groundset);
-   ClauseSetFree(clauses);  
+   ClauseSetFree(clauses);
    GCAdminFree(collector);
 
    terms->sig = NULL;
@@ -597,12 +597,12 @@ int main(int argc, char* argv[])
    fflush(GlobalOut);
    OutClose(GlobalOut);
    ExitIO();
-   
+
 #ifdef CLB_MEMORY_DEBUG
    MemFlushFreeList();
    MemDebugPrintStats(stdout);
 #endif
-   
+
    return 0;
 }
 
@@ -628,9 +628,9 @@ CLState_p process_options(int argc, char* argv[])
    char*  arg;
    struct rlimit limit = {RLIM_INFINITY, RLIM_INFINITY};
    rlim_t mem_limit = 0;
-   
+
    state = CLStateAlloc(argc,argv);
-   
+
    while((handle = CLStateGetOpt(state, &arg, opts)))
    {
       switch(handle->option_code)
@@ -638,7 +638,7 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_VERBOSE:
 	    Verbose = CLStateGetIntArg(handle, arg);
 	    break;
-      case OPT_HELP: 
+      case OPT_HELP:
 	    print_help(stdout);
 	    exit(NO_ERROR);
       case OPT_VERSION:
@@ -663,7 +663,7 @@ CLState_p process_options(int argc, char* argv[])
 	    print_result = false;
 	    break;
       case OPT_LOP_PARSE:
-	    parse_format = LOPFormat;	    
+	    parse_format = LOPFormat;
 	    break;
       case OPT_TPTP_PARSE:
 	    parse_format = TPTPFormat;
@@ -674,7 +674,7 @@ CLState_p process_options(int argc, char* argv[])
 	    EqnUseInfix = false;
 	    break;
       case OPT_TPTP_FORMAT:
-	    parse_format = TPTPFormat;	    
+	    parse_format = TPTPFormat;
 	    OutputFormat = TPTPFormat;
 	    EqnFullEquationalRep = false;
 	    EqnUseInfix = false;
@@ -714,20 +714,20 @@ CLState_p process_options(int argc, char* argv[])
 	    break;
       case OPT_MEM_LIMIT:
             if(strcmp(arg, "Auto")==0)
-            {              
+            {
                long tmpmem =  GetSystemPhysMemory();
                mem_limit = 0.8*tmpmem;
-               
+
                if(tmpmem==-1)
                {
                   Error("Cannot find physical memory automatically. "
                         "Give explicit value to --memory-limit", OTHER_ERROR);
-               }               
+               }
                mem_limit = MEGA*mem_limit;
-               VERBOSE(fprintf(stderr, 
+               VERBOSE(fprintf(stderr,
                                "Physical memory determined as %ld MB\n"
-                               "Memory limit set to %lld MB\n", 
-                               tmpmem, 
+                               "Memory limit set to %lld MB\n",
+                               tmpmem,
                                (long long)mem_limit););
             }
             else
@@ -755,7 +755,7 @@ CLState_p process_options(int argc, char* argv[])
 		  Error("Soft time limit has to be smaller than hard"
 			"time limit", USAGE_ERROR);
 	       }
-	    }	    
+	    }
 	    break;
       case OPT_PART_COMPLETE:
 	    add_single_instance = true;
@@ -807,13 +807,13 @@ CLState_p process_options(int argc, char* argv[])
       }
       limit.rlim_max = RLIM_INFINITY;
       limit.rlim_cur = 0;
-      
+
       if(setrlimit(RLIMIT_CORE, &limit))
       {
 	 TmpErrno = errno;
 	 SysError("Unable to prevent core dumps", SYS_ERROR);
       }
-   }   
+   }
    SetMemoryLimit(mem_limit);
    return state;
 }

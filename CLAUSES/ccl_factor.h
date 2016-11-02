@@ -5,7 +5,7 @@ File  : ccl_factor.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for ordered factorisation.
 
   Copyright 1998, 1999 by the author.
@@ -46,7 +46,7 @@ Clause_p ComputeOrderedFactor(TB_p bank, OCB_p ocb, ClausePos_p pos1,
 
 Eqn_p    ClausePosFirstOrderedFactorLiterals(Clause_p clause,
 					     ClausePos_p pos1,
-					     ClausePos_p pos2); 
+					     ClausePos_p pos2);
 
 Eqn_p    ClausePosNextOrderedFactorLiterals(ClausePos_p pos1,
 					    ClausePos_p pos2);
@@ -56,7 +56,7 @@ Clause_p ComputeEqualityFactor(TB_p bank, OCB_p ocb, ClausePos_p pos1,
 
 Eqn_p    ClausePosFirstEqualityFactorSides(Clause_p clause,
 					   ClausePos_p pos1,
-					   ClausePos_p pos2); 
+					   ClausePos_p pos2);
 
 Eqn_p    ClausePosNextEqualityFactorSides(ClausePos_p pos1,
 					 ClausePos_p pos2);

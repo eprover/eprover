@@ -5,7 +5,7 @@ File  : clb_regmem.c
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   A module supporting dynamic memory for local static variables that
   is still freed quasi-automatically (via a call to a cleanup
   function) when the program terminates. This is useful if there is a
@@ -68,7 +68,7 @@ void* RegMemAlloc(size_t size)
    void *res = SecureMalloc(size);
 
    PTreeStore(&reg_mem_tree, res);
-   
+
    return res;
 }
 
@@ -88,11 +88,11 @@ void* RegMemAlloc(size_t size)
 void* RegMemRealloc(void* mem, size_t size)
 {
    void *res;
-   
+
    PTreeDeleteEntry(&reg_mem_tree, mem);
    res = SecureRealloc(mem,size);
    PTreeStore(&reg_mem_tree, res);
-   
+
    return res;
 }
 
@@ -147,7 +147,7 @@ void* RegMemProvide(void* mem, size_t *oldsize, size_t newsize)
       newlimit *= 2;
    }
    mem = RegMemRealloc(mem, newlimit);
-   memset(mem+*oldsize, 0, newlimit-*oldsize);   
+   memset(mem+*oldsize, 0, newlimit-*oldsize);
    *oldsize = newlimit;
 
    return mem;

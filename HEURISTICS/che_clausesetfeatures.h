@@ -5,7 +5,7 @@ File  : che_clausesetfeatures.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for determining various features of clause sets.
 
   Copyright 1998, 1999 by the author.
@@ -32,7 +32,7 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-typedef enum 
+typedef enum
 {
    SpecUnit,
    SpecHorn,
@@ -46,7 +46,7 @@ typedef enum
    SpecFewPosGround,
    SpecSomePosGround,
    SpecManyPosGround,
-   SpecFewAxioms, 
+   SpecFewAxioms,
    SpecSomeAxioms,
    SpecManyAxioms,
    SpecFewLiterals,
@@ -142,12 +142,12 @@ typedef struct spec_feature_cell
    long		groundgoals;
    double       ng_unit_axioms_part;
    double       ground_positive_axioms_part;
-   int          max_fun_arity; 
+   int          max_fun_arity;
    int          avg_fun_arity;
    int          sum_fun_arity;
-   int          max_pred_arity; 
-   int          avg_pred_arity; 
-   int          sum_pred_arity; 
+   int          max_pred_arity;
+   int          avg_pred_arity;
+   int          sum_pred_arity;
    int          fun_const_count;
    int          fun_nonconst_count;
    int          pred_nonconst_count;
@@ -180,7 +180,7 @@ typedef struct spec_feature_cell
 #define FAR_SUM_LARGE_DEFAULT   24
 #define DEPTH_MEDIUM_DEFAULT     0 /* Partitioning two ways turns out
                                       to be nearly as good as 3 way on
-                                      the test set */  
+                                      the test set */
 #define DEPTH_DEEP_DEFAULT       6
 #define SYMBOLS_MEDIUM_DEFAULT   100
 #define SYMBOLS_LARGE_DEFAULT    1000
@@ -201,13 +201,13 @@ typedef struct spec_feature_cell
 
 
 #define SpecLimitsCellAlloc() \
-        (SpecLimitsCell*)SizeMalloc(sizeof(SpecLimitsCell)) 
+        (SpecLimitsCell*)SizeMalloc(sizeof(SpecLimitsCell))
 #define SpecLimitsCellFree(junk) \
         SizeFree(junk, sizeof(SpecLimitsCell))
 SpecLimits_p SpecLimitsAlloc(void);
 
 #define SpecFeatureCellAlloc() \
-        (SpecFeatureCell*)SizeMalloc(sizeof(SpecFeatureCell)) 
+        (SpecFeatureCell*)SizeMalloc(sizeof(SpecFeatureCell))
 #define SpecFeatureCellFree(junk) \
         SizeFree(junk, sizeof(SpecFeatureCell))
 
@@ -262,7 +262,7 @@ SpecLimits_p SpecLimitsAlloc(void);
         ((spec)->set_termcell_size == SpecMediumTerms)
 #define SpecLargeTerms(spec) \
         ((spec)->set_termcell_size == SpecLargeTerms)
-  
+
 #define SpecMaxFArity0(spec) \
         ((spec)->max_fun_ar_class == SpecArity0)
 #define SpecMaxFArity1(spec) \
@@ -287,7 +287,7 @@ SpecLimits_p SpecLimitsAlloc(void);
         ((spec)->sum_fun_ar_class == SpecAritySumMedium)
 #define SpecLargeFArSum(spec) \
         ((spec)->sum_fun_ar_class == SpecAritySumLarge)
-  
+
 #define SpecShallowMaxDepth(spec) \
         ((spec)->max_depth_class == SpecDepthShallow)
 #define SpecMediumMaxDepth(spec) \

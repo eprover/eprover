@@ -7,7 +7,7 @@ Author: Stephan Schulz
 Contents
 
   Computing constraints on the possible instances of groundable
-  clauses. 
+  clauses.
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
@@ -53,7 +53,7 @@ Changes
 //   Allocate a LitOccTable suitable for the signature. This wastes
 //   some memory, but except for pathological cases, this should be
 //   insignificant, and the time efficiency  of the operations should
-//   be good. 
+//   be good.
 //
 // Global Variables: -
 //
@@ -137,7 +137,7 @@ bool LitPosGetConstrState(LitOccTable_p table, FunCode pred, int pos)
    assert(table);
    assert(pred < table->sig_size);
    assert(pos < table->maxarity);
-   
+
    return LIT_OCC_TABLE_ENTRY(table, pred, pos).constrained;
 }
 
@@ -161,7 +161,7 @@ void LitPosSetConstrState(LitOccTable_p table, FunCode pred, int pos,
    assert(table);
    assert(pred < table->sig_size);
    assert(pos < table->maxarity);
-   
+
    LIT_OCC_TABLE_ENTRY(table, pred, pos).constrained = value;
 }
 
@@ -196,11 +196,11 @@ PTree_p LitPosGetConstraints(LitOccTable_p table, FunCode pred, int pos)
 //
 //   Add the term to the set of disjunctive constraints at the
 //   described position. Return true if this makes the position
-//   unconstrained. 
+//   unconstrained.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -226,7 +226,7 @@ bool LitPosAddConstraint(LitOccTable_p table, FunCode pred, int pos,
 // Function: LitOccAddLitAlt()
 //
 //   Add the contraints induced by literal into the corresponding
-//   table. 
+//   table.
 //
 // Global Variables: -
 //
@@ -255,7 +255,7 @@ void LitOccAddLitAlt(LitOccTable_p p_table, LitOccTable_p n_table,
 
    for(i=0; i< lit->arity; i++)
    {
-      LitPosAddConstraint(handle, lit->f_code, i, lit->args[i]);      
+      LitPosAddConstraint(handle, lit->f_code, i, lit->args[i]);
    }
 }
 
@@ -289,11 +289,11 @@ void LitOccAddClauseAlt(LitOccTable_p p_table, LitOccTable_p n_table,
 // Function: LitOccAddClauseSetAlt()
 //
 //   Add the constraints induced by the clause set to the constraint
-//   tables. 
+//   tables.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -305,7 +305,7 @@ void LitOccAddClauseSetAlt(LitOccTable_p p_table, LitOccTable_p
    for(handle = set->anchor->succ; handle!= set->anchor; handle =
 	  handle->succ)
    {
-      LitOccAddClauseAlt(p_table, n_table, handle);      
+      LitOccAddClauseAlt(p_table, n_table, handle);
    }
 }
 
@@ -331,7 +331,7 @@ long SigCollectConstantTerms(TB_p bank, PStack_p stack, FunCode uniq)
    FunCode i;
    long res = 0;
    Term_p tmp, found;
-   
+
    if(uniq)
    {
       assert((uniq > 0) && (uniq <= bank->sig->f_count) &&
@@ -396,20 +396,20 @@ void EqnCollectVarConstr(LitOccTable_p p_table, LitOccTable_p n_table,
    constr = EqnIsPositive(eqn)?n_table:p_table; /* Contraints are
 						   induced by literals
 						   of the opposite
-						   sign! */ 
+						   sign! */
    for(i=0; i<lit->arity; i++)
    {
       if(TermIsVar(lit->args[i]))
       {
 	 if(LitPosGetConstrState(constr,lit->f_code,i))
 	 {
-	    tree = PDArrayElementP(var_constr, 
+	    tree = PDArrayElementP(var_constr,
 				   -(lit->args[i]->f_code));
 	    (void)PTreeDestrIntersection(&tree,
 					 LitPosGetConstraints(constr,
 							      lit->f_code,
 							      i));
-	    PDArrayAssignP(var_constr, 
+	    PDArrayAssignP(var_constr,
 			   -(lit->args[i]->f_code),
 			   tree);
 	    /* if(tmp)
@@ -418,7 +418,7 @@ void EqnCollectVarConstr(LitOccTable_p p_table, LitOccTable_p n_table,
 	       }*/
 	 }
       }
-   }   
+   }
 }
 
 
@@ -431,9 +431,9 @@ void EqnCollectVarConstr(LitOccTable_p p_table, LitOccTable_p n_table,
 //   Apply all variable constraints for clause to the initialized
 //   var_constr array return them.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -442,7 +442,7 @@ void ClauseCollectVarConstr(LitOccTable_p p_table, LitOccTable_p
 			    ground_terms, PDArray_p var_constr)
 {
    Eqn_p     handle;
-   
+
    for(handle = clause->literals; handle; handle = handle->next)
    {
       EqnCollectVarConstr(p_table, n_table, var_constr, handle);

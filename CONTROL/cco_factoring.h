@@ -5,7 +5,7 @@ File  : cco_factoring.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Routines for the control of factoring
 
   Copyright 1998, 1999 by the author.

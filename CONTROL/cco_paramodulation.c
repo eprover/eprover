@@ -5,7 +5,7 @@ File  : cco_paramodulation.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Controling paramodulation inferences.
 
   Copyright 1998, 1999 by the author.
@@ -63,7 +63,7 @@ static bool sim_paramod_q(OCB_p ocb, ClausePos_p frompos, ParamodulationType pm_
    case ParamodPlain:
          res = false;
          break;
-   case ParamodAlwaysSim:   
+   case ParamodAlwaysSim:
          res = true;
          break;
    case ParamodOrientedSim:
@@ -102,24 +102,24 @@ static bool sim_paramod_q(OCB_p ocb, ClausePos_p frompos, ParamodulationType pm_
 /----------------------------------------------------------------------*/
 
 static Clause_p variable_paramod(TB_p bank, OCB_p ocb, ClausePos_p from,
-                          ClausePos_p into, VarBank_p freshvars, 
+                          ClausePos_p into, VarBank_p freshvars,
                           ParamodulationType pm_type, InfType *inf)
 {
    Clause_p paramod = NULL;
-   
+
    if(sim_paramod_q(ocb, from, pm_type))
    {
       paramod = ClauseOrderedSimParamod(bank, ocb, from, into,
                                         freshvars);
-      *inf = inf_sim_paramod;         
-      
+      *inf = inf_sim_paramod;
+
    }
    else
    {
       paramod = ClauseOrderedParamod(bank, ocb, from, into,
                                      freshvars);
       *inf = inf_paramod;
-      
+
    }
    return paramod;
 }
@@ -138,17 +138,17 @@ static Clause_p variable_paramod(TB_p bank, OCB_p ocb, ClausePos_p from,
 //
 /----------------------------------------------------------------------*/
 
-static void update_clause_info(Clause_p child, 
+static void update_clause_info(Clause_p child,
                                Clause_p parent1, Clause_p parent2)
 {
    child->parent1 = parent1;
    ClauseRegisterChild(parent1, child);
-   
+
    child->proof_size  = parent1->proof_size+parent2->proof_size+1;
    child->proof_depth = MAX(parent1->proof_depth, parent2->proof_depth)+1;
    ClauseSetTPTPType(child, ClauseQueryTPTPType(parent1));
-   
-   ClauseSetProp(child, 
+
+   ClauseSetProp(child,
                  ClauseGiveProps(parent1, CPIsSOS)|
                  ClauseGiveProps(parent2, CPIsSOS));
 
@@ -185,9 +185,9 @@ static void update_clause_info(Clause_p child,
 //
 /----------------------------------------------------------------------*/
 
-static long compute_into_pm_pos_clause(ParamodInfo_p pminfo, 
-                                       ClauseTPos_p into_clause_pos, 
-                                       ClauseSet_p store, 
+static long compute_into_pm_pos_clause(ParamodInfo_p pminfo,
+                                       ClauseTPos_p into_clause_pos,
+                                       ClauseSet_p store,
                                        bool sim_pm)
 {
    long res = 0;
@@ -197,7 +197,7 @@ static long compute_into_pm_pos_clause(ParamodInfo_p pminfo,
    Clause_p  clause;
 
    pminfo->into = into_clause_pos->clause;
-   
+
    iterstack = NumTreeTraverseInit(into_clause_pos->pos);
    while ((cell = NumTreeTraverseNext(iterstack)))
    {
@@ -223,13 +223,13 @@ static long compute_into_pm_pos_clause(ParamodInfo_p pminfo,
           ||!TOGreater(pminfo->ocb, rside, lside, DEREF_ALWAYS, DEREF_ALWAYS))
          &&
          ((EqnIsPositive(pminfo->into_pos->literal)&&
-           EqnListEqnIsStrictlyMaximal(pminfo->ocb, 
+           EqnListEqnIsStrictlyMaximal(pminfo->ocb,
                                        pminfo->into->literals,
                                        pminfo->into_pos->literal))
 	  ||
           (EqnIsNegative(pminfo->into_pos->literal)
-           && 
-           EqnListEqnIsMaximal(pminfo->ocb, 
+           &&
+           EqnListEqnIsMaximal(pminfo->ocb,
                                pminfo->into->literals,
                                pminfo->into_pos->literal))))
       {
@@ -240,12 +240,12 @@ static long compute_into_pm_pos_clause(ParamodInfo_p pminfo,
             ClauseSetInsert(store, clause);
             res++;
             update_clause_info(clause, pminfo->into, pminfo->new_orig);
-            DocClauseCreationDefault(clause, 
-                                     sim_pm?inf_sim_paramod:inf_paramod, 
-                                     pminfo->into, 
-                                     pminfo->new_orig);   
+            DocClauseCreationDefault(clause,
+                                     sim_pm?inf_sim_paramod:inf_paramod,
+                                     pminfo->into,
+                                     pminfo->new_orig);
             ClausePushDerivation(clause,  sim_pm?DCSimParamod:DCParamod,
-                                 pminfo->into, pminfo->new_orig);            
+                                 pminfo->into, pminfo->new_orig);
          }
       }
       ClausePosFree(pminfo->into_pos);
@@ -255,7 +255,7 @@ static long compute_into_pm_pos_clause(ParamodInfo_p pminfo,
       }
    }
    NumTreeTraverseExit(iterstack);
-   
+
    return res;
 }
 
@@ -276,7 +276,7 @@ static long compute_into_pm_pos_clause(ParamodInfo_p pminfo,
 long compute_pos_into_pm_term(ParamodInfo_p pminfo,
                               ParamodulationType type,
                               Term_p olterm,
-                              SubtermOcc_p into_clauses, 
+                              SubtermOcc_p into_clauses,
                               ClauseSet_p store)
 {
    long             res = 0;
@@ -301,7 +301,7 @@ long compute_pos_into_pm_term(ParamodInfo_p pminfo,
           !TOGreater(pminfo->ocb, rep_side, max_side, DEREF_ALWAYS,
                      DEREF_ALWAYS))
          &&
-         EqnListEqnIsStrictlyMaximal(pminfo->ocb, 
+         EqnListEqnIsStrictlyMaximal(pminfo->ocb,
 				     pminfo->from->literals,
 				     pminfo->from_pos->literal))
       {
@@ -311,7 +311,7 @@ long compute_pos_into_pm_term(ParamodInfo_p pminfo,
          iterstack = PTreeTraverseInit(into_clauses->pl.pos.clauses);
          while ((cell = PTreeTraverseNext(iterstack)))
          {
-            res += compute_into_pm_pos_clause(pminfo, cell->key, 
+            res += compute_into_pm_pos_clause(pminfo, cell->key,
                                               store, sim_pm);
          }
          PTreeTraverseExit(iterstack);
@@ -338,21 +338,21 @@ long compute_pos_into_pm_term(ParamodInfo_p pminfo,
 static long compute_pos_into_pm_termtree(ParamodInfo_p pminfo,
                                          ParamodulationType type,
                                          Term_p olterm,
-                                         SubtermTree_p into_tree, 
+                                         SubtermTree_p into_tree,
                                          ClauseSet_p store)
 {
    long          res = 0;
    PStack_p      iterstack;
    PObjTree_p    cell;
-   
+
    iterstack = PTreeTraverseInit(into_tree);
    while ((cell = PTreeTraverseNext(iterstack)))
    {
-      res += compute_pos_into_pm_term(pminfo, type, 
+      res += compute_pos_into_pm_term(pminfo, type,
                                       olterm, cell->key, store);
    }
    PTreeTraverseExit(iterstack);
-   
+
    return res;
 }
 
@@ -374,19 +374,19 @@ static long compute_pos_into_pm_termtree(ParamodInfo_p pminfo,
 static long compute_pos_into_pm(ParamodInfo_p pminfo,
                                 ParamodulationType type,
                                 Term_p olterm,
-                                OverlapIndex_p into_index, 
+                                OverlapIndex_p into_index,
                                 ClauseSet_p store)
 {
    long          res = 0;
    SubtermTree_p termtree;
    PStack_p      candidates = PStackAlloc();
-   
+
    FPIndexFindUnifiable(into_index, olterm, candidates);
-   
+
    while(!PStackEmpty(candidates))
    {
       termtree = PStackPopP(candidates);
-      res += compute_pos_into_pm_termtree(pminfo, type, 
+      res += compute_pos_into_pm_termtree(pminfo, type,
                                           olterm, termtree, store);
    }
 
@@ -415,9 +415,9 @@ static long compute_pos_into_pm(ParamodInfo_p pminfo,
 //
 /----------------------------------------------------------------------*/
 
-static long compute_from_pm_pos_clause(ParamodInfo_p pminfo, 
+static long compute_from_pm_pos_clause(ParamodInfo_p pminfo,
                                        ParamodulationType type,
-                                       ClauseTPos_p from_clause_pos, 
+                                       ClauseTPos_p from_clause_pos,
                                        ClauseSet_p store)
 {
    long res = 0;
@@ -428,7 +428,7 @@ static long compute_from_pm_pos_clause(ParamodInfo_p pminfo,
    bool      sim_pm;
 
    pminfo->from = from_clause_pos->clause;
-   
+
    iterstack = NumTreeTraverseInit(from_clause_pos->pos);
    while ((cell = NumTreeTraverseNext(iterstack)))
    {
@@ -448,7 +448,7 @@ static long compute_from_pm_pos_clause(ParamodInfo_p pminfo,
       if((EqnIsOriented(pminfo->from_pos->literal)
           ||!TOGreater(pminfo->ocb, rside, lside, DEREF_ALWAYS, DEREF_ALWAYS))
          &&
-         (EqnListEqnIsStrictlyMaximal(pminfo->ocb, 
+         (EqnListEqnIsStrictlyMaximal(pminfo->ocb,
                                       pminfo->from->literals,
                                       pminfo->from_pos->literal)))
       {
@@ -459,8 +459,8 @@ static long compute_from_pm_pos_clause(ParamodInfo_p pminfo,
             ClauseSetInsert(store, clause);
             res++;
             update_clause_info(clause, pminfo->from, pminfo->new_orig);
-            DocClauseCreationDefault(clause, 
-                                     sim_pm?inf_sim_paramod:inf_paramod, 
+            DocClauseCreationDefault(clause,
+                                     sim_pm?inf_sim_paramod:inf_paramod,
                                      pminfo->new_orig,
                                      pminfo->from);
             ClausePushDerivation(clause,  sim_pm?DCSimParamod:DCParamod,
@@ -469,14 +469,14 @@ static long compute_from_pm_pos_clause(ParamodInfo_p pminfo,
       }
       ClausePosFree(pminfo->from_pos);
       /* Unfortunately, this optimization is wrong here - we iterate
-         over positions in the from-clause! 
+         over positions in the from-clause!
          if(clause && sim_pm)
          {
          break;
          }*/
    }
    NumTreeTraverseExit(iterstack);
-   
+
    return res;
 }
 
@@ -499,7 +499,7 @@ static long compute_from_pm_pos_clause(ParamodInfo_p pminfo,
 long compute_pos_from_pm_term(ParamodInfo_p pminfo,
                               ParamodulationType type,
                               Term_p olterm,
-                              SubtermOcc_p from_clauses, 
+                              SubtermOcc_p from_clauses,
                               ClauseSet_p store)
 {
    long             res = 0;
@@ -507,7 +507,7 @@ long compute_pos_from_pm_term(ParamodInfo_p pminfo,
    PObjTree_p       cell;
    Subst_p          subst = SubstAlloc();
    Term_p           max_side, min_side;
-   
+
    /*printf("\n@f %ld\n", DebugCount); */
    if(SubstComputeMgu(olterm, from_clauses->term, subst))
    {
@@ -524,12 +524,12 @@ long compute_pos_from_pm_term(ParamodInfo_p pminfo,
                      DEREF_ALWAYS))
          &&
          ((EqnIsPositive(pminfo->into_pos->literal)&&
-           EqnListEqnIsStrictlyMaximal(pminfo->ocb, 
+           EqnListEqnIsStrictlyMaximal(pminfo->ocb,
                                        pminfo->into->literals,
                                        pminfo->into_pos->literal))
           ||
-          (EqnIsNegative(pminfo->into_pos->literal) && 
-           EqnListEqnIsMaximal(pminfo->ocb, 
+          (EqnIsNegative(pminfo->into_pos->literal) &&
+           EqnListEqnIsMaximal(pminfo->ocb,
                                pminfo->into->literals,
                                pminfo->into_pos->literal))))
       {
@@ -565,21 +565,21 @@ long compute_pos_from_pm_term(ParamodInfo_p pminfo,
 static long compute_pos_from_pm_termtree(ParamodInfo_p pminfo,
                                          ParamodulationType type,
                                          Term_p olterm,
-                                         SubtermTree_p from_tree, 
+                                         SubtermTree_p from_tree,
                                          ClauseSet_p store)
 {
    long          res = 0;
    PStack_p      iterstack;
    PObjTree_p    cell;
-   
+
    iterstack = PTreeTraverseInit(from_tree);
    while ((cell = PTreeTraverseNext(iterstack)))
    {
-      res += compute_pos_from_pm_term(pminfo, type, 
+      res += compute_pos_from_pm_term(pminfo, type,
                                       olterm, cell->key, store);
    }
    PTreeTraverseExit(iterstack);
-   
+
    return res;
 }
 
@@ -591,7 +591,7 @@ static long compute_pos_from_pm_termtree(ParamodInfo_p pminfo,
 //
 //   Compute all paramodulations into clause with pminfo->into|pos =
 //   term, term is the LHS for the overlap, from clauses in
-//   from_index. 
+//   from_index.
 //
 // Global Variables: -
 //
@@ -602,19 +602,19 @@ static long compute_pos_from_pm_termtree(ParamodInfo_p pminfo,
 static long compute_pos_from_pm(ParamodInfo_p pminfo,
                                 ParamodulationType type,
                                 Term_p olterm,
-                                OverlapIndex_p from_index, 
+                                OverlapIndex_p from_index,
                                 ClauseSet_p store)
 {
    long          res = 0;
    SubtermTree_p termtree;
    PStack_p      candidates = PStackAlloc();
-   
+
    FPIndexFindUnifiable(from_index, olterm, candidates);
-   
+
    while(!PStackEmpty(candidates))
    {
       termtree = PStackPopP(candidates);
-      res += compute_pos_from_pm_termtree(pminfo, type, 
+      res += compute_pos_from_pm_termtree(pminfo, type,
                                            olterm, termtree, store);
    }
 
@@ -645,7 +645,7 @@ static long compute_pos_from_pm(ParamodInfo_p pminfo,
 long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
                                       clause, Clause_p parent_alias,
                                       Clause_p with, ClauseSet_p
-                                      store, VarBank_p freshvars, 
+                                      store, VarBank_p freshvars,
                                       ParamodulationType pm_type)
 {
    Clause_p    paramod;
@@ -656,8 +656,8 @@ long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
 
 
    assert(EqnListQueryPropNumber(clause->literals, EPIsMaximal));
-   assert(EqnListQueryPropNumber(clause->literals, EPIsMaximal) 
-          == 
+   assert(EqnListQueryPropNumber(clause->literals, EPIsMaximal)
+          ==
           EqnListQueryPropNumber(parent_alias->literals, EPIsMaximal));
    assert(EqnListQueryPropNumber(with->literals, EPIsMaximal));
 
@@ -679,35 +679,35 @@ long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
       /* printf("\n@i %ld\n", DebugCount); */
       paramod = variable_paramod(bank, ocb, pos1, pos2,
                                  freshvars, pm_type, &inf_type);
-      
+
       if(paramod)
       {
 	 paramod_count++;
-	 paramod->parent1 = parent_alias;	    
+	 paramod->parent1 = parent_alias;
 	 paramod->proof_size  =
 	    parent_alias->proof_size+with->proof_size+1;
 	 paramod->proof_depth = MAX(parent_alias->proof_depth,
 				    with->proof_depth)+1;
 	 ClauseSetTPTPType(paramod,
 			   ClauseQueryTPTPType(parent_alias));
-	 ClauseSetProp(paramod, 
+	 ClauseSetProp(paramod,
 		       ClauseGiveProps(parent_alias, CPIsSOS)|
 		       ClauseGiveProps(with, CPIsSOS));
 	 ClauseRegisterChild(parent_alias, paramod);
 	 if(parent_alias!=with)
 	 {
 	    paramod->parent2 = with;
-	    
+
 	    ClauseSetTPTPType(paramod,
 			      TPTPTypesCombine(
 				 ClauseQueryTPTPType(paramod),
 				 ClauseQueryTPTPType(with)));
-	    
+
 	    ClauseRegisterChild(with, paramod);
 	 }
-	 DocClauseCreationDefault(paramod, inf_type, with, 
+	 DocClauseCreationDefault(paramod, inf_type, with,
 				  parent_alias);
-         ClausePushDerivation(clause,  
+         ClausePushDerivation(clause,
                               inf_type==inf_sim_paramod?DCSimParamod:DCParamod,
                               with, parent_alias);
 	 ClauseSetInsert(store, paramod);
@@ -715,7 +715,7 @@ long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
       test = ClausePosNextParamodPair(pos1, pos2, false, pm_type != ParamodPlain);
    }
    /* Paramod clause into with - no top positions this time ;-) */
-   
+
    if(parent_alias==with)
    {
       /* Both clauses are identical, i.e. both cases are
@@ -723,9 +723,9 @@ long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
    }
    else
    {
-      test = ClausePosFirstParamodPair(with, pos1, clause, pos2, true, 
-                                       pm_type != ParamodPlain); 
-      
+      test = ClausePosFirstParamodPair(with, pos1, clause, pos2, true,
+                                       pm_type != ParamodPlain);
+
       while(test)
       {
 	 assert(TermPosIsTopPos(pos1->pos));
@@ -742,7 +742,7 @@ long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
 				       with->proof_depth)+1;
 	    ClauseSetTPTPType(paramod,
 			      ClauseQueryTPTPType(with));
-	    ClauseSetProp(paramod, 
+	    ClauseSetProp(paramod,
 			  ClauseGiveProps(parent_alias, CPIsSOS)|
 			  ClauseGiveProps(with, CPIsSOS));
 	    ClauseRegisterChild(with, paramod);
@@ -756,7 +756,7 @@ long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
 	       ClauseRegisterChild(parent_alias, paramod);
 	    }
 	    DocClauseCreationDefault(paramod, inf_type, parent_alias, with);
-            ClausePushDerivation(clause,  
+            ClausePushDerivation(clause,
                                  inf_type==inf_sim_paramod?DCSimParamod:DCParamod,
                                  parent_alias, with);
 	    ClauseSetInsert(store, paramod);
@@ -766,7 +766,7 @@ long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
    }
    ClausePosFree(pos1);
    ClausePosFree(pos2);
-   
+
    return paramod_count;
 }
 
@@ -809,7 +809,7 @@ long ComputeAllParamodulants(TB_p bank, OCB_p ocb, Clause_p clause,
 // Function: ComputeIntoParamodulants()
 //
 //   Compute all paramodulants from clause into clauses in
-//   into_index. 
+//   into_index.
 //
 // Global Variables: -
 //
@@ -821,8 +821,8 @@ long ComputeAllParamodulants(TB_p bank, OCB_p ocb, Clause_p clause,
 long ComputeIntoParamodulants(ParamodInfo_p pminfo,
                               ParamodulationType type,
                               Clause_p clause,
-                              OverlapIndex_p into_index, 
-                              OverlapIndex_p negp_index, 
+                              OverlapIndex_p into_index,
+                              OverlapIndex_p negp_index,
                               ClauseSet_p store)
 {
    long          res = 0;
@@ -832,14 +832,14 @@ long ComputeIntoParamodulants(ParamodInfo_p pminfo,
 
    ClauseCollectFromTermsPos(clause, pos_stack);
    pminfo->from = clause;
-   
+
    while(!PStackEmpty(pos_stack))
    {
       pos    = PStackPopInt(pos_stack);
       olterm = PStackPopP(pos_stack);
       pminfo->from_cpos  = pos;
       pminfo->from_pos   = UnpackClausePos(pos, clause);
-      res += compute_pos_into_pm(pminfo, type, olterm, negp_index, store);         
+      res += compute_pos_into_pm(pminfo, type, olterm, negp_index, store);
       if(EqnIsEquLit(pminfo->from_pos->literal))
       {
          res += compute_pos_into_pm(pminfo, type, olterm, into_index, store);
@@ -867,7 +867,7 @@ long ComputeIntoParamodulants(ParamodInfo_p pminfo,
 long ComputeFromParamodulants(ParamodInfo_p pminfo,
                               ParamodulationType type,
                               Clause_p clause,
-                              OverlapIndex_p from_index, 
+                              OverlapIndex_p from_index,
                               ClauseSet_p store)
 {
    long res = 0;
@@ -916,7 +916,7 @@ long ComputeFromParamodulants(ParamodInfo_p pminfo,
 long ComputeFromSimParamodulants(ParamodInfo_p pminfo,
                                  ParamodulationType type,
                                  Clause_p clause,
-                                 OverlapIndex_p from_index, 
+                                 OverlapIndex_p from_index,
                                  ClauseSet_p store)
 {
    long res = 0;
@@ -929,12 +929,12 @@ long ComputeFromSimParamodulants(ParamodInfo_p pminfo,
    // tree/stack construct)
    */
    ClauseCollectIntoTermsPos(clause, pos_stack);
-   
-   pminfo->into = clause; 
-   
+
+   pminfo->into = clause;
+
    /*
    // Here: Iterate over the terms, and inside the terms over the
-   // positions. 
+   // positions.
    */
    while(!PStackEmpty(pos_stack))
    {
@@ -975,11 +975,11 @@ long ComputeFromSimParamodulants(ParamodInfo_p pminfo,
 long ComputeAllParamodulantsIndexed(TB_p bank, OCB_p ocb,
                                     VarBank_p freshvars,
                                     Clause_p clause,
-                                    Clause_p parent_alias, 
+                                    Clause_p parent_alias,
                                     OverlapIndex_p into_index,
-                                    OverlapIndex_p negp_index, 
-                                    OverlapIndex_p from_index, 
-                                    ClauseSet_p store, 
+                                    OverlapIndex_p negp_index,
+                                    OverlapIndex_p from_index,
+                                    ClauseSet_p store,
                                     ParamodulationType pm_type)
 {
    long res = 0;
@@ -990,18 +990,18 @@ long ComputeAllParamodulantsIndexed(TB_p bank, OCB_p ocb,
    pminfo.ocb       = ocb;
    pminfo.new_orig  = parent_alias;
 
-   res += ComputeIntoParamodulants(&pminfo, 
+   res += ComputeIntoParamodulants(&pminfo,
                                    pm_type,
-                                   clause, 
-                                   into_index, 
+                                   clause,
+                                   into_index,
                                    negp_index,
-                                   store);  
+                                   store);
 
-   res += ComputeFromParamodulants(&pminfo, 
+   res += ComputeFromParamodulants(&pminfo,
                                    pm_type,
-                                   clause, 
-                                   from_index, 
-                                   store);  
+                                   clause,
+                                   from_index,
+                                   store);
 
    return res;
 }

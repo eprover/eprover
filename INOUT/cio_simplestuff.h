@@ -5,7 +5,7 @@ File  : cio_simplestuff.h
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Simple functions for simple operations that don't quite fit
   elsewhere.
 

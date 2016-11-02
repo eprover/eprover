@@ -5,7 +5,7 @@ File  : ctr_idx_fp.c
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Compute and handle term fingerprints for indexing.
 
   Copyright 2010 by the author.
@@ -30,7 +30,7 @@ Changes
 /*---------------------------------------------------------------------*/
 
 char* FPIndexNames[] =
-{   
+{
    "FP0",
    "FPfp",
    "FP1",
@@ -125,9 +125,9 @@ static void push_fcodes(PStack_p stack, Term_p t)
 //   Sample the term at the position described by the optional
 //   arguments (encoding a (-1)-terminated position.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -156,7 +156,7 @@ FunCode TermFPSample(Term_p term, ...)
   {
      res = TermIsVar(term)?ANY_VAR:term->f_code;
   }
-  va_end(ap);   
+  va_end(ap);
 
   return res;
 }
@@ -168,11 +168,11 @@ FunCode TermFPSample(Term_p term, ...)
 //
 //   Sample the term at the position described by the array at
 //   pos. Update pos to point behind the end of the (-1)-terminated
-//   position. 
+//   position.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -272,7 +272,7 @@ IndexFP_p IndexFPfpCreate(Term_p t)
             f_rep = res[1];
          }
          res[1] = f_rep;
-      }         
+      }
    }
    return res;
 }
@@ -522,7 +522,7 @@ IndexFP_p IndexFP6MCreate(Term_p t)
 // Function: IndexFP7Create()
 //
 //   Create a fingerprint structure with samples at positions epsilon,
-//   0, 1, 0.0, 0.1, 1.0, 1.1 (using E's internal numbering). 
+//   0, 1, 0.0, 0.1, 1.0, 1.1 (using E's internal numbering).
 //
 // Global Variables: -
 //
@@ -615,7 +615,7 @@ IndexFP_p IndexFP4X2_2Create(Term_p t)
 
    res[15] = TermFPSample(t, 0, 0, 0, -1);
    res[16] = TermFPSample(t, 1, 0, 0, -1);
-   
+
    return res;
 }
 
@@ -626,9 +626,9 @@ IndexFP_p IndexFP4X2_2Create(Term_p t)
 //
 //   Create a fingerprint of len elments, with the positions in pos.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -639,14 +639,14 @@ IndexFP_p IndexFPFlexCreate(Term_p t, PStack_p pos, int len)
    int     i;
 
    res[0] = (len+1);
-   
+
    i=1;
    while((*p).i_val != -2)
    {
       res[i] = TermFPFlexSample(t, &p);
       i++;
    }
-   
+
    return res;
 }
 
@@ -662,12 +662,12 @@ IndexFP_p IndexFPFlexCreate(Term_p t, PStack_p pos, int len)
 // Side Effects    : Memory operations
 //
 /----------------------------------------------------------------------*/
-   
+
 IndexFP_p IndexFP3DFlexCreate(Term_p t)
 {
    IndexFP_p res;
    PStack_p pos = PStackAlloc();
-   
+
    PStackPushInt(pos, -1);
 
    PStackPushInt(pos, 0);
@@ -680,7 +680,7 @@ IndexFP_p IndexFP3DFlexCreate(Term_p t)
    PStackPushInt(pos, -2);
 
    res = IndexFPFlexCreate(t, pos, 3);
-   
+
    PStackFree(pos);
    return res;
 }
@@ -710,7 +710,7 @@ IndexFP_p IndexDTCreate(Term_p t)
    int i, len;
 
    push_fcodes(stack, t);
-   
+
    len = PStackGetSP(stack);
    res = SizeMalloc(sizeof(FunCode)*(len+1));
    res[0] = len+1;
@@ -729,7 +729,7 @@ IndexFP_p IndexDTCreate(Term_p t)
 // Function: IndexFPFree()
 //
 //   Free an IndexFP data-structure (i.e. a self-describing FunCode
-//   array). 
+//   array).
 //
 // Global Variables: -
 //
@@ -747,7 +747,7 @@ void IndexFPFree(IndexFP_p junk)
 //
 // Function: GetFPIndexFunction()
 //
-//   Given a name, return the corresponding index function, or NULL. 
+//   Given a name, return the corresponding index function, or NULL.
 //
 // Global Variables: fp_index_names, fp_index_funs
 //
@@ -758,14 +758,14 @@ void IndexFPFree(IndexFP_p junk)
 FPIndexFunction GetFPIndexFunction(char* name)
 {
    int i;
-   
+
    for(i=0; FPIndexNames[i]; i++)
    {
       if(strcmp(FPIndexNames[i], name)==0)
       {
          return fp_index_funs[i];
       }
-   }  
+   }
    return NULL;
 }
 
@@ -786,16 +786,16 @@ FPIndexFunction GetFPIndexFunction(char* name)
 void IndexFPPrint(FILE* out, IndexFP_p fp)
 {
    int i, limit=fp[0];
-   
+
    if(limit>=2)
    {
       fprintf(stdout, "<%ld", fp[1]);
       for(i=2; i<limit; i++)
       {
          fprintf(stdout, ",%ld", fp[i]);
-      }      
+      }
       fprintf(stdout, ">");
-   }   
+   }
    else
    {
       fprintf(stdout, "<>");

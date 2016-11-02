@@ -5,7 +5,7 @@ File  : cco_eserver.h
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Control code for realising the E server.
 
   Copyright 2011 by the author.
@@ -64,8 +64,8 @@ bool       EServerListen(EServer_p server, int port);
 
 bool       EServerAccept(EServer_p server);
 
-int        EServerInitFDSet(EServer_p server, 
-                            fd_set *rd_fds,  
+int        EServerInitFDSet(EServer_p server,
+                            fd_set *rd_fds,
                             fd_set *wr_fds);
 
 

@@ -5,7 +5,7 @@ File  : cio_streams.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Implementation of the stream datatype for look-aheadable input.
 
   Copyright 1998, 1999 by the author.
@@ -35,11 +35,11 @@ Changes
 
 const StreamType StreamTypeFile = NULL;
 const StreamType StreamTypeInternalString =
-"Internal (programmer-defined) string - if you see this, you" 
+"Internal (programmer-defined) string - if you see this, you"
 " encountered a bug";
-const StreamType StreamTypeUserString = 
+const StreamType StreamTypeUserString =
 "Parsing a user provided string";
-const StreamType StreamTypeOptionString = 
+const StreamType StreamTypeOptionString =
 "Parsing a user given option argument";
 
 /*---------------------------------------------------------------------*/
@@ -110,7 +110,7 @@ static int read_char(Stream_p stream)
 // Function: CreateStream()
 //
 //   Create a stream associated with the file name. Both the
-//   NULL-pointer and the name "-" are taken to mean stdin. 
+//   NULL-pointer and the name "-" are taken to mean stdin.
 //
 // Global Variables: -
 //
@@ -163,12 +163,12 @@ Stream_p CreateStream(StreamType type, char* source, bool fail)
    handle->line       = 1;
    handle->column     = 1;
    handle->current    = 0;
-   
+
    for(i=0; i<MAXLOOKAHEAD; i++)
    {
       handle->buffer[i] = read_char(handle);
    }
-   
+
    return handle;
 }
 
@@ -178,7 +178,7 @@ Stream_p CreateStream(StreamType type, char* source, bool fail)
 // Function: DestroyStream()
 //
 //   Free all resources (memory, file handle) associated with the
-//   stream. 
+//   stream.
 //
 // Global Variables: -
 //
@@ -245,7 +245,7 @@ int StreamNextChar(Stream_p stream)
 //
 //   Open a new input stream and put it on top of the stack. All
 //   further input from this stack is read from the new top of the
-//   stack. 
+//   stack.
 //
 // Global Variables: -
 //
@@ -259,7 +259,7 @@ Stream_p OpenStackedInput(Inpstack_p stack, StreamType type, char* source, bool 
 
    handle = CreateStream(type, source, fail);
    if(handle)
-   {   
+   {
       handle->next = *stack;
       *stack = handle;
    }
@@ -272,7 +272,7 @@ Stream_p OpenStackedInput(Inpstack_p stack, StreamType type, char* source, bool 
 // Function: CloseStackedInput()
 //
 //   Pop the top from the input stack and destroy the associated
-//   stream. 
+//   stream.
 //
 // Global Variables: -
 //

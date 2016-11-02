@@ -5,7 +5,7 @@ File  : che_funweights.h
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Heuristic weight functions dealing with individual weights for
   different symbols.
 
@@ -58,20 +58,20 @@ typedef struct funweightparamcell
    long   conj_fweight;
    long   conj_cweight;
    long   conj_pweight;
-   
+
    /* Extra values for relevancy-based heuristics */
    long default_level_penalty; /* Effective level of irrelevant
                                 * symbols is max_level plus this.*/
    double level_poly_const;
    double level_poly_lin;
    double level_poly_square; /* Weight of a symbol is
-                              * base*lpc+lpl*l+lps*l*l, 
+                              * base*lpc+lpl*l+lps*l*l,
                               * where l is the effective level */
    void   (*init_fun)(struct funweightparamcell*);
-   
+
    /* Weight/Name association (if present).  */
    PStack_p weight_stack;
-   
+
    /* Actual encoding for the weights */
    long   flimit;
    long   *fweights;
@@ -79,7 +79,7 @@ typedef struct funweightparamcell
    /* Temporary store for function symbol counts, put here to avoid
     * multiple  (expensive for large signatures) initializations. */
    PDArray_p f_occur;
-   
+
 }FunWeightParamCell, *FunWeightParam_p;
 
 
@@ -97,7 +97,7 @@ FunWeightParam_p FunWeightParamAlloc(void);
 void             FunWeightParamFree(FunWeightParam_p junk);
 
 
-WFCB_p ConjectureSymbolWeightInit(ClausePrioFun prio_fun, 
+WFCB_p ConjectureSymbolWeightInit(ClausePrioFun prio_fun,
                                   OCB_p ocb,
                                   ClauseSet_p axioms,
                                   double max_term_multiplier,
@@ -112,7 +112,7 @@ WFCB_p ConjectureSymbolWeightInit(ClausePrioFun prio_fun,
                                   long   conj_pweight);
 
 WFCB_p FunWeightInit(ClausePrioFun prio_fun,
-                     OCB_p ocb, 
+                     OCB_p ocb,
                      double max_term_multiplier,
                      double max_literal_multiplier,
                      double pos_multiplier,
@@ -121,7 +121,7 @@ WFCB_p FunWeightInit(ClausePrioFun prio_fun,
                      PStack_p fweights);
 
 WFCB_p SymOffsetWeightInit(ClausePrioFun prio_fun,
-                           OCB_p ocb, 
+                           OCB_p ocb,
                            double max_term_multiplier,
                            double max_literal_multiplier,
                            double pos_multiplier,
@@ -131,22 +131,22 @@ WFCB_p SymOffsetWeightInit(ClausePrioFun prio_fun,
 
 WFCB_p ConjectureSymbolWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
                                    state);
-WFCB_p ConjectureSimplifiedSymbolWeightParse(Scanner_p in, OCB_p ocb, 
+WFCB_p ConjectureSimplifiedSymbolWeightParse(Scanner_p in, OCB_p ocb,
                                              ProofState_p state);
 
-WFCB_p ConjectureRelativeSymbolWeightParse(Scanner_p in, OCB_p ocb, 
+WFCB_p ConjectureRelativeSymbolWeightParse(Scanner_p in, OCB_p ocb,
                                            ProofState_p state);
 
-WFCB_p RelevanceLevelWeightParse(Scanner_p in, OCB_p ocb, 
+WFCB_p RelevanceLevelWeightParse(Scanner_p in, OCB_p ocb,
                                  ProofState_p state);
 
-WFCB_p RelevanceLevelWeightParse2(Scanner_p in, OCB_p ocb, 
+WFCB_p RelevanceLevelWeightParse2(Scanner_p in, OCB_p ocb,
                                   ProofState_p state);
 
-WFCB_p FunWeightParse(Scanner_p in, OCB_p ocb, 
+WFCB_p FunWeightParse(Scanner_p in, OCB_p ocb,
                       ProofState_p state);
 
-WFCB_p SymOffsetWeightParse(Scanner_p in, OCB_p ocb, 
+WFCB_p SymOffsetWeightParse(Scanner_p in, OCB_p ocb,
                             ProofState_p state);
 
 double GenericFunWeightCompute(void* data, Clause_p clause);

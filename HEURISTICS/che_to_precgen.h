@@ -5,7 +5,7 @@ File  : che_to_precgen.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Routines for generating precedences for term orderings
 
   Copyright 1998, 1999 by the author.

@@ -5,7 +5,7 @@ File  : ccl_unfold_defs.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions used for unfolding equational definitions (sometimes also
   called "demodulating", but that term seems to be seriously
   overloaded). This is basically a special case of rewriting. However,
@@ -57,8 +57,8 @@ long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, ClauseSet_p passive,
                               ClauseSet_p archive,
 			      int min_arity, int eqdef_incrlimit);
 
-long ClauseSetPreprocess(ClauseSet_p set, ClauseSet_p passive, 
-                         ClauseSet_p archive, TB_p tmp_terms, 
+long ClauseSetPreprocess(ClauseSet_p set, ClauseSet_p passive,
+                         ClauseSet_p archive, TB_p tmp_terms,
                          int eqdef_incrlimit, long eqdef_maxclauses);
 
 

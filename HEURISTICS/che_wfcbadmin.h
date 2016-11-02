@@ -5,8 +5,8 @@ File  : che_wfcbadmin.h
 Author: Stephan Schulz
 
 Contents
- 
-  Functions for administrating and parsing sets of weight functions. 
+
+  Functions for administrating and parsing sets of weight functions.
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and

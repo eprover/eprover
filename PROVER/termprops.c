@@ -5,7 +5,7 @@ File  : termprops.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Read a set of terms and print term, number of symbols and depth for
   each term
 
@@ -46,12 +46,12 @@ typedef enum
 
 OptCell opts[] =
 {
-   {OPT_HELP, 
-    'h', "help", 
+   {OPT_HELP,
+    'h', "help",
     NoArg, NULL,
     "Print a short description of program usage and options."},
-   {OPT_VERBOSE, 
-    'v', "verbose", 
+   {OPT_VERBOSE,
+    'v', "verbose",
     OptArg, "1",
     "Verbose comments on the progress of the program."},
    {OPT_OUTPUT,
@@ -80,7 +80,7 @@ void print_help(FILE* out);
 int main(int argc, char* argv[])
 {
    CLState_p   state;
-   Scanner_p   in; 
+   Scanner_p   in;
    SortTable_p sort_table;
    Sig_p       sig;
    long        count, size, depth, size_sum, depth_sum, size_max,
@@ -94,7 +94,7 @@ int main(int argc, char* argv[])
    InitIO(argv[0]);
 
    state = process_options(argc, argv);
-   
+
    if(state->argc ==  0)
    {
       CLStateInsertArg(state, "-");
@@ -107,7 +107,7 @@ int main(int argc, char* argv[])
    size_sum = depth_sum = size_max = depth_max = count = 0;
 
    for(i=0; state->argv[i]; i++)
-   {   
+   {
       in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL);
       while(!TestInpTok(in,NoToken))
       {
@@ -131,7 +131,7 @@ int main(int argc, char* argv[])
 	    com = false;
 	 }
 	 TermPrint(GlobalOut, term, sig, DEREF_NEVER);
-	 fprintf(GlobalOut, "  : %ld : %ld : %c : %c\n", 
+	 fprintf(GlobalOut, "  : %ld : %ld : %c : %c\n",
 		 size,depth, sym?'s':'n',com?'s':'n');
 	 /* TBDelete(bank,term); */
 	 count++;
@@ -140,10 +140,10 @@ int main(int argc, char* argv[])
 	 size_max = MAX(size_max, size);
 	 depth_max = MAX(depth_max, depth);
       }
-      DestroyScanner(in);	 
+      DestroyScanner(in);
    }
 
-   fprintf(GlobalOut, 
+   fprintf(GlobalOut,
 	   "# Terms: %ld  ASize: %f MSize: %ld, ADepth: %f MDepth: %ld\n",
 	   count, size_sum/(float)count, size_max,
 	   depth_sum/(float)count, depth_max);
@@ -151,7 +151,7 @@ int main(int argc, char* argv[])
    TBFree(bank);
    SigFree(sig);
    SortTableFree(sort_table);
-   
+
    CLStateFree(state);
 
    ExitIO();
@@ -172,7 +172,7 @@ int main(int argc, char* argv[])
 //   a CLState object containing the remaining arguments.
 //
 // Global Variables: opts, Verbose, TermPrologArgs,
-//                   TBPrintInternalInfo 
+//                   TBPrintInternalInfo
 //
 // Side Effects    : Sets variables, may terminate with program
 //                   description if option -h or --help was present
@@ -184,9 +184,9 @@ CLState_p process_options(int argc, char* argv[])
    Opt_p handle;
    CLState_p state;
    char*  arg;
-   
+
    state = CLStateAlloc(argc,argv);
-   
+
    while((handle = CLStateGetOpt(state, &arg, opts)))
    {
       switch(handle->option_code)
@@ -194,7 +194,7 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_VERBOSE:
 	    Verbose = CLStateGetIntArg(handle, arg);
 	    break;
-      case OPT_HELP: 
+      case OPT_HELP:
 	    print_help(stdout);
 	    exit(NO_ERROR);
       case OPT_OUTPUT:
@@ -207,7 +207,7 @@ CLState_p process_options(int argc, char* argv[])
    }
    return state;
 }
- 
+
 void print_help(FILE* out)
 {
    fprintf(out, "\n\

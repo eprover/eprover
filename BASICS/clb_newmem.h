@@ -53,7 +53,7 @@ typedef struct memcell
 #define MEM_ALIGN        16
 #define MEM_CHUNKLIMIT   (1024/MEM_ALIGN) /* Objects smaller than this are
 					    allocated in sets of MEM_MULTIPLIER */
-#define MEM_MULTIPLIER   1024 
+#define MEM_MULTIPLIER   1024
 #define MEM_FREE_PATTERN 0xFAFBFAFA
 #define MEM_RSET_PATTERN 0x00000000
 
@@ -102,7 +102,7 @@ extern long secure_realloc_f_count;
   datatype just copy the following templates to your .h-file and fill
   them in... The allocated structures will not be initialized - you
   need to write a function build on top of the macros if you want more
-  functionality in you Allocator. 
+  functionality in you Allocator.
 
 #define DataCellAlloc() (DataCell*)SizeMalloc(sizeof(DataCell))
 #define DataCellFree(junk)         SizeFree(junk, sizeof(DataCell))

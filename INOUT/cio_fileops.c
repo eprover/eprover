@@ -6,7 +6,7 @@ Author: Stephan Schulz
 
 Contents
 
-  Simple operations on files, with error-checking. 
+  Simple operations on files, with error-checking.
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
@@ -51,9 +51,9 @@ Changes
 //
 //   Print an errpr message about failed file opening.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -83,10 +83,10 @@ void FileOpenErrorPrint(char* name)
 FILE* InputOpen(char *name, bool fail)
 {
    FILE* in;
-   
+
    if(name && strcmp(name,"-")!= 0)
    {
-      
+
       VERBOUTARG2("Trying file ", name);
       in = fopen(name, "r");
 
@@ -154,12 +154,12 @@ long  FileLoad(char* name, DStr_p dest)
    int c;
 
    in = InputOpen(name, true);
-      
+
    while((c = getc(in))!= EOF)
    {
       count++;
       DStrAppendChar(dest, c);
-   }      
+   }
    InputClose(in);
 
    return count;
@@ -199,7 +199,7 @@ long ConcatFiles(char* target, char** sources)
       }
       InputClose(in);
    }
-   OutClose(out);   
+   OutClose(out);
 
    return i;
 }
@@ -220,7 +220,7 @@ long ConcatFiles(char* target, char** sources)
 long CopyFile(char* target, char* source)
 {
    char* tmp[2];
-   
+
    tmp[0] = source;
    tmp[1] = NULL;
 
@@ -269,7 +269,7 @@ void  FilePrint(FILE* out, char* name)
 {
    FILE* in;
    int   c;
-   
+
    in = InputOpen(name, true);
    while((c = getc(in))!=EOF)
    {
@@ -309,7 +309,7 @@ char* FileNameDirName(char* name)
       }
    }
    res = SecureStrndup(name, endpos);
-   
+
    return res;
 }
 
@@ -319,11 +319,11 @@ char* FileNameDirName(char* name)
 // Function: FileFindBaseName()
 //
 //   Return a pointer to the first character of the last file name
-//   component of name. 
+//   component of name.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -362,8 +362,8 @@ char* FileNameBaseName(char* name)
    char *res, *endpos = name;
 
    endpos = FileFindBaseName(name);
-   res = SecureStrdup(endpos);      
-   
+   res = SecureStrdup(endpos);
+
    return res;
 }
 
@@ -385,7 +385,7 @@ char* FileNameStrip(char* name)
 {
    char *res, *endpos = name;
    int len = 0, i;
-   
+
 
    endpos = FileFindBaseName(name);
    for(i=0; endpos[i]; i++)
@@ -399,7 +399,7 @@ char* FileNameStrip(char* name)
    {
       len = i;
    }
-   res = SecureStrndup(endpos, len);   
+   res = SecureStrndup(endpos, len);
 
    return res;
 }

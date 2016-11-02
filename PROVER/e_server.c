@@ -60,7 +60,7 @@ typedef enum
    OPT_TPTP_PARSE,
    OPT_TPTP_FORMAT,
    OPT_TSTP_PARSE,
-   OPT_TSTP_FORMAT,   
+   OPT_TSTP_FORMAT,
    OPT_DUMMY
 }OptionCodes;
 
@@ -73,8 +73,8 @@ typedef enum
 
 OptCell opts[] =
 {
-   {OPT_HELP, 
-    'h', "help", 
+   {OPT_HELP,
+    'h', "help",
     NoArg, NULL,
     "Print a short description of program usage and options."},
 
@@ -84,14 +84,14 @@ OptCell opts[] =
     "Print the version number of the prover. Please include this"
     " with all bug reports (if any)."},
 
-   {OPT_VERBOSE, 
-    'v', "verbose", 
+   {OPT_VERBOSE,
+    'v', "verbose",
     OptArg, "1",
     "Verbose comments on the progress of the program. This differs "
     "from the output level (below) in that technical information is "
     "printed to stderr, while the output level determines which "
     "logical manipulations of the clauses are printed to stdout."},
-   
+
    {OPT_OUTPUT,
     'o', "output-file",
     ReqArg, NULL,
@@ -108,26 +108,26 @@ OptCell opts[] =
     'l', "output-level",
     ReqArg, NULL,
     "Select an output level, greater values imply more verbose "
-    "output."},  
+    "output."},
 
-   {OPT_FILTER, 
+   {OPT_FILTER,
     'f', "filter",
     ReqArg, NULL,
     "Specify the filter definition file. If not set, the system "
     "will uses the built-in default."},
-   
-   {OPT_PROVER, 
+
+   {OPT_PROVER,
     'p', "prover",
     ReqArg, NULL,
     "Specify the prover binary to use. The default is 'eprover', "
     "and initially, only E is supported. This option does accept "
     "absolute and relative paths."},
-   
-   {OPT_SERVICE_PORT, 
+
+   {OPT_SERVICE_PORT,
     'P', "service-port",
     ReqArg, NULL,
     "Specify the port to use for the deduction service."},
-   
+
    {OPT_LOP_PARSE,
     '\0', "lop-in",
     NoArg, NULL,
@@ -166,7 +166,7 @@ OptCell opts[] =
     "is still under development, and the version in E may not be "
     "fully conforming at all times. E works on all TPTP 4.1.0 input "
     "files (including includes)."},
-   
+
    {OPT_TSTP_FORMAT,
     '\0', "tstp-format",
     NoArg, NULL,
@@ -229,7 +229,7 @@ int main(int argc, char* argv[])
    Scanner_p        in;
 
    assert(argv[0]);
-   
+
    InitIO(NAME);
    DocOutputFormat = tstp_format;
    OutputFormat = TSTPFormat;
@@ -243,7 +243,7 @@ int main(int argc, char* argv[])
    {
       Error("Usage: e_server <domain-spec> [<options>]\n", USAGE_ERROR);
    }
-      
+
    if(filtername)
    {
       filters = AxFilterSetAlloc();
@@ -257,9 +257,9 @@ int main(int argc, char* argv[])
    }
    for(i=0; state->argv[i]; i++)
    {
-      PStackPushP(prob_names,  state->argv[i]);      
+      PStackPushP(prob_names,  state->argv[i]);
    }
-   
+
    ctrl = StructFOFSpecAlloc();
    StructFOFSpecParseAxioms(ctrl, prob_names, parse_format);
    StructFOFSpecInitDistrib(ctrl);
@@ -267,7 +267,7 @@ int main(int argc, char* argv[])
 
    /* Do stuff */
 
-   {   
+   {
       int sock = CreateServerSock(port);
       int conn = -1;
       fd_set rfds, wfds, xfds;
@@ -278,7 +278,7 @@ int main(int argc, char* argv[])
       MsgStatus msg_stat;
 
       Listen(sock);
-      
+
       while(true)
       {
          printf("Main loop\n");
@@ -334,7 +334,7 @@ int main(int argc, char* argv[])
          else
          {
             perror("Something weird");
-         }            
+         }
       }
    }
    /* Done */
@@ -350,7 +350,7 @@ int main(int argc, char* argv[])
    MemFlushFreeList();
    MemDebugPrintStats(stdout);
 #endif
-  
+
    return 0;
 }
 
@@ -362,7 +362,7 @@ int main(int argc, char* argv[])
 //   Read and process the command line option, return (the pointer to)
 //   a CLState object containing the remaining arguments.
 //
-// Global Variables: opts, Verbose, TBPrintInternalInfo 
+// Global Variables: opts, Verbose, TBPrintInternalInfo
 //
 // Side Effects    : Sets variables, may terminate with program
 //                   description if option -h or --help was present
@@ -376,7 +376,7 @@ CLState_p process_options(int argc, char* argv[])
    char*  arg;
 
    state = CLStateAlloc(argc,argv);
-   
+
    while((handle = CLStateGetOpt(state, &arg, opts)))
    {
       switch(handle->option_code)
@@ -384,7 +384,7 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_VERBOSE:
 	    Verbose = CLStateGetIntArg(handle, arg);
 	    break;
-      case OPT_HELP: 
+      case OPT_HELP:
 	    print_help(stdout);
 	    exit(NO_ERROR);
       case OPT_VERSION:
@@ -414,12 +414,12 @@ CLState_p process_options(int argc, char* argv[])
             else if(port < IPPORT_RESERVED)
             {
                Warning("Port numbers less than %d require root level access",
-                       IPPORT_RESERVED); 
+                       IPPORT_RESERVED);
             }
             break;
       case OPT_LOP_PARSE:
       case OPT_LOP_FORMAT:
-	    parse_format = LOPFormat;	    
+	    parse_format = LOPFormat;
 	    break;
       case OPT_TSTP_PARSE:
       case OPT_TSTP_FORMAT:

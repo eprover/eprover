@@ -5,7 +5,7 @@ File  : cpr_dpll.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Code for the main DPLL algorithm.
 
 Copyright 1998-2011 by the author.

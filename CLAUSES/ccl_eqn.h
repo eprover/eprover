@@ -5,9 +5,9 @@ File  : ccl_eqn.h
 Author: Stephan Schulz
 
 Contents
- 
+
   The termpair datatype: Rules, Equations, positive and negative
-  literals. 
+  literals.
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
@@ -37,7 +37,7 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-typedef enum 
+typedef enum
 {
    EPNoProps           =     0, /* No properties set or selected */
    EPIsPositive        =     1, /* s=t (as opposed to s!=t) */
@@ -48,7 +48,7 @@ typedef enum
    EPMaxIsUpToDate     =    32, /* Orientation status is up to date */
    EPHasEquiv          =    64, /* Literal has been used in
 				   multiset-comparison (and found an
-				   equivalent partner) */ 
+				   equivalent partner) */
    EPIsDominated       =   128, /* Literal is dominated by another one */
    EPDominates         =   EPIsDominated, /* Double use of this property
 				  	     in potentially maximal or
@@ -75,11 +75,11 @@ typedef enum
 
 /* Basic data structure for rules, equations, literals. Terms are
    always assumed to be shared and need to be manipulated while taking
-   care about references! */ 
+   care about references! */
 
 typedef struct eqncell
 {
-   EqnProperties  properties;/* Positive, maximal, equational */      
+   EqnProperties  properties;/* Positive, maximal, equational */
    int            pos;
    Term_p         lterm;
    Term_p         rterm;
@@ -287,7 +287,7 @@ double  EqnWeight(Eqn_p eq, double max_multiplier, long vweight, long
         EqnStandardWeight(eqn)
 
 
-double EqnFunWeight(Eqn_p eq, double max_multiplier, long vweight, 
+double EqnFunWeight(Eqn_p eq, double max_multiplier, long vweight,
                     long flimit, long *fweights, long default_fweight);
 
 double  EqnNonLinearWeight(Eqn_p eq, double max_multiplier, long
@@ -312,13 +312,13 @@ double  LiteralWeight(Eqn_p eq, double max_term_multiplier, double
 		      pos_multiplier, long vweight, long fweight, bool
 		      count_eq_encoding);
 
-double  LiteralFunWeight(Eqn_p eq, 
-                         double max_term_multiplier, 
-                         double max_literal_multiplier, 
+double  LiteralFunWeight(Eqn_p eq,
+                         double max_term_multiplier,
+                         double max_literal_multiplier,
                          double pos_multiplier,
-                         long vweight, 
-                         long flimit, 
-                         long *fweights, 
+                         long vweight,
+                         long flimit,
+                         long *fweights,
                          long default_fweight);
 
 

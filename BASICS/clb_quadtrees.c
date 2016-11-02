@@ -5,7 +5,7 @@
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for SPLAY trees indexed by two pointers and two ints, and
   containing a IntOrP.
 
@@ -42,7 +42,7 @@ Changes
 
 /*-----------------------------------------------------------------------
 //
-// Function: splay_tree() 
+// Function: splay_tree()
 //
 //   Perform the splay operation on tree at node with key.
 //
@@ -52,26 +52,26 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-static QuadTree_p splay_tree(QuadTree_p tree, QuadKey_p key) 
+static QuadTree_p splay_tree(QuadTree_p tree, QuadKey_p key)
 {
    QuadTree_p   left, right, tmp;
    QuadTreeCell newnode;
    int       cmpres;
 
-   if (!tree) 
+   if (!tree)
    {
       return tree;
    }
-   
+
    newnode.lson = NULL;
    newnode.rson = NULL;
    left = &newnode;
    right = &newnode;
-   
-   for (;;) 
+
+   for (;;)
    {
       cmpres = QuadKeyCmp(key, &(tree->key));
-      if (cmpres < 0) 
+      if (cmpres < 0)
       {
 	 if(!tree->lson)
 	 {
@@ -91,20 +91,20 @@ static QuadTree_p splay_tree(QuadTree_p tree, QuadKey_p key)
 	 right->lson = tree;
 	 right = tree;
 	 tree = tree->lson;
-      } 
+      }
       else if(cmpres > 0)
       {
 	 if (!tree->rson)
 	 {
 	    break;
 	 }
-	 if(QuadKeyCmp(key, &(tree->rson->key)) > 0) 
+	 if(QuadKeyCmp(key, &(tree->rson->key)) > 0)
 	 {
 	    tmp = tree->rson;
 	    tree->rson = tmp->lson;
 	    tmp->lson = tree;
 	    tree = tmp;
-	    if (!tree->rson) 
+	    if (!tree->rson)
 	    {
 	       break;
 	    }
@@ -113,7 +113,7 @@ static QuadTree_p splay_tree(QuadTree_p tree, QuadKey_p key)
 	 left = tree;
 	 tree = tree->rson;
       }
-      else 
+      else
       {
 	 break;
       }
@@ -122,7 +122,7 @@ static QuadTree_p splay_tree(QuadTree_p tree, QuadKey_p key)
    right->lson = tree->rson;
    tree->lson = newnode.rson;
    tree->rson = newnode.lson;
-   
+
    return tree;
 }
 
@@ -183,7 +183,7 @@ int QuadKeyCmp(QuadKey_p key1, QuadKey_p key2)
    res = DoubleKeyCmp(key1->p2, key1->i2, key2->p2, key2->i2);
    return res;
 }
-      
+
 
 /*-----------------------------------------------------------------------
 //
@@ -203,9 +203,9 @@ void QuadTreeFree(QuadTree_p junk)
    if(junk)
    {
       PStack_p stack = PStackAlloc();
-      
+
       PStackPushP(stack, junk);
-      
+
       while(!PStackEmpty(stack))
       {
 	 junk = PStackPopP(stack);
@@ -214,10 +214,10 @@ void QuadTreeFree(QuadTree_p junk)
 	    PStackPushP(stack, junk->lson);
 	 }
 	 if(junk->rson)
-	 { 
+	 {
 	    PStackPushP(stack, junk->rson);
 	 }
-	 QuadTreeCellFree(junk);	    	 
+	 QuadTreeCellFree(junk);
       }
       PStackFree(stack);
    }
@@ -242,7 +242,7 @@ QuadTree_p QuadTreeInsert(QuadTree_p *root, QuadTree_p newnode)
 {
    int cmpres;
 
-   if (!*root) 
+   if (!*root)
    {
       newnode->lson = newnode->rson = NULL;
       *root = newnode;
@@ -251,16 +251,16 @@ QuadTree_p QuadTreeInsert(QuadTree_p *root, QuadTree_p newnode)
    *root = splay_tree(*root, &(newnode->key));
 
    cmpres = QuadKeyCmp(&(newnode->key), &(*root)->key);
-   
-   if (cmpres < 0) 
+
+   if (cmpres < 0)
    {
       newnode->lson = (*root)->lson;
       newnode->rson = *root;
       (*root)->lson = NULL;
       *root = newnode;
       return NULL;
-   } 
-   else if(cmpres > 0) 
+   }
+   else if(cmpres > 0)
    {
       newnode->rson = (*root)->rson;
       newnode->lson = *root;
@@ -280,7 +280,7 @@ QuadTree_p QuadTreeInsert(QuadTree_p *root, QuadTree_p newnode)
 //
 //   Insert a cell with given key into the tree. Return false if an
 //   entry for this key exists, true otherwise. The key is never
-//   freed! 
+//   freed!
 //
 // Global Variables: -
 //
@@ -326,7 +326,7 @@ QuadTree_p QuadTreeFind(QuadTree_p *root, QuadKey_p key)
 {
    if(*root)
    {
-      *root = splay_tree(*root, key);  
+      *root = splay_tree(*root, key);
       if(QuadKeyCmp(&((*root)->key), key)==0)
       {
 	 return *root;
@@ -366,7 +366,7 @@ QuadTree_p QuadTreeExtractEntry(QuadTree_p *root, QuadKey_p key)
       if (!(*root)->lson)
       {
 	 x = (*root)->rson;
-      } 
+      }
       else
       {
 	 x = splay_tree((*root)->lson, key);
@@ -397,7 +397,7 @@ QuadTree_p QuadTreeExtractEntry(QuadTree_p *root, QuadKey_p key)
 bool QuadTreeDeleteEntry(QuadTree_p *root, QuadKey_p key)
 {
    QuadTree_p cell;
-   
+
    cell = QuadTreeExtractEntry(root, key);
    if(cell)
    {

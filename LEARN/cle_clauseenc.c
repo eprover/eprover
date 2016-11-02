@@ -67,13 +67,13 @@ Term_p FlatEncodeClauseListRep(TB_p bank, PStack_p list)
    PatEqnDirection dir;
 
    arity = PStackGetSP(list)/2;
-   
+
    handle = TermDefaultCellAlloc();
-   handle->arity = arity;   
+   handle->arity = arity;
    handle->f_code = SigGetOrNCode(bank->sig, arity);
    assert(handle->f_code);
    if(arity)
-   {      
+   {
       handle->args = TermArgArrayAlloc(arity);
       for(i=0; i<2*arity; i+=2)
       {
@@ -110,11 +110,11 @@ Term_p   RecEncodeClauseListRep(TB_p bank, PStack_p list)
    Term_p handle, rest;
    Eqn_p current;
    PatEqnDirection dir;
-   
+
    arity = PStackGetSP(list)/2;
-   
+
    rest = TermDefaultCellAlloc();
-   rest->arity = 0;      
+   rest->arity = 0;
    rest->f_code = SigGetCNilCode(bank->sig);
    assert(rest->f_code);
    rest = TBTermTopInsert(bank, rest);
@@ -126,13 +126,13 @@ Term_p   RecEncodeClauseListRep(TB_p bank, PStack_p list)
       current = PStackElementP(list, i);
       dir     = PStackElementInt(list, i+1);
       handle = TermDefaultCellAlloc();
-      handle->arity = 2;   
+      handle->arity = 2;
       handle->f_code = SigGetOrCode(bank->sig);
       handle->args = TermArgArrayAlloc(2);
       handle->args[1] = rest;
       handle->args[0] = EqnTBTermEncode(current,dir);
-      rest = TBTermTopInsert(bank, handle);		 
-	 
+      rest = TBTermTopInsert(bank, handle);
+
    }
    assert(rest->weight ==
 	  TermWeight(rest,DEFAULT_VWEIGHT,DEFAULT_FWEIGHT));
@@ -150,7 +150,7 @@ Term_p   RecEncodeClauseListRep(TB_p bank, PStack_p list)
 // Global Variables: -
 //
 // Side Effects    : As for FlatEncodeClauseListRep(), +Memory
-//                   operations. 
+//                   operations.
 //
 /----------------------------------------------------------------------*/
 
@@ -180,7 +180,7 @@ Term_p TermEncodeEqnList(TB_p bank, Eqn_p list, bool flat)
 //
 //   Take a recursive clause encoding and generate a corresponding
 //   flat one. This is a simple, not a particularly efficient
-//   implementation. 
+//   implementation.
 //
 // Global Variables: -
 //
@@ -194,13 +194,13 @@ Term_p FlatRecodeRecClauseRep(TB_p bank,Term_p clauserep)
    Term_p   res;
    Eqn_p    eqn;
    bool     positive = true;
-   
+
    assert(bank);
    assert(clauserep);
 
    while(clauserep->f_code == SigGetOrCode(bank->sig))
    {
-      if(clauserep->args[0]->f_code == SigGetEqnCode(bank->sig, true))	 
+      if(clauserep->args[0]->f_code == SigGetEqnCode(bank->sig, true))
       {
 	 positive = true;
       }
@@ -249,7 +249,7 @@ Term_p FlatRecodeRecClauseRep(TB_p bank,Term_p clauserep)
 // Global Variables: -
 //
 // Side Effects    : Read input, Memory operations, changes term
-//                   bank. 
+//                   bank.
 //
 /----------------------------------------------------------------------*/
 
@@ -257,8 +257,8 @@ Term_p ParseClauseTermRep(Scanner_p in, TB_p bank, bool flat)
 {
    Eqn_p list;
    Term_p res;
-   
-   assert(ScannerGetFormat(in)==LOPFormat);   
+
+   assert(ScannerGetFormat(in)==LOPFormat);
    list = EqnListParse(in, bank, Semicolon);
    AcceptInpTok(in, LesserSign);
    AcceptInpTokNoSkip(in, Hyphen);

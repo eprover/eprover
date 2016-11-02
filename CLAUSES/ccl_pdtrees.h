@@ -5,7 +5,7 @@ File  : ccl_pdtrees.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Perfect discrimination trees for optimized rewriting and
   subsumption. PDTrees are machines and have a state - each new search
   must initialize a tree to a consistent state, and only one search
@@ -97,7 +97,7 @@ typedef struct pd_tree_cell
    long      clause_count;   /* How many clauses? */
    long      arr_storage_est;/* How much memory used by arrays? */
    unsigned  long match_count;   /* How often has the index been
-				   searched? */ 
+				   searched? */
    unsigned  long visited_count; /* How many nodes in the index have
 				   been visited? */
 }PDTreeCell, *PDTree_p;
@@ -110,7 +110,7 @@ typedef struct pd_tree_cell
 #define PDT_COUNT_INC(x) ((x)++)
 extern unsigned long PDTNodeCounter;
 #else
-#define PDT_COUNT_INC(x) 
+#define PDT_COUNT_INC(x)
 #endif
 
 

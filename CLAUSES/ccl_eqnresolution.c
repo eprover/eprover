@@ -5,7 +5,7 @@ File  : ccl_eqnresolution.c
 Author: Stephan Schulz
 
 Contents
- 
+
    Routines for performing (ordered) equality resolution.
 
   Copyright 1998, 1999 by the author.
@@ -69,13 +69,13 @@ Clause_p ComputeEqRes(TB_p bank, ClausePos_p pos, VarBank_p freshvars)
    assert(!EqnIsPositive(pos->literal));
    subst = SubstAlloc();
    VarBankResetVCount(freshvars);
-   
+
    unifies = SubstComputeMgu(pos->literal->lterm, pos->literal->rterm,
 			     subst);
    if(unifies)
    {
       NormSubstEqnListExcept(pos->clause->literals, pos->literal,
-			     subst, freshvars); 
+			     subst, freshvars);
       new_literals = EqnListCopyOptExcept(pos->clause->literals,
                                           pos->literal);
       EqnListRemoveResolved(&new_literals);
@@ -83,7 +83,7 @@ Clause_p ComputeEqRes(TB_p bank, ClausePos_p pos, VarBank_p freshvars)
       new_clause = ClauseAlloc(new_literals);
    }
    SubstDelete(subst);
-   
+
    return new_clause;
 }
 
@@ -92,7 +92,7 @@ Clause_p ComputeEqRes(TB_p bank, ClausePos_p pos, VarBank_p freshvars)
 //
 // Function: ClausePosFirstEqResLiteral()
 //
-//   Find the first negative maximal literal in clause and return it. 
+//   Find the first negative maximal literal in clause and return it.
 //
 // Global Variables: -
 //
@@ -123,7 +123,7 @@ Eqn_p ClausePosFirstEqResLiteral(Clause_p clause, ClausePos_p pos)
 //
 // Function: ClausePosNextEqResLiteral()
 //
-//   Find the next negative maximal literal in clause and return it. 
+//   Find the next negative maximal literal in clause and return it.
 //
 // Global Variables: -
 //
@@ -134,7 +134,7 @@ Eqn_p ClausePosFirstEqResLiteral(Clause_p clause, ClausePos_p pos)
 Eqn_p ClausePosNextEqResLiteral(ClausePos_p pos)
 {
    pos->literal = pos->literal->next;
-   
+
    while(pos->literal)
    {
       if(!EqnIsPositive(pos->literal) &&

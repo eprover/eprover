@@ -5,9 +5,9 @@ File  : cte_termtrees.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Implementation of term-top indexed trees (I found that I can
-  cleanly separate this from the termbank stuff). 
+  cleanly separate this from the termbank stuff).
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
@@ -43,7 +43,7 @@ Changes
 
 /*-----------------------------------------------------------------------
 //
-// Function: splay_tree() 
+// Function: splay_tree()
 //
 //   Perform the splay operation on tree at node with key.
 //
@@ -57,21 +57,21 @@ static Term_p splay_term_tree(Term_p tree, Term_p splay)
 {
    Term_p   left, right, tmp;
    TermCell new;
-   
-   if (!tree) 
+
+   if (!tree)
    {
       return tree;
    }
-   
+
    new.lson = NULL;
    new.rson = NULL;
    left = &new;
    right = &new;
-   
-   for (;;) 
+
+   for (;;)
    {
       long cmpres = TermTopCompare(splay, tree);
-      if (cmpres < 0) 
+      if (cmpres < 0)
       {
          if(!tree->lson)
          {
@@ -91,20 +91,20 @@ static Term_p splay_term_tree(Term_p tree, Term_p splay)
          right->lson = tree;
          right = tree;
          tree = tree->lson;
-      } 
+      }
       else if(cmpres > 0)
       {
          if (!tree->rson)
          {
             break;
          }
-         if(TermTopCompare(splay, tree->rson) > 0) 
+         if(TermTopCompare(splay, tree->rson) > 0)
          {
             tmp = tree->rson;
             tree->rson = tmp->lson;
             tmp->lson = tree;
             tree = tmp;
-            if (!tree->rson) 
+            if (!tree->rson)
             {
                break;
             }
@@ -113,7 +113,7 @@ static Term_p splay_term_tree(Term_p tree, Term_p splay)
          left = tree;
          tree = tree->rson;
       }
-      else 
+      else
       {
          break;
       }
@@ -122,7 +122,7 @@ static Term_p splay_term_tree(Term_p tree, Term_p splay)
    right->lson = tree->rson;
    tree->lson = new.rson;
    tree->rson = new.lson;
-   
+
    return tree;
 }
 
@@ -151,9 +151,9 @@ void TermTreeFree(Term_p junk)
    if(junk)
    {
       PStack_p stack = PStackAlloc();
-      
+
       PStackPushP(stack, junk);
-      
+
       while(!PStackEmpty(stack))
       {
          junk = PStackPopP(stack);
@@ -162,7 +162,7 @@ void TermTreeFree(Term_p junk)
             PStackPushP(stack, junk->lson);
          }
          if(junk->rson)
-         { 
+         {
             PStackPushP(stack, junk->rson);
          }
 	 if(!TermIsVar(junk))
@@ -182,7 +182,7 @@ void TermTreeFree(Term_p junk)
 //   Compare two top level term cells as
 //   f_code.masked_properties.args_as_pointers, return a value >0 if
 //   t1 is greater, 0 if the terms are identical, <0 if t2 is
-//   greater. 
+//   greater.
 //
 // Global Variables: -
 //
@@ -193,7 +193,7 @@ void TermTreeFree(Term_p junk)
 long TermTopCompare(Term_p t1, Term_p t2)
 {
    int i;
-   
+
    long res = t1->f_code - t2->f_code;
    if(res)
    {
@@ -213,7 +213,7 @@ long TermTopCompare(Term_p t1, Term_p t2)
       {
 	 return res;
       }
-   }   
+   }
    return res;
 }
 
@@ -236,7 +236,7 @@ Term_p TermTreeFind(Term_p *root, Term_p key)
 {
    if(*root)
    {
-      *root = splay_term_tree(*root, key);  
+      *root = splay_term_tree(*root, key);
       if(TermTopCompare(*root, key)==0)
       {
          return *root;
@@ -248,7 +248,7 @@ Term_p TermTreeFind(Term_p *root, Term_p key)
 
 /*-----------------------------------------------------------------------
 //
-// Function: TermTreeInsert() 
+// Function: TermTreeInsert()
 //
 //   Insert a term with valid subterm pointers into the termtree. If
 //   the entry already exists, return pointer to existing entry as
@@ -262,7 +262,7 @@ Term_p TermTreeFind(Term_p *root, Term_p key)
 
 Term_p TermTreeInsert(Term_p *root, Term_p new)
 {
-   if (!*root) 
+   if (!*root)
    {
       new->lson = new->rson = NULL;
       *root = new;
@@ -271,16 +271,16 @@ Term_p TermTreeInsert(Term_p *root, Term_p new)
    *root = splay_term_tree(*root, new);
 
    long cmpres = TermTopCompare(new, *root);
-   
-   if (cmpres < 0) 
+
+   if (cmpres < 0)
    {
       new->lson = (*root)->lson;
       new->rson = *root;
       (*root)->lson = NULL;
       *root = new;
       return NULL;
-   } 
-   else if(cmpres > 0) 
+   }
+   else if(cmpres > 0)
    {
       new->rson = (*root)->rson;
       new->lson = *root;
@@ -305,10 +305,10 @@ Term_p TermTreeInsert(Term_p *root, Term_p new)
 //
 /----------------------------------------------------------------------*/
 
-Term_p TermTreeExtract(Term_p *root, Term_p key) 
+Term_p TermTreeExtract(Term_p *root, Term_p key)
 {
    Term_p x, cell;
-   
+
    if (!(*root))
    {
       return NULL;
@@ -319,7 +319,7 @@ Term_p TermTreeExtract(Term_p *root, Term_p key)
       if (!(*root)->lson)
       {
          x = (*root)->rson;
-      } 
+      }
       else
       {
          x = splay_term_tree((*root)->lson, key);
@@ -349,7 +349,7 @@ Term_p TermTreeExtract(Term_p *root, Term_p key)
 bool TermTreeDelete(Term_p *root, Term_p term)
 {
    Term_p cell;
-   
+
    cell = TermTreeExtract(root, term);
    if(cell)
    {
@@ -375,9 +375,9 @@ bool TermTreeDelete(Term_p *root, Term_p term)
 void TermTreeSetProp(Term_p root, TermProperties props)
 {
    PStack_p stack = PStackAlloc();
-   
+
    PStackPushP(stack, root);
-   
+
    while(!PStackEmpty(stack))
    {
       root = PStackPopP(stack);
@@ -407,9 +407,9 @@ void TermTreeSetProp(Term_p root, TermProperties props)
 void TermTreeDelProp(Term_p root, TermProperties props)
 {
    PStack_p stack = PStackAlloc();
-   
+
    PStackPushP(stack, root);
-   
+
    while(!PStackEmpty(stack))
    {
       root = PStackPopP(stack);
@@ -441,7 +441,7 @@ long TermTreeNodes(Term_p root)
    long     res   = 0;
 
    PStackPushP(stack, root);
-   
+
    while(!PStackEmpty(stack))
    {
       root = PStackPopP(stack);
@@ -454,7 +454,7 @@ long TermTreeNodes(Term_p root)
    }
    PStackFree(stack);
 
-   return res;   
+   return res;
 }
 
 

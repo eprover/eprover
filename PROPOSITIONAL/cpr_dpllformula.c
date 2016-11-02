@@ -6,7 +6,7 @@ Author: Stephan Schulz
 
 Contents
 
-  Implementation of code for a dpll formula data type. 
+  Implementation of code for a dpll formula data type.
 
   Copyright 2003 by the author.
   This code is released under the GNU General Public Licence and
@@ -97,7 +97,7 @@ void dpll_form_add_atom_space(DPLLFormula_p form)
 DPLLFormula_p DPLLFormulaAlloc(void)
 {
    DPLLFormula_p form = DPLLFormulaCellAlloc();
-   
+
    form->sig = PropSigAlloc();
    form->clauses = PStackAlloc();
    form->atom_no = 0;
@@ -112,9 +112,9 @@ DPLLFormula_p DPLLFormulaAlloc(void)
 //
 //   Free all of the DPLLFormula().
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -134,7 +134,7 @@ void DPLLFormulaFree(DPLLFormula_p junk)
    }
    PStackFree(junk->clauses);
    PropSigFree(junk->sig);
-   
+
    DPLLFormulaCellFree(junk);
 }
 
@@ -151,7 +151,7 @@ void DPLLFormulaFree(DPLLFormula_p junk)
 //
 /----------------------------------------------------------------------*/
 
-void DPLLFormulaPrint(FILE* out,DPLLFormula_p form, DPLLOutputFormat format, 
+void DPLLFormulaPrint(FILE* out,DPLLFormula_p form, DPLLOutputFormat format,
 		      bool print_atoms)
 {
    long i;
@@ -163,7 +163,7 @@ void DPLLFormulaPrint(FILE* out,DPLLFormula_p form, DPLLOutputFormat format,
       {
 	 if(form->atoms[i].pos_occur || form->atoms[i].neg_occur)
 	 {
-	    fprintf(out, "# %4ld: %4ld %4ld\n", i, 
+	    fprintf(out, "# %4ld: %4ld %4ld\n", i,
 		    form->atoms[i].pos_occur,
 		    form->atoms[i].pos_occur);
 	 }
@@ -174,7 +174,7 @@ void DPLLFormulaPrint(FILE* out,DPLLFormula_p form, DPLLOutputFormat format,
       switch(format)
       {
       case DPLLOutLOP:
-	 DPLLClausePrintLOP(out, form->sig, 
+	 DPLLClausePrintLOP(out, form->sig,
 			    PStackElementP(form->clauses,i));
 	 fputc('\n',out);
 	 break;
@@ -183,7 +183,7 @@ void DPLLFormulaPrint(FILE* out,DPLLFormula_p form, DPLLOutputFormat format,
 	 break;
       default:
 	    assert(false && "Not a valid DPLLOutputFormat");
-      }	 
+      }
    }
 }
 
@@ -199,8 +199,8 @@ void DPLLFormulaPrint(FILE* out,DPLLFormula_p form, DPLLOutputFormat format,
 //
 /----------------------------------------------------------------------*/
 
-void DPLLRegisterClauseLiteral(DPLLFormula_p form, 
-			       DPLLClause_p clause, 
+void DPLLRegisterClauseLiteral(DPLLFormula_p form,
+			       DPLLClause_p clause,
 			       PLiteralCode lit)
 {
    PLiteralCode atom = ABS(lit);
@@ -223,7 +223,7 @@ void DPLLRegisterClauseLiteral(DPLLFormula_p form,
       UNUSED(res); assert(res && "Duplicate entry of a clause!");
    }
 }
-   
+
 
 
 /*-----------------------------------------------------------------------
@@ -233,7 +233,7 @@ void DPLLRegisterClauseLiteral(DPLLFormula_p form,
 //   Insert a new clause into a formula. The clause is expected to be
 //   non-tautological and contain no redundant literals. Moreover, for
 //   the sake of printing LOP, the atoms should be registered in
-//   form->sig. 
+//   form->sig.
 //
 // Global Variables: -
 //
@@ -249,7 +249,7 @@ void DPLLFormulaInsertClause(DPLLFormula_p form, DPLLClause_p clause)
    for(i=0; i<clause->lit_no; i++)
    {
       DPLLRegisterClauseLiteral(form, clause, clause->literals[i]);
-   }   
+   }
 }
 
 
@@ -270,7 +270,7 @@ void DPLLFormulaParseLOP(Scanner_p in, Sig_p sig, DPLLFormula_p form)
    Clause_p clause;
    DPLLClause_p pclause;
    TB_p terms = TBAlloc(sig);
-   
+
    while(ClauseStartsMaybe(in))
    {
       clause = ClauseParse(in, terms);

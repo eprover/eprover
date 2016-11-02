@@ -5,7 +5,7 @@ File  : clb_partial_orderings.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions and datatypes useful in dealing with partial orderings.
 
   Copyright 1998, 1999 by the author.

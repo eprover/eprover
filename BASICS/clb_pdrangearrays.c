@@ -5,7 +5,7 @@ File  : clb_pdrangearrays.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Funktions realising the dynamic array type.
 
   Copyright 2010 by the author.
@@ -90,7 +90,7 @@ static void range_arr_expand_down(PDRangeArr_p array, long idx)
 {
    IntOrP *tmp;
    long   old_size, old_offset, i;
-   
+
    assert(array);
    assert(idx < array->offset+array->size);
 
@@ -136,7 +136,7 @@ static void range_arr_expand_up(PDRangeArr_p array, long idx)
 {
    IntOrP *tmp;
    long   old_size, old_offset, i;
-   
+
    assert(array);
    assert(idx >= (array->offset+array->size));
 
@@ -147,7 +147,7 @@ static void range_arr_expand_up(PDRangeArr_p array, long idx)
    array->size = range_arr_size(idx-old_offset+1,
                                 old_size, array->grow);
    array->array = SizeMalloc(array->size * sizeof(IntOrP));
-   
+
    memcpy(array->array, tmp, old_size*sizeof(IntOrP));
    for(i=old_size; i<array->size; i++)
    {
@@ -162,7 +162,7 @@ static void range_arr_expand_up(PDRangeArr_p array, long idx)
    }
    SizeFree(tmp, old_size * sizeof(IntOrP));
 }
-   
+
 
 
 /*---------------------------------------------------------------------*/
@@ -186,12 +186,12 @@ PDRangeArr_p PDRangeArrAlloc(long idx, long grow)
 {
    PDRangeArr_p handle = PDRangeArrCellAlloc();
    long i;
-   
+
    assert(grow >= 0);
 
    handle->integer = false;
    handle->offset = idx;
-   
+
    handle->size  = grow?grow:1;
    handle->grow  = grow;
    handle->array = SizeMalloc(handle->size*sizeof(IntOrP));
@@ -219,12 +219,12 @@ PDRangeArr_p PDIntRangeArrAlloc(long idx, long grow)
 {
    PDRangeArr_p handle = PDRangeArrCellAlloc();
    long i;
-   
+
    assert(grow >= 0);
 
    handle->integer = false;
    handle->offset = idx;
-   
+
    handle->size  = grow?grow:1;
    handle->grow  = grow;
    handle->array = SizeMalloc(handle->size*sizeof(IntOrP));
@@ -253,7 +253,7 @@ void PDRangeArrFree(PDRangeArr_p junk)
    assert(junk);
    assert(junk->size > 0);
    assert(junk->array);
-   
+
    SizeFree(junk->array, junk->size*sizeof(IntOrP));
    PDRangeArrCellFree(junk);
 }
@@ -264,9 +264,9 @@ void PDRangeArrFree(PDRangeArr_p junk)
 //
 //   Enlarge array enough to accomodate index.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -279,7 +279,7 @@ void PDRangeArrEnlarge(PDRangeArr_p array, long idx)
    else
    {
       range_arr_expand_up(array, idx);
-   }   
+   }
    assert(idx>=array->offset);
    assert(idx<(array->offset+array->size));
 }
@@ -301,11 +301,11 @@ void PDRangeArrEnlarge(PDRangeArr_p array, long idx)
 PDRangeArr_p PDRangeArrCopy(PDRangeArr_p array)
 {
    PDRangeArr_p handle = PDRangeArrCellAlloc();
-   
+
    *handle = *array;
    handle->array =  SizeMalloc(handle->size*sizeof(IntOrP));
    memcpy(handle->array, array->array, handle->size*sizeof(IntOrP));
-   
+
    return handle;
 }
 
@@ -368,7 +368,7 @@ void PDRangeArrElementDeleteInt(PDRangeArr_p array, long idx)
 long PDRangeArrMembers(PDRangeArr_p array)
 {
    long i, res =0;
-   
+
    assert(array);
 
    for(i=PDRangeArrLowKey(array); i<PDRangeArrLimitKey(array); i++)
@@ -389,12 +389,12 @@ long PDRangeArrMembers(PDRangeArr_p array)
 //
 //   Increment entry indexed in array by value. Return new value.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
- 
+
 long PDRangeArrElementIncInt(PDRangeArr_p array, long idx, long value)
 {
    IntOrP *ref = PDRangeArrElementRef(array, idx);

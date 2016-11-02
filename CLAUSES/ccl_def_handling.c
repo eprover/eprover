@@ -64,7 +64,7 @@ Changes
 DefStore_p DefStoreAlloc(TB_p terms)
 {
    DefStore_p store = DefStoreCellAlloc();
-   
+
    store->terms       = terms;
    store->def_clauses = ClauseSetAlloc();
    store->def_assocs  = NULL;
@@ -80,7 +80,7 @@ DefStore_p DefStoreAlloc(TB_p terms)
 //
 //   Free a definition storage object and all data it is responsible
 //   for (includes the FVIndex of def_clauses, but not the term
-//   bank). 
+//   bank).
 //
 // Global Variables: -
 //
@@ -114,14 +114,14 @@ Eqn_p GenDefLit(TB_p bank, FunCode pred, bool positive,
 {
    Term_p lside;
    Eqn_p  res;
-   
+
    assert(bank);
    assert(pred > 0);
-   assert((split_vars && 
+   assert((split_vars &&
            (SigFindArity(bank->sig, pred) == PStackGetSP(split_vars)))
           ||
           (!split_vars && (SigFindArity(bank->sig, pred)==0)));
-   
+
    if(!split_vars || PStackEmpty(split_vars))
    {
       lside = TermConstCellAlloc(pred);
@@ -129,7 +129,7 @@ Eqn_p GenDefLit(TB_p bank, FunCode pred, bool positive,
    else
    {
       int arity = PStackGetSP(split_vars), i;
-      
+
       lside = TermDefaultCellAlloc();
       lside->f_code = pred;
       lside->arity = arity;
@@ -138,12 +138,12 @@ Eqn_p GenDefLit(TB_p bank, FunCode pred, bool positive,
       {
 	 lside->args[i] = PStackElementP(split_vars, i);
       }
-   }   
+   }
    lside->sort = STBool;
    lside = TBTermTopInsert(bank, lside);
    res = EqnAlloc(lside, bank->true_term, bank, positive);
    EqnSetProp(res, EPIsSplitLit);
-   
+
    return res;
 }
 
@@ -156,7 +156,7 @@ Eqn_p GenDefLit(TB_p bank, FunCode pred, bool positive,
 //   Given a literal list and the definition predicate, generate one
 //   of the two clauses the equivalence definition splits into (namely
 //   the one we need to add for splitting). This recycles the literal
-//   list! 
+//   list!
 //
 // Global Variables: -
 //
@@ -174,7 +174,7 @@ Clause_p GetClauseDefinition(Eqn_p litlist, FunCode def_pred, WFormula_p parent)
 
    def_lit = GenDefLit(litlist->bank, def_pred, true, NULL);
    def_lit->next = litlist;
-   res           = ClauseAlloc(def_lit);      
+   res           = ClauseAlloc(def_lit);
 
    ClausePushDerivation(res, DCSplitEquiv, parent, NULL);
 
@@ -209,7 +209,7 @@ WFormula_p GetFormulaDefinition(Eqn_p litlist, FunCode def_pred)
 
    def_lit = GenDefLit(litlist->bank, def_pred, true, NULL);
    EqnFlipProp(def_lit, EPIsPositive);
-   
+
    def_clause = ClauseAlloc(EqnListFlatCopy(litlist));
 
    lit = TFormulaLitAlloc(def_lit);
@@ -220,7 +220,7 @@ WFormula_p GetFormulaDefinition(Eqn_p litlist, FunCode def_pred)
    res = WTFormulaAlloc(litlist->bank, def);
 
    ClauseFree(def_clause);
-   
+
    DocIntroSplitDefDefault(res);
    WFormulaPushDerivation(res, DCIntroDef, NULL, NULL);
 
@@ -238,9 +238,9 @@ WFormula_p GetFormulaDefinition(Eqn_p litlist, FunCode def_pred)
 //
 //   If fresh is true, always return a fresh definition and do not
 //   insert the clause/predicate association into the store. If fresh
-//   is false, check if it is a variant of a known definiton and 
+//   is false, check if it is a variant of a known definiton and
 //   return the corresponding symbol. If not, store the new
-//   association. 
+//   association.
 //
 // Global Variables: -
 //
@@ -248,8 +248,8 @@ WFormula_p GetFormulaDefinition(Eqn_p litlist, FunCode def_pred)
 //
 /----------------------------------------------------------------------*/
 
-FunCode GetDefinitions(DefStore_p store, Eqn_p litlist, 
-                       WFormula_p* res_form, Clause_p* res_clause, 
+FunCode GetDefinitions(DefStore_p store, Eqn_p litlist,
+                       WFormula_p* res_form, Clause_p* res_clause,
                        bool fresh)
 {
    Clause_p   def_clause;
@@ -259,7 +259,7 @@ FunCode GetDefinitions(DefStore_p store, Eqn_p litlist,
 
    *res_form   = NULL;
    *res_clause = NULL;
-  
+
    if(fresh)
    {
       def_pred    = SigGetNewPredicateCode(store->terms->sig, 0);
@@ -275,23 +275,23 @@ FunCode GetDefinitions(DefStore_p store, Eqn_p litlist,
    else
    {
       Clause_p variant;
-      
+
       def_clause = ClauseAlloc(EqnListFlatCopy(litlist));
       def_clause->weight = ClauseStandardWeight(def_clause);
       ClauseSubsumeOrderSortLits(def_clause);
-      
+
       variant = ClauseSetFindVariantClause(store->def_clauses,
-                                           def_clause);      
+                                           def_clause);
       if(variant)
       {
-         NumTree_p assoc = NumTreeFind(&(store->def_assocs), 
+         NumTree_p assoc = NumTreeFind(&(store->def_assocs),
                                        variant->ident);
          assert(assoc);
          *res_clause = NULL; /* Clause already exists */
          if(OutputLevel >= 2 || BuildProofObject)
          {
             *res_form = assoc->val2.p_val;
-         }         
+         }
          def_pred = assoc->val1.i_val;
          ClauseFree(def_clause);
          EqnListFree(litlist);
@@ -308,15 +308,15 @@ FunCode GetDefinitions(DefStore_p store, Eqn_p litlist,
             FormulaSetInsert(store->def_archive, *res_form);
          }
          *res_clause = GetClauseDefinition(litlist, def_pred, *res_form);
-        
+
          def_pred_store.i_val = def_pred;
          def_form_store.p_val = *res_form;
          NumTreeStore(&(store->def_assocs),
-                      def_clause->ident, 
-                      def_pred_store, 
+                      def_clause->ident,
+                      def_pred_store,
                       def_form_store);
          assert(def_clause->weight == ClauseStandardWeight(def_clause));
-         ClauseSetIndexedInsertClause(store->def_clauses, 
+         ClauseSetIndexedInsertClause(store->def_clauses,
                                       def_clause);
       }
    }

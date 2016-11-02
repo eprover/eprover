@@ -5,7 +5,7 @@ File  : ccl_clausesets.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Definitions dealing with collections of clauses
 
   Copyright 1998, 1999 by the author.
@@ -154,10 +154,10 @@ void        EqAxiomsPrint(FILE* out, Sig_p sig, bool single_subst);
 
 void        ClauseSetAddSymbolDistribution(ClauseSet_p set, long
 				        *dist_array);
-void        ClauseSetAddConjSymbolDistribution(ClauseSet_p set, 
+void        ClauseSetAddConjSymbolDistribution(ClauseSet_p set,
                                                long *dist_array);
 
-void        ClauseSetComputeFunctionRanks(ClauseSet_p set, long 
+void        ClauseSetComputeFunctionRanks(ClauseSet_p set, long
 					  *rank_array, long* count);
 
 FunCode     ClauseSetFindFreqSymbol(ClauseSet_p set, Sig_p sig, int
@@ -166,18 +166,18 @@ long        ClauseSetMaxVarNumber(ClauseSet_p set);
 
 long        ClauseSetFindCharFreqVectors(ClauseSet_p set,
 					 FreqVector_p fsum,
-					 FreqVector_p fmax, 
-					 FreqVector_p fmin, 
+					 FreqVector_p fmax,
+					 FreqVector_p fmin,
 					 FVCollect_p cspec);
 
-PermVector_p PermVectorCompute(ClauseSet_p set, FVCollect_p cspec, 
+PermVector_p PermVectorCompute(ClauseSet_p set, FVCollect_p cspec,
                                bool eliminate_uninformative);
 
 long         ClauseSetFVIndexify(ClauseSet_p set);
 long         ClauseSetNewTerms(ClauseSet_p set, TB_p terms);
 
-long         ClauseSetSplitConjectures(ClauseSet_p set, 
-                                       PList_p conjectures, 
+long         ClauseSetSplitConjectures(ClauseSet_p set,
+                                       PList_p conjectures,
                                        PList_p rest);
 long long    ClauseSetStandardWeight(ClauseSet_p set);
 

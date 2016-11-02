@@ -5,7 +5,7 @@ File  : che_hcbadmin.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for administrating sets of predefined HCBs.
 
   Copyright 1998, 1999 by the author.
@@ -65,14 +65,14 @@ static void parse_single_wfcb_item(HCB_p hcb, Scanner_p in,
    steps = AktToken(in)->numval;
    if(steps<=0)
    {
-      AktTokenError(in, 
+      AktTokenError(in,
 		    "Value >0 expected in heuristic evaluation"
 		    " function description",
 		    false);
    }
    AcceptInpTok(in, PosInt);
    AcceptInpTok(in, Mult|Fullstop);
-   
+
    CheckInpTok(in, Identifier);
 
    if(TestTok(LookToken(in,1), OpenBracket|EqualSign))
@@ -90,7 +90,7 @@ static void parse_single_wfcb_item(HCB_p hcb, Scanner_p in,
    {
       AktTokenError(in, "Not a valid evaluation function specifier",
 		    false);
-   } 
+   }
    HCBAddWFCB(hcb, wfcb, steps);
 }
 
@@ -141,17 +141,17 @@ void HCBAdminFree(HCBAdmin_p junk)
    assert(junk);
    assert(junk->names);
    assert(junk->hcb_set);
-   
+
    while(!PStackEmpty(junk->names))
    {
       name = PStackPopP(junk->names);
-      FREE(name);      
+      FREE(name);
    }
    PStackFree(junk->names);
-   
+
    while(!PStackEmpty(junk->hcb_set))
    {
-      HCBFree(PStackPopP(junk->hcb_set));      
+      HCBFree(PStackPopP(junk->hcb_set));
    }
    PStackFree(junk->hcb_set);
 
@@ -206,12 +206,12 @@ HCB_p HCBAdminFindHCB(HCBAdmin_p set, char* name)
 {
    PStackPointer i;
    HCB_p res = NULL;
-   
+
    assert(set);
    assert(set->names);
    assert(set->hcb_set);
    assert(name);
-   
+
 
    for(i = PStackGetSP(set->names)-1; i>=0; i--)
    {
@@ -243,15 +243,15 @@ HCB_p HeuristicParse(Scanner_p in, WFCBAdmin_p wfcbs, OCB_p ocb,
    HCB_p  hcb = HCBAlloc();
 
    AcceptInpTok(in, OpenBracket);
-   
+
    parse_single_wfcb_item(hcb, in, wfcbs, ocb, state);
 
    while(TestInpTok(in, Comma))
    {
-      AcceptInpTok(in, Comma);   
+      AcceptInpTok(in, Comma);
       parse_single_wfcb_item(hcb, in, wfcbs, ocb, state);
    }
-   AcceptInpTok(in, CloseBracket);   
+   AcceptInpTok(in, CloseBracket);
    return hcb;
 }
 
@@ -274,7 +274,7 @@ long HeuristicDefParse(HCBAdmin_p set, Scanner_p in, WFCBAdmin_p
    char* name;
    HCB_p hcb;
    long   res;
-   
+
    if(TestInpTok(in, OpenBracket))
    {
       name = SecureStrdup("Default");
@@ -282,7 +282,7 @@ long HeuristicDefParse(HCBAdmin_p set, Scanner_p in, WFCBAdmin_p
    else
    {
       CheckInpTok(in, Identifier);
-      name = SecureStrdup(DStrView(AktToken(in)->literal)); 
+      name = SecureStrdup(DStrView(AktToken(in)->literal));
       /* All this strdup'ing is inefficient, but uncritical */
       NextToken(in);
       AcceptInpTok(in, EqualSign);
@@ -290,8 +290,8 @@ long HeuristicDefParse(HCBAdmin_p set, Scanner_p in, WFCBAdmin_p
    hcb = HeuristicParse(in, wfcbs, ocb, state);
    res = HCBAdminAddHCB(set, name, hcb);
    FREE(name);
-   
-   return res;   
+
+   return res;
 }
 
 

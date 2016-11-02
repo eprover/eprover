@@ -5,7 +5,7 @@ File  : cle_numfeatures.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions and data types for dealing with numerical features of the
   clause set. This is, unfortunatly, not quite orthogonal to
   che_clausesetfeatures.h at the moment.
@@ -37,7 +37,7 @@ Changes
 #define FEATURE_NUMBER 15
 
 /* Preliminary list of features to use:
-  
+
    - Number of unit clauses
    - Number of nonunit horn  clauses
    - Number of nonhorn general clauses
@@ -71,13 +71,13 @@ typedef struct featurescell
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-#define FeaturesCellAlloc() (FeaturesCell*)SizeMalloc(sizeof(FeaturesCell)) 
+#define FeaturesCellAlloc() (FeaturesCell*)SizeMalloc(sizeof(FeaturesCell))
 #define FeaturesCellFree(junk) SizeFree(junk, sizeof(FeaturesCell))
 
 Features_p FeaturesAlloc(void);
 void       FeaturesFree(Features_p junk);
 
-void ComputeClauseSetNumFeatures(Features_p features, ClauseSet_p set,			
+void ComputeClauseSetNumFeatures(Features_p features, ClauseSet_p set,
 				 Sig_p sig);
 
 void       NumFeaturesPrint(FILE* out, Features_p features);

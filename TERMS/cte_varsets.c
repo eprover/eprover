@@ -6,7 +6,7 @@ Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
 
-  Implementation of variable sets. 
+  Implementation of variable sets.
 
   Copyright 2014 by the author.
   This code is released under the GNU General Public Licence.
@@ -70,7 +70,7 @@ int varset_cmp_fun(const void* set1, const void* set2)
 {
    VarSet_p s1 = (VarSet_p)set1;
    VarSet_p s2 = (VarSet_p)set2;
-   
+
    return PCmp(s1->t, s2->t);
 }
 
@@ -116,7 +116,7 @@ VarSet_p VarSetAlloc(Term_p term)
 
 void VarSetReset(VarSet_p set)
 {
-   PTreeFree(set->vars); 
+   PTreeFree(set->vars);
    set->vars = NULL;
 }
 
@@ -149,7 +149,7 @@ void VarSetFree(VarSet_p set)
 //   Insert a variable into a set. Nominally a NOP if variable is
 //   already in the set, but may reorganise the underlying
 //   tree. Returns false if variable is already in the set, true
-//   otherwise. 
+//   otherwise.
 //
 // Global Variables: -
 //
@@ -205,9 +205,9 @@ bool VarSetDeleteVar(VarSet_p set, Term_p var)
 //
 //   Return true iff var is in set.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -327,16 +327,16 @@ VarSet_p VarSetStoreFindVarSet(VarSetStore_p *store, Term_p key)
 //   Find varset for key in the store. If none, create an insert new
 //   empty varset.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
 VarSet_p VarSetStoreGetVarSet(VarSetStore_p *store, Term_p key)
 {
    VarSet_p dummy = VarSetAlloc(key), res;
- 
+
    res = PTreeObjStore(store, dummy, varset_cmp_fun);
    if(res)
    {

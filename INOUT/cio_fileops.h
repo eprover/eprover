@@ -5,7 +5,7 @@ File  : cio_fileops.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Simple operations on files.
 
   Copyright 1998, 1999 by the author.

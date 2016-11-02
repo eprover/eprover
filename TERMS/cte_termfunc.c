@@ -5,7 +5,7 @@ File  : cte_termfunc.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Most of the user-level functionality for unshared terms.
 
   Copyright 1998, 1999 by the author.
@@ -96,15 +96,15 @@ static Term_p parse_cons_list(Scanner_p in, Sig_p sig, VarBank_p vars)
 {
    Term_p handle;
    Term_p current;
-   
+
    assert(SigSupportLists);
-   
+
    AcceptInpTok(in, OpenSquare);
 
    handle = TermDefaultCellAlloc();
 
    current = handle;
-   
+
    if(!TestInpTok(in, CloseSquare))
    {
 
@@ -112,29 +112,29 @@ static Term_p parse_cons_list(Scanner_p in, Sig_p sig, VarBank_p vars)
       current->arity = 2;
       current->sort = SigDefaultSort(sig);
       current->args = TermArgArrayAlloc(2);
-      current->args[0] = TermParse(in, sig, vars); 
+      current->args[0] = TermParse(in, sig, vars);
       current->args[1] = TermDefaultCellAlloc();
       current = current->args[1];
-      
+
       while(TestInpTok(in, Comma))
       {
          NextToken(in);
-         current->f_code = SIG_CONS_CODE;             
-         current->arity = 2;                          
+         current->f_code = SIG_CONS_CODE;
+         current->arity = 2;
          current->sort = SigDefaultSort(sig);
          current->args = TermArgArrayAlloc(2);
-         current->args[0] = TermParse(in, sig, vars); 
+         current->args[0] = TermParse(in, sig, vars);
          TermCellDelProp(current->args[0], TPTopPos);
          current->args[1] = TermDefaultCellAlloc();
-         current = current->args[1];      
+         current = current->args[1];
       }
    }
    AcceptInpTok(in, CloseSquare);
-   current->f_code = SIG_NIL_CODE;             
-   
+   current->f_code = SIG_NIL_CODE;
+
    return handle;
 }
-   
+
 /*-----------------------------------------------------------------------
 //
 // Function: term_check_consistency_rek()
@@ -194,9 +194,9 @@ static Term_p term_check_consistency_rek(Term_p term, PTree_p *branch,
 void VarPrint(FILE* out, FunCode var)
 {
    char id;
-   
+
    assert(var<0);
-   
+
    id = 'X';
    if(var%2)
    {
@@ -214,7 +214,7 @@ void VarPrint(FILE* out, FunCode var)
 //
 // Global Variables: TermPrintLists
 //
-// Side Effects    : Output 
+// Side Effects    : Output
 //
 /----------------------------------------------------------------------*/
 
@@ -222,7 +222,7 @@ void TermPrint(FILE* out, Term_p term, Sig_p sig, DerefType deref)
 {
    assert(term);
    assert(sig||TermIsVar(term));
-   
+
    term = TermDeref(term, &deref);
 
 #ifdef NEVER_DEFINED
@@ -240,7 +240,7 @@ void TermPrint(FILE* out, Term_p term, Sig_p sig, DerefType deref)
       {
 	 fprintf(out, "+");
       }
-   }   
+   }
 #endif
    if(SigSupportLists && TermPrintLists &&
       ((term->f_code == SIG_NIL_CODE)||
@@ -293,9 +293,9 @@ void TermPrintArgList(FILE* out, Term_p *args, int arity, Sig_p sig,
 
    assert(arity>=1);
    putc('(', out);
- 
+
    TermPrint(out, args[0], sig, deref);
-   
+
    for(i=1; i<arity; i++)
    {
       putc(',', out);
@@ -314,7 +314,7 @@ void TermPrintArgList(FILE* out, Term_p *args, int arity, Sig_p sig,
 //   identifier), store the representation into id and determine
 //   the type.using the following rules:
 //   - If it starts with a $, it's a TermIdentInterpreted (LOP global
-//     variables are treated as interpreted constants). 
+//     variables are treated as interpreted constants).
 //   - If it is a PosInt, it is a TermIdentNumber
 //   - If its a String, it is a TermIdentObject
 //   - If it is an upper-case or underscore Ident and no opening
@@ -335,7 +335,7 @@ FuncSymbType TermParseOperator(Scanner_p in, DStr_p id)
    FuncSymbType res = FuncSymbParse(in, id);
 
 #ifndef STRICT_TPTP
-   if((isupper(DStrView(id)[0])       
+   if((isupper(DStrView(id)[0])
        ||
        (DStrView(id)[0] == '_'))
       &&
@@ -344,9 +344,9 @@ FuncSymbType TermParseOperator(Scanner_p in, DStr_p id)
       res = FSIdentFreeFun;
    }
 #endif
-   
+
    return res;
-}      
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -441,8 +441,8 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
          {
             handle = VarBankExtNameAssertAlloc(vars, DStrView(id));
          }
-      }      
-      else 
+      }
+      else
       {
 	 handle = TermDefaultCellAlloc();
 
@@ -451,18 +451,18 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
             if((id_type == FSIdentInt)
                &&(sig->distinct_props & FPIsInteger))
             {
-               AktTokenError(in, 
-                             "Number cannot have argument list (consider --free-numbers)", 
+               AktTokenError(in,
+                             "Number cannot have argument list (consider --free-numbers)",
                              false);
             }
             if((id_type == FSIdentObject)
                &&(sig->distinct_props & FPIsObject))
             {
-               AktTokenError(in, 
-                             "Object cannot have argument list (consider --free-objects)", 
+               AktTokenError(in,
+                             "Object cannot have argument list (consider --free-objects)",
                              false);
             }
-           
+
             handle->arity = TermParseArgList(in, &(handle->args), sig,
                                              vars);
          }
@@ -506,7 +506,7 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
 //   Size[Malloc|Free] for efficiency reasons and may otherwise lead
 //   to a memory leak. This leads to some complexity...
 //   If the arglist is empty, return 0 and use the NULL pointer as
-//   anchor. 
+//   anchor.
 //
 // Global Variables: -
 //
@@ -515,7 +515,7 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
 /----------------------------------------------------------------------*/
 
 int TermParseArgList(Scanner_p in, Term_p** arg_anchor, Sig_p sig,
-                     VarBank_p vars) 
+                     VarBank_p vars)
 {
    Term_p *handle;
    int    arity;
@@ -552,7 +552,7 @@ int TermParseArgList(Scanner_p in, Term_p** arg_anchor, Sig_p sig,
       (*arg_anchor)[i] = handle[i];
    }
    SizeFree(handle, size*sizeof(Term_p));
-   
+
    return arity;
 }
 
@@ -580,7 +580,7 @@ Term_p TermCopy(Term_p source, VarBank_p vars, DerefType deref)
    assert(source);
 
    source = TermDeref(source, &deref);
-   
+
    if(TermIsVar(source))
    {
       handle = VarBankVarAssertAlloc(vars, source->f_code, source->sort);
@@ -623,14 +623,14 @@ Term_p TermCopyKeepVars(Term_p source, DerefType deref)
    assert(source);
 
    source = TermDeref(source, &deref);
-   
+
    if(TermIsVar(source))
    {
       return source;
    }
 
    handle = TermTopCopy(source);
-   
+
    for(i=0; i<handle->arity; i++) /* Hack: Loop will not be entered if
 				     arity = 0 */
    {
@@ -645,7 +645,7 @@ Term_p TermCopyKeepVars(Term_p source, DerefType deref)
 // Function: TermStructEqual()
 //
 //   Return true if the two terms have the same structure. Follows
-//   bindings. 
+//   bindings.
 //
 // Global Variables: -
 //
@@ -658,7 +658,7 @@ bool TermStructEqual(Term_p t1, Term_p t2)
 {
    t1 = TermDerefAlways(t1);
    t2 = TermDerefAlways(t2);
-   
+
    if(t1==t2)
    {
       return true;
@@ -688,7 +688,7 @@ bool TermStructEqual(Term_p t1, Term_p t2)
 // Function: TermStructEqualNoDeref()
 //
 //   Return true if the two terms have the same structures. Ignores
-//   bindings. 
+//   bindings.
 //
 // Global Variables: -
 //
@@ -727,7 +727,7 @@ bool TermStructEqualNoDeref(Term_p t1, Term_p t2)
 //
 //   Return true if the two terms have the same
 //   structures. Dereference both terms as designated by deref_1,
-//   deref_2. 
+//   deref_2.
 //
 // Global Variables: -
 //
@@ -863,7 +863,7 @@ long TermLexCompare(Term_p t1, Term_p t2)
       {
 	 return res;
       }
-   }   
+   }
    return res;
 }
 
@@ -951,7 +951,7 @@ bool TermIsSubtermDeref(Term_p super, Term_p test, DerefType
 long TermWeightCompute(Term_p term, long vweight, long fweight)
 {
    long res = 0;
-   
+
    if(TermIsVar(term))
    {
       res += vweight;
@@ -982,7 +982,7 @@ long TermWeightCompute(Term_p term, long vweight, long fweight)
 //
 /----------------------------------------------------------------------*/
 
-long TermFsumWeight(Term_p term, long vweight, long flimit, 
+long TermFsumWeight(Term_p term, long vweight, long flimit,
                     long *fweights, long default_fweight)
 {
    long res = 0;
@@ -1030,17 +1030,17 @@ long TermFsumWeight(Term_p term, long vweight, long flimit,
 
 long TermNonLinearWeight(Term_p term, long vlweight, long vweight,
 			 long fweight)
-{ 
+{
    long     res = 0;
    PStack_p stack = PStackAlloc();
    Term_p   handle;
-   
+
    assert(term);
-   
+
    TermDelProp(term, DEREF_NEVER, TPOpFlag);
 
    PStackPushP(stack, term);
-   
+
    while(!PStackEmpty(stack))
    {
       handle = PStackPopP(stack);
@@ -1059,9 +1059,9 @@ long TermNonLinearWeight(Term_p term, long vlweight, long vweight,
       else
       {
 	 int i;
-	 
+
 	 res += fweight;
-	 
+
 	 for(i=0; i<handle->arity; i++)
 	 {
 	    PStackPushP(stack, handle->args[i]);
@@ -1076,7 +1076,7 @@ long TermNonLinearWeight(Term_p term, long vlweight, long vweight,
 
 /*-----------------------------------------------------------------------
 //
-// Function: TermSymTypeWeight() 
+// Function: TermSymTypeWeight()
 //
 //   Compute the weight of a term, giving different weight to
 //   variables, constants, function symbols and predicates.
@@ -1095,9 +1095,9 @@ long TermSymTypeWeight(Term_p term, long vweight, long fweight, long
    Term_p   handle;
 
    assert(term);
-   
+
    PStackPushP(stack, term);
-   
+
    while(!PStackEmpty(stack))
    {
       handle = PStackPopP(stack);
@@ -1120,7 +1120,7 @@ long TermSymTypeWeight(Term_p term, long vweight, long fweight, long
 	 else
 	 {
 	    res += fweight;
-	 }	    
+	 }
 	 for(i=0; i<handle->arity; i++)
 	 {
 	    PStackPushP(stack, handle->args[i]);
@@ -1174,7 +1174,7 @@ bool TermIsDefTerm(Term_p term, int min_arity)
    int i;
 
    assert(term);
-   
+
    if(TermIsVar(term))
    {
       return false;
@@ -1290,7 +1290,7 @@ bool TermHasUnboundVariables(Term_p term)
 bool TermIsGroundCompute(Term_p term)
 {
    bool res = true;
-   
+
    if(TermIsVar(term))
    {
       res = false;
@@ -1317,9 +1317,9 @@ bool TermIsGroundCompute(Term_p term)
 //   Return largest (absolute, i.e. largest negative) f_code of any
 //   variable in term.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -1394,7 +1394,7 @@ FunCode VarBankCheckBindings(FILE* out, VarBank_p bank, Sig_p sig)
                }
                else
                {
-                  fprintf(out, "# Var%ld <---- %p\n", 
+                  fprintf(out, "# Var%ld <---- %p\n",
                           term->f_code,
                           (void*)term->binding);
                }
@@ -1426,7 +1426,7 @@ void TermAddSymbolDistributionLimited(Term_p term, long *dist_array, long limit)
    assert(term);
 
    PStackPushP(stack, term);
-   
+
    while(!PStackEmpty(stack))
    {
       term = PStackPopP(stack);
@@ -1435,7 +1435,7 @@ void TermAddSymbolDistributionLimited(Term_p term, long *dist_array, long limit)
       if(!TermIsVar(term))
       {
 	 int i;
-	 
+
 	 assert(term->f_code > 0);
 	 if(term->f_code < limit)
 	 {
@@ -1464,14 +1464,14 @@ void TermAddSymbolDistributionLimited(Term_p term, long *dist_array, long limit)
 //
 /----------------------------------------------------------------------*/
 
-void TermAddSymbolDistExist(Term_p term, long *dist_array, 
+void TermAddSymbolDistExist(Term_p term, long *dist_array,
                             PStack_p exists)
 {
    PStack_p stack = PStackAlloc();
    assert(term);
 
    PStackPushP(stack, term);
-   
+
    while(!PStackEmpty(stack))
    {
       term = PStackPopP(stack);
@@ -1480,14 +1480,14 @@ void TermAddSymbolDistExist(Term_p term, long *dist_array,
       if(!TermIsVar(term))
       {
 	 int i;
-         
+
 	 assert(term->f_code > 0);
          if(!dist_array[term->f_code])
          {
             PStackPushInt(exists, term->f_code);
          }
          dist_array[term->f_code]++;
-	 
+
 	 for(i=0; i<term->arity; i++)
 	 {
 	    assert(term->args);
@@ -1498,7 +1498,7 @@ void TermAddSymbolDistExist(Term_p term, long *dist_array,
    PStackFree(stack);
 }
 
-   
+
 /*-----------------------------------------------------------------------
 //
 // Function: TermAddSymbolFeaturesLimited()
@@ -1515,7 +1515,7 @@ void TermAddSymbolDistExist(Term_p term, long *dist_array,
 //
 /----------------------------------------------------------------------*/
 
-void TermAddSymbolFeaturesLimited(Term_p term, long depth, 
+void TermAddSymbolFeaturesLimited(Term_p term, long depth,
 				  long *freq_array, long* depth_array,
 				  long limit)
 {
@@ -1531,12 +1531,12 @@ void TermAddSymbolFeaturesLimited(Term_p term, long depth,
       else
       {
 	 freq_array[0]++;
-	 depth_array[0] = MAX(depth, depth_array[0]);	 
+	 depth_array[0] = MAX(depth, depth_array[0]);
       }
       for(i=0; i<term->arity; i++)
       {
-	 TermAddSymbolFeaturesLimited(term->args[i], depth+1, 
-				      freq_array, depth_array, 
+	 TermAddSymbolFeaturesLimited(term->args[i], depth+1,
+				      freq_array, depth_array,
 				      limit);
       }
    }
@@ -1560,8 +1560,8 @@ void TermAddSymbolFeaturesLimited(Term_p term, long depth,
 //
 /----------------------------------------------------------------------*/
 
-void TermAddSymbolFeatures(Term_p term, PStack_p mod_stack, long depth, 
-                           long *feature_array, long offset) 
+void TermAddSymbolFeatures(Term_p term, PStack_p mod_stack, long depth,
+                           long *feature_array, long offset)
 {
    if(!TermIsVar(term))
    {
@@ -1577,7 +1577,7 @@ void TermAddSymbolFeatures(Term_p term, PStack_p mod_stack, long depth,
       feature_array[findex+1] = MAX(depth, feature_array[findex+1]);
       for(i=0; i<term->arity; i++)
       {
-	 TermAddSymbolFeatures(term->args[i], mod_stack, depth+1, 
+	 TermAddSymbolFeatures(term->args[i], mod_stack, depth+1,
                                feature_array, offset);
       }
    }
@@ -1620,7 +1620,7 @@ void TermComputeFunctionRanks(Term_p term, long *rank_array, long *count)
 // Function: TermCollectPropVariables()
 //
 //   Insert all variables with properties prop in term into
-//   tree. Return number of new variables. 
+//   tree. Return number of new variables.
 //
 // Global Variables: -
 //
@@ -1640,7 +1640,7 @@ long TermCollectPropVariables(Term_p term, PTree_p *tree,
    while(!PStackEmpty(stack))
    {
       term = PStackPopP(stack);
-      if(TermIsVar(term) && 
+      if(TermIsVar(term) &&
 	 TermCellQueryProp(term,prop))
       {
 	 if(PTreeStore(tree, term))
@@ -1684,7 +1684,7 @@ long TermAddFunOcc(Term_p term, PDArray_p f_occur, PStack_p res_stack)
    int      i;
 
    PStackPushP(stack,term);
-   
+
    while(!PStackEmpty(stack))
    {
       term = PStackPopP(stack);
@@ -1703,7 +1703,7 @@ long TermAddFunOcc(Term_p term, PDArray_p f_occur, PStack_p res_stack)
       }
    }
    PStackFree(stack);
-   
+
    return res;
 }
 
@@ -1728,7 +1728,7 @@ long TermLinearize(PStack_p stack, Term_p term)
 {
    long res = 1;
    int i;
-   
+
    PStackPushP(stack, term);
    for(i = 0; i<term->arity; i++)
    {
@@ -1756,7 +1756,7 @@ Term_p TermCheckConsistency(Term_p term, DerefType deref)
 {
    Term_p   res;
    PTree_p  branch = NULL;
-   
+
    printf("TermCheckConsistency...\n");
    res = term_check_consistency_rek(term, &branch, deref);
    assert(branch == 0);

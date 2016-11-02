@@ -5,7 +5,7 @@ File  : che_hcbadmin.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for administrating and parsing sets of heuristics.
 
   Copyright 1998, 1999 by the author.
@@ -52,12 +52,12 @@ long       HCBAdminAddHCB(HCBAdmin_p set, char* name, HCB_p hcb);
 HCB_p      HCBAdminFindHCB(HCBAdmin_p set, char* name);
 
 HCB_p      HeuristicParse(Scanner_p in, WFCBAdmin_p wfcbs, OCB_p ocb,
-			  ProofState_p state); 
+			  ProofState_p state);
 long       HeuristicDefParse(HCBAdmin_p set, Scanner_p in, WFCBAdmin_p
 			     wfcbs, OCB_p ocb, ProofState_p state);
 long       HeuristicDefListParse(HCBAdmin_p set, Scanner_p in,
 				 WFCBAdmin_p wfcbs, OCB_p ocb,
-				 ProofState_p state); 
+				 ProofState_p state);
 
 #endif
 

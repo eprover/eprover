@@ -5,7 +5,7 @@ File  : cle_kbinsert.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
@@ -50,7 +50,7 @@ Changes
 //
 //   Parse an example clause into an annotated term format. Return
 //   clause as AnnoTerm or NULL if pattern-computation is to
-//   expensive. 
+//   expensive.
 //
 // Global Variables: -
 //
@@ -75,13 +75,13 @@ AnnoTerm_p ParseExampleClause(Scanner_p in, TB_p parse_terms, TB_p
 
    anno->key = ident;
    AcceptInpTok(in, OpenBracket);
-   
+
    /* The 0th position of the annotation vector always has the number
       of original annotations merged into it -> as the annotation is
       newly created, it's always 1 here. */
 
    AnnotationCount(anno) = 1;
-   
+
    /* The first value is special! -> In the annotation, it is used
       twice: For the number of proofs in which the clause was used
       (position 1) and, as in the example
@@ -97,7 +97,7 @@ AnnoTerm_p ParseExampleClause(Scanner_p in, TB_p parse_terms, TB_p
    DDArrayAssign(anno->val1.p_val, 2, (float)AktToken(in)->numval);
 
    AcceptInpTok(in, PosInt);
-   
+
    i=3;
    while(TestInpTok(in, Comma))
    {
@@ -111,7 +111,7 @@ AnnoTerm_p ParseExampleClause(Scanner_p in, TB_p parse_terms, TB_p
    AcceptInpTok(in, CloseBracket);
    AcceptInpTok(in, Colon);
    clause = ClauseParse(in, parse_terms);
-   
+
    subst   = PatternDefaultSubstAlloc(parse_terms->sig);
    listrep = PStackAlloc();
 
@@ -133,7 +133,7 @@ AnnoTerm_p ParseExampleClause(Scanner_p in, TB_p parse_terms, TB_p
    ClauseFree(clause);
    PatternSubstFree(subst);
    PStackFree(listrep);
-      
+
    return handle;
 }
 
@@ -143,7 +143,7 @@ AnnoTerm_p ParseExampleClause(Scanner_p in, TB_p parse_terms, TB_p
 // Function: KBAxiomsInsert()
 //
 //   Insert the example "name" into set and return the ident
-//   assigned. 
+//   assigned.
 //
 // Global Variables: -
 //
@@ -155,13 +155,13 @@ long KBAxiomsInsert(ExampleSet_p set, ClauseSet_p axioms, Sig_p sig,
 		    char* name)
 {
    ExampleRep_p handle = ExampleRepCellAlloc();
- 
+
    handle->ident = set->count+1;
    handle->name  = SecureStrdup(name);
    handle->features = FeaturesAlloc();
-   ComputeClauseSetNumFeatures(handle->features, axioms, sig);   
+   ComputeClauseSetNumFeatures(handle->features, axioms, sig);
    ExampleSetInsert(set, handle);
-   
+
    return handle->ident;
 }
 
@@ -180,36 +180,36 @@ long KBAxiomsInsert(ExampleSet_p set, ClauseSet_p axioms, Sig_p sig,
 
 void KBParseExampleFile(Scanner_p in, char* name, ExampleSet_p set,
 			AnnoSet_p examples, Sig_p res_sig)
-{   
+{
    TB_p        terms;
    ClauseSet_p axioms = ClauseSetAlloc();
    long        ident;
    AnnoTerm_p  handle;
    SortTable_p sort_table = DefaultSortTableAlloc();
-   
+
    terms = TBAlloc(SigAlloc(sort_table));
    ClauseSetParseList(in, axioms, terms);
-   
+
    ident = KBAxiomsInsert(set, axioms, terms->sig, name);
    ClauseSetFree(axioms);
    SigFree(terms->sig);
    terms->sig = NULL;
    TBFree(terms);
-      
+
    AcceptInpTok(in, Fullstop);
-   
+
    terms = TBAlloc(res_sig);
-   
+
    while(!TestInpTok(in, NoToken))
-   {      
-      handle = ParseExampleClause(in, terms, examples->terms, ident);      
+   {
+      handle = ParseExampleClause(in, terms, examples->terms, ident);
       if(handle)
       {
 	 AnnoSetAddTerm(examples, handle);
       }
    }
    terms->sig = NULL;
-   TBFree(terms); 
+   TBFree(terms);
    SortTableFree(sort_table);
 }
 

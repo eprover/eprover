@@ -5,7 +5,7 @@ File  : cle_annotations.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for dealing with annotaions and lists of annotations.
 
   Copyright 1998, 1999 by the author.
@@ -122,7 +122,7 @@ void AnnotationTreeFree(Annotation_p tree)
 // Function: AnnotationParse()
 //
 //   Parse a single annotation of the proof:(number[,number]*) and
-//   return a pointer to it. 
+//   return a pointer to it.
 //
 // Global Variables: -
 //
@@ -135,13 +135,13 @@ Annotation_p AnnotationParse(Scanner_p in, long expected)
    Annotation_p handle = AnnotationAlloc();
    long         count = 0;
    double       value;
-   
+
    assert(expected >=0 );
    handle->key = AktToken(in)->numval;
    AcceptInpTok(in, PosInt);
    AcceptInpTok(in, Colon);
    AcceptInpTok(in, OpenBracket);
-   
+
    while(!TestInpTok(in, CloseBracket))
    {
       if(count == expected)
@@ -206,10 +206,10 @@ long AnnotationListParse(Scanner_p in, Annotation_p *tree, long
 	 AnnotationFree(handle);
 	 errpos = DStrAlloc();
 	 DStrAppendStr(errpos, PosRep(type, source_name, line, column));
-	 DStrAppendStr(errpos, " Only one annotation for each proof example allowed"); 
+	 DStrAppendStr(errpos, " Only one annotation for each proof example allowed");
 	 Error(DStrView(errpos), SYNTAX_ERROR);
-	 DStrFree(errpos);	 
-      }    
+	 DStrFree(errpos);
+      }
       DStrReleaseRef(source_name);
       i++;
       if(TestInpTok(in, Comma))
@@ -294,16 +294,16 @@ void AnnotationCombine(Annotation_p res, Annotation_p new_anno)
    int i;
    double resval, resw, newval, neww;
    long length;
-   
+
    /* printf("Combining: ");AnnotationPrint(stdout, res);printf("\n");
       printf("           ");AnnotationPrint(stdout, new_anno);printf("\n");*/
    resw = AnnotationCount(res);
    neww = AnnotationCount(new_anno);
-   
+
    /* Res can be newly allocated... */
-   length =  AnnotationLength(new_anno); 
+   length =  AnnotationLength(new_anno);
    assert(AnnotationLength(res)<=length);
-   
+
    for(i=1;i<=length;i++)
    {
       resval = DDArrayElement(AnnotationValues(res),i);
@@ -324,7 +324,7 @@ void AnnotationCombine(Annotation_p res, Annotation_p new_anno)
 //
 //   Given an annotation tree and a stack of annotation keys (proof
 //   numbers), add the annotation vector to *collect. Return number of
-//   annotations found. 
+//   annotations found.
 //
 // Global Variables: -
 //
@@ -338,11 +338,11 @@ long AnnotationMerge(Annotation_p *tree, Annotation_p collect,
    PStackPointer i;
    long          count = 0;
    Annotation_p  handle;
-   
+
    if(sources == ANNOTATIONS_MERGE_ALL)
    {
       PStack_p stack = NumTreeTraverseInit(*tree);
-      
+
       while((handle = NumTreeTraverseNext(stack)))
       {
 	 AnnotationCombine(collect, handle);
@@ -359,7 +359,7 @@ long AnnotationMerge(Annotation_p *tree, Annotation_p collect,
 	 {
 	    AnnotationCombine(collect, handle);
 	    count++;
-	 }			   
+	 }
       }
    }
    return count;

@@ -780,7 +780,7 @@
 #endif
 
 #if defined(CHE_HEURISTICS_INTERNAL) || defined(TO_ORDERING_INTERNAL)
-        
+
    else if(
       ( /* CLASS_H-NM-FFMM31-D Solved: 0 of 1 */
        SpecAxiomsAreNonUnitHorn(spec)&&

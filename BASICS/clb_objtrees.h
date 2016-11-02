@@ -5,7 +5,7 @@ File  : clb_objtrees.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Data structures for the efficient management of objects represented
   by pointers. This inherits the ptree structure, but uses comparison
   on objects (by a user-provided comparison function) instead of pointer
@@ -51,7 +51,7 @@ PObjTree_p PTreeObjFind(PObjTree_p *root, void* key,
                         ComparisonFunctionType cmpfun);
 void*      PTreeObjFindObj(PObjTree_p *root, void* key,
                            ComparisonFunctionType cmpfun);
-PObjTree_p PTreeObjFindBinary(PObjTree_p root, void* key, 
+PObjTree_p PTreeObjFindBinary(PObjTree_p root, void* key,
                               ComparisonFunctionType cmpfun);
 PObjTree_p PTreeObjExtractEntry(PObjTree_p *root, void* key,
                                 ComparisonFunctionType cmpfun);

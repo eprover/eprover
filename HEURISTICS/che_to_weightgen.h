@@ -5,7 +5,7 @@ File  : che_to_weightgen.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Routines for generating weights for term orderings
 
   Copyright 1998, 1999 by the author.
@@ -39,21 +39,21 @@ typedef enum
    WInvalidEntry = -1,
    WNoMethod = 0,         /* Nothing */
    WSelectMaximal,        /* First maximal symbol in precedence gets
-                             weight 0 */ 
+                             weight 0 */
    WArityWeight,          /* Weight(f) = Arity(f)+1 */
    WArityMax0,            /* Weight(f) = Arity(f)+1, 0 for first max*/
    WModArityWeight,       /* Weight(f) = Arity(f)+W_TO_BASEWEIGHT */
    WModArityMax0,         /* Weight(f) = Arity(f)+W_TO_BASEWEIGHT, 0
-                             for first max*/ 
+                             for first max*/
    WAritySqWeight,        /* Weight(f) = Arity(f)^2+1) */
    WAritySqMax0,          /* Weight(f) = Arity(f)^2+1), 0 for first
-                             max */ 
+                             max */
    WInvArityWeight,       /* Weight(f) = Maxarity+1-Arity(f) */
    WInvArityMax0,         /* Weight(f) = Maxarity+1-Arity(f), 0 for
-                             first max */ 
+                             first max */
    WInvAritySqWeight,     /* Weight(f) = Maxarity^2+1-Arity(f)^2 */
    WInvAritySqMax0,       /* Weight(f) = Maxarity^2+1-Arity(f)^2, 0
-                             for first max */ 
+                             for first max */
    WPrecedence,           /* Weight(f) = |{g|g<f}| */
    WPrecedenceInv,        /* Weight(f) = |{g|g>f}| */
    WPrecRank5,            /* */
@@ -62,7 +62,7 @@ typedef enum
    WFrequency,            /* Weight(f) = |Axioms|_f */
    WInvFrequency,         /* Weight(f) = Maxfreq+1-|Axioms|_f */
    WFrequencyRank,        /* Weight(f) = Rank in frequency-induced
-                             quasi-ordering */ 
+                             quasi-ordering */
    WInvFrequencyRank,     /* Weight(f) = Inverse rank in
                              frequency-induced * quasi-ordering */
    WInvConjFrequencyRank, /* Weight(f) = Inverse rank in
@@ -79,7 +79,7 @@ typedef enum
    WMaxMethod = WConstantWeight /* Update as required! */
 }TOWeightGenMethod;
 
-/* Think about goal-directedness, prefer symbols occuring in the goal */ 
+/* Think about goal-directedness, prefer symbols occuring in the goal */
 
 #define WConstNoSpecialWeight -1
 #define WConstNoWeight         0
@@ -106,7 +106,7 @@ TOWeightGenMethod TOTranslateWeightGenMethod(char* name);
 			  W_DEFAULT_WEIGHT)
 
 void TOGenerateWeights(OCB_p ocb, ClauseSet_p axioms, char *pre_weights,
-		       TOWeightGenMethod method, long const_weight); 
+		       TOWeightGenMethod method, long const_weight);
 
 
 

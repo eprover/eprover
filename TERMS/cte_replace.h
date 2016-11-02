@@ -5,7 +5,7 @@ File  : cte_replace.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for replacing and rewriting of terms.
 
   Copyright 1998, 1999 by the author.
@@ -36,7 +36,7 @@ Changes
 /** Can a term be rewritten, rewritten if not protected, or always
  ** rewritten? */
 
-typedef enum 
+typedef enum
 {
    RWNotRewritable     = 0,
    RWLimitedRewritable = 1,
@@ -49,7 +49,7 @@ typedef enum
 /*---------------------------------------------------------------------*/
 
 
-void   TermAddRWLink(Term_p term, Term_p replace, 
+void   TermAddRWLink(Term_p term, Term_p replace,
                      struct clause_cell *demod,
 		     bool sos, RWResultType type);
 

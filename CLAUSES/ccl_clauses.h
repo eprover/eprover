@@ -5,7 +5,7 @@ File  : ccl_clauses.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Clauses - Infrastructure functions
 
   Copyright 1998, 1999 by the author.
@@ -36,22 +36,22 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-typedef enum 
+typedef enum
 {
    CPIgnoreProps       = 0,               /* For masking properties
-                                           * out */ 
+                                           * out */
    CPInitial           = 1,               /* Initial clause */
    CPInputClause       = 2*CPInitial,     /* _Really_ initial clause
-                                           * in TSTP sense */ 
+                                           * in TSTP sense */
    CPIsProcessed       = 2*CPInputClause, /* Clause has been processed
-                                           * previously */ 
+                                           * previously */
    CPIsOriented        = 2*CPIsProcessed, /* Term and literal
 		                             comparisons are up to
-		                             date */ 
+		                             date */
    CPIsDIndexed        = 2*CPIsOriented,  /* Clause is in the
-                                           * demod_index of its set */ 
+                                           * demod_index of its set */
    CPIsSIndexed        = 2*CPIsDIndexed,  /* Clause is in the fvindex
-                                           * of its set */ 
+                                           * of its set */
    CPIsGlobalIndexed   = 2*CPIsSIndexed,  /* Clause is in the
                                              Subterm FPIndex  */
    CPRWDetected        = 2*CPIsGlobalIndexed, /* Rewritability of the
@@ -59,13 +59,13 @@ typedef enum
                                              established. Temporary
                                              property. */
    CPDeleteClause      = 2*CPRWDetected,  /* Clause should be deleted
-                                           * for some reason */ 
+                                           * for some reason */
    CPType1             = 2*CPDeleteClause,/* Three bits used to encode
                                            * the Clause type, taken
                                            * from TPTP or  TSTP input
                                            * format or assumed */
-   CPType2             = 2*CPType1,        
-   CPType3             = 2*CPType2,       
+   CPType2             = 2*CPType1,
+   CPType3             = 2*CPType2,
    CPTypeMask          = CPType1|CPType2|CPType3,
    CPTypeUnknown       = 0,               /* Also used as wildcard */
    CPTypeAxiom         = CPType1,         /* Clause is Axiom */
@@ -82,14 +82,14 @@ typedef enum
                                            * watch list clause */
    CPIsIRVictim        = 2*CPType3,       /* Clause has just been
                                              simplified in
-                                             interreduction */ 
+                                             interreduction */
    CPOpFlag            = 2*CPIsIRVictim,  /* Temporary marker */
    CPIsSelected        = 2*CPOpFlag,      /* For analysis of selected
-                                           * clauses only */ 
+                                           * clauses only */
    CPIsFinal           = 2*CPIsSelected,  /* Clause is a final clause,
                                                i.e. a clause that
                                                might be used by a
-                                               postprocessor. */ 
+                                               postprocessor. */
    CPIsProofClause  = 2*CPIsFinal,        /* Clause is part of a
                                              successful proof. */
    CPIsSOS          = 2*CPIsProofClause,  /* Clause is in the set of support.*/
@@ -97,8 +97,8 @@ typedef enum
                                              with this clause are
                                              necessary */
    CP_CSSCPA_1      = 2*CPNoGeneration,   /* CSSCPA clause sources */
-   CP_CSSCPA_2      = 2*CP_CSSCPA_1, 
-   CP_CSSCPA_4      = 2*CP_CSSCPA_2, 
+   CP_CSSCPA_2      = 2*CP_CSSCPA_1,
+   CP_CSSCPA_4      = 2*CP_CSSCPA_2,
    CP_CSSCPA_8      = 2*CP_CSSCPA_4,
    CP_CSSCPA_Mask   = CP_CSSCPA_1|CP_CSSCPA_2|CP_CSSCPA_4|CP_CSSCPA_8,
    CP_CSSCPA_Unkown = 0,
@@ -268,9 +268,9 @@ long     ClauseStructWeightLexCompare(Clause_p c1, Clause_p c2);
 bool     ClauseIsACRedundant(Clause_p clause);
 
 #define  ClauseIsEquational(clause) \
-         EqnListIsEquational(clause->literals) 
+         EqnListIsEquational(clause->literals)
 #define  ClauseIsPureEquational(clause) \
-         EqnListIsPureEquational(clause->literals) 
+         EqnListIsPureEquational(clause->literals)
 
 #define  ClauseTermSetProp(clause, prop) \
          EqnListTermSetProp((clause)->literals, (prop))
@@ -302,7 +302,7 @@ void     ClausePrintQuery(FILE* out, Clause_p clause, bool fullterms);
 void     ClausePrintTPTPFormat(FILE* out, Clause_p clause);
 void     ClausePrintLOPFormat(FILE* out, Clause_p clause, bool fullterms);
 
-void     ClausePrint(FILE* out, Clause_p clause, bool fullterms); 
+void     ClausePrint(FILE* out, Clause_p clause, bool fullterms);
 void     ClausePCLPrint(FILE* out, Clause_p clause, bool fullterms);
 void     ClauseTSTPCorePrint(FILE* out, Clause_p clause, bool fullterms);
 void     ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms,

@@ -66,9 +66,9 @@ void TempFileCleanup(void)
       if(unlink(temp_file_store->key))
       {
 	 sprintf(ErrStr, "Could not remove temporary file %s",
-		 temp_file_store->key);	 
+		 temp_file_store->key);
 	 Warning(ErrStr);
-      }      
+      }
       StrTreeDeleteEntry(&temp_file_store, temp_file_store->key);
    }
 }
@@ -90,7 +90,7 @@ void TempFileRegister(char *name)
    StrTree_p res;
    IntOrP tmp;
 
-   tmp.p_val = NULL;     
+   tmp.p_val = NULL;
    res = StrTreeStore(&temp_file_store, name, tmp, tmp);
    UNUSED(res); assert(res);
 }
@@ -114,15 +114,15 @@ char* TempFileName(void)
    int fd;
    char *res, *tmp;
    DStr_p name = DStrAlloc();
-   
+
    tmp = getenv("TMPDIR");
    if(tmp)
    {
-      DStrAppendStr(name, tmp); 
+      DStrAppendStr(name, tmp);
    }
    else
    {
-      DStrAppendStr(name, "/tmp"); 
+      DStrAppendStr(name, "/tmp");
    }
    DStrAppendStr(name, "/epr_XXXXXX");
 
@@ -131,12 +131,12 @@ char* TempFileName(void)
    if(fd==-1)
    {
       Error("Could not create valid temporary file name", FILE_ERROR);
-   }   
+   }
    close(fd);
    res = SecureStrdup(DStrView(name));
    DStrFree(name);
    TempFileRegister(res);
-   
+
    return res;
 }
 

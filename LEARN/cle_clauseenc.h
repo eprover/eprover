@@ -5,7 +5,7 @@ File  : cle_clauseenc.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for dealing with term representations of clauses.
 
   Copyright 1998, 1999 by the author.

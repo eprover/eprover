@@ -5,7 +5,7 @@ File  : cio_commandline.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for handling options and recognising non-option
   arguments.
 
@@ -46,10 +46,10 @@ Changes
 //
 //   Print str up to the last blank character before the len's
 //   character or the first newline, whichever is first, followed by a
-//   newline. If there is no blank, break at 
+//   newline. If there is no blank, break at
 //   character number len. Returns a pointer to the first character
 //   following the break, or NULL if the string was printed
-//    completely. 
+//    completely.
 //
 // Global Variables: -
 //
@@ -75,7 +75,7 @@ static char* print_start_of_str(FILE* out, char* str, int len)
 	 blank = search;
 	 i=len;
 	 break;
-      }      
+      }
       search++;
       i++;
    }
@@ -109,7 +109,7 @@ static char* print_start_of_str(FILE* out, char* str, int len)
       }
       putc('\n', out);
       return str;
-   }      
+   }
 }
 
 /*-----------------------------------------------------------------------
@@ -118,7 +118,7 @@ static char* print_start_of_str(FILE* out, char* str, int len)
 //
 //   Shift a 0-terminated array of char* elements left by one,
 //   dropping the first element. Return false if no element is
-//   present. 
+//   present.
 //
 // Global Variables: -
 //
@@ -129,7 +129,7 @@ static char* print_start_of_str(FILE* out, char* str, int len)
 static bool shift_array_left(char* array[])
 {
    int i;
-   
+
    if(!array[0])
    {
       return false;
@@ -160,7 +160,7 @@ static Opt_p find_long_opt(char* option, OptCell options[])
 {
    int   i;
    unsigned int len;
-   
+
    option+=2; /* Jump -- */
    len = 0;
    while(option[len])
@@ -224,13 +224,13 @@ static Opt_p find_short_opt(char option, OptCell options[])
 //
 /----------------------------------------------------------------------*/
 
-static Opt_p process_long_option(CLState_p state, char** arg, 
+static Opt_p process_long_option(CLState_p state, char** arg,
 			  OptCell options[])
 {
    Opt_p handle;
    char* eq_sign;
    DStr_p err = DStrAlloc();
-   
+
    if(!(handle = find_long_opt(state->argv[state->argi], options)))
    {
       DStrAppendStr(err, "Unknown Option: ");
@@ -292,9 +292,9 @@ static Opt_p process_long_option(CLState_p state, char** arg,
 //   state->argc[state->argi][state->sc_opt_c]: Find the option, check
 //   for argument, set *arg to an argument, update state.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -304,7 +304,7 @@ static Opt_p process_short_option(CLState_p state, char** arg,
    Opt_p  handle;
    DStr_p err = DStrAlloc();
    char*  optstr = state->argv[state->argi];
-   
+
    if(!(handle = find_short_opt(optstr[state->sc_opt_c], options)))
    {
       DStrAppendStr(err, "Unknown Option: -");
@@ -370,7 +370,7 @@ static Opt_p process_short_option(CLState_p state, char** arg,
    return handle;
 }
 
-      
+
 /*-----------------------------------------------------------------------
 //
 // Function: append_option_desc()
@@ -386,7 +386,7 @@ static Opt_p process_short_option(CLState_p state, char** arg,
 static void append_option_desc(DStr_p string, Opt_p option)
 {
    assert(option->shortopt || option->longopt);
-   
+
    if(option->shortopt)
    {
       DStrAppendChar(string, '-');
@@ -438,7 +438,7 @@ CLState_p CLStateAlloc(int argc, char* argv[])
       handle->argv[i] = argv[i];
    }
    handle->argv[argc] = NULL;
-   
+
    shift_array_left(handle->argv);
    handle->argc--;
    return handle;
@@ -490,7 +490,7 @@ int CLStateInsertArg(CLState_p state, char* arg)
    state->argv[state->argc] = arg;
    state->argc++;
    state->argv[state->argc] = NULL;
-   
+
    return state->argc;
 }
 
@@ -512,7 +512,7 @@ Opt_p CLStateGetOpt(CLState_p state, char** arg, OptCell options[])
 {
    while(state->argv[state->argi])
    {
-      if((state->argv[state->argi][0]=='-') && 
+      if((state->argv[state->argi][0]=='-') &&
 	 (state->argv[state->argi][1]!='\0'))
       {
 	 break;
@@ -566,7 +566,7 @@ double CLStateGetFloatArg(Opt_p option, char* arg)
    errno = 0;
 
    ret = strtod(arg, &eoarg);
-   
+
    if(errno || *eoarg)
    {
       DStr_p err = DStrAlloc();
@@ -608,13 +608,13 @@ long CLStateGetIntArg(Opt_p option, char* arg)
    char* eoarg;
 
    errno = 0;
-   
+
    ret = strtol(arg, &eoarg, 10);
-   
+
    if(errno || *eoarg)
    {
       DStr_p err = DStrAlloc();
-      TmpErrno = errno;      
+      TmpErrno = errno;
       append_option_desc(err, option);
       DStrAppendStr(err, " expects integer instead of '");
       DStrAppendStr(err, arg);
@@ -658,14 +658,14 @@ bool CLStateGetBoolArg(Opt_p option, char* arg)
    {
       return false;
    }
-   
+
    err = DStrAlloc();
    append_option_desc(err, option);
    DStrAppendStr(err, " expects 'true' or 'false' instead of '");
    DStrAppendStr(err, arg);
    DStrAppendChar(err, '\'');
    Error(DStrView(err), USAGE_ERROR);
-   DStrFree(err); /* Symmetry */   
+   DStrFree(err); /* Symmetry */
    return false; /* Just to stiffle warings */
 }
 
@@ -703,9 +703,9 @@ void PrintOption(FILE* out, Opt_p option)
       assert(false);
       break;
    }
-   
+
    assert(option->longopt || option->shortopt);
-   
+
    if(option->shortopt)
    {
       fprintf(out, "   -%c%s\n", option->shortopt,
@@ -715,13 +715,13 @@ void PrintOption(FILE* out, Opt_p option)
    {
       fprintf(out, "  --%s%s\n", option->longopt, l_argdesc);
    }
-   
+
    DStrAppendStr(optdesc, option->desc);
-   
+
    if(option->type ==OptArg)
    {
       assert(option->longopt);
-      
+
       if(option->shortopt)
       {
 	 DStrAppendStr(optdesc,
@@ -740,7 +740,7 @@ void PrintOption(FILE* out, Opt_p option)
       DStrAppendStr(optdesc, option->arg_default);
       DStrAppendStr(optdesc, ".");
    }
-   
+
    desc = DStrView(optdesc);
    while(desc)
    {
@@ -757,7 +757,7 @@ void PrintOption(FILE* out, Opt_p option)
 // Function: PrintOptions()
 //
 //   Print the whole option array (terminated by an OptCell with type
-//   NoOption. 
+//   NoOption.
 //
 // Global Variables: -
 //
@@ -768,7 +768,7 @@ void PrintOption(FILE* out, Opt_p option)
 void PrintOptions(FILE* out, OptCell option[], char* header)
 {
    int i;
-   
+
    if(header)
    {
       fprintf(out, "%s", header);

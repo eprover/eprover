@@ -5,7 +5,7 @@ File  : can_clausestore.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions dealing with compact clause representations.
 
   Copyright 1998, 1999 by the author.
@@ -52,7 +52,7 @@ long dummy;
 // Function: CompClauseFree()
 //
 //   Release the memory taken by a compact clause, release term
-//   references. 
+//   references.
 //
 // Global Variables: -
 //
@@ -99,7 +99,7 @@ void CompClauseAddTerms(CompClause_p clause, Clause_p term_clause)
 	  literal->next)
    {
       assert(i<clause->literal_no);
-      
+
       clause->sign[i] = EqnIsPositive(literal);
       clause->lit_terms[(2*i)]  = literal->lterm;
       clause->lit_terms[(2*i)+1]= literal->rterm;
@@ -122,7 +122,7 @@ void CompClauseRemoveTerms(CompClause_p clause, TB_p bank)
 {
    assert(clause->lit_terms);
    assert(clause->sign);
-   
+
    /* Terms will be garbage-collected automatically */
    SizeFree(clause->sign, clause->literal_no*sizeof(short));
    clause->sign = NULL;
@@ -149,14 +149,14 @@ CompClause_p PackClause(Clause_p clause)
 
    handle->properties = CPIgnoreProps;
    handle->lit_terms = NULL;
-   handle->sign = NULL;   
+   handle->sign = NULL;
    handle->ident = clause->ident;
    handle->g_parents = NULL;
    handle->s_parents = NULL;
    handle->stats.subsumed = 0;
    handle->ext_ident = 0;
    CompClauseAddTerms(handle, clause);
-   
+
    return handle;
 }
 
@@ -178,10 +178,10 @@ Clause_p UnpackClause(CompClause_p clause, TB_p bank)
    Eqn_p    list=NULL, *eqn = &list;
    Clause_p handle;
    int i;
-   
+
    for(i=0; i<clause->literal_no; i++)
    {
-      *eqn = EqnAlloc(clause->lit_terms[(2*i)], 
+      *eqn = EqnAlloc(clause->lit_terms[(2*i)],
 		      clause->lit_terms[(2*i)+1],
 		      bank, clause->sign[i]);
       eqn = &((*eqn)->next);
@@ -206,9 +206,9 @@ Clause_p UnpackClause(CompClause_p clause, TB_p bank)
 CompClause_p CompactifyClause(Clause_p clause)
 {
    CompClause_p handle = PackClause(clause);
-   
+
    ClauseFree(clause);
-   
+
    return handle;
 }
 
@@ -227,9 +227,9 @@ CompClause_p CompactifyClause(Clause_p clause)
 Clause_p UnCompactifyClause(CompClause_p clause, TB_p bank)
 {
    Clause_p handle = UnpackClause(clause, bank);
-   
+
    CompClauseFree(clause, bank);
-   
+
    return handle;
 }
 
@@ -271,7 +271,7 @@ void CompClausePrint(FILE* out, CompClause_p compact, TB_p bank, bool
 void CompClausePCLPrint(FILE* out, CompClause_p compact, TB_p bank)
 {
    Clause_p clause;
-   
+
    clause = UnpackClause(compact, bank);
    ClausePCLPrint(out, clause, true);
    ClauseFree(clause);

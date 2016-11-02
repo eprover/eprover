@@ -5,11 +5,11 @@ File  : cte_varsets.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Data structures for representing sets of variables. This is similar
   in concept to cte_varhash.c, but for a different application and
   hence with different access characteristics (extremely fast
-  lookup). 
+  lookup).
 
   Copyright 2014 by the author.
   This code is released under the GNU General Public Licence and
@@ -39,7 +39,7 @@ Changes
 
 typedef struct var_set_cell
 {
-   Term_p  t;           /* Term or formula covered by this structure */ 
+   Term_p  t;           /* Term or formula covered by this structure */
    bool    valid;       /* Is it up-to-date? */
    PTree_p vars;
 }VarSetCell, *VarSet_p;

@@ -1690,7 +1690,7 @@
 #endif
 
 #if defined(CHE_HEURISTICS_INTERNAL) || defined(TO_ORDERING_INTERNAL)
-        
+
    else if(
       ( /* CLASS_G-SM-FSMM31-S Solved: 8 of 8 */
        SpecAxiomsAreGeneral(spec)&&

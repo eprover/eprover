@@ -5,7 +5,7 @@ File  : clb_pstacks.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Soemwhat efficient unlimited growth stacks for pointers/long ints.
 
   Copyright 1998, 1999 by the author.
@@ -39,7 +39,7 @@ typedef long   PStackPointer;
 typedef struct pstackcell
 {
    long          size;    /* ...of allocated memory */
-   PStackPointer current; /* First unused address, 0 for empty stack */  
+   PStackPointer current; /* First unused address, 0 for empty stack */
    IntOrP        *stack;  /* Stack area */
 }PStackCell, *PStack_p;
 
@@ -100,8 +100,8 @@ static __inline__ IntOrP *PStackElementRef(PStack_p stack, PStackPointer pos);
 void     PStackDiscardElement(PStack_p stack, PStackPointer i);
 
 void     PStackSort(PStack_p stack, ComparisonFunctionType cmpfun);
-void     PStackMerge(PStack_p st1, PStack_p st2, PStack_p res, 
-                     ComparisonFunctionType cmpfun); 
+void     PStackMerge(PStack_p st1, PStack_p st2, PStack_p res,
+                     ComparisonFunctionType cmpfun);
 
 double   PStackComputeAverage(PStack_p stack, double *deviation);
 
@@ -153,12 +153,12 @@ static __inline__ void push(PStack_p stack, IntOrP val)
 static __inline__ PStack_p PStackAlloc(void)
 {
    PStack_p handle;
-   
+
    handle = PStackCellAlloc();
    handle->size = PSTACK_DEFAULT_SIZE;
    handle->current = 0;
    handle->stack = SizeMalloc(handle->size * sizeof(IntOrP));
-   
+
    return handle;
 }
 
@@ -178,12 +178,12 @@ static __inline__ PStack_p PStackAlloc(void)
 static __inline__ PStack_p PStackVarAlloc(long size)
 {
    PStack_p handle;
-   
+
    handle = PStackCellAlloc();
    handle->size = size;
    handle->current = 0;
    handle->stack = SizeMalloc(handle->size * sizeof(IntOrP));
-   
+
    return handle;
 }
 
@@ -204,7 +204,7 @@ static __inline__ void  PStackFree(PStack_p junk)
 {
    assert(junk);
    assert(junk->stack);
-   
+
    SizeFree(junk->stack, junk->size * sizeof(IntOrP));
    PStackCellFree(junk);
 }
@@ -270,7 +270,7 @@ static __inline__ void PStackPushInt(PStack_p stack, long val)
 {
    IntOrP help;
    help.i_val = val;
-   
+
    push(stack, help);
 }
 
@@ -290,7 +290,7 @@ static __inline__ void PStackPushP(PStack_p stack, void* val)
 {
    IntOrP help;
    help.p_val = val;
-   
+
    push(stack, help);
 }
 
@@ -301,16 +301,16 @@ static __inline__ void PStackPushP(PStack_p stack, void* val)
 //
 //   Implement pop operation for non-empty pstacks.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
 static __inline__ IntOrP PStackPop(PStack_p stack)
 {
    assert(stack->current);
-   
+
    stack->current--;
    return stack->stack[stack->current];
 }
@@ -322,16 +322,16 @@ static __inline__ IntOrP PStackPop(PStack_p stack)
 //
 //   Do a PStackPop without returning result, to avoid warnings.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
 static __inline__ void PStackDiscardTop(PStack_p stack)
 {
    assert(stack->current);
-   
+
    stack->current--;
 }
 
@@ -351,7 +351,7 @@ static __inline__ void PStackDiscardTop(PStack_p stack)
 static __inline__ IntOrP PStackTop(PStack_p stack)
 {
    assert(stack->current);
-   
+
    return stack->stack[stack->current-1];
 }
 
@@ -362,7 +362,7 @@ static __inline__ IntOrP PStackTop(PStack_p stack)
 // Function: PStackBelowTop()
 //
 //   Return second item on the stack (asserts that stack has >=2
-//   elements). 
+//   elements).
 //
 // Global Variables: -
 //
@@ -373,7 +373,7 @@ static __inline__ IntOrP PStackTop(PStack_p stack)
 static __inline__ IntOrP PStackBelowTop(PStack_p stack)
 {
    assert(stack->current>=2);
-   
+
    return stack->stack[stack->current-2];
 }
 

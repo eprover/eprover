@@ -5,7 +5,7 @@ File  : cl_test.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Main program for the CLIB test programm
 
   Copyright 1998, 1999 by the author.
@@ -52,7 +52,7 @@ typedef enum
 /*---------------------------------------------------------------------*/
 
 OptCell opts[] =
-{   
+{
    {OPT_NOOPT,
     '\0', NULL,
     NoArg, NULL,
@@ -73,7 +73,7 @@ void print_help(FILE* out);
 /*---------------------------------------------------------------------*/
 
 int main(int argc, char* argv[])
-{   
+{
    CLState_p state;
    int i,key;
    PDRangeArr_p arr1, arr2;
@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
    InitIO(argv[0]);
 
    state = process_options(argc, argv);
-   
+
    arr1 = PDRangeArrAlloc(4, 4);
    arr2 = PDRangeArrAlloc(4, GROW_EXPONENTIAL);
    map  = IntMapAlloc();
@@ -106,14 +106,14 @@ int main(int argc, char* argv[])
       printf("arr2[%d]=%ld\n", key, PDRangeArrElementInt(arr2,key));
       assert(key==PDRangeArrElementInt(arr2,key));
       printf("map[%d]=%ld\n", key, (long)IntMapGetVal(map,key));
-      
+
    }
    PStackFree(stack);
-  
+
    IntMapFree(map);
    PDRangeArrFree(arr2);
    PDRangeArrFree(arr1);
-     
+
 
    CLStateFree(state);
    ExitIO();
@@ -134,7 +134,7 @@ int main(int argc, char* argv[])
 //   a CLState object containing the remaining arguments.
 //
 // Global Variables: opts, Verbose, TermPrologArgs,
-//                   TBPrintInternalInfo 
+//                   TBPrintInternalInfo
 //
 // Side Effects    : Sets variables, may terminate with program
 //                   description if option -h or --help was present
@@ -146,9 +146,9 @@ CLState_p process_options(int argc, char* argv[])
    Opt_p handle;
    CLState_p state;
    char*  arg;
-   
+
    state = CLStateAlloc(argc,argv);
-   
+
    while((handle = CLStateGetOpt(state, &arg, opts)))
    {
       switch(handle->option_code)
@@ -160,7 +160,7 @@ CLState_p process_options(int argc, char* argv[])
    }
    return state;
 }
- 
+
 void print_help(FILE* out)
 {
    fprintf(out, "\n\

@@ -5,7 +5,7 @@ File  : cle_indexfunctions.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions and data types realizing simple index function for
   learning heuristics.
 
@@ -73,7 +73,7 @@ static Term_p any_term_top(IndexType type, Term_p term, int depth,
 			   VarBank_p freshvars)
 {
    Term_p result;
-   
+
    switch(type)
    {
    case IndexTop:
@@ -148,7 +148,7 @@ char* GetIndexName(IndexType type)
    {
    case IndexNoIndex:
 	 return IndexFunNames[0];
-   case IndexArity: 
+   case IndexArity:
 	 return IndexFunNames[2];
    case IndexSymbol:
 	 return IndexFunNames[3];
@@ -156,7 +156,7 @@ char* GetIndexName(IndexType type)
 	 return IndexFunNames[4];
    case IndexAltTop:
 	 return IndexFunNames[5];
-   case IndexCSTop:   
+   case IndexCSTop:
 	 return IndexFunNames[6];
    case IndexESTop:
 	 return IndexFunNames[7];
@@ -164,7 +164,7 @@ char* GetIndexName(IndexType type)
 	 return IndexFunNames[8];
    case IndexEmpty:
 	 return IndexFunNames[9];
-   default:	 
+   default:
 	 return IndexFunNames[1];
    }
 }
@@ -211,7 +211,7 @@ void IndexTermFree(IndexTerm_p junk, TB_p bank)
 {
    assert(junk);
    assert(bank);
-   
+
    IndexTermCellFree(junk);
 }
 
@@ -269,7 +269,7 @@ int IndexTermCompareFun(const void* term1, const void* term2)
 //
 /----------------------------------------------------------------------*/
 
-TSMIndex_p TSMIndexAlloc(IndexType type, int depth, TB_p bank, 
+TSMIndex_p TSMIndexAlloc(IndexType type, int depth, TB_p bank,
 			 PatternSubst_p subst)
 {
    TSMIndex_p handle = TSMIndexCellAlloc();
@@ -331,7 +331,7 @@ void TSMIndexFree(TSMIndex_p junk)
    PStack_p stack;
    PTree_p  cell;
    assert(junk);
-   
+
    switch(junk->type)
    {
    case IndexArity:
@@ -399,7 +399,7 @@ long TSMIndexFind(TSMIndex_p index, Term_p term, PatternSubst_p subst)
 	    key = term->f_code;
 	 }
 	 else
-	 {	    
+	 {
 	    key = PatSymbValue(subst, term->f_code);
 	    assert(key);
 	 }
@@ -424,7 +424,7 @@ long TSMIndexFind(TSMIndex_p index, Term_p term, PatternSubst_p subst)
 	    found = cell2->key;
 	    res = found->key;
 	 }
-	 TermFree(query.term);	
+	 TermFree(query.term);
 	 break;
    case IndexIdentity:
 	 query.term  = term;
@@ -442,7 +442,7 @@ long TSMIndexFind(TSMIndex_p index, Term_p term, PatternSubst_p subst)
    default:
 	 assert(false && "Unknown index type");
 	 break;
-   }	    
+   }
    return res;
 }
 
@@ -489,7 +489,7 @@ long TSMIndexInsert(TSMIndex_p index, Term_p term)
 	    key = term->f_code;
 	 }
 	 else
-	 {	    
+	 {
 	    key = PatSymbValue(index->subst, term->f_code);
 	    assert(key);
 	 }
@@ -498,7 +498,7 @@ long TSMIndexInsert(TSMIndex_p index, Term_p term)
 	 cell->val1.i_val = index->count;
 	 cell->val2.i_val = index->count;
 	 old = NumTreeInsert(&(index->tree.n_index), cell);
-	 if(old)    
+	 if(old)
 	 {
 	    NumTreeCellFree(cell);
 	    res = old->val1.i_val;
@@ -534,7 +534,7 @@ long TSMIndexInsert(TSMIndex_p index, Term_p term)
 				  IndexTermCompareFun);
 	    assert(!entry);
 	 }
-	 TermFree(query.term);	
+	 TermFree(query.term);
 	 break;
    case IndexIdentity:
 	 query.term  = term;
@@ -564,7 +564,7 @@ long TSMIndexInsert(TSMIndex_p index, Term_p term)
 	 assert(false && "Unknown index type");
 	 res = 0; /* Stiffle warnings */
 	 break;
-   }	    
+   }
     return res;
 }
 
@@ -610,16 +610,16 @@ void TSMIndexPrint(FILE* out, TSMIndex_p index, int depth)
 	 {
 	    f_code = PatternSubstGetOriginalSymbol(index->subst,
 						   ncell->key);
-	    
+
 	    fprintf(out, "# %s#%10ld :%7ld  %7ld     %s\n", pattern2,
 		    ncell->key,
-		    ncell->val1.i_val, 
+		    ncell->val1.i_val,
 		    f_code,
 		    ((f_code > 0))&&(f_code<=index->bank->sig->f_count)?
 		    SigFindName(index->bank->sig, f_code):"variable");
 	    i++;
 	 }
-	 NumTreeTraverseExit(stack);	 
+	 NumTreeTraverseExit(stack);
 	 fprintf(out, "# %s%ld alternatives in the index\n",
 		 pattern2, i);
 	 break;
@@ -651,7 +651,7 @@ void TSMIndexPrint(FILE* out, TSMIndex_p index, int depth)
    default:
 	 assert(false && "Unknown index type");
 	 break;
-   }	    
+   }
 }
 
 

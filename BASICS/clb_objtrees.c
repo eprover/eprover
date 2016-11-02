@@ -5,7 +5,7 @@ File  : clb_objtrees.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for object storing SPLAY trees.
 
   Copyright 1998, 1999 by the author.
@@ -41,7 +41,7 @@ Changes
 
 /*-----------------------------------------------------------------------
 //
-// Function: splay_tree() 
+// Function: splay_tree()
 //
 //   Perform the splay operation on tree at node with key.
 //
@@ -52,26 +52,26 @@ Changes
 /----------------------------------------------------------------------*/
 
 static PObjTree_p splay_tree(PObjTree_p tree, void* key,
-			  ComparisonFunctionType cmpfun) 
+			  ComparisonFunctionType cmpfun)
 {
    PObjTree_p   left, right, tmp;
    PTreeCell newnode;
    int       cmpres;
 
-   if (!tree) 
+   if (!tree)
    {
       return tree;
    }
-   
+
    newnode.lson = NULL;
    newnode.rson = NULL;
    left = &newnode;
    right = &newnode;
-   
-   for (;;) 
+
+   for (;;)
    {
       cmpres = cmpfun(key, tree->key);
-      if (cmpres < 0) 
+      if (cmpres < 0)
       {
 	 if(!tree->lson)
 	 {
@@ -91,20 +91,20 @@ static PObjTree_p splay_tree(PObjTree_p tree, void* key,
 	 right->lson = tree;
 	 right = tree;
 	 tree = tree->lson;
-      } 
+      }
       else if(cmpres > 0)
       {
 	 if (!tree->rson)
 	 {
 	    break;
 	 }
-	 if(cmpfun(key, tree->rson->key) > 0) 
+	 if(cmpfun(key, tree->rson->key) > 0)
 	 {
 	    tmp = tree->rson;
 	    tree->rson = tmp->lson;
 	    tmp->lson = tree;
 	    tree = tmp;
-	    if (!tree->rson) 
+	    if (!tree->rson)
 	    {
 	       break;
 	    }
@@ -113,7 +113,7 @@ static PObjTree_p splay_tree(PObjTree_p tree, void* key,
 	 left = tree;
 	 tree = tree->rson;
       }
-      else 
+      else
       {
 	 break;
       }
@@ -122,7 +122,7 @@ static PObjTree_p splay_tree(PObjTree_p tree, void* key,
    right->lson = tree->rson;
    tree->lson = newnode.rson;
    tree->rson = newnode.lson;
-   
+
    return tree;
 }
 
@@ -152,7 +152,7 @@ PObjTree_p PTreeObjInsert(PObjTree_p *root, PObjTree_p newnode,
 		    ComparisonFunctionType cmpfun)
 {
    int cmpres;
-   if (!*root) 
+   if (!*root)
    {
       newnode->lson = newnode->rson = NULL;
       *root = newnode;
@@ -161,16 +161,16 @@ PObjTree_p PTreeObjInsert(PObjTree_p *root, PObjTree_p newnode,
    *root = splay_tree(*root, newnode->key, cmpfun);
 
    cmpres = cmpfun(newnode->key, (*root)->key);
-   
-   if (cmpres < 0) 
+
+   if (cmpres < 0)
    {
       newnode->lson = (*root)->lson;
       newnode->rson = *root;
       (*root)->lson = NULL;
       *root = newnode;
       return NULL;
-   } 
-   else if(cmpres > 0) 
+   }
+   else if(cmpres > 0)
    {
       newnode->rson = (*root)->rson;
       newnode->lson = *root;
@@ -191,7 +191,7 @@ PObjTree_p PTreeObjInsert(PObjTree_p *root, PObjTree_p newnode,
 //   Store object in the tree. If an object that is equal to obj
 //   already exists in the tree, return it, otherwise return NULL.
 //
-//   otherwise. 
+//   otherwise.
 //
 // Global Variables: -
 //
@@ -206,7 +206,7 @@ void* PTreeObjStore(PObjTree_p *root, void* key,
 
    handle = PTreeCellAlloc();
    handle->key = key;
- 
+
    newnode = PTreeObjInsert(root, handle, cmpfun);
 
    if(newnode)
@@ -231,11 +231,11 @@ void* PTreeObjStore(PObjTree_p *root, void* key,
 /----------------------------------------------------------------------*/
 
 PObjTree_p PTreeObjFind(PObjTree_p *root, void* key, ComparisonFunctionType
-		     cmpfun) 
+		     cmpfun)
 {
    if(*root)
    {
-      *root = splay_tree(*root, key, cmpfun);  
+      *root = splay_tree(*root, key, cmpfun);
       if(cmpfun((*root)->key, key)==0)
       {
 	 return *root;
@@ -249,7 +249,7 @@ PObjTree_p PTreeObjFind(PObjTree_p *root, void* key, ComparisonFunctionType
 // Function: PTreeObjFindObj()
 //
 //   Find and return object matching key (if any), return NULL if
-//   none. 
+//   none.
 //
 // Global Variables: -
 //
@@ -261,7 +261,7 @@ void* PTreeObjFindObj(PObjTree_p *root, void* key,
                       ComparisonFunctionType cmpfun)
 {
    PObjTree_p node = PTreeObjFind(root, key, cmpfun);
-   
+
    if(node)
    {
       return node->key;
@@ -285,7 +285,7 @@ void* PTreeObjFindObj(PObjTree_p *root, void* key,
 /----------------------------------------------------------------------*/
 
 PObjTree_p PTreeObjFindBinary(PObjTree_p root, void* key, ComparisonFunctionType
-			   cmpfun) 
+			   cmpfun)
 {
    int cmpres;
 
@@ -340,7 +340,7 @@ PObjTree_p PTreeObjExtractEntry(PObjTree_p *root, void* key,
       if (!(*root)->lson)
       {
 	 x = (*root)->rson;
-      } 
+      }
       else
       {
 	 x = splay_tree((*root)->lson, key, cmpfun);
@@ -373,7 +373,7 @@ void* PTreeObjExtractObject(PObjTree_p *root, void* key,
 {
    PObjTree_p handle;
    void*   res = NULL;
-   
+
    handle = PTreeObjExtractEntry(root, key, cmpfun);
    if(handle)
    {
@@ -439,7 +439,7 @@ void PTreeObjMerge(PObjTree_p *root, PObjTree_p add, ComparisonFunctionType
 	 UNUSED(res); assert(!res); /* Pointers should never be in two trees at
                                      once for my intended application */
       }
-   } 
+   }
    PStackFree(stack);
 }
 
@@ -486,7 +486,7 @@ long PObjTreeNodes(PObjTree_p root)
    long     res   = 0;
 
    PStackPushP(stack, root);
-   
+
    while(!PStackEmpty(stack))
    {
       root = PStackPopP(stack);
@@ -499,7 +499,7 @@ long PObjTreeNodes(PObjTree_p root)
    }
    PStackFree(stack);
 
-   return res;   
+   return res;
 }
 
 

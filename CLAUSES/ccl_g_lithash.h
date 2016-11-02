@@ -5,7 +5,7 @@ File  : ccl_g_lithash.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Algorithms and data structures implementing a simple literal
   indexing structure for implementing local unification constraints
   for the grounding procedure.
@@ -16,7 +16,7 @@ Copyright 1998-2011 by the author.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes 
+Changes
 
 <1> Wed Jun 20 15:26:11 CEST 2001
     New
@@ -37,7 +37,7 @@ typedef struct lit_desc_cell
 {
    Term_p   lit; /* The actual literal (left hand side of E equation -
 		    we are only doing this for non-equational literals
-		 */ 
+		 */
    Clause_p clause; /* If literal occurs in exactly one clause, note
 		       it here, otherwise this is 0. Note that only
 		       literals actually occurring in the clause set

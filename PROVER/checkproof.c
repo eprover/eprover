@@ -5,8 +5,8 @@ File  : checkproof.c
 Author: Stephan Schulz
 
 Contents
- 
-  Read a PCL protocol and try to verify it using a selected prover. 
+
+  Read a PCL protocol and try to verify it using a selected prover.
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
@@ -58,8 +58,8 @@ typedef enum
 
 OptCell opts[] =
 {
-   {OPT_HELP, 
-    'h', "help", 
+   {OPT_HELP,
+    'h', "help",
     NoArg, NULL,
     "Print a short description of program usage and options."},
 
@@ -68,8 +68,8 @@ OptCell opts[] =
     NoArg, NULL,
     "Print the version number of the program."},
 
-   {OPT_VERBOSE, 
-    'v', "verbose", 
+   {OPT_VERBOSE,
+    'v', "verbose",
     OptArg, "1",
     "Verbose comments on the progress of the program."},
 
@@ -77,7 +77,7 @@ OptCell opts[] =
     'o', "output-file",
     ReqArg, NULL,
    "Redirect output into the named file."},
-    
+
    {OPT_SILENT,
     's', "silent",
     NoArg, NULL,
@@ -88,13 +88,13 @@ OptCell opts[] =
     ReqArg, NULL,
     "Select an output level, greater values imply more verbose"
     " output. At the moment, level 0 only prints the result, level 1"
-    " prints inference steps as they are verified, level 2 prints" 
+    " prints inference steps as they are verified, level 2 prints"
     " prover commands issued, and level 3 prints all prover output"
     " (which may be very little)"},
-  
+
    {OPT_PROVERTYPE,
     'p', "prover-type",
-    ReqArg, NULL, 
+    ReqArg, NULL,
     "Set the type of the prover to use for proof"
     " verification. Determines problem syntax, options, and check for"
     " success. Supported options at are  'E' (the"
@@ -102,21 +102,21 @@ OptCell opts[] =
     " implemented). SPASS support is only tested with SPASS"
     " 0.55 and may fail if the problem contains identifiers reserved "
     "by SPASS. There have been some supple syntax changes, so more"
-    " recent SPASS versions will probably fail as well."}, 
-    
+    " recent SPASS versions will probably fail as well."},
+
    {OPT_EXECUTABLE,
     'x', "executable",
-    ReqArg, NULL, 
+    ReqArg, NULL,
     "Give the name under which the prover can be called. If no"
     " executable is given, checkproof will guess a name based on the"
     " type of the prover. This guess may be way off!"},
 
    {OPT_TIME_LIMIT,
     't', "prover-cpu-limit",
-    ReqArg, NULL, 
+    ReqArg, NULL,
     "Limit the CPU time prover may spend on a single step. Default is"
     " 10 seconds."},
-   
+
    {OPT_NOOPT,
     '\0', NULL,
     NoArg, NULL,
@@ -144,7 +144,7 @@ void print_help(FILE* out);
 int main(int argc, char* argv[])
 {
    CLState_p   state;
-   Scanner_p   in; 
+   Scanner_p   in;
    PCLProt_p   prot;
    long        steps,res,unchecked;
    int         i;
@@ -178,18 +178,18 @@ int main(int argc, char* argv[])
       ScannerSetFormat(in, TPTPFormat);
       steps+=PCLProtParse(in, prot);
       CheckInpTok(in, NoToken);
-      DestroyScanner(in); 
+      DestroyScanner(in);
    }
    VERBOUT2("PCL input read\n");
-     
+
    res = PCLProtCheck(prot,prover,executable,time_limit, &unchecked);
 
-   fprintf(GlobalOut, 
-	      "# Successfully checked %ld of %ld steps (%ld unchecked): ", 
+   fprintf(GlobalOut,
+	      "# Successfully checked %ld of %ld steps (%ld unchecked): ",
 	      res, steps, unchecked);
 
    if(res==steps)
-   {        
+   {
       fprintf(GlobalOut, " Proof verified!\n");
    }
    else if((res+unchecked) == steps)
@@ -198,23 +198,23 @@ int main(int argc, char* argv[])
    }
    else
    {
-      fprintf(GlobalOut, 
+      fprintf(GlobalOut,
 	      " Failed to verify proof!\n");
    }
-   
+
    PCLProtFree(prot);
 
    CLStateFree(state);
-   
+
    fflush(GlobalOut);
    OutClose(GlobalOut);
    ExitIO();
-   
+
 #ifdef CLB_MEMORY_DEBUG
    MemFlushFreeList();
    MemDebugPrintStats(stdout);
 #endif
-   
+
    return 0;
 }
 
@@ -226,7 +226,7 @@ int main(int argc, char* argv[])
 //   Read and process the command line option, return (the pointer to)
 //   a CLState object containing the remaining arguments.
 //
-// Global Variables: 
+// Global Variables:
 //
 // Side Effects    : Sets variables, may terminate with program
 //                   description if option -h or --help was present
@@ -238,9 +238,9 @@ CLState_p process_options(int argc, char* argv[])
    Opt_p handle;
    CLState_p state;
    char*  arg;
-   
+
    state = CLStateAlloc(argc,argv);
-   
+
    while((handle = CLStateGetOpt(state, &arg, opts)))
    {
       switch(handle->option_code)
@@ -248,7 +248,7 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_VERBOSE:
 	    Verbose = CLStateGetIntArg(handle, arg);
 	    break;
-      case OPT_HELP: 
+      case OPT_HELP:
 	    print_help(stdout);
 	    exit(NO_ERROR);
       case OPT_VERSION:

@@ -5,7 +5,7 @@ File  : ccl_axiomsorter.c
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Code implementing axiom sorting.
 
   Copyright 2009 by the author.
@@ -164,7 +164,7 @@ int WAxiomCmp(WAxiom_p s1, WAxiom_p s2)
    {
       return 1;
    }
-   return PCmp(s1, s2);   
+   return PCmp(s1, s2);
 }
 
 /*-----------------------------------------------------------------------

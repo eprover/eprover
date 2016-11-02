@@ -5,7 +5,7 @@ File  : che_fcode_featurearrays.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Sortable arrays associating a function symbol with a number of
   integer feature values (that define the order). Used by precedence
   generating functions, now also for weights.

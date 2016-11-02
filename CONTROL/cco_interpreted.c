@@ -10,7 +10,7 @@ Contents
   mostly consists of preliminary ad-hoc implementations. Once enough
   substance has accumulated, this may (or may not, given how reality
   deals with running code) be refactored into something nice and
-  general.  
+  general.
 
   Copyright 2011 by the author.
   This code is released under the GNU General Public Licence.
@@ -58,7 +58,7 @@ Changes
 /----------------------------------------------------------------------*/
 
 void answer_lit_print(FILE* out, Eqn_p lit)
-{  
+{
    Term_p answer_term;
    int i;
    char *sep="";
@@ -77,7 +77,7 @@ void answer_lit_print(FILE* out, Eqn_p lit)
          fprintf(out, "%s", sep);
          TBPrintTermFull(out, lit->bank, answer_term->args[i]);
          sep = ", ";
-      }      
+      }
    }
    else
    {
@@ -130,7 +130,7 @@ void ClausePrintAnswer(FILE* out, Clause_p clause, ProofState_p state)
             answer_lit_print(out, handle);
             handle = handle->next;
          }
-      }      
+      }
       fprintf(out, "%s", ClauseLiteralNumber(clause)>1?")":"");
       fprintf(out, "|_]\n");
    }
@@ -153,21 +153,21 @@ void ClausePrintAnswer(FILE* out, Clause_p clause, ProofState_p state)
 
 int ClauseEvaluateAnswerLits(Clause_p clause)
 {
-   Eqn_p handle;     
+   Eqn_p handle;
    int res = 0;
 
    assert(!ClauseIsAnyPropSet(clause, CPIsDIndexed|CPIsSIndexed));
-   
+
    if(ClauseIsSemFalse(clause))
    {
-      res = EqnListRemoveSimpleAnswers(&(clause->literals));      
+      res = EqnListRemoveSimpleAnswers(&(clause->literals));
 
       if(res)
       {
          clause->neg_lit_no = 0;
-         clause->pos_lit_no = 0;   
+         clause->pos_lit_no = 0;
          handle = clause->literals;
-         
+
          while(handle)
          {
             if(EqnIsPositive(handle))
@@ -180,7 +180,7 @@ int ClauseEvaluateAnswerLits(Clause_p clause)
             }
             handle = handle->next;
          }
-         
+
          if(clause->set)
          {
             clause->set->literals-=res;

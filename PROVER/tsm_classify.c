@@ -5,7 +5,7 @@ File  : tsm_classify.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Read a set of annotated terms (the training
   set) and a second set of annotated terms (the test set). Build a tsm
   from the first set and evaluated the second set.
@@ -41,7 +41,7 @@ typedef enum
    OPT_NOOPT=0,
    OPT_HELP,
    OPT_VERSION,
-   OPT_VERBOSE,  
+   OPT_VERBOSE,
    OPT_OUTPUTLEVEL,
    OPT_OUTPUT,
    OPT_INDEXFUN,
@@ -57,8 +57,8 @@ typedef enum
 
 OptCell opts[] =
 {
-   {OPT_HELP, 
-    'h', "help", 
+   {OPT_HELP,
+    'h', "help",
     NoArg, NULL,
     "Print a short description of program usage and options."},
 
@@ -67,8 +67,8 @@ OptCell opts[] =
     NoArg, NULL,
     "Print the version number of the program."},
 
-   {OPT_VERBOSE, 
-    'v', "verbose", 
+   {OPT_VERBOSE,
+    'v', "verbose",
     OptArg, "1",
     "Verbose comments on the progress of the program."},
 
@@ -126,8 +126,8 @@ void print_help(FILE* out);
 int main(int argc, char* argv[])
 {
    CLState_p      state;
-   Scanner_p      in;    
-   char*          infile;      
+   Scanner_p      in;
+   char*          infile;
    SortTable_p    sort_table;
    Sig_p          sig;
    TB_p           bank;
@@ -146,36 +146,36 @@ int main(int argc, char* argv[])
    state = process_options(argc, argv);
 
    OpenGlobalOut(outname);
-   
+
    if(state->argc ==  0)
    {
       CLStateInsertArg(state, "-");
    }
    infile = TempFileName();
    ConcatFiles(infile, state->argv);
-   
+
    in = CreateScanner(StreamTypeFile, infile, true, NULL);
-   
+
    sort_table = DefaultSortTableAlloc();
    sig = SigAlloc(sort_table);
    bank = TBAlloc(sig);
    AcceptInpId(in, "Training");
-   AcceptInpTok(in, Colon);   
+   AcceptInpTok(in, Colon);
    training_set = AnnoSetParse(in, bank, 2); /* (Sources, Class) ->2 */
-   AcceptInpTok(in, Fullstop);   
+   AcceptInpTok(in, Fullstop);
    AnnoSetFlatten(training_set, ANNOTATIONS_MERGE_ALL);
-   
+
    AcceptInpId(in, "Test");
    AcceptInpTok(in, Colon);
    test_set = AnnoSetParse(in, bank, 2);
-   AcceptInpTok(in, Fullstop);   
+   AcceptInpTok(in, Fullstop);
    AnnoSetFlatten(test_set, ANNOTATIONS_MERGE_ALL);
-   DestroyScanner(in);   
+   DestroyScanner(in);
    TempFileRemove(infile);
    FREE(infile);
    SigSetAllSpecial(sig, true);
 
-   ftrain_set = FlatAnnoSetAlloc();  
+   ftrain_set = FlatAnnoSetAlloc();
    ftest_set  = FlatAnnoSetAlloc();
    weights = DDArrayAlloc(2,6);
    DDArrayAssign(weights, 0, 1);
@@ -183,9 +183,9 @@ int main(int argc, char* argv[])
    FlatAnnoSetTranslate(ftest_set, test_set, weights->array);
    DDArrayFree(weights);
    admin = TSMAdminAlloc(sig, tsm_type);
-   
+
    VERBOUT("Parsing and preprocessing done\n");
-   
+
    subst = PatternDefaultSubstAlloc(sig);
    AnnoSetComputePatternSubst(subst, training_set);
    AnnoSetComputePatternSubst(subst, test_set);
@@ -197,16 +197,16 @@ int main(int argc, char* argv[])
    admin->unmapped_eval = TSMComputeAverageEval(admin,ftrain_set);
    VERBOUT("TSM build\n");
 
-   successes = TSMClassifySet(admin, ftest_set); 
+   successes = TSMClassifySet(admin, ftest_set);
    nodes     = FlatAnnoSetSize(ftest_set);
    fprintf(GlobalOut, "% ld terms, %ld successes, %5.3f percent\n", nodes,
 	   successes, 100.0*(double)successes/(double)nodes);
-   
+
    TSMAdminFree(admin);
    VERBOUT("TSM freed\n");
    FlatAnnoSetFree(ftrain_set);
    FlatAnnoSetFree(ftest_set);
-   PatternSubstFree(subst);   
+   PatternSubstFree(subst);
    AnnoSetFree(training_set);
    AnnoSetFree(test_set);
    bank->sig = 0;
@@ -218,12 +218,12 @@ int main(int argc, char* argv[])
    fflush(GlobalOut);
    OutClose(GlobalOut);
    ExitIO();
-   
+
 #ifdef CLB_MEMORY_DEBUG
    MemFlushFreeList();
    MemDebugPrintStats(stdout);
 #endif
-   
+
    return 0;
 }
 
@@ -235,7 +235,7 @@ int main(int argc, char* argv[])
 //   Read and process the command line option, return (the pointer to)
 //   a CLState object containing the remaining arguments.
 //
-// Global Variables: 
+// Global Variables:
 //
 // Side Effects    : Sets variables, may terminate with program
 //                   description if option -h or --help was present
@@ -247,9 +247,9 @@ CLState_p process_options(int argc, char* argv[])
    Opt_p handle;
    CLState_p state;
    char*  arg;
-   
+
    state = CLStateAlloc(argc,argv);
-   
+
    while((handle = CLStateGetOpt(state, &arg, opts)))
    {
       switch(handle->option_code)
@@ -257,7 +257,7 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_VERBOSE:
 	    Verbose = CLStateGetIntArg(handle, arg);
 	    break;
-      case OPT_HELP: 
+      case OPT_HELP:
 	    print_help(stdout);
 	    exit(NO_ERROR);
       case OPT_VERSION:
@@ -275,10 +275,10 @@ CLState_p process_options(int argc, char* argv[])
 	    if(index_type == -1)
 	    {
 	       DStr_p err = DStrAlloc();
-	       DStrAppendStr(err, 
+	       DStrAppendStr(err,
 			     "Wrong argument to option -i "
 			     "(--index-type). Possible "
-			     "values: "); 
+			     "values: ");
 	       DStrAppendStrArray(err, IndexFunNames, ", ");
 	       Error(DStrView(err), USAGE_ERROR);
 	       DStrFree(err);
@@ -286,7 +286,7 @@ CLState_p process_options(int argc, char* argv[])
 	    else if(index_type == IndexNoIndex)
 	    {
 	       Error("Sorry, need to select a real index type!",
-		     USAGE_ERROR);	      
+		     USAGE_ERROR);
 	    }
 	    break;
       case OPT_INDEXDEPTH:

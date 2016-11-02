@@ -5,7 +5,7 @@ File  : che_hcb.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for the administration of HCBs.
 
   Copyright 1998, 1999 by the author.
@@ -63,7 +63,7 @@ static Clause_p get_next_clause(PStack_p *stacks, int pos)
    {
       return current->object;
    }
-   return NULL;   
+   return NULL;
 }
 
 
@@ -102,12 +102,12 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->no_lit_cmp                    = false;
 
    handle->selection_strategy            = SelectNoLiterals;
-   handle->pos_lit_sel_min               = 0; 
-   handle->pos_lit_sel_max               = LONG_MAX; 
-   handle->neg_lit_sel_min               = 0; 
-   handle->neg_lit_sel_max               = LONG_MAX; 
-   handle->all_lit_sel_min               = 0; 
-   handle->all_lit_sel_max               = LONG_MAX; 
+   handle->pos_lit_sel_min               = 0;
+   handle->pos_lit_sel_max               = LONG_MAX;
+   handle->neg_lit_sel_min               = 0;
+   handle->neg_lit_sel_max               = LONG_MAX;
+   handle->all_lit_sel_min               = 0;
+   handle->all_lit_sel_max               = LONG_MAX;
    handle->weight_sel_min                = 0;
    handle->select_on_proc_only           = false;
    handle->inherit_paramod_lit           = false;
@@ -124,7 +124,7 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
 
    handle->forward_context_sr            = false;
    handle->forward_context_sr_aggressive = false;
-   handle->backward_context_sr           = false; 
+   handle->backward_context_sr           = false;
 
    handle->forward_demod                 = FullRewrite;
    handle->prefer_general                = false;
@@ -174,7 +174,7 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
 HeuristicParms_p HeuristicParmsAlloc(void)
 {
    HeuristicParms_p handle = HeuristicParmsCellAlloc();
-   
+
    HeuristicParmsInitialize(handle);
    return handle;
 }
@@ -194,7 +194,7 @@ HeuristicParms_p HeuristicParmsAlloc(void)
 void HeuristicParmsFree(HeuristicParms_p junk)
 {
    assert(junk);
-   
+
    junk->heuristic_name = NULL;
    /* PStackFree(junk->wfcb_definitions);
       PStackFree(junk->hcb_definitions);*/
@@ -210,19 +210,19 @@ void HeuristicParmsFree(HeuristicParms_p junk)
 //
 //   Return an empty, initialized HCB.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
 HCB_p HCBAlloc(void)
 {
    HCB_p handle = HCBCellAlloc();
- 
+
    handle->wfcb_list     = PDArrayAlloc(4,4);
    handle->wfcb_no       = 0;
-   handle->current_eval  = 0; 
+   handle->current_eval  = 0;
    handle->select_switch = PDArrayAlloc(4,4);
    handle->select_count  = 0;
    handle->hcb_select    = HCBStandardClauseSelect;
@@ -251,7 +251,7 @@ void HCBFree(HCB_p junk)
    /* WFCB's are _not_ freed, as they come from a WFCBAdmin-Block
       anyways! */
    PDArrayFree(junk->wfcb_list);
-   PDArrayFree(junk->select_switch);   
+   PDArrayFree(junk->select_switch);
    if(junk->data)
    {
       junk->hcb_exit(junk->data);
@@ -267,9 +267,9 @@ void HCBFree(HCB_p junk)
 //   Add a WFCB with to the HCB, adjust selection function. Return
 //   number of weight functions in HCB.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -286,7 +286,7 @@ long HCBAddWFCB(HCB_p hcb, WFCB_p wfcb, long steps)
    PDArrayAssignP(hcb->wfcb_list, hcb->wfcb_no, wfcb);
    PDArrayAssignInt(hcb->select_switch, hcb->wfcb_no, steps);
    hcb->wfcb_no++;
-   
+
    hcb->hcb_select = (hcb->wfcb_no != 1) ?
       HCBStandardClauseSelect : HCBSingleWeightClauseSelect;
 
@@ -315,7 +315,7 @@ void HCBClauseEvaluate(HCB_p hcb, Clause_p clause)
    PERF_CTR_ENTRY(ClauseEvalTimer);
    assert(clause->evaluations == NULL);
    ClauseAddEvalCell(clause, EvalsAlloc(hcb->wfcb_no));
-   
+
    empty = ClauseIsSemFalse(clause);
    for(i=0; i< hcb->wfcb_no; i++)
    {
@@ -365,9 +365,9 @@ Clause_p HCBStandardClauseSelect(HCB_p hcb, ClauseSet_p set)
 //
 //   Select a clause from the set based on the first weight.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -400,7 +400,7 @@ long HCBClauseSetDelProp(HCB_p hcb, ClauseSet_p set, long number,
    long prop_cleared = 0;
    PStack_p *stacks = SizeMalloc(hcb->wfcb_no*sizeof(PStack_p));
    Clause_p clause;
-   
+
    for(i=0; i< hcb->wfcb_no; i++)
    {
       stacks[i]=
@@ -423,11 +423,11 @@ long HCBClauseSetDelProp(HCB_p hcb, ClauseSet_p set, long number,
 	       }
 	    }
 	    number--; /* We did our best - this is an easy catch for
-			 the stupid case number > set->members */	    
+			 the stupid case number > set->members */
 	    if(!number)
 	    {
 	       break;
-	    }	
+	    }
 	 }
 	 if(!number)
 	 {
@@ -465,8 +465,8 @@ long HCBClauseSetDeleteBadClauses(HCB_p hcb, ClauseSet_p set, long
    ClauseSetSetProp(set, CPDeleteClause);
    HCBClauseSetDelProp(hcb, set, number, CPDeleteClause);
    res = ClauseSetDeleteMarkedEntries(set);
-   
-   return res;   
+
+   return res;
 }
 
 

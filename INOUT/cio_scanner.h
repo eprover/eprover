@@ -5,7 +5,7 @@ File  : cio_scanner.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Datatypes for the scanner: TokenType, TokenCell, TokenRepCell
 
   Copyright 1998, 1999 by the author.
@@ -39,7 +39,7 @@ Changes
    restriced the set to no more than 32 distinct tokens. As a n
    unsigned long long, we can accomodate at least 64 tokens.
 
-   Note that it is possible to define additional classes consisting of 
+   Note that it is possible to define additional classes consisting of
    more than one particular token (see e.g. SkipToken). If this list
    is extended, you also need to extend token_print_rep[] in
    cio_scanner.c. */
@@ -102,7 +102,7 @@ typedef unsigned long long TokenType;
 /* If your application parses multiple format you can use this to
    distinguish them: */
 
-typedef enum 
+typedef enum
 {
    LOPFormat,
    TPTPFormat,
@@ -125,11 +125,11 @@ typedef struct tokencell
    unsigned long numval;      /* Numerical value (if any) of the token */
    DStr_p        comment;     /* Accumulated preceding comments        */
    bool          skipped;     /* Was this token preceded by SkipSpace? */
-   DStr_p        source;      /* Ref. to the input stream source       */   
+   DStr_p        source;      /* Ref. to the input stream source       */
    StreamType    stream_type; /* File or string? */
    long          line;        /* Position in this stream               */
    long          column;      /*  "               "                    */
-   
+
 }TokenCell, *Token_p;
 
 #define MAXTOKENLOOKAHEAD 4
@@ -150,7 +150,7 @@ typedef struct scannercell
    char*       include_pos; /* If created by "include", by which one? */
 }ScannerCell, *Scanner_p;
 
-    
+
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
@@ -223,7 +223,7 @@ void CheckInpId(Scanner_p in, char* ids);
 
 void NextToken(Scanner_p in);
 
-Scanner_p ScannerParseInclude(Scanner_p in, StrTree_p *name_selector, 
+Scanner_p ScannerParseInclude(Scanner_p in, StrTree_p *name_selector,
                               StrTree_p *skip_includes);
 
 #endif

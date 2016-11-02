@@ -5,7 +5,7 @@ File  : che_axfilter.h
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Code implementing axiom filters as a data type.
 
   Copyright 2011 by the author.
@@ -86,7 +86,7 @@ char* AxFilterDefaultSet ="\
 // Function: get_gen_measure()
 //
 //   Given a string, return the corresponding GenMeasure, or 0 on
-//   failure. 
+//   failure.
 //
 // Global Variables: -
 //
@@ -115,16 +115,16 @@ GeneralityMeasure get_gen_measure(char* str)
 //
 //   Allocate an empty, initialized axiom filter description.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
 AxFilter_p AxFilterAlloc(void)
 {
    AxFilter_p handle = AxFilterCellAlloc();
-   
+
    handle->name                 = NULL;
    handle->type                 = AFNoFilter;
    handle->gen_measure          = GMNoMeasure;
@@ -171,9 +171,9 @@ void AxFilterFree(AxFilter_p junk)
 //
 //   The preliminary syntax is:
 //
-//    GSinE(<g-measure:type>, <[no]hypos>,<benvolvence:double>, 
+//    GSinE(<g-measure:type>, <[no]hypos>,<benvolvence:double>,
 //    <generosity:int>, <rec-depth:int>, <set-size:int>,
-//    <set-fraction:double>) 
+//    <set-fraction:double>)
 //
 //    where "GSinE" represents AFGSineE, "Generalized SinE", currently
 //    the only support filter type. Other filter types can support
@@ -195,20 +195,20 @@ AxFilter_p GSinEParse(Scanner_p in)
    AcceptInpId(in, "GSinE");
    res->type = AFGSinE;
    AcceptInpTok(in, OpenBracket);
-   
+
    res->gen_measure = get_gen_measure(DStrView(AktToken(in)->literal));
 
    if(!res->gen_measure)
    {
-      AktTokenError(in, "Unknown generality measure", false);      
+      AktTokenError(in, "Unknown generality measure", false);
    }
    if(res->gen_measure!=GMTerms && res->gen_measure!=GMFormulas)
    {
-      AktTokenError(in, "Generality measure not yet implemented", false);      
+      AktTokenError(in, "Generality measure not yet implemented", false);
    }
    NextToken(in);
    AcceptInpTok(in, Comma);
-   
+
    if(!TestInpTok(in, Comma))
    {
       CheckInpId(in, "hypos|nohypos");
@@ -216,7 +216,7 @@ AxFilter_p GSinEParse(Scanner_p in)
       {
          res->use_hypotheses = true;
       }
-      NextToken(in);         
+      NextToken(in);
    }
    AcceptInpTok(in, Comma);
    if(!TestInpTok(in, Comma))
@@ -224,7 +224,7 @@ AxFilter_p GSinEParse(Scanner_p in)
       res->benevolence = ParseFloat(in);
    }
    AcceptInpTok(in, Comma);
-   
+
    if(!TestInpTok(in, Comma))
    {
       res->generosity = AktToken(in)->numval;
@@ -242,18 +242,18 @@ AxFilter_p GSinEParse(Scanner_p in)
       res->max_set_size = AktToken(in)->numval;
       AcceptInpTok(in, PosInt);
    }
-   AcceptInpTok(in, Comma); 
+   AcceptInpTok(in, Comma);
    if(!TestInpTok(in, CloseBracket|Comma))
    {
       res->max_set_fraction = ParseFloat(in);
    }
    if(TestInpTok(in, Comma))
    {
-      AcceptInpTok(in, Comma);       
+      AcceptInpTok(in, Comma);
       res->add_no_symbol_axioms = TestInpId(in, "addnosymb");
       AcceptInpId(in, "addnosymb|ignorenosymb");
    }
-  
+
 
    AcceptInpTok(in, CloseBracket);
 
@@ -285,7 +285,7 @@ AxFilter_p ThresholdParse(Scanner_p in)
    AcceptInpId(in, "Threshold");
    res->type = AFThreshold;
    AcceptInpTok(in, OpenBracket);
-   
+
    res->threshold = AktToken(in)->numval;
    AcceptInpTok(in, PosInt);
    AcceptInpTok(in, CloseBracket);
@@ -310,7 +310,7 @@ AxFilter_p ThresholdParse(Scanner_p in)
 AxFilter_p AxFilterParse(Scanner_p in)
 {
    CheckInpId(in, "GSinE|Threshold");
-   
+
    if(TestInpId(in, "GSinE"))
    {
       return GSinEParse(in);
@@ -334,7 +334,7 @@ AxFilter_p AxFilterParse(Scanner_p in)
 //   generated name of the form "axfilter_auto%4udd" is
 //   generated. This name is unique among auto-generated names (up to
 //   the period of unsigned long, but not checked against manually
-//   given names. 
+//   given names.
 //
 // Global Variables: -
 //
@@ -352,9 +352,9 @@ AxFilter_p AxFilterDefParse(Scanner_p in)
    if(TestTok(LookToken(in,1), EqualSign))
    {
       CheckInpTok(in, Identifier);
-      name = SecureStrdup(DStrView(AktToken(in)->literal)); 
+      name = SecureStrdup(DStrView(AktToken(in)->literal));
       NextToken(in);
-      AcceptInpTok(in, EqualSign);      
+      AcceptInpTok(in, EqualSign);
    }
    else
    {
@@ -363,7 +363,7 @@ AxFilter_p AxFilterDefParse(Scanner_p in)
    }
    res = AxFilterParse(in);
    res->name = name;
-   
+
    return res;
 }
 
@@ -390,7 +390,7 @@ bool AxFilterPrintBuf(char* buf, int buflen, AxFilter_p filter)
    {
    case AFGSinE:
          res = snprintf(buf, buflen, "%s(%s, %s, %f, %ld, %ld, %lld, %f)",
-                        "GSinE", 
+                        "GSinE",
                         GeneralityMeasureNames[filter->gen_measure],
                         filter->use_hypotheses?"hypos":"nohypos",
                         filter->benevolence,
@@ -400,7 +400,7 @@ bool AxFilterPrintBuf(char* buf, int buflen, AxFilter_p filter)
                         filter->max_set_fraction);
          break;
    case AFThreshold:
-         res = snprintf(buf, buflen, "Threshold(%ld)", 
+         res = snprintf(buf, buflen, "Threshold(%ld)",
                         filter->threshold);
          break;
    default:
@@ -474,11 +474,11 @@ void AxFilterDefPrint(FILE* out, AxFilter_p filter)
 /----------------------------------------------------------------------*/
 
 AxFilterSet_p AxFilterSetAlloc(void)
-{   
+{
    AxFilterSet_p set = AxFilterSetCellAlloc();
-   
+
    set->set = PStackAlloc();
-   return set;   
+   return set;
 }
 
 
@@ -513,7 +513,7 @@ void AxFilterSetFree(AxFilterSet_p junk)
 // Function: AxFilterSetParse()
 //
 //   Parse a set of axfilter definitions. Returns number of filters
-//   parsed. 
+//   parsed.
 //
 // Global Variables: -
 //
@@ -525,7 +525,7 @@ long AxFilterSetParse(Scanner_p in, AxFilterSet_p set)
 {
    long res = 0;
    AxFilter_p filter;
-   
+
    while(TestInpTok(in, Identifier))
    {
       filter = AxFilterDefParse(in);
@@ -540,7 +540,7 @@ long AxFilterSetParse(Scanner_p in, AxFilterSet_p set)
 // Function: AxFilterSetCreateInternal()
 //
 //   Create and return an AxFilterSet from a provided string
-//   description. 
+//   description.
 //
 // Global Variables: -
 //
@@ -550,10 +550,10 @@ long AxFilterSetParse(Scanner_p in, AxFilterSet_p set)
 
 AxFilterSet_p AxFilterSetCreateInternal(char* str)
 {
-   AxFilterSet_p filters = AxFilterSetAlloc();   
+   AxFilterSet_p filters = AxFilterSetAlloc();
    Scanner_p in = CreateScanner(StreamTypeInternalString, str, true, NULL);
    AxFilterSetParse(in, filters);
-   DestroyScanner(in); 
+   DestroyScanner(in);
    return filters;
 }
 

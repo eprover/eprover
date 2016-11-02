@@ -6,7 +6,7 @@ Author: Stephan Schulz
 
 Contents
 
-  Definition for dealing with lemmas in PCL protocols. 
+  Definition for dealing with lemmas in PCL protocols.
 
 
 Copyright 1998-2011 by the author.
@@ -33,7 +33,7 @@ Changes
 /*---------------------------------------------------------------------*/
 
 
-/* Lemma rating is as follows: 
+/* Lemma rating is as follows:
 
    size   = StandardWeight(lemma)
    actpm  = references as active partner in paramod
@@ -41,15 +41,15 @@ Changes
    act_simpl = references from active simplification
    pas_simpl = references from being simplified
    subsum = references from subsumption (will probably not always be
-              available) 
+              available)
    proof_tree = size of proof tree (unfolded)
-   proof_dag  = size of proof tree seen as a dag  
+   proof_dag  = size of proof tree seen as a dag
 
 
    (1+
-   actpm*actpm_w + 
-   o_gen*o_gen_w + 
-   act_simpl*act_simpl_w + 
+   actpm*actpm_w +
+   o_gen*o_gen_w +
+   act_simpl*act_simpl_w +
    pas_simpl*pas_simpl_w +
    subsum*subsum_w)
    *
@@ -118,21 +118,21 @@ long PCLExprProofSize(PCLProt_p prot, PCLExpr_p expr, InferenceWeight_p iw,
 		      bool use_lemmas);
 long PCLStepProofSize(PCLProt_p prot, PCLStep_p step, InferenceWeight_p iw,
 		      bool use_lemmas);
-void PCLProtComputeProofSize(PCLProt_p prot, InferenceWeight_p iw, 
+void PCLProtComputeProofSize(PCLProt_p prot, InferenceWeight_p iw,
 			     bool use_lemmas);
 
-float PCLStepComputeLemmaWeight(PCLProt_p prot, PCLStep_p step, 
+float PCLStepComputeLemmaWeight(PCLProt_p prot, PCLStep_p step,
 				LemmaParam_p params);
 PCLStep_p PCLProtComputeLemmaWeights(PCLProt_p prot, LemmaParam_p params);
 
-long PCLProtSeqFindLemmas(PCLProt_p prot, LemmaParam_p params, 
-			  InferenceWeight_p iw, long max_number, 
+long PCLProtSeqFindLemmas(PCLProt_p prot, LemmaParam_p params,
+			  InferenceWeight_p iw, long max_number,
 			  float quality_limit);
-long PCLProtRecFindLemmas(PCLProt_p prot, LemmaParam_p params, 
-			  InferenceWeight_p iw, long max_number, 
+long PCLProtRecFindLemmas(PCLProt_p prot, LemmaParam_p params,
+			  InferenceWeight_p iw, long max_number,
 			  float quality_limit);
-long PCLProtFlatFindLemmas(PCLProt_p prot, LemmaParam_p params, 
-			   InferenceWeight_p iw, long max_number, 
+long PCLProtFlatFindLemmas(PCLProt_p prot, LemmaParam_p params,
+			   InferenceWeight_p iw, long max_number,
 			   float quality_limit);
 
 

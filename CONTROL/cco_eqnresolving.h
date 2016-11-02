@@ -5,7 +5,7 @@ File  : cco_eqnresolving.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Routines for the control of equality resolution.
 
   Copyright 1998, 1999 by the author.

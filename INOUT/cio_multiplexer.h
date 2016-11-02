@@ -5,7 +5,7 @@ File  : cio_multiplexer.h
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Code for handling several communication channels.
 
   Copyright 2011 by the author.
@@ -36,8 +36,8 @@ Changes
 typedef struct tcp_channel_cell
 {
    int             sock;
-   PQueue_p        in;   
-   PQueue_p        out;   
+   PQueue_p        in;
+   PQueue_p        out;
 }TCPChannelCell, *TCPChannel_p;
 
 

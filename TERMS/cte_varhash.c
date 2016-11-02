@@ -5,7 +5,7 @@ File  : cte_varhash.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for the management of variable hashs and hashed lists.
 
   Copyright 1998, 1999 by the author.
@@ -118,7 +118,7 @@ int VarHashFunction(Term_p var)
 // Function: VarHashListFind()
 //
 //   Find an entry in the linear list of hash entries. Return NULL on
-//   failure. 
+//   failure.
 //
 // Global Variables: -
 //
@@ -200,7 +200,7 @@ void VarHashAddVarDistrib(VarHash_p hash, Term_p term, DerefType
       deref = PStackPopInt(stack);
       term = PStackPopP(stack);
       term = TermDeref(term, &deref);
-      
+
       if(TermIsVar(term))
       {
 	 VarHashAddValue(hash, term, add);
@@ -236,16 +236,16 @@ void PDArrayAddVarDistrib(PDArray_p array, Term_p term, DerefType
    PStack_p stack = PStackAlloc();
    int      i;
    long     tmp;
-   
+
    PStackPushP(stack, term);
    PStackPushInt(stack, deref);
-   
+
    while(!PStackEmpty(stack))
    {
       deref = PStackPopInt(stack);
       term = PStackPopP(stack);
       term = TermDeref(term, &deref);
-      
+
       if(TermIsVar(term))
       {
 	 tmp = PDArrayElementInt(array, (-(term->f_code)));
@@ -270,4 +270,4 @@ void PDArrayAddVarDistrib(PDArray_p array, Term_p term, DerefType
 
 
 
- 
+

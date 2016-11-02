@@ -7,7 +7,7 @@ Author: Stephan Schulz
 Contents
 
   Positions in PCL2 clauses.
- 
+
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
@@ -98,7 +98,7 @@ void PCL2PosFree(PCL2Pos_p pos)
 //
 // Function: PCL2PosParse()
 //
-//   Parse a PCL2 position of the format 
+//   Parse a PCL2 position of the format
 //   <pos-int> [. L|R [ .<pos-int> ]*].
 //
 // Global Variables: -
@@ -127,7 +127,7 @@ PCL2Pos_p PCL2PosParse(Scanner_p in)
 	 handle->side = RightSide;
       }
       NextToken(in);
-      
+
       if(TestInpTok(in, Fullstop))
       {
 	 handle->termpos = PDArrayAlloc(5,10);

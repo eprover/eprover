@@ -78,7 +78,7 @@ FlatAnnoTerm_p FlatAnnoTermAlloc(Term_p term, double eval, double
 // Function: FlatAnnoTermPrint()
 //
 //   Print a flatly annotated term "t:eval." (mostly for debugging, I
-//   suppose) 
+//   suppose)
 //
 // Global Variables: -
 //
@@ -122,9 +122,9 @@ FlatAnnoSet_p FlatAnnoSetAlloc(void)
 //
 //   Free a set of flatly annotated terms.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -150,7 +150,7 @@ void FlatAnnoSetFree(FlatAnnoSet_p junk)
 // Function: FlatAnnoSetPrint()
 //
 //   Print a set o flatly annotated terms (mostly for debugging, I
-//   suppose) 
+//   suppose)
 //
 // Global Variables: -
 //
@@ -195,11 +195,11 @@ bool FlatAnnoSetAddTerm(FlatAnnoSet_p set, FlatAnnoTerm_p term)
    if(exists)
    {
       res = false;
-      existing_term = exists->val1.p_val;      
+      existing_term = exists->val1.p_val;
       existing_term->eval = (term->eval * term->eval_weight +
 			     existing_term->eval *
 			     existing_term->eval_weight)/
-	 (term->eval_weight + existing_term->eval_weight); 
+	 (term->eval_weight + existing_term->eval_weight);
       existing_term->eval_weight += term->eval_weight;
       existing_term->sources += term->sources;
       FlatAnnoTermFree(term);
@@ -237,7 +237,7 @@ long FlatAnnoSetTranslate(FlatAnnoSet_p flatset, AnnoSet_p set, double
    bool           check;
 
    stack = NumTreeTraverseInit(set->set);
-   
+
    while((handle = NumTreeTraverseNext(stack)))
    {
       old = handle->val1.p_val;
@@ -253,10 +253,10 @@ long FlatAnnoSetTranslate(FlatAnnoSet_p flatset, AnnoSet_p set, double
 			       */
 			       ,
 			       AnnotationCount(old->annotation));
-      
+
       check = FlatAnnoSetAddTerm(flatset, term);
       UNUSED(check); assert(check);
-      res++;      
+      res++;
    }
    NumTreeTraverseExit(stack);
    return res;
@@ -282,13 +282,13 @@ long FlatAnnoSetSize(FlatAnnoSet_p fset)
    FlatAnnoTerm_p term;
 
    stack = NumTreeTraverseInit(fset->set);
-   
+
    while((handle = NumTreeTraverseNext(stack)))
    {
       term = handle->val1.p_val;
       res+=term->sources;
    }
-   NumTreeTraverseExit(stack);   
+   NumTreeTraverseExit(stack);
 
    return res;
 }
@@ -315,13 +315,13 @@ long FlatAnnoTermFlatten(FlatAnnoSet_p set, FlatAnnoTerm_p term)
    Term_p         t;
    FlatAnnoTerm_p handle;
    int i;
-   
+
    PStackPushP(stack, term->term);
    while(!PStackEmpty(stack))
    {
       t = PStackPopP(stack);
       handle = FlatAnnoTermAlloc(t, term->eval, term->eval_weight,
-				 term->sources); 
+				 term->sources);
       FlatAnnoSetAddTerm(set, handle);
       res++;
       for(i=0; i<t->arity; i++)
@@ -361,10 +361,10 @@ long FlatAnnoSetFlatten(FlatAnnoSet_p set, FlatAnnoSet_p to_flatten)
    {
       res+=FlatAnnoTermFlatten(set, handle->val1.p_val);
    }
-   NumTreeTraverseExit(stack);   
+   NumTreeTraverseExit(stack);
 
    return res;
-} 
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -399,7 +399,7 @@ double FlatAnnoSetEvalAverage(FlatAnnoSet_p set)
       res+=term->eval;
       sources+=term->sources;
    }
-   NumTreeTraverseExit(stack);   
+   NumTreeTraverseExit(stack);
 
    return res/(double)sources;
 }
@@ -438,7 +438,7 @@ double FlatAnnoSetEvalWeightedAverage(FlatAnnoSet_p set)
       res+=term->eval_weight*term->eval;
       weight+=term->eval_weight;
    }
-   NumTreeTraverseExit(stack);   
+   NumTreeTraverseExit(stack);
 
    return res/weight;
 }

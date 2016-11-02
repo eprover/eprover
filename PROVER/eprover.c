@@ -5,7 +5,7 @@ File  : eprover.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Main program for the E equational theorem prover.
 
 Copyright 1998-2014 by the author.
@@ -62,7 +62,7 @@ FVIndexParms_p    fvi_parms;
 bool              print_sat = false,
                   print_full_deriv = false,
                   print_statistics = false,
-                  filter_sat = false,   
+                  filter_sat = false,
                   print_rusage = false,
                   print_pid = false,
                   print_version = false,
@@ -84,10 +84,10 @@ ProofOutput       print_derivation = PONone;
 long              proc_training_data;
 
 IOFormat          parse_format = AutoFormat;
-long              step_limit = LONG_MAX, 
-                  answer_limit = 1,   
+long              step_limit = LONG_MAX,
+                  answer_limit = 1,
                   proc_limit = LONG_MAX,
-                  unproc_limit = LONG_MAX, 
+                  unproc_limit = LONG_MAX,
                   total_limit = LONG_MAX,
                   eqdef_maxclauses = DEFAULT_EQDEF_MAXCLAUSES,
                   relevance_prune_level = 0;
@@ -128,12 +128,12 @@ void print_help(FILE* out);
 //
 /----------------------------------------------------------------------*/
 
-ProofState_p parse_spec(CLState_p state, 
+ProofState_p parse_spec(CLState_p state,
                         IOFormat parse_format_local,
                         bool error_on_empty_local,
                         FunctionProperties free_symb_prop_local,
                         long* ax_no)
-{   
+{
    ProofState_p proofstate;
    Scanner_p in;
    int i;
@@ -150,14 +150,14 @@ ProofState_p parse_spec(CLState_p state,
          OutputFormat = TSTPFormat;
          DocOutputFormat = tstp_format;
       }
-      
-      FormulaAndClauseSetParse(in, proofstate->axioms, 
+
+      FormulaAndClauseSetParse(in, proofstate->axioms,
                                proofstate->f_axioms,
-                               proofstate->/* original_*/terms, 
+                               proofstate->/* original_*/terms,
                                NULL,
                                &skip_includes);
       CheckInpTok(in, NoToken);
-      DestroyScanner(in); 
+      DestroyScanner(in);
    }
    VERBOUT2("Specification read\n");
 
@@ -200,7 +200,7 @@ static void print_info(void)
    {
       fprintf(GlobalOut, "# Version: " VERSION "\n");
       fflush(GlobalOut);
-   }   
+   }
 }
 
 /*-----------------------------------------------------------------------
@@ -212,11 +212,11 @@ static void print_info(void)
 //
 // Global Variables: OutputLevel,
 //                   print_statistics
-//                   GlobalOut, 
+//                   GlobalOut,
 //                   ClauseClauseSubsumptionCalls,
 //                   ClauseClauseSubsumptionCallsRec,
 //                   ClauseClauseSubsumptionSuccesses,
-//                   UnitClauseClauseSubsumptionCalls, 
+//                   UnitClauseClauseSubsumptionCalls,
 //                   RewriteUnboundVarFails,
 //                   BWRWMatchAttempts,
 //                   BWRWMatchSuccesses,
@@ -225,17 +225,17 @@ static void print_info(void)
 //                   (possibly) UnifAttempts,
 //                   (possibly) UnifSuccesses,
 //                   (possibly) PDTNodeCounter
-//                   (possibly) MguTimer);     
-//                   (possibly) SatTimer);     
-//                   (possibly) ParamodTimer); 
-//                   (possibly) PMIndexTimer); 
+//                   (possibly) MguTimer);
+//                   (possibly) SatTimer);
+//                   (possibly) ParamodTimer);
+//                   (possibly) PMIndexTimer);
 //                   (possibly) IndexUnifTimer)
-//                   (possibly) BWRWTimer);    
+//                   (possibly) BWRWTimer);
 //                   (possibly) BWRWIndexTimer)
 //                   (possibly) IndexMatchTimer
-//                   (possibly) FreqVecTimer); 
-//                   (possibly) FVIndexTimer); 
-//                   (possibly) SubsumeTimer); 
+//                   (possibly) FreqVecTimer);
+//                   (possibly) FVIndexTimer);
+//                   (possibly) SubsumeTimer);
 //                   (possibly) SetSubsumeTimer
 //
 // Side Effects    : Output of collected statistics.
@@ -243,11 +243,11 @@ static void print_info(void)
 /----------------------------------------------------------------------*/
 
 static void print_proof_stats(ProofState_p proofstate,
-                              long parsed_ax_no, 
-                              long relevancy_pruned, 
-                              long raw_clause_no, 
+                              long parsed_ax_no,
+                              long relevancy_pruned,
+                              long raw_clause_no,
                               long preproc_removed)
-                           
+
 {
    if(OutputLevel||print_statistics)
    {
@@ -307,14 +307,14 @@ static void print_proof_stats(ProofState_p proofstate,
       fprintf(GlobalOut, "# Backwards rewriting index : ");
       FPIndexDistribDataPrint(GlobalOut, proofstate->gindices.bw_rw_index);
       fprintf(GlobalOut, "\n");
-      /*FPIndexPrintDot(GlobalOut, "rw_bw_index", 
+      /*FPIndexPrintDot(GlobalOut, "rw_bw_index",
         proofstate->gindices.bw_rw_index,
         SubtermTreePrintDot,
         proofstate->signature);*/
       fprintf(GlobalOut, "# Paramod-from index        : ");
       FPIndexDistribDataPrint(GlobalOut, proofstate->gindices.pm_from_index);
       fprintf(GlobalOut, "\n");
-      FPIndexPrintDot(GlobalOut, "pm_from_index", 
+      FPIndexPrintDot(GlobalOut, "pm_from_index",
                       proofstate->gindices.pm_from_index,
                       SubtermTreePrintDot,
                       proofstate->signature);
@@ -350,14 +350,14 @@ int main(int argc, char* argv[])
    CLState_p        state;
    ProofState_p     proofstate;
    ProofControl_p   proofcontrol;
-   Clause_p         success = NULL, 
+   Clause_p         success = NULL,
                     filter_success;
    bool             out_of_clauses;
    char             *finals_state = "exists",
                     *sat_status = "Derivation";
    long             cnf_size = 0,
                     raw_clause_no,
-                    preproc_removed=0, 
+                    preproc_removed=0,
                     neg_conjectures,
                     parsed_ax_no,
                     relevancy_pruned = 0;
@@ -375,12 +375,12 @@ int main(int argc, char* argv[])
    ESignalSetup(SIGXCPU);
 
    h_parms = HeuristicParmsAlloc();
-   fvi_parms = FVIndexParmsAlloc();   
+   fvi_parms = FVIndexParmsAlloc();
    wfcb_definitions = PStackAlloc();
    hcb_definitions = PStackAlloc();
 
    state = process_options(argc, argv);
-  
+
    OpenGlobalOut(outname);
    print_info();
 
@@ -390,9 +390,9 @@ int main(int argc, char* argv[])
       CLStateInsertArg(state, "-");
    }
 
-   proofstate = parse_spec(state, parse_format, 
+   proofstate = parse_spec(state, parse_format,
                            error_on_empty, free_symb_prop,
-                           &parsed_ax_no);  
+                           &parsed_ax_no);
 
    relevancy_pruned += ProofStateSinE(proofstate, sine);
    relevancy_pruned += ProofStatePreprocess(proofstate, relevance_prune_level);
@@ -407,7 +407,7 @@ int main(int argc, char* argv[])
 
    if(prune_only)
    {
-      fprintf(GlobalOut, "\n# Pruning successful!\n");	    
+      fprintf(GlobalOut, "\n# Pruning successful!\n");
       TSTPOUT(GlobalOut, "Unknown");
       goto cleanup1;
    }
@@ -419,11 +419,11 @@ int main(int argc, char* argv[])
    if(BuildProofObject)
    {
       FormulaSetArchive(proofstate->f_axioms, proofstate->f_ax_archive);
-   }   
+   }
    if((neg_conjectures =
-       FormulaSetPreprocConjectures(proofstate->f_axioms, 
+       FormulaSetPreprocConjectures(proofstate->f_axioms,
                                     proofstate->f_ax_archive,
-                                    answer_limit>0, 
+                                    answer_limit>0,
                                     conjectures_are_questions)))
    {
       VERBOUT("Negated conjectures.\n");
@@ -433,8 +433,8 @@ int main(int argc, char* argv[])
    {
       cnf_size = FormulaSetCNF2(proofstate->f_axioms,
                                 proofstate->f_ax_archive,
-                                proofstate->axioms, 
-                                proofstate->terms, 
+                                proofstate->axioms,
+                                proofstate->terms,
                                 proofstate->freshvars,
                                 proofstate->gc_terms);
    }
@@ -442,19 +442,19 @@ int main(int argc, char* argv[])
    {
       cnf_size = FormulaSetCNF(proofstate->f_axioms,
                                proofstate->f_ax_archive,
-                               proofstate->axioms, 
-                               proofstate->terms, 
+                               proofstate->axioms,
+                               proofstate->terms,
                                proofstate->freshvars,
                                proofstate->gc_terms);
    }
-      
-   
+
+
    if(cnf_size)
    {
       VERBOUT("CNFization done\n");
    }
 
-   raw_clause_no = proofstate->axioms->members;   
+   raw_clause_no = proofstate->axioms->members;
    if(!no_preproc)
    {
       if(BuildProofObject)
@@ -469,12 +469,12 @@ int main(int argc, char* argv[])
 					    proofstate->watchlist,
                                             proofstate->archive,
 					    proofstate->tmp_terms,
-					    eqdef_incrlimit, 
+					    eqdef_incrlimit,
                                             eqdef_maxclauses);
    }
 
    proofcontrol = ProofControlAlloc();
-   ProofControlInit(proofstate, proofcontrol, h_parms, 
+   ProofControlInit(proofstate, proofcontrol, h_parms,
                     fvi_parms, wfcb_definitions, hcb_definitions);
    PCLFullTerms = pcl_full_terms; /* Preprocessing always uses full
 				     terms, so we set the flag for
@@ -483,12 +483,12 @@ int main(int argc, char* argv[])
                      proofstate->signature,
                      proofcontrol->heuristic_parms.rw_bw_index_type,
                      "NoIndex",
-                     "NoIndex");   
+                     "NoIndex");
    ProofStateInit(proofstate, proofcontrol);
    ProofStateInitWatchlist(proofstate, proofcontrol->ocb,
                            watchlist_filename, parse_format);
 
-   VERBOUT2("Prover state initialized\n");   
+   VERBOUT2("Prover state initialized\n");
    preproc_time = GetTotalCPUTime();
    if(print_rusage)
    {
@@ -496,7 +496,7 @@ int main(int argc, char* argv[])
    }
    if(proofcontrol->heuristic_parms.presat_interreduction)
    {
-      LiteralSelectionFun sel_strat = 
+      LiteralSelectionFun sel_strat =
          proofcontrol->heuristic_parms.selection_strategy;
 
       proofcontrol->heuristic_parms.selection_strategy = SelectNoGeneration;
@@ -510,14 +510,14 @@ int main(int argc, char* argv[])
       }
    }
    PERF_CTR_ENTRY(SatTimer);
-   
+
    if(!success)
-   {      
+   {
       success = Saturate(proofstate, proofcontrol, step_limit,
                          proc_limit, unproc_limit, total_limit, answer_limit);
    }
    PERF_CTR_EXIT(SatTimer);
-   
+
    out_of_clauses = ClauseSetEmpty(proofstate->unprocessed);
    if(filter_sat)
    {
@@ -530,26 +530,26 @@ int main(int argc, char* argv[])
          PStackPushP(proofstate->extract_roots, success);
       }
    }
-   
+
    if(success||proofstate->answer_count)
    {
       assert(!PStackEmpty(proofstate->extract_roots));
       if(success)
       {
          DocClauseQuoteDefault(2, success, "proof");
-      }      
+      }
       fprintf(GlobalOut, "\n# Proof found!\n");
       if(!proofstate->status_reported)
       {
          TSTPOUT(GlobalOut, neg_conjectures?"Theorem":"Unsatisfiable");
          proofstate->status_reported = true;
          retval = PROOF_FOUND;
-      }      
+      }
       if(BuildProofObject)
       {
          if(print_full_deriv)
          {
-            ClauseSetPushClauses(proofstate->extract_roots, 
+            ClauseSetPushClauses(proofstate->extract_roots,
                                  proofstate->processed_pos_rules);
             ClauseSetPushClauses(proofstate->extract_roots,
                                  proofstate->processed_pos_eqns);
@@ -557,9 +557,9 @@ int main(int argc, char* argv[])
                                  proofstate->processed_neg_units);
             ClauseSetPushClauses(proofstate->extract_roots,
                                  proofstate->processed_non_units);
-            ClauseSetPushClauses(proofstate->extract_roots, 
+            ClauseSetPushClauses(proofstate->extract_roots,
                                  proofstate->unprocessed);
-         }         
+         }
          DerivationComputeAndPrint(GlobalOut,
                                    "CNFRefutation",
                                    proofstate->extract_roots,
@@ -567,17 +567,17 @@ int main(int argc, char* argv[])
                                    print_derivation,
                                    OutputLevel||print_statistics);
          ProofStateAnalyseGC(proofstate);
-         ProofStateTrain(proofstate, proc_training_data&TSPrintPos, 
+         ProofStateTrain(proofstate, proc_training_data&TSPrintPos,
                          proc_training_data&TSPrintNeg);
       }
    }
    else if(proofstate->watchlist && ClauseSetEmpty(proofstate->watchlist))
-   {      
-      ProofStatePropDocQuote(GlobalOut, OutputLevel, 
-			     CPSubsumesWatch, proofstate, 
+   {
+      ProofStatePropDocQuote(GlobalOut, OutputLevel,
+			     CPSubsumesWatch, proofstate,
 			     "final_subsumes_wl");
       fprintf(GlobalOut, "\n# Watchlist is empty!\n");
-      TSTPOUT(GlobalOut, "ResourceOut"); 
+      TSTPOUT(GlobalOut, "ResourceOut");
       retval = RESOURCE_OUT;
    }
    else
@@ -593,14 +593,14 @@ int main(int argc, char* argv[])
 
       if(cnf_only)
       {
-         fprintf(GlobalOut, "\n# CNFization successful!\n");	    
+         fprintf(GlobalOut, "\n# CNFization successful!\n");
          TSTPOUT(GlobalOut, "Unknown");
       }
       else if(out_of_clauses)
       {
 	 if(!(inf_sys_complete || assume_inf_sys_complete))
 	 {
-	    fprintf(GlobalOut, 
+	    fprintf(GlobalOut,
 		    "\n# Clause set closed under "
 		    "restricted calculus!\n");
             if(!SilentTimeOut)
@@ -618,15 +618,15 @@ int main(int argc, char* argv[])
 	 }
 	 else
 	 {
-	    fprintf(GlobalOut, "\n# Failure: Out of unprocessed clauses!\n");	    
+	    fprintf(GlobalOut, "\n# Failure: Out of unprocessed clauses!\n");
             if(!SilentTimeOut)
-            {           
-               TSTPOUT(GlobalOut, "GaveUp");	    
+            {
+               TSTPOUT(GlobalOut, "GaveUp");
             }
             retval = INCOMPLETE_PROOFSTATE;
 	 }
       }
-      else 
+      else
       {
 	 fprintf(GlobalOut, "\n# Failure: User resource limit exceeded!\n");
          if(!SilentTimeOut)
@@ -635,11 +635,11 @@ int main(int argc, char* argv[])
          }
          retval = RESOURCE_OUT;
       }
-      if(BuildProofObject && 
+      if(BuildProofObject &&
          (retval!=INCOMPLETE_PROOFSTATE)&&
          (retval!=RESOURCE_OUT))
       {
-         ClauseSetPushClauses(proofstate->extract_roots, 
+         ClauseSetPushClauses(proofstate->extract_roots,
                               proofstate->processed_pos_rules);
          ClauseSetPushClauses(proofstate->extract_roots,
                               proofstate->processed_pos_eqns);
@@ -649,7 +649,7 @@ int main(int argc, char* argv[])
                               proofstate->processed_non_units);
          if(cnf_only)
          {
-            ClauseSetPushClauses(proofstate->extract_roots, 
+            ClauseSetPushClauses(proofstate->extract_roots,
                                  proofstate->unprocessed);
             print_sat = false;
          }
@@ -673,14 +673,14 @@ int main(int argc, char* argv[])
       {
 	 fprintf(GlobalOut, "# Saturated system contains the empty clause:\n");
 	 ClausePrint(GlobalOut, success, true);
-	 fputc('\n',GlobalOut);	 
-	 fputc('\n',GlobalOut);	 
+	 fputc('\n',GlobalOut);
+	 fputc('\n',GlobalOut);
       }
       ProofStatePrintSelective(GlobalOut, proofstate, outdesc,
 			       outinfo);
       fprintf(GlobalOut, "\n");
-   }	 
-   
+   }
+
    if(success)
    {
       ClauseFree(success);
@@ -688,9 +688,9 @@ int main(int argc, char* argv[])
    fflush(GlobalOut);
 
    print_proof_stats(proofstate,
-                     parsed_ax_no, 
-                     relevancy_pruned, 
-                     raw_clause_no, 
+                     parsed_ax_no,
+                     relevancy_pruned,
+                     raw_clause_no,
                      preproc_removed);
 #ifndef FAST_EXIT
 #ifdef FULL_MEM_STATS
@@ -710,7 +710,7 @@ int main(int argc, char* argv[])
 	   sizeof(PDTNodeCell),
 	   sizeof(EvalCell),
 	   sizeof(ClausePosCell),
-	   sizeof(PDArrayCell));	
+	   sizeof(PDArrayCell));
    fprintf(GlobalOut, "# Estimated memory usage: %ld\n",
 	   ProofStateStorage(proofstate));
    MemFreeListPrint(GlobalOut);
@@ -765,16 +765,16 @@ bool check_fp_index_arg(char* arg, char* opt)
       return true;
    }
    err = DStrAlloc();
-   DStrAppendStr(err, 
+   DStrAppendStr(err,
                  "Wrong argument to option ");
-   DStrAppendStr(err, 
+   DStrAppendStr(err,
                  opt);
-   DStrAppendStr(err, 
-                 ". Possible values: "); 
+   DStrAppendStr(err,
+                 ". Possible values: ");
    DStrAppendStrArray(err, FPIndexNames, ", ");
    Error(DStrView(err), USAGE_ERROR);
    DStrFree(err);
-   
+
    return false;
 }
 
@@ -786,7 +786,7 @@ bool check_fp_index_arg(char* arg, char* opt)
 //   Read and process the command line option, return (the pointer to)
 //   a CLState object containing the remaining arguments.
 //
-// Global Variables: opts, Verbose, TBPrintInternalInfo 
+// Global Variables: opts, Verbose, TBPrintInternalInfo
 //
 // Side Effects    : Sets variables, may terminate with program
 //                   description if option -h or --help was present
@@ -802,7 +802,7 @@ CLState_p process_options(int argc, char* argv[])
    rlim_t mem_limit;
 
    state = CLStateAlloc(argc,argv);
-   
+
    while((handle = CLStateGetOpt(state, &arg, opts)))
    {
       switch(handle->option_code)
@@ -810,7 +810,7 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_VERBOSE:
 	    Verbose = CLStateGetIntArg(handle, arg);
 	    break;
-      case OPT_HELP: 
+      case OPT_HELP:
 	    print_help(stdout);
 	    exit(NO_ERROR);
       case OPT_VERSION:
@@ -827,12 +827,12 @@ CLState_p process_options(int argc, char* argv[])
 	    break;
       case OPT_PROOF_OBJECT:
             BuildProofObject = MAX(CLStateGetIntArg(handle, arg), BuildProofObject);
-	    if((BuildProofObject > 3) || 
+	    if((BuildProofObject > 3) ||
 	       (BuildProofObject < 0))
 	    {
 	       Error("Option --proof-object) accepts "
 		     "argument from {0..3}", USAGE_ERROR);
-	    }            
+	    }
             print_derivation = POList;
             break;
       case OPT_PROOF_GRAPH:
@@ -859,7 +859,7 @@ CLState_p process_options(int argc, char* argv[])
 	    break;
       case OPT_PCL_SHELL_LEVEL:
             PCLShellLevel =  CLStateGetIntArg(handle, arg);
-	    if((PCLShellLevel > 2) || 
+	    if((PCLShellLevel > 2) ||
 	       (PCLShellLevel < 0))
 	    {
 	       Error("Option --pcl-shell-level) accepts "
@@ -877,11 +877,11 @@ CLState_p process_options(int argc, char* argv[])
 	    if(!CheckLetterString(outdesc, "eigEIGaA"))
 	    {
 	       Error("Illegal argument to option -S"
-		     " (--print-saturated)", 
+		     " (--print-saturated)",
 		     USAGE_ERROR);
 	    }
 	    print_sat = true;
-	    break;	    
+	    break;
       case OPT_PRINT_SAT_INFO:
 	    outinfo = true;
 	    break;
@@ -892,7 +892,7 @@ CLState_p process_options(int argc, char* argv[])
 	       Error("Illegal argument to option --filter-saturated",
 		     USAGE_ERROR);
 	    }
-	    filter_sat = true;	    
+	    filter_sat = true;
 	    break;
       case OPT_PRUNE_ONLY:
             OutputLevel = 4;
@@ -915,22 +915,22 @@ CLState_p process_options(int argc, char* argv[])
 	    break;
       case OPT_MEM_LIMIT:
             if(strcmp(arg, "Auto")==0)
-            {              
+            {
                long tmpmem =  GetSystemPhysMemory();
-               
+
                if(tmpmem==-1)
                {
                   Error("Cannot find physical memory automatically. "
                         "Give explicit value to --memory-limit", OTHER_ERROR);
-               }               
-               VERBOSE(fprintf(stderr, 
+               }
+               VERBOSE(fprintf(stderr,
                                "Physical memory determined as %ld MB\n",
                                tmpmem););
 
-               mem_limit = 0.8*tmpmem;  
+               mem_limit = 0.8*tmpmem;
                if(mem_limit > 2048)
                {  /* Many OSes cannot handle more than 2GB per process */
-                  mem_limit = 2048; 
+                  mem_limit = 2048;
                }
                h_parms->delete_bad_limit =
                   (float)(mem_limit-2)*0.7*MEGA;
@@ -940,7 +940,7 @@ CLState_p process_options(int argc, char* argv[])
                /* We expect the user to know what he is doing */
                mem_limit = CLStateGetIntArg(handle, arg);
             }
-            VERBOSE(fprintf(stderr, 
+            VERBOSE(fprintf(stderr,
                             "Memory limit set to %lld MB\n",
                             (long long)mem_limit););
             h_parms->mem_limit = MEGA*mem_limit;
@@ -964,7 +964,7 @@ CLState_p process_options(int argc, char* argv[])
             {
                Error("Soft time limit has to be smaller than hard"
 			"time limit", USAGE_ERROR);
-	    }	    
+	    }
 	    break;
       case OPT_RUSAGE_INFO:
 	    print_rusage = true;
@@ -973,7 +973,7 @@ CLState_p process_options(int argc, char* argv[])
 	    step_limit = CLStateGetIntArg(handle, arg);
 	    break;
       case OPT_ANSWER_LIMIT:
-	    answer_limit = CLStateGetIntArg(handle, arg);            
+	    answer_limit = CLStateGetIntArg(handle, arg);
 	    break;
       case OPT_CONJ_ARE_QUEST:
             conjectures_are_questions = true;
@@ -1005,7 +1005,7 @@ CLState_p process_options(int argc, char* argv[])
 	    EqnUseInfix = false;
 	    break;
       case OPT_TPTP_FORMAT:
-	    parse_format = TPTPFormat;	    
+	    parse_format = TPTPFormat;
 	    OutputFormat = TPTPFormat;
 	    EqnFullEquationalRep = false;
 	    EqnUseInfix = false;
@@ -1044,7 +1044,7 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_AUTO_SCHED:
             strategy_scheduling = true;
-            sine = "Auto";                        
+            sine = "Auto";
             break;
       case OPT_SATAUTO_SCHED:
             strategy_scheduling = true;
@@ -1118,10 +1118,10 @@ CLState_p process_options(int argc, char* argv[])
 	    if(!h_parms->selection_strategy)
 	    {
 	       DStr_p err = DStrAlloc();
-	       DStrAppendStr(err, 
+	       DStrAppendStr(err,
 			     "Wrong argument to option -W "
 			     "(--literal-selection-strategy). Possible "
-			     "values: "); 
+			     "values: ");
 	       LitSelAppendNames(err);
 	       Error(DStrView(err), USAGE_ERROR);
 	       DStrFree(err);
@@ -1166,13 +1166,13 @@ CLState_p process_options(int argc, char* argv[])
 	    break;
       case OPT_DELETE_BAD_LIMIT:
 	    h_parms->delete_bad_limit = CLStateGetIntArg(handle, arg);
-	    break; 
+	    break;
       case OPT_ASSUME_COMPLETENESS:
             assume_inf_sys_complete = true;
-	    break;	    
+	    break;
       case OPT_ASSUME_INCOMPLETENESS:
             incomplete = true;
-	    break;	    
+	    break;
       case OPT_NO_GC_FORWARD_SIMPL:
             h_parms->enable_given_forward_simpl = false;
             break;
@@ -1199,7 +1199,7 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_SPLIT_TYPES:
 	    h_parms->split_clauses = CLStateGetIntArg(handle, arg);
-	    break;	    
+	    break;
       case OPT_SPLIT_HOW:
 	    tmp = CLStateGetIntArg(handle, arg);
 	    if((tmp < 0) ||(tmp > 2))
@@ -1218,7 +1218,7 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_REWEIGHT_LIMIT:
 	    h_parms->reweight_limit = CLStateGetIntArg(handle, arg);
 	    break;
-      case OPT_ORDERING:	    
+      case OPT_ORDERING:
 	    if(strcmp(arg, "Auto")==0)
 	    {
 	       h_parms->ordertype = AUTO;
@@ -1274,7 +1274,7 @@ CLState_p process_options(int argc, char* argv[])
             else if(strcmp(arg, "LPOCopy")==0)
 	    {
 	       h_parms->ordertype = LPOCopy;
-	    }	       
+	    }
             else if(strcmp(arg, "LPO4")==0)
 	    {
 	       h_parms->ordertype = LPO4;
@@ -1297,7 +1297,7 @@ CLState_p process_options(int argc, char* argv[])
 		     "AutoCASC, AutoDev, AutoSched0, AutoSched1, "
                      "AutoSched2, AutoSched3, AutoSched4, AutoSched5,"
                      "AutoSched6, AutoSched7, Optimize, "
-                     "LPO, LPO4, KBO or KBO6 as an argument", 
+                     "LPO, LPO4, KBO or KBO6 as an argument",
 		     USAGE_ERROR);
 	    }
 	    break;
@@ -1306,14 +1306,14 @@ CLState_p process_options(int argc, char* argv[])
 	    if(!h_parms->to_weight_gen)
 	    {
 	       DStr_p err = DStrAlloc();
-	       DStrAppendStr(err, 
+	       DStrAppendStr(err,
 			     "Wrong argument to option -w "
 			     "(--order-weight-generation). Possible "
-			     "values: "); 
+			     "values: ");
 	       DStrAppendStrArray(err, TOWeightGenNames, ", ");
 	       Error(DStrView(err), USAGE_ERROR);
 	       DStrFree(err);
-	    }		      
+	    }
 	    break;
       case OPT_TO_WEIGHTS:
 	    h_parms->to_pre_weights = arg;
@@ -1323,17 +1323,17 @@ CLState_p process_options(int argc, char* argv[])
 	    if(!h_parms->to_prec_gen)
 	    {
 	       DStr_p err = DStrAlloc();
-	       DStrAppendStr(err, 
+	       DStrAppendStr(err,
 			     "Wrong argument to option -G "
 			     "(--order-precedence-generation). Possible "
-			     "values: "); 
+			     "values: ");
 	       DStrAppendStrArray(err, TOPrecGenNames, ", ");
 	       Error(DStrView(err), USAGE_ERROR);
 	       DStrFree(err);
-	    }		      
+	    }
 	    break;
       case OPT_TO_CONSTWEIGHT:
-	    h_parms->to_const_weight = CLStateGetIntArg(handle, arg); 
+	    h_parms->to_const_weight = CLStateGetIntArg(handle, arg);
 	    if(h_parms->to_const_weight<=0)
 	    {
 	       Error("Argument to option -c (--order-constant-weight) "
@@ -1344,7 +1344,7 @@ CLState_p process_options(int argc, char* argv[])
 	    h_parms->to_pre_prec = arg;
 	    break;
       case OPT_TO_LPO_RECLIMIT:
-	    LPORecursionDepthLimit = CLStateGetIntArg(handle, arg); 
+	    LPORecursionDepthLimit = CLStateGetIntArg(handle, arg);
 	    if(LPORecursionDepthLimit<=0)
 	    {
 	       Error("Argument to option --lpo-recursion-limit "
@@ -1387,7 +1387,7 @@ CLState_p process_options(int argc, char* argv[])
 	    break;
       case OPT_FORWARD_DEMOD:
 	    tmp =  CLStateGetIntArg(handle, arg);
-	    if((tmp > 2) || 
+	    if((tmp > 2) ||
 	       (tmp < 0))
 	    {
 	       Error("Option -F (--forward_demod_level) requires "
@@ -1400,7 +1400,7 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_STRONGSUBSUMPTION:
 	    StrongUnitForwardSubsumption = true;
-	    break;  
+	    break;
       case OPT_WATCHLIST:
             if(strcmp(WATCHLIST_INLINE_STRING, arg)==0 ||
                strcmp(WATCHLIST_INLINE_QSTRING, arg)==0  )
@@ -1430,7 +1430,7 @@ CLState_p process_options(int argc, char* argv[])
 	    else if(strcmp(arg, "Perm")==0)
 	    {
 	       fvi_parms->use_perm_vectors = true;
-	       fvi_parms->eliminate_uninformative = false;       
+	       fvi_parms->eliminate_uninformative = false;
 	    }
 	    else if(strcmp(arg, "PermOpt")==0)
 	    {

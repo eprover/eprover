@@ -5,7 +5,7 @@ File  : che_axiomscan.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Declarations for functions recognizing certain axioms (e.g. AC
   axioms).
 

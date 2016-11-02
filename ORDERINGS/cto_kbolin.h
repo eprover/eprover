@@ -5,7 +5,7 @@ File  : cto_kbolin.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Definitions for implementing a linear time implementation of the
   Knuth-Bendix ordering. The implementation is based in the ideas
   presented in [Loechner:JAR-2006] (Bernd Loechner, "Things to Know

@@ -5,7 +5,7 @@ File  : che_simweight.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions realising clause evaluation with similarities weights.
 
   Copyright 1998, 1999 by the author.
@@ -57,24 +57,24 @@ double sim_eqn_weight(Eqn_p eqn, SimParam_p parms)
    PStack_p stack = PStackAlloc();
    Term_p   lside, rside;
    int      i;
-   
+
    lside = eqn->lterm;
    rside = eqn->rterm;
    PStackPushP(stack, lside);
    PStackPushP(stack, rside);
-   
+
    while(!PStackEmpty(stack))
    {
       rside = PStackPopP(stack);
       lside = PStackPopP(stack);
-      
+
       if(lside->f_code == rside->f_code)
       {
 	 eq_weight += parms->equal_weight;
 	 for(i=0; i<lside->arity; i++)
 	 {
 	    PStackPushP(stack, lside->args[i]);
-	    PStackPushP(stack, rside->args[i]);    
+	    PStackPushP(stack, rside->args[i]);
 	 }
       }
       else
@@ -98,14 +98,14 @@ double sim_eqn_weight(Eqn_p eqn, SimParam_p parms)
 	    }
 	    else
 	    {
-	       clash_weight += parms->term_term_clash * 
+	       clash_weight += parms->term_term_clash *
 		  (TermWeight(lside, 1, 1)+TermWeight(rside, 1, 1));
 	    }
 	 }
       }
    }
    PStackFree(stack);
-   return clash_weight;	 
+   return clash_weight;
 }
 
 
@@ -141,13 +141,13 @@ double sim_weight(Clause_p clause, SimParam_p parms)
 
 /*-----------------------------------------------------------------------
 //
-// Function: SimWeightInit() 
+// Function: SimWeightInit()
 //
 //   Return an initialized WFCB for SimWeight evaluation.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -174,9 +174,9 @@ WFCB_p SimWeightInit(ClausePrioFun prio_fun, double equal_weight, double
 //
 //   Parse a simweight-definition.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -197,7 +197,7 @@ WFCB_p SimWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
    AcceptInpTok(in, Comma);
    term_term_clash = ParseFloat(in);
    AcceptInpTok(in, CloseBracket);
-   
+
    return SimWeightInit(prio_fun, equal_weight, var_var_clash,
 			var_term_clash, term_term_clash);
 }

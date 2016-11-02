@@ -5,7 +5,7 @@ File  : cco_simplification.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Control of simplified clauses
 
   Copyright 1998, 1999 by the author.
@@ -59,10 +59,10 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-void ClauseMoveSimplified(GlobalIndices_p gindices, 
-                          Clause_p clause, 
-                          ClauseSet_p tmp_set, 
-                          ClauseSet_p archive) 
+void ClauseMoveSimplified(GlobalIndices_p gindices,
+                          Clause_p clause,
+                          ClauseSet_p tmp_set,
+                          ClauseSet_p archive)
 {
    // printf("# Removing %p from %p: ", clause, clause->set);ClausePrint(stdout, clause, true);printf("\n");
    ClauseKillChildren(clause);
@@ -70,7 +70,7 @@ void ClauseMoveSimplified(GlobalIndices_p gindices,
    GlobalIndicesDeleteClause(gindices, clause);
    DocClauseQuoteDefault(6, clause, "simplifiable");
    if(BuildProofObject||ClauseIsDemodulator(clause))
-   {      
+   {
       Clause_p new_clause = ClauseFlatCopy(clause);
       ClauseSetInsert(archive, clause);
       ClausePushDerivation(new_clause, DCCnfQuote, clause, NULL);
@@ -79,7 +79,7 @@ void ClauseMoveSimplified(GlobalIndices_p gindices,
    else
    {
       ClauseSetInsert(tmp_set, clause);
-   }   
+   }
 }
 
 
@@ -95,9 +95,9 @@ void ClauseMoveSimplified(GlobalIndices_p gindices,
 //
 /----------------------------------------------------------------------*/
 
-bool RemoveRewritableClauses(OCB_p ocb, ClauseSet_p from, ClauseSet_p into, 
+bool RemoveRewritableClauses(OCB_p ocb, ClauseSet_p from, ClauseSet_p into,
                              ClauseSet_p archive,
-			     Clause_p new_demod, SysDate nf_date, 
+			     Clause_p new_demod, SysDate nf_date,
                              GlobalIndices_p gindices)
 {
    PStack_p stack = PStackAlloc();
@@ -122,7 +122,7 @@ bool RemoveRewritableClauses(OCB_p ocb, ClauseSet_p from, ClauseSet_p into,
 // Function: RemoveRewritableClausesIndexed()
 //
 //   Remove all clauses in gindices->bw_rw_index which can be
-//   rewritten with new_demod. 
+//   rewritten with new_demod.
 //
 // Global Variables: -
 //
@@ -130,16 +130,16 @@ bool RemoveRewritableClauses(OCB_p ocb, ClauseSet_p from, ClauseSet_p into,
 //
 /----------------------------------------------------------------------*/
 
-bool RemoveRewritableClausesIndexed(OCB_p ocb, ClauseSet_p into, 
+bool RemoveRewritableClausesIndexed(OCB_p ocb, ClauseSet_p into,
                                     ClauseSet_p archive,
-                                    Clause_p new_demod, SysDate nf_date, 
+                                    Clause_p new_demod, SysDate nf_date,
                                     GlobalIndices_p gindices)
 {
    PStack_p stack = PStackAlloc();
    Clause_p handle;
    bool     res;
 
-   res = FindRewritableClausesIndexed(ocb, gindices->bw_rw_index, 
+   res = FindRewritableClausesIndexed(ocb, gindices->bw_rw_index,
                                       stack, new_demod, nf_date);
    while(!PStackEmpty(stack))
    {
@@ -168,21 +168,21 @@ bool RemoveRewritableClausesIndexed(OCB_p ocb, ClauseSet_p into,
 //
 /----------------------------------------------------------------------*/
 
-long ClauseSetUnitSimplify(ClauseSet_p set, Clause_p simplifier,                          
-			   ClauseSet_p tmp_set, ClauseSet_p archive, 
+long ClauseSetUnitSimplify(ClauseSet_p set, Clause_p simplifier,
+			   ClauseSet_p tmp_set, ClauseSet_p archive,
                            GlobalIndices_p gindices)
 {
    Clause_p handle, move;
    long res = 0,tmp;
-   
-   handle = set->anchor->succ; 
+
+   handle = set->anchor->succ;
    while(handle!=set->anchor)
    {
       tmp = ClauseUnitSimplifyTest(handle, simplifier);
       if(tmp)
       {
 	 move = handle;
-	 handle = handle->succ;	
+	 handle = handle->succ;
 	 ClauseMoveSimplified(gindices, move, tmp_set, archive);
 	 res++;
       }
@@ -201,9 +201,9 @@ long ClauseSetUnitSimplify(ClauseSet_p set, Clause_p simplifier,
 //   Move clauses that simplifier can contextually simplify-reflect
 //   from from into into. Return number of clauses moved.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -216,9 +216,9 @@ long RemoveContextualSRClauses(ClauseSet_p from,
    PStack_p stack = PStackAlloc();
    long res = 0;
    Clause_p handle;
-   
+
    ClauseSetFindContextSRClauses(from, simplifier, stack);
-   
+
    while(!PStackEmpty(stack))
    {
       handle = PStackPopP(stack);

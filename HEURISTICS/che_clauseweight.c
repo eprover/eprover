@@ -5,7 +5,7 @@ File  : che_clauseweight.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions realising clause evaluation with clause weights.
 
   Copyright 1998, 1999 by the author.
@@ -61,9 +61,9 @@ double uniq_term_weight(Term_p term)
       weight = 3.0;
    }
    else
-   {      
+   {
       int i;
-            
+
       weight = pow(5,term->arity);
       for(i=0; i< term->arity; i++)
       {
@@ -100,7 +100,7 @@ double uniq_eqn_weight(Eqn_p handle)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ClauseWeightInit() 
+// Function: ClauseWeightInit()
 //
 //   Return an initialized WFCB for ClauseWeight evaluation.
 //
@@ -118,7 +118,7 @@ WFCB_p ClauseWeightInit(ClausePrioFun prio_fun, int fweight, int
    data->fweight                = fweight;
    data->vweight                = vweight;
    data->pos_multiplier         = pos_multiplier;
-   
+
    return WFCBAlloc(ClauseWeightCompute, prio_fun,
 		    ClauseWeightExit, data);
 }
@@ -141,7 +141,7 @@ WFCB_p ClauseWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
    ClausePrioFun prio_fun;
    int fweight, vweight;
    double pos_multiplier;
-   
+
    AcceptInpTok(in, OpenBracket);
    prio_fun = ParsePrioFun(in);
    AcceptInpTok(in, Comma);
@@ -151,7 +151,7 @@ WFCB_p ClauseWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
    AcceptInpTok(in, Comma);
    pos_multiplier = ParseFloat(in);
    AcceptInpTok(in, CloseBracket);
-   
+
    return ClauseWeightInit(prio_fun, fweight, vweight,
 			   pos_multiplier);
 }
@@ -172,17 +172,17 @@ WFCB_p ClauseWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
 double ClauseWeightCompute(void* data, Clause_p clause)
 {
    WeightParam_p local = data;
-   return ClauseWeight(clause, 1, 1,      
+   return ClauseWeight(clause, 1, 1,
 		       local->pos_multiplier,
 		       local->vweight,
-		       local->fweight, 
+		       local->fweight,
 		       false);
 }
 
 
 /*-----------------------------------------------------------------------
 //
-// Function: LMaxWeightInit() 
+// Function: LMaxWeightInit()
 //
 //   Return an initialized WFCB for LMaxWeight evaluation.
 //
@@ -200,7 +200,7 @@ WFCB_p LMaxWeightInit(ClausePrioFun prio_fun, int fweight, int
    data->fweight                = fweight;
    data->vweight                = vweight;
    data->pos_multiplier         = pos_multiplier;
-   
+
    return WFCBAlloc(LMaxWeightCompute, prio_fun,
 		    ClauseWeightExit, data);
 }
@@ -223,7 +223,7 @@ WFCB_p LMaxWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
    ClausePrioFun prio_fun;
    int fweight, vweight;
    double pos_multiplier;
-   
+
    AcceptInpTok(in, OpenBracket);
    prio_fun = ParsePrioFun(in);
    AcceptInpTok(in, Comma);
@@ -233,7 +233,7 @@ WFCB_p LMaxWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
    AcceptInpTok(in, Comma);
    pos_multiplier = ParseFloat(in);
    AcceptInpTok(in, CloseBracket);
-   
+
    return LMaxWeightInit(prio_fun, fweight, vweight,
 			 pos_multiplier);
 }
@@ -257,7 +257,7 @@ double LMaxWeightCompute(void* data, Clause_p clause)
    WeightParam_p local = data;
    double res = 0, tmp;
    Eqn_p handle;
-   
+
    for(handle = clause->literals; handle; handle = handle->next)
    {
       tmp = EqnMaxWeight(handle, local->vweight, local->fweight);
@@ -273,7 +273,7 @@ double LMaxWeightCompute(void* data, Clause_p clause)
 
 /*-----------------------------------------------------------------------
 //
-// Function: CMaxWeightInit() 
+// Function: CMaxWeightInit()
 //
 //   Return an initialized WFCB for CMaxWeight evaluation.
 //
@@ -291,7 +291,7 @@ WFCB_p CMaxWeightInit(ClausePrioFun prio_fun, int fweight, int
    data->fweight                = fweight;
    data->vweight                = vweight;
    data->pos_multiplier         = pos_multiplier;
-   
+
    return WFCBAlloc(CMaxWeightCompute, prio_fun,
 		    ClauseWeightExit, data);
 }
@@ -314,7 +314,7 @@ WFCB_p CMaxWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
    ClausePrioFun prio_fun;
    int fweight, vweight;
    double pos_multiplier;
-   
+
    AcceptInpTok(in, OpenBracket);
    prio_fun = ParsePrioFun(in);
    AcceptInpTok(in, Comma);
@@ -324,7 +324,7 @@ WFCB_p CMaxWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
    AcceptInpTok(in, Comma);
    pos_multiplier = ParseFloat(in);
    AcceptInpTok(in, CloseBracket);
-   
+
    return CMaxWeightInit(prio_fun, fweight, vweight,
 			   pos_multiplier);
 }
@@ -348,14 +348,14 @@ double CMaxWeightCompute(void* data, Clause_p clause)
    WeightParam_p local = data;
    double res = 0, tmp;
    Eqn_p handle;
-   
+
    for(handle = clause->literals; handle; handle = handle->next)
    {
       tmp = EqnMaxWeight(handle, local->vweight, local->fweight);
       res = MAX(res,tmp);
    }
    return clause->pos_lit_no*res*local->pos_multiplier +
-      clause->neg_lit_no*res; 
+      clause->neg_lit_no*res;
 }
 
 
@@ -388,7 +388,7 @@ void ClauseWeightExit(void* data)
 //
 // Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -414,11 +414,11 @@ WFCB_p UniqWeightInit(ClausePrioFun prio_fun)
 WFCB_p UniqWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
 {
    ClausePrioFun prio_fun;
-   
+
    AcceptInpTok(in, OpenBracket);
    prio_fun = ParsePrioFun(in);
    AcceptInpTok(in, CloseBracket);
-   
+
    return UniqWeightInit(prio_fun);
 }
 
@@ -428,9 +428,9 @@ WFCB_p UniqWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
 //
 //   Compute a hopefully uniq weight for each clause (see above)
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -438,7 +438,7 @@ double UniqWeightCompute(void* data, Clause_p clause)
 {
    Eqn_p  handle;
    double weight = 0;
-   
+
    for(handle = clause->literals; handle; handle = handle->next)
    {
       weight+= uniq_eqn_weight(handle);
@@ -456,7 +456,7 @@ double UniqWeightCompute(void* data, Clause_p clause)
 //
 // Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -482,11 +482,11 @@ WFCB_p DefaultWeightInit(ClausePrioFun prio_fun)
 WFCB_p DefaultWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
 {
    ClausePrioFun prio_fun;
-   
+
    AcceptInpTok(in, OpenBracket);
    prio_fun = ParsePrioFun(in);
    AcceptInpTok(in, CloseBracket);
-   
+
    return DefaultWeightInit(prio_fun);
 }
 
@@ -496,9 +496,9 @@ WFCB_p DefaultWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
 //
 //   Compute return the default weight.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 

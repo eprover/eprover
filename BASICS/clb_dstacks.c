@@ -5,7 +5,7 @@ File  : clb_dstacks.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Stacks for (long) integers and pointers.
 
   Copyright 1998, 1999 by the author.
@@ -94,12 +94,12 @@ static void push(DStack_p stack, double val)
 DStack_p DStackAlloc(void)
 {
    DStack_p handle;
-   
+
    handle = DStackCellAlloc();
    handle->size = DSTACK_DEFAULT_SIZE;
    handle->current = 0;
    handle->stack = SizeMalloc(handle->size * sizeof(double));
-   
+
    return handle;
 }
 
@@ -120,7 +120,7 @@ void DStackFree(DStack_p junk)
 {
    assert(junk);
    assert(junk->stack);
-   
+
    SizeFree(junk->stack, junk->size * sizeof(double));
    DStackCellFree(junk);
 }
@@ -166,16 +166,16 @@ void DStackPush(DStack_p stack, double val)
 //
 //   Implement pop operation for non-empty DStacks.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
 double DStackPop(DStack_p stack)
 {
    assert(stack->current);
-   
+
    stack->current--;
    return stack->stack[stack->current];
 }
@@ -196,7 +196,7 @@ double DStackPop(DStack_p stack)
 double DStackTop(DStack_p stack)
 {
    assert(stack->current);
-   
+
    return stack->stack[stack->current-1];
 }
 
@@ -206,7 +206,7 @@ double DStackTop(DStack_p stack)
 // Function: DStackBelowTop()
 //
 //   Return second item on the stack (asserts that stack has >=2
-//   elements). 
+//   elements).
 //
 // Global Variables: -
 //
@@ -217,7 +217,7 @@ double DStackTop(DStack_p stack)
 double DStackBelowTop(DStack_p stack)
 {
    assert(stack->current>=2);
-   
+
    return stack->stack[stack->current-2];
 }
 

@@ -6,7 +6,7 @@ Author: Stephan Schulz
 
 Contents
 
-  PCL2 Expressions 
+  PCL2 Expressions
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
@@ -60,11 +60,11 @@ Changes
 PCLExpr_p PCLExprAlloc(void)
 {
    PCLExpr_p handle = PCLExprCellAlloc();
-   
+
    handle->op     = PCLOpNoOp;
    handle->arg_no = 0;
    handle->args   = PDArrayAlloc(2,2);
-   
+
    return handle;
 }
 
@@ -111,7 +111,7 @@ void PCLExprFree(PCLExpr_p junk)
       if(pos)
       {
 	 PCL2PosFree(pos);
-      }	 
+      }
    }
    PDArrayFree(junk->args);
    PCLExprCellFree(junk);
@@ -135,9 +135,9 @@ void PCLMiniExprFree(PCLExpr_p junk)
    long      i;
    PCLExpr_p expr;
    PCL2Pos_p pos;
-   
+
    assert(junk);
-   
+
    for(i=0; i<junk->arg_no; i++)
    {
       if(junk->op==PCLOpQuote)
@@ -158,7 +158,7 @@ void PCLMiniExprFree(PCLExpr_p junk)
       if(pos)
       {
 	 PCL2PosFree(pos);
-      }	 
+      }
    }
    PDArrayFree(junk->args);
    PCLExprCellFree(junk);
@@ -184,7 +184,7 @@ PCLExpr_p PCLExprParse(Scanner_p in, bool mini)
    ClauseInfo_p info = NULL;
 
    if(TestInpTok(in,PosInt))
-   {      
+   {
       handle->op = PCLOpQuote;
       if(mini)
       {
@@ -273,12 +273,12 @@ PCLExpr_p PCLExprParse(Scanner_p in, bool mini)
       {
 	 handle->op=PCLOpSimplifyReflect;
 	 arg_no=2;
-      }      
+      }
       else if(TestInpId(in, PCL_CSR))
       {
 	 handle->op=PCLOpContextSimplifyReflect;
 	 arg_no=2;
-      }      
+      }
       else if(TestInpId(in, PCL_ACRES))
       {
 	 handle->op=PCLOpACResolution;
@@ -388,7 +388,7 @@ PCLExpr_p PCLExprParse(Scanner_p in, bool mini)
          if((arg_no!=PCL_VAR_ARG) && (arg_no!=i))
          {
             AktTokenError(in, "Wrong number of arguments in PCL "
-                          "expression", false); 
+                          "expression", false);
          }
          AcceptInpTok(in,CloseBracket);
          handle->arg_no=i;
@@ -421,9 +421,9 @@ void PCLExprPrint(FILE* out, PCLExpr_p expr, bool mini)
 
    assert(expr);
    assert(expr->args);
-   
+
    if(expr->op== PCLOpInitial)
-   {      
+   {
       if(expr->arg_no)
       {
          assert(expr->arg_no == 1);
@@ -457,7 +457,7 @@ void PCLExprPrint(FILE* out, PCLExpr_p expr, bool mini)
    case PCLOpIntroDef:
          fprintf(out, PCL_ID);
          assert(expr->arg_no==0);
-         break;         
+         break;
    case PCLOpParamod:
          fprintf(out, PCL_PM);
          assert(expr->arg_no==2);
@@ -575,7 +575,7 @@ void PCLExprPrint(FILE* out, PCLExpr_p expr, bool mini)
             PCL2PosPrint(out, PCLExprArgPos(expr,i));
          }
       }
-      fputc(')',out);       
+      fputc(')',out);
    }
 }
 
@@ -596,10 +596,10 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
 {
    long i;
    bool needs_ans = false;
-   char *status = ",[status(unknown)]", 
-      *status_thm = ",[status(thm)]", 
-      *status_cth = ",[status(cth)]", 
-      *status_esa = ",[status(esa)]";      
+   char *status = ",[status(unknown)]",
+      *status_thm = ",[status(thm)]",
+      *status_cth = ",[status(cth)]",
+      *status_esa = ",[status(esa)]";
 
    assert(expr);
    assert(expr->args);
@@ -631,7 +631,7 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
          }
          return;
    case PCLOpIntroDef:
-         fprintf(out, PCL_ID"(definition)");         
+         fprintf(out, PCL_ID"(definition)");
          return;
    default:
          break;
@@ -692,7 +692,7 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
 	 break;
    case PCLOpApplyDef:
          fprintf(out, PCL_AD);
-	 status = status_thm;         
+	 status = status_thm;
          assert(expr->arg_no==2);
          break;
    case PCLOpSplitClause:
@@ -738,7 +738,7 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
          status = status_thm;
          needs_ans      = true;
          assert(expr->arg_no==1);
-         break;         
+         break;
    case PCLOpFOFDistributeDisjunction:
          fprintf(out, PCL_DSTR);
          status = status_thm;
@@ -759,7 +759,7 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
          status = status_cth;
          assert(expr->arg_no==1);
          break;
-         
+
    default:
 	 assert(false && "Unknown PCL operator");
 	 break;
@@ -775,7 +775,7 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
    {
       fputs(",theory(answers)", out);
    }
-    fputs("])",out);	 
+    fputs("])",out);
 }
 
 

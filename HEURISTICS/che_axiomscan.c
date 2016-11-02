@@ -6,7 +6,7 @@ Author: Stephan Schulz
 
 Contents
 
-  Functions for recognizing axioms. 
+  Functions for recognizing axioms.
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
@@ -84,15 +84,15 @@ FunCode DetectCommutativity(Clause_p clause)
    assert(lit->rterm->args);
    assert(TermIsVar(lit->rterm->args[0]));
    assert(TermIsVar(lit->rterm->args[1]));
-   
+
    FAIL_ON(lit->lterm->args[0] == lit->lterm->args[1]);
    FAIL_ON((lit->lterm->args[0] != lit->rterm->args[1])||(lit->lterm->args[1] != lit->rterm->args[0]));
 
    return lit->lterm->f_code;
 }
-   
 
-   
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: DetectAssociativity()
@@ -100,9 +100,9 @@ FunCode DetectCommutativity(Clause_p clause)
 //  If clause is a associativity for some function symbol,
 //  return this symbol. Otherwise return 0.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -115,7 +115,7 @@ FunCode DetectAssociativity(Clause_p clause)
 
    FAIL_ON(!ClauseIsUnit(clause));
    lit = clause->literals;
-   
+
    assert(lit);
    FAIL_ON(!EqnIsPositive(lit));
    FAIL_ON((TermStandardWeight(lit->lterm)!=
@@ -135,7 +135,7 @@ FunCode DetectAssociativity(Clause_p clause)
    {
       rterm=lit->rterm;
       lterm=lit->lterm;
-   }      
+   }
    f = lterm->f_code;
    FAIL_ON(f!=lterm->args[0]->f_code);
    FAIL_ON(!TermIsVar(lterm->args[0]->args[0]));
@@ -151,7 +151,7 @@ FunCode DetectAssociativity(Clause_p clause)
    FAIL_ON(v1!=rterm->args[0]->f_code);
    FAIL_ON(v2!=rterm->args[1]->args[0]->f_code);
    FAIL_ON(v3!=rterm->args[1]->args[1]->f_code);
-   
+
    return f;
 }
 
@@ -172,7 +172,7 @@ FunCode DetectAssociativity(Clause_p clause)
 bool ClauseScanAC(Sig_p sig, Clause_p clause)
 {
    FunCode f;
-   
+
    f = DetectCommutativity(clause);
    if(f)
    {
@@ -191,10 +191,10 @@ bool ClauseScanAC(Sig_p sig, Clause_p clause)
 	 SigSetFuncProp(sig, f, FPAssociative);
 	 PStackPushP(sig->ac_axioms, clause);
       }
-   }   
+   }
    return false;
 }
-   
+
 
 /*-----------------------------------------------------------------------
 //
@@ -215,7 +215,7 @@ bool ClauseSetScanAC(Sig_p sig, ClauseSet_p set)
    Clause_p handle;
 
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
-	  handle->succ) 
+	  handle->succ)
    {
       res |= ClauseScanAC(sig, handle);
    }

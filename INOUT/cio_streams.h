@@ -5,7 +5,7 @@ File  : cio_streams.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Definitions for a stream type, i.e. an object associated with a file
   pointer (and possibly a file name), allowing read operations,
   arbitrary look-aheads, and maintaining line and column numbers for
@@ -50,7 +50,7 @@ typedef char* StreamType;
    stream with lookahead-capability. Streams are stackable, with new
    data being read from the top of the stack. The empty stack is a
    NULL-valued pointer of type Inpstack_p! */
-   
+
 
 typedef struct streamcell
 {

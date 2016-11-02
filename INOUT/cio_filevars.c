@@ -5,7 +5,7 @@ File  : cio_filevars.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for managing file-stored "variable = value;" pairs.
 
   Copyright 1998, 1999 by the author.
@@ -60,9 +60,9 @@ Changes
 FileVars_p FileVarsAlloc(void)
 {
    FileVars_p handle = FileVarsCellAlloc();
-   
+
    handle->names = PStackAlloc();
-   handle->vars  = NULL; 
+   handle->vars  = NULL;
    return handle;
 }
 
@@ -82,11 +82,11 @@ FileVars_p FileVarsAlloc(void)
 void FileVarsFree(FileVars_p handle)
 {
    PStack_p  stack;
-   StrTree_p cell; 
+   StrTree_p cell;
    char*     name;
 
    while(!PStackEmpty(handle->names))
-   {      
+   {
       name = PStackPopP(handle->names);
       FREE(name);
    }
@@ -97,7 +97,7 @@ void FileVarsFree(FileVars_p handle)
       FREE(cell->val1.p_val);
    }
    StrTreeFree(handle->vars);
-   FileVarsCellFree(handle);   
+   FileVarsCellFree(handle);
 }
 
 
@@ -124,7 +124,7 @@ long FileVarsParse(Scanner_p in, FileVars_p vars)
 
    assert(!PStackEmpty(vars->names));
    assert(strcmp(PStackTopP(vars->names), DStrView(Source(in))) == 0);
-   
+
    while(!TestInpTok(in, NoToken))
    {
       CheckInpTok(in, Identifier);
@@ -176,7 +176,7 @@ long FileVarsReadFromFile(char* file, FileVars_p vars)
 {
    long res;
    Scanner_p in;
-   
+
    in = CreateScanner(StreamTypeFile, file, true, NULL);
    res = FileVarsParse(in, vars);
    DestroyScanner(in);
@@ -192,7 +192,7 @@ long FileVarsReadFromFile(char* file, FileVars_p vars)
 //   Try to get a boolean value associated with a name. If it exist,
 //   set *var to the result and return true, otherwise leave *var
 //   untouched and return false. If value is not boolean, exit with
-//   error. 
+//   error.
 //
 // Global Variables: -
 //
@@ -203,7 +203,7 @@ long FileVarsReadFromFile(char* file, FileVars_p vars)
 bool FileVarsGetBool(FileVars_p vars, char* name, bool *value)
 {
    StrTree_p cell = StrTreeFind(&(vars->vars), name);
-   
+
    if(!cell)
    {
       return false;
@@ -220,16 +220,16 @@ bool FileVarsGetBool(FileVars_p vars, char* name, bool *value)
    {
       DStr_p errpos = DStrAlloc();
 
-      DStrAppendStr(errpos, 
+      DStrAppendStr(errpos,
 		    "Boolean value requested for file variable ");
       DStrAppendStr(errpos, name);
       DStrAppendStr(errpos, "read from \"");
       DStrAppendStr(errpos, cell->val2.p_val);
-      DStrAppendStr(errpos, 
+      DStrAppendStr(errpos,
 		    "\", but no boolean value present.");
       Error(DStrView(errpos), SYNTAX_ERROR);
       DStrFree(errpos);
-   }   
+   }
    return true;
 }
 
@@ -241,7 +241,7 @@ bool FileVarsGetBool(FileVars_p vars, char* name, bool *value)
 //   Try to get an integer value associated with a name. If it exist,
 //   set *var to the result and return true, otherwise leave *var
 //   untouched and return false. If value is not integer, exit with
-//   error. 
+//   error.
 //
 // Global Variables: -
 //
@@ -258,22 +258,22 @@ bool FileVarsGetInt(FileVars_p vars, char* name,  long *value)
    {
       return false;
    }
-   
+
    *value = strtol(cell->val1.p_val, &eoarg, 10);
 
    if(errno || *eoarg)
    {
       DStr_p errpos = DStrAlloc();
 
-      TmpErrno = errno;      
-      DStrAppendStr(errpos, 
+      TmpErrno = errno;
+      DStrAppendStr(errpos,
 		    "Integer value requested for file variable ");
       DStrAppendStr(errpos, name);
       DStrAppendStr(errpos, "read from \"");
       DStrAppendStr(errpos, cell->val2.p_val);
-      DStrAppendStr(errpos, 
+      DStrAppendStr(errpos,
 		    "\", but no integer value present.");
-      
+
       if(TmpErrno)
       {
 	 SysError(DStrView(errpos), SYNTAX_ERROR);
@@ -283,7 +283,7 @@ bool FileVarsGetInt(FileVars_p vars, char* name,  long *value)
 	 Error(DStrView(errpos), SYNTAX_ERROR);
       }
       DStrFree(errpos);
-   }   
+   }
    return true;
 }
 
@@ -309,7 +309,7 @@ bool FileVarsGetStr(FileVars_p vars, char* name,  char **value)
    {
       return false;
    }
-   
+
    *value = cell->val1.p_val;
 
    return true;
@@ -340,26 +340,26 @@ bool FileVarsGetIdentifier(FileVars_p vars, char* name,  char **value)
    {
       return false;
    }
-   
+
    in = CreateScanner(StreamTypeInternalString, cell->val1.p_val,
 		      true, NULL);
    if(!TestInpTok(in, Identifier))
    {
       DStr_p errpos = DStrAlloc();
 
-      DStrAppendStr(errpos, 
+      DStrAppendStr(errpos,
 		    "Identifier value requested for file variable ");
       DStrAppendStr(errpos, name);
       DStrAppendStr(errpos, "read from \"");
       DStrAppendStr(errpos, cell->val2.p_val);
-      DStrAppendStr(errpos, 
+      DStrAppendStr(errpos,
 		    "\", but no such value present.");
       Error(DStrView(errpos), SYNTAX_ERROR);
       DStrFree(errpos);
-   }      
+   }
    DestroyScanner(in);
    *value = cell->val1.p_val;
-   
+
    return true;
 }
 

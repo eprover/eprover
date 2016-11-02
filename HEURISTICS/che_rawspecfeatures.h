@@ -5,7 +5,7 @@ File  : che_rawspecfeatures.h
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Code and datatypes for handling rough classification of raw problem
   specs.
 
@@ -56,7 +56,7 @@ typedef struct raw_spec_feature_cell
 
 
 void RawSpecFeaturesCompute(RawSpecFeature_p features, ProofState_p state);
-void RawSpecFeaturesClassify(RawSpecFeature_p features, SpecLimits_p limits, 
+void RawSpecFeaturesClassify(RawSpecFeature_p features, SpecLimits_p limits,
                              char* pattern);
 void RawSpecFeaturesParse(Scanner_p in, RawSpecFeature_p features);
 void RawSpecFeaturesPrint(FILE* out, RawSpecFeature_p features);

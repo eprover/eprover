@@ -7,7 +7,7 @@ Author: Simon Cruanes
 Contents
 
   Type checking and inference for Simple types
- 
+
 
   Copyright 2011 by the author.
   This code is released under the GNU General Public Licence.

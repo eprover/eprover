@@ -6,7 +6,7 @@ Author: Stephan Schulz
 
 Contents
 
-  Lists of MiniPCL steps 
+  Lists of MiniPCL steps
 
   Copyright 1998, 1999, 2002 by the author.
   This code is released under the GNU General Public Licence and

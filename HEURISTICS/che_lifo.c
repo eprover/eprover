@@ -5,7 +5,7 @@ File  : che_lifo.c
 Author: Stephan Schulz
 
 Contents
- 
+
   LIFO-Clause evaluation
 
   Copyright 1998, 1999 by the author.
@@ -46,7 +46,7 @@ Changes
 /*---------------------------------------------------------------------*/
 
 
-   
+
 
 /*-----------------------------------------------------------------------
 //
@@ -54,9 +54,9 @@ Changes
 //
 //   Return an initialized WFCB for FIFO evaluation.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -85,11 +85,11 @@ WFCB_p LIFOEvalInit(ClausePrioFun prio_fun)
 WFCB_p LIFOEvalParse(Scanner_p in, OCB_p ocb, ProofState_p state)
 {
    ClausePrioFun prio_fun;
- 
+
    AcceptInpTok(in, OpenBracket);
    prio_fun = ParsePrioFun(in);
    AcceptInpTok(in, CloseBracket);
-   
+
    return LIFOEvalInit(prio_fun);
 }
 
@@ -109,7 +109,7 @@ WFCB_p LIFOEvalParse(Scanner_p in, OCB_p ocb, ProofState_p state)
 double LIFOEvalCompute(void* data, Clause_p clause)
 {
    double *local = data;
-   
+
    *local = (*local)-1.0;
 
    return *local;

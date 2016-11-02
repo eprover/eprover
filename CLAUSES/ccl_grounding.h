@@ -5,7 +5,7 @@ File  : ccl_grounding.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Definitions for functions (and possibly later data types)
   implementing grounding of near-propositional clause sets.
 
@@ -57,7 +57,7 @@ typedef struct varset_inst
    unit-clauses in a single array for efficient unit subsumption and
    unit resolution */
 
-typedef enum 
+typedef enum
 {
    GCUNone = 0,
    GCUPos  = 1,
@@ -68,7 +68,7 @@ typedef enum
 #define DEFAULT_LIT_NO   4096
 #define DEFAULT_LIT_GROW 8192
 
-typedef enum 
+typedef enum
 {
    cpl_complete,
    cpl_lowmem,
@@ -80,11 +80,11 @@ GroundSetState;
 typedef struct ground_set_cell
 {
    TB_p            lit_bank;  /* Only reference, not administered
-			         from here! */ 
+			         from here! */
    long            max_literal; /* Maximal literal number */
    long            unit_no;
    GroundSetState  complete;    /* Is the proofstate complete? */
-   PDArray_p       units;       /* Wich ones are present? */ 
+   PDArray_p       units;       /* Wich ones are present? */
    PDArray_p       unit_terms;  /* And how do they look? */
    PropClauseSet_p non_units;
 }GroundSetCell, *GroundSet_p;

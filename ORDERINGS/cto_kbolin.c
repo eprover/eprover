@@ -2,7 +2,7 @@
 
 File:    cto_kbolin.c
 
-Author:  Stephan Schulz 
+Author:  Stephan Schulz
 
 Contents:
          Implementation of a Knuth_Bendix ordering (KBO) on CLIB
@@ -213,9 +213,9 @@ static void local_vb_update(OCB_p ocb, Term_p t, bool lhs)
 
 static bool mfyvwbc(OCB_p ocb, Term_p t, DerefType deref_t, Term_p var, bool lhs)
 {
-   t = TermDeref(t, &deref_t); 
+   t = TermDeref(t, &deref_t);
    local_vb_update(ocb, t, lhs);
-   
+
    if(var->f_code == t->f_code)
    {
       return true;
@@ -244,7 +244,7 @@ static bool mfyvwbc(OCB_p ocb, Term_p t, DerefType deref_t, Term_p var, bool lhs
 
 static void mfyvwb(OCB_p ocb, Term_p t, DerefType deref_t, bool lhs)
 {
-   t = TermDeref(t, &deref_t); 
+   t = TermDeref(t, &deref_t);
    local_vb_update(ocb, t, lhs);
 
    // Note that arity == 0 for variables.
@@ -272,7 +272,7 @@ static CompareResult kbo6cmplex(OCB_p ocb, Term_p s, Term_p t,
                                 DerefType deref_s, DerefType deref_t)
 {
    CompareResult res = to_equal;
-   
+
    assert(s->arity == t->arity);
    assert(s->f_code == t->f_code);
 
@@ -310,7 +310,7 @@ static CompareResult kbo6cmp(OCB_p ocb, Term_p s, Term_p t,
    CompareResult res, tmp;
 
    s = TermDeref(s, &deref_s);
-   t = TermDeref(t, &deref_t); 
+   t = TermDeref(t, &deref_t);
 
    /* Pacman lemma ;-) */
    while((s->arity==1) && (s->f_code == t->f_code))
@@ -318,12 +318,12 @@ static CompareResult kbo6cmp(OCB_p ocb, Term_p s, Term_p t,
       s = s->args[0];
       t = t->args[0];
       s = TermDeref(s, &deref_s);
-      t = TermDeref(t, &deref_t); 
+      t = TermDeref(t, &deref_t);
    }
    if(TermIsVar(s))
    {
       if(TermIsVar(t))
-      {  /* X, Y */        
+      {  /* X, Y */
          inc_vb(ocb, s);
          dec_vb(ocb, t);
          res = s==t?to_equal:to_uncomparable;
@@ -339,7 +339,7 @@ static CompareResult kbo6cmp(OCB_p ocb, Term_p s, Term_p t,
    { /* s, Y */
       bool ctn = mfyvwbc(ocb, s, deref_s, t, true);
       dec_vb(ocb, t);
-      res = ctn?to_greater:to_uncomparable;      
+      res = ctn?to_greater:to_uncomparable;
    }
    else
    { /* s, t */
@@ -383,7 +383,7 @@ static CompareResult kbo6cmp(OCB_p ocb, Term_p s, Term_p t,
       else if(lex == to_greater)
       {
          res = g_or_n;
-      } 
+      }
       else if(lex == to_lesser)
       {
          res = l_or_n;
@@ -391,7 +391,7 @@ static CompareResult kbo6cmp(OCB_p ocb, Term_p s, Term_p t,
       else
       {
          res = to_uncomparable;
-      }     
+      }
    }
    return res;
 }

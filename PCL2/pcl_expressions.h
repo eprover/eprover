@@ -5,7 +5,7 @@ File  : pcl_expressions.h
 Author: Stephan Schulz
 
 Contents
- 
+
   PCL2 expressions and uexpressions.
 
 Copyright 1998-2011 by the author.

@@ -5,7 +5,7 @@ File  : clb_regmem.h
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   A module supporting dynamic memory for local static variables that
   is still freed quasi-automatically (via a call to a cleanup
   function) when the program terminates. This is useful if there is a

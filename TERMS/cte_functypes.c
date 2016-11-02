@@ -8,7 +8,7 @@ Contents
 
   Simple code for handling function symbols, both encoded and in
   external representation. Most of this is factored out of
-  cte_signature.c, which is already overbloated. 
+  cte_signature.c, which is already overbloated.
 
   Copyright 2007 by the author.
   This code is released under the GNU General Public Licence and
@@ -36,7 +36,7 @@ Changes
 /* Tokens that always are stand-alone identifiers */
 TokenType FuncSymbToken = ATOMIC_FUNC_SYM_TOK;
 /* Tokens that may start a (composite or atomic) identifier */
-TokenType FuncSymbStartToken = ATOMIC_FUNC_SYM_TOK| PosInt | String | Plus | Hyphen; 
+TokenType FuncSymbStartToken = ATOMIC_FUNC_SYM_TOK| PosInt | String | Plus | Hyphen;
 
 
 /*---------------------------------------------------------------------*/
@@ -55,7 +55,7 @@ TokenType FuncSymbStartToken = ATOMIC_FUNC_SYM_TOK| PosInt | String | Plus | Hyp
 //    Take a string representation of an integer and turn it into a
 //    normal form. This is done by dropping the optional leading + and
 //    all leading zeros (except for the case of plain '0', of
-//    course). 
+//    course).
 //
 // Global Variables: -
 //
@@ -67,9 +67,9 @@ static void normalize_int_rep(DStr_p int_rep)
 {
    char* work, *sign="";
    DStr_p tmp = DStrAlloc();
-      
+
    work = DStrView(int_rep);
-   
+
    if(*work=='+')
    {
       work++;
@@ -79,7 +79,7 @@ static void normalize_int_rep(DStr_p int_rep)
       sign = "-";
       work++;
    }
-   
+
    while(*work == '0')
    {
       work++;
@@ -118,9 +118,9 @@ static void normalize_rational_rep(DStr_p int_rep)
    char* work;
    bool  negative = false;
    DStr_p tmp = DStrAlloc();
-      
+
    work = DStrView(int_rep);
-   
+
    if(*work=='+')
    {
       work++;
@@ -176,7 +176,7 @@ static void normalize_rational_rep(DStr_p int_rep)
    else
    {
       DStrAppendChar(tmp, '0');
-   }  
+   }
 
    DStrReset(int_rep);
    if(negative)
@@ -209,10 +209,10 @@ static void normalize_float_rep(DStr_p float_rep)
    double value;
    char* endptr;
    char buff[128];
-   int res; 
+   int res;
 
    value = strtod(DStrView(float_rep), &endptr);
-   
+
    if(fabs(value)>=1000.0)
    {
       res = snprintf(buff, 128, "%e", value);
@@ -222,7 +222,7 @@ static void normalize_float_rep(DStr_p float_rep)
       res = snprintf(buff, 128, "%f", value);
    }
    UNUSED(res); assert(res < 128);
-   
+
    DStrSet(float_rep, buff);
 }
 
@@ -239,7 +239,7 @@ static void normalize_float_rep(DStr_p float_rep)
 // Function: FuncSymbParse()
 //
 //   Parse a function or predicate symbol (or, currently, variable)
-//   and store the representation into id. 
+//   and store the representation into id.
 //
 //   Operators are now of the types
 //
@@ -268,10 +268,10 @@ FuncSymbType FuncSymbParse(Scanner_p in, DStr_p id)
    if(TestInpTok(in, FuncSymbToken))
    {
       DStrAppendStr(id, DStrView(AktToken(in)->literal));
-      
+
       if(TestInpTok(in, Identifier))
       {
-         if((isupper(DStrView(AktToken(in)->literal)[0]) 
+         if((isupper(DStrView(AktToken(in)->literal)[0])
              ||
              DStrView(AktToken(in)->literal)[0] == '_'))
          {
@@ -280,7 +280,7 @@ FuncSymbType FuncSymbParse(Scanner_p in, DStr_p id)
          else
          {
             res = FSIdentFreeFun;
-         }         
+         }
       }
       else
       {
@@ -292,7 +292,7 @@ FuncSymbType FuncSymbParse(Scanner_p in, DStr_p id)
          case SQString:
                res = FSIdentFreeFun;
                break;
-         case String:         
+         case String:
                res = FSIdentObject;
                break;
          default:
@@ -300,12 +300,12 @@ FuncSymbType FuncSymbParse(Scanner_p in, DStr_p id)
                break;
          }
       }
-      AcceptInpTok(in, FuncSymbToken);      
+      AcceptInpTok(in, FuncSymbToken);
    }
    else
    {
       CheckInpTok(in, PosInt|Plus|Hyphen);
-      
+
       numtype = ParseNumString(in);
       switch(numtype)
       {
@@ -323,12 +323,12 @@ FuncSymbType FuncSymbParse(Scanner_p in, DStr_p id)
             normalize_float_rep(in->accu);
             DStrAppendStr(id, DStrView(in->accu));
             res = FSIdentFloat;
-            break;            
+            break;
       default:
             assert(false);
             break;
       }
-   }      
+   }
    return res;
 }
 

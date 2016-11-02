@@ -71,8 +71,8 @@ static double relative_difference(double v1, double v2)
 //
 // Function: arity_distr_distance()
 //
-//   Compute the normed euclidean distance beween two arity distribution 
-//   vectors. 
+//   Compute the normed euclidean distance beween two arity distribution
+//   vectors.
 //
 // Global Variables: -
 //
@@ -91,7 +91,7 @@ static double arity_distr_distance(PDArray_p d1, PDArray_p d2, int
    if(maxarity == -1)
    {
       return 0.0;
-   }   
+   }
    for(i=0; i<=maxarity; i++)
    {
       val1 = PDArrayElementInt(d1, i);
@@ -120,7 +120,7 @@ static int parse_sig_distrib(Scanner_p in, PDArray_p distrib)
    int i= -1, symbols;
 
    AcceptInpTok(in, OpenBracket);
-   
+
    if(!TestInpTok(in, CloseBracket))
    {
       i++;
@@ -159,7 +159,7 @@ static int parse_sig_distrib(Scanner_p in, PDArray_p distrib)
 Features_p FeaturesAlloc(void)
 {
    Features_p handle = FeaturesCellAlloc();
-   
+
    handle->pred_distrib = PDIntArrayAlloc(5,5);
    handle->func_distrib = PDIntArrayAlloc(5,5);
    return handle;
@@ -220,12 +220,12 @@ void ComputeClauseSetNumFeatures(Features_p features, ClauseSet_p set,
    {
       symbol_distrib[i] = 0;
    }
-   
-   ClauseSetAddSymbolDistribution(set, symbol_distrib);   
-   features->pred_max_arity = 
+
+   ClauseSetAddSymbolDistribution(set, symbol_distrib);
+   features->pred_max_arity =
       SigAddSymbolArities(sig, features->pred_distrib, true,
-			  symbol_distrib); 
-   features->func_max_arity = 
+			  symbol_distrib);
+   features->func_max_arity =
       SigAddSymbolArities(sig, features->func_distrib, false,
 			  symbol_distrib);
    SizeFree(symbol_distrib,(sig->size)*sizeof(long));
@@ -244,14 +244,14 @@ void ComputeClauseSetNumFeatures(Features_p features, ClauseSet_p set,
       else if(ClauseIsHorn(clause))
       {
 	 features->features[1]++;
-      }  
-      else 
+      }
+      else
       {
 	 features->features[2]++;
       }
       PStackPushInt(pos_lits, clause->pos_lit_no);
-      PStackPushInt(neg_lits, clause->neg_lit_no);      
-      
+      PStackPushInt(neg_lits, clause->neg_lit_no);
+
       for(eqn = clause->literals; eqn; eqn = eqn->next)
       {
 	 if(EqnIsPositive(eqn))
@@ -388,10 +388,10 @@ Features_p NumFeaturesParse(Scanner_p in)
 
 /*-----------------------------------------------------------------------
 //
-// Function: NumFeatureDistance() 
+// Function: NumFeatureDistance()
 //
 //   Return the weighted relative distance between the two feature
-//   vectors. 
+//   vectors.
 //
 // Global Variables: -
 //
@@ -406,19 +406,19 @@ double NumFeatureDistance(Features_p f1, Features_p f2, double pred_w,
    int i;
 
    dist = arity_distr_distance(f1->pred_distrib, f2->pred_distrib,
-			       MAX(f1->pred_max_arity, 
+			       MAX(f1->pred_max_arity,
 				   f2->pred_max_arity));
    wsq = pred_w*pred_w;
    res = dist*dist*wsq;
    norm = wsq;
-  
+
    dist = arity_distr_distance(f1->func_distrib, f2->func_distrib,
 			       MAX(f1->func_max_arity,
 				   f2->func_max_arity));
    wsq = func_w*func_w;
    res += dist*dist*wsq;
    norm += wsq;
-   
+
    for(i=0; i<FEATURE_NUMBER; i++)
    {
       dist = relative_difference(f1->features[i],f2->features[i]);

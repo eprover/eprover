@@ -5,7 +5,7 @@ File  : ccl_proofstate.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Proof objects describing the state of a proof attempt (i.e. all
   information relevant to the calculus, but not information describing
   control).
@@ -49,8 +49,8 @@ typedef struct proofstatecell
    TB_p              terms;
    TB_p              tmp_terms;
    VarBank_p         freshvars;
-   //GCAdmin_p         gc_original_terms; 
-   GCAdmin_p         gc_terms; 
+   //GCAdmin_p         gc_original_terms;
+   GCAdmin_p         gc_terms;
    FormulaSet_p      f_ax_archive;
    FormulaSet_p      f_axioms;
    ClauseSet_p       axioms;
@@ -97,14 +97,14 @@ typedef struct proofstatecell
    unsigned long           paramod_count;
    unsigned long           factor_count;
    unsigned long           resolv_count;
-   
+
    /* The following are only set by ProofStateAnalyse() after
       DerivationCompute() at the end of the proof search. */
    unsigned long           gc_count;
    unsigned long           gc_used_count;
 }ProofStateCell, *ProofState_p;
 
-typedef enum 
+typedef enum
 {
    TSPrintPos = 1,
    TSPrintNeg = 2,
@@ -143,13 +143,13 @@ void         ProofStateFree(ProofState_p junk);
 
 
 void ProofStateAnalyseGC(ProofState_p state);
-void ProofStatePickTrainingExamples(ProofState_p state, 
-                                    PStack_p pos_examples, 
+void ProofStatePickTrainingExamples(ProofState_p state,
+                                    PStack_p pos_examples,
                                     PStack_p neg_examples);
 void ProofStateTrain(ProofState_p state, bool print_pos, bool print_neg);
 void ProofStateStatisticsPrint(FILE* out, ProofState_p state);
 void ProofStatePrint(FILE* out, ProofState_p state);
-void ProofStatePropDocQuote(FILE* out, int level, 
+void ProofStatePropDocQuote(FILE* out, int level,
 			    ClauseProperties prop,
 			    ProofState_p state, char* comment);
 

@@ -5,7 +5,7 @@ File  : che_proofcontrol.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Object storing all information about control of the search
   process: Ordering, heuristic, similar stuff.
 

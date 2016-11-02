@@ -5,7 +5,7 @@ File  : cte_subst.c
 Author: Stephan Schulz
 
 Contents
- 
+
   General functions for substitutions.
 
   Copyright 1998, 1999 by the author.
@@ -85,7 +85,7 @@ bool SubstBacktrackSingle(Subst_p subst)
 //
 // Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -100,7 +100,7 @@ int SubstBacktrackToPos(Subst_p subst, PStackPointer pos)
    }
    return ret;
 }
-   
+
 /*-----------------------------------------------------------------------
 //
 // Function: SubstBacktrack()
@@ -214,7 +214,7 @@ bool SubstBindingPrint(FILE* out, Term_p var, Sig_p sig, DerefType
 //   substitutions with deref=DEREF_ALWAYS may lead to
 //   unpredictable behaviour (if e.g. the substitution was generated
 //   by matching x onto f(x)). Returns number of variables in subst
-//   (well, why not...). 
+//   (well, why not...).
 //
 // Global Variables: -
 //
@@ -226,7 +226,7 @@ long SubstPrint(FILE* out, Subst_p subst, Sig_p sig, DerefType deref)
 {
    PStackPointer i, limit;
 
-   limit = PStackGetSP(subst);   
+   limit = PStackGetSP(subst);
    fprintf(out, "{");
    if(limit)
    {
@@ -241,7 +241,7 @@ long SubstPrint(FILE* out, Subst_p subst, Sig_p sig, DerefType deref)
       }
    }
    fprintf(out, "}");
-   
+
    return (long)limit;
 }
 
@@ -266,13 +266,13 @@ bool SubstIsRenaming(Subst_p subst)
    PStackPointer i, size;
    Term_p        var, inst;
    DerefType     deref;
-   
+
    assert(subst);
    size = PStackGetSP(subst);
-   
+
    /* Check that variables are instantiated with variables, reset
       TPOpFlag of all terms concerned */
-   
+
    for(i=0; i< size; i++)
    {
       var = PStackElementP(subst,i);
@@ -287,7 +287,7 @@ bool SubstIsRenaming(Subst_p subst)
       }
       TermCellDelProp(inst, TPOpFlag);
    }
-   
+
    /* For each unchecked variable, check wether another variable was
       already mapped to its instantiation */
 
@@ -296,13 +296,13 @@ bool SubstIsRenaming(Subst_p subst)
       var = PStackElementP(subst,i);
       deref=DEREF_ONCE;
       inst = TermDeref(var, &deref);
-      
+
       if(TermCellQueryProp(inst, TPOpFlag))
       {
 	 return false;
       }
       TermCellSetProp(inst, TPOpFlag);
-   }  
+   }
    return true;
 }
 
@@ -327,7 +327,7 @@ void SubstBacktrackSkolem(Subst_p subst)
    {
       handle = PStackPopP(subst);
       assert(handle);
-      assert(handle->binding);     
+      assert(handle->binding);
       TermFree(handle->binding);
       handle->binding = NULL;
    }
@@ -338,7 +338,7 @@ void SubstBacktrackSkolem(Subst_p subst)
 // Function: SubstSkolemize()
 //
 //   Instantiate all variables in term with new skolem symbols from
-//   sig. 
+//   sig.
 //
 // Global Variables: -
 //
@@ -351,7 +351,7 @@ void SubstSkolemizeTerm(Term_p term, Subst_p subst, Sig_p sig)
    int i;
 
    assert(term && subst && sig);
-   
+
    if(TermIsVar(term))
    {
       if(!(term->binding))
@@ -376,7 +376,7 @@ void SubstSkolemizeTerm(Term_p term, Subst_p subst, Sig_p sig)
 // Function: SubstCompleteInstance()
 //
 //   Add bindings for all free variables in term subst, binding them
-//   to default_term. 
+//   to default_term.
 //
 // Global Variables: -
 //
@@ -388,7 +388,7 @@ void SubstCompleteInstance(Subst_p subst, Term_p term,
                            Term_p default_binding)
 {
    int i;
-   
+
    if(TermIsVar(term))
    {
       if(!(term->binding))
@@ -403,7 +403,7 @@ void SubstCompleteInstance(Subst_p subst, Term_p term,
 	 SubstCompleteInstance(subst, term->args[i], default_binding);
       }
    }
-}  
+}
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

@@ -5,7 +5,7 @@ File  : cle_examplerep.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for dealing with (sets of) example representations.
 
   Copyright 1998, 1999 by the author.
@@ -100,7 +100,7 @@ void ExampleRepPrint(FILE* out, ExampleRep_p rep)
 ExampleRep_p  ExampleRepParse(Scanner_p in)
 {
    ExampleRep_p handle = ExampleRepCellAlloc();
-   
+
    handle->ident = AktToken(in)->numval;
    AcceptInpTok(in, PosInt);
    AcceptInpTok(in, Colon);
@@ -171,7 +171,7 @@ void ExampleSetFree(ExampleSet_p junk)
    while((handle = NumTreeTraverseNext(stack)))
    {
       ExampleRepFree(handle->val1.p_val);
-   }   
+   }
    PStackFree(stack);
    NumTreeFree(junk->ident_index);
    StrTreeFree(junk->name_index);
@@ -227,7 +227,7 @@ bool ExampleSetInsert(ExampleSet_p set, ExampleRep_p rep)
    if(!res1)
    {
       return false;
-   }  
+   }
    res = StrTreeStore(&(set->name_index), rep->name, tmp, tmp);
    if(!res)
    {
@@ -259,7 +259,7 @@ ExampleRep_p ExampleSetExtract(ExampleSet_p set, ExampleRep_p rep)
 
    cell = NumTreeExtractEntry(&(set->ident_index), rep->ident);
    if(!cell)
-   { 
+   {
       return NULL;
    }
    handle = cell->val1.p_val;
@@ -343,7 +343,7 @@ void ExampleSetPrint(FILE* out, ExampleSet_p set)
 {
    PStack_p  stack;
    NumTree_p handle;
-   
+
    stack = NumTreeTraverseInit(set->ident_index);
    while((handle = NumTreeTraverseNext(stack)))
    {
@@ -362,7 +362,7 @@ void ExampleSetPrint(FILE* out, ExampleSet_p set)
 // Global Variables: -
 //
 // Side Effects    : Reads input, memory, may give error, changes
-//                   set->count. 
+//                   set->count.
 //
 /----------------------------------------------------------------------*/
 
@@ -386,11 +386,11 @@ long ExampleSetParse(Scanner_p in, ExampleSet_p set)
       if(!res)
       {
 	 errpos = DStrAlloc();
-	 
+
 	 DStrAppendStr(errpos, PosRep(type, source_name, line,
 				      column));
 	 DStrAppendStr(errpos, "Entry ");
-	 DStrAppendInt(errpos, handle->ident);	 
+	 DStrAppendInt(errpos, handle->ident);
 	 DStrAppendStr(errpos, " conflicts with existing entries");
 	 Error(DStrView(errpos), SYNTAX_ERROR);
 	 DStrFree(errpos);
@@ -421,9 +421,9 @@ long ExampleSetParse(Scanner_p in, ExampleSet_p set)
 long ExampleSetSelectByDist(PStack_p results, ExampleSet_p set,
 			    Features_p target, double pred_w, double
 			    func_w, double *weights, long sel_no,
-			    double set_part, double dist_part) 
+			    double set_part, double dist_part)
 {
-   long             set_size = NumTreeNodes(set->ident_index), 
+   long             set_size = NumTreeNodes(set->ident_index),
                     i, climit;
    double           dlimit, dist, avg;
    WeightedObject_p tmp_array = WeightedObjectArrayAlloc(set_size);
@@ -447,7 +447,7 @@ long ExampleSetSelectByDist(PStack_p results, ExampleSet_p set,
    assert(i == set_size);
    NumTreeTraverseExit(stack);
    avg = avg /(double)set_size;
-   
+
    WeightedObjectArraySort(tmp_array, set_size);
    climit = MIN(sel_no, set_part*set_size);
    dlimit = dist_part*avg;

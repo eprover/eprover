@@ -5,7 +5,7 @@ File  : cio_output.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Simple functions for secure opening of output files with -
   convention and error checking. Much simpler than the input, because
   much less can go wrong with output...

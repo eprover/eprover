@@ -60,13 +60,13 @@ TFormula_p answer_lit_alloc(TB_p terms, PStack_p varstack)
 {
    TFormula_p res;
    Term_p handle;
-   
+
    handle = TBAllocNewSkolem(terms, varstack, false);
    res    = TermTopAlloc(terms->sig->answer_code, 1);
    res->args[0] = handle;
    res    = TBTermTopInsert(terms, res);
    res    = EqnTermsTBTermEncode(terms, res, terms->true_term, false, PENormal);
-   
+
    return res;
 }
 
@@ -86,7 +86,7 @@ TFormula_p answer_lit_alloc(TB_p terms, PStack_p varstack)
 //
 /----------------------------------------------------------------------*/
 
-Clause_p tformula_collect_clause(TFormula_p form, TB_p terms, 
+Clause_p tformula_collect_clause(TFormula_p form, TB_p terms,
                                  VarBank_p fresh_vars)
 {
    Clause_p res;
@@ -113,7 +113,7 @@ Clause_p tformula_collect_clause(TFormula_p form, TB_p terms,
          assert(TFormulaIsLiteral(terms->sig, form));
          lit = EqnTBTermDecode(terms, form);
          PStackPushP(lit_stack, lit);
-            
+
       }
    }
    PStackFree(stack);
@@ -125,11 +125,11 @@ Clause_p tformula_collect_clause(TFormula_p form, TB_p terms,
    PStackFree(lit_stack);
 
    VarBankResetVCount(fresh_vars);
-   NormSubstEqnList(lit_list, normsubst, fresh_vars);   
+   NormSubstEqnList(lit_list, normsubst, fresh_vars);
    tmp_list = EqnListCopy(lit_list, terms);
    res = ClauseAlloc(tmp_list);
    EqnListFree(lit_list); /* Created just for this */
-   SubstDelete(normsubst);                    
+   SubstDelete(normsubst);
    return res;
 }
 
@@ -140,7 +140,7 @@ Clause_p tformula_collect_clause(TFormula_p form, TB_p terms,
 //
 //   If name_selector is NULL, return true. Otherwise, check if
 //   info->name is in name_selector. Return true if yes, false
-//   otherwise. 
+//   otherwise.
 //
 // Global Variables: -
 //
@@ -185,7 +185,7 @@ static void check_all_found(Scanner_p in, StrTree_p name_selector)
    StrTree_p handle;
 
    trav_stack = StrTreeTraverseInit(name_selector);
-   
+
    while((handle = StrTreeTraverseNext(trav_stack)))
    {
       if(!handle->val1.i_val)
@@ -210,7 +210,7 @@ static void check_all_found(Scanner_p in, StrTree_p name_selector)
                     "find the following requested clauses/formulae in ");
       DStrAppendDStr(err_str, Source(in));
       DStrAppendStr(err_str, ": ");
-      
+
       for(i=0; i< PStackGetSP(err_stack); i++)
       {
          DStrAppendStr(err_str, sep);
@@ -219,7 +219,7 @@ static void check_all_found(Scanner_p in, StrTree_p name_selector)
       }
       Error(DStrView(err_str), INPUT_SEMANTIC_ERROR);
       DStrFree(err_str);
-   }   
+   }
 
    PStackFree(err_stack);
 }
@@ -236,7 +236,7 @@ static void check_all_found(Scanner_p in, StrTree_p name_selector)
 //
 //   If formula is a conjecture, negate it and delete that property
 //   (but set WPInitialConjecture). Returns true if formula was a
-//   conjecture. 
+//   conjecture.
 //
 // Global Variables: -
 //
@@ -247,8 +247,8 @@ static void check_all_found(Scanner_p in, StrTree_p name_selector)
 bool WFormulaConjectureNegate(WFormula_p wform)
 {
    WFormulaProperties ftype = FormulaQueryType(wform);
-   
-   if(ftype==WPTypeConjecture) 
+
+   if(ftype==WPTypeConjecture)
    {
       wform->tformula = TFormulaFCodeAlloc(wform->terms,
                                            wform->terms->sig->not_code,
@@ -267,7 +267,7 @@ bool WFormulaConjectureNegate(WFormula_p wform)
 //
 // Function: TFormulaAnnotateQuestion()
 //
-//   Take a formula of the form ((\exists X)*.F) and convert it to 
+//   Take a formula of the form ((\exists X)*.F) and convert it to
 //   ((\exists Xi)*.(F&~$answer(skn(X1,...Xn))), i.e. add an answer
 //   literal encoding all leading existentially quantified variables.
 //
@@ -314,7 +314,7 @@ TFormula_p TFormulaAnnotateQuestion(TB_p terms,
 // Function: WFormulaAnnotateQuestion()
 //
 //   If formula is a question, convert it into the equivalent
-//   conjecture with answer annotation. Returns true if formula was a 
+//   conjecture with answer annotation. Returns true if formula was a
 //   question. Add the association of the new skolem symbol in the
 //   answer literal to the clause id.
 //
@@ -324,7 +324,7 @@ TFormula_p TFormulaAnnotateQuestion(TB_p terms,
 //
 /----------------------------------------------------------------------*/
 
-bool WFormulaAnnotateQuestion(WFormula_p wform, bool add_answer_lits, 
+bool WFormulaAnnotateQuestion(WFormula_p wform, bool add_answer_lits,
                               bool conjectures_are_questions,
                               NumTree_p *question_assoc)
 {
@@ -366,18 +366,18 @@ bool WFormulaAnnotateQuestion(WFormula_p wform, bool add_answer_lits,
 
 long FormulaSetPreprocConjectures(FormulaSet_p set,
                                   FormulaSet_p archive,
-                                  bool add_answer_lits, 
+                                  bool add_answer_lits,
                                   bool conjectures_are_questions)
 {
    long res = 0;
    WFormula_p handle;
 
    handle = set->anchor->succ;
-   
+
    while(handle!=set->anchor)
    {
-      WFormulaAnnotateQuestion(handle, add_answer_lits, 
-                               conjectures_are_questions, 
+      WFormulaAnnotateQuestion(handle, add_answer_lits,
+                               conjectures_are_questions,
                                NULL);
 
       if(WFormulaConjectureNegate(handle))
@@ -413,7 +413,7 @@ bool WFormulaSimplify(WFormula_p form, TB_p terms)
    assert(!terms->freevarsets);
    simplified = TFormulaSimplify(terms, form->tformula, true);
    // TBVarSetStoreFree(terms);
-   
+
    if(simplified!=form->tformula)
    {
       form->tformula = simplified;
@@ -437,11 +437,11 @@ bool WFormulaSimplify(WFormula_p form, TB_p terms)
 //
 /----------------------------------------------------------------------*/
 
-long WFormulaCNF(WFormula_p form, ClauseSet_p set, 
+long WFormulaCNF(WFormula_p form, ClauseSet_p set,
                  TB_p terms, VarBank_p fresh_vars)
 {
-   WTFormulaConjunctiveNF(form, terms);     
-   return TFormulaToCNF(form, FormulaQueryType(form), 
+   WTFormulaConjunctiveNF(form, terms);
+   return TFormulaToCNF(form, FormulaQueryType(form),
                         set, terms, fresh_vars);
 }
 
@@ -459,11 +459,11 @@ long WFormulaCNF(WFormula_p form, ClauseSet_p set,
 //
 /----------------------------------------------------------------------*/
 
-long WFormulaCNF2(WFormula_p form, ClauseSet_p set, 
+long WFormulaCNF2(WFormula_p form, ClauseSet_p set,
                  TB_p terms, VarBank_p fresh_vars)
 {
-   WTFormulaConjunctiveNF2(form, terms);     
-   return TFormulaToCNF(form, FormulaQueryType(form), 
+   WTFormulaConjunctiveNF2(form, terms);
+   return TFormulaToCNF(form, FormulaQueryType(form),
                         set, terms, fresh_vars);
 }
 
@@ -490,7 +490,7 @@ long FormulaSetSimplify(FormulaSet_p set, TB_p terms)
    long gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
    bool changed;
 
-   handle = set->anchor->succ;   
+   handle = set->anchor->succ;
    while(handle!=set->anchor)
    {
       // printf("Simplifying: \n");
@@ -509,7 +509,7 @@ long FormulaSetSimplify(FormulaSet_p set, TB_p terms)
             GCCollect(terms->gc);
             old_nodes = TBNonVarTermNodes(terms);
             gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
-         } 
+         }
       }
       handle = handle->succ;
    }
@@ -520,7 +520,7 @@ long FormulaSetSimplify(FormulaSet_p set, TB_p terms)
    }
    // printf("Garbage collected\n");
    return res;
-   
+
 }
 
 /*-----------------------------------------------------------------------
@@ -528,7 +528,7 @@ long FormulaSetSimplify(FormulaSet_p set, TB_p terms)
 // Function: FormulaSetCNF()
 //
 //   Transform all formulae in set into CNF. Return number of clauses
-//   generated. 
+//   generated.
 //
 // Global Variables: -
 //
@@ -536,8 +536,8 @@ long FormulaSetSimplify(FormulaSet_p set, TB_p terms)
 //
 /----------------------------------------------------------------------*/
 
-long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive, 
-                   ClauseSet_p clauseset, TB_p terms, 
+long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive,
+                   ClauseSet_p clauseset, TB_p terms,
                    VarBank_p fresh_vars, GCAdmin_p gc)
 {
    WFormula_p form, handle;
@@ -549,7 +549,7 @@ long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive,
    // printf("FormulaSetSimplify done\n");
    TFormulaSetIntroduceDefs(set, archive, terms);
    // printf("Definitions introduced\n");
-   
+
    while(!FormulaSetEmpty(set))
    {
       handle = FormulaSetExtractFirst(set);
@@ -567,7 +567,7 @@ long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive,
       {
          FormulaSetInsert(archive, handle);
       }
-      if(handle->tformula &&  
+      if(handle->tformula &&
          (TBNonVarTermNodes(terms)>gc_threshold))
       {
          assert(terms == handle->terms);
@@ -582,7 +582,7 @@ long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive,
    }
    if(TBNonVarTermNodes(terms)!=old_nodes)
    {
-      GCCollect(gc);               
+      GCCollect(gc);
    }
    return res;
 }
@@ -593,7 +593,7 @@ long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive,
 // Function: FormulaSetCNF2()
 //
 //   Transform all formulae in set into CNF. Return number of clauses
-//   generated. 
+//   generated.
 //
 // Global Variables: -
 //
@@ -601,8 +601,8 @@ long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive,
 //
 /----------------------------------------------------------------------*/
 
-long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive, 
-                    ClauseSet_p clauseset, TB_p terms, 
+long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
+                    ClauseSet_p clauseset, TB_p terms,
                     VarBank_p fresh_vars, GCAdmin_p gc)
 {
    WFormula_p form, handle;
@@ -612,7 +612,7 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
 
    TFormulaSetIntroduceDefs(set, archive, terms);
    // printf("# Definitions introduced\n");
-   
+
    while(!FormulaSetEmpty(set))
    {
       handle = FormulaSetExtractFirst(set);
@@ -630,7 +630,7 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
       {
          FormulaSetInsert(archive, handle);
       }
-      if(handle->tformula &&  
+      if(handle->tformula &&
          (TBNonVarTermNodes(terms)>gc_threshold))
       {
          assert(terms == handle->terms);
@@ -645,7 +645,7 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    }
    if(TBNonVarTermNodes(terms)!=old_nodes)
    {
-      GCCollect(gc);               
+      GCCollect(gc);
    }
    return res;
 }
@@ -667,9 +667,9 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
 //
 /----------------------------------------------------------------------*/
 
-long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset, 
-                              FormulaSet_p fset, TB_p terms, 
-                              StrTree_p *name_selector, 
+long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset,
+                              FormulaSet_p fset, TB_p terms,
+                              StrTree_p *name_selector,
                               StrTree_p *skip_includes)
 {
    long res = 0;
@@ -697,17 +697,17 @@ long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset,
                Scanner_p new_in;
                ClauseSet_p  ncset = ClauseSetAlloc();
                FormulaSet_p nfset = FormulaSetAlloc();
-               
+
                new_in = ScannerParseInclude(in, &new_limit, skip_includes);
-               
+
                if(new_in)
                {
-                  res += FormulaAndClauseSetParse(new_in, 
-                                                  ncset, 
-                                                  nfset, 
-                                                  terms, 
+                  res += FormulaAndClauseSetParse(new_in,
+                                                  ncset,
+                                                  nfset,
+                                                  terms,
                                                   &new_limit,
-                                                  skip_includes);               
+                                                  skip_includes);
                   DestroyScanner(new_in);
                }
                StrTreeFree(new_limit);
@@ -773,7 +773,7 @@ long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset,
 //
 //   Convert a term-encoded formula from conjunctive normal form into
 //   a set of (variable-normalized) clauses. Return number of clauses
-//   generated. 
+//   generated.
 //
 // Global Variables: -
 //
@@ -783,7 +783,7 @@ long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset,
 //
 /----------------------------------------------------------------------*/
 
-long TFormulaToCNF(WFormula_p form, ClauseProperties type, ClauseSet_p set, 
+long TFormulaToCNF(WFormula_p form, ClauseProperties type, ClauseSet_p set,
                   TB_p terms, VarBank_p fresh_vars)
 {
    TFormula_p handle;
@@ -837,7 +837,7 @@ long TFormulaToCNF(WFormula_p form, ClauseProperties type, ClauseSet_p set,
 void TFormulaSetDelTermpProp(FormulaSet_p set, TermProperties prop)
 {
    WFormula_p handle;
-   
+
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
           handle->succ)
    {
@@ -861,7 +861,7 @@ void TFormulaSetDelTermpProp(FormulaSet_p set, TermProperties prop)
 //
 /----------------------------------------------------------------------*/
 
-void TFormulaSetFindDefs(FormulaSet_p set, TB_p terms, NumXTree_p *defs, 
+void TFormulaSetFindDefs(FormulaSet_p set, TB_p terms, NumXTree_p *defs,
                          PStack_p renamed_forms)
 {
    WFormula_p handle;
@@ -871,13 +871,13 @@ void TFormulaSetFindDefs(FormulaSet_p set, TB_p terms, NumXTree_p *defs,
           handle->succ)
    {
       assert(handle->tformula);
-      
+
       if(handle->tformula && FormulaDefLimit)
       {
-         TFormulaFindDefs(terms, handle->tformula, 1, 
+         TFormulaFindDefs(terms, handle->tformula, 1,
                           FormulaDefLimit, defs,  renamed_forms);
       }
-   }   
+   }
 }
 
 
@@ -904,7 +904,7 @@ long TFormulaApplyDefs(WFormula_p form, TB_p terms, NumXTree_p *defs)
    PStack_p   defs_used = PStackAlloc();
    PStackPointer i;
 
-   reduced = TFormulaCopyDef(terms, form->tformula, form->ident, 
+   reduced = TFormulaCopyDef(terms, form->tformula, form->ident,
                              defs, defs_used);
    if(!PStackEmpty(defs_used))
    {
@@ -914,9 +914,9 @@ long TFormulaApplyDefs(WFormula_p form, TB_p terms, NumXTree_p *defs)
       res = PStackGetSP(defs_used);
       for(i=0; i<res; i++)
       {
-         WFormulaPushDerivation(form, 
-                                DCApplyDef, 
-                                PStackElementP(defs_used, i), 
+         WFormulaPushDerivation(form,
+                                DCApplyDef,
+                                PStackElementP(defs_used, i),
                                 NULL);
       }
    }
@@ -924,7 +924,7 @@ long TFormulaApplyDefs(WFormula_p form, TB_p terms, NumXTree_p *defs)
    {
       assert(form->tformula == reduced);
    }
-   
+
    PStackFree(defs_used);
    return res;
 }
@@ -942,7 +942,7 @@ long TFormulaApplyDefs(WFormula_p form, TB_p terms, NumXTree_p *defs)
 //    key is the term ident of the formula to be replaced
 //    vals[0].i_val starts as the polarity of that formula, but turns
 //                  into the id of the "virtual" definition used for
-//                  output 
+//                  output
 //    vals[1].p_val is a pointer to the defined predicate term.
 //    vals[2].i_val is the id of the real definition used to protect
 //                  the definition to be applied to itself.
@@ -973,10 +973,10 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, FormulaSet_p archive, TB_p terms
 
    // printf("About to find defs\n");
    TFormulaSetFindDefs(set, terms, &defs, renamed_forms);
-   
+
    res = PStackGetSP(renamed_forms);
    // printf("About to Create defs\n");
-   
+
    for(i=0; i<PStackGetSP(renamed_forms); i++)
    {
       form = PStackElementP(renamed_forms,i);
@@ -984,7 +984,7 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, FormulaSet_p archive, TB_p terms
       assert(cell);
       polarity = TFormulaDecodePolarity(terms, form);
       def      = cell->vals[1].p_val;
-      newdef = TFormulaCreateDef(terms, def, form, 
+      newdef = TFormulaCreateDef(terms, def, form,
                                  0);
       w_def = WTFormulaAlloc(terms, newdef);
       DocFormulaCreationDefault(w_def, inf_fof_intro_def, NULL, NULL);
@@ -1005,13 +1005,13 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, FormulaSet_p archive, TB_p terms
       }
       else
       {
-         newdef = TFormulaCreateDef(terms, def, form, 
+         newdef = TFormulaCreateDef(terms, def, form,
                                  polarity);
          c_def = WTFormulaAlloc(terms, newdef);
          DocFormulaCreationDefault(c_def, inf_fof_split_equiv, w_def, NULL);
          cell->vals[2].i_val = c_def->ident; /* ..and this is the
                                                 blocking id of the actual
-                                                definition.*/         
+                                                definition.*/
          if(BuildProofObject)
          {
             WFormulaPushDerivation(c_def, DCSplitEquiv, arch_form, NULL);
@@ -1026,7 +1026,7 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, FormulaSet_p archive, TB_p terms
    for(formula = set->anchor->succ; formula!=set->anchor; formula=formula->succ)
    {
       TFormulaApplyDefs(formula, terms, &defs);
-   }    
+   }
    NumXTreeFree(defs);
    return res;
 }
@@ -1037,7 +1037,7 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, FormulaSet_p archive, TB_p terms
 // Function: FormulaSetArchive()
 //
 //   Move each formula from set to archive, replace it by a copy that
-//   quoted the archived formula as the parent. 
+//   quoted the archived formula as the parent.
 //
 // Global Variables: -
 //
@@ -1057,7 +1057,7 @@ void FormulaSetArchive(FormulaSet_p set, FormulaSet_p archive)
       newform = WFormulaFlatCopy(handle);
       WFormulaPushDerivation(newform, DCFofQuote, handle, NULL);
       FormulaSetInsert(tmpset, newform);
-      FormulaSetInsert(archive, handle);      
+      FormulaSetInsert(archive, handle);
    }
    assert(FormulaSetEmpty(set));
 
@@ -1081,7 +1081,7 @@ void FormulaSetArchive(FormulaSet_p set, FormulaSet_p archive)
 void FormulaSetDocInital(FILE* out, long level, FormulaSet_p set)
 {
    WFormula_p handle;
-   
+
    if(level>=2)
    {
       for(handle = set->anchor->succ; handle!=set->anchor; handle =
@@ -1089,7 +1089,7 @@ void FormulaSetDocInital(FILE* out, long level, FormulaSet_p set)
       {
 	 DocFormulaCreationDefault(handle, inf_initial, NULL,NULL);
       }
-   }   
+   }
 }
 
 

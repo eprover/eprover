@@ -5,7 +5,7 @@ File  : che_proofcontrol.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Basic functions for proof control objects.
 
   Copyright 1998, 1999 by the author.
@@ -32,7 +32,7 @@ Changes
 
 #define CHE_PROOFCONTROL_INTERNAL
 
-char* DefaultWeightFunctions = 
+char* DefaultWeightFunctions =
 "\n"
 "weight21_ugg  = Clauseweight(PreferUnitGroundGoals,2,1,1)      \n"
 "rweight21_g   = Refinedweight(PreferGoals,    2,1,1.5,1.1,1) \n"
@@ -48,7 +48,7 @@ char* DefaultWeightFunctions =
                  "100000,1.0,1.0,Flat,IndexIdentity,100000,-20,20,-2,-1,0,2)\n"
 ;
 
-char* DefaultHeuristics= 
+char* DefaultHeuristics=
 "Weight     = (1*weight21_ugg)                       \n"
 "WeightC1   = (1*weight11_ugg)                       \n"
 "StandardWeight = (1*weight21_f)                     \n"
@@ -89,17 +89,17 @@ char* DefaultHeuristics=
 
 
 "/* Here start the auto-mode-heuristics*/            \n"
-#include "che_X_____auto.c" 
-#include "che_X_____auto_casc.c" 
+#include "che_X_____auto.c"
+#include "che_X_____auto_casc.c"
 #include "che_X_____auto_dev.c"
-#include "che_X_auto_sched0.c" 
-#include "che_X_auto_sched1.c" 
-#include "che_X_auto_sched2.c" 
-#include "che_X_auto_sched3.c" 
-#include "che_X_auto_sched4.c" 
-#include "che_X_auto_sched5.c" 
-#include "che_X_auto_sched6.c" 
-#include "che_X_auto_sched7.c" 
+#include "che_X_auto_sched0.c"
+#include "che_X_auto_sched1.c"
+#include "che_X_auto_sched2.c"
+#include "che_X_auto_sched3.c"
+#include "che_X_auto_sched4.c"
+#include "che_X_auto_sched5.c"
+#include "che_X_auto_sched6.c"
+#include "che_X_auto_sched7.c"
 
 ;
 
@@ -207,7 +207,7 @@ void ProofControlFree(ProofControl_p junk)
    {
       OCBFree(junk->ocb);
    }
-   WFCBAdminFree(junk->wfcbs); 
+   WFCBAdminFree(junk->wfcbs);
    HCBAdminFree(junk->hcbs);
    /* hcb is always freed in junk->hcbs */
    ProofControlCellFree(junk);
@@ -229,7 +229,7 @@ void ProofControlFree(ProofControl_p junk)
 
 void DoLiteralSelection(ProofControl_p control, Clause_p clause)
 {
-   EqnListDelProp(clause->literals, EPIsSelected);   
+   EqnListDelProp(clause->literals, EPIsSelected);
    assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
    ClauseDelProp(clause, CPIsOriented);
    assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
@@ -245,9 +245,9 @@ void DoLiteralSelection(ProofControl_p control, Clause_p clause)
       }
    }
    if(clause->neg_lit_no &&
-      (clause->pos_lit_no >= control->heuristic_parms.pos_lit_sel_min) && 
+      (clause->pos_lit_no >= control->heuristic_parms.pos_lit_sel_min) &&
       (clause->pos_lit_no <= control->heuristic_parms.pos_lit_sel_max) &&
-      (clause->neg_lit_no >= control->heuristic_parms.neg_lit_sel_min) && 
+      (clause->neg_lit_no >= control->heuristic_parms.neg_lit_sel_min) &&
       (clause->neg_lit_no <= control->heuristic_parms.neg_lit_sel_max) &&
       (ClauseLiteralNumber(clause) >= control->heuristic_parms.all_lit_sel_min) &&
       (ClauseLiteralNumber(clause) <= control->heuristic_parms.all_lit_sel_max) &&
@@ -262,7 +262,7 @@ void DoLiteralSelection(ProofControl_p control, Clause_p clause)
    else
    {
       assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
-      SelectNoLiterals(control->ocb,clause); 
+      SelectNoLiterals(control->ocb,clause);
    }
 }
 

@@ -786,7 +786,7 @@
 #endif
 
 #if defined(CHE_HEURISTICS_INTERNAL) || defined(TO_ORDERING_INTERNAL)
-        
+
    else if(
       ( /* CLASS_G-SM-FFMM31-S Solved: 1 of 121 */
        SpecAxiomsAreGeneral(spec)&&

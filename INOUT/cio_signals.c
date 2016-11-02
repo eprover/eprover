@@ -5,7 +5,7 @@ File  : cco_signals.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Signal handler for limit signals...not really necessary, but may
   work around some Solaris bugs.
 
@@ -61,7 +61,7 @@ bool                  SilentTimeOut     = false;
 // Function: ESignalSetup()
 //
 //   Set up ESignalHandler() as handle for mysignal, check for
-//   errors. 
+//   errors.
 //
 // Global Variables: -
 //
@@ -75,7 +75,7 @@ void ESignalSetup(int mysignal)
 
    getrlimit(RLIMIT_CPU, &limit);
    SystemTimeLimit = limit.rlim_max;
-   
+
    if(signal(mysignal, ESignalHandler) == SIG_ERR)
    {
       TmpErrno = errno;
@@ -113,7 +113,7 @@ void ESignalHandler(int mysignal)
 	 }
          VERBOSE(WriteStr(GlobalOutFD, "SIGXCPU caught.\n"););
 	 if(TimeLimitIsSoft)
-	 {	  	    
+	 {
 	    TimeIsUp = 1;
 	    TimeLimitIsSoft = false;
 	    limit.rlim_cur = MIN(HardTimeLimit, SystemTimeLimit);
@@ -125,7 +125,7 @@ void ESignalHandler(int mysignal)
 	    }
 	    ESignalSetup(SIGXCPU); /* Reenable signal handler */
 	    return;
-	 }	 
+	 }
          if(SilentTimeOut)
          {
             exit(CPU_LIMIT_ERROR);
@@ -147,7 +147,7 @@ void ESignalHandler(int mysignal)
 	 }
 	 fatal_error_in_progress = 1;
 	 TempFileCleanup();
-	 raise(mysignal); 
+	 raise(mysignal);
 	 break;
    default:
       WriteStr(STDERR_FILENO, "Warning: ");

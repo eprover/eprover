@@ -5,7 +5,7 @@ File  : cto_orderings.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Interface to the ordering module
 
   Copyright 1998, 1999 by the author.
@@ -68,7 +68,7 @@ bool TOGreater(OCB_p ocb, Term_p s, Term_p t, DerefType deref_s,
    assert(ocb);
    assert(s);
    assert(t);
-   
+
    /* OCBDebugPrint(stdout, ocb); */
    /* printf("TOGreater...\n");
    TermPrint(stdout, s, ocb->sig, deref_s);
@@ -78,44 +78,44 @@ bool TOGreater(OCB_p ocb, Term_p s, Term_p t, DerefType deref_s,
 
    switch(ocb->type)
    {
-   case LPO: 
+   case LPO:
 	 /* printf("# Starting comparison (greater, debug)\n");
 	 if((tmp = TermCheckConsistency(s, deref_s)))
-	 { 
+	 {
 	    printf("Term s (%p) is inconsistent at %p!\n", s, tmp);
 	 } */
 	 /* TermPrint(stdout, s, ocb->sig, deref_s); */
 	 /* printf(" -|- "); */
 	 /* if((tmp = TermCheckConsistency(t, deref_t)))
-	 { 
+	 {
 	    printf("Term t (%p) is inconsistent at %p!\n", t, tmp);
 	 } */
 	 /* TermPrint(stdout, t, ocb->sig, deref_t); */
-	 /* res1 = D_LPOGreater(ocb,  s, t, deref_s, deref_t);  
+	 /* res1 = D_LPOGreater(ocb,  s, t, deref_s, deref_t);
 	    printf("# Comparison (greater, debug) done %d\n", res1); */
 	 /* CmpCacheInit(ocb->cmp_cache); */
 	 res = LPOGreater(ocb, s, t, deref_s, deref_t);
 	 /* printf("# Comparison (greater, current) done %d\n", res); */
 	 /* assert(res == res1); */
-	 /* CmpCacheClear(ocb->cmp_cache); */	 
+	 /* CmpCacheClear(ocb->cmp_cache); */
 	 break;
-   case LPOCopy: 
+   case LPOCopy:
          res = LPOGreaterCopy(ocb, s, t, deref_s, deref_t);
          break;
-   case LPO4: 
-         res = LPO4Greater(ocb, s, t, deref_s, deref_t); 
+   case LPO4:
+         res = LPO4Greater(ocb, s, t, deref_s, deref_t);
          break;
-   case LPO4Copy: 
+   case LPO4Copy:
          res = LPO4GreaterCopy(ocb, s, t, deref_s, deref_t);
-         break; 
+         break;
    case RPO:
 	 assert(false && "RPO not yet implemented!");
 	 break;
    case KBO:
-	 res = KBOGreater(ocb, s, t, deref_s, deref_t); 
+	 res = KBOGreater(ocb, s, t, deref_s, deref_t);
 	 break;
    case KBO6:
-	 res = KBO6Greater(ocb, s, t, deref_s, deref_t); 
+	 res = KBO6Greater(ocb, s, t, deref_s, deref_t);
 	 break;
    default:
 	 assert(false);
@@ -158,13 +158,13 @@ CompareResult TOCompare(OCB_p ocb, Term_p s, Term_p t, DerefType deref_s,
    case LPO:
 	 /* printf("# Starting comparison (Compare, debug), %ld, %ld \n", deref_s,deref_t);
 	 if((tmp = TermCheckConsistency(s, deref_s)))
-	 { 
+	 {
 	    printf("Term s (%p) is inconsistent at %p!\n", s, tmp);
 	 } */
 	 /* TermPrint(stdout, s, ocb->sig, deref_s); */
 	 /* printf(" -|- "); */
 	 /* if((tmp = TermCheckConsistency(t, deref_t)))
-	 { 
+	 {
 	    printf("Term t (%p) is inconsistent at %p!\n", t, tmp);
 	 } */
 	 /* TermPrint(stdout, t, ocb->sig, deref_t); */
@@ -213,9 +213,9 @@ CompareResult TOCompare(OCB_p ocb, Term_p s, Term_p t, DerefType deref_s,
 //   Parse a symbol (>, <, =) and return the corresponding comparion
 //   result code.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -261,7 +261,7 @@ CompareResult TOCompareSymbolParse(Scanner_p in)
 
 PStackPointer TOSymbolComparisonChainParse(Scanner_p in, OCB_p ocb)
 {
-   FunCode       f1, f2; 
+   FunCode       f1, f2;
    int           line1, column1, line2, column2;
    StreamType    type1, type2;
    DStr_p        source1, source2, errpos;
@@ -277,19 +277,19 @@ PStackPointer TOSymbolComparisonChainParse(Scanner_p in, OCB_p ocb)
    while(TestInpTok(in,LesserSign|GreaterSign|EqualSign))
    {
       relation = TOCompareSymbolParse(in);
- 
+
       line2    = AktToken(in)->line;
       column2 = AktToken(in)->column;
       source2 = DStrGetRef(AktToken(in)->source);
       type2   = AktToken(in)->stream_type;
       f2      = SigParseKnownOperator(in, ocb->sig);
-   
+
       ocb_state = OCBPrecedenceAddTuple(ocb, f1, f2, relation);
-      
+
       if(!ocb_state)
       {
 	 errpos = DStrAlloc();
-	 
+
 	 DStrAppendStr(errpos, PosRep(type1, source1, line1, column1));
 	 DStrAppendStr(errpos, " Precedence incompatible with previous ordering!");
 	 Error(DStrView(errpos), SYNTAX_ERROR);
@@ -300,11 +300,11 @@ PStackPointer TOSymbolComparisonChainParse(Scanner_p in, OCB_p ocb)
       column1 = column2;
       source1 = DStrGetRef(source2);
       DStrReleaseRef(source2);
-      type1   = type2;     
-      f1      = f2;      
+      type1   = type2;
+      f1      = f2;
    }
    DStrReleaseRef(source1);
-   
+
    return ocb_state;
 }
 
@@ -327,7 +327,7 @@ PStackPointer TOPrecedenceParse(Scanner_p in, OCB_p ocb)
 
    assert(ocb);
    assert(ocb->sig_size == ocb->sig->f_count);
-   assert(ocb->precedence); 
+   assert(ocb->precedence);
 
    res = OCBPrecedenceGetState(ocb);
    if(TestInpTok(in, Identifier))
@@ -357,16 +357,16 @@ PStackPointer TOPrecedenceParse(Scanner_p in, OCB_p ocb)
 
 void TOSymbolWeightParse(Scanner_p in, OCB_p ocb)
 {
-   FunCode       f; 
+   FunCode       f;
    long          weight;
-   
+
    f      = SigParseKnownOperator(in, ocb->sig);
    AcceptInpTok(in, Colon);
    weight = AktToken(in)->numval;
    AcceptInpTok(in, PosInt);
 
    *OCBFunWeightPos(ocb, f) =
-      weight*W_DEFAULT_WEIGHT;   
+      weight*W_DEFAULT_WEIGHT;
 }
 
 
@@ -375,7 +375,7 @@ void TOSymbolWeightParse(Scanner_p in, OCB_p ocb)
 // Function: TOWeightsParse()
 //
 //   Parse a list of weight assignments. Return number of assignments
-//   parsed. 
+//   parsed.
 //
 // Global Variables: -
 //

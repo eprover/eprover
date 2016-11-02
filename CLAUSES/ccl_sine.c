@@ -5,7 +5,7 @@ File  : ccl_sine.c
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Implementation of generalized SinE axiom selection.
 
   Copyright 2010 by the author.
@@ -96,9 +96,9 @@ void DRelFree(DRel_p rel)
 //
 //   Allocate a complete DRelation.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -118,9 +118,9 @@ DRelation_p DRelationAlloc(void)
 //
 //   Free a DRelation.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -178,7 +178,7 @@ DRel_p DRelationGetFEntry(DRelation_p rel, FunCode f_code)
 /----------------------------------------------------------------------*/
 
 void DRelationAddClause(DRelation_p drel,
-                        GenDistrib_p generality, 
+                        GenDistrib_p generality,
                         GeneralityMeasure gentype,
                         double benevolence,
                         long generosity,
@@ -188,11 +188,11 @@ void DRelationAddClause(DRelation_p drel,
    FunCode  symbol;
    DRel_p   rel;
 
-   ClauseComputeDRel(generality, 
+   ClauseComputeDRel(generality,
                      gentype,
                      benevolence,
                      generosity,
-                     clause, 
+                     clause,
                      symbols);
    if(PStackEmpty(symbols))
    {
@@ -207,7 +207,7 @@ void DRelationAddClause(DRelation_p drel,
          rel = DRelationGetFEntry(drel, symbol);
          PStackPushP(rel->d_clauses, clause);
       }
-   }   
+   }
    PStackFree(symbols);
 }
 
@@ -225,7 +225,7 @@ void DRelationAddClause(DRelation_p drel,
 /----------------------------------------------------------------------*/
 
 void DRelationAddFormula(DRelation_p drel,
-                         GenDistrib_p generality, 
+                         GenDistrib_p generality,
                          GeneralityMeasure gentype,
                          double benevolence,
                          long generosity,
@@ -235,11 +235,11 @@ void DRelationAddFormula(DRelation_p drel,
    FunCode  symbol;
    DRel_p   rel;
 
-   FormulaComputeDRel(generality, 
+   FormulaComputeDRel(generality,
                       gentype,
                       benevolence,
                       generosity,
-                      form, 
+                      form,
                       symbols);
    if(PStackEmpty(symbols))
    {
@@ -272,25 +272,25 @@ void DRelationAddFormula(DRelation_p drel,
 /----------------------------------------------------------------------*/
 
 void DRelationAddClauseSet(DRelation_p drel,
-                           GenDistrib_p generality, 
+                           GenDistrib_p generality,
                            GeneralityMeasure gentype,
                            double benevolence,
                            long generosity,
                            ClauseSet_p set)
 {
    Clause_p handle;
-   
-   for(handle = set->anchor->succ; 
+
+   for(handle = set->anchor->succ;
        handle != set->anchor;
        handle = handle->succ)
    {
       DRelationAddClause(drel,
-                         generality, 
+                         generality,
                          gentype,
                          benevolence,
                          generosity,
                          handle);
-   } 
+   }
 }
 
 
@@ -300,14 +300,14 @@ void DRelationAddClauseSet(DRelation_p drel,
 //
 //   Add all formulas in set to the D-Relation.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
 void DRelationAddFormulaSet(DRelation_p drel,
-                            GenDistrib_p generality, 
+                            GenDistrib_p generality,
                             GeneralityMeasure gentype,
                             double benevolence,
                             long generosity,
@@ -315,17 +315,17 @@ void DRelationAddFormulaSet(DRelation_p drel,
 {
    WFormula_p handle;
 
-   for(handle = set->anchor->succ; 
+   for(handle = set->anchor->succ;
        handle != set->anchor;
        handle = handle->succ)
    {
       DRelationAddFormula(drel,
-                          generality, 
+                          generality,
                           gentype,
                           benevolence,
                           generosity,
                           handle);
-   }    
+   }
 }
 
 
@@ -342,7 +342,7 @@ void DRelationAddFormulaSet(DRelation_p drel,
 /----------------------------------------------------------------------*/
 
 void DRelationAddClauseSets(DRelation_p drel,
-                            GenDistrib_p generality, 
+                            GenDistrib_p generality,
                             GeneralityMeasure gentype,
                             double benevolence,
                            long generosity,
@@ -353,7 +353,7 @@ void DRelationAddClauseSets(DRelation_p drel,
    for(i=0; i<PStackGetSP(sets); i++)
    {
       DRelationAddClauseSet(drel,
-                            generality, 
+                            generality,
                             gentype,
                             benevolence,
                             generosity,
@@ -367,31 +367,31 @@ void DRelationAddClauseSets(DRelation_p drel,
 //
 //    Add all formulas in sets on stack into the D-Relation.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
 void DRelationAddFormulaSets(DRelation_p drel,
-                             GenDistrib_p generality, 
+                             GenDistrib_p generality,
                              GeneralityMeasure gentype,
                              double benevolence,
                              long generosity,
                              PStack_p sets)
 {
    PStackPointer i;
-   
+
    for(i=0; i<PStackGetSP(sets); i++)
    {
       DRelationAddFormulaSet(drel,
-                             generality, 
+                             generality,
                              gentype,
                              benevolence,
                              generosity,
                              PStackElementP(sets, i));
    }
-}  
+}
 
 
 /*-----------------------------------------------------------------------
@@ -409,7 +409,7 @@ void DRelationAddFormulaSets(DRelation_p drel,
 void PQueueStoreClause(PQueue_p axioms, Clause_p clause)
 {
    PQueueStoreInt(axioms, ATClause);
-   PQueueStoreP(axioms, clause); 
+   PQueueStoreP(axioms, clause);
 }
 
 
@@ -428,7 +428,7 @@ void PQueueStoreClause(PQueue_p axioms, Clause_p clause)
 void PQueueStoreFormula(PQueue_p axioms, WFormula_p form)
 {
    PQueueStoreInt(axioms, ATFormula);
-   PQueueStoreP(axioms, form); 
+   PQueueStoreP(axioms, form);
 }
 
 
@@ -449,9 +449,9 @@ long ClauseSetFindHypotheses(ClauseSet_p set, PQueue_p res, bool inc_hypos)
 {
    long ret = 0;
    Clause_p handle;
-   
 
-   for(handle = set->anchor->succ; 
+
+   for(handle = set->anchor->succ;
        handle != set->anchor;
        handle = handle->succ)
    {
@@ -461,7 +461,7 @@ long ClauseSetFindHypotheses(ClauseSet_p set, PQueue_p res, bool inc_hypos)
          PQueueStoreClause(res, handle);
          ret++;
       }
-   } 
+   }
    return ret;
 }
 
@@ -482,9 +482,9 @@ long FormulaSetFindHypotheses(FormulaSet_p set, PQueue_p res, bool inc_hypos)
 {
    long ret = 0;
    WFormula_p handle;
-   
 
-   for(handle = set->anchor->succ; 
+
+   for(handle = set->anchor->succ;
        handle != set->anchor;
        handle = handle->succ)
    {
@@ -495,7 +495,7 @@ long FormulaSetFindHypotheses(FormulaSet_p set, PQueue_p res, bool inc_hypos)
          PQueueStoreFormula(res, handle);
          ret++;
       }
-   } 
+   }
    return ret;
 }
 
@@ -506,7 +506,7 @@ long FormulaSetFindHypotheses(FormulaSet_p set, PQueue_p res, bool inc_hypos)
 //   Perform SinE-like axiom selection. All initially selected
 //   "axioms" (typically the conjectures/hypotheses) have to be in
 //   axioms, in the form of (type, pointer) values. Returns the number
-//   of axioms selected. 
+//   of axioms selected.
 //
 // Global Variables: -
 //
@@ -514,12 +514,12 @@ long FormulaSetFindHypotheses(FormulaSet_p set, PQueue_p res, bool inc_hypos)
 //
 /----------------------------------------------------------------------*/
 
-long SelectDefiningAxioms(DRelation_p drel, 
+long SelectDefiningAxioms(DRelation_p drel,
                           Sig_p sig,
                           int max_recursion_depth,
                           long max_set_size,
                           PQueue_p axioms,
-                          PStack_p res_clauses, 
+                          PStack_p res_clauses,
                           PStack_p res_formulas)
 {
    AxiomType  type;
@@ -538,17 +538,17 @@ long SelectDefiningAxioms(DRelation_p drel,
 
    while(!PQueueEmpty(axioms))
    {
-      /* printf("Selecting %ld from %ld at %d\n", 
-         res, 
-         PQueueCardinality(axioms), 
+      /* printf("Selecting %ld from %ld at %d\n",
+         res,
+         PQueueCardinality(axioms),
          recursion_level); */
-         
-      if((res > max_set_size) || 
+
+      if((res > max_set_size) ||
          (recursion_level > max_recursion_depth))
-      {         
+      {
          break;
       }
- 
+
       type = PQueueGetNextInt(axioms);
       switch(type)
       {
@@ -589,7 +589,7 @@ long SelectDefiningAxioms(DRelation_p drel,
 
       {
          i = PStackElementInt(symbol_stack, ssp);
-         if((i > sig->internal_symbols) && 
+         if((i > sig->internal_symbols) &&
             (frel = PDArrayElementP(drel->relation, i)) &&
             !frel->activated)
          {
@@ -637,7 +637,7 @@ long SelectAxioms(GenDistrib_p      f_distrib,
                   PStack_p          formula_sets,
                   PStackPointer     hyp_start,
                   AxFilter_p        ax_filter,
-                  PStack_p          res_clauses, 
+                  PStack_p          res_clauses,
                   PStack_p          res_formulas)
 {
    long          res = 0;
@@ -651,29 +651,29 @@ long SelectAxioms(GenDistrib_p      f_distrib,
 
    /* fprintf(GlobalOut, "# Axiom selection starts (%lld)\n",
       GetSecTimeMod()); */
-   DRelationAddClauseSets(drel, f_distrib, 
-                          ax_filter->gen_measure, 
-                          ax_filter->benevolence, 
+   DRelationAddClauseSets(drel, f_distrib,
+                          ax_filter->gen_measure,
+                          ax_filter->benevolence,
                           ax_filter->generosity,
                           clause_sets);
-   DRelationAddFormulaSets(drel, f_distrib, 
-                           ax_filter->gen_measure, 
-                           ax_filter->benevolence, 
+   DRelationAddFormulaSets(drel, f_distrib,
+                           ax_filter->gen_measure,
+                           ax_filter->benevolence,
                            ax_filter->generosity,
                            formula_sets);
    /* fprintf(GlobalOut, "# DRelation constructed (%lld)\n",
     * GetSecTimeMod()); */
-    
+
    for(i=hyp_start; i<PStackGetSP(clause_sets); i++)
    {
       hypos += ClauseSetFindHypotheses(PStackElementP(clause_sets, i),
-                                       selq, 
+                                       selq,
                                        ax_filter->use_hypotheses);
       hypos += FormulaSetFindHypotheses(PStackElementP(formula_sets, i),
-                                        selq, 
+                                        selq,
                                         ax_filter->use_hypotheses);
    }
-   /* fprintf(GlobalOut, "# Hypotheses found (%lld)\n", 
+   /* fprintf(GlobalOut, "# Hypotheses found (%lld)\n",
       GetSecTimeMod()); */
    VERBOSE(fprintf(stderr, "# Found %ld hypotheses\n", hypos););
    if(!hypos)
@@ -682,7 +682,7 @@ long SelectAxioms(GenDistrib_p      f_distrib,
    }
    else
    {
-      ax_cardinality = 
+      ax_cardinality =
          FormulaSetStackCardinality(formula_sets)+
          ClauseSetStackCardinality(clause_sets);
       max_result_size = ax_filter->max_set_fraction*ax_cardinality;
@@ -715,7 +715,7 @@ long SelectAxioms(GenDistrib_p      f_distrib,
       GetSecTimeMod()); */
    PQueueFree(selq);
    DRelationFree(drel);
- 
+
    return res;
 }
 
@@ -737,10 +737,10 @@ long SelectAxioms(GenDistrib_p      f_distrib,
 long SelectThreshold(PStack_p          clause_sets,
                      PStack_p          formula_sets,
                      AxFilter_p        ax_filter,
-                     PStack_p          res_clauses, 
+                     PStack_p          res_clauses,
                      PStack_p          res_formulas)
 {
-   long ax_cardinality = 
+   long ax_cardinality =
       FormulaSetStackCardinality(formula_sets)+
       ClauseSetStackCardinality(clause_sets);
 
@@ -751,12 +751,12 @@ long SelectThreshold(PStack_p          clause_sets,
       FormulaSet_p fset;
       Clause_p clause;
       WFormula_p formula;
-      
+
       for(i=0; i<PStackGetSP(clause_sets); i++)
       {
          cset = PStackElementP(clause_sets, i);
-         for(clause = cset->anchor->succ; 
-             clause!=cset->anchor; 
+         for(clause = cset->anchor->succ;
+             clause!=cset->anchor;
              clause=clause->succ)
          {
             PStackPushP(res_clauses, clause);
@@ -765,18 +765,18 @@ long SelectThreshold(PStack_p          clause_sets,
       for(i=0; i<PStackGetSP(formula_sets); i++)
       {
          fset = PStackElementP(formula_sets, i);
-         for(formula = fset->anchor->succ; 
-             formula!=fset->anchor; 
+         for(formula = fset->anchor->succ;
+             formula!=fset->anchor;
              formula=formula->succ)
          {
             PStackPushP(res_formulas, formula);
          }
       }
-      
+
    }
    return PStackGetSP(res_clauses)+PStackGetSP(res_formulas);
 }
- 
+
 
 /*-----------------------------------------------------------------------
 //
@@ -817,7 +817,7 @@ void DRelPrintDebug(FILE* out, DRel_p rel, Sig_p sig)
 void DRelationPrintDebug(FILE* out, DRelation_p rel, Sig_p sig)
 {
    long i;
-   
+
    for(i=1; i<rel->relation->size; i++)
    {
       if(PDArrayElementP(rel->relation, i))
@@ -845,7 +845,7 @@ void PStackClauseDelProp(PStack_p stack, ClauseProperties prop)
 {
    PStackPointer i;
    Clause_p clause;
-   
+
    for(i=0; i<PStackGetSP(stack); i++)
    {
       clause = PStackElementP(stack, i);
@@ -871,7 +871,7 @@ void PStackFormulaDelProp(PStack_p stack, WFormulaProperties prop)
 {
    PStackPointer i;
    WFormula_p form;
-   
+
    for(i=0; i<PStackGetSP(stack); i++)
    {
       form = PStackElementP(stack, i);
@@ -896,7 +896,7 @@ void PStackClausePrintTSTP(FILE* out, PStack_p stack)
 {
    PStackPointer i;
    Clause_p clause;
-   
+
    for(i=0; i<PStackGetSP(stack); i++)
    {
       clause = PStackElementP(stack, i);
@@ -922,7 +922,7 @@ void PStackFormulaPrintTSTP(FILE* out, PStack_p stack)
 {
    PStackPointer i;
    WFormula_p form;
-   
+
    for(i=0; i<PStackGetSP(stack); i++)
    {
       form = PStackElementP(stack, i);
@@ -947,7 +947,7 @@ void PStackClausesMove(PStack_p stack, ClauseSet_p set)
 {
    PStackPointer i;
    Clause_p clause;
-   
+
    for(i=0; i<PStackGetSP(stack); i++)
    {
       clause = PStackElementP(stack, i);
@@ -972,7 +972,7 @@ void PStackFormulasMove(PStack_p stack, FormulaSet_p set)
 {
    PStackPointer i;
    WFormula_p form;
-   
+
    for(i=0; i<PStackGetSP(stack); i++)
    {
       form = PStackElementP(stack, i);

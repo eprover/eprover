@@ -6,7 +6,7 @@ Author: Stephan Schulz
 
 Contents
 
-  Lists of PCL steps 
+  Lists of PCL steps
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
@@ -87,9 +87,9 @@ bool      PCLProtMarkProofClauses(PCLProt_p prot);
 void      PCLProtSetProp(PCLProt_p prot, PCLStepProperties props);
 void      PCLProtDelProp(PCLProt_p prot, PCLStepProperties props);
 long      PCLProtCountProp(PCLProt_p prot, PCLStepProperties props);
-long      PCLProtCollectPropSteps(PCLProt_p prot, PCLStepProperties props, 
-                                  PStack_p steps); 
-void      PCLProtPrintPropClauses(FILE* out, PCLProt_p prot, 
+long      PCLProtCollectPropSteps(PCLProt_p prot, PCLStepProperties props,
+                                  PStack_p steps);
+void      PCLProtPrintPropClauses(FILE* out, PCLProt_p prot,
 				  PCLStepProperties prop,
 				  OutputFormatType format);
 

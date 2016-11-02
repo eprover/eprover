@@ -5,7 +5,7 @@ File  : cte_varhash.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Data structures for hashing and traversing variable occurences.
 
   Copyright 1998, 1999 by the author.
@@ -117,7 +117,7 @@ static __inline__ VarHashEntry_p VarHashEntryAlloc(Term_p var, long
    handle->key = var;
    handle->val = value;
    handle->next = NULL;
-   
+
    return handle;
 }
 
@@ -138,7 +138,7 @@ static __inline__ VarHash_p VarHashAlloc(void)
 {
    VarHash_p handle;
    int       i;
-   
+
    handle = VarHashCellAlloc();
    for(i=0; i<VAR_HASH_SIZE; i++)
    {

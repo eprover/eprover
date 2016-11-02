@@ -5,7 +5,7 @@ File  : ccl_global_indices.c
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Code handling several simple indices.
 
   Copyright 2010 by the author.
@@ -81,7 +81,7 @@ void GlobalIndicesNull(GlobalIndices_p indices)
 //
 /----------------------------------------------------------------------*/
 
-void GlobalIndicesInit(GlobalIndices_p indices, 
+void GlobalIndicesInit(GlobalIndices_p indices,
                        Sig_p sig,
                        char* rw_bw_index_type,
                        char* pm_from_index_type,
@@ -89,8 +89,8 @@ void GlobalIndicesInit(GlobalIndices_p indices,
 {
    FPIndexFunction indexfun;
 
-   // fprintf(GlobalOut, "# GlobalIndicesInit(%p, <>, %s, %s, %s)\n", indices, rw_bw_index_type, pm_from_index_type, pm_into_index_type); 
-   
+   // fprintf(GlobalOut, "# GlobalIndicesInit(%p, <>, %s, %s, %s)\n", indices, rw_bw_index_type, pm_from_index_type, pm_into_index_type);
+
    indices->sig = sig;
    indexfun = GetFPIndexFunction(rw_bw_index_type);
    strcpy(indices->rw_bw_index_type, rw_bw_index_type);
@@ -135,22 +135,22 @@ void GlobalIndicesFreeIndices(GlobalIndices_p indices)
 {
    if(indices->bw_rw_index)
    {
-      FPIndexFree(indices->bw_rw_index);          
+      FPIndexFree(indices->bw_rw_index);
       indices->bw_rw_index = NULL;
    }
    if(indices->pm_from_index)
    {
-      FPIndexFree(indices->pm_from_index);          
+      FPIndexFree(indices->pm_from_index);
       indices->pm_from_index = NULL;
-   }  
+   }
    if(indices->pm_into_index)
    {
-      FPIndexFree(indices->pm_into_index);          
+      FPIndexFree(indices->pm_into_index);
       indices->pm_into_index = NULL;
    }
    if(indices->pm_negp_index)
    {
-      FPIndexFree(indices->pm_negp_index);          
+      FPIndexFree(indices->pm_negp_index);
       indices->pm_negp_index = NULL;
    }
 }
@@ -172,7 +172,7 @@ void GlobalIndicesReset(GlobalIndices_p indices)
 {
    GlobalIndicesFreeIndices(indices);
 
-   GlobalIndicesInit(indices, 
+   GlobalIndicesInit(indices,
                      indices->sig,
                      indices->rw_bw_index_type,
                      indices->pm_from_index_type,
@@ -195,7 +195,7 @@ void GlobalIndicesReset(GlobalIndices_p indices)
 void GlobalIndicesInsertClause(GlobalIndices_p indices, Clause_p clause)
 {
    assert(!ClauseQueryProp(clause, CPIsGlobalIndexed));
-   
+
    ClauseSetProp(clause, CPIsGlobalIndexed);
 
    // printf("# Inserting clause %p in index %p: ", clause, indices);ClausePrint(stdout, clause, true); printf("\n");
@@ -206,7 +206,7 @@ void GlobalIndicesInsertClause(GlobalIndices_p indices, Clause_p clause)
       SubtermIndexInsertClause(indices->bw_rw_index, clause);
       PERF_CTR_EXIT(BWRWIndexTimer);
    }
-   
+
    if(indices->pm_into_index)
    {
       PERF_CTR_ENTRY(PMIndexTimer);
@@ -241,23 +241,23 @@ void GlobalIndicesInsertClause(GlobalIndices_p indices, Clause_p clause)
 void GlobalIndicesDeleteClause(GlobalIndices_p indices, Clause_p clause)
 {
    // printf("# XXX GlobalIndicesDeleteClause()... (set=%p): ", clause->set);ClausePrint(GlobalOut, clause, true);printf("\n");
-   
+
    assert(ClauseQueryProp(clause, CPIsGlobalIndexed));
 
    ClauseDelProp(clause, CPIsGlobalIndexed);
-   
+
    if(indices->bw_rw_index)
    {
       PERF_CTR_ENTRY(BWRWIndexTimer);
       SubtermIndexDeleteClause(indices->bw_rw_index, clause);
       PERF_CTR_EXIT(BWRWIndexTimer);
    }
-   
+
    if(indices->pm_into_index)
    {
       PERF_CTR_ENTRY(PMIndexTimer);
       // OverlapIndexDeleteIntoClause(indices->pm_into_index, clause);
-      OverlapIndexDeleteIntoClause2(indices->pm_into_index, 
+      OverlapIndexDeleteIntoClause2(indices->pm_into_index,
                                     indices->pm_negp_index,
                                     clause);
       PERF_CTR_EXIT(PMIndexTimer);
@@ -284,7 +284,7 @@ void GlobalIndicesDeleteClause(GlobalIndices_p indices, Clause_p clause)
 //
 /----------------------------------------------------------------------*/
 
-void GlobalIndicesInsertClauseSet(GlobalIndices_p indices, 
+void GlobalIndicesInsertClauseSet(GlobalIndices_p indices,
                                   ClauseSet_p set)
 {
    Clause_p handle;

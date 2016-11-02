@@ -5,7 +5,7 @@ File  : cte_idx_fp.h
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Compute a fingerprint of a term suitable for fingerprint indexing. A
   fingerprint is a vector of individual samples for positions p, where
   the result is t|p->f_code if p is a position in t, BELOW_VAR

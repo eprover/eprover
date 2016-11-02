@@ -5,7 +5,7 @@ File  : clb_intmap.h
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Definitions and functions for a data type that maps natural numbers
   (including 0) to void* pointers, supporting assignments, retrieval,
   deletion, and iteration.
@@ -46,7 +46,7 @@ typedef enum
 
 #define MAX_TREE_DENSITY 8
 #define MIN_TREE_DENSITY 4
-#define IM_ARRAY_SIZE MAX_TREE_DENSITY 
+#define IM_ARRAY_SIZE MAX_TREE_DENSITY
 
 /* This is the main thing - a datatype that keeps key/value pairs and
  * allows inserting, updating, deleting, and ordered iteration. I
@@ -69,7 +69,7 @@ typedef struct intmap_cell
                             * may be an overestimate, as we do not
                             * always correct this if a key is deleted
                             * from an array. */
-   union 
+   union
    {
       void*        value;   /* For IMSingle */
       PDRangeArr_p array;   /* For IMArray  */
@@ -89,7 +89,7 @@ typedef struct intmap_iter_cell
       bool      seen;      /* For IMSingle */
       long      current;   /* For IMArray  */
       PStack_p  tree_iter; /* For IMTree */
-   }admin_data;   
+   }admin_data;
 }IntMapIterCell, *IntMapIter_p;
 
 
@@ -127,7 +127,7 @@ void*    IntMapDelKey(IntMap_p map, long key);
 
 #define IntMapStorage(map) (INTMAPCELL_MEM+IntMapDStorage(map))
 
-IntMapIter_p IntMapIterAlloc(IntMap_p map, long lower_key, long upper_key); 
+IntMapIter_p IntMapIterAlloc(IntMap_p map, long lower_key, long upper_key);
 void         IntMapIterFree(IntMapIter_p junk);
 static __inline__ void* IntMapIterNext(IntMapIter_p iter, long *key);
 
@@ -183,7 +183,7 @@ static __inline__ void* IntMapIterNext(IntMapIter_p iter, long *key)
             res = iter->map->values.value;
          }
          break;
-   case IMArray: 
+   case IMArray:
          //printf("Case IMArray\n");
          for(i=iter->admin_data.current; i<= iter->upper_key; i++)
          {
@@ -199,7 +199,7 @@ static __inline__ void* IntMapIterNext(IntMapIter_p iter, long *key)
    case IMTree:
          //printf("Case IMTree\n");
          while((handle = NumTreeTraverseNext(iter->admin_data.tree_iter)))
-         {               
+         {
             if(handle)
             {
                if(handle->key > iter->upper_key)

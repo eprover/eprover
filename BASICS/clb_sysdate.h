@@ -5,7 +5,7 @@ File  : clb_sysdate.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Data types dealing with "dates" and "times". A "time" in this
   context is a data type with a defined starting point and a total
   ordering that monotonically increases during the run of the program

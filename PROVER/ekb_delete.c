@@ -5,8 +5,8 @@ File  : ekb_delete.c
 Author: Stephan Schulz
 
 Contents
- 
-  Delete a training example from the knowledge base.  
+
+  Delete a training example from the knowledge base.
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
@@ -50,8 +50,8 @@ typedef enum
 
 OptCell opts[] =
 {
-   {OPT_HELP, 
-    'h', "help", 
+   {OPT_HELP,
+    'h', "help",
     NoArg, NULL,
     "Print a short description of program usage and options."},
 
@@ -60,8 +60,8 @@ OptCell opts[] =
     NoArg, NULL,
     "Print the version number of the program."},
 
-   {OPT_VERBOSE, 
-    'v', "verbose", 
+   {OPT_VERBOSE,
+    'v', "verbose",
     OptArg, "1",
     "Verbose comments on the progress of the program."},
 
@@ -69,7 +69,7 @@ OptCell opts[] =
     'k',"knowledge-base",
     ReqArg, NULL,
     "Select the knowledge base. If not given, select E_KNOWLEDGE."},
-    
+
    {OPT_NOOPT,
     '\0', NULL,
     NoArg, NULL,
@@ -107,40 +107,40 @@ int main(int argc, char* argv[])
    assert(argv[0]);
 
    InitIO(NAME);
-   
+
    state = process_options(argc, argv);
-   
+
    if(state->argc !=  1)
    {
       Error("One argument (name of the problem to remove) required",
 	    USAGE_ERROR);
-   }  
+   }
    assert(state->argv[0]);
    ex_name = state->argv[0];
 
    name = DStrAlloc();
-   
+
    /* Step 1: Read existing files: problems, clausepatterns, signature
     */
    proof_examples = ExampleSetAlloc();
-   in = CreateScanner(StreamTypeFile, 
+   in = CreateScanner(StreamTypeFile,
 		      KBFileName(name, kb_name, "problems"),
 		      true, NULL);
    ExampleSetParse(in, proof_examples);
    DestroyScanner(in);
-   
+
    sort_table = DefaultSortTableAlloc();
    sig = SigAlloc(sort_table);
    annoterms = TBAlloc(sig);
-   in = CreateScanner(StreamTypeFile, 
+   in = CreateScanner(StreamTypeFile,
 		      KBFileName(name, kb_name, "clausepatterns"),
 		      true, NULL);
    clause_examples = AnnoSetParse(in, annoterms, KB_ANNOTATION_NO);
    DestroyScanner(in);
 
    VERBOUT("Old knowledge base files parsed successfully\n");
-   
-   /* Step 2: Check validity of remove request */   
+
+   /* Step 2: Check validity of remove request */
 
    to_delete = ExampleSetFindName(proof_examples, ex_name);
    if(!to_delete)
@@ -155,14 +155,14 @@ int main(int argc, char* argv[])
       DStrFree(error);
    }
    /* Step 3: Remove examples and delete example file */
-   
+
    AnnoSetRemoveByIdent(clause_examples, to_delete->ident);
    ExampleSetDeleteId(proof_examples, to_delete->ident);
 
    store_file = DStrAlloc();
    DStrAppendStr(store_file, KBFileName(name, kb_name, "FILES/"));
    DStrAppendStr(store_file, ex_name);
-   
+
    FileRemove(DStrView(store_file));
    DStrFree(store_file);
 
@@ -171,9 +171,9 @@ int main(int argc, char* argv[])
    out = OutOpen(KBFileName(name, kb_name, "clausepatterns"));
    AnnoSetPrint(out, clause_examples);
    OutClose(out);
-   
+
    out = OutOpen(KBFileName(name, kb_name, "problems"));
-   ExampleSetPrint(out, proof_examples); 
+   ExampleSetPrint(out, proof_examples);
    OutClose(out);
 
    /* Finally clean up */
@@ -191,7 +191,7 @@ int main(int argc, char* argv[])
    MemFlushFreeList();
    MemDebugPrintStats(stdout);
 #endif
-   
+
    return 0;
 }
 
@@ -203,7 +203,7 @@ int main(int argc, char* argv[])
 //   Read and process the command line option, return (the pointer to)
 //   a CLState object containing the remaining arguments.
 //
-// Global Variables: 
+// Global Variables:
 //
 // Side Effects    : Sets variables, may terminate with program
 //                   description if option -h or --help was present
@@ -215,9 +215,9 @@ CLState_p process_options(int argc, char* argv[])
    Opt_p handle;
    CLState_p state;
    char*  arg;
-   
+
    state = CLStateAlloc(argc,argv);
-   
+
    while((handle = CLStateGetOpt(state, &arg, opts)))
    {
       switch(handle->option_code)
@@ -225,7 +225,7 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_VERBOSE:
 	    Verbose = CLStateGetIntArg(handle, arg);
 	    break;
-      case OPT_HELP: 
+      case OPT_HELP:
 	    print_help(stdout);
 	    exit(NO_ERROR);
       case OPT_VERSION:
@@ -236,7 +236,7 @@ CLState_p process_options(int argc, char* argv[])
 	    break;
       case OPT_NAME:
 	    ex_name = arg;
-	    break;	     
+	    break;
      default:
 	 assert(false);
 	 break;
@@ -253,7 +253,7 @@ NAME " " VERSION "\n\
 \n\
 Usage: " NAME " [options] <name>\n\
 \n\
-Remove the example <name> from an E knowledge base.\n\n"); 
+Remove the example <name> from an E knowledge base.\n\n");
    PrintOptions(stdout, opts, "Options\n\n");
    fprintf(out, "\n\
 Copyright (C) 1999 by Stephan Schulz, schulz@informatik.tu-muenchen.de\n\

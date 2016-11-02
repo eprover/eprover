@@ -5,8 +5,8 @@ File  : ccl_formulaset.h
 Author: Stephan Schulz
 
 Contents
- 
-  Data type for (wrapped) formula sets. 
+
+  Data type for (wrapped) formula sets.
 
 Copyright 1998-2011 by the author.
   This code is released under the GNU General Public Licence and
@@ -66,10 +66,10 @@ WFormula_p   FormulaSetExtractFirst(FormulaSet_p set);
 
 void         FormulaSetDeleteEntry(WFormula_p form);
 
-void         FormulaSetPrint(FILE* out, FormulaSet_p set, 
+void         FormulaSetPrint(FILE* out, FormulaSet_p set,
                              bool fullterms);
-long         FormulaSetSplitConjectures(FormulaSet_p set, 
-                                        PList_p conjectures, 
+long         FormulaSetSplitConjectures(FormulaSet_p set,
+                                        PList_p conjectures,
                                         PList_p rest);
 
 long long    FormulaSetStandardWeight(FormulaSet_p set);

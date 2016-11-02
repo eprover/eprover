@@ -5,7 +5,7 @@ File  : cio_filevars.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for managing file-stored "variable = value;" pairs.
 
   Copyright 1998, 1999 by the author.

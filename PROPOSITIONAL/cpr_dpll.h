@@ -5,7 +5,7 @@ File  : cpr_dpll.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Definitions for the main DPLL algorithm.
 
   Copyright 2003 by the author.

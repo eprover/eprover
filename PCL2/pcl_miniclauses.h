@@ -5,7 +5,7 @@ File  : pcl_miniclauses.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Maximal compact representation for clauses, to be used in compact
   pcl listings (and possibly wherever elese needed). Adaptded from
   can_clausestore.h.

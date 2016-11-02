@@ -5,7 +5,7 @@ File  : cle_examplerep.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Data structures and functions to associate names, numbers and
   features with a proof problem.
 
@@ -62,14 +62,14 @@ typedef struct examplesetcell
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-#define ExampleRepCellAlloc() (ExampleRepCell*)SizeMalloc(sizeof(ExampleRepCell)) 
+#define ExampleRepCellAlloc() (ExampleRepCell*)SizeMalloc(sizeof(ExampleRepCell))
 #define ExampleRepCellFree(junk) SizeFree(junk, sizeof(ExampleRepCell))
 
 void          ExampleRepFree(ExampleRep_p junk);
 void          ExampleRepPrint(FILE* out, ExampleRep_p rep);
 ExampleRep_p  ExampleRepParse(Scanner_p in);
 
-#define ExampleSetCellAlloc() (ExampleSetCell*)SizeMalloc(sizeof(ExampleSetCell)) 
+#define ExampleSetCellAlloc() (ExampleSetCell*)SizeMalloc(sizeof(ExampleSetCell))
 #define ExampleSetCellFree(junk) SizeFree(junk, sizeof(ExampleSetCell))
 
 ExampleSet_p  ExampleSetAlloc(void);

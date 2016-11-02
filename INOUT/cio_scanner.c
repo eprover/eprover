@@ -5,7 +5,7 @@ File  : cio_scanner.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Implementation of the scanner.
 
   Copyright 1998, 1999 by the author.
@@ -40,7 +40,7 @@ static TokenRepCell token_print_rep[] =
    {String,       "String enclosed in double quotes (\"\")"},
    {SQString,     "String enclosed in single quote ('')"},
    {PosInt,       "Integer (sequence of decimal digits) "
-                  "convertable to an 'unsigned long'"}, 
+                  "convertable to an 'unsigned long'"},
    /* May need LargePosInt here... */
    {OpenBracket,  "Opening bracket ('(')"},
    {CloseBracket, "Closing bracket (')')"},
@@ -70,7 +70,7 @@ static TokenRepCell token_print_rep[] =
    {FOFRLImpl,    "Back Implicatin/RLArrow ('<=')"},
    {FOFEquiv,     "Equivalence/Double arrow ('<=>')"},
    {FOFXor,       "Negated Equivalence/Xor ('<~>')"},
-   {FOFNand,      "Nand ('~&')"},   
+   {FOFNand,      "Nand ('~&')"},
    {FOFNor,       "Nor ('~|'')"},
    {NoToken,      NULL}
 
@@ -90,7 +90,7 @@ static TokenRepCell token_print_rep[] =
 //
 // Function: scan_white()
 //
-//   Scan a continous sequence of white space characters. 
+//   Scan a continous sequence of white space characters.
 //
 // Global Variables: -
 //
@@ -127,7 +127,7 @@ static void scan_ident(Scanner_p in)
 {
    long numstart = 0,
         i;
-   
+
    for(i=0; isidchar(CurrChar(in)); i++)
    {
       if(!numstart && isdigit(CurrChar(in)))
@@ -153,7 +153,7 @@ static void scan_ident(Scanner_p in)
    {
       AktToken(in)->tok = Ident;
       AktToken(in)->numval = 0;
-   }      
+   }
 }
 
 
@@ -163,12 +163,12 @@ static void scan_ident(Scanner_p in)
 //
 //   Scan an unsigned integer, i.e. a sequence of digits. If this
 //   cannot be parsed as an int, it will be interpreted as an
-//   identifier. 
+//   identifier.
 //
 // Global Variables: -
 //
 // Side Effects    : As for scan_white(), error if int is to big for
-//                   unsigned long 
+//                   unsigned long
 //
 /----------------------------------------------------------------------*/
 
@@ -236,9 +236,9 @@ static void scan_line_comment(Scanner_p in)
 /----------------------------------------------------------------------*/
 
 static void scan_C_comment(Scanner_p in)
-{   
+{
    AktToken(in)->tok = Comment;
-   
+
    while(!((CurrChar(in) == '*') && (LookChar(in,1) == '/')))
    {
       DStrAppendChar(AktToken(in)->literal, CurrChar(in));
@@ -269,14 +269,14 @@ static void scan_string(Scanner_p in, char delim)
    bool escape = false;
 
    AktToken(in)->tok = (delim=='\'')?SQString:String;
-   
+
    DStrAppendChar(AktToken(in)->literal, CurrChar(in));
    NextChar(in);
    while(escape || (CurrChar(in) != delim))
    {
       if(!isprint(CurrChar(in)))
       {
-	 AktTokenError(in, 
+	 AktTokenError(in,
 		       "Non-printable character in string constant",
 		       false);
       }
@@ -310,7 +310,7 @@ static void scan_string(Scanner_p in, char delim)
 // Global Variables: -
 //
 // Side Effects    : Reads input, may cause memory operations via
-//                   DStr-Functions. 
+//                   DStr-Functions.
 //
 /----------------------------------------------------------------------*/
 
@@ -357,7 +357,7 @@ static Token_p scan_token(Scanner_p in)
       DStrAppendChar(AktToken(in)->literal, CurrChar(in));
       NextChar(in);
       scan_ident(in);
-      AktToken(in)->tok = SemIdent;            
+      AktToken(in)->tok = SemIdent;
    }
    else
    {
@@ -439,7 +439,7 @@ static Token_p scan_token(Scanner_p in)
                   NextChar(in);
                   AktToken(in)->tok = FOFNand;
                   break;
-                 
+
             default:
                   AktToken(in)->tok = TildeSign;
                   break;
@@ -510,7 +510,7 @@ static Token_p scan_token(Scanner_p in)
 // Function: scan_token_follow_includes()
 //
 //   Scan a token, follow include directives and pop back empty input
-/    streams. 
+/    streams.
 //
 // Global Variables: -
 //
@@ -519,13 +519,13 @@ static Token_p scan_token(Scanner_p in)
 /----------------------------------------------------------------------*/
 
 Token_p scan_token_follow_includes(Scanner_p in)
-{  
+{
    scan_token(in);
    if(in->include_key && (TestInpId(in, in->include_key)))
    {
       DStr_p name = DStrAlloc();
       char*  tptp_source;
-      
+
       tptp_source = getenv("TPTP");
       if(tptp_source)
       {
@@ -537,7 +537,7 @@ Token_p scan_token_follow_includes(Scanner_p in)
       }
 
       scan_token(in);
-      CheckInpTok(in, OpenBracket);      
+      CheckInpTok(in, OpenBracket);
       scan_token(in);
       CheckInpTok(in, Identifier|String|SQString);
       if(TestInpTok(in, Identifier))
@@ -564,7 +564,7 @@ Token_p scan_token_follow_includes(Scanner_p in)
          scan_token(in);
          CheckInpTok(in, Fullstop);
 	 scan_token_follow_includes(in);
-      }      
+      }
    }
    return AktToken(in);
 }
@@ -574,7 +574,7 @@ Token_p scan_token_follow_includes(Scanner_p in)
 // Function: scan_real_token()
 //
 //   Scan tokens until a real token (i.e. not a SkipToken has been
-//   scanned.  
+//   scanned.
 //
 // Global Variables: -
 //
@@ -586,9 +586,9 @@ static Token_p scan_real_token(Scanner_p in)
 {
    AktToken(in)->skipped = false;
    DStrReset(AktToken(in)->comment);
-   
+
    scan_token_follow_includes(in);
-   
+
    while(TestTok(AktToken(in), SkipToken))
    {
       AktToken(in)->skipped = true;
@@ -597,7 +597,7 @@ static Token_p scan_real_token(Scanner_p in)
 	 DStrAppendDStr(AktToken(in)->comment, AktToken(in)->literal);
       }
       scan_token_follow_includes(in);
-   }   
+   }
    return AktToken(in);
 }
 
@@ -608,7 +608,7 @@ static Token_p scan_real_token(Scanner_p in)
 //
 //   Test whether the len lenght start of str is contained in the set
 //   id of strings (encoded in a single string with elements separated
-//   by |). 
+//   by |).
 //
 // Global Variables: -
 //
@@ -669,7 +669,7 @@ char* PosRep(StreamType type, DStr_p source, long line, long column)
    if(type == StreamTypeFile)
    {
       assert(strlen(DStrView(source))<=MAXPATHLEN);
-      
+
       sprintf(buff, "%s:%ld:(Column %ld):",
 	      DStrView(source), line, column);
    }
@@ -686,7 +686,7 @@ char* PosRep(StreamType type, DStr_p source, long line, long column)
       strcat(tmp_str, "\"");
       sprintf(buff, "%s:%ld:(Column %ld):", tmp_str, line, column);
    }
-   
+
    return buff;
 }
 
@@ -697,7 +697,7 @@ char* PosRep(StreamType type, DStr_p source, long line, long column)
 //
 //   Return a pointer to a description of the position of a token. The
 //   description is valid until the function or PosRep() is called the
-//   next time. 
+//   next time.
 //
 // Global Variables: -
 //
@@ -747,10 +747,10 @@ char* DescribeToken(TokenType tok)
    }
    help = DStrCopy(res);
    DStrFree(res);
-   
+
    return help;
 }
-   
+
 /*-----------------------------------------------------------------------
 //
 // Function: PrintToken()
@@ -797,7 +797,7 @@ Scanner_p CreateScanner(StreamType type, char *name, bool
    Scanner_p handle;
    Stream_p  stream;
    char      *tmp_name;
-   
+
 
    handle = ScannerCellAlloc();
    handle->source = NULL;
@@ -827,7 +827,7 @@ Scanner_p CreateScanner(StreamType type, char *name, bool
       else
       {
          DStr_p full_file_name = DStrAlloc();
-         
+
          if(default_dir)
          {
             DStrAppendStr(handle->default_dir, default_dir);
@@ -840,12 +840,12 @@ Scanner_p CreateScanner(StreamType type, char *name, bool
                 DStrLastChar(handle->default_dir) =='/');
          FREE(tmp_name);
          tmp_name = FileNameBaseName(name);
-         DStrAppendStr(full_file_name, 
+         DStrAppendStr(full_file_name,
                        DStrView(handle->default_dir));
-         DStrAppendStr(full_file_name, 
+         DStrAppendStr(full_file_name,
                        tmp_name);
          FREE(tmp_name);
-         stream = OpenStackedInput(&handle->source, type, 
+         stream = OpenStackedInput(&handle->source, type,
                                    DStrView(full_file_name), !TPTP_dir);
          if(!stream)
          {
@@ -853,20 +853,20 @@ Scanner_p CreateScanner(StreamType type, char *name, bool
             DStrSet(handle->default_dir, TPTP_dir);
             tmp_name = FileNameDirName(name);
             DStrAppendStr(handle->default_dir, tmp_name);
-            FREE(tmp_name);            
+            FREE(tmp_name);
             tmp_name = FileNameBaseName(name);
-            DStrSet(full_file_name, 
+            DStrSet(full_file_name,
                     DStrView(handle->default_dir));
-            DStrAppendStr(full_file_name, 
+            DStrAppendStr(full_file_name,
                           tmp_name);
             FREE(tmp_name);
-            stream = OpenStackedInput(&handle->source, type, 
+            stream = OpenStackedInput(&handle->source, type,
                                       DStrView(full_file_name), true);
          }
          DStrFree(full_file_name);
       }
    }
-   
+
    for(handle->current = 0; handle->current < MAXTOKENLOOKAHEAD;
 	  handle->current++)
    {
@@ -923,11 +923,11 @@ void DestroyScanner(Scanner_p  junk)
 //
 // Function: ScannerSetFormat()
 //
-//   Set the format of the scanner (in particular, guess a format if 
+//   Set the format of the scanner (in particular, guess a format if
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -948,7 +948,7 @@ void ScannerSetFormat(Scanner_p scanner, IOFormat fmt)
          fmt = LOPFormat;
       }
    }
-   scanner->format = fmt;   
+   scanner->format = fmt;
 }
 
 
@@ -1038,10 +1038,10 @@ bool TestIdnum(Token_p akt, char* ids)
 
 /*-----------------------------------------------------------------------
 //
-// Function: AktTokenError() 
+// Function: AktTokenError()
 //
 //   Produce a syntax error at the current token with the given
-//   message. 
+//   message.
 //
 // Global Variables: -
 //
@@ -1088,7 +1088,7 @@ void CheckInpTok(Scanner_p in, TokenType toks)
    if(!TestInpTok(in, toks))
    {
       char* tmp;
-      
+
       DStrReset(in->accu);
       tmp = DescribeToken(toks);
       DStrAppendStr(in->accu, tmp);
@@ -1108,7 +1108,7 @@ void CheckInpTok(Scanner_p in, TokenType toks)
 // Function: CheckInpTokNoSkip()
 //
 //   As CheckInpTok(), but produce an error if SkipTokens were
-//   present. 
+//   present.
 //
 // Global Variables: -
 //
@@ -1203,7 +1203,7 @@ void NextToken(Scanner_p in)
 //   Parse a TPTP-Style include statement. Return a scanner for the
 //   included file, and put (optional) selected names into
 //   name_selector. If the file name is in skip_includes, skip the
-//   rest and return NULL. 
+//   rest and return NULL.
 //
 // Global Variables: -
 //
@@ -1211,24 +1211,24 @@ void NextToken(Scanner_p in)
 //
 /----------------------------------------------------------------------*/
 
-Scanner_p ScannerParseInclude(Scanner_p in, StrTree_p *name_selector, 
+Scanner_p ScannerParseInclude(Scanner_p in, StrTree_p *name_selector,
                               StrTree_p *skip_includes)
 {
    Scanner_p new_scanner = NULL;
    char* name;
    char* pos_rep;
-   
+
    pos_rep = SecureStrdup(TokenPosRep(AktToken(in)));
    AcceptInpId(in, "include");
    AcceptInpTok(in, OpenBracket);
    CheckInpTok(in, SQString);
    name = DStrCopyCore(AktToken(in)->literal);
-   
+
    if(!StrTreeFind(skip_includes, name))
    {
-      new_scanner = CreateScanner(StreamTypeFile, name, 
-                                  in->ignore_comments, 
-                                  ScannerGetDefaultDir(in));   
+      new_scanner = CreateScanner(StreamTypeFile, name,
+                                  in->ignore_comments,
+                                  ScannerGetDefaultDir(in));
       ScannerSetFormat(new_scanner, ScannerGetFormat(in));
       new_scanner->include_pos = pos_rep;
    }
@@ -1242,11 +1242,11 @@ Scanner_p ScannerParseInclude(Scanner_p in, StrTree_p *name_selector,
    if(TestInpTok(in, Comma))
    {
       IntOrP dummy;
-      
+
       dummy.i_val = 0;
       NextToken(in);
       CheckInpTok(in, Name|PosInt|OpenSquare);
-      
+
       if(TestInpTok(in, Name|PosInt))
       {
          StrTreeStore(name_selector, DStrView(AktToken(in)->literal),
@@ -1257,7 +1257,7 @@ Scanner_p ScannerParseInclude(Scanner_p in, StrTree_p *name_selector,
       {
          AcceptInpTok(in, OpenSquare);
          if(!TestInpTok(in, CloseSquare))
-         {            
+         {
             StrTreeStore(name_selector, DStrView(AktToken(in)->literal),
                          dummy, dummy);
             AcceptInpTok(in, Name|PosInt);
@@ -1274,10 +1274,10 @@ Scanner_p ScannerParseInclude(Scanner_p in, StrTree_p *name_selector,
             dummy.i_val = 1;
             StrTreeStore(name_selector, "** Not a legal name**",
                          dummy, dummy);
-            
+
          }
          AcceptInpTok(in, CloseSquare);
-      }      
+      }
    }
    AcceptInpTok(in, CloseBracket);
    AcceptInpTok(in, Fullstop);

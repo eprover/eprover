@@ -5,7 +5,7 @@ File  : ccl_clausefunc.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Clause and formula functions that need to know about sets (and
   similar stuff (ccl_clauses.c is to big anyways).
 

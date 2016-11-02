@@ -7,7 +7,7 @@ Author: Stephan Schulz
 Contents
 
   Identifiers for PCL2 - lists of posititive numbers.
- 
+
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.

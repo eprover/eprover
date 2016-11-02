@@ -5,8 +5,8 @@ File  : ccl_overlap_index.c
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
-  Maintaining an index from subterms to clause positions. 
+
+  Maintaining an index from subterms to clause positions.
 
   Copyright 2010 by the author.
   This code is released under the GNU General Public Licence and
@@ -55,7 +55,7 @@ long term_collect_into_terms(Term_p t, PTree_p *terms)
 {
    long res = 0;
    int  i;
-   
+
    if(TermIsVar(t))
    {
       return res;
@@ -86,7 +86,7 @@ long term_collect_into_terms2(Term_p t, PTree_p *terms, PTree_p *natoms)
 {
    long res = 0;
    int  i;
-   
+
    if(TermIsVar(t))
    {
       return res;
@@ -173,7 +173,7 @@ long term_collect_into_terms_pos(Term_p t, CompactPos pos, PStack_p terms)
 {
    long res = 0;
    int  i;
-   
+
    if(TermIsVar(t))
    {
       return res;
@@ -196,7 +196,7 @@ long term_collect_into_terms_pos(Term_p t, CompactPos pos, PStack_p terms)
 // Function: term_collect_into_terms_pos2()
 //
 //   Collect all potential into-subterms/pos positions of the LHS of a
-//   negative non-equational literal onto terms/natoms. 
+//   negative non-equational literal onto terms/natoms.
 //
 // Global Variables: -
 //
@@ -204,12 +204,12 @@ long term_collect_into_terms_pos(Term_p t, CompactPos pos, PStack_p terms)
 //
 /----------------------------------------------------------------------*/
 
-long term_collect_into_terms_pos2(Term_p t, CompactPos pos, 
+long term_collect_into_terms_pos2(Term_p t, CompactPos pos,
                                   PStack_p terms, PStack_p natoms)
 {
    long res = 0;
    int  i;
-   
+
    if(TermIsVar(t))
    {
       return res;
@@ -222,7 +222,7 @@ long term_collect_into_terms_pos2(Term_p t, CompactPos pos,
    {
       /* It's term_collect_into_terms_pos() on purpose - subterm need
          to be indexed in the normal index for equational inferences!
-      */ 
+      */
       res += term_collect_into_terms_pos(t->args[i], pos, terms);
       pos += TermStandardWeight(t->args[i]);
    }
@@ -241,7 +241,7 @@ long term_collect_into_terms_pos2(Term_p t, CompactPos pos,
 //
 /----------------------------------------------------------------------*/
 
-long eqn_collect_into_terms_pos(Eqn_p lit, CompactPos litpos, 
+long eqn_collect_into_terms_pos(Eqn_p lit, CompactPos litpos,
                                 PStack_p terms)
 {
    long res;
@@ -268,7 +268,7 @@ long eqn_collect_into_terms_pos(Eqn_p lit, CompactPos litpos,
 //
 /----------------------------------------------------------------------*/
 
-long eqn_collect_into_terms_pos2(Eqn_p lit, CompactPos litpos, 
+long eqn_collect_into_terms_pos2(Eqn_p lit, CompactPos litpos,
                                  PStack_p terms, PStack_p natoms)
 {
    long res;
@@ -307,7 +307,7 @@ long eqn_collect_into_terms_pos2(Eqn_p lit, CompactPos litpos,
 //
 /----------------------------------------------------------------------*/
 
-void OverlapIndexInsertPos(OverlapIndex_p index, Clause_p clause, 
+void OverlapIndexInsertPos(OverlapIndex_p index, Clause_p clause,
                            CompactPos pos, Term_p iterm)
 {
    FPTree_p     fp_node;
@@ -316,13 +316,13 @@ void OverlapIndexInsertPos(OverlapIndex_p index, Clause_p clause,
    if(!iterm)
    {
       iterm = ClauseCPosGetSubterm(clause, pos);
-   }     
+   }
    fp_node      = FPIndexInsert(index, iterm);
    /* printf("OverlapIndexInsertPos()..\n");
       SubtermTreePrint(stdout, fp_node->payload,
       clause->literals->bank->sig); */
    subterm_node = SubtermTreeInsertTerm((void*)&(fp_node->payload), iterm);
-   ClauseTPosTreeInsertPos(&(subterm_node->pl.pos.clauses), clause, pos); 
+   ClauseTPosTreeInsertPos(&(subterm_node->pl.pos.clauses), clause, pos);
 }
 
 
@@ -338,7 +338,7 @@ void OverlapIndexInsertPos(OverlapIndex_p index, Clause_p clause,
 //
 /----------------------------------------------------------------------*/
 
-void OverlapIndexDeletePos(OverlapIndex_p index, Clause_p clause, 
+void OverlapIndexDeletePos(OverlapIndex_p index, Clause_p clause,
                            CompactPos pos, Term_p iterm)
 {
    FPTree_p     fp_node;
@@ -347,14 +347,14 @@ void OverlapIndexDeletePos(OverlapIndex_p index, Clause_p clause,
    if(!iterm)
    {
       iterm = ClauseCPosGetSubterm(clause, pos);
-   }     
-   
+   }
+
    fp_node   = FPIndexFind(index, iterm);
    if(!fp_node)
    {
       return;
    }
-   
+
    subterm_node = SubtermTreeFindTerm((void*)&(fp_node->payload), iterm);
    if(!subterm_node)
    {
@@ -364,7 +364,7 @@ void OverlapIndexDeletePos(OverlapIndex_p index, Clause_p clause,
    if(!subterm_node->pl.pos.clauses)
    {
       SubtermTreeDeleteTerm((void*)&(fp_node->payload), iterm);
-   }   
+   }
    if(fp_node->payload == NULL)
    {
       FPIndexDelete(index, iterm);
@@ -386,7 +386,7 @@ void OverlapIndexDeletePos(OverlapIndex_p index, Clause_p clause,
 //
 /----------------------------------------------------------------------*/
 
-void OverlapIndexDeleteClauseOcc(OverlapIndex_p index, 
+void OverlapIndexDeleteClauseOcc(OverlapIndex_p index,
                                  Clause_p clause, Term_p term)
 {
    FPTree_p     fp_node;
@@ -395,7 +395,7 @@ void OverlapIndexDeleteClauseOcc(OverlapIndex_p index,
    /* printf("OverlapIndexDeleteClauseOcc()...\n");
    ClausePrint(stdout, clause, true);
    printf("\n");
-   TermPrint(stdout, term, clause->literals->bank->sig, DEREF_NEVER);         
+   TermPrint(stdout, term, clause->literals->bank->sig, DEREF_NEVER);
    printf("\n"); */
 
    fp_node   = FPIndexFind(index, term);
@@ -408,7 +408,7 @@ void OverlapIndexDeleteClauseOcc(OverlapIndex_p index,
 
    subterm_node = SubtermTreeFindTerm((PTree_p*)&(fp_node->payload), term);
    /* printf("Found: %p\n", subterm_node); */
-   
+
    if(!subterm_node)
    {
       return;
@@ -418,7 +418,7 @@ void OverlapIndexDeleteClauseOcc(OverlapIndex_p index,
    if(!subterm_node->pl.pos.clauses)
    {
       SubtermTreeDeleteTerm((PTree_p*)&(fp_node->payload), term);
-   }   
+   }
    if(fp_node->payload == NULL)
    {
       FPIndexDelete(index, term);
@@ -452,7 +452,7 @@ long ClauseCollectIntoTerms(Clause_p clause, PTree_p *terms)
       {
          res+=eqn_collect_into_terms(handle, terms);
       }
-   }   
+   }
    return res;
 }
 
@@ -483,10 +483,10 @@ long ClauseCollectIntoTermsPos(Clause_p clause, PStack_p terms)
          res += eqn_collect_into_terms_pos(handle, pos, terms);
       }
       pos += EqnStandardWeight(handle);
-   }   
+   }
    return res;
 }
- 
+
 
 
 /*-----------------------------------------------------------------------
@@ -506,7 +506,7 @@ long ClauseCollectFromTerms(Clause_p clause, PTree_p *terms)
 {
    long  res = 0;
    Eqn_p handle;
-   
+
    for(handle = clause->literals; handle; handle = handle->next)
    {
       if(EqnIsMaximal(handle) && EqnIsPositive(handle) && !EqnIsSelected(handle))
@@ -519,7 +519,7 @@ long ClauseCollectFromTerms(Clause_p clause, PTree_p *terms)
             PTreeStore(terms, handle->rterm);
          }
       }
-   }   
+   }
    return res;
 }
 
@@ -529,7 +529,7 @@ long ClauseCollectFromTerms(Clause_p clause, PTree_p *terms)
 // Function: ClauseCollectFromTermsPos()
 //
 //   Collect all t|p tuples such that c|p=t and this is a paramod-from
-//   position. 
+//   position.
 //
 // Global Variables: -
 //
@@ -542,7 +542,7 @@ long ClauseCollectFromTermsPos(Clause_p clause, PStack_p terms)
    long  res = 0;
    Eqn_p handle;
    CompactPos pos = 0;
-  
+
    for(handle = clause->literals; handle; handle = handle->next)
    {
       if(EqnIsMaximal(handle) && EqnIsPositive(handle) && !EqnIsSelected(handle))
@@ -558,7 +558,7 @@ long ClauseCollectFromTermsPos(Clause_p clause, PStack_p terms)
          }
       }
       pos += EqnStandardWeight(handle);
-   }   
+   }
    return res;
 }
 
@@ -580,7 +580,7 @@ void OverlapIndexInsertIntoClause(OverlapIndex_p index, Clause_p clause)
    PStack_p collector = PStackAlloc();
    CompactPos pos;
    Term_p     term;
-   
+
    ClauseCollectIntoTermsPos(clause, collector);
    while(!PStackEmpty(collector))
    {
@@ -613,10 +613,10 @@ void OverlapIndexDeleteIntoClause(OverlapIndex_p index, Clause_p clause)
    PTree_p  collector = NULL, cell;
 
    ClauseCollectIntoTerms(clause, &collector);
-   
+
    trans = PTreeTraverseInit(collector);
    while((cell = PTreeTraverseNext(trans)))
-   {      
+   {
       term = cell->key;
       OverlapIndexDeleteClauseOcc(index, clause, term);
    }
@@ -642,7 +642,7 @@ void OverlapIndexInsertFromClause(OverlapIndex_p index, Clause_p clause)
    PStack_p collector = PStackAlloc();
    CompactPos pos;
    Term_p     term;
-   
+
    ClauseCollectFromTermsPos(clause, collector);
 
    while(!PStackEmpty(collector))
@@ -674,10 +674,10 @@ void OverlapIndexDeleteFromClause(OverlapIndex_p index, Clause_p clause)
    PTree_p  collector = NULL, cell;
 
    ClauseCollectFromTerms(clause, &collector);
-   
+
    trans = PTreeTraverseInit(collector);
    while((cell = PTreeTraverseNext(trans)))
-   {      
+   {
       term = cell->key;
       OverlapIndexDeleteClauseOcc(index, clause, term);
    }
@@ -690,11 +690,11 @@ void OverlapIndexDeleteFromClause(OverlapIndex_p index, Clause_p clause)
 //
 // Function: OverlapIndexClauseTreePrint()
 //
-//   Print an overlapIndex. 
+//   Print an overlapIndex.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -702,9 +702,9 @@ void OverlapIndexClauseTreePrint(FILE* out, PObjTree_p root)
 {
    if(root)
    {
-      OverlapIndexClauseTreePrint(out, root->lson); 
+      OverlapIndexClauseTreePrint(out, root->lson);
       ClauseTPosTreePrint(out, root->key);
-      OverlapIndexClauseTreePrint(out, root->rson); 
+      OverlapIndexClauseTreePrint(out, root->rson);
    }
 }
 
@@ -802,7 +802,7 @@ long ClauseCollectIntoTerms2(Clause_p clause, PTree_p *terms, PTree_p *natoms)
       {
          res+=eqn_collect_into_terms2(handle, terms, natoms);
       }
-   }   
+   }
    return res;
 }
 
@@ -811,7 +811,7 @@ long ClauseCollectIntoTerms2(Clause_p clause, PTree_p *terms, PTree_p *natoms)
 //
 // Function: ClauseCollectIntoTermsPos2()
 //
-//   Collect tuples cpos, t on stack(s), so that c|cpos = t and t is a 
+//   Collect tuples cpos, t on stack(s), so that c|cpos = t and t is a
 //   paramod-into position. Negative non-equational predicate terms go
 //   onto natoms, the rest onto terms.
 //
@@ -821,9 +821,9 @@ long ClauseCollectIntoTerms2(Clause_p clause, PTree_p *terms, PTree_p *natoms)
 //
 /----------------------------------------------------------------------*/
 
-long ClauseCollectIntoTermsPos2(Clause_p clause, 
-                                PStack_p terms, 
-                                PStack_p natoms) 
+long ClauseCollectIntoTermsPos2(Clause_p clause,
+                                PStack_p terms,
+                                PStack_p natoms)
 {
    long  res = 0;
    Eqn_p handle;
@@ -836,10 +836,10 @@ long ClauseCollectIntoTermsPos2(Clause_p clause,
          res += eqn_collect_into_terms_pos2(handle, pos, terms, natoms);
       }
       pos += EqnStandardWeight(handle);
-   }   
+   }
    return res;
 }
- 
+
 
 
 /*-----------------------------------------------------------------------
@@ -854,15 +854,15 @@ long ClauseCollectIntoTermsPos2(Clause_p clause,
 //
 /----------------------------------------------------------------------*/
 
-void OverlapIndexInsertIntoClause2(OverlapIndex_p tindex, 
-                                   OverlapIndex_p naindex, 
-                                   Clause_p clause) 
+void OverlapIndexInsertIntoClause2(OverlapIndex_p tindex,
+                                   OverlapIndex_p naindex,
+                                   Clause_p clause)
 {
    PStack_p terms = PStackAlloc();
    PStack_p natoms = PStackAlloc();
    CompactPos pos;
    Term_p     term;
-   
+
    ClauseCollectIntoTermsPos2(clause, terms, natoms);
    while(!PStackEmpty(terms))
    {
@@ -893,21 +893,21 @@ void OverlapIndexInsertIntoClause2(OverlapIndex_p tindex,
 //
 /----------------------------------------------------------------------*/
 
-void OverlapIndexDeleteIntoClause2(OverlapIndex_p tindex, 
-                                   OverlapIndex_p naindex, 
+void OverlapIndexDeleteIntoClause2(OverlapIndex_p tindex,
+                                   OverlapIndex_p naindex,
                                    Clause_p clause)
 {
    PStack_p trans;
    Term_p   term;
    PTree_p  terms = NULL,
-      natoms= NULL, 
+      natoms= NULL,
       cell;
 
    ClauseCollectIntoTerms2(clause, &terms, &natoms);
-   
+
    trans = PTreeTraverseInit(terms);
    while((cell = PTreeTraverseNext(trans)))
-   {      
+   {
       term = cell->key;
       OverlapIndexDeleteClauseOcc(tindex, clause, term);
    }
@@ -916,12 +916,12 @@ void OverlapIndexDeleteIntoClause2(OverlapIndex_p tindex,
 
    trans = PTreeTraverseInit(natoms);
    while((cell = PTreeTraverseNext(trans)))
-   {      
+   {
       term = cell->key;
       OverlapIndexDeleteClauseOcc(naindex, clause, term);
    }
    PTreeTraverseExit(trans);
-   PTreeFree(natoms);   
+   PTreeFree(natoms);
 }
 
 

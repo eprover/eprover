@@ -67,7 +67,7 @@ FormulaSet_p FormulaSetAlloc(void)
    set->anchor->succ = set->anchor;
    set->anchor->pred = set->anchor;
    set->identifier = DStrAlloc();
-   
+
    return set;
 }
 
@@ -109,7 +109,7 @@ void FormulaSetFree(FormulaSet_p set)
 {
    assert(set);
 
-   FormulaSetFreeFormulas(set);   
+   FormulaSetFreeFormulas(set);
    WFormulaCellFree(set->anchor);
    DStrFree(set->identifier);
    FormulaSetCellFree(set);
@@ -134,7 +134,7 @@ long FormulaSetStackCardinality(PStack_p stack)
    FormulaSet_p handle;
    PStackPointer i;
    long res = 0;
-   
+
    for(i=0; i<PStackGetSP(stack); i++)
    {
       handle = PStackElementP(stack, i);
@@ -160,9 +160,9 @@ long FormulaSetStackCardinality(PStack_p stack)
 void FormulaSetGCMarkCells(FormulaSet_p set)
 {
    WFormula_p handle;
-   
+
    handle = set->anchor->succ;
-   
+
    while(handle!=set->anchor)
    {
       WFormulaGCMarkCells(handle);
@@ -185,9 +185,9 @@ void FormulaSetGCMarkCells(FormulaSet_p set)
 void FormulaSetMarkPolarity(FormulaSet_p set)
 {
    WFormula_p handle;
-   
+
    handle = set->anchor->succ;
-   
+
    while(handle!=set->anchor)
    {
       WFormulaMarkPolarity(handle);
@@ -213,7 +213,7 @@ void FormulaSetInsert(FormulaSet_p set, WFormula_p newform)
    assert(set);
    assert(newform);
    assert(!newform->set);
-   
+
    newform->succ = set->anchor;
    newform->pred = set->anchor->pred;
    set->anchor->pred->succ = newform;
@@ -228,7 +228,7 @@ void FormulaSetInsert(FormulaSet_p set, WFormula_p newform)
 // Function: FormulaSetInsertSet()
 //
 //   Move all formulas from from into set (leaving from empty, but not
-//   deleted). 
+//   deleted).
 //
 // Global Variables: -
 //
@@ -240,7 +240,7 @@ long FormulaSetInsertSet(FormulaSet_p set, FormulaSet_p from)
 {
    WFormula_p handle;
    long res = 0;
-   
+
    while(!FormulaSetEmpty(from))
    {
       handle = FormulaSetExtractFirst(from);
@@ -286,9 +286,9 @@ WFormula_p FormulaSetExtractEntry(WFormula_p form)
 //   Extract and return the first formula from set, if any, otherwise
 //   return NULL.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -310,9 +310,9 @@ WFormula_p FormulaSetExtractFirst(FormulaSet_p set)
 //
 //   Delete an element of a formulaset.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -341,9 +341,9 @@ void FormulaSetDeleteEntry(WFormula_p form)
 void FormulaSetPrint(FILE* out, FormulaSet_p set, bool fullterms)
 {
    WFormula_p handle;
-   
+
    handle = set->anchor->succ;
-   
+
    while(handle!=set->anchor)
    {
       WFormulaPrint(out, handle, fullterms);
@@ -367,7 +367,7 @@ void FormulaSetPrint(FILE* out, FormulaSet_p set, bool fullterms)
 //
 /----------------------------------------------------------------------*/
 
-long FormulaSetSplitConjectures(FormulaSet_p set, 
+long FormulaSetSplitConjectures(FormulaSet_p set,
                                 PList_p conjectures, PList_p rest)
 {
    WFormula_p handle;
@@ -384,7 +384,7 @@ long FormulaSetSplitConjectures(FormulaSet_p set,
       }
       else
       {
-         PListStoreP(rest, handle);                  
+         PListStoreP(rest, handle);
       }
    }
    return res;
@@ -407,7 +407,7 @@ long long FormulaSetStandardWeight(FormulaSet_p set)
 {
    WFormula_p  handle;
    long long res = 0;
-   
+
    for(handle = set->anchor->succ;
        handle!=set->anchor;
        handle = handle->succ)
@@ -435,8 +435,8 @@ long FormulaSetCountConjectures(FormulaSet_p set, long* hypos)
 {
    long ret = 0;
    WFormula_p handle;
-   
-   for(handle = set->anchor->succ; 
+
+   for(handle = set->anchor->succ;
        handle != set->anchor;
        handle = handle->succ)
    {
@@ -448,7 +448,7 @@ long FormulaSetCountConjectures(FormulaSet_p set, long* hypos)
       {
          (*hypos)++;
       }
-   } 
+   }
    return ret;
 }
 

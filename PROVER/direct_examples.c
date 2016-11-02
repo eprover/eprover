@@ -5,8 +5,8 @@ File  : direct_examples.c
 Author: Stephan Schulz
 
 Contents
- 
-  Generate examples directly from a protocol file. 
+
+  Generate examples directly from a protocol file.
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
@@ -43,7 +43,7 @@ typedef enum
    OPT_VERBOSE,
    OPT_OUTPUT,
    OPT_NEG_NO,
-   OPT_NEG_PROP 
+   OPT_NEG_PROP
 }OptionCodes;
 
 
@@ -54,8 +54,8 @@ typedef enum
 
 OptCell opts[] =
 {
-   {OPT_HELP, 
-    'h', "help", 
+   {OPT_HELP,
+    'h', "help",
     NoArg, NULL,
     "Print a short description of program usage and options."},
 
@@ -64,8 +64,8 @@ OptCell opts[] =
     NoArg, NULL,
     "Print the version number of the program."},
 
-   {OPT_VERBOSE, 
-    'v', "verbose", 
+   {OPT_VERBOSE,
+    'v', "verbose",
     OptArg, "1",
     "Verbose comments on the progress of the program."},
 
@@ -79,14 +79,14 @@ OptCell opts[] =
     ReqArg, NULL,
     "Set the (maximum) number of negative examples to pick if the "
     "proof listing does not describe a successful proof."},
-    
+
    {OPT_NEG_PROP,
     'p', "negative-example-proportion",
-    ReqArg, NULL, 
+    ReqArg, NULL,
     "Set the maximum number of negative examples (expressed as a "
     "proportion of the positive examples) to pick if the proof "
     "listing does describe a successful proof"},
-    
+
    {OPT_NOOPT,
     '\0', NULL,
     NoArg, NULL,
@@ -113,7 +113,7 @@ int main(int argc, char* argv[])
 {
    /* Scanner_p       in;     */
    CLState_p       state;
-   Scanner_p       in; 
+   Scanner_p       in;
    PCLProt_p       prot;
    long            steps, proof_steps, neg_steps;
    int             i;
@@ -123,7 +123,7 @@ int main(int argc, char* argv[])
    InitIO(NAME);
    ESignalSetup(SIGTERM);
    ESignalSetup(SIGINT);
-   
+
    /* We need consistent name->var mappings here because we
       potentially read the compressed input format. */
    ClausesHaveLocalVariables = false;
@@ -145,7 +145,7 @@ int main(int argc, char* argv[])
       ScannerSetFormat(in, TPTPFormat);
       steps+=PCLProtParse(in, prot);
       CheckInpTok(in, NoToken);
-      DestroyScanner(in); 
+      DestroyScanner(in);
    }
    VERBOUT2("PCL input read\n");
 
@@ -158,23 +158,23 @@ int main(int argc, char* argv[])
    neg_steps = proof_steps?neg_proportion*proof_steps:neg_examples;
    PCLProtSelectExamples(prot, neg_steps);
    fprintf(GlobalOut, "# Axioms:\n");
-   PCLProtPrintPropClauses(GlobalOut, prot, PCLIsInitial, lop_format);  
-   fprintf(GlobalOut, ".\n\n# Examples:\n");  
+   PCLProtPrintPropClauses(GlobalOut, prot, PCLIsInitial, lop_format);
+   fprintf(GlobalOut, ".\n\n# Examples:\n");
    PCLProtPrintExamples(GlobalOut, prot);
 
    PCLProtFree(prot);
-   
+
    CLStateFree(state);
-   
+
    fflush(GlobalOut);
    OutClose(GlobalOut);
    ExitIO();
-   
+
 #ifdef CLB_MEMORY_DEBUG
    MemFlushFreeList();
    MemDebugPrintStats(stdout);
 #endif
-   
+
    return EXIT_SUCCESS;
 }
 
@@ -186,7 +186,7 @@ int main(int argc, char* argv[])
 //   Read and process the command line option, return (the pointer to)
 //   a CLState object containing the remaining arguments.
 //
-// Global Variables: 
+// Global Variables:
 //
 // Side Effects    : Sets variables, may terminate with program
 //                   description if option -h or --help was present
@@ -198,9 +198,9 @@ CLState_p process_options(int argc, char* argv[])
    Opt_p handle;
    CLState_p state;
    char*  arg;
-   
+
    state = CLStateAlloc(argc,argv);
-   
+
    while((handle = CLStateGetOpt(state, &arg, opts)))
    {
       switch(handle->option_code)
@@ -208,7 +208,7 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_VERBOSE:
 	    Verbose = CLStateGetIntArg(handle, arg);
 	    break;
-      case OPT_HELP: 
+      case OPT_HELP:
 	    print_help(stdout);
 	    exit(NO_ERROR);
       case OPT_VERSION:
@@ -225,7 +225,7 @@ CLState_p process_options(int argc, char* argv[])
 	    if(neg_proportion < 0)
 	    {
 	       Error("Option -p (--negative-example-proportion)"
-		     "requires positive argument.}", USAGE_ERROR);	       
+		     "requires positive argument.}", USAGE_ERROR);
 	    }
 	    break;
      default:
@@ -246,7 +246,7 @@ Usage: " NAME " [options] [files]\n\
 \n\
 Parse a full PCL listing (possibly\n\
 spread over multiple files), and generate training examples\n\
-corresponding to the selected clauses.\n"); 
+corresponding to the selected clauses.\n");
    PrintOptions(stdout, opts, "Options\n\n");
    fprintf(out, "\n\
 " STS_COPYRIGHT ", " STS_MAIL "\n\

@@ -5,7 +5,7 @@ File  : ccl_derivation.c
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Functions related to the construction, manipulation, and printing of
   explicit proof objects in E.
 
@@ -29,7 +29,7 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
-ProofObjectType BuildProofObject = 0; 
+ProofObjectType BuildProofObject = 0;
 bool            ProofObjectRecordsGCSelection = false;
 
 char *opids[] =
@@ -246,7 +246,7 @@ PStack_p derived_get_derivation(Derived_p derived)
 //
 //   Return the identifier of the selected argument of the operator,
 //   assuming that clauseform points to the corresponding clause or
-//   formula. 
+//   formula.
 //
 // Global Variables: -
 //
@@ -296,7 +296,7 @@ long get_clauseform_id(DerivationCodes op, int select, void* clauseform)
          break;
    default:
          assert(false && "Illegal argument selector");
-   }   
+   }
    return id;
 }
 
@@ -372,7 +372,7 @@ void DerivedSetInProof(Derived_p derived, bool in_proof)
       else
       {
          FormulaDelProp(derived->formula, WPIsProofClause);
-      }      
+      }
    }
 }
 
@@ -391,19 +391,19 @@ void DerivedSetInProof(Derived_p derived, bool in_proof)
 //
 /----------------------------------------------------------------------*/
 
-void ClausePushDerivation(Clause_p clause, DerivationCodes op, 
+void ClausePushDerivation(Clause_p clause, DerivationCodes op,
                           void* arg1, void* arg2)
 {
    if(BuildProofObject)
    {
       assert(clause);
       assert(op);
-      
+
       CLAUSE_ENSURE_DERIVATION(clause);
       assert(DCOpHasCnfArg1(op)||DCOpHasFofArg1(op)||!arg1);
       assert(DCOpHasCnfArg2(op)||DCOpHasFofArg2(op)||!arg2);
       assert(DCOpHasCnfArg1(op)||!DCOpHasCnfArg2(op));
-      
+
       PStackPushInt(clause->derivation, op);
       if(arg1)
       {
@@ -435,7 +435,7 @@ void ClausePushACResDerivation(Clause_p clause, Sig_p sig)
    if(BuildProofObject)
    {
       assert(clause);
-      
+
       CLAUSE_ENSURE_DERIVATION(clause);
 
       PStackPushInt(clause->derivation, DCACRes);
@@ -457,14 +457,14 @@ void ClausePushACResDerivation(Clause_p clause, Sig_p sig)
 //
 /----------------------------------------------------------------------*/
 
-void WFormulaPushDerivation(WFormula_p form, DerivationCodes op, 
+void WFormulaPushDerivation(WFormula_p form, DerivationCodes op,
                             void* arg1, void* arg2)
 {
    if(BuildProofObject)
    {
       assert(form);
       assert(op);
-      
+
       if(!form->derivation)
       {
          form->derivation = PStackVarAlloc(3);
@@ -472,7 +472,7 @@ void WFormulaPushDerivation(WFormula_p form, DerivationCodes op,
       assert(DCOpHasCnfArg1(op)||DCOpHasFofArg1(op)||!arg1);
       assert(DCOpHasCnfArg2(op)||DCOpHasFofArg2(op)||!arg2);
       assert(DCOpHasCnfArg1(op)||!DCOpHasCnfArg2(op));
-      
+
       PStackPushInt(form->derivation, op);
       if(arg1)
       {
@@ -529,11 +529,11 @@ bool ClauseIsDummyQuote(Clause_p clause)
 {
    if(clause->derivation)
    {
-      if((PStackGetSP(clause->derivation)==2) && 
+      if((PStackGetSP(clause->derivation)==2) &&
          (PStackElementInt(clause->derivation, 0)==DCCnfQuote))
       {
          return true;
-      }         
+      }
    }
    return false;
 }
@@ -546,7 +546,7 @@ bool ClauseIsDummyQuote(Clause_p clause)
 //   Given a clause, check if it's part of a reference cascade (i.e. has
 //   just on parent and is justified by a simple reference to the
 //   parent (via OpCode DCCnfQuote)). If yes, track back the reference
-//   cascade and return the first (original) occurrence of the clause.  
+//   cascade and return the first (original) occurrence of the clause.
 //   Otherwise return the clause.
 //
 // Global Variables: -
@@ -576,7 +576,7 @@ Clause_p ClauseDerivFindFirst(Clause_p clause)
 //   Given a formula, check if it's part of a reference cascade (i.e. has
 //   just on parent and is justified by a simple reference to the
 //   parent (via OpCode DCFofQuote)). If yes, track back the reference
-//   cascade and return the first (original) occurrence of the formula.  
+//   cascade and return the first (original) occurrence of the formula.
 //   Otherwise return the clause.
 //
 // Global Variables: -
@@ -591,12 +591,12 @@ WFormula_p WFormulaDerivFindFirst(WFormula_p form)
 
    if(form->derivation)
    {
-      if((PStackGetSP(form->derivation)==2) && 
+      if((PStackGetSP(form->derivation)==2) &&
          (PStackElementInt(form->derivation, 0)==DCFofQuote))
       {
          parent = PStackElementP(form->derivation, 1);
          parent = WFormulaDerivFindFirst(parent);
-      }         
+      }
    }
    return parent;
 }
@@ -617,9 +617,9 @@ WFormula_p WFormulaDerivFindFirst(WFormula_p form)
 //
 /----------------------------------------------------------------------*/
 
-long DerivStackExtractParents(PStack_p derivation, 
+long DerivStackExtractParents(PStack_p derivation,
                               Sig_p    sig,
-                              PStack_p res_clauses, 
+                              PStack_p res_clauses,
                               PStack_p res_formulas)
 {
    PStackPointer i, sp;
@@ -702,9 +702,9 @@ long DerivStackExtractParents(PStack_p derivation,
 //
 /----------------------------------------------------------------------*/
 
-long DerivStackExtractOptParents(PStack_p derivation, 
+long DerivStackExtractOptParents(PStack_p derivation,
                                  Sig_p    sig,
-                                 PStack_p res_clauses, 
+                                 PStack_p res_clauses,
                                  PStack_p res_formulas)
 {
    PStackPointer i, sp;
@@ -785,7 +785,7 @@ long DerivStackExtractOptParents(PStack_p derivation,
 //
 //   Given a derivation stack (derivation-codes with arguments),
 //   count the number of generating and simplifying inferences in the
-//   stack. 
+//   stack.
 //
 // Global Variables: -
 //
@@ -793,7 +793,7 @@ long DerivStackExtractOptParents(PStack_p derivation,
 //
 /----------------------------------------------------------------------*/
 
-void DerivStackCountSearchInferences(PStack_p derivation, 
+void DerivStackCountSearchInferences(PStack_p derivation,
                                      unsigned long *generating_count,
                                      unsigned long *simplifying_count)
 {
@@ -823,19 +823,19 @@ void DerivStackCountSearchInferences(PStack_p derivation,
          case DCSimParamod:
          case DCOrderedFactor:
          case DCEqFactor:
-         case DCEqRes: 
+         case DCEqRes:
                (*generating_count)++;
                break;
          case DCRewrite:
          case DCUnfold:
          case DCApplyDef:
          case DCContextSR:
-         case DCDesEqRes: 
+         case DCDesEqRes:
          case DCSR:
          case DCACRes:
          case DCCondense:
          case DCNormalize:
-         case DCEvalAnswers:               
+         case DCEvalAnswers:
                (*simplifying_count)++;
                break;
          default:
@@ -896,9 +896,9 @@ void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation)
    if(derivation)
    {
       subexpr_stack = PStackAlloc();
-      
+
       /* Find the beginnings of the subexpressions */
-      sp = PStackGetSP(derivation);      
+      sp = PStackGetSP(derivation);
       i  = 0;
       while(i<sp)
       {
@@ -916,7 +916,7 @@ void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation)
          }
       }
       /* Print the beginning of the subexpressions */
-      
+
       for(sp = PStackGetSP(subexpr_stack)-1; sp>=0; sp--)
       {
          i = PStackElementInt(subexpr_stack, sp);
@@ -933,9 +933,9 @@ void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation)
                fprintf(out, "%s(", opids[DPOpGetOpCode(op)]);
                break;
          }
-      }      
+      }
       /* And finish the expressions */
-      
+
       for(sp = 0; sp < PStackGetSP(subexpr_stack); sp++)
       {
          i = PStackElementInt(subexpr_stack, sp);
@@ -945,12 +945,12 @@ void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation)
             if(i!=0)
             {
                fprintf(out, ", ");
-            }         
-            fprintf(out, "%ld", 
+            }
+            fprintf(out, "%ld",
                     get_clauseform_id(op, 1, PStackElementP(derivation, i+1)));
             if(DCOpHasParentArg2(op))
             {
-               fprintf(out, ", %ld", 
+               fprintf(out, ", %ld",
                        get_clauseform_id(op, 2, PStackElementP(derivation, i+2)));
             }
          }
@@ -974,9 +974,9 @@ void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation)
                fprintf(out, ")");
                break;
          }
-      }      
+      }
       /* Cleanup */
-      PStackFree(subexpr_stack);      
+      PStackFree(subexpr_stack);
    }
 }
 
@@ -1006,9 +1006,9 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
    if(derivation)
    {
       subexpr_stack = PStackAlloc();
-      
+
       /* Find the beginnings of the subexpressions */
-      sp = PStackGetSP(derivation);      
+      sp = PStackGetSP(derivation);
       i  = 0;
       while(i<sp)
       {
@@ -1026,7 +1026,7 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
          }
       }
       /* Print the beginning of the subexpressions */
-      
+
       for(sp = PStackGetSP(subexpr_stack)-1; sp>=0; sp--)
       {
          i = PStackElementInt(subexpr_stack, sp);
@@ -1041,14 +1041,14 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
                fprintf(out, "%s", opids[DPOpGetOpCode(op)]);
                break;
          default:
-               fprintf(out, "inference(%s,[status(%s)],[", 
+               fprintf(out, "inference(%s,[status(%s)],[",
                        opids[opc],
                        opstatus[opc]);
                break;
          }
-      }      
+      }
       /* And finish the expressions */
-      
+
       for(sp = 0; sp < PStackGetSP(subexpr_stack); sp++)
       {
          i = PStackElementInt(subexpr_stack, sp);
@@ -1059,12 +1059,12 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
             if(i!=0)
             {
                fprintf(out, ", ");
-            }         
-            fprintf(out, "c_0_%ld", 
+            }
+            fprintf(out, "c_0_%ld",
                     get_clauseform_id(op, 1, PStackElementP(derivation, i+1)));
             if(DCOpHasParentArg2(op))
             {
-               fprintf(out, ", c_0_%ld", 
+               fprintf(out, ", c_0_%ld",
                        get_clauseform_id(op, 2, PStackElementP(derivation, i+2)));
             }
          }
@@ -1096,9 +1096,9 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
                fprintf(out, "])");
                break;
          }
-      }      
+      }
       /* Cleanup */
-      PStackFree(subexpr_stack);      
+      PStackFree(subexpr_stack);
    }
 }
 
@@ -1110,7 +1110,7 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
 // Function: DerivedPCLPrint()
 //
 //   Print a "Derived" cell - i.e. the clause or formula, and its
-//   derivation, in PCL format 
+//   derivation, in PCL format
 //
 // Global Variables: -
 //
@@ -1122,8 +1122,8 @@ void DerivedPCLPrint(FILE* out, Sig_p sig, Derived_p derived)
 {
    if(derived->clause)
    {
-      fprintf(out, "%6ld : ", derived->clause->ident);      
-      fprintf(out, "%s : ", 
+      fprintf(out, "%6ld : ", derived->clause->ident);
+      fprintf(out, "%s : ",
               PCLTypeStr(ClauseQueryTPTPType(derived->clause)));
       ClausePCLPrint(out, derived->clause, PCLFullTerms);
       fputs(" : ", out);
@@ -1133,29 +1133,29 @@ void DerivedPCLPrint(FILE* out, Sig_p sig, Derived_p derived)
       }
       else if(derived->clause->info)
       {
-         ClauseSourceInfoPrintPCL(out, derived->clause->info); 
+         ClauseSourceInfoPrintPCL(out, derived->clause->info);
       }
       if(derived->is_root)
       {
          if(ClauseIsEmpty(derived->clause))
          {
-            fprintf(out, " : 'proof'");      
+            fprintf(out, " : 'proof'");
          }
          else
          {
-            fprintf(out, " : 'final'");      
+            fprintf(out, " : 'final'");
          }
       }
    }
    else
    {
       assert(derived->formula);
-      fprintf(out, "%6ld : ", derived->formula->ident);      
-      fprintf(out, "%s : ", 
+      fprintf(out, "%6ld : ", derived->formula->ident);
+      fprintf(out, "%s : ",
               PCLTypeStr(FormulaQueryType(derived->formula)));
-      TFormulaTPTPPrint(out, 
-                        derived->formula->terms, 
-                        derived->formula->tformula, 
+      TFormulaTPTPPrint(out,
+                        derived->formula->terms,
+                        derived->formula->tformula,
                         true, true);
       fputs(" : ", out);
       if(derived->formula->derivation)
@@ -1164,9 +1164,9 @@ void DerivedPCLPrint(FILE* out, Sig_p sig, Derived_p derived)
       }
       else if(derived->formula->info)
       {
-         ClauseSourceInfoPrintPCL(out, derived->formula->info); 
+         ClauseSourceInfoPrintPCL(out, derived->formula->info);
       }
-   }   
+   }
 }
 
 
@@ -1175,7 +1175,7 @@ void DerivedPCLPrint(FILE* out, Sig_p sig, Derived_p derived)
 // Function: DerivedTSTPPrint()
 //
 //   Print a "Derived" cell - i.e. the clause or formula, and its
-//   derivation, in TSTP format 
+//   derivation, in TSTP format
 //
 // Global Variables: -
 //
@@ -1187,7 +1187,7 @@ void DerivedTSTPPrint(FILE* out, Sig_p sig, Derived_p derived)
 {
    if(derived->clause)
    {
-      // fprintf(out, "%p: ", derived->clause);      
+      // fprintf(out, "%p: ", derived->clause);
       ClauseTSTPPrint(out, derived->clause, true, false);
       if(derived->clause->derivation)
       {
@@ -1199,18 +1199,18 @@ void DerivedTSTPPrint(FILE* out, Sig_p sig, Derived_p derived)
          if(derived->clause->info)
          {
             fprintf(out, ", ");
-            ClauseSourceInfoPrintTSTP(out, derived->clause->info); 
+            ClauseSourceInfoPrintTSTP(out, derived->clause->info);
          }
       }
       if(derived->is_root)
       {
          if(ClauseIsEmpty(derived->clause))
          {
-            fprintf(out, ", ['proof']");      
+            fprintf(out, ", ['proof']");
          }
          else
          {
-            fprintf(out, ", ['final']");      
+            fprintf(out, ", ['final']");
          }
       }
       fprintf(out, ").");
@@ -1218,7 +1218,7 @@ void DerivedTSTPPrint(FILE* out, Sig_p sig, Derived_p derived)
    else
    {
       assert(derived->formula);
-      // fprintf(out, "%p: ", derived->formula);      
+      // fprintf(out, "%p: ", derived->formula);
       WFormulaTSTPPrint(out, derived->formula, true, false);
       if(derived->formula->derivation)
       {
@@ -1230,11 +1230,11 @@ void DerivedTSTPPrint(FILE* out, Sig_p sig, Derived_p derived)
          if(derived->formula->info)
          {
             fprintf(out, ", ");
-            ClauseSourceInfoPrintTSTP(out, derived->formula->info); 
+            ClauseSourceInfoPrintTSTP(out, derived->formula->info);
          }
       }
       fprintf(out, ").");
-   }   
+   }
 }
 
 
@@ -1286,7 +1286,7 @@ char* DerivedDotNodeColour(Derived_p derived)
       default:
             return DerivedGetDerivstack(derived)?node_green:node_axgreen;
       }
-   }  
+   }
    assert(false);
 }
 
@@ -1352,7 +1352,7 @@ char* DerivedDotFormulaLinkColour(Derived_p child, WFormula_p parent)
 // Function: DerivedDotPrint()
 //
 //   Print a "Derived" cell - i.e. the clause or formula, and its
-//   derivation, in GraphViz DOT format 
+//   derivation, in GraphViz DOT format
 //
 // Global Variables: -
 //
@@ -1360,7 +1360,7 @@ char* DerivedDotFormulaLinkColour(Derived_p child, WFormula_p parent)
 //
 /----------------------------------------------------------------------*/
 
-void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived, 
+void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived,
                      ProofOutput print_derivation)
 {
    PStack_p parent_clauses = PStackAlloc();
@@ -1378,7 +1378,7 @@ void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived,
       id = derived->clause->ident;
       deriv = derived->clause->derivation;
       info  = derived->clause->info;
-      if(ClauseIsEvalGC(derived->clause) && 
+      if(ClauseIsEvalGC(derived->clause) &&
          ClauseQueryProp(derived->clause,CPIsProcessed))
       {
          shape="ellipse";
@@ -1395,16 +1395,16 @@ void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived,
    {
          DerivStackExtractOptParents(deriv,
                                      sig,
-                                     parent_clauses, 
+                                     parent_clauses,
                                      parent_formulas);
    }
-   
-   //parent_count = PStackGetSP(parent_clauses)+ 
+
+   //parent_count = PStackGetSP(parent_clauses)+
    //PStackGetSP(parent_formulas);
 
-   fprintf(out, "  %ld [shape=%s%s,style=filled,label=\"",  
-           id, shape, DerivedDotNodeColour(derived)); 
-   
+   fprintf(out, "  %ld [shape=%s%s,style=filled,label=\"",
+           id, shape, DerivedDotNodeColour(derived));
+
    if(derived->clause)
    {
       if(print_derivation > POGraph1)
@@ -1432,13 +1432,13 @@ void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived,
    {
       if(deriv)
       {
-         fprintf(out, ",\\n");   
+         fprintf(out, ",\\n");
          DerivationStackTSTPPrint(out, sig, deriv);
       }
       else if(info)
       {
-         fprintf(out, ",\\n");   
-         ClauseSourceInfoPrintTSTP(out, info); 
+         fprintf(out, ",\\n");
+         ClauseSourceInfoPrintTSTP(out, info);
       }
    }
    if(print_derivation >= POGraph1)
@@ -1450,13 +1450,13 @@ void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived,
    while(!PStackEmpty(parent_clauses))
    {
       cparent = PStackPopP(parent_clauses);
-      fprintf(out, "    %ld -> %ld [style=\"bold\"%s]\n", cparent->ident, id, 
+      fprintf(out, "    %ld -> %ld [style=\"bold\"%s]\n", cparent->ident, id,
               DerivedDotClauseLinkColour(derived, cparent));
    }
    while(!PStackEmpty(parent_formulas))
    {
       fparent = PStackPopP(parent_formulas);
-      fprintf(out, "    %ld -> %ld [style=\"bold\"%s]\n", fparent->ident, id, 
+      fprintf(out, "    %ld -> %ld [style=\"bold\"%s]\n", fparent->ident, id,
               DerivedDotFormulaLinkColour(derived, fparent));
    }
    PStackFree(parent_clauses);
@@ -1493,7 +1493,7 @@ bool DerivedIsEvalGC(Derived_p derived)
 //
 //   Return true if the derivation stack is empty, or if all parents
 //   are formulas (not clauses). This is ugly - it cannot reuse
-//   DerivStackExtractParents() since the the signature is not known. 
+//   DerivStackExtractParents() since the the signature is not known.
 //
 // Global Variables: -
 //
@@ -1510,7 +1510,7 @@ bool DerivStackIndicatesInitialClause(PStack_p deriv)
    {
       return true;
    }
-      
+
    if(deriv)
    {
       sp = PStackGetSP(deriv);
@@ -1569,7 +1569,7 @@ Derivation_p DerivationAlloc(Sig_p sig)
    handle->deriv         = NULL;
    handle->roots         = PStackAlloc();
    handle->ordered_deriv = PStackAlloc();
-   
+
    handle->clause_step_count        = 0;
    handle->formula_step_count       = 0;
    handle->initial_clause_count     = 0;
@@ -1663,7 +1663,7 @@ Derived_p DerivationGetDerived(Derivation_p derivation, Clause_p clause,
 long DerivationExtract(Derivation_p derivation, PStack_p root_clauses)
 {
    Clause_p      clause;
-   WFormula_p    form;   
+   WFormula_p    form;
    Derived_p     node, newnode;
    PStack_p      deriv;
    PStack_p      stack, parent_clauses, parent_formulas;
@@ -1691,7 +1691,7 @@ long DerivationExtract(Derivation_p derivation, PStack_p root_clauses)
       assert(PStackEmpty(parent_formulas));
       DerivStackExtractOptParents(deriv,
                                   derivation->sig,
-                                  parent_clauses, 
+                                  parent_clauses,
                                   parent_formulas);
       while(!PStackEmpty(parent_clauses))
       {
@@ -1714,7 +1714,7 @@ long DerivationExtract(Derivation_p derivation, PStack_p root_clauses)
             PStackPushP(stack, newnode);
          }
          newnode->ref_count++;
-      }     
+      }
    }
    derivation->ordered = false;
 
@@ -1745,7 +1745,7 @@ long DerivationMarkProofSteps(Derivation_p derivation)
 {
    long          proof_steps = 0;
    Clause_p      clause;
-   WFormula_p    form;   
+   WFormula_p    form;
    Derived_p     node, newnode;
    PStack_p      deriv;
    PStack_p      stack, parent_clauses, parent_formulas;
@@ -1774,7 +1774,7 @@ long DerivationMarkProofSteps(Derivation_p derivation)
          assert(PStackEmpty(parent_formulas));
          DerivStackExtractOptParents(deriv,
                                      derivation->sig,
-                                     parent_clauses, 
+                                     parent_clauses,
                                      parent_formulas);
          while(!PStackEmpty(parent_clauses))
          {
@@ -1795,7 +1795,7 @@ long DerivationMarkProofSteps(Derivation_p derivation)
                DerivedSetInProof(newnode,true);
                PStackPushP(stack, newnode);
             }
-         }     
+         }
       }
    }
    PStackFree(parent_clauses);
@@ -1815,7 +1815,7 @@ long DerivationMarkProofSteps(Derivation_p derivation)
 //   Perform a topological sort of the derivation. This is slightly
 //   hacked because axioms (nodes without further parents) always come
 //   first, so that axioms are listed first (for convenience and user
-//   expectation). 
+//   expectation).
 //
 // Global Variables: -
 //
@@ -1830,7 +1830,7 @@ long DerivationTopoSort(Derivation_p derivation)
    PStack_p      ax_stack;
    PStackPointer sp;
    Clause_p      clause;
-   WFormula_p    form;   
+   WFormula_p    form;
    Derived_p     node, newnode;
    PStack_p      deriv;
    PStack_p      parent_clauses, parent_formulas;
@@ -1849,8 +1849,8 @@ long DerivationTopoSort(Derivation_p derivation)
       {
          PQueueStoreP(work_queue, node);
       }
-   }    
-   
+   }
+
    while(!PQueueEmpty(work_queue))
    {
       node = PQueueGetNextP(work_queue);
@@ -1861,7 +1861,7 @@ long DerivationTopoSort(Derivation_p derivation)
 
       (void)DerivStackExtractParents(deriv,
                                      derivation->sig,
-                                     parent_clauses, 
+                                     parent_clauses,
                                      parent_formulas);
       while(!PStackEmpty(parent_clauses))
       {
@@ -1895,8 +1895,8 @@ long DerivationTopoSort(Derivation_p derivation)
             {
                PStackPushP(ax_stack, newnode);
             }
-         }         
-      }     
+         }
+      }
    }
 
    PStackPushStack(derivation->ordered_deriv, ax_stack);
@@ -1975,12 +1975,12 @@ Derivation_p DerivationCompute(PStack_p root_clauses, Sig_p sig)
       node = DerivationGetDerived(res, clause, NULL);
       node->is_root = true;
       PStackPushP(res->roots, node);
-   }       
+   }
    DerivationExtract(res, root_clauses);
    DerivationMarkProofSteps(res);
    DerivationTopoSort(res);
    DerivationRenumber(res);
-   
+
    return res;
 }
 
@@ -2003,7 +2003,7 @@ void DerivationAnalyse(Derivation_p derivation)
 {
    PStackPointer sp;
    Derived_p     handle;
-   
+
    if(!derivation->ordered)
    {
       DerivationTopoSort(derivation);
@@ -2022,13 +2022,13 @@ void DerivationAnalyse(Derivation_p derivation)
          {
             derivation->initial_clause_count++;
          }
-         DerivStackCountSearchInferences(handle->clause->derivation, 
+         DerivStackCountSearchInferences(handle->clause->derivation,
                                          &(derivation->generating_inf_count),
-                                         &(derivation->simplifying_inf_count));         
+                                         &(derivation->simplifying_inf_count));
       }
       else
       {
-         derivation->formula_step_count++;      
+         derivation->formula_step_count++;
          if(FormulaIsConjecture(handle->formula))
          {
             derivation->formula_conjecture_count++;
@@ -2061,7 +2061,7 @@ void DerivationPrint(FILE* out, Derivation_p derivation, char* frame)
    Derived_p     node;
 
    assert(derivation->ordered);
-   
+
    fprintf(out, "# SZS output start %s\n", frame);
    for(sp=PStackGetSP(derivation->ordered_deriv)-1; sp>=0; sp--)
    {
@@ -2097,7 +2097,7 @@ void DerivationPrint(FILE* out, Derivation_p derivation, char* frame)
 //
 /----------------------------------------------------------------------*/
 
-void DerivationDotPrint(FILE* out, Derivation_p derivation, 
+void DerivationDotPrint(FILE* out, Derivation_p derivation,
                         ProofOutput print_derivation)
 {
    PStackPointer sp;
@@ -2105,15 +2105,15 @@ void DerivationDotPrint(FILE* out, Derivation_p derivation,
    bool          axiom_open = true;
 
    assert(derivation->ordered);
-   
-   fprintf(out, 
+
+   fprintf(out,
            "digraph proof{\n"
            "  rankdir=TB\n"
            "  graph [splines=true overlap=false];\n"
            "  subgraph ax{\n"
            "  rank=\"same\";\n"
       );
-   
+
    for(sp=PStackGetSP(derivation->ordered_deriv)-1; sp>=0; sp--)
    {
       node = PStackElementP(derivation->ordered_deriv, sp);
@@ -2141,8 +2141,8 @@ void DerivationDotPrint(FILE* out, Derivation_p derivation,
 //
 /----------------------------------------------------------------------*/
 
-void DerivationComputeAndPrint(FILE* out, char* status, PStack_p root_clauses,  
-                               Sig_p sig, ProofOutput print_derivation, 
+void DerivationComputeAndPrint(FILE* out, char* status, PStack_p root_clauses,
+                               Sig_p sig, ProofOutput print_derivation,
                                bool print_analysis)
 {
    Derivation_p derivation = DerivationCompute(root_clauses, sig);
@@ -2173,11 +2173,11 @@ void DerivationComputeAndPrint(FILE* out, char* status, PStack_p root_clauses,
       fprintf(GlobalOut, "# Proof object initial clauses used    : %lu\n",
               derivation->initial_clause_count);
       fprintf(GlobalOut, "# Proof object initial formulas used   : %lu\n",
-              derivation->initial_formula_count);      
+              derivation->initial_formula_count);
       fprintf(GlobalOut, "# Proof object generating inferences   : %lu\n",
               derivation->generating_inf_count);
       fprintf(GlobalOut, "# Proof object simplifying inferences  : %lu\n",
-              derivation->simplifying_inf_count);      
+              derivation->simplifying_inf_count);
    }
    DerivationFree(derivation);
 }

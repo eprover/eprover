@@ -5,7 +5,7 @@ File  : epcllemma.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Read a PCL protocol and suggest certain clauses as lemmas.
 
   Copyright 2003-2009 by the author.
@@ -79,7 +79,7 @@ typedef enum
 }OptionCodes;
 
 
-typedef enum 
+typedef enum
 {
    LIterative,
    LRecursive,
@@ -93,8 +93,8 @@ typedef enum
 
 OptCell opts[] =
 {
-   {OPT_HELP, 
-    'h', "help", 
+   {OPT_HELP,
+    'h', "help",
     NoArg, NULL,
     "Print a short description of program usage and options."},
 
@@ -103,8 +103,8 @@ OptCell opts[] =
     NoArg, NULL,
     "Print the version number of the program."},
 
-   {OPT_VERBOSE, 
-    'v', "verbose", 
+   {OPT_VERBOSE,
+    'v', "verbose",
     OptArg, "1",
     "Verbose comments on the progress of the program."},
 
@@ -112,7 +112,7 @@ OptCell opts[] =
     'o', "output-file",
     ReqArg, NULL,
    "Redirect output into the named file."},
-   
+
    {OPT_SILENT,
     's', "silent",
     NoArg, NULL,
@@ -125,7 +125,7 @@ OptCell opts[] =
     "output. Level 0 produces nearly no output, level 1 and 2 will"
     " print just lemmas, level 3 and higher will give a full protocol "
     "with lemmas marked as such."},
-   
+
    {OPT_TPTP_PRINT,
     '\0', "tptp-out",
     NoArg, NULL,
@@ -135,7 +135,7 @@ OptCell opts[] =
     '\0', "tptp-format",
     NoArg, NULL,
     "Equivalent to --tptp-out (supplied for consistency in the E toolchain."},
-   
+
    {OPT_TSTP_PRINT,
     '\0', "tstp-out",
     NoArg, NULL,
@@ -204,14 +204,14 @@ OptCell opts[] =
     "higher score become lemmata unless another limit prohibits "
     "that.",
    },
-   
+
    {OPT_REL_LEMQUAL_LIMIT,
     'Q', "min-lemma-quality-rel",
     ReqArg, NULL,
     "Set a mimimum lemma score as a fraction of the best possible "
     "lemma score in the proof tree."
    },
-   
+
    {OPT_LEMMA_TREE_BASE_W,
     'b', "lemma-tree-base-weight",
     ReqArg, NULL,
@@ -233,7 +233,7 @@ OptCell opts[] =
     "Determine the weight to use for each use of the clause as an active"
     " paramodulation partner (i.e. in a conditional rewrite step (if you "
     "follow a strictly equational paradigm (which I do)))."},
-   
+
    {OPT_LEMMA_O_GEN_W,
     'g',"generating-inference-weight",
     ReqArg, NULL,
@@ -263,7 +263,7 @@ OptCell opts[] =
     ReqArg, NULL,
     "Weight factor to apply to the evaluation of Horn clauses. Use 1 to be"
     " fair, 2.5 if you think Horn clauses are 2.5 times more dandy than "
-    "non-Horn clauses. Yes, nice lemmas _are_ amatter of taste ;-)."},   
+    "non-Horn clauses. Yes, nice lemmas _are_ amatter of taste ;-)."},
 
    {OPT_INITIAL_WEIGHT,
     '\0', "pcl-initial-weight",
@@ -370,7 +370,7 @@ void print_help(FILE* out);
 int main(int argc, char* argv[])
 {
    CLState_p       state;
-   Scanner_p       in; 
+   Scanner_p       in;
    PCLProt_p       prot;
    PCLStep_p       step;
    long            steps;
@@ -381,7 +381,7 @@ int main(int argc, char* argv[])
    INCREASE_STACK_SIZE;
 #endif
    InitIO(NAME);
-   
+
    /* TPTPFormatPrint = true; */
    /* We need consistent name->var mappings here because we
       potentially read the compressed input format. */
@@ -405,19 +405,19 @@ int main(int argc, char* argv[])
       ScannerSetFormat(in, TPTPFormat);
       steps+=PCLProtParse(in, prot);
       CheckInpTok(in, NoToken);
-      DestroyScanner(in); 
+      DestroyScanner(in);
    }
    VERBOUT2("PCL input read\n");
-   
+
    if(max_lemmas_rel_p)
-   {     
+   {
       max_lemmas = PCLProtStepNo(prot) * max_lemmas_rel +0.99;
    }
    printf("# Selecting at most %ld lemmas\n", max_lemmas);
    if(min_quality_rel_p)
    {
       PCLProtComputeProofSize(prot, iw, false);
-      step = PCLProtComputeLemmaWeights(prot, lp);      
+      step = PCLProtComputeLemmaWeights(prot, lp);
       min_quality = step?(step->lemma_quality*min_quality_rel):0;
    }
    printf("# Minimum lemma quality: %f\n", min_quality);
@@ -450,20 +450,20 @@ int main(int argc, char* argv[])
 	 PCLProtPrint(GlobalOut, prot, outputformat);
 	 break;
    }
-   
+
    PCLProtFree(prot);
    InferenceWeightsFree(iw);
    LemmaParamFree(lp);
-   CLStateFree(state); 
+   CLStateFree(state);
    fflush(GlobalOut);
    OutClose(GlobalOut);
    ExitIO();
-   
+
 #ifdef CLB_MEMORY_DEBUG
    MemFlushFreeList();
    MemDebugPrintStats(stdout);
 #endif
-   
+
    return 0;
 }
 
@@ -475,7 +475,7 @@ int main(int argc, char* argv[])
 //   Read and process the command line option, return (the pointer to)
 //   a CLState object containing the remaining arguments.
 //
-// Global Variables: 
+// Global Variables:
 //
 // Side Effects    : Sets variables, may terminate with program
 //                   description if option -h or --help was present
@@ -487,12 +487,12 @@ CLState_p process_options(int argc, char* argv[])
    Opt_p handle;
    CLState_p state;
    char*  arg;
-   
+
    assert(iw);
    assert(lp);
 
    state = CLStateAlloc(argc,argv);
-   
+
    while((handle = CLStateGetOpt(state, &arg, opts)))
    {
       switch(handle->option_code)
@@ -500,7 +500,7 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_VERBOSE:
 	    Verbose = CLStateGetIntArg(handle, arg);
 	    break;
-      case OPT_HELP: 
+      case OPT_HELP:
 	    print_help(stdout);
 	    exit(NO_ERROR);
       case OPT_VERSION:
@@ -514,7 +514,7 @@ CLState_p process_options(int argc, char* argv[])
 	    break;
       case OPT_OUTPUTLEVEL:
             OutputLevel = CLStateGetIntArg(handle, arg);
-            break;	    
+            break;
       case OPT_TPTP_PRINT:
       case OPT_TPTP_FORMAT:
             outputformat = tptp_format;
@@ -543,11 +543,11 @@ CLState_p process_options(int argc, char* argv[])
 	    max_lemmas_rel_p = true;
 	    break;
       case OPT_ABS_LEMQUAL_LIMIT:
-	    min_quality = CLStateGetFloatArg(handle, arg);	    
+	    min_quality = CLStateGetFloatArg(handle, arg);
 	    min_quality_rel_p = false;
 	    break;
       case OPT_REL_LEMQUAL_LIMIT:
-	    min_quality_rel = CLStateGetFloatArg(handle, arg);	    
+	    min_quality_rel = CLStateGetFloatArg(handle, arg);
 	    min_quality_rel_p = true;
 	    break;
       case OPT_LEMMA_TREE_BASE_W:
@@ -557,16 +557,16 @@ CLState_p process_options(int argc, char* argv[])
 	    lp->size_base_weight = CLStateGetIntArg(handle, arg);
 	    break;
       case OPT_LEMMA_ACT_PM_W:
-	    lp->act_pm_w = CLStateGetFloatArg(handle, arg);	    
+	    lp->act_pm_w = CLStateGetFloatArg(handle, arg);
 	    break;
       case OPT_LEMMA_O_GEN_W:
-	    lp->o_gen_w = CLStateGetFloatArg(handle, arg);	    
+	    lp->o_gen_w = CLStateGetFloatArg(handle, arg);
 	    break;
       case OPT_LEMMA_ACT_SIMPL_W:
-	    lp->act_simpl_w = CLStateGetFloatArg(handle, arg);	    
+	    lp->act_simpl_w = CLStateGetFloatArg(handle, arg);
 	    break;
       case OPT_LEMMA_PAS_SIMPL_W:
-	    lp->pas_simpl_w = CLStateGetFloatArg(handle, arg);	    
+	    lp->pas_simpl_w = CLStateGetFloatArg(handle, arg);
 	    break;
       case OPT_NO_REFERENCE_WEIGHTS:
 	    lp->act_pm_w    = 0;
@@ -576,40 +576,40 @@ CLState_p process_options(int argc, char* argv[])
 	    break;
       case OPT_LEMMA_HORN_BONUS:
 	    lp->horn_bonus = CLStateGetFloatArg(handle, arg);
-	    break;	    
+	    break;
       case OPT_INITIAL_WEIGHT:
 	    (*iw)[PCLOpInitial] = CLStateGetIntArg(handle, arg);
-	    break;	    
+	    break;
       case OPT_QUOTE_WEIGHT:
 	    (*iw)[PCLOpQuote] = CLStateGetIntArg(handle, arg);
-	    break;	    
+	    break;
       case OPT_PARAMOD_WEIGHT:
 	    (*iw)[PCLOpParamod] = CLStateGetIntArg(handle, arg);
-	    break;	    
+	    break;
       case OPT_ERESOLUTION_WEIGHT:
 	    (*iw)[PCLOpEResolution] = CLStateGetIntArg(handle, arg);
-	    break;	    
+	    break;
       case OPT_EFACTORING_WEIGHT:
 	    (*iw)[PCLOpEFactoring] = CLStateGetIntArg(handle, arg);
-	    break;	    
+	    break;
       case OPT_SIMPLIFYREFLECT_WEIGHT:
 	    (*iw)[PCLOpSimplifyReflect] = CLStateGetIntArg(handle, arg);
-	    break;	    
+	    break;
       case OPT_ACRESOLUTION_WEIGHT:
 	    (*iw)[PCLOpACResolution] = CLStateGetIntArg(handle, arg);
-	    break;	    
+	    break;
       case OPT_REWRITE_WEIGHT:
 	    (*iw)[PCLOpRewrite] = CLStateGetIntArg(handle, arg);
-	    break;	    
+	    break;
       case OPT_UREWRITE_WEIGHT:
 	    (*iw)[PCLOpURewrite] = CLStateGetIntArg(handle, arg);
-	    break;	    
+	    break;
       case OPT_CLAUSENORMALIZE_WEIGHT:
 	    (*iw)[PCLOpClauseNormalize] = CLStateGetIntArg(handle, arg);
-	    break;	    
+	    break;
       case OPT_SPLITCLAUSE_WEIGHT:
 	    (*iw)[PCLOpSplitClause] = CLStateGetIntArg(handle, arg);
-	    break;	    
+	    break;
       default:
 	    assert(false);
 	    break;
@@ -620,7 +620,7 @@ CLState_p process_options(int argc, char* argv[])
 
 void print_help(FILE* out)
 {
-   fprintf(out, 
+   fprintf(out,
 	   "\n"
 	   "\n"
 NAME " " VERSION "\n"

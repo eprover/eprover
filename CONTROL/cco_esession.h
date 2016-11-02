@@ -5,7 +5,7 @@ File  : cco_esession.h
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Code and data structures representing a single session
   (i.e. connection to the user and all processes run on behalf of this
   user).
@@ -70,14 +70,14 @@ void   XXXFree(XXX_p junk);
 ESession_p  ESessionAlloc(int sock);
 void        ESessionFree(ESession_p junk);
 
-int         ESessionInitFDSet(ESession_p session, 
-                              fd_set *rd_fds,  
+int         ESessionInitFDSet(ESession_p session,
+                              fd_set *rd_fds,
                               fd_set *wr_fds);
 
 #define     ESessionSetState(session, state) (session)->state = state
 
-void        ESessionDoIO(ESession_p session, 
-                         fd_set *rd_fds,  
+void        ESessionDoIO(ESession_p session,
+                         fd_set *rd_fds,
                          fd_set *wr_fds);
 
 void        ESessionProcessCmds(ESession_p session);

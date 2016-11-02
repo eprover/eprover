@@ -5,7 +5,7 @@ File  : che_clausefeatures.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for determining features of clauses.
 
   Copyright 1998, 1999 by the author.
@@ -57,7 +57,7 @@ static long term_depth_info_add(Term_p term, long* depthmax, long*
 				depthsum, long* count)
 {
    long depth = TermDepth(term);
-   
+
    (*depthsum)+=depth;
    (*count)++;
    if(depth > *depthmax)
@@ -83,7 +83,7 @@ static long term_depth_info_add(Term_p term, long* depthmax, long*
 /----------------------------------------------------------------------*/
 
 static long eqn_tptp_depth_info_add(Eqn_p eqn, long* depthmax, long*
-				    depthsum, long* count) 
+				    depthsum, long* count)
 {
    if(EqnIsEquLit(eqn))
    {
@@ -113,7 +113,7 @@ static long eqn_tptp_depth_info_add(Eqn_p eqn, long* depthmax, long*
 // Function: ClauseCountExtSymbols()
 //
 //   Return the number of different external function symbols in
-//   clause. 
+//   clause.
 //
 // Global Variables: -
 //
@@ -126,15 +126,15 @@ int ClauseCountExtSymbols(Clause_p clause, Sig_p sig, long min_arity)
    long *dist_array = SizeMalloc((sig->f_count+1)*sizeof(long));
    FunCode i;
    int  res =0;
-   
+
    for(i=0; i<=sig->f_count; i++)
    {
       dist_array[i] = 0;
    }
    ClauseAddSymbolDistribution(clause, dist_array);
-   
+
    for(i=sig->internal_symbols+1; i<=sig->f_count; i++)
-   {      
+   {
       if((SigFindArity(sig, i)>=min_arity) && dist_array[i])
       {
 	 res++;
@@ -166,17 +166,17 @@ FunCode TermAddVarDistribution(Term_p term, PDArray_p dist_array)
    assert(term);
 
    PStackPushP(stack, term);
-   
+
    while(!PStackEmpty(stack))
    {
       term = PStackPopP(stack);
-      
+
       if(!TermIsVar(term))
       {
          int i;
-         
+
          assert(term->f_code > 0);
-         
+
          for(i=0; i<term->arity; i++)
          {
             assert(term->args);
@@ -215,7 +215,7 @@ FunCode EqnAddVarDistribution(Eqn_p eqn, PDArray_p dist_array)
 
    lvars = TermAddVarDistribution(eqn->lterm, dist_array);
    rvars = TermAddVarDistribution(eqn->rterm, dist_array);
-   
+
    return MAX(lvars, rvars);
 }
 
@@ -251,7 +251,7 @@ FunCode EqnListAddVarDistribution(Eqn_p list, PDArray_p dist_array)
 // Function: ClauseCountVariableSet()
 //
 //   Return the number of different variables in
-//   clause. 
+//   clause.
 //
 // Global Variables: -
 //
@@ -264,11 +264,11 @@ long ClauseCountVariableSet(Clause_p clause)
    PDArray_p dist_array = PDIntArrayAlloc(20,20);
    FunCode max_var,i;
    long res = 0;
-   
+
    max_var = ClauseAddVarDistribution(clause, dist_array);
-   
+
    for(i=1; i<=max_var; i++)
-   {      
+   {
       if(PDArrayElementInt(dist_array, i))
       {
          res++;
@@ -284,7 +284,7 @@ long ClauseCountVariableSet(Clause_p clause)
 // Function: ClauseCountSingletonSet()
 //
 //   Return the number of different singleton variables in
-//   clause. 
+//   clause.
 //
 // Global Variables: -
 //
@@ -297,11 +297,11 @@ long ClauseCountSingletonSet(Clause_p clause)
    PDArray_p dist_array = PDIntArrayAlloc(20,20);
    FunCode max_var,i;
    long res = 0;
-   
+
    max_var = ClauseAddVarDistribution(clause, dist_array);
-   
+
    for(i=1; i<=max_var; i++)
-   {      
+   {
       if(PDArrayElementInt(dist_array, i)==1)
       {
          res++;
@@ -317,7 +317,7 @@ long ClauseCountSingletonSet(Clause_p clause)
 // Function: ClauseCountMaximalTerms()
 //
 //   Given an clause, return the number of maximal terms in maximal
-//   literals. 
+//   literals.
 //
 // Global Variables: -
 //
@@ -345,7 +345,7 @@ long ClauseCountMaximalTerms(Clause_p clause)
 //
 // Function: ClauseCountMaximalLiterals()
 //
-//   Given an clause, return the number of maximal literals. 
+//   Given an clause, return the number of maximal literals.
 //
 // Global Variables: -
 //
@@ -373,7 +373,7 @@ long ClauseCountMaximalLiterals(Clause_p clause)
 //
 // Function: ClauseCountUnorientableLiterals()
 //
-//   Given an clause, return the number of unorientable literals. 
+//   Given an clause, return the number of unorientable literals.
 //
 // Global Variables: -
 //
@@ -426,7 +426,7 @@ long ClauseTPTPDepthInfoAdd(Clause_p clause, long* depthmax, long*
 //
 // Function: ClauseInfoPrint()
 //
-//   Print a lot of information about clause in the form 
+//   Print a lot of information about clause in the form
 //   info(d0,...,dn) with
 //
 //   d0: Clause ident (number)
@@ -476,7 +476,7 @@ void ClauseLinePrint(FILE* out, Clause_p clause, bool printinfo)
    if(printinfo)
    {
       fputs(" # ", out);
-      ClauseInfoPrint(out, clause);      
+      ClauseInfoPrint(out, clause);
    }
    fputc('\n', out);
 }
@@ -487,7 +487,7 @@ void ClauseLinePrint(FILE* out, Clause_p clause, bool printinfo)
 // Function: ClausePropInfoPrint()
 //
 //   Print a clause and certain statistical information about it as a
-//   comment. 
+//   comment.
 //
 // Global Variables: -
 //
@@ -501,7 +501,7 @@ void ClausePropInfoPrint(FILE* out, Clause_p clause)
 
    fprintf(out, "# ");
    ClausePCLPrint(out, clause, true);
-   fprintf(out, 
+   fprintf(out,
 	   "\n"
 	   "# Standardweight: %6ld\n"
 	   "# Symbol count  : %6ld\n"

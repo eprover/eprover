@@ -5,10 +5,10 @@ File  : cco_batch_spec.h
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Data types and code for dealing with CASC-2010 LTB batch
   specifications. It's unclear if this will ever be useful...
-  
+
   Copyright 2010 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
@@ -87,14 +87,14 @@ void        BatchSpecPrint(FILE* out, BatchSpec_p spec);
 
 long        BatchStructFOFSpecInit(BatchSpec_p spec, StructFOFSpec_p ctrl);
 
-BatchSpec_p BatchSpecParse(Scanner_p in, char* executable, 
-                           char* category, char* train_dir, 
+BatchSpec_p BatchSpecParse(Scanner_p in, char* executable,
+                           char* category, char* train_dir,
                            IOFormat format);
 
 #define BatchSpecProblemNo(spec) PStackGetSP((spec)->source_files)
 
 
-bool BatchProcessProblem(BatchSpec_p spec, 
+bool BatchProcessProblem(BatchSpec_p spec,
                          long wct_limit,
                          StructFOFSpec_p ctrl,
                          char* jobname,
@@ -103,18 +103,18 @@ bool BatchProcessProblem(BatchSpec_p spec,
                          FILE* out,
                          int sock_fd);
 
-bool BatchProcessFile(BatchSpec_p spec, 
+bool BatchProcessFile(BatchSpec_p spec,
                       long wct_limit,
-                      StructFOFSpec_p ctrl, 
+                      StructFOFSpec_p ctrl,
                       char* source, char* dest);
 
-long BatchProcessProblems(BatchSpec_p spec, 
-                          StructFOFSpec_p ctrl, 
+long BatchProcessProblems(BatchSpec_p spec,
+                          StructFOFSpec_p ctrl,
                           long total_wtc_limit,
                           char* dest_dir);
 
-void BatchProcessInteractive(BatchSpec_p spec, 
-                             StructFOFSpec_p ctrl, 
+void BatchProcessInteractive(BatchSpec_p spec,
+                             StructFOFSpec_p ctrl,
                              FILE* fp);
 
 

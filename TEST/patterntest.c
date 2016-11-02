@@ -5,7 +5,7 @@ File  : patterntest.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Main program for the CLIB test programm
 
   Copyright 1998, 1999 by the author.
@@ -52,12 +52,12 @@ typedef enum
 
 OptCell opts[] =
 {
-   {OPT_HELP, 
-    'h', "help", 
+   {OPT_HELP,
+    'h', "help",
     NoArg, NULL,
     "Print a short description of program usage and options."},
-   {OPT_VERBOSE, 
-    'v', "verbose", 
+   {OPT_VERBOSE,
+    'v', "verbose",
     OptArg, "1",
     "Verbose comments on the progress of the program."},
    {OPT_OUTPUT,
@@ -98,7 +98,7 @@ void print_help(FILE* out);
 int main(int argc, char* argv[])
 {
    CLState_p   state;
-   Scanner_p   in; 
+   Scanner_p   in;
    TB_p        bank;
    Term_p      term, top;
    int         i;
@@ -107,15 +107,15 @@ int main(int argc, char* argv[])
    InitIO(argv[0]);
 
    state = process_options(argc, argv);
-   
+
    if(state->argc ==  0)
    {
       CLStateInsertArg(state, "-");
    }
    bank = TBAlloc(SigAlloc(DefaultSortTableAlloc()));
-   
+
    in = CreateScanner(StreamTypeFile, state->argv[0], true, NULL);
-   
+
    while(!TestInpTok(in, NoToken))
    {
       term = TBTermParse(in, bank);
@@ -124,7 +124,7 @@ int main(int argc, char* argv[])
 	 printf("Depth: %i  Original term: ", i);
 	 TBPrintTermFull(stdout, bank, term);
 	 printf("\n\n");
-	 
+
 	 top = TermTop(term, i, bank->vars);
 	 printf("  Top:   ");
 	 TermPrint(stdout, top, bank->sig, DEREF_NEVER);
@@ -160,7 +160,7 @@ int main(int argc, char* argv[])
 
    CLStateFree(state);
    ExitIO();
-   
+
 #ifdef CLB_MEMORY_DEBUG
    MemFlushFreeList();
    MemDebugPrintStats(stdout);
@@ -177,7 +177,7 @@ int main(int argc, char* argv[])
 //   Read and process the command line option, return (the pointer to)
 //   a CLState object containing the remaining arguments.
 //
-// Global Variables: opts, Verbose, TBPrintInternalInfo 
+// Global Variables: opts, Verbose, TBPrintInternalInfo
 //
 // Side Effects    : Sets variables, may terminate with program
 //                   description if option -h or --help was present
@@ -189,9 +189,9 @@ CLState_p process_options(int argc, char* argv[])
    Opt_p handle;
    CLState_p state;
    char*  arg;
-   
+
    state = CLStateAlloc(argc,argv);
-   
+
    while((handle = CLStateGetOpt(state, &arg, opts)))
    {
       switch(handle->option_code)
@@ -199,7 +199,7 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_VERBOSE:
 	    Verbose = CLStateGetIntArg(handle, arg);
 	    break;
-      case OPT_HELP: 
+      case OPT_HELP:
 	    print_help(stdout);
 	    exit(NO_ERROR);
       case OPT_OUTPUT:
@@ -218,7 +218,7 @@ CLState_p process_options(int argc, char* argv[])
    }
    return state;
 }
- 
+
 void print_help(FILE* out)
 {
    fprintf(out, "\n\

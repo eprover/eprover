@@ -5,7 +5,7 @@ File  : clb_properties.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Macros for dealing with 1 bit properties of objects (well,
   structs). It requires the object to be dealt with to have a field
   named "properties" that is of some integer or enumeration type. This

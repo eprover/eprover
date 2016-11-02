@@ -5,7 +5,7 @@ File  : cco_proc_ctrl.h
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Code for running E as a separate process within other programs. This
   is only a first draft - there probably will be a much better version
   eventually ;-).
@@ -96,13 +96,13 @@ EPCtrl_p EPCtrlAlloc(char* name);
 void     EPCtrlFree(EPCtrl_p junk);
 
 EPCtrl_p ECtrlCreate(char* prover, char* name,
-                     char* extra_options, 
+                     char* extra_options,
                      long cpu_limit, char* file);
 
 void     EPCtrlCleanup(EPCtrl_p ctrl);
 
-bool EPCtrlGetResult(EPCtrl_p ctrl, 
-                     char* buffer, 
+bool EPCtrlGetResult(EPCtrl_p ctrl,
+                     char* buffer,
                      long buf_size);
 
 #define EPCtrlSetCellAlloc()    (EPCtrlSetCell*)SizeMalloc(sizeof(EPCtrlSetCell))

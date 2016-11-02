@@ -5,8 +5,8 @@ File  : e_version.h
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
-  Define global macro for version number and meta-information. 
+
+  Define global macro for version number and meta-information.
 
   Copyright 2009-2016 by the author.
   This code is released under the GNU General Public Licence and

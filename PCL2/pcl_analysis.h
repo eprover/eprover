@@ -5,7 +5,7 @@ File  : pcl_analysis.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Code for analysing PCL protocols, replacing (much of) what used to
   be in ANALYSIS for old E style proofs.
 

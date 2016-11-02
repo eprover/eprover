@@ -5,7 +5,7 @@ File  : clb_pstacks.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Stacks for (long) integers and pointers.
 
   Copyright 1998, 1999 by the author.
@@ -80,9 +80,9 @@ void __attribute__ ((noinline)) PStackGrow(PStack_p stack)
 //   Remove element number i from the stack. If it is not the top
 //   element, the top element gets swapped in.
 //0
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -91,7 +91,7 @@ void PStackDiscardElement(PStack_p stack, PStackPointer i)
    assert(stack);
    assert(i < PStackGetSP(stack));
    assert(i >= 0);
-   
+
    stack->current--;
    if(stack->current != i)
    {
@@ -116,7 +116,7 @@ void PStackDiscardElement(PStack_p stack, PStackPointer i)
 IntOrP* PStackTopAddr(PStack_p stack)
 {
    assert(stack->current);
-   
+
    return &(stack->stack[stack->current-1]);
 }
 
@@ -128,7 +128,7 @@ IntOrP* PStackTopAddr(PStack_p stack)
 //
 //   Given a stack of integers, compute the arithmetic mean (returned)
 //   and the standard deviation (stored in *deviation) of the
-//   integers. 
+//   integers.
 //
 // Global Variables: -
 //
@@ -199,13 +199,13 @@ void PStackSort(PStack_p stack, ComparisonFunctionType cmpfun)
 //
 //   Merge two sorted stacks onto a third. Discards duplicates.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
-void PStackMerge(PStack_p st1, PStack_p st2, PStack_p res, 
+void PStackMerge(PStack_p st1, PStack_p st2, PStack_p res,
                      ComparisonFunctionType cmpfun)
 {
    IntOrP tmp;
@@ -269,7 +269,7 @@ void PStackPushStack(PStack_p target, PStack_p source)
 // Function: PStackPrintInt()
 //
 //   Print a stack (interpreted as (long) integers) using the format
-//   given. 
+//   given.
 //
 // Global Variables: -
 //

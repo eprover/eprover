@@ -5,10 +5,10 @@ File  : ccl_formula_wrapper.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Data type wrapping formulas, with all the stuff that really only
   applies to input or top-level formulae, not to recursive
-  subformulae. Also has formula sets (well, wrapped formula sets). 
+  subformulae. Also has formula sets (well, wrapped formula sets).
 
 Copyright 1998-2011 by the author.
   This code is released under the GNU General Public Licence and
@@ -39,7 +39,7 @@ typedef enum
    WPInitial           = 1,        /* Input formula */
    WPInputFormula      = CPInputClause, /* _Really_ initial in TSTP sense */
    WPType1          = CPType1, /* 128 */
-   WPType2          = CPType2, 
+   WPType2          = CPType2,
    WPType3          = CPType3,
    WPTypeMask       = CPTypeMask,
    WPTypeUnknown    = 0,                /* Also used as wildcard */
@@ -56,7 +56,7 @@ typedef enum
 
 
 typedef struct wformula_cell
-{ 
+{
    WFormulaProperties    properties;
    long                  ident;
    TB_p                  terms;

@@ -5,7 +5,7 @@ File  : clb_ptrees.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for pointer storing SPLAY trees.
 
   Copyright 1998, 1999 by the author.
@@ -40,7 +40,7 @@ Changes
 
 /*-----------------------------------------------------------------------
 //
-// Function: splay_tree() 
+// Function: splay_tree()
 //
 //   Perform the splay operation on tree at node with key.
 //
@@ -50,22 +50,22 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-static PTree_p splay_ptree(PTree_p tree, void* key) 
+static PTree_p splay_ptree(PTree_p tree, void* key)
 {
    PTree_p   left, right, tmp;
    PTreeCell newnode;
 
-   if (!tree) 
+   if (!tree)
    {
       return tree;
    }
-   
+
    newnode.lson = NULL;
    newnode.rson = NULL;
    left = &newnode;
    right = &newnode;
-   
-   for (;;) 
+
+   for (;;)
    {
       if(PLesser(key, tree->key))
       {
@@ -87,7 +87,7 @@ static PTree_p splay_ptree(PTree_p tree, void* key)
 	 right->lson = tree;
 	 right = tree;
 	 tree = tree->lson;
-      } 
+      }
       else if(PGreater(key, tree->key))
       {
 	 if (!tree->rson)
@@ -100,7 +100,7 @@ static PTree_p splay_ptree(PTree_p tree, void* key)
 	    tree->rson = tmp->lson;
 	    tmp->lson = tree;
 	    tree = tmp;
-	    if (!tree->rson) 
+	    if (!tree->rson)
 	    {
 	       break;
 	    }
@@ -109,7 +109,7 @@ static PTree_p splay_ptree(PTree_p tree, void* key)
 	 left = tree;
 	 tree = tree->rson;
       }
-      else 
+      else
       {
 	 break;
       }
@@ -118,7 +118,7 @@ static PTree_p splay_ptree(PTree_p tree, void* key)
    right->lson = tree->rson;
    tree->lson = newnode.rson;
    tree->rson = newnode.lson;
-   
+
    return tree;
 }
 
@@ -149,7 +149,7 @@ static PTree_p splay_ptree(PTree_p tree, void* key)
 PTree_p PTreeCellAllocEmpty(void)
 {
    PTree_p handle = PTreeCellAlloc();
-   
+
    handle->lson = handle->rson = NULL;
 
    return handle;
@@ -173,9 +173,9 @@ void PTreeFree(PTree_p junk)
    if(junk)
    {
       PStack_p stack = PStackAlloc();
-      
+
       PStackPushP(stack, junk);
-      
+
       while(!PStackEmpty(stack))
       {
 	 junk = PStackPopP(stack);
@@ -184,10 +184,10 @@ void PTreeFree(PTree_p junk)
 	    PStackPushP(stack, junk->lson);
 	 }
 	 if(junk->rson)
-	 { 
+	 {
 	    PStackPushP(stack, junk->rson);
 	 }
-	 PTreeCellFree(junk);	    	 
+	 PTreeCellFree(junk);
       }
       PStackFree(stack);
    }
@@ -210,7 +210,7 @@ void PTreeFree(PTree_p junk)
 
 PTree_p PTreeInsert(PTree_p *root, PTree_p newnode)
 {
-   if (!*root) 
+   if (!*root)
    {
       newnode->lson = newnode->rson = NULL;
       *root = newnode;
@@ -225,7 +225,7 @@ PTree_p PTreeInsert(PTree_p *root, PTree_p newnode)
       (*root)->lson = NULL;
       *root = newnode;
       return NULL;
-   } 
+   }
    else if(PGreater(newnode->key, (*root)->key))
    {
       newnode->rson = (*root)->rson;
@@ -245,7 +245,7 @@ PTree_p PTreeInsert(PTree_p *root, PTree_p newnode)
 // Function: PTreeStore()
 //
 //   Insert a cell with given key into the tree. Return false if an
-//   entry for this key exists, true otherwise. 
+//   entry for this key exists, true otherwise.
 //
 // Global Variables: -
 //
@@ -259,7 +259,7 @@ bool PTreeStore(PTree_p *root, void* key)
 
    handle = PTreeCellAlloc();
    handle->key = key;
- 
+
    newnode = PTreeInsert(root, handle);
 
    if(newnode)
@@ -287,7 +287,7 @@ PTree_p PTreeFind(PTree_p *root, void* key)
 {
    if(*root)
    {
-      *root = splay_ptree(*root, key);  
+      *root = splay_ptree(*root, key);
       if(PEqual((*root)->key, key))
       {
          return *root;
@@ -326,7 +326,7 @@ PTree_p PTreeFindBinary(PTree_p root, void* key)
       {
 	 break;
       }
-   }   
+   }
    return root;
 }
 
@@ -361,7 +361,7 @@ PTree_p PTreeExtractEntry(PTree_p *root, void* key)
       if (!(*root)->lson)
       {
 	 x = (*root)->rson;
-      } 
+      }
       else
       {
 	 x = splay_ptree((*root)->lson, key);
@@ -441,7 +441,7 @@ void* PTreeExtractRootKey(PTree_p *root)
 bool PTreeDeleteEntry(PTree_p *root, void* key)
 {
    PTree_p cell;
-   
+
    cell = PTreeExtractEntry(root, key);
    if(cell)
    {
@@ -458,7 +458,7 @@ bool PTreeDeleteEntry(PTree_p *root, void* key)
 //
 //   Merge the two trees, i.e. destroy the second one and add its
 //   elements to the first one. Return true if *root gains a new
-//   element. 
+//   element.
 //
 // Global Variables: -
 //
@@ -491,7 +491,7 @@ bool PTreeMerge(PTree_p *root, PTree_p add)
 	    res = true;
 	 }
       }
-   } 
+   }
    PStackFree(stack);
    return res;
 }
@@ -524,7 +524,7 @@ void PTreeInsertTree(PTree_p *root, PTree_p add)
 	 PStackPushP(stack, add->rson);
 	 PTreeStore(root, add->key);
       }
-   } 
+   }
    PStackFree(stack);
 }
 
@@ -547,7 +547,7 @@ long PTreeNodes(PTree_p root)
    long     res   = 0;
 
    PStackPushP(stack, root);
-   
+
    while(!PStackEmpty(stack))
    {
       root = PStackPopP(stack);
@@ -560,7 +560,7 @@ long PTreeNodes(PTree_p root)
    }
    PStackFree(stack);
 
-   return res;   
+   return res;
 }
 
 
@@ -569,7 +569,7 @@ long PTreeNodes(PTree_p root)
 // Function: PTreeDebugPrint()
 //
 //   Print the keys stored in the tree. Returns number of nodes (why
-//   not ?). 
+//   not ?).
 //
 // Global Variables: -
 //
@@ -581,11 +581,11 @@ long PTreeDebugPrint(FILE* out, PTree_p root)
 {
    PStack_p stack = PStackAlloc();
    long     res   = 0;
-   
+
    PStackPushP(stack, root);
-   
+
    while(!PStackEmpty(stack))
-   {      
+   {
       root = PStackPopP(stack);
       if(root)
       {
@@ -601,8 +601,8 @@ long PTreeDebugPrint(FILE* out, PTree_p root)
    }
    PStackFree(stack);
    fprintf(out, "\n");
-   
-   return res;   
+
+   return res;
 }
 
 
@@ -629,7 +629,7 @@ long PStackToPTree(PTree_p *root, PStack_p stack)
    {
       if(PTreeStore(root, PStackElementP(stack,i)))
       {
-	 res++;	 
+	 res++;
       }
    }
    return res;
@@ -656,20 +656,20 @@ long PTreeToPStack(PStack_p target_stack, PTree_p root)
    PTree_p handle;
 
    PStackPushP(stack, root);
-   
+
    while(!PStackEmpty(stack))
    {
       handle = PStackPopP(stack);
       if(handle)
-      {	 
+      {
 	 PStackPushP(target_stack, handle->key);
 	 res++;
 	 PStackPushP(stack,handle->lson);
 	 PStackPushP(stack,handle->rson);
       }
-   } 
+   }
    PStackFree(stack);
-   
+
    return res;
 }
 
@@ -711,7 +711,7 @@ void* PTreeSharedElement(PTree_p *tree1, PTree_p tree2)
 	 PStackPushP(stack,handle->lson);
 	 PStackPushP(stack,handle->rson);
       }
-   } 
+   }
    PStackFree(stack);
    return res;
 }
@@ -733,9 +733,9 @@ PTree_p PTreeIntersection(PTree_p tree1, PTree_p tree2)
 {
    PStack_p stack = PStackAlloc();
    PTree_p handle, tmp, res=NULL;
-   
+
    PStackPushP(stack, tree2);
-   
+
    while(!PStackEmpty(stack))
    {
       handle = PStackPopP(stack);
@@ -749,7 +749,7 @@ PTree_p PTreeIntersection(PTree_p tree1, PTree_p tree2)
 	 PStackPushP(stack,handle->lson);
 	 PStackPushP(stack,handle->rson);
       }
-   } 
+   }
    PStackFree(stack);
    return res;
 }
@@ -806,10 +806,10 @@ long PTreeDestrIntersection(PTree_p *tree1, PTree_p tree2)
 PTree_p PTreeCopy(PTree_p tree)
 {
    PTree_p res = NULL, handle;
-   PStack_p stack = PStackAlloc();   
+   PStack_p stack = PStackAlloc();
 
    PStackPushP(stack, tree);
-   
+
    while(!PStackEmpty(stack))
    {
       handle = PStackPopP(stack);
@@ -819,7 +819,7 @@ PTree_p PTreeCopy(PTree_p tree)
 	 PStackPushP(stack,handle->lson);
 	 PStackPushP(stack,handle->rson);
       }
-   }    
+   }
    PStackFree(stack);
    return res;
 }

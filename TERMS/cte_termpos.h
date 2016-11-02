@@ -5,7 +5,7 @@ File  : cte_termpos.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Positions in terms.
 
   Copyright 1998, 1999 by the author.
@@ -39,7 +39,7 @@ Changes
    address (index of the selected subterm in its direct
    superterm). The selected subterm is not contained directly in the
    stack. The empty stack corresponds to the empty position.
-   
+
    Example: t = f(a,g(b))
 
    The position of b is represented by the following stack (where @s =
@@ -53,8 +53,8 @@ Changes
    Term positions are really PStacks, they are only redefined for
    better readability. In particular, functions dealing with TermPos
    types are allowed and expected to use PStack-Operations on them. */
-   
-           
+
+
 typedef PStackCell TermPosCell;
 typedef PStack_p   TermPos_p;
 
@@ -108,12 +108,12 @@ static __inline__ Term_p TermPosGetSubterm(Term_p term, TermPos_p pos)
       return term;
    }
    assert(PStackGetSP(pos)>=2);
-   
+
    idx = PStackTopInt(pos);
    super = PStackBelowTopP(pos);
-   
+
    assert(super->arity>idx);
-   
+
    return super->args[idx];
 }
 

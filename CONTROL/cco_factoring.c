@@ -5,7 +5,7 @@ File  : cco_factoring.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions controlling factoring.
 
   Copyright 1998, 1999 by the author.
@@ -61,7 +61,7 @@ Changes
 
 long ComputeAllOrderedFactors(TB_p bank, OCB_p ocb,
 			      Clause_p clause, ClauseSet_p store,
-			      VarBank_p freshvars) 
+			      VarBank_p freshvars)
 {
    Clause_p    factor;
    Eqn_p       test;
@@ -72,9 +72,9 @@ long ComputeAllOrderedFactors(TB_p bank, OCB_p ocb,
    {
       pos1 = ClausePosAlloc();
       pos2 = ClausePosAlloc();
-   
+
       test = ClausePosFirstOrderedFactorLiterals(clause, pos1, pos2);
-      
+
       while(test)
       {
 	 factor = ComputeOrderedFactor(bank, ocb, pos1, pos2, freshvars);
@@ -94,7 +94,7 @@ long ComputeAllOrderedFactors(TB_p bank, OCB_p ocb,
 	 test = ClausePosNextOrderedFactorLiterals(pos1, pos2);
       }
       ClausePosFree(pos1);
-      ClausePosFree(pos2); 
+      ClausePosFree(pos2);
    }
    return factor_count;
 }
@@ -115,7 +115,7 @@ long ComputeAllOrderedFactors(TB_p bank, OCB_p ocb,
 
 long ComputeAllEqualityFactors(TB_p bank, OCB_p ocb,
 			      Clause_p clause, ClauseSet_p store,
-			      VarBank_p freshvars) 
+			      VarBank_p freshvars)
 {
    Clause_p    factor;
    Eqn_p       test;
@@ -126,9 +126,9 @@ long ComputeAllEqualityFactors(TB_p bank, OCB_p ocb,
    {
       pos1 = ClausePosAlloc();
       pos2 = ClausePosAlloc();
-   
+
       test = ClausePosFirstEqualityFactorSides(clause, pos1, pos2);
-      
+
       while(test)
       {
 	 factor = ComputeEqualityFactor(bank, ocb, pos1, pos2, freshvars);
@@ -148,7 +148,7 @@ long ComputeAllEqualityFactors(TB_p bank, OCB_p ocb,
 	 test = ClausePosNextEqualityFactorSides(pos1, pos2);
       }
       ClausePosFree(pos1);
-      ClausePosFree(pos2); 
+      ClausePosFree(pos2);
    }
    return factor_count;
 }

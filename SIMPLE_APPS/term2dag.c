@@ -5,7 +5,7 @@ File  : term2dag.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Main program for a simple CLIB application: Read term set, write
   equivalent DAG.
 
@@ -50,12 +50,12 @@ typedef enum
 
 OptCell opts[] =
 {
-   {OPT_HELP, 
-    'h', "help", 
+   {OPT_HELP,
+    'h', "help",
     NoArg, NULL,
     "Print a short description of program usage and options."},
-   {OPT_VERBOSE, 
-    'v', "verbose", 
+   {OPT_VERBOSE,
+    'v', "verbose",
     OptArg, "1",
     "Verbose comments on the progress of the program."},
    {OPT_OUTPUT,
@@ -88,17 +88,17 @@ void print_help(FILE* out);
 int main(int argc, char* argv[])
 {
    CLState_p state;
-   Scanner_p in; 
+   Scanner_p in;
    Term_p term;
    TB_p bank;
    FILE* out;
    int i;
-   
+
    assert(argv[0]);
    InitError(argv[0]);
 
    state = process_options(argc, argv);
-   
+
    if(state->argc ==  0)
    {
       CLStateInsertArg(state, "-");
@@ -119,12 +119,12 @@ int main(int argc, char* argv[])
       DestroyScanner(in);
    }
    SigPrint(out, bank->sig);
-   TBPrintBankInOrder(out, bank);   
+   TBPrintBankInOrder(out, bank);
    SortTableFree(bank->sig->sort_table);
    SigFree(bank->sig);
    bank->sig = NULL;
-   TBFree(bank);  
-   OutClose(out); 
+   TBFree(bank);
+   OutClose(out);
    CLStateFree(state);
    #ifdef CLB_MEMORY_DEBUG
    MemFlushFreeList();
@@ -141,7 +141,7 @@ int main(int argc, char* argv[])
 //   Read and process the command line option, return (the pointer to)
 //   a CLState object containing the remaining arguments.
 //
-// Global Variables: opts, Verbose, TBPrintInternalInfo 
+// Global Variables: opts, Verbose, TBPrintInternalInfo
 //
 // Side Effects    : Sets variables, may terminate with program
 ..                   description if option -h or --help was present
@@ -153,9 +153,9 @@ CLState_p process_options(int argc, char* argv[])
    Opt_p handle;
    CLState_p state;
    char*  arg;
-   
+
    state = CLStateAlloc(argc,argv);
-   
+
    while((handle = CLStateGetOpt(state, &arg, opts)))
    {
       switch(handle->option_code)
@@ -163,7 +163,7 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_VERBOSE:
 	 Verbose = CLStateGetIntArg(handle, arg);
 	 break;
-      case OPT_HELP: 
+      case OPT_HELP:
 	 print_help(stdout);
 	 exit(NO_ERROR);
       case OPT_OUTPUT:

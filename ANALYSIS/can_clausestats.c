@@ -5,7 +5,7 @@ File  : can_clausestats.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Simple data structure for handling a fixed elements vector of
   statistics.
 
@@ -17,7 +17,7 @@ Contents
 
 Changes
 
-<1> Wed Mar 31 15:18:15 MET DST 1999 
+<1> Wed Mar 31 15:18:15 MET DST 1999
     New
 
 -----------------------------------------------------------------------*/
@@ -61,7 +61,7 @@ Changes
 ClauseStats_p ClauseStatsCopy(ClauseStats_p stats)
 {
    ClauseStats_p handle = ClauseStatsCellAlloc();
-   
+
    handle->proof_distance  = stats->proof_distance;
    handle->simplify_used   = stats->simplify_used;
    handle->simplify_unused = stats->simplify_unused;
@@ -107,7 +107,7 @@ void ClauseStatsParseInto(Scanner_p in, ClauseStats_p cell)
    AcceptInpTok(in, Comma);
    cell->subsumed = AktToken(in)->numval;
    AcceptInpTok(in, PosInt);
-   AcceptInpTok(in, CloseBracket);   
+   AcceptInpTok(in, CloseBracket);
 }
 
 
@@ -152,7 +152,7 @@ void ClauseStatsPrint(FILE *out, ClauseStats_p cell)
 	   cell->simplify_used,
 	   cell->simplify_unused,
 	   cell->generate_used,
-	   cell->generate_unused, 
+	   cell->generate_unused,
 	   cell->subsumed);
 }
 
@@ -172,11 +172,11 @@ void ClauseStatsPrint(FILE *out, ClauseStats_p cell)
 void ClauseStatsPrintNormalized(FILE *out, ClauseStats_p cell, long
 				created, long processed)
 {
-   double rel_simplify_used, 
-          rel_simplify_unused, 
+   double rel_simplify_used,
+          rel_simplify_unused,
           rel_generate_used,
-          rel_generate_unused, 
-          rel_subsumed;   
+          rel_generate_unused,
+          rel_subsumed;
 
    assert(cell);
    assert(created >= 0);
@@ -208,13 +208,13 @@ void ClauseStatsPrintNormalized(FILE *out, ClauseStats_p cell, long
       rel_simplify_used = 0;
       rel_generate_used = 0;
       rel_subsumed      = 0;
-   }   
+   }
    fprintf(out, "(%3ld,%f,%f,%f,%f,%f)",
 	   cell->proof_distance,
 	   rel_simplify_used,
 	   rel_simplify_unused,
 	   rel_generate_used,
-	   rel_generate_unused, 
+	   rel_generate_unused,
 	   rel_subsumed);
 }
 
@@ -238,7 +238,7 @@ long ClauseSetInfoParse(Scanner_p in, NumTree_p *tree)
    long   ident, count = 0;
    IntOrP tmp;
    ClauseStats_p cell;
-   
+
    while(TestInpTok(in, PosInt)&&TestTok(LookToken(in,1), Colon))
    {
       ident = AktToken(in)->numval;
@@ -269,11 +269,11 @@ long ClauseSetInfoParse(Scanner_p in, NumTree_p *tree)
 
 long ClauseSetInfoPrint(FILE* out, NumTree_p tree)
 {
-   long   ident, count = 0;   
+   long   ident, count = 0;
    ClauseStats_p stats;
    PStack_p stack;
    NumTree_p handle;
-   
+
    stack = NumTreeTraverseInit(tree);
 
    while((handle = NumTreeTraverseNext(stack)))
@@ -286,7 +286,7 @@ long ClauseSetInfoPrint(FILE* out, NumTree_p tree)
       fputc('\n', out);
    }
    NumTreeTraverseExit(stack);
-   
+
    return count;
 }
 

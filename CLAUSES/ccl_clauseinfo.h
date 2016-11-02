@@ -5,7 +5,7 @@ File  : ccl_clauseinfo.h
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Datatype and basic functions for storing and handling clause
   information that few clauses carry (probably just input
   clauses). This is not stored in the clause (or formula) data types,
@@ -57,8 +57,8 @@ typedef struct clause_info_cell
 ClauseInfo_p ClauseInfoAlloc(char* name, char* source, long line, long column);
 #define      ClauseInfoAllocEmpty() ClauseInfoAlloc(NULL, NULL, -1, -1)
 void         ClauseInfoFree(ClauseInfo_p info);
-void         ClauseSourceInfoPrint(FILE* out, ClauseInfo_p info, 
-                                   char *inf_lit, char* delim); 
+void         ClauseSourceInfoPrint(FILE* out, ClauseInfo_p info,
+                                   char *inf_lit, char* delim);
 #define ClauseSourceInfoPrintTSTP(out, info) \
         ClauseSourceInfoPrint((out), (info), "file", "'")
 

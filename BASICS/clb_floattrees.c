@@ -5,7 +5,7 @@ File  : clb_floattrees.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for long-indexed splay trees.
 
   Copyright 1998, 1999 by the author.
@@ -44,7 +44,7 @@ Changes
 
 /*-----------------------------------------------------------------------
 //
-// Function: splay_tree() 
+// Function: splay_tree()
 //
 //   Perform the splay operation on tree at node with key.
 //
@@ -54,25 +54,25 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-static FloatTree_p splay_tree(FloatTree_p tree, double key) 
+static FloatTree_p splay_tree(FloatTree_p tree, double key)
 {
    FloatTree_p   left, right, tmp;
    FloatTreeCell new;
 
-   if (!tree) 
+   if (!tree)
    {
       return tree;
    }
-   
+
    new.lson = NULL;
    new.rson = NULL;
    left = &new;
    right = &new;
-   
-   for (;;) 
+
+   for (;;)
    {
       double cmpres = key-tree->key;
-      if (cmpres < 0) 
+      if (cmpres < 0)
       {
          if(!tree->lson)
          {
@@ -92,20 +92,20 @@ static FloatTree_p splay_tree(FloatTree_p tree, double key)
          right->lson = tree;
          right = tree;
          tree = tree->lson;
-      } 
+      }
       else if(cmpres > 0)
       {
          if (!tree->rson)
          {
             break;
          }
-         if((key-tree->rson->key) > 0) 
+         if((key-tree->rson->key) > 0)
          {
             tmp = tree->rson;
             tree->rson = tmp->lson;
             tmp->lson = tree;
             tree = tmp;
-            if (!tree->rson) 
+            if (!tree->rson)
             {
                break;
             }
@@ -114,7 +114,7 @@ static FloatTree_p splay_tree(FloatTree_p tree, double key)
          left = tree;
          tree = tree->rson;
       }
-      else 
+      else
       {
          break;
       }
@@ -123,7 +123,7 @@ static FloatTree_p splay_tree(FloatTree_p tree, double key)
    right->lson = tree->rson;
    tree->lson = new.rson;
    tree->rson = new.lson;
-   
+
    return tree;
 }
 
@@ -153,7 +153,7 @@ static FloatTree_p splay_tree(FloatTree_p tree, double key)
 FloatTree_p FloatTreeCellAllocEmpty(void)
 {
    FloatTree_p handle = FloatTreeCellAlloc();
-   
+
    handle->val1.i_val = handle->val2.i_val = 0;
    handle->lson       = handle->rson       = NULL;
 
@@ -178,9 +178,9 @@ void FloatTreeFree(FloatTree_p junk)
    if(junk)
    {
       PStack_p stack = PStackAlloc();
-      
+
       PStackPushP(stack, junk);
-      
+
       while(!PStackEmpty(stack))
       {
          junk = PStackPopP(stack);
@@ -189,10 +189,10 @@ void FloatTreeFree(FloatTree_p junk)
             PStackPushP(stack, junk->lson);
          }
          if(junk->rson)
-         { 
+         {
             PStackPushP(stack, junk->rson);
          }
-         FloatTreeCellFree(junk);            
+         FloatTreeCellFree(junk);
       }
       PStackFree(stack);
    }
@@ -205,7 +205,7 @@ void FloatTreeFree(FloatTree_p junk)
 //
 //   If an entry with key *new->key exists in the tree return a
 //   pointer to it. Otherwise insert *new in the tree and return
-//   NULL. 
+//   NULL.
 //
 // Global Variables: -
 //
@@ -215,25 +215,25 @@ void FloatTreeFree(FloatTree_p junk)
 
 FloatTree_p FloatTreeInsert(FloatTree_p *root, FloatTree_p new)
 {
-   if (!*root) 
+   if (!*root)
    {
       new->lson = new->rson = NULL;
       *root = new;
       return NULL;
    }
    *root = splay_tree(*root, new->key);
-   
+
    double cmpres = new->key-(*root)->key;
-   
-   if (cmpres < 0) 
+
+   if (cmpres < 0)
    {
       new->lson = (*root)->lson;
       new->rson = *root;
       (*root)->lson = NULL;
       *root = new;
       return NULL;
-   } 
-   else if(cmpres > 0) 
+   }
+   else if(cmpres > 0)
    {
       new->rson = (*root)->rson;
       new->lson = *root;
@@ -251,7 +251,7 @@ FloatTree_p FloatTreeInsert(FloatTree_p *root, FloatTree_p new)
 //
 //   Insert a cell associating key with val1 and val2 into the
 //   tree. Return false if an entry for this key exists, true
-//   otherwise. 
+//   otherwise.
 //
 // Global Variables: -
 //
@@ -267,7 +267,7 @@ bool FloatTreeStore(FloatTree_p *root, double key, IntOrP val1, IntOrP val2)
    handle->key = key;
    handle->val1 = val1;
    handle->val2 = val2;
-   
+
    new = FloatTreeInsert(root, handle);
 
    if(new)
@@ -297,7 +297,7 @@ FloatTree_p FloatTreeFind(FloatTree_p *root, double key)
 {
    if(*root)
    {
-      *root = splay_tree(*root, key);  
+      *root = splay_tree(*root, key);
       if((*root)->key==key)
       {
          return *root;
@@ -336,7 +336,7 @@ FloatTree_p FloatTreeExtractEntry(FloatTree_p *root, double key)
       if (!(*root)->lson)
       {
          x = (*root)->rson;
-      } 
+      }
       else
       {
          x = splay_tree((*root)->lson, key);
@@ -355,7 +355,7 @@ FloatTree_p FloatTreeExtractEntry(FloatTree_p *root, double key)
 //
 // Function: FloatTreeDeleteEntry()
 //
-//   Delete the entry with key key from the tree. 
+//   Delete the entry with key key from the tree.
 //
 // Global Variables: -
 //
@@ -366,7 +366,7 @@ FloatTree_p FloatTreeExtractEntry(FloatTree_p *root, double key)
 bool FloatTreeDeleteEntry(FloatTree_p *root, double key)
 {
    FloatTree_p cell;
-   
+
    cell = FloatTreeExtractEntry(root, key);
    if(cell)
    {
@@ -395,7 +395,7 @@ long FloatTreeNodes(FloatTree_p root)
    long     res   = 0;
 
    PStackPushP(stack, root);
-   
+
    while(!PStackEmpty(stack))
    {
       root = PStackPopP(stack);
@@ -408,7 +408,7 @@ long FloatTreeNodes(FloatTree_p root)
    }
    PStackFree(stack);
 
-   return res;   
+   return res;
 }
 
 

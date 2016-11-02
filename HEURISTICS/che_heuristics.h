@@ -5,7 +5,7 @@ File  : che_heuristics.h
 Author: Stephan Schulz
 
 Contents
- 
+
   High-Level interface functions to the heuristics module.
 
   Copyright 1998, 1999 by the author.

@@ -7,7 +7,7 @@ Author: Stephan Schulz
 Contents
 
   Identifiers for PCL2 - lists on posititive numbers.
- 
+
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
@@ -62,8 +62,8 @@ PCLId_p PCLIdParse(Scanner_p in)
 {
    PCLId_p id;
    long    i;
-   
-   
+
+
    CheckInpTok(in, PosInt);
    id = PCLIdAlloc();
    i=0;
@@ -100,7 +100,7 @@ void PCLIdPrintFormatted(FILE* out, PCLId_p id, bool formatted)
    assert(PDArrayElementInt(id,0)>=0);
    assert(PDArrayElementInt(id,0)!=NO_PCL_ID_ELEMENT); /* Redundant,
 							  bute
-							  well...erm...*/ 
+							  well...erm...*/
    fprintf(out, formatted?"%7ld":"%ld", PDArrayElementInt(id,0));
    for(i=1;PDArrayElementInt(id,i)!=NO_PCL_ID_ELEMENT;i++)
    {
@@ -130,7 +130,7 @@ void PCLIdPrintTSTP(FILE* out, PCLId_p id)
    assert(PDArrayElementInt(id,0)>=0);
    assert(PDArrayElementInt(id,0)!=NO_PCL_ID_ELEMENT); /* Redundant,
 							  but
-							  well...erm...*/ 
+							  well...erm...*/
 
    if(PDArrayElementInt(id,1)==NO_PCL_ID_ELEMENT)
    {
@@ -163,7 +163,7 @@ int PCLIdCompare(PCLId_p id1, PCLId_p id2)
 {
    long i, e1,e2;
    long res=0;
-   
+
    assert(id1&&id2);
 
    for(i=0; !res; i++)

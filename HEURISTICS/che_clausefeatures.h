@@ -5,7 +5,7 @@ File  : che_clausefeatures.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for determining various features of clauses.
 
   Copyright 1998, 1999 by the author.

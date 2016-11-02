@@ -5,7 +5,7 @@ File  : clb_dstacks.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Soemwhat efficient unlimited growth stacks for doubles.
 
   Copyright 1998, 1999 by the author.
@@ -39,7 +39,7 @@ typedef long DStackPointer;
 typedef struct dstackcell
 {
    long          size;    /* ...of allocated memory */
-   DStackPointer current; /* First unused address, 0 for empty stack */  
+   DStackPointer current; /* First unused address, 0 for empty stack */
    double        *stack;  /* Stack area */
 }DStackCell, *DStack_p;
 

@@ -5,7 +5,7 @@ File  : cpr_propsig.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Code for "signatures" for propositional atoms (essentially just a
   bidirectional mapping external name <-> internal encoding).
 
@@ -65,7 +65,7 @@ PropSig_p PropSigAlloc(void)
    handle->enc_to_name = PStackAlloc();
    PStackPushP(handle->enc_to_name, NULL); /* Don't use literal 0 */
    handle->name_to_enc = NULL;
-   
+
    return handle;
 }
 
@@ -95,7 +95,7 @@ void PropSigFree(PropSig_p junk)
 // Function: PropSigGetAtomEnc()
 //
 //   Given a name, return the encoding. Return PAtomNoAtom if name is
-//   unknown. 
+//   unknown.
 //
 // Global Variables: -
 //

@@ -9,7 +9,7 @@ Contents
   Declarations for functions implementing contextual simplify-reflect
   (or subsumption resolution in Vampire's terminology).
 
-  C v L     C' v -L v R 
+  C v L     C' v -L v R
   ---------------------   if s(C v L) = C' v L for some subst. s
   C' v R
 
@@ -45,7 +45,7 @@ Changes
 
 
 int  ClauseContextualSimplifyReflect(ClauseSet_p set, Clause_p clause);
-long ClauseSetFindContextSRClauses(ClauseSet_p set, Clause_p clause, 
+long ClauseSetFindContextSRClauses(ClauseSet_p set, Clause_p clause,
 				   PStack_p res);
 
 #endif

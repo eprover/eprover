@@ -5,7 +5,7 @@ File  : clb_stringtrees.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for string-indexed SPLAY trees. Part of the implementation
   is based on public domain code by D.D. Sleator.
 
@@ -45,7 +45,7 @@ Changes
 
 /*-----------------------------------------------------------------------
 //
-// Function: splay_tree() 
+// Function: splay_tree()
 //
 //   Perform the splay operation on tree at node with key.
 //
@@ -55,26 +55,26 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-static StrTree_p splay_tree(StrTree_p tree, const char* key) 
+static StrTree_p splay_tree(StrTree_p tree, const char* key)
 {
    StrTree_p   left, right, tmp;
    StrTreeCell newnode;
    int         cmpres;
 
-   if (!tree) 
+   if (!tree)
    {
       return tree;
    }
-   
+
    newnode.lson = NULL;
    newnode.rson = NULL;
    left = &newnode;
    right = &newnode;
-   
-   for (;;) 
+
+   for (;;)
    {
       cmpres = strcmp(key, tree->key);
-      if (cmpres < 0) 
+      if (cmpres < 0)
       {
          if(!tree->lson)
          {
@@ -94,20 +94,20 @@ static StrTree_p splay_tree(StrTree_p tree, const char* key)
          right->lson = tree;
          right = tree;
          tree = tree->lson;
-      } 
+      }
       else if(cmpres > 0)
       {
          if (!tree->rson)
          {
             break;
          }
-         if(strcmp(key, tree->rson->key) > 0) 
+         if(strcmp(key, tree->rson->key) > 0)
          {
             tmp = tree->rson;
             tree->rson = tmp->lson;
             tmp->lson = tree;
             tree = tmp;
-            if (!tree->rson) 
+            if (!tree->rson)
             {
                break;
             }
@@ -116,7 +116,7 @@ static StrTree_p splay_tree(StrTree_p tree, const char* key)
          left = tree;
          tree = tree->rson;
       }
-      else 
+      else
       {
          break;
       }
@@ -125,7 +125,7 @@ static StrTree_p splay_tree(StrTree_p tree, const char* key)
    right->lson = tree->rson;
    tree->lson = newnode.rson;
    tree->rson = newnode.lson;
-   
+
    return tree;
 }
 
@@ -143,7 +143,7 @@ static StrTree_p splay_tree(StrTree_p tree, const char* key)
 //   Allocate a empty, initialized StrTreeCell. Pointers to children
 //   are NULL, int values are 0 (and pointer values in ANSI-World
 //   undefined, in practice NULL on 32 bit machines)(This comment is
-//   superfluous!). 
+//   superfluous!).
 //
 // Global Variables: -
 //
@@ -154,7 +154,7 @@ static StrTree_p splay_tree(StrTree_p tree, const char* key)
 StrTree_p StrTreeCellAllocEmpty(void)
 {
    StrTree_p handle = StrTreeCellAlloc();
-   
+
    handle->val1.i_val = handle->val2.i_val = 0;
    handle->lson       = handle->rson       = NULL;
 
@@ -193,7 +193,7 @@ void StrTreeFree(StrTree_p junk)
 //
 //   If an entry with key *newnode->key exists in the tree return a
 //   pointer to it. Otherwise insert *newnode in the tree and return
-//   NULL. 
+//   NULL.
 //
 // Global Variables: -
 //
@@ -204,7 +204,7 @@ void StrTreeFree(StrTree_p junk)
 StrTree_p StrTreeInsert(StrTree_p *root, StrTree_p newnode)
 {
    int cmpres;
-   if (!*root) 
+   if (!*root)
    {
       newnode->lson = newnode->rson = NULL;
       *root = newnode;
@@ -213,16 +213,16 @@ StrTree_p StrTreeInsert(StrTree_p *root, StrTree_p newnode)
    *root = splay_tree(*root, newnode->key);
 
    cmpres = strcmp(newnode->key, (*root)->key);
-   
-   if (cmpres < 0) 
+
+   if (cmpres < 0)
    {
       newnode->lson = (*root)->lson;
       newnode->rson = *root;
       (*root)->lson = NULL;
       *root = newnode;
       return NULL;
-   } 
-   else if(cmpres > 0) 
+   }
+   else if(cmpres > 0)
    {
       newnode->rson = (*root)->rson;
       newnode->lson = *root;
@@ -240,7 +240,7 @@ StrTree_p StrTreeInsert(StrTree_p *root, StrTree_p newnode)
 //
 //   Insert a cell associating key with val1 and val2 into the
 //   tree. Return NULL if an entry for this key exists, address of the
-//   new node otherwise. 
+//   new node otherwise.
 //
 // Global Variables: -
 //
@@ -256,7 +256,7 @@ StrTree_p StrTreeStore(StrTree_p *root, char* key, IntOrP val1, IntOrP val2)
    handle->key = SecureStrdup(key);
    handle->val1 = val1;
    handle->val2 = val2;
-   
+
    old = StrTreeInsert(root, handle);
 
    if(old)
@@ -286,7 +286,7 @@ StrTree_p StrTreeFind(StrTree_p *root, const char* key)
 {
    if(*root)
    {
-      *root = splay_tree(*root, key);  
+      *root = splay_tree(*root, key);
       if(strcmp((*root)->key,key)==0)
       {
          return *root;
@@ -325,7 +325,7 @@ StrTree_p StrTreeExtractEntry(StrTree_p *root, const char* key)
       if (!(*root)->lson)
       {
          x = (*root)->rson;
-      } 
+      }
       else
       {
          x = splay_tree((*root)->lson, key);
@@ -344,7 +344,7 @@ StrTree_p StrTreeExtractEntry(StrTree_p *root, const char* key)
 //
 // Function: StrTreeDeleteEntry()
 //
-//   Delete the entry with key key from the tree. 
+//   Delete the entry with key key from the tree.
 //
 // Global Variables: -
 //
@@ -355,7 +355,7 @@ StrTree_p StrTreeExtractEntry(StrTree_p *root, const char* key)
 bool StrTreeDeleteEntry(StrTree_p *root, const char* key)
 {
    StrTree_p cell;
-   
+
    cell = StrTreeExtractEntry(root, key);
    if(cell)
    {

@@ -5,7 +5,7 @@ File  : che_refinedweight.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Evaluation of a clause by refined clause weight, using weight
   penalty factors for maximal terms and literals.
 

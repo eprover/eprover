@@ -5,7 +5,7 @@ File  : ekb_ginsert.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Generate new training examples from protocols and insert them into a
   knowledge base.
 
@@ -53,8 +53,8 @@ typedef enum
 
 OptCell opts[] =
 {
-   {OPT_HELP, 
-    'h', "help", 
+   {OPT_HELP,
+    'h', "help",
     NoArg, NULL,
     "Print a short description of program usage and options."},
 
@@ -63,8 +63,8 @@ OptCell opts[] =
     NoArg, NULL,
     "Print the version number of the program."},
 
-   {OPT_VERBOSE, 
-    'v', "verbose", 
+   {OPT_VERBOSE,
+    'v', "verbose",
     OptArg, "1",
     "Verbose comments on the progress of the program."},
 
@@ -80,7 +80,7 @@ OptCell opts[] =
     'k',"knowledge-base",
     ReqArg, NULL,
     "Select the knowledge base. If not given, select E_KNOWLEDGE."},
-    
+
    {OPT_NOOPT,
     '\0', NULL,
     NoArg, NULL,
@@ -115,7 +115,7 @@ int main(int argc, char* argv[])
    Scanner_p       in;
    KBDesc_p        kb_desc;
    char            defaultname[30];
-   int             i; 
+   int             i;
    PCLProt_p       prot;
    long            proof_steps, neg_steps;
 
@@ -133,39 +133,39 @@ int main(int argc, char* argv[])
 
    OutputLevel = 0;
    state = process_options(argc, argv);
-   
+
    if(!ex_name && state->argv[0] && (strcmp(state->argv[0], "-")!= 0))
    {
       ex_name = FileFindBaseName(state->argv[0]);
       /* printf("ex_name = %s\n", state->argv[0]); */
-   }   
+   }
    if(state->argc ==  0)
    {
       CLStateInsertArg(state, "-");
-   }  
-   
+   }
+
    name = DStrAlloc();
-   
+
    /* Step 1: Read existing files: problems and kb_description to find
       out name ane parameters. */
 
    proof_examples = ExampleSetAlloc();
-   in = CreateScanner(StreamTypeFile, 
+   in = CreateScanner(StreamTypeFile,
 		      KBFileName(name, kb_name, "problems"),
 		      true, NULL);
    ExampleSetParse(in, proof_examples);
    DestroyScanner(in);
-   
-   in = CreateScanner(StreamTypeFile, 
+
+   in = CreateScanner(StreamTypeFile,
 		      KBFileName(name, kb_name, "description"),
 		      true, NULL);
    kb_desc = KBDescParse(in);
    DestroyScanner(in);
 
    VERBOUT("Parameter files parsed successfully\n");
-   
+
    /* Step 2: Finally determine name and check validity */
-   
+
    if(!ex_name)
    {
       sprintf(defaultname, "__problem__%ld",
@@ -185,7 +185,7 @@ int main(int argc, char* argv[])
    }
 
    VERBOUTARG("New example will use name ", ex_name);
-   
+
    /* Step 3: Generate examples directly into example FILE (this part
       mostly taken from direct_examples)  */
 
@@ -194,9 +194,9 @@ int main(int argc, char* argv[])
    store_file = DStrAlloc();
    DStrAppendStr(store_file, KBFileName(name, kb_name, "FILES/"));
    DStrAppendStr(store_file, ex_name);
-   
+
    out = OutOpen(DStrView(store_file));
-   
+
    if(state->argc ==  0)
    {
       CLStateInsertArg(state, "-");
@@ -212,7 +212,7 @@ int main(int argc, char* argv[])
       ScannerSetFormat(in, TPTPFormat);
       PCLProtParse(in, prot);
       CheckInpTok(in, NoToken);
-      DestroyScanner(in); 
+      DestroyScanner(in);
    }
    VERBOUT2("PCL input read\n");
 
@@ -226,26 +226,26 @@ int main(int argc, char* argv[])
       kb_desc->fail_neg_examples;
    PCLProtSelectExamples(prot, neg_steps);
    fprintf(out, "# Axioms:\n");
-   PCLProtPrintPropClauses(out, prot, PCLIsInitial, lop_format);  
-   fprintf(out, ".\n\n# Examples:\n");  
+   PCLProtPrintPropClauses(out, prot, PCLIsInitial, lop_format);
+   fprintf(out, ".\n\n# Examples:\n");
    PCLProtPrintExamples(out, prot);
    PCLProtFree(prot);
    OutClose(out);
-    
+
    /* Step 4: Now read the remaining files (signature, clausepatterns)
     */
 
    VERBOUT("Parsing data files\n");
 
    reserved_symbols = SigAlloc(sort_table);
-   
-   in = CreateScanner(StreamTypeFile, 
+
+   in = CreateScanner(StreamTypeFile,
                       KBFileName(name, kb_name, "signature"),
                       true, NULL);
    SigParse(in, reserved_symbols, true);
    DestroyScanner(in);
 
-   in = CreateScanner(StreamTypeFile, 
+   in = CreateScanner(StreamTypeFile,
                       KBFileName(name, kb_name, "clausepatterns"),
                       true, NULL);
 
@@ -255,16 +255,16 @@ int main(int argc, char* argv[])
 
 
    /* Step 5: Integrate new examples into existing structures */
-   
+
    VERBOUT("Integrating new examples\n");
 
    in = CreateScanner(StreamTypeFile, DStrView(store_file), true, NULL);
-   
+
    KBParseExampleFile(in, ex_name, proof_examples, clause_examples,
 		      reserved_symbols);
    DestroyScanner(in);
    DStrFree(store_file);
-      
+
    /* Step 6: Write everything back: problems, clausepatterns */
 
    VERBOUT("Writing example files\n");
@@ -272,9 +272,9 @@ int main(int argc, char* argv[])
    out = OutOpen(KBFileName(name, kb_name, "clausepatterns"));
    AnnoSetPrint(out, clause_examples);
    OutClose(out);
-   
+
    out = OutOpen(KBFileName(name, kb_name, "problems"));
-   ExampleSetPrint(out, proof_examples); 
+   ExampleSetPrint(out, proof_examples);
    OutClose(out);
 
    /* Finally clean up */
@@ -293,7 +293,7 @@ int main(int argc, char* argv[])
    MemFlushFreeList();
    MemDebugPrintStats(stdout);
 #endif
-   
+
    return 0;
 }
 
@@ -305,7 +305,7 @@ int main(int argc, char* argv[])
 //   Read and process the command line option, return (the pointer to)
 //   a CLState object containing the remaining arguments.
 //
-// Global Variables: 
+// Global Variables:
 //
 // Side Effects    : Sets variables, may terminate with program
 //                   description if option -h or --help was present
@@ -317,9 +317,9 @@ CLState_p process_options(int argc, char* argv[])
    Opt_p handle;
    CLState_p state;
    char*  arg;
-   
+
    state = CLStateAlloc(argc,argv);
-   
+
    while((handle = CLStateGetOpt(state, &arg, opts)))
    {
       switch(handle->option_code)
@@ -327,7 +327,7 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_VERBOSE:
 	    Verbose = CLStateGetIntArg(handle, arg);
 	    break;
-      case OPT_HELP: 
+      case OPT_HELP:
 	    print_help(stdout);
 	    exit(NO_ERROR);
       case OPT_VERSION:
@@ -338,7 +338,7 @@ CLState_p process_options(int argc, char* argv[])
 	    break;
       case OPT_NAME:
 	    ex_name = arg;
-	    break;	     
+	    break;
      default:
 	 assert(false);
 	 break;
@@ -356,7 +356,7 @@ ekb_ginsert " VERSION "\n\
 Usage: ekb_ginsert [options] [name]\n\
 \n\
 Generate a set of training examples from an E inference list (i.e. an\n\
-EPCL trace of a proof run) and insert it into a knowledge base.\n\n"); 
+EPCL trace of a proof run) and insert it into a knowledge base.\n\n");
    PrintOptions(stdout, opts, "Options\n\n");
    fprintf(out, "\n\
 Copyright (C) 1999-20012 by Stephan Schulz, " STS_MAIL "\n\

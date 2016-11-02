@@ -5,7 +5,7 @@ File  : cte_termvars.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for the management of shared variables.
 
   Copyright 1998, 1999 by the author.
@@ -44,7 +44,7 @@ Changes
 //
 // Function: var_named_new
 //  create a new VarBankNamed_p
-//   
+//
 //
 // Global Variables: -
 //
@@ -66,7 +66,7 @@ VarBankNamed_p var_named_new(Term_p var, char* name)
 //
 // Function: var_named_free
 //  free a VarBankNamed_p
-//   
+//
 //
 // Global Variables: -
 //
@@ -84,7 +84,7 @@ void var_named_free(VarBankNamed_p junk)
 //
 // Function: clear_env_stack
 //  clear the env stack, removing all named cells
-//   
+//
 //
 // Global Variables: -
 //
@@ -164,7 +164,7 @@ void VarBankFree(VarBank_p junk)
       {
          continue;
       }
-   
+
       // free stack
       for(j=0; j<PDArraySize(stack); j++)
       {
@@ -185,7 +185,7 @@ void VarBankFree(VarBank_p junk)
 //
 // Function: VarBankCreateStack
 //    Create a stack for the given sort
-//   
+//
 //
 // Global Variables: -
 //
@@ -278,7 +278,7 @@ void VarBankVarsSetProp(VarBank_p bank, TermProperties prop)
       {
          handle = PDArrayElementP(stack, j);
          if(handle)
-         {         
+         {
             TermCellSetProp(handle, prop);
          }
       }
@@ -292,9 +292,9 @@ void VarBankVarsSetProp(VarBank_p bank, TermProperties prop)
 //
 //   Delete the given properties in all variables.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -316,7 +316,7 @@ void VarBankVarsDelProp(VarBank_p bank, TermProperties prop)
       {
          handle = PDArrayElementP(stack, j);
          if(handle)
-         {         
+         {
             TermCellDelProp(handle, prop);
          }
       }
@@ -329,7 +329,7 @@ void VarBankVarsDelProp(VarBank_p bank, TermProperties prop)
 // Function:  VarBankFCodeFind()
 //
 //   Return the pointer to the variable associated with given f_code
-//   if it exists in the VarBank, NULL otherwise.  
+//   if it exists in the VarBank, NULL otherwise.
 //
 // Global Variables: -
 //
@@ -338,10 +338,10 @@ void VarBankVarsDelProp(VarBank_p bank, TermProperties prop)
 /----------------------------------------------------------------------*/
 
 Term_p VarBankFCodeFind(VarBank_p bank, FunCode f_code, SortType sort)
-{   
+{
    VarBankStack_p stack;
 
-   assert(f_code<0); 
+   assert(f_code<0);
    stack = VarBankGetStack(bank, sort);
    return PDArrayElementP(stack, -f_code);
 }
@@ -352,7 +352,7 @@ Term_p VarBankFCodeFind(VarBank_p bank, FunCode f_code, SortType sort)
 // Function:  VarBankExtNameFind()
 //
 //   Return the pointer to the variable associated with given external
-//   name if it exists in the VarBank, NULL otherwise.  
+//   name if it exists in the VarBank, NULL otherwise.
 //
 // Global Variables: -
 //
@@ -363,9 +363,9 @@ Term_p VarBankFCodeFind(VarBank_p bank, FunCode f_code, SortType sort)
 Term_p VarBankExtNameFind(VarBank_p bank, char* name)
 {
    StrTree_p entry;
-   
+
    entry = StrTreeFind(&(bank->ext_index), name);
-   
+
    if(entry)
    {
       return entry->val1.p_val;
@@ -423,9 +423,9 @@ Term_p VarBankVarAlloc(VarBank_p bank, FunCode f_code, SortType sort)
 //   odd ones are reserved to create clause copies that are
 //   guaranteed to be variable-disjoint.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -443,7 +443,7 @@ Term_p  VarBankGetFreshVar(VarBank_p bank, SortType sort)
 //
 //   Return a pointer to the variable with the given external name in
 //   the variable bank. Create a new variable if none with the given
-//   name exists and assign it the next unused FunCode. 
+//   name exists and assign it the next unused FunCode.
 //
 // Global Variables: -
 //
@@ -483,7 +483,7 @@ Term_p VarBankExtNameAssertAlloc(VarBank_p bank, char* name)
 //
 //   Return a pointer to the variable with the given external name
 //   and sort in the variable bank. Create a new variable if none with
-//   the given name exists and assign it the next unused FunCode. 
+//   the given name exists and assign it the next unused FunCode.
 //
 // Global Variables: -
 //
@@ -539,9 +539,9 @@ Term_p VarBankExtNameAssertAllocSort(VarBank_p bank, char* name, SortType sort)
 // Function: VarBankPushEnv
 //  enter a new environment for variables. The next VarBankPopEnv will
 //  forget about all ext variables defined in between. This is useful
-//  when parsing, if several variables share the same name but 
+//  when parsing, if several variables share the same name but
 //  not the same type
-//   
+//
 //
 // Global Variables: -
 //
@@ -550,7 +550,7 @@ Term_p VarBankExtNameAssertAllocSort(VarBank_p bank, char* name, SortType sort)
 /----------------------------------------------------------------------*/
 void VarBankPushEnv(VarBank_p bank)
 {
-   PStackPushP(bank->env, NULL); 
+   PStackPushP(bank->env, NULL);
 }
 
 
@@ -559,7 +559,7 @@ void VarBankPushEnv(VarBank_p bank)
 // Function: VarBankPopEnv
 //  pops env frames until the env stack is empty, or NULL is obtained;
 //  for each such frame, associate the corresponding name with its variable
-// 
+//
 //
 // Global Variables: -
 //
@@ -590,7 +590,7 @@ void VarBankPopEnv(VarBank_p bank)
 //
 // Function: VarBankCardinal
 // Returns the number of variables in the whole var bank
-//   
+//
 //
 // Global Variables: -
 //
@@ -621,7 +621,7 @@ long VarBankCardinal(VarBank_p bank)
 // Function: VarBankCollectVars
 // Collect all the variables of the bank into the given stack. Returns
 // the number of variables pushed in the bank.
-//   
+//
 //
 // Global Variables: -
 //

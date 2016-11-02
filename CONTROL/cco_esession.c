@@ -5,7 +5,7 @@ File  : cco_esession.c
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Code for handling a single E server connection.
 
   Copyright 2011 by the author.
@@ -48,7 +48,7 @@ Changes
 //
 // Function: ESessionAlloc()
 //
-//   Allocate an initialized ESession cell. This is not yet listening. 
+//   Allocate an initialized ESession cell. This is not yet listening.
 //
 // Global Variables: -
 //
@@ -104,11 +104,11 @@ void ESessionFree(ESession_p junk)
 //
 /----------------------------------------------------------------------*/
 
-int ESessionInitFDSet(ESession_p session, 
-                     fd_set *rd_fds,  
+int ESessionInitFDSet(ESession_p session,
+                     fd_set *rd_fds,
                      fd_set *wr_fds)
 {
-   int tmp, max_fd;   
+   int tmp, max_fd;
 
    if(session->state==ESNoState || session->state==ESStale)
    {
@@ -122,7 +122,7 @@ int ESessionInitFDSet(ESession_p session,
    if(TCPChannelHasOutMsg(session->channel))
    {
       FD_SET(session->channel->sock, wr_fds);
-   }  
+   }
    if(session->running)
    {
       tmp = EPCtrlSetFDSet(session->running, rd_fds);
@@ -144,8 +144,8 @@ int ESessionInitFDSet(ESession_p session,
 //
 /----------------------------------------------------------------------*/
 
-void ESessionDoIO(ESession_p session, 
-                  fd_set *rd_fds,  
+void ESessionDoIO(ESession_p session,
+                  fd_set *rd_fds,
                   fd_set *wr_fds)
 {
    MsgStatus res;
@@ -192,8 +192,8 @@ void ESessionDoIO(ESession_p session,
             break;
       default:
             break;
-      }      
-   }   
+      }
+   }
 }
 
 
@@ -213,7 +213,7 @@ void ESessionProcessCmds(ESession_p session)
 {
    TCPMsg_p msg;
    char     *str;
-   
+
    while(TCPChannelHasInMsg(session->channel))
    {
       msg = TCPChannelGetInMsg(session->channel);

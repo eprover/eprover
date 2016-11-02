@@ -5,7 +5,7 @@ File  : cte_acterms.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions and data types for terms in AC normal form (flattened,
   subterms sorted alphabetically).
 

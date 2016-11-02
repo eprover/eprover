@@ -6,7 +6,7 @@ Author: Stephan Schulz
 
 Contents
 
-  Functions for controling (and performing) clause splitting. 
+  Functions for controling (and performing) clause splitting.
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
@@ -60,9 +60,9 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-int  ControlledClauseSplit(DefStore_p store, Clause_p clause, ClauseSet_p set, 
-			   SplitClassType which, SplitType how, 
-                           bool fresh_defs) 
+int  ControlledClauseSplit(DefStore_p store, Clause_p clause, ClauseSet_p set,
+			   SplitClassType which, SplitType how,
+                           bool fresh_defs)
 {
    /* Make the common case fast: */
 

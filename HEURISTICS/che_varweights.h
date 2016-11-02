@@ -5,7 +5,7 @@ File  : che_varweights.h
 Author: Stephan Schulz, schulz@eprover.org
 
 Contents
- 
+
   Weight functions that play around a bit ;-)
 
   Copyright 1998, 1999, 2005 by the author.
@@ -125,8 +125,8 @@ double WeightLessDepthCompute(void* data, Clause_p clause);
 WFCB_p NLWeightInit(ClausePrioFun prio_fun, int fweight,
 		    int vlweight, int vweight, OCB_p ocb, double
 		    max_term_multiplier, double
-		    max_literal_multiplier, double 
-		     pos_multiplier); 
+		    max_literal_multiplier, double
+		     pos_multiplier);
 
 WFCB_p NLWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
 		      state);
@@ -146,14 +146,14 @@ WFCB_p SymTypeWeightInit(ClausePrioFun prio_fun, int fweight,
 			 int vweight, int cweight, int pweight, OCB_p
 			 ocb, double max_term_multiplier, double
 			 max_literal_multiplier, double
-			 pos_multiplier); 
+			 pos_multiplier);
 
 WFCB_p SymTypeWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
 			  state);
 double SymTypeWeightCompute(void* data, Clause_p clause);
 
 WFCB_p ClauseWeightAgeInit(ClausePrioFun prio_fun, int fweight, int
-			   vweight, double pos_multiplier, 
+			   vweight, double pos_multiplier,
 			   double weight_multiplier);
 
 WFCB_p ClauseWeightAgeParse(Scanner_p in, OCB_p ocb, ProofState_p state);
@@ -161,7 +161,7 @@ WFCB_p ClauseWeightAgeParse(Scanner_p in, OCB_p ocb, ProofState_p state);
 double ClauseWeightAgeCompute(void* data, Clause_p clause);
 
 
-WFCB_p StaggeredWeightInit(ClausePrioFun prio_fun, 
+WFCB_p StaggeredWeightInit(ClausePrioFun prio_fun,
 			   double stagger_factor, ClauseSet_p axioms);
 
 WFCB_p StaggeredWeightParse(Scanner_p in, OCB_p ocb, ProofState_p

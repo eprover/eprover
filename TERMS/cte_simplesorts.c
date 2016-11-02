@@ -5,7 +5,7 @@ File  : cte_simplesorts.c
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Implementation of the simple sort table infrastructure.
 
   Copyright 2007 by the author.
@@ -65,7 +65,7 @@ void default_sort_table_init(SortTable_p table)
    UNUSED(res); assert(res == STInteger);
    res = SortTableInsert(table, "$rat");
    UNUSED(res); assert(res == STRational);
-   res = SortTableInsert(table, "$real");   
+   res = SortTableInsert(table, "$real");
    UNUSED(res); assert(res == STReal);
 }
 
@@ -126,7 +126,7 @@ void SortTableFree(SortTable_p junk)
 // Function: SortTableInsert()
 //
 //   Add an entry (i.e. sort name) to the table (if unknown) and
-//   retrieve its encoding. 
+//   retrieve its encoding.
 //
 // Global Variables: -
 //
@@ -137,7 +137,7 @@ void SortTableFree(SortTable_p junk)
 SortType SortTableInsert(SortTable_p table, char* sort_name)
 {
    StrTree_p cell = StrTreeFind(&(table->sort_index), sort_name);
-   
+
    if(!cell)
    {
       IntOrP sort_val;
@@ -212,7 +212,7 @@ void SortPrintTSTP(FILE *out, SortTable_p table, SortType sort)
 //
 // Function: SortParseTSTP
 //  parse a sort in the TSTP format
-//   
+//
 //
 // Global Variables: -
 //
@@ -265,7 +265,7 @@ void SortTablePrint(FILE* out, SortTable_p table)
    }
    fprintf(out, "\nSort table in alphabetic order:\n");
    fprintf(out, "=====================================\n");
-   
+
 
    stack = StrTreeTraverseInit(table->sort_index);
    while((cell=StrTreeTraverseNext(stack)))

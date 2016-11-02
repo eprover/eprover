@@ -5,7 +5,7 @@ File  : clb_simple_stuff.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Useful routines, usually pretty trivial.
 
   Copyright 1998, 1999 by the author.
@@ -68,7 +68,7 @@ int WeightedObjectCompareFun(WeightedObject_p o1, WeightedObject_p o2)
    else if(o1->weight > o2->weight)
    {
       res = 1;
-   }      
+   }
    return res;
 }
 
@@ -105,7 +105,7 @@ int StringIndex(char* key, char* list[])
 // Function: IndentStr()
 //
 //   Return a pointer to a string of level spaces, or MAXINDENTSPACES
-//   if this is smaller. Not reentrant. 
+//   if this is smaller. Not reentrant.
 //
 // Global Variables: -
 //
@@ -123,7 +123,7 @@ char* IndentStr(int level)
       spaces[i] = ' ';
    }
    spaces[i] = '\0';
-   
+
    return spaces;
 }
 

@@ -5,7 +5,7 @@ File  : cle_normsubst.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Substitutions mapping function symbols and variables to norm
   values.
 

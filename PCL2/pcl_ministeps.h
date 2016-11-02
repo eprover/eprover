@@ -5,7 +5,7 @@ File  : pcl_ministeps.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Maximally compact PCL steps, only for special purpose applications.
 
   Copyright 2002 by the author.
@@ -61,7 +61,7 @@ void          PCLMiniStepFree(PCLMiniStep_p junk);
 
 PCLMiniStep_p PCLMiniStepParse(Scanner_p in, TB_p bank);
 void          PCLMiniStepPrint(FILE* out, PCLMiniStep_p step, TB_p bank);
-void          PCLMiniStepPrintFormat(FILE* out, PCLMiniStep_p step, 
+void          PCLMiniStepPrintFormat(FILE* out, PCLMiniStep_p step,
 				     TB_p bank, OutputFormatType format);
 
 #endif

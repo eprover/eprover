@@ -5,7 +5,7 @@ File  : ccl_sine.h
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Code for a (generalized) version of the SinE formula selection
   algorithm. See http://www.cs.man.ac.uk/~hoderk/sine/.
 
@@ -82,42 +82,42 @@ DRel_p DRelationGetFEntry(DRelation_p rel, FunCode f_code);
 
 
 void DRelationAddClause(DRelation_p drel,
-                        GenDistrib_p generality, 
+                        GenDistrib_p generality,
                         GeneralityMeasure gentype,
                         double benevolence,
                         long generosity,
                         Clause_p clause);
 
 void DRelationAddFormula(DRelation_p drel,
-                         GenDistrib_p generality, 
+                         GenDistrib_p generality,
                          GeneralityMeasure gentype,
                          double benevolence,
                          long generosity,
                          WFormula_p form);
 
 void DRelationAddClauseSet(DRelation_p drel,
-                           GenDistrib_p generality, 
+                           GenDistrib_p generality,
                            GeneralityMeasure gentype,
                            double benevolence,
                            long generosity,
                            ClauseSet_p set);
 
 void DRelationAddFormulaSet(DRelation_p drel,
-                            GenDistrib_p generality, 
+                            GenDistrib_p generality,
                             GeneralityMeasure gentype,
                             double benevolence,
                             long generosity,
                             FormulaSet_p set);
 
 void DRelationAddClauseSets(DRelation_p drel,
-                            GenDistrib_p generality, 
+                            GenDistrib_p generality,
                             GeneralityMeasure gentype,
                             double benevolence,
                             long generosity,
                             PStack_p sets);
 
 void DRelationAddFormulaSets(DRelation_p drel,
-                             GenDistrib_p generality, 
+                             GenDistrib_p generality,
                              GeneralityMeasure gentype,
                              double benevolence,
                              long generosity,
@@ -129,12 +129,12 @@ void PQueueStoreFormula(PQueue_p axioms, WFormula_p form);
 long ClauseSetFindHypotheses(ClauseSet_p set, PQueue_p res, bool inc_hypos);
 long FormulaSetFindHypotheses(FormulaSet_p set, PQueue_p res, bool inc_hypos);
 
-long SelectDefiningAxioms(DRelation_p drel, 
+long SelectDefiningAxioms(DRelation_p drel,
                           Sig_p sig,
                           int max_recursion_depth,
                           long max_set_size,
                           PQueue_p axioms,
-                          PStack_p res_clauses, 
+                          PStack_p res_clauses,
                           PStack_p res_formulas);
 
 
@@ -143,13 +143,13 @@ long SelectAxioms(GenDistrib_p      f_distrib,
                   PStack_p          formula_sets,
                   PStackPointer     hyp_start,
                   AxFilter_p        ax_filter,
-                  PStack_p          res_clauses, 
+                  PStack_p          res_clauses,
                   PStack_p          res_formulas);
 
 long SelectThreshold(PStack_p          clause_sets,
                      PStack_p          formula_sets,
                      AxFilter_p        ax_filter,
-                     PStack_p          res_clauses, 
+                     PStack_p          res_clauses,
                      PStack_p          res_formulas);
 
 

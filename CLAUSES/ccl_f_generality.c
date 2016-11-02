@@ -5,7 +5,7 @@ File  : ccl_f_generality.c
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Code for determining function symbol distributions.
 
   Copyright 2010 by the author.
@@ -71,18 +71,18 @@ static void init_fun_gen_cell(FunGen_p cell, FunCode f)
 //
 /----------------------------------------------------------------------*/
 
-static void gd_merge_single_res(GenDistrib_p dist, 
+static void gd_merge_single_res(GenDistrib_p dist,
                                 PStack_p symbol_stack,
                                 short factor)
 {
    FunCode i;
    PStackPointer sp;
-   
+
    for(sp=0; sp < PStackGetSP(symbol_stack); sp++)
    {
       i = PStackElementInt(symbol_stack, sp);
       dist->dist_array[i].term_freq += factor*dist->f_distrib[i];
-      dist->dist_array[i].fc_freq+=factor;      
+      dist->dist_array[i].fc_freq+=factor;
    }
 }
 
@@ -136,7 +136,7 @@ static int fun_gen_cg_cmp_wrapper(const void *fg1, const void *fg2)
 // Function: extract_generality()
 //
 //   Given a FunGen_p and a gentype, return the proper generality
-//   measure. 
+//   measure.
 //
 // Global Variables: -
 //
@@ -177,7 +177,7 @@ static long extract_generality(FunGen_p gen,  GeneralityMeasure gentype)
 //
 /----------------------------------------------------------------------*/
 
-static void compute_d_rel(GenDistrib_p      generality, 
+static void compute_d_rel(GenDistrib_p      generality,
                           GeneralityMeasure gentype,
                           double            benevolence,
                           long              generosity,
@@ -191,13 +191,13 @@ static void compute_d_rel(GenDistrib_p      generality,
    PStackPointer sp;
 
    sort_stack = PStackAlloc();
-   
+
    for(sp=0; sp < PStackGetSP(symbol_stack); sp++)
    {
       i = PStackElementInt(symbol_stack, sp);
       if(i >= generality->sig->internal_symbols)
       {
-         PStackPushP(sort_stack, 
+         PStackPushP(sort_stack,
                      &(generality->dist_array[i]));
       }
    }
@@ -214,7 +214,7 @@ static void compute_d_rel(GenDistrib_p      generality,
       default:
             assert(false && "Unknown generality type");
             break;
-      }      
+      }
       gen = PStackElementP(sort_stack, 0);
       least_gen = extract_generality(gen, gentype);
       gen_limit = least_gen*benevolence;
@@ -225,7 +225,7 @@ static void compute_d_rel(GenDistrib_p      generality,
       }
       gen = PStackElementP(sort_stack, generosity);
       aux_gen_limit = extract_generality(gen, gentype);
-      //printf("generosity = %ld, gen_limit = %ld aux_gen_limit = %ld\n", 
+      //printf("generosity = %ld, gen_limit = %ld aux_gen_limit = %ld\n",
       //generosity, gen_limit, aux_gen_limit);
       if(aux_gen_limit <  gen_limit)
       {
@@ -235,7 +235,7 @@ static void compute_d_rel(GenDistrib_p      generality,
       for(i=0; i<PStackGetSP(sort_stack); i++)
       {
          gen = PStackElementP(sort_stack, i);
-         /* printf("generality(% ld)=%s: %ld\n", 
+         /* printf("generality(% ld)=%s: %ld\n",
             i,
             SigFindName(generality->sig, gen->f_code),
             extract_generality(gen, gentype)); */
@@ -262,9 +262,9 @@ static void compute_d_rel(GenDistrib_p      generality,
 //
 //   Allocate an initialized GenDistribCell.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -283,7 +283,7 @@ GenDistrib_p GenDistribAlloc(Sig_p sig)
    }
    handle->f_distrib = SizeMalloc(handle->size*sizeof(long));
    memset(handle->f_distrib, 0, handle->size*sizeof(long));
- 
+
    return handle;
 }
 
@@ -339,7 +339,7 @@ void GenDistribSizeAdjust(GenDistrib_p gd, Sig_p sig)
       memset(gd->f_distrib, 0, new_size*sizeof(long));
 
       gd->size = new_size;
-   }   
+   }
 }
 
 
@@ -355,8 +355,8 @@ void GenDistribSizeAdjust(GenDistrib_p gd, Sig_p sig)
 //
 /----------------------------------------------------------------------*/
 
-void GenDistribAddClause(GenDistrib_p dist, 
-                         Clause_p clause, 
+void GenDistribAddClause(GenDistrib_p dist,
+                         Clause_p clause,
                          short factor)
 {
    PStack_p symbol_stack = PStackAlloc();
@@ -365,7 +365,7 @@ void GenDistribAddClause(GenDistrib_p dist,
                             dist->f_distrib,
                             symbol_stack);
    gd_merge_single_res(dist, symbol_stack, factor);
-   
+
    while(!PStackEmpty(symbol_stack))
    {
       dist->f_distrib[PStackPopInt(symbol_stack)] = 0;
@@ -387,14 +387,14 @@ void GenDistribAddClause(GenDistrib_p dist,
 //
 /----------------------------------------------------------------------*/
 
-void GenDistribAddClauseSet(GenDistrib_p dist, 
-                            ClauseSet_p set, 
+void GenDistribAddClauseSet(GenDistrib_p dist,
+                            ClauseSet_p set,
                             short factor)
 {
    Clause_p handle;
 
-   for(handle=set->anchor->succ; 
-       handle!=set->anchor; 
+   for(handle=set->anchor->succ;
+       handle!=set->anchor;
        handle=handle->succ)
    {
       GenDistribAddClause(dist, handle, factor);
@@ -414,17 +414,17 @@ void GenDistribAddClauseSet(GenDistrib_p dist,
 //
 /----------------------------------------------------------------------*/
 
-void GenDistribAddFormula(GenDistrib_p dist, 
-                          WFormula_p form, 
+void GenDistribAddFormula(GenDistrib_p dist,
+                          WFormula_p form,
                           short factor)
 {
    PStack_p symbol_stack = PStackAlloc();
 
-   TermAddSymbolDistExist(form->tformula, 
+   TermAddSymbolDistExist(form->tformula,
                              dist->f_distrib,
                              symbol_stack);
    gd_merge_single_res(dist, symbol_stack, factor);
-   
+
    while(!PStackEmpty(symbol_stack))
    {
       dist->f_distrib[PStackPopInt(symbol_stack)] = 0;
@@ -445,14 +445,14 @@ void GenDistribAddFormula(GenDistrib_p dist,
 //
 /----------------------------------------------------------------------*/
 
-void GenDistribAddFormulaSet(GenDistrib_p dist, 
-                             FormulaSet_p set, 
+void GenDistribAddFormulaSet(GenDistrib_p dist,
+                             FormulaSet_p set,
                              short factor)
 {
    WFormula_p handle;
 
-   for(handle=set->anchor->succ; 
-       handle!=set->anchor; 
+   for(handle=set->anchor->succ;
+       handle!=set->anchor;
        handle=handle->succ)
    {
       GenDistribAddFormula(dist, handle, factor);
@@ -472,8 +472,8 @@ void GenDistribAddFormulaSet(GenDistrib_p dist,
 //
 /----------------------------------------------------------------------*/
 
-void GenDistribAddClauseSetStack(GenDistrib_p dist, 
-                                 PStack_p stack,  
+void GenDistribAddClauseSetStack(GenDistrib_p dist,
+                                 PStack_p stack,
                                  PStackPointer start,
                                  short factor)
 {
@@ -499,7 +499,7 @@ void GenDistribAddClauseSetStack(GenDistrib_p dist,
 //
 /----------------------------------------------------------------------*/
 
-void GenDistribAddFormulaSetStack(GenDistrib_p dist, PStack_p stack, 
+void GenDistribAddFormulaSetStack(GenDistrib_p dist, PStack_p stack,
                                   PStackPointer start, short factor)
 {
    PStackPointer i;
@@ -528,16 +528,16 @@ void GenDistribAddFormulaSetStack(GenDistrib_p dist, PStack_p stack,
 void GenDistPrint(FILE* out, GenDistrib_p dist)
 {
    FunCode i;
-   
+
    for(i=dist->sig->internal_symbols+1; i<dist->size; i++)
    {
-      fprintf(out, "# %-20s (%8ld = %8ld): %8ld  %8ld\n", 
+      fprintf(out, "# %-20s (%8ld = %8ld): %8ld  %8ld\n",
               SigFindName(dist->sig, i),
               i,
               dist->dist_array[i].f_code,
               dist->dist_array[i].term_freq,
               dist->dist_array[i].fc_freq);
-   }   
+   }
 }
 
 
@@ -548,9 +548,9 @@ void GenDistPrint(FILE* out, GenDistrib_p dist)
 //   Compare function for FunGen cell pointers, by term-frequency,
 //   tie-break by clause frequency, tie-break by f_code.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -627,20 +627,20 @@ int FunGenCGCmp(const FunGen_p fg1, const FunGen_p fg2)
 //
 /----------------------------------------------------------------------*/
 
-void ClauseComputeDRel(GenDistrib_p generality, 
+void ClauseComputeDRel(GenDistrib_p generality,
                        GeneralityMeasure gentype,
                        double benevolence,
                        long generosity,
-                       Clause_p clause, 
+                       Clause_p clause,
                        PStack_p res)
-{   
+{
    PStack_p      symbol_stack = PStackAlloc();
-   
+
    /* memset(generality->f_distrib, 0, generality->size*sizeof(long)); */
    ClauseAddSymbolDistExist(clause,
                             generality->f_distrib,
                             symbol_stack);
-   
+
    /* printf("Symbolstack has %d elements\n",
       PStackGetSP(symbol_stack)); */
    compute_d_rel(generality, gentype, benevolence, generosity, symbol_stack, res);
@@ -665,20 +665,20 @@ void ClauseComputeDRel(GenDistrib_p generality,
 //
 /----------------------------------------------------------------------*/
 
-void FormulaComputeDRel(GenDistrib_p generality, 
+void FormulaComputeDRel(GenDistrib_p generality,
                         GeneralityMeasure gentype,
                         double benevolence,
                         long generosity,
-                        WFormula_p form, 
+                        WFormula_p form,
                         PStack_p res)
-{   
+{
    PStack_p      symbol_stack = PStackAlloc();
-   
+
    /* memset(generality->f_distrib, 0, generality->size*sizeof(long)); */
-   TermAddSymbolDistExist(form->tformula, 
+   TermAddSymbolDistExist(form->tformula,
                              generality->f_distrib,
                              symbol_stack);
-   
+
    /* printf("Symbolstack has %d elements\n",
       PStackGetSP(symbol_stack)); */
    compute_d_rel(generality, gentype, benevolence, generosity, symbol_stack, res);

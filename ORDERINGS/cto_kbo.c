@@ -118,10 +118,10 @@ static long gettermweight(OCB_p ocb, Term_p t, DerefType deref)
    t = TermDeref(t, &deref);
 
    weight = getweight(ocb, t->f_code);
-   
+
    if (!(TermIsVar(t)))
    {
-      for (i=0; i<t->arity; i++) 
+      for (i=0; i<t->arity; i++)
       {
 	 weight += gettermweight(ocb, t->args[i], deref);
       }
@@ -154,7 +154,7 @@ static CompareResult kbocomparevars(Term_p s, Term_p t, DerefType
    assert(!t->binding || deref_t == DEREF_NEVER);
    assert(!s->binding || deref_s == DEREF_NEVER);
 
-   if (TermIsVar(t)) 
+   if (TermIsVar(t))
    {
       if(s == t)
       {
@@ -168,14 +168,14 @@ static CompareResult kbocomparevars(Term_p s, Term_p t, DerefType
 	 }
       }
    }
-   else 
+   else
    {               /* Note that in this case, s is a variable. */
       assert(TermIsVar(s));
       if (TermIsSubterm(t, s, deref_t))
       {
 	 return to_lesser;
       }
-   }   
+   }
    return to_uncomparable;
 }
 
@@ -203,10 +203,10 @@ static CompareResult kbogtrnew(OCB_p ocb, Term_p s, Term_p t,
    int i;
    long sweight, tweight;
 
-   s = TermDeref(s, &deref_s); 
+   s = TermDeref(s, &deref_s);
    t = TermDeref(t, &deref_t);
-   
-   if (TermIsVar(s)) 
+
+   if (TermIsVar(s))
    {
       if(s == t)
       {
@@ -225,7 +225,7 @@ static CompareResult kbogtrnew(OCB_p ocb, Term_p s, Term_p t,
 
    sweight = gettermweight(ocb, s, deref_s);
    tweight = gettermweight(ocb, t, deref_t);
-   
+
    if(sweight > tweight) {
       if (KBOVarGreater(s, t, deref_s, deref_t)) {
 	 return to_greater;
@@ -238,7 +238,7 @@ static CompareResult kbogtrnew(OCB_p ocb, Term_p s, Term_p t,
    }
 
    assert(sweight == tweight);
-   
+
    switch (OCBFunCompare(ocb, s->f_code, t->f_code)) {
    case to_greater:
 	 if (KBOVarGreater(s, t, deref_s, deref_t)) {
@@ -262,7 +262,7 @@ static CompareResult kbogtrnew(OCB_p ocb, Term_p s, Term_p t,
 		  if (KBOVarGreater(s, t, deref_s, deref_t)) {
 		     return to_greater;
 		  }
-		  return to_uncomparable;		  
+		  return to_uncomparable;
 	    case to_uncomparable:
 		  return to_uncomparable;
 	    case to_equal:
@@ -314,17 +314,17 @@ static CompareResult kbogtrnew(OCB_p ocb, Term_p s, Term_p t,
 
 CompareResult KBOCompare(OCB_p ocb, Term_p s, Term_p t,
 			 DerefType deref_s, DerefType deref_t)
-{ 
+{
    CompareResult topsymb_comp, res;
    int i;
    long sweight, tweight;
 
-   s = TermDeref(s, &deref_s); 
+   s = TermDeref(s, &deref_s);
    t = TermDeref(t, &deref_t);
-   
+
    /* The cases s=x v t=x are checked separately. */
 
-   if (TermIsVar(s) || TermIsVar(t)) 
+   if (TermIsVar(s) || TermIsVar(t))
    {
       return kbocomparevars(s, t, deref_s, deref_t);
    }
@@ -334,12 +334,12 @@ CompareResult KBOCompare(OCB_p ocb, Term_p s, Term_p t,
 
    if (sweight > tweight)
    {
-      switch (KBOVarCompare(s, t, deref_s, deref_t)) 
+      switch (KBOVarCompare(s, t, deref_s, deref_t))
       {
-      case to_greater: 
+      case to_greater:
       case to_equal:
 	    return to_greater;
-      case to_uncomparable: 
+      case to_uncomparable:
       case to_lesser:
 	    return to_uncomparable;
       default:
@@ -348,9 +348,9 @@ CompareResult KBOCompare(OCB_p ocb, Term_p s, Term_p t,
       }
    }
 
-   if (sweight < tweight) 
+   if (sweight < tweight)
    {
-      switch (KBOVarCompare(s, t, deref_s, deref_t)) 
+      switch (KBOVarCompare(s, t, deref_s, deref_t))
       {
       case to_lesser:
       case to_equal:
@@ -373,12 +373,12 @@ CompareResult KBOCompare(OCB_p ocb, Term_p s, Term_p t,
    case to_uncomparable:
 	 return to_uncomparable;
    case to_greater:
-	 switch (KBOVarCompare(s, t, deref_s, deref_t)) 
+	 switch (KBOVarCompare(s, t, deref_s, deref_t))
 	 {
 	 case to_greater:
 	 case to_equal:
 	       return to_greater;
-	 case to_uncomparable: 
+	 case to_uncomparable:
 	 case to_lesser:
 	       return to_uncomparable;
 	 default:
@@ -386,9 +386,9 @@ CompareResult KBOCompare(OCB_p ocb, Term_p s, Term_p t,
 	       return to_uncomparable;
 	 }
    case to_lesser:
-	 switch (KBOVarCompare(s, t, deref_s, deref_t)) 
+	 switch (KBOVarCompare(s, t, deref_s, deref_t))
 	 {
-	 case to_lesser: 
+	 case to_lesser:
 	 case to_equal:
 	       return to_lesser;
 	 case to_uncomparable:
@@ -399,16 +399,16 @@ CompareResult KBOCompare(OCB_p ocb, Term_p s, Term_p t,
 	       return to_uncomparable;
 	 }
    case to_equal:
-	 for (i=0; i<MAX(s->arity,t->arity); i++) 
+	 for (i=0; i<MAX(s->arity,t->arity); i++)
 	 {
-	    if (t->arity <= i) 
+	    if (t->arity <= i)
 	    {
-	       switch (KBOVarCompare(s, t, deref_s, deref_t)) 
+	       switch (KBOVarCompare(s, t, deref_s, deref_t))
 	       {
 	       case to_greater:
 	       case to_equal:
 		     return to_greater;
-	       case to_uncomparable: 
+	       case to_uncomparable:
 	       case to_lesser:
 		     return to_uncomparable;
 	       default:
@@ -416,9 +416,9 @@ CompareResult KBOCompare(OCB_p ocb, Term_p s, Term_p t,
 		     return to_uncomparable;
 	       }
 	    }
-	    if (s->arity <= i) 
+	    if (s->arity <= i)
 	    {
-	       switch (KBOVarCompare(s, t, deref_s, deref_t)) 
+	       switch (KBOVarCompare(s, t, deref_s, deref_t))
 	       {
 	       case to_lesser:
 	       case to_equal:
@@ -432,14 +432,14 @@ CompareResult KBOCompare(OCB_p ocb, Term_p s, Term_p t,
 	       }
 	    }
 	    if ((res = KBOCompare(ocb, s->args[i], t->args[i],
-				  deref_s, deref_t)) == to_greater) 
+				  deref_s, deref_t)) == to_greater)
 	    {
-	       switch (KBOVarCompare(s, t, deref_s, deref_t)) 
+	       switch (KBOVarCompare(s, t, deref_s, deref_t))
 	       {
 	       case to_greater:
 	       case to_equal:
 		     return to_greater;
-	       case to_uncomparable: 
+	       case to_uncomparable:
 	       case to_lesser:
 		     return to_uncomparable;
 	       default:
@@ -449,7 +449,7 @@ CompareResult KBOCompare(OCB_p ocb, Term_p s, Term_p t,
 	    }
 	    if (res == to_lesser)
 	    {
-	       switch (KBOVarCompare(s, t, deref_s, deref_t)) 
+	       switch (KBOVarCompare(s, t, deref_s, deref_t))
 	       {
 	       case to_lesser:
 	       case to_equal:
@@ -493,12 +493,12 @@ CompareResult KBOVarCompare(Term_p s, Term_p t, DerefType deref_s,
 {
    bool           s_gt = false, t_gt = false;
    VarHash_p      hash = VarHashAlloc();
-   int            i; 
+   int            i;
    VarHashEntry_p handle;
 
    VarHashAddVarDistrib(hash, s, deref_s, 1);
    VarHashAddVarDistrib(hash, t, deref_t, -1);
-   
+
    for(i=0; i<VAR_HASH_SIZE; i++)
    {
       for(handle=hash->hash[i]; handle; handle=handle->next)
@@ -527,7 +527,7 @@ CompareResult KBOVarCompare(Term_p s, Term_p t, DerefType deref_s,
    if(s_gt)
    {
       return to_greater;
-   } 
+   }
    if(t_gt)
    {
       return to_lesser;
@@ -556,11 +556,11 @@ CompareResult KBOVarCompare(Term_p s, Term_p t, DerefType deref_s,
 {
    bool           s_gt = false, t_gt = false;
    PDArray_p      array = PDIntArrayAlloc(8,0);
-   int            i; 
+   int            i;
 
    PDArrayAddVarDistrib(array, s, deref_s, 1);
    PDArrayAddVarDistrib(array, t, deref_t, -1);
-   
+
    for(i=0; i<array->size; i++)
    {
       if(PDArrayElementInt(array, i) > 0)
@@ -586,7 +586,7 @@ CompareResult KBOVarCompare(Term_p s, Term_p t, DerefType deref_s,
    if(s_gt)
    {
       return to_greater;
-   } 
+   }
    if(t_gt)
    {
       return to_lesser;
@@ -646,7 +646,7 @@ bool KBOVarGreater(Term_p s, Term_p t, DerefType deref_s, DerefType
 {
    bool           t_gt = false;
    PDArray_p      array = PDIntArrayAlloc(8,0);
-   int            i; 
+   int            i;
 
    PDArrayAddVarDistrib(array, s, deref_s, 1);
    PDArrayAddVarDistrib(array, t, deref_t, -1);
@@ -690,12 +690,12 @@ bool KBOVarGreater(Term_p s, Term_p t, DerefType deref_s, DerefType
 {
    bool           t_gt = false;
    VarHash_p      hash = VarHashAlloc();
-   int            i; 
+   int            i;
    VarHashEntry_p handle;
 
    VarHashAddVarDistrib(hash, s, deref_s, 1);
    VarHashAddVarDistrib(hash, t, deref_t, -1);
-   
+
    for(i=0; i<VAR_HASH_SIZE; i++)
    {
       for(handle=hash->hash[i]; handle; handle=handle->next)

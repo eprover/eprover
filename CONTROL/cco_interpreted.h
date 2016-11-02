@@ -5,7 +5,7 @@ File  : cco_interpreted.h
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   Code for handling (some) interpreted symbols. Initially, this will
   only deal with answer predicates (some of which may be false in
   otherwise empty clauses). Once things have shaken out, I expect more

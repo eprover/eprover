@@ -6,7 +6,7 @@ Author: Stephan Schulz
 
 Contents
 
-  Individual PCL steps and related stuff. 
+  Individual PCL steps and related stuff.
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
@@ -49,7 +49,7 @@ bool SupportShellPCL = false;
 // Function: print_shell_pcl_warning()
 //
 //   Print a warning that a shell PCL step was encountered where a
-//   normal one was expected. 
+//   normal one was expected.
 //
 // Global Variables: -
 //
@@ -117,7 +117,7 @@ void PCLStepFree(PCLStep_p junk)
 //
 //   Parse a list of type annotations for PCL steps and return a
 //   property word that can be used with SetProp() to set all
-//   necessary properties (the type field and the lemma bit).  
+//   necessary properties (the type field and the lemma bit).
 //
 // Global Variables: -
 //
@@ -128,7 +128,7 @@ void PCLStepFree(PCLStep_p junk)
 PCLStepProperties PCLParseExternalType(Scanner_p in)
 {
    PCLStepProperties type = PCLTypeAxiom, extra = PCLNoProp;
-   
+
    while(!TestInpTok(in, Colon))
    {
       if(TestInpId(in, "conj"))
@@ -149,8 +149,8 @@ PCLStepProperties PCLParseExternalType(Scanner_p in)
       else if(TestInpId(in, "lemma"))
       {
          extra = PCLIsLemma;
-         NextToken(in);         
-      }  
+         NextToken(in);
+      }
       else
       {
          CheckInpId(in, "conj|neg|lemma");
@@ -178,7 +178,7 @@ PCLStepProperties PCLParseExternalType(Scanner_p in)
 PCLStep_p PCLStepParse(Scanner_p in, TB_p bank)
 {
    PCLStep_p handle = PCLStepCellAlloc();
-   
+
    assert(in);
    assert(bank);
 
@@ -186,7 +186,7 @@ PCLStep_p PCLStepParse(Scanner_p in, TB_p bank)
    PCLStepResetTreeData(handle, false);
    handle->id = PCLIdParse(in);
    AcceptInpTok(in, Colon);
-   handle->properties = PCLParseExternalType(in);   
+   handle->properties = PCLParseExternalType(in);
    AcceptInpTok(in, Colon);
    if(SupportShellPCL && TestInpTok(in, Colon))
    {
@@ -211,11 +211,11 @@ PCLStep_p PCLStepParse(Scanner_p in, TB_p bank)
       CheckInpTok(in, SQString|Name|PosInt);
       handle->extra = DStrCopy(AktToken(in)->literal);
       NextToken(in);
-   }    
+   }
    else
    {
       handle->extra = NULL;
-   }   
+   }
    PCLStepDelProp(handle, PCLIsProofStep);
    if(handle->just->op == PCLOpInitial)
    {
@@ -261,7 +261,7 @@ void PCLPrintExternalType(FILE* out, PCLStepProperties props)
          fputs("que", out);
          break;
    default:
-         break;         
+         break;
    }
 }
 
@@ -285,7 +285,7 @@ void PCLStepPrintExtra(FILE* out, PCLStep_p step, bool data)
    PCLIdPrintFormatted(out, step->id, true);
    fputs(" : ", out);
    PCLPrintExternalType(out, step->properties);
-   fputs(" : ", out);   
+   fputs(" : ", out);
    if(!PCLStepIsShell(step))
    {
       if(PCLStepIsFOF(step))
@@ -309,7 +309,7 @@ void PCLStepPrintExtra(FILE* out, PCLStep_p step, bool data)
       fputs(" : 'lemma'", out);
    }
 #ifdef NEVER_DEFINED
-   fprintf(out, "/* %ld -> %f */", step->proof_tree_size, step->lemma_quality);   
+   fprintf(out, "/* %ld -> %f */", step->proof_tree_size, step->lemma_quality);
 #endif
    if(data)
    {
@@ -329,7 +329,7 @@ void PCLStepPrintExtra(FILE* out, PCLStep_p step, bool data)
 	      step->contrib_gen_refs,
 	      step->useless_simpl_refs,
 	      step->useless_gen_refs,
-	      step->proof_distance); 
+	      step->proof_distance);
    }
 }
 
@@ -339,7 +339,7 @@ void PCLStepPrintExtra(FILE* out, PCLStep_p step, bool data)
 // Function: PCLPropToTSTPType()
 //
 //   Given PCL properties, return the best string describing the
-//   type. 
+//   type.
 //
 // Global Variables: -
 //
@@ -367,7 +367,7 @@ char * PCLPropToTSTPType(PCLStepProperties props)
             if(props&PCLIsInitial)
             {
                return "axiom";
-            } 
+            }
             else
             {
                return "plain";
@@ -395,7 +395,7 @@ void PCLStepPrintTSTP(FILE* out, PCLStep_p step)
 
    if(PCLStepIsClausal(step))
    {
-      fprintf(out, "cnf("); 
+      fprintf(out, "cnf(");
       PCLIdPrintTSTP(out, step->id);
       fputc(',', out);
       fputs(PCLPropToTSTPType(step->properties), out);
@@ -410,7 +410,7 @@ void PCLStepPrintTSTP(FILE* out, PCLStep_p step)
    }
    else
    {
-      fprintf(out, "fof("); 
+      fprintf(out, "fof(");
       PCLIdPrintTSTP(out, step->id);
       fputc(',', out);
       fputs(PCLPropToTSTPType(step->properties), out);
@@ -424,7 +424,7 @@ void PCLStepPrintTSTP(FILE* out, PCLStep_p step)
       }
 
    }
-   fputc(',', out);   
+   fputc(',', out);
    PCLExprPrintTSTP(out, step->just, false);
    if(step->extra)
    {
@@ -443,7 +443,7 @@ void PCLStepPrintTSTP(FILE* out, PCLStep_p step)
 // Function: PCLStepPrintTPTP
 //
 //   Print the logical part of a PCL step as a TPTP-2 clause or
-//   formula. 
+//   formula.
 //
 // Global Variables: -
 //
@@ -467,7 +467,7 @@ void PCLStepPrintTPTP(FILE* out, PCLStep_p step)
       }
       else
       {
-         fprintf(out, "input_formula("); 
+         fprintf(out, "input_formula(");
          PCLIdPrintTSTP(out, step->id);
          fputc(',', out);
          fputs(PCLPropToTSTPType(step->properties), out);
@@ -483,7 +483,7 @@ void PCLStepPrintTPTP(FILE* out, PCLStep_p step)
 // Function: PCLStepPrintLOP()
 //
 //   Print the logical part of a PCL step as a LOP clause or formula
-//   (where TPTP core syntax has to stand in for missing LOP syntac). 
+//   (where TPTP core syntax has to stand in for missing LOP syntac).
 //
 // Global Variables: -
 //
@@ -525,22 +525,22 @@ void PCLStepPrintLOP(FILE* out, PCLStep_p step)
 //
 /----------------------------------------------------------------------*/
 
-void PCLStepPrintFormat(FILE* out, PCLStep_p step, bool data, 
+void PCLStepPrintFormat(FILE* out, PCLStep_p step, bool data,
 			OutputFormatType format)
 {
    switch(format)
    {
    case pcl_format:
-	 PCLStepPrintExtra(out, step, data);      
+	 PCLStepPrintExtra(out, step, data);
 	 break;
    case lop_format:
-	 PCLStepPrintLOP(out, step);      
+	 PCLStepPrintLOP(out, step);
 	 break;
    case tptp_format:
-	 PCLStepPrintTPTP(out, step);      
+	 PCLStepPrintTPTP(out, step);
 	 break;
    case tstp_format:
-	 PCLStepPrintTSTP(out, step);      
+	 PCLStepPrintTSTP(out, step);
 	 break;
    default:
 	 assert(false);
@@ -568,25 +568,25 @@ void PCLStepPrintFormat(FILE* out, PCLStep_p step, bool data,
 //
 /----------------------------------------------------------------------*/
 
-void PCLStepPrintExample(FILE* out, PCLStep_p step, long id, 
+void PCLStepPrintExample(FILE* out, PCLStep_p step, long id,
                         long proof_steps, long total_steps)
 {
    assert(!PCLStepQueryProp(step,PCLIsFOFStep));
-   
+
    if(PCLStepIsShell(step))
    {
       print_shell_pcl_warning(out, step);
-   }   
+   }
    else
    {
       fprintf(out, "%4ld:(%ld, %f,%f,%f,%f):",
-              id, 
+              id,
               step->proof_distance,
               step->contrib_simpl_refs/(float)(proof_steps+1),
               step->useless_simpl_refs/(float)(total_steps-proof_steps+1),
               step->contrib_gen_refs/(float)(proof_steps+1),
               step->useless_gen_refs/(float)(total_steps-proof_steps+1));
-      ClausePrint(out, step->logic.clause, true);   
+      ClausePrint(out, step->logic.clause, true);
    }
 }
 
@@ -595,7 +595,7 @@ void PCLStepPrintExample(FILE* out, PCLStep_p step, long id,
 //
 // Function: PCLStepIdCompare()
 //
-//   Compare two PCL steps by idents (forPTreeObj-Operations). 
+//   Compare two PCL steps by idents (forPTreeObj-Operations).
 //
 // Global Variables: -
 //
@@ -632,8 +632,8 @@ void PCLStepResetTreeData(PCLStep_p step, bool just_weights)
    {
       step->active_pm_refs        = 0;
       step->other_generating_refs = 0;
-      step->active_simpl_refs     = 0;  
-      step->passive_simpl_refs    = 0;  
+      step->active_simpl_refs     = 0;
+      step->passive_simpl_refs    = 0;
       step->pure_quote_refs       = 0;
       step->lemma_quality         = 0.0;
       step->contrib_simpl_refs    = 0;

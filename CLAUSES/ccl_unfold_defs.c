@@ -5,7 +5,7 @@ File  : ccl_unfold_defs.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for unfolding equational definitions.
 
 Copyright 1998-2011 by the author.
@@ -69,7 +69,7 @@ static Term_p term_top_unfold_def(TB_p bank, Term_p term, ClausePos_p demod)
    subst = SubstAlloc();
    tmp = SubstComputeMatch(lside, term, subst);
    UNUSED(tmp); assert(tmp); /* Match must exist because demod is demod! */
-   rside = ClausePosGetOtherSide(demod); 
+   rside = ClausePosGetOtherSide(demod);
    res = TBInsertInstantiated(bank, rside);
    SubstDelete(subst);
    return res;
@@ -100,7 +100,7 @@ static Term_p term_unfold_def(TB_p bank, Term_p term, PStack_p
    bool changed = false;
 
    res = TermTopCopyWithoutArgs(term);
-   
+
    for(i=0; i<res->arity; i++)
    {
       res->args[i] = term_unfold_def(bank, term->args[i], pos_stack,
@@ -185,14 +185,14 @@ bool ClauseUnfoldEqDef(Clause_p clause, ClausePos_p demod)
    Eqn_p handle;
 
    for(handle = clause->literals; handle; handle = handle->next)
-   {      
+   {
       eqn_unfold_def(handle, pos_stack, demod);
    }
 
    if(!PStackEmpty(pos_stack))
    {
       res = true;
-      
+
       if(ClauseQueryTPTPType(demod->clause) == CPTypeConjecture)
       {
 	 ClauseSetTPTPType(clause, CPTypeConjecture);
@@ -259,7 +259,7 @@ bool ClauseSetUnfoldEqDef(ClauseSet_p set, ClausePos_p demod)
 
 long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, ClauseSet_p passive,
                               ClauseSet_p archive,
-			      int min_arity, int eqdef_incrlimit) 
+			      int min_arity, int eqdef_incrlimit)
 {
    ClausePos_p demod;
    long res = false;
@@ -275,7 +275,7 @@ long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, ClauseSet_p passive,
          ClauseSetUnfoldEqDef(set, demod);
          if(passive)
          {
-            ClauseSetUnfoldEqDef(passive, demod);	 
+            ClauseSetUnfoldEqDef(passive, demod);
          }
          if(BuildProofObject)
          {
@@ -308,8 +308,8 @@ long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, ClauseSet_p passive,
 //
 /----------------------------------------------------------------------*/
 
-long ClauseSetPreprocess(ClauseSet_p set, ClauseSet_p passive, 
-                         ClauseSet_p archive, TB_p tmp_terms, 
+long ClauseSetPreprocess(ClauseSet_p set, ClauseSet_p passive,
+                         ClauseSet_p archive, TB_p tmp_terms,
                          int eqdef_incrlimit, long eqdef_maxclauses)
 {
    long res, tmp;
@@ -322,7 +322,7 @@ long ClauseSetPreprocess(ClauseSet_p set, ClauseSet_p passive,
       return res;
    }
    if((tmp = ClauseSetUnfoldAllEqDefs(set, passive, archive, 1, eqdef_incrlimit)))
-   {	
+   {
       res += tmp;
       res += ClauseSetFilterTautologies(set, tmp_terms);
       ClauseSetCanonize(set);

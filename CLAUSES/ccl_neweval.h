@@ -5,7 +5,7 @@ File  : ccl_neweval.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Data type for representing evaluations of clauses.
 
 Copyright 1998-2011 by the author.
@@ -52,7 +52,7 @@ typedef struct simple_eval_cell
    EvalPriority      priority;   /* Technical considerations */
    float             heuristic;  /* Heuristical evaluation   */
    struct eval_cell* lson;       /* Successors in ordered tree */
-   struct eval_cell* rson;  
+   struct eval_cell* rson;
 }SimpleEvalCell, *SimpleEval_p;
 
 typedef struct eval_cell
@@ -69,7 +69,7 @@ typedef struct eval_cell
 /*        Macros for a common interface with old evaluations           */
 /*---------------------------------------------------------------------*/
 
-//#define EvalsFree(eval) EvalsFree(eval) 
+//#define EvalsFree(eval) EvalsFree(eval)
 //#define EvalTreeFindSmallestWrap(root, pos) EvalTreeFindSmallest((root), (pos))
 //#define EvalTreePrintInOrderWrap(file, root, pos) EvalTreePrintInOrder(file, root, pos)
 

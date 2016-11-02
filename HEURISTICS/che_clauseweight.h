@@ -5,7 +5,7 @@ File  : che_clauseweight.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Evaluation of a clause by clause weight, also an example for setting
   up an evaluation function. Contains some additional evaluation
   functions as well.

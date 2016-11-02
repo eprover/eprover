@@ -5,7 +5,7 @@ File  : ccl_eqnresolution.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Routines for performing (ordered) equality resolution.
 
   Copyright 1998, 1999 by the author.

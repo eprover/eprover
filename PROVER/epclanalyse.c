@@ -5,7 +5,7 @@ File  : epclanalyse.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Read a PCL protocol and collect and print a number of statistics on
   the protocol.
 
@@ -55,8 +55,8 @@ typedef enum
 
 OptCell opts[] =
 {
-   {OPT_HELP, 
-    'h', "help", 
+   {OPT_HELP,
+    'h', "help",
     NoArg, NULL,
     "Print a short description of program usage and options."},
 
@@ -65,8 +65,8 @@ OptCell opts[] =
     NoArg, NULL,
     "Print the version number of the program."},
 
-   {OPT_VERBOSE, 
-    'v', "verbose", 
+   {OPT_VERBOSE,
+    'v', "verbose",
     OptArg, "1",
     "Verbose comments on the progress of the program."},
 
@@ -74,7 +74,7 @@ OptCell opts[] =
     'o', "output-file",
     ReqArg, NULL,
    "Redirect output into the named file."},
-    
+
    {OPT_SILENT,
     's', "silent",
     NoArg, NULL,
@@ -106,7 +106,7 @@ void print_help(FILE* out);
 int main(int argc, char* argv[])
 {
    CLState_p       state;
-   Scanner_p       in; 
+   Scanner_p       in;
    PCLProt_p       prot;
    long            steps;
    int             i;
@@ -122,7 +122,7 @@ int main(int argc, char* argv[])
 
    ESignalSetup(SIGTERM);
    ESignalSetup(SIGINT);
-   
+
    OutputFormat = TPTPFormat;
    /* We need consistent name->var mappings here because we
       potentially read the compressed input format. */
@@ -144,7 +144,7 @@ int main(int argc, char* argv[])
       ScannerSetFormat(in, TPTPFormat);
       steps+=PCLProtParse(in, prot);
       CheckInpTok(in, NoToken);
-      DestroyScanner(in); 
+      DestroyScanner(in);
    }
    VERBOUT2("PCL input read\n");
 
@@ -153,16 +153,16 @@ int main(int argc, char* argv[])
    PCLProtFree(prot);
 
    CLStateFree(state);
-   
+
    fflush(GlobalOut);
    OutClose(GlobalOut);
    ExitIO();
-   
+
 #ifdef CLB_MEMORY_DEBUG
    MemFlushFreeList();
    MemDebugPrintStats(stdout);
 #endif
-   
+
    return 0;
 }
 
@@ -174,7 +174,7 @@ int main(int argc, char* argv[])
 //   Read and process the command line option, return (the pointer to)
 //   a CLState object containing the remaining arguments.
 //
-// Global Variables: 
+// Global Variables:
 //
 // Side Effects    : Sets variables, may terminate with program
 //                   description if option -h or --help was present
@@ -186,9 +186,9 @@ CLState_p process_options(int argc, char* argv[])
    Opt_p handle;
    CLState_p state;
    char*  arg;
-   
+
    state = CLStateAlloc(argc,argv);
-   
+
    while((handle = CLStateGetOpt(state, &arg, opts)))
    {
       switch(handle->option_code)
@@ -196,7 +196,7 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_VERBOSE:
 	    Verbose = CLStateGetIntArg(handle, arg);
 	    break;
-      case OPT_HELP: 
+      case OPT_HELP:
 	    print_help(stdout);
 	    exit(NO_ERROR);
       case OPT_VERSION:
@@ -218,7 +218,7 @@ CLState_p process_options(int argc, char* argv[])
 
 void print_help(FILE* out)
 {
-   fprintf(out, 
+   fprintf(out,
 	   "\n"
 	   "\n"
 NAME " " VERSION "\n"

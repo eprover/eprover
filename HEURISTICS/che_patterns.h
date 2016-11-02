@@ -5,7 +5,7 @@ File  : cle_patterns.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Routines for dealing with term patterns.
 
   Copyright 1998, 1999 by the author.

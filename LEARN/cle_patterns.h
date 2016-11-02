@@ -5,7 +5,7 @@ File  : cle_patterns.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Data type (previous "norm subst") for describing terms, equations
   and clauses as patterns of same.
 
@@ -32,12 +32,12 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-/* Norm idents are allocated as NORM_SYMBOL_LIMIT*(arity+1) +number of  
+/* Norm idents are allocated as NORM_SYMBOL_LIMIT*(arity+1) +number of
    ident. There can be no more than NORM_SYMBOL_LIMIT symbols of any
    arity, and no symbol with arity > ARITY. Moreover, we will run into
    trouble with learning if the total number of symbols is ever
    bigger than 32768
-   NORM_ARITY_LIMIT*NORM_SYMBOL_LIMIT <= LONG_MAX */ 
+   NORM_ARITY_LIMIT*NORM_SYMBOL_LIMIT <= LONG_MAX */
 
 #define NORM_ARITY_LIMIT  16384  /* Largest Arity allowed */
 #define NORM_SYMBOL_LIMIT 65536  /* Maximum number of different
@@ -50,8 +50,8 @@ typedef struct patternsubstcell
    PDArray_p fun_subst;   /* Replacement for function symbols. 0 ->
 			     unassigned. Pre-assigned symbols are
 			     given values from
-			     1 to NORM_SYMBOL_LIMIT */   
-   long      used_vars;  
+			     1 to NORM_SYMBOL_LIMIT */
+   long      used_vars;
    PDArray_p var_subst;   /* Replacement for variables */
    PStack_p  backtrack;   /* To take back bindings */
    Sig_p     sig;         /* For alpha-ranks and potentially other
@@ -109,11 +109,11 @@ long PatternClauseCompute(Clause_p clause, PatternSubst_p* subst,
 
 bool           PatternSubstBacktrack(PatternSubst_p subst,
 				     PStackPointer old_state);
- 
+
 void           PatternTermPrint(FILE* out, PatternSubst_p subst,
 				Term_p term, Sig_p sig);
 void           PatternEqnPrint(FILE* out, PatternSubst_p subst, Eqn_p
-			       eqn, PatEqnDirection direction); 
+			       eqn, PatEqnDirection direction);
 void           PatternClausePrint(FILE* out, PatternSubst_p subst,
 				  PStack_p listrep);
 

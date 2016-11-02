@@ -5,7 +5,7 @@ File  : cle_tsmio.c
 Author: Stephan Schulz
 
 Contents
- 
+
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
@@ -87,7 +87,7 @@ static double get_default_eval(AnnoSet_p annoset,double evalweights[])
        DDArrayAssign(old, 2, oldval);
        count += currentcount;
    }
-   NumTreeTraverseExit(stack);   
+   NumTreeTraverseExit(stack);
    if(count!=0)
    {
       for(i=3; i<=KB_ANNOTATION_NO; i++)
@@ -100,10 +100,10 @@ static double get_default_eval(AnnoSet_p annoset,double evalweights[])
    DDArrayAssign(old, 2, DDArrayElement(old, 2)+1);
 
    result = AnnotationEval(anno,evalweights);
-   /* printf("# ");AnnotationPrint(stdout, anno); 
+   /* printf("# ");AnnotationPrint(stdout, anno);
       printf(" -> %f\n",result); */
    AnnotationFree(anno);
-   return result;   
+   return result;
 }
 
 
@@ -126,7 +126,7 @@ static double rec_get_highest_weight(TSM_p tsm)
    TSA_p tsa;
 
    assert(tsm);
-   
+
    for(i=0; i<=tsm->maxindex;i++)
    {
       tsa = PDArrayElementP(tsm->tsas, i);
@@ -163,7 +163,7 @@ static double level_get_highest_weight(TSM_p tsm)
    TSA_p tsa;
 
    assert(tsm);
-   
+
    for(i=0; i<=tsm->maxindex;i++)
    {
       tsa = PDArrayElementP(tsm->tsas, i);
@@ -204,7 +204,7 @@ static double get_highest_weight(TSMAdmin_p admin)
 	 break;
    case TSMTypeRecurrent:
 	 res = level_get_highest_weight(admin->tsm);
-	 break;	 
+	 break;
    case TSMTypeRecurrentLocal:
 	 for(i=0; i<PStackGetSP(admin->tsmstack); i++)
 	 {
@@ -244,19 +244,19 @@ double ExampleSetPrepare(FlatAnnoSet_p flatset, AnnoSet_p annoset, double
 		       ClauseSet_p target, long sel_no, double set_part,
 		       double dist_part)
 {
-   Features_p   targetfeatures = FeaturesAlloc(); 
+   Features_p   targetfeatures = FeaturesAlloc();
    PStack_p     example_ids = PStackAlloc();
    long         res;
-   
+
    ComputeClauseSetNumFeatures(targetfeatures, target, sig);
    ExampleSetSelectByDist(example_ids, examples, targetfeatures,
 			  SEL_PRED_WEIGHT, SEL_FUNC_WEIGHT,
 			  selection_weights, sel_no, set_part,
 			  dist_part);
-   AnnoSetFlatten(annoset, example_ids);   
+   AnnoSetFlatten(annoset, example_ids);
    AnnoSetNormalizeFlatAnnos(annoset);
    res = get_default_eval(annoset, evalweights);
-   FlatAnnoSetTranslate(flatset, annoset, evalweights);   
+   FlatAnnoSetTranslate(flatset, annoset, evalweights);
    PStackFree(example_ids);
    FeaturesFree(targetfeatures);
    return res;
@@ -286,12 +286,12 @@ double ExampleSetFromKB(AnnoSet_p annoset, FlatAnnoSet_p flatset, bool
    ExampleSet_p   proofexamples;
    Scanner_p      in;
    double res;
-   
+
    proofexamples = ExampleSetAlloc();
 
    in = CreateScanner(StreamTypeFile,
 		      KBFileName(filename, kb, "signature"),
-		      true, NULL);   
+		      true, NULL);
    SigParse(in, sig, true);
    DestroyScanner(in);
 
@@ -301,7 +301,7 @@ double ExampleSetFromKB(AnnoSet_p annoset, FlatAnnoSet_p flatset, bool
    ExampleSetParse(in, proofexamples);
    DestroyScanner(in);
    DStrFree(filename);
-   
+
    if(flat_patterns)
    {
       AnnoSetRecToFlatEnc(bank, annoset);
@@ -320,9 +320,9 @@ double ExampleSetFromKB(AnnoSet_p annoset, FlatAnnoSet_p flatset, bool
 //
 //   Create a tsm for evaluating clauses for proving target from kb
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -339,7 +339,7 @@ TSMAdmin_p TSMFromKB(bool flat_patterns, double evalweights[], char*
    PatternSubst_p subst;
    Scanner_p      in;
    double         eval_default;
-   
+
    in = CreateScanner(StreamTypeFile,
 		      KBFileName(filename, kb, "clausepatterns"),
 		      true, NULL);
@@ -350,7 +350,7 @@ TSMAdmin_p TSMFromKB(bool flat_patterns, double evalweights[], char*
    eval_default = ExampleSetFromKB(annoset, flatset, flat_patterns,
 				   bank, evalweights, kb, sig, target,
 				   sel_no, set_part, dist_part);
-   
+
    subst = PatternDefaultSubstAlloc(sig);
    AnnoSetComputePatternSubst(subst, annoset);
    /* AnnoSetPrint(stdout,annoset); */
@@ -361,8 +361,8 @@ TSMAdmin_p TSMFromKB(bool flat_patterns, double evalweights[], char*
 
    FlatAnnoSetFree(flatset);
    bank->sig = NULL;
-   AnnoSetFree(annoset);   
-   TBFree(bank); 
+   AnnoSetFree(annoset);
+   TBFree(bank);
    VERBOUT("TSM created\n");
    return admin;
 }

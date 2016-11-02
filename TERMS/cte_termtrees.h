@@ -8,7 +8,7 @@ Contents
 
   Functionality of term-top indexed trees (I found that I can
   cleanly separate this from the termbank stuff).
-  
+
   There are two sets of funktions for the manangment of term trees in
   CLIB: Funktions operating only on the top cell, and functions descending
   the term structure. Top level functions implement a conventional AVL

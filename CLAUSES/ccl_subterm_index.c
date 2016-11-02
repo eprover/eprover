@@ -5,7 +5,7 @@ File  : ccl_subterm_index.c
 Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
- 
+
   An index mapping subterms to occurances in clauses.
 
   Copyright 2010 by the author.
@@ -43,7 +43,7 @@ Changes
 //
 // Function: term_collect_idx_subterms()
 //
-//   
+//
 //   Collect all non-variable subterms in term either into rest or
 //   full (rest for "restricted rewriting" terms, full for the "full
 //   rewriting" terms).
@@ -55,7 +55,7 @@ Changes
 /----------------------------------------------------------------------*/
 
 static long term_collect_idx_subterms(Term_p term, PTree_p *rest,
-                                      PTree_p *full, bool restricted) 
+                                      PTree_p *full, bool restricted)
 {
    long res = 0;
    int i;
@@ -119,16 +119,16 @@ static long eqn_collect_idx_subterms(Eqn_p eqn, PTree_p *rest, PTree_p *full)
 //
 /----------------------------------------------------------------------*/
 
-static void subterm_index_insert_set(SubtermIndex_p index, 
+static void subterm_index_insert_set(SubtermIndex_p index,
                                      Clause_p clause,
-                                     PTree_p terms, bool restricted) 
+                                     PTree_p terms, bool restricted)
 {
    PStack_p stack = PTreeTraverseInit(terms);
    PTree_p   cell;
 
    while((cell = PTreeTraverseNext(stack)))
    {
-      SubtermIndexInsertOcc(index, clause, cell->key, restricted);      
+      SubtermIndexInsertOcc(index, clause, cell->key, restricted);
    }
    PTreeTraverseExit(stack);
 }
@@ -147,16 +147,16 @@ static void subterm_index_insert_set(SubtermIndex_p index,
 //
 /----------------------------------------------------------------------*/
 
-static void subterm_index_delete_set(SubtermIndex_p index, 
+static void subterm_index_delete_set(SubtermIndex_p index,
                                      Clause_p clause,
-                                     PTree_p terms, bool restricted) 
+                                     PTree_p terms, bool restricted)
 {
    PStack_p stack = PTreeTraverseInit(terms);
    PTree_p   cell;
 
    while((cell = PTreeTraverseNext(stack)))
    {
-      SubtermIndexDeleteOcc(index, clause, cell->key, restricted);      
+      SubtermIndexDeleteOcc(index, clause, cell->key, restricted);
    }
    PTreeTraverseExit(stack);
 }
@@ -181,13 +181,13 @@ static void subterm_index_delete_set(SubtermIndex_p index,
 // Side Effects    : Memory operatios
 //
 /----------------------------------------------------------------------*/
-bool SubtermIndexInsertOcc(SubtermIndex_p index, Clause_p clause, 
+bool SubtermIndexInsertOcc(SubtermIndex_p index, Clause_p clause,
                            Term_p term, bool restricted)
 {
    FPTree_p     fp_node;
    SubtermOcc_p subterm_node;
    PTree_p      *root;
-      
+
    fp_node      = FPIndexInsert(index, term);
    subterm_node = SubtermTreeInsertTerm((void*)&(fp_node->payload), term);
    root         = restricted?&(subterm_node->pl.occs.rw_rest):&(subterm_node->pl.occs.rw_full);
@@ -209,7 +209,7 @@ bool SubtermIndexInsertOcc(SubtermIndex_p index, Clause_p clause,
 //
 /----------------------------------------------------------------------*/
 
-bool SubtermIndexDeleteOcc(SubtermIndex_p index, Clause_p clause, 
+bool SubtermIndexDeleteOcc(SubtermIndex_p index, Clause_p clause,
                            Term_p term, bool restricted)
 {
    FPTree_p     fp_node;
@@ -220,16 +220,16 @@ bool SubtermIndexDeleteOcc(SubtermIndex_p index, Clause_p clause,
    {
       return false;
    }
-   res =  SubtermTreeDeleteTermOcc((void*)&(fp_node->payload), term, 
+   res =  SubtermTreeDeleteTermOcc((void*)&(fp_node->payload), term,
                                    clause, restricted);
-   
+
    if(fp_node->payload == NULL)
    {
       FPIndexDelete(index, term);
    }
    return res;
 }
- 
+
 
 
 
@@ -247,8 +247,8 @@ bool SubtermIndexDeleteOcc(SubtermIndex_p index, Clause_p clause,
 //
 /----------------------------------------------------------------------*/
 
-long ClauseCollectIdxSubterms(Clause_p clause, 
-                              PTree_p *rest, 
+long ClauseCollectIdxSubterms(Clause_p clause,
+                              PTree_p *rest,
                               PTree_p *full)
 {
    long res = 0;
@@ -279,7 +279,7 @@ void SubtermIndexInsertClause(SubtermIndex_p index, Clause_p clause)
    PTree_p rest=NULL, full=NULL;
 
    ClauseCollectIdxSubterms(clause, &rest, &full);
-   
+
    subterm_index_insert_set(index, clause, rest, true);
    subterm_index_insert_set(index, clause, full, false);
 
@@ -305,7 +305,7 @@ void SubtermIndexDeleteClause(SubtermIndex_p index, Clause_p clause)
    PTree_p rest=NULL, full=NULL;
 
    ClauseCollectIdxSubterms(clause, &rest, &full);
-   
+
    subterm_index_delete_set(index, clause, rest, true);
    subterm_index_delete_set(index, clause, full, false);
 

@@ -5,7 +5,7 @@ File  : cpr_varset.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Data type for (multi-)sets of propositional variables, currently
   organized as doubly linked lists.
 

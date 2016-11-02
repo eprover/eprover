@@ -5,7 +5,7 @@ File  : clb_pqueue.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for LIFO-lists.
 
   Copyright 1998, 1999 by the author.
@@ -114,7 +114,7 @@ static __inline__ void pqueue_store(PQueue_p queue, IntOrP val)
    }
 
    if(queue->head == queue->tail)
-   {   
+   {
       PQueueGrow(queue);
    }
 }
@@ -139,7 +139,7 @@ static __inline__ void pqueue_bury(PQueue_p queue, IntOrP val)
    queue->queue[queue->tail] = val;
 
    if(queue->head == queue->tail)
-   {   
+   {
       PQueueGrow(queue);
    }
 }
@@ -165,7 +165,7 @@ static __inline__ PQueue_p PQueueAlloc(void)
    handle->head  = 0;
    handle->tail  = 0;
    handle->queue = SizeMalloc(PQUEUE_DEFAULT_SIZE*sizeof(IntOrP));
-   
+
    return handle;
 }
 
@@ -185,7 +185,7 @@ static __inline__ PQueue_p PQueueAlloc(void)
 static __inline__ void PQueueFree(PQueue_p junk)
 {
    SizeFree(junk->queue, junk->size*sizeof(IntOrP));
-   PQueueCellFree(junk);   
+   PQueueCellFree(junk);
 }
 
 /*-----------------------------------------------------------------------
@@ -222,7 +222,7 @@ static __inline__ void PQueueReset(PQueue_p queue)
 static __inline__ void PQueueStoreInt(PQueue_p queue, long val)
 {
    IntOrP handle;
-   
+
    handle.i_val = val;
    pqueue_store(queue, handle);
 }
@@ -242,7 +242,7 @@ static __inline__ void PQueueStoreInt(PQueue_p queue, long val)
 static __inline__ void PQueueStoreP(PQueue_p queue, void* val)
 {
    IntOrP handle;
-   
+
    handle.p_val = val;
    pqueue_store(queue, handle);
 }
@@ -262,7 +262,7 @@ static __inline__ void PQueueStoreP(PQueue_p queue, void* val)
 static __inline__ void PQueueBuryInt(PQueue_p queue, long val)
 {
    IntOrP handle;
-   
+
    handle.i_val = val;
    pqueue_bury(queue, handle);
 }
@@ -282,7 +282,7 @@ static __inline__ void PQueueBuryInt(PQueue_p queue, long val)
 static __inline__ void PQueueBuryP(PQueue_p queue, void* val)
 {
    IntOrP handle;
-   
+
    handle.p_val = val;
    pqueue_bury(queue, handle);
 }
@@ -303,9 +303,9 @@ static __inline__ void PQueueBuryP(PQueue_p queue, void* val)
 static __inline__ IntOrP PQueueGetNext(PQueue_p queue)
 {
    IntOrP res;
-   
+
    assert(!PQueueEmpty(queue));
-   
+
    res = queue->queue[queue->tail];
    queue->tail++;
    if(queue->tail == queue->size)
@@ -333,7 +333,7 @@ static __inline__ IntOrP PQueueGetNext(PQueue_p queue)
 static __inline__ IntOrP PQueueGetLast(PQueue_p queue)
 {
    IntOrP res;
-   
+
    assert(!PQueueEmpty(queue));
 
    queue->head = queue->head? (queue->head-1):queue->size-1;
@@ -348,7 +348,7 @@ static __inline__ IntOrP PQueueGetLast(PQueue_p queue)
 // Function:  PQueueLook()
 //
 //   Return the next element from the queue without changing the
-//   queue. 
+//   queue.
 //
 // Global Variables: -
 //
@@ -359,7 +359,7 @@ static __inline__ IntOrP PQueueGetLast(PQueue_p queue)
 static __inline__ IntOrP PQueueLook(PQueue_p queue)
 {
    assert(!PQueueEmpty(queue));
-   
+
    return queue->queue[queue->tail];
 }
 

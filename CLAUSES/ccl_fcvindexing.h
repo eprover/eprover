@@ -41,7 +41,7 @@ PERF_CTR_DECL(FVIndexTimer);
 
 typedef struct fvindex_parms_cell
 {
-   FVCollectCell cspec; 
+   FVCollectCell cspec;
    bool use_perm_vectors;
    bool eliminate_uninformative;
    long max_symbols;

@@ -5,13 +5,13 @@ File  : cio_commandline.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Definitions for handling options and recognising non-option
-  arguments. 
+  arguments.
 
   "Why don't you use getopt()?"
 
-  - Implementations of getopt() seem to differ significantly between 
+  - Implementations of getopt() seem to differ significantly between
     UNIX implementations. Finding out what the differences are and
     coding around them seems to be more work than writing this version
     from scratch.
@@ -56,7 +56,7 @@ typedef enum
 
 typedef struct optcell
 {
-   int         option_code; 
+   int         option_code;
    char        shortopt;    /* Single Character options */
    char*       longopt;     /* Double dash, GNU-Style */
    OptArgType  type;        /* What about Arguments? */

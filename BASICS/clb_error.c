@@ -5,7 +5,7 @@ File  : clb_error.c
 Author: Stephan Schulz
 
 Contents
- 
+
   Routines for handling errors, warnings, and system stuff.
 
   Copyright 1998, 1999 by the author.
@@ -68,7 +68,7 @@ char* EmptyString = "";
 // Function: GetSystemPageSize()
 //
 //   Find and return the system page size (in bytes), if
-//   possible. Return -1 otherwise. 
+//   possible. Return -1 otherwise.
 //
 // Global Variables: -
 //
@@ -134,7 +134,7 @@ long GetSystemPhysMemory(void)
          while(fgets(line, 220, pipe))
          {
             if(strncmp(MEM_PHRASE, line, limit)==0)
-            {               
+            {
                resmult = strtod(line+limit, &convert);
                if(strstr(convert, "kilobyte"))
                {  /* Past-proof, of course */
@@ -159,9 +159,9 @@ long GetSystemPhysMemory(void)
                break;
             }
          }
-   
+
          pclose(pipe);
-      }      
+      }
    }
    return res;
 }
@@ -318,7 +318,7 @@ void SysWarning(char* message, ...)
 double GetTotalCPUTime(void)
 {
    double res = -1;
-   
+
    struct rusage usage;
 
    if(!getrusage(RUSAGE_SELF, &usage))
@@ -345,7 +345,7 @@ double GetTotalCPUTime(void)
 void PrintRusage(FILE* out)
 {
    struct rusage usage, cusage;
-   
+
    if(getrusage(RUSAGE_SELF, &usage))
    {
       TmpErrno = errno;
@@ -359,23 +359,23 @@ void PrintRusage(FILE* out)
 	       SYS_ERROR);
    }
    usage.ru_utime.tv_sec  += cusage.ru_utime.tv_sec;
-   usage.ru_utime.tv_usec += cusage.ru_utime.tv_usec; 
+   usage.ru_utime.tv_usec += cusage.ru_utime.tv_usec;
    usage.ru_stime.tv_sec  += cusage.ru_stime.tv_sec;
    usage.ru_stime.tv_usec += cusage.ru_stime.tv_usec;
-   
-   fprintf(out, 
+
+   fprintf(out,
 	   "\n# -------------------------------------------------\n");
-   fprintf(out, 
+   fprintf(out,
 	   "# User time                : %.3f s\n",
 	   (usage.ru_utime.tv_sec)+(usage.ru_utime.tv_usec)/1000000.0);
-   fprintf(out, 
+   fprintf(out,
 	   "# System time              : %.3f s\n",
 	   (usage.ru_stime.tv_sec)+(usage.ru_stime.tv_usec)/1000000.0);
-   fprintf(out, 
+   fprintf(out,
 	   "# Total time               : %.3f s\n",
 	   (usage.ru_utime.tv_sec+usage.ru_stime.tv_sec)+
 	   ((usage.ru_utime.tv_usec+usage.ru_stime.tv_usec)/1000000.0));
-   fprintf(out, 
+   fprintf(out,
 	   "# Maximum resident set size: %ld pages\n",
 	   usage.ru_maxrss);
 }
@@ -389,11 +389,11 @@ void PrintRusage(FILE* out)
 //   bytes. It's used for preallocated memory reserves. Normally,
 //   allocated pages need not really be available unless written to if
 //   overallocation is being used. This should ensure that allocated
-//   pages are backed by real memory in such (broken!) cases.  
+//   pages are backed by real memory in such (broken!) cases.
 //
-// Global Variables: 
+// Global Variables:
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -411,8 +411,8 @@ void StrideMemory(char* mem, long size)
       Warning("Could not determine page size, guessing 4096!");
       e_page_size=4096;
    }
-   
-   for(stride = mem; stride < mem+size; stride+=e_page_size) 
+
+   for(stride = mem; stride < mem+size; stride+=e_page_size)
    {
       *stride = 'S'; /* Arbitrary value*/
    }
@@ -430,7 +430,7 @@ void StrideMemory(char* mem, long size)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-  
+
 bool CheckLetterString(char* to_check, char* options)
 {
    char *current, *control;
@@ -445,7 +445,7 @@ bool CheckLetterString(char* to_check, char* options)
 	 {
 	    found = true;
 	    break;
-	 }	 
+	 }
       }
       if(!found)
       {

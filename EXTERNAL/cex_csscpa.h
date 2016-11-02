@@ -5,7 +5,7 @@ File  : cex_csscpa.h
 Author: Stephan Schulz, Geoff Sutcliffe
 
 Contents
- 
+
   Functions and datetype realizing the CSSCPA control component.
 
   Copyright 1998, 1999 by the author.
@@ -47,7 +47,7 @@ typedef struct csscpa_state_cell
    long              weight;
 }CSSCPAStateCell, *CSSCPAState_p;
 
-typedef enum 
+typedef enum
 {
 /*---Added by Geoff */
    contradicts,
@@ -69,7 +69,7 @@ ClauseStatusType;
 CSSCPAState_p CSSCPAStateAlloc(void);
 void          CSSCPAStateFree(CSSCPAState_p junk);
 
-bool CSSCPAProcessClause(CSSCPAState_p state, Clause_p clause, 
+bool CSSCPAProcessClause(CSSCPAState_p state, Clause_p clause,
 			bool accept, float weight_delta, float average_delta);
 
 void CSSCPALoop(Scanner_p in, CSSCPAState_p state);

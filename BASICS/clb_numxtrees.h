@@ -5,7 +5,7 @@ File  : clb_numxtrees.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Definitions for SPLAY trees with long integer keys and vectors of
   IntOrPs as values. Copied from clb_numtrees.h
 
@@ -48,7 +48,7 @@ Changes
    pointers can be used (and need to be casted carefully by the
    wrapper functions). Objects pointed to by the value fields are not
    part of the data stucture and will not be touched by deallocating
-   trees or tree nodes. */ 
+   trees or tree nodes. */
 
 typedef struct numxtreecell
 {

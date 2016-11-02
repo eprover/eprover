@@ -5,7 +5,7 @@ File  : cpr_propclauses.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Datatypes for the efficient representation of propositional clauses
   for a DPLL procedure.
 

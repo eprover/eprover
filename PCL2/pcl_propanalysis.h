@@ -5,9 +5,9 @@ File  : pcl_propanalysis.h
 Author: Stephan Schulz
 
 Contents
- 
+
   Functions for computing various properties of the clauses in a PCL
-  protocol. 
+  protocol.
 
   Copyright 2002 by the author.
   This code is released under the GNU General Public Licence and
@@ -48,7 +48,7 @@ typedef struct pcl_propdata_cell
    long      const_count;
    long      func_count;
    long      pred_count;
-   long      var_count;              
+   long      var_count;
    PCLStep_p longest_clause;
    PCLStep_p max_symbol_clause;
    PCLStep_p max_standard_weight_clause;

@@ -6,7 +6,7 @@ Author: Stephan Schulz
 
 Contents
 
-  Basic functions for propositional clauses. 
+  Basic functions for propositional clauses.
 
 Copyright 1998-2011 by the author.
   This code is released under the GNU General Public Licence and
@@ -55,8 +55,8 @@ Changes
 
 int p_atom_compare(const void* atom1, const void* atom2)
 {
-   const PLiteralCode *a1 = (const PLiteralCode*)atom1; 
-   const PLiteralCode *a2 = (const PLiteralCode*)atom2; 
+   const PLiteralCode *a1 = (const PLiteralCode*)atom1;
+   const PLiteralCode *a2 = (const PLiteralCode*)atom2;
 
    PLiteralCode abs_a1, abs_a2;
 
@@ -73,11 +73,11 @@ int p_atom_compare(const void* atom1, const void* atom2)
    if(abs_a1 > abs_a2)
    {
       return 1;
-   }   
+   }
    if(*a1>0)
    {
       return -1;
-   }   
+   }
    return 1;
 }
 
@@ -130,7 +130,7 @@ DPLLClause_p DPLLClauseFromClause(PropSig_p psig, Clause_p clause)
    handle->active_no = lit_no;
    handle->mem_size  = lit_no*sizeof(PLiteralCode);
    handle->literals  = SizeMalloc(handle->mem_size);
-   
+
    for(i=0,eqn=clause->literals;
        eqn;
        i++,eqn=eqn->next)
@@ -151,7 +151,7 @@ DPLLClause_p DPLLClauseFromClause(PropSig_p psig, Clause_p clause)
       handle->literals[i] = atom;
    }
    assert(i==lit_no);
-   
+
 
    return handle;
 }
@@ -163,7 +163,7 @@ DPLLClause_p DPLLClauseFromClause(PropSig_p psig, Clause_p clause)
 //
 //   Destructively normalize a clause: Literals are sorted by atom
 //   encoding (positive comes before negative if both exist). Doubly
-//   occuring literals are removed. Return value is true if clause is 
+//   occuring literals are removed. Return value is true if clause is
 //   tautological, false otherwise. Does not reduce size of literal
 //   array, as I don't expect much reduction in the number of atoms
 //   here.
@@ -184,7 +184,7 @@ bool DPLLClauseNormalize(DPLLClause_p clause)
       return false;
    }
    assert(clause->lit_no == clause->active_no);
-   qsort(clause->literals, clause->lit_no, sizeof(PLiteralCode), 
+   qsort(clause->literals, clause->lit_no, sizeof(PLiteralCode),
 	 p_atom_compare);
    to = 0;
    from = 1;
@@ -227,7 +227,7 @@ void DPLLClausePrintLOP(FILE* out, PropSig_p psig, DPLLClause_p clause)
    {
       if(clause->literals[i]>0)
       {
-	 fprintf(out, "%s%s", sep, 
+	 fprintf(out, "%s%s", sep,
 		 PropSigGetAtomName(psig,clause->literals[i]));
 	 sep=";";
       }
@@ -238,11 +238,11 @@ void DPLLClausePrintLOP(FILE* out, PropSig_p psig, DPLLClause_p clause)
    {
       if(clause->literals[i]<0)
       {
-	 fprintf(out, "%s%s", sep, 
+	 fprintf(out, "%s%s", sep,
 		 PropSigGetAtomName(psig,-clause->literals[i]));
 	 sep=",";
       }
-   }      
+   }
    fprintf(out,".");
 }
 
