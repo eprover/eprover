@@ -138,15 +138,15 @@ DPLLClause_p DPLLClauseFromClause(PropSig_p psig, Clause_p clause)
       assert(i<lit_no);
       if(!EqnIsPropositional(eqn))
       {
-	 Error("Only real propositional clauses can be converted"
-	       " by DPLLClauseFromClause()!",
-	       SYNTAX_ERROR);
+    Error("Only real propositional clauses can be converted"
+          " by DPLLClauseFromClause()!",
+          SYNTAX_ERROR);
       }
       atom = PropSigInsertAtom(psig,
-			       SigFindName(eqn->bank->sig,eqn->lterm->f_code));
+                SigFindName(eqn->bank->sig,eqn->lterm->f_code));
       if(EqnIsNegative(eqn))
       {
-	 atom = -atom;
+    atom = -atom;
       }
       handle->literals[i] = atom;
    }
@@ -185,19 +185,19 @@ bool DPLLClauseNormalize(DPLLClause_p clause)
    }
    assert(clause->lit_no == clause->active_no);
    qsort(clause->literals, clause->lit_no, sizeof(PLiteralCode),
-	 p_atom_compare);
+    p_atom_compare);
    to = 0;
    from = 1;
    while(from<clause->lit_no)
    {
       if(clause->literals[from] != clause->literals[to])
       {
-	 if(clause->literals[from] == -(clause->literals[to]))
-	 {
-	    tautology=true;
-	 }
-	 to++;
-	 clause->literals[to]=clause->literals[from];
+    if(clause->literals[from] == -(clause->literals[to]))
+    {
+       tautology=true;
+    }
+    to++;
+    clause->literals[to]=clause->literals[from];
       }
       from++;
    }
@@ -227,9 +227,9 @@ void DPLLClausePrintLOP(FILE* out, PropSig_p psig, DPLLClause_p clause)
    {
       if(clause->literals[i]>0)
       {
-	 fprintf(out, "%s%s", sep,
-		 PropSigGetAtomName(psig,clause->literals[i]));
-	 sep=";";
+    fprintf(out, "%s%s", sep,
+       PropSigGetAtomName(psig,clause->literals[i]));
+    sep=";";
       }
    }
    fprintf(out,"<-");
@@ -238,9 +238,9 @@ void DPLLClausePrintLOP(FILE* out, PropSig_p psig, DPLLClause_p clause)
    {
       if(clause->literals[i]<0)
       {
-	 fprintf(out, "%s%s", sep,
-		 PropSigGetAtomName(psig,-clause->literals[i]));
-	 sep=",";
+    fprintf(out, "%s%s", sep,
+       PropSigGetAtomName(psig,-clause->literals[i]));
+    sep=",";
       }
    }
    fprintf(out,".");

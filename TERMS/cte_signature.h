@@ -74,7 +74,7 @@ typedef struct funccell
    char*  name;
    int    arity;
    int    alpha_rank; /* We sometimes need an arbitrary but stable
-			order on symbols and use alphabetic. */
+         order on symbols and use alphabetic. */
    Type_p type;       /* Simple type of the symbol */
    FunctionProperties properties;
 }FuncCell, *Func_p;
@@ -176,8 +176,8 @@ typedef struct sigcell
         FuncIsAnyPropSet(&(sig->f_info[(symb)]), (prop))
 
 extern bool      SigSupportLists; /* Auto-Insert special symbols
-				     $nil=3, $cons=4 for list
-				     representations */
+                 $nil=3, $cons=4 for list
+                 representations */
 #define SigCellAlloc() (SigCell*)SizeMalloc(sizeof(SigCell))
 #define SigCellFree(junk)         SizeFree(junk, sizeof(SigCell))
 
@@ -212,7 +212,7 @@ bool    SigIsSpecial(Sig_p sig, FunCode f_code);
 int     SigGetAlphaRank(Sig_p sig, FunCode f_code);
 
 FunCode SigInsertId(Sig_p sig, const char* name, int arity, bool
-		    special_id);
+          special_id);
 FunCode SigInsertFOFOp(Sig_p sig, const char* name, int arity);
 void    SigPrint(FILE* out, Sig_p sig);
 void    SigPrintSpecial(FILE* out, Sig_p sig);
@@ -228,7 +228,7 @@ int     SigFindMinFunctionArity(Sig_p sig);
 int     SigCountAritySymbols(Sig_p sig, int arity, bool predicates);
 int     SigCountSymbols(Sig_p sig, bool predicates);
 int     SigAddSymbolArities(Sig_p sig, PDArray_p distrib, bool
-			    predicates, long selection[]);
+             predicates, long selection[]);
 
 /* Special functions for dealing with special symbols */
 
@@ -320,7 +320,7 @@ static __inline__ FunCode SigGetEqnCode(Sig_p sig, bool positive)
    {
       if(sig->eqn_code)
       {
-	 return sig->eqn_code;
+    return sig->eqn_code;
       }
       sig->eqn_code = SigInsertId(sig, "$eq", 2, true);
       assert(sig->eqn_code);
@@ -331,7 +331,7 @@ static __inline__ FunCode SigGetEqnCode(Sig_p sig, bool positive)
    {
       if(sig->neqn_code)
       {
-	 return sig->neqn_code;
+    return sig->neqn_code;
       }
       sig->neqn_code = SigInsertId(sig, "$neq", 2, true);
       assert(sig->neqn_code);

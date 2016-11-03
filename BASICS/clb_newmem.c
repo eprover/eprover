@@ -116,8 +116,8 @@ void* SecureMalloc(int size)
       if(!handle)
       {   /*  Still nothing...*/
 #ifdef PRINT_SOMEERRORS_STDOUT
-	 PrintRusage(stdout);
-	 fprintf(stdout, "# Failure: Resource limit exceeded (memory)\n");
+    PrintRusage(stdout);
+    fprintf(stdout, "# Failure: Resource limit exceeded (memory)\n");
 #endif
          Error("Out of Memory", OUT_OF_MEMORY);
       }
@@ -164,10 +164,10 @@ void* SecureRealloc(void *ptr, int size)
       if(!handle)
       {   /*  Still nothing...*/
 #ifdef PRINT_SOMEERRORS_STDOUT
-	 PrintRusage(stdout);
-	 fprintf(stdout, "# Failure: Resource limit exceeded (memory)\n");
+    PrintRusage(stdout);
+    fprintf(stdout, "# Failure: Resource limit exceeded (memory)\n");
 #endif
-	 Error("Out of Memory", OUT_OF_MEMORY);
+    Error("Out of Memory", OUT_OF_MEMORY);
       }
    }
    return handle;
@@ -202,16 +202,16 @@ void* SizeMallocReal(int size)
    {
       if(!free_mem_list[mem_index])
       {
-	 if(size < MEM_CHUNKLIMIT)
-	 {
-	    MemAddNewChunk(mem_index);
-	 }
-	 else
-	 {
-	    free_mem_list[mem_index] = SecureMalloc(size);
-	    free_mem_list[mem_index]->next = NULL;
-	    assert((free_mem_list[mem_index]->test = MEM_FREE_PATTERN, true));
-	 }
+    if(size < MEM_CHUNKLIMIT)
+    {
+       MemAddNewChunk(mem_index);
+    }
+    else
+    {
+       free_mem_list[mem_index] = SecureMalloc(size);
+       free_mem_list[mem_index]->next = NULL;
+       assert((free_mem_list[mem_index]->test = MEM_FREE_PATTERN, true));
+    }
       }
       assert(free_mem_list[mem_index]->test = MEM_FREE_PATTERN);
       assert((free_mem_list[mem_index]->test = MEM_RSET_PATTERN, true));
@@ -387,30 +387,30 @@ long* IntArrayAlloc(int size)
 void MemDebugPrintStats(FILE* out)
 {
    fprintf(out,
-	   "\n# -------------------------------------------------\n");
+      "\n# -------------------------------------------------\n");
    fprintf(out,
-	   "# Total SizeMalloc()ed memory: %ld Bytes (%ld requests)\n",
-	   size_malloc_mem, size_malloc_count);
+      "# Total SizeMalloc()ed memory: %ld Bytes (%ld requests)\n",
+      size_malloc_mem, size_malloc_count);
    fprintf(out,
-	   "# Total SizeFree()ed   memory: %ld Bytes (%ld requests)\n",
-	   size_free_mem, size_free_count);
+      "# Total SizeFree()ed   memory: %ld Bytes (%ld requests)\n",
+      size_free_mem, size_free_count);
    fprintf(out,
-	   "# New requests: %6ld (%6ld by SecureMalloc(), %6ld by SecureRealloc())\n",
-	   secure_malloc_count+secure_realloc_m_count,
-	   secure_malloc_count, secure_realloc_m_count);
+      "# New requests: %6ld (%6ld by SecureMalloc(), %6ld by SecureRealloc())\n",
+      secure_malloc_count+secure_realloc_m_count,
+      secure_malloc_count, secure_realloc_m_count);
    fprintf(out,
-	   "# Total SecureMalloc()ed memory: %ld Bytes\n", secure_malloc_mem);
+      "# Total SecureMalloc()ed memory: %ld Bytes\n", secure_malloc_mem);
    fprintf(out,
-	   "# Returned:    %6ld (%6ld by FREE(),         %6ld by SecureRealloc())\n",
-	   clb_free_count+secure_realloc_f_count,
-	   clb_free_count , secure_realloc_f_count);
+      "# Returned:    %6ld (%6ld by FREE(),         %6ld by SecureRealloc())\n",
+      clb_free_count+secure_realloc_f_count,
+      clb_free_count , secure_realloc_f_count);
    fprintf(out,
-	   "# SecureRealloc(ptr): %6ld (%6ld Allocs, %6ld Frees, %6ld Reallocs)\n",
-	   secure_realloc_count, secure_realloc_m_count,
-	   secure_realloc_f_count,
-	   secure_realloc_count-(secure_realloc_m_count+secure_realloc_f_count));
+      "# SecureRealloc(ptr): %6ld (%6ld Allocs, %6ld Frees, %6ld Reallocs)\n",
+      secure_realloc_count, secure_realloc_m_count,
+      secure_realloc_f_count,
+      secure_realloc_count-(secure_realloc_m_count+secure_realloc_f_count));
    fprintf(out,
-	   "# -------------------------------------------------\n\n");
+      "# -------------------------------------------------\n\n");
 }
 
 #endif

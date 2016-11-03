@@ -56,7 +56,7 @@ Eqn_p   EqnListExtractElement(EqnRef element);
 #define EqnListExtractFirst(list)\
         EqnListExtractElement(list)
 Eqn_p   EqnListExtractByProps(EqnRef list, EqnProperties props, bool
-			      negate);
+               negate);
 void    EqnListDeleteElement(EqnRef element);
 #define EqnListDeleteFirst(list)\
         EqnListDeleteElement(list)
@@ -93,12 +93,12 @@ bool    EqnListEqnIsStrictlyMaximal(OCB_p ocb, Eqn_p list, Eqn_p eqn);
 void    EqnListDeleteTermProperties(Eqn_p list, TermProperties props);
 
 void    EqnListPrint(FILE* out, Eqn_p list, char* sep,
-		     bool negated,  bool fullterms);
+           bool negated,  bool fullterms);
 void    EqnListTSTPPrint(FILE* out, Eqn_p list, char* sep, bool fullterms);
 Eqn_p   EqnListParse(Scanner_p in, TB_p bank, TokenType sep);
 
 FunCode NormSubstEqnListExcept(Eqn_p list, Eqn_p except, Subst_p
-			       subst, VarBank_p vars);
+                subst, VarBank_p vars);
 #define NormSubstEqnList(list, subst, vars) \
         NormSubstEqnListExcept((list), NULL, (subst), (vars))
 

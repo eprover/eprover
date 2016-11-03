@@ -265,8 +265,8 @@ static void pcl_prot_global_count(PCLProt_p prot, PCLPropData_p data)
          {
             if(ClauseIsPositive(clause))
             {
-	    data->pos_clauses++;
-	    data->pos_clause_literals += ClauseLiteralNumber(clause);
+       data->pos_clauses++;
+       data->pos_clause_literals += ClauseLiteralNumber(clause);
             }
             else if(ClauseIsNegative(clause))
             {
@@ -333,7 +333,7 @@ PCLStep_p PCLProtFindMaxStep(PCLProt_p prot, PCLCmpFunType cmp)
       tmp = cell->key;
       if(cmp(tmp,res) > 0)
       {
-	 res = tmp;
+    res = tmp;
       }
    }
    PStackFree(stack);
@@ -389,36 +389,36 @@ void PCLProtPropDataPrint(FILE* out, PCLPropData_p data)
       data->pos_clauses+data->neg_clauses+data->mix_clauses;
 
    fprintf(out,
-	   "# Protocol properties\n"
-	   "# ===================\n"
-	   "# Number of clauses                  : %6ld\n"
-	   "# ...of those positive               : %6ld\n"
-	   "# ...of those negative               : %6ld\n"
-	   "# ...of those mixed                  : %6ld\n"
-	   "# Average number of literals         : %6.4f\n"
-	   "# ...in positive clauses             : %6.4f\n"
-	   "# ...in negative clauses             : %6.4f\n"
-	   "# ...in mixed clauses                : %6.4f\n"
-	   "# ...positive literals only          : %6.4f\n"
-	   "# ...negative literals only          : %6.4f\n"
-	   "# Average number of function  symbols: %6.4f\n"
-	   "# Average number of variable  symbols: %6.4f\n"
-	   "# Average number of constant  symbols: %6.4f\n"
-	   "# Average number of predicate symbols: %6.4f\n",
-	   clauses,
-	   data->pos_clauses,
-	   data->neg_clauses,
-	   data->mix_clauses,
-	   (double)(data->pos_literals+data->neg_literals)/clauses,
-	   (double)(data->pos_clause_literals)/data->pos_clauses,
-	   (double)(data->neg_clause_literals)/data->neg_clauses,
-	   (double)(data->mix_clause_literals)/data->mix_clauses,
-	   (double)(data->pos_literals)/clauses,
-	   (double)(data->neg_literals)/clauses,
-	   (double)(data->func_count)/clauses,
-	   (double)(data->var_count)/clauses,
-	   (double)(data->const_count)/clauses,
-	   (double)(data->pred_count)/clauses);
+      "# Protocol properties\n"
+      "# ===================\n"
+      "# Number of clauses                  : %6ld\n"
+      "# ...of those positive               : %6ld\n"
+      "# ...of those negative               : %6ld\n"
+      "# ...of those mixed                  : %6ld\n"
+      "# Average number of literals         : %6.4f\n"
+      "# ...in positive clauses             : %6.4f\n"
+      "# ...in negative clauses             : %6.4f\n"
+      "# ...in mixed clauses                : %6.4f\n"
+      "# ...positive literals only          : %6.4f\n"
+      "# ...negative literals only          : %6.4f\n"
+      "# Average number of function  symbols: %6.4f\n"
+      "# Average number of variable  symbols: %6.4f\n"
+      "# Average number of constant  symbols: %6.4f\n"
+      "# Average number of predicate symbols: %6.4f\n",
+      clauses,
+      data->pos_clauses,
+      data->neg_clauses,
+      data->mix_clauses,
+      (double)(data->pos_literals+data->neg_literals)/clauses,
+      (double)(data->pos_clause_literals)/data->pos_clauses,
+      (double)(data->neg_clause_literals)/data->neg_clauses,
+      (double)(data->mix_clause_literals)/data->mix_clauses,
+      (double)(data->pos_literals)/clauses,
+      (double)(data->neg_literals)/clauses,
+      (double)(data->func_count)/clauses,
+      (double)(data->var_count)/clauses,
+      (double)(data->const_count)/clauses,
+      (double)(data->pred_count)/clauses);
    fprintf(out, "# Longest Clause (if any): \n");
    PCLStepPrint(out, data->longest_clause);
    fprintf(out, "\n# Largest Clause (if any): \n");

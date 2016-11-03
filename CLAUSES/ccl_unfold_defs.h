@@ -55,7 +55,7 @@ bool ClauseUnfoldEqDef(Clause_p clause, ClausePos_p demod);
 bool ClauseSetUnfoldEqDef(ClauseSet_p set, ClausePos_p demod);
 long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, ClauseSet_p passive,
                               ClauseSet_p archive,
-			      int min_arity, int eqdef_incrlimit);
+               int min_arity, int eqdef_incrlimit);
 
 long ClauseSetPreprocess(ClauseSet_p set, ClauseSet_p passive,
                          ClauseSet_p archive, TB_p tmp_terms,

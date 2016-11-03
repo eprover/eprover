@@ -65,12 +65,12 @@ void lit_tree_free(PTree_p tree)
       tree = PStackPopP(stack);
       if(tree)
       {
-	 handle = tree->key;
-	 assert(handle);
-	 assert(handle->lit);
-	 LitDescCellFree(handle);
-	 PStackPushP(stack, tree->lson);
-	 PStackPushP(stack, tree->rson);
+    handle = tree->key;
+    assert(handle);
+    assert(handle->lit);
+    LitDescCellFree(handle);
+    PStackPushP(stack, tree->lson);
+    PStackPushP(stack, tree->rson);
       }
    }
    PStackFree(stack);
@@ -247,7 +247,7 @@ void LitHashInsertClauseSet(LitHash_p hash, ClauseSet_p set)
    Clause_p handle;
 
    for(handle = set->anchor->succ; handle!= set->anchor; handle =
-	  handle->succ)
+     handle->succ)
    {
       LitHashInsertClause(hash, handle);
    }

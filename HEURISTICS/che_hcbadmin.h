@@ -52,12 +52,12 @@ long       HCBAdminAddHCB(HCBAdmin_p set, char* name, HCB_p hcb);
 HCB_p      HCBAdminFindHCB(HCBAdmin_p set, char* name);
 
 HCB_p      HeuristicParse(Scanner_p in, WFCBAdmin_p wfcbs, OCB_p ocb,
-			  ProofState_p state);
+           ProofState_p state);
 long       HeuristicDefParse(HCBAdmin_p set, Scanner_p in, WFCBAdmin_p
-			     wfcbs, OCB_p ocb, ProofState_p state);
+              wfcbs, OCB_p ocb, ProofState_p state);
 long       HeuristicDefListParse(HCBAdmin_p set, Scanner_p in,
-				 WFCBAdmin_p wfcbs, OCB_p ocb,
-				 ProofState_p state);
+             WFCBAdmin_p wfcbs, OCB_p ocb,
+             ProofState_p state);
 
 #endif
 

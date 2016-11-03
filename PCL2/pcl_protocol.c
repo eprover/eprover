@@ -128,7 +128,7 @@ PCLStep_p PCLProtExtractStep(PCLProt_p prot, PCLStep_p step)
    PCLStep_p res;
 
    res = PTreeObjExtractObject(&(prot->steps), step,
-			       PCLStepIdCompare);
+                PCLStepIdCompare);
    if(res)
    {
       prot->number--;
@@ -223,8 +223,8 @@ void PCLProtSerialize(PCLProt_p prot)
       stack = PTreeTraverseInit(prot->steps);
       while((cell=PTreeTraverseNext(stack)))
       {
-	 step = cell->key;
-	 PStackPushP(prot->in_order, step);
+    step = cell->key;
+    PStackPushP(prot->in_order, step);
       }
       PStackFree(stack);
       prot->is_ordered = true;
@@ -270,12 +270,12 @@ long PCLProtParse(Scanner_p in, PCLProt_p prot)
       cell = PCLProtInsertStep(prot, step);
       if(cell)
       {
-	 errpos = DStrAlloc();
+    errpos = DStrAlloc();
 
-	 DStrAppendStr(errpos, PosRep(type, source_name, line, column));
-	 DStrAppendStr(errpos, " duplicate PCL identifier");
-	 Error(DStrView(errpos), SYNTAX_ERROR);
-	 DStrFree(errpos);
+    DStrAppendStr(errpos, PosRep(type, source_name, line, column));
+    DStrAppendStr(errpos, " duplicate PCL identifier");
+    Error(DStrView(errpos), SYNTAX_ERROR);
+    DStrFree(errpos);
       }
       DStrReleaseRef(source_name);
       res++;
@@ -302,7 +302,7 @@ long PCLProtParse(Scanner_p in, PCLProt_p prot)
 /----------------------------------------------------------------------*/
 
 void PCLProtPrintExtra(FILE* out, PCLProt_p prot, bool data,
-		       OutputFormatType format)
+             OutputFormatType format)
 {
    PCLStep_p step;
    PStackPointer i;
@@ -462,20 +462,20 @@ void PCLExprCollectPreconds(PCLProt_p prot, PCLExpr_p expr, PTree_p *tree)
    switch(expr->op)
    {
    case PCLOpNoOp:
-	 assert(false);
-	 break;
+    assert(false);
+    break;
    case PCLOpInitial:
-	 break;
+    break;
    case PCLOpQuote:
-	 step = PCLProtFindStep(prot,PCLExprArg(expr,0));
-	 PTreeStore(tree, step);
-	 break;
+    step = PCLProtFindStep(prot,PCLExprArg(expr,0));
+    PTreeStore(tree, step);
+    break;
    default:
-	 for(i=0; i<expr->arg_no; i++)
-	 {
-	    PCLExprCollectPreconds(prot, PCLExprArg(expr,i), tree);
-	 }
-	 break;
+    for(i=0; i<expr->arg_no; i++)
+    {
+       PCLExprCollectPreconds(prot, PCLExprArg(expr,i), tree);
+    }
+    break;
    }
 }
 
@@ -546,11 +546,11 @@ bool PCLProtMarkProofClauses(PCLProt_p prot)
          !PCLStepIsFOF(step)&&
           ClauseIsEmpty(step->logic.clause)))
       {
-	 res = true;
+    res = true;
       }
       if(PCLStepExtract(step->extra))
       {
-	 PStackPushP(to_proc, step);
+    PStackPushP(to_proc, step);
       }
    }
    while(!PStackEmpty(to_proc))
@@ -558,13 +558,13 @@ bool PCLProtMarkProofClauses(PCLProt_p prot)
       step = PStackPopP(to_proc);
       if(!PCLStepQueryProp(step,PCLIsProofStep))
       {
-	 PCLStepSetProp(step,PCLIsProofStep);
-	 PCLExprCollectPreconds(prot, step->just, &root);
-	 while(root)
-	 {
-	    step = PTreeExtractRootKey(&root);
-	    PStackPushP(to_proc, step);
-	 }
+    PCLStepSetProp(step,PCLIsProofStep);
+    PCLExprCollectPreconds(prot, step->just, &root);
+    while(root)
+    {
+       step = PTreeExtractRootKey(&root);
+       PStackPushP(to_proc, step);
+    }
       }
    }
    PStackFree(to_proc);
@@ -703,8 +703,8 @@ long PCLProtCollectPropSteps(PCLProt_p prot, PCLStepProperties props,
 /----------------------------------------------------------------------*/
 
 void PCLProtPrintPropClauses(FILE* out, PCLProt_p prot,
-			     PCLStepProperties prop,
-			     OutputFormatType format)
+              PCLStepProperties prop,
+              OutputFormatType format)
 {
    PCLStep_p step;
    PStackPointer i;

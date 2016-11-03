@@ -47,36 +47,36 @@ typedef struct pdt_node_cell
    PDArray_p          v_alternatives;   /* Variables */
    FunCode            max_var;          /* Largest variable... */
    long               size_constr;      /* Only terms that have at
-					   least this weight are
-					   indexed at or beyond this
-					   node */
+                  least this weight are
+                  indexed at or beyond this
+                  node */
    SysDate            age_constr;       /* Only clauses that are older
-					   than this date are indexed
-					   at or beyond this node */
+                  than this date are indexed
+                  at or beyond this node */
    struct pdt_node_cell *parent;        /* Back-pointer to next node
-					   towards the root */
+                  towards the root */
    long               ref_count;        /* How many entries share this
-					   node? */
+                  node? */
    PTree_p            entries;          /* Clauses that are indexed
-					   - this should be NULL at
-					   all but leaf nodes. */
+                  - this should be NULL at
+                  all but leaf nodes. */
    Term_p             variable;         /* If this  node corresponds
-					   to a variable, point to it
-					   (so that we can bind it
-					   while searching for
-					   matches) */
+                  to a variable, point to it
+                  (so that we can bind it
+                  while searching for
+                  matches) */
    bool               bound;            /* Did we bind a variable (in
-					   fact, the one above...) to
-					   reach this node? I.e. do we
-  					   need to backtrack this
-					   binding if we backtrack
-					   over this node? */
+                  fact, the one above...) to
+                  reach this node? I.e. do we
+                  need to backtrack this
+                  binding if we backtrack
+                  over this node? */
    FunCode            trav_count;       /* For traversing during
-					   matching. Both 0 and
-					   node->max_var+1 represent
-					   the (maximal one) function
-					   symbol alternative, i is
-					   variable i. */
+                  matching. Both 0 and
+                  node->max_var+1 represent
+                  the (maximal one) function
+                  symbol alternative, i is
+                  variable i. */
 }PDTNodeCell, *PDTNode_p;
 
 /* A PDTreeCell is an object encapsulating a PDTree and the necessary
@@ -97,9 +97,9 @@ typedef struct pd_tree_cell
    long      clause_count;   /* How many clauses? */
    long      arr_storage_est;/* How much memory used by arrays? */
    unsigned  long match_count;   /* How often has the index been
-				   searched? */
+               searched? */
    unsigned  long visited_count; /* How many nodes in the index have
-				   been visited? */
+               been visited? */
 }PDTreeCell, *PDTree_p;
 
 /*---------------------------------------------------------------------*/
@@ -171,7 +171,7 @@ void      PDTreeInsert(PDTree_p tree, ClausePos_p demod_side);
 long      PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause);
 
 void      PDTreeSearchInit(PDTree_p tree, Term_p term, SysDate
-			   age_constr, bool prefer_general);
+            age_constr, bool prefer_general);
 void      PDTreeSearchExit(PDTree_p tree);
 
 PDTNode_p PDTreeFindNextIndexedLeaf(PDTree_p tree, Subst_p subst);

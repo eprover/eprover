@@ -70,7 +70,7 @@ CSSCPAState_p CSSCPAStateAlloc(void);
 void          CSSCPAStateFree(CSSCPAState_p junk);
 
 bool CSSCPAProcessClause(CSSCPAState_p state, Clause_p clause,
-			bool accept, float weight_delta, float average_delta);
+         bool accept, float weight_delta, float average_delta);
 
 void CSSCPALoop(Scanner_p in, CSSCPAState_p state);
 

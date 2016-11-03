@@ -86,8 +86,8 @@ void print_prec_array(FILE* out, Sig_p sig, FCodeFeatureArray_p array)
    {
       if(!SigIsSpecial(sig, array->array[i].symbol))
       {
-	 fprintf(out, "%s%s", del, SigFindName(sig,array->array[i].symbol));
-	 del = " > ";
+    fprintf(out, "%s%s", del, SigFindName(sig,array->array[i].symbol));
+    del = " > ";
       }
    }
    fprintf(out, "\n");
@@ -109,7 +109,7 @@ void print_prec_array(FILE* out, Sig_p sig, FCodeFeatureArray_p array)
 /----------------------------------------------------------------------*/
 
 static void compute_precedence_from_array(OCB_p ocb, FCodeFeatureArray_p
-					  array)
+                 array)
 {
    FunCode i, last;
 
@@ -125,7 +125,7 @@ static void compute_precedence_from_array(OCB_p ocb, FCodeFeatureArray_p
          {
             ocb->min_constant = i;
          }
-	 ocb->prec_weights[array->array[i].symbol] = i;
+    ocb->prec_weights[array->array[i].symbol] = i;
       }
       ocb->prec_weights[SIG_TRUE_CODE] = (LONG_MIN/2);
    }
@@ -134,8 +134,8 @@ static void compute_precedence_from_array(OCB_p ocb, FCodeFeatureArray_p
       last = SIG_TRUE_CODE;
       for(i = SIG_TRUE_CODE+1; i<=ocb->sig_size; i++)
       {
-	 OCBPrecedenceAddTuple(ocb, last, array->array[i].symbol, to_lesser);
-	 last = array->array[i].symbol;
+    OCBPrecedenceAddTuple(ocb, last, array->array[i].symbol, to_lesser);
+    last = array->array[i].symbol;
       }
    }
 #ifdef PRINT_PRECEDENCE
@@ -170,11 +170,11 @@ static void generate_unary_first_precedence(OCB_p ocb, ClauseSet_p axioms)
       arity = SigFindArity(ocb->sig, i);
       if(arity == 1)
       {
-	 array->array[i].key1 = INT_MAX;
+    array->array[i].key1 = INT_MAX;
       }
       else
       {
-	 array->array[i].key1 = arity;
+    array->array[i].key1 = arity;
       }
    }
    FCodeFeatureArraySort(array);
@@ -209,15 +209,15 @@ static void generate_unary_first_freq_precedence(OCB_p ocb, ClauseSet_p axioms)
       arity = SigFindArity(ocb->sig, i);
       if(arity == 1)
       {
-	 array->array[i].key1 = 2;
+    array->array[i].key1 = 2;
       }
       else if(arity == 0)
       {
-	 array->array[i].key1 = 0;
+    array->array[i].key1 = 0;
       }
       else
       {
-	 array->array[i].key1 = 1;
+    array->array[i].key1 = 1;
       }
       array->array[i].key2 = array->array[i].freq;
    }
@@ -312,7 +312,7 @@ static void generate_const_max_precedence(OCB_p ocb, ClauseSet_p axioms)
       array->array[i].key1 = SigFindArity(ocb->sig, i);
       if(!array->array[i].key1)
       {
-	 array->array[i].key1 = INT_MAX;
+    array->array[i].key1 = INT_MAX;
       }
    }
    FCodeFeatureArraySort(array);
@@ -346,7 +346,7 @@ static void generate_const_min_precedence(OCB_p ocb, ClauseSet_p axioms)
       array->array[i].key1 = -SigFindArity(ocb->sig, i);
       if(!array->array[i].key1)
       {
-	 array->array[i].key1 = -FREQ_SEMI_INFTY;
+    array->array[i].key1 = -FREQ_SEMI_INFTY;
       }
    }
    FCodeFeatureArraySort(array);
@@ -544,13 +544,13 @@ static void generate_invfreq_constmin_precedence(OCB_p ocb, ClauseSet_p axioms)
       arity = SigFindArity(ocb->sig, i);
       if(arity == 0)
       {
-	 array->array[i].key1 = -FREQ_SEMI_INFTY;
-	 array->array[i].key2 = array->array[i].freq;
+    array->array[i].key1 = -FREQ_SEMI_INFTY;
+    array->array[i].key2 = array->array[i].freq;
       }
       else
       {
-	 array->array[i].key1 = -array->array[i].freq;
-	 array->array[i].key2 = SigFindArity(ocb->sig, i);
+    array->array[i].key1 = -array->array[i].freq;
+    array->array[i].key2 = SigFindArity(ocb->sig, i);
       }
    }
    FCodeFeatureArraySort(array);
@@ -587,7 +587,7 @@ static void generate_invfreq_hack_precedence(OCB_p ocb, ClauseSet_p axioms)
       arity = SigFindArity(ocb->sig, i);
       if(arity == 1)
       {
-	 max_freq = MAX(max_freq, array->array[i].freq);
+    max_freq = MAX(max_freq, array->array[i].freq);
       }
    }
    for(i=1; i<= ocb->sig->f_count; i++)
@@ -595,18 +595,18 @@ static void generate_invfreq_hack_precedence(OCB_p ocb, ClauseSet_p axioms)
       arity = SigFindArity(ocb->sig, i);
       if(arity == 0)
       {
-	 array->array[i].key1 = -FREQ_SEMI_INFTY;
-	 array->array[i].key2 = -array->array[i].freq;
+    array->array[i].key1 = -FREQ_SEMI_INFTY;
+    array->array[i].key2 = -array->array[i].freq;
       }
       else if((arity == 1) && (array->array[i].freq == max_freq))
       {
-	 array->array[i].key1 = FREQ_SEMI_INFTY;
-	 array->array[i].key2 = 0;
+    array->array[i].key1 = FREQ_SEMI_INFTY;
+    array->array[i].key2 = 0;
       }
       else
       {
-	 array->array[i].key1 = -array->array[i].freq;
-	 array->array[i].key2 = SigFindArity(ocb->sig, i);
+    array->array[i].key1 = -array->array[i].freq;
+    array->array[i].key2 = SigFindArity(ocb->sig, i);
       }
    }
    FCodeFeatureArraySort(array);
@@ -740,7 +740,7 @@ TOPrecGenMethod TOTranslatePrecGenMethod(char* name)
 /----------------------------------------------------------------------*/
 
 void TOGeneratePrecedence(OCB_p ocb, ClauseSet_p axioms,
-			  char* predefined, TOPrecGenMethod method)
+           char* predefined, TOPrecGenMethod method)
 {
    assert(ocb);
    assert(ocb->precedence||ocb->prec_weights);
@@ -749,7 +749,7 @@ void TOGeneratePrecedence(OCB_p ocb, ClauseSet_p axioms,
    if(predefined)
    {
       Scanner_p in = CreateScanner(StreamTypeUserString, predefined,
-				   true, NULL);
+               true, NULL);
 
       TOPrecedenceParse(in, ocb);
 
@@ -757,63 +757,63 @@ void TOGeneratePrecedence(OCB_p ocb, ClauseSet_p axioms,
    }
 
    VERBOUTARG("Generating ordering precedence with ",
-	      TOPrecGenNames[method]);
+         TOPrecGenNames[method]);
    switch(method)
    {
    case POrientAxioms:
-	 Error("Not yet implemented", OTHER_ERROR);
-	 break;
+    Error("Not yet implemented", OTHER_ERROR);
+    break;
    case PNoMethod:
-	 if(predefined) /* User should know what he does now! */
-	 {
-	    break;
-	 } /* else: Fall through */
-	 VERBOUT("Fall-through to unary_first\n");
+    if(predefined) /* User should know what he does now! */
+    {
+       break;
+    } /* else: Fall through */
+    VERBOUT("Fall-through to unary_first\n");
    case PUnaryFirst:
-	 generate_unary_first_precedence(ocb, axioms);
-	 break;
+    generate_unary_first_precedence(ocb, axioms);
+    break;
    case PUnaryFirstFreq:
-	 generate_unary_first_freq_precedence(ocb, axioms);
-	 break;
+    generate_unary_first_freq_precedence(ocb, axioms);
+    break;
    case PArity:
-	 generate_arity_precedence(ocb, axioms);
-	 break;
+    generate_arity_precedence(ocb, axioms);
+    break;
    case PInvArity:
-	 generate_invarity_precedence(ocb, axioms);
-	 break;
+    generate_invarity_precedence(ocb, axioms);
+    break;
    case PConstMax:
-	 generate_const_max_precedence(ocb, axioms);
-	 break;
+    generate_const_max_precedence(ocb, axioms);
+    break;
    case PInvArConstMin:
-	 generate_const_min_precedence(ocb, axioms);
-	 break;
+    generate_const_min_precedence(ocb, axioms);
+    break;
    case PByFrequency:
-	 generate_freq_precedence(ocb, axioms);
-	 break;
+    generate_freq_precedence(ocb, axioms);
+    break;
    case PByInvFrequency:
-	 generate_invfreq_precedence(ocb, axioms);
-	 break;
+    generate_invfreq_precedence(ocb, axioms);
+    break;
    case PByInvConjFrequency:
-	 generate_invconjfreq_precedence(ocb, axioms);
-	 break;
+    generate_invconjfreq_precedence(ocb, axioms);
+    break;
    case PByInvFreqConjMax:
-	 generate_invfreq_conjmax_precedence(ocb, axioms);
-	 break;
+    generate_invfreq_conjmax_precedence(ocb, axioms);
+    break;
    case PByInvFreqConjMin:
-	 generate_invfreq_conjmin_precedence(ocb, axioms);
-	 break;
+    generate_invfreq_conjmin_precedence(ocb, axioms);
+    break;
    case PByInvFreqConstMin:
-	 generate_invfreq_constmin_precedence(ocb, axioms);
-	 break;
+    generate_invfreq_constmin_precedence(ocb, axioms);
+    break;
    case PByInvFreqHack:
-	 generate_invfreq_hack_precedence(ocb, axioms);
-	 break;
+    generate_invfreq_hack_precedence(ocb, axioms);
+    break;
    case PArrayOpt:
-	 generate_arrayopt_precedence(ocb, axioms);
-	 break;
+    generate_arrayopt_precedence(ocb, axioms);
+    break;
    default:
-	 assert(false && "Precedence generation method unimplemented");
-	 break;
+    assert(false && "Precedence generation method unimplemented");
+    break;
    }
 }
 

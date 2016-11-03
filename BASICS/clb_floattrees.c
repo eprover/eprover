@@ -401,9 +401,9 @@ long FloatTreeNodes(FloatTree_p root)
       root = PStackPopP(stack);
       if(root)
       {
-	 PStackPushP(stack, root->lson);
-	 PStackPushP(stack, root->rson);
-	 res++;
+    PStackPushP(stack, root->lson);
+    PStackPushP(stack, root->rson);
+    res++;
       }
    }
    PStackFree(stack);

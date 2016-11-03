@@ -154,8 +154,8 @@ CLState_p process_options(int argc, char* argv[])
       switch(handle->option_code)
       {
       default:
-	 assert(false);
-	 break;
+    assert(false);
+    break;
       }
    }
    return state;

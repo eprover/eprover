@@ -57,7 +57,7 @@ Changes
 /----------------------------------------------------------------------*/
 
 Eqn_p find_next_potential_eq_factor_partner(ClausePos_p pos1,
-					    ClausePos_p pos2)
+                   ClausePos_p pos2)
 {
    Eqn_p lit;
 
@@ -123,7 +123,7 @@ Eqn_p find_first_eq_factor_partner(ClausePos_p pos1, ClausePos_p pos2)
 /----------------------------------------------------------------------*/
 
 Clause_p ComputeOrderedFactor(TB_p bank, OCB_p ocb, ClausePos_p pos1,
-			      ClausePos_p pos2, VarBank_p freshvars)
+               ClausePos_p pos2, VarBank_p freshvars)
 {
    Subst_p  subst;
    Clause_p new_clause = NULL;
@@ -149,15 +149,15 @@ Clause_p ComputeOrderedFactor(TB_p bank, OCB_p ocb, ClausePos_p pos1,
    if(unifies)
    {
       if(EqnListEqnIsMaximal(ocb, pos1->clause->literals,
-			     pos1->literal))
+              pos1->literal))
       {
-	 NormSubstEqnListExcept(pos1->clause->literals, pos2->literal,
-				subst, freshvars);
-	 new_literals = EqnListCopyOptExcept(pos1->clause->literals,
+    NormSubstEqnListExcept(pos1->clause->literals, pos2->literal,
+            subst, freshvars);
+    new_literals = EqnListCopyOptExcept(pos1->clause->literals,
                                              pos2->literal);
-	 EqnListRemoveResolved(&new_literals);
-	 EqnListRemoveDuplicates(new_literals);
-	 new_clause = ClauseAlloc(new_literals);
+    EqnListRemoveResolved(&new_literals);
+    EqnListRemoveDuplicates(new_literals);
+    new_clause = ClauseAlloc(new_literals);
       }
    }
    SubstDelete(subst);
@@ -182,7 +182,7 @@ Clause_p ComputeOrderedFactor(TB_p bank, OCB_p ocb, ClausePos_p pos1,
 /----------------------------------------------------------------------*/
 
 Eqn_p ClausePosFirstOrderedFactorLiterals(Clause_p clause, ClausePos_p
-					  pos1, ClausePos_p pos2)
+                 pos1, ClausePos_p pos2)
 {
    Eqn_p lit;
 
@@ -222,7 +222,7 @@ Eqn_p ClausePosFirstOrderedFactorLiterals(Clause_p clause, ClausePos_p
 /----------------------------------------------------------------------*/
 
 Eqn_p ClausePosNextOrderedFactorLiterals(ClausePos_p pos1, ClausePos_p
-					 pos2)
+                pos2)
 {
    Eqn_p lit;
 
@@ -243,7 +243,7 @@ Eqn_p ClausePosNextOrderedFactorLiterals(ClausePos_p pos1, ClausePos_p
       lit = ClausePosFindMaxLiteral(pos1, true);
       if(!lit)
       {
-	 break;
+    break;
       }
       pos2->literal = pos1->literal->next;
       lit = ClausePosFindMaxLiteral(pos2, true);
@@ -267,7 +267,7 @@ Eqn_p ClausePosNextOrderedFactorLiterals(ClausePos_p pos1, ClausePos_p
 /----------------------------------------------------------------------*/
 
 Clause_p ComputeEqualityFactor(TB_p bank, OCB_p ocb, ClausePos_p pos1,
-			       ClausePos_p pos2, VarBank_p freshvars)
+                ClausePos_p pos2, VarBank_p freshvars)
 {
    Term_p  max_term, with_term, min_term, new_lside, new_rside;
    Eqn_p   new_condition, new_literals;
@@ -288,23 +288,23 @@ Clause_p ComputeEqualityFactor(TB_p bank, OCB_p ocb, ClausePos_p pos1,
    {
       min_term = ClausePosGetOtherSide(pos1);
       if(!TOGreater(ocb, min_term, max_term, DEREF_ALWAYS, DEREF_ALWAYS)
-	 &&
-	 EqnListEqnIsMaximal(ocb, pos1->clause->literals,
-			     pos1->literal))
+    &&
+    EqnListEqnIsMaximal(ocb, pos1->clause->literals,
+              pos1->literal))
       {
-	 NormSubstEqnListExcept(pos1->clause->literals, pos2->literal,
-				subst, freshvars);
-      	 new_lside = TBInsertNoProps(bank, min_term, DEREF_ALWAYS);
-	 new_rside = TBInsertNoProps(bank,
-				     ClausePosGetOtherSide(pos2),
-				     DEREF_ALWAYS);
-	 new_condition = EqnAlloc(new_lside, new_rside, bank, false);
-	 new_literals = EqnListCopyOptExcept(pos1->clause->literals,
-					  pos1->literal);
-	 EqnListInsertFirst(&new_literals, new_condition);
-	 EqnListRemoveResolved(&new_literals);
-	 EqnListRemoveDuplicates(new_literals);
-	 new_clause = ClauseAlloc(new_literals);
+    NormSubstEqnListExcept(pos1->clause->literals, pos2->literal,
+            subst, freshvars);
+          new_lside = TBInsertNoProps(bank, min_term, DEREF_ALWAYS);
+    new_rside = TBInsertNoProps(bank,
+                 ClausePosGetOtherSide(pos2),
+                 DEREF_ALWAYS);
+    new_condition = EqnAlloc(new_lside, new_rside, bank, false);
+    new_literals = EqnListCopyOptExcept(pos1->clause->literals,
+                 pos1->literal);
+    EqnListInsertFirst(&new_literals, new_condition);
+    EqnListRemoveResolved(&new_literals);
+    EqnListRemoveDuplicates(new_literals);
+    new_clause = ClauseAlloc(new_literals);
       }
    }
    SubstDelete(subst);
@@ -328,7 +328,7 @@ Clause_p ComputeEqualityFactor(TB_p bank, OCB_p ocb, ClausePos_p pos1,
 /----------------------------------------------------------------------*/
 
 Eqn_p ClausePosFirstEqualityFactorSides(Clause_p clause, ClausePos_p
-					pos1, ClausePos_p pos2)
+               pos1, ClausePos_p pos2)
 {
    Term_p side;
    Eqn_p  lit = NULL;
@@ -363,7 +363,7 @@ Eqn_p ClausePosFirstEqualityFactorSides(Clause_p clause, ClausePos_p
 /----------------------------------------------------------------------*/
 
 Eqn_p ClausePosNextEqualityFactorSides(ClausePos_p pos1, ClausePos_p
-				       pos2)
+                   pos2)
 {
    Eqn_p  lit;
    Term_p side;
@@ -381,7 +381,7 @@ Eqn_p ClausePosNextEqualityFactorSides(ClausePos_p pos1, ClausePos_p
       side = ClausePosFindNextMaximalSide(pos1, true);
       if(side)
       {
-	 lit = find_first_eq_factor_partner(pos1, pos2);
+    lit = find_first_eq_factor_partner(pos1, pos2);
       }
    }
    return lit;

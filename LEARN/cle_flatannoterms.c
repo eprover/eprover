@@ -59,7 +59,7 @@ Changes
 /----------------------------------------------------------------------*/
 
 FlatAnnoTerm_p FlatAnnoTermAlloc(Term_p term, double eval, double
-				 eval_weight, long sources)
+             eval_weight, long sources)
 {
    FlatAnnoTerm_p handle = FlatAnnoTermCellAlloc();
 
@@ -90,7 +90,7 @@ void FlatAnnoTermPrint(FILE* out, FlatAnnoTerm_p term, Sig_p sig)
 {
    TermPrint(out, term->term, sig, DEREF_NEVER);
    fprintf(out, " : %f. /* EvalWeight: %f, Id: %ld */", term->eval,
-	   term->eval_weight, term->term->entry_no);
+      term->eval_weight, term->term->entry_no);
 }
 
 
@@ -197,9 +197,9 @@ bool FlatAnnoSetAddTerm(FlatAnnoSet_p set, FlatAnnoTerm_p term)
       res = false;
       existing_term = exists->val1.p_val;
       existing_term->eval = (term->eval * term->eval_weight +
-			     existing_term->eval *
-			     existing_term->eval_weight)/
-	 (term->eval_weight + existing_term->eval_weight);
+              existing_term->eval *
+              existing_term->eval_weight)/
+    (term->eval_weight + existing_term->eval_weight);
       existing_term->eval_weight += term->eval_weight;
       existing_term->sources += term->sources;
       FlatAnnoTermFree(term);
@@ -227,7 +227,7 @@ bool FlatAnnoSetAddTerm(FlatAnnoSet_p set, FlatAnnoTerm_p term)
 /----------------------------------------------------------------------*/
 
 long FlatAnnoSetTranslate(FlatAnnoSet_p flatset, AnnoSet_p set, double
-			  weights[])
+           weights[])
 {
    NumTree_p      handle;
    PStack_p       stack;
@@ -245,14 +245,14 @@ long FlatAnnoSetTranslate(FlatAnnoSet_p flatset, AnnoSet_p set, double
       assert(!old->annotation->lson);
       assert(!old->annotation->lson);
       term = FlatAnnoTermAlloc(old->term,
-			       AnnotationEval(old->annotation,
-					      weights),
-			       (double)AnnotationCount(old->annotation)
-			       /*
-				 /(double)TermWeight(old->term, 1, 1)
-			       */
-			       ,
-			       AnnotationCount(old->annotation));
+                AnnotationEval(old->annotation,
+                     weights),
+                (double)AnnotationCount(old->annotation)
+                /*
+             /(double)TermWeight(old->term, 1, 1)
+                */
+                ,
+                AnnotationCount(old->annotation));
 
       check = FlatAnnoSetAddTerm(flatset, term);
       UNUSED(check); assert(check);
@@ -321,13 +321,13 @@ long FlatAnnoTermFlatten(FlatAnnoSet_p set, FlatAnnoTerm_p term)
    {
       t = PStackPopP(stack);
       handle = FlatAnnoTermAlloc(t, term->eval, term->eval_weight,
-				 term->sources);
+             term->sources);
       FlatAnnoSetAddTerm(set, handle);
       res++;
       for(i=0; i<t->arity; i++)
       {
-	 assert(t->args);
-	 PStackPushP(stack, t->args[i]);
+    assert(t->args);
+    PStackPushP(stack, t->args[i]);
       }
    }
    assert(PStackEmpty(stack));

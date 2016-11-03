@@ -67,18 +67,18 @@ void      PCLProtSerialize(PCLProt_p prot);
 
 long      PCLProtParse(Scanner_p in, PCLProt_p prot);
 void      PCLProtPrintExtra(FILE* out, PCLProt_p prot, bool data,
-			    OutputFormatType format);
+             OutputFormatType format);
 #define   PCLProtPrint(out, prot, format) PCLProtPrintExtra((out),\
-							    (prot),\
-							    false, \
-							    (format))
+                         (prot),\
+                         false, \
+                         (format))
 bool      PCLStepHasFOFParent(PCLProt_p prot, PCLStep_p step);
 long      PCLProtStripFOF(PCLProt_p prot);
 
 void      PCLProtResetTreeData(PCLProt_p prot, bool just_weights);
 
 void      PCLExprCollectPreconds(PCLProt_p prot, PCLExpr_p expr,
-				 PTree_p *tree);
+             PTree_p *tree);
 #define   PCLStepCollectPreconds(prot, step, tree)\
           PCLExprCollectPreconds((prot), (step)->just, (tree))
 PCLStep_p PCLExprGetQuotedArg(PCLProt_p prot, PCLExpr_p expr, int arg);
@@ -90,8 +90,8 @@ long      PCLProtCountProp(PCLProt_p prot, PCLStepProperties props);
 long      PCLProtCollectPropSteps(PCLProt_p prot, PCLStepProperties props,
                                   PStack_p steps);
 void      PCLProtPrintPropClauses(FILE* out, PCLProt_p prot,
-				  PCLStepProperties prop,
-				  OutputFormatType format);
+              PCLStepProperties prop,
+              OutputFormatType format);
 
 #define PCLProtPrintProofClauses(out, prot, format)\
         PCLProtPrintPropClauses((out), (prot), PCLIsProofStep, format)

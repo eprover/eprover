@@ -75,10 +75,10 @@ Term_p TermPosNextLIPosition(TermPos_p pos)
       idx++;
       while(super->arity)
       {
-	 PStackPushP(pos, super);
-	 PStackPushInt(pos, idx);
-	 super = super->args[idx];
-	 idx = 0;
+    PStackPushP(pos, super);
+    PStackPushInt(pos, idx);
+    super = super->args[idx];
+    idx = 0;
       }
    }
    return super;
@@ -137,13 +137,13 @@ void TermPosDebugPrint(FILE* out, Sig_p sig, TermPos_p pos)
       fprintf(out, "# ");
       if(sig)
       {
-	 TermPrint(out, PStackElementP(pos, i), sig, DEREF_NEVER);
-	 fprintf(out, "...");
-	 TermPrint(out, PStackElementP(pos, i), sig, DEREF_ALWAYS);
+    TermPrint(out, PStackElementP(pos, i), sig, DEREF_NEVER);
+    fprintf(out, "...");
+    TermPrint(out, PStackElementP(pos, i), sig, DEREF_ALWAYS);
       }
       else
       {
-	 fprintf(out, "<%p>", PStackElementP(pos, i));
+    fprintf(out, "<%p>", PStackElementP(pos, i));
       }
       fprintf(out, " Subterm %ld\n", PStackElementInt(pos, i+1));
    }

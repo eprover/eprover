@@ -54,21 +54,21 @@ typedef struct weightparamcell
         SizeFree(junk, sizeof(WeightParamCell))
 
 WFCB_p ClauseWeightInit(ClausePrioFun prio_fun, int fweight, int
-			vweight, double pos_multiplier);
+         vweight, double pos_multiplier);
 
 WFCB_p ClauseWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state);
 
 double ClauseWeightCompute(void* data, Clause_p clause);
 
 WFCB_p LMaxWeightInit(ClausePrioFun prio_fun, int fweight, int
-		       vweight, double pos_multiplier);
+             vweight, double pos_multiplier);
 
 WFCB_p LMaxWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state);
 
 double LMaxWeightCompute(void* data, Clause_p clause);
 
 WFCB_p CMaxWeightInit(ClausePrioFun prio_fun, int fweight, int
-		       vweight, double pos_multiplier);
+             vweight, double pos_multiplier);
 
 WFCB_p CMaxWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state);
 
@@ -79,14 +79,14 @@ void   ClauseWeightExit(void* data);
 WFCB_p UniqWeightInit(ClausePrioFun prio_fun);
 
 WFCB_p UniqWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
-			state);
+         state);
 
 double UniqWeightCompute(void* data, Clause_p clause);
 
 WFCB_p DefaultWeightInit(ClausePrioFun prio_fun);
 
 WFCB_p DefaultWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
-			  state);
+           state);
 
 double DefaultWeightCompute(void* data, Clause_p clause);
 

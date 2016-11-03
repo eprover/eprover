@@ -94,23 +94,23 @@ void PCLExprFree(PCLExpr_p junk)
    {
       if(junk->op==PCLOpQuote)
       {
-	 ident = PCLExprArg(junk,i);
-	 PCLIdFree(ident);
+    ident = PCLExprArg(junk,i);
+    PCLIdFree(ident);
       }
       else if(junk->op==PCLOpInitial)
       {
          assert(PCLExprArg(junk,i));
-	 ClauseInfoFree(PCLExprArg(junk,i));
+    ClauseInfoFree(PCLExprArg(junk,i));
       }
       else
       {
-	 expr = PCLExprArg(junk,i);
-	 PCLExprFree(expr);
+    expr = PCLExprArg(junk,i);
+    PCLExprFree(expr);
       }
       pos = PCLExprArgPos(junk,i);
       if(pos)
       {
-	 PCL2PosFree(pos);
+    PCL2PosFree(pos);
       }
    }
    PDArrayFree(junk->args);
@@ -142,22 +142,22 @@ void PCLMiniExprFree(PCLExpr_p junk)
    {
       if(junk->op==PCLOpQuote)
       {
-	 /* Do nothing - its' just a a long stored in the array */
+    /* Do nothing - its' just a a long stored in the array */
       }
       else if(junk->op==PCLOpInitial)
       {
          assert(PCLExprArg(junk,i));
-	 ClauseInfoFree(PCLExprArg(junk,i));
+    ClauseInfoFree(PCLExprArg(junk,i));
       }
       else
       {
-	 expr = PCLExprArg(junk,i);
-	 PCLMiniExprFree(expr);
+    expr = PCLExprArg(junk,i);
+    PCLMiniExprFree(expr);
       }
       pos = PCLExprArgPos(junk,i);
       if(pos)
       {
-	 PCL2PosFree(pos);
+    PCL2PosFree(pos);
       }
    }
    PDArrayFree(junk->args);
@@ -188,19 +188,19 @@ PCLExpr_p PCLExprParse(Scanner_p in, bool mini)
       handle->op = PCLOpQuote;
       if(mini)
       {
-	 PCLExprArgInt(handle,0)=ParseInt(in);
+    PCLExprArgInt(handle,0)=ParseInt(in);
       }
       else
       {
-	 PCLExprArg(handle,0)=PCLIdParse(in);
+    PCLExprArg(handle,0)=PCLIdParse(in);
       }
       if(TestInpTok(in,OpenBracket))
       {
-	 PCLExprArgPos(handle,0)=PCL2PosParse(in);
+    PCLExprArgPos(handle,0)=PCL2PosParse(in);
       }
       else
       {
-	 PCLExprArgPos(handle,0)=NULL;
+    PCLExprArgPos(handle,0)=NULL;
       }
       handle->arg_no=1;
    }
@@ -236,128 +236,128 @@ PCLExpr_p PCLExprParse(Scanner_p in, bool mini)
 
       if(TestInpId(in, PCL_EVALGC))
       {
-	 handle->op=PCLOpEvalGC;
-	 arg_no=1;
+    handle->op=PCLOpEvalGC;
+    arg_no=1;
       }
       else if(TestInpId(in, PCL_ER))
       {
-	 handle->op=PCLOpEResolution;
-	 arg_no=1;
+    handle->op=PCLOpEResolution;
+    arg_no=1;
       }
       else if(TestInpId(in, PCL_PM))
       {
-	 handle->op=PCLOpParamod;
-	 arg_no=2;
+    handle->op=PCLOpParamod;
+    arg_no=2;
       }
       else if(TestInpId(in, PCL_SPM))
       {
-	 handle->op=PCLOpSimParamod;
-	 arg_no=2;
+    handle->op=PCLOpSimParamod;
+    arg_no=2;
       }
       else if(TestInpId(in, PCL_EF))
       {
-	 handle->op=PCLOpEFactoring;
-	 arg_no=1;
+    handle->op=PCLOpEFactoring;
+    arg_no=1;
       }
       else if(TestInpId(in, PCL_CONDENSE))
       {
-	 handle->op=PCLOpCondense;
-	 arg_no=1;
+    handle->op=PCLOpCondense;
+    arg_no=1;
       }
       else if(TestInpId(in, PCL_RW))
       {
-	 handle->op=PCLOpRewrite;
-	 arg_no=2;
+    handle->op=PCLOpRewrite;
+    arg_no=2;
       }
       else if(TestInpId(in, PCL_SR))
       {
-	 handle->op=PCLOpSimplifyReflect;
-	 arg_no=2;
+    handle->op=PCLOpSimplifyReflect;
+    arg_no=2;
       }
       else if(TestInpId(in, PCL_CSR))
       {
-	 handle->op=PCLOpContextSimplifyReflect;
-	 arg_no=2;
+    handle->op=PCLOpContextSimplifyReflect;
+    arg_no=2;
       }
       else if(TestInpId(in, PCL_ACRES))
       {
-	 handle->op=PCLOpACResolution;
-	 arg_no=PCL_VAR_ARG;
+    handle->op=PCLOpACResolution;
+    arg_no=PCL_VAR_ARG;
       }
       else if(TestInpId(in, PCL_CN))
       {
-	 handle->op=PCLOpClauseNormalize;
-	 arg_no=1;
+    handle->op=PCLOpClauseNormalize;
+    arg_no=1;
       }
       else if(TestInpId(in, PCL_SPLIT))
       {
-	 handle->op=PCLOpSplitClause;
-	 arg_no=1;
+    handle->op=PCLOpSplitClause;
+    arg_no=1;
       }
       else if(TestInpId(in, PCL_SC))
       {
-	 handle->op=PCLOpFOFSplitConjunct;
-	 arg_no=1;
+    handle->op=PCLOpFOFSplitConjunct;
+    arg_no=1;
       }
       else if(TestInpId(in, PCL_SE))
       {
          handle->op=PCLOpSplitEquiv;
-	 arg_no=1;
+    arg_no=1;
       }
       else if(TestInpId(in, PCL_FS))
       {
-	 handle->op=PCLOpFOFSimplify;
-	 arg_no=1;
+    handle->op=PCLOpFOFSimplify;
+    arg_no=1;
       }
       else if(TestInpId(in, PCL_NNF))
       {
-	 handle->op=PCLOpFOFDeMorgan;
-	 arg_no=1;
+    handle->op=PCLOpFOFDeMorgan;
+    arg_no=1;
       }
       else if(TestInpId(in, PCL_ID))
       {
-	 handle->op=PCLOpIntroDef;
-	 arg_no=0;
+    handle->op=PCLOpIntroDef;
+    arg_no=0;
       }
       else if(TestInpId(in, PCL_AD))
       {
-	 handle->op=PCLOpApplyDef;
+    handle->op=PCLOpApplyDef;
          arg_no=2;
       }
       else if(TestInpId(in, PCL_SQ))
       {
-	 handle->op=PCLOpFOFDistributeQuantors;
+    handle->op=PCLOpFOFDistributeQuantors;
          arg_no=1;
       }
       else if(TestInpId(in, PCL_VR))
       {
-	 handle->op=PCLOpFOFVarRename;
-	 arg_no=1;
+    handle->op=PCLOpFOFVarRename;
+    arg_no=1;
       }
       else if(TestInpId(in, PCL_SK))
       {
-	 handle->op=PCLOpFOFSkolemize;
-	 arg_no=1;
+    handle->op=PCLOpFOFSkolemize;
+    arg_no=1;
       }
       else if(TestInpId(in, PCL_DSTR))
       {
-	 handle->op=PCLOpFOFDistributeDisjunction;
-	 arg_no=1;
+    handle->op=PCLOpFOFDistributeDisjunction;
+    arg_no=1;
       }
       else if(TestInpId(in, PCL_ANNOQ))
       {
-	 handle->op=PCLOpAnnotateQuestion;
-	 arg_no=1;
+    handle->op=PCLOpAnnotateQuestion;
+    arg_no=1;
       }
       else if(TestInpId(in, PCL_EVANS))
       {
-	 handle->op=PCLOpEvalAnswers;
-	 arg_no=1;
+    handle->op=PCLOpEvalAnswers;
+    arg_no=1;
       }
         else if(TestInpId(in, PCL_NC))
       {
-	 handle->op=PCLOpFOFAssumeNegation;
-	 arg_no=1;
+    handle->op=PCLOpFOFAssumeNegation;
+    arg_no=1;
       }
       NextToken(in);
       if(arg_no)
@@ -479,9 +479,9 @@ void PCLExprPrint(FILE* out, PCLExpr_p expr, bool mini)
          assert(expr->arg_no==1);
          break;
    case PCLOpCondense:
-	 fprintf(out, PCL_CONDENSE);
-	 assert(expr->arg_no==1);
-	 break;
+    fprintf(out, PCL_CONDENSE);
+    assert(expr->arg_no==1);
+    break;
    case PCLOpSimplifyReflect:
          fprintf(out, PCL_SR);
          assert(expr->arg_no==2);
@@ -641,67 +641,67 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
    switch(expr->op)
    {
    case PCLOpParamod:
-	 fprintf(out, PCL_PM);
-	 status = status_thm;
-	 assert(expr->arg_no==2);
-	 break;
+    fprintf(out, PCL_PM);
+    status = status_thm;
+    assert(expr->arg_no==2);
+    break;
    case PCLOpSimParamod:
-	 fprintf(out, PCL_SPM);
-	 status = status_thm;
-	 assert(expr->arg_no==2);
-	 break;
+    fprintf(out, PCL_SPM);
+    status = status_thm;
+    assert(expr->arg_no==2);
+    break;
    case PCLOpEvalGC:
-	 fprintf(out, PCL_EVALGC);
-	 status = status_thm;
-	 assert(expr->arg_no==1);
-	 break;
+    fprintf(out, PCL_EVALGC);
+    status = status_thm;
+    assert(expr->arg_no==1);
+    break;
    case PCLOpEResolution:
-	 fprintf(out, PCL_ER);
-	 status = status_thm;
-	 assert(expr->arg_no==1);
-	 break;
+    fprintf(out, PCL_ER);
+    status = status_thm;
+    assert(expr->arg_no==1);
+    break;
    case PCLOpEFactoring:
-	 fprintf(out, PCL_EF);
-	 status = status_thm;
-	 assert(expr->arg_no==1);
-	 break;
+    fprintf(out, PCL_EF);
+    status = status_thm;
+    assert(expr->arg_no==1);
+    break;
    case PCLOpSimplifyReflect:
-	 fprintf(out, PCL_SR);
-	 status = status_thm;
-	 assert(expr->arg_no==2);
-	 break;
+    fprintf(out, PCL_SR);
+    status = status_thm;
+    assert(expr->arg_no==2);
+    break;
    case PCLOpContextSimplifyReflect:
-	 fprintf(out, PCL_CSR);
-	 status = status_thm;
-	 assert(expr->arg_no==2);
-	 break;
+    fprintf(out, PCL_CSR);
+    status = status_thm;
+    assert(expr->arg_no==2);
+    break;
    case PCLOpACResolution:
-	 fprintf(out, PCL_ACRES);
-	 status = status_thm;
-	 assert(expr->arg_no>0);
-	 break;
+    fprintf(out, PCL_ACRES);
+    status = status_thm;
+    assert(expr->arg_no>0);
+    break;
    case PCLOpRewrite:
-	 fprintf(out, PCL_RW);
-	 status = status_thm;
-	 assert(expr->arg_no==2);
-	 break;
+    fprintf(out, PCL_RW);
+    status = status_thm;
+    assert(expr->arg_no==2);
+    break;
    case PCLOpClauseNormalize:
-	 fprintf(out, PCL_CN);
-	 status = status_thm;
-	 assert(expr->arg_no==1);
-	 break;
+    fprintf(out, PCL_CN);
+    status = status_thm;
+    assert(expr->arg_no==1);
+    break;
    case PCLOpApplyDef:
          fprintf(out, PCL_AD);
-	 status = status_thm;
+    status = status_thm;
          assert(expr->arg_no==2);
          break;
    case PCLOpSplitClause:
-	 fprintf(out, TSTP_SPLIT_BASE
+    fprintf(out, TSTP_SPLIT_BASE
                  ",["TSTP_SPLIT_BASE"("
                  TSTP_SPLIT_REFINED",[])]");
-	 status = "";
-	 assert(expr->arg_no==1);
-	 break;
+    status = "";
+    assert(expr->arg_no==1);
+    break;
    case PCLOpFOFSplitConjunct:
          fprintf(out, PCL_SC);
          status = status_thm;
@@ -761,8 +761,8 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
          break;
 
    default:
-	 assert(false && "Unknown PCL operator");
-	 break;
+    assert(false && "Unknown PCL operator");
+    break;
    }
    fprintf(out, "%s,[", status);
    PCLExprPrintTSTP(out, PCLExprArg(expr,0), mini);

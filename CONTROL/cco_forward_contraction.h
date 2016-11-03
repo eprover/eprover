@@ -50,39 +50,39 @@ Changes
 
 bool ForwardModifyClause(ProofState_p state,
                          ProofControl_p control,
-			 Clause_p clause,
+          Clause_p clause,
                          bool context_sr,
                          bool condense,
                          RewriteLevel level);
 
 
 FVPackedClause_p ForwardContractClause(ProofState_p state,
-				       ProofControl_p control,
-				       Clause_p clause,
-				       bool non_unit_subsumption,
-				       bool context_sr,
+                   ProofControl_p control,
+                   Clause_p clause,
+                   bool non_unit_subsumption,
+                   bool context_sr,
                                        bool condense,
-				       RewriteLevel level);
+                   RewriteLevel level);
 
 Clause_p ForwardContractSet(ProofState_p state, ProofControl_p
-			    control, ClauseSet_p set, bool
-			    non_unit_subsumption, RewriteLevel level,
-			    unsigned long* count_eliminated, bool
-			    terminate_on_empty);
+             control, ClauseSet_p set, bool
+             non_unit_subsumption, RewriteLevel level,
+             unsigned long* count_eliminated, bool
+             terminate_on_empty);
 
 void     ClauseSetReweight(HCB_p heuristic, ClauseSet_p set);
 
 Clause_p ForwardContractSetReweight(ProofState_p state, ProofControl_p
-				    control, ClauseSet_p set, bool
-				    non_unit_subsumption, RewriteLevel
-				    level, unsigned long* count_eliminated);
+                control, ClauseSet_p set, bool
+                non_unit_subsumption, RewriteLevel
+                level, unsigned long* count_eliminated);
 
 void     ClauseSetFilterReweigth(ProofControl_p control, ClauseSet_p
-				 set, unsigned long* count_eliminated);
+             set, unsigned long* count_eliminated);
 
 Clause_p ProofStateFilterUnprocessed(ProofState_p state,
-				     ProofControl_p control, char*
-				     desc);
+                 ProofControl_p control, char*
+                 desc);
 
 #endif
 

@@ -36,12 +36,12 @@ Changes
 typedef struct lit_desc_cell
 {
    Term_p   lit; /* The actual literal (left hand side of E equation -
-		    we are only doing this for non-equational literals
-		 */
+          we are only doing this for non-equational literals
+       */
    Clause_p clause; /* If literal occurs in exactly one clause, note
-		       it here, otherwise this is 0. Note that only
-		       literals actually occurring in the clause set
-		       should be in the index */
+             it here, otherwise this is 0. Note that only
+             literals actually occurring in the clause set
+             should be in the index */
 }LitDescCell,*LitDesc_p;
 
 /* Note that while we store shared terms, we do not take any refrences
@@ -53,7 +53,7 @@ typedef struct lit_hash_cell
    long     sig_size;   /* Largest symbol in sig */
    PTree_p  *pos_lits;  /* Array of PObjTrees for each predicate */
    PTree_p  *neg_lits;  /* symbol, literals are stored separated by
-			   sign */
+            sign */
 }LitHashCell,*LitHash_p;
 
 

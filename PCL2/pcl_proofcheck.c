@@ -73,11 +73,11 @@ static bool pcl_run_prover(char* command, char*success)
    {
       if(strstr(line,success))
       {
-	 res = true;
+    res = true;
       }
       if(OutputLevel >= 3)
       {
-	 fprintf(GlobalOut, "#> %s", line);
+    fprintf(GlobalOut, "#> %s", line);
       }
    }
    pclose(ppipe);
@@ -98,7 +98,7 @@ static bool pcl_run_prover(char* command, char*success)
 /----------------------------------------------------------------------*/
 
 static bool pcl_verify_eprover(ClauseSet_p problem,char *executable,
-			       long time_limit)
+                long time_limit)
 {
    bool   res;
    DStr_p command = DStrAlloc();
@@ -117,7 +117,7 @@ static bool pcl_verify_eprover(ClauseSet_p problem,char *executable,
 
    DStrAppendStr(command, executable);
    DStrAppendStr(command, " --tptp-in --prefer-initial-clauses --ac-handling=None"
-		 " --cpu-limit=");
+       " --cpu-limit=");
    DStrAppendInt(command, time_limit);
    DStrAppendChar(command, ' ');
    DStrAppendStr(command, name);
@@ -158,41 +158,41 @@ static void eqn_print_otter(FILE* out, Eqn_p eqn)
    {
       if(EqnIsPositive(eqn))
       {
-	 EqnPrint(out, eqn, false, true);
+    EqnPrint(out, eqn, false, true);
       }
       else
       {
-	 fputc('-', out);
-	 EqnPrint(out, eqn, true, true);
+    fputc('-', out);
+    EqnPrint(out, eqn, true, true);
       }
    }
    else
    {
       if(eqn->lterm==eqn->bank->true_term)
       {
-	 assert(eqn->rterm==eqn->bank->true_term);
-	 /* Special case, one more hack */;
-	 if(EqnIsPositive(eqn))
-	 {
-	    fputs("$T", out);
-	 }
-	 else
-	 {
-	    fputs("$F", out);
-	 }
+    assert(eqn->rterm==eqn->bank->true_term);
+    /* Special case, one more hack */;
+    if(EqnIsPositive(eqn))
+    {
+       fputs("$T", out);
+    }
+    else
+    {
+       fputs("$F", out);
+    }
       }
       else
       {
-	 /* Nonequational literal */
-	 if(EqnIsNegative(eqn))
-	 {
-	    fputc('-', out);
-	 }
-	 else
-	 {
-	    fputc(' ', out);
-	 }
-	 TBPrintTerm(out, eqn->bank, eqn->lterm, true);
+    /* Nonequational literal */
+    if(EqnIsNegative(eqn))
+    {
+       fputc('-', out);
+    }
+    else
+    {
+       fputc(' ', out);
+    }
+    TBPrintTerm(out, eqn->bank, eqn->lterm, true);
       }
    }
 }
@@ -226,9 +226,9 @@ static void clause_print_otter(FILE* out, Clause_p clause)
       handle=handle->next;
       while(handle)
       {
-	 fputs("|\n", out);
-	 eqn_print_otter(out, handle);
-	 handle=handle->next;
+    fputs("|\n", out);
+    eqn_print_otter(out, handle);
+    handle=handle->next;
       }
       fputs(".\n", out);
    }
@@ -251,7 +251,7 @@ static void clause_set_print_otter(FILE* out, ClauseSet_p set)
    Clause_p handle;
 
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
-	  handle->succ)
+     handle->succ)
    {
       clause_print_otter(out, handle);
       fputc('\n', out);
@@ -272,7 +272,7 @@ static void clause_set_print_otter(FILE* out, ClauseSet_p set)
 /----------------------------------------------------------------------*/
 
 static bool pcl_verify_otter(ClauseSet_p problem,char *executable,
-			     long time_limit)
+              long time_limit)
 {
    bool   res;
    DStr_p command = DStrAlloc();
@@ -285,21 +285,21 @@ static bool pcl_verify_otter(ClauseSet_p problem,char *executable,
    }
    problemfile = OutOpen(name);
    fprintf(problemfile,
-	   "set(prolog_style_variables).\n"
-	   "clear(print_kept).\n"
-	   "clear(print_new_demod).\n"
-	   "clear(print_back_demod).\n"
-	   "clear(print_back_sub).\n"
-	   "set(auto).\n"
-	   "set(input_sos_first).\n"
-	   /* "set(para_from_vars).\n" */
-	   "assign(max_seconds, %ld).\n\n"
-	   "assign(max_mem, 100000).\n\n"
-	   "list(usable).\n\n"
-	   "equal(X,X).\n",time_limit);
+      "set(prolog_style_variables).\n"
+      "clear(print_kept).\n"
+      "clear(print_new_demod).\n"
+      "clear(print_back_demod).\n"
+      "clear(print_back_sub).\n"
+      "set(auto).\n"
+      "set(input_sos_first).\n"
+      /* "set(para_from_vars).\n" */
+      "assign(max_seconds, %ld).\n\n"
+      "assign(max_mem, 100000).\n\n"
+      "list(usable).\n\n"
+      "equal(X,X).\n",time_limit);
    clause_set_print_otter(problemfile, problem);
    fprintf(problemfile,
-	   "end_of_list.\n");
+      "end_of_list.\n");
    OutClose(problemfile);
 
    DStrAppendStr(command, executable);
@@ -352,9 +352,9 @@ static void sig_print_dfg(FILE* out, ClauseSet_p set, Sig_p sig)
    {
       if(symbol_distrib[i]&&!SigIsPredicate(sig,i))
       {
-	 fprintf(out, ",(%s,%d)",
-		 SigFindName(sig, i),
-		 SigFindArity(sig, i));
+    fprintf(out, ",(%s,%d)",
+       SigFindName(sig, i),
+       SigFindArity(sig, i));
       }
    }
    fprintf(out,"].\npredicates[(spass_pred_dummy,0)");
@@ -362,9 +362,9 @@ static void sig_print_dfg(FILE* out, ClauseSet_p set, Sig_p sig)
    {
       if(symbol_distrib[i]&&SigIsPredicate(sig,i))
       {
-	 fprintf(out, ",(%s,%d)",
-		 SigFindName(sig, i),
-		 SigFindArity(sig, i));
+    fprintf(out, ",(%s,%d)",
+       SigFindName(sig, i),
+       SigFindArity(sig, i));
       }
    }
    fprintf(out,"].\nend_of_list.\n");
@@ -438,15 +438,15 @@ static void clause_print_dfg(FILE* out, Clause_p clause)
       cell = PTreeTraverseNext(stack);
       if(cell)
       {
-	 assert(clause->literals);
-	 var = cell->key;
-	 TBPrintTerm(out, clause->literals->bank, var, true);
-	 while((cell=PTreeTraverseNext(stack)))
-	 {
-	    fputc(',', out);
-	    var = cell->key;
-	    TBPrintTerm(out, clause->literals->bank, var, true);
-	 }
+    assert(clause->literals);
+    var = cell->key;
+    TBPrintTerm(out, clause->literals->bank, var, true);
+    while((cell=PTreeTraverseNext(stack)))
+    {
+       fputc(',', out);
+       var = cell->key;
+       TBPrintTerm(out, clause->literals->bank, var, true);
+    }
       }
       PTreeTraverseExit(stack);
       PTreeFree(variables);
@@ -461,9 +461,9 @@ static void clause_print_dfg(FILE* out, Clause_p clause)
       handle=handle->next;
       while(handle)
       {
-	 fputs(",", out);
-	 eqn_print_dfg(out, handle);
-	 handle=handle->next;
+    fputs(",", out);
+    eqn_print_dfg(out, handle);
+    handle=handle->next;
       }
    }
    else
@@ -491,7 +491,7 @@ static void clause_set_print_dfg(FILE* out, ClauseSet_p set)
    Clause_p handle;
 
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
-	  handle->succ)
+     handle->succ)
    {
       clause_print_dfg(out, handle);
       fputc('\n', out);
@@ -512,7 +512,7 @@ static void clause_set_print_dfg(FILE* out, ClauseSet_p set)
 /----------------------------------------------------------------------*/
 
 static bool pcl_verify_spass(ClauseSet_p problem,char *executable,
-			     long time_limit, Sig_p sig)
+              long time_limit, Sig_p sig)
 {
    bool   res;
    DStr_p command = DStrAlloc();
@@ -525,17 +525,17 @@ static bool pcl_verify_spass(ClauseSet_p problem,char *executable,
    }
    problemfile = OutOpen(name);
    fprintf(problemfile,
-	   "begin_problem(Unknown).\n");
+      "begin_problem(Unknown).\n");
 
    sig_print_dfg(problemfile, problem, sig);
 
    fprintf(problemfile, "list_of_clauses(axioms,cnf).\n");
    clause_set_print_dfg(problemfile, problem);
    fprintf(problemfile, "end_of_list.\n"
-	   "list_of_settings(SPASS).\n"
-	   "set_flag(TimeLimit, %ld).\n"
-	   "end_of_list.\n"
-	   "end_problem.\n", time_limit);
+      "list_of_settings(SPASS).\n"
+      "set_flag(TimeLimit, %ld).\n"
+      "end_of_list.\n"
+      "end_problem.\n", time_limit);
    OutClose(problemfile);
 
    DStrAppendStr(command, executable);
@@ -575,7 +575,7 @@ static bool pcl_verify_spass(ClauseSet_p problem,char *executable,
 /----------------------------------------------------------------------*/
 
 long PCLCollectPreconds(PCLProt_p prot, PCLStep_p step, ClauseSet_p
-			set)
+         set)
 {
    PTree_p   tree = NULL;
    PCLStep_p handle;
@@ -618,7 +618,7 @@ long PCLCollectPreconds(PCLProt_p prot, PCLStep_p step, ClauseSet_p
 /----------------------------------------------------------------------*/
 
 long PCLNegSkolemizeClause(PCLProt_p prot, PCLStep_p step, ClauseSet_p
-			   set)
+            set)
 {
    long     res = 0;
    Clause_p clause, new_clause;
@@ -693,7 +693,7 @@ ClauseSet_p PCLGenerateCheck(PCLProt_p prot, PCLStep_p step)
 /----------------------------------------------------------------------*/
 
 PCLCheckType PCLStepCheck(PCLProt_p prot, PCLStep_p step, ProverType
-			  prover, char* executable, long time_limit)
+           prover, char* executable, long time_limit)
 {
    ClauseSet_p problem;
    PCLCheckType res=CheckFail;
@@ -712,26 +712,26 @@ PCLCheckType PCLStepCheck(PCLProt_p prot, PCLStep_p step, ProverType
       switch(prover)
       {
       case EProver:
-	    if(pcl_verify_eprover(problem,executable,time_limit))
-	    {
-	       res = CheckOk;
-	    }
-	    break;
+       if(pcl_verify_eprover(problem,executable,time_limit))
+       {
+          res = CheckOk;
+       }
+       break;
       case Otter:
-	    if(pcl_verify_otter(problem,executable,time_limit))
-	    {
-	       res = CheckOk;
-	    }
-	    break;
+       if(pcl_verify_otter(problem,executable,time_limit))
+       {
+          res = CheckOk;
+       }
+       break;
       case Spass:
-	    if(pcl_verify_spass(problem,executable,time_limit,prot->terms->sig))
-	    {
-	       res = CheckOk;
-	    }
-	    break;
+       if(pcl_verify_spass(problem,executable,time_limit,prot->terms->sig))
+       {
+          res = CheckOk;
+       }
+       break;
       default:
-	    assert(false && "Not yet implemented");
-	    break;
+       assert(false && "Not yet implemented");
+       break;
       }
       ClauseSetFree(problem);
    }
@@ -753,7 +753,7 @@ PCLCheckType PCLStepCheck(PCLProt_p prot, PCLStep_p step, ProverType
 /----------------------------------------------------------------------*/
 
 long PCLProtCheck(PCLProt_p prot, ProverType prover, char* executable,
-		  long time_limit, long *unchecked)
+        long time_limit, long *unchecked)
 {
    PStack_p      trav_stack,stack = PStackAlloc();
    PStackPointer i;
@@ -776,32 +776,32 @@ long PCLProtCheck(PCLProt_p prot, ProverType prover, char* executable,
       step = PStackElementP(stack,i);
       if(OutputLevel)
       {
-	 fprintf(GlobalOut, "# Checking ");
-	 PCLStepPrint(GlobalOut, step);
-	 fputc('\n', GlobalOut);
+    fprintf(GlobalOut, "# Checking ");
+    PCLStepPrint(GlobalOut, step);
+    fputc('\n', GlobalOut);
       }
       check = PCLStepCheck(prot, step, prover, executable,
-			   time_limit);
+            time_limit);
       switch(check)
       {
       case CheckByAssumption:
-	    OUTPRINT(1,"# Checked (by assumption)\n\n");
-	    res++;
-	    break;
+       OUTPRINT(1,"# Checked (by assumption)\n\n");
+       res++;
+       break;
       case CheckOk:
-	    OUTPRINT(1,"# Checked (by prover)\n\n");
-	    res++;
-	    break;
+       OUTPRINT(1,"# Checked (by prover)\n\n");
+       res++;
+       break;
       case CheckFail:
-	    OUTPRINT(1,"# FAILED\n\n");
-	    break;
+       OUTPRINT(1,"# FAILED\n\n");
+       break;
       case CheckNotImplemented:
-	    OUTPRINT(1,"# Check not implemented, assuming true!\n\n");
-	    (*unchecked)++;
-	    break;
+       OUTPRINT(1,"# Check not implemented, assuming true!\n\n");
+       (*unchecked)++;
+       break;
       default:
-	    assert(false);
-	    break;
+       assert(false);
+       break;
       }
    }
    PStackFree(stack);

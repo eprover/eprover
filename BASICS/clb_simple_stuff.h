@@ -52,11 +52,11 @@ typedef struct
 #define WeightedObjectArrayFree(array) FREE(array)
 
 int     WeightedObjectCompareFun(WeightedObject_p o1, WeightedObject_p
-				 o2);
+             o2);
 
 #define WeightedObjectArraySort(array, size) \
         qsort(array, size, sizeof(WeightedObjectCell),\
-	      (ComparisonFunctionType)WeightedObjectCompareFun)
+         (ComparisonFunctionType)WeightedObjectCompareFun)
 
 
 int    StringIndex(char* key, char* list[]);

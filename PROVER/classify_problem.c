@@ -868,58 +868,58 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
       switch(handle->option_code)
       {
       case OPT_VERBOSE:
-	    Verbose = CLStateGetIntArg(handle, arg);
-	    break;
+       Verbose = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_HELP:
-	    print_help(stdout);
-	    exit(NO_ERROR);
+       print_help(stdout);
+       exit(NO_ERROR);
       case OPT_VERSION:
-	    printf(NAME" " VERSION "\n");
-	    exit(NO_ERROR);
+       printf(NAME" " VERSION "\n");
+       exit(NO_ERROR);
       case OPT_PARSE_FEATURES:
             parse_features = true;
             break;
       case OPT_OUTPUT:
-	    outname = arg;
-	    break;
+       outname = arg;
+       break;
       case OPT_LOP_PARSE:
-	    parse_format = LOPFormat;
-	    break;
+       parse_format = LOPFormat;
+       break;
       case OPT_TPTP_PARSE:
-	    parse_format = TPTPFormat;
-	    break;
+       parse_format = TPTPFormat;
+       break;
       case OPT_TPTP_PRINT:
-	    OutputFormat = TPTPFormat;
-	    EqnFullEquationalRep = false;
-	    EqnUseInfix = false;
-	    break;
+       OutputFormat = TPTPFormat;
+       EqnFullEquationalRep = false;
+       EqnUseInfix = false;
+       break;
       case OPT_TPTP_FORMAT:
-	    parse_format = TPTPFormat;
-	    OutputFormat = TPTPFormat;
-	    EqnFullEquationalRep = false;
-	    break;
+       parse_format = TPTPFormat;
+       OutputFormat = TPTPFormat;
+       EqnFullEquationalRep = false;
+       break;
       case OPT_TSTP_PARSE:
-	    parse_format = TSTPFormat;
-	    break;
+       parse_format = TSTPFormat;
+       break;
       case OPT_TSTP_PRINT:
-	    OutputFormat = TSTPFormat;
-	    EqnFullEquationalRep = false;
-	    EqnUseInfix = false;
-	    break;
+       OutputFormat = TSTPFormat;
+       EqnFullEquationalRep = false;
+       EqnUseInfix = false;
+       break;
       case OPT_TSTP_FORMAT:
-	    parse_format = TSTPFormat;
-	    OutputFormat = TSTPFormat;
-	    EqnFullEquationalRep = false;
-	    break;
+       parse_format = TSTPFormat;
+       OutputFormat = TSTPFormat;
+       EqnFullEquationalRep = false;
+       break;
       case OPT_RAW_CLASS:
             raw_classify = true;
             break;
       case OPT_GEN_TPTP_HEADER:
-	    tptp_header = true;
-	    break;
+       tptp_header = true;
+       break;
       case OPT_NO_PREPROCESSING:
-	    no_preproc = true;
-	    break;
+       no_preproc = true;
+       break;
       case OPT_EQ_UNFOLD_MAXCLAUSES:
             eqdef_maxclauses = CLStateGetIntArg(handle, arg);
             break;
@@ -927,75 +927,75 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
             eqdef_incrlimit = CLStateGetIntArg(handle, arg);
             break;
       case OPT_NO_EQ_UNFOLD:
-	    eqdef_incrlimit = INT_MIN;
-	    break;
+       eqdef_incrlimit = INT_MIN;
+       break;
       case OPT_DEF_CNF:
             FormulaDefLimit     = CLStateGetIntArg(handle, arg);
             break;
       case OPT_MASK:
-	    mask = arg;
-	    if(strlen(mask)!=13)
-	    {
-	       Error("Option -c (--class-mask) requires 13-letter "
-		     "string as an argument", USAGE_ERROR);
-	    }
-	    break;
+       mask = arg;
+       if(strlen(mask)!=13)
+       {
+          Error("Option -c (--class-mask) requires 13-letter "
+           "string as an argument", USAGE_ERROR);
+       }
+       break;
       case OPT_RAW_MASK:
-	    raw_mask = arg;
-	    if(strlen(raw_mask)!=7)
-	    {
-	       Error("Option -c (--class-mask) requires 7-letter "
-		     "string as an argument", USAGE_ERROR);
-	    }
-	    break;
+       raw_mask = arg;
+       if(strlen(raw_mask)!=7)
+       {
+          Error("Option -c (--class-mask) requires 7-letter "
+           "string as an argument", USAGE_ERROR);
+       }
+       break;
       case OPT_NGU_ABSOLUTE:
-	    limits->ngu_absolute = CLStateGetBoolArg(handle, arg);
-	    break;
+       limits->ngu_absolute = CLStateGetBoolArg(handle, arg);
+       break;
       case OPT_NGU_FEW_LIMIT:
-	    limits->ngu_few_limit = CLStateGetFloatArg(handle, arg);
-	    break;
+       limits->ngu_few_limit = CLStateGetFloatArg(handle, arg);
+       break;
       case OPT_NGU_MANY_LIMIT:
-	    limits->ngu_many_limit = CLStateGetFloatArg(handle, arg);
-	    break;
+       limits->ngu_many_limit = CLStateGetFloatArg(handle, arg);
+       break;
       case OPT_GPC_ABSOLUTE:
-	    limits->gpc_absolute = CLStateGetBoolArg(handle, arg);
-	    break;
+       limits->gpc_absolute = CLStateGetBoolArg(handle, arg);
+       break;
       case OPT_GPC_FEW_LIMIT:
-	    limits->gpc_few_limit = CLStateGetFloatArg(handle, arg);
-	    break;
+       limits->gpc_few_limit = CLStateGetFloatArg(handle, arg);
+       break;
       case OPT_GPC_MANY_LIMIT:
-	    limits->gpc_many_limit = CLStateGetFloatArg(handle, arg);
-	    break;
+       limits->gpc_many_limit = CLStateGetFloatArg(handle, arg);
+       break;
       case OPT_AXIOM_SOME_LIMIT:
-	    limits->ax_some_limit = CLStateGetIntArg(handle, arg);
-	    break;
+       limits->ax_some_limit = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_AXIOM_MANY_LIMIT:
-	    limits->ax_many_limit = CLStateGetIntArg(handle, arg);
-	    break;
+       limits->ax_many_limit = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_LIT_SOME_LIMIT:
-	    limits->lit_some_limit = CLStateGetIntArg(handle, arg);
-	    break;
+       limits->lit_some_limit = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_LIT_MANY_LIMIT:
-	    limits->lit_many_limit = CLStateGetIntArg(handle, arg);
-	    break;
+       limits->lit_many_limit = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_TERM_MEDIUM_LIMIT:
-	    limits->term_medium_limit = CLStateGetIntArg(handle, arg);
-	    break;
+       limits->term_medium_limit = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_TERM_LARGE_LIMIT:
-	    limits->term_large_limit = CLStateGetIntArg(handle, arg);
-	    break;
+       limits->term_large_limit = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_FAR_SUM_MEDIUM_LIMIT:
-	    limits->far_sum_medium_limit = CLStateGetIntArg(handle, arg);
-	    break;
+       limits->far_sum_medium_limit = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_FAR_SUM_LARGE_LIMIT:
-	    limits->far_sum_large_limit = CLStateGetIntArg(handle, arg);
-	    break;
+       limits->far_sum_large_limit = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_MAX_DEPTH_MEDIUM_LIMIT:
-	    limits->depth_medium_limit = CLStateGetIntArg(handle, arg);
-	    break;
+       limits->depth_medium_limit = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_MAX_DEPTH_DEEP_LIMIT:
-	    limits->depth_deep_limit = CLStateGetIntArg(handle, arg);
-	    break;
+       limits->depth_deep_limit = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_SIG_MEDIUM_LIMIT:
             limits->symbols_medium_limit = CLStateGetIntArg(handle, arg);
             break;
@@ -1027,8 +1027,8 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
             limits->fun_large_limit = CLStateGetIntArg(handle, arg);
             break;
       default:
-	 assert(false);
-	 break;
+    assert(false);
+    break;
       }
    }
    return state;

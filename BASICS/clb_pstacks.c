@@ -160,8 +160,8 @@ double PStackComputeAverage(PStack_p stack, double *deviation)
    {
       for(i=0; i<PStackGetSP(stack); i++)
       {
-	 variance+= (PStackElementInt(stack,i)-average)
-	 *(PStackElementInt(stack,i)-average);
+    variance+= (PStackElementInt(stack,i)-average)
+    *(PStackElementInt(stack,i)-average);
       }
       variance = variance / (double)count;
    }

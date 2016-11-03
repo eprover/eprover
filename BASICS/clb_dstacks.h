@@ -49,8 +49,8 @@ typedef struct dstackcell
 /*---------------------------------------------------------------------*/
 
 #define DSTACK_DEFAULT_SIZE 32 /* Stacks grow exponentially (and never
-				  shrink unless explicitly freed) -
-				  take care */
+              shrink unless explicitly freed) -
+              take care */
 
 
 #define DStackCellAlloc() (DStackCell*)SizeMalloc(sizeof(DStackCell))

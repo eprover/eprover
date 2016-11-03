@@ -46,8 +46,8 @@ typedef enum
    CPIsProcessed       = 2*CPInputClause, /* Clause has been processed
                                            * previously */
    CPIsOriented        = 2*CPIsProcessed, /* Term and literal
-		                             comparisons are up to
-		                             date */
+                                   comparisons are up to
+                                   date */
    CPIsDIndexed        = 2*CPIsOriented,  /* Clause is in the
                                            * demod_index of its set */
    CPIsSIndexed        = 2*CPIsDIndexed,  /* Clause is in the fvindex
@@ -122,38 +122,38 @@ typedef enum
 typedef struct clause_cell
 {
    long                  ident;       /* Hopefully unique ident for
-					 all clauses created during
-					 proof run */
+                all clauses created during
+                proof run */
 #ifdef CLAUSE_PERM_IDENT
    long                  perm_ident;  /* Running number, given on
                                          alloc, never modified */
 #endif
    SysDate               date;        /* ...at which this clause
-					 became a demodulator */
+                became a demodulator */
    Eqn_p                 literals;    /* List of literals */
    short                 neg_lit_no;  /* Negative literals */
    short                 pos_lit_no;  /* Positive literals */
    ClauseProperties      properties;  /* Anything we want to note at
-					 the clause? */
+                the clause? */
    long                  weight;      /* ClauseStandardWeight()
-					 precomputed at some points in
-					 the program */
+                precomputed at some points in
+                the program */
    Eval_p                evaluations; /* List of evaluations */
    ClauseInfo_p          info;        /* Currently about source in
                                          input, NULL for derived clauses */
    PStack_p              derivation;  /* Derivation of the clause for
                                          proof reconstruction. */
    long                  create_date; /* At what iteration of the
-					 main loop has this
-					 clause been created? */
+                main loop has this
+                clause been created? */
    long                  proof_depth; /* How long is the longest
-					 derivation chain from this
-					 clause to an axiom? */
+                derivation chain from this
+                clause to an axiom? */
    long                  proof_size;  /* How many (generating)
-					 inferences were necessary to
-					 create this clause? */
+                inferences were necessary to
+                create this clause? */
    PTree_p               children;    /* Which can be removed if this
-			  	         clause changes significantly */
+                     clause changes significantly */
    struct clause_cell*   parent1;     /* Parents need to be notified */
    struct clause_cell*   parent2;     /* if their children are removed! */
    struct clausesetcell* set;         /* Is the clause in a set? */
@@ -230,7 +230,7 @@ bool     ClauseIsSemEmpty(Clause_p clause);
 #define  ClauseIsUnit(clause) (ClauseLiteralNumber(clause)==1)
 #define  ClauseIsDemodulator(clause)\
             (((clause)->pos_lit_no == 1) && \
-	     ((clause)->neg_lit_no == 0))
+        ((clause)->neg_lit_no == 0))
 #define  ClauseIsRWRule(clause)\
             (ClauseIsDemodulator(clause)&&EqnIsOriented((clause)->literals))
 #define  ClauseIsGround(clause) EqnListIsGround(clause->literals)
@@ -306,7 +306,7 @@ void     ClausePrint(FILE* out, Clause_p clause, bool fullterms);
 void     ClausePCLPrint(FILE* out, Clause_p clause, bool fullterms);
 void     ClauseTSTPCorePrint(FILE* out, Clause_p clause, bool fullterms);
 void     ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms,
-			 bool complete);
+          bool complete);
 
 bool             ClauseStartsMaybe(Scanner_p in);
 ClauseProperties ClauseTypeParse(Scanner_p in, char *legal_types);
@@ -335,9 +335,9 @@ void     ClauseAddEvalCell(Clause_p clause, Eval_p evaluation);
 void     ClauseRemoveEvaluations(Clause_p clause);
 
 double   ClauseWeight(Clause_p clause, double max_term_multiplier,
-		      double max_literal_multiplier, double
-		      pos_multiplier, long vweight, long fweight, bool
-		      count_eq_encoding);
+            double max_literal_multiplier, double
+            pos_multiplier, long vweight, long fweight, bool
+            count_eq_encoding);
 
 double ClauseFunWeight(Clause_p clause, double max_term_multiplier,
                        double max_literal_multiplier, double
@@ -345,30 +345,30 @@ double ClauseFunWeight(Clause_p clause, double max_term_multiplier,
                        long *fweights, long default_fweight);
 
 double ClauseNonLinearWeight(Clause_p clause, double
-			     max_term_multiplier, double
-			     max_literal_multiplier, double
-			     pos_multiplier, long vlweight, long
-			     vweight, long fweight, bool
-			     count_eq_encoding);
+              max_term_multiplier, double
+              max_literal_multiplier, double
+              pos_multiplier, long vlweight, long
+              vweight, long fweight, bool
+              count_eq_encoding);
 double ClauseSymTypeWeight(Clause_p clause, double
-			   max_term_multiplier, double
-			   max_literal_multiplier, double
-			   pos_multiplier, long vweight, long
-			   fweight, long cweight, long pweight);
+            max_term_multiplier, double
+            max_literal_multiplier, double
+            pos_multiplier, long vweight, long
+            fweight, long cweight, long pweight);
 
 
 double   ClauseStandardWeight(Clause_p clause);
 
 double   ClauseOrientWeight(Clause_p clause, double
-			    unorientable_literal_multiplier,
-			    double max_literal_multiplier, double
-			    pos_multiplier, long vweight, long
-			    fweight, bool count_eq_encoding);
+             unorientable_literal_multiplier,
+             double max_literal_multiplier, double
+             pos_multiplier, long vweight, long
+             fweight, bool count_eq_encoding);
 
 #define  ClauseDepth(clause) EqnListDepth((clause)->literals)
 
 bool     ClauseNotGreaterEqual(OCB_p ocb,
-			       Clause_p clause1, Clause_p clause2);
+                Clause_p clause1, Clause_p clause2);
 
 int      ClauseCompareFun(const void *c1, const void* c2);
 int      ClauseCmpById(const void* clause1, const void* clause2);
@@ -382,7 +382,7 @@ int      ClauseCmpByPtr(const void* clause1, const void* clause2);
 
 #define  NormSubstClause(clause, subst, vars)\
          NormSubstEqnListExcept((clause)->literals,\
-				NULL, (subst), (vars))
+            NULL, (subst), (vars))
 
 Clause_p ClauseNormalizeVars(Clause_p clause, VarBank_p fresh_vars);
 

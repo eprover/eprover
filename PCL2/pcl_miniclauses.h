@@ -66,7 +66,7 @@ MiniClause_p MinifyClause(Clause_p clause);
 Clause_p     UnMinifyClause(MiniClause_p clause, TB_p bank);
 
 void MiniClausePrint(FILE* out, MiniClause_p compact, TB_p bank, bool
-		     full_terms);
+           full_terms);
 
 void MiniClausePCLPrint(FILE* out, MiniClause_p compact, TB_p bank);
 void MiniClauseTSTPCorePrint(FILE* out, MiniClause_p compact, TB_p bank);

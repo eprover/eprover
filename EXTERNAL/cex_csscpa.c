@@ -55,17 +55,17 @@ char* ClauseStatusString(ClauseStatusType clause_status)
    switch(clause_status)
    {
    case contradicts:
-	 return "contradicts";
+    return "contradicts";
    case rejected:
-	 return "rejected";
+    return "rejected";
    case improved:
-	 return "improved";
+    return "improved";
    case forced:
-	 return "forced";
+    return "forced";
    case requested:
-	 return "requested";
+    return "requested";
    default:
-	 return "unknown";
+    return "unknown";
    }
 
 }
@@ -81,19 +81,19 @@ char* ClauseStatusString(ClauseStatusType clause_status)
 //
 /----------------------------------------------------------------------*/
 static void print_csscpa_state(CSSCPAState_p state,
-			       ClauseStatusType clause_status,
-			       Clause_p clause)
+                ClauseStatusType clause_status,
+                Clause_p clause)
 {
    fprintf(GlobalOut,"# CSSCPAState: %-10s",ClauseStatusString(clause_status));
    fprintf(GlobalOut,
-	   " by %d, %ld, %ld, %ld (system, clauses,literals,weight)\n",
-	   clause ? ClauseQueryCSSCPASource(clause) : 0,
-	   state->clauses,
-	   state->literals,
-	   state->weight);
+      " by %d, %ld, %ld, %ld (system, clauses,literals,weight)\n",
+      clause ? ClauseQueryCSSCPASource(clause) : 0,
+      state->clauses,
+      state->literals,
+      state->weight);
    fflush(GlobalOut); /* Redundant, but nevertheless. The output
-			 will probably be parsed after each new
-			 clause. */
+          will probably be parsed after each new
+          clause. */
 }
 
 
@@ -111,7 +111,7 @@ static void print_csscpa_state(CSSCPAState_p state,
 /----------------------------------------------------------------------*/
 
 static long collect_subsumed(Clause_p clause, ClauseSet_p set,
-			     PStack_p subsumed)
+              PStack_p subsumed)
 {
    long res = 0;
    Clause_p handle, position;
@@ -121,21 +121,21 @@ static long collect_subsumed(Clause_p clause, ClauseSet_p set,
    if(ClauseIsUnit(clause))
    {
       while((handle = ClauseSetFindUnitSubsumedClause(set, position,
-						      clause)))
+                        clause)))
       {
-	 PStackPushP(subsumed, handle);
-	 res+=handle->weight;
-	 position=handle->succ;
+    PStackPushP(subsumed, handle);
+    res+=handle->weight;
+    position=handle->succ;
       }
    }
    else
    {
       while((handle = ClauseSetFindSubsumedClause(set, position,
-						  clause)))
+                    clause)))
       {
-	 PStackPushP(subsumed, handle);
-	 res+=handle->weight;
-	 position=handle->succ;
+    PStackPushP(subsumed, handle);
+    res+=handle->weight;
+    position=handle->succ;
       }
 
    }
@@ -176,14 +176,14 @@ static Clause_p find_unit_contradiction(Clause_p clause,CSSCPAState_p state)
    }
 
    for(handle = set->anchor->succ; handle != set->anchor; handle =
-	  handle->succ)
+     handle->succ)
    {
       assert(ClauseIsUnit(handle));
       assert(XOR(EqnIsPositive(lit), ClauseIsPositive(handle)));
 
       if(EqnUnifyP(lit, handle->literals))
       {
-	 return handle;
+    return handle;
       }
    }
    return NULL;
@@ -272,7 +272,7 @@ void CSSCPAStateFree(CSSCPAState_p junk)
 /----------------------------------------------------------------------*/
 
 bool CSSCPAProcessClause(CSSCPAState_p state, Clause_p clause,
-			bool accept, float weight_delta, float average_delta)
+         bool accept, float weight_delta, float average_delta)
 {
    PStack_p subsumed;
    long     sub_weight;
@@ -289,8 +289,8 @@ bool CSSCPAProcessClause(CSSCPAState_p state, Clause_p clause,
       clause_status = rejected;
       if(OutputLevel)
       {
-	 fprintf(GlobalOut, "# Clause %ld rejected (Tautology)\n",
-		 clause->ident);
+    fprintf(GlobalOut, "# Clause %ld rejected (Tautology)\n",
+       clause->ident);
       }
       ClauseFree(clause);
    }
@@ -300,17 +300,17 @@ bool CSSCPAProcessClause(CSSCPAState_p state, Clause_p clause,
 
       if((clause->pos_lit_no &&
           (handle=UnitClauseSetSubsumesClause(state->pos_units,
-				      clause))) ||
+                  clause))) ||
          (clause->neg_lit_no &&
           (handle=UnitClauseSetSubsumesClause(state->neg_units,
-				      clause))) ||
+                  clause))) ||
          ((ClauseLiteralNumber(clause)>1) &&
           (handle=ClauseSetSubsumesClause(state->non_units, clause))))
       {
          if(OutputLevel)
          {
-	    fprintf(GlobalOut, "# Clause %ld rejected (subsumed by %ld)\n",
-		    clause->ident,handle->ident);
+       fprintf(GlobalOut, "# Clause %ld rejected (subsumed by %ld)\n",
+          clause->ident,handle->ident);
          }
          clause_status = rejected;
          ClauseFree(clause);
@@ -336,24 +336,24 @@ bool CSSCPAProcessClause(CSSCPAState_p state, Clause_p clause,
          clause_status = improved;
       }
       else if(state->clauses &&
-	      (((state->weight + clause->weight)/
-		(state->clauses + 1.0))
-	       <
-	       ((1.0-average_delta)*state->weight/state->clauses)))
+         (((state->weight + clause->weight)/
+      (state->clauses + 1.0))
+          <
+          ((1.0-average_delta)*state->weight/state->clauses)))
       {
-	 clause_status = improved;
+    clause_status = improved;
       }
       else
       {
-	 if(ClauseIsUnit(clause))
-	 {
-	    if(find_unit_contradiction(clause,state))
-	    {
+    if(ClauseIsUnit(clause))
+    {
+       if(find_unit_contradiction(clause,state))
+       {
 /*----Added by Geoff */
-	       clause_status = contradicts;
-	       OUTPRINT(1, "# Unit contradiction found!\n");
-	    }
-	 }
+          clause_status = contradicts;
+          OUTPRINT(1, "# Unit contradiction found!\n");
+       }
+    }
       }
 
 /*----Added by Geoff */
@@ -361,17 +361,17 @@ bool CSSCPAProcessClause(CSSCPAState_p state, Clause_p clause,
       {
          while(!PStackEmpty(subsumed))
          {
-	    handle = PStackPopP(subsumed);
-	    state->clauses--;
-	    state->literals -= ClauseLiteralNumber(handle);
-	    state->weight   -= handle->weight;
+       handle = PStackPopP(subsumed);
+       state->clauses--;
+       state->literals -= ClauseLiteralNumber(handle);
+       state->weight   -= handle->weight;
             if(OutputLevel)
             {
-	       fprintf(GlobalOut,
-	  	       "# Clause %ld removed from list (subsumed by %ld)\n",
-		       handle->ident, clause->ident);
+          fprintf(GlobalOut,
+             "# Clause %ld removed from list (subsumed by %ld)\n",
+             handle->ident, clause->ident);
             }
-	    ClauseSetDeleteEntry(handle);
+       ClauseSetDeleteEntry(handle);
          }
          state->clauses++;
          state->literals += ClauseLiteralNumber(clause);
@@ -379,21 +379,21 @@ bool CSSCPAProcessClause(CSSCPAState_p state, Clause_p clause,
 
          if(ClauseIsUnit(clause)&&ClauseIsPositive(clause))
          {
-	    ClauseSetIndexedInsertClause(state->pos_units,clause);
+       ClauseSetIndexedInsertClause(state->pos_units,clause);
          }
          else if(ClauseIsUnit(clause))
-	 {
-	    ClauseSetIndexedInsertClause(state->neg_units,clause);
-	 }
-	 else
-	 {
-	    ClauseSetIndexedInsertClause(state->non_units,clause);
-	 }
+    {
+       ClauseSetIndexedInsertClause(state->neg_units,clause);
+    }
+    else
+    {
+       ClauseSetIndexedInsertClause(state->non_units,clause);
+    }
          if(OutputLevel)
          {
-	    fprintf(GlobalOut,
-		    "# Clause %ld accepted from %d (%s)\n",
-		    clause->ident, ClauseQueryCSSCPASource(clause),
+       fprintf(GlobalOut,
+          "# Clause %ld accepted from %d (%s)\n",
+          clause->ident, ClauseQueryCSSCPASource(clause),
             ClauseStatusString(clause_status));
          }
       }
@@ -401,8 +401,8 @@ bool CSSCPAProcessClause(CSSCPAState_p state, Clause_p clause,
       {
          if(OutputLevel)
          {
-	    fprintf(GlobalOut, "# Clause %ld rejected (weighty)\n",
-		    clause->ident);
+       fprintf(GlobalOut, "# Clause %ld rejected (weighty)\n",
+          clause->ident);
          }
          clause_status = rejected;
       }
@@ -453,7 +453,7 @@ void CSSCPALoop(Scanner_p in, CSSCPAState_p state)
          {
              OutputLevel = AktToken(in)->numval == 1;
          }
-	 AcceptInpTok(in,PosInt);
+    AcceptInpTok(in,PosInt);
          continue;
       }
       /*----User requests a state update */
@@ -465,80 +465,80 @@ void CSSCPALoop(Scanner_p in, CSSCPAState_p state)
          continue;
       }
       /* What now follows is evil, but about the only way to reliably
-	 get around CLIB's input buffering: */
+    get around CLIB's input buffering: */
       if(TestInpId(in, "Please"))
       {
-	 AcceptInpId(in, "Please");
-	 AcceptInpId(in, "process");
-	 AcceptInpId(in, "clauses");
-	 AcceptInpId(in, "now");
-	 AcceptInpTok(in, Comma);
-	 AcceptInpId(in, "I");
-	 AcceptInpId(in, "beg");
-	 AcceptInpId(in, "you");
-	 AcceptInpTok(in, Comma);
-	 AcceptInpId(in, "great");
-	 AcceptInpId(in, "shining");
-	 AcceptInpId(in, "CSSCPA");
-	 AcceptInpTok(in, Comma);
-	 AcceptInpId(in, "wonder");
-	 AcceptInpId(in, "of");
-	 AcceptInpId(in, "the");
-	 AcceptInpId(in, "world");
-	 AcceptInpTok(in, Comma);
-	 AcceptInpId(in, "most");
-	 AcceptInpId(in, "beautiful");
-	 AcceptInpId(in, "program");
-	 AcceptInpId(in, "ever");
-	 AcceptInpId(in, "written");
-	 AcceptInpTok(in, Fullstop);
-	 continue;
+    AcceptInpId(in, "Please");
+    AcceptInpId(in, "process");
+    AcceptInpId(in, "clauses");
+    AcceptInpId(in, "now");
+    AcceptInpTok(in, Comma);
+    AcceptInpId(in, "I");
+    AcceptInpId(in, "beg");
+    AcceptInpId(in, "you");
+    AcceptInpTok(in, Comma);
+    AcceptInpId(in, "great");
+    AcceptInpId(in, "shining");
+    AcceptInpId(in, "CSSCPA");
+    AcceptInpTok(in, Comma);
+    AcceptInpId(in, "wonder");
+    AcceptInpId(in, "of");
+    AcceptInpId(in, "the");
+    AcceptInpId(in, "world");
+    AcceptInpTok(in, Comma);
+    AcceptInpId(in, "most");
+    AcceptInpId(in, "beautiful");
+    AcceptInpId(in, "program");
+    AcceptInpId(in, "ever");
+    AcceptInpId(in, "written");
+    AcceptInpTok(in, Fullstop);
+    continue;
       }
 
       CheckInpId(in, "accept|check");
       accept = false;
       if(TestInpId(in, "accept"))
       {
-	 accept = true;
+    accept = true;
       }
       NextToken(in);
       source = CP_CSSCPA_Unkown;
       if(TestInpId(in, "from"))
       {
-	 NextToken(in);
-	 source = AktToken(in)->numval;
-	 if((source < 2) || (source > 15))
-	 {
-	    AktTokenError(in, "CSSCPA source specifier must "
-			  "be in the range 2...15", false);
-	 }
-	 AcceptInpTok(in, PosInt);
+    NextToken(in);
+    source = AktToken(in)->numval;
+    if((source < 2) || (source > 15))
+    {
+       AktTokenError(in, "CSSCPA source specifier must "
+           "be in the range 2...15", false);
+    }
+    AcceptInpTok(in, PosInt);
       }
       else
       {
-	 source = 0;
+    source = 0;
       }
 
       /* Here is my suggestion: In order to stay compatible, I require
-	 an extra keyword here, otherwise the deltas are 0.0 (or
-	 whatever you like). Compare with >=, so that the default is
-	 to accept!
+    an extra keyword here, otherwise the deltas are 0.0 (or
+    whatever you like). Compare with >=, so that the default is
+    to accept!
 
          Format: "improve(weight_delta, average_delta) */
 
       if(TestInpId(in, "improve"))
       {
-	 NextToken(in);
-	 AcceptInpTok(in, OpenBracket);
-	 weight_delta = ParseFloat(in);
-	 AcceptInpTok(in, Comma);
-	 average_delta = ParseFloat(in);
-	 AcceptInpTok(in, CloseBracket);
+    NextToken(in);
+    AcceptInpTok(in, OpenBracket);
+    weight_delta = ParseFloat(in);
+    AcceptInpTok(in, Comma);
+    average_delta = ParseFloat(in);
+    AcceptInpTok(in, CloseBracket);
       }
       else
       {
-	 weight_delta = 0.0;
-	 average_delta = 0.0;
+    weight_delta = 0.0;
+    average_delta = 0.0;
       }
       AcceptInpTok(in, Colon);
       handle = ClauseParse(in, state->terms);

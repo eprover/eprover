@@ -6,7 +6,7 @@ Author:  Stephan Schulz
 
 Contents:
          Implementation of a Knuth_Bendix ordering (KBO) on CLIB
-	 terms. This is based on CTKBO4-6 from [Loechner:JAR-2006].
+    terms. This is based on CTKBO4-6 from [Loechner:JAR-2006].
 
 
   Copyright 2010 by the author.
@@ -635,7 +635,7 @@ static void __inline__ kbo6reset(OCB_p ocb)
 -----------------------------------------------------------------------*/
 
 CompareResult KBO6Compare(OCB_p ocb, Term_p s, Term_p t,
-			 DerefType deref_s, DerefType deref_t)
+          DerefType deref_s, DerefType deref_t)
 {
    CompareResult res;
 
@@ -669,7 +669,7 @@ CompareResult KBO6Compare(OCB_p ocb, Term_p s, Term_p t,
 -----------------------------------------------------------------------*/
 
 bool KBO6Greater(OCB_p ocb, Term_p s, Term_p t,
-		DerefType deref_s, DerefType deref_t)
+      DerefType deref_s, DerefType deref_t)
 {
    CompareResult res;
 

@@ -70,38 +70,38 @@ double sim_eqn_weight(Eqn_p eqn, SimParam_p parms)
 
       if(lside->f_code == rside->f_code)
       {
-	 eq_weight += parms->equal_weight;
-	 for(i=0; i<lside->arity; i++)
-	 {
-	    PStackPushP(stack, lside->args[i]);
-	    PStackPushP(stack, rside->args[i]);
-	 }
+    eq_weight += parms->equal_weight;
+    for(i=0; i<lside->arity; i++)
+    {
+       PStackPushP(stack, lside->args[i]);
+       PStackPushP(stack, rside->args[i]);
+    }
       }
       else
       {
-	 if(TermIsVar(lside))
-	 {
-	    if(TermIsVar(rside))
-	    {
-	       clash_weight += parms->var_var_clash;
-	    }
-	    else
-	    {
-	       clash_weight += parms->var_term_clash;
-	    }
-	 }
-	 else
-	 {
-	    if(TermIsVar(rside))
-	    {
-	       clash_weight += parms->var_term_clash;
-	    }
-	    else
-	    {
-	       clash_weight += parms->term_term_clash *
-		  (TermWeight(lside, 1, 1)+TermWeight(rside, 1, 1));
-	    }
-	 }
+    if(TermIsVar(lside))
+    {
+       if(TermIsVar(rside))
+       {
+          clash_weight += parms->var_var_clash;
+       }
+       else
+       {
+          clash_weight += parms->var_term_clash;
+       }
+    }
+    else
+    {
+       if(TermIsVar(rside))
+       {
+          clash_weight += parms->var_term_clash;
+       }
+       else
+       {
+          clash_weight += parms->term_term_clash *
+        (TermWeight(lside, 1, 1)+TermWeight(rside, 1, 1));
+       }
+    }
       }
    }
    PStackFree(stack);
@@ -152,8 +152,8 @@ double sim_weight(Clause_p clause, SimParam_p parms)
 /----------------------------------------------------------------------*/
 
 WFCB_p SimWeightInit(ClausePrioFun prio_fun, double equal_weight, double
-		     var_var_clash, double var_term_clash, double
-		     term_term_clash)
+           var_var_clash, double var_term_clash, double
+           term_term_clash)
 {
    SimParam_p data = SimParamCellAlloc();
 
@@ -199,7 +199,7 @@ WFCB_p SimWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
    AcceptInpTok(in, CloseBracket);
 
    return SimWeightInit(prio_fun, equal_weight, var_var_clash,
-			var_term_clash, term_term_clash);
+         var_term_clash, term_term_clash);
 }
 
 

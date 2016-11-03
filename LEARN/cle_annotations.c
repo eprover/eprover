@@ -63,7 +63,7 @@ Annotation_p AnnotationAlloc(void)
 
    handle->val1.p_val =
       DDArrayAlloc(ANNOTATION_DEFAULT_SIZE,
-		   ANNOTATION_DEFAULT_SIZE);
+         ANNOTATION_DEFAULT_SIZE);
    handle->val2.p_val = NULL;
 
    return handle;
@@ -146,23 +146,23 @@ Annotation_p AnnotationParse(Scanner_p in, long expected)
    {
       if(count == expected)
       {
-	 AktTokenError(in,
-		       "Annotation has more elements than expected",
-		       false);
+    AktTokenError(in,
+             "Annotation has more elements than expected",
+             false);
       }
       value = ParseFloat(in);
       DDArrayAssign(handle->val1.p_val, count, value);
       count++;
       if(!TestInpTok(in, CloseBracket))
       {
-	 AcceptInpTok(in, Comma);
+    AcceptInpTok(in, Comma);
       }
    }
    if(count < expected)
    {
       AktTokenError(in,
-		    "Annotation has fewer elements than expected",
-		    false);
+          "Annotation has fewer elements than expected",
+          false);
    }
    AcceptInpTok(in, CloseBracket);
    AnnotationLength(handle) = count;
@@ -185,7 +185,7 @@ Annotation_p AnnotationParse(Scanner_p in, long expected)
 /----------------------------------------------------------------------*/
 
 long AnnotationListParse(Scanner_p in, Annotation_p *tree, long
-			 expected)
+          expected)
 {
    DStr_p     source_name, errpos;
    long       line, column;
@@ -203,18 +203,18 @@ long AnnotationListParse(Scanner_p in, Annotation_p *tree, long
       handle = NumTreeInsert(tree, handle);
       if(handle)
       {
-	 AnnotationFree(handle);
-	 errpos = DStrAlloc();
-	 DStrAppendStr(errpos, PosRep(type, source_name, line, column));
-	 DStrAppendStr(errpos, " Only one annotation for each proof example allowed");
-	 Error(DStrView(errpos), SYNTAX_ERROR);
-	 DStrFree(errpos);
+    AnnotationFree(handle);
+    errpos = DStrAlloc();
+    DStrAppendStr(errpos, PosRep(type, source_name, line, column));
+    DStrAppendStr(errpos, " Only one annotation for each proof example allowed");
+    Error(DStrView(errpos), SYNTAX_ERROR);
+    DStrFree(errpos);
       }
       DStrReleaseRef(source_name);
       i++;
       if(TestInpTok(in, Comma))
       {
-	 NextToken(in);
+    NextToken(in);
       }
    }
    return i;
@@ -333,7 +333,7 @@ void AnnotationCombine(Annotation_p res, Annotation_p new_anno)
 /----------------------------------------------------------------------*/
 
 long AnnotationMerge(Annotation_p *tree, Annotation_p collect,
-		     PStack_p sources)
+           PStack_p sources)
 {
    PStackPointer i;
    long          count = 0;
@@ -345,8 +345,8 @@ long AnnotationMerge(Annotation_p *tree, Annotation_p collect,
 
       while((handle = NumTreeTraverseNext(stack)))
       {
-	 AnnotationCombine(collect, handle);
-	 count++;
+    AnnotationCombine(collect, handle);
+    count++;
       }
       NumTreeTraverseExit(stack);
    }
@@ -354,12 +354,12 @@ long AnnotationMerge(Annotation_p *tree, Annotation_p collect,
    {
       for(i=0; i< PStackGetSP(sources); i++)
       {
-	 handle = NumTreeFind(tree, PStackElementInt(sources, i));
-	 if(handle)
-	 {
-	    AnnotationCombine(collect, handle);
-	    count++;
-	 }
+    handle = NumTreeFind(tree, PStackElementInt(sources, i));
+    if(handle)
+    {
+       AnnotationCombine(collect, handle);
+       count++;
+    }
       }
    }
    return count;

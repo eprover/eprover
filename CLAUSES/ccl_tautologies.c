@@ -75,29 +75,29 @@ CompareResult TO_ground_compare(Term_p t1, Term_p t2)
 
       if(w1<w2)
       {
-	 res = to_lesser;
+    res = to_lesser;
       }
       else if(w1>w2)
       {
-	 res = to_greater;
+    res = to_greater;
       }
       else if(t1->f_code < t2->f_code)
       {
-	 res = to_lesser;
+    res = to_lesser;
       }
       else if(t1->f_code > t2->f_code)
       {
-	 res = to_greater;
+    res = to_greater;
       }
       if(res!= to_equal)
       {
-	 break;
+    break;
       }
       assert(t1->arity == t2->arity);
       for(i = 0; i<t1->arity; i++)
       {
-	 PStackPushP(stack, t1->args[i]);
-	 PStackPushP(stack, t2->args[i]);
+    PStackPushP(stack, t1->args[i]);
+    PStackPushP(stack, t2->args[i]);
       }
    }
    PStackFree(stack);
@@ -158,19 +158,19 @@ static bool term_compute_top_nf(TermRef ref, Eqn_p eqns)
    {
       if(EqnQueryProp(handle, EPGONatural))
       {
-	 lside = handle->lterm;
-	 rside = handle->rterm;
+    lside = handle->lterm;
+    rside = handle->rterm;
       }
       else
       {
-	 lside = handle->rterm;
-	 rside = handle->lterm;
+    lside = handle->rterm;
+    rside = handle->lterm;
       }
       if(TermStructEqualNoDeref(lside, *ref))
       {
-	 TermFree(*ref);
-	 *ref = TermCopy(rside, handle->bank->vars, false);
-	 return true;
+    TermFree(*ref);
+    *ref = TermCopy(rside, handle->bank->vars, false);
+    return true;
       }
       handle = handle->next;
    }
@@ -275,12 +275,12 @@ static void ground_backward_contract(EqnRef from, Eqn_p eqns, EqnRef to)
       res = ground_normalize_eqn(*from, eqns);
       if(res)
       {
-	 handle = EqnListExtractFirst(from);
-	 EqnListInsertFirst(to, handle);
+    handle = EqnListExtractFirst(from);
+    EqnListInsertFirst(to, handle);
       }
       else
       {
-	 from = &((*from)->next);
+    from = &((*from)->next);
       }
    }
 }
@@ -313,8 +313,8 @@ static void ground_complete_neg_eqns(EqnRef list)
       ground_normalize_eqn(handle, proc);
       if(handle->lterm==handle->rterm)
       {
-	 EqnFree(handle);
-	 continue;
+    EqnFree(handle);
+    continue;
       }
       cmp = ground_orient_eqn(handle);
       UNUSED(cmp); assert(cmp);

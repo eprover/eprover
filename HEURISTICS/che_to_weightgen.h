@@ -103,10 +103,10 @@ TOWeightGenMethod TOTranslateWeightGenMethod(char* name);
 
 #define TOGenerateDefaultWeights(ocb) \
         TOGenerateWeights((ocb), NULL, WSelectMaximal, \
-			  W_DEFAULT_WEIGHT)
+           W_DEFAULT_WEIGHT)
 
 void TOGenerateWeights(OCB_p ocb, ClauseSet_p axioms, char *pre_weights,
-		       TOWeightGenMethod method, long const_weight);
+             TOWeightGenMethod method, long const_weight);
 
 
 

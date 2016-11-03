@@ -61,15 +61,15 @@ typedef enum
 
 long PCLCollectPreconds(PCLProt_p prot, PCLStep_p step, ClauseSet_p set);
 long PCLNegSkolemizeClause(PCLProt_p prot, PCLStep_p step,
-			   ClauseSet_p set);
+            ClauseSet_p set);
 ClauseSet_p PCLGenerateCheck(PCLProt_p prot, PCLStep_p step);
 
 PCLCheckType PCLStepCheck(PCLProt_p prot, PCLStep_p step, ProverType
-			  prover, char* executable, long time_limit);
+           prover, char* executable, long time_limit);
 
 long PCLProtCheck(PCLProt_p prot, ProverType
-		  prover, char* executable, long time_limit, long*
-		  unchecked);
+        prover, char* executable, long time_limit, long*
+        unchecked);
 
 #endif
 

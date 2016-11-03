@@ -125,33 +125,33 @@ void    DocClauseCreation(FILE* out, long level, Clause_p clause,
                           Clause_p parent2, char* comment);
 #define DocClauseCreationDefault(clause, op, parent1, parent2)\
         DocClauseCreation(GlobalOut, OutputLevel, (clause),\
-		       (op), (parent1), (parent2), NULL)
+             (op), (parent1), (parent2), NULL)
 
 void    DocClauseFromForm(FILE* out, long level, Clause_p clause,
                           WFormula_p parent);
 
 void    DocClauseModification(FILE* out, long level, Clause_p clause, InfType
-		     op, Clause_p partner, Sig_p sig, char* comment);
+           op, Clause_p partner, Sig_p sig, char* comment);
 #define DocClauseModificationDefault(clause, op, partner)\
         DocClauseModification(GlobalOut, OutputLevel, (clause), (op),\
-		     (partner), NULL, NULL)
+           (partner), NULL, NULL)
 
 void    DocClauseQuote(FILE* out, long level, long target_level,
-		       Clause_p clause, char* comment, Clause_p
-		       opt_partner);
+             Clause_p clause, char* comment, Clause_p
+             opt_partner);
 
 #define DocClauseQuoteDefault(target_level, clause, comment)\
         DocClauseQuote(GlobalOut, OutputLevel, (target_level),\
-		       (clause), (comment), NULL)
+             (clause), (comment), NULL)
 
 void    DocClauseRewrite(FILE* out, long level, ClausePos_p rewritten,
-			 Term_p old_term, char* comment);
+          Term_p old_term, char* comment);
 
 #define DocClauseRewriteDefault(rewritten, old_term)\
         DocClauseRewrite(GlobalOut, OutputLevel, (rewritten),\
-			 (old_term), NULL);
+          (old_term), NULL);
 void    DocClauseEqUnfold(FILE* out, long level, Clause_p rewritten,
-			  ClausePos_p demod, PStack_p demod_pos);
+           ClausePos_p demod, PStack_p demod_pos);
 
 
 void    DocFormulaCreation(FILE* out, long level, WFormula_p formula,

@@ -115,7 +115,7 @@ void       WFormulaTPTPPrint(FILE* out, WFormula_p form, bool fullterms);
 
 WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms);
 void       WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
-			     bool complete);
+              bool complete);
 WFormula_p WFormulaParse(Scanner_p in, TB_p terms);
 void       WFormulaPrint(FILE* out, WFormula_p form, bool fullterms);
 

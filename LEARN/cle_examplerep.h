@@ -52,7 +52,7 @@ typedef struct examplerepcell
 typedef struct examplesetcell
 {
    long      count; /* For ident generation, _not_ number of examples
-		     */
+           */
    NumTree_p ident_index;
    StrTree_p name_index;
 }ExampleSetCell, *ExampleSet_p;
@@ -82,10 +82,10 @@ bool          ExampleSetDeleteName(ExampleSet_p set, char* name);
 void          ExampleSetPrint(FILE* out, ExampleSet_p set);
 long          ExampleSetParse(Scanner_p in, ExampleSet_p set);
 long          ExampleSetSelectByDist(PStack_p results, ExampleSet_p
-				     set, Features_p target, double
-				     pred_w, double func_w, double
-				     *weights, long sel_no, double
-				     set_part, double dist_part);
+                 set, Features_p target, double
+                 pred_w, double func_w, double
+                 *weights, long sel_no, double
+                 set_part, double dist_part);
 #endif
 
 /*---------------------------------------------------------------------*/

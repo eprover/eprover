@@ -52,7 +52,7 @@ typedef struct memcell
 #define MEM_ARR_SIZE     1024
 #define MEM_ALIGN        16
 #define MEM_CHUNKLIMIT   (1024/MEM_ALIGN) /* Objects smaller than this are
-					    allocated in sets of MEM_MULTIPLIER */
+                   allocated in sets of MEM_MULTIPLIER */
 #define MEM_MULTIPLIER   1024
 #define MEM_FREE_PATTERN 0xFAFBFAFA
 #define MEM_RSET_PATTERN 0x00000000

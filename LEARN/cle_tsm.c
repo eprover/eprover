@@ -62,7 +62,7 @@ char* TSMTypeNames[] =
 /----------------------------------------------------------------------*/
 
 static double dist_combi_entropy(PDArray_p distribution, long
-				   maxindex, double limit)
+               maxindex, double limit)
 {
    long sum = 0, pcount, ncount, i;
    long *cache = SizeMalloc(2*(maxindex+1)*sizeof(long));
@@ -74,16 +74,16 @@ static double dist_combi_entropy(PDArray_p distribution, long
       pcount = 0;
       ncount = 0;
       for(handle = PDArrayElementP(distribution,i); handle; handle =
-	     handle->next)
+        handle->next)
       {
-	 if(TSMEvalNormalize(handle->eval, limit) == -1)
-	 {
-	    ncount += handle->sources;
-	 }
-	 else
-	 {
-	    pcount += handle->sources;
-	 }
+    if(TSMEvalNormalize(handle->eval, limit) == -1)
+    {
+       ncount += handle->sources;
+    }
+    else
+    {
+       pcount += handle->sources;
+    }
       }
       cache[i]            = ncount;
       cache[i+maxindex+1] = pcount;
@@ -93,8 +93,8 @@ static double dist_combi_entropy(PDArray_p distribution, long
    {
       if(cache[i])
       {
-	 relfreq = (double)cache[i]/(double)sum;
-	 res -= relfreq*log2(relfreq);
+    relfreq = (double)cache[i]/(double)sum;
+    res -= relfreq*log2(relfreq);
       }
    }
    SizeFree(cache, 2*(maxindex+1)*sizeof(long));
@@ -117,7 +117,7 @@ static double dist_combi_entropy(PDArray_p distribution, long
 /----------------------------------------------------------------------*/
 
 static double distribution_entropy(PDArray_p distribution, long
-				   maxindex)
+               maxindex)
 {
    long sum = 0, count, i;
    long *cache = SizeMalloc((maxindex+1)*sizeof(long));
@@ -128,9 +128,9 @@ static double distribution_entropy(PDArray_p distribution, long
    {
       count = 0;
       for(handle = PDArrayElementP(distribution,i); handle; handle =
-	     handle->next)
+        handle->next)
       {
-	 count += handle->sources;
+    count += handle->sources;
       }
       cache[i] = count;
       sum += count;
@@ -139,8 +139,8 @@ static double distribution_entropy(PDArray_p distribution, long
    {
       if(cache[i])
       {
-	 relfreq = (double)cache[i]/(double)sum;
-	 res -= relfreq*log2(relfreq);
+    relfreq = (double)cache[i]/(double)sum;
+    res -= relfreq*log2(relfreq);
       }
    }
    SizeFree(cache, (maxindex+1)*sizeof(long));
@@ -162,7 +162,7 @@ static double distribution_entropy(PDArray_p distribution, long
 /----------------------------------------------------------------------*/
 
 static double evaluate_index(FlatAnnoSet_p set, TSMIndex_p index,
-			     PDArray_p cache, double limit)
+              PDArray_p cache, double limit)
 {
    PDArray_p  partition;
    double     entropy, remainder, relgain = 0.0;
@@ -174,16 +174,16 @@ static double evaluate_index(FlatAnnoSet_p set, TSMIndex_p index,
 
    entropy = TSMFlatAnnoSetEntropy(set, limit);
    remainder = TSMRemainderEntropy(partition, &parts, limit,
-				   maxindex);
+               maxindex);
 
    if(parts != 1)
    {
       /* relgain = (entropy-remainder)/(double)parts; */
       relgain = (entropy-remainder)/
-	 (distribution_entropy(partition,
-			       maxindex)-(entropy-remainder));
+    (distribution_entropy(partition,
+                maxindex)-(entropy-remainder));
       /* relgain = (entropy-remainder)/dist_combi_entropy(partition,
-							 maxindex, limit);  */
+                      maxindex, limit);  */
    }
    PDArrayFree(partition);
 
@@ -205,21 +205,21 @@ static double evaluate_index(FlatAnnoSet_p set, TSMIndex_p index,
 /----------------------------------------------------------------------*/
 
 static double evaluate_index_desc(TSMAdmin_p admin, FlatAnnoSet_p set,
-				  long depth, IndexType indextype,
-				  double limit)
+              long depth, IndexType indextype,
+              double limit)
 {
    TSMIndex_p index;
    double     relgain;
 
    index = TSMIndexAlloc(indextype, depth, admin->index_bank,
-			 admin->subst);
+          admin->subst);
    relgain = evaluate_index(set, index, NULL,limit);
    TSMIndexFree(index);
 
    if(OutputLevel)
    {
       printf("# Index type = %2d, depth = %2ld, relative gain = %f\n",
-	     indextype, depth, relgain);
+        indextype, depth, relgain);
    }
    return relgain;
 }
@@ -240,9 +240,9 @@ static double evaluate_index_desc(TSMAdmin_p admin, FlatAnnoSet_p set,
 /----------------------------------------------------------------------*/
 
 static double evaluate_top_index(TSMAdmin_p admin, FlatAnnoSet_p set,
-				 long depth, IndexType indextype,
-				 IndexType *best_type, double to_beat,
-				 double limit)
+             long depth, IndexType indextype,
+             IndexType *best_type, double to_beat,
+             double limit)
 {
    double relgain;
 
@@ -251,8 +251,8 @@ static double evaluate_top_index(TSMAdmin_p admin, FlatAnnoSet_p set,
       relgain = evaluate_index_desc(admin, set, depth, IndexTop, limit);
       if(relgain > to_beat)
       {
-	 to_beat    = relgain;
-	 *best_type = IndexTop;
+    to_beat    = relgain;
+    *best_type = IndexTop;
       }
    }
    if(indextype & IndexAltTop)
@@ -260,8 +260,8 @@ static double evaluate_top_index(TSMAdmin_p admin, FlatAnnoSet_p set,
       relgain = evaluate_index_desc(admin, set, depth, IndexAltTop, limit);
       if(relgain > to_beat)
       {
-	 to_beat    = relgain;
-	 *best_type = IndexAltTop;
+    to_beat    = relgain;
+    *best_type = IndexAltTop;
       }
    }
    if(indextype & IndexCSTop)
@@ -269,8 +269,8 @@ static double evaluate_top_index(TSMAdmin_p admin, FlatAnnoSet_p set,
       relgain = evaluate_index_desc(admin, set, depth, IndexCSTop, limit);
       if(relgain > to_beat)
       {
-	 to_beat    = relgain;
-	 *best_type = IndexCSTop;
+    to_beat    = relgain;
+    *best_type = IndexCSTop;
       }
    }
    if(indextype & IndexESTop)
@@ -278,8 +278,8 @@ static double evaluate_top_index(TSMAdmin_p admin, FlatAnnoSet_p set,
       relgain = evaluate_index_desc(admin, set, depth, IndexESTop, limit);
       if(relgain > to_beat)
       {
-	 to_beat    = relgain;
-	 *best_type = IndexESTop;
+    to_beat    = relgain;
+    *best_type = IndexESTop;
       }
    }
    return to_beat;
@@ -300,7 +300,7 @@ static double evaluate_top_index(TSMAdmin_p admin, FlatAnnoSet_p set,
 /----------------------------------------------------------------------*/
 
 static double compute_list_entropy(FlatAnnoTerm_p list, long *count,
-				   double limit)
+               double limit)
 {
 
    long           pos=0, neg=0;
@@ -310,18 +310,18 @@ static double compute_list_entropy(FlatAnnoTerm_p list, long *count,
    {
       if(TSMEvalNormalize(list->eval, limit) == -1)
       {
-	 neg += list->sources;
+    neg += list->sources;
       }
       else
       {
-	 pos += list->sources;
+    pos += list->sources;
       }
       list = list->next;
    }
    *count = pos+neg;
 
    if((pos == 0) || (neg ==0)) /* We are perfectly classified ->
-				  Entropy is 0 */
+              Entropy is 0 */
    {
       res = 0.0;
    }
@@ -350,7 +350,7 @@ static double compute_list_entropy(FlatAnnoTerm_p list, long *count,
 /----------------------------------------------------------------------*/
 
 static double tsm_rec_eval(TSMAdmin_p admin, double *res,  TSM_p tsm,
-			   Term_p term, PatternSubst_p subst)
+            Term_p term, PatternSubst_p subst)
 {
    long  key;
    TSA_p tsa;
@@ -368,11 +368,11 @@ static double tsm_rec_eval(TSMAdmin_p admin, double *res,  TSM_p tsm,
 
       if(admin->tsmtype != TSMTypeFlat)
       {
-	 for(i=0; i<tsa->arity; i++)
-	 {
-	    eval_weight+= tsm_rec_eval(admin, res, tsa->arg_tsms[i],
-				       term->args[i], subst );
-	 }
+    for(i=0; i<tsa->arity; i++)
+    {
+       eval_weight+= tsm_rec_eval(admin, res, tsa->arg_tsms[i],
+                   term->args[i], subst );
+    }
       }
    }
    else
@@ -399,7 +399,7 @@ static double tsm_rec_eval(TSMAdmin_p admin, double *res,  TSM_p tsm,
 /----------------------------------------------------------------------*/
 
 static double tsm_rec_eval_no_weight(TSMAdmin_p admin, double *res,
-				     TSM_p tsm, Term_p term, PatternSubst_p subst)
+                 TSM_p tsm, Term_p term, PatternSubst_p subst)
 {
    long  key;
    TSA_p tsa;
@@ -416,27 +416,27 @@ static double tsm_rec_eval_no_weight(TSMAdmin_p admin, double *res,
 
       if(admin->tsmtype != TSMTypeFlat)
       {
-	 for(i=0; i<term->arity; i++)
-	 {
-	    eval_weight+= tsm_rec_eval(admin, res, tsa->arg_tsms[i],
-				       term->args[i], subst );
-	 }
+    for(i=0; i<term->arity; i++)
+    {
+       eval_weight+= tsm_rec_eval(admin, res, tsa->arg_tsms[i],
+                   term->args[i], subst );
+    }
       }
    }
    else
    {
       if(admin->tsmtype == TSMTypeRecursive)
       {
-	 eval_weight = TermWeight(term,1,1);
+    eval_weight = TermWeight(term,1,1);
       }
       *res += eval_weight*admin->unmapped_eval;
       if(admin->tsmtype == TSMTypeRecurrent)
       {
-	 for(i=0; i<term->arity; i++)
-	 {
-	    eval_weight+= tsm_rec_eval(admin, res, tsm, term->args[i],
-				       subst );
-	 }
+    for(i=0; i<term->arity; i++)
+    {
+       eval_weight+= tsm_rec_eval(admin, res, tsm, term->args[i],
+                   subst );
+    }
       }
    }
    return eval_weight;
@@ -463,7 +463,7 @@ static TSM_p tsmbasealloc(TSMAdmin_p admin, IndexType type, long depth)
    tsm->admin = admin;
    tsm->tsas  = NULL;
    tsm->index = TSMIndexAlloc(type, depth, admin->index_bank,
-			      admin->subst);
+               admin->subst);
    tsm->maxindex = -1;
    return tsm;
 }
@@ -490,14 +490,14 @@ static void tsmcomplete(TSMAdmin_p admin, TSM_p tsm, FlatAnnoSet_p set)
    tsm->maxindex = TSMPartitionSet(partition, tsm->index, set, NULL);
 
    tsm->tsas = PDArrayAlloc(tsm->maxindex+2, 2000); /* For the case -1
-						     */
+                       */
 
    for(i=0; i<=tsm->maxindex; i++)
    {
       part = PDArrayElementP(partition, i);
       if(part)
       {
-	 PDArrayAssignP(tsm->tsas, i, TSACreate(admin, part));
+    PDArrayAssignP(tsm->tsas, i, TSACreate(admin, part));
       }
    }
    PDArrayFree(partition);
@@ -522,7 +522,7 @@ static void tsmcomplete(TSMAdmin_p admin, TSM_p tsm, FlatAnnoSet_p set)
 /----------------------------------------------------------------------*/
 
 double TSMRemainderEntropy(PDArray_p partition, long *parts, double
-			   limit, long max_index)
+            limit, long max_index)
 {
    double res = 0, lres;
    long   count, global_count = 0, i;
@@ -531,12 +531,12 @@ double TSMRemainderEntropy(PDArray_p partition, long *parts, double
    for(i=0; i<=max_index; i++)
    {
       lres = compute_list_entropy(PDArrayElementP(partition, i),
-				  &count, limit);
+              &count, limit);
       if(count)
       {
-	 (*parts)++;
-	 res          += count*lres;
-	 global_count += count;
+    (*parts)++;
+    res          += count*lres;
+    global_count += count;
       }
    }
    return res/(double)global_count;
@@ -571,17 +571,17 @@ double TSMFlatAnnoSetEntropy(FlatAnnoSet_p set, double limit)
       term = handle->val1.p_val;
       if(TSMEvalNormalize(term->eval, limit) == -1)
       {
-	 neg += term->sources;
+    neg += term->sources;
       }
       else
       {
-	 pos += term->sources;
+    pos += term->sources;
       }
    }
    NumTreeTraverseExit(stack);
 
    if((pos == 0) || (neg ==0)) /* We are perfectly classified ->
-				  Entropy is 0 */
+              Entropy is 0 */
    {
       res = 0.0;
    }
@@ -611,7 +611,7 @@ double TSMFlatAnnoSetEntropy(FlatAnnoSet_p set, double limit)
 /----------------------------------------------------------------------*/
 
 long TSMPartitionSet(PDArray_p partition, TSMIndex_p index,
-		     FlatAnnoSet_p set, PDArray_p cache)
+           FlatAnnoSet_p set, PDArray_p cache)
 {
    long           res=-1;
    PStack_p       stack;
@@ -625,20 +625,20 @@ long TSMPartitionSet(PDArray_p partition, TSMIndex_p index,
       current = handle->val1.p_val;
       if(cache)
       {
-	 key = PDArrayElementInt(cache, current->term->entry_no);
-	 if(key)
-	 {
-	    key--;
-	 }
-	 else
-	 {
-	    key = TSMIndexInsert(index,  current->term);
-	    PDArrayAssignInt(cache, current->term->entry_no, key+1);
-	 }
+    key = PDArrayElementInt(cache, current->term->entry_no);
+    if(key)
+    {
+       key--;
+    }
+    else
+    {
+       key = TSMIndexInsert(index,  current->term);
+       PDArrayAssignInt(cache, current->term->entry_no, key+1);
+    }
       }
       else
       {
-	 key = TSMIndexInsert(index,  current->term);
+    key = TSMIndexInsert(index,  current->term);
       }
       res = MAX(res, key);
       current->next = PDArrayElementP(partition, key);
@@ -665,8 +665,8 @@ long TSMPartitionSet(PDArray_p partition, TSMIndex_p index,
 /----------------------------------------------------------------------*/
 
 IndexType TSMFindOptimalIndex(TSMAdmin_p admin, FlatAnnoSet_p set,
-			      long *depth, IndexType indextype, double
-			      limit)
+               long *depth, IndexType indextype, double
+               limit)
 {
    long i;
    double     best = -1.0;
@@ -684,88 +684,88 @@ IndexType TSMFindOptimalIndex(TSMAdmin_p admin, FlatAnnoSet_p set,
    {
       if(tmp!=1)
       {
-	 relgain = evaluate_index_desc(admin, set, 0, IndexArity, limit);
-	 if(relgain > best)
-	 {
-	    best       = relgain;
-	    best_index = IndexArity;
-	    best_depth = 0;
-	 }
+    relgain = evaluate_index_desc(admin, set, 0, IndexArity, limit);
+    if(relgain > best)
+    {
+       best       = relgain;
+       best_index = IndexArity;
+       best_depth = 0;
+    }
       }
       else
       {
-	 best_index = indextype;
+    best_index = indextype;
       }
    }
    if(indextype & IndexSymbol)
    {
       if(tmp!=1)
       {
-	 relgain = evaluate_index_desc(admin, set, 0, IndexSymbol, limit);
-	 if(relgain > best)
-	 {
-	    best       = relgain;
-	    best_index = IndexSymbol;
-	    best_depth  = 0;
-	 }
+    relgain = evaluate_index_desc(admin, set, 0, IndexSymbol, limit);
+    if(relgain > best)
+    {
+       best       = relgain;
+       best_index = IndexSymbol;
+       best_depth  = 0;
+    }
       }
       else
       {
-	 best_index = indextype;
+    best_index = indextype;
       }
    }
    if(indextype & IndexIdentity)
    {
       if(tmp!=1)
       {
-	 relgain = evaluate_index_desc(admin, set, 0, IndexIdentity, limit);
-	 if(relgain > best)
-	 {
-	    best       = relgain;
-	    best_index = IndexIdentity;
-	    best_depth = 0;
-	 }
+    relgain = evaluate_index_desc(admin, set, 0, IndexIdentity, limit);
+    if(relgain > best)
+    {
+       best       = relgain;
+       best_index = IndexIdentity;
+       best_depth = 0;
+    }
       }
       else
       {
-	 best_index = indextype;
+    best_index = indextype;
       }
    }
    if(*depth != IndexDynamicDepth)
    {
       if(tmp != 1)
       {
-	 relgain = evaluate_top_index(admin, set, *depth, indextype,
-				      &best_index, best, limit);
-	 if(relgain > best)
-	 {
-	    best = relgain;
-	    best_depth = *depth;
-	 }
+    relgain = evaluate_top_index(admin, set, *depth, indextype,
+                  &best_index, best, limit);
+    if(relgain > best)
+    {
+       best = relgain;
+       best_depth = *depth;
+    }
       }
       else
       {
-	 best_index = indextype;
+    best_index = indextype;
       }
    }
    else
    {
       for(i=1; i<= TSM_MAX_TERMTOP; i++)
       {
-	 relgain = evaluate_top_index(admin, set, i, indextype,
-				      &best_index, best, limit);
-	 if(relgain > best)
-	 {
-	    best_depth = i;
-	    best = relgain;
-	 }
+    relgain = evaluate_top_index(admin, set, i, indextype,
+                  &best_index, best, limit);
+    if(relgain > best)
+    {
+       best_depth = i;
+       best = relgain;
+    }
       }
    }
    *depth = best_depth;
    if(OutputLevel)
    {
       fprintf(GlobalOut, "# Selected: %2d  depth: %2ld\n", best_index,
-	      best_depth);
+         best_depth);
    }
    return best_index;
 }
@@ -795,8 +795,8 @@ long TSMCreateSubtermSet(FlatAnnoSet_p set, FlatAnnoTerm_p list, int sel)
       term = list->term;
       assert(term->arity > sel);
       new_aterm = FlatAnnoTermAlloc(term->args[sel],
-				    list->eval, list->eval_weight,
-				    list->sources);
+                list->eval, list->eval_weight,
+                list->sources);
       FlatAnnoSetAddTerm(set, new_aterm);
       list = list->next;
       count++;
@@ -868,13 +868,13 @@ void TSMAdminFree(TSMAdmin_p junk)
       assert(junk->tsmtype == TSMTypeRecurrentLocal);
       while(!PStackEmpty(junk->tsmstack))
       {
-	 TSMFree(PStackPopP(junk->tsmstack));
+    TSMFree(PStackPopP(junk->tsmstack));
       }
       PStackFree(junk->tsmstack);
       assert(junk->cachestack);
       while(!PStackEmpty(junk->cachestack))
       {
-	 PDArrayFree(PStackPopP(junk->cachestack));
+    PDArrayFree(PStackPopP(junk->cachestack));
       }
       PStackFree(junk->cachestack);
    }
@@ -907,7 +907,7 @@ void TSMAdminFree(TSMAdmin_p junk)
 /----------------------------------------------------------------------*/
 
 void TSMAdminBuildTSM(TSMAdmin_p admin, FlatAnnoSet_p set, IndexType
-		      type, int depth, PatternSubst_p subst)
+            type, int depth, PatternSubst_p subst)
 {
    FlatAnnoSet_p flatset = FlatAnnoSetAlloc();
    TSM_p tsm;
@@ -928,58 +928,58 @@ void TSMAdminBuildTSM(TSMAdmin_p admin, FlatAnnoSet_p set, IndexType
    switch(admin->tsmtype)
    {
    case TSMTypeRecursive:
-	 TSMCreate(admin, set);
-	 break;
+    TSMCreate(admin, set);
+    break;
    case TSMTypeFlat:
-	 TSMCreate(admin, set);
-	 break;
+    TSMCreate(admin, set);
+    break;
    case TSMTypeRecurrent:
-	 FlatAnnoSetFlatten(flatset, set);
-	 TSMCreate(admin, flatset);
-	 break;
+    FlatAnnoSetFlatten(flatset, set);
+    TSMCreate(admin, flatset);
+    break;
    case TSMTypeRecurrentLocal:
-	 tsm = tsmbasealloc(admin, IndexArity, 0);
-	 PStackPushP(admin->tsmstack, tsm);
-	 PStackPushP(admin->cachestack, PDArrayAlloc(10,50));
-	 tsm = tsmbasealloc(admin, IndexSymbol, 0);
-	 PStackPushP(admin->tsmstack, tsm);
-	 PStackPushP(admin->cachestack, PDArrayAlloc(10,50));
-	 for(i=1; i<= TSM_MAX_TERMTOP; i++)
-	 {
-	    tsm = tsmbasealloc(admin, IndexTop, i);
-	    PStackPushP(admin->tsmstack, tsm);
-	    PStackPushP(admin->cachestack, PDArrayAlloc(20*i*i,30*i*i));
-	    tsm = tsmbasealloc(admin, IndexAltTop, i);
-	    PStackPushP(admin->tsmstack, tsm);
-	    PStackPushP(admin->cachestack, PDArrayAlloc(20*i*i,30*i*i));
-	    tsm = tsmbasealloc(admin, IndexCSTop, i);
-	    PStackPushP(admin->tsmstack, tsm);
-	    PStackPushP(admin->cachestack, PDArrayAlloc(20*i*i,30*i*i));
-	    tsm = tsmbasealloc(admin, IndexESTop, i);
-	    PStackPushP(admin->tsmstack, tsm);
-	    PStackPushP(admin->cachestack, PDArrayAlloc(20*i*i,30*i*i));
-	 }
-	 FlatAnnoSetFlatten(flatset, set);
-	 admin->tsm = NULL;
-	 for(sp = 0; sp < PStackGetSP(admin->tsmstack); sp++)
-	 {
-	    tsm = PStackElementP(admin->tsmstack,sp);
-	    tsmcomplete(admin, tsm, flatset);
-	    relgain =
-	       evaluate_index(flatset, tsm->index,
-			      PStackElementP(admin->cachestack,sp),
-			      admin->limit);
-	    if(relgain > bestgain)
-	    {
-	       bestgain = relgain;
-	       admin->tsm = tsm;
-	    }
-	 }
-	 assert(admin->tsm);
-	 break;
+    tsm = tsmbasealloc(admin, IndexArity, 0);
+    PStackPushP(admin->tsmstack, tsm);
+    PStackPushP(admin->cachestack, PDArrayAlloc(10,50));
+    tsm = tsmbasealloc(admin, IndexSymbol, 0);
+    PStackPushP(admin->tsmstack, tsm);
+    PStackPushP(admin->cachestack, PDArrayAlloc(10,50));
+    for(i=1; i<= TSM_MAX_TERMTOP; i++)
+    {
+       tsm = tsmbasealloc(admin, IndexTop, i);
+       PStackPushP(admin->tsmstack, tsm);
+       PStackPushP(admin->cachestack, PDArrayAlloc(20*i*i,30*i*i));
+       tsm = tsmbasealloc(admin, IndexAltTop, i);
+       PStackPushP(admin->tsmstack, tsm);
+       PStackPushP(admin->cachestack, PDArrayAlloc(20*i*i,30*i*i));
+       tsm = tsmbasealloc(admin, IndexCSTop, i);
+       PStackPushP(admin->tsmstack, tsm);
+       PStackPushP(admin->cachestack, PDArrayAlloc(20*i*i,30*i*i));
+       tsm = tsmbasealloc(admin, IndexESTop, i);
+       PStackPushP(admin->tsmstack, tsm);
+       PStackPushP(admin->cachestack, PDArrayAlloc(20*i*i,30*i*i));
+    }
+    FlatAnnoSetFlatten(flatset, set);
+    admin->tsm = NULL;
+    for(sp = 0; sp < PStackGetSP(admin->tsmstack); sp++)
+    {
+       tsm = PStackElementP(admin->tsmstack,sp);
+       tsmcomplete(admin, tsm, flatset);
+       relgain =
+          evaluate_index(flatset, tsm->index,
+               PStackElementP(admin->cachestack,sp),
+               admin->limit);
+       if(relgain > bestgain)
+       {
+          bestgain = relgain;
+          admin->tsm = tsm;
+       }
+    }
+    assert(admin->tsm);
+    break;
    default:
-	 assert(false && "Illegal TSMtype in TSMAdminBuildTSM()");
-	 break;
+    assert(false && "Illegal TSMtype in TSMAdminBuildTSM()");
+    break;
    }
    FlatAnnoSetFree(flatset);
    /* TSMIndexPrint(stdout, admin->tsm->index,0); */
@@ -1015,7 +1015,7 @@ TSM_p TSMCreate(TSMAdmin_p admin, FlatAnnoSet_p set)
       /* printf("# Limit: %f\n", limit); */
    }
    indextype = TSMFindOptimalIndex(admin, set, &depth,
-				   admin->index_type, limit);
+               admin->index_type, limit);
    /* printf("Selected: Index type = %d, depth = %ld\n", indextype,
       depth);  */
    /* printf("# TSMCreate: %ld patterns\n", NumTreeNodes(set->set));
@@ -1055,11 +1055,11 @@ void TSMFree(TSM_p tsm)
    {
       for(i=0; i<=tsm->maxindex; i++)
       {
-	 tsa = PDArrayElementP(tsm->tsas, i);
-	 if(tsa)
-	 {
-	    TSAFree(tsa);
-	 }
+    tsa = PDArrayElementP(tsm->tsas, i);
+    if(tsa)
+    {
+       TSAFree(tsa);
+    }
       }
       PDArrayFree(tsm->tsas);
    }
@@ -1112,43 +1112,43 @@ TSA_p TSACreate(TSMAdmin_p admin, FlatAnnoTerm_p list)
       tsa->arg_tsms = SizeMalloc(tsa->arity * sizeof(TSM_p));
       for(i=0; i<tsa->arity; i++)
       {
-	 switch(admin->tsmtype)
-	 {
-	 case TSMTypeFlat:
-	       tsa->arg_tsms[i] = admin->emptytsm;
-	       break;
-	 case TSMTypeRecursive:
-	       subset = FlatAnnoSetAlloc();
-	       TSMCreateSubtermSet(subset, list, i);
-	       tsa->arg_tsms[i] = TSMCreate(admin, subset);
-	       FlatAnnoSetFree(subset);
-	       break;
-	 case TSMTypeRecurrent:
-	       tsa->arg_tsms[i] = admin->tsm;
-	       break;
-	 case TSMTypeRecurrentLocal:
-	       bestgain = -1.0;
-	       subset = FlatAnnoSetAlloc();
-	       TSMCreateSubtermSet(subset, list, i);
-	       for(sp = 0; sp < PStackGetSP(admin->tsmstack); sp++)
-	       {
-		  tsm = PStackElementP(admin->tsmstack,sp);
-		  relgain =
-		     evaluate_index(subset, tsm->index,
-				    PStackElementP(admin->cachestack,sp),
-				    admin->limit);
-		  if(relgain > bestgain)
-		  {
-		     bestgain = relgain;
-		     tsa->arg_tsms[i] = tsm;
-		  }
-	       }
-	       FlatAnnoSetFree(subset);
-	       break;
-	 default:
-	       assert(false && "Unknown type in TSACreate!");
-	       break;
-	 }
+    switch(admin->tsmtype)
+    {
+    case TSMTypeFlat:
+          tsa->arg_tsms[i] = admin->emptytsm;
+          break;
+    case TSMTypeRecursive:
+          subset = FlatAnnoSetAlloc();
+          TSMCreateSubtermSet(subset, list, i);
+          tsa->arg_tsms[i] = TSMCreate(admin, subset);
+          FlatAnnoSetFree(subset);
+          break;
+    case TSMTypeRecurrent:
+          tsa->arg_tsms[i] = admin->tsm;
+          break;
+    case TSMTypeRecurrentLocal:
+          bestgain = -1.0;
+          subset = FlatAnnoSetAlloc();
+          TSMCreateSubtermSet(subset, list, i);
+          for(sp = 0; sp < PStackGetSP(admin->tsmstack); sp++)
+          {
+        tsm = PStackElementP(admin->tsmstack,sp);
+        relgain =
+           evaluate_index(subset, tsm->index,
+                PStackElementP(admin->cachestack,sp),
+                admin->limit);
+        if(relgain > bestgain)
+        {
+           bestgain = relgain;
+           tsa->arg_tsms[i] = tsm;
+        }
+          }
+          FlatAnnoSetFree(subset);
+          break;
+    default:
+          assert(false && "Unknown type in TSACreate!");
+          break;
+    }
       }
    }
    else
@@ -1180,10 +1180,10 @@ void TSAFree(TSA_p tsa)
       assert(tsa->arity);
       if(tsa->admin->tsmtype == TSMTypeRecursive)
       {
-	 for(i=0; i<tsa->arity; i++)
-	 {
-	    TSMFree(tsa->arg_tsms[i]);
-	 }
+    for(i=0; i<tsa->arity; i++)
+    {
+       TSMFree(tsa->arg_tsms[i]);
+    }
       }
       SizeFree(tsa->arg_tsms, tsa->arity * sizeof(TSM_p));
    }
@@ -1231,7 +1231,7 @@ double TSMEvalTerm(TSMAdmin_p admin, Term_p term, PatternSubst_p subst)
 /----------------------------------------------------------------------*/
 
 double TSMComputeClassificationLimit(TSMAdmin_p admin,  FlatAnnoSet_p
-				     set)
+                 set)
 {
    PStack_p       setstack;
    double         poseval = 0.0, negeval = 0.0, eval = 0;
@@ -1247,13 +1247,13 @@ double TSMComputeClassificationLimit(TSMAdmin_p admin,  FlatAnnoSet_p
       eval = TSMEvalTerm(admin, fterm->term, admin->subst);
       if(fterm->eval < admin->limit)
       {
-	 poseval+=eval*fterm->sources;
-	 pos+=fterm->sources;
+    poseval+=eval*fterm->sources;
+    pos+=fterm->sources;
       }
       else
       {
-	 negeval+=eval*fterm->sources;
-	 neg+=fterm->sources;
+    negeval+=eval*fterm->sources;
+    neg+=fterm->sources;
       }
    }
    NumTreeTraverseExit(setstack);
@@ -1338,8 +1338,8 @@ void TSMPrintFlat(FILE* out, TSM_p tsm)
       tsa = PDArrayElementP(tsm->tsas, i);
       if(tsa)
       {
-	 fprintf(out, "# %3ld: Weight = %6.3f EvalWeight = %6.3f\n",
-		 i, tsa->eval, tsa->eval_weight);
+    fprintf(out, "# %3ld: Weight = %6.3f EvalWeight = %6.3f\n",
+       i, tsa->eval, tsa->eval_weight);
       }
    }
 }
@@ -1364,20 +1364,20 @@ void TSMPrintRek(FILE* out, TSMAdmin_p admin, TSM_p tsm, int depth)
    char pattern[70];
 
    sprintf(pattern,
-	   "# %%%ds%%4ld: Weight = %%7.5f EvalWeight = %%7.5f\n",
-	   3*depth);
+      "# %%%ds%%4ld: Weight = %%7.5f EvalWeight = %%7.5f\n",
+      3*depth);
    TSMIndexPrint(stdout, tsm->index, depth);
    for(i=0; i<=tsm->maxindex;i++)
    {
       tsa = PDArrayElementP(tsm->tsas, i);
       if(tsa)
       {
-	 fprintf(out, pattern,"",
-		 i, tsa->eval, tsa->eval_weight);
-	 for(j=0; j<tsa->arity; j++)
-	 {
-	    TSMPrintRek(out, admin, tsa->arg_tsms[j], depth+1);
-	 }
+    fprintf(out, pattern,"",
+       i, tsa->eval, tsa->eval_weight);
+    for(j=0; j<tsa->arity; j++)
+    {
+       TSMPrintRek(out, admin, tsa->arg_tsms[j], depth+1);
+    }
       }
    }
 }

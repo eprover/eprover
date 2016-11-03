@@ -42,24 +42,24 @@ Changes
 
 
 Clause_p ComputeOrderedFactor(TB_p bank, OCB_p ocb, ClausePos_p pos1,
-			      ClausePos_p pos2, VarBank_p freshvars);
+               ClausePos_p pos2, VarBank_p freshvars);
 
 Eqn_p    ClausePosFirstOrderedFactorLiterals(Clause_p clause,
-					     ClausePos_p pos1,
-					     ClausePos_p pos2);
+                    ClausePos_p pos1,
+                    ClausePos_p pos2);
 
 Eqn_p    ClausePosNextOrderedFactorLiterals(ClausePos_p pos1,
-					    ClausePos_p pos2);
+                   ClausePos_p pos2);
 
 Clause_p ComputeEqualityFactor(TB_p bank, OCB_p ocb, ClausePos_p pos1,
-			       ClausePos_p pos2, VarBank_p freshvars);
+                ClausePos_p pos2, VarBank_p freshvars);
 
 Eqn_p    ClausePosFirstEqualityFactorSides(Clause_p clause,
-					   ClausePos_p pos1,
-					   ClausePos_p pos2);
+                  ClausePos_p pos1,
+                  ClausePos_p pos2);
 
 Eqn_p    ClausePosNextEqualityFactorSides(ClausePos_p pos1,
-					 ClausePos_p pos2);
+                ClausePos_p pos2);
 
 
 

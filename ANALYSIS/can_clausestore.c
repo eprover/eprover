@@ -96,7 +96,7 @@ void CompClauseAddTerms(CompClause_p clause, Clause_p term_clause)
    clause->sign = SizeMalloc(clause->literal_no*sizeof(short));
 
    for(i=0, literal = term_clause->literals; literal; i++, literal =
-	  literal->next)
+     literal->next)
    {
       assert(i<clause->literal_no);
 
@@ -182,8 +182,8 @@ Clause_p UnpackClause(CompClause_p clause, TB_p bank)
    for(i=0; i<clause->literal_no; i++)
    {
       *eqn = EqnAlloc(clause->lit_terms[(2*i)],
-		      clause->lit_terms[(2*i)+1],
-		      bank, clause->sign[i]);
+            clause->lit_terms[(2*i)+1],
+            bank, clause->sign[i]);
       eqn = &((*eqn)->next);
    }
    handle = ClauseAlloc(list);
@@ -246,7 +246,7 @@ Clause_p UnCompactifyClause(CompClause_p clause, TB_p bank)
 /----------------------------------------------------------------------*/
 
 void CompClausePrint(FILE* out, CompClause_p compact, TB_p bank, bool
-		     full_terms)
+           full_terms)
 {
    Clause_p clause;
 

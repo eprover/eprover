@@ -1085,9 +1085,9 @@ void FormulaSetDocInital(FILE* out, long level, FormulaSet_p set)
    if(level>=2)
    {
       for(handle = set->anchor->succ; handle!=set->anchor; handle =
-	     handle->succ)
+        handle->succ)
       {
-	 DocFormulaCreationDefault(handle, inf_initial, NULL,NULL);
+    DocFormulaCreationDefault(handle, inf_initial, NULL,NULL);
       }
    }
 }

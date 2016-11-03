@@ -172,9 +172,9 @@ void FCodeFeatureArrayFree(FCodeFeatureArray_p junk)
 void FCodeFeatureArraySort(FCodeFeatureArray_p array)
 {
    qsort(&(array->array[SIG_TRUE_CODE+1]),
-	 array->size-(SIG_TRUE_CODE+1),
-	 sizeof(FCodeFeatureSortCell),
-	 feature_compare_function);
+    array->size-(SIG_TRUE_CODE+1),
+    sizeof(FCodeFeatureSortCell),
+    feature_compare_function);
 }
 
 /*---------------------------------------------------------------------*/

@@ -164,7 +164,7 @@ typedef struct hcb_cell
    /* Selection function, this function is called to select an
       unprocessed clause from the set */
    Clause_p        (*hcb_select)(struct hcb_cell* hcb, ClauseSet_p
-				 set);
+             set);
 
    /* Some HCB selection or evaluation functions may need data of
       their own. If yes, their creation function can allocate data,
@@ -214,9 +214,9 @@ Clause_p HCBStandardClauseSelect(HCB_p hcb, ClauseSet_p set);
 Clause_p HCBSingleWeightClauseSelect(HCB_p hcb, ClauseSet_p set);
 
 long     HCBClauseSetDelProp(HCB_p hcb, ClauseSet_p set, long number,
-			     ClauseProperties prop);
+              ClauseProperties prop);
 long HCBClauseSetDeleteBadClauses(HCB_p hcb, ClauseSet_p set, long
-				  number);
+              number);
 
 #endif
 

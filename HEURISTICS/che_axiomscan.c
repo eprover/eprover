@@ -72,12 +72,12 @@ FunCode DetectCommutativity(Clause_p clause)
    assert(lit);
    FAIL_ON(!EqnIsPositive(lit));
    FAIL_ON((TermStandardWeight(lit->lterm)!=
-	    DEFAULT_FWEIGHT+(2*DEFAULT_VWEIGHT))||
-	   (TermStandardWeight(lit->rterm)!=
-	    DEFAULT_FWEIGHT+(2*DEFAULT_VWEIGHT)));
+       DEFAULT_FWEIGHT+(2*DEFAULT_VWEIGHT))||
+      (TermStandardWeight(lit->rterm)!=
+       DEFAULT_FWEIGHT+(2*DEFAULT_VWEIGHT)));
 
    FAIL_ON((lit->lterm->arity!=2)||
-	   (lit->lterm->f_code!=lit->rterm->f_code));
+      (lit->lterm->f_code!=lit->rterm->f_code));
    assert(lit->lterm->args);
    assert(TermIsVar(lit->lterm->args[0])); /* Otherwise default weight */
    assert(TermIsVar(lit->lterm->args[1])); /* is borked */
@@ -119,9 +119,9 @@ FunCode DetectAssociativity(Clause_p clause)
    assert(lit);
    FAIL_ON(!EqnIsPositive(lit));
    FAIL_ON((TermStandardWeight(lit->lterm)!=
-	    (2*DEFAULT_FWEIGHT+(3*DEFAULT_VWEIGHT)))||
-	   (TermStandardWeight(lit->lterm)!=
-	    (2*DEFAULT_FWEIGHT+(3*DEFAULT_VWEIGHT))));
+       (2*DEFAULT_FWEIGHT+(3*DEFAULT_VWEIGHT)))||
+      (TermStandardWeight(lit->lterm)!=
+       (2*DEFAULT_FWEIGHT+(3*DEFAULT_VWEIGHT))));
 
    FAIL_ON(lit->lterm->f_code!=lit->rterm->f_code);
    FAIL_ON((lit->lterm->arity!=2));
@@ -178,8 +178,8 @@ bool ClauseScanAC(Sig_p sig, Clause_p clause)
    {
       if(!SigQueryFuncProp(sig, f, FPCommutative))
       {
-	 SigSetFuncProp(sig, f, FPCommutative);
-	 PStackPushP(sig->ac_axioms, clause);
+    SigSetFuncProp(sig, f, FPCommutative);
+    PStackPushP(sig->ac_axioms, clause);
       }
       return true;
    }
@@ -188,8 +188,8 @@ bool ClauseScanAC(Sig_p sig, Clause_p clause)
    {
       if(!SigQueryFuncProp(sig, f, FPAssociative))
       {
-	 SigSetFuncProp(sig, f, FPAssociative);
-	 PStackPushP(sig->ac_axioms, clause);
+    SigSetFuncProp(sig, f, FPAssociative);
+    PStackPushP(sig->ac_axioms, clause);
       }
    }
    return false;
@@ -215,7 +215,7 @@ bool ClauseSetScanAC(Sig_p sig, ClauseSet_p set)
    Clause_p handle;
 
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
-	  handle->succ)
+     handle->succ)
    {
       res |= ClauseScanAC(sig, handle);
    }

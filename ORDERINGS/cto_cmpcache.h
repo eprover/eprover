@@ -50,9 +50,9 @@ typedef QuadTree_p CmpCache_p;
 #define CmpCacheClear(cache) QuadTreeFree(cache);(cache)=NULL
 
 CompareResult CmpCacheFind(CmpCache_p *cache, Term_p t1, DerefType d1,
-			   Term_p t2, DerefType d2);
+            Term_p t2, DerefType d2);
 bool CmpCacheInsert(CmpCache_p *cache, Term_p t1, DerefType d1, Term_p
-		    t2, DerefType d2, CompareResult insert);
+          t2, DerefType d2, CompareResult insert);
 
 
 #endif

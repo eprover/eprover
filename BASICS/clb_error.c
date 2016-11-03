@@ -350,13 +350,13 @@ void PrintRusage(FILE* out)
    {
       TmpErrno = errno;
       SysError("Unable to get resource usage information",
-	       SYS_ERROR);
+          SYS_ERROR);
    }
    if(getrusage(RUSAGE_CHILDREN, &cusage))
    {
       TmpErrno = errno;
       SysError("Unable to get resource usage information",
-	       SYS_ERROR);
+          SYS_ERROR);
    }
    usage.ru_utime.tv_sec  += cusage.ru_utime.tv_sec;
    usage.ru_utime.tv_usec += cusage.ru_utime.tv_usec;
@@ -364,20 +364,20 @@ void PrintRusage(FILE* out)
    usage.ru_stime.tv_usec += cusage.ru_stime.tv_usec;
 
    fprintf(out,
-	   "\n# -------------------------------------------------\n");
+      "\n# -------------------------------------------------\n");
    fprintf(out,
-	   "# User time                : %.3f s\n",
-	   (usage.ru_utime.tv_sec)+(usage.ru_utime.tv_usec)/1000000.0);
+      "# User time                : %.3f s\n",
+      (usage.ru_utime.tv_sec)+(usage.ru_utime.tv_usec)/1000000.0);
    fprintf(out,
-	   "# System time              : %.3f s\n",
-	   (usage.ru_stime.tv_sec)+(usage.ru_stime.tv_usec)/1000000.0);
+      "# System time              : %.3f s\n",
+      (usage.ru_stime.tv_sec)+(usage.ru_stime.tv_usec)/1000000.0);
    fprintf(out,
-	   "# Total time               : %.3f s\n",
-	   (usage.ru_utime.tv_sec+usage.ru_stime.tv_sec)+
-	   ((usage.ru_utime.tv_usec+usage.ru_stime.tv_usec)/1000000.0));
+      "# Total time               : %.3f s\n",
+      (usage.ru_utime.tv_sec+usage.ru_stime.tv_sec)+
+      ((usage.ru_utime.tv_usec+usage.ru_stime.tv_usec)/1000000.0));
    fprintf(out,
-	   "# Maximum resident set size: %ld pages\n",
-	   usage.ru_maxrss);
+      "# Maximum resident set size: %ld pages\n",
+      usage.ru_maxrss);
 }
 
 
@@ -441,15 +441,15 @@ bool CheckLetterString(char* to_check, char* options)
       found = false;
       for(control = options; *control; control++)
       {
-	 if(*current == *control)
-	 {
-	    found = true;
-	    break;
-	 }
+    if(*current == *control)
+    {
+       found = true;
+       break;
+    }
       }
       if(!found)
       {
-	 return false;
+    return false;
       }
    }
    return true;

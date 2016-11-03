@@ -46,7 +46,7 @@ extern int Verbose;
         fprintf(stderr, "%s: %s", ProgName, (arg)); fflush(stderr);)
 #define VERBOUTARG(arg1,arg2) VERBOSE(\
         fprintf(stderr, "%s: %s%s\n", ProgName, (arg1), (arg2));\
-	fflush(stderr);)
+   fflush(stderr);)
 
 #define VERBOSE2(arg) {if(Verbose>=2){arg}}
 #define VERBOUT2(arg) VERBOSE2(\
@@ -54,7 +54,7 @@ extern int Verbose;
 
 #define VERBOUTARG2(arg1,arg2) VERBOSE2(\
         fprintf(stderr, "%s: %s%s\n", ProgName, (arg1), (arg2));\
-	fflush(stderr);)
+   fflush(stderr);)
 
 #define VERBOSE10(arg) {if(Verbose>=10){arg}}
 #define VERBOUT10(arg) VERBOSE10(\

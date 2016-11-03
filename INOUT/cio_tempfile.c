@@ -65,9 +65,9 @@ void TempFileCleanup(void)
       VERBOUTARG("Removing termorary file ", temp_file_store->key);
       if(unlink(temp_file_store->key))
       {
-	 sprintf(ErrStr, "Could not remove temporary file %s",
-		 temp_file_store->key);
-	 Warning(ErrStr);
+    sprintf(ErrStr, "Could not remove temporary file %s",
+       temp_file_store->key);
+    Warning(ErrStr);
       }
       StrTreeDeleteEntry(&temp_file_store, temp_file_store->key);
    }

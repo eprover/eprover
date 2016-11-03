@@ -48,9 +48,9 @@ typedef struct clausesetcell
    long      literals; /* And how many literals? */
    Clause_p  anchor;  /* The clauses */
    SysDate   date;    /* Age of the clause set, used for optimizing
-		 	 rewriting. The special date SysCreationDate()
-			 is used to indicate ignoring of dates when
-			 checking for irreducability. */
+          rewriting. The special date SysCreationDate()
+          is used to indicate ignoring of dates when
+          checking for irreducability. */
    PDTree_p  demod_index; /* If used for demodulators */
    FVIAnchor_p fvindex; /* Used for non-unit subsumption */
    PDArray_p eval_indices;
@@ -73,7 +73,7 @@ typedef struct clausesetcell
             (((CLAUSECELL_DYN_MEM+EVAL_MEM((set)->eval_no))*(set)->members+\
             EQN_CELL_MEM*(set)->literals)+\
             PDTreeStorage(set->demod_index)+\
-	    FVIndexStorage(set->fvindex))
+       FVIndexStorage(set->fvindex))
 
 ClauseSet_p ClauseSetAlloc(void);
 void        ClauseSetFreeClauses(ClauseSet_p set);
@@ -96,7 +96,7 @@ Clause_p    ClauseSetExtractFirst(ClauseSet_p set);
 void        ClauseSetDeleteEntry(Clause_p clause);
 Clause_p    ClauseSetFindBest(ClauseSet_p set, int idx);
 void        ClauseSetPrint(FILE* out, ClauseSet_p set, bool
-			   fullterms);
+            fullterms);
 void        ClauseSetTSTPPrint(FILE* out, ClauseSet_p set, bool fullterms);
 void        ClauseSetPrintPrefix(FILE* out, char* prefix, ClauseSet_p set);
 void        ClauseSetSort(ClauseSet_p set, ComparisonFunctionType cmp_fun);
@@ -122,7 +122,7 @@ void        ClauseSetMarkMaximalTerms(OCB_p ocb, ClauseSet_p set);
 void        ClauseSetSortLiterals(ClauseSet_p set, ComparisonFunctionType cmp_fun);
 
 SysDate     ClauseSetListGetMaxDate(ClauseSet_p *demodulators, int
-				    limit);
+                limit);
 Clause_p    ClauseSetFind(ClauseSet_p set, Clause_p clause);
 Clause_p    ClauseSetFindById(ClauseSet_p set, long ident);
 void        ClauseSetRemoveEvaluations(ClauseSet_p set);
@@ -135,10 +135,10 @@ ClausePos_p ClauseSetFindEqDefinition(ClauseSet_p set, int min_arity,           
 
 void        ClauseSetDocInital(FILE* out, long level, ClauseSet_p set);
 void        ClauseSetDocQuote(FILE* out, long level, ClauseSet_p set,
-			      char* comment);
+               char* comment);
 void        ClauseSetPropDocQuote(FILE* out, long level,
-				  ClauseProperties prop,
-				  ClauseSet_p set, char* comment);
+              ClauseProperties prop,
+              ClauseSet_p set, char* comment);
 #define     ClauseSetDocQuote(out, level, set, comment) \
             ClauseSetPropDocQuote((out), (level),CPIgnoreProps, (set), (comment))
 #ifndef NDBUG
@@ -153,22 +153,22 @@ void        EqAxiomsPrint(FILE* out, Sig_p sig, bool single_subst);
 
 
 void        ClauseSetAddSymbolDistribution(ClauseSet_p set, long
-				        *dist_array);
+                    *dist_array);
 void        ClauseSetAddConjSymbolDistribution(ClauseSet_p set,
                                                long *dist_array);
 
 void        ClauseSetComputeFunctionRanks(ClauseSet_p set, long
-					  *rank_array, long* count);
+                 *rank_array, long* count);
 
 FunCode     ClauseSetFindFreqSymbol(ClauseSet_p set, Sig_p sig, int
-				    arity, bool least);
+                arity, bool least);
 long        ClauseSetMaxVarNumber(ClauseSet_p set);
 
 long        ClauseSetFindCharFreqVectors(ClauseSet_p set,
-					 FreqVector_p fsum,
-					 FreqVector_p fmax,
-					 FreqVector_p fmin,
-					 FVCollect_p cspec);
+                FreqVector_p fsum,
+                FreqVector_p fmax,
+                FreqVector_p fmin,
+                FVCollect_p cspec);
 
 PermVector_p PermVectorCompute(ClauseSet_p set, FVCollect_p cspec,
                                bool eliminate_uninformative);

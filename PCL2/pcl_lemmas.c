@@ -139,69 +139,69 @@ void PCLExprUpdateRefs(PCLProt_p prot, PCLExpr_p expr)
    case PCLOpNoOp:
    case PCLOpInitial:
    case PCLOpQuote:
-	 /* Do nothing */
-	 break;
+    /* Do nothing */
+    break;
    case PCLOpParamod:
    case PCLOpSimParamod:
-	 assert(expr->arg_no == 2);
-	 if((handle = PCLExprGetQuotedArg(prot,expr,0)))
-	 {
-	    handle->other_generating_refs++;
-	 }
+    assert(expr->arg_no == 2);
+    if((handle = PCLExprGetQuotedArg(prot,expr,0)))
+    {
+       handle->other_generating_refs++;
+    }
          else
          {
             PCLExprUpdateRefs(prot, PCLExprArg(expr,0));
          }
-	 if((handle = PCLExprGetQuotedArg(prot,expr,1)))
-	 {
-	    handle->active_pm_refs++;
-	 }
+    if((handle = PCLExprGetQuotedArg(prot,expr,1)))
+    {
+       handle->active_pm_refs++;
+    }
          else
          {
             PCLExprUpdateRefs(prot, PCLExprArg(expr,1));
          }
-	 break;
+    break;
    case PCLOpEResolution:
    case PCLOpEFactoring:
    case PCLOpSplitClause: /* No idea if this one belongs here. but I
-			     have no better idea */
-	 if((handle = PCLExprGetQuotedArg(prot,expr,0)))
-	 {
-	    handle->other_generating_refs++;
-	 }
+              have no better idea */
+    if((handle = PCLExprGetQuotedArg(prot,expr,0)))
+    {
+       handle->other_generating_refs++;
+    }
          else
          {
             PCLExprUpdateRefs(prot, PCLExprArg(expr,0));
          }
-	 break;
+    break;
    case PCLOpSimplifyReflect:
    case PCLOpACResolution:
    case PCLOpRewrite:
    case PCLOpURewrite:
    case PCLOpClauseNormalize:
-	 if((handle = PCLExprGetQuotedArg(prot,expr,0)))
-	 {
-	    handle->passive_simpl_refs++;
-	 }
+    if((handle = PCLExprGetQuotedArg(prot,expr,0)))
+    {
+       handle->passive_simpl_refs++;
+    }
          else
          {
             PCLExprUpdateRefs(prot, PCLExprArg(expr,0));
          }
-	 for(i=1; i < expr->arg_no; i++)
-	 {
-	    if((handle = PCLExprGetQuotedArg(prot,expr,i)))
-	    {
-	       handle->active_simpl_refs++;
-	    }
+    for(i=1; i < expr->arg_no; i++)
+    {
+       if((handle = PCLExprGetQuotedArg(prot,expr,i)))
+       {
+          handle->active_simpl_refs++;
+       }
             else
             {
                PCLExprUpdateRefs(prot, PCLExprArg(expr,i));
             }
-	 }
-	 break;
+    }
+    break;
    default:
          /* Nothing happens for the FOF inference types */
-	 /* assert(false); */
+    /* assert(false); */
          break;
    }
 }
@@ -326,7 +326,7 @@ int PCLStepLemmaCmp(PCLStep_p step1, PCLStep_p step2)
 /----------------------------------------------------------------------*/
 
 long PCLExprProofSize(PCLProt_p prot, PCLExpr_p expr, InferenceWeight_p iw,
-		      bool use_lemmas)
+            bool use_lemmas)
 {
    long res = 0,i;
    PCLStep_p step;
@@ -339,12 +339,12 @@ long PCLExprProofSize(PCLProt_p prot, PCLExpr_p expr, InferenceWeight_p iw,
       step = PCLProtFindStep(prot, PCLExprArg(expr,0));
       if(step)
       {
-	 res = PCLStepProofSize(prot, step, iw, use_lemmas);
+    res = PCLStepProofSize(prot, step, iw, use_lemmas);
       }
       else
       {
-	 PCLExprPrint(stderr, expr, false); fprintf(stderr, "  ");
-	 Error("Reference to non-existing step", SYNTAX_ERROR);
+    PCLExprPrint(stderr, expr, false); fprintf(stderr, "  ");
+    Error("Reference to non-existing step", SYNTAX_ERROR);
       }
    }
    else if(expr->op == PCLOpInitial)
@@ -356,7 +356,7 @@ long PCLExprProofSize(PCLProt_p prot, PCLExpr_p expr, InferenceWeight_p iw,
       res = (*iw)[expr->op];
       for(i=0; i<expr->arg_no; i++)
       {
-	 res+=PCLExprProofSize(prot, PCLExprArg(expr,i), iw, use_lemmas);
+    res+=PCLExprProofSize(prot, PCLExprArg(expr,i), iw, use_lemmas);
       }
    }
    return res;
@@ -377,7 +377,7 @@ long PCLExprProofSize(PCLProt_p prot, PCLExpr_p expr, InferenceWeight_p iw,
 /----------------------------------------------------------------------*/
 
 long PCLStepProofSize(PCLProt_p prot, PCLStep_p step, InferenceWeight_p iw,
-		      bool use_lemmas)
+            bool use_lemmas)
 {
    assert(prot);
    assert(step);
@@ -412,7 +412,7 @@ long PCLStepProofSize(PCLProt_p prot, PCLStep_p step, InferenceWeight_p iw,
 /----------------------------------------------------------------------*/
 
 void PCLProtComputeProofSize(PCLProt_p prot, InferenceWeight_p iw,
-			     bool use_lemmas)
+              bool use_lemmas)
 {
    PCLStep_p step;
    PStackPointer i;
@@ -442,7 +442,7 @@ void PCLProtComputeProofSize(PCLProt_p prot, InferenceWeight_p iw,
 /----------------------------------------------------------------------*/
 
 float PCLStepComputeLemmaWeight(PCLProt_p prot, PCLStep_p step,
-				LemmaParam_p params)
+            LemmaParam_p params)
 {
    float res;
 
@@ -516,8 +516,8 @@ PCLStep_p PCLProtComputeLemmaWeights(PCLProt_p prot, LemmaParam_p params)
       current_rating = PCLStepComputeLemmaWeight(prot, step, params);
       if(current_rating > best_rating && !PCLStepQueryProp(step, PCLIsLemma))
       {
-	 best_rating = current_rating;
-	 res = step;
+    best_rating = current_rating;
+    res = step;
       }
    }
    return res;
@@ -542,8 +542,8 @@ PCLStep_p PCLProtComputeLemmaWeights(PCLProt_p prot, LemmaParam_p params)
 
 
 long PCLProtSeqFindLemmas(PCLProt_p prot, LemmaParam_p params,
-			  InferenceWeight_p iw, long max_number,
-			  float quality_limit)
+           InferenceWeight_p iw, long max_number,
+           float quality_limit)
 {
    PStackPointer i;
    PCLStep_p step;
@@ -559,12 +559,12 @@ long PCLProtSeqFindLemmas(PCLProt_p prot, LemmaParam_p params,
       PCLStepProofSize(prot, step, iw, true);
       if(PCLStepComputeLemmaWeight(prot, step, params) >= quality_limit)
       {
-	 PCLStepSetProp(step, PCLIsLemma);
-	 res++;
-	 if(res > max_number)
-	 {
-	    break;
-	 }
+    PCLStepSetProp(step, PCLIsLemma);
+    res++;
+    if(res > max_number)
+    {
+       break;
+    }
       }
    }
    return res;
@@ -587,8 +587,8 @@ long PCLProtSeqFindLemmas(PCLProt_p prot, LemmaParam_p params,
 /----------------------------------------------------------------------*/
 
 long PCLProtRecFindLemmas(PCLProt_p prot, LemmaParam_p params,
-			    InferenceWeight_p iw, long max_number,
-			    float quality_limit)
+             InferenceWeight_p iw, long max_number,
+             float quality_limit)
 {
    long i;
    PCLStep_p lemma = NULL;
@@ -602,7 +602,7 @@ long PCLProtRecFindLemmas(PCLProt_p prot, LemmaParam_p params,
       lemma = PCLProtComputeLemmaWeights(prot, params);
       if(!lemma || (lemma->lemma_quality < quality_limit))
       {
-	 break;
+    break;
       }
       PCLStepSetProp(lemma, PCLIsLemma);
    }
@@ -625,8 +625,8 @@ long PCLProtRecFindLemmas(PCLProt_p prot, LemmaParam_p params,
 /----------------------------------------------------------------------*/
 
 long PCLProtFlatFindLemmas(PCLProt_p prot, LemmaParam_p params,
-			   InferenceWeight_p iw, long max_number,
-			   float quality_limit)
+            InferenceWeight_p iw, long max_number,
+            float quality_limit)
 {
    long i;
    PCLStep_p step = NULL;
@@ -645,7 +645,7 @@ long PCLProtFlatFindLemmas(PCLProt_p prot, LemmaParam_p params,
       step = PStackPopP(prot->in_order);
       if(step->lemma_quality < quality_limit)
       {
-	 break;
+    break;
       }
       PCLStepSetProp(step, PCLIsLemma);
    }

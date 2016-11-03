@@ -52,7 +52,7 @@ typedef struct kbdesccell
 #define KBDescCellFree(junk) SizeFree(junk, sizeof(KBDescCell))
 
 KBDesc_p KBDescAlloc(char* version, double neg_prop, long
-		     neg_examples);
+           neg_examples);
 void     KBDescFree(KBDesc_p desc);
 
 void     KBDescPrint(FILE* out, KBDesc_p desc);

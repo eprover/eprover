@@ -64,11 +64,11 @@ WFCB_p      WFCBAdminFindWFCB(WFCBAdmin_p set, char* name);
 
 WeightFunParseFun GetWeightFunParseFun(char* name);
 WFCB_p      WeightFunParse(Scanner_p in, OCB_p ocb, ProofState_p
-				 state);
+             state);
 char*       WeightFunDefParse(WFCBAdmin_p set, Scanner_p in, OCB_p
-			       ocb, ProofState_p state);
+                ocb, ProofState_p state);
 long         WeightFunDefListParse(WFCBAdmin_p set, Scanner_p in,
-				   OCB_p ocb, ProofState_p state);
+               OCB_p ocb, ProofState_p state);
 
 
 #endif

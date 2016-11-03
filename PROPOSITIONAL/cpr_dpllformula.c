@@ -152,7 +152,7 @@ void DPLLFormulaFree(DPLLFormula_p junk)
 /----------------------------------------------------------------------*/
 
 void DPLLFormulaPrint(FILE* out,DPLLFormula_p form, DPLLOutputFormat format,
-		      bool print_atoms)
+            bool print_atoms)
 {
    long i;
 
@@ -161,12 +161,12 @@ void DPLLFormulaPrint(FILE* out,DPLLFormula_p form, DPLLOutputFormat format,
       PropSigPrint(out, form->sig);
       for(i=0; i<form->atom_no; i++)
       {
-	 if(form->atoms[i].pos_occur || form->atoms[i].neg_occur)
-	 {
-	    fprintf(out, "# %4ld: %4ld %4ld\n", i,
-		    form->atoms[i].pos_occur,
-		    form->atoms[i].pos_occur);
-	 }
+    if(form->atoms[i].pos_occur || form->atoms[i].neg_occur)
+    {
+       fprintf(out, "# %4ld: %4ld %4ld\n", i,
+          form->atoms[i].pos_occur,
+          form->atoms[i].pos_occur);
+    }
       }
    }
    for(i=0; i<PStackGetSP(form->clauses);i++)
@@ -174,15 +174,15 @@ void DPLLFormulaPrint(FILE* out,DPLLFormula_p form, DPLLOutputFormat format,
       switch(format)
       {
       case DPLLOutLOP:
-	 DPLLClausePrintLOP(out, form->sig,
-			    PStackElementP(form->clauses,i));
-	 fputc('\n',out);
-	 break;
+    DPLLClausePrintLOP(out, form->sig,
+             PStackElementP(form->clauses,i));
+    fputc('\n',out);
+    break;
       case DPLLOutDimacs:
-	 DPLLClausePrintDimacs(out, PStackElementP(form->clauses,i));
-	 break;
+    DPLLClausePrintDimacs(out, PStackElementP(form->clauses,i));
+    break;
       default:
-	    assert(false && "Not a valid DPLLOutputFormat");
+       assert(false && "Not a valid DPLLOutputFormat");
       }
    }
 }
@@ -200,8 +200,8 @@ void DPLLFormulaPrint(FILE* out,DPLLFormula_p form, DPLLOutputFormat format,
 /----------------------------------------------------------------------*/
 
 void DPLLRegisterClauseLiteral(DPLLFormula_p form,
-			       DPLLClause_p clause,
-			       PLiteralCode lit)
+                DPLLClause_p clause,
+                PLiteralCode lit)
 {
    PLiteralCode atom = ABS(lit);
    bool res;
@@ -280,9 +280,9 @@ void DPLLFormulaParseLOP(Scanner_p in, Sig_p sig, DPLLFormula_p form)
       DPLLClausePrintLOP(GlobalOut, form->sig, pclause);
       if(DPLLClauseNormalize(pclause))
       {
-	 fprintf(GlobalOut, "...discarded (tautology)\n");
-	 DPLLClauseFree(pclause);
-	 continue;
+    fprintf(GlobalOut, "...discarded (tautology)\n");
+    DPLLClauseFree(pclause);
+    continue;
       }
       DPLLFormulaInsertClause(form, pclause);
       fprintf(GlobalOut, "...accepted\n");

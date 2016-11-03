@@ -54,7 +54,7 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst);
 
 #define VerifyMatch(matcher, to_match) \
         TermStructEqualDeref((matcher), (to_match), \
-			     DEREF_ONCE, DEREF_NEVER)
+              DEREF_ONCE, DEREF_NEVER)
 
 #endif
 

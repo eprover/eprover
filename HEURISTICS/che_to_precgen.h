@@ -40,9 +40,9 @@ typedef enum
    PArity,              /* Sort by arity */
    PInvArity,           /* Sort by inverse arity */
    PConstMax,           /* Sort by arity, but constants first (Default
-			   for SPASS) */
+            for SPASS) */
    PInvArConstMin,      /* Sort by inverse arity, but make constants
-			   minimal */
+            minimal */
    PByFrequency,        /* Make often occuring symbols big */
    PByInvFrequency,     /* Make often occuring symbols small */
    PByInvConjFrequency, /* Make often occuring symbols small,
@@ -52,7 +52,7 @@ typedef enum
    PByInvFreqConjMin,   /* Make conjecture symbols mminimal, otherwise
                            use invfreq */
    PByInvFreqConstMin,  /* Make rarely occuring symbols small, except for
-			   constants */
+            constants */
    PByInvFreqHack,      /* Make constants minimal, frequent unary
                            symbols maximal, otherwise as
                            PByInvFrequency */
@@ -70,8 +70,8 @@ typedef enum
 /*---------------------------------------------------------------------*/
 
 #define FREQ_SEMI_INFTY 2000000 /* Bigger than any expected frequency,
-				 * small enough to never cause over-
-				 * or underflow */
+             * small enough to never cause over-
+             * or underflow */
 
 extern char* TOPrecGenNames[];
 
@@ -83,7 +83,7 @@ TOPrecGenMethod TOTranslatePrecGenMethod(char* name);
         TOGeneratePrecedence((ocb), (axioms),NULL, PUnaryFirst)
 
 void TOGeneratePrecedence(OCB_p ocb, ClauseSet_p axioms,
-			  char* predefined, TOPrecGenMethod method);
+           char* predefined, TOPrecGenMethod method);
 
 
 #endif

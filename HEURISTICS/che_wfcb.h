@@ -67,21 +67,21 @@ Changes
 /* Weight functions and their data */
 
 typedef double (*ClauseEvalFun)(void* data, Clause_p
-				clause);
+            clause);
 
 typedef struct wfcb_cell
 {
    ClauseEvalFun     wfcb_eval;     /* Compute a clauses evaluation */
    GenericExitFun    wfcb_exit;     /* Clean up - in particular, free
-				       data */
+                   data */
    ClausePrioFun     wfcb_priority; /* Compute the priority */
    void*             data;          /* WFCB-Data...each set of
-				       evaluation functions is
-				       responsible for cleaning up...*/
+                   evaluation functions is
+                   responsible for cleaning up...*/
 }WFCBCell, *WFCB_p;
 
 typedef WFCB_p (*WeightFunParseFun)(Scanner_p in, OCB_p ocb,
-				    ProofState_p state);
+                ProofState_p state);
 
 
 /*---------------------------------------------------------------------*/
@@ -92,7 +92,7 @@ typedef WFCB_p (*WeightFunParseFun)(Scanner_p in, OCB_p ocb,
 #define WFCBCellFree(junk)         SizeFree(junk, sizeof(WFCBCell))
 
 WFCB_p WFCBAlloc(ClauseEvalFun wfcb_eval, ClausePrioFun prio_fun,
-		 GenericExitFun wfcb_exit, void* data);
+       GenericExitFun wfcb_exit, void* data);
 void   WFCBFree(WFCB_p junk);
 
 void   ClauseAddEvaluation(WFCB_p wfcb, Clause_p clause, int pos, bool empty);

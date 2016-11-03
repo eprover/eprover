@@ -662,12 +662,12 @@ EvalPriority PrioFunByNegLitDist(Clause_p clause)
    {
       if(EqnIsPositive(handle))
       {
-	 res=400;
-	 break;
+    res=400;
+    break;
       }
       else
       {
-	 res+= EqnIsGround(handle)?1:3;
+    res+= EqnIsGround(handle)?1:3;
       }
    }
    return res;
@@ -697,11 +697,11 @@ EvalPriority PrioFunGoalDifficulty(Clause_p clause)
    {
       if(ClauseIsGround(clause))
       {
-	 return PrioPrefer;
+    return PrioPrefer;
       }
       else
       {
-	 return PrioPrefer+1;
+    return PrioPrefer+1;
       }
    }
    else if(ClauseIsGround(clause))

@@ -58,7 +58,7 @@ Changes
 /----------------------------------------------------------------------*/
 
 WFCB_p WFCBAlloc(ClauseEvalFun wfcb_eval, ClausePrioFun prio_fun,
-		 GenericExitFun wfcb_exit, void* data)
+       GenericExitFun wfcb_exit, void* data)
 {
    WFCB_p handle = WFCBCellAlloc();
 

@@ -45,9 +45,9 @@ Changes
 
 
 bool          TOGreater(OCB_p ocb, Term_p s, Term_p t, DerefType
-			deref_s, DerefType deref_t);
+         deref_s, DerefType deref_t);
 CompareResult TOCompare(OCB_p ocb, Term_p s, Term_p t, DerefType
-			deref_s, DerefType deref_t);
+         deref_s, DerefType deref_t);
 
 CompareResult TOCompareSymbolParse(Scanner_p in);
 PStackPointer TOSymbolComparisonChainParse(Scanner_p in, OCB_p ocb);

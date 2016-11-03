@@ -78,26 +78,26 @@ typedef struct tsmparamcell
 
 
 WFCB_p TSMWeightInit(ClausePrioFun prio_fun, int fweight,
-		     int vweight, bool flat_clauses, double
-		     learnweight, char* kb, ProofState_p state, long
-		     sel_no, double set_part, double dist_part,
-		     IndexType indextype, TSMType tsmtype, long depth,
-		     double proofs_w, double dist_w,  double p_simp_w,
-		     double f_simp_w, double p_gen_w, double f_gen_w);
+           int vweight, bool flat_clauses, double
+           learnweight, char* kb, ProofState_p state, long
+           sel_no, double set_part, double dist_part,
+           IndexType indextype, TSMType tsmtype, long depth,
+           double proofs_w, double dist_w,  double p_simp_w,
+           double f_simp_w, double p_gen_w, double f_gen_w);
 
 WFCB_p TSMWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state);
 
 double TSMWeightCompute(void* data, Clause_p clause);
 
 WFCB_p TSMRWeightInit(ClausePrioFun prio_fun, int fweight,
-		      int vweight, double max_term_multiplier, double
-		      max_literal_multiplier, double pos_multiplier,
-		      bool flat_clauses, double
-		     learnweight, char* kb, ProofState_p state, long
-		     sel_no, double set_part, double dist_part,
-		     IndexType indextype, TSMType tsmtype, long depth,
-		     double proofs_w, double dist_w,  double p_simp_w,
-		     double f_simp_w, double p_gen_w, double f_gen_w);
+            int vweight, double max_term_multiplier, double
+            max_literal_multiplier, double pos_multiplier,
+            bool flat_clauses, double
+           learnweight, char* kb, ProofState_p state, long
+           sel_no, double set_part, double dist_part,
+           IndexType indextype, TSMType tsmtype, long depth,
+           double proofs_w, double dist_w,  double p_simp_w,
+           double f_simp_w, double p_gen_w, double f_gen_w);
 
 WFCB_p TSMRWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state);
 

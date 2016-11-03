@@ -115,7 +115,7 @@ FixedDArray_p FixedDArrayCopy(FixedDArray_p array)
 
       for(i=0; i<array->size; i++)
       {
-	 handle->array[i] = array->array[i];
+    handle->array[i] = array->array[i];
       }
       return handle;
    }

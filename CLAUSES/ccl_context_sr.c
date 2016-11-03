@@ -78,22 +78,22 @@ int ClauseContextualSimplifyReflect(ClauseSet_p set, Clause_p clause)
 
       if(subsumer)
       {
-	 if(ClauseQueryProp(subsumer, CPIsSOS))
-	 {
-	    ClauseSetProp(clause, CPIsSOS);
-	 }
+    if(ClauseQueryProp(subsumer, CPIsSOS))
+    {
+       ClauseSetProp(clause, CPIsSOS);
+    }
          ClauseDelProp(clause, CPInitial|CPLimitedRW);
-	 ClauseRemoveLiteral(clause, handle);
-	 assert(clause->weight == ClauseStandardWeight(clause));
-	 DocClauseModificationDefault(clause,
-				      inf_context_simplify_reflect,
-				      subsumer);
-	 res++;
+    ClauseRemoveLiteral(clause, handle);
+    assert(clause->weight == ClauseStandardWeight(clause));
+    DocClauseModificationDefault(clause,
+                  inf_context_simplify_reflect,
+                  subsumer);
+    res++;
          ClausePushDerivation(clause, DCContextSR, subsumer, NULL);
       }
       else
       {
-	 ClauseFlipLiteralSign(clause, handle);
+    ClauseFlipLiteralSign(clause, handle);
       }
    }
    PStackFree(lit_stack);
@@ -117,7 +117,7 @@ int ClauseContextualSimplifyReflect(ClauseSet_p set, Clause_p clause)
 /----------------------------------------------------------------------*/
 
 long ClauseSetFindContextSRClauses(ClauseSet_p set, Clause_p clause,
-				   PStack_p res)
+               PStack_p res)
 {
    Eqn_p handle;
    long old_sp = PStackGetSP(res);

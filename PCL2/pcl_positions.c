@@ -120,24 +120,24 @@ PCL2Pos_p PCL2PosParse(Scanner_p in)
       CheckInpId(in, "L|R");
       if(TestInpId(in, "L"))
       {
-	 handle->side = LeftSide;
+    handle->side = LeftSide;
       }
       else
       {
-	 handle->side = RightSide;
+    handle->side = RightSide;
       }
       NextToken(in);
 
       if(TestInpTok(in, Fullstop))
       {
-	 handle->termpos = PDArrayAlloc(5,10);
+    handle->termpos = PDArrayAlloc(5,10);
       }
       i=0;
       while(TestInpTok(in, Fullstop))
       {
-	 NextToken(in);
-	 PDArrayAssignInt(handle->termpos,i++,AktToken(in)->numval);
-	 AcceptInpTok(in, PosInt);
+    NextToken(in);
+    PDArrayAssignInt(handle->termpos,i++,AktToken(in)->numval);
+    AcceptInpTok(in, PosInt);
       }
       handle->termposlen=i;
    }
@@ -172,8 +172,8 @@ void PCL2PosPrint(FILE* out, PCL2Pos_p pos)
       i=0;
       while(i<pos->termposlen)
       {
-	 assert(pos->termpos);
-	 fprintf(out, "%ld", PDArrayElementInt(pos->termpos,i++));
+    assert(pos->termpos);
+    fprintf(out, "%ld", PDArrayElementInt(pos->termpos,i++));
       }
    }
 }

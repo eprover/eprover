@@ -83,11 +83,11 @@ void      PDRangeArrElementDeleteInt(PDRangeArr_p array, long idx);
           PDRangeArrElementRef((array), (idx))->i_val = (value)
 
 #define   PDRangeArrElement(array, idx) \
-	  *PDRangeArrElementRef((array), (idx))
+     *PDRangeArrElementRef((array), (idx))
 #define   PDRangeArrElementP(array, idx) \
-	  (PDRangeArrElementRef((array), (idx))->p_val)
+     (PDRangeArrElementRef((array), (idx))->p_val)
 #define   PDRangeArrElementInt(array, idx) \
-	  (PDRangeArrElementRef((array), (idx))->i_val)
+     (PDRangeArrElementRef((array), (idx))->i_val)
 
 #define   PDRangeArrLowKey(array) ((array)->offset)
 #define   PDRangeArrLimitKey(array) ((array)->offset+(array)->size)

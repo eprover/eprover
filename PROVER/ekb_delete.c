@@ -113,7 +113,7 @@ int main(int argc, char* argv[])
    if(state->argc !=  1)
    {
       Error("One argument (name of the problem to remove) required",
-	    USAGE_ERROR);
+       USAGE_ERROR);
    }
    assert(state->argv[0]);
    ex_name = state->argv[0];
@@ -124,8 +124,8 @@ int main(int argc, char* argv[])
     */
    proof_examples = ExampleSetAlloc();
    in = CreateScanner(StreamTypeFile,
-		      KBFileName(name, kb_name, "problems"),
-		      true, NULL);
+            KBFileName(name, kb_name, "problems"),
+            true, NULL);
    ExampleSetParse(in, proof_examples);
    DestroyScanner(in);
 
@@ -133,8 +133,8 @@ int main(int argc, char* argv[])
    sig = SigAlloc(sort_table);
    annoterms = TBAlloc(sig);
    in = CreateScanner(StreamTypeFile,
-		      KBFileName(name, kb_name, "clausepatterns"),
-		      true, NULL);
+            KBFileName(name, kb_name, "clausepatterns"),
+            true, NULL);
    clause_examples = AnnoSetParse(in, annoterms, KB_ANNOTATION_NO);
    DestroyScanner(in);
 
@@ -223,23 +223,23 @@ CLState_p process_options(int argc, char* argv[])
       switch(handle->option_code)
       {
       case OPT_VERBOSE:
-	    Verbose = CLStateGetIntArg(handle, arg);
-	    break;
+       Verbose = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_HELP:
-	    print_help(stdout);
-	    exit(NO_ERROR);
+       print_help(stdout);
+       exit(NO_ERROR);
       case OPT_VERSION:
-	    printf(NAME " " VERSION "\n");
-	    exit(NO_ERROR);
+       printf(NAME " " VERSION "\n");
+       exit(NO_ERROR);
       case OPT_KB:
-	    kb_name = arg;
-	    break;
+       kb_name = arg;
+       break;
       case OPT_NAME:
-	    ex_name = arg;
-	    break;
+       ex_name = arg;
+       break;
      default:
-	 assert(false);
-	 break;
+    assert(false);
+    break;
       }
    }
    return state;

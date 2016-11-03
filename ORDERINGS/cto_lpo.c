@@ -7,15 +7,15 @@ Author:  Stephan Schulz (original implementation and definitions by
 
 Contents:
          Implementation of a lexicographic path ordering (LPO) on CLIB
-	 terms. It is based on the following refined definition:
+    terms. It is based on the following refined definition:
 
-	 s = f(s_1,...,s_m) >LPO g(t_1,...,t_n) = t  iff
+    s = f(s_1,...,s_m) >LPO g(t_1,...,t_n) = t  iff
 
-	   f > g  &  forall j in [1,n]: s >LPO t_j   or             (i)
-	   f ~ g  &  (s_1,...,s_m) >LPOlex (t_1,...,t_n)  &        (ii)
-	             forall j in [1,n]: s >LPO t_j   or
-	   not(f > g)  &  (not(f ~ g) v ar(f) >= 2)  &            (iii)
-	             there exists i in [1,m]: s_i >=LPO t
+      f > g  &  forall j in [1,n]: s >LPO t_j   or             (i)
+      f ~ g  &  (s_1,...,s_m) >LPOlex (t_1,...,t_n)  &        (ii)
+                forall j in [1,n]: s >LPO t_j   or
+      not(f > g)  &  (not(f ~ g) v ar(f) >= 2)  &            (iii)
+                there exists i in [1,m]: s_i >=LPO t
 
   Copyright 1998, 1999,2004 by the author.
   This code is released under the GNU General Public Licence and
@@ -26,13 +26,13 @@ Contents:
 Changes
          <1> Unknown
              New
-	 <2> Mon May 18 10:43:15 MET DST 1998
-	     Changed
-	 <3> Tue Jun 16 13:05:31 MET DST 1998
-	     Changed
-	 <4> Tue Sep 15 08:53:35 MET DST 1998
-	     Changed
-	 <5> Sat Jan  8 00:22:20 MET 2000
+    <2> Mon May 18 10:43:15 MET DST 1998
+        Changed
+    <3> Tue Jun 16 13:05:31 MET DST 1998
+        Changed
+    <4> Tue Sep 15 08:53:35 MET DST 1998
+        Changed
+    <5> Sat Jan  8 00:22:20 MET 2000
              StS: Rewrote the complete code base to make it more
              maintainable and to add caching.
          <6> Thu Apr 22 23:14:52 CEST 2004
@@ -55,20 +55,20 @@ long LPORecursionDepthLimit = 1000;
 /*---------------------------------------------------------------------*/
 
 static bool lpo_term_dominates_args(OCB_p ocb, Term_p s, Term_p t,
-				     DerefType deref_s, DerefType
-				     deref_t);
+                 DerefType deref_s, DerefType
+                 deref_t);
 
 static bool lpo_subterm_dominates_term(OCB_p ocb, Term_p s, Term_p t,
-				       DerefType deref_s, DerefType
-				       deref_t);
+                   DerefType deref_s, DerefType
+                   deref_t);
 
 static CompareResult lpo_lex_greater(OCB_p ocb, Term_p s, Term_p t,
-				     DerefType deref_s, DerefType
-				     deref_t);
+                 DerefType deref_s, DerefType
+                 deref_t);
 
 static CompareResult lpo_greater(OCB_p ocb, Term_p s, Term_p t,
-				 DerefType deref_s, DerefType
-				 deref_t);
+             DerefType deref_s, DerefType
+             deref_t);
 
 
 /*---------------------------------------------------------------------*/
@@ -90,8 +90,8 @@ static CompareResult lpo_greater(OCB_p ocb, Term_p s, Term_p t,
 /----------------------------------------------------------------------*/
 
 static bool lpo_term_dominates_args(OCB_p ocb, Term_p s, Term_p t,
-				    DerefType deref_s, DerefType
-				    deref_t)
+                DerefType deref_s, DerefType
+                deref_t)
 {
    int i;
 
@@ -99,7 +99,7 @@ static bool lpo_term_dominates_args(OCB_p ocb, Term_p s, Term_p t,
    {
       if(!LPOGreater(ocb, s, t->args[i], deref_s, deref_t))
       {
-	 return false;
+    return false;
       }
    }
    return true;
@@ -119,8 +119,8 @@ static bool lpo_term_dominates_args(OCB_p ocb, Term_p s, Term_p t,
 /----------------------------------------------------------------------*/
 
 static bool lpo_subterm_dominates_term(OCB_p ocb, Term_p s, Term_p t,
-				       DerefType deref_s, DerefType
-				       deref_t)
+                   DerefType deref_s, DerefType
+                   deref_t)
 {
    int           i;
    CompareResult res;
@@ -130,7 +130,7 @@ static bool lpo_subterm_dominates_term(OCB_p ocb, Term_p s, Term_p t,
       res = lpo_greater(ocb, s->args[i], t, deref_s, deref_t);
       if((res==to_greater)||(res==to_equal))
       {
-	 return true;
+    return true;
       }
    }
    return false;
@@ -154,8 +154,8 @@ static bool lpo_subterm_dominates_term(OCB_p ocb, Term_p s, Term_p t,
 /----------------------------------------------------------------------*/
 
 static CompareResult lpo_lex_greater(OCB_p ocb, Term_p s, Term_p t,
-				     DerefType deref_s, DerefType
-				     deref_t)
+                 DerefType deref_s, DerefType
+                 deref_t)
 {
    int           i, lim;
    CompareResult res;
@@ -166,21 +166,21 @@ static CompareResult lpo_lex_greater(OCB_p ocb, Term_p s, Term_p t,
    for(i=0; i<lim;i++)
    {
       res = lpo_greater(ocb, s->args[i], t->args[i], deref_s,
-			deref_t);
+         deref_t);
       if(res!=to_equal)
       {
-	 break;
+    break;
       }
    }
    if(res == to_equal)
    {
       if(s->arity > t->arity)
       {
-	 res = to_greater;
+    res = to_greater;
       }
       else if(s->arity < t->arity)
       {
-	 res = to_notgteq;
+    res = to_notgteq;
       }
    }
    return res;
@@ -205,8 +205,8 @@ static CompareResult lpo_lex_greater(OCB_p ocb, Term_p s, Term_p t,
 /----------------------------------------------------------------------*/
 
 static CompareResult lpo_greater(OCB_p ocb, Term_p s, Term_p t,
-				 DerefType deref_s, DerefType
-				 deref_t)
+             DerefType deref_s, DerefType
+             deref_t)
 {
    CompareResult res = to_notgteq, res2;
    static long   recursion_depth = 0;
@@ -225,22 +225,22 @@ static CompareResult lpo_greater(OCB_p ocb, Term_p s, Term_p t,
    {
       if(s == t)
       {
-	 res = to_equal;
+    res = to_equal;
       }
       else if(TermIsVar(t))
       {
-	 res = to_uncomparable;
+    res = to_uncomparable;
       }
    }
    else if(TermIsVar(t))
    {
       if(TermIsSubterm(s, t, deref_s))
       {
-	 res = to_greater;
+    res = to_greater;
       }
       else
       {
-	 res = to_uncomparable;
+    res = to_uncomparable;
       }
    }
    else
@@ -248,46 +248,46 @@ static CompareResult lpo_greater(OCB_p ocb, Term_p s, Term_p t,
       switch(OCBFunCompare(ocb, s->f_code, t->f_code))
       {
       case to_greater:
-	    if(lpo_term_dominates_args(ocb, s, t, deref_s, deref_t))
-	    {
-	       res = to_greater;
-	    }
-	    break;
+       if(lpo_term_dominates_args(ocb, s, t, deref_s, deref_t))
+       {
+          res = to_greater;
+       }
+       break;
       case to_equal:
-	    res2 = lpo_lex_greater(ocb, s, t, deref_s, deref_t);
-	    switch(res2)
-	    {
-	    case to_greater:
-		  if(lpo_term_dominates_args(ocb, s, t, deref_s,
-					     deref_t))
-		  {
-		     res = to_greater;
-		  }
-		  break;
-	    case to_equal:
-		  res = to_equal;
-		  break;
-	    default:
-		  break;
-	    }
-	    if((res==to_notgteq)&&(s->arity>=2)&&
-	       lpo_subterm_dominates_term(ocb, s, t, deref_s, deref_t))
-	    {
-	       res = to_greater;
-	    }
-	    break;
+       res2 = lpo_lex_greater(ocb, s, t, deref_s, deref_t);
+       switch(res2)
+       {
+       case to_greater:
+        if(lpo_term_dominates_args(ocb, s, t, deref_s,
+                    deref_t))
+        {
+           res = to_greater;
+        }
+        break;
+       case to_equal:
+        res = to_equal;
+        break;
+       default:
+        break;
+       }
+       if((res==to_notgteq)&&(s->arity>=2)&&
+          lpo_subterm_dominates_term(ocb, s, t, deref_s, deref_t))
+       {
+          res = to_greater;
+       }
+       break;
       case to_lesser:
       case to_uncomparable:
-	    if(lpo_subterm_dominates_term(ocb, s, t, deref_s,
-					  deref_t))
-	    {
-	       res = to_greater;
-	    }
-	    break;
+       if(lpo_subterm_dominates_term(ocb, s, t, deref_s,
+                 deref_t))
+       {
+          res = to_greater;
+       }
+       break;
       default:
-	    assert(false&&
-		   "Unexpected result of function symbol comparison");
-	    break;
+       assert(false&&
+         "Unexpected result of function symbol comparison");
+       break;
       }
    }
    recursion_depth--;
@@ -626,7 +626,7 @@ static bool lpo4_copy_greater(OCB_p ocb, Term_p s, Term_p t)
 -----------------------------------------------------------------------*/
 
 bool LPOGreater(OCB_p ocb, Term_p s, Term_p t,
-		DerefType deref_s, DerefType deref_t)
+      DerefType deref_s, DerefType deref_t)
 {
    return lpo_greater(ocb, s, t, deref_s, deref_t) == to_greater;
 }
@@ -650,7 +650,7 @@ bool LPOGreater(OCB_p ocb, Term_p s, Term_p t,
 -----------------------------------------------------------------------*/
 
 CompareResult LPOCompare(OCB_p ocb, Term_p s, Term_p t,
-			 DerefType deref_s, DerefType deref_t)
+          DerefType deref_s, DerefType deref_t)
 {
    CompareResult res;
 
@@ -661,28 +661,28 @@ CompareResult LPOCompare(OCB_p ocb, Term_p s, Term_p t,
    case to_lesser: /* From caching only */
    case to_equal:
    case to_uncomparable:
-	 return res;
+    return res;
    case to_notleeq:
    case to_unknown:
-	 assert(false);
-	 break;
+    assert(false);
+    break;
    case to_notgteq:
-	 break;
+    break;
    }
    res = lpo_greater(ocb, t, s, deref_t, deref_s);
    switch(res)
    {
    case to_greater:
-	 return to_lesser;
+    return to_lesser;
    case to_uncomparable:
    case to_notgteq:
-	 break;
+    break;
    case to_equal:
    case to_lesser:
    case to_notleeq:
    case to_unknown:
-	 assert(false);
-	 break;
+    assert(false);
+    break;
    }
    return to_uncomparable;
 }
@@ -707,7 +707,7 @@ CompareResult LPOCompare(OCB_p ocb, Term_p s, Term_p t,
 -----------------------------------------------------------------------*/
 
 bool LPO4Greater(OCB_p ocb, Term_p s, Term_p t,
-		DerefType deref_s, DerefType deref_t)
+      DerefType deref_s, DerefType deref_t)
 {
    bool res;
 

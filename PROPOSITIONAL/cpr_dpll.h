@@ -40,7 +40,7 @@ typedef struct dpll_state_cell
                                 represents positive assignment, -atom
                                 code represents negative assignment */
    PStack_p      deactivated; /* Clauses that have been deactivated,
-				 each initiated by a NULL pointer */
+             each initiated by a NULL pointer */
    PStack_p      unproc_units; /* Known unprocessed unit clauses */
    AtomSet_p     open_atoms;  /* List of unassigned variables */
 }DPLLStateCell, *DPLLState_p;

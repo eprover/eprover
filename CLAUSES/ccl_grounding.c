@@ -88,9 +88,9 @@ void varsetinstapply(VarSetInst_p varinst)
    for(i=0; i< varinst->size; i++)
    {
       t = PStackElementP(varinst->cells[i].alternatives,
-			 varinst->cells[i].position);
+          varinst->cells[i].position);
       /* printf("varsetinstapply: i=%ld, position = %ld\n",i,
-	 varinst->cells[i].position); */
+    varinst->cells[i].position); */
       assert(!TermIsVar(t));
       assert(TermIsVar(varinst->cells[i].variable));
       varinst->cells[i].variable->binding = t;
@@ -143,7 +143,7 @@ bool varsetinstinitialize(VarSetInst_p varinst)
       tmp = PStackGetSP(varinst->cells[i].alternatives)-1;
       if(tmp<0)
       {
-	 return false;
+    return false;
       }
       varinst->cells[i].position = tmp;
    }
@@ -198,11 +198,11 @@ bool varsetinstnext(VarSetInst_p varinst)
    {
       if(varinst->cells[i].position)
       {
-	 varinst->cells[i].position--;
-	 return true;
+    varinst->cells[i].position--;
+    return true;
       }
       varinst->cells[i].position =
-	 PStackGetSP(varinst->cells[i].alternatives)-1;
+    PStackGetSP(varinst->cells[i].alternatives)-1;
    }
    return false;
 }
@@ -221,10 +221,10 @@ bool varsetinstnext(VarSetInst_p varinst)
 /----------------------------------------------------------------------*/
 
 void ground_set_print_unit(FILE* out, GroundSet_p set, long unit, bool
-			   pos)
+            pos)
 {
    Eqn_p eqn = EqnAlloc(PDArrayElementP(set->unit_terms, unit),
-			set->lit_bank->true_term, set->lit_bank, pos);
+         set->lit_bank->true_term, set->lit_bank, pos);
    Clause_p clause = ClauseAlloc(eqn);
 
    ClausePrint(out, clause, true);
@@ -345,11 +345,11 @@ long ClauseSetEqlitRecode(ClauseSet_p set)
    Clause_p handle;
 
    for(handle = set->anchor->succ; handle!= set->anchor; handle =
-	  handle->succ)
+     handle->succ)
    {
       if(ClauseEqlitRecode(handle))
       {
-	 res++;
+    res++;
       }
    }
    return res;
@@ -383,12 +383,12 @@ VarSetInst_p VarSetInstAlloc(Clause_p clause)
 
       for(i=0; i<handle->size; i++)
       {
-	 assert(tree);
+    assert(tree);
 
-	 var = PTreeExtractRootKey(&tree);
-	 assert(var);
-	 handle->cells[i].variable = var;
-	 handle->cells[i].alternatives = NULL;
+    var = PTreeExtractRootKey(&tree);
+    assert(var);
+    handle->cells[i].variable = var;
+    handle->cells[i].alternatives = NULL;
       }
       assert(!tree);
    }
@@ -445,8 +445,8 @@ void VarSetInstFree(VarSetInst_p junk)
 /----------------------------------------------------------------------*/
 
 VarSetInst_p VarSetConstrInstAlloc(LitOccTable_p p_table,
-				   LitOccTable_p n_table, Clause_p
-				   clause, PTree_p ground_terms)
+               LitOccTable_p n_table, Clause_p
+               clause, PTree_p ground_terms)
 {
    PTree_p      tree = NULL, tmp;
    VarSetInst_p handle = VarSetInstCellAlloc();
@@ -459,33 +459,33 @@ VarSetInst_p VarSetConstrInstAlloc(LitOccTable_p p_table,
    {
       handle->cells = SizeMalloc(handle->size*sizeof(VarInstCell));
       var_constr = PDArrayAlloc(DEFAULT_VARBANK_SIZE,
-				DEFAULT_VARBANK_SIZE);
+            DEFAULT_VARBANK_SIZE);
 
 
 
       for(i=0; i<handle->size; i++)
       {
-	 assert(tree);
+    assert(tree);
 
-	 var = PTreeExtractRootKey(&tree);
-	 assert(var);
-	 assert(TermIsVar(var));
-	 tmp = PTreeCopy(ground_terms);
-	 PDArrayAssignP(var_constr, -var->f_code, tmp);
+    var = PTreeExtractRootKey(&tree);
+    assert(var);
+    assert(TermIsVar(var));
+    tmp = PTreeCopy(ground_terms);
+    PDArrayAssignP(var_constr, -var->f_code, tmp);
 
-	 handle->cells[i].variable = var;
-	 handle->cells[i].alternatives = PStackAlloc();
+    handle->cells[i].variable = var;
+    handle->cells[i].alternatives = PStackAlloc();
       }
       assert(!tree);
 
       ClauseCollectVarConstr(p_table, n_table, clause, ground_terms,
-			     var_constr);
+              var_constr);
       for(i=0; i<handle->size; i++)
       {
-	 tmp = PDArrayElementP(var_constr,
-			       -(handle->cells[i].variable->f_code));
-	 PTreeToPStack(handle->cells[i].alternatives, tmp);
-	 PTreeFree(tmp);
+    tmp = PDArrayElementP(var_constr,
+                -(handle->cells[i].variable->f_code));
+    PTreeToPStack(handle->cells[i].alternatives, tmp);
+    PTreeFree(tmp);
       }
       PDArrayFree(var_constr);
    }
@@ -576,21 +576,21 @@ void ClausePrintDimacs(FILE* out, Clause_p clause)
    if(ClauseIsEmpty(clause))
    {
       /* SATO is broken, and so may be lots of other provers...we just
-	 print a trivial problem that reduces to empty...*/
+    print a trivial problem that reduces to empty...*/
       fprintf(out, " -1 0\n  1 0\n");
    }
    else
    {
       for(handle = clause->literals; handle; handle = handle->next)
       {
-	 if(EqnIsPositive(handle))
-	 {
-	    fprintf(stdout, "  %ld", handle->lterm->entry_no);
-	 }
-	 else
-	 {
-	    fprintf(stdout, " -%ld", handle->lterm->entry_no);
-	 }
+    if(EqnIsPositive(handle))
+    {
+       fprintf(stdout, "  %ld", handle->lterm->entry_no);
+    }
+    else
+    {
+       fprintf(stdout, " -%ld", handle->lterm->entry_no);
+    }
       }
       fputs(" 0\n", out);
    }
@@ -613,7 +613,7 @@ void ClauseSetPrintDimacs(FILE* out, ClauseSet_p set)
    Clause_p handle;
 
    for(handle = set->anchor->succ; handle != set->anchor; handle =
-	  handle->succ)
+     handle->succ)
    {
       ClausePrintDimacs(out, handle);
    }
@@ -758,15 +758,15 @@ bool GroundSetInsert(GroundSet_p set, Clause_p clause)
 
       if(status & sign)
       {
-	 res = false;
+    res = false;
       }
       else
       {
-	 set->max_literal = MAX(set->max_literal, clause->literals->lterm->entry_no);
-	 PDArrayAssignInt(set->units, lit_no, status | sign);
-	 PDArrayAssignP(set->unit_terms, lit_no, clause->literals->lterm);
-	 set->unit_no++;
-	 res = true;
+    set->max_literal = MAX(set->max_literal, clause->literals->lterm->entry_no);
+    PDArrayAssignInt(set->units, lit_no, status | sign);
+    PDArrayAssignP(set->unit_terms, lit_no, clause->literals->lterm);
+    set->unit_no++;
+    res = true;
       }
       ClauseFree(clause);
       return res;
@@ -795,13 +795,13 @@ void GroundSetPrint(FILE* out, GroundSet_p set)
       status = PDArrayElementInt(set->units, i);
       if(status&GCUPos)
       {
-	 ground_set_print_unit(out, set, i, true);
-	 fputc('\n', out);
+    ground_set_print_unit(out, set, i, true);
+    fputc('\n', out);
       }
       if(status&GCUNeg)
       {
-	 ground_set_print_unit(out, set, i, false);
-	 fputc('\n', out);
+    ground_set_print_unit(out, set, i, false);
+    fputc('\n', out);
       }
    }
    PropClauseSetPrint(out, set->lit_bank, set->non_units);
@@ -832,11 +832,11 @@ void GroundSetPrintDimacs(FILE* out, GroundSet_p set)
       status = PDArrayElementInt(set->units, i);
       if(status&GCUPos)
       {
-	 fprintf(out, "  %ld 0\n", i);
+    fprintf(out, "  %ld 0\n", i);
       }
       if(status&GCUNeg)
       {
-	 fprintf(out, " -%ld 0\n", i);
+    fprintf(out, " -%ld 0\n", i);
       }
    }
    for(handle = set->non_units->list; handle; handle = handle->next)
@@ -862,7 +862,7 @@ void GroundSetPrintDimacs(FILE* out, GroundSet_p set)
 /----------------------------------------------------------------------*/
 
 bool GroundSetUnitSimplifyClause(GroundSet_p set, Clause_p clause,
-				 bool subsume, bool resolve)
+             bool subsume, bool resolve)
 {
    EqnRef      list = &(clause->literals);
    long        lit_enc;
@@ -875,35 +875,35 @@ bool GroundSetUnitSimplifyClause(GroundSet_p set, Clause_p clause,
 
       if(EqnIsPositive(*list))
       {
-	 if(subsume&&(status&GCUPos))
-	 {
-	    return true;
-	 }
-	 if(resolve&&(status&GCUNeg))
-	 {
-	    EqnListDeleteElement(list);
-	    clause->pos_lit_no--;
-	 }
-	 else
-	 {
-	    list = &((*list)->next);
-	 }
+    if(subsume&&(status&GCUPos))
+    {
+       return true;
+    }
+    if(resolve&&(status&GCUNeg))
+    {
+       EqnListDeleteElement(list);
+       clause->pos_lit_no--;
+    }
+    else
+    {
+       list = &((*list)->next);
+    }
       }
       else
       {
-	 if(subsume&&(status&GCUNeg))
-	 {
-	    return true;
-	 }
-	 if(resolve&&(status&GCUPos))
-	 {
-	    EqnListDeleteElement(list);
-	    clause->neg_lit_no--;
-	 }
-	 else
-	 {
-	    list = &((*list)->next);
-	 }
+    if(subsume&&(status&GCUNeg))
+    {
+       return true;
+    }
+    if(resolve&&(status&GCUPos))
+    {
+       EqnListDeleteElement(list);
+       clause->neg_lit_no--;
+    }
+    else
+    {
+       list = &((*list)->next);
+    }
       }
 
    }
@@ -926,9 +926,9 @@ bool GroundSetUnitSimplifyClause(GroundSet_p set, Clause_p clause,
 /----------------------------------------------------------------------*/
 
 bool ClauseCreateGroundInstances(TB_p bank, Clause_p clause,
-				 VarSetInst_p inst, GroundSet_p
-				 groundset, bool subsume, bool
-				 resolve, bool taut_check)
+             VarSetInst_p inst, GroundSet_p
+             groundset, bool subsume, bool
+             resolve, bool taut_check)
 {
    bool next = true;
    bool res = true;
@@ -956,29 +956,29 @@ bool ClauseCreateGroundInstances(TB_p bank, Clause_p clause,
       EqnListRemoveDuplicates(handle);
       if(taut_check && EqnListIsTrivial(handle))
       {
-	 EqnListFree(handle);
+    EqnListFree(handle);
       }
       else
       {
-	 new = ClauseAlloc(handle);
-	 if(!GroundSetUnitSimplifyClause(groundset, new, subsume,
-					 resolve))
-	 {
-	    if(ClauseIsEmpty(new))
-	    {
-	       res = false;
-	       PropClauseSetFree(groundset->non_units);
-	       groundset->non_units = PropClauseSetAlloc();
-	       PDArrayFree(groundset->units);
-	       groundset->units = PDArrayAlloc(1,1);
-	       groundset->unit_no = 0;
-	    }
-	    GroundSetInsert(groundset, new);
-	 }
-	 else
-	 {
-	    ClauseFree(new);
-	 }
+    new = ClauseAlloc(handle);
+    if(!GroundSetUnitSimplifyClause(groundset, new, subsume,
+                resolve))
+    {
+       if(ClauseIsEmpty(new))
+       {
+          res = false;
+          PropClauseSetFree(groundset->non_units);
+          groundset->non_units = PropClauseSetAlloc();
+          PDArrayFree(groundset->units);
+          groundset->units = PDArrayAlloc(1,1);
+          groundset->unit_no = 0;
+       }
+       GroundSetInsert(groundset, new);
+    }
+    else
+    {
+       ClauseFree(new);
+    }
       }
       next = varsetinstnext(inst);
    }
@@ -1003,9 +1003,9 @@ bool ClauseCreateGroundInstances(TB_p bank, Clause_p clause,
 /----------------------------------------------------------------------*/
 
 bool ClauseSetCreateGroundInstances(TB_p bank, ClauseSet_p set,
-				    GroundSet_p groundset, bool
-				    subsume, bool resolve, bool
-				    taut_check, long give_up)
+                GroundSet_p groundset, bool
+                subsume, bool resolve, bool
+                taut_check, long give_up)
 {
    PStack_p     default_terms = PStackAlloc();
    Clause_p     handle;
@@ -1023,31 +1023,31 @@ bool ClauseSetCreateGroundInstances(TB_p bank, ClauseSet_p set,
       tmp = PStackGetSP(default_terms);
       for(i=0; i<vars; i++)
       {
-	 est_inst = est_inst*tmp;
-	 if(est_inst > give_up)
-	 {
-	    fprintf(GlobalOut, "\n# Failure: User resource limit"
-		    " exceeded (estimated number of instances)!\n");
-	    exit(NO_ERROR);
-	 }
+    est_inst = est_inst*tmp;
+    if(est_inst > give_up)
+    {
+       fprintf(GlobalOut, "\n# Failure: User resource limit"
+          " exceeded (estimated number of instances)!\n");
+       exit(NO_ERROR);
+    }
       }
    }
 
    for(handle = set->anchor->succ; handle!= set->anchor && !TimeIsUp
-	  && !MemIsLow; handle = handle->succ)
+     && !MemIsLow; handle = handle->succ)
    {
       inst = VarSetInstAlloc(handle);
       for(i=0; i<inst->size; i++)
       {
-	 inst->cells[i].alternatives = default_terms;
+    inst->cells[i].alternatives = default_terms;
       }
       tmp = ClauseCreateGroundInstances(bank, handle, inst, groundset,
-					subsume, resolve, taut_check);
+               subsume, resolve, taut_check);
       VarSetInstFree(inst);
       if(!tmp)
       {
-	 res = false;
-	 break;
+    res = false;
+    break;
       }
    }
    if(TimeIsUp)
@@ -1086,10 +1086,10 @@ bool ClauseSetCreateGroundInstances(TB_p bank, ClauseSet_p set,
 /----------------------------------------------------------------------*/
 
 bool ClauseSetCreateConstrGroundInstances(TB_p bank, ClauseSet_p set,
-					  GroundSet_p groundset, bool
-					  subsume, bool resolve, bool
-					  taut_check, long give_up,
-					  long just_one_instance)
+                 GroundSet_p groundset, bool
+                 subsume, bool resolve, bool
+                 taut_check, long give_up,
+                 long just_one_instance)
 {
    PStack_p     default_terms = PStackAlloc();
    PTree_p      default_term_tree = NULL;
@@ -1117,26 +1117,26 @@ bool ClauseSetCreateConstrGroundInstances(TB_p bank, ClauseSet_p set,
        handle = handle->succ)
    {
       inst = VarSetConstrInstAlloc(p_table, n_table, handle,
-				   default_term_tree);
+               default_term_tree);
 
       if(give_up)
       {
-	 clause_estimate = varinstestimate(inst);
-	 if((GroundSetMembers(groundset)+clause_estimate) > give_up)
-	 {
-	    fprintf(GlobalOut, "\n# Failure: User resource limit"
-		    " exceeded (estimated number of instances)!\n");
-	    exit(NO_ERROR);
-	 }
+    clause_estimate = varinstestimate(inst);
+    if((GroundSetMembers(groundset)+clause_estimate) > give_up)
+    {
+       fprintf(GlobalOut, "\n# Failure: User resource limit"
+          " exceeded (estimated number of instances)!\n");
+       exit(NO_ERROR);
+    }
       }
 
       tmp = ClauseCreateGroundInstances(bank, handle, inst, groundset,
-					subsume, resolve, taut_check);
+               subsume, resolve, taut_check);
       VarSetConstrInstFree(inst);
       if(!tmp)
       {
-	 res = false;
-	 break;
+    res = false;
+    break;
       }
    }
    if(TimeIsUp)

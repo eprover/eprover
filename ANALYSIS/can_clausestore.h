@@ -43,7 +43,7 @@ typedef struct compact_clause_cell
    ClauseProperties properties;
    long             ident;
    long             ext_ident;   /* Ident of the current version of
-				    the clause for PCL generation */
+                the clause for PCL generation */
    short            literal_no;
    short            *sign; /* For literals */
    Term_p           *lit_terms; /* Literals are just pairs of terms */
@@ -76,7 +76,7 @@ CompClause_p CompactifyClause(Clause_p clause);
 Clause_p     UnCompactifyClause(CompClause_p clause, TB_p bank);
 
 void CompClausePrint(FILE* out, CompClause_p compact, TB_p bank, bool
-		     full_terms);
+           full_terms);
 
 void CompClausePCLPrint(FILE* out, CompClause_p compact, TB_p bank);
 

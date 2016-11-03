@@ -452,21 +452,21 @@ int main(int argc, char* argv[])
    if(!SpecNoEq(&features))
    {
      Warning("Recoding equational literals. Be sure to include"
-	     " equality axioms!\n");
+        " equality axioms!\n");
      ClauseSetEqlitRecode(clauses);
    }
    if(SigFindMaxFunctionArity(sig)&&!ClauseSetIsGround(clauses))
    {
       Error("Grounding not possible: Specification is "
-	    "not near-propositional. There is an infinite Herbrand "
-	    "universe and there are non-ground clauses in the "
-	    "specification!", INPUT_SEMANTIC_ERROR);
+       "not near-propositional. There is an infinite Herbrand "
+       "universe and there are non-ground clauses in the "
+       "specification!", INPUT_SEMANTIC_ERROR);
    }
 
    if(add_single_instance)
    {
       selected_symbol = ClauseSetFindFreqSymbol(clauses, terms->sig,
-						0, false);
+                  0, false);
    }
 
    initial_clauses  = clauses->members;
@@ -489,35 +489,35 @@ int main(int argc, char* argv[])
    if(constraints)
    {
       ClauseSetCreateConstrGroundInstances(terms, clauses,
-					   groundset,
-					   unit_sub,
-					   unit_res,
-					   taut_check,
-					   give_up,
-					   0);
+                  groundset,
+                  unit_sub,
+                  unit_res,
+                  taut_check,
+                  give_up,
+                  0);
    }
    else
    {
       ClauseSetCreateGroundInstances(terms, clauses,
-				     groundset,
-				     unit_sub,
-				     unit_res,
-				     taut_check,
-				     give_up);
+                 groundset,
+                 unit_sub,
+                 unit_res,
+                 taut_check,
+                 give_up);
    }
    if((groundset->complete!=cpl_complete) && add_single_instance)
    {
       GroundSetState gss_cache = groundset->complete;
       MemIsLow = false; /* Kind of optimistic, but otherwise
-			   ClauseSetCreateConstrGroundInstances() will
-			   fail immediately */
+            ClauseSetCreateConstrGroundInstances() will
+            fail immediately */
       ClauseSetCreateConstrGroundInstances(terms, clauses,
-					   groundset,
-					   unit_sub,
-					   unit_res,
-					   taut_check,
-					   give_up,
-					   selected_symbol);
+                  groundset,
+                  unit_sub,
+                  unit_res,
+                  taut_check,
+                  give_up,
+                  selected_symbol);
       groundset->complete = gss_cache;
    }
    if(OutputLevel == 1)
@@ -535,30 +535,30 @@ int main(int argc, char* argv[])
             max_lit = GroundSetMaxVar(groundset);
          }
 
-	 PrintDimacsHeader(GlobalOut, max_lit,
-			   GroundSetDimacsPrintMembers(groundset));
-	 GroundSetPrintDimacs(GlobalOut, groundset);
+    PrintDimacsHeader(GlobalOut, max_lit,
+            GroundSetDimacsPrintMembers(groundset));
+    GroundSetPrintDimacs(GlobalOut, groundset);
       }
       else
       {
-	 GroundSetPrint(GlobalOut, groundset);
+    GroundSetPrint(GlobalOut, groundset);
       }
       switch(groundset->complete)
       {
       case cpl_complete:
-	    fprintf(GlobalOut,
-		    "# Full and complete proof state written!\n");
-	    break;
+       fprintf(GlobalOut,
+          "# Full and complete proof state written!\n");
+       break;
       case cpl_lowmem:
-	    fprintf(GlobalOut,
-		 "# Out of memory: Proof state incomplete!\n");
-	    break;
+       fprintf(GlobalOut,
+       "# Out of memory: Proof state incomplete!\n");
+       break;
       case cpl_timeout:
-	    fprintf(GlobalOut,
-		 "# Timeout: Proof state incomplete!\n");
-	    break;
+       fprintf(GlobalOut,
+       "# Timeout: Proof state incomplete!\n");
+       break;
       default:
-	    assert(false && "Unknown incompleteness?!?");
+       assert(false && "Unknown incompleteness?!?");
       }
    }
    else
@@ -568,14 +568,14 @@ int main(int argc, char* argv[])
    if(print_statistics)
    {
       fprintf(GlobalOut,
-	      "\n"
-	      "# Initial clauses                      : %ld\n"
-	      "# Initial literals                     : %ld\n"
-	      "# Generated clauses                    : %ld\n"
-	      "# Generated literals                   : %ld\n",
-	      initial_clauses, initial_literals,
-	      GroundSetMembers(groundset),
-	      GroundSetLiterals(groundset));
+         "\n"
+         "# Initial clauses                      : %ld\n"
+         "# Initial literals                     : %ld\n"
+         "# Generated clauses                    : %ld\n"
+         "# Generated literals                   : %ld\n",
+         initial_clauses, initial_literals,
+         GroundSetMembers(groundset),
+         GroundSetLiterals(groundset));
    }
 #ifndef FAST_EXIT
    GroundSetFree(groundset);
@@ -636,49 +636,49 @@ CLState_p process_options(int argc, char* argv[])
       switch(handle->option_code)
       {
       case OPT_VERBOSE:
-	    Verbose = CLStateGetIntArg(handle, arg);
-	    break;
+       Verbose = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_HELP:
-	    print_help(stdout);
-	    exit(NO_ERROR);
+       print_help(stdout);
+       exit(NO_ERROR);
       case OPT_VERSION:
-	    printf(NAME" " VERSION "\n");
-	    exit(NO_ERROR);
+       printf(NAME" " VERSION "\n");
+       exit(NO_ERROR);
       case OPT_OUTPUT:
-	    outname = arg;
-	    break;
+       outname = arg;
+       break;
       case OPT_SILENT:
-	    OutputLevel = 0;
-	    break;
+       OutputLevel = 0;
+       break;
       case OPT_OUTPUTLEVEL:
-	    OutputLevel = CLStateGetIntArg(handle, arg);
-	    break;
+       OutputLevel = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_PRINT_STATISTICS:
-	    print_statistics = true;
-	    break;
+       print_statistics = true;
+       break;
       case OPT_RUSAGE_INFO:
-	    print_rusage = true;
-	    break;
+       print_rusage = true;
+       break;
       case OPT_SUPRESS_RESULT:
-	    print_result = false;
-	    break;
+       print_result = false;
+       break;
       case OPT_LOP_PARSE:
-	    parse_format = LOPFormat;
-	    break;
+       parse_format = LOPFormat;
+       break;
       case OPT_TPTP_PARSE:
-	    parse_format = TPTPFormat;
-	    break;
+       parse_format = TPTPFormat;
+       break;
       case OPT_TPTP_PRINT:
-	    OutputFormat = TPTPFormat;
-	    EqnFullEquationalRep = false;
-	    EqnUseInfix = false;
-	    break;
+       OutputFormat = TPTPFormat;
+       EqnFullEquationalRep = false;
+       EqnUseInfix = false;
+       break;
       case OPT_TPTP_FORMAT:
-	    parse_format = TPTPFormat;
-	    OutputFormat = TPTPFormat;
-	    EqnFullEquationalRep = false;
-	    EqnUseInfix = false;
-	    break;
+       parse_format = TPTPFormat;
+       OutputFormat = TPTPFormat;
+       EqnFullEquationalRep = false;
+       EqnUseInfix = false;
+       break;
       case OPT_TSTP_PARSE:
             parse_format = TSTPFormat;
             break;
@@ -692,26 +692,26 @@ CLState_p process_options(int argc, char* argv[])
             EqnUseInfix = true;
             break;
       case OPT_DIMACS_PRINT:
-	    dimacs_format = true;
-	    break;
+       dimacs_format = true;
+       break;
       case OPT_SPLIT_TRIES:
-	    split_tries = CLStateGetIntArg(handle, arg);
+       split_tries = CLStateGetIntArg(handle, arg);
             if((split_tries < 0))
             {
                Error("Argument to option --split-tries "
                      "has to be value greater than or equal to 0 ",
-		     USAGE_ERROR);
+           USAGE_ERROR);
             }
-	    break;
+       break;
       case OPT_DISABLE_UNIT_SUBSUMPTION:
-	    unit_sub = false;
-	    break;
+       unit_sub = false;
+       break;
       case OPT_DISABLE_UNIT_RESOLUTION:
-	    unit_res = false;
-	    break;
+       unit_res = false;
+       break;
       case OPT_DISABLE_TAUTOLOGY_DETECTION:
-	    taut_check = false;
-	    break;
+       taut_check = false;
+       break;
       case OPT_MEM_LIMIT:
             if(strcmp(arg, "Auto")==0)
             {
@@ -734,84 +734,84 @@ CLState_p process_options(int argc, char* argv[])
             {
                mem_limit = MEGA*CLStateGetIntArg(handle, arg);
             }
-	    break;
+       break;
       case OPT_CPU_LIMIT:
-	    HardTimeLimit = CLStateGetIntArg(handle, arg);
-	    if(SoftTimeLimit != RLIM_INFINITY)
-	    {
-	       if(HardTimeLimit<=SoftTimeLimit)
-	       {
-		  Error("Hard time limit has to be larger than soft"
-			"time limit", USAGE_ERROR);
-	       }
-	    }
-	    break;
+       HardTimeLimit = CLStateGetIntArg(handle, arg);
+       if(SoftTimeLimit != RLIM_INFINITY)
+       {
+          if(HardTimeLimit<=SoftTimeLimit)
+          {
+        Error("Hard time limit has to be larger than soft"
+         "time limit", USAGE_ERROR);
+          }
+       }
+       break;
       case OPT_SOFTCPU_LIMIT:
-	    SoftTimeLimit = CLStateGetIntArg(handle, arg);
-	    if(HardTimeLimit != RLIM_INFINITY)
-	    {
-	       if(HardTimeLimit<=SoftTimeLimit)
-	       {
-		  Error("Soft time limit has to be smaller than hard"
-			"time limit", USAGE_ERROR);
-	       }
-	    }
-	    break;
+       SoftTimeLimit = CLStateGetIntArg(handle, arg);
+       if(HardTimeLimit != RLIM_INFINITY)
+       {
+          if(HardTimeLimit<=SoftTimeLimit)
+          {
+        Error("Soft time limit has to be smaller than hard"
+         "time limit", USAGE_ERROR);
+          }
+       }
+       break;
       case OPT_PART_COMPLETE:
-	    add_single_instance = true;
-	    break;
+       add_single_instance = true;
+       break;
       case OPT_GIVE_UP:
-	    give_up = CLStateGetIntArg(handle, arg);
-	    break;
+       give_up = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_CONSTRAINTS:
-	    constraints = true;
-	    break;
+       constraints = true;
+       break;
       case OPT_LOCAL_CONSTRAINTS:
             constraints = true;
-	    local_constraints = true;
-	    ClausesHaveDisjointVariables = true;
-	    ClausesHaveLocalVariables = false;
-	    break;
+       local_constraints = true;
+       ClausesHaveDisjointVariables = true;
+       ClausesHaveLocalVariables = false;
+       break;
       case OPT_FIX_MINISAT:
             fix_minisat = true;
             break;
       default:
-	 assert(false);
-	 break;
+    assert(false);
+    break;
       }
    }
    if((HardTimeLimit!=RLIM_INFINITY)||(SoftTimeLimit!=RLIM_INFINITY))
    {
       if(getrlimit(RLIMIT_CPU, &limit))
       {
-	 TmpErrno = errno;
-	 SysError("Unable to get sytem cpu time limit", SYS_ERROR);
+    TmpErrno = errno;
+    SysError("Unable to get sytem cpu time limit", SYS_ERROR);
       }
       SystemTimeLimit = limit.rlim_max;
       if(SoftTimeLimit!=RLIM_INFINITY)
       {
-	 limit.rlim_max = SystemTimeLimit; /* Redundant, but clearer */
-	 limit.rlim_cur = SoftTimeLimit;
-	 TimeLimitIsSoft = true;
+    limit.rlim_max = SystemTimeLimit; /* Redundant, but clearer */
+    limit.rlim_cur = SoftTimeLimit;
+    TimeLimitIsSoft = true;
       }
       else
       {
-	 limit.rlim_max = SystemTimeLimit;
-	 limit.rlim_cur = HardTimeLimit;
-	 TimeLimitIsSoft = false;
+    limit.rlim_max = SystemTimeLimit;
+    limit.rlim_cur = HardTimeLimit;
+    TimeLimitIsSoft = false;
       }
       if(setrlimit(RLIMIT_CPU, &limit))
       {
-	 TmpErrno = errno;
-	 SysError("Unable to set cpu time limit", SYS_ERROR);
+    TmpErrno = errno;
+    SysError("Unable to set cpu time limit", SYS_ERROR);
       }
       limit.rlim_max = RLIM_INFINITY;
       limit.rlim_cur = 0;
 
       if(setrlimit(RLIMIT_CORE, &limit))
       {
-	 TmpErrno = errno;
-	 SysError("Unable to prevent core dumps", SYS_ERROR);
+    TmpErrno = errno;
+    SysError("Unable to prevent core dumps", SYS_ERROR);
       }
    }
    SetMemoryLimit(mem_limit);

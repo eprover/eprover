@@ -157,7 +157,7 @@ Term_p TermFollowRWChain(Term_p term)
 /----------------------------------------------------------------------*/
 
 Term_p TBTermPosReplace(TB_p bank, Term_p repl, TermPos_p pos,
-			DerefType deref)
+         DerefType deref)
 {
    Term_p        handle, old;
    int           subscript;

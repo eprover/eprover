@@ -121,34 +121,34 @@ int main(int argc, char* argv[])
       term = TBTermParse(in, bank);
       for(i=1; i<5; i++)
       {
-	 printf("Depth: %i  Original term: ", i);
-	 TBPrintTermFull(stdout, bank, term);
-	 printf("\n\n");
+    printf("Depth: %i  Original term: ", i);
+    TBPrintTermFull(stdout, bank, term);
+    printf("\n\n");
 
-	 top = TermTop(term, i, bank->vars);
-	 printf("  Top:   ");
-	 TermPrint(stdout, top, bank->sig, DEREF_NEVER);
-	 printf("\n");
-	 TermFree(top);
+    top = TermTop(term, i, bank->vars);
+    printf("  Top:   ");
+    TermPrint(stdout, top, bank->sig, DEREF_NEVER);
+    printf("\n");
+    TermFree(top);
 
-	 top = AltTermTop(term, i, bank->vars);
-	 printf("  Top':  ");
-	 TermPrint(stdout, top, bank->sig, DEREF_NEVER);
-	 printf("\n");
-	 TermFree(top);
+    top = AltTermTop(term, i, bank->vars);
+    printf("  Top':  ");
+    TermPrint(stdout, top, bank->sig, DEREF_NEVER);
+    printf("\n");
+    TermFree(top);
 
-	 top = CSTermTop(term, i, bank->vars);
-	 printf("  CSTop: ");
-	 TermPrint(stdout, top, bank->sig, DEREF_NEVER);
-	 printf("\n");
-	 TermFree(top);
+    top = CSTermTop(term, i, bank->vars);
+    printf("  CSTop: ");
+    TermPrint(stdout, top, bank->sig, DEREF_NEVER);
+    printf("\n");
+    TermFree(top);
 
-	 top = ESTermTop(term, i, bank->vars);
-	 printf("  ESTop: ");
-	 TermPrint(stdout, top, bank->sig, DEREF_NEVER);
-	 printf("\n");
-	 TermFree(top);
-	 printf("\n");
+    top = ESTermTop(term, i, bank->vars);
+    printf("  ESTop: ");
+    TermPrint(stdout, top, bank->sig, DEREF_NEVER);
+    printf("\n");
+    TermFree(top);
+    printf("\n");
       }
    }
    DestroyScanner(in);
@@ -197,23 +197,23 @@ CLState_p process_options(int argc, char* argv[])
       switch(handle->option_code)
       {
       case OPT_VERBOSE:
-	    Verbose = CLStateGetIntArg(handle, arg);
-	    break;
+       Verbose = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_HELP:
-	    print_help(stdout);
-	    exit(NO_ERROR);
+       print_help(stdout);
+       exit(NO_ERROR);
       case OPT_OUTPUT:
-	    outname = arg;
-	    break;
+       outname = arg;
+       break;
       case OPT_NO_INFIX:
-	    EqnUseInfix = !CLStateGetBoolArg(handle, arg);
-	    break;
+       EqnUseInfix = !CLStateGetBoolArg(handle, arg);
+       break;
       case OPT_FULL_EQ_REP:
-	    EqnFullEquationalRep = CLStateGetBoolArg(handle, arg);
-	    break;
+       EqnFullEquationalRep = CLStateGetBoolArg(handle, arg);
+       break;
       default:
-	 assert(false);
-	 break;
+    assert(false);
+    break;
       }
    }
    return state;

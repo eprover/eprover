@@ -70,7 +70,7 @@ ProofControl_p ProofControlAlloc(void);
 void           ProofControlFree(ProofControl_p junk);
 
 void           DoLiteralSelection(ProofControl_p control, Clause_p
-				  clause);
+              clause);
 
 
 #endif

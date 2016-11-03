@@ -119,7 +119,7 @@ int main(int argc, char* argv[])
    if(state->argc > 1)
    {
       Error("Only one non-option argument (name of the knowledge base)"
-	    " expexted", USAGE_ERROR);
+       " expexted", USAGE_ERROR);
    }
    if(state->argc == 1)
    {
@@ -156,18 +156,18 @@ int main(int argc, char* argv[])
 
    out = OutOpen(KBFileName(name, basename, "signature"));
    fprintf(out,
-	   "# Special function symbols that are not generalized.\n"
-	   "# You need to hand-hack this at the moment.\n");
+      "# Special function symbols that are not generalized.\n"
+      "# You need to hand-hack this at the moment.\n");
    OutClose(out);
 
    out = OutOpen(KBFileName(name, basename, "problems"));
    fprintf(out,
-	   "# Example names and features. \n");
+      "# Example names and features. \n");
    OutClose(out);
 
    out = OutOpen(KBFileName(name, basename, "clausepatterns"));
    fprintf(out,
-	   "# Individual annotated patterns. \n");
+      "# Individual annotated patterns. \n");
    OutClose(out);
 
    VERBOUT("...done.\nCreating subdirectory FILES...\n");
@@ -225,28 +225,28 @@ CLState_p process_options(int argc, char* argv[])
       switch(handle->option_code)
       {
       case OPT_VERBOSE:
-	    Verbose = CLStateGetIntArg(handle, arg);
-	    break;
+       Verbose = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_HELP:
-	    print_help(stdout);
-	    exit(NO_ERROR);
+       print_help(stdout);
+       exit(NO_ERROR);
       case OPT_VERSION:
-	    printf(NAME " " VERSION "\n");
-	    exit(NO_ERROR);
+       printf(NAME " " VERSION "\n");
+       exit(NO_ERROR);
       case OPT_NEG_NO:
-	    neg_examples = CLStateGetIntArg(handle, arg);
-	    break;
+       neg_examples = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_NEG_PROP:
-	    neg_proportion = CLStateGetFloatArg(handle, arg);
-	    if(neg_proportion < 0)
-	    {
-	       Error("Option -p (--negative-example-proportion)"
-		     "requires positive argument.}", USAGE_ERROR);
-	    }
-	    break;
+       neg_proportion = CLStateGetFloatArg(handle, arg);
+       if(neg_proportion < 0)
+       {
+          Error("Option -p (--negative-example-proportion)"
+           "requires positive argument.}", USAGE_ERROR);
+       }
+       break;
      default:
-	 assert(false);
-	 break;
+    assert(false);
+    break;
       }
    }
    return state;

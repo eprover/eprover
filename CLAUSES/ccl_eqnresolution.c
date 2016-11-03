@@ -71,11 +71,11 @@ Clause_p ComputeEqRes(TB_p bank, ClausePos_p pos, VarBank_p freshvars)
    VarBankResetVCount(freshvars);
 
    unifies = SubstComputeMgu(pos->literal->lterm, pos->literal->rterm,
-			     subst);
+              subst);
    if(unifies)
    {
       NormSubstEqnListExcept(pos->clause->literals, pos->literal,
-			     subst, freshvars);
+              subst, freshvars);
       new_literals = EqnListCopyOptExcept(pos->clause->literals,
                                           pos->literal);
       EqnListRemoveResolved(&new_literals);
@@ -109,9 +109,9 @@ Eqn_p ClausePosFirstEqResLiteral(Clause_p clause, ClausePos_p pos)
    while(pos->literal)
    {
       if(!EqnIsPositive(pos->literal) &&
-	 (!EqResOnMaximalLiteralsOnly || EqnIsMaximal(pos->literal)))
+    (!EqResOnMaximalLiteralsOnly || EqnIsMaximal(pos->literal)))
       {
-	 break;
+    break;
       }
       pos->literal = pos->literal->next;
    }
@@ -138,9 +138,9 @@ Eqn_p ClausePosNextEqResLiteral(ClausePos_p pos)
    while(pos->literal)
    {
       if(!EqnIsPositive(pos->literal) &&
-	 (!EqResOnMaximalLiteralsOnly || EqnIsMaximal(pos->literal)))
+    (!EqResOnMaximalLiteralsOnly || EqnIsMaximal(pos->literal)))
       {
-	 break;
+    break;
       }
       pos->literal = pos->literal->next;
    }

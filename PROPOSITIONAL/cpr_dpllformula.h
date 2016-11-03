@@ -65,10 +65,10 @@ typedef struct dpllrep_cell
 DPLLFormula_p DPLLFormulaAlloc(void);
 void DPLLFormulaFree(DPLLFormula_p junk);
 void DPLLFormulaPrint(FILE* out,DPLLFormula_p form, DPLLOutputFormat format,
-		      bool print_atoms);
+            bool print_atoms);
 void DPLLRegisterClauseLiteral(DPLLFormula_p form,
-			       DPLLClause_p clause,
-			       PLiteralCode lit);
+                DPLLClause_p clause,
+                PLiteralCode lit);
 void DPLLFormulaInsertClause(DPLLFormula_p form, DPLLClause_p clause);
 void DPLLFormulaParseLOP(Scanner_p in, Sig_p sig, DPLLFormula_p form);
 

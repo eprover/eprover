@@ -136,7 +136,7 @@ Eqn_p GenDefLit(TB_p bank, FunCode pred, bool positive,
       lside->args = TermArgArrayAlloc(arity);
       for(i=0; i<arity; i++)
       {
-	 lside->args[i] = PStackElementP(split_vars, i);
+    lside->args[i] = PStackElementP(split_vars, i);
       }
    }
    lside->sort = STBool;

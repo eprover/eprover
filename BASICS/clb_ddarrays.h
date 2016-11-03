@@ -58,7 +58,7 @@ static __inline__ double* DDArrayElementRef(DDArray_p array, long idx);
           *DDArrayElementRef((array), (idx)) = (value)
 
 #define   DDArrayElement(array, idx) \
-	  *DDArrayElementRef((array), (idx))
+     *DDArrayElementRef((array), (idx))
 
 void      DDArrayAdd(DDArray_p collect, DDArray_p data, long limit);
 

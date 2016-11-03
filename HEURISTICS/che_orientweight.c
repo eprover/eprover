@@ -58,10 +58,10 @@ Changes
 /----------------------------------------------------------------------*/
 
 WFCB_p ClauseOrientWeightInit(ClausePrioFun prio_fun, int fweight,
-			       int vweight, OCB_p ocb, double
-			       unorientable_literal_multiplier, double
-			       max_literal_multiplier, double
-			       pos_multiplier)
+                int vweight, OCB_p ocb, double
+                unorientable_literal_multiplier, double
+                max_literal_multiplier, double
+                pos_multiplier)
 {
    OrientWeightParam_p data = OrientWeightParamCellAlloc();
 
@@ -73,7 +73,7 @@ WFCB_p ClauseOrientWeightInit(ClausePrioFun prio_fun, int fweight,
    data->ocb                    = ocb;
 
    return WFCBAlloc(ClauseOrientWeightCompute, prio_fun,
-		    ClauseOrientWeightExit, data);
+          ClauseOrientWeightExit, data);
 }
 
 
@@ -90,7 +90,7 @@ WFCB_p ClauseOrientWeightInit(ClausePrioFun prio_fun, int fweight,
 /----------------------------------------------------------------------*/
 
 WFCB_p ClauseOrientWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
-				state)
+            state)
 {
    ClausePrioFun prio_fun;
    int fweight, vweight;
@@ -112,9 +112,9 @@ WFCB_p ClauseOrientWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
    AcceptInpTok(in, CloseBracket);
 
    return ClauseOrientWeightInit(prio_fun, fweight, vweight, ocb,
-				 unorientable_literal_multiplier,
-				 max_literal_multiplier,
-				 pos_multiplier);
+             unorientable_literal_multiplier,
+             max_literal_multiplier,
+             pos_multiplier);
 }
 
 /*-----------------------------------------------------------------------
@@ -135,12 +135,12 @@ double ClauseOrientWeightCompute(void* data, Clause_p clause)
 
    ClauseCondMarkMaximalTerms(local->ocb, clause);
    return ClauseOrientWeight(clause,
-			     local->unorientable_literal_multiplier,
-			     local->max_literal_multiplier,
-			     local->pos_multiplier,
-			     local->vweight,
-			     local->fweight,
-			     false);
+              local->unorientable_literal_multiplier,
+              local->max_literal_multiplier,
+              local->pos_multiplier,
+              local->vweight,
+              local->fweight,
+              false);
 }
 
 
@@ -157,10 +157,10 @@ double ClauseOrientWeightCompute(void* data, Clause_p clause)
 /----------------------------------------------------------------------*/
 
 WFCB_p OrientLMaxWeightInit(ClausePrioFun prio_fun, int fweight,
-			       int vweight, OCB_p ocb, double
-			       unorientable_literal_multiplier, double
-			       max_literal_multiplier, double
-			       pos_multiplier)
+                int vweight, OCB_p ocb, double
+                unorientable_literal_multiplier, double
+                max_literal_multiplier, double
+                pos_multiplier)
 {
    OrientWeightParam_p data = OrientWeightParamCellAlloc();
 
@@ -172,7 +172,7 @@ WFCB_p OrientLMaxWeightInit(ClausePrioFun prio_fun, int fweight,
    data->ocb                    = ocb;
 
    return WFCBAlloc(OrientLMaxWeightCompute, prio_fun,
-		    ClauseOrientWeightExit, data);
+          ClauseOrientWeightExit, data);
 }
 
 
@@ -189,7 +189,7 @@ WFCB_p OrientLMaxWeightInit(ClausePrioFun prio_fun, int fweight,
 /----------------------------------------------------------------------*/
 
 WFCB_p OrientLMaxWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
-				state)
+            state)
 {
    ClausePrioFun prio_fun;
    int fweight, vweight;
@@ -211,9 +211,9 @@ WFCB_p OrientLMaxWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
    AcceptInpTok(in, CloseBracket);
 
    return OrientLMaxWeightInit(prio_fun, fweight, vweight, ocb,
-			       unorientable_literal_multiplier,
-			       max_literal_multiplier,
-			       pos_multiplier);
+                unorientable_literal_multiplier,
+                max_literal_multiplier,
+                pos_multiplier);
 }
 
 /*-----------------------------------------------------------------------
@@ -240,15 +240,15 @@ double OrientLMaxWeightCompute(void* data, Clause_p clause)
       tmp = EqnMaxWeight(handle, local->vweight, local->fweight);
       if(EqnIsPositive(handle))
       {
-	 tmp = tmp*local->pos_multiplier;
+    tmp = tmp*local->pos_multiplier;
       }
       if(EqnIsMaximal(handle))
       {
-	 tmp = tmp*local->max_literal_multiplier;
+    tmp = tmp*local->max_literal_multiplier;
       }
       if(!EqnIsOriented(handle))
       {
-	 tmp = tmp*local->unorientable_literal_multiplier;
+    tmp = tmp*local->unorientable_literal_multiplier;
       }
       res += tmp;
    }

@@ -61,7 +61,7 @@ typedef struct optcell
    char*       longopt;     /* Double dash, GNU-Style */
    OptArgType  type;        /* What about Arguments? */
    char*       arg_default; /* Default for optional argument (long
-			       style only */
+                style only */
    char*       desc;        /* Put the documentation in immediately! */
 }OptCell, *Opt_p;
 
@@ -69,12 +69,12 @@ typedef struct optcell
 typedef struct clstatecell
 {
    int     sc_opt_c;  /* Which character of the current element of
-			 argv has to be read next? */
+          argv has to be read next? */
    int     argi;      /* Which element of argv[] ? */
    int     argsize;   /* How large is the argv array really? */
    int     argc;      /* How many elements in argv[]? */
    char**  argv;      /* Vector of arguments. Processed options and
-			 option args will be removed */
+          option args will be removed */
 }CLStateCell, *CLState_p;
 
 /*---------------------------------------------------------------------*/

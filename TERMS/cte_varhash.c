@@ -132,7 +132,7 @@ VarHashEntry_p VarHashListFind(VarHashEntry_p list, Term_p var)
    {
       if(list->key == var)
       {
-	 break;
+    break;
       }
       list = list->next;
    }
@@ -187,7 +187,7 @@ long VarHashAddValue(VarHash_p hash, Term_p var, long value)
 /----------------------------------------------------------------------*/
 
 void VarHashAddVarDistrib(VarHash_p hash, Term_p term, DerefType
-			  deref, long add)
+           deref, long add)
 {
    PStack_p stack = PStackAlloc();
    int      i;
@@ -203,15 +203,15 @@ void VarHashAddVarDistrib(VarHash_p hash, Term_p term, DerefType
 
       if(TermIsVar(term))
       {
-	 VarHashAddValue(hash, term, add);
+    VarHashAddValue(hash, term, add);
       }
       else
       {
-	 for(i=0; i<term->arity; i++)
-	 {
-	    PStackPushP(stack, term->args[i]);
-	    PStackPushInt(stack, deref);
-	 }
+    for(i=0; i<term->arity; i++)
+    {
+       PStackPushP(stack, term->args[i]);
+       PStackPushInt(stack, deref);
+    }
       }
    }
    PStackFree(stack);
@@ -231,7 +231,7 @@ void VarHashAddVarDistrib(VarHash_p hash, Term_p term, DerefType
 /----------------------------------------------------------------------*/
 
 void PDArrayAddVarDistrib(PDArray_p array, Term_p term, DerefType
-			  deref, long add)
+           deref, long add)
 {
    PStack_p stack = PStackAlloc();
    int      i;
@@ -248,16 +248,16 @@ void PDArrayAddVarDistrib(PDArray_p array, Term_p term, DerefType
 
       if(TermIsVar(term))
       {
-	 tmp = PDArrayElementInt(array, (-(term->f_code)));
-	 PDArrayAssignInt(array, (-(term->f_code)), tmp+add);
+    tmp = PDArrayElementInt(array, (-(term->f_code)));
+    PDArrayAssignInt(array, (-(term->f_code)), tmp+add);
       }
       else
       {
-	 for(i=0; i<term->arity; i++)
-	 {
-	    PStackPushP(stack, term->args[i]);
-	    PStackPushInt(stack, deref);
-	 }
+    for(i=0; i<term->arity; i++)
+    {
+       PStackPushP(stack, term->args[i]);
+       PStackPushInt(stack, deref);
+    }
       }
    }
    PStackFree(stack);

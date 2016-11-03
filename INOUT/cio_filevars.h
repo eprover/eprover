@@ -58,7 +58,7 @@ bool       FileVarsGetBool(FileVars_p vars, char* name, bool *value);
 bool       FileVarsGetInt(FileVars_p vars, char* name,  long *value);
 bool       FileVarsGetStr(FileVars_p vars, char* name,  char **value);
 bool       FileVarsGetIdentifier(FileVars_p vars, char* name,  char
-				 **value);
+             **value);
 
 #endif
 

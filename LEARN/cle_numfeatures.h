@@ -78,13 +78,13 @@ Features_p FeaturesAlloc(void);
 void       FeaturesFree(Features_p junk);
 
 void ComputeClauseSetNumFeatures(Features_p features, ClauseSet_p set,
-				 Sig_p sig);
+             Sig_p sig);
 
 void       NumFeaturesPrint(FILE* out, Features_p features);
 Features_p NumFeaturesParse(Scanner_p in);
 
 double     NumFeatureDistance(Features_p f1, Features_p f2, double
-			      pred_w, double func_w, double* weights);
+               pred_w, double func_w, double* weights);
 
 
 #endif

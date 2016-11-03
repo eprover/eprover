@@ -159,7 +159,7 @@ void PDArrayEnlarge(PDArray_p array, long idx)
    {
       while(array->size <= idx)
       {
-	 array->size = array->size*2;
+    array->size = array->size*2;
       }
    }
    array->array = SizeMalloc(array->size * sizeof(IntOrP));
@@ -169,11 +169,11 @@ void PDArrayEnlarge(PDArray_p array, long idx)
    {
       if(array->integer)
       {
-	 array->array[i].i_val = 0;
+    array->array[i].i_val = 0;
       }
       else
       {
-	 array->array[i].p_val = NULL;
+    array->array[i].p_val = NULL;
       }
    }
 }
@@ -270,7 +270,7 @@ long PDArrayMembers(PDArray_p array)
    {
       if(PDArrayElementP(array, i))
       {
-	 res++;
+    res++;
       }
    }
    return res;
@@ -300,7 +300,7 @@ long PDArrayFirstUnused(PDArray_p array)
    {
       if(PDArrayElementP(array, i-1))
       {
-	 break;
+    break;
       }
    }
    return i;

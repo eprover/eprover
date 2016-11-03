@@ -111,42 +111,42 @@ int main(int argc, char* argv[])
       in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL);
       while(!TestInpTok(in,NoToken))
       {
-	 term  = TBTermParse(in, bank);
-	 size  = TermWeight(term,1,1);
-	 depth = TermDepth(term);
-	 if(term->arity == 2)
-	 {
-	    sym = (term->args[0]==term->args[1]);
-	 }
-	 else
-	 {
-	    sym = false;
-	 }
-	 if((term->arity == 2) && (term->args[0]->arity == 1))
-	 {
-	    com = (term->args[0]->args[1]==term->args[1]);
-	 }
-	 else
-	 {
-	    com = false;
-	 }
-	 TermPrint(GlobalOut, term, sig, DEREF_NEVER);
-	 fprintf(GlobalOut, "  : %ld : %ld : %c : %c\n",
-		 size,depth, sym?'s':'n',com?'s':'n');
-	 /* TBDelete(bank,term); */
-	 count++;
-	 size_sum+=size;
-	 depth_sum+=depth;
-	 size_max = MAX(size_max, size);
-	 depth_max = MAX(depth_max, depth);
+    term  = TBTermParse(in, bank);
+    size  = TermWeight(term,1,1);
+    depth = TermDepth(term);
+    if(term->arity == 2)
+    {
+       sym = (term->args[0]==term->args[1]);
+    }
+    else
+    {
+       sym = false;
+    }
+    if((term->arity == 2) && (term->args[0]->arity == 1))
+    {
+       com = (term->args[0]->args[1]==term->args[1]);
+    }
+    else
+    {
+       com = false;
+    }
+    TermPrint(GlobalOut, term, sig, DEREF_NEVER);
+    fprintf(GlobalOut, "  : %ld : %ld : %c : %c\n",
+       size,depth, sym?'s':'n',com?'s':'n');
+    /* TBDelete(bank,term); */
+    count++;
+    size_sum+=size;
+    depth_sum+=depth;
+    size_max = MAX(size_max, size);
+    depth_max = MAX(depth_max, depth);
       }
       DestroyScanner(in);
    }
 
    fprintf(GlobalOut,
-	   "# Terms: %ld  ASize: %f MSize: %ld, ADepth: %f MDepth: %ld\n",
-	   count, size_sum/(float)count, size_max,
-	   depth_sum/(float)count, depth_max);
+      "# Terms: %ld  ASize: %f MSize: %ld, ADepth: %f MDepth: %ld\n",
+      count, size_sum/(float)count, size_max,
+      depth_sum/(float)count, depth_max);
    bank->sig = NULL;
    TBFree(bank);
    SigFree(sig);
@@ -192,17 +192,17 @@ CLState_p process_options(int argc, char* argv[])
       switch(handle->option_code)
       {
       case OPT_VERBOSE:
-	    Verbose = CLStateGetIntArg(handle, arg);
-	    break;
+       Verbose = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_HELP:
-	    print_help(stdout);
-	    exit(NO_ERROR);
+       print_help(stdout);
+       exit(NO_ERROR);
       case OPT_OUTPUT:
-	    outname = arg;
-	    break;
+       outname = arg;
+       break;
       default:
-	 assert(false);
-	 break;
+    assert(false);
+    break;
       }
    }
    return state;

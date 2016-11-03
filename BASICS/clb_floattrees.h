@@ -66,7 +66,7 @@ FloatTree_p FloatTreeCellAllocEmpty(void);
 void        FloatTreeFree(FloatTree_p junk);
 FloatTree_p FloatTreeInsert(FloatTree_p *root, FloatTree_p new);
 bool        FloatTreeStore(FloatTree_p *root, double key, IntOrP val1,
-			   IntOrP val2);
+            IntOrP val2);
 FloatTree_p FloatTreeFind(FloatTree_p *root, double key);
 FloatTree_p FloatTreeExtractEntry(FloatTree_p *root, double key);
 bool        FloatTreeDeleteEntry(FloatTree_p *root, double key);

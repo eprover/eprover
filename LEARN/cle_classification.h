@@ -40,7 +40,7 @@ Changes
 
 
 double TSMTermClassify(TSMAdmin_p admin, Term_p term, PatternSubst_p
-		       subst);
+             subst);
 
 bool   TSMClassifiedTermCheck(TSMAdmin_p admin, FlatAnnoTerm_p term);
 

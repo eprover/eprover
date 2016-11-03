@@ -44,9 +44,9 @@ Changes
 extern long   LPORecursionDepthLimit;
 
 bool          LPOGreater(OCB_p ocb, Term_p s, Term_p t,
-			 DerefType deref_s, DerefType deref_t);
+          DerefType deref_s, DerefType deref_t);
 CompareResult LPOCompare(OCB_p ocb, Term_p s, Term_p t,
-			 DerefType deref_s, DerefType deref_t);
+          DerefType deref_s, DerefType deref_t);
 
 bool          LPO4Greater(OCB_p ocb, Term_p s, Term_p t,
                           DerefType deref_s, DerefType deref_t);

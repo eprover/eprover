@@ -36,14 +36,14 @@ Changes
 typedef struct flatannotermcell
 {
    Term_p                  term;       /* Usually shared, but no
-					  reference */
+                 reference */
    double                  eval;
    double                  eval_weight;  /* How much is this annotation
-				       worth at each subterm node?
-				       This takes the place of the
-				       sources field, and is
-				       normalized by dividing it
-				       through the term size */
+                   worth at each subterm node?
+                   This takes the place of the
+                   sources field, and is
+                   normalized by dividing it
+                   through the term size */
    long                    sources;
    struct flatannotermcell *next;
 }FlatAnnoTermCell, *FlatAnnoTerm_p;
@@ -51,7 +51,7 @@ typedef struct flatannotermcell
 typedef struct flatannosetcell
 {
    NumTree_p      set;   /* Of FlatAnnoTerms, indexed by
-			    term->entry_no */
+             term->entry_no */
 }FlatAnnoSetCell, *FlatAnnoSet_p;
 
 
@@ -67,7 +67,7 @@ typedef struct flatannosetcell
         SizeFree(junk, sizeof(FlatAnnoTermCell))
 
 FlatAnnoTerm_p FlatAnnoTermAlloc(Term_p term, double eval, double
-				 eval_weight, long sources);
+             eval_weight, long sources);
 
 #define         FlatAnnoTermFree(junk) FlatAnnoTermCellFree(junk)
 
@@ -81,10 +81,10 @@ void FlatAnnoTermPrint(FILE* out, FlatAnnoTerm_p term, Sig_p sig);
 FlatAnnoSet_p FlatAnnoSetAlloc(void);
 void          FlatAnnoSetFree(FlatAnnoSet_p junk);
 bool          FlatAnnoSetAddTerm(FlatAnnoSet_p set, FlatAnnoTerm_p
-				 term);
+             term);
 void FlatAnnoSetPrint(FILE* out, FlatAnnoSet_p set, Sig_p sig);
 long FlatAnnoSetTranslate(FlatAnnoSet_p flatset, AnnoSet_p set, double
-			  weights[]);
+           weights[]);
 
 long FlatAnnoSetSize(FlatAnnoSet_p fset);
 

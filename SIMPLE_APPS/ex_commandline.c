@@ -131,19 +131,19 @@ CLState_p process_options(int argc, char* argv[])
       switch(handle->option_code)
       {
       case OPT_HELP:
-	 print_help(stdout);
-	 exit(NO_ERROR);
+    print_help(stdout);
+    exit(NO_ERROR);
       case OPT_INT_EXAMPLE:
-	 printf("Integer option has value %ld\n",
-		CLStateGetIntArg(handle, arg));
-	 break;
+    printf("Integer option has value %ld\n",
+      CLStateGetIntArg(handle, arg));
+    break;
       case OPT_FLOAT_EXAMPLE:
-	 printf("Float option has value %f\n",
-		CLStateGetFloatArg(handle, arg));
-	 break;
+    printf("Float option has value %f\n",
+      CLStateGetFloatArg(handle, arg));
+    break;
       default:
-	 assert(false);
-	 break;
+    assert(false);
+    break;
       }
    }
    return state;

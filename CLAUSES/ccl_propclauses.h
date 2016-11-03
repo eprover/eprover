@@ -55,9 +55,9 @@ typedef struct propclausesetcell
    long         empty_clauses;
    PropClause_p list;    /* List of clauses */
    PropClause_p *inspos; /* Points to next field of last clause, so we
-			    can keep inserted clauses in order - I
-			    believe giving propositional provers small
-			    clauses first may be beneficial */
+             can keep inserted clauses in order - I
+             believe giving propositional provers small
+             clauses first may be beneficial */
 }PropClauseSetCell, *PropClauseSet_p;
 
 
@@ -75,7 +75,7 @@ PropClause_p PropClauseAlloc(Clause_p clause);
 void         PropClauseFree(PropClause_p clause);
 Clause_p     PropClauseToClause(TB_p bank, PropClause_p clause);
 void         PropClausePrint(FILE* out, TB_p bank, PropClause_p
-			     clause);
+              clause);
 long         PropClauseMaxVar(PropClause_p clause);
 
 
@@ -85,11 +85,11 @@ long         PropClauseMaxVar(PropClause_p clause);
 PropClauseSet_p PropClauseSetAlloc(void);
 void            PropClauseSetFree(PropClauseSet_p set);
 long            PropClauseSetInsertPropClause(PropClauseSet_p set,
-					      PropClause_p clause);
+                     PropClause_p clause);
 long            PropClauseSetInsertClause(PropClauseSet_p set,
-					  Clause_p clause);
+                 Clause_p clause);
 void            PropClauseSetPrint(FILE* out, TB_p bank,
-				   PropClauseSet_p set);
+               PropClauseSet_p set);
 long            PropClauseSetMaxVar(PropClauseSet_p set);
 
 #endif

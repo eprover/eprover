@@ -96,8 +96,8 @@ void PCLMiniProtFree(PCLMiniProt_p junk)
       step = PDArrayElementP(junk->steps, i);
       if(step)
       {
-	 PCLMiniStepFree(step);
-	 PDArrayAssignP(junk->steps, i, NULL);
+    PCLMiniStepFree(step);
+    PDArrayAssignP(junk->steps, i, NULL);
       }
    }
    SortTableFree(junk->terms->sig->sort_table);
@@ -175,7 +175,7 @@ PCLMiniStep_p PCLMiniProtFindStep(PCLMiniProt_p prot, unsigned long id)
 /----------------------------------------------------------------------*/
 
 PCLMiniStep_p PCLMiniProtExtractStep(PCLMiniProt_p prot, PCLMiniStep_p
-				     step)
+                 step)
 {
    PCLMiniStep_p local_step;
 
@@ -260,12 +260,12 @@ long PCLMiniProtParse(Scanner_p in, PCLMiniProt_p prot)
       step = PCLMiniStepParse(in, prot->terms);
       if(!PCLMiniProtInsertStep(prot, step))
       {
-	 errpos = DStrAlloc();
+    errpos = DStrAlloc();
 
-	 DStrAppendStr(errpos, PosRep(type, source_name, line, column));
-	 DStrAppendStr(errpos, " duplicate PCL identifier");
-	 Error(DStrView(errpos), SYNTAX_ERROR);
-	 DStrFree(errpos);
+    DStrAppendStr(errpos, PosRep(type, source_name, line, column));
+    DStrAppendStr(errpos, " duplicate PCL identifier");
+    Error(DStrView(errpos), SYNTAX_ERROR);
+    DStrFree(errpos);
       }
       DStrReleaseRef(source_name);
       res++;
@@ -292,7 +292,7 @@ long PCLMiniProtParse(Scanner_p in, PCLMiniProt_p prot)
 /----------------------------------------------------------------------*/
 
 void PCLMiniProtPrint(FILE* out, PCLMiniProt_p prot,
-		      OutputFormatType format)
+            OutputFormatType format)
 {
    long i;
    PCLMiniStep_p step;
@@ -304,7 +304,7 @@ void PCLMiniProtPrint(FILE* out, PCLMiniProt_p prot,
       step = PDArrayElementP(prot->steps, i);
       if(step)
       {
-	 PCLMiniStepPrintFormat(out, step, prot->terms, format);
+    PCLMiniStepPrintFormat(out, step, prot->terms, format);
       }
    }
 }
@@ -333,26 +333,26 @@ void PCLMiniExprCollectPreconds(PCLMiniProt_p prot, PCLExpr_p expr, PTree_p *tre
    switch(expr->op)
    {
    case PCLOpNoOp:
-	 assert(false);
-	 break;
+    assert(false);
+    break;
    case PCLOpInitial:
-	 break;
+    break;
    case PCLOpQuote:
-	 id = PCLExprArgInt(expr,0);
-	 step = PCLMiniProtFindStep(prot, id);
-	 if(!step)
-	 {
-	    Error("Dangling reference in PCL protocol!",
-		  SYNTAX_ERROR);
-	 }
-	 PTreeStore(tree, step);
-	 break;
+    id = PCLExprArgInt(expr,0);
+    step = PCLMiniProtFindStep(prot, id);
+    if(!step)
+    {
+       Error("Dangling reference in PCL protocol!",
+        SYNTAX_ERROR);
+    }
+    PTreeStore(tree, step);
+    break;
    default:
-	 for(i=0; i<expr->arg_no; i++)
-	 {
-	    PCLMiniExprCollectPreconds(prot, PCLExprArg(expr,i), tree);
-	 }
-	 break;
+    for(i=0; i<expr->arg_no; i++)
+    {
+       PCLMiniExprCollectPreconds(prot, PCLExprArg(expr,i), tree);
+    }
+    break;
    }
 }
 
@@ -384,26 +384,26 @@ bool PCLMiniProtMarkProofClauses(PCLMiniProt_p prot, bool fast)
       step = PCLMiniProtFindStep(prot, i);
       while(step&&(i>=0)&&PCLStepExtract(step->extra))
       {
-	 PStackPushP(to_proc, step);
-	 i--;
-	 if(i>=0)
-	 {
-	    step = PCLMiniProtFindStep(prot, i);
-	 }
+    PStackPushP(to_proc, step);
+    i--;
+    if(i>=0)
+    {
+       step = PCLMiniProtFindStep(prot, i);
+    }
       }
    }
    else
    {
       for(i=0; i<=prot->max_ident;i++)
       {
-	 step = PCLMiniProtFindStep(prot, i);
+    step = PCLMiniProtFindStep(prot, i);
 
-	 if(step && PCLStepExtract(step->extra))
-	 {
-	    {
-	       PStackPushP(to_proc, step);
-	    }
-	 }
+    if(step && PCLStepExtract(step->extra))
+    {
+       {
+          PStackPushP(to_proc, step);
+       }
+    }
       }
    }
    while(!PStackEmpty(to_proc))
@@ -417,17 +417,17 @@ bool PCLMiniProtMarkProofClauses(PCLMiniProt_p prot, bool fast)
          PCLStepIsClausal(step) &&
           (step->logic.clause->literal_no == 0)))
       {
-	 res = true;
+    res = true;
       }
       if(!PCLStepQueryProp(step,PCLIsProofStep))
       {
-	 PCLStepSetProp(step, PCLIsProofStep);
-	 PCLMiniExprCollectPreconds(prot, step->just, &root);
-	 while(root)
-	 {
-	    step = PTreeExtractRootKey(&root);
-	    PStackPushP(to_proc, step);
-	 }
+    PCLStepSetProp(step, PCLIsProofStep);
+    PCLMiniExprCollectPreconds(prot, step->just, &root);
+    while(root)
+    {
+       step = PTreeExtractRootKey(&root);
+       PStackPushP(to_proc, step);
+    }
       }
    }
    PStackFree(to_proc);
@@ -456,7 +456,7 @@ void PCLMiniProtSetClauseProp(PCLMiniProt_p prot, PCLStepProperties props)
       step = PDArrayElementP(prot->steps, i);
       if(step)
       {
-	 PCLStepSetProp(step,props);
+    PCLStepSetProp(step,props);
       }
    }
 }
@@ -483,7 +483,7 @@ void PCLMiniProtDelClauseProp(PCLMiniProt_p prot, PCLStepProperties props)
       step = PDArrayElementP(prot->steps, i);
       if(step)
       {
-	 PCLStepDelProp(step,props);
+    PCLStepDelProp(step,props);
       }
    }
 }
@@ -504,7 +504,7 @@ void PCLMiniProtDelClauseProp(PCLMiniProt_p prot, PCLStepProperties props)
 /----------------------------------------------------------------------*/
 
 void PCLMiniProtPrintProofClauses(FILE* out, PCLMiniProt_p prot,
-				  OutputFormatType format)
+              OutputFormatType format)
 {
    long i;
    PCLMiniStep_p step;
@@ -516,8 +516,8 @@ void PCLMiniProtPrintProofClauses(FILE* out, PCLMiniProt_p prot,
       step = PDArrayElementP(prot->steps, i);
       if(step&&PCLStepQueryProp(step, PCLIsProofStep))
       {
-	 PCLMiniStepPrintFormat(out, step, prot->terms, format);
-	 fputc('\n',out);
+    PCLMiniStepPrintFormat(out, step, prot->terms, format);
+    fputc('\n',out);
       }
    }
 }

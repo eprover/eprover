@@ -346,7 +346,7 @@ Clause_p HCBStandardClauseSelect(HCB_p hcb, ClauseSet_p set)
 
    hcb->select_count++;
    while(hcb->select_count ==
-	 PDArrayElementInt(hcb->select_switch,hcb->current_eval))
+    PDArrayElementInt(hcb->select_switch,hcb->current_eval))
    {
       hcb->current_eval++;
    }
@@ -394,7 +394,7 @@ Clause_p HCBSingleWeightClauseSelect(HCB_p hcb, ClauseSet_p set)
 /----------------------------------------------------------------------*/
 
 long HCBClauseSetDelProp(HCB_p hcb, ClauseSet_p set, long number,
-			 ClauseProperties prop)
+          ClauseProperties prop)
 {
    int i, j;
    long prop_cleared = 0;
@@ -404,35 +404,35 @@ long HCBClauseSetDelProp(HCB_p hcb, ClauseSet_p set, long number,
    for(i=0; i< hcb->wfcb_no; i++)
    {
       stacks[i]=
-	 EvalTreeTraverseInit(PDArrayElementP(set->eval_indices, i),i);
+    EvalTreeTraverseInit(PDArrayElementP(set->eval_indices, i),i);
    }
    while(number)
    {
       for(i=0; i < hcb->wfcb_no; i++)
       {
-	 for(j=0; j < PDArrayElementInt(hcb->select_switch, j); j++)
-	 {
-	    while((clause =
-		  get_next_clause(stacks,i)))
-	    {
-	       if(ClauseQueryProp(clause, prop))
-	       {
-		  ClauseDelProp(clause, prop);
-		  prop_cleared++;
-		  break;
-	       }
-	    }
-	    number--; /* We did our best - this is an easy catch for
-			 the stupid case number > set->members */
-	    if(!number)
-	    {
-	       break;
-	    }
-	 }
-	 if(!number)
-	 {
-	    break;
-	 }
+    for(j=0; j < PDArrayElementInt(hcb->select_switch, j); j++)
+    {
+       while((clause =
+        get_next_clause(stacks,i)))
+       {
+          if(ClauseQueryProp(clause, prop))
+          {
+        ClauseDelProp(clause, prop);
+        prop_cleared++;
+        break;
+          }
+       }
+       number--; /* We did our best - this is an easy catch for
+          the stupid case number > set->members */
+       if(!number)
+       {
+          break;
+       }
+    }
+    if(!number)
+    {
+       break;
+    }
       }
    }
    for(i=0; i< hcb->wfcb_no; i++)
@@ -458,7 +458,7 @@ long HCBClauseSetDelProp(HCB_p hcb, ClauseSet_p set, long number,
 /----------------------------------------------------------------------*/
 
 long HCBClauseSetDeleteBadClauses(HCB_p hcb, ClauseSet_p set, long
-				  number)
+              number)
 {
    long res;
 

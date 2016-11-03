@@ -68,7 +68,7 @@ char*   DStrAppendChar(DStr_p strdes, char newch);
 char*   DStrAppendBuffer(DStr_p strdes, char* buf, int len);
 char*   DStrAppendInt(DStr_p strdes, long newpart);
 char*   DStrAppendStrArray(DStr_p strdes, char* array[], char*
-			   separator);
+            separator);
 #define DStrAppendDStr(strdes, str) \
         DStrAppendStr((strdes), DStrView(str))
 char    DStrDeleteLastChar(DStr_p strdes);

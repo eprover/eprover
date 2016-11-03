@@ -114,7 +114,7 @@ DPLLState_p DPLLStateAlloc(DPLLFormula_p form)
    {
       if(form->atoms[i].pos_occur + form->atoms[i].neg_occur)
       {
-	 AtomSetInsert(handle->open_atoms, i);
+    AtomSetInsert(handle->open_atoms, i);
       }
    }
    limit = PStackGetSP(form->clauses);
@@ -123,7 +123,7 @@ DPLLState_p DPLLStateAlloc(DPLLFormula_p form)
       clause = PStackElementP(form->clauses, i);
       if(DPLLClauseIsUnit(clause))
       {
-	 PStackPushP(handle->unproc_units, clause);
+    PStackPushP(handle->unproc_units, clause);
       }
    }
    return handle;

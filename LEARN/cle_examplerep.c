@@ -385,15 +385,15 @@ long ExampleSetParse(Scanner_p in, ExampleSet_p set)
       res =  ExampleSetInsert(set, handle);
       if(!res)
       {
-	 errpos = DStrAlloc();
+    errpos = DStrAlloc();
 
-	 DStrAppendStr(errpos, PosRep(type, source_name, line,
-				      column));
-	 DStrAppendStr(errpos, "Entry ");
-	 DStrAppendInt(errpos, handle->ident);
-	 DStrAppendStr(errpos, " conflicts with existing entries");
-	 Error(DStrView(errpos), SYNTAX_ERROR);
-	 DStrFree(errpos);
+    DStrAppendStr(errpos, PosRep(type, source_name, line,
+                  column));
+    DStrAppendStr(errpos, "Entry ");
+    DStrAppendInt(errpos, handle->ident);
+    DStrAppendStr(errpos, " conflicts with existing entries");
+    Error(DStrView(errpos), SYNTAX_ERROR);
+    DStrFree(errpos);
       }
       count++;
       DStrReleaseRef(source_name);
@@ -419,9 +419,9 @@ long ExampleSetParse(Scanner_p in, ExampleSet_p set)
 /----------------------------------------------------------------------*/
 
 long ExampleSetSelectByDist(PStack_p results, ExampleSet_p set,
-			    Features_p target, double pred_w, double
-			    func_w, double *weights, long sel_no,
-			    double set_part, double dist_part)
+             Features_p target, double pred_w, double
+             func_w, double *weights, long sel_no,
+             double set_part, double dist_part)
 {
    long             set_size = NumTreeNodes(set->ident_index),
                     i, climit;
@@ -438,7 +438,7 @@ long ExampleSetSelectByDist(PStack_p results, ExampleSet_p set,
    {
       current = cell->val1.p_val;
       dist = NumFeatureDistance(target, current->features, pred_w,
-				func_w, weights);
+            func_w, weights);
       tmp_array[i].weight       = dist;
       tmp_array[i].object.p_val = current;
       avg += dist;
@@ -457,8 +457,8 @@ long ExampleSetSelectByDist(PStack_p results, ExampleSet_p set,
       current = tmp_array[i].object.p_val;
       if(Verbose)
       {
-	 fprintf(stderr, "Selected problem %ld: %s\n", current->ident,
-		 current->name);
+    fprintf(stderr, "Selected problem %ld: %s\n", current->ident,
+       current->name);
       }
       PStackPushInt(results, current->ident);
    }

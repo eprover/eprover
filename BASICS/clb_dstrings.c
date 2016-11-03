@@ -93,7 +93,7 @@ void DStrFree(DStr_p junk)
    {
       if(junk->string)
       {
-	 FREE(junk->string);
+    FREE(junk->string);
       }
       DStrCellFree(junk);
    }
@@ -123,12 +123,12 @@ char* DStrAppendStr(DStr_p strdes, char* newpart)
    newmem = strdes->mem;
 
    while(strdes->len+newlen >= newmem) /* I expect this loop to be
-					   computed at most once in
-					   the average case, so it
-					   should be more efficient
-					   than the direct computation
-					   (which requires a
-					   division. */
+                  computed at most once in
+                  the average case, so it
+                  should be more efficient
+                  than the direct computation
+                  (which requires a
+                  division. */
    {
       newmem += DSTRGROW;
    }
@@ -238,7 +238,7 @@ char* DStrAppendInt(DStr_p strdes, long newpart)
 /----------------------------------------------------------------------*/
 
 char* DStrAppendStrArray(DStr_p strdes, char* array[], char*
-			 separator)
+          separator)
 {
    int i=0;
 
@@ -247,8 +247,8 @@ char* DStrAppendStrArray(DStr_p strdes, char* array[], char*
       DStrAppendStr(strdes, array[0]);
       for(i=1; array[i]; i++)
       {
-	 DStrAppendStr(strdes, separator);
-	 DStrAppendStr(strdes, array[i]);
+    DStrAppendStr(strdes, separator);
+    DStrAppendStr(strdes, array[i]);
       }
    }
    return strdes->string;
@@ -358,7 +358,7 @@ char* DStrCopy(DStr_p strdes)
    if(strdes->string)
    {
       /* As we know the length, this should be more efficient than
-	 using SecureStrdup() */
+    using SecureStrdup() */
 
       handle = SecureMalloc(strdes->len+1);
       strcpy(handle,strdes->string);
@@ -488,14 +488,14 @@ void  DStrMinimize(DStr_p strdes)
    {
       if(strdes->len)
       {
-	 strdes->string = SecureRealloc(strdes->string,
-					strdes->len+1);
-	 strdes->mem = strdes->len+1;
+    strdes->string = SecureRealloc(strdes->string,
+               strdes->len+1);
+    strdes->mem = strdes->len+1;
       }
       else
       {
-	 FREE(strdes->string);
-	 strdes->mem = 0;
+    FREE(strdes->string);
+    strdes->mem = 0;
       }
    }
 }

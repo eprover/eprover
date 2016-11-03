@@ -97,7 +97,7 @@ void ClauseMoveSimplified(GlobalIndices_p gindices,
 
 bool RemoveRewritableClauses(OCB_p ocb, ClauseSet_p from, ClauseSet_p into,
                              ClauseSet_p archive,
-			     Clause_p new_demod, SysDate nf_date,
+              Clause_p new_demod, SysDate nf_date,
                              GlobalIndices_p gindices)
 {
    PStack_p stack = PStackAlloc();
@@ -169,7 +169,7 @@ bool RemoveRewritableClausesIndexed(OCB_p ocb, ClauseSet_p into,
 /----------------------------------------------------------------------*/
 
 long ClauseSetUnitSimplify(ClauseSet_p set, Clause_p simplifier,
-			   ClauseSet_p tmp_set, ClauseSet_p archive,
+            ClauseSet_p tmp_set, ClauseSet_p archive,
                            GlobalIndices_p gindices)
 {
    Clause_p handle, move;
@@ -181,14 +181,14 @@ long ClauseSetUnitSimplify(ClauseSet_p set, Clause_p simplifier,
       tmp = ClauseUnitSimplifyTest(handle, simplifier);
       if(tmp)
       {
-	 move = handle;
-	 handle = handle->succ;
-	 ClauseMoveSimplified(gindices, move, tmp_set, archive);
-	 res++;
+    move = handle;
+    handle = handle->succ;
+    ClauseMoveSimplified(gindices, move, tmp_set, archive);
+    res++;
       }
       else
       {
-	 handle = handle->succ;
+    handle = handle->succ;
       }
    }
    return res;
@@ -208,9 +208,9 @@ long ClauseSetUnitSimplify(ClauseSet_p set, Clause_p simplifier,
 /----------------------------------------------------------------------*/
 
 long RemoveContextualSRClauses(ClauseSet_p from,
-			       ClauseSet_p into,
+                ClauseSet_p into,
                                ClauseSet_p archive,
-			       Clause_p simplifier,
+                Clause_p simplifier,
                                GlobalIndices_p gindices)
 {
    PStack_p stack = PStackAlloc();
@@ -223,10 +223,10 @@ long RemoveContextualSRClauses(ClauseSet_p from,
    {
       handle = PStackPopP(stack);
       if(handle->set == from) /* Clauses may be found more than once
-				 by ClauseSetFindContextSRClauses() */
+             by ClauseSetFindContextSRClauses() */
       {
-	 ClauseMoveSimplified(gindices, handle, into, archive);
-	 res++;
+    ClauseMoveSimplified(gindices, handle, into, archive);
+    res++;
       }
    }
    PStackFree(stack);

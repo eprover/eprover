@@ -77,14 +77,14 @@ Term_p FlatEncodeClauseListRep(TB_p bank, PStack_p list)
       handle->args = TermArgArrayAlloc(arity);
       for(i=0; i<2*arity; i+=2)
       {
-	 current = PStackElementP(list, i);
-	 dir     = PStackElementInt(list, i+1);
-	 handle->args[i/2] = EqnTBTermEncode(current,dir);
+    current = PStackElementP(list, i);
+    dir     = PStackElementInt(list, i+1);
+    handle->args[i/2] = EqnTBTermEncode(current,dir);
       }
    }
    handle = TBTermTopInsert(bank, handle);
    assert(handle->weight ==
-	  TermWeight(handle,DEFAULT_VWEIGHT,DEFAULT_FWEIGHT));
+     TermWeight(handle,DEFAULT_VWEIGHT,DEFAULT_FWEIGHT));
 
    return handle;
 }
@@ -135,7 +135,7 @@ Term_p   RecEncodeClauseListRep(TB_p bank, PStack_p list)
 
    }
    assert(rest->weight ==
-	  TermWeight(rest,DEFAULT_VWEIGHT,DEFAULT_FWEIGHT));
+     TermWeight(rest,DEFAULT_VWEIGHT,DEFAULT_FWEIGHT));
    return rest;
 }
 
@@ -202,21 +202,21 @@ Term_p FlatRecodeRecClauseRep(TB_p bank,Term_p clauserep)
    {
       if(clauserep->args[0]->f_code == SigGetEqnCode(bank->sig, true))
       {
-	 positive = true;
+    positive = true;
       }
       else if(clauserep->args[0]->f_code == SigGetEqnCode(bank->sig,
-							  false))
+                       false))
       {
-	 positive = false;
+    positive = false;
       }
       else
       {
-	 Error("Term is not a correct recursive clause encoding!",
-	       SYNTAX_ERROR);
+    Error("Term is not a correct recursive clause encoding!",
+          SYNTAX_ERROR);
       }
       eqn = EqnAlloc(clauserep->args[0]->args[0],
-		     clauserep->args[0]->args[1],
-		     bank, positive);
+           clauserep->args[0]->args[1],
+           bank, positive);
       PStackPushP(stack, eqn);
       PStackPushInt(stack, PENormal);
       clauserep = clauserep->args[1];
@@ -224,7 +224,7 @@ Term_p FlatRecodeRecClauseRep(TB_p bank,Term_p clauserep)
    if(clauserep->f_code != bank->sig->cnil_code)
    {
       Error("Term is not a correct recursive clause encoding!",
-	    SYNTAX_ERROR);
+       SYNTAX_ERROR);
    }
    res = FlatEncodeClauseListRep(bank, stack);
    while(!PStackEmpty(stack))

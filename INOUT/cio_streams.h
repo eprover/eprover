@@ -57,7 +57,7 @@ typedef struct streamcell
    struct streamcell* next;
    DStr_p             source;
    StreamType         stream_type; /* Only constant strings allowed
-				      here! */
+                  here! */
    long               string_pos;
    FILE*              file;
    bool               eof_seen;
@@ -88,7 +88,7 @@ void     DestroyStream(Stream_p stream);
 
 #define  StreamLookChar(stream, look)\
          (assert((look)<MAXLOOKAHEAD),\
-	  (stream)->buffer[STREAMREALPOS((stream)->current+(look))])
+     (stream)->buffer[STREAMREALPOS((stream)->current+(look))])
 #define  StreamCurrChar(stream) ((stream)->buffer[(stream)->current])
 #define  StreamCurrLine(stream)   ((stream)->line)
 #define  StreamCurrColumn(stream) ((stream)->column)
@@ -96,7 +96,7 @@ void     DestroyStream(Stream_p stream);
 int      StreamNextChar(Stream_p stream);
 
 Stream_p OpenStackedInput(Inpstack_p stack, StreamType type,
-			  char* source, bool fail);
+           char* source, bool fail);
 void     CloseStackedInput(Inpstack_p stack);
 
 

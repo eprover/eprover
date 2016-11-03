@@ -199,7 +199,7 @@ long WFCBAdminAddWFCB(WFCBAdmin_p set, char* name, WFCB_p wfcb)
    assert(wfcb);
 
    VERBOSE2(fprintf(stderr, "%s: Adding weight function '%s'.\n",
-		   ProgName, name););
+         ProgName, name););
    PStackPushP(set->names, SecureStrdup(name));
    PStackPushP(set->wfcb_set, wfcb);
 
@@ -236,8 +236,8 @@ WFCB_p WFCBAdminFindWFCB(WFCBAdmin_p set, char* name)
    {
       if(strcmp(name, PStackElementP(set->names, i))==0)
       {
-	 res = PStackElementP(set->wfcb_set, i);
-	 break;
+    res = PStackElementP(set->wfcb_set, i);
+    break;
       }
    }
    return res;
@@ -295,7 +295,7 @@ WFCB_p WeightFunParse(Scanner_p in, OCB_p ocb, ProofState_p state)
    if(!parse_fun)
    {
       AktTokenError(in, "Not a valid weight function specifier",
-		    false);
+          false);
    }
    NextToken(in);
    assert(parse_fun);
@@ -317,7 +317,7 @@ WFCB_p WeightFunParse(Scanner_p in, OCB_p ocb, ProofState_p state)
 /----------------------------------------------------------------------*/
 
 char* WeightFunDefParse(WFCBAdmin_p set, Scanner_p in, OCB_p ocb,
-		       ProofState_p state)
+             ProofState_p state)
 {
    char* name = NULL;
    WFCB_p wfcb;
@@ -361,12 +361,12 @@ char* WeightFunDefParse(WFCBAdmin_p set, Scanner_p in, OCB_p ocb,
 /----------------------------------------------------------------------*/
 
 long WeightFunDefListParse(WFCBAdmin_p set, Scanner_p in, OCB_p ocb,
-			   ProofState_p state)
+            ProofState_p state)
 {
    long res = 0;
 
    while(TestInpTok(in, Identifier)&&
-	 TestTok(LookToken(in,1), EqualSign|OpenBracket))
+    TestTok(LookToken(in,1), EqualSign|OpenBracket))
    {
       WeightFunDefParse(set, in, ocb, state);
       res++;

@@ -53,8 +53,8 @@ typedef struct simparamcell
         SizeFree(junk, sizeof(SimParamCell))
 
 WFCB_p SimWeightInit(ClausePrioFun prio_fun, double equal_weight,
-		     double var_var_clash, double var_term_clash,
-		     double term_term_clash);
+           double var_var_clash, double var_term_clash,
+           double term_term_clash);
 
 WFCB_p SimWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state);
 

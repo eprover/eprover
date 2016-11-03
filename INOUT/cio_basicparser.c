@@ -71,7 +71,7 @@ long ParseInt(Scanner_p in)
       CheckInpTokNoSkip(in, PosInt);
       if((AktToken(in)->numval-1) > LONG_MAX)
       {
-	 AktTokenError(in, "Long integer underflow", false);
+    AktTokenError(in, "Long integer underflow", false);
       }
       value = -AktToken(in)->numval;
       NextToken(in);
@@ -81,7 +81,7 @@ long ParseInt(Scanner_p in)
       CheckInpTok(in, PosInt);
       if(AktToken(in)->numval > LONG_MAX)
       {
-	 AktTokenError(in, "Long integer overflow", false);
+    AktTokenError(in, "Long integer overflow", false);
       }
       value = AktToken(in)->numval;
       NextToken(in);
@@ -277,9 +277,9 @@ long DDArrayParse(Scanner_p in, DDArray_p array, bool brackets)
 
       while(TestInpTok(in, Comma))
       {
-	 NextToken(in); /* We know it's a comma */
-	 DDArrayAssign(array, i, ParseFloat(in));
-	 i++;
+    NextToken(in); /* We know it's a comma */
+    DDArrayAssign(array, i, ParseFloat(in));
+    i++;
       }
    }
    if(brackets)
@@ -315,7 +315,7 @@ char* ParseFilename(Scanner_p in)
    DStrReset(in->accu);
 
    while((first_tok || TestInpNoSkip(in)) &&
-	 TestInpTok(in, PLAIN_FILE_TOKENS|Slash))
+    TestInpTok(in, PLAIN_FILE_TOKENS|Slash))
    {
       DStrAppendDStr(in->accu, AktToken(in)->literal);
       NextToken(in);
@@ -344,7 +344,7 @@ char* ParsePlainFilename(Scanner_p in)
    DStrReset(in->accu);
 
    while((first_tok || TestInpNoSkip(in)) &&
-	 TestInpTok(in, PLAIN_FILE_TOKENS|Slash))
+    TestInpTok(in, PLAIN_FILE_TOKENS|Slash))
    {
       DStrAppendDStr(in->accu, AktToken(in)->literal);
       NextToken(in);

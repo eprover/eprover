@@ -177,11 +177,11 @@ void ClauseKillChildren(Clause_p clause)
       current = clause->children->key;
       assert(clause == current->parent1 || clause == current->parent2);
       /* printf("ClauseKillChildren(%d) -> %d\n",
-	 (int)clause,(int)current); */
+    (int)clause,(int)current); */
       ClauseDetachParents(current);
       if(!ClauseQueryProp(current, CPIsProtected))
       {
-	 ClauseSetDeleteEntry(current);
+    ClauseSetDeleteEntry(current);
       }
    }
 }
@@ -219,20 +219,20 @@ int ClauseRemoveSuperfluousLiterals(Clause_p clause)
 
       while(handle)
       {
-	 if(EqnIsPositive(handle))
-	 {
-	    clause->pos_lit_no++;
-	 }
-	 else
-	 {
-	    clause->neg_lit_no++;
-	 }
-	 handle = handle->next;
+    if(EqnIsPositive(handle))
+    {
+       clause->pos_lit_no++;
+    }
+    else
+    {
+       clause->neg_lit_no++;
+    }
+    handle = handle->next;
       }
 
       if(clause->set)
       {
-	 clause->set->literals-=removed;
+    clause->set->literals-=removed;
       }
    }
    if(removed)
@@ -262,7 +262,7 @@ long ClauseSetRemoveSuperfluousLiterals(ClauseSet_p set)
    long res = 0;
 
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
-	  handle->succ)
+     handle->succ)
    {
       res += ClauseRemoveSuperfluousLiterals(handle);
    }
@@ -328,7 +328,7 @@ int ClauseRemoveACResolved(Clause_p clause)
    {
       ClauseDelProp(clause, CPInitial|CPLimitedRW);
       DocClauseModification(GlobalOut, OutputLevel, clause,
-			    inf_ac_resolution, NULL, sig, NULL);
+             inf_ac_resolution, NULL, sig, NULL);
       ClausePushACResDerivation(clause, sig);
    }
    if(clause->set)
@@ -376,7 +376,7 @@ bool ClauseUnitSimplifyTest(Clause_p clause, Clause_p simplifier)
       tmp = EqnIsPositive(*handle);
       if(XOR(positive,tmp)&&EqnSubsumeP(simpl,*handle))
       {
-	 return true;
+    return true;
       }
       handle = &((*handle)->next);
    }

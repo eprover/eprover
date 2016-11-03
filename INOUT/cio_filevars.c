@@ -132,14 +132,14 @@ long FileVarsParse(Scanner_p in, FileVars_p vars)
       cell = StrTreeFind(&(vars->vars), name);
       if(cell)
       {
-	 FREE(cell->val1.p_val);
+    FREE(cell->val1.p_val);
       }
       else
       {
-	 cell = StrTreeCellAllocEmpty();
-	 cell->key = name;
-	 cell->val2.p_val = PStackTopP(vars->names);
-	 test = StrTreeInsert(&(vars->vars), cell);
+    cell = StrTreeCellAllocEmpty();
+    cell->key = name;
+    cell->val2.p_val = PStackTopP(vars->names);
+    test = StrTreeInsert(&(vars->vars), cell);
          UNUSED(test); assert(test == NULL);
       }
       NextToken(in);
@@ -148,8 +148,8 @@ long FileVarsParse(Scanner_p in, FileVars_p vars)
       DStrReset(value);
       while(!TestInpTok(in, Semicolon))
       {
-	 DStrAppendDStr(value, AktToken(in)->literal);
-	 NextToken(in);
+    DStrAppendDStr(value, AktToken(in)->literal);
+    NextToken(in);
       }
       AcceptInpTok(in, Semicolon);
       cell->val1.p_val = DStrCopy(value);
@@ -221,12 +221,12 @@ bool FileVarsGetBool(FileVars_p vars, char* name, bool *value)
       DStr_p errpos = DStrAlloc();
 
       DStrAppendStr(errpos,
-		    "Boolean value requested for file variable ");
+          "Boolean value requested for file variable ");
       DStrAppendStr(errpos, name);
       DStrAppendStr(errpos, "read from \"");
       DStrAppendStr(errpos, cell->val2.p_val);
       DStrAppendStr(errpos,
-		    "\", but no boolean value present.");
+          "\", but no boolean value present.");
       Error(DStrView(errpos), SYNTAX_ERROR);
       DStrFree(errpos);
    }
@@ -267,20 +267,20 @@ bool FileVarsGetInt(FileVars_p vars, char* name,  long *value)
 
       TmpErrno = errno;
       DStrAppendStr(errpos,
-		    "Integer value requested for file variable ");
+          "Integer value requested for file variable ");
       DStrAppendStr(errpos, name);
       DStrAppendStr(errpos, "read from \"");
       DStrAppendStr(errpos, cell->val2.p_val);
       DStrAppendStr(errpos,
-		    "\", but no integer value present.");
+          "\", but no integer value present.");
 
       if(TmpErrno)
       {
-	 SysError(DStrView(errpos), SYNTAX_ERROR);
+    SysError(DStrView(errpos), SYNTAX_ERROR);
       }
       else
       {
-	 Error(DStrView(errpos), SYNTAX_ERROR);
+    Error(DStrView(errpos), SYNTAX_ERROR);
       }
       DStrFree(errpos);
    }
@@ -342,18 +342,18 @@ bool FileVarsGetIdentifier(FileVars_p vars, char* name,  char **value)
    }
 
    in = CreateScanner(StreamTypeInternalString, cell->val1.p_val,
-		      true, NULL);
+            true, NULL);
    if(!TestInpTok(in, Identifier))
    {
       DStr_p errpos = DStrAlloc();
 
       DStrAppendStr(errpos,
-		    "Identifier value requested for file variable ");
+          "Identifier value requested for file variable ");
       DStrAppendStr(errpos, name);
       DStrAppendStr(errpos, "read from \"");
       DStrAppendStr(errpos, cell->val2.p_val);
       DStrAppendStr(errpos,
-		    "\", but no such value present.");
+          "\", but no such value present.");
       Error(DStrView(errpos), SYNTAX_ERROR);
       DStrFree(errpos);
    }

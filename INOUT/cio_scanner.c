@@ -132,11 +132,11 @@ static void scan_ident(Scanner_p in)
    {
       if(!numstart && isdigit(CurrChar(in)))
       {
-	 numstart = i;
+    numstart = i;
       }
       else if(!isdigit(CurrChar(in)))
       {
-	 numstart = 0;
+    numstart = 0;
       }
       DStrAppendChar(AktToken(in)->literal, CurrChar(in));
       NextChar(in);
@@ -145,9 +145,9 @@ static void scan_ident(Scanner_p in)
    {
       AktToken(in)->tok = Idnum;
       AktToken(in)->numval =
-	 strtol(DStrView(AktToken(in)->literal)+numstart, NULL, 10);
+    strtol(DStrView(AktToken(in)->literal)+numstart, NULL, 10);
       /* Errors are intentionally ignored to allow arbitrary
-	 identifiers */
+    identifiers */
    }
    else
    {
@@ -276,9 +276,9 @@ static void scan_string(Scanner_p in, char delim)
    {
       if(!isprint(CurrChar(in)))
       {
-	 AktTokenError(in,
-		       "Non-printable character in string constant",
-		       false);
+    AktTokenError(in,
+             "Non-printable character in string constant",
+             false);
       }
       if(CurrChar(in)=='\\')
       {
@@ -482,21 +482,21 @@ static Token_p scan_token(Scanner_p in)
             AktToken(in)->tok = Fullstop;
             break;
       case '|':
-	    AktToken(in)->tok = Pipe;
-	    break;
+       AktToken(in)->tok = Pipe;
+       break;
       case '/':
-	    AktToken(in)->tok = Slash;
-	    break;
+       AktToken(in)->tok = Slash;
+       break;
       case '&':
-	    AktToken(in)->tok = Ampersand;
-	    break;
+       AktToken(in)->tok = Ampersand;
+       break;
       case '$':
-	    AktToken(in)->tok = Dollar;
-	    break;
+       AktToken(in)->tok = Dollar;
+       break;
       default:
-	    DStrAppendChar(AktToken(in)->literal, CurrChar(in));
-	    AktTokenError(in, "Illegal character", false);
-	    break;
+       DStrAppendChar(AktToken(in)->literal, CurrChar(in));
+       AktTokenError(in, "Illegal character", false);
+       break;
       }
       DStrAppendChar(AktToken(in)->literal, CurrChar(in));
       NextChar(in);
@@ -550,7 +550,7 @@ Token_p scan_token_follow_includes(Scanner_p in)
          DStrDeleteLastChar(name);
       }
       OpenStackedInput(&(in->source), StreamTypeFile,
-		       DStrView(name), true);
+             DStrView(name), true);
       DStrFree(name);
       scan_token_follow_includes(in);
    }
@@ -558,12 +558,12 @@ Token_p scan_token_follow_includes(Scanner_p in)
    {
       if((in->source)->next)
       {
-	 CloseStackedInput(&(in->source));
+    CloseStackedInput(&(in->source));
          scan_token(in);
          CheckInpTok(in, CloseBracket);
          scan_token(in);
          CheckInpTok(in, Fullstop);
-	 scan_token_follow_includes(in);
+    scan_token_follow_includes(in);
       }
    }
    return AktToken(in);
@@ -594,7 +594,7 @@ static Token_p scan_real_token(Scanner_p in)
       AktToken(in)->skipped = true;
       if(!in->ignore_comments && TestInpTok(in, Comment))
       {
-	 DStrAppendDStr(AktToken(in)->comment, AktToken(in)->literal);
+    DStrAppendDStr(AktToken(in)->comment, AktToken(in)->literal);
       }
       scan_token_follow_includes(in);
    }
@@ -623,18 +623,18 @@ bool str_n_element(char* str, char* ids, int len)
       ids+=len;
       if(!*ids || (*ids=='|'))
       {
-	 return true;
+    return true;
       }
    }
    else
    {
       while(*ids && (*ids != '|'))
       {
-	 ids++;
+    ids++;
       }
       if(!*ids)
       {
-	 return false;
+    return false;
       }
    }
    ids++;
@@ -671,7 +671,7 @@ char* PosRep(StreamType type, DStr_p source, long line, long column)
       assert(strlen(DStrView(source))<=MAXPATHLEN);
 
       sprintf(buff, "%s:%ld:(Column %ld):",
-	      DStrView(source), line, column);
+         DStrView(source), line, column);
    }
    else
    {
@@ -681,7 +681,7 @@ char* PosRep(StreamType type, DStr_p source, long line, long column)
       strncat(tmp_str, DStrView(source), MAXPATHLEN-4);
       if(strlen(DStrView(source))>MAXPATHLEN-4)
       {
-	 strcat(tmp_str, "...");
+    strcat(tmp_str, "...");
       }
       strcat(tmp_str, "\"");
       sprintf(buff, "%s:%ld:(Column %ld):", tmp_str, line, column);
@@ -708,7 +708,7 @@ char* PosRep(StreamType type, DStr_p source, long line, long column)
 char* TokenPosRep(Token_p token)
 {
   return PosRep(token->stream_type, token->source, token->line,
-		token->column);
+      token->column);
 }
 
 
@@ -736,9 +736,9 @@ char* DescribeToken(TokenType tok)
    {
       if(tok & token_print_rep[i].key)
       {
-	 DStrAppendStr(res, found ? " or " : "");
-	 DStrAppendStr(res, token_print_rep[i].rep);
-	 found = true;
+    DStrAppendStr(res, found ? " or " : "");
+    DStrAppendStr(res, token_print_rep[i].rep);
+    found = true;
       }
    }
    if(!found)
@@ -773,7 +773,7 @@ void PrintToken(FILE* out, Token_p token)
    fprintf(out, "Position: %s   ", TokenPosRep(token));
    fprintf(out, "Literal:  %s\n", token->literal?DStrView(token->literal):"");
    fprintf(out, "Numval:   %6lu   Skipped:  %s\n", token->numval,
-	   token->skipped ? "true" : "false");
+      token->skipped ? "true" : "false");
    fprintf(out, "Comment:  %s\n", DStrView(token->comment));
 }
 
@@ -792,7 +792,7 @@ void PrintToken(FILE* out, Token_p token)
 /----------------------------------------------------------------------*/
 
 Scanner_p CreateScanner(StreamType type, char *name, bool
-			ignore_comments, char *default_dir)
+         ignore_comments, char *default_dir)
 {
    Scanner_p handle;
    Stream_p  stream;
@@ -868,7 +868,7 @@ Scanner_p CreateScanner(StreamType type, char *name, bool
    }
 
    for(handle->current = 0; handle->current < MAXTOKENLOOKAHEAD;
-	  handle->current++)
+     handle->current++)
    {
       handle->tok_sequence[handle->current].tok = NoToken;
       handle->tok_sequence[handle->current].literal = DStrAlloc();
@@ -900,7 +900,7 @@ void DestroyScanner(Scanner_p  junk)
 {
    assert(junk);
    for(junk->current = 0; junk->current < MAXTOKENLOOKAHEAD;
-	  junk->current++)
+     junk->current++)
    {
       DStrFree(junk->tok_sequence[junk->current].literal);
       DStrFree(junk->tok_sequence[junk->current].comment);
@@ -995,7 +995,7 @@ bool TestId(Token_p akt, char* ids)
       return false;
    }
    return str_n_element(DStrView(akt->literal), ids,
-			DStrLen(akt->literal));
+         DStrLen(akt->literal));
 }
 
 
@@ -1024,11 +1024,11 @@ bool TestIdnum(Token_p akt, char* ids)
    {
       if(!len && isdigit(DStrView(akt->literal)[i]))
       {
-	 len = i;
+    len = i;
       }
       else if(!isdigit(DStrView(akt->literal)[i]))
       {
-	 len = 0;
+    len = 0;
       }
    }
    return str_n_element(DStrView(akt->literal), ids, len);

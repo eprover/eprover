@@ -200,11 +200,11 @@ int main(int argc, char* argv[])
       ScannerSetFormat(in, TPTPFormat);
       if(fast_extract)
       {
-	 steps+=PCLMiniProtParse(in, mprot);
+    steps+=PCLMiniProtParse(in, mprot);
       }
       else
       {
-	 steps+=PCLProtParse(in, prot);
+    steps+=PCLProtParse(in, prot);
       }
       CheckInpTok(in, NoToken);
       DestroyScanner(in);
@@ -216,37 +216,37 @@ int main(int argc, char* argv[])
    {
       if(no_extract)
       {
-	 PCLMiniProtSetClauseProp(mprot, PCLIsProofStep);
+    PCLMiniProtSetClauseProp(mprot, PCLIsProofStep);
       }
       else
       {
-	 empty_clause = PCLMiniProtMarkProofClauses(mprot, true);
+    empty_clause = PCLMiniProtMarkProofClauses(mprot, true);
       }
    }
    else
    {
       if(no_extract)
       {
-	 PCLProtSetProp(prot, PCLIsProofStep);
+    PCLProtSetProp(prot, PCLIsProofStep);
       }
       else
       {
-	 empty_clause = PCLProtMarkProofClauses(prot);
+    empty_clause = PCLProtMarkProofClauses(prot);
       }
    }
    if(comp_frame)
    {
       if(no_extract)
       {
-	 fprintf(GlobalOut, "# SZS output start Derivation.\n");
+    fprintf(GlobalOut, "# SZS output start Derivation.\n");
       }
       else if(empty_clause)
       {
-	 fprintf(GlobalOut, "# SZS output start CNFRefutation.\n");
+    fprintf(GlobalOut, "# SZS output start CNFRefutation.\n");
       }
       else
       {
-	 fprintf(GlobalOut, "# SZS output start Saturation.\n");
+    fprintf(GlobalOut, "# SZS output start Saturation.\n");
       }
    }
    if(fast_extract)
@@ -261,15 +261,15 @@ int main(int argc, char* argv[])
    {
       if(no_extract)
       {
-	 fprintf(GlobalOut, "# SZS output end Derivation.\n");
+    fprintf(GlobalOut, "# SZS output end Derivation.\n");
       }
       else if(empty_clause)
       {
-	 fprintf(GlobalOut, "# SZS output end CNFRefutation\n");
+    fprintf(GlobalOut, "# SZS output end CNFRefutation\n");
       }
       else
       {
-	 fprintf(GlobalOut, "# SZS output end Saturation.\n");
+    fprintf(GlobalOut, "# SZS output end Saturation.\n");
       }
    }
 #ifdef FAST_EXIT
@@ -326,39 +326,39 @@ CLState_p process_options(int argc, char* argv[])
       switch(handle->option_code)
       {
       case OPT_VERBOSE:
-	    Verbose = CLStateGetIntArg(handle, arg);
-	    break;
+       Verbose = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_HELP:
-	    print_help(stdout);
-	    exit(NO_ERROR);
+       print_help(stdout);
+       exit(NO_ERROR);
       case OPT_VERSION:
-	    printf(NAME " " VERSION "\n");
-	    exit(NO_ERROR);
+       printf(NAME " " VERSION "\n");
+       exit(NO_ERROR);
       case OPT_FAST:
-	    fast_extract = true;
-	    break;
+       fast_extract = true;
+       break;
       case OPT_PASS_COMMENTS:
             pass_comments = true;
             break;
       case OPT_COMPETITION:
-	    comp_frame = true;
-	    break;
+       comp_frame = true;
+       break;
       case OPT_NO_EXTRACT:
-	    no_extract = true;
-	    break;
+       no_extract = true;
+       break;
       case OPT_TSTP_PRINT:
-	    output_format = tstp_format;
+       output_format = tstp_format;
             OutputFormat = TSTPFormat;
-	    break;
+       break;
       case OPT_OUTPUT:
-	    outname = arg;
-	    break;
+       outname = arg;
+       break;
       case OPT_SILENT:
-	    OutputLevel = 0;
-	    break;
+       OutputLevel = 0;
+       break;
       default:
-	 assert(false);
-	 break;
+    assert(false);
+    break;
       }
    }
    return state;
@@ -367,8 +367,8 @@ CLState_p process_options(int argc, char* argv[])
 void print_help(FILE* out)
 {
    fprintf(out,
-	   "\n"
-	   "\n"
+      "\n"
+      "\n"
 NAME " " VERSION "\n"
 "\n"
 "Usage: " NAME " [options] [files]\n"

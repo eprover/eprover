@@ -95,7 +95,7 @@ void MiniClauseAddTerms(MiniClause_p clause, Clause_p term_clause)
    clause->sign = SizeMalloc(clause->literal_no*sizeof(short));
 
    for(i=0, literal = term_clause->literals; literal; i++, literal =
-	  literal->next)
+     literal->next)
    {
       assert(i<clause->literal_no);
 
@@ -136,12 +136,12 @@ MiniClause_p ClauseToMiniClause(Clause_p clause)
       handle->sign = SizeMalloc(ClauseLiteralNumber(clause)*sizeof(short));
 
       for(i=0, literal = clause->literals; literal; i++, literal =
-	     literal->next)
+        literal->next)
       {
-	 assert(i<handle->literal_no);
-	 handle->sign[i] = EqnIsPositive(literal);
-	 handle->lit_terms[(2*i)]    = literal->lterm;
-	 handle->lit_terms[(2*i)+1]  = literal->rterm;
+    assert(i<handle->literal_no);
+    handle->sign[i] = EqnIsPositive(literal);
+    handle->lit_terms[(2*i)]    = literal->lterm;
+    handle->lit_terms[(2*i)+1]  = literal->rterm;
       }
    }
    return handle;
@@ -169,8 +169,8 @@ Clause_p MiniClauseToClause(MiniClause_p clause, TB_p bank)
    for(i=0; i<clause->literal_no; i++)
    {
       *eqn = EqnAlloc(clause->lit_terms[(2*i)],
-		      clause->lit_terms[(2*i)+1],
-		      bank, clause->sign[i]);
+            clause->lit_terms[(2*i)+1],
+            bank, clause->sign[i]);
       eqn = &((*eqn)->next);
    }
    handle = ClauseAlloc(list);
@@ -232,7 +232,7 @@ Clause_p UnMinifyClause(MiniClause_p clause, TB_p bank)
 /----------------------------------------------------------------------*/
 
 void MiniClausePrint(FILE* out, MiniClause_p compact, TB_p bank, bool
-		     full_terms)
+           full_terms)
 {
    Clause_p clause;
 

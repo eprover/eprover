@@ -69,92 +69,92 @@ typedef struct varweightparamcell
         SizeFree(junk, sizeof(VarWeightParamCell))
 
 WFCB_p TPTPTypeWeightInit(ClausePrioFun prio_fun, int fweight,
-			  int vweight, OCB_p ocb, double
-			  max_term_multiplier, double
-			  max_literal_multiplier, double
-			  pos_multiplier, double
-			  conjecture_multiplier, double
-			  hypothesis_multiplier);
+           int vweight, OCB_p ocb, double
+           max_term_multiplier, double
+           max_literal_multiplier, double
+           pos_multiplier, double
+           conjecture_multiplier, double
+           hypothesis_multiplier);
 WFCB_p TPTPTypeWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
-				state);
+            state);
 double TPTPTypeWeightCompute(void* data, Clause_p clause);
 
 
 WFCB_p SigWeightInit(ClausePrioFun prio_fun, int fweight,
-		     int vweight, OCB_p ocb, double
-		     max_term_multiplier, double
-		     max_literal_multiplier, double
-		     pos_multiplier, double sig_size_multiplier);
+           int vweight, OCB_p ocb, double
+           max_term_multiplier, double
+           max_literal_multiplier, double
+           pos_multiplier, double sig_size_multiplier);
 WFCB_p SigWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
-		      state);
+            state);
 double SigWeightCompute(void* data, Clause_p clause);
 
 
 WFCB_p ProofWeightInit(ClausePrioFun prio_fun, int fweight,
-		       int vweight, OCB_p ocb, double
-		       max_term_multiplier, double
-		       max_literal_multiplier, double
-		       pos_multiplier, double
-		       proof_size_multiplier, double
-		       proof_depth_multiplier);
+             int vweight, OCB_p ocb, double
+             max_term_multiplier, double
+             max_literal_multiplier, double
+             pos_multiplier, double
+             proof_size_multiplier, double
+             proof_depth_multiplier);
 WFCB_p ProofWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
-			state);
+         state);
 double ProofWeightCompute(void* data, Clause_p clause);
 
 
 WFCB_p DepthWeightInit(ClausePrioFun prio_fun, int fweight,
-		       int vweight, OCB_p ocb, double
-		       max_term_multiplier, double
-		       max_literal_multiplier, double
-		       pos_multiplier, double term_weight_multiplier);
+             int vweight, OCB_p ocb, double
+             max_term_multiplier, double
+             max_literal_multiplier, double
+             pos_multiplier, double term_weight_multiplier);
 WFCB_p DepthWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
-		      state);
+            state);
 double DepthWeightCompute(void* data, Clause_p clause);
 
 
 WFCB_p WeightLessDepthInit(ClausePrioFun prio_fun, int fweight,
-		       int vweight, OCB_p ocb, double
-		       max_term_multiplier, double
-		       max_literal_multiplier, double
-		       pos_multiplier, double depth_weight_multiplier);
+             int vweight, OCB_p ocb, double
+             max_term_multiplier, double
+             max_literal_multiplier, double
+             pos_multiplier, double depth_weight_multiplier);
 WFCB_p WeightLessDepthParse(Scanner_p in, OCB_p ocb, ProofState_p
-		      state);
+            state);
 double WeightLessDepthCompute(void* data, Clause_p clause);
 
 
 WFCB_p NLWeightInit(ClausePrioFun prio_fun, int fweight,
-		    int vlweight, int vweight, OCB_p ocb, double
-		    max_term_multiplier, double
-		    max_literal_multiplier, double
-		     pos_multiplier);
+          int vlweight, int vweight, OCB_p ocb, double
+          max_term_multiplier, double
+          max_literal_multiplier, double
+           pos_multiplier);
 
 WFCB_p NLWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
-		      state);
+            state);
 double NLWeightCompute(void* data, Clause_p clause);
 
 WFCB_p PNRefinedWeightInit(ClausePrioFun prio_fun, int fweight,
-			   int vweight, int nfweight, int nvweight,
-			   OCB_p ocb, double max_term_multiplier,
-			   double max_literal_multiplier, double
-			   pos_multiplier);
+            int vweight, int nfweight, int nvweight,
+            OCB_p ocb, double max_term_multiplier,
+            double max_literal_multiplier, double
+            pos_multiplier);
 WFCB_p PNRefinedWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
-			    state);
+             state);
 double PNRefinedWeightCompute(void* data, Clause_p clause);
 
 
 WFCB_p SymTypeWeightInit(ClausePrioFun prio_fun, int fweight,
-			 int vweight, int cweight, int pweight, OCB_p
-			 ocb, double max_term_multiplier, double
-			 max_literal_multiplier, double
-			 pos_multiplier);
+          int vweight, int cweight, int pweight, OCB_p
+          ocb, double max_term_multiplier, double
+          max_literal_multiplier, double
+          pos_multiplier);
 
 WFCB_p SymTypeWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
-			  state);
+           state);
 double SymTypeWeightCompute(void* data, Clause_p clause);
 
 WFCB_p ClauseWeightAgeInit(ClausePrioFun prio_fun, int fweight, int
-			   vweight, double pos_multiplier,
-			   double weight_multiplier);
+            vweight, double pos_multiplier,
+            double weight_multiplier);
 
 WFCB_p ClauseWeightAgeParse(Scanner_p in, OCB_p ocb, ProofState_p state);
 
@@ -162,10 +162,10 @@ double ClauseWeightAgeCompute(void* data, Clause_p clause);
 
 
 WFCB_p StaggeredWeightInit(ClausePrioFun prio_fun,
-			   double stagger_factor, ClauseSet_p axioms);
+            double stagger_factor, ClauseSet_p axioms);
 
 WFCB_p StaggeredWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
-			    state);
+             state);
 
 double StaggeredWeightCompute(void* data, Clause_p clause);
 

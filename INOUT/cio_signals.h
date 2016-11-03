@@ -50,15 +50,15 @@ extern rlim_t                ScheduleTimeLimit; /* Used for
                                                  * scheduler can use
                                                  * in total */
 extern rlim_t                SystemTimeLimit; /* Returned by the
-						 initial getrlimit
-						 call as general hard
-						 time limit */
+                   initial getrlimit
+                   call as general hard
+                   time limit */
 extern rlim_t                SoftTimeLimit;   /* Try to exit
-						 gracefully */
+                   gracefully */
 extern rlim_t                HardTimeLimit;   /* Exit now! */
 extern sig_atomic_t TimeIsUp;
 extern sig_atomic_t TimeLimitIsSoft; /* Have we hit hard or
-						 soft? */
+                   soft? */
 extern bool                  SilentTimeOut;
 
 void ESignalSetup(int mysignal);

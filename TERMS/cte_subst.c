@@ -191,7 +191,7 @@ PStackPointer SubstNormTerm(Term_p term, Subst_p subst, VarBank_p vars)
 /----------------------------------------------------------------------*/
 
 bool SubstBindingPrint(FILE* out, Term_p var, Sig_p sig, DerefType
-		       deref)
+             deref)
 {
    TermPrint(out, var, sig, DEREF_NEVER);
    fprintf(out, "<-");
@@ -232,12 +232,12 @@ long SubstPrint(FILE* out, Subst_p subst, Sig_p sig, DerefType deref)
    {
       SubstBindingPrint(out,  PStackElementP(subst,0), sig, deref);
       {
-	 for(i=1; i<limit;i++)
-	 {
-	    fprintf(out, ", ");
-	    SubstBindingPrint(out,  PStackElementP(subst,i), sig,
-			      deref);
-	 }
+    for(i=1; i<limit;i++)
+    {
+       fprintf(out, ", ");
+       SubstBindingPrint(out,  PStackElementP(subst,i), sig,
+               deref);
+    }
       }
    }
    fprintf(out, "}");
@@ -283,7 +283,7 @@ bool SubstIsRenaming(Subst_p subst)
 
       if(!TermIsVar(inst))
       {
-	 return false;
+    return false;
       }
       TermCellDelProp(inst, TPOpFlag);
    }
@@ -299,7 +299,7 @@ bool SubstIsRenaming(Subst_p subst)
 
       if(TermCellQueryProp(inst, TPOpFlag))
       {
-	 return false;
+    return false;
       }
       TermCellSetProp(inst, TPOpFlag);
    }
@@ -356,16 +356,16 @@ void SubstSkolemizeTerm(Term_p term, Subst_p subst, Sig_p sig)
    {
       if(!(term->binding))
       {
-	 PStackPushP(subst, term);
-	 term->binding =
-	    TermConstCellAlloc(SigGetNewSkolemCode(sig,0));
+    PStackPushP(subst, term);
+    term->binding =
+       TermConstCellAlloc(SigGetNewSkolemCode(sig,0));
       }
    }
    else
    {
       for(i=0;i<term->arity;i++)
       {
-	 SubstSkolemizeTerm(term->args[i], subst, sig);
+    SubstSkolemizeTerm(term->args[i], subst, sig);
       }
    }
 }
@@ -400,7 +400,7 @@ void SubstCompleteInstance(Subst_p subst, Term_p term,
    {
       for(i=0;i<term->arity;i++)
       {
-	 SubstCompleteInstance(subst, term->args[i], default_binding);
+    SubstCompleteInstance(subst, term->args[i], default_binding);
       }
    }
 }

@@ -113,8 +113,8 @@ int main(int argc, char* argv[])
       in = CreateScanner(StreamTypeFile, state->argv[i] , true, NULL);
       while(!TestInpTok(in, NoToken))
       {
-	 term  = TBTermParse(in, bank);
-	 TermCellSetProp(term, TPTopPos);
+    term  = TBTermParse(in, bank);
+    TermCellSetProp(term, TPTopPos);
       }
       DestroyScanner(in);
    }
@@ -161,20 +161,20 @@ CLState_p process_options(int argc, char* argv[])
       switch(handle->option_code)
       {
       case OPT_VERBOSE:
-	 Verbose = CLStateGetIntArg(handle, arg);
-	 break;
+    Verbose = CLStateGetIntArg(handle, arg);
+    break;
       case OPT_HELP:
-	 print_help(stdout);
-	 exit(NO_ERROR);
+    print_help(stdout);
+    exit(NO_ERROR);
       case OPT_OUTPUT:
-	 outname = arg;
-	 break;
+    outname = arg;
+    break;
       case OPT_PRINT_REFS:
-	 TBPrintInternalInfo = CLStateGetBoolArg(handle, arg);
-	 break;
+    TBPrintInternalInfo = CLStateGetBoolArg(handle, arg);
+    break;
       default:
-	 assert(false);
-	 break;
+    assert(false);
+    break;
       }
    }
    return state;

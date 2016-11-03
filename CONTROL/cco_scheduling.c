@@ -199,7 +199,7 @@ pid_t ExecuteSchedule(ScheduleCell strats[],
          /* Nothing to do, success reported by the child */
          break;
    case OUT_OF_MEMORY:
-	 TSTPOUT(stdout, "ResourceOut");
+    TSTPOUT(stdout, "ResourceOut");
          break;
    case SYNTAX_ERROR:
          /* Should never be possible here */
@@ -222,7 +222,7 @@ pid_t ExecuteSchedule(ScheduleCell strats[],
          Error("CPU time limit exceeded, terminating", CPU_LIMIT_ERROR);
          break;
    case RESOURCE_OUT:
-	 TSTPOUT(stdout, "ResourceOut");
+    TSTPOUT(stdout, "ResourceOut");
          break;
    case INCOMPLETE_PROOFSTATE:
          TSTPOUT(GlobalOut, "GaveUp");

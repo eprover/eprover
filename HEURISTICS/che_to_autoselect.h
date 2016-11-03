@@ -48,7 +48,7 @@ typedef struct order_parms_cell
 }OrderParmsCell, *OrderParms_p;
 
 typedef double (*OrderEvaluationFun)(OCB_p ocb, ProofState_p state,
-				     HeuristicParms_p parms);
+                 HeuristicParms_p parms);
 
 
 /*---------------------------------------------------------------------*/
@@ -68,7 +68,7 @@ void HeuristicParmsUpdate(OrderParms_p master, HeuristicParms_p slave);
    welcome to do it. Not me, and not now!  */
 
 double OrderEvaluate(OCB_p ocb, ProofState_p state, HeuristicParms_p
-		     params);
+           params);
 
 bool   OrderNextType(OrderParms_p ordering);
 bool   OrderNextWeightGen(OrderParms_p ordering);
@@ -78,13 +78,13 @@ bool   OrderNextConstWeight(OrderParms_p ordering);
 bool   OrderNextOrdering(OrderParms_p ordering, OrderParms_p mask);
 
 OCB_p  OrderFindOptimal(OrderParms_p mask, OrderEvaluationFun
-			eval_fun, ProofState_p state, HeuristicParms_p
-			params);
+         eval_fun, ProofState_p state, HeuristicParms_p
+         params);
 
 OCB_p  TOSelectOrdering(ProofState_p state, HeuristicParms_p params,
-			SpecFeature_p specs);
+         SpecFeature_p specs);
 OCB_p  TOCreateOrdering(ProofState_p state, OrderParms_p params, char*
-			pre_precedence, char* pre_weights);
+         pre_precedence, char* pre_weights);
 
 #endif
 

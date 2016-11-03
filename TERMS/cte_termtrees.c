@@ -165,10 +165,10 @@ void TermTreeFree(Term_p junk)
          {
             PStackPushP(stack, junk->rson);
          }
-	 if(!TermIsVar(junk))
-	 {
-	    TermTopFree(junk);
-	 }
+    if(!TermIsVar(junk))
+    {
+       TermTopFree(junk);
+    }
       }
       PStackFree(stack);
    }
@@ -211,7 +211,7 @@ long TermTopCompare(Term_p t1, Term_p t2)
       res = PCmp(t1->args[i], t2->args[i]);
       if(res)
       {
-	 return res;
+    return res;
       }
    }
    return res;
@@ -383,9 +383,9 @@ void TermTreeSetProp(Term_p root, TermProperties props)
       root = PStackPopP(stack);
       if(root)
       {
-	 TermCellSetProp(root, props);
-	 PStackPushP(stack, root->lson);
-	 PStackPushP(stack, root->rson);
+    TermCellSetProp(root, props);
+    PStackPushP(stack, root->lson);
+    PStackPushP(stack, root->rson);
       }
    }
    PStackFree(stack);
@@ -415,9 +415,9 @@ void TermTreeDelProp(Term_p root, TermProperties props)
       root = PStackPopP(stack);
       if(root)
       {
-	 TermCellDelProp(root, props);
-	 PStackPushP(stack, root->lson);
-	 PStackPushP(stack, root->rson);
+    TermCellDelProp(root, props);
+    PStackPushP(stack, root->lson);
+    PStackPushP(stack, root->rson);
       }
    }
    PStackFree(stack);

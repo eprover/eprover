@@ -85,7 +85,7 @@ typedef struct proofstatecell
    unsigned long           proc_forward_subsumed_count;
    unsigned long           proc_non_trivial_count;
    unsigned long           other_redundant_count;       /* Intermediate
-    		            		             filtering */
+                                        filtering */
    unsigned long           non_redundant_deleted;
    unsigned long           backward_subsumed_count;
    unsigned long           backward_rewritten_count;
@@ -150,8 +150,8 @@ void ProofStateTrain(ProofState_p state, bool print_pos, bool print_neg);
 void ProofStateStatisticsPrint(FILE* out, ProofState_p state);
 void ProofStatePrint(FILE* out, ProofState_p state);
 void ProofStatePropDocQuote(FILE* out, int level,
-			    ClauseProperties prop,
-			    ProofState_p state, char* comment);
+             ClauseProperties prop,
+             ProofState_p state, char* comment);
 
 #define ProofStateAxNo(state) (ClauseSetCardinality((state)->axioms)+\
                                FormulaSetCardinality((state)->f_axioms))

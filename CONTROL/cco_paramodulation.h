@@ -43,15 +43,15 @@ Changes
 
 
 long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
-				      clause, Clause_p parent_alias,
-				      Clause_p with, ClauseSet_p
-				      store, VarBank_p freshvars,
+                  clause, Clause_p parent_alias,
+                  Clause_p with, ClauseSet_p
+                  store, VarBank_p freshvars,
                                       ParamodulationType pm_type);
 
 long ComputeAllParamodulants(TB_p bank, OCB_p ocb, Clause_p clause,
-			     Clause_p parent_alias, ClauseSet_p
-			     with_set, ClauseSet_p store, VarBank_p
-			     freshvars, ParamodulationType pm_type);
+              Clause_p parent_alias, ClauseSet_p
+              with_set, ClauseSet_p store, VarBank_p
+              freshvars, ParamodulationType pm_type);
 
 
 

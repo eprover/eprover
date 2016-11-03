@@ -56,18 +56,18 @@ typedef struct refinedweightparamcell
         SizeFree(junk, sizeof(RefinedWeightParamCell))
 
 WFCB_p ClauseRefinedWeightInit(ClausePrioFun prio_fun, int fweight,
-			       int vweight, OCB_p ocb, double
-			       max_term_multiplier, double
-			       max_literal_multiplier, double
-			       pos_multiplier);
+                int vweight, OCB_p ocb, double
+                max_term_multiplier, double
+                max_literal_multiplier, double
+                pos_multiplier);
 
 WFCB_p ClauseRefinedWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
-				state);
+            state);
 
 double ClauseRefinedWeightCompute(void* data, Clause_p clause);
 
 WFCB_p ClauseRefinedWeight2Parse(Scanner_p in, OCB_p ocb, ProofState_p
-				state);
+            state);
 
 double ClauseRefinedWeight2Compute(void* data, Clause_p clause);
 

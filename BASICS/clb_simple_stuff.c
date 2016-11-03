@@ -91,10 +91,10 @@ int StringIndex(char* key, char* list[])
    {
       for(i=0; list[i]; i++)
       {
-	 if(strcmp(key, list[i])==0)
-	 {
-	    return i;
-	 }
+    if(strcmp(key, list[i])==0)
+    {
+       return i;
+    }
       }
    }
    return -1;

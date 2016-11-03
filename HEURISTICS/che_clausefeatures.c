@@ -54,7 +54,7 @@ Changes
 /----------------------------------------------------------------------*/
 
 static long term_depth_info_add(Term_p term, long* depthmax, long*
-				depthsum, long* count)
+            depthsum, long* count)
 {
    long depth = TermDepth(term);
 
@@ -83,7 +83,7 @@ static long term_depth_info_add(Term_p term, long* depthmax, long*
 /----------------------------------------------------------------------*/
 
 static long eqn_tptp_depth_info_add(Eqn_p eqn, long* depthmax, long*
-				    depthsum, long* count)
+                depthsum, long* count)
 {
    if(EqnIsEquLit(eqn))
    {
@@ -95,8 +95,8 @@ static long eqn_tptp_depth_info_add(Eqn_p eqn, long* depthmax, long*
       int i;
       for(i=0; i<eqn->lterm->arity; i++)
       {
-	 term_depth_info_add(eqn->lterm->args[i], depthmax, depthsum,
-			     count);
+    term_depth_info_add(eqn->lterm->args[i], depthmax, depthsum,
+              count);
       }
    }
    return *depthmax;
@@ -137,7 +137,7 @@ int ClauseCountExtSymbols(Clause_p clause, Sig_p sig, long min_arity)
    {
       if((SigFindArity(sig, i)>=min_arity) && dist_array[i])
       {
-	 res++;
+    res++;
       }
    }
    SizeFree(dist_array, (sig->f_count+1)*sizeof(long));
@@ -185,10 +185,10 @@ FunCode TermAddVarDistribution(Term_p term, PDArray_p dist_array)
       }
       else
       {
-	 count = PDArrayElementInt(dist_array, -(term->f_code));
-	 count++;
-	 max_var = MAX(max_var, -(term->f_code));
-	 PDArrayAssignInt(dist_array, -(term->f_code), count);
+    count = PDArrayElementInt(dist_array, -(term->f_code));
+    count++;
+    max_var = MAX(max_var, -(term->f_code));
+    PDArrayAssignInt(dist_array, -(term->f_code), count);
       }
    }
    PStackFree(stack);
@@ -334,7 +334,7 @@ long ClauseCountMaximalTerms(Clause_p clause)
    {
       if(EqnIsMaximal(handle))
       {
-	 res+=EqnCountMaximalLiterals(handle);
+    res+=EqnCountMaximalLiterals(handle);
       }
    }
    return res;
@@ -362,7 +362,7 @@ long ClauseCountMaximalLiterals(Clause_p clause)
    {
       if(EqnIsMaximal(handle))
       {
-	 res++;
+    res++;
       }
    }
    return res;
@@ -390,7 +390,7 @@ long ClauseCountUnorientableLiterals(Clause_p clause)
    {
       if(!EqnIsOriented(handle))
       {
-	 res++;
+    res++;
       }
    }
    return res;
@@ -411,7 +411,7 @@ long ClauseCountUnorientableLiterals(Clause_p clause)
 /----------------------------------------------------------------------*/
 
 long ClauseTPTPDepthInfoAdd(Clause_p clause, long* depthmax, long*
-			    depthsum, long* count)
+             depthsum, long* count)
 {
    Eqn_p handle;
 
@@ -447,14 +447,14 @@ long ClauseTPTPDepthInfoAdd(Clause_p clause, long* depthmax, long*
 void ClauseInfoPrint(FILE* out, Clause_p clause)
 {
    fprintf(out, "info(%ld, %ld, %ld, %ld, %ld, %d, %ld, %ld)",
-	   clause->ident,
-	   clause->proof_depth,
-	   clause->proof_size,
-	   (long)ClauseWeight(clause, 1, 1, 1, 1, 1, false),
-	   ClauseDepth(clause),
-	   ClauseLiteralNumber(clause),
-	   (long)ClauseWeight(clause, 0, 1, 1, 1, 1, false),
-	   ClauseCountVariableSet(clause));
+      clause->ident,
+      clause->proof_depth,
+      clause->proof_size,
+      (long)ClauseWeight(clause, 1, 1, 1, 1, 1, false),
+      ClauseDepth(clause),
+      ClauseLiteralNumber(clause),
+      (long)ClauseWeight(clause, 0, 1, 1, 1, 1, false),
+      ClauseCountVariableSet(clause));
 }
 
 
@@ -502,27 +502,27 @@ void ClausePropInfoPrint(FILE* out, Clause_p clause)
    fprintf(out, "# ");
    ClausePCLPrint(out, clause, true);
    fprintf(out,
-	   "\n"
-	   "# Standardweight: %6ld\n"
-	   "# Symbol count  : %6ld\n"
-	   "#    F. symbols : %6ld\n"
-	   "#    Variables  : %6ld\n"
-	   "#    Constants  : %6ld\n"
-	   "#    P. symbols : %6ld\n"
-	   "# Depth         : %6ld\n"
+      "\n"
+      "# Standardweight: %6ld\n"
+      "# Symbol count  : %6ld\n"
+      "#    F. symbols : %6ld\n"
+      "#    Variables  : %6ld\n"
+      "#    Constants  : %6ld\n"
+      "#    P. symbols : %6ld\n"
+      "# Depth         : %6ld\n"
            "# Literals      : %6d\n"
            "#    ...positive: %6d\n"
            "#    ...negative: %6d\n",
-	   (long)ClauseStandardWeight(clause),
-	   (long)ClauseSymTypeWeight(clause, 1,1,1,1,1,1,1),
-	   (long)ClauseSymTypeWeight(clause, 1,1,1,0,1,0,0),
-	   (long)ClauseSymTypeWeight(clause, 1,1,1,1,0,0,0),
-	   (long)ClauseSymTypeWeight(clause, 1,1,1,0,0,1,0),
-	   (long)ClauseSymTypeWeight(clause, 1,1,1,0,0,0,1),
-	   ClauseDepth(clause),
-	   ClauseLiteralNumber(clause),
-	   clause->pos_lit_no,
-	   clause->neg_lit_no);
+      (long)ClauseStandardWeight(clause),
+      (long)ClauseSymTypeWeight(clause, 1,1,1,1,1,1,1),
+      (long)ClauseSymTypeWeight(clause, 1,1,1,0,1,0,0),
+      (long)ClauseSymTypeWeight(clause, 1,1,1,1,0,0,0),
+      (long)ClauseSymTypeWeight(clause, 1,1,1,0,0,1,0),
+      (long)ClauseSymTypeWeight(clause, 1,1,1,0,0,0,1),
+      ClauseDepth(clause),
+      ClauseLiteralNumber(clause),
+      clause->pos_lit_no,
+      clause->neg_lit_no);
 }
 
 

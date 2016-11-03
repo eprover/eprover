@@ -56,24 +56,24 @@ typedef struct orientweightparamcell
         SizeFree(junk, sizeof(OrientWeightParamCell))
 
 WFCB_p ClauseOrientWeightInit(ClausePrioFun prio_fun, int fweight,
-			       int vweight, OCB_p ocb, double
-			       unorientable_literal_multiplier, double
-			       max_literal_multiplier, double
-			       pos_multiplier);
+                int vweight, OCB_p ocb, double
+                unorientable_literal_multiplier, double
+                max_literal_multiplier, double
+                pos_multiplier);
 
 WFCB_p ClauseOrientWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
-				state);
+            state);
 
 double ClauseOrientWeightCompute(void* data, Clause_p clause);
 
 WFCB_p OrientLMaxWeightInit(ClausePrioFun prio_fun, int fweight,
-			    int vweight, OCB_p ocb, double
-			    unorientable_literal_multiplier, double
-			    max_literal_multiplier, double
-			    pos_multiplier);
+             int vweight, OCB_p ocb, double
+             unorientable_literal_multiplier, double
+             max_literal_multiplier, double
+             pos_multiplier);
 
 WFCB_p OrientLMaxWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
-			     state);
+              state);
 
 double OrientLMaxWeightCompute(void* data, Clause_p clause);
 

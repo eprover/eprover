@@ -274,17 +274,17 @@ CLState_p process_options(int argc, char* argv[])
       switch(handle->option_code)
       {
       case OPT_VERBOSE:
-	    Verbose = CLStateGetIntArg(handle, arg);
-	    break;
+       Verbose = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_HELP:
-	    print_help(stdout);
-	    exit(NO_ERROR);
+       print_help(stdout);
+       exit(NO_ERROR);
       case OPT_VERSION:
-	    fprintf(stdout, NAME " " VERSION " " E_NICKNAME "\n");
-	    exit(NO_ERROR);
+       fprintf(stdout, NAME " " VERSION " " E_NICKNAME "\n");
+       exit(NO_ERROR);
       case OPT_OUTPUT:
-	    outname = arg;
-	    break;
+       outname = arg;
+       break;
       case OPT_OUTDIR:
             outdir = arg;
             break;
@@ -292,17 +292,17 @@ CLState_p process_options(int argc, char* argv[])
             interactive = true;
             break;
       case OPT_SILENT:
-	    OutputLevel = 0;
-	    break;
+       OutputLevel = 0;
+       break;
       case OPT_OUTPUTLEVEL:
-	    OutputLevel = CLStateGetIntArg(handle, arg);
-	    break;
+       OutputLevel = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_GLOBAL_WTCLIMIT:
-	    total_wtc_limit = CLStateGetIntArg(handle, arg);
-	    break;
+       total_wtc_limit = CLStateGetIntArg(handle, arg);
+       break;
       default:
-	    assert(false && "Unknown option");
-	    break;
+       assert(false && "Unknown option");
+       break;
       }
    }
    return state;

@@ -53,7 +53,7 @@ Changes
 /----------------------------------------------------------------------*/
 
 static bool prepare_key(Term_p t1, DerefType d1, Term_p t2, DerefType
-			d2, QuadKey_p key)
+         d2, QuadKey_p key)
 {
    if(DoubleKeyCmp(t1, d1, t2, d2) > 0)
    {
@@ -89,7 +89,7 @@ static bool prepare_key(Term_p t1, DerefType d1, Term_p t2, DerefType
 /----------------------------------------------------------------------*/
 
 CompareResult CmpCacheFind(CmpCache_p *cache, Term_p t1, DerefType d1,
-			   Term_p t2, DerefType d2)
+            Term_p t2, DerefType d2)
 {
    QuadKey key;
    QuadTree_p handle;
@@ -107,14 +107,14 @@ CompareResult CmpCacheFind(CmpCache_p *cache, Term_p t1, DerefType d1,
    {
       if(handle)
       {
-	 res = handle->val.i_val;
+    res = handle->val.i_val;
       }
    }
    else
    {
       if(handle)
       {
-	 res = POInverseRelation(handle->val.i_val);
+    res = POInverseRelation(handle->val.i_val);
       }
    }
    return res;
@@ -135,7 +135,7 @@ CompareResult CmpCacheFind(CmpCache_p *cache, Term_p t1, DerefType d1,
 /----------------------------------------------------------------------*/
 
 bool CmpCacheInsert(CmpCache_p *cache, Term_p t1, DerefType d1, Term_p
-		    t2, DerefType d2, CompareResult insert)
+          t2, DerefType d2, CompareResult insert)
 {
    QuadKey key;
    IntOrP val;
@@ -165,40 +165,40 @@ bool CmpCacheInsert(CmpCache_p *cache, Term_p t1, DerefType d1, Term_p
       switch(handle->val.i_val)
       {
       case to_notgteq:
-	    /* printf("notgteq=%ld\n", val.i_val); */
-	    if(val.i_val==to_notleeq)
-	    {
-	       handle->val.i_val = to_uncomparable;
-	    }
-	    else
-	    {
-	       assert((val.i_val==to_notgteq)||
-		      (val.i_val==to_lesser)||
-		      (val.i_val==to_uncomparable));
-	       handle->val.i_val = val.i_val;
-	    }
-	    break;
+       /* printf("notgteq=%ld\n", val.i_val); */
+       if(val.i_val==to_notleeq)
+       {
+          handle->val.i_val = to_uncomparable;
+       }
+       else
+       {
+          assert((val.i_val==to_notgteq)||
+            (val.i_val==to_lesser)||
+            (val.i_val==to_uncomparable));
+          handle->val.i_val = val.i_val;
+       }
+       break;
       case to_notleeq:
-	    /* printf("notleeq=%ld\n", val.i_val); */
-	    if(val.i_val==to_notgteq)
-	    {
-	       handle->val.i_val = to_uncomparable;
-	    }
-	    else
-	    {
-	       assert((val.i_val==to_notleeq)||
-		      (val.i_val==to_greater)||
-		      (val.i_val==to_uncomparable));
-	       handle->val.i_val = val.i_val;
-	    }
-	    break;
+       /* printf("notleeq=%ld\n", val.i_val); */
+       if(val.i_val==to_notgteq)
+       {
+          handle->val.i_val = to_uncomparable;
+       }
+       else
+       {
+          assert((val.i_val==to_notleeq)||
+            (val.i_val==to_greater)||
+            (val.i_val==to_uncomparable));
+          handle->val.i_val = val.i_val;
+       }
+       break;
       default:
-	    assert((handle->val.i_val==val.i_val)
-		   ||((val.i_val==to_notgteq)
-		      &&(handle->val.i_val==to_lesser))
-		   ||((val.i_val==to_notleeq)
-		      &&(handle->val.i_val==to_greater)));
-	    break;
+       assert((handle->val.i_val==val.i_val)
+         ||((val.i_val==to_notgteq)
+            &&(handle->val.i_val==to_lesser))
+         ||((val.i_val==to_notleeq)
+            &&(handle->val.i_val==to_greater)));
+       break;
       }
       return false;
    }

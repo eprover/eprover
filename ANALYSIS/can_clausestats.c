@@ -148,12 +148,12 @@ void ClauseStatsPrint(FILE *out, ClauseStats_p cell)
    assert(cell);
 
    fprintf(out, "(%2ld,%3ld,%3ld,%3ld,%3ld, %3ld)",
-	   cell->proof_distance,
-	   cell->simplify_used,
-	   cell->simplify_unused,
-	   cell->generate_used,
-	   cell->generate_unused,
-	   cell->subsumed);
+      cell->proof_distance,
+      cell->simplify_used,
+      cell->simplify_unused,
+      cell->generate_used,
+      cell->generate_unused,
+      cell->subsumed);
 }
 
 
@@ -170,7 +170,7 @@ void ClauseStatsPrint(FILE *out, ClauseStats_p cell)
 /----------------------------------------------------------------------*/
 
 void ClauseStatsPrintNormalized(FILE *out, ClauseStats_p cell, long
-				created, long processed)
+            created, long processed)
 {
    double rel_simplify_used,
           rel_simplify_unused,
@@ -210,12 +210,12 @@ void ClauseStatsPrintNormalized(FILE *out, ClauseStats_p cell, long
       rel_subsumed      = 0;
    }
    fprintf(out, "(%3ld,%f,%f,%f,%f,%f)",
-	   cell->proof_distance,
-	   rel_simplify_used,
-	   rel_simplify_unused,
-	   rel_generate_used,
-	   rel_generate_unused,
-	   rel_subsumed);
+      cell->proof_distance,
+      rel_simplify_used,
+      rel_simplify_unused,
+      rel_generate_used,
+      rel_generate_unused,
+      rel_subsumed);
 }
 
 

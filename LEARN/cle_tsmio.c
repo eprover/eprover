@@ -78,9 +78,9 @@ static double get_default_eval(AnnoSet_p annoset,double evalweights[])
        currentcount = AnnotationCount(current->annotation);
        for(i=3; i<=KB_ANNOTATION_NO; i++)
        {
-	  oldval = DDArrayElement(old, i);
-	  oldval+= DDArrayElement(currentvalues,i)*currentcount;
-	  DDArrayAssign(old, i, oldval);
+     oldval = DDArrayElement(old, i);
+     oldval+= DDArrayElement(currentvalues,i)*currentcount;
+     DDArrayAssign(old, i, oldval);
        }
        oldval = DDArrayElement(old, 2);
        oldval = MAX(oldval, DDArrayElement(currentvalues,2));
@@ -92,9 +92,9 @@ static double get_default_eval(AnnoSet_p annoset,double evalweights[])
    {
       for(i=3; i<=KB_ANNOTATION_NO; i++)
       {
-	 oldval = DDArrayElement(old, i);
-	 oldval = oldval/(double)count;
-	 DDArrayAssign(old, i, oldval);
+    oldval = DDArrayElement(old, i);
+    oldval = oldval/(double)count;
+    DDArrayAssign(old, i, oldval);
       }
    }
    DDArrayAssign(old, 2, DDArrayElement(old, 2)+1);
@@ -132,12 +132,12 @@ static double rec_get_highest_weight(TSM_p tsm)
       tsa = PDArrayElementP(tsm->tsas, i);
       if(tsa)
       {
-	 res = MAX(res, tsa->eval_weight);
-	 for(j=0; j<tsa->arity; j++)
-	 {
-	    tmp = rec_get_highest_weight(tsa->arg_tsms[j]);
-	    res = MAX(res, tmp);
-	 }
+    res = MAX(res, tsa->eval_weight);
+    for(j=0; j<tsa->arity; j++)
+    {
+       tmp = rec_get_highest_weight(tsa->arg_tsms[j]);
+       res = MAX(res, tmp);
+    }
       }
    }
    return res;
@@ -169,7 +169,7 @@ static double level_get_highest_weight(TSM_p tsm)
       tsa = PDArrayElementP(tsm->tsas, i);
       if(tsa)
       {
-	 res = MAX(res, tsa->eval_weight);
+    res = MAX(res, tsa->eval_weight);
       }
    }
    return res;
@@ -197,25 +197,25 @@ static double get_highest_weight(TSMAdmin_p admin)
    switch(admin->tsmtype)
    {
    case TSMTypeFlat:
-	 res = level_get_highest_weight(admin->tsm);
-	 break;
+    res = level_get_highest_weight(admin->tsm);
+    break;
    case TSMTypeRecursive:
-	 res = rec_get_highest_weight(admin->tsm);
-	 break;
+    res = rec_get_highest_weight(admin->tsm);
+    break;
    case TSMTypeRecurrent:
-	 res = level_get_highest_weight(admin->tsm);
-	 break;
+    res = level_get_highest_weight(admin->tsm);
+    break;
    case TSMTypeRecurrentLocal:
-	 for(i=0; i<PStackGetSP(admin->tsmstack); i++)
-	 {
-	    tmp =
-	       level_get_highest_weight(PStackElementP(admin->tsmstack,i));
-	    res = MAX(res, tmp);
-	 }
-	 break;
+    for(i=0; i<PStackGetSP(admin->tsmstack); i++)
+    {
+       tmp =
+          level_get_highest_weight(PStackElementP(admin->tsmstack,i));
+       res = MAX(res, tmp);
+    }
+    break;
    default:
-	 assert(false && "Not a valid tsm type");
-	 break;
+    assert(false && "Not a valid tsm type");
+    break;
    }
    return res;
 }
@@ -240,9 +240,9 @@ static double get_highest_weight(TSMAdmin_p admin)
 /----------------------------------------------------------------------*/
 
 double ExampleSetPrepare(FlatAnnoSet_p flatset, AnnoSet_p annoset, double
-		       evalweights[], ExampleSet_p examples,  Sig_p sig,
-		       ClauseSet_p target, long sel_no, double set_part,
-		       double dist_part)
+             evalweights[], ExampleSet_p examples,  Sig_p sig,
+             ClauseSet_p target, long sel_no, double set_part,
+             double dist_part)
 {
    Features_p   targetfeatures = FeaturesAlloc();
    PStack_p     example_ids = PStackAlloc();
@@ -250,9 +250,9 @@ double ExampleSetPrepare(FlatAnnoSet_p flatset, AnnoSet_p annoset, double
 
    ComputeClauseSetNumFeatures(targetfeatures, target, sig);
    ExampleSetSelectByDist(example_ids, examples, targetfeatures,
-			  SEL_PRED_WEIGHT, SEL_FUNC_WEIGHT,
-			  selection_weights, sel_no, set_part,
-			  dist_part);
+           SEL_PRED_WEIGHT, SEL_FUNC_WEIGHT,
+           selection_weights, sel_no, set_part,
+           dist_part);
    AnnoSetFlatten(annoset, example_ids);
    AnnoSetNormalizeFlatAnnos(annoset);
    res = get_default_eval(annoset, evalweights);
@@ -278,9 +278,9 @@ double ExampleSetPrepare(FlatAnnoSet_p flatset, AnnoSet_p annoset, double
 /----------------------------------------------------------------------*/
 
 double ExampleSetFromKB(AnnoSet_p annoset, FlatAnnoSet_p flatset, bool
-			flat_patterns, TB_p bank, double evalweights[],
-			char* kb, Sig_p sig, ClauseSet_p target, long
-			sel_no, double set_part, double dist_part)
+         flat_patterns, TB_p bank, double evalweights[],
+         char* kb, Sig_p sig, ClauseSet_p target, long
+         sel_no, double set_part, double dist_part)
 {
    DStr_p         filename = DStrAlloc();
    ExampleSet_p   proofexamples;
@@ -290,14 +290,14 @@ double ExampleSetFromKB(AnnoSet_p annoset, FlatAnnoSet_p flatset, bool
    proofexamples = ExampleSetAlloc();
 
    in = CreateScanner(StreamTypeFile,
-		      KBFileName(filename, kb, "signature"),
-		      true, NULL);
+            KBFileName(filename, kb, "signature"),
+            true, NULL);
    SigParse(in, sig, true);
    DestroyScanner(in);
 
    in = CreateScanner(StreamTypeFile,
-		      KBFileName(filename, kb, "problems"),
-		      true, NULL);
+            KBFileName(filename, kb, "problems"),
+            true, NULL);
    ExampleSetParse(in, proofexamples);
    DestroyScanner(in);
    DStrFree(filename);
@@ -307,7 +307,7 @@ double ExampleSetFromKB(AnnoSet_p annoset, FlatAnnoSet_p flatset, bool
       AnnoSetRecToFlatEnc(bank, annoset);
    }
    res = ExampleSetPrepare(flatset, annoset, evalweights, proofexamples,
-		     sig, target, sel_no, set_part, dist_part);
+           sig, target, sel_no, set_part, dist_part);
    ExampleSetFree(proofexamples);
 
    return res;
@@ -327,9 +327,9 @@ double ExampleSetFromKB(AnnoSet_p annoset, FlatAnnoSet_p flatset, bool
 /----------------------------------------------------------------------*/
 
 TSMAdmin_p TSMFromKB(bool flat_patterns, double evalweights[], char*
-		     kb,  Sig_p sig, ClauseSet_p target, long sel_no,
-		     double set_part, double dist_part, IndexType
-		     indextype, TSMType tsmtype, long indexdepth)
+           kb,  Sig_p sig, ClauseSet_p target, long sel_no,
+           double set_part, double dist_part, IndexType
+           indextype, TSMType tsmtype, long indexdepth)
 {
    DStr_p         filename = DStrAlloc();
    AnnoSet_p      annoset;
@@ -341,15 +341,15 @@ TSMAdmin_p TSMFromKB(bool flat_patterns, double evalweights[], char*
    double         eval_default;
 
    in = CreateScanner(StreamTypeFile,
-		      KBFileName(filename, kb, "clausepatterns"),
-		      true, NULL);
+            KBFileName(filename, kb, "clausepatterns"),
+            true, NULL);
    annoset = AnnoSetParse(in, bank, KB_ANNOTATION_NO);
    DestroyScanner(in);
    DStrFree(filename);
 
    eval_default = ExampleSetFromKB(annoset, flatset, flat_patterns,
-				   bank, evalweights, kb, sig, target,
-				   sel_no, set_part, dist_part);
+               bank, evalweights, kb, sig, target,
+               sel_no, set_part, dist_part);
 
    subst = PatternDefaultSubstAlloc(sig);
    AnnoSetComputePatternSubst(subst, annoset);

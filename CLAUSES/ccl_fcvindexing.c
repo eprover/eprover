@@ -254,11 +254,11 @@ void FVIAnchorFree(FVIAnchor_p junk)
    assert(junk);
 
    fprintf(GlobalOut,
-	   "# Freeing FVIndex. %ld leaves, %ld empty. Total nodes: %ld. Mem: %ld\n",
-	   FVIndexCountNodes(junk->index, true, false),
-	   FVIndexCountNodes(junk->index, true, true),
-	   FVIndexCountNodes(junk->index, false, false),
-	   FVIndexStorage(junk));
+      "# Freeing FVIndex. %ld leaves, %ld empty. Total nodes: %ld. Mem: %ld\n",
+      FVIndexCountNodes(junk->index, true, false),
+      FVIndexCountNodes(junk->index, true, true),
+      FVIndexCountNodes(junk->index, false, false),
+      FVIndexStorage(junk));
 
    FVIndexFree(junk->index);
    if(junk->perm_vector)
@@ -331,9 +331,9 @@ void FVIndexInsert(FVIAnchor_p index, FreqVector_p vec_clause)
       newnode = IntMapGetVal(handle->u1.successors, vec_clause->array[i]);
       if(!newnode)
       {
-	 newnode = insert_empty_node(handle,
-				     index,
-				     vec_clause->array[i]);
+    newnode = insert_empty_node(handle,
+                 index,
+                 vec_clause->array[i]);
       }
       handle = newnode;
       handle->clause_count++;
@@ -368,7 +368,7 @@ bool FVIndexDelete(FVIAnchor_p index, Clause_p clause)
    bool res;
 
    vec = OptimizedVarFreqVectorCompute(clause, index->perm_vector,
-				       index->cspec);
+                   index->cspec);
    /* FreqVector-Computation is measured independently */
    PERF_CTR_ENTRY(FVIndexTimer);
    handle = index->index;
@@ -380,7 +380,7 @@ bool FVIndexDelete(FVIAnchor_p index, Clause_p clause)
       handle = IntMapGetVal(handle->u1.successors, vec->array[i]);
       if(!handle)
       {
-	 break;
+    break;
       }
       handle->clause_count--;
    }
@@ -414,18 +414,18 @@ long FVIndexCountNodes(FVIndex_p index, bool leaves, bool empty)
    {
       if(index->final)
       {
-	 if(!empty || !index->u1.clauses)
-	 {
-	    res++;
-	 }
-	 assert(EQUIV(index->clause_count,index->u1.clauses));
+    if(!empty || !index->u1.clauses)
+    {
+       res++;
+    }
+    assert(EQUIV(index->clause_count,index->u1.clauses));
       }
       else
       {
-	 if(!(empty||leaves))
-	 {
-	    res++;
-	 }
+    if(!(empty||leaves))
+    {
+       res++;
+    }
          if(index->u1.successors)
          {
             iter = IntMapIterAlloc(index->u1.successors, 0, LONG_MAX);
@@ -436,7 +436,7 @@ long FVIndexCountNodes(FVIndex_p index, bool leaves, bool empty)
                }
             }
             IntMapIterFree(iter);
-	 }
+    }
       }
    }
    return res;
@@ -462,7 +462,7 @@ FVPackedClause_p FVIndexPackClause(Clause_p clause, FVIAnchor_p anchor)
       return FVPackClause(clause, NULL, NULL);
    }
    return FVPackClause(clause, anchor->perm_vector,
-		       anchor->cspec);
+             anchor->cspec);
 }
 
 

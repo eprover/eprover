@@ -59,7 +59,7 @@ Changes
 /----------------------------------------------------------------------*/
 
 KBDesc_p KBDescAlloc(char* version, double neg_prop, long
-		     neg_examples)
+           neg_examples)
 {
    KBDesc_p handle = KBDescCellAlloc();
 
@@ -103,15 +103,15 @@ void KBDescFree(KBDesc_p desc)
 void KBDescPrint(FILE* out, KBDesc_p desc)
 {
    fprintf(out,
-	   "# E theorem prover knowledge base description\n"
-	   "Version     : \"%s\"\n"
-	   "NegProp     : %8f  # "
-	   "Negative example proportion (successful proof search)\n"
-	   "FailExamples: %8ld  # "
-	   "Number of clauses from a failed proof search\n",
-	   desc->version,
-	   desc->neg_proportion,
-	   desc->fail_neg_examples);
+      "# E theorem prover knowledge base description\n"
+      "Version     : \"%s\"\n"
+      "NegProp     : %8f  # "
+      "Negative example proportion (successful proof search)\n"
+      "FailExamples: %8ld  # "
+      "Number of clauses from a failed proof search\n",
+      desc->version,
+      desc->neg_proportion,
+      desc->fail_neg_examples);
 }
 
 /*-----------------------------------------------------------------------
@@ -138,7 +138,7 @@ KBDesc_p KBDescParse(Scanner_p in)
    if(strcmp(handle->version, KB_VERSION) > 0)
    {
       Error("Knowledge base is younger than your tool set. Please"
-	    " update from" E_URL, USAGE_ERROR);
+       " update from" E_URL, USAGE_ERROR);
    }
    NextToken(in);
    AcceptInpId(in, "NegProp");

@@ -73,12 +73,12 @@ void         AnnotationFree(Annotation_p junk);
 void         AnnotationTreeFree(Annotation_p tree);
 Annotation_p AnnotationParse(Scanner_p in, long expected);
 long         AnnotationListParse(Scanner_p in, Annotation_p *tree,
-				 long expected);
+             long expected);
 void         AnnotationPrint(FILE* out, Annotation_p anno);
 void         AnnotationListPrint(FILE* out, Annotation_p tree);
 void         AnnotationCombine(Annotation_p res, Annotation_p new_anno);
 long         AnnotationMerge(Annotation_p *tree, Annotation_p collect,
-			     PStack_p sources);
+              PStack_p sources);
 double       AnnotationEval(Annotation_p anno, double weights[]);
 
 #endif

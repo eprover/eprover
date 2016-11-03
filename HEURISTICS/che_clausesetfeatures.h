@@ -117,7 +117,7 @@ typedef struct spec_feature_cell
    SpecFeatures set_literal_size;
    SpecFeatures set_termcell_size;
    SpecFeatures max_fun_ar_class; /* Arity of _real_ function symbols,
-				   0,1,2,>2 */
+               0,1,2,>2 */
    SpecFeatures avg_fun_ar_class;
    SpecFeatures sum_fun_ar_class;
    SpecFeatures max_depth_class;
@@ -352,15 +352,15 @@ long    ClauseSetCountTPTPRangeRestricted(ClauseSet_p set);
 double  ClauseSetNonGoundAxiomPart(ClauseSet_p set);
 
 long    ClauseSetCollectArityInformation(ClauseSet_p set,
-					 Sig_p sig,
-					 int *max_fun_arity,
-					 int *avg_fun_arity,
-					 int *sum_fun_arity,
-					 int *max_pred_arity,
-					 int *avg_pred_arity,
-					 int *sum_pred_arity,
-					 int *non_const_funs,
-					 int *non_const_preds);
+                Sig_p sig,
+                int *max_fun_arity,
+                int *avg_fun_arity,
+                int *sum_fun_arity,
+                int *max_pred_arity,
+                int *avg_pred_arity,
+                int *sum_pred_arity,
+                int *non_const_funs,
+                int *non_const_preds);
 
 long    ClauseSetCountMaximalTerms(ClauseSet_p set);
 long    ClauseSetCountMaximalLiterals(ClauseSet_p set);
@@ -373,9 +373,9 @@ long    ClauseSetMaxLiteralNumber(ClauseSet_p set);
 long    ClauseSetCountVariables(ClauseSet_p set);
 long    ClauseSetCountSingletons(ClauseSet_p set);
 long    ClauseSetTPTPDepthInfoAdd(ClauseSet_p set, long* depthmax,
-				  long* depthsum, long* count);
+              long* depthsum, long* count);
 void    SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p set,
-			    Sig_p sig);
+             Sig_p sig);
 void    SpecFeaturesAddEval(SpecFeature_p features, SpecLimits_p limits);
 
 void    SpecFeaturesPrint(FILE* out, SpecFeature_p features);
@@ -385,13 +385,13 @@ void    SpecFeaturesParse(Scanner_p in, SpecFeature_p features);
 void    SpecTypePrint(FILE* out, SpecFeature_p features, char* mask);
 
 void    ClauseSetPrintPosUnits(FILE* out, ClauseSet_p set, bool
-			       printinfo);
+                printinfo);
 void    ClauseSetPrintNegUnits(FILE* out, ClauseSet_p set, bool
-			       printinfo);
+                printinfo);
 void    ClauseSetPrintNonUnits(FILE* out, ClauseSet_p set, bool
-			       printinfo);
+                printinfo);
 void    ProofStatePrintSelective(FILE* out, ProofState_p state, char*
-				 descriptor, bool printinfo);
+             descriptor, bool printinfo);
 
 SpecLimits_p CreateDefaultSpecLimits(void);
 

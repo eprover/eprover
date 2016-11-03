@@ -97,10 +97,10 @@ FILE* OutOpen(char* name)
 
       if(! (out = fopen(name,"w")))
       {
-	 TmpErrno = errno; /* Save error number, the following call to
-			    sprintf() can theoretically alter  the
-			    value !*/
-	 sprintf(ErrStr, "Cannot open file %s", name);
+    TmpErrno = errno; /* Save error number, the following call to
+             sprintf() can theoretically alter  the
+             value !*/
+    sprintf(ErrStr, "Cannot open file %s", name);
          SysError(ErrStr, FILE_ERROR);
       }
    }

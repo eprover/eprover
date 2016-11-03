@@ -195,7 +195,7 @@ long ConcatFiles(char* target, char** sources)
       in = InputOpen(sources[i], true);
       while((c = getc(in))!= EOF)
       {
-	 putc(c, out);
+    putc(c, out);
       }
       InputClose(in);
    }
@@ -335,7 +335,7 @@ char *FileFindBaseName(char* name)
    {
       if(*name == '/')
       {
-	 res = name+1;
+    res = name+1;
       }
    }
    return res;

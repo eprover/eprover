@@ -60,7 +60,7 @@ void       AnnoTermFree(TB_p bank, AnnoTerm_p junk);
 #define    AnnoTermFreeNoRef(junk) AnnoTermCellFree(junk)
 AnnoTerm_p AnnoTermParse(Scanner_p in, TB_p bank, long expected);
 void       AnnoTermPrint(FILE* out, TB_p bank, AnnoTerm_p term, bool
-			 fullterms);
+          fullterms);
 void       AnnoTermRecToFlatEnc(TB_p bank, AnnoTerm_p term);
 
 
@@ -74,10 +74,10 @@ bool       AnnoSetAddTerm(AnnoSet_p set, AnnoTerm_p term);
 AnnoSet_p  AnnoSetParse(Scanner_p in, TB_p bank, long expected);
 void       AnnoSetPrint(FILE* out, AnnoSet_p set);
 bool       AnnoSetComputePatternSubst(PatternSubst_p subst, AnnoSet_p
-				       set);
+                   set);
 long       AnnoSetRemoveByIdent(AnnoSet_p set, long set_ident);
 long       AnnoSetRemoveExceptIdentList(AnnoSet_p set, PStack_p
-					set_idents);
+               set_idents);
 long       AnnoSetFlatten(AnnoSet_p set, PStack_p set_idents);
 void       AnnoSetNormalizeFlatAnnos(AnnoSet_p set);
 

@@ -185,8 +185,8 @@ int main(int argc, char* argv[])
    res = PCLProtCheck(prot,prover,executable,time_limit, &unchecked);
 
    fprintf(GlobalOut,
-	      "# Successfully checked %ld of %ld steps (%ld unchecked): ",
-	      res, steps, unchecked);
+         "# Successfully checked %ld of %ld steps (%ld unchecked): ",
+         res, steps, unchecked);
 
    if(res==steps)
    {
@@ -199,7 +199,7 @@ int main(int argc, char* argv[])
    else
    {
       fprintf(GlobalOut,
-	      " Failed to verify proof!\n");
+         " Failed to verify proof!\n");
    }
 
    PCLProtFree(prot);
@@ -246,60 +246,60 @@ CLState_p process_options(int argc, char* argv[])
       switch(handle->option_code)
       {
       case OPT_VERBOSE:
-	    Verbose = CLStateGetIntArg(handle, arg);
-	    break;
+       Verbose = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_HELP:
-	    print_help(stdout);
-	    exit(NO_ERROR);
+       print_help(stdout);
+       exit(NO_ERROR);
       case OPT_VERSION:
-	    printf(NAME " " VERSION "\n");
-	    exit(NO_ERROR);
+       printf(NAME " " VERSION "\n");
+       exit(NO_ERROR);
       case OPT_OUTPUT:
-	    outname = arg;
-	    break;
+       outname = arg;
+       break;
       case OPT_SILENT:
-	    OutputLevel = 0;
-	    break;
+       OutputLevel = 0;
+       break;
       case OPT_OUTPUTLEVEL:
-	    OutputLevel = CLStateGetIntArg(handle, arg);
-	    break;
+       OutputLevel = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_PROVERTYPE:
-	    if(strcmp(arg, "E")==0)
-	    {
-	       prover = EProver;
-	    }
-	    else if(strcmp(arg, "Otter")==0)
-	    {
-	       prover = Otter;
-	       OutputFormat = LOPFormat;
-	       EqnUseInfix = false;
-	    }
-	    else if(strcmp(arg, "SPASS")==0)
-	    {
-	       prover = Spass;
-	       OutputFormat = LOPFormat;
-	       EqnUseInfix = false;
-	    }
-	    else if(strcmp(arg, "scheme-setheo")==0)
-	    {
-	       prover = Setheo;
-	    }
-	    else
-	    {
-	       Error("Option -p (--prover-type) requires E, "
-		     "Otter, SPASS or scheme-setheo as an argument",
-		     USAGE_ERROR);
-	    }
-	    break;
+       if(strcmp(arg, "E")==0)
+       {
+          prover = EProver;
+       }
+       else if(strcmp(arg, "Otter")==0)
+       {
+          prover = Otter;
+          OutputFormat = LOPFormat;
+          EqnUseInfix = false;
+       }
+       else if(strcmp(arg, "SPASS")==0)
+       {
+          prover = Spass;
+          OutputFormat = LOPFormat;
+          EqnUseInfix = false;
+       }
+       else if(strcmp(arg, "scheme-setheo")==0)
+       {
+          prover = Setheo;
+       }
+       else
+       {
+          Error("Option -p (--prover-type) requires E, "
+           "Otter, SPASS or scheme-setheo as an argument",
+           USAGE_ERROR);
+       }
+       break;
       case OPT_EXECUTABLE:
-	    executable = arg;
-	    break;
+       executable = arg;
+       break;
       case OPT_TIME_LIMIT:
-	    time_limit = CLStateGetIntArg(handle, arg);
-	    break;
+       time_limit = CLStateGetIntArg(handle, arg);
+       break;
       default:
-	 assert(false);
-	 break;
+    assert(false);
+    break;
       }
    }
    return state;

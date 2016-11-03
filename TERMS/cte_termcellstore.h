@@ -72,9 +72,9 @@ Term_p  TermCellStoreExtract(TermCellStore_p store, Term_p term);
 bool    TermCellStoreDelete(TermCellStore_p store, Term_p term);
 
 void    TermCellStoreSetProp(TermCellStore_p store, TermProperties
-			     props);
+              props);
 void    TermCellStoreDelProp(TermCellStore_p store, TermProperties
-			     props);
+              props);
 
 #define TermCellStoreNodes(store) ((store)->entries)
 long    TermCellStoreCountNodes(TermCellStore_p store);

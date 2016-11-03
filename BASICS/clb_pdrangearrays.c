@@ -375,7 +375,7 @@ long PDRangeArrMembers(PDRangeArr_p array)
    {
       if(PDRangeArrElementP(array, i))
       {
-	 res++;
+    res++;
       }
    }
    return res;

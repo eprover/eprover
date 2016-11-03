@@ -60,7 +60,7 @@ Changes
 /----------------------------------------------------------------------*/
 
 bool TOGreater(OCB_p ocb, Term_p s, Term_p t, DerefType deref_s,
-	       DerefType deref_t)
+          DerefType deref_t)
 {
    bool res = false;
    /* Term_p tmp; */
@@ -79,26 +79,26 @@ bool TOGreater(OCB_p ocb, Term_p s, Term_p t, DerefType deref_s,
    switch(ocb->type)
    {
    case LPO:
-	 /* printf("# Starting comparison (greater, debug)\n");
-	 if((tmp = TermCheckConsistency(s, deref_s)))
-	 {
-	    printf("Term s (%p) is inconsistent at %p!\n", s, tmp);
-	 } */
-	 /* TermPrint(stdout, s, ocb->sig, deref_s); */
-	 /* printf(" -|- "); */
-	 /* if((tmp = TermCheckConsistency(t, deref_t)))
-	 {
-	    printf("Term t (%p) is inconsistent at %p!\n", t, tmp);
-	 } */
-	 /* TermPrint(stdout, t, ocb->sig, deref_t); */
-	 /* res1 = D_LPOGreater(ocb,  s, t, deref_s, deref_t);
-	    printf("# Comparison (greater, debug) done %d\n", res1); */
-	 /* CmpCacheInit(ocb->cmp_cache); */
-	 res = LPOGreater(ocb, s, t, deref_s, deref_t);
-	 /* printf("# Comparison (greater, current) done %d\n", res); */
-	 /* assert(res == res1); */
-	 /* CmpCacheClear(ocb->cmp_cache); */
-	 break;
+    /* printf("# Starting comparison (greater, debug)\n");
+    if((tmp = TermCheckConsistency(s, deref_s)))
+    {
+       printf("Term s (%p) is inconsistent at %p!\n", s, tmp);
+    } */
+    /* TermPrint(stdout, s, ocb->sig, deref_s); */
+    /* printf(" -|- "); */
+    /* if((tmp = TermCheckConsistency(t, deref_t)))
+    {
+       printf("Term t (%p) is inconsistent at %p!\n", t, tmp);
+    } */
+    /* TermPrint(stdout, t, ocb->sig, deref_t); */
+    /* res1 = D_LPOGreater(ocb,  s, t, deref_s, deref_t);
+       printf("# Comparison (greater, debug) done %d\n", res1); */
+    /* CmpCacheInit(ocb->cmp_cache); */
+    res = LPOGreater(ocb, s, t, deref_s, deref_t);
+    /* printf("# Comparison (greater, current) done %d\n", res); */
+    /* assert(res == res1); */
+    /* CmpCacheClear(ocb->cmp_cache); */
+    break;
    case LPOCopy:
          res = LPOGreaterCopy(ocb, s, t, deref_s, deref_t);
          break;
@@ -109,17 +109,17 @@ bool TOGreater(OCB_p ocb, Term_p s, Term_p t, DerefType deref_s,
          res = LPO4GreaterCopy(ocb, s, t, deref_s, deref_t);
          break;
    case RPO:
-	 assert(false && "RPO not yet implemented!");
-	 break;
+    assert(false && "RPO not yet implemented!");
+    break;
    case KBO:
-	 res = KBOGreater(ocb, s, t, deref_s, deref_t);
-	 break;
+    res = KBOGreater(ocb, s, t, deref_s, deref_t);
+    break;
    case KBO6:
-	 res = KBO6Greater(ocb, s, t, deref_s, deref_t);
-	 break;
+    res = KBO6Greater(ocb, s, t, deref_s, deref_t);
+    break;
    default:
-	 assert(false);
-	 break;
+    assert(false);
+    break;
    }
    return res;
 }
@@ -138,7 +138,7 @@ bool TOGreater(OCB_p ocb, Term_p s, Term_p t, DerefType deref_s,
 /----------------------------------------------------------------------*/
 
 CompareResult TOCompare(OCB_p ocb, Term_p s, Term_p t, DerefType deref_s,
-	       DerefType deref_t)
+          DerefType deref_t)
 {
    CompareResult res = to_uncomparable /* , res1 = to_uncomparable*/;
    /* Term_p tmp; */
@@ -156,51 +156,51 @@ CompareResult TOCompare(OCB_p ocb, Term_p s, Term_p t, DerefType deref_s,
    switch(ocb->type)
    {
    case LPO:
-	 /* printf("# Starting comparison (Compare, debug), %ld, %ld \n", deref_s,deref_t);
-	 if((tmp = TermCheckConsistency(s, deref_s)))
-	 {
-	    printf("Term s (%p) is inconsistent at %p!\n", s, tmp);
-	 } */
-	 /* TermPrint(stdout, s, ocb->sig, deref_s); */
-	 /* printf(" -|- "); */
-	 /* if((tmp = TermCheckConsistency(t, deref_t)))
-	 {
-	    printf("Term t (%p) is inconsistent at %p!\n", t, tmp);
-	 } */
-	 /* TermPrint(stdout, t, ocb->sig, deref_t); */
-	 /* printf("\n"); */
-	 /* res1 = D_LPOCompare(ocb, s, t, deref_s, deref_t);
-	    printf("# Comparison (debug) done %d\n",res); */
-	 /* CmpCacheInit(ocb->cmp_cache); */
-	 res = LPOCompare(ocb, s, t, deref_s, deref_t);
-	 /* printf("# Comparison (Compare, current) done %d\n",res); */
-	 /* assert(res == res1); */
-	 /* CmpCacheClear(ocb->cmp_cache); */
-	 break;
+    /* printf("# Starting comparison (Compare, debug), %ld, %ld \n", deref_s,deref_t);
+    if((tmp = TermCheckConsistency(s, deref_s)))
+    {
+       printf("Term s (%p) is inconsistent at %p!\n", s, tmp);
+    } */
+    /* TermPrint(stdout, s, ocb->sig, deref_s); */
+    /* printf(" -|- "); */
+    /* if((tmp = TermCheckConsistency(t, deref_t)))
+    {
+       printf("Term t (%p) is inconsistent at %p!\n", t, tmp);
+    } */
+    /* TermPrint(stdout, t, ocb->sig, deref_t); */
+    /* printf("\n"); */
+    /* res1 = D_LPOCompare(ocb, s, t, deref_s, deref_t);
+       printf("# Comparison (debug) done %d\n",res); */
+    /* CmpCacheInit(ocb->cmp_cache); */
+    res = LPOCompare(ocb, s, t, deref_s, deref_t);
+    /* printf("# Comparison (Compare, current) done %d\n",res); */
+    /* assert(res == res1); */
+    /* CmpCacheClear(ocb->cmp_cache); */
+    break;
    case LPOCopy:
-	 res = LPOCompareCopy(ocb, s, t, deref_s, deref_t);
-	 break;
+    res = LPOCompareCopy(ocb, s, t, deref_s, deref_t);
+    break;
    case LPO4:
-	 res = LPO4Compare(ocb, s, t, deref_s, deref_t);
-	 break;
+    res = LPO4Compare(ocb, s, t, deref_s, deref_t);
+    break;
    case LPO4Copy:
-	 res = LPO4CompareCopy(ocb, s, t, deref_s, deref_t);
-	 break;
+    res = LPO4CompareCopy(ocb, s, t, deref_s, deref_t);
+    break;
    case RPO:
-	 assert(false && "RPO not yet implemented!");
-	 break;
+    assert(false && "RPO not yet implemented!");
+    break;
    case KBO:
-	 res = KBOCompare(ocb, s, t, deref_s, deref_t);
-	 break;
+    res = KBOCompare(ocb, s, t, deref_s, deref_t);
+    break;
    case KBO6:
-	 res = KBO6Compare(ocb, s, t, deref_s, deref_t);
-	 break;
+    res = KBO6Compare(ocb, s, t, deref_s, deref_t);
+    break;
    case EMPTY:
          res  = to_uncomparable;
          break;
    default:
-	 assert(false);
-	 break;
+    assert(false);
+    break;
    }
    /* printf("...TOCompare (%d)\n", res);  */
    return res;
@@ -227,18 +227,18 @@ CompareResult TOCompareSymbolParse(Scanner_p in)
    switch(AktToken(in)->tok)
    {
    case LesserSign:
-	 res = to_lesser;
-	 break;
+    res = to_lesser;
+    break;
    case GreaterSign:
-	 res = to_greater;
-	 break;
+    res = to_greater;
+    break;
    case EqualSign:
-	 res = to_equal;
-	 break;
+    res = to_equal;
+    break;
    default:
-	 assert(false);
-	 res = to_uncomparable;
-	 break;
+    assert(false);
+    res = to_uncomparable;
+    break;
    }
    NextToken(in);
 
@@ -288,12 +288,12 @@ PStackPointer TOSymbolComparisonChainParse(Scanner_p in, OCB_p ocb)
 
       if(!ocb_state)
       {
-	 errpos = DStrAlloc();
+    errpos = DStrAlloc();
 
-	 DStrAppendStr(errpos, PosRep(type1, source1, line1, column1));
-	 DStrAppendStr(errpos, " Precedence incompatible with previous ordering!");
-	 Error(DStrView(errpos), SYNTAX_ERROR);
-	 DStrFree(errpos);
+    DStrAppendStr(errpos, PosRep(type1, source1, line1, column1));
+    DStrAppendStr(errpos, " Precedence incompatible with previous ordering!");
+    Error(DStrView(errpos), SYNTAX_ERROR);
+    DStrFree(errpos);
       }
       DStrReleaseRef(source1);
       line1   = line2;
@@ -335,8 +335,8 @@ PStackPointer TOPrecedenceParse(Scanner_p in, OCB_p ocb)
       res = TOSymbolComparisonChainParse(in, ocb);
       while(TestInpTok(in, Comma))
       {
-	 AcceptInpTok(in, Comma);
-	 res = TOSymbolComparisonChainParse(in, ocb);
+    AcceptInpTok(in, Comma);
+    res = TOSymbolComparisonChainParse(in, ocb);
       }
    }
    return res;
@@ -396,8 +396,8 @@ long TOWeightsParse(Scanner_p in, OCB_p ocb)
       res++;
       while(TestInpTok(in, Comma))
       {
-	 AcceptInpTok(in, Comma);
-	 TOSymbolWeightParse(in, ocb);
+    AcceptInpTok(in, Comma);
+    TOSymbolWeightParse(in, ocb);
          res++;
       }
    }

@@ -129,7 +129,7 @@ void      PCLStepPrintTSTP(FILE* out, PCLStep_p step);
 void      PCLStepPrintTPTP(FILE* out, PCLStep_p step);
 void      PCLStepPrintLOP(FILE* out, PCLStep_p step);
 void      PCLStepPrintFormat(FILE* out, PCLStep_p step, bool data,
-			     OutputFormatType format);
+              OutputFormatType format);
 void      PCLStepPrintExample(FILE* out, PCLStep_p step, long id,
                               long proof_steps, long total_steps);
 int       PCLStepIdCompare(const void* s1, const void* s2);

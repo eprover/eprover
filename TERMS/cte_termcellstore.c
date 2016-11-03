@@ -55,7 +55,7 @@ Changes
 /----------------------------------------------------------------------*/
 
 static void collect_unmarked_termcells(PStack_p res_stack, Term_p tree,
-				       TermProperties gc_state)
+                   TermProperties gc_state)
 {
    PStack_p stack = PStackAlloc();
 
@@ -66,12 +66,12 @@ static void collect_unmarked_termcells(PStack_p res_stack, Term_p tree,
       tree = PStackPopP(stack);
       if(tree)
       {
-	 if(GiveProps(tree,TPGarbageFlag)==gc_state)
-	 {
-	    PStackPushP(res_stack, tree);
-	 }
-	 PStackPushP(stack, tree->lson);
-	 PStackPushP(stack, tree->rson);
+    if(GiveProps(tree,TPGarbageFlag)==gc_state)
+    {
+       PStackPushP(res_stack, tree);
+    }
+    PStackPushP(stack, tree->lson);
+    PStackPushP(stack, tree->rson);
       }
    }
    PStackFree(stack);
@@ -325,9 +325,9 @@ long TermCellStoreGCSweep(TermCellStore_p store, TermProperties gc_state)
       collect_unmarked_termcells(del_stack, store->store[i], gc_state);
       while(!PStackEmpty(del_stack))
       {
-	 cell = PStackPopP(del_stack);
-	 TermCellStoreDelete(store, cell);
-	 recovered++;
+    cell = PStackPopP(del_stack);
+    TermCellStoreDelete(store, cell);
+    recovered++;
       }
    }
    PStackFree(del_stack);

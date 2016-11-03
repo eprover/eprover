@@ -65,21 +65,21 @@ typedef struct ocb_cell
    TermOrdering  type;
    long          sig_size;
    Sig_p         sig;          /* Slightly hacked...this is only an
-				   unsupervised reference (but will
-				   stay)! Always free the OCB before
-				   the signature and the signature
-				   independently after the OCB. */
+               unsupervised reference (but will
+               stay)! Always free the OCB before
+               the signature and the signature
+               independently after the OCB. */
    FunCode       min_constant;
    long          *weights;     /* Array of weights */
    long          var_weight;   /* Variable Weight */
    long          *prec_weights;/* Precedence defined by weight - only
-				  for total precedences */
+              for total precedences */
    CompareResult *precedence;  /* The most general case, interpreted
-				  as two-dimensional array, indexed by
-				  two symbols */
+              as two-dimensional array, indexed by
+              two symbols */
    bool           no_lit_cmp;  /* If true, all literals are
-				  uncomparable (useful for SOS
-				  strategy) */
+              uncomparable (useful for SOS
+              strategy) */
    PStack_p       statestack;  /* Contains backtrack information */
    long            wb;
    long            pos_bal;
@@ -113,7 +113,7 @@ void          OCBFree(OCB_p junk);
 void          OCBDebugPrint(FILE* out, OCB_p ocb);
 
 PStackPointer OCBPrecedenceAddTuple(OCB_p ocb, FunCode f1, FunCode f2,
-				    CompareResult relation);
+                CompareResult relation);
 
 bool          OCBPrecedenceBacktrack(OCB_p ocb, PStackPointer state);
 #define OCBPrecedenceGetState(ocb) \
@@ -127,7 +127,7 @@ bool          OCBPrecedenceBacktrack(OCB_p ocb, PStackPointer state);
               (assert((f)>0), assert((f)<=(ocb)->sig_size), &((ocb)->weights[(f)]))
 #define OCBFunComparePos(ocb, f1, f2) \
               (assert((f1)>0), assert((f2)>0), assert((f1)<=(ocb)->sig_size),\
-	       assert((f2)<=(ocb)->sig_size),\
+          assert((f2)<=(ocb)->sig_size),\
               (&((ocb)->precedence[((f2)-1)*(ocb)->sig_size+((f1)-1)])))
 */
 

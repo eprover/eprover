@@ -59,7 +59,7 @@ typedef struct eval_cell
 {
    int               eval_no;    /* Number of simple evaluations */
    long              eval_count; /* Evaluation cell count, used as
-				    FIFO tiebreaker */
+                FIFO tiebreaker */
    void*             object;     /* Evaluated object.*/
    SimpleEvalCell    evals[];
 }EvalCell, *Eval_p;

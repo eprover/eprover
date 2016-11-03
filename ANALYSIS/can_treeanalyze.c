@@ -54,7 +54,7 @@ Changes
 /----------------------------------------------------------------------*/
 
 static long select_examples_from_proof(InfState_p state, long
-				       target_number)
+                   target_number)
 {
    long res,
         max_distance,
@@ -73,9 +73,9 @@ static long select_examples_from_proof(InfState_p state, long
       oracle = res + PDArrayElementInt(dist, i);
       if(oracle > target_number)
       {
-	 rest = target_number - res;
-	 distance = i;
-	 break;
+    rest = target_number - res;
+    distance = i;
+    break;
       }
       res = oracle;
    }
@@ -86,17 +86,17 @@ static long select_examples_from_proof(InfState_p state, long
       clause = PDArrayElementP(state->clause_store,i);
       if(clause && ClauseQueryProp(clause, CPIsSelected))
       {
-	 if(clause->stats.proof_distance < distance)
-	 {
-	    ClauseSetProp(clause, CPOpFlag);
-	    res++;
-	 }
-	 if(rest && (clause->stats.proof_distance == distance))
-	 {
-	    ClauseSetProp(clause, CPOpFlag);
-	    rest--;
-	    res++;
-	 }
+    if(clause->stats.proof_distance < distance)
+    {
+       ClauseSetProp(clause, CPOpFlag);
+       res++;
+    }
+    if(rest && (clause->stats.proof_distance == distance))
+    {
+       ClauseSetProp(clause, CPOpFlag);
+       rest--;
+       res++;
+    }
       }
    }
    PDArrayFree(dist);
@@ -118,7 +118,7 @@ static long select_examples_from_proof(InfState_p state, long
 /----------------------------------------------------------------------*/
 
 static long select_examples_from_non_proof(InfState_p state, long
-					   target_number)
+                  target_number)
 {
    long res = 0, i;
    CompClause_p clause;
@@ -128,13 +128,13 @@ static long select_examples_from_non_proof(InfState_p state, long
       clause = PDArrayElementP(state->clause_store,i);
       if(clause&&ClauseQueryProp(clause, CPIsSelected))
       {
-	 if(res == target_number)
-	 {
-	    break;
-	 }
-	 res++;
-	 clause->stats.proof_distance = PROOF_DIST_DEFAULT;
-	 ClauseSetProp(clause, CPOpFlag);
+    if(res == target_number)
+    {
+       break;
+    }
+    res++;
+    clause->stats.proof_distance = PROOF_DIST_DEFAULT;
+    ClauseSetProp(clause, CPOpFlag);
       }
    }
    return res;
@@ -172,10 +172,10 @@ long ProofMarkProofClauses(InfState_p proof)
       clause = PDArrayElementP(proof->clause_store,i);
       if(clause)
       {
-	 if(ClauseQueryProp(clause, CPIsFinal))
-	 {
-	    PStackPushP(jobs, clause);
-	 }
+    if(ClauseQueryProp(clause, CPIsFinal))
+    {
+       PStackPushP(jobs, clause);
+    }
       }
    }
    while(!PStackEmpty(jobs))
@@ -183,7 +183,7 @@ long ProofMarkProofClauses(InfState_p proof)
       clause = PStackPopP(jobs);
       if(ClauseQueryProp(clause, CPIsProofClause))
       {
-	 continue;
+    continue;
       }
       ClauseSetProp(clause, CPIsProofClause);
       proof_nodes++;
@@ -191,14 +191,14 @@ long ProofMarkProofClauses(InfState_p proof)
       traverse = PTreeTraverseInit(clause->g_parents);
       while((node = PTreeTraverseNext(traverse)))
       {
-	 PStackPushP(jobs, node->key);
+    PStackPushP(jobs, node->key);
       }
       PTreeTraverseExit(traverse);
 
       traverse = PTreeTraverseInit(clause->s_parents);
       while((node = PTreeTraverseNext(traverse)))
       {
-	 PStackPushP(jobs, node->key);
+    PStackPushP(jobs, node->key);
       }
       PTreeTraverseExit(traverse);
    }
@@ -221,8 +221,8 @@ long ProofMarkProofClauses(InfState_p proof)
 /----------------------------------------------------------------------*/
 
 void ProofSetClauseStatistics(InfState_p proof, long s_used, long
-			      s_unused, long g_used, long g_unused,
-			      long proof_distance)
+               s_unused, long g_used, long g_unused,
+               long proof_distance)
 {
    long i;
    CompClause_p clause;
@@ -232,11 +232,11 @@ void ProofSetClauseStatistics(InfState_p proof, long s_used, long
       clause = PDArrayElementP(proof->clause_store,i);
       if(clause)
       {
-	 clause->stats.simplify_used   = s_used;
-	 clause->stats.simplify_unused = s_unused;
-	 clause->stats.generate_used   = g_used;
-	 clause->stats.generate_unused = g_unused;
-	 clause->stats.proof_distance  = proof_distance;
+    clause->stats.simplify_used   = s_used;
+    clause->stats.simplify_unused = s_unused;
+    clause->stats.generate_used   = g_used;
+    clause->stats.generate_unused = g_unused;
+    clause->stats.proof_distance  = proof_distance;
       }
    }
 }
@@ -266,40 +266,40 @@ void ProofComputeParentNumbers(InfState_p proof)
       clause = PDArrayElementP(proof->clause_store,i);
       if(clause)
       {
-	 if(ClauseQueryProp(clause, CPIsProofClause))
-	 {
-	    traverse = PTreeTraverseInit(clause->g_parents);
-	    while((node = PTreeTraverseNext(traverse)))
-	    {
-	       parent = node->key;
-	       parent->stats.generate_used++;
-	    }
-	    PTreeTraverseExit(traverse);
-	    traverse = PTreeTraverseInit(clause->s_parents);
-	    while((node = PTreeTraverseNext(traverse)))
-	    {
-	       parent = node->key;
-	       parent->stats.simplify_used++;
-	    }
-	    PTreeTraverseExit(traverse);
-	 }
-	 else
-	 {
-	    traverse = PTreeTraverseInit(clause->g_parents);
-	    while((node = PTreeTraverseNext(traverse)))
-	    {
-	       parent = node->key;
-	       parent->stats.generate_unused++;
-	    }
-	    PTreeTraverseExit(traverse);
-	    traverse = PTreeTraverseInit(clause->s_parents);
-	    while((node = PTreeTraverseNext(traverse)))
-	    {
-	       parent = node->key;
-	       parent->stats.simplify_unused++;
-	    }
-	    PTreeTraverseExit(traverse);
-	 }
+    if(ClauseQueryProp(clause, CPIsProofClause))
+    {
+       traverse = PTreeTraverseInit(clause->g_parents);
+       while((node = PTreeTraverseNext(traverse)))
+       {
+          parent = node->key;
+          parent->stats.generate_used++;
+       }
+       PTreeTraverseExit(traverse);
+       traverse = PTreeTraverseInit(clause->s_parents);
+       while((node = PTreeTraverseNext(traverse)))
+       {
+          parent = node->key;
+          parent->stats.simplify_used++;
+       }
+       PTreeTraverseExit(traverse);
+    }
+    else
+    {
+       traverse = PTreeTraverseInit(clause->g_parents);
+       while((node = PTreeTraverseNext(traverse)))
+       {
+          parent = node->key;
+          parent->stats.generate_unused++;
+       }
+       PTreeTraverseExit(traverse);
+       traverse = PTreeTraverseInit(clause->s_parents);
+       while((node = PTreeTraverseNext(traverse)))
+       {
+          parent = node->key;
+          parent->stats.simplify_unused++;
+       }
+       PTreeTraverseExit(traverse);
+    }
       }
    }
 }
@@ -334,22 +334,22 @@ void ProofComputeDistance(InfState_p state)
       clause = PDArrayElementP(state->clause_store,i);
       if(clause)
       {
-	 if(ClauseQueryProp(clause, CPIsProofClause))
-	 {
-	    clause->stats.proof_distance = 0;
-	 }
-	 else
-	 {
-	    distance = 0;
-	    traverse = PTreeTraverseInit(clause->g_parents);
-	    while((cell = PTreeTraverseNext(traverse)))
-	    {
-	       parent = cell->key;
-	       distance = MAX(distance, parent->stats.proof_distance);
-	    }
-	    PTreeTraverseExit(traverse);
-	    clause->stats.proof_distance = distance+1;
-	 }
+    if(ClauseQueryProp(clause, CPIsProofClause))
+    {
+       clause->stats.proof_distance = 0;
+    }
+    else
+    {
+       distance = 0;
+       traverse = PTreeTraverseInit(clause->g_parents);
+       while((cell = PTreeTraverseNext(traverse)))
+       {
+          parent = cell->key;
+          distance = MAX(distance, parent->stats.proof_distance);
+       }
+       PTreeTraverseExit(traverse);
+       clause->stats.proof_distance = distance+1;
+    }
       }
    }
 }
@@ -372,7 +372,7 @@ void ProofComputeDistance(InfState_p state)
 /----------------------------------------------------------------------*/
 
 long ProofDistanceDistrib(InfState_p state, ClauseProperties filter,
-			  PDArray_p distrib)
+           PDArray_p distrib)
 {
    long         i, old_val, res = 0;
    CompClause_p clause;
@@ -382,15 +382,15 @@ long ProofDistanceDistrib(InfState_p state, ClauseProperties filter,
       clause = PDArrayElementP(state->clause_store,i);
       if(clause)
       {
-	 if(ClauseQueryProp(clause, filter) &&
-	    (clause->stats.proof_distance!=PROOF_DIST_INFINITY))
-	 {
-	    old_val = PDArrayElementInt(distrib,
-					clause->stats.proof_distance)+1;
-	    PDArrayAssignInt(distrib, clause->stats.proof_distance,
-				    old_val);
-	    res = MAX(res, clause->stats.proof_distance);
-	 }
+    if(ClauseQueryProp(clause, filter) &&
+       (clause->stats.proof_distance!=PROOF_DIST_INFINITY))
+    {
+       old_val = PDArrayElementInt(distrib,
+               clause->stats.proof_distance)+1;
+       PDArrayAssignInt(distrib, clause->stats.proof_distance,
+                old_val);
+       res = MAX(res, clause->stats.proof_distance);
+    }
       }
    }
    return res;

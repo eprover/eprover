@@ -268,17 +268,17 @@ CLState_p process_options(int argc, char* argv[])
       switch(handle->option_code)
       {
       case OPT_VERBOSE:
-	    Verbose = CLStateGetIntArg(handle, arg);
-	    break;
+       Verbose = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_HELP:
-	    print_help(stdout);
-	    exit(NO_ERROR);
+       print_help(stdout);
+       exit(NO_ERROR);
       case OPT_VERSION:
-	    fprintf(stdout, "E " VERSION " " E_NICKNAME "\n");
-	    exit(NO_ERROR);
+       fprintf(stdout, "E " VERSION " " E_NICKNAME "\n");
+       exit(NO_ERROR);
       case OPT_OUTPUT:
-	    outname = arg;
-	    break;
+       outname = arg;
+       break;
       case OPT_SERVER:
             server = arg;
             break;
@@ -295,8 +295,8 @@ CLState_p process_options(int argc, char* argv[])
             }
             break;
       default:
-	    assert(false && "Unknown option");
-	    break;
+       assert(false && "Unknown option");
+       break;
       }
    }
    return state;

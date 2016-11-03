@@ -140,8 +140,8 @@ static bool select_inherited_literal(Clause_p clause)
    {
       if(EqnIsNegative(handle)&&EqnQueryProp(handle,EPIsPMIntoLit))
       {
-	 found = true;
-	 break;
+    found = true;
+    break;
       }
    }
    if(!found)
@@ -152,7 +152,7 @@ static bool select_inherited_literal(Clause_p clause)
    {
       if(EqnQueryProp(handle,EPIsPMIntoLit))
       {
-	 EqnSetProp(handle, EPIsSelected);
+    EqnSetProp(handle, EPIsSelected);
       }
    }
    return true;
@@ -241,7 +241,7 @@ void DoLiteralSelection(ProofControl_p control, Clause_p clause)
    {
       if(select_inherited_literal(clause))
       {
-	 return;
+    return;
       }
    }
    if(clause->neg_lit_no &&
@@ -252,8 +252,8 @@ void DoLiteralSelection(ProofControl_p control, Clause_p clause)
       (ClauseLiteralNumber(clause) >= control->heuristic_parms.all_lit_sel_min) &&
       (ClauseLiteralNumber(clause) <= control->heuristic_parms.all_lit_sel_max) &&
       ((control->heuristic_parms.weight_sel_min==0) || /* Efficiency hack - only
-					  compute clause weight if this
-					  option is activated */
+                 compute clause weight if this
+                 option is activated */
        (control->heuristic_parms.weight_sel_min<=ClauseStandardWeight(clause))))
    {
       assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);

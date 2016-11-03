@@ -425,30 +425,30 @@ int main(int argc, char* argv[])
    switch(algo)
    {
    case LRecursive:
-	 PCLProtRecFindLemmas(prot, lp, iw, max_lemmas, min_quality);
-	 break;
+    PCLProtRecFindLemmas(prot, lp, iw, max_lemmas, min_quality);
+    break;
    case LIterative:
-	 PCLProtSeqFindLemmas(prot, lp, iw, max_lemmas, min_quality);
-	 break;
+    PCLProtSeqFindLemmas(prot, lp, iw, max_lemmas, min_quality);
+    break;
    case LFlat:
-	 PCLProtFlatFindLemmas(prot, lp, iw, max_lemmas, min_quality);
-	 break;
+    PCLProtFlatFindLemmas(prot, lp, iw, max_lemmas, min_quality);
+    break;
    default:
-	 assert(false && "Unknown algorithm type ???");
-	 break;
+    assert(false && "Unknown algorithm type ???");
+    break;
    }
    VERBOUT("Lemmas selected\n");
    switch(OutputLevel)
    {
    case 0:
-	 break;
+    break;
    case 1:
    case 2:
-	 PCLProtPrintPropClauses(GlobalOut, prot, PCLIsLemma, outputformat);
-	 break;
+    PCLProtPrintPropClauses(GlobalOut, prot, PCLIsLemma, outputformat);
+    break;
    default:
-	 PCLProtPrint(GlobalOut, prot, outputformat);
-	 break;
+    PCLProtPrint(GlobalOut, prot, outputformat);
+    break;
    }
 
    PCLProtFree(prot);
@@ -498,121 +498,121 @@ CLState_p process_options(int argc, char* argv[])
       switch(handle->option_code)
       {
       case OPT_VERBOSE:
-	    Verbose = CLStateGetIntArg(handle, arg);
-	    break;
+       Verbose = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_HELP:
-	    print_help(stdout);
-	    exit(NO_ERROR);
+       print_help(stdout);
+       exit(NO_ERROR);
       case OPT_VERSION:
-	    printf(NAME " " VERSION "\n");
-	    exit(NO_ERROR);
+       printf(NAME " " VERSION "\n");
+       exit(NO_ERROR);
       case OPT_OUTPUT:
-	    outname = arg;
-	    break;
+       outname = arg;
+       break;
       case OPT_SILENT:
-	    OutputLevel = 0;
-	    break;
+       OutputLevel = 0;
+       break;
       case OPT_OUTPUTLEVEL:
             OutputLevel = CLStateGetIntArg(handle, arg);
             break;
       case OPT_TPTP_PRINT:
       case OPT_TPTP_FORMAT:
             outputformat = tptp_format;
-	    break;
+       break;
       case OPT_TSTP_PRINT:
       case OPT_TSTP_FORMAT:
             outputformat = tstp_format;
-	    break;
+       break;
       case OPT_LOP_PRINT:
             outputformat = lop_format;
       case OPT_ITERATIVE_LEMMAS:
-	    algo = LIterative;
-	    break;
+       algo = LIterative;
+       break;
       case OPT_RECURSIVE_LEMMAS:
-	    algo = LRecursive;
-	    break;
+       algo = LRecursive;
+       break;
       case OPT_FLAT_LEMMAS:
-	    algo = LFlat;
-	    break;
+       algo = LFlat;
+       break;
       case OPT_ABS_LEMMA_LIMIT:
-	    max_lemmas = CLStateGetIntArg(handle, arg);
-	    max_lemmas_rel_p = false;
-	    break;
+       max_lemmas = CLStateGetIntArg(handle, arg);
+       max_lemmas_rel_p = false;
+       break;
       case OPT_REL_LEMMA_LIMIT:
-	    max_lemmas_rel = CLStateGetFloatArg(handle, arg);
-	    max_lemmas_rel_p = true;
-	    break;
+       max_lemmas_rel = CLStateGetFloatArg(handle, arg);
+       max_lemmas_rel_p = true;
+       break;
       case OPT_ABS_LEMQUAL_LIMIT:
-	    min_quality = CLStateGetFloatArg(handle, arg);
-	    min_quality_rel_p = false;
-	    break;
+       min_quality = CLStateGetFloatArg(handle, arg);
+       min_quality_rel_p = false;
+       break;
       case OPT_REL_LEMQUAL_LIMIT:
-	    min_quality_rel = CLStateGetFloatArg(handle, arg);
-	    min_quality_rel_p = true;
-	    break;
+       min_quality_rel = CLStateGetFloatArg(handle, arg);
+       min_quality_rel_p = true;
+       break;
       case OPT_LEMMA_TREE_BASE_W:
-	    lp->tree_base_weight = CLStateGetIntArg(handle, arg);
-	    break;
+       lp->tree_base_weight = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_LEMMA_SIZE_BASE_W:
-	    lp->size_base_weight = CLStateGetIntArg(handle, arg);
-	    break;
+       lp->size_base_weight = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_LEMMA_ACT_PM_W:
-	    lp->act_pm_w = CLStateGetFloatArg(handle, arg);
-	    break;
+       lp->act_pm_w = CLStateGetFloatArg(handle, arg);
+       break;
       case OPT_LEMMA_O_GEN_W:
-	    lp->o_gen_w = CLStateGetFloatArg(handle, arg);
-	    break;
+       lp->o_gen_w = CLStateGetFloatArg(handle, arg);
+       break;
       case OPT_LEMMA_ACT_SIMPL_W:
-	    lp->act_simpl_w = CLStateGetFloatArg(handle, arg);
-	    break;
+       lp->act_simpl_w = CLStateGetFloatArg(handle, arg);
+       break;
       case OPT_LEMMA_PAS_SIMPL_W:
-	    lp->pas_simpl_w = CLStateGetFloatArg(handle, arg);
-	    break;
+       lp->pas_simpl_w = CLStateGetFloatArg(handle, arg);
+       break;
       case OPT_NO_REFERENCE_WEIGHTS:
-	    lp->act_pm_w    = 0;
-	    lp->o_gen_w     = 0;
-	    lp->pas_simpl_w = 0;
-	    lp->pas_simpl_w = 0;
-	    break;
+       lp->act_pm_w    = 0;
+       lp->o_gen_w     = 0;
+       lp->pas_simpl_w = 0;
+       lp->pas_simpl_w = 0;
+       break;
       case OPT_LEMMA_HORN_BONUS:
-	    lp->horn_bonus = CLStateGetFloatArg(handle, arg);
-	    break;
+       lp->horn_bonus = CLStateGetFloatArg(handle, arg);
+       break;
       case OPT_INITIAL_WEIGHT:
-	    (*iw)[PCLOpInitial] = CLStateGetIntArg(handle, arg);
-	    break;
+       (*iw)[PCLOpInitial] = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_QUOTE_WEIGHT:
-	    (*iw)[PCLOpQuote] = CLStateGetIntArg(handle, arg);
-	    break;
+       (*iw)[PCLOpQuote] = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_PARAMOD_WEIGHT:
-	    (*iw)[PCLOpParamod] = CLStateGetIntArg(handle, arg);
-	    break;
+       (*iw)[PCLOpParamod] = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_ERESOLUTION_WEIGHT:
-	    (*iw)[PCLOpEResolution] = CLStateGetIntArg(handle, arg);
-	    break;
+       (*iw)[PCLOpEResolution] = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_EFACTORING_WEIGHT:
-	    (*iw)[PCLOpEFactoring] = CLStateGetIntArg(handle, arg);
-	    break;
+       (*iw)[PCLOpEFactoring] = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_SIMPLIFYREFLECT_WEIGHT:
-	    (*iw)[PCLOpSimplifyReflect] = CLStateGetIntArg(handle, arg);
-	    break;
+       (*iw)[PCLOpSimplifyReflect] = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_ACRESOLUTION_WEIGHT:
-	    (*iw)[PCLOpACResolution] = CLStateGetIntArg(handle, arg);
-	    break;
+       (*iw)[PCLOpACResolution] = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_REWRITE_WEIGHT:
-	    (*iw)[PCLOpRewrite] = CLStateGetIntArg(handle, arg);
-	    break;
+       (*iw)[PCLOpRewrite] = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_UREWRITE_WEIGHT:
-	    (*iw)[PCLOpURewrite] = CLStateGetIntArg(handle, arg);
-	    break;
+       (*iw)[PCLOpURewrite] = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_CLAUSENORMALIZE_WEIGHT:
-	    (*iw)[PCLOpClauseNormalize] = CLStateGetIntArg(handle, arg);
-	    break;
+       (*iw)[PCLOpClauseNormalize] = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_SPLITCLAUSE_WEIGHT:
-	    (*iw)[PCLOpSplitClause] = CLStateGetIntArg(handle, arg);
-	    break;
+       (*iw)[PCLOpSplitClause] = CLStateGetIntArg(handle, arg);
+       break;
       default:
-	    assert(false);
-	    break;
+       assert(false);
+       break;
       }
    }
    return state;
@@ -621,10 +621,10 @@ CLState_p process_options(int argc, char* argv[])
 void print_help(FILE* out)
 {
    fprintf(out,
-	   "\n"
-	   "\n"
+      "\n"
+      "\n"
 NAME " " VERSION "\n"
-	   "\n"
+      "\n"
 "Usage: " NAME " [options] [files]\n"
 "\n"
 "Read an UPCL2 protocol and suggest certain steps as lemmas."

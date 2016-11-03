@@ -41,7 +41,7 @@ Changes
 
 
 int  ClauseCountExtSymbols(Clause_p clause, Sig_p sig, long
-			   min_arity);
+            min_arity);
 
 FunCode TermAddVarDistribution(Term_p term, PDArray_p dist_array);
 FunCode EqnAddVarDistribution(Eqn_p eqn, PDArray_p dist_array);
@@ -56,7 +56,7 @@ long ClauseCountMaximalTerms(Clause_p clause);
 long ClauseCountMaximalLiterals(Clause_p clause);
 long ClauseCountUnorientableLiterals(Clause_p clause);
 long ClauseTPTPDepthInfoAdd(Clause_p clause, long* depthmax, long*
-			    depthsum, long* count);
+             depthsum, long* count);
 
 void ClauseInfoPrint(FILE* out, Clause_p clause);
 void ClauseLinePrint(FILE* out, Clause_p clause, bool printinfo);

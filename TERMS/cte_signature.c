@@ -59,13 +59,13 @@ static void sig_print_operator(FILE* out, Sig_p sig, FunCode op, bool comments)
    if(comments)
    {
       fprintf(out, "   %-13s : %2d    #  %2ld %2d \n",
-	      sig->f_info[op].name, sig->f_info[op].arity, op,
-	      sig->f_info[op].properties);
+         sig->f_info[op].name, sig->f_info[op].arity, op,
+         sig->f_info[op].properties);
    }
    else
    {
       fprintf(out, "   %-13s : %2d\n",
-	      sig->f_info[op].name, sig->f_info[op].arity);
+         sig->f_info[op].name, sig->f_info[op].arity);
    }
 }
 
@@ -572,12 +572,12 @@ FunCode SigInsertId(Sig_p sig, const char* name, int arity, bool special_id)
    {
       if(sig->f_info[pos].arity != arity)
       {
-	 printf("Problem: %s %d != %d\n", name, arity, sig->f_info[pos].arity);
-	 return 0; /* ...but incompatible */
+    printf("Problem: %s %d != %d\n", name, arity, sig->f_info[pos].arity);
+    return 0; /* ...but incompatible */
       }
       if(special_id)
       {
-	 SigSetSpecial(sig, pos, true);
+    SigSetSpecial(sig, pos, true);
       }
       return pos; /* all is fine... */
    }
@@ -587,7 +587,7 @@ FunCode SigInsertId(Sig_p sig, const char* name, int arity, bool special_id)
       /* sig->size+= DEFAULT_SIGNATURE_SIZE; */
       sig->size *= DEFAULT_SIGNATURE_GROW;
       sig->f_info  = SecureRealloc(sig->f_info,
-				   sizeof(FuncCell)*sig->size);
+               sizeof(FuncCell)*sig->size);
    }
 
    /* Insert the element in f_index and f_info */
@@ -648,7 +648,7 @@ void SigPrint(FILE* out, Sig_p sig)
    FunCode i;
 
    fprintf(out, "# Signature (%2ld symbols out of %2ld allocated):\n",
-	   sig->f_count, sig->size);
+      sig->f_count, sig->size);
    fprintf(out, "#     -Symbol-    -Arity- -Encoding-\n");
 
    for(i=1; i<=sig->f_count; i++)
@@ -679,7 +679,7 @@ void SigPrintSpecial(FILE* out, Sig_p sig)
    {
       if(SigIsSpecial(sig, i))
       {
-	 sig_print_operator(out, sig, i, true);
+    sig_print_operator(out, sig, i, true);
       }
    }
 }
@@ -705,18 +705,18 @@ void SigPrintACStatus(FILE* out, Sig_p sig)
    {
       if(SigQueryFuncProp(sig, i, FPIsAC))
       {
-	 fprintf(out, "# %s is AC\n", sig->f_info[i].name);
-	 continue;
+    fprintf(out, "# %s is AC\n", sig->f_info[i].name);
+    continue;
       }
       if(SigQueryFuncProp(sig, i, FPAssociative))
       {
-	 fprintf(out, "# %s is associative\n", sig->f_info[i].name);
-	 continue;
+    fprintf(out, "# %s is associative\n", sig->f_info[i].name);
+    continue;
       }
       if(SigQueryFuncProp(sig, i, FPCommutative))
       {
-	 fprintf(out, "# %s is commutative\n", sig->f_info[i].name);
-	 continue;
+    fprintf(out, "# %s is commutative\n", sig->f_info[i].name);
+    continue;
       }
    }
 }
@@ -812,7 +812,7 @@ FunCode SigParseSymbolDeclaration(Scanner_p in, Sig_p sig, bool special_id)
       DStrAppendInt(errpos, (long)arity);
       DStrAppendStr(errpos, " but registered with arity ");
       DStrAppendInt(errpos,
-		    (long)SigFindArity(sig, SigFindFCode(sig, DStrView(id))));
+          (long)SigFindArity(sig, SigFindFCode(sig, DStrView(id))));
       Error(DStrView(errpos), SYNTAX_ERROR);
       DStrFree(errpos);
    }
@@ -896,10 +896,10 @@ int SigFindMaxPredicateArity(Sig_p sig)
    for(i=sig->internal_symbols+1; i<=sig->f_count; i++)
    {
       if(SigIsPredicate(sig, i) &&
-	 !SigQueryFuncProp(sig, i, FPSpecial))
+    !SigQueryFuncProp(sig, i, FPSpecial))
       {
-	 arity = SigFindArity(sig,i);
-	 res = MAX(res,arity);
+    arity = SigFindArity(sig,i);
+    res = MAX(res,arity);
       }
    }
    return res;
@@ -927,10 +927,10 @@ int SigFindMinPredicateArity(Sig_p sig)
    for(i=sig->internal_symbols+1; i<=sig->f_count; i++)
    {
       if(SigIsPredicate(sig, i) &&
-	 !SigQueryFuncProp(sig, i, FPSpecial))
+    !SigQueryFuncProp(sig, i, FPSpecial))
       {
-	 arity = SigFindArity(sig,i);
-	 res = MIN(res,arity);
+    arity = SigFindArity(sig,i);
+    res = MIN(res,arity);
       }
    }
    return res;
@@ -959,8 +959,8 @@ int SigFindMaxFunctionArity(Sig_p sig)
    {
       if(!SigIsPredicate(sig, i) && !SigQueryFuncProp(sig, i, FPSpecial))
       {
-	 arity = SigFindArity(sig,i);
-	 res = MAX(res,arity);
+    arity = SigFindArity(sig,i);
+    res = MAX(res,arity);
       }
    }
    return res;
@@ -989,8 +989,8 @@ int SigFindMinFunctionArity(Sig_p sig)
    {
       if(!SigIsPredicate(sig, i) && !SigQueryFuncProp(sig, i, FPSpecial))
       {
-	 arity = SigFindArity(sig,i);
-	 res = MIN(res,arity);
+    arity = SigFindArity(sig,i);
+    res = MIN(res,arity);
       }
    }
    return res;
@@ -1018,13 +1018,13 @@ int SigCountAritySymbols(Sig_p sig, int arity, bool predicates)
    for(i=sig->internal_symbols+1; i<=sig->f_count; i++)
    {
       if(EQUIV(SigIsPredicate(sig, i), predicates)
-	 &&(!SigIsSpecial(sig,i)))
+    &&(!SigIsSpecial(sig,i)))
       {
-	 tmp_arity = SigFindArity(sig,i);
-	 if(tmp_arity==arity)
-	 {
-	    res++;
-	 }
+    tmp_arity = SigFindArity(sig,i);
+    if(tmp_arity==arity)
+    {
+       res++;
+    }
       }
    }
    return res;
@@ -1085,7 +1085,7 @@ int SigCountSymbols(Sig_p sig, bool predicates)
 /----------------------------------------------------------------------*/
 
 int SigAddSymbolArities(Sig_p sig, PDArray_p distrib, bool predicates,
-			long selection[])
+         long selection[])
 {
    FunCode i;
    int     max_arity = -1, arity;
@@ -1093,11 +1093,11 @@ int SigAddSymbolArities(Sig_p sig, PDArray_p distrib, bool predicates,
    for(i = 1; i<=sig->f_count; i++)
    {
       if(EQUIV(SigIsPredicate(sig, i), predicates) &&
-	 selection[i])
+    selection[i])
       {
-	 arity = SigFindArity(sig, i);
-	 max_arity = MAX(arity, max_arity);
-	 PDArrayElementIncInt(distrib, arity, 1);
+    arity = SigFindArity(sig, i);
+    max_arity = MAX(arity, max_arity);
+    PDArrayElementIncInt(distrib, arity, 1);
       }
    }
    return max_arity;

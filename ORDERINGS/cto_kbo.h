@@ -42,15 +42,15 @@ Changes
 /*---------------------------------------------------------------------*/
 
 CompareResult KBOVarCompare(Term_p s, Term_p t, DerefType deref_s,
-			    DerefType deref_t);
+             DerefType deref_t);
 bool          KBOVarGreater(Term_p s, Term_p t, DerefType deref_s,
-			    DerefType deref_t);
+             DerefType deref_t);
 
 bool          KBOGreater(OCB_p ocb, Term_p s, Term_p t, DerefType
-			 deref_s, DerefType deref_t);
+          deref_s, DerefType deref_t);
 
 CompareResult KBOCompare(OCB_p ocb, Term_p t1, Term_p t2,
-			 DerefType deref_t1, DerefType deref_t2);
+          DerefType deref_t1, DerefType deref_t2);
 
 #endif
 

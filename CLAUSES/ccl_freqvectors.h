@@ -117,9 +117,9 @@ PERF_CTR_DECL(FreqVecTimer);
 #define PermVectorPrint(out,vec) FixedDArrayPrint((out),(vec))
 
 PermVector_p PermVectorComputeInternal(FreqVector_p fmax, FreqVector_p fmin,
-				       FreqVector_p sums,
-				       long max_len,
-				       bool eliminate_uninformative);
+                   FreqVector_p sums,
+                   long max_len,
+                   bool eliminate_uninformative);
 
 
 #define FreqVectorCellAlloc()    (FreqVectorCell*)SizeMalloc(sizeof(FreqVectorCell))
@@ -130,7 +130,7 @@ PermVector_p PermVectorComputeInternal(FreqVector_p fmax, FreqVector_p fmin,
 #define FVSSCompatSize(size)    ((size+1)*2)
 #define FVFullSize(size)        ((size+1)*4+FV_CLAUSE_FEATURES)
 #define FVSize(size, features) (((features)==FVIACFeatures)?FVACCompatSize(size):\
-				(((features)==FVISSFeatures)?FVSSCompatSize(size):\
+            (((features)==FVISSFeatures)?FVSSCompatSize(size):\
                                  FVFullSize(size)))
 
 
@@ -153,7 +153,7 @@ void         FreqVectorInitialize(FreqVector_p vec, long value);
 void         FreqVectorPrint(FILE* out, FreqVector_p vec);
 
 void VarFreqVectorAddVals(FreqVector_p vec, long symbols, FVIndexType features,
-			  Clause_p clause);
+           Clause_p clause);
 FreqVector_p VarFreqVectorCompute(Clause_p clause, FVCollect_p cspec);
 FreqVector_p OptimizedVarFreqVectorCompute(Clause_p clause,
                                            PermVector_p perm,
@@ -204,7 +204,7 @@ FVCollect_p BillPlusFeaturesCollectAlloc(Sig_p sig, long len);
 
 
 FVPackedClause_p FVPackClause(Clause_p clause, PermVector_p perm,
-			      FVCollect_p cspec);
+               FVCollect_p cspec);
 Clause_p         FVUnpackClause(FVPackedClause_p pack);
 
 void             FVPackedClauseFreeReal(FVPackedClause_p pack);
@@ -217,7 +217,7 @@ void             FVPackedClauseFreeReal(FVPackedClause_p pack);
 
 void FreqVectorAdd(FreqVector_p dest, FreqVector_p s1, FreqVector_p s2);
 void FreqVectorMulAdd(FreqVector_p dest, FreqVector_p s1, long f1,
-		      FreqVector_p s2, long f2);
+            FreqVector_p s2, long f2);
 #define FreqVectorSub(dest, s1, s2) FreqVectorMulAdd((dest),(s1), 1, (s2), -1)
 void FreqVectorMax(FreqVector_p dest, FreqVector_p s1, FreqVector_p s2);
 void FreqVectorMin(FreqVector_p dest, FreqVector_p s1, FreqVector_p s2);
@@ -227,11 +227,11 @@ void FreqVectorMin(FreqVector_p dest, FreqVector_p s1, FreqVector_p s2);
 
 #ifdef NEVER_DEFINED
 void             StandardFreqVectorAddVals(FreqVector_p vec, long sig_symbols,
-					   Clause_p clause);
+                  Clause_p clause);
 FreqVector_p     StandardFreqVectorCompute(Clause_p clause, long sig_symbols);
 FreqVector_p     OptimizedFreqVectorCompute(Clause_p clause,
-					    PermVector_p perm,
-					    long sig_symbols);
+                   PermVector_p perm,
+                   long sig_symbols);
 #endif
 
 

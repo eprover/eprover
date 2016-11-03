@@ -93,7 +93,7 @@ static Term_p term_top_unfold_def(TB_p bank, Term_p term, ClausePos_p demod)
 /----------------------------------------------------------------------*/
 
 static Term_p term_unfold_def(TB_p bank, Term_p term, PStack_p
-			      pos_stack, ClausePos_p demod)
+               pos_stack, ClausePos_p demod)
 {
    Term_p res, tmp;
    int i;
@@ -104,10 +104,10 @@ static Term_p term_unfold_def(TB_p bank, Term_p term, PStack_p
    for(i=0; i<res->arity; i++)
    {
       res->args[i] = term_unfold_def(bank, term->args[i], pos_stack,
-				     demod);
+                 demod);
       if(res->args[i] != term->args[i])
       {
-	 changed = true;
+    changed = true;
       }
    }
    if(changed)
@@ -195,10 +195,10 @@ bool ClauseUnfoldEqDef(Clause_p clause, ClausePos_p demod)
 
       if(ClauseQueryTPTPType(demod->clause) == CPTypeConjecture)
       {
-	 ClauseSetTPTPType(clause, CPTypeConjecture);
+    ClauseSetTPTPType(clause, CPTypeConjecture);
       }
       DocClauseEqUnfold(GlobalOut, OutputLevel, clause, demod,
-			pos_stack);
+         pos_stack);
       if(BuildProofObject)
       {
          PStackPointer i;
@@ -236,8 +236,8 @@ bool ClauseSetUnfoldEqDef(ClauseSet_p set, ClausePos_p demod)
    {
       if(ClauseUnfoldEqDef(handle, demod))
       {
-	 res = true;
-	 ClauseRemoveSuperfluousLiterals(handle);
+    res = true;
+    ClauseRemoveSuperfluousLiterals(handle);
       }
    }
    return res;
@@ -259,7 +259,7 @@ bool ClauseSetUnfoldEqDef(ClauseSet_p set, ClausePos_p demod)
 
 long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, ClauseSet_p passive,
                               ClauseSet_p archive,
-			      int min_arity, int eqdef_incrlimit)
+               int min_arity, int eqdef_incrlimit)
 {
    ClausePos_p demod;
    long res = false;

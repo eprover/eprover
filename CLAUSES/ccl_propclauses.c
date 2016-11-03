@@ -72,7 +72,7 @@ PropClause_p PropClauseAlloc(Clause_p clause)
    if(clause->literals)
    {
       handle->literals = SizeMalloc(handle->lit_no
-				    *sizeof(PropLitCell));
+                *sizeof(PropLitCell));
    }
    else
    {
@@ -274,7 +274,7 @@ void PropClauseSetFree(PropClauseSet_p set)
 /----------------------------------------------------------------------*/
 
 long PropClauseSetInsertPropClause(PropClauseSet_p set, PropClause_p
-				   clause)
+               clause)
 {
    assert(set && clause && set->inspos);
 

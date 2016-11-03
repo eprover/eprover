@@ -60,8 +60,8 @@ Changes
 /----------------------------------------------------------------------*/
 
 long ComputeAllOrderedFactors(TB_p bank, OCB_p ocb,
-			      Clause_p clause, ClauseSet_p store,
-			      VarBank_p freshvars)
+               Clause_p clause, ClauseSet_p store,
+               VarBank_p freshvars)
 {
    Clause_p    factor;
    Eqn_p       test;
@@ -77,21 +77,21 @@ long ComputeAllOrderedFactors(TB_p bank, OCB_p ocb,
 
       while(test)
       {
-	 factor = ComputeOrderedFactor(bank, ocb, pos1, pos2, freshvars);
-	 if(factor)
-	 {
-	    factor_count++;
-	    factor->parent1 = clause;
-	    factor->proof_depth = clause->proof_depth+1;
-	    factor->proof_size  = clause->proof_size+1;
-	    ClauseSetTPTPType(factor, ClauseQueryTPTPType(clause));
-	    ClauseSetProp(factor, ClauseGiveProps(clause, CPIsSOS));
-	    ClauseRegisterChild(clause, factor);
-	    DocClauseCreationDefault(factor, inf_factor,clause,NULL);
+    factor = ComputeOrderedFactor(bank, ocb, pos1, pos2, freshvars);
+    if(factor)
+    {
+       factor_count++;
+       factor->parent1 = clause;
+       factor->proof_depth = clause->proof_depth+1;
+       factor->proof_size  = clause->proof_size+1;
+       ClauseSetTPTPType(factor, ClauseQueryTPTPType(clause));
+       ClauseSetProp(factor, ClauseGiveProps(clause, CPIsSOS));
+       ClauseRegisterChild(clause, factor);
+       DocClauseCreationDefault(factor, inf_factor,clause,NULL);
             ClausePushDerivation(factor, DCOrderedFactor, clause, NULL);
-	    ClauseSetInsert(store, factor);
-	 }
-	 test = ClausePosNextOrderedFactorLiterals(pos1, pos2);
+       ClauseSetInsert(store, factor);
+    }
+    test = ClausePosNextOrderedFactorLiterals(pos1, pos2);
       }
       ClausePosFree(pos1);
       ClausePosFree(pos2);
@@ -114,8 +114,8 @@ long ComputeAllOrderedFactors(TB_p bank, OCB_p ocb,
 /----------------------------------------------------------------------*/
 
 long ComputeAllEqualityFactors(TB_p bank, OCB_p ocb,
-			      Clause_p clause, ClauseSet_p store,
-			      VarBank_p freshvars)
+               Clause_p clause, ClauseSet_p store,
+               VarBank_p freshvars)
 {
    Clause_p    factor;
    Eqn_p       test;
@@ -131,21 +131,21 @@ long ComputeAllEqualityFactors(TB_p bank, OCB_p ocb,
 
       while(test)
       {
-	 factor = ComputeEqualityFactor(bank, ocb, pos1, pos2, freshvars);
-	 if(factor)
-	 {
-	    factor_count++;
-	    factor->parent1 = clause;
-	    factor->proof_depth = clause->proof_depth+1;
-	    factor->proof_size  = clause->proof_size+1;
-	    ClauseSetTPTPType(factor, ClauseQueryTPTPType(clause));
-	    ClauseSetProp(factor, ClauseGiveProps(clause, CPIsSOS));
-	    ClauseRegisterChild(clause, factor);
-	    DocClauseCreationDefault(factor, inf_efactor, clause, NULL);
+    factor = ComputeEqualityFactor(bank, ocb, pos1, pos2, freshvars);
+    if(factor)
+    {
+       factor_count++;
+       factor->parent1 = clause;
+       factor->proof_depth = clause->proof_depth+1;
+       factor->proof_size  = clause->proof_size+1;
+       ClauseSetTPTPType(factor, ClauseQueryTPTPType(clause));
+       ClauseSetProp(factor, ClauseGiveProps(clause, CPIsSOS));
+       ClauseRegisterChild(clause, factor);
+       DocClauseCreationDefault(factor, inf_efactor, clause, NULL);
             ClausePushDerivation(factor, DCEqFactor, clause, NULL);
-	    ClauseSetInsert(store, factor);
-	 }
-	 test = ClausePosNextEqualityFactorSides(pos1, pos2);
+       ClauseSetInsert(store, factor);
+    }
+    test = ClausePosNextEqualityFactorSides(pos1, pos2);
       }
       ClausePosFree(pos1);
       ClausePosFree(pos2);

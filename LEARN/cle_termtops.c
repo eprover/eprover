@@ -64,18 +64,18 @@ static void term_del_prop_level(Term_p term, int depth, TermProperties prop)
    {
       while(!PStackEmpty(stack))
       {
-	 depth = PStackPopInt(stack);
-	 term =  PStackPopP(stack);
-	 TermCellDelProp(term, prop);
-	 if(depth!=0)
-	 {
-	    for(i=0; i<term->arity; i++)
-	    {
-	       assert(!TermIsVar(term));
-	       PStackPushP(stack, term->args[i]);
-	       PStackPushInt(stack, depth-1);
-	    }
-	 }
+    depth = PStackPopInt(stack);
+    term =  PStackPopP(stack);
+    TermCellDelProp(term, prop);
+    if(depth!=0)
+    {
+       for(i=0; i<term->arity; i++)
+       {
+          assert(!TermIsVar(term));
+          PStackPushP(stack, term->args[i]);
+          PStackPushInt(stack, depth-1);
+       }
+    }
       }
    }
    PStackFree(stack);
@@ -96,7 +96,7 @@ static void term_del_prop_level(Term_p term, int depth, TermProperties prop)
 /----------------------------------------------------------------------*/
 
 static void term_set_prop_at_level(Term_p term, int depth,
-				   TermProperties prop)
+               TermProperties prop)
 {
    PStack_p stack = PStackAlloc();
    int      i;
@@ -110,16 +110,16 @@ static void term_set_prop_at_level(Term_p term, int depth,
       term =  PStackPopP(stack);
       if(depth!=0)
       {
-	 for(i=0; i<term->arity; i++)
-	 {
-	    assert(!TermIsVar(term));
-	    PStackPushP(stack, term->args[i]);
-	    PStackPushInt(stack, depth-1);
-	 }
+    for(i=0; i<term->arity; i++)
+    {
+       assert(!TermIsVar(term));
+       PStackPushP(stack, term->args[i]);
+       PStackPushInt(stack, depth-1);
+    }
       }
       else
       {
-	 TermCellSetProp(term, prop);
+    TermCellSetProp(term, prop);
       }
    }
    PStackFree(stack);
@@ -157,14 +157,14 @@ static Term_p rek_term_top(Term_p term, int depth, VarBank_p freshvars)
       handle->f_code = term->f_code;
       if(handle->arity > 0)
       {
-	 int i;
+    int i;
 
-	 handle->args = TermArgArrayAlloc(handle->arity);
-	 for(i=0; i<handle->arity; i++)
-	 {
-	    handle->args[i] = rek_term_top(term->args[i], depth-1,
-					   freshvars);
-	 }
+    handle->args = TermArgArrayAlloc(handle->arity);
+    for(i=0; i<handle->arity; i++)
+    {
+       handle->args[i] = rek_term_top(term->args[i], depth-1,
+                  freshvars);
+    }
       }
    }
    return handle;
@@ -184,7 +184,7 @@ static Term_p rek_term_top(Term_p term, int depth, VarBank_p freshvars)
 /----------------------------------------------------------------------*/
 
 static Term_p alt_rek_term_top(Term_p term, int depth, VarBank_p
-			   freshvars, PStack_p bindings)
+            freshvars, PStack_p bindings)
 {
    Term_p handle;
 
@@ -192,13 +192,13 @@ static Term_p alt_rek_term_top(Term_p term, int depth, VarBank_p
    {
       if(!term->binding)
       {
-	 handle = VarBankGetFreshVar(freshvars, term->sort);
-	 term->binding = handle;
-	 PStackPushP(bindings, term);
+    handle = VarBankGetFreshVar(freshvars, term->sort);
+    term->binding = handle;
+    PStackPushP(bindings, term);
       }
       else
       {
-	 handle = term->binding;
+    handle = term->binding;
       }
    }
    else if(TermIsVar(term))
@@ -212,14 +212,14 @@ static Term_p alt_rek_term_top(Term_p term, int depth, VarBank_p
       handle->f_code = term->f_code;
       if(handle->arity > 0)
       {
-	 int i;
+    int i;
 
-	 handle->args = TermArgArrayAlloc(handle->arity);
-	 for(i=0; i<handle->arity; i++)
-	 {
-	    handle->args[i] = alt_rek_term_top(term->args[i], depth-1,
-					       freshvars, bindings);
-	 }
+    handle->args = TermArgArrayAlloc(handle->arity);
+    for(i=0; i<handle->arity; i++)
+    {
+       handle->args[i] = alt_rek_term_top(term->args[i], depth-1,
+                      freshvars, bindings);
+    }
       }
    }
    return handle;
@@ -238,7 +238,7 @@ static Term_p alt_rek_term_top(Term_p term, int depth, VarBank_p
 /----------------------------------------------------------------------*/
 
 Term_p term_top_marked(Term_p term, VarBank_p freshvars, PStack_p
-		       bindings)
+             bindings)
 {
    Term_p handle;
 
@@ -246,13 +246,13 @@ Term_p term_top_marked(Term_p term, VarBank_p freshvars, PStack_p
    {
       if(!term->binding)
       {
-	 handle = VarBankGetFreshVar(freshvars, term->sort);
-	 term->binding = handle;
-	 PStackPushP(bindings, term);
+    handle = VarBankGetFreshVar(freshvars, term->sort);
+    term->binding = handle;
+    PStackPushP(bindings, term);
       }
       else
       {
-	 handle = term->binding;
+    handle = term->binding;
       }
    }
    else if(TermIsVar(term))
@@ -266,14 +266,14 @@ Term_p term_top_marked(Term_p term, VarBank_p freshvars, PStack_p
       handle->f_code = term->f_code;
       if(handle->arity > 0)
       {
-	 int i;
+    int i;
 
-	 handle->args = TermArgArrayAlloc(handle->arity);
-	 for(i=0; i<handle->arity; i++)
-	 {
-	    handle->args[i] = term_top_marked(term->args[i],
-					      freshvars, bindings);
-	 }
+    handle->args = TermArgArrayAlloc(handle->arity);
+    for(i=0; i<handle->arity; i++)
+    {
+       handle->args[i] = term_top_marked(term->args[i],
+                     freshvars, bindings);
+    }
       }
    }
    return handle;

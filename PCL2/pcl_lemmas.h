@@ -81,7 +81,7 @@ typedef struct lemma_param_cell
 #define LEMMA_PAS_SIMPL_W  1.0
 #define LEMMA_PROOF_TREE_W 1.0
 #define LEMMA_PROOF_DAG_W  0.0 /* Don't know how to efficiently compute
-			      * DAG size at the moment */
+               * DAG size at the moment */
 #define LEMMA_SIZE_BASE_W  1
 #define LEMMA_HORN_BONUS_W 2.0
 
@@ -115,25 +115,25 @@ int PCLStepLemmaCmpWrapper(const void* s1, const void* s2);
 int PCLStepLemmaCmp(PCLStep_p step1, PCLStep_p step2);
 
 long PCLExprProofSize(PCLProt_p prot, PCLExpr_p expr, InferenceWeight_p iw,
-		      bool use_lemmas);
+            bool use_lemmas);
 long PCLStepProofSize(PCLProt_p prot, PCLStep_p step, InferenceWeight_p iw,
-		      bool use_lemmas);
+            bool use_lemmas);
 void PCLProtComputeProofSize(PCLProt_p prot, InferenceWeight_p iw,
-			     bool use_lemmas);
+              bool use_lemmas);
 
 float PCLStepComputeLemmaWeight(PCLProt_p prot, PCLStep_p step,
-				LemmaParam_p params);
+            LemmaParam_p params);
 PCLStep_p PCLProtComputeLemmaWeights(PCLProt_p prot, LemmaParam_p params);
 
 long PCLProtSeqFindLemmas(PCLProt_p prot, LemmaParam_p params,
-			  InferenceWeight_p iw, long max_number,
-			  float quality_limit);
+           InferenceWeight_p iw, long max_number,
+           float quality_limit);
 long PCLProtRecFindLemmas(PCLProt_p prot, LemmaParam_p params,
-			  InferenceWeight_p iw, long max_number,
-			  float quality_limit);
+           InferenceWeight_p iw, long max_number,
+           float quality_limit);
 long PCLProtFlatFindLemmas(PCLProt_p prot, LemmaParam_p params,
-			   InferenceWeight_p iw, long max_number,
-			   float quality_limit);
+            InferenceWeight_p iw, long max_number,
+            float quality_limit);
 
 
 #endif

@@ -82,7 +82,7 @@ static double relative_difference(double v1, double v2)
 /----------------------------------------------------------------------*/
 
 static double arity_distr_distance(PDArray_p d1, PDArray_p d2, int
-				   maxarity)
+               maxarity)
 {
    int i, val1, val2;
    double res = 0;
@@ -97,7 +97,7 @@ static double arity_distr_distance(PDArray_p d1, PDArray_p d2, int
       val1 = PDArrayElementInt(d1, i);
       val2 = PDArrayElementInt(d2, i);
       res += relative_difference(val1,val2)*
-	 relative_difference(val1,val2);
+    relative_difference(val1,val2);
    }
    return sqrt(res)/(double)(maxarity+1);
 }
@@ -128,10 +128,10 @@ static int parse_sig_distrib(Scanner_p in, PDArray_p distrib)
       PDArrayAssignInt(distrib, i, symbols);
       while(!TestInpTok(in, CloseBracket))
       {
-	 i++;
-	 AcceptInpTok(in, Comma);
-	 symbols = ParseInt(in);
-	 PDArrayAssignInt(distrib, i, symbols);
+    i++;
+    AcceptInpTok(in, Comma);
+    symbols = ParseInt(in);
+    PDArrayAssignInt(distrib, i, symbols);
       }
    }
    AcceptInpTok(in, CloseBracket);
@@ -201,7 +201,7 @@ void FeaturesFree(Features_p junk)
 /----------------------------------------------------------------------*/
 
 void ComputeClauseSetNumFeatures(Features_p features, ClauseSet_p set,
-				 Sig_p sig)
+             Sig_p sig)
 {
    PStack_p pos_tdepth = PStackAlloc();
    PStack_p neg_tdepth = PStackAlloc();
@@ -224,10 +224,10 @@ void ComputeClauseSetNumFeatures(Features_p features, ClauseSet_p set,
    ClauseSetAddSymbolDistribution(set, symbol_distrib);
    features->pred_max_arity =
       SigAddSymbolArities(sig, features->pred_distrib, true,
-			  symbol_distrib);
+           symbol_distrib);
    features->func_max_arity =
       SigAddSymbolArities(sig, features->func_distrib, false,
-			  symbol_distrib);
+           symbol_distrib);
    SizeFree(symbol_distrib,(sig->size)*sizeof(long));
 
    features->features[0] = 0;
@@ -235,47 +235,47 @@ void ComputeClauseSetNumFeatures(Features_p features, ClauseSet_p set,
    features->features[2] = 0;
 
    for(clause = set->anchor->succ; clause != set->anchor; clause =
-	  clause->succ)
+     clause->succ)
    {
       if(ClauseIsUnit(clause))
       {
-	 features->features[0]++;
+    features->features[0]++;
       }
       else if(ClauseIsHorn(clause))
       {
-	 features->features[1]++;
+    features->features[1]++;
       }
       else
       {
-	 features->features[2]++;
+    features->features[2]++;
       }
       PStackPushInt(pos_lits, clause->pos_lit_no);
       PStackPushInt(neg_lits, clause->neg_lit_no);
 
       for(eqn = clause->literals; eqn; eqn = eqn->next)
       {
-	 if(EqnIsPositive(eqn))
-	 {
-	    PStackPushInt(pos_tsize, TermWeight(eqn->lterm,
-						DEFAULT_VWEIGHT,
-						DEFAULT_FWEIGHT));
-	    PStackPushInt(pos_tsize, TermWeight(eqn->rterm,
-						DEFAULT_VWEIGHT,
-						DEFAULT_FWEIGHT));
-	    PStackPushInt(pos_tdepth, TermDepth(eqn->lterm));
-	    PStackPushInt(pos_tdepth, TermDepth(eqn->rterm));
-	 }
-	 else
-	 {
-	    PStackPushInt(neg_tsize, TermWeight(eqn->lterm,
-						DEFAULT_VWEIGHT,
-						DEFAULT_FWEIGHT));
-	    PStackPushInt(neg_tsize, TermWeight(eqn->rterm,
-						DEFAULT_VWEIGHT,
-						DEFAULT_FWEIGHT));
-	    PStackPushInt(neg_tdepth, TermDepth(eqn->lterm));
-	    PStackPushInt(neg_tdepth, TermDepth(eqn->rterm));
-	 }
+    if(EqnIsPositive(eqn))
+    {
+       PStackPushInt(pos_tsize, TermWeight(eqn->lterm,
+                  DEFAULT_VWEIGHT,
+                  DEFAULT_FWEIGHT));
+       PStackPushInt(pos_tsize, TermWeight(eqn->rterm,
+                  DEFAULT_VWEIGHT,
+                  DEFAULT_FWEIGHT));
+       PStackPushInt(pos_tdepth, TermDepth(eqn->lterm));
+       PStackPushInt(pos_tdepth, TermDepth(eqn->rterm));
+    }
+    else
+    {
+       PStackPushInt(neg_tsize, TermWeight(eqn->lterm,
+                  DEFAULT_VWEIGHT,
+                  DEFAULT_FWEIGHT));
+       PStackPushInt(neg_tsize, TermWeight(eqn->rterm,
+                  DEFAULT_VWEIGHT,
+                  DEFAULT_FWEIGHT));
+       PStackPushInt(neg_tdepth, TermDepth(eqn->lterm));
+       PStackPushInt(neg_tdepth, TermDepth(eqn->rterm));
+    }
       }
    }
    average = PStackComputeAverage(pos_tdepth, &deviation);
@@ -328,7 +328,7 @@ void NumFeaturesPrint(FILE* out, Features_p features)
    for(i=0; i<=features->pred_max_arity; i++)
    {
       fprintf(out, "%s%ld", sep,
-	      PDArrayElementInt(features->pred_distrib,i));
+         PDArrayElementInt(features->pred_distrib,i));
       sep = ", ";
    }
    fputs(")  FA: (", out);
@@ -336,7 +336,7 @@ void NumFeaturesPrint(FILE* out, Features_p features)
    for(i=0; i<=features->func_max_arity; i++)
    {
       fprintf(out, "%s%ld", sep,
-	      PDArrayElementInt(features->func_distrib,i));
+         PDArrayElementInt(features->func_distrib,i));
       sep = ", ";
    }
    fprintf(out, ")\n(%f", features->features[0]);
@@ -368,12 +368,12 @@ Features_p NumFeaturesParse(Scanner_p in)
    AcceptInpId(in, "PA");
    AcceptInpTok(in, Colon);
    handle->pred_max_arity = parse_sig_distrib(in,
-					      handle->pred_distrib);
+                     handle->pred_distrib);
 
    AcceptInpId(in, "FA");
    AcceptInpTok(in, Colon);
    handle->func_max_arity = parse_sig_distrib(in,
-					      handle->func_distrib);
+                     handle->func_distrib);
    AcceptInpTok(in, OpenBracket);
    handle->features[0] = ParseFloat(in);
    for(i=1; i< FEATURE_NUMBER; i++)
@@ -400,21 +400,21 @@ Features_p NumFeaturesParse(Scanner_p in)
 /----------------------------------------------------------------------*/
 
 double NumFeatureDistance(Features_p f1, Features_p f2, double pred_w,
-			  double func_w, double* weights)
+           double func_w, double* weights)
 {
    double res, norm, dist, wsq;
    int i;
 
    dist = arity_distr_distance(f1->pred_distrib, f2->pred_distrib,
-			       MAX(f1->pred_max_arity,
-				   f2->pred_max_arity));
+                MAX(f1->pred_max_arity,
+               f2->pred_max_arity));
    wsq = pred_w*pred_w;
    res = dist*dist*wsq;
    norm = wsq;
 
    dist = arity_distr_distance(f1->func_distrib, f2->func_distrib,
-			       MAX(f1->func_max_arity,
-				   f2->func_max_arity));
+                MAX(f1->func_max_arity,
+               f2->func_max_arity));
    wsq = func_w*func_w;
    res += dist*dist*wsq;
    norm += wsq;

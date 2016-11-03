@@ -78,17 +78,17 @@ void finalize_auto_parms(char* modename, char* hname,
    if(OutputLevel+1)
    {
       fprintf(GlobalOut,
-	      "# %s selected heuristic %s\n"
-	      "# and selection function %s.\n#\n",
+         "# %s selected heuristic %s\n"
+         "# and selection function %s.\n#\n",
               modename,
               hname,
-	      GetLitSelName(control->heuristic_parms.selection_strategy));
+         GetLitSelName(control->heuristic_parms.selection_strategy));
    }
    if(parms->mem_limit>2 && (parms->delete_bad_limit ==
-			     DEFAULT_DELETE_BAD_LIMIT))
+              DEFAULT_DELETE_BAD_LIMIT))
    {
       control->heuristic_parms.delete_bad_limit =
-	 (float)(parms->mem_limit-2)*0.7;
+    (float)(parms->mem_limit-2)*0.7;
    }
    if(SpecNoEq(spec))
    {
@@ -127,7 +127,7 @@ HCB_p HCBCreate(char* name, HCBARGUMENTS)
    {
       if(strcmp(HeuristicsTable[i].name, name)==0)
       {
-	 return HeuristicsTable[i].heuristic_create(state,control,parms);
+    return HeuristicsTable[i].heuristic_create(state,control,parms);
       }
    }
    err = DStrAlloc();
@@ -167,7 +167,7 @@ HCB_p GetHeuristic(char* source, HCBARGUMENTS)
    if(TestInpTok(in, OpenBracket))
    {
       HeuristicDefParse(control->hcbs, in, control->wfcbs,
-			control->ocb, state);
+         control->ocb, state);
       name = SecureStrdup("Default");
    }
    else

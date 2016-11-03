@@ -148,7 +148,7 @@ void DDArrayDebugPrint(FILE* out, DDArray_p array, long size)
       fprintf(out, " %5.3f ", DDArrayElement(array, i));
       if(((i+1) % 10)==0)
       {
-	 fprintf(out, "\n");
+    fprintf(out, "\n");
       }
    }
    fprintf(out, "\n");
@@ -221,7 +221,7 @@ double DDArraySelectPart(DDArray_p array, double part, long size)
    while(start!=end)
    {
       /* Pick a good pseudo-pivot to make worst case-behaviour less
-	 likely */
+    likely */
 
       pivot = (arr[start]+arr[(start+end)/2]+arr[end])/3.0;
 
@@ -231,43 +231,43 @@ double DDArraySelectPart(DDArray_p array, double part, long size)
 
       while(i != j)
       {
-	 /* printf("%ld, %ld\n", i, j); */
-	 while((i<j) && (arr[i] <= pivot))
-	 {
-	    i++;
-	 }
-	 while((j>i) && (arr[j] > pivot))
-	 {
-	    j--;
-	 }
-	 tmp    = arr[i];
-	 arr[i] = arr[j];
-	 arr[j] = tmp;
+    /* printf("%ld, %ld\n", i, j); */
+    while((i<j) && (arr[i] <= pivot))
+    {
+       i++;
+    }
+    while((j>i) && (arr[j] > pivot))
+    {
+       j--;
+    }
+    tmp    = arr[i];
+    arr[i] = arr[j];
+    arr[j] = tmp;
       }
       /* printf("Hier - i= %ld\n",i);
       DDArrayDebugPrint(stdout, array, size); */
       if(i > rank1)
       {
-	 end = i-1;
+    end = i-1;
       }
       else
       {
-	 start = i;
+    start = i;
       }
    }
 
    if(rank2!=rank1)
    {
       /* Now find the second value. We know that all values with index
-	 > rank1 are >= arr[rank1] and that all values >
-	 arr[rank1] have index > rank1 -> we only need to search for
-	 the minimum of the second part of the array */
+    > rank1 are >= arr[rank1] and that all values >
+    arr[rank1] have index > rank1 -> we only need to search for
+    the minimum of the second part of the array */
       assert(rank1!=size-1); /* Should be impossible, otherwise part =
-			     1.0 and rank1==rank2 */
+              1.0 and rank1==rank2 */
       tmp = arr[start+1];
       for(i=start+1; i<size; i++)
       {
-	 tmp = MIN(tmp, arr[i]);
+    tmp = MIN(tmp, arr[i]);
       }
    }
    else

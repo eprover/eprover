@@ -315,21 +315,21 @@ void PCLStepPrintExtra(FILE* out, PCLStep_p step, bool data)
    {
 #ifdef NEVER_DEFINED
       fprintf(out, " /* %#8X %6ld %6ld %3ld %3ld %3ld %3ld %4.3f */",
-	      step->properties,
-	      step->proof_dag_size,
-	      step->proof_tree_size,
-	      step->active_pm_refs,
-	      step->other_generating_refs,
-	      step->active_simpl_refs,
-	      step->passive_simpl_refs,
-	      step->lemma_quality);
+         step->properties,
+         step->proof_dag_size,
+         step->proof_tree_size,
+         step->active_pm_refs,
+         step->other_generating_refs,
+         step->active_simpl_refs,
+         step->passive_simpl_refs,
+         step->lemma_quality);
 #endif
        fprintf(out, " /* %3ld %3ld %3ld %3ld %3ld  */",
-	      step->contrib_simpl_refs,
-	      step->contrib_gen_refs,
-	      step->useless_simpl_refs,
-	      step->useless_gen_refs,
-	      step->proof_distance);
+         step->contrib_simpl_refs,
+         step->contrib_gen_refs,
+         step->useless_simpl_refs,
+         step->useless_gen_refs,
+         step->proof_distance);
    }
 }
 
@@ -526,25 +526,25 @@ void PCLStepPrintLOP(FILE* out, PCLStep_p step)
 /----------------------------------------------------------------------*/
 
 void PCLStepPrintFormat(FILE* out, PCLStep_p step, bool data,
-			OutputFormatType format)
+         OutputFormatType format)
 {
    switch(format)
    {
    case pcl_format:
-	 PCLStepPrintExtra(out, step, data);
-	 break;
+    PCLStepPrintExtra(out, step, data);
+    break;
    case lop_format:
-	 PCLStepPrintLOP(out, step);
-	 break;
+    PCLStepPrintLOP(out, step);
+    break;
    case tptp_format:
-	 PCLStepPrintTPTP(out, step);
-	 break;
+    PCLStepPrintTPTP(out, step);
+    break;
    case tstp_format:
-	 PCLStepPrintTSTP(out, step);
-	 break;
+    PCLStepPrintTSTP(out, step);
+    break;
    default:
-	 assert(false);
-	 break;
+    assert(false);
+    break;
    }
 }
 

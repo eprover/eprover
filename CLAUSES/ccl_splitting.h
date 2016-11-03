@@ -32,9 +32,9 @@ Changes
 typedef enum
 {
    SplitGroundNone = 0, /* Combine ground literals with first
-			   subclause */
+            subclause */
    SplitGroundOne  = 1, /* Split off (at most) _one_ ground subclause
-			   containing all ground literals */
+            containing all ground literals */
    SplitGroundFull = 2  /* Split off individual ground literals */
 }SplitType;
 
@@ -69,8 +69,8 @@ typedef struct lit_split_desc
    Eqn_p   literal;
    int     part;
    PTree_p varset;  /* Initially: Varset of literal, later either
-		       empty (in subsequent literals) or varset of
-		       partition (for first literal of partition) */
+             empty (in subsequent literals) or varset of
+             partition (for first literal of partition) */
 }LitSplitDescCell, *LitSplitDesc_p;
 
 

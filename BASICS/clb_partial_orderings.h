@@ -61,7 +61,7 @@ extern char*  POCompareSymbol[];
 
 
 static __inline__ CompareResult POInverseRelation(CompareResult
-						  relation);
+                    relation);
 
 
 /*---------------------------------------------------------------------*/
@@ -82,7 +82,7 @@ static __inline__ CompareResult POInverseRelation(CompareResult
 /----------------------------------------------------------------------*/
 
 static __inline__ CompareResult POInverseRelation(CompareResult
-						  relation)
+                    relation)
 {
    CompareResult res = relation;
 
@@ -90,22 +90,22 @@ static __inline__ CompareResult POInverseRelation(CompareResult
    {
    case to_equal:
    case to_uncomparable:
-	 break;
+    break;
    case to_greater:
-	 res = to_lesser;
-	 break;
+    res = to_lesser;
+    break;
    case to_lesser:
-	 res = to_greater;
-	 break;
+    res = to_greater;
+    break;
    case to_notgteq:
-	 res = to_notleeq;
-	 break;
+    res = to_notleeq;
+    break;
    case to_notleeq:
-	 res = to_notgteq;
-	 break;
+    res = to_notgteq;
+    break;
    default:
-	 assert(false);
-	 break;
+    assert(false);
+    break;
    }
    return res;
 }

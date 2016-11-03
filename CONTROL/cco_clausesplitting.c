@@ -61,7 +61,7 @@ Changes
 /----------------------------------------------------------------------*/
 
 int  ControlledClauseSplit(DefStore_p store, Clause_p clause, ClauseSet_p set,
-			   SplitClassType which, SplitType how,
+            SplitClassType which, SplitType how,
                            bool fresh_defs)
 {
    /* Make the common case fast: */

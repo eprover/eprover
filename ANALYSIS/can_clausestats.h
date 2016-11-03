@@ -62,8 +62,8 @@ void          ClauseStatsParseInto(Scanner_p in, ClauseStats_p cell);
 ClauseStats_p ClauseStatsParse(Scanner_p in);
 void          ClauseStatsPrint(FILE *out, ClauseStats_p cell);
 void          ClauseStatsPrintNormalized(FILE *out, ClauseStats_p
-					 cell, long created, long
-					 processed);
+                cell, long created, long
+                processed);
 
 long          ClauseSetInfoParse(Scanner_p in, NumTree_p *tree);
 long          ClauseSetInfoPrint(FILE* out, NumTree_p tree);

@@ -40,14 +40,14 @@ Changes
 /*---------------------------------------------------------------------*/
 
 AnnoTerm_p ParseExampleClause(Scanner_p in, TB_p parse_terms, TB_p
-			      internal_terms, long ident);
+               internal_terms, long ident);
 
 long KBAxiomsInsert(ExampleSet_p set, ClauseSet_p axioms, Sig_p sig,
-		    char* name);
+          char* name);
 
 
 void KBParseExampleFile(Scanner_p in, char* name, ExampleSet_p set,
-			AnnoSet_p examples, Sig_p res_sig);
+         AnnoSet_p examples, Sig_p res_sig);
 
 #endif
 

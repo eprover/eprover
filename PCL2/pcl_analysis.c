@@ -122,26 +122,26 @@ long PCLExprProofDistance(PCLProt_p prot, PCLExpr_p expr)
    switch(expr->op)
    {
    case PCLOpNoOp:
-	 assert(false);
-	 break;
+    assert(false);
+    break;
    case PCLOpInitial:
          res = PCL_PROOF_DIST_DEFAULT;
-	 break;
+    break;
    case PCLOpQuote:
-	 step = PCLProtFindStep(prot,PCLExprArg(expr,0));
+    step = PCLProtFindStep(prot,PCLExprArg(expr,0));
          res = PCLStepProofDistance(prot, step);
-	 break;
+    break;
    default:
-	 for(i=0; i<expr->arg_no; i++)
-	 {
+    for(i=0; i<expr->arg_no; i++)
+    {
             tmp = PCLExprProofDistance(prot, PCLExprArg(expr,i));
-	    res = MAX(res,tmp);
-	 }
+       res = MAX(res,tmp);
+    }
          if(res!=PCL_PROOF_DIST_INFINITY)
          {
             res++;
          }
-	 break;
+    break;
    }
    return res;
 }
@@ -240,7 +240,7 @@ void PCLExprUpdateGRefs(PCLProt_p prot, PCLExpr_p expr, bool proofstep)
    case PCLOpEFactoring:
    case PCLOpSplitClause:
          for(i=0; i<expr->arg_no; i++)
-	 {
+    {
             parent = PCLExprGetQuotedArg(prot,expr, i);
             if(parent)
             {
@@ -266,7 +266,7 @@ void PCLExprUpdateGRefs(PCLProt_p prot, PCLExpr_p expr, bool proofstep)
    case PCLOpACResolution:
          PCLExprUpdateGRefs(prot, PCLExprArg(expr,0), proofstep);
          for(i=1; i<expr->arg_no; i++)
-	 {
+    {
             parent = PCLExprGetQuotedArg(prot,expr, i);
             if(parent)
             {

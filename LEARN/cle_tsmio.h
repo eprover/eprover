@@ -42,19 +42,19 @@ Changes
 
 
 double ExampleSetPrepare(FlatAnnoSet_p flatset, AnnoSet_p annoset, double
-			 evalweights[], ExampleSet_p examples,  Sig_p sig,
-			 ClauseSet_p target, long sel_no, double set_part,
-			 double dist_part);
+          evalweights[], ExampleSet_p examples,  Sig_p sig,
+          ClauseSet_p target, long sel_no, double set_part,
+          double dist_part);
 
 double ExampleSetFromKB(AnnoSet_p annoset, FlatAnnoSet_p flatset, bool
-		      flat_patterns, TB_p bank, double evalweights[],
-		      char* kb, Sig_p sig, ClauseSet_p target, long
-		      sel_no, double set_part, double dist_part);
+            flat_patterns, TB_p bank, double evalweights[],
+            char* kb, Sig_p sig, ClauseSet_p target, long
+            sel_no, double set_part, double dist_part);
 
 TSMAdmin_p TSMFromKB(bool flat_patterns, double evalweights[], char*
-		     kb,  Sig_p sig, ClauseSet_p target, long sel_no,
-		     double set_part, double dist_part, IndexType
-		     indextype, TSMType tsmtype, long indexdepth);
+           kb,  Sig_p sig, ClauseSet_p target, long sel_no,
+           double set_part, double dist_part, IndexType
+           indextype, TSMType tsmtype, long indexdepth);
 
 #endif
 

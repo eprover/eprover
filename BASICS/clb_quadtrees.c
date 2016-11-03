@@ -73,49 +73,49 @@ static QuadTree_p splay_tree(QuadTree_p tree, QuadKey_p key)
       cmpres = QuadKeyCmp(key, &(tree->key));
       if (cmpres < 0)
       {
-	 if(!tree->lson)
-	 {
-	    break;
-	 }
-	 if(QuadKeyCmp(key, &(tree->lson->key)) < 0)
-	 {
-	    tmp = tree->lson;
-	    tree->lson = tmp->rson;
-	    tmp->rson = tree;
-	    tree = tmp;
-	    if (!tree->lson)
-	    {
-	       break;
-	    }
-	 }
-	 right->lson = tree;
-	 right = tree;
-	 tree = tree->lson;
+    if(!tree->lson)
+    {
+       break;
+    }
+    if(QuadKeyCmp(key, &(tree->lson->key)) < 0)
+    {
+       tmp = tree->lson;
+       tree->lson = tmp->rson;
+       tmp->rson = tree;
+       tree = tmp;
+       if (!tree->lson)
+       {
+          break;
+       }
+    }
+    right->lson = tree;
+    right = tree;
+    tree = tree->lson;
       }
       else if(cmpres > 0)
       {
-	 if (!tree->rson)
-	 {
-	    break;
-	 }
-	 if(QuadKeyCmp(key, &(tree->rson->key)) > 0)
-	 {
-	    tmp = tree->rson;
-	    tree->rson = tmp->lson;
-	    tmp->lson = tree;
-	    tree = tmp;
-	    if (!tree->rson)
-	    {
-	       break;
-	    }
-	 }
-	 left->rson = tree;
-	 left = tree;
-	 tree = tree->rson;
+    if (!tree->rson)
+    {
+       break;
+    }
+    if(QuadKeyCmp(key, &(tree->rson->key)) > 0)
+    {
+       tmp = tree->rson;
+       tree->rson = tmp->lson;
+       tmp->lson = tree;
+       tree = tmp;
+       if (!tree->rson)
+       {
+          break;
+       }
+    }
+    left->rson = tree;
+    left = tree;
+    tree = tree->rson;
       }
       else
       {
-	 break;
+    break;
       }
    }
    left->rson = tree->lson;
@@ -208,16 +208,16 @@ void QuadTreeFree(QuadTree_p junk)
 
       while(!PStackEmpty(stack))
       {
-	 junk = PStackPopP(stack);
-	 if(junk->lson)
-	 {
-	    PStackPushP(stack, junk->lson);
-	 }
-	 if(junk->rson)
-	 {
-	    PStackPushP(stack, junk->rson);
-	 }
-	 QuadTreeCellFree(junk);
+    junk = PStackPopP(stack);
+    if(junk->lson)
+    {
+       PStackPushP(stack, junk->lson);
+    }
+    if(junk->rson)
+    {
+       PStackPushP(stack, junk->rson);
+    }
+    QuadTreeCellFree(junk);
       }
       PStackFree(stack);
    }
@@ -329,7 +329,7 @@ QuadTree_p QuadTreeFind(QuadTree_p *root, QuadKey_p key)
       *root = splay_tree(*root, key);
       if(QuadKeyCmp(&((*root)->key), key)==0)
       {
-	 return *root;
+    return *root;
       }
    }
    return NULL;
@@ -365,12 +365,12 @@ QuadTree_p QuadTreeExtractEntry(QuadTree_p *root, QuadKey_p key)
    {
       if (!(*root)->lson)
       {
-	 x = (*root)->rson;
+    x = (*root)->rson;
       }
       else
       {
-	 x = splay_tree((*root)->lson, key);
-	 x->rson = (*root)->rson;
+    x = splay_tree((*root)->lson, key);
+    x->rson = (*root)->rson;
       }
       cell = *root;
       cell->lson = cell->rson = NULL;

@@ -75,37 +75,37 @@ Clause_p ClauseParamodConstruct(ParamodInfo_p ol_desc, bool sim_pm);
 
 
 Term_p ComputeOverlap(TB_p bank, OCB_p ocb, ClausePos_p from, Term_p
-		      into, TermPos_p pos,  Subst_p subst, VarBank_p
-		      freshvars);
+            into, TermPos_p pos,  Subst_p subst, VarBank_p
+            freshvars);
 
 Eqn_p  EqnOrderedParamod(TB_p bank, OCB_p ocb, ClausePos_p from,
-			 ClausePos_p into, Subst_p subst, VarBank_p
-			 freshvars);
+          ClausePos_p into, Subst_p subst, VarBank_p
+          freshvars);
 
 Clause_p ClauseOrderedParamod(TB_p bank, OCB_p ocb, ClausePos_p
-			      from,ClausePos_p into, VarBank_p
-			      freshvars);
+               from,ClausePos_p into, VarBank_p
+               freshvars);
 
 Clause_p ClauseOrderedSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
                                  from,ClausePos_p into, VarBank_p
                                  freshvars);
 
 Term_p   ClausePosFirstParamodInto(Clause_p clause, ClausePos_p pos,
-				   ClausePos_p from_pos, bool no_top,
+               ClausePos_p from_pos, bool no_top,
                                    bool simu_paramod);
 Term_p   ClausePosNextParamodInto(ClausePos_p pos, ClausePos_p
-				  from_pos, bool no_top);
+              from_pos, bool no_top);
 
 Term_p   ClausePosFirstParamodFromSide(Clause_p from, ClausePos_p
-				       from_pos);
+                   from_pos);
 Term_p   ClausePosNextParamodFromSide(ClausePos_p from_pos);
 
 Term_p   ClausePosFirstParamodPair(Clause_p from, ClausePos_p
-				   from_pos, Clause_p into,
-				   ClausePos_p into_pos, bool no_top,
+               from_pos, Clause_p into,
+               ClausePos_p into_pos, bool no_top,
                                    bool simu_paramod);
 Term_p   ClausePosNextParamodPair(ClausePos_p from_pos, ClausePos_p
-				  into_pos, bool no_top, bool simu_paramod);
+              into_pos, bool no_top, bool simu_paramod);
 
 
 #endif

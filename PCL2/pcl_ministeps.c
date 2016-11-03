@@ -105,8 +105,8 @@ PCLMiniStep_p PCLMiniStepParse(Scanner_p in, TB_p bank)
    if(TestInpTok(in, Fullstop))
    {
       AktTokenError(in,
-		    "No compound PCL identifiers allowed in this mode",
-		    false);
+          "No compound PCL identifiers allowed in this mode",
+          false);
    }
    AcceptInpTok(in, Colon);
    handle->properties = PCLParseExternalType(in);
@@ -256,14 +256,14 @@ void PCLMiniStepPrintFormat(FILE* out, PCLMiniStep_p step, TB_p bank,
    switch(format)
    {
    case pcl_format:
-	 PCLMiniStepPrint(out, step, bank);
-	 break;
+    PCLMiniStepPrint(out, step, bank);
+    break;
    case tstp_format:
-	 PCLMiniStepPrintTSTP(out, step, bank);
-	 break;
+    PCLMiniStepPrintTSTP(out, step, bank);
+    break;
    default:
-	 assert(false);
-	 break;
+    assert(false);
+    break;
    }
 }
 

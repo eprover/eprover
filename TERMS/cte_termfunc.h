@@ -46,12 +46,12 @@ extern bool      TermPrintTypes;
 
 #define TermStartToken (SigSupportLists?\
                        (FuncSymbStartToken|OpenSquare|Mult):\
-		       (FuncSymbStartToken|Mult))
+             (FuncSymbStartToken|Mult))
 
 void   VarPrint(FILE* out, FunCode var);
 void   TermPrint(FILE* out, Term_p term, Sig_p sig, DerefType deref);
 void   TermPrintArgList(FILE* out, Term_p *args, int arity, Sig_p sig,
-			DerefType deref);
+         DerefType deref);
 FuncSymbType TermParseOperator(Scanner_p in, DStr_p id);
 FunCode       TermSigInsert(Sig_p sig, const char* name, int arity, bool
                             special_id, FuncSymbType type);
@@ -73,7 +73,7 @@ long   TermLexCompare(Term_p t1, Term_p t2);
 bool   TermIsSubterm(Term_p super, Term_p test, DerefType deref);
 
 bool    TermIsSubtermDeref(Term_p super, Term_p test, DerefType
-			   deref_super, DerefType deref_test);
+            deref_super, DerefType deref_test);
 
 long    TermWeightCompute(Term_p term, long vweight, long fweight);
 #define TermWeight(term, vweight, fweight) \
@@ -117,19 +117,19 @@ long    VarBankCheckBindings(FILE* out, VarBank_p bank, Sig_p sig);
 #define TermAddSymbolDistribution(term, dist_array)\
         TermAddSymbolDistributionLimited((term),(dist_array), LONG_MAX)
 void    TermAddSymbolDistributionLimited(Term_p term, long *dist_array,
-					 long limit);
+                long limit);
 void    TermAddSymbolDistExist(Term_p term, long *dist_array,
                                PStack_p exists);
 void    TermAddSymbolFeaturesLimited(Term_p term, long depth,
-				     long *freq_array, long* depth_array,
-				     long limit);
+                 long *freq_array, long* depth_array,
+                 long limit);
 
 void    TermAddSymbolFeatures(Term_p term, PStack_p mod_stack,
                               long depth, long *feature_array, long offset);
 
 void    TermComputeFunctionRanks(Term_p term, long *rank_array, long *count);
 long    TermCollectPropVariables(Term_p term, PTree_p *tree,
-				  TermProperties prop);
+              TermProperties prop);
 #define TermCollectVariables(term,tree)\
         TermCollectPropVariables((term), (tree), TPIgnoreProps)
 long    TermAddFunOcc(Term_p term, PDArray_p f_occur, PStack_p res_stack);

@@ -85,11 +85,11 @@ void      PDArrayElementDeleteInt(PDArray_p array, long idx);
           PDArrayElementRef((array), (idx))->i_val = (value)
 
 #define   PDArrayElement(array, idx) \
-	  *PDArrayElementRef((array), (idx))
+     *PDArrayElementRef((array), (idx))
 #define   PDArrayElementP(array, idx) \
-	  (PDArrayElementRef((array), (idx))->p_val)
+     (PDArrayElementRef((array), (idx))->p_val)
 #define   PDArrayElementInt(array, idx) \
-	  (PDArrayElementRef((array), (idx))->i_val)
+     (PDArrayElementRef((array), (idx))->i_val)
 
 long      PDArrayMembers(PDArray_p array);
 long      PDArrayFirstUnused(PDArray_p array);

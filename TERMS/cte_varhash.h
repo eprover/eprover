@@ -82,14 +82,14 @@ void           VarHashFree(VarHash_p junk);
 int            VarHashFunction(Term_p var);
 VarHashEntry_p VarHashListFind(VarHashEntry_p list, Term_p var);
 long           VarHashAddValue(VarHash_p hash, Term_p var, long
-			       value);
+                value);
 void VarHashAddVarDistrib(VarHash_p hash, Term_p term, DerefType
-			  deref, long add);
+           deref, long add);
 static __inline__ VarHashEntry_p VarHashFind(VarHash_p hash, Term_p
-					     var);
+                    var);
 
 void PDArrayAddVarDistrib(PDArray_p array, Term_p term, DerefType
-			  deref, long add);
+           deref, long add);
 
 
 
@@ -110,7 +110,7 @@ void PDArrayAddVarDistrib(PDArray_p array, Term_p term, DerefType
 /----------------------------------------------------------------------*/
 
 static __inline__ VarHashEntry_p VarHashEntryAlloc(Term_p var, long
-						   value)
+                     value)
 {
    VarHashEntry_p handle = VarHashEntryCellAlloc();
 
@@ -161,7 +161,7 @@ static __inline__ VarHash_p VarHashAlloc(void)
 /----------------------------------------------------------------------*/
 
 static __inline__ VarHashEntry_p VarHashFind(VarHash_p hash, Term_p
-					     var)
+                    var)
 {
    int i = VarHashFunction(var);
 

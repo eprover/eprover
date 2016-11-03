@@ -50,27 +50,27 @@ PCLMiniProt_p PCLMiniProtAlloc(void);
 void          PCLMiniProtFree(PCLMiniProt_p junk);
 
 bool          PCLMiniProtInsertStep(PCLMiniProt_p prot, PCLMiniStep_p
-				    step);
+                step);
 PCLMiniStep_p PCLMiniProtFindStep(PCLMiniProt_p prot, unsigned long id);
 PCLMiniStep_p PCLMiniProtExtractStep(PCLMiniProt_p prot, PCLMiniStep_p
-				     step);
+                 step);
 bool          PCLMiniProtDeleteStep(PCLMiniProt_p prot, PCLMiniStep_p
-				    step);
+                step);
 
 
 long      PCLMiniProtParse(Scanner_p in, PCLMiniProt_p prot);
 void      PCLMiniProtPrint(FILE* out, PCLMiniProt_p prot,
-			   OutputFormatType format);
+            OutputFormatType format);
 
 void      PCLMiniExprCollectPreconds(PCLMiniProt_p prot, PCLExpr_p expr,
-				     PTree_p *tree);
+                 PTree_p *tree);
 
 bool      PCLMiniProtMarkProofClauses(PCLMiniProt_p prot, bool fast);
 void      PCLMiniProtSetClauseProp(PCLMiniProt_p prot, PCLStepProperties props);
 void      PCLMiniProtDelClauseProp(PCLMiniProt_p prot, PCLStepProperties props);
 
 void      PCLMiniProtPrintProofClauses(FILE* out, PCLMiniProt_p prot,
-				       OutputFormatType format);
+                   OutputFormatType format);
 
 #endif
 

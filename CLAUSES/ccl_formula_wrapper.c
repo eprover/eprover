@@ -277,20 +277,20 @@ void WFormulaTPTPPrint(FILE* out, WFormula_p form, bool fullterms)
    {
    case WPTypeAxiom:
          typename = "axiom";
-	 break;
+    break;
    case WPTypeHypothesis:
-	 typename = "hypothesis";
-	 break;
+    typename = "hypothesis";
+    break;
    case WPTypeConjecture:
    case WPTypeNegConjecture:
-	 typename = "conjecture";
-	 break;
+    typename = "conjecture";
+    break;
    case WPTypeQuestion:
          typename = "question";
          break;
    default:
-	 typename = "unknown";
-	 break;
+    typename = "unknown";
+    break;
    }
    if(form->ident < 0)
    {
@@ -411,7 +411,7 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
 /----------------------------------------------------------------------*/
 
 void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
-		       bool complete)
+             bool complete)
 {
    char *typename = "plain", *formula_kind = "fof";
    char prefix;
@@ -447,7 +447,7 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
          typename = "negated_conjecture";
          break;
    default:
-	 break;
+    break;
    }
    if(form->ident < 0)
    {

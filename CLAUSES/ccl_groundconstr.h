@@ -66,30 +66,30 @@ void          LitOccTableFree(LitOccTable_p junk);
 
 bool    LitPosGetConstrState(LitOccTable_p table, FunCode pred, int pos);
 void    LitPosSetConstrState(LitOccTable_p table, FunCode pred, int
-			     pos, bool value);
+              pos, bool value);
 
 PTree_p LitPosGetConstraints(LitOccTable_p table, FunCode pred, int pos);
 bool    LitPosAddConstraint(LitOccTable_p table, FunCode pred, int
-			     pos, Term_p term);
+              pos, Term_p term);
 
 void    LitOccAddLitAdd(LitOccTable_p p_table, LitOccTable_p n_table,
-			Eqn_p eqn);
+         Eqn_p eqn);
 
 void    LitOccAddClauseAdd(LitOccTable_p p_table, LitOccTable_p
-			   n_table, Clause_p clause);
+            n_table, Clause_p clause);
 
 void    LitOccAddClauseSetAlt(LitOccTable_p p_table, LitOccTable_p
-			       n_table, ClauseSet_p set);
+                n_table, ClauseSet_p set);
 
 
 long    SigCollectConstantTerms(TB_p bank, PStack_p stack, FunCode uniq);
 
 void      EqnCollectVarConstr(LitOccTable_p p_table, LitOccTable_p
-			      n_table, PDArray_p var_constr, Eqn_p
-			      eqn);
+               n_table, PDArray_p var_constr, Eqn_p
+               eqn);
 void ClauseCollectVarConstr(LitOccTable_p p_table, LitOccTable_p
-			    n_table, Clause_p clause, PTree_p
-			    ground_terms, PDArray_p var_constr);
+             n_table, Clause_p clause, PTree_p
+             ground_terms, PDArray_p var_constr);
 
 #endif
 

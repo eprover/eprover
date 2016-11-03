@@ -217,7 +217,7 @@ void EvalsFree(Eval_p junk)
 void EvalPrint(FILE* out, Eval_p eval, int pos)
 {
    fprintf(out, "[%3ld:%.10f:%ld]", eval->evals[pos].priority,
-	   eval->evals[pos].heuristic, eval->eval_count);
+      eval->evals[pos].heuristic, eval->eval_count);
 }
 
 
@@ -359,14 +359,14 @@ bool EvalGreater(Eval_p ev1, Eval_p ev2, int pos)
       }
       if(ev1->evals[pos].heuristic > ev2->evals[pos].heuristic)
       {
-	 return true;
+    return true;
       }
       else if(ev1->evals[pos].heuristic == ev2->evals[pos].heuristic)
       {
-	 if(ev1->eval_count > ev2->eval_count)
-	 {
-	    return true;
-	 }
+    if(ev1->eval_count > ev2->eval_count)
+    {
+       return true;
+    }
       }
    }
    return false;

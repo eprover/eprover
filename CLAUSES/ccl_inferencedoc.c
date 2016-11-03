@@ -121,7 +121,7 @@ static void pcl_print_end(FILE* out, char* comment, Clause_p clause)
    if(ClauseQueryProp(clause, CPWatchOnly)&&comment)
    {
       fprintf(out, PCLStepCompact?":'wl,%s'" : ": 'wl,%s'",
-	      comment);
+         comment);
    }
    else if(comment)
    {
@@ -182,19 +182,19 @@ static void print_initial(FILE* out, Clause_p clause, char* comment)
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_print_start(out, clause, PCLShellLevel<2);
+    pcl_print_start(out, clause, PCLShellLevel<2);
          ClauseSourceInfoPrintPCL(out, clause->info);
-	 pcl_print_end(out, comment, clause);
-	 break;
+    pcl_print_end(out, comment, clause);
+    break;
    case tstp_format:
-	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
-	 fprintf(out, ", ");
+    ClauseTSTPPrint(out, clause, PCLFullTerms, false);
+    fprintf(out, ", ");
          ClauseSourceInfoPrintTSTP(out, clause->info);
-	 tstp_print_end(out, comment, clause);
-	 break;
+    tstp_print_end(out, comment, clause);
+    break;
    default:
-	 fprintf(out, "# Output format not implemented.\n");
-	 break;
+    fprintf(out, "# Output format not implemented.\n");
+    break;
    }
 }
 
@@ -214,28 +214,28 @@ static void print_initial(FILE* out, Clause_p clause, char* comment)
 /----------------------------------------------------------------------*/
 
 static void print_paramod(FILE* out, Clause_p clause, Clause_p
-			  parent1, Clause_p parent2, char* inf, char* comment)
+           parent1, Clause_p parent2, char* inf, char* comment)
 {
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_print_start(out, clause, PCLShellLevel<1);
-	 fprintf(out, "%s(%ld,%ld)", inf, parent1->ident,
-		 parent2->ident);
-	 pcl_print_end(out, comment, clause);
-	 break;
+    pcl_print_start(out, clause, PCLShellLevel<1);
+    fprintf(out, "%s(%ld,%ld)", inf, parent1->ident,
+       parent2->ident);
+    pcl_print_end(out, comment, clause);
+    break;
    case tstp_format:
-	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
-	 fprintf(out,
-		 ",inference(%s,[status(thm)],[c_0_%ld,c_0_%ld])",
+    ClauseTSTPPrint(out, clause, PCLFullTerms, false);
+    fprintf(out,
+       ",inference(%s,[status(thm)],[c_0_%ld,c_0_%ld])",
                  inf,
-		 parent1->ident,
-		 parent2->ident);
-	 tstp_print_end(out, comment, clause);
-	 break;
+       parent1->ident,
+       parent2->ident);
+    tstp_print_end(out, comment, clause);
+    break;
    default:
-	 fprintf(out, "# Output format not implemented.\n");
-	 break;
+    fprintf(out, "# Output format not implemented.\n");
+    break;
    }
 }
 
@@ -253,25 +253,25 @@ static void print_paramod(FILE* out, Clause_p clause, Clause_p
 /----------------------------------------------------------------------*/
 
 static void print_eres(FILE* out, Clause_p clause, Clause_p
-			  parent1, char* comment)
+           parent1, char* comment)
 {
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_print_start(out, clause, PCLShellLevel<1);
-	 fprintf(out, PCL_ER"(%ld)", parent1->ident);
-	 pcl_print_end(out, comment, clause);
-	 break;
+    pcl_print_start(out, clause, PCLShellLevel<1);
+    fprintf(out, PCL_ER"(%ld)", parent1->ident);
+    pcl_print_end(out, comment, clause);
+    break;
    case tstp_format:
-	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
-	 fprintf(out,
-		 ",inference("PCL_ER",[status(thm)],[c_0_%ld])",
-		 parent1->ident);
-	 tstp_print_end(out, comment, clause);
-	 break;
+    ClauseTSTPPrint(out, clause, PCLFullTerms, false);
+    fprintf(out,
+       ",inference("PCL_ER",[status(thm)],[c_0_%ld])",
+       parent1->ident);
+    tstp_print_end(out, comment, clause);
+    break;
    default:
-	 fprintf(out, "# Output format not implemented.\n");
-	 break;
+    fprintf(out, "# Output format not implemented.\n");
+    break;
    }
 }
 
@@ -294,20 +294,20 @@ static void print_des_eres(FILE* out, Clause_p clause, long old_id,
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_print_start(out, clause, PCLShellLevel<1);
-	 fprintf(out, PCL_ER"(%ld)", old_id);
-	 pcl_print_end(out, comment, clause);
-	 break;
+    pcl_print_start(out, clause, PCLShellLevel<1);
+    fprintf(out, PCL_ER"(%ld)", old_id);
+    pcl_print_end(out, comment, clause);
+    break;
    case tstp_format:
-	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
-	 fprintf(out,
-		 ",inference("PCL_ER",[status(thm)],[c_0_%ld])",
-		 old_id);
-	 tstp_print_end(out, comment, clause);
-	 break;
+    ClauseTSTPPrint(out, clause, PCLFullTerms, false);
+    fprintf(out,
+       ",inference("PCL_ER",[status(thm)],[c_0_%ld])",
+       old_id);
+    tstp_print_end(out, comment, clause);
+    break;
    default:
-	 fprintf(out, "# Output format not implemented.\n");
-	 break;
+    fprintf(out, "# Output format not implemented.\n");
+    break;
    }
 }
 
@@ -325,25 +325,25 @@ static void print_des_eres(FILE* out, Clause_p clause, long old_id,
 /----------------------------------------------------------------------*/
 
 static void print_efactor(FILE* out, Clause_p clause, Clause_p
-			  parent1, char* comment)
+           parent1, char* comment)
 {
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_print_start(out, clause, PCLShellLevel<1);
-	 fprintf(out, PCL_EF"(%ld)", parent1->ident);
-	 pcl_print_end(out, comment, clause);
-	 break;
+    pcl_print_start(out, clause, PCLShellLevel<1);
+    fprintf(out, PCL_EF"(%ld)", parent1->ident);
+    pcl_print_end(out, comment, clause);
+    break;
    case tstp_format:
-	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
-	 fprintf(out,
-		 ",inference("PCL_EF",[status(thm)],[c_0_%ld])",
-		 parent1->ident);
-	 tstp_print_end(out, comment, clause);
-	 break;
+    ClauseTSTPPrint(out, clause, PCLFullTerms, false);
+    fprintf(out,
+       ",inference("PCL_EF",[status(thm)],[c_0_%ld])",
+       parent1->ident);
+    tstp_print_end(out, comment, clause);
+    break;
    default:
-	 fprintf(out, "# Output format not implemented.\n");
-	 break;
+    fprintf(out, "# Output format not implemented.\n");
+    break;
    }
 }
 
@@ -361,26 +361,26 @@ static void print_efactor(FILE* out, Clause_p clause, Clause_p
 /----------------------------------------------------------------------*/
 
 static void print_factor(FILE* out, Clause_p clause, Clause_p
-			  parent1, char* comment)
+           parent1, char* comment)
 {
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_print_start(out, clause, PCLShellLevel<1);
-	 fprintf(out, PCL_OF"(%ld)", parent1->ident);
-	 pcl_print_end(out, comment, clause);
-	 break;
+    pcl_print_start(out, clause, PCLShellLevel<1);
+    fprintf(out, PCL_OF"(%ld)", parent1->ident);
+    pcl_print_end(out, comment, clause);
+    break;
    case tstp_format:
-	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
-	 fprintf(out,
-		 ",inference("PCL_OF
+    ClauseTSTPPrint(out, clause, PCLFullTerms, false);
+    fprintf(out,
+       ",inference("PCL_OF
                  ",[status(thm)],[c_0_%ld])",
-		 parent1->ident);
-	 tstp_print_end(out, comment, clause);
-	 break;
+       parent1->ident);
+    tstp_print_end(out, comment, clause);
+    break;
    default:
-	 fprintf(out, "# Output format not implemented.\n");
-	 break;
+    fprintf(out, "# Output format not implemented.\n");
+    break;
    }
 }
 
@@ -399,28 +399,28 @@ static void print_factor(FILE* out, Clause_p clause, Clause_p
 /----------------------------------------------------------------------*/
 
 static void print_split(FILE* out, Clause_p clause, Clause_p
-			  parent1, char* comment)
+           parent1, char* comment)
 {
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_print_start(out, clause, PCLShellLevel<1);
-	 fprintf(out, PCL_SPLIT"(%ld)", parent1->ident);
-	 pcl_print_end(out, comment, clause);
-	 break;
+    pcl_print_start(out, clause, PCLShellLevel<1);
+    fprintf(out, PCL_SPLIT"(%ld)", parent1->ident);
+    pcl_print_end(out, comment, clause);
+    break;
    case tstp_format:
-	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
-	 fprintf(out,
-		 ",inference("
+    ClauseTSTPPrint(out, clause, PCLFullTerms, false);
+    fprintf(out,
+       ",inference("
                  TSTP_SPLIT_BASE
                  ",["TSTP_SPLIT_BASE"("TSTP_SPLIT_REFINED
                  ",[])],[c_0_%ld])",
-		 parent1->ident);
-	 tstp_print_end(out, comment, clause);
-	 break;
+       parent1->ident);
+    tstp_print_end(out, comment, clause);
+    break;
     default:
-	 fprintf(out, "# Output format not implemented.\n");
-	 break;
+    fprintf(out, "# Output format not implemented.\n");
+    break;
    }
 }
 
@@ -437,27 +437,27 @@ static void print_split(FILE* out, Clause_p clause, Clause_p
 /----------------------------------------------------------------------*/
 
 static void print_simplify_reflect(FILE* out, Clause_p clause, long
-				   old_id, Clause_p partner, char* comment)
+               old_id, Clause_p partner, char* comment)
 {
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_print_start(out, clause, PCLShellLevel<1);
-	 fprintf(out, PCL_SR"(%ld,%ld)", old_id,
-		 partner->ident);
-	 pcl_print_end(out, comment, clause);
-	 break;
+    pcl_print_start(out, clause, PCLShellLevel<1);
+    fprintf(out, PCL_SR"(%ld,%ld)", old_id,
+       partner->ident);
+    pcl_print_end(out, comment, clause);
+    break;
   case tstp_format:
-	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
-	 fprintf(out,
-		 ",inference("PCL_SR",[status(thm)],[c_0_%ld,c_0_%ld])",
-		 old_id,
-		 partner->ident);
-	 tstp_print_end(out, comment, clause);
-	 break;
+    ClauseTSTPPrint(out, clause, PCLFullTerms, false);
+    fprintf(out,
+       ",inference("PCL_SR",[status(thm)],[c_0_%ld,c_0_%ld])",
+       old_id,
+       partner->ident);
+    tstp_print_end(out, comment, clause);
+    break;
    default:
-	 fprintf(out, "# Output format not implemented.\n");
-	 break;
+    fprintf(out, "# Output format not implemented.\n");
+    break;
    }
 }
 
@@ -474,28 +474,28 @@ static void print_simplify_reflect(FILE* out, Clause_p clause, long
 /----------------------------------------------------------------------*/
 
 static void print_context_simplify_reflect(FILE* out, Clause_p clause, long
-				   old_id, Clause_p partner, char* comment)
+               old_id, Clause_p partner, char* comment)
 {
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_print_start(out, clause, PCLShellLevel<1);
-	 fprintf(out, PCL_CSR"(%ld,%ld)", old_id,
-		 partner->ident);
-	 pcl_print_end(out, comment, clause);
-	 break;
+    pcl_print_start(out, clause, PCLShellLevel<1);
+    fprintf(out, PCL_CSR"(%ld,%ld)", old_id,
+       partner->ident);
+    pcl_print_end(out, comment, clause);
+    break;
  case tstp_format:
-	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
-	 fprintf(out,
-		 ",inference("PCL_CSR
+    ClauseTSTPPrint(out, clause, PCLFullTerms, false);
+    fprintf(out,
+       ",inference("PCL_CSR
                  ",[status(thm)],[c_0_%ld,c_0_%ld])",
-		 old_id,
-		 partner->ident);
-	 tstp_print_end(out, comment, clause);
-	 break;
+       old_id,
+       partner->ident);
+    tstp_print_end(out, comment, clause);
+    break;
    default:
-	 fprintf(out, "# Output format not implemented.\n");
-	 break;
+    fprintf(out, "# Output format not implemented.\n");
+    break;
    }
 }
 
@@ -513,7 +513,7 @@ static void print_context_simplify_reflect(FILE* out, Clause_p clause, long
 /----------------------------------------------------------------------*/
 
 static void print_ac_res(FILE* out, Clause_p clause, long
-			 old_id, Sig_p sig, char* comment)
+          old_id, Sig_p sig, char* comment)
 {
    PStackPointer i, sp;
    Clause_p      ax;
@@ -521,36 +521,36 @@ static void print_ac_res(FILE* out, Clause_p clause, long
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_print_start(out, clause, PCLShellLevel<1);
-	 fprintf(out, PCL_ACRES"(%ld", old_id);
-	 assert(!PStackEmpty(sig->ac_axioms));
-	 sp = PStackGetSP(sig->ac_axioms);
-	 for(i=0; i< sp; i++)
-	 {
+    pcl_print_start(out, clause, PCLShellLevel<1);
+    fprintf(out, PCL_ACRES"(%ld", old_id);
+    assert(!PStackEmpty(sig->ac_axioms));
+    sp = PStackGetSP(sig->ac_axioms);
+    for(i=0; i< sp; i++)
+    {
             ax = PStackElementP(sig->ac_axioms,i);
-	    fprintf(out, ",%ld", ax->ident);
-	 }
-	 fputc(')', out);
-	 pcl_print_end(out, comment, clause);
-	 break;
+       fprintf(out, ",%ld", ax->ident);
+    }
+    fputc(')', out);
+    pcl_print_end(out, comment, clause);
+    break;
    case tstp_format:
-	 ClauseTSTPPrint(out, clause, PCLFullTerms, false);
-	 fprintf(out,
-		 ",inference("PCL_ACRES
+    ClauseTSTPPrint(out, clause, PCLFullTerms, false);
+    fprintf(out,
+       ",inference("PCL_ACRES
                  ",[status(thm)],[c_0_%ld", old_id);
-	 assert(!PStackEmpty(sig->ac_axioms));
-	 sp = PStackGetSP(sig->ac_axioms);
-	 for(i=0; i< sp; i++)
-	 {
+    assert(!PStackEmpty(sig->ac_axioms));
+    sp = PStackGetSP(sig->ac_axioms);
+    for(i=0; i< sp; i++)
+    {
             ax = PStackElementP(sig->ac_axioms,i);
-	    fprintf(out, ",c_0_%ld", ax->ident);
-	 }
-	 fputs("])", out);
-	 tstp_print_end(out, comment, clause);
-	 break;
+       fprintf(out, ",c_0_%ld", ax->ident);
+    }
+    fputs("])", out);
+    tstp_print_end(out, comment, clause);
+    break;
    default:
-	 fprintf(out, "# Output format not implemented.\n");
-	 break;
+    fprintf(out, "# Output format not implemented.\n");
+    break;
    }
 }
 
@@ -569,15 +569,15 @@ static void print_ac_res(FILE* out, Clause_p clause, long
 /----------------------------------------------------------------------*/
 
 static void print_minimize(FILE* out, Clause_p clause, long
-			 old_id, char* comment)
+          old_id, char* comment)
 {
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_print_start(out, clause, PCLShellLevel<1);
-	 fprintf(out, PCL_CN"(%ld)", old_id);
-	 pcl_print_end(out, comment, clause);
-	 break;
+    pcl_print_start(out, clause, PCLShellLevel<1);
+    fprintf(out, PCL_CN"(%ld)", old_id);
+    pcl_print_end(out, comment, clause);
+    break;
    case tstp_format:
          ClauseTSTPPrint(out, clause, PCLFullTerms, false);
          fprintf(out,
@@ -587,8 +587,8 @@ static void print_minimize(FILE* out, Clause_p clause, long
          tstp_print_end(out, comment, clause);
          break;
    default:
-	 fprintf(out, "# Output format not implemented.\n");
-	 break;
+    fprintf(out, "# Output format not implemented.\n");
+    break;
    }
 }
 
@@ -611,10 +611,10 @@ static void print_condense(FILE* out, Clause_p clause, long
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_print_start(out, clause, PCLShellLevel<1);
-	 fprintf(out, PCL_CONDENSE"(%ld)", old_id);
-	 pcl_print_end(out, comment, clause);
-	 break;
+    pcl_print_start(out, clause, PCLShellLevel<1);
+    fprintf(out, PCL_CONDENSE"(%ld)", old_id);
+    pcl_print_end(out, comment, clause);
+    break;
    case tstp_format:
          ClauseTSTPPrint(out, clause, PCLFullTerms, false);
          fprintf(out,
@@ -624,8 +624,8 @@ static void print_condense(FILE* out, Clause_p clause, long
          tstp_print_end(out, comment, clause);
          break;
    default:
-	 fprintf(out, "# Output format not implemented.\n");
-	 break;
+    fprintf(out, "# Output format not implemented.\n");
+    break;
    }
 }
 
@@ -647,10 +647,10 @@ static void print_eval_answer(FILE* out, Clause_p clause, long
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_print_start(out, clause, PCLShellLevel<1);
-	 fprintf(out, PCL_EVANS"(%ld)", old_id);
-	 pcl_print_end(out, comment, clause);
-	 break;
+    pcl_print_start(out, clause, PCLShellLevel<1);
+    fprintf(out, PCL_EVANS"(%ld)", old_id);
+    pcl_print_end(out, comment, clause);
+    break;
    case tstp_format:
          ClauseTSTPPrint(out, clause, PCLFullTerms, false);
          fprintf(out,
@@ -659,8 +659,8 @@ static void print_eval_answer(FILE* out, Clause_p clause, long
          tstp_print_end(out, comment, clause);
          break;
    default:
-	 fprintf(out, "# Output format not implemented.\n");
-	 break;
+    fprintf(out, "# Output format not implemented.\n");
+    break;
    }
 }
 
@@ -677,7 +677,7 @@ static void print_eval_answer(FILE* out, Clause_p clause, long
 /----------------------------------------------------------------------*/
 
 static void print_rewrite(FILE* out, ClausePos_p rewritten, long
-			  old_id, Term_p old_term, char* comment)
+           old_id, Term_p old_term, char* comment)
 {
    PStack_p rwsteps = PStackAlloc();
    PStackPointer i;
@@ -694,42 +694,42 @@ static void print_rewrite(FILE* out, ClausePos_p rewritten, long
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 tmp = TermComputeRWSequence(rwsteps, old_term, nf, 0);
-	 UNUSED(tmp); assert(tmp);
-	 pcl_print_start(out, rewritten->clause, PCLShellLevel<1);
-	 for(i=0; i<PStackGetSP(rwsteps); i++)
-	 {
-	    fputs(PCL_RW"(", out);
-	 }
-	 fprintf(out, "%ld", old_id);
-	 for(i=0; i<PStackGetSP(rwsteps); i++)
-	 {
+    tmp = TermComputeRWSequence(rwsteps, old_term, nf, 0);
+    UNUSED(tmp); assert(tmp);
+    pcl_print_start(out, rewritten->clause, PCLShellLevel<1);
+    for(i=0; i<PStackGetSP(rwsteps); i++)
+    {
+       fputs(PCL_RW"(", out);
+    }
+    fprintf(out, "%ld", old_id);
+    for(i=0; i<PStackGetSP(rwsteps); i++)
+    {
             demod = PStackElementP(rwsteps,i);
-	    fprintf(out, ",%ld)", demod->ident);
-	 }
-	 pcl_print_end(out, comment, rewritten->clause);
-	 break;
+       fprintf(out, ",%ld)", demod->ident);
+    }
+    pcl_print_end(out, comment, rewritten->clause);
+    break;
    case tstp_format:
-	 tmp = TermComputeRWSequence(rwsteps, old_term, nf, 0);
-	 UNUSED(tmp); assert(tmp);
-	 ClauseTSTPPrint(out, rewritten->clause, PCLFullTerms, false);
-	 fputc(',', out);
-	 for(i=0; i<PStackGetSP(rwsteps); i++)
-	 {
-	    fprintf(out,"inference("PCL_RW", [status(thm)],[");
-	 }
-	 fprintf(out, "c_0_%ld", old_id);
-	 for(i=0; i<PStackGetSP(rwsteps); i++)
-	 {
+    tmp = TermComputeRWSequence(rwsteps, old_term, nf, 0);
+    UNUSED(tmp); assert(tmp);
+    ClauseTSTPPrint(out, rewritten->clause, PCLFullTerms, false);
+    fputc(',', out);
+    for(i=0; i<PStackGetSP(rwsteps); i++)
+    {
+       fprintf(out,"inference("PCL_RW", [status(thm)],[");
+    }
+    fprintf(out, "c_0_%ld", old_id);
+    for(i=0; i<PStackGetSP(rwsteps); i++)
+    {
             demod = PStackElementP(rwsteps,i);
-	    fprintf(out, ",c_0_%ld])",
-		    demod->ident);
-	 }
-	 tstp_print_end(out, comment, rewritten->clause);
-	 break;
+       fprintf(out, ",c_0_%ld])",
+          demod->ident);
+    }
+    tstp_print_end(out, comment, rewritten->clause);
+    break;
    default:
-	 fprintf(out, "# Output format not implemented.\n");
-	 break;
+    fprintf(out, "# Output format not implemented.\n");
+    break;
    }
    PStackFree(rwsteps);
 }
@@ -748,44 +748,44 @@ static void print_rewrite(FILE* out, ClausePos_p rewritten, long
 /----------------------------------------------------------------------*/
 
 static void print_eq_unfold(FILE* out, Clause_p rewritten,
-			    long old_id, ClausePos_p demod,
-			    PStack_p demod_pos)
+             long old_id, ClausePos_p demod,
+             PStack_p demod_pos)
 {
    PStackPointer i;
 
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_print_start(out, rewritten, PCLShellLevel<1);
-	 for(i=0; i<PStackGetSP(demod_pos); i++)
-	 {
-	    fputs(PCL_RW"(", out);
-	 }
-	 fprintf(out, "%ld", old_id);
-	 for(i=0; i<PStackGetSP(demod_pos); i++)
-	 {
-	    fprintf(out, ",%ld)", demod->clause->ident);
-	 }
-	 pcl_print_end(out, "unfolding", rewritten);
-	 break;
+    pcl_print_start(out, rewritten, PCLShellLevel<1);
+    for(i=0; i<PStackGetSP(demod_pos); i++)
+    {
+       fputs(PCL_RW"(", out);
+    }
+    fprintf(out, "%ld", old_id);
+    for(i=0; i<PStackGetSP(demod_pos); i++)
+    {
+       fprintf(out, ",%ld)", demod->clause->ident);
+    }
+    pcl_print_end(out, "unfolding", rewritten);
+    break;
    case tstp_format:
-	 ClauseTSTPPrint(out, rewritten, PCLFullTerms, false);
-	 fputc(',', out);
-	 for(i=0; i<PStackGetSP(demod_pos); i++)
-	 {
-	    fprintf(out,"inference("PCL_RW", [status(thm)],[");
-	 }
-	 fprintf(out, "c_0_%ld", old_id);
-	 for(i=0; i<PStackGetSP(demod_pos); i++)
-	 {
-	    fprintf(out, ",c_0_%ld])",
-		    demod->clause->ident);
-	 }
-	 tstp_print_end(out, "Unfolding", rewritten);
-	 break;
+    ClauseTSTPPrint(out, rewritten, PCLFullTerms, false);
+    fputc(',', out);
+    for(i=0; i<PStackGetSP(demod_pos); i++)
+    {
+       fprintf(out,"inference("PCL_RW", [status(thm)],[");
+    }
+    fprintf(out, "c_0_%ld", old_id);
+    for(i=0; i<PStackGetSP(demod_pos); i++)
+    {
+       fprintf(out, ",c_0_%ld])",
+          demod->clause->ident);
+    }
+    tstp_print_end(out, "Unfolding", rewritten);
+    break;
     default:
-	 fprintf(out, "# Output format not implemented.\n");
-	 break;
+    fprintf(out, "# Output format not implemented.\n");
+    break;
    }
 }
 
@@ -883,19 +883,19 @@ static void print_formula_initial(FILE* out, WFormula_p form, char* comment)
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_formula_print_start(out, form, PCLShellLevel<2);
+    pcl_formula_print_start(out, form, PCLShellLevel<2);
          ClauseSourceInfoPrintPCL(out, form->info);
-	 pcl_formula_print_end(out, comment);
-	 break;
+    pcl_formula_print_end(out, comment);
+    break;
    case tstp_format:
-	 WFormulaTSTPPrint(out, form, PCLFullTerms, false);
-	 fprintf(out, ", ");
+    WFormulaTSTPPrint(out, form, PCLFullTerms, false);
+    fprintf(out, ", ");
          ClauseSourceInfoPrintTSTP(out, form->info);
-	 tstp_formula_print_end(out, comment);
-	 break;
+    tstp_formula_print_end(out, comment);
+    break;
    default:
-	 fprintf(out, "# Output format not implemented.\n");
-	 break;
+    fprintf(out, "# Output format not implemented.\n");
+    break;
    }
 }
 
@@ -918,19 +918,19 @@ static void print_fof_intro_def(FILE* out, WFormula_p form, char* comment)
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_formula_print_start(out, form, PCLShellLevel<1);
+    pcl_formula_print_start(out, form, PCLShellLevel<1);
          fprintf(out, PCL_ID);
-	 pcl_formula_print_end(out, comment);
-	 break;
+    pcl_formula_print_end(out, comment);
+    break;
    case tstp_format:
-	 WFormulaTSTPPrint(out, form, PCLFullTerms, false);
-	 fprintf(out, ", ");
+    WFormulaTSTPPrint(out, form, PCLFullTerms, false);
+    fprintf(out, ", ");
          fprintf(out, PCL_ID_DEF);
-	 tstp_formula_print_end(out, comment);
-	 break;
+    tstp_formula_print_end(out, comment);
+    break;
    default:
-	 fprintf(out, "# Output format not implemented.\n");
-	 break;
+    fprintf(out, "# Output format not implemented.\n");
+    break;
    }
 }
 
@@ -956,20 +956,20 @@ static void print_fof_split_equiv(FILE* out, WFormula_p form,
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_formula_print_start(out, form, PCLShellLevel<1);
+    pcl_formula_print_start(out, form, PCLShellLevel<1);
          fprintf(out, PCL_SE"(%ld)",parent->ident);
-	 pcl_formula_print_end(out, comment);
-	 break;
+    pcl_formula_print_end(out, comment);
+    break;
    case tstp_format:
-	 WFormulaTSTPPrint(out, form, PCLFullTerms, false);
-	 fprintf(out, ", ");
+    WFormulaTSTPPrint(out, form, PCLFullTerms, false);
+    fprintf(out, ", ");
          fprintf(out, "inference("PCL_SE", [status(thm)], [c_0_%ld])",
                  parent->ident);
-	 tstp_formula_print_end(out, comment);
-	 break;
+    tstp_formula_print_end(out, comment);
+    break;
    default:
-	 fprintf(out, "# Output format not implemented.\n");
-	 break;
+    fprintf(out, "# Output format not implemented.\n");
+    break;
    }
 }
 
@@ -993,18 +993,18 @@ static void print_fof_simpl(FILE* out, WFormula_p form,
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_formula_print_start(out, form, PCLShellLevel<1);
+    pcl_formula_print_start(out, form, PCLShellLevel<1);
          fprintf(out, PCL_FS"(%ld)", old_id);
-	 pcl_formula_print_end(out, comment);
-	 break;
+    pcl_formula_print_end(out, comment);
+    break;
    case tstp_format:
-	 WFormulaTSTPPrint(out, form, PCLFullTerms, false);
+    WFormulaTSTPPrint(out, form, PCLFullTerms, false);
          fprintf(out, ",inference("PCL_FS", [status(thm)],[c_0_%ld])", old_id);
          tstp_formula_print_end(out, comment);
-	 break;
+    break;
    default:
-	 fprintf(out, "# Output format not implemented.\n");
-	 break;
+    fprintf(out, "# Output format not implemented.\n");
+    break;
    }
 }
 
@@ -1027,18 +1027,18 @@ static void print_neg_conj(FILE* out, WFormula_p form,
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_formula_print_start(out, form, PCLShellLevel<1);
+    pcl_formula_print_start(out, form, PCLShellLevel<1);
          fprintf(out, PCL_NC"(%ld)", old_id);
-	 pcl_formula_print_end(out, comment);
-	 break;
+    pcl_formula_print_end(out, comment);
+    break;
    case tstp_format:
-	 WFormulaTSTPPrint(out, form, PCLFullTerms, false);
+    WFormulaTSTPPrint(out, form, PCLFullTerms, false);
          fprintf(out, ",inference("PCL_NC", [status(cth)],[c_0_%ld])", old_id);
          tstp_formula_print_end(out, comment);
-	 break;
+    break;
    default:
-	 fprintf(out, "# Output format not implemented.\n");
-	 break;
+    fprintf(out, "# Output format not implemented.\n");
+    break;
    }
 }
 
@@ -1061,18 +1061,18 @@ static void print_fof_nnf(FILE* out, WFormula_p form,
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_formula_print_start(out, form, PCLShellLevel<1);
+    pcl_formula_print_start(out, form, PCLShellLevel<1);
          fprintf(out, PCL_NNF"(%ld)", old_id);
-	 pcl_formula_print_end(out, comment);
-	 break;
+    pcl_formula_print_end(out, comment);
+    break;
    case tstp_format:
-	 WFormulaTSTPPrint(out, form, PCLFullTerms, false);
+    WFormulaTSTPPrint(out, form, PCLFullTerms, false);
          fprintf(out, ",inference("PCL_NNF", [status(thm)],[c_0_%ld])", old_id);
          tstp_formula_print_end(out, comment);
-	 break;
+    break;
    default:
-	 fprintf(out, "# Output format not implemented.\n");
-	 break;
+    fprintf(out, "# Output format not implemented.\n");
+    break;
    }
 }
 
@@ -1096,18 +1096,18 @@ static void print_shift_quantors(FILE* out, WFormula_p form,
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_formula_print_start(out, form, PCLShellLevel<1);
+    pcl_formula_print_start(out, form, PCLShellLevel<1);
          fprintf(out, PCL_SQ"(%ld)", old_id);
-	 pcl_formula_print_end(out, comment);
-	 break;
+    pcl_formula_print_end(out, comment);
+    break;
    case tstp_format:
-	 WFormulaTSTPPrint(out, form, PCLFullTerms, false);
+    WFormulaTSTPPrint(out, form, PCLFullTerms, false);
          fprintf(out, ",inference("PCL_SQ", [status(thm)],[c_0_%ld])", old_id);
          tstp_formula_print_end(out, comment);
-	 break;
+    break;
    default:
-	 fprintf(out, "# Output format not implemented.\n");
-	 break;
+    fprintf(out, "# Output format not implemented.\n");
+    break;
    }
 }
 
@@ -1131,18 +1131,18 @@ static void print_skolemize(FILE* out, WFormula_p form,
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_formula_print_start(out, form, PCLShellLevel<1);
+    pcl_formula_print_start(out, form, PCLShellLevel<1);
          fprintf(out, PCL_SK"(%ld)", old_id);
-	 pcl_formula_print_end(out, comment);
-	 break;
+    pcl_formula_print_end(out, comment);
+    break;
    case tstp_format:
-	 WFormulaTSTPPrint(out, form, PCLFullTerms, false);
+    WFormulaTSTPPrint(out, form, PCLFullTerms, false);
          fprintf(out, ",inference("PCL_SK", [status(esa)], [c_0_%ld])", old_id);
          tstp_formula_print_end(out, comment);
-	 break;
+    break;
    default:
-	 fprintf(out, "# Output format not implemented.\n");
-	 break;
+    fprintf(out, "# Output format not implemented.\n");
+    break;
    }
 }
 
@@ -1165,18 +1165,18 @@ static void print_distribute(FILE* out, WFormula_p form,
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_formula_print_start(out, form, PCLShellLevel<1);
+    pcl_formula_print_start(out, form, PCLShellLevel<1);
          fprintf(out, PCL_DSTR"(%ld)", old_id);
-	 pcl_formula_print_end(out, comment);
-	 break;
+    pcl_formula_print_end(out, comment);
+    break;
    case tstp_format:
-	 WFormulaTSTPPrint(out, form, PCLFullTerms, false);
+    WFormulaTSTPPrint(out, form, PCLFullTerms, false);
          fprintf(out, ",inference("PCL_DSTR", [status(thm)],[c_0_%ld])", old_id);
          tstp_formula_print_end(out, comment);
-	 break;
+    break;
    default:
-	 fprintf(out, "# Output format not implemented.\n");
-	 break;
+    fprintf(out, "# Output format not implemented.\n");
+    break;
    }
 }
 
@@ -1198,18 +1198,18 @@ static void print_annotate_question(FILE* out, WFormula_p form,
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_formula_print_start(out, form, PCLShellLevel<1);
+    pcl_formula_print_start(out, form, PCLShellLevel<1);
          fprintf(out, PCL_ANNOQ"(%ld)", old_id);
-	 pcl_formula_print_end(out, comment);
-	 break;
+    pcl_formula_print_end(out, comment);
+    break;
    case tstp_format:
-	 WFormulaTSTPPrint(out, form, PCLFullTerms, false);
+    WFormulaTSTPPrint(out, form, PCLFullTerms, false);
          fprintf(out, ",inference("PCL_ANNOQ", [status(thm)],[c_0_%ld,theory(answers)])", old_id);
          tstp_formula_print_end(out, comment);
-	 break;
+    break;
    default:
-	 fprintf(out, "# Output format not implemented.\n");
-	 break;
+    fprintf(out, "# Output format not implemented.\n");
+    break;
    }
 }
 
@@ -1234,18 +1234,18 @@ static void print_var_rename(FILE* out, WFormula_p form,
    switch(DocOutputFormat)
    {
    case pcl_format:
-	 pcl_formula_print_start(out, form, PCLShellLevel<1);
+    pcl_formula_print_start(out, form, PCLShellLevel<1);
          fprintf(out, PCL_VR"(%ld)", old_id);
-	 pcl_formula_print_end(out, comment);
-	 break;
+    pcl_formula_print_end(out, comment);
+    break;
    case tstp_format:
-	 WFormulaTSTPPrint(out, form, PCLFullTerms, false);
+    WFormulaTSTPPrint(out, form, PCLFullTerms, false);
          fprintf(out, ",inference("PCL_VR", [status(thm)],[c_0_%ld])", old_id);
          tstp_formula_print_end(out, comment);
-	 break;
+    break;
    default:
-	 fprintf(out, "# Output format not implemented.\n");
-	 break;
+    fprintf(out, "# Output format not implemented.\n");
+    break;
    }
 }
 
@@ -1270,55 +1270,55 @@ static void print_var_rename(FILE* out, WFormula_p form,
 /----------------------------------------------------------------------*/
 
 void DocClauseCreation(FILE* out, long level, Clause_p clause,
-		       InfType op, Clause_p parent1,
-		       Clause_p parent2, char* comment)
+             InfType op, Clause_p parent1,
+             Clause_p parent2, char* comment)
 {
    if(level >= 2)
    {
       switch(op)
       {
       case inf_initial:
-	    assert(!parent1);
-	    assert(!parent2);
-	    clause->ident = ++ClauseIdentCounter;
-	    print_initial(out, clause, comment);
-	    break;
+       assert(!parent1);
+       assert(!parent2);
+       clause->ident = ++ClauseIdentCounter;
+       print_initial(out, clause, comment);
+       break;
       case inf_paramod:
       case inf_sim_paramod:
-	    assert(parent1);
-	    assert(parent2);
-	    clause->ident = ++ClauseIdentCounter;
-	    print_paramod(out, clause, parent1, parent2,
+       assert(parent1);
+       assert(parent2);
+       clause->ident = ++ClauseIdentCounter;
+       print_paramod(out, clause, parent1, parent2,
                           op==inf_paramod?PCL_PM:PCL_SPM,comment);
-	    break;
+       break;
       case inf_eres:
-	    assert(parent1);
-	    assert(!parent2);
-	    clause->ident = ++ClauseIdentCounter;
-	    print_eres(out, clause, parent1, comment);
-	    break;
+       assert(parent1);
+       assert(!parent2);
+       clause->ident = ++ClauseIdentCounter;
+       print_eres(out, clause, parent1, comment);
+       break;
       case inf_efactor:
-	    assert(parent1);
-	    assert(!parent2);
-	    clause->ident = ++ClauseIdentCounter;
-	    print_efactor(out, clause, parent1, comment);
-	    break;
+       assert(parent1);
+       assert(!parent2);
+       clause->ident = ++ClauseIdentCounter;
+       print_efactor(out, clause, parent1, comment);
+       break;
       case inf_factor: /* Should not really occur, just for
-			  completeness */
-	    assert(parent1);
-	    assert(!parent2);
-	    clause->ident = ++ClauseIdentCounter;
-	    print_factor(out, clause, parent1, comment);
-	    break;
+           completeness */
+       assert(parent1);
+       assert(!parent2);
+       clause->ident = ++ClauseIdentCounter;
+       print_factor(out, clause, parent1, comment);
+       break;
       case inf_split:
-	    assert(parent1);
-	    assert(!parent2);
-	    clause->ident = ++ClauseIdentCounter;
-	    print_split(out, clause, parent1, comment);
-	    break;
+       assert(parent1);
+       assert(!parent2);
+       clause->ident = ++ClauseIdentCounter;
+       print_split(out, clause, parent1, comment);
+       break;
       default:
-	    assert(false&&"Unsupported clause creation operation???");
-	    break;
+       assert(false&&"Unsupported clause creation operation???");
+       break;
       }
    }
 }
@@ -1394,53 +1394,53 @@ void DocClauseModification(FILE* out, long level, Clause_p clause, InfType
       switch(op)
       {
       case inf_simplify_reflect:
-	    assert(clause);
-	    assert(partner);
-	    clause->ident = ++ClauseIdentCounter;
-	    print_simplify_reflect(out, clause, old_id, partner,
-				   comment);
-	    break;
+       assert(clause);
+       assert(partner);
+       clause->ident = ++ClauseIdentCounter;
+       print_simplify_reflect(out, clause, old_id, partner,
+               comment);
+       break;
       case inf_context_simplify_reflect:
-	    assert(clause);
-	    assert(partner);
-	    clause->ident = ++ClauseIdentCounter;
-	    print_context_simplify_reflect(out, clause, old_id, partner,
-				   comment);
-	    break;
+       assert(clause);
+       assert(partner);
+       clause->ident = ++ClauseIdentCounter;
+       print_context_simplify_reflect(out, clause, old_id, partner,
+               comment);
+       break;
       case inf_ac_resolution:
-	    assert(clause);
-	    assert(!partner);
-	    clause->ident = ++ClauseIdentCounter;
-	    print_ac_res(out, clause, old_id, sig, comment);
-	    break;
+       assert(clause);
+       assert(!partner);
+       clause->ident = ++ClauseIdentCounter;
+       print_ac_res(out, clause, old_id, sig, comment);
+       break;
       case inf_condense:
-	    assert(clause);
-	    assert(!partner);
-	    clause->ident = ++ClauseIdentCounter;
-	    print_condense(out, clause, old_id, comment);
-	    break;
+       assert(clause);
+       assert(!partner);
+       clause->ident = ++ClauseIdentCounter;
+       print_condense(out, clause, old_id, comment);
+       break;
       case inf_minimize:
-	    assert(clause);
-	    assert(!partner);
-	    clause->ident = ++ClauseIdentCounter;
-	    print_minimize(out, clause, old_id, comment);
-	    break;
+       assert(clause);
+       assert(!partner);
+       clause->ident = ++ClauseIdentCounter;
+       print_minimize(out, clause, old_id, comment);
+       break;
       case inf_eval_answers:
-	    assert(clause);
-	    assert(!partner);
-	    clause->ident = ++ClauseIdentCounter;
-	    print_eval_answer(out, clause, old_id, comment);
-	    break;
+       assert(clause);
+       assert(!partner);
+       clause->ident = ++ClauseIdentCounter;
+       print_eval_answer(out, clause, old_id, comment);
+       break;
       case inf_eres:
-	    assert(clause);
-	    assert(partner);
-	    clause->ident = ++ClauseIdentCounter;
-	    print_des_eres(out, clause, old_id, comment);
-	    break;
+       assert(clause);
+       assert(partner);
+       clause->ident = ++ClauseIdentCounter;
+       print_des_eres(out, clause, old_id, comment);
+       break;
          /* inf_rewrite is special and handled below !*/
       default:
-	    fprintf(out, "# Clause modification %d not yet implemented.\n",op);
-	    break;
+       fprintf(out, "# Clause modification %d not yet implemented.\n",op);
+       break;
       }
    }
 }
@@ -1460,8 +1460,8 @@ void DocClauseModification(FILE* out, long level, Clause_p clause, InfType
 /----------------------------------------------------------------------*/
 
 void DocClauseQuote(FILE* out, long level, long target_level,
-		    Clause_p clause, char* comment, Clause_p
-		    opt_partner)
+          Clause_p clause, char* comment, Clause_p
+          opt_partner)
 {
    long old_id;
 
@@ -1475,41 +1475,41 @@ void DocClauseQuote(FILE* out, long level, long target_level,
       switch(DocOutputFormat)
       {
       case pcl_format:
-	    clause->ident = ++ClauseIdentCounter;
-	    pcl_print_start(out, clause, PCLShellLevel<1);
-	    fprintf(out, "%ld", old_id);
-	    if(opt_partner)
-	    {
-	       assert(comment);
-	       fprintf(out, " : '%s(%ld)'\n", comment, opt_partner->ident);
-	    }
-	    else
-	    {
-	       pcl_print_end(out, comment, clause);
-	    }
-	    break;
+       clause->ident = ++ClauseIdentCounter;
+       pcl_print_start(out, clause, PCLShellLevel<1);
+       fprintf(out, "%ld", old_id);
+       if(opt_partner)
+       {
+          assert(comment);
+          fprintf(out, " : '%s(%ld)'\n", comment, opt_partner->ident);
+       }
+       else
+       {
+          pcl_print_end(out, comment, clause);
+       }
+       break;
       case tstp_format:
-	    clause->ident = ++ClauseIdentCounter;
-	    ClauseTSTPPrint(out, clause, PCLFullTerms, false);
-	    fprintf(out, ", c_0_%ld", old_id);
-	    if(opt_partner)
-	    {
-	       assert(comment);
-	       fprintf(out, ",['%s(c_0_%ld)']).\n", comment, opt_partner->ident);
-	    }
-	    else if(comment)
-	    {
-	       fprintf(out, ",['%s']).\n", comment);
-	    }
-	    else
-	    {
-	       fprintf(out, ").\n");
-	    }
-	    break;
+       clause->ident = ++ClauseIdentCounter;
+       ClauseTSTPPrint(out, clause, PCLFullTerms, false);
+       fprintf(out, ", c_0_%ld", old_id);
+       if(opt_partner)
+       {
+          assert(comment);
+          fprintf(out, ",['%s(c_0_%ld)']).\n", comment, opt_partner->ident);
+       }
+       else if(comment)
+       {
+          fprintf(out, ",['%s']).\n", comment);
+       }
+       else
+       {
+          fprintf(out, ").\n");
+       }
+       break;
 
       default:
-	    fprintf(out, "# Output format not implemented.\n");
-	    break;
+       fprintf(out, "# Output format not implemented.\n");
+       break;
       }
    }
 }
@@ -1529,7 +1529,7 @@ void DocClauseQuote(FILE* out, long level, long target_level,
 /----------------------------------------------------------------------*/
 
 void DocClauseRewrite(FILE* out, long level, ClausePos_p rewritten,
-		      Term_p old_term, char* comment)
+            Term_p old_term, char* comment)
 {
    long old_id;
 
@@ -1560,7 +1560,7 @@ void DocClauseRewrite(FILE* out, long level, ClausePos_p rewritten,
 /----------------------------------------------------------------------*/
 
 void DocClauseEqUnfold(FILE* out, long level, Clause_p rewritten,
-		       ClausePos_p demod, PStack_p demod_pos)
+             ClausePos_p demod, PStack_p demod_pos)
 {
    long old_id;
 
@@ -1596,23 +1596,23 @@ void DocFormulaCreation(FILE* out, long level, WFormula_p formula,
       switch(op)
       {
       case inf_initial:
-	    assert(!parent1);
-	    assert(!parent2);
-	    formula->ident = ++ClauseIdentCounter;
-	    print_formula_initial(out, formula, comment);
-	    break;
+       assert(!parent1);
+       assert(!parent2);
+       formula->ident = ++ClauseIdentCounter;
+       print_formula_initial(out, formula, comment);
+       break;
       case inf_fof_intro_def:
-	    assert(!parent1);
-	    assert(!parent2);
-	    formula->ident = ++ClauseIdentCounter;
-	    print_fof_intro_def(out, formula, comment);
-	    break;
+       assert(!parent1);
+       assert(!parent2);
+       formula->ident = ++ClauseIdentCounter;
+       print_fof_intro_def(out, formula, comment);
+       break;
       case inf_fof_split_equiv:
-	    assert(parent1);
-	    assert(!parent2);
-	    formula->ident = ++ClauseIdentCounter;
-	    print_fof_split_equiv(out, formula, parent1, comment);
-	    break;
+       assert(parent1);
+       assert(!parent2);
+       formula->ident = ++ClauseIdentCounter;
+       print_fof_split_equiv(out, formula, parent1, comment);
+       break;
       default:
             assert(false && "Unsupported formula creation method");
             break;

@@ -192,43 +192,43 @@ CLState_p process_options(int argc, char* argv[])
       switch(handle->option_code)
       {
       case OPT_VERBOSE:
-	    Verbose = CLStateGetIntArg(handle, arg);
-	    break;
+       Verbose = CLStateGetIntArg(handle, arg);
+       break;
       case OPT_HELP:
-	    print_help(stdout);
-	    exit(NO_ERROR);
+       print_help(stdout);
+       exit(NO_ERROR);
       case OPT_VERSION:
-	    printf(NAME " " VERSION "\n");
-	    exit(NO_ERROR);
+       printf(NAME " " VERSION "\n");
+       exit(NO_ERROR);
       case OPT_OUTPUT:
-	    outname = arg;
-	    break;
+       outname = arg;
+       break;
       case OPT_SILENT:
             OutputLevel = 0;
             break;
       case OPT_OUTPUTLEVEL:
             OutputLevel = CLStateGetIntArg(handle, arg);
-	    if(OutputLevel>1)
-	    {
-	       Error("Option -l (--output-level) accepts only 0 or 1"
-		     "for CSSCPA_filter",
+       if(OutputLevel>1)
+       {
+          Error("Option -l (--output-level) accepts only 0 or 1"
+           "for CSSCPA_filter",
                      USAGE_ERROR);
-	    }
+       }
             break;
       case OPT_RANT:
-	    if(CLStateGetIntArg(handle, arg)!=0)
-	    {
-	       fprintf(stderr, "Improve it yourself, mate. The code is"
-		       " free.\n");
-	    }
-	    else
-	    {
-	       fprintf(stderr, "You call that a rant????\n");
-	    }
-	    break;
+       if(CLStateGetIntArg(handle, arg)!=0)
+       {
+          fprintf(stderr, "Improve it yourself, mate. The code is"
+             " free.\n");
+       }
+       else
+       {
+          fprintf(stderr, "You call that a rant????\n");
+       }
+       break;
      default:
-	 assert(false);
-	 break;
+    assert(false);
+    break;
       }
    }
    return state;

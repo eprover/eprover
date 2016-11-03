@@ -222,12 +222,12 @@ static Eqn_p find_maxlcomplex_literal(Clause_p clause)
    while(handle)
    {
       if(EqnIsNegative(handle)&&
-	 EqnIsMaximal(handle) &&
-	 TermIsVar(handle->lterm) &&
-	 TermIsVar(handle->rterm))
+    EqnIsMaximal(handle) &&
+    TermIsVar(handle->lterm) &&
+    TermIsVar(handle->rterm))
       {
-	 selected = handle;
-	 break;
+    selected = handle;
+    break;
       }
       handle = handle->next;
    }
@@ -241,13 +241,13 @@ static Eqn_p find_maxlcomplex_literal(Clause_p clause)
    while(handle)
    {
       if(EqnIsNegative(handle) && EqnIsMaximal(handle)&&
-	 EqnIsGround(handle))
+    EqnIsGround(handle))
       {
-	 weight = lit_sel_diff_weight(handle);
-	 if(weight > select_weight)
-	 {
-	    select_weight = weight;
-	    selected = handle;
+    weight = lit_sel_diff_weight(handle);
+    if(weight > select_weight)
+    {
+       select_weight = weight;
+       selected = handle;
          }
       }
       handle = handle->next;
@@ -263,12 +263,12 @@ static Eqn_p find_maxlcomplex_literal(Clause_p clause)
    {
       if(EqnIsNegative(handle) && EqnIsMaximal(handle))
       {
-	 weight = lit_sel_diff_weight(handle);
-	 if(weight > select_weight)
-	 {
-	    select_weight = weight;
-	    selected = handle;
-	 }
+    weight = lit_sel_diff_weight(handle);
+    if(weight > select_weight)
+    {
+       select_weight = weight;
+       selected = handle;
+    }
       }
       handle = handle->next;
    }
@@ -297,12 +297,12 @@ static Eqn_p find_lcomplex_literal(Clause_p clause)
    while(handle)
    {
       if(EqnIsNegative(handle)&&
-	 !EqnIsMaximal(handle) &&
-	 TermIsVar(handle->lterm) &&
-	 TermIsVar(handle->rterm))
+    !EqnIsMaximal(handle) &&
+    TermIsVar(handle->lterm) &&
+    TermIsVar(handle->rterm))
       {
-	 selected = handle;
-	 break;
+    selected = handle;
+    break;
       }
       handle = handle->next;
    }
@@ -318,12 +318,12 @@ static Eqn_p find_lcomplex_literal(Clause_p clause)
    {
       if(EqnIsNegative(handle)&&!EqnIsMaximal(handle)&&EqnIsGround(handle))
       {
-	 weight = lit_sel_diff_weight(handle);
-	 if(weight > select_weight)
-	 {
-	    select_weight = weight;
-	    selected = handle;
-	 }
+    weight = lit_sel_diff_weight(handle);
+    if(weight > select_weight)
+    {
+       select_weight = weight;
+       selected = handle;
+    }
       }
       handle = handle->next;
    }
@@ -339,12 +339,12 @@ static Eqn_p find_lcomplex_literal(Clause_p clause)
    {
       if(EqnIsNegative(handle)&&!EqnIsMaximal(handle))
       {
-	 weight = lit_sel_diff_weight(handle);
-	 if(weight > select_weight)
-	 {
-	    select_weight = weight;
-	    selected = handle;
-	 }
+    weight = lit_sel_diff_weight(handle);
+    if(weight > select_weight)
+    {
+       select_weight = weight;
+       selected = handle;
+    }
       }
       handle = handle->next;
    }
@@ -374,15 +374,15 @@ static Eqn_p find_smallest_neg_ground_lit(Clause_p clause)
    while(handle)
    {
       if(EqnIsNegative(handle)&&
-	 EqnIsGround(handle))
+    EqnIsGround(handle))
       {
-	 assert(EqnIsOriented(handle));
+    assert(EqnIsOriented(handle));
 
-	 if(EqnStandardWeight(handle) < select_weight)
-	 {
-	    selected = handle;
-	    select_weight = EqnStandardWeight(handle);
-	 }
+    if(EqnStandardWeight(handle) < select_weight)
+    {
+       selected = handle;
+       select_weight = EqnStandardWeight(handle);
+    }
       }
       handle = handle->next;
    }
@@ -411,16 +411,16 @@ static Eqn_p find_smallest_max_neg_ground_lit(Clause_p clause)
    while(handle)
    {
       if(EqnIsNegative(handle)&&
-	 EqnIsGround(handle))
+    EqnIsGround(handle))
       {
-	 /* assert(EqnIsOriented(handle)); Only true if we don't run
+    /* assert(EqnIsOriented(handle)); Only true if we don't run
           * into LPORecursionDepthLimit */
 
-	 if(handle->lterm->weight < select_weight)
-	 {
-	    selected = handle;
-	    select_weight = handle->lterm->weight;
-	 }
+    if(handle->lterm->weight < select_weight)
+    {
+       selected = handle;
+       select_weight = handle->lterm->weight;
+    }
       }
       handle = handle->next;
    }
@@ -449,19 +449,19 @@ static Eqn_p find_ng_min11_infpos_no_xtype_lit(Clause_p clause)
    while(handle)
    {
       if(EqnIsNegative(handle)&&
-	 !EqnIsGround(handle)&&
-	 !EqnIsXTypePred(handle))
+    !EqnIsGround(handle)&&
+    !EqnIsXTypePred(handle))
       {
-	 weight = TermWeight(handle->lterm,1,1);
-	 if(!EqnIsOriented(handle))
-	 {
-	    weight += TermWeight(handle->rterm,1,1);
-	 }
-	 if(weight < select_weight)
-	 {
-	    select_weight = weight;
-	    selected = handle;
-	 }
+    weight = TermWeight(handle->lterm,1,1);
+    if(!EqnIsOriented(handle))
+    {
+       weight += TermWeight(handle->rterm,1,1);
+    }
+    if(weight < select_weight)
+    {
+       select_weight = weight;
+       selected = handle;
+    }
       }
       handle = handle->next;
    }
@@ -490,17 +490,17 @@ static Eqn_p find_max_xtype_no_type_lit(Clause_p clause)
    while(handle)
    {
       if(EqnIsNegative(handle)&&
-	 EqnIsXTypePred(handle) &&
-	 !EqnIsTypePred(handle))
+    EqnIsXTypePred(handle) &&
+    !EqnIsTypePred(handle))
       {
-	 assert(EqnIsOriented(handle));
+    assert(EqnIsOriented(handle));
 
-	 weight = handle->lterm->weight;
-	 if(weight > select_weight)
-	 {
-	    select_weight = weight;
-	    selected = handle;
-	 }
+    weight = handle->lterm->weight;
+    if(weight > select_weight)
+    {
+       select_weight = weight;
+       selected = handle;
+    }
       }
       handle = handle->next;
    }
@@ -532,7 +532,7 @@ static void clause_select_pos(Clause_p clause)
    {
       if(EqnIsPositive(handle))
       {
-	 EqnSetProp(handle, EPIsSelected);
+    EqnSetProp(handle, EPIsSelected);
       }
       handle = handle->next;
    }
@@ -737,9 +737,9 @@ char* GetLitSelName(LiteralSelectionFun fun)
    {
       if(name_fun_assoc[i].fun == fun)
       {
-	 res = name_fun_assoc[i].name;
-	 assert(res);
-	 break;
+    res = name_fun_assoc[i].name;
+    assert(res);
+    break;
       }
    }
    assert(res);
@@ -1079,22 +1079,22 @@ void SelectLargestOrientableLiteral(OCB_p ocb, Clause_p clause)
 
    while(handle)
    {
-	 if(EqnIsNegative(handle))
-	 {
-	    if((!oriented && EqnIsOriented(handle))
-	       ||
-	       (
-		  ((oriented&&EqnIsOriented(handle))||(!oriented&&!EqnIsOriented(handle)))
-		  &&
-		  (EqnStandardWeight(handle) > select_weight)
-		  ))
-	    {
-	       select_weight = EqnStandardWeight(handle);
-	       oriented = EqnIsOriented(handle);
-	       selected = handle;
-	    }
-	 }
-	 handle = handle->next;
+    if(EqnIsNegative(handle))
+    {
+       if((!oriented && EqnIsOriented(handle))
+          ||
+          (
+        ((oriented&&EqnIsOriented(handle))||(!oriented&&!EqnIsOriented(handle)))
+        &&
+        (EqnStandardWeight(handle) > select_weight)
+        ))
+       {
+          select_weight = EqnStandardWeight(handle);
+          oriented = EqnIsOriented(handle);
+          selected = handle;
+       }
+    }
+    handle = handle->next;
    }
    assert(selected);
    EqnSetProp(selected, EPIsSelected);
@@ -1136,7 +1136,7 @@ void PSelectLargestOrientableLiteral(OCB_p ocb, Clause_p clause)
             ||
             (
                ((oriented&&EqnIsOriented(handle))||(!oriented&&!EqnIsOriented(handle)))
-		  &&
+        &&
                (EqnStandardWeight(handle) > select_weight)
                ))
          {
@@ -1208,7 +1208,7 @@ void SelectSmallestOrientableLiteral(OCB_p ocb, Clause_p clause)
             ||
             (
                ((oriented&&EqnIsOriented(handle))||(!oriented&&!EqnIsOriented(handle)))
-		  &&
+        &&
                (EqnStandardWeight(handle) < select_weight)
                ))
          {
@@ -1260,7 +1260,7 @@ void PSelectSmallestOrientableLiteral(OCB_p ocb, Clause_p clause)
             (
                ((oriented&&EqnIsOriented(handle))||(!oriented&&!EqnIsOriented(handle)))
                &&
-		  (EqnStandardWeight(handle) < select_weight)
+        (EqnStandardWeight(handle) < select_weight)
                ))
          {
             select_weight = EqnStandardWeight(handle);
@@ -2692,7 +2692,7 @@ void SelectUnlessPosMaxOptimalLiteral(OCB_p ocb, Clause_p clause)
    ClauseCondMarkMaximalTerms(ocb, clause);
 
    if(EqnListQueryPropNumber(clause->literals,
-			     EPIsMaximal|EPIsPositive)==0)
+              EPIsMaximal|EPIsPositive)==0)
    {
       SelectOptimalLiteral(ocb,clause);
       ClauseDelProp(clause, CPIsOriented);
@@ -2718,7 +2718,7 @@ void PSelectUnlessPosMaxOptimalLiteral(OCB_p ocb, Clause_p clause)
    ClauseCondMarkMaximalTerms(ocb, clause);
 
    if(EqnListQueryPropNumber(clause->literals,
-			     EPIsMaximal|EPIsPositive)==0)
+              EPIsMaximal|EPIsPositive)==0)
    {
       PSelectOptimalLiteral(ocb,clause);
       ClauseDelProp(clause, CPIsOriented);
@@ -2744,7 +2744,7 @@ void SelectUnlessUniqPosMaxOptimalLiteral(OCB_p ocb, Clause_p clause)
    ClauseCondMarkMaximalTerms(ocb, clause);
 
    if(EqnListQueryPropNumber(clause->literals,
-			     EPIsMaximal|EPIsPositive)!=1)
+              EPIsMaximal|EPIsPositive)!=1)
    {
       SelectOptimalLiteral(ocb,clause);
       ClauseDelProp(clause, CPIsOriented);
@@ -2770,7 +2770,7 @@ void PSelectUnlessUniqPosMaxOptimalLiteral(OCB_p ocb, Clause_p clause)
    ClauseCondMarkMaximalTerms(ocb, clause);
 
    if(EqnListQueryPropNumber(clause->literals,
-			     EPIsMaximal|EPIsPositive)!=1)
+              EPIsMaximal|EPIsPositive)!=1)
    {
       PSelectOptimalLiteral(ocb,clause);
       ClauseDelProp(clause, CPIsOriented);
@@ -2802,15 +2802,15 @@ void SelectUnlessUniqMaxPosOptimalLiteral(OCB_p ocb, Clause_p clause)
    {
       if(EqnIsMaximal(handle))
       {
-	 if(!EqnIsPositive(handle))
-	 {
-	    break;
-	 }
-	 if(found)
-	 {
-	    break;
-	 }
-	 found = true;
+    if(!EqnIsPositive(handle))
+    {
+       break;
+    }
+    if(found)
+    {
+       break;
+    }
+    found = true;
       }
    }
    if(handle)
@@ -2845,15 +2845,15 @@ void PSelectUnlessUniqMaxPosOptimalLiteral(OCB_p ocb, Clause_p clause)
    {
       if(EqnIsMaximal(handle))
       {
-	 if(!EqnIsPositive(handle))
-	 {
-	    break;
-	 }
-	 if(found)
-	 {
-	    break;
-	 }
-	 found = true;
+    if(!EqnIsPositive(handle))
+    {
+       break;
+    }
+    if(found)
+    {
+       break;
+    }
+    found = true;
       }
    }
    if(handle)
@@ -2898,8 +2898,8 @@ void SelectComplex(OCB_p ocb, Clause_p clause)
             weight = EqnStandardWeight(handle);
             if(weight < select_weight)
             {
-     	  select_weight = weight;
-     	  selected = handle;
+        select_weight = weight;
+        selected = handle;
             }
          }
          handle = handle->next;
@@ -2950,8 +2950,8 @@ void PSelectComplex(OCB_p ocb, Clause_p clause)
             weight = EqnStandardWeight(handle);
             if(weight < select_weight)
             {
-     	  select_weight = weight;
-     	  selected = handle;
+        select_weight = weight;
+        selected = handle;
             }
          }
          handle = handle->next;
@@ -3043,8 +3043,8 @@ void SelectLComplex(OCB_p ocb, Clause_p clause)
             weight = lit_sel_diff_weight(handle);
             if(weight > select_weight)
             {
-     	  select_weight = weight;
-     	  selected = handle;
+        select_weight = weight;
+        selected = handle;
             }
          }
          handle = handle->next;
@@ -3092,8 +3092,8 @@ void PSelectLComplex(OCB_p ocb, Clause_p clause)
             weight = lit_sel_diff_weight(handle);
             if(weight > select_weight)
             {
-     	  select_weight = weight;
-     	  selected = handle;
+        select_weight = weight;
+        selected = handle;
             }
          }
          handle = handle->next;
@@ -3142,16 +3142,16 @@ void SelectMaxLComplex(OCB_p ocb, Clause_p clause)
    {
       ClauseDelProp(clause, CPIsOriented);
       if(EqnListQueryPropNumber(clause->literals,
-				EPIsMaximal|EPIsPositive)!=lit_no)
+            EPIsMaximal|EPIsPositive)!=lit_no)
       { /* There is at least one maximal negative literal */
 
-	 selected = find_maxlcomplex_literal(clause);
-	 assert(selected);
-	 EqnSetProp(selected, EPIsSelected);
+    selected = find_maxlcomplex_literal(clause);
+    assert(selected);
+    EqnSetProp(selected, EPIsSelected);
       }
       else
       { /* Normal selection */
-	 SelectLComplex(ocb, clause);
+    SelectLComplex(ocb, clause);
       }
    }
 }
@@ -3182,16 +3182,16 @@ void PSelectMaxLComplex(OCB_p ocb, Clause_p clause)
    {
       ClauseDelProp(clause, CPIsOriented);
       if(EqnListQueryPropNumber(clause->literals,
-				EPIsMaximal|EPIsPositive)!=lit_no)
+            EPIsMaximal|EPIsPositive)!=lit_no)
       { /* There is at least one maximal negative literal */
 
-	 selected = find_maxlcomplex_literal(clause);
-	 assert(selected);
-	 EqnSetProp(selected, EPIsSelected);
+    selected = find_maxlcomplex_literal(clause);
+    assert(selected);
+    EqnSetProp(selected, EPIsSelected);
       }
       else
       { /* Normal selection */
-	 PSelectLComplex(ocb, clause);
+    PSelectLComplex(ocb, clause);
       }
    }
 }
@@ -3232,27 +3232,27 @@ void SelectMaxLComplexNoTypePred(OCB_p ocb, Clause_p clause)
    {
       ClauseDelProp(clause, CPIsOriented);
       if(EqnListQueryPropNumber(clause->literals,
-				EPIsMaximal|EPIsPositive)!=lit_no)
+            EPIsMaximal|EPIsPositive)!=lit_no)
       { /* There is at least one maximal negative literal */
 
-	 selected = find_maxlcomplex_literal(clause);
-	 assert(selected);
-	 if(!EqnIsTypePred(selected))
-	 {
-	    EqnSetProp(selected, EPIsSelected);
-	 }
-	 else
-	 {
-	    selected = NULL;
-	 }
+    selected = find_maxlcomplex_literal(clause);
+    assert(selected);
+    if(!EqnIsTypePred(selected))
+    {
+       EqnSetProp(selected, EPIsSelected);
+    }
+    else
+    {
+       selected = NULL;
+    }
       }
       if(!selected)
       { /* Normal selection */
-	 selected = find_lcomplex_literal(clause);
-	 if(selected&&!EqnIsTypePred(selected))
-	 {
-	    EqnSetProp(selected, EPIsSelected);
-	 }
+    selected = find_lcomplex_literal(clause);
+    if(selected&&!EqnIsTypePred(selected))
+    {
+       EqnSetProp(selected, EPIsSelected);
+    }
       }
    }
 }
@@ -3293,29 +3293,29 @@ void PSelectMaxLComplexNoTypePred(OCB_p ocb, Clause_p clause)
    {
       ClauseDelProp(clause, CPIsOriented);
       if(EqnListQueryPropNumber(clause->literals,
-				EPIsMaximal|EPIsPositive)!=lit_no)
+            EPIsMaximal|EPIsPositive)!=lit_no)
       { /* There is at least one maximal negative literal */
 
-	 selected = find_maxlcomplex_literal(clause);
-	 assert(selected);
-	 if(!EqnIsTypePred(selected))
-	 {
-	    EqnSetProp(selected, EPIsSelected);
-	    clause_select_pos(clause);
-	 }
-	 else
-	 {
-	    selected = NULL;
-	 }
+    selected = find_maxlcomplex_literal(clause);
+    assert(selected);
+    if(!EqnIsTypePred(selected))
+    {
+       EqnSetProp(selected, EPIsSelected);
+       clause_select_pos(clause);
+    }
+    else
+    {
+       selected = NULL;
+    }
       }
       if(!selected)
       { /* Normal selection */
-	 selected = find_lcomplex_literal(clause);
-	 if(selected&&!EqnIsTypePred(selected))
-	 {
-	    EqnSetProp(selected, EPIsSelected);
-	    clause_select_pos(clause);
-	 }
+    selected = find_lcomplex_literal(clause);
+    if(selected&&!EqnIsTypePred(selected))
+    {
+       EqnSetProp(selected, EPIsSelected);
+       clause_select_pos(clause);
+    }
       }
    }
 }
@@ -3356,27 +3356,27 @@ void SelectMaxLComplexNoXTypePred(OCB_p ocb, Clause_p clause)
    {
       ClauseDelProp(clause, CPIsOriented);
       if(EqnListQueryPropNumber(clause->literals,
-				EPIsMaximal|EPIsPositive)!=lit_no)
+            EPIsMaximal|EPIsPositive)!=lit_no)
       { /* There is at least one maximal negative literal */
 
-	 selected = find_maxlcomplex_literal(clause);
-	 assert(selected);
-	 if(!EqnIsXTypePred(selected))
-	 {
-	    EqnSetProp(selected, EPIsSelected);
-	 }
-	 else
-	 {
-	    selected = NULL;
-	 }
+    selected = find_maxlcomplex_literal(clause);
+    assert(selected);
+    if(!EqnIsXTypePred(selected))
+    {
+       EqnSetProp(selected, EPIsSelected);
+    }
+    else
+    {
+       selected = NULL;
+    }
       }
       if(!selected)
       { /* Normal selection */
-	 selected = find_lcomplex_literal(clause);
-	 if(selected && !EqnIsXTypePred(selected))
-	 {
-	    EqnSetProp(selected, EPIsSelected);
-	 }
+    selected = find_lcomplex_literal(clause);
+    if(selected && !EqnIsXTypePred(selected))
+    {
+       EqnSetProp(selected, EPIsSelected);
+    }
       }
    }
 }
@@ -3417,29 +3417,29 @@ void PSelectMaxLComplexNoXTypePred(OCB_p ocb, Clause_p clause)
    {
       ClauseDelProp(clause, CPIsOriented);
       if(EqnListQueryPropNumber(clause->literals,
-				EPIsMaximal|EPIsPositive)!=lit_no)
+            EPIsMaximal|EPIsPositive)!=lit_no)
       { /* There is at least one maximal negative literal */
 
-	 selected = find_maxlcomplex_literal(clause);
-	 assert(selected);
-	 if(!EqnIsXTypePred(selected))
-	 {
-	    EqnSetProp(selected, EPIsSelected);
-	    clause_select_pos(clause);
-	 }
-	 else
-	 {
-	    selected = NULL;
-	 }
+    selected = find_maxlcomplex_literal(clause);
+    assert(selected);
+    if(!EqnIsXTypePred(selected))
+    {
+       EqnSetProp(selected, EPIsSelected);
+       clause_select_pos(clause);
+    }
+    else
+    {
+       selected = NULL;
+    }
       }
       if(!selected)
       { /* Normal selection */
-	 selected = find_lcomplex_literal(clause);
-	 if(selected&&!EqnIsXTypePred(selected))
-	 {
-	    EqnSetProp(selected, EPIsSelected);
-	    clause_select_pos(clause);
-	 }
+    selected = find_lcomplex_literal(clause);
+    if(selected&&!EqnIsXTypePred(selected))
+    {
+       EqnSetProp(selected, EPIsSelected);
+       clause_select_pos(clause);
+    }
       }
    }
 }
@@ -3483,22 +3483,22 @@ void SelectComplexPreferNEQ(OCB_p ocb, Clause_p clause)
          {
             if(sel_var && !cur_var)
             {
-     	  break;
+        break;
             }
             else if(EQUIV(cur_var, sel_var))
             {
-     	  if(sel_ground && !cur_ground)
-     	  {
-     	     break;
-     	  }
-     	  else if(EQUIV(cur_ground, sel_ground))
-     	  {
-     	     cur_weight = lit_sel_diff_weight(handle);
-     	     if(cur_weight <=sel_weight)
-     	     {
-     		break;
-     	     }
-     	  }
+        if(sel_ground && !cur_ground)
+        {
+           break;
+        }
+        else if(EQUIV(cur_ground, sel_ground))
+        {
+           cur_weight = lit_sel_diff_weight(handle);
+           if(cur_weight <=sel_weight)
+           {
+         break;
+           }
+        }
             }
          }
          if(cur_weight == -1)
@@ -3557,22 +3557,22 @@ void PSelectComplexPreferNEQ(OCB_p ocb, Clause_p clause)
          {
             if(sel_var && !cur_var)
             {
-     	  break;
+        break;
             }
             else if(EQUIV(cur_var, sel_var))
             {
-     	  if(sel_ground && !cur_ground)
-     	  {
-     	     break;
-     	  }
-     	  else if(EQUIV(cur_ground, sel_ground))
-     	  {
-     	     cur_weight = lit_sel_diff_weight(handle);
-     	     if(cur_weight <=sel_weight)
-     	     {
-     		break;
-     	     }
-     	  }
+        if(sel_ground && !cur_ground)
+        {
+           break;
+        }
+        else if(EQUIV(cur_ground, sel_ground))
+        {
+           cur_weight = lit_sel_diff_weight(handle);
+           if(cur_weight <=sel_weight)
+           {
+         break;
+           }
+        }
             }
          }
          if(cur_weight == -1)
@@ -3632,22 +3632,22 @@ void SelectComplexPreferEQ(OCB_p ocb, Clause_p clause)
          {
             if(sel_var && !cur_var)
             {
-     	  break;
+        break;
             }
             else if(EQUIV(cur_var, sel_var))
             {
-     	  if(sel_ground && !cur_ground)
-     	  {
-     	     break;
-     	  }
-     	  else if(EQUIV(cur_ground, sel_ground))
-     	  {
-     	     cur_weight = lit_sel_diff_weight(handle);
-     	     if(cur_weight <=sel_weight)
-     	     {
-     		break;
-     	     }
-     	  }
+        if(sel_ground && !cur_ground)
+        {
+           break;
+        }
+        else if(EQUIV(cur_ground, sel_ground))
+        {
+           cur_weight = lit_sel_diff_weight(handle);
+           if(cur_weight <=sel_weight)
+           {
+         break;
+           }
+        }
             }
          }
          if(cur_weight == -1)
@@ -3706,22 +3706,22 @@ void PSelectComplexPreferEQ(OCB_p ocb, Clause_p clause)
          {
             if(sel_var && !cur_var)
             {
-     	  break;
+        break;
             }
             else if(EQUIV(cur_var, sel_var))
             {
-     	  if(sel_ground && !cur_ground)
-     	  {
-     	     break;
-     	  }
-     	  else if(EQUIV(cur_ground, sel_ground))
-     	  {
-     	     cur_weight = lit_sel_diff_weight(handle);
-     	     if(cur_weight <=sel_weight)
-     	     {
-     		break;
-     	     }
-     	  }
+        if(sel_ground && !cur_ground)
+        {
+           break;
+        }
+        else if(EQUIV(cur_ground, sel_ground))
+        {
+           cur_weight = lit_sel_diff_weight(handle);
+           if(cur_weight <=sel_weight)
+           {
+         break;
+           }
+        }
             }
          }
          if(cur_weight == -1)
@@ -3763,7 +3763,7 @@ void SelectComplexExceptUniqMaxHorn(OCB_p ocb, Clause_p clause)
       ClauseCondMarkMaximalTerms(ocb, clause);
       if(EqnListQueryPropNumber(clause->literals, EPIsMaximal)==1)
       {
-	 return;
+    return;
       }
    }
    SelectComplex(ocb,clause);
@@ -3791,7 +3791,7 @@ void PSelectComplexExceptUniqMaxHorn(OCB_p ocb, Clause_p clause)
       ClauseCondMarkMaximalTerms(ocb, clause);
       if(EqnListQueryPropNumber(clause->literals, EPIsMaximal)==1)
       {
-	 return;
+    return;
       }
    }
    PSelectComplex(ocb,clause);
@@ -3929,7 +3929,7 @@ void SelectNewComplexExceptUniqMaxHorn(OCB_p ocb, Clause_p clause)
       ClauseCondMarkMaximalTerms(ocb, clause);
       if(EqnListQueryPropNumber(clause->literals, EPIsMaximal)==1)
       {
-	 return;
+    return;
       }
    }
    SelectNewComplex(ocb,clause);
@@ -3956,7 +3956,7 @@ void PSelectNewComplexExceptUniqMaxHorn(OCB_p ocb, Clause_p clause)
       ClauseCondMarkMaximalTerms(ocb, clause);
       if(EqnListQueryPropNumber(clause->literals, EPIsMaximal)==1)
       {
-	 return;
+    return;
       }
    }
    PSelectNewComplex(ocb,clause);
@@ -4358,9 +4358,9 @@ void SelectComplexExceptUniqMaxPosHorn(OCB_p ocb, Clause_p clause)
    {
       ClauseCondMarkMaximalTerms(ocb, clause);
       if((EqnListQueryPropNumber(clause->literals, EPIsMaximal)==1)&&
-	 (EqnListQueryPropNumber(clause->literals, EPIsMaximal|EPIsPositive)==1))
+    (EqnListQueryPropNumber(clause->literals, EPIsMaximal|EPIsPositive)==1))
       {
-	 return;
+    return;
       }
    }
    SelectComplex(ocb,clause);
@@ -4387,9 +4387,9 @@ void PSelectComplexExceptUniqMaxPosHorn(OCB_p ocb, Clause_p clause)
    {
       ClauseCondMarkMaximalTerms(ocb, clause);
       if((EqnListQueryPropNumber(clause->literals, EPIsMaximal)==1)&&
-	 (EqnListQueryPropNumber(clause->literals, EPIsMaximal|EPIsPositive)==1))
+    (EqnListQueryPropNumber(clause->literals, EPIsMaximal|EPIsPositive)==1))
       {
-	 return;
+    return;
       }
    }
    PSelectComplex(ocb,clause);
@@ -5245,7 +5245,7 @@ void SelectNewComplexAHPExceptUniqMaxHorn(OCB_p ocb, Clause_p clause)
       ClauseCondMarkMaximalTerms(ocb, clause);
       if(EqnListQueryPropNumber(clause->literals, EPIsMaximal)==1)
       {
-	 return;
+    return;
       }
    }
    SelectNewComplexAHP(ocb,clause);
@@ -5273,7 +5273,7 @@ void PSelectNewComplexAHPExceptUniqMaxHorn(OCB_p ocb, Clause_p clause)
       ClauseCondMarkMaximalTerms(ocb, clause);
       if(EqnListQueryPropNumber(clause->literals, EPIsMaximal)==1)
       {
-	 return;
+    return;
       }
    }
    PSelectNewComplexAHP(ocb,clause);
