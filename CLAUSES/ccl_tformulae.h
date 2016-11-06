@@ -39,8 +39,9 @@ typedef Term_p TFormula_p;
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-#define TFORM_RENAME_LIMIT     24
-#define TFORM_RENAME_LIMIT_STR "24"
+#define TFORM_RENAME_LIMIT          24
+#define TFORM_RENAME_LIMIT_STR     "24"
+#define TFORM_MINISCOPE_LIMIT_STR  "2147483648"
 
 #define   TFormulaHasSubForm1(sig, form)\
           (SigQueryFuncProp((sig),(form)->f_code, FPFOFOp) &&\
@@ -100,8 +101,3 @@ bool       TFormulaIsUntyped(TFormula_p form);
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

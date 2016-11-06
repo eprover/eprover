@@ -163,8 +163,9 @@ typedef enum
    OPT_HEURISTIC,
    OPT_FREE_NUMBERS,
    OPT_FREE_OBJECTS,
+   OPT_DEF_CNF_OLD,
    OPT_DEF_CNF,
-   OPT_DEF_CNF_NEW,
+   OPT_MINISCOPE_LIMIT,
    OPT_PRINT_TYPES,
    OPT_DUMMY
 }OptionCodes;
@@ -1237,18 +1238,26 @@ OptCell opts[] =
     "is a fudge factor that determines when definitions are introduced. "
     "0 disables definitions completely. The default works well."},
 
-   {OPT_DEF_CNF_NEW,
-    '\0', "new-cnf",
+   {OPT_DEF_CNF_OLD,
+    '\0', "old-cnf",
     OptArg, TFORM_RENAME_LIMIT_STR,
-    "Use the new clausification algorithm that tries to avoid some "
-    "algorithmic pitfalls and hence works better on some exotic formulae. "
-    "It may produce a slightly different (but equisatisfiable) clause "
-    "normal form than the default algorithm."},
+    "As the previous option, but use the classical, well-tested "
+    "clausification algorithm as opposed to the newewst one which "
+    "avoides some algorithmic pitfalls and hence works better on "
+    "some exotic formulae. The two may produce a slightly different "
+    "(but equisatisfiable) clause normal forms."},
+
+   {OPT_MINISCOPE_LIMIT,
+    '\0', "miniscope-limit",
+    OptArg, TFORM_MINISCOPE_LIMIT_STR,
+    "Set the limit of variables to miniscope per input formula. The build-in "
+    "default is 1000. Only applies to the new (default) clausification "
+    "algorithm"},
 
    {OPT_PRINT_TYPES,
     '\0', "print-types",
     NoArg, NULL,
-    "Print the type of every term. Useful for debugging purpose."},
+    "Print the type of every term. Useful for debugging purposes."},
 
    {OPT_NOOPT,
     '\0', NULL,
@@ -1261,5 +1270,3 @@ OptCell opts[] =
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

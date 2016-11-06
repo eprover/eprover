@@ -64,7 +64,6 @@ TFormula_p answer_lit_alloc(TB_p terms, PStack_p varstack)
    handle       = TBAllocNewSkolem(terms, varstack, STNoSort);
    res          = TermTopAlloc(terms->sig->answer_code, 1);
    res->args[0] = handle;
-   //res->sort    = STBool;
    res          = TBTermTopInsert(terms, res);
    res          = EqnTermsTBTermEncode(terms, res, terms->true_term, false, PENormal);
 
@@ -461,9 +460,10 @@ long WFormulaCNF(WFormula_p form, ClauseSet_p set,
 /----------------------------------------------------------------------*/
 
 long WFormulaCNF2(WFormula_p form, ClauseSet_p set,
-                 TB_p terms, VarBank_p fresh_vars)
+                  TB_p terms, VarBank_p fresh_vars,
+                  long miniscope_limit)
 {
-   WTFormulaConjunctiveNF2(form, terms);
+   WTFormulaConjunctiveNF2(form, terms, miniscope_limit);
    return TFormulaToCNF(form, FormulaQueryType(form),
                         set, terms, fresh_vars);
 }
@@ -604,7 +604,7 @@ long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive,
 
 long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
                     ClauseSet_p clauseset, TB_p terms,
-                    VarBank_p fresh_vars, GCAdmin_p gc)
+                    VarBank_p fresh_vars, GCAdmin_p gc, long miniscope_limit)
 {
    WFormula_p form, handle;
    long res = 0;
@@ -626,7 +626,8 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
          WFormulaPushDerivation(form, DCFofQuote, handle, NULL);
          handle = form;
       }
-      res += WFormulaCNF2(handle,clauseset, terms, fresh_vars);
+      res += WFormulaCNF2(handle,clauseset, terms, fresh_vars,
+                          miniscope_limit);
       if(BuildProofObject)
       {
          FormulaSetInsert(archive, handle);

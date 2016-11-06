@@ -1443,7 +1443,8 @@ TFormula_p TFormulaMiniScope(TB_p terms, TFormula_p form)
 //
 /----------------------------------------------------------------------*/
 
-TFormula_p TFormulaMiniScope2(TB_p terms, TFormula_p form)
+TFormula_p TFormulaMiniScope2(TB_p terms, TFormula_p form,
+                              long miniscope_limit)
 {
    Term_p var;
    FunCode quantor, qex, qall;
@@ -1461,23 +1462,32 @@ TFormula_p TFormulaMiniScope2(TB_p terms, TFormula_p form)
       //printf("# MiniScope ");TermPrint(stdout, var, terms->sig, DEREF_NEVER);printf("\n");
       quantor = PStackPopInt(prenex);
 
-      assert(TermVerifyProp(form, DEREF_NEVER, TPOpFlag, proc?TPIgnoreProps:TPOpFlag));
-      tform_mark_varocc(form, var, proc);
-      assert(TermVerifyProp(form, DEREF_NEVER, TPOpFlag, proc));
+      if(miniscope_limit)
+      {
+         miniscope_limit--;
 
-      if(quantor == qex)
-      {
-         form = miniscope_qex(terms, form, var, proc);
-      }
-      else if(quantor == qall)
-      {
-         form = miniscope_qall(terms, form, var, proc);
+         assert(TermVerifyProp(form, DEREF_NEVER, TPOpFlag, proc?TPIgnoreProps:TPOpFlag));
+         tform_mark_varocc(form, var, proc);
+         assert(TermVerifyProp(form, DEREF_NEVER, TPOpFlag, proc));
+
+         if(quantor == qex)
+         {
+            form = miniscope_qex(terms, form, var, proc);
+         }
+         else if(quantor == qall)
+         {
+            form = miniscope_qall(terms, form, var, proc);
+         }
+         else
+         {
+            assert(false && "Only universal or existential quantifier allowed");
+         }
+         proc = proc?TPIgnoreProps:TPOpFlag;
       }
       else
       {
-         assert(false && "Only universal or existential quantifier allowed");
+         form = TFormulaFCodeAlloc(terms, quantor, var, form);
       }
-      proc = proc?TPIgnoreProps:TPOpFlag;
    }
    PStackFree(prenex);
    return form;
@@ -1818,7 +1828,8 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
 //
 /----------------------------------------------------------------------*/
 
-void WTFormulaConjunctiveNF2(WFormula_p form, TB_p terms)
+void WTFormulaConjunctiveNF2(WFormula_p form, TB_p terms,
+                             long miniscope_limit)
 {
    TFormula_p handle;
    FunCode   max_var;
@@ -1877,7 +1888,7 @@ void WTFormulaConjunctiveNF2(WFormula_p form, TB_p terms)
    //printf("# Resimplified\n");
 
    // Here efficient miniscoping
-   handle = TFormulaMiniScope2(terms, form->tformula);
+   handle = TFormulaMiniScope2(terms, form->tformula, miniscope_limit);
 
    if(handle!=form->tformula)
    {
@@ -1917,5 +1928,3 @@ void WTFormulaConjunctiveNF2(WFormula_p form, TB_p terms)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

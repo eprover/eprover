@@ -73,7 +73,7 @@ bool              print_sat = false,
                   pcl_full_terms = true,
                   indexed_subsumption = true,
                   prune_only = false,
-                  new_cnf = false,
+                  new_cnf = true,
                   cnf_only = false,
                   inf_sys_complete = true,
                   assume_inf_sys_complete = false,
@@ -90,7 +90,8 @@ long              step_limit = LONG_MAX,
                   unproc_limit = LONG_MAX,
                   total_limit = LONG_MAX,
                   eqdef_maxclauses = DEFAULT_EQDEF_MAXCLAUSES,
-                  relevance_prune_level = 0;
+                  relevance_prune_level = 0,
+                  miniscope_limit = 1000;
 int               eqdef_incrlimit = DEFAULT_EQDEF_INCRLIMIT;
 char              *outdesc = DEFAULT_OUTPUT_DESCRIPTOR,
                   *filterdesc = DEFAULT_FILTER_DESCRIPTOR;
@@ -436,7 +437,8 @@ int main(int argc, char* argv[])
                                 proofstate->axioms,
                                 proofstate->terms,
                                 proofstate->freshvars,
-                                proofstate->gc_terms);
+                                proofstate->gc_terms,
+                                miniscope_limit);
    }
    else
    {
@@ -1542,10 +1544,14 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_FREE_OBJECTS:
             free_symb_prop = free_symb_prop|FPIsObject;
             break;
-      case OPT_DEF_CNF_NEW:
-            new_cnf = true;
+      case OPT_DEF_CNF_OLD:
+            new_cnf = false;
+            /* Intentional fall-through */
       case OPT_DEF_CNF:
             FormulaDefLimit     = CLStateGetIntArg(handle, arg);
+            break;
+      case OPT_MINISCOPE_LIMIT:
+            miniscope_limit =  CLStateGetIntArg(handle, arg);
             break;
       case OPT_PRINT_TYPES:
             TermPrintTypes = true;
@@ -1622,5 +1628,3 @@ STS_SNAIL
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
