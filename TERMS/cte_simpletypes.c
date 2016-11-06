@@ -416,7 +416,6 @@ Type_p TypeNewConstant(TypeTable_p table, SortType sort)
    {
       return type;
    }
-
    TypeFree(type);
    return res;
 }
@@ -450,7 +449,6 @@ Type_p TypeNewFunction(TypeTable_p table, SortType sort,
    {
       return type;
    }
-
    TypeFree(type);
    return res;
 }
@@ -470,47 +468,46 @@ Type_p TypeNewFunction(TypeTable_p table, SortType sort,
 
 int TypeCompare(Type_p t1, Type_p t2)
 {
-    int res;
-
-    res = t1->domain_sort - t2->domain_sort;
-    if(res)
-    {
+   int res;
+   
+   res = t1->domain_sort - t2->domain_sort;
+   if(res)
+   {
       return res;
-    }
-
-    res = t1->arity - t2->arity;
-    if(res)
-    {
+   }
+   
+   res = t1->arity - t2->arity;
+   if(res)
+   {
       return res;
-    }
-
-    // same domain and arity, lexicographic comparison of arguments
-    assert (t1->arity == t2->arity);
-    for(int i = 0; !res && i < t1->arity; i++)
-    {
+   }
+   
+   // same domain and arity, lexicographic comparison of arguments
+   assert (t1->arity == t2->arity);
+   for(int i = 0; !res && i < t1->arity; i++)
+   {
       res = t1->args[i] - t2->args[i];
       if(res)
       {
-        return res;
+         return res;
       }
-    }
-
-    return res;
+   }
+   return res;
 }
-
 
 
 /*-----------------------------------------------------------------------
 //
-// Function: TypeCopyWithReturn
+// Function: TypeCopyWithReturn()
 //
-//   Return a copy of this term, but with the given domain_sort
+//   Return a copy of this term, but with the given domain_sort.
 //
 // Global Variables: -
 //
 // Side Effects    : insert a type in the table
 //
 /----------------------------------------------------------------------*/
+
 Type_p TypeCopyWithReturn(TypeTable_p table, Type_p source,
                           SortType new_domain)
 {
@@ -519,15 +516,16 @@ Type_p TypeCopyWithReturn(TypeTable_p table, Type_p source,
 
 /*-----------------------------------------------------------------------
 //
-// Function: TypePrintTSTP
-// prints the type in TSTP TFF syntax
+// Function: TypePrintTSTP()
 //
+//   Prints the type in TSTP TFF syntax.
 //
 // Global Variables:
 //
 // Side Effects    : IO
 //
 /----------------------------------------------------------------------*/
+
 void TypePrintTSTP(FILE *out, TypeTable_p table, Type_p type)
 {
     int i;
@@ -561,15 +559,16 @@ void TypePrintTSTP(FILE *out, TypeTable_p table, Type_p type)
 
 /*-----------------------------------------------------------------------
 //
-// Function: TypeParseTSTP
-// Parses a type in TSTP TFF format
+// Function: TypeParseTSTP()
 //
+//   Parses a type in TSTP TFF format.
 //
 // Global Variables: -
 //
 // Side Effects    : reads from the scanner
 //
 /----------------------------------------------------------------------*/
+
 Type_p TypeParseTSTP(Scanner_p in, TypeTable_p table)
 {
    SortType left, right, *args = NULL;
@@ -609,7 +608,6 @@ Type_p TypeParseTSTP(Scanner_p in, TypeTable_p table)
          res = TypeNewConstant(table, left);
       }
    }
-
    return res;
 }
 
