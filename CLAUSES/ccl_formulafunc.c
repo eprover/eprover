@@ -61,7 +61,7 @@ TFormula_p answer_lit_alloc(TB_p terms, PStack_p varstack)
    TFormula_p res;
    Term_p handle;
 
-   handle = TBAllocNewSkolem(terms, varstack, false);
+   handle = TBAllocNewSkolem(terms, varstack, STNoSort);
    res    = TermTopAlloc(terms->sig->answer_code, 1);
    res->args[0] = handle;
    res    = TBTermTopInsert(terms, res);

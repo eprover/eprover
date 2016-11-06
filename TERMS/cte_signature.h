@@ -74,7 +74,7 @@ typedef struct funccell
    char*  name;
    int    arity;
    int    alpha_rank; /* We sometimes need an arbitrary but stable
-         order on symbols and use alphabetic. */
+                         order on symbols and use alphabetic. */
    Type_p type;       /* Simple type of the symbol */
    FunctionProperties properties;
 }FuncCell, *Func_p;

@@ -424,15 +424,16 @@ Type_p TypeNewConstant(TypeTable_p table, SortType sort)
 
 /*-----------------------------------------------------------------------
 //
-// Function: TypeNewFunction
-//  Build a new function type
+// Function: TypeNewFunction()
 //
+//  Build a new function type.
 //
 // Global Variables: -
 //
 // Side Effects    :  Modifies the type table
 //
 /----------------------------------------------------------------------*/
+
 Type_p TypeNewFunction(TypeTable_p table, SortType sort,
                        int arity, SortType *args)
 {
@@ -454,17 +455,19 @@ Type_p TypeNewFunction(TypeTable_p table, SortType sort,
    return res;
 }
 
+
 /*-----------------------------------------------------------------------
 //
-// Function: TypeCompare
-// total order on types
+// Function: TypeCompare()
 //
+//   Implement total order on types.
 //
 // Global Variables: -
 //
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
 int TypeCompare(Type_p t1, Type_p t2)
 {
     int res;

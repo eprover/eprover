@@ -1232,15 +1232,17 @@ FunCode SigGetNewPredicateCode(Sig_p sig, int arity)
 
 /*-----------------------------------------------------------------------
 //
-// Function: SigDeclareType
-// Declare the type of the given function. Will fail (and crash) if the
-// type is already declared and is fixed.
+// Function: SigDeclareType()
+//
+//   Declare the type of the given function. Will fail (and crash) if
+//   the type is already declared and is fixed.
 //
 // Global Variables: -
 //
 // Side Effects    : Modifies the signature
 //
 /----------------------------------------------------------------------*/
+
 void SigDeclareType(Sig_p sig, FunCode f, Type_p type)
 {
    Func_p fun;
@@ -1284,7 +1286,6 @@ void SigDeclareType(Sig_p sig, FunCode f, Type_p type)
          TypePrintTSTP(stderr, sig->type_table, type);
          fprintf(stderr, "\n");
       }
-
       fun->type = type;
    }
 }
@@ -1292,7 +1293,7 @@ void SigDeclareType(Sig_p sig, FunCode f, Type_p type)
 
 /*-----------------------------------------------------------------------
 //
-// Function: SigDeclareFinalType
+// Function: SigDeclareFinalType()
 //
 //   Declare the type of the symbol, and fix it (cannot be changed)
 //
@@ -1301,15 +1302,17 @@ void SigDeclareType(Sig_p sig, FunCode f, Type_p type)
 // Side Effects    : Modifies the type table
 //
 /----------------------------------------------------------------------*/
+
 void SigDeclareFinalType(Sig_p sig, FunCode f_code, Type_p type)
 {
    SigDeclareType(sig, f_code, type);
    SigFixType(sig, f_code);
 }
 
+
 /*-----------------------------------------------------------------------
 //
-// Function: SigDeclareIsFunction
+// Function: SigDeclareIsFunction()
 //
 //  This symbol occurs in a function position (in an equation, as
 //  a subterm...).
@@ -1319,6 +1322,7 @@ void SigDeclareFinalType(Sig_p sig, FunCode f_code, Type_p type)
 // Side Effects    : Modifies signature (may change the type)
 //
 /----------------------------------------------------------------------*/
+
 void SigDeclareIsFunction(Sig_p sig, FunCode f_code)
 {
    Type_p type, new_type;
@@ -1346,7 +1350,7 @@ void SigDeclareIsFunction(Sig_p sig, FunCode f_code)
 
 /*-----------------------------------------------------------------------
 //
-// Function: SigDeclareIsPredicate
+// Function: SigDeclareIsPredicate()
 //
 //   This symbol occurs as a predicate, without ambiguity.
 //
@@ -1379,10 +1383,12 @@ void SigDeclareIsPredicate(Sig_p sig, FunCode f_code)
    }
 }
 
+
 /*-----------------------------------------------------------------------
 //
-// Function: SigPrintTypes
-// Prints symbols with their type to the given file descriptor
+// Function: SigPrintTypes()
+//
+//   Prints symbols with their type to the given file descriptor.
 //
 //
 // Global Variables: -
@@ -1390,6 +1396,7 @@ void SigDeclareIsPredicate(Sig_p sig, FunCode f_code)
 // Side Effects    : IO on the file descriptor
 //
 /----------------------------------------------------------------------*/
+
 void SigPrintTypes(FILE* out, Sig_p sig)
 {
    FunCode i;
@@ -1420,14 +1427,15 @@ void SigPrintTypes(FILE* out, Sig_p sig)
 //
 // Function: SigParseTFFTypeDeclaration()
 //
-//  Parses a type declaration, and update the signature if it's a
-//  symbol declaration (ignores type declarations)
+//    Parses a type declaration, and update the signature if it is a
+//    symbol declaration (ignores type declarations)
 //
 // Global Variables: -
 //
 // Side Effects    : Reads from scanner, may raise an error
 //
 /----------------------------------------------------------------------*/
+
 void SigParseTFFTypeDeclaration(Scanner_p in, Sig_p sig)
 {
    DStr_p id;
@@ -1475,12 +1483,3 @@ void SigParseTFFTypeDeclaration(Scanner_p in, Sig_p sig)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
-
-
-
-
