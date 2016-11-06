@@ -61,11 +61,12 @@ TFormula_p answer_lit_alloc(TB_p terms, PStack_p varstack)
    TFormula_p res;
    Term_p handle;
 
-   handle = TBAllocNewSkolem(terms, varstack, STNoSort);
-   res    = TermTopAlloc(terms->sig->answer_code, 1);
+   handle       = TBAllocNewSkolem(terms, varstack, STNoSort);
+   res          = TermTopAlloc(terms->sig->answer_code, 1);
    res->args[0] = handle;
-   res    = TBTermTopInsert(terms, res);
-   res    = EqnTermsTBTermEncode(terms, res, terms->true_term, false, PENormal);
+   //res->sort    = STBool;
+   res          = TBTermTopInsert(terms, res);
+   res          = EqnTermsTBTermEncode(terms, res, terms->true_term, false, PENormal);
 
    return res;
 }
@@ -1096,5 +1097,3 @@ void FormulaSetDocInital(FILE* out, long level, FormulaSet_p set)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

@@ -199,6 +199,8 @@ Sig_p SigAlloc(SortTable_p sort_table)
 
 void SigInsertInternalCodes(Sig_p sig)
 {
+   int i_sort = STIndividuals;
+
    assert((SigSupportLists && sig->internal_symbols == SIG_CONS_CODE) ||
           (!SigSupportLists && sig->internal_symbols == SIG_FALSE_CODE));
 
@@ -226,6 +228,8 @@ void SigInsertInternalCodes(Sig_p sig)
 
    sig->answer_code =  SigInsertId(sig, "$answer", 1, true);
    SigSetFuncProp(sig, sig->answer_code, FPInterpreted|FPPseudoPred);
+   SigDeclareFinalType(sig, sig->answer_code,
+                       TypeNewFunction(sig->type_table, STBool, 1, &i_sort));
 
    sig->internal_symbols = sig->f_count;
 }
