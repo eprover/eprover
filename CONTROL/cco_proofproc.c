@@ -825,8 +825,8 @@ static Clause_p cleanup_unprocessed_clauses(ProofState_p state,
                  " incomplete now)\n", tmp);
       }
       state->state_is_complete = false;
-//	 ProofStateGCMarkTerms(state);
-//	 ProofStateGCSweepTerms(state);
+//       ProofStateGCMarkTerms(state);
+//       ProofStateGCSweepTerms(state);
       GCCollect(state->terms->gc);
       current_storage = ProofStateStorage(state);
       filter_base = MIN(filter_base, current_storage);
@@ -1514,6 +1514,3 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-

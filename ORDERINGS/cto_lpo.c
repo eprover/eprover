@@ -615,7 +615,7 @@ static bool lpo4_copy_greater(OCB_p ocb, Term_p s, Term_p t)
 //   Lexicographic Path Ordering (LPO), i.e. returns
 //
 //                       true      if s >LPO t,
-//      		 false     otherwise.
+//                       false     otherwise.
 //
 //   For a description of the LPO see the header of this file.
 //
@@ -696,7 +696,7 @@ CompareResult LPOCompare(OCB_p ocb, Term_p s, Term_p t,
 //   Lexicographic Path Ordering (LPO), i.e. returns
 //
 //                       true      if s >LPO t,
-//      		 false     otherwise.
+//                       false     otherwise.
 //
 //   For a description of the LPO see the header of this file.
 //
@@ -986,4 +986,3 @@ CompareResult LPOCompareCopy(OCB_p ocb, Term_p s, Term_p t,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-

@@ -133,13 +133,13 @@ typedef struct spec_feature_cell
    long         unitaxioms;
    long         horn;
    long         horngoals;
-   long		hornaxioms;
-   long		eq_clauses;
-   long		peq_clauses;
-   long		groundunitaxioms;
+   long         hornaxioms;
+   long         eq_clauses;
+   long         peq_clauses;
+   long         groundunitaxioms;
    long         positiveaxioms;
    long         groundpositiveaxioms;
-   long		groundgoals;
+   long         groundgoals;
    double       ng_unit_axioms_part;
    double       ground_positive_axioms_part;
    int          max_fun_arity;
@@ -402,8 +402,3 @@ SpecLimits_p CreateDefaultSpecLimits(void);
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

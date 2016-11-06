@@ -605,7 +605,7 @@ CompareResult KBOVarCompare(Term_p s, Term_p t, DerefType deref_s,
 //   Knuth-Bendix Ordering (KBO), i.e. returns
 //
 //                       true      if s >KBO t,
-//      		 false     otherwise.
+//                       false     otherwise.
 //
 //   For a description of the KBO see the header of this file.
 //
