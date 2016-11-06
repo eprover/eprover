@@ -1,0 +1,794 @@
+%------------------------------------------------------------------------------
+% File     : MSC001-2 : TPTP v6.4.0. Released v3.2.0.
+% Domain   : Miscellaneous
+% Axioms   : Sets, numbers, lists, etc, that make up the Isabelle/HOL library
+% Version  : [Pau06] axioms.
+% English  : The files MSC001-[012].ax .ax are really about everything: sets,
+%            numbers, lists and all the other things that make up the basic
+%            Isabelle/HOL library. Also, many of the axioms in MSC001-0.ax
+%            describe the Isabelle/HOL type class hierarchy.
+
+% Refs     : [Pau06] Paulson (2006), Email to G. Sutcliffe
+% Source   : [Pau06]
+% Names    : set.ax [Pau06]
+
+% Status   : Satisfiable
+% Syntax   : Number of clauses     :  198 (  11 non-Horn;  57 unit; 166 RR)
+%            Number of atoms       :  371 ( 157 equality)
+%            Maximal clause size   :    3 (   2 average)
+%            Number of predicates  :   10 (   0 propositional; 1-3 arity)
+%            Number of functors    :   60 (  15 constant; 0-4 arity)
+%            Number of variables   :  557 ( 144 singleton)
+%            Maximal term depth    :    4 (   1 average)
+% SPC      : 
+
+% Comments : Requires MSC001-0.ax
+%------------------------------------------------------------------------------
+cnf(cls_Datatype_Oelem__o2s__iff1_0,axiom,
+    ( ~ c_in(V_x,c_Datatype_Oo2s(V_xo,T_a),T_a)
+    | V_xo = c_Datatype_Ooption_OSome(V_x,T_a) )).
+
+cnf(cls_Datatype_Oelem__o2s__iff2_0,axiom,
+    ( c_in(V_x,c_Datatype_Oo2s(c_Datatype_Ooption_OSome(V_x,T_a),T_a),T_a) )).
+
+cnf(cls_Datatype_Onot__None__eq__iff1_0,axiom,
+    ( V_x = c_Datatype_Ooption_ONone
+    | V_x = c_Datatype_Ooption_OSome(c_Main_Onot__None__eq__iff1__1(V_x,T_a),T_a) )).
+
+cnf(cls_Datatype_Onot__Some__eq__iff1_0,axiom,
+    ( V_x = c_Datatype_Ooption_ONone
+    | V_x = c_Datatype_Ooption_OSome(c_Main_Onot__Some__eq__iff1__1(V_x,T_a),T_a) )).
+
+cnf(cls_Datatype_Ooption_Odistinct__1__iff1_0,axiom,
+    ( c_Datatype_Ooption_ONone != c_Datatype_Ooption_OSome(V_a_H,T_a) )).
+
+cnf(cls_Datatype_Ooption_Odistinct__2__iff1_0,axiom,
+    ( c_Datatype_Ooption_OSome(V_a_H,T_a) != c_Datatype_Ooption_ONone )).
+
+cnf(cls_Datatype_Ooption_Oinject__iff1_0,axiom,
+    ( c_Datatype_Ooption_OSome(V_a,T_a) != c_Datatype_Ooption_OSome(V_a_H,T_a)
+    | V_a = V_a_H )).
+
+cnf(cls_Datatype__Universe_OAtom__Atom__eq__iff1_0,axiom,
+    ( c_Datatype__Universe_OAtom(V_a,T_a,T_b) != c_Datatype__Universe_OAtom(V_b,T_a,T_b)
+    | V_a = V_b )).
+
+cnf(cls_Datatype__Universe_OAtom__not__Scons__iff1_0,axiom,
+    ( c_Datatype__Universe_OAtom(V_a,T_a,T_b) != c_Datatype__Universe_OScons(V_M,V_N,T_a,T_b) )).
+
+cnf(cls_Datatype__Universe_OIn0__eq__iff1_0,axiom,
+    ( c_Datatype__Universe_OIn0(V_M,T_a,T_b) != c_Datatype__Universe_OIn0(V_N,T_a,T_b)
+    | V_M = V_N )).
+
+cnf(cls_Datatype__Universe_OIn0__not__In1__iff1_0,axiom,
+    ( c_Datatype__Universe_OIn0(V_M,T_a,T_b) != c_Datatype__Universe_OIn1(V_N,T_a,T_b) )).
+
+cnf(cls_Datatype__Universe_OIn1__eq__iff1_0,axiom,
+    ( c_Datatype__Universe_OIn1(V_M,T_a,T_b) != c_Datatype__Universe_OIn1(V_N,T_a,T_b)
+    | V_M = V_N )).
+
+cnf(cls_Datatype__Universe_OIn1__not__In0__iff1_0,axiom,
+    ( c_Datatype__Universe_OIn1(V_N,T_a,T_b) != c_Datatype__Universe_OIn0(V_M,T_a,T_b) )).
+
+cnf(cls_Datatype__Universe_OLeaf__not__Numb__iff1_0,axiom,
+    ( c_Datatype__Universe_OLeaf(V_a,T_a,T_b) != c_Datatype__Universe_ONumb(V_k,T_a,T_b) )).
+
+cnf(cls_Datatype__Universe_OLeaf__not__Scons__iff1_0,axiom,
+    ( c_Datatype__Universe_OLeaf(V_a,T_a,T_b) != c_Datatype__Universe_OScons(V_M,V_N,T_a,T_b) )).
+
+cnf(cls_Datatype__Universe_ONumb__not__Leaf__iff1_0,axiom,
+    ( c_Datatype__Universe_ONumb(V_k,T_a,T_b) != c_Datatype__Universe_OLeaf(V_a,T_a,T_b) )).
+
+cnf(cls_Datatype__Universe_ONumb__not__Scons__iff1_0,axiom,
+    ( c_Datatype__Universe_ONumb(V_k,T_a,T_b) != c_Datatype__Universe_OScons(V_M,V_N,T_a,T_b) )).
+
+cnf(cls_Datatype__Universe_OScons__Scons__eq__iff1_0,axiom,
+    ( c_Datatype__Universe_OScons(V_M,V_N,T_a,T_b) != c_Datatype__Universe_OScons(V_M_H,V_N_H,T_a,T_b)
+    | V_M = V_M_H )).
+
+cnf(cls_Datatype__Universe_OScons__Scons__eq__iff1_1,axiom,
+    ( c_Datatype__Universe_OScons(V_M,V_N,T_a,T_b) != c_Datatype__Universe_OScons(V_M_H,V_N_H,T_a,T_b)
+    | V_N = V_N_H )).
+
+cnf(cls_Datatype__Universe_OScons__not__Atom__iff1_0,axiom,
+    ( c_Datatype__Universe_OScons(V_M,V_N,T_a,T_b) != c_Datatype__Universe_OAtom(V_a,T_a,T_b) )).
+
+cnf(cls_Datatype__Universe_OScons__not__Leaf__iff1_0,axiom,
+    ( c_Datatype__Universe_OScons(V_M,V_N,T_a,T_b) != c_Datatype__Universe_OLeaf(V_a,T_a,T_b) )).
+
+cnf(cls_Datatype__Universe_OScons__not__Numb__iff1_0,axiom,
+    ( c_Datatype__Universe_OScons(V_M,V_N,T_a,T_b) != c_Datatype__Universe_ONumb(V_k,T_a,T_b) )).
+
+cnf(cls_Divides_Odvd__0__left__iff__iff1_0,axiom,
+    ( ~ c_Divides_Oop_Advd(c_0,V_m,tc_nat)
+    | V_m = c_0 )).
+
+cnf(cls_Divides_Odvd__0__left__iff__iff2_0,axiom,
+    ( c_Divides_Oop_Advd(c_0,c_0,tc_nat) )).
+
+cnf(cls_Equiv__Relations_Oquotient__is__empty2__iff1_0,axiom,
+    ( c_emptyset != c_Equiv__Relations_Oquotient(V_A,V_r,T_a)
+    | V_A = c_emptyset )).
+
+cnf(cls_Equiv__Relations_Oquotient__is__empty2__iff2_0,axiom,
+    ( c_emptyset = c_Equiv__Relations_Oquotient(c_emptyset,V_r,T_a) )).
+
+cnf(cls_Equiv__Relations_Oquotient__is__empty__iff1_0,axiom,
+    ( c_Equiv__Relations_Oquotient(V_A,V_r,T_a) != c_emptyset
+    | V_A = c_emptyset )).
+
+cnf(cls_Equiv__Relations_Oquotient__is__empty__iff2_0,axiom,
+    ( c_Equiv__Relations_Oquotient(c_emptyset,V_r,T_a) = c_emptyset )).
+
+cnf(cls_Extraction_Osumbool_Odistinct__1__iff1_0,axiom,
+    ( c_Extraction_Osumbool_OLeft != c_Extraction_Osumbool_ORight )).
+
+cnf(cls_Extraction_Osumbool_Odistinct__2__iff1_0,axiom,
+    ( c_Extraction_Osumbool_ORight != c_Extraction_Osumbool_OLeft )).
+
+cnf(cls_Finite__Set_Ofinite__Diff__insert__iff1_0,axiom,
+    ( ~ c_in(c_minus(V_A,c_insert(V_a,V_B,T_a),tc_set(T_a)),c_Finite__Set_OFinites,tc_set(T_a))
+    | c_in(c_minus(V_A,V_B,tc_set(T_a)),c_Finite__Set_OFinites,tc_set(T_a)) )).
+
+cnf(cls_Finite__Set_Ofinite__Diff__insert__iff2_0,axiom,
+    ( ~ c_in(c_minus(V_A,V_B,tc_set(T_a)),c_Finite__Set_OFinites,tc_set(T_a))
+    | c_in(c_minus(V_A,c_insert(V_a,V_B,T_a),tc_set(T_a)),c_Finite__Set_OFinites,tc_set(T_a)) )).
+
+cnf(cls_Finite__Set_Ofinite__Pow__iff__iff1_0,axiom,
+    ( ~ c_in(c_Pow(V_A,T_a),c_Finite__Set_OFinites,tc_set(tc_set(T_a)))
+    | c_in(V_A,c_Finite__Set_OFinites,tc_set(T_a)) )).
+
+cnf(cls_Finite__Set_Ofinite__Pow__iff__iff2_0,axiom,
+    ( ~ c_in(V_A,c_Finite__Set_OFinites,tc_set(T_a))
+    | c_in(c_Pow(V_A,T_a),c_Finite__Set_OFinites,tc_set(tc_set(T_a))) )).
+
+cnf(cls_Finite__Set_Ofinite__Un__iff1_0,axiom,
+    ( ~ c_in(c_union(V_F,V_G,T_a),c_Finite__Set_OFinites,tc_set(T_a))
+    | c_in(V_F,c_Finite__Set_OFinites,tc_set(T_a)) )).
+
+cnf(cls_Finite__Set_Ofinite__Un__iff1_1,axiom,
+    ( ~ c_in(c_union(V_F,V_G,T_a),c_Finite__Set_OFinites,tc_set(T_a))
+    | c_in(V_G,c_Finite__Set_OFinites,tc_set(T_a)) )).
+
+cnf(cls_Finite__Set_Ofinite__Un__iff2_0,axiom,
+    ( ~ c_in(V_G,c_Finite__Set_OFinites,tc_set(T_a))
+    | ~ c_in(V_F,c_Finite__Set_OFinites,tc_set(T_a))
+    | c_in(c_union(V_F,V_G,T_a),c_Finite__Set_OFinites,tc_set(T_a)) )).
+
+cnf(cls_Finite__Set_Ofinite__converse__iff1_0,axiom,
+    ( ~ c_in(c_Relation_Oconverse(V_r,T_b,T_a),c_Finite__Set_OFinites,tc_set(tc_prod(T_a,T_b)))
+    | c_in(V_r,c_Finite__Set_OFinites,tc_set(tc_prod(T_b,T_a))) )).
+
+cnf(cls_Finite__Set_Ofinite__converse__iff2_0,axiom,
+    ( ~ c_in(V_r,c_Finite__Set_OFinites,tc_set(tc_prod(T_b,T_a)))
+    | c_in(c_Relation_Oconverse(V_r,T_b,T_a),c_Finite__Set_OFinites,tc_set(tc_prod(T_a,T_b))) )).
+
+cnf(cls_GCD_Ogcd__greatest__iff__iff1_0,axiom,
+    ( ~ c_Divides_Oop_Advd(V_k,c_GCD_Ogcd(c_Pair(V_m,V_n,tc_nat,tc_nat)),tc_nat)
+    | c_Divides_Oop_Advd(V_k,V_m,tc_nat) )).
+
+cnf(cls_GCD_Ogcd__greatest__iff__iff1_1,axiom,
+    ( ~ c_Divides_Oop_Advd(V_k,c_GCD_Ogcd(c_Pair(V_m,V_n,tc_nat,tc_nat)),tc_nat)
+    | c_Divides_Oop_Advd(V_k,V_n,tc_nat) )).
+
+cnf(cls_GCD_Ogcd__greatest__iff__iff2_0,axiom,
+    ( ~ c_Divides_Oop_Advd(V_k,V_n,tc_nat)
+    | ~ c_Divides_Oop_Advd(V_k,V_m,tc_nat)
+    | c_Divides_Oop_Advd(V_k,c_GCD_Ogcd(c_Pair(V_m,V_n,tc_nat,tc_nat)),tc_nat) )).
+
+cnf(cls_Infinite__Set_Onat__not__finite_0,axiom,
+    ( ~ c_in(c_UNIV,c_Finite__Set_OFinites,tc_set(tc_nat)) )).
+
+cnf(cls_IntDef_Oint__int__eq__iff1_0,axiom,
+    ( c_IntDef_Oint(V_m) != c_IntDef_Oint(V_n)
+    | V_m = V_n )).
+
+cnf(cls_IntDiv_Odvd__zminus__iff__iff1_0,axiom,
+    ( ~ c_Divides_Oop_Advd(V_z,c_uminus(V_w,tc_IntDef_Oint),tc_IntDef_Oint)
+    | c_Divides_Oop_Advd(V_z,V_w,tc_IntDef_Oint) )).
+
+cnf(cls_IntDiv_Odvd__zminus__iff__iff2_0,axiom,
+    ( ~ c_Divides_Oop_Advd(V_z,V_w,tc_IntDef_Oint)
+    | c_Divides_Oop_Advd(V_z,c_uminus(V_w,tc_IntDef_Oint),tc_IntDef_Oint) )).
+
+cnf(cls_IntDiv_Ozdvd__0__left__iff1_0,axiom,
+    ( ~ c_Divides_Oop_Advd(c_0,V_m,tc_IntDef_Oint)
+    | V_m = c_0 )).
+
+cnf(cls_IntDiv_Ozdvd__0__left__iff2_0,axiom,
+    ( c_Divides_Oop_Advd(c_0,c_0,tc_IntDef_Oint) )).
+
+cnf(cls_IntDiv_Ozminus__dvd__iff__iff1_0,axiom,
+    ( ~ c_Divides_Oop_Advd(c_uminus(V_z,tc_IntDef_Oint),V_w,tc_IntDef_Oint)
+    | c_Divides_Oop_Advd(V_z,V_w,tc_IntDef_Oint) )).
+
+cnf(cls_IntDiv_Ozminus__dvd__iff__iff2_0,axiom,
+    ( ~ c_Divides_Oop_Advd(V_z,V_w,tc_IntDef_Oint)
+    | c_Divides_Oop_Advd(c_uminus(V_z,tc_IntDef_Oint),V_w,tc_IntDef_Oint) )).
+
+cnf(cls_List_ONil2__notin__lex__iff1_0,axiom,
+    ( ~ c_in(c_Pair(V_xs,c_List_Olist_ONil,tc_List_Olist(T_a),tc_List_Olist(T_a)),c_List_Olex(V_r,T_a),tc_prod(tc_List_Olist(T_a),tc_List_Olist(T_a))) )).
+
+cnf(cls_List_ONil__is__append__conv__iff1_0,axiom,
+    ( c_List_Olist_ONil != c_append(V_xs,V_ys,T_a)
+    | V_xs = c_List_Olist_ONil )).
+
+cnf(cls_List_ONil__is__append__conv__iff1_1,axiom,
+    ( c_List_Olist_ONil != c_append(V_xs,V_ys,T_a)
+    | V_ys = c_List_Olist_ONil )).
+
+cnf(cls_List_ONil__is__append__conv__iff2_0,axiom,
+    ( c_List_Olist_ONil = c_append(c_List_Olist_ONil,c_List_Olist_ONil,T_a) )).
+
+cnf(cls_List_ONil__is__rev__conv__iff1_0,axiom,
+    ( c_List_Olist_ONil != c_List_Orev(V_xs,T_a)
+    | V_xs = c_List_Olist_ONil )).
+
+cnf(cls_List_ONil__is__rev__conv__iff2_0,axiom,
+    ( c_List_Olist_ONil = c_List_Orev(c_List_Olist_ONil,T_a) )).
+
+cnf(cls_List_ONil__notin__lex__iff1_0,axiom,
+    ( ~ c_in(c_Pair(c_List_Olist_ONil,V_ys,tc_List_Olist(T_a),tc_List_Olist(T_a)),c_List_Olex(V_r,T_a),tc_prod(tc_List_Olist(T_a),tc_List_Olist(T_a))) )).
+
+cnf(cls_List_Oappend1__eq__conv__iff1_0,axiom,
+    ( c_append(V_xs,c_List_Olist_OCons(V_x,c_List_Olist_ONil,T_a),T_a) != c_append(V_ys,c_List_Olist_OCons(V_y,c_List_Olist_ONil,T_a),T_a)
+    | V_xs = V_ys )).
+
+cnf(cls_List_Oappend1__eq__conv__iff1_1,axiom,
+    ( c_append(V_xs,c_List_Olist_OCons(V_x,c_List_Olist_ONil,T_a),T_a) != c_append(V_ys,c_List_Olist_OCons(V_y,c_List_Olist_ONil,T_a),T_a)
+    | V_x = V_y )).
+
+cnf(cls_List_Oappend__in__lists__conv__iff1_0,axiom,
+    ( ~ c_in(c_append(V_xs,V_ys,T_a),c_List_Olists(V_A,T_a),tc_List_Olist(T_a))
+    | c_in(V_xs,c_List_Olists(V_A,T_a),tc_List_Olist(T_a)) )).
+
+cnf(cls_List_Oappend__in__lists__conv__iff1_1,axiom,
+    ( ~ c_in(c_append(V_xs,V_ys,T_a),c_List_Olists(V_A,T_a),tc_List_Olist(T_a))
+    | c_in(V_ys,c_List_Olists(V_A,T_a),tc_List_Olist(T_a)) )).
+
+cnf(cls_List_Oappend__in__lists__conv__iff2_0,axiom,
+    ( ~ c_in(V_ys,c_List_Olists(V_A,T_a),tc_List_Olist(T_a))
+    | ~ c_in(V_xs,c_List_Olists(V_A,T_a),tc_List_Olist(T_a))
+    | c_in(c_append(V_xs,V_ys,T_a),c_List_Olists(V_A,T_a),tc_List_Olist(T_a)) )).
+
+cnf(cls_List_Oappend__is__Nil__conv__iff1_0,axiom,
+    ( c_append(V_xs,V_ys,T_a) != c_List_Olist_ONil
+    | V_xs = c_List_Olist_ONil )).
+
+cnf(cls_List_Oappend__is__Nil__conv__iff1_1,axiom,
+    ( c_append(V_xs,V_ys,T_a) != c_List_Olist_ONil
+    | V_ys = c_List_Olist_ONil )).
+
+cnf(cls_List_Oappend__is__Nil__conv__iff2_0,axiom,
+    ( c_append(c_List_Olist_ONil,c_List_Olist_ONil,T_a) = c_List_Olist_ONil )).
+
+cnf(cls_List_Oappend__same__eq__iff1_0,axiom,
+    ( c_append(V_ys,V_xs,T_a) != c_append(V_zs,V_xs,T_a)
+    | V_ys = V_zs )).
+
+cnf(cls_List_Oappend__self__conv2__iff1_0,axiom,
+    ( c_append(V_xs,V_ys,T_a) != V_ys
+    | V_xs = c_List_Olist_ONil )).
+
+cnf(cls_List_Oappend__self__conv2__iff2_0,axiom,
+    ( c_append(c_List_Olist_ONil,V_ys,T_a) = V_ys )).
+
+cnf(cls_List_Oappend__self__conv__iff1_0,axiom,
+    ( c_append(V_xs,V_ys,T_a) != V_xs
+    | V_ys = c_List_Olist_ONil )).
+
+cnf(cls_List_Oappend__self__conv__iff2_0,axiom,
+    ( c_append(V_xs,c_List_Olist_ONil,T_a) = V_xs )).
+
+cnf(cls_List_Ochar_Oinject__iff1_0,axiom,
+    ( c_List_Ochar_OChar(V_nibble1,V_nibble2) != c_List_Ochar_OChar(V_nibble1_H,V_nibble2_H)
+    | V_nibble1 = V_nibble1_H )).
+
+cnf(cls_List_Ochar_Oinject__iff1_1,axiom,
+    ( c_List_Ochar_OChar(V_nibble1,V_nibble2) != c_List_Ochar_OChar(V_nibble1_H,V_nibble2_H)
+    | V_nibble2 = V_nibble2_H )).
+
+cnf(cls_List_Olength__0__conv__iff1_0,axiom,
+    ( c_Nat_Osize(V_xs,tc_List_Olist(T_a)) != c_0
+    | V_xs = c_List_Olist_ONil )).
+
+cnf(cls_List_Olength__0__conv__iff2_0,axiom,
+    ( c_Nat_Osize(c_List_Olist_ONil,tc_List_Olist(T_a)) = c_0 )).
+
+cnf(cls_List_Olength__greater__0__conv__iff1_0,axiom,
+    ( ~ c_less(c_0,c_Nat_Osize(c_List_Olist_ONil,tc_List_Olist(T_a)),tc_nat) )).
+
+cnf(cls_List_Olength__greater__0__conv__iff2_0,axiom,
+    ( c_less(c_0,c_Nat_Osize(V_xs,tc_List_Olist(T_a)),tc_nat)
+    | V_xs = c_List_Olist_ONil )).
+
+cnf(cls_List_Olength__remdups__eq__iff1_0,axiom,
+    ( c_Nat_Osize(c_List_Oremdups(V_xs,T_a),tc_List_Olist(T_a)) != c_Nat_Osize(V_xs,tc_List_Olist(T_a))
+    | c_List_Oremdups(V_xs,T_a) = V_xs )).
+
+cnf(cls_List_Olength__remdups__eq__iff2_0,axiom,
+    ( c_List_Oremdups(V_xs,T_a) != V_xs
+    | c_Nat_Osize(c_List_Oremdups(V_xs,T_a),tc_List_Olist(T_a)) = c_Nat_Osize(V_xs,tc_List_Olist(T_a)) )).
+
+cnf(cls_List_Olist_Odistinct__1__iff1_0,axiom,
+    ( c_List_Olist_ONil != c_List_Olist_OCons(V_a_H,V_list_H,T_a) )).
+
+cnf(cls_List_Olist_Odistinct__2__iff1_0,axiom,
+    ( c_List_Olist_OCons(V_a_H,V_list_H,T_a) != c_List_Olist_ONil )).
+
+cnf(cls_List_Olist_Oinject__iff1_0,axiom,
+    ( c_List_Olist_OCons(V_a,V_list,T_a) != c_List_Olist_OCons(V_a_H,V_list_H,T_a)
+    | V_a = V_a_H )).
+
+cnf(cls_List_Olist_Oinject__iff1_1,axiom,
+    ( c_List_Olist_OCons(V_a,V_list,T_a) != c_List_Olist_OCons(V_a_H,V_list_H,T_a)
+    | V_list = V_list_H )).
+
+cnf(cls_List_Orev__eq__Cons__iff__iff1_0,axiom,
+    ( c_List_Orev(V_xs,T_a) != c_List_Olist_OCons(V_y,V_ys,T_a)
+    | V_xs = c_append(c_List_Orev(V_ys,T_a),c_List_Olist_OCons(V_y,c_List_Olist_ONil,T_a),T_a) )).
+
+cnf(cls_List_Orev__eq__Cons__iff__iff2_0,axiom,
+    ( c_List_Orev(c_append(c_List_Orev(V_ys,T_a),c_List_Olist_OCons(V_y,c_List_Olist_ONil,T_a),T_a),T_a) = c_List_Olist_OCons(V_y,V_ys,T_a) )).
+
+cnf(cls_List_Orev__is__Nil__conv__iff1_0,axiom,
+    ( c_List_Orev(V_xs,T_a) != c_List_Olist_ONil
+    | V_xs = c_List_Olist_ONil )).
+
+cnf(cls_List_Orev__is__Nil__conv__iff2_0,axiom,
+    ( c_List_Orev(c_List_Olist_ONil,T_a) = c_List_Olist_ONil )).
+
+cnf(cls_List_Orev__is__rev__conv__iff1_0,axiom,
+    ( c_List_Orev(V_xs,T_a) != c_List_Orev(V_ys,T_a)
+    | V_xs = V_ys )).
+
+cnf(cls_List_Osame__append__eq__iff1_0,axiom,
+    ( c_append(V_xs,V_ys,T_a) != c_append(V_xs,V_zs,T_a)
+    | V_ys = V_zs )).
+
+cnf(cls_List_Oself__append__conv2__iff1_0,axiom,
+    ( V_ys != c_append(V_xs,V_ys,T_a)
+    | V_xs = c_List_Olist_ONil )).
+
+cnf(cls_List_Oself__append__conv2__iff2_0,axiom,
+    ( V_ys = c_append(c_List_Olist_ONil,V_ys,T_a) )).
+
+cnf(cls_List_Oself__append__conv__iff1_0,axiom,
+    ( V_xs != c_append(V_xs,V_ys,T_a)
+    | V_ys = c_List_Olist_ONil )).
+
+cnf(cls_List_Oself__append__conv__iff2_0,axiom,
+    ( V_xs = c_append(V_xs,c_List_Olist_ONil,T_a) )).
+
+cnf(cls_List_Oset__empty2__iff1_0,axiom,
+    ( c_emptyset != c_List_Oset(V_xs,T_a)
+    | V_xs = c_List_Olist_ONil )).
+
+cnf(cls_List_Oset__empty2__iff2_0,axiom,
+    ( c_emptyset = c_List_Oset(c_List_Olist_ONil,T_a) )).
+
+cnf(cls_List_Oset__empty__iff1_0,axiom,
+    ( c_List_Oset(V_xs,T_a) != c_emptyset
+    | V_xs = c_List_Olist_ONil )).
+
+cnf(cls_List_Oset__empty__iff2_0,axiom,
+    ( c_List_Oset(c_List_Olist_ONil,T_a) = c_emptyset )).
+
+cnf(cls_Nat_OSuc__Suc__eq__iff1_0,axiom,
+    ( c_Suc(V_m) != c_Suc(V_n)
+    | V_m = V_n )).
+
+cnf(cls_Nat_OSuc__le__mono__iff1_0,axiom,
+    ( ~ c_lessequals(c_Suc(V_n),c_Suc(V_m),tc_nat)
+    | c_lessequals(V_n,V_m,tc_nat) )).
+
+cnf(cls_Nat_OSuc__le__mono__iff2_0,axiom,
+    ( ~ c_lessequals(V_n,V_m,tc_nat)
+    | c_lessequals(c_Suc(V_n),c_Suc(V_m),tc_nat) )).
+
+cnf(cls_Nat_OSuc__less__eq__iff1_0,axiom,
+    ( ~ c_less(c_Suc(V_m),c_Suc(V_n),tc_nat)
+    | c_less(V_m,V_n,tc_nat) )).
+
+cnf(cls_Nat_OSuc__less__eq__iff2_0,axiom,
+    ( ~ c_less(V_m,V_n,tc_nat)
+    | c_less(c_Suc(V_m),c_Suc(V_n),tc_nat) )).
+
+cnf(cls_Nat_OSuc__not__Zero__iff1_0,axiom,
+    ( c_Suc(V_m) != c_0 )).
+
+cnf(cls_Nat_OZero__not__Suc__iff1_0,axiom,
+    ( c_0 != c_Suc(V_m) )).
+
+cnf(cls_Nat_Oadd__gr__0__iff1_0,axiom,
+    ( ~ c_less(c_0,c_plus(V_m,V_n,tc_nat),tc_nat)
+    | c_less(c_0,V_n,tc_nat)
+    | c_less(c_0,V_m,tc_nat) )).
+
+cnf(cls_Nat_Oadd__gr__0__iff2_0,axiom,
+    ( ~ c_less(c_0,V_m,tc_nat)
+    | c_less(c_0,c_plus(V_m,V_n,tc_nat),tc_nat) )).
+
+cnf(cls_Nat_Oadd__gr__0__iff2_1,axiom,
+    ( ~ c_less(c_0,V_n,tc_nat)
+    | c_less(c_0,c_plus(V_m,V_n,tc_nat),tc_nat) )).
+
+cnf(cls_Nat_Oadd__is__0__iff1_0,axiom,
+    ( c_plus(V_m,V_n,tc_nat) != c_0
+    | V_m = c_0 )).
+
+cnf(cls_Nat_Oadd__is__0__iff1_1,axiom,
+    ( c_plus(V_m,V_n,tc_nat) != c_0
+    | V_n = c_0 )).
+
+cnf(cls_Nat_Oadd__is__0__iff2_0,axiom,
+    ( c_plus(c_0,c_0,tc_nat) = c_0 )).
+
+cnf(cls_Nat_Ole__0__eq__iff1_0,axiom,
+    ( ~ c_lessequals(V_i,c_0,tc_nat)
+    | V_i = c_0 )).
+
+cnf(cls_Nat_Ole__0__eq__iff2_0,axiom,
+    ( c_lessequals(c_0,c_0,tc_nat) )).
+
+cnf(cls_Nat_Oless__Suc0__iff1_0,axiom,
+    ( ~ c_less(V_n,c_Suc(c_0),tc_nat)
+    | V_n = c_0 )).
+
+cnf(cls_Nat_Oless__Suc0__iff2_0,axiom,
+    ( c_less(c_0,c_Suc(c_0),tc_nat) )).
+
+cnf(cls_Nat_Oless__one__iff1_0,axiom,
+    ( ~ c_less(V_n,c_1,tc_nat)
+    | V_n = c_0 )).
+
+cnf(cls_Nat_Oless__one__iff2_0,axiom,
+    ( c_less(c_0,c_1,tc_nat) )).
+
+cnf(cls_Nat_Oneq0__conv__iff1_0,axiom,
+    ( c_less(c_0,V_n,tc_nat)
+    | V_n = c_0 )).
+
+cnf(cls_Nat_Oneq0__conv__iff2_0,axiom,
+    ( ~ c_less(c_0,c_0,tc_nat) )).
+
+cnf(cls_Nat_Onot__add__less1__iff1_0,axiom,
+    ( ~ c_less(c_plus(V_i,V_j,tc_nat),V_i,tc_nat) )).
+
+cnf(cls_Nat_Onot__add__less2__iff1_0,axiom,
+    ( ~ c_less(c_plus(V_j,V_i,tc_nat),V_i,tc_nat) )).
+
+cnf(cls_Nat_Onot__less0__iff1_0,axiom,
+    ( ~ c_less(V_n,c_0,tc_nat) )).
+
+cnf(cls_Numeral_Obit_Odistinct__1__iff1_0,axiom,
+    ( c_Numeral_Obit_OB0 != c_Numeral_Obit_OB1 )).
+
+cnf(cls_Numeral_Obit_Odistinct__2__iff1_0,axiom,
+    ( c_Numeral_Obit_OB1 != c_Numeral_Obit_OB0 )).
+
+cnf(cls_Orderings_Oorder__less__irrefl__iff1_0,axiom,
+    ( ~ class_Orderings_Oorder(T_a)
+    | ~ c_less(V_x,V_x,T_a) )).
+
+cnf(cls_Product__Type_OPair__eq__iff1_0,axiom,
+    ( c_Pair(V_a,V_b,T_a,T_b) != c_Pair(V_a_H,V_b_H,T_a,T_b)
+    | V_a = V_a_H )).
+
+cnf(cls_Product__Type_OPair__eq__iff1_1,axiom,
+    ( c_Pair(V_a,V_b,T_a,T_b) != c_Pair(V_a_H,V_b_H,T_a,T_b)
+    | V_b = V_b_H )).
+
+cnf(cls_Relation_OIdI_0,axiom,
+    ( c_in(c_Pair(V_a,V_a,T_a,T_a),c_Relation_OId,tc_prod(T_a,T_a)) )).
+
+cnf(cls_Relation_OImage__singleton__iff__iff1_0,axiom,
+    ( ~ c_in(V_b,c_Relation_OImage(V_r,c_insert(V_a,c_emptyset,T_b),T_b,T_a),T_a)
+    | c_in(c_Pair(V_a,V_b,T_b,T_a),V_r,tc_prod(T_b,T_a)) )).
+
+cnf(cls_Relation_OImage__singleton__iff__iff2_0,axiom,
+    ( ~ c_in(c_Pair(V_a,V_b,T_b,T_a),V_r,tc_prod(T_b,T_a))
+    | c_in(V_b,c_Relation_OImage(V_r,c_insert(V_a,c_emptyset,T_b),T_b,T_a),T_a) )).
+
+cnf(cls_Relation_Oconverse__iff__iff1_0,axiom,
+    ( ~ c_in(c_Pair(V_a,V_b,T_a,T_b),c_Relation_Oconverse(V_r,T_b,T_a),tc_prod(T_a,T_b))
+    | c_in(c_Pair(V_b,V_a,T_b,T_a),V_r,tc_prod(T_b,T_a)) )).
+
+cnf(cls_Relation_Oconverse__iff__iff2_0,axiom,
+    ( ~ c_in(c_Pair(V_b,V_a,T_b,T_a),V_r,tc_prod(T_b,T_a))
+    | c_in(c_Pair(V_a,V_b,T_a,T_b),c_Relation_Oconverse(V_r,T_b,T_a),tc_prod(T_a,T_b)) )).
+
+cnf(cls_Relation_Opair__in__Id__conv__iff1_0,axiom,
+    ( ~ c_in(c_Pair(V_a,V_b,T_a,T_a),c_Relation_OId,tc_prod(T_a,T_a))
+    | V_a = V_b )).
+
+cnf(cls_SetInterval_OatLeast__eq__iff__iff1_0,axiom,
+    ( ~ class_Orderings_Olinorder(T_a)
+    | c_SetInterval_OatLeast(V_x,T_a) != c_SetInterval_OatLeast(V_y,T_a)
+    | V_x = V_y )).
+
+cnf(cls_SetInterval_OatLeast__iff__iff1_0,axiom,
+    ( ~ class_Orderings_Oord(T_a)
+    | ~ c_in(V_i,c_SetInterval_OatLeast(V_k,T_a),T_a)
+    | c_lessequals(V_k,V_i,T_a) )).
+
+cnf(cls_SetInterval_OatLeast__iff__iff2_0,axiom,
+    ( ~ class_Orderings_Oord(T_a)
+    | ~ c_lessequals(V_k,V_i,T_a)
+    | c_in(V_i,c_SetInterval_OatLeast(V_k,T_a),T_a) )).
+
+cnf(cls_SetInterval_OatLeast__subset__iff__iff1_0,axiom,
+    ( ~ class_Orderings_Oorder(T_a)
+    | ~ c_lessequals(c_SetInterval_OatLeast(V_x,T_a),c_SetInterval_OatLeast(V_y,T_a),tc_set(T_a))
+    | c_lessequals(V_y,V_x,T_a) )).
+
+cnf(cls_SetInterval_OatLeast__subset__iff__iff2_0,axiom,
+    ( ~ class_Orderings_Oorder(T_a)
+    | ~ c_lessequals(V_y,V_x,T_a)
+    | c_lessequals(c_SetInterval_OatLeast(V_x,T_a),c_SetInterval_OatLeast(V_y,T_a),tc_set(T_a)) )).
+
+cnf(cls_SetInterval_OatMost__eq__iff__iff1_0,axiom,
+    ( ~ class_Orderings_Olinorder(T_a)
+    | c_SetInterval_OatMost(V_x,T_a) != c_SetInterval_OatMost(V_y,T_a)
+    | V_x = V_y )).
+
+cnf(cls_SetInterval_OatMost__iff__iff1_0,axiom,
+    ( ~ class_Orderings_Oord(T_a)
+    | ~ c_in(V_i,c_SetInterval_OatMost(V_k,T_a),T_a)
+    | c_lessequals(V_i,V_k,T_a) )).
+
+cnf(cls_SetInterval_OatMost__iff__iff2_0,axiom,
+    ( ~ class_Orderings_Oord(T_a)
+    | ~ c_lessequals(V_i,V_k,T_a)
+    | c_in(V_i,c_SetInterval_OatMost(V_k,T_a),T_a) )).
+
+cnf(cls_SetInterval_OatMost__subset__iff__iff1_0,axiom,
+    ( ~ class_Orderings_Oorder(T_a)
+    | ~ c_lessequals(c_SetInterval_OatMost(V_x,T_a),c_SetInterval_OatMost(V_y,T_a),tc_set(T_a))
+    | c_lessequals(V_x,V_y,T_a) )).
+
+cnf(cls_SetInterval_OatMost__subset__iff__iff2_0,axiom,
+    ( ~ class_Orderings_Oorder(T_a)
+    | ~ c_lessequals(V_x,V_y,T_a)
+    | c_lessequals(c_SetInterval_OatMost(V_x,T_a),c_SetInterval_OatMost(V_y,T_a),tc_set(T_a)) )).
+
+cnf(cls_SetInterval_OgreaterThan__eq__iff__iff1_0,axiom,
+    ( ~ class_Orderings_Olinorder(T_a)
+    | c_SetInterval_OgreaterThan(V_x,T_a) != c_SetInterval_OgreaterThan(V_y,T_a)
+    | V_x = V_y )).
+
+cnf(cls_SetInterval_OgreaterThan__iff__iff1_0,axiom,
+    ( ~ class_Orderings_Oord(T_a)
+    | ~ c_in(V_i,c_SetInterval_OgreaterThan(V_k,T_a),T_a)
+    | c_less(V_k,V_i,T_a) )).
+
+cnf(cls_SetInterval_OgreaterThan__iff__iff2_0,axiom,
+    ( ~ class_Orderings_Oord(T_a)
+    | ~ c_less(V_k,V_i,T_a)
+    | c_in(V_i,c_SetInterval_OgreaterThan(V_k,T_a),T_a) )).
+
+cnf(cls_SetInterval_OgreaterThan__subset__iff__iff1_0,axiom,
+    ( ~ class_Orderings_Olinorder(T_a)
+    | ~ c_lessequals(c_SetInterval_OgreaterThan(V_x,T_a),c_SetInterval_OgreaterThan(V_y,T_a),tc_set(T_a))
+    | c_lessequals(V_y,V_x,T_a) )).
+
+cnf(cls_SetInterval_OgreaterThan__subset__iff__iff2_0,axiom,
+    ( ~ class_Orderings_Olinorder(T_a)
+    | ~ c_lessequals(V_y,V_x,T_a)
+    | c_lessequals(c_SetInterval_OgreaterThan(V_x,T_a),c_SetInterval_OgreaterThan(V_y,T_a),tc_set(T_a)) )).
+
+cnf(cls_SetInterval_OlessThan__eq__iff__iff1_0,axiom,
+    ( ~ class_Orderings_Olinorder(T_a)
+    | c_SetInterval_OlessThan(V_x,T_a) != c_SetInterval_OlessThan(V_y,T_a)
+    | V_x = V_y )).
+
+cnf(cls_SetInterval_OlessThan__iff__iff1_0,axiom,
+    ( ~ class_Orderings_Oord(T_a)
+    | ~ c_in(V_i,c_SetInterval_OlessThan(V_k,T_a),T_a)
+    | c_less(V_i,V_k,T_a) )).
+
+cnf(cls_SetInterval_OlessThan__iff__iff2_0,axiom,
+    ( ~ class_Orderings_Oord(T_a)
+    | ~ c_less(V_i,V_k,T_a)
+    | c_in(V_i,c_SetInterval_OlessThan(V_k,T_a),T_a) )).
+
+cnf(cls_SetInterval_OlessThan__subset__iff__iff1_0,axiom,
+    ( ~ class_Orderings_Olinorder(T_a)
+    | ~ c_lessequals(c_SetInterval_OlessThan(V_x,T_a),c_SetInterval_OlessThan(V_y,T_a),tc_set(T_a))
+    | c_lessequals(V_x,V_y,T_a) )).
+
+cnf(cls_SetInterval_OlessThan__subset__iff__iff2_0,axiom,
+    ( ~ class_Orderings_Olinorder(T_a)
+    | ~ c_lessequals(V_x,V_y,T_a)
+    | c_lessequals(c_SetInterval_OlessThan(V_x,T_a),c_SetInterval_OlessThan(V_y,T_a),tc_set(T_a)) )).
+
+cnf(cls_Set_OComplD__dest_0,axiom,
+    ( ~ c_in(V_c,V_A,T_a)
+    | ~ c_in(V_c,c_uminus(V_A,tc_set(T_a)),T_a) )).
+
+cnf(cls_Set_OComplI_0,axiom,
+    ( c_in(V_c,V_A,T_a)
+    | c_in(V_c,c_uminus(V_A,tc_set(T_a)),T_a) )).
+
+cnf(cls_Set_OCompl__eq__Compl__iff__iff1_0,axiom,
+    ( c_uminus(V_A,tc_set(T_a)) != c_uminus(V_B,tc_set(T_a))
+    | V_A = V_B )).
+
+cnf(cls_Set_OCompl__subset__Compl__iff__iff1_0,axiom,
+    ( ~ c_lessequals(c_uminus(V_A,tc_set(T_a)),c_uminus(V_B,tc_set(T_a)),tc_set(T_a))
+    | c_lessequals(V_B,V_A,tc_set(T_a)) )).
+
+cnf(cls_Set_OCompl__subset__Compl__iff__iff2_0,axiom,
+    ( ~ c_lessequals(V_B,V_A,tc_set(T_a))
+    | c_lessequals(c_uminus(V_A,tc_set(T_a)),c_uminus(V_B,tc_set(T_a)),tc_set(T_a)) )).
+
+cnf(cls_Set_ODiffE_0,axiom,
+    ( ~ c_in(V_c,V_B,T_a)
+    | ~ c_in(V_c,c_minus(V_A,V_B,tc_set(T_a)),T_a) )).
+
+cnf(cls_Set_ODiffE_1,axiom,
+    ( ~ c_in(V_c,c_minus(V_A,V_B,tc_set(T_a)),T_a)
+    | c_in(V_c,V_A,T_a) )).
+
+cnf(cls_Set_ODiffI_0,axiom,
+    ( ~ c_in(V_c,V_A,T_a)
+    | c_in(V_c,V_B,T_a)
+    | c_in(V_c,c_minus(V_A,V_B,tc_set(T_a)),T_a) )).
+
+cnf(cls_Set_OIntE_0,axiom,
+    ( ~ c_in(V_c,c_inter(V_A,V_B,T_a),T_a)
+    | c_in(V_c,V_B,T_a) )).
+
+cnf(cls_Set_OIntE_1,axiom,
+    ( ~ c_in(V_c,c_inter(V_A,V_B,T_a),T_a)
+    | c_in(V_c,V_A,T_a) )).
+
+cnf(cls_Set_OIntI_0,axiom,
+    ( ~ c_in(V_c,V_B,T_a)
+    | ~ c_in(V_c,V_A,T_a)
+    | c_in(V_c,c_inter(V_A,V_B,T_a),T_a) )).
+
+cnf(cls_Set_OInterD_0,axiom,
+    ( ~ c_in(V_X,V_C,tc_set(T_a))
+    | ~ c_in(V_A,c_Inter(V_C,T_a),T_a)
+    | c_in(V_A,V_X,T_a) )).
+
+cnf(cls_Set_OPow__iff__iff1_0,axiom,
+    ( ~ c_in(V_A,c_Pow(V_B,T_a),tc_set(T_a))
+    | c_lessequals(V_A,V_B,tc_set(T_a)) )).
+
+cnf(cls_Set_OPow__iff__iff2_0,axiom,
+    ( ~ c_lessequals(V_A,V_B,tc_set(T_a))
+    | c_in(V_A,c_Pow(V_B,T_a),tc_set(T_a)) )).
+
+cnf(cls_Set_OUNIV__not__empty__iff1_0,axiom,
+    ( c_UNIV != c_emptyset )).
+
+cnf(cls_Set_OUnCI_0,axiom,
+    ( ~ c_in(V_c,V_B,T_a)
+    | c_in(V_c,c_union(V_A,V_B,T_a),T_a) )).
+
+cnf(cls_Set_OUnCI_1,axiom,
+    ( ~ c_in(V_c,V_A,T_a)
+    | c_in(V_c,c_union(V_A,V_B,T_a),T_a) )).
+
+cnf(cls_Set_OUnE_0,axiom,
+    ( ~ c_in(V_c,c_union(V_A,V_B,T_a),T_a)
+    | c_in(V_c,V_B,T_a)
+    | c_in(V_c,V_A,T_a) )).
+
+cnf(cls_Set_OUn__empty__iff1_0,axiom,
+    ( c_union(V_A,V_B,T_a) != c_emptyset
+    | V_A = c_emptyset )).
+
+cnf(cls_Set_OUn__empty__iff1_1,axiom,
+    ( c_union(V_A,V_B,T_a) != c_emptyset
+    | V_B = c_emptyset )).
+
+cnf(cls_Set_OUn__empty__iff2_0,axiom,
+    ( c_union(c_emptyset,c_emptyset,T_a) = c_emptyset )).
+
+cnf(cls_Set_OUnionI_0,axiom,
+    ( ~ c_in(V_A,V_X,T_a)
+    | ~ c_in(V_X,V_C,tc_set(T_a))
+    | c_in(V_A,c_Union(V_C,T_a),T_a) )).
+
+cnf(cls_Set_OemptyE_0,axiom,
+    ( ~ c_in(V_a,c_emptyset,T_a) )).
+
+cnf(cls_Set_OinsertCI_0,axiom,
+    ( ~ c_in(V_a,V_B,T_a)
+    | c_in(V_a,c_insert(V_b,V_B,T_a),T_a) )).
+
+cnf(cls_Set_OinsertCI_1,axiom,
+    ( c_in(V_x,c_insert(V_x,V_B,T_a),T_a) )).
+
+cnf(cls_Set_OinsertE_0,axiom,
+    ( ~ c_in(V_a,c_insert(V_b,V_A,T_a),T_a)
+    | c_in(V_a,V_A,T_a)
+    | V_a = V_b )).
+
+cnf(cls_Set_Onot__psubset__empty__iff1_0,axiom,
+    ( ~ c_less(V_A,c_emptyset,tc_set(T_a)) )).
+
+cnf(cls_Set_Osingleton__insert__inj__eq_H__iff1_0,axiom,
+    ( c_insert(V_a,V_A,T_a) != c_insert(V_b,c_emptyset,T_a)
+    | V_a = V_b )).
+
+cnf(cls_Set_Osingleton__insert__inj__eq_H__iff1_1,axiom,
+    ( c_insert(V_a,V_A,T_a) != c_insert(V_b,c_emptyset,T_a)
+    | c_lessequals(V_A,c_insert(V_b,c_emptyset,T_a),tc_set(T_a)) )).
+
+cnf(cls_Set_Osingleton__insert__inj__eq_H__iff2_0,axiom,
+    ( ~ c_lessequals(V_A,c_insert(V_x,c_emptyset,T_a),tc_set(T_a))
+    | c_insert(V_x,V_A,T_a) = c_insert(V_x,c_emptyset,T_a) )).
+
+cnf(cls_Set_Osingleton__insert__inj__eq__iff1_0,axiom,
+    ( c_insert(V_b,c_emptyset,T_a) != c_insert(V_a,V_A,T_a)
+    | V_a = V_b )).
+
+cnf(cls_Set_Osingleton__insert__inj__eq__iff1_1,axiom,
+    ( c_insert(V_b,c_emptyset,T_a) != c_insert(V_a,V_A,T_a)
+    | c_lessequals(V_A,c_insert(V_b,c_emptyset,T_a),tc_set(T_a)) )).
+
+cnf(cls_Set_Osingleton__insert__inj__eq__iff2_0,axiom,
+    ( ~ c_lessequals(V_A,c_insert(V_x,c_emptyset,T_a),tc_set(T_a))
+    | c_insert(V_x,c_emptyset,T_a) = c_insert(V_x,V_A,T_a) )).
+
+cnf(cls_Sum__Type_OInl__eq__iff1_0,axiom,
+    ( c_Sum__Type_OInl(V_x,T_a,T_b) != c_Sum__Type_OInl(V_y,T_a,T_b)
+    | V_x = V_y )).
+
+cnf(cls_Sum__Type_OInl__not__Inr__iff1_0,axiom,
+    ( c_Sum__Type_OInl(V_a,T_a,T_b) != c_Sum__Type_OInr(V_b,T_b,T_a) )).
+
+cnf(cls_Sum__Type_OInr__eq__iff1_0,axiom,
+    ( c_Sum__Type_OInr(V_x,T_b,T_a) != c_Sum__Type_OInr(V_y,T_b,T_a)
+    | V_x = V_y )).
+
+cnf(cls_Sum__Type_OInr__not__Inl__iff1_0,axiom,
+    ( c_Sum__Type_OInr(V_b,T_b,T_a) != c_Sum__Type_OInl(V_a,T_a,T_b) )).
+
+cnf(cls_Wellfounded__Recursion_Oacyclic__converse__iff1_0,axiom,
+    ( ~ c_Wellfounded__Recursion_Oacyclic(c_Relation_Oconverse(V_r,T_a,T_a),T_a)
+    | c_Wellfounded__Recursion_Oacyclic(V_r,T_a) )).
+
+cnf(cls_Wellfounded__Recursion_Oacyclic__converse__iff2_0,axiom,
+    ( ~ c_Wellfounded__Recursion_Oacyclic(V_r,T_a)
+    | c_Wellfounded__Recursion_Oacyclic(c_Relation_Oconverse(V_r,T_a,T_a),T_a) )).
+
+cnf(cls_Wellfounded__Recursion_Oacyclic__insert__iff1_0,axiom,
+    ( ~ c_Wellfounded__Recursion_Oacyclic(c_insert(c_Pair(V_y,V_x,T_a,T_a),V_r,tc_prod(T_a,T_a)),T_a)
+    | c_Wellfounded__Recursion_Oacyclic(V_r,T_a) )).
+
+cnf(cls_Wellfounded__Recursion_Oacyclic__insert__iff1_1,axiom,
+    ( ~ c_Wellfounded__Recursion_Oacyclic(c_insert(c_Pair(V_y,V_x,T_a,T_a),V_r,tc_prod(T_a,T_a)),T_a)
+    | ~ c_in(c_Pair(V_x,V_y,T_a,T_a),c_Transitive__Closure_Ortrancl(V_r,T_a),tc_prod(T_a,T_a)) )).
+
+cnf(cls_Wellfounded__Recursion_Oacyclic__insert__iff2_0,axiom,
+    ( ~ c_Wellfounded__Recursion_Oacyclic(V_r,T_a)
+    | c_Wellfounded__Recursion_Oacyclic(c_insert(c_Pair(V_y,V_x,T_a,T_a),V_r,tc_prod(T_a,T_a)),T_a)
+    | c_in(c_Pair(V_x,V_y,T_a,T_a),c_Transitive__Closure_Ortrancl(V_r,T_a),tc_prod(T_a,T_a)) )).
+
+cnf(cls_Wellfounded__Recursion_Owf__insert__iff1_0,axiom,
+    ( ~ c_Wellfounded__Recursion_Owf(c_insert(c_Pair(V_y,V_x,T_a,T_a),V_r,tc_prod(T_a,T_a)),T_a)
+    | c_Wellfounded__Recursion_Owf(V_r,T_a) )).
+
+cnf(cls_Wellfounded__Recursion_Owf__insert__iff1_1,axiom,
+    ( ~ c_Wellfounded__Recursion_Owf(c_insert(c_Pair(V_y,V_x,T_a,T_a),V_r,tc_prod(T_a,T_a)),T_a)
+    | ~ c_in(c_Pair(V_x,V_y,T_a,T_a),c_Transitive__Closure_Ortrancl(V_r,T_a),tc_prod(T_a,T_a)) )).
+
+cnf(cls_Wellfounded__Recursion_Owf__insert__iff2_0,axiom,
+    ( ~ c_Wellfounded__Recursion_Owf(V_r,T_a)
+    | c_Wellfounded__Recursion_Owf(c_insert(c_Pair(V_y,V_x,T_a,T_a),V_r,tc_prod(T_a,T_a)),T_a)
+    | c_in(c_Pair(V_x,V_y,T_a,T_a),c_Transitive__Closure_Ortrancl(V_r,T_a),tc_prod(T_a,T_a)) )).
+
+cnf(cls_Wellfounded__Relations_Oless__than__iff__iff1_0,axiom,
+    ( ~ c_in(c_Pair(V_x,V_y,tc_nat,tc_nat),c_Wellfounded__Relations_Oless__than,tc_prod(tc_nat,tc_nat))
+    | c_less(V_x,V_y,tc_nat) )).
+
+cnf(cls_Wellfounded__Relations_Oless__than__iff__iff2_0,axiom,
+    ( ~ c_less(V_x,V_y,tc_nat)
+    | c_in(c_Pair(V_x,V_y,tc_nat,tc_nat),c_Wellfounded__Relations_Oless__than,tc_prod(tc_nat,tc_nat)) )).
+
+%------------------------------------------------------------------------------
