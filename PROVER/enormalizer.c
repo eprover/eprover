@@ -503,8 +503,9 @@ int main(int argc, char* argv[])
       VERBOUT("Negated conjectures.\n");
    }
    freshvars = VarBankAlloc(sort_table);
-   if(FormulaSetCNF(formulas, f_ax_archive,
-                    clauses, terms, freshvars, collector))
+   if(FormulaSetCNF2(formulas, f_ax_archive,
+                     clauses, terms, freshvars,
+                     collector, 1000))
    {
       VERBOUT("CNFization done\n");
    }
@@ -592,17 +593,17 @@ CLState_p process_options(int argc, char* argv[])
       switch(handle->option_code)
       {
       case OPT_VERBOSE:
-       Verbose = CLStateGetIntArg(handle, arg);
-       break;
+            Verbose = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_HELP:
-       print_help(stdout);
-       exit(NO_ERROR);
+            print_help(stdout);
+            exit(NO_ERROR);
       case OPT_VERSION:
-       printf(NAME" " VERSION "\n");
-       exit(NO_ERROR);
+            printf(NAME" " VERSION "\n");
+            exit(NO_ERROR);
       case OPT_OUTPUT:
-       outname = arg;
-       break;
+            outname = arg;
+            break;
       case OPT_TERMSOURCE:
             termname = arg;
             break;
@@ -613,34 +614,34 @@ CLState_p process_options(int argc, char* argv[])
             formulaname = arg;
             break;
       case OPT_SILENT:
-       OutputLevel = 0;
-       break;
+            OutputLevel = 0;
+            break;
       case OPT_OUTPUTLEVEL:
-       OutputLevel = CLStateGetIntArg(handle, arg);
-       break;
+            OutputLevel = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_PRINT_STATISTICS:
-       print_statistics = true;
-       break;
+            print_statistics = true;
+            break;
       case OPT_RUSAGE_INFO:
-       print_rusage = true;
-       break;
+            print_rusage = true;
+            break;
       case OPT_LOP_PARSE:
-       parse_format = LOPFormat;
-       break;
+            parse_format = LOPFormat;
+            break;
       case OPT_TPTP_PARSE:
-       parse_format = TPTPFormat;
-       break;
+            parse_format = TPTPFormat;
+            break;
       case OPT_TPTP_PRINT:
-       OutputFormat = TPTPFormat;
-       EqnFullEquationalRep = false;
-       EqnUseInfix = false;
-       break;
+            OutputFormat = TPTPFormat;
+            EqnFullEquationalRep = false;
+            EqnUseInfix = false;
+            break;
       case OPT_TPTP_FORMAT:
-       parse_format = TPTPFormat;
-       OutputFormat = TPTPFormat;
-       EqnFullEquationalRep = false;
-       EqnUseInfix = false;
-       break;
+            parse_format = TPTPFormat;
+            OutputFormat = TPTPFormat;
+            EqnFullEquationalRep = false;
+            EqnUseInfix = false;
+            break;
       case OPT_TSTP_PARSE:
             parse_format = TSTPFormat;
             break;
@@ -675,66 +676,66 @@ CLState_p process_options(int argc, char* argv[])
             {
                mem_limit = MEGA*CLStateGetIntArg(handle, arg);
             }
-       break;
+            break;
       case OPT_CPU_LIMIT:
-       HardTimeLimit = CLStateGetIntArg(handle, arg);
-       if(SoftTimeLimit != RLIM_INFINITY)
-       {
-          if(HardTimeLimit<=SoftTimeLimit)
-          {
-        Error("Hard time limit has to be larger than soft"
-         "time limit", USAGE_ERROR);
-          }
-       }
-       break;
+            HardTimeLimit = CLStateGetIntArg(handle, arg);
+            if(SoftTimeLimit != RLIM_INFINITY)
+            {
+               if(HardTimeLimit<=SoftTimeLimit)
+               {
+                  Error("Hard time limit has to be larger than soft"
+                        "time limit", USAGE_ERROR);
+               }
+            }
+            break;
       case OPT_SOFTCPU_LIMIT:
-       SoftTimeLimit = CLStateGetIntArg(handle, arg);
-       if(HardTimeLimit != RLIM_INFINITY)
-       {
-          if(HardTimeLimit<=SoftTimeLimit)
-          {
-        Error("Soft time limit has to be smaller than hard"
-         "time limit", USAGE_ERROR);
-          }
-       }
-       break;
+            SoftTimeLimit = CLStateGetIntArg(handle, arg);
+            if(HardTimeLimit != RLIM_INFINITY)
+            {
+               if(HardTimeLimit<=SoftTimeLimit)
+               {
+                  Error("Soft time limit has to be smaller than hard"
+                        "time limit", USAGE_ERROR);
+               }
+            }
+            break;
       default:
-    assert(false);
-    break;
+            assert(false);
+            break;
       }
    }
    if((HardTimeLimit!=RLIM_INFINITY)||(SoftTimeLimit!=RLIM_INFINITY))
    {
       if(getrlimit(RLIMIT_CPU, &limit))
       {
-    TmpErrno = errno;
-    SysError("Unable to get sytem cpu time limit", SYS_ERROR);
+         TmpErrno = errno;
+         SysError("Unable to get sytem cpu time limit", SYS_ERROR);
       }
       SystemTimeLimit = limit.rlim_max;
       if(SoftTimeLimit!=RLIM_INFINITY)
       {
-    limit.rlim_max = SystemTimeLimit; /* Redundant, but clearer */
-    limit.rlim_cur = SoftTimeLimit;
-    TimeLimitIsSoft = true;
+         limit.rlim_max = SystemTimeLimit; /* Redundant, but clearer */
+         limit.rlim_cur = SoftTimeLimit;
+         TimeLimitIsSoft = true;
       }
       else
       {
-    limit.rlim_max = SystemTimeLimit;
-    limit.rlim_cur = HardTimeLimit;
-    TimeLimitIsSoft = false;
+         limit.rlim_max = SystemTimeLimit;
+         limit.rlim_cur = HardTimeLimit;
+         TimeLimitIsSoft = false;
       }
       if(setrlimit(RLIMIT_CPU, &limit))
       {
-    TmpErrno = errno;
-    SysError("Unable to set cpu time limit", SYS_ERROR);
+         TmpErrno = errno;
+         SysError("Unable to set cpu time limit", SYS_ERROR);
       }
       limit.rlim_max = RLIM_INFINITY;
       limit.rlim_cur = 0;
 
       if(setrlimit(RLIMIT_CORE, &limit))
       {
-    TmpErrno = errno;
-    SysError("Unable to prevent core dumps", SYS_ERROR);
+         TmpErrno = errno;
+         SysError("Unable to prevent core dumps", SYS_ERROR);
       }
    }
    SetMemoryLimit(mem_limit);
@@ -745,57 +746,57 @@ CLState_p process_options(int argc, char* argv[])
 void print_help(FILE* out)
 {
    fprintf(out, "\n\
-"NAME " " VERSION "\n\
-\n\
-Usage: enormalizer [options] [files]\n\
-\n\
-Read a set of rewrite rules (in the form of unit clauses and/or\n\
-formulas) with a single positive literal) and sets of terms, clauses,\n\
-and formulas (the \"normalization targets\") to rewrite. Rewrite rules\n\
-are read from the left to right as specified in the input, without\n\
-regard to any term order.\n\
-\n\
-The normalization targets are ewritten using these rewrite rules until\n\
-a normal form is reached. If the rule system is not confluent, the\n\
-results are deterministic but unspecified. If the rule system is not\n\
-terminating, rewriting might get stuck into an infinite loop. \n\
-\n\
-The rewrite strategy is leftmost-innermost. The order of rewrite rules\n\
-tried at each subterm is deterministic, but unspecified and\n\
-independent of input order (it depends on the order in which rules are\n\
-returned from the perfect discrimination tree index).\n\
-\n\
-The normalized terms/clauses/formulas are printed.\n\
+"NAME " " VERSION "\n                           \
+\n                                              \
+Usage: enormalizer [options] [files]\n          \
+\n                                                                      \
+Read a set of rewrite rules (in the form of unit clauses and/or\n       \
+formulas) with a single positive literal) and sets of terms, clauses,\n \
+and formulas (the \"normalization targets\") to rewrite. Rewrite rules\n \
+are read from the left to right as specified in the input, without\n    \
+regard to any term order.\n                                             \
+\n                                                                      \
+The normalization targets are ewritten using these rewrite rules until\n \
+a normal form is reached. If the rule system is not confluent, the\n    \
+results are deterministic but unspecified. If the rule system is not\n  \
+terminating, rewriting might get stuck into an infinite loop. \n        \
+\n                                                                      \
+The rewrite strategy is leftmost-innermost. The order of rewrite rules\n \
+tried at each subterm is deterministic, but unspecified and\n           \
+independent of input order (it depends on the order in which rules are\n \
+returned from the perfect discrimination tree index).\n                 \
+\n                                                                      \
+The normalized terms/clauses/formulas are printed.\n                    \
 \n");
    PrintOptions(stdout, opts, "Options\n\n");
    fprintf(out, "\n\
-"STS_COPYRIGHT", " STS_MAIL "\n\
-\n\
-This program is a part of the support structure for the E equational\n\
-theorem prover. You can find the latest version of the E distribution\n\
+"STS_COPYRIGHT", " STS_MAIL "\n                 \
+\n                                                                      \
+This program is a part of the support structure for the E equational\n  \
+theorem prover. You can find the latest version of the E distribution\n \
 as well as additional information at\n"
-E_URL
-"\n\n\
-This program is free software; you can redistribute it and/or modify\n\
-it under the terms of the GNU General Public License as published by\n\
-the Free Software Foundation; either version 2 of the License, or\n\
-(at your option) any later version.\n\
-\n\
-This program is distributed in the hope that it will be useful,\n\
-but WITHOUT ANY WARRANTY; without even the implied warranty of\n\
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n\
-GNU General Public License for more details.\n\
-\n\
-You should have received a copy of the GNU General Public License\n\
-along with this program (it should be contained in the top level\n\
-directory of the distribution in the file COPYING); if not, write to\n\
-the Free Software Foundation, Inc., 59 Temple Place, Suite 330,\n\
-Boston, MA  02111-1307 USA\n\
-\n\
-The original copyright holder can be contacted as\n\
+           E_URL
+           "\n\n\
+This program is free software; you can redistribute it and/or modify\n  \
+it under the terms of the GNU General Public License as published by\n  \
+the Free Software Foundation; either version 2 of the License, or\n     \
+(at your option) any later version.\n                                   \
+\n                                                                      \
+This program is distributed in the hope that it will be useful,\n       \
+but WITHOUT ANY WARRANTY; without even the implied warranty of\n        \
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n         \
+GNU General Public License for more details.\n                          \
+\n                                                                      \
+You should have received a copy of the GNU General Public License\n     \
+along with this program (it should be contained in the top level\n      \
+directory of the distribution in the file COPYING); if not, write to\n  \
+the Free Software Foundation, Inc., 59 Temple Place, Suite 330,\n       \
+Boston, MA  02111-1307 USA\n                                            \
+\n                                                                      \
+The original copyright holder can be contacted as\n                     \
 \n"
-STS_SNAIL
-"\n");
+           STS_SNAIL
+           "\n");
 
 }
 
@@ -803,5 +804,3 @@ STS_SNAIL
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

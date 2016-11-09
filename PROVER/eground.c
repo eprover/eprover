@@ -59,6 +59,9 @@ typedef enum
    OPT_TSTP_PARSE,
    OPT_TSTP_PRINT,
    OPT_TSTP_FORMAT,
+   OPT_DEF_CNF_OLD,
+   OPT_DEF_CNF,
+   OPT_MINISCOPE_LIMIT,
    OPT_DIMACS_PRINT,
    OPT_SPLIT_TRIES,
    OPT_DISABLE_UNIT_SUBSUMPTION,
@@ -218,6 +221,31 @@ OptCell opts[] =
     "Print output in the DIMACS format suitable for many propositional "
     "provers."},
 
+   {OPT_DEF_CNF,
+    '\0', "definitional-cnf",
+    OptArg, TFORM_RENAME_LIMIT_STR,
+    "Tune the clausification algorithm to introduces definitions for "
+    "subformulae to avoid exponential blow-up. The optional argument "
+    "is a fudge factor that determines when definitions are introduced. "
+    "0 disables definitions completely. The default works well."},
+
+   {OPT_DEF_CNF_OLD,
+    '\0', "old-cnf",
+    OptArg, TFORM_RENAME_LIMIT_STR,
+    "As the previous option, but use the classical, well-tested "
+    "clausification algorithm as opposed to the newewst one which "
+    "avoides some algorithmic pitfalls and hence works better on "
+    "some exotic formulae. The two may produce slightly different "
+    "(but equisatisfiable) clause normal forms."},
+
+   {OPT_MINISCOPE_LIMIT,
+    '\0', "miniscope-limit",
+    OptArg, TFORM_MINISCOPE_LIMIT_STR,
+    "Set the limit of variables to miniscope per input formula. The build-in "
+    "default is 1000. Only applies to the new (default) clausification "
+    "algorithm"},
+
+
    {OPT_SPLIT_TRIES,
     '\0' , "split-tries",
     OptArg, "1",
@@ -320,7 +348,8 @@ char   *outname = NULL;
 IOFormat parse_format = AutoFormat;
 bool   dimacs_format = false;
 int    split_tries = 0;
-bool   unit_sub = true,
+bool   new_cnf          = true,
+       unit_sub = true,
        unit_res = true,
        taut_check = true,
        add_single_instance = false,
@@ -331,6 +360,7 @@ bool   unit_sub = true,
        print_result = true,
        fix_minisat = false;
 long   give_up = 0,
+       miniscope_limit  = 1000,
        initial_literals = 0,
        initial_clauses = 0;
 
@@ -636,49 +666,49 @@ CLState_p process_options(int argc, char* argv[])
       switch(handle->option_code)
       {
       case OPT_VERBOSE:
-       Verbose = CLStateGetIntArg(handle, arg);
-       break;
+            Verbose = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_HELP:
-       print_help(stdout);
-       exit(NO_ERROR);
+            print_help(stdout);
+            exit(NO_ERROR);
       case OPT_VERSION:
-       printf(NAME" " VERSION "\n");
-       exit(NO_ERROR);
+            printf(NAME" " VERSION "\n");
+            exit(NO_ERROR);
       case OPT_OUTPUT:
-       outname = arg;
-       break;
+            outname = arg;
+            break;
       case OPT_SILENT:
-       OutputLevel = 0;
-       break;
+            OutputLevel = 0;
+            break;
       case OPT_OUTPUTLEVEL:
-       OutputLevel = CLStateGetIntArg(handle, arg);
-       break;
+            OutputLevel = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_PRINT_STATISTICS:
-       print_statistics = true;
-       break;
+            print_statistics = true;
+            break;
       case OPT_RUSAGE_INFO:
-       print_rusage = true;
-       break;
+            print_rusage = true;
+            break;
       case OPT_SUPRESS_RESULT:
-       print_result = false;
-       break;
+            print_result = false;
+            break;
       case OPT_LOP_PARSE:
-       parse_format = LOPFormat;
-       break;
+            parse_format = LOPFormat;
+            break;
       case OPT_TPTP_PARSE:
-       parse_format = TPTPFormat;
-       break;
+            parse_format = TPTPFormat;
+            break;
       case OPT_TPTP_PRINT:
-       OutputFormat = TPTPFormat;
-       EqnFullEquationalRep = false;
-       EqnUseInfix = false;
-       break;
+            OutputFormat = TPTPFormat;
+            EqnFullEquationalRep = false;
+            EqnUseInfix = false;
+            break;
       case OPT_TPTP_FORMAT:
-       parse_format = TPTPFormat;
-       OutputFormat = TPTPFormat;
-       EqnFullEquationalRep = false;
-       EqnUseInfix = false;
-       break;
+            parse_format = TPTPFormat;
+            OutputFormat = TPTPFormat;
+            EqnFullEquationalRep = false;
+            EqnUseInfix = false;
+            break;
       case OPT_TSTP_PARSE:
             parse_format = TSTPFormat;
             break;
@@ -692,26 +722,35 @@ CLState_p process_options(int argc, char* argv[])
             EqnUseInfix = true;
             break;
       case OPT_DIMACS_PRINT:
-       dimacs_format = true;
-       break;
-      case OPT_SPLIT_TRIES:
-       split_tries = CLStateGetIntArg(handle, arg);
-            if((split_tries < 0))
-            {
-               Error("Argument to option --split-tries "
+            dimacs_format = true;
+            break;
+      case OPT_DEF_CNF_OLD:
+            new_cnf = false;
+            /* Intentional fall-through */
+      case OPT_DEF_CNF:
+            FormulaDefLimit     = CLStateGetIntArg(handle, arg);
+            break;
+      case OPT_MINISCOPE_LIMIT:
+            miniscope_limit =  CLStateGetIntArg(handle, arg);
+            break;
+     case OPT_SPLIT_TRIES:
+           split_tries = CLStateGetIntArg(handle, arg);
+           if((split_tries < 0))
+           {
+              Error("Argument to option --split-tries "
                      "has to be value greater than or equal to 0 ",
-           USAGE_ERROR);
-            }
-       break;
+                    USAGE_ERROR);
+           }
+           break;
       case OPT_DISABLE_UNIT_SUBSUMPTION:
-       unit_sub = false;
-       break;
+            unit_sub = false;
+            break;
       case OPT_DISABLE_UNIT_RESOLUTION:
-       unit_res = false;
-       break;
+            unit_res = false;
+            break;
       case OPT_DISABLE_TAUTOLOGY_DETECTION:
-       taut_check = false;
-       break;
+            taut_check = false;
+            break;
       case OPT_MEM_LIMIT:
             if(strcmp(arg, "Auto")==0)
             {
@@ -734,84 +773,84 @@ CLState_p process_options(int argc, char* argv[])
             {
                mem_limit = MEGA*CLStateGetIntArg(handle, arg);
             }
-       break;
+            break;
       case OPT_CPU_LIMIT:
-       HardTimeLimit = CLStateGetIntArg(handle, arg);
+            HardTimeLimit = CLStateGetIntArg(handle, arg);
        if(SoftTimeLimit != RLIM_INFINITY)
        {
           if(HardTimeLimit<=SoftTimeLimit)
           {
-        Error("Hard time limit has to be larger than soft"
-         "time limit", USAGE_ERROR);
+             Error("Hard time limit has to be larger than soft"
+                   "time limit", USAGE_ERROR);
           }
        }
        break;
       case OPT_SOFTCPU_LIMIT:
-       SoftTimeLimit = CLStateGetIntArg(handle, arg);
-       if(HardTimeLimit != RLIM_INFINITY)
+            SoftTimeLimit = CLStateGetIntArg(handle, arg);
+            if(HardTimeLimit != RLIM_INFINITY)
        {
           if(HardTimeLimit<=SoftTimeLimit)
           {
-        Error("Soft time limit has to be smaller than hard"
-         "time limit", USAGE_ERROR);
+             Error("Soft time limit has to be smaller than hard"
+                   "time limit", USAGE_ERROR);
           }
        }
-       break;
+            break;
       case OPT_PART_COMPLETE:
-       add_single_instance = true;
+            add_single_instance = true;
        break;
       case OPT_GIVE_UP:
-       give_up = CLStateGetIntArg(handle, arg);
-       break;
+            give_up = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_CONSTRAINTS:
-       constraints = true;
-       break;
+            constraints = true;
+            break;
       case OPT_LOCAL_CONSTRAINTS:
             constraints = true;
-       local_constraints = true;
-       ClausesHaveDisjointVariables = true;
-       ClausesHaveLocalVariables = false;
-       break;
+            local_constraints = true;
+            ClausesHaveDisjointVariables = true;
+            ClausesHaveLocalVariables = false;
+            break;
       case OPT_FIX_MINISAT:
             fix_minisat = true;
             break;
       default:
-    assert(false);
-    break;
+            assert(false);
+            break;
       }
    }
    if((HardTimeLimit!=RLIM_INFINITY)||(SoftTimeLimit!=RLIM_INFINITY))
    {
       if(getrlimit(RLIMIT_CPU, &limit))
       {
-    TmpErrno = errno;
-    SysError("Unable to get sytem cpu time limit", SYS_ERROR);
+         TmpErrno = errno;
+         SysError("Unable to get sytem cpu time limit", SYS_ERROR);
       }
       SystemTimeLimit = limit.rlim_max;
       if(SoftTimeLimit!=RLIM_INFINITY)
       {
-    limit.rlim_max = SystemTimeLimit; /* Redundant, but clearer */
-    limit.rlim_cur = SoftTimeLimit;
-    TimeLimitIsSoft = true;
+         limit.rlim_max = SystemTimeLimit; /* Redundant, but clearer */
+         limit.rlim_cur = SoftTimeLimit;
+         TimeLimitIsSoft = true;
       }
       else
       {
-    limit.rlim_max = SystemTimeLimit;
-    limit.rlim_cur = HardTimeLimit;
-    TimeLimitIsSoft = false;
+         limit.rlim_max = SystemTimeLimit;
+         limit.rlim_cur = HardTimeLimit;
+         TimeLimitIsSoft = false;
       }
       if(setrlimit(RLIMIT_CPU, &limit))
       {
-    TmpErrno = errno;
-    SysError("Unable to set cpu time limit", SYS_ERROR);
+         TmpErrno = errno;
+         SysError("Unable to set cpu time limit", SYS_ERROR);
       }
       limit.rlim_max = RLIM_INFINITY;
       limit.rlim_cur = 0;
 
       if(setrlimit(RLIMIT_CORE, &limit))
       {
-    TmpErrno = errno;
-    SysError("Unable to prevent core dumps", SYS_ERROR);
+         TmpErrno = errno;
+         SysError("Unable to prevent core dumps", SYS_ERROR);
       }
    }
    SetMemoryLimit(mem_limit);
@@ -869,5 +908,3 @@ STS_SNAIL
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

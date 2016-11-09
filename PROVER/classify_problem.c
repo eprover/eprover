@@ -58,7 +58,9 @@ typedef enum
    OPT_EQ_UNFOLD_LIMIT,
    OPT_EQ_UNFOLD_MAXCLAUSES,
    OPT_NO_EQ_UNFOLD,
+   OPT_DEF_CNF_OLD,
    OPT_DEF_CNF,
+   OPT_MINISCOPE_LIMIT,
    OPT_MASK,
    OPT_RAW_MASK,
    OPT_NGU_ABSOLUTE,
@@ -234,11 +236,26 @@ OptCell opts[] =
    {OPT_DEF_CNF,
     '\0', "definitional-cnf",
     OptArg, TFORM_RENAME_LIMIT_STR,
-    "Use the experimental new clausification algorithm that possibly "
-    "introduces definitions for subformula to avoid exponential blow-up."
-    " The optional argument is a fudge factor that determines when a "
-    "definition is introduced. 0 disables definitions, the default works"
-    " well."},
+    "Tune the clausification algorithm to introduces definitions for "
+    "subformulae to avoid exponential blow-up. The optional argument "
+    "is a fudge factor that determines when definitions are introduced. "
+    "0 disables definitions completely. The default works well."},
+
+   {OPT_DEF_CNF_OLD,
+    '\0', "old-cnf",
+    OptArg, TFORM_RENAME_LIMIT_STR,
+    "As the previous option, but use the classical, well-tested "
+    "clausification algorithm as opposed to the newewst one which "
+    "avoides some algorithmic pitfalls and hence works better on "
+    "some exotic formulae. The two may produce slightly different "
+    "(but equisatisfiable) clause normal forms."},
+
+   {OPT_MINISCOPE_LIMIT,
+    '\0', "miniscope-limit",
+    OptArg, TFORM_MINISCOPE_LIMIT_STR,
+    "Set the limit of variables to miniscope per input formula. The build-in "
+    "default is 1000. Only applies to the new (default) clausification "
+    "algorithm"},
 
    {OPT_MASK,
     'c', "class-mask",
@@ -426,8 +443,10 @@ IOFormat parse_format     = AutoFormat;
 bool     tptp_header      = false,
          raw_classify     = false,
          no_preproc       = false,
+         new_cnf          = true,
          parse_features   = false;
-long     eqdef_maxclauses = DEFAULT_EQDEF_MAXCLAUSES;
+long     eqdef_maxclauses = DEFAULT_EQDEF_MAXCLAUSES,
+         miniscope_limit  = 1000;
 int      eqdef_incrlimit  = DEFAULT_EQDEF_INCRLIMIT;
 
 
@@ -787,13 +806,25 @@ int main(int argc, char* argv[])
             FormulaSetPreprocConjectures(fstate->f_axioms, fstate->f_ax_archive,
                                          false, false);
             // printf("PreprocConj done\n");
-            FormulaSetCNF(fstate->f_axioms,
-                          fstate->f_ax_archive,
-                          fstate->axioms,
-                          fstate->/* original_*/terms,
-                          fstate->freshvars,
-                          fstate->gc_terms);
-
+            if(new_cnf)
+            {
+               FormulaSetCNF2(fstate->f_axioms,
+                              fstate->f_ax_archive,
+                              fstate->axioms,
+                              fstate->terms,
+                              fstate->freshvars,
+                              fstate->gc_terms,
+                              miniscope_limit);
+            }
+            else
+            {
+               FormulaSetCNF(fstate->f_axioms,
+                             fstate->f_ax_archive,
+                             fstate->axioms,
+                             fstate->terms,
+                             fstate->freshvars,
+                             fstate->gc_terms);
+            }
             if(!no_preproc)
             {
                ClauseSetPreprocess(fstate->axioms,
@@ -868,58 +899,58 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
       switch(handle->option_code)
       {
       case OPT_VERBOSE:
-       Verbose = CLStateGetIntArg(handle, arg);
-       break;
+            Verbose = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_HELP:
-       print_help(stdout);
-       exit(NO_ERROR);
+            print_help(stdout);
+            exit(NO_ERROR);
       case OPT_VERSION:
-       printf(NAME" " VERSION "\n");
-       exit(NO_ERROR);
+            printf(NAME" " VERSION "\n");
+            exit(NO_ERROR);
       case OPT_PARSE_FEATURES:
             parse_features = true;
             break;
       case OPT_OUTPUT:
-       outname = arg;
-       break;
+            outname = arg;
+            break;
       case OPT_LOP_PARSE:
-       parse_format = LOPFormat;
-       break;
+            parse_format = LOPFormat;
+            break;
       case OPT_TPTP_PARSE:
-       parse_format = TPTPFormat;
-       break;
+            parse_format = TPTPFormat;
+            break;
       case OPT_TPTP_PRINT:
-       OutputFormat = TPTPFormat;
-       EqnFullEquationalRep = false;
-       EqnUseInfix = false;
-       break;
+            OutputFormat = TPTPFormat;
+            EqnFullEquationalRep = false;
+            EqnUseInfix = false;
+            break;
       case OPT_TPTP_FORMAT:
-       parse_format = TPTPFormat;
-       OutputFormat = TPTPFormat;
-       EqnFullEquationalRep = false;
-       break;
+            parse_format = TPTPFormat;
+            OutputFormat = TPTPFormat;
+            EqnFullEquationalRep = false;
+            break;
       case OPT_TSTP_PARSE:
-       parse_format = TSTPFormat;
-       break;
+            parse_format = TSTPFormat;
+            break;
       case OPT_TSTP_PRINT:
-       OutputFormat = TSTPFormat;
-       EqnFullEquationalRep = false;
-       EqnUseInfix = false;
-       break;
+            OutputFormat = TSTPFormat;
+            EqnFullEquationalRep = false;
+            EqnUseInfix = false;
+            break;
       case OPT_TSTP_FORMAT:
-       parse_format = TSTPFormat;
-       OutputFormat = TSTPFormat;
-       EqnFullEquationalRep = false;
-       break;
+            parse_format = TSTPFormat;
+            OutputFormat = TSTPFormat;
+            EqnFullEquationalRep = false;
+            break;
       case OPT_RAW_CLASS:
             raw_classify = true;
             break;
       case OPT_GEN_TPTP_HEADER:
-       tptp_header = true;
-       break;
+            tptp_header = true;
+            break;
       case OPT_NO_PREPROCESSING:
-       no_preproc = true;
-       break;
+            no_preproc = true;
+            break;
       case OPT_EQ_UNFOLD_MAXCLAUSES:
             eqdef_maxclauses = CLStateGetIntArg(handle, arg);
             break;
@@ -927,75 +958,81 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
             eqdef_incrlimit = CLStateGetIntArg(handle, arg);
             break;
       case OPT_NO_EQ_UNFOLD:
-       eqdef_incrlimit = INT_MIN;
-       break;
+            eqdef_incrlimit = INT_MIN;
+            break;
+      case OPT_DEF_CNF_OLD:
+            new_cnf = false;
+            /* Intentional fall-through */
       case OPT_DEF_CNF:
             FormulaDefLimit     = CLStateGetIntArg(handle, arg);
+            break;
+      case OPT_MINISCOPE_LIMIT:
+            miniscope_limit =  CLStateGetIntArg(handle, arg);
             break;
       case OPT_MASK:
        mask = arg;
        if(strlen(mask)!=13)
        {
           Error("Option -c (--class-mask) requires 13-letter "
-           "string as an argument", USAGE_ERROR);
+                "string as an argument", USAGE_ERROR);
        }
        break;
       case OPT_RAW_MASK:
-       raw_mask = arg;
-       if(strlen(raw_mask)!=7)
-       {
-          Error("Option -c (--class-mask) requires 7-letter "
-           "string as an argument", USAGE_ERROR);
-       }
-       break;
+            raw_mask = arg;
+            if(strlen(raw_mask)!=7)
+            {
+               Error("Option -c (--class-mask) requires 7-letter "
+                     "string as an argument", USAGE_ERROR);
+            }
+            break;
       case OPT_NGU_ABSOLUTE:
-       limits->ngu_absolute = CLStateGetBoolArg(handle, arg);
-       break;
+            limits->ngu_absolute = CLStateGetBoolArg(handle, arg);
+            break;
       case OPT_NGU_FEW_LIMIT:
-       limits->ngu_few_limit = CLStateGetFloatArg(handle, arg);
-       break;
+            limits->ngu_few_limit = CLStateGetFloatArg(handle, arg);
+            break;
       case OPT_NGU_MANY_LIMIT:
-       limits->ngu_many_limit = CLStateGetFloatArg(handle, arg);
-       break;
+            limits->ngu_many_limit = CLStateGetFloatArg(handle, arg);
+            break;
       case OPT_GPC_ABSOLUTE:
-       limits->gpc_absolute = CLStateGetBoolArg(handle, arg);
-       break;
+            limits->gpc_absolute = CLStateGetBoolArg(handle, arg);
+            break;
       case OPT_GPC_FEW_LIMIT:
-       limits->gpc_few_limit = CLStateGetFloatArg(handle, arg);
-       break;
+            limits->gpc_few_limit = CLStateGetFloatArg(handle, arg);
+            break;
       case OPT_GPC_MANY_LIMIT:
-       limits->gpc_many_limit = CLStateGetFloatArg(handle, arg);
-       break;
+            limits->gpc_many_limit = CLStateGetFloatArg(handle, arg);
+            break;
       case OPT_AXIOM_SOME_LIMIT:
-       limits->ax_some_limit = CLStateGetIntArg(handle, arg);
-       break;
+            limits->ax_some_limit = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_AXIOM_MANY_LIMIT:
-       limits->ax_many_limit = CLStateGetIntArg(handle, arg);
-       break;
+            limits->ax_many_limit = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_LIT_SOME_LIMIT:
-       limits->lit_some_limit = CLStateGetIntArg(handle, arg);
-       break;
+            limits->lit_some_limit = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_LIT_MANY_LIMIT:
-       limits->lit_many_limit = CLStateGetIntArg(handle, arg);
-       break;
+            limits->lit_many_limit = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_TERM_MEDIUM_LIMIT:
-       limits->term_medium_limit = CLStateGetIntArg(handle, arg);
-       break;
+            limits->term_medium_limit = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_TERM_LARGE_LIMIT:
-       limits->term_large_limit = CLStateGetIntArg(handle, arg);
-       break;
+            limits->term_large_limit = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_FAR_SUM_MEDIUM_LIMIT:
-       limits->far_sum_medium_limit = CLStateGetIntArg(handle, arg);
-       break;
+            limits->far_sum_medium_limit = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_FAR_SUM_LARGE_LIMIT:
-       limits->far_sum_large_limit = CLStateGetIntArg(handle, arg);
-       break;
+            limits->far_sum_large_limit = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_MAX_DEPTH_MEDIUM_LIMIT:
-       limits->depth_medium_limit = CLStateGetIntArg(handle, arg);
-       break;
+            limits->depth_medium_limit = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_MAX_DEPTH_DEEP_LIMIT:
-       limits->depth_deep_limit = CLStateGetIntArg(handle, arg);
-       break;
+            limits->depth_deep_limit = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_SIG_MEDIUM_LIMIT:
             limits->symbols_medium_limit = CLStateGetIntArg(handle, arg);
             break;
@@ -1027,8 +1064,8 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
             limits->fun_large_limit = CLStateGetIntArg(handle, arg);
             break;
       default:
-    assert(false);
-    break;
+            assert(false);
+            break;
       }
    }
    return state;
@@ -1093,5 +1130,3 @@ STS_SNAIL
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

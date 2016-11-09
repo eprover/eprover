@@ -1244,7 +1244,7 @@ OptCell opts[] =
     "As the previous option, but use the classical, well-tested "
     "clausification algorithm as opposed to the newewst one which "
     "avoides some algorithmic pitfalls and hence works better on "
-    "some exotic formulae. The two may produce a slightly different "
+    "some exotic formulae. The two may produce slightly different "
     "(but equisatisfiable) clause normal forms."},
 
    {OPT_MINISCOPE_LIMIT,
