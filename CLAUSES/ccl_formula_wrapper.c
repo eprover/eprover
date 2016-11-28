@@ -65,6 +65,7 @@ WFormula_p DefaultWFormulaAlloc(void)
    WFormula_p handle = WFormulaCellAlloc();
 
    handle->properties = WPIgnoreProps;
+   handle->is_clause  = false;
    handle->ident      = 0;
    handle->terms      = NULL;
    handle->info       = NULL;
@@ -514,6 +515,47 @@ WFormula_p WFormulaParse(Scanner_p in, TB_p terms)
    return wform;
 }
 
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: WFormClauseParse()
+//
+//   Parse a clause into a a WFormula disjunction.
+//
+// Global Variables: -
+//
+// Side Effects    : Input
+//
+/----------------------------------------------------------------------*/
+
+WFormula_p WFormClauseParse(Scanner_p in, TB_p terms)
+{
+   WFormula_p wform  = NULL;
+   TFormula_p form;
+   Clause_p   handle = ClauseParse(in, terms);
+
+   form = TFormulaClauseEncode(terms, handle);
+
+   wform = WTFormulaAlloc(terms, form);
+   wform->is_clause  = true;
+   wform->properties = (WFormulaProperties)handle->properties;
+   wform->info = handle->info;
+   handle->info = NULL;
+   ClauseFree(handle);
+
+   printf("# WFormClauseParse: ");
+   WFormulaPrint(stdout, wform, true);
+   printf("\n");
+   return wform;
+}
+
+
+
+
+
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: WFormulaPrint()
@@ -633,5 +675,3 @@ WFormula_p WFormulaOfClause(Clause_p clause, TB_p bank)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

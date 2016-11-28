@@ -687,7 +687,7 @@ long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset,
    switch(ScannerGetFormat(in))
    {
    case LOPFormat:
-         /* LOP does not at the moment support full FOF */
+         //* LOP does not at the moment support full FOF */
          res = ClauseSetParseList(in, cset, terms);
          break;
    default:
@@ -733,8 +733,10 @@ long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset,
                else
                {
                   assert(TestInpId(in, "input_clause|cnf"));
-                  clause = ClauseParse(in, terms);
-                  ClauseSetInsert(cset, clause);
+                  //clause = ClauseParse(in, terms);
+                  //ClauseSetInsert(cset, clause);
+                  form = WFormClauseParse(in, terms);
+                  FormulaSetInsert(fset, form);
                }
                res++;
             }

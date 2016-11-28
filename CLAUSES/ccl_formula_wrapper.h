@@ -58,6 +58,7 @@ typedef enum
 typedef struct wformula_cell
 {
    WFormulaProperties    properties;
+   bool                  is_clause;
    long                  ident;
    TB_p                  terms;
    ClauseInfo_p          info;
@@ -117,6 +118,7 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms);
 void       WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
               bool complete);
 WFormula_p WFormulaParse(Scanner_p in, TB_p terms);
+WFormula_p WFormClauseParse(Scanner_p in, TB_p terms);
 void       WFormulaPrint(FILE* out, WFormula_p form, bool fullterms);
 
 
@@ -129,8 +131,3 @@ WFormula_p WFormulaOfClause(Clause_p clause, TB_p terms);
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
