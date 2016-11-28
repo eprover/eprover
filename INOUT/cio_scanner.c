@@ -11,7 +11,7 @@ Contents
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
-  See the file COPYING in the main E directory for details..
+  See the file COPYING in the main E directory for details.
   Run "eprover -h" for contact information.
 
 Changes
@@ -618,29 +618,31 @@ static Token_p scan_real_token(Scanner_p in)
 
 bool str_n_element(char* str, char* ids, int len)
 {
+   //printf("# str_n_element(%s, %s) = ", str, ids);
+
    if(strncmp(str, ids, len)==0)
    {
       ids+=len;
       if(!*ids || (*ids=='|'))
       {
-    return true;
+         //printf("true\n");
+         return true;
       }
    }
-   else
+   while(*ids && (*ids != '|'))
    {
-      while(*ids && (*ids != '|'))
-      {
-    ids++;
-      }
-      if(!*ids)
-      {
-    return false;
-      }
+      ids++;
+   }
+   if(!*ids)
+   {
+      //printf("false\n");
+      return false;
    }
    ids++;
 
    return str_n_element(str, ids, len);
 }
+
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -937,14 +939,17 @@ void ScannerSetFormat(Scanner_p scanner, IOFormat fmt)
    {
       if(TestInpId(scanner, "fof|cnf|tff|include"))
       {
+         //printf("# TSTP!\n");
          fmt = TSTPFormat;
       }
       else if(TestInpId(scanner, "input_clause|input_formula"))
       {
+         //printf("# TPTP!\n");
          fmt = TPTPFormat;
       }
       else
       {
+         //printf("# LOP!\n");
          fmt = LOPFormat;
       }
    }
@@ -1289,5 +1294,3 @@ Scanner_p ScannerParseInclude(Scanner_p in, StrTree_p *name_selector,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
