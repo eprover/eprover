@@ -575,10 +575,13 @@ Clause_p WFormClauseToClause(WFormula_p form)
 {
    Clause_p res  = TFormulaCollectClause(form->tformula, form->terms, NULL);
    res->properties = (ClauseProperties)form->properties;
-   res->info = ClauseInfoAlloc(form->info->name,
-                               form->info->source,
-                               form->info->line,
-                               form->info->column);
+   if(form->info)
+   {
+      res->info = ClauseInfoAlloc(form->info->name,
+                                  form->info->source,
+                                  form->info->line,
+                                  form->info->column);
+   }
    return res;
 }
 

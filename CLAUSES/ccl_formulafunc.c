@@ -439,6 +439,13 @@ bool WFormulaSimplify(WFormula_p form, TB_p terms)
 long WFormulaCNF(WFormula_p form, ClauseSet_p set,
                  TB_p terms, VarBank_p fresh_vars)
 {
+   if(form->is_clause)
+   {
+      Clause_p clause = WFormClauseToClause(form);
+      ClausePushDerivation(clause, DCFofQuote, form, NULL);
+      ClauseSetInsert(set, clause);
+      return 1;
+   }
    WTFormulaConjunctiveNF(form, terms);
    return TFormulaToCNF(form, FormulaQueryType(form),
                         set, terms, fresh_vars);
@@ -462,6 +469,13 @@ long WFormulaCNF2(WFormula_p form, ClauseSet_p set,
                   TB_p terms, VarBank_p fresh_vars,
                   long miniscope_limit)
 {
+   if(form->is_clause)
+   {
+      Clause_p clause = WFormClauseToClause(form);
+      ClausePushDerivation(clause, DCFofQuote, form, NULL);
+      ClauseSetInsert(set, clause);
+      return 1;
+   }
    WTFormulaConjunctiveNF2(form, terms, miniscope_limit);
    return TFormulaToCNF(form, FormulaQueryType(form),
                         set, terms, fresh_vars);
