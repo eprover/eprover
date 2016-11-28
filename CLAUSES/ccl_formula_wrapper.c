@@ -150,6 +150,7 @@ WFormula_p WFormulaFlatCopy(WFormula_p form)
    WFormula_p res = DefaultWFormulaAlloc();
 
    res->properties = form->properties;
+   res->is_clause  = form->is_clause;
    res->ident      = form->ident;
    res->terms      = form->terms;
    res->tformula   = form->tformula;
@@ -419,6 +420,14 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
    long id;
    bool is_untyped = TFormulaIsUntyped(form->tformula);
 
+   if(form->is_clause)
+   {
+      Clause_p clause = WFormClauseToClause(form);
+      ClauseTSTPPrint(out, clause, fullterms, complete);
+      ClauseFree(clause);
+      return;
+   }
+
    if(!is_untyped)
    {
       formula_kind = "tff";
@@ -516,7 +525,6 @@ WFormula_p WFormulaParse(Scanner_p in, TB_p terms)
 }
 
 
-
 /*-----------------------------------------------------------------------
 //
 // Function: WFormClauseParse()
@@ -544,16 +552,35 @@ WFormula_p WFormClauseParse(Scanner_p in, TB_p terms)
    handle->info = NULL;
    ClauseFree(handle);
 
-   printf("# WFormClauseParse: ");
-   WFormulaPrint(stdout, wform, true);
-   printf("\n");
+   //printf("# WFormClauseParse: ");
+   //WFormulaPrint(stdout, wform, true);
+   //printf("\n");
    return wform;
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: WFormClauseToClause()
+//
+//   Convert a WFormula-encoded clause to a clause proper.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 
-
-
+Clause_p WFormClauseToClause(WFormula_p form)
+{
+   Clause_p res  = TFormulaCollectClause(form->tformula, form->terms, NULL);
+   res->properties = (ClauseProperties)form->properties;
+   res->info = ClauseInfoAlloc(form->info->name,
+                               form->info->source,
+                               form->info->line,
+                               form->info->column);
+   return res;
+}
 
 
 /*-----------------------------------------------------------------------
@@ -570,19 +597,28 @@ WFormula_p WFormClauseParse(Scanner_p in, TB_p terms)
 
 void WFormulaPrint(FILE* out, WFormula_p form, bool fullterms)
 {
-   switch(OutputFormat)
+   if(form->is_clause)
    {
-   case LOPFormat:
-      Warning("Currently no LOP FOF format, using TPTP");
-   case TPTPFormat:
-      WFormulaTPTPPrint(out, form, fullterms);
-      break;
-   case TSTPFormat:
-      WFormulaTSTPPrint(out, form, fullterms, true);
-      break;
-   default:
-         assert(false&& "Unknown output format");
-         break;
+      Clause_p clause = WFormClauseToClause(form);
+      ClausePrint(out, clause, fullterms);
+      ClauseFree(clause);
+   }
+   else
+   {
+      switch(OutputFormat)
+      {
+      case LOPFormat:
+            Warning("Currently no LOP FOF format, using TPTP");
+      case TPTPFormat:
+            WFormulaTPTPPrint(out, form, fullterms);
+            break;
+      case TSTPFormat:
+            WFormulaTSTPPrint(out, form, fullterms, true);
+            break;
+      default:
+            assert(false&& "Unknown output format");
+            break;
+      }
    }
 }
 
@@ -649,7 +685,7 @@ long WFormulaReturnFCodes(WFormula_p form, PStack_p f_codes)
 //
 // Function: WFormulaOfClause
 //
-//   universally quantifies the disjunction of the literals of
+//   Universally quantifies the disjunction of the literals of
 //   the clause, and return it as a fresh formula.
 //
 //   Allocate a formula.

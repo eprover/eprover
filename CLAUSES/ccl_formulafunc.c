@@ -71,69 +71,6 @@ TFormula_p answer_lit_alloc(TB_p terms, PStack_p varstack)
 }
 
 
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: tformula_collect_clause()
-//
-//   Given a term-encoded formula that is a disjunction of literals,
-//   transform it into a clause.
-//
-// Global Variables: -
-//
-// Side Effects    : Same as in TFormulaConjunctiveToCNF() below.
-//
-/----------------------------------------------------------------------*/
-
-Clause_p tformula_collect_clause(TFormula_p form, TB_p terms,
-                                 VarBank_p fresh_vars)
-{
-   Clause_p res;
-   Eqn_p lit_list = NULL, tmp_list = NULL, lit;
-   PStack_p stack, lit_stack = PStackAlloc();
-   Subst_p  normsubst = SubstAlloc();
-
-   /*printf("tformula_collect_clause(): ");
-     TFormulaTPTPPrint(GlobalOut, terms, form, true);
-     printf("\n"); */
-
-   stack = PStackAlloc();
-   PStackPushP(stack, form);
-   while(!PStackEmpty(stack))
-   {
-      form = PStackPopP(stack);
-      if(form->f_code == terms->sig->or_code)
-      {
-         PStackPushP(stack, form->args[0]);
-         PStackPushP(stack, form->args[1]);
-      }
-      else
-      {
-         assert(TFormulaIsLiteral(terms->sig, form));
-         lit = EqnTBTermDecode(terms, form);
-         PStackPushP(lit_stack, lit);
-
-      }
-   }
-   PStackFree(stack);
-   while(!PStackEmpty(lit_stack))
-   {
-      lit = PStackPopP(lit_stack);
-      EqnListInsertFirst(&lit_list, lit);
-   }
-   PStackFree(lit_stack);
-
-   VarBankResetVCount(fresh_vars);
-   NormSubstEqnList(lit_list, normsubst, fresh_vars);
-   tmp_list = EqnListCopy(lit_list, terms);
-   res = ClauseAlloc(tmp_list);
-   EqnListFree(lit_list); /* Created just for this */
-   SubstDelete(normsubst);
-   return res;
-}
-
-
 /*-----------------------------------------------------------------------
 //
 // Function: verify_name()
@@ -228,6 +165,68 @@ static void check_all_found(Scanner_p in, StrTree_p name_selector)
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TformulaCollectClause()
+//
+//   Given a term-encoded formula that is a disjunction of literals,
+//   transform it into a clause.
+//
+// Global Variables: -
+//
+// Side Effects    : Same as in TFormulaConjunctiveToCNF() below.
+//
+/----------------------------------------------------------------------*/
+
+Clause_p TformulaCollectClause(TFormula_p form, TB_p terms,
+                               VarBank_p fresh_vars)
+{
+   Clause_p res;
+   Eqn_p lit_list = NULL, tmp_list = NULL, lit;
+   PStack_p stack, lit_stack = PStackAlloc();
+   Subst_p  normsubst = SubstAlloc();
+
+   /*printf("tformula_collect_clause(): ");
+     TFormulaTPTPPrint(GlobalOut, terms, form, true);
+     printf("\n"); */
+
+   stack = PStackAlloc();
+   PStackPushP(stack, form);
+   while(!PStackEmpty(stack))
+   {
+      form = PStackPopP(stack);
+      if(form->f_code == terms->sig->or_code)
+      {
+         PStackPushP(stack, form->args[0]);
+         PStackPushP(stack, form->args[1]);
+      }
+      else
+      {
+         assert(TFormulaIsLiteral(terms->sig, form));
+         lit = EqnTBTermDecode(terms, form);
+         PStackPushP(lit_stack, lit);
+
+      }
+   }
+   PStackFree(stack);
+   while(!PStackEmpty(lit_stack))
+   {
+      lit = PStackPopP(lit_stack);
+      EqnListInsertFirst(&lit_list, lit);
+   }
+   PStackFree(lit_stack);
+
+   VarBankResetVCount(fresh_vars);
+   NormSubstEqnList(lit_list, normsubst, fresh_vars);
+   tmp_list = EqnListCopy(lit_list, terms);
+   res = ClauseAlloc(tmp_list);
+   EqnListFree(lit_list); /* Created just for this */
+   SubstDelete(normsubst);
+   return res;
+}
+
 
 
 /*-----------------------------------------------------------------------
@@ -813,7 +812,7 @@ long TFormulaToCNF(WFormula_p form, ClauseProperties type, ClauseSet_p set,
       }
       else
       {
-         clause = tformula_collect_clause(handle, terms, fresh_vars);
+         clause = TFormulaCollectClause(handle, terms, fresh_vars);
          ClauseSetTPTPType(clause, type);
          DocClauseFromForm(GlobalOut, OutputLevel, clause, form);
          ClausePushDerivation(clause, DCSplitConjunct, form, NULL);
@@ -1089,9 +1088,9 @@ void FormulaSetDocInital(FILE* out, long level, FormulaSet_p set)
    if(level>=2)
    {
       for(handle = set->anchor->succ; handle!=set->anchor; handle =
-        handle->succ)
+             handle->succ)
       {
-    DocFormulaCreationDefault(handle, inf_initial, NULL,NULL);
+         DocFormulaCreationDefault(handle, inf_initial, NULL,NULL);
       }
    }
 }

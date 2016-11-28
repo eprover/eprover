@@ -122,38 +122,38 @@ typedef enum
 typedef struct clause_cell
 {
    long                  ident;       /* Hopefully unique ident for
-                all clauses created during
-                proof run */
+                                         all clauses created during
+                                         proof run */
 #ifdef CLAUSE_PERM_IDENT
    long                  perm_ident;  /* Running number, given on
                                          alloc, never modified */
 #endif
    SysDate               date;        /* ...at which this clause
-                became a demodulator */
+                                         became a demodulator */
    Eqn_p                 literals;    /* List of literals */
    short                 neg_lit_no;  /* Negative literals */
    short                 pos_lit_no;  /* Positive literals */
    ClauseProperties      properties;  /* Anything we want to note at
-                the clause? */
+                                         the clause? */
    long                  weight;      /* ClauseStandardWeight()
-                precomputed at some points in
-                the program */
+                                         precomputed at some points in
+                                         the program */
    Eval_p                evaluations; /* List of evaluations */
    ClauseInfo_p          info;        /* Currently about source in
                                          input, NULL for derived clauses */
    PStack_p              derivation;  /* Derivation of the clause for
                                          proof reconstruction. */
    long                  create_date; /* At what iteration of the
-                main loop has this
-                clause been created? */
+                                         main loop has this
+                                         clause been created? */
    long                  proof_depth; /* How long is the longest
-                derivation chain from this
-                clause to an axiom? */
+                                         derivation chain from this
+                                         clause to an axiom? */
    long                  proof_size;  /* How many (generating)
-                inferences were necessary to
-                create this clause? */
+                                         inferences were necessary to
+                                         create this clause? */
    PTree_p               children;    /* Which can be removed if this
-                     clause changes significantly */
+                                         clause changes significantly */
    struct clause_cell*   parent1;     /* Parents need to be notified */
    struct clause_cell*   parent2;     /* if their children are removed! */
    struct clausesetcell* set;         /* Is the clause in a set? */
@@ -415,9 +415,3 @@ bool    ClauseIsUntyped(Clause_p clause);
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
-

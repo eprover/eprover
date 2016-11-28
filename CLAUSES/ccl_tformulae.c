@@ -1168,6 +1168,77 @@ TFormula_p TFormulaClauseClosedEncode(TB_p bank, Clause_p clause)
 }
 
 
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaCollectClause()
+//
+//   Given a term-encoded formula that is a disjunction of literals,
+//   transform it into a clause. If the optional parameter fresh_vars
+//   is given, variables in the result will be normalized.
+//
+// Global Variables: -
+//
+// Side Effects    : Same as in TFormulaConjunctiveToCNF() below.
+//
+/----------------------------------------------------------------------*/
+
+Clause_p TFormulaCollectClause(TFormula_p form, TB_p terms,
+                               VarBank_p fresh_vars)
+{
+   Clause_p res;
+   Eqn_p lit_list = NULL, tmp_list = NULL, lit;
+   PStack_p stack, lit_stack = PStackAlloc();
+
+   /*printf("tformula_collect_clause(): ");
+     TFormulaTPTPPrint(GlobalOut, terms, form, true);
+     printf("\n"); */
+
+   stack = PStackAlloc();
+   PStackPushP(stack, form);
+   while(!PStackEmpty(stack))
+   {
+      form = PStackPopP(stack);
+      if(form->f_code == terms->sig->or_code)
+      {
+         PStackPushP(stack, form->args[0]);
+         PStackPushP(stack, form->args[1]);
+      }
+      else
+      {
+         assert(TFormulaIsLiteral(terms->sig, form));
+         lit = EqnTBTermDecode(terms, form);
+         PStackPushP(lit_stack, lit);
+
+      }
+   }
+   PStackFree(stack);
+   while(!PStackEmpty(lit_stack))
+   {
+      lit = PStackPopP(lit_stack);
+      EqnListInsertFirst(&lit_list, lit);
+   }
+   PStackFree(lit_stack);
+
+   if(fresh_vars)
+   {
+      Subst_p  normsubst = SubstAlloc();
+      VarBankResetVCount(fresh_vars);
+      NormSubstEqnList(lit_list, normsubst, fresh_vars);
+      tmp_list = EqnListCopy(lit_list, terms);
+      res = ClauseAlloc(tmp_list);
+      EqnListFree(lit_list); /* Created just for this */
+      SubstDelete(normsubst);
+   }
+   else
+   {
+      res = ClauseAlloc(lit_list);
+   }
+   return res;
+}
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: TFormulaIsUntyped
@@ -1188,5 +1259,3 @@ bool TFormulaIsUntyped(TFormula_p form)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

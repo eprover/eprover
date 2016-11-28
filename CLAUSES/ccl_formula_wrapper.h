@@ -119,6 +119,7 @@ void       WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
               bool complete);
 WFormula_p WFormulaParse(Scanner_p in, TB_p terms);
 WFormula_p WFormClauseParse(Scanner_p in, TB_p terms);
+Clause_p   WFormClauseToClause(WFormula_p form);
 void       WFormulaPrint(FILE* out, WFormula_p form, bool fullterms);
 
 
