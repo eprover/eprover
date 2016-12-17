@@ -33,31 +33,9 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-typedef enum
-{
-   WPIgnoreProps       = 0,        /* For masking properties out */
-   WPInitial           = 1,        /* Input formula */
-   WPInputFormula      = CPInputClause, /* _Really_ initial in TSTP sense */
-   WPType1          = CPType1, /* 128 */
-   WPType2          = CPType2,
-   WPType3          = CPType3,
-   WPTypeMask       = CPTypeMask,
-   WPTypeUnknown    = 0,                /* Also used as wildcard */
-   WPTypeAxiom      = CPTypeAxiom,      /* Formula is Axiom */
-   WPTypeHypothesis = CPTypeHypothesis, /* Formula is Hypothesis */
-   WPTypeConjecture = CPTypeConjecture, /* Formula is Conjecture */
-   WPTypeLemma      = CPTypeLemma,      /* Formula is Lemma */
-   WPTypeNegConjecture = CPTypeNegConjecture, /* Formula is
-                                               * NegConjecture */
-   WPTypeQuestion   = CPTypeQuestion,
-   WPIsProofClause  = CPIsProofClause,
-   WPIsRelevant     = CPIsRelevant
-}WFormulaProperties;
-
-
 typedef struct wformula_cell
 {
-   WFormulaProperties    properties;
+   FormulaProperties     properties;
    bool                  is_clause;
    long                  ident;
    TB_p                  terms;
@@ -88,15 +66,15 @@ extern long FormulaDefLimit;
 /* Are any properties in prop set in form? */
 #define FormulaIsAnyPropSet(form, prop) IsAnyPropSet((form), (prop))
 #define FormulaSetType(form, type) \
-    FormulaDelProp((form),WPTypeMask);\
+    FormulaDelProp((form),CPTypeMask);\
     FormulaSetProp((form), (type))
 #define FormulaQueryType(form) ((form)->properties&CPTypeMask)
 
-#define  FormulaIsHypothesis(form) (FormulaQueryType(form)==WPTypeHypothesis)
+#define  FormulaIsHypothesis(form) (FormulaQueryType(form)==CPTypeHypothesis)
 #define  FormulaIsConjecture(form) \
-   ((FormulaQueryType(form)==WPTypeNegConjecture) ||    \
-    (FormulaQueryType(form)==WPTypeConjecture)|| \
-    (FormulaQueryType(form)==WPTypeQuestion))
+   ((FormulaQueryType(form)==CPTypeNegConjecture) ||    \
+    (FormulaQueryType(form)==CPTypeConjecture)|| \
+    (FormulaQueryType(form)==CPTypeQuestion))
 
 #define WFormulaStandardWeight(wform) TermStandardWeight((wform)->tformula)
 

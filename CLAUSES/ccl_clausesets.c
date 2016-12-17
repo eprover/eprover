@@ -909,7 +909,7 @@ void ClauseSetSort(ClauseSet_p set, ComparisonFunctionType cmp_fun)
 //
 /----------------------------------------------------------------------*/
 
-void ClauseSetSetProp(ClauseSet_p set, ClauseProperties prop)
+void ClauseSetSetProp(ClauseSet_p set, FormulaProperties prop)
 {
    Clause_p handle;
 
@@ -933,7 +933,7 @@ void ClauseSetSetProp(ClauseSet_p set, ClauseProperties prop)
 //
 /----------------------------------------------------------------------*/
 
-void ClauseSetDelProp(ClauseSet_p set, ClauseProperties prop)
+void ClauseSetDelProp(ClauseSet_p set, FormulaProperties prop)
 {
    Clause_p handle;
 
@@ -957,7 +957,7 @@ void ClauseSetDelProp(ClauseSet_p set, ClauseProperties prop)
 //
 /----------------------------------------------------------------------*/
 
-void ClauseSetSetTPTPType(ClauseSet_p set, ClauseProperties type)
+void ClauseSetSetTPTPType(ClauseSet_p set, FormulaProperties type)
 {
    Clause_p handle;
 
@@ -1659,7 +1659,7 @@ void ClauseSetDocInital(FILE* out, long level, ClauseSet_p set)
 //
 /----------------------------------------------------------------------*/
 
-void ClauseSetPropDocQuote(FILE* out, long level, ClauseProperties prop,
+void ClauseSetPropDocQuote(FILE* out, long level, FormulaProperties prop,
             ClauseSet_p set, char* comment)
 {
    Clause_p handle;
@@ -2413,5 +2413,3 @@ bool ClauseSetIsUntyped(ClauseSet_p set)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

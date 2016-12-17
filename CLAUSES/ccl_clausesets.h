@@ -101,9 +101,9 @@ void        ClauseSetTSTPPrint(FILE* out, ClauseSet_p set, bool fullterms);
 void        ClauseSetPrintPrefix(FILE* out, char* prefix, ClauseSet_p set);
 void        ClauseSetSort(ClauseSet_p set, ComparisonFunctionType cmp_fun);
 
-void        ClauseSetSetProp(ClauseSet_p set, ClauseProperties prop);
-void        ClauseSetDelProp(ClauseSet_p set, ClauseProperties prop);
-void        ClauseSetSetTPTPType(ClauseSet_p set, ClauseProperties type);
+void        ClauseSetSetProp(ClauseSet_p set, FormulaProperties prop);
+void        ClauseSetDelProp(ClauseSet_p set, FormulaProperties prop);
+void        ClauseSetSetTPTPType(ClauseSet_p set, FormulaProperties type);
 
 long        ClauseSetMarkCopies(ClauseSet_p set);
 long        ClauseSetDeleteMarkedEntries(ClauseSet_p set);
@@ -137,10 +137,10 @@ void        ClauseSetDocInital(FILE* out, long level, ClauseSet_p set);
 void        ClauseSetDocQuote(FILE* out, long level, ClauseSet_p set,
                char* comment);
 void        ClauseSetPropDocQuote(FILE* out, long level,
-              ClauseProperties prop,
-              ClauseSet_p set, char* comment);
-#define     ClauseSetDocQuote(out, level, set, comment) \
-            ClauseSetPropDocQuote((out), (level),CPIgnoreProps, (set), (comment))
+                                  FormulaProperties prop,
+                                  ClauseSet_p set, char* comment);
+#define     ClauseSetDocQuote(out, level, set, comment)                 \
+   ClauseSetPropDocQuote((out), (level),CPIgnoreProps, (set), (comment))
 #ifndef NDBUG
 
 bool        ClauseSetVerifyDemod(ClauseSet_p demods, ClausePos_p pos);
@@ -153,7 +153,7 @@ void        EqAxiomsPrint(FILE* out, Sig_p sig, bool single_subst);
 
 
 void        ClauseSetAddSymbolDistribution(ClauseSet_p set, long
-                    *dist_array);
+                                           *dist_array);
 void        ClauseSetAddConjSymbolDistribution(ClauseSet_p set,
                                                long *dist_array);
 
@@ -197,12 +197,3 @@ bool         ClauseSetIsUntyped(ClauseSet_p set);
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
-
-
-
-

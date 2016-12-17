@@ -335,7 +335,7 @@ bool DerivedInProof(Derived_p derived)
       }
       return false;
    }
-   return FormulaQueryProp(derived->formula,WPIsProofClause);
+   return FormulaQueryProp(derived->formula,CPIsProofClause);
 }
 
 /*-----------------------------------------------------------------------
@@ -360,7 +360,7 @@ void DerivedSetInProof(Derived_p derived, bool in_proof)
       }
       else
       {
-         FormulaSetProp(derived->formula, WPIsProofClause);
+         FormulaSetProp(derived->formula, CPIsProofClause);
       }
    }
    else
@@ -371,7 +371,7 @@ void DerivedSetInProof(Derived_p derived, bool in_proof)
       }
       else
       {
-         FormulaDelProp(derived->formula, WPIsProofClause);
+         FormulaDelProp(derived->formula, CPIsProofClause);
       }
    }
 }
@@ -2187,5 +2187,3 @@ void DerivationComputeAndPrint(FILE* out, char* status, PStack_p root_clauses,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

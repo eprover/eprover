@@ -572,11 +572,11 @@ long SelectDefiningAxioms(DRelation_p drel,
             break;
       case ATFormula:
             form = PQueueGetNextP(axioms);
-            if(FormulaQueryProp(form, WPIsRelevant))
+            if(FormulaQueryProp(form, CPIsRelevant))
             {
                continue;
             }
-            FormulaSetProp(form, WPIsRelevant);
+            FormulaSetProp(form, CPIsRelevant);
             PStackPushP(res_formulas, form);
             TermAddSymbolDistExist(form->tformula, dist_array, symbol_stack);
             res++;
@@ -709,7 +709,7 @@ long SelectAxioms(GenDistrib_p      f_distrib,
                                  res_clauses,
                                  res_formulas);
    }
-   PStackFormulaDelProp(res_formulas, WPIsRelevant);
+   PStackFormulaDelProp(res_formulas, CPIsRelevant);
    PStackClauseDelProp(res_clauses, CPIsRelevant);
    /* fprintf(GlobalOut, "# Axioms selected (%lld)\n",
       GetSecTimeMod()); */
@@ -841,7 +841,7 @@ void DRelationPrintDebug(FILE* out, DRelation_p rel, Sig_p sig)
 //
 /----------------------------------------------------------------------*/
 
-void PStackClauseDelProp(PStack_p stack, ClauseProperties prop)
+void PStackClauseDelProp(PStack_p stack, FormulaProperties prop)
 {
    PStackPointer i;
    Clause_p clause;
@@ -867,7 +867,7 @@ void PStackClauseDelProp(PStack_p stack, ClauseProperties prop)
 //
 /----------------------------------------------------------------------*/
 
-void PStackFormulaDelProp(PStack_p stack, WFormulaProperties prop)
+void PStackFormulaDelProp(PStack_p stack, FormulaProperties prop)
 {
    PStackPointer i;
    WFormula_p form;
@@ -985,5 +985,3 @@ void PStackFormulasMove(PStack_p stack, FormulaSet_p set)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

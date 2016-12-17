@@ -156,8 +156,8 @@ long SelectThreshold(PStack_p          clause_sets,
 void DRelPrintDebug(FILE* out, DRel_p rel, Sig_p sig);
 void DRelationPrintDebug(FILE* out, DRelation_p rel, Sig_p sig);
 
-void PStackClauseDelProp(PStack_p stack, ClauseProperties prop);
-void PStackFormulaDelProp(PStack_p stack, WFormulaProperties prop);
+void PStackClauseDelProp(PStack_p stack, FormulaProperties prop);
+void PStackFormulaDelProp(PStack_p stack, FormulaProperties prop);
 
 void PStackClausePrintTSTP(FILE* out, PStack_p stack);
 void PStackFormulaPrintTSTP(FILE* out, PStack_p stack);
@@ -172,8 +172,3 @@ void PStackFormulasMove(PStack_p stack, FormulaSet_p set);
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

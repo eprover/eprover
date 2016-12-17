@@ -64,7 +64,7 @@ WFormula_p DefaultWFormulaAlloc(void)
 {
    WFormula_p handle = WFormulaCellAlloc();
 
-   handle->properties = WPIgnoreProps;
+   handle->properties = CPIgnoreProps;
    handle->is_clause  = false;
    handle->ident      = 0;
    handle->terms      = NULL;
@@ -208,7 +208,7 @@ void WFormulaMarkPolarity(WFormula_p form)
 WFormula_p WFormulaTPTPParse(Scanner_p in, TB_p terms)
 {
    TFormula_p         tform;
-   WFormulaProperties type;
+   FormulaProperties  type;
    WFormula_p         handle;
    ClauseInfo_p       info;
 
@@ -224,23 +224,23 @@ WFormula_p WFormulaTPTPParse(Scanner_p in, TB_p terms)
    CheckInpId(in, "axiom|hypothesis|negated_conjecture|conjecture|question|lemma|unknown");
    if(TestInpId(in, "conjecture"))
    {
-      type = WPTypeConjecture;
+      type = CPTypeConjecture;
    }
    else if(TestInpId(in, "question"))
    {
-      type = WPTypeQuestion;
+      type = CPTypeQuestion;
    }
    else if(TestInpId(in, "negated_conjecture"))
    {
-      type = WPTypeNegConjecture;
+      type = CPTypeNegConjecture;
    }
    else if(TestInpId(in, "hypothesis"))
    {
-      type = WPTypeHypothesis;
+      type = CPTypeHypothesis;
    }
    else
    {
-      type = WPTypeAxiom;
+      type = CPTypeAxiom;
    }
    NextToken(in);
    AcceptInpTok(in, Comma);
@@ -251,7 +251,7 @@ WFormula_p WFormulaTPTPParse(Scanner_p in, TB_p terms)
    AcceptInpTok(in, CloseBracket);
    AcceptInpTok(in, Fullstop);
    FormulaSetType(handle, type);
-   FormulaSetProp(handle, WPInitial|WPInputFormula);
+   FormulaSetProp(handle, CPInitial|CPInputFormula);
    handle->info = info;
 
    return handle;
@@ -277,17 +277,17 @@ void WFormulaTPTPPrint(FILE* out, WFormula_p form, bool fullterms)
 
    switch(FormulaQueryType(form))
    {
-   case WPTypeAxiom:
+   case CPTypeAxiom:
          typename = "axiom";
     break;
-   case WPTypeHypothesis:
+   case CPTypeHypothesis:
     typename = "hypothesis";
     break;
-   case WPTypeConjecture:
-   case WPTypeNegConjecture:
+   case CPTypeConjecture:
+   case CPTypeNegConjecture:
     typename = "conjecture";
     break;
-   case WPTypeQuestion:
+   case CPTypeQuestion:
          typename = "question";
          break;
    default:
@@ -325,11 +325,11 @@ void WFormulaTPTPPrint(FILE* out, WFormula_p form, bool fullterms)
 
 WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
 {
-   TFormula_p         tform;
-   WFormulaProperties type = WPTypeAxiom;
-   WFormulaProperties initial = WPInputFormula;
-   WFormula_p         handle;
-   ClauseInfo_p       info;
+   TFormula_p        tform;
+   FormulaProperties type = CPTypeAxiom;
+   FormulaProperties initial = CPInputFormula;
+   WFormula_p        handle;
+   ClauseInfo_p      info;
 
    info = ClauseInfoAlloc(NULL, DStrView(AktToken(in)->source),
                           AktToken(in)->line,
@@ -366,10 +366,11 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
    }
    else
    {
-      type = (WFormulaProperties) ClauseTypeParse(in,
-                             "axiom|hypothesis|definition|assumption|"
-                             "lemma|theorem|conjecture|question|negated_conjecture|"
-                             "plain|unknown");
+      type = (FormulaProperties)
+         ClauseTypeParse(in,
+                         "axiom|hypothesis|definition|assumption|"
+                         "lemma|theorem|conjecture|question|negated_conjecture|"
+                         "plain|unknown");
       AcceptInpTok(in, Comma);
 
       tform = TFormulaTSTPParse(in, terms);
@@ -390,7 +391,7 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
    AcceptInpTok(in, CloseBracket);
    AcceptInpTok(in, Fullstop);
    FormulaSetType(handle, type);
-   FormulaSetProp(handle, initial|WPInitial);
+   FormulaSetProp(handle, initial|CPInitial);
    handle->info = info;
 
    return handle;
@@ -435,25 +436,25 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
 
    switch(FormulaQueryType(form))
    {
-   case WPTypeAxiom:
-         if(FormulaQueryProp(form, WPInputFormula))
+   case CPTypeAxiom:
+         if(FormulaQueryProp(form, CPInputFormula))
          {
             typename = "axiom";
          }
          break;
-   case WPTypeHypothesis:
+   case CPTypeHypothesis:
          typename = "hypothesis";
          break;
-   case WPTypeConjecture:
+   case CPTypeConjecture:
          typename = "conjecture";
          break;
-   case WPTypeQuestion:
+   case CPTypeQuestion:
          typename = "question";
          break;
-   case WPTypeLemma:
+   case CPTypeLemma:
          typename = "lemma";
          break;
-   case WPTypeNegConjecture:
+   case CPTypeNegConjecture:
          typename = "negated_conjecture";
          break;
    default:
@@ -547,7 +548,7 @@ WFormula_p WFormClauseParse(Scanner_p in, TB_p terms)
 
    wform = WTFormulaAlloc(terms, form);
    wform->is_clause  = true;
-   wform->properties = (WFormulaProperties)handle->properties;
+   wform->properties = (FormulaProperties)handle->properties;
    wform->info = handle->info;
    handle->info = NULL;
    ClauseFree(handle);
@@ -574,7 +575,7 @@ WFormula_p WFormClauseParse(Scanner_p in, TB_p terms)
 Clause_p WFormClauseToClause(WFormula_p form)
 {
    Clause_p res  = TFormulaCollectClause(form->tformula, form->terms, NULL);
-   res->properties = (ClauseProperties)form->properties;
+   res->properties = form->properties;
    if(form->info)
    {
       res->info = ClauseInfoAlloc(form->info->name,

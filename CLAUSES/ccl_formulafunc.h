@@ -77,9 +77,9 @@ long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset,
                               FormulaSet_p fset, TB_p terms,
                               StrTree_p *name_selector,
                               StrTree_p *skip_includes);
-long FormulaToCNF(WFormula_p form, ClauseProperties type,
+long FormulaToCNF(WFormula_p form, FormulaProperties type,
                   ClauseSet_p set, TB_p terms, VarBank_p fresh_vars);
-long TFormulaToCNF(WFormula_p form, ClauseProperties type, ClauseSet_p set,
+long TFormulaToCNF(WFormula_p form, FormulaProperties type, ClauseSet_p set,
                    TB_p terms, VarBank_p fresh_vars);
 
 void TFormulaSetDelTermpProp(FormulaSet_p set, TermProperties prop);

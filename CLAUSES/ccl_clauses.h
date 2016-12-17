@@ -36,14 +36,17 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
+/* Properties of clauses (also used for formulas) */
+
 typedef enum
 {
    CPIgnoreProps       = 0,               /* For masking properties
                                            * out */
    CPInitial           = 1,               /* Initial clause */
-   CPInputClause       = 2*CPInitial,     /* _Really_ initial clause
-                                           * in TSTP sense */
-   CPIsProcessed       = 2*CPInputClause, /* Clause has been processed
+   CPInputFormula      = 2*CPInitial,     /* _Really_ initial
+                                           * clause/formula in TSTP
+                                           * sense */
+   CPIsProcessed       = 2*CPInputFormula, /* Clause has been processed
                                            * previously */
    CPIsOriented        = 2*CPIsProcessed, /* Term and literal
                                    comparisons are up to
@@ -116,7 +119,7 @@ typedef enum
    CPIsRelevant     = 2*CPLimitedRW       /* Clause is selected as
                                            * relevant for a proof
                                            * attempt (used by SInE). */
-}ClauseProperties;
+}FormulaProperties;
 
 
 typedef struct clause_cell
@@ -133,7 +136,7 @@ typedef struct clause_cell
    Eqn_p                 literals;    /* List of literals */
    short                 neg_lit_no;  /* Negative literals */
    short                 pos_lit_no;  /* Positive literals */
-   ClauseProperties      properties;  /* Anything we want to note at
+   FormulaProperties     properties;  /* Anything we want to note at
                                          the clause? */
    long                  weight;      /* ClauseStandardWeight()
                                          precomputed at some points in
@@ -182,7 +185,7 @@ extern long ClauseIdentCounter;
 
 void TSTPSkipSource(Scanner_p in);
 
-void ClauseSetTPTPType(Clause_p clause, ClauseProperties type);
+void ClauseSetTPTPType(Clause_p clause, FormulaProperties type);
 
 #define ClauseQueryTPTPType(clause) \
    ((clause)->properties&CPTypeMask)
@@ -308,10 +311,10 @@ void     ClauseTSTPCorePrint(FILE* out, Clause_p clause, bool fullterms);
 void     ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms,
           bool complete);
 
-bool             ClauseStartsMaybe(Scanner_p in);
-ClauseProperties ClauseTypeParse(Scanner_p in, char *legal_types);
-Clause_p         ClauseParse(Scanner_p in, TB_p bank);
-Clause_p         ClausePCLParse(Scanner_p in, TB_p bank);
+bool              ClauseStartsMaybe(Scanner_p in);
+FormulaProperties ClauseTypeParse(Scanner_p in, char *legal_types);
+Clause_p          ClauseParse(Scanner_p in, TB_p bank);
+Clause_p          ClausePCLParse(Scanner_p in, TB_p bank);
 
 void     ClauseMarkMaximalTerms(OCB_p ocb, Clause_p clause);
 #define  ClauseCondMarkMaximalTerms(ocb, clause)\

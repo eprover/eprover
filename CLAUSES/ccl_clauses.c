@@ -228,7 +228,7 @@ void TSTPSkipSource(Scanner_p in)
 //
 /----------------------------------------------------------------------*/
 
-void ClauseSetTPTPType(Clause_p clause, ClauseProperties type)
+void ClauseSetTPTPType(Clause_p clause, FormulaProperties type)
 {
    ClauseDelProp(clause,CPTypeMask);
    ClauseSetProp(clause, type);
@@ -1541,7 +1541,7 @@ void ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms, bool complete)
    switch(ClauseQueryTPTPType(clause))
    {
    case CPTypeAxiom:
-         if(ClauseQueryProp(clause, CPInputClause))
+         if(ClauseQueryProp(clause, CPInputFormula))
          {
             typename = "axiom";
          }
@@ -1645,9 +1645,9 @@ bool ClauseStartsMaybe(Scanner_p in)
 //
 /----------------------------------------------------------------------*/
 
-ClauseProperties ClauseTypeParse(Scanner_p in, char *legal_types)
+FormulaProperties ClauseTypeParse(Scanner_p in, char *legal_types)
 {
-   ClauseProperties res;
+   FormulaProperties res;
 
    CheckInpId(in, legal_types);
 
@@ -1706,8 +1706,8 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
 {
    Eqn_p    concl, precond;
    bool     procedural = false;
-   ClauseProperties type = CPTypeAxiom;
-   ClauseProperties input = CPInputClause;
+   FormulaProperties type = CPTypeAxiom;
+   FormulaProperties input = CPInputFormula;
    Clause_p handle;
    ClauseInfo_p info;
 

@@ -245,15 +245,15 @@ Clause_p TformulaCollectClause(TFormula_p form, TB_p terms,
 
 bool WFormulaConjectureNegate(WFormula_p wform)
 {
-   WFormulaProperties ftype = FormulaQueryType(wform);
+   FormulaProperties ftype = FormulaQueryType(wform);
 
-   if(ftype==WPTypeConjecture)
+   if(ftype==CPTypeConjecture)
    {
       wform->tformula = TFormulaFCodeAlloc(wform->terms,
                                            wform->terms->sig->not_code,
                                            wform->tformula,
                                            NULL);
-      FormulaSetType(wform, WPTypeNegConjecture);
+      FormulaSetType(wform, CPTypeNegConjecture);
       DocFormulaModificationDefault(wform, inf_neg_conjecture);
       WFormulaPushDerivation(wform, DCNegateConjecture, NULL, NULL);
       return true;
@@ -327,8 +327,8 @@ bool WFormulaAnnotateQuestion(WFormula_p wform, bool add_answer_lits,
                               bool conjectures_are_questions,
                               NumTree_p *question_assoc)
 {
-   if(FormulaQueryProp(wform, WPTypeQuestion)||
-      (FormulaQueryProp(wform, WPTypeConjecture)&&conjectures_are_questions))
+   if(FormulaQueryProp(wform, CPTypeQuestion)||
+      (FormulaQueryProp(wform, CPTypeConjecture)&&conjectures_are_questions))
    {
       if(add_answer_lits)
       {
@@ -336,7 +336,7 @@ bool WFormulaAnnotateQuestion(WFormula_p wform, bool add_answer_lits,
                                                     wform->tformula,
                                                     question_assoc);
       }
-      FormulaSetType(wform, WPTypeConjecture);
+      FormulaSetType(wform, CPTypeConjecture);
       DocFormulaModificationDefault(wform, inf_annotate_question);
       WFormulaPushDerivation(wform, DCAnnoQuestion, NULL, NULL);
       return true;
@@ -800,7 +800,7 @@ long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset,
 //
 /----------------------------------------------------------------------*/
 
-long TFormulaToCNF(WFormula_p form, ClauseProperties type, ClauseSet_p set,
+long TFormulaToCNF(WFormula_p form, FormulaProperties type, ClauseSet_p set,
                   TB_p terms, VarBank_p fresh_vars)
 {
    TFormula_p handle;

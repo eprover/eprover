@@ -676,7 +676,7 @@ void ProofStatePrint(FILE* out, ProofState_p state)
 /----------------------------------------------------------------------*/
 
 void ProofStatePropDocQuote(FILE* out, int level,
-             ClauseProperties prop,
+             FormulaProperties prop,
              ProofState_p state, char* comment)
 {
    ClauseSetPropDocQuote(GlobalOut, level, prop,

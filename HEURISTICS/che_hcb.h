@@ -214,7 +214,7 @@ Clause_p HCBStandardClauseSelect(HCB_p hcb, ClauseSet_p set);
 Clause_p HCBSingleWeightClauseSelect(HCB_p hcb, ClauseSet_p set);
 
 long     HCBClauseSetDelProp(HCB_p hcb, ClauseSet_p set, long number,
-              ClauseProperties prop);
+                             FormulaProperties prop);
 long HCBClauseSetDeleteBadClauses(HCB_p hcb, ClauseSet_p set, long
               number);
 
@@ -223,8 +223,3 @@ long HCBClauseSetDeleteBadClauses(HCB_p hcb, ClauseSet_p set, long
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

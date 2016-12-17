@@ -394,7 +394,7 @@ Clause_p HCBSingleWeightClauseSelect(HCB_p hcb, ClauseSet_p set)
 /----------------------------------------------------------------------*/
 
 long HCBClauseSetDelProp(HCB_p hcb, ClauseSet_p set, long number,
-          ClauseProperties prop)
+                         FormulaProperties prop)
 {
    int i, j;
    long prop_cleared = 0;
@@ -474,5 +474,3 @@ long HCBClauseSetDeleteBadClauses(HCB_p hcb, ClauseSet_p set, long
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

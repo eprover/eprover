@@ -58,7 +58,7 @@ int              PCLShellLevel = 0;
 //
 /----------------------------------------------------------------------*/
 
-char* PCLTypeStr(ClauseProperties type)
+char* PCLTypeStr(FormulaProperties type)
 {
    char *res;
 
@@ -1342,7 +1342,7 @@ void DocClauseFromForm(FILE* out, long level, Clause_p clause,
    assert(clause);
    assert(parent);
 
-   ClauseDelProp(clause, CPInputClause);
+   ClauseDelProp(clause, CPInputFormula);
    if(level >= 2)
    {
       switch(DocOutputFormat)
@@ -1385,7 +1385,7 @@ void DocClauseModification(FILE* out, long level, Clause_p clause, InfType
 {
    long old_id;
 
-   ClauseDelProp(clause, CPInputClause);
+   ClauseDelProp(clause, CPInputFormula);
    if(level >= 2)
    {
       assert(clause);
@@ -1467,7 +1467,7 @@ void DocClauseQuote(FILE* out, long level, long target_level,
 
    assert(clause);
 
-   ClauseDelProp(clause, CPInputClause);
+   ClauseDelProp(clause, CPInputFormula);
    old_id = clause->ident;
 
    if(level >= target_level)
@@ -1533,7 +1533,7 @@ void DocClauseRewrite(FILE* out, long level, ClausePos_p rewritten,
 {
    long old_id;
 
-   ClauseDelProp(rewritten->clause, CPInputClause);
+   ClauseDelProp(rewritten->clause, CPInputFormula);
    if(level >= 2)
    {
       assert(rewritten);
@@ -1564,7 +1564,7 @@ void DocClauseEqUnfold(FILE* out, long level, Clause_p rewritten,
 {
    long old_id;
 
-   ClauseDelProp(rewritten, CPInputClause);
+   ClauseDelProp(rewritten, CPInputFormula);
    if(level >= 2)
    {
       assert(rewritten);
@@ -1636,7 +1636,7 @@ void DocFormulaCreation(FILE* out, long level, WFormula_p formula,
 void DocFormulaModification(FILE* out, long level, WFormula_p form,
                             InfType op, char* comment)
 {
-   FormulaDelProp(form, WPInputFormula);
+   FormulaDelProp(form, CPInputFormula);
    if(level >= 2)
    {
       long old_id = form->ident;
@@ -1880,5 +1880,3 @@ void DocClauseApplyDefs(FILE* out, long level, Clause_p clause,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

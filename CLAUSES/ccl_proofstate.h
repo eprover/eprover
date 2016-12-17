@@ -150,8 +150,8 @@ void ProofStateTrain(ProofState_p state, bool print_pos, bool print_neg);
 void ProofStateStatisticsPrint(FILE* out, ProofState_p state);
 void ProofStatePrint(FILE* out, ProofState_p state);
 void ProofStatePropDocQuote(FILE* out, int level,
-             ClauseProperties prop,
-             ProofState_p state, char* comment);
+                            FormulaProperties prop,
+                            ProofState_p state, char* comment);
 
 #define ProofStateAxNo(state) (ClauseSetCardinality((state)->axioms)+\
                                FormulaSetCardinality((state)->f_axioms))
@@ -166,9 +166,3 @@ extern char* UseInlinedWatchList;
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
-

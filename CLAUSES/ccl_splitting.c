@@ -270,14 +270,14 @@ int clause_split_general(DefStore_p store, Clause_p clause,
                          ClauseSet_p set, SplitType how,
                          bool fresh_defs, PStack_p split_vars)
 {
-   int              res = 0, part = 0,i,size, lit_no, split_var_no;
-   LitSplitDesc_p   lit_table;
-   Eqn_p            handle,tmp, join;
-   FunCode          new_pred;
-   long             def_id;
-   TB_p             bank;
-   Clause_p         new_clause;
-   ClauseProperties props;
+   int               res = 0, part = 0,i,size, lit_no, split_var_no;
+   LitSplitDesc_p    lit_table;
+   Eqn_p             handle,tmp, join;
+   FunCode           new_pred;
+   long              def_id;
+   TB_p              bank;
+   Clause_p          new_clause;
+   FormulaProperties props;
 
    assert(clause);
    assert(!clause->children);
@@ -693,5 +693,3 @@ long ClauseSetSplitClausesGeneral(DefStore_p store, bool fresh_defs,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
