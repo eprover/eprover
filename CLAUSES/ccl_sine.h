@@ -126,8 +126,12 @@ void DRelationAddFormulaSets(DRelation_p drel,
 void PQueueStoreClause(PQueue_p axioms, Clause_p clause);
 void PQueueStoreFormula(PQueue_p axioms, WFormula_p form);
 
-long ClauseSetFindHypotheses(ClauseSet_p set, PQueue_p res, bool inc_hypos);
-long FormulaSetFindHypotheses(FormulaSet_p set, PQueue_p res, bool inc_hypos);
+long ClauseSetFindAxSelectionSeeds(ClauseSet_p set,
+                                   PQueue_p res,
+                                   bool inc_hypos);
+long FormulaSetFindAxSelectionSeeds(FormulaSet_p set,
+                                    PQueue_p res,
+                                    bool inc_hypos);
 
 long SelectDefiningAxioms(DRelation_p drel,
                           Sig_p sig,

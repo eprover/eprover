@@ -701,7 +701,15 @@ long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset,
    {
    case LOPFormat:
          //* LOP does not at the moment support full FOF */
-         res = ClauseSetParseList(in, cset, terms);
+         while(ClauseStartsMaybe(in))
+         {
+            form = WFormClauseParse(in, terms);
+            // fprintf(stdout, "Parsed: ");
+            // WFormulaPrint(stdout, form, true);
+            // fprintf(stdout, "\n");
+            FormulaSetInsert(fset, form);
+            res++;
+         }
          break;
    default:
          while(TestInpId(in, "input_formula|input_clause|fof|cnf|tff|include"))

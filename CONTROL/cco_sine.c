@@ -446,6 +446,7 @@ long StructFOFSpecParseAxioms(StructFOFSpec_p ctrl, PStack_p axfiles,
          res += FormulaAndClauseSetParse(in, cset, fset, ctrl->terms,
                                          NULL,
                                          &(ctrl->parsed_includes));
+         assert(ClauseSetCardinality(cset)==0);
          PStackPushP(ctrl->clause_sets, cset);
          PStackPushP(ctrl->formula_sets, fset);
          StrTreeStore(&(ctrl->parsed_includes), iname, dummy, dummy);
@@ -572,5 +573,3 @@ long ProofStateSinE(ProofState_p state, char* fname)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

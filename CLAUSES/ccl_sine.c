@@ -434,10 +434,10 @@ void PQueueStoreFormula(PQueue_p axioms, WFormula_p form)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ClauseSetFindHypotheses()
+// Function: ClauseSetFindAxSelectionSeeds()
 //
-//   Find all hypotheses in set and store them in res. Returns number
-//   of hypotheses found.
+//   Find all conjectures and optionally hypotheses in set and store
+//   them in res. Returns number of seeds found.
 //
 // Global Variables: -
 //
@@ -445,7 +445,7 @@ void PQueueStoreFormula(PQueue_p axioms, WFormula_p form)
 //
 /----------------------------------------------------------------------*/
 
-long ClauseSetFindHypotheses(ClauseSet_p set, PQueue_p res, bool inc_hypos)
+long ClauseSetFindAxSelectionSeeds(ClauseSet_p set, PQueue_p res, bool inc_hypos)
 {
    long ret = 0;
    Clause_p handle;
@@ -467,10 +467,11 @@ long ClauseSetFindHypotheses(ClauseSet_p set, PQueue_p res, bool inc_hypos)
 
 /*-----------------------------------------------------------------------
 //
-// Function: FormulaSetFindHypotheses()
+// Function: FormulaSetFindAxSelectionSeeds()
 //
-//   Find all hypotheses in set and store them in res. Returns number
-//   of hypotheses found.
+//   Find all axiom selection seeds (conjecures and optionally
+//   hypotheses) in set and store them in res. Returns number
+//   of seeds found.
 //
 // Global Variables: -
 //
@@ -478,7 +479,7 @@ long ClauseSetFindHypotheses(ClauseSet_p set, PQueue_p res, bool inc_hypos)
 //
 /----------------------------------------------------------------------*/
 
-long FormulaSetFindHypotheses(FormulaSet_p set, PQueue_p res, bool inc_hypos)
+long FormulaSetFindAxSelectionSeeds(FormulaSet_p set, PQueue_p res, bool inc_hypos)
 {
    long ret = 0;
    WFormula_p handle;
@@ -635,15 +636,15 @@ long SelectDefiningAxioms(DRelation_p drel,
 long SelectAxioms(GenDistrib_p      f_distrib,
                   PStack_p          clause_sets,
                   PStack_p          formula_sets,
-                  PStackPointer     hyp_start,
+                  PStackPointer     seed_start,
                   AxFilter_p        ax_filter,
                   PStack_p          res_clauses,
                   PStack_p          res_formulas)
 {
-   long          res = 0;
-   long          hypos = 0;
-   DRelation_p   drel = DRelationAlloc();
-   PQueue_p      selq = PQueueAlloc();
+   long          res   = 0;
+   long          seeds = 0;
+   DRelation_p   drel  = DRelationAlloc();
+   PQueue_p      selq  = PQueueAlloc();
    PStackPointer i;
    long          ax_cardinality, max_result_size;
 
@@ -664,19 +665,19 @@ long SelectAxioms(GenDistrib_p      f_distrib,
    /* fprintf(GlobalOut, "# DRelation constructed (%lld)\n",
     * GetSecTimeMod()); */
 
-   for(i=hyp_start; i<PStackGetSP(clause_sets); i++)
+   for(i=seed_start; i<PStackGetSP(clause_sets); i++)
    {
-      hypos += ClauseSetFindHypotheses(PStackElementP(clause_sets, i),
-                                       selq,
-                                       ax_filter->use_hypotheses);
-      hypos += FormulaSetFindHypotheses(PStackElementP(formula_sets, i),
-                                        selq,
-                                        ax_filter->use_hypotheses);
+      seeds += ClauseSetFindAxSelectionSeeds(PStackElementP(clause_sets, i),
+                                             selq,
+                                             ax_filter->use_hypotheses);
+      seeds += FormulaSetFindAxSelectionSeeds(PStackElementP(formula_sets, i),
+                                              selq,
+                                              ax_filter->use_hypotheses);
    }
    /* fprintf(GlobalOut, "# Hypotheses found (%lld)\n",
       GetSecTimeMod()); */
-   VERBOSE(fprintf(stderr, "# Found %ld hypotheses\n", hypos););
-   if(!hypos)
+   VERBOSE(fprintf(stderr, "# Found %ld seed clauses/formulas\n", seeds););
+   if(!seeds)
    {
       /* No goals-> the empty set contains all relevant clauses */
    }
