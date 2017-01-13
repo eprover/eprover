@@ -209,7 +209,7 @@ void print_help(FILE* out);
 //
 // Global Variables: -
 //
-// Side Effects    : I/O, Memory operations
+// Side Effects    : I/O (writes result file), Memory operations
 //
 /----------------------------------------------------------------------*/
 
@@ -247,6 +247,36 @@ void filter_problem(StructFOFSpec_p ctrl,
    PStackFree(formulas);
    DStrFree(filename);
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: all_filters_problem()
+//
+//   Apply all filters to problems.
+//
+// Global Variables:
+//
+// Side Effects    : Writes result files
+//
+/----------------------------------------------------------------------*/
+
+void all_filters_problem(StructFOFSpec_p ctrl,
+                         AxFilterSet_p filters,
+                         char* corename)
+{
+   int i;
+
+   for(i=0; i<AxFilterSetElements(filters); i++)
+   {
+      /* SigPrint(stdout,ctrl->sig); */
+
+      filter_problem(ctrl,
+                     AxFilterSetGetFilter(filters,i),
+                     corename);
+   }
+}
+
+
 
 
 /*-----------------------------------------------------------------------
@@ -319,14 +349,9 @@ int main(int argc, char* argv[])
    StructFOFSpecInitDistrib(ctrl);
    StructFOFSpecResetShared(ctrl);
 
-   for(i=0; i<AxFilterSetElements(filters); i++)
-   {
-      /* SigPrint(stdout,ctrl->sig); */
-
-      filter_problem(ctrl,
-                     AxFilterSetGetFilter(filters,i),
-                     DStrView(corename));
-   }
+   all_filters_problem(ctrl,
+                       filters,
+                       DStrView(corename));
 
    StructFOFSpecFree(ctrl);
    DStrFree(corename);
@@ -469,5 +494,3 @@ STS_SNAIL
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
