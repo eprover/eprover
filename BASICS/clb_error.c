@@ -420,7 +420,7 @@ void StrideMemory(char* mem, long size)
 
 /*-----------------------------------------------------------------------
 //
-// Function: CheckLetterString()
+// Function: TestLetterString()
 //
 //   Return true if all letters in to_check also appear in options,
 //   false otherwise.
@@ -431,7 +431,7 @@ void StrideMemory(char* mem, long size)
 //
 /----------------------------------------------------------------------*/
 
-bool CheckLetterString(char* to_check, char* options)
+bool TestLetterString(char* to_check, char* options)
 {
    char *current, *control;
    bool found;
@@ -441,18 +441,41 @@ bool CheckLetterString(char* to_check, char* options)
       found = false;
       for(control = options; *control; control++)
       {
-    if(*current == *control)
-    {
-       found = true;
-       break;
-    }
+         if(*current == *control)
+         {
+            found = true;
+            break;
+         }
       }
       if(!found)
       {
-    return false;
+         return false;
       }
    }
    return true;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: CheckOptionLetterString()
+//
+//   Check if all the letters in to_check appear in options. If not,
+//   terminate with an error message.
+//
+// Global Variables: -
+//
+// Side Effects    : May terminates program
+//
+/----------------------------------------------------------------------*/
+
+void CheckOptionLetterString(char* to_check, char* options, char *option)
+{
+   if(!TestLetterString(to_check, option))
+   {
+      char msg[1024];
+      sprintf(msg, "Illegal argument to option %s", option);
+      Error(msg, USAGE_ERROR);
+   }
 }
 
 
@@ -460,5 +483,3 @@ bool CheckLetterString(char* to_check, char* options)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

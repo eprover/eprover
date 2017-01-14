@@ -84,7 +84,9 @@ double        GetTotalCPUTime(void);
 void          PrintRusage(FILE* out);
 void          StrideMemory(char* mem, long size);
 
-bool          CheckLetterString(char* to_check, char* options);
+bool          TestLetterString(char* to_check, char* options);
+void          CheckOptionLetterString(char* to_check, char* options,
+                                      char *option);
 
 
 
@@ -93,8 +95,3 @@ bool          CheckLetterString(char* to_check, char* options);
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

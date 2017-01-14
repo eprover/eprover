@@ -810,31 +810,31 @@ CLState_p process_options(int argc, char* argv[])
       switch(handle->option_code)
       {
       case OPT_VERBOSE:
-       Verbose = CLStateGetIntArg(handle, arg);
-       break;
+            Verbose = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_HELP:
-       print_help(stdout);
-       exit(NO_ERROR);
+            print_help(stdout);
+            exit(NO_ERROR);
       case OPT_VERSION:
-       fprintf(stdout, "E " VERSION " " E_NICKNAME "\n");
-       exit(NO_ERROR);
+            fprintf(stdout, "E " VERSION " " E_NICKNAME "\n");
+            exit(NO_ERROR);
       case OPT_OUTPUT:
-       outname = arg;
-       break;
+            outname = arg;
+            break;
       case OPT_SILENT:
-       OutputLevel = 0;
-       break;
+            OutputLevel = 0;
+            break;
       case OPT_OUTPUTLEVEL:
-       OutputLevel = CLStateGetIntArg(handle, arg);
-       break;
+            OutputLevel = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_PROOF_OBJECT:
             BuildProofObject = MAX(CLStateGetIntArg(handle, arg), BuildProofObject);
-       if((BuildProofObject > 3) ||
-          (BuildProofObject < 0))
-       {
-          Error("Option --proof-object) accepts "
-           "argument from {0..3}", USAGE_ERROR);
-       }
+            if((BuildProofObject > 3) ||
+               (BuildProofObject < 0))
+            {
+               Error("Option --proof-object) accepts "
+                     "argument from {0..3}", USAGE_ERROR);
+            }
             print_derivation = POList;
             break;
       case OPT_PROOF_GRAPH:
@@ -854,48 +854,39 @@ CLState_p process_options(int argc, char* argv[])
             proc_training_data = CLStateGetIntArg(handle, arg);
             break;
       case OPT_PCL_COMPRESSED:
-       pcl_full_terms = false;
-       break;
+            pcl_full_terms = false;
+            break;
       case OPT_PCL_COMPACT:
-       PCLStepCompact = true;
-       break;
+            PCLStepCompact = true;
+            break;
       case OPT_PCL_SHELL_LEVEL:
             PCLShellLevel =  CLStateGetIntArg(handle, arg);
-       if((PCLShellLevel > 2) ||
-          (PCLShellLevel < 0))
-       {
-          Error("Option --pcl-shell-level) accepts "
-           "argument from {0..2}", USAGE_ERROR);
-       }
+            if((PCLShellLevel > 2) ||
+               (PCLShellLevel < 0))
+            {
+               Error("Option --pcl-shell-level) accepts "
+                     "argument from {0..2}", USAGE_ERROR);
+            }
             break;
       case OPT_PRINT_STATISTICS:
-       print_statistics = true;
-       break;
+            print_statistics = true;
+            break;
       case OPT_EXPENSIVE_DETAILS:
-       TBPrintDetails = true;
-       break;
+            TBPrintDetails = true;
+            break;
       case OPT_PRINT_SATURATED:
-       outdesc = arg;
-       if(!CheckLetterString(outdesc, "eigEIGaA"))
-       {
-          Error("Illegal argument to option -S"
-           " (--print-saturated)",
-           USAGE_ERROR);
-       }
-       print_sat = true;
-       break;
+            outdesc = arg;
+            CheckOptionLetterString(outdesc, "eigEIGaA", "-S (--print-saturated)");
+            print_sat = true;
+            break;
       case OPT_PRINT_SAT_INFO:
-       outinfo = true;
-       break;
+            outinfo = true;
+            break;
       case OPT_FILTER_SATURATED:
-       filterdesc = arg;
-       if(!CheckLetterString(filterdesc, "ucnrfNRF"))
-       {
-          Error("Illegal argument to option --filter-saturated",
-           USAGE_ERROR);
-       }
-       filter_sat = true;
-       break;
+            filterdesc = arg;
+            CheckOptionLetterString(filterdesc, "eigEIGaA", "--filter-saturated");
+            filter_sat = true;
+            break;
       case OPT_PRUNE_ONLY:
             OutputLevel = 4;
             prune_only   = true;
@@ -907,14 +898,14 @@ CLState_p process_options(int argc, char* argv[])
             cnf_only   = true;
             break;
       case OPT_PRINT_PID:
-       print_pid = true;
-       break;
+            print_pid = true;
+            break;
       case OPT_PRINT_VERSION:
-       print_version = true;
-       break;
+            print_version = true;
+            break;
       case OPT_REQUIRE_NONEMPTY:
-       error_on_empty = true;
-       break;
+            error_on_empty = true;
+            break;
       case OPT_MEM_LIMIT:
             if(strcmp(arg, "Auto")==0)
             {
@@ -948,9 +939,9 @@ CLState_p process_options(int argc, char* argv[])
             h_parms->mem_limit = MEGA*mem_limit;
             break;
       case OPT_CPU_LIMIT:
-       HardTimeLimit = CLStateGetIntArg(handle, arg);
+            HardTimeLimit = CLStateGetIntArg(handle, arg);
             ScheduleTimeLimit = HardTimeLimit;
-       if((SoftTimeLimit != RLIM_INFINITY) &&
+            if((SoftTimeLimit != RLIM_INFINITY) &&
                (HardTimeLimit<=SoftTimeLimit))
             {
                Error("Hard time limit has to be larger than soft"
@@ -958,90 +949,90 @@ CLState_p process_options(int argc, char* argv[])
             }
             break;
       case OPT_SOFTCPU_LIMIT:
-       SoftTimeLimit = CLStateGetIntArg(handle, arg);
+            SoftTimeLimit = CLStateGetIntArg(handle, arg);
             ScheduleTimeLimit = SoftTimeLimit;
 
-       if((HardTimeLimit != RLIM_INFINITY) &&
-          (HardTimeLimit<=SoftTimeLimit))
+            if((HardTimeLimit != RLIM_INFINITY) &&
+               (HardTimeLimit<=SoftTimeLimit))
             {
                Error("Soft time limit has to be smaller than hard"
-         "time limit", USAGE_ERROR);
-       }
-       break;
+                     "time limit", USAGE_ERROR);
+            }
+            break;
       case OPT_RUSAGE_INFO:
-       print_rusage = true;
-       break;
+            print_rusage = true;
+            break;
       case OPT_STEP_LIMIT:
-       step_limit = CLStateGetIntArg(handle, arg);
-       break;
+            step_limit = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_ANSWER_LIMIT:
-       answer_limit = CLStateGetIntArg(handle, arg);
-       break;
+            answer_limit = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_CONJ_ARE_QUEST:
             conjectures_are_questions = true;
             break;
       case OPT_PROC_LIMIT:
-       proc_limit = CLStateGetIntArg(handle, arg);
-       break;
+            proc_limit = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_UNPROC_LIMIT:
-       unproc_limit = CLStateGetIntArg(handle, arg);
-       break;
+            unproc_limit = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_TOTAL_LIMIT:
-       total_limit = CLStateGetIntArg(handle, arg);
-       break;
+            total_limit = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_NO_INFIX:
-       EqnUseInfix = false;
-       break;
+            EqnUseInfix = false;
+            break;
       case OPT_FULL_EQ_REP:
-       EqnFullEquationalRep = true;
-       break;
+            EqnFullEquationalRep = true;
+            break;
       case OPT_LOP_PARSE:
-       parse_format = LOPFormat;
-       break;
+            parse_format = LOPFormat;
+            break;
       case OPT_TPTP_PARSE:
-       parse_format = TPTPFormat;
-       break;
+            parse_format = TPTPFormat;
+            break;
       case OPT_TPTP_PRINT:
-       OutputFormat = TPTPFormat;
-       EqnFullEquationalRep = false;
-       EqnUseInfix = false;
-       break;
+            OutputFormat = TPTPFormat;
+            EqnFullEquationalRep = false;
+            EqnUseInfix = false;
+            break;
       case OPT_TPTP_FORMAT:
-       parse_format = TPTPFormat;
-       OutputFormat = TPTPFormat;
-       EqnFullEquationalRep = false;
-       EqnUseInfix = false;
-       break;
+            parse_format = TPTPFormat;
+            OutputFormat = TPTPFormat;
+            EqnFullEquationalRep = false;
+            EqnUseInfix = false;
+            break;
       case OPT_TSTP_PARSE:
-       parse_format = TSTPFormat;
-       break;
+            parse_format = TSTPFormat;
+            break;
       case OPT_TSTP_PRINT:
-       DocOutputFormat = tstp_format;
-       OutputFormat = TSTPFormat;
-       EqnUseInfix = true;
-       break;
+            DocOutputFormat = tstp_format;
+            OutputFormat = TSTPFormat;
+            EqnUseInfix = true;
+            break;
       case OPT_TSTP_FORMAT:
-       parse_format = TSTPFormat;
-       DocOutputFormat = tstp_format;
-       OutputFormat = TSTPFormat;
-       EqnUseInfix = true;
-       break;
+            parse_format = TSTPFormat;
+            DocOutputFormat = tstp_format;
+            OutputFormat = TSTPFormat;
+            EqnUseInfix = true;
+            break;
       case OPT_AUTO:
-       h_parms->heuristic_name = "Auto";
+            h_parms->heuristic_name = "Auto";
             h_parms->ordertype = AUTO;
             sine = "Auto";
             break;
       case OPT_SATAUTO:
-       h_parms->heuristic_name = "Auto";
+            h_parms->heuristic_name = "Auto";
             h_parms->ordertype = AUTO;
             break;
       case OPT_AUTODEV:
-       h_parms->heuristic_name = "AutoDev";
+            h_parms->heuristic_name = "AutoDev";
             h_parms->ordertype = AUTODEV;
             sine = "Auto";
             break;
       case OPT_SATAUTODEV:
-       h_parms->heuristic_name = "AutoDev";
+            h_parms->heuristic_name = "AutoDev";
             h_parms->ordertype = AUTODEV;
             break;
       case OPT_AUTO_SCHED:
@@ -1052,8 +1043,8 @@ CLState_p process_options(int argc, char* argv[])
             strategy_scheduling = true;
             break;
       case OPT_NO_PREPROCESSING:
-       no_preproc = true;
-       break;
+            no_preproc = true;
+            break;
       case OPT_EQ_UNFOLD_LIMIT:
             eqdef_incrlimit = CLStateGetIntArg(handle, arg);
             break;
@@ -1061,8 +1052,8 @@ CLState_p process_options(int argc, char* argv[])
             eqdef_maxclauses = CLStateGetIntArg(handle, arg);
             break;
       case OPT_NO_EQ_UNFOLD:
-       eqdef_incrlimit = INT_MIN;
-       break;
+            eqdef_incrlimit = INT_MIN;
+            break;
       case OPT_SINE:
             sine = arg;
             break;
@@ -1073,108 +1064,108 @@ CLState_p process_options(int argc, char* argv[])
             h_parms->presat_interreduction = true;
             break;
       case OPT_AC_HANDLING:
-       if(strcmp(arg, "None")==0)
-       {
-          h_parms->ac_handling = NoACHandling;
-       }
-       else if(strcmp(arg, "DiscardAll")==0)
-       {
-          h_parms->ac_handling = ACDiscardAll;
-       }
-       else if(strcmp(arg, "KeepUnits")==0)
-       {
-          h_parms->ac_handling = ACKeepUnits;
-       }
-       else if(strcmp(arg, "KeepOrientable")==0)
-       {
-          h_parms->ac_handling = ACKeepOrientable;
-       }
-       else
-       {
-          Error("Option --ac_handling requires None, DiscardAll, "
-           "KeepUnits, or KeepOrientable as an argument",
-           USAGE_ERROR);
-       }
-       break;
+            if(strcmp(arg, "None")==0)
+            {
+               h_parms->ac_handling = NoACHandling;
+            }
+            else if(strcmp(arg, "DiscardAll")==0)
+            {
+               h_parms->ac_handling = ACDiscardAll;
+            }
+            else if(strcmp(arg, "KeepUnits")==0)
+            {
+               h_parms->ac_handling = ACKeepUnits;
+            }
+            else if(strcmp(arg, "KeepOrientable")==0)
+            {
+               h_parms->ac_handling = ACKeepOrientable;
+            }
+            else
+            {
+               Error("Option --ac_handling requires None, DiscardAll, "
+                     "KeepUnits, or KeepOrientable as an argument",
+                     USAGE_ERROR);
+            }
+            break;
       case OPT_AC_ON_PROC:
-       h_parms->ac_res_aggressive = false;
-       break;
+            h_parms->ac_res_aggressive = false;
+            break;
       case OPT_NO_GENERATION:
-       h_parms->selection_strategy=SelectNoGeneration;
-       break;
+            h_parms->selection_strategy=SelectNoGeneration;
+            break;
       case OPT_SELECT_ON_PROC_ONLY:
-       h_parms->select_on_proc_only = true;
-       break;
+            h_parms->select_on_proc_only = true;
+            break;
       case OPT_INHERIT_PM_LIT:
-       h_parms->inherit_paramod_lit = true;
-       break;
+            h_parms->inherit_paramod_lit = true;
+            break;
       case OPT_INHERIT_GOAL_PM_LIT:
-       h_parms->inherit_goal_pm_lit = true;
-       break;
+            h_parms->inherit_goal_pm_lit = true;
+            break;
       case OPT_INHERIT_CONJ_PM_LIT:
-       h_parms->inherit_conj_pm_lit = true;
-       break;
+            h_parms->inherit_conj_pm_lit = true;
+            break;
 
       case OPT_LITERAL_SELECT:
-       h_parms->selection_strategy = GetLitSelFun(arg);
-       if(!h_parms->selection_strategy)
-       {
-          DStr_p err = DStrAlloc();
-          DStrAppendStr(err,
-              "Wrong argument to option -W "
-              "(--literal-selection-strategy). Possible "
-              "values: ");
-          LitSelAppendNames(err);
-          Error(DStrView(err), USAGE_ERROR);
-          DStrFree(err);
-       }
+            h_parms->selection_strategy = GetLitSelFun(arg);
+            if(!h_parms->selection_strategy)
+            {
+               DStr_p err = DStrAlloc();
+               DStrAppendStr(err,
+                             "Wrong argument to option -W "
+                             "(--literal-selection-strategy). Possible "
+                             "values: ");
+               LitSelAppendNames(err);
+               Error(DStrView(err), USAGE_ERROR);
+               DStrFree(err);
+            }
             if(h_parms->selection_strategy == SelectNoGeneration)
             {
                inf_sys_complete = false;
             }
-       break;
+            break;
       case OPT_POS_LITSEL_MIN:
-       h_parms->pos_lit_sel_min = CLStateGetIntArg(handle, arg);
-       break;
+            h_parms->pos_lit_sel_min = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_POS_LITSEL_MAX:
-       h_parms->pos_lit_sel_max = CLStateGetIntArg(handle, arg);
-       break;
+            h_parms->pos_lit_sel_max = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_NEG_LITSEL_MIN:
-       h_parms->neg_lit_sel_min = CLStateGetIntArg(handle, arg);
-       break;
+            h_parms->neg_lit_sel_min = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_NEG_LITSEL_MAX:
-       h_parms->neg_lit_sel_max = CLStateGetIntArg(handle, arg);
-       break;
+            h_parms->neg_lit_sel_max = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_ALL_LITSEL_MIN:
-       h_parms->all_lit_sel_min = CLStateGetIntArg(handle, arg);
-       break;
+            h_parms->all_lit_sel_min = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_ALL_LITSEL_MAX:
-       h_parms->all_lit_sel_max = CLStateGetIntArg(handle, arg);
-       break;
+            h_parms->all_lit_sel_max = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_WEIGHT_LITSEL_MIN:
-       h_parms->weight_sel_min = CLStateGetIntArg(handle, arg);
-       break;
+            h_parms->weight_sel_min = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_PREFER_INITIAL_CLAUSES:
-       h_parms->prefer_initial_clauses = true;
-       break;
+            h_parms->prefer_initial_clauses = true;
+            break;
       case OPT_HEURISTIC:
-       h_parms->heuristic_name = arg;
-       break;
+            h_parms->heuristic_name = arg;
+            break;
       case OPT_FILTER_LIMIT:
-       h_parms->filter_limit = CLStateGetIntArg(handle, arg);
-       break;
+            h_parms->filter_limit = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_FILTER_COPIES_LIMIT:
-       h_parms->filter_copies_limit = CLStateGetIntArg(handle, arg);
-       break;
+            h_parms->filter_copies_limit = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_DELETE_BAD_LIMIT:
-       h_parms->delete_bad_limit = CLStateGetIntArg(handle, arg);
-       break;
+            h_parms->delete_bad_limit = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_ASSUME_COMPLETENESS:
             assume_inf_sys_complete = true;
-       break;
+            break;
       case OPT_ASSUME_INCOMPLETENESS:
             incomplete = true;
-       break;
+            break;
       case OPT_NO_GC_FORWARD_SIMPL:
             h_parms->enable_given_forward_simpl = false;
             break;
@@ -1196,213 +1187,213 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_USE_SIM_PARAMOD:
             h_parms->pm_type = ParamodAlwaysSim;
             break;
-       case OPT_USE_ORIENTED_SIM_PARAMOD:
+      case OPT_USE_ORIENTED_SIM_PARAMOD:
             h_parms->pm_type = ParamodOrientedSim;
             break;
       case OPT_SPLIT_TYPES:
-       h_parms->split_clauses = CLStateGetIntArg(handle, arg);
-       break;
+            h_parms->split_clauses = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_SPLIT_HOW:
-       tmp = CLStateGetIntArg(handle, arg);
-       if((tmp < 0) ||(tmp > 2))
-       {
-          Error("Argument to option --split-method "
-           "has to be value between 0 and 2", USAGE_ERROR);
-       }
-            h_parms->split_method = tmp;
-       break;
-      case OPT_SPLIT_AGGRESSIVE:
-       h_parms->split_aggressive = true;
-       break;
-      case OPT_SPLIT_REUSE_DEFS:
-       h_parms->split_fresh_defs = false;
-       break;
-      case OPT_REWEIGHT_LIMIT:
-       h_parms->reweight_limit = CLStateGetIntArg(handle, arg);
-       break;
-      case OPT_ORDERING:
-       if(strcmp(arg, "Auto")==0)
-       {
-          h_parms->ordertype = AUTO;
-       }
-       else if(strcmp(arg, "AutoCASC")==0)
-       {
-          h_parms->ordertype = AUTOCASC;
-       }
-       else if(strcmp(arg, "AutoDev")==0)
-       {
-          h_parms->ordertype = AUTODEV;
-       }
-       else if(strcmp(arg, "AutoSched0")==0)
-       {
-          h_parms->ordertype = AUTOSCHED0;
-       }
-       else if(strcmp(arg, "AutoSched1")==0)
-       {
-          h_parms->ordertype = AUTOSCHED1;
-       }
-       else if(strcmp(arg, "AutoSched2")==0)
-       {
-          h_parms->ordertype = AUTOSCHED2;
-       }
-       else if(strcmp(arg, "AutoSched3")==0)
-       {
-          h_parms->ordertype = AUTOSCHED3;
-       }
-       else if(strcmp(arg, "AutoSched4")==0)
-       {
-          h_parms->ordertype = AUTOSCHED4;
-       }
-       else if(strcmp(arg, "AutoSched5")==0)
-       {
-          h_parms->ordertype = AUTOSCHED5;
-       }
-       else if(strcmp(arg, "AutoSched6")==0)
-       {
-          h_parms->ordertype = AUTOSCHED6;
-       }
-       else if(strcmp(arg, "AutoSched7")==0)
-       {
-          h_parms->ordertype = AUTOSCHED7;
-       }
-       else if(strcmp(arg, "Optimize")==0)
-       {
-          h_parms->ordertype = OPTIMIZE_AX;
-       }
-       else if(strcmp(arg, "LPO")==0)
-       {
-          h_parms->ordertype = LPO;
-       }
-            else if(strcmp(arg, "LPOCopy")==0)
-       {
-          h_parms->ordertype = LPOCopy;
-       }
-            else if(strcmp(arg, "LPO4")==0)
-       {
-          h_parms->ordertype = LPO4;
-       }
-            else if(strcmp(arg, "LPO4Copy")==0)
-       {
-          h_parms->ordertype = LPO4Copy;
-       }
-       else if(strcmp(arg, "KBO")==0)
-       {
-          h_parms->ordertype = KBO;
+            tmp = CLStateGetIntArg(handle, arg);
+            if((tmp < 0) ||(tmp > 2))
+            {
+               Error("Argument to option --split-method "
+                     "has to be value between 0 and 2", USAGE_ERROR);
             }
-       else if(strcmp(arg, "KBO6")==0)
-       {
-          h_parms->ordertype = KBO6;
-       }
-       else
-       {
-          Error("Option -t (--term-ordering) requires Auto, "
-           "AutoCASC, AutoDev, AutoSched0, AutoSched1, "
+            h_parms->split_method = tmp;
+            break;
+      case OPT_SPLIT_AGGRESSIVE:
+            h_parms->split_aggressive = true;
+            break;
+      case OPT_SPLIT_REUSE_DEFS:
+            h_parms->split_fresh_defs = false;
+            break;
+      case OPT_REWEIGHT_LIMIT:
+            h_parms->reweight_limit = CLStateGetIntArg(handle, arg);
+            break;
+      case OPT_ORDERING:
+            if(strcmp(arg, "Auto")==0)
+            {
+               h_parms->ordertype = AUTO;
+            }
+            else if(strcmp(arg, "AutoCASC")==0)
+            {
+               h_parms->ordertype = AUTOCASC;
+            }
+            else if(strcmp(arg, "AutoDev")==0)
+            {
+               h_parms->ordertype = AUTODEV;
+            }
+            else if(strcmp(arg, "AutoSched0")==0)
+            {
+               h_parms->ordertype = AUTOSCHED0;
+            }
+            else if(strcmp(arg, "AutoSched1")==0)
+            {
+               h_parms->ordertype = AUTOSCHED1;
+            }
+            else if(strcmp(arg, "AutoSched2")==0)
+            {
+               h_parms->ordertype = AUTOSCHED2;
+            }
+            else if(strcmp(arg, "AutoSched3")==0)
+            {
+               h_parms->ordertype = AUTOSCHED3;
+            }
+            else if(strcmp(arg, "AutoSched4")==0)
+            {
+               h_parms->ordertype = AUTOSCHED4;
+            }
+            else if(strcmp(arg, "AutoSched5")==0)
+            {
+               h_parms->ordertype = AUTOSCHED5;
+            }
+            else if(strcmp(arg, "AutoSched6")==0)
+            {
+               h_parms->ordertype = AUTOSCHED6;
+            }
+            else if(strcmp(arg, "AutoSched7")==0)
+            {
+               h_parms->ordertype = AUTOSCHED7;
+            }
+            else if(strcmp(arg, "Optimize")==0)
+            {
+               h_parms->ordertype = OPTIMIZE_AX;
+            }
+            else if(strcmp(arg, "LPO")==0)
+            {
+               h_parms->ordertype = LPO;
+            }
+            else if(strcmp(arg, "LPOCopy")==0)
+            {
+               h_parms->ordertype = LPOCopy;
+            }
+            else if(strcmp(arg, "LPO4")==0)
+            {
+               h_parms->ordertype = LPO4;
+            }
+            else if(strcmp(arg, "LPO4Copy")==0)
+            {
+               h_parms->ordertype = LPO4Copy;
+            }
+            else if(strcmp(arg, "KBO")==0)
+            {
+               h_parms->ordertype = KBO;
+            }
+            else if(strcmp(arg, "KBO6")==0)
+            {
+               h_parms->ordertype = KBO6;
+            }
+            else
+            {
+               Error("Option -t (--term-ordering) requires Auto, "
+                     "AutoCASC, AutoDev, AutoSched0, AutoSched1, "
                      "AutoSched2, AutoSched3, AutoSched4, AutoSched5,"
                      "AutoSched6, AutoSched7, Optimize, "
                      "LPO, LPO4, KBO or KBO6 as an argument",
-           USAGE_ERROR);
-       }
-       break;
+                     USAGE_ERROR);
+            }
+            break;
       case OPT_TO_WEIGHTGEN:
-       h_parms->to_weight_gen = TOTranslateWeightGenMethod(arg);
-       if(!h_parms->to_weight_gen)
-       {
-          DStr_p err = DStrAlloc();
-          DStrAppendStr(err,
-              "Wrong argument to option -w "
-              "(--order-weight-generation). Possible "
-              "values: ");
-          DStrAppendStrArray(err, TOWeightGenNames, ", ");
-          Error(DStrView(err), USAGE_ERROR);
-          DStrFree(err);
-       }
-       break;
+            h_parms->to_weight_gen = TOTranslateWeightGenMethod(arg);
+            if(!h_parms->to_weight_gen)
+            {
+               DStr_p err = DStrAlloc();
+               DStrAppendStr(err,
+                             "Wrong argument to option -w "
+                             "(--order-weight-generation). Possible "
+                             "values: ");
+               DStrAppendStrArray(err, TOWeightGenNames, ", ");
+               Error(DStrView(err), USAGE_ERROR);
+               DStrFree(err);
+            }
+            break;
       case OPT_TO_WEIGHTS:
-       h_parms->to_pre_weights = arg;
+            h_parms->to_pre_weights = arg;
             break;
       case OPT_TO_PRECGEN:
-       h_parms->to_prec_gen = TOTranslatePrecGenMethod(arg);
-       if(!h_parms->to_prec_gen)
-       {
-          DStr_p err = DStrAlloc();
-          DStrAppendStr(err,
-              "Wrong argument to option -G "
-              "(--order-precedence-generation). Possible "
-              "values: ");
-          DStrAppendStrArray(err, TOPrecGenNames, ", ");
-          Error(DStrView(err), USAGE_ERROR);
-          DStrFree(err);
-       }
-       break;
+            h_parms->to_prec_gen = TOTranslatePrecGenMethod(arg);
+            if(!h_parms->to_prec_gen)
+            {
+               DStr_p err = DStrAlloc();
+               DStrAppendStr(err,
+                             "Wrong argument to option -G "
+                             "(--order-precedence-generation). Possible "
+                             "values: ");
+               DStrAppendStrArray(err, TOPrecGenNames, ", ");
+               Error(DStrView(err), USAGE_ERROR);
+               DStrFree(err);
+            }
+            break;
       case OPT_TO_CONSTWEIGHT:
-       h_parms->to_const_weight = CLStateGetIntArg(handle, arg);
-       if(h_parms->to_const_weight<=0)
-       {
-          Error("Argument to option -c (--order-constant-weight) "
-           "has to be > 0", USAGE_ERROR);
-       }
-       break;
+            h_parms->to_const_weight = CLStateGetIntArg(handle, arg);
+            if(h_parms->to_const_weight<=0)
+            {
+               Error("Argument to option -c (--order-constant-weight) "
+                     "has to be > 0", USAGE_ERROR);
+            }
+            break;
       case OPT_TO_PRECEDENCE:
-       h_parms->to_pre_prec = arg;
-       break;
+            h_parms->to_pre_prec = arg;
+            break;
       case OPT_TO_LPO_RECLIMIT:
-       LPORecursionDepthLimit = CLStateGetIntArg(handle, arg);
-       if(LPORecursionDepthLimit<=0)
-       {
-          Error("Argument to option --lpo-recursion-limit "
-           "has to be > 0", USAGE_ERROR);
-       }
-       if(LPORecursionDepthLimit>20000)
-       {
-          Warning("Using very large values for "
-             "--lpo-recursion-limit may lead to stack "
-             "overflows and segmentation faults.");
-       }
+            LPORecursionDepthLimit = CLStateGetIntArg(handle, arg);
+            if(LPORecursionDepthLimit<=0)
+            {
+               Error("Argument to option --lpo-recursion-limit "
+                     "has to be > 0", USAGE_ERROR);
+            }
+            if(LPORecursionDepthLimit>20000)
+            {
+               Warning("Using very large values for "
+                       "--lpo-recursion-limit may lead to stack "
+                       "overflows and segmentation faults.");
+            }
       case OPT_TO_RESTRICT_LIT_CMPS:
-       h_parms->no_lit_cmp = true;
-       break;
+            h_parms->no_lit_cmp = true;
+            break;
       case OPT_TPTP_SOS:
-       h_parms->use_tptp_sos = true;
-       break;
+            h_parms->use_tptp_sos = true;
+            break;
       case OPT_ER_DESTRUCTIVE:
-       h_parms->er_varlit_destructive = true;
-       break;
+            h_parms->er_varlit_destructive = true;
+            break;
       case OPT_ER_STRONG_DESTRUCTIVE:
-       h_parms->er_varlit_destructive = true; /* Implied */
-       h_parms->er_strong_destructive = true;
-       break;
+            h_parms->er_varlit_destructive = true; /* Implied */
+            h_parms->er_strong_destructive = true;
+            break;
       case OPT_ER_AGGRESSIVE:
-       h_parms->er_aggressive = true;
-       break;
+            h_parms->er_aggressive = true;
+            break;
       case OPT_FORWARD_CSR:
-       h_parms->forward_context_sr = true;
-       break;
+            h_parms->forward_context_sr = true;
+            break;
       case OPT_FORWARD_CSR_AGGRESSIVE:
-       h_parms->forward_context_sr = true;
-       h_parms->forward_context_sr_aggressive = true;
-       break;
+            h_parms->forward_context_sr = true;
+            h_parms->forward_context_sr_aggressive = true;
+            break;
       case OPT_BACKWARD_CSR:
-       h_parms->backward_context_sr = true;
-       break;
+            h_parms->backward_context_sr = true;
+            break;
       case OPT_RULES_GENERAL:
-       h_parms->prefer_general = true;
-       break;
+            h_parms->prefer_general = true;
+            break;
       case OPT_FORWARD_DEMOD:
-       tmp =  CLStateGetIntArg(handle, arg);
-       if((tmp > 2) ||
-          (tmp < 0))
-       {
-          Error("Option -F (--forward_demod_level) requires "
-           "argument from {0..2}", USAGE_ERROR);
-       }
-       h_parms->forward_demod = tmp;
-       break;
+            tmp =  CLStateGetIntArg(handle, arg);
+            if((tmp > 2) ||
+               (tmp < 0))
+            {
+               Error("Option -F (--forward_demod_level) requires "
+                     "argument from {0..2}", USAGE_ERROR);
+            }
+            h_parms->forward_demod = tmp;
+            break;
       case OPT_STRONG_RHS_INSTANCE:
             RewriteStrongRHSInst = true;
             break;
       case OPT_STRONGSUBSUMPTION:
-       StrongUnitForwardSubsumption = true;
-       break;
+            StrongUnitForwardSubsumption = true;
+            break;
       case OPT_WATCHLIST:
             if(strcmp(WATCHLIST_INLINE_STRING, arg)==0 ||
                strcmp(WATCHLIST_INLINE_QSTRING, arg)==0  )
@@ -1413,95 +1404,95 @@ CLState_p process_options(int argc, char* argv[])
             {
                watchlist_filename = arg;
             }
-       break;
+            break;
       case OPT_WATCHLIST_NO_SIMPLIFY:
-       h_parms->watchlist_simplify = false;
-       break;
+            h_parms->watchlist_simplify = false;
+            break;
       case OPT_NO_INDEXED_SUBSUMPTION:
-       fvi_parms->cspec.features = FVINoFeatures;
-       break;
+            fvi_parms->cspec.features = FVINoFeatures;
+            break;
       case OPT_FVINDEX_STYLE:
-       if(strcmp(arg, "None")==0)
-       {
-          fvi_parms->cspec.features = FVINoFeatures;
-       }
-       else if(strcmp(arg, "Direct")==0)
-       {
-          fvi_parms->use_perm_vectors = false;
-       }
-       else if(strcmp(arg, "Perm")==0)
-       {
-          fvi_parms->use_perm_vectors = true;
-          fvi_parms->eliminate_uninformative = false;
-       }
-       else if(strcmp(arg, "PermOpt")==0)
-       {
-          fvi_parms->use_perm_vectors = true;
-          fvi_parms->eliminate_uninformative = true;
-       }
-       else
-       {
-          Error("Option --subsumption-indexing requires "
-           "'None', 'Direct', 'Perm', or 'PermOpt'.", USAGE_ERROR);
-       }
-       break;
+            if(strcmp(arg, "None")==0)
+            {
+               fvi_parms->cspec.features = FVINoFeatures;
+            }
+            else if(strcmp(arg, "Direct")==0)
+            {
+               fvi_parms->use_perm_vectors = false;
+            }
+            else if(strcmp(arg, "Perm")==0)
+            {
+               fvi_parms->use_perm_vectors = true;
+               fvi_parms->eliminate_uninformative = false;
+            }
+            else if(strcmp(arg, "PermOpt")==0)
+            {
+               fvi_parms->use_perm_vectors = true;
+               fvi_parms->eliminate_uninformative = true;
+            }
+            else
+            {
+               Error("Option --subsumption-indexing requires "
+                     "'None', 'Direct', 'Perm', or 'PermOpt'.", USAGE_ERROR);
+            }
+            break;
       case OPT_FVINDEX_FEATURETYPES:
-       if(strcmp(arg, "None")==0)
-       {
-          fvi_parms->cspec.features = FVINoFeatures;
-       }
-       else if(strcmp(arg, "AC")==0)
-       {
-          fvi_parms->cspec.features = FVIACFeatures;
-       }
-       else if(strcmp(arg, "SS")==0)
-       {
-          fvi_parms->cspec.features = FVISSFeatures;
-       }
-       else if(strcmp(arg, "All")==0)
-       {
-          fvi_parms->cspec.features = FVIAllFeatures;
-       }
-       else if(strcmp(arg, "Bill")==0)
-       {
-          fvi_parms->cspec.features = FVIBillFeatures;
-       }
-       else if(strcmp(arg, "BillPlus")==0)
-       {
-          fvi_parms->cspec.features = FVIBillPlusFeatures;
-       }
-       else if(strcmp(arg, "ACFold")==0)
-       {
-          fvi_parms->cspec.features = FVIACFold;
-       }
-       else if(strcmp(arg, "ACStagger")==0)
-       {
-          fvi_parms->cspec.features = FVIACStagger;
-       }
-       else
-       {
-          Error("Option --fvindex-featuretypes requires "
-           "'None', 'AC', 'SS', or 'All'.", USAGE_ERROR);
-       }
-       break;
+            if(strcmp(arg, "None")==0)
+            {
+               fvi_parms->cspec.features = FVINoFeatures;
+            }
+            else if(strcmp(arg, "AC")==0)
+            {
+               fvi_parms->cspec.features = FVIACFeatures;
+            }
+            else if(strcmp(arg, "SS")==0)
+            {
+               fvi_parms->cspec.features = FVISSFeatures;
+            }
+            else if(strcmp(arg, "All")==0)
+            {
+               fvi_parms->cspec.features = FVIAllFeatures;
+            }
+            else if(strcmp(arg, "Bill")==0)
+            {
+               fvi_parms->cspec.features = FVIBillFeatures;
+            }
+            else if(strcmp(arg, "BillPlus")==0)
+            {
+               fvi_parms->cspec.features = FVIBillPlusFeatures;
+            }
+            else if(strcmp(arg, "ACFold")==0)
+            {
+               fvi_parms->cspec.features = FVIACFold;
+            }
+            else if(strcmp(arg, "ACStagger")==0)
+            {
+               fvi_parms->cspec.features = FVIACStagger;
+            }
+            else
+            {
+               Error("Option --fvindex-featuretypes requires "
+                     "'None', 'AC', 'SS', or 'All'.", USAGE_ERROR);
+            }
+            break;
       case OPT_FVINDEX_MAXFEATURES:
-       tmp = CLStateGetIntArg(handle, arg);
-       if(tmp<=0)
-       {
-          Error("Argument to option --fvindex-maxfeatures "
-           "has to be > 0", USAGE_ERROR);
-       }
-       fvi_parms->max_symbols = tmp;
-       break;
+            tmp = CLStateGetIntArg(handle, arg);
+            if(tmp<=0)
+            {
+               Error("Argument to option --fvindex-maxfeatures "
+                     "has to be > 0", USAGE_ERROR);
+            }
+            fvi_parms->max_symbols = tmp;
+            break;
       case OPT_FVINDEX_SLACK:
-       tmp = CLStateGetIntArg(handle, arg);
-       if(tmp<0)
-       {
-          Error("Argument to option --fvindex-slack "
-           "has to be >= 0", USAGE_ERROR);
-       }
-       fvi_parms->symbol_slack = tmp;
-       break;
+            tmp = CLStateGetIntArg(handle, arg);
+            if(tmp<0)
+            {
+               Error("Argument to option --fvindex-slack "
+                     "has to be >= 0", USAGE_ERROR);
+            }
+            fvi_parms->symbol_slack = tmp;
+            break;
       case OPT_RW_BW_INDEX:
             check_fp_index_arg(arg, "--rw-bw-index");
             strcpy(h_parms->rw_bw_index_type, arg);
@@ -1533,11 +1524,11 @@ CLState_p process_options(int argc, char* argv[])
             h_parms->detsort_tmpset = true;
             break;
       case OPT_DEFINE_WFUN:
-       PStackPushP(wfcb_definitions, arg);
-       break;
+            PStackPushP(wfcb_definitions, arg);
+            break;
       case OPT_DEFINE_HEURISTIC:
-       PStackPushP(hcb_definitions, arg);
-       break;
+            PStackPushP(hcb_definitions, arg);
+            break;
       case OPT_FREE_NUMBERS:
             free_symb_prop = free_symb_prop|FPIsInteger|FPIsRational|FPIsFloat;
             break;
@@ -1557,8 +1548,8 @@ CLState_p process_options(int argc, char* argv[])
             TermPrintTypes = true;
             break;
       default:
-       assert(false && "Unknown option");
-       break;
+            assert(false && "Unknown option");
+            break;
       }
    }
    if((HardTimeLimit!=RLIM_INFINITY)||(SoftTimeLimit!=RLIM_INFINITY))
@@ -1566,12 +1557,12 @@ CLState_p process_options(int argc, char* argv[])
       if(SoftTimeLimit!=RLIM_INFINITY)
       {
          SetSoftRlimitErr(RLIMIT_CPU, SoftTimeLimit, "RLIMIT_CPU (E-Soft)");
-    TimeLimitIsSoft = true;
+         TimeLimitIsSoft = true;
       }
       else
       {
          SetSoftRlimitErr(RLIMIT_CPU, HardTimeLimit, "RLIMIT_CPU (E-Hard)");
-    TimeLimitIsSoft = false;
+         TimeLimitIsSoft = false;
       }
 
       if(SetSoftRlimit(RLIMIT_CORE, 0)!=RLimSuccess)
