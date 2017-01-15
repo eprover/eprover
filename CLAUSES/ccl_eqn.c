@@ -691,6 +691,7 @@ Term_p EqnTermsTBTermEncode(TB_p bank, Term_p lterm, Term_p rterm, bool
    handle = TermDefaultCellAlloc();
    handle->arity = 2;
    handle->f_code = SigGetEqnCode(bank->sig, positive);
+   handle->sort = STBool;
    assert(handle->f_code);
    handle->args = TermArgArrayAlloc(2);
    if(dir == PENormal)
@@ -703,7 +704,6 @@ Term_p EqnTermsTBTermEncode(TB_p bank, Term_p lterm, Term_p rterm, bool
       handle->args[0] = rterm;
       handle->args[1] = lterm;
    }
-
    handle = TBTermTopInsert(bank, handle);
 
    return handle;
@@ -2694,5 +2694,3 @@ long EqnCollectSubterms(Eqn_p eqn, PStack_p collector)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

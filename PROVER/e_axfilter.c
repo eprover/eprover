@@ -47,6 +47,8 @@ typedef enum
    OPT_VERBOSE,
    OPT_OUTPUT,
    OPT_FILTER,
+   OPT_SEED_SYMBOLS,
+   OPT_SEED_METHODS,
    OPT_DUMP_FILTER,
    OPT_PRINT_STATISTICS,
    OPT_SILENT,
@@ -111,6 +113,29 @@ OptCell opts[] =
     ReqArg, NULL,
     "Specify the filter definition file. If not set, the system "
     "will uses the built-in default."},
+
+   {OPT_SEED_SYMBOLS,
+    'S', "seed-symbols",
+    OptArg, "p",
+    "Enable artificial seeding of the axiom selection process and determine "
+    "which symbol classes should be used to generate different sets."
+    "The argument is a string of letters, each indicating one class of "
+    "symbols to use. 'p' indicates predicate symbols, 'f' non-constant "
+    "function symbols, and 'c' constants. Note that this will create "
+    "potentially multiple output files for each activated symbols."},
+
+   {OPT_SEED_METHODS,
+    'm', "seed-method",
+    OptArg, "p",
+    "Specify how to select seed axioms when artificially seeding is used."
+    "The argument is a string of letters, each indicating one method to "
+    "use. The letters are: \n"
+    "'l': use the syntactically largest axiom in which the seed symbol occurs.\n"
+    "'d': use the most diverse axiom in which the seed symbol occurs, i.e. "
+    "the symbol with the largest set of different symbols.\n"
+    "'a': use all axioms in which the seed symbol occurs.\n"
+    "For 'l' and 'd', if there are multiple candidates, use the first one."
+    "If the option is not set, 'a' is assumed."},
 
    {OPT_DUMP_FILTER,
     'd', "dump-filter",
@@ -181,10 +206,17 @@ OptCell opts[] =
     NoArg, NULL,
     NULL}
 };
-IOFormat          parse_format = AutoFormat;
-char              *outname    = NULL;
-char              *filtername = NULL;
-bool              dumpfilter  = false;
+IOFormat parse_format = AutoFormat;
+char     *outname     = NULL;
+char     *filtername  = NULL;
+bool     dumpfilter   = false;
+bool     seed_preds   = false,
+         seed_funs    = false,
+         seed_consts  = false,
+         seed_large   = false,
+         seed_diverse = false,
+         seed_all     = true;
+
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -215,7 +247,7 @@ void print_help(FILE* out);
 
 void filter_problem(StructFOFSpec_p ctrl,
                     AxFilter_p filter,
-                    char* corename)
+                    char* corename, char* desc)
 {
    DStr_p   filename = DStrAlloc();
    PStack_p formulas, clauses;
@@ -239,6 +271,12 @@ void filter_problem(StructFOFSpec_p ctrl,
            DStrView(filename));
 
    fp = fopen(DStrView(filename), "w");
+   fprintf(fp, "%% Filter %s on file %s\n",
+           filter->name, corename);
+   if(desc)
+   {
+      fprintf(fp, "%s", desc);
+   }
    PStackClausePrintTSTP(fp, clauses);
    PStackFormulaPrintTSTP(fp, formulas);
    fclose(fp);
@@ -262,18 +300,135 @@ void filter_problem(StructFOFSpec_p ctrl,
 
 void all_filters_problem(StructFOFSpec_p ctrl,
                          AxFilterSet_p filters,
-                         char* corename)
+                         char* corename,
+                         bool hypo_filter_only,
+                         char *desc)
 {
    int i;
 
    for(i=0; i<AxFilterSetElements(filters); i++)
    {
       /* SigPrint(stdout,ctrl->sig); */
-
-      filter_problem(ctrl,
-                     AxFilterSetGetFilter(filters,i),
-                     corename);
+      if(!hypo_filter_only || AxFilterSetGetFilter(filters,i)->use_hypotheses)
+      {
+         filter_problem(ctrl,
+                        AxFilterSetGetFilter(filters,i),
+                        corename, desc);
+      }
    }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: find_seed_symbols()
+//
+//   Push all symbols in sig that correspond to the symbol types used
+//   for seeding onto result.
+//
+// Global Variables: seed_preds, seed_funs, seed_consts, seed_large,
+//                   seed_diverse, seed_all
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void find_seed_symbols(Sig_p sig, PStack_p result)
+{
+   FunCode i;
+
+   for(i=sig->internal_symbols;
+       i<=sig->f_count;
+       i++)
+   {
+      if(seed_preds && SigIsPredicate(sig, i))
+      {
+         PStackPushInt(result, i);
+      }
+      else if(seed_funs && !SigIsPredicate(sig, i)
+              && SigFindArity(sig, i) > 0)
+      {
+         PStackPushInt(result, i);
+      }
+      else if(seed_consts && !SigIsPredicate(sig, i)
+              && SigFindArity(sig, i) == 0)
+      {
+         PStackPushInt(result, i);
+      }
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: seeded_filters()
+//
+//   Run through all seeds, all seeding methods and generate all
+//   filtered files.
+//
+// Global Variables: seed_preds, seed_funs, seed_consts, seed_large,
+//                   seed_diverse, seed_all
+//
+// Side Effects    : Writes result files.
+//
+/----------------------------------------------------------------------*/
+
+void seeded_filters(StructFOFSpec_p ctrl,
+                    AxFilterSet_p filters,
+                    char* corename)
+{
+   DStr_p desc = DStrAlloc();
+   DStr_p name = DStrAlloc();
+   PStack_p seed_symbols = PStackAlloc();
+   FunCode seed;
+
+   find_seed_symbols(ctrl->sig, seed_symbols);
+
+   while(!PStackEmpty(seed_symbols))
+   {
+      seed = PStackPopInt(seed_symbols);
+
+      if(seed_all)
+      {
+         DStrReset(desc);
+         DStrReset(name);
+         PStack_p seed_formulas = PStackAlloc();
+         StructFOFSpecCollectFCode(ctrl, seed, seed_formulas);
+         FormulaStackCondSetType(seed_formulas, CPTypeHypothesis);
+
+         DStrAppendStr(desc, "% Seed symbol: ");
+         DStrAppendStr(desc, SigFindName(ctrl->sig, seed));
+         DStrAppendStr(desc, " = ");
+         DStrAppendInt(desc, seed);
+         DStrAppendStr(desc, "\n% Arity:     ");
+         DStrAppendInt(desc, SigFindArity(ctrl->sig, seed));
+         DStrAppendStr(desc, "\n% Type:      ");
+         DStrAppendStr(desc, SigIsPredicate(ctrl->sig, seed)?
+                       "Predicate\n":"Function\n");
+
+         DStrAppendStr(name, corename);
+         DStrAppendStr(name, "_SA_");
+         DStrAppendStr(name, SigIsPredicate(ctrl->sig, seed)?
+                       "P":"F");
+         DStrAppendInt(name, SigFindArity(ctrl->sig, seed));
+         DStrAppendStr(name, "_");
+         DStrAppendInt(name, seed);
+
+         printf("Name: %s\n", DStrView(name));
+
+         all_filters_problem(ctrl,
+                             filters,
+                             DStrView(name),
+                             true,
+                             DStrView(desc));
+         FormulaStackCondSetType(seed_formulas, CPTypeAxiom);
+         PStackFree(seed_formulas);
+      }
+   }
+
+   PStackFree(seed_symbols);
+   DStrFree(name);
+   DStrFree(desc);
 }
 
 
@@ -349,9 +504,18 @@ int main(int argc, char* argv[])
    StructFOFSpecInitDistrib(ctrl);
    StructFOFSpecResetShared(ctrl);
 
-   all_filters_problem(ctrl,
-                       filters,
-                       DStrView(corename));
+   if(seed_preds || seed_funs || seed_consts)
+   {
+      seeded_filters(ctrl, filters, DStrView(corename));
+   }
+   else
+   {
+      all_filters_problem(ctrl,
+                          filters,
+                          DStrView(corename),
+                          false,
+                          NULL);
+   }
 
    StructFOFSpecFree(ctrl);
    DStrFree(corename);
@@ -388,7 +552,7 @@ CLState_p process_options(int argc, char* argv[])
 {
    Opt_p handle;
    CLState_p state;
-   char*  arg;
+   char  *arg, *ci;
 
    state = CLStateAlloc(argc,argv);
 
@@ -416,6 +580,49 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_FILTER:
             filtername = arg;
+            break;
+      case OPT_SEED_METHODS:
+            seed_all = false;
+            CheckOptionLetterString(arg, "lda", "-m (--seed-methods)");
+            for(ci=arg; *ci; ci++)
+            {
+               switch(*ci)
+               {
+               case 'l':
+                     seed_large = true;
+                     break;
+               case 'd':
+                     seed_diverse = true;
+                     break;
+               case 'a':
+                     seed_all = true;
+                     break;
+               default:
+                     assert(false && "Impossible option in string");
+                     break;
+               }
+            }
+            break;
+      case OPT_SEED_SYMBOLS:
+            CheckOptionLetterString(arg, "pfc", "-S (--seed-symbols)");
+            for(ci=arg; *ci; ci++)
+            {
+               switch(*ci)
+               {
+               case 'p':
+                     seed_preds = true;
+                     break;
+               case 'f':
+                     seed_funs = true;
+                     break;
+               case 'c':
+                     seed_consts = true;
+                     break;
+               default:
+                     assert(false && "Impossible option in string");
+                     break;
+               }
+            }
             break;
       case OPT_DUMP_FILTER:
             dumpfilter = true;

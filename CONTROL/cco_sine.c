@@ -409,6 +409,38 @@ void StructFOFSpecFree(StructFOFSpec_p ctrl)
 
 /*-----------------------------------------------------------------------
 //
+// Function: StructFOFSpecCollectFCode()
+//
+//   Push all formulas that contain f_code onto result. Return number
+//   of formulas found. Ignores clauses (clauses are deprecated here).
+//
+// Global Variables: -
+//
+// Side Effects    : Only via PStackPushP()
+//
+/----------------------------------------------------------------------*/
+
+long StructFOFSpecCollectFCode(StructFOFSpec_p ctrl,
+                               FunCode f_code,
+                               PStack_p res_formulas)
+{
+   long ret = 0;
+   FormulaSet_p handle;
+   PStackPointer i;
+
+   for(i = 0;
+       i <  PStackGetSP(ctrl->formula_sets);
+       i++)
+   {
+      handle = PStackElementP(ctrl->formula_sets, i);
+      ret += FormulaSetCollectFCode(handle, f_code, res_formulas);
+   }
+   return ret;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: StructFOFSpecParseAxioms()
 //
 //   Initialize a StructFOFSpeclCell by parsing all the include files

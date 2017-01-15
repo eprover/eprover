@@ -73,13 +73,14 @@ void StructFOFSpecAddProblem(StructFOFSpec_p ctrl,
 
 void StructFOFSpecBacktrackToSpec(StructFOFSpec_p ctrl);
 
+long StructFOFSpecCollectFCode(StructFOFSpec_p ctrl,
+                               FunCode f_code,
+                               PStack_p res_formulas);
 
 long StructFOFSpecGetProblem(StructFOFSpec_p ctrl,
                              AxFilter_p filter,
                              PStack_p res_clauses,
                              PStack_p res_formulas);
-
-
 
 long ProofStateSinE(ProofState_p state, char* filter);
 
@@ -88,8 +89,3 @@ long ProofStateSinE(ProofState_p state, char* filter);
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

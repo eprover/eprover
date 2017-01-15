@@ -470,7 +470,7 @@ bool TestLetterString(char* to_check, char* options)
 
 void CheckOptionLetterString(char* to_check, char* options, char *option)
 {
-   if(!TestLetterString(to_check, option))
+   if(!TestLetterString(to_check, options))
    {
       char msg[1024];
       sprintf(msg, "Illegal argument to option %s", option);

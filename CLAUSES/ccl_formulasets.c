@@ -452,9 +452,70 @@ long FormulaSetCountConjectures(FormulaSet_p set, long* hypos)
    return ret;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaStackCondSetType()
+//
+//   Set the type of all formulas on stack to type if that does not
+//   change the semantics of the formula.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void FormulaStackCondSetType(PStack_p stack, FormulaProperties type)
+{
+   PStackPointer i;
+   WFormula_p handle;
+
+   for(i=0; i<PStackGetSP(stack); i++)
+   {
+      handle = PStackElementP(stack,i);
+      if(FormulaQueryType(handle)!=CPTypeConjecture || type==CPTypeConjecture)
+      {
+         FormulaSetType(handle, type);
+      }
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaSetCollectFCode()
+//
+//   Push all formulas that contain f_code onto result. Return number
+//   of formulas found.
+//
+// Global Variables: -
+//
+// Side Effects    : Only via PStackPushP()
+//
+/----------------------------------------------------------------------*/
+
+long FormulaSetCollectFCode(FormulaSet_p set, FunCode f_code,
+                            PStack_p result)
+{
+   long ret = 0;
+   WFormula_p handle;
+
+   for(handle = set->anchor->succ;
+       handle != set->anchor;
+       handle = handle->succ)
+   {
+      if(TermHasFCode(handle->tformula, f_code))
+      {
+         PStackPushP(result, handle);
+         ret++;
+      }
+   }
+   return ret;
+}
+
+
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

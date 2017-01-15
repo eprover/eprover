@@ -141,6 +141,7 @@ void    TermAssertSameSort(Sig_p sig, Term_p t1, Term_p t2);
 bool    TermIsUntyped(Term_p t);
 
 
+
 /*-----------------------------------------------------------------------
 //
 // Function: TermEquivCellAlloc()
@@ -173,8 +174,3 @@ static __inline__ Term_p TermEquivCellAlloc(Term_p source, VarBank_p vars)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

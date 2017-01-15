@@ -74,15 +74,12 @@ long         FormulaSetSplitConjectures(FormulaSet_p set,
 
 long long    FormulaSetStandardWeight(FormulaSet_p set);
 long         FormulaSetCountConjectures(FormulaSet_p set, long* hypos);
-
+void         FormulaStackCondSetType(PStack_p stack, FormulaProperties type);
+long         FormulaSetCollectFCode(FormulaSet_p set, FunCode f_code,
+                                    PStack_p result);
 
 #endif
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
