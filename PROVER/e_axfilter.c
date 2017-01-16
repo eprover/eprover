@@ -537,7 +537,7 @@ void seeded_filter_diverse(StructFOFSpec_p ctrl,
    DStrAppendStr(desc, SigFindName(ctrl->sig, seed_symbol));
    DStrAppendStr(desc, " = ");
    DStrAppendInt(desc, seed_symbol);
-   DStrAppendStr(desc, "\n% Seeds      : Largest\n");
+   DStrAppendStr(desc, "\n% Seeds      : Diverse\n");
    DStrAppendStr(desc, "% Arity      : ");
    DStrAppendInt(desc, SigFindArity(ctrl->sig, seed_symbol));
    DStrAppendStr(desc, "\n% Type       : ");
@@ -545,7 +545,7 @@ void seeded_filter_diverse(StructFOFSpec_p ctrl,
                  "Predicate\n":"Function\n");
 
    DStrAppendStr(name, corename);
-   DStrAppendStr(name, "_SL_");
+   DStrAppendStr(name, "_SD_");
    DStrAppendStr(name, SigIsPredicate(ctrl->sig, seed_symbol)?
                  "P":"F");
    DStrAppendInt(name, SigFindArity(ctrl->sig, seed_symbol));
