@@ -150,7 +150,7 @@ static Term_p parse_cons_list(Scanner_p in, Sig_p sig, VarBank_p vars)
 /----------------------------------------------------------------------*/
 
 static Term_p term_check_consistency_rek(Term_p term, PTree_p *branch,
-                DerefType deref)
+                                         DerefType deref)
 {
    int      i;
    Term_p   res = NULL;
@@ -166,7 +166,7 @@ static Term_p term_check_consistency_rek(Term_p term, PTree_p *branch,
    {
       if((res = term_check_consistency_rek(term->args[i], branch, deref)))
       {
-    break;
+         break;
       }
    }
    PTreeDeleteEntry(branch, term);
@@ -234,11 +234,11 @@ void TermPrint(FILE* out, Term_p term, Sig_p sig, DerefType deref)
    {
       if(TermIsTopRewritten(term))
       {
-    fprintf(out, "=");
+         fprintf(out, "=");
       }
       else
       {
-    fprintf(out, "+");
+         fprintf(out, "+");
       }
    }
 #endif
@@ -252,11 +252,11 @@ void TermPrint(FILE* out, Term_p term, Sig_p sig, DerefType deref)
    {
       if(TermIsVar(term))
       {
-    VarPrint(out, term->f_code);
+         VarPrint(out, term->f_code);
       }
       else
       {
-    fputs(SigFindName(sig, term->f_code), out);
+         fputs(SigFindName(sig, term->f_code), out);
          if(!TermIsConst(term))
          {
             assert(term->args);
@@ -287,7 +287,7 @@ void TermPrint(FILE* out, Term_p term, Sig_p sig, DerefType deref)
 /----------------------------------------------------------------------*/
 
 void TermPrintArgList(FILE* out, Term_p *args, int arity, Sig_p sig,
-            DerefType deref)
+                      DerefType deref)
 {
    int i;
 
@@ -444,7 +444,7 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
       }
       else
       {
-    handle = TermDefaultCellAlloc();
+         handle = TermDefaultCellAlloc();
 
          if(TestInpTok(in, OpenBracket))
          {
@@ -632,7 +632,7 @@ Term_p TermCopyKeepVars(Term_p source, DerefType deref)
    handle = TermTopCopy(source);
 
    for(i=0; i<handle->arity; i++) /* Hack: Loop will not be entered if
-                 arity = 0 */
+                                     arity = 0 */
    {
       handle->args[i] = TermCopyKeepVars(handle->args[i], deref);
    }
@@ -861,7 +861,7 @@ long TermLexCompare(Term_p t1, Term_p t2)
       res = TermLexCompare(t1->args[i], t2->args[i]);
       if(res)
       {
-    return res;
+         return res;
       }
    }
    return res;
@@ -915,7 +915,7 @@ bool TermIsSubterm(Term_p super, Term_p test, DerefType deref)
 /----------------------------------------------------------------------*/
 
 bool TermIsSubtermDeref(Term_p super, Term_p test, DerefType
-         deref_super, DerefType deref_test)
+                        deref_super, DerefType deref_test)
 {
    int i;
 
@@ -1029,7 +1029,7 @@ long TermFsumWeight(Term_p term, long vweight, long flimit,
 /----------------------------------------------------------------------*/
 
 long TermNonLinearWeight(Term_p term, long vlweight, long vweight,
-          long fweight)
+                         long fweight)
 {
    long     res = 0;
    PStack_p stack = PStackAlloc();
@@ -1046,26 +1046,26 @@ long TermNonLinearWeight(Term_p term, long vlweight, long vweight,
       handle = PStackPopP(stack);
       if(TermIsVar(handle))
       {
-    if(TermCellQueryProp(handle, TPOpFlag))
-    {
-       res += vweight;
-    }
-    else
-    {
-       TermCellSetProp(handle, TPOpFlag);
-       res += vlweight;
-    }
+         if(TermCellQueryProp(handle, TPOpFlag))
+         {
+            res += vweight;
+         }
+         else
+         {
+            TermCellSetProp(handle, TPOpFlag);
+            res += vlweight;
+         }
       }
       else
       {
-    int i;
+         int i;
 
-    res += fweight;
+         res += fweight;
 
-    for(i=0; i<handle->arity; i++)
-    {
-       PStackPushP(stack, handle->args[i]);
-    }
+         for(i=0; i<handle->arity; i++)
+         {
+            PStackPushP(stack, handle->args[i]);
+         }
       }
    }
    PStackFree(stack);
@@ -1088,7 +1088,7 @@ long TermNonLinearWeight(Term_p term, long vlweight, long vweight,
 /----------------------------------------------------------------------*/
 
 long TermSymTypeWeight(Term_p term, long vweight, long fweight, long
-             cweight, long pweight)
+                       cweight, long pweight)
 {
    long     res = 0;
    PStack_p stack = PStackAlloc();
@@ -1103,28 +1103,28 @@ long TermSymTypeWeight(Term_p term, long vweight, long fweight, long
       handle = PStackPopP(stack);
       if(TermIsVar(handle))
       {
-    res += vweight;
+         res += vweight;
       }
       else
       {
-    int i;
+         int i;
 
-    if(TermCellQueryProp(handle,TPPredPos))
-    {
-       res += pweight;
-    }
-    else if(handle->arity==0)
-    {
-       res += cweight;
-    }
-    else
-    {
-       res += fweight;
-    }
-    for(i=0; i<handle->arity; i++)
-    {
-       PStackPushP(stack, handle->args[i]);
-    }
+         if(TermCellQueryProp(handle,TPPredPos))
+         {
+            res += pweight;
+         }
+         else if(handle->arity==0)
+         {
+            res += cweight;
+         }
+         else
+         {
+            res += fweight;
+         }
+         for(i=0; i<handle->arity; i++)
+         {
+            PStackPushP(stack, handle->args[i]);
+         }
       }
    }
    PStackFree(stack);
@@ -1195,7 +1195,7 @@ bool TermIsDefTerm(Term_p term, int min_arity)
    {
       if(TermCellQueryProp(term->args[i], TPOpFlag))
       {
-    return false;
+         return false;
       }
       TermCellSetProp(term->args[i], TPOpFlag);
    }
@@ -1229,7 +1229,7 @@ bool TermHasFCode(Term_p term, FunCode f)
    {
       if(TermHasFCode(term->args[i], f))
       {
-    return true;
+         return true;
       }
    }
    return false;
@@ -1434,18 +1434,18 @@ void TermAddSymbolDistributionLimited(Term_p term, long *dist_array, long limit)
 
       if(!TermIsVar(term))
       {
-    int i;
+         int i;
 
-    assert(term->f_code > 0);
-    if(term->f_code < limit)
-    {
-       dist_array[term->f_code]++;
-    }
-    for(i=0; i<term->arity; i++)
-    {
-       assert(term->args);
-       PStackPushP(stack, term->args[i]);
-    }
+         assert(term->f_code > 0);
+         if(term->f_code < limit)
+         {
+            dist_array[term->f_code]++;
+         }
+         for(i=0; i<term->arity; i++)
+         {
+            assert(term->args);
+            PStackPushP(stack, term->args[i]);
+         }
       }
    }
    PStackFree(stack);
@@ -1479,20 +1479,20 @@ void TermAddSymbolDistExist(Term_p term, long *dist_array,
 
       if(!TermIsVar(term))
       {
-    int i;
+         int i;
 
-    assert(term->f_code > 0);
+         assert(term->f_code > 0);
          if(!dist_array[term->f_code])
          {
             PStackPushInt(exists, term->f_code);
          }
          dist_array[term->f_code]++;
 
-    for(i=0; i<term->arity; i++)
-    {
-       assert(term->args);
-       PStackPushP(stack, term->args[i]);
-    }
+         for(i=0; i<term->arity; i++)
+         {
+            assert(term->args);
+            PStackPushP(stack, term->args[i]);
+         }
       }
    }
    PStackFree(stack);
@@ -1516,8 +1516,8 @@ void TermAddSymbolDistExist(Term_p term, long *dist_array,
 /----------------------------------------------------------------------*/
 
 void TermAddSymbolFeaturesLimited(Term_p term, long depth,
-              long *freq_array, long* depth_array,
-              long limit)
+                                  long *freq_array, long* depth_array,
+                                  long limit)
 {
    if(!TermIsVar(term))
    {
@@ -1525,19 +1525,19 @@ void TermAddSymbolFeaturesLimited(Term_p term, long depth,
 
       if(term->f_code < limit)
       {
-    freq_array[term->f_code]++;
-    depth_array[term->f_code] = MAX(depth, depth_array[term->f_code]);
+         freq_array[term->f_code]++;
+         depth_array[term->f_code] = MAX(depth, depth_array[term->f_code]);
       }
       else
       {
-    freq_array[0]++;
-    depth_array[0] = MAX(depth, depth_array[0]);
+         freq_array[0]++;
+         depth_array[0] = MAX(depth, depth_array[0]);
       }
       for(i=0; i<term->arity; i++)
       {
-    TermAddSymbolFeaturesLimited(term->args[i], depth+1,
-                  freq_array, depth_array,
-                  limit);
+         TermAddSymbolFeaturesLimited(term->args[i], depth+1,
+                                      freq_array, depth_array,
+                                      limit);
       }
    }
 }
@@ -1577,7 +1577,7 @@ void TermAddSymbolFeatures(Term_p term, PStack_p mod_stack, long depth,
       feature_array[findex+1] = MAX(depth, feature_array[findex+1]);
       for(i=0; i<term->arity; i++)
       {
-    TermAddSymbolFeatures(term->args[i], mod_stack, depth+1,
+         TermAddSymbolFeatures(term->args[i], mod_stack, depth+1,
                                feature_array, offset);
       }
    }
@@ -1629,7 +1629,7 @@ void TermComputeFunctionRanks(Term_p term, long *rank_array, long *count)
 /----------------------------------------------------------------------*/
 
 long TermCollectPropVariables(Term_p term, PTree_p *tree,
-               TermProperties prop)
+                              TermProperties prop)
 {
    long res = 0;
    PStack_p stack = PStackAlloc();
@@ -1641,19 +1641,19 @@ long TermCollectPropVariables(Term_p term, PTree_p *tree,
    {
       term = PStackPopP(stack);
       if(TermIsVar(term) &&
-    TermCellQueryProp(term,prop))
+         TermCellQueryProp(term,prop))
       {
-    if(PTreeStore(tree, term))
-    {
-       res++;
-    }
+         if(PTreeStore(tree, term))
+         {
+            res++;
+         }
       }
       else
       {
-    for(i=0; i<term->arity; i++)
-    {
-       PStackPushP(stack,term->args[i]);
-    }
+         for(i=0; i<term->arity; i++)
+         {
+            PStackPushP(stack,term->args[i]);
+         }
       }
    }
    PStackFree(stack);
@@ -1840,6 +1840,3 @@ bool TermIsUntyped(Term_p term)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
