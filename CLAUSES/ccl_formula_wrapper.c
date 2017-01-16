@@ -687,6 +687,30 @@ long WFormulaReturnFCodes(WFormula_p form, PStack_p f_codes)
 
 /*-----------------------------------------------------------------------
 //
+// Function: WFormulaSymbolDiversity()
+//
+//   Return number of different symbols in form.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+long WFormulaSymbolDiversity(WFormula_p form)
+{
+   long res;
+   PStack_p stack = PStackAlloc();
+   // TODO: Should we filter for non-internal symbols?
+   res = WFormulaReturnFCodes(form, stack);
+   PStackFree(stack);
+   return res;
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: WFormulaOfClause
 //
 //   Universally quantifies the disjunction of the literals of

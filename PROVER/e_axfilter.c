@@ -521,7 +521,7 @@ void seeded_filter_diverse(StructFOFSpec_p ctrl,
    for(i=0; i<PStackGetSP(symb_formulas); i++)
    {
       handle = PStackElementP(symb_formulas, i);
-      //size = TermWeight(handle->tformula, 1, 1);
+      size = WFormulaSymbolDiversity(handle);
       if(size > max_size)
       {
          largest = handle;
