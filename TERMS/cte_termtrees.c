@@ -202,11 +202,11 @@ long TermTopCompare(Term_p t1, Term_p t2)
 
    assert(t1->sort != STNoSort);
    assert(t2->sort != STNoSort);
-   if(t1->sort!=t2->sort)
-   {
-      printf("# Sort clash (%ld): %d vs. %d\n", t1->f_code, t1->sort, t2->sort);
-   }
-   //assert(t1->sort == t2->sort);
+   //if(t1->sort!=t2->sort)
+   //{
+   //      printf("# Sort clash (%ld): %d vs. %d\n", t1->f_code, t1->sort, t2->sort);
+   //}
+   assert(t1->sort == t2->sort);
 
    assert(t1->arity == t2->arity);
    for(i=0; i<t1->arity; i++)

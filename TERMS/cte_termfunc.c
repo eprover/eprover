@@ -1541,6 +1541,8 @@ void TermAddSymbolFeaturesLimited(Term_p term, long depth,
       }
    }
 }
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: TermAddSymbolFeatures()
@@ -1588,7 +1590,7 @@ void TermAddSymbolFeatures(Term_p term, PStack_p mod_stack, long depth,
 //
 // Function: TermComputeFunctionRanks()
 //
-//   Assing an occurance rank to each symbol in term.
+//   Assign an occurance rank to each symbol in term.
 //
 // Global Variables: -
 //
