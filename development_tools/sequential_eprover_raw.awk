@@ -6,7 +6,7 @@
 #
 # Read a specification file describing a set of parameters and a list
 # of problems, and run a sequential test of the prover over the
-# problems. 
+# problems.
 
 
 function min(a,b)
@@ -53,10 +53,10 @@ function expand_file(name,            pipe, tmp)
    return tmp;
 }
 
-  
+
 function file_exists(file,    test, tmp)
 {
-  test = getline tmp < file;      
+  test = getline tmp < file;
   close(file);
   if(test == -1)
     {
@@ -100,15 +100,15 @@ function check_and_initialize(    tmp, job)
       else
 	{
 	  print "Logfile " logfile " exists, using old results";
-	  
+
 	  processed_count = 0;
 	  while ((getline tmp < logfile) > 0)
 	  {
-	     if(match(job, /^[0-9A-Za-z].*\.lop/) ||
-                match(job, /^[0-9A-Za-z].*\.p/)||   
-                match(job, /^[0-9A-Za-z].*\.e/)  || 
-                match(job, /^[0-9A-Za-z].*\.tpt/)  ||
-                match(job, /^[0-9A-Za-z].*\.tptp/))
+	     if(match(tmp, /^[0-9A-Za-z].*\.lop/) ||
+                match(tmp, /^[0-9A-Za-z].*\.p/)||
+                match(tmp, /^[0-9A-Za-z].*\.e/)  ||
+                match(tmp, /^[0-9A-Za-z].*\.tpt/)  ||
+                match(tmp, /^[0-9A-Za-z].*\.tptp/))
 	     {
 		job = substr(tmp, RSTART, RLENGTH);
 		processed_jobs[job] = 1;
@@ -117,9 +117,9 @@ function check_and_initialize(    tmp, job)
 	  }
 	  close(logfile);
 	  print "Found " processed_count " old results";
-	}	      
-      first_job = 0;	    
-    }  
+	}
+      first_job = 0;
+    }
 }
 
 function host_cpu_limit_opt(limit)
@@ -173,43 +173,43 @@ function process_result(job,    file, name, tmp,  time, status,
       else if(index(tmp, "# Failure: Resource limit exceeded (time)"))
       {
 	 reason = "maxtime ";
-      }	 
+      }
       else if(index(tmp, "# Failure: User resource limit exceeded"))
       {
 	 reason = "maxres";
-      }       
+      }
       else if(index(tmp, "# Processed clauses                    :"))
       {
 	 processed = substr(tmp, 42);
-      }       
+      }
       else if(index(tmp, "# Generated clauses                    :"))
       {
 	 generated = substr(tmp, 42);
-      }       
+      }
       else if(index(tmp, "# Shared term nodes                    :"))
       {
 	 shared_terms = substr(tmp, 42);
-      }       
+      }
       else if(index(tmp, "# ...corresponding unshared nodes      :"))
       {
 	 raw_terms = substr(tmp, 42);
-      }       
+      }
       else if(index(tmp, "# Shared rewrite steps                 :"))
       {
 	 rewrite_steps = substr(tmp, 42);
-         }       
+         }
       else if(index(tmp, "# Match attempts with oriented units   :"))
       {
 	 r_matches = substr(tmp, 42);
-      }       
+      }
       else if(index(tmp, "# Match attempts with unoriented units :"))
       {
 	 e_matches = substr(tmp, 42);
-      }       
+      }
       else if(index(tmp, "# Total literals in generated clauses  :"))
       {
 	 literals = substr(tmp, 42);
-      }       
+      }
       else if(index(tmp, "# Total time"))
       {
 	 time = substr(tmp, 30);
@@ -267,16 +267,16 @@ BEGIN{
    print "Initializing...";
    print ARGV[1];
    soft_cpu_limit = 0;
-   time_limit = 10; # Default, may be overridden 
+   time_limit = 10; # Default, may be overridden
    auto_args = "-s --print-pid --resources-info --print-statistics --tptp3-in";
    first_job = 1;
    executable="~/bin/eprover"
    tmpname=ARGV[1]
    sub(/tptp_/, "protokoll_", tmpname);
    logfile = tmpname
-   problemdir="~/EPROVER/TPTP_5.4.0_FLAT"
+   problemdir="~/EPROVER/ONTOPROBS"
    cwd = ENVIRON["PWD"];
-   print "Working directory is " cwd "."; 
+   print "Working directory is " cwd ".";
    procid = get_pid();
    global_hostname = get_hostname();
    jobs = ""
@@ -336,19 +336,19 @@ BEGIN{
 
 /[A-Za-z0-9]+/{
    job = $0;
-   check_and_initialize();  
+   check_and_initialize();
    if(job_is_not_processed(job))
-   {      
+   {
       cpu_opt = host_cpu_limit_opt(time_limit);
       outfile = cwd "/__prvout__" procid "_" global_hostname "__";
       command = executable " " auto_args " " cpu_opt " " args " " problemdir "/" job " > " outfile;
-      
+
       prefix = "/usr/bin/nice -10 ";
       system(prefix command);
       process_result(job);
    }
 }
-      
+
 
 END{
    print "Sorting Result file";
@@ -356,4 +356,3 @@ END{
    system("sort " logfile " | myuniq.awk > " srtfile "; mv " srtfile " " logfile);
    print "Test run complete";
 }
-
