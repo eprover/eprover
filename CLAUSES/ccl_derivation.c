@@ -301,6 +301,73 @@ long get_clauseform_id(DerivationCodes op, int select, void* clauseform)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: tstp_get_clauseform_id()
+//
+//    Return a TSTP identifier for a derivation stack clause- or
+//    formula reference.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+char* tstp_get_clauseform_id(DerivationCodes op, int select,
+                             void* clauseform)
+{
+   static char result[30];
+   Clause_p   clause;
+   WFormula_p form;
+
+   result[0]='0';
+   result[1]='\0';
+
+   switch(select)
+   {
+   case 1:
+         if(DCOpHasCnfArg1(op))
+         {
+            clause = clauseform;
+            sprintf(result, "c_0_%ld", clause->ident);
+         }
+         else if(DCOpHasFofArg1(op))
+         {
+            form = clauseform;
+            return WFormulaGetId(form);
+         }
+         else
+         {
+            assert(false && "Argument selected does not exist");
+         }
+         break;
+   case 2:
+         if(DCOpHasCnfArg2(op))
+         {
+            clause = clauseform;
+            sprintf(result, "c_0_%ld", clause->ident);
+         }
+         else if(DCOpHasFofArg2(op))
+         {
+            form = clauseform;
+            return WFormulaGetId(form);
+         }
+         else
+         {
+            assert(false && "Argument selected does not exist");
+         }
+         break;
+   default:
+         assert(false && "Illegal argument selector");
+   }
+   return result;
+}
+
+
+
+
+
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
@@ -1060,12 +1127,12 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
             {
                fprintf(out, ", ");
             }
-            fprintf(out, "c_0_%ld",
-                    get_clauseform_id(op, 1, PStackElementP(derivation, i+1)));
+            fprintf(out, "%s",
+                    tstp_get_clauseform_id(op, 1, PStackElementP(derivation, i+1)));
             if(DCOpHasParentArg2(op))
             {
-               fprintf(out, ", c_0_%ld",
-                       get_clauseform_id(op, 2, PStackElementP(derivation, i+2)));
+               fprintf(out, ", %s",
+                       tstp_get_clauseform_id(op, 2, PStackElementP(derivation, i+2)));
             }
          }
          switch(op)
@@ -1942,7 +2009,9 @@ void DerivationRenumber(Derivation_p derivation)
       else
       {
          assert(node->formula);
+         //printf("Renumbering step %ld",  node->formula->ident);
          node->formula->ident = idents++;
+         //printf(" to %ld\n",  node->formula->ident);
       }
    }
 }

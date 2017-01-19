@@ -149,7 +149,14 @@ ProofState_p parse_spec(CLState_p state,
       if(parse_format_local == AutoFormat && in->format == TSTPFormat)
       {
          OutputFormat = TSTPFormat;
-         DocOutputFormat = tstp_format;
+         if(DocOutputFormat == no_format)
+         {
+            DocOutputFormat = tstp_format;
+         }
+      }
+      if(DocOutputFormat==no_format)
+      {
+         DocOutputFormat = pcl_format;
       }
 
       FormulaAndClauseSetParse(in, proofstate->axioms,
@@ -989,8 +996,8 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_LOP_PARSE:
             parse_format = LOPFormat;
             break;
-      case OPT_TPTP_PARSE:
-            parse_format = TPTPFormat;
+      case OPT_PCL_PRINT:
+            DocOutputFormat = pcl_format;
             break;
       case OPT_TPTP_PRINT:
             OutputFormat = TPTPFormat;

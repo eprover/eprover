@@ -1785,54 +1785,54 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
       concl = EqnListParse(in, bank, Semicolon);
       if(TestInpTok(in, Colon))
       {
-    if(EqnListLength(concl)>1)
-    {
-    AktTokenError(in,
+         if(EqnListLength(concl)>1)
+         {
+            AktTokenError(in,
              "Procedural rule cannot have more than one "
-             "head literal",
-             false);
-    }
-    procedural = true;
+                          "head literal",
+                          false);
+         }
+         procedural = true;
       }
       else if(TestInpTok(in, QuestionMark))
       {
-    if(EqnListLength(concl)>0)
-    {
-       AktTokenError(in,
-           "Query should consist only of tail literals",
-           false);
-    }
-    type = CPTypeNegConjecture;
-    /* printf("CPTypeConjecture\n"); */
+         if(EqnListLength(concl)>0)
+         {
+            AktTokenError(in,
+                          "Query should consist only of tail literals",
+                          false);
+         }
+         type = CPTypeNegConjecture;
+         /* printf("CPTypeConjecture\n"); */
       }
       if(TestInpTok(in, Fullstop))
       {
-    if(EqnListLength(concl)>1)
-    {
-       AktTokenError(in,
-           "Procedural fact cannot have more than one "
-           "literal",
-           false);
-    }
-    procedural = true;
+         if(EqnListLength(concl)>1)
+         {
+            AktTokenError(in,
+                          "Procedural fact cannot have more than one "
+                          "literal",
+                          false);
+         }
+         procedural = true;
       }
       else
       {
-    AcceptInpTok(in, LesserSign | Colon | QuestionMark);
-    AcceptInpTokNoSkip(in, Hyphen);
+         AcceptInpTok(in, LesserSign | Colon | QuestionMark);
+         AcceptInpTokNoSkip(in, Hyphen);
 
-    precond = EqnListParse(in, bank, Comma);
+         precond = EqnListParse(in, bank, Comma);
 
-    if(procedural && EqnListLength(precond)==0)
-    {
-       AktTokenError(in,
-           "Procedural rule or query needs at least one "
-           "tail literal (Hey! I did not make this "
-           " syntax! -StS)",
-           false);
-    }
-    EqnListNegateEqns(precond);
-    EqnListAppend(&concl, precond);
+         if(procedural && EqnListLength(precond)==0)
+         {
+            AktTokenError(in,
+                          "Procedural rule or query needs at least one "
+                          "tail literal (Hey! I did not make this "
+                          " syntax! -StS)",
+                          false);
+         }
+         EqnListNegateEqns(precond);
+         EqnListAppend(&concl, precond);
       }
    }
    AcceptInpTok(in, Fullstop);

@@ -71,6 +71,7 @@ typedef enum
    OPT_NO_INFIX,
    OPT_FULL_EQ_REP,
    OPT_LOP_PARSE,
+   OPT_PCL_PRINT,
    OPT_TPTP_PARSE,
    OPT_TPTP_PRINT,
    OPT_TPTP_FORMAT,
@@ -483,6 +484,11 @@ OptCell opts[] =
     "almost always correctly recognize TPTP-3, but it may "
     "misidentify E-LOP files that use TPTP meta-identifiers as "
     "logical symbols."},
+
+   {OPT_PCL_PRINT,
+    '\0', "pcl-out",
+    NoArg, NULL,
+    "Set PCL as the proof object output format."},
 
    {OPT_TPTP_PARSE,
     '\0', "tptp-in",

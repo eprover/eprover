@@ -30,7 +30,7 @@ Changes
 /*---------------------------------------------------------------------*/
 
 
-OutputFormatType DocOutputFormat   = pcl_format;
+OutputFormatType DocOutputFormat   = no_format;
 bool             PCLFullTerms   = true;
 bool             PCLStepCompact = false;
 int              PCLShellLevel = 0;

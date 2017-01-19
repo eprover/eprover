@@ -126,7 +126,7 @@ OptCell opts[] =
 
    {OPT_SEED_METHODS,
     'm', "seed-method",
-    OptArg, "p",
+    OptArg, "lda",
     "Specify how to select seed axioms when artificially seeding is used."
     "The argument is a string of letters, each indicating one method to "
     "use. The letters are: \n"

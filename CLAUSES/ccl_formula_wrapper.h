@@ -89,6 +89,8 @@ WFormula_p WFormulaFlatCopy(WFormula_p form);
 void       WFormulaGCMarkCells(WFormula_p form);
 void       WFormulaMarkPolarity(WFormula_p form);
 
+char*      WFormulaGetId(WFormula_p form);
+
 WFormula_p WFormulaTPTPParse(Scanner_p in, TB_p terms);
 void       WFormulaTPTPPrint(FILE* out, WFormula_p form, bool fullterms);
 

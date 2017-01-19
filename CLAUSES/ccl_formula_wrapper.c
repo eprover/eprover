@@ -31,6 +31,8 @@ Changes
 
 long global_formula_counter = LONG_MIN;
 long FormulaDefLimit        = TFORM_RENAME_LIMIT;
+bool FormulasKeepInputNames = true;
+
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -193,6 +195,48 @@ void WFormulaMarkPolarity(WFormula_p form)
    TFormulaMarkPolarity(form->terms, form->tformula, 1);
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: WFormulaGetId()
+//
+//   Return an identifier for the formula. The pointer to the
+//   identifier is good until the next call to this function or until
+//   the formula is being  destroyed, whichever comes first.
+//
+// Global Variables: -
+//
+// Side Effects    : FormulasKeepInputNames
+//
+/----------------------------------------------------------------------*/
+
+char* WFormulaGetId(WFormula_p form)
+{
+   static char ident[32]; //big enough for 64 bit integers and then some
+   char prefix;
+   long id;
+
+   if(FormulasKeepInputNames
+      &&form->info
+      &&form->info->name)
+   {
+      return form->info->name;
+   }
+   if(form->ident < 0)
+   {
+      id = form->ident - LONG_MIN;
+      prefix = 'i';
+   }
+   else
+   {
+      id = form->ident;
+      prefix = 'c';
+   }
+   sprintf(ident, "%c_0_%ld", prefix, id);
+   return ident;
+}
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: WFormulaTPTPParse()
@@ -272,8 +316,6 @@ WFormula_p WFormulaTPTPParse(Scanner_p in, TB_p terms)
 void WFormulaTPTPPrint(FILE* out, WFormula_p form, bool fullterms)
 {
    char *typename;
-   char prefix;
-   long id;
 
    switch(FormulaQueryType(form))
    {
@@ -294,17 +336,7 @@ void WFormulaTPTPPrint(FILE* out, WFormula_p form, bool fullterms)
     typename = "unknown";
     break;
    }
-   if(form->ident < 0)
-   {
-      id = form->ident - LONG_MIN;
-      prefix = 'i';
-   }
-   else
-   {
-      id = form->ident;
-      prefix = 'e';
-   }
-   fprintf(out, "input_formula(f%c_%ld,%s,", prefix, id, typename);
+   fprintf(out, "input_formula(%s,%s,", WFormulaGetId(form), typename);
 
    TFormulaTPTPPrint(out, form->terms, form->tformula,fullterms, false);
    fprintf(out,").");
@@ -417,16 +449,12 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
              bool complete)
 {
    char *typename = "plain", *formula_kind = "fof";
-   char prefix;
-   long id;
    bool is_untyped = TFormulaIsUntyped(form->tformula);
+
 
    if(form->is_clause)
    {
-      Clause_p clause = WFormClauseToClause(form);
-      ClauseTSTPPrint(out, clause, fullterms, complete);
-      ClauseFree(clause);
-      return;
+      formula_kind = "cnf";
    }
 
    if(!is_untyped)
@@ -460,24 +488,22 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
    default:
     break;
    }
-   if(form->ident < 0)
+   fprintf(out, "%s(%s, %s", formula_kind, WFormulaGetId(form), typename);
+   fprintf(out, ", ");
+
+   if(form->is_clause)
    {
-      id = form->ident - LONG_MIN;
-      prefix = 'i';
+      Clause_p clause = WFormClauseToClause(form);
+      ClauseTSTPCorePrint(out, clause, fullterms);
+      ClauseFree(clause);
    }
    else
    {
-      id = form->ident;
-      prefix = 'c';
+      fprintf(out, "(");
+      TFormulaTPTPPrint(out, form->terms, form->tformula,fullterms, false);
+      fprintf(out, ")");
+      //fprintf(out, "<dummy %p in %p>", form->tformula, form->terms);
    }
-   fprintf(out, "%s(%c_0_%ld, %s", formula_kind, prefix, id, typename);
-   fprintf(out, ", (");
-
-   TFormulaTPTPPrint(out, form->terms, form->tformula,fullterms, false);
-   //fprintf(out, "<dummy %p in %p>", form->tformula, form->terms);
-
-
-   fprintf(out, ")");
    if(complete)
    {
       fprintf(out, ").");
@@ -734,6 +760,7 @@ WFormula_p WFormulaOfClause(Clause_p clause, TB_p bank)
    res = WTFormulaAlloc(bank, form);
    return res;
 }
+
 
 
 /*---------------------------------------------------------------------*/
