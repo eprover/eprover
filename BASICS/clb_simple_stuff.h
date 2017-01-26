@@ -51,8 +51,7 @@ typedef struct
         SecureMalloc(number * sizeof(WeightedObjectCell))
 #define WeightedObjectArrayFree(array) FREE(array)
 
-int     WeightedObjectCompareFun(WeightedObject_p o1, WeightedObject_p
-             o2);
+int     WeightedObjectCompareFun(WeightedObject_p o1, WeightedObject_p o2);
 
 #define WeightedObjectArraySort(array, size) \
         qsort(array, size, sizeof(WeightedObjectCell),\

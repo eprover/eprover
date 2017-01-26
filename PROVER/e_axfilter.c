@@ -48,6 +48,7 @@ typedef enum
    OPT_OUTPUT,
    OPT_FILTER,
    OPT_SEED_SYMBOLS,
+   OPT_SEED_SUBSAMPLE,
    OPT_SEED_METHODS,
    OPT_DUMP_FILTER,
    OPT_PRINT_STATISTICS,
@@ -61,6 +62,14 @@ typedef enum
    OPT_TSTP_FORMAT,
    OPT_DUMMY
 }OptionCodes;
+
+typedef enum
+{
+   SubSNone,
+   SubSMost,
+   SubSLeast,
+   SubSRand
+}SubSampleMethod;
 
 
 
@@ -123,6 +132,15 @@ OptCell opts[] =
     "symbols to use. 'p' indicates predicate symbols, 'f' non-constant "
     "function symbols, and 'c' constants. Note that this will create "
     "potentially multiple output files for each activated symbols."},
+
+   {OPT_SEED_SUBSAMPLE,
+    '\0', "seed-subsample",
+    OptArg, "r1000",
+    "Subsample from the set of eligible seed symbols. The argument is a "
+    "one-character designator for the method ('m' uses the symbols that "
+    "occur in the most input formulas, 'l' uses the symbols that occur in "
+    "the least number of formulas, and 'r' samples randomly), followed by "
+    "the number of symbols to select."},
 
    {OPT_SEED_METHODS,
     'm', "seed-method",
@@ -216,6 +234,9 @@ bool     seed_preds   = false,
          seed_large   = false,
          seed_diverse = false,
          seed_all     = true;
+
+SubSampleMethod subsample   = SubSNone;
+long            sample_size = LONG_MAX;
 
 
 /*---------------------------------------------------------------------*/
@@ -567,6 +588,76 @@ void seeded_filter_diverse(StructFOFSpec_p ctrl,
    DStrFree(desc);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: subsample_seed_symbols()
+//
+//    Optionally reduce the set of seed symbols, based on the value of
+//    the variables below.
+//
+// Global Variables: subsample, sample_size
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+void subsample_seed_symbols(StructFOFSpec_p ctrl, PStack_p seed_symbols)
+{
+   WeightedObject_p weight_array;
+   long array_size, i, limit;
+   FunCode symbol;
+
+   if(subsample == SubSNone)
+   {
+      return;
+   }
+
+   array_size = PStackGetSP(seed_symbols);
+
+   weight_array = WeightedObjectArrayAlloc(array_size);
+
+   switch(subsample)
+   {
+   case SubSRand:
+         for(i=0; i<array_size; i++)
+         {
+            weight_array[i].weight = JKISSRandDouble();
+            weight_array[i].object.i_val = PStackPopInt(seed_symbols);
+         }
+         assert(PStackEmpty(seed_symbols));
+         break;
+   case SubSMost:
+         for(i=0; i<array_size; i++)
+         {
+            symbol = PStackPopInt(seed_symbols);
+            weight_array[i].weight = ctrl->f_distrib->dist_array[symbol].fc_freq;
+            weight_array[i].object.i_val = symbol;
+         }
+         break;
+   case SubSLeast:
+         for(i=0; i<array_size; i++)
+         {
+            symbol = PStackPopInt(seed_symbols);
+            weight_array[i].weight = -ctrl->f_distrib->dist_array[symbol].fc_freq;
+            weight_array[i].object.i_val = symbol;
+         }
+         assert(PStackEmpty(seed_symbols));
+         break;
+   default:
+         assert(false && "Subsampling method not known or not yet implemented");
+         break;
+   }
+   WeightedObjectArraySort(weight_array, array_size);
+   limit = MIN(array_size, sample_size);
+   for(i=0; i<limit; i++)
+   {
+      // printf("Symbol: %ld=%s\n", weight_array[i].object.i_val,
+      // SigFindName(ctrl->sig, weight_array[i].object.i_val));
+      PStackPushInt(seed_symbols, weight_array[i].object.i_val);
+   }
+   WeightedObjectArrayFree(weight_array);
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -590,6 +681,7 @@ void seeded_filters(StructFOFSpec_p ctrl,
    FunCode seed;
 
    find_seed_symbols(ctrl->sig, seed_symbols);
+   subsample_seed_symbols(ctrl, seed_symbols);
 
    while(!PStackEmpty(seed_symbols))
    {
@@ -798,6 +890,31 @@ CLState_p process_options(int argc, char* argv[])
                      break;
                }
             }
+            break;
+      case OPT_SEED_SUBSAMPLE:
+            if(strlen(arg)<2 ||
+               ((arg[0] != 'm') && (arg[0] != 'l') && (arg[0] != 'r' )) ||
+               ((arg[1] < '0') || (arg[1] > '9')))
+            {
+               Error("Option --seed-subsample) expects "
+                     "argument of the form [mlr][0-9]+", USAGE_ERROR);
+            }
+            switch(arg[0])
+            {
+            case 'm':
+                  subsample = SubSMost;
+                  break;
+            case 'l':
+                  subsample = SubSLeast;
+                  break;
+            case 'r':
+                  subsample = SubSRand;
+                  break;
+            default:
+                  assert(false && "Impossible argument in string");
+                  break;
+            }
+            sample_size = atol(arg+1);
             break;
       case OPT_SEED_SYMBOLS:
             CheckOptionLetterString(arg, "pfc", "-S (--seed-symbols)");
