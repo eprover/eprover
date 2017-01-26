@@ -29,6 +29,10 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
+static unsigned int xstate = 123456789,
+   ystate = 987654321,
+   zstate = 43219876,
+   cstate = 6543217; /* State for KISS RNG*/
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -71,6 +75,72 @@ int WeightedObjectCompareFun(WeightedObject_p o1, WeightedObject_p o2)
    }
    return res;
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: JKISSSeed()
+//
+//   Initialize the portable KISS random number generator.
+//
+// Global Variables: xstate, ystate, zstate, cstate
+//
+// Side Effects    : Sets xstate, ystate, zstate
+//
+/----------------------------------------------------------------------*/
+
+void JKISSSeed(int seed1, int seed2, int seed3)
+{
+   xstate = seed1;
+   ystate = seed2;
+   zstate = seed3;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: JKISSRand()
+//
+//   Improved "Keep It Simple, Stupid" RNG generator, adapted from the
+//   public domain version by David Jones (d.jones@cs.ucl.ac.uk).
+//
+// Global Variables: xstate, ystate, zstate, cstate
+//
+// Side Effects    : Permutes state
+//
+/----------------------------------------------------------------------*/
+
+unsigned JKISSRand()
+{
+   unsigned long long t;
+   xstate = 314527869 * xstate + 1234567;
+   ystate ^= ystate << 5;
+   ystate ^= ystate >> 7;
+   ystate ^= ystate << 22;
+   t = 4294584393ULL * zstate + cstate;
+   cstate = t >> 32;
+   zstate = t;
+   return xstate + ystate + zstate;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: JKISSRandDouble()
+//
+//    Returns a pseudo-random number r with 0 <= r < 1.
+//
+// Global Variables: As JKISSRand()
+//
+// Side Effects    : Per JKISSRand()
+//
+/----------------------------------------------------------------------*/
+
+double JKISSRandDouble()
+{
+   return JKISSRand() / 4294967296.0;
+}
+
+
 
 /*-----------------------------------------------------------------------
 //
@@ -131,5 +201,3 @@ char* IndentStr(int level)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
