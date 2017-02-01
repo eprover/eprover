@@ -972,7 +972,7 @@ long ComputeFromSimParamodulants(ParamodInfo_p pminfo,
 //
 /----------------------------------------------------------------------*/
 
-long ComputeAllParamodulantsIndexed(TB_p bank, OCB_p ocb,
+long ComputeAllParamodulantsIndexed(Tb_p bank, OCB_p ocb,
                                     VarBank_p freshvars,
                                     Clause_p clause,
                                     Clause_p parent_alias,
@@ -1011,5 +1011,3 @@ long ComputeAllParamodulantsIndexed(TB_p bank, OCB_p ocb,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

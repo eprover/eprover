@@ -691,7 +691,8 @@ Clause_p clause_set_subsumes_clause(ClauseSet_p set, Clause_p sub_candidate)
    {
       if(clause_subsumes_clause(handle, sub_candidate))
       {
-         ClauseSetProp(handle, ClauseQueryProp(sub_candidate,CPIsSOS));
+         // ClauseSetProp(handle, ClauseQueryProp(sub_candidate,CPIsSOS));
+         // Not a SOS clause!
          return handle;
       }
    }
@@ -727,8 +728,9 @@ Clause_p clause_tree_find_subsuming_clause(PTree_p tree, Clause_p sub_candidate)
    if(clause_subsumes_clause(clause,sub_candidate))
    {
       /* DocClauseQuote(GlobalOut, OutputLevel, 6, sub_candidate,
-    "subsumed", clause); */
-      ClauseSetProp(clause, ClauseQueryProp(sub_candidate,CPIsSOS));
+         "subsumed", clause); */
+      //ClauseSetProp(clause, ClauseQueryProp(sub_candidate,CPIsSOS));
+      // Not a SOS clause!
       return clause;
    }
    clause =  clause_tree_find_subsuming_clause(tree->lson, sub_candidate);
@@ -817,7 +819,8 @@ void clause_tree_find_subsumed_clauses(PTree_p tree, Clause_p subsumer,
    {
       /* DocClauseQuote(GlobalOut, OutputLevel, 6, clause,
     "subsumed", subsumer);*/
-      ClauseSetProp(subsumer, ClauseQueryProp(clause,CPIsSOS));
+      //ClauseSetProp(subsumer, ClauseQueryProp(clause,CPIsSOS));
+      // Not a SOS clause!
       PStackPushP(res, clause);
    }
    clause_tree_find_subsumed_clauses(tree->lson, subsumer, res);
@@ -1055,10 +1058,11 @@ bool UnitClauseSubsumesClause(Clause_p unit, Clause_p clause)
 
    UnitClauseClauseSubsumptionCalls++;
    res = LiteralSubsumesClause(unit->literals, clause);
-   if(res)
-   {
-      ClauseSetProp(unit, ClauseQueryProp(clause,CPIsSOS));
-   }
+   //if(res)
+   //{
+   //   ClauseSetProp(unit, ClauseQueryProp(clause,CPIsSOS));
+   //}
+   // Not a SOS clause!
    return res;
 }
 
@@ -1083,10 +1087,11 @@ Clause_p UnitClauseSetSubsumesClause(ClauseSet_p set, Clause_p
 
    res = unit_clause_set_subsumes_clause(set, clause);
 
-   if(res)
-   {
-      ClauseSetProp(res, ClauseQueryProp(clause,CPIsSOS));
-   }
+   //if(res)
+   //{
+   //   ClauseSetProp(res, ClauseQueryProp(clause,CPIsSOS));
+   // }
+   // Not a SOS clause!
 
    return res;
 }
@@ -1149,31 +1154,31 @@ bool ClausePositiveSimplifyReflect(ClauseSet_p set, Clause_p clause)
       res = NULL;
       if(!EqnIsPositive(*handle))
       {
-    res = StrongUnitForwardSubsumption?
-       unit_clause_set_strongsubsumes_termpair(set,
-                      (*handle)->lterm,
-                      (*handle)->rterm,
-                      true):
-       FindSimplifyingUnit(set,
-            (*handle)->lterm,
-            (*handle)->rterm,
-            true);
+         res = StrongUnitForwardSubsumption?
+            unit_clause_set_strongsubsumes_termpair(set,
+                                                    (*handle)->lterm,
+                                                    (*handle)->rterm,
+                                                    true):
+            FindSimplifyingUnit(set,
+                                (*handle)->lterm,
+                                (*handle)->rterm,
+                                true);
       }
       if(res)
       {
-    ClauseRemoveLiteralRef(clause, handle);
-    if(ClauseQueryProp(res->clause, CPIsSOS))
-    {
-       ClauseSetProp(clause, CPIsSOS);
-    }
+         ClauseRemoveLiteralRef(clause, handle);
+         if(ClauseQueryProp(res->clause, CPIsSOS))
+         {
+            ClauseSetProp(clause, CPIsSOS);
+         }
          ClauseDelProp(clause, CPInitial|CPLimitedRW);
-    DocClauseModificationDefault(clause, inf_simplify_reflect,
-                  res->clause);
+         DocClauseModificationDefault(clause, inf_simplify_reflect,
+                                      res->clause);
          ClausePushDerivation(clause, DCSR, res->clause, NULL);
       }
       else
       {
-    handle = &((*handle)->next);
+         handle = &((*handle)->next);
       }
    }
    return (clause->literals ==  NULL);
@@ -1205,26 +1210,26 @@ bool ClauseNegativeSimplifyReflect(ClauseSet_p set, Clause_p clause)
       res = NULL;
       if(EqnIsPositive(*handle))
       {
-    res = FindSignedTopSimplifyingUnit(set,
-                   (*handle)->lterm,
-                   (*handle)->rterm,
-                   false);
+         res = FindSignedTopSimplifyingUnit(set,
+                                            (*handle)->lterm,
+                                            (*handle)->rterm,
+                                            false);
       }
       if(res)
       {
-    ClauseRemoveLiteralRef(clause, handle);
-    if(ClauseQueryProp(res->clause, CPIsSOS))
-    {
-       ClauseSetProp(clause, CPIsSOS);
-    }
+         ClauseRemoveLiteralRef(clause, handle);
+         if(ClauseQueryProp(res->clause, CPIsSOS))
+         {
+            ClauseSetProp(clause, CPIsSOS);
+         }
          ClauseDelProp(clause, CPInitial|CPLimitedRW);
-    DocClauseModificationDefault(clause, inf_simplify_reflect,
-                  res->clause);
+         DocClauseModificationDefault(clause, inf_simplify_reflect,
+                                      res->clause);
          ClausePushDerivation(clause, DCSR, res->clause, NULL);
       }
       else
       {
-    handle = &((*handle)->next);
+         handle = &((*handle)->next);
       }
    }
    return (clause->literals ==  NULL);
@@ -1483,5 +1488,3 @@ Clause_p ClauseSetFindVariantClause(ClauseSet_p set,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
