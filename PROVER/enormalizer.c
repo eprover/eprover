@@ -746,54 +746,54 @@ CLState_p process_options(int argc, char* argv[])
 void print_help(FILE* out)
 {
    fprintf(out, "\n\
-"NAME " " VERSION "\n                           \
-\n                                              \
-Usage: enormalizer [options] [files]\n          \
-\n                                                                      \
-Read a set of rewrite rules (in the form of unit clauses and/or\n       \
-formulas) with a single positive literal) and sets of terms, clauses,\n \
-and formulas (the \"normalization targets\") to rewrite. Rewrite rules\n \
-are read from the left to right as specified in the input, without\n    \
-regard to any term order.\n                                             \
-\n                                                                      \
-The normalization targets are ewritten using these rewrite rules until\n \
-a normal form is reached. If the rule system is not confluent, the\n    \
-results are deterministic but unspecified. If the rule system is not\n  \
-terminating, rewriting might get stuck into an infinite loop. \n        \
-\n                                                                      \
-The rewrite strategy is leftmost-innermost. The order of rewrite rules\n \
-tried at each subterm is deterministic, but unspecified and\n           \
-independent of input order (it depends on the order in which rules are\n \
-returned from the perfect discrimination tree index).\n                 \
-\n                                                                      \
-The normalized terms/clauses/formulas are printed.\n                    \
+"NAME " " VERSION "\n\
+\n\
+Usage: enormalizer [options] [files]\n\
+\n\
+Read a set of rewrite rules (in the form of unit clauses and/or\n\
+formulas) with a single positive literal) and sets of terms, clauses,\n\
+and formulas (the \"normalization targets\") to rewrite. Rewrite rules\n\
+are read from the left to right as specified in the input, without\n\
+regard to any term order.\n\
+\n\
+The normalization targets are ewritten using these rewrite rules until\n\
+a normal form is reached. If the rule system is not confluent, the\n\
+results are deterministic but unspecified. If the rule system is not\n\
+terminating, rewriting might get stuck into an infinite loop. \n\
+\n\
+The rewrite strategy is leftmost-innermost. The order of rewrite rules\n\
+tried at each subterm is deterministic, but unspecified and\n\
+independent of input order (it depends on the order in which rules are\n\
+returned from the perfect discrimination tree index).\n\
+\n\
+The normalized terms/clauses/formulas are printed.\n\
 \n");
    PrintOptions(stdout, opts, "Options\n\n");
    fprintf(out, "\n\
-"STS_COPYRIGHT", " STS_MAIL "\n                 \
-\n                                                                      \
-This program is a part of the support structure for the E equational\n  \
-theorem prover. You can find the latest version of the E distribution\n \
+"STS_COPYRIGHT", " STS_MAIL "\n\
+\n\
+This program is a part of the support structure for the E equational\n\
+theorem prover. You can find the latest version of the E distribution\n\
 as well as additional information at\n"
            E_URL
            "\n\n\
-This program is free software; you can redistribute it and/or modify\n  \
-it under the terms of the GNU General Public License as published by\n  \
-the Free Software Foundation; either version 2 of the License, or\n     \
-(at your option) any later version.\n                                   \
-\n                                                                      \
-This program is distributed in the hope that it will be useful,\n       \
-but WITHOUT ANY WARRANTY; without even the implied warranty of\n        \
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n         \
-GNU General Public License for more details.\n                          \
-\n                                                                      \
-You should have received a copy of the GNU General Public License\n     \
-along with this program (it should be contained in the top level\n      \
-directory of the distribution in the file COPYING); if not, write to\n  \
-the Free Software Foundation, Inc., 59 Temple Place, Suite 330,\n       \
-Boston, MA  02111-1307 USA\n                                            \
-\n                                                                      \
-The original copyright holder can be contacted as\n                     \
+This program is free software; you can redistribute it and/or modify\n\
+it under the terms of the GNU General Public License as published by\n\
+the Free Software Foundation; either version 2 of the License, or\n\
+(at your option) any later version.\n\
+\n\
+This program is distributed in the hope that it will be useful,\n\
+but WITHOUT ANY WARRANTY; without even the implied warranty of\n\
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n\
+GNU General Public License for more details.\n\
+\n\
+You should have received a copy of the GNU General Public License\n\
+along with this program (it should be contained in the top level\n\
+directory of the distribution in the file COPYING); if not, write to\n\
+the Free Software Foundation, Inc., 59 Temple Place, Suite 330,\n\
+Boston, MA  02111-1307 USA\n\
+\n\
+The original copyright holder can be contacted as\n\
 \n"
            STS_SNAIL
            "\n");
