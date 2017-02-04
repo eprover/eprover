@@ -756,7 +756,7 @@ and formulas (the \"normalization targets\") to rewrite. Rewrite rules\n\
 are read from the left to right as specified in the input, without\n\
 regard to any term order.\n\
 \n\
-The normalization targets are ewritten using these rewrite rules until\n\
+The normalization targets are rewritten using these rewrite rules until\n\
 a normal form is reached. If the rule system is not confluent, the\n\
 results are deterministic but unspecified. If the rule system is not\n\
 terminating, rewriting might get stuck into an infinite loop. \n\
