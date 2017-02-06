@@ -34,6 +34,10 @@ Changes
 
 
 long  OutputLevel = 1;
+int   SampleUnprocessedSeed = 0;
+int   PrintUnprocessed = 0;
+bool  PrintProcessed = false;
+bool  PrintLogits = false;
 FILE* GlobalOut;
 int   GlobalOutFD = STDOUT_FILENO;
 
