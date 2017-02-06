@@ -44,6 +44,10 @@ Changes
 /*---------------------------------------------------------------------*/
 
 extern long  OutputLevel;
+extern int   SampleUnprocessedSeed;
+extern int   PrintUnprocessed;
+extern bool  PrintProcessed;
+extern bool  PrintLogits;
 extern FILE* GlobalOut;
 extern int   GlobalOutFD;
 

@@ -25,3 +25,6 @@ MohamedBassem <medoox240@gmail.com>
 
 Martin Moehrmann <moehrmann@eprover.org>
 - Cleanup, local optimisations
+
+Google Inc. <{smloos,geoffreyi}@google.com>
+- Features for integration with TensorFlow

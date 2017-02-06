@@ -31,6 +31,14 @@ Changes
 
 PERF_CTR_DEFINE(ClauseEvalTimer);
 
+int LimitTF = false;
+int TFEvalLimit = INT_MAX;
+int TFTimeLimit = INT_MAX;
+int TFLimitReached = false;
+int TFNum = INT_MAX;
+int TFNumEval = 0;
+struct timespec TFLimitStart = {0, 0};
+
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -228,6 +236,8 @@ HCB_p HCBAlloc(void)
    handle->hcb_select    = HCBStandardClauseSelect;
    handle->hcb_exit      = default_exit_fun;
    handle->data          = NULL;
+   handle->save_batch_sizes = false;
+   handle->list_batch_sizes = PQueueAlloc();
 
    return handle;
 }
@@ -256,6 +266,7 @@ void HCBFree(HCB_p junk)
    {
       junk->hcb_exit(junk->data);
    }
+   PQueueFree(junk->list_batch_sizes);
    HCBCellFree(junk);
 }
 
@@ -294,6 +305,63 @@ long HCBAddWFCB(HCB_p hcb, WFCB_p wfcb, long steps)
 }
 
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetEvalInsertQueue()
+//
+// Evaluate each clause in the from queue according to given heuristics,
+// and inserts it into the set, removing it from the queue.
+//
+// Args:
+//   set: set to be inserted into
+//   from: clauses to be inserted
+//   heuristic: heuristic by which clauses should be reweighted
+//   is_ctrl_hcb: true if the heuristic is from the proof control
+//   diff: fixed value added uniformly to the evaluation of all clauses in from
+//
+// Global Variables: -
+//
+// Side Effects    : Modifies batch size data in HCB,
+//                   adds evaluations, by eval functions
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetEvalInsertQueue(ClauseSet_p set, PQueue_p from, HCB_p hcb,
+                              bool is_ctrl_hcb, int diff) {
+  if (!PQueueEmpty(from) && is_ctrl_hcb)
+  {
+    // Send a batch of clauses to TensorFlow, save their resulting evaluations
+    // This does nothing if a TensorFlow heuristic was not parsed.
+    TensorFlowWeightBatchCompute(from);
+  }
+
+  // Insert
+  int batch_size = 0;
+  while (!PQueueEmpty(from))
+  {
+    batch_size++;
+    Clause_p clause = PQueueGetNextP(from);
+    HCBClauseEvaluate(hcb, clause);
+    DocClauseQuoteDefault(6, clause, "eval");
+    if (diff)
+    {
+      EvalListChangePriority(clause->evaluations, diff);
+    }
+    ClauseSetInsert(set, clause);
+  }
+
+  // TODO(smloos): investigate using a ClauseSet data structure for pending.
+  PQueueCellFree(from);
+  from = PQueueAlloc();
+
+  if (hcb->save_batch_sizes && batch_size > 0)
+  {
+    PQueueStoreInt(hcb->list_batch_sizes, batch_size);
+  }
+
+  return set->members;
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -338,26 +406,53 @@ void HCBClauseEvaluate(HCB_p hcb, Clause_p clause)
 //
 /----------------------------------------------------------------------*/
 
-Clause_p HCBStandardClauseSelect(HCB_p hcb, ClauseSet_p set)
+Clause_p HCBStandardClauseSelect(HCB_p hcb, ClauseSet_p set, PQueue_p pending)
 {
+   ClauseSetEvalInsertQueue(set, pending, hcb, true, 0);
+
    Clause_p clause;
 
    clause = ClauseSetFindBest(set, hcb->current_eval);
 
    hcb->select_count++;
+   UpdateHCBEvalCounters(hcb);
+
+   return clause;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: UpdateHCBEvalCounters()
+//
+//   Updates current_eval to be consistent with current_counter.
+//   Wraps counters based on select_switch and TFNum.
+//
+// Global Variables: -
+//
+// Side Effects    : Modifies HCB
+//
+/----------------------------------------------------------------------*/
+
+void UpdateHCBEvalCounters(HCB_p hcb)
+{
    while(hcb->select_count ==
-    PDArrayElementInt(hcb->select_switch,hcb->current_eval))
+         PDArrayElementInt(hcb->select_switch,hcb->current_eval))
    {
       hcb->current_eval++;
    }
-   if(hcb->current_eval == hcb->wfcb_no)
+   if((hcb->current_eval == hcb->wfcb_no && !LimitTF) ||
+      (LimitTF && !TFLimitReached && hcb->select_count >= TFNum))
    {
       hcb->select_count = 0;
       hcb->current_eval = 0;
    }
-   return clause;
+   if(LimitTF && TFLimitReached && hcb->current_eval == hcb->wfcb_no)
+   {
+      hcb->select_count = TFNum;
+      hcb->current_eval = TFNumEval;
+   }
 }
-
 
 /*-----------------------------------------------------------------------
 //
@@ -371,9 +466,11 @@ Clause_p HCBStandardClauseSelect(HCB_p hcb, ClauseSet_p set)
 //
 /----------------------------------------------------------------------*/
 
-Clause_p HCBSingleWeightClauseSelect(HCB_p hcb, ClauseSet_p set)
+Clause_p HCBSingleWeightClauseSelect(HCB_p hcb, ClauseSet_p set,
+                                     PQueue_p pending)
 {
-   return ClauseSetFindBest(set, 0);
+  ClauseSetEvalInsertQueue(set, pending, hcb, true, 0);
+  return ClauseSetFindBest(set, 0);
 }
 
 

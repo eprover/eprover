@@ -37,7 +37,7 @@ Changes
 #include <ccl_clausefunc.h>
 #include <che_wfcbadmin.h>
 #include <che_litselection.h>
-
+#include <time.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -163,8 +163,8 @@ typedef struct hcb_cell
 
    /* Selection function, this function is called to select an
       unprocessed clause from the set */
-   Clause_p        (*hcb_select)(struct hcb_cell* hcb, ClauseSet_p
-             set);
+   Clause_p        (*hcb_select)(struct hcb_cell* hcb, ClauseSet_p set,
+                                 PQueue_p pending);
 
    /* Some HCB selection or evaluation functions may need data of
       their own. If yes, their creation function can allocate data,
@@ -172,6 +172,12 @@ typedef struct hcb_cell
       only called if data != NULL. */
    GenericExitFun  hcb_exit;
    void*           data;
+
+   /* True when flag to print the batch sizes is set */
+   bool            save_batch_sizes;
+   /* Stores the number of clauses in pending when the pending queue is
+      evaluated and inserted into unprocessed. */
+   PQueue_p        list_batch_sizes;
 }HCBCell, *HCB_p;
 
 #define HCB_DEFAULT_HEURISTIC "Default"
@@ -193,6 +199,14 @@ typedef Clause_p (*ClauseSelectFun)(HCB_p hcb, ClauseSet_p set);
 
 PERF_CTR_DECL(ClauseEvalTimer);
 
+extern  int   LimitTF;
+extern  int   TFEvalLimit;
+extern  int   TFTimeLimit;
+extern  int   TFLimitReached;
+extern  int   TFNum;
+extern  int   TFNumEval;
+extern  struct timespec TFLimitStart;
+
 #define HeuristicParmsCellAlloc() \
    (HeuristicParmsCell*)SizeMalloc(sizeof(HeuristicParmsCell))
 #define HeuristicParmsCellFree(junk) \
@@ -209,9 +223,13 @@ void             HeuristicParmsFree(HeuristicParms_p junk);
 HCB_p    HCBAlloc(void);
 void     HCBFree(HCB_p junk);
 long     HCBAddWFCB(HCB_p hcb, WFCB_p wfcb, long steps);
+long     ClauseSetEvalInsertQueue(ClauseSet_p set, PQueue_p from, HCB_p hcb,
+                                  bool is_ctrl_hcb, int diff);
 void     HCBClauseEvaluate(HCB_p hcb, Clause_p clause);
-Clause_p HCBStandardClauseSelect(HCB_p hcb, ClauseSet_p set);
-Clause_p HCBSingleWeightClauseSelect(HCB_p hcb, ClauseSet_p set);
+void     UpdateHCBEvalCounters(HCB_p hcb);
+Clause_p HCBStandardClauseSelect(HCB_p hcb, ClauseSet_p set, PQueue_p pending);
+Clause_p HCBSingleWeightClauseSelect(HCB_p hcb, ClauseSet_p set,
+                                     PQueue_p pending);
 
 long     HCBClauseSetDelProp(HCB_p hcb, ClauseSet_p set, long number,
                              FormulaProperties prop);

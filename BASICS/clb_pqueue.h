@@ -86,6 +86,7 @@ IntOrP   PQueueElement(PQueue_p queue, long index);
 
 long     PQueueTailIndex(PQueue_p queue);
 long     PQueueIncIndex(PQueue_p queue, long index);
+void     PQueuePrintPrefix(char* prefix, PQueue_p clauses, bool fullterms);
 
 /*---------------------------------------------------------------------*/
 /*                       Inline-Functions                              */

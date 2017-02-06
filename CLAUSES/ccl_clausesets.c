@@ -22,6 +22,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "ccl_clausesets.h"
+#include <time.h>
 
 
 
@@ -772,6 +773,18 @@ Clause_p ClauseSetFindBest(ClauseSet_p set, int idx)
    assert(evaluation->object);
    clause = evaluation->object;
    assert(clause->set == set);
+
+   if(PrintProcessed)
+   {
+      fprintf(GlobalOut, "\nProcessing clause: ");
+      ClausePrint(GlobalOut, clause, true);
+   }
+   if(PrintLogits)
+   {
+     fprintf(GlobalOut, "\nEvaluation score (logit): %f",
+             evaluation->evals[idx].heuristic);
+   }
+
    return clause;
 }
 
@@ -853,6 +866,60 @@ void ClauseSetPrintPrefix(FILE* out, char* prefix, ClauseSet_p set)
    }
 }
 
+
+// Random number generator for sampling.
+// TODO(smloos): Use a stronger random generator.
+uint64_t seed_hash(uint64_t key)
+{
+  key = (~key) + (key << 21); // key = (key << 21) - key - 1;
+  key = key ^ (key >> 24);
+  key = (key + (key << 3)) + (key << 8); // key * 265
+  key = key ^ (key >> 14);
+  key = (key + (key << 2)) + (key << 4); // key * 21
+  key = key ^ (key >> 28);
+  key = key + (key << 31);
+  return key;
+}
+
+  // This function should be called exactly once, otherwise we would reuse the
+  // seed.
+void ClauseSetPrintPrefixSampled(FILE* out, char* prefix, ClauseSet_p set, long num_samples)
+{
+  long num_clauses = set->members;
+  long printed = 0;
+  num_samples = num_samples < num_clauses ? num_samples : num_clauses;
+  uint64_t seed = SampleUnprocessedSeed;
+  if(seed == 0)
+  {
+    struct timespec t;
+    clock_gettime(CLOCK_REALTIME, &t);
+    seed = (uint64_t) t.tv_nsec;
+  }
+
+  float rand;
+  Clause_p handle;
+
+  long i = 0;
+  for(handle = set->anchor->succ;
+      handle!=set->anchor && printed < num_samples;
+      handle = handle->succ)
+  {
+    rand = 0x1p-64 * seed_hash(seed++);
+
+    if ((num_clauses - i) * rand >= num_samples - printed)
+    {
+      i++;
+    }
+    else
+    {
+      fputs(prefix, out);
+      ClausePrint(out, handle, true);
+      fputc('\n', out);
+      i++;
+      printed++;
+    }
+  }
+}
 
 
 
