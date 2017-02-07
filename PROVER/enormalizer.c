@@ -492,7 +492,7 @@ int main(int argc, char* argv[])
       ScannerSetFormat(in, parse_format);
       /* ClauseSetParseList(in, clauses, terms); */
       FormulaAndClauseSetParse(in,clauses, formulas, terms,
-         NULL, &skip_includes);
+                               NULL, &skip_includes);
       CheckInpTok(in, NoToken);
       DestroyScanner(in);
    }
@@ -748,13 +748,14 @@ void print_help(FILE* out)
    fprintf(out, "\n\
 "NAME " " VERSION "\n\
 \n\
-Usage: enormalizer [options] [files]\n\
+Usage: enormalizer [options] [rulefiles]\n\
 \n\
 Read a set of rewrite rules (in the form of unit clauses and/or\n\
 formulas) with a single positive literal) and sets of terms, clauses,\n\
-and formulas (the \"normalization targets\") to rewrite. Rewrite rules\n\
-are read from the left to right as specified in the input, without\n\
-regard to any term order.\n\
+and/or formulas (the \"normalization targets\", from files specified\n\
+with the proper options - see below) to rewrite. Rewrite rules are read\n\
+from the left to right as specified in the input, without regard to any\n\
+term ordering.\n\
 \n\
 The normalization targets are rewritten using these rewrite rules until\n\
 a normal form is reached. If the rule system is not confluent, the\n\
