@@ -86,6 +86,19 @@ fulldistrib: man documentation cleandist default_config
 	@echo "Did you remember to increase the dev version number and commit to git?"
 	@cd ..; $(TAR) cf - $(PROJECT)|$(GZIP) - -c > $(PROJECT)_FULL.tgz
 
+# Build StarExec package. This is not supposed to be super-portable
+
+starexec:
+	touch $(STAREXECPATH)
+	echo $(STAREXECPATH)
+	rm -r $(STAREXECPATH)
+	./configure --prefix=$(STAREXECPATH)
+	make
+	make install
+	cp etc/STAREXEC2.0/starexec_run* $(STAREXECPATH)/bin
+	$(eval E_VERSION=`$$(STAREXECPATH)/bin/eprover --version | cut -d' ' -f1-2| sed -e 's/ /-/'`)
+	cd $(STAREXECPATH); zip -r $(E_VERSION).zip bin man
+
 # Make all library parts
 top: E
 
