@@ -20,5 +20,5 @@ set name="starexec_run_E---2.0_"`basename -s .csv $1|cut -d_ -f2-`
 
 head -4 /Users/schulz/SOURCES/Projects/E/etc/starexec_run_E---2.0_XXX > $name
 echo 'set flags="' `cat newbla3` '"' >> $name
-echo 'set heuristics="' `cat newbla2` '"' >>$name
+echo 'set heuristic="' `cat newbla2` '"' >>$name
 tail -20 /Users/schulz/SOURCES/Projects/E/etc/starexec_run_E---2.0_XXX >> $name
