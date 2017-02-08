@@ -335,40 +335,10 @@ rejected by more than one system, you should probably look at this\n\
 step in detail.\n\
 \n");
    PrintOptions(stdout, opts, "Options\n\n");
-   fprintf(out, "\n\
-"STS_COPYRIGHT", " STS_MAIL "\n\
-\n\
-This program is a part of the support structure for the E equational\n\
-theorem prover. You can find the latest version of the E distribution\n\
-as well as additional information at\n"
-E_URL
-"\n\n\
-This program is free software; you can redistribute it and/or modify\n\
-it under the terms of the GNU General Public License as published by\n\
-the Free Software Foundation; either version 2 of the License, or\n\
-(at your option) any later version.\n\
-\n\
-This program is distributed in the hope that it will be useful,\n\
-but WITHOUT ANY WARRANTY; without even the implied warranty of\n\
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n\
-GNU General Public License for more details.\n\
-\n\
-You should have received a copy of the GNU General Public License\n\
-along with this program (it should be contained in the top level\n\
-directory of the distribution in the file COPYING); if not, write to\n\
-the Free Software Foundation, Inc., 59 Temple Place, Suite 330,\n\
-Boston, MA  02111-1307 USA\n\
-\n\
-The original copyright holder can be contacted as\n\
-\n"
-STS_SNAIL
-"\n");
-
+   fprintf(out, "\n\n" E_FOOTER);
 }
 
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

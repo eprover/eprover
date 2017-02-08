@@ -5,7 +5,7 @@
 # Author: Stephan Schulz
 #
 # Top level make file. Check Makefile.vars for system-dependend tool
-# selection and compilation options. 
+# selection and compilation options.
 #
 # Changes
 #
@@ -29,7 +29,7 @@ PROJECT  = E
 LIBS     = BASICS INOUT TERMS ORDERINGS CLAUSES PROPOSITIONAL LEARN \
            ANALYSIS PCL2 HEURISTICS CONTROL
 HEADERS  = $(LIBS) EXTERNAL PROVER
-CODE     = $(LIBS) PROVER TEST SIMPLE_APPS EXTERNAL
+CODE     = $(LIBS) PROVER SIMPLE_APPS EXTERNAL
 PARTS    = $(CODE) DOC
 
 all: E
@@ -37,7 +37,7 @@ all: E
 
 # Generate dependencies
 
-depend: 
+depend:
 	@for subdir in $(CODE); do\
 		cd $$subdir; touch Makefile.dependencies; $(MAKE) depend; cd ..;\
 	done;
@@ -104,7 +104,7 @@ links: remove_links
 		$(LN) ../$$subdir/$$subdir.a .;\
 	done;
 
-tags: 
+tags:
 	etags */*.c */*.h
 	cd PYTHON; make ptags
 
@@ -125,7 +125,7 @@ config:
 # Configure and copy executables to the installation directory
 install: top
 	-sh -c 'mkdir -p $(EXECPATH)'
-	-sh -c 'development_tools/e_install PROVER/eprover      $(EXECPATH)' 
+	-sh -c 'development_tools/e_install PROVER/eprover      $(EXECPATH)'
 	-sh -c 'development_tools/e_install PROVER/epclextract  $(EXECPATH)'
 	-sh -c 'development_tools/e_install PROVER/eproof       $(EXECPATH)'
 	-sh -c 'development_tools/e_install PROVER/eproof_ram   $(EXECPATH)'
