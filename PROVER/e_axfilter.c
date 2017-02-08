@@ -460,7 +460,7 @@ void seeded_filter_largest(StructFOFSpec_p ctrl,
    DStr_p desc = DStrAlloc();
    DStr_p name = DStrAlloc();
    long max_size = 0, size;
-   WFormula_p largest=NULL, handle;
+   WFormula_p largest=NULL, handle=NULL;
    PStackPointer i;
 
    for(i=0; i<PStackGetSP(symb_formulas); i++)
@@ -473,9 +473,9 @@ void seeded_filter_largest(StructFOFSpec_p ctrl,
          max_size = size;
       }
    }
-   if(handle && FormulaQueryType(handle)==CPTypeAxiom)
+   if(largest && FormulaQueryType(largest)==CPTypeAxiom)
    {
-      FormulaSetType(handle, CPTypeHypothesis);
+      FormulaSetType(largest, CPTypeHypothesis);
    }
 
    DStrAppendStr(desc, "% Seed symbol: ");
@@ -504,7 +504,7 @@ void seeded_filter_largest(StructFOFSpec_p ctrl,
                        DStrView(name),
                        true,
                        DStrView(desc));
-   if(handle && FormulaQueryType(handle)==CPTypeHypothesis)
+   if(largest && FormulaQueryType(largest)==CPTypeHypothesis)
    {
       FormulaSetType(handle, CPTypeAxiom);
    }
@@ -536,7 +536,7 @@ void seeded_filter_diverse(StructFOFSpec_p ctrl,
    DStr_p desc = DStrAlloc();
    DStr_p name = DStrAlloc();
    long max_size = 0, size;
-   WFormula_p largest=NULL, handle;
+   WFormula_p largest=NULL, handle = NULL;
    PStackPointer i;
 
    for(i=0; i<PStackGetSP(symb_formulas); i++)
@@ -549,7 +549,7 @@ void seeded_filter_diverse(StructFOFSpec_p ctrl,
          max_size = size;
       }
    }
-   if(handle && FormulaQueryType(handle)==CPTypeAxiom)
+   if(largest && FormulaQueryType(largest)==CPTypeAxiom)
    {
       FormulaSetType(handle, CPTypeHypothesis);
    }
@@ -580,9 +580,9 @@ void seeded_filter_diverse(StructFOFSpec_p ctrl,
                        DStrView(name),
                        true,
                        DStrView(desc));
-   if(handle && FormulaQueryType(handle)==CPTypeHypothesis)
+   if(largest && FormulaQueryType(largest)==CPTypeHypothesis)
    {
-      FormulaSetType(handle, CPTypeAxiom);
+      FormulaSetType(largest, CPTypeAxiom);
    }
    DStrFree(name);
    DStrFree(desc);

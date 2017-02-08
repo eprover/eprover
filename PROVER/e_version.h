@@ -8,16 +8,11 @@ Contents
 
   Define global macro for version number and meta-information.
 
-  Copyright 2009-2016 by the author.
+  Copyright 2009-2017 by the authors (see DOC/CONTRIBUTORS).
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
-
-Changes
-
-<1> Tue Feb 24 00:26:41 CET 2009
-    New
 
 -----------------------------------------------------------------------*/
 
@@ -38,8 +33,8 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* git tag E-2.0pre008 */
-#define VERSION      "2.0pre008"
+/* git tag E-2.0pre009 */
+#define VERSION      "2.0pre009"
 
 #define E_NICKNAME     "Turzun"
 
