@@ -9,7 +9,7 @@ foreach word (`grep '#' $1 | head -1 | sed -e 's/, /,/g' -e 's/\*/./g'`)
    echo $word >> newbla
 end
 
-foreach word (`grep -v '#' newbla |grep -v cpu-limit | grep -v delete-bad-limit | grep -v print-pid | grep -v print-statistics | grep -v print-version | grep -v proof-object | grep -v record-gcs |grep -v resources-info |grep -v tptp3-in | grep -v tstp-format | grep -v tstp-in  | grep -v sandbox | grep -v -- -s | grep -v -- -R | grep -v definitional-cnf=24 `)
+foreach word (`grep -v '#' newbla |grep -v cpu-limit | grep -v delete-bad-limit | grep -v print-pid | grep -v print-statistics | grep -v print-version | grep -v proof-object | grep -v record-gcs |grep -v resources-info |grep -v tptp3-in | grep -v tstp-format | grep -v tstp-in  | grep -v sandbox | grep -v -- '^-s$' | grep -v -- '^-R$' | grep -v definitional-cnf=24 `)
 echo -n $word ' ' |grep -- "-H" >> newbla2
 echo -n $word ' ' |grep -v -- "-H" >> newbla3
 end
