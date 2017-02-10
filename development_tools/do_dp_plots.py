@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2.7
 # ----------------------------------
 """
 Usage: do_dp_plots.py [Options]

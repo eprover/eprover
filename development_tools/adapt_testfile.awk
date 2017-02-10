@@ -1,4 +1,4 @@
-#!/usr/bin/env gawk -f
+#!/sw/bin/gawk -f
 
 # Usage: adapt_testfile.awk <file>
 #

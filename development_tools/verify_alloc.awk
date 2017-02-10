@@ -1,4 +1,4 @@
-#!/usr/bin/env gawk -f
+#!/sw/bin/gawk -f
 #
 # Usage: some_clib_program | verify_alloc.awk
 #

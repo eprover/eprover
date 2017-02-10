@@ -1,4 +1,4 @@
-#!/usr/bin/env gawk -f
+#!/sw/bin/gawk -f
 
 # Usage: filter_results.awk <filter_file> [<from_file>]
 #
