@@ -967,14 +967,16 @@ NAME " " VERSION " \"" E_NICKNAME "\"\n\
 \n\
 Usage: " NAME " [options] [files]\n\
 \n\
-This problem applies SinE-like goal-directed filters to a problem\n\
-specification to generate reduced problem specifications that are easier\n\
-to handle for the prover, but still are likely to contain the necessary\n\
-axioms for a proof (if one exists). The program reads a problem\n\
-specification and a filter specification, and produces one reduced\n\
-specifiation for each filter given. Note that while all input \n\
-formats (LOP, TPTP-2 and TPTP-3 are supported, output is only and\n\
-automatically supported in TPTP-3, and the default input format is\n\
+This program applies SinE-like goal-directed filters to a problem\n\
+specification (a set of clauses and/or formulas) to generate reduced\n\
+problem specifications that are easier to handle for a theorem prover,\n\
+but still are likely to contain all the axioms necessary for a proof\n\
+(if one exists).\n\
+\n\
+In dfault mode, the program reads a problem specification and an\n\
+(optional) filter specification, and produces one reduced output file \n\
+for each filter given. Note that while all standard input formats (LOP,\n\
+TPTP-2 and TPTP-3 are supported, output is only and automatically in\n\
 TPTP-3. Also note that unlike most of the other tools in the E\n\
 distribution, this program does not support pipe-based input and output,\n\
 since it uses file names generated from the input file name and filter\n\
