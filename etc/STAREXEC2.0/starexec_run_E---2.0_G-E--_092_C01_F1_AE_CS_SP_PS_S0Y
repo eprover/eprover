@@ -4,7 +4,6 @@ set ProblemSPC=`grep " SPC " $1 | sed -e "s/.* : //"`
 set defaultargs="--definitional-cnf=24 -s --print-statistics -R --print-version --free-numbers"
 set flags=" --presat-simplify --simul-paramod --forward-context-sr --destructive-er-aggressive --destructive-er -F1 -WSelectMaxLComplexAvoidPosPred -tKBO6 "
 set heuristic=" -H'(4.RelevanceLevelWeight2(SimulateSOS,1,2,0,2,100,100,100,400,1.5,1.5,1),3.ConjectureGeneralSymbolWeight(PreferNonGoals,200,100,200,50,50,1,100,1.5,1.5,1),1.Clauseweight(PreferProcessed,1,1,1),1.FIFOWeight(PreferProcessed))' "
-set heuristic=""
 set final="--cpu-limit="$STAREXEC_CPU_LIMIT" "$1
 set ecmd="./eprover ""$defaultargs $flags $heuristic $final"
 
