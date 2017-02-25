@@ -16,7 +16,7 @@ include ../Makefile.vars
 # Project specific variables
 
 PROJECT = eprover e_ltb_runner e_deduction_server e_axfilter \
-	  classify_problem termprops\
+	  classify_problem termprops e_client e_server\
           direct_examples epclanalyse epclextract checkproof eground\
           enormalizer edpll epcllemma\
           ekb_create ekb_insert ekb_ginsert ekb_delete tsm_classify
@@ -101,7 +101,7 @@ enormalizer: $(ENORMALIZER)
 
 EDPLL = edpll.o ../lib/PROPOSITIONAL.a ../lib/CLAUSES.a\
         ../lib/ORDERINGS.a ../lib/TERMS.a ../lib/INOUT.a\
-	../lib/BASICS.a 
+	../lib/BASICS.a
 
 edpll: $(EDPLL)
 	$(LD) -o edpll $(EDPLL) $(LIBS)
@@ -199,4 +199,3 @@ tsm_classify: $(TSM_CLASSIFY)
 
 
 include Makefile.dependencies
-
