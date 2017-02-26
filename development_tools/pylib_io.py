@@ -27,7 +27,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program ; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-# MA  02111-1307 USA 
+# MA  02111-1307 USA
 #
 # The original copyright holder can be contacted as
 #
@@ -43,8 +43,8 @@
 import sys
 import os
 
-NoStdRWStreamException = "You cannot open '-' for both reading and writing!"
-UsageErrorException = "Usage Error"
+NoStdRWStreamException = BaseException("You cannot open '-' for both reading and writing!")
+UsageErrorException = BaseException("Usage Error")
 
 def flexopen(name, mode):
     """
@@ -90,11 +90,11 @@ def check_argc(argmin,argmax=None,argv=sys.argv[1:]):
                              "> [... <arg" + repr[argmax] + ">]\n")
         else:
             sys.stderr.write("Usage: " + sys.argv[0]+
-                             " <arg1> ... <arg" + repr(argmin) + ">...\n")    
+                             " <arg1> ... <arg" + repr(argmin) + ">...\n")
         raise UsageErrorException;
 
 
-        
+
 def get_options(argv=sys.argv[1:]):
     """
     Filter argument list for arguments starting with a -.
