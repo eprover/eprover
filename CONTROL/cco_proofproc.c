@@ -666,9 +666,11 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
       {
          ClausePushDerivation(handle, DCCnfEvalGC, NULL, NULL);
       }
+      HCBClauseEvaluate(control->hcb, handle);
       ClauseDelProp(handle, CPIsOriented);
+      DocClauseQuoteDefault(6, handle, "eval");
 
-      PQueueStoreP(state->pending_unprocessed, handle);
+      ClauseSetInsert(state->unprocessed, handle);
    }
    return NULL;
 }
@@ -805,7 +807,7 @@ static Clause_p cleanup_unprocessed_clauses(ProofState_p state,
       > control->heuristic_parms.reweight_limit)
    {
       OUTPRINT(1, "# Reweighting unprocessed clauses...\n");
-      ClauseSetReweight(control->hcb,  state->unprocessed, true);
+      ClauseSetReweight(control->hcb,  state->unprocessed);
       reweight_base = state->unprocessed->members;
    }
    tmp = LONG_MAX;
@@ -1027,16 +1029,16 @@ void ProofStateResetProcessedSet(ProofState_p state,
          ClauseSetInsert(state->archive, handle);
          handle = tmpclause;
       }
+      HCBClauseEvaluate(control->hcb, handle);
       ClauseDelProp(handle, CPIsOriented);
+      DocClauseQuoteDefault(6, handle, "move_eval");
 
-      PQueueStoreP(state->pending_unprocessed, handle);
+      if(control->heuristic_parms.prefer_initial_clauses)
+      {
+    EvalListChangePriority(handle->evaluations, -PrioLargestReasonable);
+      }
+      ClauseSetInsert(state->unprocessed, handle);
    }
-
-   ClauseSetEvalInsertQueue(state->unprocessed, state->pending_unprocessed,
-                            control->hcb, true,
-                            control->heuristic_parms.prefer_initial_clauses
-                                ? -PrioLargestReasonable
-                                : 0);
 }
 
 
@@ -1213,7 +1215,6 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
    HCB_p    tmphcb;
    PStack_p traverse;
    Eval_p   cell;
-   PQueue_p pending = PQueueAlloc();
 
    OUTPRINT(1, "# Initializing proof state\n");
 
@@ -1224,7 +1225,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
 
    tmphcb = GetHeuristic("Uniq", state, control, &(control->heuristic_parms));
    assert(tmphcb);
-   ClauseSetReweight(tmphcb, state->axioms, false);
+   ClauseSetReweight(tmphcb, state->axioms);
 
    traverse =
       EvalTreeTraverseInit(PDArrayElementP(state->axioms->eval_indices,0),0);
@@ -1240,23 +1241,19 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
          check_watchlist(&(state->wlindices), state->watchlist,
                          new, state->archive);
       }
-      // Because this does not depend on the evaluation of new, we can do it
-      // before evaluating new.  Could break proof printing?
+      HCBClauseEvaluate(control->hcb, new);
+      DocClauseQuoteDefault(6, new, "eval");
       ClausePushDerivation(new, DCCnfQuote, handle, NULL);
       if(ProofObjectRecordsGCSelection)
       {
          ClausePushDerivation(new, DCCnfEvalGC, NULL, NULL);
       }
-      PQueueStoreP(pending, new);
+      if(control->heuristic_parms.prefer_initial_clauses)
+      {
+    EvalListChangePriority(new->evaluations, -PrioLargestReasonable);
+      }
+      ClauseSetInsert(state->unprocessed, new);
    }
-
-   TensorFlowInit(pending);
-   ClauseSetEvalInsertQueue(state->unprocessed, pending, control->hcb, true,
-                            control->heuristic_parms.prefer_initial_clauses
-                                ? -PrioLargestReasonable
-                                : 0);
-   PQueueFree(pending);
-
    ClauseSetMarkSOS(state->unprocessed, control->heuristic_parms.use_tptp_sos);
    // printf("Before EvalTreeTraverseExit\n");
    EvalTreeTraverseExit(traverse);
@@ -1313,9 +1310,9 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    FVPackedClause_p pclause;
    SysDate          clausedate;
 
-   clause = control->hcb->hcb_select(control->hcb, state->unprocessed,
-                                     state->pending_unprocessed);
-
+   clause = control->hcb->hcb_select(control->hcb,
+                 state->unprocessed);
+   //EvalListPrintComment(GlobalOut, clause->evaluations); printf("\n");
    if(OutputLevel==1)
    {
       putc('#', GlobalOut);
@@ -1482,11 +1479,9 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
 {
    Clause_p unsatisfiable = NULL;
    long count = 0;
-   struct timespec current_time = {0, 0};
 
    while(!TimeIsUp &&
-         !(ClauseSetEmpty(state->unprocessed) &&
-           PQueueEmpty(state->pending_unprocessed)) &&
+         !ClauseSetEmpty(state->unprocessed) &&
     step_limit>count &&
     proc_limit>(state->processed_pos_rules->members +
            state->processed_pos_eqns->members +
@@ -1501,15 +1496,6 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
     (!state->watchlist||!ClauseSetEmpty(state->watchlist)))
    {
       count++;
-      if(LimitTF && !TFLimitReached)
-      {
-        clock_gettime(CLOCK_MONOTONIC, &current_time);
-        if (count >= TFEvalLimit ||
-            current_time.tv_sec - TFLimitStart.tv_sec > TFTimeLimit)
-        {
-          TFLimitReached = true;
-        }
-      }
       unsatisfiable = ProcessClause(state, control, answer_limit);
       if(unsatisfiable)
       {

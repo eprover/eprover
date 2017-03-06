@@ -70,7 +70,7 @@ Clause_p ForwardContractSet(ProofState_p state, ProofControl_p
              unsigned long* count_eliminated, bool
              terminate_on_empty);
 
-void ClauseSetReweight(HCB_p heuristic, ClauseSet_p set, bool is_ctrl_hcb);
+void     ClauseSetReweight(HCB_p heuristic, ClauseSet_p set);
 
 Clause_p ForwardContractSetReweight(ProofState_p state, ProofControl_p
                 control, ClauseSet_p set, bool

@@ -60,7 +60,6 @@ typedef struct proofstatecell
    ClauseSet_p       processed_neg_units;
    ClauseSet_p       processed_non_units;
    ClauseSet_p       unprocessed;
-   PQueue_p          pending_unprocessed;
    ClauseSet_p       tmp_store;
    ClauseSet_p       archive;
    FormulaSet_p      f_archive;
@@ -133,8 +132,6 @@ void         ProofStateFree(ProofState_p junk);
 //void         ProofStateGCMarkTerms(ProofState_p state);
 //long         ProofStateGCSweepTerms(ProofState_p state);
 
-// TODO(smloos): add storage size of pending_unprocessed PQueue.
-// Will require creating PQueueStorage function
 #define      ProofStateStorage(state) \
    (ClauseSetStorage((state)->unprocessed)+\
     ClauseSetStorage((state)->processed_pos_rules)+\

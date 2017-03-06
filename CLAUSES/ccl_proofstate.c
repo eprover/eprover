@@ -165,7 +165,6 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->processed_neg_units  = ClauseSetAlloc();
    handle->processed_non_units  = ClauseSetAlloc();
    handle->unprocessed          = ClauseSetAlloc();
-   handle->pending_unprocessed  = PQueueAlloc();
    handle->tmp_store            = ClauseSetAlloc();
    handle->archive              = ClauseSetAlloc();
    handle->f_archive            = FormulaSetAlloc();
@@ -332,7 +331,6 @@ void ProofStateResetClauseSets(ProofState_p state, bool term_gc)
    ClauseSetFreeClauses(state->processed_neg_units);
    ClauseSetFreeClauses(state->processed_non_units);
    ClauseSetFreeClauses(state->unprocessed);
-   PQueueFree(state->pending_unprocessed);
    ClauseSetFreeClauses(state->tmp_store);
    ClauseSetFreeClauses(state->archive);
    ClauseSetFreeClauses(state->ax_archive);
@@ -374,7 +372,6 @@ void ProofStateFree(ProofState_p junk)
    ClauseSetFree(junk->processed_neg_units);
    ClauseSetFree(junk->processed_non_units);
    ClauseSetFree(junk->unprocessed);
-   PQueueFree(junk->pending_unprocessed);
    ClauseSetFree(junk->tmp_store);
    ClauseSetFree(junk->archive);
    ClauseSetFree(junk->ax_archive);
@@ -586,15 +583,6 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
    fprintf(out,
       "# ...number of literals in the above   : %ld\n",
       state->unprocessed->literals);
-   if (PrintUnprocessed > 0)
-   {
-     fflush(out);
-     fprintf(out, "\n# Current unprocessed clauses:\n");
-     ClauseSetPrintPrefixSampled(out, "Unprocessed clause: ", state->unprocessed,
-                          PrintUnprocessed);
-     fprintf(out, "\n# Current unprocessed clauses end\n");
-     fflush(out);
-   }
    fprintf(out,
       "# Current number of archived formulas  : %ld\n",
       state->f_archive->members);
@@ -671,11 +659,6 @@ void ProofStatePrint(FILE* out, ProofState_p state)
    ClauseSetPrint(out, state->processed_non_units, true);
    fprintf(out, "\n# Unprocessed clauses:\n");
    ClauseSetPrint(out, state->unprocessed, true);
-   // TODO(smloos): add print statement for pending clauses.
-   fprintf(out, "\n# Pending unprocessed clauses:\n");
-   fprintf(out,
-           "\n PQueuePrintP must be implemented before printing pending "
-           "unprocessed clauses.");
 }
 
 /*-----------------------------------------------------------------------
