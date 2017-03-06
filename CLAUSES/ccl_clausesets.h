@@ -99,8 +99,6 @@ void        ClauseSetPrint(FILE* out, ClauseSet_p set, bool
             fullterms);
 void        ClauseSetTSTPPrint(FILE* out, ClauseSet_p set, bool fullterms);
 void        ClauseSetPrintPrefix(FILE* out, char* prefix, ClauseSet_p set);
-uint64_t    seed_hash(uint64_t key);
-void        ClauseSetPrintPrefixSampled(FILE* out, char* prefix, ClauseSet_p set, long num_samples);
 void        ClauseSetSort(ClauseSet_p set, ComparisonFunctionType cmp_fun);
 
 void        ClauseSetSetProp(ClauseSet_p set, FormulaProperties prop);

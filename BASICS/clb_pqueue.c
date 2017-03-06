@@ -22,7 +22,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "clb_pqueue.h"
-#include "ccl_clausesets.h"
+
 
 
 /*---------------------------------------------------------------------*/
@@ -171,33 +171,6 @@ long PQueueIncIndex(PQueue_p queue, long index)
    return index;
 }
 
-
-/*-----------------------------------------------------------------------
-//
-// Function: PQueuePrintPrefix()
-//
-//   Print the clauses in the queue to GlobalOut.
-//
-// Global Variables:
-//
-// Side Effects    : Output
-//
-/----------------------------------------------------------------------*/
-
-void PQueuePrintPrefix(char* prefix, PQueue_p clauses, bool fullterms)
-{
-   Clause_p clause;
-
-   for (int i = PQueueTailIndex(clauses); i != -1;
-        i = PQueueIncIndex(clauses, i))
-   {
-      clause = (Clause_p)PQueueElementP(clauses, i);
-
-      fputs(prefix, GlobalOut);
-      ClausePrint(GlobalOut, clause, fullterms);
-      fputc('\n', GlobalOut);
-   }
-}
 
 
 /*---------------------------------------------------------------------*/

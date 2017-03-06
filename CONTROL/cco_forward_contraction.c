@@ -335,16 +335,12 @@ Clause_p ForwardContractSet(ProofState_p state, ProofControl_p
    return NULL;
 }
 
+
 /*-----------------------------------------------------------------------
 //
 // Function: ClauseSetReweight()
 //
 //   Re-Evaluate all clauses in set.
-//
-// Args:
-//   heuristic: heuristic by which clauses should be reweighted
-//   set: clauses to remove and reweight
-//   is_ctrl_hcb: set if the heuristic is from the proof control
 //
 // Global Variables: -
 //
@@ -352,11 +348,10 @@ Clause_p ForwardContractSet(ProofState_p state, ProofControl_p
 //
 /----------------------------------------------------------------------*/
 
-
-
-void ClauseSetReweight(HCB_p heuristic, ClauseSet_p set, bool is_ctrl_hcb)
+void ClauseSetReweight(HCB_p heuristic, ClauseSet_p set)
 {
-   PQueue_p tmp_queue;
+   Clause_p    handle;
+   ClauseSet_p tmp_set;
 
    assert(heuristic);
    assert(set);
@@ -364,17 +359,23 @@ void ClauseSetReweight(HCB_p heuristic, ClauseSet_p set, bool is_ctrl_hcb)
 
 
    ClauseSetRemoveEvaluations(set);
-   tmp_queue = PQueueAlloc();
+   tmp_set = ClauseSetAlloc();
 
    while(!ClauseSetEmpty(set))
    {
-      PQueueStoreP(tmp_queue, ClauseSetExtractFirst(set));
+      ClauseSetInsert(tmp_set, ClauseSetExtractFirst(set));
    }
 
-   ClauseSetEvalInsertQueue(set, tmp_queue, heuristic, is_ctrl_hcb, 0);
-
-   PQueueFree(tmp_queue);
+   while(!ClauseSetEmpty(tmp_set))
+   {
+      handle = ClauseSetExtractFirst(tmp_set);
+      HCBClauseEvaluate(heuristic, handle);
+      ClauseSetInsert(set, handle);
+   }
+   ClauseSetFree(tmp_set);
 }
+
+
 
 
 /*-----------------------------------------------------------------------
@@ -411,7 +412,7 @@ Clause_p ForwardContractSetReweight(ProofState_p state, ProofControl_p
    {
       return handle;
    }
-   ClauseSetReweight(control->hcb, set, true);
+   ClauseSetReweight(control->hcb, set);
 
    return NULL;
 }
@@ -434,7 +435,7 @@ void ClauseSetFilterReweigth(ProofControl_p
               unsigned long* count_eliminated)
 {
    *count_eliminated += ClauseSetFilterTrivial(set);
-   ClauseSetReweight(control->hcb, set, true);
+   ClauseSetReweight(control->hcb, set);
 }
 
 
