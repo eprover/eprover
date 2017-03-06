@@ -101,8 +101,13 @@ void ESignalHandler(int mysignal)
 {
    struct rlimit     limit;
 
+   if (mysignal == SIGALRM) {
+       alarm(0);
+   }
+
    switch(mysignal)
    {
+   case SIGALRM:
    case SIGXCPU:
     limit.rlim_max = SystemTimeLimit;
     limit.rlim_cur = SystemTimeLimit;
@@ -123,6 +128,7 @@ void ESignalHandler(int mysignal)
           SysError("Unable to set cpu time limit to hard limit",
          SYS_ERROR);
        }
+       alarm(0); /* Disable SIGALRM, which is used as backup for SIGXCPU */
        ESignalSetup(SIGXCPU); /* Reenable signal handler */
        return;
     }

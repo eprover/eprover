@@ -62,6 +62,7 @@ FVIndexParms_p    fvi_parms;
 bool              print_sat = false,
                   print_full_deriv = false,
                   print_statistics = false,
+                  print_batch_sizes = false,
                   filter_sat = false,
                   print_rusage = false,
                   print_pid = false,
@@ -219,7 +220,7 @@ static void print_info(void)
 //   service function to make main() smaller.
 //
 // Global Variables: OutputLevel,
-//                   print_statistics
+//                   print_statistics,
 //                   GlobalOut,
 //                   ClauseClauseSubsumptionCalls,
 //                   ClauseClauseSubsumptionCallsRec,
@@ -337,6 +338,50 @@ static void print_proof_stats(ProofState_p proofstate,
    }
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: print_batch_stats()
+//
+//   Print some statistics about the batch sizes. This is a pure
+//   service function to make main() smaller.
+//
+// Global Variables: -
+//
+// Side Effects    : Output of collected statistics.
+//
+/----------------------------------------------------------------------*/
+
+static void print_batch_stats(PQueue_p batch_queue)
+{
+  if (print_batch_sizes)
+  {
+      int size = 0;
+      int sum = 0;
+      int max_element = 0;
+
+      fprintf(GlobalOut, "\n# List of Batch Sizes:\n");
+      while(!PQueueEmpty(batch_queue))
+      {
+        int element = PQueueGetNextInt(batch_queue);
+        fprintf(GlobalOut, "%d\n", element);
+        size++;
+        sum += element;
+        if (element > max_element)
+        {
+          max_element = element;
+        }
+      }
+
+      fprintf(GlobalOut, "# Sum of all batches:                  : %i\n",
+              sum);
+      fprintf(GlobalOut, "# Num non-zero batches:                : %i\n",
+              size);
+      fprintf(GlobalOut, "# Average size of non-zero batch:      : %.2f\n",
+              (float)sum/size);
+      fprintf(GlobalOut, "# Max batch size:                      : %i\n",
+              max_element);
+  }
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -381,6 +426,7 @@ int main(int argc, char* argv[])
    InitIO(NAME);
 
    ESignalSetup(SIGXCPU);
+   ESignalSetup(SIGALRM);
 
    h_parms = HeuristicParmsAlloc();
    fvi_parms = FVIndexParmsAlloc();
@@ -485,6 +531,7 @@ int main(int argc, char* argv[])
    proofcontrol = ProofControlAlloc();
    ProofControlInit(proofstate, proofcontrol, h_parms,
                     fvi_parms, wfcb_definitions, hcb_definitions);
+   proofcontrol->hcb->save_batch_sizes = print_batch_sizes;
    PCLFullTerms = pcl_full_terms; /* Preprocessing always uses full
                  terms, so we set the flag for
                  the main proof search only now! */
@@ -493,6 +540,20 @@ int main(int argc, char* argv[])
                      proofcontrol->heuristic_parms.rw_bw_index_type,
                      "NoIndex",
                      "NoIndex");
+   if(LimitTF)
+   {
+     TFNumEval = 0;
+     while (TFNum >=
+            PDArrayElementInt(proofcontrol->hcb->select_switch, TFNumEval))
+     {
+       TFNumEval++;
+       if(TFNumEval > proofcontrol->hcb->wfcb_no)
+       {
+         Error("TFNum must be strictly less than the heuristic size.", USAGE_ERROR);
+       }
+     }
+     clock_gettime(CLOCK_MONOTONIC, &TFLimitStart);
+   }
    ProofStateInit(proofstate, proofcontrol);
    ProofStateInitWatchlist(proofstate, proofcontrol->ocb,
                            watchlist_filename, parse_format);
@@ -522,6 +583,9 @@ int main(int argc, char* argv[])
 
    if(!success)
    {
+      TFLimitReached = false;
+      UpdateHCBEvalCounters(proofcontrol->hcb);
+
       success = Saturate(proofstate, proofcontrol, step_limit,
                          proc_limit, unproc_limit, total_limit, answer_limit);
    }
@@ -701,6 +765,8 @@ int main(int argc, char* argv[])
                      relevancy_pruned,
                      raw_clause_no,
                      preproc_removed);
+   print_batch_stats(proofcontrol->hcb->list_batch_sizes);
+
 #ifndef FAST_EXIT
 #ifdef FULL_MEM_STATS
    fprintf(GlobalOut,
@@ -747,6 +813,7 @@ cleanup1:
    MemFlushFreeList();
    MemDebugPrintStats(stdout);
 #endif
+   fprintf(GlobalOut, "# Eprover output complete\n");
    OutClose(GlobalOut);
    return retval;
 }
@@ -878,6 +945,21 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_PRINT_STATISTICS:
             print_statistics = true;
             break;
+      case OPT_PRINT_BATCH_SIZES:
+            print_batch_sizes = true;
+            break;
+      case OPT_PRINT_UNPROCESSED:
+            PrintUnprocessed = CLStateGetIntArg(handle, arg);
+            break;
+      case OPT_SAMPLE_UNPROCESSED_SEED:
+            SampleUnprocessedSeed = CLStateGetIntArg(handle, arg);
+            break;
+      case OPT_PRINT_PROCESSED:
+            PrintProcessed = true;
+            break;
+      case OPT_PRINT_LOGITS:
+            PrintLogits = true;
+            break;
       case OPT_EXPENSIVE_DETAILS:
             TBPrintDetails = true;
             break;
@@ -965,6 +1047,18 @@ CLState_p process_options(int argc, char* argv[])
                Error("Soft time limit has to be smaller than hard"
                      "time limit", USAGE_ERROR);
             }
+            break;
+      case OPT_TF_TIME_LIMIT:
+            LimitTF = true;
+            TFTimeLimit = CLStateGetIntArg(handle, arg);
+            break;
+      case OPT_TF_EVAL_LIMIT:
+            LimitTF = true;
+            TFEvalLimit = CLStateGetIntArg(handle, arg);
+            break;
+      case OPT_TF_NUM:
+            LimitTF = true;
+            TFNum = CLStateGetIntArg(handle, arg);
             break;
       case OPT_RUSAGE_INFO:
             print_rusage = true;
@@ -1563,6 +1657,7 @@ CLState_p process_options(int argc, char* argv[])
    {
       if(SoftTimeLimit!=RLIM_INFINITY)
       {
+         alarm(SoftTimeLimit);
          SetSoftRlimitErr(RLIMIT_CPU, SoftTimeLimit, "RLIMIT_CPU (E-Soft)");
          TimeLimitIsSoft = true;
       }
