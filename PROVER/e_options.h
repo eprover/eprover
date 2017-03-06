@@ -39,11 +39,6 @@ typedef enum
    OPT_VERBOSE,
    OPT_OUTPUT,
    OPT_PRINT_STATISTICS,
-   OPT_PRINT_BATCH_SIZES,
-   OPT_PRINT_UNPROCESSED,
-   OPT_SAMPLE_UNPROCESSED_SEED,
-   OPT_PRINT_PROCESSED,
-   OPT_PRINT_LOGITS,
    OPT_EXPENSIVE_DETAILS,
    OPT_PRINT_SATURATED,
    OPT_PRINT_SAT_INFO,
@@ -66,9 +61,6 @@ typedef enum
    OPT_MEM_LIMIT,
    OPT_CPU_LIMIT,
    OPT_SOFTCPU_LIMIT,
-   OPT_TF_TIME_LIMIT,
-   OPT_TF_EVAL_LIMIT,
-   OPT_TF_NUM,
    OPT_RUSAGE_INFO,
    OPT_STEP_LIMIT,
    OPT_ANSWER_LIMIT,
@@ -297,38 +289,6 @@ OptCell opts[] =
     "Print the inference statistics (only relevant for output level 0, "
     "otherwise they are printed automatically."},
 
-   {OPT_PRINT_BATCH_SIZES,
-    '\0', "print-batch-sizes",
-    NoArg, NULL,
-    "Print the size of each batch of pending clauses when they are inserted "
-    "into the set of unprocessed clauses."},
-
-   {OPT_PRINT_UNPROCESSED,
-    '\0', "print-unprocessed",
-    OptArg, "100",
-    "Print the exact clause that is evaluated when it is added to the set of "
-    "unprocessed clauses. Because these clauses are printed when they are "
-    "processed, they will also contain all processed clauses."},
-
-   {OPT_SAMPLE_UNPROCESSED_SEED,
-    '\0', "sample-unprocessed-seed",
-    OptArg, "1",
-    "Provide a seed for consistent sampling of unprocessed clauses. Note: if "
-    "the order of unprocessed clauses changes, the sampling will change "
-    " regardless of seed."},
-
-   {OPT_PRINT_PROCESSED,
-    '\0', "print-processed",
-    NoArg, NULL,
-    "Print each clause when it is selected as the best unprocessed clause. "},
-
-   {OPT_PRINT_LOGITS,
-    '\0', "print-logits",
-    NoArg, NULL,
-    "Print the evaluation value of each clause when it is processed.  When "
-    "using hybrid heuristics, only the evaluation value of the weight function "
-        "that was used to select the clause is printed."},
-
    {OPT_EXPENSIVE_DETAILS,
     '0', "print-detailed-statistics",
     NoArg, NULL,
@@ -455,24 +415,6 @@ OptCell opts[] =
     " larger than the saturation time. This option is particularly "
     "useful if you want to use E as a preprocessor or lemma generator "
     "in a larger system."},
-
-   {OPT_TF_TIME_LIMIT,
-    '\0', "tf-time-limit",
-    OptArg, "1000000000",
-    "Number of seconds before switching to a provided alternative "
-    "heuristic that can not depend on tensor flow."},
-
-   {OPT_TF_EVAL_LIMIT,
-    '\0', "tf-eval-limit",
-    OptArg, "1000000000",
-    "Number of processed clauses handled before switching to a provided "
-    "alternative heuristic that can not depend on tensor flow."},
-
-   {OPT_TF_NUM,
-    '\0', "tf-num",
-    OptArg, "1000000000",
-    "Number of weight functions in tensor flow heuristic. The tensor "
-    "flow heuristic should be written before the fallback heuristic."},
 
    {OPT_RUSAGE_INFO,
     'R', "resources-info",
