@@ -5,9 +5,9 @@
 % Author: Stephan Schulz
 %
 % Contents
-% 
+%
 %   Short introduction to some concepts of E.
-% 
+%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \documentclass{report}
@@ -113,7 +113,7 @@ line options:
   If you happen to have a workstation with 64 MB RAM\footnote{Yes,
     this is outdated. If it still applies to you, get a new
     computer! It will still work ok, though.}, the following command
-  is reasonable:  
+  is reasonable:
 \small
 \begin{verbatim}
 eprover --auto --memory-limit=48 PUZ031-1+rm_eq_rstfp.lop
@@ -230,7 +230,7 @@ We combine these in the notion of \emph{eligible literals}.
  \label{def:basics:inferences:eligible}
  Let $\mathcal{C} = \mathcal{L} \vee \mathcal{R}$ be a clause, let
  $\sigma$ be a substitution and let $\mw{sel}$ be a selection
- function. 
+ function.
  \begin{itemize}
  \item We say $\sigma(\mathcal{L})$ is \emph{eligible for
      resolution} if either
@@ -243,7 +243,7 @@ We combine these in the notion of \emph{eligible literals}.
    \item $\mw{sel}(\mathcal{C}) \not= \emptyset$ and
      $\sigma(\mathcal{L})$ is $>_L$-maximal in
      $\sigma(\mw{sel}(\mathcal{C})\cap \mathcal{C^+})$.
-   \end{itemize} 
+   \end{itemize}
  \item $\sigma(\mathcal{L})$ is \emph{eligible for paramodulation} if
    $\mathcal{L}$ is positive, $\mw{sel}(\mathcal{C}) = \emptyset$ and
    $\sigma(\mathcal{L})$ is strictly $>_L$-maximal in
@@ -275,27 +275,27 @@ variables.
  selection function, and let $D$ be a set of fresh propositional
  constants. The inference system \textbf{SP} consists of the following
  inference rules:
- 
+
  \begin{itemize}
  \item \emph{Equality Resolution}\index{equality resolution}:
-   
+
    \bigskip (ER) \GInferenz{\neqn{u}{v} \vee R}{\sigma(R)}{if
      $\sigma{} = \mw{mgu}(u,v)$ and $\sigma(\neqn{u}{v})$ is eligible
      for resolution.}
-   
+
  \item \emph{Superposition into negative
      literals}\index{superposition!inference rule}:
-   
+
    \bigskip (SN) \GInferenz{\eqn{s}{t} \vee S \phantom{ae}
      \neqn{u}{v} \vee R}{\sigma(\neqn{u[p\leftarrow t]}{v} \vee S
      \vee R)}{if $\sigma=mgu(u|_p,s)$, $\sigma(s)\not<\sigma(t)$,
      $\sigma(u)\not<\sigma(v)$, $\sigma(\eqn{s}{t})$ is eligible for
      paramodulation, $\sigma(\neqn{u}{v})$ is eligible for resolution,
      and $u|_p \notin V$.}
-   
+
  \item \emph{Superposition into positive
      literals}\index{superposition!inference rule}:
-   
+
    \bigskip (SP) \GInferenz{\eqn{s}{t} \vee S \phantom{ae}
      \eqn{u}{v} \vee R}{\sigma(\eqn{u[p\leftarrow t]}{v} \vee S \vee
      R)}{if $\sigma=mgu(u|_p,s)$, $\sigma(s)\not<\sigma(t)$,
@@ -303,7 +303,7 @@ variables.
      paramodulation, $\sigma(\eqn{u}{v})$ is eligible for
      resolution, and $u|_p \notin V$.}
 
-   
+
  \item \emph{Simultaneous superposition into negative
      literals}\index{simultaneous superposition}
 
@@ -313,9 +313,9 @@ variables.
      $\sigma(u)\not<\sigma(v)$, $\sigma(\eqn{s}{t})$ is eligible for
      paramodulation, $\sigma(\neqn{u}{v})$ is eligible for resolution,
      and $u|_p \notin V$.}
-   
+
    This inference rule is an alternative to (SN) that performs better
-   in practice. 
+   in practice.
 
 \item \emph{Simultaneous superposition into positive literals}
   \index{simultaneous superposition}
@@ -326,26 +326,26 @@ variables.
     $\sigma(u)\not<\sigma(v)$, $\sigma(\eqn{s}{t})$ is eligible for
     paramodulation, $\sigma(\neqn{u}{v})$ is eligible for resolution,
     and $u|_p \notin V$.}
-  
+
   This inference rule is an alternative to (SP) that performs better
-  in practice. 
+  in practice.
 
  \item \emph{Equality factoring}\index{equality factoring}:
-   
+
    \bigskip (EF) \GInferenz{\eqn{s}{t} \vee \eqn{u}{v} \vee
      R}{\sigma(\neqn{t}{v} \vee \eqn{u}{v} \vee R)}{if
      $\sigma=mgu(s,u)$, $\sigma(t) \not> \sigma(s)$ and
      $\sigma(\eqn{s}{t})$ eligible for paramodulation.}
-   
-   
+
+
  \item \emph{Rewriting of negative literals}\index{rewriting}:
-   
+
    \bigskip (RN) \CInferenz{\eqn{s}{t} \phantom{ae}
      \neqn{u}{v} \vee R} {\eqn{s}{t}
      \phantom{ae} \neqn{u[p\leftarrow{} \sigma(t)]}{v} \vee R} {if
      $u|_p = \sigma(s)$ and $\sigma(s)>\sigma(t)$.}
-   
-   
+
+
  \item \emph{Rewriting of positive
      literals}\index{rewriting}\footnote{A stronger version of (RP)
      is proven to maintain completeness for Unit and Horn problems
@@ -357,100 +357,100 @@ variables.
      existing proof in the literature. The variant rule allows
      rewriting of maximal terms of maximal literals under certain
      circumstances:
-     
+
      \medskip
      (RP') \CInferenzFoot{\eqn{s}{t} \phantom{ae}
        \eqn{u}{v} \vee R} {\eqn{s}{t}
        \phantom{ae} \eqn{u[p\leftarrow{} \sigma(t)]}{v} \vee R} {if
        $u|_p = \sigma(s)$, $\sigma(s)>\sigma(t)$ and
        if \eqn{u}{v} is not eligible for
-       resolution or $u \not> v$ or $p \not=
+       paramdulation or $u \not> v$ or $p \not=
        \lambda$ or $\sigma$ is not a variable renaming.}
-     
+
      \medskip \noindent This stronger rule is implemented successfully
      by both E\index{E (theorem prover)} and
      SPASS\index{SPASS}~\cite{Weidenbach:personal-99}.}:
-   
+
    \bigskip (RP) \CInferenz{\eqn{s}{t} \phantom{ae} \eqn{u}{v} \vee R}
    {\eqn{s}{t} \phantom{ae} \eqn{u[p\leftarrow{} \sigma(t)]}{v} \vee
      R} {if $u|_p = \sigma(s)$, $\sigma(s)>\sigma(t)$, and if
-     \eqn{u}{v} is not eligible for resolution or $u \not> v$ or $p
+     \eqn{u}{v} is not eligible for paramodulation or $v > u$ or $p
      \not= \lambda$.}
-   
+
  \item \emph{Clause subsumption}\index{subsumption}:
-   
+
    \bigskip (CS) \CInferenz{C \phantom{ae} \sigma(C \vee R)}{C}{where
      $C$ and $R$ are arbitrary (partial) clauses and $\sigma$ is a
-     substitution.} 
-   
+     substitution.}
+
  \item \emph{Equality subsumption}\index{subsumption}:
-   
+
    \bigskip (ES) \CInferenz{\eqn{s}{t} \phantom{ae}
      \eqn{u[p\leftarrow{} \sigma(s)]}{u[p\leftarrow{}
        \sigma(t)]\vee R}}{\eqn{s}{t}}{}
-   
+
  \item \emph{Positive simplify-reflect\index{simplify-reflect}\footnote{In
        practice, this rule is only applied if $\sigma(s)$ and
        $\sigma(t)$ are $>$-incomparable -- in all other cases this
        rule is subsumed by (RN) and the deletion of resolved literals
        (DR).}}:
-   
+
    \bigskip (PS) \CInferenz{\eqn{s}{t} \phantom{ae}
      \neqn{u[p\leftarrow{} \sigma(s)]}{u[p\leftarrow{}
        \sigma(t)]\vee R}}{\eqn{s}{t} \phantom{aee} R}{}
-       
-   
+
+
  \item \emph{Negative simplify-reflect\index{simplify-reflect}}
-   
+
    \bigskip (NS) \CInferenz{\neqn{s}{t} \phantom{ae}
      \neqn{\sigma(s)}{\sigma(t)\vee R}}{\neqn{s}{t} \phantom{aee} R}{}
-   
+
 % \item \emph{Contextual (top level) simplify-reflect\index{contextual
 %       simplify-reflect}}
-%   
+%
 %   \bigskip (CSR) \CInferenz{\sigma(C \vee R \vee \doteqn{s}{t})
 %     \hspace{2em} C \vee \overline{\doteqn{s}{t}}}{\sigma(C \vee R)
 %     \hspace{5em} C \vee \overline{\doteqn{s}{t}}}
 %   {where $\overline{\doteqn{s}{t}}$ is the negation of $\doteqn{s}{t}$
-%     and $\sigma$ is a substitution} 
-     
-  
+%     and $\sigma$ is a substitution}
+
+
  \item \emph{Tautology deletion}\index{tautology deletion}:
-   
+
    \bigskip (TD) \CInferenz{C}{}{if C is a tautology\footnotemark{}}
    \footnotetext{This rule can only be implemented approximately, as
      the problem of recognizing tautologies is only semi-decidable in
-     equational logic. Current versions of 
+     equational logic. Current versions of
      E try to detect tautologies by checking if the ground-completed
      negative literals imply at least one of the positive literals, as
      suggested in~\cite{NN:RTA-93}.}
-   
+
  \item \emph{Deletion of duplicate literals}:
-   
+
    \bigskip (DD) \CInferenz{\eqn{s}{t} \vee \eqn{s}{t} \vee
      R}{\eqn{s}{t} \vee R}{}
-   
+
  \item \emph{Deletion of resolved literals}:
-   
+
    \bigskip (DR) \CInferenz{\neqn{s}{s} \vee R}{R}{}
-   
+
  \item \emph{Destructive equality resolution}\index{equality
      resolution}:
-   
+
    \bigskip (DE) \CInferenz{\neqn{x}{y} \vee R}{\sigma(R)}{if $x,y \in
      V, \sigma = mgu(x,y)$}
-   
+
  \item \emph{Contextual literal cutting}\index{contextual literal
      cutting}: \bigskip (CLC) \CInferenz{\sigma(C \vee R \vee
      \ueqn{s}{t}) \hspace{2em} C \vee \overline{\ueqn{s}{t}}}{\sigma(C
      \vee R) \hspace{5em} C \vee \overline{\ueqn{s}{t}}} {where
      $\overline{\ueqn{s}{t}}$ is the negation of $\ueqn{s}{t}$ and
      $\sigma$ is a substitution}
-   
+
    This rule is also known as \emph{subsumption resolution} or
    \emph{clausal simplification}.
 
-   
+
 \item \emph{Condensing}\index{condensing}:
 
    \bigskip (CON) \CInferenz{l_1 \vee l_2 \vee R}{\sigma(l_1 \vee R)}{if
@@ -463,28 +463,28 @@ variables.
        splitting}}\footnote{This rule is always exhaustively applied to
      any clause, leaving n split-off clauses and one final link clause of
      all negative propositions.}
-   
+
    \bigskip (ID) \CInferenz{R \vee S}{d \vee R \phantom{ae} \neg d \vee
      S}{if $R$ and $S$ do not share any variables, $d \in D$ has not
      been used in a previous definition and $R$ does not contain any
      symbol from $D$}
-   
+
  \item \emph{Apply definition\index{clause splitting}}
-   
+
    \bigskip (AD) \CInferenz{\sigma (d \vee R) \phantom{ae} R \vee S}
    {\sigma(d \vee R) \phantom{ae} \neg d \vee S}{if $\sigma$ is a
      variable renaming, $R$ and $S$ do not share
      any variables, $d \in D$ and $R$ does not contain any symbol from
      $D$}
-   
-   
+
+
  \end{itemize}
  We write $\mathbf{SP}(N)$ to denote the set of all clauses that can
  be generated with one generating inference from $\mathbf{SP}$ on a
  set of clauses $N$, $\mathcal{D}_{SP}$ to denote the set of all
  \textbf{SP}-derivations, and $\mathcal{D}_{\overline{SP}}$ to denote
  the set of all finite \textbf{SP}-derivations.
-  
+
   \hfill$\blacktriangleleft$
 \end{definition}
 
@@ -512,7 +512,7 @@ Real-life axiom sets have grown steadily over the last years. One
 increasing application for deduction is e.g. the answering of questions
 based on large common-sense ontologies. Such specifications can
 contain from several thousand to several million input axioms, only a
-small part of which are necessary for any given query. 
+small part of which are necessary for any given query.
 
 To avoid swamping the inference engine with most likely irrelevant
 facts, E implements two different filtering mechanisms. Both start
@@ -545,16 +545,16 @@ conjecture, and then recursively apply this process again.
   should be applied. Filter selection is based on a number of features
   of the problem specification, and on performance of different
   filters on the TPTP\index{TPTP} problem library.
-  
+
   A SInE-Filter for E is specified as follows:
 \begin{verbatim}
-<sine-filter> ::= GSinE(<g-measure>, 
+<sine-filter> ::= GSinE(<g-measure>,
                         hypos|nohypos,
-                        <benvolvence>, 
+                        <benvolvence>,
                         <generosity>,
                         <rec-depth>,
-                        <set-size>, 
-                        <set-fraction> [, 
+                        <set-size>,
+                        <set-fraction> [,
                         addnosymb|ignorenosymb])
 \end{verbatim}
   \begin{itemize}
@@ -604,7 +604,7 @@ algorithm has the following modifications:
   definitions generated for one input formula for syntactically
   identical formulae in other formulas with the same specification.
 \item E supports mini-scoping, but not the more advanced forms of
-  Skolemization. 
+  Skolemization.
 \end{itemize}
 
 It is possible to use E as a clausifier only. When given the
@@ -685,7 +685,7 @@ specifications.
           foreach p $\in$ P do\+\\
             if p can be simplified with c \+\\
               P := P $\backslash$ \{p\}\\
-              U := U $\backslash$ \{d|d \mbox{ is direct descendant of } p\}\\ 
+              U := U $\backslash$ \{d|d \mbox{ is direct descendant of } p\}\\
 
               T := T $\cup$ \{p\}\-\\
             done\-\\
@@ -705,7 +705,7 @@ specifications.
                U := U $\cup$ cheap\_simplify(p, P)\-\\
             fi\-\\
           end\-\\
-        fi\-\\        
+        fi\-\\
       end\\
       \# Failure: Initial U is satisfiable, P describes model
     \end{tabbing}
@@ -732,7 +732,7 @@ derived or no further inferences are possible.
 The proof search is controlled by three major parameters: The term
 ordering (described in section~\ref{sec:options:orderings}), the
 literal selection function, and the order in which the \texttt{select}
-operation selects the next \emph{given clause} to process. 
+operation selects the next \emph{given clause} to process.
 
 E implements two different classes of term orderings\index{term
   ordering}, lexicographic term orderings and Knuth-Bendix
@@ -845,7 +845,7 @@ The priority functions are interpreted as follows:
 \item[\texttt{PreferNonUnits}:] Prefer non-unit clauses.
 \item[\texttt{PreferHorn}:] Prefer Horn clauses (clauses with no more
   than one positive literals).
-\item[\texttt{PreferNonHorn}:] Prefer non-Horn clauses. 
+\item[\texttt{PreferNonHorn}:] Prefer non-Horn clauses.
 \item[\texttt{ConstPrio}:] Assign the same priority to all clauses.
 \item[\texttt{ByLiteralNumber}:] Give a priority according to the
   number of literals, i.e. always prefer a clause with fewer literals
@@ -915,17 +915,17 @@ in this rule\footnote{Note that there now are many additional generic
                                   <float> ')'                    ||
                  Refinedweight '(' <prio-fun> ', <int>, <int>,
                                    <float>, <float>, <float> ')' ||
-                 Orientweight '(' <prio-fun>, <int>, <int>,       
+                 Orientweight '(' <prio-fun>, <int>, <int>,
                                   <float>, <float>, <float> ')'  ||
-                 Simweight '(' <prio-fun>, <float>, <float>,        
+                 Simweight '(' <prio-fun>, <float>, <float>,
                                <float>, <float> ')'              ||
                  FIFOWeight '(' <prio-fun> ')'                   ||
                  LIFOWeight '(' <prio-fun> ')'                   ||
                  FunWeight '(' <prio-fun> ', <int>, <int>,
-                               <float>, <float>, <float> 
+                               <float>, <float>, <float>
                                (, <fun> : <posint> )* ')'        ||
                  SymOffsetWeight '(' <prio-fun> ', <int>, <int>,
-                                     <float>, <float>, <float> 
+                                     <float>, <float>, <float>
                                     (, <fun> : <int> )* ')'
 \end{verbatim}
 \normalsize
@@ -940,7 +940,7 @@ with weight \texttt{vweight}, function symbols with weight
 \medskip
 \begin{sloppypar}
 \noindent{}\texttt{Refinedweight(prio, fweight, vweight,
-    term\_pen, lit\_pen, pos\_mult)}: 
+    term\_pen, lit\_pen, pos\_mult)}:
 This weight function is very similar to the first one. It differs only
 in that it takes the effect of the term ordering into account. In
 particular, the weight of a term that is maximal in its literal is
@@ -987,7 +987,7 @@ result in an extremely incomplete prover).
 \medskip
 \begin{sloppypar}
   \noindent{}\texttt{FunWeight(prio, fweight, vweight,
-    term\_pen, lit\_pen, pos\_mult, fun:fweight \ldots)}: 
+    term\_pen, lit\_pen, pos\_mult, fun:fweight \ldots)}:
   This evaluation function is a variant of \texttt{Refinedweight}. The
   first 6 parameter are identical in meaning. The function takes an
   arbitrary number of extra parameters of the form
@@ -1000,7 +1000,7 @@ result in an extremely incomplete prover).
 \medskip
 \begin{sloppypar}
   \noindent{}\texttt{SymOffsetWeight(prio, fweight, vweight,
-    term\_pen, lit\_pen, pos\_mult, fun:fweight \ldots)}: 
+    term\_pen, lit\_pen, pos\_mult, fun:fweight \ldots)}:
   This evaluation function is similar to \texttt{FunWeight}. The first
   6 parameter are identical in meaning.  The extra arguments allow
   both positive and negative values, and are used as once-off weight
@@ -1019,7 +1019,7 @@ given a name for later reference at once:
  \begin{verbatim}
 <eval-fun>          ::= <ident>         ||
                         <weight-fun>    ||
-                        <eval-fun-def>  
+                        <eval-fun-def>
 <eval-fun-def>      ::= <ident> = <weight-fun>
 <eval-fun-def-list> ::= <eval-fun-def>*
 \end{verbatim}
@@ -1076,7 +1076,7 @@ automatically choose if no other heuristic is selected with
   To continue the above example,
 \begin{verbatim}
     eprover -D"ex1=Clauseweight(ConstPrio,2,1,1) \
-               ex2=FIFOWeight(PreferGoals)" 
+               ex2=FIFOWeight(PreferGoals)"
             -H"new=(3*ex1,1*ex2)" \
             -x new LUSK3.lop
 \end{verbatim}
@@ -1109,7 +1109,7 @@ functions and the ability to assign arbitrary weights to function and
 predicate symbols.
 
 The simplest way to get a reasonable term ordering is to specify
-\emph{automatic} ordering selection using the \texttt{-tAuto} option. 
+\emph{automatic} ordering selection using the \texttt{-tAuto} option.
 
 \noindent
 Options controlling the choice of term ordering:\\[1ex]
@@ -1259,7 +1259,7 @@ symbol and the input clause set, or on the predefined
   $f$ in the precedence increased by one).
 \item[\texttt{freqcount}:] Make the weight of a symbol the number of
   occurrences of that symbol in the (potentially preprocessed) input
-  problem. 
+  problem.
 \item[\texttt{invfreqcount}:]  Let $m$ be the number of occurrences of
   the most frequent symbol in the input problem. The weight of $f$ is
   $m$ minus he number of occurrences of $f$ in the input problem.
@@ -1369,7 +1369,7 @@ course, if a saturated state or the empty clause have been reached).
 
 There are two uses for a watchlist: To guide the proof search (using a
 heuristic that prefers clauses on the watchlist), or to find purely
-constructive proofs for clauses on the watchlist. 
+constructive proofs for clauses on the watchlist.
 
 If you want to guide the proof search, place clauses you believe to be
 important lemmata onto the watchlist. Also include the empty clause to
@@ -1388,7 +1388,7 @@ watchlist clauses are selected relatively early. It is a strong
 general purpose heuristic, and will maintain completeness of the
 prover. This should allow easy access to the watchlist feature even
 if you don't yet feel comfortable with specifying your own
-heuristics. 
+heuristics.
 
 To generate constructive proofs of clauses, just place them on the
 watch list and select output level 4 or greater (see
@@ -1468,7 +1468,7 @@ The knowledge in a knowledge base can be utilized by the two clause
 evaluation functions \texttt{TSMWeight()} and \texttt{TSMRWeight()}.
 Both compute a modification weight based on the learned knowledge, and
 apply it to a conventional symbol-counting base weight (similar to
-\texttt{Clauseweight()} for \texttt{TSMWeight()} and 
+\texttt{Clauseweight()} for \texttt{TSMWeight()} and
 \texttt{Refinedweight()} for \texttt{TSMWeight()}. An example command
 line is:
 
@@ -1711,10 +1711,10 @@ objects can typically be processed with the same tools as full
 inference protocols.
 
 Proof-object generation and output are activated by the option
-\texttt{--proof-object}. 
+\texttt{--proof-object}.
 
 
-\section{Answers} 
+\section{Answers}
 \index{answer}
 \index{question}
 
@@ -1756,7 +1756,7 @@ example.
   \verb|# Proof found!|\\
   \hline
 \end{tabular}\\
-  
+
   \caption{Answer generation}
   \label{fig:answers}
 \end{figure}
@@ -1790,7 +1790,7 @@ normal output during proof search: Statistical information and final
 clause sets (with additional information).
 
 First, E can give you some technical information about the conditions
-it runs under. 
+it runs under.
 
 The option \texttt{--print-pid} will make E print its process id as a
 comment, in the format \texttt{\# Pid: XXX}, where \texttt{XXX} is an
@@ -1827,16 +1827,16 @@ clauses E knows about. The following table contains the meaning of the
 individual letters:
 
 \begin{tabular}{lp{9cm}}
-  \texttt{e} & Processed positive unit clauses (\emph{Equations}).\\ 
-  \texttt{i} & Processed negative unit clauses (\emph{Inequations}).\\ 
+  \texttt{e} & Processed positive unit clauses (\emph{Equations}).\\
+  \texttt{i} & Processed negative unit clauses (\emph{Inequations}).\\
   \texttt{g} & Processed non-unit clauses (except for the empty
   clause, which, if present, is printed separately). The above three
   sets are interreduced and all selected inferences between them have
-  been computed.\\ 
-  \texttt{E} & Unprocessed positive unit clauses.\\ 
-  \texttt{I} & Unprocessed negative unit clauses.\\ 
+  been computed.\\
+  \texttt{E} & Unprocessed positive unit clauses.\\
+  \texttt{I} & Unprocessed negative unit clauses.\\
   \texttt{G} & Unprocessed non-unit clause (this set may contain the
-  empty clause in very rare cases).\\ 
+  empty clause in very rare cases).\\
   \texttt{a} & Print equality axioms (if equality is present in the
   problem). This letter prints axioms for reflexivity, symmetry, and
   transitivity, and a set of substitutivity axioms, one for each
@@ -1886,13 +1886,13 @@ Table~\ref{tab:opts}.
     \multicolumn{2}{l}{\texttt{-h}}\\
     \multicolumn{2}{l}{\texttt{--help}}\\
     & Print the help page for the program. This usually includes documentation for
-    all options supported by the program.\\ 
+    all options supported by the program.\\
     \multicolumn{2}{l}{\texttt{-V}}\\
     \multicolumn{2}{l}{\texttt{--version}}\\
     & Print the version number of the program. If you encounter bugs,
     please check if updating to the latest version solves your
     problem. Also, always include the output of this with all bug
-    reports.\\ 
+    reports.\\
     \multicolumn{2}{l}{\texttt{-v}}\\
     \multicolumn{2}{l}{\texttt{--verbose[=level]}}\\
     & Make the program more verbose. Verbose output is written to
@@ -1908,12 +1908,12 @@ Table~\ref{tab:opts}.
     output to \texttt{stdout}, i.e.\ usually to the controlling
     terminal. This option allows the user to specify an output
     file. \\
-    \multicolumn{2}{l}{\texttt{--tptp2-in    }}\\   
-    \multicolumn{2}{l}{\texttt{--tptp2-out   }}\\   
-    \multicolumn{2}{l}{\texttt{--tptp2-format}}\\   
-    \multicolumn{2}{l}{\texttt{--tptp3-in    }}\\   
-    \multicolumn{2}{l}{\texttt{--tptp3-out   }}\\   
-    \multicolumn{2}{l}{\texttt{--tptp3-format}}\\   
+    \multicolumn{2}{l}{\texttt{--tptp2-in    }}\\
+    \multicolumn{2}{l}{\texttt{--tptp2-out   }}\\
+    \multicolumn{2}{l}{\texttt{--tptp2-format}}\\
+    \multicolumn{2}{l}{\texttt{--tptp3-in    }}\\
+    \multicolumn{2}{l}{\texttt{--tptp3-out   }}\\
+    \multicolumn{2}{l}{\texttt{--tptp3-format}}\\
     & Select TPTP formats for input and/or output. If you do not start
     with an existing corpus, the recommended format is TPTP-3 syntax.\\
   \end{tabular}
@@ -1951,7 +1951,7 @@ by many propositional reasoners.
 A typical command line for starting \texttt{eground} is:
 
 \begin{verbatim}
-  eground --tptp3-in --dimacs  --split-tries=1 
+  eground --tptp3-in --dimacs  --split-tries=1
           --constraints <infile> -o <outfile>
 \end{verbatim}
 
@@ -1978,7 +1978,7 @@ Supported formats are LOP, TPTP-2 and TPTP-3.
 A typical command line for starting \texttt{enormalizer} is:
 
 \begin{verbatim}
-  enormalizer --tptp3-in <rulefile> -t<termfile> 
+  enormalizer --tptp3-in <rulefile> -t<termfile>
 \end{verbatim}
 
 
@@ -2076,7 +2076,7 @@ include('Axioms/CSR003+5.ax').
 % SZS end BatchIncludes
 % SZS start BatchProblems
 /Users/schulz/EPROVER/TPTP_5.4.0_FLAT/CSR083+3.p /Users/schulz/tmp/CSR083+3
-/Users/schulz/EPROVER/TPTP_5.4.0_FLAT/CSR075+3.p /Users/schulz/tmp/CSR075+3 
+/Users/schulz/EPROVER/TPTP_5.4.0_FLAT/CSR075+3.p /Users/schulz/tmp/CSR075+3
 /Users/schulz/EPROVER/TPTP_5.4.0_FLAT/CSR082+3.p /Users/schulz/tmp/CSR082+3
 /Users/schulz/EPROVER/TPTP_5.4.0_FLAT/CSR086+3.p /Users/schulz/tmp/CSR086+3
 /Users/schulz/EPROVER/TPTP_5.4.0_FLAT/CSR091+3.p /Users/schulz/tmp/CSR091+3
@@ -2095,13 +2095,13 @@ below.
 \begin{itemize}
 \item \texttt{division.category \emph{division\_mnemonic}.\emph{category\_mnemonic}}
 
-  This line is expected and parsed, but has no effect.    
-\item \texttt{execution.order \emph{ordered}|\emph{unordered}} 
+  This line is expected and parsed, but has no effect.
+\item \texttt{execution.order \emph{ordered}|\emph{unordered}}
 
   This line specifies if batch problems must be processed in order or
   can be reordered.  \texttt{E\_ltb\_runner} parses the line, but
   always tries to solve the problems in the order provided.
-\item \texttt{output.required \emph{space\_separated\_list}} 
+\item \texttt{output.required \emph{space\_separated\_list}}
 
   This specifies what output is required from the system. Available
   values are
@@ -2117,8 +2117,8 @@ below.
   \item \texttt{Answer}: If conjectures contain existentially
     quantified variables, a suitable instantiation will be given.
   \end{itemize}
-\item \texttt{output.desired \emph{space\_separated\_list}} 
-  
+\item \texttt{output.desired \emph{space\_separated\_list}}
+
    This specifies what output is required from the system. Available
   values are as for the previous option.  \texttt{E\_ltb\_runner}
   treats this exactly as the required output.
@@ -2286,7 +2286,7 @@ threshold. The main purpose of this filter is to allow small
 specifications to pass through the filter mechanism unchanged. This is
 in particular useful for an ensemble approach, where the problem is
 tackled using a variety of filters. Such an approach is implemented by
-\texttt{e\_ltb\_runner}. 
+\texttt{e\_ltb\_runner}.
 
 
 \subsection{Filter specification}
@@ -2306,7 +2306,7 @@ reasonable defaults are provided automatically.
                                  [<generosity>]   ','
                                  [<rec-depth>]    ','
                                  [<set-size>]     ','
-                                 [<set-fraction>] 
+                                 [<set-fraction>]
                                  [ ',' addnosymb|ignorenosymb] ')'
 <threshold-filter> ::= Theshold '(' <threshold> ')'
 \end{verbatim}
@@ -2337,7 +2337,7 @@ The parameters have the following type and meaning:
   symbols used.
 \item The \texttt{rec-depth} determines how many levels of
   clause/formula selection are performed before the selection is
-  stopped. 
+  stopped.
 \item The \texttt{set-size} adds another early termination
   criterion. It stops the algorithm as soon as this number of axioms
   have been selected.
@@ -2355,7 +2355,7 @@ The parameters have the following type and meaning:
 \clearpage
 \begin{appendix}
   \chapter{License}
-  
+
   The standard distribution of E is free software. You can use, modify
   and copy it under the terms of the GNU General Public License
   (version 2.0 or later) or the GNU Lesser General Public License
@@ -2367,7 +2367,7 @@ The parameters have the following type and meaning:
     License}\index{LGPL}\index{GNU Lesser General Public License}.
 
   See the file COPYING in the main directory for the full text of the
-  licenses. 
+  licenses.
 \end{appendix}
 
 \bibliography{stsbib}
