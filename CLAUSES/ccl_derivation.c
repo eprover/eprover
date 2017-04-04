@@ -330,7 +330,7 @@ char* tstp_get_clauseform_id(DerivationCodes op, int select,
          if(DCOpHasCnfArg1(op))
          {
             clause = clauseform;
-            sprintf(result, "c_0_%ld", clause->ident);
+            sprintf(result, "c_%ld", clause->ident);
          }
          else if(DCOpHasFofArg1(op))
          {
@@ -346,7 +346,7 @@ char* tstp_get_clauseform_id(DerivationCodes op, int select,
          if(DCOpHasCnfArg2(op))
          {
             clause = clauseform;
-            sprintf(result, "c_0_%ld", clause->ident);
+            sprintf(result, "c_%ld", clause->ident);
          }
          else if(DCOpHasFofArg2(op))
          {
@@ -365,7 +365,42 @@ char* tstp_get_clauseform_id(DerivationCodes op, int select,
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: derivation_find_max_id()
+//
+//    Find the largest input id (in ClauseInfo fields) of any formula
+//    in derivation.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 
+static long derivation_find_max_id(Derivation_p derivation)
+{
+   PStackPointer sp;
+   Derived_p     node;
+   long          max_ident = -1;
+   long          tmp;
+
+   assert(derivation->ordered);
+
+   for(sp=PStackGetSP(derivation->ordered_deriv)-1; sp>=0; sp--)
+   {
+      node = PStackElementP(derivation->ordered_deriv, sp);
+      if(!node->clause)
+      {
+         tmp = ClauseInfoGetIdCounter(node->formula->info);
+         if(tmp > max_ident)
+         {
+            max_ident = tmp;
+         }
+      }
+   }
+   return max_ident;
+}
 
 
 /*---------------------------------------------------------------------*/
@@ -1978,8 +2013,6 @@ long DerivationTopoSort(Derivation_p derivation)
 }
 
 
-
-
 /*-----------------------------------------------------------------------
 //
 // Function: DerivationRenumber()
@@ -1999,6 +2032,8 @@ void DerivationRenumber(Derivation_p derivation)
    long          idents = 0;
 
    assert(derivation->ordered);
+
+   idents = derivation_find_max_id(derivation)+1;
    for(sp=PStackGetSP(derivation->ordered_deriv)-1; sp>=0; sp--)
    {
       node = PStackElementP(derivation->ordered_deriv, sp);

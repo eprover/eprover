@@ -12,7 +12,7 @@ Contents
   because it would eat  up to much memory (remember, there are
   millions of clauses)
 
-  Copyright 2004 by the author.
+  Copyright 2004-1017 by the authors.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
@@ -20,8 +20,6 @@ Contents
 
 Changes
 
-<1> Fri Sep  3 10:28:20 CEST 2004
-    New
 
 -----------------------------------------------------------------------*/
 
@@ -64,6 +62,8 @@ void         ClauseSourceInfoPrint(FILE* out, ClauseInfo_p info,
 
 #define ClauseSourceInfoPrintPCL(out, info) \
         ClauseSourceInfoPrint((out), (info), "initial", "\"")
+long    ClauseInfoGetIdNameSpace(ClauseInfo_p info);
+long    ClauseInfoGetIdCounter(ClauseInfo_p info);
 
 
 #endif
@@ -71,8 +71,3 @@ void         ClauseSourceInfoPrint(FILE* out, ClauseInfo_p info,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

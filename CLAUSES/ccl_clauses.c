@@ -54,6 +54,7 @@ static long global_clause_counter = LONG_MIN; /* Counts calls to
 long ClauseIdentCounter = 0; /* Used to generate new clause idents on
             the fly. */
 
+
 #ifdef CLAUSE_PERM_IDENT
 static long clause_perm_ident_counter = 0; /* Used to generate new
                                               permanent idents on
@@ -1562,22 +1563,22 @@ void ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms, bool complete)
          typename = "negated_conjecture";
          break;
    default:
-    break;
+         break;
    }
    source = ClauseQueryCSSCPASource(clause);
    if(clause->ident >= 0)
    {
       fprintf(out, "%s(c_%d_%ld,",
-         kind,
-         source,
-         clause->ident);
+              kind,
+              source,
+              clause->ident);
    }
    else
    {
       fprintf(out, "%s(i_%d_%ld,",
-         kind,
-         source,
-         clause->ident-LONG_MIN);
+              kind,
+              source,
+              clause->ident-LONG_MIN);
    }
    fprintf(out, "%s,", typename);
 
