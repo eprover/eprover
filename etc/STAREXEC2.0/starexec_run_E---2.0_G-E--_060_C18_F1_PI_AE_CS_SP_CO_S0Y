@@ -1,7 +1,7 @@
 #!/bin/tcsh
 echo -n "% Problem    : " ; head -2 $1 | tail -1 | sed -e "s/.*  : //"
 set ProblemSPC=`grep " SPC " $1 | sed -e "s/.* : //"`
-set defaultargs="--definitional-cnf=24 -s --print-statistics -R --print-version --free-numbers"
+set defaultargs="--delete-bad-limit=2000000000 --definitional-cnf=24 -s --print-statistics -R --print-version --free-numbers"
 set flags=" --condense --simul-paramod --forward-context-sr --destructive-er-aggressive --destructive-er --prefer-initial-clauses -tKBO6 -winvfreqrank -c1 -Ginvfreq -F1 -WSelectMaxLComplexAvoidPosPred "
 set heuristic=" -H'(1.RelevanceLevelWeight(ConstPrio,2,2,0,2,100,100,100,100,1.5,1.5,1))' "
 set final="--cpu-limit="$STAREXEC_CPU_LIMIT" "$1
