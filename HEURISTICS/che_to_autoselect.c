@@ -81,13 +81,13 @@ void print_oparms(OrderParms_p oparms)
    if(OutputLevel)
    {
       fprintf(GlobalOut, "# Auto-mode selected ordering type %s\n",
-         TONames[oparms->ordertype]);
+              TONames[oparms->ordertype]);
       fprintf(GlobalOut, "# Auto-mode selected ordering precedence scheme <%s>\n",
-         TOGetPrecGenName(oparms->to_prec_gen));
+              TOGetPrecGenName(oparms->to_prec_gen));
       if(oparms->ordertype == KBO || oparms->ordertype == KBO6)
       {
-    fprintf(GlobalOut, "# Auto-mode selected weight ordering scheme <%s>\n",
-            TOGetWeightGenName(oparms->to_weight_gen));
+         fprintf(GlobalOut, "# Auto-mode selected weight ordering scheme <%s>\n",
+                 TOGetWeightGenName(oparms->to_weight_gen));
       }
       fputs("#\n", GlobalOut);
    }
@@ -111,9 +111,9 @@ void print_oparms(OrderParms_p oparms)
 
 GCC_DIAGNOSTIC_PUSH
 #ifndef COMPILE_HEURISTICS_OPTIMIZED
-   #pragma GCC diagnostic ignored "-Wattributes"
-   __attribute__((optnone))
-   __attribute__((optimize(0)))
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 #endif
 OCB_p generate_auto_ordering(ProofState_p state, SpecFeature_p spec)
 {
@@ -122,7 +122,7 @@ OCB_p generate_auto_ordering(ProofState_p state, SpecFeature_p spec)
 
    init_oparms(&oparms);
    OUTPRINT(1, "\n# Auto-Ordering is analysing problem.\n");
-   #include "che_auto_cases.c"
+#include "che_auto_cases.c"
    print_oparms(&oparms);
    SpecLimitsCellFree(limits);
    return TOCreateOrdering(state, &oparms, NULL, NULL);
@@ -149,9 +149,9 @@ GCC_DIAGNOSTIC_POP
 
 GCC_DIAGNOSTIC_PUSH
 #ifndef COMPILE_HEURISTICS_OPTIMIZED
-   #pragma GCC diagnostic ignored "-Wattributes"
-   __attribute__((optnone))
-   __attribute__((optimize(0)))
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 #endif
 OCB_p generate_autocasc_ordering(ProofState_p state, SpecFeature_p spec)
 {
@@ -182,18 +182,18 @@ OCB_p generate_autocasc_ordering(ProofState_p state, SpecFeature_p spec)
    oparms.no_lit_cmp      = false;
    OUTPRINT(1, "\n# Auto-Ordering is analysing problem.\n");
 
-   #include "che_auto_cases.c"
+#include "che_auto_cases.c"
 
    if(OutputLevel)
    {
       fprintf(GlobalOut, "# Auto-mode selected ordering type %s\n",
-         TONames[oparms.ordertype]);
+              TONames[oparms.ordertype]);
       fprintf(GlobalOut, "# Auto-mode selected ordering precedence scheme <%s>\n",
-         TOGetPrecGenName(oparms.to_prec_gen));
+              TOGetPrecGenName(oparms.to_prec_gen));
       if(oparms.ordertype == KBO || oparms.ordertype == KBO6)
       {
-    fprintf(GlobalOut, "# Auto-mode selected weight ordering scheme <%s>\n",
-            TOGetWeightGenName(oparms.to_weight_gen));
+         fprintf(GlobalOut, "# Auto-mode selected weight ordering scheme <%s>\n",
+                 TOGetWeightGenName(oparms.to_weight_gen));
       }
       fputs("#\n", GlobalOut);
    }
@@ -222,9 +222,9 @@ GCC_DIAGNOSTIC_POP
 
 GCC_DIAGNOSTIC_PUSH
 #ifndef COMPILE_HEURISTICS_OPTIMIZED
-   #pragma GCC diagnostic ignored "-Wattributes"
-   __attribute__((optnone))
-   __attribute__((optimize(0)))
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 #endif
 OCB_p generate_autodev_ordering(ProofState_p state, SpecFeature_p spec)
 {
@@ -238,18 +238,18 @@ OCB_p generate_autodev_ordering(ProofState_p state, SpecFeature_p spec)
    oparms.no_lit_cmp      = false;
 
    OUTPRINT(1, "\n# Auto-Ordering is analysing problem.\n");
-   #include "che_auto_cases.c"
+#include "che_auto_cases.c"
 
    if(OutputLevel)
    {
       fprintf(GlobalOut, "# Auto-mode (Dev) selected ordering type %s\n",
-         TONames[oparms.ordertype]);
+              TONames[oparms.ordertype]);
       fprintf(GlobalOut, "# Auto-mode (Dev) selected ordering precedence scheme <%s>\n",
-         TOGetPrecGenName(oparms.to_prec_gen));
+              TOGetPrecGenName(oparms.to_prec_gen));
       if(oparms.ordertype == KBO || oparms.ordertype == KBO6)
       {
-    fprintf(GlobalOut, "# Auto-mode (Dev) selected weight ordering scheme <%s>\n",
-            TOGetWeightGenName(oparms.to_weight_gen));
+         fprintf(GlobalOut, "# Auto-mode (Dev) selected weight ordering scheme <%s>\n",
+                 TOGetWeightGenName(oparms.to_weight_gen));
       }
       fputs("#\n", GlobalOut);
    }
@@ -285,9 +285,9 @@ GCC_DIAGNOSTIC_POP
 
 GCC_DIAGNOSTIC_PUSH
 #ifndef COMPILE_HEURISTICS_OPTIMIZED
-   #pragma GCC diagnostic ignored "-Wattributes"
-   __attribute__((optnone))
-   __attribute__((optimize(0)))
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 #endif
 OCB_p generate_autosched0_ordering(ProofState_p state, SpecFeature_p spec)
 {
@@ -308,9 +308,9 @@ GCC_DIAGNOSTIC_POP
 
 GCC_DIAGNOSTIC_PUSH
 #ifndef COMPILE_HEURISTICS_OPTIMIZED
-   #pragma GCC diagnostic ignored "-Wattributes"
-   __attribute__((optnone))
-   __attribute__((optimize(0)))
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 #endif
 OCB_p generate_autosched1_ordering(ProofState_p state, SpecFeature_p spec)
 {
@@ -331,9 +331,9 @@ GCC_DIAGNOSTIC_POP
 
 GCC_DIAGNOSTIC_PUSH
 #ifndef COMPILE_HEURISTICS_OPTIMIZED
-   #pragma GCC diagnostic ignored "-Wattributes"
-   __attribute__((optnone))
-   __attribute__((optimize(0)))
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 #endif
 OCB_p generate_autosched2_ordering(ProofState_p state, SpecFeature_p spec)
 {
@@ -354,9 +354,9 @@ GCC_DIAGNOSTIC_POP
 
 GCC_DIAGNOSTIC_PUSH
 #ifndef COMPILE_HEURISTICS_OPTIMIZED
-   #pragma GCC diagnostic ignored "-Wattributes"
-   __attribute__((optnone))
-   __attribute__((optimize(0)))
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 #endif
 OCB_p generate_autosched3_ordering(ProofState_p state, SpecFeature_p spec)
 {
@@ -377,9 +377,9 @@ GCC_DIAGNOSTIC_POP
 
 GCC_DIAGNOSTIC_PUSH
 #ifndef COMPILE_HEURISTICS_OPTIMIZED
-   #pragma GCC diagnostic ignored "-Wattributes"
-   __attribute__((optnone))
-   __attribute__((optimize(0)))
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 #endif
 OCB_p generate_autosched4_ordering(ProofState_p state, SpecFeature_p spec)
 {
@@ -400,9 +400,9 @@ GCC_DIAGNOSTIC_POP
 
 GCC_DIAGNOSTIC_PUSH
 #ifndef COMPILE_HEURISTICS_OPTIMIZED
-   #pragma GCC diagnostic ignored "-Wattributes"
-   __attribute__((optnone))
-   __attribute__((optimize(0)))
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 #endif
 OCB_p generate_autosched5_ordering(ProofState_p state, SpecFeature_p spec)
 {
@@ -423,9 +423,9 @@ GCC_DIAGNOSTIC_POP
 
 GCC_DIAGNOSTIC_PUSH
 #ifndef COMPILE_HEURISTICS_OPTIMIZED
-   #pragma GCC diagnostic ignored "-Wattributes"
-   __attribute__((optnone))
-   __attribute__((optimize(0)))
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 #endif
 OCB_p generate_autosched6_ordering(ProofState_p state, SpecFeature_p spec)
 {
@@ -446,9 +446,9 @@ GCC_DIAGNOSTIC_POP
 
 GCC_DIAGNOSTIC_PUSH
 #ifndef COMPILE_HEURISTICS_OPTIMIZED
-   #pragma GCC diagnostic ignored "-Wattributes"
-   __attribute__((optnone))
-   __attribute__((optimize(0)))
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 #endif
 OCB_p generate_autosched7_ordering(ProofState_p state, SpecFeature_p spec)
 {
@@ -537,17 +537,17 @@ void HeuristicParmsUpdate(OrderParms_p master, HeuristicParms_p slave)
 #define UNORIENT_LITERAL_PENALTY 1
 
 double OrderEvaluate(OCB_p ocb, ProofState_p state, HeuristicParms_p
-           parms)
+                     parms)
 {
    double res = 0;
 
    ClauseSetMarkMaximalTerms(ocb, state->axioms);
    res+= (ClauseSetCountMaximalTerms(state->axioms)
-     *MAX_TERM_PENALTY);
+          *MAX_TERM_PENALTY);
    res+= (ClauseSetCountMaximalLiterals(state->axioms)
-     *MAX_LITERAL_PENALTY);
+          *MAX_LITERAL_PENALTY);
    res+= (ClauseSetCountUnorientableLiterals(state->axioms)
-     *UNORIENT_LITERAL_PENALTY);
+          *UNORIENT_LITERAL_PENALTY);
    if(ocb->type == KBO)
    {
       res = res*KBO_BONUS;
@@ -579,19 +579,19 @@ bool OrderNextType(OrderParms_p ordering)
    switch(ordering->ordertype)
    {
    case NoOrdering:
-    ordering->ordertype = KBO;
-    break;
+         ordering->ordertype = KBO;
+         break;
    case KBO:
-    ordering->ordertype = LPO;
-    break;
+         ordering->ordertype = LPO;
+         break;
    case LPO:
-    ordering->ordertype = NoOrdering;
-    res = false;
-    break;
+         ordering->ordertype = NoOrdering;
+         res = false;
+         break;
    default:
-    res = false;
-    assert(false&& "Unexpected ordertype!");
-    break;
+         res = false;
+         assert(false&& "Unexpected ordertype!");
+         break;
    }
    return res;
 }
@@ -676,8 +676,8 @@ bool OrderNextConstWeight(OrderParms_p ordering)
 {
    assert(ordering);
    assert((ordering->to_const_weight == WConstNoSpecialWeight)||
-     (ordering->to_const_weight == WConstNoWeight)||
-     (ordering->to_const_weight > 0));
+          (ordering->to_const_weight == WConstNoWeight)||
+          (ordering->to_const_weight > 0));
 
    if(ordering->to_const_weight == WConstNoSpecialWeight)
    {
@@ -717,36 +717,36 @@ bool OrderNextOrdering(OrderParms_p ordering, OrderParms_p mask)
    {
       if(mask->to_const_weight == WConstNoWeight)
       {
-    if(OrderNextConstWeight(ordering))
-    {
-       return true;
-    }
-    OrderNextConstWeight(ordering);
+         if(OrderNextConstWeight(ordering))
+         {
+            return true;
+         }
+         OrderNextConstWeight(ordering);
       }
       if(mask->to_prec_gen == PNoMethod)
       {
-    if(OrderNextPrecGen(ordering))
-    {
-       return true;
-    }
-    OrderNextPrecGen(ordering);
+         if(OrderNextPrecGen(ordering))
+         {
+            return true;
+         }
+         OrderNextPrecGen(ordering);
       }
    }
    if(mask->to_weight_gen == WNoMethod)
    {
-     if(OrderNextWeightGen(ordering))
-     {
-   return true;
-     }
-     OrderNextWeightGen(ordering);
+      if(OrderNextWeightGen(ordering))
+      {
+         return true;
+      }
+      OrderNextWeightGen(ordering);
    }
    if(mask->ordertype == NoOrdering)
    {
-     if(OrderNextType(ordering))
-     {
-   return true;
-     }
-     OrderNextType(ordering);
+      if(OrderNextType(ordering))
+      {
+         return true;
+      }
+      OrderNextType(ordering);
    }
    return false;
 }
@@ -765,7 +765,7 @@ bool OrderNextOrdering(OrderParms_p ordering, OrderParms_p mask)
 /----------------------------------------------------------------------*/
 
 OCB_p OrderFindOptimal(OrderParms_p mask, OrderEvaluationFun eval_fun,
-             ProofState_p state, HeuristicParms_p parms)
+                       ProofState_p state, HeuristicParms_p parms)
 {
    OrderParmsCell local, store;
    OCB_p          best_ocb, tmp_ocb;
@@ -791,22 +791,22 @@ OCB_p OrderFindOptimal(OrderParms_p mask, OrderEvaluationFun eval_fun,
       tmp_eval = eval_fun(tmp_ocb, state, parms);
       if(tmp_eval < best_eval)
       {
-    OCBFree(best_ocb);
-    best_ocb = tmp_ocb;
-    best_eval = tmp_eval;
-    store = local;
+         OCBFree(best_ocb);
+         best_ocb = tmp_ocb;
+         best_eval = tmp_eval;
+         store = local;
       }
       else
       {
-    OCBFree(tmp_ocb);
+         OCBFree(tmp_ocb);
       }
    }
    VERBOSE(fprintf(stderr, "%s: Term Ordering found: (%s, %s, %s, %ld)\n",
-         ProgName,
-         TONames[store.ordertype],
-         TOGetPrecGenName(store.to_prec_gen),
-         TOGetWeightGenName(store.to_weight_gen),
-         store.to_const_weight););
+                   ProgName,
+                   TONames[store.ordertype],
+                   TOGetPrecGenName(store.to_prec_gen),
+                   TOGetWeightGenName(store.to_weight_gen),
+                   store.to_const_weight););
    return best_ocb;
 }
 
@@ -826,7 +826,7 @@ OCB_p OrderFindOptimal(OrderParms_p mask, OrderEvaluationFun eval_fun,
 /----------------------------------------------------------------------*/
 
 OCB_p TOSelectOrdering(ProofState_p state, HeuristicParms_p params,
-             SpecFeature_p specs)
+                       SpecFeature_p specs)
 {
    OrderParmsCell tmp;
    OCB_p          result;
@@ -887,11 +887,11 @@ OCB_p TOSelectOrdering(ProofState_p state, HeuristicParms_p params,
    {
       if(tmp.ordertype == NoOrdering)
       {
-    tmp.ordertype = KBO;
+         tmp.ordertype = KBO;
       }
       if(tmp.to_const_weight==WConstNoWeight)
       {
-    tmp.to_const_weight = WConstNoSpecialWeight;
+         tmp.to_const_weight = WConstNoSpecialWeight;
       }
       result = TOCreateOrdering(state, &tmp, params->to_pre_prec,
                                 params->to_pre_weights);
@@ -920,58 +920,58 @@ OCB_p  TOCreateOrdering(ProofState_p state, OrderParms_p params,
    bool prec_by_weight = pre_precedence?false:true;
 
    /* printf("TOCreateOrdering(%d, %d, %d, %ld)\n", params->ordertype,
-     params->to_weight_gen, params->to_prec_gen,
-     params->to_const_weight); */
+      params->to_weight_gen, params->to_prec_gen,
+      params->to_const_weight); */
 
    switch(params->ordertype)
    {
    case LPO:
-    handle = OCBAlloc(LPO, prec_by_weight, state->signature);
-    TOGeneratePrecedence(handle, state->axioms, pre_precedence,
-               params->to_prec_gen);
-    break;
+         handle = OCBAlloc(LPO, prec_by_weight, state->signature);
+         TOGeneratePrecedence(handle, state->axioms, pre_precedence,
+                              params->to_prec_gen);
+         break;
    case LPOCopy:
          handle = OCBAlloc(LPOCopy, prec_by_weight, state->signature);
-    TOGeneratePrecedence(handle, state->axioms, pre_precedence,
-               params->to_prec_gen);
-    break;
+         TOGeneratePrecedence(handle, state->axioms, pre_precedence,
+                              params->to_prec_gen);
+         break;
    case LPO4:
          handle = OCBAlloc(LPO4, prec_by_weight, state->signature);
-    TOGeneratePrecedence(handle, state->axioms, pre_precedence,
-               params->to_prec_gen);
-    break;
+         TOGeneratePrecedence(handle, state->axioms, pre_precedence,
+                              params->to_prec_gen);
+         break;
    case LPO4Copy:
          handle = OCBAlloc(LPO4Copy, prec_by_weight, state->signature);
-    TOGeneratePrecedence(handle, state->axioms, pre_precedence,
-               params->to_prec_gen);
-    break;
+         TOGeneratePrecedence(handle, state->axioms, pre_precedence,
+                              params->to_prec_gen);
+         break;
    case KBO:
-    handle = OCBAlloc(KBO, prec_by_weight, state->signature);
-    TOGeneratePrecedence(handle, state->axioms, pre_precedence,
-               params->to_prec_gen);
-    TOGenerateWeights(handle, state->axioms,
+         handle = OCBAlloc(KBO, prec_by_weight, state->signature);
+         TOGeneratePrecedence(handle, state->axioms, pre_precedence,
+                              params->to_prec_gen);
+         TOGenerateWeights(handle, state->axioms,
                            pre_weights,
-            params->to_weight_gen,
-            params->to_const_weight);
-    break;
+                           params->to_weight_gen,
+                           params->to_const_weight);
+         break;
    case KBO6:
-    handle = OCBAlloc(KBO6, prec_by_weight, state->signature);
-    TOGeneratePrecedence(handle, state->axioms, pre_precedence,
-               params->to_prec_gen);
-    TOGenerateWeights(handle, state->axioms,
+         handle = OCBAlloc(KBO6, prec_by_weight, state->signature);
+         TOGeneratePrecedence(handle, state->axioms, pre_precedence,
+                              params->to_prec_gen);
+         TOGenerateWeights(handle, state->axioms,
                            pre_weights,
-            params->to_weight_gen,
-            params->to_const_weight);
-    break;
+                           params->to_weight_gen,
+                           params->to_const_weight);
+         break;
    case RPO:
-    assert(false && "RPO not yet implemented!");
-    handle = NULL;
-    break;
+         assert(false && "RPO not yet implemented!");
+         handle = NULL;
+         break;
    default:
          printf("What? %d\n",params->ordertype);
-    assert(false&&"Incompletely specified OrderParamsCell");
-    handle = NULL;
-    break;
+         assert(false&&"Incompletely specified OrderParamsCell");
+         handle = NULL;
+         break;
    }
    handle->no_lit_cmp = params->no_lit_cmp;
    return handle;
@@ -983,5 +983,3 @@ OCB_p  TOCreateOrdering(ProofState_p state, OrderParms_p params,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

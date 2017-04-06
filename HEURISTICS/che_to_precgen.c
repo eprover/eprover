@@ -740,7 +740,7 @@ TOPrecGenMethod TOTranslatePrecGenMethod(char* name)
 /----------------------------------------------------------------------*/
 
 void TOGeneratePrecedence(OCB_p ocb, ClauseSet_p axioms,
-           char* predefined, TOPrecGenMethod method)
+                          char* predefined, TOPrecGenMethod method)
 {
    assert(ocb);
    assert(ocb->precedence||ocb->prec_weights);
@@ -749,7 +749,7 @@ void TOGeneratePrecedence(OCB_p ocb, ClauseSet_p axioms,
    if(predefined)
    {
       Scanner_p in = CreateScanner(StreamTypeUserString, predefined,
-               true, NULL);
+                                   true, NULL);
 
       TOPrecedenceParse(in, ocb);
 
@@ -757,63 +757,63 @@ void TOGeneratePrecedence(OCB_p ocb, ClauseSet_p axioms,
    }
 
    VERBOUTARG("Generating ordering precedence with ",
-         TOPrecGenNames[method]);
+              TOPrecGenNames[method]);
    switch(method)
    {
    case POrientAxioms:
-    Error("Not yet implemented", OTHER_ERROR);
-    break;
+         Error("Not yet implemented", OTHER_ERROR);
+         break;
    case PNoMethod:
-    if(predefined) /* User should know what he does now! */
-    {
-       break;
-    } /* else: Fall through */
-    VERBOUT("Fall-through to unary_first\n");
+         if(predefined) /* User should know what he does now! */
+         {
+            break;
+         } /* else: Fall through */
+         VERBOUT("Fall-through to unary_first\n");
    case PUnaryFirst:
-    generate_unary_first_precedence(ocb, axioms);
-    break;
+         generate_unary_first_precedence(ocb, axioms);
+         break;
    case PUnaryFirstFreq:
-    generate_unary_first_freq_precedence(ocb, axioms);
-    break;
+         generate_unary_first_freq_precedence(ocb, axioms);
+         break;
    case PArity:
-    generate_arity_precedence(ocb, axioms);
-    break;
+         generate_arity_precedence(ocb, axioms);
+         break;
    case PInvArity:
-    generate_invarity_precedence(ocb, axioms);
-    break;
+         generate_invarity_precedence(ocb, axioms);
+         break;
    case PConstMax:
-    generate_const_max_precedence(ocb, axioms);
-    break;
+         generate_const_max_precedence(ocb, axioms);
+         break;
    case PInvArConstMin:
-    generate_const_min_precedence(ocb, axioms);
-    break;
+         generate_const_min_precedence(ocb, axioms);
+         break;
    case PByFrequency:
-    generate_freq_precedence(ocb, axioms);
-    break;
+         generate_freq_precedence(ocb, axioms);
+         break;
    case PByInvFrequency:
-    generate_invfreq_precedence(ocb, axioms);
-    break;
+         generate_invfreq_precedence(ocb, axioms);
+         break;
    case PByInvConjFrequency:
-    generate_invconjfreq_precedence(ocb, axioms);
-    break;
+         generate_invconjfreq_precedence(ocb, axioms);
+         break;
    case PByInvFreqConjMax:
-    generate_invfreq_conjmax_precedence(ocb, axioms);
-    break;
+         generate_invfreq_conjmax_precedence(ocb, axioms);
+         break;
    case PByInvFreqConjMin:
-    generate_invfreq_conjmin_precedence(ocb, axioms);
-    break;
+         generate_invfreq_conjmin_precedence(ocb, axioms);
+         break;
    case PByInvFreqConstMin:
-    generate_invfreq_constmin_precedence(ocb, axioms);
-    break;
+         generate_invfreq_constmin_precedence(ocb, axioms);
+         break;
    case PByInvFreqHack:
-    generate_invfreq_hack_precedence(ocb, axioms);
-    break;
+         generate_invfreq_hack_precedence(ocb, axioms);
+         break;
    case PArrayOpt:
-    generate_arrayopt_precedence(ocb, axioms);
-    break;
+         generate_arrayopt_precedence(ocb, axioms);
+         break;
    default:
-    assert(false && "Precedence generation method unimplemented");
-    break;
+         assert(false && "Precedence generation method unimplemented");
+         break;
    }
 }
 
@@ -821,5 +821,3 @@ void TOGeneratePrecedence(OCB_p ocb, ClauseSet_p axioms,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

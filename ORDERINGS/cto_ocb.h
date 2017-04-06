@@ -65,21 +65,21 @@ typedef struct ocb_cell
    TermOrdering  type;
    long          sig_size;
    Sig_p         sig;          /* Slightly hacked...this is only an
-               unsupervised reference (but will
-               stay)! Always free the OCB before
-               the signature and the signature
-               independently after the OCB. */
+                                  unsupervised reference (but will
+                                  stay)! Always free the OCB before
+                                  the signature and the signature
+                                  independently after the OCB. */
    FunCode       min_constant;
    long          *weights;     /* Array of weights */
    long          var_weight;   /* Variable Weight */
    long          *prec_weights;/* Precedence defined by weight - only
-              for total precedences */
+                                  for total precedences */
    CompareResult *precedence;  /* The most general case, interpreted
-              as two-dimensional array, indexed by
-              two symbols */
+                                  as two-dimensional array, indexed by
+                                  two symbols */
    bool           no_lit_cmp;  /* If true, all literals are
-              uncomparable (useful for SOS
-              strategy) */
+                                  uncomparable (useful for SOS
+                                  strategy) */
    PStack_p       statestack;  /* Contains backtrack information */
    long            wb;
    long            pos_bal;
@@ -262,8 +262,3 @@ static __inline__ CompareResult OCBFunCompare(OCB_p ocb, FunCode f1, FunCode f2)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

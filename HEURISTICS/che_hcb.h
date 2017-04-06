@@ -70,6 +70,7 @@ typedef struct heuristic_parms_cell
    char*               to_pre_prec;
    char*               to_pre_weights;
    long                to_const_weight;
+   bool                to_defs_min;
    bool                no_lit_cmp;
 
    /* Elements controling literal selection */
