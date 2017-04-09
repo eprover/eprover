@@ -18,7 +18,7 @@
 \usepackage{url}
 
 \author{Stephan Schulz}
-\title{E 1.9.1\\[1.5ex]User Manual\\[1.5ex]{\normalsize --preliminary
+\title{E 2.0\\[1.5ex]User Manual\\[1.5ex]{\normalsize --preliminary
     version--}}
 
 \makeindex{}
@@ -51,11 +51,11 @@ inferences have been performed or until the empty clause has been
 derived, i.e.\ the clause set has been found to be unsatisfiable and
 thus the conjecture has been proved.
 
-E is still a moving target, but most recent releases have been quite
-stable, and the prover is being used productively by several
-independent groups of people. This manual should enable you to
-experiment with the prover and to use some of its more advanced
-features.
+Even after 20 years, E is still a moving target. However, most recent
+releases have been quite stable, and the prover is being used
+productively by several independent groups of people. This manual
+should enable you to experiment with the prover and to use some of its
+more advanced features.
 
 The manual assumes a working knowledge of refutational theorem
 proving, which can be gained from e.g.~\cite{CL73}. For a short
@@ -91,21 +91,26 @@ line options:
 \bigskip
 \noindent
 \begin{tabular}{lp{7.5cm}}
-  \texttt{--autosat} & Choose a literal selection strategy, a clause
-  evaluation heuristic, and a term ordering automagically\index{xyzzy} (based on
-  problem features).\\
-  \texttt{--auto}    & As \texttt{--autosat}, but add heuristic
-  specification pruning using one of several instantiation of the SInE
-  algorithm~\cite{HV:CADE-2011} for large specifications.\\
-  \texttt{--auto-schedule} & As \texttt{--auto}, but try not one, but
-  up to 5 different strategies. \\
-  \texttt{--memory-limit=xx} & Tell the prover how much memory
-  (measured in MB) to use at most. In automatic mode E will optimize
-  its behaviour for this amount (32~MB will work, 128~MB is
-  reasonable, 1024~MB is what I use. \emph{More is
+  \texttt{--autosat}
+  & Choose a literal selection strategy, a clause
+    evaluation heuristic, and a term ordering automagically\index{xyzzy} (based on
+    problem features).\\
+  \texttt{--auto}
+  & As \texttt{--autosat}, but add heuristic
+    specification pruning using one of several instantiation of the SInE
+    algorithm~\cite{HV:CADE-2011} for large specifications.\\
+  a\texttt{--auto-schedule}
+  & As \texttt{--auto}, but try not one, but
+    up to 5 different strategies. \\
+  \texttt{--memory-limit=xx}
+  & Tell the prover how much memory
+    (measured in MB) to use at most. In automatic mode E will optimize
+    its behaviour for this amount (32~MB will work, 128~MB is
+    reasonable, 1024~MB is what I use. \emph{More is
     better}\footnotemark, but if you go over
-  your physical memory, you will probably experience \emph{very} heavy
-  swapping.).\\
+    your physical memory, you will probably experience \emph{very} heavy
+    swapping.) Due to limitations of \texttt{rlim\_t}, values over 2047
+    may not work on all platforms.\\
 \end{tabular}
 \footnotetext{Emphasis added for E~0.7 and up, which globally cache
   rewrite steps.}
@@ -134,42 +139,69 @@ the source code included with the distribution).
 
 E is a purely equational theorem prover, based on ordered
 paramodulation and rewriting. As such, it implements an instance of
-the superposition calculus described in~\cite{BG94}. We have extended
-the calculus with some stronger contraction rules and a more general
-approach to literal selection. The core proof procedure is a variant
-of the \emph{given-clause} algorithm.
+the superposition calculus described in~\cite{BG94}. We have added
+some stronger contraction rules and a more general approach to literal
+selection, and have also extended the calculus to simple, monomorphic
+many-sorted logic (in the sense of the TPTP-3 TFF
+format~\cite{SSCB:LPAR-2012}).
 
-However, before proof search in clause normal form (CNF) begins,
-various transformations can be applied to the input problem. In
-particular, E processes not only clausal problems, but can read full
-first order format, including a rich set of formula roles, logical
-operators and quantifiers. This format is reduced to clause normal
-form in a way that the CNF is unsatisfiable if and only if the
+The core proof procedure is a variant of the \emph{given-clause}
+algorithm. However, before proof search in clause normal form (CNF)
+begins, various transformations can be applied to the input
+problem. In particular, E processes not only clausal problems, but can
+read full first order format, including a rich set of formula roles,
+logical operators and quantifiers. This format is reduced to clause
+normal form in a way that the CNF is unsatisfiable if and only if the
 original problem is provable (if an explicit \emph{conjecture} is
 given) or itself unsatisfiable.
 
 
 \section{Calculus}
 
-\emph{Term}$(F,V)$\index{terms} denotes the set of (first order)
-\emph{terms} over a finite set of function symbols \emph{F} (with
-associated arities) and an enumerable set of variables
-\emph{V}\index{variables}. We write $t|_p$ to denote the
-subterm\index{subterm} of $t$ at a position $p$ and write
-$t[p\leftarrow t']$ to denote $t$ with $t|_p$ replaced by $t'$. An
-equation\index{equations} \eqn{s}{t} is an (implicitly symmetrical)
-pair of terms. A positive literal\index{literal} is an equation
-\eqn{s}{t}, a negative literal is a negated equation \neqn{s}{t}.  We
-write \ueqn{s}{t} to denote an arbitrary
-literal.\footnote{Non-equational literals are encoded as equations or
-  disequations \ueqn{P(t_1, \ldots, t_n)}{\top}. In this case, we
-  treat predicate symbols as special function symbols that can only
-  occur at the top-most positions and demand that atoms (terms formed
-  with a top predicate symbol) cannot be unified with a first-order
-  variable from $V$, i.e.\ we treat normal terms and predicate terms
-  as two disjoint sorts. We sometimes write the literal $\eqn{P(t_1,
-    \ldots, t_n)}{\top}$ as $P(t_1, \ldots, t_n)$ and $\neqn{P(t_1,
-    \ldots, t_n)}{\top}$ as $\neg P(t_1, \ldots, t_n)$ for
+We assume a finite set $S=\{S_i\}$ of \emph{sorts}\index{sort}
+(or atomic types), with each sort interpreted by a non-empty domain
+disjoint from the domains of all other sorts. With each sort $S_i$ we
+associate an enumerable set of variables\index{variable} $V_{S_i}$, with
+$V_S\cap V_T = \emptyset$ if $S\not=T$ (i.e.\ each variable has a
+unique sort). We assume at least two sorts, \texttt{\$i} (individuals)
+and \texttt{\$o} (truth values).
+
+A \emph{type}\index{type} is a non-empty tuple $(S_1, \ldots, S_n, T)$
+with $T\in S$ and $S_i \in S$ for all $S_i$. We usually write a type
+as $(S_1, \ldots, S_n) \to T$. The $S_i$ are called \emph{argument
+  sorts} and $T$ is called the \emph{resulting sort}.
+
+A signature $F$ is a finite set of function symbols with associated
+types. We write $f:(S_1, \ldots, S_n)
+ \to T$ to indicate that $f$ is
+of type $(S_1, \ldots, S_n) \to T$.
+
+\emph{Term}$(F,V)$\index{term} denotes the set of (sorted first order)
+\emph{terms} over \emph{F} and \emph{V}, defined as follows:
+$x \in V_{S_i}$ is a term of sort $S_i$. If
+$f:(S_1, \ldots, S_n) \to T$ is a function symbol in $F$ and
+$t_1, \ldots t_n$ are terms of sorts $S_1, \ldots S_n$, respectively,
+then $f(s_1, \ldots, s_n)$ is a term of sort $T$. We require that the
+$S_i\not=\mathtt{\$o}$, and call function symbols with resulting type
+\texttt{\$o} \emph{predicate symbols}.
+
+We write $t|_p$ to denote the subterm\index{subterm} of $t$ at a
+position $p$ and write $t[p\leftarrow t']$ to denote $t$ with $t|_p$
+replaced by $t'$. An equation\index{equation} \eqn{s}{t} is an
+(implicitly symmetrical) pair of terms. A positive
+literal\index{literal} is an equation \eqn{s}{t}, a negative literal
+is a negated equation \neqn{s}{t}.  We write \ueqn{s}{t} to denote an
+arbitrary literal.\footnote{Non-equational literals are encoded as
+  equations or disequations \ueqn{P(t_1, \ldots, t_n)}{\top}, where
+  the resulting sort of $P$ and $\top$ is \texttt{\$o}.
+
+  In other words, we treat predicate symbols as special function
+  symbols that can only occur at the top-most positions and demand
+  that atoms (terms formed with a top predicate symbol) cannot be
+  unified with a first-order variable, i.e.\ we treat normal terms and
+  predicate terms as disjoint sorts. We sometimes write the literal
+  $\eqn{P(t_1, \ldots, t_n)}{\top}$ as $P(t_1, \ldots, t_n)$ and
+  $\neqn{P(t_1, \ldots, t_n)}{\top}$ as $\neg P(t_1, \ldots, t_n)$ for
   simplicity.} Literals can be represented as multi-sets of multi-sets
 of terms, with \eqn{s}{t} represented as $\{\{s\},\{t\}\}$ and
 \neqn{s}{t} represented as $\{\{s, t\}\}$.  A \emph{ground reduction
@@ -190,14 +222,29 @@ of positive literals in $\mathcal{C}$ by $\mathcal{C^+}$ and the
 We extend $>_L$ to clauses by defining $>_C = >_L>_L$, i.e.\ we
 compare clauses as multi-sets of literals.
 
-
 We write $s[t\leftarrow t']$ to denote the term $s$ in which every
 occurance of the subterm $t$ has been replaced by $t'$. We extend this
 notion to literals and clauses (i.e.\ $C[t\leftarrow t']$ is the
 clause $C$ in which all occurrences of $t$ have been replaced by
 $t'$).
 
-The introduction of an extended notion of \emph{literal selection} has
+A \emph{substitution}\index{substitution} is a function
+$\sigma: V\to \mw{Term}(F,V)$ with the properties that
+$|\{ x\in V \mid \sigma(x)\not=x\}| \in \nat$ (i.e.\ only finitely
+many variables are substituted) and that $x$ and $\sigma(x)$ are terms
+of the same sort for all $x \in V$. Substitutions are extended to
+literals and clauses in the obvious way. A \emph{most general
+  unifier}\index{mgu}\index{most general unifier} of two terms $s$ and
+$t$ is a substitution $\sigma$ with $\sigma(s)=\sigma(t)$ and with the
+property that no other unifier is more general than $\sigma$. If the
+\emph{mgu} of two terms exists, it is unique up to variable renaming,
+so we usually speak of \emph{the} most general unifier of two terms
+and denote it by $\mw{mgu}(s,t)$.
+
+In the following, most inferences between clauses are performed at
+particular literals of the clauses. Inference literals can be
+determined the term ordering, or, sometimes, by \emph{selection}.  The
+introduction of an extended notion of \emph{literal selection} has
 improved the performance of E significantly. The necessary concepts
 are explained in the following.
 
@@ -441,7 +488,9 @@ variables.
      V, \sigma = mgu(x,y)$}
 
  \item \emph{Contextual literal cutting}\index{contextual literal
-     cutting}: \bigskip (CLC) \CInferenz{\sigma(C \vee R \vee
+     cutting}:
+
+   \bigskip (CLC) \CInferenz{\sigma(C \vee R \vee
      \ueqn{s}{t}) \hspace{2em} C \vee \overline{\ueqn{s}{t}}}{\sigma(C
      \vee R) \hspace{5em} C \vee \overline{\ueqn{s}{t}}} {where
      $\overline{\ueqn{s}{t}}$ is the negation of $\ueqn{s}{t}$ and
@@ -454,7 +503,7 @@ variables.
 \item \emph{Condensing}\index{condensing}:
 
    \bigskip (CON) \CInferenz{l_1 \vee l_2 \vee R}{\sigma(l_1 \vee R)}{if
-  $\sigma(l_1)\equiv\sigma(l_2)$ and $\sigma(l_1 \vee R)$ subsumes
+  $\sigma(l_1) = \sigma(l_2)$ and $\sigma(l_1 \vee R)$ subsumes
   $l_1 \vee l_2 \vee R$}
 
 
@@ -1487,6 +1536,8 @@ of the learned knowledge).
 \section{Other Options}
 \label{sec:options:others}
 
+TBC - run \texttt{eprover --help} for a short overview.
+
 
 \chapter{Input Language}
 \label{sec:language}
@@ -1494,7 +1545,7 @@ of the learned knowledge).
 E supports three different input formats and two different output
 formats. If no particular format is explicitly requested, E will
 determine the input format based on the first tokens of the input file
-and also determine the matching output format.
+and also select a  matching output format.
 
 \section{LOP}
 
@@ -1563,9 +1614,9 @@ require PCL2 format. Various tools for processing TPTP-3 proof format
 are available via the TPTP web-site, \url{http://www.tptp.org}.
 
 In either TPTP format, clauses and formulas with TPTP type
-\texttt{conjecture}, \texttt{negated-conjecture}, or \texttt{question}
-(the last two in TPTP-3 only) are considered goal clauses for the
-\texttt{--sos-uses-input-types} option.
+\texttt{conjecture}, \texttt{negated\_conjecture}, or
+\texttt{question} (the last two in TPTP-3 only) are considered goal
+clauses for the \texttt{--sos-uses-input-types} option.
 
 
 
@@ -2354,6 +2405,22 @@ The parameters have the following type and meaning:
 
 \clearpage
 \begin{appendix}
+  \chapter{Acknowledgements}
+
+  Many people have helped shape E with discussions and requests. They
+  are to numerous to be listed here, but outstanding contributors
+  include Robert Nieuwenhuis (who introduced me to literal selection),
+  Geoff Sutcliffe (who always pushes for one more feature - or ten),
+  Andrei Voronkov (for playing the game of \emph{The Tortoise and the
+    Hare} -- in both roles), and Joseph Urban, who is a profligate
+  user, proselytizer and occasional hacker.
+
+  In addition to this moral support, Martin M\"ohrmann has done some
+  cleanup and optimization of the code, Simon Cruanes has implemented
+  the extension to many-sorted logic, and Nick Sultana has overhauled
+  the manual, fixing many of my errors and thus making space for new
+  ones.
+
   \chapter{License}
 
   The standard distribution of E is free software. You can use, modify

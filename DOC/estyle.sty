@@ -1,21 +1,21 @@
 %%%%%%%%%%%%%%%%%%%%%%%% Start of File %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%  
+%
 % File   : estyle.sty
 %
 % Author : Stephan Schulz
-% 
+%
 % This file contains general definitions for my papers and thesis.
-% 
+%
 % Changes: <1> 20.09.1994 dipstyle.sty
 %          <2> 15.10.1997 Moved to disstyle.sty
 %          <3> Tue Feb  2 17:25:35 MET 1999 Added some stuff, changed
 %              to stsstyle.sty
 %          <4> Added some stuff, renamed to estyle.sty
-%           
-%           
+%
+%
 
 
-\typeout{estyle.sty - Handy macros for term rewriting and beautiful definitions} 
+\typeout{estyle.sty - Handy macros for term rewriting and beautiful definitions}
 \typeout{Written 1997,1998,1999 by Stephan Schulz}
 
 \usepackage{theorem}
@@ -50,7 +50,7 @@
 
 \theoremstyle{break}
 \theoremheaderfont{\bfseries}
-\theorembodyfont{\rmfamily} 
+\theorembodyfont{\rmfamily}
 \newtheorem{definition}{Definition}[section]
 
 \newtheorem{theorem}{Theorem}[section]
@@ -70,6 +70,7 @@
 \newcommand{\mmback}{\mbox{$\backslash \! \! \backslash$}}
 
 % Continous math words in mathematical and normal mode
+\newcommand{\nat}{\ensuremath{\mathbb N}}
 \newcommand{\mw}[1]{\ensuremath{\mathit{#1}}}
 \newcommand{\eqn}[2]{\ensuremath{#1\!\simeq\!#2}}
 \newcommand{\neqn}[2]{\ensuremath{#1\!\not\simeq\!#2}}
@@ -89,7 +90,7 @@
 \newcommand{\relation}[1]{\mbox{$\vdash \! \dashv_{\mbox{\tiny #1}}$}}
 
 \newcommand{\GInferenz}[3]
-{ 
+{
 \begin{tabular}{c}
 $#1$ \\
 \hline
@@ -105,7 +106,7 @@ $#1$ \\
 }
 
 \newcommand{\CInferenz}[3]
-{ 
+{
 \begin{tabular}{c}
 $#1$ \\
 \hline
@@ -122,7 +123,7 @@ $#1$ \\
 }
 
 \newcommand{\CInferenzFoot}[3]
-{ 
+{
 \begin{tabular}{c}
 $#1$ \\
 \hline
@@ -138,7 +139,7 @@ $#1$ \\
 \vspace{1.0ex}
 }
 
-%%% Local Variables: 
+%%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "eprover"
-%%% End: 
+%%% End:
