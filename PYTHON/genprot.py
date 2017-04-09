@@ -268,7 +268,10 @@ if __name__ == "__main__":
         fieldnames += featurekeys
     for configname, problems in data.items():
         with open(protfile(configname), "w") as report:
-            report.write("# {0[Command]} \n".format(firstvalue(problems)))
+            try:
+                report.write("# {0[Command]} \n".format(firstvalue(problems)))
+            except KeyError:
+                report.write("# Could not find command\n")
             report.writelines("# {} {} \n".format(*pair)
                               for pair in enumerate(fieldnames, 1))
             if not args.header:
