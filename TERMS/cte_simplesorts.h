@@ -75,6 +75,8 @@ typedef struct sort_table
 #define SortTableCellFree(junk) SizeFree(junk, sizeof(SortTableCell))
 #define SortIsUserDefined(sort) (sort > STPredefined)
 
+#define SortIsInterpreted(sort) (((sort)>=STInteger)&&((sort)<=STReal))
+
 SortTable_p SortTableAlloc(void);
 void        SortTableFree(SortTable_p junk);
 SortType    SortTableInsert(SortTable_p table, char* sort_name);
@@ -90,8 +92,3 @@ void        SortTablePrint(FILE* out, SortTable_p table);
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

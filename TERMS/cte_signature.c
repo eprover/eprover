@@ -577,12 +577,12 @@ FunCode SigInsertId(Sig_p sig, const char* name, int arity, bool special_id)
    {
       if(sig->f_info[pos].arity != arity)
       {
-    printf("Problem: %s %d != %d\n", name, arity, sig->f_info[pos].arity);
-    return 0; /* ...but incompatible */
+         printf("Problem: %s %d != %d\n", name, arity, sig->f_info[pos].arity);
+         return 0; /* ...but incompatible */
       }
       if(special_id)
       {
-    SigSetSpecial(sig, pos, true);
+         SigSetSpecial(sig, pos, true);
       }
       return pos; /* all is fine... */
    }
@@ -592,7 +592,7 @@ FunCode SigInsertId(Sig_p sig, const char* name, int arity, bool special_id)
       /* sig->size+= DEFAULT_SIGNATURE_SIZE; */
       sig->size *= DEFAULT_SIGNATURE_GROW;
       sig->f_info  = SecureRealloc(sig->f_info,
-               sizeof(FuncCell)*sig->size);
+                                   sizeof(FuncCell)*sig->size);
    }
 
    /* Insert the element in f_index and f_info */

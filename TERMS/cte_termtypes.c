@@ -1,10 +1,10 @@
 /*-----------------------------------------------------------------------
 
-File  : cte_termtypes.c
+  File  : cte_termtypes.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Declarations for the basic term type and primitive functions, mainly
   on single term cells. This module mostly provides only
@@ -17,12 +17,7 @@ Contents
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
-
-<1> Tue Feb 24 02:17:11 MET 1998
-    New, from cte_terms.c
-<2> Thu Mar 28 21:40:52 CEST 2002
-    Started to implement new rewriting
+  Created: Tue Feb 24 02:17:11 MET 1998 - Split  from cte_terms.c
 
 -----------------------------------------------------------------------*/
 
@@ -96,17 +91,17 @@ void TermFree(Term_p junk)
       assert(!TermCellQueryProp(junk, TPIsShared));
       if(junk->arity)
       {
-    int i;
+         int i;
 
-    assert(junk->args);
-    for(i=0; i<junk->arity; i++)
-    {
-       TermFree(junk->args[i]);
-    }
+         assert(junk->args);
+         for(i=0; i<junk->arity; i++)
+         {
+            TermFree(junk->args[i]);
+         }
       }
       else
       {
-    assert(!junk->args);
+         assert(!junk->args);
       }
       TermTopFree(junk);
    }
@@ -202,8 +197,8 @@ void TermSetProp(Term_p term, DerefType deref, TermProperties prop)
       TermCellSetProp(term, prop);
       for(i=0; i<term->arity; i++)
       {
-    PStackPushP(stack, term->args[i]);
-    PStackPushInt(stack, deref);
+         PStackPushP(stack, term->args[i]);
+         PStackPushInt(stack, deref);
       }
    }
    PStackFree(stack);
@@ -239,13 +234,13 @@ bool TermSearchProp(Term_p term, DerefType deref, TermProperties prop)
       term  = TermDeref(term, &deref);
       if(TermCellQueryProp(term, prop))
       {
-    res = true;
-    break;
+         res = true;
+         break;
       }
       for(i=0; i<term->arity; i++)
       {
-    PStackPushP(stack, term->args[i]);
-    PStackPushInt(stack, deref);
+         PStackPushP(stack, term->args[i]);
+         PStackPushInt(stack, deref);
       }
    }
    PStackFree(stack);
@@ -283,13 +278,13 @@ bool TermVerifyProp(Term_p term, DerefType deref, TermProperties prop,
       term  = TermDeref(term, &deref);
       if(TermCellGiveProps(term, prop)!=expected)
       {
-    res = false;
-    break;
+         res = false;
+         break;
       }
       for(i=0; i<term->arity; i++)
       {
-    PStackPushP(stack, term->args[i]);
-    PStackPushInt(stack, deref);
+         PStackPushP(stack, term->args[i]);
+         PStackPushInt(stack, deref);
       }
    }
    PStackFree(stack);
@@ -325,8 +320,8 @@ void TermDelProp(Term_p term, DerefType deref, TermProperties prop)
       TermCellDelProp(term, prop);
       for(i=0; i<term->arity; i++)
       {
-    PStackPushP(stack, term->args[i]);
-    PStackPushInt(stack, deref);
+         PStackPushP(stack, term->args[i]);
+         PStackPushInt(stack, deref);
       }
    }
    PStackFree(stack);
@@ -358,7 +353,7 @@ void TermDelPropOpt(Term_p term, TermProperties prop)
       TermCellDelProp(term, prop);
       for(i=0; i<term->arity; i++)
       {
-    PStackPushP(stack, term->args[i]);
+         PStackPushP(stack, term->args[i]);
       }
    }
    PStackFree(stack);
@@ -394,15 +389,56 @@ void TermVarSetProp(Term_p term, DerefType deref, TermProperties prop)
       term  = TermDeref(term, &deref);
       if(TermIsVar(term))
       {
-    TermCellSetProp(term, prop);
+         TermCellSetProp(term, prop);
       }
       for(i=0; i<term->arity; i++)
       {
-    PStackPushP(stack, term->args[i]);
-    PStackPushInt(stack, deref);
+         PStackPushP(stack, term->args[i]);
+         PStackPushInt(stack, deref);
       }
    }
    PStackFree(stack);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermHasInterpretedSymbol()
+//
+//    Return true if the term has at least one symbol from an
+//    interpreted sort (currently the arithmetic sorts,
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+bool TermHasInterpretedSymbol(Term_p term)
+{
+   PStack_p stack = PStackAlloc();
+   int i;
+   bool res = false;
+
+   PStackPushP(stack, term);
+
+   while(!PStackEmpty(stack))
+   {
+      term  = PStackPopP(stack);
+      /* printf("#Fcode: %ld  Sort: %d\n", term->f_code, term->sort); */
+      if(SortIsInterpreted(term->sort))
+      {
+         res = true;
+         break;
+      }
+      for(i=0; i<term->arity; i++)
+      {
+         PStackPushP(stack, term->args[i]);
+      }
+   }
+   PStackFree(stack);
+
+   return res;
 }
 
 
@@ -436,13 +472,13 @@ bool TermVarSearchProp(Term_p term, DerefType deref, TermProperties prop)
       term  = TermDeref(term, &deref);
       if(TermIsVar(term) && TermCellQueryProp(term, prop))
       {
-    res = true;
-    break;
+         res = true;
+         break;
       }
       for(i=0; i<term->arity; i++)
       {
-    PStackPushP(stack, term->args[i]);
-    PStackPushInt(stack, deref);
+         PStackPushP(stack, term->args[i]);
+         PStackPushInt(stack, deref);
       }
    }
    PStackFree(stack);
@@ -477,12 +513,12 @@ void TermVarDelProp(Term_p term, DerefType deref, TermProperties prop)
       term  = TermDeref(term, &deref);
       if(TermIsVar(term))
       {
-    TermCellDelProp(term, prop);
+         TermCellDelProp(term, prop);
       }
       for(i=0; i<term->arity; i++)
       {
-    PStackPushP(stack, term->args[i]);
-    PStackPushInt(stack, deref);
+         PStackPushP(stack, term->args[i]);
+         PStackPushInt(stack, deref);
       }
    }
    PStackFree(stack);
@@ -540,11 +576,6 @@ void TermStackDelProps(PStack_p stack, TermProperties prop)
 
 
 
-
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-

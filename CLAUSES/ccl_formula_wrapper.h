@@ -80,6 +80,7 @@ extern long FormulaDefLimit;
 
 #define WFormulaCellAlloc()    (WFormulaCell*)SizeMalloc(sizeof(WFormulaCell))
 #define WFormulaCellFree(junk) SizeFree(junk, sizeof(WFormulaCell))
+#define WFormHasInterpretedSymbol(form) TermHasInterpretedSymbol((form)->tformula)
 
 WFormula_p DefaultWFormulaAlloc(void);
 WFormula_p WTFormulaAlloc(TB_p terms, TFormula_p formula);

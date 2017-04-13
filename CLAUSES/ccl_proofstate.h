@@ -42,66 +42,65 @@ Changes
 
 typedef struct proofstatecell
 {
-   SortTable_p       sort_table;
-   Sig_p             signature;
-   long              original_symbols;
-   //TB_p              original_terms;
-   TB_p              terms;
-   TB_p              tmp_terms;
-   VarBank_p         freshvars;
-   //GCAdmin_p         gc_original_terms;
-   GCAdmin_p         gc_terms;
-   FormulaSet_p      f_ax_archive;
-   FormulaSet_p      f_axioms;
-   ClauseSet_p       axioms;
-   ClauseSet_p       ax_archive;
-   ClauseSet_p       processed_pos_rules;
-   ClauseSet_p       processed_pos_eqns;
-   ClauseSet_p       processed_neg_units;
-   ClauseSet_p       processed_non_units;
-   ClauseSet_p       unprocessed;
-   ClauseSet_p       tmp_store;
-   ClauseSet_p       archive;
-   FormulaSet_p      f_archive;
-   PStack_p          extract_roots;
-   GlobalIndices     gindices;
-   bool              fvi_initialized; /* Are the feature vector
-                                         indices set up? */
-   FVCollect_p       fvi_cspec;
-   ClauseSet_p       demods[3];       /* Synonyms for
-                                         processed_pos_rules and
-                                         processed_pos_eqns */
-   ClauseSet_p       watchlist;
-   GlobalIndices     wlindices;
-   bool              state_is_complete;
-   DefStore_p        definition_store;
-   FVCollect_p       def_store_cspec;
+   SortTable_p   sort_table;
+   Sig_p         signature;
+   long          original_symbols;
+   TB_p          terms;
+   TB_p          tmp_terms;
+   VarBank_p     freshvars;
+   GCAdmin_p     gc_terms;
+   FormulaSet_p  f_ax_archive;
+   FormulaSet_p  f_axioms;
+   ClauseSet_p   axioms;
+   ClauseSet_p   ax_archive;
+   ClauseSet_p   processed_pos_rules;
+   ClauseSet_p   processed_pos_eqns;
+   ClauseSet_p   processed_neg_units;
+   ClauseSet_p   processed_non_units;
+   ClauseSet_p   unprocessed;
+   ClauseSet_p   tmp_store;
+   ClauseSet_p   archive;
+   FormulaSet_p  f_archive;
+   PStack_p      extract_roots;
+   GlobalIndices gindices;
+   bool          fvi_initialized; /* Are the feature vector
+                                     indices set up? */
+   FVCollect_p   fvi_cspec;
+   ClauseSet_p   demods[3];       /* Synonyms for
+                                     processed_pos_rules and
+                                     processed_pos_eqns */
+   ClauseSet_p   watchlist;
+   GlobalIndices wlindices;
+   bool          state_is_complete;
+   bool          has_interpreted_symbols;
+   DefStore_p    definition_store;
+   FVCollect_p   def_store_cspec;
 
-   bool              status_reported;
-   long              answer_count;
+   bool          status_reported;
+   long          answer_count;
 
-   unsigned long           processed_count;
-   unsigned long           proc_trivial_count;
-   unsigned long           proc_forward_subsumed_count;
-   unsigned long           proc_non_trivial_count;
-   unsigned long           other_redundant_count;       /* Intermediate
-                                        filtering */
-   unsigned long           non_redundant_deleted;
-   unsigned long           backward_subsumed_count;
-   unsigned long           backward_rewritten_count;
-   unsigned long           backward_rewritten_lit_count;
-   unsigned long           generated_count;
-   unsigned long           generated_lit_count;
-   unsigned long           non_trivial_generated_count;
-   unsigned long           context_sr_count;
-   unsigned long           paramod_count;
-   unsigned long           factor_count;
-   unsigned long           resolv_count;
+   unsigned long processed_count;
+   unsigned long proc_trivial_count;
+   unsigned long proc_forward_subsumed_count;
+   unsigned long proc_non_trivial_count;
+   unsigned long other_redundant_count; /* Intermediate
+                                           filtering */
+   unsigned long non_redundant_deleted;
+   unsigned long backward_subsumed_count;
+   unsigned long backward_rewritten_count;
+   unsigned long backward_rewritten_lit_count;
+   unsigned long generated_count;
+   unsigned long generated_lit_count;
+   unsigned long non_trivial_generated_count;
+   unsigned long context_sr_count;
+   unsigned long paramod_count;
+   unsigned long factor_count;
+   unsigned long resolv_count;
 
    /* The following are only set by ProofStateAnalyse() after
       DerivationCompute() at the end of the proof search. */
-   unsigned long           gc_count;
-   unsigned long           gc_used_count;
+   unsigned long gc_count;
+   unsigned long gc_used_count;
 }ProofStateCell, *ProofState_p;
 
 typedef enum

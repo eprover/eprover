@@ -152,7 +152,6 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->signature            = SigAlloc(handle->sort_table);
    SigInsertInternalCodes(handle->signature);
    handle->original_symbols     = 0;
-   //handle->original_terms       = TBAlloc(handle->signature);
    handle->terms                = TBAlloc(handle->signature);
    handle->tmp_terms            = TBAlloc(handle->signature);
    handle->freshvars            = VarBankAlloc(handle->sort_table);
@@ -175,18 +174,16 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->processed_pos_rules->demod_index = PDTreeAlloc();
    handle->processed_pos_eqns->demod_index  = PDTreeAlloc();
    handle->processed_neg_units->demod_index = PDTreeAlloc();
-   // handle->unprocessed->demod_index         = PDTreeAlloc();
    handle->demods[0]            = handle->processed_pos_rules;
    handle->demods[1]            = handle->processed_pos_eqns;
    handle->demods[2]            = NULL;
    handle->watchlist            = NULL;
    GlobalIndicesNull(&(handle->wlindices));
-   // printf("# &wlindices = %p\n", &(handle->wlindices));
-   handle->state_is_complete    = true;
+   handle->state_is_complete       = true;
+   handle->has_interpreted_symbols = false;
    handle->definition_store     = DefStoreAlloc(handle->terms);
    handle->def_store_cspec      = NULL;
 
-   // handle->gc_original_terms    = GCAdminAlloc(handle->original_terms);
    handle->gc_terms             = GCAdminAlloc(handle->terms);
    GCRegisterFormulaSet(handle->gc_terms, handle->f_axioms);
    GCRegisterFormulaSet(handle->gc_terms, handle->f_ax_archive);

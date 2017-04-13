@@ -68,6 +68,7 @@ void         FormulaSetDeleteEntry(WFormula_p form);
 
 void         FormulaSetPrint(FILE* out, FormulaSet_p set,
                              bool fullterms);
+bool         FormulaSetHasInterpretedSymbol(FormulaSet_p set);
 long         FormulaSetSplitConjectures(FormulaSet_p set,
                                         PList_p conjectures,
                                         PList_p rest);

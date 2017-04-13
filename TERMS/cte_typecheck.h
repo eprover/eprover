@@ -8,7 +8,6 @@ Contents
 
   Type checking and inference for Simple types
 
-
   Copyright 2011 by the author.
   This code is released under the GNU General Public Licence.
   See the file COPYING in the main CLIB directory for details.
@@ -47,8 +46,3 @@ void     TypeDeclareIsNotPredicate(Sig_p sig, Term_p term);
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

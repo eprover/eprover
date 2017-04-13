@@ -352,6 +352,37 @@ void FormulaSetPrint(FILE* out, FormulaSet_p set, bool fullterms)
    }
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaSetHasInterpretedSymbol()
+//
+//   Return true if any formula from set has a symbol from an
+//   interpreted sort.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool FormulaSetHasInterpretedSymbol(FormulaSet_p set)
+{
+   WFormula_p handle;
+
+   handle = set->anchor->succ;
+
+   while(handle!=set->anchor)
+   {
+      if(WFormHasInterpretedSymbol(handle))
+      {
+         return true;
+      }
+      handle = handle->succ;
+   }
+   return false;
+}
+
+
 
 /*-----------------------------------------------------------------------
 //

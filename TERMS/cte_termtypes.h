@@ -16,12 +16,8 @@ Contents
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
-
-<1> Tue Feb 24 01:23:24 MET 1998
-    Ripped out of the now obsolete cte_terms.h
-<2> Thu Mar 28 21:40:52 CEST 2002
-    Started to implement new rewriting
+Created: Tue Feb 24 01:23:24 MET 1998 - Ripped out of the now obsolete
+         cte_terms.h
 
 -----------------------------------------------------------------------*/
 
@@ -230,6 +226,7 @@ void    TermDelPropOpt(Term_p term, TermProperties prop);
 void    TermVarSetProp(Term_p term, DerefType deref, TermProperties prop);
 bool    TermVarSearchProp(Term_p term, DerefType deref, TermProperties prop);
 void    TermVarDelProp(Term_p term, DerefType deref, TermProperties prop);
+bool    TermHasInterpretedSymbol(Term_p term);
 
 static __inline__ Term_p  TermDerefAlways(Term_p term);
 static __inline__ Term_p  TermDeref(Term_p term, DerefType_p deref);
@@ -455,6 +452,3 @@ static __inline__ Term_p TermTopAlloc(FunCode f_code, int arity)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
