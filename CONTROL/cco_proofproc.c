@@ -1474,37 +1474,37 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
 /----------------------------------------------------------------------*/
 
 Clause_p Saturate(ProofState_p state, ProofControl_p control, long
-        step_limit, long proc_limit, long unproc_limit, long
-        total_limit, long answer_limit)
+                  step_limit, long proc_limit, long unproc_limit, long
+                  total_limit, long answer_limit)
 {
    Clause_p unsatisfiable = NULL;
    long count = 0;
 
    while(!TimeIsUp &&
          !ClauseSetEmpty(state->unprocessed) &&
-    step_limit>count &&
-    proc_limit>(state->processed_pos_rules->members +
-           state->processed_pos_eqns->members +
-           state->processed_neg_units->members +
-           state->processed_non_units->members) &&
-    unproc_limit>state->unprocessed->members &&
-    total_limit>(state->processed_pos_rules->members +
-            state->processed_pos_eqns->members +
-            state->processed_neg_units->members +
-            state->processed_non_units->members+
-            state->unprocessed->members)&&
-    (!state->watchlist||!ClauseSetEmpty(state->watchlist)))
+         step_limit>count &&
+         proc_limit>(state->processed_pos_rules->members +
+                     state->processed_pos_eqns->members +
+                     state->processed_neg_units->members +
+                     state->processed_non_units->members) &&
+         unproc_limit>state->unprocessed->members &&
+         total_limit>(state->processed_pos_rules->members +
+                      state->processed_pos_eqns->members +
+                      state->processed_neg_units->members +
+                      state->processed_non_units->members+
+                      state->unprocessed->members)&&
+         (!state->watchlist||!ClauseSetEmpty(state->watchlist)))
    {
       count++;
       unsatisfiable = ProcessClause(state, control, answer_limit);
       if(unsatisfiable)
       {
-    break;
+         break;
       }
       unsatisfiable = cleanup_unprocessed_clauses(state, control);
       if(unsatisfiable)
       {
-    break;
+         break;
       }
    }
    return unsatisfiable;

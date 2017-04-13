@@ -732,12 +732,12 @@ int EqnListRemoveResolved(EqnRef list)
    {
       if(EqnIsFalse(*list))
       {
-    EqnListDeleteElement(list);
-    removed++;
+         EqnListDeleteElement(list);
+         removed++;
       }
       else
       {
-    list = &((*list)->next);
+         list = &((*list)->next);
       }
    }
    return removed;
@@ -1619,5 +1619,3 @@ long EqnListCollectSubterms(Eqn_p list, PStack_p collector)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
