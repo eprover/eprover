@@ -58,6 +58,8 @@ typedef enum
    OPT_EQ_UNFOLD_LIMIT,
    OPT_EQ_UNFOLD_MAXCLAUSES,
    OPT_NO_EQ_UNFOLD,
+   OPT_FREE_NUMBERS,
+   OPT_FREE_OBJECTS,
    OPT_DEF_CNF_OLD,
    OPT_DEF_CNF,
    OPT_MINISCOPE_LIMIT,
@@ -232,6 +234,21 @@ OptCell opts[] =
     NoArg, NULL,
     "During preprocessing, abstain from unfolding (and removing) "
     "equational definitions."},
+
+   {OPT_FREE_NUMBERS,
+    '\0', "free-numbers",
+     NoArg, NULL,
+     "Treat numbers (strings of decimal digits) as normal free function "
+    "symbols in the input. By default, number now are supposed to denote"
+    " domain constants and to be implicitly different from each other."},
+
+   {OPT_FREE_OBJECTS,
+    '\0', "free-objects",
+     NoArg, NULL,
+     "Treat object identifiers (strings in double quotes) as normal "
+    "free function symbols in the input. By default, object identifiers "
+    "now represent domain objects and are implicitly different from "
+    "each other (and from numbers, unless those are declared to be free)."},
 
    {OPT_DEF_CNF,
     '\0', "definitional-cnf",
@@ -448,6 +465,7 @@ bool     tptp_header      = false,
 long     eqdef_maxclauses = DEFAULT_EQDEF_MAXCLAUSES,
          miniscope_limit  = 1000;
 int      eqdef_incrlimit  = DEFAULT_EQDEF_INCRLIMIT;
+FunctionProperties free_symb_prop = FPIgnoreProps;
 
 
 /*---------------------------------------------------------------------*/
@@ -788,7 +806,7 @@ int main(int argc, char* argv[])
    {
       for(i=0; state->argv[i]; i++)
       {
-         fstate = ProofStateAlloc(FPIgnoreProps);
+         fstate = ProofStateAlloc(free_symb_prop);
          in    = CreateScanner(StreamTypeFile, state->argv[i], true, NULL);
          ScannerSetFormat(in, parse_format);
 
@@ -959,6 +977,12 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
             break;
       case OPT_NO_EQ_UNFOLD:
             eqdef_incrlimit = INT_MIN;
+            break;
+      case OPT_FREE_NUMBERS:
+            free_symb_prop = free_symb_prop|FPIsInteger|FPIsRational|FPIsFloat;
+            break;
+      case OPT_FREE_OBJECTS:
+            free_symb_prop = free_symb_prop|FPIsObject;
             break;
       case OPT_DEF_CNF_OLD:
             new_cnf = false;
