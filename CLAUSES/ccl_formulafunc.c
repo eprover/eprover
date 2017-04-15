@@ -624,14 +624,15 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    long old_nodes = TBNonVarTermNodes(terms);
    long gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
 
+   //printf("# Introducing definitions\n");
    TFormulaSetIntroduceDefs(set, archive, terms);
-   // printf("# Definitions introduced\n");
+   //printf("# Definitions introduced\n");
 
    while(!FormulaSetEmpty(set))
    {
       handle = FormulaSetExtractFirst(set);
-      // WFormulaPrint(stdout, handle, true);
-      // fprintf(stdout, "\n");
+      //WFormulaPrint(stdout, handle, true);
+      //fprintf(stdout, "\n");
       if(BuildProofObject)
       {
          form = WFormulaFlatCopy(handle);
@@ -990,17 +991,17 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, FormulaSet_p archive, TB_p terms
    long       polarity;
    WFormula_p w_def, c_def, formula, arch_form;
 
-   // printf("TFormulaSetIntroduceDefs()...\n");
+   //printf("TFormulaSetIntroduceDefs()...\n");
    TFormulaSetDelTermpProp(set, TPCheckFlag|TPPosPolarity|TPNegPolarity);
-   // printf("Deleted properties\n");
+   //printf("Deleted properties\n");
    FormulaSetMarkPolarity(set);
-   // printf("Marked polarites\n");
+   //printf("Marked polarites\n");
 
-   // printf("About to find defs\n");
+   //printf("About to find defs\n");
    TFormulaSetFindDefs(set, terms, &defs, renamed_forms);
 
    res = PStackGetSP(renamed_forms);
-   // printf("About to Create defs\n");
+   //printf("About to Create defs\n");
 
    for(i=0; i<PStackGetSP(renamed_forms); i++)
    {

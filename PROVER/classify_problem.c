@@ -778,6 +778,9 @@ int main(int argc, char* argv[])
    StrTree_p       skip_includes = NULL;
 
    assert(argv[0]);
+#ifdef STACK_SIZE
+   INCREASE_STACK_SIZE;
+#endif
 
    InitIO(NAME);
 
@@ -812,18 +815,15 @@ int main(int argc, char* argv[])
 
          FormulaAndClauseSetParse(in, fstate->axioms,
                                   fstate->f_axioms,
-                                  fstate->/* original_*/terms, NULL, &
-                                  skip_includes);
+                                  fstate->terms, NULL, &skip_includes);
          if(raw_classify)
          {
             do_raw_classification(state->argv[i], fstate, limits);
          }
          else
          {
-            // printf("Else\n");
             FormulaSetPreprocConjectures(fstate->f_axioms, fstate->f_ax_archive,
                                          false, false);
-            // printf("PreprocConj done\n");
             if(new_cnf)
             {
                FormulaSetCNF2(fstate->f_axioms,
