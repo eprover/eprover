@@ -62,7 +62,7 @@ void FileOpenErrorPrint(char* name)
    TmpErrno = errno; /* Save error number, the following call to
                         sprintf() can theoretically alter  the
                         value !*/
-   sprintf(ErrStr, "Cannot open file %s for reading", name);
+   sprintf(ErrStr, "Cannot stat or open file %s for reading", name);
    SysError(ErrStr, FILE_ERROR);
 }
 
@@ -83,12 +83,28 @@ void FileOpenErrorPrint(char* name)
 FILE* InputOpen(char *name, bool fail)
 {
    FILE* in;
+   int statres;
+   struct stat stat_buf;
 
    if(name && strcmp(name,"-")!= 0)
    {
 
       VERBOUTARG2("Trying file ", name);
       in = fopen(name, "r");
+
+      statres = stat (name, &stat_buf);
+      if(statres != 0)
+      {
+         in = NULL;
+      }
+      else if(!S_ISREG (stat_buf.st_mode))
+      {
+         in = NULL;
+         if(fail)
+         {
+            Error("Trying to open %s, but it is not a regular file", FILE_ERROR, name);
+         }
+      }
 
       if(fail && !in)
       {
@@ -411,5 +427,3 @@ char* FileNameStrip(char* name)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

@@ -25,7 +25,8 @@ Changes
 
 #define CIO_FILEOPS
 
-#include  <cio_output.h>
+#include <sys/stat.h>
+#include <cio_output.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -58,8 +59,3 @@ char* FileNameStrip(char* name);
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
