@@ -12,8 +12,9 @@ trail_space     = re.compile('\s*$')
 arg_term        = re.compile('\s|$')
 full_comment    = re.compile('^#')
 dash            = re.compile('-')
+csv             = re.compile('.csv');
 slash           = re.compile('/')
-match_heuristic = re.compile("-H'\(.*\)'")
+match_heuristic = re.compile("-H'?\(.*\)'?")
 match_class     = re.compile('CLASS_[a-zA-Z-0-9]*$')
 eval_f_sep      = re.compile('\),')
 problem_ext     = re.compile('\.[a-z]*$')
@@ -72,7 +73,7 @@ def parse_prot(filename, stratname, matrix, succ_cases):
         if(res):
             desc = desc+l
         else:
-            clean = re.sub(trail_space,'',l)                         
+            clean = re.sub(trail_space,'',l)
             tuple=re.split(white_space,clean)
             prob = compute_problem_stem(tuple[0]);
             if (problems.has_key(prob)) and (tuple[1] in succ_cases):
@@ -82,7 +83,7 @@ def parse_prot(filename, stratname, matrix, succ_cases):
                 matrix[cl][stratname]=tuple_add2(old,(1,time))
                 old = stratperf[stratname];
                 stratperf[stratname] = tuple_add2(old,(1,time))
-        l=p.readline()        
+        l=p.readline()
     p.close
     return desc
 
@@ -116,7 +117,7 @@ def find_covered(heuristic,classes):
 
 def compare_strat_global(strat1, strat2):
     eval1 = stratperf[strat1]
-    eval2 = stratperf[strat2]                     
+    eval2 = stratperf[strat2]
     if eval1[0] > eval2[0]:
         return -1
     if eval1[0] < eval2[0]:
@@ -125,7 +126,7 @@ def compare_strat_global(strat1, strat2):
         return 1
     if eval1[1] < eval2[1]:
         return -1
-    return 0   
+    return 0
 
 
 def translate_class(cl):
@@ -148,7 +149,10 @@ def translate_class_list(cl):
     return res[0:-1];
 
 def trans_heuristic_name(name):
-    return re.sub(dash,"_", name[10:])
+    tmp = re.sub('p[^_]*_', "", name);
+    tmp = re.sub(dash,"_", tmp)
+    tmp = re.sub('[.]csv',"", tmp)
+    return tmp
 
 
 def heuristic_define(name):
@@ -157,20 +161,20 @@ def heuristic_define(name):
         raise RuntimeError, "No heuristic defined in " + name;
     res= '"' + trans_heuristic_name(name) + ' = \\n"\n"'
     tmp = stratdesc[name][mr.start()+3:mr.end()-1]
-    res=res+ re.sub(eval_f_sep,'),"\n" ',tmp) +'\\n"'    
-    
+    res=res+ re.sub(eval_f_sep,'),"\n" ',tmp) +'\\n"'
+
     return res
 
 def extract_arg(line, mopt):
     l = line[mopt.end():]
     m = arg_term.search(l)
     res = l[0:m.start()]
-    
+
     if res == "":
         raise RuntimeError, "Argument to option in command line missing: "+line[mopt.start():]
 
     return res
-    
+
 match_ac_l      = re.compile(" --ac-handling=")
 match_acnag_l   = re.compile(" --ac-non-aggressive")
 match_litsel_s  = re.compile(" -W *")
@@ -235,7 +239,7 @@ def parse_control_info(line):
     else:
         m = match_unproc_sd.search(line)
         if m:
-            res = res+ "      control->heuristic_parms.unproc_simplify=TopLevelUnitSimplify;\n" 
+            res = res+ "      control->heuristic_parms.unproc_simplify=TopLevelUnitSimplify;\n"
 
     #
     # Contextual simplify-reflect
@@ -243,16 +247,16 @@ def parse_control_info(line):
 
     m = match_fcsr.search(line)
     if m:
-        res = res+ "      control->heuristic_parms.forward_context_sr = true;\n" 
+        res = res+ "      control->heuristic_parms.forward_context_sr = true;\n"
 
     m = match_fcsra.search(line)
     if m:
-        res = res+ "      control->heuristic_parms.forward_context_sr = true;\n" 
-        res = res+ "      control->heuristic_parms.forward_context_sr_aggressive = true;\n" 
-        
+        res = res+ "      control->heuristic_parms.forward_context_sr = true;\n"
+        res = res+ "      control->heuristic_parms.forward_context_sr_aggressive = true;\n"
+
     m = match_bcsr.search(line)
     if m:
-        res = res+ "      control->heuristic_parms.backward_context_sr = true;\n" 
+        res = res+ "      control->heuristic_parms.backward_context_sr = true;\n"
 
     #
     # Literal selection parameters
@@ -303,12 +307,12 @@ def parse_control_info(line):
     if m:
         arg = extract_arg(line, m)
         res = res+ "      control->heuristic_parms.split_clauses="+arg+";\n"
- 
+
     m = match_splitm_l.search(line)
     if m:
         arg = extract_arg(line, m)
         res = res+ "      control->heuristic_parms.split_method="+arg+";\n"
- 
+
     m = match_splita_l.search(line)
     if m:
         res = res+ "      control->heuristic_parms.split_aggressive=true;\n"
@@ -335,17 +339,17 @@ def parse_control_info(line):
 
     #
     # Rewriting parameters
-    #    
+    #
     m = match_demod_s.search(line)
     if m:
         arg = extract_arg(line, m)
         res = res+ "      control->heuristic_parms.forward_demod="+arg+";\n"
- 
+
     m = match_demod_l.search(line)
     if m:
         arg = extract_arg(line, m)
         res = res+ "      control->heuristic_parms.forward_demod="+arg+";\n"
-     
+
     m = match_g_demod_s.search(line)
     if m:
         res = res+ "      control->heuristic_parms.prefer_general=true;\n"
@@ -360,7 +364,7 @@ def parse_control_info(line):
     m = match_simul_pm.search(line)
     if m:
         res = res+ "      control->heuristic_parms.pm_type=ParamodAlwaysSim;\n"
- 
+
     m = match_osimul_pm.search(line)
     if m:
         res = res+ "      control->heuristic_parms.pm_type=ParamodOrientedSim;\n"
@@ -469,7 +473,7 @@ def parse_ordering_info(line):
 #    if m:
 #        arg = extract_arg(line, m)
 #        if arg != "":
-#            raise RuntimeError, "Can only handle empty precedence "+arg        
+#            raise RuntimeError, "Can only handle empty precedence "+arg
 #       res = res+ "      oparms.to_prec_gen=";\n"
 
     return res
@@ -591,7 +595,7 @@ selstrat={
    "PSelectUnlessUniqMaxSmallestOrientable": "PSelectUnlessUniqMaxSmallestOrientable",
    "SelectDivLits"                      : "SelectDiversificationLiterals",
    "SelectDivPreferIntoLits"            : "SelectDiversificationPreferIntoLiterals",
-   "SelectMaxLComplexG"                 : "SelectMaxLComplexG", 
+   "SelectMaxLComplexG"                 : "SelectMaxLComplexG",
 
    "SelectMaxLComplexAvoidPosPred"      : "SelectMaxLComplexAvoidPosPred",
    "SelectMaxLComplexAPPNTNp"           : "SelectMaxLComplexAPPNTNp",
@@ -802,7 +806,7 @@ for i in classlist:
 
 for i in stratset.keys():
     stratperf[i]=(0,0)
-    stratdesc[i]=parse_prot(stratset[i],i,matrix,succ_cases)    
+    stratdesc[i]=parse_prot(stratset[i],i,matrix,succ_cases)
 
 
 # Start determining the strategies
@@ -834,7 +838,7 @@ while class_list_iter:
         h = ordered_strats.pop(0)
     else:
         h = find_optimal_heuristic(class_list_iter, used)
-        
+
     covered =  find_covered(h, class_list_iter)
     for i in covered:
         result[i] = h
@@ -847,7 +851,7 @@ while class_list_iter:
 
 if optimize_large_class_limit > 0:
     class_list_iter = list(classlist)
-    
+
     while class_list_iter:
         cand = class_list_iter.pop()
         if classsize[cand] > optimize_large_class_limit:
@@ -911,7 +915,7 @@ else:
       res = "''' + trans_heuristic_name(i) +'";'
 
         print parse_control_info(stratdesc[i])
-    
+
         print '''#endif
 #ifdef TO_ORDERING_INTERNAL'''
 
@@ -940,5 +944,3 @@ else:
 /*     End of automatically generated code.               */
 /* -------------------------------------------------------*/
 """
-
-
