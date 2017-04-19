@@ -13,7 +13,7 @@ arg_term        = re.compile('\s|$')
 full_comment    = re.compile('^#')
 dash            = re.compile('-')
 slash           = re.compile('/')
-match_heuristic = re.compile("-H'\(.*\)'")
+match_heuristic = re.compile("-H'?\(.*\)'?")
 match_class     = re.compile('CLASS_[a-zA-Z-0-9]*$')
 eval_f_sep      = re.compile('\),')
 problem_ext     = re.compile('\.[a-z]*$')
@@ -313,7 +313,10 @@ def translate_class_list(cl, opt_res):
     return res[0:-1];
 
 def trans_heuristic_name(name):
-    return re.sub(dash,"_", name[10:])
+    tmp = re.sub('p[^_]*_', "", name);
+    tmp = re.sub(dash,"_", tmp)
+    tmp = re.sub('[.]csv',"", tmp)
+    return tmp
 
 
 def heuristic_define(name):
@@ -321,7 +324,8 @@ def heuristic_define(name):
     if not mr:
         raise RuntimeError, "No heuristic defined in " + name;
     res= '"' + trans_heuristic_name(name) + ' = \\n"\n"'
-    tmp = stratdesc[name][mr.start()+3:mr.end()-1]
+    tmp = stratdesc[name][mr.start()+2:mr.end()]
+    tmp = re.sub("'", "", tmp);
     res=res+ re.sub(eval_f_sep,'),"\n" ',tmp) +'\\n"'    
     
     return res

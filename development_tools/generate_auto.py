@@ -160,8 +160,9 @@ def heuristic_define(name):
     if not mr:
         raise RuntimeError, "No heuristic defined in " + name;
     res= '"' + trans_heuristic_name(name) + ' = \\n"\n"'
-    tmp = stratdesc[name][mr.start()+3:mr.end()-1]
-    res=res+ re.sub(eval_f_sep,'),"\n" ',tmp) +'\\n"'
+    tmp = stratdesc[name][mr.start()+2:mr.end()]
+    tmp = re.sub("'", "", tmp);
+    res=res+ re.sub(eval_f_sep,'),"\n" ',tmp) +'\\n"'    
 
     return res
 
