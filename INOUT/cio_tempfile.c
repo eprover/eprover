@@ -130,7 +130,8 @@ char* TempFileName(void)
 
    if(fd==-1)
    {
-      Error("Could not create valid temporary file name", FILE_ERROR);
+      TmpErrno = errno;
+      SysError("Could not create valid temporary file name", FILE_ERROR);
    }
    close(fd);
    res = SecureStrdup(DStrView(name));
@@ -201,5 +202,3 @@ void TempFileRemove(char* name)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

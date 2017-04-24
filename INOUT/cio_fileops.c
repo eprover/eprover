@@ -45,27 +45,6 @@ Changes
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
 
-/*-----------------------------------------------------------------------
-//
-// Function: FileErrorPrint()
-//
-//   Print an errpr message about failed file opening.
-//
-// Global Variables:
-//
-// Side Effects    :
-//
-/----------------------------------------------------------------------*/
-
-void FileOpenErrorPrint(char* name)
-{
-   TmpErrno = errno; /* Save error number, the following call to
-                        sprintf() can theoretically alter  the
-                        value !*/
-   sprintf(ErrStr, "Cannot stat or open file %s for reading", name);
-   SysError(ErrStr, FILE_ERROR);
-}
-
 
 /*-----------------------------------------------------------------------
 //
@@ -96,19 +75,25 @@ FILE* InputOpen(char *name, bool fail)
       if(statres != 0)
       {
          in = NULL;
+         if(fail)
+         {
+            TmpErrno = errno;
+            SysError("Cannot stat file %s", FILE_ERROR, name);
+         }
       }
       else if(!S_ISREG (stat_buf.st_mode))
       {
          in = NULL;
          if(fail)
          {
-            Error("Trying to open %s, but it is not a regular file", FILE_ERROR, name);
+            Error("%s it is not a regular file", FILE_ERROR, name);
          }
       }
 
       if(fail && !in)
       {
-         FileOpenErrorPrint(name);
+         TmpErrno = errno;
+         SysError("Cannot open file %s for reading", FILE_ERROR , name);
       }
       if(fail)
       {

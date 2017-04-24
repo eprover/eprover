@@ -40,7 +40,6 @@ Changes
 /*---------------------------------------------------------------------*/
 
 
-void FileOpenErrorPrint(char* name);
 FILE* InputOpen(char *name, bool fail);
 void  InputClose(FILE* file);
 long  FileLoad(char* name, DStr_p dest);
