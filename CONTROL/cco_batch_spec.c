@@ -831,8 +831,11 @@ long BatchProcessProblems(BatchSpec_p spec, StructFOFSpec_p ctrl,
       /* printf("######### Remaining %d probs, %ld secs, limit %ld\n",
          sp-i, rest, wct_limit); */
 
-      DStrSet(dest_name, dest_dir);
-      DStrAppendChar(dest_name, '/');
+      if(dest_dir)
+      {
+         DStrSet(dest_name, dest_dir);
+         DStrAppendChar(dest_name, '/');
+      }
       DStrAppendStr(dest_name, PStackElementP(spec->dest_files, i));
 
       if(BatchProcessFile(spec,
@@ -956,5 +959,3 @@ void BatchProcessInteractive(BatchSpec_p spec,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

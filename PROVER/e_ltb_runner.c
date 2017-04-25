@@ -131,7 +131,7 @@ OptCell opts[] =
 };
 
 char              *outname        = NULL;
-char              *outdir         = ".";
+char              *outdir         = NULL;
 long              total_wtc_limit = 0;
 bool              interactive     = false;
 

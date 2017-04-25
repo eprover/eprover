@@ -65,9 +65,9 @@ void TempFileCleanup(void)
       VERBOUTARG("Removing termorary file ", temp_file_store->key);
       if(unlink(temp_file_store->key))
       {
-    sprintf(ErrStr, "Could not remove temporary file %s",
-       temp_file_store->key);
-    Warning(ErrStr);
+         sprintf(ErrStr, "Could not remove temporary file %s",
+                 temp_file_store->key);
+         Warning(ErrStr);
       }
       StrTreeDeleteEntry(&temp_file_store, temp_file_store->key);
    }
@@ -124,14 +124,19 @@ char* TempFileName(void)
    {
       DStrAppendStr(name, "/tmp");
    }
-   DStrAppendStr(name, "/epr_XXXXXX");
+   if(DStrLen(name) && DStrLastChar(name)!='/')
+   {
+      DStrAppendChar(name, '/');
+   }
+   DStrAppendStr(name, "epr_XXXXXX");
 
    fd = mkstemp(DStrView(name));
 
    if(fd==-1)
    {
       TmpErrno = errno;
-      SysError("Could not create valid temporary file name", FILE_ERROR);
+      SysError("Could not create valid temporary file name %s (check $TMPDIR)",
+               FILE_ERROR, DStrView(name));
    }
    close(fd);
    res = SecureStrdup(DStrView(name));
