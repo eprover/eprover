@@ -5,14 +5,14 @@ File  : clb_dstrings.h
 Author: Stephan Schulz
 
   Declarations for dynamic, arbitrary length strings
-  (i.e. 0-terminated arays of characters). The conversion between
+  (i.e. 0-terminated arrays of characters). The conversion between
   DStrs and C-strings is as simple and efficient as possible. This
   implementation is optimized for strings with a certain behaviour,
   usually experienced when reading input: Most strings are fairly
   small, and for each set of strings the length distribution is fairly
   similar.
 
-  Dstrings can also be used as a primitive form of reference-counted
+  DStrings can also be used as a primitive form of reference-counted
   strings - functions for obtaining counted reference, releasing it,
   and delayed destruction of a still referenced object are
   provided. The use of these functions is optional and requires user
@@ -24,10 +24,9 @@ Author: Stephan Schulz
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Fri Aug 15 17:01:33 MET DST 1997
-    New
+  Created: Aug 15 17:01:33 MET DST 1997 - New
 
 -----------------------------------------------------------------------*/
 
@@ -68,8 +67,8 @@ char*   DStrAppendChar(DStr_p strdes, char newch);
 char*   DStrAppendBuffer(DStr_p strdes, char* buf, int len);
 char*   DStrAppendInt(DStr_p strdes, long newpart);
 char*   DStrAppendStrArray(DStr_p strdes, char* array[], char*
-            separator);
-#define DStrAppendDStr(strdes, str) \
+                           separator);
+#define DStrAppendDStr(strdes, str)             \
         DStrAppendStr((strdes), DStrView(str))
 char    DStrDeleteLastChar(DStr_p strdes);
 #define DStrLastChar(strdes) (DStrLen(strdes)?DStrView(strdes)[DStrLen(strdes)-1]:'\0')
@@ -90,8 +89,3 @@ void    DStrMinimize(DStr_p strdes);
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
