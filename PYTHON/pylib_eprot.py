@@ -49,8 +49,10 @@ import os.path
 import pylib_generic
 import pylib_io
 
-espec_name = "tptp_"
-eprot_name = "protokoll_"
+espec_name  = "tptp_"
+eprot_name  = "protokoll_"
+eprot_name  = "protokoll_"
+eprot_name2 = "protocol_"
 
 
 def parse_espec_string(specstr, sourcename=None, resdict = None, joblist = None):
@@ -140,6 +142,8 @@ def e_strip_name(name):
         return name[len(espec_name):]
     if name.startswith(eprot_name):
         return name[len(eprot_name):]
+    if name.startswith(eprot_name2):
+        return name[len(eprot_name2):]
     return name
 
 
@@ -250,7 +254,7 @@ class eprot(object):
         self.params = params
 
     def protname(self):
-        return eprot_name+self.name
+        return eprot_name2+self.name
 
     def add_result(self, result):
         self.results[result.name()]=result
