@@ -63,11 +63,11 @@ typedef enum
    OPT_SOFTCPU_LIMIT,
    OPT_RUSAGE_INFO,
    OPT_STEP_LIMIT,
-   OPT_ANSWER_LIMIT,
-   OPT_CONJ_ARE_QUEST,
    OPT_PROC_LIMIT,
    OPT_UNPROC_LIMIT,
    OPT_TOTAL_LIMIT,
+   OPT_ANSWER_LIMIT,
+   OPT_CONJ_ARE_QUEST,
    OPT_NO_INFIX,
    OPT_FULL_EQ_REP,
    OPT_LOP_PARSE,
@@ -430,22 +430,6 @@ OptCell opts[] =
     "Set the maximal number of clauses to process (i.e. the number"
     " of traversals of the main-loop)."},
 
-   {OPT_ANSWER_LIMIT,
-    '\0', "answers",
-    OptArg, "2147483647",
-    "Set the maximal number of answers to print for existentially"
-    " quantified questions. Without this option, the prover terminates"
-    " after the first answer found. If the value is different from 1, "
-    "the prover is no longer guaranteed to terminate, even if there is"
-    " a finite number of answers."},
-
-   {OPT_CONJ_ARE_QUEST,
-    '\0', "conjectures-are-questions",
-    NoArg, NULL,
-    "Treat all conjectures as questions to be answered. This is a wart "
-    "necessary because CASC-J6 has categories requiring answers, but "
-    "does not yet support the 'question' type for formulas."},
-
    {OPT_PROC_LIMIT,
     'P', "processed-set-limit",
     ReqArg, NULL,
@@ -464,6 +448,22 @@ OptCell opts[] =
     'T', "total-clause-set-limit",
     ReqArg, NULL,
     "Set the maximal size of the set of all clauses. See previous option."},
+
+   {OPT_ANSWER_LIMIT,
+    '\0', "answers",
+    OptArg, "2147483647",
+    "Set the maximal number of answers to print for existentially"
+    " quantified questions. Without this option, the prover terminates"
+    " after the first answer found. If the value is different from 1, "
+    "the prover is no longer guaranteed to terminate, even if there is"
+    " a finite number of answers."},
+
+   {OPT_CONJ_ARE_QUEST,
+    '\0', "conjectures-are-questions",
+    NoArg, NULL,
+    "Treat all conjectures as questions to be answered. This is a wart "
+    "necessary because CASC-J6 has categories requiring answers, but "
+    "does not yet support the 'question' type for formulas."},
 
    {OPT_NO_INFIX,
     'n', "eqn-no-infix",

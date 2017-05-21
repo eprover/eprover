@@ -1593,11 +1593,11 @@ CLState_p process_options(int argc, char* argv[])
 void print_help(FILE* out)
 {
    fprintf(out, "\n\
-E " VERSION " \"" E_NICKNAME "\"\n              \
-\n                                              \
-Usage: " NAME " [options] [files]\n             \
-\n                                                                      \
-Read a set of first-order clauses and formulae and try to refute it.\n  \
+E " VERSION " \"" E_NICKNAME "\"\n\
+\n\
+Usage: " NAME " [options] [files]\n\
+\n\
+Read a set of first-order clauses and formulae and try to refute it.\n\
 \n");
    PrintOptions(stdout, opts, "Options:\n\n");
    fprintf(out, "\n\n" E_FOOTER);
