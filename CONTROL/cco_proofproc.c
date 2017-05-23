@@ -1475,7 +1475,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
 
 Clause_p Saturate(ProofState_p state, ProofControl_p control, long
                   step_limit, long proc_limit, long unproc_limit, long
-                  total_limit, long answer_limit)
+                  total_limit, long generated_limit, long answer_limit)
 {
    Clause_p unsatisfiable = NULL;
    long count = 0;
@@ -1493,6 +1493,8 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
                       state->processed_neg_units->members +
                       state->processed_non_units->members+
                       state->unprocessed->members)&&
+         generated_limit> (state->generated_count -
+                           state->backward_rewritten_count)&&
          (!state->watchlist||!ClauseSetEmpty(state->watchlist)))
    {
       count++;

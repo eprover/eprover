@@ -66,6 +66,7 @@ typedef enum
    OPT_PROC_LIMIT,
    OPT_UNPROC_LIMIT,
    OPT_TOTAL_LIMIT,
+   OPT_GENERATED_LIMIT,
    OPT_ANSWER_LIMIT,
    OPT_CONJ_ARE_QUEST,
    OPT_NO_INFIX,
@@ -448,6 +449,13 @@ OptCell opts[] =
     'T', "total-clause-set-limit",
     ReqArg, NULL,
     "Set the maximal size of the set of all clauses. See previous option."},
+
+   {OPT_GENERATED_LIMIT,
+    '\0', "generated-limit",
+    ReqArg, NULL,
+    "Set the maximal number of generated clauses before the proof search "
+    "stops. This is a reasonable (though not great) estimate of the work "
+    "done."},
 
    {OPT_ANSWER_LIMIT,
     '\0', "answers",

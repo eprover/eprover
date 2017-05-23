@@ -82,6 +82,7 @@ long              step_limit = LONG_MAX,
    proc_limit = LONG_MAX,
    unproc_limit = LONG_MAX,
    total_limit = LONG_MAX,
+   generated_limit = LONG_MAX,
    eqdef_maxclauses = DEFAULT_EQDEF_MAXCLAUSES,
    relevance_prune_level = 0,
    miniscope_limit = 1000;
@@ -505,7 +506,7 @@ int main(int argc, char* argv[])
 
       proofcontrol->heuristic_parms.selection_strategy = SelectNoGeneration;
       success = Saturate(proofstate, proofcontrol, LONG_MAX,
-                         LONG_MAX, LONG_MAX, LONG_MAX, LONG_MAX);
+                         LONG_MAX, LONG_MAX, LONG_MAX, LONG_MAX, LONG_MAX);
       fprintf(GlobalOut, "# Presaturation interreduction done\n");
       proofcontrol->heuristic_parms.selection_strategy = sel_strat;
       if(!success)
@@ -518,7 +519,8 @@ int main(int argc, char* argv[])
    if(!success)
    {
       success = Saturate(proofstate, proofcontrol, step_limit,
-                         proc_limit, unproc_limit, total_limit, answer_limit);
+                         proc_limit, unproc_limit, total_limit,
+                         generated_limit, answer_limit);
    }
    PERF_CTR_EXIT(SatTimer);
 
@@ -993,6 +995,9 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_TOTAL_LIMIT:
             total_limit = CLStateGetIntArg(handle, arg);
+            break;
+      case OPT_GENERATED_LIMIT:
+            generated_limit = CLStateGetIntArg(handle, arg);
             break;
       case OPT_NO_INFIX:
             EqnUseInfix = false;
