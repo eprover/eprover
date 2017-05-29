@@ -1,6 +1,18 @@
 This history list describes the major differences between versions of
 the E equational theorem prover.
 
+
+Version 1.9.1 -> 2.0 Turzun
+
+- Support for TFF (typed first-order form)
+- Improved clausification (faster, with graceful degradation if
+  miniscoping becomes too expensive)
+- Improved auto-modes
+- Improved Set-of-Support simulation
+- Parsing and pruning preprocessing FOF now, even for CNF input
+- Input clauses/formulas keep their original name (if any)
+
+
 Version 1.9 -> 1.9.1 Sungma
 
 - Improved proof object output
@@ -13,7 +25,7 @@ Version 1.9 -> 1.9.1 Sungma
 - More detailed proof graphs
 - Automatic determination of input format if no format is
   specified. If input format is determined as TPTP-3, output format is
-  automatically set to TPTP-3/TSTP, too. 
+  automatically set to TPTP-3/TSTP, too.
 - Various fixes to watchlist code. Again. And again. If you use this
   feature and have been using a pre-release, you want to upgrade!
 
@@ -65,8 +77,8 @@ Version 1.5 -> 1.6 Tiger Hill
   Blanchette
 - Added support for "Shell" PCL (a more compact form that only records
   the dependency graph, but not the actual clauses for intermediate
-  results) 
-- Added SInE-axiom filtering and automatic mode for SInE. 
+  results)
+- Added SInE-axiom filtering and automatic mode for SInE.
 - Much better heuristics and new auto mode(s)
 - Even better AutoDev-Mode (use at your own risk ;-)
 - More convenient command line interface:
@@ -104,7 +116,7 @@ Version 1.2 -> 1.3 Ringtong
   large problems, and adapted/extended the corresponging libraries.
 - Added clause evaluation functions that allow the manipulation of the
   weight based on the pre-sence and frequency of invidual function
-  symbols. 
+  symbols.
 - Added answer instantiation output.
 
 Version 1.1 -> 1.2 Badamtam
@@ -158,7 +170,7 @@ Version 0.999 -> 0.999-004
 
 - Fixed string overflow bug sometimes corrupting auto mode
   classification (Thanks to Josef Urban for finding it)
-- Fixed illegal memory access in term formula building 
+- Fixed illegal memory access in term formula building
   (Thanks to Josef Urban for pointing it out).
 - Updated TPTP-3 parser.
 - Cleanup of eproof script (thanks to Larry Paulson for bugging me
@@ -169,8 +181,8 @@ Version 0.99 -> 0.999 Longview
 - Finally got to eliminate the ugly duplicate term cells for terms
   with rewrite restrictions. This lead to a rather simpler term bank
   structure, too.
-- Added better syntactic support for integers and floats. 
-- Removed old '--interprete-numbers' option and associated dead code. 
+- Added better syntactic support for integers and floats.
+- Removed old '--interprete-numbers' option and associated dead code.
 - Fixed (hopefully) the learning module, which had suffered from bit
   rot. It works now, although it ignores FOF axioms for similarity
   measures. This does not affect the default heuristics.
@@ -183,8 +195,8 @@ Version 0.91 -> 0.99 Singtom
 - Introduced new and (maybe) better clause evaluation data type.
 - Updated install scripts to handle OSes with UCB tail.
 - Found (and fixed) mismatch between split handling and split
-  documentation (argh!). 
-- New splitting via (reusable) definitions introduced and tested. 
+  documentation (argh!).
+- New splitting via (reusable) definitions introduced and tested.
 - Spell-checked manual and (prover) help output.
 - Better Auto-Mode
 - Some cleanup.
@@ -201,7 +213,7 @@ Version 0.9 -> 0.91 Kanyam
 - Fixed and updated a number of tools, all of which should now work
   with full FOF format
 - Fixed TSTP parser to conform to new parenthesizing/precedence
-  handling.  
+  handling.
 
 Version 0.82 -> 0.9 Soom
 
@@ -238,7 +250,7 @@ Version 0.81 -> 0.82 Lung Ching
 
 - Fixed a bug in find_spec_literal() pointed out by Flavio
   Ribeira. Might improve performance for large problems with a lot of
-  subsumption. 
+  subsumption.
 - Added LPO4 variant from Bernd Loechners paper. Much faster
 - Cleanup of feature stuff (needs more cleaning)
 - Added support for full first-order logic and clausification
@@ -256,7 +268,7 @@ Version 0.8 -> 0.81 Tumsong
   release versions, but allow experiments while keeping behavior
   stable for in-between versions).
 - Much improved automatic mode (knows more about contextual literal
-  cutting and SOS now) 
+  cutting and SOS now)
 - Improved support for TSTP input and full TSTP output
 - Added some things to the manual. Yes, really!
 
@@ -280,7 +292,7 @@ Version 0.71 -> 0.8 Steinthal
 - Added contextual simplify-reflect (may change that name - what about
   contextual equational literal cutting?)
 - New auto mode, still mostly based on pre-subsumption-indexing test
-  runs 
+  runs
 - Added epcllemma program that will use various heuristics to suggest
   lemmata in PCL protocols.
 
@@ -297,7 +309,7 @@ Version 0.7 -> 0.71 Puttabong
 - Fixed bug in eground (number of clauses in printed DIMACS format was
   potentially different from stored number of clauses)
 - Added new and better term ordering schemes and literal selection
-  functions. 
+  functions.
 - Added new weight functions and priority functions to get a better
   grip on FIFO.
 - New and better auto-mode (surprise ;-)
@@ -318,7 +330,7 @@ Version 0.63 --> 0.7 Dhajea
 + Rewrote and simplified splitting, added aggressive splitting
   (splitting of unprocessed clauses)
 + Added aggressive equality resolution
-+ Added optional unit cutting with unprocessed clauses 
++ Added optional unit cutting with unprocessed clauses
 + New and improved automatic mode
 + Fixed a bug with --prefer-initial-clauses. Now it works (and often
   is quite helpful)
@@ -356,7 +368,7 @@ Version 0.62 --> 0.63 Nuwara Eliya
   extensions (under a separate license)
 + Added SymbolTypeweight heuristic (assigns different weight to
   non-constant function symbols, constants, predicates, and
-  variables). 
+  variables).
 + Addded support for HPUX again.
 + Added some new literal selection functions.
 + Implemented epclanalyse to easily determine certain properties of
@@ -376,7 +388,7 @@ Version 0.61 --> 0.62 Mullootar
 + Added new features for auto mode (maximum function symnbol arity),
   very useful for UEQ
 + New auto mode
-+ Implemented eground (grounds near-propositional proof problems) 
++ Implemented eground (grounds near-propositional proof problems)
 
 Version 0.6 --> 0.61 North Tukvar
 
@@ -388,24 +400,24 @@ Version 0.6 --> 0.61 North Tukvar
   the precedence code
 + Added Waldmeister-like AC handling (on by default), with options
   --ac-handling and --ac-non-aggressive (read their documentation to
-  see what they do). 
+  see what they do).
 + Updated proof analysis tools to deal with AC handling, fixed some
   other annoying things with them (SR was encoded as a generating
-  rule). 
+  rule).
 + Implemented NLweight clause weight, giving different weight to the
   first occurrence of a variable in a term and later (i.e. non-linear)
-  ones. 
+  ones.
 + Fixed bug in TSM-based weight functions (introduced by
   pseudo-optimizing me....aaargh!)
 + Modified frequency-based ordering generation - will now use arity as
-  tie-breaker. 
+  tie-breaker.
 + Added new weight generation schemes modarity and modaritymax0
 + Fixed some problems with evaluation comparisons on Intel Itanium
   systems (thanks to Compaqs Test Drive program for access to the
   hardware!) (in fact, did _not_ yet fix all of them...strange stuff
-  happens!) 
+  happens!)
 + Added literal selection functions selecting literals based on
-  orientability. 
+  orientability.
 + Rewrote term indexing - can now cope with growing signatures
 + Added M-literal-selection functions (select positive literals in
   Non-Horn clauses, not in Horn clauses)
@@ -416,7 +428,7 @@ Version 0.6 --> 0.61 North Tukvar
 
 Version 0.6 (prerelease) --> 0.6 (Kanchanjangha)
 
-+ Updated (some) documentation, in particular the help texts of the 
++ Updated (some) documentation, in particular the help texts of the
   programs.
 + Overhauled the manual - it's still very incomplete, but at least not
   outrightly false anymore (I hope)
@@ -426,13 +438,13 @@ Version 0.6 (prerelease) --> 0.6 (Kanchanjangha)
 Version  0.51 --> 0.6 prerelease
 
 + Added various learning heuristics (but documentation is still
-  missing) 
+  missing)
 + Added new literal selection functions taking the ordering into
   account (and reorganized parts of the proof procedure to allow
-  this). 
+  this).
 + Added relatively naive LPO cache
 + Reimplemented LPO for better performance - now faster without the
-  cache 
+  cache
 + Added support for SOS strategy (with priority function SimulateSOS,
   does not seem to do very well at the moment)
 + Enabled soft- and hard cpu time limits simultanously.
@@ -453,7 +465,7 @@ Version 0.5 --> 0.51 (Mim)
 + Added more literal selection functions playing with
   range-restriction variations
 + Moved input format description to scanner object and generalized
-  concept. 
+  concept.
 + Moved signal handling from CONTROL.a to INOUT.a
 + Included handling for temorary files, abstracted some of the other
   file stuff
@@ -513,7 +525,7 @@ Version 0.31a --> 0.32 (Lingia)
 + Fixed bug in EqnListEqnIs[Strictly]Maximal().
 + Removed test for maximality of instantiated negative literals into
   which the prover paramodulates - it never yielded false anyways in
-  practice. 
+  practice.
 + Added output of the empty clause whenever --print-saturated is
   selected and the empty clause has been derived.
 + Added evaluations functions reminiscent of DISCOUNT's MaxWeight.
@@ -570,7 +582,7 @@ Version 0.3 --> 0.31 Jungpana
 + Brought depanalyze up to working state (it currently prints a
   dependency graph for clauses, including demodulators). As a side
   effect, the -l3 option should now work and really print a complete
-  protocol. 
+  protocol.
 + Fixed a bug in Equality factoring (it allowed unification between
   variable and predicate term).
 + Improved Auto-Mode for heuristic selection, now optimized for
@@ -612,10 +624,10 @@ Version 0.23 --> 0.24 "Yunnan"
   allow clean coding of an auto-mode.
 + Variables do not have external references anymore -> saves time and
   space, and fixes half a bug.
-+ Did some testing.  
++ Did some testing.
   "eprover -x Standard --memory-limit=192 --cpu-limit=300" on a SUN
   Ultra-10 Workstation should be able to solve about 1312 problems
-  from the TPTP version 2.1.0. 
+  from the TPTP version 2.1.0.
 
 
 Version 0.22 --> 0.23 "StopGap"
@@ -632,7 +644,7 @@ Version 0.21 --> 0.22 "Risheehat"
 
 + Removed rewrite cruft (see last version change)
 + Unified term banks for processed and unprocessed clauses, optimized
-  rewriting 
+  rewriting
 + Optimized unification
 + More verbose and more correct statistics
 + Removed a long-standing (but basically user-invisible) memory
@@ -645,7 +657,7 @@ Version 0.21 --> 0.22 "Risheehat"
 + Simplified equation type, replaced boolean properties with bit
   properties after profiling showed that shared terms are so efficient
   that clause and equation cells contribute significantly to memory
-  consumption. 
+  consumption.
 + Implemented simple non-unit-subsumption. Prover now works in some
   fashion on non-unit problems (i.e. would not come in as last in
   CASC-15).

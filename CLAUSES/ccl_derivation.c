@@ -643,6 +643,35 @@ bool ClauseIsDummyQuote(Clause_p clause)
 
 /*-----------------------------------------------------------------------
 //
+// Function: ClauseIsDummyFOFQuote()
+//
+//   Return true if the clause is just generated as a quote of its
+//   single (FOF) parent.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool ClauseIsDummyFOFQuote(Clause_p clause)
+{
+   if(clause->derivation)
+   {
+      if((PStackGetSP(clause->derivation)==2) &&
+         (PStackElementInt(clause->derivation, 0)==DCFofQuote))
+      {
+         return true;
+      }
+   }
+   return false;
+}
+
+
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: ClauseDerivFindFirst()
 //
 //   Given a clause, check if it's part of a reference cascade (i.e. has
@@ -679,7 +708,7 @@ Clause_p ClauseDerivFindFirst(Clause_p clause)
 //   just on parent and is justified by a simple reference to the
 //   parent (via OpCode DCFofQuote)). If yes, track back the reference
 //   cascade and return the first (original) occurrence of the formula.
-//   Otherwise return the clause.
+//   Otherwise return the formula.
 //
 // Global Variables: -
 //
@@ -1495,10 +1524,10 @@ void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived,
    }
    if(deriv)
    {
-         DerivStackExtractOptParents(deriv,
-                                     sig,
-                                     parent_clauses,
-                                     parent_formulas);
+      DerivStackExtractOptParents(deriv,
+                                  sig,
+                                  parent_clauses,
+                                  parent_formulas);
    }
 
    //parent_count = PStackGetSP(parent_clauses)+
@@ -1799,6 +1828,7 @@ long DerivationExtract(Derivation_p derivation, PStack_p root_clauses)
       {
          clause = PStackPopP(parent_clauses);
          newnode = DerivationGetDerived(derivation, clause, NULL);
+         assert(newnode);
          if(newnode->is_fresh)
          {
             newnode->is_fresh = false;
@@ -1810,6 +1840,7 @@ long DerivationExtract(Derivation_p derivation, PStack_p root_clauses)
       {
          form = PStackPopP(parent_formulas);
          newnode = DerivationGetDerived(derivation, NULL, form);
+         assert(newnode);
          if(newnode->is_fresh)
          {
             newnode->is_fresh = false;

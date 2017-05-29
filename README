@@ -1,4 +1,4 @@
-NOTE: The CASC-24 ReadMe file is in DOC/Readme.
+NOTE: The CASC ReadMe file is in DOC/Readme.
 
 
 Short Installation Instructions for the impatient
@@ -55,16 +55,20 @@ input and output formats via commandline options.
              ===============================
 
 
-This is the README file for version 1.9.1 "Sungma" of the E equational
+This is the README file for version 2.0 "Turzun" of the E equational
 theorem prover. This version of E is free software, see the file
 COPYING for details about the license and the fact that THERE IS NO
 WARRANTY!
 
-Release 1.9.1 contains several minor improvements and a bug fix in
-clausifications. In particular, the input format ist now by default
-automatically recognized. Search behaviour was improved with changes
-to the automatic mode, and strategy-scheduling has moved from
-experimental to (hopefully) stable.
+Release 2 contains several major changes and improvements. The most
+significant user-visible change is that E now supports the TFF (typed
+first-order form), although not (yet) interpreted arithmetic. Most of
+the work to support TFF was done by Simon Cruanes - thanks! E now also
+handles some formulas with large quantifier prefixes more efficiently,
+and does degrade more gracefully in the worst case.
+
+Search behaviour was improved with changes to the automatic mode, and
+strategy-scheduling has moved from experimental to (hopefully) stable.
 
 
 What is E?
@@ -251,7 +255,7 @@ SKELETONS:
 
 EXAMPLE_PROBLEMS:
 
-  - Example problems taken from the TPTP 2.1.0 library.
+  - Some example problems taken from the TPTP 6.4.0 library.
 
 EXTERNAL:
 
