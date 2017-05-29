@@ -13,7 +13,7 @@ arg_term        = re.compile('\s|$')
 full_comment    = re.compile('^#')
 dash            = re.compile('-')
 slash           = re.compile('/')
-match_heuristic = re.compile("-H'?\(.*\)'?")
+match_heuristic = re.compile("-H'?\([^\n]*\)[ \n]")
 match_class     = re.compile('CLASS_[a-zA-Z-0-9]*$')
 eval_f_sep      = re.compile('\),')
 problem_ext     = re.compile('\.[a-z]*$')
@@ -26,7 +26,7 @@ class StratPerf(object):
     """
     def __init__(self, strat_name):
         self.strat_name = strat_name
-        self.problems   = {}        
+        self.problems   = {}
         self.solutions  = 0
         self.soln_time  = 0.0
 
@@ -54,14 +54,14 @@ class StratPerf(object):
         return len(self.problems)
 
     def getSuccesses(self, time_limit, succ_status):
-        return [(i, self.problems[i]) for i in self.problems if self.isSuccess(i,time_limit, succ_status)] 
+        return [(i, self.problems[i]) for i in self.problems if self.isSuccess(i,time_limit, succ_status)]
 
     def getPerf(self):
         """
         Return currently stored performance.
         """
-        return (self.solutions, self.soln_time)    
-                    
+        return (self.solutions, self.soln_time)
+
     def computePerf(self, time_limit, succ_status):
         """
         Update and return performance data.
@@ -83,8 +83,8 @@ class StratPerf(object):
         for prob in other.problems:
             if other.isSuccess(prob):
                 self.delProblem(prob)
-        
-    
+
+
 
 class ClassPerf(object):
     """
@@ -98,10 +98,10 @@ class ClassPerf(object):
     def addProblem(self, strat_name, prob, status, time):
         """
         Add data for one problem from one strategy to the performance
-        object. 
+        object.
         """
         if not strat_name in self.strats:
-            set = StratPerf(strat_name)            
+            set = StratPerf(strat_name)
             self.strats[strat_name] = set
         else:
             set = self.strats[strat_name]
@@ -131,7 +131,7 @@ class ClassPerf(object):
             return True
         except KeyError:
             return False
-        
+
     def getStrat(self, strat_name):
         return self.strats[strat_name]
 
@@ -205,7 +205,7 @@ def parse_prot(filename, stratname, matrix, succ_cases, time_limit):
         if(res):
             desc = desc+l
         else:
-            clean = re.sub(trail_space,'',l)                         
+            clean = re.sub(trail_space,'',l)
             tuple=re.split(white_space,clean)
             prob = compute_problem_stem(tuple[0]);
             if (problems.has_key(prob)):
@@ -216,7 +216,7 @@ def parse_prot(filename, stratname, matrix, succ_cases, time_limit):
                     matrix[cl][stratname]=tuple_add2(old,(1,time))
                     old = stratperf[stratname];
                     stratperf[stratname] = tuple_add2(old,(1,time))
-        l=p.readline()        
+        l=p.readline()
     p.close()
     return desc
 
@@ -232,7 +232,7 @@ def parse_prot_new(filename, stratname, prob_assoc, global_class, classdata):
         if(res):
             desc = desc+l
         else:
-            clean  = re.sub(trail_space,'',l)                         
+            clean  = re.sub(trail_space,'',l)
             tuple  = re.split(white_space,clean)
             prob   = compute_problem_stem(tuple[0]);
             try:
@@ -281,7 +281,7 @@ def find_covered(heuristic,classes):
 
 def compare_strat_global(strat1, strat2):
     eval1 = stratperf[strat1]
-    eval2 = stratperf[strat2]                     
+    eval2 = stratperf[strat2]
     if eval1[0] > eval2[0]:
         return -1
     if eval1[0] < eval2[0]:
@@ -290,7 +290,7 @@ def compare_strat_global(strat1, strat2):
         return 1
     if eval1[1] < eval2[1]:
         return -1
-    return 0   
+    return 0
 
 
 def translate_class(cl, opt_res):
@@ -326,20 +326,20 @@ def heuristic_define(name):
     res= '"' + trans_heuristic_name(name) + ' = \\n"\n"'
     tmp = stratdesc[name][mr.start()+2:mr.end()]
     tmp = re.sub("'", "", tmp);
-    res=res+ re.sub(eval_f_sep,'),"\n" ',tmp) +'\\n"'    
-    
+    res=res+ re.sub(eval_f_sep,'),"\n" ',tmp) +'\\n"'
+
     return res
 
 def extract_arg(line, mopt):
     l = line[mopt.end():]
     m = arg_term.search(l)
     res = l[0:m.start()]
-    
+
     if res == "":
         raise RuntimeError, "Argument to option in command line missing: "+line[mopt.start():]
 
     return res
-    
+
 match_ac_l      = re.compile(" --ac-handling=")
 match_acnag_l   = re.compile(" --ac-non-aggressive")
 match_litsel_s  = re.compile(" -W *")
@@ -404,7 +404,7 @@ def parse_control_info(line):
     else:
         m = match_unproc_sd.search(line)
         if m:
-            res = res+ "      control->heuristic_parms.unproc_simplify=TopLevelUnitSimplify;\n" 
+            res = res+ "      control->heuristic_parms.unproc_simplify=TopLevelUnitSimplify;\n"
 
     #
     # Contextual simplify-reflect
@@ -412,16 +412,16 @@ def parse_control_info(line):
 
     m = match_fcsr.search(line)
     if m:
-        res = res+ "      control->heuristic_parms.forward_context_sr = true;\n" 
+        res = res+ "      control->heuristic_parms.forward_context_sr = true;\n"
 
     m = match_fcsra.search(line)
     if m:
-        res = res+ "      control->heuristic_parms.forward_context_sr = true;\n" 
-        res = res+ "      control->heuristic_parms.forward_context_sr_aggressive = true;\n" 
-        
+        res = res+ "      control->heuristic_parms.forward_context_sr = true;\n"
+        res = res+ "      control->heuristic_parms.forward_context_sr_aggressive = true;\n"
+
     m = match_bcsr.search(line)
     if m:
-        res = res+ "      control->heuristic_parms.backward_context_sr = true;\n" 
+        res = res+ "      control->heuristic_parms.backward_context_sr = true;\n"
 
     #
     # Literal selection parameters
@@ -472,12 +472,12 @@ def parse_control_info(line):
     if m:
         arg = extract_arg(line, m)
         res = res+ "      control->heuristic_parms.split_clauses="+arg+";\n"
- 
+
     m = match_splitm_l.search(line)
     if m:
         arg = extract_arg(line, m)
         res = res+ "      control->heuristic_parms.split_method="+arg+";\n"
- 
+
     m = match_splita_l.search(line)
     if m:
         res = res+ "      control->heuristic_parms.split_aggressive=true;\n"
@@ -504,17 +504,17 @@ def parse_control_info(line):
 
     #
     # Rewriting parameters
-    #    
+    #
     m = match_demod_s.search(line)
     if m:
         arg = extract_arg(line, m)
         res = res+ "      control->heuristic_parms.forward_demod="+arg+";\n"
- 
+
     m = match_demod_l.search(line)
     if m:
         arg = extract_arg(line, m)
         res = res+ "      control->heuristic_parms.forward_demod="+arg+";\n"
-     
+
     m = match_g_demod_s.search(line)
     if m:
         res = res+ "      control->heuristic_parms.prefer_general=true;\n"
@@ -529,7 +529,7 @@ def parse_control_info(line):
     m = match_simul_pm.search(line)
     if m:
         res = res+ "      control->heuristic_parms.pm_type=ParamodAlwaysSim;\n"
- 
+
     m = match_osimul_pm.search(line)
     if m:
         res = res+ "      control->heuristic_parms.pm_type=ParamodOrientedSim;\n"
@@ -638,7 +638,7 @@ def parse_ordering_info(line):
 #    if m:
 #        arg = extract_arg(line, m)
 #        if arg != "":
-#            raise RuntimeError, "Can only handle empty precedence "+arg        
+#            raise RuntimeError, "Can only handle empty precedence "+arg
 #       res = res+ "      oparms.to_prec_gen=";\n"
 
     return res
@@ -760,7 +760,7 @@ selstrat={
    "PSelectUnlessUniqMaxSmallestOrientable": "PSelectUnlessUniqMaxSmallestOrientable",
    "SelectDivLits"                      : "SelectDiversificationLiterals",
    "SelectDivPreferIntoLits"            : "SelectDiversificationPreferIntoLiterals",
-   "SelectMaxLComplexG"                 : "SelectMaxLComplexG", 
+   "SelectMaxLComplexG"                 : "SelectMaxLComplexG",
 
    "SelectMaxLComplexAvoidPosPred"      : "SelectMaxLComplexAvoidPosPred",
    "SelectMaxLComplexAPPNTNp"           : "SelectMaxLComplexAPPNTNp",
@@ -930,10 +930,10 @@ def generate_output(fp, result, stratdesc, class_dir, raw_class, opt_res,
     used is the set of used strategies.
     """
     by_heuristic={}
-    
+
     for i in result.keys():
         by_heuristic[result[i]]=[]
-        
+
     for i in result.keys():
         by_heuristic[result[i]].append(i)
 
@@ -968,7 +968,7 @@ def generate_output(fp, result, stratdesc, class_dir, raw_class, opt_res,
         fp.write( """#endif
 
 #if defined(CHE_HEURISTICS_INTERNAL) || defined(TO_ORDERING_INTERNAL)
-        
+
 """)
 
         for i in by_heuristic.keys():
@@ -979,7 +979,7 @@ def generate_output(fp, result, stratdesc, class_dir, raw_class, opt_res,
             res = "''' + trans_heuristic_name(i) +'";\n')
 
             fp.write( parse_control_info(stratdesc[i])+"\n")
-    
+
             fp.write( '''#endif
 #ifdef TO_ORDERING_INTERNAL
 ''')
@@ -1038,7 +1038,7 @@ matrix     = {} # Keys: Class names. Objects: Dictionaries associating
 classdata  = {} # Associates class name with ClassPerf instance
                 # describing the performance of (all) strategies on
                 # this class.
-                 
+
 class_dir  = ""
 
 succ_cases = ["T", "N"]
@@ -1117,7 +1117,7 @@ for time_limit in time_limits:
         perf = classdata[i]
         perf.computePerf(time_limit, succ_cases)
         best, solns = perf.getBestStrat()
-        if solns == 0:        
+        if solns == 0:
             best = global_best
         result[i] = best
         opt_res[i] = solns
@@ -1129,14 +1129,14 @@ for time_limit in time_limits:
     generate_output(fp, result, stratdesc, class_dir, raw_class,
                     opt_res, used, defined_strats)
     fp.close()
-    
+
     # Now for the cleanup: For each class, we remove the best
     # strategy, and all problems solved by it.
-    
+
     for i in classlist:
         perf = classdata[i]
         best, solns = perf.getBestStrat()
-        if solns == 0:        
+        if solns == 0:
             best = global_best
         try:
             # print "Best: ", best

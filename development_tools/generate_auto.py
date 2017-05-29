@@ -14,7 +14,7 @@ full_comment    = re.compile('^#')
 dash            = re.compile('-')
 csv             = re.compile('.csv');
 slash           = re.compile('/')
-match_heuristic = re.compile("-H'?\(.*\)'?")
+match_heuristic = re.compile("-H'?\([^\n]*\)[ \n]")
 match_class     = re.compile('CLASS_[a-zA-Z-0-9]*$')
 eval_f_sep      = re.compile('\),')
 problem_ext     = re.compile('\.[a-z]*$')
@@ -162,7 +162,7 @@ def heuristic_define(name):
     res= '"' + trans_heuristic_name(name) + ' = \\n"\n"'
     tmp = stratdesc[name][mr.start()+2:mr.end()]
     tmp = re.sub("'", "", tmp);
-    res=res+ re.sub(eval_f_sep,'),"\n" ',tmp) +'\\n"'    
+    res=res+ re.sub(eval_f_sep,'),"\n" ',tmp) +'\\n"'
 
     return res
 
