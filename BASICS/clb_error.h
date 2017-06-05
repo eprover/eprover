@@ -1,10 +1,10 @@
 /*-----------------------------------------------------------------------
 
-File  : clb_error.h
+  File  : clb_error.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Functions and datatypes for handling and reporting errors, warnings,
   and dealing with simple system stuff.
@@ -15,12 +15,7 @@ Contents
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
-
-<1> Sat Jul  5 02:20:53 MET DST 1997
-    New
-<2> Wed Nov  3 13:30:39 CET 2004
-    Added real memory code.
+  Created: Sat Jul  5 02:20:53 MET DST 1997 - New
 
 -----------------------------------------------------------------------*/
 
@@ -73,7 +68,7 @@ extern int   TmpErrno;
 extern char* ProgName;
 
 long          GetSystemPageSize(void);
-long          GetSystemPhysMemory(void);
+long long     GetSystemPhysMemory(void);
 
 void          InitError(char* progname);
 void Error(char* message, ErrorCodes ret, ...);

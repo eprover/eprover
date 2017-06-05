@@ -107,9 +107,9 @@ long GetSystemPageSize(void)
 
 #define MEM_PHRASE "Primary memory available: "
 
-long GetSystemPhysMemory(void)
+long long GetSystemPhysMemory(void)
 {
-   long res = -1;
+   long long res = -1;
 
    long long tmpres = 0, pages, pagesize;
 

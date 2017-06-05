@@ -103,7 +103,7 @@ typedef int (*ComparisonFunctionType)(const void*, const void*);
 #define UNUSED(x) (void)(x)
 
 #define KILO 1024
-#define MEGA 1024*1024
+#define MEGA (1024*1024)
 
 
 /* Convenience function */
@@ -159,8 +159,3 @@ static __inline__ size_t WriteStr(int fd, const char* msg){
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

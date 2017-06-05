@@ -925,7 +925,7 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_MEM_LIMIT:
             if(strcmp(arg, "Auto")==0)
             {
-               long tmpmem =  GetSystemPhysMemory();
+               long long tmpmem = GetSystemPhysMemory();
 
                if(tmpmem==-1)
                {
@@ -937,10 +937,7 @@ CLState_p process_options(int argc, char* argv[])
                                tmpmem););
 
                mem_limit = 0.8*tmpmem;
-               if(mem_limit > 2048)
-               {  /* Many OSes cannot handle more than 2GB per process */
-                  mem_limit = 2048;
-               }
+
                h_parms->delete_bad_limit =
                   (float)(mem_limit-2)*0.7*MEGA;
             }
