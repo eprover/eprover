@@ -4,11 +4,11 @@ NOTE: The CASC ReadMe file is in DOC/Readme.
 Short Installation Instructions for the impatient
 -------------------------------------------------
 
-This assumes that you have GNU tar, sh and gawk in your search path! 
+This assumes that you have GNU tar, sh and gawk in your search path!
 
 Simple installation (will install executables):
 
-> tar -xzf E.tgz 
+> tar -xzf E.tgz
 > cd E
 > ./configure --bindir=/path/to/EXECDIR
 > make
@@ -17,18 +17,12 @@ Simple installation (will install executables):
 
 Simplest installation (in-place):
 
-> tar -xzf E.tgz 
+> tar -xzf E.tgz
 > cd E
 > ./configure
 > make
 > cd PROVER
 > eprover -h | more
-
-This will only allow you to run the eproof and eproof_ram scripts in
-place. Most other programs, including eprover, are stand-alone
-binaries and should run from everywhere. The eproof scripts are now
-semi-obsolete and deprecated, since E 1.9 and later can generate proof
-objects internally.
 
 Read the rest of this file and the fine (if incomplete) manual if
 anything fails. There should be a copy of the manual in
@@ -100,16 +94,16 @@ user or by the system administrator.
 To install the package, unpack the distribution (if you are reading
 this, you probably already did):
 
-  gunzip -c E.tgz|tar -xvf - 
+  gunzip -c E.tgz|tar -xvf -
 
-  or 
+  or
 
   (g)tar -xzf E.tgz   (if you have GNU tar)
 
 This should create a directory named E. After unpacking, optionally
 edit E/Makefile.vars to your liking. In particular, if building for
 HPUX, comment out the suitable CFLAGS definition (for most systems,
-the default definition should be ok). Then change to the E directory: 
+the default definition should be ok). Then change to the E directory:
 
   cd E
 
@@ -127,7 +121,7 @@ or, if you also want to install the man-pages into MANDIR,
 
    ./configure --bindir=EXECDIR --man-prefix=MANDIR
 
-Then type 
+Then type
 
    make
 
@@ -138,15 +132,15 @@ directory. If you want to install E in a particular EXECDIR, type
 
 You must have write permission in the EXECDIR, so if you install E
 outside your own home directory, you may need to become root or use
-sudo. 
+sudo.
 
-Type 
+Type
 
   make documentation
 
 to translate the rudimentary LaTeX documentation (this requires
 LaTeX2e, pdflatex, and the packages theorem, amssymb and epsfig, which
-are included in most current LaTeX distributions). 
+are included in most current LaTeX distributions).
 
 For some operating systems, especially if you do not have the GNU gcc
 compiler installed, you may need to edit Makefile.vars manually to
@@ -159,20 +153,20 @@ If you get into trouble,
 
 will rebuild E completely to your current configuration.
 
-After installation, go to E/PROVER and type 
+After installation, go to E/PROVER and type
 
   ./eprover BOO001-1+rm_eq_rstfp.lop
 
-to see the prover in action. Type 
+to see the prover in action. Type
 
   ./eprover LUSK6.lop
 
 for a harder example. "./eprover -h" will give you some information and
 a list of options.
 
-For impatient people who do not want to read anything: 
+For impatient people who do not want to read anything:
 
-  eprover --auto --memory-limit=<80%_of_your_main_memory> <problem-file> 
+  eprover --auto --memory-limit=<80%_of_your_main_memory> <problem-file>
 
 should give a reasonable performance on a large class of problems
 (unless your main memory is really small).
@@ -181,13 +175,26 @@ The new auto mode will perform a heuristic pruning of the axiom set
 which may result in incompleteness for very large problems (many
 thousands of axioms). If you need completeness, use
 
-  eprover --satauto --memory-limit=<80%_of_your_main_memory> <problem-file> 
+  eprover --satauto --memory-limit=<80%_of_your_main_memory> <problem-file>
 
+In general, different proof problems are easy for different
+strategies. If you run
+
+  eprover --auto-schedule --memory-limit=<80%_of_your_main_memory> <problem-file>
+
+or
+
+  eprover --satauto-schedule --memory-limit=<80%_of_your_main_memory> <problem-file>
+
+the prover will try a series of strategies on the problem. It assumes
+a 300 second run time - if you impose a different one externally, it
+is important to let E know via the --cpu-limit=XXX option so that it
+can adjust the schedule.
 
 One of the features of E is the ability to produce semi-readable
 proofs. To use this, type
 
-  eprover --proof-object <other-stuff> 
+  eprover --proof-object <other-stuff>
 
 By default, E will now automatically detect the input format (LOP,
 TPTP-2 or TPTP-3), and will select the matching output format (PCL2
@@ -270,16 +277,3 @@ devopment_tools:
 PYTHON:
   - More complex tools for large scale experimental evaluation. See
     previous comment.
-
-
-
-
-
-
-
-
-
-
-
-
-
