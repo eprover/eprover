@@ -150,6 +150,7 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
       TypeInferSort(bank->sig, t);
       assert(t->sort != STNoSort);
    }
+   bank->insertions++;
 
    new = TermCellStoreInsert(&(bank->term_store), t);
 
@@ -399,6 +400,7 @@ TB_p TBAlloc(Sig_p sig)
    handle = TBCellAlloc();
 
    handle->in_count = 0;
+   handle->insertions = 0;
    handle->rewrite_steps = 0;
    handle->ext_index = PDIntArrayAlloc(1,100000);
    handle->garbage_state = TPIgnoreProps;
@@ -1450,9 +1452,3 @@ long TBTermCollectSubterms(Term_p term, PStack_p collector)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
-

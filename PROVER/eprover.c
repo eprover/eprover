@@ -86,6 +86,8 @@ long              step_limit = LONG_MAX,
    eqdef_maxclauses = DEFAULT_EQDEF_MAXCLAUSES,
    relevance_prune_level = 0,
    miniscope_limit = 1000;
+long long tb_insert_limit = LONG_MAX;
+
 int               eqdef_incrlimit = DEFAULT_EQDEF_INCRLIMIT;
 char              *outdesc = DEFAULT_OUTPUT_DESCRIPTOR,
    *filterdesc = DEFAULT_FILTER_DESCRIPTOR;
@@ -292,6 +294,10 @@ static void print_proof_stats(ProofState_p proofstate,
 #ifdef PDT_COUNT_NODES
       fprintf(GlobalOut, "# PDT nodes visited                    : %ld\n",
               PDTNodeCounter);
+#endif
+#ifdef TB_COUNT_INSERTIONS
+      fprintf(GlobalOut, "# Termbank termtop insertions          : %lld\n",
+              proofstate->terms->insertions);
 #endif
       PERF_CTR_PRINT(GlobalOut, MguTimer);
       PERF_CTR_PRINT(GlobalOut, SatTimer);
@@ -506,7 +512,8 @@ int main(int argc, char* argv[])
 
       proofcontrol->heuristic_parms.selection_strategy = SelectNoGeneration;
       success = Saturate(proofstate, proofcontrol, LONG_MAX,
-                         LONG_MAX, LONG_MAX, LONG_MAX, LONG_MAX, LONG_MAX);
+                         LONG_MAX, LONG_MAX, LONG_MAX, LONG_MAX,
+                         LONG_LONG_MAX, LONG_MAX);
       fprintf(GlobalOut, "# Presaturation interreduction done\n");
       proofcontrol->heuristic_parms.selection_strategy = sel_strat;
       if(!success)
@@ -520,7 +527,7 @@ int main(int argc, char* argv[])
    {
       success = Saturate(proofstate, proofcontrol, step_limit,
                          proc_limit, unproc_limit, total_limit,
-                         generated_limit, answer_limit);
+                         generated_limit, tb_insert_limit, answer_limit);
    }
    PERF_CTR_EXIT(SatTimer);
 
@@ -933,7 +940,7 @@ CLState_p process_options(int argc, char* argv[])
                         "Give explicit value to --memory-limit", OTHER_ERROR);
                }
                VERBOSE(fprintf(stderr,
-                               "Physical memory determined as %ld MB\n",
+                               "Physical memory determined as %lld MB\n",
                                tmpmem););
 
                mem_limit = 0.8*tmpmem;
@@ -995,6 +1002,9 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_GENERATED_LIMIT:
             generated_limit = CLStateGetIntArg(handle, arg);
+            break;
+      case OPT_TB_INSERT_LIMIT:
+            tb_insert_limit = CLStateGetIntArg(handle, arg);
             break;
       case OPT_NO_INFIX:
             EqnUseInfix = false;

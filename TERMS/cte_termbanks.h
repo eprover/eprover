@@ -49,12 +49,16 @@ Changes
 typedef struct tbcell
 {
    unsigned long in_count;       /* How many terms have been inserted? */
+   unsigned long long insertions;/* How many termtops have been
+                                    inserted into the term bank? This
+                                    counts all attempted insertions
+                                    (as a measure of work done. */
    Sig_p         sig;            /* Store sig info */
    VarBank_p     vars;           /* Information about (shared) variables */
    Term_p        true_term;      /* Pointer to the special term with the
-                $true constant. */
+                                    $true constant. */
    Term_p        false_term;     /* Pointer to the special term with the
-                $false constant. */
+                                    $false constant. */
    Term_p        min_term;       /* A small (ideally the minimal
                                     possible) term, to be used for RHS
                                     instantiation. */
@@ -65,29 +69,29 @@ typedef struct tbcell
                                   * specific operations and then reset
                                   * again */
    TermProperties garbage_state; /* For the mark-and sweep garbage
-                collection. This is flipped at
-                each sweep, and all new term cell
-                get the new value, so that marking
-                can be done by flipping in the
-                term cell. */
+                                    collection. This is flipped at
+                                    each sweep, and all new term cell
+                                    get the new value, so that marking
+                                    can be done by flipping in the
+                                    term cell. */
    struct gc_admin_cell *gc;     /* Higher level code can register
                                   * garbage collection information
                                   * here. This is only a convenience
                                   * link, memory needs to be managed
                                   * elsewhere. */
    PDArray_p     ext_index;      /* Associate _external_ abbreviations (=
-                entry_no's with term nodes, necessary
-                for parsing of term bank terms. For
-                critical cases (full protocolls) this
-                     is bound to be densly poulated -> we
-                use an array. Please note that term
-                replacing does not invalidate entries
-                in ext_index
-                (it would be pretty expensive in
-                terms of time and memory), so higher
-                layers have to take care of this if
-                they want to both access terms via
-                references and do replacing! */
+                                    entry_no's with term nodes, necessary
+                                    for parsing of term bank terms. For
+                                    critical cases (full protocolls) this
+                                    is bound to be densly poulated -> we
+                                    use an array. Please note that term
+                                    replacing does not invalidate entries
+                                    in ext_index
+                                    (it would be pretty expensive in
+                                    terms of time and memory), so higher
+                                    layers have to take care of this if
+                                    they want to both access terms via
+                                    references and do replacing! */
    TermCellStoreCell term_store; /* Here are the terms */
 }TBCell, *TB_p;
 
@@ -178,8 +182,3 @@ long    TBTermCollectSubterms(Term_p term, PStack_p collector);
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

@@ -67,6 +67,7 @@ typedef enum
    OPT_UNPROC_LIMIT,
    OPT_TOTAL_LIMIT,
    OPT_GENERATED_LIMIT,
+   OPT_TB_INSERT_LIMIT,
    OPT_ANSWER_LIMIT,
    OPT_CONJ_ARE_QUEST,
    OPT_NO_INFIX,
@@ -456,6 +457,12 @@ OptCell opts[] =
     "Set the maximal number of generated clauses before the proof search "
     "stops. This is a reasonable (though not great) estimate of the work "
     "done."},
+
+   {OPT_TB_INSERT_LIMIT,
+    '\0', "tb-insert-limit",
+    ReqArg, NULL,
+    "Set the maximal number of of term bank term top insertions. This is "
+    "a reasonable (though not great) estimate of the work done."},
 
    {OPT_ANSWER_LIMIT,
     '\0', "answers",
