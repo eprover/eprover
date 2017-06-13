@@ -86,7 +86,7 @@ long              step_limit = LONG_MAX,
    eqdef_maxclauses = DEFAULT_EQDEF_MAXCLAUSES,
    relevance_prune_level = 0,
    miniscope_limit = 1000;
-long long tb_insert_limit = LONG_MAX;
+long long tb_insert_limit = LLONG_MAX;
 
 int               eqdef_incrlimit = DEFAULT_EQDEF_INCRLIMIT;
 char              *outdesc = DEFAULT_OUTPUT_DESCRIPTOR,
@@ -513,7 +513,7 @@ int main(int argc, char* argv[])
       proofcontrol->heuristic_parms.selection_strategy = SelectNoGeneration;
       success = Saturate(proofstate, proofcontrol, LONG_MAX,
                          LONG_MAX, LONG_MAX, LONG_MAX, LONG_MAX,
-                         LONG_LONG_MAX, LONG_MAX);
+                         LLONG_MAX, LONG_MAX);
       fprintf(GlobalOut, "# Presaturation interreduction done\n");
       proofcontrol->heuristic_parms.selection_strategy = sel_strat;
       if(!success)
