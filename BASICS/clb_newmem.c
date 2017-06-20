@@ -329,7 +329,7 @@ void MemAddNewChunk(int mem_index)
 //
 /----------------------------------------------------------------------*/
 
-char* SecureStrdup(char* source)
+char* SecureStrdup(const char* source)
 {
    char* handle;
 
@@ -338,6 +338,45 @@ char* SecureStrdup(char* source)
 
    return handle;
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SecureStrndup()
+//
+//   Implements the functionality of GNU strndup, but uses
+//   SecureMalloc() for the memory handling (creates a NULL-terminated
+//   copy of the string or the first n bytes of it).
+//
+// Global Variables: -
+//
+// Side Effects    : By SecureMalloc()
+//
+/----------------------------------------------------------------------*/
+
+char* SecureStrndup(const char* source, size_t n)
+{
+   char* handle;
+   size_t len;
+
+   assert(source);
+   assert(n>=0);
+
+   len = strlen(source);
+
+   if(len > n)
+   {
+      handle = SecureMalloc(n+1);
+      strncpy(handle,source, n);
+      handle[n]='\0';
+   }
+   else
+   {
+      handle = SecureStrdup(source);
+   }
+   return handle;
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -418,5 +457,3 @@ void MemDebugPrintStats(FILE* out)
 /*-----------------------------------------------------------------------*/
 /*                       Ende des Files                                  */
 /*-----------------------------------------------------------------------*/
-
-

@@ -30,6 +30,7 @@ Changes
 
 #include <string.h>
 #include "clb_verbose.h"
+#include "clb_os_wrapper.h"
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -49,13 +50,25 @@ typedef struct memcell
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-#define MEM_ARR_SIZE     1024
+#define MEM_ARR_SIZE     8192
 #define MEM_ALIGN        16
-#define MEM_CHUNKLIMIT   (1024/MEM_ALIGN) /* Objects smaller than this are
+#define MEM_CHUNKLIMIT   (4096/MEM_ALIGN) /* Objects smaller than this are
                    allocated in sets of MEM_MULTIPLIER */
 #define MEM_MULTIPLIER   1024
 #define MEM_FREE_PATTERN 0xFAFBFAFA
 #define MEM_RSET_PATTERN 0x00000000
+
+/* For estimating the real memory consumption of a data type - the
+   default may be way of for some memory managers, but should be
+   reasonably ok for many situations. If CONSTANT_MEM_ESTIMATE is on,
+   a very rough but machine-independent estimate is used. */
+
+#ifdef CONSTANT_MEM_ESTIMATE
+#define MEMSIZE(type) "There is a bug in the code! Everything has to work with constants."
+#else
+#define MEMSIZE(type) (sizeof(type)+sizeof(void*))
+#endif
+
 
 extern bool MemIsLow;
 extern Mem_p free_mem_list[];
@@ -65,17 +78,20 @@ void  SizeFreeReal(void* junk, int size);
 
 #ifndef NDEBUG
 #define SizeFree(junk, size) SizeFreeReal(junk, size); junk=NULL
-#define SizeMalloc(size) SizeMallocReal(size)
+#define SizeMalloc(size)     SizeMallocReal(size)
+#define ENSURE_NULL(junk)    junk=NULL
 #else
 #define SizeFree(junk, size) SizeFreeReal(junk, size);
-#define SizeMalloc(size) SizeMallocReal(size)
+#define SizeMalloc(size)     SizeMallocReal(size)
+#define ENSURE_NULL(junk)    /* Only defined in debug mode */
 #endif
 
 void  MemFlushFreeList(void);
 void* SecureMalloc(int size);
 void* SecureRealloc(void *ptr, int size);
 void  MemAddNewChunk(int mem_index);
-char* SecureStrdup(char* source);
+char* SecureStrdup(const char* source);
+char* SecureStrndup(const char* source, size_t n);
 #define FREE(junk) assert(junk);free(junk)
 
 long* IntArrayAlloc(int size);
@@ -114,9 +130,3 @@ extern long secure_realloc_f_count;
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
-
