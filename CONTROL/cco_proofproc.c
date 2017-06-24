@@ -603,63 +603,63 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
          ClauseDelProp(handle,CPIsIRVictim);
       }
       ForwardModifyClause(state, control, handle,
-           control->heuristic_parms.forward_context_sr_aggressive||
-           (control->heuristic_parms.backward_context_sr&&
-            ClauseQueryProp(handle,CPIsProcessed)),
+                          control->heuristic_parms.forward_context_sr_aggressive||
+                          (control->heuristic_parms.backward_context_sr&&
+                           ClauseQueryProp(handle,CPIsProcessed)),
                           control->heuristic_parms.condensing_aggressive,
-           control->heuristic_parms.forward_demod);
+                          control->heuristic_parms.forward_demod);
 
 
       if(ClauseIsTrivial(handle))
       {
-    assert(!handle->children);
-    ClauseDetachParents(handle);
-    ClauseFree(handle);
-    continue;
+         assert(!handle->children);
+         ClauseDetachParents(handle);
+         ClauseFree(handle);
+         continue;
       }
       if(state->watchlist)
       {
-    check_watchlist(&(state->wlindices), state->watchlist,
+         check_watchlist(&(state->wlindices), state->watchlist,
                          handle, state->archive);
       }
       if(ClauseIsEmpty(handle))
       {
-    return handle;
+         return handle;
       }
       if(control->heuristic_parms.er_aggressive &&
-    control->heuristic_parms.er_varlit_destructive &&
-    (clause_count =
+         control->heuristic_parms.er_varlit_destructive &&
+         (clause_count =
           ClauseERNormalizeVar(state->terms,
                                handle,
                                state->tmp_store,
                                state->freshvars,
                                control->heuristic_parms.er_strong_destructive)))
       {
-    state->other_redundant_count += clause_count;
-    state->resolv_count += clause_count;
-    state->generated_count += clause_count;
-    continue;
+         state->other_redundant_count += clause_count;
+         state->resolv_count += clause_count;
+         state->generated_count += clause_count;
+         continue;
       }
       if(control->heuristic_parms.split_aggressive &&
-    (clause_count = ControlledClauseSplit(state->definition_store,
+         (clause_count = ControlledClauseSplit(state->definition_store,
                                                handle,
-                      state->tmp_store,
-                      control->heuristic_parms.split_clauses,
-                      control->heuristic_parms.split_method,
+                                               state->tmp_store,
+                                               control->heuristic_parms.split_clauses,
+                                               control->heuristic_parms.split_method,
                                                control->heuristic_parms.split_fresh_defs)))
       {
-    state->generated_count += clause_count;
-    continue;
+         state->generated_count += clause_count;
+         continue;
       }
       state->non_trivial_generated_count++;
       ClauseDelProp(handle, CPIsOriented);
       if(!control->heuristic_parms.select_on_proc_only)
       {
-    DoLiteralSelection(control, handle);
+         DoLiteralSelection(control, handle);
       }
       else
       {
-    EqnListDelProp(handle->literals, EPIsSelected);
+         EqnListDelProp(handle->literals, EPIsSelected);
       }
       handle->create_date = state->proc_non_trivial_count;
       if(ProofObjectRecordsGCSelection)
@@ -1311,7 +1311,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    SysDate          clausedate;
 
    clause = control->hcb->hcb_select(control->hcb,
-                 state->unprocessed);
+                                     state->unprocessed);
    //EvalListPrintComment(GlobalOut, clause->evaluations); printf("\n");
    if(OutputLevel==1)
    {
@@ -1405,13 +1405,13 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
       if(EqnIsOriented(clause->literals))
       {
          TermCellSetProp(clause->literals->lterm, TPIsRewritable);
-    state->processed_pos_rules->date = clausedate;
-    ClauseSetIndexedInsert(state->processed_pos_rules, pclause);
+         state->processed_pos_rules->date = clausedate;
+         ClauseSetIndexedInsert(state->processed_pos_rules, pclause);
       }
       else
       {
-    state->processed_pos_eqns->date = clausedate;
-    ClauseSetIndexedInsert(state->processed_pos_eqns, pclause);
+         state->processed_pos_eqns->date = clausedate;
+         ClauseSetIndexedInsert(state->processed_pos_eqns, pclause);
       }
    }
    else if(ClauseLiteralNumber(clause) == 1)
