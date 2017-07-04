@@ -4,6 +4,7 @@ the E equational theorem prover.
 
 Version 1.9.1 -> 2.0 Turzun
 
+-
 - Support for TFF (typed first-order form)
 - Improved clausification (faster, with graceful degradation if
   miniscoping becomes too expensive)
@@ -11,7 +12,8 @@ Version 1.9.1 -> 2.0 Turzun
 - Improved Set-of-Support simulation
 - Parsing and pruning preprocessing FOF now, even for CNF input
 - Input clauses/formulas keep their original name (if any)
-
+- Added options  --generated-limit and --tb-insert-limit to more
+  closely limit effort by the prover in a deterministic way.
 
 Version 1.9 -> 1.9.1 Sungma
 

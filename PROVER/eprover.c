@@ -295,10 +295,8 @@ static void print_proof_stats(ProofState_p proofstate,
       fprintf(GlobalOut, "# PDT nodes visited                    : %ld\n",
               PDTNodeCounter);
 #endif
-#ifdef TB_COUNT_INSERTIONS
       fprintf(GlobalOut, "# Termbank termtop insertions          : %lld\n",
               proofstate->terms->insertions);
-#endif
       PERF_CTR_PRINT(GlobalOut, MguTimer);
       PERF_CTR_PRINT(GlobalOut, SatTimer);
       PERF_CTR_PRINT(GlobalOut, ParamodTimer);
