@@ -4,8 +4,7 @@ the E equational theorem prover.
 
 Version 1.9.1 -> 2.0 Turzun
 
--
-- Support for TFF (typed first-order form)
+- Support for TFF (typed first-order form), thanks to Simon Cruanes
 - Improved clausification (faster, with graceful degradation if
   miniscoping becomes too expensive)
 - Improved auto-modes

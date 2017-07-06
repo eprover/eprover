@@ -330,7 +330,7 @@ char* tstp_get_clauseform_id(DerivationCodes op, int select,
          if(DCOpHasCnfArg1(op))
          {
             clause = clauseform;
-            sprintf(result, "c_%ld", clause->ident);
+            sprintf(result, "c_0_%ld", clause->ident);
          }
          else if(DCOpHasFofArg1(op))
          {
@@ -346,7 +346,7 @@ char* tstp_get_clauseform_id(DerivationCodes op, int select,
          if(DCOpHasCnfArg2(op))
          {
             clause = clauseform;
-            sprintf(result, "c_%ld", clause->ident);
+            sprintf(result, "c_0_%ld", clause->ident);
          }
          else if(DCOpHasFofArg2(op))
          {

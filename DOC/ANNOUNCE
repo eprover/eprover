@@ -1544,12 +1544,13 @@ Other changes include:
   SimulateSOS priority function
 - Various internal improvements and cleanups.
 
-E is available as a source distribution for UNIX-variants. It
-installed cleanly under all UNIX variants I could get my hands on:
-Various versions of GNU/Linux for Intel, and XScale, Solaris on SPARC,
-and MacOS-X (with both GNU gcc and LLVM). Users have reported
-successful builds on a large number of other operating systems,
-including Windows/Cygwin.
+E is available as a source distribution for
+UNIX-variants. Historically, it installed cleanly under all UNIX
+variants I could get my hands on: Various versions of GNU/Linux for
+Intel and XScale, Solaris on SPARC, and MacOS-X (with both GNU gcc
+and LLVM). Current versions are tested under OS-X/macOS and
+Linux. Users have also reported successful builds on a large number of
+other operating systems, including Windows/Cygwin.
 
 The system is dual-licensed under the GNU General Public License and
 the GNU Lesser General Public License.
