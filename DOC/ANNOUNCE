@@ -1516,18 +1516,18 @@ This is the announcement for version 2.0 of E.
 
 
 From: schulz@eprover.org (Stephan Schulz)
-Subject: E Equational Theorem Prover 2.0 "Turzun" Released
+Subject: E Equational Theorem Prover 2.0 "Turzum" Released
 
 
-E 2.0 "Turzun" is the latest version of the successful automated
+E 2.0 "Turzum" is the latest version of the successful automated
 theorem prover.
 
 E is a theorem prover for full first order logic with equality. It has
 successfully competed in several CASC competitions and is generally
-considered a friendly and powerful system (as theorem provers go). E
-has won the "overall best system" special award at CASC-J5 and the CNF
-category at CASC-23. It scored good placements at CASC-25 and CASC-J7
-and is used a component in several other systems.
+considered a friendly and powerful system (as automated theorem
+provers go). E has won the "overall best system" special award at
+CASC-J5 and the CNF category at CASC-23. It scored good placements at
+CASC-25 and CASC-J7 and is used a component in several other systems.
 
 E 2.0 features a number of improvements. The most significant change
 is support for many-sorted first-order logic, i.e. the TPTP-3 TFF
@@ -1544,13 +1544,13 @@ Other changes include:
   SimulateSOS priority function
 - Various internal improvements and cleanups.
 
-E is available as a source distribution for
-UNIX-variants. Historically, it installed cleanly under all UNIX
-variants I could get my hands on: Various versions of GNU/Linux for
-Intel and XScale, Solaris on SPARC, and MacOS-X (with both GNU gcc
-and LLVM). Current versions are tested under OS-X/macOS and
-Linux. Users have also reported successful builds on a large number of
-other operating systems, including Windows/Cygwin.
+E is available as a source distribution for UNIX-variants.
+Historically, it installed cleanly under all UNIX variants I could get
+my hands on: Various versions of GNU/Linux for Intel and XScale,
+Solaris on SPARC, and MacOS-X (with both GNU gcc and LLVM). Current
+versions are tested under OS-X/macOS and Linux. Users have also
+reported successful builds on a large number of other operating
+systems, including Windows/Cygwin.
 
 The system is dual-licensed under the GNU General Public License and
 the GNU Lesser General Public License.
@@ -1574,7 +1574,7 @@ Caveats:
   $real or $rat). In particular, this means they they cannot be used
   in unsorted contexts. This is compatible with the current
   interpretation of TPTP syntax. If you need to use numerical
-  constants as free, uninterpretes symbols, use the option
+  constants as free, uninterpreted symbols, use the option
   --free-numbers.
 
 

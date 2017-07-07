@@ -36,7 +36,7 @@ Contents
 /* git tag E-2.0 */
 #define VERSION      "2.0"
 
-#define E_NICKNAME     "Turzun"
+#define E_NICKNAME     "Turzum"
 
 #define E_URL "http://www.eprover.org"
 

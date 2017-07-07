@@ -2,7 +2,7 @@ This history list describes the major differences between versions of
 the E equational theorem prover.
 
 
-Version 1.9.1 -> 2.0 Turzun
+Version 1.9.1 -> 2.0 Turzum
 
 - Support for TFF (typed first-order form), thanks to Simon Cruanes
 - Improved clausification (faster, with graceful degradation if
