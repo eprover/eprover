@@ -28,38 +28,38 @@ Contents
 
 #define PLocalStackInit(stack) PLocalStackInitWithSize(stack, PLOCALSTACK_DEFAULT_SIZE)
 
-#define PLocalStackInitWithSize(stack, num) size_t stack##_##size = num;                                        \
-                                            void* *stack##_##data = SizeMalloc(stack##_##size * sizeof(void*)); \
-                                            size_t stack##_##current = 0
+#define PLocalStackInitWithSize(stack, num) size_t stack##_##size = num; \
+   void* *stack##_##data = SizeMalloc(stack##_##size * sizeof(void*));  \
+   size_t stack##_##current = 0
 
 #define PLocalStackFree(junk)  SizeFree(junk##_##data, junk##_##size * sizeof(void*));
 
-#define PLocalStackEnsureSpace(stack, space) do{                                                                           \
-                                               if(UNLIKELY((stack##_##current+space) >= stack##_##size))                   \
-                                               {                                                                           \
-                                                 stack##_##size = PLocalStackGrow(&stack##_##data, stack##_##size, space); \
-                                               }                                                                           \
-                                             }while(0)
+#define PLocalStackEnsureSpace(stack, space) do{                        \
+      if(UNLIKELY((stack##_##current+space) >= stack##_##size))         \
+      {                                                                 \
+         stack##_##size = PLocalStackGrow(&stack##_##data, stack##_##size, space); \
+      }                                                                 \
+   }while(0)
 
 #define PLocalStackEmpty(stack)     (stack##_##current == 0)
 #define PLocalStackPop(stack)       (stack##_##data[--stack##_##current])
 #define PLocalStackPush(stack, val) (stack##_##data[stack##_##current++] = val)
 
-#define PLocalStackPushTermArgsReversed(stack, term) do{                                          \
-                                                       PLocalStackEnsureSpace(stack,term->arity); \
-                                                       for(long i = term->arity-1; i>=0; i--)     \
-                                                       {                                          \
-                                                         PLocalStackPush(stack, term->args[i]);   \
-                                                       }                                          \
-                                                     }while(0)
+#define PLocalStackPushTermArgsReversed(stack, term) do{                \
+      PLocalStackEnsureSpace(stack,term->arity);                        \
+      for(long i = term->arity-1; i>=0; i--)                            \
+      {                                                                 \
+         PLocalStackPush(stack, term->args[i]);                         \
+      }                                                                 \
+   }while(0)
 
-#define PLocalStackPushTermArgs(stack, term) do{                                          \
-                                               PLocalStackEnsureSpace(stack,term->arity); \
-                                               for(size_t i = 0; i < term->arity; i++)    \
-                                               {                                          \
-                                                 PLocalStackPush(stack, term->args[i]);   \
-                                               }                                          \
-                                             }while(0)
+#define PLocalStackPushTermArgs(stack, term) do{                        \
+      PLocalStackEnsureSpace(stack,term->arity);                        \
+      for(size_t i = 0; i < term->arity; i++)                           \
+      {                                                                 \
+         PLocalStackPush(stack, term->args[i]);                         \
+      }                                                                 \
+   }while(0)
 
 #define PLOCALSTACK_TAG_BITS 2
 #define PLOCALSTACK_TAG_MASK (uintptr_t)((1<<PLOCALSTACK_TAG_BITS)-1)
@@ -69,55 +69,55 @@ Contents
 #define PLocalTaggedStackFree(junk)   PLocalStackFree(junk)
 #define PLocalTaggedStackEmpty(stack) PLocalStackEmpty(stack)
 
-#define PLocalTaggedStackPushTermArgsReversed(stack, term, tag) do{                                                   \
-                                                                  const long arity = term->arity;                     \
-                                                                  PLocalTaggedStackEnsureSpace(stack,arity);          \
-                                                                  for(long i = arity-1; i>=0; i--)                    \
-                                                                  {                                                   \
-                                                                    PLocalTaggedStackPush(stack, term->args[i], tag); \
-                                                                  }                                                   \
-                                                                }while(0)
+#define PLocalTaggedStackPushTermArgsReversed(stack, term, tag) do{     \
+      const long arity = term->arity;                                   \
+      PLocalTaggedStackEnsureSpace(stack,arity);                        \
+      for(long i = arity-1; i>=0; i--)                                  \
+      {                                                                 \
+         PLocalTaggedStackPush(stack, term->args[i], tag);              \
+      }                                                                 \
+   }while(0)
 
-#define PLocalTaggedStackPushTermArgs(stack, term, tag) do{                                                   \
-                                                          const long arity = term->arity;                     \
-                                                          PLocalTaggedStackEnsureSpace(stack, arity);         \
-                                                          for(size_t i = 0; i < arity; i++)                   \
-                                                          {                                                   \
-                                                            PLocalTaggedStackPush(stack, term->args[i], tag); \
-                                                          }                                                   \
-                                                        }while(0)
+#define PLocalTaggedStackPushTermArgs(stack, term, tag) do{             \
+      const long arity = term->arity;                                   \
+      PLocalTaggedStackEnsureSpace(stack, arity);                       \
+      for(size_t i = 0; i < arity; i++)                                 \
+      {                                                                 \
+         PLocalTaggedStackPush(stack, term->args[i], tag);              \
+      }                                                                 \
+   }while(0)
 
 #ifdef TAGGED_POINTERS
 
-   #define PLocalTaggedStackEnsureSpace(stack, space) PLocalStackEnsureSpace(stack, space)
+#define PLocalTaggedStackEnsureSpace(stack, space) PLocalStackEnsureSpace(stack, space)
 
-   #define PLocalTaggedStackPop(stack, val, tag)      do{                                                      \
-                                                        val = stack##_##data[--stack##_##current];             \
-                                                        tag = (uintptr_t)val & PLOCALSTACK_TAG_MASK;           \
-                                                        val = (void*)((uintptr_t)val & PLOCALSTACK_VAL_MASK);  \
-                                                      }while(0)
+#define PLocalTaggedStackPop(stack, val, tag)      do{                  \
+      val = stack##_##data[--stack##_##current];                        \
+      tag = (uintptr_t)val & PLOCALSTACK_TAG_MASK;                      \
+      val = (void*)((uintptr_t)val & PLOCALSTACK_VAL_MASK);             \
+   }while(0)
 
-   #define PLocalTaggedStackPush(stack, val, tag)     do{                                                                      \
-                                                        assert(((void*)((uintptr_t)val&PLOCALSTACK_VAL_MASK)) == val);         \
-                                                        assert(((uintptr_t)tag&PLOCALSTACK_TAG_MASK) == tag);                  \
-                                                        stack##_##data[stack##_##current++] = (void*)(((uintptr_t)val) | tag); \
-                                                      }while(0)                                                                \
+#define PLocalTaggedStackPush(stack, val, tag)     do{                  \
+      assert(((void*)((uintptr_t)val&PLOCALSTACK_VAL_MASK)) == val);    \
+      assert(((uintptr_t)tag&PLOCALSTACK_TAG_MASK) == tag);             \
+      stack##_##data[stack##_##current++] = (void*)(((uintptr_t)val) | tag); \
+   }while(0)                                                            \
 
 #else
 
-   #define PLocalTaggedStackEnsureSpace(stack, space) PLocalStackEnsureSpace(stack, (2*(space)))
+#define PLocalTaggedStackEnsureSpace(stack, space) PLocalStackEnsureSpace(stack, (2*(space)))
 
-   #define PLocalTaggedStackPop(stack, val, tag)      do{                                                           \
-                                                        tag = (__typeof__(tag))stack##_##data[--stack##_##current]; \
-                                                        val = stack##_##data[--stack##_##current];                  \
-                                                      }while(0)
+#define PLocalTaggedStackPop(stack, val, tag)      do{                  \
+      tag = (__typeof__(tag))stack##_##data[--stack##_##current];       \
+      val = stack##_##data[--stack##_##current];                        \
+   }while(0)
 
-   #define PLocalTaggedStackPush(stack, val, tag)     do{                                                 \
-                                                        assert(sizeof(tag) =< sizeof(void*));             \
-                                                        assert(((__typeof__(tag))((void*)tag)) == tag);   \
-                                                        stack##_##data[stack##_##current++] = val;        \
-                                                        stack##_##data[stack##_##current++] = (void*)tag; \
-                                                      }while(0)
+#define PLocalTaggedStackPush(stack, val, tag)     do{                  \
+      assert(sizeof(tag) =< sizeof(void*));                             \
+      assert(((__typeof__(tag))((void*)tag)) == tag);                   \
+      stack##_##data[stack##_##current++] = val;                        \
+      stack##_##data[stack##_##current++] = (void*)tag;                 \
+   }while(0)
 
 #endif
 
