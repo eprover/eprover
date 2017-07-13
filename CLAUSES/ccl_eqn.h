@@ -136,8 +136,8 @@ extern IOFormat OutputFormat;
 Eqn_p   EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank, bool positive);
 void    EqnFree(Eqn_p junk);
 
-#define EqnGCMarkTerms(eqn) TBGCMarkTerm((eqn)->bank,(eqn)->lterm);\
-                            TBGCMarkTerm((eqn)->bank,(eqn)->rterm)
+#define EqnGCMarkTerms(eqn) TBGCMarkTerm((eqn)->bank,(eqn)->lterm);     \
+   TBGCMarkTerm((eqn)->bank,(eqn)->rterm)
 
 #define EqnSetProp(eqn, prop)  SetProp((eqn), (prop))
 #define EqnDelProp(eqn, prop)  DelProp((eqn), (prop))
@@ -154,12 +154,12 @@ void    EqnFree(Eqn_p junk);
 #define EqnIsNegative(eq) (!(EqnQueryProp((eq), EPIsPositive)))
 #define EqnIsEquLit(eq)   EqnQueryProp((eq), EPIsEquLiteral)
 #define EqnIsMaximal(eq)  EqnQueryProp((eq), EPIsMaximal)
-#define EqnIsStrictlyMaximal(eq)\
-                          EqnQueryProp((eq), EPIsStrictlyMaximal)
+#define EqnIsStrictlyMaximal(eq)                                        \
+   EqnQueryProp((eq), EPIsStrictlyMaximal)
 
 #define EqnGetPredCode(eq) (EqnIsEquLit(eq)?0:(eq)->lterm->f_code)
-#define EqnIsSplitLit(eq) \
-   (EqnIsEquLit(eq)?false:\
+#define EqnIsSplitLit(eq)                       \
+   (EqnIsEquLit(eq)?false:                                              \
     SigQueryFuncProp((eq)->bank->sig, EqnGetPredCode(eq), FPClSplitDef))
 
 #define EqnHasEquiv(eq)  EqnQueryProp((eq), EPHasEquiv)
@@ -170,44 +170,44 @@ void    EqnFree(Eqn_p junk);
 #define EqnIsPropTrue(eq)  (((eq)->lterm == (eq)->rterm) && EqnIsPositive(eq))
 #define EqnIsPropFalse(eq) (((eq)->lterm == (eq)->rterm) && EqnIsNegative(eq))
 
-#define EqnIsGround(eq) \
-        (TBTermIsGround((eq)->lterm) && TBTermIsGround((eq)->rterm))
-#define EqnIsPureVar(eq) \
-        (TermIsVar((eq)->lterm) && TermIsVar((eq)->rterm))
-#define EqnIsPartVar(eq) \
-        (TermIsVar((eq)->lterm) || TermIsVar((eq)->rterm))
-#define EqnIsPropositional(eq) \
-        ((!EqnIsEquLit(eq)) && TermIsConst((eq)->lterm))
-#define EqnIsTypePred(eq) \
-        ((!EqnIsEquLit(eq))&&TBTermIsTypeTerm((eq)->lterm))
-#define EqnIsXTypePred(eq) \
-        ((!EqnIsEquLit(eq))&&TBTermIsXTypeTerm((eq)->lterm))
-#define EqnIsRealXTypePred(eq)\
-        ((!EqnIsEquLit(eq))&&TermIsDefTerm((eq)->lterm,1))
-#define EqnIsSimpleAnswer(eq)\
-        SigIsSimpleAnswerPred((eq)->bank->sig, (eq)->lterm->f_code)
+#define EqnIsGround(eq)                                         \
+   (TBTermIsGround((eq)->lterm) && TBTermIsGround((eq)->rterm))
+#define EqnIsPureVar(eq)                                \
+   (TermIsVar((eq)->lterm) && TermIsVar((eq)->rterm))
+#define EqnIsPartVar(eq)                                \
+   (TermIsVar((eq)->lterm) || TermIsVar((eq)->rterm))
+#define EqnIsPropositional(eq)                          \
+   ((!EqnIsEquLit(eq)) && TermIsConst((eq)->lterm))
+#define EqnIsTypePred(eq)                               \
+   ((!EqnIsEquLit(eq))&&TBTermIsTypeTerm((eq)->lterm))
+#define EqnIsXTypePred(eq)                              \
+   ((!EqnIsEquLit(eq))&&TBTermIsXTypeTerm((eq)->lterm))
+#define EqnIsRealXTypePred(eq)                          \
+   ((!EqnIsEquLit(eq))&&TermIsDefTerm((eq)->lterm,1))
+#define EqnIsSimpleAnswer(eq)                                   \
+   SigIsSimpleAnswerPred((eq)->bank->sig, (eq)->lterm->f_code)
 
 #define EqnTermSetProp(eq,prop) TermSetProp((eq)->lterm, DEREF_NEVER, (prop));\
-                                TermSetProp((eq)->rterm, DEREF_NEVER, (prop))
+   TermSetProp((eq)->rterm, DEREF_NEVER, (prop))
 
-#define EqnTBTermDelPropCount(eq,prop) \
-         (TBTermDelPropCount((eq)->lterm, (prop))+\
+#define EqnTBTermDelPropCount(eq,prop)                  \
+   (TBTermDelPropCount((eq)->lterm, (prop))+            \
           TBTermDelPropCount((eq)->rterm, (prop)))
-#define EqnTermDelProp(eqn, prop) \
-        TermDelProp((eqn)->lterm, DEREF_NEVER, (prop));\
-        TermDelProp((eqn)->rterm, DEREF_NEVER, (prop))
+#define EqnTermDelProp(eqn, prop)                       \
+   TermDelProp((eqn)->lterm, DEREF_NEVER, (prop));      \
+   TermDelProp((eqn)->rterm, DEREF_NEVER, (prop))
 
 Eqn_p   EqnParse(Scanner_p in, TB_p bank);
 Eqn_p   EqnFOFParse(Scanner_p in, TB_p bank);
 Term_p  EqnTermsTBTermEncode(TB_p bank, Term_p lterm, Term_p rterm,
-             bool positive, PatEqnDirection dir);
+                             bool positive, PatEqnDirection dir);
 #define EqnTBTermEncode(eqn, dir) \
-        EqnTermsTBTermEncode((eqn)->bank, (eqn)->lterm,\
-              (eqn)->rterm, EqnIsPositive(eqn), (dir))
+   EqnTermsTBTermEncode((eqn)->bank, (eqn)->lterm,      \
+                        (eqn)->rterm, EqnIsPositive(eqn), (dir))
 Eqn_p   EqnTBTermDecode(TB_p terms, Term_p eqn);
 Term_p  EqnTBTermParse(Scanner_p in, TB_p bank);
 void    EqnPrint(FILE* out, Eqn_p eq, bool negated, bool fullterms);
-#define EqnPrintOriginal(out, eq) \
+#define EqnPrintOriginal(out, eq)               \
         EqnPrint((out), (eq), normal, true)
 void    EqnFOFPrint(FILE* out, Eqn_p eq, bool negated, bool fullterms, bool pcl);
 void    EqnTSTPPrint(FILE* out, Eqn_p eq, bool fullterms);
@@ -219,9 +219,9 @@ void    EqnRecordTermDates(Eqn_p eq);
 Eqn_p   EqnCopy(Eqn_p eq, TB_p bank);
 Eqn_p   EqnFlatCopy(Eqn_p eq);
 Eqn_p   EqnCopyRepl(Eqn_p eq, TB_p bank, Term_p old, Term_p repl);
-#define EqnSkolemSubst(handle, subst, sig)\
-        SubstSkolemizeTerm((handle)->lterm, (subst), (sig));\
-        SubstSkolemizeTerm((handle)->rterm, (subst), (sig))
+#define EqnSkolemSubst(handle, subst, sig)                      \
+   SubstSkolemizeTerm((handle)->lterm, (subst), (sig));         \
+   SubstSkolemizeTerm((handle)->rterm, (subst), (sig))
 Eqn_p   EqnCopyOpt(Eqn_p eq);
 Eqn_p   EqnCopyDisjoint(Eqn_p eq);
 
@@ -246,9 +246,11 @@ Eqn_p   EqnCanonize(Eqn_p eq);
 long    EqnStructWeightCompare(Eqn_p l1, Eqn_p l2);
 int     EqnCanonCompareRef(const void* lit1ref, const void* l2ref);
 long    EqnStructWeightLexCompare(Eqn_p l1, Eqn_p lit2);
-#define EqnEqualDirected(eq1, eq2) (((eq1)->lterm == (eq2)->lterm) && ((eq1)->rterm == (eq2)->rterm))
+#define EqnEqualDirected(eq1, eq2) \
+   (((eq1)->lterm == (eq2)->lterm) && ((eq1)->rterm == (eq2)->rterm))
 bool    EqnEqual(Eqn_p eq1,  Eqn_p eq2);
-#define LiteralEqual(eq1, eq2) (PropsAreEquiv((eq1),(eq2),EPIsPositive) && EqnEqual((eq1),(eq2)))
+#define LiteralEqual(eq1, eq2) \
+   (PropsAreEquiv((eq1),(eq2),EPIsPositive) && EqnEqual((eq1),(eq2)))
 
 bool    EqnSubsumeDirected(Eqn_p subsumer, Eqn_p subsumed, Subst_p subst);
 bool    EqnSubsume(Eqn_p subsumer, Eqn_p subsumed, Subst_p subst);
@@ -258,7 +260,8 @@ bool    LiteralSubsumeP(Eqn_p subsumer, Eqn_p subsumed);
 
 #define EqnEquiv(eq1, eq2) (EqnSubsumeP((eq1),(eq2))&&(EqnSubsumeP((eq2),(eq1)))
 
-#define LiteralEquiv(eq1, eq2) (((eq1)->positive == (eq2)->positive) && EqnEquiv((eq1),(eq2))
+#define LiteralEquiv(eq1, eq2) \
+   (((eq1)->positive == (eq2)->positive) && EqnEquiv((eq1),(eq2))
 
 bool    EqnUnifyDirected(Eqn_p eq1, Eqn_p eq2, Subst_p subst);
 bool    EqnUnify(Eqn_p eq1, Eqn_p eq2, Subst_p subst);
@@ -276,41 +279,41 @@ bool          LiteralGreater(OCB_p ocb, Eqn_p eq1, Eqn_p eq2);
 PStackPointer SubstNormEqn(Eqn_p eq, Subst_p subst, VarBank_p vars);
 
 double  EqnWeight(Eqn_p eq, double max_multiplier, long vweight, long
-        fweight);
-#define EqnStandardWeight(eqn) \
-        (TermStandardWeight((eqn)->lterm)+ \
-         TermStandardWeight((eqn)->rterm))
+                  fweight);
+#define EqnStandardWeight(eqn)             \
+   (TermStandardWeight((eqn)->lterm)+      \
+    TermStandardWeight((eqn)->rterm))
 
-#define EqnSplitModStandardWeight(eqn) \
-        EqnQueryProp(eqn,EPIsSplitLit|EPIsPositive)?\
-        SigGetSpecialWeight(eqn->bank->sig, eqn->lterm->f_code):\
-        EqnStandardWeight(eqn)
+#define EqnSplitModStandardWeight(eqn)                  \
+   EqnQueryProp(eqn,EPIsSplitLit|EPIsPositive)?                         \
+   SigGetSpecialWeight(eqn->bank->sig, eqn->lterm->f_code):             \
+   EqnStandardWeight(eqn)
 
 
 double EqnFunWeight(Eqn_p eq, double max_multiplier, long vweight,
                     long flimit, long *fweights, long default_fweight);
 
 double  EqnNonLinearWeight(Eqn_p eq, double max_multiplier, long
-            vlweight, long vweight, long fweight);
+                           vlweight, long vweight, long fweight);
 double  EqnSymTypeWeight(Eqn_p eq, double max_multiplier, long
-          vweight, long fweight, long cweight, long
-          pweight);
+                         vweight, long fweight, long cweight, long
+                         pweight);
 
 double  EqnMaxWeight(Eqn_p eq, long vweight, long fweight);
 
-#define EqnStandardDiff(eqn) \
-        (MAX(TermStandardWeight((eqn)->lterm),\
-        TermStandardWeight((eqn)->rterm)) -\
-         MIN(TermStandardWeight((eqn)->lterm),\
+#define EqnStandardDiff(eqn)                    \
+   (MAX(TermStandardWeight((eqn)->lterm),       \
+        TermStandardWeight((eqn)->rterm)) -     \
+    MIN(TermStandardWeight((eqn)->lterm),       \
         TermStandardWeight((eqn)->rterm)))
 
 long EqnMaxTermPositions(Eqn_p eqn);
 long EqnInferencePositions(Eqn_p eqn);
 
 double  LiteralWeight(Eqn_p eq, double max_term_multiplier, double
-            max_literal_multiplier, double
-            pos_multiplier, long vweight, long fweight, bool
-            count_eq_encoding);
+                      max_literal_multiplier, double
+                      pos_multiplier, long vweight, long fweight, bool
+                      count_eq_encoding);
 
 double  LiteralFunWeight(Eqn_p eq,
                          double max_term_multiplier,
@@ -324,14 +327,14 @@ double  LiteralFunWeight(Eqn_p eq,
 
 
 double LiteralNonLinearWeight(Eqn_p eq, double max_term_multiplier,
-               double max_literal_multiplier, double
-               pos_multiplier, long vlweight, long
-               vweight, long fweight, bool
-               count_eq_encoding);
+                              double max_literal_multiplier, double
+                              pos_multiplier, long vlweight, long
+                              vweight, long fweight, bool
+                              count_eq_encoding);
 double LiteralSymTypeWeight(Eqn_p eq, double max_term_multiplier,
-             double max_literal_multiplier, double
-             pos_multiplier, long vweight, long
-             fweight, long cweight, long pweight);
+                            double max_literal_multiplier, double
+                            pos_multiplier, long vweight, long
+                            fweight, long cweight, long pweight);
 
 #define EqnCountMaximalLiterals(eqn) (EqnIsOriented(eqn)?1:2)
 
@@ -339,43 +342,43 @@ static __inline__ long EqnDepth(Eqn_p eqn);
 
 int     LiteralCompareFun(Eqn_p lit1, Eqn_p lit2);
 
-#define EqnAddSymbolDistribution(eqn, dist_array)\
-        TermAddSymbolDistribution((eqn)->lterm, (dist_array));\
+#define EqnAddSymbolDistribution(eqn, dist_array)               \
+   TermAddSymbolDistribution((eqn)->lterm, (dist_array));       \
    TermAddSymbolDistribution((eqn)->rterm, (dist_array))
-#define EqnAddSymbolDistExist(eqn, dist_array, exist)                 \
-        TermAddSymbolDistExist((eqn)->lterm, (dist_array), (exist));       \
-        TermAddSymbolDistExist((eqn)->rterm, (dist_array), (exist))
+#define EqnAddSymbolDistExist(eqn, dist_array, exist)                   \
+   TermAddSymbolDistExist((eqn)->lterm, (dist_array), (exist));         \
+   TermAddSymbolDistExist((eqn)->rterm, (dist_array), (exist))
 
-#define EqnAddSymbolDistributionLimited(eqn, dist_array, limit)\
-        TermAddSymbolDistributionLimited((eqn)->lterm, (dist_array), (limit));\
+#define EqnAddSymbolDistributionLimited(eqn, dist_array, limit)         \
+   TermAddSymbolDistributionLimited((eqn)->lterm, (dist_array), (limit)); \
    TermAddSymbolDistributionLimited((eqn)->rterm, (dist_array), (limit))
-#define EqnAddSymbolFeaturesLimited(eqn, freq_array, depth_array, limit)\
-        TermAddSymbolFeaturesLimited((eqn)->lterm, 0, (freq_array), \
-                                     (depth_array), (limit));\
-        TermAddSymbolFeaturesLimited((eqn)->rterm, 0, (freq_array),\
-                                    (depth_array), (limit))
+#define EqnAddSymbolFeaturesLimited(eqn, freq_array, depth_array, limit) \
+   TermAddSymbolFeaturesLimited((eqn)->lterm, 0, (freq_array),          \
+                                (depth_array), (limit));                \
+   TermAddSymbolFeaturesLimited((eqn)->rterm, 0, (freq_array),          \
+                                (depth_array), (limit))
 
 void    EqnAddSymbolFeatures(Eqn_p eq, PStack_p mod_stack, long *feature_array);
 
 
-#define EqnComputeFunctionRanks(eqn, rank_array, count)\
-        TermComputeFunctionRanks((eqn)->lterm, (rank_array), (count));\
-        TermComputeFunctionRanks((eqn)->rterm, (rank_array), (count))
+#define EqnComputeFunctionRanks(eqn, rank_array, count)                 \
+   TermComputeFunctionRanks((eqn)->lterm, (rank_array), (count));       \
+   TermComputeFunctionRanks((eqn)->rterm, (rank_array), (count))
 
 
 
 
-#define EqnCollectVariables(eqn, tree)\
-        (TermCollectVariables((eqn)->lterm,(tree))+\
+#define EqnCollectVariables(eqn, tree)          \
+   (TermCollectVariables((eqn)->lterm,(tree))+  \
     TermCollectVariables((eqn)->rterm,(tree)))
 
-#define EqnCollectPropVariables(eqn, tree, prop)\
-        (TermCollectPropVariables((eqn)->lterm,(tree), (prop))+\
+#define EqnCollectPropVariables(eqn, tree, prop)                \
+   (TermCollectPropVariables((eqn)->lterm,(tree), (prop))+      \
     TermCollectPropVariables((eqn)->rterm,(tree), (prop)))
 
-#define EqnAddFunOccs(eqn, f_occur, res_stack)\
-        (TermAddFunOcc((eqn)->lterm,(f_occur), (res_stack))+  \
-         TermAddFunOcc((eqn)->rterm, (f_occur), (res_stack)))
+#define EqnAddFunOccs(eqn, f_occur, res_stack)                \
+   (TermAddFunOcc((eqn)->lterm,(f_occur), (res_stack))+       \
+    TermAddFunOcc((eqn)->rterm, (f_occur), (res_stack)))
 
 
 long    EqnCollectSubterms(Eqn_p eqn, PStack_p collector);
@@ -420,9 +423,10 @@ static __inline__ long EqnDepth(Eqn_p eqn)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
 static __inline__ bool EqnIsUntyped(Eqn_p eqn)
 {
-    return TermIsUntyped(eqn->lterm) && TermIsUntyped(eqn->rterm);
+   return TermIsUntyped(eqn->lterm) && TermIsUntyped(eqn->rterm);
 }
 
 
