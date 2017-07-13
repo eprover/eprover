@@ -897,7 +897,7 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_PRINT_SATURATED:
             outdesc = arg;
-            CheckOptionLetterString(outdesc, "eigEIGaA", "-S (--print-saturated)");
+            CheckOptionLetterString(outdesc, "teigEIGaA", "-S (--print-saturated)");
             print_sat = true;
             break;
       case OPT_PRINT_SAT_INFO:
@@ -913,7 +913,7 @@ CLState_p process_options(int argc, char* argv[])
             prune_only   = true;
             break;
       case OPT_CNF_ONLY:
-            outdesc    = "eigEIG";
+            outdesc    = "teigEIG";
             print_sat  = true;
             proc_limit = 0;
             cnf_only   = true;

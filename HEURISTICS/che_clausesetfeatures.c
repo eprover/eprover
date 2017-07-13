@@ -1541,78 +1541,83 @@ void ClauseSetPrintNonUnits(FILE* out, ClauseSet_p set, bool
 /----------------------------------------------------------------------*/
 
 void ProofStatePrintSelective(FILE* out, ProofState_p state, char*
-               descriptor, bool printinfo)
+                              descriptor, bool printinfo)
 {
    char* current = descriptor;
+
 
    while(*current)
    {
       switch(*current)
       {
+      case 't':
+            fprintf(out, "# Type declarations:\n");
+            SigPrintTypeDeclsTSTP(out, state->terms->sig);
+            break;
       case 'e':
-       fprintf(out, "# Processed positive unit clauses:\n");
-       ClauseSetPrintPosUnits(out, state->processed_pos_rules,
-               printinfo);
-       ClauseSetPrintPosUnits(out, state->processed_pos_eqns,
-               printinfo);
-       fputc('\n', out);
-       break;
+            fprintf(out, "# Processed positive unit clauses:\n");
+            ClauseSetPrintPosUnits(out, state->processed_pos_rules,
+                                   printinfo);
+            ClauseSetPrintPosUnits(out, state->processed_pos_eqns,
+                                   printinfo);
+            fputc('\n', out);
+            break;
       case 'i':
-       fprintf(out, "# Processed negative unit clauses:\n");
-       ClauseSetPrintNegUnits(out, state->processed_neg_units,
-               printinfo);
-       fputc('\n', out);
-       break;
+            fprintf(out, "# Processed negative unit clauses:\n");
+            ClauseSetPrintNegUnits(out, state->processed_neg_units,
+                                   printinfo);
+            fputc('\n', out);
+            break;
       case 'g':
-       fprintf(out, "# Processed non-unit clauses:\n");
-       ClauseSetPrintNonUnits(out, state->processed_non_units,
-               printinfo);
-       fputc('\n', out);
-       break;
+            fprintf(out, "# Processed non-unit clauses:\n");
+            ClauseSetPrintNonUnits(out, state->processed_non_units,
+                                   printinfo);
+            fputc('\n', out);
+            break;
       case 'E':
-       fprintf(out, "# Unprocessed positive unit clauses:\n");
-       ClauseSetPrintPosUnits(out, state->unprocessed,
-               printinfo);
-       fputc('\n', out);
-       break;
+            fprintf(out, "# Unprocessed positive unit clauses:\n");
+            ClauseSetPrintPosUnits(out, state->unprocessed,
+                                   printinfo);
+            fputc('\n', out);
+            break;
       case 'I':
-       fprintf(out, "# Unprocessed negative unit clauses:\n");
-       ClauseSetPrintNegUnits(out, state->unprocessed,
-               printinfo);
-       fputc('\n', out);
-       break;
+            fprintf(out, "# Unprocessed negative unit clauses:\n");
+            ClauseSetPrintNegUnits(out, state->unprocessed,
+                                   printinfo);
+            fputc('\n', out);
+            break;
       case 'G':
-       fprintf(out, "# Unprocessed non-unit clauses:\n");
-       ClauseSetPrintNonUnits(out, state->unprocessed,
-               printinfo);
-       fputc('\n', out);
-       break;
+            fprintf(out, "# Unprocessed non-unit clauses:\n");
+            ClauseSetPrintNonUnits(out, state->unprocessed,
+                                   printinfo);
+            fputc('\n', out);
+            break;
       case 'a':
-       if(ClauseSetIsEquational(state->axioms))
-       {
-          fprintf(out, "# Equality axioms:\n");
-          EqAxiomsPrint(out, state->signature, true);
-       }
-       else
-       {
-          fprintf(out, "# No equality axioms required.\n");
-       }
+            if(ClauseSetIsEquational(state->axioms))
+            {
+               fprintf(out, "# Equality axioms:\n");
+               EqAxiomsPrint(out, state->signature, true);
+            }
+            else
+            {
+               fprintf(out, "# No equality axioms required.\n");
+            }
 
-       break;
+            break;
       case 'A':
-       if(ClauseSetIsEquational(state->axioms))
-       {
-          fprintf(out, "# Equality axioms:\n");
-          EqAxiomsPrint(out, state->signature, false);
-       }
-       else
-       {
-          fprintf(out, "# No equality axioms required.\n");
-       }
-       break;
+            if(ClauseSetIsEquational(state->axioms))
+            {
+               fprintf(out, "# Equality axioms:\n");
+               EqAxiomsPrint(out, state->signature, false);
+            }
+            else
+            {
+               fprintf(out, "# No equality axioms required.\n");
+            }
+            break;
       default:
-       assert(false && "Illegal character in descriptor string");
-       break;
+            assert(false && "Illegal character in descriptor string");
+            break;
       }
       current++;
    }
@@ -1659,5 +1664,3 @@ SpecLimits_p CreateDefaultSpecLimits(void)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

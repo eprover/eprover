@@ -469,19 +469,19 @@ Type_p TypeNewFunction(TypeTable_p table, SortType sort,
 int TypeCompare(Type_p t1, Type_p t2)
 {
    int res;
-   
+
    res = t1->domain_sort - t2->domain_sort;
    if(res)
    {
       return res;
    }
-   
+
    res = t1->arity - t2->arity;
    if(res)
    {
       return res;
    }
-   
+
    // same domain and arity, lexicographic comparison of arguments
    assert (t1->arity == t2->arity);
    for(int i = 0; !res && i < t1->arity; i++)
@@ -554,6 +554,47 @@ void TypePrintTSTP(FILE *out, TypeTable_p table, Type_p type)
         fputc('>', out);
         SortPrintTSTP(out, table->sort_table, type->domain_sort);
     }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: TypeTreePrintTSTP()
+//
+//   Print all the types in the type tree in TSTP syntax.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void TypeTreePrintTSTP(FILE *out, TypeTable_p table, Type_p tree)
+{
+   if(tree)
+   {
+      TypeTreePrintTSTP(out, table, tree->lson);
+      TypePrintTSTP(out, table, tree);
+      fprintf(stdout, "\n");
+      TypeTreePrintTSTP(out, table, tree->rson);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TypeTablePrintTSTP()
+//
+//   Print all the types in the type table in TSTP syntax.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void TypeTablePrintTSTP(FILE *out, TypeTable_p table)
+{
+   TypeTreePrintTSTP(out, table, table->root);
 }
 
 

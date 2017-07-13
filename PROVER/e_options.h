@@ -303,8 +303,9 @@ OptCell opts[] =
     OptArg, DEFAULT_OUTPUT_DESCRIPTOR,
     "Print the (semi-) saturated clause sets after terminating the "
     "saturation process. The argument given describes which parts "
-    "should be printed in which order. Legal characters are 'eigEIGaA',"
-    " standing for processed positive units, processed negative units, "
+    "should be printed in which order. Legal characters are 'teigEIGaA',"
+    " standing for type declarations, processed positive units, "
+    "processed negative units, "
     "processed non-units, unprocessed positive units, unprocessed "
     "negative units, unprocessed non-units, and two types of "
     "additional equality axioms, respectively. Equality axioms will "

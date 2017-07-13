@@ -1430,6 +1430,39 @@ void SigPrintTypes(FILE* out, Sig_p sig)
 
 /*-----------------------------------------------------------------------
 //
+// Function: SigPrintTypeDeclsTSTP()
+//
+//   Print TPTP-3 type declarations for all real symbols.
+//
+//
+// Global Variables: -
+//
+// Side Effects    : IO on the file descriptor
+//
+/----------------------------------------------------------------------*/
+
+void SigPrintTypeDeclsTSTP(FILE* out, Sig_p sig)
+{
+   FunCode i;
+   Func_p fun;
+
+   for(i=sig->internal_symbols+1; i <= sig->f_count; i++)
+   {
+      fun = &sig->f_info[i];
+      if (fun->type)
+      {
+         fprintf(out, "tff(decl_%ld, type, %s: ", i, fun->name);
+         TypePrintTSTP(out, sig->type_table, fun->type);
+         fprintf(out, ").\n");
+      }
+   }
+}
+
+
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: SigParseTFFTypeDeclaration()
 //
 //    Parses a type declaration, and update the signature if it is a

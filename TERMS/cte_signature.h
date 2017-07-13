@@ -248,6 +248,7 @@ void    SigDeclareFinalType(Sig_p sig, FunCode f, Type_p type);
 void    SigDeclareIsFunction(Sig_p sig, FunCode f);
 void    SigDeclareIsPredicate(Sig_p sig, FunCode f);
 void    SigPrintTypes(FILE* out, Sig_p sig);
+void    SigPrintTypeDeclsTSTP(FILE* out, Sig_p sig);
 void    SigParseTFFTypeDeclaration(Scanner_p in, Sig_p sig);
 
 /*---------------------------------------------------------------------*/
@@ -398,8 +399,3 @@ static __inline__ FunCode SigGetCNilCode(Sig_p sig)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

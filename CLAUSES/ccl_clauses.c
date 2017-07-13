@@ -2646,9 +2646,8 @@ bool ClauseIsUntyped(Clause_p clause)
    {
       if (!EqnIsUntyped(lits))
       {
-    return false;
+         return false;
       }
-
       lits = lits->next;
    }
    return true;
