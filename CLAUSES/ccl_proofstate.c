@@ -1,25 +1,20 @@
 /*-----------------------------------------------------------------------
 
-File  : ccl_proofstate.c
+  File  : ccl_proofstate.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Basic functions for proof state objects.
 
-  Copyright 1998-2016 by the author.
+  Copyright 1998-2017 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
-
-<1> Mon Jun  8 11:14:02 MET DST 1998
-    New
-<2> Wed Oct 14 22:46:13 MET DST 1998
-    Extracted from CONTROL/cco_proofstate.c
+  Created: Wed Oct 14 22:46:13 MET DST 1998
 
 -----------------------------------------------------------------------*/
 
@@ -404,6 +399,29 @@ void ProofStateFree(ProofState_p junk)
    SortTableFree(junk->sort_table);
 
    ProofStateCellFree(junk);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ProofStateIsUntyped()
+//
+//   Return true if all clauses in the proof state are untyped. Does
+//   not check formulas!
+//
+// Global Variables: -
+//
+// Side Effects    :  0
+//
+/----------------------------------------------------------------------*/
+
+bool ProofStateIsUntyped(ProofState_p state)
+{
+   return ClauseSetIsUntyped(state->processed_pos_rules)
+      && ClauseSetIsUntyped(state->processed_pos_eqns)
+      && ClauseSetIsUntyped(state->processed_neg_units)
+      && ClauseSetIsUntyped(state->processed_non_units)
+      && ClauseSetIsUntyped(state->unprocessed);
 }
 
 

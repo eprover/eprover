@@ -1,27 +1,23 @@
 /*-----------------------------------------------------------------------
 
-File  : ccl_proofstate.h
+  File  : ccl_proofstate.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Proof objects describing the state of a proof attempt (i.e. all
   information relevant to the calculus, but not information describing
   control).
 
-  Copyright 1998-2016 by the author.
+  Copyright 1998-2017 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
-
-<1> Sat Jul  5 02:28:25 MET DST 1997
-    New
-<2> Wed Oct 14 22:46:13 MET DST 1998
-    Extracted from CONTROL/cco_proofstate.h
+  Created: Wed Oct 14 22:46:13 MET DST 1998 (extracted from
+  CONTROL/cco_proofstate.h)
 
 -----------------------------------------------------------------------*/
 
@@ -141,6 +137,7 @@ void         ProofStateFree(ProofState_p junk);
     TBStorage((state)->terms))
 
 
+bool ProofStateIsUntyped(ProofState_p state);
 void ProofStateAnalyseGC(ProofState_p state);
 void ProofStatePickTrainingExamples(ProofState_p state,
                                     PStack_p pos_examples,

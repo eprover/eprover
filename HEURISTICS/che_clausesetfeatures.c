@@ -1551,8 +1551,11 @@ void ProofStatePrintSelective(FILE* out, ProofState_p state, char*
       switch(*current)
       {
       case 't':
-            fprintf(out, "# Type declarations:\n");
-            SigPrintTypeDeclsTSTP(out, state->terms->sig);
+            if(!ClauseSetIsUntyped(state->axioms))
+            {
+               fprintf(out, "# Type declarations:\n");
+               SigPrintTypeDeclsTSTP(out, state->terms->sig);
+            }
             break;
       case 'e':
             fprintf(out, "# Processed positive unit clauses:\n");
