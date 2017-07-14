@@ -1,12 +1,13 @@
 /*-----------------------------------------------------------------------
 
-File  : ccl_clausesets.c
+  File  : ccl_clausesets.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
-  Implementation of clause sets based on AVL trees.
+  Implementation of clause sets (doubly linked lists), with optional
+  extras (in particular various indices)
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
@@ -14,12 +15,9 @@ Contents
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Created: Sun May 10 03:03:20 MET DST 1998
 
-<1> Sun May 10 03:03:20 MET DST 1998
-    New
-
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include "ccl_clausesets.h"
 
@@ -52,7 +50,7 @@ Changes
 /----------------------------------------------------------------------*/
 
 static void print_var_pattern(FILE* out, char* symbol, int arity, char*
-               var, char* alt_var, int exception)
+                              var, char* alt_var, int exception)
 {
    int i;
    char* prefix = "";
@@ -64,11 +62,11 @@ static void print_var_pattern(FILE* out, char* symbol, int arity, char*
       fputs(prefix, out);
       if(i==exception)
       {
-    fputs(alt_var, out);
+         fputs(alt_var, out);
       }
       else
       {
-    fprintf(out, "%s%d", var, i);
+         fprintf(out, "%s%d", var, i);
       }
       prefix = ",";
    }
@@ -89,7 +87,7 @@ static void print_var_pattern(FILE* out, char* symbol, int arity, char*
 /----------------------------------------------------------------------*/
 
 static void eq_func_axiom_print(FILE* out, char* symbol, int arity,
-            bool single_subst)
+                                bool single_subst)
 {
    int i;
    char *prefix = "";
@@ -98,12 +96,12 @@ static void eq_func_axiom_print(FILE* out, char* symbol, int arity,
    {
       for(i=1; i<=arity; i++)
       {
-    fprintf(out, "equal(");
-    print_var_pattern(out, symbol, arity, "X", "Y", i);
-    fprintf(out, ",");
-    print_var_pattern(out, symbol, arity, "X", "Z", i);
-    fprintf(out, ") <- ");
-    fprintf(out, "equal(Y,Z).\n");
+         fprintf(out, "equal(");
+         print_var_pattern(out, symbol, arity, "X", "Y", i);
+         fprintf(out, ",");
+         print_var_pattern(out, symbol, arity, "X", "Z", i);
+         fprintf(out, ") <- ");
+         fprintf(out, "equal(Y,Z).\n");
       }
    }
    else
@@ -115,8 +113,8 @@ static void eq_func_axiom_print(FILE* out, char* symbol, int arity,
       fprintf(out, ") <- ");
       for(i=1; i<=arity; i++)
       {
-    fprintf(out, "%sequal(X%d,Y%d)", prefix, i, i);
-    prefix = ",";
+         fprintf(out, "%sequal(X%d,Y%d)", prefix, i, i);
+         prefix = ",";
       }
       fprintf(out, ".\n");
    }
@@ -135,7 +133,7 @@ static void eq_func_axiom_print(FILE* out, char* symbol, int arity,
 /----------------------------------------------------------------------*/
 
 static void eq_pred_axiom_print(FILE* out, char* symbol, int arity,
-            bool single_subst)
+                                bool single_subst)
 {
    int i;
 
@@ -143,10 +141,10 @@ static void eq_pred_axiom_print(FILE* out, char* symbol, int arity,
    {
       for(i=1; i<=arity; i++)
       {
-    print_var_pattern(out, symbol, arity, "X", "Y", i);
-    fprintf(out, " <- ");
-    print_var_pattern(out, symbol, arity, "X", "Z", i);
-    fprintf(out, ", equal(Y,Z).\n");
+         print_var_pattern(out, symbol, arity, "X", "Y", i);
+         fprintf(out, " <- ");
+         print_var_pattern(out, symbol, arity, "X", "Z", i);
+         fprintf(out, ", equal(Y,Z).\n");
       }
    }
    else
@@ -156,7 +154,7 @@ static void eq_pred_axiom_print(FILE* out, char* symbol, int arity,
       print_var_pattern(out, symbol, arity, "Y", NULL,0);
       for(i=1; i<=arity; i++)
       {
-    fprintf(out, ",equal(X%d,Y%d)", i, i);
+         fprintf(out, ",equal(X%d,Y%d)", i, i);
       }
       fprintf(out, ".\n");
    }
@@ -176,7 +174,7 @@ static void eq_pred_axiom_print(FILE* out, char* symbol, int arity,
 /----------------------------------------------------------------------*/
 
 static void tptp_eq_func_axiom_print(FILE* out, char* symbol, int arity,
-                 bool single_subst)
+                                     bool single_subst)
 {
    int i;
 
@@ -184,26 +182,26 @@ static void tptp_eq_func_axiom_print(FILE* out, char* symbol, int arity,
    {
       for(i=1; i<=arity; i++)
       {
-    fprintf(out, "input_clause(eq_subst_%s%d, axiom, [++equal(",
-       symbol, i);
-    print_var_pattern(out, symbol, arity, "X", "Y", i);
-    fprintf(out, ",");
-    print_var_pattern(out, symbol, arity, "X", "Z", i);
-    fprintf(out, "),");
-    fprintf(out, "--equal(Y,Z)]).\n");
+         fprintf(out, "input_clause(eq_subst_%s%d, axiom, [++equal(",
+                 symbol, i);
+         print_var_pattern(out, symbol, arity, "X", "Y", i);
+         fprintf(out, ",");
+         print_var_pattern(out, symbol, arity, "X", "Z", i);
+         fprintf(out, "),");
+         fprintf(out, "--equal(Y,Z)]).\n");
       }
    }
    else
    {
       fprintf(out, "input_clause(eq_subst_%s, axiom, [++equal(",
-         symbol);
+              symbol);
       print_var_pattern(out, symbol, arity, "X", NULL,0);
       fprintf(out, ",");
       print_var_pattern(out, symbol, arity, "Y", NULL,0);
       fprintf(out, ")");
       for(i=1; i<=arity; i++)
       {
-    fprintf(out, ",--equal(X%d,Y%d)", i, i);
+         fprintf(out, ",--equal(X%d,Y%d)", i, i);
       }
       fprintf(out, "]).\n");
    }
@@ -222,7 +220,7 @@ static void tptp_eq_func_axiom_print(FILE* out, char* symbol, int arity,
 /----------------------------------------------------------------------*/
 
 static void tptp_eq_pred_axiom_print(FILE* out, char* symbol, int arity,
-                 bool single_subst)
+                                     bool single_subst)
 {
    int i;
 
@@ -230,24 +228,24 @@ static void tptp_eq_pred_axiom_print(FILE* out, char* symbol, int arity,
    {
       for(i=1; i<=arity; i++)
       {
-    fprintf(out, "input_clause(eq_subst_%s%d, axiom, [++",
-       symbol, i);
-    print_var_pattern(out, symbol, arity, "X", "Y", i);
-    fprintf(out, ",--");
-    print_var_pattern(out, symbol, arity, "X", "Z", i);
-    fprintf(out, ",--equal(Y,Z)]).\n");
+         fprintf(out, "input_clause(eq_subst_%s%d, axiom, [++",
+                 symbol, i);
+         print_var_pattern(out, symbol, arity, "X", "Y", i);
+         fprintf(out, ",--");
+         print_var_pattern(out, symbol, arity, "X", "Z", i);
+         fprintf(out, ",--equal(Y,Z)]).\n");
       }
    }
    else
    {
       fprintf(out, "input_clause(eq_subst_%s, axiom, [++",
-         symbol);
+              symbol);
       print_var_pattern(out, symbol, arity, "X", NULL,0);
       fprintf(out, ",--");
       print_var_pattern(out, symbol, arity, "Y", NULL,0);
       for(i=1; i<=arity; i++)
       {
-    fprintf(out, ",--equal(X%d,Y%d)", i, i);
+         fprintf(out, ",--equal(X%d,Y%d)", i, i);
       }
       fprintf(out, "]).\n");
    }
@@ -282,7 +280,7 @@ static void clause_set_extract_entry(Clause_p clause)
    {
       for(i=0; i<clause->evaluations->eval_no; i++)
       {
-    root = (void*)&PDArrayElementP(clause->set->eval_indices, i);
+         root = (void*)&PDArrayElementP(clause->set->eval_indices, i);
 #ifndef NDEBUG
          test =
 #endif
@@ -451,7 +449,7 @@ void ClauseSetGCMarkTerms(ClauseSet_p set)
    Clause_p handle;
 
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
-     handle->succ)
+          handle->succ)
    {
       ClauseGCMarkTerms(handle);
    }
@@ -672,15 +670,15 @@ Clause_p ClauseSetExtractEntry(Clause_p clause)
       assert(clause->set->demod_index);
       if(clause->set->demod_index)
       {
-    assert(ClauseIsUnit(clause));
-    PDTreeDelete(clause->set->demod_index, clause->literals->lterm,
-            clause);
-    if(!EqnIsOriented(clause->literals))
-    {
-       PDTreeDelete(clause->set->demod_index,
-          clause->literals->rterm, clause);
-    }
-    ClauseDelProp(clause, CPIsDIndexed);
+         assert(ClauseIsUnit(clause));
+         PDTreeDelete(clause->set->demod_index, clause->literals->lterm,
+                      clause);
+         if(!EqnIsOriented(clause->literals))
+         {
+            PDTreeDelete(clause->set->demod_index,
+                         clause->literals->rterm, clause);
+         }
+         ClauseDelProp(clause, CPIsDIndexed);
       }
    }
    if(ClauseQueryProp(clause, CPIsSIndexed))
@@ -795,7 +793,7 @@ void ClauseSetPrint(FILE* out, ClauseSet_p set, bool fullterms)
    Clause_p handle;
 
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
-     handle->succ)
+          handle->succ)
    {
       ClausePrint(out, handle, fullterms);
       fputc('\n', out);
@@ -820,7 +818,7 @@ void ClauseSetTSTPPrint(FILE* out, ClauseSet_p set, bool fullterms)
    Clause_p handle;
 
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
-     handle->succ)
+          handle->succ)
    {
       ClauseTSTPPrint(out, handle, fullterms, true);
       fputc('\n', out);
@@ -845,7 +843,7 @@ void ClauseSetPrintPrefix(FILE* out, char* prefix, ClauseSet_p set)
    Clause_p handle;
 
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
-     handle->succ)
+          handle->succ)
    {
       fputs(prefix, out);
       ClausePrint(out, handle, true);
@@ -914,7 +912,7 @@ void ClauseSetSetProp(ClauseSet_p set, FormulaProperties prop)
    Clause_p handle;
 
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
-     handle->succ)
+          handle->succ)
    {
       ClauseSetProp(handle, prop);
    }
@@ -938,7 +936,7 @@ void ClauseSetDelProp(ClauseSet_p set, FormulaProperties prop)
    Clause_p handle;
 
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
-     handle->succ)
+          handle->succ)
    {
       ClauseDelProp(handle, prop);
    }
@@ -962,7 +960,7 @@ void ClauseSetSetTPTPType(ClauseSet_p set, FormulaProperties type)
    Clause_p handle;
 
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
-     handle->succ)
+          handle->succ)
    {
       ClauseSetTPTPType(handle, type);
    }
@@ -995,17 +993,17 @@ long ClauseSetMarkCopies(ClauseSet_p set)
    assert(set);
 
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
-     handle->succ)
+          handle->succ)
    {
       if((exists = PTreeObjStore(&store, handle,
                                  ClauseCompareFun)))
       {
-    if(!ClauseParentsAreSubset(exists, handle))
-    {
-       ClauseDetachParents(exists);
-    }
-    ClauseSetProp(handle, CPDeleteClause);
-    res++;
+         if(!ClauseParentsAreSubset(exists, handle))
+         {
+            ClauseDetachParents(exists);
+         }
+         ClauseSetProp(handle, CPDeleteClause);
+         res++;
       }
    }
    PTreeFree(store);
@@ -1044,10 +1042,10 @@ long ClauseSetDeleteMarkedEntries(ClauseSet_p set)
 
       if(ClauseQueryProp(clause, CPDeleteClause))
       {
-    deleted++;
-    ClauseDetachParents(clause); /* If no parents, nothing should
-                happen! */
-    ClauseSetDeleteEntry(clause);
+         deleted++;
+         ClauseDetachParents(clause); /* If no parents, nothing should
+                                         happen! */
+         ClauseSetDeleteEntry(clause);
       }
    }
    return deleted;
@@ -1106,11 +1104,11 @@ long ClauseSetDeleteNonUnits(ClauseSet_p set)
    {
       if(ClauseLiteralNumber(handle)>1)
       {
-    ClauseSetProp(handle,CPDeleteClause);
+         ClauseSetProp(handle,CPDeleteClause);
       }
       else
       {
-    ClauseDelProp(handle,CPDeleteClause);
+         ClauseDelProp(handle,CPDeleteClause);
       }
       handle = handle->succ;
    }
@@ -1137,7 +1135,7 @@ long ClauseSetGetTermNodes(ClauseSet_p set)
    Clause_p handle;
 
    for(handle = set->anchor->succ; handle != set->anchor; handle =
-     handle->succ)
+          handle->succ)
    {
       res += ClauseWeight(handle, 1, 1, 1, 1, 1, true);
    }
@@ -1163,17 +1161,17 @@ long ClauseSetMarkSOS(ClauseSet_p set, bool tptp_types)
    Clause_p handle;
 
    for(handle = set->anchor->succ; handle != set->anchor; handle =
-     handle->succ)
+          handle->succ)
    {
       if((tptp_types && (ClauseQueryTPTPType(handle) == CPTypeConjecture))||
-    (!tptp_types && (ClauseIsGoal(handle))))
+         (!tptp_types && (ClauseIsGoal(handle))))
       {
-    ClauseSetProp(handle, CPIsSOS);
-    res++;
+         ClauseSetProp(handle, CPIsSOS);
+         res++;
       }
       else
       {
-    ClauseDelProp(handle, CPIsSOS);
+         ClauseDelProp(handle, CPIsSOS);
       }
    }
    return res;
@@ -1197,7 +1195,7 @@ void ClauseSetTermSetProp(ClauseSet_p set, TermProperties prop)
    Clause_p handle;
 
    for(handle = set->anchor->succ; handle != set->anchor; handle =
-     handle->succ)
+          handle->succ)
    {
       ClauseTermSetProp(handle, prop);
    }
@@ -1221,7 +1219,7 @@ long ClauseSetTBTermPropDelCount(ClauseSet_p set, TermProperties prop)
    long res = 0;
 
    for(handle = set->anchor->succ; handle != set->anchor; handle =
-     handle->succ)
+          handle->succ)
    {
       res += ClauseTBTermDelPropCount(handle, prop);
    }
@@ -1299,7 +1297,7 @@ void ClauseSetMarkMaximalTerms(OCB_p ocb, ClauseSet_p set)
    Clause_p handle;
 
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
-     handle->succ)
+          handle->succ)
    {
       ClauseMarkMaximalTerms(ocb, handle);
    }
@@ -1323,7 +1321,7 @@ void ClauseSetSortLiterals(ClauseSet_p set, ComparisonFunctionType cmp_fun)
    Clause_p handle;
 
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
-     handle->succ)
+          handle->succ)
    {
       ClauseSortLiterals(handle, cmp_fun);
    }
@@ -1383,9 +1381,9 @@ Clause_p ClauseSetFind(ClauseSet_p set, Clause_p clause)
    {
       if(handle == clause)
       {
-    res = handle;
-    assert(clause->set == set);
-    break;
+         res = handle;
+         assert(clause->set == set);
+         break;
       }
    }
    return res;
@@ -1416,9 +1414,9 @@ Clause_p ClauseSetFindById(ClauseSet_p set, long ident)
    {
       if(handle->ident == ident)
       {
-    res = handle;
-    assert(handle->set == set);
-    break;
+         res = handle;
+         assert(handle->set == set);
+         break;
       }
    }
    return res;
@@ -1484,9 +1482,9 @@ long ClauseSetFilterTrivial(ClauseSet_p set)
 
       if(ClauseIsTrivial(handle))
       {
-    ClauseDetachParents(handle);
-    ClauseSetDeleteEntry(handle);
-    count++;
+         ClauseDetachParents(handle);
+         ClauseSetDeleteEntry(handle);
+         count++;
       }
       handle = next;
    }
@@ -1524,9 +1522,9 @@ long ClauseSetFilterTautologies(ClauseSet_p set, TB_p work_bank)
 
       if(ClauseIsTautology(work_bank, handle))
       {
-    ClauseDetachParents(handle);
-    ClauseSetDeleteEntry(handle);
-    count++;
+         ClauseDetachParents(handle);
+         ClauseSetDeleteEntry(handle);
+         count++;
       }
       handle = next;
    }
@@ -1559,8 +1557,8 @@ Clause_p ClauseSetFindMaxStandardWeight(ClauseSet_p set)
       weight = ClauseStandardWeight(handle);
       if(weight > max_weight)
       {
-    res = handle;
-    max_weight = weight;
+         res = handle;
+         max_weight = weight;
       }
       handle = handle->succ;
    }
@@ -1601,16 +1599,16 @@ ClausePos_p ClauseSetFindEqDefinition(ClauseSet_p set, int min_arity,
       side = ClauseIsEqDefinition(handle, min_arity);
       if(side!=NoSide)
       {
-    res = ClausePosCellAlloc();
-    res->clause = handle;
-    res->literal = handle->literals;
-    res->side = side;
-    res->pos = NULL;
-    break;
+         res = ClausePosCellAlloc();
+         res->clause = handle;
+         res->literal = handle->literals;
+         res->side = side;
+         res->pos = NULL;
+         break;
       }
    }
    /* if(res)
-   {
+      {
       printf("# EqDef found: ");
       ClausePrint(stdout, res->clause, true);
       printf(" Side %d\n", res->side);
@@ -1637,11 +1635,11 @@ void ClauseSetDocInital(FILE* out, long level, ClauseSet_p set)
    if(level>=2)
    {
       for(handle = set->anchor->succ; handle!=set->anchor; handle =
-        handle->succ)
+             handle->succ)
       {
-    DocClauseCreation(out, OutputLevel, handle,
-            inf_initial, NULL, NULL,
-            NULL);
+         DocClauseCreation(out, OutputLevel, handle,
+                           inf_initial, NULL, NULL,
+                           NULL);
       }
    }
 }
@@ -1660,19 +1658,19 @@ void ClauseSetDocInital(FILE* out, long level, ClauseSet_p set)
 /----------------------------------------------------------------------*/
 
 void ClauseSetPropDocQuote(FILE* out, long level, FormulaProperties prop,
-            ClauseSet_p set, char* comment)
+                           ClauseSet_p set, char* comment)
 {
    Clause_p handle;
 
    if(level>=2)
    {
       for(handle = set->anchor->succ; handle!=set->anchor; handle =
-        handle->succ)
+             handle->succ)
       {
-    if(ClauseQueryProp(handle, prop))
-    {
-       DocClauseQuote(out, level, 2, handle, comment , NULL);
-    }
+         if(ClauseQueryProp(handle, prop))
+         {
+            DocClauseQuote(out, level, 2, handle, comment , NULL);
+         }
       }
    }
 }
@@ -1746,46 +1744,46 @@ bool PDTreeVerifyIndex(PDTree_p tree, ClauseSet_p demods)
       {
          iter = IntMapIterAlloc(handle->f_alternatives, 0, LONG_MAX);
          while((handle = IntMapIterNext(iter, &i)))
-    {
-       if(handle)
-       {
-          PStackPushP(stack, handle);
-       }
-    }
+         {
+            if(handle)
+            {
+               PStackPushP(stack, handle);
+            }
+         }
          IntMapIterFree(iter);
-    for(i=1; i<=handle->max_var; i++)
-    {
-       if(PDArrayElementP(handle->v_alternatives, i))
-       {
-          PStackPushP(stack, PDArrayElementP(handle->v_alternatives, i));
-       }
-    }
+         for(i=1; i<=handle->max_var; i++)
+         {
+            if(PDArrayElementP(handle->v_alternatives, i))
+            {
+               PStackPushP(stack, PDArrayElementP(handle->v_alternatives, i));
+            }
+         }
       }
       else
       {
-    trav = PTreeTraverseInit(handle->entries);
-    while((entry = PTreeTraverseNext(trav)))
-    {
-       pos = entry->key;
-       if(!ClauseSetFind(demods, pos->clause))
-       {
-          res = false;
-          /* printf("Fehler: %d\n", (int)pos->clause);
-        ClausePrint(stdout, pos->clause, true);
-        printf("\n"); */
-       }
-    }
-    PTreeTraverseExit(trav);
+         trav = PTreeTraverseInit(handle->entries);
+         while((entry = PTreeTraverseNext(trav)))
+         {
+            pos = entry->key;
+            if(!ClauseSetFind(demods, pos->clause))
+            {
+               res = false;
+               /* printf("Fehler: %d\n", (int)pos->clause);
+                  ClausePrint(stdout, pos->clause, true);
+                  printf("\n"); */
+            }
+         }
+         PTreeTraverseExit(trav);
          iter = IntMapIterAlloc(handle->f_alternatives, 0, LONG_MAX);
          while((handle = IntMapIterNext(iter, &i)))
-    {
+         {
             assert(!handle);
          }
          IntMapIterFree(iter);
-    for(i=0; i<handle->max_var; i++)
-    {
-       assert(!PDArrayElementP(handle->v_alternatives, i));
-    }
+         for(i=0; i<handle->max_var; i++)
+         {
+            assert(!PDArrayElementP(handle->v_alternatives, i));
+         }
       }
    }
    PStackFree(stack);
@@ -1816,26 +1814,26 @@ void EqAxiomsPrint(FILE* out, Sig_p sig, bool single_subst)
    if(OutputFormat == TPTPFormat)
    {
       fprintf(out,
-         "input_clause(eq_reflexive, axiom, [++equal(X,X)]).\n"
-         "input_clause(eq_symmetric, axiom,"
-         " [++equal(X,Y),--equal(Y,X)]).\n"
-         "input_clause(eq_transitive, axiom,"
-         " [++equal(X,Z),--equal(X,Y),--equal(Y,Z)]).\n");
+              "input_clause(eq_reflexive, axiom, [++equal(X,X)]).\n"
+              "input_clause(eq_symmetric, axiom,"
+              " [++equal(X,Y),--equal(Y,X)]).\n"
+              "input_clause(eq_transitive, axiom,"
+              " [++equal(X,Z),--equal(X,Y),--equal(Y,Z)]).\n");
       for(i=sig->internal_symbols+1; i<=sig->f_count; i++)
       {
-    if((arity=SigFindArity(sig, i)))
-    {
-       if(SigIsPredicate(sig,i))
-       {
-          tptp_eq_pred_axiom_print(out, SigFindName(sig,i),
-               arity, single_subst);
-       }
-       else
-       {
-          tptp_eq_func_axiom_print(out, SigFindName(sig,i),
-               arity, single_subst);
-       }
-    }
+         if((arity=SigFindArity(sig, i)))
+         {
+            if(SigIsPredicate(sig,i))
+            {
+               tptp_eq_pred_axiom_print(out, SigFindName(sig,i),
+                                        arity, single_subst);
+            }
+            else
+            {
+               tptp_eq_func_axiom_print(out, SigFindName(sig,i),
+                                        arity, single_subst);
+            }
+         }
       }
    }
    else if(OutputFormat == TSTPFormat)
@@ -1846,24 +1844,24 @@ void EqAxiomsPrint(FILE* out, Sig_p sig, bool single_subst)
    else
    {
       fprintf(out,
-         "equal(X,X) <- .\n"
-         "equal(X,Y) <- equal(Y,X).\n"
-         "equal(X,Z) <- equal(X,Y), equal(Y,Z).\n");
+              "equal(X,X) <- .\n"
+              "equal(X,Y) <- equal(Y,X).\n"
+              "equal(X,Z) <- equal(X,Y), equal(Y,Z).\n");
       for(i=sig->internal_symbols+1; i<=sig->f_count; i++)
       {
-    if((arity=SigFindArity(sig, i)))
-    {
-       if(SigIsPredicate(sig,i))
-       {
-          eq_pred_axiom_print(out, SigFindName(sig,i), arity,
-               single_subst);
-       }
-       else
-       {
-          eq_func_axiom_print(out, SigFindName(sig,i), arity,
-               single_subst);
-       }
-    }
+         if((arity=SigFindArity(sig, i)))
+         {
+            if(SigIsPredicate(sig,i))
+            {
+               eq_pred_axiom_print(out, SigFindName(sig,i), arity,
+                                   single_subst);
+            }
+            else
+            {
+               eq_func_axiom_print(out, SigFindName(sig,i), arity,
+                                   single_subst);
+            }
+         }
       }
    }
 }
@@ -1887,7 +1885,7 @@ void ClauseSetAddSymbolDistribution(ClauseSet_p set, long *dist_array)
    Clause_p handle;
 
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
-     handle->succ)
+          handle->succ)
    {
       ClauseAddSymbolDistribution(handle, dist_array);
    }
@@ -1911,7 +1909,7 @@ void ClauseSetAddConjSymbolDistribution(ClauseSet_p set, long *dist_array)
    Clause_p handle;
 
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
-     handle->succ)
+          handle->succ)
    {
       if(ClauseIsConjecture(handle))
       {
@@ -1935,12 +1933,12 @@ void ClauseSetAddConjSymbolDistribution(ClauseSet_p set, long *dist_array)
 /----------------------------------------------------------------------*/
 
 void ClauseSetComputeFunctionRanks(ClauseSet_p set, long *rank_array,
-                long* count)
+                                   long* count)
 {
    Clause_p handle;
 
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
-     handle->succ)
+          handle->succ)
    {
       ClauseComputeFunctionRanks(handle, rank_array, count);
    }
@@ -1961,7 +1959,7 @@ void ClauseSetComputeFunctionRanks(ClauseSet_p set, long *rank_array,
 /----------------------------------------------------------------------*/
 
 FunCode ClauseSetFindFreqSymbol(ClauseSet_p set, Sig_p sig, int arity,
-            bool least)
+                                bool least)
 {
    FunCode       i, selected=0;
    long          *dist_array,freq=least?LONG_MAX:0;
@@ -1977,14 +1975,14 @@ FunCode ClauseSetFindFreqSymbol(ClauseSet_p set, Sig_p sig, int arity,
    for(i=sig->internal_symbols+1; i<= sig->f_count; i++)
    {
       if((SigFindArity(sig,i)==arity) && !SigIsPredicate(sig,i) &&
-    !SigIsSpecial(sig,i))
+         !SigIsSpecial(sig,i))
       {
-    if((least && (dist_array[i]<=freq)) ||
-       (dist_array[i]>=freq))
-    {
-       freq = dist_array[i];
-       selected = i;
-    }
+         if((least && (dist_array[i]<=freq)) ||
+            (dist_array[i]>=freq))
+         {
+            freq = dist_array[i];
+            selected = i;
+         }
       }
    }
    SizeFree(dist_array, (sig->f_count+1)*sizeof(long));
@@ -2012,7 +2010,7 @@ long ClauseSetMaxVarNumber(ClauseSet_p set)
    Clause_p handle;
 
    for(handle = set->anchor->succ; handle!= set->anchor; handle =
-     handle->succ)
+          handle->succ)
    {
       tree = NULL;
       tmp = ClauseCollectVariables(handle, &tree);
@@ -2037,8 +2035,8 @@ long ClauseSetMaxVarNumber(ClauseSet_p set)
 /----------------------------------------------------------------------*/
 
 long ClauseSetFindCharFreqVectors(ClauseSet_p set, FreqVector_p fsum,
-              FreqVector_p fmax, FreqVector_p fmin,
-              FVCollect_p cspec)
+                                  FreqVector_p fmax, FreqVector_p fmin,
+                                  FVCollect_p cspec)
 {
    Clause_p handle;
    FreqVector_p current;
@@ -2253,7 +2251,6 @@ long long ClauseSetStandardWeight(ClauseSet_p set)
       res += ClauseStandardWeight(handle);
    }
    return res;
-
 }
 
 
@@ -2403,7 +2400,7 @@ bool ClauseSetIsUntyped(ClauseSet_p set)
    {
       if (!ClauseIsUntyped(handle))
       {
-    return false;
+         return false;
       }
    }
    return true;

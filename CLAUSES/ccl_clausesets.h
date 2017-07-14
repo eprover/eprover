@@ -1,10 +1,10 @@
 /*-----------------------------------------------------------------------
 
-File  : ccl_clausesets.h
+  File  : ccl_clausesets.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Definitions dealing with collections of clauses
 
@@ -14,12 +14,7 @@ Contents
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
-
-<1> Sat Jul  5 02:28:25 MET DST 1997
-    New
-<2> Tue Aug  7 01:22:42 CEST 2001
-    Removed clause functions to ccl_clausefunc.h
+  Created: Sat Jul  5 02:28:25 MET DST 1997
 
 -----------------------------------------------------------------------*/
 
