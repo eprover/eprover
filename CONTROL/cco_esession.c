@@ -85,7 +85,7 @@ void ESessionFree(ESession_p junk)
    TCPChannelFree(junk->channel);
    if(junk->running)
    {
-      EPCtrlSetFree(junk->running);
+      EPCtrlSetFree(junk->running, true);
    }
    ESessionCellFree(junk);
 }
@@ -228,5 +228,3 @@ void ESessionProcessCmds(ESession_p session)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

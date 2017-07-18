@@ -127,7 +127,7 @@ void EPCtrlFree(EPCtrl_p junk)
 //
 /----------------------------------------------------------------------*/
 
-void EPCtrlCleanup(EPCtrl_p ctrl)
+void EPCtrlCleanup(EPCtrl_p ctrl, bool delete_file)
 {
    if(ctrl->pid)
    {
@@ -139,7 +139,7 @@ void EPCtrlCleanup(EPCtrl_p ctrl)
       pclose(ctrl->pipe);
       ctrl->pipe = NULL;
    }
-   if(ctrl->input_file)
+   if(delete_file && ctrl->input_file)
    {
       TempFileRemove(ctrl->input_file);
       FREE(ctrl->input_file);
@@ -368,14 +368,14 @@ EPCtrlSet_p EPCtrlSetAlloc(void)
 //
 /----------------------------------------------------------------------*/
 
-void EPCtrlSetFree(EPCtrlSet_p junk)
+void EPCtrlSetFree(EPCtrlSet_p junk, bool delete_files)
 {
    NumTree_p cell;
 
    while(junk->procs)
    {
       cell = NumTreeExtractRoot(&(junk->procs));
-      EPCtrlCleanup(cell->val1.p_val);
+      EPCtrlCleanup(cell->val1.p_val, delete_files);
       EPCtrlFree(cell->val1.p_val);
       NumTreeCellFree(cell);
    }
@@ -442,14 +442,14 @@ EPCtrl_p EPCtrlSetFindProc(EPCtrlSet_p set, int fd)
 //
 /----------------------------------------------------------------------*/
 
-void EPCtrlSetDeleteProc(EPCtrlSet_p set, EPCtrl_p proc)
+void EPCtrlSetDeleteProc(EPCtrlSet_p set, EPCtrl_p proc, bool delete_file)
 {
    NumTree_p cell;
 
    cell = NumTreeExtractEntry(&(set->procs), proc->fileno);
    if(cell)
    {
-      EPCtrlCleanup(cell->val1.p_val);
+      EPCtrlCleanup(cell->val1.p_val, delete_file);
       EPCtrlFree(cell->val1.p_val);
       NumTreeCellFree(cell);
    }
@@ -501,7 +501,7 @@ int EPCtrlSetFDSet(EPCtrlSet_p set, fd_set *rd_fds)
 //
 /----------------------------------------------------------------------*/
 
-EPCtrl_p EPCtrlSetGetResult(EPCtrlSet_p set)
+EPCtrl_p EPCtrlSetGetResult(EPCtrlSet_p set, bool delete_files)
 {
    bool eof;
    fd_set readfds, writefds, errorfds;
@@ -542,7 +542,7 @@ EPCtrl_p EPCtrlSetGetResult(EPCtrlSet_p set)
                   fprintf(GlobalOut, "# No proof found by %s\n",
                           handle->name);
 
-                  EPCtrlSetDeleteProc(set, handle);
+                  EPCtrlSetDeleteProc(set, handle, delete_files);
                   break;
             default:
                   assert(false && "Impossible ProverResult");

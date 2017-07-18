@@ -105,7 +105,7 @@ EPCtrl_p ECtrlCreate(char* prover, char* name,
 EPCtrl_p ECtrlCreateGeneric(char* prover, char* name,
                             char* options, long cpu_limit,
                             char* file);
-void     EPCtrlCleanup(EPCtrl_p ctrl);
+void     EPCtrlCleanup(EPCtrl_p ctrl, bool delete_file1);
 
 bool EPCtrlGetResult(EPCtrl_p ctrl,
                      char* buffer,
@@ -115,15 +115,15 @@ bool EPCtrlGetResult(EPCtrl_p ctrl,
 #define EPCtrlSetCellFree(junk) SizeFree(junk, sizeof(EPCtrlSetCell))
 
 EPCtrlSet_p EPCtrlSetAlloc(void);
-void        EPCtrlSetFree(EPCtrlSet_p junk);
+void        EPCtrlSetFree(EPCtrlSet_p junk, bool delete_files);
 void        EPCtrlSetAddProc(EPCtrlSet_p set, EPCtrl_p proc);
 EPCtrl_p    EPCtrlSetFindProc(EPCtrlSet_p set, int fd);
-void        EPCtrlSetDeleteProc(EPCtrlSet_p set, EPCtrl_p proc);
+void EPCtrlSetDeleteProc(EPCtrlSet_p set, EPCtrl_p proc, bool delete_file);
 #define     EPCtrlSetEmpty(set) ((set)->procs==NULL)
 
 int         EPCtrlSetFDSet(EPCtrlSet_p set, fd_set *rd_fds);
 
-EPCtrl_p    EPCtrlSetGetResult(EPCtrlSet_p set);
+EPCtrl_p    EPCtrlSetGetResult(EPCtrlSet_p set, bool delete_files);
 
 #endif
 

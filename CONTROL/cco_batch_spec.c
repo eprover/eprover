@@ -653,7 +653,7 @@ bool BatchProcessProblem(BatchSpec_p spec,
    handle = NULL;
    while(!EPCtrlSetEmpty(procs))
    {
-      handle = EPCtrlSetGetResult(procs);
+      handle = EPCtrlSetGetResult(procs, true);
       if(handle)
       {
          break;
@@ -713,7 +713,7 @@ bool BatchProcessProblem(BatchSpec_p spec,
    StructFOFSpecBacktrackToSpec(ctrl);
    /* cset and fset are freed in Backtrack */
 
-   EPCtrlSetFree(procs);
+   EPCtrlSetFree(procs, true);
 
    return res;
 }

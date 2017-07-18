@@ -124,15 +124,18 @@ int main(int argc, char* argv[])
 
    while(!EPCtrlSetEmpty(ctrl))
    {
-      tmp = EPCtrlSetGetResult(ctrl);
+      tmp = EPCtrlSetGetResult(ctrl, false);
       if(tmp)
       {
          fprintf(GlobalOut, "%s", DStrView(tmp->output));
          break;
       }
    }
-
-   //EPCtrlSetFree(ctrl);
+   if(!tmp)
+   {
+      TSTPOUT(GlobalOut, "GaveUp");
+   }
+   EPCtrlSetFree(ctrl, false);
 
    CLStateFree(state);
 
