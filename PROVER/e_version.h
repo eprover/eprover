@@ -33,10 +33,10 @@ Contents
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* git tag E-2.0dev001 */
-#define VERSION      "2.0dev001"
+/* git tag E-2.1pre001 */
+#define VERSION      "2.1pre001"
 
-#define E_NICKNAME     "Turzum"
+#define E_NICKNAME     "Maharani Hills"
 
 #define E_URL "http://www.eprover.org"
 

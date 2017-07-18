@@ -34,7 +34,7 @@
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
 
-#define NAME         "e_ltb_runner"
+#define NAME         "e_stratpar"
 
 typedef enum
 {
@@ -197,10 +197,10 @@ void print_help(FILE* out)
 {
    fprintf(out, "\n"
            NAME " " VERSION " \"" E_NICKNAME "\"\n\
-\n                                                \
-Usage: " NAME " [options] [file]\n               \
-\n                                                              \
-Run 8 instances of E with different strategies in parallel.\n   \
+\n\
+Usage: " NAME " [options] [file]\n\
+\n\
+Run 8 instances of E with different strategies in parallel.\n\
 \n");
    PrintOptions(stdout, opts, "Options:\n\n");
    fprintf(out, "\n\n" E_FOOTER);
