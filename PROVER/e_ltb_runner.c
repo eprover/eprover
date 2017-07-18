@@ -185,7 +185,8 @@ int main(int argc, char* argv[])
 
    if(TestInpId(in, "division"))
    {
-      AcceptDottedId(in, "division.category.training_directory");
+      //AcceptDottedId(in, "division.category.training_directory");
+      AcceptDottedId(in, "division.category.training_data");
       train_dir = ParseContinous(in);
    }
 
@@ -315,7 +316,7 @@ NAME " " VERSION " \"" E_NICKNAME "\"\n\
 \n\
 Usage: " NAME " [options] [files]\n\
 \n\
-Read a CASC 24 LTB batch specification file and process it.\n\
+Read a CASC 26 LTB batch specification file and process it.\n\
 \n");
    PrintOptions(stdout, opts, "Options:\n\n");
    fprintf(out, "\n\n" E_FOOTER);

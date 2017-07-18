@@ -15,7 +15,7 @@ include ../Makefile.vars
 
 # Project specific variables
 
-PROJECT = eprover e_ltb_runner e_deduction_server e_axfilter \
+PROJECT = eprover e_ltb_runner e_stratpar e_deduction_server e_axfilter \
 	  classify_problem termprops e_client e_server\
           direct_examples epclanalyse epclextract checkproof eground\
           enormalizer edpll epcllemma\
@@ -52,6 +52,14 @@ E_LTB_RUNNER = e_ltb_runner.o ../lib/CONTROL.a ../lib/HEURISTICS.a\
 
 e_ltb_runner: $(E_LTB_RUNNER)
 	$(LD) -o e_ltb_runner $(E_LTB_RUNNER) $(LIBS)
+
+
+E_STRATPAR = e_stratpar.o ../lib/CONTROL.a ../lib/HEURISTICS.a\
+            ../lib/CLAUSES.a ../lib/ORDERINGS.a ../lib/TERMS.a\
+            ../lib/INOUT.a ../lib/BASICS.a
+
+e_stratpar: $(E_STRATPAR)
+	$(LD) -o e_stratpar $(E_STRATPAR) $(LIBS)
 
 
 E_DEDUCTION_SERVER = e_deduction_server.o ../lib/CONTROL.a ../lib/HEURISTICS.a\

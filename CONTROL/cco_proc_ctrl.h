@@ -82,9 +82,12 @@ typedef struct e_pctrl_set_cell
 #define SZS_FAILURE_STR    "# Failure:"
 
 
-#define E_OPTIONS "--print-pid -s -xAuto -tAuto --free-numbers -R --answers=1 \
---assume-incompleteness --memory-limit=1024 \
+#define E_OPTIONS_BASE "--print-pid -s -R --answers=1 \
+--memory-limit=2048 \
 --proof-object --cpu-limit="
+
+
+#define E_OPTIONS "-xAuto -tAuto --assume-incompleteness " E_OPTIONS_BASE
 
 
 extern char* PRResultTable[];
@@ -99,6 +102,9 @@ EPCtrl_p ECtrlCreate(char* prover, char* name,
                      char* extra_options,
                      long cpu_limit, char* file);
 
+EPCtrl_p ECtrlCreateGeneric(char* prover, char* name,
+                            char* options, long cpu_limit,
+                            char* file);
 void     EPCtrlCleanup(EPCtrl_p ctrl);
 
 bool EPCtrlGetResult(EPCtrl_p ctrl,
@@ -124,8 +130,3 @@ EPCtrl_p    EPCtrlSetGetResult(EPCtrlSet_p set);
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

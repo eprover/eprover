@@ -215,6 +215,73 @@ EPCtrl_p ECtrlCreate(char* prover, char* name,
 
 /*-----------------------------------------------------------------------
 //
+// Function: ECtrlCreateGeneric()
+//
+//   Create a pipe running prover with time limit cpu_limit on
+//   file. "prover" must conform to the calling conventions of E and
+//   provide similar output. This takes over responsibility for the
+//   string pointed to by file.
+//
+// Global Variables: -
+//
+// Side Effects    : Yes ;-)
+//
+/----------------------------------------------------------------------*/
+
+EPCtrl_p ECtrlCreateGeneric(char* prover, char* name,
+                            char* options, long cpu_limit,
+                            char* file)
+{
+   DStr_p   cmd = DStrAlloc();
+   EPCtrl_p res = EPCtrlAlloc(name);
+   char           line[180];
+   char*          ret;
+
+   DStrAppendStr(cmd, prover);
+   DStrAppendStr(cmd, " ");
+   DStrAppendStr(cmd, options);
+   DStrAppendStr(cmd, " ");
+   DStrAppendStr(cmd, E_OPTIONS_BASE);
+   DStrAppendInt(cmd, cpu_limit);
+   DStrAppendStr(cmd, " ");
+   DStrAppendStr(cmd, file);
+
+   res->prob_time  = cpu_limit;
+   res->start_time = GetSecTime();
+   res->input_file = file;
+   printf("# Executing: %s\n", DStrView(cmd));
+   res->pipe = popen(DStrView(cmd), "r");
+   if(!res->pipe)
+   {
+      TmpErrno = errno;
+      SysError("Cannot start eprover subprocess", SYS_ERROR);
+   }
+   res->fileno = fileno(res->pipe);
+   ret = fgets(line, 180, res->pipe);
+   if(!ret || ferror(res->pipe))
+   {
+      printf("Error\n");
+   }
+
+   //fprintf(GlobalOut, "# Line = '%s'", l);
+   if(!strstr(line, "# Pid: "))
+   {
+      Error("Cannot get eprover PID", OTHER_ERROR);
+   }
+   res->pid = atoi(line+7);
+   DStrAppendStr(res->output, line);
+
+   DStrFree(cmd);
+   return res;
+}
+
+
+
+
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: EPCtrlGetResult()
 //
 //   Try to read a line from the E process. If successful, try to
@@ -490,5 +557,3 @@ EPCtrl_p EPCtrlSetGetResult(EPCtrlSet_p set)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

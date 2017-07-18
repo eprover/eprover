@@ -187,7 +187,7 @@ pid_t ExecuteSchedule(ScheduleCell strats[],
    }
    /* The following is ugly: Because the individual strategies can
       fail, but the whole schedule can succeed, we cannot let the
-      strategies report failure to dtandard out (that might confuse
+      strategies report failure to standard out (that might confuse
       badly-written meta-tools (and there are such ;-)). Hence, the
       TSPT status in the failure case is suppressed and needs to be
       added here. This is ony partially possible - we take the exit
@@ -244,5 +244,3 @@ pid_t ExecuteSchedule(ScheduleCell strats[],
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
