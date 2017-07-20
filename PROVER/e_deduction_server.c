@@ -283,9 +283,10 @@ void print_help(FILE* out)
    fprintf(out, "\n"
 NAME " " VERSION " \"" E_NICKNAME "\"\n\
 \n\
-Usage: " NAME " [options] [files]\n\
+Usage: " NAME " -p <port> [options] [files]\n\
 \n\
-Read a CASC 24 LTB batch specification file and process it.\n\
+The E deduction server offers deduction services based on local or
+uploaded axiom sets via network. See README.server."
 \n");
    PrintOptions(stdout, opts, "Options:\n\n");
    fprintf(out, "\n\n" E_FOOTER);
