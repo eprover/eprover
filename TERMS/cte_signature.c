@@ -1534,7 +1534,7 @@ bool SigHasUnimplementedInterpretedSymbols(Sig_p sig)
 
   for(i=sig->internal_symbols+1; i<=sig->f_count; i++)
   {
-     if(!FuncQueryProp(&(sig->f_info[i]), FPInterpreted))
+     if(FuncQueryProp(&(sig->f_info[i]), FPInterpreted))
      {
         return true;
      }
