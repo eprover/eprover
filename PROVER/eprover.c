@@ -529,6 +529,11 @@ int main(int argc, char* argv[])
    }
    PERF_CTR_EXIT(SatTimer);
 
+   if(SigHasUnimplementedInterpretedSymbols(proofstate->signature))
+   {
+      inf_sys_complete = false;
+   }
+
    out_of_clauses = ClauseSetEmpty(proofstate->unprocessed);
    if(filter_sat)
    {

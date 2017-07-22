@@ -250,6 +250,8 @@ void    SigDeclareIsPredicate(Sig_p sig, FunCode f);
 void    SigPrintTypes(FILE* out, Sig_p sig);
 void    SigPrintTypeDeclsTSTP(FILE* out, Sig_p sig);
 void    SigParseTFFTypeDeclaration(Scanner_p in, Sig_p sig);
+bool    SigHasUnimplementedInterpretedSymbols(Sig_p sig);
+
 
 /*---------------------------------------------------------------------*/
 /*                        Inline functions                             */

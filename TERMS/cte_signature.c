@@ -225,8 +225,6 @@ void SigInsertInternalCodes(Sig_p sig)
    sig->bimpl_code = SigInsertFOFOp(sig, "$bimpl", 2);
    sig->xor_code   = SigInsertFOFOp(sig, "$xor",   2);
 
-   sig->xor_code   = SigInsertFOFOp(sig, "$xor",   2);
-
    sig->answer_code =  SigInsertId(sig, "$answer", 1, true);
    SigSetFuncProp(sig, sig->answer_code, FPInterpreted|FPPseudoPred);
    SigDeclareFinalType(sig, sig->answer_code,
@@ -994,8 +992,8 @@ int SigFindMinFunctionArity(Sig_p sig)
    {
       if(!SigIsPredicate(sig, i) && !SigQueryFuncProp(sig, i, FPSpecial))
       {
-    arity = SigFindArity(sig,i);
-    res = MIN(res,arity);
+         arity = SigFindArity(sig,i);
+         res = MIN(res,arity);
       }
    }
    return res;
@@ -1023,13 +1021,13 @@ int SigCountAritySymbols(Sig_p sig, int arity, bool predicates)
    for(i=sig->internal_symbols+1; i<=sig->f_count; i++)
    {
       if(EQUIV(SigIsPredicate(sig, i), predicates)
-    &&(!SigIsSpecial(sig,i)))
+         &&(!SigIsSpecial(sig,i)))
       {
-    tmp_arity = SigFindArity(sig,i);
-    if(tmp_arity==arity)
-    {
-       res++;
-    }
+         tmp_arity = SigFindArity(sig,i);
+         if(tmp_arity==arity)
+         {
+            res++;
+         }
       }
    }
    return res;
@@ -1098,11 +1096,11 @@ int SigAddSymbolArities(Sig_p sig, PDArray_p distrib, bool predicates,
    for(i = 1; i<=sig->f_count; i++)
    {
       if(EQUIV(SigIsPredicate(sig, i), predicates) &&
-    selection[i])
+         selection[i])
       {
-    arity = SigFindArity(sig, i);
-    max_arity = MAX(arity, max_arity);
-    PDArrayElementIncInt(distrib, arity, 1);
+         arity = SigFindArity(sig, i);
+         max_arity = MAX(arity, max_arity);
+         PDArrayElementIncInt(distrib, arity, 1);
       }
    }
    return max_arity;
@@ -1515,6 +1513,33 @@ void SigParseTFFTypeDeclaration(Scanner_p in, Sig_p sig)
    }
 
    DStrFree(id);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: SigHasUnimplementedInterpretedSymbols()
+//
+//   Return true if there are uninterpreted interpreted symbols in the
+//   signature (in which case the prover is incomplete).
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+bool SigHasUnimplementedInterpretedSymbols(Sig_p sig)
+{
+  FunCode i;
+
+  for(i=sig->internal_symbols+1; i<=sig->f_count; i++)
+  {
+     if(!FuncQueryProp(&(sig->f_info[i]), FPInterpreted))
+     {
+        return true;
+     }
+  }
+  return false;
 }
 
 
