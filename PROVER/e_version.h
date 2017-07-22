@@ -33,8 +33,8 @@ Contents
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* git tag E-2.1pre001 */
-#define VERSION      "2.1pre001"
+/* git tag E-2.1pre002 */
+#define VERSION      "2.1pre002"
 
 #define E_NICKNAME     "Maharani Hills"
 
