@@ -6,8 +6,8 @@ Author: Stephan Schulz
 
 Contents
 
-Hack for the LTB category of CASC-2012 - parse an LTB spec file, and
-run E on the various problems.
+Hack for the LTB category of CASC-2012 (rehacked for later versions) -
+parse an LTB spec file, and run E on the various problems.
 
   Copyright 2010-2012 by the author.
   This code is released under the GNU General Public Licence and

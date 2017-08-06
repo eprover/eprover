@@ -831,6 +831,7 @@ long BatchProcessProblems(BatchSpec_p spec, StructFOFSpec_p ctrl,
       /* printf("######### Remaining %d probs, %ld secs, limit %ld\n",
          sp-i, rest, wct_limit); */
 
+      DStrReset(dest_name);
       if(dest_dir)
       {
          DStrSet(dest_name, dest_dir);
