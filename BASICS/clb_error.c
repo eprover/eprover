@@ -111,10 +111,12 @@ long long GetSystemPhysMemory(void)
 {
    long long res = -1;
 
-   long long tmpres = 0, pages, pagesize;
+   long long tmpres = 0, pages=-1, pagesize;
 
    pagesize = GetSystemPageSize();
+#ifdef _SC_PHYS_PAGES
    pages = sysconf(_SC_PHYS_PAGES);
+#endif
    if((pagesize !=-1) && (pages != -1))
    {
       tmpres = pagesize * pages;
