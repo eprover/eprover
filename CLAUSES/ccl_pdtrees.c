@@ -939,16 +939,16 @@ void PDTreeInsert(PDTree_p tree, ClausePos_p demod_side)
 
       if(!(*next))
       {
-    *next = PDTNodeAlloc();
+         *next = PDTNodeAlloc();
          tree->arr_storage_est+= (IntMapStorage((*next)->f_alternatives)+
                                   PDArrayStorage((*next)->v_alternatives));
-    (*next)->parent = node;
-    tree->node_count++;
-    if(TermIsVar(curr))
-    {
-       (*next)->variable = curr;
-       node->max_var = MAX(node->max_var, -curr->f_code);
-    }
+         (*next)->parent = node;
+         tree->node_count++;
+         if(TermIsVar(curr))
+         {
+            (*next)->variable = curr;
+            node->max_var = MAX(node->max_var, -curr->f_code);
+         }
       }
       node = *next;
       tmp = TermStandardWeight(term);
@@ -1221,11 +1221,3 @@ void PDTreePrint(FILE* out, PDTree_p tree)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
-
-
-
