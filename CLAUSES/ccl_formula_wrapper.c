@@ -499,9 +499,9 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
    }
    else
    {
-      fprintf(out, "(");
+      fprintf(out, "");
       TFormulaTPTPPrint(out, form->terms, form->tformula,fullterms, false);
-      fprintf(out, ")");
+      fprintf(out, "");
       //fprintf(out, "<dummy %p in %p>", form->tformula, form->terms);
    }
    if(complete)

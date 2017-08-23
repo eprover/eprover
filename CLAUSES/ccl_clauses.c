@@ -1568,19 +1568,19 @@ void ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms, bool complete)
    source = ClauseQueryCSSCPASource(clause);
    if(clause->ident >= 0)
    {
-      fprintf(out, "%s(c_%d_%ld,",
+      fprintf(out, "%s(c_%d_%ld, ",
               kind,
               source,
               clause->ident);
    }
    else
    {
-      fprintf(out, "%s(i_%d_%ld,",
+      fprintf(out, "%s(i_%d_%ld, ",
               kind,
               source,
               clause->ident-LONG_MIN);
    }
-   fprintf(out, "%s,", typename);
+   fprintf(out, "%s, ", typename);
 
    if (is_untyped)
    {
