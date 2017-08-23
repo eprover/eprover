@@ -1281,7 +1281,7 @@ void EqnListTSTPPrint(FILE* out, Eqn_p list, char* sep, bool fullterms)
 Eqn_p EqnListParse(Scanner_p in, TB_p bank, TokenType sep)
 {
    Eqn_p handle = NULL,
-         list = NULL;
+      list = NULL;
 
    if(((ScannerGetFormat(in) == TPTPFormat) &&
        TestInpTok(in, Plus|Hyphen))
@@ -1296,9 +1296,9 @@ Eqn_p EqnListParse(Scanner_p in, TB_p bank, TokenType sep)
       handle = list;
       while(TestInpTok(in,sep))
       {
-    NextToken(in);
-    handle->next = EqnParse(in, bank);
-    handle = handle->next;
+         NextToken(in);
+         handle->next = EqnParse(in, bank);
+         handle = handle->next;
       }
    }
    return list;
