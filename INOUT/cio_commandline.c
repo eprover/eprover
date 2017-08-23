@@ -1,24 +1,22 @@
 /*-----------------------------------------------------------------------
 
-File  : cio_commandline.c
+  File  : cio_commandline.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Functions for handling options and recognising non-option
   arguments.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2017 by the author.
+
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
-
-<1> Wed Sep 10 00:01:33 MET DST 1997
-    New
+  Created:  Wed Sep 10 00:01:33 MET DST 1997
 
 -----------------------------------------------------------------------*/
 
@@ -621,12 +619,45 @@ long CLStateGetIntArg(Opt_p option, char* arg)
       DStrAppendChar(err, '\'');
       if(TmpErrno)
       {
-    SysError(DStrView(err), USAGE_ERROR);
+         SysError(DStrView(err), USAGE_ERROR);
       }
       else
       {
-    Error(DStrView(err), USAGE_ERROR);
+         Error(DStrView(err), USAGE_ERROR);
       }
+      DStrFree(err); /* Symmetry */
+   }
+   return ret;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: CLStateGetIntArgCheckRange()
+//
+//   Return the numerical value of the argument if it is a well-formed
+//   long in the proper range, print an error message otherwise.
+//
+// Global Variables: -
+//
+// Side Effects    : May terminate program
+//
+/----------------------------------------------------------------------*/
+
+long CLStateGetIntArgCheckRange(Opt_p option, char* arg, long lower, long upper)
+{
+   long ret = CLStateGetIntArg(option, arg);
+   if(ret<lower || ret > upper)
+   {
+      DStr_p err = DStrAlloc();
+      DStrAppendStr(err, "Option ");
+      append_option_desc(err, option);
+      DStrAppendStr(err, " expects integer argument from {");
+      DStrAppendInt(err, lower);
+      DStrAppendStr(err, "...");
+      DStrAppendInt(err, upper);
+      DStrAppendStr(err, "} but got ");
+      DStrAppendStr(err, arg);
+      Error(DStrView(err), USAGE_ERROR);
       DStrFree(err); /* Symmetry */
    }
    return ret;
@@ -784,6 +815,3 @@ void PrintOptions(FILE* out, OptCell option[], char* header)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-

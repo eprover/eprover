@@ -88,7 +88,8 @@ long              step_limit = LONG_MAX,
    miniscope_limit = 1000;
 long long tb_insert_limit = LLONG_MAX;
 
-int               eqdef_incrlimit = DEFAULT_EQDEF_INCRLIMIT;
+int eqdef_incrlimit = DEFAULT_EQDEF_INCRLIMIT,
+   force_deriv_output = 0;
 char              *outdesc = DEFAULT_OUTPUT_DESCRIPTOR,
    *filterdesc = DEFAULT_FILTER_DESCRIPTOR;
 PStack_p          wfcb_definitions, hcb_definitions;
@@ -664,8 +665,9 @@ int main(int argc, char* argv[])
          retval = RESOURCE_OUT;
       }
       if(BuildProofObject &&
-         (retval!=INCOMPLETE_PROOFSTATE)&&
-         (retval!=RESOURCE_OUT))
+         (((retval!=INCOMPLETE_PROOFSTATE)&&
+           (retval!=RESOURCE_OUT))
+          |force_deriv_output))
       {
          ClauseSetPushClauses(proofstate->extract_roots,
                               proofstate->processed_pos_rules);
@@ -675,7 +677,7 @@ int main(int argc, char* argv[])
                               proofstate->processed_neg_units);
          ClauseSetPushClauses(proofstate->extract_roots,
                               proofstate->processed_non_units);
-         if(cnf_only)
+         if(cnf_only|(force_deriv_output>=2))
          {
             ClauseSetPushClauses(proofstate->extract_roots,
                                  proofstate->unprocessed);
@@ -854,13 +856,8 @@ CLState_p process_options(int argc, char* argv[])
             OutputLevel = CLStateGetIntArg(handle, arg);
             break;
       case OPT_PROOF_OBJECT:
-            BuildProofObject = MAX(CLStateGetIntArg(handle, arg), BuildProofObject);
-            if((BuildProofObject > 3) ||
-               (BuildProofObject < 0))
-            {
-               Error("Option --proof-object) accepts "
-                     "argument from {0..3}", USAGE_ERROR);
-            }
+            BuildProofObject = MAX(CLStateGetIntArgCheckRange(handle, arg, 0, 3),
+                                   BuildProofObject);
             print_derivation = POList;
             break;
       case OPT_PROOF_GRAPH:
@@ -869,6 +866,10 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_FULL_DERIV:
             print_full_deriv = true;
+            break;
+      case OPT_FORCE_DERIV:
+            force_deriv_output = CLStateGetIntArgCheckRange(handle, arg, 0, 2);
+            BuildProofObject = MAX(1, BuildProofObject);
             break;
       case OPT_RECORD_GIVEN_CLAUSES:
             BuildProofObject = MAX(1, BuildProofObject);
@@ -886,13 +887,7 @@ CLState_p process_options(int argc, char* argv[])
             PCLStepCompact = true;
             break;
       case OPT_PCL_SHELL_LEVEL:
-            PCLShellLevel =  CLStateGetIntArg(handle, arg);
-            if((PCLShellLevel > 2) ||
-               (PCLShellLevel < 0))
-            {
-               Error("Option --pcl-shell-level) accepts "
-                     "argument from {0..2}", USAGE_ERROR);
-            }
+            PCLShellLevel =  CLStateGetIntArgCheckRange(handle, arg, 0, 2);
             break;
       case OPT_PRINT_STATISTICS:
             print_statistics = true;
@@ -1223,13 +1218,7 @@ CLState_p process_options(int argc, char* argv[])
             h_parms->split_clauses = CLStateGetIntArg(handle, arg);
             break;
       case OPT_SPLIT_HOW:
-            tmp = CLStateGetIntArg(handle, arg);
-            if((tmp < 0) ||(tmp > 2))
-            {
-               Error("Argument to option --split-method "
-                     "has to be value between 0 and 2", USAGE_ERROR);
-            }
-            h_parms->split_method = tmp;
+            h_parms->split_method = CLStateGetIntArgCheckRange(handle, arg, 0, 2);
             break;
       case OPT_SPLIT_AGGRESSIVE:
             h_parms->split_aggressive = true;
@@ -1408,14 +1397,7 @@ CLState_p process_options(int argc, char* argv[])
             h_parms->prefer_general = true;
             break;
       case OPT_FORWARD_DEMOD:
-            tmp =  CLStateGetIntArg(handle, arg);
-            if((tmp > 2) ||
-               (tmp < 0))
-            {
-               Error("Option -F (--forward_demod_level) requires "
-                     "argument from {0..2}", USAGE_ERROR);
-            }
-            h_parms->forward_demod = tmp;
+            h_parms->forward_demod = CLStateGetIntArgCheckRange(handle, arg, 0, 2);
             break;
       case OPT_STRONG_RHS_INSTANCE:
             RewriteStrongRHSInst = true;
@@ -1511,16 +1493,10 @@ CLState_p process_options(int argc, char* argv[])
                Error("Argument to option --fvindex-maxfeatures "
                      "has to be > 0", USAGE_ERROR);
             }
-            fvi_parms->max_symbols = tmp;
+            fvi_parms->max_symbols = CLStateGetIntArgCheckRange(handle, arg, 0, LONG_MAX);
             break;
       case OPT_FVINDEX_SLACK:
-            tmp = CLStateGetIntArg(handle, arg);
-            if(tmp<0)
-            {
-               Error("Argument to option --fvindex-slack "
-                     "has to be >= 0", USAGE_ERROR);
-            }
-            fvi_parms->symbol_slack = tmp;
+            fvi_parms->symbol_slack = CLStateGetIntArgCheckRange(handle, arg, 0, LONG_MAX);
             break;
       case OPT_RW_BW_INDEX:
             check_fp_index_arg(arg, "--rw-bw-index");
@@ -1568,10 +1544,10 @@ CLState_p process_options(int argc, char* argv[])
             new_cnf = false;
             /* Intentional fall-through */
       case OPT_DEF_CNF:
-            FormulaDefLimit     = CLStateGetIntArg(handle, arg);
+            FormulaDefLimit = CLStateGetIntArgCheckRange(handle, arg, 0, LONG_MAX);
             break;
       case OPT_MINISCOPE_LIMIT:
-            miniscope_limit =  CLStateGetIntArg(handle, arg);
+            miniscope_limit =  CLStateGetIntArgCheckRange(handle, arg, 0, LONG_MAX);
             break;
       case OPT_PRINT_TYPES:
             TermPrintTypes = true;
