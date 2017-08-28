@@ -1,23 +1,21 @@
 /*-----------------------------------------------------------------------
 
-File  : cte_signature.c
+  File  : cte_signature.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Functions implementing the signature functionality.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2017 by the author.
+
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
-
-<1> Sun Sep 21 19:27:54 MET DST 1997
-    New
+  Created:  Sun Sep 21 19:27:54 MET DST 1997
 
 -----------------------------------------------------------------------*/
 
@@ -41,7 +39,6 @@ bool      SigSupportLists = false;
 /*---------------------------------------------------------------------*/
 
 
-
 /*-----------------------------------------------------------------------
 //
 // Function: sig_print_operator()
@@ -59,13 +56,13 @@ static void sig_print_operator(FILE* out, Sig_p sig, FunCode op, bool comments)
    if(comments)
    {
       fprintf(out, "   %-13s : %2d    #  %2ld %2d \n",
-         sig->f_info[op].name, sig->f_info[op].arity, op,
-         sig->f_info[op].properties);
+              sig->f_info[op].name, sig->f_info[op].arity, op,
+              sig->f_info[op].properties);
    }
    else
    {
       fprintf(out, "   %-13s : %2d\n",
-         sig->f_info[op].name, sig->f_info[op].arity);
+              sig->f_info[op].name, sig->f_info[op].arity);
    }
 }
 
@@ -97,6 +94,7 @@ static void sig_compute_alpha_ranks(Sig_p sig)
 
    sig->alpha_ranks_valid = true;
 }
+
 
 
 /*---------------------------------------------------------------------*/
@@ -317,7 +315,6 @@ bool SigIsPredicate(Sig_p sig, FunCode f_code)
    {
       return true;
    }
-
    type = SigGetType(sig, f_code);
    return type && type->domain_sort == STBool;
 }
@@ -600,6 +597,7 @@ FunCode SigInsertId(Sig_p sig, const char* name, int arity, bool special_id)
    sig->f_info[sig->f_count].arity = arity;
    sig->f_info[sig->f_count].properties = FPIgnoreProps;
    sig->f_info[sig->f_count].type = NULL;
+   sig->f_info[sig->f_count].feature_offset = -1;
    new = StrTreeCellAllocEmpty();
    new->key = sig->f_info[sig->f_count].name;
    new->val1.i_val = sig->f_count;
@@ -651,7 +649,7 @@ void SigPrint(FILE* out, Sig_p sig)
    FunCode i;
 
    fprintf(out, "# Signature (%2ld symbols out of %2ld allocated):\n",
-      sig->f_count, sig->size);
+           sig->f_count, sig->size);
    fprintf(out, "#     -Symbol-    -Arity- -Encoding-\n");
 
    for(i=1; i<=sig->f_count; i++)
@@ -682,7 +680,7 @@ void SigPrintSpecial(FILE* out, Sig_p sig)
    {
       if(SigIsSpecial(sig, i))
       {
-    sig_print_operator(out, sig, i, true);
+         sig_print_operator(out, sig, i, true);
       }
    }
 }
@@ -708,18 +706,18 @@ void SigPrintACStatus(FILE* out, Sig_p sig)
    {
       if(SigQueryFuncProp(sig, i, FPIsAC))
       {
-    fprintf(out, "# %s is AC\n", sig->f_info[i].name);
-    continue;
+         fprintf(out, "# %s is AC\n", sig->f_info[i].name);
+         continue;
       }
       if(SigQueryFuncProp(sig, i, FPAssociative))
       {
-    fprintf(out, "# %s is associative\n", sig->f_info[i].name);
-    continue;
+         fprintf(out, "# %s is associative\n", sig->f_info[i].name);
+         continue;
       }
       if(SigQueryFuncProp(sig, i, FPCommutative))
       {
-    fprintf(out, "# %s is commutative\n", sig->f_info[i].name);
-    continue;
+         fprintf(out, "# %s is commutative\n", sig->f_info[i].name);
+         continue;
       }
    }
 }
@@ -815,15 +813,15 @@ FunCode SigParseSymbolDeclaration(Scanner_p in, Sig_p sig, bool special_id)
       DStrAppendInt(errpos, (long)arity);
       DStrAppendStr(errpos, " but registered with arity ");
       DStrAppendInt(errpos,
-          (long)SigFindArity(sig, SigFindFCode(sig, DStrView(id))));
+                    (long)SigFindArity(sig, SigFindFCode(sig, DStrView(id))));
       Error(DStrView(errpos), SYNTAX_ERROR);
       DStrFree(errpos);
    }
    DStrReleaseRef(source_name);
    DStrFree(id);
 
-    return res;
- }
+   return res;
+}
 
 
 /*-----------------------------------------------------------------------
@@ -899,10 +897,10 @@ int SigFindMaxPredicateArity(Sig_p sig)
    for(i=sig->internal_symbols+1; i<=sig->f_count; i++)
    {
       if(SigIsPredicate(sig, i) &&
-    !SigQueryFuncProp(sig, i, FPSpecial))
+         !SigQueryFuncProp(sig, i, FPSpecial))
       {
-    arity = SigFindArity(sig,i);
-    res = MAX(res,arity);
+         arity = SigFindArity(sig,i);
+         res = MAX(res,arity);
       }
    }
    return res;
@@ -930,10 +928,10 @@ int SigFindMinPredicateArity(Sig_p sig)
    for(i=sig->internal_symbols+1; i<=sig->f_count; i++)
    {
       if(SigIsPredicate(sig, i) &&
-    !SigQueryFuncProp(sig, i, FPSpecial))
+         !SigQueryFuncProp(sig, i, FPSpecial))
       {
-    arity = SigFindArity(sig,i);
-    res = MIN(res,arity);
+         arity = SigFindArity(sig,i);
+         res = MIN(res,arity);
       }
    }
    return res;
@@ -962,8 +960,8 @@ int SigFindMaxFunctionArity(Sig_p sig)
    {
       if(!SigIsPredicate(sig, i) && !SigQueryFuncProp(sig, i, FPSpecial))
       {
-    arity = SigFindArity(sig,i);
-    res = MAX(res,arity);
+         arity = SigFindArity(sig,i);
+         res = MAX(res,arity);
       }
    }
    return res;
@@ -1088,7 +1086,7 @@ int SigCountSymbols(Sig_p sig, bool predicates)
 /----------------------------------------------------------------------*/
 
 int SigAddSymbolArities(Sig_p sig, PDArray_p distrib, bool predicates,
-         long selection[])
+                        long selection[])
 {
    FunCode i;
    int     max_arity = -1, arity;
@@ -1530,16 +1528,42 @@ void SigParseTFFTypeDeclaration(Scanner_p in, Sig_p sig)
 
 bool SigHasUnimplementedInterpretedSymbols(Sig_p sig)
 {
-  FunCode i;
+   FunCode i;
 
-  for(i=sig->internal_symbols+1; i<=sig->f_count; i++)
-  {
-     if(FuncQueryProp(&(sig->f_info[i]), FPInterpreted))
-     {
-        return true;
-     }
-  }
-  return false;
+   for(i=sig->internal_symbols+1; i<=sig->f_count; i++)
+   {
+      if(FuncQueryProp(&(sig->f_info[i]), FPInterpreted))
+      {
+         return true;
+      }
+   }
+   return false;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: SigUpdateFeatureOffset()
+//
+//    Update the feature index of the symbol.
+//
+// Global Variables: -
+//
+// Side Effects    : As above
+//
+/----------------------------------------------------------------------*/
+
+void SigUpdateFeatureOffset(Sig_p sig, FunCode f)
+{
+   int feature_arity = MIN(SIG_FEATURE_ARITY_LIMIT, SigFindArity(sig, f));
+
+   if(SigIsPredicate(sig, f))
+   {
+      sig->f_info[f].feature_offset = feature_arity;
+   }
+   else
+   {
+      sig->f_info[f].feature_offset = feature_arity+SIG_FEATURE_ARITY_LIMIT;
+   }
 }
 
 

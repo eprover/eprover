@@ -75,6 +75,9 @@ typedef struct funccell
    int    arity;
    int    alpha_rank; /* We sometimes need an arbitrary but stable
                          order on symbols and use alphabetic. */
+   int    feature_offset; /* For use with (heuristic) term features,
+                             based on arity and function/predicate
+                             distinction. */
    Type_p type;       /* Simple type of the symbol */
    FunctionProperties properties;
 }FuncCell, *Func_p;
@@ -145,6 +148,10 @@ typedef struct sigcell
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
+
+/* Limit (exclusive) of distinguished arity for features */
+
+#define SIG_FEATURE_ARITY_LIMIT 6
 
 /* Special constant for internal operations */
 
@@ -251,6 +258,7 @@ void    SigPrintTypes(FILE* out, Sig_p sig);
 void    SigPrintTypeDeclsTSTP(FILE* out, Sig_p sig);
 void    SigParseTFFTypeDeclaration(Scanner_p in, Sig_p sig);
 bool    SigHasUnimplementedInterpretedSymbols(Sig_p sig);
+void    SigUpdateFeatureOffset(Sig_p sig, FunCode f);
 
 
 /*---------------------------------------------------------------------*/
@@ -395,6 +403,29 @@ static __inline__ FunCode SigGetCNilCode(Sig_p sig)
    return sig->cnil_code;
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: SigGetFeatureOffset()
+//
+//   Return the feature offset of the symbol. This is arity limited by
+//   SIG_FEATURE_ARITY_LIMIT for function symbols, the same shifted up
+//   by SIG_FEATURE_ARITY_LIMIT for predicate symbols.
+//
+// Global Variables: -
+//
+// Side Effects    : May update the value in the sig
+//
+/----------------------------------------------------------------------*/
+
+static __inline__ int SigGetFeatureOffset(Sig_p sig, FunCode f)
+{
+   if(sig->f_info[f].feature_offset == -1)
+   {
+      SigUpdateFeatureOffset(sig,f);
+   }
+   return sig->f_info[f].feature_offset;
+}
 
 #endif
 
