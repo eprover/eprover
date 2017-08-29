@@ -1,23 +1,21 @@
 /*-----------------------------------------------------------------------
 
-File  : cte_termfunc.h
+  File  : cte_termfunc.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Most of the user-level functionality for unshared terms.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2017 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
 
-<1> Wed Feb 25 16:50:36 MET 1998
-    Ripped from cte_terms.h (should be obsolete by now)
+  Created: Wed Feb 25 16:50:36 MET 1998 (Ripped from cte_terms.h)
 
 -----------------------------------------------------------------------*/
 
@@ -139,7 +137,7 @@ long    TermLinearize(PStack_p stack, Term_p term);
 Term_p  TermCheckConsistency(Term_p term, DerefType deref);
 void    TermAssertSameSort(Sig_p sig, Term_p t1, Term_p t2);
 bool    TermIsUntyped(Term_p t);
-
+void    TermCollectSigFeatures(Sig_p sig, Term_p term, long* features);
 
 
 /*-----------------------------------------------------------------------

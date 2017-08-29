@@ -1,27 +1,22 @@
 /*-----------------------------------------------------------------------
 
-File  : ccl_clauses.h
+  File  : ccl_clauses.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Clauses - Infrastructure functions
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2017 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Created:  Thu Apr 16 19:38:16 MET DST 1998
 
-<1> Thu Apr 16 19:38:16 MET DST 1998
-    New
-<2> Mon Jan 11 00:05:24 MET 1999
-    Added properties, proof_depth and proof_size
-
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #ifndef CCL_CLAUSES
 
@@ -47,10 +42,10 @@ typedef enum
                                            * clause/formula in TSTP
                                            * sense */
    CPIsProcessed       = 2*CPInputFormula, /* Clause has been processed
-                                           * previously */
+                                            * previously */
    CPIsOriented        = 2*CPIsProcessed, /* Term and literal
-                                   comparisons are up to
-                                   date */
+                                             comparisons are up to
+                                             date */
    CPIsDIndexed        = 2*CPIsOriented,  /* Clause is in the
                                            * demod_index of its set */
    CPIsSIndexed        = 2*CPIsDIndexed,  /* Clause is in the fvindex
@@ -58,9 +53,9 @@ typedef enum
    CPIsGlobalIndexed   = 2*CPIsSIndexed,  /* Clause is in the
                                              Subterm FPIndex  */
    CPRWDetected        = 2*CPIsGlobalIndexed, /* Rewritability of the
-                                             clause has been
-                                             established. Temporary
-                                             property. */
+                                                 clause has been
+                                                 established. Temporary
+                                                 property. */
    CPDeleteClause      = 2*CPRWDetected,  /* Clause should be deleted
                                            * for some reason */
    CPType1             = 2*CPDeleteClause,/* Three bits used to encode
@@ -81,8 +76,8 @@ typedef enum
    CPTypeQuestion      = CPType2|CPType3, /* `Clause is a question -
                                            * only used for FOF, really. */
    CPTypeWatchClause   = CPType1|CPType2|CPType3,
-                                          /* Clause is intended as a
-                                           * watch list clause */
+   /* Clause is intended as a
+    * watch list clause */
    CPIsIRVictim        = 2*CPType3,       /* Clause has just been
                                              simplified in
                                              interreduction */
@@ -90,9 +85,9 @@ typedef enum
    CPIsSelected        = 2*CPOpFlag,      /* For analysis of selected
                                            * clauses only */
    CPIsFinal           = 2*CPIsSelected,  /* Clause is a final clause,
-                                               i.e. a clause that
-                                               might be used by a
-                                               postprocessor. */
+                                             i.e. a clause that
+                                             might be used by a
+                                             postprocessor. */
    CPIsProofClause  = 2*CPIsFinal,        /* Clause is part of a
                                              successful proof. */
    CPIsSOS          = 2*CPIsProofClause,  /* Clause is in the set of support.*/
@@ -187,18 +182,18 @@ void TSTPSkipSource(Scanner_p in);
 
 void ClauseSetTPTPType(Clause_p clause, FormulaProperties type);
 
-#define ClauseQueryTPTPType(clause) \
+#define ClauseQueryTPTPType(clause)             \
    ((clause)->properties&CPTypeMask)
 
-#define TPTPTypesCombine(type1, type2)\
-   ((type1)==CPTypeAxiom?(type2):\
-      ((type2)==CPTypeConjecture?CPTypeConjecture:(type1)))
+#define TPTPTypesCombine(type1, type2)          \
+   ((type1)==CPTypeAxiom?(type2):                               \
+    ((type2)==CPTypeConjecture?CPTypeConjecture:(type1)))
 
-#define ClauseSetCSSCPASource(clause,prop)\
-        ClauseDelProp((clause),CP_CSSCPA_Mask);\
-        ClauseSetProp((clause),(prop*CP_CSSCPA_1))
-#define ClauseQueryCSSCPASource(clause)\
-        (((clause)->properties&CP_CSSCPA_Mask)/CP_CSSCPA_1)
+#define ClauseSetCSSCPASource(clause,prop)      \
+   ClauseDelProp((clause),CP_CSSCPA_Mask);              \
+   ClauseSetProp((clause),(prop*CP_CSSCPA_1))
+#define ClauseQueryCSSCPASource(clause)                         \
+   (((clause)->properties&CP_CSSCPA_Mask)/CP_CSSCPA_1)
 
 #define ClauseCellAllocRaw() (ClauseCell*)SizeMalloc(sizeof(ClauseCell))
 #define ClauseCellFree(junk) SizeFree(junk, sizeof(ClauseCell))
@@ -218,11 +213,11 @@ void     ClauseRecomputeLitCounts(Clause_p clause);
 
 #define  ClauseGCMarkTerms(clause) EqnListGCMarkTerms((clause)->literals)
 
-#define  ClauseLiteralNumber(clause)\
-         ((clause)->pos_lit_no+(clause)->neg_lit_no)
+#define  ClauseLiteralNumber(clause)                    \
+   ((clause)->pos_lit_no+(clause)->neg_lit_no)
 
-#define  ClausePropLitNumber(clause, prop)\
-         EqnListQueryPropNumber((clause)->literals,(prop))
+#define  ClausePropLitNumber(clause, prop)                      \
+   EqnListQueryPropNumber((clause)->literals,(prop))
 
 #define  ClauseIsEmpty(clause) (ClauseLiteralNumber(clause)==0)
 
@@ -231,38 +226,38 @@ bool     ClauseIsSemEmpty(Clause_p clause);
 #define  ClauseIsGoal(clause) (!((clause)->pos_lit_no))
 #define  ClauseIsHorn(clause) ((clause)->pos_lit_no <= 1)
 #define  ClauseIsUnit(clause) (ClauseLiteralNumber(clause)==1)
-#define  ClauseIsDemodulator(clause)\
-            (((clause)->pos_lit_no == 1) && \
-        ((clause)->neg_lit_no == 0))
-#define  ClauseIsRWRule(clause)\
-            (ClauseIsDemodulator(clause)&&EqnIsOriented((clause)->literals))
+#define  ClauseIsDemodulator(clause)        \
+   (((clause)->pos_lit_no == 1) &&          \
+    ((clause)->neg_lit_no == 0))
+#define  ClauseIsRWRule(clause)                                         \
+   (ClauseIsDemodulator(clause)&&EqnIsOriented((clause)->literals))
 #define  ClauseIsGround(clause) EqnListIsGround(clause->literals)
 #define  ClauseIsPositive(clause) ((clause)->neg_lit_no == 0)
 #define  ClauseIsNegative(clause) ((clause)->pos_lit_no == 0)
-#define  ClauseIsMixed(clause)\
-         (!(ClauseIsPositive(clause)||ClauseIsNegative(clause)))
+#define  ClauseIsMixed(clause)                                          \
+   (!(ClauseIsPositive(clause)||ClauseIsNegative(clause)))
 #define  ClauseIsHypothesis(clause) (ClauseQueryTPTPType(clause)==CPTypeHypothesis)
-#define  ClauseIsConjecture(clause) \
-         ((ClauseQueryTPTPType(clause)==CPTypeNegConjecture) ||\
-          (ClauseQueryTPTPType(clause)==CPTypeConjecture))
+#define  ClauseIsConjecture(clause)                             \
+   ((ClauseQueryTPTPType(clause)==CPTypeNegConjecture) ||       \
+    (ClauseQueryTPTPType(clause)==CPTypeConjecture))
 
-#define  ClauseFindNegPureVarLit(clause) \
-         EqnListFindNegPureVarLit((clause)->literals)
-#define  ClauseIsTrivial(clause) \
-         EqnListIsTrivial(clause->literals)
+#define  ClauseFindNegPureVarLit(clause)                \
+   EqnListFindNegPureVarLit((clause)->literals)
+#define  ClauseIsTrivial(clause)                \
+   EqnListIsTrivial(clause->literals)
 
 bool     ClauseHasMaxPosEqLit(Clause_p clause);
 
 
 Clause_p ClauseSortLiterals(Clause_p clause, ComparisonFunctionType cmp_fun);
 Clause_p ClauseCanonize(Clause_p clause);
-#define  ClauseSubsumeOrderSortLits(clause) \
-         ClauseSortLiterals((clause), \
-                            (ComparisonFunctionType)EqnSubsumeInverseRefinedCompareRef)
+#define  ClauseSubsumeOrderSortLits(clause)     \
+   ClauseSortLiterals((clause),                                         \
+                      (ComparisonFunctionType)EqnSubsumeInverseRefinedCompareRef)
 bool     ClauseIsSorted(Clause_p clause, ComparisonFunctionType cmp_fun);
-#define  ClauseIsSubsumeOrdered(clause) \
-         ClauseIsSorted((clause), \
-         (ComparisonFunctionType)EqnSubsumeInverseCompareRef)
+#define  ClauseIsSubsumeOrdered(clause)         \
+   ClauseIsSorted((clause),                                     \
+                  (ComparisonFunctionType)EqnSubsumeInverseCompareRef)
 
 long     ClauseStructWeightCompare(Clause_p c1, Clause_p c2);
 long     ClauseStructWeightLexCompare(Clause_p c1, Clause_p c2);
@@ -270,17 +265,17 @@ long     ClauseStructWeightLexCompare(Clause_p c1, Clause_p c2);
 
 bool     ClauseIsACRedundant(Clause_p clause);
 
-#define  ClauseIsEquational(clause) \
-         EqnListIsEquational(clause->literals)
-#define  ClauseIsPureEquational(clause) \
-         EqnListIsPureEquational(clause->literals)
+#define  ClauseIsEquational(clause)             \
+   EqnListIsEquational(clause->literals)
+#define  ClauseIsPureEquational(clause)                 \
+   EqnListIsPureEquational(clause->literals)
 
-#define  ClauseTermSetProp(clause, prop) \
-         EqnListTermSetProp((clause)->literals, (prop))
-#define  ClauseTBTermDelPropCount(clause, prop) \
-         EqnListTBTermDelPropCount((clause)->literals, (prop))
-#define  ClauseTermDelProp(clause, prop) \
-         EqnListTermDelProp((clause)->literals, (prop))
+#define  ClauseTermSetProp(clause, prop)                \
+   EqnListTermSetProp((clause)->literals, (prop))
+#define  ClauseTBTermDelPropCount(clause, prop)                 \
+   EqnListTBTermDelPropCount((clause)->literals, (prop))
+#define  ClauseTermDelProp(clause, prop)                \
+   EqnListTermDelProp((clause)->literals, (prop))
 
 #define  ClauseIsSOS(clause) ClauseQueryProp((clause), CPIsSOS)
 
@@ -309,7 +304,7 @@ void     ClausePrint(FILE* out, Clause_p clause, bool fullterms);
 void     ClausePCLPrint(FILE* out, Clause_p clause, bool fullterms);
 void     ClauseTSTPCorePrint(FILE* out, Clause_p clause, bool fullterms);
 void     ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms,
-          bool complete);
+                         bool complete);
 
 bool              ClauseStartsMaybe(Scanner_p in);
 FormulaProperties ClauseTypeParse(Scanner_p in, char *legal_types);
@@ -317,17 +312,17 @@ Clause_p          ClauseParse(Scanner_p in, TB_p bank);
 Clause_p          ClausePCLParse(Scanner_p in, TB_p bank);
 
 void     ClauseMarkMaximalTerms(OCB_p ocb, Clause_p clause);
-#define  ClauseCondMarkMaximalTerms(ocb, clause)\
-         if(!ClauseQueryProp(clause, CPIsOriented))\
-         {ClauseMarkMaximalTerms(ocb,clause);}
+#define  ClauseCondMarkMaximalTerms(ocb, clause)        \
+   if(!ClauseQueryProp(clause, CPIsOriented))           \
+   {ClauseMarkMaximalTerms(ocb,clause);}
 
-#define  ClauseOrientLiterals(ocb, clause) \
-         EqnListOrient((ocb), (clause)->literals)
-#define  ClauseMarkMaximalLiterals(ocb, clause) \
-         EqnListMaximalLiterals((ocb), (clause)->literals)
+#define  ClauseOrientLiterals(ocb, clause)              \
+   EqnListOrient((ocb), (clause)->literals)
+#define  ClauseMarkMaximalLiterals(ocb, clause)                 \
+   EqnListMaximalLiterals((ocb), (clause)->literals)
 
-#define  ClauseDeleteTermProperties(clause, props) \
-         EqnListDeleteTermProperties((clause)->literals, props)
+#define  ClauseDeleteTermProperties(clause, props)              \
+   EqnListDeleteTermProperties((clause)->literals, props)
 
 bool     ClauseParentsAreSubset(Clause_p clause1, Clause_p clause2);
 void     ClauseDetachParents(Clause_p clause);
@@ -338,9 +333,9 @@ void     ClauseAddEvalCell(Clause_p clause, Eval_p evaluation);
 void     ClauseRemoveEvaluations(Clause_p clause);
 
 double   ClauseWeight(Clause_p clause, double max_term_multiplier,
-            double max_literal_multiplier, double
-            pos_multiplier, long vweight, long fweight, bool
-            count_eq_encoding);
+                      double max_literal_multiplier, double
+                      pos_multiplier, long vweight, long fweight, bool
+                      count_eq_encoding);
 
 double ClauseFunWeight(Clause_p clause, double max_term_multiplier,
                        double max_literal_multiplier, double
@@ -348,30 +343,30 @@ double ClauseFunWeight(Clause_p clause, double max_term_multiplier,
                        long *fweights, long default_fweight);
 
 double ClauseNonLinearWeight(Clause_p clause, double
-              max_term_multiplier, double
-              max_literal_multiplier, double
-              pos_multiplier, long vlweight, long
-              vweight, long fweight, bool
-              count_eq_encoding);
+                             max_term_multiplier, double
+                             max_literal_multiplier, double
+                             pos_multiplier, long vlweight, long
+                             vweight, long fweight, bool
+                             count_eq_encoding);
 double ClauseSymTypeWeight(Clause_p clause, double
-            max_term_multiplier, double
-            max_literal_multiplier, double
-            pos_multiplier, long vweight, long
-            fweight, long cweight, long pweight);
+                           max_term_multiplier, double
+                           max_literal_multiplier, double
+                           pos_multiplier, long vweight, long
+                           fweight, long cweight, long pweight);
 
 
 double   ClauseStandardWeight(Clause_p clause);
 
 double   ClauseOrientWeight(Clause_p clause, double
-             unorientable_literal_multiplier,
-             double max_literal_multiplier, double
-             pos_multiplier, long vweight, long
-             fweight, bool count_eq_encoding);
+                            unorientable_literal_multiplier,
+                            double max_literal_multiplier, double
+                            pos_multiplier, long vweight, long
+                            fweight, bool count_eq_encoding);
 
 #define  ClauseDepth(clause) EqnListDepth((clause)->literals)
 
 bool     ClauseNotGreaterEqual(OCB_p ocb,
-                Clause_p clause1, Clause_p clause2);
+                               Clause_p clause1, Clause_p clause2);
 
 int      ClauseCompareFun(const void *c1, const void* c2);
 int      ClauseCmpById(const void* clause1, const void* clause2);
@@ -383,33 +378,33 @@ int      ClauseCmpByStructWeight(const void* clause1, const void* clause2);
 
 int      ClauseCmpByPtr(const void* clause1, const void* clause2);
 
-#define  NormSubstClause(clause, subst, vars)\
-         NormSubstEqnListExcept((clause)->literals,\
-            NULL, (subst), (vars))
+#define  NormSubstClause(clause, subst, vars)           \
+   NormSubstEqnListExcept((clause)->literals,           \
+                          NULL, (subst), (vars))
 
 Clause_p ClauseNormalizeVars(Clause_p clause, VarBank_p fresh_vars);
 
-#define  ClauseAddSymbolDistribution(clause, dist_array)               \
-         EqnListAddSymbolDistribution((clause)->literals, (dist_array))
-#define  ClauseAddSymbolDistExist(clause, dist_array, exists)                  \
-         EqnListAddSymbolDistExist((clause)->literals, (dist_array), (exists))
+#define  ClauseAddSymbolDistribution(clause, dist_array)                \
+   EqnListAddSymbolDistribution((clause)->literals, (dist_array))
+#define  ClauseAddSymbolDistExist(clause, dist_array, exists)           \
+   EqnListAddSymbolDistExist((clause)->literals, (dist_array), (exists))
 
-#define  ClauseAddSymbolFeatures(clause, mod_stack, feature_array)\
+#define  ClauseAddSymbolFeatures(clause, mod_stack, feature_array)      \
    EqnListAddSymbolFeatures((clause)->literals, (mod_stack), (feature_array))
 
-#define  ClauseComputeFunctionRanks(clause, rank_array, count)\
-         EqnListComputeFunctionRanks((clause)->literals, (rank_array), (count))
-#define  ClauseCollectVariables(clause,tree)\
-         EqnListCollectVariables((clause)->literals,(tree))
+#define  ClauseComputeFunctionRanks(clause, rank_array, count)          \
+   EqnListComputeFunctionRanks((clause)->literals, (rank_array), (count))
+#define  ClauseCollectVariables(clause,tree)                    \
+   EqnListCollectVariables((clause)->literals,(tree))
 
-#define  ClauseAddFunOccs(clause, f_occur, res_stack) \
-         EqnListAddFunOccs((clause)->literals, (f_occur), (res_stack))
+#define  ClauseAddFunOccs(clause, f_occur, res_stack)                   \
+   EqnListAddFunOccs((clause)->literals, (f_occur), (res_stack))
 
 long     ClauseCollectSubterms(Clause_p clause, PStack_p collector);
 long     ClauseReturnFCodes(Clause_p clause, PStack_p f_codes);
 
-#define CLAUSE_ENSURE_DERIVATION(clause) \
-        {if(!(clause)->derivation){(clause)->derivation=PStackVarAlloc(3);}}
+#define CLAUSE_ENSURE_DERIVATION(clause)                                \
+   {if(!(clause)->derivation){(clause)->derivation=PStackVarAlloc(3);}}
 
 bool    ClauseIsUntyped(Clause_p clause);
 

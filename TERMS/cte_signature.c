@@ -1558,11 +1558,11 @@ void SigUpdateFeatureOffset(Sig_p sig, FunCode f)
 
    if(SigIsPredicate(sig, f))
    {
-      sig->f_info[f].feature_offset = feature_arity;
+      sig->f_info[f].feature_offset = feature_arity+SIG_FEATURE_ARITY_LIMIT;
    }
    else
    {
-      sig->f_info[f].feature_offset = feature_arity+SIG_FEATURE_ARITY_LIMIT;
+      sig->f_info[f].feature_offset = feature_arity;
    }
 }
 

@@ -427,6 +427,9 @@ static __inline__ int SigGetFeatureOffset(Sig_p sig, FunCode f)
    return sig->f_info[f].feature_offset;
 }
 
+#define SigGetDepthFeatureOffset(sig, f)\
+   (SigGetFeatureOffset((sig),(f))+2*SIG_FEATURE_ARITY_LIMIT)
+
 #endif
 
 /*---------------------------------------------------------------------*/

@@ -1,23 +1,21 @@
 /*-----------------------------------------------------------------------
 
-File  : cte_termfunc.c
+  File  : cte_termfunc.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Most of the user-level functionality for unshared terms.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2017 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
 
-<1> Wed Feb 25 16:50:36 MET 1998
-    Ripped from cte_terms.c (should be obsolete by now)
+  Created: Wed Feb 25 16:50:36 MET 1998 (Ripped from cte_terms.c)
 
 -----------------------------------------------------------------------*/
 
@@ -172,6 +170,39 @@ static Term_p term_check_consistency_rek(Term_p term, PTree_p *branch,
    PTreeDeleteEntry(branch, term);
    return res;
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: term_collect_sig_features_rek()
+//
+//    Collect information of number and depth of occurance of function
+//    symbols of different arity in term.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void term_collect_sig_features_rek(Sig_p sig, Term_p t, long* features,
+                                   long depth)
+{
+   if(t->f_code > 0)
+   {
+      int i;
+      features[SigGetFeatureOffset(sig, t->f_code)]++;
+      if(!SigIsPredicate(sig, t->f_code) &&
+         (depth > features[SigGetDepthFeatureOffset(sig, t->f_code)]))
+      {
+         features[SigGetDepthFeatureOffset(sig, t->f_code)] = depth;
+      }
+      for(i=0; i<t->arity; i++)
+      {
+         term_collect_sig_features_rek(sig, t->args[i], features, depth+1);
+      }
+   }
+}
+
 
 
 /*---------------------------------------------------------------------*/
@@ -1837,6 +1868,26 @@ bool TermIsUntyped(Term_p term)
 
    return res;
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermCollectSigFeatures()
+//
+//    Collect information of number and depth of occurance of function
+//    symbols of different arity in term.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void TermCollectSigFeatures(Sig_p sig, Term_p term, long* features)
+{
+   term_collect_sig_features_rek(sig, term, features, 0);
+}
+
 
 
 /*---------------------------------------------------------------------*/

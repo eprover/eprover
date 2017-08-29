@@ -286,9 +286,6 @@ def cluster_eval(bvectors, nvectors, bvec_archive, limit):
 
         print(flush=True)
 
-
-
-
 def process_options(optlist):
     """
     Process options.
@@ -310,7 +307,6 @@ def process_options(optlist):
             pcalimit=int(arg)
         elif opt =="-f" or opt == "--failval":
             failval=int(arg)
-
 
 pcano = 0
 pcalimit = 0
