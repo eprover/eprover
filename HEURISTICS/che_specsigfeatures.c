@@ -1,6 +1,6 @@
 /*-----------------------------------------------------------------------
 
-  File  :specsigfeatures.c
+  File  : che_specsigfeatures.c
 
   Author: Stephan Schulz (schulz@eprover.org)
 
@@ -18,7 +18,7 @@
 
   Created: Wed Aug 30 11:40:05 CEST 2017
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include "che_specsigfeatures.h"
 
@@ -216,6 +216,37 @@ void ClauseComputeSigFeatures(Clause_p clause, long* features)
 {
    memset(features, 0, (2+6*SIG_FEATURE_ARITY_LIMIT)*sizeof(long));
    ClauseCollectSigFeatures(clause, features);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function:
+//
+//
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+void ClauseSetCollectSigFeatures(ClauseSet_p set, SpecSigFeature_p specftrs)
+{
+   Clause_p handle;
+
+   for(handle = set->anchor->succ; handle!=set->anchor; handle =
+          handle->succ)
+   {
+      if(ClauseIsConjecture(handle))
+      {
+         ClauseCollectSigFeatures(handle, specftrs->features+SPECSIG_CJ_FTRS);
+      }
+      else
+      {
+         ClauseCollectSigFeatures(handle, specftrs->features+SPECSIG_AX_FTRS);
+      }
+   }
 }
 
 

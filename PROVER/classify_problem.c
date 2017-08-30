@@ -28,6 +28,7 @@ Changes
 #include <ccl_unfold_defs.h>
 #include <ccl_formulafunc.h>
 #include <che_clausesetfeatures.h>
+#include <che_specsigfeatures.h>
 #include <che_rawspecfeatures.h>
 #include <e_version.h>
 
@@ -53,6 +54,7 @@ typedef enum
    OPT_TSTP_PRINT,
    OPT_TSTP_FORMAT,
    OPT_RAW_CLASS,
+   OPT_SPECSIG_FTRS,
    OPT_GEN_TPTP_HEADER,
    OPT_NO_PREPROCESSING,
    OPT_EQ_UNFOLD_LIMIT,
@@ -199,6 +201,12 @@ OptCell opts[] =
     "unpreprocessed problem. This is a largely independent feature "
     "put here to reduce the proliferation of partially redundant "
     "programs. Note that many of the limits do not apply here."},
+
+   {OPT_SPECSIG_FTRS,
+    '\0', "specsig",
+    NoArg, NULL,
+    "Compute and print new-style features based on the distribution "
+    "of symbols of differnt arities."},
 
    {OPT_GEN_TPTP_HEADER,
     'H', "generate-tptp-header",
@@ -457,14 +465,15 @@ char *outname = NULL,
      *raw_mask = "aaaaaaa";
 
 IOFormat parse_format     = AutoFormat;
-bool     tptp_header      = false,
-         raw_classify     = false,
-         no_preproc       = false,
-         new_cnf          = true,
-         parse_features   = false;
-long     eqdef_maxclauses = DEFAULT_EQDEF_MAXCLAUSES,
-         miniscope_limit  = 1000;
-int      eqdef_incrlimit  = DEFAULT_EQDEF_INCRLIMIT;
+bool tptp_header      = false,
+   raw_classify     = false,
+   specsig_classify = false,
+   no_preproc       = false,
+   new_cnf          = true,
+   parse_features   = false;
+long eqdef_maxclauses = DEFAULT_EQDEF_MAXCLAUSES,
+   miniscope_limit  = 1000;
+int eqdef_incrlimit  = DEFAULT_EQDEF_INCRLIMIT;
 FunctionProperties free_symb_prop = FPIgnoreProps;
 
 
@@ -774,6 +783,7 @@ int main(int argc, char* argv[])
    int             i;
    CLState_p       state;
    SpecFeatureCell features;
+   SpecSigFeatureCell specsigfeatures;
    SpecLimits_p    limits;
    StrTree_p       skip_includes = NULL;
 
@@ -852,21 +862,31 @@ int main(int argc, char* argv[])
                                    eqdef_incrlimit,
                                    eqdef_maxclauses);
             }
-            SpecFeaturesCompute(&features, fstate->axioms, fstate->signature);
-            SpecFeaturesAddEval(&features, limits);
-
-
-            if(!tptp_header)
+            if(!specsig_classify)
             {
-               fprintf(GlobalOut, "%s : ", state->argv[i]);
-               SpecFeaturesPrint(GlobalOut, &features);
-               fprintf(GlobalOut, " : ");
-               SpecTypePrint(GlobalOut, &features, mask);
-               fprintf(GlobalOut, "\n");
+               SpecFeaturesCompute(&features, fstate->axioms, fstate->signature);
+               SpecFeaturesAddEval(&features, limits);
+
+               if(!tptp_header)
+               {
+                  fprintf(GlobalOut, "%s : ", state->argv[i]);
+                  SpecFeaturesPrint(GlobalOut, &features);
+                  fprintf(GlobalOut, " : ");
+                  SpecTypePrint(GlobalOut, &features, mask);
+                  fprintf(GlobalOut, "\n");
+               }
+               else
+               {
+                  print_tptp_header(fstate, features);
+               }
             }
             else
             {
-               print_tptp_header(fstate, features);
+               SpecSigFeatureInit(&specsigfeatures);
+               ClauseSetCollectSigFeatures(fstate->axioms, &specsigfeatures);
+               fprintf(GlobalOut, "%s : ", state->argv[i]);
+               SpecSigFeaturePrint(GlobalOut, &specsigfeatures);
+               fprintf(GlobalOut, "\n");
             }
             DestroyScanner(in);
             ProofStateFree(fstate);
@@ -962,6 +982,9 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
             break;
       case OPT_RAW_CLASS:
             raw_classify = true;
+            break;
+      case OPT_SPECSIG_FTRS:
+            specsig_classify = true;
             break;
       case OPT_GEN_TPTP_HEADER:
             tptp_header = true;
