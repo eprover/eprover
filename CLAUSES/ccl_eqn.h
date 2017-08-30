@@ -377,11 +377,6 @@ void    EqnAddSymbolFeatures(Eqn_p eq, PStack_p mod_stack, long *feature_array);
    (TermAddFunOcc((eqn)->lterm,(f_occur), (res_stack))+       \
     TermAddFunOcc((eqn)->rterm, (f_occur), (res_stack)))
 
-#define EqnCollectSigFeatures(eqn, features)\
-    TermCollectSigFeatures((eqn)->sig, (eqn->lterm), (features));\
-    TermCollectSigFeatures((eqn)->sig, (eqn->lterm), (features))
-
-
 long    EqnCollectSubterms(Eqn_p eqn, PStack_p collector);
 
 

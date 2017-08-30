@@ -38,6 +38,7 @@ HEURISTICS_LIB = che_wfcb.o che_wfcbadmin.o \
 	         che_prio_funs.o \
                  che_clausesetfeatures.o \
                  che_rawspecfeatures.o \
+                 che_specsigfeatures.o \
 	         che_clauseweight.o \
                  che_refinedweight.o \
 		 che_varweights.o \
@@ -60,4 +61,3 @@ $(LIB): $(HEURISTICS_LIB)
 	$(AR) $(LIB) $(HEURISTICS_LIB)
 
 include Makefile.dependencies
-

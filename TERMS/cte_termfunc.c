@@ -171,40 +171,6 @@ static Term_p term_check_consistency_rek(Term_p term, PTree_p *branch,
    return res;
 }
 
-/*-----------------------------------------------------------------------
-//
-// Function: term_collect_sig_features_rek()
-//
-//    Collect information of number and depth of occurance of function
-//    symbols of different arity in term.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-void term_collect_sig_features_rek(Sig_p sig, Term_p t, long* features,
-                                   long depth)
-{
-   if(t->f_code > 0)
-   {
-      int i;
-      features[SigGetFeatureOffset(sig, t->f_code)]++;
-      if(!SigIsPredicate(sig, t->f_code) &&
-         (depth > features[SigGetDepthFeatureOffset(sig, t->f_code)]))
-      {
-         features[SigGetDepthFeatureOffset(sig, t->f_code)] = depth;
-      }
-      for(i=0; i<t->arity; i++)
-      {
-         term_collect_sig_features_rek(sig, t->args[i], features, depth+1);
-      }
-   }
-}
-
-
-
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
@@ -1868,26 +1834,6 @@ bool TermIsUntyped(Term_p term)
 
    return res;
 }
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: TermCollectSigFeatures()
-//
-//    Collect information of number and depth of occurance of function
-//    symbols of different arity in term.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-void TermCollectSigFeatures(Sig_p sig, Term_p term, long* features)
-{
-   term_collect_sig_features_rek(sig, term, features, 0);
-}
-
 
 
 /*---------------------------------------------------------------------*/

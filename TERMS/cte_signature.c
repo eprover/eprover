@@ -1546,6 +1546,11 @@ bool SigHasUnimplementedInterpretedSymbols(Sig_p sig)
 //
 //    Update the feature index of the symbol.
 //
+//    Index is min(arity, SIG_FEATURE_ARITY_LIMIT-1) for predicate
+//    symbols,
+//    SIG_FEATURE_ARITY_LIMIT+min(arity, SIG_FEATURE_ARITY_LIMIT-1)
+//    for  function symbols.
+//
 // Global Variables: -
 //
 // Side Effects    : As above
@@ -1554,7 +1559,7 @@ bool SigHasUnimplementedInterpretedSymbols(Sig_p sig)
 
 void SigUpdateFeatureOffset(Sig_p sig, FunCode f)
 {
-   int feature_arity = MIN(SIG_FEATURE_ARITY_LIMIT, SigFindArity(sig, f));
+   int feature_arity = MIN(SIG_FEATURE_ARITY_LIMIT-1, SigFindArity(sig, f));
 
    if(SigIsPredicate(sig, f))
    {
