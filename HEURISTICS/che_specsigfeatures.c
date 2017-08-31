@@ -246,6 +246,18 @@ void ClauseSetCollectSigFeatures(ClauseSet_p set, SpecSigFeature_p specftrs)
       {
          ClauseCollectSigFeatures(handle, specftrs->features+SPECSIG_AX_FTRS);
       }
+      if(ClauseIsUnit(handle))
+      {
+         specftrs->features[SPECSIG_GLOBAL_UNIT]++;
+      }
+      else if(ClauseIsHorn(handle))
+      {
+         specftrs->features[SPECSIG_GLOBAL_HORN]++;
+      }
+      else
+      {
+         specftrs->features[SPECSIG_GLOBAL_GNRL]++;
+      }
    }
 }
 

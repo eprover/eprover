@@ -886,7 +886,7 @@ int main(int argc, char* argv[])
                ClauseSetCollectSigFeatures(fstate->axioms, &specsigfeatures);
                fprintf(GlobalOut, "%s : ", state->argv[i]);
                SpecSigFeaturePrint(GlobalOut, &specsigfeatures);
-               fprintf(GlobalOut, "\n");
+               fprintf(GlobalOut, " : \n");
             }
             DestroyScanner(in);
             ProofStateFree(fstate);

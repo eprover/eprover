@@ -45,13 +45,10 @@
 //   features[...2+5L]: Frequency of fun-symbols of arity n
 //   features[...2+6L]: Max depth of fun-symbols of arity n
 //   ...followed by the same for conjectures/negated conjectures
+//   ...folowed by counters for unit, horn, and general clauses
 
-#define SPECSIG_TOTAL_FTR_NO (2*(2+6*SIG_FEATURE_ARITY_LIMIT))
-
-typedef struct spec_sig_feature_cell
-{
-   long features[SPECSIG_TOTAL_FTR_NO];
-}SpecSigFeatureCell, *SpecSigFeature_p;
+#define SPECSIG_CS_FTRS      (2+3*SIG_FEATURE_ARITY_LIMIT)
+#define SPECSIG_TOTAL_FTR_NO ((2*SPECSIG_CS_FTRS)+3)
 
 #define SPECSIG_AX_FTRS      0
 #define SPECSIG_AX_POSEQ     (SPECSIG_AX_FTRS+0)
@@ -60,13 +57,23 @@ typedef struct spec_sig_feature_cell
 #define SPECSIG_AX_SYMD_POS  (SPECSIG_AX_FTRS+2)
 #define SPECSIG_AX_SYMD_NEG  (SPECSIG_AX_FTRS+2+3*SIG_FEATURE_ARITY_LIMIT)
 
-
-#define SPECSIG_CJ_FTRS      (2+6*SIG_FEATURE_ARITY_LIMIT)
+#define SPECSIG_CJ_FTRS      SPECSIG_CS_FTRS
 #define SPECSIG_CJ_POSEQ     (SPECSIG_CJ_FTRS+0)
 #define SPECSIG_CJ_NEGEQ     (SPECSIG_CJ_FTRS+1)
 #define SPECSIG_CJ_SYMD      (SPECSIG_CJ_FTRS+2)
 #define SPECSIG_CJ_SYMD_POS  (SPECSIG_CJ_FTRS+2)
 #define SPECSIG_CJ_SYMD_NEG  (SPECSIG_CJ_FTRS+2+3*SIG_FEATURE_ARITY_LIMIT)
+
+#define SPECSIG_GLOBAL_FTRS  SPECSIG_CS_FTRS
+#define SPECSIG_GLOBAL_UNIT  SPECSIG_GLOBAL_FTRS
+#define SPECSIG_GLOBAL_HORN  (SPECSIG_GLOBAL_FTRS+1)
+#define SPECSIG_GLOBAL_GNRL  (SPECSIG_GLOBAL_FTRS+2)
+
+typedef struct spec_sig_feature_cell
+{
+   long features[SPECSIG_TOTAL_FTR_NO];
+}SpecSigFeatureCell, *SpecSigFeature_p;
+
 
 
 /*---------------------------------------------------------------------*/
