@@ -76,7 +76,7 @@ import getopt
 import numpy as np
 
 import matplotlib.pyplot as plt
-from sklearn.cluster import KMeans,MiniBatchKMeans
+from sklearn.cluster import KMeans,MiniBatchKMeans, DBSCAN
 from sklearn import metrics
 from sklearn.metrics import pairwise_distances
 from sklearn import datasets
@@ -382,3 +382,15 @@ if __name__ == '__main__':
         names = rescol.ret_names()
         for prob,cl in zip(names,labels):
             print("%-20s  %4d"%(prob,cl))
+        # db = DBSCAN(eps=0.6, min_samples=10).fit(bvectors)
+        # core_samples_mask = np.zeros_like(db.labels_, dtype=bool)
+        # core_samples_mask[db.core_sample_indices_] = True
+        # labels = db.labels_
+
+        # # Number of clusters in labels, ignoring noise if present.
+        # n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
+        # print("# Clusters: ", n_clusters_)
+        # labels = db.labels_
+        # names = rescol.ret_names()
+        # for prob,cl in zip(names,labels):
+        #      print("%-20s  %4d"%(prob,cl))
