@@ -1,21 +1,23 @@
 /*-----------------------------------------------------------------------
 
-File  : e_deduction_server.c
+  File  : e_deduction_server.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
-Implementation for the deduction server executable which starts the server with the params given.
-  Copyright 2015 by the author.
+  Implementation for the deduction server executable which starts the
+  server with the params given.
+  Copyright 2017 by the author.
+
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Created: Lost in the mist of time!
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include <clb_defines.h>
 #include <cio_commandline.h>
@@ -146,7 +148,7 @@ int main(int argc, char* argv[])
 
    // TODO Set a default problem time limit
    if( !total_wtc_limit )
-     total_wtc_limit = 30;
+      total_wtc_limit = 30;
 
    InitIO(NAME);
    DocOutputFormat = tstp_format;
@@ -172,33 +174,43 @@ int main(int argc, char* argv[])
    //Creating Socket Server
    if(port != -1)
    {
-     struct sockaddr cli_addr;
-     socklen_t       cli_len;
-     oldsock = CreateServerSock(port);
-     Listen(oldsock);
-     while(1)
-     {
-       sock_fd = accept(oldsock, &cli_addr, &cli_len);
-       if ((pid = fork()) == -1)
-       {
-         close(sock_fd);
-         continue;
-       }
-       else if(pid > 0)
-       {
-         close(sock_fd);
-         fprintf(stdout, "Client connected ..\n");
-         fflush(stdout);
-         continue;
-       }
-       else if(pid == 0)
-       {
-         StartDeductionServer(spec, ctrl, server_lib, NULL, sock_fd);
-         close(sock_fd);
-         break;
-       }
-     }
-   }else{
+      struct sockaddr cli_addr;
+      socklen_t       cli_len = sizeof(cli_addr);
+      oldsock = CreateServerSock(port);
+      Listen(oldsock);
+      while(1)
+      {
+         sock_fd = accept(oldsock, &cli_addr, &cli_len);
+         if (sock_fd == -1)
+         {
+            TmpErrno = errno;
+            if (TmpErrno == ECONNABORTED || TmpErrno == EINTR)
+               continue;
+            // all other errors indicate a more severe problem - no retry
+            SysError("Unable to listen on socket %d", SYS_ERROR, oldsock);
+         }
+         if ((pid = fork()) == -1)
+         {
+            close(sock_fd);
+            continue;
+         }
+         else if(pid > 0)
+         {
+            close(sock_fd);
+            fprintf(stdout, "Client connected ..\n");
+            fflush(stdout);
+            continue;
+         }
+         else if(pid == 0)
+         {
+            StartDeductionServer(spec, ctrl, server_lib, NULL, sock_fd);
+            close(sock_fd);
+            break;
+         }
+      }
+   }
+   else
+   {
       StartDeductionServer(spec, ctrl, server_lib, stdout, -1);
    }
 
@@ -245,34 +257,34 @@ CLState_p process_options(int argc, char* argv[])
       switch(handle->option_code)
       {
       case OPT_VERBOSE:
-       Verbose = CLStateGetIntArg(handle, arg);
-       break;
+            Verbose = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_HELP:
-       print_help(stdout);
-       exit(NO_ERROR);
-       break;
+            print_help(stdout);
+            exit(NO_ERROR);
+            break;
       case OPT_VERSION:
-       fprintf(stdout, NAME " " VERSION " " E_NICKNAME "\n");
-       exit(NO_ERROR);
-       break;
+            fprintf(stdout, NAME " " VERSION " " E_NICKNAME "\n");
+            exit(NO_ERROR);
+            break;
       case OPT_PORT:
             port = CLStateGetIntArg(handle, arg);
             break;
       case OPT_SILENT:
-       OutputLevel = 0;
-       break;
+            OutputLevel = 0;
+            break;
       case OPT_OUTPUTLEVEL:
-       OutputLevel = CLStateGetIntArg(handle, arg);
-       break;
+            OutputLevel = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_GLOBAL_WTCLIMIT:
-       total_wtc_limit = CLStateGetIntArg(handle, arg);
-       break;
+            total_wtc_limit = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_SERVER_LIB:
-       server_lib = arg;
-       break;
+            server_lib = arg;
+            break;
       default:
-       assert(false && "Unknown option");
-       break;
+            assert(false && "Unknown option");
+            break;
       }
    }
    return state;
@@ -282,11 +294,11 @@ void print_help(FILE* out)
 {
    fprintf(out, "\n"
            NAME " " VERSION " \"" E_NICKNAME "\"\n\
-\n\
-Usage: " NAME " -p <port> [options] [files]\n\
-\n\
-The E deduction server offers deduction services based on local or\n\
-uploaded axiom sets via network. See README.server.\n\
+\n                                                \
+Usage: " NAME " -p <port> [options] [files]\n     \
+\n                                                                      \
+The E deduction server offers deduction services based on local or\n    \
+uploaded axiom sets via network. See README.server.\n                   \
 \n");
    PrintOptions(stdout, opts, "Options:\n\n");
    fprintf(out, "\n\n" E_FOOTER);
