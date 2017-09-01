@@ -47,27 +47,40 @@
 //   ...followed by the same for conjectures/negated conjectures
 //   ...folowed by counters for unit, horn, and general clauses
 
-#define SPECSIG_CS_FTRS      (2+3*SIG_FEATURE_ARITY_LIMIT)
-#define SPECSIG_TOTAL_FTR_NO ((2*SPECSIG_CS_FTRS)+3)
 
-#define SPECSIG_AX_FTRS      0
-#define SPECSIG_AX_POSEQ     (SPECSIG_AX_FTRS+0)
-#define SPECSIG_AX_NEGEQ     (SPECSIG_AX_FTRS+1)
-#define SPECSIG_AX_SYMD      (SPECSIG_AX_FTRS+2)
-#define SPECSIG_AX_SYMD_POS  (SPECSIG_AX_FTRS+2)
-#define SPECSIG_AX_SYMD_NEG  (SPECSIG_AX_FTRS+2+3*SIG_FEATURE_ARITY_LIMIT)
+// F-Count, P-Count, F-Depth
+#define SPECSIG_SIGFTRS      (3*SIG_FEATURE_ARITY_LIMIT)
 
-#define SPECSIG_CJ_FTRS      SPECSIG_CS_FTRS
-#define SPECSIG_CJ_POSEQ     (SPECSIG_CJ_FTRS+0)
-#define SPECSIG_CJ_NEGEQ     (SPECSIG_CJ_FTRS+1)
-#define SPECSIG_CJ_SYMD      (SPECSIG_CJ_FTRS+2)
-#define SPECSIG_CJ_SYMD_POS  (SPECSIG_CJ_FTRS+2)
-#define SPECSIG_CJ_SYMD_NEG  (SPECSIG_CJ_FTRS+2+3*SIG_FEATURE_ARITY_LIMIT)
+// Two eq-literal counts+the previous for positive/negative literals
+#define SPECSIG_CS_FTRS      (2+2*SPECSIG_SIGFTRS)
 
-#define SPECSIG_GLOBAL_FTRS  SPECSIG_CS_FTRS
+// The above for axioms/conjectures, + clause counts, + F/P signature counts
+#define SPECSIG_TOTAL_FTR_NO ((2*SPECSIG_CS_FTRS)+3+(2*SIG_FEATURE_ARITY_LIMIT))
+
+#define SPECSIG_POS_EL_OFFSET 0
+#define SPECSIG_NEG_EL_OFFSET 1
+#define SPECSIG_SYMD_OFFSET   2
+
+#define SPECSIG_AX_FTRS      (0*SPECSIG_CS_FTRS)
+#define SPECSIG_AX_POSEQ     (SPECSIG_AX_FTRS+SPECSIG_POS_EL_OFFSET)
+#define SPECSIG_AX_NEGEQ     (SPECSIG_AX_FTRS+SPECSIG_NEG_EL_OFFSET)
+#define SPECSIG_AX_SYMD      (SPECSIG_AX_FTRS+SPECSIG_SYMD_OFFSET)
+#define SPECSIG_AX_SYMD_POS  (SPECSIG_AX_SYMD)
+#define SPECSIG_AX_SYMD_NEG  (SPECSIG_AX_SYMD_POS+SPECSIG_SIGFTRS)
+
+#define SPECSIG_CJ_FTRS      (1*SPECSIG_CS_FTRS)
+#define SPECSIG_CJ_POSEQ     (SPECSIG_CJ_FTRS+SPECSIG_POS_EL_OFFSET)
+#define SPECSIG_CJ_NEGEQ     (SPECSIG_CJ_FTRS+SPECSIG_NEG_EL_OFFSET)
+#define SPECSIG_CJ_SYMD      (SPECSIG_CJ_FTRS+SPECSIG_SYMD_OFFSET)
+#define SPECSIG_CJ_SYMD_POS  (SPECSIG_CJ_SYMD)
+#define SPECSIG_CJ_SYMD_NEG  (SPECSIG_CJ_SYMD_POS+SPECSIG_SIGFTRS)
+
+#define SPECSIG_GLOBAL_FTRS  (2*SPECSIG_CS_FTRS)
 #define SPECSIG_GLOBAL_UNIT  SPECSIG_GLOBAL_FTRS
 #define SPECSIG_GLOBAL_HORN  (SPECSIG_GLOBAL_FTRS+1)
 #define SPECSIG_GLOBAL_GNRL  (SPECSIG_GLOBAL_FTRS+2)
+
+#define SPECSIG_GLOBAL_SIG   ((2*SPECSIG_CS_FTRS)+3)
 
 typedef struct spec_sig_feature_cell
 {
@@ -92,7 +105,7 @@ void TermCollectSigFeatures(Sig_p sig, Term_p term, long* features);
 
 #define EqnCollectSigFeatures(eqn, features)                            \
     TermCollectSigFeatures((eqn)->bank->sig, (eqn->lterm), (features));\
-    TermCollectSigFeatures((eqn)->bank->sig, (eqn->lterm), (features))
+    TermCollectSigFeatures((eqn)->bank->sig, (eqn->rterm), (features))
 
 
 /* Note: Only use 2+6*SIG_FEATURE_ARITY_LIMIT values from features */
@@ -101,7 +114,8 @@ void ClauseComputeSigFeatures(Clause_p clause, long* features);
 
 /* Note: Use the full SpecSigFeatureCell */
 
-void ClauseSetCollectSigFeatures(ClauseSet_p set, SpecSigFeature_p specftrs);
+void ClauseSetCollectSigFeatures(Sig_p sig, ClauseSet_p set,
+                                 SpecSigFeature_p specftrs);
 
 
 #endif

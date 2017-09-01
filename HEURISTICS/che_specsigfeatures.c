@@ -141,7 +141,7 @@ void SpecSigFeaturePrint(FILE*out, SpecSigFeature_p specftrs)
 
 void TermCollectSigFeatures(Sig_p sig, Term_p term, long* features)
 {
-   term_collect_sig_features_rek(sig, term, features, 0);
+   term_collect_sig_features_rek(sig, term, features, 1);
 }
 
 
@@ -231,9 +231,11 @@ void ClauseComputeSigFeatures(Clause_p clause, long* features)
 //
 /----------------------------------------------------------------------*/
 
-void ClauseSetCollectSigFeatures(ClauseSet_p set, SpecSigFeature_p specftrs)
+void ClauseSetCollectSigFeatures(Sig_p sig, ClauseSet_p set,
+                                 SpecSigFeature_p specftrs)
 {
    Clause_p handle;
+   FunCode i;
 
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
           handle->succ)
@@ -258,6 +260,12 @@ void ClauseSetCollectSigFeatures(ClauseSet_p set, SpecSigFeature_p specftrs)
       {
          specftrs->features[SPECSIG_GLOBAL_GNRL]++;
       }
+   }
+   for(i=sig->internal_symbols+1; i<=sig->f_count; i++)
+   {
+      specftrs->features[SPECSIG_GLOBAL_SIG+SigGetFeatureOffset(sig, i)]++;
+      //printf("# %s : %d -> %d\n", sig->f_info[i].name, sig->f_info[i].arity,
+      //SigGetFeatureOffset(sig, i));
    }
 }
 

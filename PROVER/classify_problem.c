@@ -883,7 +883,8 @@ int main(int argc, char* argv[])
             else
             {
                SpecSigFeatureInit(&specsigfeatures);
-               ClauseSetCollectSigFeatures(fstate->axioms, &specsigfeatures);
+               ClauseSetCollectSigFeatures(fstate->signature, fstate->axioms,
+                                           &specsigfeatures);
                fprintf(GlobalOut, "%s : ", state->argv[i]);
                SpecSigFeaturePrint(GlobalOut, &specsigfeatures);
                fprintf(GlobalOut, " : \n");
