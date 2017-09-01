@@ -704,12 +704,13 @@ void print_to_outstream(char* message, FILE* fp, int sock_fd)
 //
 // Function: get_directory_listings()
 //
-//    Open a directory and return a newly created stack of DStrs
-//    containing
+//    Open a directory and return a newly created stack of freshly
+//    allocated DStrs containing the names of regular files in the
+//    directory.
 //
-// Global Variables:
+// Global Variables: -
 //
-// Side Effects    :
+// Side Effects    : I/O
 //
 /----------------------------------------------------------------------*/
 
