@@ -180,6 +180,7 @@ man: E
 	help2man -N -i DOC/bug_reporting PROVER/eground      > DOC/man/eground.1
 	help2man -N -i DOC/bug_reporting PROVER/epclextract  > DOC/man/epclextract.1
 	help2man -N -i DOC/bug_reporting PROVER/e_ltb_runner > DOC/man/e_ltb_runner.1
+	help2man -N -i DOC/bug_reporting PROVER/e_deduction_server > DOC/man/e_deduction_server.1
 	help2man -N -i DOC/bug_reporting PROVER/e_axfilter   > DOC/man/e_axfilter.1
 	help2man -N -i DOC/bug_reporting PROVER/checkproof   > DOC/man/checkproof.1
 	help2man -N -i DOC/bug_reporting PROVER/ekb_create   > DOC/man/ekb_create.1
