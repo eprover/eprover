@@ -63,6 +63,7 @@ from sklearn.ensemble import ExtraTreesClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
+from sklearn.model_selection import StratifiedShuffleSplit
 
 def clean_list(l):
     """
@@ -172,43 +173,44 @@ if __name__ == '__main__':
 
     clf = DecisionTreeClassifier(max_depth=None, min_samples_split=2,
                                  random_state=0)
-    scores = cross_val_score(clf, X, y, cv=10)
-    print("DT:  ", scores.mean())
+    cv = StratifiedShuffleSplit ()
+    scores = cross_val_score(clf, X, y, cv=cv)
+    print("DT:  ", scores.mean(), "+/-", )
 
     clf = RandomForestClassifier(n_estimators=10, max_depth=None,
                                  min_samples_split=2, random_state=0)
-    scores = cross_val_score(clf, X, y, cv=10)
+    scores = cross_val_score(clf, X, y, cv=cv)
     print("RF:  ", scores.mean())
 
     clf = ExtraTreesClassifier(n_estimators=10, max_depth=None,
                                min_samples_split=2, random_state=0)
-    scores = cross_val_score(clf, X, y, cv=10)
+    scores = cross_val_score(clf, X, y, cv=cv)
     print("ERF: ", scores.mean())
 
     clf = KNeighborsClassifier(n_neighbors=1)
-    scores = cross_val_score(clf, X, y, cv=10)
+    scores = cross_val_score(clf, X, y, cv=cv)
     print("1-NN:", scores.mean())
 
     clf = KNeighborsClassifier(n_neighbors=2)
-    scores = cross_val_score(clf, X, y, cv=10)
+    scores = cross_val_score(clf, X, y, cv=cv)
     print("2-NN:", scores.mean())
 
     clf = KNeighborsClassifier(n_neighbors=3)
-    scores = cross_val_score(clf, X, y, cv=10)
+    scores = cross_val_score(clf, X, y, cv=cv)
     print("3-NN:", scores.mean())
 
     clf = SVC()
-    scores = cross_val_score(clf, X, y, cv=10)
+    scores = cross_val_score(clf, X, y, cv=cv)
     print("SVM: ", scores.mean())
 
     #clf = SVC(kernel='linear')
-    #scores = cross_val_score(clf, X, y, cv=10)
+    #scores = cross_val_score(clf, X, y, cv=cv)
     #print("Slin: ", scores.mean())
 
     #clf = SVC(kernel='rbf')
-    #scores = cross_val_score(clf, X, y, cv=10)
+    #scores = cross_val_score(clf, X, y, cv=cv)
     #print("Srbf:", scores.mean())
 
     #clf = SVC(kernel='sigmoid')
-    #scores = cross_val_score(clf, X, y, cv=10)
+    #scores = cross_val_score(clf, X, y, cv=cv)
     #print("Ssig:", scores.mean())

@@ -230,23 +230,45 @@ def pca_eval(rescol, limit):
         print(flush=True)
 
 
+def find_best_coverage(bvectors):
+    """
+    Given a set of equal lenght binary vectors (0 = Success, 1 =
+    Timeout), return the index where most of the vectors indicate
+    success and the number of successes for that index.
+    """
+    maxcov  = 0
+    bestidx = 0
+    for i in range(len(bvectors[0])):
+        cv = [1-pv[i] for pv in bvectors]
+        cov = sum(cv)
+        if cov > maxcov:
+            maxcov = cov
+            bestidx = i
+    return bestidx, maxcov
+
+
 def cluster_cov_eval(vectors, labels):
     """
     Return the fraction of problems classified in a labeled class
-    where the best covering strategy covers it.
+    where the best covering strategy covers it. Arguments are the
+    unmodified binary vectors and the cluster assignment.
     """
-    res = 1
-    size = max(labels)
+    size = max(labels)+1
     classes = [list() for i in range(size)]
+    # print(size, len(labels),max(labels), min(labels), labels)    
     for label, vector in zip(labels, vectors):
-        classes[label-1].append(vector)
-
+        # print(classes[label])
+        # print(vector)
+        classes[label].append(vector)
+        # print(classes[label])
+        # print()
+    # Now classes is a list of lists of vectors. Concretely:
+    # classes[label] is the list of all the individuals, represented
+    # as binary vectors.
+        
     coverage = 0
     for cl in classes:
-        maxcov = 0
-        for i in range(len(cl[0])):
-            cv = [1-pv[i] for pv in cl]
-            maxcov = max(maxcov, sum(cv))
+        dummy, maxcov = find_best_coverage(cl)
         coverage += maxcov
     return coverage/len(labels)
 
