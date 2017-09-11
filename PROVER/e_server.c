@@ -273,7 +273,7 @@ int main(int argc, char* argv[])
       fd_set rfds, wfds, xfds;
       int res, tmp;
       struct sockaddr addr;
-      socklen_t       addr_len;
+      socklen_t       addr_len = sizeof(addr);
       char *msg;
       MsgStatus msg_stat;
 

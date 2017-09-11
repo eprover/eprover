@@ -146,7 +146,7 @@ bool EServerListen(EServer_p server, int port)
 bool EServerAccept(EServer_p server)
 {
    struct sockaddr addr;
-   socklen_t       addr_len;
+   socklen_t       addr_len = sizeof(addr);
    int             sock;
    ESession_p      session;
 

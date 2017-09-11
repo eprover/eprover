@@ -758,7 +758,7 @@ PStack_p get_directory_listings(DStr_p dirname)
          {
             continue;
          }
-         if (stat(path, &buf) != 0 || buf.st_mode != S_IFREG)
+         if (stat(path, &buf) != 0 || !S_ISREG(buf.st_mode))
          {
             continue;
          }
