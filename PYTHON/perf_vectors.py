@@ -308,6 +308,9 @@ def cluster_eval(bvectors, nvectors, bvec_archive, limit):
 
         print(flush=True)
 
+def arr_str(arr):
+    return "np.array(["+",".join([str(val) for val in arr])+"])"
+
 def process_options(optlist):
     """
     Process options.
@@ -402,8 +405,9 @@ if __name__ == '__main__':
                           init='k-means++').fit(bvectors)
         labels = clusters.labels_
         names = rescol.ret_names()
-        for prob,cl in zip(names,labels):
-            print("%-20s  %4d"%(prob,cl))
+        vecs  = rescol.bin_vectors()
+        for prob,perf,cl in zip(names, vecs, labels):
+            print("%-20s : %s : %4d"%(prob, arr_str(perf), cl))
         # db = DBSCAN(eps=0.6, min_samples=10).fit(bvectors)
         # core_samples_mask = np.zeros_like(db.labels_, dtype=bool)
         # core_samples_mask[db.core_sample_indices_] = True

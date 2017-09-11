@@ -61,6 +61,7 @@ from sklearn.datasets import make_blobs
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import ExtraTreesClassifier
 from sklearn.tree import DecisionTreeClassifier
+import sklearn.tree as tree
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.model_selection import StratifiedShuffleSplit
@@ -97,15 +98,19 @@ def read_real_lines_from_file(name):
 
 class ClassCollection(object):
     def __init__(self):
-        self.problems = list([])
-        self.labels   = list([])
+        self.problems  = list([])
+        self.labels    = list([])
+        self.perf_vecs = list([])
 
     def add_line(self, line):
         parts = line.split(":")
+        #print( parts)
         problem = parts[0]
+        perf_vec = eval(parts[1])
         label   = int(parts[2])
-        features = list(map(float, parts[1].split(",")))
+        features = list(map(float, parts[3].split(",")))
         self.problems.append(features)
+        self.perf_vecs.append(perf_vec)
         self.labels.append(label)
 
     def get_features(self):
@@ -141,9 +146,7 @@ def process_options(optlist):
             normalize = True
 
 if __name__ == '__main__':
-    contr_args = [arg for arg in sys.argv if arg.find("protoc")==-1]
-    prot_args  = [arg for arg in sys.argv if arg.find("protoc")!=-1]
-    print("#", " ".join(contr_args), "<%d prots>"%(len(prot_args),))
+    print("#", " ".join(sys.argv))
 
     opts, args = getopt.gnu_getopt(sys.argv[1:], "hn", ["help",
     "--normalize"])
@@ -175,33 +178,47 @@ if __name__ == '__main__':
                                  random_state=0)
     cv = StratifiedShuffleSplit ()
     scores = cross_val_score(clf, X, y, cv=cv)
-    print("DT:  ", scores.mean(), "+/-", )
+    print("DT:  ", scores.mean(), "+/-", scores.std()*2)
+    clf.fit(X,y)
+    print("FF:  ", clf.score(X,y))
 
     clf = RandomForestClassifier(n_estimators=10, max_depth=None,
                                  min_samples_split=2, random_state=0)
     scores = cross_val_score(clf, X, y, cv=cv)
-    print("RF:  ", scores.mean())
+    print("RF:  ", scores.mean(), "+/-", scores.std()*2)
+    clf.fit(X,y)
+    print("FF:  ", clf.score(X,y))
 
     clf = ExtraTreesClassifier(n_estimators=10, max_depth=None,
                                min_samples_split=2, random_state=0)
     scores = cross_val_score(clf, X, y, cv=cv)
-    print("ERF: ", scores.mean())
+    print("ERF: ", scores.mean(), "+/-", scores.std()*2)
+    clf.fit(X,y)
+    print("FF:  ", clf.score(X,y))
 
     clf = KNeighborsClassifier(n_neighbors=1)
     scores = cross_val_score(clf, X, y, cv=cv)
-    print("1-NN:", scores.mean())
+    print("1-NN:", scores.mean(), "+/-", scores.std()*2)
+    clf.fit(X,y)
+    print("FF:  ", clf.score(X,y))
 
     clf = KNeighborsClassifier(n_neighbors=2)
     scores = cross_val_score(clf, X, y, cv=cv)
-    print("2-NN:", scores.mean())
+    print("2-NN:", scores.mean(), "+/-", scores.std()*2)
+    clf.fit(X,y)
+    print("FF:  ", clf.score(X,y))
 
     clf = KNeighborsClassifier(n_neighbors=3)
     scores = cross_val_score(clf, X, y, cv=cv)
-    print("3-NN:", scores.mean())
+    print("3-NN:", scores.mean(), "+/-", scores.std()*2)
+    clf.fit(X,y)
+    print("FF:  ", clf.score(X,y))
 
     clf = SVC()
     scores = cross_val_score(clf, X, y, cv=cv)
-    print("SVM: ", scores.mean())
+    print("SVW: ", scores.mean(), "+/-", scores.std()*2)
+    clf.fit(X,y)
+    print("FF:  ", clf.score(X,y))
 
     #clf = SVC(kernel='linear')
     #scores = cross_val_score(clf, X, y, cv=cv)
