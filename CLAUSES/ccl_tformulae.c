@@ -617,6 +617,7 @@ void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms, bo
    }
    else if(TFormulaIsQuantified(bank->sig,form))
    {
+      FunCode quantifier = form->f_code;
       if(form->f_code == bank->sig->qex_code)
       {
          fputs("?[", out);
@@ -631,7 +632,17 @@ void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms, bo
          fputs(":", out);
          SortPrintTSTP(out, bank->sig->sort_table, form->args[0]->sort);
       }
-
+      while(form->args[1]->f_code == quantifier)
+      {
+         form = form->args[1];
+         fputs(", ", out);
+         TermPrint(out, form->args[0], bank->sig, DEREF_NEVER);
+         if(form->args[0]->sort != STIndividuals)
+         {
+            fputs(":", out);
+            SortPrintTSTP(out, bank->sig->sort_table, form->args[0]->sort);
+         }
+      }
       fputs("]:", out);
       TFormulaTPTPPrint(out, bank, form->args[1], fullterms, pcl);
    }

@@ -56,6 +56,7 @@ import getopt
 import numpy as np
 
 import matplotlib.pyplot as plt
+
 from sklearn.model_selection import cross_val_score
 from sklearn.datasets import make_blobs
 from sklearn.ensemble import RandomForestClassifier
@@ -174,60 +175,73 @@ if __name__ == '__main__':
 
     y = classcol.get_labels()
 
+    results = []
+    results2 = []
+
     clf = DecisionTreeClassifier(max_depth=None, min_samples_split=2,
                                  random_state=0)
     cv = StratifiedShuffleSplit ()
     scores = cross_val_score(clf, X, y, cv=cv)
     print("DT:  ", scores.mean(), "+/-", scores.std()*2)
+    results.append(scores.mean())
     clf.fit(X,y)
     print("FF:  ", clf.score(X,y))
+    results2.append(clf.score(X,y))
 
     clf = RandomForestClassifier(n_estimators=10, max_depth=None,
                                  min_samples_split=2, random_state=0)
     scores = cross_val_score(clf, X, y, cv=cv)
     print("RF:  ", scores.mean(), "+/-", scores.std()*2)
+    results.append(scores.mean())
     clf.fit(X,y)
     print("FF:  ", clf.score(X,y))
+    results2.append(clf.score(X,y))
 
     clf = ExtraTreesClassifier(n_estimators=10, max_depth=None,
                                min_samples_split=2, random_state=0)
     scores = cross_val_score(clf, X, y, cv=cv)
     print("ERF: ", scores.mean(), "+/-", scores.std()*2)
+    results.append(scores.mean())
     clf.fit(X,y)
     print("FF:  ", clf.score(X,y))
+    results2.append(clf.score(X,y))
 
     clf = KNeighborsClassifier(n_neighbors=1)
     scores = cross_val_score(clf, X, y, cv=cv)
     print("1-NN:", scores.mean(), "+/-", scores.std()*2)
+    results.append(scores.mean())
     clf.fit(X,y)
     print("FF:  ", clf.score(X,y))
+    results2.append(clf.score(X,y))
 
     clf = KNeighborsClassifier(n_neighbors=2)
     scores = cross_val_score(clf, X, y, cv=cv)
     print("2-NN:", scores.mean(), "+/-", scores.std()*2)
+    results.append(scores.mean())
     clf.fit(X,y)
     print("FF:  ", clf.score(X,y))
+    results2.append(clf.score(X,y))
 
     clf = KNeighborsClassifier(n_neighbors=3)
     scores = cross_val_score(clf, X, y, cv=cv)
     print("3-NN:", scores.mean(), "+/-", scores.std()*2)
+    results.append(scores.mean())
     clf.fit(X,y)
     print("FF:  ", clf.score(X,y))
+    results2.append(clf.score(X,y))
 
-    clf = SVC()
-    scores = cross_val_score(clf, X, y, cv=cv)
-    print("SVW: ", scores.mean(), "+/-", scores.std()*2)
-    clf.fit(X,y)
-    print("FF:  ", clf.score(X,y))
+    # clf = SVC()
+    # scores = cross_val_score(clf, X, y, cv=cv)
+    # print("SVM: ", scores.mean(), "+/-", scores.std()*2)
+    # results.append(scores.mean())
+    # clf.fit(X,y)
+    # print("FF:  ", clf.score(X,y))
+    # results2.append(clf.score(X,y))
 
-    #clf = SVC(kernel='linear')
-    #scores = cross_val_score(clf, X, y, cv=cv)
-    #print("Slin: ", scores.mean())
+    print("Cross-Validation")
+    for res in results:
+        print("%2.1f%%"%(res*100,))
 
-    #clf = SVC(kernel='rbf')
-    #scores = cross_val_score(clf, X, y, cv=cv)
-    #print("Srbf:", scores.mean())
-
-    #clf = SVC(kernel='sigmoid')
-    #scores = cross_val_score(clf, X, y, cv=cv)
-    #print("Ssig:", scores.mean())
+    print("Memorization")
+    for res in results2:
+        print("%2.1f%%"%(res*100,))

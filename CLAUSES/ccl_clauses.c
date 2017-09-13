@@ -1529,7 +1529,7 @@ void ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms, bool complete)
    // quantify and print as TFF formula
    if(!is_untyped)
    {
-      kind = "tff";
+      kind = "tcf";
    }
 
    switch(ClauseQueryTPTPType(clause))
