@@ -55,6 +55,8 @@ VarBankNamed_p var_named_new(Term_p var, char* name)
 {
    VarBankNamed_p res;
 
+   //printf("var_named_new()\n");
+
    res = VarBankNamedCellAlloc();
    res->name = SecureStrdup(name);
    res->var = var;
@@ -458,7 +460,7 @@ Term_p VarBankExtNameAssertAlloc(VarBank_p bank, char* name)
 
    if(Verbose>=5)
    {
-      fprintf(stderr, "alloc no sort %s\n", name);
+      fprintf(stderr, "Alloc no sort %s\n", name);
    }
 
    var = VarBankExtNameFind(bank, name);
@@ -499,7 +501,7 @@ Term_p VarBankExtNameAssertAllocSort(VarBank_p bank, char* name, SortType sort)
 
    if(Verbose>=5)
    {
-      fprintf(stderr, "alloc sort %s with sort ", name);
+      fprintf(stderr, "Alloc variable %s with sort ", name);
       SortPrintTSTP(stderr, bank->sort_table, sort);
       fputc('\n', stderr);
    }
@@ -578,6 +580,7 @@ void VarBankPopEnv(VarBank_p bank)
       handle->val1.p_val = named->var;
       handle->val2.i_val = named->var->f_code;
       test = StrTreeInsert(&(bank->ext_index), handle);
+      var_named_free(named);
 
       if(test)
       {
@@ -656,5 +659,3 @@ long VarBankCollectVars(VarBank_p bank, PStack_p into)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

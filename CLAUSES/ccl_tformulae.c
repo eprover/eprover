@@ -1,25 +1,25 @@
 /*-----------------------------------------------------------------------
 
-File  : ccl_tformulae.c
+  File  : ccl_tformulae.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Code for the full first order formulae encoded as terms.
 
-  Copyright 2005 by the author.
+  Copyright 2005-2017 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Thu May 19 17:26:49 CEST 2005
-    New (some taken from old implementation (ccl_formulae.c)
+  Created: Thu May 19 17:26:49 CEST 2005 (some taken from old
+  implementation (ccl_formulae.c)
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include "ccl_tformulae.h"
 
@@ -133,7 +133,7 @@ static FunCode tptp_quantor_parse(Sig_p sig, Scanner_p in)
 {
    FunCode res;
 
-   CheckInpTok(in, AllQuantor|ExistQuantor);
+   CheckInpTok(in, UnivQuantor|ExistQuantor);
    if(TestInpTok(in, ExistQuantor))
    {
       res = sig->qex_code;
@@ -150,7 +150,7 @@ static FunCode tptp_quantor_parse(Sig_p sig, Scanner_p in)
 
 /*-----------------------------------------------------------------------
 //
-// Function: quantified_form_tptp_parse()
+// Function: quantified_tform_tptp_parse()
 //
 //   Parse a quantified TPTP/TSTP formula. At this point, the quantor
 //   has already been read (and is passed into the function), and we
@@ -163,8 +163,8 @@ static FunCode tptp_quantor_parse(Sig_p sig, Scanner_p in)
 /----------------------------------------------------------------------*/
 
 static TFormula_p quantified_tform_tptp_parse(Scanner_p in,
-                                       TB_p terms,
-                                       FunCode quantor)
+                                              TB_p terms,
+                                              FunCode quantor)
 {
    Term_p     var;
    TFormula_p  rest, res;
@@ -225,7 +225,7 @@ static TFormula_p elem_tform_tptp_parse(Scanner_p in, TB_p terms)
 {
    TFormula_p res, tmp;
 
-   if(TestInpTok(in, AllQuantor|ExistQuantor))
+   if(TestInpTok(in, UnivQuantor|ExistQuantor))
    {
       FunCode quantor;
       quantor = tptp_quantor_parse(terms->sig,in);
@@ -255,9 +255,53 @@ static TFormula_p elem_tform_tptp_parse(Scanner_p in, TB_p terms)
 }
 
 
+
 /*-----------------------------------------------------------------------
 //
-// Function: quantified_form_tstp_parse()
+// Function: clause_tform_tstp_parse()
+//
+//   Parse a sequence of literals connected by a | operator
+//   and return it.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+static TFormula_p clause_tform_tstp_parse(Scanner_p in, TB_p terms)
+{
+   //printf("# clause_tform_tstp_parse()\n");
+   TFormula_p head, rest;
+   Eqn_p lit;
+
+   lit = EqnFOFParse(in, terms);
+   head = TFormulaLitAlloc(lit);
+   EqnFree(lit);
+   //printf("# head parsed\n");
+   while(TestInpTok(in, FOFOr))
+   {
+      AcceptInpTok(in, FOFOr);
+      lit = EqnFOFParse(in, terms);
+      //printf("# lit parsed:");
+      //EqnPrint(stdout, lit, false, true);
+      //printf("\n");
+      rest = TFormulaLitAlloc(lit);
+      EqnFree(lit);
+      //printf("# rest allocated\n");
+      head = TFormulaFCodeAlloc(terms, terms->sig->or_code, head, rest);
+      //printf("# allocated\n");
+   }
+   // printf("# done:");
+   //TFormulaTPTPPrint(stdout, terms, head, true, true);
+   //printf("\n");
+   return head;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: quantified_tform_tstp_parse()
 //
 //   Parse a quantified TSTP formula. At this point, the quantor
 //   has already been read (and is passed into the function), and we
@@ -271,7 +315,7 @@ static TFormula_p elem_tform_tptp_parse(Scanner_p in, TB_p terms)
 
 static TFormula_p quantified_tform_tstp_parse(Scanner_p in,
                                               TB_p terms,
-                                              FunCode quantor)
+                                              FunCode quantor, bool tcf)
 {
    Term_p     var;
    TFormula_p  rest, res;
@@ -301,13 +345,32 @@ static TFormula_p quantified_tform_tstp_parse(Scanner_p in,
    if(TestInpTok(in, Comma))
    {
       AcceptInpTok(in, Comma);
-      rest = quantified_tform_tstp_parse(in, terms, quantor);
+      rest = quantified_tform_tstp_parse(in, terms, quantor, tcf);
    }
    else
    {
       AcceptInpTok(in, CloseSquare);
       AcceptInpTok(in, Colon);
-      rest = literal_tform_tstp_parse(in, terms);
+      if(tcf)
+      {
+         if(TestInpTok(in, OpenBracket))
+         {
+            AcceptInpTok(in, OpenBracket);
+            rest = clause_tform_tstp_parse(in, terms);
+            AcceptInpTok(in, CloseBracket);
+         }
+         else
+         {
+            Eqn_p lit;
+            lit = EqnFOFParse(in, terms);
+            rest = TFormulaLitAlloc(lit);
+            EqnFree(lit);
+         }
+      }
+      else
+      {
+         rest = literal_tform_tstp_parse(in, terms);
+      }
    }
    res = TFormulaFCodeAlloc(terms, quantor, var, rest);
 
@@ -332,12 +395,12 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms)
 {
    TFormula_p res, tmp;
 
-   if(TestInpTok(in, AllQuantor|ExistQuantor))
+   if(TestInpTok(in, UnivQuantor|ExistQuantor))
    {
       FunCode quantor;
       quantor = tptp_quantor_parse(terms->sig,in);
       AcceptInpTok(in, OpenSquare);
-      res = quantified_tform_tstp_parse(in, terms, quantor);
+      res = quantified_tform_tstp_parse(in, terms, quantor, false);
    }
    else if(TestInpTok(in, OpenBracket))
    {
@@ -364,7 +427,7 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms)
 
 /*-----------------------------------------------------------------------
 //
-// Function: assoc_form_tstp_parse()
+// Function: assoc_tform_tstp_parse()
 //
 //   Parse a sequence of formulas connected by a single AC operator
 //   and return it.
@@ -535,8 +598,8 @@ TFormula_p TFormulaLitAlloc(Eqn_p literal)
    assert(literal);
 
    res = EqnTermsTBTermEncode(literal->bank, literal->lterm,
-                               literal->rterm, EqnIsPositive(literal),
-                               PENormal);
+                              literal->rterm, EqnIsPositive(literal),
+                              PENormal);
    return res;
 
 }
@@ -586,6 +649,36 @@ TFormula_p TFormulaQuantorAlloc(TB_p bank, FunCode quantor, Term_p var, TFormula
 
    return TFormulaFCodeAlloc(bank, quantor, var, arg);
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function:
+//
+//
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+void tformula_print_or_chain(FILE* out, TB_p bank, TFormula_p form,
+                              bool fullterms, bool pcl)
+{
+   if(form->f_code!=bank->sig->or_code)
+   {
+      TFormulaTPTPPrint(out, bank, form, fullterms, pcl);
+   }
+   else
+   {
+      tformula_print_or_chain(out, bank, form->args[0], fullterms, pcl);
+      fputs("|", out);
+      TFormulaTPTPPrint(out, bank, form->args[1], fullterms, pcl);
+   }
+}
+
+
 
 /*-----------------------------------------------------------------------
 //
@@ -659,45 +752,52 @@ void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms, bo
 
       assert(TFormulaIsBinary(form));
       fputs("(", out);
-      TFormulaTPTPPrint(out, bank, form->args[0], fullterms, pcl);
-      if(form->f_code == bank->sig->and_code)
+      if(form->f_code == bank->sig->or_code)
       {
-         oprep = "&";
-      }
-      else if(form->f_code == bank->sig->or_code)
-      {
-         oprep = "|";
-      }
-      else if(form->f_code == bank->sig->impl_code)
-      {
-         oprep = "=>";
-      }
-      else if(form->f_code == bank->sig->equiv_code)
-      {
-         oprep = "<=>";
-      }
-      else if(form->f_code == bank->sig->nand_code)
-      {
-         oprep = "~&";
-      }
-      else if(form->f_code == bank->sig->nor_code)
-      {
-         oprep = "~|";
-      }
-      else if(form->f_code == bank->sig->bimpl_code)
-      {
-         oprep = "<=";
-      }
-      else if(form->f_code == bank->sig->xor_code)
-      {
-         oprep = "<~>";
+         tformula_print_or_chain(out, bank, form, fullterms, pcl);
       }
       else
       {
-         assert(false && "Wrong operator");
+         TFormulaTPTPPrint(out, bank, form->args[0], fullterms, pcl);
+         if(form->f_code == bank->sig->and_code)
+         {
+            oprep = "&";
+         }
+         else if(form->f_code == bank->sig->or_code)
+         {
+            oprep = "|";
+         }
+         else if(form->f_code == bank->sig->impl_code)
+         {
+            oprep = "=>";
+         }
+         else if(form->f_code == bank->sig->equiv_code)
+         {
+            oprep = "<=>";
+         }
+         else if(form->f_code == bank->sig->nand_code)
+         {
+            oprep = "~&";
+         }
+         else if(form->f_code == bank->sig->nor_code)
+         {
+         oprep = "~|";
+         }
+         else if(form->f_code == bank->sig->bimpl_code)
+         {
+            oprep = "<=";
+         }
+         else if(form->f_code == bank->sig->xor_code)
+         {
+            oprep = "<~>";
+         }
+         else
+         {
+            assert(false && "Wrong operator");
+         }
+         fputs(oprep, out);
+         TFormulaTPTPPrint(out, bank, form->args[1], fullterms, pcl);
       }
-      fputs(oprep, out);
-      TFormulaTPTPPrint(out, bank, form->args[1], fullterms, pcl);
       fputs(")", out);
    }
 }
@@ -767,6 +867,41 @@ TFormula_p TFormulaTSTPParse(Scanner_p in, TB_p terms)
    else
    {
       res = f1;
+   }
+   return res;
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TcfTSTPParse()
+//
+//   Parse a TCF formula (potentially typed clause) in TSTP format.
+//
+// Global Variables: -
+//
+// Side Effects    : I/O, memory operations
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p TcfTSTPParse(Scanner_p in, TB_p terms)
+{
+   TFormula_p res;
+
+   CheckInpTok(in, TermStartToken|TildeSign|UnivQuantor);
+
+   if(TestInpTok(in, UnivQuantor))
+   {
+      FunCode quantor;
+      quantor = tptp_quantor_parse(terms->sig,in);
+      AcceptInpTok(in, OpenSquare);
+      // printf("# Begin  quantified_tform_tstp_parse()\n");
+      res = quantified_tform_tstp_parse(in, terms, quantor, true);
+   }
+   else
+   {
+      res = clause_tform_tstp_parse(in, terms);
    }
    return res;
 }
@@ -1042,6 +1177,7 @@ TFormula_p TFormulaClauseEncode(TB_p bank, Clause_p clause)
    }
    else
    {
+      //printf("Encoding: ");ClausePrintList(stdout, clause, true);printf("\n");
       res = TFormulaLitAlloc(clause->literals);
       for(handle = clause->literals->next;
           handle;
@@ -1201,6 +1337,7 @@ Clause_p TFormulaCollectClause(TFormula_p form, TB_p terms,
    Clause_p res;
    Eqn_p lit_list = NULL, tmp_list = NULL, lit;
    PStack_p stack, lit_stack = PStackAlloc();
+   PStackPointer i;
 
    /*printf("tformula_collect_clause(): ");
      TFormulaTPTPPrint(GlobalOut, terms, form, true);
@@ -1221,13 +1358,17 @@ Clause_p TFormulaCollectClause(TFormula_p form, TB_p terms,
          assert(TFormulaIsLiteral(terms->sig, form));
          lit = EqnTBTermDecode(terms, form);
          PStackPushP(lit_stack, lit);
-
       }
    }
    PStackFree(stack);
-   while(!PStackEmpty(lit_stack))
+   //while(!PStackEmpty(lit_stack))
+   //{
+   //lit = PStackPopP(lit_stack);
+   //EqnListInsertFirst(&lit_list, lit);
+   //}
+   for(i=0; i<PStackGetSP(lit_stack); i++)
    {
-      lit = PStackPopP(lit_stack);
+      lit = PStackElementP(lit_stack, i);
       EqnListInsertFirst(&lit_list, lit);
    }
    PStackFree(lit_stack);
@@ -1263,7 +1404,7 @@ Clause_p TFormulaCollectClause(TFormula_p form, TB_p terms,
 /----------------------------------------------------------------------*/
 bool TFormulaIsUntyped(TFormula_p form)
 {
-    return TermIsUntyped(form);
+   return TermIsUntyped(form);
 }
 
 

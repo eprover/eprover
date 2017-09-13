@@ -713,7 +713,7 @@ long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset,
          }
          break;
    default:
-         while(TestInpId(in, "input_formula|input_clause|fof|cnf|tff|include"))
+         while(TestInpId(in, "input_formula|input_clause|fof|cnf|tff|tcf|include"))
          {
             if(TestInpId(in, "include"))
             {
@@ -744,7 +744,7 @@ long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset,
             }
             else
             {
-               if(TestInpId(in, "input_formula|fof|tff"))
+               if(TestInpId(in, "input_formula|fof|tff|tcf"))
                {
                   form = WFormulaParse(in, terms);
                   // fprintf(stdout, "Parsed: ");

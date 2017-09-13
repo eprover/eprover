@@ -67,7 +67,7 @@ typedef unsigned long long TokenType;
 #define NegEqualSign  (2*EqualSign)
 #define TildeSign     (2*NegEqualSign)
 #define Exclamation   (2*TildeSign)
-#define AllQuantor    (Exclamation)
+#define UnivQuantor   (Exclamation)
 #define QuestionMark  (2*Exclamation)
 #define ExistQuantor  (QuestionMark)
 #define Comma         (2*QuestionMark)
@@ -231,8 +231,3 @@ Scanner_p ScannerParseInclude(Scanner_p in, StrTree_p *name_selector,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

@@ -1017,7 +1017,7 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
 {
    Term_p        handle;
    DStr_p        id;
-   FuncSymbType id_type;
+   FuncSymbType  id_type;
    DStr_p        source_name, errpos;
    SortType      sort;
    long          line, column;

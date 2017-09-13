@@ -1,25 +1,24 @@
 /*-----------------------------------------------------------------------
 
-File  : cte_simpletypes.c
+  File  : cte_simpletypes.c
 
-Author: Simon Cruanes (simon.cruanes@inria.fr)
+  Author: Simon Cruanes (simon.cruanes@inria.fr)
 
-Contents
+  Contents
 
   Implementation of simple types for the TSTP TFF format
 
-  Copyright 2013 by the author.
+  Copyright 2013-2017 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Sat Jul  6 09:45:14 CEST 2013
-    New
+  Created: <1> Sat Jul  6 09:45:14 CEST 2013
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include "cte_simpletypes.h"
 
@@ -51,21 +50,21 @@ Changes
 /----------------------------------------------------------------------*/
 Type_p TypeAlloc(SortType domain, int arity)
 {
-    Type_p res;
+   Type_p res;
 
-    res = TypeCellAlloc();
-    res->domain_sort = domain;
-    res->lson = NULL;
-    res->rson = NULL;
-    res->args = NULL;
+   res = TypeCellAlloc();
+   res->domain_sort = domain;
+   res->lson = NULL;
+   res->rson = NULL;
+   res->args = NULL;
 
-    res->arity = arity;
-    if (arity)
-    {
-        res->args = TypeArgumentAlloc(arity);
-    }
+   res->arity = arity;
+   if (arity)
+   {
+      res->args = TypeArgumentAlloc(arity);
+   }
 
-    return res;
+   return res;
 }
 
 
@@ -81,15 +80,15 @@ Type_p TypeAlloc(SortType domain, int arity)
 /----------------------------------------------------------------------*/
 void TypeFree(Type_p junk)
 {
-    junk->lson = NULL;
-    junk->rson = NULL;
+   junk->lson = NULL;
+   junk->rson = NULL;
 
-    if (junk->arity)
-    {
-        TypeArgumentFree(junk->args, junk->arity);
-    }
+   if (junk->arity)
+   {
+      TypeArgumentFree(junk->args, junk->arity);
+   }
 
-    TypeCellFree(junk);
+   TypeCellFree(junk);
 }
 
 /*-----------------------------------------------------------------------
@@ -357,23 +356,22 @@ int parse_sort_list(Scanner_p in, SortTable_p sort_table, SortType **args, int *
 /----------------------------------------------------------------------*/
 TypeTable_p TypeTableAlloc(SortTable_p sort_table)
 {
-    TypeTable_p res;
+   TypeTable_p res;
 
-    res = TypeTableCellAlloc();
-    res->sort_table = sort_table;
-    res->size = 0;
-    res->root = NULL;
+   res = TypeTableCellAlloc();
+   res->sort_table = sort_table;
+   res->size = 0;
+   res->root = NULL;
 
-    return res;
+   return res;
 }
 
 
 /*-----------------------------------------------------------------------
 //
-// Function: TypeTableFree
-// free the content of the type table (all types) and the table itself
+// Function: TypeTableFree()
 //
-//
+// Free the content of the type table (all types) and the table itself
 //
 // Global Variables:
 //
@@ -382,16 +380,16 @@ TypeTable_p TypeTableAlloc(SortTable_p sort_table)
 /----------------------------------------------------------------------*/
 void TypeTableFree(TypeTable_p junk)
 {
-    Type_p type;
+   Type_p type;
 
-    // free all types, removing them one by one
-    while (junk->root)
-    {
-        type = TypeTreeExtract(&(junk->root), junk->root);
-        TypeFree(type);
-    }
+   // free all types, removing them one by one
+   while (junk->root)
+   {
+      type = TypeTreeExtract(&(junk->root), junk->root);
+      TypeFree(type);
+   }
 
-    TypeTableCellFree(junk);
+   TypeTableCellFree(junk);
 }
 
 
@@ -528,32 +526,32 @@ Type_p TypeCopyWithReturn(TypeTable_p table, Type_p source,
 
 void TypePrintTSTP(FILE *out, TypeTable_p table, Type_p type)
 {
-    int i;
+   int i;
 
-    if (TypeIsConstant(type))
-    {
-        SortPrintTSTP(out, table->sort_table, type->domain_sort);
-    }
-    else
-    {
-        if (type->arity == 1)
-        {
-            SortPrintTSTP(out, table->sort_table, type->args[0]);
-        }
-        else
-        {
-            fputc('(', out);
-            SortPrintTSTP(out, table->sort_table, type->args[0]);
-            for (i = 1; i < type->arity; i++)
-            {
-                fputs("*", out);
-                SortPrintTSTP(out, table->sort_table, type->args[i]);
-            }
-            fputc(')', out);
-        }
-        fputc('>', out);
-        SortPrintTSTP(out, table->sort_table, type->domain_sort);
-    }
+   if (TypeIsConstant(type))
+   {
+      SortPrintTSTP(out, table->sort_table, type->domain_sort);
+   }
+   else
+   {
+      if (type->arity == 1)
+      {
+         SortPrintTSTP(out, table->sort_table, type->args[0]);
+      }
+      else
+      {
+         fputc('(', out);
+         SortPrintTSTP(out, table->sort_table, type->args[0]);
+         for (i = 1; i < type->arity; i++)
+         {
+            fputs("*", out);
+            SortPrintTSTP(out, table->sort_table, type->args[i]);
+         }
+         fputc(')', out);
+      }
+      fputc('>', out);
+      SortPrintTSTP(out, table->sort_table, type->domain_sort);
+   }
 }
 
 /*-----------------------------------------------------------------------

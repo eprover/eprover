@@ -1,26 +1,25 @@
 /*-----------------------------------------------------------------------
 
-File  : ccl_tformulae.h
+  File  : ccl_tformulae.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Declarations and definitions for full first-order formulae encoded
   as terms.
 
-  Copyright 2003, 2005 by the author.
+  Copyright 2003-2017 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Sat May 14 08:50:45 CEST 2005
-    New (translated from ccl_formulae.h)
+  Created: Sat May 14 08:50:45 CEST 2005 (translated from ccl_formulae.h)
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #ifndef CCL_TFORMULAE
 
@@ -43,19 +42,19 @@ typedef Term_p TFormula_p;
 #define TFORM_RENAME_LIMIT_STR     "24"
 #define TFORM_MINISCOPE_LIMIT_STR  "2147483648"
 
-#define   TFormulaHasSubForm1(sig, form)\
-          (SigQueryFuncProp((sig),(form)->f_code, FPFOFOp) &&\
-          ((form)->arity>=1))
-#define   TFormulaHasSubForm2(sig, form) \
-          (SigQueryFuncProp((sig),(form)->f_code, FPFOFOp) &&\
-          ((form)->arity>=2))
+#define   TFormulaHasSubForm1(sig, form)                        \
+   (SigQueryFuncProp((sig),(form)->f_code, FPFOFOp) &&          \
+    ((form)->arity>=1))
+#define   TFormulaHasSubForm2(sig, form)                        \
+   (SigQueryFuncProp((sig),(form)->f_code, FPFOFOp) &&          \
+    ((form)->arity>=2))
 
 #define   TFormulaIsBinary(form)     ((form)->arity==2)
 #define   TFormulaIsUnary(form)      ((form)->arity==1)
-#define   TFormulaIsQuantified(sig,form)\
-          ((form)->f_code == sig->qex_code || (form)->f_code == sig->qall_code )
-#define   TFormulaIsLiteral(sig,form)  \
-          ((form)->f_code == (sig)->eqn_code || (form)->f_code == (sig)->neqn_code)
+#define   TFormulaIsQuantified(sig,form)                                \
+   ((form)->f_code == sig->qex_code || (form)->f_code == sig->qall_code )
+#define   TFormulaIsLiteral(sig,form)                                   \
+   ((form)->f_code == (sig)->eqn_code || (form)->f_code == (sig)->neqn_code)
 
 
 bool TFormulaIsPropConst(Sig_p sig, TFormula_p form, bool positive);
@@ -71,6 +70,7 @@ TFormula_p TFormulaQuantorAlloc(TB_p bank, FunCode quantor, Term_p var, TFormula
 void       TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms, bool pcl);
 TFormula_p TFormulaTPTPParse(Scanner_p in, TB_p terms);
 TFormula_p TFormulaTSTPParse(Scanner_p in, TB_p terms);
+TFormula_p TcfTSTPParse(Scanner_p in, TB_p terms);
 
 #define    TFormulaEqual(f1,f2) ((f1)==(f2))
 bool       TFormulaVarIsFree(TB_p bank, TFormula_p form, Term_p var);

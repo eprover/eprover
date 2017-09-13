@@ -138,10 +138,11 @@ SortType SortTableInsert(SortTable_p table, char* sort_name)
 {
    StrTree_p cell = StrTreeFind(&(table->sort_index), sort_name);
 
+   //printf("Inserting %s\n", sort_name);
    if(!cell)
    {
       IntOrP sort_val;
-
+      //printf("New  cell %s\n", sort_name);
       sort_val.i_val = PStackGetSP(table->back_index);
       cell = StrTreeStore(&(table->sort_index), sort_name, sort_val, sort_val);
       assert(cell);
@@ -280,5 +281,3 @@ void SortTablePrint(FILE* out, SortTable_p table)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

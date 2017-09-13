@@ -362,15 +362,21 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
    FormulaProperties initial = CPInputFormula;
    WFormula_p        handle;
    ClauseInfo_p      info;
+   bool              is_tcf = false;
 
    info = ClauseInfoAlloc(NULL, DStrView(AktToken(in)->source),
                           AktToken(in)->line,
                           AktToken(in)->column);
 
-   AcceptInpId(in, "fof|tff");
+   if(TestInpId(in, "tcf"))
+   {
+      is_tcf = true;
+   }
+   AcceptInpId(in, "fof|tff|tcf");
    AcceptInpTok(in, OpenBracket);
    CheckInpTok(in, Name|PosInt|SQString);
    info->name = DStrCopy(AktToken(in)->literal);
+   // printf("# Parsing: %s\n", info->name);
    NextToken(in);
    AcceptInpTok(in, Comma);
 
@@ -405,7 +411,19 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
                          "plain|unknown");
       AcceptInpTok(in, Comma);
 
-      tform = TFormulaTSTPParse(in, terms);
+      // printf("# Formula Start!\n");
+
+      if(is_tcf)
+      {
+         // printf("# Tcf Start!\n");
+         tform = TcfTSTPParse(in, terms);
+         // printf("# Tcf Done!\n");
+      }
+      else
+      {
+         // printf("# TFormula Start!\n");
+         tform = TFormulaTSTPParse(in, terms);
+      }
       handle = WTFormulaAlloc(terms, tform);
    }
 
@@ -426,6 +444,7 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
    FormulaSetProp(handle, initial|CPInitial);
    handle->info = info;
 
+   // printf("# Formula complete!\n");
    return handle;
 }
 
@@ -452,12 +471,15 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
    bool is_untyped = TFormulaIsUntyped(form->tformula);
 
 
-   if(form->is_clause)
+   if(form->is_clause && is_untyped)
    {
       formula_kind = "cnf";
    }
-
-   if(!is_untyped)
+   else if(form->is_clause)
+   {
+      formula_kind = "tcf";
+   }
+   else if(!is_untyped)
    {
       formula_kind = "tff";
    }
