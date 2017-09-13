@@ -1,10 +1,10 @@
 /*-----------------------------------------------------------------------
 
-File  : cte_termbanks.h
+  File  : cte_termbanks.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Definitions for term banks - i.e. shared representations of terms as
   defined in cte_terms.h. Uses the same struct, but adds
@@ -16,22 +16,17 @@ Contents
   tree with key f_code.masked_properties.entry_nos_of_args and are
   implemented in cte_termtrees.[ch]
 
-Copyright 1998-2011 by the author.
+  Copyright 1998-2017 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Mon Sep 22 00:15:39 MET DST 1997
-    New
-<2> Wed Feb 25 18:16:34 MET 1998
-    Adapted for use of new term modules with shared variables
-<3> Sat Apr  6 21:42:35 CEST 2002
-    Changed for new rewriting
+  Created: Mon Sep 22 00:15:39 MET DST 1997
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #ifndef CTE_TERMBANKS
 
@@ -117,9 +112,9 @@ void    TBVarSetStoreFree(TB_p bank);
 
 long    TBTermNodes(TB_p bank);
 #define TBNonVarTermNodes(bank) TermCellStoreNodes(&(bank)->term_store)
-#define TBStorage(bank)\
-         (TERMCELL_DYN_MEM*(bank)->term_store.entries\
-         +(bank)->term_store.arg_count*TERMP_MEM)
+#define TBStorage(bank)                                 \
+   (TERMCELL_DYN_MEM*(bank)->term_store.entries         \
+    +(bank)->term_store.arg_count*TERMP_MEM)
 
 #define TBCellIdent(term) (TermIsVar(term)?(term)->f_code:term->entry_no)
 
@@ -127,10 +122,10 @@ long    TBTermNodes(TB_p bank);
 
 #define TBTermIsSubterm(super, term) TermIsSubterm((super),(term),DEREF_NEVER)
 
-#define TBTermIsTypeTerm(term)\
-        ((term)->weight==(DEFAULT_VWEIGHT+DEFAULT_FWEIGHT))
-#define TBTermIsXTypeTerm(term)\
-        (term->arity && ((term)->weight==(DEFAULT_FWEIGHT+(term)->arity*DEFAULT_VWEIGHT)))
+#define TBTermIsTypeTerm(term)                                  \
+   ((term)->weight==(DEFAULT_VWEIGHT+DEFAULT_FWEIGHT))
+#define TBTermIsXTypeTerm(term)                                         \
+   (term->arity && ((term)->weight==(DEFAULT_FWEIGHT+(term)->arity*DEFAULT_VWEIGHT)))
 #define TBTermIsGround(t) TermCellQueryProp((t), TPIsGround)
 
 Term_p  TBInsert(TB_p bank, Term_p term, DerefType deref);
@@ -149,8 +144,8 @@ Term_p  TBFind(TB_p bank, Term_p term);
 
 void    TBPrintBankInOrder(FILE* out, TB_p bank);
 void    TBPrintTermCompact(FILE* out, TB_p bank, Term_p term);
-#define TBPrintTermFull(out, bank, term) \
-        TermPrint((out), (term), (bank)->sig, DEREF_NEVER)
+#define TBPrintTermFull(out, bank, term)                        \
+   TermPrint((out), (term), (bank)->sig, DEREF_NEVER)
 void    TBPrintTerm(FILE* out, TB_p bank, Term_p term, bool fullterms);
 void    TBPrintBankTerms(FILE* out, TB_p bank);
 Term_p  TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop);
@@ -163,8 +158,8 @@ void    TBRefDelProp(TB_p bank, TermRef ref, TermProperties prop);
 
 long    TBTermDelPropCount(Term_p term, TermProperties prop);
 
-#define TBTermCellIsMarked(bank, term) \
-        (GiveProps((term),TPGarbageFlag)!=(bank)->garbage_state)
+#define TBTermCellIsMarked(bank, term)                                  \
+   (GiveProps((term),TPGarbageFlag)!=(bank)->garbage_state)
 void    TBGCMarkTerm(TB_p bank, Term_p term);
 long    TBGCSweep(TB_p bank);
 Term_p  TBCreateMinTerm(TB_p bank, FunCode min_const);
