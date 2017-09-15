@@ -440,7 +440,7 @@ void ClauseCollectVarConstr(LitOccTable_p p_table, LitOccTable_p
                             n_table, Clause_p clause, PTree_p
                             ground_terms, PDArray_p var_constr)
 {
-   Eqn_p     handle;
+   Eqn_p handle;
 
    for(handle = clause->literals; handle; handle = handle->next)
    {
