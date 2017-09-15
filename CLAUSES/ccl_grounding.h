@@ -1,10 +1,10 @@
 /*-----------------------------------------------------------------------
 
-File  : ccl_grounding.h
+  File  : ccl_grounding.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Definitions for functions (and possibly later data types)
   implementing grounding of near-propositional clause sets.
@@ -15,12 +15,11 @@ Contents
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Tue May 29 02:20:15 CEST 2001
-    New
+  Created: Tue May 29 02:20:15 CEST 2001
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #ifndef CCL_GROUNDING
 
@@ -75,12 +74,12 @@ typedef enum
    cpl_timeout,
    cpl_unknown
 }
-GroundSetState;
+   GroundSetState;
 
 typedef struct ground_set_cell
 {
    TB_p            lit_bank;  /* Only reference, not administered
-                  from here! */
+                                 from here! */
    long            max_literal; /* Maximal literal number */
    long            unit_no;
    GroundSetState  complete;    /* Is the proofstate complete? */
@@ -100,8 +99,8 @@ VarSetInst_p VarSetInstAlloc(Clause_p clause);
 void         VarSetInstFree(VarSetInst_p junk);
 
 VarSetInst_p VarSetConstrInstAlloc(LitOccTable_p p_table,
-               LitOccTable_p n_table, Clause_p
-               clause, PTree_p ground_terms);
+                                   LitOccTable_p n_table, Clause_p
+                                   clause, PTree_p ground_terms);
 
 void VarSetConstrInstFree(VarSetInst_p junk);
 
@@ -127,40 +126,35 @@ long        GroundSetMaxVar(GroundSet_p set);
 
 /* Dimacs format provers oven cannot cope with empty clauses, so we
    print them as a set of two trivially complementary clauses */
-#define     GroundSetDimacsPrintMembers(set)\
-            (GroundSetMembers(set)+(set)->non_units->empty_clauses)
+#define     GroundSetDimacsPrintMembers(set)                            \
+   (GroundSetMembers(set)+(set)->non_units->empty_clauses)
 #define     GroundSetLiterals(set) ((set)->unit_no+((set)->non_units->literals))
 bool        GroundSetInsert(GroundSet_p set, Clause_p clause);
 void        GroundSetPrint(FILE* out, GroundSet_p set);
 void        GroundSetPrintDimacs(FILE* out, GroundSet_p set);
 
 bool        GroundSetUnitSimplifyClause(GroundSet_p set, Clause_p clause,
-               bool subsume, bool resolve);
+                                        bool subsume, bool resolve);
 
 bool ClauseCreateGroundInstances(TB_p bank, Clause_p clause,
-             VarSetInst_p inst, GroundSet_p
-             groundset, bool subsume, bool
-             resolve, bool taut_check);
+                                 VarSetInst_p inst, GroundSet_p
+                                 groundset, bool subsume, bool
+                                 resolve, bool taut_check);
 
 bool ClauseSetCreateGroundInstances(TB_p bank, ClauseSet_p set,
-                GroundSet_p groundset, bool
-                subsume, bool resolve, bool
-                taut_check, long give_up);
+                                    GroundSet_p groundset, bool
+                                    subsume, bool resolve, bool
+                                    taut_check, long give_up);
 
 bool ClauseSetCreateConstrGroundInstances(TB_p bank, ClauseSet_p set,
-                 GroundSet_p groundset, bool
-                 subsume, bool resolve,
-                 bool taut_check, long
-                 give_up, long
-                 just_one_instance);
+                                          GroundSet_p groundset, bool
+                                          subsume, bool resolve,
+                                          bool taut_check, long
+                                          give_up, long
+                                          just_one_instance);
 
 #endif
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
