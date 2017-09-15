@@ -1,10 +1,10 @@
 /*-----------------------------------------------------------------------
 
-File  : cte_subst.c
+  File  : cte_subst.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   General functions for substitutions.
 
@@ -14,12 +14,12 @@ Contents
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Thu Mar  5 00:22:28 MET 1998
-    New
+  <1> Thu Mar  5 00:22:28 MET 1998
+  New
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include "cte_subst.h"
 #include "clb_plocalstacks.h"
@@ -191,7 +191,7 @@ PStackPointer SubstNormTerm(Term_p term, Subst_p subst, VarBank_p vars)
 /----------------------------------------------------------------------*/
 
 bool SubstBindingPrint(FILE* out, Term_p var, Sig_p sig, DerefType
-             deref)
+                       deref)
 {
    TermPrint(out, var, sig, DEREF_NEVER);
    fprintf(out, "<-");
@@ -232,12 +232,12 @@ long SubstPrint(FILE* out, Subst_p subst, Sig_p sig, DerefType deref)
    {
       SubstBindingPrint(out,  PStackElementP(subst,0), sig, deref);
       {
-    for(i=1; i<limit;i++)
-    {
-       fprintf(out, ", ");
-       SubstBindingPrint(out,  PStackElementP(subst,i), sig,
-               deref);
-    }
+         for(i=1; i<limit;i++)
+         {
+            fprintf(out, ", ");
+            SubstBindingPrint(out,  PStackElementP(subst,i), sig,
+                              deref);
+         }
       }
    }
    fprintf(out, "}");
@@ -283,7 +283,7 @@ bool SubstIsRenaming(Subst_p subst)
 
       if(!TermIsVar(inst))
       {
-    return false;
+         return false;
       }
       TermCellDelProp(inst, TPOpFlag);
    }
@@ -299,7 +299,7 @@ bool SubstIsRenaming(Subst_p subst)
 
       if(TermCellQueryProp(inst, TPOpFlag))
       {
-    return false;
+         return false;
       }
       TermCellSetProp(inst, TPOpFlag);
    }
@@ -356,16 +356,16 @@ void SubstSkolemizeTerm(Term_p term, Subst_p subst, Sig_p sig)
    {
       if(!(term->binding))
       {
-    PStackPushP(subst, term);
-    term->binding =
-       TermConstCellAlloc(SigGetNewSkolemCode(sig,0));
+         PStackPushP(subst, term);
+         term->binding =
+            TermConstCellAlloc(SigGetNewSkolemCode(sig,0));
       }
    }
    else
    {
       for(i=0;i<term->arity;i++)
       {
-    SubstSkolemizeTerm(term->args[i], subst, sig);
+         SubstSkolemizeTerm(term->args[i], subst, sig);
       }
    }
 }
@@ -400,15 +400,59 @@ void SubstCompleteInstance(Subst_p subst, Term_p term,
    {
       for(i=0;i<term->arity;i++)
       {
-    SubstCompleteInstance(subst, term->args[i], default_binding);
+         SubstCompleteInstance(subst, term->args[i], default_binding);
       }
    }
 }
 
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SubstPseudoGroundVarBank()
+//
+//   Create a substitution binding all variables of a given sort to
+//   the smallest (first) variable of that sort (to be interpreted as
+//   an anonymous constant - this can be seen as a complete
+//   (pseudo-)grounding of all terms, literals, and clauses using this
+//   variable bank.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Subst_p SubstPseudoGroundVarBank(VarBank_p vars)
+{
+   Subst_p subst = SubstAlloc();
+   VarBankStack_p varstack;
+   long i, j, size;
+   Term_p current, norm;
+
+   assert(vars);
+
+   for (i=0; i < PDArraySize(vars->stacks); i++)
+   {
+      varstack = PDArrayElementP(vars->stacks, i);
+      if (varstack)
+      {
+         size = PDArraySize(varstack);
+         if(size)
+         {
+            norm = PDArrayElementP(varstack,0);
+            for(j=1; j< size; j++)
+            {
+               current = PDArrayElementP(varstack,j);
+               SubstAddBinding(subst, current, norm);
+            }
+         }
+      }
+   }
+   return subst;
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-

@@ -1,28 +1,27 @@
 /*-----------------------------------------------------------------------
 
-File  : cte_subst.h
+  File  : cte_subst.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Definitions for substitutions. Substitutions are really represented
   by term cells with bindings. The substitution type is only a
   disguised stack keeping track of the bound variables for
   backtracking.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2017 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Thu Mar  5 00:22:28 MET 1998
-    New
+  Created: Thu Mar  5 00:22:28 MET 1998
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #ifndef CTE_SUBST
 
@@ -65,6 +64,7 @@ void          SubstBacktrackSkolem(Subst_p subst);
 void          SubstSkolemizeTerm(Term_p term, Subst_p subst, Sig_p sig);
 void          SubstCompleteInstance(Subst_p subst, Term_p term,
                                     Term_p default_binding);
+Subst_p       SubstPseudoGroundVarBank(VarBank_p vars);
 
 
 /*-----------------------------------------------------------------------
@@ -108,8 +108,3 @@ PStackPointer SubstAddBinding(Subst_p subst, Term_p var, Term_p bind)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

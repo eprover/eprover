@@ -631,6 +631,7 @@ long VarBankCardinal(VarBank_p bank)
 // Side Effects    : Modifies stack
 //
 /----------------------------------------------------------------------*/
+
 long VarBankCollectVars(VarBank_p bank, PStack_p into)
 {
    long res = 0;
@@ -655,6 +656,7 @@ long VarBankCollectVars(VarBank_p bank, PStack_p into)
 
    return res;
 }
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

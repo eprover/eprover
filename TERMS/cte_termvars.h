@@ -1,10 +1,10 @@
 /*-----------------------------------------------------------------------
 
-File  : cte_termvars.h
+  File  : cte_termvars.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Functions for the management of shared variables.
 
@@ -14,10 +14,10 @@ Contents
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Tue Feb 24 15:52:12 MET 1998
-    Rehacked with parts from the now obsolete cte_vartrans.h
+  Created: Tue Feb 24 15:52:12 MET 1998 (Rehacked with parts from the
+  now obsolete cte_vartrans.h)
 
 -----------------------------------------------------------------------*/
 
@@ -53,7 +53,8 @@ typedef struct varbankcell
    FunCode     max_var;    /* Largest variable ever created */
    PDArray_p   stacks;     /* Maps each sort to a bank of variables */
    StrTree_p   ext_index;  /* Associate names and cells */
-   PStack_p    env;        /* scoping environment for quantified ext variables */
+   PStack_p    env;        /* Scoping environment for quantified
+                            * external variables */
 }VarBankCell, *VarBank_p;
 
 
@@ -185,4 +186,3 @@ static __inline__ Term_p VarBankVarAssertAlloc(VarBank_p bank, FunCode f_code, S
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-

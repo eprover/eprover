@@ -126,7 +126,7 @@ long        GroundSetMaxVar(GroundSet_p set);
 
 /* Dimacs format provers oven cannot cope with empty clauses, so we
    print them as a set of two trivially complementary clauses */
-#define     GroundSetDimacsPrintMembers(set)                            \
+#define     GroundSetDimacsPrintMembers(set)                    \
    (GroundSetMembers(set)+(set)->non_units->empty_clauses)
 #define     GroundSetLiterals(set) ((set)->unit_no+((set)->non_units->literals))
 bool        GroundSetInsert(GroundSet_p set, Clause_p clause);
