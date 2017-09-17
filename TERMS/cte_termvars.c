@@ -621,10 +621,10 @@ long VarBankCardinal(VarBank_p bank)
 
 /*-----------------------------------------------------------------------
 //
-// Function: VarBankCollectVars
-// Collect all the variables of the bank into the given stack. Returns
-// the number of variables pushed in the bank.
+// Function: VarBankCollectVars()
 //
+//   Collect all the variables of the bank onto the given
+//   stack. Returns the total number of variables pushed onto the stack.
 //
 // Global Variables: -
 //
