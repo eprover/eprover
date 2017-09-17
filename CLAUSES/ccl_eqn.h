@@ -1,26 +1,23 @@
 /*-----------------------------------------------------------------------
 
-File  : ccl_eqn.h
+  File  : ccl_eqn.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   The termpair datatype: Rules, Equations, positive and negative
   literals.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2017 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Created: Fri Mar 13 17:09:13 MET 1998
 
-<1> Fri Mar 13 17:09:13 MET 1998
-    New
-
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #ifndef CCL_EQN
 
@@ -47,18 +44,18 @@ typedef enum
    EPIsOriented        =    16, /* s=>t  or s=t ? */
    EPMaxIsUpToDate     =    32, /* Orientation status is up to date */
    EPHasEquiv          =    64, /* Literal has been used in
-               multiset-comparison (and found an
-               equivalent partner) */
+                                   multiset-comparison (and found an
+                                   equivalent partner) */
    EPIsDominated       =   128, /* Literal is dominated by another one */
    EPDominates         =   EPIsDominated, /* Double use of this property
-                    in potentially maximal or
-                    minimal clauses */
+                                             in potentially maximal or
+                                             minimal clauses */
    EPIsUsed            =   256, /* For non-injective subsumption and
-               pattern-generation */
+                                   pattern-generation */
    EPGONatural         =   512, /* Set if left side is bigger in the
-               special (total) ground ordering
-               treating variables as small
-               constants */
+                                   special (total) ground ordering
+                                   treating variables as small
+                                   constants */
    EPIsSelected        =  1024, /* For selective superpostion */
    EPIsPMIntoLit       =  2048, /* For inheriting selection */
    EPFromClauseLit     =  4096, /* This comes from the from clause in
@@ -69,7 +66,7 @@ typedef enum
    EPLPatMinimal       = 16384, /* Eqn l=r is Pattern-Minimal */
    EPRPatMinimal       = 32768, /* Eqn r=l is Pattern-Minimal */
    EPIsSplitLit        = 65636  /* This literal has been introduced by
-               splitting */
+                                   splitting */
 }EqnProperties;
 
 
@@ -116,8 +113,8 @@ typedef enum
 #define EQN_CELL_MEM 24
 #else
 #define EQN_CELL_MEM   (MEMSIZE(EqnCell)+8) /* Just a hack because
-                      SPARCs seem to work
-                      like that... */
+                                               SPARCs seem to work
+                                               like that... */
 #endif
 
 
@@ -154,11 +151,11 @@ void    EqnFree(Eqn_p junk);
 #define EqnIsNegative(eq) (!(EqnQueryProp((eq), EPIsPositive)))
 #define EqnIsEquLit(eq)   EqnQueryProp((eq), EPIsEquLiteral)
 #define EqnIsMaximal(eq)  EqnQueryProp((eq), EPIsMaximal)
-#define EqnIsStrictlyMaximal(eq)                                        \
+#define EqnIsStrictlyMaximal(eq)                \
    EqnQueryProp((eq), EPIsStrictlyMaximal)
 
 #define EqnGetPredCode(eq) (EqnIsEquLit(eq)?0:(eq)->lterm->f_code)
-#define EqnIsSplitLit(eq)                       \
+#define EqnIsSplitLit(eq)                                               \
    (EqnIsEquLit(eq)?false:                                              \
     SigQueryFuncProp((eq)->bank->sig, EqnGetPredCode(eq), FPClSplitDef))
 
@@ -187,12 +184,12 @@ void    EqnFree(Eqn_p junk);
 #define EqnIsSimpleAnswer(eq)                                   \
    SigIsSimpleAnswerPred((eq)->bank->sig, (eq)->lterm->f_code)
 
-#define EqnTermSetProp(eq,prop) TermSetProp((eq)->lterm, DEREF_NEVER, (prop));\
+#define EqnTermSetProp(eq,prop) TermSetProp((eq)->lterm, DEREF_NEVER, (prop)); \
    TermSetProp((eq)->rterm, DEREF_NEVER, (prop))
 
 #define EqnTBTermDelPropCount(eq,prop)                  \
    (TBTermDelPropCount((eq)->lterm, (prop))+            \
-          TBTermDelPropCount((eq)->rterm, (prop)))
+    TBTermDelPropCount((eq)->rterm, (prop)))
 #define EqnTermDelProp(eqn, prop)                       \
    TermDelProp((eqn)->lterm, DEREF_NEVER, (prop));      \
    TermDelProp((eqn)->rterm, DEREF_NEVER, (prop))
@@ -201,14 +198,14 @@ Eqn_p   EqnParse(Scanner_p in, TB_p bank);
 Eqn_p   EqnFOFParse(Scanner_p in, TB_p bank);
 Term_p  EqnTermsTBTermEncode(TB_p bank, Term_p lterm, Term_p rterm,
                              bool positive, PatEqnDirection dir);
-#define EqnTBTermEncode(eqn, dir) \
-   EqnTermsTBTermEncode((eqn)->bank, (eqn)->lterm,      \
+#define EqnTBTermEncode(eqn, dir)                       \
+   EqnTermsTBTermEncode((eqn)->bank, (eqn)->lterm,                      \
                         (eqn)->rterm, EqnIsPositive(eqn), (dir))
 Eqn_p   EqnTBTermDecode(TB_p terms, Term_p eqn);
 Term_p  EqnTBTermParse(Scanner_p in, TB_p bank);
 void    EqnPrint(FILE* out, Eqn_p eq, bool negated, bool fullterms);
 #define EqnPrintOriginal(out, eq)               \
-        EqnPrint((out), (eq), normal, true)
+   EqnPrint((out), (eq), normal, true)
 void    EqnFOFPrint(FILE* out, Eqn_p eq, bool negated, bool fullterms, bool pcl);
 void    EqnTSTPPrint(FILE* out, Eqn_p eq, bool fullterms);
 
@@ -246,10 +243,10 @@ Eqn_p   EqnCanonize(Eqn_p eq);
 long    EqnStructWeightCompare(Eqn_p l1, Eqn_p l2);
 int     EqnCanonCompareRef(const void* lit1ref, const void* l2ref);
 long    EqnStructWeightLexCompare(Eqn_p l1, Eqn_p lit2);
-#define EqnEqualDirected(eq1, eq2) \
+#define EqnEqualDirected(eq1, eq2)                                      \
    (((eq1)->lterm == (eq2)->lterm) && ((eq1)->rterm == (eq2)->rterm))
 bool    EqnEqual(Eqn_p eq1,  Eqn_p eq2);
-#define LiteralEqual(eq1, eq2) \
+#define LiteralEqual(eq1, eq2)                                          \
    (PropsAreEquiv((eq1),(eq2),EPIsPositive) && EqnEqual((eq1),(eq2)))
 
 bool    EqnSubsumeDirected(Eqn_p subsumer, Eqn_p subsumed, Subst_p subst);
@@ -260,7 +257,7 @@ bool    LiteralSubsumeP(Eqn_p subsumer, Eqn_p subsumed);
 
 #define EqnEquiv(eq1, eq2) (EqnSubsumeP((eq1),(eq2))&&(EqnSubsumeP((eq2),(eq1)))
 
-#define LiteralEquiv(eq1, eq2) \
+#define LiteralEquiv(eq1, eq2)                                          \
    (((eq1)->positive == (eq2)->positive) && EqnEquiv((eq1),(eq2))
 
 bool    EqnUnifyDirected(Eqn_p eq1, Eqn_p eq2, Subst_p subst);
@@ -284,7 +281,7 @@ double  EqnWeight(Eqn_p eq, double max_multiplier, long vweight, long
    (TermStandardWeight((eqn)->lterm)+      \
     TermStandardWeight((eqn)->rterm))
 
-#define EqnSplitModStandardWeight(eqn)                  \
+#define EqnSplitModStandardWeight(eqn)                                  \
    EqnQueryProp(eqn,EPIsSplitLit|EPIsPositive)?                         \
    SigGetSpecialWeight(eqn->bank->sig, eqn->lterm->f_code):             \
    EqnStandardWeight(eqn)
