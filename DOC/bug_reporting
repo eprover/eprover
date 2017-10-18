@@ -1,0 +1,14 @@
+[REPORTING BUGS]
+.PP
+Report bugs to <schulz@eprover.org>. Please include the following, if
+possible:
+.PP
+* The version of the package as reported by \fBeprover \-\-version\fR.
+.PP
+* The operating system and version.
+.PP
+* The exact command line that leads to the unexpected behaviour.
+.PP
+* A description of what you expected and what actually happend.
+.PP
+* If possible all input files necessary to reproduce the bug.

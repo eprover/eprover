@@ -1,0 +1,269 @@
+FVIndexing will not work that well for _very_ large signatures (in
+fact, it does not deal nicely with growing signatures now. But we can
+_group_ function symbols and count/position them (easiest done using
+modulo on the FunCode!) and use them. 
+
+I've changed the rewrite system and eliminated the use for
+TPRestricted. Detection of rewritable processed clauses now takes the
+restriction into account, however, actual rewriting does not, i.e. the
+first rewrite will always win, even if it is a non-intantiated top
+level step. This is of course sound - is it also complete? It _should_
+be, by the same argument that unrestricted rewriting of unprocessed
+clauses is ok...think & test!  
+* In this context: Clean up the mess by removing dead code!
+-> No, it didn't, but I've now fixed it.
+
+Index for backwards-rewriting: Two separate indices, one for
+restricted terms, one for unrestricted ones. Data structure:
+(key->(term, clause*)) - position is not needed for this (or is it?
+Check current code if RW-link is always added). Abstract interface:
+Index returns candidate. One implementation: Return _all_ term/clause*
+pairs (i.e. no indexing), second: Use top-level hashing, third: use
+more advances path indexing.
+
+Index for unification: Store all candidate terms. Data structure:
+(key->(term, (clause, position)*))*. See above.
+
+Detect definitions and make defined symbols large in the precedence
+(instead of automatic unfolding).
+
+Beautify the handling of FVIndexing somehow (the trouble is that the
+index can only be computed when the preprocessed clause set is
+there...hmmm). 
+
+Evaluate --inherit-conjecture-pm-literals.
+
+
+Purity. For the equational case, use non-E-unifiability as the
+criterion (approximate it with universal equality). 
+
+Condensing.
+
+Flattening of ground terms (anti-unfolding ;-), useful for termination
+in many theories, and maybe in general.
+
+Contextual rewriting
+
+Use plain back propagation MLP for classification (n out of m
+multiplexer, error measure: Difference from wanted result (-1 for bad,
+1 for giid heuristics). For input of discrete features use individual
+neurons. Can e.g. finally encode the UEQ <= HEQ <= GEQ (if that makes
+sense...). Do a Python prototype soon!
+
+Rippling-like annotated terms for E. 
+
+Split only if clause has multiple inference literals. -> See below,
+stupid!
+
+Precedences giving different weights to frequencies in positive and
+negative literals (positive more seems better).
+
+Geoff's Idea: Goal-Directed heuristics, using similarity measures on
+frequency vectors. Alternatively: Giving bonus for smaller features.
+Simpler: Use frequency of symbols in goals to compute weights (symbols
+in goals are preferred). -> Simple version now done.
+
+Waldmeister-Style MixWeight: |max(s,t)| * (|s|+|t|+1) + |s| + |t|
+
+Caching term orderings:
+
+- Key: Only three kinds of instantiations (Never, Always, Once) ->
+  allows caching for each value
+- Cache in OCB (no additional arguments to pass)
+- Cache is of term cells affected
+- Term stores its cache entry in multi-function field (reuse
+  rewrite_hack). Invariant: Field is NULL unless used (side effect:
+  eliminate TPIsReplaced, use field instead)
+- Cache entry: For KBO array of weighs, for LPO array of trees of
+  other terms with comparison (key: (term, instatiation)).
+- After comparisons for a given instantiation are done, call
+  "ClearCache": Pop stack, delete cache entry for term, until stack is
+  empty. 
+
+Replace VarHash with simple PDArrays if time critical. As variables
+idents are small in practice, should work with little memory overhead,
+but much faster.
+
+Perhaps put outputlevel and stream into proofstate? Allows for more
+customization. Again perhaps: Give names to proofstates and termbanks
+and prefix output about operations on a state with the name?
+
+Improve distribute_eprover.awk: Insert included files at the correct
+place in the command line, store logfile with job -> We can run
+multiple test runs in one call of the script, and do not have to wait
+for late jobs before starting the next parameter set.
+
+Generate Term Orderings: 
+a) Try to orient axioms (perhaps try to orient pos-units from larger
+   to smaller terms, all other literals smaller to larger terms?)
+   - partially done, without preferred orientations.
+b) Run prover for n steps, take ordering which resulted in least
+   amount of new clauses
+c) For non-unit clauses: Only (or primarily) take positive literals
+   (=potential rewrite rules) into account.
+
+New Idea: Use "Trigger equations" with weight and ordering
+constraints! 
+
+Dynamically addjustable pick-given-ratio (test with Scheme first -->
+test done, successful)
+Syntax: n@m[+-*/]k  - initial value n
+                    - every m processed clauses modify n by
+		      adding/subtracting/multiplying with or
+		      dividing by k
+                    - Perhaps add limits?[a..b]?
+
+Rethink Simweight...return something based on the comparison of equal
+and unequal parts!
+
+
+gettermweight() is somewhat inefficient. If we don't need the weight
+multiplier, we can perhaps speed it up with a simple stack-based
+algorithm -> Ask Joachim!
+
+Consider unions to make term cells smaller
+
+Sort clauses (ordering on term numbers or pointers?) and unoriented
+equations, compare clauses, change clauseset to clause trees and keep
+only one copy of identical clauses --- will be difficult and perhaps
+unnecessary... (Probably won't do it -> now implemented for static
+clauses and called at intervalls)
+
+Extend index for literal subsumption? (Seems to be unnecessary)
+
+Implement Vampire-like pseudo-KBO: Weight, Vars, Word-Lexicographic
+
+Literal selection with P-Functions seems to work by inducing a fixed
+order on negative condition processing. If this is the case, perhaps
+we should not do selection for the case that there is only one
+negative literal, or the fact that a unique negative literal is
+maximal. On the other hand, perhaps we should use selection of
+positive literals for the case of a single negative literal even if we
+usually don't (yes, I do need to unify and rewrite all of the
+selection module at some time. Thanks for reminding me!)
+
+SelectComplexExceptRRHorn -> Check if the maximal literal is
+orientable, check if rule is range restricted with respect to this
+maximal term...
+
+
+Select DiffNeg orientable literal
+
+Select always unless UniqMaxPosOrientable (Waiting for results from
+the above to decide on base selection strategy)
+
+Select literals with variables not bound in any positive
+literal. Alternatively, select maximal negative literal if it exists
+(might have similar effect)
+
+Rework literal selection. Three parameters: Do I select, which
+negative one do I select, which positive one do I select (currently
+thats either none or all). Perhaps even better: 4 Parameters - decide
+on negative and positive selection individually. Do we want to select
+positive literals for paramodulation into other clauses as well? New
+selection concept?
+
+Use index for paramodulation from processed clauses into new ones -
+only needs maximal terms from maximal positive literals in clauses
+without selection
+
+If I need to touch all of this anyways: Get rid of the literal
+selection hack (selected literals are somewhat maximal) and cleanly
+separate these.
+
+
+Implement weight function that uses different penalties for
+unorientability of positive and negative literals -> Done, needs more
+testing 
+
+For orientable rewrite-rules, give a higher weight to minimal sides
+than to maximal ones (prefer rules that decrease term size).
+
+For split clauses, give the split literal the (default) weight of the
+split off literals. Requires quite some work, as it touches most
+evaluation functions, but should be worth it. -> Done for some
+evaluation functions, thrown out again. To complex, doesn't seem to
+help. 
+
+Always select positive split literals if we select at all! Then
+negative units can resolve against them...or we'd rather need a
+special simplifying inference for that kind of situation. -> We need
+this, and in general. It is complete (the resulting clause alone
+implies the parent, and is smaller). On the third hand, see Vampire
+paper in Proc. IJCAR for the different strategies implementable with
+splitting. Also think about contextual rewriting! -> Done for the
+simplification inference. Also read Alexandre's and Andrei's Paper!
+
+Use ordering constraints on clauses generated from unorientable
+literals or literals which are not uniquely maximal in the
+clause. If we use a unit with contraints for rewriting and the
+constraints to not evaluate to the trivial true case, we might need to
+drop constraints.
+
+Make some more measurements about relation of EqnCells to
+TermCells. If we really need less than one TermCell per EqnCell for
+hard problems, we should move the TermBank-Pointer from the EqnCell
+into the TermCell. This also would make many debugging operations
+simpler, because we have access to the signature from any shared term!
+
+Sharing factor used introspectively!
+
+Search for non-equational equivalences, add them as rewrite rules. Can
+we generalize this to equational literals? Does it make sense there or
+is it somehow subsumed by rewriting?
+
+Try to select (or unselect?) sort predicates of the form -p(X) for
+some p. On the plus side, may only instantiate X to terms of the
+correct sort. On the down side, perhap we can only prove sort for very
+specific instances and enumerate them. -> Done, never selecting them
+is (usually) good!
+
+For eground: Implement a special clause type taking up less
+memory. Implement the incomplete grounder by just taking the
+ungrounded system, instantiating everything to some constant (the most
+frequent constant?) and copying the set. (partially done)
+
+Literal sharing (with external sign?)! We can share lots of
+operations: 
+ - Unit subsumption and Simplify-Reflect
+ - Select the same literal throughout the proof state (we can have
+   local selection as well!). Problem: What happens if multiple
+   literals are selected then? Possible answer: Then prefer only
+   clauses with exactly one selected literal - if we solve this
+   literal (at least in the Horn case), it should vanish everywhere!
+   Or: Process only positive clauses and clauses with exactly one
+   selected literal.
+
+For eground:
+- Move to explicit constraints _stored with the clause_
+- Compute constraints before grounding, propagate to split clauses
+- Use unification constraints in clauses as they are generated!
+  I.e. use constraints from both clauses (might be more expensive, but
+  probably worth it).
+
+- Split only clauses with more than one inference literal -- nope, if
+  it can be split at all, then there are at least two maximal
+  literals!
+
+- New output levels:
+  0 - Nothing
+  1 - As currently
+  2 - Just the proof (don't know how...)
+  3 - A subset of all steps
+  4 - All inferences
+  5 - Additional information like subsumption, evaluation,...
+
+- Agressive split! -> Done
+- Agressive destructive resolution -> Done
+- Literal cut-off
+
+- Use the better data structure control we have thanks to the new
+  rewriting to keep better track of ordering comparisons in literals
+  and clauses.
+
+- Found and fixed a bug in the implementation of SoS. Redo the
+  corresponding test runs! Fix another bug: If a SoS clause is used in
+  simplification, then the child is SoS! Fix for E 0.71!
+
+
+

@@ -1,0 +1,13 @@
+This is what I think should be done to improve the prover
+significantly. If you have more suggestions, feel free to send them to
+schulz@informatik.tu-muenchen.de. There is also a TODO file that
+should remind me of things I have to work on (and which is usually
+out of sync).
+-----------------------------------------------------------------------
+
+There are two projects that can be separated from the main prover
+pretty well:
+
+- Automatic generation of term orderings (very partially done, talk to
+  me if you want to do something in this direction)
+

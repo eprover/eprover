@@ -1,0 +1,121 @@
+#!/bin/sh -f
+########################################################################
+#
+# File: configure
+#
+# Copyright 2008 Stephan Schulz, schulz@eprover.org
+#
+# Configuration script for the equational theorem prover E. 
+#
+# Usage: 
+#
+# Change directory to the top level directory of the E distribution
+# (where this file is located). Then run
+#
+# ./configure
+# 
+# This will prepare E for compilation in place, i.e. it will compile
+# the system in place and configure programs and scripts to find the
+# execuable in the directory E/PROVER. Installation in this way will
+# not affect any files outside the E distribution directory.
+#
+# If you want to install E in a special place in the file system, run 
+#
+# ./configure --bindir=/path/to/executables
+#
+# After running the configure script, you will usually type
+#
+# make
+#
+# to compile E and build all the executables. To actually install E
+# somewhere outside its build directory, type
+#
+# make install
+#
+# You will need the necessary access rights to move the executables
+# and possibly to create the requested directory.
+#
+# Have Fun!
+#
+#
+# Copyright 2008 Stephan Schulz, schulz@eprover.org
+#
+# This code is part of the support structure for the equational
+# theorem prover E. Visit
+#
+#  http://www.eprover.org
+#
+# for more information.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program ; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+# MA  02111-1307 USA 
+#
+# The original copyright holder can be contacted as
+#
+# Stephan Schulz (I4)
+# Technische Universitaet Muenchen
+# Institut fuer Informatik
+# Boltzmannstrasse 3
+# Garching bei Muenchen
+# Germany
+#
+# or via email (address above).
+#
+
+EXECPATH=`pwd`/PROVER
+MANPATH=`pwd`/DOC/man
+
+for argument in  "$@"; do
+    if [ "$argument" = "-h" -o "$argument" = "--help" ] ; then
+        echo "Usage: ./configure [options]"
+        echo ""
+        echo "Supported options:"
+        echo "--help"
+        echo "  Print this help."
+        echo "--bindir=<path>"
+        echo "  Configure E for running from <path>".
+        echo "--exec-prefix=<path>"
+        echo "  Equivalent to --bindir=<path>/bin".
+        echo "--man-prefix=<path>"
+        echo "  Specify directory for the man pages."
+        echo "--prefix=<path>"
+        echo "  Equivalent to --bindir=<path>/bin --mandir=<path>/man".
+        exit 0
+    else
+        opt=`echo "$argument"|cut -d= -f1`
+        arg=`echo "$argument"|cut -d= -f2-`
+        if [ "$opt" = "--bindir" ] ; then
+           EXECPATH=$arg
+        elif [ "$opt" = "--exec-prefix" ] ; then 
+           EXECPATH=$arg/bin 
+        elif [ "$opt" = "--man-prefix" ] ; then
+           MANPATH=$arg
+        elif [ "$opt" = "--prefix" ] ; then
+           EXECPATH=$arg/bin
+           MANPATH=$arg/man
+        else
+           echo "Unknown option " $argument
+           exit 1
+        fi        
+    fi
+done
+
+echo "Configuring with executable path "$EXECPATH
+
+echo $MANPATH
+sed -e "/^EXECPATH =.*/s|.*|EXECPATH = $EXECPATH|" -e "/^MANPATH =.*/s|.*|MANPATH = $MANPATH|"  Makefile.vars > tmpfile
+mv tmpfile Makefile.vars
+
+make config

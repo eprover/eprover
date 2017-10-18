@@ -1,0 +1,4534 @@
+%------------------------------------------------------------------------------
+% File     : MSC001-0 : TPTP v6.4.0. Released v3.2.0.
+% Domain   : Miscellaneous
+% Axioms   : Sets, numbers, lists, etc, that make up the Isabelle/HOL library
+% Version  : [Pau06] axioms.
+% English  : The files MSC001-[012].ax .ax are really about everything: sets,
+%            numbers, lists and all the other things that make up the basic
+%            Isabelle/HOL library. Also, many of the axioms in MSC001-0.ax
+%            describe the Isabelle/HOL type class hierarchy.
+
+% Refs     : [Pau06] Paulson (2006), Email to G. Sutcliffe
+% Source   : [Pau06]
+% Names    : common.ax [Pau06]
+
+% Status   : Satisfiable
+% Syntax   : Number of clauses     : 1159 (  17 non-Horn; 159 unit;1105 RR)
+%            Number of atoms       : 2189 (  36 equality)
+%            Maximal clause size   :    4 (   2 average)
+%            Number of predicates  :   81 (   0 propositional; 1-3 arity)
+%            Number of functors    :  100 (  12 constant; 0-6 arity)
+%            Number of variables   : 1351 (  66 singleton)
+%            Maximal term depth    :    4 (   1 average)
+% SPC      : 
+
+% Comments :
+%------------------------------------------------------------------------------
+cnf(cls_Datatype__Universe_OLeaf__inject__dest_0,axiom,
+    ( c_Datatype__Universe_OLeaf(V_x,T_a,T_b) != c_Datatype__Universe_OLeaf(V_y,T_a,T_b)
+    | V_x = V_y )).
+
+cnf(cls_Datatype__Universe_ONumb__inject__dest_0,axiom,
+    ( c_Datatype__Universe_ONumb(V_x,T_a,T_b) != c_Datatype__Universe_ONumb(V_y,T_a,T_b)
+    | V_x = V_y )).
+
+cnf(cls_Datatype__Universe_OdprodE_0,axiom,
+    ( ~ c_in(V_c,c_Datatype__Universe_Odprod(V_r,V_s,T_a,T_b),tc_prod(tc_set(tc_Datatype__Universe_Onode(T_a,T_b)),tc_set(tc_Datatype__Universe_Onode(T_a,T_b))))
+    | V_c = c_Pair(c_Datatype__Universe_OScons(c_Main_OdprodE__1(V_c,V_r,V_s,T_a,T_b),c_Main_OdprodE__2(V_c,V_r,V_s,T_a,T_b),T_a,T_b),c_Datatype__Universe_OScons(c_Main_OdprodE__3(V_c,V_r,V_s,T_a,T_b),c_Main_OdprodE__4(V_c,V_r,V_s,T_a,T_b),T_a,T_b),tc_set(tc_Datatype__Universe_Onode(T_a,T_b)),tc_set(tc_Datatype__Universe_Onode(T_a,T_b))) )).
+
+cnf(cls_Datatype__Universe_OdprodE_1,axiom,
+    ( ~ c_in(V_c,c_Datatype__Universe_Odprod(V_r,V_s,T_a,T_b),tc_prod(tc_set(tc_Datatype__Universe_Onode(T_a,T_b)),tc_set(tc_Datatype__Universe_Onode(T_a,T_b))))
+    | c_in(c_Pair(c_Main_OdprodE__2(V_c,V_r,V_s,T_a,T_b),c_Main_OdprodE__4(V_c,V_r,V_s,T_a,T_b),tc_set(tc_Datatype__Universe_Onode(T_a,T_b)),tc_set(tc_Datatype__Universe_Onode(T_a,T_b))),V_s,tc_prod(tc_set(tc_Datatype__Universe_Onode(T_a,T_b)),tc_set(tc_Datatype__Universe_Onode(T_a,T_b)))) )).
+
+cnf(cls_Datatype__Universe_OdprodE_2,axiom,
+    ( ~ c_in(V_c,c_Datatype__Universe_Odprod(V_r,V_s,T_a,T_b),tc_prod(tc_set(tc_Datatype__Universe_Onode(T_a,T_b)),tc_set(tc_Datatype__Universe_Onode(T_a,T_b))))
+    | c_in(c_Pair(c_Main_OdprodE__1(V_c,V_r,V_s,T_a,T_b),c_Main_OdprodE__3(V_c,V_r,V_s,T_a,T_b),tc_set(tc_Datatype__Universe_Onode(T_a,T_b)),tc_set(tc_Datatype__Universe_Onode(T_a,T_b))),V_r,tc_prod(tc_set(tc_Datatype__Universe_Onode(T_a,T_b)),tc_set(tc_Datatype__Universe_Onode(T_a,T_b)))) )).
+
+cnf(cls_Datatype__Universe_OdprodI_0,axiom,
+    ( ~ c_in(c_Pair(V_N,V_N_H,tc_set(tc_Datatype__Universe_Onode(T_a,T_b)),tc_set(tc_Datatype__Universe_Onode(T_a,T_b))),V_s,tc_prod(tc_set(tc_Datatype__Universe_Onode(T_a,T_b)),tc_set(tc_Datatype__Universe_Onode(T_a,T_b))))
+    | ~ c_in(c_Pair(V_M,V_M_H,tc_set(tc_Datatype__Universe_Onode(T_a,T_b)),tc_set(tc_Datatype__Universe_Onode(T_a,T_b))),V_r,tc_prod(tc_set(tc_Datatype__Universe_Onode(T_a,T_b)),tc_set(tc_Datatype__Universe_Onode(T_a,T_b))))
+    | c_in(c_Pair(c_Datatype__Universe_OScons(V_M,V_N,T_a,T_b),c_Datatype__Universe_OScons(V_M_H,V_N_H,T_a,T_b),tc_set(tc_Datatype__Universe_Onode(T_a,T_b)),tc_set(tc_Datatype__Universe_Onode(T_a,T_b))),c_Datatype__Universe_Odprod(V_r,V_s,T_a,T_b),tc_prod(tc_set(tc_Datatype__Universe_Onode(T_a,T_b)),tc_set(tc_Datatype__Universe_Onode(T_a,T_b)))) )).
+
+cnf(cls_Datatype__Universe_OdsumE_0,axiom,
+    ( ~ c_in(V_w,c_Datatype__Universe_Odsum(V_r,V_s,T_a,T_b),tc_prod(tc_set(tc_Datatype__Universe_Onode(T_a,T_b)),tc_set(tc_Datatype__Universe_Onode(T_a,T_b))))
+    | V_w = c_Pair(c_Datatype__Universe_OIn0(c_Main_OdsumE__1(V_r,V_w,T_a,T_b),T_a,T_b),c_Datatype__Universe_OIn0(c_Main_OdsumE__2(V_r,V_w,T_a,T_b),T_a,T_b),tc_set(tc_Datatype__Universe_Onode(T_a,T_b)),tc_set(tc_Datatype__Universe_Onode(T_a,T_b)))
+    | V_w = c_Pair(c_Datatype__Universe_OIn1(c_Main_OdsumE__3(V_s,V_w,T_a,T_b),T_a,T_b),c_Datatype__Universe_OIn1(c_Main_OdsumE__4(V_s,V_w,T_a,T_b),T_a,T_b),tc_set(tc_Datatype__Universe_Onode(T_a,T_b)),tc_set(tc_Datatype__Universe_Onode(T_a,T_b))) )).
+
+cnf(cls_Datatype__Universe_OdsumE_1,axiom,
+    ( ~ c_in(V_w,c_Datatype__Universe_Odsum(V_r,V_s,T_a,T_b),tc_prod(tc_set(tc_Datatype__Universe_Onode(T_a,T_b)),tc_set(tc_Datatype__Universe_Onode(T_a,T_b))))
+    | c_in(c_Pair(c_Main_OdsumE__3(V_s,V_w,T_a,T_b),c_Main_OdsumE__4(V_s,V_w,T_a,T_b),tc_set(tc_Datatype__Universe_Onode(T_a,T_b)),tc_set(tc_Datatype__Universe_Onode(T_a,T_b))),V_s,tc_prod(tc_set(tc_Datatype__Universe_Onode(T_a,T_b)),tc_set(tc_Datatype__Universe_Onode(T_a,T_b))))
+    | V_w = c_Pair(c_Datatype__Universe_OIn0(c_Main_OdsumE__1(V_r,V_w,T_a,T_b),T_a,T_b),c_Datatype__Universe_OIn0(c_Main_OdsumE__2(V_r,V_w,T_a,T_b),T_a,T_b),tc_set(tc_Datatype__Universe_Onode(T_a,T_b)),tc_set(tc_Datatype__Universe_Onode(T_a,T_b))) )).
+
+cnf(cls_Datatype__Universe_OdsumE_2,axiom,
+    ( ~ c_in(V_w,c_Datatype__Universe_Odsum(V_r,V_s,T_a,T_b),tc_prod(tc_set(tc_Datatype__Universe_Onode(T_a,T_b)),tc_set(tc_Datatype__Universe_Onode(T_a,T_b))))
+    | c_in(c_Pair(c_Main_OdsumE__1(V_r,V_w,T_a,T_b),c_Main_OdsumE__2(V_r,V_w,T_a,T_b),tc_set(tc_Datatype__Universe_Onode(T_a,T_b)),tc_set(tc_Datatype__Universe_Onode(T_a,T_b))),V_r,tc_prod(tc_set(tc_Datatype__Universe_Onode(T_a,T_b)),tc_set(tc_Datatype__Universe_Onode(T_a,T_b))))
+    | V_w = c_Pair(c_Datatype__Universe_OIn1(c_Main_OdsumE__3(V_s,V_w,T_a,T_b),T_a,T_b),c_Datatype__Universe_OIn1(c_Main_OdsumE__4(V_s,V_w,T_a,T_b),T_a,T_b),tc_set(tc_Datatype__Universe_Onode(T_a,T_b)),tc_set(tc_Datatype__Universe_Onode(T_a,T_b))) )).
+
+cnf(cls_Datatype__Universe_OdsumE_3,axiom,
+    ( ~ c_in(V_w,c_Datatype__Universe_Odsum(V_r,V_s,T_a,T_b),tc_prod(tc_set(tc_Datatype__Universe_Onode(T_a,T_b)),tc_set(tc_Datatype__Universe_Onode(T_a,T_b))))
+    | c_in(c_Pair(c_Main_OdsumE__1(V_r,V_w,T_a,T_b),c_Main_OdsumE__2(V_r,V_w,T_a,T_b),tc_set(tc_Datatype__Universe_Onode(T_a,T_b)),tc_set(tc_Datatype__Universe_Onode(T_a,T_b))),V_r,tc_prod(tc_set(tc_Datatype__Universe_Onode(T_a,T_b)),tc_set(tc_Datatype__Universe_Onode(T_a,T_b))))
+    | c_in(c_Pair(c_Main_OdsumE__3(V_s,V_w,T_a,T_b),c_Main_OdsumE__4(V_s,V_w,T_a,T_b),tc_set(tc_Datatype__Universe_Onode(T_a,T_b)),tc_set(tc_Datatype__Universe_Onode(T_a,T_b))),V_s,tc_prod(tc_set(tc_Datatype__Universe_Onode(T_a,T_b)),tc_set(tc_Datatype__Universe_Onode(T_a,T_b)))) )).
+
+cnf(cls_Datatype__Universe_Odsum__In0I_0,axiom,
+    ( ~ c_in(c_Pair(V_M,V_M_H,tc_set(tc_Datatype__Universe_Onode(T_a,T_b)),tc_set(tc_Datatype__Universe_Onode(T_a,T_b))),V_r,tc_prod(tc_set(tc_Datatype__Universe_Onode(T_a,T_b)),tc_set(tc_Datatype__Universe_Onode(T_a,T_b))))
+    | c_in(c_Pair(c_Datatype__Universe_OIn0(V_M,T_a,T_b),c_Datatype__Universe_OIn0(V_M_H,T_a,T_b),tc_set(tc_Datatype__Universe_Onode(T_a,T_b)),tc_set(tc_Datatype__Universe_Onode(T_a,T_b))),c_Datatype__Universe_Odsum(V_r,V_s,T_a,T_b),tc_prod(tc_set(tc_Datatype__Universe_Onode(T_a,T_b)),tc_set(tc_Datatype__Universe_Onode(T_a,T_b)))) )).
+
+cnf(cls_Datatype__Universe_Odsum__In1I_0,axiom,
+    ( ~ c_in(c_Pair(V_N,V_N_H,tc_set(tc_Datatype__Universe_Onode(T_a,T_b)),tc_set(tc_Datatype__Universe_Onode(T_a,T_b))),V_s,tc_prod(tc_set(tc_Datatype__Universe_Onode(T_a,T_b)),tc_set(tc_Datatype__Universe_Onode(T_a,T_b))))
+    | c_in(c_Pair(c_Datatype__Universe_OIn1(V_N,T_a,T_b),c_Datatype__Universe_OIn1(V_N_H,T_a,T_b),tc_set(tc_Datatype__Universe_Onode(T_a,T_b)),tc_set(tc_Datatype__Universe_Onode(T_a,T_b))),c_Datatype__Universe_Odsum(V_r,V_s,T_a,T_b),tc_prod(tc_set(tc_Datatype__Universe_Onode(T_a,T_b)),tc_set(tc_Datatype__Universe_Onode(T_a,T_b)))) )).
+
+cnf(cls_Datatype__Universe_OuprodE_0,axiom,
+    ( ~ c_in(V_c,c_Datatype__Universe_Ouprod(V_A,V_B,T_a,T_b),tc_set(tc_Datatype__Universe_Onode(T_a,T_b)))
+    | V_c = c_Datatype__Universe_OScons(c_Main_OuprodE__1(V_A,V_B,V_c,T_a,T_b),c_Main_OuprodE__2(V_A,V_B,V_c,T_a,T_b),T_a,T_b) )).
+
+cnf(cls_Datatype__Universe_OuprodE_1,axiom,
+    ( ~ c_in(V_c,c_Datatype__Universe_Ouprod(V_A,V_B,T_a,T_b),tc_set(tc_Datatype__Universe_Onode(T_a,T_b)))
+    | c_in(c_Main_OuprodE__2(V_A,V_B,V_c,T_a,T_b),V_B,tc_set(tc_Datatype__Universe_Onode(T_a,T_b))) )).
+
+cnf(cls_Datatype__Universe_OuprodE_2,axiom,
+    ( ~ c_in(V_c,c_Datatype__Universe_Ouprod(V_A,V_B,T_a,T_b),tc_set(tc_Datatype__Universe_Onode(T_a,T_b)))
+    | c_in(c_Main_OuprodE__1(V_A,V_B,V_c,T_a,T_b),V_A,tc_set(tc_Datatype__Universe_Onode(T_a,T_b))) )).
+
+cnf(cls_Datatype__Universe_OuprodI_0,axiom,
+    ( ~ c_in(V_N,V_B,tc_set(tc_Datatype__Universe_Onode(T_a,T_b)))
+    | ~ c_in(V_M,V_A,tc_set(tc_Datatype__Universe_Onode(T_a,T_b)))
+    | c_in(c_Datatype__Universe_OScons(V_M,V_N,T_a,T_b),c_Datatype__Universe_Ouprod(V_A,V_B,T_a,T_b),tc_set(tc_Datatype__Universe_Onode(T_a,T_b))) )).
+
+cnf(cls_Datatype__Universe_OusumE_0,axiom,
+    ( ~ c_in(V_u,c_Datatype__Universe_Ousum(V_A,V_B,T_a,T_b),tc_set(tc_Datatype__Universe_Onode(T_a,T_b)))
+    | V_u = c_Datatype__Universe_OIn0(c_Main_OusumE__1(V_A,V_u,T_a,T_b),T_a,T_b)
+    | V_u = c_Datatype__Universe_OIn1(c_Main_OusumE__2(V_B,V_u,T_a,T_b),T_a,T_b) )).
+
+cnf(cls_Datatype__Universe_OusumE_1,axiom,
+    ( ~ c_in(V_u,c_Datatype__Universe_Ousum(V_A,V_B,T_a,T_b),tc_set(tc_Datatype__Universe_Onode(T_a,T_b)))
+    | c_in(c_Main_OusumE__2(V_B,V_u,T_a,T_b),V_B,tc_set(tc_Datatype__Universe_Onode(T_a,T_b)))
+    | V_u = c_Datatype__Universe_OIn0(c_Main_OusumE__1(V_A,V_u,T_a,T_b),T_a,T_b) )).
+
+cnf(cls_Datatype__Universe_OusumE_2,axiom,
+    ( ~ c_in(V_u,c_Datatype__Universe_Ousum(V_A,V_B,T_a,T_b),tc_set(tc_Datatype__Universe_Onode(T_a,T_b)))
+    | c_in(c_Main_OusumE__1(V_A,V_u,T_a,T_b),V_A,tc_set(tc_Datatype__Universe_Onode(T_a,T_b)))
+    | V_u = c_Datatype__Universe_OIn1(c_Main_OusumE__2(V_B,V_u,T_a,T_b),T_a,T_b) )).
+
+cnf(cls_Datatype__Universe_OusumE_3,axiom,
+    ( ~ c_in(V_u,c_Datatype__Universe_Ousum(V_A,V_B,T_a,T_b),tc_set(tc_Datatype__Universe_Onode(T_a,T_b)))
+    | c_in(c_Main_OusumE__1(V_A,V_u,T_a,T_b),V_A,tc_set(tc_Datatype__Universe_Onode(T_a,T_b)))
+    | c_in(c_Main_OusumE__2(V_B,V_u,T_a,T_b),V_B,tc_set(tc_Datatype__Universe_Onode(T_a,T_b))) )).
+
+cnf(cls_Datatype__Universe_Ousum__In0I_0,axiom,
+    ( ~ c_in(V_M,V_A,tc_set(tc_Datatype__Universe_Onode(T_a,T_b)))
+    | c_in(c_Datatype__Universe_OIn0(V_M,T_a,T_b),c_Datatype__Universe_Ousum(V_A,V_B,T_a,T_b),tc_set(tc_Datatype__Universe_Onode(T_a,T_b))) )).
+
+cnf(cls_Datatype__Universe_Ousum__In1I_0,axiom,
+    ( ~ c_in(V_N,V_B,tc_set(tc_Datatype__Universe_Onode(T_a,T_b)))
+    | c_in(c_Datatype__Universe_OIn1(V_N,T_a,T_b),c_Datatype__Universe_Ousum(V_A,V_B,T_a,T_b),tc_set(tc_Datatype__Universe_Onode(T_a,T_b))) )).
+
+cnf(cls_Divides_Odvd__0__right_0,axiom,
+    ( c_Divides_Oop_Advd(V_m,c_0,tc_nat) )).
+
+cnf(cls_Divides_Odvd__1__left_0,axiom,
+    ( c_Divides_Oop_Advd(c_Suc(c_0),V_k,tc_nat) )).
+
+cnf(cls_Divides_Odvd__triv__left_0,axiom,
+    ( c_Divides_Oop_Advd(V_k,c_times(V_k,V_m,tc_nat),tc_nat) )).
+
+cnf(cls_Divides_Odvd__triv__right_0,axiom,
+    ( c_Divides_Oop_Advd(V_k,c_times(V_m,V_k,tc_nat),tc_nat) )).
+
+cnf(cls_Divides_Omod__eq__0D__dest_0,axiom,
+    ( c_Divides_Oop_Amod(V_m,V_d,tc_nat) != c_0
+    | V_m = c_times(V_d,c_Main_Omod__eq__0D__dest__1(V_d,V_m),tc_nat) )).
+
+cnf(cls_Finite__Set_OFinites_OemptyI_0,axiom,
+    ( c_in(c_emptyset,c_Finite__Set_OFinites,tc_set(T_a)) )).
+
+cnf(cls_Finite__Set_OFinites_OinsertI_0,axiom,
+    ( ~ c_in(V_A,c_Finite__Set_OFinites,tc_set(T_a))
+    | c_in(c_insert(V_a,V_A,T_a),c_Finite__Set_OFinites,tc_set(T_a)) )).
+
+cnf(cls_Finite__Set_Ofinite__Int_0,axiom,
+    ( ~ c_in(V_F,c_Finite__Set_OFinites,tc_set(T_a))
+    | c_in(c_inter(V_F,V_G,T_a),c_Finite__Set_OFinites,tc_set(T_a)) )).
+
+cnf(cls_Finite__Set_Ofinite__Int_1,axiom,
+    ( ~ c_in(V_G,c_Finite__Set_OFinites,tc_set(T_a))
+    | c_in(c_inter(V_F,V_G,T_a),c_Finite__Set_OFinites,tc_set(T_a)) )).
+
+cnf(cls_Finite__Set_Ofinite__Union_0,axiom,
+    ( ~ c_in(V_A,c_Finite__Set_OFinites,tc_set(tc_set(T_a)))
+    | c_in(c_Main_Ofinite__Union__1(V_A,T_a),V_A,tc_set(T_a))
+    | c_in(c_Union(V_A,T_a),c_Finite__Set_OFinites,tc_set(T_a)) )).
+
+cnf(cls_Finite__Set_Ofinite__Union_1,axiom,
+    ( ~ c_in(V_A,c_Finite__Set_OFinites,tc_set(tc_set(T_a)))
+    | ~ c_in(c_Main_Ofinite__Union__1(V_A,T_a),c_Finite__Set_OFinites,tc_set(T_a))
+    | c_in(c_Union(V_A,T_a),c_Finite__Set_OFinites,tc_set(T_a)) )).
+
+cnf(cls_GCD_Ogcd__dvd1_0,axiom,
+    ( c_Divides_Oop_Advd(c_GCD_Ogcd(c_Pair(V_m,V_n,tc_nat,tc_nat)),V_m,tc_nat) )).
+
+cnf(cls_GCD_Ogcd__dvd2_0,axiom,
+    ( c_Divides_Oop_Advd(c_GCD_Ogcd(c_Pair(V_m,V_n,tc_nat,tc_nat)),V_n,tc_nat) )).
+
+cnf(cls_Infinite__Set_Oatmost__one__unique_0,axiom,
+    ( ~ c_Infinite__Set_Oatmost__one(V_S,T_a)
+    | ~ c_in(V_y,V_S,T_a)
+    | ~ c_in(V_x,V_S,T_a)
+    | V_y = V_x )).
+
+cnf(cls_IntDef_Onegative__zle_0,axiom,
+    ( c_lessequals(c_uminus(c_IntDef_Oint(V_n),tc_IntDef_Oint),c_IntDef_Oint(V_m),tc_IntDef_Oint) )).
+
+cnf(cls_IntDef_Onegative__zless_0,axiom,
+    ( c_less(c_uminus(c_IntDef_Oint(c_Suc(V_n)),tc_IntDef_Oint),c_IntDef_Oint(V_m),tc_IntDef_Oint) )).
+
+cnf(cls_IntDiv_Ozdvd__0__right_0,axiom,
+    ( c_Divides_Oop_Advd(V_m,c_0,tc_IntDef_Oint) )).
+
+cnf(cls_IntDiv_Ozdvd__1__left_0,axiom,
+    ( c_Divides_Oop_Advd(c_1,V_m,tc_IntDef_Oint) )).
+
+cnf(cls_IntDiv_Ozdvd__triv__left_0,axiom,
+    ( c_Divides_Oop_Advd(V_k,c_times(V_k,V_m,tc_IntDef_Oint),tc_IntDef_Oint) )).
+
+cnf(cls_IntDiv_Ozdvd__triv__right_0,axiom,
+    ( c_Divides_Oop_Advd(V_k,c_times(V_m,V_k,tc_IntDef_Oint),tc_IntDef_Oint) )).
+
+cnf(cls_IntDiv_Ozmod__eq__0D__dest_0,axiom,
+    ( c_Divides_Oop_Amod(V_m,V_d,tc_IntDef_Oint) != c_0
+    | V_m = c_times(V_d,c_Main_Ozmod__eq__0D__dest__1(V_d,V_m),tc_IntDef_Oint) )).
+
+cnf(cls_List_Odistinct__remdups_0,axiom,
+    ( c_List_Odistinct(c_List_Oremdups(V_xs,T_a),T_a) )).
+
+cnf(cls_List_Ofinite__set_0,axiom,
+    ( c_in(c_List_Oset(V_xs,T_a),c_Finite__Set_OFinites,tc_set(T_a)) )).
+
+cnf(cls_List_Oin__listsD__dest_0,axiom,
+    ( ~ c_in(V_xs,c_List_Olists(V_A,T_a),tc_List_Olist(T_a))
+    | ~ c_in(V_U,c_List_Oset(V_xs,T_a),T_a)
+    | c_in(V_U,V_A,T_a) )).
+
+cnf(cls_List_Oin__listsI_0,axiom,
+    ( c_in(V_xs,c_List_Olists(V_A,T_a),tc_List_Olist(T_a))
+    | c_in(c_Main_Oin__listsI__1(V_A,V_xs,T_a),c_List_Oset(V_xs,T_a),T_a) )).
+
+cnf(cls_List_Oin__listsI_1,axiom,
+    ( ~ c_in(c_Main_Oin__listsI__1(V_A,V_xs,T_a),V_A,T_a)
+    | c_in(V_xs,c_List_Olists(V_A,T_a),tc_List_Olist(T_a)) )).
+
+cnf(cls_List_Olength__remdups__leq_0,axiom,
+    ( c_lessequals(c_Nat_Osize(c_List_Oremdups(V_xs,T_a),tc_List_Olist(T_a)),c_Nat_Osize(V_xs,tc_List_Olist(T_a)),tc_nat) )).
+
+cnf(cls_List_Olistrel__Cons1_0,axiom,
+    ( ~ c_in(c_Pair(c_List_Olist_OCons(V_y,V_ys,T_a),V_xs,tc_List_Olist(T_a),tc_List_Olist(T_a)),c_List_Olistrel(V_r,T_a),tc_prod(tc_List_Olist(T_a),tc_List_Olist(T_a)))
+    | V_xs = c_List_Olist_OCons(c_Main_Olistrel__Cons1__1(V_r,V_xs,V_y,V_ys,T_a),c_Main_Olistrel__Cons1__2(V_r,V_xs,V_y,V_ys,T_a),T_a) )).
+
+cnf(cls_List_Olistrel__Cons1_1,axiom,
+    ( ~ c_in(c_Pair(c_List_Olist_OCons(V_y,V_ys,T_a),V_xs,tc_List_Olist(T_a),tc_List_Olist(T_a)),c_List_Olistrel(V_r,T_a),tc_prod(tc_List_Olist(T_a),tc_List_Olist(T_a)))
+    | c_in(c_Pair(V_ys,c_Main_Olistrel__Cons1__2(V_r,V_xs,V_y,V_ys,T_a),tc_List_Olist(T_a),tc_List_Olist(T_a)),c_List_Olistrel(V_r,T_a),tc_prod(tc_List_Olist(T_a),tc_List_Olist(T_a))) )).
+
+cnf(cls_List_Olistrel__Cons1_2,axiom,
+    ( ~ c_in(c_Pair(c_List_Olist_OCons(V_y,V_ys,T_a),V_xs,tc_List_Olist(T_a),tc_List_Olist(T_a)),c_List_Olistrel(V_r,T_a),tc_prod(tc_List_Olist(T_a),tc_List_Olist(T_a)))
+    | c_in(c_Pair(V_y,c_Main_Olistrel__Cons1__1(V_r,V_xs,V_y,V_ys,T_a),T_a,T_a),V_r,tc_prod(T_a,T_a)) )).
+
+cnf(cls_List_Olistrel__Cons2_0,axiom,
+    ( ~ c_in(c_Pair(V_xs,c_List_Olist_OCons(V_y,V_ys,T_a),tc_List_Olist(T_a),tc_List_Olist(T_a)),c_List_Olistrel(V_r,T_a),tc_prod(tc_List_Olist(T_a),tc_List_Olist(T_a)))
+    | V_xs = c_List_Olist_OCons(c_Main_Olistrel__Cons2__1(V_r,V_xs,V_y,V_ys,T_a),c_Main_Olistrel__Cons2__2(V_r,V_xs,V_y,V_ys,T_a),T_a) )).
+
+cnf(cls_List_Olistrel__Cons2_1,axiom,
+    ( ~ c_in(c_Pair(V_xs,c_List_Olist_OCons(V_y,V_ys,T_a),tc_List_Olist(T_a),tc_List_Olist(T_a)),c_List_Olistrel(V_r,T_a),tc_prod(tc_List_Olist(T_a),tc_List_Olist(T_a)))
+    | c_in(c_Pair(c_Main_Olistrel__Cons2__2(V_r,V_xs,V_y,V_ys,T_a),V_ys,tc_List_Olist(T_a),tc_List_Olist(T_a)),c_List_Olistrel(V_r,T_a),tc_prod(tc_List_Olist(T_a),tc_List_Olist(T_a))) )).
+
+cnf(cls_List_Olistrel__Cons2_2,axiom,
+    ( ~ c_in(c_Pair(V_xs,c_List_Olist_OCons(V_y,V_ys,T_a),tc_List_Olist(T_a),tc_List_Olist(T_a)),c_List_Olistrel(V_r,T_a),tc_prod(tc_List_Olist(T_a),tc_List_Olist(T_a)))
+    | c_in(c_Pair(c_Main_Olistrel__Cons2__1(V_r,V_xs,V_y,V_ys,T_a),V_y,T_a,T_a),V_r,tc_prod(T_a,T_a)) )).
+
+cnf(cls_List_Olistrel__Nil1_0,axiom,
+    ( ~ c_in(c_Pair(c_List_Olist_ONil,V_xs,tc_List_Olist(T_a),tc_List_Olist(T_a)),c_List_Olistrel(V_r,T_a),tc_prod(tc_List_Olist(T_a),tc_List_Olist(T_a)))
+    | V_xs = c_List_Olist_ONil )).
+
+cnf(cls_List_Olistrel__Nil2_0,axiom,
+    ( ~ c_in(c_Pair(V_xs,c_List_Olist_ONil,tc_List_Olist(T_a),tc_List_Olist(T_a)),c_List_Olistrel(V_r,T_a),tc_prod(tc_List_Olist(T_a),tc_List_Olist(T_a)))
+    | V_xs = c_List_Olist_ONil )).
+
+cnf(cls_List_OlistsE_0,axiom,
+    ( ~ c_in(c_List_Olist_OCons(V_x,V_l,T_a),c_List_Olists(V_A,T_a),tc_List_Olist(T_a))
+    | c_in(V_l,c_List_Olists(V_A,T_a),tc_List_Olist(T_a)) )).
+
+cnf(cls_List_OlistsE_1,axiom,
+    ( ~ c_in(c_List_Olist_OCons(V_x,V_l,T_a),c_List_Olists(V_A,T_a),tc_List_Olist(T_a))
+    | c_in(V_x,V_A,T_a) )).
+
+cnf(cls_List_Olists_OCons_0,axiom,
+    ( ~ c_in(V_a,V_A,T_a)
+    | ~ c_in(V_l,c_List_Olists(V_A,T_a),tc_List_Olist(T_a))
+    | c_in(c_List_Olist_OCons(V_a,V_l,T_a),c_List_Olists(V_A,T_a),tc_List_Olist(T_a)) )).
+
+cnf(cls_List_Olists_ONil_0,axiom,
+    ( c_in(c_List_Olist_ONil,c_List_Olists(V_A,T_a),tc_List_Olist(T_a)) )).
+
+cnf(cls_List_Owf__lenlex_0,axiom,
+    ( ~ c_Wellfounded__Recursion_Owf(V_r,T_a)
+    | c_Wellfounded__Recursion_Owf(c_List_Olenlex(V_r,T_a),tc_List_Olist(T_a)) )).
+
+cnf(cls_List_Owf__lex_0,axiom,
+    ( ~ c_Wellfounded__Recursion_Owf(V_r,T_a)
+    | c_Wellfounded__Recursion_Owf(c_List_Olex(V_r,T_a),tc_List_Olist(T_a)) )).
+
+cnf(cls_Nat_Ole0_0,axiom,
+    ( c_lessequals(c_0,V_n,tc_nat) )).
+
+cnf(cls_Nat_OlessI_0,axiom,
+    ( c_less(V_n,c_Suc(V_n),tc_nat) )).
+
+cnf(cls_Nat_Oless__irrefl_0,axiom,
+    ( ~ c_less(V_n,V_n,tc_nat) )).
+
+cnf(cls_Nat_Ozero__less__Suc_0,axiom,
+    ( c_less(c_0,c_Suc(V_n),tc_nat) )).
+
+cnf(cls_Orderings_Oorder__class_Oaxioms__1_0,axiom,
+    ( ~ class_Orderings_Oorder(T_a)
+    | c_lessequals(V_x,V_x,T_a) )).
+
+cnf(cls_Relation_ODomainE_0,axiom,
+    ( ~ c_in(V_a,c_Relation_ODomain(V_r,T_a,T_b),T_a)
+    | c_in(c_Pair(V_a,c_Main_ODomainE__1(V_a,V_r,T_a,T_b),T_a,T_b),V_r,tc_prod(T_a,T_b)) )).
+
+cnf(cls_Relation_ODomainI_0,axiom,
+    ( ~ c_in(c_Pair(V_a,V_b,T_a,T_b),V_r,tc_prod(T_a,T_b))
+    | c_in(V_a,c_Relation_ODomain(V_r,T_a,T_b),T_a) )).
+
+cnf(cls_Relation_OIdE_0,axiom,
+    ( ~ c_in(V_p,c_Relation_OId,tc_prod(T_a,T_a))
+    | V_p = c_Pair(c_Main_OIdE__1(V_p,T_a),c_Main_OIdE__1(V_p,T_a),T_a,T_a) )).
+
+cnf(cls_Relation_OImageE_0,axiom,
+    ( ~ c_in(V_b,c_Relation_OImage(V_r,V_A,T_b,T_a),T_a)
+    | c_in(c_Main_OImageE__1(V_A,V_b,V_r,T_b,T_a),V_A,T_b) )).
+
+cnf(cls_Relation_OImageE_1,axiom,
+    ( ~ c_in(V_b,c_Relation_OImage(V_r,V_A,T_b,T_a),T_a)
+    | c_in(c_Pair(c_Main_OImageE__1(V_A,V_b,V_r,T_b,T_a),V_b,T_b,T_a),V_r,tc_prod(T_b,T_a)) )).
+
+cnf(cls_Relation_OImageI_0,axiom,
+    ( ~ c_in(V_a,V_A,T_a)
+    | ~ c_in(c_Pair(V_a,V_b,T_a,T_b),V_r,tc_prod(T_a,T_b))
+    | c_in(V_b,c_Relation_OImage(V_r,V_A,T_a,T_b),T_b) )).
+
+cnf(cls_Relation_ORangeE_0,axiom,
+    ( ~ c_in(V_b,c_Relation_ORange(V_r,T_b,T_a),T_a)
+    | c_in(c_Pair(c_Main_ORangeE__1(V_b,V_r,T_a,T_b),V_b,T_b,T_a),V_r,tc_prod(T_b,T_a)) )).
+
+cnf(cls_Relation_ORangeI_0,axiom,
+    ( ~ c_in(c_Pair(V_a,V_b,T_a,T_b),V_r,tc_prod(T_a,T_b))
+    | c_in(V_b,c_Relation_ORange(V_r,T_a,T_b),T_b) )).
+
+cnf(cls_Relation_OconverseE_0,axiom,
+    ( ~ c_in(V_yx,c_Relation_Oconverse(V_r,T_b,T_a),tc_prod(T_a,T_b))
+    | c_in(c_Pair(c_Main_OconverseE__1(V_r,V_yx,T_b,T_a),c_Main_OconverseE__2(V_r,V_yx,T_b,T_a),T_b,T_a),V_r,tc_prod(T_b,T_a)) )).
+
+cnf(cls_Relation_OconverseE_1,axiom,
+    ( ~ c_in(V_yx,c_Relation_Oconverse(V_r,T_b,T_a),tc_prod(T_a,T_b))
+    | V_yx = c_Pair(c_Main_OconverseE__2(V_r,V_yx,T_b,T_a),c_Main_OconverseE__1(V_r,V_yx,T_b,T_a),T_a,T_b) )).
+
+cnf(cls_Relation_OdiagE_0,axiom,
+    ( ~ c_in(V_c,c_Relation_Odiag(V_A,T_a),tc_prod(T_a,T_a))
+    | V_c = c_Pair(c_Main_OdiagE__1(V_A,V_c,T_a),c_Main_OdiagE__1(V_A,V_c,T_a),T_a,T_a) )).
+
+cnf(cls_Relation_OdiagE_1,axiom,
+    ( ~ c_in(V_c,c_Relation_Odiag(V_A,T_a),tc_prod(T_a,T_a))
+    | c_in(c_Main_OdiagE__1(V_A,V_c,T_a),V_A,T_a) )).
+
+cnf(cls_Relation_OdiagI_0,axiom,
+    ( ~ c_in(V_a,V_A,T_a)
+    | c_in(c_Pair(V_a,V_a,T_a,T_a),c_Relation_Odiag(V_A,T_a),tc_prod(T_a,T_a)) )).
+
+cnf(cls_Relation_Orel__compE_0,axiom,
+    ( ~ c_in(V_xz,c_Relation_Orel__comp(V_r,V_s,T_c,T_b,T_a),tc_prod(T_a,T_b))
+    | c_in(c_Pair(c_Main_Orel__compE__2(V_r,V_s,V_xz,T_c,T_b,T_a),c_Main_Orel__compE__3(V_r,V_s,V_xz,T_c,T_b,T_a),T_c,T_b),V_r,tc_prod(T_c,T_b)) )).
+
+cnf(cls_Relation_Orel__compE_1,axiom,
+    ( ~ c_in(V_xz,c_Relation_Orel__comp(V_r,V_s,T_c,T_b,T_a),tc_prod(T_a,T_b))
+    | c_in(c_Pair(c_Main_Orel__compE__1(V_r,V_s,V_xz,T_c,T_b,T_a),c_Main_Orel__compE__2(V_r,V_s,V_xz,T_c,T_b,T_a),T_a,T_c),V_s,tc_prod(T_a,T_c)) )).
+
+cnf(cls_Relation_Orel__compE_2,axiom,
+    ( ~ c_in(V_xz,c_Relation_Orel__comp(V_r,V_s,T_c,T_b,T_a),tc_prod(T_a,T_b))
+    | V_xz = c_Pair(c_Main_Orel__compE__1(V_r,V_s,V_xz,T_c,T_b,T_a),c_Main_Orel__compE__3(V_r,V_s,V_xz,T_c,T_b,T_a),T_a,T_b) )).
+
+cnf(cls_Relation_Orel__compI_0,axiom,
+    ( ~ c_in(c_Pair(V_b,V_c,T_b,T_c),V_r,tc_prod(T_b,T_c))
+    | ~ c_in(c_Pair(V_a,V_b,T_a,T_b),V_s,tc_prod(T_a,T_b))
+    | c_in(c_Pair(V_a,V_c,T_a,T_c),c_Relation_Orel__comp(V_r,V_s,T_b,T_c,T_a),tc_prod(T_a,T_c)) )).
+
+cnf(cls_SetInterval_Ofinite__atLeastAtMost_0,axiom,
+    ( c_in(c_SetInterval_OatLeastAtMost(V_l,V_u,tc_nat),c_Finite__Set_OFinites,tc_set(tc_nat)) )).
+
+cnf(cls_SetInterval_Ofinite__atLeastAtMost__int_0,axiom,
+    ( c_in(c_SetInterval_OatLeastAtMost(V_l,V_u,tc_IntDef_Oint),c_Finite__Set_OFinites,tc_set(tc_IntDef_Oint)) )).
+
+cnf(cls_SetInterval_Ofinite__atLeastLessThan_0,axiom,
+    ( c_in(c_SetInterval_OatLeastLessThan(V_l,V_u,tc_nat),c_Finite__Set_OFinites,tc_set(tc_nat)) )).
+
+cnf(cls_SetInterval_Ofinite__atLeastLessThan__int_0,axiom,
+    ( c_in(c_SetInterval_OatLeastLessThan(V_l,V_u,tc_IntDef_Oint),c_Finite__Set_OFinites,tc_set(tc_IntDef_Oint)) )).
+
+cnf(cls_SetInterval_Ofinite__atMost_0,axiom,
+    ( c_in(c_SetInterval_OatMost(V_k,tc_nat),c_Finite__Set_OFinites,tc_set(tc_nat)) )).
+
+cnf(cls_SetInterval_Ofinite__greaterThanAtMost_0,axiom,
+    ( c_in(c_SetInterval_OgreaterThanAtMost(V_l,V_u,tc_nat),c_Finite__Set_OFinites,tc_set(tc_nat)) )).
+
+cnf(cls_SetInterval_Ofinite__greaterThanAtMost__int_0,axiom,
+    ( c_in(c_SetInterval_OgreaterThanAtMost(V_l,V_u,tc_IntDef_Oint),c_Finite__Set_OFinites,tc_set(tc_IntDef_Oint)) )).
+
+cnf(cls_SetInterval_Ofinite__greaterThanLessThan_0,axiom,
+    ( c_in(c_SetInterval_OgreaterThanLessThan(V_l,V_u,tc_nat),c_Finite__Set_OFinites,tc_set(tc_nat)) )).
+
+cnf(cls_SetInterval_Ofinite__greaterThanLessThan__int_0,axiom,
+    ( c_in(c_SetInterval_OgreaterThanLessThan(V_l,V_u,tc_IntDef_Oint),c_Finite__Set_OFinites,tc_set(tc_IntDef_Oint)) )).
+
+cnf(cls_SetInterval_Ofinite__lessThan_0,axiom,
+    ( c_in(c_SetInterval_OlessThan(V_k,tc_nat),c_Finite__Set_OFinites,tc_set(tc_nat)) )).
+
+cnf(cls_Set_OInterI_0,axiom,
+    ( c_in(V_A,c_Inter(V_C,T_a),T_a)
+    | c_in(c_Main_OInterI__1(V_A,V_C,T_a),V_C,tc_set(T_a)) )).
+
+cnf(cls_Set_OInterI_1,axiom,
+    ( ~ c_in(V_A,c_Main_OInterI__1(V_A,V_C,T_a),T_a)
+    | c_in(V_A,c_Inter(V_C,T_a),T_a) )).
+
+cnf(cls_Set_OUNIV__I_0,axiom,
+    ( c_in(V_x,c_UNIV,T_a) )).
+
+cnf(cls_Set_OUnionE_0,axiom,
+    ( ~ c_in(V_A,c_Union(V_C,T_a),T_a)
+    | c_in(c_Main_OUnionE__1(V_A,V_C,T_a),V_C,tc_set(T_a)) )).
+
+cnf(cls_Set_OUnionE_1,axiom,
+    ( ~ c_in(V_A,c_Union(V_C,T_a),T_a)
+    | c_in(V_A,c_Main_OUnionE__1(V_A,V_C,T_a),T_a) )).
+
+cnf(cls_Set_Oempty__subsetI_0,axiom,
+    ( c_lessequals(c_emptyset,V_A,tc_set(T_a)) )).
+
+cnf(cls_Set_OpsubsetE_0,axiom,
+    ( ~ c_less(V_A,V_B,tc_set(T_a))
+    | ~ c_lessequals(V_B,V_A,tc_set(T_a)) )).
+
+cnf(cls_Set_OpsubsetE_1,axiom,
+    ( ~ c_less(V_A,V_B,tc_set(T_a))
+    | c_lessequals(V_A,V_B,tc_set(T_a)) )).
+
+cnf(cls_Set_OpsubsetI_0,axiom,
+    ( ~ c_lessequals(V_A,V_B,tc_set(T_a))
+    | c_less(V_A,V_B,tc_set(T_a))
+    | V_A = V_B )).
+
+cnf(cls_Set_OsingletonD__dest_0,axiom,
+    ( ~ c_in(V_b,c_insert(V_a,c_emptyset,T_a),T_a)
+    | V_b = V_a )).
+
+cnf(cls_Set_OsingletonI_0,axiom,
+    ( c_in(V_a,c_insert(V_a,c_emptyset,T_a),T_a) )).
+
+cnf(cls_Set_Osingleton__inject__dest_0,axiom,
+    ( c_insert(V_a,c_emptyset,T_a) != c_insert(V_b,c_emptyset,T_a)
+    | V_a = V_b )).
+
+cnf(cls_Set_OsubsetD_0,axiom,
+    ( ~ c_in(V_c,V_A,T_a)
+    | ~ c_lessequals(V_A,V_B,tc_set(T_a))
+    | c_in(V_c,V_B,T_a) )).
+
+cnf(cls_Set_OsubsetI_0,axiom,
+    ( c_in(c_Main_OsubsetI__1(V_A,V_B,T_a),V_A,T_a)
+    | c_lessequals(V_A,V_B,tc_set(T_a)) )).
+
+cnf(cls_Set_OsubsetI_1,axiom,
+    ( ~ c_in(c_Main_OsubsetI__1(V_A,V_B,T_a),V_B,T_a)
+    | c_lessequals(V_A,V_B,tc_set(T_a)) )).
+
+cnf(cls_Set_Osubset__antisym_0,axiom,
+    ( ~ c_lessequals(V_B,V_A,tc_set(T_a))
+    | ~ c_lessequals(V_A,V_B,tc_set(T_a))
+    | V_A = V_B )).
+
+cnf(cls_Set_Osubset__refl_0,axiom,
+    ( c_lessequals(V_A,V_A,tc_set(T_a)) )).
+
+cnf(cls_Sum__Type_OInlI_0,axiom,
+    ( ~ c_in(V_a,V_A,T_a)
+    | c_in(c_Sum__Type_OInl(V_a,T_a,T_b),c_Sum__Type_OPlus(V_A,V_B,T_a,T_b),tc_sum(T_a,T_b)) )).
+
+cnf(cls_Sum__Type_OInrI_0,axiom,
+    ( ~ c_in(V_b,V_B,T_a)
+    | c_in(c_Sum__Type_OInr(V_b,T_a,T_b),c_Sum__Type_OPlus(V_A,V_B,T_b,T_a),tc_sum(T_b,T_a)) )).
+
+cnf(cls_Sum__Type_OPlusE_0,axiom,
+    ( ~ c_in(V_u,c_Sum__Type_OPlus(V_A,V_B,T_a,T_b),tc_sum(T_a,T_b))
+    | V_u = c_Sum__Type_OInl(c_Main_OPlusE__1(V_A,V_u,T_a,T_b),T_a,T_b)
+    | V_u = c_Sum__Type_OInr(c_Main_OPlusE__2(V_B,V_u,T_b,T_a),T_b,T_a) )).
+
+cnf(cls_Sum__Type_OPlusE_1,axiom,
+    ( ~ c_in(V_u,c_Sum__Type_OPlus(V_A,V_B,T_a,T_b),tc_sum(T_a,T_b))
+    | c_in(c_Main_OPlusE__2(V_B,V_u,T_b,T_a),V_B,T_b)
+    | V_u = c_Sum__Type_OInl(c_Main_OPlusE__1(V_A,V_u,T_a,T_b),T_a,T_b) )).
+
+cnf(cls_Sum__Type_OPlusE_2,axiom,
+    ( ~ c_in(V_u,c_Sum__Type_OPlus(V_A,V_B,T_a,T_b),tc_sum(T_a,T_b))
+    | c_in(c_Main_OPlusE__1(V_A,V_u,T_a,T_b),V_A,T_a)
+    | V_u = c_Sum__Type_OInr(c_Main_OPlusE__2(V_B,V_u,T_b,T_a),T_b,T_a) )).
+
+cnf(cls_Sum__Type_OPlusE_3,axiom,
+    ( ~ c_in(V_u,c_Sum__Type_OPlus(V_A,V_B,T_a,T_b),tc_sum(T_a,T_b))
+    | c_in(c_Main_OPlusE__1(V_A,V_u,T_a,T_b),V_A,T_a)
+    | c_in(c_Main_OPlusE__2(V_B,V_u,T_b,T_a),V_B,T_b) )).
+
+cnf(cls_Transitive__Closure_Or__into__rtrancl_0,axiom,
+    ( ~ c_in(V_p,V_r,tc_prod(T_a,T_a))
+    | c_in(V_p,c_Transitive__Closure_Ortrancl(V_r,T_a),tc_prod(T_a,T_a)) )).
+
+cnf(cls_Transitive__Closure_Ortrancl_Ortrancl__refl_0,axiom,
+    ( c_in(c_Pair(V_a,V_a,T_a,T_a),c_Transitive__Closure_Ortrancl(V_r,T_a),tc_prod(T_a,T_a)) )).
+
+cnf(cls_Transitive__Closure_Otrancl_Or__into__trancl_0,axiom,
+    ( ~ c_in(c_Pair(V_a,V_b,T_a,T_a),V_r,tc_prod(T_a,T_a))
+    | c_in(c_Pair(V_a,V_b,T_a,T_a),c_Transitive__Closure_Otrancl(V_r,T_a),tc_prod(T_a,T_a)) )).
+
+cnf(cls_Transitive__Closure_Otrancl__into__rtrancl_0,axiom,
+    ( ~ c_in(c_Pair(V_a,V_b,T_a,T_a),c_Transitive__Closure_Otrancl(V_r,T_a),tc_prod(T_a,T_a))
+    | c_in(c_Pair(V_a,V_b,T_a,T_a),c_Transitive__Closure_Ortrancl(V_r,T_a),tc_prod(T_a,T_a)) )).
+
+cnf(cls_Wellfounded__Recursion_Owf__empty_0,axiom,
+    ( c_Wellfounded__Recursion_Owf(c_emptyset,T_a) )).
+
+cnf(cls_Wellfounded__Relations_Otrans__less__than_0,axiom,
+    ( c_Relation_Otrans(c_Wellfounded__Relations_Oless__than,tc_nat) )).
+
+cnf(cls_Wellfounded__Relations_Otrans__lex__prod_0,axiom,
+    ( ~ c_Relation_Otrans(V_R2,T_b)
+    | ~ c_Relation_Otrans(V_R1,T_a)
+    | c_Relation_Otrans(c_Wellfounded__Relations_Olex__prod(V_R1,V_R2,T_a,T_b),tc_prod(T_a,T_b)) )).
+
+cnf(cls_Wellfounded__Relations_Owf__less__than_0,axiom,
+    ( c_Wellfounded__Recursion_Owf(c_Wellfounded__Relations_Oless__than,tc_nat) )).
+
+cnf(cls_Wellfounded__Relations_Owf__lex__prod_0,axiom,
+    ( ~ c_Wellfounded__Recursion_Owf(V_rb,T_b)
+    | ~ c_Wellfounded__Recursion_Owf(V_ra,T_a)
+    | c_Wellfounded__Recursion_Owf(c_Wellfounded__Relations_Olex__prod(V_ra,V_rb,T_a,T_b),tc_prod(T_a,T_b)) )).
+
+cnf(clsarity_Datatype__Ooption_0,axiom,
+    ( class_Finite__Set_Ofinite(tc_Datatype_Ooption(T_1))
+    | ~ class_Finite__Set_Ofinite(T_1) )).
+
+cnf(clsarity_IntDef__Oint_0,axiom,
+    ( class_HOL_Ominus(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_1,axiom,
+    ( class_HOL_Oone(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_10,axiom,
+    ( class_Ring__and__Field_Osemiring(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_11,axiom,
+    ( class_Ring__and__Field_Ocomm__semiring(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_12,axiom,
+    ( class_OrderedGroup_Ocomm__monoid__add(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_13,axiom,
+    ( class_Ring__and__Field_Osemiring__0(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_14,axiom,
+    ( class_Ring__and__Field_Ocomm__semiring__0(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_15,axiom,
+    ( class_OrderedGroup_Ocancel__semigroup__add(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_16,axiom,
+    ( class_OrderedGroup_Ocancel__ab__semigroup__add(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_17,axiom,
+    ( class_OrderedGroup_Oab__group__add(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_18,axiom,
+    ( class_Ring__and__Field_Osemiring__0__cancel(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_19,axiom,
+    ( class_Ring__and__Field_Oring(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_2,axiom,
+    ( class_HOL_Oplus(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_20,axiom,
+    ( class_Ring__and__Field_Ocomm__semiring__0__cancel(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_21,axiom,
+    ( class_Ring__and__Field_Ocomm__ring(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_22,axiom,
+    ( class_Ring__and__Field_Oaxclass__0__neq__1(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_23,axiom,
+    ( class_OrderedGroup_Omonoid__mult(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_24,axiom,
+    ( class_OrderedGroup_Ocomm__monoid__mult(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_25,axiom,
+    ( class_Ring__and__Field_Osemiring__1(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_26,axiom,
+    ( class_Ring__and__Field_Ocomm__semiring__1(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_27,axiom,
+    ( class_Ring__and__Field_Osemiring__1__cancel(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_28,axiom,
+    ( class_Ring__and__Field_Oring__1(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_29,axiom,
+    ( class_Ring__and__Field_Ocomm__semiring__1__cancel(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_3,axiom,
+    ( class_HOL_Otimes(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_30,axiom,
+    ( class_Ring__and__Field_Ocomm__ring__1(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_31,axiom,
+    ( class_Orderings_Oorder(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_32,axiom,
+    ( class_LOrder_Omeet__semilorder(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_33,axiom,
+    ( class_LOrder_Ojoin__semilorder(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_34,axiom,
+    ( class_LOrder_Olorder(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_35,axiom,
+    ( class_Orderings_Olinorder(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_36,axiom,
+    ( class_OrderedGroup_Opordered__ab__semigroup__add(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_37,axiom,
+    ( class_OrderedGroup_Opordered__cancel__ab__semigroup__add(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_38,axiom,
+    ( class_OrderedGroup_Opordered__ab__semigroup__add__imp__le(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_39,axiom,
+    ( class_OrderedGroup_Oordered__cancel__ab__semigroup__add(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_4,axiom,
+    ( class_HOL_Ozero(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_40,axiom,
+    ( class_Ring__and__Field_Opordered__semiring(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_41,axiom,
+    ( class_Ring__and__Field_Opordered__cancel__semiring(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_42,axiom,
+    ( class_Ring__and__Field_Oordered__semiring__strict(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_43,axiom,
+    ( class_Ring__and__Field_Opordered__comm__semiring(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_44,axiom,
+    ( class_Ring__and__Field_Opordered__cancel__comm__semiring(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_45,axiom,
+    ( class_Ring__and__Field_Oordered__comm__semiring__strict(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_46,axiom,
+    ( class_Ring__and__Field_Oaxclass__abs__if(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_47,axiom,
+    ( class_OrderedGroup_Opordered__ab__group__add(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_48,axiom,
+    ( class_OrderedGroup_Olordered__ab__group(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_49,axiom,
+    ( class_Ring__and__Field_Opordered__ring(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_5,axiom,
+    ( class_Orderings_Oord(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_50,axiom,
+    ( class_OrderedGroup_Olordered__ab__group__abs(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_51,axiom,
+    ( class_OrderedGroup_Olordered__ab__group__meet(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_52,axiom,
+    ( class_OrderedGroup_Olordered__ab__group__join(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_53,axiom,
+    ( class_Ring__and__Field_Olordered__ring(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_54,axiom,
+    ( class_Ring__and__Field_Oaxclass__no__zero__divisors(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_55,axiom,
+    ( class_Ring__and__Field_Oordered__ring__strict(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_56,axiom,
+    ( class_Ring__and__Field_Oordered__semidom(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_57,axiom,
+    ( class_Ring__and__Field_Oidom(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_58,axiom,
+    ( class_Ring__and__Field_Oordered__idom(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_59,axiom,
+    ( class_Numeral_Onumber(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_6,axiom,
+    ( class_OrderedGroup_Osemigroup__add(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_60,axiom,
+    ( class_Numeral_Onumber__ring(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_61,axiom,
+    ( class_Divides_Odiv(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_62,axiom,
+    ( class_Nat_Opower(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_63,axiom,
+    ( class_Power_Orecpower(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_64,axiom,
+    ( class_Parity_Oeven__odd(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_7,axiom,
+    ( class_OrderedGroup_Oab__semigroup__add(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_8,axiom,
+    ( class_OrderedGroup_Osemigroup__mult(tc_IntDef_Oint) )).
+
+cnf(clsarity_IntDef__Oint_9,axiom,
+    ( class_OrderedGroup_Oab__semigroup__mult(tc_IntDef_Oint) )).
+
+cnf(clsarity_Product____Type__Ounit_0,axiom,
+    ( class_Finite__Set_Ofinite(tc_Product__Type_Ounit) )).
+
+cnf(clsarity_bool_0,axiom,
+    ( class_Finite__Set_Ofinite(tc_bool) )).
+
+cnf(clsarity_fun_0,axiom,
+    ( class_Finite__Set_Ofinite(tc_fun(T_2,T_1))
+    | ~ class_Finite__Set_Ofinite(T_1)
+    | ~ class_Finite__Set_Ofinite(T_2) )).
+
+cnf(clsarity_fun_1,axiom,
+    ( class_Nat_Opower(tc_fun(T_2,T_1)) )).
+
+cnf(clsarity_nat_0,axiom,
+    ( class_HOL_Oone(tc_nat) )).
+
+cnf(clsarity_nat_1,axiom,
+    ( class_HOL_Ozero(tc_nat) )).
+
+cnf(clsarity_nat_10,axiom,
+    ( class_HOL_Oplus(tc_nat) )).
+
+cnf(clsarity_nat_11,axiom,
+    ( class_HOL_Otimes(tc_nat) )).
+
+cnf(clsarity_nat_12,axiom,
+    ( class_Nat_Opower(tc_nat) )).
+
+cnf(clsarity_nat_13,axiom,
+    ( class_Ring__and__Field_Oaxclass__0__neq__1(tc_nat) )).
+
+cnf(clsarity_nat_14,axiom,
+    ( class_OrderedGroup_Osemigroup__add(tc_nat) )).
+
+cnf(clsarity_nat_15,axiom,
+    ( class_OrderedGroup_Oab__semigroup__add(tc_nat) )).
+
+cnf(clsarity_nat_16,axiom,
+    ( class_OrderedGroup_Osemigroup__mult(tc_nat) )).
+
+cnf(clsarity_nat_17,axiom,
+    ( class_OrderedGroup_Oab__semigroup__mult(tc_nat) )).
+
+cnf(clsarity_nat_18,axiom,
+    ( class_Ring__and__Field_Osemiring(tc_nat) )).
+
+cnf(clsarity_nat_19,axiom,
+    ( class_Ring__and__Field_Ocomm__semiring(tc_nat) )).
+
+cnf(clsarity_nat_2,axiom,
+    ( class_Orderings_Oord(tc_nat) )).
+
+cnf(clsarity_nat_20,axiom,
+    ( class_OrderedGroup_Ocomm__monoid__add(tc_nat) )).
+
+cnf(clsarity_nat_21,axiom,
+    ( class_Ring__and__Field_Osemiring__0(tc_nat) )).
+
+cnf(clsarity_nat_22,axiom,
+    ( class_Ring__and__Field_Ocomm__semiring__0(tc_nat) )).
+
+cnf(clsarity_nat_23,axiom,
+    ( class_OrderedGroup_Omonoid__mult(tc_nat) )).
+
+cnf(clsarity_nat_24,axiom,
+    ( class_OrderedGroup_Ocomm__monoid__mult(tc_nat) )).
+
+cnf(clsarity_nat_25,axiom,
+    ( class_Ring__and__Field_Osemiring__1(tc_nat) )).
+
+cnf(clsarity_nat_26,axiom,
+    ( class_Ring__and__Field_Ocomm__semiring__1(tc_nat) )).
+
+cnf(clsarity_nat_27,axiom,
+    ( class_OrderedGroup_Ocancel__semigroup__add(tc_nat) )).
+
+cnf(clsarity_nat_28,axiom,
+    ( class_OrderedGroup_Ocancel__ab__semigroup__add(tc_nat) )).
+
+cnf(clsarity_nat_29,axiom,
+    ( class_Ring__and__Field_Osemiring__0__cancel(tc_nat) )).
+
+cnf(clsarity_nat_3,axiom,
+    ( class_Orderings_Oorder(tc_nat) )).
+
+cnf(clsarity_nat_30,axiom,
+    ( class_Ring__and__Field_Osemiring__1__cancel(tc_nat) )).
+
+cnf(clsarity_nat_31,axiom,
+    ( class_Ring__and__Field_Ocomm__semiring__0__cancel(tc_nat) )).
+
+cnf(clsarity_nat_32,axiom,
+    ( class_Ring__and__Field_Ocomm__semiring__1__cancel(tc_nat) )).
+
+cnf(clsarity_nat_33,axiom,
+    ( class_OrderedGroup_Opordered__ab__semigroup__add(tc_nat) )).
+
+cnf(clsarity_nat_34,axiom,
+    ( class_OrderedGroup_Opordered__cancel__ab__semigroup__add(tc_nat) )).
+
+cnf(clsarity_nat_35,axiom,
+    ( class_OrderedGroup_Opordered__ab__semigroup__add__imp__le(tc_nat) )).
+
+cnf(clsarity_nat_36,axiom,
+    ( class_OrderedGroup_Oordered__cancel__ab__semigroup__add(tc_nat) )).
+
+cnf(clsarity_nat_37,axiom,
+    ( class_Ring__and__Field_Opordered__semiring(tc_nat) )).
+
+cnf(clsarity_nat_38,axiom,
+    ( class_Ring__and__Field_Opordered__cancel__semiring(tc_nat) )).
+
+cnf(clsarity_nat_39,axiom,
+    ( class_Ring__and__Field_Oordered__semiring__strict(tc_nat) )).
+
+cnf(clsarity_nat_4,axiom,
+    ( class_LOrder_Omeet__semilorder(tc_nat) )).
+
+cnf(clsarity_nat_40,axiom,
+    ( class_Ring__and__Field_Opordered__comm__semiring(tc_nat) )).
+
+cnf(clsarity_nat_41,axiom,
+    ( class_Ring__and__Field_Opordered__cancel__comm__semiring(tc_nat) )).
+
+cnf(clsarity_nat_42,axiom,
+    ( class_Ring__and__Field_Oordered__comm__semiring__strict(tc_nat) )).
+
+cnf(clsarity_nat_43,axiom,
+    ( class_Ring__and__Field_Oordered__semidom(tc_nat) )).
+
+cnf(clsarity_nat_44,axiom,
+    ( class_Divides_Odiv(tc_nat) )).
+
+cnf(clsarity_nat_45,axiom,
+    ( class_Power_Orecpower(tc_nat) )).
+
+cnf(clsarity_nat_46,axiom,
+    ( class_Numeral_Onumber(tc_nat) )).
+
+cnf(clsarity_nat_47,axiom,
+    ( class_Parity_Oeven__odd(tc_nat) )).
+
+cnf(clsarity_nat_5,axiom,
+    ( class_LOrder_Ojoin__semilorder(tc_nat) )).
+
+cnf(clsarity_nat_6,axiom,
+    ( class_LOrder_Olorder(tc_nat) )).
+
+cnf(clsarity_nat_7,axiom,
+    ( class_Orderings_Olinorder(tc_nat) )).
+
+cnf(clsarity_nat_8,axiom,
+    ( class_Wellfounded__Recursion_Owellorder(tc_nat) )).
+
+cnf(clsarity_nat_9,axiom,
+    ( class_HOL_Ominus(tc_nat) )).
+
+cnf(clsarity_prod_0,axiom,
+    ( class_Finite__Set_Ofinite(tc_prod(T_2,T_1))
+    | ~ class_Finite__Set_Ofinite(T_1)
+    | ~ class_Finite__Set_Ofinite(T_2) )).
+
+cnf(clsarity_set_0,axiom,
+    ( class_HOL_Ominus(tc_set(T_1)) )).
+
+cnf(clsarity_set_1,axiom,
+    ( class_Orderings_Oord(tc_set(T_1)) )).
+
+cnf(clsarity_set_2,axiom,
+    ( class_Orderings_Oorder(tc_set(T_1)) )).
+
+cnf(clsarity_set_3,axiom,
+    ( class_Finite__Set_Ofinite(tc_set(T_1))
+    | ~ class_Finite__Set_Ofinite(T_1) )).
+
+cnf(clsarity_set_4,axiom,
+    ( class_Nat_Opower(tc_set(T_1)) )).
+
+cnf(clsarity_sum_0,axiom,
+    ( class_Finite__Set_Ofinite(tc_sum(T_2,T_1))
+    | ~ class_Finite__Set_Ofinite(T_1)
+    | ~ class_Finite__Set_Ofinite(T_2) )).
+
+cnf(clsrel_LOrder_Ojoin__semilorder_0,axiom,
+    ( ~ class_LOrder_Ojoin__semilorder(T)
+    | class_Orderings_Oord(T) )).
+
+cnf(clsrel_LOrder_Ojoin__semilorder_1,axiom,
+    ( ~ class_LOrder_Ojoin__semilorder(T)
+    | class_Orderings_Oorder(T) )).
+
+cnf(clsrel_LOrder_Olorder_0,axiom,
+    ( ~ class_LOrder_Olorder(T)
+    | class_LOrder_Omeet__semilorder(T) )).
+
+cnf(clsrel_LOrder_Olorder_1,axiom,
+    ( ~ class_LOrder_Olorder(T)
+    | class_Orderings_Oord(T) )).
+
+cnf(clsrel_LOrder_Olorder_2,axiom,
+    ( ~ class_LOrder_Olorder(T)
+    | class_Orderings_Oorder(T) )).
+
+cnf(clsrel_LOrder_Olorder_3,axiom,
+    ( ~ class_LOrder_Olorder(T)
+    | class_LOrder_Ojoin__semilorder(T) )).
+
+cnf(clsrel_LOrder_Omeet__semilorder_0,axiom,
+    ( ~ class_LOrder_Omeet__semilorder(T)
+    | class_Orderings_Oord(T) )).
+
+cnf(clsrel_LOrder_Omeet__semilorder_1,axiom,
+    ( ~ class_LOrder_Omeet__semilorder(T)
+    | class_Orderings_Oorder(T) )).
+
+cnf(clsrel_Numeral_Onumber__ring_0,axiom,
+    ( ~ class_Numeral_Onumber__ring(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_Numeral_Onumber__ring_1,axiom,
+    ( ~ class_Numeral_Onumber__ring(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_Numeral_Onumber__ring_10,axiom,
+    ( ~ class_Numeral_Onumber__ring(T)
+    | class_Ring__and__Field_Osemiring__0(T) )).
+
+cnf(clsrel_Numeral_Onumber__ring_11,axiom,
+    ( ~ class_Numeral_Onumber__ring(T)
+    | class_Ring__and__Field_Ocomm__semiring__0(T) )).
+
+cnf(clsrel_Numeral_Onumber__ring_12,axiom,
+    ( ~ class_Numeral_Onumber__ring(T)
+    | class_HOL_Ominus(T) )).
+
+cnf(clsrel_Numeral_Onumber__ring_13,axiom,
+    ( ~ class_Numeral_Onumber__ring(T)
+    | class_OrderedGroup_Ocancel__semigroup__add(T) )).
+
+cnf(clsrel_Numeral_Onumber__ring_14,axiom,
+    ( ~ class_Numeral_Onumber__ring(T)
+    | class_OrderedGroup_Ocancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_Numeral_Onumber__ring_15,axiom,
+    ( ~ class_Numeral_Onumber__ring(T)
+    | class_OrderedGroup_Oab__group__add(T) )).
+
+cnf(clsrel_Numeral_Onumber__ring_16,axiom,
+    ( ~ class_Numeral_Onumber__ring(T)
+    | class_Ring__and__Field_Osemiring__0__cancel(T) )).
+
+cnf(clsrel_Numeral_Onumber__ring_17,axiom,
+    ( ~ class_Numeral_Onumber__ring(T)
+    | class_Ring__and__Field_Oring(T) )).
+
+cnf(clsrel_Numeral_Onumber__ring_18,axiom,
+    ( ~ class_Numeral_Onumber__ring(T)
+    | class_Ring__and__Field_Ocomm__semiring__0__cancel(T) )).
+
+cnf(clsrel_Numeral_Onumber__ring_19,axiom,
+    ( ~ class_Numeral_Onumber__ring(T)
+    | class_Ring__and__Field_Ocomm__ring(T) )).
+
+cnf(clsrel_Numeral_Onumber__ring_2,axiom,
+    ( ~ class_Numeral_Onumber__ring(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_Numeral_Onumber__ring_20,axiom,
+    ( ~ class_Numeral_Onumber__ring(T)
+    | class_HOL_Oone(T) )).
+
+cnf(clsrel_Numeral_Onumber__ring_21,axiom,
+    ( ~ class_Numeral_Onumber__ring(T)
+    | class_Ring__and__Field_Oaxclass__0__neq__1(T) )).
+
+cnf(clsrel_Numeral_Onumber__ring_22,axiom,
+    ( ~ class_Numeral_Onumber__ring(T)
+    | class_OrderedGroup_Omonoid__mult(T) )).
+
+cnf(clsrel_Numeral_Onumber__ring_23,axiom,
+    ( ~ class_Numeral_Onumber__ring(T)
+    | class_OrderedGroup_Ocomm__monoid__mult(T) )).
+
+cnf(clsrel_Numeral_Onumber__ring_24,axiom,
+    ( ~ class_Numeral_Onumber__ring(T)
+    | class_Ring__and__Field_Osemiring__1(T) )).
+
+cnf(clsrel_Numeral_Onumber__ring_25,axiom,
+    ( ~ class_Numeral_Onumber__ring(T)
+    | class_Ring__and__Field_Ocomm__semiring__1(T) )).
+
+cnf(clsrel_Numeral_Onumber__ring_26,axiom,
+    ( ~ class_Numeral_Onumber__ring(T)
+    | class_Ring__and__Field_Osemiring__1__cancel(T) )).
+
+cnf(clsrel_Numeral_Onumber__ring_27,axiom,
+    ( ~ class_Numeral_Onumber__ring(T)
+    | class_Ring__and__Field_Oring__1(T) )).
+
+cnf(clsrel_Numeral_Onumber__ring_28,axiom,
+    ( ~ class_Numeral_Onumber__ring(T)
+    | class_Ring__and__Field_Ocomm__semiring__1__cancel(T) )).
+
+cnf(clsrel_Numeral_Onumber__ring_29,axiom,
+    ( ~ class_Numeral_Onumber__ring(T)
+    | class_Ring__and__Field_Ocomm__ring__1(T) )).
+
+cnf(clsrel_Numeral_Onumber__ring_3,axiom,
+    ( ~ class_Numeral_Onumber__ring(T)
+    | class_HOL_Otimes(T) )).
+
+cnf(clsrel_Numeral_Onumber__ring_30,axiom,
+    ( ~ class_Numeral_Onumber__ring(T)
+    | class_Numeral_Onumber(T) )).
+
+cnf(clsrel_Numeral_Onumber__ring_4,axiom,
+    ( ~ class_Numeral_Onumber__ring(T)
+    | class_OrderedGroup_Osemigroup__mult(T) )).
+
+cnf(clsrel_Numeral_Onumber__ring_5,axiom,
+    ( ~ class_Numeral_Onumber__ring(T)
+    | class_OrderedGroup_Oab__semigroup__mult(T) )).
+
+cnf(clsrel_Numeral_Onumber__ring_6,axiom,
+    ( ~ class_Numeral_Onumber__ring(T)
+    | class_Ring__and__Field_Osemiring(T) )).
+
+cnf(clsrel_Numeral_Onumber__ring_7,axiom,
+    ( ~ class_Numeral_Onumber__ring(T)
+    | class_Ring__and__Field_Ocomm__semiring(T) )).
+
+cnf(clsrel_Numeral_Onumber__ring_8,axiom,
+    ( ~ class_Numeral_Onumber__ring(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_Numeral_Onumber__ring_9,axiom,
+    ( ~ class_Numeral_Onumber__ring(T)
+    | class_OrderedGroup_Ocomm__monoid__add(T) )).
+
+cnf(clsrel_OrderedGroup_Oab__group__add_0,axiom,
+    ( ~ class_OrderedGroup_Oab__group__add(T)
+    | class_HOL_Ominus(T) )).
+
+cnf(clsrel_OrderedGroup_Oab__group__add_1,axiom,
+    ( ~ class_OrderedGroup_Oab__group__add(T)
+    | class_OrderedGroup_Ocomm__monoid__add(T) )).
+
+cnf(clsrel_OrderedGroup_Oab__group__add_2,axiom,
+    ( ~ class_OrderedGroup_Oab__group__add(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_OrderedGroup_Oab__group__add_3,axiom,
+    ( ~ class_OrderedGroup_Oab__group__add(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Oab__group__add_4,axiom,
+    ( ~ class_OrderedGroup_Oab__group__add(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Oab__group__add_5,axiom,
+    ( ~ class_OrderedGroup_Oab__group__add(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_OrderedGroup_Oab__group__add_6,axiom,
+    ( ~ class_OrderedGroup_Oab__group__add(T)
+    | class_OrderedGroup_Ocancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Oab__group__add_7,axiom,
+    ( ~ class_OrderedGroup_Oab__group__add(T)
+    | class_OrderedGroup_Ocancel__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Oab__semigroup__add_0,axiom,
+    ( ~ class_OrderedGroup_Oab__semigroup__add(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Oab__semigroup__add_1,axiom,
+    ( ~ class_OrderedGroup_Oab__semigroup__add(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_OrderedGroup_Oab__semigroup__mult_0,axiom,
+    ( ~ class_OrderedGroup_Oab__semigroup__mult(T)
+    | class_OrderedGroup_Osemigroup__mult(T) )).
+
+cnf(clsrel_OrderedGroup_Oab__semigroup__mult_1,axiom,
+    ( ~ class_OrderedGroup_Oab__semigroup__mult(T)
+    | class_HOL_Otimes(T) )).
+
+cnf(clsrel_OrderedGroup_Ocancel__ab__semigroup__add_0,axiom,
+    ( ~ class_OrderedGroup_Ocancel__ab__semigroup__add(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Ocancel__ab__semigroup__add_1,axiom,
+    ( ~ class_OrderedGroup_Ocancel__ab__semigroup__add(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Ocancel__ab__semigroup__add_2,axiom,
+    ( ~ class_OrderedGroup_Ocancel__ab__semigroup__add(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_OrderedGroup_Ocancel__ab__semigroup__add_3,axiom,
+    ( ~ class_OrderedGroup_Ocancel__ab__semigroup__add(T)
+    | class_OrderedGroup_Ocancel__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Ocancel__semigroup__add_0,axiom,
+    ( ~ class_OrderedGroup_Ocancel__semigroup__add(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Ocancel__semigroup__add_1,axiom,
+    ( ~ class_OrderedGroup_Ocancel__semigroup__add(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_OrderedGroup_Ocomm__monoid__add_0,axiom,
+    ( ~ class_OrderedGroup_Ocomm__monoid__add(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_OrderedGroup_Ocomm__monoid__add_1,axiom,
+    ( ~ class_OrderedGroup_Ocomm__monoid__add(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Ocomm__monoid__add_2,axiom,
+    ( ~ class_OrderedGroup_Ocomm__monoid__add(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Ocomm__monoid__add_3,axiom,
+    ( ~ class_OrderedGroup_Ocomm__monoid__add(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_OrderedGroup_Ocomm__monoid__mult_0,axiom,
+    ( ~ class_OrderedGroup_Ocomm__monoid__mult(T)
+    | class_HOL_Oone(T) )).
+
+cnf(clsrel_OrderedGroup_Ocomm__monoid__mult_1,axiom,
+    ( ~ class_OrderedGroup_Ocomm__monoid__mult(T)
+    | class_OrderedGroup_Oab__semigroup__mult(T) )).
+
+cnf(clsrel_OrderedGroup_Ocomm__monoid__mult_2,axiom,
+    ( ~ class_OrderedGroup_Ocomm__monoid__mult(T)
+    | class_OrderedGroup_Osemigroup__mult(T) )).
+
+cnf(clsrel_OrderedGroup_Ocomm__monoid__mult_3,axiom,
+    ( ~ class_OrderedGroup_Ocomm__monoid__mult(T)
+    | class_HOL_Otimes(T) )).
+
+cnf(clsrel_OrderedGroup_Ocomm__monoid__mult_4,axiom,
+    ( ~ class_OrderedGroup_Ocomm__monoid__mult(T)
+    | class_OrderedGroup_Omonoid__mult(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group_0,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group(T)
+    | class_OrderedGroup_Opordered__ab__group__add(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group_1,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group(T)
+    | class_OrderedGroup_Oab__group__add(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group_10,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group(T)
+    | class_OrderedGroup_Ocancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group_11,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group_12,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group(T)
+    | class_OrderedGroup_Ocancel__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group_13,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group_14,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group_15,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group(T)
+    | class_LOrder_Olorder(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group_16,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group(T)
+    | class_LOrder_Ojoin__semilorder(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group_17,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group(T)
+    | class_LOrder_Omeet__semilorder(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group_2,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group(T)
+    | class_HOL_Ominus(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group_3,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group(T)
+    | class_OrderedGroup_Ocomm__monoid__add(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group_4,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group_5,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group(T)
+    | class_OrderedGroup_Opordered__ab__semigroup__add__imp__le(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group_6,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group(T)
+    | class_OrderedGroup_Opordered__cancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group_7,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group(T)
+    | class_OrderedGroup_Opordered__ab__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group_8,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group(T)
+    | class_Orderings_Oorder(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group_9,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group(T)
+    | class_Orderings_Oord(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__abs_0,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__abs(T)
+    | class_OrderedGroup_Olordered__ab__group(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__abs_1,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__abs(T)
+    | class_OrderedGroup_Opordered__ab__group__add(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__abs_10,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__abs(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__abs_11,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__abs(T)
+    | class_OrderedGroup_Ocancel__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__abs_12,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__abs(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__abs_13,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__abs(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__abs_14,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__abs(T)
+    | class_LOrder_Olorder(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__abs_15,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__abs(T)
+    | class_LOrder_Ojoin__semilorder(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__abs_16,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__abs(T)
+    | class_LOrder_Omeet__semilorder(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__abs_17,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__abs(T)
+    | class_Orderings_Oorder(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__abs_18,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__abs(T)
+    | class_Orderings_Oord(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__abs_2,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__abs(T)
+    | class_OrderedGroup_Oab__group__add(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__abs_3,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__abs(T)
+    | class_HOL_Ominus(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__abs_4,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__abs(T)
+    | class_OrderedGroup_Ocomm__monoid__add(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__abs_5,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__abs(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__abs_6,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__abs(T)
+    | class_OrderedGroup_Opordered__ab__semigroup__add__imp__le(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__abs_7,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__abs(T)
+    | class_OrderedGroup_Opordered__cancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__abs_8,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__abs(T)
+    | class_OrderedGroup_Opordered__ab__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__abs_9,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__abs(T)
+    | class_OrderedGroup_Ocancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__join_0,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__join(T)
+    | class_OrderedGroup_Opordered__ab__group__add(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__join_1,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__join(T)
+    | class_OrderedGroup_Oab__group__add(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__join_10,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__join(T)
+    | class_OrderedGroup_Ocancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__join_11,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__join(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__join_12,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__join(T)
+    | class_OrderedGroup_Ocancel__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__join_13,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__join(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__join_14,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__join(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__join_15,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__join(T)
+    | class_LOrder_Ojoin__semilorder(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__join_16,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__join(T)
+    | class_OrderedGroup_Olordered__ab__group(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__join_17,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__join(T)
+    | class_LOrder_Olorder(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__join_18,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__join(T)
+    | class_LOrder_Omeet__semilorder(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__join_2,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__join(T)
+    | class_HOL_Ominus(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__join_3,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__join(T)
+    | class_OrderedGroup_Ocomm__monoid__add(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__join_4,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__join(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__join_5,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__join(T)
+    | class_OrderedGroup_Opordered__ab__semigroup__add__imp__le(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__join_6,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__join(T)
+    | class_OrderedGroup_Opordered__cancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__join_7,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__join(T)
+    | class_OrderedGroup_Opordered__ab__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__join_8,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__join(T)
+    | class_Orderings_Oorder(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__join_9,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__join(T)
+    | class_Orderings_Oord(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__meet_0,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__meet(T)
+    | class_OrderedGroup_Opordered__ab__group__add(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__meet_1,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__meet(T)
+    | class_OrderedGroup_Oab__group__add(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__meet_10,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__meet(T)
+    | class_OrderedGroup_Ocancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__meet_11,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__meet(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__meet_12,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__meet(T)
+    | class_OrderedGroup_Ocancel__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__meet_13,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__meet(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__meet_14,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__meet(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__meet_15,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__meet(T)
+    | class_LOrder_Omeet__semilorder(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__meet_16,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__meet(T)
+    | class_OrderedGroup_Olordered__ab__group(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__meet_17,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__meet(T)
+    | class_LOrder_Olorder(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__meet_18,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__meet(T)
+    | class_LOrder_Ojoin__semilorder(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__meet_2,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__meet(T)
+    | class_HOL_Ominus(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__meet_3,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__meet(T)
+    | class_OrderedGroup_Ocomm__monoid__add(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__meet_4,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__meet(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__meet_5,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__meet(T)
+    | class_OrderedGroup_Opordered__ab__semigroup__add__imp__le(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__meet_6,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__meet(T)
+    | class_OrderedGroup_Opordered__cancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__meet_7,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__meet(T)
+    | class_OrderedGroup_Opordered__ab__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__meet_8,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__meet(T)
+    | class_Orderings_Oorder(T) )).
+
+cnf(clsrel_OrderedGroup_Olordered__ab__group__meet_9,axiom,
+    ( ~ class_OrderedGroup_Olordered__ab__group__meet(T)
+    | class_Orderings_Oord(T) )).
+
+cnf(clsrel_OrderedGroup_Omonoid__mult_0,axiom,
+    ( ~ class_OrderedGroup_Omonoid__mult(T)
+    | class_HOL_Oone(T) )).
+
+cnf(clsrel_OrderedGroup_Omonoid__mult_1,axiom,
+    ( ~ class_OrderedGroup_Omonoid__mult(T)
+    | class_OrderedGroup_Osemigroup__mult(T) )).
+
+cnf(clsrel_OrderedGroup_Omonoid__mult_2,axiom,
+    ( ~ class_OrderedGroup_Omonoid__mult(T)
+    | class_HOL_Otimes(T) )).
+
+cnf(clsrel_OrderedGroup_Oordered__cancel__ab__semigroup__add_0,axiom,
+    ( ~ class_OrderedGroup_Oordered__cancel__ab__semigroup__add(T)
+    | class_OrderedGroup_Opordered__cancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Oordered__cancel__ab__semigroup__add_1,axiom,
+    ( ~ class_OrderedGroup_Oordered__cancel__ab__semigroup__add(T)
+    | class_OrderedGroup_Opordered__ab__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Oordered__cancel__ab__semigroup__add_10,axiom,
+    ( ~ class_OrderedGroup_Oordered__cancel__ab__semigroup__add(T)
+    | class_LOrder_Olorder(T) )).
+
+cnf(clsrel_OrderedGroup_Oordered__cancel__ab__semigroup__add_11,axiom,
+    ( ~ class_OrderedGroup_Oordered__cancel__ab__semigroup__add(T)
+    | class_LOrder_Ojoin__semilorder(T) )).
+
+cnf(clsrel_OrderedGroup_Oordered__cancel__ab__semigroup__add_12,axiom,
+    ( ~ class_OrderedGroup_Oordered__cancel__ab__semigroup__add(T)
+    | class_LOrder_Omeet__semilorder(T) )).
+
+cnf(clsrel_OrderedGroup_Oordered__cancel__ab__semigroup__add_13,axiom,
+    ( ~ class_OrderedGroup_Oordered__cancel__ab__semigroup__add(T)
+    | class_OrderedGroup_Opordered__ab__semigroup__add__imp__le(T) )).
+
+cnf(clsrel_OrderedGroup_Oordered__cancel__ab__semigroup__add_2,axiom,
+    ( ~ class_OrderedGroup_Oordered__cancel__ab__semigroup__add(T)
+    | class_Orderings_Oorder(T) )).
+
+cnf(clsrel_OrderedGroup_Oordered__cancel__ab__semigroup__add_3,axiom,
+    ( ~ class_OrderedGroup_Oordered__cancel__ab__semigroup__add(T)
+    | class_Orderings_Oord(T) )).
+
+cnf(clsrel_OrderedGroup_Oordered__cancel__ab__semigroup__add_4,axiom,
+    ( ~ class_OrderedGroup_Oordered__cancel__ab__semigroup__add(T)
+    | class_OrderedGroup_Ocancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Oordered__cancel__ab__semigroup__add_5,axiom,
+    ( ~ class_OrderedGroup_Oordered__cancel__ab__semigroup__add(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Oordered__cancel__ab__semigroup__add_6,axiom,
+    ( ~ class_OrderedGroup_Oordered__cancel__ab__semigroup__add(T)
+    | class_OrderedGroup_Ocancel__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Oordered__cancel__ab__semigroup__add_7,axiom,
+    ( ~ class_OrderedGroup_Oordered__cancel__ab__semigroup__add(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Oordered__cancel__ab__semigroup__add_8,axiom,
+    ( ~ class_OrderedGroup_Oordered__cancel__ab__semigroup__add(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_OrderedGroup_Oordered__cancel__ab__semigroup__add_9,axiom,
+    ( ~ class_OrderedGroup_Oordered__cancel__ab__semigroup__add(T)
+    | class_Orderings_Olinorder(T) )).
+
+cnf(clsrel_OrderedGroup_Opordered__ab__group__add_0,axiom,
+    ( ~ class_OrderedGroup_Opordered__ab__group__add(T)
+    | class_OrderedGroup_Oab__group__add(T) )).
+
+cnf(clsrel_OrderedGroup_Opordered__ab__group__add_1,axiom,
+    ( ~ class_OrderedGroup_Opordered__ab__group__add(T)
+    | class_HOL_Ominus(T) )).
+
+cnf(clsrel_OrderedGroup_Opordered__ab__group__add_10,axiom,
+    ( ~ class_OrderedGroup_Opordered__ab__group__add(T)
+    | class_Orderings_Oorder(T) )).
+
+cnf(clsrel_OrderedGroup_Opordered__ab__group__add_11,axiom,
+    ( ~ class_OrderedGroup_Opordered__ab__group__add(T)
+    | class_Orderings_Oord(T) )).
+
+cnf(clsrel_OrderedGroup_Opordered__ab__group__add_12,axiom,
+    ( ~ class_OrderedGroup_Opordered__ab__group__add(T)
+    | class_OrderedGroup_Opordered__ab__semigroup__add__imp__le(T) )).
+
+cnf(clsrel_OrderedGroup_Opordered__ab__group__add_13,axiom,
+    ( ~ class_OrderedGroup_Opordered__ab__group__add(T)
+    | class_OrderedGroup_Opordered__cancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Opordered__ab__group__add_2,axiom,
+    ( ~ class_OrderedGroup_Opordered__ab__group__add(T)
+    | class_OrderedGroup_Ocomm__monoid__add(T) )).
+
+cnf(clsrel_OrderedGroup_Opordered__ab__group__add_3,axiom,
+    ( ~ class_OrderedGroup_Opordered__ab__group__add(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_OrderedGroup_Opordered__ab__group__add_4,axiom,
+    ( ~ class_OrderedGroup_Opordered__ab__group__add(T)
+    | class_OrderedGroup_Ocancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Opordered__ab__group__add_5,axiom,
+    ( ~ class_OrderedGroup_Opordered__ab__group__add(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Opordered__ab__group__add_6,axiom,
+    ( ~ class_OrderedGroup_Opordered__ab__group__add(T)
+    | class_OrderedGroup_Ocancel__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Opordered__ab__group__add_7,axiom,
+    ( ~ class_OrderedGroup_Opordered__ab__group__add(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Opordered__ab__group__add_8,axiom,
+    ( ~ class_OrderedGroup_Opordered__ab__group__add(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_OrderedGroup_Opordered__ab__group__add_9,axiom,
+    ( ~ class_OrderedGroup_Opordered__ab__group__add(T)
+    | class_OrderedGroup_Opordered__ab__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Opordered__ab__semigroup__add_0,axiom,
+    ( ~ class_OrderedGroup_Opordered__ab__semigroup__add(T)
+    | class_Orderings_Oorder(T) )).
+
+cnf(clsrel_OrderedGroup_Opordered__ab__semigroup__add_1,axiom,
+    ( ~ class_OrderedGroup_Opordered__ab__semigroup__add(T)
+    | class_Orderings_Oord(T) )).
+
+cnf(clsrel_OrderedGroup_Opordered__ab__semigroup__add_2,axiom,
+    ( ~ class_OrderedGroup_Opordered__ab__semigroup__add(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Opordered__ab__semigroup__add_3,axiom,
+    ( ~ class_OrderedGroup_Opordered__ab__semigroup__add(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Opordered__ab__semigroup__add_4,axiom,
+    ( ~ class_OrderedGroup_Opordered__ab__semigroup__add(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_OrderedGroup_Opordered__ab__semigroup__add__imp__le_0,axiom,
+    ( ~ class_OrderedGroup_Opordered__ab__semigroup__add__imp__le(T)
+    | class_OrderedGroup_Opordered__cancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Opordered__ab__semigroup__add__imp__le_1,axiom,
+    ( ~ class_OrderedGroup_Opordered__ab__semigroup__add__imp__le(T)
+    | class_OrderedGroup_Opordered__ab__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Opordered__ab__semigroup__add__imp__le_2,axiom,
+    ( ~ class_OrderedGroup_Opordered__ab__semigroup__add__imp__le(T)
+    | class_Orderings_Oorder(T) )).
+
+cnf(clsrel_OrderedGroup_Opordered__ab__semigroup__add__imp__le_3,axiom,
+    ( ~ class_OrderedGroup_Opordered__ab__semigroup__add__imp__le(T)
+    | class_Orderings_Oord(T) )).
+
+cnf(clsrel_OrderedGroup_Opordered__ab__semigroup__add__imp__le_4,axiom,
+    ( ~ class_OrderedGroup_Opordered__ab__semigroup__add__imp__le(T)
+    | class_OrderedGroup_Ocancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Opordered__ab__semigroup__add__imp__le_5,axiom,
+    ( ~ class_OrderedGroup_Opordered__ab__semigroup__add__imp__le(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Opordered__ab__semigroup__add__imp__le_6,axiom,
+    ( ~ class_OrderedGroup_Opordered__ab__semigroup__add__imp__le(T)
+    | class_OrderedGroup_Ocancel__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Opordered__ab__semigroup__add__imp__le_7,axiom,
+    ( ~ class_OrderedGroup_Opordered__ab__semigroup__add__imp__le(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Opordered__ab__semigroup__add__imp__le_8,axiom,
+    ( ~ class_OrderedGroup_Opordered__ab__semigroup__add__imp__le(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_OrderedGroup_Opordered__cancel__ab__semigroup__add_0,axiom,
+    ( ~ class_OrderedGroup_Opordered__cancel__ab__semigroup__add(T)
+    | class_OrderedGroup_Opordered__ab__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Opordered__cancel__ab__semigroup__add_1,axiom,
+    ( ~ class_OrderedGroup_Opordered__cancel__ab__semigroup__add(T)
+    | class_Orderings_Oorder(T) )).
+
+cnf(clsrel_OrderedGroup_Opordered__cancel__ab__semigroup__add_2,axiom,
+    ( ~ class_OrderedGroup_Opordered__cancel__ab__semigroup__add(T)
+    | class_Orderings_Oord(T) )).
+
+cnf(clsrel_OrderedGroup_Opordered__cancel__ab__semigroup__add_3,axiom,
+    ( ~ class_OrderedGroup_Opordered__cancel__ab__semigroup__add(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Opordered__cancel__ab__semigroup__add_4,axiom,
+    ( ~ class_OrderedGroup_Opordered__cancel__ab__semigroup__add(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Opordered__cancel__ab__semigroup__add_5,axiom,
+    ( ~ class_OrderedGroup_Opordered__cancel__ab__semigroup__add(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_OrderedGroup_Opordered__cancel__ab__semigroup__add_6,axiom,
+    ( ~ class_OrderedGroup_Opordered__cancel__ab__semigroup__add(T)
+    | class_OrderedGroup_Ocancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Opordered__cancel__ab__semigroup__add_7,axiom,
+    ( ~ class_OrderedGroup_Opordered__cancel__ab__semigroup__add(T)
+    | class_OrderedGroup_Ocancel__semigroup__add(T) )).
+
+cnf(clsrel_OrderedGroup_Osemigroup__add_0,axiom,
+    ( ~ class_OrderedGroup_Osemigroup__add(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_OrderedGroup_Osemigroup__mult_0,axiom,
+    ( ~ class_OrderedGroup_Osemigroup__mult(T)
+    | class_HOL_Otimes(T) )).
+
+cnf(clsrel_Orderings_Olinorder_0,axiom,
+    ( ~ class_Orderings_Olinorder(T)
+    | class_LOrder_Olorder(T) )).
+
+cnf(clsrel_Orderings_Olinorder_1,axiom,
+    ( ~ class_Orderings_Olinorder(T)
+    | class_LOrder_Ojoin__semilorder(T) )).
+
+cnf(clsrel_Orderings_Olinorder_2,axiom,
+    ( ~ class_Orderings_Olinorder(T)
+    | class_LOrder_Omeet__semilorder(T) )).
+
+cnf(clsrel_Orderings_Olinorder_3,axiom,
+    ( ~ class_Orderings_Olinorder(T)
+    | class_Orderings_Oord(T) )).
+
+cnf(clsrel_Orderings_Olinorder_4,axiom,
+    ( ~ class_Orderings_Olinorder(T)
+    | class_Orderings_Oorder(T) )).
+
+cnf(clsrel_Orderings_Oorder_0,axiom,
+    ( ~ class_Orderings_Oorder(T)
+    | class_Orderings_Oord(T) )).
+
+cnf(clsrel_Power_Orecpower_0,axiom,
+    ( ~ class_Power_Orecpower(T)
+    | class_Nat_Opower(T) )).
+
+cnf(clsrel_Power_Orecpower_1,axiom,
+    ( ~ class_Power_Orecpower(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_Power_Orecpower_10,axiom,
+    ( ~ class_Power_Orecpower(T)
+    | class_Ring__and__Field_Osemiring(T) )).
+
+cnf(clsrel_Power_Orecpower_11,axiom,
+    ( ~ class_Power_Orecpower(T)
+    | class_Ring__and__Field_Ocomm__semiring(T) )).
+
+cnf(clsrel_Power_Orecpower_12,axiom,
+    ( ~ class_Power_Orecpower(T)
+    | class_OrderedGroup_Ocomm__monoid__add(T) )).
+
+cnf(clsrel_Power_Orecpower_13,axiom,
+    ( ~ class_Power_Orecpower(T)
+    | class_Ring__and__Field_Osemiring__0(T) )).
+
+cnf(clsrel_Power_Orecpower_14,axiom,
+    ( ~ class_Power_Orecpower(T)
+    | class_Ring__and__Field_Ocomm__semiring__0(T) )).
+
+cnf(clsrel_Power_Orecpower_15,axiom,
+    ( ~ class_Power_Orecpower(T)
+    | class_OrderedGroup_Omonoid__mult(T) )).
+
+cnf(clsrel_Power_Orecpower_16,axiom,
+    ( ~ class_Power_Orecpower(T)
+    | class_OrderedGroup_Ocomm__monoid__mult(T) )).
+
+cnf(clsrel_Power_Orecpower_17,axiom,
+    ( ~ class_Power_Orecpower(T)
+    | class_Ring__and__Field_Osemiring__1(T) )).
+
+cnf(clsrel_Power_Orecpower_18,axiom,
+    ( ~ class_Power_Orecpower(T)
+    | class_Ring__and__Field_Ocomm__semiring__1(T) )).
+
+cnf(clsrel_Power_Orecpower_19,axiom,
+    ( ~ class_Power_Orecpower(T)
+    | class_OrderedGroup_Ocancel__semigroup__add(T) )).
+
+cnf(clsrel_Power_Orecpower_2,axiom,
+    ( ~ class_Power_Orecpower(T)
+    | class_HOL_Oone(T) )).
+
+cnf(clsrel_Power_Orecpower_20,axiom,
+    ( ~ class_Power_Orecpower(T)
+    | class_OrderedGroup_Ocancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_Power_Orecpower_21,axiom,
+    ( ~ class_Power_Orecpower(T)
+    | class_Ring__and__Field_Osemiring__0__cancel(T) )).
+
+cnf(clsrel_Power_Orecpower_22,axiom,
+    ( ~ class_Power_Orecpower(T)
+    | class_Ring__and__Field_Osemiring__1__cancel(T) )).
+
+cnf(clsrel_Power_Orecpower_23,axiom,
+    ( ~ class_Power_Orecpower(T)
+    | class_Ring__and__Field_Ocomm__semiring__0__cancel(T) )).
+
+cnf(clsrel_Power_Orecpower_24,axiom,
+    ( ~ class_Power_Orecpower(T)
+    | class_Ring__and__Field_Ocomm__semiring__1__cancel(T) )).
+
+cnf(clsrel_Power_Orecpower_3,axiom,
+    ( ~ class_Power_Orecpower(T)
+    | class_Ring__and__Field_Oaxclass__0__neq__1(T) )).
+
+cnf(clsrel_Power_Orecpower_4,axiom,
+    ( ~ class_Power_Orecpower(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_Power_Orecpower_5,axiom,
+    ( ~ class_Power_Orecpower(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_Power_Orecpower_6,axiom,
+    ( ~ class_Power_Orecpower(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_Power_Orecpower_7,axiom,
+    ( ~ class_Power_Orecpower(T)
+    | class_HOL_Otimes(T) )).
+
+cnf(clsrel_Power_Orecpower_8,axiom,
+    ( ~ class_Power_Orecpower(T)
+    | class_OrderedGroup_Osemigroup__mult(T) )).
+
+cnf(clsrel_Power_Orecpower_9,axiom,
+    ( ~ class_Power_Orecpower(T)
+    | class_OrderedGroup_Oab__semigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Oaxclass__0__neq__1_0,axiom,
+    ( ~ class_Ring__and__Field_Oaxclass__0__neq__1(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_Ring__and__Field_Oaxclass__0__neq__1_1,axiom,
+    ( ~ class_Ring__and__Field_Oaxclass__0__neq__1(T)
+    | class_HOL_Oone(T) )).
+
+cnf(clsrel_Ring__and__Field_Oaxclass__abs__if_0,axiom,
+    ( ~ class_Ring__and__Field_Oaxclass__abs__if(T)
+    | class_HOL_Ominus(T) )).
+
+cnf(clsrel_Ring__and__Field_Oaxclass__abs__if_1,axiom,
+    ( ~ class_Ring__and__Field_Oaxclass__abs__if(T)
+    | class_Orderings_Oord(T) )).
+
+cnf(clsrel_Ring__and__Field_Oaxclass__abs__if_2,axiom,
+    ( ~ class_Ring__and__Field_Oaxclass__abs__if(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_Ring__and__Field_Oaxclass__no__zero__divisors_0,axiom,
+    ( ~ class_Ring__and__Field_Oaxclass__no__zero__divisors(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_Ring__and__Field_Oaxclass__no__zero__divisors_1,axiom,
+    ( ~ class_Ring__and__Field_Oaxclass__no__zero__divisors(T)
+    | class_HOL_Otimes(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring_0,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring(T)
+    | class_Ring__and__Field_Ocomm__semiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring_1,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring(T)
+    | class_Ring__and__Field_Ocomm__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring_10,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring_11,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring_12,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring(T)
+    | class_OrderedGroup_Oab__group__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring_13,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring(T)
+    | class_HOL_Ominus(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring_14,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring(T)
+    | class_OrderedGroup_Ocancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring_15,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring(T)
+    | class_OrderedGroup_Ocancel__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring_16,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring(T)
+    | class_Ring__and__Field_Oring(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring_17,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring(T)
+    | class_Ring__and__Field_Osemiring__0__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring_18,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring(T)
+    | class_Ring__and__Field_Ocomm__semiring__0__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring_2,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring(T)
+    | class_OrderedGroup_Oab__semigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring_3,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring(T)
+    | class_Ring__and__Field_Osemiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring_4,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring(T)
+    | class_Ring__and__Field_Osemiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring_5,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring(T)
+    | class_OrderedGroup_Osemigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring_6,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring(T)
+    | class_HOL_Otimes(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring_7,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring(T)
+    | class_OrderedGroup_Ocomm__monoid__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring_8,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring_9,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring__1_0,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring__1(T)
+    | class_Ring__and__Field_Ocomm__ring(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring__1_1,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring__1(T)
+    | class_Ring__and__Field_Oring(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring__1_10,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring__1(T)
+    | class_Ring__and__Field_Osemiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring__1_11,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring__1(T)
+    | class_OrderedGroup_Osemigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring__1_12,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring__1(T)
+    | class_HOL_Otimes(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring__1_13,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring__1(T)
+    | class_OrderedGroup_Ocomm__monoid__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring__1_14,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring__1(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring__1_15,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring__1(T)
+    | class_OrderedGroup_Ocancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring__1_16,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring__1(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring__1_17,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring__1(T)
+    | class_OrderedGroup_Ocancel__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring__1_18,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring__1(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring__1_19,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring__1(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring__1_2,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring__1(T)
+    | class_OrderedGroup_Oab__group__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring__1_20,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring__1(T)
+    | class_Ring__and__Field_Ocomm__semiring__1(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring__1_21,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring__1(T)
+    | class_OrderedGroup_Ocomm__monoid__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring__1_22,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring__1(T)
+    | class_Ring__and__Field_Osemiring__1(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring__1_23,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring__1(T)
+    | class_Ring__and__Field_Oaxclass__0__neq__1(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring__1_24,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring__1(T)
+    | class_OrderedGroup_Omonoid__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring__1_25,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring__1(T)
+    | class_HOL_Oone(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring__1_26,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring__1(T)
+    | class_Ring__and__Field_Oring__1(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring__1_27,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring__1(T)
+    | class_Ring__and__Field_Osemiring__1__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring__1_28,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring__1(T)
+    | class_Ring__and__Field_Ocomm__semiring__1__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring__1_3,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring__1(T)
+    | class_HOL_Ominus(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring__1_4,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring__1(T)
+    | class_Ring__and__Field_Ocomm__semiring__0__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring__1_5,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring__1(T)
+    | class_Ring__and__Field_Ocomm__semiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring__1_6,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring__1(T)
+    | class_Ring__and__Field_Ocomm__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring__1_7,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring__1(T)
+    | class_OrderedGroup_Oab__semigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring__1_8,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring__1(T)
+    | class_Ring__and__Field_Osemiring__0__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__ring__1_9,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__ring__1(T)
+    | class_Ring__and__Field_Osemiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring_0,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring_1,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring_2,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring_3,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring(T)
+    | class_OrderedGroup_Oab__semigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring_4,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring(T)
+    | class_OrderedGroup_Osemigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring_5,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring(T)
+    | class_HOL_Otimes(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring_6,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring(T)
+    | class_Ring__and__Field_Osemiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__0_0,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__0(T)
+    | class_Ring__and__Field_Ocomm__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__0_1,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__0(T)
+    | class_OrderedGroup_Oab__semigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__0_10,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__0(T)
+    | class_Ring__and__Field_Osemiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__0_2,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__0(T)
+    | class_Ring__and__Field_Osemiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__0_3,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__0(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__0_4,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__0(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__0_5,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__0(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__0_6,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__0(T)
+    | class_OrderedGroup_Osemigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__0_7,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__0(T)
+    | class_HOL_Otimes(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__0_8,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__0(T)
+    | class_OrderedGroup_Ocomm__monoid__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__0_9,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__0(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__0__cancel_0,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__0__cancel(T)
+    | class_Ring__and__Field_Ocomm__semiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__0__cancel_1,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__0__cancel(T)
+    | class_Ring__and__Field_Ocomm__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__0__cancel_10,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__0__cancel(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__0__cancel_11,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__0__cancel(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__0__cancel_12,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__0__cancel(T)
+    | class_OrderedGroup_Ocancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__0__cancel_13,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__0__cancel(T)
+    | class_OrderedGroup_Ocancel__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__0__cancel_14,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__0__cancel(T)
+    | class_Ring__and__Field_Osemiring__0__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__0__cancel_2,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__0__cancel(T)
+    | class_OrderedGroup_Oab__semigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__0__cancel_3,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__0__cancel(T)
+    | class_Ring__and__Field_Osemiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__0__cancel_4,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__0__cancel(T)
+    | class_Ring__and__Field_Osemiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__0__cancel_5,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__0__cancel(T)
+    | class_OrderedGroup_Osemigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__0__cancel_6,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__0__cancel(T)
+    | class_HOL_Otimes(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__0__cancel_7,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__0__cancel(T)
+    | class_OrderedGroup_Ocomm__monoid__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__0__cancel_8,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__0__cancel(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__0__cancel_9,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__0__cancel(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1_0,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1(T)
+    | class_Ring__and__Field_Oaxclass__0__neq__1(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1_1,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1_10,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1(T)
+    | class_OrderedGroup_Ocomm__monoid__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1_11,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1_12,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1_13,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1_14,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1(T)
+    | class_OrderedGroup_Ocomm__monoid__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1_15,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1(T)
+    | class_OrderedGroup_Omonoid__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1_16,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1(T)
+    | class_Ring__and__Field_Osemiring__1(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1_2,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1(T)
+    | class_HOL_Oone(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1_3,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1(T)
+    | class_Ring__and__Field_Ocomm__semiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1_4,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1(T)
+    | class_Ring__and__Field_Ocomm__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1_5,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1(T)
+    | class_OrderedGroup_Oab__semigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1_6,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1(T)
+    | class_Ring__and__Field_Osemiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1_7,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1(T)
+    | class_Ring__and__Field_Osemiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1_8,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1(T)
+    | class_OrderedGroup_Osemigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1_9,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1(T)
+    | class_HOL_Otimes(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1__cancel_0,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1__cancel(T)
+    | class_Ring__and__Field_Ocomm__semiring__1(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1__cancel_1,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1__cancel(T)
+    | class_Ring__and__Field_Ocomm__semiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1__cancel_10,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1__cancel(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1__cancel_11,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1__cancel(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1__cancel_12,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1__cancel(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1__cancel_13,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1__cancel(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1__cancel_14,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1__cancel(T)
+    | class_OrderedGroup_Omonoid__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1__cancel_15,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1__cancel(T)
+    | class_HOL_Oone(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1__cancel_16,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1__cancel(T)
+    | class_OrderedGroup_Osemigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1__cancel_17,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1__cancel(T)
+    | class_HOL_Otimes(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1__cancel_18,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1__cancel(T)
+    | class_OrderedGroup_Ocancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1__cancel_19,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1__cancel(T)
+    | class_OrderedGroup_Ocancel__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1__cancel_2,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1__cancel(T)
+    | class_Ring__and__Field_Ocomm__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1__cancel_20,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1__cancel(T)
+    | class_Ring__and__Field_Osemiring__1__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1__cancel_21,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1__cancel(T)
+    | class_Ring__and__Field_Osemiring__0__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1__cancel_22,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1__cancel(T)
+    | class_Ring__and__Field_Ocomm__semiring__0__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1__cancel_3,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1__cancel(T)
+    | class_OrderedGroup_Ocomm__monoid__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1__cancel_4,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1__cancel(T)
+    | class_OrderedGroup_Oab__semigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1__cancel_5,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1__cancel(T)
+    | class_Ring__and__Field_Osemiring__1(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1__cancel_6,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1__cancel(T)
+    | class_Ring__and__Field_Oaxclass__0__neq__1(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1__cancel_7,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1__cancel(T)
+    | class_Ring__and__Field_Osemiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1__cancel_8,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1__cancel(T)
+    | class_Ring__and__Field_Osemiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Ocomm__semiring__1__cancel_9,axiom,
+    ( ~ class_Ring__and__Field_Ocomm__semiring__1__cancel(T)
+    | class_OrderedGroup_Ocomm__monoid__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Odivision__by__zero_0,axiom,
+    ( ~ class_Ring__and__Field_Odivision__by__zero(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_Ring__and__Field_Odivision__by__zero_1,axiom,
+    ( ~ class_Ring__and__Field_Odivision__by__zero(T)
+    | class_HOL_Oinverse(T) )).
+
+cnf(clsrel_Ring__and__Field_Ofield_0,axiom,
+    ( ~ class_Ring__and__Field_Ofield(T)
+    | class_Ring__and__Field_Ocomm__ring__1(T) )).
+
+cnf(clsrel_Ring__and__Field_Ofield_1,axiom,
+    ( ~ class_Ring__and__Field_Ofield(T)
+    | class_Ring__and__Field_Ocomm__ring(T) )).
+
+cnf(clsrel_Ring__and__Field_Ofield_10,axiom,
+    ( ~ class_Ring__and__Field_Ofield(T)
+    | class_Ring__and__Field_Osemiring__1(T) )).
+
+cnf(clsrel_Ring__and__Field_Ofield_11,axiom,
+    ( ~ class_Ring__and__Field_Ofield(T)
+    | class_Ring__and__Field_Oaxclass__0__neq__1(T) )).
+
+cnf(clsrel_Ring__and__Field_Ofield_12,axiom,
+    ( ~ class_Ring__and__Field_Ofield(T)
+    | class_OrderedGroup_Omonoid__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Ofield_13,axiom,
+    ( ~ class_Ring__and__Field_Ofield(T)
+    | class_HOL_Oone(T) )).
+
+cnf(clsrel_Ring__and__Field_Ofield_14,axiom,
+    ( ~ class_Ring__and__Field_Ofield(T)
+    | class_Ring__and__Field_Ocomm__semiring__0__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Ofield_15,axiom,
+    ( ~ class_Ring__and__Field_Ofield(T)
+    | class_Ring__and__Field_Ocomm__semiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Ofield_16,axiom,
+    ( ~ class_Ring__and__Field_Ofield(T)
+    | class_Ring__and__Field_Ocomm__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Ofield_17,axiom,
+    ( ~ class_Ring__and__Field_Ofield(T)
+    | class_OrderedGroup_Oab__semigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Ofield_18,axiom,
+    ( ~ class_Ring__and__Field_Ofield(T)
+    | class_Ring__and__Field_Osemiring__0__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Ofield_19,axiom,
+    ( ~ class_Ring__and__Field_Ofield(T)
+    | class_Ring__and__Field_Osemiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Ofield_2,axiom,
+    ( ~ class_Ring__and__Field_Ofield(T)
+    | class_Ring__and__Field_Oring__1(T) )).
+
+cnf(clsrel_Ring__and__Field_Ofield_20,axiom,
+    ( ~ class_Ring__and__Field_Ofield(T)
+    | class_Ring__and__Field_Osemiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Ofield_21,axiom,
+    ( ~ class_Ring__and__Field_Ofield(T)
+    | class_OrderedGroup_Osemigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Ofield_22,axiom,
+    ( ~ class_Ring__and__Field_Ofield(T)
+    | class_HOL_Otimes(T) )).
+
+cnf(clsrel_Ring__and__Field_Ofield_23,axiom,
+    ( ~ class_Ring__and__Field_Ofield(T)
+    | class_OrderedGroup_Ocomm__monoid__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Ofield_24,axiom,
+    ( ~ class_Ring__and__Field_Ofield(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_Ring__and__Field_Ofield_25,axiom,
+    ( ~ class_Ring__and__Field_Ofield(T)
+    | class_OrderedGroup_Ocancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Ofield_26,axiom,
+    ( ~ class_Ring__and__Field_Ofield(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Ofield_27,axiom,
+    ( ~ class_Ring__and__Field_Ofield(T)
+    | class_OrderedGroup_Ocancel__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Ofield_28,axiom,
+    ( ~ class_Ring__and__Field_Ofield(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Ofield_29,axiom,
+    ( ~ class_Ring__and__Field_Ofield(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_Ring__and__Field_Ofield_3,axiom,
+    ( ~ class_Ring__and__Field_Ofield(T)
+    | class_Ring__and__Field_Oring(T) )).
+
+cnf(clsrel_Ring__and__Field_Ofield_30,axiom,
+    ( ~ class_Ring__and__Field_Ofield(T)
+    | class_HOL_Oinverse(T) )).
+
+cnf(clsrel_Ring__and__Field_Ofield_31,axiom,
+    ( ~ class_Ring__and__Field_Ofield(T)
+    | class_Ring__and__Field_Oidom(T) )).
+
+cnf(clsrel_Ring__and__Field_Ofield_32,axiom,
+    ( ~ class_Ring__and__Field_Ofield(T)
+    | class_Ring__and__Field_Oaxclass__no__zero__divisors(T) )).
+
+cnf(clsrel_Ring__and__Field_Ofield_4,axiom,
+    ( ~ class_Ring__and__Field_Ofield(T)
+    | class_OrderedGroup_Oab__group__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Ofield_5,axiom,
+    ( ~ class_Ring__and__Field_Ofield(T)
+    | class_HOL_Ominus(T) )).
+
+cnf(clsrel_Ring__and__Field_Ofield_6,axiom,
+    ( ~ class_Ring__and__Field_Ofield(T)
+    | class_Ring__and__Field_Ocomm__semiring__1__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Ofield_7,axiom,
+    ( ~ class_Ring__and__Field_Ofield(T)
+    | class_Ring__and__Field_Ocomm__semiring__1(T) )).
+
+cnf(clsrel_Ring__and__Field_Ofield_8,axiom,
+    ( ~ class_Ring__and__Field_Ofield(T)
+    | class_OrderedGroup_Ocomm__monoid__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Ofield_9,axiom,
+    ( ~ class_Ring__and__Field_Ofield(T)
+    | class_Ring__and__Field_Osemiring__1__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Oidom_0,axiom,
+    ( ~ class_Ring__and__Field_Oidom(T)
+    | class_Ring__and__Field_Ocomm__ring__1(T) )).
+
+cnf(clsrel_Ring__and__Field_Oidom_1,axiom,
+    ( ~ class_Ring__and__Field_Oidom(T)
+    | class_Ring__and__Field_Ocomm__ring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oidom_10,axiom,
+    ( ~ class_Ring__and__Field_Oidom(T)
+    | class_Ring__and__Field_Osemiring__1(T) )).
+
+cnf(clsrel_Ring__and__Field_Oidom_11,axiom,
+    ( ~ class_Ring__and__Field_Oidom(T)
+    | class_Ring__and__Field_Oaxclass__0__neq__1(T) )).
+
+cnf(clsrel_Ring__and__Field_Oidom_12,axiom,
+    ( ~ class_Ring__and__Field_Oidom(T)
+    | class_OrderedGroup_Omonoid__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Oidom_13,axiom,
+    ( ~ class_Ring__and__Field_Oidom(T)
+    | class_HOL_Oone(T) )).
+
+cnf(clsrel_Ring__and__Field_Oidom_14,axiom,
+    ( ~ class_Ring__and__Field_Oidom(T)
+    | class_Ring__and__Field_Ocomm__semiring__0__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Oidom_15,axiom,
+    ( ~ class_Ring__and__Field_Oidom(T)
+    | class_Ring__and__Field_Ocomm__semiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Oidom_16,axiom,
+    ( ~ class_Ring__and__Field_Oidom(T)
+    | class_Ring__and__Field_Ocomm__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oidom_17,axiom,
+    ( ~ class_Ring__and__Field_Oidom(T)
+    | class_OrderedGroup_Oab__semigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Oidom_18,axiom,
+    ( ~ class_Ring__and__Field_Oidom(T)
+    | class_Ring__and__Field_Osemiring__0__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Oidom_19,axiom,
+    ( ~ class_Ring__and__Field_Oidom(T)
+    | class_Ring__and__Field_Osemiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Oidom_2,axiom,
+    ( ~ class_Ring__and__Field_Oidom(T)
+    | class_Ring__and__Field_Oring__1(T) )).
+
+cnf(clsrel_Ring__and__Field_Oidom_20,axiom,
+    ( ~ class_Ring__and__Field_Oidom(T)
+    | class_Ring__and__Field_Osemiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oidom_21,axiom,
+    ( ~ class_Ring__and__Field_Oidom(T)
+    | class_OrderedGroup_Osemigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Oidom_22,axiom,
+    ( ~ class_Ring__and__Field_Oidom(T)
+    | class_HOL_Otimes(T) )).
+
+cnf(clsrel_Ring__and__Field_Oidom_23,axiom,
+    ( ~ class_Ring__and__Field_Oidom(T)
+    | class_OrderedGroup_Ocomm__monoid__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oidom_24,axiom,
+    ( ~ class_Ring__and__Field_Oidom(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_Ring__and__Field_Oidom_25,axiom,
+    ( ~ class_Ring__and__Field_Oidom(T)
+    | class_OrderedGroup_Ocancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oidom_26,axiom,
+    ( ~ class_Ring__and__Field_Oidom(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oidom_27,axiom,
+    ( ~ class_Ring__and__Field_Oidom(T)
+    | class_OrderedGroup_Ocancel__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oidom_28,axiom,
+    ( ~ class_Ring__and__Field_Oidom(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oidom_29,axiom,
+    ( ~ class_Ring__and__Field_Oidom(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_Ring__and__Field_Oidom_3,axiom,
+    ( ~ class_Ring__and__Field_Oidom(T)
+    | class_Ring__and__Field_Oring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oidom_30,axiom,
+    ( ~ class_Ring__and__Field_Oidom(T)
+    | class_Ring__and__Field_Oaxclass__no__zero__divisors(T) )).
+
+cnf(clsrel_Ring__and__Field_Oidom_4,axiom,
+    ( ~ class_Ring__and__Field_Oidom(T)
+    | class_OrderedGroup_Oab__group__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oidom_5,axiom,
+    ( ~ class_Ring__and__Field_Oidom(T)
+    | class_HOL_Ominus(T) )).
+
+cnf(clsrel_Ring__and__Field_Oidom_6,axiom,
+    ( ~ class_Ring__and__Field_Oidom(T)
+    | class_Ring__and__Field_Ocomm__semiring__1__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Oidom_7,axiom,
+    ( ~ class_Ring__and__Field_Oidom(T)
+    | class_Ring__and__Field_Ocomm__semiring__1(T) )).
+
+cnf(clsrel_Ring__and__Field_Oidom_8,axiom,
+    ( ~ class_Ring__and__Field_Oidom(T)
+    | class_OrderedGroup_Ocomm__monoid__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Oidom_9,axiom,
+    ( ~ class_Ring__and__Field_Oidom(T)
+    | class_Ring__and__Field_Osemiring__1__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Olordered__ring_0,axiom,
+    ( ~ class_Ring__and__Field_Olordered__ring(T)
+    | class_Ring__and__Field_Opordered__ring(T) )).
+
+cnf(clsrel_Ring__and__Field_Olordered__ring_1,axiom,
+    ( ~ class_Ring__and__Field_Olordered__ring(T)
+    | class_Ring__and__Field_Oring(T) )).
+
+cnf(clsrel_Ring__and__Field_Olordered__ring_10,axiom,
+    ( ~ class_Ring__and__Field_Olordered__ring(T)
+    | class_Orderings_Oorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Olordered__ring_11,axiom,
+    ( ~ class_Ring__and__Field_Olordered__ring(T)
+    | class_Orderings_Oord(T) )).
+
+cnf(clsrel_Ring__and__Field_Olordered__ring_12,axiom,
+    ( ~ class_Ring__and__Field_Olordered__ring(T)
+    | class_Ring__and__Field_Osemiring__0__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Olordered__ring_13,axiom,
+    ( ~ class_Ring__and__Field_Olordered__ring(T)
+    | class_Ring__and__Field_Osemiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Olordered__ring_14,axiom,
+    ( ~ class_Ring__and__Field_Olordered__ring(T)
+    | class_Ring__and__Field_Osemiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Olordered__ring_15,axiom,
+    ( ~ class_Ring__and__Field_Olordered__ring(T)
+    | class_OrderedGroup_Osemigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Olordered__ring_16,axiom,
+    ( ~ class_Ring__and__Field_Olordered__ring(T)
+    | class_HOL_Otimes(T) )).
+
+cnf(clsrel_Ring__and__Field_Olordered__ring_17,axiom,
+    ( ~ class_Ring__and__Field_Olordered__ring(T)
+    | class_OrderedGroup_Ocomm__monoid__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Olordered__ring_18,axiom,
+    ( ~ class_Ring__and__Field_Olordered__ring(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_Ring__and__Field_Olordered__ring_19,axiom,
+    ( ~ class_Ring__and__Field_Olordered__ring(T)
+    | class_OrderedGroup_Ocancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Olordered__ring_2,axiom,
+    ( ~ class_Ring__and__Field_Olordered__ring(T)
+    | class_OrderedGroup_Opordered__ab__group__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Olordered__ring_20,axiom,
+    ( ~ class_Ring__and__Field_Olordered__ring(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Olordered__ring_21,axiom,
+    ( ~ class_Ring__and__Field_Olordered__ring(T)
+    | class_OrderedGroup_Ocancel__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Olordered__ring_22,axiom,
+    ( ~ class_Ring__and__Field_Olordered__ring(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Olordered__ring_23,axiom,
+    ( ~ class_Ring__and__Field_Olordered__ring(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_Ring__and__Field_Olordered__ring_24,axiom,
+    ( ~ class_Ring__and__Field_Olordered__ring(T)
+    | class_OrderedGroup_Olordered__ab__group__abs(T) )).
+
+cnf(clsrel_Ring__and__Field_Olordered__ring_25,axiom,
+    ( ~ class_Ring__and__Field_Olordered__ring(T)
+    | class_OrderedGroup_Olordered__ab__group(T) )).
+
+cnf(clsrel_Ring__and__Field_Olordered__ring_26,axiom,
+    ( ~ class_Ring__and__Field_Olordered__ring(T)
+    | class_LOrder_Olorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Olordered__ring_27,axiom,
+    ( ~ class_Ring__and__Field_Olordered__ring(T)
+    | class_LOrder_Ojoin__semilorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Olordered__ring_28,axiom,
+    ( ~ class_Ring__and__Field_Olordered__ring(T)
+    | class_LOrder_Omeet__semilorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Olordered__ring_29,axiom,
+    ( ~ class_Ring__and__Field_Olordered__ring(T)
+    | class_OrderedGroup_Olordered__ab__group__meet(T) )).
+
+cnf(clsrel_Ring__and__Field_Olordered__ring_3,axiom,
+    ( ~ class_Ring__and__Field_Olordered__ring(T)
+    | class_OrderedGroup_Oab__group__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Olordered__ring_30,axiom,
+    ( ~ class_Ring__and__Field_Olordered__ring(T)
+    | class_OrderedGroup_Olordered__ab__group__join(T) )).
+
+cnf(clsrel_Ring__and__Field_Olordered__ring_4,axiom,
+    ( ~ class_Ring__and__Field_Olordered__ring(T)
+    | class_HOL_Ominus(T) )).
+
+cnf(clsrel_Ring__and__Field_Olordered__ring_5,axiom,
+    ( ~ class_Ring__and__Field_Olordered__ring(T)
+    | class_OrderedGroup_Opordered__ab__semigroup__add__imp__le(T) )).
+
+cnf(clsrel_Ring__and__Field_Olordered__ring_6,axiom,
+    ( ~ class_Ring__and__Field_Olordered__ring(T)
+    | class_OrderedGroup_Opordered__cancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Olordered__ring_7,axiom,
+    ( ~ class_Ring__and__Field_Olordered__ring(T)
+    | class_Ring__and__Field_Opordered__cancel__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Olordered__ring_8,axiom,
+    ( ~ class_Ring__and__Field_Olordered__ring(T)
+    | class_Ring__and__Field_Opordered__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Olordered__ring_9,axiom,
+    ( ~ class_Ring__and__Field_Olordered__ring(T)
+    | class_OrderedGroup_Opordered__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__comm__semiring__strict_0,axiom,
+    ( ~ class_Ring__and__Field_Oordered__comm__semiring__strict(T)
+    | class_Ring__and__Field_Ocomm__semiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__comm__semiring__strict_1,axiom,
+    ( ~ class_Ring__and__Field_Oordered__comm__semiring__strict(T)
+    | class_Ring__and__Field_Ocomm__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__comm__semiring__strict_10,axiom,
+    ( ~ class_Ring__and__Field_Oordered__comm__semiring__strict(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__comm__semiring__strict_11,axiom,
+    ( ~ class_Ring__and__Field_Oordered__comm__semiring__strict(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__comm__semiring__strict_12,axiom,
+    ( ~ class_Ring__and__Field_Oordered__comm__semiring__strict(T)
+    | class_OrderedGroup_Oordered__cancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__comm__semiring__strict_13,axiom,
+    ( ~ class_Ring__and__Field_Oordered__comm__semiring__strict(T)
+    | class_Orderings_Olinorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__comm__semiring__strict_14,axiom,
+    ( ~ class_Ring__and__Field_Oordered__comm__semiring__strict(T)
+    | class_LOrder_Olorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__comm__semiring__strict_15,axiom,
+    ( ~ class_Ring__and__Field_Oordered__comm__semiring__strict(T)
+    | class_LOrder_Ojoin__semilorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__comm__semiring__strict_16,axiom,
+    ( ~ class_Ring__and__Field_Oordered__comm__semiring__strict(T)
+    | class_LOrder_Omeet__semilorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__comm__semiring__strict_17,axiom,
+    ( ~ class_Ring__and__Field_Oordered__comm__semiring__strict(T)
+    | class_OrderedGroup_Opordered__ab__semigroup__add__imp__le(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__comm__semiring__strict_18,axiom,
+    ( ~ class_Ring__and__Field_Oordered__comm__semiring__strict(T)
+    | class_OrderedGroup_Opordered__cancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__comm__semiring__strict_19,axiom,
+    ( ~ class_Ring__and__Field_Oordered__comm__semiring__strict(T)
+    | class_OrderedGroup_Opordered__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__comm__semiring__strict_2,axiom,
+    ( ~ class_Ring__and__Field_Oordered__comm__semiring__strict(T)
+    | class_OrderedGroup_Oab__semigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__comm__semiring__strict_20,axiom,
+    ( ~ class_Ring__and__Field_Oordered__comm__semiring__strict(T)
+    | class_Orderings_Oorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__comm__semiring__strict_21,axiom,
+    ( ~ class_Ring__and__Field_Oordered__comm__semiring__strict(T)
+    | class_Orderings_Oord(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__comm__semiring__strict_22,axiom,
+    ( ~ class_Ring__and__Field_Oordered__comm__semiring__strict(T)
+    | class_OrderedGroup_Ocancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__comm__semiring__strict_23,axiom,
+    ( ~ class_Ring__and__Field_Oordered__comm__semiring__strict(T)
+    | class_OrderedGroup_Ocancel__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__comm__semiring__strict_24,axiom,
+    ( ~ class_Ring__and__Field_Oordered__comm__semiring__strict(T)
+    | class_Ring__and__Field_Oordered__semiring__strict(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__comm__semiring__strict_25,axiom,
+    ( ~ class_Ring__and__Field_Oordered__comm__semiring__strict(T)
+    | class_Ring__and__Field_Opordered__cancel__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__comm__semiring__strict_26,axiom,
+    ( ~ class_Ring__and__Field_Oordered__comm__semiring__strict(T)
+    | class_Ring__and__Field_Osemiring__0__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__comm__semiring__strict_27,axiom,
+    ( ~ class_Ring__and__Field_Oordered__comm__semiring__strict(T)
+    | class_Ring__and__Field_Opordered__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__comm__semiring__strict_28,axiom,
+    ( ~ class_Ring__and__Field_Oordered__comm__semiring__strict(T)
+    | class_Ring__and__Field_Opordered__cancel__comm__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__comm__semiring__strict_29,axiom,
+    ( ~ class_Ring__and__Field_Oordered__comm__semiring__strict(T)
+    | class_Ring__and__Field_Opordered__comm__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__comm__semiring__strict_3,axiom,
+    ( ~ class_Ring__and__Field_Oordered__comm__semiring__strict(T)
+    | class_Ring__and__Field_Osemiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__comm__semiring__strict_4,axiom,
+    ( ~ class_Ring__and__Field_Oordered__comm__semiring__strict(T)
+    | class_Ring__and__Field_Osemiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__comm__semiring__strict_5,axiom,
+    ( ~ class_Ring__and__Field_Oordered__comm__semiring__strict(T)
+    | class_OrderedGroup_Osemigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__comm__semiring__strict_6,axiom,
+    ( ~ class_Ring__and__Field_Oordered__comm__semiring__strict(T)
+    | class_HOL_Otimes(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__comm__semiring__strict_7,axiom,
+    ( ~ class_Ring__and__Field_Oordered__comm__semiring__strict(T)
+    | class_OrderedGroup_Ocomm__monoid__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__comm__semiring__strict_8,axiom,
+    ( ~ class_Ring__and__Field_Oordered__comm__semiring__strict(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__comm__semiring__strict_9,axiom,
+    ( ~ class_Ring__and__Field_Oordered__comm__semiring__strict(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_0,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_Ring__and__Field_Ofield(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_1,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_HOL_Oinverse(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_10,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_Ring__and__Field_Ocomm__semiring__1(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_11,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_OrderedGroup_Ocomm__monoid__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_12,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_Ring__and__Field_Osemiring__1__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_13,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_Ring__and__Field_Osemiring__1(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_14,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_Ring__and__Field_Oaxclass__0__neq__1(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_15,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_OrderedGroup_Omonoid__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_16,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_HOL_Oone(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_17,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_Ring__and__Field_Ocomm__semiring__0__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_18,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_Ring__and__Field_Ocomm__semiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_19,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_Ring__and__Field_Ocomm__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_2,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_Ring__and__Field_Oidom(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_20,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_OrderedGroup_Oab__semigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_21,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_Ring__and__Field_Osemiring__0__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_22,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_Ring__and__Field_Osemiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_23,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_Ring__and__Field_Osemiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_24,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_OrderedGroup_Osemigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_25,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_OrderedGroup_Ocomm__monoid__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_26,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_OrderedGroup_Ocancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_27,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_28,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_OrderedGroup_Ocancel__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_29,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_3,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_Ring__and__Field_Ocomm__ring__1(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_30,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_31,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_Ring__and__Field_Oaxclass__no__zero__divisors(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_32,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_33,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_HOL_Otimes(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_34,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_Ring__and__Field_Oordered__idom(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_35,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_Ring__and__Field_Oordered__comm__semiring__strict(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_36,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_Ring__and__Field_Opordered__cancel__comm__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_37,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_Ring__and__Field_Opordered__comm__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_38,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_Ring__and__Field_Oordered__ring__strict(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_39,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_Ring__and__Field_Oordered__semiring__strict(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_4,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_Ring__and__Field_Ocomm__ring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_40,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_OrderedGroup_Oordered__cancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_41,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_Orderings_Olinorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_42,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_Ring__and__Field_Oaxclass__abs__if(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_43,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_Ring__and__Field_Olordered__ring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_44,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_Ring__and__Field_Opordered__ring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_45,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_Ring__and__Field_Opordered__cancel__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_46,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_Ring__and__Field_Opordered__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_47,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_OrderedGroup_Olordered__ab__group__abs(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_48,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_OrderedGroup_Olordered__ab__group__meet(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_49,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_OrderedGroup_Olordered__ab__group__join(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_5,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_Ring__and__Field_Oring__1(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_50,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_OrderedGroup_Olordered__ab__group(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_51,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_LOrder_Olorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_52,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_LOrder_Ojoin__semilorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_53,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_LOrder_Omeet__semilorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_54,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_OrderedGroup_Opordered__ab__group__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_55,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_OrderedGroup_Opordered__ab__semigroup__add__imp__le(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_56,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_OrderedGroup_Opordered__cancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_57,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_OrderedGroup_Opordered__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_58,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_Orderings_Oorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_59,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_Orderings_Oord(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_6,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_Ring__and__Field_Oring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_60,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_Ring__and__Field_Oordered__semidom(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_7,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_OrderedGroup_Oab__group__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_8,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_HOL_Ominus(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__field_9,axiom,
+    ( ~ class_Ring__and__Field_Oordered__field(T)
+    | class_Ring__and__Field_Ocomm__semiring__1__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_0,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_Ring__and__Field_Ocomm__ring__1(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_1,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_Ring__and__Field_Ocomm__ring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_10,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_Ring__and__Field_Osemiring__1(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_11,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_Ring__and__Field_Oaxclass__0__neq__1(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_12,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_OrderedGroup_Omonoid__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_13,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_HOL_Oone(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_14,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_Ring__and__Field_Ocomm__semiring__0__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_15,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_Ring__and__Field_Ocomm__semiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_16,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_Ring__and__Field_Ocomm__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_17,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_OrderedGroup_Oab__semigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_18,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_Ring__and__Field_Osemiring__0__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_19,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_Ring__and__Field_Osemiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_2,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_Ring__and__Field_Oring__1(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_20,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_Ring__and__Field_Osemiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_21,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_OrderedGroup_Osemigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_22,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_HOL_Otimes(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_23,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_OrderedGroup_Ocomm__monoid__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_24,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_25,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_OrderedGroup_Ocancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_26,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_27,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_OrderedGroup_Ocancel__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_28,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_29,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_3,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_Ring__and__Field_Oring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_30,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_Ring__and__Field_Oordered__comm__semiring__strict(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_31,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_Ring__and__Field_Oordered__semiring__strict(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_32,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_OrderedGroup_Oordered__cancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_33,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_Orderings_Olinorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_34,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_LOrder_Olorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_35,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_LOrder_Ojoin__semilorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_36,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_LOrder_Omeet__semilorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_37,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_OrderedGroup_Opordered__ab__semigroup__add__imp__le(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_38,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_OrderedGroup_Opordered__cancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_39,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_Ring__and__Field_Opordered__cancel__comm__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_4,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_OrderedGroup_Oab__group__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_40,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_Ring__and__Field_Opordered__cancel__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_41,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_Ring__and__Field_Opordered__comm__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_42,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_Ring__and__Field_Opordered__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_43,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_OrderedGroup_Opordered__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_44,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_Orderings_Oorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_45,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_Orderings_Oord(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_46,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_Ring__and__Field_Oaxclass__abs__if(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_47,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_Ring__and__Field_Oordered__ring__strict(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_48,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_Ring__and__Field_Olordered__ring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_49,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_Ring__and__Field_Opordered__ring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_5,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_HOL_Ominus(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_50,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_OrderedGroup_Olordered__ab__group__abs(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_51,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_OrderedGroup_Olordered__ab__group__meet(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_52,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_OrderedGroup_Olordered__ab__group__join(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_53,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_OrderedGroup_Olordered__ab__group(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_54,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_OrderedGroup_Opordered__ab__group__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_55,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_Ring__and__Field_Oordered__semidom(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_56,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_Ring__and__Field_Oaxclass__no__zero__divisors(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_57,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_Ring__and__Field_Oidom(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_6,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_Ring__and__Field_Ocomm__semiring__1__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_7,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_Ring__and__Field_Ocomm__semiring__1(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_8,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_OrderedGroup_Ocomm__monoid__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__idom_9,axiom,
+    ( ~ class_Ring__and__Field_Oordered__idom(T)
+    | class_Ring__and__Field_Osemiring__1__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__ring__strict_0,axiom,
+    ( ~ class_Ring__and__Field_Oordered__ring__strict(T)
+    | class_Ring__and__Field_Oring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__ring__strict_1,axiom,
+    ( ~ class_Ring__and__Field_Oordered__ring__strict(T)
+    | class_OrderedGroup_Oab__group__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__ring__strict_10,axiom,
+    ( ~ class_Ring__and__Field_Oordered__ring__strict(T)
+    | class_OrderedGroup_Ocomm__monoid__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__ring__strict_11,axiom,
+    ( ~ class_Ring__and__Field_Oordered__ring__strict(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__ring__strict_12,axiom,
+    ( ~ class_Ring__and__Field_Oordered__ring__strict(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__ring__strict_13,axiom,
+    ( ~ class_Ring__and__Field_Oordered__ring__strict(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__ring__strict_14,axiom,
+    ( ~ class_Ring__and__Field_Oordered__ring__strict(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__ring__strict_15,axiom,
+    ( ~ class_Ring__and__Field_Oordered__ring__strict(T)
+    | class_Ring__and__Field_Oordered__semiring__strict(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__ring__strict_16,axiom,
+    ( ~ class_Ring__and__Field_Oordered__ring__strict(T)
+    | class_OrderedGroup_Oordered__cancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__ring__strict_17,axiom,
+    ( ~ class_Ring__and__Field_Oordered__ring__strict(T)
+    | class_Orderings_Olinorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__ring__strict_18,axiom,
+    ( ~ class_Ring__and__Field_Oordered__ring__strict(T)
+    | class_LOrder_Olorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__ring__strict_19,axiom,
+    ( ~ class_Ring__and__Field_Oordered__ring__strict(T)
+    | class_LOrder_Ojoin__semilorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__ring__strict_2,axiom,
+    ( ~ class_Ring__and__Field_Oordered__ring__strict(T)
+    | class_HOL_Ominus(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__ring__strict_20,axiom,
+    ( ~ class_Ring__and__Field_Oordered__ring__strict(T)
+    | class_LOrder_Omeet__semilorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__ring__strict_21,axiom,
+    ( ~ class_Ring__and__Field_Oordered__ring__strict(T)
+    | class_OrderedGroup_Opordered__ab__semigroup__add__imp__le(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__ring__strict_22,axiom,
+    ( ~ class_Ring__and__Field_Oordered__ring__strict(T)
+    | class_OrderedGroup_Opordered__cancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__ring__strict_23,axiom,
+    ( ~ class_Ring__and__Field_Oordered__ring__strict(T)
+    | class_Ring__and__Field_Opordered__cancel__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__ring__strict_24,axiom,
+    ( ~ class_Ring__and__Field_Oordered__ring__strict(T)
+    | class_Ring__and__Field_Opordered__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__ring__strict_25,axiom,
+    ( ~ class_Ring__and__Field_Oordered__ring__strict(T)
+    | class_OrderedGroup_Opordered__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__ring__strict_26,axiom,
+    ( ~ class_Ring__and__Field_Oordered__ring__strict(T)
+    | class_Orderings_Oorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__ring__strict_27,axiom,
+    ( ~ class_Ring__and__Field_Oordered__ring__strict(T)
+    | class_Orderings_Oord(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__ring__strict_28,axiom,
+    ( ~ class_Ring__and__Field_Oordered__ring__strict(T)
+    | class_Ring__and__Field_Oaxclass__abs__if(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__ring__strict_29,axiom,
+    ( ~ class_Ring__and__Field_Oordered__ring__strict(T)
+    | class_OrderedGroup_Olordered__ab__group(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__ring__strict_3,axiom,
+    ( ~ class_Ring__and__Field_Oordered__ring__strict(T)
+    | class_Ring__and__Field_Osemiring__0__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__ring__strict_30,axiom,
+    ( ~ class_Ring__and__Field_Oordered__ring__strict(T)
+    | class_OrderedGroup_Opordered__ab__group__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__ring__strict_31,axiom,
+    ( ~ class_Ring__and__Field_Oordered__ring__strict(T)
+    | class_Ring__and__Field_Olordered__ring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__ring__strict_32,axiom,
+    ( ~ class_Ring__and__Field_Oordered__ring__strict(T)
+    | class_Ring__and__Field_Opordered__ring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__ring__strict_33,axiom,
+    ( ~ class_Ring__and__Field_Oordered__ring__strict(T)
+    | class_OrderedGroup_Olordered__ab__group__abs(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__ring__strict_34,axiom,
+    ( ~ class_Ring__and__Field_Oordered__ring__strict(T)
+    | class_OrderedGroup_Olordered__ab__group__meet(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__ring__strict_35,axiom,
+    ( ~ class_Ring__and__Field_Oordered__ring__strict(T)
+    | class_OrderedGroup_Olordered__ab__group__join(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__ring__strict_36,axiom,
+    ( ~ class_Ring__and__Field_Oordered__ring__strict(T)
+    | class_Ring__and__Field_Oaxclass__no__zero__divisors(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__ring__strict_4,axiom,
+    ( ~ class_Ring__and__Field_Oordered__ring__strict(T)
+    | class_OrderedGroup_Ocancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__ring__strict_5,axiom,
+    ( ~ class_Ring__and__Field_Oordered__ring__strict(T)
+    | class_OrderedGroup_Ocancel__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__ring__strict_6,axiom,
+    ( ~ class_Ring__and__Field_Oordered__ring__strict(T)
+    | class_Ring__and__Field_Osemiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__ring__strict_7,axiom,
+    ( ~ class_Ring__and__Field_Oordered__ring__strict(T)
+    | class_Ring__and__Field_Osemiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__ring__strict_8,axiom,
+    ( ~ class_Ring__and__Field_Oordered__ring__strict(T)
+    | class_OrderedGroup_Osemigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__ring__strict_9,axiom,
+    ( ~ class_Ring__and__Field_Oordered__ring__strict(T)
+    | class_HOL_Otimes(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_0,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_Ring__and__Field_Ocomm__semiring__1__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_1,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_Ring__and__Field_Ocomm__semiring__1(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_10,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_Ring__and__Field_Ocomm__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_11,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_OrderedGroup_Oab__semigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_12,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_Ring__and__Field_Osemiring__0__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_13,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_Ring__and__Field_Osemiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_14,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_Ring__and__Field_Osemiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_15,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_OrderedGroup_Osemigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_16,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_HOL_Otimes(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_17,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_OrderedGroup_Ocomm__monoid__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_18,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_19,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_OrderedGroup_Ocancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_2,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_OrderedGroup_Ocomm__monoid__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_20,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_21,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_OrderedGroup_Ocancel__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_22,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_23,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_24,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_Ring__and__Field_Oordered__comm__semiring__strict(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_25,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_Ring__and__Field_Oordered__semiring__strict(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_26,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_OrderedGroup_Oordered__cancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_27,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_Orderings_Olinorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_28,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_LOrder_Olorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_29,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_LOrder_Ojoin__semilorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_3,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_Ring__and__Field_Osemiring__1__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_30,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_LOrder_Omeet__semilorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_31,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_OrderedGroup_Opordered__ab__semigroup__add__imp__le(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_32,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_OrderedGroup_Opordered__cancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_33,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_Ring__and__Field_Opordered__cancel__comm__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_34,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_Ring__and__Field_Opordered__cancel__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_35,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_Ring__and__Field_Opordered__comm__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_36,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_Ring__and__Field_Opordered__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_37,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_OrderedGroup_Opordered__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_38,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_Orderings_Oorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_39,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_Orderings_Oord(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_4,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_Ring__and__Field_Osemiring__1(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_5,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_Ring__and__Field_Oaxclass__0__neq__1(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_6,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_OrderedGroup_Omonoid__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_7,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_HOL_Oone(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_8,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_Ring__and__Field_Ocomm__semiring__0__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semidom_9,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semidom(T)
+    | class_Ring__and__Field_Ocomm__semiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semiring__strict_0,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semiring__strict(T)
+    | class_Ring__and__Field_Osemiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semiring__strict_1,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semiring__strict(T)
+    | class_Ring__and__Field_Osemiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semiring__strict_10,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semiring__strict(T)
+    | class_Orderings_Olinorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semiring__strict_11,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semiring__strict(T)
+    | class_LOrder_Olorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semiring__strict_12,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semiring__strict(T)
+    | class_LOrder_Ojoin__semilorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semiring__strict_13,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semiring__strict(T)
+    | class_LOrder_Omeet__semilorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semiring__strict_14,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semiring__strict(T)
+    | class_OrderedGroup_Opordered__ab__semigroup__add__imp__le(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semiring__strict_15,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semiring__strict(T)
+    | class_OrderedGroup_Opordered__cancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semiring__strict_16,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semiring__strict(T)
+    | class_OrderedGroup_Opordered__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semiring__strict_17,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semiring__strict(T)
+    | class_Orderings_Oorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semiring__strict_18,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semiring__strict(T)
+    | class_Orderings_Oord(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semiring__strict_19,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semiring__strict(T)
+    | class_OrderedGroup_Ocancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semiring__strict_2,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semiring__strict(T)
+    | class_OrderedGroup_Osemigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semiring__strict_20,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semiring__strict(T)
+    | class_OrderedGroup_Ocancel__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semiring__strict_21,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semiring__strict(T)
+    | class_Ring__and__Field_Osemiring__0__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semiring__strict_22,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semiring__strict(T)
+    | class_Ring__and__Field_Opordered__cancel__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semiring__strict_23,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semiring__strict(T)
+    | class_Ring__and__Field_Opordered__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semiring__strict_3,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semiring__strict(T)
+    | class_HOL_Otimes(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semiring__strict_4,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semiring__strict(T)
+    | class_OrderedGroup_Ocomm__monoid__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semiring__strict_5,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semiring__strict(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semiring__strict_6,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semiring__strict(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semiring__strict_7,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semiring__strict(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semiring__strict_8,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semiring__strict(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_Ring__and__Field_Oordered__semiring__strict_9,axiom,
+    ( ~ class_Ring__and__Field_Oordered__semiring__strict(T)
+    | class_OrderedGroup_Oordered__cancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__cancel__comm__semiring_0,axiom,
+    ( ~ class_Ring__and__Field_Opordered__cancel__comm__semiring(T)
+    | class_Ring__and__Field_Opordered__comm__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__cancel__comm__semiring_1,axiom,
+    ( ~ class_Ring__and__Field_Opordered__cancel__comm__semiring(T)
+    | class_Ring__and__Field_Ocomm__semiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__cancel__comm__semiring_10,axiom,
+    ( ~ class_Ring__and__Field_Opordered__cancel__comm__semiring(T)
+    | class_OrderedGroup_Opordered__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__cancel__comm__semiring_11,axiom,
+    ( ~ class_Ring__and__Field_Opordered__cancel__comm__semiring(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__cancel__comm__semiring_12,axiom,
+    ( ~ class_Ring__and__Field_Opordered__cancel__comm__semiring(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__cancel__comm__semiring_13,axiom,
+    ( ~ class_Ring__and__Field_Opordered__cancel__comm__semiring(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__cancel__comm__semiring_14,axiom,
+    ( ~ class_Ring__and__Field_Opordered__cancel__comm__semiring(T)
+    | class_Orderings_Oorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__cancel__comm__semiring_15,axiom,
+    ( ~ class_Ring__and__Field_Opordered__cancel__comm__semiring(T)
+    | class_Orderings_Oord(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__cancel__comm__semiring_16,axiom,
+    ( ~ class_Ring__and__Field_Opordered__cancel__comm__semiring(T)
+    | class_OrderedGroup_Ocancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__cancel__comm__semiring_17,axiom,
+    ( ~ class_Ring__and__Field_Opordered__cancel__comm__semiring(T)
+    | class_OrderedGroup_Ocancel__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__cancel__comm__semiring_18,axiom,
+    ( ~ class_Ring__and__Field_Opordered__cancel__comm__semiring(T)
+    | class_Ring__and__Field_Opordered__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__cancel__comm__semiring_19,axiom,
+    ( ~ class_Ring__and__Field_Opordered__cancel__comm__semiring(T)
+    | class_Ring__and__Field_Opordered__cancel__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__cancel__comm__semiring_2,axiom,
+    ( ~ class_Ring__and__Field_Opordered__cancel__comm__semiring(T)
+    | class_Ring__and__Field_Ocomm__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__cancel__comm__semiring_20,axiom,
+    ( ~ class_Ring__and__Field_Opordered__cancel__comm__semiring(T)
+    | class_Ring__and__Field_Osemiring__0__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__cancel__comm__semiring_3,axiom,
+    ( ~ class_Ring__and__Field_Opordered__cancel__comm__semiring(T)
+    | class_OrderedGroup_Oab__semigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__cancel__comm__semiring_4,axiom,
+    ( ~ class_Ring__and__Field_Opordered__cancel__comm__semiring(T)
+    | class_Ring__and__Field_Osemiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__cancel__comm__semiring_5,axiom,
+    ( ~ class_Ring__and__Field_Opordered__cancel__comm__semiring(T)
+    | class_Ring__and__Field_Osemiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__cancel__comm__semiring_6,axiom,
+    ( ~ class_Ring__and__Field_Opordered__cancel__comm__semiring(T)
+    | class_OrderedGroup_Osemigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__cancel__comm__semiring_7,axiom,
+    ( ~ class_Ring__and__Field_Opordered__cancel__comm__semiring(T)
+    | class_HOL_Otimes(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__cancel__comm__semiring_8,axiom,
+    ( ~ class_Ring__and__Field_Opordered__cancel__comm__semiring(T)
+    | class_OrderedGroup_Ocomm__monoid__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__cancel__comm__semiring_9,axiom,
+    ( ~ class_Ring__and__Field_Opordered__cancel__comm__semiring(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__cancel__semiring_0,axiom,
+    ( ~ class_Ring__and__Field_Opordered__cancel__semiring(T)
+    | class_Ring__and__Field_Opordered__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__cancel__semiring_1,axiom,
+    ( ~ class_Ring__and__Field_Opordered__cancel__semiring(T)
+    | class_Ring__and__Field_Osemiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__cancel__semiring_10,axiom,
+    ( ~ class_Ring__and__Field_Opordered__cancel__semiring(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__cancel__semiring_11,axiom,
+    ( ~ class_Ring__and__Field_Opordered__cancel__semiring(T)
+    | class_Orderings_Oorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__cancel__semiring_12,axiom,
+    ( ~ class_Ring__and__Field_Opordered__cancel__semiring(T)
+    | class_Orderings_Oord(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__cancel__semiring_13,axiom,
+    ( ~ class_Ring__and__Field_Opordered__cancel__semiring(T)
+    | class_OrderedGroup_Ocancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__cancel__semiring_14,axiom,
+    ( ~ class_Ring__and__Field_Opordered__cancel__semiring(T)
+    | class_OrderedGroup_Ocancel__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__cancel__semiring_15,axiom,
+    ( ~ class_Ring__and__Field_Opordered__cancel__semiring(T)
+    | class_Ring__and__Field_Osemiring__0__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__cancel__semiring_2,axiom,
+    ( ~ class_Ring__and__Field_Opordered__cancel__semiring(T)
+    | class_Ring__and__Field_Osemiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__cancel__semiring_3,axiom,
+    ( ~ class_Ring__and__Field_Opordered__cancel__semiring(T)
+    | class_OrderedGroup_Osemigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__cancel__semiring_4,axiom,
+    ( ~ class_Ring__and__Field_Opordered__cancel__semiring(T)
+    | class_HOL_Otimes(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__cancel__semiring_5,axiom,
+    ( ~ class_Ring__and__Field_Opordered__cancel__semiring(T)
+    | class_OrderedGroup_Ocomm__monoid__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__cancel__semiring_6,axiom,
+    ( ~ class_Ring__and__Field_Opordered__cancel__semiring(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__cancel__semiring_7,axiom,
+    ( ~ class_Ring__and__Field_Opordered__cancel__semiring(T)
+    | class_OrderedGroup_Opordered__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__cancel__semiring_8,axiom,
+    ( ~ class_Ring__and__Field_Opordered__cancel__semiring(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__cancel__semiring_9,axiom,
+    ( ~ class_Ring__and__Field_Opordered__cancel__semiring(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__ring_0,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__ring(T)
+    | class_Ring__and__Field_Ocomm__ring(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__ring_1,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__ring(T)
+    | class_Ring__and__Field_Oring(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__ring_10,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__ring(T)
+    | class_Ring__and__Field_Osemiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__ring_11,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__ring(T)
+    | class_OrderedGroup_Osemigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__ring_12,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__ring(T)
+    | class_HOL_Otimes(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__ring_13,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__ring(T)
+    | class_OrderedGroup_Ocomm__monoid__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__ring_14,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__ring(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__ring_15,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__ring(T)
+    | class_OrderedGroup_Ocancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__ring_16,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__ring(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__ring_17,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__ring(T)
+    | class_OrderedGroup_Ocancel__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__ring_18,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__ring(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__ring_19,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__ring(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__ring_2,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__ring(T)
+    | class_OrderedGroup_Oab__group__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__ring_20,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__ring(T)
+    | class_Ring__and__Field_Opordered__comm__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__ring_21,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__ring(T)
+    | class_Ring__and__Field_Opordered__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__ring_22,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__ring(T)
+    | class_OrderedGroup_Opordered__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__ring_23,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__ring(T)
+    | class_Orderings_Oorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__ring_24,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__ring(T)
+    | class_Orderings_Oord(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__ring_3,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__ring(T)
+    | class_HOL_Ominus(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__ring_4,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__ring(T)
+    | class_Ring__and__Field_Ocomm__semiring__0__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__ring_5,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__ring(T)
+    | class_Ring__and__Field_Ocomm__semiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__ring_6,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__ring(T)
+    | class_Ring__and__Field_Ocomm__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__ring_7,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__ring(T)
+    | class_OrderedGroup_Oab__semigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__ring_8,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__ring(T)
+    | class_Ring__and__Field_Osemiring__0__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__ring_9,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__ring(T)
+    | class_Ring__and__Field_Osemiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__semiring_0,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__semiring(T)
+    | class_Ring__and__Field_Ocomm__semiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__semiring_1,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__semiring(T)
+    | class_Ring__and__Field_Ocomm__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__semiring_10,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__semiring(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__semiring_11,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__semiring(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__semiring_12,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__semiring(T)
+    | class_OrderedGroup_Opordered__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__semiring_13,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__semiring(T)
+    | class_Orderings_Oorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__semiring_14,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__semiring(T)
+    | class_Orderings_Oord(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__semiring_15,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__semiring(T)
+    | class_Ring__and__Field_Opordered__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__semiring_2,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__semiring(T)
+    | class_OrderedGroup_Oab__semigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__semiring_3,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__semiring(T)
+    | class_Ring__and__Field_Osemiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__semiring_4,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__semiring(T)
+    | class_Ring__and__Field_Osemiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__semiring_5,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__semiring(T)
+    | class_OrderedGroup_Osemigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__semiring_6,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__semiring(T)
+    | class_HOL_Otimes(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__semiring_7,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__semiring(T)
+    | class_OrderedGroup_Ocomm__monoid__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__semiring_8,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__semiring(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__comm__semiring_9,axiom,
+    ( ~ class_Ring__and__Field_Opordered__comm__semiring(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__ring_0,axiom,
+    ( ~ class_Ring__and__Field_Opordered__ring(T)
+    | class_Ring__and__Field_Oring(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__ring_1,axiom,
+    ( ~ class_Ring__and__Field_Opordered__ring(T)
+    | class_OrderedGroup_Oab__group__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__ring_10,axiom,
+    ( ~ class_Ring__and__Field_Opordered__ring(T)
+    | class_OrderedGroup_Ocomm__monoid__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__ring_11,axiom,
+    ( ~ class_Ring__and__Field_Opordered__ring(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__ring_12,axiom,
+    ( ~ class_Ring__and__Field_Opordered__ring(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__ring_13,axiom,
+    ( ~ class_Ring__and__Field_Opordered__ring(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__ring_14,axiom,
+    ( ~ class_Ring__and__Field_Opordered__ring(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__ring_15,axiom,
+    ( ~ class_Ring__and__Field_Opordered__ring(T)
+    | class_Ring__and__Field_Opordered__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__ring_16,axiom,
+    ( ~ class_Ring__and__Field_Opordered__ring(T)
+    | class_OrderedGroup_Opordered__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__ring_17,axiom,
+    ( ~ class_Ring__and__Field_Opordered__ring(T)
+    | class_Orderings_Oorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__ring_18,axiom,
+    ( ~ class_Ring__and__Field_Opordered__ring(T)
+    | class_Orderings_Oord(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__ring_19,axiom,
+    ( ~ class_Ring__and__Field_Opordered__ring(T)
+    | class_OrderedGroup_Opordered__ab__group__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__ring_2,axiom,
+    ( ~ class_Ring__and__Field_Opordered__ring(T)
+    | class_HOL_Ominus(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__ring_20,axiom,
+    ( ~ class_Ring__and__Field_Opordered__ring(T)
+    | class_OrderedGroup_Opordered__ab__semigroup__add__imp__le(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__ring_21,axiom,
+    ( ~ class_Ring__and__Field_Opordered__ring(T)
+    | class_OrderedGroup_Opordered__cancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__ring_22,axiom,
+    ( ~ class_Ring__and__Field_Opordered__ring(T)
+    | class_Ring__and__Field_Opordered__cancel__semiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__ring_3,axiom,
+    ( ~ class_Ring__and__Field_Opordered__ring(T)
+    | class_Ring__and__Field_Osemiring__0__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__ring_4,axiom,
+    ( ~ class_Ring__and__Field_Opordered__ring(T)
+    | class_OrderedGroup_Ocancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__ring_5,axiom,
+    ( ~ class_Ring__and__Field_Opordered__ring(T)
+    | class_OrderedGroup_Ocancel__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__ring_6,axiom,
+    ( ~ class_Ring__and__Field_Opordered__ring(T)
+    | class_Ring__and__Field_Osemiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__ring_7,axiom,
+    ( ~ class_Ring__and__Field_Opordered__ring(T)
+    | class_Ring__and__Field_Osemiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__ring_8,axiom,
+    ( ~ class_Ring__and__Field_Opordered__ring(T)
+    | class_OrderedGroup_Osemigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__ring_9,axiom,
+    ( ~ class_Ring__and__Field_Opordered__ring(T)
+    | class_HOL_Otimes(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__semiring_0,axiom,
+    ( ~ class_Ring__and__Field_Opordered__semiring(T)
+    | class_Ring__and__Field_Osemiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__semiring_1,axiom,
+    ( ~ class_Ring__and__Field_Opordered__semiring(T)
+    | class_Ring__and__Field_Osemiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__semiring_10,axiom,
+    ( ~ class_Ring__and__Field_Opordered__semiring(T)
+    | class_Orderings_Oorder(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__semiring_11,axiom,
+    ( ~ class_Ring__and__Field_Opordered__semiring(T)
+    | class_Orderings_Oord(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__semiring_2,axiom,
+    ( ~ class_Ring__and__Field_Opordered__semiring(T)
+    | class_OrderedGroup_Osemigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__semiring_3,axiom,
+    ( ~ class_Ring__and__Field_Opordered__semiring(T)
+    | class_HOL_Otimes(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__semiring_4,axiom,
+    ( ~ class_Ring__and__Field_Opordered__semiring(T)
+    | class_OrderedGroup_Ocomm__monoid__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__semiring_5,axiom,
+    ( ~ class_Ring__and__Field_Opordered__semiring(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__semiring_6,axiom,
+    ( ~ class_Ring__and__Field_Opordered__semiring(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__semiring_7,axiom,
+    ( ~ class_Ring__and__Field_Opordered__semiring(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__semiring_8,axiom,
+    ( ~ class_Ring__and__Field_Opordered__semiring(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_Ring__and__Field_Opordered__semiring_9,axiom,
+    ( ~ class_Ring__and__Field_Opordered__semiring(T)
+    | class_OrderedGroup_Opordered__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oring_0,axiom,
+    ( ~ class_Ring__and__Field_Oring(T)
+    | class_Ring__and__Field_Osemiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oring_1,axiom,
+    ( ~ class_Ring__and__Field_Oring(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oring_10,axiom,
+    ( ~ class_Ring__and__Field_Oring(T)
+    | class_OrderedGroup_Ocancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oring_11,axiom,
+    ( ~ class_Ring__and__Field_Oring(T)
+    | class_OrderedGroup_Ocancel__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oring_12,axiom,
+    ( ~ class_Ring__and__Field_Oring(T)
+    | class_Ring__and__Field_Osemiring__0__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Oring_13,axiom,
+    ( ~ class_Ring__and__Field_Oring(T)
+    | class_Ring__and__Field_Osemiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Oring_2,axiom,
+    ( ~ class_Ring__and__Field_Oring(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oring_3,axiom,
+    ( ~ class_Ring__and__Field_Oring(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_Ring__and__Field_Oring_4,axiom,
+    ( ~ class_Ring__and__Field_Oring(T)
+    | class_OrderedGroup_Osemigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Oring_5,axiom,
+    ( ~ class_Ring__and__Field_Oring(T)
+    | class_HOL_Otimes(T) )).
+
+cnf(clsrel_Ring__and__Field_Oring_6,axiom,
+    ( ~ class_Ring__and__Field_Oring(T)
+    | class_OrderedGroup_Oab__group__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oring_7,axiom,
+    ( ~ class_Ring__and__Field_Oring(T)
+    | class_HOL_Ominus(T) )).
+
+cnf(clsrel_Ring__and__Field_Oring_8,axiom,
+    ( ~ class_Ring__and__Field_Oring(T)
+    | class_OrderedGroup_Ocomm__monoid__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oring_9,axiom,
+    ( ~ class_Ring__and__Field_Oring(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_Ring__and__Field_Oring__1_0,axiom,
+    ( ~ class_Ring__and__Field_Oring__1(T)
+    | class_Ring__and__Field_Oring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oring__1_1,axiom,
+    ( ~ class_Ring__and__Field_Oring__1(T)
+    | class_OrderedGroup_Oab__group__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oring__1_10,axiom,
+    ( ~ class_Ring__and__Field_Oring__1(T)
+    | class_OrderedGroup_Ocomm__monoid__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oring__1_11,axiom,
+    ( ~ class_Ring__and__Field_Oring__1(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oring__1_12,axiom,
+    ( ~ class_Ring__and__Field_Oring__1(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oring__1_13,axiom,
+    ( ~ class_Ring__and__Field_Oring__1(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_Ring__and__Field_Oring__1_14,axiom,
+    ( ~ class_Ring__and__Field_Oring__1(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_Ring__and__Field_Oring__1_15,axiom,
+    ( ~ class_Ring__and__Field_Oring__1(T)
+    | class_Ring__and__Field_Osemiring__1(T) )).
+
+cnf(clsrel_Ring__and__Field_Oring__1_16,axiom,
+    ( ~ class_Ring__and__Field_Oring__1(T)
+    | class_Ring__and__Field_Oaxclass__0__neq__1(T) )).
+
+cnf(clsrel_Ring__and__Field_Oring__1_17,axiom,
+    ( ~ class_Ring__and__Field_Oring__1(T)
+    | class_OrderedGroup_Omonoid__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Oring__1_18,axiom,
+    ( ~ class_Ring__and__Field_Oring__1(T)
+    | class_HOL_Oone(T) )).
+
+cnf(clsrel_Ring__and__Field_Oring__1_19,axiom,
+    ( ~ class_Ring__and__Field_Oring__1(T)
+    | class_Ring__and__Field_Osemiring__1__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Oring__1_2,axiom,
+    ( ~ class_Ring__and__Field_Oring__1(T)
+    | class_HOL_Ominus(T) )).
+
+cnf(clsrel_Ring__and__Field_Oring__1_3,axiom,
+    ( ~ class_Ring__and__Field_Oring__1(T)
+    | class_Ring__and__Field_Osemiring__0__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Oring__1_4,axiom,
+    ( ~ class_Ring__and__Field_Oring__1(T)
+    | class_OrderedGroup_Ocancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oring__1_5,axiom,
+    ( ~ class_Ring__and__Field_Oring__1(T)
+    | class_OrderedGroup_Ocancel__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Oring__1_6,axiom,
+    ( ~ class_Ring__and__Field_Oring__1(T)
+    | class_Ring__and__Field_Osemiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Oring__1_7,axiom,
+    ( ~ class_Ring__and__Field_Oring__1(T)
+    | class_Ring__and__Field_Osemiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Oring__1_8,axiom,
+    ( ~ class_Ring__and__Field_Oring__1(T)
+    | class_OrderedGroup_Osemigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Oring__1_9,axiom,
+    ( ~ class_Ring__and__Field_Oring__1(T)
+    | class_HOL_Otimes(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring_0,axiom,
+    ( ~ class_Ring__and__Field_Osemiring(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring_1,axiom,
+    ( ~ class_Ring__and__Field_Osemiring(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring_2,axiom,
+    ( ~ class_Ring__and__Field_Osemiring(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring_3,axiom,
+    ( ~ class_Ring__and__Field_Osemiring(T)
+    | class_OrderedGroup_Osemigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring_4,axiom,
+    ( ~ class_Ring__and__Field_Osemiring(T)
+    | class_HOL_Otimes(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__0_0,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__0(T)
+    | class_Ring__and__Field_Osemiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__0_1,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__0(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__0_2,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__0(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__0_3,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__0(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__0_4,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__0(T)
+    | class_OrderedGroup_Osemigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__0_5,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__0(T)
+    | class_HOL_Otimes(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__0_6,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__0(T)
+    | class_OrderedGroup_Ocomm__monoid__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__0_7,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__0(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__0__cancel_0,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__0__cancel(T)
+    | class_Ring__and__Field_Osemiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__0__cancel_1,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__0__cancel(T)
+    | class_Ring__and__Field_Osemiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__0__cancel_10,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__0__cancel(T)
+    | class_OrderedGroup_Ocancel__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__0__cancel_2,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__0__cancel(T)
+    | class_OrderedGroup_Osemigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__0__cancel_3,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__0__cancel(T)
+    | class_HOL_Otimes(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__0__cancel_4,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__0__cancel(T)
+    | class_OrderedGroup_Ocomm__monoid__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__0__cancel_5,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__0__cancel(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__0__cancel_6,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__0__cancel(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__0__cancel_7,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__0__cancel(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__0__cancel_8,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__0__cancel(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__0__cancel_9,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__0__cancel(T)
+    | class_OrderedGroup_Ocancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__1_0,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__1(T)
+    | class_Ring__and__Field_Oaxclass__0__neq__1(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__1_1,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__1(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__1_10,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__1(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__1_11,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__1(T)
+    | class_OrderedGroup_Omonoid__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__1_2,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__1(T)
+    | class_HOL_Oone(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__1_3,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__1(T)
+    | class_Ring__and__Field_Osemiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__1_4,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__1(T)
+    | class_Ring__and__Field_Osemiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__1_5,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__1(T)
+    | class_OrderedGroup_Osemigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__1_6,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__1(T)
+    | class_HOL_Otimes(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__1_7,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__1(T)
+    | class_OrderedGroup_Ocomm__monoid__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__1_8,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__1(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__1_9,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__1(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__1__cancel_0,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__1__cancel(T)
+    | class_Ring__and__Field_Osemiring__1(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__1__cancel_1,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__1__cancel(T)
+    | class_Ring__and__Field_Oaxclass__0__neq__1(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__1__cancel_10,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__1__cancel(T)
+    | class_HOL_Oone(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__1__cancel_11,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__1__cancel(T)
+    | class_OrderedGroup_Osemigroup__mult(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__1__cancel_12,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__1__cancel(T)
+    | class_HOL_Otimes(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__1__cancel_13,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__1__cancel(T)
+    | class_OrderedGroup_Ocancel__ab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__1__cancel_14,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__1__cancel(T)
+    | class_OrderedGroup_Ocancel__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__1__cancel_15,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__1__cancel(T)
+    | class_Ring__and__Field_Osemiring__0__cancel(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__1__cancel_2,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__1__cancel(T)
+    | class_Ring__and__Field_Osemiring__0(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__1__cancel_3,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__1__cancel(T)
+    | class_Ring__and__Field_Osemiring(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__1__cancel_4,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__1__cancel(T)
+    | class_OrderedGroup_Ocomm__monoid__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__1__cancel_5,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__1__cancel(T)
+    | class_HOL_Ozero(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__1__cancel_6,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__1__cancel(T)
+    | class_OrderedGroup_Oab__semigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__1__cancel_7,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__1__cancel(T)
+    | class_OrderedGroup_Osemigroup__add(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__1__cancel_8,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__1__cancel(T)
+    | class_HOL_Oplus(T) )).
+
+cnf(clsrel_Ring__and__Field_Osemiring__1__cancel_9,axiom,
+    ( ~ class_Ring__and__Field_Osemiring__1__cancel(T)
+    | class_OrderedGroup_Omonoid__mult(T) )).
+
+cnf(clsrel_Wellfounded__Recursion_Owellorder_0,axiom,
+    ( ~ class_Wellfounded__Recursion_Owellorder(T)
+    | class_Orderings_Oord(T) )).
+
+cnf(clsrel_Wellfounded__Recursion_Owellorder_1,axiom,
+    ( ~ class_Wellfounded__Recursion_Owellorder(T)
+    | class_Orderings_Oorder(T) )).
+
+cnf(clsrel_Wellfounded__Recursion_Owellorder_2,axiom,
+    ( ~ class_Wellfounded__Recursion_Owellorder(T)
+    | class_LOrder_Omeet__semilorder(T) )).
+
+cnf(clsrel_Wellfounded__Recursion_Owellorder_3,axiom,
+    ( ~ class_Wellfounded__Recursion_Owellorder(T)
+    | class_LOrder_Ojoin__semilorder(T) )).
+
+cnf(clsrel_Wellfounded__Recursion_Owellorder_4,axiom,
+    ( ~ class_Wellfounded__Recursion_Owellorder(T)
+    | class_LOrder_Olorder(T) )).
+
+cnf(clsrel_Wellfounded__Recursion_Owellorder_5,axiom,
+    ( ~ class_Wellfounded__Recursion_Owellorder(T)
+    | class_Orderings_Olinorder(T) )).
+
+%------------------------------------------------------------------------------

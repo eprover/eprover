@@ -1,0 +1,128 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"></head><body><hr><!------------------------------------------------------------------------>
+
+<P>
+<A NAME="E---1.8pre">
+<HR><!------------------------------------------------------------------------>
+<H2>E 1.8pre</H2>
+Stephan Schulz<BR>
+Technische Universit&auml;t M&uuml;nchen, Germany
+
+<H3>Architecture</H3>
+
+E 1.8pre [Sch02] is a purely equational theorem prover for full
+first-order logic with equality.  It consists of an (optional)
+clausifier for pre-processing full first-order formulae into clausal
+form, and a saturation algorithm implementing an instance of the
+superposition calculus with negative literal selection and a number of
+redundancy elimination techniques.  E is based on the DISCOUNT-loop
+variant of the <EM>given-clause</EM> algorithm, i.e., a strict
+separation of active and passive facts.  No special rules for
+non-equational literals have been implemented.  Resolution is
+effectively simulated by paramodulation and equality resolution.
+<P>
+For the LTB divisions, a control program uses a SInE-like analysis to
+extract reduced axiomatizations that are handed to several instances
+of E.
+
+<H3>Strategies</H3>
+
+Proof search in E is primarily controlled by a literal selection
+strategy, a clause evaluation heuristic, and a simplification
+ordering. The prover supports a large number of pre-programmed literal
+selection strategies. Clause evaluation heuristics can be constructed
+on the fly by combining various parameterized primitive evaluation
+functions, or can be selected from a set of predefined
+heuristics. Clause evaluation heuristics are based on symbol-counting,
+but also take other clause properties into account. In particular, the
+search can prefer clauses from the set of support, or containing many
+symbols also present in the goal. Supported term orderings are several
+parameterized instances of Knuth-Bendix-Ordering (KBO) and
+Lexicographic Path Ordering (LPO).
+<P>
+For CASC-24, E implements a new strategy-scheduling automatic mode.
+The total CPU time available is broken into 5 (unequal) time
+slices. For each time slice, the problem is classified into one of
+several classes, based on a number of simple features (number of
+clauses, maximal symbol arity, presence of equality, presence of
+non-unit and non-Horn clauses,...). For each class, a schedule of
+strategies is greedily constructed from experimental data as follows:
+The first strategy assigned to a schedule is the the one that solves
+the most problems from this class in the first time slice. Each
+subsequent strategy is selected based on the number of solutions on
+problems not already solved by a preceding strategy.
+<p>
+About 170 different strategies have been evaluated on all untyped
+first-order problems from TPTP 5.4.0, and about 140 of these
+strategies are used in the automatic mode.
+
+
+<H3>Implementation</H3>
+
+E is build around perfectly shared terms, i.e. each distinct term is
+only represented once in a term bank. The whole set of terms thus
+consists of a number of interconnected directed acyclic graphs. 
+Term memory is managed by a simple mark-and-sweep garbage collector.
+Unconditional (forward) rewriting using unit clauses is implemented
+using perfect discrimination trees with size and age constraints. 
+Whenever a possible simplification is detected, it is added as a rewrite 
+link in the term bank. 
+As a result, not only terms, but also rewrite steps are shared.
+Subsumption and contextual literal cutting (also known as subsumption
+resolution) is supported using feature vector indexing [Sch04].
+Superposition and backward rewriting use fingerprint indexing [Sch12],
+a new technique combining ideas from feature vector indexing and path
+indexing.
+Finally, LPO and KBO are implemented using the elegant and efficient
+algorithms developed by Bernd L&ouml;chner in [Loe06,Loe06].
+The prover and additional information are available at
+<PRE>
+    <A HREF="http://www.eprover.org">http://www.eprover.org</A></PRE>
+
+<H3>Expected Competition Performance</H3>
+
+E 1.8pre has slightly better strategies than previous versions, and now
+can produce proof objects internally and much more efficiently. The
+system is expected to perform well in most proof classes, but will at
+best complement top systems in the disproof classes.
+
+<P>
+
+<a NAME="References">
+<h3>References</h3>
+<dl>
+<dt> Sch2002
+<dd> Schulz S. (2002),
+     <strong>E: A Brainiac Theorem Prover</strong>,
+     <em>Journal of AI Communications</em> 15(2/3), 111-126, IOS Press
+</dd>
+<dt> Sch2004
+<dd> Schulz S. (2004),
+     <strong>Simple and Efficient Clause Subsumption with Feature
+     Vector Indexing</strong>,
+     <em>Proceedings of the IJCAR-2004 Workshop on Empirically
+     Successful First-Order Theorem Proving (Cork, Ireland)</em>
+</dd>
+<dt> Sch2012
+<dd> Schulz S. (2012),
+     <strong>Fingerprint Indexing for Paramodulation and
+     Rewriting</strong>,
+     <em>Proceedings of the 6th IJCAR (Manchester, UK)</em>,     
+     LNAI, Springer-Verlag
+</dd>
+<dt> Loe2006
+<dd> L&ouml;chner B. (2004),
+     <strong>Things to Know when Implementing LPO</strong>,
+     <em>International Journal on Artificial Intelligence Tools</em>, 
+         15(1), pp.53–80, 2006.
+</dd>
+<DT> Loe2006b
+<DD> L&ouml;chner B. (2006),
+     <strong>Things to Know when Implementing KBO</strong>,
+     <em>Journal of Automated Reasoning</em> 36(4),
+     pp.289-310.
+</dd>
+</dl>
+<p>
+
+</p><hr><!------------------------------------------------------------------------>
+</body></html>

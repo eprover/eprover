@@ -1,0 +1,20 @@
+This file contains notes on potential porting problems for E.
+
+* Compilation with other compilers
+    
+  E is tested during development with gcc and clang on Linux and
+  Mac OS X. If you do not have access to gcc, but have a proprietary
+  C99 compiler, you need to adjust the build process as follows:
+
+   - set these variables in Makefile.vars:
+    - CC to your C compiler (usually cc)
+    - CFLAGS to the proper options for your compiler
+    - MAKEDEPEND to use makedepend instead of the compiler
+   - execute ./configure
+   - execute ./make
+
+* Since some of the conceptual set and bag operations are indeed
+  implemented as set and bag operations, the order in which some
+  operations are performed may depend on the addresses your C
+  library hands out for malloc()ed blocks. This will effect the
+  exact behaviour of the prover on a per run basis.

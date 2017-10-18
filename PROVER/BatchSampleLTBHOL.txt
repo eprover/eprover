@@ -1,0 +1,32 @@
+division.category LTB.HOL
+division.category.training_directory /home/tptp/CASC/24/TrainingData.HOL
+% SZS start BatchConfiguration
+execution.order ordered
+output.required Proof
+limit.time.problem.wc 30
+limit.time.overall.wc 240
+% SZS end BatchConfiguration
+% SZS start BatchIncludes
+include('Axioms/CSR003+2.ax').
+include('Axioms/CSR003+5.ax').
+% SZS end BatchIncludes
+% SZS start BatchProblems
+/Users/schulz/EPROVER/TPTP_6.3.0_FLAT/CSR083+3.p CSR083+3
+/Users/schulz/EPROVER/TPTP_6.3.0_FLAT/CSR075+3.p CSR075+3 
+/Users/schulz/EPROVER/TPTP_6.3.0_FLAT/CSR082+3.p CSR082+3
+% SZS end BatchProblems
+% SZS start BatchConfiguration
+%execution.order ordered
+%output.required Proof
+%limit.time.problem.wc 60
+%limit.time.overall.wc 720
+% SZS end BatchConfiguration
+% SZS start BatchIncludes
+%include('Axioms/CSR003+2.ax').
+%include('Axioms/CSR003+5.ax').
+% SZS end BatchIncludes
+% SZS start BatchProblems
+%/Users/schulz/EPROVER/TPTP_5.4.0_FLAT/CSR086+3.p /Users/schulz/tmp/CSR086+3
+%/Users/schulz/EPROVER/TPTP_5.4.0_FLAT/CSR091+3.p /Users/schulz/tmp/CSR091+3
+%/Users/schulz/EPROVER/TPTP_5.4.0_FLAT/CSR092+3.p /Users/schulz/tmp/CSR092+3
+% SZS end BatchProblems

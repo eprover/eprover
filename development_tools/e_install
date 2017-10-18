@@ -1,0 +1,16 @@
+#! /bin/sh
+#
+# Just for local convenience....adapt for your own use.
+#
+
+testinstall()
+{
+    name=`basename $1`
+    if test $1 -ef $2/$name ; then
+	echo  $1 "and" $2/$name "are already equal" ;
+    else
+        cp $1 $2
+    fi
+}
+
+testinstall $1 $2 

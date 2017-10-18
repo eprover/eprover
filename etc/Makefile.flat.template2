@@ -1,0 +1,8 @@
+
+CC=gcc
+CFLAGS=-O3 -DSPEC_CPU2004
+LDFLAGS=-lm
+
+eprover: $(PROJ)
+
+

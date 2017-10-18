@@ -1,0 +1,999 @@
+%--------------------------------------------------------------------------
+% File     : SWC001-0 : TPTP v6.4.0. Released v2.4.0.
+% Domain   : Software Creation
+% Axioms   : List specification
+% Version  : [Wei00] axioms.
+% English  : Components in a software library specified in first-order logic
+
+% Refs     : [Wei00] Weidenbach (2000), Software Reuse of List Functions Ve
+%          : [FSS98] Fischer et al. (1998), Deduction-Based Software Compon
+% Source   : [TPTP]
+% Names    :
+
+% Status   : Satisfiable
+% Syntax   : Number of clauses    :  185 (  33 non-Horn;  54 unit; 142 RR)
+%            Number of atoms      :  604 (  98 equality)
+%            Maximal clause size  :   10 (   3 average)
+%            Number of predicates :   20 (   0 propositional; 1-2 arity)
+%            Number of functors   :   49 (   3 constant; 0-2 arity)
+%            Number of variables  :  326 (  49 singleton)
+%            Maximal term depth   :    5 (   1 average)
+% SPC      : 
+
+% Comments : Created from SWC001+1.ax using FLOTTER
+%--------------------------------------------------------------------------
+cnf(clause1,axiom,
+    ( equalelemsP(nil) )).
+
+cnf(clause2,axiom,
+    ( duplicatefreeP(nil) )).
+
+cnf(clause3,axiom,
+    ( strictorderedP(nil) )).
+
+cnf(clause4,axiom,
+    ( totalorderedP(nil) )).
+
+cnf(clause5,axiom,
+    ( strictorderP(nil) )).
+
+cnf(clause6,axiom,
+    ( totalorderP(nil) )).
+
+cnf(clause7,axiom,
+    ( cyclefreeP(nil) )).
+
+cnf(clause8,axiom,
+    ( ssList(nil) )).
+
+cnf(clause9,axiom,
+    ( ssItem(skac3) )).
+
+cnf(clause10,axiom,
+    ( ssItem(skac2) )).
+
+cnf(clause11,axiom,
+    ( ~ singletonP(nil) )).
+
+cnf(clause12,axiom,
+    ( ssItem(skaf83(U)) )).
+
+cnf(clause13,axiom,
+    ( ssList(skaf82(U)) )).
+
+cnf(clause14,axiom,
+    ( ssList(skaf81(U)) )).
+
+cnf(clause15,axiom,
+    ( ssList(skaf80(U)) )).
+
+cnf(clause16,axiom,
+    ( ssItem(skaf79(U)) )).
+
+cnf(clause17,axiom,
+    ( ssItem(skaf78(U)) )).
+
+cnf(clause18,axiom,
+    ( ssList(skaf77(U)) )).
+
+cnf(clause19,axiom,
+    ( ssList(skaf76(U)) )).
+
+cnf(clause20,axiom,
+    ( ssList(skaf75(U)) )).
+
+cnf(clause21,axiom,
+    ( ssItem(skaf74(U)) )).
+
+cnf(clause22,axiom,
+    ( ssList(skaf73(U)) )).
+
+cnf(clause23,axiom,
+    ( ssList(skaf72(U)) )).
+
+cnf(clause24,axiom,
+    ( ssList(skaf71(U)) )).
+
+cnf(clause25,axiom,
+    ( ssItem(skaf70(U)) )).
+
+cnf(clause26,axiom,
+    ( ssItem(skaf69(U)) )).
+
+cnf(clause27,axiom,
+    ( ssList(skaf68(U)) )).
+
+cnf(clause28,axiom,
+    ( ssList(skaf67(U)) )).
+
+cnf(clause29,axiom,
+    ( ssList(skaf66(U)) )).
+
+cnf(clause30,axiom,
+    ( ssItem(skaf65(U)) )).
+
+cnf(clause31,axiom,
+    ( ssItem(skaf64(U)) )).
+
+cnf(clause32,axiom,
+    ( ssList(skaf63(U)) )).
+
+cnf(clause33,axiom,
+    ( ssList(skaf62(U)) )).
+
+cnf(clause34,axiom,
+    ( ssList(skaf61(U)) )).
+
+cnf(clause35,axiom,
+    ( ssItem(skaf60(U)) )).
+
+cnf(clause36,axiom,
+    ( ssItem(skaf59(U)) )).
+
+cnf(clause37,axiom,
+    ( ssList(skaf58(U)) )).
+
+cnf(clause38,axiom,
+    ( ssList(skaf57(U)) )).
+
+cnf(clause39,axiom,
+    ( ssList(skaf56(U)) )).
+
+cnf(clause40,axiom,
+    ( ssItem(skaf55(U)) )).
+
+cnf(clause41,axiom,
+    ( ssItem(skaf54(U)) )).
+
+cnf(clause42,axiom,
+    ( ssList(skaf53(U)) )).
+
+cnf(clause43,axiom,
+    ( ssList(skaf52(U)) )).
+
+cnf(clause44,axiom,
+    ( ssList(skaf51(U)) )).
+
+cnf(clause45,axiom,
+    ( ssItem(skaf50(U)) )).
+
+cnf(clause46,axiom,
+    ( ssItem(skaf49(U)) )).
+
+cnf(clause47,axiom,
+    ( ssItem(skaf44(U)) )).
+
+cnf(clause48,axiom,
+    ( ssList(skaf48(U,V)) )).
+
+cnf(clause49,axiom,
+    ( ssList(skaf47(U,V)) )).
+
+cnf(clause50,axiom,
+    ( ssList(skaf46(U,V)) )).
+
+cnf(clause51,axiom,
+    ( ssList(skaf45(U,V)) )).
+
+cnf(clause52,axiom,
+    ( ssList(skaf43(U,V)) )).
+
+cnf(clause53,axiom,
+    ( ssList(skaf42(U,V)) )).
+
+cnf(clause54,axiom,
+    (  skac3 != skac2 )).
+
+cnf(clause55,axiom,
+    ( ~ ssItem(U)
+    | geq(U,U) )).
+
+cnf(clause56,axiom,
+    ( ~ ssList(U)
+    | segmentP(U,nil) )).
+
+cnf(clause57,axiom,
+    ( ~ ssList(U)
+    | segmentP(U,U) )).
+
+cnf(clause58,axiom,
+    ( ~ ssList(U)
+    | rearsegP(U,nil) )).
+
+cnf(clause59,axiom,
+    ( ~ ssList(U)
+    | rearsegP(U,U) )).
+
+cnf(clause60,axiom,
+    ( ~ ssList(U)
+    | frontsegP(U,nil) )).
+
+cnf(clause61,axiom,
+    ( ~ ssList(U)
+    | frontsegP(U,U) )).
+
+cnf(clause62,axiom,
+    ( ~ ssItem(U)
+    | leq(U,U) )).
+
+cnf(clause63,axiom,
+    ( ~ lt(U,U)
+    | ~ ssItem(U) )).
+
+cnf(clause64,axiom,
+    ( ~ ssItem(U)
+    | equalelemsP(cons(U,nil)) )).
+
+cnf(clause65,axiom,
+    ( ~ ssItem(U)
+    | duplicatefreeP(cons(U,nil)) )).
+
+cnf(clause66,axiom,
+    ( ~ ssItem(U)
+    | strictorderedP(cons(U,nil)) )).
+
+cnf(clause67,axiom,
+    ( ~ ssItem(U)
+    | totalorderedP(cons(U,nil)) )).
+
+cnf(clause68,axiom,
+    ( ~ ssItem(U)
+    | strictorderP(cons(U,nil)) )).
+
+cnf(clause69,axiom,
+    ( ~ ssItem(U)
+    | totalorderP(cons(U,nil)) )).
+
+cnf(clause70,axiom,
+    ( ~ ssItem(U)
+    | cyclefreeP(cons(U,nil)) )).
+
+cnf(clause71,axiom,
+    ( ~ memberP(nil,U)
+    | ~ ssItem(U) )).
+
+cnf(clause72,axiom,
+    ( ~ ssList(U)
+    | duplicatefreeP(U)
+    | ssItem(V) )).
+
+cnf(clause73,axiom,
+    ( ~ ssList(U)
+    | app(U,nil) = U )).
+
+cnf(clause74,axiom,
+    ( ~ ssList(U)
+    | app(nil,U) = U )).
+
+cnf(clause75,axiom,
+    ( ~ ssList(U)
+    | ssList(tl(U))
+    | nil = U )).
+
+cnf(clause76,axiom,
+    ( ~ ssList(U)
+    | ssItem(hd(U))
+    | nil = U )).
+
+cnf(clause77,axiom,
+    ( ~ ssList(U)
+    | ssList(tl(U))
+    | nil = U )).
+
+cnf(clause78,axiom,
+    ( ~ ssList(U)
+    | ssItem(hd(U))
+    | nil = U )).
+
+cnf(clause79,axiom,
+    ( nil != U
+    | ~ ssList(U)
+    | segmentP(nil,U) )).
+
+cnf(clause80,axiom,
+    ( ~ segmentP(nil,U)
+    | ~ ssList(U)
+    | nil = U )).
+
+cnf(clause81,axiom,
+    ( nil != U
+    | ~ ssList(U)
+    | rearsegP(nil,U) )).
+
+cnf(clause82,axiom,
+    ( ~ rearsegP(nil,U)
+    | ~ ssList(U)
+    | nil = U )).
+
+cnf(clause83,axiom,
+    ( nil != U
+    | ~ ssList(U)
+    | frontsegP(nil,U) )).
+
+cnf(clause84,axiom,
+    ( ~ frontsegP(nil,U)
+    | ~ ssList(U)
+    | nil = U )).
+
+cnf(clause85,axiom,
+    ( ~ ssList(U)
+    | ~ ssList(V)
+    | ssList(app(V,U)) )).
+
+cnf(clause86,axiom,
+    ( ~ ssItem(U)
+    | ~ ssList(V)
+    | ssList(cons(U,V)) )).
+
+cnf(clause87,axiom,
+    ( ~ ssList(U)
+    | cyclefreeP(U)
+    | leq(skaf50(U),skaf49(U)) )).
+
+cnf(clause88,axiom,
+    ( ~ ssList(U)
+    | cyclefreeP(U)
+    | leq(skaf49(U),skaf50(U)) )).
+
+cnf(clause89,axiom,
+    ( skaf79(U) != skaf78(U)
+    | ~ ssList(U)
+    | equalelemsP(U) )).
+
+cnf(clause90,axiom,
+    ( ~ lt(skaf69(U),skaf70(U))
+    | ~ ssList(U)
+    | strictorderedP(U) )).
+
+cnf(clause91,axiom,
+    ( ~ leq(skaf64(U),skaf65(U))
+    | ~ ssList(U)
+    | totalorderedP(U) )).
+
+cnf(clause92,axiom,
+    ( ~ lt(skaf60(U),skaf59(U))
+    | ~ ssList(U)
+    | strictorderP(U) )).
+
+cnf(clause93,axiom,
+    ( ~ lt(skaf59(U),skaf60(U))
+    | ~ ssList(U)
+    | strictorderP(U) )).
+
+cnf(clause94,axiom,
+    ( ~ leq(skaf55(U),skaf54(U))
+    | ~ ssList(U)
+    | totalorderP(U) )).
+
+cnf(clause95,axiom,
+    ( ~ leq(skaf54(U),skaf55(U))
+    | ~ ssList(U)
+    | totalorderP(U) )).
+
+cnf(clause96,axiom,
+    ( ~ ssItem(U)
+    | ~ ssList(V)
+    | tl(cons(U,V)) = V )).
+
+cnf(clause97,axiom,
+    ( ~ ssItem(U)
+    | ~ ssList(V)
+    | hd(cons(U,V)) = U )).
+
+cnf(clause98,axiom,
+    ( cons(U,V) != nil
+    | ~ ssItem(U)
+    | ~ ssList(V) )).
+
+cnf(clause99,axiom,
+    ( cons(U,V) != V
+    | ~ ssItem(U)
+    | ~ ssList(V) )).
+
+cnf(clause100,axiom,
+    ( ~ ssList(U)
+    | ~ ssList(V)
+    | neq(V,U)
+    | V = U )).
+
+cnf(clause101,axiom,
+    ( ~ singletonP(U)
+    | ~ ssList(U)
+    | cons(skaf44(U),nil) = U )).
+
+cnf(clause102,axiom,
+    ( ~ ssItem(U)
+    | ~ ssItem(V)
+    | neq(V,U)
+    | V = U )).
+
+cnf(clause103,axiom,
+    ( ~ lt(U,V)
+    | ~ ssItem(V)
+    | ~ ssItem(U)
+    | leq(U,V) )).
+
+cnf(clause104,axiom,
+    ( ~ ssList(U)
+    | cons(hd(U),tl(U)) = U
+    | nil = U )).
+
+cnf(clause105,axiom,
+    ( ~ gt(U,V)
+    | ~ ssItem(V)
+    | ~ ssItem(U)
+    | lt(V,U) )).
+
+cnf(clause106,axiom,
+    ( ~ lt(U,V)
+    | ~ ssItem(U)
+    | ~ ssItem(V)
+    | gt(V,U) )).
+
+cnf(clause107,axiom,
+    ( ~ geq(U,V)
+    | ~ ssItem(V)
+    | ~ ssItem(U)
+    | leq(V,U) )).
+
+cnf(clause108,axiom,
+    ( ~ leq(U,V)
+    | ~ ssItem(U)
+    | ~ ssItem(V)
+    | geq(V,U) )).
+
+cnf(clause109,axiom,
+    ( ~ ssList(U)
+    | cons(skaf83(U),skaf82(U)) = U
+    | nil = U )).
+
+cnf(clause110,axiom,
+    ( ~ gt(U,V)
+    | ~ gt(V,U)
+    | ~ ssItem(U)
+    | ~ ssItem(V) )).
+
+cnf(clause111,axiom,
+    ( U != V
+    | ~ lt(U,V)
+    | ~ ssItem(V)
+    | ~ ssItem(U) )).
+
+cnf(clause112,axiom,
+    ( nil != U
+    | ~ ssList(U)
+    | ~ ssItem(V)
+    | strictorderedP(cons(V,U)) )).
+
+cnf(clause113,axiom,
+    ( nil != U
+    | ~ ssList(U)
+    | ~ ssItem(V)
+    | totalorderedP(cons(V,U)) )).
+
+cnf(clause114,axiom,
+    ( ~ lt(U,V)
+    | ~ lt(V,U)
+    | ~ ssItem(U)
+    | ~ ssItem(V) )).
+
+cnf(clause115,axiom,
+    ( U != V
+    | ~ neq(U,V)
+    | ~ ssList(V)
+    | ~ ssList(U) )).
+
+cnf(clause116,axiom,
+    ( cons(U,nil) != V
+    | ~ ssItem(U)
+    | ~ ssList(V)
+    | singletonP(V) )).
+
+cnf(clause117,axiom,
+    ( U != V
+    | ~ neq(U,V)
+    | ~ ssItem(V)
+    | ~ ssItem(U) )).
+
+cnf(clause118,axiom,
+    ( app(U,V) != nil
+    | ~ ssList(V)
+    | ~ ssList(U)
+    | nil = U )).
+
+cnf(clause119,axiom,
+    ( app(U,V) != nil
+    | ~ ssList(V)
+    | ~ ssList(U)
+    | nil = V )).
+
+cnf(clause120,axiom,
+    ( ~ ssItem(U)
+    | ~ ssList(V)
+    | app(cons(U,nil),V) = cons(U,V) )).
+
+cnf(clause121,axiom,
+    ( ~ leq(U,V)
+    | ~ ssItem(V)
+    | ~ ssItem(U)
+    | lt(U,V)
+    | U = V )).
+
+cnf(clause122,axiom,
+    ( ~ leq(U,V)
+    | ~ ssItem(V)
+    | ~ ssItem(U)
+    | lt(U,V)
+    | U = V )).
+
+cnf(clause123,axiom,
+    ( ~ ssList(U)
+    | ~ ssList(V)
+    | nil = V
+    | hd(app(V,U)) = hd(V) )).
+
+cnf(clause124,axiom,
+    ( ~ strictorderedP(cons(U,V))
+    | ~ ssList(V)
+    | ~ ssItem(U)
+    | strictorderedP(V)
+    | nil = V )).
+
+cnf(clause125,axiom,
+    ( ~ totalorderedP(cons(U,V))
+    | ~ ssList(V)
+    | ~ ssItem(U)
+    | totalorderedP(V)
+    | nil = V )).
+
+cnf(clause126,axiom,
+    ( ~ geq(U,V)
+    | ~ geq(V,U)
+    | ~ ssItem(U)
+    | ~ ssItem(V)
+    | V = U )).
+
+cnf(clause127,axiom,
+    ( ~ segmentP(U,V)
+    | ~ segmentP(V,U)
+    | ~ ssList(U)
+    | ~ ssList(V)
+    | V = U )).
+
+cnf(clause128,axiom,
+    ( ~ rearsegP(U,V)
+    | ~ rearsegP(V,U)
+    | ~ ssList(U)
+    | ~ ssList(V)
+    | V = U )).
+
+cnf(clause129,axiom,
+    ( ~ frontsegP(U,V)
+    | ~ frontsegP(V,U)
+    | ~ ssList(U)
+    | ~ ssList(V)
+    | V = U )).
+
+cnf(clause130,axiom,
+    ( ~ leq(U,V)
+    | ~ leq(V,U)
+    | ~ ssItem(U)
+    | ~ ssItem(V)
+    | V = U )).
+
+cnf(clause131,axiom,
+    ( ~ rearsegP(U,V)
+    | ~ ssList(V)
+    | ~ ssList(U)
+    | app(skaf46(U,V),V) = U )).
+
+cnf(clause132,axiom,
+    ( ~ frontsegP(U,V)
+    | ~ ssList(V)
+    | ~ ssList(U)
+    | app(V,skaf45(U,V)) = U )).
+
+cnf(clause133,axiom,
+    ( ~ ssList(U)
+    | ~ ssList(V)
+    | nil = V
+    | tl(app(V,U)) = app(tl(V),U) )).
+
+cnf(clause134,axiom,
+    ( ~ strictorderedP(cons(U,V))
+    | ~ ssList(V)
+    | ~ ssItem(U)
+    | lt(U,hd(V))
+    | nil = V )).
+
+cnf(clause135,axiom,
+    ( ~ totalorderedP(cons(U,V))
+    | ~ ssList(V)
+    | ~ ssItem(U)
+    | leq(U,hd(V))
+    | nil = V )).
+
+cnf(clause136,axiom,
+    ( ~ rearsegP(U,V)
+    | ~ ssList(W)
+    | ~ ssList(V)
+    | ~ ssList(U)
+    | rearsegP(app(W,U),V) )).
+
+cnf(clause137,axiom,
+    ( ~ frontsegP(U,V)
+    | ~ ssList(W)
+    | ~ ssList(V)
+    | ~ ssList(U)
+    | frontsegP(app(U,W),V) )).
+
+cnf(clause138,axiom,
+    ( U != V
+    | ~ ssList(W)
+    | ~ ssItem(V)
+    | ~ ssItem(U)
+    | memberP(cons(V,W),U) )).
+
+cnf(clause139,axiom,
+    ( ~ memberP(U,V)
+    | ~ ssList(U)
+    | ~ ssItem(W)
+    | ~ ssItem(V)
+    | memberP(cons(W,U),V) )).
+
+cnf(clause140,axiom,
+    ( ~ memberP(U,V)
+    | ~ ssList(W)
+    | ~ ssList(U)
+    | ~ ssItem(V)
+    | memberP(app(U,W),V) )).
+
+cnf(clause141,axiom,
+    ( ~ memberP(U,V)
+    | ~ ssList(U)
+    | ~ ssList(W)
+    | ~ ssItem(V)
+    | memberP(app(W,U),V) )).
+
+cnf(clause142,axiom,
+    ( ~ ssList(U)
+    | equalelemsP(U)
+    | app(skaf80(U),cons(skaf78(U),cons(skaf79(U),skaf81(U)))) = U )).
+
+cnf(clause143,axiom,
+    ( app(U,V) != W
+    | ~ ssList(U)
+    | ~ ssList(V)
+    | ~ ssList(W)
+    | rearsegP(W,V) )).
+
+cnf(clause144,axiom,
+    ( app(U,V) != W
+    | ~ ssList(V)
+    | ~ ssList(U)
+    | ~ ssList(W)
+    | frontsegP(W,U) )).
+
+cnf(clause145,axiom,
+    ( nil != U
+    | nil != V
+    | ~ ssList(V)
+    | ~ ssList(U)
+    | app(U,V) = nil )).
+
+cnf(clause146,axiom,
+    ( ~ gt(U,V)
+    | ~ gt(V,W)
+    | ~ ssItem(W)
+    | ~ ssItem(V)
+    | ~ ssItem(U)
+    | gt(U,W) )).
+
+cnf(clause147,axiom,
+    ( ~ leq(U,V)
+    | ~ lt(V,W)
+    | ~ ssItem(W)
+    | ~ ssItem(V)
+    | ~ ssItem(U)
+    | lt(U,W) )).
+
+cnf(clause148,axiom,
+    ( ~ geq(U,V)
+    | ~ geq(V,W)
+    | ~ ssItem(W)
+    | ~ ssItem(V)
+    | ~ ssItem(U)
+    | geq(U,W) )).
+
+cnf(clause149,axiom,
+    ( ~ ssList(U)
+    | ~ ssList(V)
+    | ~ ssList(W)
+    | app(app(W,V),U) = app(W,app(V,U)) )).
+
+cnf(clause150,axiom,
+    ( app(U,V) != app(U,W)
+    | ~ ssList(V)
+    | ~ ssList(U)
+    | ~ ssList(W)
+    | V = W )).
+
+cnf(clause151,axiom,
+    ( app(U,V) != app(W,V)
+    | ~ ssList(U)
+    | ~ ssList(V)
+    | ~ ssList(W)
+    | U = W )).
+
+cnf(clause152,axiom,
+    ( ~ segmentP(U,V)
+    | ~ segmentP(V,W)
+    | ~ ssList(W)
+    | ~ ssList(V)
+    | ~ ssList(U)
+    | segmentP(U,W) )).
+
+cnf(clause153,axiom,
+    ( ~ rearsegP(U,V)
+    | ~ rearsegP(V,W)
+    | ~ ssList(W)
+    | ~ ssList(V)
+    | ~ ssList(U)
+    | rearsegP(U,W) )).
+
+cnf(clause154,axiom,
+    ( ~ frontsegP(U,V)
+    | ~ frontsegP(V,W)
+    | ~ ssList(W)
+    | ~ ssList(V)
+    | ~ ssList(U)
+    | frontsegP(U,W) )).
+
+cnf(clause155,axiom,
+    ( ~ lt(U,V)
+    | ~ lt(V,W)
+    | ~ ssItem(W)
+    | ~ ssItem(V)
+    | ~ ssItem(U)
+    | lt(U,W) )).
+
+cnf(clause156,axiom,
+    ( ~ leq(U,V)
+    | ~ leq(V,W)
+    | ~ ssItem(W)
+    | ~ ssItem(V)
+    | ~ ssItem(U)
+    | leq(U,W) )).
+
+cnf(clause157,axiom,
+    ( ~ ssItem(U)
+    | ~ ssList(V)
+    | ~ ssList(W)
+    | cons(U,app(V,W)) = app(cons(U,V),W) )).
+
+cnf(clause158,axiom,
+    ( ~ memberP(app(U,V),W)
+    | ~ ssList(V)
+    | ~ ssList(U)
+    | ~ ssItem(W)
+    | memberP(V,W)
+    | memberP(U,W) )).
+
+cnf(clause159,axiom,
+    ( ~ leq(U,hd(V))
+    | ~ totalorderedP(V)
+    | ~ ssList(V)
+    | ~ ssItem(U)
+    | totalorderedP(cons(U,V))
+    | nil = V )).
+
+cnf(clause160,axiom,
+    ( ~ lt(U,hd(V))
+    | ~ strictorderedP(V)
+    | ~ ssList(V)
+    | ~ ssItem(U)
+    | strictorderedP(cons(U,V))
+    | nil = V )).
+
+cnf(clause161,axiom,
+    ( ~ memberP(cons(U,V),W)
+    | ~ ssList(V)
+    | ~ ssItem(U)
+    | ~ ssItem(W)
+    | memberP(V,W)
+    | W = U )).
+
+cnf(clause162,axiom,
+    ( ~ ssList(U)
+    | duplicatefreeP(U)
+    | app(app(skaf75(U),cons(skaf74(U),skaf76(U))),cons(skaf74(U),skaf77(U))) = U )).
+
+cnf(clause163,axiom,
+    ( ~ ssList(U)
+    | strictorderedP(U)
+    | app(app(skaf71(U),cons(skaf69(U),skaf72(U))),cons(skaf70(U),skaf73(U))) = U )).
+
+cnf(clause164,axiom,
+    ( ~ ssList(U)
+    | totalorderedP(U)
+    | app(app(skaf66(U),cons(skaf64(U),skaf67(U))),cons(skaf65(U),skaf68(U))) = U )).
+
+cnf(clause165,axiom,
+    ( ~ ssList(U)
+    | strictorderP(U)
+    | app(app(skaf61(U),cons(skaf59(U),skaf62(U))),cons(skaf60(U),skaf63(U))) = U )).
+
+cnf(clause166,axiom,
+    ( ~ ssList(U)
+    | totalorderP(U)
+    | app(app(skaf56(U),cons(skaf54(U),skaf57(U))),cons(skaf55(U),skaf58(U))) = U )).
+
+cnf(clause167,axiom,
+    ( ~ ssList(U)
+    | cyclefreeP(U)
+    | app(app(skaf51(U),cons(skaf49(U),skaf52(U))),cons(skaf50(U),skaf53(U))) = U )).
+
+cnf(clause168,axiom,
+    ( ~ segmentP(U,V)
+    | ~ ssList(V)
+    | ~ ssList(U)
+    | app(app(skaf47(U,V),V),skaf48(V,U)) = U )).
+
+cnf(clause169,axiom,
+    ( ~ memberP(U,V)
+    | ~ ssItem(V)
+    | ~ ssList(U)
+    | app(skaf42(U,V),cons(V,skaf43(V,U))) = U )).
+
+cnf(clause170,axiom,
+    ( cons(U,V) != cons(W,X)
+    | ~ ssItem(W)
+    | ~ ssItem(U)
+    | ~ ssList(X)
+    | ~ ssList(V)
+    | U = W )).
+
+cnf(clause171,axiom,
+    ( cons(U,V) != cons(W,X)
+    | ~ ssItem(W)
+    | ~ ssItem(U)
+    | ~ ssList(X)
+    | ~ ssList(V)
+    | X = V )).
+
+cnf(clause172,axiom,
+    ( ~ segmentP(U,V)
+    | ~ ssList(W)
+    | ~ ssList(X)
+    | ~ ssList(V)
+    | ~ ssList(U)
+    | segmentP(app(app(X,U),W),V) )).
+
+cnf(clause173,axiom,
+    ( app(app(U,V),W) != X
+    | ~ ssList(W)
+    | ~ ssList(U)
+    | ~ ssList(V)
+    | ~ ssList(X)
+    | segmentP(X,V) )).
+
+cnf(clause174,axiom,
+    ( ~ frontsegP(cons(U,V),cons(W,X))
+    | ~ ssList(X)
+    | ~ ssList(V)
+    | ~ ssItem(W)
+    | ~ ssItem(U)
+    | frontsegP(V,X) )).
+
+cnf(clause175,axiom,
+    ( app(U,cons(V,W)) != X
+    | ~ ssList(W)
+    | ~ ssList(U)
+    | ~ ssItem(V)
+    | ~ ssList(X)
+    | memberP(X,V) )).
+
+cnf(clause176,axiom,
+    ( ~ frontsegP(cons(U,V),cons(W,X))
+    | ~ ssList(X)
+    | ~ ssList(V)
+    | ~ ssItem(W)
+    | ~ ssItem(U)
+    | U = W )).
+
+cnf(clause177,axiom,
+    ( tl(U) != tl(V)
+    | hd(U) != hd(V)
+    | ~ ssList(U)
+    | ~ ssList(V)
+    | nil = V
+    | U = V
+    | nil = U )).
+
+cnf(clause178,axiom,
+    ( ~ frontsegP(U,V)
+    | W != X
+    | ~ ssList(V)
+    | ~ ssList(U)
+    | ~ ssItem(X)
+    | ~ ssItem(W)
+    | frontsegP(cons(W,U),cons(X,V)) )).
+
+cnf(clause179,axiom,
+    ( app(app(U,cons(V,W)),cons(V,X)) != Y
+    | ~ ssList(X)
+    | ~ ssList(W)
+    | ~ ssList(U)
+    | ~ ssItem(V)
+    | ~ duplicatefreeP(Y)
+    | ~ ssList(Y) )).
+
+cnf(clause180,axiom,
+    ( app(U,cons(V,cons(W,X))) != Y
+    | ~ ssList(X)
+    | ~ ssList(U)
+    | ~ ssItem(W)
+    | ~ ssItem(V)
+    | ~ equalelemsP(Y)
+    | ~ ssList(Y)
+    | V = W )).
+
+cnf(clause181,axiom,
+    ( app(app(U,cons(V,W)),cons(X,Y)) != Z
+    | ~ ssList(Y)
+    | ~ ssList(W)
+    | ~ ssList(U)
+    | ~ ssItem(X)
+    | ~ ssItem(V)
+    | ~ strictorderedP(Z)
+    | ~ ssList(Z)
+    | lt(V,X) )).
+
+cnf(clause182,axiom,
+    ( app(app(U,cons(V,W)),cons(X,Y)) != Z
+    | ~ ssList(Y)
+    | ~ ssList(W)
+    | ~ ssList(U)
+    | ~ ssItem(X)
+    | ~ ssItem(V)
+    | ~ totalorderedP(Z)
+    | ~ ssList(Z)
+    | leq(V,X) )).
+
+cnf(clause183,axiom,
+    ( app(app(U,cons(V,W)),cons(X,Y)) != Z
+    | ~ ssList(Y)
+    | ~ ssList(W)
+    | ~ ssList(U)
+    | ~ ssItem(X)
+    | ~ ssItem(V)
+    | ~ strictorderP(Z)
+    | ~ ssList(Z)
+    | lt(V,X)
+    | lt(X,V) )).
+
+cnf(clause184,axiom,
+    ( app(app(U,cons(V,W)),cons(X,Y)) != Z
+    | ~ ssList(Y)
+    | ~ ssList(W)
+    | ~ ssList(U)
+    | ~ ssItem(X)
+    | ~ ssItem(V)
+    | ~ totalorderP(Z)
+    | ~ ssList(Z)
+    | leq(V,X)
+    | leq(X,V) )).
+
+cnf(clause185,axiom,
+    ( ~ leq(U,V)
+    | ~ leq(V,U)
+    | app(app(W,cons(U,X)),cons(V,Y)) != Z
+    | ~ ssList(Y)
+    | ~ ssList(X)
+    | ~ ssList(W)
+    | ~ ssItem(V)
+    | ~ ssItem(U)
+    | ~ cyclefreeP(Z)
+    | ~ ssList(Z) )).
+
+%--------------------------------------------------------------------------

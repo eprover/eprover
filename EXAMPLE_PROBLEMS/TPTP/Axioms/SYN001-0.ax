@@ -1,0 +1,1821 @@
+%--------------------------------------------------------------------------
+% File     : SYN001-0 : TPTP v6.4.0. Released v1.0.0.
+% Domain   : Syntactic (Random Prolog Theory)
+% Axioms   : Synthetic domain theory for EBL
+% Version  : [SE94] axioms : Especial.
+% English  :
+
+% Refs     : [SE94]  Segre & Elkan (1994), A High-Performance Explanation-B
+% Source   : [SE94]
+% Names    :
+
+% Status   : Satisfiable
+% Syntax   : Number of clauses    :  368 (   0 non-Horn;  38 unit; 361 RR)
+%            Number of atoms      : 1059 (   0 equality)
+%            Maximal clause size  :    5 (   3 average)
+%            Number of predicates :   48 (   0 propositional; 1-3 arity)
+%            Number of functors   :    5 (   5 constant; 0-0 arity)
+%            Number of variables  :  626 ( 160 singleton)
+%            Maximal term depth   :    1 (   1 average)
+% SPC      : 
+
+% Comments : This theory has a finite deductive closure.
+%--------------------------------------------------------------------------
+%----Facts
+cnf(axiom_1,axiom,
+    ( s0(d) )).
+
+cnf(axiom_2,axiom,
+    ( q0(e,d) )).
+
+cnf(axiom_3,axiom,
+    ( n0(d,e) )).
+
+cnf(axiom_4,axiom,
+    ( m0(e,d,a) )).
+
+cnf(axiom_5,axiom,
+    ( s0(b) )).
+
+cnf(axiom_6,axiom,
+    ( q0(b,b) )).
+
+cnf(axiom_7,axiom,
+    ( n0(d,b) )).
+
+cnf(axiom_8,axiom,
+    ( m0(e,d,e) )).
+
+cnf(axiom_9,axiom,
+    ( r0(b) )).
+
+cnf(axiom_10,axiom,
+    ( p0(b,d) )).
+
+cnf(axiom_11,axiom,
+    ( n0(e,b) )).
+
+cnf(axiom_12,axiom,
+    ( m0(a,X,a) )).
+
+cnf(axiom_13,axiom,
+    ( r0(e) )).
+
+cnf(axiom_14,axiom,
+    ( p0(b,X) )).
+
+cnf(axiom_15,axiom,
+    ( n0(a,b) )).
+
+cnf(axiom_16,axiom,
+    ( m0(c,b,a) )).
+
+cnf(axiom_17,axiom,
+    ( q0(X,d) )).
+
+cnf(axiom_18,axiom,
+    ( p0(c,b) )).
+
+cnf(axiom_19,axiom,
+    ( m0(X,d,Y) )).
+
+cnf(axiom_20,axiom,
+    ( l0(a) )).
+
+cnf(axiom_21,axiom,
+    ( q0(b,e) )).
+
+cnf(axiom_22,axiom,
+    ( p0(b,c) )).
+
+cnf(axiom_23,axiom,
+    ( m0(a,e,e) )).
+
+cnf(axiom_24,axiom,
+    ( l0(c) )).
+
+cnf(axiom_25,axiom,
+    ( q0(d,d) )).
+
+cnf(axiom_26,axiom,
+    ( n0(d,c) )).
+
+cnf(axiom_27,axiom,
+    ( m0(e,b,c) )).
+
+cnf(axiom_28,axiom,
+    ( k0(e) )).
+
+cnf(axiom_29,axiom,
+    ( q0(d,b) )).
+
+cnf(axiom_30,axiom,
+    ( n0(e,e) )).
+
+cnf(axiom_31,axiom,
+    ( m0(b,b,e) )).
+
+cnf(axiom_32,axiom,
+    ( k0(b) )).
+
+cnf(axiom_33,axiom,
+    ( q0(d,c) )).
+
+cnf(axiom_34,axiom,
+    ( n0(c,d) )).
+
+cnf(axiom_35,axiom,
+    ( m0(d,e,c) )).
+
+cnf(axiom_36,axiom,
+    ( q0(a,b) )).
+
+cnf(axiom_37,axiom,
+    ( n0(b,a) )).
+
+cnf(axiom_38,axiom,
+    ( m0(b,a,a) )).
+
+%----Rules
+cnf(rule_001,axiom,
+    ( k1(I)
+    | ~ n0(J,I) )).
+
+cnf(rule_002,axiom,
+    ( l1(G,G)
+    | ~ n0(H,G) )).
+
+cnf(rule_003,axiom,
+    ( l1(C,D)
+    | ~ p0(E,C)
+    | ~ r0(F)
+    | ~ m0(D,C,E) )).
+
+cnf(rule_004,axiom,
+    ( l1(A,A)
+    | ~ k1(A)
+    | ~ l0(B)
+    | ~ l1(B,B) )).
+
+cnf(rule_005,axiom,
+    ( m1(B,C,B)
+    | ~ m0(C,C,B) )).
+
+cnf(rule_006,axiom,
+    ( m1(J,J,J)
+    | ~ m0(A,A,J) )).
+
+cnf(rule_007,axiom,
+    ( m1(G,H,G)
+    | ~ p0(I,H)
+    | ~ r0(G) )).
+
+cnf(rule_008,axiom,
+    ( m1(b,b,b)
+    | ~ l0(b) )).
+
+cnf(rule_009,axiom,
+    ( m1(D,D,D)
+    | ~ s0(E)
+    | ~ r0(E)
+    | ~ q0(F,D) )).
+
+cnf(rule_010,axiom,
+    ( m1(B,B,c)
+    | ~ n0(C,C)
+    | ~ l1(c,c)
+    | ~ p0(C,B) )).
+
+cnf(rule_011,axiom,
+    ( m1(J,J,A)
+    | ~ k0(J)
+    | ~ n0(A,A) )).
+
+cnf(rule_012,axiom,
+    ( m1(e,e,e)
+    | ~ r0(e) )).
+
+cnf(rule_013,axiom,
+    ( m1(H,H,H)
+    | ~ q0(I,H) )).
+
+cnf(rule_014,axiom,
+    ( m1(E,E,E)
+    | ~ m0(F,G,E) )).
+
+cnf(rule_015,axiom,
+    ( m1(B,C,C)
+    | ~ l0(D)
+    | ~ m0(C,C,B) )).
+
+cnf(rule_016,axiom,
+    ( m1(H,I,I)
+    | ~ m1(J,I,H)
+    | ~ m1(J,A,I) )).
+
+cnf(rule_017,axiom,
+    ( m1(F,F,F)
+    | ~ s0(F)
+    | ~ q0(G,d) )).
+
+cnf(rule_018,axiom,
+    ( m1(C,C,C)
+    | ~ q0(D,E)
+    | ~ q0(D,C) )).
+
+cnf(rule_019,axiom,
+    ( m1(A,B,c)
+    | ~ r0(c)
+    | ~ s0(d)
+    | ~ q0(B,d)
+    | ~ p0(A,B) )).
+
+cnf(rule_020,axiom,
+    ( m1(c,c,c)
+    | ~ l0(c) )).
+
+cnf(rule_021,axiom,
+    ( m1(I,J,I)
+    | ~ l0(I)
+    | ~ k0(J) )).
+
+cnf(rule_022,axiom,
+    ( m1(e,e,e)
+    | ~ s0(e) )).
+
+cnf(rule_023,axiom,
+    ( m1(a,a,a)
+    | ~ l0(a)
+    | ~ s0(d) )).
+
+cnf(rule_024,axiom,
+    ( m1(F,a,G)
+    | ~ m0(a,H,a)
+    | ~ q0(F,G)
+    | ~ m1(G,c,G) )).
+
+cnf(rule_025,axiom,
+    ( m1(C,C,C)
+    | ~ m0(D,E,C) )).
+
+cnf(rule_026,axiom,
+    ( m1(A,A,A)
+    | ~ l0(A)
+    | ~ l0(B)
+    | ~ p0(B,d) )).
+
+cnf(rule_027,axiom,
+    ( m1(b,b,b)
+    | ~ q0(c,d)
+    | ~ l1(a,b) )).
+
+cnf(rule_028,axiom,
+    ( m1(J,J,J)
+    | ~ l0(J)
+    | ~ k0(J)
+    | ~ m0(J,J,J) )).
+
+cnf(rule_029,axiom,
+    ( m1(H,I,H)
+    | ~ p0(H,I)
+    | ~ s0(H) )).
+
+cnf(rule_030,axiom,
+    ( m1(e,e,e)
+    | ~ r0(e) )).
+
+cnf(rule_031,axiom,
+    ( m1(c,a,c)
+    | ~ r0(e)
+    | ~ m0(a,e,c)
+    | ~ r0(G)
+    | ~ k0(e) )).
+
+cnf(rule_032,axiom,
+    ( m1(F,F,F)
+    | ~ s0(F) )).
+
+cnf(rule_033,axiom,
+    ( m1(C,C,C)
+    | ~ q0(D,D)
+    | ~ m1(E,D,C) )).
+
+cnf(rule_034,axiom,
+    ( m1(A,B,B)
+    | ~ k1(a)
+    | ~ k1(B)
+    | ~ q0(A,A) )).
+
+cnf(rule_035,axiom,
+    ( m1(I,J,I)
+    | ~ r0(I)
+    | ~ l0(J) )).
+
+cnf(rule_036,axiom,
+    ( n1(A,A,B)
+    | ~ m0(b,B,A) )).
+
+cnf(rule_037,axiom,
+    ( n1(H,I,H)
+    | ~ p0(J,H)
+    | ~ l0(I)
+    | ~ r0(H) )).
+
+cnf(rule_038,axiom,
+    ( n1(G,G,G)
+    | ~ n0(G,G)
+    | ~ q0(a,G) )).
+
+cnf(rule_039,axiom,
+    ( n1(E,c,E)
+    | ~ m0(F,E,c) )).
+
+cnf(rule_040,axiom,
+    ( n1(C,e,e)
+    | ~ m0(C,D,e)
+    | ~ k1(C) )).
+
+cnf(rule_041,axiom,
+    ( n1(e,e,B)
+    | ~ s0(b)
+    | ~ m1(b,B,e) )).
+
+cnf(rule_042,axiom,
+    ( n1(H,H,H)
+    | ~ m0(I,J,I)
+    | ~ k0(H)
+    | ~ q0(A,J) )).
+
+cnf(rule_043,axiom,
+    ( n1(G,G,G)
+    | ~ k1(G)
+    | ~ p0(G,G) )).
+
+cnf(rule_044,axiom,
+    ( n1(D,E,D)
+    | ~ p0(D,D)
+    | ~ p0(E,F) )).
+
+cnf(rule_045,axiom,
+    ( n1(d,d,d)
+    | ~ q0(d,d) )).
+
+cnf(rule_046,axiom,
+    ( n1(A,A,A)
+    | ~ m1(B,C,A)
+    | ~ k0(B) )).
+
+cnf(rule_047,axiom,
+    ( n1(I,d,J)
+    | ~ p0(J,J)
+    | ~ r0(I)
+    | ~ l1(J,d) )).
+
+cnf(rule_048,axiom,
+    ( n1(F,F,F)
+    | ~ m0(G,H,H)
+    | ~ m0(H,F,G)
+    | ~ n1(F,F,F) )).
+
+cnf(rule_049,axiom,
+    ( n1(c,c,c)
+    | ~ l0(c) )).
+
+cnf(rule_050,axiom,
+    ( n1(D,E,D)
+    | ~ s0(b)
+    | ~ l0(D)
+    | ~ p0(b,E) )).
+
+cnf(rule_051,axiom,
+    ( n1(B,B,B)
+    | ~ m1(c,B,C)
+    | ~ m0(b,C,c)
+    | ~ n1(C,B,C) )).
+
+cnf(rule_052,axiom,
+    ( n1(I,I,I)
+    | ~ m0(J,J,J)
+    | ~ k1(I)
+    | ~ s0(I)
+    | ~ p0(A,J) )).
+
+cnf(rule_053,axiom,
+    ( n1(a,H,b)
+    | ~ p0(H,d)
+    | ~ p0(a,b) )).
+
+cnf(rule_054,axiom,
+    ( n1(E,F,F)
+    | ~ l0(G)
+    | ~ l1(G,E)
+    | ~ n1(E,F,E) )).
+
+cnf(rule_055,axiom,
+    ( n1(d,e,e)
+    | ~ p0(d,d)
+    | ~ n1(e,e,e)
+    | ~ r0(b) )).
+
+cnf(rule_056,axiom,
+    ( n1(a,a,a)
+    | ~ l0(a)
+    | ~ r0(a) )).
+
+cnf(rule_057,axiom,
+    ( n1(D,D,D)
+    | ~ r0(D) )).
+
+cnf(rule_058,axiom,
+    ( n1(B,B,B)
+    | ~ l1(C,B)
+    | ~ n0(C,B) )).
+
+cnf(rule_059,axiom,
+    ( n1(H,H,I)
+    | ~ m0(J,A,A)
+    | ~ m0(I,J,H) )).
+
+cnf(rule_060,axiom,
+    ( n1(d,d,b)
+    | ~ q0(b,e)
+    | ~ m1(d,e,e)
+    | ~ k0(b) )).
+
+cnf(rule_061,axiom,
+    ( n1(G,G,G)
+    | ~ k0(G)
+    | ~ s0(G) )).
+
+cnf(rule_062,axiom,
+    ( n1(D,D,D)
+    | ~ m0(E,E,F)
+    | ~ n1(E,D,E) )).
+
+cnf(rule_063,axiom,
+    ( p1(D,D,E)
+    | ~ n0(d,D)
+    | ~ k0(E) )).
+
+cnf(rule_064,axiom,
+    ( p1(A,A,A)
+    | ~ m0(B,C,b)
+    | ~ l0(A) )).
+
+cnf(rule_065,axiom,
+    ( p1(I,I,I)
+    | ~ l1(J,J)
+    | ~ p0(I,J)
+    | ~ n0(J,J) )).
+
+cnf(rule_066,axiom,
+    ( p1(G,G,G)
+    | ~ n0(H,G) )).
+
+cnf(rule_067,axiom,
+    ( p1(E,E,E)
+    | ~ q0(F,E) )).
+
+cnf(rule_068,axiom,
+    ( p1(D,D,D)
+    | ~ k0(D) )).
+
+cnf(rule_069,axiom,
+    ( p1(B,B,C)
+    | ~ p0(C,B) )).
+
+cnf(rule_070,axiom,
+    ( p1(c,c,c)
+    | ~ p0(a,c) )).
+
+cnf(rule_071,axiom,
+    ( p1(H,I,H)
+    | ~ l0(J)
+    | ~ p1(I,A,H)
+    | ~ s0(b) )).
+
+cnf(rule_072,axiom,
+    ( p1(F,F,F)
+    | ~ s0(G)
+    | ~ s0(F) )).
+
+cnf(rule_073,axiom,
+    ( p1(D,D,D)
+    | ~ n0(e,b)
+    | ~ k0(b)
+    | ~ k0(D)
+    | ~ k1(E) )).
+
+cnf(rule_074,axiom,
+    ( p1(B,B,C)
+    | ~ p0(C,B)
+    | ~ r0(B) )).
+
+cnf(rule_075,axiom,
+    ( p1(a,a,a)
+    | ~ p0(b,a) )).
+
+cnf(rule_076,axiom,
+    ( p1(b,b,b)
+    | ~ p1(b,b,b)
+    | ~ s0(d) )).
+
+cnf(rule_077,axiom,
+    ( p1(c,e,b)
+    | ~ m0(b,c,e) )).
+
+cnf(rule_078,axiom,
+    ( p1(d,d,b)
+    | ~ p0(d,b)
+    | ~ m0(e,a,a) )).
+
+cnf(rule_079,axiom,
+    ( p1(A,A,A)
+    | ~ k0(e)
+    | ~ k1(A)
+    | ~ l0(c) )).
+
+cnf(rule_080,axiom,
+    ( p1(G,G,G)
+    | ~ n0(H,H)
+    | ~ l0(I)
+    | ~ n1(H,J,G) )).
+
+cnf(rule_081,axiom,
+    ( p1(B,B,B)
+    | ~ m1(C,D,B)
+    | ~ q0(D,E)
+    | ~ l0(F) )).
+
+cnf(rule_082,axiom,
+    ( p1(H,I,J)
+    | ~ m0(J,H,A)
+    | ~ p1(J,H,A) )).
+
+cnf(rule_083,axiom,
+    ( p1(F,b,G)
+    | ~ m1(F,G,b)
+    | ~ k0(G) )).
+
+cnf(rule_084,axiom,
+    ( p1(D,D,D)
+    | ~ m0(b,E,b)
+    | ~ l1(D,b) )).
+
+cnf(rule_085,axiom,
+    ( p1(B,B,B)
+    | ~ p0(C,B) )).
+
+cnf(rule_086,axiom,
+    ( p1(I,I,I)
+    | ~ l0(I)
+    | ~ m0(J,A,I) )).
+
+cnf(rule_087,axiom,
+    ( p1(a,b,a)
+    | ~ r0(b)
+    | ~ p1(a,a,a) )).
+
+cnf(rule_088,axiom,
+    ( p1(a,a,a)
+    | ~ l0(a) )).
+
+cnf(rule_089,axiom,
+    ( p1(d,d,H)
+    | ~ s0(H)
+    | ~ n1(c,d,H)
+    | ~ r0(d)
+    | ~ n0(c,H) )).
+
+cnf(rule_090,axiom,
+    ( p1(e,e,e)
+    | ~ r0(e)
+    | ~ k0(e) )).
+
+cnf(rule_091,axiom,
+    ( p1(C,C,C)
+    | ~ q0(D,E)
+    | ~ k1(F)
+    | ~ n1(D,C,G) )).
+
+cnf(rule_092,axiom,
+    ( q1(J,A,J)
+    | ~ n0(B,A)
+    | ~ p0(C,J) )).
+
+cnf(rule_093,axiom,
+    ( q1(H,H,H)
+    | ~ q0(I,H) )).
+
+cnf(rule_094,axiom,
+    ( q1(b,e,e)
+    | ~ s0(e)
+    | ~ k0(b)
+    | ~ l0(c) )).
+
+cnf(rule_095,axiom,
+    ( q1(F,G,G)
+    | ~ p0(G,F) )).
+
+cnf(rule_096,axiom,
+    ( q1(B,B,B)
+    | ~ n1(C,D,D)
+    | ~ p0(C,E)
+    | ~ m1(B,D,C)
+    | ~ q1(E,C,D) )).
+
+cnf(rule_097,axiom,
+    ( q1(A,A,A)
+    | ~ s0(A) )).
+
+cnf(rule_098,axiom,
+    ( q1(H,H,H)
+    | ~ s0(H)
+    | ~ m0(I,I,J) )).
+
+cnf(rule_099,axiom,
+    ( q1(E,F,F)
+    | ~ k0(G)
+    | ~ l0(E)
+    | ~ q1(F,F,G) )).
+
+cnf(rule_100,axiom,
+    ( q1(C,C,C)
+    | ~ n0(D,C) )).
+
+cnf(rule_101,axiom,
+    ( q1(B,B,B)
+    | ~ k1(B)
+    | ~ q0(B,b)
+    | ~ p1(b,b,B) )).
+
+cnf(rule_102,axiom,
+    ( q1(J,J,J)
+    | ~ k0(J)
+    | ~ l0(A) )).
+
+cnf(rule_103,axiom,
+    ( q1(I,I,I)
+    | ~ m0(I,c,b) )).
+
+cnf(rule_104,axiom,
+    ( q1(E,F,E)
+    | ~ l0(E)
+    | ~ r0(G)
+    | ~ p0(H,E)
+    | ~ q0(F,F) )).
+
+cnf(rule_105,axiom,
+    ( q1(C,C,D)
+    | ~ s0(C)
+    | ~ p0(D,d) )).
+
+cnf(rule_106,axiom,
+    ( q1(B,B,B)
+    | ~ s0(B) )).
+
+cnf(rule_107,axiom,
+    ( q1(e,A,A)
+    | ~ m0(A,d,A)
+    | ~ m0(e,d,A) )).
+
+cnf(rule_108,axiom,
+    ( q1(H,H,H)
+    | ~ p0(I,J)
+    | ~ p1(H,b,b)
+    | ~ q0(b,b) )).
+
+cnf(rule_109,axiom,
+    ( q1(E,E,F)
+    | ~ p0(G,G)
+    | ~ q0(F,E)
+    | ~ k1(E) )).
+
+cnf(rule_110,axiom,
+    ( q1(B,B,B)
+    | ~ m0(C,D,B) )).
+
+cnf(rule_111,axiom,
+    ( q1(d,d,c)
+    | ~ m0(c,b,a)
+    | ~ m1(c,d,a) )).
+
+cnf(rule_112,axiom,
+    ( q1(A,A,A)
+    | ~ k1(A)
+    | ~ s0(b) )).
+
+cnf(rule_113,axiom,
+    ( q1(H,H,I)
+    | ~ r0(J)
+    | ~ m1(H,I,I) )).
+
+cnf(rule_114,axiom,
+    ( q1(F,F,F)
+    | ~ m0(F,F,G)
+    | ~ k0(G) )).
+
+cnf(rule_115,axiom,
+    ( q1(b,b,b)
+    | ~ l0(b) )).
+
+cnf(rule_116,axiom,
+    ( q1(E,E,E)
+    | ~ r0(E) )).
+
+cnf(rule_117,axiom,
+    ( q1(d,d,d)
+    | ~ k0(e)
+    | ~ s0(d) )).
+
+cnf(rule_118,axiom,
+    ( q1(C,C,C)
+    | ~ p0(b,d)
+    | ~ s0(b)
+    | ~ n1(D,d,C) )).
+
+cnf(rule_119,axiom,
+    ( q1(B,b,b)
+    | ~ s0(B)
+    | ~ s0(b) )).
+
+cnf(rule_120,axiom,
+    ( q1(b,b,b)
+    | ~ r0(b) )).
+
+cnf(rule_121,axiom,
+    ( q1(I,I,I)
+    | ~ m0(J,A,I) )).
+
+cnf(rule_122,axiom,
+    ( q1(G,G,G)
+    | ~ m0(G,H,G) )).
+
+cnf(rule_123,axiom,
+    ( q1(F,F,F)
+    | ~ m0(c,F,F)
+    | ~ r0(F) )).
+
+cnf(rule_124,axiom,
+    ( r1(D)
+    | ~ q0(D,E)
+    | ~ s0(d)
+    | ~ q1(d,E,d) )).
+
+cnf(rule_125,axiom,
+    ( s1(I)
+    | ~ p0(I,I) )).
+
+cnf(rule_126,axiom,
+    ( s1(F)
+    | ~ q0(F,G)
+    | ~ s1(H) )).
+
+cnf(rule_127,axiom,
+    ( k2(C,D)
+    | ~ m1(E,D,C)
+    | ~ k1(F)
+    | ~ k2(F,D) )).
+
+cnf(rule_128,axiom,
+    ( k2(B,B)
+    | ~ n1(e,d,B)
+    | ~ m1(B,e,B)
+    | ~ q1(B,B,d) )).
+
+cnf(rule_129,axiom,
+    ( k2(J,J)
+    | ~ q1(A,J,J) )).
+
+cnf(rule_130,axiom,
+    ( k2(e,e)
+    | ~ l1(e,e) )).
+
+cnf(rule_131,axiom,
+    ( l2(D,E)
+    | ~ s1(D)
+    | ~ n0(e,E)
+    | ~ l2(E,E) )).
+
+cnf(rule_132,axiom,
+    ( l2(c,c)
+    | ~ l2(c,c)
+    | ~ l1(e,e) )).
+
+cnf(rule_133,axiom,
+    ( l2(J,J)
+    | ~ p0(A,A)
+    | ~ s1(B)
+    | ~ m0(C,B,J) )).
+
+cnf(rule_134,axiom,
+    ( l2(G,G)
+    | ~ m0(H,G,I)
+    | ~ m1(I,H,H)
+    | ~ p0(H,G) )).
+
+cnf(rule_135,axiom,
+    ( m2(F)
+    | ~ s0(F)
+    | ~ l1(G,H) )).
+
+cnf(rule_136,axiom,
+    ( m2(b)
+    | ~ k1(b) )).
+
+cnf(rule_137,axiom,
+    ( n2(A)
+    | ~ p1(B,C,A) )).
+
+cnf(rule_138,axiom,
+    ( n2(a)
+    | ~ m1(b,a,e)
+    | ~ k1(c)
+    | ~ n1(e,a,e)
+    | ~ q1(c,a,d) )).
+
+cnf(rule_139,axiom,
+    ( n2(c)
+    | ~ l1(e,c)
+    | ~ k0(b) )).
+
+cnf(rule_140,axiom,
+    ( n2(e)
+    | ~ r1(b)
+    | ~ r0(e)
+    | ~ p1(b,I,J) )).
+
+cnf(rule_141,axiom,
+    ( p2(B,a,B)
+    | ~ q1(B,a,B) )).
+
+cnf(rule_142,axiom,
+    ( p2(J,J,J)
+    | ~ k1(A)
+    | ~ k0(A)
+    | ~ l2(a,A)
+    | ~ k2(J,a) )).
+
+cnf(rule_143,axiom,
+    ( p2(c,e,e)
+    | ~ l1(c,b)
+    | ~ q1(e,e,e) )).
+
+cnf(rule_144,axiom,
+    ( p2(b,c,a)
+    | ~ r0(e)
+    | ~ n1(c,I,I)
+    | ~ p0(b,I)
+    | ~ k2(c,a) )).
+
+cnf(rule_145,axiom,
+    ( p2(e,G,H)
+    | ~ r0(e)
+    | ~ p1(G,H,e) )).
+
+cnf(rule_146,axiom,
+    ( p2(C,D,D)
+    | ~ p1(C,E,F)
+    | ~ l1(E,F)
+    | ~ p2(C,D,C) )).
+
+cnf(rule_147,axiom,
+    ( p2(e,c,c)
+    | ~ r1(d)
+    | ~ l1(e,c) )).
+
+cnf(rule_148,axiom,
+    ( p2(J,J,J)
+    | ~ m1(A,B,J)
+    | ~ p2(A,J,A) )).
+
+cnf(rule_149,axiom,
+    ( p2(H,H,d)
+    | ~ r1(a)
+    | ~ m0(I,H,d) )).
+
+cnf(rule_150,axiom,
+    ( p2(F,F,F)
+    | ~ m1(G,G,F) )).
+
+cnf(rule_151,axiom,
+    ( p2(d,d,d)
+    | ~ k1(d)
+    | ~ s0(d) )).
+
+cnf(rule_152,axiom,
+    ( p2(C,D,D)
+    | ~ n1(E,D,E)
+    | ~ p0(C,D)
+    | ~ p2(C,D,C) )).
+
+cnf(rule_153,axiom,
+    ( p2(B,B,B)
+    | ~ n1(d,d,B) )).
+
+cnf(rule_154,axiom,
+    ( p2(A,A,A)
+    | ~ q1(A,A,A) )).
+
+cnf(rule_155,axiom,
+    ( p2(H,I,I)
+    | ~ k1(J)
+    | ~ p2(e,H,I) )).
+
+cnf(rule_156,axiom,
+    ( p2(F,e,G)
+    | ~ n1(e,F,a)
+    | ~ q1(a,G,F) )).
+
+cnf(rule_157,axiom,
+    ( p2(E,E,E)
+    | ~ l1(E,d) )).
+
+cnf(rule_158,axiom,
+    ( p2(B,B,C)
+    | ~ q1(c,B,D)
+    | ~ s1(c)
+    | ~ s0(e)
+    | ~ p2(B,D,B) )).
+
+cnf(rule_159,axiom,
+    ( p2(A,A,A)
+    | ~ k1(A) )).
+
+cnf(rule_160,axiom,
+    ( p2(H,H,H)
+    | ~ m1(a,a,I)
+    | ~ p2(a,J,H) )).
+
+cnf(rule_161,axiom,
+    ( p2(d,b,b)
+    | ~ p1(d,b,e) )).
+
+cnf(rule_162,axiom,
+    ( p2(b,c,c)
+    | ~ p1(G,b,b)
+    | ~ n1(e,e,G)
+    | ~ q1(e,c,G) )).
+
+cnf(rule_163,axiom,
+    ( p2(E,E,E)
+    | ~ q1(F,c,F)
+    | ~ k2(E,c) )).
+
+cnf(rule_164,axiom,
+    ( p2(B,B,B)
+    | ~ p0(B,B)
+    | ~ r1(C)
+    | ~ p2(D,C,B) )).
+
+cnf(rule_165,axiom,
+    ( p2(I,I,I)
+    | ~ q1(J,A,J)
+    | ~ p2(J,J,A) )).
+
+cnf(rule_166,axiom,
+    ( p2(a,H,d)
+    | ~ n0(H,d)
+    | ~ m1(a,H,d) )).
+
+cnf(rule_167,axiom,
+    ( p2(G,G,G)
+    | ~ s1(G)
+    | ~ k1(G) )).
+
+cnf(rule_168,axiom,
+    ( p2(a,c,b)
+    | ~ l1(e,c)
+    | ~ l2(e,b)
+    | ~ r1(e)
+    | ~ m1(d,a,c) )).
+
+cnf(rule_169,axiom,
+    ( p2(D,D,D)
+    | ~ q1(E,E,E)
+    | ~ p1(D,F,D) )).
+
+cnf(rule_170,axiom,
+    ( p2(C,e,C)
+    | ~ n1(C,e,e) )).
+
+cnf(rule_171,axiom,
+    ( p2(A,A,A)
+    | ~ n1(B,B,B)
+    | ~ p0(A,A) )).
+
+cnf(rule_172,axiom,
+    ( p2(a,a,a)
+    | ~ p1(e,e,a) )).
+
+cnf(rule_173,axiom,
+    ( p2(I,I,I)
+    | ~ r1(J)
+    | ~ r0(I) )).
+
+cnf(rule_174,axiom,
+    ( p2(H,H,H)
+    | ~ n2(H)
+    | ~ k1(e) )).
+
+cnf(rule_175,axiom,
+    ( p2(F,F,F)
+    | ~ l1(G,F) )).
+
+cnf(rule_176,axiom,
+    ( p2(D,E,D)
+    | ~ m1(E,D,E) )).
+
+cnf(rule_177,axiom,
+    ( q2(E,F,F)
+    | ~ k0(F)
+    | ~ p1(E,E,E) )).
+
+cnf(rule_178,axiom,
+    ( q2(B,B,B)
+    | ~ q0(C,B)
+    | ~ n1(C,B,D) )).
+
+cnf(rule_179,axiom,
+    ( q2(J,J,J)
+    | ~ k1(A)
+    | ~ n1(J,J,A) )).
+
+cnf(rule_180,axiom,
+    ( q2(d,a,a)
+    | ~ q2(d,c,a)
+    | ~ s1(c)
+    | ~ q0(e,c) )).
+
+cnf(rule_181,axiom,
+    ( q2(I,I,I)
+    | ~ p1(I,I,I) )).
+
+cnf(rule_182,axiom,
+    ( q2(F,G,F)
+    | ~ p1(F,F,H)
+    | ~ n1(G,F,H)
+    | ~ q2(G,H,F) )).
+
+cnf(rule_183,axiom,
+    ( q2(D,c,E)
+    | ~ k1(E)
+    | ~ l0(c)
+    | ~ l2(E,D) )).
+
+cnf(rule_184,axiom,
+    ( q2(B,B,B)
+    | ~ q1(C,c,B) )).
+
+cnf(rule_185,axiom,
+    ( q2(I,I,I)
+    | ~ n1(J,d,A)
+    | ~ k1(I)
+    | ~ q2(A,A,J) )).
+
+cnf(rule_186,axiom,
+    ( q2(G,G,H)
+    | ~ l1(H,G) )).
+
+cnf(rule_187,axiom,
+    ( q2(C,D,C)
+    | ~ r1(D)
+    | ~ m0(E,F,C)
+    | ~ k0(D)
+    | ~ q2(D,D,D) )).
+
+cnf(rule_188,axiom,
+    ( r2(G)
+    | ~ r1(G)
+    | ~ l0(G) )).
+
+cnf(rule_189,axiom,
+    ( s2(H)
+    | ~ q2(b,H,b)
+    | ~ s1(b) )).
+
+cnf(rule_190,axiom,
+    ( s2(d)
+    | ~ s1(a)
+    | ~ s0(d) )).
+
+cnf(rule_191,axiom,
+    ( s2(d)
+    | ~ r1(d)
+    | ~ s1(d) )).
+
+cnf(rule_192,axiom,
+    ( k3(J,A,J)
+    | ~ s1(A)
+    | ~ p2(B,A,C)
+    | ~ n0(J,C) )).
+
+cnf(rule_193,axiom,
+    ( k3(H,H,H)
+    | ~ s1(H)
+    | ~ q2(d,I,d)
+    | ~ s2(I) )).
+
+cnf(rule_194,axiom,
+    ( k3(F,F,G)
+    | ~ k2(G,F) )).
+
+cnf(rule_195,axiom,
+    ( k3(c,c,c)
+    | ~ s2(e)
+    | ~ k2(c,e) )).
+
+cnf(rule_196,axiom,
+    ( k3(C,C,C)
+    | ~ p2(D,E,D)
+    | ~ m1(C,C,E) )).
+
+cnf(rule_197,axiom,
+    ( k3(A,A,A)
+    | ~ l2(B,b)
+    | ~ k1(A) )).
+
+cnf(rule_198,axiom,
+    ( k3(c,c,c)
+    | ~ k0(a)
+    | ~ r2(c) )).
+
+cnf(rule_199,axiom,
+    ( k3(I,J,J)
+    | ~ l1(J,I)
+    | ~ k3(I,J,J) )).
+
+cnf(rule_200,axiom,
+    ( k3(F,F,F)
+    | ~ p2(G,H,e)
+    | ~ s1(G)
+    | ~ k3(F,G,G) )).
+
+cnf(rule_201,axiom,
+    ( k3(B,B,C)
+    | ~ p1(C,D,B)
+    | ~ m2(E)
+    | ~ m2(D) )).
+
+cnf(rule_202,axiom,
+    ( k3(G,G,H)
+    | ~ q0(I,H)
+    | ~ k2(G,J)
+    | ~ k3(H,A,J) )).
+
+cnf(rule_203,axiom,
+    ( k3(d,d,d)
+    | ~ p1(a,d,b)
+    | ~ r2(a)
+    | ~ l2(e,b) )).
+
+cnf(rule_204,axiom,
+    ( k3(a,a,a)
+    | ~ r2(a) )).
+
+cnf(rule_205,axiom,
+    ( k3(E,E,E)
+    | ~ p2(F,E,E) )).
+
+cnf(rule_206,axiom,
+    ( k3(C,D,C)
+    | ~ p2(D,C,C) )).
+
+cnf(rule_207,axiom,
+    ( k3(J,J,J)
+    | ~ p0(A,J)
+    | ~ k3(J,J,J)
+    | ~ k3(A,J,B) )).
+
+cnf(rule_208,axiom,
+    ( k3(I,I,I)
+    | ~ r2(c)
+    | ~ l1(b,I) )).
+
+cnf(rule_209,axiom,
+    ( k3(E,E,E)
+    | ~ m2(F)
+    | ~ l1(G,H)
+    | ~ s2(E)
+    | ~ k3(G,H,G) )).
+
+cnf(rule_210,axiom,
+    ( k3(D,D,D)
+    | ~ n2(D) )).
+
+cnf(rule_211,axiom,
+    ( k3(C,C,C)
+    | ~ l0(C)
+    | ~ r2(e)
+    | ~ r0(e) )).
+
+cnf(rule_212,axiom,
+    ( k3(B,B,B)
+    | ~ m2(B) )).
+
+cnf(rule_213,axiom,
+    ( k3(I,I,I)
+    | ~ r1(I)
+    | ~ p2(J,A,A) )).
+
+cnf(rule_214,axiom,
+    ( k3(c,c,c)
+    | ~ r2(c) )).
+
+cnf(rule_215,axiom,
+    ( l3(G,H)
+    | ~ r0(G)
+    | ~ p2(G,H,G) )).
+
+cnf(rule_216,axiom,
+    ( l3(D,D)
+    | ~ p1(D,D,E)
+    | ~ p2(E,F,D) )).
+
+cnf(rule_217,axiom,
+    ( l3(C,C)
+    | ~ n2(C)
+    | ~ m2(b) )).
+
+cnf(rule_218,axiom,
+    ( l3(B,B)
+    | ~ r2(B) )).
+
+cnf(rule_219,axiom,
+    ( l3(I,I)
+    | ~ n2(J)
+    | ~ l1(A,I)
+    | ~ l3(A,A) )).
+
+cnf(rule_220,axiom,
+    ( l3(G,G)
+    | ~ s2(H)
+    | ~ l1(G,G) )).
+
+cnf(rule_221,axiom,
+    ( l3(d,d)
+    | ~ k2(a,d) )).
+
+cnf(rule_222,axiom,
+    ( l3(D,D)
+    | ~ k3(E,D,D)
+    | ~ l2(F,F) )).
+
+cnf(rule_223,axiom,
+    ( l3(c,c)
+    | ~ k2(b,c) )).
+
+cnf(rule_224,axiom,
+    ( l3(d,c)
+    | ~ s2(d)
+    | ~ k3(a,c,a)
+    | ~ r0(b) )).
+
+cnf(rule_225,axiom,
+    ( m3(J,A,J)
+    | ~ m0(B,B,A)
+    | ~ l2(C,J)
+    | ~ m0(J,C,C)
+    | ~ s2(B) )).
+
+cnf(rule_226,axiom,
+    ( m3(G,G,G)
+    | ~ k2(H,I)
+    | ~ m3(G,I,G)
+    | ~ n0(I,a)
+    | ~ l2(a,a) )).
+
+cnf(rule_227,axiom,
+    ( m3(C,C,C)
+    | ~ q0(D,E)
+    | ~ s0(F)
+    | ~ s2(E)
+    | ~ r2(C) )).
+
+cnf(rule_228,axiom,
+    ( m3(J,A,A)
+    | ~ n2(J)
+    | ~ m2(A)
+    | ~ m3(B,J,B) )).
+
+cnf(rule_229,axiom,
+    ( m3(b,b,b)
+    | ~ q2(a,b,a) )).
+
+cnf(rule_230,axiom,
+    ( m3(c,b,d)
+    | ~ l1(d,b)
+    | ~ m2(d)
+    | ~ q2(b,c,d) )).
+
+cnf(rule_231,axiom,
+    ( m3(H,I,H)
+    | ~ r2(H)
+    | ~ k2(c,I) )).
+
+cnf(rule_232,axiom,
+    ( m3(G,G,G)
+    | ~ l2(G,G)
+    | ~ n2(G) )).
+
+cnf(rule_233,axiom,
+    ( m3(E,E,E)
+    | ~ n2(E)
+    | ~ m2(F) )).
+
+cnf(rule_234,axiom,
+    ( m3(D,e,e)
+    | ~ n2(e)
+    | ~ p2(D,e,e) )).
+
+cnf(rule_235,axiom,
+    ( m3(B,B,C)
+    | ~ r2(C)
+    | ~ k3(B,C,B) )).
+
+cnf(rule_236,axiom,
+    ( m3(A,A,A)
+    | ~ n2(A) )).
+
+cnf(rule_237,axiom,
+    ( m3(J,c,J)
+    | ~ s2(c)
+    | ~ q2(J,c,c) )).
+
+cnf(rule_238,axiom,
+    ( m3(I,I,I)
+    | ~ p2(I,I,I) )).
+
+cnf(rule_239,axiom,
+    ( m3(b,b,b)
+    | ~ l2(a,b) )).
+
+cnf(rule_240,axiom,
+    ( n3(D)
+    | ~ p2(E,F,D) )).
+
+cnf(rule_241,axiom,
+    ( p3(C,D,E)
+    | ~ q2(F,d,C)
+    | ~ k2(D,E) )).
+
+cnf(rule_242,axiom,
+    ( p3(J,A,B)
+    | ~ r2(A)
+    | ~ k3(A,B,J) )).
+
+cnf(rule_243,axiom,
+    ( p3(I,d,e)
+    | ~ l3(b,e)
+    | ~ p2(d,b,c)
+    | ~ n3(I)
+    | ~ q2(I,d,I) )).
+
+cnf(rule_244,axiom,
+    ( p3(H,H,H)
+    | ~ n2(H) )).
+
+cnf(rule_245,axiom,
+    ( p3(E,E,E)
+    | ~ l1(F,F)
+    | ~ l3(F,E)
+    | ~ p3(G,G,F) )).
+
+cnf(rule_246,axiom,
+    ( p3(D,D,D)
+    | ~ l2(D,D) )).
+
+cnf(rule_247,axiom,
+    ( p3(A,A,A)
+    | ~ n2(A)
+    | ~ q2(B,C,A)
+    | ~ s1(B) )).
+
+cnf(rule_248,axiom,
+    ( p3(I,I,I)
+    | ~ p2(J,I,I)
+    | ~ n3(I) )).
+
+cnf(rule_249,axiom,
+    ( p3(H,H,H)
+    | ~ k1(H)
+    | ~ n2(H) )).
+
+cnf(rule_250,axiom,
+    ( p3(E,E,E)
+    | ~ k1(E)
+    | ~ q2(F,G,E) )).
+
+cnf(rule_251,axiom,
+    ( p3(A,B,B)
+    | ~ m3(B,C,D)
+    | ~ p2(A,B,D) )).
+
+cnf(rule_252,axiom,
+    ( p3(H,H,H)
+    | ~ q0(I,H)
+    | ~ k2(J,J) )).
+
+cnf(rule_253,axiom,
+    ( p3(b,c,b)
+    | ~ k2(c,b) )).
+
+cnf(rule_254,axiom,
+    ( p3(e,b,e)
+    | ~ m3(e,G,e)
+    | ~ q2(G,G,b) )).
+
+cnf(rule_255,axiom,
+    ( q3(G,H)
+    | ~ q2(I,G,H)
+    | ~ n0(I,G) )).
+
+cnf(rule_256,axiom,
+    ( q3(E,E)
+    | ~ p2(F,E,E)
+    | ~ q3(F,E) )).
+
+cnf(rule_257,axiom,
+    ( q3(B,C)
+    | ~ n1(D,B,C)
+    | ~ s2(B)
+    | ~ q3(C,B) )).
+
+cnf(rule_258,axiom,
+    ( q3(I,I)
+    | ~ r2(I)
+    | ~ s1(J)
+    | ~ l2(A,A) )).
+
+cnf(rule_259,axiom,
+    ( q3(G,G)
+    | ~ m0(H,d,H)
+    | ~ k1(G)
+    | ~ r2(d)
+    | ~ q3(H,G) )).
+
+cnf(rule_260,axiom,
+    ( r3(G,H,H)
+    | ~ s2(H)
+    | ~ l2(c,G) )).
+
+cnf(rule_261,axiom,
+    ( r3(D,D,D)
+    | ~ l1(E,F)
+    | ~ n1(F,F,F)
+    | ~ r2(D) )).
+
+cnf(rule_262,axiom,
+    ( r3(A,A,A)
+    | ~ p1(B,C,A)
+    | ~ l2(C,B)
+    | ~ r3(A,B,A) )).
+
+cnf(rule_263,axiom,
+    ( r3(I,I,I)
+    | ~ m0(d,J,I)
+    | ~ r3(I,I,J) )).
+
+cnf(rule_264,axiom,
+    ( r3(H,H,H)
+    | ~ s2(H) )).
+
+cnf(rule_265,axiom,
+    ( r3(F,F,F)
+    | ~ l2(G,F) )).
+
+cnf(rule_266,axiom,
+    ( r3(E,E,E)
+    | ~ r2(E) )).
+
+cnf(rule_267,axiom,
+    ( r3(B,C,B)
+    | ~ p2(B,D,C) )).
+
+cnf(rule_268,axiom,
+    ( r3(H,H,I)
+    | ~ m2(I)
+    | ~ m3(J,b,H)
+    | ~ r3(I,A,A) )).
+
+cnf(rule_269,axiom,
+    ( r3(a,a,e)
+    | ~ k2(a,a)
+    | ~ q2(G,e,G)
+    | ~ m2(b)
+    | ~ m3(a,G,G) )).
+
+cnf(rule_270,axiom,
+    ( r3(F,b,F)
+    | ~ r0(F)
+    | ~ p2(b,F,b)
+    | ~ l2(F,F) )).
+
+cnf(rule_271,axiom,
+    ( r3(C,C,C)
+    | ~ p3(D,C,E)
+    | ~ r3(D,D,D) )).
+
+cnf(rule_272,axiom,
+    ( r3(J,A,B)
+    | ~ k2(A,B)
+    | ~ r2(B)
+    | ~ r3(B,J,J) )).
+
+cnf(rule_273,axiom,
+    ( s3(I,J)
+    | ~ q2(A,I,A)
+    | ~ s2(I)
+    | ~ m0(A,B,J) )).
+
+cnf(rule_274,axiom,
+    ( k4(c)
+    | ~ n0(c,d)
+    | ~ q3(e,b)
+    | ~ n3(e) )).
+
+cnf(rule_275,axiom,
+    ( k4(E)
+    | ~ k3(F,F,F)
+    | ~ n0(G,F)
+    | ~ k4(E) )).
+
+cnf(rule_276,axiom,
+    ( k4(e)
+    | ~ q3(C,C)
+    | ~ q1(a,a,D)
+    | ~ r3(C,e,D) )).
+
+cnf(rule_277,axiom,
+    ( l4(J)
+    | ~ p3(A,B,J) )).
+
+cnf(rule_278,axiom,
+    ( l4(H)
+    | ~ m0(I,H,H)
+    | ~ l4(I) )).
+
+cnf(rule_279,axiom,
+    ( m4(E,F)
+    | ~ l2(G,F)
+    | ~ s3(a,E) )).
+
+cnf(rule_280,axiom,
+    ( m4(C,C)
+    | ~ p3(D,D,D)
+    | ~ m3(C,C,D)
+    | ~ m4(C,C) )).
+
+cnf(rule_281,axiom,
+    ( n4(J,A)
+    | ~ p3(J,A,A)
+    | ~ n4(J,J) )).
+
+cnf(rule_282,axiom,
+    ( n4(d,d)
+    | ~ k3(c,c,e)
+    | ~ q1(d,d,d) )).
+
+cnf(rule_283,axiom,
+    ( n4(e,e)
+    | ~ l3(b,a)
+    | ~ p3(b,e,a) )).
+
+cnf(rule_284,axiom,
+    ( n4(H,H)
+    | ~ k4(I)
+    | ~ m3(H,H,H) )).
+
+cnf(rule_285,axiom,
+    ( p4(G,G,H)
+    | ~ r0(G)
+    | ~ r3(H,G,H) )).
+
+cnf(rule_286,axiom,
+    ( p4(D,D,D)
+    | ~ q3(E,F)
+    | ~ n3(D) )).
+
+cnf(rule_287,axiom,
+    ( p4(B,C,B)
+    | ~ k3(B,B,C) )).
+
+cnf(rule_288,axiom,
+    ( p4(H,I,I)
+    | ~ r3(I,I,H)
+    | ~ p4(J,J,A) )).
+
+cnf(rule_289,axiom,
+    ( p4(D,D,D)
+    | ~ l4(D)
+    | ~ n0(D,E)
+    | ~ p4(F,G,F) )).
+
+cnf(rule_290,axiom,
+    ( p4(A,A,A)
+    | ~ m3(B,C,A)
+    | ~ p4(A,C,A) )).
+
+cnf(rule_291,axiom,
+    ( p4(I,I,I)
+    | ~ p3(J,J,I) )).
+
+cnf(rule_292,axiom,
+    ( p4(F,F,F)
+    | ~ k3(G,H,H)
+    | ~ n4(F,H)
+    | ~ p1(H,G,F) )).
+
+cnf(rule_293,axiom,
+    ( p4(C,C,C)
+    | ~ q3(D,E)
+    | ~ n4(E,C)
+    | ~ l3(D,D) )).
+
+cnf(rule_294,axiom,
+    ( p4(c,c,B)
+    | ~ n3(a)
+    | ~ m3(B,c,a) )).
+
+cnf(rule_295,axiom,
+    ( q4(B,C)
+    | ~ k3(D,D,B)
+    | ~ q2(E,C,B)
+    | ~ m3(E,F,E) )).
+
+cnf(rule_296,axiom,
+    ( q4(I,I)
+    | ~ r1(I)
+    | ~ l4(J)
+    | ~ q4(J,A) )).
+
+cnf(rule_297,axiom,
+    ( q4(b,b)
+    | ~ k3(c,e,b)
+    | ~ l1(b,c) )).
+
+cnf(rule_298,axiom,
+    ( r4(G)
+    | ~ n3(G)
+    | ~ q3(H,I)
+    | ~ p0(J,G) )).
+
+cnf(rule_299,axiom,
+    ( s4(A)
+    | ~ p3(B,C,D)
+    | ~ l1(A,C) )).
+
+cnf(rule_300,axiom,
+    ( k5(E)
+    | ~ s4(F)
+    | ~ r3(G,E,E) )).
+
+cnf(rule_301,axiom,
+    ( k5(b)
+    | ~ s4(e)
+    | ~ n1(b,b,b) )).
+
+cnf(rule_302,axiom,
+    ( l5(H)
+    | ~ q4(I,I)
+    | ~ k1(H) )).
+
+cnf(rule_303,axiom,
+    ( m5(D,E)
+    | ~ r0(D)
+    | ~ p4(D,F,E) )).
+
+cnf(rule_304,axiom,
+    ( m5(C,C)
+    | ~ k4(C) )).
+
+cnf(rule_305,axiom,
+    ( m5(B,B)
+    | ~ s4(B)
+    | ~ m4(e,e) )).
+
+cnf(rule_306,axiom,
+    ( m5(J,J)
+    | ~ s4(A)
+    | ~ r0(J) )).
+
+cnf(rule_307,axiom,
+    ( n5(B,C)
+    | ~ q4(D,E)
+    | ~ n4(B,E)
+    | ~ p4(F,F,C)
+    | ~ n5(F,C) )).
+
+cnf(rule_308,axiom,
+    ( n5(J,J)
+    | ~ m0(A,J,A)
+    | ~ n5(A,J) )).
+
+cnf(rule_309,axiom,
+    ( n5(H,H)
+    | ~ n4(I,H) )).
+
+cnf(rule_310,axiom,
+    ( n5(E,E)
+    | ~ p0(E,F)
+    | ~ m4(G,G)
+    | ~ k5(d) )).
+
+cnf(rule_311,axiom,
+    ( n5(d,d)
+    | ~ p4(c,d,c) )).
+
+cnf(rule_312,axiom,
+    ( n5(b,e)
+    | ~ r3(d,b,c)
+    | ~ n4(b,e) )).
+
+cnf(rule_313,axiom,
+    ( n5(C,C)
+    | ~ q4(D,C) )).
+
+cnf(rule_314,axiom,
+    ( n5(B,B)
+    | ~ r4(B) )).
+
+cnf(rule_315,axiom,
+    ( n5(A,A)
+    | ~ s1(A)
+    | ~ k4(A) )).
+
+cnf(rule_316,axiom,
+    ( n5(H,H)
+    | ~ p4(I,H,H)
+    | ~ s1(H)
+    | ~ p4(b,b,J) )).
+
+cnf(rule_317,axiom,
+    ( n5(d,G)
+    | ~ k3(d,G,a)
+    | ~ n4(G,d) )).
+
+cnf(rule_318,axiom,
+    ( p5(E,E,F)
+    | ~ s4(F)
+    | ~ l2(E,E) )).
+
+cnf(rule_319,axiom,
+    ( p5(B,C,C)
+    | ~ l2(B,D)
+    | ~ p5(B,D,B)
+    | ~ m4(D,C) )).
+
+cnf(rule_320,axiom,
+    ( p5(I,J,I)
+    | ~ q4(J,A)
+    | ~ s1(I) )).
+
+cnf(rule_321,axiom,
+    ( p5(b,b,b)
+    | ~ p4(G,G,H)
+    | ~ k5(b) )).
+
+cnf(rule_322,axiom,
+    ( q5(J,A)
+    | ~ s4(J)
+    | ~ m2(A) )).
+
+cnf(rule_323,axiom,
+    ( q5(a,a)
+    | ~ r4(a) )).
+
+cnf(rule_324,axiom,
+    ( q5(I,I)
+    | ~ l4(I) )).
+
+cnf(rule_325,axiom,
+    ( q5(H,H)
+    | ~ q4(H,H) )).
+
+cnf(rule_326,axiom,
+    ( q5(G,G)
+    | ~ m4(G,G) )).
+
+cnf(rule_327,axiom,
+    ( r5(C,D)
+    | ~ s4(C)
+    | ~ k0(b)
+    | ~ n3(D) )).
+
+cnf(rule_328,axiom,
+    ( r5(B,B)
+    | ~ k4(B) )).
+
+cnf(rule_329,axiom,
+    ( s5(H)
+    | ~ l4(H)
+    | ~ r4(I) )).
+
+cnf(rule_330,axiom,
+    ( s5(E)
+    | ~ k4(E)
+    | ~ s3(E,F)
+    | ~ l5(G)
+    | ~ s5(G) )).
+
+%--------------------------------------------------------------------------

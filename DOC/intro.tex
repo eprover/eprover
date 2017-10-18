@@ -1,0 +1,49 @@
+
+\section{Introduction}
+\label{sec:intro}
+
+CLIB is a layered set of libraries implementing successively more
+specialized data types and operations for the construction of theorem
+provers and related programs (proof transformation and presentation
+tools, learning algorithms, lemma generators and filters, \ldots).
+It's current aim is to offer a solid and general base to implement the
+\emph{E Equational Theorem Prover} and its environment. However, many
+of the lower layers are of general interest. The following modules are
+currently implemented:
+
+\begin{description}
+\item[BASICS:] This base library offers simple services used by most
+  higher levels directly: Error handling and reporting, memory
+  management, dynamic strings, as well as indices (based on AVL trees)
+  and stacks for some standard data types.
+\item[INOUT:] The I/O part of the library offers a standard interface
+  to option processing (comparable to the GNU getopt library), a
+  powerful and simple to use scanner, and parsing for non-elementary
+  build-in data types. 
+\item[TERMS:] The terms library is one of the largest and most central
+  parts of the library. It implements a shared term term
+  representation and elementary operations (create, delete, rewrite,
+  match, unify) dealing with terms and substitutions.
+\item[ORDERINGS:] This library implements \emph{reduction orderings}
+  and related data types on terms.
+\item[CLAUSES:] On the next higher level, this layer offers equations,
+  literals, clauses and sets of clauses, and the basic inference rules
+  for a completion- or superposition-based prover. At this level the
+  code starts to get pretty specific to the E project.
+\item[HEURISTICS:] The heuristics layer of the library is still under
+  serious construction. It offers a lot of general functions for
+  analyzing proof problems, but also has very specific stuff for
+  controling the search of a given prover.
+\item[CONTROL:] This currently last library layer contains the top
+  level control functions for the proof process of E.
+\end{description}
+
+Even the lower, more general layers of the library make certain
+assumptions about the applications. In particular, it is assumed that
+programs are not used interactively, and that all errors cause the
+program to terminate by calling one of two error functions.
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "clib"
+%%% End: 

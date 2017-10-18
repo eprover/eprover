@@ -1,0 +1,30 @@
+This README accompanies a couple of files that should help you to
+comment your code in accordance with the guidelines layed down in
+"Coding Guidelines and Programming Practice for C/C++" (Stephan
+Schulz, 1996).
+
+Here is a short decription of the files:
+
+README.commentboxes
+
+  This file.
+
+cfhbox
+
+  A template for C header files (include files), typically denoted by
+  the suffix ".h". 
+
+cfcbox
+
+  A template for C implementation files, typically denoted by the
+  suffix ".c".
+
+fbox
+
+  A template for commenting normal fuctions
+
+dbox
+
+  A delimiter comment, used to mark the break between different
+  sections of a file.
+

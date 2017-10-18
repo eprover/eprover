@@ -1,0 +1,94 @@
+%--------------------------------------------------------------------------
+% File     : SET366+4 : TPTP v2.6.0. Released v2.2.0.
+% Domain   : Set Theory (Naive)
+% Problem  : The empty set is in every power set
+% Version  : [Pas99] axioms.
+% English  :
+
+% Refs     : [Pas99] Pastre (1999), Email to G. Sutcliffe
+% Source   : [Pas99]
+% Names    :
+
+% Status   : theorem
+% Rating   : 0.00 v2.2.1
+% Syntax   : Number of formulae    :   12 (   2 unit)
+%            Number of atoms       :   30 (   3 equality)
+%            Maximal formula depth :    7 (   5 average)
+%            Number of connectives :   20 (   2 ~  ;   2  |;   4  &)
+%                                         (  10 <=>;   2 =>;   0 <=)
+%                                         (   0 <~>;   0 ~|;   0 ~&)
+%            Number of predicates  :    4 (   0 propositional; 2-2 arity)
+%            Number of functors    :    9 (   1 constant; 0-2 arity)
+%            Number of variables   :   29 (   0 singleton;  28 !;   1 ?)
+%            Maximal term depth    :    2 (   1 average)
+
+% Comments : 
+%          : tptp2X -f tptp -t rm_equality:rstfp SET366+4.p 
+%--------------------------------------------------------------------------
+input_formula(equal_set,axiom,(
+    ! [A,B] : 
+      ( equal_set(A, B)
+    <=> ( subset(A, B)
+        & subset(B, A) ) )   )).
+
+input_formula(subset,axiom,(
+    ! [A,B] : 
+      ( subset(A, B)
+    <=> ! [X] : 
+          ( member(X, A)
+         => member(X, B) ) )   )).
+
+input_formula(power_set,axiom,(
+    ! [X,A] : 
+      ( member(X, power_set(A))
+    <=> subset(X, A) )   )).
+
+input_formula(intersection,axiom,(
+    ! [X,A,B] : 
+      ( member(X, intersection(A, B))
+    <=> ( member(X, A)
+        & member(X, B) ) )   )).
+
+input_formula(union,axiom,(
+    ! [X,A,B] : 
+      ( member(X, union(A, B))
+    <=> ( member(X, A)
+        | member(X, B) ) )   )).
+
+input_formula(empty_set,axiom,(
+    ! [X] : ~ member(X, empty_set)   )).
+
+input_formula(difference,axiom,(
+    ! [B,A,E] : 
+      ( member(B, difference(E, A))
+    <=> ( member(B, E)
+        & ~ member(B, A) ) )   )).
+
+input_formula(singleton,axiom,(
+    ! [X,A] : 
+      ( member(X, singleton(A))
+    <=> equal(X, A) )   )).
+
+input_formula(unordered_pair,axiom,(
+    ! [X,A,B] : 
+      ( member(X, unordered_pair(A, B))
+    <=> ( equal(X, A)
+        | equal(X, B) ) )   )).
+
+input_formula(sum,axiom,(
+    ! [X,A] : 
+      ( member(X, sum(A))
+    <=> ? [Y] : 
+          ( member(Y, A)
+          & member(X, Y) ) )   )).
+
+input_formula(product,axiom,(
+    ! [X,A] : 
+      ( member(X, product(A))
+    <=> ! [Y] : 
+          ( member(Y, A)
+         => member(X, Y) ) )   )).
+
+input_formula(thI47,conjecture,(
+    ! [A] : member(empty_set, power_set(A))   )).
+%--------------------------------------------------------------------------

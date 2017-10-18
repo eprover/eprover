@@ -1,0 +1,145 @@
+%%%%%%%%%%%%%%%%%%%%%%%% Start of File %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% File   : estyle.sty
+%
+% Author : Stephan Schulz
+%
+% This file contains general definitions for my papers and thesis.
+%
+% Changes: <1> 20.09.1994 dipstyle.sty
+%          <2> 15.10.1997 Moved to disstyle.sty
+%          <3> Tue Feb  2 17:25:35 MET 1999 Added some stuff, changed
+%              to stsstyle.sty
+%          <4> Added some stuff, renamed to estyle.sty
+%
+%
+
+
+\typeout{estyle.sty - Handy macros for term rewriting and beautiful definitions}
+\typeout{Written 1997,1998,1999 by Stephan Schulz}
+
+\usepackage{theorem}
+\usepackage{amssymb}
+\usepackage{amsmath}
+%\usepackage{epsfig}
+\usepackage{afterpage}
+
+\bibliographystyle{alpha}
+
+%%%%%%%%%%%%%%% Define Theorem - Environments %%%%%%%%%%%%%
+% Theoremstyle
+
+
+\newenvironment{example}%
+{\smallskip
+ \begin{description}
+ \item{\it Example:}
+}%
+{\end{description}
+ \noindent
+}
+
+\newenvironment{corollary}%
+{\smallskip
+ \begin{description}
+ \item{\it Corollary:}
+}%
+{\end{description}
+ \noindent
+}
+
+\theoremstyle{break}
+\theoremheaderfont{\bfseries}
+\theorembodyfont{\rmfamily}
+\newtheorem{definition}{Definition}[section]
+
+\newtheorem{theorem}{Theorem}[section]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Redefinitons dealing with figures...I don't want them to float to
+% much, taking almost ANYTHING else into account!
+
+\renewcommand{\textfraction}{.1}
+\renewcommand{\topfraction}{.9}
+
+%%%%%%%%%%%%%%%%%%%%%% Global definitions %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\DeclareMathAlphabet{\mathsfbf}{OT1}{cmss}{bx}{n}
+
+\newcommand{\syntaxrule}[2]{\medskip{\noindent \quad \tt #1 ::= #2;;}}
+\newcommand{\mmback}{\mbox{$\backslash \! \! \backslash$}}
+
+% Continous math words in mathematical and normal mode
+\newcommand{\nat}{\ensuremath{\mathbb N}}
+\newcommand{\mw}[1]{\ensuremath{\mathit{#1}}}
+\newcommand{\eqn}[2]{\ensuremath{#1\!\simeq\!#2}}
+\newcommand{\neqn}[2]{\ensuremath{#1\!\not\simeq\!#2}}
+\newcommand{\ueqn}[2]{\ensuremath{#1\dot{\simeq}#2}}
+\newcommand{\eeqn}[2]{\ensuremath{#1 =_{\mbox{\tiny E}} #2$}}
+\newcommand{\eequal}{\mbox{$=_{\mbox{\tiny E}}$}}
+\newcommand{\doteqn}[2]{\mbox{$#1 \doteq #2$}}
+\newcommand{\rle}[2]{\mbox{$#1\! \! \rightarrow \! \! #2$}}
+\newcommand{\eqnrule}[2]{\mbox{$#1 \! \simeq \! #2$}}
+\newcommand{\N}{\ensuremath{\mathsfbf N}}
+\newcommand{\Reals}{\ensuremath{\mathsfbf R}}
+\newcommand{\E}{\mbox{\tt E}}
+\newcommand{\R}{\mbox{\tt R}}
+\newcommand{\CP}{\mbox{\tt CP}}
+\newcommand{\expr}[1]{\mbox{\tt <expr$_{#1}$>}}
+\newcommand{\ttbrace}[1]{\mbox{\tt <#1>}}
+\newcommand{\relation}[1]{\mbox{$\vdash \! \dashv_{\mbox{\tiny #1}}$}}
+
+\newcommand{\GInferenz}[3]
+{
+\begin{tabular}{c}
+$#1$ \\
+\hline
+\raisebox{-0.4ex}{$#2$} \\
+\end{tabular}
+%\hspace{2.0ex}
+\hfill  %
+\begin{minipage}{11.0em}
+  \small
+#3
+\end{minipage}
+\vspace{1.0ex}
+}
+
+\newcommand{\CInferenz}[3]
+{
+\begin{tabular}{c}
+$#1$ \\
+\hline
+\hline
+\raisebox{-0.4ex}{$#2$} \\
+\end{tabular}
+%\hspace{2.0ex}
+\hfill  %
+\begin{minipage}{12.0em}
+  \small
+#3
+\end{minipage}
+\vspace{1.0ex}
+}
+
+\newcommand{\CInferenzFoot}[3]
+{
+\begin{tabular}{c}
+$#1$ \\
+\hline
+\hline
+\raisebox{-0.4ex}{$#2$} \\
+\end{tabular}
+%\hspace{2.0ex}
+\hfill  %
+\begin{minipage}{17.0em}
+  \small
+#3
+\end{minipage}\phantom{aaa}
+\vspace{1.0ex}
+}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "eprover"
+%%% End:

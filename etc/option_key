@@ -1,0 +1,165 @@
+#
+# Format: selector appendix options
+#
+# appendix-format:
+#
+# OOO_LL_R_DOIG_AA_SSMXY
+#
+# where:
+#
+# OOO = Ordering selection, either LXY or KXY
+# LL  = Two-letter-code for literal selection scheme
+# R   = Rewrite-level (0-2) for -F option
+# D   = Destructive-er, either "d" or "-"
+# O   = Literal selection of processing? "o" or "-"
+# I   = Inherit paramod-literal? "i" or "-"
+# G   = Inherit literals in goals? "g" or "-"
+# AA  = AC-handling, a letter from "-NUO", followed by "N" or "-" for
+#       aggressive or conservative AC-handling
+# SS  = Split-types
+# M   = Split-method (0-2)
+# XY  = Split-literal weight adjustment
+
+U   K01_--_-_---g_-_-----   -j 
+U   K02_--_-_---g_-_-----   -j -wconstant -Garity 
+U   K03_--_-_---g_-_-----   -j -wconstant -Ginvarity
+U   K04_--_-_---g_-_-----   -j -warity -Garity
+U   K03_--_-_---g_-_-----   a-j -winvarity -Ginvarity
+
+H   K02_00_-_----_-_03005   -wconstant -Garity -WNoSelection                     --split-clauses=03 --split-method=0 --split-wmod=0.5
+H   K02_00_-_----_-_03010   -wconstant -Garity -WNoSelection                     --split-clauses=03 --split-method=0 --split-wmod=1.0
+H   K02_05_-_----_-_03005   -wconstant -Garity -WSelectComplexExceptUniqMaxHorn  --split-clauses=03 --split-method=0 --split-wmod=0.5
+H   K02_05_-_----_-_03010   -wconstant -Garity -WSelectComplexExceptUniqMaxHorn  --split-clauses=03 --split-method=0 --split-wmod=1.0
+H   K02_06_-_----_-_03005   -wconstant -Garity -WPSelectComplexExceptUniqMaxHorn --split-clauses=03 --split-method=0 --split-wmod=0.5
+H   K02_06_-_----_-_03010   -wconstant -Garity -WPSelectComplexExceptUniqMaxHorn --split-clauses=03 --split-method=0 --split-wmod=1.0
+H   K02_07_-_----_-_03005   -wconstant -Garity -WSelectLargestOrientable         --split-clauses=03 --split-method=0 --split-wmod=0.5
+H   K02_07_-_----_-_03010   -wconstant -Garity -WSelectLargestOrientable         --split-clauses=03 --split-method=0 --split-wmod=1.0
+H   K02_08_-_----_-_03005   -wconstant -Garity -WPSelectLargestOrientable        --split-clauses=03 --split-method=0 --split-wmod=0.5
+H   K02_08_-_----_-_03010   -wconstant -Garity -WPSelectLargestOrientable        --split-clauses=03 --split-method=0 --split-wmod=1.0
+H   K02_09_-_----_-_03005   -wconstant -Garity -WSelectSmallestOrientable        --split-clauses=03 --split-method=0 --split-wmod=0.5
+H   K02_09_-_----_-_03010   -wconstant -Garity -WSelectSmallestOrientable        --split-clauses=03 --split-method=0 --split-wmod=1.0
+H   K02_aa_-_----_-_03005   -wconstant -Garity -WPSelectSmallestOrientable       --split-clauses=03 --split-method=0 --split-wmod=0.5
+H   K02_aa_-_----_-_03010   -wconstant -Garity -WPSelectSmallestOrientable       --split-clauses=03 --split-method=0 --split-wmod=1.0
+H   K02_0S_-_----_-_03005   -wconstant -Garity -WSelectComplex                   --split-clauses=03 --split-method=0 --split-wmod=0.5
+H   K02_0S_-_----_-_03010   -wconstant -Garity -WSelectComplex                   --split-clauses=03 --split-method=0 --split-wmod=1.0
+H   K02_0T_-_----_-_03005   -wconstant -Garity -WPSelectComplex                  --split-clauses=03 --split-method=0 --split-wmod=0.5
+H   K02_0T_-_----_-_03010   -wconstant -Garity -WPSelectComplex                  --split-clauses=03 --split-method=0 --split-wmod=1.0
+H   K02_0I_-_----_-_03005   -wconstant -Garity -WSelectUnlessUniqMax             --split-clauses=03 --split-method=0 --split-wmod=0.5
+H   K02_0I_-_----_-_03010   -wconstant -Garity -WSelectUnlessUniqMax             --split-clauses=03 --split-method=0 --split-wmod=1.0
+H   K02_0J_-_----_-_03005   -wconstant -Garity -WPSelectUnlessUniqMax            --split-clauses=03 --split-method=0 --split-wmod=0.5
+H   K02_0J_-_----_-_03010   -wconstant -Garity -WPSelectUnlessUniqMax            --split-clauses=03 --split-method=0 --split-wmod=1.0
+H   K02_0I_-_----_-_03015   -wconstant -Garity -WSelectUnlessUniqMax             --split-clauses=03 --split-method=0 --split-wmod=1.5
+H   K02_0J_-_----_-_03015   -wconstant -Garity -WPSelectUnlessUniqMax            --split-clauses=03 --split-method=0 --split-wmod=1.5
+
+G   K02_00_-_d---_-_02005   -wconstant -Garity -WNoSelection                     --split-clauses=02 --split-method=0 --split-wmod=0.5 --destructive-er
+G   K02_00_-_d---_-_02010   -wconstant -Garity -WNoSelection                     --split-clauses=02 --split-method=0 --split-wmod=1.0 --destructive-er
+G   K02_05_-_d---_-_02005   -wconstant -Garity -WSelectComplexExceptUniqMaxHorn  --split-clauses=02 --split-method=0 --split-wmod=0.5 --destructive-er
+G   K02_05_-_d---_-_02010   -wconstant -Garity -WSelectComplexExceptUniqMaxHorn  --split-clauses=02 --split-method=0 --split-wmod=1.0 --destructive-er
+G   K02_06_-_d---_-_02005   -wconstant -Garity -WPSelectComplexExceptUniqMaxHorn --split-clauses=02 --split-method=0 --split-wmod=0.5 --destructive-er
+G   K02_06_-_d---_-_02010   -wconstant -Garity -WPSelectComplexExceptUniqMaxHorn --split-clauses=02 --split-method=0 --split-wmod=1.0 --destructive-er
+G   K02_07_-_d---_-_02005   -wconstant -Garity -WSelectLargestOrientable         --split-clauses=02 --split-method=0 --split-wmod=0.5 --destructive-er
+G   K02_07_-_d---_-_02010   -wconstant -Garity -WSelectLargestOrientable         --split-clauses=02 --split-method=0 --split-wmod=1.0 --destructive-er
+G   K02_08_-_d---_-_02005   -wconstant -Garity -WPSelectLargestOrientable        --split-clauses=02 --split-method=0 --split-wmod=0.5 --destructive-er
+G   K02_08_-_d---_-_02010   -wconstant -Garity -WPSelectLargestOrientable        --split-clauses=02 --split-method=0 --split-wmod=1.0 --destructive-er
+G   K02_09_-_d---_-_02005   -wconstant -Garity -WSelectSmallestOrientable        --split-clauses=02 --split-method=0 --split-wmod=0.5 --destructive-er
+G   K02_09_-_d---_-_02010   -wconstant -Garity -WSelectSmallestOrientable        --split-clauses=02 --split-method=0 --split-wmod=1.0 --destructive-er
+G   K02_aa_-_d---_-_02005   -wconstant -Garity -WPSelectSmallestOrientable       --split-clauses=02 --split-method=0 --split-wmod=0.5 --destructive-er
+G   K02_aa_-_d---_-_02010   -wconstant -Garity -WPSelectSmallestOrientable       --split-clauses=02 --split-method=0 --split-wmod=1.0 --destructive-er
+G   K02_0S_-_d---_-_02005   -wconstant -Garity -WSelectComplex                   --split-clauses=02 --split-method=0 --split-wmod=0.5 --destructive-er
+G   K02_0S_-_d---_-_02010   -wconstant -Garity -WSelectComplex                   --split-clauses=02 --split-method=0 --split-wmod=1.0 --destructive-er
+G   K02_0T_-_d---_-_02005   -wconstant -Garity -WPSelectComplex                  --split-clauses=02 --split-method=0 --split-wmod=0.5 --destructive-er
+G   K02_0T_-_d---_-_02010   -wconstant -Garity -WPSelectComplex                  --split-clauses=02 --split-method=0 --split-wmod=1.0 --destructive-er
+G   K02_0I_-_d---_-_02005   -wconstant -Garity -WSelectUnlessUniqMax             --split-clauses=02 --split-method=0 --split-wmod=0.5 --destructive-er
+G   K02_0I_-_d---_-_02010   -wconstant -Garity -WSelectUnlessUniqMax             --split-clauses=02 --split-method=0 --split-wmod=1.0 --destructive-er
+G   K02_0J_-_d---_-_02005   -wconstant -Garity -WPSelectUnlessUniqMax            --split-clauses=02 --split-method=0 --split-wmod=0.5 --destructive-er
+G   K02_0J_-_d---_-_02010   -wconstant -Garity -WPSelectUnlessUniqMax            --split-clauses=02 --split-method=0 --split-wmod=1.0 --destructive-er
+G   K02_00_-_d---_-_04005   -wconstant -Garity -WNoSelection                     --split-clauses=04 --split-method=0 --split-wmod=0.5 --destructive-er
+G   K02_00_-_d---_-_04010   -wconstant -Garity -WNoSelection                     --split-clauses=04 --split-method=0 --split-wmod=1.0 --destructive-er
+G   K02_05_-_d---_-_04005   -wconstant -Garity -WSelectComplexExceptUniqMaxHorn  --split-clauses=04 --split-method=0 --split-wmod=0.5 --destructive-er
+G   K02_05_-_d---_-_04010   -wconstant -Garity -WSelectComplexExceptUniqMaxHorn  --split-clauses=04 --split-method=0 --split-wmod=1.0 --destructive-er
+G   K02_06_-_d---_-_04005   -wconstant -Garity -WPSelectComplexExceptUniqMaxHorn --split-clauses=04 --split-method=0 --split-wmod=0.5 --destructive-er
+G   K02_06_-_d---_-_04010   -wconstant -Garity -WPSelectComplexExceptUniqMaxHorn --split-clauses=04 --split-method=0 --split-wmod=1.0 --destructive-er
+G   K02_07_-_d---_-_04005   -wconstant -Garity -WSelectLargestOrientable         --split-clauses=04 --split-method=0 --split-wmod=0.5 --destructive-er
+G   K02_07_-_d---_-_04010   -wconstant -Garity -WSelectLargestOrientable         --split-clauses=04 --split-method=0 --split-wmod=1.0 --destructive-er
+G   K02_08_-_d---_-_04005   -wconstant -Garity -WPSelectLargestOrientable        --split-clauses=04 --split-method=0 --split-wmod=0.5 --destructive-er
+G   K02_08_-_d---_-_04010   -wconstant -Garity -WPSelectLargestOrientable        --split-clauses=04 --split-method=0 --split-wmod=1.0 --destructive-er
+G   K02_09_-_d---_-_04005   -wconstant -Garity -WSelectSmallestOrientable        --split-clauses=04 --split-method=0 --split-wmod=0.5 --destructive-er
+G   K02_09_-_d---_-_04010   -wconstant -Garity -WSelectSmallestOrientable        --split-clauses=04 --split-method=0 --split-wmod=1.0 --destructive-er
+G   K02_aa_-_d---_-_04005   -wconstant -Garity -WPSelectSmallestOrientable       --split-clauses=04 --split-method=0 --split-wmod=0.5 --destructive-er
+G   K02_aa_-_d---_-_04010   -wconstant -Garity -WPSelectSmallestOrientable       --split-clauses=04 --split-method=0 --split-wmod=1.0 --destructive-er
+G   K02_0S_-_d---_-_04005   -wconstant -Garity -WSelectComplex                   --split-clauses=04 --split-method=0 --split-wmod=0.5 --destructive-er
+G   K02_0S_-_d---_-_04010   -wconstant -Garity -WSelectComplex                   --split-clauses=04 --split-method=0 --split-wmod=1.0 --destructive-er
+G   K02_0T_-_d---_-_04005   -wconstant -Garity -WPSelectComplex                  --split-clauses=04 --split-method=0 --split-wmod=0.5 --destructive-er
+G   K02_0T_-_d---_-_04010   -wconstant -Garity -WPSelectComplex                  --split-clauses=04 --split-method=0 --split-wmod=1.0 --destructive-er
+G   K02_0I_-_d---_-_04005   -wconstant -Garity -WSelectUnlessUniqMax             --split-clauses=04 --split-method=0 --split-wmod=0.5 --destructive-er
+G   K02_0I_-_d---_-_04010   -wconstant -Garity -WSelectUnlessUniqMax             --split-clauses=04 --split-method=0 --split-wmod=1.0 --destructive-er
+G   K02_0J_-_d---_-_04005   -wconstant -Garity -WPSelectUnlessUniqMax            --split-clauses=04 --split-method=0 --split-wmod=0.5 --destructive-er
+G   K02_0J_-_d---_-_04010   -wconstant -Garity -WPSelectUnlessUniqMax            --split-clauses=04 --split-method=0 --split-wmod=1.0 --destructive-er
+
+
+G   K02_00_-_d---_-_02105   -wconstant -Garity -WNoSelection                     --split-clauses=02 --split-method=1 --split-wmod=0.5 --destructive-er
+G   K02_00_-_d---_-_02110   -wconstant -Garity -WNoSelection                     --split-clauses=02 --split-method=1 --split-wmod=1.0 --destructive-er
+G   K02_05_-_d---_-_02105   -wconstant -Garity -WSelectComplexExceptUniqMaxHorn  --split-clauses=02 --split-method=1 --split-wmod=0.5 --destructive-er
+G   K02_05_-_d---_-_02110   -wconstant -Garity -WSelectComplexExceptUniqMaxHorn  --split-clauses=02 --split-method=1 --split-wmod=1.0 --destructive-er
+G   K02_06_-_d---_-_02105   -wconstant -Garity -WPSelectComplexExceptUniqMaxHorn --split-clauses=02 --split-method=1 --split-wmod=0.5 --destructive-er
+G   K02_06_-_d---_-_02110   -wconstant -Garity -WPSelectComplexExceptUniqMaxHorn --split-clauses=02 --split-method=1 --split-wmod=1.0 --destructive-er
+G   K02_07_-_d---_-_02105   -wconstant -Garity -WSelectLargestOrientable         --split-clauses=02 --split-method=1 --split-wmod=0.5 --destructive-er
+G   K02_07_-_d---_-_02110   -wconstant -Garity -WSelectLargestOrientable         --split-clauses=02 --split-method=1 --split-wmod=1.0 --destructive-er
+G   K02_08_-_d---_-_02105   -wconstant -Garity -WPSelectLargestOrientable        --split-clauses=02 --split-method=1 --split-wmod=0.5 --destructive-er
+G   K02_08_-_d---_-_02110   -wconstant -Garity -WPSelectLargestOrientable        --split-clauses=02 --split-method=1 --split-wmod=1.0 --destructive-er
+G   K02_09_-_d---_-_02105   -wconstant -Garity -WSelectSmallestOrientable        --split-clauses=02 --split-method=1 --split-wmod=0.5 --destructive-er
+G   K02_09_-_d---_-_02110   -wconstant -Garity -WSelectSmallestOrientable        --split-clauses=02 --split-method=1 --split-wmod=1.0 --destructive-er
+G   K02_aa_-_d---_-_02105   -wconstant -Garity -WPSelectSmallestOrientable       --split-clauses=02 --split-method=1 --split-wmod=0.5 --destructive-er
+G   K02_aa_-_d---_-_02110   -wconstant -Garity -WPSelectSmallestOrientable       --split-clauses=02 --split-method=1 --split-wmod=1.0 --destructive-er
+G   K02_0S_-_d---_-_02105   -wconstant -Garity -WSelectComplex                   --split-clauses=02 --split-method=1 --split-wmod=0.5 --destructive-er
+G   K02_0S_-_d---_-_02110   -wconstant -Garity -WSelectComplex                   --split-clauses=02 --split-method=1 --split-wmod=1.0 --destructive-er
+G   K02_0T_-_d---_-_02105   -wconstant -Garity -WPSelectComplex                  --split-clauses=02 --split-method=1 --split-wmod=0.5 --destructive-er
+G   K02_0T_-_d---_-_02110   -wconstant -Garity -WPSelectComplex                  --split-clauses=02 --split-method=1 --split-wmod=1.0 --destructive-er
+G   K02_0I_-_d---_-_02105   -wconstant -Garity -WSelectUnlessUniqMax             --split-clauses=02 --split-method=1 --split-wmod=0.5 --destructive-er
+G   K02_0I_-_d---_-_02110   -wconstant -Garity -WSelectUnlessUniqMax             --split-clauses=02 --split-method=1 --split-wmod=1.0 --destructive-er
+G   K02_0J_-_d---_-_02105   -wconstant -Garity -WPSelectUnlessUniqMax            --split-clauses=02 --split-method=1 --split-wmod=0.5 --destructive-er
+G   K02_0J_-_d---_-_02110   -wconstant -Garity -WPSelectUnlessUniqMax            --split-clauses=02 --split-method=1 --split-wmod=1.0 --destructive-er
+G   K02_00_-_d---_-_04105   -wconstant -Garity -WNoSelection                     --split-clauses=04 --split-method=1 --split-wmod=0.5 --destructive-er
+G   K02_00_-_d---_-_04110   -wconstant -Garity -WNoSelection                     --split-clauses=04 --split-method=1 --split-wmod=1.0 --destructive-er
+G   K02_05_-_d---_-_04105   -wconstant -Garity -WSelectComplexExceptUniqMaxHorn  --split-clauses=04 --split-method=1 --split-wmod=0.5 --destructive-er
+G   K02_05_-_d---_-_04110   -wconstant -Garity -WSelectComplexExceptUniqMaxHorn  --split-clauses=04 --split-method=1 --split-wmod=1.0 --destructive-er
+G   K02_06_-_d---_-_04105   -wconstant -Garity -WPSelectComplexExceptUniqMaxHorn --split-clauses=04 --split-method=1 --split-wmod=0.5 --destructive-er
+G   K02_06_-_d---_-_04110   -wconstant -Garity -WPSelectComplexExceptUniqMaxHorn --split-clauses=04 --split-method=1 --split-wmod=1.0 --destructive-er
+G   K02_07_-_d---_-_04105   -wconstant -Garity -WSelectLargestOrientable         --split-clauses=04 --split-method=1 --split-wmod=0.5 --destructive-er
+G   K02_07_-_d---_-_04110   -wconstant -Garity -WSelectLargestOrientable         --split-clauses=04 --split-method=1 --split-wmod=1.0 --destructive-er
+G   K02_08_-_d---_-_04105   -wconstant -Garity -WPSelectLargestOrientable        --split-clauses=04 --split-method=1 --split-wmod=0.5 --destructive-er
+G   K02_08_-_d---_-_04110   -wconstant -Garity -WPSelectLargestOrientable        --split-clauses=04 --split-method=1 --split-wmod=1.0 --destructive-er
+G   K02_09_-_d---_-_04105   -wconstant -Garity -WSelectSmallestOrientable        --split-clauses=04 --split-method=1 --split-wmod=0.5 --destructive-er
+G   K02_09_-_d---_-_04110   -wconstant -Garity -WSelectSmallestOrientable        --split-clauses=04 --split-method=1 --split-wmod=1.0 --destructive-er
+G   K02_aa_-_d---_-_04105   -wconstant -Garity -WPSelectSmallestOrientable       --split-clauses=04 --split-method=1 --split-wmod=0.5 --destructive-er
+G   K02_aa_-_d---_-_04110   -wconstant -Garity -WPSelectSmallestOrientable       --split-clauses=04 --split-method=1 --split-wmod=1.0 --destructive-er
+G   K02_0S_-_d---_-_04105   -wconstant -Garity -WSelectComplex                   --split-clauses=04 --split-method=1 --split-wmod=0.5 --destructive-er
+G   K02_0S_-_d---_-_04110   -wconstant -Garity -WSelectComplex                   --split-clauses=04 --split-method=1 --split-wmod=1.0 --destructive-er
+G   K02_0T_-_d---_-_04105   -wconstant -Garity -WPSelectComplex                  --split-clauses=04 --split-method=1 --split-wmod=0.5 --destructive-er
+G   K02_0T_-_d---_-_04110   -wconstant -Garity -WPSelectComplex                  --split-clauses=04 --split-method=1 --split-wmod=1.0 --destructive-er
+G   K02_0I_-_d---_-_04105   -wconstant -Garity -WSelectUnlessUniqMax             --split-clauses=04 --split-method=1 --split-wmod=0.5 --destructive-er
+G   K02_0I_-_d---_-_04110   -wconstant -Garity -WSelectUnlessUniqMax             --split-clauses=04 --split-method=1 --split-wmod=1.0 --destructive-er
+G   K02_0J_-_d---_-_04105   -wconstant -Garity -WPSelectUnlessUniqMax            --split-clauses=04 --split-method=1 --split-wmod=0.5 --destructive-er
+G   K02_0J_-_d---_-_04110   -wconstant -Garity -WPSelectUnlessUniqMax            --split-clauses=04 --split-method=1 --split-wmod=1.0 --destructive-er
+
+G   K02_05_-_d---_-_02003   -wconstant -Garity -WSelectComplexExceptUniqMaxHorn  --split-clauses=02 --split-method=0 --split-wmod=0.3 --destructive-er
+G   K02_05_-_d---_-_02001   -wconstant -Garity -WSelectComplexExceptUniqMaxHorn  --split-clauses=02 --split-method=0 --split-wmod=0.1 --destructive-er
+G   K02_05_-_d---_-_02007   -wconstant -Garity -WSelectComplexExceptUniqMaxHorn  --split-clauses=02 --split-method=0 --split-wmod=0.7 --destructive-er
+G   K02_05_-_d---_-_02002   -wconstant -Garity -WSelectComplexExceptUniqMaxHorn  --split-clauses=02 --split-method=0 --split-wmod=0.2 --destructive-er
+G   K02_05_-_d---_-_02103   -wconstant -Garity -WSelectComplexExceptUniqMaxHorn  --split-clauses=02 --split-method=1 --split-wmod=0.3 --destructive-er
+G   K02_05_-_d---_-_02107   -wconstant -Garity -WSelectComplexExceptUniqMaxHorn  --split-clauses=02 --split-method=1 --split-wmod=0.7 --destructive-er
+G   K02_05_-_d---_-_02102   -wconstant -Garity -WSelectComplexExceptUniqMaxHorn  --split-clauses=02 --split-method=1 --split-wmod=0.2 --destructive-er
+
+G   K02_c0_-_d---_-_02002   -wconstant -Garity -WSelectComplexExceptUniqMaxPosHorn  --split-clauses=02 --split-method=0 --split-wmod=0.2 --destructive-er
+G   K02_c0_-_d---_-_02001   -wconstant -Garity -WSelectComplexExceptUniqMaxPosHorn  --split-clauses=02 --split-method=0 --split-wmod=0.1 --destructive-er
+G   K02_c0_-_d---_-_02004   -wconstant -Garity -WSelectComplexExceptUniqMaxPosHorn  --split-clauses=02 --split-method=0 --split-wmod=0.4 --destructive-er
+
+T   K02_a0_-_d---_-_-----   -wconstant -Garity -WSelectMinInfpos   --destructive-er
+T   K02_a1_-_d---_-_-----   -wconstant -Garity -WPSelectMinInfpos  --destructive-er
+T   K02_a2_-_d---_-_-----   -wconstant -Garity -WHSelectMinInfpos  --destructive-er
+T   K02_a3_-_d---_-_-----   -wconstant -Garity -WGSelectMinInfpos  --destructive-er
+T   K02_b0_-_d---_-_-----   -wconstant -Garity -WSelectMin2Infpos  --destructive-er
+T   K02_b1_-_d---_-_-----   -wconstant -Garity -WPSelectMin2Infpos --destructive-er
+T   K02_c0_-_d---_-_-----   -wconstant -Garity -WSeSelectComplexExceptUniqMaxPosHorn --destructive-er
+T   K02_c1_-_d---_-_-----   -wconstant -Garity -WPSelectComplexExceptUniqMaxPosHorn  --destructive-er
+

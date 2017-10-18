@@ -1,0 +1,98 @@
+%--------------------------------------------------------------------------
+% File     : MGT001+0 : TPTP v6.4.0. Released v2.4.0.
+% Domain   : Management (Organisation Theory)
+% Axioms   : Inequalities.
+% Version  : [Han98] axioms.
+% English  :
+
+% Refs     : [Kam00] Kamps (2000), Email to G. Sutcliffe
+%            [CH00]  Carroll & Hannan (2000), The Demography of Corporation
+%            [Han98] Hannan (1998), Rethinking Age Dependence in Organizati
+% Source   : [Kam00]
+% Names    :
+
+% Status   : Satisfiable
+% Syntax   : Number of formulae    :    6 (   0 unit)
+%            Number of atoms       :   16 (   3 equality)
+%            Maximal formula depth :    6 (   5 average)
+%            Number of connectives :   11 (   1 ~  ;   4  |;   2  &)
+%                                         (   3 <=>;   1 =>;   0 <=)
+%                                         (   0 <~>;   0 ~|;   0 ~&)
+%            Number of predicates  :    5 (   0 propositional; 2-2 arity)
+%            Number of functors    :    0 (   0 constant; --- arity)
+%            Number of variables   :   13 (   0 singleton;  13 !;   0 ?)
+%            Maximal term depth    :    1 (   1 average)
+% SPC      : 
+
+% Comments :
+%--------------------------------------------------------------------------
+%----Definition of smaller_or_equal (i.t.o. smaller and equal).
+fof(definition_smaller_or_equal,axiom,
+    ( ! [X,Y] :
+        ( smaller_or_equal(X,Y)
+      <=> ( smaller(X,Y)
+          | X = Y ) ) )).
+
+%%----Definition of smaller_or_equal (i.t.o. greater).
+%input_formula(definition_smaller_or_equal, axiom, (
+%    ! [X,Y] :
+%      ( smaller_or_equal(X,Y)
+%    <=> ( ~ greater(X,Y) ) ) )).
+
+%----Definition of greater_or_equal (i.t.o. greater and equal).
+fof(definition_greater_or_equal,axiom,
+    ( ! [X,Y] :
+        ( greater_or_equal(X,Y)
+      <=> ( greater(X,Y)
+          | X = Y ) ) )).
+
+%%----Definition of greater_or_equal (i.t.o. greater and equal).
+%input_formula(definition_greater_or_equal, axiom, (
+%    ! [X,Y] :
+%      ( greater_or_equal(X,Y)
+%    <=> ( ~ greater(Y,X) ) ) )).
+
+%----Definition of smaller (i.t.o. greater).
+fof(definition_smaller,axiom,
+    ( ! [X,Y] :
+        ( smaller(X,Y)
+      <=> greater(Y,X) ) )).
+
+%----Our notion of greater is strict (irreflexive and antisymmetric).
+fof(meaning_postulate_greater_strict,axiom,
+    ( ! [X,Y] : ~ ( greater(X,Y)
+        & greater(Y,X) ) )).
+
+%%----Derivable from above.
+%input_formula(meaning_postulate_greater_strict2, axiom, (
+%    ! [X] :
+%      ( ~ greater(X,X) ) )).
+
+%----Our notion of greater is transitive.
+fof(meaning_postulate_greater_transitive,axiom,
+    ( ! [X,Y,Z] :
+        ( ( greater(X,Y)
+          & greater(Y,Z) )
+       => greater(X,Z) ) )).
+
+%----Hazards of mortality are comparable.
+%input_formula(background_ass_a1, axiom, (
+%  ! [X,T0,T] :
+%    ( organization(X)
+%   => ( ( greater(hazard_of_mortality(X,T),hazard_of_mortality(X,T0))
+%        | equal(hazard_of_mortality(X,T),hazard_of_mortality(X,T0)) )
+%       => smaller(hazard_of_mortality(X,T),hazard_of_mortality(X,T0)) ) ) )).
+
+%----Trichotomy statement for everything.
+%input_formula(meaning_postulate_greater_comparable, axiom, (
+%    ! [X,Y] :
+%      ( greater(Y,X)
+%      | equal(X,Y)
+%      | greater(X,Y) ) )).
+fof(meaning_postulate_greater_comparable,axiom,
+    ( ! [X,Y] :
+        ( smaller(X,Y)
+        | X = Y
+        | greater(X,Y) ) )).
+
+%--------------------------------------------------------------------------

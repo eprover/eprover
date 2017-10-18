@@ -1,0 +1,65 @@
+This is the required ReadMe file for the CASC competitions.
+-----------------------------------------------------------
+
+For installation, follow the instructions in the main README
+file. Make sure to do a proper install, so that e_ltb_runner can find
+the executables.
+
+Command line for single-problem categories:
+
+   eprover --auto-schedule --tstp-format -s --proof-object --memory-limit=3072 --cpu-limit=%d %s
+
+For the LTB categories, run:
+
+   e_ltb_runner -w<total wall-clock time limit> <path_to_ltb_batch_file> <path_to_eprover>
+
+    -w<total wall-clock time limit> is optional if a per-problem limit
+     or a global time limit is given in the batch specification file.
+
+Distinguished strings for the results:
+
+Problem is CNF and unsatisfiable:
+
+# SZS status Unsatisfiable
+
+Problem is CNF and satisfiable:
+
+# SZS status Satisfiable
+
+Problem is FOF and a theorem: 
+
+# SZS status Theorem
+
+Problem is FOF and not a theorem:
+
+# SZS status CounterSatisfiable
+
+System gave up (usually resource limit)
+
+# Failure:
+
+
+The start of solution output for proofs:
+
+# SZS output start CNFRefutation.
+
+The end of solution output for proofs:
+
+# SZS output end CNFRefutation.
+
+
+
+
+The start of solution output for models/saturations:
+
+# SZS output start Saturation.
+
+The end of solution output for models/saturations:
+
+# SZS output end Saturation.
+
+
+
+LTB Problem processing:
+# SZS status Started for <name>
+# SZS status Ended for <name>

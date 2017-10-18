@@ -1,0 +1,66 @@
+%--------------------------------------------------------------------------
+% File     : BOO003-0 : TPTP v6.4.0. Released v1.0.0.
+% Domain   : Boolean Algebra
+% Axioms   : Boolean algebra (equality) axioms
+% Version  : [ANL] (equality) axioms.
+% English  :
+
+% Refs     :
+% Source   : [ANL]
+% Names    :
+
+% Status   : Satisfiable
+% Syntax   : Number of clauses    :   14 (   0 non-Horn;  14 unit;   0 RR)
+%            Number of atoms      :   14 (  14 equality)
+%            Maximal clause size  :    1 (   1 average)
+%            Number of predicates :    1 (   0 propositional; 2-2 arity)
+%            Number of functors   :    5 (   2 constant; 0-2 arity)
+%            Number of variables  :   24 (   0 singleton)
+%            Maximal term depth   :    3 (   2 average)
+% SPC      : 
+
+% Comments :
+%--------------------------------------------------------------------------
+cnf(commutativity_of_add,axiom,
+    ( add(X,Y) = add(Y,X) )).
+
+cnf(commutativity_of_multiply,axiom,
+    ( multiply(X,Y) = multiply(Y,X) )).
+
+cnf(distributivity1,axiom,
+    ( add(multiply(X,Y),Z) = multiply(add(X,Z),add(Y,Z)) )).
+
+cnf(distributivity2,axiom,
+    ( add(X,multiply(Y,Z)) = multiply(add(X,Y),add(X,Z)) )).
+
+cnf(distributivity3,axiom,
+    ( multiply(add(X,Y),Z) = add(multiply(X,Z),multiply(Y,Z)) )).
+
+cnf(distributivity4,axiom,
+    ( multiply(X,add(Y,Z)) = add(multiply(X,Y),multiply(X,Z)) )).
+
+cnf(additive_inverse1,axiom,
+    ( add(X,inverse(X)) = multiplicative_identity )).
+
+cnf(additive_inverse2,axiom,
+    ( add(inverse(X),X) = multiplicative_identity )).
+
+cnf(multiplicative_inverse1,axiom,
+    ( multiply(X,inverse(X)) = additive_identity )).
+
+cnf(multiplicative_inverse2,axiom,
+    ( multiply(inverse(X),X) = additive_identity )).
+
+cnf(multiplicative_id1,axiom,
+    ( multiply(X,multiplicative_identity) = X )).
+
+cnf(multiplicative_id2,axiom,
+    ( multiply(multiplicative_identity,X) = X )).
+
+cnf(additive_id1,axiom,
+    ( add(X,additive_identity) = X )).
+
+cnf(additive_id2,axiom,
+    ( add(additive_identity,X) = X )).
+
+%--------------------------------------------------------------------------

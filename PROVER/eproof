@@ -1,0 +1,266 @@
+#!/bin/bash -f
+########################################################################
+#
+# File  : eproof
+#
+# Author: Stephan Schulz
+#
+# Contents
+# 
+#   Shell script for automatic proof generation with E. See the help
+#   text below for ore information and copyright status.
+# 
+# Changes
+#
+# <1> Distant past
+#     New
+# <2> Sun Feb 22 14:05:04 CET 2009
+#     Added this header and --help function.
+#
+########################################################################
+
+EXECPATH=.
+
+VERSION=`"$EXECPATH"/eprover --version|cut -d' ' -f2-`
+
+if tail -n+2 $0 > /dev/null 2>&1; then
+   TAIL="tail -n";
+else
+   TAIL="tail ";
+fi
+# echo "Using $TAIL"
+
+pid=$$
+host=`hostname`
+
+
+if [ ! "$TMPDIR" ] ; then
+    export TMPDIR="/var/tmp"
+fi
+
+tmpfile=$TMPDIR/"eproof_"${host}"_"${pid}
+tmpfile2=$TMPDIR/"eprooftmp_"${host}"_"${pid}
+
+status=0
+
+cleanup () 
+{  
+    ulimit -S unlimited
+    touch $tmpfile $tmpfile2
+    rm -f $tmpfile $tmpfile2
+    wait
+    trap - EXIT 
+    exit $status
+} 
+
+sighandler ()
+{
+    echo "# Cannot determine problem status: Terminated by signal. Cleaning up"
+    # Reset the signal trap to ignore further signals
+    trap "" SIGXCPU SIGINT SIGQUIT SIGTERM SIGXFSZ SIGHUP SIGABRT SIGPIPE
+    # Kill subprocesses in the process group, if any. 
+    kill -TERM -$$
+    
+    #Now cleanup and exit
+    cleanup 
+}
+
+print_help ()
+{
+    echo "eproof " $VERSION
+    sed -e 's/\\n/\
+/g' <<EOF
+\n\
+Usage: eproof [options] <file1> ...\n\
+\n\
+Eproof is a wrapper around E and epclextract. It will run E with\n\
+output level 4 (full output of all potentially proof-relevant\n\
+inferences) and, in the case of success, automatically run epclextract\n\
+to provide a proof derivation or a derivation of all clauses in the\n\
+saturated proof state.\n\
+\n\
+Please note that eproof, unlike most E tools, does not support reading\n\
+problems from stdin. It will silently assume an empty input from stdin.\n\
+\n\
+Eproof will intercept the command line arguments and interprete certain\n\
+options as described below. All other options and arguments are passed\n\
+on to eprover or epclextract, as appropriate. See those tools help\n\
+pages for the supported options.\n\
+\n\
+In particular, eproof will automatically do a close approximation of\n\
+'the right thing' (tm) with the options describing input- and output\n\
+formats. \n\
+\n\
+Options:
+\n\
+   -h\n\
+  --help\n\
+    Print a short description of program usage and options.\n\
+\n\
+  --version\n\
+    Print the version numbers of eprover and epclextract used by this\n\
+    instance of eproof. Please include this with all bug reports (if\n\
+    any).\n\
+\n\
+  --proof-time-unlimited\n\
+    If eprover succeeds within the overall timelimit, don't stop\n\
+    epclextract due to timeout.\n\
+\n\
+\n\
+Copyright (C) 1998-2009 by Stephan Schulz, schulz@eprover.org\n\
+\n\
+You can find the latest version of E and additional information at\n\
+http://www.eprover.org\n\
+\n\
+This program is free software; you can redistribute it and/or modify\n\
+it under the terms of the GNU General Public License as published by\n\
+the Free Software Foundation; either version 2 of the License, or\n\
+(at your option) any later version.\n\
+\n\
+This program is distributed in the hope that it will be useful,\n\
+but WITHOUT ANY WARRANTY; without even the implied warranty of\n\
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n\
+GNU General Public License for more details.\n\
+\n\
+You should have received a copy of the GNU General Public License\n\
+along with this program (it should be contained in the top level\n\
+directory of the distribution in the file COPYING); if not, write to\n\
+the Free Software Foundation, Inc., 59 Temple Place, Suite 330,\n\
+Boston, MA  02111-1307 USA\n\
+\n\
+The original copyright holder can be contacted as\n\
+\n\
+Stephan Schulz (I4)\n\
+Technische Universitaet Muenchen\n\
+Institut fuer Informatik\n\
+Boltzmannstrasse 3\n\
+85748 Garching bei Muenchen\n\
+Germany\n\
+
+EOF
+}
+
+
+trap 'cleanup' EXIT
+trap 'sighandler' SIGXCPU SIGINT SIGQUIT SIGTERM SIGXFSZ SIGHUP SIGABRT SIGPIPE
+
+
+cat /dev/null > $tmpfile 
+cat /dev/null > $tmpfile2 
+
+searchlimit=2000000000 # Effectively unlimited
+prooflimit=2000000000
+timelimit=2000000000
+outfile=""
+limitprooftime="yes"
+
+print_tail=0
+print_res=0
+print_stats=0
+
+newargs=""
+format=""
+
+
+for argument in  "$@"; do
+    if [ "$argument" = "-R" -o "$argument" = "--resources-info" ] ; then
+        print_res=6
+    elif [ "$argument" = "--print-statistics" ] ; then
+	print_stats=33
+        print_res=6
+    elif [ "$argument" = "-V" -o "$argument" = "--version" ] ; then
+        echo eproof $VERSION
+        exit $?
+    elif [ "$argument" = "-h" -o "$argument" = "--help" ] ; then
+        print_help
+        exit $?
+    else
+	head=`echo "$argument"|cut -d= -f1`
+	head1=`echo "$argument"|cut -c1-2`
+	if [ "$head" = "--cpu-limit" ] ; then
+	    timelimit=`echo $argument|cut -d= -f2`
+	fi    
+	if [ "$head1" = "-o" ] ; then
+	    echo "Short option -o not supported by eproof, use --output-file=<file>"
+	    exit 1
+	fi    
+	if [ "$head" = "--output-file" ] ; then
+	    outfile=`echo $argument|cut -d= -f2`
+	    cat /dev/null > $outfile
+	    argument=""
+	fi
+	if  [ "$argument" = "--tstp-out" ] ; then
+	    argument=""
+	    format="--tstp-out"
+	fi
+	if  [ "$argument" = "--tstp-format" ] ; then
+	    argument="--tstp-in"
+	    format="--tstp-out"
+	fi
+	if  [ "$argument" = "--tptp3-out" ] ; then
+	    argument=""
+	    format="--tstp-out"
+	fi
+	if  [ "$argument" = "--tptp3-format" ] ; then
+	    argument="--tstp-in"
+	    format="--tstp-out"
+	fi
+	if  [ "$argument" = "--proof-time-unlimited" ] ; then
+	    limitprooftime=""
+	    argument=""
+	fi
+
+    fi
+    if [ "$argument" ] ; then        
+        newargs=$newargs" '"$argument"'"
+    fi
+done
+
+print_tail=`expr $print_res + $print_stats`
+
+sh -c "\"$EXECPATH\"/eprover $newargs -l4 -R -o- --pcl-terms-compressed --pcl-compact> $tmpfile" &
+wait %%
+status=$?
+$TAIL -70 $tmpfile > $tmpfile2
+grep "# Preprocessing time       :" $tmpfile
+searchtime=`grep "Total time" $tmpfile2|cut -d: -f2|sed -e 's/[s ]//g'|cut -d. -f1`
+if [ "$searchtime" ]; then
+    statusline=`grep -c 'No proof found!' $tmpfile2`
+    if [ "$statusline" = "1" ] ; then
+        echo "# Problem is satisfiable (or invalid), generating saturation derivation"
+    else
+	statusline=`grep -c 'Proof found!' $tmpfile2`
+        if [ "$statusline" = "1" ] ; then
+            echo "# Problem is unsatisfiable (or provable), constructing proof object"
+	else
+	    statusline=`grep -c 'Watchlist is empty!' $tmpfile2`
+	    if [ "$statusline" = "1" ] ; then
+		echo "# All watchlist clauses generated, constructing derivation"
+	    else
+		echo "# Cannot determine problem status"
+                $TAIL -$print_tail $tmpfile2
+		cleanup
+	    fi
+	fi
+    fi
+    if [ "$limitprooftime" ]; then
+        prooflimit=`expr $timelimit - $searchtime`
+        ulimit -S -t $prooflimit > /dev/null
+    fi
+    if [ "$outfile" ]; then
+	exec 1> "$outfile"
+    fi
+    grep "# SZS status" $tmpfile2
+    grep "# Failure"    $tmpfile2
+    grep "# SZS answer" $tmpfile
+    "$EXECPATH"/epclextract $format -f --competition-framing $tmpfile &
+    wait %%
+    status=$?
+    $TAIL -$print_tail $tmpfile2
+else
+    echo "# Cannot determine problem status within resource limit"
+fi
+cleanup
+
+
+

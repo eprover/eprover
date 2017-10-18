@@ -1,0 +1,33 @@
+#! /bin/sh
+#
+# Just for local convenience....adapt for your own use.
+#
+
+testinstall()
+{
+    if test -f "$HOME/bin/$1"; then
+	echo "File ~/bin/$1 exists and left unchanged";
+    else
+	echo Installing $1
+	echo `pwd`/$1 $HOME/bin/$1
+	ln -s `pwd`/$1 $HOME/bin/$1
+    fi
+}
+
+
+for file in *.awk ; do
+    testinstall $file
+done
+
+for file in *.sh; do
+    testinstall $file
+done
+
+for file in *.py; do
+    testinstall $file
+done
+cd ../PROVER
+
+for file in eprover classify_problem termprops direct_examples ekb_create ekb_delete ekb_ginsert ekb_insert tsm_classify epclanalyse epclextract epcllemma checkproof eground eproof; do
+    testinstall $file
+done

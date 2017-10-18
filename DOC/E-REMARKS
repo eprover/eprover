@@ -1,0 +1,140 @@
+Zur Verwendung als Beweiser schlage ich folgende Kommando-Zeile vor:
+--------------------------------------------------------------------
+eprover -xAuto --memory-limit=96 <problem_file>
+
+Wichtige weitere Optionen:
+
+-h 
+--help  
+        Erklärung der Optionen
+
+--tptp-in
+        Liest TPTP-Format
+ 
+--tptp-out
+        Schreibt TPTP-Format
+
+-n 
+--eqn-no-infix
+        (Bei LOP-Syntax): Schreibe equal(a,b) statt a=b.
+
+-s 
+--silent
+        Minimale Ausgabe beim Lauf.
+
+
+Zur Verwendung als Lemma-Generator:
+----------------------------------------------------------------------
+
+eprover -s --print-saturated=eigEIG --total-clause-set-limit=2000 <problem_file>
+
+Sinnvoll auch:
+
+--literal-selection-strategy=SelectNegativeLiterals
+--literal-selection-strategy=SelectLargestNegLit
+--literal-selection-strategy=SelectSmallestNegLit
+--no-paramod-into-negatives
+--paramod-equational-literals-only
+        Schränkt jeweils bestimmte Inferenzen ein und sollte einen
+        höheren Anteil von Unit-Lemmas generieren.
+
+Wichtige Optionen:
+
+-n 
+--eqn-no-infix
+        (Bei LOP-Syntax): Schreibe equal(a,b) statt a=b, d.h. schreibe
+        Setheo-Syntax.
+
+-s 
+--silent
+        Minimale Ausgabe beim Lauf.
+
+
+--print-saturated=<arg>
+        Was soll ausgegeben werden?
+        e  Bearbeitete positive Units
+        i  Bearbeitete negative Units
+        g  Bearbeitete Nicht-Units
+        E  Unbearbeitete positive Units
+        I  Unbearbeitete negative Units
+        G  Unbearbeitete Nicht-Units
+        a  Gleicheits-Axioms Typ 1 (Viele Einfache)
+        A  Gleicheits-Axioms Typ 2 (Weniger Kompliziertere)
+
+--filter-saturated[=<arg>]
+        Wie sollen die unbearbeiteten Klauseln gefiltert werden?
+        u  Lösche nicht-Units
+        c  Lösche Dupletten
+        n  Wenig rewriting, wenig Subsumptionstest
+        r    .
+        f    .
+        N    .
+        R    .
+        F  Viel rewriting, viel Subsumptionstest
+
+--print-sat-info
+        Zusätzliche Ausgabe von Informationen zu den Klauseln (als
+        Kommentar am Ende der Zeile). Format:
+
+      info(d0, ..., dn) 
+   
+       d0: Clause ident (number)
+       d1: Proof depth
+       d2: Proof length
+       d3: Symbol count (Summe der Groesse der Terme)
+       d4: Clause depth (Tiefe des tiefsten Terms)
+       d5: Literal number
+       d6: Number of variable occurences
+       d7: Number of different variables
+
+
+Zur Verwendung als Kanonisierer:
+--------------------------------
+
+eprover -s --print-saturated=eigEIG --no-generation <problem_file>
+
+Erzeugt aus einer Eingabeformel eine Ausgabeformel, in der alle durch
+Rewriting und Subsumption (*) als redundant nachzuweisenden Clauseln
+eleminiert sind und alle Terme der restlichen Klauseln in eine
+Normalform (*) bzgl. der positiven Unit-Clauseln ueberfuehrt wurden.
+Bitte beachten, daß die Gleichheitsaxiome fuer E Tautologien sind und
+also eleminiert werden. Wenn nötig, muessen sie später wieder
+zugegeben werden, z.B. durch --print-saturated=eigEIGa statt
+"--print-saturated=eigEIG".
+
+
+(*) Soweit nach Kalkülregeln zulässig - das ist aber ziemlich
+    stark.
+
+Interpretation der Ausgabe: 
+------------------------------------------------------------------
+Beweis:
+# Proof found!
+
+Modell:
+# No proof found!
+
+Klar:
+# Failure: Resource limit exceeded (memory)
+# Failure: Resource limit exceeded (time)
+
+Irgendeine Schranke für Saturierung überschritten (Schrittzahl,
+Klauselzahl, Soft-CPU-Limit, etc.):
+# Failure: User resource limit exceeded!
+
+Beweiser hat keine Ahnung (Equivalent "SOS empty" bei Otter, nur bei
+Auto-Mode oder --delete-bad-limit möglich):
+# Failure: Out of unprocessed clauses!
+
+Saturierung mit eingeschränktem Kalkül (keine Paramodulation in
+negative Literale oder in Nicht-Gleichheits-Literale, oder ganz ohne
+generierende Inferenzen) beendet, aber keinen Beweis gefunden:
+# Clause set closed under restricted calculus!
+
+
+
+Natürlich gibt's noch viel mehr...ich sage nur --help oder Telefon.
+
+Viel Spass!
+
+Stephan

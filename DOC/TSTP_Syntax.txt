@@ -1,0 +1,203 @@
+%----Version 3.1.0.23 (TPTP version.internal development number)
+%----Intended uses of the various parts of the TPTP syntax are explained
+%----in the TPTP technical manual, linked from www.tptp.org.
+%----See the <comment> entries regarding text that can be discarded before 
+%----tokenizing for this syntax.
+
+%----Files. At least something, and at least one <annotated formula> expected
+<TPTP file>          ::= <TPTP input>+
+<TPTP input>         ::= <annotated formula> | <include> | <comment>
+
+%----Formula records
+<annotated formula>  ::= <fof annotated> | <cnf annotated>
+%----Future languages may include ...  english | efof | tfof | mathml | ...
+<fof annotated>      ::= fof(<name>,<type>,<fof formula><annotations>).
+<cnf annotated>      ::= cnf(<name>,<type>,<cnf formula><annotations>).
+<annotations>        ::= <null> | ,<source> | ,<source>,<useful info>
+
+%----Types for problems.
+%----Note: The previous <source type> from ...
+%----   <type> ::= <user type>-<source type> 
+%----... is now gone. Parsers may choose to be tolerant of it for backwards 
+%----compatibility.
+<type>               ::= axiom |
+%----Axioms are accepted without proof as a basis for proving conjectures and 
+%----lemma_conjectures. There is no guarentee that the axioms of a problem are
+%----consistent.
+                         hypothesis |
+%----Hypotheses are assumed to be true for a particular problem. Like axioms.
+                         definition |
+%----Definitions used to define symbols. Used like axioms.
+                         lemma |
+%----Lemmas have been proved from the axiom formulae. Can be used like axioms, 
+%----but are redundant wrt the axioms. Used as the type of proved 
+%----lemma_conjectures in output. A problem containing a lemma that is not 
+%----redundant wrt the axioms is ill-formed.
+                         theorem |
+%----Theorems have been proved from the axiom formulae. Can be used like
+%----axioms, but are redundant wrt the axioms. Used as the type of proved 
+%----conjectures in output. Theorems are more important than lemmas from the
+%----user perspective.
+                         conjecture |
+%----Conjectures are all to be proved from the axiom(-like) formulae. A problem
+%----is solved only when all conjectures are proved.
+                         lemma_conjecture |
+%----Lemma conjectures are expected to be provable, and may be useful to prove, 
+%----while proving conjectures.
+                         negated_conjecture |
+%----Negated conjectures are derived from negation of a conjecture. CNF 
+%----specific.
+                         plain |
+%----Plain formulae have no special user semantics. Can be used like axioms.
+                         unknown
+%----Unknown formulae have unknown type. This is an error situation.
+%----Future user types may include ... knowledge | 
+
+%----FOF formulae. All formulae must be closed.
+<fof formula>        ::= <literal formula> | <binary formula>
+<literal formula>    ::= <atomic formula> | <unary formula>
+<atomic formula>     ::= <quantified formula> | <atom> | (<fof formula>)
+%----Quantifers have higher precedence than binary connectives. 
+<quantified formula> ::= <quantifier> <variables> : <literal formula>
+%----! is universal quantification and ? is existential
+<quantifier>         ::= ! | ?
+<variables>          ::= [<variable><rest of variables>*]
+%----Future variables may have sorts and existential counting
+<rest of variables>  ::= ,<variable>
+%----Only some binary connectives are associative, and there's no precedence
+<binary formula>     ::= <non-assoc binary> | <assoc binary>
+<non-assoc binary>   ::= <literal formula> <binary connective> <literal formula>
+%----Associative connectives & and vline are in <assoc binary>
+<binary connective>  ::= <=> | => | <= | <~> | ~vline | ~&
+<assoc binary>       ::= <or formula> | <and formula>
+<or formula>         ::= <literal formula> vline <literal formula> 
+                         <rest or formula>*
+<rest or formula>    ::= vline <literal formula>
+<and formula>        ::= <literal formula> & <literal formula> 
+                         <rest and formula>*
+<rest and formula>   ::= & <literal formula>
+%----Unary connectives bind more tightly than binary
+<unary formula>      ::= <unary connective> <literal formula>
+<unary connective>   ::= ~
+
+%----CNF formulae (variables implicitly universally quantified)
+<cnf formula>        ::= (<disjunction>) | <disjunction>
+<disjunction>        ::= <literal> | <literal> vline <disjunction>
+<literal>            ::= <atom> | ~ <atom>
+
+%----Atoms
+<atom>               ::= <plain atom> | <defined atom> | <system atom>
+<plain atom>         ::= <proposition> | <predicate>(<arguments>)
+<proposition>        ::= <atomic word> 
+<predicate>          ::= <atomic word>
+<arguments>          ::= <term><rest of args>*
+<rest of args>       ::= ,<term>
+<defined atom>       ::= $true | $false |
+                         <term> = <term> | <term> != <term> | 
+                         equal(<term>,<term>)
+%----More defined atoms may be added in the future
+%----Note: <term> != <term> should be parsed as ~ <term> = <term>
+<system atom>        ::= $$<predicate> | $$<predicate>(<arguments>)
+
+%----Terms
+<term>               ::= <function term> | <variable>
+<function term>      ::= <plain term> | <defined term> | <system term>
+<plain term>         ::= <constant> | <functor>(<arguments>)
+<constant>           ::= <atomic word>
+<functor>            ::= <atomic word>
+<defined term>       ::= <number> | <double quoted>
+<system term>        ::= $$<functor> | $$<functor>(<arguments>)
+<variable>           ::= <upper word>
+
+%----Formula sources
+<source>             ::= <dag source> | <internal source> | <external source> |
+                          unknown
+%----Only a <dag source> can be a <name>, i.e., derived formulae can be
+%----identified by a <name> or an <inference record> 
+<dag source>         ::= <name> | <inference record>
+<inference record>   ::= inference(<inference rule>,<useful info>,
+                             [<parent info><rest parent info>*])
+<inference rule>     ::= <atomic word>
+%----Examples are        deduction | modus_tollens | modus_ponens | rewrite | 
+%                        resolution | paramodulation | factorization | 
+%                        cnf_conversion | cnf_refutation | ...
+<rest parent info>   ::= ,<parent info>
+<parent info>        ::= <source><parent details>
+<theory>             ::= theory(<theory name>)
+<theory name>        ::= equality | ac | ...
+<parent details>     ::= -<single quoted> | <null>
+<internal source>    ::= introduced(<intro type><intro info>)
+<intro type>         ::= definition | axiom_of_choice | tautology
+%----This should be used to record the symbol being defined, or the function
+%----for the axiom of choice
+<intro info>         ::= ,<atomic word> | ,<null>
+<external source>    ::= <file source> | <creator source> | <theory>
+<file source>        ::= file(<file name>,<file node name>)
+<file name>          ::= <single quoted>
+<file node name>     ::= <name> | unknown
+<creator source>     ::= creator(<creator name><creator info>)
+<creator name>       ::= <single quoted>
+<creator info>       ::= ,<useful info> | <null>
+
+%----Useful info fields
+<useful info>        ::= [] | [<info items>]
+<info items>         ::= <info item><rest of info items>*
+<rest of info items> ::= ,<info item>
+<info item>          ::= <formula item> | <inference item> | <general function>
+%----Useful info for formula records
+<formula item>       ::= <description item> | <iquote item> 
+<description item>   ::= description(<single quoted>)
+<iquote item>        ::= iquote(<single quoted>)
+%----Useful info for inference records
+<inference item>     ::= <inference status> | <refutation>
+<inference status>   ::= status(<status value>) | <inference info>
+%----These are the status values from the SZS ontology
+<status value>       ::= tau | tac | eqv | thm | sat | cax | noc | csa | cth |
+                         ceq | unc | uns | sab | sam | sar | sap | csp | csr |
+                         csm | csb
+<inference info>     ::= <inference rule>(<atomic word>,<general list>)
+<refutation>         ::= refutation(<file source>)
+%----Useful info for creators is just <general function>
+
+%----Include directives
+<include>            ::= include(<file name><formula selection>).
+<formula selection>  ::= <null> | ,[<name><rest names>*]
+<rest names>         ::= ,<name>
+
+%----Comments. These may be retained for non-logical purposes. Comments
+%----can occur only between annotated formulae (see <TPTP input>), but
+%----it seems likely that people will put them elsewhere and simply
+%----strip them before tokenising.
+<comment>            ::= %<char until eoln>* | /<star><char>*<star>/
+%----Annotations are used for system specific annotation of anything. Notice
+%----that they look like comments, so by default they are discarded. However,
+%----a wily user of the syntax can notice the @ and store/extract information 
+%----from the "comment". System specific annotations should identify the 
+%----system, followed by a :, after the $$, e.g., /*@Otter 3.3: Demodulator */
+<system comment>     ::= %$$<char until eoln>* | /<star>$$<char>*<star>/ 
+
+%----General purpose
+<general term>       ::= <general function> | <general list>
+<general list>       ::= [] | [<general arguments>]
+<general function>   ::= <constant> | <functor>(<general arguments>)
+<general arguments>  ::= <general term><rest of gargs>*
+<rest of gargs>      ::= ,<general term>
+%----The following are reserved <name>s: unknown file inference creator
+<name>               ::= <atomic word> | <unsigned integer>
+<atomic word>        ::= <lower word> | <single quoted>
+<upper word>         ::= <A-Z><a-z0-9A-Z_>*
+<lower word>         ::= <a-z><a-z0-9A-Z_>*
+<single quoted>      ::= '<char>*'
+%----All numbers are implicitly distinct
+<number>             ::= <integer> | <real>
+<integer>            ::= <sign><unsigned integer>
+<real>               ::= <integer><decimal part>
+<sign>               ::= + | - | <null>
+<unsigned integer>   ::= <0-9>+
+<decimal part>       ::= .<0-9>+ | <null>
+%----All strings are implicitly distinct
+<double quoted>      ::= "<char>*"
+<char>               ::= ... any printable ASCII character
+<star>               ::= ... a star character
+<plus>               ::= ... a plus character
+<null>               ::=

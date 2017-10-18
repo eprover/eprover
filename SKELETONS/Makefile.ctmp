@@ -1,0 +1,41 @@
+#------------------------------------------------------------------------
+#
+# File  : Makefile template
+#
+# Author: Stephan Schulz
+#
+# Changes
+#
+# <1> Sun Jul  6 22:55:11 MET DST 1997
+#     New
+#
+#------------------------------------------------------------------------
+
+include ../Makefile.vars
+
+# Project specific variables
+
+PROJECT = 
+LIB     = $(PROJECT).a
+
+all: $(LIB)
+
+depend: *.c *.h
+	$(MAKEDEPEND)
+
+# Remove all automatically generated files
+
+clean:
+	@touch does_exist.o does_exist.a; rm *.o  *.a
+
+# Services (provided by the master Makefile)
+
+include ../Makefile.services
+
+_LIB = .o
+
+$(LIB): $(_LIB)
+	$(AR) $(LIB) $(_LIB)
+
+include Makefile.dependencies
+

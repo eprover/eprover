@@ -1,0 +1,229 @@
+<HTML>
+<HEAD>
+<TITLE>E Inferences</TITLE>
+</HEAD>
+<BODY>
+<HR><!------------------------------------------------------------------------>
+
+<HR><!------------------------------------------------------------------------>
+<H2>E 1.8 Proof Output</H2>
+S. Schulz<BR>
+DHBW Stuttgart<br>
+schulz@eprover.org
+
+<p>
+E use the current version of the new TSTP output format,
+documented in [<A HREF="#References">SSCG2006</A>]. Initial clauses and
+formulas are renamed, but sourced to their input file and original
+name. The following rule names are defined for the main proof search:
+<P>
+<DL>
+<DT> er
+<DD> Equality resolution: x!=a v x=x ==> a=a
+<DT> pm
+<DD> Paramodulation. Note that E considers all literals as equational,
+     and thus also performs resolution by a combination of top-level
+     paramodulation and (implicit) clause normalization.
+<DT> spm
+<DD> Simultaneous Paramodulation. This is similr to paramodulation,
+     but replaces all instances of the same term in the original
+     clause in one step.
+<DT> ef
+<DD> Equality factoring (factor equations on one side only, move the 
+     remaining disequation into the precondition): x=a v b=c v x=d ==>
+     a!=c v b=c vb=d 
+<DT> apply_def
+<DD> Apply a definition, usually replacing a complex formula by a
+     single literal.
+<DT> introduced(definition)
+<DD> Introduce a new definition.
+<DT> rw
+<DD> Rewriting, each rw-expression corresponds to exacly one rewrite
+     step with the named clause. This is also used for equational
+     unfolding.
+<DT> sr
+<DD> Simplify-reflect: An (equational) version of unit-cutting. As as
+      example, see this positive simplify-reflect step:  
+      [a=b], [f(a)!=f(b)] => [].
+<DT> csr
+<DD> Contextual simplify-reflect (also known as contextual literal
+     cutting or subsumption resolution): Literal cutting with non-unit
+     clauses if one of the literals is implied in the context of the
+     clause to be simplified.
+<DT> ar
+<DD> AC-resolution: Delete literals that are trivial modulo the
+     AC-theory induced by the named clauses
+<DT> cn
+<DD> Clause normalize, delete trivial and repeated literals. This step
+     is often implicit, but can sometimes occcur explicitely.
+<DT> condense
+<DD> Apply condensation (replace the clause by one of its factors that
+     is more general).
+</DL>
+<P>
+
+Additionally, the clausification will use additional rule names:
+<P>
+<DL>
+<DT> assume_negation
+<DD> Negate a conjecture for a proof by refutation.
+<DT> fof_nnf
+<DD> Convert a formula to negation normal form by moving negation
+     signs inward to the literals, and eleminating equivalences and
+     implications.
+<DT> shift_quantors
+<DD> Move quantors (inwards for mini-scoping or outwards for the final
+     conjunctive normal form).
+<DT> variable_rename
+<DD> Rename bound variables to make sure each quantor binds a
+     different variable.
+<DT> skolemize
+<DD> Eliminate existential quantors via Skolemization.
+<DT> distribute
+<DD> Apply distributivity law to move <strong>and</strong> outwards
+     over <strong>or</strong>.
+<DT> split_conjunct
+<DD> Split of one conjunct from a formula in conjunctive normal form
+     to create a clause.
+<DT> fof_simplification
+<DD> Perform standard simplification steps on the formula. This may
+     also replaces back implications and exclusive or with equivalent
+     constructs using implications and equivalences.
+</DL>
+<P>
+
+
+
+The first proof uses most inferences, although it uses some in fairly
+trivial ways. The second is the required CASC proof for SYN075-1, and
+contains examples for "ef" and "csr". The final proof is for SYN075+1,
+and also contains the clausification steps.
+
+<p>
+<strong>ALL_RULES</strong>
+<PRE>
+# SZS status Theorem
+# SZS output start CNFRefutation.
+fof(c_0_0, axiom, (((d=c|d=c)<=>h(i(e))=h(i(a)))), file('ALL_RULES.p', guarded_eq)).
+fof(c_0_1, conjecture, ((?[X3]:?[X4]:?[X1]:?[X2]:?[X5]:(k(a,b)=k(X3,X3)&f(f(g(X2,X5),X1),f(X4,X3))=f(f(X3,X4),f(X1,g(X2,X5))))&![X6]:p(X6))), file('ALL_RULES.p', conj)).
+cnf(c_0_2, axiom, (c=b|X1!=X2|X3!=X4|d!=c), file('ALL_RULES.p', split_or_condense)).
+cnf(c_0_3, axiom, (i(X1)=i(X2)), file('ALL_RULES.p', identity)).
+cnf(c_0_4, axiom, (p(X1)), file('ALL_RULES.p', p_holds)).
+cnf(c_0_5, axiom, (f(X1,X2)=f(X2,X1)), file('ALL_RULES.p', comm_f)).
+cnf(c_0_6, axiom, (g(X1,X2)=g(X2,X1)), file('ALL_RULES.p', comm_g)).
+cnf(c_0_7, axiom, (f(f(X1,X2),X3)=f(X1,f(X2,X3))), file('ALL_RULES.p', ass_f)).
+cnf(c_0_8, axiom, (a=b|c=a|e=a), file('ALL_RULES.p', consts1)).
+cnf(c_0_9, axiom, (a=b|c=a|e!=a), file('ALL_RULES.p', consts2)).
+fof(c_0_10, plain, ((~epred2_0<=>![X2]:![X1]:X1!=X2)), introduced(definition)).
+cnf(c_0_11, plain, (epred2_0|X1!=X2), inference(split_equiv,[status(thm)],[c_0_10])).
+fof(c_0_12, plain, ((~epred1_0<=>![X4]:![X3]:((c=b|X3!=X4)|d!=c))), introduced(definition)).
+cnf(c_0_13, plain, (epred2_0), inference(er,[status(thm)],[c_0_11])).
+fof(c_0_14, plain, ((d=c<=>h(i(e))=h(i(a)))), inference(fof_simplification,[status(thm)],[c_0_0])).
+fof(c_0_15, negated_conjecture, (~((?[X3]:?[X4]:?[X1]:?[X2]:?[X5]:(k(a,b)=k(X3,X3)&f(f(g(X2,X5),X1),f(X4,X3))=f(f(X3,X4),f(X1,g(X2,X5))))&![X6]:p(X6)))), inference(assume_negation,[status(cth)],[c_0_1])).
+cnf(c_0_16, plain, (~epred1_0), inference(cn,[status(thm)],[inference(rw,[status(thm)],[inference(apply_def,[status(thm)],[inference(apply_def,[status(thm)],[c_0_2, c_0_12]), c_0_10]), c_0_13])])).
+fof(c_0_17, plain, (((d!=c|h(i(e))=h(i(a)))&(h(i(e))!=h(i(a))|d=c))), inference(fof_nnf,[status(thm)],[c_0_14])).
+fof(c_0_18, negated_conjecture, (![X7]:![X8]:![X9]:![X10]:![X11]:((k(a,b)!=k(X7,X7)|f(f(g(X10,X11),X9),f(X8,X7))!=f(f(X7,X8),f(X9,g(X10,X11))))|~p(esk1_0))), inference(shift_quantors,[status(thm)],[inference(skolemize,[status(esa)],[inference(variable_rename,[status(thm)],[inference(shift_quantors,[status(thm)],[inference(fof_nnf,[status(thm)],[c_0_15])])])])])).
+cnf(c_0_19, plain, (c=b|d!=c|X1!=X2), inference(sr,[status(thm)],[inference(split_equiv,[status(thm)],[c_0_12]), c_0_16])).
+cnf(c_0_20, plain, (d=c|h(i(e))!=h(i(a))), inference(split_conjunct,[status(thm)],[c_0_17])).
+cnf(c_0_21, negated_conjecture, (~p(esk1_0)|f(f(g(X1,X2),X3),f(X4,X5))!=f(f(X5,X4),f(X3,g(X1,X2)))|k(a,b)!=k(X5,X5)), inference(split_conjunct,[status(thm)],[c_0_18])).
+cnf(c_0_22, plain, (c=b|d!=c), inference(er,[status(thm)],[c_0_19])).
+cnf(c_0_23, plain, (d=c), inference(sr,[status(thm)],[c_0_20, c_0_3])).
+cnf(c_0_24, negated_conjecture, (k(a,b)!=k(X5,X5)|f(f(g(X1,X2),X3),f(X4,X5))!=f(f(X5,X4),f(X3,g(X1,X2)))), inference(cn,[status(thm)],[inference(rw,[status(thm)],[c_0_21, c_0_4])])).
+cnf(c_0_25, plain, (f(X1,X2)=f(X2,X1)), c_0_5).
+cnf(c_0_26, plain, (g(X1,X2)=g(X2,X1)), c_0_6).
+cnf(c_0_27, plain, (f(f(X1,X2),X3)=f(X1,f(X2,X3))), c_0_7).
+cnf(c_0_28, plain, (c=a|a=b), inference(csr,[status(thm)],[c_0_8, c_0_9])).
+cnf(c_0_29, plain, (c=b), inference(cn,[status(thm)],[inference(rw,[status(thm)],[c_0_22, c_0_23])])).
+cnf(c_0_30, negated_conjecture, (k(a,b)!=k(X1,X1)), inference(ar,[status(thm)],[c_0_24, c_0_25, c_0_26, c_0_27])).
+cnf(c_0_31, plain, (a=b), inference(pm,[status(thm)],[c_0_28, c_0_29])).
+cnf(c_0_32, negated_conjecture, (k(b,b)!=k(X1,X1)), inference(rw,[status(thm)],[c_0_30, c_0_31])).
+cnf(c_0_33, negated_conjecture, ($false), inference(er,[status(thm)],[c_0_32]), ['proof']).
+# SZS output end CNFRefutation.
+</pre>
+<p>
+<strong>SYN075-1</strong>
+<PRE>
+# SZS status Unsatisfiable
+# SZS output start CNFRefutation.
+cnf(c_0_0, negated_conjecture, (big_f(X1,f(X2))|f(X2)=X2|X1!=g(X2)), file('/Users/schulz/EPROVER/TPTP_6.0.0_FLAT/SYN075-1.p', clause_6)).
+cnf(c_0_1, negated_conjecture, (f(X2)=X2|~big_f(X1,f(X2))|X1!=g(X2)), file('/Users/schulz/EPROVER/TPTP_6.0.0_FLAT/SYN075-1.p', clause_4)).
+cnf(c_0_2, negated_conjecture, (big_f(h(X1,X2),f(X1))|h(X1,X2)=X2|f(X1)!=X1), file('/Users/schulz/EPROVER/TPTP_6.0.0_FLAT/SYN075-1.p', clause_9)).
+cnf(c_0_3, axiom, (X1=a|~big_f(X1,X2)), file('/Users/schulz/EPROVER/TPTP_6.0.0_FLAT/SYN075-1.p', clause_1)).
+cnf(c_0_4, negated_conjecture, (f(X1)!=X1|h(X1,X2)!=X2|~big_f(h(X1,X2),f(X1))), file('/Users/schulz/EPROVER/TPTP_6.0.0_FLAT/SYN075-1.p', clause_10)).
+cnf(c_0_5, axiom, (big_f(X1,X2)|X1!=a|X2!=b), file('/Users/schulz/EPROVER/TPTP_6.0.0_FLAT/SYN075-1.p', clause_3)).
+cnf(c_0_6, negated_conjecture, (f(X1)=X1|g(X1)!=X2), inference(csr,[status(thm)],[c_0_0, c_0_1])).
+cnf(c_0_7, negated_conjecture, (f(X1)=X1), inference(er,[status(thm)],[c_0_6])).
+cnf(c_0_8, negated_conjecture, (h(X1,X2)=X2|big_f(h(X1,X2),X1)), inference(cn,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[c_0_2, c_0_7]), c_0_7])])).
+cnf(c_0_9, negated_conjecture, (h(X1,X2)=a|h(X1,X2)=X2), inference(pm,[status(thm)],[c_0_3, c_0_8])).
+cnf(c_0_10, negated_conjecture, (h(X1,X2)!=X2|~big_f(h(X1,X2),X1)), inference(cn,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[c_0_4, c_0_7]), c_0_7])])).
+cnf(c_0_11, negated_conjecture, (h(X1,X2)=X2|a!=X2), inference(ef,[status(thm)],[c_0_9])).
+fof(c_0_12, plain, ((~epred1_0<=>![X2]:a!=X2)), introduced(definition)).
+cnf(c_0_13, negated_conjecture, (h(X1,X2)!=X2|~big_f(X2,X1)), inference(csr,[status(thm)],[inference(pm,[status(thm)],[c_0_10, c_0_11]), c_0_3])).
+cnf(c_0_14, negated_conjecture, (h(X1,X2)=X2|big_f(a,X1)), inference(pm,[status(thm)],[c_0_8, c_0_9])).
+cnf(c_0_15, negated_conjecture, (epred1_0|a!=X1), inference(split_equiv,[status(thm)],[c_0_12])).
+fof(c_0_16, plain, ((~epred2_0<=>![X1]:b!=X1)), introduced(definition)).
+cnf(c_0_17, negated_conjecture, (big_f(a,X1)|~big_f(X2,X1)), inference(pm,[status(thm)],[c_0_13, c_0_14])).
+cnf(c_0_18, negated_conjecture, (~big_f(X1,X2)), inference(csr,[status(thm)],[inference(pm,[status(thm)],[c_0_13, c_0_11]), c_0_3])).
+cnf(c_0_19, negated_conjecture, (epred1_0), inference(er,[status(thm)],[c_0_15])).
+cnf(c_0_20, negated_conjecture, (~epred2_0), inference(cn,[status(thm)],[inference(rw,[status(thm)],[inference(apply_def,[status(thm)],[inference(apply_def,[status(thm)],[inference(sr,[status(thm)],[inference(pm,[status(thm)],[c_0_17, c_0_5]), c_0_18]), c_0_12]), c_0_16]), c_0_19])])).
+cnf(c_0_21, negated_conjecture, (b!=X1), inference(sr,[status(thm)],[inference(split_equiv,[status(thm)],[c_0_16]), c_0_20])).
+cnf(c_0_22, negated_conjecture, ($false), inference(er,[status(thm)],[c_0_21]), ['proof']).
+# SZS output end CNFRefutation.
+
+</pre>
+<p>
+<strong>SYN075+1</strong>
+<PRE>
+fof(c_0_0, conjecture, (?[X2]:![X4]:(?[X1]:![X3]:(big_f(X3,X4)<=>X3=X1)<=>X4=X2)), file('/Users/schulz/EPROVER/TPTP_6.0.0_FLAT/SYN075+1.p', pel52)).
+fof(c_0_1, axiom, (?[X1]:?[X2]:![X3]:![X4]:(big_f(X3,X4)<=>(X3=X1&X4=X2))), file('/Users/schulz/EPROVER/TPTP_6.0.0_FLAT/SYN075+1.p', pel52_1)).
+fof(c_0_2, negated_conjecture, (~(?[X2]:![X4]:(?[X1]:![X3]:(big_f(X3,X4)<=>X3=X1)<=>X4=X2))), inference(assume_negation,[status(cth)],[c_0_0])).
+fof(c_0_3, plain, (![X7]:![X8]:![X9]:![X10]:(((X7=esk1_0|~big_f(X7,X8))&(X8=esk2_0|~big_f(X7,X8)))&((X9!=esk1_0|X10!=esk2_0)|big_f(X9,X10)))), inference(distribute,[status(thm)],[inference(shift_quantors,[status(thm)],[inference(skolemize,[status(esa)],[inference(variable_rename,[status(thm)],[inference(shift_quantors,[status(thm)],[inference(fof_nnf,[status(thm)],[c_0_1])])])])])])).
+fof(c_0_4, negated_conjecture, (![X5]:![X7]:![X10]:![X11]:((((~big_f(esk4_2(X5,X7),esk3_1(X5))|esk4_2(X5,X7)!=X7)|esk3_1(X5)!=X5)&((big_f(esk4_2(X5,X7),esk3_1(X5))|esk4_2(X5,X7)=X7)|esk3_1(X5)!=X5))&(((~big_f(X10,esk3_1(X5))|X10=esk5_1(X5))|esk3_1(X5)=X5)&((X11!=esk5_1(X5)|big_f(X11,esk3_1(X5)))|esk3_1(X5)=X5)))), inference(distribute,[status(thm)],[inference(shift_quantors,[status(thm)],[inference(skolemize,[status(esa)],[inference(variable_rename,[status(thm)],[inference(shift_quantors,[status(thm)],[inference(fof_nnf,[status(thm)],[c_0_2])])])])])])).
+cnf(c_0_5, plain, (X2=esk2_0|~big_f(X1,X2)), inference(split_conjunct,[status(thm)],[c_0_3])).
+cnf(c_0_6, negated_conjecture, (esk3_1(X1)=X1|big_f(X2,esk3_1(X1))|X2!=esk5_1(X1)), inference(split_conjunct,[status(thm)],[c_0_4])).
+cnf(c_0_7, negated_conjecture, (esk3_1(X1)=esk2_0|esk3_1(X1)=X1|esk5_1(X1)!=X2), inference(pm,[status(thm)],[c_0_5, c_0_6])).
+cnf(c_0_8, negated_conjecture, (esk3_1(X1)=esk2_0|esk3_1(X1)=X1), inference(er,[status(thm)],[c_0_7])).
+cnf(c_0_9, plain, (X1=esk1_0|~big_f(X1,X2)), inference(split_conjunct,[status(thm)],[c_0_3])).
+cnf(c_0_10, negated_conjecture, (esk4_2(X1,X2)=X2|big_f(esk4_2(X1,X2),esk3_1(X1))|esk3_1(X1)!=X1), inference(split_conjunct,[status(thm)],[c_0_4])).
+cnf(c_0_11, negated_conjecture, (esk3_1(X1)!=X1|esk4_2(X1,X2)!=X2|~big_f(esk4_2(X1,X2),esk3_1(X1))), inference(split_conjunct,[status(thm)],[c_0_4])).
+cnf(c_0_12, negated_conjecture, (esk3_1(X1)=X1|esk2_0!=X1), inference(ef,[status(thm)],[c_0_8])).
+cnf(c_0_13, negated_conjecture, (esk4_2(X1,X2)=esk1_0|esk4_2(X1,X2)=X2|esk3_1(X1)!=X1), inference(pm,[status(thm)],[c_0_9, c_0_10])).
+cnf(c_0_14, negated_conjecture, (esk4_2(X1,X2)!=X2|esk3_1(X1)!=X1|~big_f(esk4_2(X1,X2),X1)), inference(csr,[status(thm)],[inference(pm,[status(thm)],[c_0_11, c_0_12]), c_0_5])).
+cnf(c_0_15, negated_conjecture, (esk4_2(X1,X2)=X2|esk3_1(X1)!=X1|esk1_0!=X2), inference(ef,[status(thm)],[c_0_13])).
+cnf(c_0_16, negated_conjecture, (esk4_2(X1,X2)!=X2|esk3_1(X1)!=X1|~big_f(X2,X1)), inference(csr,[status(thm)],[inference(pm,[status(thm)],[c_0_14, c_0_15]), c_0_9])).
+cnf(c_0_17, negated_conjecture, (esk4_2(X1,X2)=X2|esk3_1(X1)=esk2_0), inference(csr,[status(thm)],[inference(pm,[status(thm)],[c_0_5, c_0_10]), c_0_8])).
+cnf(c_0_18, negated_conjecture, (esk3_1(X1)=X1|big_f(X2,esk2_0)|esk5_1(X1)!=X2), inference(pm,[status(thm)],[c_0_6, c_0_8])).
+cnf(c_0_19, negated_conjecture, (esk3_1(X1)=esk2_0|~big_f(X2,X1)), inference(csr,[status(thm)],[inference(pm,[status(thm)],[c_0_16, c_0_17]), c_0_8])).
+cnf(c_0_20, negated_conjecture, (esk3_1(X1)=X1|big_f(esk5_1(X1),esk2_0)), inference(er,[status(thm)],[c_0_18])).
+cnf(c_0_21, negated_conjecture, (esk4_2(X1,X2)=esk1_0|esk3_1(X1)!=X1|X2!=esk1_0), inference(ef,[status(thm)],[c_0_13])).
+cnf(c_0_22, negated_conjecture, (esk3_1(esk2_0)=esk2_0|esk3_1(X1)=X1), inference(pm,[status(thm)],[c_0_19, c_0_20])).
+cnf(c_0_23, negated_conjecture, (esk3_1(X1)!=X1|~big_f(X2,X1)), inference(csr,[status(thm)],[inference(pm,[status(thm)],[c_0_16, c_0_21]), c_0_9])).
+cnf(c_0_24, negated_conjecture, (esk3_1(esk2_0)=esk2_0), inference(ef,[status(thm)],[c_0_22])).
+fof(c_0_25, plain, ((~epred11_0<=>![X1]:esk1_0!=X1)), introduced(definition)).
+cnf(c_0_26, negated_conjecture, (esk3_1(X1)=X1), inference(cn,[status(thm)],[inference(rw,[status(thm)],[inference(pm,[status(thm)],[c_0_23, c_0_20]), c_0_24])])).
+cnf(c_0_27, negated_conjecture, (epred11_0|esk1_0!=X1), inference(split_equiv,[status(thm)],[c_0_25])).
+fof(c_0_28, plain, ((~epred12_0<=>![X2]:esk2_0!=X2)), introduced(definition)).
+cnf(c_0_29, negated_conjecture, (~big_f(X1,X2)), inference(cn,[status(thm)],[inference(rw,[status(thm)],[c_0_23, c_0_26])])).
+cnf(c_0_30, plain, (big_f(X1,X2)|X2!=esk2_0|X1!=esk1_0), inference(split_conjunct,[status(thm)],[c_0_3])).
+cnf(c_0_31, negated_conjecture, (epred11_0), inference(er,[status(thm)],[c_0_27])).
+cnf(c_0_32, negated_conjecture, (epred12_0|esk2_0!=X1), inference(split_equiv,[status(thm)],[c_0_28])).
+cnf(c_0_33, negated_conjecture, (~epred12_0), inference(cn,[status(thm)],[inference(rw,[status(thm)],[inference(apply_def,[status(thm)],[inference(apply_def,[status(thm)],[inference(pm,[status(thm)],[c_0_29, c_0_30]), c_0_25]), c_0_28]), c_0_31])])).
+cnf(c_0_34, negated_conjecture, ($false), inference(sr,[status(thm)],[inference(er,[status(thm)],[c_0_32]), c_0_33]), ['proof']).
+# SZS output end CNFRefutation.
+</pre>
+
+
+<A NAME="References">
+<H3>References</H3>
+<DL>
+<DT> SSCG2006
+<DD> Geoff Sutcliffe,  Stephan Schulz, Koen Claessen and Allen Van
+  Gelder, 2006.
+     <STRONG>Using the TPTP Language for Writing Derivations and
+       Finite Interpretations</STRONG>, <em>Proc. of the 3rd IJCAR,
+       Seattle</em>, pp. 67-81, Springer LNAI 4130.
+</DL>
+
+<HR><!------------------------------------------------------------------------>
+</BODY>
+</HTML>

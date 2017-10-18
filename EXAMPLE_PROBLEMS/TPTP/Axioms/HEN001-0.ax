@@ -1,0 +1,71 @@
+%--------------------------------------------------------------------------
+% File     : HEN001-0 : TPTP v6.4.0. Released v1.0.0.
+% Domain   : Henkin Models
+% Axioms   : Henkin model axioms
+% Version  : [MOW76] axioms.
+% English  :
+
+% Refs     : [MOW76] McCharen et al. (1976), Problems and Experiments for a
+% Source   : [MOW76]
+% Names    :
+
+% Status   : Satisfiable
+% Syntax   : Number of clauses    :    9 (   0 non-Horn;   3 unit;   6 RR)
+%            Number of atoms      :   21 (   2 equality)
+%            Maximal clause size  :    6 (   2 average)
+%            Number of predicates :    3 (   0 propositional; 2-3 arity)
+%            Number of functors   :    3 (   2 constant; 0-2 arity)
+%            Number of variables  :   25 (   3 singleton)
+%            Maximal term depth   :    2 (   1 average)
+% SPC      : 
+
+% Comments :
+%--------------------------------------------------------------------------
+%----A0: definition of less than or equal to
+cnf(quotient_less_equal,axiom,
+    ( ~ less_equal(X,Y)
+    | quotient(X,Y,zero) )).
+
+cnf(less_equal_quotient,axiom,
+    ( ~ quotient(X,Y,zero)
+    | less_equal(X,Y) )).
+
+%----A1: x/y <= x
+cnf(divisor_existence,axiom,
+    ( ~ quotient(X,Y,Z)
+    | less_equal(Z,X) )).
+
+%----A2: (x/z) / (y/z) <= (x/y) / z
+cnf(quotient_property,axiom,
+    ( ~ quotient(X,Y,V1)
+    | ~ quotient(Y,Z,V2)
+    | ~ quotient(X,Z,V3)
+    | ~ quotient(V3,V2,V4)
+    | ~ quotient(V1,Z,V5)
+    | less_equal(V4,V5) )).
+
+%----A3: 0 <= x
+cnf(zero_is_smallest,axiom,
+    ( less_equal(zero,X) )).
+
+%----A4: x <= y and y <= x implies that x = y
+cnf(less_equal_and_equal,axiom,
+    ( ~ less_equal(X,Y)
+    | ~ less_equal(Y,X)
+    | X = Y )).
+
+%----A5: x <= identity (Thus an implicative model with unit 1)
+cnf(identity_is_largest,axiom,
+    ( less_equal(X,identity) )).
+
+%----closure of '/'
+cnf(closure,axiom,
+    ( quotient(X,Y,divide(X,Y)) )).
+
+%----'/' is well defined
+cnf(well_defined,axiom,
+    ( ~ quotient(X,Y,Z)
+    | ~ quotient(X,Y,W)
+    | Z = W )).
+
+%--------------------------------------------------------------------------

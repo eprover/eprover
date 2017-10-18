@@ -1,0 +1,86 @@
+This file contains information about solutions to some hard problems
+found with E.
+
+----
+GRP187-1+rm_eq_rstfp.lop:
+E Version: 0.30dev 25 Mar 1999 13:29:23 +0100
+
+nice +10 ~/EPROVER/bin/eprover
+~/EPROVER/TPTP/ALL_PROBLEMS/GRP187-1+rm_eq_rstfp.lop
+--print-pid
+--resources-info
+--memory-limit=208 
+--delete-bad-limit=1800000
+--filter-copies-limit=1200000
+(The equivalent to --prefer-initial clauses was set by buggy default)
+
+[...]
+
+# Proof found!
+# Initial clauses:                     : 17
+# Processed clauses                    : 434160
+# ...of these trivial                  : 54109
+# ...subsumed                          : 372914
+# ...remaining for further processing  : 7137
+# Other redundant clauses eliminated   : 135999
+# Clauses deleted for lack of memory   : 7183805
+# Backward-subsumed                    : 0
+# Backward-rewritten                   : 2009
+# Generated clauses                    : 18134847
+# ...of the previous two non-trivial   : 8159651     
+# Paramodulations                      : 18134847
+# Factorizations                       : 0
+# Equation resolutions                 : 0
+# Current number of processed clauses  : 5128
+#    Positive orientable unit clauses  : 5012
+#    Positive unorientable unit clauses: 116
+#    Negative unit clauses             : 0
+#    Non-unit-clauses                  : 0
+# Current number of unprocessed clauses: 161934
+# ...number of literals in the above   : 161934
+
+# -------------------------------------------------
+# User time                : 12131.260 s
+# System time              : 4.560 s
+# Total time               : 12135.820 s
+
+----
+CIV002-1+rm_eq_rstfp.lop
+E Version: 0.30dev 29 Mar 1999 13:29:23 +0100
+
+~/EPROVER/bin/eprover 
+--resources-info
+--memory-limit=208 
+--delete-bad-limit=1800000 
+--filter-copies-limit=1200000 
+~/EPROVER/TPTP/ALL_PROBLEMS/CIV002-1+rm_eq_rstfp.lop
+
+[...]
+
+# Proof found!
+# Initial clauses:                     : 51
+# Processed clauses                    : 143934
+# ...of these trivial                  : 64545
+# ...subsumed                          : 56527
+# ...remaining for further processing  : 22862
+# Other redundant clauses eliminated   : 122318
+# Clauses deleted for lack of memory   : 472913
+# Backward-subsumed                    : 0
+# Backward-rewritten                   : 6381
+# Generated clauses                    : 4629059
+# ...of the previous two non-trivial   : 1079887
+# Paramodulations                      : 4629059
+# Factorizations                       : 0
+# Equation resolutions                 : 0
+# Current number of processed clauses  : 16481
+#    Positive orientable unit clauses  : 16466
+#    Positive unorientable unit clauses: 15
+#    Negative unit clauses             : 0
+#    Non-unit-clauses                  : 0
+# Current number of unprocessed clauses: 237352
+# ...number of literals in the above   : 237352
+
+# -------------------------------------------------
+# User time                : 9133.280 s
+# System time              : 8.840 s
+# Total time               : 9142.120 s

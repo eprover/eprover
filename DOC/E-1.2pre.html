@@ -1,0 +1,163 @@
+<A NAME="E---1.2pre">
+<HR><!------------------------------------------------------------------------>
+<H2>E/EP 1.2pre</H2>
+Stephan Schulz<BR>
+Technische Universit&auml;t M&uuml;nchen, Germany
+
+<H3>Architecture</H3>
+
+E&nbsp;1.2pre [<A HREF="#References">Sch02,Sch04</A>] is a purely
+equational theorem prover. 
+The core proof procedure operates on formulae in clause normal form, using 
+a calculus that combines superposition (with selection of negative literals) 
+and rewriting. 
+No special rules for non-equational literals have been implemented, i.e.,
+resolution is simulated via paramodulation and equality resolution. 
+The basic calculus is extended with rules for AC redundancy elimination, 
+some contextual simplification, and pseudo-splitting with definition caching. 
+The latest versions of E also support simultaneous paramodulation, either 
+for all inferences or for selected inferences.
+<P>
+E is based on the DISCOUNT-loop variant of the <EM>given-clause</EM>
+algorithm, i.e., a strict separation of active and passive facts.
+Proof search in E is primarily controlled by a literal selection
+strategy, a clause evaluation heuristic, and a simplification ordering. 
+The prover supports a large number of preprogrammed literal selection 
+strategies. 
+Clause evaluation heuristics can be constructed on the fly by combining 
+various parameterized primitive evaluation functions, or can be selected 
+from a set of predefined heuristics. 
+Supported term orderings are several parameterized instances of 
+Knuth-Bendix-Ordering (KBO) and Lexicographic Path Ordering (LPO).
+<P>
+The prover uses a preprocessing step to convert formulae in full first
+order format to clause normal form. 
+This step may introduce (first-order) definitions to avoid an exponential 
+growth of formulae. 
+Preprocessing also unfolds equational definitions and performs some 
+simplifications on the clause level.
+<P>
+EP&nbsp;1.2pre is just a combination of E&nbsp;1.2pre in verbose mode and
+a proof analysis tool extracting the used inference steps.
+
+<H3>Strategies</H3>
+
+The automatic mode determines literal selection strategy, term ordering, 
+and search heuristic based on simple problem characteristics of the 
+preprocessed clausal problem.
+E has been optimized for performance over the TPTP. 
+The automatic mode of E&nbsp;1.2pre is partially inherited from previous 
+version and is based on about 60 test runs over TPTP 4.0.1. 
+It consists of the selection of one of about 40 different strategies for each
+problem. 
+All test runs have been performed on Linux/Intel machines with a time 
+limit roughly equivalent to 300 seconds on 300MHz Sun SPARC machines, 
+i.e., around 30 seconds on 2Ghz class machines. 
+All individual strategies are refutationally complete.
+<P>
+E distinguishes problem classes based on a number of features, all of
+which have between 2 and 4 possible values. 
+The most important ones are:
+<UL>
+<LI> Is the most general non-negative clause unit, Horn, or Non-Horn?
+<LI> Is the most general negative clause unit or non-unit?
+<LI> Are all negative clauses unit clauses?
+<LI> Are all literals equality literals, are some literals equality
+     literals, or is the problem non-equational?
+<LI> Are there a few, some, or many clauses in the problem?
+<LI> Is the maximum arity of any function symbol 0, 1, 2, or greater? 
+<LI> Is the sum of function symbol arities in the signature small,
+     medium, or large?
+</UL>
+
+For classes above a threshold size, we assign the absolute best heuristic to 
+the class. 
+For smaller, non-empty classes, we assign the globally best heuristic that 
+solves the same number of problems on this class as the best heuristic on 
+this class does. 
+Empty classes are assigned the globally best heuristic. 
+Typically, most selected heuristics are assigned to more than one class.
+<P>
+For the LTB part of the competition, E will use a relevancy-based pruning 
+approach and attempt to solve the problems with successively more complete 
+specifications until it succeeds or runs out of time.
+
+<H3>Implementation</H3>
+
+E is implemented in ANSI C, using the GNU C compiler. 
+At the core is an implementation of aggressively shared first-order terms 
+in a <EM>term bank</EM> data structure. 
+Based on this, E supports the global sharing of rewrite steps. 
+Rewriting is implemented in the form of <EM>rewrite links</EM> from 
+rewritten to new terms. 
+In effect, E is caching rewrite operations as long as sufficient memory is
+available. 
+E uses <EM>perfect discrimination trees</EM> with age and size constraints 
+for rewriting and unit-subsumption, <EM>feature vector indexing</EM>
+[<A HREF="#References">Sch04</A>] for forward- and backward subsumption and 
+contextual literal cutting, and a new technique called <EM>fingerprint 
+indexing</EM> for backward rewriting and (hopefully) paramodulation. 
+Knuth-Bendix Ordering and Lexicographic Path Ordering are implemented 
+using the linear and polynomial algorithms described by Bernd L&ouml;chner 
+[<A HREF="#References">Loe04</A>,<A HREF="#References">Loe06</A>].
+<P>
+The program has been successfully installed under SunOS&nbsp;4.3.x,
+Solaris&nbsp;2.x, HP-UX&nbsp;B&nbsp;10.20, MacOS-X, and various
+versions of Linux.  Sources of the latest released version are
+available freely from: 
+<PRE>    <A HREF="http://www.eprover.org">http://www.eprover.org</A></PRE>
+
+EP&nbsp;1.2pre is a simple Bourne shell script calling E and the
+postprocessor in a pipeline.
+
+<H3>Expected Competition Performance</H3>
+
+In the last years, E performed well in most proof categories. 
+We believe that E will again be among the stronger provers in the FOF and
+CNF categories. 
+We hope that E will at least be a useful complement to dedicated systems 
+in the other categories.
+<p>
+EP&nbsp;1.2p will be hampered by the fact that it has to analyse the
+inference step listing, an operation that typically is about as
+expensive as the proof search itself. 
+Nevertheless, it should be competitive among the FOF systems.
+
+<a NAME="References">
+<h3>References</h3>
+<dl>
+<dt> Sch2002
+<dd> Schulz S. (2002),
+     <strong>E: A Brainiac Theorem Prover</strong>,
+     <em>Journal of AI Communications</em> 15(2/3), 111-126, IOS Press
+<dt> Sch2004
+<dd> Schulz S. (2004),
+     <strong>System Abstract: E 0.81</strong>,
+     <em>Proceedings of the 3rd IJCAR</em>,
+     (Cork, Ireland),
+     Lecture Notes in Artificial Intelligence,
+     Springer-Verlag
+<dt> Sch2004b
+<dd> Schulz S. (2004),
+     <strong>Simple and Efficient Clause Subsumption with Feature
+     Vector Indexing</strong>,
+     <em>Proceedings of the IJCAR-2004 Workshop on Empirically
+     Successful First-Order Theorem Proving</em>, (Cork, Ireland)
+<dt> Loe2004
+<dd> L&ouml;chner B. (2004),
+     <strong>What to know when implementing LPO</strong>,
+     <em>Proceedings of the IJCAR-2004 Workshop on Empirically
+     Successful First-Order Theorem Proving</em>, (Cork, Ireland)
+<P>
+<DT> Loe06
+<DD> L&uml;chner B. (2006),
+     Things to Know When Implementing KBO,
+     Journal of Automated Reasoning 36(4),
+     289-310.
+</dl>
+
+<p>
+
+<hr><!------------------------------------------------------------------------>
+
+

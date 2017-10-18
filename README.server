@@ -1,0 +1,112 @@
+Short Installation
+------------------
+
+This assumes that you have GNU tar, sh and gawk in your search path! 
+
+Simplest installation:
+
+> tar -xzf E.tgz 
+> cd E
+> ./configure
+> make
+
+
+Starting The Server
+-------------------
+From the root directory of E
+
+> ./PROVER/e_deduction_server ./PROVER/eprover -p <port> -L <server_library>
+
+- Replace the <port> with the port you want the server to start
+  listening to.  The port should be an unused port, typically in the
+  non-reserved "registered port" section. If in doubt, try 2705.
+- Replace the <server_library> with a directory that contains the
+  server-side libraries that you want to be availabe to clients. This
+  argument is optional. If you want to test this feature, we have
+  added some axioms sets. Use './EXAMPLES/AXIOMS'.
+
+The conrete example with the recommended values would be
+
+> ./PROVER/e_deduction_server ./PROVER/eprover -p 2705 -L ./EXAMPLES/AXIOMS
+
+
+Starting The Client
+-------------------
+From the root directory of E
+
+> ./PYTHON/enetcat.py localhost <port>
+
+- Replace the <port> with the port you started your server with.
+
+
+Example Commands
+---------------
+
+(Note: Capitalization is significant)
+
+
+LIST
+
+ADD axiom_set1
+fof(inp1,axiom,(subclass(a,b))).
+fof(inp2,axiom,(subclass(b,c))).
+GO
+
+ADD axiom_set2
+fof(inp3,axiom,((subclass(X,Y) & subclass(Y,Z)) => subclass(X,Z))).
+GO
+
+STAGE axiom_set1
+
+LIST
+
+STAGE axiom_set2
+
+RUN job1
+fof(inp4,conjecture,(subclass(a,c))).
+GO
+
+UNSTAGE axiom_set2
+
+REMOVE axiom_set2
+
+DOWNLOAD axiom_set1
+
+RUN job2
+fof(inp4,conjecture,(subclass(a,c))).
+GO
+
+Example session with server-side axioms:
+-----------------------------------------
+
+LIST
+
+LOAD CSR002+2.ax
+
+STAGE   CSR002+2.ax
+
+RUN job3
+fof(query75,conjecture,
+    ( mtvisible(c_patterndetectormt)
+   => genls(c_tptpcol_16_130933,c_tptpcol_15_130931) )).
+GO
+
+QUIT
+
+
+Available Commands
+------------------
+Note : Block commands that are in the form of "COMMAND <NAME> ... GO" should have the
+"COMMAND <NAME>" and GO each on a seperate line on their own and the block should be
+in between. Check the above examples.
+
+- ADD <NAME> ... GO : Uploads a new axiom set with the name <NAME>.
+- LOAD <NAME>       : Loads a server-side axiom set with the name <NAME>. 
+- STAGE <NAME>      : Stages the axiom set <NAME>.
+- UNSTAGE <NAME>    : Unstages the axiom set <NAME>.
+- REMOVE <NAME>     : Removes the axiom set <NAME> from the memory.
+- DOWNLOAD <NAME>   : Prints the axiom set <NAME>.
+- RUN <NAME> ... GO : Runs a job with the name <NAME>.
+- LIST              : Prints the status of the axiom sets.
+- HELP              : Prints the help message.
+- QUIT              : Closes the connection with the server.

@@ -1,0 +1,19 @@
+#!/bin/bash
+#BSUB -J classify
+#BSUB -o classify.out
+#BSUB -e classify.err
+#BSUB -W 24:00  
+#BSUB -q small 
+#BSUB -n 1      
+#
+# Run serial executable on 1 cpu of one node
+cd /nethome/sschulz/EPROVER/TPTP_5.4.0
+cat /dev/null > ../problem_features_5.4.0
+
+for file in `ls|grep \.p`; do
+    echo $file
+    ulimit -t 500
+    classify_problem --tstp-in $file>> ../problem_features_5.4.0
+
+done
+

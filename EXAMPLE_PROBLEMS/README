@@ -1,0 +1,8 @@
+This directory contains a number of test examples for E.
+
+SMOKE contains a number of historical examples in different formats
+that are often used as "smoke tests" during development.
+
+TPTP contains a number of examples of different difficulty in
+TPTP3/TSTP format.
+

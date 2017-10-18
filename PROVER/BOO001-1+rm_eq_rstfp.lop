@@ -1,0 +1,43 @@
+#--------------------------------------------------------------------------
+# File     : BOO001-1 : TPTP v2.1.0. Released v1.0.0.
+# Domain   : Boolean Algebra (Ternary)
+# Problem  : In B3 algebra, inverse is an involution
+# Version  : [OTTER] (equality) axioms.
+# English  : 
+
+# Refs     : 
+# Source   : [OTTER]
+# Names    : tba_gg.in [OTTER]
+
+# Status   : unsatisfiable
+# Rating   : 0.17 v2.1.0, 0.25 v2.0.0
+# Syntax   : Number of clauses    :    6 (   0 non-Horn;   6 unit;   1 RR)
+#            Number of literals   :    6 (   6 equality)
+#            Maximal clause size  :    1 (   1 average)
+#            Number of predicates :    1 (   0 propositional; 2-2 arity)
+#            Number of functors   :    3 (   1 constant; 0-3 arity)
+#            Number of variables  :   13 (   2 singleton)
+#            Maximal term depth   :    3 (   2 average)
+
+# Comments : 
+#          : tptp2X -f setheo:sign -t rm_equality:rstfp BOO001-1.p 
+#--------------------------------------------------------------------------
+# associativity, axiom.
+equal(multiply(multiply(V, W, X), Y, multiply(V, W, Z)), multiply(V, W, multiply(X, Y, Z))) <- .
+
+# ternary_multiply_1, axiom.
+equal(multiply(Y, X, X), X) <- .
+
+# ternary_multiply_2, axiom.
+equal(multiply(X, X, Y), X) <- .
+
+# left_inverse, axiom.
+equal(multiply(inverse(Y), Y, X), X) <- .
+
+# right_inverse, axiom.
+equal(multiply(X, Y, inverse(Y)), X) <- .
+
+# prove_inverse_is_self_cancelling, conjecture.
+ <- equal(inverse(inverse(a)), a).
+
+#--------------------------------------------------------------------------

@@ -1,0 +1,158 @@
+# This file contains old entries moved from the TODO file to unclutter
+# it 
+
+
+
+Trivial: If no equality is present, disable AC scanning in Auto
+mode. -> Done
+
+Try copying instantiated terms (non-shared) before doing ordering
+comparisons -> we can count variable occurences in the variables!
+-> Subsumed by Bernd's KBO algorithm
+
+Implement simple indexing for paramodulation. Idea: Processed clauses
+get an _into_ and a _from_ index. Both are a simple PDArray_p indexed
+by the top function symbol of the respective inference terms (or 0 for
+variables - only in _from_ case). Each entry in the index is a
+clb_objtrees, indexed by the clause, and containing all inference
+positions in that clause that start with the indexed symbol.
+- Should safe an enourmous amount of iteration - especially from
+positions are very rare indeed! Will change generation order, though
+(but not significantly). 
+-> Done, and better with Fingerprint Indexing
+
+Get rid of the ugly distinction between LHS top terms and other
+terms. Now that simplification is driven from the clause level, it's
+unecessary. Just annotate if a term was rewritten with a real
+instance, and if not, set the flag temporarily and search for another
+rewrite possibility. 
+-> Done, and better
+
+Splitting with naming!
+-> Done
+
+Finally get rid of the ugly second termbank. Just have two variable
+banks per term bank, the Xs (normal variables) and the Ys (used when
+distinct variables are needed. Possibly better sharing, more general
+use of pointer compariasons, and ground term inserting becomes free. 
+-> Done
+
+Implements Bernd's KBO.
+->Done
+
+Generate signature fingerprint of clauses (for each symbol: 0 if it
+does not occur, 1 if it occurs positively, 2 if negatively, 3 if
+both). Use fingerprint to pretest subsumption (fingerprint of
+subsuming clause must be subset of subsumed clause). Recompute
+fingerprint if nf-date has changed. -> Done, and much better, in
+feature vector indexing
+
+Select biggest/Smallest orientable literal -> Done
+
+More efficient (caching) LPO -> Suggestion Roberto. Cache within one
+comparison. -> Done (not very well), but no improvement. Now let's
+talk to Bernd about a more efficient LPO -> Done, Bernd's LPO4 makes
+caching unncessary!
+
+Simultaneous paramodulation. -> Done (for E 0.9), very good
+
+Fix inheritance of SOS and clause types for split clauses. The code is
+there, but commented out -> I have not enough CPU time to rerun tests
+before CASC-19. Now fixed in E 0.8dev001
+
+Signature extension with OCB: Standard weight and Precedence -> done
+
+If parsing literals and clauses into terms is to slow: Extend
+signature for fast access to internal symbols $eq, $neq, $null, $or,
+$or_i. -> Done, and better ;-)
+
+Literal Splitting a la Vampire (P(X) v Q(Y) -> P(X) v A1, Q(Y) v A2,
+-A1 v -A2) (also works (with non-ground connection literal) if
+literals are not variable disjunct) -> Done for the variable disjoint
+case. 
+
+Subsumption with Pre-Match -> Done
+
+Literal selection as in SPASS: Select only if more than one maximal
+literal. -> Done
+
+For evaluation of clauses, do output subsumption inferences
+(equivalent to rewriting). -> Done
+
+More testruns, prefer positive literals (This is counterintuitive to
+me, but seems to work for some examples). -> Done
+
+Check unprocessed clauses for identical copies! -> Done
+
+Rework subsumption: 
+       1) Use an array to keep track of picked-level -> done
+       2) Use real renaming test for subsumption -> done
+       3) Does s or s subsume s or t ? -> Logically yes, but this is
+          not allowed in superposition, as s or s is not a
+          multi-subset of s or t!
+
+This is strictly BLUE SKY: Do _not_ remove (all) rewritten terms, but
+insert a pointer to the normal form. Construct new terms during
+TBInsert directly with normal forms. -> Done, my hair grows back.
+
+Rewriting by linking (see blue sky above). Annotate links with clauses
+for reconstruction (?) -> Much of it done as part of the new rewrite
+engine! 
+
+More important: Make distribute-eprover check bug-conditions and
+memory overflows! -> done
+
+Implement a heuristic taking size and proof length into account. ->
+Done!
+
+Output of inferences/evaluations -> done
+Output of rewrite steps -> done
+For proof analysis and extraction: Keep track of clauses and _terms_
+occuring in the proof.
+--> Use internal minimal array should work...
+  -> Done
+
+Inherit selection property/Inherit paramodulation-into-property
+(i.e. select always the same literal in newly generated clauses as in
+the primary parent) -->done
+
+Use selection functions based on equality status (prefer
+equality/non-equality literals) --> done
+
+Linearity as heuristic measure... -> Done
+
+Avoid recursive descent if only NEQ units in index.
+--> tried, no benefit, as we still need to update weights and normal
+    form status
+
+Select literal with minimal number of inference positions (i.e. sum of
+size of maximal sides) -> Done, unimpressive
+
+Inherit paramod-literal on goals (or potentially other clause types
+(e.g. Non-Horn, or everything that cannot degenerate to a positive
+unit easily)) only!  -> Done (for goals)
+
+Select positive literals in Horn clauses, negatives only otherwise! 
+-> Done, not very good
+
+PNWeight: Give different weight to variables and function symbols
+depending on wether they occur in positive or negative literals. ->
+Done, sometimes ok, but not a big deal
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

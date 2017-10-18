@@ -1,0 +1,54 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% File  : clib.tex
+%
+% Author: Stephan Schulz
+%
+% Contents
+% 
+%   Frame for the clib documentation.
+% 
+% Changes
+%
+% <1> Thu Apr 16 03:18:43 MET DST 1998
+%     Added this comment header ;-)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\documentclass{article}
+
+\usepackage{epsfig}
+
+\newcommand \fundoc[2]
+{\begin{par}
+\vspace*{1ex}\noindent
+\texttt{#1}\nopagebreak[4]
+\begin{quote}%
+#2%
+\end{quote}%
+\end{par}%
+}
+
+\author{Stephan Schulz}
+\title{The CLIB hierarchy of libraries\\for\\theorem proving
+  tasks\\{\small --very preliminary version--}}
+
+\begin{document}
+
+\maketitle{}
+
+\tableofcontents{}
+
+\include{intro}
+\include{installation}
+\include{basics}
+\include{io}
+\include{terms}
+
+\end{document}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: t
+%%% End: 

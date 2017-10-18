@@ -1,0 +1,54 @@
+%----FOF format, also used for CNF in TSTP, Original version
+<logic formula>      ::= <bracketed formula> | <quantified formula> | 
+                         <binary formula> |  <unary formula> | <atom>
+<bracketed formula>  ::= (<logic formula>)
+<quantified formula> ::= <quantifier> <variables> : <logic formula>
+<quantifier>         ::= ! | ?
+<variables>          ::= [<qvariable><rest of qvariables>*]
+<rest of qvariables> ::= ,<qvariable>
+<qvariable>          ::= <typed variable> | <number>:<typed variable>
+<typed variable>     ::= <variable> | <variable>:<variable type>
+<binary formula>     ::= <logic formula> <binary connective> <logic formula>
+<unary formula>      ::= <unary connective> <logic formula>
+<binary connective>  ::= & | <=> | => | <= | vline | <~> | ~vline | ~&
+<unary connective>   ::= ~
+
+Problems with the old version: The language is correct, but parse
+trees are not, because the grammar is highly ambigous!
+
+   <logic formula> 
+-> <unary connective> <logic formula>
+-> ~ <logic formula>  (~ seems to apply to all of the rest)
+-> ~ <logic formula> <binary connective> <logic formula> (oops, wrong!)
+
+Similarly with binary formulas:
+
+   <logic formula> 
+-> <logic formula> <binary connective> <logic formula>
+-> <lf> <bc> <lf> <bc> <lf> 
+Read: <lf> <bc> (<lf> <bc> <lf>)
+-> <lf> <bc> <lf> <bc> (<lf> <bc> <lf>)
+Read: (<lf> <bc> <lf>) <bc> (<lf> <bc> <lf>)
+
+%----FOF format, also used for CNF in TSTP, my version
+% The grammar has been disambiguated as much as possible: 
+% - Quantifiers and negation can only be applied to
+%   elementary formulas, so they always bind the complete formula
+%   generated out of the corresponding non-terminal
+% - Right-associativity of binary operators is actually build into the
+%   grammar 
+
+<logic formula>      ::= <elem_formula> | <comp_formula>
+<elem_formula>       ::= <qprefix> <elem_formula> |
+                         <unary connective> <elem_formula> |
+                         <atom>                            |
+                         ( <logic_formula> )
+<comp_formula>       ::= <elem_formula> | 
+                         <elem_formula> <binary connective> <logic formula>
+<qprefix>            ::=  <quantifier> <variables>
+<quantifier>         ::= ! | ?
+<variables>          ::= [<qvariable><rest of qvariables>*]
+<rest of qvariables> ::= ,<qvariable>
+<binary connective>  ::= & | <=> | => | <= | vline | <~> | ~vline | ~&
+<unary connective>   ::= ~
+

@@ -1,0 +1,35 @@
+#- -*-Mode: Makefile;-*- ------------------------------------------------
+#
+# File  : Makefile.services
+#
+#  Exports global Makefile targets provided by the master Makefile to
+#  the Makefiles in the subdirectories.
+#
+# Author: Stephan Schulz
+#
+# Changes
+#
+# <1> Sun Jul  6 22:55:11 MET DST 1997
+#     New
+#
+#------------------------------------------------------------------------
+
+.PHONY: distrib fulldistrib top links rebuild
+
+distrib:
+	cd ..; $(MAKE) distrib
+
+fulldistrib:
+	cd ..; $(MAKE) fulldistrib
+
+top:
+	cd ..; $(MAKE) top
+
+tags:
+	cd ..; $(MAKE) tags
+
+links: 
+	cd ..; $(MAKE) links
+
+rebuild: 
+	cd ..; $(MAKE) rebuild

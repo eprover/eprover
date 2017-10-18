@@ -1,0 +1,63 @@
+S00  NoSelection                             
+S0S  SelectComplexG                          
+S0U  SelectComplexExceptRRHorn               
+S0V  PSelectComplexExceptRRHorn              
+S0Y  SelectMaxLComplexAvoidPosPred           
+S2S  SelectMaxLComplexAvoidPosPred           
+S0a  SelectNegativeLiterals                  
+S0e  SelectLargestNegLit                     
+S0i  SelectDiffNegLit                        
+S1S  SelectComplexAHP                        
+S1U  SelectComplexAHPExceptRRHorn            
+S1Y  SelectVGNonCR                           
+S2R  SelectNewComplex                        
+S2S  SelectNewComplex                        
+S2S  SelectNewComplexAHP                     
+S2U  SelectNewComplexAHPExceptRRHorn         
+S2V  PSelectNewComplexAHPExceptRRHorn        
+S3S  SelectNewComplexAHPExceptUniqMaxHorn    
+S3T  PSelectNewComplexAHPExceptUniqMaxHorn   
+S4S  SelectNewComplexAHPNS                   
+SNG  NoGeneration                            
+# SOV  PSelectComplexExceptRRHorn              
+
+
+2a SelectCQArEqLast
+2b SelectCQArEqFirst
+2c SelectCQIArEqLast
+2d SelectCQIArEqFirst
+2e SelectCQAr
+2f SelectCQIAr
+2g SelectCQArNpEqFirst
+2h SelectCQIArNpEqFirst
+2i SelectGrCQArEqFirst
+2j SelectCQGrArEqFirst
+2k SelectCQArNTEqFirst
+2l SelectCQIArNTEqFirst
+2m SelectCQArNTNpEqFirst
+2n SelectCQIArNTNpEqFirst
+2o SelectCQArNXTEqFirst
+2p SelectCQIArNXTEqFirst
+
+2q SelectCQArNTNp
+2r SelectCQIArNTNp
+2s SelectCQArNT
+2t SelectCQIArNT
+2u SelectCQArNp
+2v SelectCQIArNp
+
+
+
+PureVarLit vorziehen
+Use ordering weight (if there)
+Arity ohne CQ ausprobieren!
+
+3a SelectCQArNpEqFirstUnlessPDom
+3b SelectCQArNTEqFirstUnlessPDom
+
+4a SelectCQPrecW
+4b SelectCQIPrecW
+4c SelectCQPrecWNTNp
+4d SelectCQIPrecWNTNp
+
+4Y SelectMaxLComplexAPPNTNp

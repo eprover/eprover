@@ -1,0 +1,27 @@
+The E Theorem Prover
+--------------------
+
+E is released as free software and is developed as an FOSS
+project. All code contributed to E is implicitly licensed under the
+GNU General Public License (version 2 or later).
+
+
+Contributors:
+-------------
+
+Information about individual contributions is available from the git
+contributions. Contributors with non-trivial and well-defined
+contributions are listed below.
+
+Stephan Schulz <schulz@eprover.org>
+- Basic prover, everything not credited to somebody else, everything
+  that preceeds tracing in git
+
+Simon Cruanes <simon.cruanes.2007@m4x.org>
+- Extension from FOF to TFF (simply-sorted first-order logic)
+
+MohamedBassem <medoox240@gmail.com>
+- Basic code of E server mode
+
+Martin Moehrmann <moehrmann@eprover.org>
+- Cleanup, local optimisations

@@ -1,0 +1,1589 @@
+This is the text which I send to c.o.l.a to announce the availability
+of E under the GPL:
+--------------------------------------------------------------------
+
+From: schulz@informatik.tu-muenchen.de (Stephan Schulz)
+Newsgroups: comp.os.linux.announce
+Subject: E Equational Theorem Prover version 0.2 for download
+Summary: Announcement of availability of the E thorem prover.
+Keywords: E, equational theorem proving, ATP
+
+
+The E Equational Theorem Prover
+===============================
+
+E is a a purely equational theorem prover for clausal logic. That
+means it is a program that you can stuff a mathematical specification
+(in clausal logic with equality) and a hypothesis into, and which will
+then run forever, using up all of your machines resources. Very
+occasionally it will find a proof for the hypothesis and tell you so
+;-).
+
+E is available as a source distribution for UNIX-variants. It installs
+cleanly under all UNIX variants I could get my hands on: Various
+versions of Linux/Intel and Linux/SPARC, SunOS, Solaris and HPUX.
+
+If this already sounds exiting to you, go download your version from
+http://wwwjessen.informatik.tu-muenchen.de/~schulz/WORK/eprover.html.
+
+If not, consider the following points:
+
+1) Won't cause a new desktop war. The program is extremely useless to
+   most end users.
+2) Impress your Comp. Sci. Prof!
+3) High Hack Value!
+
+E is distributed under the GNU General Public License.
+
+Have fun!
+
+
+Stephan
+
+-------------------------- It can be done! ---------------------------------
+   Please email me as schulz@informatik.tu-muenchen.de (Stephan Schulz)
+----------------------------------------------------------------------------
+
+This is the announcement for version 0.24 of E.
+-----------------------------------------------
+
+From: schulz@informatik.tu-muenchen.de (Stephan Schulz)
+Newsgroups: comp.os.linux.announce
+Subject: E Equational Theorem Prover version 0.24 "Yunnan" released
+Summary: Announcement of availability of the E thorem prover.
+Keywords: E, equational theorem proving, ATP
+
+
+The E equational theorem prover version 0.24 "Yunnan" has been
+released.
+
+E is a a purely equational theorem prover for clausal logic with
+equality. Thus, you can specify a mathematical problem (e.g. a
+mathematical puzzle), a (small) piece of program code or some hardware
+elements in clausal logic (using rules of the form "If A and B and C
+then D or E or F" in a PROLOG-like syntax), and try to have the system
+prove certain properties of the described structure. Be warned that
+this can consume inane amounts of CPU time and memory for non-trivial
+problems.
+
+As an example, the following piece of specification (PUZ003-1 from the
+TPTP v2.1.0 problem library for theorem provers) describes a barber
+club where a certain rule about shaving exist, namely, that each
+member who shaves a member will be shaved by all members in turn.
+
+
+shaved(members, X) <-
+    member(X),
+    member(Y),
+    shaved(X, Y).
+
+shaved(Y, X) <-
+    shaved(members, X),
+    member(Y).
+
+member(guido) <- .
+
+member(lorenzo) <- .
+
+member(petruchio) <- .
+
+member(cesare) <- .
+
+shaved(guido, cesare) <- .
+
+
+If you add the following query, the prover will prove (in about 0.03
+seconds on a 143 MHz UltraSparc 1) that Petrucio shaved Lorenzo:
+
+
+<- shaved(petruchio, lorenzo).
+
+
+E is based on a variant of the the superposition calculus described by
+Bachmair and Ganzinger, and is especially useful for problems
+containing equality. Version 0.24 "Yunnan" is the first stable and
+hopefully bug-free release that can deal efficiently with full clausal
+logic. It is still very much work in progress, and new versions should
+be released soon.
+
+The program is available as a source distribution for UNIX-like
+systems. It installs cleanly under all UNIX variants I could get my
+hands on: Various versions of GNU/Linux for Intel and SPARC, SunOS,
+Solaris and HPUX. The prover is distributed under the GNU General
+Public License.
+
+You can get the latest stable release from
+http://wwwjessen.informatik.tu-muenchen.de/~schulz/WORK/eprover.html.
+
+Have fun!
+
+
+Stephan
+
+-------------------------- It can be done! ---------------------------------
+   Please email me as schulz@informatik.tu-muenchen.de (Stephan Schulz)
+----------------------------------------------------------------------------
+
+This is the announcement for version 0.3 of E.
+-----------------------------------------------
+
+From: schulz@informatik.tu-muenchen.de (Stephan Schulz)
+Newsgroups: comp.os.linux.announce
+Subject: E Equational Theorem Prover 0.3 "Castleton" released
+Summary: Announcement of availability of the E thorem prover.
+Keywords: E, equational theorem proving, ATP
+
+
+The E equational theorem prover version 0.3 "Castleton" has been
+released.
+
+E is a a purely equational theorem prover for clausal logic with
+equality. Thus, you can specify a mathematical problem (e.g. a
+mathematical puzzle), a (small) piece of program code or some hardware
+elements in clausal logic (using rules of the form "If A and B and C
+then D or E or F" in a PROLOG-like syntax), and try to have the system
+prove certain properties of the described structure. Be warned that
+this can consume inane (in fact, theoretically unlimited) amounts of
+CPU time and memory for diffcult problems.
+
+E version 0.3. is the most polished version released so far. It now
+features a special mode to allow the prover to select all parameters
+automatically, so that even new users can get some use out of it. E
+0.3 has been tested on all 3275 CNF problems of the TPTP problem
+library for theorem provers, and showed no unexpected
+behaviour. Results are available from the E web page.
+
+E is available as a source distribution for UNIX-variants. It installs
+cleanly under all UNIX variants I could get my hands on: Various
+versions of GNU/Linux for Intel and SPARC, SunOS, Solaris and HPUX.
+
+E is distributed under the GNU General Public License.
+
+You can find the source distribution and additional information at
+http://wwwjessen.informatik.tu-muenchen.de/~schulz/WORK/eprover.html.
+
+
+Have fun!
+
+
+Stephan
+
+-------------------------- It can be done! ---------------------------------
+   Please email me as schulz@informatik.tu-muenchen.de (Stephan Schulz)
+----------------------------------------------------------------------------
+
+Do not forget follow-up next time!
+
+Our servers are usually rebooted Monday mornings between 3:30 and 4:00
+ME(S)Z, and may be unavailable during this time.
+
+
+From: schulz@informatik.tu-muenchen.de (Stephan Schulz)
+Newsgroups: comp.os.linux.announce
+Subject: E Equational Theorem Prover 0.31 "Jungpana" released
+Summary: Announcement of availability of the E thorem prover.
+Keywords: E, equational theorem proving, ATP
+Followup-To: comp.theory
+
+The E equational theorem prover version 0.31 "Jungpana" has been
+released.
+
+E is a a purely equational theorem prover for clausal logic with
+equality. Thus, you can specify a mathematical problem (e.g. a
+mathematical puzzle), a (small) piece of program code or some hardware
+elements in clausal logic (using rules of the form "If A and B and C
+then D or E or F" in a PROLOG-like syntax), and try to have the system
+prove certain properties of the described structure. Be warned that
+this can consume inane (in fact, theoretically unlimited) amounts of
+CPU time and memory for diffcult problems.
+
+Version 0.31 improves on the previous version in a variety of ways:
+
+- The inference engine is much faster.
+- The automatic mode for selecting search heuristics has been
+  improved.
+- When memory is low, the prover will now discard some clauses with
+  very bad evaluations. This makes it possible to get good results
+  even with low to medium amounts of memory (32 MB should work fine
+  even for many hard proof problems).
+- The prover can now read and write native TPTP format in addition to
+  E-LOP.
+- Various minor changes.
+
+E is available as a source distribution for UNIX-variants. It installs
+cleanly under all UNIX variants I could get my hands on: Various
+versions of GNU/Linux for Intel and SPARC, SunOS, Solaris and HPUX.
+
+E is distributed under the GNU General Public License.
+
+You can find the source distribution and additional information at
+http://wwwjessen.informatik.tu-muenchen.de/~schulz/WORK/eprover.html
+(Our servers are usually rebooted Monday mornings between 3:30 and
+4:00 ME(S)Z, and may be unavailable during this time).
+
+
+Have fun!
+
+
+Stephan
+
+-------------------------- It can be done! ---------------------------------
+   Please email me as schulz@informatik.tu-muenchen.de (Stephan Schulz)
+----------------------------------------------------------------------------
+
+This is the announcement for version 0.32 of E.
+-----------------------------------------------
+
+comp.os.linux.announce, gnu.announce, comp.ai
+comp.theory, de.sci.informatik.ki
+
+From: schulz@informatik.tu-muenchen.de (Stephan Schulz)
+Newsgroups: comp.os.linux.announce
+Subject: E Equational Theorem Prover 0.32 "Lingia" released
+Summary: Announcement of availability of the E thorem prover.
+Keywords: E, equational theorem proving, ATP
+Followup-To: comp.ai
+
+The E equational theorem prover version 0.32 "Lingia" has been
+released.
+
+E is a a purely equational theorem prover for clausal logic with
+equality. Thus, you can specify a mathematical problem (e.g. a
+mathematical puzzle), a (small) piece of program code or some hardware
+elements in clausal logic (using rules of the form "If A and B and C
+then D or E or F" in a PROLOG-like syntax), and try to have the system
+prove certain properties of the described structure. Be warned that
+this can consume inane (in fact, theoretically unlimited) amounts of
+CPU time and memory for difficult problems.
+
+Version 0.32 improves on the previous version in a variety of ways:
+
+- The inference engine is (once more) much faster.
+- Special strategies for Horn problems have been replaced with general
+  literal selection functions that are complete for all classes of
+  problems.
+- The automatic mode for selecting search heuristics has been
+  improved.
+- Various minor bugfixes and changes.
+
+E 0.32 has been tested on all 3334 CNF problems of the TPTP problem
+library, version 2.2.0, and showed no unexpected behaviour. Results
+are available from the web site.
+
+E is available as a source distribution for UNIX-variants. It installs
+cleanly under all UNIX variants I could get my hands on: Various
+versions of GNU/Linux for Intel and SPARC, SunOS, Solaris and HPUX.
+
+E is distributed under the GNU General Public License.
+
+You can find the source distribution and additional information at
+http://wwwjessen.informatik.tu-muenchen.de/~schulz/WORK/eprover.html
+Our servers are usually rebooted Monday mornings between 3:30 and 4:00
+ME(S)Z, and may be unavailable during this time.
+
+
+Have fun!
+
+
+Stephan
+
+-------------------------- It can be done! ---------------------------------
+   Please email me as schulz@informatik.tu-muenchen.de (Stephan Schulz)
+----------------------------------------------------------------------------
+
+This is the announcement for version 0.5 of E.
+----------------------------------------------
+
+comp.os.linux.announce, gnu.announce, comp.ai
+comp.theory, de.sci.informatik.ki
+
+From: schulz@informatik.tu-muenchen.de (Stephan Schulz)
+Newsgroups: comp.os.linux.announce
+Subject: E Equational Theorem Prover 0.5 "Phuguri" released
+Summary: Announcement of availability of the E thorem prover.
+Keywords: E, equational theorem proving, ATP
+Followup-To: comp.ai
+
+The E equational theorem prover version 0.5 "Phuguri" has been
+released.
+
+Version 0.5 participated in two categories of the 1999 CADE ATP System
+Competition (http://www.cs.jcu.edu.au/~tptp/CASC-16/, results are
+mirrored at http://wwwjessen.informatik.tu-muenchen.de/~tptp/CASC-16/)
+and won fourth place in both. It won two of the five subdivisions of
+the prestigious MIX category. A prerelease version of E 0.5 was a
+major component of the E-SETHEO system that won MIX.
+
+E is a a purely equational theorem prover for clausal logic with
+equality. Thus, you can specify a mathematical problem (e.g. a
+mathematical puzzle), a (small) piece of program code or some hardware
+elements in clausal logic (using rules of the form "If A and B and C
+then D or E or F" in a PROLOG-like syntax), and try to have the system
+prove certain properties of the described structure. Be warned that
+this can consume inane (in fact, theoretically unlimited) amounts of
+CPU time and memory for difficult problems.
+
+E 0.5 has been tested on all 3334 CNF problems of the TPTP problem
+library, version 2.2.0, and showed no unexpected behaviour. Some
+results are available from the web site.
+
+E is available as a source distribution for UNIX-variants. It installs
+cleanly under all UNIX variants I could get my hands on: Various
+versions of GNU/Linux for Intel and SPARC, SunOS, Solaris and HPUX.
+
+E is distributed under the GNU General Public License.
+
+You can find the source distribution and additional information at
+http://wwwjessen.informatik.tu-muenchen.de/~schulz/WORK/eprover.html
+Our servers are usually rebooted Monday mornings between 3:30 and 4:00
+ME(S)Z, and may be unavailable during this time.
+
+
+Have fun!
+
+
+Stephan
+
+-------------------------- It can be done! ---------------------------------
+   Please email me as schulz@informatik.tu-muenchen.de (Stephan Schulz)
+----------------------------------------------------------------------------
+
+
+This is the announcement for version 0.6 of E.
+----------------------------------------------
+
+comp.os.linux.announce
+gnu.announce
+comp.ai
+comp.theory, de.sci.informatik.ki,comp.ai.shells
+
+From: schulz@informatik.tu-muenchen.de (Stephan Schulz)
+Newsgroups: comp.ai
+Subject: E Equational Theorem Prover 0.6 Kanchanjangha" released
+Summary: Announcement of availability of the E thorem prover.
+Keywords: E, equational theorem proving, ATP
+Followup-To: comp.theory
+
+The E equational theorem prover version 0.6 "Kanchanjangha" has been
+released.
+
+E is a a purely equational theorem prover for clausal logic with
+equality. Thus, you can specify a mathematical problem (e.g. a
+mathematical puzzle), a (small) piece of program code or some hardware
+elements in clausal logic (using rules of the form "If A and B and C
+then D or E or F" in a PROLOG-like syntax), and try to have the system
+prove certain properties of the described structure. Be warned that
+this can consume inane (in fact, theoretically unlimited) amounts of
+CPU time and memory for difficult problems.
+
+A prerelease version of E 0.6 "Kanchanjangha" participated in two of
+the five categories of the international CASC-17 theorem proving
+competition (http://www.cs.jcu.edu.au/~tptp/CASC-17/). It won first
+place in the prestigious MIX category (clausal logic) and fourth place
+in the UEQ category (unit equality problems). E also was a major
+component in E-SETHEO, which won the SEM category and achieved a third
+place in FOF. The released version differs from the competition
+version only in minor ways and should show the same performance.
+
+E 0.6 has been tested on all CNF problems of the TPTP problem library,
+version 2.3.0, and showed no unexpected behaviour. Some results are
+available from the web site. The latest version also can produce
+checkable proof objects.
+
+E is available as a source distribution for UNIX-variants. It installs
+cleanly under all UNIX variants I could get my hands on: Various
+versions of GNU/Linux for Intel and SPARC, SunOS (with tweaking),
+Solaris and HPUX.
+
+The system is distributed under the GNU General Public License.
+
+You can find the source distribution and additional information at
+http://wwwjessen.informatik.tu-muenchen.de/~schulz/WORK/eprover.html
+Our servers are usually rebooted Monday mornings between 3:30 and 4:00
+ME(S)Z, and may be unavailable during this time.
+
+
+Have fun!
+
+
+Stephan
+
+-------------------------- It can be done! ---------------------------------
+   Please email me as schulz@informatik.tu-muenchen.de (Stephan Schulz)
+----------------------------------------------------------------------------
+
+This is the announcement for version 0.61 of E.
+----------------------------------------------
+
+comp.os.linux.announce
+gnu.announce
+comp.ai
+comp.theory,de.sci.informatik.ki
+comp.ai.shells seems to be obsolete
+
+From: schulz@informatik.tu-muenchen.de (Stephan Schulz)
+Newsgroups: comp.ai
+Subject: E Equational Theorem Prover 0.61 "North Tukvar" released
+Summary: Announcement of availability of the E thorem prover.
+Keywords: E, equational theorem proving, ATP
+Followup-To: comp.theory
+
+The E equational theorem prover version 0.61 "North Tukvar" has been
+released.
+
+E is a a purely equational theorem prover for clausal logic with
+equality. Thus, you can specify a mathematical problem (e.g. a
+mathematical puzzle), a (small) piece of program code or some hardware
+elements in clausal logic (using rules of the form "If A and B and C
+then D or E or F" in a PROLOG-like syntax), and try to have the system
+prove certain properties of the described structure. Be warned that
+this can consume inane (in fact, theoretically unlimited) amounts of
+CPU time and memory for difficult problems.
+
+E 0.61 has been carefully tested on all CNF problems of the TPTP
+problem library, version 2.3.0, and showed no unexpected
+behaviour. Some results are available from the web site. The prover
+can produce checkable proof objects, a simple proof checker is
+included in the distribution.
+
+E is available as a source distribution for UNIX-variants. It installs
+cleanly under all UNIX variants I could get my hands on: Various
+versions of GNU/Linux for Intel and SPARC, SunOS (with tweaking),
+Solaris and HPUX.
+
+The system is distributed under the GNU General Public License.
+
+You can find the source distribution and additional information at
+http://wwwjessen.informatik.tu-muenchen.de/~schulz/WORK/eprover.html
+Our servers are usually rebooted Monday mornings between 3:30 and 4:00
+ME(S)Z, and may be unavailable during this time.
+
+
+Have fun!
+
+
+Stephan
+
+--
+-------------------------- It can be done! ---------------------------------
+   Please email me as schulz@informatik.tu-muenchen.de (Stephan Schulz)
+----------------------------------------------------------------------------
+
+This is the announcement for version 0.63 of E.
+-----------------------------------------------
+
+comp.os.linux.announce
+gnu.announce
+comp.ai
+comp.theory,de.sci.informatik.ki
+
+From: schulz@informatik.tu-muenchen.de (Stephan Schulz)
+Newsgroups: comp.ai
+Subject: E Equational Theorem Prover 0.63 "Nuwara Eliya" released
+Summary: Announcement of availability of the E thorem prover.
+Keywords: E, equational theorem proving, ATP
+Followup-To: comp.theory
+
+The E equational theorem prover version 0.63 "Nuwara Eliya" has been
+released.
+
+E is a a purely equational theorem prover for clausal logic with
+equality. Thus, you can specify a mathematical problem (e.g. a
+mathematical puzzle), a (small) piece of program code or some hardware
+elements in clausal logic (using rules of the form "If A and B and C
+then D or E or F" in a PROLOG-like syntax), and try to have the system
+prove certain properties of the described structure. Be warned that
+this can consume inane (in fact, theoretically unlimited) amounts of
+CPU time and memory for difficult problems.
+
+E 0.63 has been carefully tested on all CNF problems of the TPTP
+problem library, version 2.4.1, and showed no unexpected
+behaviour. Some results are available from the web site. The prover
+can produce checkable proof objects, a simple proof checker is
+included in the distribution.
+
+E is available as a source distribution for UNIX-variants. It installs
+cleanly under all UNIX variants I could get my hands on: Various
+versions of GNU/Linux for Intel and SPARC, SunOS (with tweaking),
+Solaris and HPUX.
+
+The system is distributed under the GNU General Public License.
+
+You can find the source distribution and additional information at
+http://wwwjessen.informatik.tu-muenchen.de/~schulz/WORK/eprover.html
+Our servers are usually rebooted Monday mornings between 3:30 and 4:00
+ME(S)Z, and may be unavailable during this time.
+
+
+Have fun!
+
+
+Stephan
+
+--
+-------------------------- It can be done! ---------------------------------
+   Please email me as schulz@informatik.tu-muenchen.de (Stephan Schulz)
+----------------------------------------------------------------------------
+
+
+This is the announcement for version 0.7 of E.
+-----------------------------------------------
+
+comp.os.linux.announce
+gnu.announce
+comp.ai
+comp.theory,de.sci.informatik.ki
+
+From: schulz@informatik.tu-muenchen.de (Stephan Schulz)
+Newsgroups: comp.ai
+Subject: E Equational Theorem Prover 0.7 "Dhajea" released
+Summary: Announcement of availability of the E theorem prover.
+Keywords: E, equational theorem proving, ATP
+Followup-To: comp.theory
+
+The E equational theorem prover version 0.7 "Dhajea" has been
+released.
+
+E is a a purely equational theorem prover for clausal logic with
+equality. Thus, you can specify a mathematical problem (e.g. a
+mathematical puzzle), a (small) piece of program code or some hardware
+elements in clausal logic (using rules of the form "If A and B and C
+then D or E or F" in a PROLOG-like syntax), and try to have the system
+prove certain properties of the described structure. Be warned that
+this can consume inane (in fact, theoretically unlimited) amounts of
+CPU time and memory for difficult problems.
+
+E 0.7 has been carefully tested on all CNF problems of the TPTP
+problem library, version 2.4.1, and showed no unexpected
+behaviour. The prover can produce checkable proof objects, a simple
+proof checker is included in the distribution.
+
+Important changes are a much simplified rewrite engine, direct PCL2
+support, a better automatic mode, and better memory control
+features. In automatic mode, this version should behave exactly like
+the prerelase version that participated in CASC-18. To achieve this,
+we have refrained from including a couple of more recent
+improvements. They will be included in E 0.71, due out in some weeks.
+
+E is available as a source distribution for UNIX-variants. It installs
+cleanly under all UNIX variants I could get my hands on: Various
+versions of GNU/Linux for Intel and SPARC, SunOS (with tweaking),
+Solaris and HPUX.
+
+The system is distributed under the GNU General Public License.
+
+You can find the source distribution and additional information at
+http://wwwjessen.informatik.tu-muenchen.de/~schulz/WORK/eprover.html
+Our servers are usually rebooted Monday mornings between 3:30 and 4:00
+CET, and may be unavailable during this time.
+
+
+Have fun!
+
+
+Stephan
+
+--
+-------------------------- It can be done! ---------------------------------
+   Please email me as schulz@informatik.tu-muenchen.de (Stephan Schulz)
+----------------------------------------------------------------------------
+
+
+This is the announcement for version 0.71 of E.
+-----------------------------------------------
+
+comp.os.linux.announce
+gnu.announce
+comp.ai
+comp.theory,de.sci.informatik.ki
+
+From: schulz@informatik.tu-muenchen.de (Stephan Schulz)
+Newsgroups: comp.ai
+Subject: E Equational Theorem Prover 0.71 "Puttabong" released
+Summary: Announcement of availability of the E theorem prover.
+Keywords: E, equational theorem proving, ATP
+Followup-To: comp.theory
+
+The E equational theorem prover version 0.71 "Puttabong" has been
+released.
+
+E is a a purely equational theorem prover for clausal logic with
+equality. Thus, you can specify a mathematical problem (e.g. a
+mathematical puzzle), a (small) piece of program code or some hardware
+elements in clausal logic (using rules of the form "If A and B and C
+then D or E or F" in a PROLOG-like syntax), and try to have the system
+prove certain properties of the described structure. Be warned that
+this can consume inane (in fact, theoretically unlimited) amounts of
+CPU time and memory for difficult problems.
+
+E 0.71 has been carefully tested on all CNF problems of the TPTP
+problem library, version 2.5.1, and showed no unexpected
+behaviour. The prover can produce checkable proof objects, a simple
+proof checker is included in the distribution.
+
+Important changes are the addition of equational definition unfolding,
+a lot of stronger heuristics, a much better automatic mode, and
+porting to MacOS-X. There also are some bug-fixes.  For more details
+see the NEWS file on the download page.
+
+E is available as a source distribution for UNIX-variants. It installs
+cleanly under all UNIX variants I could get my hands on: Various
+versions of GNU/Linux for Intel and SPARC, SunOS (with tweaking),
+Solaris, HPUX and MacOS-X. Other peple have reported successful builds
+on a large number of other systems.
+
+The system is distributed under the GNU General Public License.
+
+You can find the source distribution and additional information at
+http://www4.informatik.tu-muenchen.de/~schulz/WORK/eprover.html
+
+
+Have fun!
+
+
+Stephan
+
+--
+-------------------------- It can be done! ---------------------------------
+   Please email me as schulz@informatik.tu-muenchen.de (Stephan Schulz)
+----------------------------------------------------------------------------
+
+
+This is the announcement for version 0.82 of E.
+-----------------------------------------------
+
+comp.os.linux.announce
+gnu.announce
+comp.ai
+comp.theory,de.sci.informatik.ki
+
+From: schulz@informatik.tu-muenchen.de (Stephan Schulz)
+Newsgroups: comp.ai
+Subject: E Equational Theorem Prover 0.82 "Lung Ching" released
+Summary: Announcement of availability of the E theorem prover.
+Keywords: E, equational theorem proving, ATP
+Followup-To: comp.theory
+
+The E equational theorem prover version 0.82 "Lung Ching" has been
+released. Except for minor cleanup and documentation changes, this is
+the same version that ran in CASC-J2.
+
+E is a a purely equational theorem prover for first order logic with
+equality. Thus, you can specify a mathematical problem (e.g. a
+mathematical puzzle), a (small) piece of program code or some hardware
+elements in clausal logic (using rules of the form "If A and B and C
+then D or E or F" in a PROLOG-like syntax), and try to have the system
+prove certain properties of the described structure. Be warned that
+this can consume inane (in fact, theoretically unlimited) amounts of
+CPU time and memory for difficult problems.
+
+E 0.82 has been carefully tested on all problems of the TPTP problem
+library, version 2.6.0, and showed no unexpected behaviour. The prover
+can produce checkable proof objects, a simple proof checker for CNF
+proofs is included in the distribution.
+
+The most important user-visible change is the support of full first
+order logic (previous releases were restricted to clausal logic).
+There also are some bug-fixes and significantly increased performance
+for most problem classes.  For more details see the NEWS file on the
+download page.
+
+E is available as a source distribution for UNIX-variants. It installs
+cleanly under all UNIX variants I could get my hands on: Various
+versions of GNU/Linux for Intel and SPARC, Solaris, HPUX and
+MacOS-X. Users have reported successful builds on a large number of
+other systems.
+
+The system is distributed under the GNU General Public License.
+
+You can find the source distribution and additional information at
+http://www.eprover.org
+
+
+Have fun!
+
+
+Stephan
+
+--
+-------------------------- It can be done! ---------------------------------
+   Please email me as schulz@informatik.tu-muenchen.de (Stephan Schulz)
+----------------------------------------------------------------------------
+
+
+This is the announcement for version 0.9 of E.
+----------------------------------------------
+
+comp.os.linux.announce
+gnu.announce
+comp.ai
+comp.theory,de.sci.informatik.ki
+
+From: schulz@informatik.tu-muenchen.de (Stephan Schulz)
+Newsgroups: comp.ai
+Subject: E Equational Theorem Prover 0.9 "Soom" released
+Summary: Announcement of availability of the E theorem prover.
+Keywords: E, equational theorem proving, ATP
+Followup-To: comp.theory
+
+The E equational theorem prover version 0.9 "Soom" has been
+released. Except for minor changes and documentation, this is the same
+version that ran in CASC-20 (there is a flag to exactly recreate
+CASC-20 behaviour)..
+
+E is a a purely equational theorem prover for first order logic with
+equality.
+
+E is available as a source distribution for UNIX-variants. It installs
+cleanly under all UNIX variants I could get my hands on: Various
+versions of GNU/Linux for Intel and SPARC, Solaris, HPUX and
+MacOS-X. Users have reported successful builds on a large number of
+other systems.
+
+The system is distributed under the GNU General Public License.
+
+You can find the source distribution and additional information at
+http://www.eprover.org
+
+
+Have fun!
+
+
+Stephan
+
+--
+-------------------------- It can be done! ---------------------------------
+   Please email me as schulz@informatik.tu-muenchen.de (Stephan Schulz)
+----------------------------------------------------------------------------
+
+This is the announcement for version 0.91 of E.
+-----------------------------------------------
+
+comp.os.linux.announce
+gnu.announce
+comp.ai
+comp.theory,de.sci.informatik.ki
+
+From: schulz@eprover.org (Stephan Schulz)
+Newsgroups: comp.ai
+Subject: E Equational Theorem Prover 0.91 "Kanyam" released
+Summary: Announcement of availability of the E theorem prover.
+Keywords: E, equational theorem proving, ATP
+Followup-To: comp.theory
+
+The E equational theorem prover version 0.91 "Kanyam" has been
+released.
+
+E is a a purely equational theorem prover for full first order logic
+with equality. It has successfully competed in several CASC
+competitions and is generally considered a friendly and powerful
+system (as theorem provers go).
+
+The new version has an improved clause normal form converter that will
+work even on very demanding formulas, improved heuristics and search
+behaviour, and complies with the latest TPTP-3 syntax.
+
+E is available as a source distribution for UNIX-variants. It installs
+cleanly under all UNIX variants I could get my hands on: Various
+versions of GNU/Linux for Intel and SPARC, Solaris, HPUX and
+MacOS-X. Users have reported successful builds on a large number of
+other systems, including Windows/Cygwin.
+
+The system is distributed under the GNU General Public License.
+
+You can find the source distribution and additional information at
+http://www.eprover.org
+
+
+Have fun!
+
+
+Stephan
+
+--
+-------------------------- It can be done! ---------------------------------
+   Please email me as schulz@informatik.tu-muenchen.de (Stephan Schulz)
+----------------------------------------------------------------------------
+
+
+This is the announcement for version 0.99X of E.
+-----------------------------------------------
+
+comp.os.linux.announce
+gnu.announce
+comp.ai
+comp.theory,de.sci.informatik.ki
+
+From: schulz@eprover.org (Stephan Schulz)
+Newsgroups: comp.ai
+Subject: E Equational Theorem Prover 0.99 "Singtom" released
+Summary: Announcement of availability of the E theorem prover.
+Keywords: E, equational theorem proving, ATP
+Followup-To: comp.theory
+
+E 0.99 "Singtom" is the latest version of the successful theorem
+prover for first order logic.
+
+E is a a purely equational theorem prover for full first order logic
+with equality. It has successfully competed in several CASC
+competitions and is generally considered a friendly and powerful
+system (as theorem provers go).
+
+The new version has (again) improved heuristics and search behaviour,
+better proof object generation, better clause splitting, and updates
+to comply with the latest TPTP-3 syntax.
+
+E is available as a source distribution for UNIX-variants. It installs
+cleanly under all UNIX variants I could get my hands on: Various
+versions of GNU/Linux for Intel and SPARC, Solaris, HPUX and
+MacOS-X. Users have reported successful builds on a large number of
+other systems, including Windows/Cygwin.
+
+The system is distributed under the GNU General Public License.
+
+You can find the source distribution and additional information at
+http://www.eprover.org
+
+
+Have fun!
+
+
+Stephan
+
+--
+-------------------------- It can be done! ---------------------------------
+      Please email me as schulz@eprover.org (Stephan Schulz)
+----------------------------------------------------------------------------
+
+
+
+This is the announcement for version 0.999 of E.
+-----------------------------------------------
+
+comp.os.linux.announce
+gnu.announce
+comp.ai
+comp.theory,de.sci.informatik.ki
+
+From: schulz@eprover.org (Stephan Schulz)
+Newsgroups: comp.ai
+Subject: E Equational Theorem Prover 0.99 "Singtom" released
+Summary: Announcement of availability of the E theorem prover.
+Keywords: E, equational theorem proving, ATP
+Followup-To: comp.theory
+
+E 0.999 "Longview" is the latest version of the successful theorem
+prover for first order logic with equality.
+
+E is a a purely equational theorem prover for full first order logic
+with equality. It has successfully competed in several CASC
+competitions and is generally considered a friendly and powerful
+system (as theorem provers go).
+
+The new version has several improvements of the internal inference
+engine, bug fixes (especially to support tools that suffered from bit
+rot), and updates to comply with the latest TPTP-3 syntax.
+
+E is available as a source distribution for UNIX-variants. It installs
+cleanly under all UNIX variants I could get my hands on: Various
+versions of GNU/Linux for Intel and SPARC, Solaris, HPUX and
+MacOS-X. Users have reported successful builds on a large number of
+other systems, including Windows/Cygwin.
+
+The system is distributed under the GNU General Public License.
+
+You can find the source distribution and additional information at
+http://www.eprover.org
+
+
+Have fun!
+
+
+Stephan
+
+--
+-------------------------- It can be done! ---------------------------------
+      Please email me as schulz@eprover.org (Stephan Schulz)
+----------------------------------------------------------------------------
+
+
+
+This is the announcement for version 0.999-004 of E.
+-----------------------------------------------------
+
+comp.os.linux.announce
+gnu.announce
+comp.ai
+comp.theory,de.sci.informatik.ki
+
+From: schulz@eprover.org (Stephan Schulz)
+Newsgroups: comp.ai
+Subject: E Equational Theorem Prover 0.99 "Singtom" released
+Summary: Announcement of availability of the E theorem prover.
+Keywords: E, equational theorem proving, ATP
+Followup-To: comp.theory
+
+E 0.999-004 "Longview2" is the latest version of the successful
+theorem prover for first order logic with equality.
+
+E is a a purely equational theorem prover for full first order logic
+with equality. It has successfully competed in several CASC
+competitions and is generally considered a friendly and powerful
+system (as theorem provers go).
+
+The new version fixes two longstanding memory corruption bugs, and has
+been update to comply with the latest TPTP-3 syntax.
+
+E is available as a source distribution for UNIX-variants. It installs
+cleanly under all UNIX variants I could get my hands on: Various
+versions of GNU/Linux for Intel and SPARC, Solaris, HPUX and
+MacOS-X. Users have reported successful builds on a large number of
+other systems, including Windows/Cygwin.
+
+The system is distributed under the GNU General Public License.
+
+You can find the source distribution and additional information at
+http://www.eprover.org
+
+
+Have fun!
+
+
+Stephan
+
+--
+-------------------------- It can be done! ---------------------------------
+      Please email me as schulz@eprover.org (Stephan Schulz)
+----------------------------------------------------------------------------
+
+
+
+
+
+This is the announcement for version 1.0 of E.
+-----------------------------------------------------
+
+comp.os.linux.announce
+gnu.announce
+comp.ai
+comp.theory,de.sci.informatik.ki
+
+From: schulz@eprover.org (Stephan Schulz)
+Newsgroups: comp.ai
+Subject: E Equational Theorem Prover 1.0 "Temi" released
+Summary: Announcement of availability of the E theorem prover.
+Keywords: E, equational theorem proving, ATP
+Followup-To: comp.theory
+
+E 1.0 "Temi" is the latest version of the successful automated theorem
+prover.
+
+E is a theorem prover for full first order logic with equality. It has
+successfully competed in several CASC competitions and is generally
+considered a friendly and powerful system (as theorem provers go).
+
+The new version improves clausification, has a more GNU-like
+installation system, and has been updated to comply with the latest
+TPTP-3 syntax.
+
+E is available as a source distribution for UNIX-variants. It installs
+cleanly under all UNIX variants I could get my hands on: Various
+versions of GNU/Linux for Intel and SPARC, Solaris, HPUX and
+MacOS-X. Users have reported successful builds on a large number of
+other systems, including Windows/Cygwin.
+
+The system is distributed under the GNU General Public License.
+
+You can find the source distribution and additional information at
+http://www.eprover.org
+
+
+Have fun!
+
+
+Stephan
+
+--
+-------------------------- It can be done! ---------------------------------
+      Please email me as schulz@eprover.org (Stephan Schulz)
+----------------------------------------------------------------------------
+
+
+
+
+This is the announcement for version 1.1 of E.
+-----------------------------------------------------
+
+comp.os.linux.announce
+gnu.announce
+comp.ai
+comp.theory,de.sci.informatik.ki
+
+From: schulz@eprover.org (Stephan Schulz)
+Newsgroups: comp.ai
+Subject: E Equational Theorem Prover 1.1 "Balasun" released
+Summary: Announcement of availability of the E theorem prover.
+Keywords: E, equational theorem proving, ATP
+Followup-To: comp.theory
+
+E 1.1 "Balasun" is the latest version of the successful automated
+theorem prover.
+
+E is a theorem prover for full first order logic with equality. It has
+successfully competed in several CASC competitions and is generally
+considered a friendly and powerful system (as theorem provers go).
+
+The new version adds several improvements in search behaviour and
+preprocessing and an improved automatic mode. It also comes with
+pre-build man pages (thanks to help2man).
+
+E is available as a source distribution for UNIX-variants. It installs
+cleanly under all UNIX variants I could get my hands on: Various
+versions of GNU/Linux for Intel, and XScale, Solaris on SPARC, and
+MacOS-X. Users have reported successful builds on a large number of
+other systems, including Windows/Cygwin.
+
+The system is distributed under the GNU General Public License.
+
+You can find the source distribution and additional information at
+http://www.eprover.org
+
+
+Have fun!
+
+
+Stephan
+
+
+
+
+This is the announcement for version 1.2 of E.
+-----------------------------------------------------
+
+comp.os.linux.announce
+gnu.announce
+comp.ai
+comp.theory,de.sci.informatik.ki
+
+From: schulz@eprover.org (Stephan Schulz)
+Newsgroups: comp.ai
+Subject: E Equational Theorem Prover 1.2 "Badamtam" released
+Summary: Announcement of availability of the E theorem prover.
+Keywords: E, equational theorem proving, ATP
+Followup-To: comp.theory
+
+E 1.2 "Badamtam" is the latest version of the successful automated
+theorem prover.
+
+E is a theorem prover for full first order logic with equality. It has
+successfully competed in several CASC competitions and is generally
+considered a friendly and powerful system (as theorem provers go). E
+has recently won the "overall best system" special award at CASC-J5.
+
+The new version has significantly improved in performance, added
+support for some new TPTP features, and fixed one serious bug
+
+E is available as a source distribution for UNIX-variants. It installs
+cleanly under all UNIX variants I could get my hands on: Various
+versions of GNU/Linux for Intel, and XScale, Solaris on SPARC, and
+MacOS-X. Users have reported successful builds on a large number of
+other systems, including Windows/Cygwin.
+
+The system is dual-licenses under the GNU General Public License and
+the GNU Lesser General Public License.
+
+You can find the source distribution and additional information at
+http://www.eprover.org
+
+
+Have fun!
+
+
+Stephan
+
+--
+-------------------------- It can be done! ---------------------------------
+      Please email me as schulz@eprover.org (Stephan Schulz)
+----------------------------------------------------------------------------
+
+
+
+This is the announcement for version 1.3 of E.
+-----------------------------------------------------
+
+comp.os.linux.announce
+gnu.announce
+comp.ai
+comp.theory,de.sci.informatik.ki
+
+From: schulz@eprover.org (Stephan Schulz)
+Newsgroups: comp.ai
+Subject: E Equational Theorem Prover 1.3 "Ringtong" released
+Summary: Announcement of availability of the E theorem prover.
+Keywords: E, equational theorem proving, ATP
+Followup-To: comp.theory
+
+E 1.3 "Ringtong" is the latest version of the successful automated
+theorem prover.
+
+E is a theorem prover for full first order logic with equality. It has
+successfully competed in several CASC competitions and is generally
+considered a friendly and powerful system (as theorem provers go). E
+has won the "overall best system" special award at CASC-J5.
+
+The new version features improved performance in automatic mode, a
+more efficient clausifier, and supports the proposed TPTP
+question/answer extension that returns answer substitutions for
+existentially quantified variables in queries.
+
+E is available as a source distribution for UNIX-variants. It installs
+cleanly under all UNIX variants I could get my hands on: Various
+versions of GNU/Linux for Intel, and XScale, Solaris on SPARC, and
+MacOS-X. Users have reported successful builds on a large number of
+other systems, including Windows/Cygwin.
+
+The system is dual-licensed under the GNU General Public License and
+the GNU Lesser General Public License.
+
+You can find the source distribution and additional information at
+the new E website at
+               http://www.eprover.org
+
+Have fun!
+
+
+Stephan
+
+--
+-------------------------- It can be done! ---------------------------------
+      Please email me as schulz@eprover.org (Stephan Schulz)
+----------------------------------------------------------------------------
+
+
+
+
+
+This is the announcement for version 1.4 of E.
+-----------------------------------------------------
+
+
+From: schulz@eprover.org (Stephan Schulz)
+Subject: E Equational Theorem Prover 1.4 "Namring" released
+
+
+E 1.4 "Namring" is the latest version of the successful automated
+theorem prover.
+
+E is a theorem prover for full first order logic with equality. It has
+successfully competed in several CASC competitions and is generally
+considered a friendly and powerful system (as theorem provers go). E
+has won the "overall best system" special award at CASC-J5 and the CNF
+category at CASC-23.
+
+The new version features improved performance in automatic mode and a
+number of minor cleanups, especially in the output of answers
+instantiations.
+
+E is available as a source distribution for UNIX-variants. It installs
+cleanly under all UNIX variants I could get my hands on: Various
+versions of GNU/Linux for Intel, and XScale, Solaris on SPARC, and
+MacOS-X. Users have reported successful builds on a large number of
+other systems, including Windows/Cygwin.
+
+The system is dual-licensed under the GNU General Public License and
+the GNU Lesser General Public License.
+
+You can find the source distribution and additional information at
+the new E website at
+               http://www.eprover.org
+
+Have fun!
+
+
+Stephan
+
+--
+-------------------------- It can be done! ---------------------------------
+      Please email me as schulz@eprover.org (Stephan Schulz)
+----------------------------------------------------------------------------
+
+
+
+This is the announcement for version 1.5 of E.
+-----------------------------------------------------
+
+
+From: schulz@eprover.org (Stephan Schulz)
+Subject: E Equational Theorem Prover 1.5 "Pussimbing" released
+
+
+E 1.5 "Pussimbing" is the latest version of the successful automated
+theorem prover.
+
+E is a theorem prover for full first order logic with equality. It has
+successfully competed in several CASC competitions and is generally
+considered a friendly and powerful system (as theorem provers go). E
+has won the "overall best system" special award at CASC-J5 and the CNF
+category at CASC-23.
+
+The new version features improvements in the inference engine, with
+resulting changes to the automatic mode, and a number of minor
+cleanups, especially in clausification.
+
+E is available as a source distribution for UNIX-variants. It installs
+cleanly under all UNIX variants I could get my hands on: Various
+versions of GNU/Linux for Intel, and XScale, Solaris on SPARC, and
+MacOS-X. Users have reported successful builds on a large number of
+other systems, including Windows/Cygwin.
+
+The system is dual-licensed under the GNU General Public License and
+the GNU Lesser General Public License.
+
+You can find the source distribution and additional information at
+the new E website at
+               http://www.eprover.org
+
+Have fun!
+
+
+Stephan
+
+--
+-------------------------- It can be done! ---------------------------------
+      Please email me as schulz@eprover.org (Stephan Schulz)
+----------------------------------------------------------------------------
+
+
+
+This is the announcement for version 1.6 of E.
+-----------------------------------------------------
+
+
+From: schulz@eprover.org (Stephan Schulz)
+Subject: E Equational Theorem Prover 1.6 "Tiger Hill" released
+
+
+E 1.6 "Tiger Hill" is the latest version of the successful automated
+theorem prover.
+
+E is a theorem prover for full first order logic with equality. It has
+successfully competed in several CASC competitions and is generally
+considered a friendly and powerful system (as theorem provers go). E
+has won the "overall best system" special award at CASC-J5 and the CNF
+category at CASC-23. It scored several good placements at CASC-J6.
+
+The new version features improvements in the inference engine, with
+resulting changes to the automatic mode, and a number of minor
+cleanups, especially in clausification.
+
+E is available as a source distribution for UNIX-variants. It installs
+cleanly under all UNIX variants I could get my hands on: Various
+versions of GNU/Linux for Intel, and XScale, Solaris on SPARC, and
+MacOS-X. Users have reported successful builds on a large number of
+other systems, including Windows/Cygwin.
+
+The system is dual-licensed under the GNU General Public License and
+the GNU Lesser General Public License.
+
+You can find the source distribution and additional information at
+the new E website at
+               http://www.eprover.org
+
+Have fun!
+
+
+Stephan
+
+--
+-------------------------- It can be done! ---------------------------------
+      Please email me as schulz@eprover.org (Stephan Schulz)
+----------------------------------------------------------------------------
+
+
+This is the announcement for version 1.7 of E.
+-----------------------------------------------------
+
+
+From: schulz@eprover.org (Stephan Schulz)
+Subject: E Equational Theorem Prover 1.7 "" released
+
+
+E 1.7 "Jun Chiabari" is the latest version of the successful automated
+theorem prover.
+
+E is a theorem prover for full first order logic with equality. It has
+successfully competed in several CASC competitions and is generally
+considered a friendly and powerful system (as theorem provers go). E
+has won the "overall best system" special award at CASC-J5 and the CNF
+category at CASC-23. It scored several good placements at CASC-J6.
+
+The new version features improvements in the inference engine, with
+resulting changes to the automatic mode, and a number of minor
+cleanups. The distribution now also includes a simple rewrite engine
+and support for interactive queries against a large axiomatization.
+
+E is available as a source distribution for UNIX-variants. It installs
+cleanly under all UNIX variants I could get my hands on: Various
+versions of GNU/Linux for Intel, and XScale, Solaris on SPARC, and
+MacOS-X. Users have reported successful builds on a large number of
+other systems, including Windows/Cygwin.
+
+The system is dual-licensed under the GNU General Public License and
+the GNU Lesser General Public License.
+
+You can find the source distribution and additional information at
+the E website at
+               http://www.eprover.org
+
+Have fun!
+
+
+Stephan
+
+--
+-------------------------- It can be done! ---------------------------------
+      Please email me as schulz@eprover.org (Stephan Schulz)
+----------------------------------------------------------------------------
+
+
+This is the announcement for version 1.8 of E.
+-----------------------------------------------------
+
+
+From: schulz@eprover.org (Stephan Schulz)
+Subject: E Equational Theorem Prover 1.8 "Gopaldhara" released
+
+
+E 1.8 "Gopaldhara" is the latest version of the successful automated
+theorem prover.
+
+E is a theorem prover for full first order logic with equality. It has
+successfully competed in several CASC competitions and is generally
+considered a friendly and powerful system (as theorem provers go). E
+has won the "overall best system" special award at CASC-J5 and the CNF
+category at CASC-23. It scored good placements at CASC-J6 and CASC-24
+and is used a component in several other systems.
+
+Major user-visible improvements of E 1.8 are the internal generation
+of checkable proof objects (with minimal overhead) and a new auto-mode
+implementing strategy scheduling.
+
+E is available as a source distribution for UNIX-variants. It installs
+cleanly under all UNIX variants I could get my hands on: Various
+versions of GNU/Linux for Intel, and XScale, Solaris on SPARC, and
+MacOS-X. Users have reported successful builds on a large number of
+other systems, including Windows/Cygwin.
+
+The system is dual-licensed under the GNU General Public License and
+the GNU Lesser General Public License.
+
+
+Notes
+* Unless there is copious protest from existing users, the next
+  version of E will switch from "#" to "%" as the standard comment
+  character, for improved compliance with the TPTP-3 standard.
+* Special thanks to Nik Sultana, who read the whole manual and found
+  several embarrassing and some painful errors!
+
+You can find the source distribution and additional information at
+the E website at
+               http://www.eprover.org
+
+Have fun!
+
+
+Stephan
+
+--
+-------------------------- It can be done! ---------------------------------
+      Please email me as schulz@eprover.org (Stephan Schulz)
+----------------------------------------------------------------------------
+
+This is the announcement for version 1.9 of E.
+-----------------------------------------------------
+
+
+From: schulz@eprover.org (Stephan Schulz)
+Subject: E Equational Theorem Prover 1.9 "Sourenee" Released
+
+
+E 1.9 "Sourenee" is the latest version of the successful automated
+theorem prover.
+
+E is a theorem prover for full first order logic with equality. It has
+successfully competed in several CASC competitions and is generally
+considered a friendly and powerful system (as theorem provers go). E
+has won the "overall best system" special award at CASC-J5 and the CNF
+category at CASC-23. It scored good placements at CASC-J6 and CASC-24
+and is used a component in several other systems.
+
+Major user-visible improvements of E 1.9 are improved automatic
+modes, more compact proof objects (now also in Graphviz format), and
+additional literal selection functions.
+
+E is available as a source distribution for UNIX-variants. It installs
+cleanly under all UNIX variants I could get my hands on: Various
+versions of GNU/Linux for Intel, and XScale, Solaris on SPARC, and
+MacOS-X. Users have reported successful builds on a large number of
+other systems, including Windows/Cygwin.
+
+The system is dual-licensed under the GNU General Public License and
+the GNU Lesser General Public License.
+
+
+Notes
+* Unless there is copious protest from existing users, the next
+  version of E will switch from "#" to "%" as the standard comment
+  character, for improved compliance with the TPTP-3 standard.
+* I will also release an experimental version of E with support for
+  TFF shortly. Thanks to Simon Cruanes for making that possible.
+
+You can find the source distribution and additional information at
+the E website at
+               http://www.eprover.org
+
+Have fun!
+
+
+Stephan
+
+--
+-------------------------- It can be done! ---------------------------------
+      Please email me as schulz@eprover.org (Stephan Schulz)
+----------------------------------------------------------------------------
+
+
+This is the announcement for version 1.9 of E.
+-----------------------------------------------------
+
+
+From: schulz@eprover.org (Stephan Schulz)
+Subject: E Equational Theorem Prover 1.9.1 "Sungma" Released
+
+
+E 1.9.1 "Sungma" is the latest version of the successful automated
+theorem prover.
+
+E is a theorem prover for full first order logic with equality. It has
+successfully competed in several CASC competitions and is generally
+considered a friendly and powerful system (as theorem provers go). E
+has won the "overall best system" special award at CASC-J5 and the CNF
+category at CASC-23. It scored good placements at CASC-25 and CASC-J7
+and is used a component in several other systems.
+
+Major user-visible improvements of E 1.9.1 are improved automatic
+modes, automatic detection of input format, major fixes to the
+watchlist mechanism (especially with respect to using it to provide
+hints for proof search) and a bug-fix for a rarely triggered, but
+nasty bug in clausification. We recommend all users of older versions
+to upgrade to E 1.9.1.
+
+E is available as a source distribution for UNIX-variants. It
+installed cleanly under all UNIX variants I could get my hands on:
+Various versions of GNU/Linux for Intel, and XScale, Solaris on SPARC,
+and MacOS-X (with both GNU gcc and LLVM). Users have reported
+successful builds on a large number of other operating systems,
+including Windows/Cygwin.
+
+The system is dual-licensed under the GNU General Public License and
+the GNU Lesser General Public License.
+
+We expect this to be the last full release of E that does not support
+many-sorted logic. We will release a preliminary experimental version
+from the E 2.0 development branch with support for TPTP-3 TFF
+shortly. Thanks to Simon Cruanes for making that possible. Note that
+the official and stable release for E 2.0 is a while off - if you do
+not need support for TFF or future experimental features, we recommend
+that you stick with E 1.9.1 for the moment.
+
+You can find the source distribution and additional information at
+the E website at
+               http://www.eprover.org
+
+Have fun!
+
+
+Stephan
+
+--
+-------------------------- It can be done! ---------------------------------
+      Please email me as schulz@eprover.org (Stephan Schulz)
+----------------------------------------------------------------------------
+
+
+This is the announcement for version 2.0 of E.
+-----------------------------------------------------
+
+
+From: schulz@eprover.org (Stephan Schulz)
+Subject: E Equational Theorem Prover 2.0 "Turzum" Released
+
+
+E 2.0 "Turzum" is the latest version of the successful automated
+theorem prover.
+
+E is a theorem prover for full first order logic with equality. It has
+successfully competed in several CASC competitions and is generally
+considered a friendly and powerful system (as automated theorem
+provers go). E has won the "overall best system" special award at
+CASC-J5 and the CNF category at CASC-23. It scored good placements at
+CASC-25 and CASC-J7 and is used a component in several other systems.
+
+E 2.0 features a number of improvements. The most significant change
+is support for many-sorted first-order logic, i.e. the TPTP-3 TFF
+(typed first-order form) syntax. Thanks to Simon Cruanes for making
+that possible.
+
+Other changes include:
+
+- Improved clausification - the new algorithm can handle long and deep
+  quantifier prefixes more efficiently.
+- Input clauses and formulas keep their TPTP names in the proof
+  object.
+- More faithful modelling of Set-of-Support semantics for the
+  SimulateSOS priority function
+- Various internal improvements and cleanups.
+
+E is available as a source distribution for UNIX-variants.
+Historically, it installed cleanly under all UNIX variants I could get
+my hands on: Various versions of GNU/Linux for Intel and XScale,
+Solaris on SPARC, and MacOS-X (with both GNU gcc and LLVM). Current
+versions are tested under OS-X/macOS and Linux. Users have also
+reported successful builds on a large number of other operating
+systems, including Windows/Cygwin.
+
+The system is dual-licensed under the GNU General Public License and
+the GNU Lesser General Public License.
+
+You can find the source distribution and additional information at
+the E website at
+               http://www.eprover.org
+
+If your prefer to live on the bleeding edge, or to contribute to E,
+the prover now also lives on GitHub at
+
+               https://github.com/eprover
+
+Caveats:
+
+- While E supports parsing and processing of TFF formulas and the
+  standard sorts, it does not yet implement any arithmetic background
+  theories.
+- As a result of the change to a many-sorted logic, numerical
+  constants are now parsed as constants of the appropriate sort ($int,
+  $real or $rat). In particular, this means they they cannot be used
+  in unsorted contexts. This is compatible with the current
+  interpretation of TPTP syntax. If you need to use numerical
+  constants as free, uninterpreted symbols, use the option
+  --free-numbers.
+
+
+Have fun!
+
+
+Stephan
+
+--
+-------------------------- It can be done! ---------------------------------
+      Please email me as schulz@eprover.org (Stephan Schulz)
+----------------------------------------------------------------------------

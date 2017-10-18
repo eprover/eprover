@@ -1,0 +1,25 @@
+#----------------------------------------------------------------
+#   Problem:    In a ring, if x*x*x*x = x for all x
+#               in the ring, then
+#               x*y = y*x for all x,y in the ring.
+#
+#               Funktionen:     f   : Multiplikation *
+#                               J   : Addition +
+#                               g   : Inverses
+#                               e   : Neutrales Element
+#                               a,b : Konstanten
+#   Extends luusk 6 to the case x^4
+#
+
+j (e,X)       = X.                   # e ist a left identity for sum
+j (X,e)       = X.                   # e ist a right identity for sum
+j (g (X),X)   = e.                   # there exists a left inverse for sum
+j (X,g (X))   = e.                   # there exists a right inverse for sum
+j (j (X,Y),Z) = j (X,j (Y,Z)).       # associativity of addition
+j (X,Y)       = j(Y,X).              # commutativity of addition
+f (f (X,Y),Z) = f (X,f (Y,Z)).       # associativity of multiplication
+f (X,j (Y,Z)) = j (f (X,Y),f (X,Z)). # distributivity axioms
+f (j (X,Y),Z) = j (f (X,Z),f (Y,Z)). #
+f (f (f(X,X),X),X)  = X.             # special hypothese: x*x*x*x = x
+
+f (a,b) != f (b,a).                   # theorem

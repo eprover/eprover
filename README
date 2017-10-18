@@ -1,0 +1,279 @@
+NOTE: The CASC ReadMe file is in DOC/Readme.
+
+
+Short Installation Instructions for the impatient
+-------------------------------------------------
+
+This assumes that you have GNU tar, sh and gawk in your search path!
+
+Simple installation (will install executables):
+
+> tar -xzf E.tgz
+> cd E
+> ./configure --bindir=/path/to/EXECDIR
+> make
+> make install
+> /path/to/EXECDIR/eprover -h | more
+
+Simplest installation (in-place):
+
+> tar -xzf E.tgz
+> cd E
+> ./configure
+> make
+> cd PROVER
+> eprover -h | more
+
+Read the rest of this file and the fine (if incomplete) manual if
+anything fails. There should be a copy of the manual in
+DOC/eprover.pdf.
+
+The recommended command for running E on the file problem.p is
+
+  eprover --auto --proof-object problem.p
+
+If you want to try the usually stronger strategy scheduling mode, use
+
+  eprover --auto-schedule --tptp3-in --proof-object problem.p
+
+You can add a time limit of 300 seconds with the option
+--cpu-limit=300 and a memory limit of 2 GB with --memory-limit=2048
+for all "automatic" modes. You can reduce output with -s (or
+--silent). As of version 1.9.1, E will try to auto-detect the input
+format and adjust the output format accordingly. You can still force
+input and output formats via commandline options.
+
+
+
+             The Equational Theorem Prover E
+             ===============================
+
+
+This is the README file for version 2.0 "Turzum" of the E equational
+theorem prover. This version of E is free software, see the file
+COPYING for details about the license and the fact that THERE IS NO
+WARRANTY!
+
+Release 2 contains several major changes and improvements. The most
+significant user-visible change is that E now supports the TFF (typed
+first-order form), although not (yet) interpreted arithmetic. Most of
+the work to support TFF was done by Simon Cruanes - thanks! E now also
+handles some formulas with large quantifier prefixes more efficiently,
+and does degrade more gracefully in the worst case.
+
+Search behaviour was improved with changes to the automatic mode, and
+strategy-scheduling has moved from experimental to (hopefully) stable.
+
+
+What is E?
+----------
+
+E is an equational theorem prover. That means it is a program that you
+can stuff a mathematical specification (in first-order logic with
+equality) and a hypothesis into, and which will then run forever,
+using up all of your machines resources. Very occasionally it will
+find a proof for the hypothesis and tell you so ;-).
+
+E has been created and is currently maintained by Stephan Schulz,
+<schulz@eprover.org>. It is developed and distributed under the GNU
+General Public License. However, you may possibly come around versions
+sold or given to you under a different license, probably by Safelogic
+A.B. in Gothenburg, Sweden. For some time, Safelogic paid for the
+right to distribute (and relicense) closed-source versions of E with
+proprietary modifications.
+
+The E homepage can be found at http://www.eprover.org
+
+
+Installation:
+-------------
+
+E can be installed anywhere in the file system, either by a normal
+user or by the system administrator.
+
+To install the package, unpack the distribution (if you are reading
+this, you probably already did):
+
+  gunzip -c E.tgz|tar -xvf -
+
+  or
+
+  (g)tar -xzf E.tgz   (if you have GNU tar)
+
+This should create a directory named E. After unpacking, optionally
+edit E/Makefile.vars to your liking. In particular, if building for
+HPUX, comment out the suitable CFLAGS definition (for most systems,
+the default definition should be ok). Then change to the E directory:
+
+  cd E
+
+Determine if you want to run E from it's own build directory or wether
+you want to install the executables in some other directory
+EXECDIR. In the first case, run
+
+   ./configure
+
+otherwise
+
+   ./configure --bindir=EXECDIR
+
+or, if you also want to install the man-pages into MANDIR,
+
+   ./configure --bindir=EXECDIR --man-prefix=MANDIR
+
+Then type
+
+   make
+
+to compile the library and all included programs under the E
+directory. If you want to install E in a particular EXECDIR, type
+
+  make install
+
+You must have write permission in the EXECDIR, so if you install E
+outside your own home directory, you may need to become root or use
+sudo.
+
+Type
+
+  make documentation
+
+to translate the rudimentary LaTeX documentation (this requires
+LaTeX2e, pdflatex, and the packages theorem, amssymb and epsfig, which
+are included in most current LaTeX distributions).
+
+For some operating systems, especially if you do not have the GNU gcc
+compiler installed, you may need to edit Makefile.vars manually to
+select tools and options. If you have any problems, look into
+E/DOC/PORTING.
+
+If you get into trouble,
+
+   make rebuild
+
+will rebuild E completely to your current configuration.
+
+After installation, go to E/PROVER and type
+
+  ./eprover BOO001-1+rm_eq_rstfp.lop
+
+to see the prover in action. Type
+
+  ./eprover LUSK6.lop
+
+for a harder example. "./eprover -h" will give you some information and
+a list of options.
+
+For impatient people who do not want to read anything:
+
+  eprover --auto --memory-limit=<80%_of_your_main_memory> <problem-file>
+
+should give a reasonable performance on a large class of problems
+(unless your main memory is really small).
+
+The new auto mode will perform a heuristic pruning of the axiom set
+which may result in incompleteness for very large problems (many
+thousands of axioms). If you need completeness, use
+
+  eprover --satauto --memory-limit=<80%_of_your_main_memory> <problem-file>
+
+In general, different proof problems are easy for different
+strategies. If you run
+
+  eprover --auto-schedule --memory-limit=<80%_of_your_main_memory> <problem-file>
+
+or
+
+  eprover --satauto-schedule --memory-limit=<80%_of_your_main_memory> <problem-file>
+
+the prover will try a series of strategies on the problem. It assumes
+a 300 second run time - if you impose a different one externally, it
+is important to let E know via the --cpu-limit=XXX option so that it
+can adjust the schedule.
+
+One of the features of E is the ability to produce semi-readable
+proofs. To use this, type
+
+  eprover --proof-object <other-stuff>
+
+By default, E will now automatically detect the input format (LOP,
+TPTP-2 or TPTP-3), and will select the matching output format (PCL2
+for LOP and TPTP-2 inputs, TPTP-3 for TPTP-3 inputs).
+
+You can check the proof objects in PCL format for correctness using
+the tool checkproof in the same directory. "checkproof -h" should give
+you all necessary information. Note that checkproof cannot yet deal
+with the full first order part, and will skip anything not
+clausal. Also, support for independent provers in checkproof can be
+subject to bit-rot, as other systems and interfaces change.
+
+
+Directory overview:
+-------------------
+
+DOC:
+
+  - Documentation, including a very preliminary LaTeX manual for (at
+    the moment) parts of the library and the prover. You should be
+    looking there instead of reading this file ;-)
+
+    Also has the project NEWS file and some short notes on porting.
+
+include:
+
+  - Symbolic links to all user-relevant header files
+
+lib:
+
+  - Symbolic links to the individual library modules
+
+BASICS:
+INOUT:
+TERMS:
+ORDERINGS:
+CLAUSES:
+ANALYSIS:
+LEARN:
+HEURISTICS:
+PCL2:
+PROPOSITIONAL:
+CONTROL:
+
+  - Sources and object files for the individual library modules
+
+TEST:
+
+  - Test programs for development work
+
+SIMPLE_APPS:
+
+  - Small application programs for demonstration purposes as well as
+    for solving simple tasks.
+
+PROVER:
+
+  - The main program for the E prover, also contains some examples and
+    stuff, as well as all the major support programs for E.
+
+SKELETONS:
+
+  - Skeleton files for source files, make files, comment boxes,...
+
+
+EXAMPLE_PROBLEMS:
+
+  - Some example problems taken from the TPTP 6.4.0 library.
+
+EXTERNAL:
+
+  - Code that does not belong to the core prover but uses it or parts
+    of it. Not fully maintained by me, check the headers.
+
+devopment_tools:
+  - Various tools for working with large scale experimental test runs,
+    mostly shell or awk scripts. Probably not useful for
+    non-developers, certainly not documented.
+
+PYTHON:
+  - More complex tools for large scale experimental evaluation. See
+    previous comment.
