@@ -50,23 +50,6 @@ typedef int SortType;
 #define STReal        6     /* Reals */
 #define STPredefined  STReal
 
-/* Datatype for representing the sort system. Currenlty associates
- * sort types with encodings and tracks the default sort. */
-
-typedef struct sort_table
-{
-   SortType  default_type;  /* Sort of undeclared function
-                             * symbols. STIndividuals by default, but
-                             * can be changed */
-   StrTree_p sort_index;    /* Associates a sort name with the type */
-   PStack_p  back_index;    /* Back-Association from type to
-                               string. Position i on the stack
-                               contains the key of sort i in the
-                               sort_index. */
-}SortTableCell, *SortTable_p;
-
-
-
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
@@ -76,16 +59,6 @@ typedef struct sort_table
 #define SortIsUserDefined(sort) (sort > STPredefined)
 
 #define SortIsInterpreted(sort) (((sort)>=STInteger)&&((sort)<=STReal))
-
-SortTable_p SortTableAlloc(void);
-void        SortTableFree(SortTable_p junk);
-SortType    SortTableInsert(SortTable_p table, char* sort_name);
-SortTable_p DefaultSortTableAlloc(void);
-char*       SortTableGetRep(SortTable_p table, SortType sort);
-SortType    SortParseTSTP(Scanner_p in, SortTable_p table);
-void        SortPrintTSTP(FILE *out, SortTable_p table, SortType sort);
-void        SortTablePrint(FILE* out, SortTable_p table);
-
 
 #endif
 
