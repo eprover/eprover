@@ -1,0 +1,81 @@
+cte_termbanks.c: In function ‘TBInsertInstantiated’:
+cte_termbanks.c:660:63: error: ‘struct termcell’ has no member named ‘sort’
+       t = VarBankVarAssertAlloc(bank->vars, term->f_code, term->sort);
+                                                               ^
+cte_termbanks.c: In function ‘TBInsertOpt’:
+cte_termbanks.c:711:63: error: ‘struct termcell’ has no member named ‘sort’
+       t = VarBankVarAssertAlloc(bank->vars, term->f_code, term->sort);
+                                                               ^
+cte_termbanks.c: In function ‘TBInsertDisjoint’:
+cte_termbanks.c:759:65: error: ‘struct termcell’ has no member named ‘sort’
+       t = VarBankVarAssertAlloc(bank->vars, term-make[1]: Leaving directory `/home/petar/Documents/Projects/e_newtypes/TERMS'
+make[1]: Entering directory `/home/petar/Documents/Projects/e_newtypes/ORDERINGS'
+make[1]: Nothing to be done for `all'.
+make[1]: Leaving directory `/home/petar/Documents/Projects/e_newtypes/ORDERINGS'
+make[1]: Entering directory `/home/petar/Documents/Projects/e_newtypes/CLAUSES'
+gcc -O3 -fomit-frame-pointer -fno-common  -Wall    -DNDEBUG -DFAST_EXIT -DPRINT_SOMEERRORS_STDOUT -DMEMORY_RESERVE_PARANOID -DPRINT_TSTP_STATUS -DSTACK_SIZE=32768 -DCLAUSE_PERM_IDENT -DTAGGED_POINTERS  -std=gnu99 -I../include   -c -o ccl_tcnf.o ccl_tcnf.c
+make[1]: Leaving directory `/home/petar/Documents/Projects/e_newtypes/CLAUSES'
+make[1]: Entering directory `/home/petar/Documents/Projects/e_newtypes/PROPOSITIONAL'
+make[1]: Nothing to be done for `all'.
+make[1]: Leaving directory `/home/petar/Documents/Projects/e_newtypes/PROPOSITIONAL'
+make[1]: Entering directory `/home/petar/Documents/Projects/e_newtypes/LEARN'
+gcc -O3 -fomit-frame-pointer -fno-common  -Wall    -DNDEBUG -DFAST_EXIT -DPRINT_SOMEERRORS_STDOUT -DMEMORY_RESERVE_PARANOID -DPRINT_TSTP_STATUS -DSTACK_SIZE=32768 -DCLAUSE_PERM_IDENT -DTAGGED_POINTERS  -std=gnu99 -I../include   -c -o cle_termtops.o cle_termtops.c
+make[1]: Leaving directory `/home/petar/Documents/Projects/e_newtypes/LEARN'
+make[1]: Entering directory `/home/petar/Documents/Projects/e_newtypes/ANALYSIS'
+make[1]: Nothing to be done for `all'.
+make[1]: Leaving directory `/home/petar/Documents/Projects/e_newtypes/ANALYSIS'
+make[1]: Entering directory `/home/petar/Documents/Projects/e_newtypes/PCL2'
+gcc -O3 -fomit-frame-pointer -fno-common  -Wall    -DNDEBUG -DFAST_EXIT -DPRINT_SOMEERRORS_STDOUT -DMEMORY_RESERVE_PARANOID -DPRINT_TSTP_STATUS -DSTACK_SIZE=32768 -DCLAUSE_PERM_IDENT -DTAGGED_POINTERS  -std=gnu99 -I../include   -c -o pcl_miniprotocol.o pcl_miniprotocol.c
+make[1]: Leaving directory `/home/petar/Documents/Projects/e_newtypes/PCL2'
+make[1]: Entering directory `/home/petar/Documents/Projects/e_newtypes/HEURISTICS'
+make[1]: Nothing to be done for `all'.
+make[1]: Leaving directory `/home/petar/Documents/Projects/e_newtypes/HEURISTICS'
+make[1]: Entering directory `/home/petar/Documents/Projects/e_newtypes/CONTROL'
+make[1]: Nothing to be done for `all'.
+make[1]: Leaving directory `/home/petar/Documents/Projects/e_newtypes/CONTROL'
+make[1]: Entering directory `/home/petar/Documents/Projects/e_newtypes/PROVER'
+make[1]: Leaving directory `/home/petar/Documents/Projects/e_newtypes/PROVER'
+make[1]: Entering directory `/home/petar/Documents/Projects/e_newtypes/SIMPLE_APPS'
+make[1]: Leaving directory `/home/petar/Documents/Projects/e_newtypes/SIMPLE_APPS'
+make[1]: Entering directory `/home/petar/Documents/Projects/e_newtypes/EXTERNAL'
+make[1]: Leaving directory `/home/petar/Documents/Projects/e_newtypes/EXTERNAL'
+                                                         ^
+make[1]: *** [ccl_tcnf.o] Error 1
+cle_termtops.c: In function ‘rek_term_top’:
+cle_termtops.c:147:50: error: ‘struct termcell’ has no member named ‘sort’
+       handle = VarBankGetFreshVar(freshvars, term->sort);
+                                                  ^
+cle_termtops.c:151:67: error: ‘struct termcell’ has no member named ‘sort’
+       handle = VarBankVarAssertAlloc(freshvars, term->f_code, term->sort);
+                                                                   ^
+cle_termtops.c: In function ‘alt_rek_term_top’:
+cle_termtops.c:195:48: error: ‘struct termcell’ has no member named ‘sort’
+     handle = VarBankGetFreshVar(freshvars, term->sort);
+                                                ^
+cle_termtops.c:206:67: error: ‘struct termcell’ has no member named ‘sort’
+       handle = VarBankVarAssertAlloc(freshvars, term->f_code, term->sort);
+                                                                   ^
+cle_termtops.c: In function ‘term_top_marked’:
+cle_termtops.c:249:48: error: ‘struct termcell’ has no member named ‘sort’
+     handle = VarBankGetFreshVar(freshvars, term->sort);
+                                                ^
+cle_termtops.c:260:67: error: ‘struct termcell’ has no member named ‘sort’
+       handle = VarBankVarAssertAlloc(freshvars, term->f_code, term->sort);
+                                                                   ^
+make[1]: *** [cle_termtops.o] Error 1
+pcl_miniprotocol.c: In function ‘PCLMiniProtAlloc’:
+pcl_miniprotocol.c:63:4: error: unknown type name ‘SortTable_p’
+    SortTable_p sort_table = DefaultSortTableAlloc();
+    ^
+pcl_miniprotocol.c:63:4: warning: implicit declaration of function ‘DefaultSortTableAlloc’ [-Wimplicit-function-declaration]
+pcl_miniprotocol.c: In function ‘PCLMiniProtFree’:
+pcl_miniprotocol.c:103:4: warning: implicit declaration of function ‘SortTableFree’ [-Wimplicit-function-declaration]
+    SortTableFree(junk->terms->sig->sort_table);
+    ^
+pcl_miniprotocol.c:103:34: error: ‘struct sigcell’ has no member named ‘sort_table’
+    SortTableFree(junk->terms->sig->sort_table);
+                                  ^
+make[1]: *** [pcl_miniprotocol.o] Error 1
+make[1]: *** No rule to make target `../lib/LEARN.a', needed by `eprover'.  Stop.
+make[1]: *** No rule to make target `../lib/TERMS.a', needed by `term2dag'.  Stop.
+make[1]: *** No rule to make target `../lib/CLAUSES.a', needed by `CSSCPA_filter'.  Stop.

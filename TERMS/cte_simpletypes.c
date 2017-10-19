@@ -39,7 +39,7 @@
 
 Type_p  TypeCopy(Type_p orig)
 {
-   Type_p handle = TypeAlloc(orig->c_code, orig->arity, TypeArgArrayAlloc(org->arity));
+   Type_p handle = TypeAlloc(orig->f_code, orig->arity, TypeArgArrayAlloc(orig->arity));
 
    for(int i=0; i<orig->arity; i++)
    {
@@ -47,4 +47,15 @@ Type_p  TypeCopy(Type_p orig)
    }
 
    return handle;
+}
+
+void TypeTopFree(Type_p junk)
+{
+   SizeFree(junk, sizeof(*junk)); 
+}
+
+void TypeFree(Type_p junk)
+{
+   SizeFree(junk->args, junk->arity*sizeof(Type_p));
+   TypeTopFree(junk);
 }

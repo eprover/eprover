@@ -113,7 +113,7 @@ static void sig_compute_alpha_ranks(Sig_p sig)
 //
 /----------------------------------------------------------------------*/
 
-Sig_p SigAlloc(SortTable_p sort_table)
+Sig_p SigAlloc()
 {
    Sig_p handle;
 
@@ -127,17 +127,16 @@ Sig_p SigAlloc(SortTable_p sort_table)
    handle->f_index = NULL;
    handle->ac_axioms = PStackAlloc();
 
-   handle->sort_table = sort_table;
-   handle->type_table = TypeTableAlloc(sort_table);
+   handle->type_bank = TypeBankAlloc();
 
    SigInsertId(handle, "$true", 0, true);
    assert(SigFindFCode(handle, "$true")==SIG_TRUE_CODE);
    SigSetFuncProp(handle, SIG_TRUE_CODE, FPInterpreted);
-   SigDeclareType(handle, SIG_TRUE_CODE, TypeNewConstant(handle->type_table, STBool));
+   SigDeclareType(handle, SIG_TRUE_CODE, handle->type_bank->bool_type);
    SigInsertId(handle, "$false", 0, true);
    assert(SigFindFCode(handle, "$false")==SIG_FALSE_CODE);
    SigSetFuncProp(handle, SIG_FALSE_CODE, FPInterpreted);
-   SigDeclareType(handle, SIG_FALSE_CODE, TypeNewConstant(handle->type_table, STBool));
+   SigDeclareType(handle, SIG_FALSE_CODE, handle->type_bank->bool_type);
 
    if(SigSupportLists)
    {
@@ -197,8 +196,6 @@ Sig_p SigAlloc(SortTable_p sort_table)
 
 void SigInsertInternalCodes(Sig_p sig)
 {
-   int i_sort = STIndividuals;
-
    assert((SigSupportLists && sig->internal_symbols == SIG_CONS_CODE) ||
           (!SigSupportLists && sig->internal_symbols == SIG_FALSE_CODE));
 
@@ -225,8 +222,16 @@ void SigInsertInternalCodes(Sig_p sig)
 
    sig->answer_code =  SigInsertId(sig, "$answer", 1, true);
    SigSetFuncProp(sig, sig->answer_code, FPInterpreted|FPPseudoPred);
-   SigDeclareFinalType(sig, sig->answer_code,
-                       TypeNewFunction(sig->type_table, STBool, 1, &i_sort));
+
+
+   Type_p* args = TypeArgArrayAlloc(2);
+   args[0] = sig->type_bank->bool_type;
+   args[1] = sig->type_bank->i_type;
+
+   Type_p answer_type = 
+      TypeBankInsertTypeShared(sig->type_bank, AllocArrowType(2, args));
+
+   SigDeclareFinalType(sig, sig->answer_code, answer_type);
 
    sig->internal_symbols = sig->f_count;
 }
@@ -259,7 +264,7 @@ void SigFree(Sig_p junk)
    {
       PDArrayFree(junk->orn_codes);
    }
-   TypeTableFree(junk->type_table);
+   TypeBankFree(junk->type_bank);
 
    SigCellFree(junk);
 }
@@ -1375,9 +1380,9 @@ void SigDeclareIsPredicate(Sig_p sig, FunCode f_code)
    assert(type->domain_sort != STNoSort);
 
    /* must update type */
-   if(type->domain_sort != STBool)
+   if(TypeIsBool(type))
    {
-      new_type = TypeChangeReturnType(sig->type_bank, type, sig->type_bank->type_bool);
+      new_type = TypeChangeReturnType(sig->type_bank, type, sig->type_bank->bool_type);
       SigDeclareFinalType(sig, f_code, new_type);
    }
    else
@@ -1420,7 +1425,7 @@ void SigPrintTypes(FILE* out, Sig_p sig)
       }
       else
       {
-         TypePrintTSTP(out, sig->type_table, fun->type);
+         TypePrintTSTP(out, sig->type_bank, fun->type);
       }
    }
 }
@@ -1450,7 +1455,7 @@ void SigPrintTypeDeclsTSTP(FILE* out, Sig_p sig)
       if (fun->type)
       {
          fprintf(out, "tff(decl_%ld, type, %s: ", i, fun->name);
-         TypePrintTSTP(out, sig->type_table, fun->type);
+         TypePrintTSTP(out, sig->type_bank, fun->type);
          fprintf(out, ").\n");
       }
    }

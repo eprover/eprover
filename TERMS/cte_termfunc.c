@@ -108,7 +108,7 @@ static Term_p parse_cons_list(Scanner_p in, Sig_p sig, VarBank_p vars)
 
       current->f_code = SIG_CONS_CODE;
       current->arity = 2;
-      current->sort = SigDefaultSort(sig);
+      current->type = SigDefaultSort(sig);
       current->args = TermArgArrayAlloc(2);
       current->args[0] = TermParse(in, sig, vars);
       current->args[1] = TermDefaultCellAlloc();
@@ -119,7 +119,7 @@ static Term_p parse_cons_list(Scanner_p in, Sig_p sig, VarBank_p vars)
          NextToken(in);
          current->f_code = SIG_CONS_CODE;
          current->arity = 2;
-         current->sort = SigDefaultSort(sig);
+         current->type = SigDefaultSort(sig);
          current->args = TermArgArrayAlloc(2);
          current->args[0] = TermParse(in, sig, vars);
          TermCellDelProp(current->args[0], TPTopPos);
@@ -265,7 +265,7 @@ void TermPrint(FILE* out, Term_p term, Sig_p sig, DerefType deref)
    if(TermPrintTypes)
    {
       fputc(':', out);
-      SortPrintTSTP(out, sig->sort_table, term->sort);
+      TypePrintTSTP(out, sig->type_bank, term->type);
    }
 }
 
@@ -408,9 +408,9 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
    DStr_p        id;
    FuncSymbType id_type;
    DStr_p        source_name, errpos;
-   SortType      sort;
+   Type_p        type;
    long          line, column;
-   StreamType    type;
+   StreamType    type_stream;
 
    if(SigSupportLists && TestInpTok(in, OpenSquare))
    {
@@ -422,17 +422,17 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
       line = AktToken(in)->line;
       column = AktToken(in)->column;
       source_name = DStrGetRef(AktToken(in)->source);
-      type = AktToken(in)->stream_type;
+      type_stream = AktToken(in)->stream_type;
 
       if((id_type = TermParseOperator(in, id))==FSIdentVar)
       {
-         /* A variable may be annotated with a sort */
+         /* A variable may be annotated with a type */
          if(TestInpTok(in, Colon))
          {
             AcceptInpTok(in, Colon);
-            sort = SortParseTSTP(in, vars->sort_table);
+            type = TypeBankParseType(in, vars->type_bank);
             handle = VarBankExtNameAssertAllocSort(vars,
-                                                   DStrView(id), sort);
+                                                   DStrView(id), type);
          }
          else
          {
@@ -473,7 +473,7 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
          {
             errpos = DStrAlloc();
 
-            DStrAppendStr(errpos, PosRep(type, source_name, line, column));
+            DStrAppendStr(errpos, PosRep(type_stream, source_name, line, column));
             DStrAppendChar(errpos, ' ');
             DStrAppendStr(errpos, DStrView(id));
             DStrAppendStr(errpos, " used with arity ");
@@ -580,7 +580,7 @@ Term_p TermCopy(Term_p source, VarBank_p vars, DerefType deref)
 
    if(TermIsVar(source))
    {
-      handle = VarBankVarAssertAlloc(vars, source->f_code, source->sort);
+      handle = VarBankVarAssertAlloc(vars, source->f_code, source->type);
    }
    else
    {
@@ -805,7 +805,7 @@ long TermStructWeightCompare(Term_p t1, Term_p t2)
    if(TermIsVar(t1))
    { /* Then t2 also is a variable due to equal weights! */
       assert(TermIsVar(t2));
-      return t1->sort - t2->sort;
+      return TypesCmp(t1->type, t2->type);
    }
 
    res = t1->arity - t2->arity;
@@ -814,7 +814,7 @@ long TermStructWeightCompare(Term_p t1, Term_p t2)
       return res;
    }
 
-   assert(t1->sort == t2->sort);
+   assert(t1->type == t2->type);
    assert(t1->arity == t2->arity);
    for(int i=0; i<t1->arity; i++)
    {
@@ -1778,16 +1778,16 @@ Term_p TermCheckConsistency(Term_p term, DerefType deref)
 /----------------------------------------------------------------------*/
 void TermAssertSameSort(Sig_p sig, Term_p t1, Term_p t2)
 {
-   if(t1->sort != t2->sort)
+   if(t1->type != t2->type)
    {
       fprintf(stderr, "# Error: terms ");
       TermPrint(stderr, t1, sig, DEREF_NEVER);
       fprintf(stderr, ": ");
-      SortPrintTSTP(stderr, sig->sort_table, t1->sort);
+      TypePrintTSTP(stderr, sig->type_bank, t1->type);
       fprintf(stderr, " and ");
       TermPrint(stderr, t2, sig, DEREF_NEVER);
       fprintf(stderr, ": ");
-      SortPrintTSTP(stderr, sig->sort_table, t2->sort);
+      TypePrintTSTP(stderr, sig->type_bank, t2->type);
       fprintf(stderr, " should have same sort\n");
       Error("Type error", SYNTAX_ERROR);
    }
@@ -1819,7 +1819,7 @@ bool TermIsUntyped(Term_p term)
    {
       term = PLocalStackPop(stack);
 
-      if(term->sort == STIndividuals || term->sort == STBool)
+      if(TypeIsIndividual(term->type) || TypeIsBool(term->type))
       {
          PLocalStackPushTermArgs(stack, term);
       }

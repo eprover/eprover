@@ -143,13 +143,13 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
 {
    ProofState_p handle = ProofStateCellAlloc();
 
-   handle->sort_table           = DefaultSortTableAlloc();
-   handle->signature            = SigAlloc(handle->sort_table);
+   handle->type_bank            = TypeBankAlloc();
+   handle->signature            = SigAlloc(handle->type_bank);
    SigInsertInternalCodes(handle->signature);
    handle->original_symbols     = 0;
    handle->terms                = TBAlloc(handle->signature);
    handle->tmp_terms            = TBAlloc(handle->signature);
-   handle->freshvars            = VarBankAlloc(handle->sort_table);
+   handle->freshvars            = VarBankAlloc(handle->type_bank);
    handle->f_axioms             = FormulaSetAlloc();
    handle->f_ax_archive         = FormulaSetAlloc();
    handle->ax_archive           = ClauseSetAlloc();
@@ -396,7 +396,7 @@ void ProofStateFree(ProofState_p junk)
    TBFree(junk->terms);
    TBFree(junk->tmp_terms);
    VarBankFree(junk->freshvars);
-   SortTableFree(junk->sort_table);
+   TypeBankFree(junk->type_bank);
 
    ProofStateCellFree(junk);
 }

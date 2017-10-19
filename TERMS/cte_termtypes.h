@@ -30,7 +30,7 @@ Created: Tue Feb 24 01:23:24 MET 1998 - Ripped out of the now obsolete
 #include <clb_sysdate.h>
 #include <clb_ptrees.h>
 #include <clb_properties.h>
-#include <cte_simplesorts.h>
+#include <cte_simpletypes.h>
 
 
 
@@ -215,7 +215,7 @@ static __inline__ Term_p TermTopCopyWithoutArgs(Term_p source);
 
 void    TermTopFree(Term_p junk);
 void    TermFree(Term_p junk);
-Term_p  TermAllocNewSkolem(Sig_p sig, PStack_p variables, SortType sort);
+Term_p  TermAllocNewSkolem(Sig_p sig, PStack_p variables, Type_p type);
 
 void    TermSetProp(Term_p term, DerefType deref, TermProperties prop);
 bool    TermSearchProp(Term_p term, DerefType deref, TermProperties prop);
@@ -327,7 +327,7 @@ static __inline__ Term_p TermTopCopyWithoutArgs(restrict Term_p source)
    TermCellDelProp(handle, TPOutputFlag); /* As it gets a new id below */
 
    handle->f_code = source->f_code;
-   handle->sort   = source->sort;
+   handle->type   = source->type;
 
    if(source->arity)
    {
@@ -387,7 +387,7 @@ static __inline__ Term_p TermDefaultCellAlloc(void)
 
    handle->properties = TPIgnoreProps;
    handle->arity      = 0;
-   handle->sort       = STNoSort;
+   handle->type       = NULL;
    handle->binding    = NULL;
    handle->args       = NULL;
    handle->rw_data.nf_date[0] = SysDateCreationTime();

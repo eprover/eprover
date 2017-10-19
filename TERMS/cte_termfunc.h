@@ -157,7 +157,7 @@ static __inline__ Term_p TermEquivCellAlloc(Term_p source, VarBank_p vars)
 {
    if(TermIsVar(source))
    {
-      return VarBankVarAssertAlloc(vars, source->f_code, source->sort);
+      return VarBankVarAssertAlloc(vars, source->f_code, source->type);
    }
    else
    {

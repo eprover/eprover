@@ -28,7 +28,7 @@ Changes
 #include <clb_pdarrays.h>
 #include <clb_pstacks.h>
 #include <cte_termtypes.h>
-#include <cte_simplesorts.h>
+#include <cte_simpletypes.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -49,7 +49,7 @@ typedef PDArray_p VarBankStack_p;
 typedef struct varbankcell
 {
    FunCode     v_count;    /* FunCode counter for new variables */
-   SortTable_p sort_table; /* Sorts that are used for variables */
+   TypeBank_p  type_bank;  
    FunCode     max_var;    /* Largest variable ever created */
    PDArray_p   stacks;     /* Maps each sort to a bank of variables */
    StrTree_p   ext_index;  /* Associate names and cells */
@@ -84,23 +84,23 @@ typedef struct varbanknamedcell
 
 
 /* Access the stack corresponding to this sort */
-static __inline__ VarBankStack_p  VarBankGetStack(VarBank_p bank, SortType sort);
+static __inline__ VarBankStack_p  VarBankGetStack(VarBank_p bank, TypeUniqueID sort);
 
-VarBank_p  VarBankAlloc(SortTable_p sort_table);
+VarBank_p  VarBankAlloc(TypeBank_p bank);
 void       VarBankFree(VarBank_p junk);
 void       VarBankClearExtNames(VarBank_p bank);
 void       VarBankClearExtNamesNoReset(VarBank_p bank);
 void       VarBankVarsSetProp(VarBank_p bank, TermProperties prop);
 void       VarBankVarsDelProp(VarBank_p bank, TermProperties prop);
 
-VarBankStack_p  VarBankCreateStack(VarBank_p bank, SortType sort);
-Term_p VarBankFCodeFind(VarBank_p bank, FunCode f_code, SortType sort);
+VarBankStack_p  VarBankCreateStack(VarBank_p bank, TypeUniqueID sort);
+Term_p VarBankFCodeFind(VarBank_p bank, FunCode f_code, Type_p type);
 Term_p VarBankExtNameFind(VarBank_p bank, char* name);
-static __inline__ Term_p VarBankVarAssertAlloc(VarBank_p bank, FunCode f_code, SortType sort);
-Term_p VarBankVarAlloc(VarBank_p bank, FunCode f_code, SortType sort);
-Term_p VarBankGetFreshVar(VarBank_p bank, SortType sort);
+static __inline__ Term_p VarBankVarAssertAlloc(VarBank_p bank, FunCode f_code, Type_p type);
+Term_p VarBankVarAlloc(VarBank_p bank, FunCode f_code, Type_p type);
+Term_p VarBankGetFreshVar(VarBank_p bank, Type_p type);
 Term_p VarBankExtNameAssertAlloc(VarBank_p bank, char* name);
-Term_p VarBankExtNameAssertAllocSort(VarBank_p bank, char* name, SortType sort);
+Term_p VarBankExtNameAssertAllocSort(VarBank_p bank, char* name, Type_p type);
 void   VarBankPushEnv(VarBank_p bank);
 void   VarBankPopEnv(VarBank_p bank);
 long   VarBankCardinal(VarBank_p bank);    /* Number of existing variables */
@@ -127,7 +127,7 @@ long   VarBankCollectVars(VarBank_p bank, PStack_p stack);
 // Side Effects    : May modify the varbank, Memory operations
 //
 /----------------------------------------------------------------------*/
-static __inline__ VarBankStack_p  VarBankGetStack(VarBank_p bank, SortType sort)
+static __inline__ VarBankStack_p  VarBankGetStack(VarBank_p bank, TypeUniqueID sort)
 {
    VarBankStack_p res;
 
@@ -160,21 +160,21 @@ static __inline__ VarBankStack_p  VarBankGetStack(VarBank_p bank, SortType sort)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ Term_p VarBankVarAssertAlloc(VarBank_p bank, FunCode f_code, SortType sort)
+static __inline__ Term_p VarBankVarAssertAlloc(VarBank_p bank, FunCode f_code, Type_p type)
 {
    Term_p var;
 
    assert(f_code < 0);
 
-   var = PDArrayElementP(VarBankGetStack(bank, sort), -f_code);
+   var = PDArrayElementP(VarBankGetStack(bank, type->type_uid), -f_code);
    if(UNLIKELY(!var))
    {
-      var = VarBankVarAlloc(bank, f_code, sort);
+      var = VarBankVarAlloc(bank, f_code, type);
    }
 
    assert(var->v_count==1);
-   assert(var->sort != STNoSort);
-   assert(var->sort == sort);
+   assert(var->type);
+   assert(var->type == type);
 
    return var;
 }

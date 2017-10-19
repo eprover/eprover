@@ -337,9 +337,9 @@ StructFOFSpec_p StructFOFSpecAlloc(void)
 {
    Sig_p sig;
    TB_p  terms;
-   SortTable_p sort_table;
+   TypeBank_p sort_table;
 
-   sort_table = DefaultSortTableAlloc();
+   sort_table = TypeBankAlloc();
    sig =   SigAlloc(sort_table);
    SigInsertInternalCodes(sig);
    /* We assume free numers for LTB to avoid problems with the
@@ -387,10 +387,10 @@ void StructFOFSpecFree(StructFOFSpec_p ctrl)
 
    if(ctrl->sig)
    {
-      if(ctrl->sig->sort_table)
+      if(ctrl->sig->type_bank)
       {
-         SortTableFree(ctrl->sig->sort_table);
-         ctrl->sig->sort_table = NULL;
+         TypeBankFree(ctrl->sig->type_bank);
+         ctrl->sig->type_bank = NULL;
       }
       SigFree(ctrl->sig);
       ctrl->terms->sig = NULL;

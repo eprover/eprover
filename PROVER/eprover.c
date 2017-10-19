@@ -28,7 +28,7 @@
 #include <cio_signals.h>
 #include <ccl_unfold_defs.h>
 #include <ccl_formulafunc.h>
-#include <cte_simplesorts.h>
+#include <cte_simpletypes.h>
 #include <cco_scheduling.h>
 #include <e_version.h>
 
@@ -97,6 +97,8 @@ char              *sine=NULL;
 pid_t              pid = 0;
 
 FunctionProperties free_symb_prop = FPIgnoreProps;
+
+bool ProblemIsHO;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */

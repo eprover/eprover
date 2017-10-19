@@ -569,7 +569,7 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
       }
    }
 
-   if(lterm->sort != rterm->sort)
+   if(lterm->type != rterm->type)
    {
       TermAssertSameSort(bank->sig, lterm, rterm);
    }
@@ -691,7 +691,7 @@ Term_p EqnTermsTBTermEncode(TB_p bank, Term_p lterm, Term_p rterm, bool
    handle = TermDefaultCellAlloc();
    handle->arity = 2;
    handle->f_code = SigGetEqnCode(bank->sig, positive);
-   handle->sort = STBool;
+   handle->type = bank->sig->type_bank->bool_type;
    assert(handle->f_code);
    handle->args = TermArgArrayAlloc(2);
    if(dir == PENormal)

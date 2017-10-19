@@ -31,6 +31,7 @@ Changes
 #include <clb_properties.h>
 #include <cte_functypes.h>
 #include <cte_simpletypes.h>
+#include <cte_typebanks.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -132,8 +133,7 @@ typedef struct sigcell
    FunCode   answer_code;       /* For answer literals */
 
    /* Sort and type banks (type => sort, but a shortcut is useful) */
-   SortTable_p sort_table;
-   TypeTable_p type_table;
+   TypeBank_p  type_bank;
 
    /* Counters for generating new symbols */
    long      skolem_count;
@@ -188,7 +188,7 @@ extern bool      SigSupportLists; /* Auto-Insert special symbols
 #define SigCellAlloc() (SigCell*)SizeMalloc(sizeof(SigCell))
 #define SigCellFree(junk)         SizeFree(junk, sizeof(SigCell))
 
-Sig_p   SigAlloc(SortTable_p sort_table);
+Sig_p   SigAlloc();
 void    SigInsertInternalCodes(Sig_p sig);
 void    SigFree(Sig_p junk);
 #define SigExternalSymbols(sig) \
@@ -248,7 +248,7 @@ FunCode SigGetNewSkolemCode(Sig_p sig, int arity);
 FunCode SigGetNewPredicateCode(Sig_p sig, int arity);
 
 /* Types */
-#define SigDefaultSort(sig)  ((sig)->sort_table->default_type)
+#define SigDefaultSort(sig)  ((sig)->type_bank->default_type)
 #define SigGetType(sig, f)   ((sig)->f_info[(f)].type)
 void    SigDeclareType(Sig_p sig, FunCode f, Type_p type);
 void    SigDeclareFinalType(Sig_p sig, FunCode f, Type_p type);

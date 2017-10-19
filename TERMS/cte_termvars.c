@@ -124,13 +124,13 @@ void clear_env_stack(VarBank_p bank)
 //
 /----------------------------------------------------------------------*/
 
-VarBank_p VarBankAlloc(SortTable_p sort_table)
+VarBank_p VarBankAlloc(TypeBank_p type_bank)
 {
    VarBank_p handle;
 
    handle = VarBankCellAlloc();
    handle->v_count = 0;
-   handle->sort_table = sort_table;
+   handle->type_bank = type_bank;
    handle->max_var = 0;
    handle->stacks = PDArrayAlloc(INITIAL_SORT_STACK_SIZE, 5);
    handle->ext_index = NULL;
@@ -194,7 +194,7 @@ void VarBankFree(VarBank_p junk)
 // Side Effects    : memory operations
 //
 /----------------------------------------------------------------------*/
-VarBankStack_p VarBankCreateStack(VarBank_p bank, SortType sort)
+VarBankStack_p VarBankCreateStack(VarBank_p bank, TypeUniqueID sort)
 {
    VarBankStack_p res;
 
@@ -339,12 +339,12 @@ void VarBankVarsDelProp(VarBank_p bank, TermProperties prop)
 //
 /----------------------------------------------------------------------*/
 
-Term_p VarBankFCodeFind(VarBank_p bank, FunCode f_code, SortType sort)
+Term_p VarBankFCodeFind(VarBank_p bank, FunCode f_code, Type_p type)
 {
    VarBankStack_p stack;
 
    assert(f_code<0);
-   stack = VarBankGetStack(bank, sort);
+   stack = VarBankGetStack(bank, type->type_uid);
    return PDArrayElementP(stack, -f_code);
 }
 
@@ -389,7 +389,7 @@ Term_p VarBankExtNameFind(VarBank_p bank, char* name)
 //
 /----------------------------------------------------------------------*/
 
-Term_p VarBankVarAlloc(VarBank_p bank, FunCode f_code, SortType sort)
+Term_p VarBankVarAlloc(VarBank_p bank, FunCode f_code, Type_p type)
 {
    Term_p var;
 
@@ -401,12 +401,12 @@ Term_p VarBankVarAlloc(VarBank_p bank, FunCode f_code, SortType sort)
    var->f_count = 0;
    var->entry_no = f_code;
    var->f_code = f_code;
-   var->sort = sort;
+   var->type = type;
 
-   PDArrayAssignP(VarBankGetStack(bank, sort), -f_code, var);
+   PDArrayAssignP(VarBankGetStack(bank, type->type_uid), -f_code, var);
    bank->max_var = MAX(-f_code, bank->max_var);
 
-   assert(var->sort != STNoSort);
+   assert(var->type);
 
    return var;
 }
@@ -431,11 +431,11 @@ Term_p VarBankVarAlloc(VarBank_p bank, FunCode f_code, SortType sort)
 //
 /----------------------------------------------------------------------*/
 
-Term_p  VarBankGetFreshVar(VarBank_p bank, SortType sort)
+Term_p  VarBankGetFreshVar(VarBank_p bank, Type_p type)
 {
    bank->v_count+=2;
 
-   return VarBankVarAssertAlloc(bank, -(bank->v_count), sort);
+   return VarBankVarAssertAlloc(bank, -(bank->v_count), type);
 }
 
 
@@ -467,7 +467,7 @@ Term_p VarBankExtNameAssertAlloc(VarBank_p bank, char* name)
 
    if(!var)
    {
-      var = VarBankGetFreshVar(bank, bank->sort_table->default_type);
+      var = VarBankGetFreshVar(bank, bank->type_bank->default_type);
       handle = StrTreeCellAlloc();
       handle->key = SecureStrdup(name);
       handle->val1.p_val = var;
@@ -493,7 +493,7 @@ Term_p VarBankExtNameAssertAlloc(VarBank_p bank, char* name)
 //
 /----------------------------------------------------------------------*/
 
-Term_p VarBankExtNameAssertAllocSort(VarBank_p bank, char* name, SortType sort)
+Term_p VarBankExtNameAssertAllocSort(VarBank_p bank, char* name, Type_p type)
 {
    Term_p    var;
    StrTree_p handle, test;
@@ -502,14 +502,14 @@ Term_p VarBankExtNameAssertAllocSort(VarBank_p bank, char* name, SortType sort)
    if(Verbose>=5)
    {
       fprintf(stderr, "Alloc variable %s with sort ", name);
-      SortPrintTSTP(stderr, bank->sort_table, sort);
+      TypePrintTSTP(stderr, bank->type_bank, type);
       fputc('\n', stderr);
    }
 
    handle = StrTreeFind(&(bank->ext_index), name);
    if(!handle)
    {
-      var = VarBankGetFreshVar(bank, sort);
+      var = VarBankGetFreshVar(bank, type);
       handle = StrTreeCellAlloc();
       handle->key = SecureStrdup(name);
       handle->val1.p_val = var;
@@ -520,14 +520,14 @@ Term_p VarBankExtNameAssertAllocSort(VarBank_p bank, char* name, SortType sort)
    else
    {
       var = handle->val1.p_val;
-      if(var->sort != sort)
+      if(var->type != type)
       {
          /* save old var name */
          named = var_named_new(var, name);
          PStackPushP(bank->env, named);
 
          /* replace by new variable (of given sort) */
-         var = VarBankGetFreshVar(bank, sort);
+         var = VarBankGetFreshVar(bank, type);
          handle->val1.p_val = var;
          handle->val2.i_val = var->f_code;
       }

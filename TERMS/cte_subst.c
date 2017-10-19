@@ -161,7 +161,7 @@ PStackPointer SubstNormTerm(Term_p term, Subst_p subst, VarBank_p vars)
       {
          if(!TermCellQueryProp(term, TPSpecialFlag))
          {
-            Term_p newvar = VarBankGetFreshVar(vars, term->sort);
+            Term_p newvar = VarBankGetFreshVar(vars, term->type);
             TermCellSetProp(newvar, TPSpecialFlag);
             SubstAddBinding(subst, term, newvar);
          }

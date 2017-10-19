@@ -38,7 +38,7 @@
 
 typedef struct proofstatecell
 {
-   SortTable_p   sort_table;
+   TypeBank_p    type_bank;
    Sig_p         signature;
    long          original_symbols;
    TB_p          terms;

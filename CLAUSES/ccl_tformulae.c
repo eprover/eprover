@@ -559,7 +559,7 @@ TFormula_p TFormulaFCodeAlloc(TB_p bank, FunCode op, TFormula_p arg1, TFormula_p
    assert(EQUIV((arity==2), arg2));
 
    res = TermTopAlloc(op,arity);
-   res->sort = STBool;
+   res->type = bank->sig->type_bank->bool_type;
    if(SigIsPredicate(bank->sig, op))
    {
       TermCellSetProp(res, TPPredPos);
@@ -720,20 +720,20 @@ void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms, bo
          fputs("![", out);
       }
       TermPrint(out, form->args[0], bank->sig, DEREF_NEVER);
-      if(form->args[0]->sort != STIndividuals)
+      if(!TypeIsIndividual(form->args[0]->type))
       {
          fputs(":", out);
-         SortPrintTSTP(out, bank->sig->sort_table, form->args[0]->sort);
+         TypePrintTSTP(out, bank->sig->type_bank, form->args[0]->type);
       }
       while(form->args[1]->f_code == quantifier)
       {
          form = form->args[1];
          fputs(", ", out);
          TermPrint(out, form->args[0], bank->sig, DEREF_NEVER);
-         if(form->args[0]->sort != STIndividuals)
+         if(!TypeIsIndividual(form->args[0]->type))
          {
             fputs(":", out);
-            SortPrintTSTP(out, bank->sig->sort_table, form->args[0]->sort);
+            TypePrintTSTP(out, bank->sig->type_bank, form->args[0]->type);
          }
       }
       fputs("]:", out);

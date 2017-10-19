@@ -134,9 +134,9 @@ bool SubstComputeMatch(Term_p matcher, Term_p to_match, Subst_p subst)
 
       if(TermIsVar(matcher))
       {
-         assert(matcher->sort != STNoSort);
-         assert(to_match->sort != STNoSort);
-         if(matcher->sort != to_match->sort)
+         assert(matcher->type);
+         assert(to_match->type);
+         if(matcher->type != to_match->type)
          {
             res = false;
             break;
@@ -248,10 +248,10 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
       {
          if(t1 != t2)
          {
-            assert(t1->sort != STNoSort);
-            assert(t2->sort != STNoSort);
+            assert(t1->type);
+            assert(t2->type);
             /* Sort check and occur check - remember, variables are elementary and shared! */
-            if((t1->sort != t2->sort) || occur_check(t2, t1))
+            if((t1->type != t2->type) || occur_check(t2, t1))
             {
                res = false;
                break;

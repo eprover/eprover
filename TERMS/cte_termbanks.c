@@ -28,6 +28,7 @@
 
 #include "cte_termbanks.h"
 #include "cte_typecheck.h"
+#include <cte_typebanks.h>
 
 
 
@@ -133,10 +134,10 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
    assert(!TermIsVar(t));
 
    /* Infer the sort of this term (may be temporary) */
-   if(t->sort == STNoSort)
+   if(t->type == NULL)
    {
       TypeInferSort(bank->sig, t);
-      assert(t->sort != STNoSort);
+      assert(t->type != NULL);
    }
    bank->insertions++;
 
@@ -393,16 +394,16 @@ TB_p TBAlloc(Sig_p sig)
    handle->ext_index = PDIntArrayAlloc(1,100000);
    handle->garbage_state = TPIgnoreProps;
    handle->sig = sig;
-   handle->vars = VarBankAlloc(sig->sort_table);
+   handle->vars = VarBankAlloc(sig->type_bank);
    TermCellStoreInit(&(handle->term_store));
 
    term = TermConstCellAlloc(SIG_TRUE_CODE);
-   term->sort = STBool;
+   term->type = sig->type_bank->bool_type;
    TermCellSetProp(term, TPPredPos);
    handle->true_term = TBInsert(handle, term, DEREF_NEVER);
    TermFree(term);
    term = TermConstCellAlloc(SIG_FALSE_CODE);
-   term->sort = STBool;
+   term->type = sig->type_bank->bool_type;
    TermCellSetProp(term, TPPredPos);
    handle->false_term = TBInsert(handle, term, DEREF_NEVER);
    TermFree(term);
@@ -506,7 +507,7 @@ Term_p TBInsert(TB_p bank, Term_p term, DerefType deref)
 
    if(TermIsVar(term))
    {
-      t = VarBankVarAssertAlloc(bank->vars, term->f_code, term->sort);
+      t = VarBankVarAssertAlloc(bank->vars, term->f_code, term->type);
    }
    else
    {
@@ -548,7 +549,7 @@ Term_p TBInsertNoProps(TB_p bank, Term_p term, DerefType deref)
 
    if(TermIsVar(term))
    {
-      t = VarBankVarAssertAlloc(bank->vars, term->f_code, term->sort);
+      t = VarBankVarAssertAlloc(bank->vars, term->f_code, term->type);
    }
    else
    {
@@ -599,7 +600,7 @@ Term_p  TBInsertRepl(TB_p bank, Term_p term, DerefType deref, Term_p old, Term_p
 
    if(TermIsVar(term))
    {
-      t = VarBankVarAssertAlloc(bank->vars, term->f_code, term->sort);
+      t = VarBankVarAssertAlloc(bank->vars, term->f_code, term->type);
    }
    else
    {
@@ -657,7 +658,7 @@ Term_p TBInsertInstantiated(TB_p bank, Term_p term)
 
    if(TermIsVar(term))
    {
-      t = VarBankVarAssertAlloc(bank->vars, term->f_code, term->sort);
+      t = VarBankVarAssertAlloc(bank->vars, term->f_code, term->type);
    }
    else
    {
@@ -708,7 +709,7 @@ Term_p TBInsertOpt(TB_p bank, Term_p term, DerefType deref)
 
    if(TermIsVar(term))
    {
-      t = VarBankVarAssertAlloc(bank->vars, term->f_code, term->sort);
+      t = VarBankVarAssertAlloc(bank->vars, term->f_code, term->type);
    }
    else
    {
@@ -756,7 +757,7 @@ Term_p  TBInsertDisjoint(TB_p bank, Term_p term)
 
    if(TermIsVar(term))
    {
-      t = VarBankVarAssertAlloc(bank->vars, term->f_code+1, term->sort);
+      t = VarBankVarAssertAlloc(bank->vars, term->f_code+1, term->type);
    }
    else
    {
@@ -808,11 +809,11 @@ Term_p TBTermTopInsert(TB_p bank, Term_p t)
 //
 /----------------------------------------------------------------------*/
 
-Term_p TBAllocNewSkolem(TB_p bank, PStack_p variables, SortType sort)
+Term_p TBAllocNewSkolem(TB_p bank, PStack_p variables, Type_p type)
 {
    Term_p handle, res;
 
-   handle = TermAllocNewSkolem(bank->sig, variables, sort);
+   handle = TermAllocNewSkolem(bank->sig, variables, type);
    res = TBInsert(bank, handle, DEREF_NEVER);
    TermFree(handle);
 
@@ -836,7 +837,7 @@ Term_p TBFind(TB_p bank, Term_p term)
 {
    if(TermIsVar(term))
    {
-      return VarBankFCodeFind(bank->vars, term->f_code, term->sort);
+      return VarBankFCodeFind(bank->vars, term->f_code, term->type);
    }
    return TermCellStoreFind(&(bank->term_store), term);
 }
@@ -1019,12 +1020,12 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
    DStr_p        id;
    FuncSymbType  id_type;
    DStr_p        source_name, errpos;
-   SortType      sort;
+   Type_p        type;
    long          line, column;
-   StreamType    type;
+   StreamType    type_stream;
 
    source_name = DStrGetRef(AktToken(in)->source);
-   type        = AktToken(in)->stream_type;
+   type_stream        = AktToken(in)->stream_type;
    line = AktToken(in)->line;
    column = AktToken(in)->column;
 
@@ -1043,7 +1044,7 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
          {
             /* Error: Abbreviation defined twice */
             errpos = DStrAlloc();
-            DStrAppendStr(errpos, PosRep(type, source_name, line, column));
+            DStrAppendStr(errpos, PosRep(type_stream, source_name, line, column));
             DStrAppendStr(errpos, "Abbreviation *");
             DStrAppendInt(errpos, abbrev);
             DStrAppendStr(errpos, " already defined");
@@ -1073,7 +1074,7 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
          {
             /* Error: Undefined abbrev */
             errpos = DStrAlloc();
-            DStrAppendStr(errpos, PosRep(type, source_name, line, column));
+            DStrAppendStr(errpos, PosRep(type_stream, source_name, line, column));
             DStrAppendStr(errpos, "Abbreviation *");
             DStrAppendInt(errpos, abbrev);
             DStrAppendStr(errpos, " undefined");
@@ -1101,9 +1102,9 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
             if(TestInpTok(in, Colon))
             {
                AcceptInpTok(in, Colon);
-               sort = SortParseTSTP(in, bank->sig->sort_table);
+               type = TypeBankParseType(in, bank->sig->type_bank);
                handle = VarBankExtNameAssertAllocSort(bank->vars,
-                                                      DStrView(id), sort);
+                                                      DStrView(id), type);
             }
             else
             {
@@ -1161,7 +1162,7 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
             if(!handle->f_code)
             {
                errpos = DStrAlloc();
-               DStrAppendStr(errpos, PosRep(type, source_name, line, column));
+               DStrAppendStr(errpos, PosRep(type_stream, source_name, line, column));
                DStrAppendStr(errpos, DStrView(id));
                DStrAppendStr(errpos, " used with arity ");
                DStrAppendInt(errpos, (long)handle->arity);

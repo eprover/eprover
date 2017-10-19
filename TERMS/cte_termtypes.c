@@ -122,25 +122,27 @@ void TermFree(Term_p junk)
 //
 /----------------------------------------------------------------------*/
 
-Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, SortType sort)
+Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, Type_p type)
 {
    Term_p handle = TermDefaultCellAlloc();
    PStackPointer arity = PStackGetSP(variables), i;
-   Type_p type;
-   SortType *type_args;
+   Type_p *type_args;
 
-   if(sort == STNoSort)
+   if(!type)
    {
-      sort = SigDefaultSort(sig);
+      type = SigDefaultSort(sig);
    }
 
-   if(sort != STBool)
+   Type_p ret;
+   if(!(TypeIsBool(type) || (type->arity && TypeIsBool(type->args[type->arity-1]))))
    {
       handle->f_code = SigGetNewSkolemCode(sig, arity);
+      ret = SigDefaultSort(sig);
    }
    else
    {
       handle->f_code = SigGetNewPredicateCode(sig, arity);
+      ret = sig->type_bank->bool_type;
    }
 
    // declare type
@@ -148,22 +150,23 @@ Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, SortType sort)
    {
       handle->arity = arity;
       handle->args = TermArgArrayAlloc(arity);
-      type_args = TypeArgumentAlloc(arity);
+      type_args = TypeArgArrayAlloc(arity+1);
       for(i=0; i<arity; i++)
       {
          handle->args[i] = PStackElementP(variables, i);
-         type_args[i] = handle->args[i]->sort;
-         assert(type_args[i] != STNoSort);
+         type_args[i] = handle->args[i]->type;
+         assert(type_args[i]);
       }
-      type = TypeNewFunction(sig->type_table, sort, arity, type_args);
-      TypeArgumentFree(type_args, arity);
+      type_args[arity] = ret;
    }
    else
    {
-      type = TypeNewConstant(sig->type_table, sort);
+      type = ret;
    }
+
+   type = TypeBankInsertTypeShared(sig->type_bank, type);
    SigDeclareType(sig, handle->f_code, type);
-   handle->sort = sort;
+   handle->type = type;
 
    return handle;
 }
@@ -426,7 +429,7 @@ bool TermHasInterpretedSymbol(Term_p term)
    {
       term  = PStackPopP(stack);
       /* printf("#Fcode: %ld  Sort: %d\n", term->f_code, term->sort); */
-      if(SortIsInterpreted(term->sort))
+      if(SortIsInterpreted(term->type->f_code))
       {
          res = true;
          break;

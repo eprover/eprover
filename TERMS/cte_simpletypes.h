@@ -26,7 +26,7 @@ Changes
 #define CTE_SIMPLETYPES
 
 #include "cio_scanner.h"
-#include "cte_simplesorts.h"
+#include <clb_ptrees.h>
 
 #define STNoSort      0
 #define STBool        1     /* Boolean sort, will replace/extend the predicate bit */
@@ -38,14 +38,14 @@ Changes
 #define ArrowTypeCons 7
 #define STPredefined  ArrowTypeCons
 
-typedef long      UniqueId;
-typedef FunCode   TypeConsCode;
+typedef long  TypeUniqueID;
+typedef long  TypeConsCode;
 
 typedef struct typecell {
    TypeConsCode      f_code; // Called the same as for terms.
    int               arity;
    struct typecell** args;
-   UniqueId          type_uid;
+   TypeUniqueID      type_uid;
 } TypeCell, *Type_p;
 
 #define SortIsUserDefined(sort) (sort > STPredefined)
@@ -58,30 +58,50 @@ typedef struct typecell {
 #define TypeIsBool(t)   ((t)->f_code == STBool)
 #define TypeIsArrow(t)  ((t)->f_code == ArrowTypeCons)
 
-#define TypeCellAlloc()    (Type_p) SizeMalloc(sizeof(typecell))
-#define TypeCellFree(junk) SizeFree(junk, sizeof(typecell))
+#define TypeCellAlloc()    (Type_p) SizeMalloc(sizeof(TypeCell))
+#define TypeCellFree(junk) SizeFree(junk, sizeof(TypeCell))
+
+void TypeFree(Type_p junk);
 
 
-static __inline__ TypeAlloc(TypeConsCode c_code, int arity, Type_p args)
+static __inline__ Type_p TypeAlloc(TypeConsCode c_code, int arity, Type_p* args)
 {
    Type_p handle = TypeCellAlloc();
 
    handle->f_code = c_code;
    handle->arity  = arity;
    handle->args   = args;
-   handle->uid    = INVALID_TYPE_UID;
+   handle->type_uid  = INVALID_TYPE_UID;
+
+   return handle;
 }
 
-Type_p  TypeCopy(Type p);
+Type_p  TypeCopy(Type_p orig);
 
-#define AllocSimpleSort(code)       TypeAlloc(c_code, 0, NULL)
+#define AllocSimpleSort(code)       TypeAlloc(code, 0, NULL)
 #define AllocArrowType(arity, args) TypeAlloc(ArrowTypeCons, arity, args)
 
 #define TypeArgArrayAlloc(n) (Type_p*) SizeMalloc(n*sizeof(Type_p))
 
-#define  TypeIsArrow(t) ((t)->f_code == ArrowTypeCons)
-#define  TypeIsKind(t)  ((t)->f_code == STKind)
-#define  TypeIsTypeConstructor (TypeIsKind(t) || TypeIsArrow(t) && TypeIsKind((t)->args[0]))
+#define  TypeIsArrow(t)       ((t)->f_code == ArrowTypeCons)
+#define  TypeIsKind(t)        ((t)->f_code == STKind)
+#define  TypeIsIndividual(t)  ((t)->f_code == STIndividuals)
+#define  TypeIsTypeConstructor(t) (TypeIsKind(t) || (TypeIsArrow(t) && TypeIsKind((t)->args[0])))
+
+static __inline__ int  TypesCmp(Type_p t1, Type_p t2)
+{
+   int res = t1->f_code - t2->f_code;
+   if (!res)
+   {     
+     assert(t1->arity == t2->arity);
+     for(int i=0; i<t1->arity && !res; i++)
+     {
+        res = PCmp(t1->args[i], t2->args[i]);
+     }
+   }
+
+   return res;
+}
 
 
 #endif
