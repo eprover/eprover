@@ -316,7 +316,7 @@ bool SigIsPredicate(Sig_p sig, FunCode f_code)
       return true;
    }
    type = SigGetType(sig, f_code);
-   return type && type->domain_sort == STBool;
+   return type && TypeIsBool(type);
 }
 
 
@@ -345,7 +345,7 @@ bool SigIsFunction(Sig_p sig, FunCode f_code)
    }
 
    type = SigGetType(sig, f_code);
-   return type && type->domain_sort != STBool;
+   return type && !TypeIsBool(type);
 }
 
 
@@ -1252,7 +1252,7 @@ void SigDeclareType(Sig_p sig, FunCode f, Type_p type)
    if(fun->type)
    {
       /* type already declared, check it's the same */
-      if(!TypeEqual(fun->type, type))
+      if(fun->type != type)
       {
          if(SigIsFixedType(sig, f))
          {
@@ -1260,9 +1260,9 @@ void SigDeclareType(Sig_p sig, FunCode f, Type_p type)
             {
                fprintf(stderr, "# Type conflict for %s between ",
                        SigFindName(sig, f));
-               TypePrintTSTP(stderr, sig->type_table, fun->type);
+               TypePrintTSTP(stderr, sig->type_bank, fun->type);
                fprintf(stderr, " and ");
-               TypePrintTSTP(stderr, sig->type_table, type);
+               TypePrintTSTP(stderr, sig->type_bank, type);
                fprintf(stderr, "\n");
             }
             Error("type error", INPUT_SEMANTIC_ERROR);
@@ -1272,7 +1272,7 @@ void SigDeclareType(Sig_p sig, FunCode f, Type_p type)
             if(Verbose >= 2)
             {
                fprintf(stderr, "# type re-declaration %s: ", SigFindName(sig, f));
-               TypePrintTSTP(stderr, sig->type_table, type);
+               TypePrintTSTP(stderr, sig->type_bank, type);
                fprintf(stderr, "\n");
             }
             fun->type = type;
@@ -1284,7 +1284,7 @@ void SigDeclareType(Sig_p sig, FunCode f, Type_p type)
       if(Verbose >= 2)
       {
          fprintf(stderr, "# type declaration %s: ", SigFindName(sig, f));
-         TypePrintTSTP(stderr, sig->type_table, type);
+         TypePrintTSTP(stderr, sig->type_bank, type);
          fprintf(stderr, "\n");
       }
       fun->type = type;
@@ -1334,12 +1334,14 @@ void SigDeclareIsFunction(Sig_p sig, FunCode f_code)
    }
 
    type = SigGetType(sig, f_code);
-   assert(type->domain_sort != STNoSort);
+   assert(type);
 
    /* must update type */
-   if(type->domain_sort == STBool)
+   if(TypeIsBool(type))
    {
-      new_type = TypeCopyWithReturn(sig->type_table, type, SigDefaultSort(sig));
+      new_type = TypeChangeReturnType(sig->type_bank, type, SigDefaultSort(sig));
+      assert(new_type->unique_id != INVALID_ID);
+
       SigDeclareFinalType(sig, f_code, new_type);
    }
    else
@@ -1375,7 +1377,7 @@ void SigDeclareIsPredicate(Sig_p sig, FunCode f_code)
    /* must update type */
    if(type->domain_sort != STBool)
    {
-      new_type = TypeCopyWithReturn(sig->type_table, type, STBool);
+      new_type = TypeChangeReturnType(sig->type_bank, type, sig->type_bank->type_bool);
       SigDeclareFinalType(sig, f_code, new_type);
    }
    else
@@ -1495,7 +1497,7 @@ void SigParseTFFTypeDeclaration(Scanner_p in, Sig_p sig)
 
    /* parse type */
    AcceptInpTok(in, Colon);
-   type = TypeParseTSTP(in, sig->type_table);
+   type = TypeBankParseType(in, sig->type_bank);
 
    if(within_paren)
    {
@@ -1503,7 +1505,7 @@ void SigParseTFFTypeDeclaration(Scanner_p in, Sig_p sig)
    }
 
    /* we only keep declarations of symbols, not declaration of types */
-   if(type->domain_sort != STKind)
+   if(!TypeIsTypeConstructor(type))
    {
       f = SigInsertId(sig, DStrView(id), type->arity, false);
       SigDeclareType(sig, f, type);

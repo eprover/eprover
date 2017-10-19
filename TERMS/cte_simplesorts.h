@@ -39,26 +39,7 @@ Changes
  *
  * User sorts are integers bigger than STPredefined. */
 
-typedef int SortType;
 
-#define STNoSort      0
-#define STBool        1     /* Boolean sort, will replace/extend the predicate bit */
-#define STIndividuals 2     /* Default sort, "individuums" */
-#define STKind        3     /* The "sort of sorts", $tType in TFF */
-#define STInteger     4     /* Integer numbers */
-#define STRational    5     /* Rational numbers */
-#define STReal        6     /* Reals */
-#define STPredefined  STReal
-
-/*---------------------------------------------------------------------*/
-/*                Exported Functions and Variables                     */
-/*---------------------------------------------------------------------*/
-
-#define SortTableCellAlloc()    (SortTableCell*)SizeMalloc(sizeof(SortTableCell))
-#define SortTableCellFree(junk) SizeFree(junk, sizeof(SortTableCell))
-#define SortIsUserDefined(sort) (sort > STPredefined)
-
-#define SortIsInterpreted(sort) (((sort)>=STInteger)&&((sort)<=STReal))
 
 #endif
 

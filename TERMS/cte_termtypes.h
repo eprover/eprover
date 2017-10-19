@@ -131,7 +131,7 @@ typedef struct termcell
    unsigned int     v_count;       /* Number of variables, if term is in term bank */
    unsigned int     f_count;       /* Number of function symbols, if term is in term bank */
    RewriteState     rw_data;       /* See above */
-   SortType         sort;          /* Sort of the term */
+   Type_p           type;          /* Sort of the term */
    struct termcell* lson;          /* For storing shared term nodes in */
    struct termcell* rson;          /* a splay tree - see
                                       cte_termcellstore.[ch] */

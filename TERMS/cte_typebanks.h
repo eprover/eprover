@@ -3,6 +3,8 @@
 
 #define TYPEBANK_SIZE 2048
 
+#define NAME_NOT_FOUND          -1
+
 #define GetNameId(node)       (node)->val1.i_val;
 #define GetArity(node)        (node)->val2.i_val;
 
@@ -20,9 +22,12 @@ typedef struct typebank_cell {
 
 TypeBank_p TypeBankAlloc(void);
 
-Type_p InsertTypeShared(TypeBank_p bank, Type_p t);
+Type_p 		 InsertTypeShared(TypeBank_p bank, Type_p t);
 TypeConsCode DefineTypeConstructor(TypeBank_p bank, const char* name, int arity);
-SortType DefineSimpleSort(TypeBank bank, const char* name);
+SortType 	 DefineSimpleSort(TypeBank bank, const char* name);
+
+TypeConsCode FindTCCode(TypeBank_p bank, const char* name);
+
 
 #endif
 
