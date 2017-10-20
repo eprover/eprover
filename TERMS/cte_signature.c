@@ -113,7 +113,7 @@ static void sig_compute_alpha_ranks(Sig_p sig)
 //
 /----------------------------------------------------------------------*/
 
-Sig_p SigAlloc()
+Sig_p SigAlloc(TypeBank_p bank)
 {
    Sig_p handle;
 
@@ -127,7 +127,7 @@ Sig_p SigAlloc()
    handle->f_index = NULL;
    handle->ac_axioms = PStackAlloc();
 
-   handle->type_bank = TypeBankAlloc();
+   handle->type_bank = bank;
 
    SigInsertId(handle, "$true", 0, true);
    assert(SigFindFCode(handle, "$true")==SIG_TRUE_CODE);
@@ -321,7 +321,7 @@ bool SigIsPredicate(Sig_p sig, FunCode f_code)
       return true;
    }
    type = SigGetType(sig, f_code);
-   return type && TypeIsBool(type);
+   return type && TypeIsPredicate(type);
 }
 
 
@@ -350,7 +350,7 @@ bool SigIsFunction(Sig_p sig, FunCode f_code)
    }
 
    type = SigGetType(sig, f_code);
-   return type && !TypeIsBool(type);
+   return type && !TypeIsPredicate(type);
 }
 
 
@@ -1380,7 +1380,7 @@ void SigDeclareIsPredicate(Sig_p sig, FunCode f_code)
    assert(type);
 
    /* must update type */
-   if(TypeIsBool(type))
+   if(!TypeIsBool(type))
    {
       new_type = TypeChangeReturnType(sig->type_bank, type, sig->type_bank->bool_type);
       SigDeclareFinalType(sig, f_code, new_type);

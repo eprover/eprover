@@ -188,7 +188,7 @@ extern bool      SigSupportLists; /* Auto-Insert special symbols
 #define SigCellAlloc() (SigCell*)SizeMalloc(sizeof(SigCell))
 #define SigCellFree(junk)         SizeFree(junk, sizeof(SigCell))
 
-Sig_p   SigAlloc();
+Sig_p   SigAlloc(TypeBank_p bank);
 void    SigInsertInternalCodes(Sig_p sig);
 void    SigFree(Sig_p junk);
 #define SigExternalSymbols(sig) \

@@ -58,6 +58,8 @@ typedef struct typecell {
 #define TypeIsBool(t)   ((t)->f_code == STBool)
 #define TypeIsArrow(t)  ((t)->f_code == ArrowTypeCons)
 
+#define TypeIsPredicate(t) (TypeIsBool(t) || (TypeIsArrow(t) && TypeIsBool((t)->args[(t)->arity-1])))
+
 #define TypeCellAlloc()    (Type_p) SizeMalloc(sizeof(TypeCell))
 #define TypeCellFree(junk) SizeFree(junk, sizeof(TypeCell))
 
@@ -91,8 +93,9 @@ Type_p  TypeCopy(Type_p orig);
 static __inline__ int  TypesCmp(Type_p t1, Type_p t2)
 {
    int res = t1->f_code - t2->f_code;
+
    if (!res)
-   {     
+   {      
      assert(t1->arity == t2->arity);
      for(int i=0; i<t1->arity && !res; i++)
      {

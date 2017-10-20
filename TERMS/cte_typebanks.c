@@ -1,5 +1,6 @@
 #include "cte_typebanks.h"
 #include "cte_functypes.h"
+#include <clb_verbose.h>
 
 #define REALLOC_STEP       16
 
@@ -40,7 +41,9 @@ int cmp_types(const void* el1, const void* el2)
    Type_p t1 = (Type_p)el1;
    Type_p t2 = (Type_p)el2;
 
-   return TypesCmp(t1 , t2);
+   int res =  TypesCmp(t1 , t2);
+
+   return res;
 }
 
 
@@ -63,7 +66,7 @@ static __inline__ void type_arg_realloc(Type_p** args, int current, int new)
 TypeBank_p TypeBankAlloc()
 {
    TypeBank_p handle = TypeBankCellAlloc();
-
+   
    handle->back_idx = PStackAlloc();
    handle->name_idx = NULL;
 
@@ -120,22 +123,31 @@ Type_p TypeBankInsertTypeShared(TypeBank_p bank, Type_p t)
    assert(bank);
    assert(t);
    Type_p res;
+
+   handle_args(bank, t);
    if (t->type_uid == INVALID_TYPE_UID)
    {
-      // if unique_id is set -- then the object must be present.
-      res = (Type_p) PTreeObjStore(bank->hash_table + hash_type(t), t, cmp_types);
+      res = (Type_p) PTreeObjStore(&(bank->hash_table[hash_type(t)]), t, cmp_types);
+
       if (res == NULL)
       {
          res = t;
          res->type_uid = ++bank->types_count;
+         if (Verbose > 3)
+         {
+            fprintf(stderr, "Had to insert type ");
+            TypePrintTSTP(stderr, bank, t);
+            fprintf(stderr, ".\n");
+         }
       }
       else
-      {
+      {         
          TypeFree(t);
       }
    }
    else
    {
+      assert(PTreeObjFind(bank->hash_table + hash_type(t), t, cmp_types));
       res = t;
    }
 
@@ -480,6 +492,7 @@ void TypePrintTSTP(FILE* out, TypeBank_p bank, Type_p type)
          {
             TypePrintTSTP(out, bank, type->args[0]);
             fprintf(stderr, " > ");
+            TypePrintTSTP(out, bank, type->args[1]);
          }
          else
          {
@@ -527,7 +540,7 @@ Type_p TypeChangeReturnType(TypeBank_p bank, Type_p type, Type_p new_ret)
    assert(TypeIsArrow(type));
    
    Type_p copy = TypeCopy(type);
-   type->args[type->arity-1] = new_ret;
+   copy->args[copy->arity-1] = new_ret;
 
    return TypeBankInsertTypeShared(bank, copy);
 }

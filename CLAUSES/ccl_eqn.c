@@ -310,6 +310,7 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
    bool    positive = true;
 
    lterm = TBTermParse(in, bank);
+   
    BOOL_TERM_NORMALIZE(lterm);
 
    if(!TermIsVar(lterm) && SigIsPredicate(bank->sig,lterm->f_code) &&

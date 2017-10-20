@@ -247,14 +247,17 @@ void TypeInferSort(Sig_p sig, Term_p term)
       {
          /* Infer type */
          sort = infer_return_sort(sig, term->f_code);
-         args = TypeArgArrayAlloc(term->arity+1);
+         args = term->arity ? TypeArgArrayAlloc(term->arity+1) : NULL;
          for(i=0; i < term->arity; i++)
          {
             args[i] = term->args[i]->type;
          }
-         args[term->arity] = sort;
+         if (term->arity)
+         {
+            args[term->arity] = sort;
+         }
 
-         type = AllocArrowType(term->arity+1, args);
+         type = term->arity ? AllocArrowType(term->arity+1, args) : sort;
 
          /* Declare the inferred type */
          SigDeclareType(sig, term->f_code, type);
