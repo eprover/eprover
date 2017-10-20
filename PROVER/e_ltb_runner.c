@@ -134,6 +134,7 @@ char              *outname        = NULL;
 char              *outdir         = NULL;
 long              total_wtc_limit = 0;
 bool              interactive     = false;
+bool              ProblemIsHO     = false;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */

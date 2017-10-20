@@ -131,6 +131,8 @@ static __inline__ size_t WriteStr(int fd, const char* msg);
 #define GCC_DIAGNOSTIC_PUSH
 #endif
 
+
+extern bool ProblemIsHO;
 /*-----------------------------------------------------------------------
 //
 // Function: WriteStr()

@@ -285,7 +285,7 @@ static Term_p tb_subterm_parse(Scanner_p in, TB_p bank)
          {
             SigDeclareIsFunction(bank->sig, res->f_code);
             TypeInferSort(bank->sig, res);
-            assert(res->sort != STNoSort);
+            assert(res->type);
          }
       }
    }

@@ -123,6 +123,7 @@ char              *outname        = NULL;
 char              *server_lib     = NULL;
 long              total_wtc_limit = 0;
 int               port            = -1;
+bool              ProblemIsHO     = false;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */

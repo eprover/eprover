@@ -12,7 +12,7 @@
 #define NAME_NOT_FOUND          -1
 
 typedef struct typebank_cell {
-   PDArray_p      back_idx;                   // Type constructor or simple type back index
+   PStack_p       back_idx;                   // Type constructor or simple type back index
    StrTree_p      name_idx;                   // Name to arity, type_identifier pair
                                               // for sorts arity is always 0
    long           names_count;                // Counter for different names inserted
@@ -29,6 +29,8 @@ typedef struct typebank_cell {
 
    Type_p default_type;
 } TypeBank, *TypeBank_p;
+
+//extern bool ProblemIsHO;
 
 #define TypeBankCellAlloc()   SizeMalloc(sizeof(TypeBank));
 void    TypeBankFree(TypeBank_p junk);

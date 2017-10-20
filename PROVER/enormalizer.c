@@ -263,6 +263,7 @@ bool   print_statistics = false,
 long   give_up = 0,
        initial_literals = 0,
        initial_clauses = 0;
+bool ProblemIsHO = false;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -446,7 +447,7 @@ int main(int argc, char* argv[])
    TB_p            terms;
    GCAdmin_p       collector;
    VarBank_p       freshvars;
-   SortTable_p     sort_table;
+   TypeBank_p      typebank;
    Sig_p           sig;
    ClauseSet_p     clauses;
    FormulaSet_p    formulas, f_ax_archive;
@@ -473,8 +474,8 @@ int main(int argc, char* argv[])
       CLStateInsertArg(state, "-");
    }
 
-   sort_table   = DefaultSortTableAlloc();
-   sig          = SigAlloc(sort_table);
+   typebank     = TypeBankAlloc();
+   sig          = SigAlloc(typebank);
    SigInsertInternalCodes(sig);
    terms        = TBAlloc(sig);
    collector    = GCAdminAlloc(terms);
@@ -502,7 +503,7 @@ int main(int argc, char* argv[])
    {
       VERBOUT("Negated conjectures.\n");
    }
-   freshvars = VarBankAlloc(sort_table);
+   freshvars = VarBankAlloc(typebank);
    if(FormulaSetCNF2(formulas, f_ax_archive,
                      clauses, terms, freshvars,
                      collector, 1000))
@@ -544,7 +545,7 @@ int main(int argc, char* argv[])
    terms->sig = NULL;
    TBFree(terms);
    SigFree(sig);
-   SortTableFree(sort_table);
+   TypeBankFree(typebank);
 #endif
    if(print_rusage)
    {

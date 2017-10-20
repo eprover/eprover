@@ -237,6 +237,7 @@ bool     seed_preds   = false,
 
 SubSampleMethod subsample   = SubSNone;
 long            sample_size = LONG_MAX;
+bool            ProblemIsHO;
 
 
 /*---------------------------------------------------------------------*/

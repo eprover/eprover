@@ -355,6 +355,8 @@ float      min_quality_rel   = 0.3;
 bool       min_quality_rel_p = false;
 OutputFormatType outputformat = pcl_format;
 
+bool ProblemIsHO = false;
+
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/

@@ -96,6 +96,7 @@ OptCell opts[] =
 char   *outname = NULL;
 double neg_proportion = 1;
 long   neg_examples = 200;
+bool   ProblemIsHO = false;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */

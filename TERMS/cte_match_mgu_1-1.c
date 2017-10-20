@@ -271,9 +271,9 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
          }
          else
          {
-            assert(t1->sort != STNoSort);
-            assert(t2->sort != STNoSort);
-            assert(t1->sort == t2->sort);
+            assert(t1->type);
+            assert(t2->type);
+            assert(t1->type == t2->type);
             for(int i=t1->arity-1; i>=0; i--)
             {
                /* Delay variable bindings */

@@ -10,8 +10,6 @@
 #define type_a1hash(t) (type_a0hash(t)^(((intptr_t)(t)->args[0])>>3))
 #define type_aritynhash(t) (type_a1hash(t)^(((intptr_t)(t)->args[1])>>4))
 
-extern bool ProblemIsHO;
-
 typedef struct back_idx_info
 {
    const char* name;
@@ -66,7 +64,7 @@ TypeBank_p TypeBankAlloc()
 {
    TypeBank_p handle = TypeBankCellAlloc();
 
-   handle->back_idx = PDArrayAlloc(256, 64);
+   handle->back_idx = PStackAlloc();
    handle->name_idx = NULL;
 
    handle->names_count = 0;
@@ -104,9 +102,23 @@ TypeBank_p TypeBankAlloc()
    return handle;
 }
 
+void __inline__ handle_args(TypeBank_p bank, Type_p t)
+{
+   assert(bank);
+   assert(t);
+
+   for(int i=0; i<t->arity; i++)
+   {
+      assert(t->args[i]);
+      t->args[i] = t->args[i]->type_uid == INVALID_TYPE_UID ?
+                   TypeBankInsertTypeShared(bank, t->args[i]) : t->args[i];
+   }
+}
+
 Type_p TypeBankInsertTypeShared(TypeBank_p bank, Type_p t)
 {
    assert(bank);
+   assert(t);
    Type_p res;
    if (t->type_uid == INVALID_TYPE_UID)
    {
@@ -156,8 +168,8 @@ TypeConsCode TypeBankDefineTypeConstructor(TypeBank_p bank, const char* name, in
       IntOrP id    = {.i_val = bank->names_count++};
       IntOrP arity_iop = {.i_val = (long)arity};
       StrTreeStore(&bank->name_idx, (char*)name, id, arity_iop);
-      PDArrayStoreP(bank->back_idx, bii_alloc(name, arity));
-      assert(PDArraySize(bank->back_idx) == bank->names_count);
+      PStackPushP(bank->back_idx, bii_alloc(name, arity));
+      assert(PStackGetSP(bank->back_idx) == bank->names_count);
 
       return id.i_val;
    }
@@ -179,18 +191,18 @@ TypeConsCode TypeBankFindTCCode(TypeBank_p bank, const char* name)
 
 int TypeBankFindTCArity(TypeBank_p bank, TypeConsCode tc_code)
 {
-   assert(tc_code != INVALID_TYPE_UID && tc_code < PDArraySize(bank->back_idx));
-   assert(PDArraySize(bank->back_idx) == bank->names_count);
+   assert(tc_code != INVALID_TYPE_UID && tc_code < PStackGetSP(bank->back_idx));
+   assert(PStackGetSP(bank->back_idx) == bank->names_count);
 
-   return ((back_idx_info*)PDArrayElementP(bank->back_idx, tc_code))->arity;
+   return ((back_idx_info*)PStackElementP(bank->back_idx, tc_code))->arity;
 }
 
 const char* TypeBankFindTCName(TypeBank_p bank, TypeConsCode tc_code)
 {
-   assert(tc_code != INVALID_TYPE_UID && tc_code < PDArraySize(bank->back_idx));
-   assert(PDArraySize(bank->back_idx) == bank->names_count);
+   assert(tc_code != INVALID_TYPE_UID && tc_code < PStackGetSP(bank->back_idx));
+   assert(PStackGetSP(bank->back_idx) == bank->names_count);
 
-   return ((back_idx_info*)PDArrayElementP(bank->back_idx, tc_code))->name;
+   return ((back_idx_info*)PStackElementP(bank->back_idx, tc_code))->name;
 }
 
 Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
@@ -530,12 +542,15 @@ void TypeBankFree(TypeBank_p bank)
 {
    for(int i=0; i<PDArraySize(bank->back_idx); i++)
    {
-      back_idx_info* bii = PDArrayElementP(bank->back_idx, i);
-      FREE(bii->name);
+      back_idx_info* bii = PStackElementP(bank->back_idx, i);
+
+      void* ptr_to_free = (void*)bii->name;
+
+      FREE(ptr_to_free); // stiffing warnings
       SizeFree(bii, sizeof(back_idx_info));
    }
 
-   PDArrayFree(bank->back_idx);
+   PStackFree(bank->back_idx);
    StrTreeFree(bank->name_idx);
    for(int i=0; i<TYPEBANK_SIZE; i++)
    {

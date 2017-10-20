@@ -1345,7 +1345,7 @@ void SigDeclareIsFunction(Sig_p sig, FunCode f_code)
    if(TypeIsBool(type))
    {
       new_type = TypeChangeReturnType(sig->type_bank, type, SigDefaultSort(sig));
-      assert(new_type->unique_id != INVALID_ID);
+      assert(new_type->type_uid != INVALID_TYPE_UID);
 
       SigDeclareFinalType(sig, f_code, new_type);
    }
@@ -1377,7 +1377,7 @@ void SigDeclareIsPredicate(Sig_p sig, FunCode f_code)
    }
 
    type = SigGetType(sig, f_code);
-   assert(type->domain_sort != STNoSort);
+   assert(type);
 
    /* must update type */
    if(TypeIsBool(type))

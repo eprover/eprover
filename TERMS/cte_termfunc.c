@@ -666,7 +666,7 @@ bool TermStructEqual(Term_p t1, Term_p t2)
       return false;
    }
 
-   assert(t1->sort == t2->sort);
+   assert(t1->type == t2->type);
    assert(t1->arity == t2->arity);
    for(int i=0; i<t1->arity; i++)
    {
@@ -706,7 +706,7 @@ bool TermStructEqualNoDeref(Term_p t1, Term_p t2)
       return false;
    }
 
-   assert(t1->sort == t2->sort);
+   assert(t1->type == t2->type);
    assert(t1->arity == t2->arity);
    for(int i=0; i<t1->arity; i++)
    {
@@ -748,7 +748,7 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
       return false;
    }
 
-   assert(t1->sort == t2->sort);
+   assert(t1->type == t2->type);
    assert(t1->arity == t2->arity);
    for(int i=0; i<t1->arity; i++)
    {
@@ -851,7 +851,7 @@ long TermLexCompare(Term_p t1, Term_p t2)
       return res;
    }
 
-   assert(t1->sort == t2->sort);
+   assert(t1->type == t2->type);
    assert(t1->arity == t2->arity);
    for(i=0; i<t1->arity; i++)
    {
