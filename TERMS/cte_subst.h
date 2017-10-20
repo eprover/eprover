@@ -92,8 +92,8 @@ PStackPointer SubstAddBinding(Subst_p subst, Term_p var, Term_p bind)
    assert(TermIsVar(var));
    assert(!(var->binding));
    assert(!TermCellQueryProp(bind, TPPredPos));
-   assert(var->type != STNoSort);
-   assert(bind->type != STNoSort);
+   assert(var->type);
+   assert(bind->type);
    assert(ProblemIsHO || var->type == bind->type);
 
    /* printf("# %ld <- %ld \n", var->f_code, bind->f_code); */

@@ -56,6 +56,33 @@ void TypeTopFree(Type_p junk)
 
 void TypeFree(Type_p junk)
 {
-   SizeFree(junk->args, junk->arity*sizeof(Type_p));
+   if (junk->arity)
+   {
+      assert(junk->args);
+      SizeFree(junk->args, junk->arity*sizeof(Type_p));
+   }
+   else
+   {
+      assert(junk->args == NULL);
+   }
    TypeTopFree(junk);
+}
+
+int TypesCmp(Type_p t1, Type_p t2)
+{
+   int res = t1->f_code - t2->f_code;
+
+   // if it is not arrow type cons -> same nr of args
+   assert(!(t1->f_code == t2->f_code && t1->f_code != ArrowTypeCons) || t1->arity == t2->arity);
+
+   if (!res)
+   {      
+     res = t1->arity - t2->arity;
+     for(int i=0; i<t1->arity && !res; i++)
+     {
+        res = PCmp(t1->args[i], t2->args[i]);
+     }
+   }
+
+   return res;
 }

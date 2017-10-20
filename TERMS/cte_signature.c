@@ -264,7 +264,6 @@ void SigFree(Sig_p junk)
    {
       PDArrayFree(junk->orn_codes);
    }
-   TypeBankFree(junk->type_bank);
 
    SigCellFree(junk);
 }
@@ -1512,9 +1511,21 @@ void SigParseTFFTypeDeclaration(Scanner_p in, Sig_p sig)
    /* we only keep declarations of symbols, not declaration of types */
    if(!TypeIsTypeConstructor(type))
    {
-      f = SigInsertId(sig, DStrView(id), type->arity, false);
+      int arity = TypeIsArrow(type) ? type->arity - 1 : 0;
+      f = SigInsertId(sig, DStrView(id), arity, false);
       SigDeclareType(sig, f, type);
       SigFixType(sig, f);
+   }
+   else
+   {
+      if (TypeIsArrow(type))
+      {
+         TypeBankDefineTypeConstructor(sig->type_bank, DStrView(id), type->arity-1);
+      }
+      else
+      {
+         TypeBankDefineSimpleSort(sig->type_bank, DStrView(id));
+      }
    }
 
    DStrFree(id);

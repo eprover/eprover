@@ -66,7 +66,7 @@ static __inline__ void type_arg_realloc(Type_p** args, int current, int new)
 TypeBank_p TypeBankAlloc()
 {
    TypeBank_p handle = TypeBankCellAlloc();
-   
+
    handle->back_idx = PStackAlloc();
    handle->name_idx = NULL;
 
@@ -78,8 +78,8 @@ TypeBank_p TypeBankAlloc()
       handle->hash_table[i] = NULL;
    }
 
-   TypeConsCode res = TypeBankDefineSimpleSort(handle, "$no_type");
-   UNUSED(res); assert(res == STNoSort);
+   TypeConsCode res = TypeBankDefineSimpleSort(handle, "$>_type");
+   UNUSED(res); assert(res == ArrowTypeCons);
    res = TypeBankDefineSimpleSort(handle, "$o");
    UNUSED(res); assert(res == STBool);
    res = TypeBankDefineSimpleSort(handle, "$i");
@@ -133,9 +133,9 @@ Type_p TypeBankInsertTypeShared(TypeBank_p bank, Type_p t)
       {
          res = t;
          res->type_uid = ++bank->types_count;
-         if (Verbose > 3)
+         if (Verbose > 1)
          {
-            fprintf(stderr, "Had to insert type ");
+            fprintf(stderr, "# Had to insert type ");
             TypePrintTSTP(stderr, bank, t);
             fprintf(stderr, ".\n");
          }
@@ -161,7 +161,7 @@ TypeConsCode TypeBankDefineTypeConstructor(TypeBank_p bank, const char* name, in
    StrTree_p node = StrTreeFind(&bank->name_idx, name);
    if (node)
    {
-      if (GetArity(node) != arity)
+      if (GetArity(node) == arity)
       {
          return GetNameId(node);
       }
@@ -170,6 +170,11 @@ TypeConsCode TypeBankDefineTypeConstructor(TypeBank_p bank, const char* name, in
          DStr_p err_msg = DStrAlloc();
          DStrAppendStr(err_msg, (char*)"Redefinition of type constructor ");
          DStrAppendStr(err_msg, (char*)name);
+
+         if (Verbose > 1)
+         {
+            fprintf(stderr, "# previous arity was %ld, now it is %d.\n", GetArity(node), arity);
+         }
 
          Error(DStrView(err_msg), SYNTAX_ERROR);
          return -1; // stiff warning
@@ -491,19 +496,19 @@ void TypePrintTSTP(FILE* out, TypeBank_p bank, Type_p type)
          if (nr_of_args == 1)
          {
             TypePrintTSTP(out, bank, type->args[0]);
-            fprintf(stderr, " > ");
+            fprintf(out, " > ");
             TypePrintTSTP(out, bank, type->args[1]);
          }
          else
          {
-            fprintf(stderr, "(");
+            fprintf(out, "(");
             for(int i=0; i<nr_of_args-1; i++)
             {
                TypePrintTSTP(out, bank, type->args[i]);
-               fprintf(stderr, " * ");
+               fprintf(out, " * ");
             }
             TypePrintTSTP(out, bank, type->args[nr_of_args-1]);
-            fprintf(stderr, ") > ");
+            fprintf(out, ") > ");
 
             TypePrintTSTP(out, bank, type->args[type->arity-1]);
          }
@@ -513,24 +518,24 @@ void TypePrintTSTP(FILE* out, TypeBank_p bank, Type_p type)
          for(int i=0; i<type->arity-1; i++)
          {
             TypePrintTSTP(out, bank, type->args[i]);
-            fprintf(stderr, " > ");
+            fprintf(out, " > ");
          }
          TypePrintTSTP(out, bank, type->args[type->arity-1]);
       }
    }
    else
    {
-      fprintf(stderr, "%s", TypeBankFindTCName(bank, type->f_code));
+      fprintf(out, "%s", TypeBankFindTCName(bank, type->f_code));
       if (type->arity)
       {
-         fprintf(stderr, "(");
+         fprintf(out, "(");
          for(int i=0; i<type->arity-1; i++)
          {
             TypePrintTSTP(out, bank, type->args[i]);
-            fprintf(stderr, ", ");
+            fprintf(out, ", ");
          }
          TypePrintTSTP(out, bank, type->args[type->arity-1]);
-         fprintf(stderr, ")");
+         fprintf(out, ")");
       }
    }
 }
@@ -553,7 +558,7 @@ void tree_free_fun(void* a)
 
 void TypeBankFree(TypeBank_p bank)
 {
-   for(int i=0; i<PDArraySize(bank->back_idx); i++)
+   for(int i=0; i<PStackGetSP(bank->back_idx); i++)
    {
       back_idx_info* bii = PStackElementP(bank->back_idx, i);
 
@@ -564,6 +569,7 @@ void TypeBankFree(TypeBank_p bank)
    }
 
    PStackFree(bank->back_idx);
+
    StrTreeFree(bank->name_idx);
    for(int i=0; i<TYPEBANK_SIZE; i++)
    {

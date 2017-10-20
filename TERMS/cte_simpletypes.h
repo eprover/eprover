@@ -28,15 +28,14 @@ Changes
 #include "cio_scanner.h"
 #include <clb_ptrees.h>
 
-#define STNoSort      0
+#define ArrowTypeCons 0
 #define STBool        1     /* Boolean sort, will replace/extend the predicate bit */
 #define STIndividuals 2     /* Default sort, "individuums" */
 #define STKind        3     /* The "sort of sorts", $tType in TFF */
 #define STInteger     4     /* Integer numbers */
 #define STRational    5     /* Rational numbers */
 #define STReal        6     /* Reals */
-#define ArrowTypeCons 7
-#define STPredefined  ArrowTypeCons
+#define STPredefined  STReal
 
 typedef long  TypeUniqueID;
 typedef long  TypeConsCode;
@@ -90,21 +89,7 @@ Type_p  TypeCopy(Type_p orig);
 #define  TypeIsIndividual(t)  ((t)->f_code == STIndividuals)
 #define  TypeIsTypeConstructor(t) (TypeIsKind(t) || (TypeIsArrow(t) && TypeIsKind((t)->args[0])))
 
-static __inline__ int  TypesCmp(Type_p t1, Type_p t2)
-{
-   int res = t1->f_code - t2->f_code;
-
-   if (!res)
-   {      
-     assert(t1->arity == t2->arity);
-     for(int i=0; i<t1->arity && !res; i++)
-     {
-        res = PCmp(t1->args[i], t2->args[i]);
-     }
-   }
-
-   return res;
-}
+int TypesCmp(Type_p t1, Type_p t2);
 
 
 #endif

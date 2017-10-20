@@ -814,7 +814,7 @@ long TermStructWeightCompare(Term_p t1, Term_p t2)
       return res;
    }
 
-   assert(t1->type == t2->type);
+   //assert(t1->type == t2->type);
    assert(t1->arity == t2->arity);
    for(int i=0; i<t1->arity; i++)
    {
