@@ -155,7 +155,7 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
       TermCellAssignProp(t,TPGarbageFlag, bank->garbage_state);
       TermCellSetProp(t, TPIsShared); /* Groundness may change below */
       t->v_count = 0;
-      t->f_count = 1;
+      t->f_count = t->f_code != bank->sig->app_var_code ? 1 : 0;
       t->weight = DEFAULT_FWEIGHT;
       for(int i=0; i<t->arity; i++)
       {
@@ -1184,6 +1184,176 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
 }
 
 
+Term_p normalize_head(Term_p head, Term_p* rest_args, int rest_arity, Sig_p sig)
+{
+   assert(ProblemIsHO == PROBLEM_IS_HO);
+   Term_p res;
+   if (rest_arity == 0)
+   {
+      res = head; // do not copy in case there is nothing to be copied
+   }
+   else
+   {
+      res = TermDefaultCellAlloc();
+      int total_arity = head->arity + rest_arity;
+
+      if (TermIsVar(head))
+      {
+         total_arity++; // var is going to be the first argument
+         res->args = TermArgArrayAlloc(total_arity);
+         res->f_code = sig->app_var_code;
+
+         res->args[0] = head;
+         for(int i=1; i<total_arity; i++)
+         {
+            res->args[i] = rest_args[i-1];
+         }
+      }
+      else if (total_arity)
+      {
+         res->f_code = head->f_code;
+         res->args = TermArgArrayAlloc(total_arity);
+         int i;
+         for(i=0; i < head->arity; i++)
+         {
+            res->args[i] = head->args[i];
+         }
+
+         for(i=0; i < rest_arity; i++)
+         {
+            res->args[head->arity + i] = rest_args[i];
+         }
+      }
+      else
+      {
+         res->args = NULL;
+      }
+      res->arity = total_arity;
+   }
+
+   if (res->f_code == sig->app_var_code)
+   {
+      TermCellSetProp(res, TPIsAppVar);
+   }
+   return res;
+}
+
+
+
+static Term_p __inline__ make_head(Sig_p sig, const char* f_name)
+{
+   Term_p head = TermDefaultCellAlloc();
+   head->f_code = SigFindFCode(sig, f_name);
+   assert(head->f_code);
+   head->arity = 0;
+   head->args = NULL;
+
+   return head;
+}
+
+static Term_p __inline__  parse_one_ho(Scanner_p in, TB_p bank)
+{
+   assert(ProblemIsHO == PROBLEM_IS_HO);
+
+   FuncSymbType   id_type;
+   DStr_p id      = DStrAlloc();
+   Type_p type;
+   Term_p head;
+   
+   if((id_type=TermParseOperator(in, id))==FSIdentVar)
+   {
+      /* A variable may be annotated with a sort */
+      if(TestInpTok(in, Colon))
+      {
+         AcceptInpTok(in, Colon);
+         type = TypeBankParseType(in, bank->sig->type_bank);
+         head = VarBankExtNameAssertAllocSort(bank->vars, DStrView(id), type);
+      }
+      else
+      {
+         head = VarBankExtNameAssertAlloc(bank->vars, DStrView(id));
+      }
+   }
+   else
+   {
+      head = make_head(bank->sig, DStrView(id));
+   }
+
+   DStrFree(id);
+   return head;
+}
+
+
+Term_p  TBTermParseRealHO(Scanner_p in, TB_p bank, bool check_symb_prop)
+{
+   Term_p  head    = NULL;
+   Term_p  arg     = NULL;
+   Term_p* rest_args    = NULL;
+   Term_p  res     = NULL;
+   int     rest_arity   = 0;
+   int     allocated    = 0;
+
+   if (TestInpTok(in, OpenBracket))
+   {
+      AcceptInpTok(in, OpenBracket);
+      head = TBTermParseRealHO(in, bank, check_symb_prop);
+      AcceptInpTok(in, CloseBracket);
+   }
+   else
+   {
+      head = parse_one_ho(in, bank);
+   }
+
+   if (!TermIsVar(head) && !SigGetType(bank->sig, head->f_code))
+   {
+      DStr_p msg = DStrAlloc();
+      if (head->f_code > 0) 
+      {
+         DStrAppendStr(msg, SigFindName(bank->sig, head->f_code));
+         DStrAppendStr(msg, "with id ");
+      }
+      DStrAppendInt(msg, (int)head->f_code);
+      DStrAppendStr(msg, " has not been declared previously. This needs to change.");
+      AktTokenError(in, DStrView(msg), SYNTAX_ERROR);
+   }
+
+   allocated = TERMS_INITIAL_ARGS;
+   rest_args = (Term_p*)SizeMalloc(allocated*sizeof(Term_p));
+   rest_arity = 0;
+   
+   while(TestInpTok(in, Application))
+   {
+      AcceptInpTok(in, Application);
+
+      if(TestInpTok(in, OpenBracket))
+      {
+         AcceptInpTok(in, OpenBracket);
+         arg = TBTermParseRealHO(in, bank, check_symb_prop);
+         AcceptInpTok(in, CloseBracket);
+      }
+      else
+      {
+         arg = parse_one_ho(in, bank);
+      }
+
+      if (rest_arity == allocated)
+      {
+         allocated += TERMS_INITIAL_ARGS;
+         rest_args = (Term_p*)SecureRealloc(rest_args, allocated*sizeof(Term_p));
+      }
+
+      rest_args[rest_arity++] = arg;
+   }
+
+   res = normalize_head(head, rest_args, rest_arity, bank->sig);
+   res = TBInsert(bank, res, true);
+
+   if (rest_arity)
+   {
+      SizeFree(rest_args, allocated*sizeof(Term_p));
+   }
+   return res;
+}
 
 
 /*-----------------------------------------------------------------------

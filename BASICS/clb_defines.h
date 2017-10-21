@@ -132,7 +132,11 @@ static __inline__ size_t WriteStr(int fd, const char* msg);
 #endif
 
 
-extern bool ProblemIsHO;
+#define PROBLEM_NOT_HO     0
+#define PROBLEM_IS_HO      1
+#define PROBLEM_NOT_INIT  -1
+
+extern int ProblemIsHO;
 /*-----------------------------------------------------------------------
 //
 // Function: WriteStr()

@@ -84,6 +84,7 @@ typedef enum
                                    this occurs with positive polarity. */
    TPNegPolarity      = 1<<19,  /* In the term encoding of a formula,
                                    this occurs with negative polarity. */
+   TPIsAppVar         = 1<<20,
 }TermProperties;
 
 
@@ -172,6 +173,7 @@ typedef uintptr_t DerefType, *DerefType_p;
 #define RewriteAdr(level) (assert(level),(level)-1)
 #define TermIsVar(t) ((t)->f_code < 0)
 #define TermIsConst(t)(!TermIsVar(t) && ((t)->arity==0))
+#define TermIsAppliedVar(term) (TermCellQueryProp((term), TPIsAppVar))
 
 #define TermCellSetProp(term, prop) SetProp((term), (prop))
 #define TermCellDelProp(term, prop) DelProp((term), (prop))

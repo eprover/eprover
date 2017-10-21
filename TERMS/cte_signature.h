@@ -132,6 +132,8 @@ typedef struct sigcell
    /* And here are codes for interpreted symbols */
    FunCode   answer_code;       /* For answer literals */
 
+   FunCode   app_var_code;
+
    /* Sort and type banks (type => sort, but a shortcut is useful) */
    TypeBank_p  type_bank;
 

@@ -110,7 +110,7 @@ char      *outname = NULL;
 int       index_type = IndexArity;
 long      index_depth = 1;
 int       tsm_type = TSMTypeRecursive;
-bool      ProblemIsHO = false;
+int ProblemIsHO = PROBLEM_NOT_INIT;
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/

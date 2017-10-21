@@ -263,7 +263,7 @@ bool   print_statistics = false,
 long   give_up = 0,
        initial_literals = 0,
        initial_clauses = 0;
-bool ProblemIsHO = false;
+int ProblemIsHO = PROBLEM_NOT_INIT;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */

@@ -90,7 +90,7 @@ OptCell opts[] =
 
 char* ex_name = NULL;
 char* kb_name = "E_KNOWLEDGE";
-bool  ProblemIsHO = false;
+int ProblemIsHO = PROBLEM_NOT_INIT;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */

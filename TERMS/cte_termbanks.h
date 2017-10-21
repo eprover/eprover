@@ -133,6 +133,8 @@ Term_p  TBInsertNoProps(TB_p bank, Term_p term, DerefType deref);
 Term_p  TBInsertRepl(TB_p bank, Term_p term, DerefType deref, Term_p old, Term_p repl);
 Term_p  TBInsertInstantiated(TB_p bank, Term_p term);
 
+Term_p  TBTermParseRealHO(Scanner_p in, TB_p bank, bool check_symb_prop);
+
 Term_p  TBInsertOpt(TB_p bank, Term_p term, DerefType deref);
 Term_p  TBInsertDisjoint(TB_p bank, Term_p term);
 
@@ -149,9 +151,6 @@ void    TBPrintTermCompact(FILE* out, TB_p bank, Term_p term);
 void    TBPrintTerm(FILE* out, TB_p bank, Term_p term, bool fullterms);
 void    TBPrintBankTerms(FILE* out, TB_p bank);
 Term_p  TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop);
-
-#define  TBTermParse(in, bank) TBTermParseReal((in),(bank), true)
-#define  TBRawTermParse(in, bank) TBTermParseReal((in),(bank), false)
 
 void    TBRefSetProp(TB_p bank, TermRef ref, TermProperties prop);
 void    TBRefDelProp(TB_p bank, TermRef ref, TermProperties prop);
@@ -171,6 +170,31 @@ long    TBTermCollectSubterms(Term_p term, PStack_p collector);
 /*                Inline Functions                                     */
 /*---------------------------------------------------------------------*/
 
+Term_p __inline__ TBTermParse(Scanner_p in, TB_p bank)
+{
+   if (ProblemIsHO == PROBLEM_IS_HO)
+   {
+      return TBTermParseRealHO(in, bank, true);
+   }
+   else
+   {
+      assert(ProblemIsHO == PROBLEM_NOT_HO);
+      return TBTermParseReal(in, bank, true);
+   }
+}
+
+Term_p __inline__ TBRawTermParse(Scanner_p in, TB_p bank)
+{
+   if (ProblemIsHO == PROBLEM_IS_HO)
+   {      
+      return TBTermParseRealHO(in, bank, false);
+   }
+   else
+   {
+      assert(ProblemIsHO == PROBLEM_NOT_HO);
+      return TBTermParseReal(in, bank, false);
+   }
+}
 
 #endif
 

@@ -89,7 +89,7 @@ OptCell opts[] =
 char       *outname    = NULL;
 long       time_limit  = 10;
 char       *executable = NULL;
-bool       ProblemIsHO = false;
+int ProblemIsHO = PROBLEM_NOT_INIT;
 
 
 /*---------------------------------------------------------------------*/

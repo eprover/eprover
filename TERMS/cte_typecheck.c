@@ -38,7 +38,24 @@ Changes
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
-
+Type_p term_determine_type(Term_p term, Type_p type, TypeBank_p bank)
+{
+   if (type->arity-1 == term->arity)
+   {
+      return type->args[term->arity];
+   }
+   else 
+   {
+      int start = term->arity;
+      Type_p* args = TypeArgArrayAlloc(type->arity - start);
+      for(int i=0; i<type->arity-start; i++)
+      {
+         args[i] = type->args[i+start];
+      }
+      return TypeBankInsertTypeShared(bank, 
+                                      AllocArrowType(type->arity - start, args));
+   }
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -195,7 +212,7 @@ void TypeInferSort(Sig_p sig, Term_p term)
       {
          if (TypeIsArrow(type))
          {
-            if(term->arity != type->arity-1)
+            if(ProblemIsHO == PROBLEM_NOT_HO && term->arity != type->arity-1)
             {
                fprintf(stderr, "# arity mismatch for ");
                TermPrint(stderr, term, sig, DEREF_NEVER);
@@ -205,7 +222,6 @@ void TypeInferSort(Sig_p sig, Term_p term)
                Error("Type error", SYNTAX_ERROR);
             }
 
-            assert(term->arity == type->arity-1);
             for(i=0; SigIsFixedType(sig, term->f_code) && i < term->arity; i++)
             {
                if(term->args[i]->type != type->args[i])
@@ -221,7 +237,7 @@ void TypeInferSort(Sig_p sig, Term_p term)
                }
             }
 
-            term->type = type->args[term->arity];
+            term->type = term_determine_type(term, type, sig->type_bank);
          }
          else
          {
@@ -239,9 +255,6 @@ void TypeInferSort(Sig_p sig, Term_p term)
                term->type = type;
             }
          }
-
-
-         
       }
       else
       {

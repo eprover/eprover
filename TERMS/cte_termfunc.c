@@ -955,7 +955,7 @@ long TermWeightCompute(Term_p term, long vweight, long fweight)
    }
    else
    {
-      res += fweight;
+      res += fweight*(TermIsAppliedVar(term) ? 0 : 1);
       for(int i=0; i<term->arity; i++)
       {
          res += TermWeight(term->args[i], vweight, fweight);

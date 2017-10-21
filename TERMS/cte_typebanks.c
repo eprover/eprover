@@ -229,7 +229,7 @@ Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
    Type_p res        = NULL;
 
 
-   if (!ProblemIsHO)
+   if (ProblemIsHO == PROBLEM_NOT_HO)
    {
       // We support only (A1 * A2 * ... * An) > B
       // or C type (constructors)
@@ -489,7 +489,7 @@ void TypePrintTSTP(FILE* out, TypeBank_p bank, Type_p type)
 {
    if (TypeIsArrow(type))
    {
-      if (!ProblemIsHO)
+      if (ProblemIsHO == PROBLEM_NOT_HO)
       {
          int nr_of_args = type->arity -1;
 
@@ -515,6 +515,7 @@ void TypePrintTSTP(FILE* out, TypeBank_p bank, Type_p type)
       }
       else
       {
+         assert(ProblemIsHO == PROBLEM_IS_HO);
          for(int i=0; i<type->arity-1; i++)
          {
             TypePrintTSTP(out, bank, type->args[i]);

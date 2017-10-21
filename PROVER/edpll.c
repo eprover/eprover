@@ -139,7 +139,7 @@ OptCell opts[] =
 char   *outname = NULL;
 IOFormat parse_format = LOPFormat;
 bool   dimacs_format = false;
-bool   ProblemIsHO = false;
+int ProblemIsHO = PROBLEM_NOT_INIT;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */

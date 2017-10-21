@@ -702,6 +702,7 @@ long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset,
    {
    case LOPFormat:
          //* LOP does not at the moment support full FOF */
+         ProblemIsHO = PROBLEM_NOT_HO;
          while(ClauseStartsMaybe(in))
          {
             form = WFormClauseParse(in, terms);
@@ -713,7 +714,7 @@ long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset,
          }
          break;
    default:
-         while(TestInpId(in, "input_formula|input_clause|fof|cnf|tff|tcf|include"))
+         while(TestInpId(in, "input_formula|input_clause|fof|cnf|tff|thf|tcf|include"))
          {
             if(TestInpId(in, "include"))
             {
@@ -744,7 +745,7 @@ long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset,
             }
             else
             {
-               if(TestInpId(in, "input_formula|fof|tff|tcf"))
+               if(TestInpId(in, "input_formula|fof|tff|thf|tcf"))
                {
                   form = WFormulaParse(in, terms);
                   // fprintf(stdout, "Parsed: ");
@@ -757,6 +758,7 @@ long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset,
                   assert(TestInpId(in, "input_clause|cnf"));
                   //clause = ClauseParse(in, terms);
                   //ClauseSetInsert(cset, clause);
+                  ProblemIsHO = PROBLEM_NOT_HO;
                   form = WFormClauseParse(in, terms);
                   FormulaSetInsert(fset, form);
                }

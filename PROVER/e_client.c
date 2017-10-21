@@ -116,7 +116,7 @@ IOFormat          parse_format = TSTPFormat;
 char              *outname    = NULL;
 char              *server     = "localhost";
 int               port        = 3666;
-bool              ProblemIsHO = false;
+int ProblemIsHO = PROBLEM_NOT_INIT;
 
 
 /*---------------------------------------------------------------------*/

@@ -73,7 +73,7 @@ OptCell opts[] =
 };
 
 char *outname = NULL;
-bool ProblemIsHO = false;
+int ProblemIsHO = PROBLEM_NOT_INIT;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */

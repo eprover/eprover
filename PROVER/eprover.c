@@ -98,7 +98,7 @@ pid_t              pid = 0;
 
 FunctionProperties free_symb_prop = FPIgnoreProps;
 
-bool ProblemIsHO;
+int ProblemIsHO = PROBLEM_NOT_INIT;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */

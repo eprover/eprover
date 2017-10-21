@@ -192,7 +192,7 @@ char              *outname    = NULL;
 char              *filtername = NULL;
 char              *prover     = "eprover";
 int               port        = 3666;
-bool              ProblemIsHO = false;
+int ProblemIsHO = PROBLEM_NOT_INIT;
 
 
 /*---------------------------------------------------------------------*/

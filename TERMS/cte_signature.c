@@ -223,6 +223,8 @@ void SigInsertInternalCodes(Sig_p sig)
    sig->answer_code =  SigInsertId(sig, "$answer", 1, true);
    SigSetFuncProp(sig, sig->answer_code, FPInterpreted|FPPseudoPred);
 
+   sig->app_var_code =  SigInsertId(sig, "$@_var", 1, true);
+
 
    Type_p* args = TypeArgArrayAlloc(2);
    args[0] = sig->type_bank->bool_type;

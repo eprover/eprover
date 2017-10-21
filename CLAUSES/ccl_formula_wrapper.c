@@ -372,7 +372,21 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
    {
       is_tcf = true;
    }
-   AcceptInpId(in, "fof|tff|tcf");
+   if (TestInpId(in, "thf") && 
+         (ProblemIsHO == PROBLEM_NOT_INIT || ProblemIsHO == PROBLEM_IS_HO))
+   {
+      ProblemIsHO = PROBLEM_IS_HO;
+   }
+   else if (TestInpId(in, "fof|tff|tcf") && 
+      (ProblemIsHO == PROBLEM_NOT_INIT || ProblemIsHO == PROBLEM_NOT_HO))
+   {
+      ProblemIsHO = PROBLEM_NOT_HO;
+   }
+   else
+   {
+      AktTokenError(in, "Mixing of FO and HO syntax is not allowed.", true);
+   }
+   AcceptInpId(in, "fof|tff|thf|tcf");
    AcceptInpTok(in, OpenBracket);
    CheckInpTok(in, Name|PosInt|SQString);
    info->name = DStrCopy(AktToken(in)->literal);
