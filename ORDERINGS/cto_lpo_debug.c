@@ -247,7 +247,7 @@ static CompareResult lpogtr(OCB_p ocb, Term_p s, Term_p t,
    CompareResult res, res_funs;
    int i;
 
-   s = TermDeref(s, &deref_s);  t = TermDeref(t, &deref_t);
+   s = TermDeref(s, &deref_s, NULL);  t = TermDeref(t, &deref_t, NULL);
 
    /* The cases s=x v t=x are checked separately. */
    if(TermIsVar(s) || TermIsVar(t))
@@ -331,8 +331,8 @@ static CompareResult lpogtrcompvars(OCB_p ocb, Term_p s, Term_p t,
                 DerefType deref_s,
                 DerefType deref_t)
 {
-   s = TermDeref(s, &deref_s);
-   t = TermDeref(t, &deref_t);
+   s = TermDeref(s, &deref_s, NULL);
+   t = TermDeref(t, &deref_t, NULL);
 
    if (TermIsVar(s))
    {
@@ -477,8 +477,8 @@ CompareResult D_LPOCompare(OCB_p ocb, Term_p s, Term_p t,
 {
    CompareResult res, res_funs;
 
-   s = TermDeref(s, &deref_s);
-   t = TermDeref(t, &deref_t);
+   s = TermDeref(s, &deref_s, NULL);
+   t = TermDeref(t, &deref_t, NULL);
 
                      /* The cases s=x v t=x are checked separately. */
    if (TermIsVar(s) || TermIsVar(t))
@@ -585,8 +585,9 @@ CompareResult D_LPOCompareVars(Term_p s, Term_p t,
               DerefType deref_s,
               DerefType deref_t)
 {
-   s = TermDeref(s, &deref_s);
-   t = TermDeref(t, &deref_t);
+   // TODO: MIGHT NOT BE SHARED
+   s = TermDeref(s, &deref_s, NULL);
+   t = TermDeref(t, &deref_t, NULL);
 
    if (TermIsVar(s))
    {

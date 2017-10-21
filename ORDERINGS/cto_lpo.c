@@ -211,8 +211,9 @@ static CompareResult lpo_greater(OCB_p ocb, Term_p s, Term_p t,
    CompareResult res = to_notgteq, res2;
    static long   recursion_depth = 0;
 
-   s = TermDeref(s, &deref_s);
-   t = TermDeref(t, &deref_t);
+   //TODO: MIGHT NOT BE SHARED
+   s = TermDeref(s, &deref_s, NULL);
+   t = TermDeref(t, &deref_t, NULL);
 
    if(recursion_depth > LPORecursionDepthLimit)
    {
@@ -434,8 +435,8 @@ static bool lpo4_greater(OCB_p ocb, Term_p s, Term_p t,
    }
    recursion_depth++;
 
-   s = TermDeref(s, &deref_s);
-   t = TermDeref(t, &deref_t);
+   s = TermDeref(s, &deref_s, NULL);
+   t = TermDeref(t, &deref_t, NULL);
 
    if(TermIsVar(s))
    {

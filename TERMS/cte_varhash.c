@@ -199,7 +199,7 @@ void VarHashAddVarDistrib(VarHash_p hash, Term_p term, DerefType
    {
       deref = PStackPopInt(stack);
       term = PStackPopP(stack);
-      term = TermDeref(term, &deref);
+      term = TermDeref(term, &deref, NULL);
 
       if(TermIsVar(term))
       {
@@ -244,7 +244,7 @@ void PDArrayAddVarDistrib(PDArray_p array, Term_p term, DerefType
    {
       deref = PStackPopInt(stack);
       term = PStackPopP(stack);
-      term = TermDeref(term, &deref);
+      term = TermDeref(term, &deref, NULL);
 
       if(TermIsVar(term))
       {

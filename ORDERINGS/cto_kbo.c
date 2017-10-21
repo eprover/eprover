@@ -115,7 +115,7 @@ static long gettermweight(OCB_p ocb, Term_p t, DerefType deref)
    int i;
    long weight;
 
-   t = TermDeref(t, &deref);
+   t = TermDeref(t, &deref, NULL); // MIGHT NOT BE SHARED
 
    weight = getweight(ocb, t->f_code);
 
@@ -203,8 +203,9 @@ static CompareResult kbogtrnew(OCB_p ocb, Term_p s, Term_p t,
    int i;
    long sweight, tweight;
 
-   s = TermDeref(s, &deref_s);
-   t = TermDeref(t, &deref_t);
+   // TODO: MIGHT NOT BE SHARED
+   s = TermDeref(s, &deref_s, NULL);
+   t = TermDeref(t, &deref_t, NULL);
 
    if (TermIsVar(s))
    {
@@ -319,8 +320,9 @@ CompareResult KBOCompare(OCB_p ocb, Term_p s, Term_p t,
    int i;
    long sweight, tweight;
 
-   s = TermDeref(s, &deref_s);
-   t = TermDeref(t, &deref_t);
+   // MIGHT NOT BE SHARED
+   s = TermDeref(s, &deref_s, NULL);
+   t = TermDeref(t, &deref_t, NULL);
 
    /* The cases s=x v t=x are checked separately. */
 

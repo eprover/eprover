@@ -160,6 +160,9 @@ typedef uintptr_t DerefType, *DerefType_p;
 
 #define TERMCELL_DYN_MEM (TERMCELL_MEM+4*TERMARG_MEM)
 
+#define CAN_DEREF(term) ((term)->binding || (TermIsAppliedVar(term) && (term)->args[0]->binding))
+
+
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
@@ -230,8 +233,9 @@ bool    TermVarSearchProp(Term_p term, DerefType deref, TermProperties prop);
 void    TermVarDelProp(Term_p term, DerefType deref, TermProperties prop);
 bool    TermHasInterpretedSymbol(Term_p term);
 
-static __inline__ Term_p  TermDerefAlways(Term_p term);
-static __inline__ Term_p  TermDeref(Term_p term, DerefType_p deref);
+struct tbcell;
+static __inline__ Term_p  TermDerefAlways(Term_p term, struct tbcell*);
+static __inline__ Term_p  TermDeref(Term_p term, DerefType_p deref, struct tbcell*);
 
 static __inline__ Term_p  TermTopCopy(Term_p source);
 
@@ -254,14 +258,68 @@ void    TermStackDelProps(PStack_p stack, TermProperties prop);
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+static __inline__ Term_p applied_var_deref(Term_p orig)
+{
+   assert(TermIsAppliedVar(orig));
+   assert(orig->arity >= 1);
+   assert(orig->args[0]->binding);
 
-static __inline__ Term_p TermDerefAlways(Term_p term)
+   Term_p res;
+
+   if (TermIsVar(orig->args[0]->binding))
+   {
+      res = TermTopCopy(orig);
+      res->args[0] = orig->args[0]->binding;
+   }
+   else
+   {
+      Term_p bound = orig->args[0]->binding;
+      int arity = bound->arity + orig->arity-1;
+
+      res = TermTopAlloc(bound->f_code, arity);
+      res->args = TermArgArrayAlloc(arity);
+
+      res->type = NULL;
+      res->properties = bound->properties & (TPPredPos | TPIsAppVar);
+
+      assert(!res->binding || res->f_code < 0 /* if bound -> then variable */);
+
+      for(int i=0; i<bound->arity; i++)
+      {
+         res->args[i] = bound->args[i];
+      }
+
+      for(int i=0; i<orig->arity-1; i++)
+      {
+         res->args[bound->arity + i] = orig->args[i + 1];
+      }
+   }   
+
+   return res;
+}
+Term_p TBInsert(struct tbcell*, Term_p, DerefType);
+static __inline__ Term_p deref_step(Term_p orig, struct tbcell* bank)
+{
+   assert(orig->f_code < 0 || TermIsAppliedVar(orig));
+   // assert(bank != NULL || orig->arity == 0);
+   if (!TermIsAppliedVar(orig))
+   {
+      return orig->binding;
+   }
+   else
+   {
+      return bank ? TBInsert(bank, applied_var_deref(orig), DEREF_NEVER)
+                  : applied_var_deref(orig);
+   }
+}
+
+static __inline__ Term_p TermDerefAlways(Term_p term, struct tbcell* bank)
 {
    assert(TermIsVar(term)||!(term->binding));
 
-   while(term->binding)
+   while(CAN_DEREF(term))
    {
-      term = term->binding;
+      term = deref_step(term, bank);
    }
    return term;
 }
@@ -278,32 +336,32 @@ static __inline__ Term_p TermDerefAlways(Term_p term)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-
-static __inline__ Term_p TermDeref(Term_p term, DerefType_p deref)
+static __inline__ Term_p TermDeref(Term_p term, DerefType_p deref, struct tbcell* bank)
 {
-   assert(TermIsVar(term)||!(term->binding));
+   assert(TermIsVar(term) || !(term->binding));
 
    if(*deref == DEREF_ALWAYS)
    {
-      while(term->binding)
+      while(CAN_DEREF(term))
       {
-         term = term->binding;
+         term = deref_step(term, bank);
       }
    }
    else
    {
       while(*deref)
       {
-         if(!term->binding)
+         if(!CAN_DEREF(term))
          {
             break;
          }
-         term = term->binding;
+         term = deref_step(term, bank);
          (*deref)--;
       }
    }
    return term;
 }
+
 
 
 /*-----------------------------------------------------------------------

@@ -23,7 +23,6 @@
 
 #include "cte_termtypes.h"
 
-
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
@@ -37,7 +36,22 @@
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
+static __inline__ Term_p applied_var_deref(Term_p orig);
 
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermDeref()
+//
+//   Dereference a term. deref* tells us how many derefences to do
+//   at most, it will be decremented for each dereferenciation.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -196,7 +210,7 @@ void TermSetProp(Term_p term, DerefType deref, TermProperties prop)
    {
       deref = PStackPopInt(stack);
       term  = PStackPopP(stack);
-      term  = TermDeref(term, &deref);
+      term  = TermDeref(term, &deref, NULL);
       TermCellSetProp(term, prop);
       for(i=0; i<term->arity; i++)
       {
@@ -234,7 +248,7 @@ bool TermSearchProp(Term_p term, DerefType deref, TermProperties prop)
    {
       deref = PStackPopInt(stack);
       term  = PStackPopP(stack);
-      term  = TermDeref(term, &deref);
+      term  = TermDeref(term, &deref, NULL);
       if(TermCellQueryProp(term, prop))
       {
          res = true;
@@ -278,7 +292,7 @@ bool TermVerifyProp(Term_p term, DerefType deref, TermProperties prop,
    {
       deref = PStackPopInt(stack);
       term  = PStackPopP(stack);
-      term  = TermDeref(term, &deref);
+      term  = TermDeref(term, &deref, NULL);
       if(TermCellGiveProps(term, prop)!=expected)
       {
          res = false;
@@ -319,7 +333,7 @@ void TermDelProp(Term_p term, DerefType deref, TermProperties prop)
    {
       deref = PStackPopInt(stack);
       term  = PStackPopP(stack);
-      term  = TermDeref(term, &deref);
+      term  = TermDeref(term, &deref, NULL);
       TermCellDelProp(term, prop);
       for(i=0; i<term->arity; i++)
       {
@@ -389,7 +403,7 @@ void TermVarSetProp(Term_p term, DerefType deref, TermProperties prop)
    {
       deref = PStackPopInt(stack);
       term  = PStackPopP(stack);
-      term  = TermDeref(term, &deref);
+      term  = TermDeref(term, &deref, NULL);
       if(TermIsVar(term))
       {
          TermCellSetProp(term, prop);
@@ -472,7 +486,7 @@ bool TermVarSearchProp(Term_p term, DerefType deref, TermProperties prop)
    {
       deref = PStackPopInt(stack);
       term  = PStackPopP(stack);
-      term  = TermDeref(term, &deref);
+      term  = TermDeref(term, &deref, NULL);
       if(TermIsVar(term) && TermCellQueryProp(term, prop))
       {
          res = true;
@@ -513,7 +527,7 @@ void TermVarDelProp(Term_p term, DerefType deref, TermProperties prop)
    {
       deref = PStackPopInt(stack);
       term  = PStackPopP(stack);
-      term  = TermDeref(term, &deref);
+      term  = TermDeref(term, &deref, NULL);
       if(TermIsVar(term))
       {
          TermCellDelProp(term, prop);

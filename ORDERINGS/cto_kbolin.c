@@ -213,7 +213,8 @@ static void local_vb_update(OCB_p ocb, Term_p t, bool lhs)
 
 static bool mfyvwbc(OCB_p ocb, Term_p t, DerefType deref_t, Term_p var, bool lhs)
 {
-   t = TermDeref(t, &deref_t);
+   //TODO: MIGHT NOT BE SHARED
+   t = TermDeref(t, &deref_t, NULL);
    local_vb_update(ocb, t, lhs);
 
    if(var->f_code == t->f_code)
@@ -244,7 +245,8 @@ static bool mfyvwbc(OCB_p ocb, Term_p t, DerefType deref_t, Term_p var, bool lhs
 
 static void mfyvwb(OCB_p ocb, Term_p t, DerefType deref_t, bool lhs)
 {
-   t = TermDeref(t, &deref_t);
+   //TODO: MIGHT NOT BE SHARED
+   t = TermDeref(t, &deref_t, NULL);
    local_vb_update(ocb, t, lhs);
 
    // Note that arity == 0 for variables.
@@ -309,16 +311,17 @@ static CompareResult kbo6cmp(OCB_p ocb, Term_p s, Term_p t,
 {
    CompareResult res, tmp;
 
-   s = TermDeref(s, &deref_s);
-   t = TermDeref(t, &deref_t);
+   //TODO: MIGHT NOT BE SHARED
+   s = TermDeref(s, &deref_s, NULL);
+   t = TermDeref(t, &deref_t, NULL);
 
    /* Pacman lemma ;-) */
    while((s->arity==1) && (s->f_code == t->f_code))
    {
       s = s->args[0];
       t = t->args[0];
-      s = TermDeref(s, &deref_s);
-      t = TermDeref(t, &deref_t);
+      s = TermDeref(s, &deref_s, NULL);
+      t = TermDeref(t, &deref_t, NULL);
    }
    if(TermIsVar(s))
    {
@@ -418,7 +421,8 @@ static void mfyvwblhs(OCB_p ocb, Term_p term, DerefType deref_t)
    while(!PLocalTaggedStackEmpty(stack))
    {
       PLocalTaggedStackPop(stack, term, deref_t);
-      term = TermDeref(term, &deref_t);
+      //TODO: MIGHT NOT BE SHARED
+      term = TermDeref(term, &deref_t, NULL);
 
       if(TermIsVar(term))
       {
@@ -456,7 +460,8 @@ static void mfyvwbrhs(OCB_p ocb, Term_p term, DerefType deref_t)
    while(!PLocalTaggedStackEmpty(stack))
    {
       PLocalTaggedStackPop(stack, term, deref_t);
-      term = TermDeref(term, &deref_t);
+      //TODO: MIGHT NOT BE SHARED
+      term = TermDeref(term, &deref_t, NULL);
 
       if(TermIsVar(term))
       {
@@ -490,8 +495,9 @@ static CompareResult kbolincmp(OCB_p ocb, Term_p s, Term_p t,
 {
    CompareResult res = to_equal;
 
-   s = TermDeref(s, &deref_s);
-   t = TermDeref(t, &deref_t);
+   //TODO: MIGHT NOT BE SHARED
+   s = TermDeref(s, &deref_s, NULL);
+   t = TermDeref(t, &deref_t, NULL);
 
    if(s->f_code == t->f_code)
    {
