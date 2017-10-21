@@ -171,6 +171,7 @@ void* SecureMalloc(size_t size)
     TSTPOUT(stdout, "ResourceOut");
     fflush(stdout);
     PrintRusage(stdout);
+    assert(false);
 #endif
          Error("Out of Memory", OUT_OF_MEMORY);
       }

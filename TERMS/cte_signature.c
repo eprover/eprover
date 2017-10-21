@@ -227,8 +227,8 @@ void SigInsertInternalCodes(Sig_p sig)
 
 
    Type_p* args = TypeArgArrayAlloc(2);
-   args[0] = sig->type_bank->bool_type;
-   args[1] = sig->type_bank->i_type;
+   args[1] = sig->type_bank->bool_type;
+   args[0] = sig->type_bank->i_type;
 
    Type_p answer_type = 
       TypeBankInsertTypeShared(sig->type_bank, AllocArrowType(2, args));

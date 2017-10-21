@@ -940,7 +940,7 @@ void ScannerSetFormat(Scanner_p scanner, IOFormat fmt)
 {
    if(fmt == AutoFormat)
    {
-      if(TestInpId(scanner, "fof|cnf|tff|tcf|include"))
+      if(TestInpId(scanner, "fof|cnf|tff|thf|tcf|include"))
       {
          //printf("# TSTP!\n");
          fmt = TSTPFormat;

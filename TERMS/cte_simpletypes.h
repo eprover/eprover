@@ -82,7 +82,7 @@ Type_p  TypeCopy(Type_p orig);
 #define AllocSimpleSort(code)       TypeAlloc(code, 0, NULL)
 #define AllocArrowType(arity, args) TypeAlloc(ArrowTypeCons, arity, args)
 
-#define TypeArgArrayAlloc(n) (Type_p*) SizeMalloc(n*sizeof(Type_p))
+#define TypeArgArrayAlloc(n) (Type_p*) SizeMalloc((n)*sizeof(Type_p))
 
 #define  TypeIsArrow(t)       ((t)->f_code == ArrowTypeCons)
 #define  TypeIsKind(t)        ((t)->f_code == STKind)

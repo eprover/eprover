@@ -375,11 +375,19 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
    if (TestInpId(in, "thf") && 
          (ProblemIsHO == PROBLEM_NOT_INIT || ProblemIsHO == PROBLEM_IS_HO))
    {
+      if (Verbose > 1 && ProblemIsHO == PROBLEM_NOT_INIT)
+      {
+         fprintf(stderr, "# setting the problem HO.\n");
+      }
       ProblemIsHO = PROBLEM_IS_HO;
    }
    else if (TestInpId(in, "fof|tff|tcf") && 
       (ProblemIsHO == PROBLEM_NOT_INIT || ProblemIsHO == PROBLEM_NOT_HO))
    {
+      if (Verbose > 1 && ProblemIsHO == PROBLEM_NOT_INIT)
+      {
+         fprintf(stderr, "# setting the problem not HO.\n");
+      }
       ProblemIsHO = PROBLEM_NOT_HO;
    }
    else

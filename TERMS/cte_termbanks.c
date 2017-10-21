@@ -101,7 +101,7 @@ static void tb_print_dag(FILE *out, NumTree_p in_index, Sig_p sig)
          }
          putc(')', out);
       }
-      printf("   =   ");
+      fprintf(out, "   =   ");
       TermPrint(out, term, sig, DEREF_NEVER);
    }
    if(TBPrintInternalInfo)
@@ -132,6 +132,7 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
 
    assert(t);
    assert(!TermIsVar(t));
+   assert(t->f_code != bank->sig->app_var_code || TermIsAppliedVar(t));
 
    /* Infer the sort of this term (may be temporary) */
    if(t->type == NULL)
@@ -156,7 +157,7 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
       TermCellSetProp(t, TPIsShared); /* Groundness may change below */
       t->v_count = 0;
       t->f_count = t->f_code != bank->sig->app_var_code ? 1 : 0;
-      t->weight = DEFAULT_FWEIGHT;
+      t->weight = DEFAULT_FWEIGHT*t->f_count;
       for(int i=0; i<t->arity; i++)
       {
          assert(TermIsShared(t->args[i])||TermIsVar(t->args[i]));
@@ -554,7 +555,7 @@ Term_p TBInsertNoProps(TB_p bank, Term_p term, DerefType deref)
    else
    {
       t = TermTopCopyWithoutArgs(term); /* This is an unshared term cell at the moment */
-      t->properties = TPIgnoreProps;
+      t->properties = TPIgnoreProps | (TermIsAppliedVar(term) ? TPIsAppVar : 0);
 
       assert(SysDateIsCreationDate(t->rw_data.nf_date[0]));
       assert(SysDateIsCreationDate(t->rw_data.nf_date[1]));

@@ -309,6 +309,7 @@ Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
    else 
    {
       // parsing HO types
+      assert(ProblemIsHO == PROBLEM_IS_HO);
       if (TestInpTok(in, OpenBracket))
       {
          AcceptInpTok(in, OpenBracket);
