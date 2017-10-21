@@ -40,13 +40,14 @@ Changes
 /*---------------------------------------------------------------------*/
 Type_p term_determine_type(Term_p term, Type_p type, TypeBank_p bank)
 {
-   if (type->arity-1 == term->arity)
+   int term_arity = term->arity - (TermIsAppliedVar(term) ? 1 : 0);
+   if (type->arity-1 == term_arity)
    {
-      return type->args[term->arity];
+      return type->args[term_arity];
    }
    else 
    {
-      int start = term->arity;
+      int start = term_arity;
       Type_p* args = TypeArgArrayAlloc(type->arity - start);
       for(int i=0; i<type->arity-start; i++)
       {
@@ -192,6 +193,8 @@ bool TypeCheckConsistent(Sig_p sig, Term_p term)
 /----------------------------------------------------------------------*/
 void TypeInferSort(Sig_p sig, Term_p term)
 {
+   assert(term->f_code != sig->app_var_code || TermIsAppliedVar(term));
+
    Type_p type;
    Type_p sort, *args;
    int i;
@@ -205,7 +208,8 @@ void TypeInferSort(Sig_p sig, Term_p term)
    }
    else
    {
-      type = SigGetType(sig, term->f_code);
+      type = TermIsAppliedVar(term) ? 
+               term->args[0]->type : SigGetType(sig, term->f_code);
 
       /* Use type */
       if(type)
@@ -222,20 +226,44 @@ void TypeInferSort(Sig_p sig, Term_p term)
                Error("Type error", SYNTAX_ERROR);
             }
 
-            for(i=0; SigIsFixedType(sig, term->f_code) && i < term->arity; i++)
+            if (!TermIsAppliedVar(term))
             {
-               if(term->args[i]->type != type->args[i])
+               for(i=0; SigIsFixedType(sig, term->f_code) && i < term->arity; i++)
                {
-                  fprintf(stderr, "# Type mismatch in argument #%d of ", i+1);
-                  TermPrint(stderr, term, sig, DEREF_NEVER);
-                  fprintf(stderr, ": expected ");
-                  TypePrintTSTP(stderr, sig->type_bank, type->args[i]);
-                  fprintf(stderr, " but got ");
-                  TypePrintTSTP(stderr, sig->type_bank, term->args[i]->type);
-                  fprintf(stderr, "\n");
-                  Error("Type error", SYNTAX_ERROR);
+                  if(term->args[i]->type != type->args[i])
+                  {
+                     fprintf(stderr, "# Type mismatch in argument #%d of ", i+1);
+                     TermPrint(stderr, term, sig, DEREF_NEVER);
+                     fprintf(stderr, ": expected ");
+                     TypePrintTSTP(stderr, sig->type_bank, type->args[i]);
+                     fprintf(stderr, " but got ");
+                     TypePrintTSTP(stderr, sig->type_bank, term->args[i]->type);
+                     fprintf(stderr, "\n");
+                     Error("Type error", SYNTAX_ERROR);
+                  }
+               }   
+            }
+            else
+            {
+               // probably can be unified with harder to understand code!
+               for(i=1; i < term->arity; i++)
+               {
+                  assert(term->arity-1 < type->arity);
+
+                  if(term->args[i]->type != type->args[i-1])
+                  {
+                     fprintf(stderr, "# Type mismatch in argument #%d of ", i+1);
+                     TermPrint(stderr, term, sig, DEREF_NEVER);
+                     fprintf(stderr, ": expected ");
+                     TypePrintTSTP(stderr, sig->type_bank, type->args[i]);
+                     fprintf(stderr, " but got ");
+                     TypePrintTSTP(stderr, sig->type_bank, term->args[i]->type);
+                     fprintf(stderr, "\n");
+                     Error("Type error", SYNTAX_ERROR);
+                  }
                }
             }
+            
 
             term->type = term_determine_type(term, type, sig->type_bank);
          }
