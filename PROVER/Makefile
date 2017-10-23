@@ -16,7 +16,7 @@ include ../Makefile.vars
 # Project specific variables
 
 PROJECT = eprover e_ltb_runner e_stratpar e_deduction_server e_axfilter \
-	  classify_problem termprops e_client e_server\
+	      classify_problem termprops e_client e_server\
           direct_examples epclanalyse epclextract checkproof eground\
           enormalizer edpll epcllemma\
           ekb_create ekb_insert ekb_ginsert ekb_delete tsm_classify
@@ -204,6 +204,15 @@ TSM_CLASSIFY = tsm_classify.o \
 
 tsm_classify: $(TSM_CLASSIFY)
 	$(LD) -o tsm_classify $(TSM_CLASSIFY) $(LIBS)
+
+
+TESTER = tester.o ../lib/CONTROL.a ../lib/HEURISTICS.a\
+            ../lib/LEARN.a\
+            ../lib/CLAUSES.a ../lib/ORDERINGS.a ../lib/TERMS.a\
+            ../lib/INOUT.a ../lib/BASICS.a
+
+tester: $(TESTER)
+	$(LD) -o tester $(TESTER) $(LIBS)
 
 
 include Makefile.dependencies
