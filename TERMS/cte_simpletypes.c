@@ -34,9 +34,6 @@
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
-
-
-
 Type_p  TypeCopy(Type_p orig)
 {
    Type_p handle = TypeAlloc(orig->f_code, orig->arity, TypeArgArrayAlloc(orig->arity));
@@ -49,10 +46,12 @@ Type_p  TypeCopy(Type_p orig)
    return handle;
 }
 
+
 void TypeTopFree(Type_p junk)
 {
    SizeFree(junk, sizeof(*junk)); 
 }
+
 
 void TypeFree(Type_p junk)
 {
@@ -67,6 +66,7 @@ void TypeFree(Type_p junk)
    }
    TypeTopFree(junk);
 }
+
 
 int TypesCmp(Type_p t1, Type_p t2)
 {
@@ -85,4 +85,52 @@ int TypesCmp(Type_p t1, Type_p t2)
    }
 
    return res;
+}
+
+
+bool arguments_flattened(Type_p t)
+{
+   for(int i=0; i<t->arity-1; i++)
+   {
+      if (FlattenType(t->args[i]) != t->args[i])
+      {
+         return false;
+      }
+   }
+   
+   return true;
+}
+
+// Assumption is that everything before is flattened, it is just the last argument
+// that is an arrow 
+
+// return value might be unshared!
+Type_p FlattenType(Type_p type)
+{
+   assert(arguments_flattened(type));
+
+   Type_p res = type;
+
+   if (type->args[type->arity-1]->f_code == ArrowTypeCons)
+   {
+      int total_args = type->arity-1 + type->args[type->arity-1]->arity;
+      int i;
+      Type_p* args = TypeArgArrayAlloc(total_args);
+
+      for(i=0; i < type->arity-1; i++)
+      {
+         args[i] = type->args[i];
+      }
+
+      // i is now type->arity-1
+      for(int j=0; j < type->args[i]->arity; j++)
+      {
+         args[i+j] = type->args[i]->args[j];
+      }
+
+      res = AllocArrowType(total_args, args);
+   }
+   
+   return res;
+
 }

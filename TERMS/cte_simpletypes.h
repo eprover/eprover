@@ -90,6 +90,7 @@ Type_p  TypeCopy(Type_p orig);
 #define  TypeIsTypeConstructor(t) (TypeIsKind(t) || (TypeIsArrow(t) && TypeIsKind((t)->args[0])))
 
 int TypesCmp(Type_p t1, Type_p t2);
+Type_p FlattenType(Type_p type);
 
 
 #endif

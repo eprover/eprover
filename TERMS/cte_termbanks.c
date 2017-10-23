@@ -811,11 +811,11 @@ Term_p TBTermTopInsert(TB_p bank, Term_p t)
 //
 /----------------------------------------------------------------------*/
 
-Term_p TBAllocNewSkolem(TB_p bank, PStack_p variables, Type_p type)
+Term_p TBAllocNewSkolem(TB_p bank, PStack_p variables, Type_p ret_type)
 {
    Term_p handle, res;
 
-   handle = TermAllocNewSkolem(bank->sig, variables, type);
+   handle = TermAllocNewSkolem(bank->sig, variables, ret_type);
    res = TBInsert(bank, handle, DEREF_NEVER);
    TermFree(handle);
 

@@ -136,27 +136,16 @@ void TermFree(Term_p junk)
 //
 /----------------------------------------------------------------------*/
 
-Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, Type_p type)
+Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, Type_p ret_type)
 {
    Term_p handle = TermDefaultCellAlloc();
    PStackPointer arity = PStackGetSP(variables), i;
    Type_p *type_args;
+   Type_p type;
 
-   if(!type)
+   if(!ret_type)
    {
-      type = SigDefaultSort(sig);
-   }
-
-   Type_p ret;
-   if(!(TypeIsBool(type) || (type->arity && TypeIsBool(type->args[type->arity-1]))))
-   {
-      handle->f_code = SigGetNewSkolemCode(sig, arity);
-      ret = SigDefaultSort(sig);
-   }
-   else
-   {
-      handle->f_code = SigGetNewPredicateCode(sig, arity);
-      ret = sig->type_bank->bool_type;
+      ret_type = SigDefaultSort(sig);
    }
 
    // declare type
@@ -171,16 +160,28 @@ Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, Type_p type)
          type_args[i] = handle->args[i]->type;
          assert(type_args[i]);
       }
-      type_args[arity] = ret;
+      type_args[arity] = ret_type;
+
+      type = AllocArrowType(arity, type_args);
    }
    else
    {
-      type = ret;
+      type = ret_type;
    }
 
-   type = TypeBankInsertTypeShared(sig->type_bank, type);
+   type = TypeBankInsertTypeShared(sig->type_bank, FlattenType(type));
+
+   if(!(TypeIsBool(type) || (type->arity && TypeIsBool(type->args[type->arity-1]))))
+   {
+      handle->f_code = SigGetNewSkolemCode(sig, type->arity-1);
+   }
+   else
+   {
+      handle->f_code = SigGetNewPredicateCode(sig, type->arity-1);
+   }
+
    SigDeclareType(sig, handle->f_code, type);
-   handle->type = type;
+   handle->type = ret_type;
 
    return handle;
 }
