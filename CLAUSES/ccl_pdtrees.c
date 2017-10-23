@@ -1009,11 +1009,15 @@ Term_p TermLRTraversePrevAppVar(PStack_p stack, Term_p original_term, Term_p var
    assert(original_term->arity >= var->binding->arity);
 
    int to_backtrack_nr = original_term->arity - var->binding->arity;
+   if (TermIsAppliedVar(original_term) && TermIsVar(var->binding))
+   {
+      to_backtrack_nr--;
+   }
 
    for(i=0; i<to_backtrack_nr; i++)
    {
       tmp = PStackPopP(stack);
-      UNUSED(tmp); assert(tmp == original_term->args[var->binding->arity + i]); // 0 based indexing
+      UNUSED(tmp); assert(tmp == original_term->args[var->binding->arity + i + TermIsAppliedVar(original_term)]); // 0 based indexing
    }
    PStackPushP(stack, original_term);
 
