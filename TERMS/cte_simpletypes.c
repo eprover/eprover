@@ -111,7 +111,7 @@ Type_p FlattenType(Type_p type)
 
    Type_p res = type;
 
-   if (type->args[type->arity-1]->f_code == ArrowTypeCons)
+   if (type->arity && type->args[type->arity-1]->f_code == ArrowTypeCons)
    {
       int total_args = type->arity-1 + type->args[type->arity-1]->arity;
       int i;
