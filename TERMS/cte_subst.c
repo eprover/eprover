@@ -407,6 +407,25 @@ void SubstCompleteInstance(Subst_p subst, Term_p term,
    }
 }
 
+PStackPointer SubstBindAppVar(Subst_p subst, Term_p var, Term_p to_bind, int up_to)
+{
+   PStackPointer ret = PStackGetSP(subst);
+   assert(var);
+   assert(to_bind);
+   assert(TermIsVar(var));
+   assert(!(var->binding));
+   assert(!TermCellQueryProp(to_bind, TPPredPos));
+   assert(var->type);
+   assert(to_bind->type);
+
+   var->binding = TermCreatePrefix(to_bind, up_to);
+   PStackPushP(subst, var);
+
+   return ret;
+}
+
+
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

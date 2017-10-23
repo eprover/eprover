@@ -252,6 +252,7 @@ FunCode SigGetNewPredicateCode(Sig_p sig, int arity);
 /* Types */
 #define SigDefaultSort(sig)  ((sig)->type_bank->default_type)
 #define SigGetType(sig, f)   ((sig)->f_info[(f)].type)
+
 void    SigDeclareType(Sig_p sig, FunCode f, Type_p type);
 void    SigDeclareFinalType(Sig_p sig, FunCode f, Type_p type);
 void    SigDeclareIsFunction(Sig_p sig, FunCode f);

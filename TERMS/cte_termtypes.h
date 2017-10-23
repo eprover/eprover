@@ -217,6 +217,7 @@ static __inline__ Term_p TermConstCellAlloc(FunCode symbol);
 static __inline__ Term_p TermTopAlloc(FunCode f_code, int arity);
 static __inline__ Term_p TermTopCopy(Term_p source);
 static __inline__ Term_p TermTopCopyWithoutArgs(Term_p source);
+static __inline__ Term_p TermCreatePrefix(Term_p orig, int up_to);
 
 void    TermTopFree(Term_p junk);
 void    TermFree(Term_p junk);
@@ -233,6 +234,9 @@ bool    TermVarSearchProp(Term_p term, DerefType deref, TermProperties prop);
 void    TermVarDelProp(Term_p term, DerefType deref, TermProperties prop);
 bool    TermHasInterpretedSymbol(Term_p term);
 
+bool    TermIsPrefix(Term_p needle, Term_p haystack);
+static __inline__ Type_p GetHeadType(Sig_p sig, Term_p term);
+
 struct tbcell;
 static __inline__ Term_p  TermDerefAlways(Term_p term, struct tbcell*);
 static __inline__ Term_p  TermDeref(Term_p term, DerefType_p deref, struct tbcell*);
@@ -245,6 +249,20 @@ void    TermStackDelProps(PStack_p stack, TermProperties prop);
 /*---------------------------------------------------------------------*/
 /*                  Inline functions                                   */
 /*---------------------------------------------------------------------*/
+
+static __inline__ Type_p GetHeadType(Sig_p sig, Term_p term)
+{
+   if (TermIsAppliedVar(term))
+   {
+      assert(term->f_code == sig->app_var_code);
+      return term->args[0]->type;
+   }
+   else
+   {
+      assert(term->f_code != sig->app_var_code);
+      return SigGetType(sig, term->f_code);
+   }
+}
 
 
 /*-----------------------------------------------------------------------
@@ -504,6 +522,29 @@ static __inline__ Term_p TermTopAlloc(FunCode f_code, int arity)
    }
 
    return handle;
+}
+
+// UP TO -- NOT INCLUDING!
+static __inline__ Term_p TermCreatePrefix(Term_p orig, int up_to)
+{
+   assert(orig && orig->arity >= up_to);
+   Term_p prefix;
+
+   if (up_to == orig->arity)
+   {
+      // do not create a copy of the term!
+      prefix = orig;
+   }
+   else
+   {
+      prefix = TermTopAlloc(orig->f_code, orig->arity);
+      for(int i=0; i<up_to; i++)
+      {
+         prefix->args[i] = orig->args[i];
+      }
+   }
+
+   return prefix;  
 }
 
 #endif

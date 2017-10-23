@@ -420,6 +420,13 @@ static bool find_rewritable_clauses(OCB_p ocb, ClauseSet_p set,
 // Side Effects    : Instantiates
 //
 /----------------------------------------------------------------------*/
+MatchInfo_p indexed_find_demodulator_mi(OCB_p ocb, Term_p term,
+                   SysDate date,
+                   ClauseSet_p demodulators,
+                   Subst_p subst,
+                   bool prefer_general,
+                                            bool restricted_rw);
+
 
 static ClausePos_p indexed_find_demodulator(OCB_p ocb, Term_p term,
                    SysDate date,
@@ -428,8 +435,32 @@ static ClausePos_p indexed_find_demodulator(OCB_p ocb, Term_p term,
                    bool prefer_general,
                                             bool restricted_rw)
 {
+   MatchInfo_p mi = indexed_find_demodulator_mi(ocb, term, date, demodulators,
+                                      subst, prefer_general, restricted_rw);
+   ClausePos_p res = mi ? mi->matcher : NULL;
+   if (mi)
+   {
+      MatchInfoFree(mi);
+   }
+
+   return res;
+}
+
+
+// GOING TO BE USED LATER FOR REWRITING! 
+// NOW I JUST WANT TO CHECK FIND NEXT DEMODULATOR
+// TODO : PUSH THIS CHANGE TO ALL OTHER PARTS OF THE CODE.
+MatchInfo_p indexed_find_demodulator_mi(OCB_p ocb, Term_p term,
+                   SysDate date,
+                   ClauseSet_p demodulators,
+                   Subst_p subst,
+                   bool prefer_general,
+                                            bool restricted_rw)
+{
    Eqn_p       eqn;
    ClausePos_p pos, res = NULL;
+   MatchInfo_p match_info;
+
 
    assert(term);
    assert(demodulators);
@@ -442,8 +473,9 @@ static ClausePos_p indexed_find_demodulator(OCB_p ocb, Term_p term,
 
    PDTreeSearchInit(demodulators->demod_index, term, date, prefer_general);
 
-   while((pos = PDTreeFindNextDemodulator(demodulators->demod_index, subst)))
+   while((match_info = PDTreeFindNextDemodulator(demodulators->demod_index, subst)))
    {
+      pos = match_info->matcher;
       eqn = pos->literal;
 
       if((EqnIsOriented(eqn)&&
@@ -454,6 +486,7 @@ static ClausePos_p indexed_find_demodulator(OCB_p ocb, Term_p term,
           !SysDateIsEarlier(TermNFDate(term,RewriteAdr(FullRewrite)),
                             pos->clause->date)))
       {
+         MatchInfoFree(match_info); // avoid memory leak -- it was alloc'd in PDTreeFindNextDemodulator
          continue;
       }
       switch(pos->side)
@@ -492,7 +525,7 @@ static ClausePos_p indexed_find_demodulator(OCB_p ocb, Term_p term,
    }
    PDTreeSearchExit(demodulators->demod_index);
 
-   return res;
+   return match_info;
 }
 
 
@@ -743,7 +776,7 @@ EqnSide eqn_li_normalform(RWDesc_p desc, ClausePos_p pos, bool interred_rw)
       pos->side = LeftSide;
       if(OutputLevel>=4)
       {
-    DocClauseRewriteDefault(pos, l_old);
+        DocClauseRewriteDefault(pos, l_old);
       }
       if(BuildProofObject)
       {
@@ -765,12 +798,12 @@ EqnSide eqn_li_normalform(RWDesc_p desc, ClausePos_p pos, bool interred_rw)
       }
       if(!EqnIsOriented(eqn))
       {
-    EqnDelProp(eqn, EPMaxIsUpToDate);
+         EqnDelProp(eqn, EPMaxIsUpToDate);
       }
       pos->side = RightSide;
       if(OutputLevel>=4)
       {
-    DocClauseRewriteDefault(pos, r_old);
+        DocClauseRewriteDefault(pos, r_old);
       }
       if(BuildProofObject)
       {

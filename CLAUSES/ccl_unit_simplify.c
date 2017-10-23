@@ -81,13 +81,16 @@ ClausePos_p FindTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
 
    PDTreeSearchInit(units->demod_index, t1, PDTREE_IGNORE_NF_DATE, false);
 
-   while((pos = PDTreeFindNextDemodulator(units->demod_index, subst)))
+   MatchInfo_p mi;
+   while((mi = PDTreeFindNextDemodulator(units->demod_index, subst)))
    {
+      pos = mi->matcher;
       if(SubstComputeMatch(ClausePosGetOtherSide(pos), t2, subst))
       {
-    res = pos;
-    assert(res->clause->set == units);
-    break;
+        res = pos;
+        assert(res->clause->set == units);
+        MatchInfoFree(mi);
+        break;
       }
    }
    PDTreeSearchExit(units->demod_index);
@@ -122,15 +125,18 @@ ClausePos_p FindSignedTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
 
    PDTreeSearchInit(units->demod_index, t1, PDTREE_IGNORE_NF_DATE, false);
 
-   while((pos = PDTreeFindNextDemodulator(units->demod_index, subst)))
+   MatchInfo_p mi;
+   while((mi = PDTreeFindNextDemodulator(units->demod_index, subst)))
    {
+      pos = mi->matcher;
       if(EQUIV(EqnIsPositive(pos->literal), sign)
-    &&
-    SubstComputeMatch(ClausePosGetOtherSide(pos), t2, subst))
+          &&
+          SubstComputeMatch(ClausePosGetOtherSide(pos), t2, subst))
       {
-    res = pos;
-    assert(res->clause->set == units);
-    break;
+        res = pos;
+        assert(res->clause->set == units);
+        MatchInfoFree(mi);
+        break;
       }
    }
    PDTreeSearchExit(units->demod_index);

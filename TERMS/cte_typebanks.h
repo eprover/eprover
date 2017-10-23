@@ -20,6 +20,7 @@ typedef struct typebank_cell {
                                               // have unique ID.
    PObjTree_p     hash_table[TYPEBANK_SIZE];  // Hash table for sharng
 
+   // some types that are accessed frequently.
    Type_p bool_type;
    Type_p i_type;
    Type_p kind_type;

@@ -61,6 +61,8 @@ bool          SubstBindingPrint(FILE* out, Term_p var, Sig_p sig, DerefType dere
 long          SubstPrint(FILE* out, Subst_p subst, Sig_p sig, DerefType deref);
 bool          SubstIsRenaming(Subst_p subt);
 
+PStackPointer SubstBindAppVar(Subst_p subst, Term_p var, Term_p term, int up_to);
+
 void          SubstBacktrackSkolem(Subst_p subst);
 void          SubstSkolemizeTerm(Term_p term, Subst_p subst, Sig_p sig);
 void          SubstCompleteInstance(Subst_p subst, Term_p term,

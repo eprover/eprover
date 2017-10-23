@@ -592,6 +592,33 @@ void TermStackDelProps(PStack_p stack, TermProperties prop)
 }
 
 
+bool TermIsPrefix(Term_p needle, Term_p haystack)
+{
+   assert(ProblemIsHO == PROBLEM_IS_HO);
+   bool res = false;
+   int  i;
+   if (needle)
+   {
+      /* needle can be null if it was binding field of non-bound var,
+         which is common use case for this function 
+       */
+      if (needle->arity <= haystack->arity && needle->f_code == haystack->f_code) 
+      {
+         for(i=0; i<needle->arity; i++)
+         {
+            if (needle->args[i] != haystack->args[i])
+            {
+               break;
+            }
+         }
+
+         res = i == needle->arity;
+      }
+   }
+   
+   return res;
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

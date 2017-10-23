@@ -100,7 +100,15 @@ typedef struct pd_tree_cell
                searched? */
    unsigned  long visited_count; /* How many nodes in the index have
                been visited? */
+   Sig_p     sig;            /* Used for determining head symbol types
+                                in HO case */
 }PDTreeCell, *PDTree_p;
+
+
+typedef struct match_info_cell {
+  int remaining_on_stack;
+  ClausePos_p matcher;
+}MatchInfoCell, *MatchInfo_p;
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
@@ -128,13 +136,16 @@ extern unsigned long PDTNodeCounter;
 #define   PDTreeCellAlloc()    (PDTreeCell*)SizeMalloc(sizeof(PDTreeCell))
 #define   PDTreeCellFree(junk) SizeFree(junk, sizeof(PDTreeCell))
 
+#define MatchInfoAlloc()      (MatchInfo_p) SizeMalloc(sizeof(MatchInfoCell))
+#define MatchInfoFree(junk)   SizeFree(junk, sizeof(MatchInfoCell))
+
 #ifdef CONSTANT_MEM_ESTIMATE
 #define PDTREE_CELL_MEM 16
 #else
 #define PDTREE_CELL_MEM MEMSIZE(PDTreeCell)
 #endif
 
-PDTree_p  PDTreeAlloc(void);
+PDTree_p  PDTreeAlloc(Sig_p sig);
 void      PDTreeFree(PDTree_p tree);
 
 #ifdef CONSTANT_MEM_ESTIMATE
@@ -166,6 +177,7 @@ void      PDTNodeFree(PDTNode_p tree);
 void      TermLRTraverseInit(PStack_p stack, Term_p term);
 Term_p    TermLRTraverseNext(PStack_p stack);
 Term_p    TermLRTraversePrev(PStack_p stack, Term_p term);
+Term_p    TermLRTraversePrevAppVar(PStack_p stack, Term_p original_term, Term_p var);
 
 void      PDTreeInsert(PDTree_p tree, ClausePos_p demod_side);
 long      PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause);
@@ -176,7 +188,7 @@ void      PDTreeSearchExit(PDTree_p tree);
 
 PDTNode_p PDTreeFindNextIndexedLeaf(PDTree_p tree, Subst_p subst);
 
-ClausePos_p PDTreeFindNextDemodulator(PDTree_p tree, Subst_p subst);
+MatchInfo_p PDTreeFindNextDemodulator(PDTree_p tree, Subst_p subst);
 
 void PDTreePrint(FILE* out, PDTree_p tree);
 
