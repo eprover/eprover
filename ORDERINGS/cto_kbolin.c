@@ -275,10 +275,11 @@ static CompareResult kbo6cmplex(OCB_p ocb, Term_p s, Term_p t,
 {
    CompareResult res = to_equal;
 
-   assert(s->arity == t->arity);
+   // TODo
+   //assert(s->arity == t->arity);
    assert(s->f_code == t->f_code);
 
-   for(size_t i=0; i<s->arity; i++)
+   for(size_t i=0; i < MIN(s->arity, t->arity); i++)
    {
       if(res == to_equal)
       {

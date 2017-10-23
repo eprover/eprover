@@ -107,7 +107,7 @@ long   VarBankCardinal(VarBank_p bank);    /* Number of existing variables */
 long   VarBankCollectVars(VarBank_p bank, PStack_p stack);
 #define VarBankGetVCount(bank)      ((bank)->v_count)
 #define VarBankSetVCount(bank,count) ((bank)->v_count = (count))
-#define VarBankResetVCount(bank) ((bank)->v_count = 0)
+#define VarBankResetVCount(bank) (/*(bank)->v_count = 0*/ Verbose > 0 ? fprintf(stderr, "# Requested VarCount reset -- rejected!\n") : VarBankGetVCount(bank))
 #define VarIsFreshVar(var) ((var)->f_code <= -FRESH_VAR_LIMIT)
 #define VarFCodeIsFresh(f_code) ((f_code) <= -FRESH_VAR_LIMIT)
 

@@ -527,22 +527,49 @@ static __inline__ Term_p TermTopAlloc(FunCode f_code, int arity)
 // UP TO -- NOT INCLUDING!
 static __inline__ Term_p TermCreatePrefix(Term_p orig, int up_to)
 {
-   assert(orig && orig->arity >= up_to);
+   assert(orig && orig->arity >= up_to && up_to >= 0);
    Term_p prefix;
 
-   if (up_to == orig->arity)
+   if (!TermIsAppliedVar(orig))
    {
-      // do not create a copy of the term!
-      prefix = orig;
+      if (up_to == orig->arity)
+      {
+         // do not create a copy of the term!
+         prefix = orig;
+      }
+      else
+      {
+         prefix = TermTopAlloc(orig->f_code, up_to);
+         for(int i=0; i<up_to; i++)
+         {
+            prefix->args[i] = orig->args[i];
+         }
+      }
    }
    else
    {
-      prefix = TermTopAlloc(orig->f_code, orig->arity);
-      for(int i=0; i<up_to; i++)
+      if (up_to == orig->arity-1)
       {
-         prefix->args[i] = orig->args[i];
+         prefix =  orig;
+      }
+      else
+      {
+         if (up_to == 0)
+         {
+            prefix = orig->args[0];
+         }
+         else
+         {
+            prefix = TermTopAlloc(orig->f_code, up_to+1);
+            prefix->properties = TPIsAppVar;
+            for(int i=0; i<up_to+1; i++)
+            {
+               prefix->args[i] = orig->args[i];
+            }
+         }
       }
    }
+   
 
    return prefix;  
 }
