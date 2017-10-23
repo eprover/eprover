@@ -571,7 +571,8 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
           // this check here is problematic!!!
           // if we have no term sharing -- well, we're screwed.
           // well, maybe we're not -- TODO : TALK TO JASMIN.
-          else if(next->variable->binding == term || TermIsPrefix(next->variable->binding, term))
+          else if(next->variable->binding == term || 
+                    (ProblemIsHO == PROBLEM_IS_HO && TermIsPrefix(next->variable->binding, term)))
           {
              PStackDiscardTop(tree->term_stack);
              if (ProblemIsHO == PROBLEM_IS_HO)
