@@ -214,7 +214,7 @@ static void local_vb_update(OCB_p ocb, Term_p t, bool lhs)
 static bool mfyvwbc(OCB_p ocb, Term_p t, DerefType deref_t, Term_p var, bool lhs)
 {
    //TODO: MIGHT NOT BE SHARED
-   t = TermDeref(t, &deref_t, NULL);
+   t = TermDeref(t, &deref_t);
    local_vb_update(ocb, t, lhs);
 
    if(var->f_code == t->f_code)
@@ -246,7 +246,7 @@ static bool mfyvwbc(OCB_p ocb, Term_p t, DerefType deref_t, Term_p var, bool lhs
 static void mfyvwb(OCB_p ocb, Term_p t, DerefType deref_t, bool lhs)
 {
    //TODO: MIGHT NOT BE SHARED
-   t = TermDeref(t, &deref_t, NULL);
+   t = TermDeref(t, &deref_t);
    local_vb_update(ocb, t, lhs);
 
    // Note that arity == 0 for variables.
@@ -313,16 +313,16 @@ static CompareResult kbo6cmp(OCB_p ocb, Term_p s, Term_p t,
    CompareResult res, tmp;
 
    //TODO: MIGHT NOT BE SHARED
-   s = TermDeref(s, &deref_s, NULL);
-   t = TermDeref(t, &deref_t, NULL);
+   s = TermDeref(s, &deref_s);
+   t = TermDeref(t, &deref_t);
 
    /* Pacman lemma ;-) */
    while((s->arity==1) && (s->f_code == t->f_code))
    {
       s = s->args[0];
       t = t->args[0];
-      s = TermDeref(s, &deref_s, NULL);
-      t = TermDeref(t, &deref_t, NULL);
+      s = TermDeref(s, &deref_s);
+      t = TermDeref(t, &deref_t);
    }
    if(TermIsVar(s))
    {
@@ -423,7 +423,7 @@ static void mfyvwblhs(OCB_p ocb, Term_p term, DerefType deref_t)
    {
       PLocalTaggedStackPop(stack, term, deref_t);
       //TODO: MIGHT NOT BE SHARED
-      term = TermDeref(term, &deref_t, NULL);
+      term = TermDeref(term, &deref_t);
 
       if(TermIsVar(term))
       {
@@ -462,7 +462,7 @@ static void mfyvwbrhs(OCB_p ocb, Term_p term, DerefType deref_t)
    {
       PLocalTaggedStackPop(stack, term, deref_t);
       //TODO: MIGHT NOT BE SHARED
-      term = TermDeref(term, &deref_t, NULL);
+      term = TermDeref(term, &deref_t);
 
       if(TermIsVar(term))
       {
@@ -497,8 +497,8 @@ static CompareResult kbolincmp(OCB_p ocb, Term_p s, Term_p t,
    CompareResult res = to_equal;
 
    //TODO: MIGHT NOT BE SHARED
-   s = TermDeref(s, &deref_s, NULL);
-   t = TermDeref(t, &deref_t, NULL);
+   s = TermDeref(s, &deref_s);
+   t = TermDeref(t, &deref_t);
 
    if(s->f_code == t->f_code)
    {

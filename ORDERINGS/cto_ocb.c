@@ -545,7 +545,7 @@ FunCode OCBTermMaxFunCode(OCB_p ocb, Term_p term)
    assert(ocb->precedence||ocb->prec_weights);
 
    // TODO: might not be shared
-   term = TermDeref(term, &deref, NULL);
+   term = TermDeref(term, &deref);
 
    if(TermIsVar(term))
    {

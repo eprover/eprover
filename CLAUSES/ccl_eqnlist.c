@@ -1329,7 +1329,7 @@ FunCode NormSubstEqnListExcept(Eqn_p list, Eqn_p except, Subst_p
    {
       if(handle!= except)
       {
-    SubstNormEqn(handle, subst, vars);
+        SubstNormEqn(handle, subst, vars);
       }
    }
    return res;

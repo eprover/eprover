@@ -549,8 +549,9 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
           bool bound = false;
           if((!next->variable->binding)&&(!TermCellQueryProp(term,TPPredPos)))
           {
-             if (next->variable->type == term->type)
+             if (ProblemIsHO == PROBLEM_NOT_HO)
              {
+               assert(next->variable->type == term->type);
                //fprintf(stderr, "Matched simple var\n");
                PStackDiscardTop(tree->term_stack);
                SubstAddBinding(subst, next->variable, term);  
@@ -577,8 +578,6 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
                   fprintf(stderr, " with binding ");
                   TermPrint(stderr, next->variable->binding, tree->sig, DEREF_NEVER);
                   fprintf(stderr, ". \n");
-
-
                   fprintf(stderr, "After matching applied var\n");
                   print_term_stack(tree->term_stack, tree->sig);*/
 
@@ -654,7 +653,7 @@ static void pdtree_backtrack(PDTree_p tree, Subst_p subst)
    {
       tree->term_weight  += (TermStandardWeight(handle->variable->binding) -
                              TermStandardWeight(handle->variable));
-      if (!ProblemIsHO)
+      if (ProblemIsHO == PROBLEM_NOT_HO)
       {
          PStackPushP(tree->term_stack, handle->variable->binding);
          if(handle->bound)
@@ -677,7 +676,6 @@ static void pdtree_backtrack(PDTree_p tree, Subst_p subst)
                  original_term->arity, handle->variable->binding->arity);
          TermPrint(stderr, PStackTopP(tree->term_stack), tree->sig, DEREF_NEVER);
          fprintf(stderr, ".\n");
-
          fprintf(stderr, "Before backtracking applied var\n");
          print_term_stack(tree->term_stack, tree->sig);*/
 
@@ -699,6 +697,7 @@ static void pdtree_backtrack(PDTree_p tree, Subst_p subst)
       print_term_stack(tree->term_stack, tree->sig);*/
 
       TermLRTraversePrev(tree->term_stack,t);
+      
       /*fprintf(stderr, "After backtracking term\n");
       print_term_stack(tree->term_stack, tree->sig);*/
 
@@ -1017,7 +1016,7 @@ Term_p TermLRTraversePrevAppVar(PStack_p stack, Term_p original_term, Term_p var
    for(i=0; i<to_backtrack_nr; i++)
    {
       tmp = PStackPopP(stack);
-      UNUSED(tmp); assert(tmp == original_term->args[var->binding->arity + i + TermIsAppliedVar(original_term)]); // 0 based indexing
+      UNUSED(tmp); assert(tmp == original_term->args[var->binding->arity + i]); // 0 based indexing
    }
    PStackPushP(stack, original_term);
 

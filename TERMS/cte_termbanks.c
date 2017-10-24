@@ -505,7 +505,7 @@ Term_p TBInsert(TB_p bank, Term_p term, DerefType deref)
    assert(term);
 
    // TODO term will be shared for sure
-   term = TermDeref(term, &deref, bank);
+   term = TermDeref(term, &deref);
 
    if(TermIsVar(term))
    {
@@ -547,7 +547,7 @@ Term_p TBInsertNoProps(TB_p bank, Term_p term, DerefType deref)
 
    assert(term);
 
-   term = TermDeref(term, &deref, bank);
+   term = TermDeref(term, &deref);
 
    if(TermIsVar(term))
    {
@@ -598,7 +598,7 @@ Term_p  TBInsertRepl(TB_p bank, Term_p term, DerefType deref, Term_p old, Term_p
       return repl;
    }
 
-   term = TermDeref(term, &deref, bank);
+   term = TermDeref(term, &deref);
 
    if(TermIsVar(term))
    {
@@ -702,7 +702,7 @@ Term_p TBInsertOpt(TB_p bank, Term_p term, DerefType deref)
 
    assert(term);
 
-   term = TermDeref(term, &deref, bank);
+   term = TermDeref(term, &deref);
 
    if(TermIsGround(term))
    {

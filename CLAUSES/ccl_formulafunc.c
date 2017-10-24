@@ -837,7 +837,17 @@ long TFormulaToCNF(WFormula_p form, FormulaProperties type, ClauseSet_p set,
       }
       else
       {
+         fprintf(stderr, "Formula to be collected: ");
+         WFormulaTPTPPrint(stderr, form, true);
+         fprintf(stderr, ".\n");
+
+
          clause = TFormulaCollectClause(handle, terms, fresh_vars);
+
+         fprintf(stderr, "Collected clause: ");
+         ClausePrint(stderr, clause, true);
+         fprintf(stderr, ".\n");
+
          ClauseSetTPTPType(clause, type);
          DocClauseFromForm(GlobalOut, OutputLevel, clause, form);
          ClausePushDerivation(clause, DCSplitConjunct, form, NULL);
