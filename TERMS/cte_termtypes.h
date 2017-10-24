@@ -160,7 +160,7 @@ typedef uintptr_t DerefType, *DerefType_p;
 
 #define TERMCELL_DYN_MEM (TERMCELL_MEM+4*TERMARG_MEM)
 
-#define CAN_DEREF(term) ((term)->binding || (TermIsAppliedVar(term) && (term)->args[0]->binding))
+#define CAN_DEREF(term) ((TermIsVar(term) && (term)->binding) || (TermIsAppliedVar(term) && (term)->args[0]->binding))
 
 
 
@@ -237,9 +237,8 @@ bool    TermHasInterpretedSymbol(Term_p term);
 bool    TermIsPrefix(Term_p needle, Term_p haystack);
 static __inline__ Type_p GetHeadType(Sig_p sig, Term_p term);
 
-struct tbcell;
-static __inline__ Term_p  TermDerefAlways(Term_p term, struct tbcell*);
-static __inline__ Term_p  TermDeref(Term_p term, DerefType_p deref, struct tbcell*);
+static __inline__ Term_p  TermDerefAlways(Term_p term);
+static __inline__ Term_p  TermDeref(Term_p term, DerefType_p deref);
 
 static __inline__ Term_p  TermTopCopy(Term_p source);
 
@@ -279,7 +278,7 @@ static __inline__ Type_p GetHeadType(Sig_p sig, Term_p term)
 static __inline__ Term_p applied_var_deref(Term_p orig)
 {
    assert(TermIsAppliedVar(orig));
-   assert(orig->arity >= 1);
+   assert(orig->arity > 1);
    assert(orig->args[0]->binding);
 
    Term_p res;
@@ -315,8 +314,8 @@ static __inline__ Term_p applied_var_deref(Term_p orig)
 
    return res;
 }
-Term_p TBInsert(struct tbcell*, Term_p, DerefType);
-static __inline__ Term_p deref_step(Term_p orig, struct tbcell* bank)
+
+static __inline__ Term_p deref_step(Term_p orig)
 {
    assert(orig->f_code < 0 || TermIsAppliedVar(orig));
    // assert(bank != NULL || orig->arity == 0);
@@ -326,18 +325,17 @@ static __inline__ Term_p deref_step(Term_p orig, struct tbcell* bank)
    }
    else
    {
-      return bank ? TBInsert(bank, applied_var_deref(orig), DEREF_NEVER)
-                  : applied_var_deref(orig);
+      return applied_var_deref(orig);
    }
 }
 
-static __inline__ Term_p TermDerefAlways(Term_p term, struct tbcell* bank)
+static __inline__ Term_p TermDerefAlways(Term_p term)
 {
    assert(TermIsVar(term)||!(term->binding));
 
    while(CAN_DEREF(term))
    {
-      term = deref_step(term, bank);
+      term = deref_step(term);
    }
    return term;
 }
@@ -354,7 +352,7 @@ static __inline__ Term_p TermDerefAlways(Term_p term, struct tbcell* bank)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-static __inline__ Term_p TermDeref(Term_p term, DerefType_p deref, struct tbcell* bank)
+static __inline__ Term_p TermDeref(Term_p term, DerefType_p deref)
 {
    assert(TermIsVar(term) || !(term->binding));
 
@@ -362,7 +360,7 @@ static __inline__ Term_p TermDeref(Term_p term, DerefType_p deref, struct tbcell
    {
       while(CAN_DEREF(term))
       {
-         term = deref_step(term, bank);
+         term = deref_step(term);
       }
    }
    else
@@ -373,7 +371,7 @@ static __inline__ Term_p TermDeref(Term_p term, DerefType_p deref, struct tbcell
          {
             break;
          }
-         term = deref_step(term, bank);
+         term = deref_step(term);
          (*deref)--;
       }
    }

@@ -153,7 +153,7 @@ static Term_p term_check_consistency_rek(Term_p term, PTree_p *branch,
    int      i;
    Term_p   res = NULL;
 
-   term = TermDeref(term, &deref, NULL);
+   term = TermDeref(term, &deref);
    putc('.', stdout);
 
    if(!PTreeStore(branch, term))
@@ -220,7 +220,7 @@ void TermPrint(FILE* out, Term_p term, Sig_p sig, DerefType deref)
    assert(term);
    assert(sig||TermIsVar(term));
 
-   term = TermDeref(term, &deref, NULL);
+   term = TermDeref(term, &deref);
 
 #ifdef NEVER_DEFINED
    if(TermCellQueryProp(term, TPRestricted))
@@ -576,7 +576,7 @@ Term_p TermCopy(Term_p source, VarBank_p vars, DerefType deref)
 
    assert(source);
 
-   source = TermDeref(source, &deref, NULL);
+   source = TermDeref(source, &deref);
 
    if(TermIsVar(source))
    {
@@ -619,7 +619,7 @@ Term_p TermCopyKeepVars(Term_p source, DerefType deref)
 
    assert(source);
 
-   source = TermDeref(source, &deref, NULL);
+   source = TermDeref(source, &deref);
 
    if(TermIsVar(source))
    {
@@ -653,8 +653,8 @@ Term_p TermCopyKeepVars(Term_p source, DerefType deref)
 
 bool TermStructEqual(Term_p t1, Term_p t2)
 {
-   t1 = TermDerefAlways(t1, NULL);
-   t2 = TermDerefAlways(t2, NULL);
+   t1 = TermDerefAlways(t1);
+   t2 = TermDerefAlways(t2);
 
    if(t1==t2)
    {
@@ -735,8 +735,8 @@ bool TermStructEqualNoDeref(Term_p t1, Term_p t2)
 bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType deref_2)
 {
 
-   t1 = TermDeref(t1, &deref_1, NULL);
-   t2 = TermDeref(t2, &deref_2, NULL);
+   t1 = TermDeref(t1, &deref_1);
+   t2 = TermDeref(t2, &deref_2);
 
    if((t1==t2) && (deref_1==deref_2))
    {
@@ -881,7 +881,7 @@ bool TermIsSubterm(Term_p super, Term_p test, DerefType deref)
 {
    int i;
 
-   super = TermDeref(super, &deref, NULL);
+   super = TermDeref(super, &deref);
 
    if(super == test)
    {
@@ -916,7 +916,7 @@ bool TermIsSubtermDeref(Term_p super, Term_p test, DerefType
 {
    int i;
 
-   super = TermDeref(super, &deref_super, NULL);
+   super = TermDeref(super, &deref_super);
    if(TermStructEqualDeref(super, test, deref_super, deref_test))
    {
       return true;

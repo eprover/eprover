@@ -211,7 +211,7 @@ void TermSetProp(Term_p term, DerefType deref, TermProperties prop)
    {
       deref = PStackPopInt(stack);
       term  = PStackPopP(stack);
-      term  = TermDeref(term, &deref, NULL);
+      term  = TermDeref(term, &deref);
       TermCellSetProp(term, prop);
       for(i=0; i<term->arity; i++)
       {
@@ -249,7 +249,7 @@ bool TermSearchProp(Term_p term, DerefType deref, TermProperties prop)
    {
       deref = PStackPopInt(stack);
       term  = PStackPopP(stack);
-      term  = TermDeref(term, &deref, NULL);
+      term  = TermDeref(term, &deref);
       if(TermCellQueryProp(term, prop))
       {
          res = true;
@@ -293,7 +293,7 @@ bool TermVerifyProp(Term_p term, DerefType deref, TermProperties prop,
    {
       deref = PStackPopInt(stack);
       term  = PStackPopP(stack);
-      term  = TermDeref(term, &deref, NULL);
+      term  = TermDeref(term, &deref);
       if(TermCellGiveProps(term, prop)!=expected)
       {
          res = false;
@@ -334,7 +334,7 @@ void TermDelProp(Term_p term, DerefType deref, TermProperties prop)
    {
       deref = PStackPopInt(stack);
       term  = PStackPopP(stack);
-      term  = TermDeref(term, &deref, NULL);
+      term  = TermDeref(term, &deref);
       TermCellDelProp(term, prop);
       for(i=0; i<term->arity; i++)
       {
@@ -404,7 +404,7 @@ void TermVarSetProp(Term_p term, DerefType deref, TermProperties prop)
    {
       deref = PStackPopInt(stack);
       term  = PStackPopP(stack);
-      term  = TermDeref(term, &deref, NULL);
+      term  = TermDeref(term, &deref);
       if(TermIsVar(term))
       {
          TermCellSetProp(term, prop);
@@ -487,7 +487,7 @@ bool TermVarSearchProp(Term_p term, DerefType deref, TermProperties prop)
    {
       deref = PStackPopInt(stack);
       term  = PStackPopP(stack);
-      term  = TermDeref(term, &deref, NULL);
+      term  = TermDeref(term, &deref);
       if(TermIsVar(term) && TermCellQueryProp(term, prop))
       {
          res = true;
@@ -528,7 +528,7 @@ void TermVarDelProp(Term_p term, DerefType deref, TermProperties prop)
    {
       deref = PStackPopInt(stack);
       term  = PStackPopP(stack);
-      term  = TermDeref(term, &deref, NULL);
+      term  = TermDeref(term, &deref);
       if(TermIsVar(term))
       {
          TermCellDelProp(term, prop);

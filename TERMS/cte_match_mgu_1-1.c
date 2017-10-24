@@ -64,7 +64,7 @@ PERF_CTR_DEFINE(MguTimer);
 static bool occur_check(restrict Term_p term, restrict Term_p var)
 {
    // TODO: might be unshared -- I don't think it is a problem
-   term = TermDerefAlways(term, NULL);
+   term = TermDerefAlways(term);
 
    if(UNLIKELY(term == var))
    {
@@ -238,8 +238,8 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
    while(!PQueueEmpty(jobs))
    {
       // TODO: Terms might not be shared
-      t2 =  TermDerefAlways(PQueueGetLastP(jobs), NULL);
-      t1 =  TermDerefAlways(PQueueGetLastP(jobs), NULL);
+      t2 =  TermDerefAlways(PQueueGetLastP(jobs));
+      t1 =  TermDerefAlways(PQueueGetLastP(jobs));
 
       if(TermIsVar(t2))
       {
