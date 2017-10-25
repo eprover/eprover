@@ -190,7 +190,8 @@ PDTNode_p PDTreeFindNextIndexedLeaf(PDTree_p tree, Subst_p subst);
 
 MatchInfo_p PDTreeFindNextDemodulator(PDTree_p tree, Subst_p subst);
 
-Term_p MatchInfoMatchedPrefix(MatchInfo_p mi, TB_p bank, Term_p to_match);
+Term_p MatchInfoMatchedPrefix(MatchInfo_p mi, Term_p to_match);
+Term_p MIGetRewrittenTerm(MatchInfo_p mi, Term_p original);
 Term_p GetMatcher(MatchInfo_p mi);
 
 void PDTreePrint(FILE* out, PDTree_p tree);

@@ -542,13 +542,13 @@ MatchInfo_p indexed_find_demodulator_mi(OCB_p ocb, Term_p term,
 //
 /----------------------------------------------------------------------*/
 
-static Term_p rewrite_with_clause_set(OCB_p ocb, TB_p bank, Term_p term,
+/*static*/ Term_p rewrite_with_clause_set(OCB_p ocb, TB_p bank, Term_p term,
                   SysDate date, ClauseSet_p
                   demodulators, bool prefer_general,
                                       bool restricted_rw)
 {
    Subst_p     subst = SubstAlloc();
-   ClausePos_p pos;
+   MatchInfo_p mi;
    Term_p      repl;
 
    assert(demodulators->demod_index);
@@ -556,17 +556,25 @@ static Term_p rewrite_with_clause_set(OCB_p ocb, TB_p bank, Term_p term,
    assert(!TermIsVar(term));
    assert(!TermIsTopRewritten(term));
 
-   pos = indexed_find_demodulator(ocb, term, date, demodulators,
+   mi = indexed_find_demodulator_mi(ocb, term, date, demodulators,
               subst, prefer_general, restricted_rw);
-   if(pos)
+   if(mi)
    {
       RewriteSuccesses++;
 
-      repl = ClausePosGetOtherSide(pos);
-      repl = TBInsertInstantiated(bank, repl);
+      repl = MIGetRewrittenTerm(mi, term);
+      if (ProblemIsHO == PROBLEM_NOT_HO)
+      {
+        repl = TBInsertInstantiated(bank, repl);
+      }
+      else
+      {
+        repl = TBInsert(bank, repl, DEREF_ONCE);
+      }
+      
 
-      assert(pos->clause->ident);
-      TermAddRWLink(term, repl, pos->clause, ClauseIsSOS(pos->clause),
+      assert(mi->matcher->clause->ident);
+      TermAddRWLink(term, repl, mi->matcher->clause, ClauseIsSOS(mi->matcher->clause),
                     restricted_rw?RWAlwaysRewritable:RWLimitedRewritable);
       term = repl;
    }

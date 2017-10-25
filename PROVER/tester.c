@@ -360,6 +360,381 @@ static void print_proof_stats(ProofState_p proofstate,
 //
 /----------------------------------------------------------------------*/
 
+void test_pdts(ProofState_p proofstate)
+{
+  /* The file is lfho.pdt.p */
+
+   /* Assuming this state of clauses:
+    1 tcf(i_0_10, plain, ![X2:$i > $i]:g($@_var(X2,a),c)=d).
+    2 tcf(i_0_15, negated_conjecture, ![X8:$i > $i > $i]:$@_var(X8,a,c)=f(c,d,a,b)).
+    3 tcf(i_0_8, plain, ![X1:$i > $i > $i]:$@_var(X1,a,c)=f(c,d,a,b)).
+    4 tcf(i_0_12, plain, ![X5:$i > $i > $i > $i > $i, X4, X3:$i > $i > $i > $i]:$@_var(X3,a,X4,b)=$@_var(X5,b,a,c,b)).
+    5 cnf(i_0_14, plain, (f(X7,b,X7,d)=f(a,b,c,d))).
+    6 cnf(i_0_11, plain, (g(h(b,a),c)=g(f(a,a,a,a),b))).
+    7 tcf(i_0_13, plain, ![X6:$i > $i > $i]:$@_var(X6,a)!=f(c,a,d)).
+    8 tcf(i_0_9, plain, f(c,d,a)!=f(a,a,a)).
+
+  */
+
+   /* appliedVariable -- clause 3 -- X a c*/
+   ClausePos_p appVar = ClausePosCellAlloc();
+   Clause_p    appVarClause = proofstate->axioms->anchor->succ->succ->succ;
+   appVar->clause  = appVarClause;
+   appVar->literal = appVarClause->literals;
+
+   /*Just a hack to try rewriting */
+   EqnSetProp(appVar->literal, EPIsOriented);
+   appVarClause->date = 1;
+
+   appVar->side    = LeftSide;
+   appVar->pos     = NULL;
+   PDTreeInsert(proofstate->processed_pos_rules->demod_index, appVar);
+
+   /* partially applied term -- clause 8  -- f c d a*/
+   ClausePos_p partiallyApplied = ClausePosCellAlloc();
+   Clause_p    partiallyAppliedClause = proofstate->axioms->anchor->succ->succ->succ->succ
+                                                                  ->succ->succ->succ->succ;
+   partiallyApplied->clause  = partiallyAppliedClause;
+   partiallyApplied->literal = partiallyAppliedClause->literals;
+
+   EqnSetProp(partiallyApplied->literal, EPIsOriented);
+   partiallyAppliedClause->date = 1;
+
+   partiallyApplied->side    = LeftSide;
+   partiallyApplied->pos     = NULL;
+   PDTreeInsert(proofstate->processed_pos_rules->demod_index, partiallyApplied);
+
+   /* first term to match -- clause 2, right -- f c d a b*/
+   Term_p firstToMatch = proofstate->axioms->anchor->succ->succ->literals->rterm;
+
+   PDTreeSearchInit(proofstate->processed_pos_rules->demod_index, firstToMatch, SysDateInvalidTime(), true);
+   Subst_p subst = SubstAlloc();
+   MatchInfo_p mi = PDTreeFindNextDemodulator(proofstate->processed_pos_rules->demod_index, subst);
+
+   fprintf(stderr, "Matching :");
+   TermPrint(stderr, firstToMatch, proofstate->terms->sig, DEREF_ALWAYS);
+   fprintf(stderr, ".\n");
+
+   Term_p matcher =  GetMatcher(mi);
+   if (!matcher)
+   {
+      fprintf(stderr, "Nothing found (%p)!!!\n", mi);
+   }
+   else
+   {
+      fprintf(stderr, "Matcher :");
+      TermPrint(stderr, matcher, proofstate->terms->sig, DEREF_ALWAYS);
+      fprintf(stderr, "\nWhat is matched : ");
+      TermPrint(stderr, MatchInfoMatchedPrefix(mi, firstToMatch), proofstate->terms->sig, DEREF_ALWAYS);
+   }
+   SubstBacktrack(subst);
+   PDTreeSearchExit(proofstate->processed_pos_rules->demod_index);
+
+   /* applied var inside -- clause 1, left -- g (X a) c*/
+   ClausePos_p appVarInside = ClausePosCellAlloc();
+   Clause_p    appVarInsideClause = proofstate->axioms->anchor->succ;
+   appVarInside->clause  = appVarInsideClause;
+   appVarInside->literal = appVarInsideClause->literals;
+
+   EqnSetProp(appVarInside->literal, EPIsOriented);
+   appVarInsideClause->date = 1;
+
+   appVarInside->side    = LeftSide;
+   appVarInside->pos     = NULL;
+   PDTreeInsert(proofstate->processed_pos_rules->demod_index, appVarInside);
+
+
+   //PDTreePrint(stderr, proofstate->processed_pos_rules->demod_index);
+   /* second to match -- clause 6, left  -- g (h b a) c*/
+   Term_p secondToMatch = proofstate->axioms->anchor->succ->succ->succ->
+                                                      succ->succ->succ->literals->lterm;
+   fprintf(stderr, "\nSecond to match :");
+   TermPrint(stderr, secondToMatch, proofstate->terms->sig, DEREF_ALWAYS);
+
+   PDTreeSearchInit(proofstate->processed_pos_rules->demod_index, secondToMatch, SysDateInvalidTime(), true);
+   mi = PDTreeFindNextDemodulator(proofstate->processed_pos_rules->demod_index, subst);
+
+   matcher =  GetMatcher(mi);
+   if (!matcher)
+   {
+      fprintf(stderr, "Nothing found (%p)!!!\n", mi);
+   }
+   else
+   {
+      fprintf(stderr, "\nMatcher :");
+      TermPrint(stderr, matcher, proofstate->terms->sig, DEREF_ALWAYS);
+      fprintf(stderr, "\nWhat is matched : ");
+      TermPrint(stderr, MatchInfoMatchedPrefix(mi, secondToMatch), proofstate->terms->sig, DEREF_ALWAYS);
+   }
+
+
+   SubstBacktrack(subst);
+   PDTreeSearchExit(proofstate->processed_pos_rules->demod_index);
+
+
+   /* Varible both applied an nonaplied in the same term -- X a Y b -- 4 left*/
+   ClausePos_p appVarInOut = ClausePosCellAlloc();
+   Clause_p    appVarInOutClause = proofstate->axioms->anchor->succ->succ->succ->succ;
+   appVarInOut->clause  = appVarInOutClause;
+   appVarInOut->literal = appVarInOutClause->literals;
+
+   EqnSetProp(appVarInOut->literal, EPIsOriented);
+   appVarInOutClause->date = 1;
+
+   appVarInOut->side    = LeftSide;
+   appVarInOut->pos     = NULL;
+   PDTreeInsert(proofstate->processed_pos_rules->demod_index, appVarInOut);
+
+   fprintf(stderr, "\nCurrently in the PDT: \n");
+   PDTreePrint(stderr, proofstate->processed_pos_rules->demod_index);
+
+
+   Term_p thirdToMatch = proofstate->axioms->anchor->succ->succ->succ->succ->literals->rterm;
+   fprintf(stderr, "\nThird to match :");
+   /* X(b,a,c,b) -- 4 -- right*/
+   TermPrint(stderr, thirdToMatch, proofstate->terms->sig, DEREF_ALWAYS);
+
+   PDTreeSearchInit(proofstate->processed_pos_rules->demod_index, thirdToMatch, SysDateInvalidTime(), true);
+   mi = PDTreeFindNextDemodulator(proofstate->processed_pos_rules->demod_index, subst);
+
+   matcher =  GetMatcher(mi);
+   if (!matcher)
+   {
+      fprintf(stderr, "\nNothing found (%p)!!!\n", mi);
+   }
+   else
+   {
+      fprintf(stderr, "\nMatcher :");
+      TermPrint(stderr, matcher, proofstate->terms->sig, DEREF_NEVER);
+      fprintf(stderr, "\nWhat is matched : ");
+      TermPrint(stderr, MatchInfoMatchedPrefix(mi, thirdToMatch), proofstate->terms->sig, DEREF_ALWAYS);
+   }
+
+
+   SubstBacktrack(subst);
+   PDTreeSearchExit(proofstate->processed_pos_rules->demod_index);
+
+
+   /* Idea is that this variable matches up to some point -- X a -> 
+      has to match f c d a b .. X matches f c d and a matches a..
+      so it is matched up to some point */
+   ClausePos_p appVarPar = ClausePosCellAlloc();
+   Clause_p    appVarParClause = proofstate->axioms->anchor->succ->succ->succ
+                                                           ->succ->succ->succ->succ;
+   appVarPar->clause  = appVarParClause;
+   appVarPar->literal = appVarParClause->literals;
+
+   EqnSetProp(appVarPar->literal, EPIsOriented);
+   appVarParClause->date = 1;
+
+
+   appVarPar->side    = LeftSide;
+   appVarPar->pos     = NULL;
+   PDTreeInsert(proofstate->processed_pos_rules->demod_index, appVarPar);
+   
+
+   fprintf(stderr, "\nFourth to match :");
+   TermPrint(stderr, firstToMatch, proofstate->terms->sig, DEREF_ALWAYS);
+   PDTreeSearchInit(proofstate->processed_pos_rules->demod_index, firstToMatch, SysDateInvalidTime(), true);
+
+   mi = PDTreeFindNextDemodulator(proofstate->processed_pos_rules->demod_index, subst);
+
+   matcher =  GetMatcher(mi);
+   if (!matcher)
+   {
+      fprintf(stderr, "\nNothing found (%p)!!!\n", mi);
+   }
+   else
+   {
+      fprintf(stderr, "\nMatcher :");
+      TermPrint(stderr, matcher, proofstate->terms->sig, DEREF_ALWAYS);
+      fprintf(stderr, "\nWhat is matched : ");
+      TermPrint(stderr, MatchInfoMatchedPrefix(mi, firstToMatch), proofstate->terms->sig, DEREF_ALWAYS);
+   }
+
+   SubstBacktrack(subst);
+   PDTreeSearchExit(proofstate->processed_pos_rules->demod_index);
+
+   ClausePos_p sameVarTwice = ClausePosCellAlloc();
+   Clause_p    sameVarTwiceClause = proofstate->axioms->anchor->succ->succ->succ
+                                                              ->succ->succ;
+   sameVarTwice->clause  = sameVarTwiceClause;
+   sameVarTwice->literal = sameVarTwiceClause->literals;
+
+   EqnSetProp(sameVarTwice->literal, EPIsOriented);
+   sameVarTwiceClause->date = 1;
+
+
+   sameVarTwice->side    = LeftSide;
+   sameVarTwice->pos     = NULL;
+   PDTreeInsert(proofstate->processed_pos_rules->demod_index, sameVarTwice);
+
+   fprintf(stderr, "\nCurrently in the PDT: \n");
+   PDTreePrint(stderr, proofstate->processed_pos_rules->demod_index);
+
+   fprintf(stderr, "\nFifth to match :");
+   TermPrint(stderr, sameVarTwiceClause->literals->rterm, proofstate->terms->sig, DEREF_ALWAYS);
+
+   PDTreeSearchInit(proofstate->processed_pos_rules->demod_index, sameVarTwiceClause->literals->rterm, SysDateInvalidTime(), true);
+
+   mi = PDTreeFindNextDemodulator(proofstate->processed_pos_rules->demod_index, subst);
+
+   matcher =  GetMatcher(mi);
+   if (!matcher)
+   {
+      fprintf(stderr, "\nNothing found (%p)!!!\n", mi);
+   }
+   else
+   {
+      fprintf(stderr, "\nMatcher :");
+      TermPrint(stderr, matcher, proofstate->terms->sig, DEREF_ALWAYS);
+      fprintf(stderr, "\nWhat is matched : ");
+      TermPrint(stderr, MatchInfoMatchedPrefix(mi, sameVarTwiceClause->literals->rterm), proofstate->terms->sig, DEREF_ALWAYS);
+   }
+}
+
+Term_p rewrite_with_clause_set(OCB_p ocb, TB_p bank, Term_p term,
+                  SysDate date, ClauseSet_p
+                  demodulators, bool prefer_general,
+                                      bool restricted_rw);
+void test_rewriting(ProofState_p proofstate, ProofControl_p proofctrl)
+{
+  /* Parsed file lfho.rewrite.p */
+  //1 tcf(i_0_14, plain, ![X4:tA > tA]:$@_var(X4,$@_var(X4,b))=h(X4)).
+  //2 tcf(i_0_10, plain, ![X1:tA]:f(X1,f(a,b))=X1).
+  //3 tcf(i_0_13, plain, a_predicate(g(b,a))).
+  //4 tcf(i_0_12, plain, ![X3:tA > tA]:$@_var(X3,a)=f($@_var(X3,a),$@_var(X3,a))).
+  //5 tcf(i_0_15, plain, ![X5:tA > tA > tA]:$@_var(X5,a)=j(b,b,a)).
+  //6 tcf(i_0_16, plain, a_predicate(j(b,a,a,b))).
+  //7 tcf(i_0_11, plain, ![X2:tA > tA]:a_predicate(f($@_var(X2,c),f(a,b)))).
+  //8 tcf(i_0_17, negated_conjecture, ~a_predicate(f(a,f(a,b)))).
+
+   /* Test case 1:
+         test rewrite rule f X     (f a b) = X
+         after matching    f (Y c) (f a b)
+         the rewritten term has to be     -> Y c 
+      PASSED!*/
+   ClausePos_p tc1 = ClausePosCellAlloc();
+   Clause_p    tc1Clause = proofstate->axioms->anchor->succ->succ;
+   tc1->clause  = tc1Clause;
+   tc1->literal = tc1Clause->literals;
+
+   EqnSetProp(tc1->literal, EPIsOriented);
+   tc1Clause->date = 1;
+
+   tc1->side    = LeftSide;
+   tc1->pos     = NULL;
+   PDTreeInsert(proofstate->processed_pos_rules->demod_index, tc1);
+
+   Term_p firstToTest = proofstate->axioms->anchor->succ->succ->succ->succ
+                                                ->succ->succ->succ->literals
+                                                ->lterm->args[0];
+
+   /* Test case 2:
+         test rewrite rule X   a = f (X   a) (X   a)
+         after matching    g c a 
+         the rewritten term has to be  -> f (g c a) (g c a) 
+      PASSED!*/
+   ClausePos_p tc2 = ClausePosCellAlloc();
+   Clause_p    tc2Clause = proofstate->axioms->anchor->succ->succ->succ->succ;
+   tc2->clause  = tc2Clause;
+   tc2->literal = tc2Clause->literals;
+
+   EqnSetProp(tc2->literal, EPIsOriented);
+   tc2Clause->date = 1;
+
+   tc2->side    = LeftSide;
+   tc2->pos     = NULL;
+   PDTreeInsert(proofstate->processed_pos_rules->demod_index, tc2);
+
+   Term_p secondToTest = proofstate->axioms->anchor->succ->succ->succ
+                                                 ->literals->lterm->args[0];
+
+   /* Test case 3: Testing of same prefix match
+         test rewrite rule X   (X   b) = h X
+         after matching    f a (f a b)
+         the rewritten term has to be  -> h (f a) 
+      PASSED!*/   
+   ClausePos_p tc3 = ClausePosCellAlloc();
+   Clause_p    tc3Clause = proofstate->axioms->anchor->succ;
+   tc3->clause  = tc3Clause;
+   tc3->literal = tc3Clause->literals;
+
+   EqnSetProp(tc3->literal, EPIsOriented);
+   tc3Clause->date = 1;
+
+   tc3->side    = LeftSide;
+   tc3->pos     = NULL;
+   PDTreeInsert(proofstate->processed_pos_rules->demod_index, tc3);
+
+   Term_p thirdToTest = proofstate->axioms->anchor->succ->succ->succ->succ
+                                                  ->succ->succ->succ->succ
+                                                  ->literals->lterm->args[0];
+
+   /* Test case 4: Testing of same prefix match
+         test rewrite rule Y     a = j b b a
+         after matching    j b a a b (partially)
+         the rewritten term has to be  -> j b b a b 
+      PASSED!*/   
+   ClausePos_p tc4 = ClausePosCellAlloc();
+   Clause_p    tc4Clause = proofstate->axioms->anchor->succ->succ->succ->succ->succ;
+   tc4->clause  = tc4Clause;
+   tc4->literal = tc4Clause->literals;
+
+   EqnSetProp(tc4->literal, EPIsOriented);
+   tc4Clause->date = 1;
+
+   tc4->side    = LeftSide;
+   tc4->pos     = NULL;
+   PDTreeInsert(proofstate->processed_pos_rules->demod_index, tc4);
+
+   Term_p fourthToTest = proofstate->axioms->anchor->succ->succ->succ
+                                                   ->succ->succ->succ
+                                                   ->literals->lterm->args[0];
+
+   fprintf(stderr, "Currently in the PDT: \n");
+   PDTreePrint(stderr, proofstate->processed_pos_rules->demod_index);
+
+   Term_p rewrittenFirst = 
+      rewrite_with_clause_set(proofctrl->ocb, proofstate->terms, firstToTest,
+                              SysDateInvalidTime(), proofstate->processed_pos_rules, 
+                              true, false);
+
+   TermPrint(stderr, firstToTest, proofstate->terms->sig, DEREF_NEVER);
+   fprintf(stderr, " - > ");
+   TermPrint(stderr, rewrittenFirst, proofstate->terms->sig, DEREF_NEVER);
+   fprintf(stderr, ".\n");
+
+   Term_p rewrittenSecond = 
+      rewrite_with_clause_set(proofctrl->ocb, proofstate->terms, secondToTest,
+                              SysDateInvalidTime(), proofstate->processed_pos_rules, 
+                              true, false);
+
+   TermPrint(stderr, secondToTest, proofstate->terms->sig, DEREF_NEVER);
+   fprintf(stderr, " - > ");
+   TermPrint(stderr, rewrittenSecond, proofstate->terms->sig, DEREF_NEVER);
+   fprintf(stderr, ".\n");
+
+   Term_p rewrittenThird = 
+      rewrite_with_clause_set(proofctrl->ocb, proofstate->terms, thirdToTest,
+                              SysDateInvalidTime(), proofstate->processed_pos_rules, 
+                              true, false);
+
+   TermPrint(stderr, thirdToTest, proofstate->terms->sig, DEREF_NEVER);
+   fprintf(stderr, " - > ");
+   TermPrint(stderr, rewrittenThird, proofstate->terms->sig, DEREF_NEVER);
+   fprintf(stderr, ".\n");
+
+   Term_p rewrittenFourth = 
+      rewrite_with_clause_set(proofctrl->ocb, proofstate->terms, fourthToTest,
+                              SysDateInvalidTime(), proofstate->processed_pos_rules, 
+                              true, false);
+
+   TermPrint(stderr, fourthToTest, proofstate->terms->sig, DEREF_NEVER);
+   fprintf(stderr, " - > ");
+   TermPrint(stderr, rewrittenFourth, proofstate->terms->sig, DEREF_NEVER);
+   fprintf(stderr, ".\n");
+}
 
 int main(int argc, char* argv[])
 {
@@ -533,239 +908,16 @@ int main(int argc, char* argv[])
 
    fprintf(stderr, "Clauses printed. \n");
 
-
-   /* The file is lfho.pdt.p */
-
-   /* Assuming this state of clauses:
-    1 tcf(i_0_10, plain, ![X2:$i > $i]:g($@_var(X2,a),c)=d).
-    2 tcf(i_0_15, negated_conjecture, ![X8:$i > $i > $i]:$@_var(X8,a,c)=f(c,d,a,b)).
-    3 tcf(i_0_8, plain, ![X1:$i > $i > $i]:$@_var(X1,a,c)=f(c,d,a,b)).
-    4 tcf(i_0_12, plain, ![X5:$i > $i > $i > $i > $i, X4, X3:$i > $i > $i > $i]:$@_var(X3,a,X4,b)=$@_var(X5,b,a,c,b)).
-    5 cnf(i_0_14, plain, (f(X7,b,X7,d)=f(a,b,c,d))).
-    6 cnf(i_0_11, plain, (g(h(b,a),c)=g(f(a,a,a,a),b))).
-    7 tcf(i_0_13, plain, ![X6:$i > $i > $i]:$@_var(X6,a)!=f(c,a,d)).
-    8 tcf(i_0_9, plain, f(c,d,a)!=f(a,a,a)).
-
-  */
-
-   /* appliedVariable -- clause 3 -- X a c*/
-   ClausePos_p appVar = ClausePosCellAlloc();
-   Clause_p    appVarClause = proofstate->axioms->anchor->succ->succ->succ;
-   appVar->clause  = appVarClause;
-   appVar->literal = appVarClause->literals;
-
-   /*Just a hack to try rewriting */
-   EqnSetProp(appVar->literal, EPIsOriented);
-   appVarClause->date = 1;
-
-   appVar->side    = LeftSide;
-   appVar->pos     = NULL;
-   PDTreeInsert(proofstate->processed_pos_rules->demod_index, appVar);
-
-   /* partially applied term -- clause 8  -- f c d a*/
-   ClausePos_p partiallyApplied = ClausePosCellAlloc();
-   Clause_p    partiallyAppliedClause = proofstate->axioms->anchor->succ->succ->succ->succ
-                                                                  ->succ->succ->succ->succ;
-   partiallyApplied->clause  = partiallyAppliedClause;
-   partiallyApplied->literal = partiallyAppliedClause->literals;
-
-   EqnSetProp(partiallyApplied->literal, EPIsOriented);
-   partiallyAppliedClause->date = 1;
-
-   partiallyApplied->side    = LeftSide;
-   partiallyApplied->pos     = NULL;
-   PDTreeInsert(proofstate->processed_pos_rules->demod_index, partiallyApplied);
-
-   /* first term to match -- clause 2, right -- f c d a b*/
-   Term_p firstToMatch = proofstate->axioms->anchor->succ->succ->literals->rterm;
-
-   PDTreeSearchInit(proofstate->processed_pos_rules->demod_index, firstToMatch, SysDateInvalidTime(), true);
-   Subst_p subst = SubstAlloc();
-   MatchInfo_p mi = PDTreeFindNextDemodulator(proofstate->processed_pos_rules->demod_index, subst);
-
-   fprintf(stderr, "Matching :");
-   TermPrint(stderr, firstToMatch, proofstate->terms->sig, DEREF_ALWAYS);
-   fprintf(stderr, ".\n");
-
-   Term_p matcher =  GetMatcher(mi);
-   if (!matcher)
+   //test_pdts(proofstate);
+   if (strstr(state->argv[0], "rewrite"))
    {
-      fprintf(stderr, "Nothing found (%p)!!!\n", mi);
+      test_rewriting(proofstate, proofcontrol);   
    }
    else
    {
-      fprintf(stderr, "Matcher :");
-      TermPrint(stderr, matcher, proofstate->terms->sig, DEREF_ALWAYS);
-      fprintf(stderr, "\nWhat is matched : ");
-      TermPrint(stderr, MatchInfoMatchedPrefix(mi, proofstate->terms, firstToMatch), proofstate->terms->sig, DEREF_ALWAYS);
-   }
-   SubstBacktrack(subst);
-   PDTreeSearchExit(proofstate->processed_pos_rules->demod_index);
-
-   /* applied var inside -- clause 1, left -- g (X a) c*/
-   ClausePos_p appVarInside = ClausePosCellAlloc();
-   Clause_p    appVarInsideClause = proofstate->axioms->anchor->succ;
-   appVarInside->clause  = appVarInsideClause;
-   appVarInside->literal = appVarInsideClause->literals;
-
-   EqnSetProp(appVarInside->literal, EPIsOriented);
-   appVarInsideClause->date = 1;
-
-   appVarInside->side    = LeftSide;
-   appVarInside->pos     = NULL;
-   PDTreeInsert(proofstate->processed_pos_rules->demod_index, appVarInside);
-
-
-   //PDTreePrint(stderr, proofstate->processed_pos_rules->demod_index);
-   /* second to match -- clause 6, left  -- g (h b a) c*/
-   Term_p secondToMatch = proofstate->axioms->anchor->succ->succ->succ->
-                                                      succ->succ->succ->literals->lterm;
-   fprintf(stderr, "\nSecond to match :");
-   TermPrint(stderr, secondToMatch, proofstate->terms->sig, DEREF_ALWAYS);
-
-   PDTreeSearchInit(proofstate->processed_pos_rules->demod_index, secondToMatch, SysDateInvalidTime(), true);
-   mi = PDTreeFindNextDemodulator(proofstate->processed_pos_rules->demod_index, subst);
-
-   matcher =  GetMatcher(mi);
-   if (!matcher)
-   {
-      fprintf(stderr, "Nothing found (%p)!!!\n", mi);
-   }
-   else
-   {
-      fprintf(stderr, "\nMatcher :");
-      TermPrint(stderr, matcher, proofstate->terms->sig, DEREF_ALWAYS);
-      fprintf(stderr, "\nWhat is matched : ");
-      TermPrint(stderr, MatchInfoMatchedPrefix(mi, proofstate->terms, secondToMatch), proofstate->terms->sig, DEREF_ALWAYS);
-   }
-
-
-   SubstBacktrack(subst);
-   PDTreeSearchExit(proofstate->processed_pos_rules->demod_index);
-
-
-   /* Varible both applied an nonaplied in the same term -- X a Y b -- 4 left*/
-   ClausePos_p appVarInOut = ClausePosCellAlloc();
-   Clause_p    appVarInOutClause = proofstate->axioms->anchor->succ->succ->succ->succ;
-   appVarInOut->clause  = appVarInOutClause;
-   appVarInOut->literal = appVarInOutClause->literals;
-
-   EqnSetProp(appVarInOut->literal, EPIsOriented);
-   appVarInOutClause->date = 1;
-
-   appVarInOut->side    = LeftSide;
-   appVarInOut->pos     = NULL;
-   PDTreeInsert(proofstate->processed_pos_rules->demod_index, appVarInOut);
-
-   fprintf(stderr, "\nCurrently in the PDT: \n");
-   PDTreePrint(stderr, proofstate->processed_pos_rules->demod_index);
-
-
-   Term_p thirdToMatch = proofstate->axioms->anchor->succ->succ->succ->succ->literals->rterm;
-   fprintf(stderr, "\nThird to match :");
-   /* X(b,a,c,b) -- 4 -- right*/
-   TermPrint(stderr, thirdToMatch, proofstate->terms->sig, DEREF_ALWAYS);
-
-   PDTreeSearchInit(proofstate->processed_pos_rules->demod_index, thirdToMatch, SysDateInvalidTime(), true);
-   mi = PDTreeFindNextDemodulator(proofstate->processed_pos_rules->demod_index, subst);
-
-   matcher =  GetMatcher(mi);
-   if (!matcher)
-   {
-      fprintf(stderr, "\nNothing found (%p)!!!\n", mi);
-   }
-   else
-   {
-      fprintf(stderr, "\nMatcher :");
-      TermPrint(stderr, matcher, proofstate->terms->sig, DEREF_NEVER);
-      fprintf(stderr, "\nWhat is matched : ");
-      TermPrint(stderr, MatchInfoMatchedPrefix(mi, proofstate->terms, thirdToMatch), proofstate->terms->sig, DEREF_ALWAYS);
-   }
-
-
-   SubstBacktrack(subst);
-   PDTreeSearchExit(proofstate->processed_pos_rules->demod_index);
-
-
-   /* Idea is that this variable matches up to some point -- X a -> 
-      has to match f c d a b .. X matches f c d and a matches a..
-      so it is matched up to some point */
-   ClausePos_p appVarPar = ClausePosCellAlloc();
-   Clause_p    appVarParClause = proofstate->axioms->anchor->succ->succ->succ
-                                                           ->succ->succ->succ->succ;
-   appVarPar->clause  = appVarParClause;
-   appVarPar->literal = appVarParClause->literals;
-
-   EqnSetProp(appVarPar->literal, EPIsOriented);
-   appVarParClause->date = 1;
-
-
-   appVarPar->side    = LeftSide;
-   appVarPar->pos     = NULL;
-   PDTreeInsert(proofstate->processed_pos_rules->demod_index, appVarPar);
-   
-
-   fprintf(stderr, "\nFourth to match :");
-   TermPrint(stderr, firstToMatch, proofstate->terms->sig, DEREF_ALWAYS);
-   PDTreeSearchInit(proofstate->processed_pos_rules->demod_index, firstToMatch, SysDateInvalidTime(), true);
-
-   mi = PDTreeFindNextDemodulator(proofstate->processed_pos_rules->demod_index, subst);
-
-   matcher =  GetMatcher(mi);
-   if (!matcher)
-   {
-      fprintf(stderr, "\nNothing found (%p)!!!\n", mi);
-   }
-   else
-   {
-      fprintf(stderr, "\nMatcher :");
-      TermPrint(stderr, matcher, proofstate->terms->sig, DEREF_ALWAYS);
-      fprintf(stderr, "\nWhat is matched : ");
-      TermPrint(stderr, MatchInfoMatchedPrefix(mi, proofstate->terms, firstToMatch), proofstate->terms->sig, DEREF_ALWAYS);
-   }
-
-   SubstBacktrack(subst);
-   PDTreeSearchExit(proofstate->processed_pos_rules->demod_index);
-
-   ClausePos_p sameVarTwice = ClausePosCellAlloc();
-   Clause_p    sameVarTwiceClause = proofstate->axioms->anchor->succ->succ->succ
-                                                              ->succ->succ;
-   sameVarTwice->clause  = sameVarTwiceClause;
-   sameVarTwice->literal = sameVarTwiceClause->literals;
-
-   EqnSetProp(sameVarTwice->literal, EPIsOriented);
-   sameVarTwiceClause->date = 1;
-
-
-   sameVarTwice->side    = LeftSide;
-   sameVarTwice->pos     = NULL;
-   PDTreeInsert(proofstate->processed_pos_rules->demod_index, sameVarTwice);
-
-   fprintf(stderr, "\nCurrently in the PDT: \n");
-   PDTreePrint(stderr, proofstate->processed_pos_rules->demod_index);
-
-   fprintf(stderr, "\nFifth to match :");
-   TermPrint(stderr, sameVarTwiceClause->literals->rterm, proofstate->terms->sig, DEREF_ALWAYS);
-
-   PDTreeSearchInit(proofstate->processed_pos_rules->demod_index, sameVarTwiceClause->literals->rterm, SysDateInvalidTime(), true);
-
-   mi = PDTreeFindNextDemodulator(proofstate->processed_pos_rules->demod_index, subst);
-
-   matcher =  GetMatcher(mi);
-   if (!matcher)
-   {
-      fprintf(stderr, "\nNothing found (%p)!!!\n", mi);
-   }
-   else
-   {
-      fprintf(stderr, "\nMatcher :");
-      TermPrint(stderr, matcher, proofstate->terms->sig, DEREF_ALWAYS);
-      fprintf(stderr, "\nWhat is matched : ");
-      TermPrint(stderr, MatchInfoMatchedPrefix(mi, proofstate->terms, sameVarTwiceClause->literals->rterm), proofstate->terms->sig, DEREF_ALWAYS);
+      test_pdts(proofstate);
    }
    
-
-
    return retval;
 }
 
