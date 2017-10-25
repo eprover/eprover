@@ -514,8 +514,8 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
    FunCode   i = tree->tree_pos->trav_count, limit;
    Term_p    term = PStackTopP(tree->term_stack);
 
-   /*fprintf(stderr, "At the beginning of pdtree_forward\n");
-   print_term_stack(tree->term_stack, tree->sig);*/
+   //fprintf(stderr, "At the beginning of pdtree_forward\n");
+   //print_term_stack(tree->term_stack, tree->sig);
 
    limit = PDT_NODE_CLOSED(tree,handle);
    while(i<limit)
@@ -567,7 +567,11 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
                   PStackPushP(tree->term_proc, term);
                   PStackDiscardTop(tree->term_stack);
 
-                  add_unapplied_rest(tree->term_stack, matched_up_to + (TermIsAppliedVar(term) ? 1 : 0), term);
+                  if (matched_up_to != term->arity)
+                  {
+                    add_unapplied_rest(tree->term_stack, matched_up_to + (TermIsAppliedVar(term) ? 1 : 0), term);  
+                  }
+                  
 
                   /*fprintf(stderr, "Matched variable ");
                   TermPrint(stderr, next->variable, tree->sig, DEREF_NEVER);
@@ -1385,7 +1389,7 @@ static __inline__ int partially_match_var(Term_p var_matcher, Term_p to_match, S
 
    if (matcher_type == to_match->type)
    {
-      matched_up_to = to_match->arity;
+      matched_up_to = to_match->arity - (TermIsAppliedVar(to_match) ? 1 : 0);
    }
    else if (TypeIsArrow(term_head_type) && TypeIsArrow(matcher_type) 
                && matcher_type->arity <= term_head_type->arity)
@@ -1429,7 +1433,7 @@ int MatchInfoGetPrefixPosition(MatchInfo_p mi, Term_p t)
    return t->arity - mi->remaining_on_stack;
 }
 
-Term_p MatchInfoMatchedPrefix(MatchInfo_p mi, TB_p bank, Term_p to_match)
+Term_p MatchInfoMatchedPrefix(MatchInfo_p mi, Term_p to_match)
 {
    if (!mi || MatchInfoAllIsMatched(mi))
    {
@@ -1437,9 +1441,7 @@ Term_p MatchInfoMatchedPrefix(MatchInfo_p mi, TB_p bank, Term_p to_match)
    }
    else 
    {
-      return mi ? TBInsert(bank, TermCreatePrefix(to_match, 
-                                                 MatchInfoGetPrefixPosition(mi, to_match)), 
-                                  DEREF_NEVER) : NULL;
+      return mi ? TermCreatePrefix(to_match, MatchInfoGetPrefixPosition(mi, to_match)) : NULL;
    }
 
    
@@ -1453,6 +1455,46 @@ Term_p GetMatcher(MatchInfo_p mi)
 ClausePos_p GetMatcherClausePos(MatchInfo_p mi)
 {
    return mi->matcher;
+}
+
+Term_p MIGetRewrittenTerm(MatchInfo_p mi, Term_p original)
+{
+   if (ProblemIsHO == PROBLEM_NOT_HO)
+   {
+      assert(mi->remaining_on_stack == 0);
+      // nothing is done in FO case.
+      return ClausePosGetOtherSide(mi->matcher);
+   }
+   else
+   {
+      Term_p other_side = ClausePosGetOtherSide(mi->matcher);
+      int remaining_orig = mi->remaining_on_stack;
+      if (remaining_orig)
+      {
+         Term_p new_term = TermTopAlloc(other_side->f_code, other_side->arity + remaining_orig);
+
+         /* Copying everthing that makes sense! */
+         //new_term->head_type = other_side->head_type;
+         // Rewriting keeps the type
+         new_term->type = original->type; // no inference after this step -- speedup.
+         new_term->properties = other_side->properties;
+
+         for(int i=0; i < other_side->arity; i++)
+         {
+            new_term->args[i] = other_side->args[i];
+         }
+         for(int i=original->arity - remaining_orig, j=0; i < original->arity; i++, j++)
+         {
+            new_term->args[j + other_side->arity] = original->args[i];
+         }
+
+         return new_term;
+      }
+      else
+      {
+         return other_side;
+      }
+   }
 }
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

@@ -1246,7 +1246,14 @@ static Term_p __inline__ make_head(Sig_p sig, const char* f_name)
 {
    Term_p head = TermDefaultCellAlloc();
    head->f_code = SigFindFCode(sig, f_name);
-   assert(head->f_code);
+   if(!head->f_code)
+   {
+      DStr_p msg = DStrAlloc();
+      DStrAppendStr(msg, "Function symbol ");
+      DStrAppendStr(msg, (char*)f_name);
+      DStrAppendStr(msg, " has not been defined previously.");
+      Error(DStrView(msg), SYNTAX_ERROR);
+   }
    head->arity = 0;
    head->args = NULL;
 
