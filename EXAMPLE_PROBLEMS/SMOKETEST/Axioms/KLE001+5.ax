@@ -1,0 +1,48 @@
+%------------------------------------------------------------------------------
+% File     : KLE001+5 : TPTP v7.0.0. Released v3.6.0.
+% Domain   : Kleene Algebra
+% Axioms   : Domain (not Boolean domain!)
+% Version  : [Hoe08] axioms.
+% English  :
+
+% Refs     : [DS08]  Desharnais & Struth (2008), Modal Semirings Revisited
+%          : [Hoe08] Hoefner (2008), Email to G. Sutcliffe
+% Source   : [Hoe08]
+% Names    :
+
+% Status   : Satisfiable
+% Syntax   : Number of formulae    :    5 (   5 unit)
+%            Number of atoms       :    5 (   5 equality)
+%            Maximal formula depth :    3 (   2 average)
+%            Number of connectives :    0 (   0 ~  ;   0  |;   0  &)
+%                                         (   0 <=>;   0 =>;   0 <=)
+%                                         (   0 <~>;   0 ~|;   0 ~&)
+%            Number of predicates  :    1 (   0 propositional; 2-2 arity)
+%            Number of functors    :    5 (   2 constant; 0-2 arity)
+%            Number of variables   :    6 (   0 singleton;   6 !;   0 ?)
+%            Maximal term depth    :    4 (   3 average)
+% SPC      : 
+
+% Comments : The domain algebra is not necessarily Boolean
+%          : Requires KLE001+0.ax, KLE002+0.ax or KLE003+0.ax
+%          : Combined with KLE001+0 generates Idempotent semirings with tests
+%            Combined with KLE002+0 generates Kleene Algebra with tests
+%            Combined with KLE003+0 generates Omega Algebra with tests
+%------------------------------------------------------------------------------
+%----Domain axioms (a la Desharnais & Struth)
+fof(domain1,axiom,(
+    ! [X0] : addition(X0,multiplication(domain(X0),X0)) = multiplication(domain(X0),X0) )).
+
+fof(domain2,axiom,(
+    ! [X0,X1] : domain(multiplication(X0,X1)) = domain(multiplication(X0,domain(X1))) )).
+
+fof(domain3,axiom,(
+    ! [X0] : addition(domain(X0),one) = one )).
+
+fof(domain4,axiom,(
+    domain(zero) = zero )).
+
+fof(domain5,axiom,(
+    ! [X0,X1] : domain(addition(X0,X1)) = addition(domain(X0),domain(X1)) )).
+
+%------------------------------------------------------------------------------

@@ -1,0 +1,90 @@
+%------------------------------------------------------------------------------
+% File     : KLE002+0 : TPTP v7.0.0. Released v3.6.0.
+% Domain   : Kleene algebra
+% Axioms   : Kleene algebra
+% Version  : [Hoe08] axioms.
+% English  :
+
+% Refs     : [Hoe08] Hoefner (2008), Email to G. Sutcliffe
+% Source   : [Hoe08]
+% Names    :
+
+% Status   : Satisfiable
+% Syntax   : Number of formulae    :   16 (  13 unit)
+%            Number of atoms       :   19 (  12 equality)
+%            Maximal formula depth :    5 (   3 average)
+%            Number of connectives :    3 (   0 ~  ;   0  |;   0  &)
+%                                         (   1 <=>;   2 =>;   0 <=)
+%                                         (   0 <~>;   0 ~|;   0 ~&)
+%            Number of predicates  :    2 (   0 propositional; 2-2 arity)
+%            Number of functors    :    5 (   2 constant; 0-2 arity)
+%            Number of variables   :   30 (   0 singleton;  30 !;   0 ?)
+%            Maximal term depth    :    4 (   2 average)
+% SPC      : 
+
+% Comments :
+%------------------------------------------------------------------------------
+%----Additive idempotent monoid
+fof(additive_commutativity,axiom,(
+    ! [A,B] : addition(A,B) = addition(B,A) )).
+
+fof(additive_associativity,axiom,(
+    ! [C,B,A] : addition(A,addition(B,C)) = addition(addition(A,B),C) )).
+
+fof(additive_identity,axiom,(
+    ! [A] : addition(A,zero) = A )).
+
+fof(additive_idempotence,axiom,(
+    ! [A] : addition(A,A) = A )).
+
+%----Multiplicative and commutative monoid
+fof(multiplicative_associativity,axiom,(
+    ! [A,B,C] : multiplication(A,multiplication(B,C)) = multiplication(multiplication(A,B),C) )).
+
+fof(multiplicative_right_identity,axiom,(
+    ! [A] : multiplication(A,one) = A )).
+
+fof(multiplicative_left_identity,axiom,(
+    ! [A] : multiplication(one,A) = A )).
+
+%----Distributivity laws
+fof(right_distributivity,axiom,(
+    ! [A,B,C] : multiplication(A,addition(B,C)) = addition(multiplication(A,B),multiplication(A,C)) )).
+
+fof(left_distributivity,axiom,(
+    ! [A,B,C] : multiplication(addition(A,B),C) = addition(multiplication(A,C),multiplication(B,C)) )).
+
+%----Annihilation
+fof(right_annihilation,axiom,(
+    ! [A] : multiplication(A,zero) = zero )).
+
+fof(left_annihilation,axiom,(
+    ! [A] : multiplication(zero,A) = zero )).
+
+%----Order
+fof(order,axiom,(
+    ! [A,B] :
+      ( leq(A,B)
+    <=> addition(A,B) = B ) )).
+
+%----Finite iteration (star)
+
+%----Unfold laws
+fof(star_unfold_right,axiom,(
+    ! [A] : leq(addition(one,multiplication(A,star(A))),star(A)) )).
+
+fof(star_unfold_left,axiom,(
+    ! [A] : leq(addition(one,multiplication(star(A),A)),star(A)) )).
+
+%----Induction laws
+fof(star_induction_left,axiom,(
+    ! [A,B,C] :
+      ( leq(addition(multiplication(A,B),C),B)
+     => leq(multiplication(star(A),C),B) ) )).
+
+fof(star_induction_right,axiom,(
+    ! [A,B,C] :
+      ( leq(addition(multiplication(A,B),C),A)
+     => leq(multiplication(C,star(B)),A) ) )).
+
+%------------------------------------------------------------------------------

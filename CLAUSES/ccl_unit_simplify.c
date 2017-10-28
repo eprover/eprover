@@ -85,7 +85,14 @@ ClausePos_p FindTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
    while((mi = PDTreeFindNextDemodulator(units->demod_index, subst)))
    {
       pos = mi->matcher;
-      if(SubstComputeMatch(ClausePosGetOtherSide(pos), t2, subst))
+
+      /*if (ProblemIsHO == PROBLEM_IS_HO)
+      {
+        SubstHandleUnsharedPartialMatches(subst, pos->literal->bank);
+      }*/
+
+      if(SubstComputeMatch(ClausePosGetOtherSide(pos), t2, subst) /*|| 
+          (ProblemIsHO == PROBLEM_IS_HO && SubstComputeMatchHO(ClausePosGetOtherSide(pos), t2, subst))*/)
       {
         res = pos;
         assert(res->clause->set == units);
@@ -111,7 +118,6 @@ ClausePos_p FindTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-
 ClausePos_p FindSignedTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
                 Term_p t2, bool sign)
 {
@@ -129,9 +135,16 @@ ClausePos_p FindSignedTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
    while((mi = PDTreeFindNextDemodulator(units->demod_index, subst)))
    {
       pos = mi->matcher;
+
+      /*if (ProblemIsHO == PROBLEM_IS_HO)
+      {
+        SubstHandleUnsharedPartialMatches(subst, pos->literal->bank);
+      }*/
+
       if(EQUIV(EqnIsPositive(pos->literal), sign)
           &&
-          SubstComputeMatch(ClausePosGetOtherSide(pos), t2, subst))
+          (/*(ProblemIsHO == PROBLEM_IS_HO && SubstPrefixMatches(ClausePosGetOtherSide(pos), t2, subst))
+           || */(/*ProblemIsHO == PROBLEM_NOT_HO &&*/ SubstComputeMatch(ClausePosGetOtherSide(pos), t2, subst))))
       {
         res = pos;
         assert(res->clause->set == units);
@@ -178,7 +191,7 @@ ClausePos_p FindSimplifyingUnit(ClauseSet_p set, Term_p t1, Term_p t2,
    {
       if(t1->f_code != t2->f_code || !t1->arity)
       {
-    break;
+        break;
       }
       tmp1 = NULL; /* Used to determine if another position has
             already been found */
@@ -186,17 +199,17 @@ ClausePos_p FindSimplifyingUnit(ClauseSet_p set, Term_p t1, Term_p t2,
       assert(t1!=t2);
       for(i=0; i<t1->arity; i++)
       {
-    if(t1->args[i] != t2->args[i])
-    {
-       if(tmp1)
-       {
-          tmp2 = NULL; /* Signal that more than one conflict
-                exists */
-          break;
-       }
-       tmp1 = t1->args[i];
-       tmp2 = t2->args[i];
-    }
+        if(t1->args[i] != t2->args[i])
+        {
+           if(tmp1)
+           {
+              tmp2 = NULL; /* Signal that more than one conflict
+                    exists */
+              break;
+           }
+           tmp1 = t1->args[i];
+           tmp2 = t2->args[i];
+        }
       }
       if(!tmp2)
       {

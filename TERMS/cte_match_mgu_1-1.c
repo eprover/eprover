@@ -37,6 +37,8 @@ long UnifSuccesses = 0;
 
 PERF_CTR_DEFINE(MguTimer);
 
+#define MATCH_INIT -2
+
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -86,6 +88,193 @@ static bool occur_check(restrict Term_p term, restrict Term_p var)
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
+
+int PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig)
+{
+   assert(TermIsVar(var_matcher) && !var_matcher->binding);
+   assert(!TermIsAppliedVar(to_match) || to_match->f_code == sig->app_var_code);
+
+   int matched_up_to = NOT_MATCHED;
+   Type_p term_head_type = GetHeadType(sig, to_match);
+   Type_p matcher_type   = var_matcher->type;
+
+   if (matcher_type == to_match->type)
+   {
+      matched_up_to = to_match->arity - (TermIsAppliedVar(to_match) ? 1 : 0);
+   }
+   else if (TypeIsArrow(term_head_type) && TypeIsArrow(matcher_type) 
+               && matcher_type->arity <= term_head_type->arity)
+   {
+      int start_idx = term_head_type->arity - matcher_type->arity;
+
+      for(int i=start_idx; i<term_head_type->arity; i++)
+      {
+         if (matcher_type->args[i-start_idx] != term_head_type->args[i])
+         {
+            return NOT_MATCHED;
+         }
+      }
+
+      matched_up_to = start_idx;
+      // if they have the same nr of args and args match -> they're the same
+      // -> nice place to check the type sharing invariant
+      assert(matched_up_to != 0 || matcher_type == term_head_type);
+   }
+
+   // non-inclusive index of how much to apply
+   // tot but not tot en met! :)
+   return matched_up_to;
+}
+
+// TODO: add weight computation.
+int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, Sig_p sig)
+{
+   long matcher_weight  = TermStandardWeight(matcher);
+   long to_match_weight = TermStandardWeight(to_match);
+
+   assert(TermStandardWeight(matcher)  == TermWeight(matcher, DEFAULT_VWEIGHT, DEFAULT_FWEIGHT));
+   assert(TermStandardWeight(to_match) == TermWeight(to_match, DEFAULT_VWEIGHT, DEFAULT_FWEIGHT));
+
+   if((matcher_weight > to_match_weight) || (TermCellQueryProp(to_match, TPPredPos) && TermIsVar(matcher)))
+   {
+      return NOT_MATCHED;
+   }
+
+   int res = MATCH_INIT;
+   PStackPointer backtrack = PStackGetSP(subst); /* For backtracking */
+   PLocalStackInit(matcher_stack);
+   PLocalStackInit(to_match_stack);
+
+   PLocalStackPush(matcher_stack, matcher);
+   PLocalStackPush(to_match_stack, to_match);
+
+   while(!PLocalStackEmpty(matcher_stack) && !PLocalStackEmpty(to_match_stack))
+   {
+      to_match =  PLocalStackPop(to_match_stack);
+      matcher  =  PLocalStackPop(matcher_stack);
+
+      /*fprintf(stderr, "$ Matcher : ");
+      TermPrint(stderr, matcher, sig, DEREF_NEVER);
+      fprintf(stderr, " , to match : ");
+      TermPrint(stderr, to_match, sig, DEREF_NEVER);
+      fprintf(stderr, "\n");*/
+
+      if (TermIsAppliedVar(matcher) || TermIsVar(matcher))
+      {
+         Term_p var = TermIsAppliedVar(matcher) ? matcher->args[0] : matcher;
+
+         // if it is bound -> then it has to be bound to prefix.
+         if (var->binding && TermIsPrefix(var->binding, to_match))
+         {
+            int bound_arity = var->binding->arity;
+            PLocalStackEnsureSpace(to_match_stack, to_match->arity - bound_arity);
+
+            for(int i=to_match->arity-1; i >= bound_arity; i--)
+            {
+               PLocalStackPush(to_match_stack, to_match->args[i]);
+            }
+
+            if (matcher->arity)
+            {
+               PLocalStackEnsureSpace(matcher_stack, matcher->arity-1);
+
+               for(int i=matcher->arity-1; i; i--)
+               {
+                  PLocalStackPush(matcher_stack, matcher->args[i]);  
+               }
+            }
+         }
+         else if (var->binding)
+         {
+            res = NOT_MATCHED;
+            break;
+         }
+         else
+         {
+            int matched_up_to = PartiallyMatchVar(var, to_match, sig);
+            if (matched_up_to != NOT_MATCHED)
+            {
+               SubstBindAppVar(subst, var, to_match, matched_up_to);
+               if (TermIsAppliedVar(to_match))
+               {
+                  matched_up_to++;
+               }
+
+               /*fprintf(stderr, "$     var  ");
+               TermPrint(stderr, var, sig, DEREF_NEVER);
+               fprintf(stderr, " bound to ");
+               TermPrint(stderr, var->binding, sig, DEREF_NEVER);
+               fprintf(stderr, " matched up to %d.\n", matched_up_to);*/
+
+
+
+               PLocalStackEnsureSpace(to_match_stack, to_match->arity - matched_up_to);
+               for(int i=to_match->arity-1; i >= matched_up_to; i--)
+               {
+                  PLocalStackPush(to_match_stack, to_match->args[i]);
+               }
+
+               if (matcher->arity)
+               {
+                  PLocalStackEnsureSpace(matcher_stack, matcher->arity-1);
+
+                  for(int i=matcher->arity-1; i; i--)
+                  {
+                     PLocalStackPush(matcher_stack, matcher->args[i]);  
+                  }
+               }   
+            }
+            else
+            {
+               res = NOT_MATCHED;
+               break;
+            }   
+         }
+      }
+      else
+      {
+         if(matcher->f_code != to_match->f_code)
+         {
+            // if the RHS is applied var -- bad luck.
+            res = NOT_MATCHED;
+            break;
+         }
+         else
+         {
+            PLocalStackEnsureSpace(to_match_stack, to_match->arity);
+            for(int i=to_match->arity-1; i >= 0; i--)
+            {
+               PLocalStackPush(to_match_stack, to_match->args[i]);
+            }
+
+            PLocalStackEnsureSpace(matcher_stack, matcher->arity);
+            for(int i=matcher->arity-1; i >= 0; i--)
+            {
+               PLocalStackPush(matcher_stack, matcher->args[i]);
+            }
+         }
+      }
+   }
+
+   if (res == MATCH_INIT && PLocalStackEmpty(matcher_stack))
+   {
+      res = PLocalStackTop(to_match_stack);
+   }
+   else
+   {
+      res = NOT_MATCHED;
+   }
+
+   if(res == NOT_MATCHED)
+   {
+      SubstBacktrackToPos(subst,backtrack);
+   }
+
+   PLocalStackFree(to_match_stack);
+   PLocalStackFree(matcher_stack);
+   return res;
+
+}
 
 /*-----------------------------------------------------------------------
 //

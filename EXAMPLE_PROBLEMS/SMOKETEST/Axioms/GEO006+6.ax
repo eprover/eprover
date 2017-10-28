@@ -1,0 +1,52 @@
+%------------------------------------------------------------------------------
+% File     : GEO006+6 : TPTP v7.0.0. Released v3.3.0.
+% Domain   : Geometry (Constructive)
+% Axioms   : Geometry definitions
+% Version  : [vPl95] axioms.
+% English  :
+
+% Refs     : [vPl95] von Plato (1995), The Axioms of Constructive Geometry
+% Source   : [ILTP]
+% Names    :
+
+% Status   : Satisfiable
+% Syntax   : Number of formulae    :    5 (   0 unit)
+%            Number of atoms       :   10 (   0 equality)
+%            Maximal formula depth :    5 (   5 average)
+%            Number of connectives :   10 (   5   ~;   0   |;   0   &)
+%                                         (   5 <=>;   0  =>;   0  <=)
+%                                         (   0 <~>;   0  ~|;   0  ~&)
+%            Number of predicates  :   10 (   0 propositional; 2-2 arity)
+%            Number of functors    :    0 (   0 constant; --- arity)
+%            Number of variables   :   10 (   0 sgn;  10   !;   0   ?)
+%            Maximal term depth    :    1 (   1 average)
+% SPC      : 
+
+% Comments : Requires GEO006+[0-5]
+%------------------------------------------------------------------------------
+fof(ax1,axiom,(
+    ! [X,Y] :
+      ( equal_points(X,Y)
+    <=> ~ distinct_points(X,Y) ) )).
+
+fof(ax2,axiom,(
+    ! [X,Y] :
+      ( equal_lines(X,Y)
+    <=> ~ distinct_lines(X,Y) ) )).
+
+fof(a3,axiom,(
+    ! [X,Y] :
+      ( parallel_lines(X,Y)
+    <=> ~ convergent_lines(X,Y) ) )).
+
+fof(a4,axiom,(
+    ! [X,Y] :
+      ( incident_point_and_line(X,Y)
+    <=> ~ apart_point_and_line(X,Y) ) )).
+
+fof(a5,axiom,(
+    ! [X,Y] :
+      ( orthogonal_lines(X,Y)
+    <=> ~ unorthogonal_lines(X,Y) ) )).
+
+%------------------------------------------------------------------------------

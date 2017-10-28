@@ -48,9 +48,11 @@ extern long UnifSuccesses;
 
 PERF_CTR_DECL(MguTimer);
 
+#define NOT_MATCHED -1
 
 bool SubstComputeMatch(Term_p matcher, Term_p to_match, Subst_p subst);
 bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst);
+int  PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig);
 
 #define VerifyMatch(matcher, to_match) \
         TermStructEqualDeref((matcher), (to_match), \

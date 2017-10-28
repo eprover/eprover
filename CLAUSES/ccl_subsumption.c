@@ -80,20 +80,22 @@ ClausePos_p unit_clause_set_strongsubsumes_termpair(ClauseSet_p set,
       t2 = PStackPopP(stack);
       t1 = PStackPopP(stack);
       res = FindSignedTopSimplifyingUnit(set, t1, t2, positive);
+      
       if(!res)
       {
-    if(t1->f_code != t2->f_code || !t1->arity)
-    {
-       break;
-    }
-     for(i=0; i<t1->arity; i++)
-     {
-        if(t1->args[i] != t2->args[i])
-        {
-      PStackPushP(stack, t1->args[i]);
-      PStackPushP(stack, t2->args[i]);
-        }
-     }
+         if(t1->f_code != t2->f_code || !t1->arity)
+         {
+           break;
+         }
+         
+         for(i=0; i<t1->arity; i++)
+         {
+            if(t1->args[i] != t2->args[i])
+            {
+               PStackPushP(stack, t1->args[i]);
+               PStackPushP(stack, t2->args[i]);
+            }
+         }
       }
 
    }
@@ -1121,7 +1123,7 @@ Clause_p ClauseSetFindUnitSubsumedClause(ClauseSet_p set, Clause_p
    {
       if(UnitClauseSubsumesClause(subsumer, set_position))
       {
-    return set_position;
+         return set_position;
       }
       set_position = set_position->succ;
    }
