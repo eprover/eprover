@@ -1,0 +1,56 @@
+%------------------------------------------------------------------------------
+% File     : KLE001+4 : TPTP v7.0.0. Released v3.6.0.
+% Domain   : Kleene Algebra
+% Axioms   : Boolean domain, antidomain, codomain, coantidomain
+% Version  : [Hoe08] axioms.
+% English  :
+
+% Refs     : [Hoe08] Hoefner (2008), Email to G. Sutcliffe
+% Source   : [Hoe08]
+% Names    :
+
+% Status   : Satisfiable
+% Syntax   : Number of formulae    :    8 (   8 unit)
+%            Number of atoms       :    8 (   8 equality)
+%            Maximal formula depth :    3 (   2 average)
+%            Number of connectives :    0 (   0 ~  ;   0  |;   0  &)
+%                                         (   0 <=>;   0 =>;   0 <=)
+%                                         (   0 <~>;   0 ~|;   0 ~&)
+%            Number of predicates  :    1 (   0 propositional; 2-2 arity)
+%            Number of functors    :    8 (   2 constant; 0-2 arity)
+%            Number of variables   :   10 (   0 singleton;  10 !;   0 ?)
+%            Maximal term depth    :    6 (   3 average)
+% SPC      : 
+
+% Comments : Requires KLE001+0.ax, KLE002+0.ax or KLE003+0.ax
+%          : With KLE001+0 generates Idempotent semirings with domain/codomain
+%            With KLE002+0 generates Kleene Algebra with domain domain/codomain
+%            With KLE003+0 generates Omega Algebra with domain/codomain
+%------------------------------------------------------------------------------
+%----Boolean domain axioms (a la Desharnais & Struth)
+fof(domain1,axiom,(
+    ! [X0] : multiplication(antidomain(X0),X0) = zero )).
+
+fof(domain2,axiom,(
+    ! [X0,X1] : addition(antidomain(multiplication(X0,X1)),antidomain(multiplication(X0,antidomain(antidomain(X1))))) = antidomain(multiplication(X0,antidomain(antidomain(X1)))) )).
+
+fof(domain3,axiom,(
+    ! [X0] : addition(antidomain(antidomain(X0)),antidomain(X0)) = one )).
+
+fof(domain4,axiom,(
+    ! [X0] : domain(X0) = antidomain(antidomain(X0)) )).
+
+%----Boolean codomain axioms (a la Desharnais & Struth)
+fof(codomain1,axiom,(
+    ! [X0] : multiplication(X0,coantidomain(X0)) = zero )).
+
+fof(codomain2,axiom,(
+    ! [X0,X1] : addition(coantidomain(multiplication(X0,X1)),coantidomain(multiplication(coantidomain(coantidomain(X0)),X1))) = coantidomain(multiplication(coantidomain(coantidomain(X0)),X1)) )).
+
+fof(codomain3,axiom,(
+    ! [X0] : addition(coantidomain(coantidomain(X0)),coantidomain(X0)) = one )).
+
+fof(codomain4,axiom,(
+    ! [X0] : codomain(X0) = coantidomain(coantidomain(X0)) )).
+
+%------------------------------------------------------------------------------

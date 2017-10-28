@@ -26,9 +26,6 @@ Changes
 #include "ccl_pdtrees.h"
 
 
-#define NOT_MATCHED -1
-
-
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
@@ -46,7 +43,6 @@ unsigned long PDTNodeCounter = 0;
 
 static long pdt_compute_size_constraint(PDTNode_p node);
 static __inline__ void add_unapplied_rest(PStack_p term_stack, int start_from, Term_p to_match);
-static __inline__ int partially_match_var(Term_p var_matcher, Term_p to_match, Sig_p sig);
 
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
@@ -559,7 +555,7 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
              }
              else
              {
-               int matched_up_to = partially_match_var(next->variable, term, tree->sig);
+               int matched_up_to = PartiallyMatchVar(next->variable, term, tree->sig);
                if (matched_up_to != NOT_MATCHED)
                {
                   SubstBindAppVar(subst, next->variable, term, matched_up_to);
@@ -1376,43 +1372,6 @@ static __inline__ void add_unapplied_rest(PStack_p term_stack, int start_from, T
    {
       PStackPushP(term_stack, to_match->args[i]);
    }
-}
-
-static __inline__ int partially_match_var(Term_p var_matcher, Term_p to_match, Sig_p sig)
-{
-   assert(TermIsVar(var_matcher) && !var_matcher->binding);
-   assert(!TermIsAppliedVar(to_match) || to_match->f_code == sig->app_var_code);
-
-   int matched_up_to = NOT_MATCHED;
-   Type_p term_head_type = GetHeadType(sig, to_match);
-   Type_p matcher_type   = var_matcher->type;
-
-   if (matcher_type == to_match->type)
-   {
-      matched_up_to = to_match->arity - (TermIsAppliedVar(to_match) ? 1 : 0);
-   }
-   else if (TypeIsArrow(term_head_type) && TypeIsArrow(matcher_type) 
-               && matcher_type->arity <= term_head_type->arity)
-   {
-      int start_idx = term_head_type->arity - matcher_type->arity;
-
-      for(int i=start_idx; i<term_head_type->arity; i++)
-      {
-         if (matcher_type->args[i-start_idx] != term_head_type->args[i])
-         {
-            return NOT_MATCHED;
-         }
-      }
-
-      matched_up_to = start_idx;
-      // if they have the same nr of args and args match -> they're the same
-      // -> nice place to check the type sharing invariant
-      assert(matched_up_to != 0 || matcher_type == term_head_type);
-   }
-
-   // non-inclusive index of how much to apply
-   // tot but not tot en met! :)
-   return matched_up_to;
 }
 
 MatchInfo_p CreateMatchInfo(int remaining, ClausePos_p clause)

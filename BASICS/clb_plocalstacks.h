@@ -42,6 +42,7 @@ Contents
    }while(0)
 
 #define PLocalStackEmpty(stack)     (stack##_##current == 0)
+#define PLocalStackTop(stack)       (stack##_##current)
 #define PLocalStackPop(stack)       (stack##_##data[--stack##_##current])
 #define PLocalStackPush(stack, val) (stack##_##data[stack##_##current++] = val)
 

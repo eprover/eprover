@@ -160,7 +160,7 @@ typedef uintptr_t DerefType, *DerefType_p;
 
 #define TERMCELL_DYN_MEM (TERMCELL_MEM+4*TERMARG_MEM)
 
-#define CAN_DEREF(term) ((TermIsVar(term) && (term)->binding) || (TermIsAppliedVar(term) && (term)->args[0]->binding))
+#define CAN_DEREF(term) (((term)->binding && TermIsVar(term)) || (TermIsAppliedVar(term) && term->args[0]->binding))
 
 
 
@@ -249,6 +249,7 @@ void    TermStackDelProps(PStack_p stack, TermProperties prop);
 /*                  Inline functions                                   */
 /*---------------------------------------------------------------------*/
 
+Term_p applied_var_deref(Term_p orig);
 static __inline__ Type_p GetHeadType(Sig_p sig, Term_p term)
 {
    if (TermIsAppliedVar(term))
@@ -275,51 +276,12 @@ static __inline__ Type_p GetHeadType(Sig_p sig, Term_p term)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-static __inline__ Term_p applied_var_deref(Term_p orig)
-{
-   assert(TermIsAppliedVar(orig));
-   assert(orig->arity > 1);
-   assert(orig->args[0]->binding);
-
-   Term_p res;
-
-   if (TermIsVar(orig->args[0]->binding))
-   {
-      res = TermTopCopy(orig);
-      res->args[0] = orig->args[0]->binding;
-   }
-   else
-   {
-      Term_p bound = orig->args[0]->binding;
-      int arity = bound->arity + orig->arity-1;
-
-      res = TermTopAlloc(bound->f_code, arity);
-      res->args = TermArgArrayAlloc(arity);
-
-      res->type = NULL;
-      res->properties = bound->properties & (TPPredPos | TPIsAppVar);
-
-      assert(!res->binding || res->f_code < 0 /* if bound -> then variable */);
-
-      for(int i=0; i<bound->arity; i++)
-      {
-         res->args[i] = bound->args[i];
-      }
-
-      for(int i=0; i<orig->arity-1; i++)
-      {
-         res->args[bound->arity + i] = orig->args[i + 1];
-      }
-   }   
-
-   return res;
-}
 
 static __inline__ Term_p deref_step(Term_p orig)
 {
    assert(orig->f_code < 0 || TermIsAppliedVar(orig));
    // assert(bank != NULL || orig->arity == 0);
-   if (!TermIsAppliedVar(orig))
+   if (TermIsVar(orig))
    {
       return orig->binding;
    }
@@ -365,12 +327,8 @@ static __inline__ Term_p TermDeref(Term_p term, DerefType_p deref)
    }
    else
    {
-      while(*deref)
+      while(*deref && CAN_DEREF(term))
       {
-         if(!CAN_DEREF(term))
-         {
-            break;
-         }
          term = deref_step(term);
          (*deref)--;
       }

@@ -736,6 +736,132 @@ void test_rewriting(ProofState_p proofstate, ProofControl_p proofctrl)
    fprintf(stderr, ".\n");
 }
 
+/* 1 - based indexing */
+Clause_p get_clause_by_nr(ClauseSet_p set, int idx)
+{
+  Clause_p res = set->anchor;
+  for(int i=0; i<idx; i++)
+  {
+    res = res->succ;
+  }
+
+  return res;
+}
+
+void print_subst(Subst_p subst, Sig_p sig)
+{
+  SubstPrint(stderr, subst, sig, DEREF_NEVER);
+}
+
+void perform_matching_test(Term_p matcher, Term_p to_match, int exp_res, Sig_p sig)
+{
+  static int tc_count = 0;
+  tc_count++;
+
+  fprintf(stderr, "\n# Matching test case %d\n# term ", tc_count);
+
+  TermPrint(stderr, matcher, sig, DEREF_NEVER);
+  fprintf(stderr, " against ");
+  TermPrint(stderr, to_match, sig, DEREF_NEVER);
+  fprintf(stderr, " .\n");
+
+  Subst_p subst = SubstAlloc();
+
+  int res = SubstComputeMatchHO(matcher, to_match, subst, sig);
+  if (res != exp_res)
+  {
+    fprintf(stderr, "# exptected result was %d, but got result %d.\n", exp_res, res);
+  }
+  else 
+  {
+    fprintf(stderr, "# test case passed.\n");
+  }
+
+  print_subst(subst, sig);
+
+  SubstDelete(subst);
+}
+
+
+void test_matching(ProofState_p proofstate)
+{
+  /*
+  Clauses: 
+  1 -tcf(i_0_13, plain, ![X4:t > t > t]:$@_var(X4,a)=h).
+  2 -tcf(i_0_21, plain, ![X11:t]:pred2(g(X11))).
+  3 -tcf(i_0_11, plain, ![X2:t, X1:t]:pred(f(X1,b,X2))).
+  4 -tcf(i_0_18, plain, ![X9:t, X10:t, X8:t > t > t, X7:t > t]:$@_var(X7,$@_var(X8,b,b))=$@_var(X7,f(X9,X10,X9))).
+  5 -tcf(i_0_20, plain, f(a,b,a)=g(a,b)).
+  6 -tcf(i_0_15, plain, f(c,a,b)=f(a,a,a)).
+  7 -tcf(i_0_10, plain, pred(f(g(a,b),b,h(c)))).
+  8 -tcf(i_0_17, plain, f(a,b,f(a,b,b))=f(a,b,f(a,b,a))).
+  9 -tcf(i_0_22, negated_conjecture, ~pred2(h)).
+  10-tcf(i_0_16, plain, ![X6:t > t]:~pred($@_var(X6,$@_var(X6,b)))).
+  11-tcf(i_0_12, plain, ![X3:t > t > t]:~pred($@_var(X3,a,b))).
+  12-tcf(i_0_14, plain, ![X5:t > t > t > t]:~pred($@_var(X5,a,a,b))).
+  13-tcf(i_0_19, plain, ~pred(f(a,b,f(a,b,f(a,b,b))))).
+  */
+
+  /* TC1 f X b Y has to match f (g a b) b (h c) */
+  Sig_p sig = proofstate->terms->sig;
+
+  Clause_p clause3 = get_clause_by_nr(proofstate->axioms, 3);
+  Term_p fxby = clause3->literals->lterm->args[0];
+  Clause_p clause7 = get_clause_by_nr(proofstate->axioms, 7);
+  Term_p fgabbhc = clause7->literals->lterm->args[0];
+
+
+  perform_matching_test(fxby, fgabbhc, 0, sig);
+  
+  Clause_p clause11 = get_clause_by_nr(proofstate->axioms, 11);
+  Term_p xab = clause11->literals->lterm->args[0];
+  Clause_p clause6 = get_clause_by_nr(proofstate->axioms, 6);
+  Term_p fcab = clause6->literals->lterm;
+
+  perform_matching_test(xab, fcab, 0, sig);
+
+  Clause_p clause1 = get_clause_by_nr(proofstate->axioms, 1);
+  Term_p xa = clause1->literals->lterm;
+  Term_p faaa = clause6->literals->rterm;
+
+  perform_matching_test(xa, faaa, 1, sig);
+
+  Clause_p clause12 = get_clause_by_nr(proofstate->axioms, 12);
+  Term_p yaab = clause12->literals->lterm->args[0];
+
+  perform_matching_test(xab, yaab, 0, sig);
+
+  Clause_p clause10 = get_clause_by_nr(proofstate->axioms, 10);
+  Term_p xxb = clause10->literals->lterm->args[0];
+  Clause_p clause8  = get_clause_by_nr(proofstate->axioms, 8);
+  Term_p fabfabb = clause8->literals->lterm;
+
+  perform_matching_test(xxb, fabfabb, 0, sig);
+
+  Clause_p clause4 = get_clause_by_nr(proofstate->axioms, 4);
+  Term_p xybb = clause4->literals->lterm;
+
+  perform_matching_test(xybb, fabfabb, 0, sig);
+
+  Term_p xfzyz = clause4->literals->rterm;
+  Term_p fabfaba = clause8->literals->rterm;
+
+  perform_matching_test(xfzyz, fabfaba, 0, sig);
+
+  Clause_p clause13 = get_clause_by_nr(proofstate->axioms, 13);
+  Term_p fabfabfabb = clause13->literals->lterm->args[0];
+
+  perform_matching_test(xfzyz, fabfabfabb, -1, sig);
+
+  Clause_p clause5 = get_clause_by_nr(proofstate->axioms, 5);
+
+  perform_matching_test(clause5->literals->lterm, clause5->literals->rterm, 
+                        -1, sig);
+
+
+
+} 
+
 int main(int argc, char* argv[])
 {
    int              retval = NO_ERROR;
@@ -912,6 +1038,10 @@ int main(int argc, char* argv[])
    if (strstr(state->argv[0], "rewrite"))
    {
       test_rewriting(proofstate, proofcontrol);   
+   }
+   else if (strstr(state->argv[0], "matching"))
+   {
+      test_matching(proofstate);
    }
    else
    {

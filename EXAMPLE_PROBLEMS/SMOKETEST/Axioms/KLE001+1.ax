@@ -1,0 +1,53 @@
+%------------------------------------------------------------------------------
+% File     : KLE001+1 : TPTP v7.0.0. Released v3.6.0.
+% Domain   : Kleene Algebra
+% Axioms   : Characterisation of tests by complement predicate
+% Version  : [Hoe08] axioms.
+% English  :
+
+% Refs     : [Hoe08] Hoefner (2008), Email to G. Sutcliffe
+% Source   : [Hoe08]
+% Names    :
+
+% Status   : Satisfiable
+% Syntax   : Number of formulae    :    4 (   0 unit)
+%            Number of atoms       :   11 (   5 equality)
+%            Maximal formula depth :    6 (   5 average)
+%            Number of connectives :    8 (   1 ~  ;   0  |;   2  &)
+%                                         (   3 <=>;   2 =>;   0 <=)
+%                                         (   0 <~>;   0 ~|;   0 ~&)
+%            Number of predicates  :    3 (   0 propositional; 1-2 arity)
+%            Number of functors    :    5 (   2 constant; 0-2 arity)
+%            Number of variables   :    7 (   0 singleton;   6 !;   1 ?)
+%            Maximal term depth    :    2 (   1 average)
+% SPC      : 
+
+% Comments : Requires KLE001+0.ax, KLE002+0.ax or KLE003+0.ax
+%          : Combined with KLE001+0 generates Idempotent semirings with tests
+%            Combined with KLE002+0 generates Kleene Algebra with tests
+%            Combined with KLE003+0 generates Omega Algebra with tests
+%------------------------------------------------------------------------------
+fof(test_1,axiom,(
+    ! [X0] :
+      ( test(X0)
+    <=> ? [X1] : complement(X1,X0) ) )).
+
+fof(test_2,axiom,(
+    ! [X0,X1] :
+      ( complement(X1,X0)
+    <=> ( multiplication(X0,X1) = zero
+        & multiplication(X1,X0) = zero
+        & addition(X0,X1) = one ) ) )).
+
+fof(test_3,axiom,(
+    ! [X0,X1] :
+      ( test(X0)
+     => ( c(X0) = X1
+      <=> complement(X0,X1) ) ) )).
+
+fof(test_4,axiom,(
+    ! [X0] :
+      ( ~ test(X0)
+     => c(X0) = zero ) )).
+
+%------------------------------------------------------------------------------

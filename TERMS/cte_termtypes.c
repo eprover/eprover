@@ -36,7 +36,6 @@
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
-static __inline__ Term_p applied_var_deref(Term_p orig);
 
 
 
@@ -617,6 +616,46 @@ bool TermIsPrefix(Term_p needle, Term_p haystack)
       }
    }
    
+   return res;
+}
+
+Term_p applied_var_deref(Term_p orig)
+{
+   assert(TermIsAppliedVar(orig));
+   assert(orig->arity > 1);
+   assert(orig->args[0]->binding);
+
+   Term_p res;
+
+   if (TermIsVar(orig->args[0]->binding))
+   {
+      res = TermTopCopy(orig);
+      res->args[0] = orig->args[0]->binding;
+   }
+   else
+   {
+      Term_p bound = orig->args[0]->binding;
+      int arity = bound->arity + orig->arity-1;
+
+      res = TermTopAlloc(bound->f_code, arity);
+      res->args = TermArgArrayAlloc(arity);
+
+      res->type = NULL;
+      res->properties = bound->properties & (TPPredPos | TPIsAppVar);
+
+      assert(!res->binding || res->f_code < 0 /* if bound -> then variable */);
+
+      for(int i=0; i<bound->arity; i++)
+      {
+         res->args[i] = bound->args[i];
+      }
+
+      for(int i=0; i<orig->arity-1; i++)
+      {
+         res->args[bound->arity + i] = orig->args[i + 1];
+      }
+   }   
+
    return res;
 }
 
