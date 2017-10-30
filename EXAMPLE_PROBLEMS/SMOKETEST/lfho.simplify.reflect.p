@@ -24,7 +24,7 @@ thf(a7 , axiom, g @ a @ c @ d != h @ d | g @ a @ c @ d != h @ c | g @ a @ a @ a 
 %--- WHAT SHOULD STAY OF a7:
 %--- g @ a @ c @ d = h @ c
 
-thf(a77 , axiom, ![Y: t > t > t > t > t, Z: t > t > t, W: t > t > t]: Y @ a @ b @ c @ d != h @ d | Z @ c != h | W @ c @ a != h @ b).
+thf(a77 , axiom, ![Y: t > t > t > t > t, Z: t > t > t, W: t > t > t]: Y @ a @ b @ c @ d != h @ d | Z @ c != h | W @ c @ a != h @ a).
 %--- WHAT SHOULD STAY OF a77:
 %--- W @ c @ a = h @ b
 

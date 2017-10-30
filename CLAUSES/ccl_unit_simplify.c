@@ -143,13 +143,6 @@ SimplifyRes FindSignedTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
       pos = mi->matcher;
       Sig_p sig = pos->literal->bank->sig;
 
-      fprintf(stderr, "Found ");
-      TermPrint(stderr, ClausePosGetSide(pos), sig, DEREF_NEVER);
-      fprintf(stderr, " -> ");
-      TermPrint(stderr, ClausePosGetOtherSide(pos), sig, DEREF_NEVER);
-      fprintf(stderr, " as simplifer.\n");
-
-
       if(EQUIV(EqnIsPositive(pos->literal), sign)
           &&
           ((ProblemIsHO == PROBLEM_IS_HO && 

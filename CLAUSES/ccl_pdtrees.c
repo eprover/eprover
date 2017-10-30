@@ -513,8 +513,8 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
    FunCode   i = tree->tree_pos->trav_count, limit;
    Term_p    term = PStackTopP(tree->term_stack);
 
-   fprintf(stderr, "At the beginning of pdtree_forward\n");
-   print_term_stack(tree->term_stack, tree->sig);
+   /*fprintf(stderr, "At the beginning of pdtree_forward\n");
+   print_term_stack(tree->term_stack, tree->sig);*/
 
    limit = PDT_NODE_CLOSED(tree,handle);
    while(i<limit)
@@ -525,7 +525,7 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
        i++;
        if(next)
        {
-          fprintf(stderr, "Just matched %s\n", SigFindName(tree->sig, term->f_code)); 
+          //fprintf(stderr, "Just matched %s\n", SigFindName(tree->sig, term->f_code)); 
           PStackPushP(tree->term_proc, term);
           TermLRTraverseNext(tree->term_stack);
           next->trav_count = PDT_NODE_INIT_VAL(tree);
@@ -551,7 +551,7 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
              if (ProblemIsHO == PROBLEM_NOT_HO)
              {
                assert(next->variable->type == term->type);
-               fprintf(stderr, "Matched simple var\n");
+               //fprintf(stderr, "Matched simple var\n");
                PStackDiscardTop(tree->term_stack);
                SubstAddBinding(subst, next->variable, term);  
                bound = true;
@@ -571,8 +571,7 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
                     add_unapplied_rest(tree->term_stack, matched_up_to + (TermIsAppliedVar(term) ? 1 : 0), term);  
                   }
                   
-
-                  fprintf(stderr, "Matched variable ");
+                  /*fprintf(stderr, "Matched variable ");
                   TermPrint(stderr, next->variable, tree->sig, DEREF_NEVER);
                   fprintf(stderr, " of type ");
                   TypePrintTSTP(stderr, tree->sig->type_bank, next->variable->type);
@@ -582,7 +581,7 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
                   TermPrint(stderr, next->variable->binding, tree->sig, DEREF_NEVER);
                   fprintf(stderr, ". \n");
                   fprintf(stderr, "After matching applied var\n");
-                  print_term_stack(tree->term_stack, tree->sig);
+                  print_term_stack(tree->term_stack, tree->sig);*/
 
                   bound = true;
                }
@@ -616,7 +615,8 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
                // no harm would be done if the problem is not HO
                // but I just do not want to enter this function either way -- premature optimization
                // maybe, but who cares.
-               add_unapplied_rest(tree->term_stack, next->variable->binding->arity, term);
+              PStackPushP(tree->term_proc, term);
+              add_unapplied_rest(tree->term_stack, next->variable->binding->arity, term);
              }
              next->trav_count   = PDT_NODE_INIT_VAL(tree);
              next->bound        = false;
@@ -665,11 +665,11 @@ static void pdtree_backtrack(PDTree_p tree, Subst_p subst)
             UNUSED(succ); assert(succ);
          }   
       }
-      else if (handle->bound)
+      else if (handle->variable->binding)
       {
          Term_p original_term = PStackPopP(tree->term_proc);
 
-         fprintf(stderr, "Backtracking original term ");
+         /*fprintf(stderr, "Backtracking original term ");
          TermPrint(stderr, original_term, tree->sig, DEREF_NEVER);
          fprintf(stderr, " with applied variable ");
          TermPrint(stderr, handle->variable, tree->sig, DEREF_NEVER);
@@ -677,16 +677,20 @@ static void pdtree_backtrack(PDTree_p tree, Subst_p subst)
          TermPrint(stderr, handle->variable->binding, tree->sig, DEREF_NEVER);
          fprintf(stderr, " with arities: orig(%d), binding(%d) and top of the stack ", 
                  original_term->arity, handle->variable->binding->arity);
-         TermPrint(stderr, PStackTopP(tree->term_stack), tree->sig, DEREF_NEVER);
+         PStackGetSP(tree->term_stack) ? 
+          TermPrint(stderr, PStackTopP(tree->term_stack), tree->sig, DEREF_NEVER) : fprintf(stderr, "stack empty");
          fprintf(stderr, ".\n");
          fprintf(stderr, "Before backtracking applied var\n");
-         print_term_stack(tree->term_stack, tree->sig);
+         print_term_stack(tree->term_stack, tree->sig);*/
 
          TermLRTraversePrevAppVar(tree->term_stack, original_term, handle->variable);
-         SubstBacktrackSingle(subst);
+         if (handle->bound)
+         {
+            SubstBacktrackSingle(subst);
+         }
 
-         fprintf(stderr, "After backtracking applied var\n");
-         print_term_stack(tree->term_stack, tree->sig);
+         /*fprintf(stderr, "After backtracking applied var\n");
+         print_term_stack(tree->term_stack, tree->sig);*/
       }
       
    }
