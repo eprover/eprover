@@ -463,7 +463,6 @@ static bool pdtree_verify_node_constr(PDTree_p tree)
    if(PDTreeUseSizeConstraints &&
       (tree->term_weight < PDTNodeGetSizeConstraint(tree->tree_pos)))
    {
-      fprintf(stderr, "Size constraint failed.\n");
       return false;
    }
 
@@ -473,8 +472,6 @@ static bool pdtree_verify_node_constr(PDTree_p tree)
    if(PDTreeUseAgeConstraints &&
       !SysDateIsEarlier(tree->term_date,PDTNodeGetAgeConstraint(tree->tree_pos)))
    {
-      fprintf(stderr, "Age constraint failed -- term date = %d, tree date = %d.\n", 
-                      tree->term_date, PDTNodeGetAgeConstraint(tree->tree_pos));
       return false;
    }
    return true;
