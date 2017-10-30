@@ -62,7 +62,7 @@ bool              print_sat = false,
    print_version = false,
    outinfo = false,
    error_on_empty = false,
-   no_preproc = false,
+   no_preproc = true,
    no_eq_unfold = false,
    pcl_full_terms = true,
    indexed_subsumption = true,
@@ -862,6 +862,99 @@ void test_matching(ProofState_p proofstate)
 
 } 
 
+void set_term_dates(ClauseSet_p set)
+{
+   Clause_p anchor = set->anchor;
+   Clause_p cl = anchor->succ;
+
+   while(cl != anchor)
+   {
+      cl->date = 10;
+      cl = cl->succ;
+   }
+}
+
+void perform_sr_test(Clause_p clause, int exp_weak, int exp_strong, bool pos, ClauseSet_p set)
+{
+   int exp = StrongUnitForwardSubsumption ? exp_strong : exp_weak;
+
+   fprintf(stderr, "# clause before SR ");
+   ClausePrint(stderr, clause, true);
+
+   if (pos)
+   {
+      ClausePositiveSimplifyReflect(set, clause);
+   }
+   else
+   {
+      ClauseNegativeSimplifyReflect(set, clause);  
+   }
+
+   fprintf(stderr, ", clause after SR(%s) ", pos ? "+" : "-" );
+   ClausePrint(stderr, clause, true);
+   fprintf(stderr, "\n");
+
+   if (exp == ClauseLiteralNumber(clause))
+   {
+      fprintf(stderr, "+ test passed\n");
+   }
+   else
+   {
+      fprintf(stderr, "- test failed (expected %d, got %d)\n", exp, ClauseLiteralNumber(clause));
+   }
+}
+
+void test_sr(ProofState_p proofstate)
+{
+   set_term_dates(proofstate->axioms);
+/*
+   tcf(i_0_9, plain, f(a,b)=g(c,d)).
+   tcf(i_0_10, plain, ![X1:t > t > t]:$@_var(X1,c)=h).
+   tcf(i_0_11, plain, ![X2:t]:f(X2,X2)=g(X2,b)).
+   tcf(i_0_12, plain, c=d).
+   tcf(i_0_13, plain, (f(a,b,c)=g(c,d,c)|f(a,b,d)=g(c,d,c)|f(a,a,c)=h(b))).
+   tcf(i_0_14, plain, ![X3:t]:(f(X3,X3,a)=g(X3,b,a)|f(a,a,c)=g(c,b,c))).
+   tcf(i_0_15, plain, (g(a,c,d)=h(d)|g(a,c,d)=h(c)|g(a,a,a)=h(b))).
+   tcf(i_0_16, plain, ![X5:t > t > t, X4:t > t > t > t > t, X6:t > t > t]:($@_var(X4,a,b,c,d)=h(d)|$@_var(X5,c)=h|$@_var(X6,c,a)=h(b))).
+   tcf(i_0_17, plain, ![X8:t, X7:t]:f(X7)=g(X8)).
+   tcf(i_0_18, plain, ![X9:t]:h(X9)=g(X9,a,b)).
+   tcf(i_0_19, plain, (f(a)=g(b)|f(a,b,c)=g(b,b,c))).
+   tcf(i_0_20, plain, (h(c)=g(c,a,b)|h(c)=g(d,a,b))).
+*/  
+   // inserted f(a,b) = g(c,d) 
+   ClauseSetPDTIndexedInsert(proofstate->processed_pos_eqns, 
+                             ClauseFlatCopy(get_clause_by_nr(proofstate->axioms, 9)));
+   // inserted X c = h
+   ClauseSetPDTIndexedInsert(proofstate->processed_pos_eqns, 
+                             ClauseFlatCopy(get_clause_by_nr(proofstate->axioms, 10)));
+
+   // inserted f X X  = g X b
+   ClauseSetPDTIndexedInsert(proofstate->processed_pos_eqns, 
+                             ClauseFlatCopy(get_clause_by_nr(proofstate->axioms, 11)));
+
+   // c = d
+   ClauseSetPDTIndexedInsert(proofstate->processed_pos_eqns, 
+                             ClauseFlatCopy(get_clause_by_nr(proofstate->axioms, 12)));
+   PDTreePrint(stderr, proofstate->processed_pos_eqns->demod_index);
+
+   perform_sr_test(get_clause_by_nr(proofstate->axioms, 13), 2, 1, true, proofstate->processed_pos_eqns);
+   perform_sr_test(get_clause_by_nr(proofstate->axioms, 14), 1, 1, true, proofstate->processed_pos_eqns);
+   perform_sr_test(get_clause_by_nr(proofstate->axioms, 15), 2, 1, true, proofstate->processed_pos_eqns);
+   perform_sr_test(get_clause_by_nr(proofstate->axioms, 16), 0, 0, true, proofstate->processed_pos_eqns);
+
+   // inserted f X != g Y
+   ClauseSetPDTIndexedInsert(proofstate->processed_neg_units, 
+                             ClauseFlatCopy(get_clause_by_nr(proofstate->axioms, 17)));
+
+   // inserted h X != g X a ab
+   ClauseSetPDTIndexedInsert(proofstate->processed_neg_units, 
+                             ClauseFlatCopy(get_clause_by_nr(proofstate->axioms, 18)));
+   PDTreePrint(stderr, proofstate->processed_neg_units->demod_index);
+
+   perform_sr_test(get_clause_by_nr(proofstate->axioms, 19), 1, 1, false, proofstate->processed_neg_units);
+   perform_sr_test(get_clause_by_nr(proofstate->axioms, 20), 1, 1, false, proofstate->processed_neg_units);
+}
+
 int main(int argc, char* argv[])
 {
    int              retval = NO_ERROR;
@@ -1005,43 +1098,48 @@ int main(int argc, char* argv[])
       fprintf(stderr, "preproc removed : %d\n", preproc_removed);
    }
 
-   proofcontrol = ProofControlAlloc();
-   ProofControlInit(proofstate, proofcontrol, h_parms,
-                    fvi_parms, wfcb_definitions, hcb_definitions);
-   PCLFullTerms = pcl_full_terms; /* Preprocessing always uses full
-                                     terms, so we set the flag for
-                                     the main proof search only now! */
-   GlobalIndicesInit(&(proofstate->wlindices),
-                     proofstate->signature,
-                     proofcontrol->heuristic_parms.rw_bw_index_type,
-                     "NoIndex",
-                     "NoIndex");
-   ProofStateInit(proofstate, proofcontrol);
-   ProofStateInitWatchlist(proofstate, proofcontrol->ocb,
-                           watchlist_filename, parse_format);
+   if (!strstr(state->argv[0], "simplify.reflect"))
+   {
+      proofcontrol = ProofControlAlloc();
+      ProofControlInit(proofstate, proofcontrol, h_parms,
+                       fvi_parms, wfcb_definitions, hcb_definitions);
+      PCLFullTerms = pcl_full_terms; /* Preprocessing always uses full
+                                        terms, so we set the flag for
+                                        the main proof search only now! */
+      GlobalIndicesInit(&(proofstate->wlindices),
+                        proofstate->signature,
+                        proofcontrol->heuristic_parms.rw_bw_index_type,
+                        "NoIndex",
+                        "NoIndex");
+      ProofStateInit(proofstate, proofcontrol);
+      ProofStateInitWatchlist(proofstate, proofcontrol->ocb,
+                              watchlist_filename, parse_format);
 
-   VERBOUT2("Prover state initialized\n");
+      VERBOUT2("Prover state initialized\n");
 
+   }
 
    fprintf(stderr, "Clauses: \n");
    ClauseSetPrint(stderr, proofstate->axioms, true);
-
-   for(Clause_p cl = proofstate->axioms->anchor; cl != proofstate->axioms->anchor; cl = cl->succ)
-   {
-     cl->date = -100; // to make sure it is rewritten.
-     EqnListSetProp(cl->literals, EPIsOriented);
-   }
-
    fprintf(stderr, "Clauses printed. \n");
 
    //test_pdts(proofstate);
    if (strstr(state->argv[0], "rewrite"))
    {
+      for(Clause_p cl = proofstate->axioms->anchor; cl != proofstate->axioms->anchor; cl = cl->succ)
+      {
+        cl->date = -100; // to make sure it is rewritten.
+        EqnListSetProp(cl->literals, EPIsOriented);
+      }
       test_rewriting(proofstate, proofcontrol);   
    }
    else if (strstr(state->argv[0], "matching"))
    {
       test_matching(proofstate);
+   }
+   else if (strstr(state->argv[0], "simplify.reflect"))
+   {
+      test_sr(proofstate);
    }
    else
    {

@@ -64,13 +64,13 @@ long UnitClauseClauseSubsumptionCalls = 0;
 /----------------------------------------------------------------------*/
 
 static
-ClausePos_p unit_clause_set_strongsubsumes_termpair(ClauseSet_p set,
+SimplifyRes unit_clause_set_strongsubsumes_termpair(ClauseSet_p set,
                       Term_p t1, Term_p t2,
                       bool positive)
 {
    PStack_p stack = PStackAlloc();
    int      i;
-   ClausePos_p res = NULL;
+   SimplifyRes res = SIMPLIFY_FAILED;
 
    PStackPushP(stack, t1);
    PStackPushP(stack, t2);
@@ -80,8 +80,14 @@ ClausePos_p unit_clause_set_strongsubsumes_termpair(ClauseSet_p set,
       t2 = PStackPopP(stack);
       t1 = PStackPopP(stack);
       res = FindSignedTopSimplifyingUnit(set, t1, t2, positive);
+
+      // I know that they match up to some point (type checking!)
+      // and I know that the remaining number of args on both
+      // sides is going to be the same -- conclustion =
+      // I can still use one stack! -- QUITE THE CONTRARY FROM MATCHING
+      // TODO: DISCUSS WITH JASMIN
       
-      if(!res)
+      if(SimplifyFailed(res))
       {
          if(t1->f_code != t2->f_code || !t1->arity)
          {
@@ -95,6 +101,21 @@ ClausePos_p unit_clause_set_strongsubsumes_termpair(ClauseSet_p set,
                PStackPushP(stack, t1->args[i]);
                PStackPushP(stack, t2->args[i]);
             }
+         }
+      }
+      else 
+      {
+         // put the remaining args on stack, order does not
+         // matter here.
+         int remains = res.remaining_args;
+         // if the problem is FO -> everything is matched!
+         assert(!(ProblemIsHO == PROBLEM_NOT_HO) || !remains);
+         while(remains)
+         {
+            PStackPushP(stack, t1->args[t1->arity-remains]);
+            PStackPushP(stack, t2->args[t2->arity-remains]);
+
+            remains--;
          }
       }
 
@@ -121,34 +142,34 @@ Clause_p unit_clause_set_subsumes_clause(ClauseSet_p set,
                 Clause_p clause)
 {
    Eqn_p    handle = clause->literals;
-   ClausePos_p res = NULL;
+   SimplifyRes res = SIMPLIFY_FAILED;
 
    while(handle)
    {
       if(EqnIsPositive(handle))
       {
-    res = StrongUnitForwardSubsumption?
-       unit_clause_set_strongsubsumes_termpair(set, handle->lterm,
-                      handle->rterm,
-                      true):
-       FindSimplifyingUnit(set, handle->lterm,
-            handle->rterm,
-            true);
+         res = StrongUnitForwardSubsumption?
+                  unit_clause_set_strongsubsumes_termpair(set, handle->lterm,
+                                                          handle->rterm,
+                                                          true):
+                  FindSimplifyingUnit(set, handle->lterm,
+                                      handle->rterm,
+                                      true);
       }
       else
       {
-    res = FindSignedTopSimplifyingUnit(set,
-                   handle->lterm,
-                   handle->rterm,
-                   false);
+         res = FindSignedTopSimplifyingUnit(set,
+                                            handle->lterm,
+                                            handle->rterm,
+                                            false);
       }
-      if(res)
+      if(!SimplifyFailed(res))
       {
-    break;
+         break;
       }
       handle = handle->next;
    }
-   return res?res->clause:NULL;
+   return res.pos ? res.pos->clause : NULL;
 }
 
 
@@ -177,15 +198,14 @@ static bool eqn_topsubsumes_termpair(Eqn_p eqn, Term_p t1, Term_p t2)
    {
       if(SubstComputeMatch(eqn->rterm, t2, subst))
       {
-    res = true;
+         res = true;
       }
    }
    else if(SubstComputeMatch(eqn->lterm, t2, subst))
    {
       if(SubstComputeMatch(eqn->rterm, t1, subst))
       {
-    res = true;
-
+         res = true;
       }
    }
    SubstDelete(subst);
@@ -1149,34 +1169,35 @@ Clause_p ClauseSetFindUnitSubsumedClause(ClauseSet_p set, Clause_p
 bool ClausePositiveSimplifyReflect(ClauseSet_p set, Clause_p clause)
 {
    Eqn_p   *handle = &(clause->literals);
-   ClausePos_p res = NULL;
+   SimplifyRes res = SIMPLIFY_FAILED;
 
    while(*handle)
    {
-      res = NULL;
+      res = SIMPLIFY_FAILED;
       if(!EqnIsPositive(*handle))
       {
          res = StrongUnitForwardSubsumption?
-            unit_clause_set_strongsubsumes_termpair(set,
-                                                    (*handle)->lterm,
-                                                    (*handle)->rterm,
-                                                    true):
-            FindSimplifyingUnit(set,
-                                (*handle)->lterm,
-                                (*handle)->rterm,
-                                true);
+                  unit_clause_set_strongsubsumes_termpair(set,
+                                                          (*handle)->lterm,
+                                                          (*handle)->rterm,
+                                                          true):
+                  FindSimplifyingUnit(set,
+                                      (*handle)->lterm,
+                                      (*handle)->rterm,
+                                      true);
       }
-      if(res)
+      if(!SimplifyFailed(res))
       {
+         ClausePos_p pos = res.pos;
          ClauseRemoveLiteralRef(clause, handle);
-         if(ClauseQueryProp(res->clause, CPIsSOS))
+         if(ClauseQueryProp(pos->clause, CPIsSOS))
          {
             ClauseSetProp(clause, CPIsSOS);
          }
          ClauseDelProp(clause, CPInitial|CPLimitedRW);
          DocClauseModificationDefault(clause, inf_simplify_reflect,
-                                      res->clause);
-         ClausePushDerivation(clause, DCSR, res->clause, NULL);
+                                      pos->clause);
+         ClausePushDerivation(clause, DCSR, pos->clause, NULL);
       }
       else
       {
@@ -1205,11 +1226,11 @@ bool ClausePositiveSimplifyReflect(ClauseSet_p set, Clause_p clause)
 bool ClauseNegativeSimplifyReflect(ClauseSet_p set, Clause_p clause)
 {
    Eqn_p   *handle = &(clause->literals);
-   ClausePos_p res = NULL;
+   SimplifyRes res = SIMPLIFY_FAILED;
 
    while(*handle)
    {
-      res = NULL;
+      res = SIMPLIFY_FAILED;
       if(EqnIsPositive(*handle))
       {
          res = FindSignedTopSimplifyingUnit(set,
@@ -1217,17 +1238,20 @@ bool ClauseNegativeSimplifyReflect(ClauseSet_p set, Clause_p clause)
                                             (*handle)->rterm,
                                             false);
       }
-      if(res)
+      // For Negative Simplify the match has to be at head
+      // TODO Ask Jasmin if we can allow
+      if(!SimplifyFailed(res) && res.remaining_args == 0)
       {
+         ClausePos_p pos = res.pos;
          ClauseRemoveLiteralRef(clause, handle);
-         if(ClauseQueryProp(res->clause, CPIsSOS))
+         if(ClauseQueryProp(pos->clause, CPIsSOS))
          {
             ClauseSetProp(clause, CPIsSOS);
          }
          ClauseDelProp(clause, CPInitial|CPLimitedRW);
          DocClauseModificationDefault(clause, inf_simplify_reflect,
-                                      res->clause);
-         ClausePushDerivation(clause, DCSR, res->clause, NULL);
+                                      pos->clause);
+         ClausePushDerivation(clause, DCSR, pos->clause, NULL);
       }
       else
       {
