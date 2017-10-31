@@ -1,7 +1,9 @@
 thf(typedef, type, t : $tType).
 thf(fType, type, f: t > t > t > t).
 thf(gType, type, g: t > t > t > t).
-thf(aType, type, h: t > t).
+thf(hType, type, h: t > t).
+thf(iType, type, i: t > t > t > t).
+thf(jType, type, j: t > t > t > t).
 thf(aType, type, a: t).
 thf(bType, type, b: t).
 thf(cType, type, c: t).
@@ -12,6 +14,9 @@ thf(a1 , axiom, f @ a @ b = g @ c @ d ).
 thf(a2 , axiom, ![X: t > t > t]: X @ c = h).
 thf(a3 , axiom, ![X:t]: f @ X @ X = g @ X @ b).
 thf(a4 , axiom, c = d).
+thf(a55, axiom, ![X:t]: i @ X = j @ X).
+thf(a56, axiom, ![X:t, Y:t]: i @ X @ Y = j @ Y @ X).
+
 thf(a5 , axiom, f @ a @ b @ c != g @ c @ d @ c | f @ a @ b @ d != g @ c @ d @ c | f @ a @ a @ c != h @ b).
 %--- WHAT SHOULD STAY OF a5:
 %--- f @ a @ b @ d = g @ c @ d @ c | f @ a @ a @ c = h @ b
@@ -27,6 +32,10 @@ thf(a7 , axiom, g @ a @ c @ d != h @ d | g @ a @ c @ d != h @ c | g @ a @ a @ a 
 thf(a77 , axiom, ![Y: t > t > t > t > t, Z: t > t > t, W: t > t > t]: Y @ a @ b @ c @ d != h @ d | Z @ c != h | W @ c @ a != h @ a).
 %--- WHAT SHOULD STAY OF a77:
 %--- W @ c @ a = h @ b
+
+thf(a78, axiom, i @ a @ b != j @ b @ a | i @ a != j @ a).
+%--- WHAT SHOULD STAY OF a77:
+%--- nothing
 
 %--- TEST CASES FOR NEGATIVE SIMPLIFY REFLECT 
 thf(a8 , axiom, ![X: t, Y:t]: f @ X != g @ Y).

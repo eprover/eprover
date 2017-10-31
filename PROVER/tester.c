@@ -909,51 +909,75 @@ void test_sr(ProofState_p proofstate)
    set_term_dates(proofstate->axioms);
    StrongUnitForwardSubsumption = /*false*/ true;
 /*
-   tcf(i_0_9, plain, f(a,b)=g(c,d)).
-   tcf(i_0_10, plain, ![X1:t > t > t]:$@_var(X1,c)=h).
-   tcf(i_0_11, plain, ![X2:t]:f(X2,X2)=g(X2,b)).
-   tcf(i_0_12, plain, c=d).
-   tcf(i_0_13, plain, (f(a,b,c)=g(c,d,c)|f(a,b,d)=g(c,d,c)|f(a,a,c)=h(b))).
-   tcf(i_0_14, plain, ![X3:t]:(f(X3,X3,a)=g(X3,b,a)|f(a,a,c)=g(c,b,c))).
-   tcf(i_0_15, plain, (g(a,c,d)=h(d)|g(a,c,d)=h(c)|g(a,a,a)=h(b))).
-   tcf(i_0_16, plain, ![X5:t > t > t, X4:t > t > t > t > t, X6:t > t > t]:($@_var(X4,a,b,c,d)=h(d)|$@_var(X5,c)=h|$@_var(X6,c,a)=h(b))).
-   tcf(i_0_17, plain, ![X8:t, X7:t]:f(X7)=g(X8)).
-   tcf(i_0_18, plain, ![X9:t]:h(X9)=g(X9,a,b)).
-   tcf(i_0_19, plain, (f(a)=g(b)|f(a,b,c)=g(b,b,c))).
-   tcf(i_0_20, plain, (h(c)=g(c,a,b)|h(c)=g(d,a,b))).
+   cnf(i_0_1, plain, ($true)).
+   cnf(i_0_2, plain, ($true)).
+   cnf(i_0_3, plain, ($true)).
+   cnf(i_0_4, plain, ($true)).
+   cnf(i_0_5, plain, ($true)).
+   cnf(i_0_6, plain, ($true)).
+   cnf(i_0_7, plain, ($true)).
+   cnf(i_0_8, plain, ($true)).
+   cnf(i_0_9, plain, ($true)).
+   cnf(i_0_10, plain, ($true)).
+   tcf(i_0_11, plain, f(a,b)=g(c,d)).
+   tcf(i_0_12, plain, ![X1:t > t > t]:$@_var(X1,c)=h).
+   tcf(i_0_13, plain, ![X2:t]:f(X2,X2)=g(X2,b)).
+   tcf(i_0_14, plain, c=d).
+   tcf(i_0_15, plain, ![X3:t]:i(X3)=j(X3)).
+   tcf(i_0_16, plain, ![X5:t, X4:t]:i(X4,X5)=j(X5,X4)).
+   tcf(i_0_17, plain, (f(a,b,c)!=g(c,d,c)|f(a,b,d)!=g(c,d,c)|f(a,a,c)!=h(b))).
+   tcf(i_0_18, plain, ![X6:t]:(f(X6,X6,a)!=g(X6,b,a)|f(a,a,c)!=g(c,b,c))).
+   tcf(i_0_19, plain, (g(a,c,d)!=h(d)|g(a,c,d)!=h(c)|g(a,a,a)!=h(b))).
+   tcf(i_0_20, plain, ![X7:t > t > t > t > t, X8:t > t > t, X9:t > t > t]:($@_var(X7,a,b,c,d)!=h(d)|$@_var(X8,c)!=h|$@_var(X9,c,a)!=h(a))).
+   tcf(i_0_21, plain, (i(a,b)!=j(b,a)|i(a)!=j(a))).
+   tcf(i_0_22, plain, ![X11:t, X10:t]:f(X10)!=g(X11)).
+   tcf(i_0_23, plain, ![X12:t]:h(X12)!=g(X12,a,b)).
+   tcf(i_0_24, plain, (f(a)=g(b)|f(a,b,c)=g(b,b,c))).
+   tcf(i_0_25, plain, (h(c)=g(c,a,b)|h(c)=g(d,a,b))).
+
 */  
    // inserted f(a,b) = g(c,d) 
    ClauseSetPDTIndexedInsert(proofstate->processed_pos_eqns, 
-                             ClauseFlatCopy(get_clause_by_nr(proofstate->axioms, 9)));
+                             ClauseFlatCopy(get_clause_by_nr(proofstate->axioms, 11)));
    // inserted X c = h
    ClauseSetPDTIndexedInsert(proofstate->processed_pos_eqns, 
-                             ClauseFlatCopy(get_clause_by_nr(proofstate->axioms, 10)));
+                             ClauseFlatCopy(get_clause_by_nr(proofstate->axioms, 12)));
 
    // inserted f X X  = g X b
    ClauseSetPDTIndexedInsert(proofstate->processed_pos_eqns, 
-                             ClauseFlatCopy(get_clause_by_nr(proofstate->axioms, 11)));
+                             ClauseFlatCopy(get_clause_by_nr(proofstate->axioms, 13)));
 
    // c = d
    ClauseSetPDTIndexedInsert(proofstate->processed_pos_eqns, 
-                             ClauseFlatCopy(get_clause_by_nr(proofstate->axioms, 12)));
+                             ClauseFlatCopy(get_clause_by_nr(proofstate->axioms, 14)));
+
+   // i X = j X
+   ClauseSetPDTIndexedInsert(proofstate->processed_pos_eqns, 
+                             ClauseFlatCopy(get_clause_by_nr(proofstate->axioms, 15)));
+
+   // i X Y = j Y X
+   ClauseSetPDTIndexedInsert(proofstate->processed_pos_eqns, 
+                             ClauseFlatCopy(get_clause_by_nr(proofstate->axioms, 16)));
+
    PDTreePrint(stderr, proofstate->processed_pos_eqns->demod_index);
 
-   perform_sr_test(get_clause_by_nr(proofstate->axioms, 13), 2, 1, true, proofstate->processed_pos_eqns);
-   perform_sr_test(get_clause_by_nr(proofstate->axioms, 14), 1, 1, true, proofstate->processed_pos_eqns);
-   perform_sr_test(get_clause_by_nr(proofstate->axioms, 15), 2, 1, true, proofstate->processed_pos_eqns);
-   perform_sr_test(get_clause_by_nr(proofstate->axioms, 16), 0, 0, true, proofstate->processed_pos_eqns);
+   perform_sr_test(get_clause_by_nr(proofstate->axioms, 17), 2, 1, true, proofstate->processed_pos_eqns);
+   perform_sr_test(get_clause_by_nr(proofstate->axioms, 18), 1, 1, true, proofstate->processed_pos_eqns);
+   perform_sr_test(get_clause_by_nr(proofstate->axioms, 19), 2, 1, true, proofstate->processed_pos_eqns);
+   perform_sr_test(get_clause_by_nr(proofstate->axioms, 20), 0, 0, true, proofstate->processed_pos_eqns);
+   perform_sr_test(get_clause_by_nr(proofstate->axioms, 21), 0, 0, true, proofstate->processed_pos_eqns);
 
    // inserted f X != g Y
    ClauseSetPDTIndexedInsert(proofstate->processed_neg_units, 
-                             ClauseFlatCopy(get_clause_by_nr(proofstate->axioms, 17)));
+                             ClauseFlatCopy(get_clause_by_nr(proofstate->axioms, 22)));
 
    // inserted h X != g X a ab
    ClauseSetPDTIndexedInsert(proofstate->processed_neg_units, 
-                             ClauseFlatCopy(get_clause_by_nr(proofstate->axioms, 18)));
+                             ClauseFlatCopy(get_clause_by_nr(proofstate->axioms, 23)));
    PDTreePrint(stderr, proofstate->processed_neg_units->demod_index);
 
-   perform_sr_test(get_clause_by_nr(proofstate->axioms, 19), 1, 1, false, proofstate->processed_neg_units);
-   perform_sr_test(get_clause_by_nr(proofstate->axioms, 20), 1, 1, false, proofstate->processed_neg_units);
+   perform_sr_test(get_clause_by_nr(proofstate->axioms, 24), 1, 1, false, proofstate->processed_neg_units);
+   perform_sr_test(get_clause_by_nr(proofstate->axioms, 25), 1, 1, false, proofstate->processed_neg_units);
 }
 
 int main(int argc, char* argv[])
