@@ -77,6 +77,7 @@ typedef struct pdt_node_cell
                   the (maximal one) function
                   symbol alternative, i is
                   variable i. */
+  bool                leaf; // for HO.. we can have prefixes.
 }PDTNodeCell, *PDTNode_p;
 
 /* A PDTreeCell is an object encapsulating a PDTree and the necessary

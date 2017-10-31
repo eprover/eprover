@@ -60,6 +60,7 @@ extern char* UnitSimplifyNames[];
 
 #define TransUnitSimplifyString(str) StringIndex((str), UnitSimplifyNames);
 
+SimplifyRes RemainingArgsSame(Term_p t1, Term_p t2, SimplifyRes res);
 SimplifyRes FindTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
                Term_p t2);
 SimplifyRes FindSignedTopSimplifyingUnit(ClauseSet_p units, Term_p t1,

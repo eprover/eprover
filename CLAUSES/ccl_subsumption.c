@@ -169,7 +169,9 @@ Clause_p unit_clause_set_subsumes_clause(ClauseSet_p set,
                                             handle->rterm,
                                             false);
       }
-      if(!SimplifyFailed(res))
+      
+      if(!SimplifyFailed(res) && 
+          !SimplifyFailed(RemainingArgsSame(handle->lterm, handle->rterm, res)))
       {
          break;
       }

@@ -1,0 +1,119 @@
+\begin{theindex}
+
+  \item answer, 36
+
+  \indexspace
+
+  \item batch processing, 41
+  \item batch specifications, 42
+
+  \indexspace
+
+  \item clause evaluation, 21
+  \item clause splitting, 11
+  \item clausification, 13
+  \item common options, 39
+  \item condensing, 11
+  \item contextual literal      cutting, 11
+
+  \indexspace
+
+  \item DISCOUNT, 12
+
+  \indexspace
+
+  \item E (theorem prover), 10
+  \item e\_axfilter, \texttt{44}
+  \item e\_ltb\_runner, \texttt{41}
+  \item eground, \texttt{39}
+  \item eligible for paramodulation, \see{literal, eligible}{8}
+  \item eligible for resolution, \see{literal, eligible}{8}
+  \item eligible literals, \see{literal, eligible}{8}
+  \item enormalizer, \texttt{41}
+  \item equality      resolution, 11
+  \item equality factoring, 9
+  \item equality resolution, 8
+  \item equation, 7
+  \item equational definition, 14
+
+  \indexspace
+
+  \item given clause, 16, 17
+  \item GNU General Public     License, 49
+  \item GNU Lesser General Public License, 49
+  \item GPL, 49
+
+  \indexspace
+
+  \item interactive queries, 44
+  \item interreduction, 14
+
+  \indexspace
+
+  \item LGPL, 49
+  \item literal, 7
+    \subitem eligible, 8
+    \subitem selection, 16, 17, 27
+  \item LOP, 29, 31
+
+  \indexspace
+
+  \item mgu, 7
+  \item most general unifier, 7
+
+  \indexspace
+
+  \item ordering, 7
+  \item Otter, 3, 34
+
+  \indexspace
+
+  \item PCL, 33, 35
+  \item proof procedure, 15
+
+  \indexspace
+
+  \item question, 36
+
+  \indexspace
+
+  \item reduction ordering, 7
+  \item relevancy pruning, 12
+  \item rewriting, 9, 10
+
+  \indexspace
+
+  \item selection functions, 7
+  \item SETHEO, 3, 31
+  \item simplify-reflect, 10
+  \item simultaneous superposition, 9
+  \item SInE, 12, 46
+  \item sort, 6
+  \item \textbf{SP} (calculus), 8
+  \item SPASS, 3, 10, 12
+  \item substitution, 7
+  \item subsumption, 10
+  \item subterm, 7
+  \item superposition
+    \subitem inference rule, 9
+
+  \indexspace
+
+  \item tautology deletion, 10
+  \item term, 6
+  \item term   ordering, 16
+  \item term ordering, 17, 23
+  \item TPTP, 13, 32
+    \subitem language, 13, 29, 32, 35
+  \item type, 6
+
+  \indexspace
+
+  \item Vampire, 3
+  \item variable, 6
+
+  \indexspace
+
+  \item xyzzy, 4
+
+\end{theindex}
