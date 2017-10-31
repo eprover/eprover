@@ -133,14 +133,14 @@ static long remove_subsumed(GlobalIndices_p indices,
       // printf("# XXX Removing (remove_subumed()) %p from %p = %p\n", handle, set, handle->set);
       if(ClauseQueryProp(handle, CPWatchOnly))
       {
-    DocClauseQuote(GlobalOut, OutputLevel, 6, handle,
-         "extract_wl_subsumed", subsumer->clause);
+        DocClauseQuote(GlobalOut, OutputLevel, 6, handle,
+             "extract_wl_subsumed", subsumer->clause);
 
       }
       else
       {
-    DocClauseQuote(GlobalOut, OutputLevel, 6, handle,
-         "subsumed", subsumer->clause);
+        DocClauseQuote(GlobalOut, OutputLevel, 6, handle,
+             "subsumed", subsumer->clause);
       }
       ClauseKillChildren(handle);
       GlobalIndicesDeleteClause(indices, handle);
@@ -272,18 +272,18 @@ static long eliminate_backward_subsumed_clauses(ProofState_p state,
                                    state->processed_pos_eqns,
                                    state->archive);
          }
-    res += remove_subsumed(&(state->gindices), pclause,
-                                state->processed_non_units,
-                                   state->archive);
+         res += remove_subsumed(&(state->gindices), pclause,
+                                     state->processed_non_units,
+                                        state->archive);
       }
       else
       {
-    res += remove_subsumed(&(state->gindices), pclause,
-                                state->processed_neg_units,
-                                state->archive);
-    res += remove_subsumed(&(state->gindices), pclause,
-                                state->processed_non_units,
-                                state->archive);
+         res += remove_subsumed(&(state->gindices), pclause,
+                                      state->processed_neg_units,
+                                      state->archive);
+         res += remove_subsumed(&(state->gindices), pclause,
+                                      state->processed_non_units,
+                                      state->archive);
       }
    }
    else

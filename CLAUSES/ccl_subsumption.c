@@ -1248,7 +1248,9 @@ bool ClauseNegativeSimplifyReflect(ClauseSet_p set, Clause_p clause)
       }
       // For Negative Simplify the match has to be at head
       // TODO Ask Jasmin if we can allow
-      if(!SimplifyFailed(res) && res.remaining_args == 0)
+      if(!SimplifyFailed(res) && 
+          /*!SimplifyFailed(RemainingArgsSame((*handle)->lterm, (*handle)->rterm, res))*/
+          res.remaining_args == 0)
       {
          ClausePos_p pos = res.pos;
          ClauseRemoveLiteralRef(clause, handle);
