@@ -907,7 +907,7 @@ void perform_sr_test(Clause_p clause, int exp_weak, int exp_strong, bool pos, Cl
 void test_sr(ProofState_p proofstate)
 {
    set_term_dates(proofstate->axioms);
-   StrongUnitForwardSubsumption = true;
+   StrongUnitForwardSubsumption = /*false*/ true;
 /*
    tcf(i_0_9, plain, f(a,b)=g(c,d)).
    tcf(i_0_10, plain, ![X1:t > t > t]:$@_var(X1,c)=h).
