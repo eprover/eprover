@@ -77,7 +77,6 @@ SimplifyRes unit_clause_set_strongsubsumes_termpair(ClauseSet_p set,
 
    while(!PStackEmpty(stack))
    {
-      fprintf(stderr, "One more step! \n");
       t2 = PStackPopP(stack);
       t1 = PStackPopP(stack);
       res = FindSignedTopSimplifyingUnit(set, t1, t2, positive);
@@ -112,16 +111,20 @@ SimplifyRes unit_clause_set_strongsubsumes_termpair(ClauseSet_p set,
          int remains = res.remaining_args;
          // if the problem is FO -> everything is matched!
          assert(!(ProblemIsHO == PROBLEM_NOT_HO) || !remains);
-         fprintf(stderr, "Putting rest %d. \n", remains);
          while(remains)
          {
-            PStackPushP(stack, t1->args[t1->arity-remains]);
-            PStackPushP(stack, t2->args[t2->arity-remains]);
+            Term_p t1_arg = t1->args[t1->arity-remains];
+            Term_p t2_arg = t2->args[t2->arity-remains];
+
+            if (t1_arg != t2_arg)
+            {
+              PStackPushP(stack, t1_arg);
+              PStackPushP(stack, t2_arg);  
+            }
 
             remains--;
          }
       }
-
    }
    PStackFree(stack);
    return res;
