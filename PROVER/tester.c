@@ -907,7 +907,7 @@ void perform_sr_test(Clause_p clause, int exp_weak, int exp_strong, bool pos, Cl
 void test_sr(ProofState_p proofstate)
 {
    set_term_dates(proofstate->axioms);
-   StrongUnitForwardSubsumption = /*false*/ true;
+   StrongUnitForwardSubsumption = false/* true*/;
 /*
    cnf(i_0_1, plain, ($true)).
    cnf(i_0_2, plain, ($true)).
@@ -978,6 +978,102 @@ void test_sr(ProofState_p proofstate)
 
    perform_sr_test(get_clause_by_nr(proofstate->axioms, 24), 1, 1, false, proofstate->processed_neg_units);
    perform_sr_test(get_clause_by_nr(proofstate->axioms, 25), 1, 1, false, proofstate->processed_neg_units);
+}
+
+void perform_us_test(ClauseSet_p set, Clause_p clause, bool exp)
+{
+   Clause_p subsumer = UnitClauseSetSubsumesClause(set, clause);
+   if (EQUIV((bool)subsumer, exp))
+   {
+      fprintf(stderr, "+ test passed");
+      if (subsumer)
+      {
+         fprintf(stderr, " with subsumer ");
+         ClausePrint(stderr, subsumer, true);   
+      }
+      
+      fprintf(stderr, " . \n");
+   }
+   else
+   {
+      fprintf(stderr, "- test failed\n");
+   }
+}
+
+void test_us(ProofState_p proofstate)
+{
+   set_term_dates(proofstate->axioms);
+
+   /*
+      cnf(i_0_1, plain, ($true)).
+      cnf(i_0_2, plain, ($true)).
+      cnf(i_0_3, plain, ($true)).
+      cnf(i_0_4, plain, ($true)).
+      cnf(i_0_5, plain, ($true)).
+      cnf(i_0_6, plain, ($true)).
+      cnf(i_0_7, plain, ($true)).
+      tcf(i_0_8, plain, ![X1:t]:f(X1)=g(X1)).
+      tcf(i_0_9, plain, ![X3:t, X2:t]:f(X2,X3)=h(X3,X2)).
+      tcf(i_0_10, plain, ![X4:t > t]:$@_var(X4,$@_var(X4,b))=g($@_var(X4,a),$@_var(X4,b))).
+      tcf(i_0_11, plain, (f(a,f(a,b))=g(f(a,a),f(a,b))|a=b)).
+      tcf(i_0_12, plain, f(a,b)=g(a,c)).
+      tcf(i_0_13, plain, f(a,b)=g(a,b)).
+      tcf(i_0_14, plain, (f(a,b)=g(b,a)|a=b)).
+      tcf(i_0_15, plain, ![X5:t > t]:$@_var(X5,a)!=f(b,c)).
+      tcf(i_0_16, plain, ![X7:t, X6:t]:g(X6,X7)!=h(X7,X6)).
+      tcf(i_0_17, plain, f(a,a)!=f(b,c)).
+      tcf(i_0_18, plain, f(a,a)!=f(b,b)).
+      tcf(i_0_19, plain, (g(a,a)!=h(a,b)|g(b,b)!=h(a,a))).
+      tcf(i_0_20, plain, (h(a,a)!=g(b,b)|g(a,b)!=h(b,a))).
+      tcf(i_0_21, plain, ![X9:t, X8:t]:h(X8,X9)!=g(X9,X8)).
+   */
+
+   // f X  =  g X
+   ClauseSetPDTIndexedInsert(proofstate->processed_pos_eqns, 
+                             ClauseFlatCopy(get_clause_by_nr(proofstate->axioms, 8)));
+
+   // f X Y  =  g Y X
+   ClauseSetPDTIndexedInsert(proofstate->processed_pos_eqns, 
+                             ClauseFlatCopy(get_clause_by_nr(proofstate->axioms, 9)));
+
+   // X (X b) = g (X a) (X b)
+   ClauseSetPDTIndexedInsert(proofstate->processed_pos_eqns, 
+                             ClauseFlatCopy(get_clause_by_nr(proofstate->axioms, 10)));
+
+   //subsumed by ep3
+   perform_us_test(proofstate->processed_pos_eqns, 
+                   get_clause_by_nr(proofstate->axioms, 11), true);
+   perform_us_test(proofstate->processed_pos_eqns, 
+                   get_clause_by_nr(proofstate->axioms, 12), false);
+   //subsumed by ep1 
+   perform_us_test(proofstate->processed_pos_eqns, 
+                   get_clause_by_nr(proofstate->axioms, 13), true);
+   //subsumed by ep2
+   perform_us_test(proofstate->processed_pos_eqns, 
+                   get_clause_by_nr(proofstate->axioms, 14), true);
+
+   // Y a != f b c
+   ClauseSetPDTIndexedInsert(proofstate->processed_neg_units, 
+                             ClauseFlatCopy(get_clause_by_nr(proofstate->axioms, 15)));
+
+   // g X Y != h Y X
+   ClauseSetPDTIndexedInsert(proofstate->processed_neg_units, 
+                             ClauseFlatCopy(get_clause_by_nr(proofstate->axioms, 16)));
+
+   //subsumed by en1
+   perform_us_test(proofstate->processed_neg_units, 
+                   get_clause_by_nr(proofstate->axioms, 17), true);
+   perform_us_test(proofstate->processed_neg_units, 
+                   get_clause_by_nr(proofstate->axioms, 18), false);
+   perform_us_test(proofstate->processed_neg_units, 
+                   get_clause_by_nr(proofstate->axioms, 19), false);
+   //subsumed by en2
+   perform_us_test(proofstate->processed_neg_units, 
+                   get_clause_by_nr(proofstate->axioms, 20), true);
+   //subsumed by en2
+   perform_us_test(proofstate->processed_neg_units, 
+                   get_clause_by_nr(proofstate->axioms, 21), true);
+
 }
 
 int main(int argc, char* argv[])
@@ -1103,7 +1199,7 @@ int main(int argc, char* argv[])
    TBPrintBankInOrder(stderr, proofstate->terms);
 
    raw_clause_no = proofstate->axioms->members;
-   if (!strstr(state->argv[0], "simplify.reflect"))
+   if (!strstr(state->argv[0], "simplify.reflect") && !strstr(state->argv[0], "unit.subsumption"))
    {
       if(!no_preproc)
       {
@@ -1167,6 +1263,10 @@ int main(int argc, char* argv[])
    else if (strstr(state->argv[0], "simplify.reflect"))
    {
       test_sr(proofstate);
+   }
+   else if (strstr(state->argv[0], "unit.subsumption"))
+   {
+      test_us(proofstate);
    }
    else
    {
