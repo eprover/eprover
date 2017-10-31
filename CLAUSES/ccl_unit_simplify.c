@@ -178,13 +178,12 @@ SimplifyRes FindSignedTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ SimplifyRes handle_remaining_args(Term_p t1, Term_p t2, SimplifyRes res)
+__inline__ SimplifyRes RemainingArgsSame(Term_p t1, Term_p t2, SimplifyRes res)
 {
    int remains = res.remaining_args;
+   assert(ProblemIsHO != PROBLEM_NOT_HO || !remains);
    while(remains)
    {
-      // TODO: EXPLAIN JASMIN WHY WE ALLOW VARIABLES HERE
-      // WELL, THEY'RE NOT
       if (t1->args[t1->arity - remains] != t2->args[t2->arity - remains])
       {
          return SIMPLIFY_FAILED;
@@ -213,7 +212,7 @@ SimplifyRes FindSimplifyingUnit(ClauseSet_p set, Term_p t1, Term_p t2,
    
    if (!SimplifyFailed(res))
    {
-      return handle_remaining_args(t1, t2, res);
+      return RemainingArgsSame(t1, t2, res);
    }
    
 
@@ -250,7 +249,7 @@ SimplifyRes FindSimplifyingUnit(ClauseSet_p set, Term_p t1, Term_p t2,
       res = FindSignedTopSimplifyingUnit(set, t1, t2, true);
       if (!SimplifyFailed(res))
       {
-         return handle_remaining_args(t1, t2, res);
+         return RemainingArgsSame(t1, t2, res);
       }
    }
    return res;

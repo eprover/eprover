@@ -87,6 +87,24 @@ static void pdtree_default_cell_free(PDTNode_p junk)
 //
 /----------------------------------------------------------------------*/
 
+bool any_branch(PDTNode_p n)
+{
+   for(int i=0; i<PDArraySize(n->v_alternatives); i++)
+   {
+      if (PDArrayElementP(n->v_alternatives, i))
+      {
+         return true;
+      }
+   }
+
+   IntMapIter_p iter = IntMapIterAlloc(n->f_alternatives, 0, LONG_MAX);
+   long val;
+   bool res = IntMapIterNext(iter, &val) != NULL;
+   IntMapIterFree(iter);
+
+   return res;
+}
+
 static void* pdt_select_alt_ref(PDTree_p tree, PDTNode_p node, Term_p term)
 {
    void* res;
@@ -104,6 +122,9 @@ static void* pdt_select_alt_ref(PDTree_p tree, PDTNode_p node, Term_p term)
       res = IntMapGetRef(node->f_alternatives, term->f_code);
       tree->arr_storage_est += IntMapStorage(node->f_alternatives);
    }
+
+   // If there is a branch out -- it is not a leaf.
+   //assert(any_branch(node) || node->leaf);
    return res;
 }
 
@@ -201,7 +222,7 @@ static long pos_tree_compute_size_constraint(PTree_p tree)
 
 static long pdt_compute_size_constraint(PDTNode_p node)
 {
-   if(node->entries)
+   if(node->leaf)
    {
       node->size_constr = pos_tree_compute_size_constraint(node->entries);
    }
@@ -210,7 +231,7 @@ static long pdt_compute_size_constraint(PDTNode_p node)
       PStack_p iter_stack = pdt_node_succ_stack_create(node);
       PStackPointer i;
       long
-         newsize = LONG_MAX,
+         newsize = node->entries ? pos_tree_compute_size_constraint(node->entries) : LONG_MAX,
          tmpsize;
          PDTNode_p next_node;
 
@@ -243,15 +264,16 @@ static long pdt_compute_size_constraint(PDTNode_p node)
 
 long pdt_verify_size_constraint(PDTNode_p node)
 {
-   long actual_constr = LONG_MAX;
+   long actual_constr;
 
-   if(node->entries)
+   if(node->leaf)
    {
       actual_constr = pos_tree_compute_size_constraint(node->entries);
    }
    else
    {
       PStackPointer i;
+      actual_constr = node->entries ? pos_tree_compute_size_constraint(node->entries) : LONG_MAX;
       PStack_p  iter_stack = pdt_node_succ_stack_create(node);
       long      tmpsize;
       PDTNode_p next_node;
@@ -322,7 +344,7 @@ static SysDate pos_tree_compute_age_constraint(PTree_p tree)
 
 static SysDate pdt_compute_age_constraint(PDTNode_p node)
 {
-   if(node->entries)
+   if(node->leaf)
    {
       node->age_constr = pos_tree_compute_age_constraint(node->entries);
    }
@@ -331,7 +353,7 @@ static SysDate pdt_compute_age_constraint(PDTNode_p node)
       PStack_p iter_stack = pdt_node_succ_stack_create(node);
       PStackPointer i;
       SysDate
-         newdate = SysDateCreationTime(),
+         newdate = node->entries ? pos_tree_compute_age_constraint(node->entries) : SysDateCreationTime(),
          tmpdate;
       PDTNode_p next_node;
 
@@ -366,15 +388,16 @@ static SysDate pdt_compute_age_constraint(PDTNode_p node)
 
 SysDate pdt_verify_age_constraint(PDTNode_p node)
 {
-   SysDate actual_constr = SysDateCreationTime();
+   SysDate actual_constr;
 
-   if(node->entries)
+   if(node->leaf)
    {
       actual_constr = pos_tree_compute_age_constraint(node->entries);
    }
    else
    {
       PStackPointer i;
+      actual_constr = node->entries ? pos_tree_compute_age_constraint(node->entries) : SysDateCreationTime();
       PStack_p      iter_stack = pdt_node_succ_stack_create(node);
       PDTNode_p     next_node;
       SysDate       tmpdate;
@@ -743,7 +766,7 @@ void pdt_node_print(FILE* out, PDTNode_p node, int level)
       }
       PTreeTraverseExit(trav_stack);
    }
-   else
+   else if (!node->leaf)
    {
       FunCode i = 0; /* Stiffle warning */
       PDTNode_p next;
@@ -875,6 +898,7 @@ PDTNode_p PDTNodeAlloc(void)
    handle->trav_count     = 0;
    handle->variable       = NULL;
    handle->bound          = false;
+   handle->leaf           = true;
 
    return handle;
 }
@@ -1083,6 +1107,8 @@ void PDTreeInsert(PDTree_p tree, ClausePos_p demod_side)
       if(!(*next))
       {
          *next = PDTNodeAlloc();
+         node->leaf = false;
+         
          tree->arr_storage_est+= (IntMapStorage((*next)->f_alternatives)+
                                   PDArrayStorage((*next)->v_alternatives));
          (*next)->parent = node;
@@ -1193,6 +1219,10 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
     tree->node_count--;
     *del = NULL;
       }
+      else if (node->ref_count == PTreeNodes(node->entries))
+      {
+         node->leaf = true;
+      }
       node = prev;
 
       if(term->weight == node->size_constr)
@@ -1291,7 +1321,7 @@ PDTNode_p PDTreeFindNextIndexedLeaf(PDTree_p tree, Subst_p subst)
       {
          pdtree_backtrack(tree, subst);
       }
-      else if(tree->tree_pos->entries) /* Leaf node */
+      else if(tree->tree_pos->leaf) /* Leaf node */
       {
          tree->tree_pos->trav_count = PDT_NODE_CLOSED(tree,tree->tree_pos);
          break;
