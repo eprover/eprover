@@ -90,6 +90,12 @@ SimplifyRes FindTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
       pos = mi->matcher;
       Sig_p sig = pos->literal->bank->sig;
 
+      /*fprintf(stderr, "? Found ");
+      TermPrint(stderr, ClausePosGetSide(pos), sig, DEREF_NEVER);
+      fprintf(stderr, " -> ");
+      TermPrint(stderr, ClausePosGetOtherSide(pos), sig, DEREF_NEVER);
+      fprintf(stderr, ".\n");*/
+
       if((ProblemIsHO == PROBLEM_NOT_HO && 
             (remains = SubstComputeMatch(ClausePosGetOtherSide(pos), t2, subst))) || 
           (ProblemIsHO == PROBLEM_IS_HO && 
@@ -142,6 +148,12 @@ SimplifyRes FindSignedTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
    {
       pos = mi->matcher;
       Sig_p sig = pos->literal->bank->sig;
+
+      /*fprintf(stderr, "? Found ");
+      TermPrint(stderr, ClausePosGetSide(pos), sig, DEREF_NEVER);
+      fprintf(stderr, " -> ");
+      TermPrint(stderr, ClausePosGetOtherSide(pos), sig, DEREF_NEVER);
+      fprintf(stderr, ".\n");*/
 
       if(EQUIV(EqnIsPositive(pos->literal), sign)
           &&
