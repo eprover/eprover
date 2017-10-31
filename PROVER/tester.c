@@ -62,7 +62,7 @@ bool              print_sat = false,
    print_version = false,
    outinfo = false,
    error_on_empty = false,
-   no_preproc = true,
+   no_preproc = false,
    no_eq_unfold = false,
    pcl_full_terms = true,
    indexed_subsumption = true,
@@ -1079,28 +1079,30 @@ int main(int argc, char* argv[])
    TBPrintBankInOrder(stderr, proofstate->terms);
 
    raw_clause_no = proofstate->axioms->members;
-   if(!no_preproc)
-   {
-      if(BuildProofObject)
-      {
-         ClauseSetArchive(proofstate->ax_archive, proofstate->axioms);
-         if(proofstate->watchlist)
-         {
-            ClauseSetArchive(proofstate->ax_archive, proofstate->watchlist);
-         }
-      }
-      preproc_removed = ClauseSetPreprocess(proofstate->axioms,
-                                            proofstate->watchlist,
-                                            proofstate->archive,
-                                            proofstate->tmp_terms,
-                                            eqdef_incrlimit,
-                                            eqdef_maxclauses);
-
-      fprintf(stderr, "preproc removed : %d\n", preproc_removed);
-   }
-
    if (!strstr(state->argv[0], "simplify.reflect"))
    {
+      if(!no_preproc)
+      {
+        if(BuildProofObject)
+        {
+           ClauseSetArchive(proofstate->ax_archive, proofstate->axioms);
+           if(proofstate->watchlist)
+           {
+              ClauseSetArchive(proofstate->ax_archive, proofstate->watchlist);
+           }
+        }
+        preproc_removed = ClauseSetPreprocess(proofstate->axioms,
+                                              proofstate->watchlist,
+                                              proofstate->archive,
+                                              proofstate->tmp_terms,
+                                              eqdef_incrlimit,
+                                              eqdef_maxclauses);
+
+        fprintf(stderr, "preproc removed : %d\n", preproc_removed);
+      }
+
+
+      fprintf(stderr, "Should sort now.\n");
       proofcontrol = ProofControlAlloc();
       ProofControlInit(proofstate, proofcontrol, h_parms,
                        fvi_parms, wfcb_definitions, hcb_definitions);

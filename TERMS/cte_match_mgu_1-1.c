@@ -121,8 +121,7 @@ int PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig)
       assert(matched_up_to != 0 || matcher_type == term_head_type);
    }
 
-   // non-inclusive index of how much to apply
-   // tot but not tot en met! :)
+   // the number of arguments eaten
    return matched_up_to;
 }
 
@@ -183,6 +182,13 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, Sig_p si
                   PLocalStackPush(matcher_stack, matcher->args[i]);  
                }
             }
+
+            matcher_weight += TermStandardWeight(var->binding) - DEFAULT_VWEIGHT;
+            if(matcher_weight > to_match_weight)
+            {
+               res = NOT_MATCHED;
+               break;
+            }
          }
          else if (var->binding)
          {
@@ -195,6 +201,14 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, Sig_p si
             if (matched_up_to != NOT_MATCHED)
             {
                SubstBindAppVar(subst, var, to_match, matched_up_to);
+
+               matcher_weight += TermStandardWeight(var->binding) - DEFAULT_VWEIGHT;
+               if(matcher_weight > to_match_weight)
+               {
+                  res = NOT_MATCHED;
+                  break;
+               }
+
                if (TermIsAppliedVar(to_match))
                {
                   matched_up_to++;
@@ -205,8 +219,6 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, Sig_p si
                fprintf(stderr, " bound to ");
                TermPrint(stderr, var->binding, sig, DEREF_NEVER);
                fprintf(stderr, " matched up to %d.\n", matched_up_to);*/
-
-
 
                PLocalStackEnsureSpace(to_match_stack, to_match->arity - matched_up_to);
                for(int i=to_match->arity-1; i >= matched_up_to; i--)
