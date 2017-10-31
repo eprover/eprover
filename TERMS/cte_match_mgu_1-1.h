@@ -33,7 +33,20 @@ Changes
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
+typedef enum which_term {
+   NoTerm = 0,
+   LeftTerm = 1,
+   RightTerm = 2
+} WhichTerm;
 
+typedef struct unif_res{
+   WhichTerm term_side;
+   int       term_remaining;
+} UnificationResult;
+
+extern const UnificationResult UNIF_FAILED;
+
+#define UnifFailed(u_res) ((u_res).term_side == NoTerm)
 
 
 
@@ -57,6 +70,7 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst);
 // HO matching and unification
 int  PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig);
 int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, Sig_p sig);
+UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p sig);
 
 
 #define VerifyMatch(matcher, to_match) \

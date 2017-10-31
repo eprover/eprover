@@ -137,19 +137,19 @@ long ClauseERNormalizeVar(TB_p bank, Clause_p clause, ClauseSet_p
           handle = ComputeEqRes(bank, pos, freshvars);
           if(handle)
           {
-        found = true;
-        count++;
-                  clause->proof_depth++;
-                  clause->proof_size++;
-                  EqnListFree(clause->literals);
-                  clause->literals = handle->literals;
-                  ClauseRecomputeLitCounts(clause);
+            found = true;
+            count++;
+            clause->proof_depth++;
+            clause->proof_size++;
+            EqnListFree(clause->literals);
+            clause->literals = handle->literals;
+            ClauseRecomputeLitCounts(clause);
 
-                  handle->literals = NULL;
-                  ClauseFree(handle);
+            handle->literals = NULL;
+            ClauseFree(handle);
 
-        DocClauseModificationDefault(clause, inf_eres, clause);
-                  ClausePushDerivation(clause, DCDesEqRes, NULL, NULL);
+            DocClauseModificationDefault(clause, inf_eres, clause);
+            ClausePushDerivation(clause, DCDesEqRes, NULL, NULL);
 
         break;
           }

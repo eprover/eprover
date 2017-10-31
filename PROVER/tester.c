@@ -471,7 +471,6 @@ void test_pdts(ProofState_p proofstate)
    SubstBacktrack(subst);
    PDTreeSearchExit(proofstate->processed_pos_rules->demod_index);
 
-
    /* Varible both applied an nonaplied in the same term -- X a Y b -- 4 left*/
    ClausePos_p appVarInOut = ClausePosCellAlloc();
    Clause_p    appVarInOutClause = proofstate->axioms->anchor->succ->succ->succ->succ;

@@ -39,6 +39,7 @@ PERF_CTR_DEFINE(MguTimer);
 
 #define MATCH_INIT -2
 
+const UnificationResult UNIF_FAILED = {NoTerm, -1};
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -65,7 +66,6 @@ PERF_CTR_DEFINE(MguTimer);
 
 static bool occur_check(restrict Term_p term, restrict Term_p var)
 {
-   // TODO: might be unshared -- I don't think it is a problem
    term = TermDerefAlways(term);
 
    if(UNLIKELY(term == var))
@@ -412,6 +412,163 @@ bool SubstComputeMatch(Term_p matcher, Term_p to_match, Subst_p subst)
 //
 /----------------------------------------------------------------------*/
 
+static __inline__ bool unify_var(Term_p var, Term_p match_to, PStack_p match_to_stack, Sig_p sig, Subst_p subst)
+{
+   if (TermIsVar(match_to))
+   {
+      if (var == match_to)
+      {
+         return true;
+      }
+      else if (var->type == match_to->type)
+      {
+         SubstAddBinding(subst, var, match_to);
+         return true;
+      }
+      return false;
+   }
+   else
+   {
+      int res = PartiallyMatchVar(var, match_to, sig);
+      if (res != NOT_MATCHED)
+      {
+         SubstBindAppVar(subst, var, match_to, res);
+         res += TermIsAppliedVar(match_to) ? 1 : 0;
+
+         for(int i=match_to->arity-1; i >= res; i--)
+         {
+            PStackPushP(match_to_stack, match_to->args[i]);
+         }
+      }
+      return res != NOT_MATCHED;
+   }
+}
+
+static void __inline__ push_rest(Term_p var, PStack_p stack)
+{
+   for(int i = var->arity-1; i; i--)
+   {
+      PStackPushP(stack, var->args[i]);
+   }
+}
+
+UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p sig)
+{
+   //printf("Unify %lu %lu\n", t1->entry_no, t2->entry_no);
+   #ifdef MEASURE_UNIFICATION
+      UnifAttempts++;
+   #endif
+
+   PERF_CTR_ENTRY(MguTimer);
+
+   if((TermCellQueryProp(t1, TPPredPos) && TermIsVar(t2))||
+      (TermCellQueryProp(t2, TPPredPos) && TermIsVar(t1)))
+   {
+      PERF_CTR_EXIT(MguTimer);
+      return UNIF_FAILED;
+
+   }
+   PStackPointer backtrack = PStackGetSP(subst); /* For backtracking */
+
+   bool res = true;
+   PStack_p jobs_t1 = PStackAlloc();
+   PStack_p jobs_t2 = PStackAlloc();
+
+   PStackPushP(jobs_t1, t1);
+   PStackPushP(jobs_t2, t2);
+
+   while(!PStackEmpty(jobs_t1) && !PStackEmpty(jobs_t2))
+   {
+      t1 = TermDerefAlways(PStackPopP(jobs_t1));
+      t2 = TermDerefAlways(PStackPopP(jobs_t2));
+      assert(t1->type);
+      assert(t2->type);
+      
+      if(TermIsVar(t1) || TermIsAppliedVar(t1))
+      {
+         Term_p var = TermIsAppliedVar(t1) ? t1->args[0] : t1;
+         if (!unify_var(var, t2, jobs_t2, sig, subst))
+         {
+            res = false;
+            break;
+         }
+         if(TermIsAppliedVar(t1))
+         {
+            push_rest(t1, jobs_t1);
+         }
+      }
+      // trying to bind t1 to t2 can fail, but t2 to t1 can succeeed
+      // this failure will be very cheap -- 
+      if (!t1->binding && (TermIsVar(t2) || TermIsAppliedVar(t2)))
+      {
+         Term_p var = TermIsAppliedVar(t2) ? t2->args[0] : t2;
+         if (!unify_var(var, t1, jobs_t1, sig, subst))
+         {
+            res = false;
+            break;
+         }
+         if(TermIsAppliedVar(t2))
+         {
+            push_rest(t2, jobs_t2);
+         }
+      }
+
+      // the previous did not suceed.
+      if(!t1->binding && !t2->binding)
+      {
+         if(t1->f_code != t2->f_code)
+         {
+            res = false;
+            break;
+         }
+         else
+         {
+            assert(t1->type);
+            assert(t2->type);
+            //assert(t1->type == t2->type);
+
+            for(int i=t1->arity-1; i>=0; i--)
+            {
+               PStackPushP(jobs_t1, t1->args[i]);
+            }
+            for(int i=t2->arity-1; i>=0; i--)
+            {
+               PStackPushP(jobs_t2, t2->args[i]);
+            }
+         }
+      }
+   }
+   PStackFree(jobs_t1);
+   PStackFree(jobs_t2);
+
+   UnificationResult un_res;
+
+   if(!res)
+   {
+      SubstBacktrackToPos(subst,backtrack);
+      un_res = UNIF_FAILED;
+   }
+   else
+   {
+      #ifdef MEASURE_UNIFICATION
+         UnifSuccesses++;
+      #endif
+      WhichTerm term_side = PStackEmpty(jobs_t1) ? RightTerm : LeftTerm;
+      if (term_side == RightTerm)
+      {
+         un_res = (UnificationResult){term_side, PStackGetSP(jobs_t2)};
+      }
+      else
+      {
+         un_res = (UnificationResult){term_side, PStackGetSP(jobs_t1)};
+      }
+   }
+
+   PERF_CTR_EXIT(MguTimer);
+   return un_res;
+}
+
+
 bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
 {
    //printf("Unify %lu %lu\n", t1->entry_no, t2->entry_no);
@@ -510,7 +667,6 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
    PERF_CTR_EXIT(MguTimer);
    return res;
 }
-
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
