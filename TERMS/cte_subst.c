@@ -156,7 +156,6 @@ PStackPointer SubstNormTerm(Term_p term, Subst_p subst, VarBank_p vars)
 
    while(!PLocalStackEmpty(stack))
    {
-      // TODO: TERM MIGHT NOT BE SHARED
       term = TermDerefAlways(PLocalStackPop(stack));
       if(TermIsVar(term))
       {
