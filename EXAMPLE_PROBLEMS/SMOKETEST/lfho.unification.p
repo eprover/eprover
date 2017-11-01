@@ -2,6 +2,7 @@ thf(typedef, type, t : $tType).
 
 thf(fType, type, f : t > t > t > t).
 thf(gType, type, g : t > t).
+thf(gType, type, i : t > t).
 thf(hType, type, h : t > t > t > t > t).
 thf(aType, type, a : t).
 thf(bType, type, b : t).
@@ -54,3 +55,7 @@ thf(a18, axiom, ![Z: t > t, W: t, U: t]: p @ (h @ a @ b @ (Z @ c) @ (h @ a @ b @
 %-- unifiable with unifier Z |-> X a, Y |-> c
 thf(a19, axiom, ![X: t > t > t > t, Y: t]: p @ (X @ a @ Y @ b)).
 thf(a20, axiom, ![Z: t > t > t, W:t]: p @ (Z @ c @ W)).
+
+%-- unifiable with unifier X |-> g(Z), W |-> i @ X Y |-> Z
+thf(a21, axiom, ![X:t, Y:t]: p @ (f @ X @ (i@X) @ Y)).
+thf(a22, axiom, ![Z:t, W:t]: p @ (f @ (g @ Z) @ W @ Z)).
