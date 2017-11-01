@@ -1087,21 +1087,27 @@ void perform_unif_test_once(Term_p termA, Term_p termB, Sig_p sig, bool exp, con
 
 
    UnificationResult ur = SubstComputeMguHO(termA, termB, subst, sig);
-   fprintf(stderr, "? (side %s - remaining %d )\n", GetSideStr(ur), ur.term_remaining);
    if (EQUIV(UnifFailed(ur), exp))
    {
       fprintf(stderr, "- test %d failed (with expected substitution %s, got ", tc_nr, subst_str);
       SubstPrint(stderr, subst, sig, DEREF_NEVER);
       fprintf(stderr, ").\n");
+
    }
    else
    {
       fprintf(stderr, "+ test %d succeded (with expected substitution %s, got ", tc_nr, subst_str);
       SubstPrint(stderr, subst, sig, DEREF_NEVER);
       fprintf(stderr, ").\n");
+
+      fprintf(stderr, "? after matching: ");
+      TermPrint(stderr, termA, sig, DEREF_ALWAYS);
+      fprintf(stderr, " === ");
+      TermPrint(stderr, termB, sig, DEREF_ALWAYS);
+      fprintf(stderr, ".\n");
    }
 
-
+   fprintf(stderr, "? (side %s - remaining %d )\n", GetSideStr(ur), ur.term_remaining);
    SubstDelete(subst);
 }
 
@@ -1120,60 +1126,62 @@ Term_p get_term_from_clause(ClauseSet_p set, int idx)
 void test_unification(ProofState_p p)
 {
    /* 
-       Clauses 
-      1   tcf(i_0_22, plain, p(g(a))).
-      2   tcf(i_0_29, plain, ![X19:t > t > t]:p($@_var(X19,c,b))).
-      3   tcf(i_0_23, plain, ![X10:t > t > t]:p($@_var(X10,a,b))).
-      4   tcf(i_0_12, plain, ![X4:t]:p(f(X4,a,X4))).
-      5   tcf(i_0_10, plain, ![X2:t, X1:t]:p(f(X1,a,X2))).
-      6   tcf(i_0_28, plain, ![X18:t, X17:t > t > t > t]:p($@_var(X17,a,X18,b))).
-      7   tcf(i_0_11, plain, ![X3:t]:p(f(b,a,X3))).
-      8   tcf(i_0_25, plain, ![X11:t > t > t > t]:p($@_var(X11,a,a,b))).
-      9   tcf(i_0_13, plain, p(f(a,a,b))).
-      10  tcf(i_0_24, plain, p(f(a,a,b))).
-      11  tcf(i_0_21, plain, p(f(a,b,c))).
-      12  tcf(i_0_26, plain, ![X13:t > t, X12:t > t > t]:p($@_var(X12,$@_var(X13,c),$@_var(X12,a,b)))).
-      13  tcf(i_0_14, plain, ![X7:t, X6:t, X5:t]:p(f(f(X5,X6,X7),X5,X6))).
-      14  tcf(i_0_17, plain, p2(f(g(b),g(c)))).
-      15  tcf(i_0_19, plain, ![X8:t > t]:p(f($@_var(X8,a),$@_var(X8,b),c))).
-      16  tcf(i_0_18, plain, p(f(g(b),g(c),g(a)))).
-      17  tcf(i_0_15, plain, p(f(f(a,b,c),a,b))).
-      18  tcf(i_0_16, plain, p(f(f(a,b,c),b,b))).
-      19  tcf(i_0_27, plain, ![X15:t, X16:t, X14:t > t]:p(h(a,b,$@_var(X14,c),h(a,b,X15,X16)))).
-      20  tcf(i_0_20, plain, ![X9:t]:p(f(f(a,b,a),f(a,b,b),X9))).
+   1   tcf(i_0_23, plain, p(g(a))).
+   2   tcf(i_0_30, plain, ![X20:t, X19:t > t > t]:p($@_var(X19,c,X20))).
+   3   tcf(i_0_24, plain, ![X10:t > t > t]:p($@_var(X10,a,b))).
+   4   tcf(i_0_13, plain, ![X4:t]:p(f(X4,a,X4))).
+   5   tcf(i_0_11, plain, ![X2:t, X1:t]:p(f(X1,a,X2))).
+   6   tcf(i_0_29, plain, ![X18:t, X17:t > t > t > t]:p($@_var(X17,a,X18,b))).
+   7   tcf(i_0_31, plain, ![X22:t, X21:t]:p(f(X21,i(X21),X22))).
+   8   tcf(i_0_12, plain, ![X3:t]:p(f(b,a,X3))).
+   9   tcf(i_0_32, plain, ![X24:t, X23:t]:p(f(g(X23),X24,X23))).
+   10  tcf(i_0_26, plain, ![X11:t > t > t > t]:p($@_var(X11,a,a,b))).
+   11  tcf(i_0_14, plain, p(f(a,a,b))).
+   12  tcf(i_0_25, plain, p(f(a,a,b))).
+   13  tcf(i_0_22, plain, p(f(a,b,c))).
+   14  tcf(i_0_27, plain, ![X13:t > t, X12:t > t > t]:p($@_var(X12,$@_var(X13,c),$@_var(X12,a,b)))).
+   15  tcf(i_0_15, plain, ![X7:t, X6:t, X5:t]:p(f(f(X5,X6,X7),X5,X6))).
+   16  tcf(i_0_18, plain, p2(f(g(b),g(c)))).
+   17  tcf(i_0_20, plain, ![X8:t > t]:p(f($@_var(X8,a),$@_var(X8,b),c))).
+   18  tcf(i_0_19, plain, p(f(g(b),g(c),g(a)))).
+   19  tcf(i_0_16, plain, p(f(f(a,b,c),a,b))).
+   20  tcf(i_0_17, plain, p(f(f(a,b,c),b,b))).
+   21  tcf(i_0_28, plain, ![X15:t, X16:t, X14:t > t]:p(h(a,b,$@_var(X14,c),h(a,b,X15,X16)))).
+   22  tcf(i_0_21, plain, ![X9:t]:p(f(f(a,b,a),f(a,b,b),X9))).
+
 
    */
 
    Term_p fxay = get_term_from_clause(p->axioms, 5);
-   Term_p fbaz = get_term_from_clause(p->axioms, 7);
+   Term_p fbaz = get_term_from_clause(p->axioms, 8);
 
    perform_unif_test(fxay, fbaz, p->signature, true, "{X <- b, Y <- Z (or Z <- Y)}");
 
    Term_p fxax = get_term_from_clause(p->axioms, 4);
-   Term_p faab = get_term_from_clause(p->axioms, 9);
+   Term_p faab = get_term_from_clause(p->axioms, 11);
 
    perform_unif_test(fxax, faab, p->signature, false, "{ }");
 
-   Term_p ffxyzxy = get_term_from_clause(p->axioms, 13);
-   Term_p ffabcab = get_term_from_clause(p->axioms, 17);
+   Term_p ffxyzxy = get_term_from_clause(p->axioms, 15);
+   Term_p ffabcab = get_term_from_clause(p->axioms, 19);
 
    perform_unif_test(ffxyzxy, ffabcab, p->signature, true, "{X <- a, Y <- b, Z <- c }");
 
-   Term_p ffabcbb = get_term_from_clause(p->axioms, 18);
+   Term_p ffabcbb = get_term_from_clause(p->axioms, 20);
 
    perform_unif_test(ffxyzxy, ffabcbb, p->signature, false, "{ }");
 
-   Term_p fgbgc = get_term_from_clause(p->axioms, 14);
-   Term_p fgbgcga = get_term_from_clause(p->axioms, 16);
+   Term_p fgbgc = get_term_from_clause(p->axioms, 16);
+   Term_p fgbgcga = get_term_from_clause(p->axioms, 18);
 
    perform_unif_test(fgbgc, fgbgcga, p->signature, true, "{ }");
 
-   Term_p fxaxbc = get_term_from_clause(p->axioms, 15);
-   Term_p ffabafabby = get_term_from_clause(p->axioms, 20);
+   Term_p fxaxbc = get_term_from_clause(p->axioms, 17);
+   Term_p ffabafabby = get_term_from_clause(p->axioms, 22);
 
    perform_unif_test(fxaxbc, ffabafabby, p->signature, true, "{X <- f(a,b), Y <- c}");
 
-   Term_p fabc = get_term_from_clause(p->axioms, 11);
+   Term_p fabc = get_term_from_clause(p->axioms, 13);
    Term_p ga = get_term_from_clause(p->axioms, 1);
 
    perform_unif_test(fabc, ga, p->signature, false, "{ }");
@@ -1182,19 +1190,19 @@ void test_unification(ProofState_p p)
 
    perform_unif_test(xab, faab, p->signature, true, "{ X <- f(a) }");
 
-   Term_p yaab = get_term_from_clause(p->axioms, 8);
+   Term_p yaab = get_term_from_clause(p->axioms, 10);
 
    perform_unif_test(xab, yaab, p->signature, true, "{ X <- Y a }");
 
-   Term_p xycxab = get_term_from_clause(p->axioms, 12);
-   Term_p habzchabwu = get_term_from_clause(p->axioms, 19);
+   Term_p xycxab = get_term_from_clause(p->axioms, 14);
+   Term_p habzchabwu = get_term_from_clause(p->axioms, 21);
 
    perform_unif_test(xycxab, habzchabwu, p->signature, true, "{ X <- f a b, Y <- Z, W <- a, U <- b }");
 
    Term_p xayb = get_term_from_clause(p->axioms, 6);
-   Term_p gcb = get_term_from_clause(p->axioms, 2);
+   Term_p gcw = get_term_from_clause(p->axioms, 2);
 
-   perform_unif_test(xayb, gcb, p->signature, true, "{ Z <- X a , Y <- c, W <- b }");
+   perform_unif_test(xayb, gcw, p->signature, true, "{ Z <- X a , Y <- c, W <- b }");
 
    //test variants
    Term_p xayb_copy = TermCopyKeepVars(xayb, DEREF_NEVER);
@@ -1205,6 +1213,12 @@ void test_unification(ProofState_p p)
    SubstDelete(var_copy);
 
    perform_unif_test(xayb, xayb_copy, p->signature, true, "{X <- Y, Z <- W or permutation}");
+
+   Term_p fxhxy = get_term_from_clause(p->axioms, 7);
+   Term_p fgzwz = get_term_from_clause(p->axioms, 9);
+
+   perform_unif_test(fxhxy, fgzwz, p->signature, true, "{X <- g Z, W <- h (g Z), Y <- Z}");   
+
 }
 
 int main(int argc, char* argv[])
