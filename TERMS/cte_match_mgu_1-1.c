@@ -452,6 +452,17 @@ static void __inline__ push_rest(Term_p var, PStack_p stack)
    }
 }
 
+void print_stack(PStack_p stack, Sig_p sig)
+{
+   for(int i=0; i<PStackGetSP(stack); i++)
+   {
+      Term_p term = PStackElementP(stack, i);
+      fprintf(stderr, "%d - ", i);
+      TermPrint(stderr, term, sig, DEREF_ALWAYS);
+      fprintf(stderr, "\n");
+   }
+}
+
 UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p sig)
 {
    //printf("Unify %lu %lu\n", t1->entry_no, t2->entry_no);
@@ -481,28 +492,33 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p s
    {
       t1 = TermDerefAlways(PStackPopP(jobs_t1));
       t2 = TermDerefAlways(PStackPopP(jobs_t2));
+
+      /*fprintf(stderr, "\n? unifiying ");
+      TermPrint(stderr, t1, sig, DEREF_NEVER);
+      fprintf(stderr, " === ");
+      TermPrint(stderr, t2, sig, DEREF_NEVER);
+      fprintf(stderr, " . ");*/
+
       assert(t1->type);
       assert(t2->type);
       
+      bool bound = false;
       if(TermIsVar(t1) || TermIsAppliedVar(t1))
       {
          Term_p var = TermIsAppliedVar(t1) ? t1->args[0] : t1;
-         if (!unify_var(var, t2, jobs_t2, sig, subst))
-         {
-            res = false;
-            break;
-         }
-         if(TermIsAppliedVar(t1))
+         bound = unify_var(var, t2, jobs_t2, sig, subst);
+         // this one can fail! -- we can reorient variables and try again.
+         if(bound && TermIsAppliedVar(t1))
          {
             push_rest(t1, jobs_t1);
          }
       }
       // trying to bind t1 to t2 can fail, but t2 to t1 can succeeed
       // this failure will be very cheap -- 
-      if (!t1->binding && (TermIsVar(t2) || TermIsAppliedVar(t2)))
-      {
+      if (!bound && (TermIsVar(t2) || TermIsAppliedVar(t2)))
+      {         
          Term_p var = TermIsAppliedVar(t2) ? t2->args[0] : t2;
-         if (!unify_var(var, t1, jobs_t1, sig, subst))
+         if (!(bound = unify_var(var, t1, jobs_t1, sig, subst)))
          {
             res = false;
             break;
@@ -514,7 +530,7 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p s
       }
 
       // the previous did not suceed.
-      if(!t1->binding && !t2->binding)
+      if(!bound)
       {
          if(t1->f_code != t2->f_code)
          {
@@ -538,8 +554,6 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p s
          }
       }
    }
-   PStackFree(jobs_t1);
-   PStackFree(jobs_t2);
 
    UnificationResult un_res;
 
@@ -563,6 +577,9 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p s
          un_res = (UnificationResult){term_side, PStackGetSP(jobs_t1)};
       }
    }
+
+   PStackFree(jobs_t1);
+   PStackFree(jobs_t2);
 
    PERF_CTR_EXIT(MguTimer);
    return un_res;
