@@ -48,6 +48,7 @@ extern const UnificationResult UNIF_FAILED;
 
 #define UnifFailed(u_res) ((u_res).term_side == NoTerm)
 
+#define GetSideStr(ur) ((ur).term_side == NoTerm ? "Failed" : (ur).term_side == LeftTerm ? "Left" : "Right")
 
 
 /*---------------------------------------------------------------------*/

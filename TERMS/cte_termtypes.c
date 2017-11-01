@@ -640,7 +640,7 @@ Term_p applied_var_deref(Term_p orig)
       res = TermTopAlloc(bound->f_code, arity);
       res->args = TermArgArrayAlloc(arity);
 
-      res->type = NULL;
+      res->type = orig->type; // derefing keeps the types
       res->properties = bound->properties & (TPPredPos | TPIsAppVar);
 
       assert(!res->binding || res->f_code < 0 /* if bound -> then variable */);
