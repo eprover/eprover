@@ -51,11 +51,6 @@ thf(a16, axiom, ![Y: t > t > t > t]: p @ (Y @ a @ a @ b)).
 thf(a17, axiom, ![X: t > t > t, Y: t > t]: p @ (X @ (Y @ c) @ (X @ a @ b))).
 thf(a18, axiom, ![Z: t > t, W: t, U: t]: p @ (h @ a @ b @ (Z @ c) @ (h @ a @ b @ W @ U))).
 
-
-
-
-
-
-
-
-
+%-- unifiable with unifier Z |-> X a, Y |-> c
+thf(a19, axiom, ![X: t > t > t > t, Y: t]: p @ (X @ a @ Y @ b)).
+thf(a20, axiom, ![Z: t > t > t, W:t]: p @ (Z @ c @ W)).

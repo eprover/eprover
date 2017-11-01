@@ -555,12 +555,11 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p s
       }
    }
 
-   UnificationResult un_res;
+   UnificationResult un_res = UNIF_FAILED;
 
    if(!res)
    {
       SubstBacktrackToPos(subst,backtrack);
-      un_res = UNIF_FAILED;
    }
    else
    {
