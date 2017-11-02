@@ -70,8 +70,8 @@ Clause_p ComputeEqRes(TB_p bank, ClausePos_p pos, VarBank_p freshvars)
    subst = SubstAlloc();
    VarBankResetVCount(freshvars);
 
-   unifies = SubstComputeMgu(pos->literal->lterm, pos->literal->rterm,
-              subst);
+   unifies = SubstMguComplete(pos->literal->lterm, pos->literal->rterm,
+              subst, bank->sig);
    if(unifies)
    {
       NormSubstEqnListExcept(pos->clause->literals, pos->literal,

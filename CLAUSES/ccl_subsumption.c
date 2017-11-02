@@ -202,16 +202,16 @@ static bool eqn_topsubsumes_termpair(Eqn_p eqn, Term_p t1, Term_p t2)
    assert(t1);
    assert(t2);
 
-   if(SubstComputeMatch(eqn->lterm, t1, subst))
+   if(SubstMatchComplete(eqn->lterm, t1, subst, eqn->bank->sig))
    {
-      if(SubstComputeMatch(eqn->rterm, t2, subst))
+      if(SubstMatchComplete(eqn->rterm, t2, subst, eqn->bank->sig))
       {
          res = true;
       }
    }
-   else if(SubstComputeMatch(eqn->lterm, t2, subst))
+   else if(SubstMatchComplete(eqn->lterm, t2, subst, eqn->bank->sig))
    {
-      if(SubstComputeMatch(eqn->rterm, t1, subst))
+      if(SubstMatchComplete(eqn->rterm, t1, subst, eqn->bank->sig))
       {
          res = true;
       }
@@ -307,8 +307,8 @@ static Eqn_p find_spec_literal_old(Eqn_p lit, Eqn_p list)
       {
          continue;
       }
-      if(SubstComputeMatch(lit->lterm, list->lterm, subst)&&
-         SubstComputeMatch(lit->rterm, list->rterm, subst))
+      if(SubstMatchComplete(lit->lterm, list->lterm, subst, eqn->bank->sig)&&
+         SubstMatchComplete(lit->rterm, list->rterm, subst, eqn->bank->sig))
       {
          break;
       }
@@ -317,8 +317,8 @@ static Eqn_p find_spec_literal_old(Eqn_p lit, Eqn_p list)
       {
          continue;
       }
-      if(SubstComputeMatch(lit->lterm, list->rterm, subst)&&
-         SubstComputeMatch(lit->rterm, list->lterm, subst))
+      if(SubstMatchComplete(lit->lterm, list->rterm, subst, eqn->bank->sig)&&
+         SubstMatchComplete(lit->rterm, list->lterm, subst, eqn->bank->sig))
       {
          break;
       }
@@ -358,22 +358,22 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
       assert(PropsAreEquiv(lit, list, EPIsPositive|EPIsEquLiteral));
       if(EqnIsOriented(lit) && !EqnIsOriented(list))
       {
-    continue;
+         continue;
       }
-      if(SubstComputeMatch(lit->lterm, list->lterm, subst)&&
-         SubstComputeMatch(lit->rterm, list->rterm, subst))
+      if(SubstMatchComplete(lit->lterm, list->lterm, subst, lit->bank->sig)&&
+         SubstMatchComplete(lit->rterm, list->rterm, subst, lit->bank->sig))
       {
-    break;
+         break;
       }
       SubstBacktrack(subst);
       if(EqnIsOriented(lit))
       {
-    continue;
+         continue;
       }
-      if(SubstComputeMatch(lit->lterm, list->rterm, subst)&&
-         SubstComputeMatch(lit->rterm, list->lterm, subst))
+      if(SubstMatchComplete(lit->lterm, list->rterm, subst, lit->bank->sig)&&
+         SubstMatchComplete(lit->rterm, list->lterm, subst, lit->bank->sig))
       {
-    break;
+         break;
       }
       SubstBacktrack(subst);
    }
@@ -498,8 +498,8 @@ bool eqn_list_rec_subsume_old(Eqn_p subsum_list, Eqn_p sub_cand_list,
       pick_list[lcount]++;
       state = PStackGetSP(subst);
 
-      if(SubstComputeMatch(subsum_list->lterm, eqn->lterm, subst)&&
-         SubstComputeMatch(subsum_list->rterm, eqn->rterm, subst))
+      if(SubstMatchComplete(subsum_list->lterm, eqn->lterm, subst, eqn->bank->sig)&&
+         SubstMatchComplete(subsum_list->rterm, eqn->rterm, subst, eqn->bank->sig))
       {
     if(eqn_list_rec_subsume_old(subsum_list->next, sub_cand_list,
                 subst, pick_list))
@@ -514,8 +514,8 @@ bool eqn_list_rec_subsume_old(Eqn_p subsum_list, Eqn_p sub_cand_list,
     pick_list[lcount]--;
     continue;
       }
-      if(SubstComputeMatch(subsum_list->lterm, eqn->rterm, subst)&&
-         SubstComputeMatch(subsum_list->rterm, eqn->lterm, subst))
+      if(SubstMatchComplete(subsum_list->lterm, eqn->rterm, subst, eqn->bank->sig)&&
+         SubstMatchComplete(subsum_list->rterm, eqn->lterm, subst, eqn->bank->sig))
       {
     if(eqn_list_rec_subsume_old(subsum_list->next, sub_cand_list,
              subst, pick_list))
@@ -547,10 +547,10 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
    for(eqn = sub_cand_list, lcount=0; eqn; eqn = eqn->next, lcount++)
    {
       /* We now use strict multiset-subsumption. I should probably
-    rewrite this code to be more efficient for that case...*/
+         rewrite this code to be more efficient for that case...*/
       if(pick_list[lcount])
       {
-    continue;
+         continue;
       }
 
       cmpres = EqnSubsumeQOrderCompare(eqn,subsum_list);
@@ -569,40 +569,40 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
       }
       assert(PropsAreEquiv(subsum_list, eqn, EPIsPositive|EPIsEquLiteral));
       /* Some optimizations:If the potentially more general equation
-    is oriented, then the potentially more specialized has to be
-    oriented as well. */
+          is oriented, then the potentially more specialized has to be
+          oriented as well. */
       if(EqnIsOriented(subsum_list) && !EqnIsOriented(eqn))
       {
-    continue;
+         continue;
       }
 
       pick_list[lcount]++;
       state = PStackGetSP(subst);
 
-      if(SubstComputeMatch(subsum_list->lterm, eqn->lterm, subst)&&
-         SubstComputeMatch(subsum_list->rterm, eqn->rterm, subst))
+      if(SubstMatchComplete(subsum_list->lterm, eqn->lterm, subst, eqn->bank->sig)&&
+         SubstMatchComplete(subsum_list->rterm, eqn->rterm, subst, eqn->bank->sig))
       {
-    if(eqn_list_rec_subsume(subsum_list->next, sub_cand_list,
-                subst, pick_list))
-    {
-       return true;
-    }
+         if(eqn_list_rec_subsume(subsum_list->next, sub_cand_list,
+                   subst, pick_list))
+         {
+          return true;
+         }
       }
       SubstBacktrackToPos(subst, state);
       if(EqnIsOriented(subsum_list))
       {
-    state = PStackGetSP(subst);
-    pick_list[lcount]--;
-    continue;
+         state = PStackGetSP(subst);
+         pick_list[lcount]--;
+         continue;
       }
-      if(SubstComputeMatch(subsum_list->lterm, eqn->rterm, subst)&&
-         SubstComputeMatch(subsum_list->rterm, eqn->lterm, subst))
+      if(SubstMatchComplete(subsum_list->lterm, eqn->rterm, subst, eqn->bank->sig)&&
+         SubstMatchComplete(subsum_list->rterm, eqn->lterm, subst, eqn->bank->sig))
       {
-    if(eqn_list_rec_subsume(subsum_list->next, sub_cand_list,
-             subst, pick_list))
-    {
-       return true;
-    }
+         if(eqn_list_rec_subsume(subsum_list->next, sub_cand_list,
+                subst, pick_list))
+         {
+          return true;
+         }
       }
       SubstBacktrackToPos(subst, state);
       pick_list[lcount]--;
