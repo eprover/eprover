@@ -744,6 +744,7 @@ Clause_p get_clause_by_nr(ClauseSet_p set, int idx)
     res = res->succ;
   }
 
+  //return ClauseFlatCopy(res);
   return res;
 }
 
@@ -1221,9 +1222,96 @@ void test_unification(ProofState_p p)
 
 }
 
+void perform_subsumption_test(ClauseSet_p set, Clause_p test, Clause_p exp_subsumer, Sig_p sig)
+{
+   static int test_nr = 0;
+   test_nr++;
+
+   test = ClauseFlatCopy(ClauseSubsumeOrderSortLits(test));
+   test->weight = ClauseStandardWeight(test);
+
+   fprintf(stderr, "# test %d :  ", test_nr );
+   ClausePrint(stderr, test, true);
+   fprintf(stderr, ".\n");
+
+   FVPackedClause_p test_fvp =  FVIndexPackClause(test, set->fvindex);
+   Clause_p subsumer = ClauseSetSubsumesFVPackedClause(set, test_fvp);
+
+   bool passed = subsumer == exp_subsumer;
+   fprintf(stderr, "%c test %s with subsumer ", passed ? '+' : '-', passed ?  "passed" : "failed" );
+   if (subsumer)
+   {
+      ClausePrint(stderr, subsumer, true);
+      fprintf(stderr, ".\n");
+   }
+   else 
+   {
+      fprintf(stderr, " (none).\n");
+   }
+
+   if (!passed)
+   {
+      fprintf(stderr, "- expected ");
+      if (exp_subsumer)
+      {
+         ClausePrint(stderr, exp_subsumer, true);
+         fprintf(stderr, ".\n");
+      }
+      else 
+      {
+         fprintf(stderr, " (none).\n");
+      }      
+   }
+}
+
 void test_subsumption(ProofState_p p)
 {
-   fprintf(stderr, "Subsumption.\n");
+   /*
+   1-   tcf(i_0_11, plain, ![X1:t > t, X2:t > t, X3:t]:($@_var(X1,a)=$@_var(X2,b)|g(b,X3)=f(a,X3))).
+   2   tcf(i_0_13, plain, (g(b)=f(a)|g(b,c)=f(a,c))).
+   3-   tcf(i_0_14, plain, ![X6:t, X5:t, X4:t]:(h(X6)=f(h(X6),h(X6))|f(X4,X5)=g(f(X4,X5),h(X5)))).
+   4-   tcf(i_0_17, plain, ![X7:t > t, X9:t, X8:t]:($@_var(X7,$@_var(X7,a))=g(b,$@_var(X7,b))|f(i(X8),i(X9))=h(g(X8,X9)))).
+   5   tcf(i_0_12, plain, (i(b)=h(a)|g(b,b)=f(a,b)|p(a))).
+   6   tcf(i_0_15, plain, (h(a)=f(h(a),h(a))|f(a,b)=g(f(a,b),h(b))|p(a))).
+   7   tcf(i_0_16, plain, (h(c)=f(h(c),h(c))|f(a,b)=g(f(a,b),h(b))|p(a))).
+   8   tcf(i_0_20, plain, (f(i(c),i(c))=h(g(a,a))|g(b,f(a,b))=f(a,f(a,a))|p(a))).
+   9   tcf(i_0_18, plain, (f(i(c),i(c))=h(g(c,c))|g(b,f(a,b))=f(a,f(a,a))|p(a))).
+   10  tcf(i_0_19, plain, (f(i(c),i(c))=h(g(c,c))|g(b,f(b,b))=f(a,f(a,a))|p(a))).
+   */
+
+   ClauseSet_p set = p->processed_non_units;
+
+   //ClauseSetPrint(stderr, p->axioms, true);
+   Clause_p a1 = ClauseSetExtractEntry(get_clause_by_nr(p->axioms, 1));
+   //fprintf(stderr, "- \n");
+   //ClauseSetPrint(stderr, p->axioms, true);
+   Clause_p a2 = ClauseSetExtractEntry(get_clause_by_nr(p->axioms, 2));
+   //fprintf(stderr, "- \n");
+   //ClauseSetPrint(stderr, p->axioms, true);
+   Clause_p a3 = ClauseSetExtractEntry(get_clause_by_nr(p->axioms, 2));
+   //fprintf(stderr, "- \n");
+   //ClauseSetPrint(stderr, p->axioms, true);
+
+   /*tcf(i_0_13, plain, (g(b)=f(a)|g(b,c)=f(a,c))).
+   tcf(i_0_12, plain, (i(b)=h(a)|g(b,b)=f(a,b)|p(a))).
+   tcf(i_0_15, plain, (h(a)=f(h(a),h(a))|f(a,b)=g(f(a,b),h(b))|p(a))).
+   tcf(i_0_16, plain, (h(c)=f(h(c),h(c))|f(a,b)=g(f(a,b),h(b))|p(a))).
+   tcf(i_0_20, plain, (f(i(c),i(c))=h(g(a,a))|g(b,f(a,b))=f(a,f(a,a))|p(a))).
+   tcf(i_0_18, plain, (f(i(c),i(c))=h(g(c,c))|g(b,f(a,b))=f(a,f(a,a))|p(a))).
+   tcf(i_0_19, plain, (f(i(c),i(c))=h(g(c,c))|g(b,f(b,b))=f(a,f(a,a))|p(a))).*/
+
+
+   ClauseSetIndexedInsert(set, FVIndexPackClause(a1, set->fvindex));
+   ClauseSetIndexedInsert(set, FVIndexPackClause(a2, set->fvindex));
+   ClauseSetIndexedInsert(set, FVIndexPackClause(a3, set->fvindex));
+
+   perform_subsumption_test(set, get_clause_by_nr(p->axioms, 2), a1, p->signature);
+   perform_subsumption_test(set, get_clause_by_nr(p->axioms, 1), NULL, p->signature);
+   perform_subsumption_test(set, get_clause_by_nr(p->axioms, 3), a2, p->signature);
+   perform_subsumption_test(set, get_clause_by_nr(p->axioms, 4), NULL, p->signature);
+   perform_subsumption_test(set, get_clause_by_nr(p->axioms, 6), a3, p->signature);
+   perform_subsumption_test(set, get_clause_by_nr(p->axioms, 7), NULL, p->signature);
+   perform_subsumption_test(set, get_clause_by_nr(p->axioms, 5), NULL, p->signature);
 }
 
 int main(int argc, char* argv[])
@@ -1313,12 +1401,6 @@ int main(int argc, char* argv[])
       VERBOUT("Negated conjectures.\n");
    }
 
-   fprintf(stderr, "Before CNF!\n");
-   TBPrintBankInOrder(stderr, proofstate->terms);
-
-   fprintf(stderr, "Printing done!\n");
-   //return -1;
-
    if(new_cnf)
    {
       cnf_size = FormulaSetCNF2(proofstate->f_axioms,
@@ -1344,9 +1426,6 @@ int main(int argc, char* argv[])
    {
       VERBOUT("CNFization done\n");
    }
-
-   fprintf(stderr, "After CNF!\n");
-   TBPrintBankInOrder(stderr, proofstate->terms);
 
    raw_clause_no = proofstate->axioms->members;
    if (!strstr(state->argv[0], "simplify.reflect") && !strstr(state->argv[0], "unit.subsumption"))
