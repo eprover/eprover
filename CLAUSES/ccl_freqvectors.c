@@ -408,17 +408,17 @@ void VarFreqVectorAddVals(FreqVector_p vec, long symbols, FVIndexType features,
    {
       if(EqnIsPositive(handle))
       {
-    EqnAddSymbolFeaturesLimited(handle,
-                 pfreqstart,
-                 pdepthstart,
-                 symbols);
+         EqnAddSymbolFeaturesLimited(handle,
+                     pfreqstart,
+                     pdepthstart,
+                     symbols);
       }
       else
       {
-    EqnAddSymbolFeaturesLimited(handle,
-                 nfreqstart,
-                 ndepthstart,
-                 symbols);
+         EqnAddSymbolFeaturesLimited(handle,
+                     nfreqstart,
+                     ndepthstart,
+                     symbols);
       }
    }
    if(unused)

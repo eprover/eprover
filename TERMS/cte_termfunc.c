@@ -1532,7 +1532,9 @@ void TermAddSymbolFeaturesLimited(Term_p term, long depth,
       }
       for(i=0; i<term->arity; i++)
       {
-         TermAddSymbolFeaturesLimited(term->args[i], depth+1,
+         // ignore applied var f_code
+         int depth_inc = TermIsAppliedVar(term) ? 0 : 1;
+         TermAddSymbolFeaturesLimited(term->args[i], depth + depth_inc,
                                       freq_array, depth_array,
                                       limit);
       }
@@ -1576,7 +1578,8 @@ void TermAddSymbolFeatures(Term_p term, PStack_p mod_stack, long depth,
       feature_array[findex+1] = MAX(depth, feature_array[findex+1]);
       for(i=0; i<term->arity; i++)
       {
-         TermAddSymbolFeatures(term->args[i], mod_stack, depth+1,
+         int depth_inc = TermIsAppliedVar(term) ? 0 : 1;
+         TermAddSymbolFeatures(term->args[i], mod_stack, depth + depth_inc,
                                feature_array, offset);
       }
    }
