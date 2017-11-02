@@ -707,7 +707,7 @@ __inline__ bool SubstMatchComplete(Term_p t, Term_p s, Subst_p subst, Sig_p sig)
    }
 }
 
-__inline__ bool SubstMguComplete(Term_p t, Term_p s, Subst_p subst, Sig_p)
+__inline__ bool SubstMguComplete(Term_p t, Term_p s, Subst_p subst, Sig_p sig)
 {
    if (ProblemIsHO == PROBLEM_NOT_HO)
    {

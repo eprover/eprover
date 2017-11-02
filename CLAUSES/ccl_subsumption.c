@@ -307,8 +307,8 @@ static Eqn_p find_spec_literal_old(Eqn_p lit, Eqn_p list)
       {
          continue;
       }
-      if(SubstMatchComplete(lit->lterm, list->lterm, subst, eqn->bank->sig)&&
-         SubstMatchComplete(lit->rterm, list->rterm, subst, eqn->bank->sig))
+      if(SubstMatchComplete(lit->lterm, list->lterm, subst, lit->bank->sig)&&
+         SubstMatchComplete(lit->rterm, list->rterm, subst, lit->bank->sig))
       {
          break;
       }
@@ -317,8 +317,8 @@ static Eqn_p find_spec_literal_old(Eqn_p lit, Eqn_p list)
       {
          continue;
       }
-      if(SubstMatchComplete(lit->lterm, list->rterm, subst, eqn->bank->sig)&&
-         SubstMatchComplete(lit->rterm, list->lterm, subst, eqn->bank->sig))
+      if(SubstMatchComplete(lit->lterm, list->rterm, subst, lit->bank->sig)&&
+         SubstMatchComplete(lit->rterm, list->lterm, subst, lit->bank->sig))
       {
          break;
       }
