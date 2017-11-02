@@ -1421,7 +1421,7 @@ int EqnSubsumeQOrderCompare(const void* lit1, const void* lit2)
       }
       else
       {
-         res = 0;
+         res = -1;
       }
       
    }

@@ -703,7 +703,7 @@ __inline__ bool SubstMatchComplete(Term_p t, Term_p s, Subst_p subst, Sig_p sig)
       {
          SubstBacktrackToPos(subst, backtrack);
       }
-      return res != 0;
+      return res == 0;
    }
 }
 

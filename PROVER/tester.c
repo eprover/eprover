@@ -1222,6 +1222,8 @@ void test_unification(ProofState_p p)
 
 }
 
+Clause_p clause_set_subsumes_clause(ClauseSet_p set, Clause_p sub_candidate);
+
 void perform_subsumption_test(ClauseSet_p set, Clause_p test, Clause_p exp_subsumer, Sig_p sig)
 {
    static int test_nr = 0;
@@ -1234,8 +1236,10 @@ void perform_subsumption_test(ClauseSet_p set, Clause_p test, Clause_p exp_subsu
    ClausePrint(stderr, test, true);
    fprintf(stderr, ".\n");
 
-   FVPackedClause_p test_fvp =  FVIndexPackClause(test, set->fvindex);
-   Clause_p subsumer = ClauseSetSubsumesFVPackedClause(set, test_fvp);
+   /*FVPackedClause_p test_fvp =  FVIndexPackClause(test, set->fvindex);
+   Clause_p subsumer = ClauseSetSubsumesFVPackedClause(set, test_fvp);*/
+
+   Clause_p subsumer = clause_set_subsumes_clause(set, test);
 
    bool passed = subsumer == exp_subsumer;
    fprintf(stderr, "%c test %s with subsumer ", passed ? '+' : '-', passed ?  "passed" : "failed" );
