@@ -407,8 +407,8 @@ static bool check_subsumption_possibility(Clause_p subsumer, Clause_p
    {
       if(!find_spec_literal(sub_eqn, sub_candidate->literals))
       {
-    res = false;
-    break;
+        res = false;
+        break;
       }
    }
    return res;
@@ -807,11 +807,11 @@ Clause_p clause_set_subsumes_clause_indexed(FVIndex_p index,
       iter = IntMapIterAlloc(index->u1.successors, 0, vec->array[feature]);
       while((next = IntMapIterNext(iter, &i)))
       {
-    if(next->clause_count &&
-       (res = clause_set_subsumes_clause_indexed(next, vec, feature+1)))
-    {
-       break;
-    }
+        if(next->clause_count &&
+           (res = clause_set_subsumes_clause_indexed(next, vec, feature+1)))
+        {
+           break;
+        }
       }
       IntMapIterFree(iter);
       return res;
