@@ -379,6 +379,9 @@ void    EqnAddSymbolFeatures(Eqn_p eq, PStack_p mod_stack, long *feature_array);
 
 long    EqnCollectSubterms(Eqn_p eqn, PStack_p collector);
 
+#define EqnHasAppVar(eqn) (TermIsAppliedVar((eqn)->lterm) \
+                            || TermIsAppliedVar((eqn)->rterm))
+
 
 /*---------------------------------------------------------------------*/
 /*                        Inline Functions                             */
