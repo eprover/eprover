@@ -74,6 +74,16 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, Sig_p si
 UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p sig);
 
 
+#ifdef ENABLE_LFHO
+__inline__ bool SubstMatchComplete(Term_p t, Term_p s, Subst_p subst, Sig_p sig);
+__inline__ bool SubstMguComplete(Term_p t, Term_p s, Subst_p subst, Sig_p);
+#else
+#define SubstMatchComplete(t, s, subst, sig) (SubstComputeMatch(t, s, subst))
+#define SubstMguComplete(t, s, subst, sig)   (SubstComputeMgu(t, s, subst))
+#endif
+
+
+
 #define VerifyMatch(matcher, to_match) \
         TermStructEqualDeref((matcher), (to_match), \
               DEREF_ONCE, DEREF_NEVER)

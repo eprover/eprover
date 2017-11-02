@@ -311,6 +311,7 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, Sig_p si
 
 bool SubstComputeMatch(Term_p matcher, Term_p to_match, Subst_p subst)
 {
+   assert(ProblemIsHO == PROBLEM_NOT_HO);
    long matcher_weight  = TermStandardWeight(matcher);
    long to_match_weight = TermStandardWeight(to_match);
 
@@ -588,6 +589,7 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p s
 bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
 {
    //printf("Unify %lu %lu\n", t1->entry_no, t2->entry_no);
+   assert(ProblemIsHO == PROBLEM_NOT_HO);
    #ifdef MEASURE_UNIFICATION
       UnifAttempts++;
    #endif
@@ -684,6 +686,46 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
    return res;
 }
 
+
+#ifdef ENABLE_LFHO
+__inline__ bool SubstMatchComplete(Term_p t, Term_p s, Subst_p subst, Sig_p sig)
+{
+   if (ProblemIsHO == PROBLEM_NOT_HO)
+   {
+      return SubstComputeMatch(t, s, subst);
+   }
+   else
+   {
+      // no arguments of s remaining after the match
+      PStackPointer backtrack = PStackGetSP(subst);
+      int res =  SubstComputeMatchHO(t, s, subst, sig);
+      if (res != 0)
+      {
+         SubstBacktrackToPos(subst, backtrack);
+      }
+      return res != 0;
+   }
+}
+
+__inline__ bool SubstMguComplete(Term_p t, Term_p s, Subst_p subst, Sig_p)
+{
+   if (ProblemIsHO == PROBLEM_NOT_HO)
+   {
+      return SubstComputeMgu(t, s, subst);
+   }
+   else
+   {
+      // no arguments of s remaining after the match
+      PStackPointer backtrack = PStackGetSP(subst);
+      UnificationResult res =  SubstComputeMguHO(t, s, subst, sig);
+      if (UnifFailed(res) || res.term_remaining != 0)
+      {
+         SubstBacktrackToPos(subst, backtrack);
+      }
+      return !UnifFailed(res) && res.term_remaining == 0;
+   }  
+}
+#endif
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

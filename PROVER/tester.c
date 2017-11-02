@@ -1221,6 +1221,11 @@ void test_unification(ProofState_p p)
 
 }
 
+void test_subsumption(ProofState_p p)
+{
+   fprintf(stderr, "Subsumption.\n");
+}
+
 int main(int argc, char* argv[])
 {
    int              retval = NO_ERROR;
@@ -1416,6 +1421,10 @@ int main(int argc, char* argv[])
    else if (strstr(state->argv[0], "unification"))
    {
       test_unification(proofstate);
+   }
+   else if (strstr(state->argv[0], "lfho.subsumption"))
+   {
+      test_subsumption(proofstate);
    }
    else
    {
