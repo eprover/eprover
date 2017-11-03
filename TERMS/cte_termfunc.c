@@ -1567,15 +1567,19 @@ void TermAddSymbolFeatures(Term_p term, PStack_p mod_stack, long depth,
    if(!TermIsVar(term))
    {
       int i;
-      long findex = 4*term->f_code+offset;
-
-      if(feature_array[findex] == 0)
+      if (!TermIsAppliedVar(term))
       {
-         PStackPushInt(mod_stack, findex);
-      }
+         // ignore applied var f code.
+         long findex = 4*term->f_code+offset;
 
-      feature_array[findex]++;
-      feature_array[findex+1] = MAX(depth, feature_array[findex+1]);
+         if(feature_array[findex] == 0)
+         {
+            PStackPushInt(mod_stack, findex);
+         }
+
+         feature_array[findex]++;
+         feature_array[findex+1] = MAX(depth, feature_array[findex+1]);
+      }
       for(i=0; i<term->arity; i++)
       {
          //int depth_inc = TermIsAppliedVar(term) ? 0 : 1;

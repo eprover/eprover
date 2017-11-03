@@ -1236,10 +1236,10 @@ void perform_subsumption_test(ClauseSet_p set, Clause_p test, Clause_p exp_subsu
    ClausePrint(stderr, test, true);
    fprintf(stderr, ".\n");
 
-   /*FVPackedClause_p test_fvp =  FVIndexPackClause(test, set->fvindex);
-   Clause_p subsumer = ClauseSetSubsumesFVPackedClause(set, test_fvp);*/
+   FVPackedClause_p test_fvp =  FVIndexPackClause(test, set->fvindex);
+   Clause_p subsumer = ClauseSetSubsumesFVPackedClause(set, test_fvp);
 
-   Clause_p subsumer = clause_set_subsumes_clause(set, test);
+   //Clause_p subsumer = clause_set_subsumes_clause(set, test);
 
    bool passed = subsumer == exp_subsumer;
    fprintf(stderr, "%c test %s with subsumer ", passed ? '+' : '-', passed ?  "passed" : "failed" );
@@ -1308,6 +1308,8 @@ void test_subsumption(ProofState_p p)
    ClauseSetIndexedInsert(set, FVIndexPackClause(a1, set->fvindex));
    ClauseSetIndexedInsert(set, FVIndexPackClause(a2, set->fvindex));
    ClauseSetIndexedInsert(set, FVIndexPackClause(a3, set->fvindex));
+
+   FVIndexPrint(stderr, set->fvindex->index, true);
 
    perform_subsumption_test(set, get_clause_by_nr(p->axioms, 2), a1, p->signature);
    perform_subsumption_test(set, get_clause_by_nr(p->axioms, 1), NULL, p->signature);
