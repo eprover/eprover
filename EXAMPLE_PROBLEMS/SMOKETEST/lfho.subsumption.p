@@ -11,9 +11,9 @@ thf(pType, type, q: t > $o).
 
 thf(a1, axiom, ![X: t>t, Y: t>t, Z:t]: (X @ a = Y @ b | f @ a @ Z = g @ b @ Z)).
 %-- should be subsumed by a1
-thf(a2, axiom, p @ a | h @ a = i @ b | f @ a @ b = g @ b @ b).
+thf(a2, axiom, p @ a | h @ a = i @ b | f @ a @ b = g @ b @ b | ![X:t>t>t]: X@a@b = X@b@b | ![Y:t>t>t>t]: Y@a@b@c = Y@b@c@c).
 %-- shouldn't be subsumed
-thf(a3, axiom, f @ a = g @ b | f @ a @ c = g @ b @ c).
+thf(a3, axiom, f @ a = g @ b | f @ a @ c = g @ b @ c | ![X:t>t>t]: X @ (X@a@b) @ (X@b@c) = X @ (X @ a @ a) @ (X @ a @ a)).
 
 thf(a4, axiom, ![X:t, Y:t]: (f @ X @ Y = g @ (f @ X @ Y) @ (h @ Y) | h @ X = f @ (h @ X) @ (h @ X))).
 %-- should be subsumed by a4

@@ -1271,16 +1271,17 @@ void perform_subsumption_test(ClauseSet_p set, Clause_p test, Clause_p exp_subsu
 void test_subsumption(ProofState_p p)
 {
    /*
-   1-   tcf(i_0_11, plain, ![X1:t > t, X2:t > t, X3:t]:($@_var(X1,a)=$@_var(X2,b)|g(b,X3)=f(a,X3))).
-   2   tcf(i_0_13, plain, (g(b)=f(a)|g(b,c)=f(a,c))).
-   3-   tcf(i_0_14, plain, ![X6:t, X5:t, X4:t]:(h(X6)=f(h(X6),h(X6))|f(X4,X5)=g(f(X4,X5),h(X5)))).
-   4-   tcf(i_0_17, plain, ![X7:t > t, X9:t, X8:t]:($@_var(X7,$@_var(X7,a))=g(b,$@_var(X7,b))|f(i(X8),i(X9))=h(g(X8,X9)))).
-   5   tcf(i_0_12, plain, (i(b)=h(a)|g(b,b)=f(a,b)|p(a))).
-   6   tcf(i_0_15, plain, (h(a)=f(h(a),h(a))|f(a,b)=g(f(a,b),h(b))|p(a))).
-   7   tcf(i_0_16, plain, (h(c)=f(h(c),h(c))|f(a,b)=g(f(a,b),h(b))|p(a))).
-   8   tcf(i_0_20, plain, (f(i(c),i(c))=h(g(a,a))|g(b,f(a,b))=f(a,f(a,a))|p(a))).
-   9   tcf(i_0_18, plain, (f(i(c),i(c))=h(g(c,c))|g(b,f(a,b))=f(a,f(a,a))|p(a))).
-   10  tcf(i_0_19, plain, (f(i(c),i(c))=h(g(c,c))|g(b,f(b,b))=f(a,f(a,a))|p(a))).
+   1   tcf(i_0_11, plain, ![X1:t > t, X2:t > t, X3:t]:($@_var(X1,a)=$@_var(X2,b)|g(b,X3)=f(a,X3))).
+   2   tcf(i_0_14, plain, ![X2:t, X1:t]:(h(X1)=f(h(X1),h(X1))|f(X1,X2)=g(f(X1,X2),h(X2)))).
+   3   tcf(i_0_17, plain, ![X1:t > t, X3:t, X2:t]:($@_var(X1,$@_var(X1,a))=g(b,$@_var(X1,b))|f(i(X2),i(X3))=h(g(X2,X3)))).
+   4   tcf(i_0_15, plain, (h(a)=f(h(a),h(a))|f(a,b)=g(f(a,b),h(b))|p(a))).
+   5   tcf(i_0_16, plain, (h(c)=f(h(c),h(c))|f(a,b)=g(f(a,b),h(b))|p(a))).
+   6   tcf(i_0_13, plain, ![X1:t > t > t]:(g(b)=f(a)|g(b,c)=f(a,c)|$@_var(X1,$@_var(X1,a,b),$@_var(X1,b,c))=$@_var(X1,$@_var(X1,a,a),$@_var(X1,a,a)))).
+   7   tcf(i_0_20, plain, (f(i(c),i(c))=h(g(a,a))|g(b,f(a,b))=f(a,f(a,a))|p(a))).
+   8   tcf(i_0_18, plain, (f(i(c),i(c))=h(g(c,c))|g(b,f(a,b))=f(a,f(a,a))|p(a))).
+   9   tcf(i_0_19, plain, (f(i(c),i(c))=h(g(c,c))|g(b,f(b,b))=f(a,f(a,a))|p(a))).
+   10   tcf(i_0_12, plain, ![X1:t > t > t, X2:t > t > t > t]:(i(b)=h(a)|$@_var(X1,b,b)=$@_var(X1,a,b)|g(b,b)=f(a,b)|$@_var(X2,b,c,c)=$@_var(X2,a,b,c)|p(a))).
+
    */
 
    ClauseSet_p set = p->processed_non_units;
@@ -1289,10 +1290,10 @@ void test_subsumption(ProofState_p p)
    Clause_p a1 = ClauseSetExtractEntry(get_clause_by_nr(p->axioms, 1));
    //fprintf(stderr, "- \n");
    //ClauseSetPrint(stderr, p->axioms, true);
-   Clause_p a2 = ClauseSetExtractEntry(get_clause_by_nr(p->axioms, 2));
+   Clause_p a2 = ClauseSetExtractEntry(get_clause_by_nr(p->axioms, 1));
    //fprintf(stderr, "- \n");
    //ClauseSetPrint(stderr, p->axioms, true);
-   Clause_p a3 = ClauseSetExtractEntry(get_clause_by_nr(p->axioms, 2));
+   Clause_p a3 = ClauseSetExtractEntry(get_clause_by_nr(p->axioms, 1));
    //fprintf(stderr, "- \n");
    //ClauseSetPrint(stderr, p->axioms, true);
 
@@ -1311,13 +1312,13 @@ void test_subsumption(ProofState_p p)
 
    FVIndexPrint(stderr, set->fvindex->index, true);
 
-   perform_subsumption_test(set, get_clause_by_nr(p->axioms, 2), a1, p->signature);
-   perform_subsumption_test(set, get_clause_by_nr(p->axioms, 1), NULL, p->signature);
-   perform_subsumption_test(set, get_clause_by_nr(p->axioms, 3), a2, p->signature);
+   perform_subsumption_test(set, get_clause_by_nr(p->axioms, 7), a1, p->signature);
+   perform_subsumption_test(set, get_clause_by_nr(p->axioms, 3), NULL, p->signature);
+   perform_subsumption_test(set, get_clause_by_nr(p->axioms, 1), a2, p->signature);
+   perform_subsumption_test(set, get_clause_by_nr(p->axioms, 2), NULL, p->signature);
+   perform_subsumption_test(set, get_clause_by_nr(p->axioms, 5), a3, p->signature);
+   perform_subsumption_test(set, get_clause_by_nr(p->axioms, 6), NULL, p->signature);
    perform_subsumption_test(set, get_clause_by_nr(p->axioms, 4), NULL, p->signature);
-   perform_subsumption_test(set, get_clause_by_nr(p->axioms, 6), a3, p->signature);
-   perform_subsumption_test(set, get_clause_by_nr(p->axioms, 7), NULL, p->signature);
-   perform_subsumption_test(set, get_clause_by_nr(p->axioms, 5), NULL, p->signature);
 }
 
 int main(int argc, char* argv[])
