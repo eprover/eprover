@@ -112,6 +112,8 @@ long        FVIndexCountNodes(FVIndex_p index, bool leaves, bool empty);
 
 FVPackedClause_p FVIndexPackClause(Clause_p clause, FVIAnchor_p anchor);
 
+void        FVIndexPrint(FILE* out, FVIndex_p index, bool fullterms);
+
 #endif
 
 /*---------------------------------------------------------------------*/

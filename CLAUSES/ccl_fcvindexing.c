@@ -67,6 +67,52 @@ FVIndexParmsCell FVIDefaultParameters =
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
+void print_lvl(FILE* out, int level)
+{
+   for(int i=0; i<level; i++)
+   {
+      fprintf(out, "--");
+   }
+}
+
+void print_clauses(FILE* out, PTree_p clauses, int level, bool fullterms)
+{
+   PStack_p stack      = PStackAlloc();
+   long     nr_clauses = PTreeToPStack(stack, clauses);
+
+   while(!PStackEmpty(stack))
+   {
+      Clause_p res = PStackPopP(stack);
+      print_lvl(out, level);
+      ClausePrint(out, res, fullterms);
+      fprintf(stderr, " \n");
+   }
+}
+
+void fv_index_print(FILE* out, FVIndex_p index, bool fullterms, int level)
+{  
+   if (index->final)
+   {
+      print_clauses(out, index->u1.clauses, level+1, fullterms);
+   }
+   else
+   {
+      IntMapIter_p iterator = IntMapIterAlloc(index->u1.successors, 0, LONG_MAX);
+
+      long key;
+      FVIndex_p succ;
+      while((succ = IntMapIterNext(iterator, &key)))
+      {
+         print_lvl(out, level);   
+         fprintf(stderr, "Alternative %ld: \n", key);
+
+         fv_index_print(out, succ, fullterms, level+1);
+      }
+
+      IntMapIterFree(iterator);
+   }
+
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -331,9 +377,9 @@ void FVIndexInsert(FVIAnchor_p index, FreqVector_p vec_clause)
       newnode = IntMapGetVal(handle->u1.successors, vec_clause->array[i]);
       if(!newnode)
       {
-    newnode = insert_empty_node(handle,
-                 index,
-                 vec_clause->array[i]);
+         newnode = insert_empty_node(handle,
+                                     index,
+                                     vec_clause->array[i]);
       }
       handle = newnode;
       handle->clause_count++;
@@ -465,6 +511,11 @@ FVPackedClause_p FVIndexPackClause(Clause_p clause, FVIAnchor_p anchor)
              anchor->cspec);
 }
 
+void FVIndexPrint(FILE* out, FVIndex_p index, bool fullterms)
+{
+  fprintf(stderr, "* ROOT *\n");
+  fv_index_print(out, index, fullterms, 0);
+}
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
