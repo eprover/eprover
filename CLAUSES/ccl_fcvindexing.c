@@ -78,7 +78,6 @@ void print_lvl(FILE* out, int level)
 void print_clauses(FILE* out, PTree_p clauses, int level, bool fullterms)
 {
    PStack_p stack      = PStackAlloc();
-   long     nr_clauses = PTreeToPStack(stack, clauses);
 
    while(!PStackEmpty(stack))
    {

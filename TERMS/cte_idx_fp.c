@@ -106,7 +106,11 @@ static void push_fcodes(PStack_p stack, Term_p t)
    else
    {
       int i;
-      PStackPushInt(stack, t->f_code);
+      if (!TermIsAppliedVar(t))
+      {
+         PStackPushInt(stack, t->f_code);
+      }
+
       for(i=0; i<t->arity; i++)
       {
          push_fcodes(stack, t->args[i]);
@@ -131,7 +135,7 @@ static void push_fcodes(PStack_p stack, Term_p t)
 //
 /----------------------------------------------------------------------*/
 
-FunCode TermFPSample(Term_p term, ...)
+FunCode TermFPSampleFO(Term_p term, ...)
 {
   va_list ap;
   va_start(ap, term);
@@ -161,6 +165,61 @@ FunCode TermFPSample(Term_p term, ...)
   return res;
 }
 
+#ifdef ENABLE_LFHO
+FunCode TermFPSampleHO(Term_p term, ...)
+{
+  va_list ap;
+  va_start(ap, term);
+  int pos = 0;
+  FunCode res = 0;
+
+  for(pos = va_arg(ap, int); pos != -1;  pos = va_arg(ap, int))
+  {
+     int actual_pos = term->arity - 1 - pos;
+     if(TermIsVar(term) || (actual_pos < 0 && TermIsAppliedVar(term)))
+     {
+        res = BELOW_VAR;
+        break;
+     }
+     if(actual_pos < 0)
+     {
+        res = NOT_IN_TERM;
+        break;
+     }
+     term = term->args[actual_pos];
+  }
+  
+  if(pos == -1)
+  {
+     res = (TermIsVar(term) || TermIsAppliedVar(term)) ? ANY_VAR : term->f_code;
+  }
+  va_end(ap);
+
+  return res;
+}
+
+
+__inline__ FunCode   TermFPSample(Term_p term, ...)
+{
+   va_list args;
+   va_start(args, term);
+   
+   FunCode res;
+   if (ProblemIsHO == PROBLEM_IS_HO)
+   {
+      res = TermFPSampleHO(term, args);
+   }
+   else
+   {
+      res = TermFPSampleFO(term, args);
+   }
+
+   va_end(args);
+
+   return res;
+}
+#endif
+
 
 /*-----------------------------------------------------------------------
 //
@@ -176,7 +235,7 @@ FunCode TermFPSample(Term_p term, ...)
 //
 /----------------------------------------------------------------------*/
 
-FunCode TermFPFlexSample(Term_p term, IntOrP* *seq)
+FunCode TermFPFlexSampleFO(Term_p term, IntOrP* *seq)
 {
   FunCode res = 0;
   long pos;
@@ -213,6 +272,58 @@ FunCode TermFPFlexSample(Term_p term, IntOrP* *seq)
   return res;
 }
 
+#ifdef ENABLE_LFHO
+FunCode TermFPFlexSampleHO(Term_p term, IntOrP* *seq)
+{
+  FunCode res = 0;
+  long pos;
+
+  while((pos=(*seq)->i_val)!=-1)
+  {
+     long actual_pos = term->arity - 1 - pos;
+     if(TermIsVar(term) || (actual_pos < 0 && TermIsAppliedVar(term)))
+     {
+        res = BELOW_VAR;
+        break;
+     }
+     if(actual_pos < 0 )
+     {
+        res = NOT_IN_TERM;
+        break;
+     }
+     term = term->args[actual_pos];
+     (*seq)++;
+  }
+  if(pos == -1)
+  {
+     res = (TermIsVar(term) || TermIsAppliedVar(term)) ? ANY_VAR : term->f_code;
+  }
+  else
+  {
+     /* Find the end of the position */
+     while((pos=(*seq)->i_val)!=-1)
+     {
+        (*seq)++;
+     }
+  }
+  /* We want to point beyond the end */
+  (*seq)++;
+  return res;
+}
+
+__inline__ FunCode TermFPFlexSample(Term_p term, IntOrP* *seq)
+{
+   if (ProblemIsHO == PROBLEM_IS_HO)
+   {
+      return TermFPFlexSampleHO(term, seq);
+   }
+   else
+   {
+      return TermFPFlexSampleFO(term, seq);
+   }
+}
+
+#endif
 
 /*-----------------------------------------------------------------------
 //
