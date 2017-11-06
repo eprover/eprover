@@ -447,9 +447,6 @@ static ClausePos_p indexed_find_demodulator(OCB_p ocb, Term_p term,
 }
 
 
-// GOING TO BE USED LATER FOR REWRITING! 
-// NOW I JUST WANT TO CHECK FIND NEXT DEMODULATOR
-// TODO : PUSH THIS CHANGE TO ALL OTHER PARTS OF THE CODE.
 MatchInfo_p indexed_find_demodulator_mi(OCB_p ocb, Term_p term,
                    SysDate date,
                    ClauseSet_p demodulators,
