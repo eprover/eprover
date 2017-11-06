@@ -135,10 +135,8 @@ static void push_fcodes(PStack_p stack, Term_p t)
 //
 /----------------------------------------------------------------------*/
 
-FunCode TermFPSampleFO(Term_p term, ...)
+FunCode TermFPSampleFO(Term_p term, va_list ap)
 {
-  va_list ap;
-  va_start(ap, term);
   int pos = 0;
   FunCode res = 0;
 
@@ -166,10 +164,8 @@ FunCode TermFPSampleFO(Term_p term, ...)
 }
 
 #ifdef ENABLE_LFHO
-FunCode TermFPSampleHO(Term_p term, ...)
+FunCode TermFPSampleHO(Term_p term, va_list ap)
 {
-  va_list ap;
-  va_start(ap, term);
   int pos = 0;
   FunCode res = 0;
 
@@ -193,32 +189,35 @@ FunCode TermFPSampleHO(Term_p term, ...)
   {
      res = (TermIsVar(term) || TermIsAppliedVar(term)) ? ANY_VAR : term->f_code;
   }
-  va_end(ap);
 
   return res;
 }
+#endif
 
-
-__inline__ FunCode   TermFPSample(Term_p term, ...)
+FunCode  TermFPSample(Term_p term, ...)
 {
    va_list args;
    va_start(args, term);
    
    FunCode res;
+#ifdef ENABLE_LFHO
    if (ProblemIsHO == PROBLEM_IS_HO)
    {
       res = TermFPSampleHO(term, args);
    }
    else
    {
+#endif
       res = TermFPSampleFO(term, args);
+#ifdef ENABLE_LFHO
    }
+#endif
 
    va_end(args);
 
    return res;
 }
-#endif
+
 
 
 /*-----------------------------------------------------------------------

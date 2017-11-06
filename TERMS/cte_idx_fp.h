@@ -58,15 +58,14 @@ extern char* FPIndexNames[];
 #define   ANY_VAR       -1
 #define   NOT_IN_TERM    0
 
-FunCode   TermFPSampleFO(Term_p term, ...);
+FunCode   TermFPSampleFO(Term_p term, va_list ap);
 FunCode   TermFPFlexSampleFO(Term_p term, IntOrP* *seq);
-#ifdef ENABLE_LFHO
-FunCode   TermFPSampleHO(Term_p term, ...);
 FunCode   TermFPSample(Term_p term, ...);
+#ifdef ENABLE_LFHO
+FunCode   TermFPSampleHO(Term_p term, va_list ap);
 FunCode   TermFPFlexSampleHO(Term_p term, IntOrP* *seq);
 FunCode   TermFPFlexSample(Term_p term, IntOrP* *seq);
 #else 
-#define   TermFPSample(Term_p term, ...) (TermFPSampleFO(term, __VA_ARGS__))
 #define   TermFPFlexSample(term, seq)    (TermFPFlexSampleFO(term, seq))
 #endif
 
