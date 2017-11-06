@@ -245,7 +245,6 @@ static bool mfyvwbc(OCB_p ocb, Term_p t, DerefType deref_t, Term_p var, bool lhs
 
 static void mfyvwb(OCB_p ocb, Term_p t, DerefType deref_t, bool lhs)
 {
-   //TODO: MIGHT NOT BE SHARED
    t = TermDeref(t, &deref_t);
    local_vb_update(ocb, t, lhs);
 
@@ -275,8 +274,7 @@ static CompareResult kbo6cmplex(OCB_p ocb, Term_p s, Term_p t,
 {
    CompareResult res = to_equal;
 
-   // TODo
-   //assert(s->arity == t->arity);
+   assert(s->arity == t->arity);
    assert(s->f_code == t->f_code);
 
    for(size_t i=0; i < MIN(s->arity, t->arity); i++)
@@ -312,7 +310,6 @@ static CompareResult kbo6cmp(OCB_p ocb, Term_p s, Term_p t,
 {
    CompareResult res, tmp;
 
-   //TODO: MIGHT NOT BE SHARED
    s = TermDeref(s, &deref_s);
    t = TermDeref(t, &deref_t);
 
@@ -587,6 +584,135 @@ static CompareResult kbolincmp(OCB_p ocb, Term_p s, Term_p t,
    return res;
 }
 
+static CompareResult cmp_arities(Term_p s, Term_p t)
+{
+   assert(s->arity != t->arity);
+   return s->arity > t->arity ? to_greater : to_lesser;
+}
+
+static CompareResult kbolincmp_ho(OCB_p ocb, Term_p s, Term_p t,
+                             DerefType deref_s, DerefType deref_t)
+{
+   assert(ProblemIsHO == PROBLEM_IS_HO);
+   CompareResult res = to_equal;
+
+   s = TermDeref(s, &deref_s);
+   t = TermDeref(t, &deref_t);
+
+   if(s->f_code == t->f_code)
+   {
+      bool done = false;
+      int i = 0;
+      while(!done)
+      {
+         res = s->arity == t->arity ? kbolincmp_ho(ocb, s->args[i], t->args[i], deref_s, deref_t) :
+                                      cmp_arities(s,t);
+
+         if(res!=to_equal)
+         {
+            // increase only if we got here through kbolincmp_ho
+            i += s->arity == t->arity ? 1 : 0; 
+            if(i < s->arity || i < t->arity)
+            {
+               for(int j=i;j<s->arity; j++)
+               {
+                  mfyvwblhs(ocb, s->args[j], deref_s);
+               }
+
+               for(int j=i; j<t->arity; j++)
+               {
+                  mfyvwbrhs(ocb, t->args[j], deref_s);  
+               }
+
+               CompareResult g_or_n = ocb->neg_bal?to_uncomparable:to_greater;
+               CompareResult l_or_n = ocb->pos_bal?to_uncomparable:to_lesser;
+
+               if(ocb->wb>0)
+               {
+                  res = g_or_n;
+               }
+               else if(ocb->wb<0)
+               {
+                  res = l_or_n;
+               }
+               else if(res == to_greater)
+               {
+                  res = g_or_n;
+               }
+               else if(res == to_lesser)
+               {
+                  res = l_or_n;
+               }
+            }
+            done = true;
+         }
+         else
+         {
+            assert(t->arity == s->arity);
+            i++;
+            done = i == s->arity;
+         }
+      }
+   }
+   else if(TermIsVar(s))
+   {
+      if(TermIsVar(t))
+      {  /* X, Y */
+         inc_vb(ocb, s);
+         dec_vb(ocb, t);
+         res = t == s ? to_equal : to_uncomparable;
+      }
+      else
+      { /* X, t */
+         inc_vb(ocb, s);
+         mfyvwbrhs(ocb, t, deref_t);
+         res = ocb->pos_bal?to_uncomparable:to_lesser;
+      }
+   }
+   else if(TermIsVar(t))
+   { /* s, Y */
+      dec_vb(ocb, t);
+      mfyvwblhs(ocb, s, deref_s);
+      res = ocb->neg_bal?to_uncomparable:to_greater;
+   }
+   else
+   { /* s, t */
+      mfyvwblhs(ocb, s, deref_s);
+      mfyvwbrhs(ocb, t, deref_t);
+      CompareResult g_or_n = ocb->neg_bal?to_uncomparable:to_greater;
+      CompareResult l_or_n = ocb->pos_bal?to_uncomparable:to_lesser;
+      
+      if(ocb->wb>0)
+      {
+         res = g_or_n;
+      }
+      else if(ocb->wb<0)
+      {
+         res = l_or_n;
+      }
+      else
+      {
+         assert(!TermIsAppliedVar(s) || !TermIsAppliedVar(t));
+         CompareResult tmp = (TermIsAppliedVar(s) || TermIsAppliedVar(t)) ?
+                               to_uncomparable : OCBFunCompare(ocb, s->f_code, t->f_code);
+         if(tmp == to_greater)
+         {
+            res = g_or_n;
+         }
+         else if(tmp == to_lesser)
+         {
+            res = l_or_n;
+         }
+         else
+         {
+            assert(tmp == to_uncomparable);
+            res = to_uncomparable;
+         }
+      }
+   }
+   return res;
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -644,8 +770,14 @@ CompareResult KBO6Compare(OCB_p ocb, Term_p s, Term_p t,
    CompareResult res;
 
    kbo6reset(ocb);
+#ifdef ENABLE_LFHO
+   res = ProblemIsHO == PROBLEM_IS_HO ? 
+            kbolincmp_ho(ocb, s, t, deref_s, deref_t)
+            : kbolincmp(ocb, s, t, deref_s, deref_t);
+#else
    res = kbolincmp(ocb, s, t, deref_s, deref_t);
    assert((kbo6reset(ocb), res == kbo6cmp(ocb, s, t, deref_s, deref_t)));
+#endif
    return res;
 }
 
@@ -678,8 +810,14 @@ bool KBO6Greater(OCB_p ocb, Term_p s, Term_p t,
    CompareResult res;
 
    kbo6reset(ocb);
+#ifdef ENABLE_LFHO
+   res = ProblemIsHO == PROBLEM_IS_HO ? 
+            kbolincmp_ho(ocb, s, t, deref_s, deref_t)
+            : kbolincmp(ocb, s, t, deref_s, deref_t);
+#else
    res = kbolincmp(ocb, s, t, deref_s, deref_t);
    assert((kbo6reset(ocb), res == kbo6cmp(ocb, s, t, deref_s, deref_t)));
+#endif
    return res == to_greater;
 }
 
