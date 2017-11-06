@@ -62,12 +62,16 @@ static Term_p term_top_unfold_def(TB_p bank, Term_p term, ClausePos_p demod)
 
    lside = ClausePosGetSide(demod);
    assert(!TermIsVar(lside));
-   if(lside->f_code != term->f_code)
+   if(lside->f_code != term->f_code
+#ifdef ENABLE_LFHO
+      || lside->arity != term->arity || TermIsAppliedVar(term)
+#endif
+  )
    {
       return term;
    }
    subst = SubstAlloc();
-   tmp = SubstComputeMatch(lside, term, subst);
+   tmp = SubstMatchComplete(lside, term, subst, bank->sig); 
    UNUSED(tmp); assert(tmp); /* Match must exist because demod is demod! */
    rside = ClausePosGetOtherSide(demod);
    res = TBInsertInstantiated(bank, rside);
@@ -195,7 +199,7 @@ bool ClauseUnfoldEqDef(Clause_p clause, ClausePos_p demod)
 
       if(ClauseQueryTPTPType(demod->clause) == CPTypeConjecture)
       {
-    ClauseSetTPTPType(clause, CPTypeConjecture);
+        ClauseSetTPTPType(clause, CPTypeConjecture);
       }
       DocClauseEqUnfold(GlobalOut, OutputLevel, clause, demod,
          pos_stack);
@@ -236,8 +240,8 @@ bool ClauseSetUnfoldEqDef(ClauseSet_p set, ClausePos_p demod)
    {
       if(ClauseUnfoldEqDef(handle, demod))
       {
-    res = true;
-    ClauseRemoveSuperfluousLiterals(handle);
+        res = true;
+        ClauseRemoveSuperfluousLiterals(handle);
       }
    }
    return res;

@@ -63,7 +63,7 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
                      subsumed_count, unsigned long* trivial_count,
                      bool non_unit_subsumption,
                      bool context_sr,
-                                              bool condense,
+                     bool condense,
                      RewriteLevel level)
 {
    FVPackedClause_p pclause;
@@ -184,6 +184,7 @@ bool ForwardModifyClause(ProofState_p state,
 
    while(!done)
    {
+      // This should work well now.
       ClauseComputeLINormalform(control->ocb,
                                 state->terms, clause,
                                 state->demods, level,
