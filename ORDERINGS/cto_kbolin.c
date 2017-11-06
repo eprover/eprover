@@ -422,7 +422,6 @@ static void mfyvwblhs(OCB_p ocb, Term_p term, DerefType deref_t)
    while(!PLocalTaggedStackEmpty(stack))
    {
       PLocalTaggedStackPop(stack, term, deref_t);
-      //TODO: MIGHT NOT BE SHARED
       term = TermDeref(term, &deref_t);
 
       if(TermIsVar(term))
@@ -461,7 +460,6 @@ static void mfyvwbrhs(OCB_p ocb, Term_p term, DerefType deref_t)
    while(!PLocalTaggedStackEmpty(stack))
    {
       PLocalTaggedStackPop(stack, term, deref_t);
-      //TODO: MIGHT NOT BE SHARED
       term = TermDeref(term, &deref_t);
 
       if(TermIsVar(term))
@@ -496,7 +494,6 @@ static CompareResult kbolincmp(OCB_p ocb, Term_p s, Term_p t,
 {
    CompareResult res = to_equal;
 
-   //TODO: MIGHT NOT BE SHARED
    s = TermDeref(s, &deref_s);
    t = TermDeref(t, &deref_t);
 

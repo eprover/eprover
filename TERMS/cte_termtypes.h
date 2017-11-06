@@ -160,8 +160,11 @@ typedef uintptr_t DerefType, *DerefType_p;
 
 #define TERMCELL_DYN_MEM (TERMCELL_MEM+4*TERMARG_MEM)
 
+#ifdef ENABLE_LFHO
 #define CAN_DEREF(term) (((term)->binding && TermIsVar(term)) || (TermIsAppliedVar(term) && term->args[0]->binding))
-
+#else
+#define CAN_DEREF(term) (((term)->binding))
+#endif
 
 
 /*---------------------------------------------------------------------*/
@@ -297,7 +300,11 @@ static __inline__ Term_p TermDerefAlways(Term_p term)
 
    while(CAN_DEREF(term))
    {
+#ifdef ENABLE_LFHO
       term = deref_step(term);
+#else
+      term = term->binding;
+#endif
    }
    return term;
 }
@@ -322,14 +329,22 @@ static __inline__ Term_p TermDeref(Term_p term, DerefType_p deref)
    {
       while(CAN_DEREF(term))
       {
-         term = deref_step(term);
+#ifdef ENABLE_LFHO
+      term = deref_step(term);
+#else
+      term = term->binding;
+#endif
       }
    }
    else
    {
       while(*deref && CAN_DEREF(term))
       {
-         term = deref_step(term);
+#ifdef ENABLE_LFHO
+      term = deref_step(term);
+#else
+      term = term->binding;
+#endif
          (*deref)--;
       }
    }

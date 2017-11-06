@@ -639,7 +639,7 @@ Term_p  TBInsertRepl(TB_p bank, Term_p term, DerefType deref, Term_p old, Term_p
 //
 /----------------------------------------------------------------------*/
 
-Term_p TBInsertInstantiated(TB_p bank, Term_p term)
+Term_p TBInsertInstantiatedFO(TB_p bank, Term_p term)
 {
    int    i;
    Term_p t;
@@ -672,12 +672,26 @@ Term_p TBInsertInstantiated(TB_p bank, Term_p term)
 
       for(i=0; i<t->arity; i++)
       {
-         t->args[i] = TBInsertInstantiated(bank, term->args[i]);
+         t->args[i] = TBInsertInstantiatedFO(bank, term->args[i]);
       }
       t = tb_termtop_insert(bank, t);
    }
    return t;
 }
+
+#ifdef ENABLE_LFHO
+__inline__ Term_p TBInsertInstantiated(TB_p bank, Term_p term)
+{
+   if (ProblemIsHO == PROBLEM_IS_HO)
+   {
+      return TBInsert(bank, term, DEREF_ALWAYS);
+   }
+   else
+   {
+      return TBInsertInstantiatedFO(bank, term);
+   }
+}
+#endif
 
 
 

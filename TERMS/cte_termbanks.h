@@ -131,7 +131,13 @@ long    TBTermNodes(TB_p bank);
 Term_p  TBInsert(TB_p bank, Term_p term, DerefType deref);
 Term_p  TBInsertNoProps(TB_p bank, Term_p term, DerefType deref);
 Term_p  TBInsertRepl(TB_p bank, Term_p term, DerefType deref, Term_p old, Term_p repl);
+Term_p  TBInsertInstantiatedFO(TB_p bank, Term_p term);
+
+#ifdef ENABLE_LFHO
 Term_p  TBInsertInstantiated(TB_p bank, Term_p term);
+#else
+#define TBInsertInstantiated(bank, term) (TBInsertInstantiatedFO(bank, term))
+#endif
 
 Term_p  TBTermParseRealHO(Scanner_p in, TB_p bank, bool check_symb_prop);
 

@@ -1360,8 +1360,9 @@ bool EqnHasUnboundVars(Eqn_p eq, EqnSide domside)
 
 EqnSide EqnIsDefinition(Eqn_p eq, int min_arity)
 {
-   // TODO: DISABLED DEFINITION UNFOLDING FOR APPLIED VARIABLES!!!
-   if(EqnIsNegative(eq) || TermIsAppliedVar(eq->lterm) || TermIsAppliedVar(eq->rterm))
+   // Definition unfolding for applied variables is disabled.
+   if(EqnIsNegative(eq) || 
+         TermIsAppliedVar(eq->lterm) || TermIsAppliedVar(eq->rterm))
    {
       return NoSide;
    }
