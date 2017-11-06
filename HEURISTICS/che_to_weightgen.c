@@ -1081,6 +1081,7 @@ void TOGenerateWeights(OCB_p ocb, ClauseSet_p axioms, char *pre_weights,
       }
    }
    *OCBFunWeightPos(ocb, SIG_TRUE_CODE) = ocb->var_weight;
+   *OCBFunWeightPos(ocb, ocb->sig->app_var_code) = 0;
 
    if(pre_weights)
    {
