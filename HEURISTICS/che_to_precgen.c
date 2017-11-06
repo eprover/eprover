@@ -170,11 +170,11 @@ static void generate_unary_first_precedence(OCB_p ocb, ClauseSet_p axioms)
       arity = SigFindArity(ocb->sig, i);
       if(arity == 1)
       {
-    array->array[i].key1 = INT_MAX;
+        array->array[i].key1 = INT_MAX;
       }
       else
       {
-    array->array[i].key1 = arity;
+        array->array[i].key1 = arity;
       }
    }
    FCodeFeatureArraySort(array);
