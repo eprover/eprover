@@ -288,8 +288,12 @@ long compute_pos_into_pm_term(ParamodInfo_p pminfo,
    UnificationResult unif_res;
 
    /*printf("\n@i %ld\n", DebugCount); */
-   if(!UnifFailed((unif_res = SubstMguPossiblyPartial(olterm, into_clauses->term, subst, pminfo->bank->sig))))
+   if(!UnifFailed((unif_res = SubstMguPossiblyPartial(olterm, into_clauses->term, subst, pminfo->bank->sig)))
+        && (!(unif_res.term_remaining > 0) || unif_res.term_side == RightTerm))
    {
+      // TERM FROM HAS TO MATCH FULLY... TERM INTO CAN MATCH PARTIALLY
+
+
       /* Check from-clause ordering constraints */
       /* printf("# Mgu into:\n");
       SubstPrint(stdout, subst, pminfo->bank->sig, DEREF_ALWAYS);
@@ -512,7 +516,8 @@ long compute_pos_from_pm_term(ParamodInfo_p pminfo,
    UnificationResult unif_res;
 
    /*printf("\n@f %ld\n", DebugCount); */
-   if(!UnifFailed(unif_res = SubstMguPossiblyPartial(olterm, from_clauses->term, subst)))
+   if(!UnifFailed(unif_res = SubstMguPossiblyPartial(olterm, from_clauses->term, subst))
+       && (!(unif_res.remaining_args > 0) || unif_res.term_side == LeftSide))
    {
       /* Check into-clause ordering constraints */
       /* printf("# Mgu from:\n");
