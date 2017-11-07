@@ -659,6 +659,31 @@ Term_p applied_var_deref(Term_p orig)
    return res;
 }
 
+__inline__ Term_p MakeRewrittenTerm(Term_p orig, Term_p new, int remaining_orig)
+{
+   if (remaining_orig)
+   {
+      Term_p new_term = TermTopAlloc(new->f_code, new->arity + remaining_orig);
+      new_term->type = orig->type; // no inference after this step -- speedup.
+      new_term->properties = new->properties;
+
+      for(int i=0; i < new->arity; i++)
+      {
+         new_term->args[i] = new->args[i];
+      }
+      for(int i=orig->arity - remaining_orig, j=0; i < orig->arity; i++, j++)
+      {
+         new_term->args[j + new->arity] = orig->args[i];
+      }
+
+      return new_term;
+   }
+   else
+   {
+      return new;
+   }
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

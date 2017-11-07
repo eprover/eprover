@@ -725,6 +725,18 @@ __inline__ bool SubstMguComplete(Term_p t, Term_p s, Subst_p subst, Sig_p sig)
       return !UnifFailed(res) && res.term_remaining == 0;
    }  
 }
+
+__inline__ int SubstMatchPossiblyPartial(Term_p t, Term_p s, Subst_p subst, Sig_p sig)
+{
+   if (ProblemIsHO == PROBLEM_NOT_HO)
+   {
+      return SubstComputeMatch(t, s, subst) ? 0 : NOT_MATCHED;
+   }
+   else
+   {
+      return SubstComputeMatchHO(t, s, subst, sig);
+   }
+}
 #endif
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

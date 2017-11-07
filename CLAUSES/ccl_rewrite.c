@@ -156,11 +156,13 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
    ClausePrint(stdout, new_demod, true);
    printf("\n");*/
    BWRWMatchAttempts++;
-   if(SubstComputeMatch(eqn->lterm, term, subst))
+   int remains =  NOT_MATCHED;
+   if((remains = SubstMatchPossiblyPartial(eqn->lterm, term, subst, bank->sig)) != NOT_MATCHED)
    {
       BWRWMatchSuccesses++;
+      assert(ProblemIsHO == PROBLEM_NOT_HO || !remains);
       if((EqnIsOriented(eqn)
-     || instance_is_rule(ocb, eqn->bank, eqn->lterm, eqn->rterm, subst)))
+            || instance_is_rule(ocb, eqn->bank, eqn->lterm, eqn->rterm, subst)))
       {
          if(!EqnIsOriented(eqn) || /* Only a performance hack */
             !SubstIsRenaming(subst))
@@ -175,7 +177,7 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
          }
          if(!TermIsRewritten(term) || (res == RWAlwaysRewritable))
          {
-            rterm = TBInsertInstantiated(bank, eqn->rterm);
+            rterm = TBInsertInstantiated(bank, MakeRewrittenTerm(term, eqn->rterm, remains));
             TermAddRWLink(term, rterm, new_demod, ClauseIsSOS(new_demod), res);
          }
       }
@@ -187,19 +189,19 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
       !EqnIsOriented(eqn))
    {
       BWRWMatchAttempts++;
-      if(SubstComputeMatch(eqn->rterm, term, subst))
+      if((remains = SubstMatchPossiblyPartial(eqn->rterm, term, subst, bank->sig)) != NOT_MATCHED)
       {
          BWRWMatchSuccesses++;
-    if(instance_is_rule(ocb, eqn->bank, eqn->rterm, eqn->lterm, subst))
-       /* If instance is rule -> subst is no renaming! */
-    {
-            assert(!SubstIsRenaming(subst));
-            TermCellSetProp(term, TPIsRRewritable|TPIsRewritable);
-       res = RWAlwaysRewritable;
+         if(instance_is_rule(ocb, eqn->bank, eqn->rterm, eqn->lterm, subst))
+          /* If instance is rule -> subst is no renaming! */
+         {
+               assert(!SubstIsRenaming(subst));
+               TermCellSetProp(term, TPIsRRewritable|TPIsRewritable);
+               res = RWAlwaysRewritable;
 
-            rterm = TBInsertInstantiated(bank, eqn->lterm);
-            TermAddRWLink(term, rterm, new_demod, ClauseIsSOS(new_demod), res);
-    }
+               rterm = TBInsertInstantiated(bank, MakeRewrittenTerm(term, eqn->lterm, remains));
+               TermAddRWLink(term, rterm, new_demod, ClauseIsSOS(new_demod), res);
+         }
       }
    }
    SubstDelete(subst);
@@ -925,7 +927,8 @@ static long term_find_rw_clauses(Clause_p demod,
    assert(!TermIsVar(term));
 
    BWRWMatchAttempts++;
-   if(SubstComputeMatch(lterm, term, subst))
+   int remains = NOT_MATCHED;
+   if((remains = SubstMatchPossiblyPartial(lterm, term, subst, ocb->sig)) != NOT_MATCHED)
    {
       BWRWMatchSuccesses++;
       if(oriented
@@ -947,7 +950,7 @@ static long term_find_rw_clauses(Clause_p demod,
          }
          if(!TermIsRewritten(term) || (rwres == RWAlwaysRewritable))
          {
-            rterm = TBInsertInstantiated(eqn->bank, rterm);
+            rterm = TBInsertInstantiated(eqn->bank, MakeRewrittenTerm(term, rterm, remains));
             TermAddRWLink(term, rterm, demod, ClauseIsSOS(demod), rwres);
             //TermDeleteRWLink(term);
          }

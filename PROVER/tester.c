@@ -1636,6 +1636,14 @@ int main(int argc, char* argv[])
       {
          Error("App var code does not have weight 0.", SYNTAX_ERROR);
       }
+      if (OCBFunWeight(proofcontrol->ocb, proofstate->signature->app_var_code) != 0)
+      {
+         Error("App var code does not have weight 0.", SYNTAX_ERROR);
+      }
+      if (proofcontrol->ocb->type != KBO6)
+      {
+         Error("KBO 6 is not set even though the problem is HO.", SYNTAX_ERROR);
+      }
       test_kbo(proofstate, proofcontrol);
    }
    else
