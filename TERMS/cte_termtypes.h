@@ -203,6 +203,12 @@ typedef uintptr_t DerefType, *DerefType_p;
 #define TermIsTopRewritten(term) (TermIsRewritten(term)&&TermRWDemodField(term))
 #define TermIsShared(term)       TermCellQueryProp((term), TPIsShared)
 
+#ifdef ENABLE_LFHO
+Term_p  MakeRewrittenTerm(Term_p orig, Term_p new, int orig_remains);
+#else
+#define MakeRewrittenTerm(orig, new, remains) (new)
+#endif
+
 #define TermNFDate(term,i) (TermIsRewritten(term)?\
                            SysDateCreationTime():(term)->rw_data.nf_date[i])
 

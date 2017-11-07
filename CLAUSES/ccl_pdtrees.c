@@ -1462,31 +1462,7 @@ Term_p MIGetRewrittenTerm(MatchInfo_p mi, Term_p original)
    {
       Term_p other_side = ClausePosGetOtherSide(mi->matcher);
       int remaining_orig = mi->remaining_on_stack;
-      if (remaining_orig)
-      {
-         Term_p new_term = TermTopAlloc(other_side->f_code, other_side->arity + remaining_orig);
-
-         /* Copying everthing that makes sense! */
-         //new_term->head_type = other_side->head_type;
-         // Rewriting keeps the type
-         new_term->type = original->type; // no inference after this step -- speedup.
-         new_term->properties = other_side->properties;
-
-         for(int i=0; i < other_side->arity; i++)
-         {
-            new_term->args[i] = other_side->args[i];
-         }
-         for(int i=original->arity - remaining_orig, j=0; i < original->arity; i++, j++)
-         {
-            new_term->args[j + other_side->arity] = original->args[i];
-         }
-
-         return new_term;
-      }
-      else
-      {
-         return other_side;
-      }
+      return MakeRewrittenTerm(original, other_side, remaining_orig);
    }
 }
 /*---------------------------------------------------------------------*/
