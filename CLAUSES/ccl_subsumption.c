@@ -1,3 +1,4 @@
+
 /*-----------------------------------------------------------------------
 
 File  : ccl_subsumption.c
@@ -248,28 +249,35 @@ static bool eqn_subsumes_termpair(Eqn_p eqn, Term_p t1, Term_p t2)
    {
       if(t1->f_code != t2->f_code || !t1->arity)
       {
-    break;
+        break;
       }
+#ifdef ENABLE_LFHO
+      if (t1->arity != t2->arity)
+      {
+        break; // do not try arguments if the number does not match
+      }
+#else
       assert(t1->arity == t2->arity);
+#endif
 
       tmp1 = NULL;
       tmp2 = NULL;
 
       for(i=0; i<t1->arity; i++)
       {
-    if(t1->args[i] != t2->args[i])
-    {
-       if(tmp1)
-       {
-          return false;
-       }
-       tmp1 = t1->args[i];
-       tmp2 = t2->args[i];
-    }
+        if(t1->args[i] != t2->args[i])
+        {
+           if(tmp1)
+           {
+              return false;
+           }
+           tmp1 = t1->args[i];
+           tmp2 = t2->args[i];
+        }
       }
       if(!tmp1)
       {
-    return true;
+        return true;
       }
       t1 = tmp1;
       t2 = tmp2;
