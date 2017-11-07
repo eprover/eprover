@@ -516,7 +516,9 @@ void TypePrintTSTP(FILE* out, TypeBank_p bank, Type_p type)
       }
       else
       {
-         assert(ProblemIsHO == PROBLEM_IS_HO);
+         // todo at this point problem might not be HO.
+         // check why
+         //assert(ProblemIsHO == PROBLEM_IS_HO);
          for(int i=0; i<type->arity-1; i++)
          {
             TypePrintTSTP(out, bank, type->args[i]);

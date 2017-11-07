@@ -601,7 +601,8 @@ static CompareResult kbolincmp_ho(OCB_p ocb, Term_p s, Term_p t,
 
    if(s->f_code == t->f_code)
    {
-      bool done = false;
+      // if we have two constants of the same fun code, there's nothing to update.
+      bool done = s->arity == t->arity ? s->arity == 0 : false;
       int i = 0;
       while(!done)
       {
