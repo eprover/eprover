@@ -68,6 +68,7 @@ bool TOGreater(OCB_p ocb, Term_p s, Term_p t, DerefType deref_s,
    assert(ocb);
    assert(s);
    assert(t);
+   assert(ProblemIsHO != PROBLEM_NOT_HO || ocb->type == KBO6);
 
    /* OCBDebugPrint(stdout, ocb); */
    /* printf("TOGreater...\n");

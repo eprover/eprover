@@ -85,6 +85,8 @@ int SubstMatchPossiblyPartial(Term_p t, Term_p s, Subst_p subst, Sig_p sig);
 #define SubstMatchPossiblyPartial(t, s, subst, sig)  (SubstComputeMatch(t, s, subst) ? 0 : NOT_MATCHED)
 #endif
 
+UnificationResult SubstMguPossiblyPartial(Term_p t, Term_p s, Subst_p subst, Sig_p sig);
+
 
 
 #define VerifyMatch(matcher, to_match) \
