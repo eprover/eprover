@@ -1418,10 +1418,10 @@ void test_kbo(ProofState_p p, ProofControl_p c)
    Term_p   tc6_r   = tc6_cl->literals->lterm;
    perform_kbo_test(c->ocb, tc6_l, tc6_r, to_greater);
 
-   /* TC7: h @ (f3 @ X @ Y @ Z) @ (W @ c @ d) < h @ (g2 @ X @ c) @ (f3 @ a @ b @ c) */
+   /* TC7: h @ (f3 @ X @ Y @ Z) @ (W @ c @ d) > h @ (g2 @ X @ c) @ (f3 @ a @ b @ c) */
    Clause_p tc7_cl  = get_clause_by_nr(p->axioms, 11);
-   Term_p   tc7_l   = tc7_cl->literals->rterm;
-   Term_p   tc7_r   = tc7_cl->literals->lterm;
+   Term_p   tc7_l   = tc7_cl->literals->lterm;
+   Term_p   tc7_r   = tc7_cl->literals->rterm;
    perform_kbo_test(c->ocb, tc7_l, tc7_r, to_greater);
 
    /* TC8: f2 @ X @ Z ? f2 @ Y @ X */
@@ -1626,11 +1626,15 @@ int main(int argc, char* argv[])
    {
       if (OCBFunCompare(proofcontrol->ocb, SigFindFCode(proofstate->signature, "a"), SigFindFCode(proofstate->signature, "b"))
           != to_greater || OCBFunCompare(proofcontrol->ocb, SigFindFCode(proofstate->signature, "c"), SigFindFCode(proofstate->signature, "d"))
-          != to_greater || OCBFunCompare(proofcontrol->ocb, SigFindFCode(proofstate->signature, "g2"), SigFindFCode(proofstate->signature, "f3"))
+          != to_greater || OCBFunCompare(proofcontrol->ocb, SigFindFCode(proofstate->signature, "f3"), SigFindFCode(proofstate->signature, "g2"))
           != to_greater)
       {
-         Error("E IS IGNORING YOUR PRECEDENCE!\n", SYNTAX_ERROR);
+         Error("E ignored your precedence (or you typed it wrong more likely).", SYNTAX_ERROR);
 
+      }
+      if (OCBFunWeight(proofcontrol->ocb, proofstate->signature->app_var_code) != 0)
+      {
+         Error("App var code does not have weight 0.", SYNTAX_ERROR);
       }
       test_kbo(proofstate, proofcontrol);
    }
