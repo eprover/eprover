@@ -1321,6 +1321,116 @@ void test_subsumption(ProofState_p p)
    perform_subsumption_test(set, get_clause_by_nr(p->axioms, 4), NULL, p->signature);
 }
 
+CompareResult invert(CompareResult x)
+{
+   switch(x)
+   {
+      case to_greater:
+         x = to_lesser;
+         break;
+      case to_lesser:
+         x = to_greater;
+         break;
+   }
+   return x;
+}
+
+extern char* POCompareSymbol[];
+void perform_one_kbo_test(OCB_p ocb, Term_p left, Term_p right, CompareResult exp)
+{
+   fprintf(stderr, "? comparing ");
+   TermPrint(stderr, left, ocb->sig, DEREF_NEVER);
+   fprintf(stderr, " and ");
+   TermPrint(stderr, right, ocb->sig, DEREF_NEVER);
+   fprintf(stderr, "\n");
+
+   CompareResult res =  KBO6Compare(ocb, left, right, DEREF_NEVER, DEREF_NEVER);
+   if (res == exp)
+   {
+      fprintf(stderr, "+ test case passed with result %s\n", POCompareSymbol[res]);
+   }
+   else
+   {
+      fprintf(stderr, "- test case failed - exp = %s, res = %s\n",
+                      POCompareSymbol[exp], POCompareSymbol[res]);
+   }
+}
+
+void perform_kbo_test(OCB_p ocb, Term_p left, Term_p right, CompareResult exp)
+{
+   static int tc_nr = 0;
+
+   fprintf(stderr, "# KBO test case %d\n", ++tc_nr);
+   perform_one_kbo_test(ocb, left, right, exp);
+
+   fprintf(stderr, "# KBO test case %d\n", ++tc_nr);
+   perform_one_kbo_test(ocb, right, left, invert(exp));
+}
+
+void test_kbo(ProofState_p p, ProofControl_p c)
+{
+   /*
+   1   tcf(i_0_29, plain, ![X11:t, X12:t, X10:t]:f2(X10,X11)=f2(X12,X10)).
+   2   tcf(i_0_25, plain, ![X3:t > t > t, X2:t > t > t]:$@_var(X2,a,b)=$@_var(X3,a,b)).
+   3   tcf(i_0_24, plain, ![X1:t > t > t]:$@_var(X1,b,a)=$@_var(X1,a,b)).
+   4   tcf(i_0_21, plain, p2(f3(a,b))).
+   5   tcf(i_0_22, plain, p2(f3(c,d))).
+   6   tcf(i_0_26, plain, ![X4:t > t > t]:$@_var(X4,a,b)=f2(a,b)).
+   7   tcf(i_0_20, plain, p(f3(a,b,c))).
+   8   tcf(i_0_23, plain, p(f3(i,j,k))).
+   9   tcf(i_0_19, plain, g1(f1(f1(f0)))=f2(f1(f0),f0)).
+   10  tcf(i_0_27, plain, ![X5:t > t > t]:f3($@_var(X5,a,b),d,c)=f3($@_var(X5,a,b),c,d)).
+   11  tcf(i_0_28, plain, ![X7:t, X8:t, X9:t > t > t, X6:t]:h(f3(X6,X7,X8),$@_var(X9,c,d))=h(g2(X6,c),f3(a,b,c))).
+
+   */
+
+   /* TC 1: g1 @ (f1 @ (f1 @ f0)) > f2 @ (f1 @ f0) @ f0 */
+   Clause_p tc1_cl   = get_clause_by_nr(p->axioms, 9);
+   Term_p   tc1_l    = tc1_cl->literals->lterm;
+   Term_p   tc1_r    = tc1_cl->literals->rterm;
+   perform_kbo_test(c->ocb, tc1_l, tc1_r, to_greater);
+
+   /* TC2: f3 @ a @ b @ c > f3 @ a @ b*/
+   Term_p   tc2_l   = get_term_from_clause(p->axioms, 7);
+   Term_p   tc2_r   = get_term_from_clause(p->axioms, 4);
+   perform_kbo_test(c->ocb, tc2_l, tc2_r, to_greater);
+
+   /* TC3: f3 @ c @ d < f3 @ i @ j @ k*/
+   Term_p   tc3_l   = get_term_from_clause(p->axioms, 5);
+   Term_p   tc3_r   = get_term_from_clause(p->axioms, 8);
+   perform_kbo_test(c->ocb, tc3_l, tc3_r, to_lesser);
+
+   /* TC4: X @ a @ b > X @ b @ a */
+   Clause_p tc4_cl  = get_clause_by_nr(p->axioms, 3);
+   Term_p   tc4_l   = tc4_cl->literals->rterm;
+   Term_p   tc4_r   = tc4_cl->literals->lterm;
+   perform_kbo_test(c->ocb, tc4_l, tc4_r, to_greater);
+
+   /* TC5: X @ a @ b > X @ b @ a */
+   Clause_p tc5_cl  = get_clause_by_nr(p->axioms, 2);
+   Term_p   tc5_l   = tc5_cl->literals->lterm;
+   Term_p   tc5_r   = tc5_cl->literals->rterm;
+   perform_kbo_test(c->ocb, tc5_l, tc5_r, to_uncomparable);
+
+   /* TC6: f3 @ (X @ a @ b) @ c @ d > f3 @ (X @ a @ b) @ d @ c */
+   Clause_p tc6_cl  = get_clause_by_nr(p->axioms, 10);
+   Term_p   tc6_l   = tc6_cl->literals->rterm;
+   Term_p   tc6_r   = tc6_cl->literals->lterm;
+   perform_kbo_test(c->ocb, tc6_l, tc6_r, to_greater);
+
+   /* TC7: h @ (f3 @ X @ Y @ Z) @ (W @ c @ d) < h @ (g2 @ X @ c) @ (f3 @ a @ b @ c) */
+   Clause_p tc7_cl  = get_clause_by_nr(p->axioms, 11);
+   Term_p   tc7_l   = tc7_cl->literals->rterm;
+   Term_p   tc7_r   = tc7_cl->literals->lterm;
+   perform_kbo_test(c->ocb, tc7_l, tc7_r, to_greater);
+
+   /* TC8: f2 @ X @ Z ? f2 @ Y @ X */
+   Clause_p tc8_cl  = get_clause_by_nr(p->axioms, 1);
+   Term_p   tc8_l   = tc8_cl->literals->lterm;
+   Term_p   tc8_r   = tc8_cl->literals->rterm;
+   perform_kbo_test(c->ocb, tc8_l, tc8_r, to_uncomparable);
+}
+
 int main(int argc, char* argv[])
 {
    int              retval = NO_ERROR;
@@ -1511,6 +1621,18 @@ int main(int argc, char* argv[])
    else if (strstr(state->argv[0], "lfho.subsumption"))
    {
       test_subsumption(proofstate);
+   }
+   else if (strstr(state->argv[0], "kbo"))
+   {
+      if (OCBFunCompare(proofcontrol->ocb, SigFindFCode(proofstate->signature, "a"), SigFindFCode(proofstate->signature, "b"))
+          != to_greater || OCBFunCompare(proofcontrol->ocb, SigFindFCode(proofstate->signature, "c"), SigFindFCode(proofstate->signature, "d"))
+          != to_greater || OCBFunCompare(proofcontrol->ocb, SigFindFCode(proofstate->signature, "g2"), SigFindFCode(proofstate->signature, "f3"))
+          != to_greater)
+      {
+         Error("E IS IGNORING YOUR PRECEDENCE!\n", SYNTAX_ERROR);
+
+      }
+      test_kbo(proofstate, proofcontrol);
    }
    else
    {

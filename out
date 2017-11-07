@@ -1,0 +1,76 @@
+eprover: Output is going to <stdout>
+# Had to insert type $o.
+# Had to insert type $i.
+# Had to insert type $tType.
+# Had to insert type $int.
+# Had to insert type $rat.
+# Had to insert type $real.
+# type declaration $true: $o
+# type declaration $false: $o
+# Had to insert type $i > $o.
+# type declaration $answer: $i > $o
+eprover: Trying file ./EXAMPLE_PROBLEMS/SMOKETEST/lfho.kbo.p
+eprover: Input file is ./EXAMPLE_PROBLEMS/SMOKETEST/lfho.kbo.p
+eprover: Opened ./EXAMPLE_PROBLEMS/SMOKETEST/lfho.kbo.p
+# setting the problem HO.
+# Had to insert type t.
+# type declaration f0: t
+# Had to insert type t > t.
+# type declaration f1: t > t
+# Had to insert type t > t > t.
+# type declaration f2: t > t > t
+# Had to insert type t > t > t > t.
+# type declaration f3: t > t > t > t
+# type declaration g1: t > t
+# type declaration g2: t > t > t
+# type declaration h: t > t > t
+# type declaration a: t
+# type declaration b: t
+# type declaration c: t
+# type declaration d: t
+# type declaration e: t
+# type declaration i: t
+# type declaration j: t
+# type declaration k: t
+# Had to insert type t > $o.
+# type declaration p: t > $o
+# Had to insert type t > t > $o.
+# type declaration p2: t > t > $o
+Alloc variable X with sort t > t > t
+Alloc no sort X
+Alloc no sort X
+Alloc variable X with sort t > t > t
+Alloc variable Y with sort t > t > t
+Alloc no sort X
+Alloc no sort Y
+Alloc variable X with sort t > t > t
+Alloc no sort X
+Alloc variable X with sort t > t > t
+Alloc no sort X
+Alloc no sort X
+Alloc variable X with sort t
+Alloc variable Y with sort t
+Alloc variable Z with sort t
+Alloc variable W with sort t > t > t
+Alloc no sort X
+Alloc no sort Y
+Alloc no sort Z
+Alloc no sort W
+Alloc no sort X
+Alloc variable X with sort t
+Alloc variable Y with sort t
+Alloc variable Z with sort t
+Alloc no sort X
+Alloc no sort Z
+Alloc no sort Y
+Alloc no sort X
+eprover: Closing ./EXAMPLE_PROBLEMS/SMOKETEST/lfho.kbo.p
+eprover: Specification read
+eprover: Garbage collection started.
+Garbage collection reclaimed 49 unused term cells.
+eprover: Garbage collection started.
+Garbage collection reclaimed 12 unused term cells.
+eprover: CNFization done
+preproc removed : 18
+Should sort now.
+eprover: Parsing a user provided string: "h>g1>g2>f3>f2>f1>f0>i>j>k>a>b>c>d1234":1:(Column 33): d1234 undeclared!
