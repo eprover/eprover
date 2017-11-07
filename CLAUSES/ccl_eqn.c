@@ -1820,11 +1820,11 @@ bool EqnUnifyDirected(Eqn_p eq1, Eqn_p eq2, Subst_p subst)
    PStackPointer backtrack = PStackGetSP(subst);
    bool res;
 
-   res = SubstComputeMgu(eq1->lterm, eq2->lterm, subst);
+   res = SubstMguComplete(eq1->lterm, eq2->lterm, subst, eq1->bank->sig);
    if(res)
    {
-      res = SubstComputeMgu(eq1->rterm,
-               eq2->rterm, subst);
+      res = SubstMguComplete(eq1->rterm,
+               eq2->rterm, subst, eq1->bank->sig);
    }
    if(!res)
    {
@@ -1917,11 +1917,11 @@ bool LiteralUnifyOneWay(Eqn_p eq1, Eqn_p eq2, Subst_p subst, bool swapped)
    {
       EqnSwapSides(eq2);
    }
-   res = SubstComputeMgu(eq1->lterm, eq2->lterm, subst);
+   res = SubstMguComplete(eq1->lterm, eq2->lterm, subst, eq1->bank->sig);
    if(res)
    {
-      res = SubstComputeMgu(eq1->rterm,
-                            eq2->rterm, subst);
+      res = SubstMguComplete(eq1->rterm,
+                             eq2->rterm, subst, eq1->bank->sig);
    }
    if(!res)
    {
