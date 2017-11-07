@@ -743,7 +743,7 @@ UnificationResult SubstMguPossiblyPartial(Term_p t, Term_p s, Subst_p subst, Sig
 {
    if (ProblemIsHO == PROBLEM_NOT_HO)
    {
-      return (UnificationResult) {SubstComputeMgu(t,s,subst) ? NoTerm : RightTerm, 0};
+      return (UnificationResult) {SubstComputeMgu(t,s,subst) ? RightTerm : NoTerm, 0};
    }
    else
    {

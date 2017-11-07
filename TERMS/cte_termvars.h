@@ -111,7 +111,7 @@ long   VarBankCollectVars(VarBank_p bank, PStack_p stack);
 #ifdef NDEBUG
 #define VarBankResetVCount(bank) ((bank)->v_count = 0)
 #else
-#define VarBankResetVCount(bank) ((void)VarBankGetVCount(bank) /*(bank)->v_count = 0*/)
+#define VarBankResetVCount(bank) (/*(void)VarBankGetVCount(bank)*/ (bank)->v_count = 0)
 #endif
 
 //#define VarBankResetVCount(bank) ((bank)->v_count = 0)
