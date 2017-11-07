@@ -45,7 +45,7 @@ thf(a8, axiom, ![X: t>t>t]: X @ a @ b = f2 @ a @ b).
 %-- more complicated case of lexicographic comparison l > r
 thf(a9, axiom, ![X: t>t>t]: f3 @ (X @ a @ b) @ c @ d = f3 @ (X @ a @ b) @ d @ c).
 
-%-- another complicated case of lexicographic comparison l < r cause w(arg1 ) = w(arg1) and g2 > f3
+%-- another complicated case of lexicographic comparison l . r cause w(arg1 ) = w(arg1) because f3 > g2
 thf(a10, axiom, ![X: t, Y:t, Z:t, W:t>t>t]: h @ (f3 @ X @ Y @ Z) @ (W @ c @ d) = h @ (g2 @ X @ c) @ (f3 @ a @ b @ c)).
 
 %-- one where var condition fails -- uncomparable
