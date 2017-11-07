@@ -285,9 +285,10 @@ long compute_pos_into_pm_term(ParamodInfo_p pminfo,
    Subst_p          subst = SubstAlloc();
    Term_p           max_side, rep_side;
    bool             sim_pm;
+   UnificationResult unif_res;
 
    /*printf("\n@i %ld\n", DebugCount); */
-   if(SubstComputeMgu(olterm, into_clauses->term, subst))
+   if(!UnifFailed((unif_res = SubstMguPossiblyPartial(olterm, into_clauses->term, subst, pminfo->bank->sig))))
    {
       /* Check from-clause ordering constraints */
       /* printf("# Mgu into:\n");
@@ -296,6 +297,7 @@ long compute_pos_into_pm_term(ParamodInfo_p pminfo,
 
       max_side = ClausePosGetSide(pminfo->from_pos);
       rep_side = ClausePosGetOtherSide(pminfo->from_pos);
+      pminfo->remaining_args = unif_res.term_remaining;
 
       if((EqnIsOriented(pminfo->from_pos->literal) ||
           !TOGreater(pminfo->ocb, rep_side, max_side, DEREF_ALWAYS,

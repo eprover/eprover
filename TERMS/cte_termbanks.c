@@ -718,6 +718,7 @@ Term_p TBInsertOpt(TB_p bank, Term_p term, DerefType deref)
 
    term = TermDeref(term, &deref);
 
+   // in HO case the ground property will not be set
    if(TermIsGround(term))
    {
       return term;

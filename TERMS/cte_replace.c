@@ -156,8 +156,8 @@ Term_p TermFollowRWChain(Term_p term)
 //
 /----------------------------------------------------------------------*/
 
-Term_p TBTermPosReplace(TB_p bank, Term_p repl, TermPos_p pos,
-         DerefType deref)
+Term_p TBTermPosReplace(TB_p bank, Term_p repl, TermPos_p pos, 
+         DerefType deref, int remains)
 {
    Term_p        handle, old;
    int           subscript;
@@ -185,7 +185,20 @@ Term_p TBTermPosReplace(TB_p bank, Term_p repl, TermPos_p pos,
       old = PStackElementP(pos, i);
       handle = TermTopCopy(old);
       assert(handle->arity > subscript);
+#ifdef ENABLE_LFHO
+      if (remains != -1)
+      {
+         handle->args[subscript] = MakeRewrittenTerm(handle->args[subscript], repl, remains);  
+      }
+      else
+      {
+         handle->args[subscript] = repl;
+         remains = -1;
+      }
+#else
       handle->args[subscript] = repl;
+#endif
+      
       PStackPushP(store, handle);
       repl = handle;
    }

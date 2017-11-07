@@ -203,7 +203,7 @@ Clause_p ClausePlainParamodConstruct(ParamodInfo_p ol_desc)
    into_rhs = ClausePosGetOtherSide(ol_desc->into_pos);
    new_lhs = TBTermPosReplace(ol_desc->bank, from_rhs,
                               ol_desc->into_pos->pos,
-                              DEREF_ALWAYS);
+                              DEREF_ALWAYS, ol_desc->remaining_args);
 
    new_rhs = TBInsertOpt(ol_desc->bank,
                          into_rhs,
@@ -285,7 +285,9 @@ Clause_p ClauseSimParamodConstruct(ParamodInfo_p ol_desc)
    assert(ClausePosGetSide(ol_desc->from_pos)->type == ClausePosGetOtherSide(ol_desc->from_pos)->type);
 
    rhs_instance = TBInsertNoProps(ol_desc->bank,
-                                  ClausePosGetOtherSide(ol_desc->from_pos),
+                                  MakeRewrittenTerm(ClausePosGetSide(ol_desc->from_pos),
+                                                    ClausePosGetOtherSide(ol_desc->from_pos),
+                                                    ol_desc->remaining_args),
                                   DEREF_ALWAYS);
    into_copy = EqnListCopyRepl(ol_desc->into->literals,
                                ol_desc->bank, into_term, rhs_instance);
@@ -388,7 +390,7 @@ Term_p ComputeOverlap(TB_p bank, OCB_p ocb, ClausePos_p from, Term_p
 {
    Term_p        new_rside = NULL, sub_into, max_side, rep_side;
    PStackPointer oldstate;
-   bool          unify_success;
+   UnificationResult  unify_res;
 
    assert(from->side == LeftSide || !EqnIsOriented(from->literal));
    assert(EqnIsPositive(from->literal));
@@ -403,24 +405,24 @@ Term_p ComputeOverlap(TB_p bank, OCB_p ocb, ClausePos_p from, Term_p
 
    oldstate = PStackGetSP(subst);
 
-   unify_success = SubstComputeMgu(max_side, sub_into, subst);
+   unify_res = SubstMguPossiblyPartial(max_side, sub_into, subst, bank->sig);
 
-   if(unify_success)
+   if(!UnifFailed(unify_res))
    {
       if(!EqnIsOriented(from->literal)
-    && TOGreater(ocb, rep_side, max_side, DEREF_ALWAYS,
-            DEREF_ALWAYS))
+          && TOGreater(ocb, rep_side, max_side, DEREF_ALWAYS,
+                  DEREF_ALWAYS))
       {
-    SubstBacktrackToPos(subst, oldstate);
+         SubstBacktrackToPos(subst, oldstate);
       }
       else
       {
-    /* We need to get consistent variables _before_ inserting the
-       newly generated term into the term bank ! */
-    SubstNormTerm(into, subst, freshvars);
-    SubstNormTerm(rep_side, subst, freshvars);
-    new_rside = TBTermPosReplace(bank, rep_side, pos,
-                  DEREF_ALWAYS);
+         /* We need to get consistent variables _before_ inserting the
+            newly generated term into the term bank ! */
+         SubstNormTerm(into, subst, freshvars);
+         SubstNormTerm(rep_side, subst, freshvars);
+         new_rside = TBTermPosReplace(bank, rep_side, pos,
+                       DEREF_ALWAYS, unify_res.term_remaining);
       }
    }
    return new_rside;
@@ -613,14 +615,14 @@ Clause_p ClauseOrderedSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
    Term_p    rhs_instance, from_term, into_term;
    Eqn_p     into_copy, from_copy;
    Subst_p   subst;
-   bool      unify_success;
+   UnificationResult unify_res;
 
    assert(EqnIsMaximal(from->literal));
    assert(!EqnIsOriented(from->literal)||(from->side==LeftSide));
    assert(!TermIsVar(ClausePosGetSide(from))||
      EqnIsEquLit(into->literal)||!TermPosIsTopPos(into->pos));
 
-      into_term = ClausePosGetSubterm(into);
+   into_term = ClausePosGetSubterm(into);
 
    if(!TermCellQueryProp(into_term, TPPotentialParamod))
    {
@@ -629,8 +631,8 @@ Clause_p ClauseOrderedSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
    from_term = ClausePosGetSide(from);
    subst = SubstAlloc();
    VarBankResetVCount(freshvars);
-   unify_success = SubstComputeMgu(from_term, into_term, subst);
-   if(!unify_success ||
+   unify_res = SubstMguPossiblyPartial(from_term, into_term, subst, bank->sig);
+   if(UnifFailed(unify_res) ||
       (!EqnIsOriented(from->literal) &&
        TOGreater(ocb, ClausePosGetOtherSide(from), from_term,
                  DEREF_ALWAYS, DEREF_ALWAYS)))
@@ -680,7 +682,8 @@ Clause_p ClauseOrderedSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
       NormSubstEqnListExcept(into->clause->literals, NULL, subst, freshvars);
       NormSubstEqnListExcept(from->clause->literals, NULL, subst, freshvars);
       rhs_instance = TBInsertNoProps(bank,
-                                     ClausePosGetOtherSide(from),
+                                     MakeRewrittenTerm(into_term, ClausePosGetOtherSide(from), 
+                                                       unify_res.term_remaining),
                                      DEREF_ALWAYS);
       into_copy = EqnListCopyRepl(into->clause->literals,
                                   bank, into_term, rhs_instance);

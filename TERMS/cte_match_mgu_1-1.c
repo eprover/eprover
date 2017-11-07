@@ -738,6 +738,18 @@ __inline__ int SubstMatchPossiblyPartial(Term_p t, Term_p s, Subst_p subst, Sig_
    }
 }
 #endif
+
+UnificationResult SubstMguPossiblyPartial(Term_p t, Term_p s, Subst_p subst, Sig_p sig)
+{
+   if (ProblemIsHO == PROBLEM_NOT_HO)
+   {
+      return (UnificationResult) {SubstComputeMgu(t,s,subst) ? NoTerm : RightTerm, 0};
+   }
+   else
+   {
+      return SubstComputeMguHO(t,s,subst,sig);
+   }
+}
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

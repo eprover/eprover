@@ -59,6 +59,7 @@ typedef struct
    Clause_p    into;
    CompactPos  into_cpos;
    ClausePos_p into_pos;
+   int         remaining_args;
 }ParamodInfoCell, *ParamodInfo_p;
 
 
