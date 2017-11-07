@@ -516,8 +516,8 @@ long compute_pos_from_pm_term(ParamodInfo_p pminfo,
    UnificationResult unif_res;
 
    /*printf("\n@f %ld\n", DebugCount); */
-   if(!UnifFailed(unif_res = SubstMguPossiblyPartial(olterm, from_clauses->term, subst))
-       && (!(unif_res.remaining_args > 0) || unif_res.term_side == LeftSide))
+   if(!UnifFailed(unif_res = SubstMguPossiblyPartial(olterm, from_clauses->term, subst, pminfo->bank->sig))
+       && (!(unif_res.term_remaining > 0) || unif_res.term_side == LeftTerm))
    {
       /* Check into-clause ordering constraints */
       /* printf("# Mgu from:\n");

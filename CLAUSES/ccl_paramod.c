@@ -408,7 +408,7 @@ Term_p ComputeOverlap(TB_p bank, OCB_p ocb, ClausePos_p from, Term_p
    unify_res = SubstMguPossiblyPartial(max_side, sub_into, subst, bank->sig);
 
    if(!UnifFailed(unify_res) && 
-       (!(unif_res.remaining_args > 0) || unif_res.term_side == RightSide))
+       (!(unify_res.term_remaining > 0) || unify_res.term_side == RightTerm))
    {
       // if we match from from to into -- into can be missing arguments
       if(!EqnIsOriented(from->literal)
@@ -634,7 +634,7 @@ Clause_p ClauseOrderedSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
    subst = SubstAlloc();
    VarBankResetVCount(freshvars);
    unify_res = SubstMguPossiblyPartial(from_term, into_term, subst, bank->sig);
-   if((UnifFailed(unify_res) || (!(unif_res.term_remaining > 0) || unif_res.term_side == RightSide) ||
+   if((UnifFailed(unify_res) || (!(unify_res.term_remaining > 0) || unify_res.term_side == RightTerm)) ||
       (!EqnIsOriented(from->literal) &&
        TOGreater(ocb, ClausePosGetOtherSide(from), from_term,
                  DEREF_ALWAYS, DEREF_ALWAYS)))
