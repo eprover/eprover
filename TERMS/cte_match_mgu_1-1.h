@@ -69,7 +69,7 @@ bool SubstComputeMatch(Term_p matcher, Term_p to_match, Subst_p subst);
 bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst);
 
 // HO matching and unification
-int  PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig);
+int  PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig, bool perform_occur_check);
 int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, Sig_p sig);
 UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p sig);
 

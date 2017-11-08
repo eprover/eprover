@@ -631,8 +631,14 @@ Term_p applied_var_deref(Term_p orig)
    {
       assert(orig->args[0] != orig->args[0]->binding);
 
-      res = TermTopCopy(orig);
+      res = TermTopAlloc(orig->f_code, orig->arity);
+      res->properties = orig->properties;
+      res->type = orig->type;
       res->args[0] = orig->args[0]->binding;
+      for(int i=1; i<orig->arity; i++)
+      {
+         res->args[i] = orig->args[i];
+      }
    }
    else
    {

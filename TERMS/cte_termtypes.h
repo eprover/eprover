@@ -161,7 +161,7 @@ typedef uintptr_t DerefType, *DerefType_p;
 #define TERMCELL_DYN_MEM (TERMCELL_MEM+4*TERMARG_MEM)
 
 #ifdef ENABLE_LFHO
-#define CAN_DEREF(term) (((term)->binding && TermIsVar(term)) || (TermIsAppliedVar(term) && term->args[0]->binding))
+#define CAN_DEREF(term) (((term)->binding) || (TermIsAppliedVar(term) && term->args[0]->binding))
 #else
 #define CAN_DEREF(term) (((term)->binding))
 #endif
@@ -297,10 +297,14 @@ static __inline__ Term_p deref_step(Term_p orig)
    // assert(bank != NULL || orig->arity == 0);
    if (TermIsVar(orig))
    {
+      assert(orig->binding != orig);
+
+      //fprintf(stderr, "Derefing normal var bind %p orig %p bind->bind %p\n", orig->binding, orig, orig->binding->binding);
       return orig->binding;
    }
    else
    {
+      //fprintf(stderr, "Derefing app var\n");
       return applied_var_deref(orig);
    }
 }

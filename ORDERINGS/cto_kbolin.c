@@ -711,6 +711,8 @@ static CompareResult kbolincmp_ho(OCB_p ocb, Term_p s, Term_p t,
          }
       }
    }
+
+
    return res;
 }
 

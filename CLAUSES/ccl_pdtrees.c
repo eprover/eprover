@@ -578,7 +578,7 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
              }
              else
              {
-               int matched_up_to = PartiallyMatchVar(next->variable, term, tree->sig);
+               int matched_up_to = PartiallyMatchVar(next->variable, term, tree->sig, false);
                if (matched_up_to != NOT_MATCHED)
                {
                   SubstBindAppVar(subst, next->variable, term, matched_up_to);
