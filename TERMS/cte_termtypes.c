@@ -629,6 +629,8 @@ Term_p applied_var_deref(Term_p orig)
 
    if (TermIsVar(orig->args[0]->binding))
    {
+      assert(orig->args[0] != orig->args[0]->binding);
+
       res = TermTopCopy(orig);
       res->args[0] = orig->args[0]->binding;
    }
@@ -636,6 +638,8 @@ Term_p applied_var_deref(Term_p orig)
    {
       Term_p bound = orig->args[0]->binding;
       int arity = bound->arity + orig->arity-1;
+
+      fprintf(stderr, "Derefing something more complex.\n");
 
       res = TermTopAlloc(bound->f_code, arity);
       res->args = TermArgArrayAlloc(arity);

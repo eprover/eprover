@@ -486,6 +486,12 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p s
    PStack_p jobs_t1 = PStackAlloc();
    PStack_p jobs_t2 = PStackAlloc();
 
+   /*fprintf(stderr, "\n? unifiying ");
+   TermPrint(stderr, t1, sig, DEREF_NEVER);
+   fprintf(stderr, " === ");
+   TermPrint(stderr, t2, sig, DEREF_NEVER);
+   fprintf(stderr, " . ");*/
+
    PStackPushP(jobs_t1, t1);
    PStackPushP(jobs_t2, t2);
 
@@ -493,12 +499,6 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p s
    {
       t1 = TermDerefAlways(PStackPopP(jobs_t1));
       t2 = TermDerefAlways(PStackPopP(jobs_t2));
-
-      /*fprintf(stderr, "\n? unifiying ");
-      TermPrint(stderr, t1, sig, DEREF_NEVER);
-      fprintf(stderr, " === ");
-      TermPrint(stderr, t2, sig, DEREF_NEVER);
-      fprintf(stderr, " . ");*/
 
       assert(t1->type);
       assert(t2->type);

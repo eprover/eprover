@@ -1044,7 +1044,8 @@ Term_p TermLRTraversePrevAppVar(PStack_p stack, Term_p original_term, Term_p var
    for(i=0; i<to_backtrack_nr; i++)
    {
       tmp = PStackPopP(stack);
-      UNUSED(tmp); assert(tmp == original_term->args[var->binding->arity + i]); // 0 based indexing
+      UNUSED(tmp); assert(tmp == original_term->args[var->binding->arity + i + 
+                                                     (TermIsAppliedVar(original_term) && TermIsVar(var->binding))]); // 0 based indexing
    }
    PStackPushP(stack, original_term);
 
@@ -1260,6 +1261,13 @@ void PDTreeSearchInit(PDTree_p tree, Term_p term, SysDate age_constr,
             bool prefer_general)
 {
    assert(!tree->term);
+
+   /*fprintf(stderr, "*** Started matchig for term ");
+   TermPrint(stderr, term, tree->sig, DEREF_NEVER);
+   fprintf(stderr, ".\n");
+
+   fprintf(stderr, "*** Currently in the tree\n");
+   PDTreePrint(stderr, tree);*/
 
    TermLRTraverseInit(tree->term_stack, term);
    PStackReset(tree->term_proc);

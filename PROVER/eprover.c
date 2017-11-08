@@ -405,6 +405,12 @@ int main(int argc, char* argv[])
                            error_on_empty, free_symb_prop,
                            &parsed_ax_no);
 
+   if (Verbose >= 1)
+   {
+      VERBOUT2("Parsed specification.");
+      FormulaSetPrint(stderr, proofstate->f_axioms, true);
+   }
+
    relevancy_pruned += ProofStateSinE(proofstate, sine);
    relevancy_pruned += ProofStatePreprocess(proofstate, relevance_prune_level);
 
@@ -464,6 +470,10 @@ int main(int argc, char* argv[])
    if(cnf_size)
    {
       VERBOUT("CNFization done\n");
+      if (Verbose)
+      {
+         ClauseSetPrint(stderr, proofstate->axioms, true);
+      }
    }
 
    raw_clause_no = proofstate->axioms->members;
