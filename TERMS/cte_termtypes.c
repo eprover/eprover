@@ -639,8 +639,6 @@ Term_p applied_var_deref(Term_p orig)
       Term_p bound = orig->args[0]->binding;
       int arity = bound->arity + orig->arity-1;
 
-      fprintf(stderr, "Derefing something more complex.\n");
-
       res = TermTopAlloc(bound->f_code, arity);
       res->args = TermArgArrayAlloc(arity);
 
