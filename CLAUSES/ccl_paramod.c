@@ -421,8 +421,8 @@ Term_p ComputeOverlap(TB_p bank, OCB_p ocb, ClausePos_p from, Term_p
       {
          /* We need to get consistent variables _before_ inserting the
             newly generated term into the term bank ! */
-         SubstNormTerm(into, subst, freshvars);
-         SubstNormTerm(rep_side, subst, freshvars);
+         SubstNormTerm(into, subst, freshvars, bank->sig);
+         SubstNormTerm(rep_side, subst, freshvars, bank->sig);
          new_rside = TBTermPosReplace(bank, rep_side, pos,
                        DEREF_ALWAYS, unify_res.term_remaining);
       }
@@ -474,7 +474,7 @@ Eqn_p  EqnOrderedParamod(TB_p bank, OCB_p ocb, ClausePos_p from,
       }
       else
       {
-    SubstNormTerm(rside, subst, freshvars);
+    SubstNormTerm(rside, subst, freshvars, bank->sig);
     new_rside = TBInsert(bank, rside, DEREF_ALWAYS);
 
     /* Optimize away trivial paramods... */

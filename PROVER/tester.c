@@ -1209,7 +1209,7 @@ void test_unification(ProofState_p p)
    Term_p xayb_copy = TermCopyKeepVars(xayb, DEREF_NEVER);
    
    Subst_p var_copy = SubstAlloc();
-   SubstNormTerm(xayb_copy, var_copy, p->freshvars);
+   SubstNormTerm(xayb_copy, var_copy, p->freshvars, p->signature);
    xayb_copy = TBInsert(p->terms, xayb_copy, DEREF_ALWAYS);
    SubstDelete(var_copy);
 
