@@ -148,7 +148,7 @@ int SubstBacktrack(Subst_p subst)
 //
 /----------------------------------------------------------------------*/
 
-PStackPointer SubstNormTerm(Term_p term, Subst_p subst, VarBank_p vars)
+PStackPointer SubstNormTerm(Term_p term, Subst_p subst, VarBank_p vars, Sig_p sig)
 {
    PStackPointer ret = PStackGetSP(subst);
    PLocalStackInit(stack);

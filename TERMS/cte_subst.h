@@ -55,7 +55,7 @@ bool          SubstBacktrackSingle(Subst_p subst);
 int           SubstBacktrackToPos(Subst_p subst, PStackPointer pos);
 int           SubstBacktrack(Subst_p subst);
 
-PStackPointer SubstNormTerm(Term_p term, Subst_p subst, VarBank_p vars);
+PStackPointer SubstNormTerm(Term_p term, Subst_p subst, VarBank_p vars, Sig_p sig);
 
 bool          SubstBindingPrint(FILE* out, Term_p var, Sig_p sig, DerefType deref);
 long          SubstPrint(FILE* out, Subst_p subst, Sig_p sig, DerefType deref);

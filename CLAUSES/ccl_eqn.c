@@ -2181,8 +2181,8 @@ PStackPointer SubstNormEqn(Eqn_p eq, Subst_p subst, VarBank_p vars)
 {
    PStackPointer res;
 
-   res = SubstNormTerm(eq->lterm, subst, vars);
-   SubstNormTerm(eq->rterm, subst, vars);
+   res = SubstNormTerm(eq->lterm, subst, vars, eq->bank->sig);
+   SubstNormTerm(eq->rterm, subst, vars, eq->bank->sig);
 
    return res;
 }

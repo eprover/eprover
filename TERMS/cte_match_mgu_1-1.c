@@ -89,7 +89,7 @@ static bool occur_check(restrict Term_p term, restrict Term_p var)
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
 
-int PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig)
+int PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig, bool perform_occur_check)
 {
    assert(TermIsVar(var_matcher) && !var_matcher->binding);
    assert(!TermIsAppliedVar(to_match) || to_match->f_code == sig->app_var_code);
@@ -120,6 +120,18 @@ int PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig)
       // -> nice place to check the type sharing invariant
       assert(matched_up_to != 0 || matcher_type == term_head_type);
    }
+
+   if (perform_occur_check)
+   {
+      for(int i=0; i<matched_up_to; i++)
+      {
+         if (occur_check(to_match->args[i], var_matcher))
+         {
+            return NOT_MATCHED;
+         }
+      }
+   }
+
 
    // the number of arguments eaten
    return matched_up_to;
@@ -197,7 +209,7 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, Sig_p si
          }
          else
          {
-            int matched_up_to = PartiallyMatchVar(var, to_match, sig);
+            int matched_up_to = PartiallyMatchVar(var, to_match, sig, false);
             if (matched_up_to != NOT_MATCHED)
             {
                SubstBindAppVar(subst, var, to_match, matched_up_to);
@@ -421,7 +433,7 @@ static __inline__ bool unify_var(Term_p var, Term_p match_to, PStack_p match_to_
       {
          return true;
       }
-      else if (var->type == match_to->type)
+      else if (var->type == match_to->type && !occur_check(var, match_to))
       {
          SubstAddBinding(subst, var, match_to);
          return true;
@@ -430,7 +442,7 @@ static __inline__ bool unify_var(Term_p var, Term_p match_to, PStack_p match_to_
    }
    else
    {
-      int res = PartiallyMatchVar(var, match_to, sig);
+      int res = PartiallyMatchVar(var, match_to, sig, true);
       if (res != NOT_MATCHED)
       {
          SubstBindAppVar(subst, var, match_to, res);
