@@ -261,6 +261,7 @@ void    TermStackDelProps(PStack_p stack, TermProperties prop);
 Term_p applied_var_deref(Term_p orig);
 static __inline__ Type_p GetHeadType(Sig_p sig, Term_p term)
 {
+#ifdef ENABLE_LFHO
    if (TermIsAppliedVar(term))
    {
       assert(term->f_code == sig->app_var_code);
@@ -271,6 +272,10 @@ static __inline__ Type_p GetHeadType(Sig_p sig, Term_p term)
       assert(term->f_code != sig->app_var_code);
       return SigGetType(sig, term->f_code);
    }
+#else
+   return SigGetType(sig, term->f_code);
+#endif
+
 }
 
 

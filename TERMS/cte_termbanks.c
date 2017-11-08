@@ -546,6 +546,8 @@ Term_p TBInsertNoProps(TB_p bank, Term_p term, DerefType deref)
    Term_p t;
 
    assert(term);
+   assert(term->f_code != bank->sig->app_var_code || TermIsAppliedVar(term));
+
 
    term = TermDeref(term, &deref);
 
@@ -556,7 +558,7 @@ Term_p TBInsertNoProps(TB_p bank, Term_p term, DerefType deref)
    else
    {
       t = TermTopCopyWithoutArgs(term); /* This is an unshared term cell at the moment */
-      t->properties = TPIgnoreProps | (TermIsAppliedVar(term) ? TPIsAppVar : 0);
+      t->properties = TPIgnoreProps | (term->f_code == bank->sig->app_var_code ? TPIsAppVar : 0);
 
       assert(SysDateIsCreationDate(t->rw_data.nf_date[0]));
       assert(SysDateIsCreationDate(t->rw_data.nf_date[1]));

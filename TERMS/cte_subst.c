@@ -417,8 +417,13 @@ PStackPointer SubstBindAppVar(Subst_p subst, Term_p var, Term_p to_bind, int up_
    assert(var->type);
    assert(to_bind->type);
 
-   var->binding = TermCreatePrefix(to_bind, up_to);
-   PStackPushP(subst, var);
+   Term_p to_bind_pref = TermCreatePrefix(to_bind, up_to);
+   if (var != to_bind_pref)
+   {
+      var->binding = to_bind_pref;
+      PStackPushP(subst, var); 
+   }
+   
 
    return ret;
 }
