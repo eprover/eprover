@@ -566,12 +566,19 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
    SigFindName(bank->sig,lterm->f_code));
    SigPrint(stdout,bank->sig);
    fflush(stdout); */
+#ifndef ENABLE_LFHO
       assert(!TermIsVar(lterm));
+#endif
       /* TermPrint(stdout, lterm, bank->sig, DEREF_NEVER);
       printf("===");
       TermPrint(stdout, rterm, bank->sig, DEREF_NEVER);
       printf("\n"); */
-      SigDeclareIsPredicate(bank->sig, lterm->f_code);
+
+      if (!TermIsVar(lterm) && !TermIsAppliedVar(lterm))
+      {
+         SigDeclareIsPredicate(bank->sig, lterm->f_code);   
+      }
+      
       TermCellSetProp(lterm, TPPredPos);
       if(SigQueryFuncProp(bank->sig, lterm->f_code, FPPseudoPred))
       {
