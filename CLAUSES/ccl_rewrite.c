@@ -524,6 +524,8 @@ MatchInfo_p indexed_find_demodulator_mi(OCB_p ocb, Term_p term,
    }
    PDTreeSearchExit(demodulators->demod_index);
 
+   //MatchInfoPrint(match_info);
+
    return match_info;
 }
 
@@ -560,8 +562,16 @@ MatchInfo_p indexed_find_demodulator_mi(OCB_p ocb, Term_p term,
    if(mi)
    {
       RewriteSuccesses++;
+      //fprintf(stderr, "Rewrite succeeded %ld\n", RewriteSuccesses);
+
+      /*fprintf(stderr, "Rewrite from ");
+      TermPrint(stderr, term, bank->sig, DEREF_NEVER);
+      fprintf(stderr, " to ");*/
 
       repl = MIGetRewrittenTerm(mi, term);
+      /*TermPrint(stderr, repl, bank->sig, DEREF_NEVER);
+      fprintf(stderr, ".\n");*/
+
       if (ProblemIsHO == PROBLEM_NOT_HO)
       {
         repl = TBInsertInstantiated(bank, repl);
@@ -616,15 +626,15 @@ static Term_p rewrite_with_clause_setlist(OCB_p ocb, TB_p bank, Term_p term,
 
       if(SysDateIsEarlier(TermNFDate(term,level-1), demodulators[i]->date))
       {
-    res = rewrite_with_clause_set(ocb, bank, term,
-                   TermNFDate(term,level-1),
-                   demodulators[i],
-                   prefer_general,
-                                       restricted_rw);
-    if(res!=term)
-    {
-       break;
-    }
+         res = rewrite_with_clause_set(ocb, bank, term,
+                      TermNFDate(term,level-1),
+                      demodulators[i],
+                      prefer_general,
+                                          restricted_rw);
+         if(res!=term)
+         {
+            break;
+         }
       }
    }
    return res;
@@ -653,6 +663,7 @@ static bool term_subterm_rewrite(RWDesc_p desc, Term_p *term)
 
    for(i=0; i<(*term)->arity; i++)
    {
+      //fprintf(stderr, "For subterm index %d.\n", i);
       new_term->args[i] = term_li_normalform(desc, (*term)->args[i], false);
       modified = modified || (new_term->args[i]!= (*term)->args[i]);
    }
@@ -700,6 +711,10 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
    term = term_follow_top_RW_chain(term, desc, restricted_rw);
    assert(!TermIsTopRewritten(term)||restricted_rw);
 
+   /*fprintf(stderr, "In term_li_normalform for term ");
+   TermPrint(stderr, term, desc->bank->sig, DEREF_NEVER);
+   fprintf(stderr, ".\n");*/
+
    if(!TermIsRewritten(term)&&
       !SysDateIsEarlier(term->rw_data.nf_date[desc->level-1],desc->demod_date))
    {
@@ -716,19 +731,19 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
 
       if(!TermIsVar(term))
       {
-    if(TermIsTopRewritten(term))
-    {
-       new_term = term_follow_top_RW_chain(term, desc, restricted_rw&&(!modified));
-    }
-    else
-    {
-       rewrite_with_clause_setlist(desc->ocb, desc->bank,
-               term, desc->demods,
-               desc->level,
-               desc->prefer_general,
-                                        restricted_rw&&(!modified));
-       new_term = term_follow_top_RW_chain(term, desc, restricted_rw&&(!modified));
-    }
+         if(TermIsTopRewritten(term))
+         {
+            new_term = term_follow_top_RW_chain(term, desc, restricted_rw&&(!modified));
+         }
+         else
+         {
+            rewrite_with_clause_setlist(desc->ocb, desc->bank,
+                    term, desc->demods,
+                    desc->level,
+                    desc->prefer_general,
+                    restricted_rw&&(!modified));
+            new_term = term_follow_top_RW_chain(term, desc, restricted_rw&&(!modified));
+         }
          if(term != new_term)
          {
             modified = true;

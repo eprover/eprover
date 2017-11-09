@@ -504,7 +504,6 @@ Term_p TBInsert(TB_p bank, Term_p term, DerefType deref)
 
    assert(term);
 
-   // TODO term will be shared for sure
    term = TermDeref(term, &deref);
 
    if(TermIsVar(term))
