@@ -363,6 +363,8 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
          list = NULL;
          break;
       }
+
+
       assert(PropsAreEquiv(lit, list, EPIsPositive|EPIsEquLiteral));
       if(EqnIsOriented(lit) && !EqnIsOriented(list))
       {
@@ -561,7 +563,11 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
          continue;
       }
 
-      cmpres = EqnHasAppVar(eqn) ? 0 : EqnSubsumeQOrderCompare(eqn,subsum_list);
+
+
+      cmpres = EqnHasAppVar(eqn) ?
+                  (PropsAreEquiv(eqn, subsum_list, EPIsPositive) ? 0 : 1)
+                  : EqnSubsumeQOrderCompare(eqn,subsum_list);
 
       /*fprintf(stderr, "? in eqn_list_rec_subsume: Compared ");
       EqnPrint(stderr, eqn, false, true);
@@ -582,6 +588,7 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
       {
          return false;
       }
+
       assert(PropsAreEquiv(subsum_list, eqn, EPIsPositive|EPIsEquLiteral));
       /* Some optimizations:If the potentially more general equation
           is oriented, then the potentially more specialized has to be
