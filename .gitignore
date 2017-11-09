@@ -11,6 +11,8 @@ PROVER/e_ltb_runner
 PROVER/e_server
 PROVER/edpll
 PROVER/eground
+PROVER/tester
+PROVER/e_stratpar
 PROVER/ekb_create
 PROVER/ekb_delete
 PROVER/ekb_ginsert
