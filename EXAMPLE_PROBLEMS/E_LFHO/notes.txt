@@ -1,0 +1,3 @@
+ALG297^5 has an applied variable that is a predicate.
+
+CAT038^1 in our fragment is Counter-Satisfiable.

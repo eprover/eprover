@@ -267,6 +267,11 @@ static __inline__ Type_p GetHeadType(Sig_p sig, Term_p term)
       assert(term->f_code == sig->app_var_code);
       return term->args[0]->type;
    }
+   else if (TermIsVar(term))
+   {
+      assert(term->arity == 0);
+      return term->type;
+   }
    else
    {
       assert(term->f_code != sig->app_var_code);
@@ -297,8 +302,6 @@ static __inline__ Term_p deref_step(Term_p orig)
    // assert(bank != NULL || orig->arity == 0);
    if (TermIsVar(orig))
    {
-      assert(orig->binding != orig);
-
       //fprintf(stderr, "Derefing normal var bind %p orig %p bind->bind %p\n", orig->binding, orig, orig->binding->binding);
       return orig->binding;
    }
