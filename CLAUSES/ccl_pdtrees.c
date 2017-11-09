@@ -1473,6 +1473,23 @@ Term_p MIGetRewrittenTerm(MatchInfo_p mi, Term_p original)
       return MakeRewrittenTerm(original, other_side, remaining_orig);
    }
 }
+
+void   MatchInfoPrint(MatchInfo_p mi)
+{
+   if (mi)
+   {
+      Sig_p sig = mi->matcher->literal->bank->sig;
+      TermPrint(stderr, ClausePosGetSide(mi->matcher), sig, DEREF_NEVER);
+      fprintf(stderr, " -> ");
+      TermPrint(stderr, ClausePosGetOtherSide(mi->matcher), sig, DEREF_NEVER);
+      fprintf(stderr, ".\n");
+   }
+   else
+   {
+      fprintf(stderr, "(no match)\n");
+   }
+   
+}
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
