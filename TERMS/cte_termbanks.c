@@ -686,7 +686,7 @@ __inline__ Term_p TBInsertInstantiated(TB_p bank, Term_p term)
 {
    if (ProblemIsHO == PROBLEM_IS_HO)
    {
-      return TBInsert(bank, term, DEREF_ALWAYS);
+      return TBInsert(bank, term, DEREF_ONCE);
    }
    else
    {
