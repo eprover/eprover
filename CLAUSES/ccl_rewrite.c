@@ -111,9 +111,18 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
       assert(term);
       if(TermCellQueryProp(term, TPIsSOSRewritten))
       {
-    desc->sos_rewritten = true;
+         desc->sos_rewritten = true;
       }
+
+      fprintf(stderr, "Rewritten ");
+      TermPrint(stderr, term, desc->bank->sig, DEREF_NEVER);
+
       term = TermRWReplaceField(term);
+
+      fprintf(stderr, " to ");
+      TermPrint(stderr, term, desc->bank->sig, DEREF_NEVER);
+      fprintf(stderr, ".\n");
+
       /* printf("Following chain\n"); */
       assert(term);
    }
@@ -622,11 +631,7 @@ static Term_p rewrite_with_clause_setlist(OCB_p ocb, TB_p bank, Term_p term,
 
    for(i=0; i<level; i++)
    {
-      assert(demodulators[i]);
-
-      fprintf(stderr, "IN PDT %d: \n", i);
-      PDTreePrint(stderr, demodulators[i]);
-      fprintf(stderr, ".\n");
+      assert(demodulators[i]);      
 
       if(SysDateIsEarlier(TermNFDate(term,level-1), demodulators[i]->date))
       {
@@ -712,12 +717,9 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
    {
       return term;
    }
+
    term = term_follow_top_RW_chain(term, desc, restricted_rw);
    assert(!TermIsTopRewritten(term)||restricted_rw);
-
-   /*fprintf(stderr, "In term_li_normalform for term ");
-   TermPrint(stderr, term, desc->bank->sig, DEREF_NEVER);
-   fprintf(stderr, ".\n");*/
 
    if(!TermIsRewritten(term)&&
       !SysDateIsEarlier(term->rw_data.nf_date[desc->level-1],desc->demod_date))
@@ -737,6 +739,7 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
       {
          if(TermIsTopRewritten(term))
          {
+            //fprintf(stderr, "Following the top-level rewritting.\n");
             new_term = term_follow_top_RW_chain(term, desc, restricted_rw&&(!modified));
          }
          else
@@ -793,6 +796,10 @@ EqnSide eqn_li_normalform(RWDesc_p desc, ClausePos_p pos, bool interred_rw)
    bool   restricted_rw = EqnIsMaximal(eqn) && EqnIsPositive(eqn) &&
       EqnIsOriented(eqn) && interred_rw;
    EqnSide res = NoSide;
+
+   fprintf(stderr, "Rewriting: ");
+   EqnPrint(stderr, eqn, false, true);
+   fprintf(stderr, ".\n");
 
    eqn->lterm = term_li_normalform(desc, eqn->lterm, restricted_rw);
    if(l_old!=eqn->lterm)
