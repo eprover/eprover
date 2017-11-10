@@ -182,9 +182,9 @@ bool ForwardModifyClause(ProofState_p state,
    bool limited_rw;
    bool condensed;
 
-   fprintf(stderr, "Started forward modification of ");
+   /*fprintf(stderr, "Started forward modification of ");
    ClausePrint(stderr, clause, true);
-   fprintf(stderr, ".\n");
+   fprintf(stderr, ".\n");*/
 
    
 
