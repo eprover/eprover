@@ -624,6 +624,10 @@ static Term_p rewrite_with_clause_setlist(OCB_p ocb, TB_p bank, Term_p term,
    {
       assert(demodulators[i]);
 
+      fprintf(stderr, "IN PDT %d: \n", i);
+      PDTreePrint(stderr, demodulators[i]);
+      fprintf(stderr, ".\n");
+
       if(SysDateIsEarlier(TermNFDate(term,level-1), demodulators[i]->date))
       {
          res = rewrite_with_clause_set(ocb, bank, term,
