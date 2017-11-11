@@ -112,6 +112,7 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
    while(TermIsTopRewritten(term)&&(!restricted_rw||TermIsRRewritten(term)))
    {
       assert(term);
+
       if(TermCellQueryProp(term, TPIsSOSRewritten))
       {
          desc->sos_rewritten = true;
@@ -120,11 +121,12 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
       if (TermRWReplaceField(term) == orig)
       {
          term->rw_data.nf_date[desc->level-1] = orig->rw_data.nf_date[desc->level-1];
-         term->rw_data.rw_desc.replace = NULL;
-         term->rw_data.rw_desc.demod   = NULL;
+         orig->rw_data.rw_desc.replace = term->rw_data.rw_desc.replace = NULL;
+         orig->rw_data.rw_desc.demod   = term->rw_data.rw_desc.demod   = NULL;
          TermCellDelProp(term, TPIsRewritten);
 
          fprintf(stderr, "# found rewrite cycle.\n");
+         term  = orig;
       }
       else
       {
@@ -132,7 +134,7 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
       }
       assert(term);
    }
-   fprintf(stderr, "# broke rewrite cycle.\n");
+   //fprintf(stderr, "# broke rewrite cycle.\n");
    return term;
 }
 
