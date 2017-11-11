@@ -104,8 +104,11 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
                                              bool restricted_rw)
 {
    assert(term);
+   static int nr;
 
-   /* printf("Starting chain\n"); */
+
+   Term_p orig = term;
+
    while(TermIsTopRewritten(term)&&(!restricted_rw||TermIsRRewritten(term)))
    {
       assert(term);
@@ -114,18 +117,22 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
          desc->sos_rewritten = true;
       }
 
-      /*fprintf(stderr, "Rewritten ");
-      TermPrint(stderr, term, desc->bank->sig, DEREF_NEVER);*/
+      if (TermRWReplaceField(term) == orig)
+      {
+         term->rw_data.nf_date[desc->level-1] = orig->rw_data.nf_date[desc->level-1];
+         term->rw_data.rw_desc.replace = NULL;
+         term->rw_data.rw_desc.demod   = NULL;
+         TermCellDelProp(term, TPIsRewritten);
 
-      term = TermRWReplaceField(term);
-
-      /*fprintf(stderr, " to ");
-      TermPrint(stderr, term, desc->bank->sig, DEREF_NEVER);
-      fprintf(stderr, ".\n");*/
-
-      /* printf("Following chain\n"); */
+         fprintf(stderr, "# found rewrite cycle.\n");
+      }
+      else
+      {
+         term = TermRWReplaceField(term);
+      }
       assert(term);
    }
+   fprintf(stderr, "# broke rewrite cycle.\n");
    return term;
 }
 
@@ -573,16 +580,6 @@ MatchInfo_p indexed_find_demodulator_mi(OCB_p ocb, Term_p term,
       RewriteSuccesses++;
 
 
-      fprintf(stderr, "Rewrite rule: ");
-      TermPrint(stderr, ClausePosGetSide(mi->matcher), bank->sig, DEREF_ONCE);
-      fprintf(stderr, " -> ");
-      TermPrint(stderr, ClausePosGetOtherSide(mi->matcher), bank->sig, DEREF_ONCE);
-      fprintf(stderr, " (KBO6 res %s).\n", POCompareSymbol[TOCompare(ocb, ClausePosGetSide(mi->matcher), 
-                                                          ClausePosGetOtherSide(mi->matcher),
-                                                          DEREF_ONCE, DEREF_ONCE)]);
-
-
-
       repl = MIGetRewrittenTerm(mi, term);
 
       if (ProblemIsHO == PROBLEM_NOT_HO)
@@ -742,7 +739,6 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
       {
          if(TermIsTopRewritten(term))
          {
-            //fprintf(stderr, "Following the top-level rewritting.\n");
             new_term = term_follow_top_RW_chain(term, desc, restricted_rw&&(!modified));
          }
          else
@@ -800,10 +796,6 @@ EqnSide eqn_li_normalform(RWDesc_p desc, ClausePos_p pos, bool interred_rw)
       EqnIsOriented(eqn) && interred_rw;
    EqnSide res = NoSide;
 
-   fprintf(stderr, "Rewriting: ");
-   EqnPrint(stderr, eqn, false, true);
-   fprintf(stderr, ".\n");
-
    eqn->lterm = term_li_normalform(desc, eqn->lterm, restricted_rw);
    if(l_old!=eqn->lterm)
    {
@@ -821,7 +813,6 @@ EqnSide eqn_li_normalform(RWDesc_p desc, ClausePos_p pos, bool interred_rw)
                                l_old, ClausePosGetSide(pos), DCRewrite);
       }
    }
-   fprintf(stderr, "RIGHT.\n");
    eqn->rterm = term_li_normalform(desc, eqn->rterm, false);
    if(r_old!=eqn->rterm)
    {
