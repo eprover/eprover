@@ -109,14 +109,6 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
 
    while(TermIsTopRewritten(term)&&(!restricted_rw||TermIsRRewritten(term)))
    {
-      TermPrint(stderr, term, desc->bank->sig, DEREF_ALWAYS);
-      fprintf(stderr, " -> ");
-      TermPrint(stderr, TermRWReplaceField(term), desc->bank->sig, DEREF_ALWAYS);
-      fprintf(stderr, " ( ");
-      ClausePrint(stderr, TermRWDemodField(term), true);
-      fprintf(stderr, " )\n");
-
-
       assert(term);
 
       if(TermCellQueryProp(term, TPIsSOSRewritten))
@@ -140,7 +132,6 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
       }
       assert(term);
    }
-   fprintf(stderr, "# broke rewrite cycle.\n");
    return term;
 }
 
@@ -804,10 +795,6 @@ EqnSide eqn_li_normalform(RWDesc_p desc, ClausePos_p pos, bool interred_rw)
    bool   restricted_rw = EqnIsMaximal(eqn) && EqnIsPositive(eqn) &&
       EqnIsOriented(eqn) && interred_rw;
    EqnSide res = NoSide;
-
-   fprintf(stderr, "Rewriting equation ");
-   EqnPrint(stderr, eqn, false, true);
-   fprintf(stderr, ".\n");
 
    eqn->lterm = term_li_normalform(desc, eqn->lterm, restricted_rw);
    if(l_old!=eqn->lterm)
