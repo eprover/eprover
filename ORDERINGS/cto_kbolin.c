@@ -711,8 +711,6 @@ static CompareResult kbolincmp_ho(OCB_p ocb, Term_p s, Term_p t,
          }
       }
    }
-
-
    return res;
 }
 
@@ -777,10 +775,12 @@ CompareResult KBO6Compare(OCB_p ocb, Term_p s, Term_p t,
    res = ProblemIsHO == PROBLEM_IS_HO ? 
             kbolincmp_ho(ocb, s, t, deref_s, deref_t)
             : kbolincmp(ocb, s, t, deref_s, deref_t);
+   //res = kbolincmp(ocb, s, t, deref_s, deref_t);
 #else
    res = kbolincmp(ocb, s, t, deref_s, deref_t);
    assert((kbo6reset(ocb), res == kbo6cmp(ocb, s, t, deref_s, deref_t)));
 #endif
+
    return res;
 }
 
@@ -821,6 +821,7 @@ bool KBO6Greater(OCB_p ocb, Term_p s, Term_p t,
    res = kbolincmp(ocb, s, t, deref_s, deref_t);
    assert((kbo6reset(ocb), res == kbo6cmp(ocb, s, t, deref_s, deref_t)));
 #endif
+
    return res == to_greater;
 }
 
