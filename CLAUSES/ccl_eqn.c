@@ -309,26 +309,43 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
    Term_p  rterm;
    bool    positive = true;
 
+
+   bool in_parens = false;
+   if (ProblemIsHO == PROBLEM_IS_HO && TestInpTok(in, OpenBracket))
+   {
+      AcceptInpTok(in, OpenBracket);
+      in_parens = true;
+   }
+
    lterm = TBTermParse(in, bank);
    
    BOOL_TERM_NORMALIZE(lterm);
 
-   if(!TermIsVar(lterm) && SigIsPredicate(bank->sig,lterm->f_code) &&
+   // IN HO CASE EVERYTHING IS TYPED SO WE DON'T NEED THOSE SHORTCUTS.
+   if(ProblemIsHO == PROBLEM_NOT_HO && !TermIsVar(lterm) && SigIsPredicate(bank->sig,lterm->f_code) &&
       SigIsFixedType(bank->sig, lterm->f_code))
    {
       rterm = bank->true_term; /* Non-Equational literal */
    }
    else
    {
-      if((TermIsVar(lterm) && !TypeIsPredicate(GetReturnSort(lterm->type)))
+      if((TermIsVar(lterm) && !TypeIsPredicate(lterm->type))
           || (!TermIsVar(lterm) && SigIsFunction(bank->sig, lterm->f_code)))
       {
+         if (in_parens && TestInpTok(in, CloseBracket))
+         {
+            AcceptInpTok(in, CloseBracket);
+            in_parens = false;
+         }
+
          if(TestInpTok(in, NegEqualSign))
          {
             positive = !positive;
          }
          AcceptInpTok(in, NegEqualSign|EqualSign);
+       
          rterm = TBTermParse(in, bank);
+         
          if(!TermIsVar(rterm) && !TermIsAppliedVar(rterm))
          {
             TypeDeclareIsNotPredicate(bank->sig, rterm);
@@ -336,7 +353,13 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
       }
       else if(TestInpTok(in, NegEqualSign|EqualSign))
       { /* Now both sides must be terms */
-         if (!TermIsAppliedVar(lterm))
+         if (in_parens && TestInpTok(in, CloseBracket))
+         {
+            AcceptInpTok(in, CloseBracket);
+            in_parens = false;
+         }
+
+         if (!TermIsAppliedVar(lterm) && ProblemIsHO == PROBLEM_NOT_HO)
          {
             TypeDeclareIsNotPredicate(bank->sig, lterm);   
          }
@@ -345,12 +368,14 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
             positive = !positive;
          }
          AcceptInpTok(in, NegEqualSign|EqualSign);
+
          rterm = TBTermParse(in, bank);
-         if (!TermIsAppliedVar(lterm))
+         // in ho everything is typed
+         if (!TermIsAppliedVar(lterm) && ProblemIsHO == PROBLEM_NOT_HO)
          {
             TypeDeclareIsNotPredicate(bank->sig, lterm);
          }
-         if(!TermIsVar(rterm) && !TermIsAppliedVar(rterm))
+         if(!TermIsVar(rterm) && !TermIsAppliedVar(rterm) && ProblemIsHO == PROBLEM_NOT_HO)
          {
             TypeDeclareIsNotPredicate(bank->sig, rterm);
          }
@@ -367,6 +392,11 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
    *lref = lterm;
    *rref = rterm;
 
+
+   if (in_parens)
+   {
+      AcceptInpTok(in, CloseBracket);
+   }
    return positive;
 }
 
