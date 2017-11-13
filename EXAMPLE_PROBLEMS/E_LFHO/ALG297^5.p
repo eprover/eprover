@@ -64,37 +64,37 @@ thf(cPU_LEM7_pme,conjecture,
             =  cP @ ( cL @ Xt0 ) @ ( cR @ Xt0 ) ) ) ) 
    => ! [Xs: a] :
         ( ! [X: a > $o] :
-            ( (  X @ cZ 
+            ( (  ( X @ cZ )
               & ! [Xx: a,Xy: a] :
-                  ( (  X @ Xx 
-                    &  X @ Xy  )
+                  ( (  ( X @ Xx )
+                    &  ( X @ Xy )  )
                  =>  X @ ( cP @ Xx @ Xy ) ) ) 
            =>  X @ Xs  )
        => ! [Xb: a] :
             ( ! [X: a > $o] :
-                ( (  X @ cZ 
+                ( (  ( X @ cZ )
                   & ! [Xx: a] :
-                      (  X @ Xx 
-                     => (  X @ ( cP @ Xx @ cZ ) 
-                        &  X @ ( cP @ Xx @ ( cP @ cZ @ cZ ) ) ) ) ) 
-               =>  X @ Xb  )
+                      (  ( X @ Xx )
+                     => (  ( X @ ( cP @ Xx @ cZ ) )
+                        &  ( X @ ( cP @ Xx @ ( cP @ cZ @ cZ ) ) ) ) ) )
+               =>  ( X @ Xb )  )
            => ! [Xu: a] :
                 ( ? [Xb_9: a,Xu_13: a] :
                     ( (  cP @ Xb @ Xu 
                       =  cP @ Xb_9 @ Xu_13 ) 
                     & ! [X: a > $o] :
-                        ( (  X @ ( cP @ cZ @ t ) 
+                        ( (  ( X @ ( cP @ cZ @ t ) )
                           & ! [Xc: a,Xv: a] :
-                              (  X @ ( cP @ Xc @ Xv ) 
-                             => (  X @ ( cP @ ( cP @ Xc @ cZ ) @ ( cL @ Xv ) ) 
-                                &  X @ ( cP @ ( cP @ Xc @ ( cP @ cZ @ cZ ) ) @ ( cR @ Xv ) ) ) ) ) 
-                       =>  X @ ( cP @ Xb_9 @ Xu_13 ) ) ) 
+                              ( ( X @ ( cP @ Xc @ Xv ) )
+                             => (  ( X @ ( cP @ ( cP @ Xc @ cZ ) @ ( cL @ Xv ) ) )
+                                &  ( X @ ( cP @ ( cP @ Xc @ ( cP @ cZ @ cZ ) ) @ ( cR @ Xv ) ) ) ) ) )
+                       =>  ( X @ ( cP @ Xb_9 @ Xu_13 ) ) ) )
                => ! [X: a > $o] :
-                    ( (  X @ cZ 
+                    ( ( ( X @ cZ )
                       & ! [Xx: a,Xy: a] :
-                          ( (  X @ Xx 
-                            &  X @ Xy  )
-                         =>  X @ ( cP @ Xx @ Xy ) ) ) 
-                   =>  X @ Xu  ) ) ) ) )).
+                          ( (  ( X @ Xx )
+                            &  ( X @ Xy ) )
+                         =>  ( X @ ( cP @ Xx @ Xy ) ) ) )
+                   =>  ( X @ Xu )  ) ) ) ) )).
 
 %------------------------------------------------------------------------------
