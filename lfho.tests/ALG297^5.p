@@ -64,11 +64,11 @@ thf(cPU_LEM7_pme,conjecture,
             =  cP @ ( cL @ Xt0 ) @ ( cR @ Xt0 ) ) ) ) 
    => ! [Xs: a] :
         ( ! [X: a > $o] :
-            ( (  X @ cZ 
-              & ! [Xx: a,Xy: a] :
-                  ( (  X @ Xx 
-                    &  X @ Xy  )
-                 =>  X @ ( cP @ Xx @ Xy ) ) ) 
+            ( (  ( X @ cZ )
+              & (![Xx: a,Xy: a] :
+                  ( (  ( X @ Xx )
+                    &  ( X @ Xy )  )
+                 =>  X @ ( cP @ Xx @ Xy ) ) ) )
            =>  X @ Xs  )
        => ! [Xb: a] :
             ( ! [X: a > $o] :

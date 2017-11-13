@@ -98,8 +98,8 @@ thf(ax_009,axiom,
 %----The translated conjecture
 thf(con,conjecture,(
     ? [Q: $i > $i > $o,R: $i > $i > $o,Y: $i] :
-      (  R @ Y @ lBill_THFTYPE_i 
-      &  Q @ Y @ lAnna_THFTYPE_i 
+      (  ( R @ Y @ lBill_THFTYPE_i )
+      &  ( Q @ Y @ lAnna_THFTYPE_i )
       &  ~ ( R = Q ) ) ) ).
 
 %------------------------------------------------------------------------------

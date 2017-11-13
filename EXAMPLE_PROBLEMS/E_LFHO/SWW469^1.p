@@ -44,7 +44,7 @@ thf(sy_c_Hoare__Mirabelle__ghhkfsbqqq_Ostate__not__singleton,type,(
 
 %----Relevant facts (4)
 thf(fact_0_state__not__singleton__def,axiom,
-    ( hoare_1821564147gleton
+    ( (hoare_1821564147gleton)
   <=> ? [S: state,T: state] : ( S != T ) )).
 
 thf(fact_1_induct__false__def,axiom,(

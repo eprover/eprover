@@ -404,9 +404,34 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms)
    }
    else if(TestInpTok(in, OpenBracket))
    {
-      AcceptInpTok(in, OpenBracket);
-      res = TFormulaTSTPParse(in, terms);
-      AcceptInpTok(in, CloseBracket);
+      if (ProblemIsHO == PROBLEM_NOT_HO)
+      {
+         AcceptInpTok(in, OpenBracket);
+         res = TFormulaTSTPParse(in, terms);
+         AcceptInpTok(in, CloseBracket);   
+      }
+      else
+      {
+         // In HO case, we might have parentheses around terms
+         // -- not possible in FO case and breaks parsing in some 
+         // cases.
+
+         if (TestTok(LookToken(in,1), OpenBracket|UnivQuantor|ExistQuantor|TildeSign))
+         {
+            AcceptInpTok(in, OpenBracket);
+            res = TFormulaTSTPParse(in, terms);
+            AcceptInpTok(in, CloseBracket);
+         }
+         else
+         {
+            Eqn_p lit;
+            lit = EqnFOFParse(in, terms);
+            res = TFormulaLitAlloc(lit);
+            EqnFree(lit);
+         }
+      }
+
+      
    }
    else if(TestInpTok(in, TildeSign))
    {
