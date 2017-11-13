@@ -557,7 +557,7 @@ Term_p TBInsertNoProps(TB_p bank, Term_p term, DerefType deref)
    else
    {
       t = TermTopCopyWithoutArgs(term); /* This is an unshared term cell at the moment */
-      t->properties = TPIgnoreProps | (term->f_code == bank->sig->app_var_code ? TPIsAppVar : 0);
+      t->properties = (term->f_code == bank->sig->app_var_code ? TPIsAppVar : TPIgnoreProps);
 
       assert(SysDateIsCreationDate(t->rw_data.nf_date[0]));
       assert(SysDateIsCreationDate(t->rw_data.nf_date[1]));
@@ -608,7 +608,7 @@ Term_p  TBInsertRepl(TB_p bank, Term_p term, DerefType deref, Term_p old, Term_p
    else
    {
       t = TermTopCopyWithoutArgs(term); /* This is an unshared term cell at the moment */
-      t->properties = TPIgnoreProps;
+      t->properties = TermIsAppliedVar(term) ? TPIsAppVar : TPIgnoreProps;
 
       assert(SysDateIsCreationDate(t->rw_data.nf_date[0]));
       assert(SysDateIsCreationDate(t->rw_data.nf_date[1]));
