@@ -507,10 +507,18 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p s
    PStackPushP(jobs_t1, t1);
    PStackPushP(jobs_t2, t2);
 
+   TermPrintTypes = true;
+
    while(!PStackEmpty(jobs_t1) && !PStackEmpty(jobs_t2))
    {
       t1 = TermDerefAlways(PStackPopP(jobs_t1));
       t2 = TermDerefAlways(PStackPopP(jobs_t2));
+
+      fprintf(stderr, "? unifying ");
+      TermPrint(stderr, t1, sig, DEREF_NEVER);
+      fprintf(stderr, " and ");
+      TermPrint(stderr, t2, sig, DEREF_NEVER);
+      fprintf(stderr, ".\n");
 
       assert(t1->type);
       assert(t2->type);
@@ -519,11 +527,13 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p s
       if(TermIsVar(t1) || TermIsAppliedVar(t1))
       {
          Term_p var = TermIsAppliedVar(t1) ? t1->args[0] : t1;
+
          bound = unify_var(var, t2, jobs_t2, sig, subst);
          // this one can fail! -- we can reorient variables and try again.
          if(bound && TermIsAppliedVar(t1))
          {
             push_rest(t1, jobs_t1);
+            fprintf(stderr, "? binding 1 suceeded.\n");
          }
       }
       // trying to bind t1 to t2 can fail, but t2 to t1 can succeeed
@@ -539,6 +549,7 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p s
          if(TermIsAppliedVar(t2))
          {
             push_rest(t2, jobs_t2);
+            fprintf(stderr, "? binding 2 suceeded.\n");
          }
       }
 
