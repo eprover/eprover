@@ -184,8 +184,14 @@ Clause_p ClausePlainParamodConstruct(ParamodInfo_p ol_desc)
    Eqn_p     into_copy, from_copy, pm_lit;
    Subst_p   subst = SubstAlloc();
 
+   /*fprintf(stderr, "? paramodulation from ");
+   TermPrint(stderr, ClausePosGetSubterm(ol_desc->from_pos), ol_desc->bank->sig, DEREF_ALWAYS);
+   fprintf(stderr, " into  ");
+   TermPrint(stderr, ClausePosGetSubterm(ol_desc->into_pos), ol_desc->bank->sig, DEREF_ALWAYS);
+   fprintf(stderr, ".\n");*/
 
-   assert(TermStructEqualDeref(ClausePosGetSubterm(ol_desc->from_pos),
+
+   assert(ol_desc->remaining_args != 0  || TermStructEqualDeref(ClausePosGetSubterm(ol_desc->from_pos),
                                ClausePosGetSubterm(ol_desc->into_pos),
                                DEREF_ALWAYS,
                                DEREF_ALWAYS));
