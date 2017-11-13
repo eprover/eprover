@@ -215,6 +215,8 @@ void VarPrint(FILE* out, FunCode var)
 //
 /----------------------------------------------------------------------*/
 
+//#define PRINT_SIG_DBG 1
+
 void TermPrint(FILE* out, Term_p term, Sig_p sig, DerefType deref)
 {
    assert(term);
@@ -254,6 +256,14 @@ void TermPrint(FILE* out, Term_p term, Sig_p sig, DerefType deref)
       else
       {
          fputs(SigFindName(sig, term->f_code), out);
+// TODO: TO BE REMOVED!
+#if defined(ENABLE_LFHO) && defined(PRINT_SIG_DBG)
+         fputc(':', out);
+         if (SigGetType(sig, term->f_code))
+            TypePrintTSTP(out, sig->type_bank, SigGetType(sig, term->f_code));
+         else
+            fprintf(out, "*");
+#endif
          if(!TermIsConst(term))
          {
             assert(term->args);

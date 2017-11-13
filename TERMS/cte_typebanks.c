@@ -488,6 +488,7 @@ Type_p parse_single_type(Scanner_p in, TypeBank_p bank)
 
 void TypePrintTSTP(FILE* out, TypeBank_p bank, Type_p type)
 {
+   assert(type);
    if (TypeIsArrow(type))
    {
       if (ProblemIsHO == PROBLEM_NOT_HO)
