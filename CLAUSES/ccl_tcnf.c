@@ -1583,15 +1583,8 @@ TFormula_p TFormulaSkolemizeOutermost(TB_p terms, TFormula_p form)
       PStackPushP(var_stack, var);
    }
 
-   fprintf(stderr, "? Skolemizing ");
-   TFormulaTPTPPrint(stderr, terms, form,  true, false);
-
    res = tformula_rek_skolemize(terms, form, var_stack);
-   
-   fprintf(stderr, "\n to \n");
-   TFormulaTPTPPrint(stderr, terms, res,  true, false);
-   fprintf(stderr, ".\n");
-   
+     
    PStackFree(var_stack);
    return res;
 }

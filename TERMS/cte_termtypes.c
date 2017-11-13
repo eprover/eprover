@@ -172,11 +172,11 @@ Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, Type_p ret_type)
 
    if(!TypeIsPredicate(type))
    {
-      handle->f_code = SigGetNewSkolemCode(sig, type->arity-1);
+      handle->f_code = SigGetNewSkolemCode(sig, TypeGetSymbolArity(type));
    }
    else
    {
-      handle->f_code = SigGetNewPredicateCode(sig, type->arity-1);
+      handle->f_code = SigGetNewPredicateCode(sig, TypeGetSymbolArity(type));
    }
 
    SigDeclareFinalType(sig, handle->f_code, type);

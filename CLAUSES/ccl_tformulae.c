@@ -1005,6 +1005,8 @@ void TFormulaCollectFreeVars(TB_p bank, TFormula_p form, PTree_p *vars)
 
    if(TFormulaIsQuantified(bank->sig, form))
    {
+      // I am so stupid. Quantifier arg will always be regular var.
+      // TODO: Revert this.
       Term_p fst_arg = form->args[0];
       Term_p var = TermIsAppliedVar(fst_arg) ? fst_arg->args[0] : fst_arg;
 
