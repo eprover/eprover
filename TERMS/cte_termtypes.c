@@ -161,7 +161,7 @@ Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, Type_p ret_type)
       }
       type_args[arity] = ret_type;
 
-      type = AllocArrowType(arity, type_args);
+      type = AllocArrowType(arity+1, type_args);
    }
    else
    {
@@ -170,7 +170,7 @@ Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, Type_p ret_type)
 
    type = TypeBankInsertTypeShared(sig->type_bank, FlattenType(type));
 
-   if(!(TypeIsBool(type) || (type->arity && TypeIsBool(type->args[type->arity-1]))))
+   if(!TypeIsPredicate(type))
    {
       handle->f_code = SigGetNewSkolemCode(sig, type->arity-1);
    }
@@ -179,7 +179,7 @@ Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, Type_p ret_type)
       handle->f_code = SigGetNewPredicateCode(sig, type->arity-1);
    }
 
-   SigDeclareType(sig, handle->f_code, type);
+   SigDeclareFinalType(sig, handle->f_code, type);
    handle->type = ret_type;
 
    return handle;
