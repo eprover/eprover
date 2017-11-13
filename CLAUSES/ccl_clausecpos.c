@@ -145,7 +145,7 @@ void UnpackTermPos(TermPos_p pos, Term_p t, CompactPos cpos)
    while(cpos > 0)
    {
       assert(!TermIsVar(t));
-      cpos -= DEFAULT_FWEIGHT;
+      cpos -= DEFAULT_FWEIGHT*(TermIsAppliedVar(t) ? 0 : 1);
       assert(cpos>=0);
 
       PStackPushP(pos, t);
