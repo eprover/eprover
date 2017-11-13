@@ -389,7 +389,7 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
    }
    SubstDelete(subst);
 
-   assert(list == old_res);
+   assert(ProblemIsHO != PROBLEM_NOT_HO || list == old_res);
    return list;
 }
 
@@ -566,7 +566,7 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
 
 
       cmpres = EqnHasAppVar(eqn) ?
-                  (PropsAreEquiv(eqn, subsum_list, EPIsPositive) ? 0 : 1)
+                  (PropsAreEquiv(eqn, subsum_list, EPIsPositive|EPIsEquLiteral) ? 0 : 1)
                   : EqnSubsumeQOrderCompare(eqn,subsum_list);
 
       /*fprintf(stderr, "? in eqn_list_rec_subsume: Compared ");
