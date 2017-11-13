@@ -1002,11 +1002,18 @@ long TermFsumWeight(Term_p term, long vweight, long flimit,
    {
       if(term->f_code < flimit)
       {
-         res += fweights[term->f_code];
+         if (!TermIsAppliedVar(term))
+         {
+            res += fweights[term->f_code];
+         }
       }
       else
       {
-         res += default_fweight;
+         if (!TermIsAppliedVar(term))
+         {
+            res += default_fweight;   
+         }
+         
       }
 
       for(int i = 0; i < term->arity; i++)
@@ -1067,7 +1074,7 @@ long TermNonLinearWeight(Term_p term, long vlweight, long vweight,
       {
          int i;
 
-         res += fweight;
+         res += fweight * (TermIsAppliedVar(handle) ? 0 : 1);
 
          for(i=0; i<handle->arity; i++)
          {
@@ -1126,7 +1133,7 @@ long TermSymTypeWeight(Term_p term, long vweight, long fweight, long
          }
          else
          {
-            res += fweight;
+            res += fweight * (TermIsAppliedVar(handle) ? 0 : 1);
          }
          for(i=0; i<handle->arity; i++)
          {

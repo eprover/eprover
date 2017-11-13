@@ -524,12 +524,12 @@ void TypePrintTSTP(FILE* out, TypeBank_p bank, Type_p type)
          {
             if (TypeIsArrow(type->args[i]))
             {
-               fprintf(stderr, "(");   
+               fprintf(out, "(");   
             }
             TypePrintTSTP(out, bank, type->args[i]);
             if (TypeIsArrow(type->args[i]))
             {
-               fprintf(stderr, ")");   
+               fprintf(out, ")");   
             }
             fprintf(out, " > ");
          }
