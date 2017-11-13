@@ -673,7 +673,7 @@ __inline__ Term_p MakeRewrittenTerm(Term_p orig, Term_p new, int remaining_orig)
    {
       Term_p new_term = TermTopAlloc(new->f_code, new->arity + remaining_orig);
       new_term->type = orig->type; // no inference after this step -- speedup.
-      new_term->properties = new->properties & (TPIsAppVar | TPPredPos);
+      new_term->properties = orig->properties & (TPIsAppVar | TPPredPos);
 
       for(int i=0; i < new->arity; i++)
       {
