@@ -38,7 +38,7 @@ thf(n7,type,(
 
 thf(n8,conjecture,
     ( ( ! [X: $o,U: $i,V: $i] :
-          ( X
+          ( (X)
          => ( ( ite @ X @ U @ V )
             = U ) )
       & ! [X: $o,U: $i,V: $i] :
