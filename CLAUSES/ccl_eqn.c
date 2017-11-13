@@ -320,7 +320,8 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
    }
    else
    {
-      if(TermIsVar(lterm) || SigIsFunction(bank->sig, lterm->f_code))
+      if((TermIsVar(lterm) && !TypeIsPredicate(GetReturnSort(lterm->type)))
+          || (!TermIsVar(lterm) && SigIsFunction(bank->sig, lterm->f_code)))
       {
          if(TestInpTok(in, NegEqualSign))
          {
@@ -357,7 +358,7 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
       else
       { /* It's a predicate */
          rterm = bank->true_term; /* Non-Equational literal */
-         if (!TermIsAppliedVar(lterm))
+         if (!TermIsVar(lterm) && !TermIsAppliedVar(lterm))
          {
             TypeDeclareIsPredicate(bank->sig, lterm);
          }
