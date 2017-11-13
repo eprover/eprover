@@ -134,3 +134,16 @@ Type_p FlattenType(Type_p type)
    return res;
 
 }
+
+Type_p  GetReturnSort(Type_p type)
+{
+   assert(type);
+   if (TypeIsArrow(type))
+   {
+      return type->args[type->arity-1];
+   }
+   else
+   {
+      return type;
+   }
+}
