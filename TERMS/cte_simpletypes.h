@@ -50,6 +50,8 @@ typedef struct typecell {
 #define SortIsUserDefined(sort) (sort > STPredefined)
 #define SortIsInterpreted(sort) (((sort)>=STInteger)&&((sort)<=STPredefined))
 
+Type_p  GetReturnSort(Type_p type);
+
 #define NO_TYPE                 NULL
 #define INVALID_TYPE_UID        -1
 
