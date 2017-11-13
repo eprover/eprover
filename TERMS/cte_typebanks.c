@@ -522,7 +522,15 @@ void TypePrintTSTP(FILE* out, TypeBank_p bank, Type_p type)
          //assert(ProblemIsHO == PROBLEM_IS_HO);
          for(int i=0; i<type->arity-1; i++)
          {
+            if (TypeIsArrow(type->args[i]))
+            {
+               fprintf(stderr, "(");   
+            }
             TypePrintTSTP(out, bank, type->args[i]);
+            if (TypeIsArrow(type->args[i]))
+            {
+               fprintf(stderr, ")");   
+            }
             fprintf(out, " > ");
          }
          TypePrintTSTP(out, bank, type->args[type->arity-1]);
