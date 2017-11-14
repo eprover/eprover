@@ -1460,6 +1460,7 @@ int EqnSubsumeQOrderCompare(const void* lit1, const void* lit2)
       }
       else
       {
+         // we say that the variable is bigger!
          res = -1;
       }
       

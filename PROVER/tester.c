@@ -1431,6 +1431,12 @@ void test_kbo(ProofState_p p, ProofControl_p c)
    perform_kbo_test(c->ocb, tc8_l, tc8_r, to_uncomparable);
 }
 
+void test_subsumption_sorting(ProofState_p p)
+{
+   fprintf(stderr, "Now print tests.");
+   ClauseSetPrint(stderr, p->axioms, false);
+}
+
 int main(int argc, char* argv[])
 {
    int              retval = NO_ERROR;
@@ -1621,6 +1627,10 @@ int main(int argc, char* argv[])
    else if (strstr(state->argv[0], "lfho.subsumption"))
    {
       test_subsumption(proofstate);
+   }
+   else if (strstr(state->argv[0], "lfho.subs.sort"))
+   {
+      test_subsumption_sorting(proofstate);
    }
    else if (strstr(state->argv[0], "kbo"))
    {
