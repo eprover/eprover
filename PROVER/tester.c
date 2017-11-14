@@ -1433,8 +1433,62 @@ void test_kbo(ProofState_p p, ProofControl_p c)
 
 void test_subsumption_sorting(ProofState_p p)
 {
-   fprintf(stderr, "Now print tests.");
-   ClauseSetPrint(stderr, p->axioms, false);
+   /*
+
+   thf(a1, axiom, ![X1: a > a, X2: a > a > a]: ( (X1 @ c = X1 @ d) |  (X2 @ c @ d = X2 @ d @ c))).
+   %-- will not be subsumed. no substitution can cover all the things
+   thf(a2, axiom, ![X1: a > a, X3: a > a > a > a]: ((X3 @ c @ c @ d = X3 @ c @ d @ c) | (f @ c @ c @ d = f @ c @ d @ c) 
+                                        | (g @ c = g @ d) | (h @ c @ c = h @ c @ d) | (X1 @ c = X1 @ d))).
+   %-- subsumed with substitution {X1 <- X1 @ c, X2 <- f @ b}
+   thf(a3, axiom, ![X1: a > a > a, X2:a, X3: a > a]: ( (X1 @ c @ c = X1 @ c @ d) | (f @ b @ c @ d = f @ b @ d @ c))).
+   %-- will not be subsumed. no substitution can cover all the things
+   thf(a4, axiom, ![X1: a > a]: ((X1 @ c = X1 @ d) | (f @ c @ c @ d = f @ c @ d @ c) | (g @ c = g @ d) |  (h @ c @ c = h @ c @ d))).
+
+   thf(a5, axiom, ![X1: a > a, X2: a> a> a, X3: a> a> a]: ((X1 @ d != X2 @ c @ d) | (f @ d @ d @ c != g @ c) | (X3 @ d @ d = X3 @ c @ c))).
+   %-- subsumed with substituition {X1 <- f @ c, X2 <- g, X3 <- g}
+   thf(a6, axiom, (f @ c @ d @ d!= h @ c @ d) | (f @ d @ d @ c != g @ c) | (h @ d @ d = h @ c @ c)).
+   %-- no substitution, polarities are wrong
+   thf(a6Prime, axiom, (f @ c @ d @ d = h @ c @ d) | (f @ d @ d @ c = g @ c) | (h @ d @ d != h @ c @ c)).
+   %-- subsumed with substitution {X1 <- X1 @ d, X3 <- d}
+   thf(a7, axiom, ![X1: a > a > a, X2: a> a> a, X3: a> a> a]: ( (X1 @ d @ d != X2 @ c @ d) | (f @ d @ d @ c != g @ c) | (h @ d @ d = h @ c @ c))).
+   
+   ---------------------------------------------------------------------------------------------------------------------------------------------
+
+
+   a1 1   tcf(i_0_8, plain, ![X1:a > a, X2:a > a > a]:($@_var(X1,d)=$@_var(X1,c)|$@_var(X2,d,c)=$@_var(X2,c,d))).
+   a3 2   tcf(i_0_10, plain, ![X1:a > a > a]:($@_var(X1,c,d)=$@_var(X1,c,c)|f(b,d,c)=f(b,c,d))).
+   a4 3   tcf(i_0_11, plain, ![X1:a > a]:($@_var(X1,d)=$@_var(X1,c)|g(d)=g(c)|h(c,d)=h(c,c)|f(c,d,c)=f(c,c,d))).
+   a2 4   tcf(i_0_9, plain, ![X2:a > a, X1:a > a > a > a]:($@_var(X2,d)=$@_var(X2,c)|g(d)=g(c)|h(c,d)=h(c,c)|$@_var(X1,c,d,c)=$@_var(X1,c,c,d)|f(c,d,c)=f(c,c,d))).
+   a6'5   tcf(i_0_14, plain, (f(d,d,c)=g(c)|f(c,d,d)=h(c,d)|h(d,d)!=h(c,c))).
+   a5 6   tcf(i_0_12, plain, ![X3:a > a > a, X2:a > a > a, X1:a > a]:($@_var(X3,d,d)=$@_var(X3,c,c)|$@_var(X1,d)!=$@_var(X2,c,d)|f(d,d,c)!=g(c))).
+   a7 7   tcf(i_0_15, plain, ![X2:a > a > a, X1:a > a > a]:(h(d,d)=h(c,c)|$@_var(X1,d,d)!=$@_var(X2,c,d)|f(d,d,c)!=g(c))).
+   a6 8   tcf(i_0_13, plain, (h(d,d)=h(c,c)|f(d,d,c)!=g(c)|f(c,d,d)!=h(c,d))).
+
+   */
+
+   Clause_p a1  = get_clause_by_nr(p->axioms, 1);
+   Clause_p a2  = get_clause_by_nr(p->axioms, 4);
+   Clause_p a3  = get_clause_by_nr(p->axioms, 2);
+   Clause_p a4  = get_clause_by_nr(p->axioms, 3);
+   Clause_p a5  = get_clause_by_nr(p->axioms, 6);
+   Clause_p a6  = get_clause_by_nr(p->axioms, 8);
+   Clause_p a6P = get_clause_by_nr(p->axioms, 5);
+   Clause_p a7  = get_clause_by_nr(p->axioms, 7);
+
+   const int CLAUSES_NR = 8;
+   Clause_p allClauses[] = {a1, a2, a3, a4, a5, a6, a6P, a7};
+
+   for(int i=0; i<CLAUSES_NR; i++)
+   {
+      fprintf(stderr, "# before subsumption ordering: ");
+      ClausePrint(stderr, allClauses[i], true);
+
+      ClauseSubsumeOrderSortLits(allClauses[i]);
+
+      fprintf(stderr, "\n#after subsumption ordering: ");
+      ClausePrint(stderr, allClauses[i], true);
+      fprintf(stderr, "\n");
+   }
 }
 
 int main(int argc, char* argv[])
