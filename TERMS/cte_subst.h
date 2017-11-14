@@ -94,7 +94,7 @@ PStackPointer SubstAddBinding(Subst_p subst, Term_p var, Term_p bind)
    assert(bind);
    assert(TermIsVar(var));
    assert(!(var->binding));
-   assert(!TermCellQueryProp(bind, TPPredPos));
+   assert(ProblemIsHO == PROBLEM_IS_HO || !TermCellQueryProp(bind, TPPredPos));
    assert(var->type);
    assert(bind->type);
    assert(ProblemIsHO || var->type == bind->type);
