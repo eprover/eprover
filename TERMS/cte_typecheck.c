@@ -45,6 +45,10 @@ Type_p term_determine_type(Term_p term, Type_p type, TypeBank_p bank)
    {
       return type->args[term_arity];
    }
+   else if (type->arity-1 < term_arity)
+   {
+      return NULL;
+   }
    else 
    {
       int start = term_arity;
@@ -266,6 +270,11 @@ void TypeInferSort(Sig_p sig, Term_p term)
             
 
             term->type = term_determine_type(term, type, sig->type_bank);
+            if (term->type==NULL)
+            {
+               fprintf(stderr, "# too many arguments supplied for %s\n", SigFindName(sig, term->f_code));
+               Error("Type error", SYNTAX_ERROR);
+            }
          }
          else
          {
