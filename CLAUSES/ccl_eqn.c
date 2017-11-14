@@ -1441,30 +1441,44 @@ int EqnSubsumeQOrderCompare(const void* lit1, const void* lit2)
    const Eqn_p l1 = (const Eqn_p) lit1;
    const Eqn_p l2 = (const Eqn_p) lit2;
 
+   /*fprintf(stderr, "\n? Comparing ");
+   EqnPrint(stderr, l1, false, true);
+   fprintf(stderr, " and ");
+   EqnPrint(stderr, l2, false, true);*/
+
    res = EqnIsPositive(l1) - EqnIsPositive(l2);
    if(res)
    {
+      //fprintf(stderr, " with result -- polarity %d.\n ", res);
       return res;
    }
    res = EqnIsEquLit(l1) - EqnIsEquLit(l2);
    if(res)
    {
+      //fprintf(stderr, " with result -- equality %d.\n ", res);
       return res;
    }
+   /* This means that both of the sides of the equation are
+      predicates */
    if(!EqnIsEquLit(l1))
+   {
+      res = CMP(l1->lterm->f_code, l2->lterm->f_code);
+   }
+   else if (ProblemIsHO == PROBLEM_IS_HO)
    {
       // if term is applied variable it can match any f code
       if (!TermIsAppliedVar(l1->lterm))
       {
-         res = CMP(l1->lterm->f_code, l2->lterm->f_code);   
+         res = TermIsAppliedVar(l2->lterm) ? 1 : CMP(l1->lterm->f_code, l2->lterm->f_code);   
       }
       else
       {
          // we say that the variable is bigger!
          res = -1;
       }
-      
    }
+
+   //fprintf(stderr, " with result -- f symbol %d.\n ", res);
    return res;
 }
 
